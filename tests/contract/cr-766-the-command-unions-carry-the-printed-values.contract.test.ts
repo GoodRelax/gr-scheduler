@@ -198,6 +198,7 @@ const PRINTED_VALUES = {
     'fillTransparencyPercent:column:CommentBox.fillTransparencyPercent:',
   ],
   setCommentBoxTextColor: ['id:key:CommentBox.id:', 'textColor:column:CommentBox.textColor:'],
+  bringCommentBoxToFront: ['id:key:CommentBox.id:'],
   createHighlightBox: [
     'id:column:HighlightBox.id:',
     'range:own::',
@@ -222,6 +223,7 @@ const PRINTED_VALUES = {
     'id:key:HighlightBox.id:',
     'fillTransparencyPercent:column:HighlightBox.fillTransparencyPercent:',
   ],
+  bringHighlightBoxToFront: ['id:key:HighlightBox.id:'],
   setStackDirection: ['stackDirection:column:stackDirection:'],
   setElementVisible: ['element:own::', 'visible:own::'],
   setFontScale: ['fontScale:column:fontScale:'],
@@ -357,7 +359,7 @@ type ColumnMismatchOf<K, L> = L extends `${infer N}:${infer R}:${infer W}:${infe
 type ColumnMismatch = { [K in keyof Printed]: ColumnMismatchOf<K, Printed[K][number]> }[keyof Printed]
 
 describe('the constant these type checks read is table T-108 as printed', () => {
-  it('it names the 89 commands of the table, in its order', () => {
+  it('it names the 91 commands of the table, in its order', () => {
     expect(Object.keys(PRINTED_VALUES)).toEqual(commands.map((command) => command.name))
   })
 
@@ -366,7 +368,7 @@ describe('the constant these type checks read is table T-108 as printed', () => 
   })
 })
 
-describe('DocumentCommand is the union of the 89 commands of table T-108', () => {
+describe('DocumentCommand is the union of the 91 commands of table T-108', () => {
   it('the kinds are exactly the printed command names', () => {
     expectTypeOf<Kind>().toEqualTypeOf<keyof Printed>()
   })

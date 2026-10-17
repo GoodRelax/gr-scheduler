@@ -2209,6 +2209,25 @@
           },
           {
            "type": "object",
+           "description": "コメントボックスを、コメントボックスの並びの最後（最前面）へ移す",
+           "properties": {
+            "kind": {
+             "const": "bringCommentBoxToFront"
+            },
+            "id": {
+             "type": "string",
+             "format": "uuid",
+             "description": "鍵（`CommentBox.id`、`AT-110`）"
+            }
+           },
+           "required": [
+            "kind",
+            "id"
+           ],
+           "additionalProperties": false
+          },
+          {
+           "type": "object",
            "description": "ハイライトボックスを置く",
            "properties": {
             "kind": {
@@ -2439,6 +2458,25 @@
             "kind",
             "id",
             "fillTransparencyPercent"
+           ],
+           "additionalProperties": false
+          },
+          {
+           "type": "object",
+           "description": "ハイライトボックスを、ハイライトボックスの並びの最後（最前面）へ移す",
+           "properties": {
+            "kind": {
+             "const": "bringHighlightBoxToFront"
+            },
+            "id": {
+             "type": "string",
+             "format": "uuid",
+             "description": "鍵（`HighlightBox.id`、`AT-116`）"
+            }
+           },
+           "required": [
+            "kind",
+            "id"
            ],
            "additionalProperties": false
           },

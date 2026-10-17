@@ -1111,6 +1111,7 @@ const propertiesPanelEntries = (panel: ScreenView['propertiesPanel']): readonly 
         ...panel.commands,
         ...(panel.headEntry === undefined ? [] : [panel.headEntry]),
         ...panel.fields.flatMap((field) => field.controls.flatMap((control) => control.assignee?.sortEntries ?? [])),
+        ...panel.fields.flatMap((field) => field.controls.flatMap((control) => control.assignee?.checkEntries ?? [])),
         ...panel.fields.flatMap((field) => field.controls.flatMap((control) => wordEntranceOf(field.row, control.press))),
       ]
 
@@ -1520,8 +1521,11 @@ for (const entry of GENERATED['surfaces'] ?? []) {
  * ⚠️ Read by ROW and never by position: FR-006's order is a MUST of its own and
  * uf-64 is where that is held, so a reordering must not make this file fall too.
  */
-const propertyFieldName = (view: ScreenView, rowId: string): string | undefined =>
-  view.propertiesPanel?.fields.find((field) => field.row === rowId)?.name
+const propertyFieldName = (view: ScreenView, rowId: string): string | undefined => {
+  const field = view.propertiesPanel?.fields.find((one) => one.row === rowId)
+  // WHY: a command row (PR-48, PR-49) has no name cell; its word is the one button it draws (CR-786).
+  return field?.name === '' ? field.controls[0]?.press : field?.name
+}
 
 /**
  * Table T-016's own 対象 column (CR-325, 2026-09-02) and the column it names.
@@ -1894,8 +1898,22 @@ const numberedFieldName = (view: ScreenView, rowId: string): string | undefined 
   return name?.endsWith(FIRST_ROW_NUMBER) === true ? name.slice(0, -FIRST_ROW_NUMBER.length) : name
 }
 
+// see T-380, RN-3, CR-787, JDG-2469
+// WHY: the left and top edges are stored as two keys each but read as one row each, named by
+// readOnlySettings viewLeftEdge / viewTopEdge -- so the settings face prints no name of these four rows.
+const ROWS_JOINED_ON_THE_SETTINGS_FACE: ReadonlySet<string> = new Set(['K-69', 'K-121', 'K-70', 'K-120'])
+
 for (const entry of GENERATED['settings'] ?? []) {
   const rowId = keyOf('settings', entry)
+  if (ROWS_JOINED_ON_THE_SETTINGS_FACE.has(rowId)) {
+    drop(
+      'settings',
+      rowId,
+      'T-380 RN-3 (CR-787) joins this key with its partner into one read-only row named by ' +
+        'readOnlySettings viewLeftEdge / viewTopEdge, so no field of the settings face carries this name',
+    )
+    continue
+  }
   if (!ROWS_ON_THE_SETTINGS_FACE.has(rowId)) {
     drop(
       'settings',
@@ -2601,9 +2619,18 @@ for (const entry of GENERATED['themeHues'] ?? []) {
 }
 
 // see FR-156, T-376, FO-14, FO-15
-// WHY: CR-755 -- a zone's place is printed only inside the name zoneName builds, never alone.
-for (const entry of GENERATED['timeZones'] ?? []) {
-  drop('timeZones', keyOf('timeZones', entry), 'printed only inside the name timeZoneField.zoneName builds (FR-156), never alone')
+// WHY: CR-787 -- a zone's place is line 2 of its two-line name; display row 1 offers none and then every row.
+const ZONE_ROWS_IN_ORDER: readonly string[] = (GENERATED['timeZones'] ?? []).map((entry) => keyOf('timeZones', entry))
+for (const rowId of ZONE_ROWS_IN_ORDER) {
+  place({
+    section: 'timeZones',
+    key: rowId,
+    field: 'label',
+    unit: 'UF-64',
+    what: `line 2 of the two-line name of ${rowId} in display time zone row 1 of the settings face (FR-156)`,
+    frame: PANEL_STATES['documentSettings'] as Frame,
+    read: (view) => settingsRowOf(view, 'K-145:1')?.controls[0]?.choiceLines?.[ZONE_ROWS_IN_ORDER.indexOf(rowId) + 1]?.[1],
+  })
 }
 
 // see FO-14, FO-15, FO-16, FR-156, FR-157
@@ -2612,7 +2639,7 @@ const TIME_ZONE_FIELD_READS: Readonly<Record<string, (view: ScreenView) => strin
   shiftUnit: (view) => settingsRowOf(view, 'IC-162')?.unit,
 }
 // WHY: CR-755 -- the answers stand only while a draft holds another zone, which no frame here holds.
-// WHY: zoneName and offsetName are shapes with slots; the QN-14 lines are composed when the shell asks.
+// WHY: zoneHead and offsetName are shapes with slots; the QN-14 lines are composed when the shell asks.
 const ONLY_WHILE_DRAFTED = 'FO-14 shows it only while a draft holds a time zone other than the shown base (FR-156); no frame here holds one'
 const TIME_ZONE_FIELD_NOT_ON_A_FRAME: Readonly<Record<string, string>> = {
   baseChangeQuestion: ONLY_WHILE_DRAFTED,
@@ -2623,7 +2650,7 @@ const TIME_ZONE_FIELD_NOT_ON_A_FRAME: Readonly<Record<string, string>> = {
   cancelBaseChange: ONLY_WHILE_DRAFTED,
   beforeLine: ONLY_WHILE_DRAFTED,
   afterLine: ONLY_WHILE_DRAFTED,
-  zoneName: 'a shape with slots (FR-156): every label it builds fills them, so the shape itself is never printed alone',
+  zoneHead: 'a shape with slots (FR-156, CR-787): line 1 of every zone name fills them, so the shape itself is never printed alone',
   offsetName: 'a shape with a slot (FR-017): printed filled, only for a row without an abbreviation (UTC-12:00)',
   shiftAmountLine: 'a QN-14 line: the shell composes it when it raises the question (FR-157), outside these frames',
   shiftTaskCountLine: 'a QN-14 line: the shell composes it when it raises the question (FR-157), outside these frames',
@@ -2704,6 +2731,11 @@ const READ_ONLY_SETTINGS_READS: Readonly<Record<string, (view: ScreenView) => st
   expandedAuto: (view) => settingsRowOf(view, 'K-138')?.text,
   none: (view) => settingsRowOf(view, SEARCH_VIEW_ROW('hiddenTaskUids'))?.text,
   defaultOrder: (view) => settingsRowOf(view, SEARCH_VIEW_ROW('sort'))?.text,
+  // WHY: CR-787 (T-380 RN-3) -- the joined left and top edge rows stand under K-69 / K-70; the frame holds no view place.
+  viewLeftEdge: (view) => settingsRowOf(view, 'K-69')?.name,
+  viewTopEdge: (view) => settingsRowOf(view, 'K-70')?.name,
+  notSet: (view) => settingsRowOf(view, 'K-69')?.text,
+  notSetFromTop: (view) => settingsRowOf(view, 'K-70')?.text,
 }
 // WHY: the frame holds the default settings, so the other value of each pair and the slotted shapes are not printed on it.
 const READ_ONLY_SETTINGS_NOT_ON_A_FRAME =

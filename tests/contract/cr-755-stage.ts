@@ -88,19 +88,20 @@ export function settingWord(rowId: string, language: DisplayLanguage): string {
 }
 
 // see FR-156
-// WHY: FR-156 -- the hour is not padded, the minutes take two digits, zero is plus-minus; ASCII signs as its examples.
+// WHY: FR-156 (CR-787) -- hours and minutes both take two digits, zero is the plus-minus sign and 00:00.
 export function nameOffsetOf(minutes: number): string {
   const sign = minutes === 0 ? '±' : minutes < 0 ? '-' : '+'
   const size = Math.abs(minutes)
-  return `${sign}${Math.floor(size / 60)}:${String(size % 60).padStart(2, '0')}`
+  return `${sign}${String(Math.floor(size / 60)).padStart(2, '0')}:${String(size % 60).padStart(2, '0')}`
 }
 
 // see FR-156, T-376
-// WHY: zoneName joins offset, abbreviation and place; a row with no abbreviation closes up that part (FR-156).
-export function expectedNameOf(row: ZoneRow, language: DisplayLanguage): string {
-  const shape = timeZoneWord('zoneName', language)
-  const joined = row.abbreviation === null ? shape.replace(' {abbreviation}', '') : shape.replace('{abbreviation}', row.abbreviation)
-  return joined.replace('{offset}', nameOffsetOf(row.offsetMinutes)).replace('{place}', placeOf(row.id, language))
+// WHY: FR-156 (CR-787) -- two lines: zoneHead fills offset and abbreviation (a row with no abbreviation
+// closes up that part), and the dictionary place stands alone on line 2.
+export function expectedLinesOf(row: ZoneRow, language: DisplayLanguage): readonly [string, string] {
+  const shape = timeZoneWord('zoneHead', language)
+  const head = row.abbreviation === null ? shape.replace(' {abbreviation}', '') : shape.replace('{abbreviation}', row.abbreviation)
+  return [head.replace('{offset}', nameOffsetOf(row.offsetMinutes)), placeOf(row.id, language)]
 }
 
 // see FR-017, FR-156

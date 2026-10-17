@@ -1,4 +1,4 @@
-// ScheduleLayout -- the assignee label: the first work resource by name, and how many more (FR-059).
+// ScheduleLayout -- the assignee label: the primary work resource, and a mark when there are more (FR-059).
 // @unit      UF-134  (docs/spec/05-07-design.md, table T-075)
 // @component ScheduleLayout, layer layoutEngine (table T-062)
 // @purity    pure
@@ -7,7 +7,8 @@ import type { Schedule } from '../../document-model/schedule/schedule'
 
 const WORK_RESOURCE = 1
 
-const MORE_ASSIGNEES_MARK = '+'
+// see FR-059
+export const MORE_ASSIGNEES_MARK = ', …'
 
 interface LabeledAssignee {
   readonly name: string
@@ -25,23 +26,16 @@ function labeledAssigneeOf(resource: Schedule['resources'][number] | undefined):
   return name === '' ? null : { name, uid: resource.uid }
 }
 
-// see FR-059
-// WHY: not localeCompare: a host-dependent collation shows another first name elsewhere.
-/** @purity pure */
-function compareLabeled(a: LabeledAssignee, b: LabeledAssignee): number {
-  return a.name < b.name ? -1 : a.name > b.name ? 1 : a.uid - b.uid
-}
-
-// see FR-059, AS-1
+// see FR-059, AS-1, AS-13
+// WHY: the task's assignments in document order; the first one the label may show is the primary.
 /** @purity pure */
 export function labeledAssigneeUidOf(schedule: Schedule, taskUid: number): number | null {
-  const onTask = new Set(schedule.assignments.filter((one) => one.taskUid === taskUid).map((one) => one.resourceUid))
-  let first: LabeledAssignee | null = null
-  for (const resource of schedule.resources) {
-    const one = onTask.has(resource.uid) ? labeledAssigneeOf(resource) : null
-    if (one !== null && (first === null || compareLabeled(one, first) < 0)) first = one
+  for (const assignment of schedule.assignments) {
+    if (assignment.taskUid !== taskUid || assignment.resourceUid === null) continue
+    const one = labeledAssigneeOf(schedule.resources.find((resource) => resource.uid === assignment.resourceUid))
+    if (one !== null) return one.uid
   }
-  return first === null ? null : first.uid
+  return null
 }
 
 // see FR-059
@@ -63,14 +57,9 @@ export function assigneeLabelsOf(schedule: Schedule): ReadonlyMap<number, string
 
   const labels = new Map<number, string>()
   for (const [taskUid, held] of onTask) {
-    held.sort(compareLabeled)
     const first = held[0]!
-    labels.set(
-      taskUid,
-      held.length === 1
-        ? first.name
-        : `${first.name} ${MORE_ASSIGNEES_MARK}${held.length - 1}`,
-    )
+    const others = held.filter((one) => one.uid !== first.uid)
+    labels.set(taskUid, others.length === 0 ? first.name : `${first.name}${MORE_ASSIGNEES_MARK}`)
   }
   return labels
 }

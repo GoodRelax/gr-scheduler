@@ -6,7 +6,7 @@
 import type { Document } from '../../entity/document-model/document/document'
 import type { DocumentSettings } from '../../entity/document-model/document-settings/document-settings'
 import type { Schedule } from '../../entity/document-model/schedule/schedule'
-import { dayFromSerial, dayOf, serial, textOfDayStart } from '../../entity/document-model/schedule/schedule'
+import { commentBoxShownDateOf, dayFromSerial, dayOf, serial, textOfDayStart } from '../../entity/document-model/schedule/schedule'
 import {
   dateAtX,
   landedShapeBoxOf,
@@ -79,7 +79,7 @@ function placeOf(schedule: Schedule, target: SearchJumpTarget): JumpPlace | null
   }
   const box = schedule.commentBoxes.find((one) => one.id === target.commentBoxId)
   if (box === undefined) return null
-  return { taskGroupId: heldTaskGroup(box.anchorTaskGroupId), date: box.anchorDate }
+  return { taskGroupId: heldTaskGroup(box.anchorTaskGroupId), date: commentBoxShownDateOf(schedule, box) }
 }
 
 // see SJ-2, T-328

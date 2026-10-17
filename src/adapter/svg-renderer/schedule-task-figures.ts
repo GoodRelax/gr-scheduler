@@ -279,6 +279,22 @@ function flameSvg(marker: MarkerGeometry, ink: string, named: string): string {
   )
 }
 
+// see PM-1, FR-013, S-341, S-601
+// WHY: PM-3's bar, with two head strokes from its right end that run back at 45 degrees.
+/** @purity pure */
+function arrowSvg(marker: MarkerGeometry, ink: string, settings: MarkerStroke, named: string): string {
+  const { center, radius } = marker
+  const half = radius * NOT_STORED_DELAY_MARK_SIZES['S-341']
+  const head = half * NOT_STORED_DELAY_MARK_SIZES['S-601']
+  const tip = center.x + half
+  return (
+    `<path d="M ${rounded(center.x - half)} ${rounded(center.y)} H ${rounded(tip)}` +
+    ` M ${rounded(tip - head)} ${rounded(center.y - head)} L ${rounded(tip)} ${rounded(center.y)}` +
+    ` L ${rounded(tip - head)} ${rounded(center.y + head)}" fill="none"` +
+    ` stroke="${ink}" stroke-width="${rounded(settings.markerStroke * NOT_STORED_DELAY_MARK_SIZES['S-328'])}"${named}/>`
+  )
+}
+
 // see ZO-3, T-021, T-315, FR-013
 /** @purity pure */
 function markSymbolSvg(marker: MarkerGeometry, ink: string, settings: MarkerStroke, named: string): string {
@@ -287,7 +303,7 @@ function markSymbolSvg(marker: MarkerGeometry, ink: string, settings: MarkerStro
   const r = radius * NOT_STORED_DELAY_MARK_SIZES['S-341']
   switch (marker.symbol) {
     case 'PM-1':
-      return ''
+      return arrowSvg(marker, ink, settings, named)
     case 'PM-1a':
       return `<circle cx="${rounded(center.x)}" cy="${rounded(center.y)}" r="${rounded(radius * 0.18)}" fill="${ink}"${named}/>`
     case 'PM-2':

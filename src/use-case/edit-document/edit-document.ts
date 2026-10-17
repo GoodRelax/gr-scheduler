@@ -206,6 +206,7 @@ const COMMAND_KINDS_BY_UNION = {
     'setCommentBoxFillColor',
     'setCommentBoxFillTransparencyPercent',
     'setCommentBoxTextColor',
+    'bringCommentBoxToFront',
     'createHighlightBox',
     'deleteHighlightBox',
     'setHighlightBoxRange',
@@ -213,6 +214,7 @@ const COMMAND_KINDS_BY_UNION = {
     'setHighlightBoxStrokeWidthPx',
     'setHighlightBoxFillColor',
     'setHighlightBoxFillTransparencyPercent',
+    'bringHighlightBoxToFront',
   ],
   ResourceCommand: [
     'createResource',

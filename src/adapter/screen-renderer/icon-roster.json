@@ -1056,7 +1056,7 @@
     "Properties Panel"
    ],
    "group": null,
-   "entryTo": "その列で昇順に並べる。<br>プロパティパネルでは、担当の欄の候補を名の昇順に並べる（`FR-008` の 表 T-225 の `AS-5`）",
+   "entryTo": "その列で昇順に並べる。<br>プロパティパネルでは、担当の欄の一覧を名の昇順に並べる（`FR-008` の 表 T-225 の `AS-5`）",
    "authority": "`FR-151` ・ `FR-008`",
    "arms": null,
    "armsShape": null
@@ -1070,7 +1070,7 @@
     "Properties Panel"
    ],
    "group": null,
-   "entryTo": "その列で降順に並べる。<br>プロパティパネルでは、担当の欄の候補を名の降順に並べる（`FR-008` の 表 T-225 の `AS-5`）",
+   "entryTo": "その列で降順に並べる。<br>プロパティパネルでは、担当の欄の一覧を名の降順に並べる（`FR-008` の 表 T-225 の `AS-5`）",
    "authority": "`FR-151` ・ `FR-008`",
    "arms": null,
    "armsShape": null
@@ -1080,11 +1080,12 @@
    "surfaces": [
     "Search Panel",
     "Delay Diagnostics Report",
-    "Resource List"
+    "Resource List",
+    "Properties Panel"
    ],
    "group": null,
-   "entryTo": "一覧に出ているすべての値にチェックを付ける",
-   "authority": "`FR-151`",
+   "entryTo": "一覧に出ているすべての値にチェックを付ける<br>プロパティパネルでは、担当の欄の一覧に出ている、就いていない担当をすべて就ける（`FR-008` の 表 T-225 の `AS-5`）",
+   "authority": "`FR-151` ・ `FR-008`",
    "arms": null,
    "armsShape": null
   },
@@ -1093,11 +1094,12 @@
    "surfaces": [
     "Search Panel",
     "Delay Diagnostics Report",
-    "Resource List"
+    "Resource List",
+    "Properties Panel"
    ],
    "group": null,
-   "entryTo": "一覧に出ているすべての値のチェックを外す",
-   "authority": "`FR-151`",
+   "entryTo": "一覧に出ているすべての値のチェックを外す<br>プロパティパネルでは、担当の欄の一覧に出ている、就いている担当をすべて外す（`FR-008` の 表 T-225 の `AS-5`）",
+   "authority": "`FR-151` ・ `FR-008`",
    "arms": null,
    "armsShape": null
   },

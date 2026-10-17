@@ -54,7 +54,7 @@ import {
 import {
   clockTextOf,
   labelUnits,
-  labeledAssigneeUidOf,
+  MORE_ASSIGNEES_MARK,
   lengthTextOf,
   planDateText,
   type TaskGroupPlacement,
@@ -81,7 +81,7 @@ import type {
   PropertyLink,
   ScreenViewReadings,
 } from './screen-renderer'
-import { DISPLAY_TIME_ZONE_SLOT_SEPARATOR, FIT_SPAN_COPY_TEXT, displayLanguageOf } from './screen-renderer'
+import { ASSIGNEE_LIST_SEPARATOR, DISPLAY_TIME_ZONE_SLOT_SEPARATOR, FIT_SPAN_COPY_TEXT, displayLanguageOf } from './screen-renderer'
 import { dateText } from './table-window'
 import dependencyKinds from './dependency-kinds.json'
 import { iconHint, iconLabel } from './tooltips'
@@ -89,7 +89,7 @@ import {
   shiftAmountText,
   timeZoneAbbreviationOf,
   timeZoneFieldWord,
-  timeZoneLabelOf,
+  timeZoneLinesOf,
   wholeScheduleShiftFieldWord,
 } from './notices'
 import displayWords from './display-words.json'
@@ -173,10 +173,14 @@ function partNamed(entries: readonly { readonly part: string }[], part: string, 
 // see AS-5, IC-123, IC-124, IC-139
 const ASCENDING_ENTRY: IconId = 'IC-123'
 const DESCENDING_ENTRY: IconId = 'IC-124'
+const CHECK_ALL_ENTRY: IconId = 'IC-125'
+const UNCHECK_ALL_ENTRY: IconId = 'IC-126'
 const GRS_RESET_ENTRY: IconId = 'IC-139'
 const TIME_SHIFT_ENTRY: IconId = 'IC-162'
 // WHY: these sit inside a field of the panel, not on its way-out line beside IC-52.
-const IN_FIELD_ENTRIES: readonly IconId[] = [ASCENDING_ENTRY, DESCENDING_ENTRY, GRS_RESET_ENTRY, TIME_SHIFT_ENTRY]
+const IN_FIELD_ENTRIES: readonly IconId[] = [
+  ASCENDING_ENTRY, DESCENDING_ENTRY, CHECK_ALL_ENTRY, UNCHECK_ALL_ENTRY, GRS_RESET_ENTRY, TIME_SHIFT_ENTRY,
+]
 
 /** @purity pure */
 function commandItemOf(icon: IconId, language: DisplayLanguage): CommandItem {
@@ -417,8 +421,9 @@ function compareAssignees(a: Assignee, b: Assignee): number {
   return a.name < b.name ? -1 : 1
 }
 
-// see AS-6
+// see AS-6, AS-13
 // WHY: no FR-059 work-resource filter: this surface edits assignments, and a hidden resource could not be removed.
+// In document order: the first is the primary (AS-13).
 /** @purity pure */
 function assigneesOf(schedule: Schedule, taskUid: number): readonly Assignee[] {
   const assignees: Assignee[] = []
@@ -429,8 +434,6 @@ function assigneesOf(schedule: Schedule, taskUid: number): readonly Assignee[] {
     if (resource === undefined || resource.name === null) continue
     assignees.push({ name: resource.name, uid: resource.uid })
   }
-
-  assignees.sort(compareAssignees)
   return assignees
 }
 
@@ -598,7 +601,7 @@ export function widthOf(text: string, choices: readonly string[] | null, labelCo
 // see AS-5, AS-6
 // WHY: the uid is added to a name only where two people share it (AS-6).
 /** @purity pure */
-function assigneeComboOf(schedule: Schedule, language: DisplayLanguage): AssigneeCombo {
+function assigneeComboOf(schedule: Schedule, language: DisplayLanguage): Omit<AssigneeCombo, 'seated' | 'fieldWord'> {
   const people = assigneeChoices(schedule)
   const shared = (name: string): boolean => people.filter((one) => one.name === name).length > 1
   const held = {
@@ -608,6 +611,7 @@ function assigneeComboOf(schedule: Schedule, language: DisplayLanguage): Assigne
     })),
     addWord: PROPERTY_FIELD_WORDS.get('addResource')?.[language] ?? '',
     sortEntries: [commandItemOf(ASCENDING_ENTRY, language), commandItemOf(DESCENDING_ENTRY, language)],
+    checkEntries: [commandItemOf(CHECK_ALL_ENTRY, language), commandItemOf(UNCHECK_ALL_ENTRY, language)],
   }
   // WHY: carried with the roster, so the drawing side narrows it without a second reading of SV-4.
   return { ...held, candidatesOf: (typed, isDescending) => assigneeCandidatesOf(held, typed, isDescending) }
@@ -617,7 +621,7 @@ function assigneeComboOf(schedule: Schedule, language: DisplayLanguage): Assigne
 // WHY: an empty text adds no one: the add item names the person it makes (AS-7).
 /** @purity pure */
 export function assigneeCandidatesOf(
-  combo: Omit<AssigneeCombo, 'candidatesOf'>,
+  combo: Pick<AssigneeCombo, 'people' | 'addWord'>,
   typed: string,
   isDescending: boolean,
 ): readonly AssigneeCandidate[] {
@@ -634,7 +638,8 @@ export function assigneeCandidatesOf(
 // see AS-3
 const UNASSIGN_TEXT = '-'
 
-// see PR-16, AS-1, AS-5, AS-9
+// see PR-16, AS-1, AS-5, AS-13
+// WHY: one field: the people seated in document order, the primary's word and the mark when more sit (FR-059).
 /** @purity pure */
 function assigneeControls(
   schedule: Schedule,
@@ -642,27 +647,24 @@ function assigneeControls(
   language: DisplayLanguage,
 ): readonly PropertyControl[] {
   const people = assigneeChoices(schedule)
-  const names = people.map((person) => person.name)
   const seated = [...new Set(assigneesOf(schedule, taskUid).map((person) => person.uid))]
-  const labeled = labeledAssigneeUidOf(schedule, taskUid)
-  const focused = labeled !== null && seated.includes(labeled) ? labeled : null
-  const assignee = assigneeComboOf(schedule, language)
-  return [...seated, null].map((resourceUid): PropertyControl => {
-    const text = resourceUid === null ? '' : String(resourceUid)
-    return {
-      key: { holder: 'assignment', taskUid, resourceUid, column: 'resourceUid' },
-      kind: 'choice',
-      text,
-      choices: names,
-      choiceValues: people.map((person) => String(person.uid)),
-      assignee,
-      min: null,
-      max: null,
-      widthInFontSizes: NO_ROOM_FLOOR,
-      ...(resourceUid === focused ? { isFocusTarget: true } : {}),
-    }
-  })
+  const combo = assigneeComboOf(schedule, language)
+  const primary = combo.people.find((one) => one.uid === seated[0])?.word ?? ''
+  const fieldWord = seated.length > 1 ? `${primary}${MORE_ASSIGNEES_MARK}` : primary
+  return [{
+    key: { holder: 'assignment', taskUid, resourceUid: null, column: 'resourceUid' },
+    kind: 'choice',
+    text: seated.join(ASSIGNEE_LIST_SEPARATOR),
+    choices: people.map((person) => person.name),
+    choiceValues: people.map((person) => String(person.uid)),
+    assignee: { ...combo, seated, fieldWord },
+    min: null,
+    max: null,
+    widthInFontSizes: NO_ROOM_FLOOR,
+    isFocusTarget: true,
+  }]
 }
+
 
 // see T-016, PR-35, PR-36
 // WHY: a oneInput row draws one input, for its first column; the commit writes the others (field-commit.ts).
@@ -1065,17 +1067,40 @@ function objectFields<Held>(
   language: DisplayLanguage,
 ): readonly PropertyField[] {
   const { items, held, keyOf, entity } = rows
-  return items.map((item) => ({
-    row: rows.rowOf?.(item) ?? item.row,
-    name: itemName(item.row, language),
-    text: item.columns.map((column) => textOfValue(held[column])).join(PART_SEPARATOR),
-    isEditable: !READ_ONLY_ROWS.includes(item.row),
-    controls: READ_ONLY_ROWS.includes(item.row)
-      ? []
-      : item.columns.map((column) =>
-          controlOf(keyOf(column), entity, column, textOfValue(held[column]), labelCoef),
-        ),
-  }))
+  return items.map((item) => {
+    const [first] = item.columns
+    if (first !== undefined && first === COMMAND_COLUMN) return commandField(item.row, keyOf(first), entity, labelCoef, language)
+    return {
+      row: rows.rowOf?.(item) ?? item.row,
+      name: itemName(item.row, language),
+      text: item.columns.map((column) => textOfValue(held[column])).join(PART_SEPARATOR),
+      isEditable: !READ_ONLY_ROWS.includes(item.row),
+      controls: READ_ONLY_ROWS.includes(item.row)
+        ? []
+        : item.columns.map((column) => controlOf(keyOf(column), entity, column, textOfValue(held[column]), labelCoef)),
+    }
+  })
+}
+
+// see T-016, PR-48, PR-49, CM-100, CM-101
+// WHY: a command row edits no column; its one column is the box's key, and pressing its word commits that key,
+// which the translator reads as the row's command (the box to the front, FR-019).
+const COMMAND_COLUMN = 'id'
+
+// WHY: never the empty text, so a press is never read as leaving the field as it was.
+const COMMAND_PRESS_TEXT = 'bringToFront'
+
+/** @purity pure */
+function commandField(
+  row: string,
+  key: PropertyFieldKey,
+  entity: ShapedEntity,
+  labelCoef: number,
+  language: DisplayLanguage,
+): PropertyField {
+  const word = itemName(row, language)
+  const control = controlOf(key, entity, COMMAND_COLUMN, COMMAND_PRESS_TEXT, labelCoef)
+  return { row, name: '', text: '', isEditable: true, controls: [{ ...control, press: word, widthInFontSizes: widthOf(word, null, labelCoef) }] }
 }
 
 type TaskGroup = Schedule['taskGroups'][number]
@@ -1481,8 +1506,25 @@ const DISPLAY_TIME_ZONE_ROW_SEPARATOR = ':'
 
 // see FO-14, FO-15, T-376
 /** @purity pure */
-function timeZoneChoiceLabels(keys: readonly string[], language: DisplayLanguage): readonly string[] {
-  return keys.map((key) => timeZoneLabelOf(key, language))
+function timeZoneChoiceLines(keys: readonly string[], language: DisplayLanguage): readonly (readonly [string, string])[] {
+  return keys.map((key) => timeZoneLinesOf(key, language))
+}
+
+// see FO-14, FO-15, FR-006, S-171, JDG-2541
+// WHY: the room is the widest first line; a place too long for the field wraps inside it (JDG-2541), so the
+// longest English place does not set the panel's width. The one-line name joins them for a reader of `choices`.
+/** @purity pure */
+function twoLineChoice(lines: readonly (readonly [string, string])[], leading: readonly string[]): {
+  readonly choices: readonly string[]
+  readonly choiceLines: readonly (readonly [string, string])[]
+  readonly widthInFontSizes: number
+} {
+  const choiceLines = [...leading.map((word): readonly [string, string] => [word, '']), ...lines]
+  return {
+    choices: choiceLines.map(([head, place]) => (place === '' ? head : `${head} ${place}`)),
+    choiceLines,
+    widthInFontSizes: widthOf('', choiceLines.map(([head]) => head), SETTINGS_CONSTANTS.labelCoef),
+  }
 }
 
 // see FO-14, FR-156, T-280
@@ -1574,10 +1616,11 @@ function baseTimeZoneField(
   const column = VIEW_TIME_ZONE_KEY.column
   const shownBase = viewRegionOf(schedule.project.scheduleDataTimeZone, settings.viewTimeZone)
   const drafted = draftedBaseOf(screen)
-  const labels = timeZoneChoiceLabels(STANDARD_TIME_ZONE_KEYS, language)
+  const listed = twoLineChoice(timeZoneChoiceLines(STANDARD_TIME_ZONE_KEYS, language), [])
   const chooser = {
-    ...settingsControl(CHOSEN_REGION_KEY, 'choice', drafted ?? shownBase, widthOf('', labels, SETTINGS_CONSTANTS.labelCoef)),
-    choices: labels,
+    ...settingsControl(CHOSEN_REGION_KEY, 'choice', drafted ?? shownBase, listed.widthInFontSizes),
+    choices: listed.choices,
+    choiceLines: listed.choiceLines,
     choiceValues: STANDARD_TIME_ZONE_KEYS,
   }
   return {
@@ -1593,9 +1636,7 @@ function baseTimeZoneField(
 /** @purity pure */
 function displayTimeZonesFields(settings: DocumentSettings, language: DisplayLanguage): readonly PropertyField[] {
   const column = DISPLAY_TIME_ZONES_KEY.column
-  const none = timeZoneFieldWord('none', language)
-  const labels = timeZoneChoiceLabels(TIME_ZONE_KEYS, language)
-  const width = widthOf(none, labels, SETTINGS_CONSTANTS.labelCoef)
+  const listed = twoLineChoice(timeZoneChoiceLines(TIME_ZONE_KEYS, language), [timeZoneFieldWord('none', language)])
   const row = settingsWordOf(column)?.rowId ?? column
   const named = settingsNamed(column, language)
   return DISPLAY_TIME_ZONE_SLOTS.map((slot) => {
@@ -1609,8 +1650,9 @@ function displayTimeZonesFields(settings: DocumentSettings, language: DisplayLan
       text: settings.displayTimeZones[slot] ?? '',
       isEditable: true,
       controls: [{
-        ...settingsControl(DISPLAY_TIME_ZONES_KEY, 'choice', of(settings.displayTimeZones[slot] ?? ''), width),
-        choices: [none, ...labels],
+        ...settingsControl(DISPLAY_TIME_ZONES_KEY, 'choice', of(settings.displayTimeZones[slot] ?? ''), listed.widthInFontSizes),
+        choices: listed.choices,
+        choiceLines: listed.choiceLines,
         choiceValues: [of(''), ...TIME_ZONE_KEYS.map(of)],
       }],
     }
@@ -1725,10 +1767,8 @@ type ReadOnlyShape =
   | 'filter'
   | 'hiddenFlag'
   | 'percent'
-  | 'date'
-  | 'dayOffset'
-  | 'taskGroup'
-  | 'groupOffset'
+  | 'leftEdge'
+  | 'topEdge'
   | 'count'
   | 'columns'
   | 'treeState'
@@ -1783,10 +1823,9 @@ const READ_ONLY_GROUPS: readonly ReadOnlyGroupRows[] = [
     group: 'groupView',
     rows: [
       ...['zoomX', 'zoomY'].map(shaped('percent')),
-      { key: 'scrollDate', shape: 'date' },
-      { key: 'scrollDayOffset', shape: 'dayOffset' },
-      { key: 'scrollTaskGroupId', shape: 'taskGroup' },
-      { key: 'scrollGroupOffset', shape: 'groupOffset' },
+      // WHY: one row each, the date with its place in the day and the task group with its place in it (JDG-2469).
+      { key: 'scrollDate', shape: 'leftEdge', namePart: 'viewLeftEdge' },
+      { key: 'scrollTaskGroupId', shape: 'topEdge', namePart: 'viewTopEdge' },
       { key: 'pinnedTaskGroupIds', shape: 'count' },
       { key: 'levelZeroTreeState', shape: 'treeState' },
     ],
@@ -1809,9 +1848,9 @@ const READ_ONLY_GROUPS: readonly ReadOnlyGroupRows[] = [
 
 const PERCENT_SCALE = 100
 
-const TIME_SLOT = '{time}'
-
 const PERCENT_SLOT = '{percent}'
+
+const NAME_OF_GROUP_SLOT = '{name}'
 
 const COLUMN_SLOT = '{column}'
 
@@ -1847,7 +1886,24 @@ function sortText(value: unknown, language: DisplayLanguage): string {
   return readOnlyWord(sort.direction === 'descending' ? 'sortDescending' : 'sortAscending', language).replace(COLUMN_SLOT, column)
 }
 
-type ReadOnlyFormat = (value: unknown, schedule: Schedule, language: DisplayLanguage) => string
+type ReadOnlyFormat = (value: unknown, schedule: Schedule, language: DisplayLanguage, settings: DocumentSettings) => string
+
+// see RN-3, JDG-2469
+/** @purity pure */
+function leftEdgeText(settings: DocumentSettings, language: DisplayLanguage): string {
+  const day = dateText(settings.scrollDate)
+  return day === '' ? readOnlyWord('notSet', language) : `${day} ${clockOfDay(settings.scrollDayOffset)}`
+}
+
+// see RN-3, JDG-2469
+/** @purity pure */
+function topEdgeText(settings: DocumentSettings, schedule: Schedule, language: DisplayLanguage): string {
+  const group = schedule.taskGroups.find((one) => one.id === settings.scrollTaskGroupId)
+  if (group === undefined) return readOnlyWord('notSetFromTop', language)
+  return readOnlyWord('groupFromTop', language)
+    .replace(NAME_OF_GROUP_SLOT, () => group.name ?? '')
+    .replace(PERCENT_SLOT, percentText(settings.scrollGroupOffset, language))
+}
 
 /** @purity pure */
 function either(onTrue: string, onFalse: string): ReadOnlyFormat {
@@ -1868,14 +1924,11 @@ const READ_ONLY_FORMATS: Readonly<Record<ReadOnlyShape, ReadOnlyFormat>> = {
   filter: either('filterOn', 'filterOff'),
   hiddenFlag: either('hidden', 'shown'),
   percent: (value, _schedule, language) => percentText(Number(value), language),
-  date: (value, _schedule, language) => dateText(typeof value === 'string' ? value : null) || readOnlyWord('notSet', language),
-  dayOffset: (value, _schedule, language) =>
-    readOnlyWord('dayOffset', language).replace(TIME_SLOT, clockOfDay(Number(value))).replace(PERCENT_SLOT, percentText(Number(value), language)),
-  taskGroup: (value, schedule, language) =>
-    schedule.taskGroups.find((group) => group.id === value)?.name ?? readOnlyWord('notSetFromTop', language),
-  groupOffset: (value, _schedule, language) => (value === 0 ? readOnlyWord('topZero', language) : percentText(Number(value), language)),
+  leftEdge: (_value, _schedule, language, settings) => leftEdgeText(settings, language),
+  topEdge: (_value, schedule, language, settings) => topEdgeText(settings, schedule, language),
   count: countOrNone('itemCount'),
-  columns: (value, schedule, language) => countOrNone(lengthOf(value) === 1 ? 'columnCountOne' : 'columnCount')(value, schedule, language),
+  columns: (value, schedule, language, settings) =>
+    countOrNone(lengthOf(value) === 1 ? 'columnCountOne' : 'columnCount')(value, schedule, language, settings),
   treeState: (value, _schedule, language) => readOnlyWord(value === 'collapsed' ? 'collapsed' : 'expandedAuto', language),
   pixels: (value, _schedule, language) => counted('pixels', Number(value), language),
   stack: (value, _schedule, language) => readOnlyWord(value === 'down' ? 'stackDown' : 'stackUp', language),
@@ -1890,8 +1943,8 @@ function readOnlySettingsFields(settings: DocumentSettings, schedule: Schedule, 
     const readOnlyGroup: PropertyFieldGroup = { key: group.group, name: readOnlyWord(group.group, language), ...section }
     return group.rows.map((row) => ({
       row: settingsWordOf(row.key)?.rowId ?? row.key,
-      ...(row.namePart === undefined ? settingsNamed(row.key, language) : { name: readOnlyWord(row.namePart, language) }),
-      text: READ_ONLY_FORMATS[row.shape](valueAt(settings, row.key), schedule, language),
+      ...(row.namePart === undefined ? settingsNamed(row.key, language) : partNamed(displayWords.readOnlySettings, row.namePart, language)),
+      text: READ_ONLY_FORMATS[row.shape](valueAt(settings, row.key), schedule, language, settings),
       isEditable: false,
       controls: [],
       readOnlyGroup,
@@ -2119,6 +2172,47 @@ function withFieldWords(fields: readonly PropertyField[], language: DisplayLangu
   })
 }
 
+type PanelSubject = Extract<ScreenSession['screen']['propertiesPanelContentState'], { kind: 'selectionDisplayed' }>['subject']
+
+// see FR-072, U-25
+// WHY: a held subject naming task groups alone was a task group pick (FR-072), so the items still selected stay off the panel.
+/** @purity pure */
+function panelSubjectOf(held: PanelSubject, selection: Selection, selectedTaskGroupIds: readonly string[]): PanelSubject {
+  if (selection.items.length === 0 && selectedTaskGroupIds.length === 0) return held
+  const isTaskGroupPick = held.selection.items.length === 0 && held.taskGroupIds.length > 0
+  return { selection: isTaskGroupPick ? held.selection : selection, taskGroupIds: selectedTaskGroupIds }
+}
+
+// see FR-052, S-171, S-602, S-603, S-604, S-605, S-606, JDG-2466
+export type PanelFace = 'documentSettings' | 'task' | 'taskGroup' | 'commentBox' | 'highlightBox' | 'dependency'
+
+const FACE_OF_ITEM: Readonly<Record<Selection['items'][number]['kind'], PanelFace | null>> = {
+  task: 'task',
+  dependency: 'dependency',
+  highlightBox: 'highlightBox',
+  commentBox: 'commentBox',
+  statusLine: null,
+  parentTaskLink: null,
+}
+
+const PANEL_FACE_ORDER: readonly PanelFace[] = ['task', 'taskGroup', 'commentBox', 'highlightBox', 'dependency']
+
+// see FR-052, JDG-2466
+// WHY: the kinds of content the panel shows, each once, in table T-016's order; none while it is hidden.
+/** @purity pure */
+export function panelFacesOf(
+  content: ScreenSession['screen']['propertiesPanelContentState'],
+  selection: Selection,
+  selectedTaskGroupIds: readonly string[],
+): readonly PanelFace[] {
+  if (content.kind === 'hidden') return []
+  if (content.kind === 'documentSettingsDisplayed') return ['documentSettings']
+  const subject = panelSubjectOf(content.subject, selection, selectedTaskGroupIds)
+  const shown = new Set<PanelFace>(subject.selection.items.flatMap((item) => FACE_OF_ITEM[item.kind] ?? []))
+  if (subject.taskGroupIds.length > 0) shown.add('taskGroup')
+  return PANEL_FACE_ORDER.filter((face) => shown.has(face))
+}
+
 // see FR-072, U-25
 // STOP: spec does not decide what is kept when the selection empties; the subject is kept, not the fields. Looked in FR-072, SL-1, FR-085
 // @provisional PND-144
@@ -2147,11 +2241,7 @@ export function propertiesPanelFromSelection(
   }
 
   const isNothingPicked = selection.items.length === 0 && readings.selectedTaskGroupIds.length === 0
-  // WHY: a held subject naming task groups alone was a task group pick (FR-072), so the items still selected stay off the panel.
-  const isTaskGroupPick = content.subject.selection.items.length === 0 && content.subject.taskGroupIds.length > 0
-  const subject = isNothingPicked
-    ? content.subject
-    : { selection: isTaskGroupPick ? content.subject.selection : selection, taskGroupIds: readings.selectedTaskGroupIds }
+  const subject = panelSubjectOf(content.subject, selection, readings.selectedTaskGroupIds)
   // WHY: readings with no layout place no task group, so the task group reads as not drawn (MH-6), never as 0 px.
   const placedTaskGroups = readings.placedTaskGroups ?? []
   const inTime = settings.isTimeOfDayVisible ? shownInstantReader(schedule, settings.viewTimeZone) : null

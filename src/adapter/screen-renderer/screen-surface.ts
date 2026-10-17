@@ -81,10 +81,10 @@ export interface FieldCommit {
   readonly row: string
   readonly key: PropertyFieldKey
   readonly text: string
-  // see AS-5, AS-7
-  // WHY: how the assignee field was settled: a candidate chosen (text is its uid), the add item
-  // chosen (text is the name to create), or absent for a commit with nothing highlighted.
-  readonly pick?: 'candidate' | 'add'
+  // see AS-5, AS-7, IC-125, IC-126
+  // WHY: how the assignee field was settled: a person checked (text is its uid), the add item chosen
+  // (text is the name to create), every shown person checked or unchecked (text is their uids), or absent.
+  readonly pick?: 'candidate' | 'add' | 'all' | 'none'
   // see FX-5, UN-13
   // WHY: a row of several entrances settles once, with every entrance's key and text in drawn order.
   readonly entrances?: readonly { readonly key: PropertyFieldKey; readonly text: string }[]

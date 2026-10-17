@@ -38,6 +38,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `ColumnShape` | entry | interface | `src/entity/document-model/schedule/schedule-entities.ts#ColumnShape` | -- | interface ColumnShape |
 | `CommentBox` | entry | interface | `src/entity/document-model/schedule/schedule-entities.ts#CommentBox` | -- | interface CommentBox |
 | `CommentBoxSearchRow` | entry | type | `src/entity/document-model/schedule/schedule-search.ts#CommentBoxSearchRow` | PI-1 | 型。 |
+| `commentBoxShownDateOf` | entry | function | `src/entity/document-model/schedule/schedule-search.ts#commentBoxShownDateOf` | PI-1 | コメントボックスの線先が今立つ所の日時（吸着していれば吸着先のその点、していなければ自由点の `anchorDate`、`FR-019`）。 |
 | `compareDays` | entry | function | `src/entity/document-model/schedule/calendar-day.ts#compareDays` | PI-1 | 2 つの日の前後 |
 | `compareDelayFixRows` | entry | function | `src/entity/document-model/schedule/delay-diagnostics-report-table.ts#compareDelayFixRows` | PI-1 | 修正案の行の既定の並びの比べ方（表 T-374） |
 | `CustomColor` | entry | interface | `src/entity/document-model/schedule/stored-color.ts#CustomColor` | -- | interface CustomColor |
@@ -98,7 +99,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `delayWorkingDays` | entry | function | `src/entity/document-model/schedule/task-delay.ts#delayWorkingDays` | PI-1 | 表 T-021b の起点と終点 |
 | `Dependency` | entry | interface | `src/entity/document-model/schedule/schedule-entities.ts#Dependency` | -- | interface Dependency |
 | `diagnoseDelay` | entry | function | `src/entity/document-model/schedule/delay-diagnostics.ts#diagnoseDelay` | PI-1 | 遅延診断のレポート（表 T-317）を作る。 |
-| `earliestPlanStartDayOf` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#earliestPlanStartDayOf` | PI-1 | 全体日程シフトのいまの開始日（表 T-379 の `WH-1`）—— `Task` の予定の開始を開始の側で読んだ、いちばん早い日。 |
+| `earliestPlanStartDayOf` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#earliestPlanStartDayOf` | PI-1 | 全体日程シフトの最初のタスクの開始日（表 T-379 の `WH-1`）—— `Task` の予定の開始を開始の側で読んだ、いちばん早い日。 |
 | `EntityRows` | entry | interface | `src/entity/document-model/schedule/schedule-entities.ts#EntityRows` | -- | interface EntityRows |
 | `Exception` | entry | interface | `src/entity/document-model/schedule/schedule-entities.ts#Exception` | -- | interface Exception |
 | `finishSideDayFrom` | entry | function | `src/entity/document-model/schedule/calendar-day.ts#finishSideDayFrom` | PI-1 | `finishSideDayOf` と同じ日を、読み手が既に読んだその字の日（`dayOf` の答え）から数える。 |
@@ -298,7 +299,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `isDroppedByTreeState` | entry | function | `src/entity/layout-engine/schedule-layout/drawn-task-groups.ts#isDroppedByTreeState` | PI-5 | そのタスクグループが、人が折りたたんだタスクグループか隠したタスクグループのために描かれないか —— タスクグループそのものが隠されている、祖先が折りたたまれているか隠されている、段 0 が折りたたまれている（`FR-018` の 表 T-329 の `TD-1` ／ `TD-2` ／ `TD-3`）。 |
 | `isPlanSpanningYears` | entry | function | `src/entity/layout-engine/schedule-layout/name-label.ts#isPlanSpanningYears` | PI-5 | 文書のすべてのタスクとマイルストーンの予定の日が 2 つ以上の暦年にまたがるか。 |
 | `keptInViewByTreeState` | entry | function | `src/entity/layout-engine/schedule-layout/group-level-of-detail.ts#keptInViewByTreeState` | PI-5 | `expanded` と `temporarilyExpanded` が倍率によらず描かせるタスクグループ。 |
-| `labeledAssigneeUidOf` | entry | function | `src/entity/layout-engine/schedule-layout/assignee-label.ts#labeledAssigneeUidOf` | PI-5 | 担当ラベルが名を出す担当、すなわち `FR-059` の絞りと並びで先頭に来る 1 名の資源の `uid`。 |
+| `labeledAssigneeUidOf` | entry | function | `src/entity/layout-engine/schedule-layout/assignee-label.ts#labeledAssigneeUidOf` | PI-5 | 担当ラベルが名を出す担当、すなわち `FR-059` の絞りで残る担当のうち、割当の並びで先頭の 1 名（主担当、`FR-008` の 表 T-225 の `AS-13`）の資源の `uid`。 |
 | `LabelLayout` | entry | interface | `src/entity/layout-engine/schedule-layout/label-placement.ts#LabelLayout` | PI-5 | 型。 |
 | `labelLayoutOf` | entry | function | `src/entity/layout-engine/schedule-layout/label-placement.ts#labelLayoutOf` | PI-5 | その配置を求める |
 | `LabelPlacement` | entry | type | `src/entity/layout-engine/schedule-layout/schedule-layout.ts#LabelPlacement` | -- | type LabelPlacement = 'inside' \| 'right' |
@@ -312,6 +313,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `lengthTextOf` | entry | function | `src/entity/layout-engine/schedule-layout/name-label.ts#lengthTextOf` | PI-5 | 長さ（分）を `1d 2h`・`2h 30m`・`30m` の形で書く（`FR-158` の 表 T-375 の `TX-10`）。 |
 | `markerDiameterOf` | entry | function | `src/entity/layout-engine/schedule-layout/shape-cross-sections.ts#markerDiameterOf` | PI-5 | 進捗マーカーの径。 |
 | `MilestoneGlyph` | entry | type | `src/entity/layout-engine/schedule-layout/schedule-layout.ts#MilestoneGlyph` | -- | type MilestoneGlyph = NonNullable<TaskVisual['milestoneGlyph']> |
+| `MORE_ASSIGNEES_MARK` | entry | const | `src/entity/layout-engine/schedule-layout/assignee-label.ts#MORE_ASSIGNEES_MARK` | PI-5 | 担当ラベルが、主担当のほかにも出す担当がいるときに名の後に続ける印「, …」（`FR-059`）。 |
 | `NOT_STORED_LABEL_SIZES` | entry | const | `src/entity/layout-engine/schedule-layout/schedule-layout.ts#NOT_STORED_LABEL_SIZES` | PI-5 | 表 T-206 の `S-196` と `S-233` を刷った定数。 |
 | `NOT_STORED_SIZES` | entry | const | `src/entity/layout-engine/schedule-layout/label-placement.ts#NOT_STORED_SIZES` | -- | const NOT_STORED_SIZES: |
 | `NotStoredZoom` | entry | interface | `src/entity/layout-engine/schedule-layout/fit-zoom.ts#NotStoredZoom` | -- | interface NotStoredZoom |
@@ -1408,6 +1410,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | --- | --- | --- | --- | --- | --- |
 | `achromatic` | entry | function | `src/adapter/svg-renderer/svg-renderer.ts#achromatic` | PI-37 | `SvgRenderer` の `achromatic` を、`DomScreenSurface` へ渡すためにコピーせずに公開し直したもの。 |
 | `AppHeaderItems` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#AppHeaderItems` | -- | interface AppHeaderItems |
+| `ASSIGNEE_LIST_SEPARATOR` | entry | const | `src/adapter/screen-renderer/screen-renderer.ts#ASSIGNEE_LIST_SEPARATOR` | PI-37 | 担当の欄の一覧の `IC-125`・`IC-126`（表 T-225 の `AS-5`）が 1 回で書く担当の `uid` を並べる区切り。 |
 | `AssigneeCandidate` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#AssigneeCandidate` | -- | interface AssigneeCandidate |
 | `AssigneeCombo` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#AssigneeCombo` | -- | interface AssigneeCombo |
 | `ColorEntrance` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#ColorEntrance` | -- | interface ColorEntrance |
@@ -1487,6 +1490,8 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `OpenModal` | entry | type | `src/adapter/screen-renderer/screen-renderer.ts#OpenModal` | -- | type OpenModal = \| HelpModal \| ExportChooser \| OpenChooser \| HolidaySettings \| (OpenSurface & |
 | `PaletteGroup` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#PaletteGroup` | -- | interface PaletteGroup |
 | `PanelDivider` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#PanelDivider` | -- | interface PanelDivider |
+| `PanelFace` | entry | type | `src/adapter/screen-renderer/properties-panel.ts#PanelFace` | PI-37 | `panelFacesOf` が答える中身の種の型 |
+| `panelFacesOf` | entry | function | `src/adapter/screen-renderer/properties-panel.ts#panelFacesOf` | PI-37 | プロパティパネルがいま出している中身の種を、表 T-016 の `適用先` の順に 1 つずつ答える（文書の設定の面は `documentSettings`、出していないときは空）。 |
 | `ParentTaskChoice` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#ParentTaskChoice` | -- | interface ParentTaskChoice |
 | `PropertiesPanel` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#PropertiesPanel` | -- | interface PropertiesPanel |
 | `PropertyBadge` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#PropertyBadge` | -- | interface PropertyBadge |
@@ -1600,13 +1605,13 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `shownDateTimeOf` | file only | function | `src/adapter/screen-renderer/notices.ts#shownDateTimeOf` | -- | function shownDateTimeOf(stored: string): string |
 | `timeZoneAbbreviationOf` | file only | function | `src/adapter/screen-renderer/notices.ts#timeZoneAbbreviationOf` | -- | function timeZoneAbbreviationOf(key: string, language: DisplayLanguage): string |
 | `timeZoneFieldWord` | file only | function | `src/adapter/screen-renderer/notices.ts#timeZoneFieldWord` | -- | function timeZoneFieldWord(part: string, language: DisplayLanguage): string |
-| `timeZoneLabelOf` | file only | function | `src/adapter/screen-renderer/notices.ts#timeZoneLabelOf` | -- | function timeZoneLabelOf(key: string, language: DisplayLanguage): string |
+| `timeZoneLinesOf` | file only | function | `src/adapter/screen-renderer/notices.ts#timeZoneLinesOf` | -- | function timeZoneLinesOf(key: string, language: DisplayLanguage): readonly [string, string] |
 | `wholeScheduleShiftFieldWord` | file only | function | `src/adapter/screen-renderer/notices.ts#wholeScheduleShiftFieldWord` | -- | function wholeScheduleShiftFieldWord(part: string, language: DisplayLanguage): string |
 | `zoneOffsetTextOf` | file only | function | `src/adapter/screen-renderer/notices.ts#zoneOffsetTextOf` | -- | function zoneOffsetTextOf(offsetMinutes: number): string |
 | `exportNameBodyOf` | file only | function | `src/adapter/screen-renderer/open-modals.ts#exportNameBodyOf` | -- | function exportNameBodyOf(documentName: string): string |
 | `helpModalFromSession` | file only | function | `src/adapter/screen-renderer/open-modals.ts#helpModalFromSession` | -- | function helpModalFromSession(session: ScreenSession, area: HelpWindowArea): HelpModal \| null |
 | `openModalFromSession` | file only | function | `src/adapter/screen-renderer/open-modals.ts#openModalFromSession` | -- | function openModalFromSession( session: ScreenSession, schedule: Schedule, readings: ScreenViewReadings, settings: DocumentSettings, ): OpenModal \| null |
-| `assigneeCandidatesOf` | file only | function | `src/adapter/screen-renderer/properties-panel.ts#assigneeCandidatesOf` | -- | function assigneeCandidatesOf( combo: Omit<AssigneeCombo, 'candidatesOf'>, typed: string, isDescending: boolean, ): readonly AssigneeCandidate[] |
+| `assigneeCandidatesOf` | file only | function | `src/adapter/screen-renderer/properties-panel.ts#assigneeCandidatesOf` | -- | function assigneeCandidatesOf( combo: Pick<AssigneeCombo, 'people' \| 'addWord'>, typed: string, isDescending: boolean, ): readonly AssigneeCandidate[] |
 | `propertiesPanelFromSelection` | file only | function | `src/adapter/screen-renderer/properties-panel.ts#propertiesPanelFromSelection` | -- | function propertiesPanelFromSelection( schedule: Schedule, settings: DocumentSettings, selection: Selection, session: ScreenSession, readings: ScreenViewRead... |
 | `widthOf` | file only | function | `src/adapter/screen-renderer/properties-panel.ts#widthOf` | -- | function widthOf(text: string, choices: readonly string[] \| null, labelCoef: number): number |
 | `RESOURCE_LIST_COLUMNS` | file only | const | `src/adapter/screen-renderer/resource-list.ts#RESOURCE_LIST_COLUMNS` | -- | const RESOURCE_LIST_COLUMNS: readonly string[] = displayWords.resourceListColumns.map((entry) => entry.rowId) |
@@ -2084,4 +2089,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 1056 name(s) leave through a public entry (507 of them published by table T-064), 818 more are exported by a file and not by its entry.
+Totals: 1061 name(s) leave through a public entry (512 of them published by table T-064), 818 more are exported by a file and not by its entry.

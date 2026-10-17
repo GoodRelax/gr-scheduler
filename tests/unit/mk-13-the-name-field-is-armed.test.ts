@@ -539,12 +539,15 @@ function stage(heightsByRole: Record<string, number> = {}): Stage {
     activeElement: null,
   }
 
+  // WHY: CR-788 -- the assignee list AS-1 opens closes on a press anywhere, so it listens on the document.
   const document = {
     createElement(tagName: string): FakeElement {
       const made = new FakeElement(tagName, world)
       world.created.push(made)
       return made
     },
+    addEventListener: (): void => undefined,
+    removeEventListener: (): void => undefined,
   }
   const host = new Proxy(document, {
     get(target, property, receiver): unknown {
@@ -1041,7 +1044,7 @@ const ASSIGNEE_FIELD: PropertyField = {
       // ⭐ THE KEY IS THE ONE `AS-9` (MUST) SETTLES -- what a press of the
       // chooser commits is a `uid`, so the key names the Task and its `uid`
       // column. ⚠️ It decides nothing here: no case below reads a commit.
-      key: { holder: 'task', uid: 1, column: 'uid' },
+      key: { holder: 'assignment', taskUid: 1, resourceUid: null, column: 'resourceUid' },
       kind: 'choice',
       text: '',
       choices: [THE_PERSON_ON_IT, THE_OTHER_PERSON],
@@ -1052,17 +1055,14 @@ const ASSIGNEE_FIELD: PropertyField = {
         ],
         addWord: '',
         sortEntries: [],
+        checkEntries: [],
+        seated: [1],
+        fieldWord: THE_PERSON_ON_IT,
         candidatesOf: () => [],
       },
     }),
   ],
 }
-
-/** Every control the panel drew for one row of 表 T-016. */
-const controlsOfTaskGroup = (built: Stage, row: string): FakeElement[] =>
-  controlsIn(oneByRole(built.root(), U_25)).filter(
-    (one) => one.getAttribute('data-field-row') === row,
-  )
 
 describe('表 T-225 AS-1 -- 担当の欄を編集できる状態にして焦点を置く', () => {
   it('⭐ was really driven by the manuscript, and not by a hollow read of it', () => {
@@ -1089,10 +1089,11 @@ describe('表 T-225 AS-1 -- 担当の欄を編集できる状態にして焦点�
 
     const active = built.world.activeElement
     expect(active, 'AS-1 (MUST): 担当の欄 ... 焦点を置くこと').not.toBe(null)
-    expect(
-      controlsOfTaskGroup(built, ASSIGNEE_ROW),
-      'the focused control is one the panel drew for that row',
-    ).toContain(active)
+    // CR-788: AS-1 opens the field's list and puts the focus in the filter at its head.
+    let inField = false
+    for (let at = active; at !== null; at = at.parentNode) if (at.getAttribute('data-assignee-field') === ASSIGNEE_ROW) inField = true
+    expect(inField, 'the focused control stands in the PR-16 assignee field').toBe(true)
+    expect(active?.hasAttribute('data-assignee-filter'), 'AS-1 (MUST): the filter of the opened list').toBe(true)
   })
 
   it('⭐ the row asked for is the row that answers -- the name field is left alone', () => {

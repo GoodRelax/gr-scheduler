@@ -126,10 +126,10 @@ const documentOf = (): Document => structuredClone(startupTemplate) as unknown a
 
 /**
  * How wide the one case below holds the properties panel OPEN: the screen
- * value `S-171` a shown panel starts at (CR-572). What the case claims is the
+ * value `S-602` a panel showing a Task starts at (CR-572, CR-787). What the case claims is the
  * DIFFERENCE it makes, which FR-080 fixes.
  */
-const PROPERTY_PANEL_OPEN = settingNumber('S-171')
+const PROPERTY_PANEL_OPEN = settingNumber('S-602')
 
 /** The Framework side, with the one surface it paints through recorded. */
 interface Shell {

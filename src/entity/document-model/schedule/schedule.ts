@@ -185,7 +185,7 @@ export type { CustomColor } from './stored-color'
 export { scheduleViolations } from './schedule-invariants'
 export type { InvariantKind, ScheduleViolation } from './schedule-invariants'
 export { taskGroupNameOf } from './task-group-names'
-export { isSearchWordFound, searchRowsOf } from './schedule-search'
+export { commentBoxShownDateOf, isSearchWordFound, searchRowsOf } from './schedule-search'
 export type { CommentBoxSearchRow, SearchRows, TaskSearchRow } from './schedule-search'
 
 /** @purity pure */

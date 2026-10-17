@@ -1323,7 +1323,9 @@ NOT_STORED_TARGETS = {
     # (IC-54). Both are drawn inside the palette by command-palette-drawing.ts.
     'NOT_STORED_PALETTE_ROW_CAP': (['S-488'], DRAWN_INSIDE_THE_COMMAND_PALETTE),
     'NOT_STORED_ARMED_LABEL_SIZES': (['S-489'], DRAWN_INSIDE_THE_COMMAND_PALETTE),
-    'NOT_STORED_PROPERTIES_PANEL_SIZES': (['S-171'], READ_WHERE_IT_STANDS),
+    # CR-787: S-602 .. S-606 are the default widths of the other contents the
+    # panel shows (JDG-2466); `frame-loop.ts` picks one by what is shown.
+    'NOT_STORED_PROPERTIES_PANEL_SIZES': (['S-171', 'S-602', 'S-603', 'S-604', 'S-605', 'S-606'], READ_WHERE_IT_STANDS),
     # NOT FOLDED INTO THE LINE ABOVE. S-248 is the least width FR-052 lets the
     # properties panel be drawn at, and TWO units read it that may not import
     # one another (Chapter 5.3): the translator stops the held boundary there,
@@ -1670,9 +1672,10 @@ NOT_STORED_TARGETS = {
     # and the parent label's weight S-399 join their sibling rows of table
     # T-206 here. ⛔ S-397 is NOT here: the bottleneck threshold is no glyph
     # and nothing in this adapter reads it -- see NOT_STORED_BOTTLENECK_THRESHOLD.
+    # CR-784: S-601, the arrowhead of PM-1's `(->)`, joins its sibling glyph rows.
     'NOT_STORED_DELAY_MARK_SIZES': (['S-328', 'S-329', 'S-330', 'S-331', 'S-341',
                                      'S-391', 'S-392', 'S-393', 'S-394', 'S-395',
-                                     'S-396', 'S-399'],
+                                     'S-396', 'S-399', 'S-601'],
                                     DRAWN_INTO_THE_EXPORTED_PICTURE),
     # ⭐ CR-561: S-397, the push-out a bottleneck must reach (FR-132), in the
     # one unit that decides what a bottleneck is -- the Schedule unit
@@ -1753,7 +1756,10 @@ NOT_STORED_TARGETS = {
         # lines) and added S-530 / S-531, the outline round the swatch that
         # holds the color field's value (CV-9).
         ['S-186', 'S-187', 'S-188', 'S-189', 'S-190', 'S-191', 'S-192', 'S-193',
-         'S-197', 'S-198', 'S-335', 'S-338', 'S-368', 'S-530', 'S-531'],
+         'S-197', 'S-198', 'S-335', 'S-338', 'S-368', 'S-530', 'S-531',
+         # CR-787: S-607, how many choices the two-line list of FO-14 /
+         # FO-15 shows before it scrolls, drawn by the same unit.
+         'S-607'],
         DRAWN_WITH_WHERE_IT_STANDS),
     # NOT FOLDED INTO NOT_STORED_PALETTE_GROUP_RULE_SIZES though both are one
     # rule's thickness drawn by dom-screen-surface.ts: one constant per

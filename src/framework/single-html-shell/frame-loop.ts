@@ -190,10 +190,12 @@ import {
   screenViewFromRegions,
   scrollExtentOf,
   verticalWholeOf,
+  panelFacesOf,
   type DisplayLanguage,
   type ExportFormatId,
   type HorizontalWhole,
   type IconId,
+  type PanelFace,
   type RaisedConfirmation,
   type RaisedNotice,
   type ScreenPart,
@@ -1116,17 +1118,18 @@ interface HeldWholes {
   readonly vertical: VerticalWhole | null
 }
 
-// see FR-052, GR-21
+// see FR-052, GR-21, PE-8
 /** @purity pure */
 function measuredAtPress(
   frame: FrameValues,
 ): Pick<
   PointerPress,
-  'propertyPanelWidthAtPress' | 'horizontalWholeAtPress' | 'verticalWholeAtPress' | 'layoutRowsAtPress'
+  'propertyPanelWidthAtPress' | 'horizontalWholeAtPress' | 'verticalWholeAtPress' | 'layoutRowsAtPress' | 'geometryAtPress'
 > {
   return {
     propertyPanelWidthAtPress: frame.regions.propertiesPanel.width,
     layoutRowsAtPress: frame.layout.taskGroups,
+    geometryAtPress: frame.geometry,
     horizontalWholeAtPress: horizontalWholeOf(frame.layout, frame.regions),
     verticalWholeAtPress: verticalWholeOf(frame.layout, frame.regions),
   }
@@ -1143,7 +1146,7 @@ function heldWholeOf(press: PointerPress | null): HeldWholes | null {
   }
 }
 
-// see T-280, SS-6, S-72, S-171
+// see T-280, SS-6, S-72, FR-052
 // WHY: the startup values seat the initial screen; sent as events they would store S-99 on
 // every start, which today's start never writes (FR-038).
 /** @purity pure */
@@ -1153,7 +1156,6 @@ function startingSession(language: DisplayLanguage, themePreference: ScreenValue
     screenLanguage: language,
     helpLanguage: language,
     themePreference,
-    propertyPanelWidth: NOT_STORED_PROPERTIES_PANEL_SIZES['S-171'],
   }
   return { ...emptyScreenSession, screen }
 }
@@ -1213,8 +1215,38 @@ function environmentForRegionsOf(environment: FrameEnvironment, propertyPanelWid
 /** @purity pure */
 function propertiesPanelWidthOf(session: ScreenSession, held: number | null): number {
   if (panelShowingIn(session) === null) return 0
-  const width = held ?? session.screen.propertyPanelWidth ?? NOT_STORED_PROPERTIES_PANEL_SIZES['S-171']
+  const width = held ?? session.screen.propertyPanelWidth ?? defaultPanelWidthOf(panelFacesIn(session))
   return Math.max(NOT_STORED_PROPERTIES_PANEL_FLOOR['S-248'], width)
+}
+
+// see FR-052, S-171, S-602, S-603, S-604, S-605, S-606
+// WHY: several kinds shown at once open at the widest of their defaults; a subject that is gone, at the task's.
+/** @purity pure */
+function defaultPanelWidthOf(faces: readonly PanelFace[]): number {
+  const sizes = NOT_STORED_PROPERTIES_PANEL_SIZES
+  const widthOf: Readonly<Record<PanelFace, number>> = {
+    documentSettings: sizes['S-171'],
+    task: sizes['S-602'],
+    taskGroup: sizes['S-603'],
+    commentBox: sizes['S-604'],
+    highlightBox: sizes['S-605'],
+    dependency: sizes['S-606'],
+  }
+  return Math.max(...(faces.length === 0 ? ['task' as const] : faces).map((face) => widthOf[face]))
+}
+
+/** @purity pure */
+function panelFacesIn(session: ScreenSession): readonly PanelFace[] {
+  return panelFacesOf(session.screen.propertiesPanelContentState, selectedObjectsIn(session), session.selection.chosenTaskGroups)
+}
+
+// WHY: only another kind of content resets the width; the same kind, or shut and reopened on it, keeps it.
+/** @purity pure */
+function panelFaceWidthEventOf(session: ScreenSession, lastFaces: string | null): SessionEvent | null {
+  const faces = panelFacesIn(session)
+  const shown = faces.join()
+  if (faces.length === 0 || shown === lastFaces) return null
+  return { type: 'propertyPanelWidthSettled', propertyPanelWidth: defaultPanelWidthOf(faces) }
 }
 
 /** @purity pure */
@@ -2831,6 +2863,7 @@ export function frameLoop(
   let pressed: PointerPress | null = null
   let previewDocument: Document | null = null
   let heldPropertyPanelWidth: number | null = null
+  let lastPanelFaces: string | null = null
   let commandPaletteDraggedTo: { readonly x: number; readonly y: number } | null = null
   let commandPaletteCornerAtPress: { readonly x: number; readonly y: number } | null = null
   const windows = heldWindowsOf(() => shownTasks)
@@ -3012,6 +3045,14 @@ export function frameLoop(
   }
 
   /** @purity non-pure */
+  function followPanelFace(): void {
+    const event = panelFaceWidthEventOf(session, lastPanelFaces)
+    if (event === null) return
+    lastPanelFaces = panelFacesIn(session).join()
+    sendToSession(event, null)
+  }
+
+  /** @purity non-pure */
   function runFrame(): void {
     owed = false
     const document = grabCarry.scrolled(previewDocument ?? held.document)
@@ -3019,6 +3060,7 @@ export function frameLoop(
     const hintTargetDwellMs = readHintTargetDwellMs()
     const stored = document.documentSettings
     shownTasks.followFrame()
+    followPanelFace()
     const panelWidth = propertiesPanelWidthOf(session, heldPropertyPanelWidth)
     const regions = regionsFromScreen(environmentForRegionsOf(environment, panelWidth, shownTasks.appliedTables().length > 0), stored)
     // TRAP: not the preview; a longer bar would refit and shrink the axis under the drag.
@@ -4338,8 +4380,18 @@ export function frameLoop(
 // see T-206
 const NOT_STORED_PROPERTIES_PANEL_SIZES: {
   readonly 'S-171': number
+  readonly 'S-602': number
+  readonly 'S-603': number
+  readonly 'S-604': number
+  readonly 'S-605': number
+  readonly 'S-606': number
 } = {
-  'S-171': 560,
+  'S-171': 360,
+  'S-602': 240,
+  'S-603': 240,
+  'S-604': 240,
+  'S-605': 240,
+  'S-606': 160,
 }
 
 // see T-206

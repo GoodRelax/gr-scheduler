@@ -158,7 +158,7 @@ BROWSER_FUNCTION_TABLE = 'T-255'
 # CR-710: the names of the time zones FR-156 lets a person choose (table
 # T-376). Every row takes a word: the table holds the key, the offset and the
 # abbreviation, the dictionary the place (CR-755); the name a person reads is
-# the dictionary's zoneName of section timeZoneField joining the two.
+# the dictionary's zoneHead of section timeZoneField over the place (CR-787).
 TIME_ZONE_ROW = re.compile(r'^\| (ZN-\d+) \|')
 TIME_ZONE_TABLE = 'T-376'
 # ⭐ The words and the next step for a document refused on import. FR-076 has
@@ -349,13 +349,14 @@ FIT_SPAN_FIELD_PARTS = ('currentName', 'currentValue', 'copyCurrent')
 # face (FO-14, FO-16 of table T-369) and the lines the Time Shift question
 # (QN-14) shows under its sentence (BS-3 of table T-377). CR-755: the base
 # change question, its three answers with their hints and the before / after
-# lines (TX-11), and the two shapes of a zone's name (zoneName, offsetName).
+# lines (TX-11), and the two shapes of a zone's name (zoneHead, offsetName).
+# CR-787: zoneHead is the first of the two lines a zone shows; the place is the second.
 # The answers are the words FR-156 names; no table holds them as rows, so
 # they are HELD HERE, the same move as FIT_SPAN_FIELD_PARTS. KEYS, not words.
 TIME_ZONE_FIELD_PARTS = ('baseChangeQuestion', 'keepGlobalTime',
                          'keepGlobalTimeHint', 'keepLocalTime',
                          'keepLocalTimeHint', 'cancelBaseChange', 'beforeLine',
-                         'afterLine', 'zoneName', 'offsetName', 'none',
+                         'afterLine', 'zoneHead', 'offsetName', 'none',
                          'shiftUnit', 'shiftAmountLine', 'shiftTaskCountLine',
                          'shiftOutsideCountLine', 'shiftExampleLine')
 
@@ -383,8 +384,9 @@ READ_ONLY_SETTINGS_PARTS = ('heading', 'groupShowHide', 'groupLabels',
                             'shown', 'hidden', 'overlaid', 'notOverlaid',
                             'monochrome', 'color', 'filterOn', 'filterOff',
                             'stackUp', 'stackDown', 'expandedAuto', 'collapsed',
-                            'notSet', 'notSetFromTop', 'topZero', 'percent',
-                            'dayOffset', 'itemCount', 'columnCount',
+                            'notSet', 'notSetFromTop', 'viewLeftEdge',
+                            'viewTopEdge', 'groupFromTop', 'percent',
+                            'itemCount', 'columnCount',
                             'columnCountOne', 'none', 'pixels', 'defaultOrder',
                             'sortAscending', 'sortDescending')
 
