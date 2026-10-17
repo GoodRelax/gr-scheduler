@@ -36,7 +36,7 @@ test('UC-012 let an AI agent edit (FR-028, FR-064 T-035 AG-1 AG-2 AG-3 AG-4 AG-9
   await test.step('UC-012 step 2: the agent reads the version and checks it knows it (AM-1, AM-4, AG-1)', async () => {
     const version = await call<Outcome>(page, 'return api.agentApiVersion')
     expect(version.threw).toBe(false)
-    expect(typeof version.value).toBe('number')
+    expect(version.value).toMatch(/^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$/)
     stamp = (await call<Outcome>(page, 'return api.readStamp()')).value
     expect(Object.keys(stamp).sort()).toEqual(['fileSavedAt', 'lastEditedBy', 'scheduleUpdatedAt', 'settingsUpdatedAt'])
   })
