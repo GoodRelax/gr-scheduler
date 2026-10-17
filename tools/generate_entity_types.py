@@ -1670,9 +1670,10 @@ NOT_STORED_TARGETS = {
     # and the parent label's weight S-399 join their sibling rows of table
     # T-206 here. ⛔ S-397 is NOT here: the bottleneck threshold is no glyph
     # and nothing in this adapter reads it -- see NOT_STORED_BOTTLENECK_THRESHOLD.
+    # CR-784: S-601, the arrowhead of PM-1's `(->)`, joins its sibling glyph rows.
     'NOT_STORED_DELAY_MARK_SIZES': (['S-328', 'S-329', 'S-330', 'S-331', 'S-341',
                                      'S-391', 'S-392', 'S-393', 'S-394', 'S-395',
-                                     'S-396', 'S-399'],
+                                     'S-396', 'S-399', 'S-601'],
                                     DRAWN_INTO_THE_EXPORTED_PICTURE),
     # ⭐ CR-561: S-397, the push-out a bottleneck must reach (FR-132), in the
     # one unit that decides what a bottleneck is -- the Schedule unit

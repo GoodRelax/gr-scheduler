@@ -1116,17 +1116,18 @@ interface HeldWholes {
   readonly vertical: VerticalWhole | null
 }
 
-// see FR-052, GR-21
+// see FR-052, GR-21, PE-8
 /** @purity pure */
 function measuredAtPress(
   frame: FrameValues,
 ): Pick<
   PointerPress,
-  'propertyPanelWidthAtPress' | 'horizontalWholeAtPress' | 'verticalWholeAtPress' | 'layoutRowsAtPress'
+  'propertyPanelWidthAtPress' | 'horizontalWholeAtPress' | 'verticalWholeAtPress' | 'layoutRowsAtPress' | 'geometryAtPress'
 > {
   return {
     propertyPanelWidthAtPress: frame.regions.propertiesPanel.width,
     layoutRowsAtPress: frame.layout.taskGroups,
+    geometryAtPress: frame.geometry,
     horizontalWholeAtPress: horizontalWholeOf(frame.layout, frame.regions),
     verticalWholeAtPress: verticalWholeOf(frame.layout, frame.regions),
   }
