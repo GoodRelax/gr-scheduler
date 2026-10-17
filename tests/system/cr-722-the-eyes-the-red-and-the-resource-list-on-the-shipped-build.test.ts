@@ -147,7 +147,7 @@ function fixture(): string {
       taskOrigins: [],
       baselineTasks: [],
     },
-    documentSettings: { ...TEMPLATE.documentSettings, zoomX: 6, scrollDate: CLEAR_OF_THE_PALETTE, scrollDayOffset: 0, scrollTaskGroupId: TASK_GROUP, scrollGroupOffset: 0 },
+    documentSettings: { ...TEMPLATE.documentSettings, zoomX: 6, scrollDate: CLEAR_OF_THE_PALETTE, scrollDateFraction: 0, scrollTaskGroupId: TASK_GROUP, scrollTaskGroupFraction: 0 },
     documentStamp: TEMPLATE.documentStamp,
     changeLog: [],
   }
@@ -333,7 +333,7 @@ test.describe('CR-722 / FR-151 T-353 / FR-099 T-370 on the shipped build', () =>
       const settingsOf = (saved: Record<string, unknown>): Record<string, unknown> => saved['documentSettings'] as Record<string, unknown>
       expect(settingsOf(during)['tableViews']).toMatchObject({ resourceList: { isScheduleFilterApplied: true, hiddenResourceUids: [2002] } })
       expect({ ...settingsOf(during), tableViews: null }, 'S-546: nothing else of the window is saved').toEqual({ ...settingsOf(before), tableViews: null })
-      expect(JSON.stringify(during)).not.toMatch(/Resource List|hiddenKeys|isApplied|"visibility"/i)
+      expect(JSON.stringify(during)).not.toMatch(/Resource List|hiddenKeys|"visibility"/i)
     } finally {
       await stage.close()
     }

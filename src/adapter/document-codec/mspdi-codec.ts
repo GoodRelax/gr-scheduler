@@ -454,7 +454,7 @@ function projectFromRoot(
     defaultFinishTime,
     themeHue: current.schedule.project.themeHue,
     // WHY: MSPDI has no place for this GRS column (AT-156), so an open keeps the current value, as themeHue.
-    parentProgressToleranceDays: current.schedule.project.parentProgressToleranceDays,
+    parentTaskProgressToleranceDays: current.schedule.project.parentTaskProgressToleranceDays,
     uidHighWaterMark: current.schedule.project.uidHighWaterMark,
     importSequence: current.schedule.project.importSequence,
     // WHY: MSPDI holds no zone (FR-156); the codec keeps the current value and the shell's open names the PC's region.

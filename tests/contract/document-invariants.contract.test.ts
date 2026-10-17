@@ -319,7 +319,7 @@ const PROJECT: Project = {
   // this is a placeholder inside the column's range and not a reading of S-73,
   // whose value reaches no generated artifact this file can call.
   themeHue: 0,
-  parentProgressToleranceDays: 1,
+  parentTaskProgressToleranceDays: 1,
   uidHighWaterMark: 400,
   importSequence: 3,
   outlineBase: 1,
@@ -381,7 +381,7 @@ const GROUP_ONE: TaskGroup = {
   name: 'task group one',
   derivedFromTaskUid: null,
   order: 1,
-  treeState: 'auto', editGroup: null,
+  treeState: 'auto', editPermission: null,
   color: null,
   minHeightPx: null,
 }
@@ -435,7 +435,7 @@ const VISUAL_B: TaskVisual = { ...VISUAL, taskUid: TASK_B_UID }
 // two equal -- the boundary the row admits.
 const ORIGIN: TaskOrigin = {
   taskUid: TASK_A_UID,
-  sourceProjectUid: null,
+  sourceProjectId: null,
   sourceUid: 7,
   lastSeenImportSequence: PROJECT.importSequence,
   importSessionId: null,

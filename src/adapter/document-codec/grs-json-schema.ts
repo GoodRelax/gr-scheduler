@@ -45,7 +45,7 @@ interface SchemaNode {
 const SCHEMA_DEFS: Readonly<Record<string, SchemaNode>> = {
   Project: {
     type: ['object'],
-    required: ['id', 'name', 'title', 'subject', 'category', 'company', 'manager', 'author', 'creationDate', 'revision', 'startDate', 'statusDate', 'minutesPerDay', 'minutesPerWeek', 'daysPerMonth', 'weekStartDay', 'calendarUid', 'defaultStartTime', 'defaultFinishTime', 'themeHue', 'parentProgressToleranceDays', 'uidHighWaterMark', 'importSequence', 'carry', 'carryElements', 'outlineBase', 'sourceFormat', 'scheduleDataTimeZone'],
+    required: ['id', 'name', 'title', 'subject', 'category', 'company', 'manager', 'author', 'creationDate', 'revision', 'startDate', 'statusDate', 'minutesPerDay', 'minutesPerWeek', 'daysPerMonth', 'weekStartDay', 'calendarUid', 'defaultStartTime', 'defaultFinishTime', 'themeHue', 'parentTaskProgressToleranceDays', 'uidHighWaterMark', 'importSequence', 'carry', 'carryElements', 'outlineBase', 'sourceFormat', 'scheduleDataTimeZone'],
     closed: true,
     properties: {
       id: {
@@ -113,7 +113,7 @@ const SCHEMA_DEFS: Readonly<Record<string, SchemaNode>> = {
         minimum: 0,
         maximum: 359,
       },
-      parentProgressToleranceDays: {
+      parentTaskProgressToleranceDays: {
         type: ['integer'],
         minimum: 0,
       },
@@ -254,7 +254,7 @@ const SCHEMA_DEFS: Readonly<Record<string, SchemaNode>> = {
   },
   TaskGroup: {
     type: ['object'],
-    required: ['id', 'parentId', 'name', 'derivedFromTaskUid', 'order', 'treeState', 'editGroup', 'color', 'minHeightPx'],
+    required: ['id', 'parentId', 'name', 'derivedFromTaskUid', 'order', 'treeState', 'editPermission', 'color', 'minHeightPx'],
     closed: true,
     properties: {
       id: {
@@ -275,7 +275,7 @@ const SCHEMA_DEFS: Readonly<Record<string, SchemaNode>> = {
       treeState: {
         enum: ['auto', 'collapsed', 'expanded', 'temporarilyExpanded', 'hidden'],
       },
-      editGroup: {
+      editPermission: {
         type: ['string', 'null'],
       },
       color: {
@@ -521,13 +521,13 @@ const SCHEMA_DEFS: Readonly<Record<string, SchemaNode>> = {
   },
   TaskOrigin: {
     type: ['object'],
-    required: ['taskUid', 'sourceProjectUid', 'sourceUid', 'lastSeenImportSequence', 'importSessionId'],
+    required: ['taskUid', 'sourceProjectId', 'sourceUid', 'lastSeenImportSequence', 'importSessionId'],
     closed: true,
     properties: {
       taskUid: {
         type: ['integer'],
       },
-      sourceProjectUid: {
+      sourceProjectId: {
         type: ['string', 'null'],
       },
       sourceUid: {
@@ -875,7 +875,7 @@ const GRS_DOCUMENT_SCHEMA: SchemaNode = {
     },
     documentSettings: {
       type: ['object'],
-      required: ['displayScale', 'displayTimeZones', 'fitSpanFinish', 'fitSpanStart', 'fontScale', 'isActualVisible', 'isAssigneeVisible', 'isBaselineVisible', 'isDateGridLinesVisible', 'isDependencyVisible', 'isFitSpanFixed', 'isGroupGridLinesVisible', 'isPercentCompleteVisible', 'isPlanDatesVisible', 'isPlanVisible', 'isProgressLineVisible', 'isProgressMarkerVisible', 'isTaskGroupPanelWidthFixed', 'isThemeMonochrome', 'isTimeOfDayVisible', 'levelZeroTreeState', 'pinnedTaskGroupIds', 'rulerFontSizePx', 'rulerHeightPx', 'scrollDate', 'scrollDayOffset', 'scrollGroupOffset', 'scrollTaskGroupId', 'stackDirection', 'tableViews', 'taskGroupPanelWidthPx', 'viewTimeZone', 'zoomX', 'zoomY'],
+      required: ['displayScale', 'displayTimeZones', 'fitSpanFinish', 'fitSpanStart', 'fontSizeStep', 'isActualVisible', 'isAssigneeVisible', 'isBaselineVisible', 'isDateGridLinesVisible', 'isDependencyVisible', 'isFitSpanFixed', 'isGroupGridLinesVisible', 'isPercentCompleteVisible', 'isPlanDatesVisible', 'isPlanVisible', 'isProgressLineVisible', 'isProgressMarkerVisible', 'isTaskGroupPanelWidthFixed', 'isThemeMonochrome', 'isTimeOfDayVisible', 'levelZeroTreeState', 'pinnedTaskGroupIds', 'rulerFontSizePx', 'rulerHeightPx', 'scrollDate', 'scrollDateFraction', 'scrollTaskGroupFraction', 'scrollTaskGroupId', 'stackDirection', 'tableViews', 'taskGroupPanelWidthPx', 'viewTimeZone', 'zoomX', 'zoomY'],
       closed: true,
       properties: {
         displayScale: {
@@ -893,7 +893,7 @@ const GRS_DOCUMENT_SCHEMA: SchemaNode = {
         fitSpanStart: {
           type: ['string', 'null'],
         },
-        fontScale: {
+        fontSizeStep: {
           enum: ['S', 'M', 'L'],
         },
         isActualVisible: {
@@ -959,10 +959,10 @@ const GRS_DOCUMENT_SCHEMA: SchemaNode = {
         scrollDate: {
           type: ['string', 'null'],
         },
-        scrollDayOffset: {
+        scrollDateFraction: {
           type: ['number'],
         },
-        scrollGroupOffset: {
+        scrollTaskGroupFraction: {
           type: ['number'],
         },
         scrollTaskGroupId: {
@@ -1178,15 +1178,15 @@ const SHAPE_OF_COMMAND_KIND: Readonly<Record<string, SchemaNode>> = {
       },
     },
   },
-  setParentProgressToleranceDays: {
+  setParentTaskProgressToleranceDays: {
     type: ['object'],
-    required: ['kind', 'parentProgressToleranceDays'],
+    required: ['kind', 'parentTaskProgressToleranceDays'],
     closed: true,
     properties: {
       kind: {
-        enum: ['setParentProgressToleranceDays'],
+        enum: ['setParentTaskProgressToleranceDays'],
       },
-      parentProgressToleranceDays: {
+      parentTaskProgressToleranceDays: {
         type: ['integer'],
       },
     },
@@ -1254,13 +1254,13 @@ const SHAPE_OF_COMMAND_KIND: Readonly<Record<string, SchemaNode>> = {
   },
   deleteTask: {
     type: ['object'],
-    required: ['kind', 'uid'],
+    required: ['kind', 'taskUid'],
     closed: true,
     properties: {
       kind: {
         enum: ['deleteTask'],
       },
-      uid: {
+      taskUid: {
         type: ['integer'],
       },
     },
@@ -1299,13 +1299,13 @@ const SHAPE_OF_COMMAND_KIND: Readonly<Record<string, SchemaNode>> = {
   },
   setTaskName: {
     type: ['object'],
-    required: ['kind', 'uid', 'name'],
+    required: ['kind', 'taskUid', 'name'],
     closed: true,
     properties: {
       kind: {
         enum: ['setTaskName'],
       },
-      uid: {
+      taskUid: {
         type: ['integer'],
       },
       name: {
@@ -1315,13 +1315,13 @@ const SHAPE_OF_COMMAND_KIND: Readonly<Record<string, SchemaNode>> = {
   },
   setTaskNotes: {
     type: ['object'],
-    required: ['kind', 'uid', 'notes'],
+    required: ['kind', 'taskUid', 'notes'],
     closed: true,
     properties: {
       kind: {
         enum: ['setTaskNotes'],
       },
-      uid: {
+      taskUid: {
         type: ['integer'],
       },
       notes: {
@@ -1331,13 +1331,13 @@ const SHAPE_OF_COMMAND_KIND: Readonly<Record<string, SchemaNode>> = {
   },
   setTaskPlanDates: {
     type: ['object'],
-    required: ['kind', 'uid', 'start', 'finish'],
+    required: ['kind', 'taskUid', 'start', 'finish'],
     closed: true,
     properties: {
       kind: {
         enum: ['setTaskPlanDates'],
       },
-      uid: {
+      taskUid: {
         type: ['integer'],
       },
       start: {
@@ -1350,13 +1350,13 @@ const SHAPE_OF_COMMAND_KIND: Readonly<Record<string, SchemaNode>> = {
   },
   setTaskDeadline: {
     type: ['object'],
-    required: ['kind', 'uid', 'deadline'],
+    required: ['kind', 'taskUid', 'deadline'],
     closed: true,
     properties: {
       kind: {
         enum: ['setTaskDeadline'],
       },
-      uid: {
+      taskUid: {
         type: ['integer'],
       },
       deadline: {
@@ -1366,34 +1366,34 @@ const SHAPE_OF_COMMAND_KIND: Readonly<Record<string, SchemaNode>> = {
   },
   setTaskPlanActualState: {
     type: ['object'],
-    required: ['kind', 'uid', 'place'],
+    required: ['kind', 'taskUid', 'place'],
     closed: true,
     properties: {
       kind: {
         enum: ['setTaskPlanActualState'],
       },
-      uid: {
+      taskUid: {
         type: ['integer'],
       },
       place: {
         alternatives: [
           {
             type: ['object'],
-            required: ['row'],
+            required: ['state'],
             closed: true,
             properties: {
-              row: {
-                enum: ['PA-1'],
+              state: {
+                enum: ['notStarted'],
               },
             },
           },
           {
             type: ['object'],
-            required: ['row', 'actualStart', 'stop'],
+            required: ['state', 'actualStart', 'stop'],
             closed: true,
             properties: {
-              row: {
-                enum: ['PA-2'],
+              state: {
+                enum: ['inProgress'],
               },
               actualStart: {
                 type: ['string'],
@@ -1405,11 +1405,11 @@ const SHAPE_OF_COMMAND_KIND: Readonly<Record<string, SchemaNode>> = {
           },
           {
             type: ['object'],
-            required: ['row', 'actualStart', 'stop', 'resume'],
+            required: ['state', 'actualStart', 'stop', 'resume'],
             closed: true,
             properties: {
-              row: {
-                enum: ['PA-3'],
+              state: {
+                enum: ['suspendedWithResumeDate'],
               },
               actualStart: {
                 type: ['string'],
@@ -1424,11 +1424,11 @@ const SHAPE_OF_COMMAND_KIND: Readonly<Record<string, SchemaNode>> = {
           },
           {
             type: ['object'],
-            required: ['row', 'actualStart', 'stop'],
+            required: ['state', 'actualStart', 'stop'],
             closed: true,
             properties: {
-              row: {
-                enum: ['PA-4'],
+              state: {
+                enum: ['suspendedWithoutResumeDate'],
               },
               actualStart: {
                 type: ['string'],
@@ -1440,11 +1440,11 @@ const SHAPE_OF_COMMAND_KIND: Readonly<Record<string, SchemaNode>> = {
           },
           {
             type: ['object'],
-            required: ['row', 'actualStart', 'actualFinish'],
+            required: ['state', 'actualStart', 'actualFinish'],
             closed: true,
             properties: {
-              row: {
-                enum: ['PA-5'],
+              state: {
+                enum: ['finished'],
               },
               actualStart: {
                 type: ['string'],
@@ -1460,17 +1460,17 @@ const SHAPE_OF_COMMAND_KIND: Readonly<Record<string, SchemaNode>> = {
   },
   beginTaskActual: {
     type: ['object'],
-    required: ['kind', 'uid', 'grabbed', 'released', 'snapMinutes'],
+    required: ['kind', 'taskUid', 'grabbed', 'released', 'snapMinutes'],
     closed: true,
     properties: {
       kind: {
         enum: ['beginTaskActual'],
       },
-      uid: {
+      taskUid: {
         type: ['integer'],
       },
       grabbed: {
-        enum: ['GA-5', 'GA-6', 'GA-17', 'GA-21', 'GA-22'],
+        enum: ['barDummyStart', 'barDummyFinish', 'milestoneDummy', 'arrowDummyStart', 'arrowDummyFinish'],
       },
       released: {
         type: ['object'],
@@ -1492,13 +1492,13 @@ const SHAPE_OF_COMMAND_KIND: Readonly<Record<string, SchemaNode>> = {
   },
   cycleTaskPlanActualState: {
     type: ['object'],
-    required: ['kind', 'uid', 'remembered'],
+    required: ['kind', 'taskUid', 'remembered'],
     closed: true,
     properties: {
       kind: {
         enum: ['cycleTaskPlanActualState'],
       },
-      uid: {
+      taskUid: {
         type: ['integer'],
       },
       remembered: {
@@ -1527,13 +1527,13 @@ const SHAPE_OF_COMMAND_KIND: Readonly<Record<string, SchemaNode>> = {
   },
   setTaskFadeInDays: {
     type: ['object'],
-    required: ['kind', 'uid', 'fadeInDays'],
+    required: ['kind', 'taskUid', 'fadeInDays'],
     closed: true,
     properties: {
       kind: {
         enum: ['setTaskFadeInDays'],
       },
-      uid: {
+      taskUid: {
         type: ['integer'],
       },
       fadeInDays: {
@@ -1543,13 +1543,13 @@ const SHAPE_OF_COMMAND_KIND: Readonly<Record<string, SchemaNode>> = {
   },
   setTaskFadeOutDays: {
     type: ['object'],
-    required: ['kind', 'uid', 'fadeOutDays'],
+    required: ['kind', 'taskUid', 'fadeOutDays'],
     closed: true,
     properties: {
       kind: {
         enum: ['setTaskFadeOutDays'],
       },
-      uid: {
+      taskUid: {
         type: ['integer'],
       },
       fadeOutDays: {
@@ -1559,13 +1559,13 @@ const SHAPE_OF_COMMAND_KIND: Readonly<Record<string, SchemaNode>> = {
   },
   setTaskParentTask: {
     type: ['object'],
-    required: ['kind', 'uid', 'parentTaskUid'],
+    required: ['kind', 'taskUid', 'parentTaskUid'],
     closed: true,
     properties: {
       kind: {
         enum: ['setTaskParentTask'],
       },
-      uid: {
+      taskUid: {
         type: ['integer'],
       },
       parentTaskUid: {
@@ -1575,13 +1575,13 @@ const SHAPE_OF_COMMAND_KIND: Readonly<Record<string, SchemaNode>> = {
   },
   moveTaskToTaskGroup: {
     type: ['object'],
-    required: ['kind', 'uid', 'taskGroupId'],
+    required: ['kind', 'taskUid', 'taskGroupId'],
     closed: true,
     properties: {
       kind: {
         enum: ['moveTaskToTaskGroup'],
       },
-      uid: {
+      taskUid: {
         type: ['integer'],
       },
       taskGroupId: {
@@ -1591,13 +1591,13 @@ const SHAPE_OF_COMMAND_KIND: Readonly<Record<string, SchemaNode>> = {
   },
   setTaskVisualShapeKind: {
     type: ['object'],
-    required: ['kind', 'uid', 'shapeKind'],
+    required: ['kind', 'taskUid', 'shapeKind'],
     closed: true,
     properties: {
       kind: {
         enum: ['setTaskVisualShapeKind'],
       },
-      uid: {
+      taskUid: {
         type: ['integer'],
       },
       shapeKind: {
@@ -1607,13 +1607,13 @@ const SHAPE_OF_COMMAND_KIND: Readonly<Record<string, SchemaNode>> = {
   },
   setTaskVisualMilestoneGlyph: {
     type: ['object'],
-    required: ['kind', 'uid', 'milestoneGlyph'],
+    required: ['kind', 'taskUid', 'milestoneGlyph'],
     closed: true,
     properties: {
       kind: {
         enum: ['setTaskVisualMilestoneGlyph'],
       },
-      uid: {
+      taskUid: {
         type: ['integer'],
       },
       milestoneGlyph: {
@@ -1623,13 +1623,13 @@ const SHAPE_OF_COMMAND_KIND: Readonly<Record<string, SchemaNode>> = {
   },
   setTaskVisualColors: {
     type: ['object'],
-    required: ['kind', 'uid', 'fillColor', 'strokeColor'],
+    required: ['kind', 'taskUid', 'fillColor', 'strokeColor'],
     closed: true,
     properties: {
       kind: {
         enum: ['setTaskVisualColors'],
       },
-      uid: {
+      taskUid: {
         type: ['integer'],
       },
       fillColor: {
@@ -1642,26 +1642,26 @@ const SHAPE_OF_COMMAND_KIND: Readonly<Record<string, SchemaNode>> = {
   },
   resetTaskVisualColors: {
     type: ['object'],
-    required: ['kind', 'uid'],
+    required: ['kind', 'taskUid'],
     closed: true,
     properties: {
       kind: {
         enum: ['resetTaskVisualColors'],
       },
-      uid: {
+      taskUid: {
         type: ['integer'],
       },
     },
   },
   setTaskVisualStrokeWidthPx: {
     type: ['object'],
-    required: ['kind', 'uid', 'strokeWidthPx'],
+    required: ['kind', 'taskUid', 'strokeWidthPx'],
     closed: true,
     properties: {
       kind: {
         enum: ['setTaskVisualStrokeWidthPx'],
       },
-      uid: {
+      taskUid: {
         type: ['integer'],
       },
       strokeWidthPx: {
@@ -1712,7 +1712,7 @@ const SHAPE_OF_COMMAND_KIND: Readonly<Record<string, SchemaNode>> = {
   },
   pasteTaskGroupSubtree: {
     type: ['object'],
-    required: ['kind', 'sourceTaskGroupId', 'targetTaskGroupId', 'newTaskGroupIds'],
+    required: ['kind', 'sourceTaskGroupId', 'parentId', 'newTaskGroupIds'],
     closed: true,
     properties: {
       kind: {
@@ -1721,7 +1721,7 @@ const SHAPE_OF_COMMAND_KIND: Readonly<Record<string, SchemaNode>> = {
       sourceTaskGroupId: {
         type: ['string'],
       },
-      targetTaskGroupId: {
+      parentId: {
         type: ['string', 'null'],
       },
       newTaskGroupIds: {
@@ -2048,13 +2048,13 @@ const SHAPE_OF_COMMAND_KIND: Readonly<Record<string, SchemaNode>> = {
   },
   setResourceName: {
     type: ['object'],
-    required: ['kind', 'uid', 'name'],
+    required: ['kind', 'resourceUid', 'name'],
     closed: true,
     properties: {
       kind: {
         enum: ['setResourceName'],
       },
-      uid: {
+      resourceUid: {
         type: ['integer'],
       },
       name: {
@@ -2062,15 +2062,15 @@ const SHAPE_OF_COMMAND_KIND: Readonly<Record<string, SchemaNode>> = {
       },
     },
   },
-  deleteResource: {
+  deleteResources: {
     type: ['object'],
-    required: ['kind', 'uids'],
+    required: ['kind', 'resourceUids'],
     closed: true,
     properties: {
       kind: {
-        enum: ['deleteResource'],
+        enum: ['deleteResources'],
       },
-      uids: {
+      resourceUids: {
         type: ['array'],
         items: {
           type: ['integer'],
@@ -2122,13 +2122,13 @@ const SHAPE_OF_COMMAND_KIND: Readonly<Record<string, SchemaNode>> = {
   },
   createCommentBox: {
     type: ['object'],
-    required: ['kind', 'id', 'anchor'],
+    required: ['kind', 'commentBoxId', 'anchor'],
     closed: true,
     properties: {
       kind: {
         enum: ['createCommentBox'],
       },
-      id: {
+      commentBoxId: {
         type: ['string'],
       },
       anchor: {
@@ -2163,26 +2163,26 @@ const SHAPE_OF_COMMAND_KIND: Readonly<Record<string, SchemaNode>> = {
   },
   deleteCommentBox: {
     type: ['object'],
-    required: ['kind', 'id'],
+    required: ['kind', 'commentBoxId'],
     closed: true,
     properties: {
       kind: {
         enum: ['deleteCommentBox'],
       },
-      id: {
+      commentBoxId: {
         type: ['string'],
       },
     },
   },
   setCommentBoxText: {
     type: ['object'],
-    required: ['kind', 'id', 'text'],
+    required: ['kind', 'commentBoxId', 'text'],
     closed: true,
     properties: {
       kind: {
         enum: ['setCommentBoxText'],
       },
-      id: {
+      commentBoxId: {
         type: ['string'],
       },
       text: {
@@ -2192,13 +2192,13 @@ const SHAPE_OF_COMMAND_KIND: Readonly<Record<string, SchemaNode>> = {
   },
   setCommentBoxLeaderShapeKind: {
     type: ['object'],
-    required: ['kind', 'id', 'leaderShapeKind'],
+    required: ['kind', 'commentBoxId', 'leaderShapeKind'],
     closed: true,
     properties: {
       kind: {
         enum: ['setCommentBoxLeaderShapeKind'],
       },
-      id: {
+      commentBoxId: {
         type: ['string'],
       },
       leaderShapeKind: {
@@ -2208,13 +2208,13 @@ const SHAPE_OF_COMMAND_KIND: Readonly<Record<string, SchemaNode>> = {
   },
   setCommentBoxAnchor: {
     type: ['object'],
-    required: ['kind', 'id', 'anchor'],
+    required: ['kind', 'commentBoxId', 'anchor'],
     closed: true,
     properties: {
       kind: {
         enum: ['setCommentBoxAnchor'],
       },
-      id: {
+      commentBoxId: {
         type: ['string'],
       },
       anchor: {
@@ -2249,13 +2249,13 @@ const SHAPE_OF_COMMAND_KIND: Readonly<Record<string, SchemaNode>> = {
   },
   setCommentBoxBodyOffsetPx: {
     type: ['object'],
-    required: ['kind', 'id', 'dx', 'dy'],
+    required: ['kind', 'commentBoxId', 'dx', 'dy'],
     closed: true,
     properties: {
       kind: {
         enum: ['setCommentBoxBodyOffsetPx'],
       },
-      id: {
+      commentBoxId: {
         type: ['string'],
       },
       dx: {
@@ -2268,13 +2268,13 @@ const SHAPE_OF_COMMAND_KIND: Readonly<Record<string, SchemaNode>> = {
   },
   setCommentBoxStrokeColor: {
     type: ['object'],
-    required: ['kind', 'id', 'strokeColor'],
+    required: ['kind', 'commentBoxId', 'strokeColor'],
     closed: true,
     properties: {
       kind: {
         enum: ['setCommentBoxStrokeColor'],
       },
-      id: {
+      commentBoxId: {
         type: ['string'],
       },
       strokeColor: {
@@ -2284,13 +2284,13 @@ const SHAPE_OF_COMMAND_KIND: Readonly<Record<string, SchemaNode>> = {
   },
   setCommentBoxStrokeWidthPx: {
     type: ['object'],
-    required: ['kind', 'id', 'strokeWidthPx'],
+    required: ['kind', 'commentBoxId', 'strokeWidthPx'],
     closed: true,
     properties: {
       kind: {
         enum: ['setCommentBoxStrokeWidthPx'],
       },
-      id: {
+      commentBoxId: {
         type: ['string'],
       },
       strokeWidthPx: {
@@ -2300,13 +2300,13 @@ const SHAPE_OF_COMMAND_KIND: Readonly<Record<string, SchemaNode>> = {
   },
   setCommentBoxFillColor: {
     type: ['object'],
-    required: ['kind', 'id', 'fillColor'],
+    required: ['kind', 'commentBoxId', 'fillColor'],
     closed: true,
     properties: {
       kind: {
         enum: ['setCommentBoxFillColor'],
       },
-      id: {
+      commentBoxId: {
         type: ['string'],
       },
       fillColor: {
@@ -2316,13 +2316,13 @@ const SHAPE_OF_COMMAND_KIND: Readonly<Record<string, SchemaNode>> = {
   },
   setCommentBoxFillTransparencyPercent: {
     type: ['object'],
-    required: ['kind', 'id', 'fillTransparencyPercent'],
+    required: ['kind', 'commentBoxId', 'fillTransparencyPercent'],
     closed: true,
     properties: {
       kind: {
         enum: ['setCommentBoxFillTransparencyPercent'],
       },
-      id: {
+      commentBoxId: {
         type: ['string'],
       },
       fillTransparencyPercent: {
@@ -2332,13 +2332,13 @@ const SHAPE_OF_COMMAND_KIND: Readonly<Record<string, SchemaNode>> = {
   },
   setCommentBoxTextColor: {
     type: ['object'],
-    required: ['kind', 'id', 'textColor'],
+    required: ['kind', 'commentBoxId', 'textColor'],
     closed: true,
     properties: {
       kind: {
         enum: ['setCommentBoxTextColor'],
       },
-      id: {
+      commentBoxId: {
         type: ['string'],
       },
       textColor: {
@@ -2348,26 +2348,26 @@ const SHAPE_OF_COMMAND_KIND: Readonly<Record<string, SchemaNode>> = {
   },
   bringCommentBoxToFront: {
     type: ['object'],
-    required: ['kind', 'id'],
+    required: ['kind', 'commentBoxId'],
     closed: true,
     properties: {
       kind: {
         enum: ['bringCommentBoxToFront'],
       },
-      id: {
+      commentBoxId: {
         type: ['string'],
       },
     },
   },
   createHighlightBox: {
     type: ['object'],
-    required: ['kind', 'id', 'range'],
+    required: ['kind', 'highlightBoxId', 'range'],
     closed: true,
     properties: {
       kind: {
         enum: ['createHighlightBox'],
       },
-      id: {
+      highlightBoxId: {
         type: ['string'],
       },
       range: {
@@ -2393,26 +2393,26 @@ const SHAPE_OF_COMMAND_KIND: Readonly<Record<string, SchemaNode>> = {
   },
   deleteHighlightBox: {
     type: ['object'],
-    required: ['kind', 'id'],
+    required: ['kind', 'highlightBoxId'],
     closed: true,
     properties: {
       kind: {
         enum: ['deleteHighlightBox'],
       },
-      id: {
+      highlightBoxId: {
         type: ['string'],
       },
     },
   },
   setHighlightBoxRange: {
     type: ['object'],
-    required: ['kind', 'id', 'range'],
+    required: ['kind', 'highlightBoxId', 'range'],
     closed: true,
     properties: {
       kind: {
         enum: ['setHighlightBoxRange'],
       },
-      id: {
+      highlightBoxId: {
         type: ['string'],
       },
       range: {
@@ -2438,13 +2438,13 @@ const SHAPE_OF_COMMAND_KIND: Readonly<Record<string, SchemaNode>> = {
   },
   setHighlightBoxStrokeColor: {
     type: ['object'],
-    required: ['kind', 'id', 'strokeColor'],
+    required: ['kind', 'highlightBoxId', 'strokeColor'],
     closed: true,
     properties: {
       kind: {
         enum: ['setHighlightBoxStrokeColor'],
       },
-      id: {
+      highlightBoxId: {
         type: ['string'],
       },
       strokeColor: {
@@ -2454,13 +2454,13 @@ const SHAPE_OF_COMMAND_KIND: Readonly<Record<string, SchemaNode>> = {
   },
   setHighlightBoxStrokeWidthPx: {
     type: ['object'],
-    required: ['kind', 'id', 'strokeWidthPx'],
+    required: ['kind', 'highlightBoxId', 'strokeWidthPx'],
     closed: true,
     properties: {
       kind: {
         enum: ['setHighlightBoxStrokeWidthPx'],
       },
-      id: {
+      highlightBoxId: {
         type: ['string'],
       },
       strokeWidthPx: {
@@ -2470,13 +2470,13 @@ const SHAPE_OF_COMMAND_KIND: Readonly<Record<string, SchemaNode>> = {
   },
   setHighlightBoxFillColor: {
     type: ['object'],
-    required: ['kind', 'id', 'fillColor'],
+    required: ['kind', 'highlightBoxId', 'fillColor'],
     closed: true,
     properties: {
       kind: {
         enum: ['setHighlightBoxFillColor'],
       },
-      id: {
+      highlightBoxId: {
         type: ['string'],
       },
       fillColor: {
@@ -2486,13 +2486,13 @@ const SHAPE_OF_COMMAND_KIND: Readonly<Record<string, SchemaNode>> = {
   },
   setHighlightBoxFillTransparencyPercent: {
     type: ['object'],
-    required: ['kind', 'id', 'fillTransparencyPercent'],
+    required: ['kind', 'highlightBoxId', 'fillTransparencyPercent'],
     closed: true,
     properties: {
       kind: {
         enum: ['setHighlightBoxFillTransparencyPercent'],
       },
-      id: {
+      highlightBoxId: {
         type: ['string'],
       },
       fillTransparencyPercent: {
@@ -2502,13 +2502,13 @@ const SHAPE_OF_COMMAND_KIND: Readonly<Record<string, SchemaNode>> = {
   },
   bringHighlightBoxToFront: {
     type: ['object'],
-    required: ['kind', 'id'],
+    required: ['kind', 'highlightBoxId'],
     closed: true,
     properties: {
       kind: {
         enum: ['bringHighlightBoxToFront'],
       },
-      id: {
+      highlightBoxId: {
         type: ['string'],
       },
     },
@@ -2526,31 +2526,31 @@ const SHAPE_OF_COMMAND_KIND: Readonly<Record<string, SchemaNode>> = {
       },
     },
   },
-  setElementVisible: {
+  setVisibilitySetting: {
     type: ['object'],
-    required: ['kind', 'element', 'visible'],
+    required: ['kind', 'setting', 'isVisible'],
     closed: true,
     properties: {
       kind: {
-        enum: ['setElementVisible'],
+        enum: ['setVisibilitySetting'],
       },
-      element: {
+      setting: {
         enum: ['isBaselineVisible', 'isPlanVisible', 'isActualVisible', 'isProgressLineVisible', 'isProgressMarkerVisible', 'isDateGridLinesVisible', 'isGroupGridLinesVisible', 'isAssigneeVisible', 'isPercentCompleteVisible', 'isDependencyVisible', 'isPlanDatesVisible'],
       },
-      visible: {
+      isVisible: {
         type: ['boolean'],
       },
     },
   },
-  setFontScale: {
+  setFontSizeStep: {
     type: ['object'],
-    required: ['kind', 'fontScale'],
+    required: ['kind', 'fontSizeStep'],
     closed: true,
     properties: {
       kind: {
-        enum: ['setFontScale'],
+        enum: ['setFontSizeStep'],
       },
-      fontScale: {
+      fontSizeStep: {
         enum: ['S', 'M', 'L'],
       },
     },
@@ -2586,7 +2586,7 @@ const SHAPE_OF_COMMAND_KIND: Readonly<Record<string, SchemaNode>> = {
   },
   setScrollPosition: {
     type: ['object'],
-    required: ['kind', 'scrollDate', 'scrollTaskGroupId', 'scrollDayOffset', 'scrollGroupOffset'],
+    required: ['kind', 'scrollDate', 'scrollTaskGroupId', 'scrollDateFraction', 'scrollTaskGroupFraction'],
     closed: true,
     properties: {
       kind: {
@@ -2598,10 +2598,10 @@ const SHAPE_OF_COMMAND_KIND: Readonly<Record<string, SchemaNode>> = {
       scrollTaskGroupId: {
         type: ['string', 'null'],
       },
-      scrollDayOffset: {
+      scrollDateFraction: {
         type: ['number'],
       },
-      scrollGroupOffset: {
+      scrollTaskGroupFraction: {
         type: ['number'],
       },
     },
@@ -2647,7 +2647,7 @@ const SHAPE_OF_COMMAND_KIND: Readonly<Record<string, SchemaNode>> = {
   },
   fitScheduleToScreen: {
     type: ['object'],
-    required: ['kind', 'zoomX', 'zoomY', 'scrollDate', 'scrollTaskGroupId', 'scrollDayOffset', 'scrollGroupOffset'],
+    required: ['kind', 'zoomX', 'zoomY', 'scrollDate', 'scrollTaskGroupId', 'scrollDateFraction', 'scrollTaskGroupFraction'],
     closed: true,
     properties: {
       kind: {
@@ -2665,10 +2665,10 @@ const SHAPE_OF_COMMAND_KIND: Readonly<Record<string, SchemaNode>> = {
       scrollTaskGroupId: {
         type: ['string', 'null'],
       },
-      scrollDayOffset: {
+      scrollDateFraction: {
         type: ['number'],
       },
-      scrollGroupOffset: {
+      scrollTaskGroupFraction: {
         type: ['number'],
       },
     },
@@ -2791,10 +2791,16 @@ const SHAPE_OF_COMMAND_KIND: Readonly<Record<string, SchemaNode>> = {
         properties: {
           visibility: {
             type: ['object'],
-            required: ['hiddenKeys', 'isUnassignedHidden', 'isApplied'],
+            required: ['hiddenTaskUids', 'hiddenResourceUids', 'isUnassignedHidden', 'isScheduleFilterApplied'],
             closed: true,
             properties: {
-              hiddenKeys: {
+              hiddenTaskUids: {
+                type: ['array'],
+                items: {
+                  type: ['integer'],
+                },
+              },
+              hiddenResourceUids: {
                 type: ['array'],
                 items: {
                   type: ['integer'],
@@ -2803,7 +2809,7 @@ const SHAPE_OF_COMMAND_KIND: Readonly<Record<string, SchemaNode>> = {
               isUnassignedHidden: {
                 type: ['boolean'],
               },
-              isApplied: {
+              isScheduleFilterApplied: {
                 type: ['boolean'],
               },
             },

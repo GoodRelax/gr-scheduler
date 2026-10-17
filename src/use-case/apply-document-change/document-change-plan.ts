@@ -67,7 +67,7 @@ export type ChangePlan =
       readonly ok: true
       readonly document: Document
       readonly history: EditHistory<ChangeStep>
-      readonly hasMovedSchedule: boolean
+      readonly hasUpdatedSchedule: boolean
       readonly report: EditReport
     }
 
@@ -77,7 +77,7 @@ export type ChangePlan =
 /** @purity pure */
 function isUndoable(command: DocumentCommand): boolean {
   switch (command.kind) {
-    case 'setElementVisible':
+    case 'setVisibilitySetting':
       return false
     case 'setTaskGroupPanelWidthPx':
     case 'setTaskGroupPanelWidthFixed':
@@ -119,8 +119,8 @@ function columnsOutsideHistory(current: DocumentSettings): Partial<DocumentSetti
     zoomY: current.zoomY,
     scrollDate: current.scrollDate,
     scrollTaskGroupId: current.scrollTaskGroupId,
-    scrollDayOffset: current.scrollDayOffset,
-    scrollGroupOffset: current.scrollGroupOffset,
+    scrollDateFraction: current.scrollDateFraction,
+    scrollTaskGroupFraction: current.scrollTaskGroupFraction,
   }
 }
 
@@ -185,7 +185,7 @@ function documentHoldingOneTaskGroup(
     order: 0,
     // WHY: the one task group T-050 leaves stands open whatever emptied the task groups, as a CM-26 task group does (AT-153).
     treeState: 'temporarilyExpanded',
-    editGroup: null,
+    editPermission: null,
     color: null,
     minHeightPx: null,
   }
@@ -194,7 +194,7 @@ function documentHoldingOneTaskGroup(
 
 // see FR-063
 /** @purity pure */
-function hasMovedScheduleGroup(before: Document, after: Document): boolean {
+function hasUpdatedScheduleGroup(before: Document, after: Document): boolean {
   return before.schedule !== after.schedule
 }
 
@@ -273,20 +273,20 @@ export function planDocumentChange(input: PlanInput): ChangePlan {
           input.historyLimits,
         )
 
-  const hasMovedSchedule = hasMovedScheduleGroup(input.document, settled)
+  const hasUpdatedSchedule = hasUpdatedScheduleGroup(input.document, settled)
   if (settled === input.document) {
     return {
       ok: true,
       document: input.document,
       history,
-      hasMovedSchedule,
+      hasUpdatedSchedule,
       report: { recountedTaskUids: [...recountedTaskUids] },
     }
   }
   const document: Document = {
     ...settled,
     documentStamp: advancedStamp(settled.documentStamp, input.editedBy, input.updatedAt, {
-      hasMovedSchedule,
+      hasUpdatedSchedule,
     }),
   }
 
@@ -294,7 +294,7 @@ export function planDocumentChange(input: PlanInput): ChangePlan {
     ok: true,
     document,
     history,
-    hasMovedSchedule,
+    hasUpdatedSchedule,
     report: { recountedTaskUids: [...recountedTaskUids] },
   }
 }
@@ -347,13 +347,13 @@ export type ReplacementPlan =
   | {
       readonly ok: true
       readonly next: HeldDocument
-      readonly hasMovedSchedule: boolean
+      readonly hasUpdatedSchedule: boolean
     }
 
 // see FR-063
 // TRAP: compare for equality, never order; an undo restores an older stamp.
 /** @purity pure */
-function hasMovedScheduleBetween(outgoing: Document, incoming: Document): boolean {
+function hasUpdatedScheduleBetween(outgoing: Document, incoming: Document): boolean {
   return outgoing.documentStamp.scheduleUpdatedAt !== incoming.documentStamp.scheduleUpdatedAt
 }
 
@@ -366,14 +366,14 @@ function replacementSettled(
   const settled = documentHoldingOneTaskGroup(next.document, input.defaultTaskGroupName, input.newTaskGroupId)
   const pair: HeldDocument =
     settled === next.document ? next : { document: settled, history: next.history }
-  return { ok: true, next: pair, hasMovedSchedule: hasMovedScheduleBetween(held.document, pair.document) }
+  return { ok: true, next: pair, hasUpdatedSchedule: hasUpdatedScheduleBetween(held.document, pair.document) }
 }
 
 // see RD-7, FR-095
 /** @purity pure */
 function startedAfresh(outgoing: Document, call: Extract<ReplacementCall, { readonly row: 'RD-7' }>): Document {
-  const hasMovedSchedule = hasMovedScheduleGroup(outgoing, call.document)
-  const documentStamp = advancedStamp(call.document.documentStamp, call.editedBy, call.updatedAt, { hasMovedSchedule })
+  const hasUpdatedSchedule = hasUpdatedScheduleGroup(outgoing, call.document)
+  const documentStamp = advancedStamp(call.document.documentStamp, call.editedBy, call.updatedAt, { hasUpdatedSchedule })
   return { ...call.document, documentStamp }
 }
 
@@ -433,7 +433,7 @@ export function planDocumentReplacement(input: ReplacementInput): ReplacementPla
           outcome.document.documentStamp,
           call.editedBy,
           call.updatedAt,
-          { hasMovedSchedule: hasMovedScheduleGroup(held.document, outcome.document) },
+          { hasUpdatedSchedule: hasUpdatedScheduleGroup(held.document, outcome.document) },
         ),
       }
       return replacementSettled(held, { document, history }, input)

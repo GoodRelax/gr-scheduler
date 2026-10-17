@@ -174,7 +174,7 @@ function writtenTaskOf(document: Document, uid: number): XmlNode {
 
 describe('EX-11 and EX-12 -- a document read from MSPDI, one task given new dates', () => {
   const move = (document: Document): Document =>
-    edited(document, { kind: 'setTaskPlanDates', uid: 2, start: day(7), finish: day(14) })
+    edited(document, { kind: 'setTaskPlanDates', taskUid: 2, start: day(7), finish: day(14) })
 
   it('EX-11: the moved task goes out with ConstraintType 2 and ConstraintDate on its new Start', () => {
     const task = writtenTaskOf(move(readPj12()), 2)
@@ -207,7 +207,7 @@ describe('EX-11 and EX-12 -- a document read from MSPDI, one task given new date
   })
 
   it('EX-11: renaming a task is not setting its dates -- its constraint goes back as it came', () => {
-    const renamed = edited(readPj12(), { kind: 'setTaskName', uid: 2, name: 'Piers, renamed' })
+    const renamed = edited(readPj12(), { kind: 'setTaskName', taskUid: 2, name: 'Piers, renamed' })
     const task = writtenTaskOf(renamed, 2)
     expect(textAt(task, 'ConstraintType')).toBe('0')
     expect(textAt(task, 'ConstraintDate')).toBeNull()
@@ -307,7 +307,7 @@ describe('EX-12 -- the manual fields of a pj15 task follow its new dates', () =>
 
   const moved = (): XmlNode => {
     const document = accepted(pj15WithManualFields()).document
-    return writtenTaskOf(edited(document, { kind: 'setTaskPlanDates', uid: 2, start: day(7), finish: day(14) }), 2)
+    return writtenTaskOf(edited(document, { kind: 'setTaskPlanDates', taskUid: 2, start: day(7), finish: day(14) }), 2)
   }
 
   it('EX-12, EX-4: ManualStart and ManualFinish are made again from the new dates, spelled as they arrived', () => {
@@ -329,7 +329,7 @@ describe('EX-12 -- the manual fields of a pj15 task follow its new dates', () =>
 
   it('EX-1: the pj15 file with one task moved is valid against pj15', () => {
     const document = accepted(pj15WithManualFields()).document
-    const text = writtenText(edited(document, { kind: 'setTaskPlanDates', uid: 2, start: day(7), finish: day(14) }))
+    const text = writtenText(edited(document, { kind: 'setTaskPlanDates', taskUid: 2, start: day(7), finish: day(14) }))
     expect(schemaFaults(text, 'pj15')).toEqual([])
   })
 })

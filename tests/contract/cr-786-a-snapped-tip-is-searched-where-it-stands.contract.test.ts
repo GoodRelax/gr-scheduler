@@ -110,19 +110,19 @@ describe(`SQ-9 -- a tip not snapped reads its own anchorDate (AT-113)`, () => {
 describe(`SQ-9 -- ${FR_019_SHOWN_DATE}`, () => {
   it.each(SNAP_ORDER)('planned bar %s: the search row reads the date the delete command would write', (point) => {
     const document = withTip(toTask(SECOND_BAR_UID, 'plannedBar', point))
-    const expected = freedDate(document, { kind: 'deleteTask', uid: SECOND_BAR_UID })
+    const expected = freedDate(document, { kind: 'deleteTask', taskUid: SECOND_BAR_UID })
     expect(searchedDate(document)).toBe(expected)
     expect(shownDate(document)).toBe(expected)
   })
 
   it.each(SNAP_ORDER)('milestone %s: the search row reads the date the delete command would write', (point) => {
     const document = withTip(toTask(MILESTONE_UID, 'milestone', point))
-    expect(searchedDate(document)).toBe(freedDate(document, { kind: 'deleteTask', uid: MILESTONE_UID }))
+    expect(searchedDate(document)).toBe(freedDate(document, { kind: 'deleteTask', taskUid: MILESTONE_UID }))
   })
 
   it.each(SNAP_ORDER)('highlight box %s: the search row reads the date the delete command would write', (point) => {
     const document = withTip(toBox(point))
-    expect(searchedDate(document)).toBe(freedDate(document, { kind: 'deleteHighlightBox', id: HIGHLIGHT_ID }))
+    expect(searchedDate(document)).toBe(freedDate(document, { kind: 'deleteHighlightBox', highlightBoxId: HIGHLIGHT_ID }))
   })
 
   it.each(LEFT_POINTS)('planned bar %s reads the planned start, not the stale stored copy', (point) => {
@@ -166,7 +166,7 @@ describe(`SQ-9 after the target moved -- ${FR_019_SHOWN_DATE}`, () => {
   const movedTask = (point: SnapPoint): Document =>
     accepted(run(withTip(toTask(SECOND_BAR_UID, 'plannedBar', point)), {
       kind: 'setTaskPlanDates',
-      uid: SECOND_BAR_UID,
+      taskUid: SECOND_BAR_UID,
       start: MOVED_START,
       finish: MOVED_FINISH,
     }))
@@ -189,7 +189,7 @@ describe(`SQ-9 after the target moved -- ${FR_019_SHOWN_DATE}`, () => {
   it('a highlight box right point reads 0:00 of the day after its new finish day', () => {
     const moved = accepted(run(withTip(toBox('rightMiddle')), {
       kind: 'setHighlightBoxRange',
-      id: HIGHLIGHT_ID,
+      highlightBoxId: HIGHLIGHT_ID,
       range: { start: MOVED_BOX_START, finish: MOVED_BOX_FINISH, topTaskGroupId: groupOf(MILESTONE_UID), bottomTaskGroupId: groupOf(MILESTONE_UID) },
     }))
     expect(searchedDate(moved)).toBe(MOVED_BOX_RIGHT)
@@ -204,7 +204,7 @@ const TO_BOX = { kind: 'commentBox', commentBoxId: COMMENT_ID } as const
 
 const sideways = (document: Document): unknown => {
   const write = searchJumpWrites(document, TO_BOX, true, NO_REACH).scrollWrite as unknown as Record<string, unknown> | null
-  return write === null ? null : { scrollDate: write['scrollDate'], scrollDayOffset: write['scrollDayOffset'] }
+  return write === null ? null : { scrollDate: write['scrollDate'], scrollDateFraction: write['scrollDateFraction'] }
 }
 
 const freeAt = (date: string | null): Document => withTip({ anchorTaskGroupId: groupOf(SECOND_BAR_UID), anchorDate: date })
@@ -228,7 +228,7 @@ describe(`SJ-6 -- ${SJ_6_CELL}`, () => {
   it('after the task moved, the jump follows the moved bar', () => {
     const snapped = accepted(run(withTip(toTask(SECOND_BAR_UID, 'plannedBar', 'topLeftCorner')), {
       kind: 'setTaskPlanDates',
-      uid: SECOND_BAR_UID,
+      taskUid: SECOND_BAR_UID,
       start: MOVED_START,
       finish: MOVED_FINISH,
     }))

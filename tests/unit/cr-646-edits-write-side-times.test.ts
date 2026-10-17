@@ -244,7 +244,7 @@ function dayText(text: string): string {
 describe('X-1 WT-3 / WT-4 through the use case: the actual columns a command makes take the side times', () => {
   it('CM-14 beginTaskActual (GO-7) / WT-3 / WT-4: actualStart at S-482, the last day at S-483', () => {
     const released = { start: dayText(april(8)), finish: dayText(april(8)) }
-    const begin = { kind: 'beginTaskActual', uid: BAR, grabbed: 'GA-6', released, snapMinutes: MINUTES_PER_CALENDAR_DAY } as const
+    const begin = { kind: 'beginTaskActual', taskUid: BAR, grabbed: 'barDummyFinish', released, snapMinutes: MINUTES_PER_CALENDAR_DAY } as const
     const after = taskOf(edited(grsDocument(), begin), BAR)
     expect(after.actualStart, 'premise: the actual was begun').not.toBeNull()
     expect([timeOf(after.actualStart), timeOf(after.actualFinish ?? after.stop)]).toEqual([S_482, S_483])
@@ -257,7 +257,7 @@ describe('X-1 WT-3 / WT-4 through the use case: the actual columns a command mak
     const seen: string[] = []
     for (let turn = 0; turn < 4; turn += 1) {
       const before = taskOf(document, BAR)
-      document = edited(document, { kind: 'cycleTaskPlanActualState', uid: BAR, remembered: null })
+      document = edited(document, { kind: 'cycleTaskPlanActualState', taskUid: BAR, remembered: null })
       const after = taskOf(document, BAR)
       for (const column of startSide) {
         if (after[column] !== null && changed(before, after, column)) seen.push(`${column}=${timeOf(after[column])}`)
@@ -392,7 +392,7 @@ describe('X-4 FR-054: dates are compared by their day', () => {
     const before = annotated()
     const after = edited(before, {
       kind: 'setCommentBoxAnchor',
-      id: COMMENT_ID,
+      commentBoxId: COMMENT_ID,
       anchor: { date: april(21, '12:00:00'), taskGroupId: rowIdOf(0) },
     })
     expect(after.schedule.commentBoxes).toEqual([{ ...before.schedule.commentBoxes[0], anchorDate: april(21, '12:00:00') }])
@@ -402,7 +402,7 @@ describe('X-4 FR-054: dates are compared by their day', () => {
     const before = annotated()
     const after = edited(before, {
       kind: 'setHighlightBoxRange',
-      id: HIGHLIGHT_ID,
+      highlightBoxId: HIGHLIGHT_ID,
       range: {
         start: april(20, '08:00:00'),
         finish: april(22, '17:00:00'),

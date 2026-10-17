@@ -44,7 +44,7 @@
 //            で、`NFR-007` が負う WCAG 2.1 の 1.4.4 は、字を大きくした読者を置き
 //            去りにしない。」
 //   S-203    表 T-206 「ヘルプの文字の大きさの係数（`FR-036`）」 -- ⚠️ 「掛ける相
-//            手は宿主の地の文字であり、`fontScaleSizes`（表 T-215）ではない ——
+//            手は宿主の地の文字であり、`fontSizeStepSizes`（表 T-215）ではない ——
 //            ヘルプは日程の絵ではなく、その周りの枠である（`S-197` と同じ立場）」。
 //   T-103    U-30 `Help Modal` -- the settled name that reaches the DOM as a
 //            `data-role`.
@@ -160,10 +160,10 @@ function numberOf(id: string): number {
 const S_203 = numberOf('S-203')
 
 /**
- * `fontScaleSizes` (S-121 / S-122 / S-123 of table T-215) -- the multiplicand
+ * `fontSizeStepSizes` (S-121 / S-122 / S-123 of table T-215) -- the multiplicand
  * S-203's own note rules out in as many words.
  */
-const FONT_SCALE_SIZES = ((): readonly number[] => {
+const FONT_SIZE_STEP_SIZES = ((): readonly number[] => {
   const table = specTable('T-215')
   return ['S-121', 'S-122', 'S-123'].map((id) => {
     const row = table.rows.find((one) => one.id === id)
@@ -530,7 +530,7 @@ function sizeOf(built: Stage, element: FakeElement, basePx: number): number {
   return size
 }
 
-/** ⭐ Bases of this file's own choosing, none of them a `fontScaleSizes` number. */
+/** ⭐ Bases of this file's own choosing, none of them a `fontSizeStepSizes` number. */
 const BASES = [12, 16, 20, 24, 32]
 
 // ===========================================================================
@@ -562,7 +562,7 @@ describe('the manuscript still says what these cases read', () => {
     expect(cellOf('S-205')).toContain('px')
     expect(S_203).toBeGreaterThan(0)
     expect(S_203).toBeLessThan(1)
-    expect(FONT_SCALE_SIZES.every((one) => one > 0)).toBe(true)
+    expect(FONT_SIZE_STEP_SIZES.every((one) => one > 0)).toBe(true)
     expect(U_30_HELP).toBe('Help Modal')
   })
 })
@@ -722,21 +722,21 @@ describe('FR-036 (MUST) -- the list’s text is S-203 of the base the host gives
     expect(large / small, 'the help follows the reader, rather than a constant').toBeCloseTo(2, 9)
   })
 
-  it('⛔ MUST NOT: it is not `fontScaleSizes[fontScale]` that is multiplied', () => {
-    // ⚠️ S-203's own note: 「掛ける相手は宿主の地の文字であり、`fontScaleSizes`
+  it('⛔ MUST NOT: it is not `fontSizeStepSizes[fontSizeStep]` that is multiplied', () => {
+    // ⚠️ S-203's own note: 「掛ける相手は宿主の地の文字であり、`fontSizeStepSizes`
     //   （表 T-215）ではない —— ヘルプは日程の絵ではなく、その周りの枠である
     //   （`S-197` と同じ立場）」.
     // ⭐ The base below is deliberately none of table T-215's own numbers, so a
     // help that multiplied the wrong thing cannot come out right by accident.
     const base = 20
-    expect(FONT_SCALE_SIZES, 'the base this case drives with is not one of them').not.toContain(base)
+    expect(FONT_SIZE_STEP_SIZES, 'the base this case drives with is not one of them').not.toContain(base)
 
     const { built, help } = drawn([entry({ keys: KEYS })])
     const size = sizeOf(built, theCellShowing(help, EXPLANATION), base)
 
     expect(size).toBeCloseTo(S_203 * base, 9)
-    for (const wrong of FONT_SCALE_SIZES) {
-      expect(size, `S-203 x fontScaleSizes = ${S_203 * wrong}`).not.toBeCloseTo(S_203 * wrong, 9)
+    for (const wrong of FONT_SIZE_STEP_SIZES) {
+      expect(size, `S-203 x fontSizeStepSizes = ${S_203 * wrong}`).not.toBeCloseTo(S_203 * wrong, 9)
     }
   })
 })

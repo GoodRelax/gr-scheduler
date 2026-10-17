@@ -166,7 +166,10 @@ STARTUP_TEMPLATE_ELEMENT_ID = 'grs-startup-template'
 # creationDate, linkLag, importSequence, HighlightBox start/finish.
 # CR-777 / DFC-2950 (JDG-2446): CommentBox gained anchorBandFraction,
 # anchorTaskUid, anchorTaskFigure, anchorHighlightBoxId and anchorSnapPoint.
-SCHEMA_VERSION = '2026-10-16T12:35:39Z'
+# CR-792 (JDG-2681..2683, JDG-2688): scrollDateFraction, scrollTaskGroupFraction,
+# fontSizeStep, TaskOrigin.sourceProjectId, Project.parentTaskProgressToleranceDays
+# and TaskGroup.editPermission take the place of the old keys.
+SCHEMA_VERSION = '2026-10-17T15:27:48Z'
 # CR-699 (DR-4): the first key of every document this file writes. S-540 of
 # table T-206 holds it; read through the one reader of not-stored strings.
 SCHEMA_ADDRESS = settings_reader.not_stored_string('S-540')
@@ -1079,7 +1082,7 @@ def settings_defaults():
     """
     flat = generated_object(SETTINGS_TS, 'SETTINGS_DEFAULTS')
     # ⚠️ SETTINGS_DEFAULTS is flat and spells a nested value with a dot
-    # ("fontScaleSizes.L"), while the GRS JSON schema wants the object. The
+    # ("fontSizeStepSizes.L"), while the GRS JSON schema wants the object. The
     # dot is the manuscript's own notation for one key inside another, so
     # rebuilding the nesting here is reading it, not reinterpreting it.
     # CR-723: a dotted key can nest more than once (tableViews.searchPanel.sort).
@@ -2723,7 +2726,7 @@ class Builder(object):
             'defaultFinishTime': None,
             'themeHue': hue,
             # AT-156 (CR-651): the tolerance VS-6 allows, saved with the document.
-            'parentProgressToleranceDays': manuscript_number('S-487'),
+            'parentTaskProgressToleranceDays': manuscript_number('S-487'),
             'uidHighWaterMark': self.next_uid,
             'importSequence': 0,
             # FR-021: a document GRS made itself counts its outline
@@ -2761,7 +2764,7 @@ class Builder(object):
                 'treeState': 'auto',
                 # GP-1: null is "anyone may edit", which is what a template
                 # that has never met a server must say.
-                'editGroup': None,
+                'editPermission': None,
                 'color': color,
                 'minHeightPx': min_height,
             })

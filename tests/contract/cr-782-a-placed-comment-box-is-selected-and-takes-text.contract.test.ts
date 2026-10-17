@@ -106,7 +106,7 @@ describe(`AR-5: ${PLACED_IS_SELECTED_AND_FOCUSED} -- the press hands the placed 
     const writes = action.writes.flat()
     const placed = writes.filter((one) => one.kind === 'createCommentBox')
     expect(placed, 'one comment box is placed').toHaveLength(1)
-    const placedId = (placed[0] as unknown as Loose)['id']
+    const placedId = (placed[0] as unknown as Loose)['commentBoxId']
     expect(placedId).toBe('comment-box-minted-outside')
     expect(action.created, 'created names the placed box').toEqual({ kind: 'commentBox', id: placedId })
   })
@@ -255,7 +255,7 @@ describe(`FR-019: ${PLACED_OFFSET_CLAUSE}`, () => {
   it('CM-46 writes bodyOffsetPx as { dx: S-600, dy: -S-600 }', () => {
     const made = editDocument(
       documentWith([]),
-      { kind: 'createCommentBox', id: COMMENT_ID, anchor: { date: april(15, '12:00:00'), taskGroupId: FREE_ROW } },
+      { kind: 'createCommentBox', commentBoxId: COMMENT_ID, anchor: { date: april(15, '12:00:00'), taskGroupId: FREE_ROW } },
       LIMITS,
       'row',
     )

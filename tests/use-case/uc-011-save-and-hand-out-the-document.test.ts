@@ -45,7 +45,7 @@ test('UC-011 save the document and hand it out (FR-096, FR-024, FR-080, FR-025, 
     const documentAfter = await readDocument(page)
     expect(documentAfter.schedule).toEqual(documentBefore.schedule)
     // WHY: OP-10 puts the drawn place on the saved copy of the startup template; the open one keeps null.
-    const placeless = (settings: Record<string, unknown>) => ({ ...settings, scrollDate: null, scrollTaskGroupId: null, scrollDayOffset: 0, scrollGroupOffset: 0 })
+    const placeless = (settings: Record<string, unknown>) => ({ ...settings, scrollDate: null, scrollTaskGroupId: null, scrollDateFraction: 0, scrollTaskGroupFraction: 0 })
     expect(documentBefore.documentSettings.scrollDate).toBeNull()
     expect(documentAfter.documentSettings.scrollDate).not.toBeNull()
     expect(documentAfter.documentSettings.scrollTaskGroupId).not.toBeNull()
@@ -75,10 +75,10 @@ test('UC-011 save the document and hand it out (FR-096, FR-024, FR-080, FR-025, 
     expect(normalizedSvg(second.text)).toBe(normalizedSvg(first.text))
     expect(first.text).toContain('width="' + size.width + '"')
     expect(first.text).toContain('height="' + size.height + '"')
-    expect(settings.fontScale).toBeTruthy()
+    expect(settings.fontSizeStep).toBeTruthy()
     const reopened = JSON.parse(saved.text)
     expect(Object.keys(reopened.documentSettings)).not.toContain('exportCanvas')
-    expect(reopened.documentSettings.fontScale).toBe(settings.fontScale)
+    expect(reopened.documentSettings.fontSizeStep).toBe(settings.fontSizeStep)
   })
 
   await test.step('UC-011 extension 1b: starting anew asks first, then shows the empty document (FR-095, OP-4, T-342 BK-1 BK-2)', async () => {

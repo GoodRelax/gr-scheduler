@@ -1790,7 +1790,7 @@ const PROBES: readonly Probe[] = [
           const task = api.readDocument().schedule.tasks.find((one) => one.uid === asked.uid)
           if (task === undefined) return false
           const deadline = new Date(Date.parse(`${task.finish}Z`) + asked.days * asked.dayMs).toISOString().slice(0, 19)
-          const answer = await api.applyCommands({ expectedStamp: api.readStamp(), commands: [{ kind: 'setTaskDeadline', uid: asked.uid, deadline }] })
+          const answer = await api.applyCommands({ expectedStamp: api.readStamp(), commands: [{ kind: 'setTaskDeadline', taskUid: asked.uid, deadline }] })
           return answer.ok
         },
         { uid, days: pastFinishDays, dayMs: DAY_MS },

@@ -20,16 +20,8 @@ screen | K-144 | viewTimeZone | Project Base Time Zone | JDG-2691: the user chos
 screen | K-138 | levelZeroTreeState | Top-Level Tree State | JDG-2691: the ja screen word says level 0 too; it names how levels are counted, like outlineBase
 #
 # -- ruled for renaming; CR-792 deletes the line when it lands --
-value | CM-28 | targetTaskGroupId | parentId | JDG-2689: renamed to parentId by CR-792 (JDG-2361 had kept it)
-key | CM-42 | uids | uid | JDG-2685: renamed to resourceUids by CR-792 (the command becomes deleteResources, JDG-2690)
-screen | K-85 | fontScale | Font Size | JDG-2682: renamed to fontSizeStep by CR-792
-screen | K-140 | parentProgressToleranceDays | Parent Task Progress Tolerance | JDG-2688: renamed to parentTaskProgressToleranceDays by CR-792
-screen | PR-33 | editGroup | Edit Permission | renamed to editPermission by CR-792 (the user's choice, 2026-10-17)
-screen | K-121 | scrollDayOffset | Left Edge Time | JDG-2681: renamed to scrollDateFraction by CR-792 (the new name still differs from the screen word; CR-792 writes the new line)
-screen | K-120 | scrollGroupOffset | Top Task Group Position | JDG-2681: renamed to scrollTaskGroupFraction by CR-792 (the new name still differs from the screen word; CR-792 writes the new line)
-value | shape TableVisibility | isApplied | isScheduleFilterApplied | JDG-2723: the command value becomes isScheduleFilterApplied by CR-792 (it writes S-560, S-564 and S-568; one line covers the three)
-value | shape TableVisibility | hiddenKeys | hiddenTaskUids | JDG-2724: split into hiddenTaskUids (search panel, delay report) and hiddenResourceUids (resource list) by CR-792
-value | shape TableVisibility | hiddenKeys | hiddenResourceUids | JDG-2724: split into hiddenTaskUids and hiddenResourceUids by CR-792
+screen | K-121 | scrollDateFraction | Left Edge Time | JDG-2681: a fraction of a day past scrollDate, the ratio the screen shows as a time; Fraction says ratio as anchorBandFraction does
+screen | K-120 | scrollTaskGroupFraction | Top Task Group Position | JDG-2681: a fraction of the task group past scrollTaskGroupId, the ratio the screen shows as a position; Fraction says ratio as anchorBandFraction does
 #
 # -- the shape of a value, not a name choice --
 value | shape AnnotationAnchor | date | anchorDate | the shape IS the comment box's anchor; its fields drop the anchor prefix of the CommentBox columns they are written into
@@ -42,6 +34,8 @@ value | shape AnnotationAnchor | snapPoint | anchorSnapPoint | the shape IS the 
 value | CM-39 | workingDayTypes | dayType | JDG-2725: a list of the dayType values that count as working days, not the column itself
 value | CM-51 | dx | bodyOffsetPx | the horizontal part of the offset bodyOffsetPx holds
 value | CM-51 | dy | bodyOffsetPx | the vertical part of the offset bodyOffsetPx holds
+value | CM-46 | commentBoxId | id | JDG-2685: every comment box command names its box commentBoxId, the one that makes the box too; it writes the column id
+value | CM-52 | highlightBoxId | id | JDG-2685: every highlight box command names its box highlightBoxId, the one that makes the box too; it writes the column id
 screen | PR-35 | start | Planned Date | one field edits the planned start and finish together under one word
 screen | PR-35 | finish | Planned Date | one field edits the planned start and finish together under one word
 screen | PR-36 | actualStart | Actual Date | one field edits the actual start and finish together under one word

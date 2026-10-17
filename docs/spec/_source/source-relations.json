@@ -194,7 +194,7 @@
    "to": "docs/spec/01-04-requirements.md",
    "family": "rows",
    "fields": {
-    "tag": 5
+    "row": 5
    },
    "prefixes": [
     "PA"
@@ -697,6 +697,11 @@
    "from": "docs/spec/_source/document-commands.json",
    "to": "docs/spec/_source/state-machines.json",
    "count": 3
+  },
+  {
+   "from": "docs/spec/_source/document-commands.schema.json",
+   "to": "docs/spec/01-04-requirements.md",
+   "count": 1
   },
   {
    "from": "docs/spec/_source/document-commands.schema.json",

@@ -101,7 +101,7 @@ describe('AG-9a -- applyCommands refuses a command out of table T-108 shape as m
   })
 
   it('case 4: a value of the wrong JSON type (a string where an integer is required)', () => {
-    expectRefused([{ kind: 'setTaskName', uid: '1', name: 'Renamed' }], 'uid as a string')
+    expectRefused([{ kind: 'setTaskName', taskUid: '1', name: 'Renamed' }], 'taskUid as a string')
     expectRefused([{ kind: 'moveTaskGroup', taskGroupId: 'g2', parentId: null, order: 'first' }], 'order as a string')
     expectRefused([{ kind: 'setProjectTitle', title: 42 }], 'title as a number')
   })
@@ -137,7 +137,7 @@ describe('AG-9a -- applyCommands refuses a command out of table T-108 shape as m
     const { api, bench } = stage()
     const outcome = write(api, [
       { kind: 'setProjectTitle', title: 'DFC-2856 two' },
-      { kind: 'setTaskName', uid: 1, name: 'Renamed by bundle' },
+      { kind: 'setTaskName', taskUid: 1, name: 'Renamed by bundle' },
     ])
     expect(outcome.ok).toBe(true)
     expect(titleOf(bench)).toBe('DFC-2856 two')
@@ -182,7 +182,7 @@ describe('CM-38 setDependencyLag -- two alternative shapes, a mix that fits neit
 describe('PI-20 -- commandShapeFaults answers whether one command fits table T-108', () => {
   it('case 8: a fitting command has no faults', () => {
     expect(commandShapeFaults({ kind: 'setProjectTitle', title: 'T' })).toEqual([])
-    expect(commandShapeFaults({ kind: 'setTaskName', uid: 1, name: 'N' })).toEqual([])
+    expect(commandShapeFaults({ kind: 'setTaskName', taskUid: 1, name: 'N' })).toEqual([])
     expect(commandShapeFaults({ kind: 'moveTaskGroup', taskGroupId: 'g2', parentId: null, order: 0 })).toEqual([])
     expect(commandShapeFaults({ ...LAG_BASE, ...WORKING_DAY_LAG })).toEqual([])
     expect(commandShapeFaults({ ...LAG_BASE, ...TYPED_LAG })).toEqual([])
@@ -194,7 +194,7 @@ describe('PI-20 -- commandShapeFaults answers whether one command fits table T-1
     ['missing required value', { kind: 'setProjectTitle' }],
     ['misspelled extra value', { kind: 'setProjectTitle', titel: 'x' }],
     ['extra value beside a good one', { kind: 'setProjectTitle', title: 'x', titel: 'y' }],
-    ['wrong JSON type (string for integer)', { kind: 'setTaskName', uid: '1', name: 'N' }],
+    ['wrong JSON type (string for integer)', { kind: 'setTaskName', taskUid: '1', name: 'N' }],
     ['wrong JSON type (number for string)', { kind: 'setProjectTitle', title: 42 }],
     ['moveTaskGroup order as a string', { kind: 'moveTaskGroup', taskGroupId: 'g2', parentId: null, order: 'first' }],
     ['lag mix fitting neither shape', { ...LAG_BASE, ...WORKING_DAY_LAG, ...TYPED_LAG }],

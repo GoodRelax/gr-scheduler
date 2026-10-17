@@ -156,7 +156,7 @@ const S_69_KEY = 'isBaselineVisible'
 
 const NESTED = {
   exportCanvas: { width: 1600, height: 900 },
-  fontScaleSizes: { L: 16, M: 14, S: 12 },
+  fontSizeStepSizes: { L: 16, M: 14, S: 12 },
   planActualGuidePattern: { off: 2, on: 2 },
   shapeHeightOf: { arrow: 0.5, chevron: 1, endpointSpan: 0.5, milestone: 1.5, rectangle: 1 },
 }
@@ -276,7 +276,7 @@ function pressIc4(document: Document): PressAnswer {
   for (const action of answered) {
     const writes = (action as Loose | null)?.['kind'] === 'changeDocument' ? ((action as Loose)['writes'] as unknown[][]).flat() : []
     for (const write of writes as Loose[]) {
-      if (write['element'] === S_69_KEY) s69Writes.push(write['visible'])
+      if (write['setting'] === S_69_KEY) s69Writes.push(write['isVisible'])
       else if (S_69_KEY in write) s69Writes.push(write[S_69_KEY])
     }
   }

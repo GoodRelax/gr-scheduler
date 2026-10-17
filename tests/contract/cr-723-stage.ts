@@ -43,7 +43,7 @@ export const KEYS_OF: Readonly<Record<VisibilityTable, readonly string[]>> = {
 }
 
 // see TV-2
-export const ALL_SHOWN: TableVisibility = { hiddenKeys: [], isUnassignedHidden: false, isApplied: false }
+export const ALL_SHOWN: TableVisibility = { hiddenTaskUids: [], hiddenResourceUids: [], isUnassignedHidden: false, isScheduleFilterApplied: false }
 export const DEFAULT_VIEW: TableView = { visibility: ALL_SHOWN, columnFilters: [], sort: null }
 
 export const view = (part: Partial<TableView> = {}): TableView => ({ ...DEFAULT_VIEW, ...part })
@@ -54,17 +54,17 @@ export const DATE_FILTER: ColumnFilter = { column: 'SQ-3', hiddenValues: [], fro
 export const BY_RESOURCE: ColumnSort = { column: 'SQ-2', direction: 'descending' }
 
 export const SEARCH_VIEW: TableView = view({
-  visibility: { hiddenKeys: [ALPHA, BRAVO], isUnassignedHidden: false, isApplied: true },
+  visibility: { hiddenTaskUids: [ALPHA, BRAVO], hiddenResourceUids: [], isUnassignedHidden: false, isScheduleFilterApplied: true },
   columnFilters: [STATUS_FILTER, DATE_FILTER],
   sort: BY_RESOURCE,
 })
 export const REPORT_VIEW: TableView = view({
-  visibility: { hiddenKeys: [DELTA], isUnassignedHidden: false, isApplied: false },
+  visibility: { hiddenTaskUids: [DELTA], hiddenResourceUids: [], isUnassignedHidden: false, isScheduleFilterApplied: false },
   columnFilters: [{ column: 'DT-1', hiddenValues: ['Done'], fromDate: null, toDate: null }],
   sort: { column: 'DT-4', direction: 'ascending' },
 })
 export const RESOURCE_VIEW: TableView = view({
-  visibility: { hiddenKeys: [TANAKA], isUnassignedHidden: true, isApplied: true },
+  visibility: { hiddenTaskUids: [], hiddenResourceUids: [TANAKA], isUnassignedHidden: true, isScheduleFilterApplied: true },
   columnFilters: [{ column: 'RQ-2', hiddenValues: [''], fromDate: null, toDate: null }],
   sort: { column: 'RQ-4', direction: 'descending' },
 })
@@ -79,16 +79,16 @@ export function openedFrom(text: string): Document {
 /** @purity pure */
 export function tableViewsText(views: Readonly<Record<VisibilityTable, TableView>>): Loose {
   const rows = (one: TableView): Loose => ({
-    isScheduleFilterApplied: one.visibility.isApplied,
+    isScheduleFilterApplied: one.visibility.isScheduleFilterApplied,
     columnFilters: one.columnFilters,
     sort: one.sort,
   })
   return {
-    searchPanel: { ...rows(views.searchPanel), hiddenTaskUids: views.searchPanel.visibility.hiddenKeys },
-    delayDiagnosticsReport: { ...rows(views.delayDiagnosticsReport), hiddenTaskUids: views.delayDiagnosticsReport.visibility.hiddenKeys },
+    searchPanel: { ...rows(views.searchPanel), hiddenTaskUids: views.searchPanel.visibility.hiddenTaskUids },
+    delayDiagnosticsReport: { ...rows(views.delayDiagnosticsReport), hiddenTaskUids: views.delayDiagnosticsReport.visibility.hiddenTaskUids },
     resourceList: {
       ...rows(views.resourceList),
-      hiddenResourceUids: views.resourceList.visibility.hiddenKeys,
+      hiddenResourceUids: views.resourceList.visibility.hiddenResourceUids,
       isUnassignedHidden: views.resourceList.visibility.isUnassignedHidden,
     },
   }

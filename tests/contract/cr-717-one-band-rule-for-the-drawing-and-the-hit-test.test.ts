@@ -75,7 +75,7 @@ const build = () => {
     stackDirection: 'down',
     pinnedTaskGroupIds: [PINNED_GROUP],
     scrollTaskGroupId: SCROLLING_GROUP,
-    scrollGroupOffset: 0,
+    scrollTaskGroupFraction: 0,
   } as unknown as Parameters<typeof layoutFromSchedule>[1]
   const regions = regionsFromScreen(SCREEN, settings)
   const layout = layoutFromSchedule(schedule, settings, regions)

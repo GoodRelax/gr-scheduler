@@ -18,7 +18,7 @@ export interface WatcherMark {
 
 export interface ConfirmedChange {
   readonly document: Document
-  readonly hasMovedSchedule: boolean
+  readonly hasUpdatedSchedule: boolean
   readonly dialogue: DialogueLog
 }
 
@@ -41,7 +41,7 @@ export function changeNoticeFor(
   const stamp = confirmed.document.documentStamp
 
   const isScheduleUnseen =
-    confirmed.hasMovedSchedule || stamp.scheduleUpdatedAt !== seen.seenScheduleUpdatedAt
+    confirmed.hasUpdatedSchedule || stamp.scheduleUpdatedAt !== seen.seenScheduleUpdatedAt
   const changed = isScheduleUnseen && stamp.lastEditedBy !== watcher
 
   const messages =

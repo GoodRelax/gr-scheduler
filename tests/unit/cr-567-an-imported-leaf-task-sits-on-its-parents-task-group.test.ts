@@ -234,7 +234,7 @@ function taskGroupMoves(document: Document, bar: { readonly uid: number; readonl
   // (CR-706), so that move changes more than the sibling order.
   return [
     ['reorderTaskGroupSiblings', groupEdited(document, { kind: 'reorderTaskGroupSiblings', parentId: null, orderedIds: [...rootTaskGroups].reverse() })],
-    ['moveTaskToTaskGroup', taskEdited(document, { kind: 'moveTaskToTaskGroup', uid: bar.uid, taskGroupId: rowIdMadeFrom(document, bar.toTaskGroupOf) })],
+    ['moveTaskToTaskGroup', taskEdited(document, { kind: 'moveTaskToTaskGroup', taskUid: bar.uid, taskGroupId: rowIdMadeFrom(document, bar.toTaskGroupOf) })],
   ]
 }
 

@@ -89,7 +89,7 @@ FIELDS = {
     ('document-commands.json', 'column'): ('row', {'AT', 'S'}),
     ('document-commands.json', 'key'): ('row', {'AT', 'S'}),
     ('document-commands.json', 'valuesOf'): ('row', {'S'}),
-    ('document-commands.json', 'tag'): ('row', {'PA'}),
+    ('document-commands.json', 'row'): ('row', {'PA'}),
     ('display-words.json', 'rowId'): ('row', None),
     ('display-words.json', 'firstRow'): ('row', {'IC'}),
     ('erd.json', 'defaultFrom'): ('row', {'S'}),

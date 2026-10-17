@@ -36,7 +36,7 @@ export function taskGroupsFromTasks(tasks: readonly Task[], maxGroupDepth: numbe
       derivedFromTaskUid: task.uid,
       order: task.wbsOrder ?? 0,
       treeState: 'auto',
-      editGroup: null,
+      editPermission: null,
       color: null,
       minHeightPx: null,
     })

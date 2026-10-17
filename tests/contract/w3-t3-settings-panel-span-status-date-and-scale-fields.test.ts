@@ -49,7 +49,7 @@ const keyRowOf = (key: string): string => {
   if (row === undefined) throw new Error(`table T-104 has no row for the key ${key}`)
   return row.id
 }
-const K_TOLERANCE = keyRowOf('parentProgressToleranceDays')
+const K_TOLERANCE = keyRowOf('parentTaskProgressToleranceDays')
 const K_SPAN = keyRowOf('fitSpanStart')
 const K_SCALE = keyRowOf('displayScale')
 const IC_44 = 'IC-44'

@@ -94,7 +94,7 @@ function sceneOf(): Document {
         derivedFromTaskUid: null,
         order: index,
         treeState: 'auto',
-        editGroup: null,
+        editPermission: null,
         color: null,
         minHeightPx: null,
       })),
@@ -109,7 +109,7 @@ function sceneOf(): Document {
       ...structuredClone(TEMPLATE.documentSettings),
       scrollDate: '2026-04-01',
       scrollTaskGroupId: A,
-      scrollGroupOffset: 0,
+      scrollTaskGroupFraction: 0,
       zoomY: 1,
       levelZeroTreeState: 'auto',
     },
@@ -310,7 +310,7 @@ const HALF_TYPED: readonly (readonly [string, string])[] = [
 const settingsOf = (loop: FrameLoop): Record<string, unknown> => loop.document().documentSettings as unknown as Record<string, unknown>
 const scrollOf = (loop: FrameLoop): string => {
   const held = settingsOf(loop)
-  return JSON.stringify([held['scrollDate'], held['scrollDayOffset'], held['scrollTaskGroupId'], held['scrollGroupOffset']])
+  return JSON.stringify([held['scrollDate'], held['scrollDateFraction'], held['scrollTaskGroupId'], held['scrollTaskGroupFraction']])
 }
 
 function heldOn(row: string, text: string): { readonly built: Bench; readonly input: FakeElement; readonly label: unknown } {

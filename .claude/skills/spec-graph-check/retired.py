@@ -83,7 +83,7 @@ RETIRED = {'FR-050', 'T-030',
            # seat stays burned.
            'S-59', 'K-74',
            # CM-57 (setPlanActualDisplay) went with them: with the pair as two
-           # ordinary boolean rows of table T-202, CM-58 setElementVisible is
+           # ordinary boolean rows of table T-202, CM-58 setVisibilitySetting is
            # the command that writes them, and a second command for the same
            # two columns would be a second entrance to one thing.
            'CM-57',

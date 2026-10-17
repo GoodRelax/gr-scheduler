@@ -53,7 +53,7 @@ function taskGroupPasted(document: Document): Document {
     {
       kind: 'pasteTaskGroupSubtree',
       sourceTaskGroupId: taskGroupOfTask(document, SOURCE_UID),
-      targetTaskGroupId: null,
+      parentId: null,
       newTaskGroupIds: { [taskGroupOfTask(document, SOURCE_UID)]: COPY_ROW_ID },
     },
     'Row',

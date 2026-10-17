@@ -201,8 +201,8 @@ const releasedFromGr17 = (droppedIso: string): EditResult =>
     notStarted(),
     {
       kind: 'beginTaskActual',
-      uid: 1,
-      grabbed: 'GA-6',
+      taskUid: 1,
+      grabbed: 'barDummyFinish',
       released: { start: stored(droppedIso), finish: stored(droppedIso) },
       snapMinutes: MINUTES_PER_CALENDAR_DAY,
     },

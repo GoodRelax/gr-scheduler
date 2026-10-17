@@ -160,7 +160,7 @@ describe('CR-648 FR-038 -- the report prints the dictionary words, in ja and en'
       rightmostUid: 2,
       // WHY: CR-710 holds the VS-6 distance in working minutes; 5 working days of 480 minutes read back as 5 (TX-8).
       outsideMinutes: 2400,
-      parentProgressToleranceDays: 1,
+      parentTaskProgressToleranceDays: 1,
     }
     const report: DelayDiagnosticsReport = {
       ...REPORT,

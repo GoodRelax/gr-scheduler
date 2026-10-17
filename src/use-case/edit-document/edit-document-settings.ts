@@ -37,7 +37,7 @@ export interface SettingsLimits {
 // From docs/spec/_source/document-commands.json (table T-108, DocumentSettingsCommand).
 // see T-108
 export interface TableView {
-  readonly visibility: { readonly hiddenKeys: readonly number[]; readonly isUnassignedHidden: boolean; readonly isApplied: boolean }
+  readonly visibility: { readonly hiddenTaskUids: readonly number[]; readonly hiddenResourceUids: readonly number[]; readonly isUnassignedHidden: boolean; readonly isScheduleFilterApplied: boolean }
   readonly columnFilters: readonly ColumnFilter[]
   readonly sort: ColumnSort | null
 }
@@ -46,11 +46,11 @@ export interface TableView {
 export type DocumentSettingsCommand =
   | { readonly kind: 'setStackDirection'; readonly stackDirection: DocumentSettings['stackDirection'] }
   | {
-      readonly kind: 'setElementVisible'
-      readonly element: 'isBaselineVisible' | 'isPlanVisible' | 'isActualVisible' | 'isProgressLineVisible' | 'isProgressMarkerVisible' | 'isDateGridLinesVisible' | 'isGroupGridLinesVisible' | 'isAssigneeVisible' | 'isPercentCompleteVisible' | 'isDependencyVisible' | 'isPlanDatesVisible'
-      readonly visible: boolean
+      readonly kind: 'setVisibilitySetting'
+      readonly setting: 'isBaselineVisible' | 'isPlanVisible' | 'isActualVisible' | 'isProgressLineVisible' | 'isProgressMarkerVisible' | 'isDateGridLinesVisible' | 'isGroupGridLinesVisible' | 'isAssigneeVisible' | 'isPercentCompleteVisible' | 'isDependencyVisible' | 'isPlanDatesVisible'
+      readonly isVisible: boolean
     }
-  | { readonly kind: 'setFontScale'; readonly fontScale: DocumentSettings['fontScale'] }
+  | { readonly kind: 'setFontSizeStep'; readonly fontSizeStep: DocumentSettings['fontSizeStep'] }
   | { readonly kind: 'setThemeMonochrome'; readonly isThemeMonochrome: DocumentSettings['isThemeMonochrome'] }
   | {
       readonly kind: 'setZoom'
@@ -61,8 +61,8 @@ export type DocumentSettingsCommand =
       readonly kind: 'setScrollPosition'
       readonly scrollDate: DocumentSettings['scrollDate']
       readonly scrollTaskGroupId: DocumentSettings['scrollTaskGroupId']
-      readonly scrollDayOffset: DocumentSettings['scrollDayOffset']
-      readonly scrollGroupOffset: DocumentSettings['scrollGroupOffset']
+      readonly scrollDateFraction: DocumentSettings['scrollDateFraction']
+      readonly scrollTaskGroupFraction: DocumentSettings['scrollTaskGroupFraction']
     }
   | {
       readonly kind: 'setTaskGroupPanelWidthPx'
@@ -76,8 +76,8 @@ export type DocumentSettingsCommand =
       readonly zoomY: DocumentSettings['zoomY']
       readonly scrollDate: DocumentSettings['scrollDate']
       readonly scrollTaskGroupId: DocumentSettings['scrollTaskGroupId']
-      readonly scrollDayOffset: DocumentSettings['scrollDayOffset']
-      readonly scrollGroupOffset: DocumentSettings['scrollGroupOffset']
+      readonly scrollDateFraction: DocumentSettings['scrollDateFraction']
+      readonly scrollTaskGroupFraction: DocumentSettings['scrollTaskGroupFraction']
     }
   | { readonly kind: 'setDisplayScale'; readonly displayScale: DocumentSettings['displayScale'] }
   | {
@@ -122,7 +122,7 @@ type ColumnSort = NonNullable<TableViews[VisibilityTable]['sort']>
 type TableVisibility = TableView['visibility']
 
 const DEFAULT_TABLE_VIEW: TableView = {
-  visibility: { hiddenKeys: [], isUnassignedHidden: false, isApplied: false },
+  visibility: { hiddenTaskUids: [], hiddenResourceUids: [], isUnassignedHidden: false, isScheduleFilterApplied: false },
   columnFilters: [],
   sort: null,
 }
@@ -140,9 +140,9 @@ type HeldTableView = TableViews[VisibilityTable]
 /** @purity pure */
 function visibilityOf(held: HeldTableView): TableVisibility {
   if ('hiddenResourceUids' in held) {
-    return { hiddenKeys: held.hiddenResourceUids, isUnassignedHidden: held.isUnassignedHidden, isApplied: held.isScheduleFilterApplied }
+    return { hiddenTaskUids: [], hiddenResourceUids: held.hiddenResourceUids, isUnassignedHidden: held.isUnassignedHidden, isScheduleFilterApplied: held.isScheduleFilterApplied }
   }
-  return { hiddenKeys: held.hiddenTaskUids, isUnassignedHidden: false, isApplied: held.isScheduleFilterApplied }
+  return { hiddenTaskUids: held.hiddenTaskUids, hiddenResourceUids: [], isUnassignedHidden: false, isScheduleFilterApplied: held.isScheduleFilterApplied }
 }
 
 // see FR-151, TV-2, S-560
@@ -165,11 +165,12 @@ function heldColumnFilter(filter: ColumnFilter): ColumnFilter {
 function heldViewOf(table: VisibilityTable, view: TableView): HeldTableView {
   const columnFilters = view.columnFilters.map(heldColumnFilter)
   const sort = view.sort === null ? null : { column: view.sort.column, direction: view.sort.direction }
-  const isScheduleFilterApplied = view.visibility.isApplied
-  const hiddenKeys = [...view.visibility.hiddenKeys]
-  if (table !== 'resourceList') return { columnFilters, hiddenTaskUids: hiddenKeys, isScheduleFilterApplied, sort }
+  const isScheduleFilterApplied = view.visibility.isScheduleFilterApplied
+  if (table !== 'resourceList') {
+    return { columnFilters, hiddenTaskUids: [...view.visibility.hiddenTaskUids], isScheduleFilterApplied, sort }
+  }
   const isUnassignedHidden = view.visibility.isUnassignedHidden
-  return { columnFilters, hiddenResourceUids: hiddenKeys, isScheduleFilterApplied, isUnassignedHidden, sort }
+  return { columnFilters, hiddenResourceUids: [...view.visibility.hiddenResourceUids], isScheduleFilterApplied, isUnassignedHidden, sort }
 }
 
 /** @purity pure */
@@ -203,8 +204,9 @@ function isColumnSort(value: unknown): boolean {
 
 /** @purity pure */
 function isTableVisibility(value: unknown): boolean {
-  if (!isListOf(fieldOf(value, 'hiddenKeys'), Number.isInteger)) return false
-  return typeof fieldOf(value, 'isUnassignedHidden') === 'boolean' && typeof fieldOf(value, 'isApplied') === 'boolean'
+  if (!isListOf(fieldOf(value, 'hiddenTaskUids'), Number.isInteger)) return false
+  if (!isListOf(fieldOf(value, 'hiddenResourceUids'), Number.isInteger)) return false
+  return typeof fieldOf(value, 'isUnassignedHidden') === 'boolean' && typeof fieldOf(value, 'isScheduleFilterApplied') === 'boolean'
 }
 
 // see CM-92, AG-5, T-372
@@ -315,17 +317,17 @@ function levelZeroTreeStateEdited(
 
 // see CM-62, FR-039, S-70
 /** @purity pure */
-function fontScaleEdited(
+function fontSizeStepEdited(
   settings: DocumentSettings,
-  command: Extract<DocumentSettingsCommand, { readonly kind: 'setFontScale' }>,
+  command: Extract<DocumentSettingsCommand, { readonly kind: 'setFontSizeStep' }>,
   put: SettingsPut,
 ): EditResult {
   const ruler = SETTINGS_DERIVED.rulerFontSizePx
-  const rulerFontSizePx = SETTINGS_CONSTANTS[ruler.index][command.fontScale] * ruler.times
+  const rulerFontSizePx = SETTINGS_CONSTANTS[ruler.index][command.fontSizeStep] * ruler.times
   const band = SETTINGS_DERIVED.rulerHeightPx
   const padded = { ...settings, rulerFontSizePx }
   return put({
-    fontScale: command.fontScale,
+    fontSizeStep: command.fontSizeStep,
     rulerFontSizePx,
     rulerHeightPx:
       padded[band.from] * band.times +
@@ -501,11 +503,11 @@ export function editDocumentSettings(
     case 'setStackDirection':
       return put({ stackDirection: command.stackDirection })
 
-    case 'setElementVisible':
-      return put({ [command.element]: command.visible } as Partial<DocumentSettings>)
+    case 'setVisibilitySetting':
+      return put({ [command.setting]: command.isVisible } as Partial<DocumentSettings>)
 
-    case 'setFontScale':
-      return fontScaleEdited(settings, command, put)
+    case 'setFontSizeStep':
+      return fontSizeStepEdited(settings, command, put)
 
     // see CM-74, FR-039
     case 'setDisplayScale':
@@ -526,8 +528,8 @@ export function editDocumentSettings(
       return put({
         scrollDate: command.scrollDate,
         scrollTaskGroupId: command.scrollTaskGroupId,
-        scrollDayOffset: command.scrollDayOffset,
-        scrollGroupOffset: command.scrollGroupOffset,
+        scrollDateFraction: command.scrollDateFraction,
+        scrollTaskGroupFraction: command.scrollTaskGroupFraction,
       })
     }
 
@@ -553,8 +555,8 @@ export function editDocumentSettings(
         zoomY: clamp(command.zoomY),
         scrollDate: command.scrollDate,
         scrollTaskGroupId: command.scrollTaskGroupId,
-        scrollDayOffset: command.scrollDayOffset,
-        scrollGroupOffset: command.scrollGroupOffset,
+        scrollDateFraction: command.scrollDateFraction,
+        scrollTaskGroupFraction: command.scrollTaskGroupFraction,
       })
     }
 

@@ -192,7 +192,7 @@ test.describe('CR-723 on the shipped build', () => {
       await hideListedIn(page, RESOURCE_LIST, 'Tanaka')
       const current = (await viewsOf(page))['searchPanel'] ?? {}
       expect(current['hiddenTaskUids'], 'premise: the two Sato tasks are Hide').toEqual([ALPHA, CHARLIE])
-      expect(await applyView(page, 'searchPanel', { visibility: { hiddenKeys: [ALPHA, CHARLIE], isUnassignedHidden: false, isApplied: false }, columnFilters: [STATUS_FILTER], sort: BY_RESOURCE })).toBe(true)
+      expect(await applyView(page, 'searchPanel', { visibility: { hiddenTaskUids: [ALPHA, CHARLIE], hiddenResourceUids: [], isUnassignedHidden: false, isScheduleFilterApplied: false }, columnFilters: [STATUS_FILTER], sort: BY_RESOURCE })).toBe(true)
       await settle(page)
       // STEP: RO-6 -- the Resource List opened later stands in front of the Search Panel; drag it aside to reach the search IC-143
       await dragAside(page, RESOURCE_LIST)

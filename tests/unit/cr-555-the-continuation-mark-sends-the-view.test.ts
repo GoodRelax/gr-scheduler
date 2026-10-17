@@ -193,7 +193,7 @@ const scheduleOf = (spec: SceneSpec): Schedule =>
       name: id,
       derivedFromTaskUid: null,
       treeState: 'auto',
-      editGroup: null,
+      editPermission: null,
       color: null,
     })),
     taskGroupMembers: spec.tasks.map(([task, taskGroupId]) => ({ taskGroupId, taskUid: task['uid'] })),
@@ -460,7 +460,7 @@ describe(`EL-11 -- ${EL_11_SEND}`, () => {
       const scroll = onlyOf(writes, SET_SCROLL)
       expect(scroll, 'premise: EL-11 sent the view across').toBeDefined()
       expect(scroll!['scrollTaskGroupId'], `${EL_12_STAY} (S-78 names the task group already at the top)`).toBe(top!.taskGroupId)
-      expect(scroll!['scrollGroupOffset'], `${EL_12_STAY} (S-176 keeps the offset already at the top)`).toBeCloseTo(
+      expect(scroll!['scrollTaskGroupFraction'], `${EL_12_STAY} (S-176 keeps the offset already at the top)`).toBeCloseTo(
         top!.offset,
         6,
       )
@@ -484,7 +484,7 @@ describe(`EL-11 -- ${EL_11_SEND}`, () => {
     const scroll = onlyOf(writes, SET_SCROLL)
     expect(scroll, EL_11_SEND).toBeDefined()
     expect(scroll!['scrollTaskGroupId'], EL_12_PINNED).toBe(scene.settings['scrollTaskGroupId'])
-    expect(scroll!['scrollGroupOffset'], EL_12_PINNED).toBe(scene.settings['scrollGroupOffset'])
+    expect(scroll!['scrollTaskGroupFraction'], EL_12_PINNED).toBe(scene.settings['scrollTaskGroupFraction'])
     const moved = placementOf(sceneAfter(scene, writes), 2)!
     expect(moved.x + moved.width / 2, EL_11_SEND).toBeCloseTo(scene.taskGroupArea.x + scene.taskGroupArea.width / 2, 2)
   })
@@ -505,7 +505,7 @@ describe(`EL-12 -- ${EL_12_SEND}`, () => {
       const scroll = onlyOf(writes, SET_SCROLL)
       expect(scroll, EL_12_SEND).toBeDefined()
       expect(scroll!['scrollTaskGroupId'], `${EL_12_SEND} (S-78)`).toBe(row)
-      expect(scroll!['scrollGroupOffset'], `${EL_12_SEND} (S-176)`).toBe(0)
+      expect(scroll!['scrollTaskGroupFraction'], `${EL_12_SEND} (S-176)`).toBe(0)
     })
 
     it(`${name}: the far end is inside the Task Group Area across, so the view is not sent across (${EL_11_STAY})`, () => {
@@ -518,7 +518,7 @@ describe(`EL-12 -- ${EL_12_SEND}`, () => {
       const scroll = onlyOf(writesOf(clickOnce(scene, markOf(scene, 1, 2)).out), SET_SCROLL)
       expect(scroll, 'premise: EL-12 sent the view down').toBeDefined()
       expect(dayOf(scroll!['scrollDate']), EL_11_STAY).toBe(dayOf(scene.settings['scrollDate']))
-      expect(scroll!['scrollDayOffset'], EL_11_STAY).toBe(scene.settings['scrollDayOffset'])
+      expect(scroll!['scrollDateFraction'], EL_11_STAY).toBe(scene.settings['scrollDateFraction'])
     })
   }
 })
@@ -552,7 +552,7 @@ describe(`EL-10 -- ${EL_10_DEPTH}`, () => {
     const scroll = onlyOf(writesOf(clickOnce(scene, markOf(scene, 1, 2)).out), SET_SCROLL)
     expect(scroll, EL_12_SEND).toBeDefined()
     expect(scroll!['scrollTaskGroupId'], `${EL_12_SEND} (S-78)`).toBe('a11')
-    expect(scroll!['scrollGroupOffset'], `${EL_12_SEND} (S-176)`).toBe(0)
+    expect(scroll!['scrollTaskGroupFraction'], `${EL_12_SEND} (S-176)`).toBe(0)
   })
 
   it(`(iii) the far end stands inside the Task Group Area across by its dates, so the view is not sent across (${EL_11_STAY})`, () => {
@@ -560,7 +560,7 @@ describe(`EL-10 -- ${EL_10_DEPTH}`, () => {
     const scroll = onlyOf(writesOf(clickOnce(scene, markOf(scene, 1, 2)).out), SET_SCROLL)
     expect(scroll, 'premise: EL-12 sent the view down').toBeDefined()
     expect(dayOf(scroll!['scrollDate']), EL_11_STAY).toBe(dayOf(scene.settings['scrollDate']))
-    expect(scroll!['scrollDayOffset'], EL_11_STAY).toBe(scene.settings['scrollDayOffset'])
+    expect(scroll!['scrollDateFraction'], EL_11_STAY).toBe(scene.settings['scrollDateFraction'])
   })
 })
 

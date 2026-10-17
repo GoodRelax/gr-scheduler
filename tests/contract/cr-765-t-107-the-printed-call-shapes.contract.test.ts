@@ -26,7 +26,7 @@ const memberNamed = (name: string): PrintedMember => {
 const GLOSSARY = unbroken(readFileSync(join(SPEC, '_assets', 'tbl-glossary.md'), 'utf8'))
 
 const GLOSSARY_POINTER = '表 T-107（`Agent API` のメンバ）と、その呼び方（引数・型・戻り値）は `_assets/tbl-agent-api-members.md` が持つ'
-const VERSION_SENTENCE = 'いまの版は 5 である（`AM-1` が返す値）。'
+const VERSION_SENTENCE = 'いまの版は 6 である（`AM-1` が返す値）。'
 const CHANGE_RAISES_VERSION = '呼び方を変える変更は版を上げる（表 T-035 の `AG-1`）。'
 const TWENTY_TWO = '**`Agent API` は 1 つの面に 22 のメンバをフラットに並べる。**'
 const CALL_SHAPES_ARE_GENERATED =
@@ -77,7 +77,7 @@ describe('T-107 is printed in one place, with the two columns CR-765 adds', () =
     expect(caption).toContain('表 T-107 — `Agent API` のメンバ')
   })
 
-  it('the prose above the table says 22 members on one flat surface, the version is 5 and a change of call shape raises it', () => {
+  it('the prose above the table says 22 members on one flat surface, the version is 6 and a change of call shape raises it', () => {
     const prose = unbroken(PRINTED_TEXT)
     expect(prose).toContain(TWENTY_TWO)
     expect(prose).toContain(VERSION_SENTENCE)

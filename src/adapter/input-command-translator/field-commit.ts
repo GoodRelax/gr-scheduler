@@ -180,7 +180,7 @@ function planActualWithColumn(
     }
   }
 
-  if (planActualState(next) === 'notStarted') return { row: 'PA-1' }
+  if (planActualState(next) === 'notStarted') return { state: 'notStarted' }
   return placementAt(next)
 }
 
@@ -216,10 +216,10 @@ function commandFromMilestoneDay(task: Task, column: keyof Task, text: string, p
   if (!isPlan && column !== 'actualStart' && column !== 'actualFinish') return null
   const typed = settledDay(text, sideTextOf(project, task, column))
   if (typed === undefined) return []
-  if (isPlan) return typed === null ? [] : [{ kind: 'setTaskPlanDates', uid, start: typed, finish: typed }]
+  if (isPlan) return typed === null ? [] : [{ kind: 'setTaskPlanDates', taskUid: uid, start: typed, finish: typed }]
   const place: PlacedPlanActual =
-    typed === null ? { row: 'PA-1' } : { row: 'PA-5', actualStart: typed, actualFinish: typed }
-  return [{ kind: 'setTaskPlanActualState', uid, place }]
+    typed === null ? { state: 'notStarted' } : { state: 'finished', actualStart: typed, actualFinish: typed }
+  return [{ kind: 'setTaskPlanActualState', taskUid: uid, place }]
 }
 
 // see PR-3, PR-47, CM-11, FR-006
@@ -230,7 +230,7 @@ function commandFromPlanDate(project: Project, task: Task, column: 'start' | 'fi
   const start = column === 'start' ? settled : task.start
   const finish = column === 'finish' ? settled : task.finish
   if (start === null || finish === null) return []
-  return [{ kind: 'setTaskPlanDates', uid: task.uid, start, finish }]
+  return [{ kind: 'setTaskPlanDates', taskUid: task.uid, start, finish }]
 }
 
 // see T-016, PR-3, CM-11, FR-006
@@ -246,32 +246,32 @@ function commandFromTaskColumn(
 
   if (PLAN_ACTUAL_COLUMNS.includes(column)) {
     const place = planActualWithColumn(schedule, task, column, text, isTimeOfDayVisible)
-    return place === null ? [] : [{ kind: 'setTaskPlanActualState', uid, place }]
+    return place === null ? [] : [{ kind: 'setTaskPlanActualState', taskUid: uid, place }]
   }
 
   switch (column) {
     case 'name':
-      return [{ kind: 'setTaskName', uid, name: settledText(text) }]
+      return [{ kind: 'setTaskName', taskUid: uid, name: settledText(text) }]
     case 'notes':
-      return [{ kind: 'setTaskNotes', uid, notes: settledText(text) }]
+      return [{ kind: 'setTaskNotes', taskUid: uid, notes: settledText(text) }]
     case 'start':
     case 'finish':
       return commandFromPlanDate(schedule.project, task, column, text)
     case 'deadline': {
       const deadline = settledDay(text, sideTextOf(schedule.project, task, column))
-      return deadline === undefined ? [] : [{ kind: 'setTaskDeadline', uid, deadline }]
+      return deadline === undefined ? [] : [{ kind: 'setTaskDeadline', taskUid: uid, deadline }]
     }
     case 'fadeInDays': {
       const days = settledNumber(text)
-      return days === undefined ? [] : [{ kind: 'setTaskFadeInDays', uid, fadeInDays: days }]
+      return days === undefined ? [] : [{ kind: 'setTaskFadeInDays', taskUid: uid, fadeInDays: days }]
     }
     case 'fadeOutDays': {
       const days = settledNumber(text)
-      return days === undefined ? [] : [{ kind: 'setTaskFadeOutDays', uid, fadeOutDays: days }]
+      return days === undefined ? [] : [{ kind: 'setTaskFadeOutDays', taskUid: uid, fadeOutDays: days }]
     }
     case 'parentTaskUid': {
       const parentUid = settledNumber(text)
-      return parentUid === undefined ? [] : [{ kind: 'setTaskParentTask', uid, parentTaskUid: parentUid }]
+      return parentUid === undefined ? [] : [{ kind: 'setTaskParentTask', taskUid: uid, parentTaskUid: parentUid }]
     }
     default:
       return []
@@ -290,10 +290,10 @@ function commandsFromVisualColor(
   const held = (isStroke ? visual?.strokeColor : visual?.fillColor) ?? null
   const chosen = text === null ? null : settledColor(text, held, dark)
   const other = (isStroke ? visual?.fillColor : visual?.strokeColor) ?? null
-  if (chosen === null && other === null) return [{ kind: 'resetTaskVisualColors', uid }]
+  if (chosen === null && other === null) return [{ kind: 'resetTaskVisualColors', taskUid: uid }]
   const strokeColor = isStroke ? chosen : other
   const fillColor = isStroke ? other : chosen
-  return [{ kind: 'setTaskVisualColors', uid, fillColor, strokeColor }]
+  return [{ kind: 'setTaskVisualColors', taskUid: uid, fillColor, strokeColor }]
 }
 
 // see FR-007, FR-078, FR-002, CM-22, CM-23
@@ -312,14 +312,14 @@ function commandFromVisualColumn(
       const held = settledText(text)
       const glyph = held === null ? null : milestoneGlyphOf(held)
       if (held !== null && glyph === null) return []
-      return [{ kind: 'setTaskVisualMilestoneGlyph', uid, milestoneGlyph: glyph }]
+      return [{ kind: 'setTaskVisualMilestoneGlyph', taskUid: uid, milestoneGlyph: glyph }]
     }
     case 'strokeColor':
     case 'fillColor':
       return commandsFromVisualColor(visual, uid, column === 'strokeColor', settledText(text), dark)
     case 'strokeWidthPx': {
       const strokeWidthPx = settledNumber(text)
-      return strokeWidthPx === undefined ? [] : [{ kind: 'setTaskVisualStrokeWidthPx', uid, strokeWidthPx }]
+      return strokeWidthPx === undefined ? [] : [{ kind: 'setTaskVisualStrokeWidthPx', taskUid: uid, strokeWidthPx }]
     }
     default:
       return []
@@ -383,17 +383,17 @@ function commandFromHighlightBoxColumn(
   const number = settledNumber(text)
   switch (column) {
     case 'id':
-      return [{ kind: 'bringHighlightBoxToFront', id }]
+      return [{ kind: 'bringHighlightBoxToFront', highlightBoxId: id }]
     case 'strokeColor':
-      return [{ kind: 'setHighlightBoxStrokeColor', id, strokeColor: settledColor(text, box.strokeColor, dark) }]
+      return [{ kind: 'setHighlightBoxStrokeColor', highlightBoxId: id, strokeColor: settledColor(text, box.strokeColor, dark) }]
     case 'fillColor':
-      return [{ kind: 'setHighlightBoxFillColor', id, fillColor: settledColor(text, box.fillColor, dark) }]
+      return [{ kind: 'setHighlightBoxFillColor', highlightBoxId: id, fillColor: settledColor(text, box.fillColor, dark) }]
     case 'strokeWidthPx':
-      return number === undefined ? [] : [{ kind: 'setHighlightBoxStrokeWidthPx', id, strokeWidthPx: number }]
+      return number === undefined ? [] : [{ kind: 'setHighlightBoxStrokeWidthPx', highlightBoxId: id, strokeWidthPx: number }]
     case 'fillTransparencyPercent':
       return number === undefined
         ? []
-        : [{ kind: 'setHighlightBoxFillTransparencyPercent', id, fillTransparencyPercent: number }]
+        : [{ kind: 'setHighlightBoxFillTransparencyPercent', highlightBoxId: id, fillTransparencyPercent: number }]
     default:
       return []
   }
@@ -415,21 +415,21 @@ function commandFromCommentBoxColumn(
   switch (column) {
     // see PR-48, PR-49, CM-100, CM-101
     case 'id':
-      return [{ kind: 'bringCommentBoxToFront', id }]
+      return [{ kind: 'bringCommentBoxToFront', commentBoxId: id }]
     case 'text':
-      return [{ kind: 'setCommentBoxText', id, text: settledText(text) }]
+      return [{ kind: 'setCommentBoxText', commentBoxId: id, text: settledText(text) }]
     case 'strokeColor':
-      return [{ kind: 'setCommentBoxStrokeColor', id, strokeColor: settledColor(text, box.strokeColor, dark) }]
+      return [{ kind: 'setCommentBoxStrokeColor', commentBoxId: id, strokeColor: settledColor(text, box.strokeColor, dark) }]
     case 'fillColor':
-      return [{ kind: 'setCommentBoxFillColor', id, fillColor: settledColor(text, box.fillColor, dark) }]
+      return [{ kind: 'setCommentBoxFillColor', commentBoxId: id, fillColor: settledColor(text, box.fillColor, dark) }]
     case 'textColor':
-      return [{ kind: 'setCommentBoxTextColor', id, textColor: settledColor(text, box.textColor, dark) }]
+      return [{ kind: 'setCommentBoxTextColor', commentBoxId: id, textColor: settledColor(text, box.textColor, dark) }]
     case 'strokeWidthPx':
-      return number === undefined ? [] : [{ kind: 'setCommentBoxStrokeWidthPx', id, strokeWidthPx: number }]
+      return number === undefined ? [] : [{ kind: 'setCommentBoxStrokeWidthPx', commentBoxId: id, strokeWidthPx: number }]
     case 'fillTransparencyPercent':
       return number === undefined
         ? []
-        : [{ kind: 'setCommentBoxFillTransparencyPercent', id, fillTransparencyPercent: number }]
+        : [{ kind: 'setCommentBoxFillTransparencyPercent', commentBoxId: id, fillTransparencyPercent: number }]
     default:
       return []
   }
@@ -497,10 +497,10 @@ function commandFromThemeHue(text: string): readonly DocumentCommand[] {
 
 // see FR-131, CM-87
 /** @purity pure */
-function commandFromParentProgressTolerance(text: string): readonly DocumentCommand[] {
+function commandFromParentTaskProgressTolerance(text: string): readonly DocumentCommand[] {
   const workingDays = settledNumber(text)
   if (workingDays === undefined || workingDays === null) return []
-  return [{ kind: 'setParentProgressToleranceDays', parentProgressToleranceDays: workingDays }]
+  return [{ kind: 'setParentTaskProgressToleranceDays', parentTaskProgressToleranceDays: workingDays }]
 }
 
 // see FR-046, CM-3, CM-4, WT-4
@@ -516,7 +516,7 @@ function commandsFromStatusDate(text: string, context: InputContext): readonly D
 /** @purity pure */
 function commandFromProjectColumn(column: string, text: string, context: InputContext): readonly DocumentCommand[] {
   if (column === 'themeHue') return commandFromThemeHue(text)
-  if (column === 'parentProgressToleranceDays') return commandFromParentProgressTolerance(text)
+  if (column === 'parentTaskProgressToleranceDays') return commandFromParentTaskProgressTolerance(text)
   if (column === 'statusDate') return commandsFromStatusDate(text, context)
   if (column !== 'title') return []
   return [{ kind: 'setProjectTitle', title: text }]
@@ -607,12 +607,12 @@ function commandFromDocumentSettingsColumn(
     const scale = DISPLAY_SCALE_STEPS.find((step) => String(step) === text)
     return scale === undefined ? [] : [{ kind: 'setDisplayScale', displayScale: scale }]
   }
-  if (column !== 'fontScale') return []
-  const scale = FONT_SCALE_STEPS.find((step) => step === text)
-  return scale === undefined ? [] : [{ kind: 'setFontScale', fontScale: scale }]
+  if (column !== 'fontSizeStep') return []
+  const scale = FONT_SIZE_STEPS.find((step) => step === text)
+  return scale === undefined ? [] : [{ kind: 'setFontSizeStep', fontSizeStep: scale }]
 }
 
-const FONT_SCALE_STEPS = Object.keys(SETTINGS_CONSTANTS.fontScaleSizes) as readonly DocumentSettings['fontScale'][]
+const FONT_SIZE_STEPS = Object.keys(SETTINGS_CONSTANTS.fontSizeStepSizes) as readonly DocumentSettings['fontSizeStep'][]
 
 const UNASSIGN_TOKEN = '-'
 

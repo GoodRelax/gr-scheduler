@@ -120,8 +120,8 @@ const documentOf = (part: Record<string, unknown> = {}): Document =>
       planActualDisplay: 'both',
       guideCursorMode: 'none',
       dualCursor: null,
-      fontScale: 'M',
-      fontScaleSizes: { S: 12, M: 14, L: 16 },
+      fontSizeStep: 'M',
+      fontSizeStepSizes: { S: 12, M: 14, L: 16 },
       rulerFontSizePx: 14,
       rulerHeightPx: 48,
       canvasPadding: 10,
@@ -439,7 +439,7 @@ describe('EditCalendar (UF-16) -- CM-39 of table T-108', () => {
     expect(plan.ok).toBe(true)
     if (!plan.ok) return
     expect(plan.history.done).toHaveLength(1)
-    expect(plan.hasMovedSchedule).toBe(true)
+    expect(plan.hasUpdatedSchedule).toBe(true)
     // One write, both halves (FR-088).
     expect(workingOf(plan.document, 1)).toEqual([2, 3, 4, 5, 6, 7])
     expect(plan.document.schedule.project.weekStartDay).toBe(0)
@@ -689,7 +689,7 @@ describe('FR-012 -- the controls on the recount (DFC-353)', () => {
     // empty value every non-calendar edit answers with. A build that re-counted
     // on every write repairs it to 60 and reports [10].
     const plan = planOf(documentWithADisagreeingFigure(), [
-      { kind: 'setTaskName', uid: 10, name: 'renamed' } as DocumentCommand,
+      { kind: 'setTaskName', taskUid: 10, name: 'renamed' } as DocumentCommand,
     ])
     expect(plan.ok).toBe(true)
     if (!plan.ok) return

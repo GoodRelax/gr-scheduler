@@ -416,7 +416,7 @@ test.describe(`SV-5 -- ${SV_5_EACH}${SV_5_NO_ENTER}`, () => {
         ).grSchedulerAgentApi
         return api.applyCommands({
           expectedStamp: api.readStamp(),
-          commands: [{ kind: 'setTaskName', uid: asked, name: 'Renamed while the search word is typed' }],
+          commands: [{ kind: 'setTaskName', taskUid: asked, name: 'Renamed while the search word is typed' }],
         }).ok
       }, uid)
       expect(accepted).toBe(true)

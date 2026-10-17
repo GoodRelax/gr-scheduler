@@ -49,7 +49,7 @@
    - 原本の見出しの 1 行を 1 つの TaskGroup にする。id は小文字の UUID（例 "3f1c2a9e-8b7d-4c21-9e0a-5d6f7a8b9c01"）で、文書の中で重ならないようにする。
    - name に見出しの文字を入れる。derivedFromTaskUid は null。
    - 入れ子の見出しは parentId に親の id を入れる。
-   - order は同じ親の下での上からの並び（0 から）。treeState は "auto" にする —— 静止画では、タスクグループが GRS の中で折りたたまれていたか・1 階層だけ展開されていたか・隠されていたかを読み取れないので、ここは常に "auto" にする（他の 4 つの値 —— 配下をすべて描かせない "collapsed"、子を 1 階層だけ展開したままにする "expanded"、縮小するまで配下をすべて展開したままにする "temporarilyExpanded"、タスクグループ自身を描かせない "hidden" —— は人が GRS の中で行った操作の結果であり、静止画からは読み取れない）。editGroup は null（誰でも編集できるタスクグループ）、minHeightPx は null。
+   - order は同じ親の下での上からの並び（0 から）。treeState は "auto" にする —— 静止画では、タスクグループが GRS の中で折りたたまれていたか・1 階層だけ展開されていたか・隠されていたかを読み取れないので、ここは常に "auto" にする（他の 4 つの値 —— 配下をすべて描かせない "collapsed"、子を 1 階層だけ展開したままにする "expanded"、縮小するまで配下をすべて展開したままにする "temporarilyExpanded"、タスクグループ自身を描かせない "hidden" —— は人が GRS の中で行った操作の結果であり、静止画からは読み取れない）。editPermission は null（誰でも編集できるタスクグループ）、minHeightPx は null。
    - color は原本のタスクグループの帯（背景）の色。「色の合わせ方」に従って選ぶ。ただしタスクグループの色に "black" は使えない。帯に色が無ければ null。
    - TaskGroup は必ず 1 つ以上置く。
 4. 横並びを保つ（重要）
@@ -180,11 +180,11 @@
   "taskGroups": [
     {
       "id": "3f1c2a9e-8b7d-4c21-9e0a-5d6f7a8b9c01", "parentId": null, "name": "Planning",
-      "derivedFromTaskUid": null, "order": 0, "treeState": "auto", "editGroup": null, "color": "lightgray", "minHeightPx": null
+      "derivedFromTaskUid": null, "order": 0, "treeState": "auto", "editPermission": null, "color": "lightgray", "minHeightPx": null
     },
     {
       "id": "3f1c2a9e-8b7d-4c21-9e0a-5d6f7a8b9c02", "parentId": "3f1c2a9e-8b7d-4c21-9e0a-5d6f7a8b9c01", "name": "Approvals",
-      "derivedFromTaskUid": null, "order": 0, "treeState": "auto", "editGroup": null, "color": null, "minHeightPx": null
+      "derivedFromTaskUid": null, "order": 0, "treeState": "auto", "editPermission": null, "color": null, "minHeightPx": null
     }
   ],
   "taskGroupMembers": [

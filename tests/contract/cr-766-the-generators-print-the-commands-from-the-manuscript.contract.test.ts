@@ -152,7 +152,7 @@ describe('the seams: load_valid, command_schemas and with_command_shapes', () =>
         'doc, columns = printer.load_valid()',
         'schema = generator.document_schema()',
         'kinds = [one["properties"]["kind"]["const"] for one in generator.command_schemas(doc, columns, schema)]',
-        'print(json.dumps([len(kinds), kinds.count("setDependencyLag"), "setTaskGroupEditGroup" in kinds]))',
+        'print(json.dumps([len(kinds), kinds.count("setDependencyLag"), "setTaskGroupEditPermission" in kinds]))',
       ].join('\n'),
     )
     expect(ran, ran.out).toMatchObject({ status: 0 })
@@ -221,7 +221,7 @@ describe('on a scratch copy outside the repository: an untouched copy is green, 
     const wrote = python(copy, [join(copy, GENERATOR)])
     expect(wrote, wrote.out).toMatchObject({ status: 0 })
     const unit = readFileSync(join(copy, TASK_UNIT), 'utf8')
-    expect(unit).toContain("readonly kind: 'setTaskFadeInDays'; readonly uid: Task['uid']; readonly days: Task['fadeInDays']")
+    expect(unit).toContain("readonly kind: 'setTaskFadeInDays'; readonly taskUid: Task['uid']; readonly days: Task['fadeInDays']")
     expect(check(copy, GENERATOR).status).toBe(0)
   })
 

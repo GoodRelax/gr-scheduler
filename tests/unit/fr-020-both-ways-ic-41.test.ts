@@ -365,7 +365,7 @@ describe('FR-020 (MUST): one entrance, and it turns the watermark both ways', ()
     // ⚠️ `hasUnsavedEdits` IS THE SECOND READING and not a repetition: a write
     // that landed and was then undone would leave the document equal and the
     // flag raised.
-    // GOES RED IF: `setElementVisible` comes back on this road -- which is also
+    // GOES RED IF: `setVisibilitySetting` comes back on this road -- which is also
     // what would put the hiding into the undo history.
     const built = stage()
     const before = JSON.stringify(built.loop.document())

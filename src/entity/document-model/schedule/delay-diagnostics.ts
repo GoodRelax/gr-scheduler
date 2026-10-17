@@ -840,7 +840,7 @@ function progressSpreadSuspicion(facts: Facts, parent: Task, toleranceDays: numb
     rightmostPoint: textOfDay(rightmost.day),
     rightmostUid: rightmost.uid,
     outsideMinutes: Math.max(left, right),
-    parentProgressToleranceDays: toleranceDays,
+    parentTaskProgressToleranceDays: toleranceDays,
   })]
 }
 
@@ -1228,7 +1228,7 @@ export function diagnoseDelay(document: DiagnosedDocument, calendar: WorkingCale
     return task !== undefined && !isFinished(task)
   }
   const omissions = omissionsOf(facts)
-  const suspicions = suspicionsOf(facts, project.parentProgressToleranceDays)
+  const suspicions = suspicionsOf(facts, project.parentTaskProgressToleranceDays)
   const omittedFinishUids = uidsWith(omissions, 'VO-3')
   // see DG-1, VS-6
   const doubted = new Set([

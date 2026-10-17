@@ -149,7 +149,7 @@ function fixture(foldOfP: FoldOfP): string {
       taskOrigins: [],
       baselineTasks: [],
     },
-    documentSettings: { ...TEMPLATE.documentSettings, zoomX: 6, scrollDate: CLEAR_OF_THE_PALETTE, scrollDayOffset: 0, scrollTaskGroupId: TASK_GROUP_P, scrollGroupOffset: 0 },
+    documentSettings: { ...TEMPLATE.documentSettings, zoomX: 6, scrollDate: CLEAR_OF_THE_PALETTE, scrollDateFraction: 0, scrollTaskGroupId: TASK_GROUP_P, scrollTaskGroupFraction: 0 },
     documentStamp: TEMPLATE.documentStamp,
     changeLog: [],
   }

@@ -18,7 +18,7 @@ export interface DocumentSettings {
   readonly displayTimeZones: readonly string[]
   readonly fitSpanFinish: string | null
   readonly fitSpanStart: string | null
-  readonly fontScale: 'S' | 'M' | 'L'
+  readonly fontSizeStep: 'S' | 'M' | 'L'
   readonly isActualVisible: boolean
   readonly isAssigneeVisible: boolean
   readonly isBaselineVisible: boolean
@@ -39,8 +39,8 @@ export interface DocumentSettings {
   readonly rulerFontSizePx: number
   readonly rulerHeightPx: number
   readonly scrollDate: string | null
-  readonly scrollDayOffset: number
-  readonly scrollGroupOffset: number
+  readonly scrollDateFraction: number
+  readonly scrollTaskGroupFraction: number
   readonly scrollTaskGroupId: string | null
   readonly stackDirection: 'up' | 'down'
   readonly tableViews: {
@@ -89,7 +89,7 @@ export const SETTINGS_DEFAULTS: Readonly<Record<string, unknown>> = {
   'displayTimeZones': [],
   'fitSpanFinish': null,
   'fitSpanStart': null,
-  'fontScale': 'M',
+  'fontSizeStep': 'M',
   'isActualVisible': true,
   'isAssigneeVisible': false,
   'isBaselineVisible': false,
@@ -110,8 +110,8 @@ export const SETTINGS_DEFAULTS: Readonly<Record<string, unknown>> = {
   'rulerFontSizePx': 21,
   'rulerHeightPx': 69,
   'scrollDate': null,
-  'scrollDayOffset': 0,
-  'scrollGroupOffset': 0,
+  'scrollDateFraction': 0,
+  'scrollTaskGroupFraction': 0,
   'scrollTaskGroupId': null,
   'stackDirection': 'up',
   'tableViews.delayDiagnosticsReport.columnFilters': [],
@@ -171,7 +171,7 @@ export const SETTINGS_BOUNDS: Readonly<Record<string, SettingsBound>> = {
 // plusFrom is null when the rule names no second key.
 // TRAP: a rule with index instead of from is index[by] * times.
 export const SETTINGS_DERIVED = {
-  'rulerFontSizePx': { index: 'fontScaleSizes', by: 'fontScale', times: 1.5 },
+  'rulerFontSizePx': { index: 'fontSizeStepSizes', by: 'fontSizeStep', times: 1.5 },
   'rulerHeightPx': { from: 'rulerFontSizePx', times: 3, plus: 0, plusFrom: 'rulerLabelPad', plusTimes: 3 },
 } as const
 
@@ -208,7 +208,7 @@ export const SETTINGS_CONSTANTS: {
   readonly fadeHandleStrokePx: number
   readonly fontMin: number
   readonly fontOfActual: number
-  readonly fontScaleSizes: {
+  readonly fontSizeStepSizes: {
     readonly S: number
     readonly M: number
     readonly L: number
@@ -320,7 +320,7 @@ export const SETTINGS_CONSTANTS: {
   fadeHandleStrokePx: 1.0,
   fontMin: 12,
   fontOfActual: 0.90,
-  fontScaleSizes: {
+  fontSizeStepSizes: {
     S: 12,
     M: 14,
     L: 16,

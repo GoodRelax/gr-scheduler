@@ -231,12 +231,12 @@ describe('FR-055 -- the fit leaves a margin on each side', () => {
     expect(area.x + area.width - right, 'the right margin').toBeCloseTo(margin, 0)
   })
 
-  it('FR-055: 日の境目へ切り捨ててはならない -- scrollDayOffset keeps the place inside the day', () => {
+  it('FR-055: 日の境目へ切り捨ててはならない -- scrollDateFraction keeps the place inside the day', () => {
     // see FR-055, S-177
     const built = fitted()
     const layout = built.loop.current()?.layout
     const area = taskGroupAreaOf(built.loop)
-    const offset = Number(built.settings()['scrollDayOffset'])
+    const offset = Number(built.settings()['scrollDateFraction'])
     expect(offset).toBeGreaterThanOrEqual(0)
     expect(offset).toBeLessThan(1)
     const days = (area.x - (layout?.originX ?? 0)) / (layout?.pxPerDay ?? 1)
@@ -288,13 +288,13 @@ describe('FR-046 / FR-106 -- the status-date line', () => {
     expect(built.settings()['zoomY'], '倍率を変えずに').toBe(before['zoomY'])
   })
 
-  it('FR-046: 縦の表示位置は動かさない -- scrollTaskGroupId and scrollGroupOffset stay', () => {
+  it('FR-046: 縦の表示位置は動かさない -- scrollTaskGroupId and scrollTaskGroupFraction stay', () => {
     // see FR-046
-    const built = bench(documentOf(SEEDS, { scrollDate: '2020-01-06', scrollTaskGroupId: 'g2', scrollGroupOffset: 0 }))
+    const built = bench(documentOf(SEEDS, { scrollDate: '2020-01-06', scrollTaskGroupId: 'g2', scrollTaskGroupFraction: 0 }))
     const before = { ...built.settings() }
     built.press('Command Palette', 'IC-44')
     expect(built.settings()['scrollTaskGroupId']).toBe(before['scrollTaskGroupId'])
-    expect(built.settings()['scrollGroupOffset']).toBe(before['scrollGroupOffset'])
+    expect(built.settings()['scrollTaskGroupFraction']).toBe(before['scrollTaskGroupFraction'])
   })
 
   it('FR-046: 色を S-163、太さを S-333 で描く', () => {

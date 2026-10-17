@@ -38,10 +38,10 @@ type Anchor = Extract<DocumentCommand, { kind: 'createCommentBox' }>['anchor']
 const base = (): Document => documentWith([commentRow({ id: OTHER_COMMENT_ID })], [highlightRow()])
 
 const create = (anchor: Anchor, document: Document = base()) =>
-  editDocument(document, { kind: 'createCommentBox', id: COMMENT_ID, anchor }, LIMITS, 'row')
+  editDocument(document, { kind: 'createCommentBox', commentBoxId: COMMENT_ID, anchor }, LIMITS, 'row')
 
 const reanchor = (anchor: Anchor, document: Document = base()) =>
-  editDocument(document, { kind: 'setCommentBoxAnchor', id: OTHER_COMMENT_ID, anchor }, LIMITS, 'row')
+  editDocument(document, { kind: 'setCommentBoxAnchor', commentBoxId: OTHER_COMMENT_ID, anchor }, LIMITS, 'row')
 
 const rowOf = (document: Document, id: string) => document.schedule.commentBoxes.find((one) => one.id === id)!
 
@@ -146,7 +146,7 @@ describe(`FR-019: ${DELETE_REWRITES}`, () => {
 
   it('deleting a task turns the tip snapped to its planned bar left corner into a free point at the bar start', () => {
     const document = snappedTo({ anchorTaskGroupId: groupOf(BAR_UID), anchorTaskUid: BAR_UID, anchorTaskFigure: 'plannedBar', anchorSnapPoint: 'topLeftCorner' })
-    const result = editDocument(document, { kind: 'deleteTask', uid: BAR_UID }, LIMITS, 'row')
+    const result = editDocument(document, { kind: 'deleteTask', taskUid: BAR_UID }, LIMITS, 'row')
     if (!result.ok) throw new Error(`premise: accepted, was ${JSON.stringify(result.refusals)}`)
     expect(columnsOf(result.document, COMMENT_ID)).toEqual({
       date: '2026-04-06T00:00',
@@ -158,7 +158,7 @@ describe(`FR-019: ${DELETE_REWRITES}`, () => {
 
   it('the actual bar left corner becomes the actual start instant', () => {
     const document = snappedTo({ anchorTaskGroupId: groupOf(BAR_UID), anchorTaskUid: BAR_UID, anchorTaskFigure: 'actualBar', anchorSnapPoint: 'bottomLeftCorner' })
-    const result = editDocument(document, { kind: 'deleteTask', uid: BAR_UID }, LIMITS, 'row')
+    const result = editDocument(document, { kind: 'deleteTask', taskUid: BAR_UID }, LIMITS, 'row')
     if (!result.ok) throw new Error('premise: accepted')
     expect(columnsOf(result.document, COMMENT_ID).date).toBe('2026-04-07T00:00')
     expect(columnsOf(result.document, COMMENT_ID).target).toEqual([null, null, null, null])
@@ -166,14 +166,14 @@ describe(`FR-019: ${DELETE_REWRITES}`, () => {
 
   it('a tip snapped to another task is not touched', () => {
     const document = snappedTo({ anchorTaskGroupId: groupOf(BAR_UID), anchorTaskUid: BAR_UID, anchorTaskFigure: 'plannedBar', anchorSnapPoint: 'topLeftCorner' })
-    const result = editDocument(document, { kind: 'deleteTask', uid: BAR_UID }, LIMITS, 'row')
+    const result = editDocument(document, { kind: 'deleteTask', taskUid: BAR_UID }, LIMITS, 'row')
     if (!result.ok) throw new Error('premise: accepted')
     expect(rowOf(result.document, OTHER_COMMENT_ID)).toEqual(rowOf(document, OTHER_COMMENT_ID))
   })
 
   it('deleting a highlight box turns a top-row tip into a free point at its top task group, fraction 0', () => {
     const document = snappedTo({ anchorHighlightBoxId: HIGHLIGHT_ID, anchorSnapPoint: 'topLeftCorner' })
-    const result = editDocument(document, { kind: 'deleteHighlightBox', id: HIGHLIGHT_ID }, LIMITS, 'row')
+    const result = editDocument(document, { kind: 'deleteHighlightBox', highlightBoxId: HIGHLIGHT_ID }, LIMITS, 'row')
     if (!result.ok) throw new Error(`premise: accepted, was ${JSON.stringify(result.refusals)}`)
     expect(columnsOf(result.document, COMMENT_ID)).toEqual({
       date: '2026-04-08T00:00',
@@ -185,7 +185,7 @@ describe(`FR-019: ${DELETE_REWRITES}`, () => {
 
   it('a bottom-row tip goes to the bottom task group with fraction 1', () => {
     const document = snappedTo({ anchorHighlightBoxId: HIGHLIGHT_ID, anchorSnapPoint: 'bottomLeftCorner' })
-    const result = editDocument(document, { kind: 'deleteHighlightBox', id: HIGHLIGHT_ID }, LIMITS, 'row')
+    const result = editDocument(document, { kind: 'deleteHighlightBox', highlightBoxId: HIGHLIGHT_ID }, LIMITS, 'row')
     if (!result.ok) throw new Error('premise: accepted')
     expect(columnsOf(result.document, COMMENT_ID)).toEqual({
       date: '2026-04-08T00:00',
@@ -259,12 +259,12 @@ describe(`FR-019: ${DELETE_REWRITES} -- the task group of the released tip`, () 
 
   it('a stale stored band the task is not a member of is replaced by the task band', () => {
     const document = snapped({ anchorTaskGroupId: groupOf(3) })
-    expect(groupAfter(document, { kind: 'deleteTask', uid: BAR_UID })).toBe(groupOf(BAR_UID))
+    expect(groupAfter(document, { kind: 'deleteTask', taskUid: BAR_UID })).toBe(groupOf(BAR_UID))
   })
 
   it('a stored band the task is still a member of is kept', () => {
     const document = snapped({ anchorTaskGroupId: groupOf(3) }, [3])
-    expect(groupAfter(document, { kind: 'deleteTask', uid: BAR_UID })).toBe(groupOf(3))
+    expect(groupAfter(document, { kind: 'deleteTask', taskUid: BAR_UID })).toBe(groupOf(3))
   })
 
   it('deleting a task group frees a tip whose own band survives, and the tip keeps its box', () => {

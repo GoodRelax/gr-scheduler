@@ -22,11 +22,11 @@ interface Body {
   readonly height: number
 }
 
-const bodyOf = (text: string | null, fontScale: keyof typeof FONT_SIZE_OF): Body => {
+const bodyOf = (text: string | null, fontSizeStep: keyof typeof FONT_SIZE_OF): Body => {
   const scene = sceneOf({
     tasks: [taskOf({ uid: 1, name: 'only', start: day(2), finish: day(8) })],
     commentBoxes: [box(text)],
-    settings: { fontScale },
+    settings: { fontSizeStep },
   })
   const found = (scene.geometry as unknown as { commentBoxes: readonly { body: Body }[] }).commentBoxes[0]
   if (found === undefined) throw new Error('the comment box was not drawn')
@@ -36,11 +36,11 @@ const bodyOf = (text: string | null, fontScale: keyof typeof FONT_SIZE_OF): Body
 describe('DFC-722: an empty or null body is no smaller than the font size (FR-097, T-215)', () => {
   for (const scale of ['S', 'M', 'L'] as const) {
     for (const [name, text] of [['empty', ''], ['null', null]] as const) {
-      it(`FR-097 a ${name} body is at least the T-215 font size wide at fontScale ${scale}`, () => {
+      it(`FR-097 a ${name} body is at least the T-215 font size wide at fontSizeStep ${scale}`, () => {
         expect(bodyOf(text, scale).width).toBeGreaterThanOrEqual(floorOf(scale))
       })
 
-      it(`FR-097 a ${name} body is at least the T-215 font size high at fontScale ${scale}`, () => {
+      it(`FR-097 a ${name} body is at least the T-215 font size high at fontSizeStep ${scale}`, () => {
         expect(bodyOf(text, scale).height).toBeGreaterThanOrEqual(floorOf(scale))
       })
     }

@@ -249,7 +249,7 @@ function smallDocument(part: Fixture): Record<string, any> {
         derivedFromTaskUid: null,
         order: index,
         treeState: stateIn(part, one.id),
-        editGroup: null,
+        editPermission: null,
         color: null,
         minHeightPx: null,
       })),
@@ -962,7 +962,7 @@ describe(`FR-018 -- ${FR_018_ONLY_T_328}`, () => {
     })
     const result = editTaskGroup(
       doc as any,
-      { kind: 'pasteTaskGroupSubtree', sourceTaskGroupId: R, targetTaskGroupId: B2, newTaskGroupIds: newIds },
+      { kind: 'pasteTaskGroupSubtree', sourceTaskGroupId: R, parentId: B2, newTaskGroupIds: newIds },
       'Task group',
     )
     expect(result.ok).toBe(true)

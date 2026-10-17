@@ -51,7 +51,7 @@ export interface Project {
   /** AT-19 */
   readonly themeHue: number
   /** AT-156 */
-  readonly parentProgressToleranceDays: number
+  readonly parentTaskProgressToleranceDays: number
   /** AT-20 */
   readonly uidHighWaterMark: number
   /** AT-21 */
@@ -145,7 +145,7 @@ export interface TaskGroup {
   /** AT-153 */
   readonly treeState: 'auto' | 'collapsed' | 'expanded' | 'temporarilyExpanded' | 'hidden'
   /** AT-144 */
-  readonly editGroup: string | null
+  readonly editPermission: string | null
   /** AT-58 */
   readonly color: string | null
   /** AT-59 */
@@ -283,7 +283,7 @@ export interface TaskOrigin {
   /** AT-105 */
   readonly taskUid: number
   /** AT-106 */
-  readonly sourceProjectUid: string | null
+  readonly sourceProjectId: string | null
   /** AT-107 */
   readonly sourceUid: number
   /** AT-108 */
@@ -479,7 +479,7 @@ export const COLUMN_SHAPES: {
     derivedFromTaskUid: { kind: 'integer', choices: null, min: null, max: null, isNullable: true },
     order: { kind: 'integer', choices: null, min: null, max: null, isNullable: false },
     treeState: { kind: 'enum', choices: ['auto', 'collapsed', 'expanded', 'temporarilyExpanded', 'hidden'], min: null, max: null, isNullable: false },
-    editGroup: { kind: 'string', choices: null, min: null, max: null, isNullable: true },
+    editPermission: { kind: 'string', choices: null, min: null, max: null, isNullable: true },
     color: { kind: 'color', choices: ['white', 'dimgray', 'lightgray', 'red', 'blue', 'yellow', 'green', 'orange', 'purple', 'transparent'], min: null, max: null, isNullable: true },
     minHeightPx: { kind: 'integer', choices: null, min: null, max: null, isNullable: true },
   },

@@ -58,8 +58,8 @@ type HeldResourceList = Pick<HeldTableWindows, 'resourceList' | 'holdResourceLis
 // WHY: closing a table's window lets its Schedule Filter go as an edit, so an undo puts it back (TV-8).
 /** @purity pure */
 export function scheduleFilterLetGoOf(table: VisibilityTable, view: TableView): Extract<DocumentCommand, { readonly kind: 'setTableView' }> | null {
-  if (!view.visibility.isApplied) return null
-  return { kind: 'setTableView', table, view: { ...view, visibility: { ...view.visibility, isApplied: false } } }
+  if (!view.visibility.isScheduleFilterApplied) return null
+  return { kind: 'setTableView', table, view: { ...view, visibility: { ...view.visibility, isScheduleFilterApplied: false } } }
 }
 
 // see RO-1, WB-6, S-546
@@ -123,7 +123,7 @@ function answerResourceDeletion(hands: FrameLoopHands, frame: FrameValues): bool
     hands.raiseNotice(NOTHING_TO_DO_REASON, null)
     return true
   }
-  const writes: readonly DocumentCommand[] = [{ kind: 'deleteResource', uids: chosen }]
+  const writes: readonly DocumentCommand[] = [{ kind: 'deleteResources', resourceUids: chosen }]
   const owedQuestion = confirmationOwedByResourceDeletion(chosen, hands.readHeld().document)
   if (owedQuestion === null || isQuestionAskedIn(hands.readSession())) {
     hands.writeDocument(writes, frame)

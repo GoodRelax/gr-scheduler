@@ -32,7 +32,7 @@
 //   S-210  表 T-206:「ヘッダーの更新日時の文字の大きさの係数（`FR-101`）」, ⛔
 //          「**px で持たない理由も、掛ける相手も `S-203` と同じである。**」 -- and
 //          `S-203` says its multiplicand is 「宿主の地の文字」, the size the host
-//          gives, NOT `fontScaleSizes`.
+//          gives, NOT `fontSizeStepSizes`.
 //   U-59   表 T-103, `File Saved At` -- the settled name W-4 of table T-006a
 //          (MUST) carries into the DOM as a `data-role`.
 //

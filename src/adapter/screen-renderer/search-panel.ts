@@ -270,7 +270,7 @@ function rowsOf(found: SearchRows, panel: SearchPanelSession, view: TableView, l
 // see SQ-10, TV-2, S-561
 /** @purity pure */
 function hiddenTasksOf(view: TableView): ReadonlySet<number> {
-  return new Set(view.visibility.hiddenKeys)
+  return new Set(view.visibility.hiddenTaskUids)
 }
 
 // see SV-7, SQ-5, T-331
@@ -333,7 +333,7 @@ function shownIn(session: ScreenSession): SearchPanelShown | null {
 // WHY: the search table rows every task, so only a Hide row of a task still in the document changes the schedule.
 /** @purity pure */
 function wouldSearchFilterChange(view: TableView, schedule: Schedule): boolean {
-  return isScheduleFilterChanging(view.visibility, () => new Set(schedule.tasks.map((task) => task.uid)), true)
+  return isScheduleFilterChanging('searchPanel', view.visibility, () => new Set(schedule.tasks.map((task) => task.uid)), true)
 }
 
 // see FR-151, T-330, S-442, SQ-5, S-560, TX-4
@@ -434,7 +434,7 @@ export function searchPanelAfterFilterChange(
   view: TableView,
   change: SearchFilterChange,
 ): TableView | null {
-  if (change.kind === 'shown') return tableAfterVisibilityChange(view, change.keys, change.isShown)
+  if (change.kind === 'shown') return tableAfterVisibilityChange('searchPanel', view, change.keys, change.isShown)
   return tableAfterFilterChange(panel, view, shownIn(session), change, searchTableOf(session, panel, view, () => NOTHING_FOUND))
 }
 

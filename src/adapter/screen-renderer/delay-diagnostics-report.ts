@@ -338,7 +338,7 @@ function parentProgressSlotsOf(
     leftmost: day('leftmostPoint'),
     rightmost: day('rightmostPoint'),
     [quantityWordOf(PARENT_PROGRESS_OUTSIDE_PART, times).slot]: typeof outside === 'number' ? quantityText(outside, times) : String(outside),
-    tolerance: String(values['parentProgressToleranceDays']),
+    tolerance: String(values['parentTaskProgressToleranceDays']),
   }
 }
 
@@ -418,7 +418,7 @@ function cellsOf(row: DelayReportRow, language: DisplayLanguage, times: ShownTim
 // see DT-8, TV-2, S-565
 /** @purity pure */
 function reportColumnsOf(view: TableView): TableColumns<ShownTaskGroup> {
-  const hidden = new Set(view.visibility.hiddenKeys)
+  const hidden = new Set(view.visibility.hiddenTaskUids)
   return withVisibilityColumn(REPORT_TABLE, VISIBILITY_COLUMN, (shown) => !hidden.has(shown.row.taskUid))
 }
 
@@ -526,7 +526,7 @@ function reportTableOf(
 function wouldReportFilterChange(view: TableView, rows: readonly DelayReportRow[], schedule: Schedule): boolean {
   const rowed = new Set(rows.map((row) => row.taskUid))
   const isEveryTaskRowed = schedule.tasks.every((task) => rowed.has(task.uid))
-  return isScheduleFilterChanging(view.visibility, () => rowed, isEveryTaskRowed)
+  return isScheduleFilterChanging('delayDiagnosticsReport', view.visibility, () => rowed, isEveryTaskRowed)
 }
 
 // see RW-4, DX-2, DX-7
@@ -636,7 +636,7 @@ function reportToolEntriesOf(language: DisplayLanguage): readonly CommandItem[] 
 
 /** @purity pure */
 function reportRowViewsOf(view: TableView, found: readonly ShownTaskGroup[], markedUid: number | null): readonly DelayReportRowView[] {
-  const hidden = new Set(view.visibility.hiddenKeys)
+  const hidden = new Set(view.visibility.hiddenTaskUids)
   return found.map((shown) => ({
     cells: shown.cells,
     glyph: STATUS_GLYPHS[shown.row.status],
@@ -727,7 +727,7 @@ export function delayDiagnosticsReportAfterFilterChange(
 ): TableView {
   const after =
     change.kind === 'shown'
-      ? tableAfterVisibilityChange(view, change.keys, change.isShown)
+      ? tableAfterVisibilityChange('delayDiagnosticsReport', view, change.keys, change.isShown)
       : tableAfterFilterChange(window.panel, view, window.shown, change, reportTableOf(view, () => [], COLUMNS_ONLY_LANGUAGE))
   return after ?? view
 }
@@ -922,7 +922,7 @@ export const NO_DELAY_FIX_TABLES: DelayFixTables = { proposals: [], log: [] }
 const NO_FIX_VIEW: TableView = {
   columnFilters: [],
   sort: null,
-  visibility: { isApplied: false, isUnassignedHidden: false, hiddenKeys: [] },
+  visibility: { isScheduleFilterApplied: false, isUnassignedHidden: false, hiddenTaskUids: [], hiddenResourceUids: [] },
 }
 
 export const NO_DELAY_FIX_VALUES: DelayFixWindowValues = {

@@ -21,7 +21,7 @@ export interface FitToScreen {
   readonly zoomX: number
   readonly zoomY: number
   readonly scrollDate: string | null
-  readonly scrollDayOffset: number
+  readonly scrollDateFraction: number
   readonly scrollTaskGroupId: string | null
   readonly floorZoomY: number
 }
@@ -181,7 +181,7 @@ export function fitZoom(
   const atUnity = runAt(1, floorZoomY, deepest)
   if (atUnity.taskGroups.length === 0 && atUnity.stackSafetyCapReached === null) {
     const { scrollDate, scrollTaskGroupId } = settings
-    return { zoomX: 1, zoomY: 1, scrollDate, scrollDayOffset: 0, scrollTaskGroupId, floorZoomY }
+    return { zoomX: 1, zoomY: 1, scrollDate, scrollDateFraction: 0, scrollTaskGroupId, floorZoomY }
   }
   const margin = regions.taskGroupArea.width * NOT_STORED_FIT_MARGIN['S-332']
   const room = regions.taskGroupArea.width - FIT_MARGIN_SIDES * margin
@@ -200,7 +200,7 @@ export function fitZoom(
     zoomX: landed.fitted.zoomX,
     zoomY: landed.zoomY,
     scrollDate: left === null ? settings.scrollDate : textOfDayStart(left.day),
-    scrollDayOffset: left === null ? 0 : left.offset,
+    scrollDateFraction: left === null ? 0 : left.offset,
     scrollTaskGroupId:
       chosen.taskGroups.find((taskGroup) => taskGroup.isPinned !== true)?.taskGroupId ?? settings.scrollTaskGroupId,
     floorZoomY,

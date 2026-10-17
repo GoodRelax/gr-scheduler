@@ -18,8 +18,12 @@ import { documentWithTableViewsKept } from './edit-document-settings'
 // see T-108
 export type ResourceCommand =
   | { readonly kind: 'createResource'; readonly name: Resource['name'] }
-  | { readonly kind: 'setResourceName'; readonly uid: Resource['uid']; readonly name: Resource['name'] }
-  | { readonly kind: 'deleteResource'; readonly uids: readonly Resource['uid'][] }
+  | {
+      readonly kind: 'setResourceName'
+      readonly resourceUid: Resource['uid']
+      readonly name: Resource['name']
+    }
+  | { readonly kind: 'deleteResources'; readonly resourceUids: readonly Resource['uid'][] }
   | { readonly kind: 'deleteUnreferencedResources' }
   | {
       readonly kind: 'createAssignment'
@@ -67,27 +71,27 @@ export function editResource(document: Document, command: ResourceCommand): Edit
     }
 
     case 'setResourceName': {
-      const held = resources.find((one) => one.uid === command.uid)
+      const held = resources.find((one) => one.uid === command.resourceUid)
       if (held === undefined) {
         // WHY: a uid the document lacks is refused, not skipped (also CM-42, CM-45): a bundle
         // must not report success for an edit that did nothing (AG-3).
         return refused([
-          reject('CM-41', 'FR-008', `no resource with uid ${command.uid} is in the document`),
+          reject('CM-41', 'FR-008', `no resource with uid ${command.resourceUid} is in the document`),
         ])
       }
       if (held.name === command.name) return edited(document)
       return edited(
         withScheduleParts(document, {
           resources: resources.map((one) =>
-            one.uid === command.uid ? { ...one, name: command.name } : one,
+            one.uid === command.resourceUid ? { ...one, name: command.name } : one,
           ),
         }),
       )
     }
 
-    case 'deleteResource': {
-      if (command.uids.length === 0) return edited(document)
-      const missing = command.uids.filter((uid) => !resources.some((one) => one.uid === uid))
+    case 'deleteResources': {
+      if (command.resourceUids.length === 0) return edited(document)
+      const missing = command.resourceUids.filter((uid) => !resources.some((one) => one.uid === uid))
       if (missing.length > 0) {
         return refused(
           missing.map((uid) =>
@@ -95,7 +99,7 @@ export function editResource(document: Document, command: ResourceCommand): Edit
           ),
         )
       }
-      const going = new Set(command.uids)
+      const going = new Set(command.resourceUids)
       return edited(
         documentWithTableViewsKept(withScheduleParts(document, {
           resources: resources.filter((one) => !going.has(one.uid)),

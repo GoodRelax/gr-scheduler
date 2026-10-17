@@ -68,14 +68,14 @@ const taskAfter = (document: Document, command: TaskCommand, uid: number): Task 
 
 const begun = (
   isTimeOfDayVisible: boolean,
-  grabbed: 'GA-5' | 'GA-6' | 'GA-17',
+  grabbed: 'barDummyStart' | 'barDummyFinish' | 'milestoneDummy',
   released: string,
   snapMinutes: number,
   uid: number = TIMED_UID,
 ): Task =>
   taskAfter(
     documentOf({ isTimeOfDayVisible, pxPerDay: HOUR_TIER }),
-    { kind: 'beginTaskActual', uid, grabbed, released: { start: released, finish: released }, snapMinutes },
+    { kind: 'beginTaskActual', taskUid: uid, grabbed, released: { start: released, finish: released }, snapMinutes },
     uid,
   )
 
@@ -83,8 +83,8 @@ const pressed = (isTimeOfDayVisible: boolean, snapMinutes: number | undefined, u
   taskAfter(
     documentOf({ isTimeOfDayVisible, pxPerDay: HOUR_TIER }),
     snapMinutes === undefined
-      ? { kind: 'cycleTaskPlanActualState', uid, remembered: null }
-      : { kind: 'cycleTaskPlanActualState', uid, remembered: null, snapMinutes },
+      ? { kind: 'cycleTaskPlanActualState', taskUid: uid, remembered: null }
+      : { kind: 'cycleTaskPlanActualState', taskUid: uid, remembered: null, snapMinutes },
     uid,
   )
 
@@ -123,37 +123,37 @@ describe(`T-245 GO-6 (beginTaskActual, GA-5): ${GO_6_S_585_WORKING_MINUTES}`, ()
     { snap: HOUR, released: '2026-04-07T16:30:00', start: '2026-04-07T16:30', last: '2026-04-08T08:30', why: 'working minutes skip the night' },
     { snap: HOUR, released: '2026-04-07T11:00:00', start: '2026-04-07T11:00', last: '2026-04-07T12:00', why: FR_011_THE_EARLIEST_INSTANT },
   ])('snap $snap min, released $released: $start to $last ($why)', ({ snap, released, start, last }) => {
-    const task = begun(true, 'GA-5', released, snap)
+    const task = begun(true, 'barDummyStart', released, snap)
     expect(written(task), GO_6_S_585_WORKING_MINUTES).toEqual({ actualStart: start, last })
     expect(task.resumeValid, '⭐ 片端だけが決まった状態を作らないこと（MUST）').toBe(true)
   })
 
   it(`time shown on the day unit (SG-1): ${GO_6_THE_FLOOR}`, () => {
-    const task = begun(true, 'GA-5', '2026-04-07T08:00:00', DAY_UNIT)
+    const task = begun(true, 'barDummyStart', '2026-04-07T08:00:00', DAY_UNIT)
     expect(written(task), GO_6_THE_FLOOR).toEqual({ actualStart: '2026-04-07T08:00', last: '2026-04-07T17:00' })
   })
 
   it('time hidden: the day unit and the floor day, as before CR-756 (JDG-2059)', () => {
-    const task = begun(false, 'GA-5', '2026-04-07T08:00:00', DAY_UNIT)
+    const task = begun(false, 'barDummyStart', '2026-04-07T08:00:00', DAY_UNIT)
     expect(written(task), FR_043_THE_TIMED_VALUES).toEqual({ actualStart: '2026-04-07T08:00', last: '2026-04-07T17:00' })
   })
 })
 
 describe(`T-245 GO-7 (beginTaskActual, GA-6): ${GO_7_THE_PLAN_START_INSTANT}`, () => {
   it(`time shown, released at 15:00: ${FR_043_THE_OTHER_END}`, () => {
-    const task = begun(true, 'GA-6', '2026-04-06T15:00:00', HOUR)
+    const task = begun(true, 'barDummyFinish', '2026-04-06T15:00:00', HOUR)
     expect(written(task), FR_043_THE_OTHER_END).toEqual({ actualStart: '2026-04-06T10:30', last: '2026-04-06T15:00' })
   })
 
   it('time hidden: the plan start day at its default start time (JDG-2059)', () => {
-    const task = begun(false, 'GA-6', '2026-04-08T00:00:00', DAY_UNIT)
+    const task = begun(false, 'barDummyFinish', '2026-04-08T00:00:00', DAY_UNIT)
     expect(written(task), GO_7_THE_PLAN_START_INSTANT).toEqual({ actualStart: '2026-04-06T08:00', last: '2026-04-08T17:00' })
   })
 })
 
 describe(`T-245 GO-8 (beginTaskActual, GA-17): ${GO_8_THE_SAME_DAY}`, () => {
   it('time shown: a milestone actual starts and ends on the released instant (S-130 is 0)', () => {
-    const task = begun(true, 'GA-17', '2026-04-07T15:00:00', HOUR, TIMED_MILESTONE_UID)
+    const task = begun(true, 'milestoneDummy', '2026-04-07T15:00:00', HOUR, TIMED_MILESTONE_UID)
     expect(written(task), GO_8_THE_SAME_DAY).toEqual({ actualStart: '2026-04-07T15:00', last: '2026-04-07T15:00' })
   })
 })

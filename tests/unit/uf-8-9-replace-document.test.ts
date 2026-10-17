@@ -185,7 +185,7 @@ const projectOf = (part: Partial<Project> = {}): Project => ({
   defaultStartTime: null,
   defaultFinishTime: null,
   themeHue: 214,
-  parentProgressToleranceDays: 1,
+  parentTaskProgressToleranceDays: 1,
   uidHighWaterMark: 0,
   importSequence: 0,
   outlineBase: 1,
@@ -225,7 +225,7 @@ const groupOf = (part: Partial<TaskGroup> & { readonly id: string }): TaskGroup 
   name: null,
   derivedFromTaskUid: null,
   order: 0,
-  treeState: 'auto', editGroup: null,
+  treeState: 'auto', editPermission: null,
   color: null,
   minHeightPx: null,
   ...part,
@@ -244,8 +244,8 @@ const SETTINGS_BASE = {
   pinnedTaskGroupIds: [] as readonly string[],
   taskGroupGap: 6,
   stackDirection: 'up',
-  fontScale: 'M',
-  fontScaleSizes: { S: 12, M: 14, L: 16 },
+  fontSizeStep: 'M',
+  fontSizeStepSizes: { S: 12, M: 14, L: 16 },
   zoomX: 1,
   zoomY: 1,
   isBaselineVisible: true,
@@ -319,7 +319,7 @@ const ONE_STEP_BACK = rowed(
 
 /**
  * The document one undo step back when the write that produced `CURRENT`
- * touched ONLY the 見せ方の群 (表 T-108 の `CM-62`, `setFontScale`). WS-5:
+ * touched ONLY the 見せ方の群 (表 T-108 の `CM-62`, `setFontSizeStep`). WS-5:
  * 「日程データの群の刻を動かすのは、その群を変えたときだけ」 —— so that 刻
  * never moved, and this document carries the SAME one as `CURRENT` while the
  * other two stamp fields differ. An undo that restores it is a replacement the
@@ -328,7 +328,7 @@ const ONE_STEP_BACK = rowed(
 const ONE_STEP_BACK_SAME_SCHEDULE = rowed(
   [taskOf({ uid: 1, name: 'ours' })],
   stampOf({ settingsUpdatedAt: EARLIER, lastEditedBy: 'somebody else' }),
-  { fontScale: 'L' },
+  { fontSizeStep: 'L' },
 )
 
 /** A document out of a file: a different schedule AND a different 刻印. */
@@ -406,7 +406,7 @@ const heldWithOneStep = (): HeldDocument => ({
 /** The same holder, with a 段 that moved only the 見せ方の群 behind it. */
 const heldWithOneSettingsStep = (): HeldDocument => ({
   document: CURRENT,
-  history: oneStepOf(ONE_STEP_BACK_SAME_SCHEDULE, ['setFontScale']),
+  history: oneStepOf(ONE_STEP_BACK_SAME_SCHEDULE, ['setFontSizeStep']),
 })
 
 const CALM: WriteMoment = {
@@ -462,7 +462,7 @@ const acceptedImport = (outcome: ImportOutcome): Document => {
 
 interface Delivery {
   readonly document: Document
-  readonly hasMovedSchedule: boolean
+  readonly hasUpdatedSchedule: boolean
   /** What a subscriber reading the holder from inside `deliver` would see. */
   readonly visibleToASubscriber: Document
 }
@@ -499,9 +499,9 @@ function bench(start: HeldDocument, onDeliver?: (self: Bench) => void): Bench {
   }
 
   const audience: ChangeAudience = {
-    deliver: (document, hasMovedSchedule) => {
+    deliver: (document, hasUpdatedSchedule) => {
       order.push('WS-7')
-      delivered.push({ document, hasMovedSchedule, visibleToASubscriber: held.document })
+      delivered.push({ document, hasUpdatedSchedule, visibleToASubscriber: held.document })
       if (onDeliver !== undefined) onDeliver(one)
     },
   }
@@ -527,11 +527,11 @@ function bench(start: HeldDocument, onDeliver?: (self: Bench) => void): Bench {
   return one
 }
 
-const accepted = (outcome: ReplaceOutcome): { document: Document; hasMovedSchedule: boolean } => {
+const accepted = (outcome: ReplaceOutcome): { document: Document; hasUpdatedSchedule: boolean } => {
   if (!outcome.ok) {
     throw new Error(`the replacement was refused: ${JSON.stringify(outcome.refusal)}`)
   }
-  return { document: outcome.document, hasMovedSchedule: outcome.hasMovedSchedule }
+  return { document: outcome.document, hasUpdatedSchedule: outcome.hasUpdatedSchedule }
 }
 
 /**
@@ -1232,8 +1232,8 @@ describe('日程データの群が動いたか -- 出て行く文書と入って
     )
     const one = bench(heldWithOneStep())
     const outcome = accepted(one.run({ row: 'RD-6', document: OUT_OF_A_FILE }))
-    expect(outcome.hasMovedSchedule).toBe(true)
-    expect(one.delivered[0]?.hasMovedSchedule).toBe(true)
+    expect(outcome.hasUpdatedSchedule).toBe(true)
+    expect(one.delivered[0]?.hasUpdatedSchedule).toBe(true)
   })
 
   it('GIVEN two equal `scheduleUpdatedAt` WHEN the replacement lands THEN WS-7 is told it did not move, however different the rest is', () => {
@@ -1245,8 +1245,8 @@ describe('日程データの群が動いたか -- 出て行く文書と入って
     expect(SAME_SCHEDULE_STAMP.documentStamp).not.toEqual(CURRENT.documentStamp)
     const one = bench(heldWithOneStep())
     const outcome = accepted(one.run({ row: 'RD-6', document: SAME_SCHEDULE_STAMP }))
-    expect(outcome.hasMovedSchedule).toBe(false)
-    expect(one.delivered[0]?.hasMovedSchedule).toBe(false)
+    expect(outcome.hasUpdatedSchedule).toBe(false)
+    expect(one.delivered[0]?.hasUpdatedSchedule).toBe(false)
   })
 
   it('GIVEN an undo restoring an EARLIER 刻 WHEN it lands THEN it still counts as moved -- an equality, never an order', () => {
@@ -1259,8 +1259,8 @@ describe('日程データの群が動いたか -- 出て行く文書と入って
 
     const one = bench(drive.start)
     const outcome = accepted(one.run(drive.call))
-    expect(outcome.hasMovedSchedule).toBe(true)
-    expect(one.delivered[0]?.hasMovedSchedule).toBe(true)
+    expect(outcome.hasUpdatedSchedule).toBe(true)
+    expect(one.delivered[0]?.hasUpdatedSchedule).toBe(true)
   })
 
   it('GIVEN every drive WHEN their two 刻 are compared THEN half differ and half match, so the row-by-row case can answer either way', () => {
@@ -1311,8 +1311,8 @@ describe('日程データの群が動いたか -- 出て行く文書と入って
         const moved = drive.outgoingScheduleUpdatedAt !== drive.incomingScheduleUpdatedAt
         const one = bench(drive.start)
         const outcome = accepted(one.run(drive.call))
-        expect(outcome.hasMovedSchedule, where).toBe(moved)
-        expect(one.delivered[0]?.hasMovedSchedule, where).toBe(moved)
+        expect(outcome.hasUpdatedSchedule, where).toBe(moved)
+        expect(one.delivered[0]?.hasUpdatedSchedule, where).toBe(moved)
       }
     }
   })
@@ -1327,8 +1327,8 @@ describe('日程データの群が動いたか -- 出て行く文書と入って
       const moved = drive.outgoingScheduleUpdatedAt !== drive.incomingScheduleUpdatedAt
       const one = bench(drive.start)
       const outcome = accepted(one.run(drive.call, { expectedStamp: null }))
-      expect(outcome.hasMovedSchedule, instants).toBe(moved)
-      expect(one.delivered[0]?.hasMovedSchedule, instants).toBe(moved)
+      expect(outcome.hasUpdatedSchedule, instants).toBe(moved)
+      expect(one.delivered[0]?.hasUpdatedSchedule, instants).toBe(moved)
     }
   })
 })

@@ -41,8 +41,8 @@
 ARMED_BY_ENTRY | keys | icon-roster.json $.icons[arms].rowId
 why: restates the IC rows of table T-109 that carry an arm (icon-roster.json); keyed by Record<string, ...>, so a new arming icon compiles and arms nothing.
 
-FONT_SCALE_STEPS | array | generated DocumentSettings.fontScale union
-why: restates the fontScale values of docs/spec/_source/settings.json (DocumentSettings.fontScale); typed FontScale, so a removed step fails to compile but a new one is never reached.
+FONT_SIZE_STEPS | array | generated DocumentSettings.fontSizeStep union
+why: restates the fontSizeStep values of docs/spec/_source/settings.json (DocumentSettings.fontSizeStep); typed FontSizeStep, so a removed step fails to compile but a new one is never reached.
 
 TASK_GROUP_GUARDS | keys | generated TREE_STATE_TRANSITIONS field guard~words
 why: restates the guard names of table T-328 (docs/spec/_source/state-machines.json, region taskGroupTree); Record<string, ...>, so an unknown guard throws only at run time.

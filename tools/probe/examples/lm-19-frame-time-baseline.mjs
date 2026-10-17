@@ -212,7 +212,7 @@ async function trimTo(page, target) {
         .slice(0, tasks.length - want)
       const answer = api.applyCommands({
         readStamp: api.readStamp(),
-        commands: victims.map((uid) => ({ kind: 'deleteTask', uid })),
+        commands: victims.map((uid) => ({ kind: 'deleteTask', taskUid: uid })),
       })
       if (!answer.accepted) {
         return { tasks: tasks.length, note: JSON.stringify(answer.refusal).slice(0, 200) }

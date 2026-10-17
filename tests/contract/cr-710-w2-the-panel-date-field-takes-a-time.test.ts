@@ -91,7 +91,7 @@ describe('TX-3, FR-054: a typed yyyy-mm-ddThh:mm writes that instant', () => {
     const commands = commitOn(document, TASK, 'PR-3', '2026-04-07T10:30')
     expect(commands.map((one) => recordOf(one)['kind'])).toEqual(['setTaskPlanDates'])
     const command = recordOf(commands[0] as DocumentCommand)
-    expect(command['uid']).toBe(TASK)
+    expect(command['taskUid']).toBe(TASK)
     expect(instantOf(String(command['start']))).toBe(instantOf('2026-04-07T10:30:00'))
     expect(String(command['start'])).toBe('2026-04-07T10:30:00')
   })

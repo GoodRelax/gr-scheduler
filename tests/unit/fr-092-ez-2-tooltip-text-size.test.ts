@@ -147,8 +147,8 @@ const S_204 = numberOf('S-204')
 /** S-203 -- the help's ratio. ⚠️ A DIFFERENT SURFACE AND A DIFFERENT NUMBER. */
 const S_203 = numberOf('S-203')
 
-/** `fontScaleSizes` (S-121 / S-122 / S-123 of table T-215) -- what 「2 段階」 is NOT. */
-const FONT_SCALE_SIZES = ((): readonly number[] => {
+/** `fontSizeStepSizes` (S-121 / S-122 / S-123 of table T-215) -- what 「2 段階」 is NOT. */
+const FONT_SIZE_STEP_SIZES = ((): readonly number[] => {
   const table = specTable('T-215')
   return ['S-121', 'S-122', 'S-123'].map((id) => {
     const row = table.rows.find((one) => one.id === id)
@@ -377,7 +377,7 @@ function everyWordyNode(tooltip: FakeElement): FakeElement[] {
   return innermost
 }
 
-/** ⭐ Bases of this file's own choosing, none of them a `fontScaleSizes` number. */
+/** ⭐ Bases of this file's own choosing, none of them a `fontSizeStepSizes` number. */
 const BASES = [12, 16, 20, 24, 32]
 
 // ===========================================================================
@@ -490,20 +490,20 @@ describe('EZ-2 (MUST) -- the tooltip’s text is S-204 of the base the host give
   it('⛔ MUST NOT: 「2 段階」 is not a step of table T-215', () => {
     // ⚠️ 「「2 段階」は 表 T-215 の段ではない —— 利用者が同じ発言でDFC-106 「フォントサイズ
     //   のことだ」と述べている」（`S-204`'s own note）. ⭐ DFC-106 records that the
-    // question was open before the ruling: 「表 T-215 の `fontScaleSizes` の段か、
+    // question was open before the ruling: 「表 T-215 の `fontSizeStepSizes` の段か、
     // `S-197` のような係数か。問う前に測ること」 -- and the ruling chose the ratio.
     // ⭐ The base below is deliberately none of table T-215's own numbers, so a
     // tooltip that multiplied the wrong thing cannot come out right by
     // accident.
     const base = 20
-    expect(FONT_SCALE_SIZES, 'the base this case drives with is not one of them').not.toContain(base)
+    expect(FONT_SIZE_STEP_SIZES, 'the base this case drives with is not one of them').not.toContain(base)
 
     const { built, tooltip } = drawn([iconTooltip('IC-20', EXPLANATION, ASSIGNMENT)])
     const size = sizeOf(built, theCellShowing(tooltip, EXPLANATION), base)
 
     expect(size).toBeCloseTo(S_204 * base, 9)
-    for (const wrong of FONT_SCALE_SIZES) {
-      expect(size, `S-204 x fontScaleSizes = ${S_204 * wrong}`).not.toBeCloseTo(S_204 * wrong, 9)
+    for (const wrong of FONT_SIZE_STEP_SIZES) {
+      expect(size, `S-204 x fontSizeStepSizes = ${S_204 * wrong}`).not.toBeCloseTo(S_204 * wrong, 9)
     }
   })
 })

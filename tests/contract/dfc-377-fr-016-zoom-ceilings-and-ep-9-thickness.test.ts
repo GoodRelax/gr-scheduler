@@ -211,7 +211,7 @@ describe('DFC-377 -- the manuscript these cases are driven by', () => {
 // entries a screen and an export actually go through, and check the number
 // that comes back is the same published constant, never a second one.
 
-// The nested keys (exportCanvas, fontScaleSizes, planActualGuidePattern, shapeHeightOf)
+// The nested keys (exportCanvas, fontSizeStepSizes, planActualGuidePattern, shapeHeightOf)
 // are constants now (SETTINGS_CONSTANTS); a document carries none of them.
 const settingsOf = (part: Record<string, unknown> = {}): DocumentSettings =>
   ({

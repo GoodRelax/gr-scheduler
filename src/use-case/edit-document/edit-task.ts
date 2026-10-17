@@ -62,25 +62,25 @@ export interface PasteLanding {
 
 // see T-108
 export type PlanActualPlacement =
-  | { readonly row: 'PA-1' }
+  | { readonly state: 'notStarted' }
   | {
-      readonly row: 'PA-2'
+      readonly state: 'inProgress'
       readonly actualStart: NonNullable<Task['actualStart']>
       readonly stop: NonNullable<Task['stop']>
     }
   | {
-      readonly row: 'PA-3'
+      readonly state: 'suspendedWithResumeDate'
       readonly actualStart: NonNullable<Task['actualStart']>
       readonly stop: NonNullable<Task['stop']>
       readonly resume: NonNullable<Task['resume']>
     }
   | {
-      readonly row: 'PA-4'
+      readonly state: 'suspendedWithoutResumeDate'
       readonly actualStart: NonNullable<Task['actualStart']>
       readonly stop: NonNullable<Task['stop']>
     }
   | {
-      readonly row: 'PA-5'
+      readonly state: 'finished'
       readonly actualStart: NonNullable<Task['actualStart']>
       readonly actualFinish: NonNullable<Task['actualFinish']>
     }
@@ -94,75 +94,79 @@ export type TaskCommand =
       readonly finish: NonNullable<Task['finish']>
       readonly taskGroupId: TaskGroupMember['taskGroupId']
     }
-  | { readonly kind: 'deleteTask'; readonly uid: Task['uid'] }
+  | { readonly kind: 'deleteTask'; readonly taskUid: Task['uid'] }
   | {
       readonly kind: 'pasteTasks'
       readonly sourceUids: readonly Task['uid'][]
       readonly landing?: PasteLanding
     }
-  | { readonly kind: 'setTaskName'; readonly uid: Task['uid']; readonly name: Task['name'] }
-  | { readonly kind: 'setTaskNotes'; readonly uid: Task['uid']; readonly notes: Task['notes'] }
+  | { readonly kind: 'setTaskName'; readonly taskUid: Task['uid']; readonly name: Task['name'] }
+  | { readonly kind: 'setTaskNotes'; readonly taskUid: Task['uid']; readonly notes: Task['notes'] }
   | {
       readonly kind: 'setTaskPlanDates'
-      readonly uid: Task['uid']
+      readonly taskUid: Task['uid']
       readonly start: NonNullable<Task['start']>
       readonly finish: NonNullable<Task['finish']>
     }
-  | { readonly kind: 'setTaskDeadline'; readonly uid: Task['uid']; readonly deadline: Task['deadline'] }
+  | { readonly kind: 'setTaskDeadline'; readonly taskUid: Task['uid']; readonly deadline: Task['deadline'] }
   | {
       readonly kind: 'setTaskPlanActualState'
-      readonly uid: Task['uid']
+      readonly taskUid: Task['uid']
       readonly place: PlanActualPlacement
     }
   | {
       readonly kind: 'beginTaskActual'
-      readonly uid: Task['uid']
-      readonly grabbed: 'GA-5' | 'GA-6' | 'GA-17' | 'GA-21' | 'GA-22'
+      readonly taskUid: Task['uid']
+      readonly grabbed: 'barDummyStart' | 'barDummyFinish' | 'milestoneDummy' | 'arrowDummyStart' | 'arrowDummyFinish'
       readonly released: { readonly start: string; readonly finish: string }
       readonly snapMinutes: number
     }
   | {
       readonly kind: 'cycleTaskPlanActualState'
-      readonly uid: Task['uid']
+      readonly taskUid: Task['uid']
       readonly remembered: RememberedActual | null
       readonly snapMinutes?: number
     }
-  | { readonly kind: 'setTaskFadeInDays'; readonly uid: Task['uid']; readonly fadeInDays: Task['fadeInDays'] }
+  | {
+      readonly kind: 'setTaskFadeInDays'
+      readonly taskUid: Task['uid']
+      readonly fadeInDays: Task['fadeInDays']
+    }
   | {
       readonly kind: 'setTaskFadeOutDays'
-      readonly uid: Task['uid']
+      readonly taskUid: Task['uid']
       readonly fadeOutDays: Task['fadeOutDays']
     }
   | {
       readonly kind: 'setTaskParentTask'
-      readonly uid: Task['uid']
+      readonly taskUid: Task['uid']
       readonly parentTaskUid: Task['parentTaskUid']
     }
   | {
       readonly kind: 'moveTaskToTaskGroup'
-      readonly uid: Task['uid']
+      readonly taskUid: Task['uid']
       readonly taskGroupId: TaskGroupMember['taskGroupId']
     }
   | {
       readonly kind: 'setTaskVisualShapeKind'
-      readonly uid: Task['uid']
+      readonly taskUid: Task['uid']
       readonly shapeKind: NonNullable<TaskVisual['shapeKind']>
     }
   | {
       readonly kind: 'setTaskVisualMilestoneGlyph'
-      readonly uid: Task['uid']
+      readonly taskUid: Task['uid']
       readonly milestoneGlyph: TaskVisual['milestoneGlyph']
     }
   | {
       readonly kind: 'setTaskVisualColors'
-      readonly uid: Task['uid']
+      readonly taskUid: Task['uid']
       readonly fillColor: TaskVisual['fillColor']
       readonly strokeColor: TaskVisual['strokeColor']
     }
-  | { readonly kind: 'resetTaskVisualColors'; readonly uid: Task['uid'] }
+  | { readonly kind: 'resetTaskVisualColors'; readonly taskUid: Task['uid'] }
   | {
       readonly kind: 'setTaskVisualStrokeWidthPx'
-      readonly uid: Task['uid']
+      readonly taskUid: Task['uid']
       readonly strokeWidthPx: TaskVisual['strokeWidthPx']
     }
 
@@ -283,12 +287,12 @@ export function editTask(document: Document, command: TaskCommand, defaultTaskGr
   const within = workingCalendarOf(schedule)
   if (command.kind === 'pasteTasks') return pasteTasks(document, command, within)
 
-  const named = command.kind === 'createTask' ? null : taskByUid(schedule, command.uid)
+  const named = command.kind === 'createTask' ? null : taskByUid(schedule, command.taskUid)
   // WHY: CM-7 is exempt; FR-032's select-all delete bundles one CM-7 per task, an earlier one can
   // carry off a later one's subtree, and refusing that one would throw the bundle away (AG-3).
   const missingTargetIsRefused = command.kind !== 'createTask' && command.kind !== 'deleteTask'
   if (missingTargetIsRefused && named === null) {
-    return refused([reject(TABLE_T108_ROWS[command.kind], 'IV-2', `no Task with uid ${command.uid}`)])
+    return refused([reject(TABLE_T108_ROWS[command.kind], 'IV-2', `no Task with uid ${command.taskUid}`)])
   }
   // TRAP: the cast holds only for guarded kinds; createTask and deleteTask must not read task.
   const task = named as Task
@@ -298,7 +302,7 @@ export function editTask(document: Document, command: TaskCommand, defaultTaskGr
       return createTask(document, command, within)
 
     case 'deleteTask':
-      return deleteTask(document, command.uid, defaultTaskGroupName)
+      return deleteTask(document, command.taskUid, defaultTaskGroupName)
 
     case 'setTaskName':
       return edited(withTask(document, { ...task, name: command.name }))
@@ -335,9 +339,9 @@ export function editTask(document: Document, command: TaskCommand, defaultTaskGr
         if (taskByUid(schedule, command.parentTaskUid) === null) {
           return refused([reject('CM-18', 'IV-2', `no Task with uid ${command.parentTaskUid}`)])
         }
-        if (wbsSubtreesOf(schedule.tasks, [command.uid]).has(command.parentTaskUid)) {
+        if (wbsSubtreesOf(schedule.tasks, [command.taskUid]).has(command.parentTaskUid)) {
           return refused([
-            reject('CM-18', 'HM-4', `uid ${command.parentTaskUid} is inside the subtree of ${command.uid}`),
+            reject('CM-18', 'HM-4', `uid ${command.parentTaskUid} is inside the subtree of ${command.taskUid}`),
           ])
         }
       }
@@ -348,13 +352,13 @@ export function editTask(document: Document, command: TaskCommand, defaultTaskGr
       if (!schedule.taskGroups.some((one) => one.id === command.taskGroupId)) {
         return refused([reject('CM-19', 'IV-2', `no TaskGroup with id ${command.taskGroupId}`)])
       }
-      const member = schedule.taskGroupMembers.find((one) => one.taskUid === command.uid)
+      const member = schedule.taskGroupMembers.find((one) => one.taskUid === command.taskUid)
       if (member === undefined) {
-        return refused([reject('CM-19', 'IV-6', `uid ${command.uid} is on no task group`)])
+        return refused([reject('CM-19', 'IV-6', `uid ${command.taskUid} is on no task group`)])
       }
       if (member.taskGroupId === command.taskGroupId) return edited(document)
       const taskGroupMembers = schedule.taskGroupMembers.map((one) =>
-        one.taskUid === command.uid ? { ...one, taskGroupId: command.taskGroupId } : one,
+        one.taskUid === command.taskUid ? { ...one, taskGroupId: command.taskGroupId } : one,
       )
       const moved: Schedule = { ...schedule, taskGroupMembers }
       return edited(withSchedule(document, { ...moved, tasks: tasksRankedByTheTaskGroupTree(moved) }))

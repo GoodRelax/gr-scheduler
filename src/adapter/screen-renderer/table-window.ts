@@ -259,7 +259,7 @@ export function dateTimeText(stored: string | null, times: ShownDateTimes, side:
 
 /** @purity pure */
 export function isScheduleFilterAppliedIn(settings: DocumentSettings, table: VisibilityTable): boolean {
-  return tableViewOf(settings, table).visibility.isApplied
+  return tableViewOf(settings, table).visibility.isScheduleFilterApplied
 }
 
 type HeldTableViews = DocumentSettings['tableViews']
@@ -468,10 +468,22 @@ export function tableWithFilterClosed<P extends TableWindowSession>(panel: P, sh
   return { ...panel, filters: { ...panel.filters, open: null } }
 }
 
+// see TV-2, JDG-2724
+// WHY: the resource list hides Resource.uid rows and the other tables Task.uid rows; each list is named for what it holds.
 /** @purity pure */
-export function isRowShown(visibility: TableVisibility, key: VisibilityKey): boolean {
+function hiddenRowKeysOf(table: VisibilityTable, visibility: TableVisibility): readonly number[] {
+  return table === 'resourceList' ? visibility.hiddenResourceUids : visibility.hiddenTaskUids
+}
+
+/** @purity pure */
+function withHiddenRowKeys(table: VisibilityTable, visibility: TableVisibility, keys: readonly number[]): TableVisibility {
+  return table === 'resourceList' ? { ...visibility, hiddenResourceUids: keys } : { ...visibility, hiddenTaskUids: keys }
+}
+
+/** @purity pure */
+export function isRowShown(table: VisibilityTable, visibility: TableVisibility, key: VisibilityKey): boolean {
   if (key === UNASSIGNED_ROW_KEY) return !visibility.isUnassignedHidden
-  return !visibility.hiddenKeys.includes(key)
+  return !hiddenRowKeysOf(table, visibility).includes(key)
 }
 
 // WHY: null for a value of another column, so a caller keeps its own label.
@@ -485,48 +497,56 @@ export function visibilityLabelOf(value: string, language: DisplayLanguage): str
 // see TV-2, UN-20
 // WHY: the same view back when no row changes, so the shell writes nothing.
 /** @purity pure */
-export function tableAfterVisibilityChange(view: TableView, keys: readonly VisibilityKey[], isShown: boolean): TableView {
+export function tableAfterVisibilityChange(
+  table: VisibilityTable,
+  view: TableView,
+  keys: readonly VisibilityKey[],
+  isShown: boolean,
+): TableView {
   const held = view.visibility
+  const hidden = hiddenRowKeysOf(table, held)
   const named = new Set(keys.filter((key): key is number => key !== UNASSIGNED_ROW_KEY))
-  const kept = held.hiddenKeys.filter((key) => !named.has(key))
-  const added = isShown ? [] : [...named].filter((key) => !held.hiddenKeys.includes(key))
+  const kept = hidden.filter((key) => !named.has(key))
+  const added = isShown ? [] : [...named].filter((key) => !hidden.includes(key))
   const isUnassignedHidden = keys.includes(UNASSIGNED_ROW_KEY) ? !isShown : held.isUnassignedHidden
-  const isSame = kept.length === held.hiddenKeys.length && added.length === 0 && isUnassignedHidden === held.isUnassignedHidden
+  const isSame = kept.length === hidden.length && added.length === 0 && isUnassignedHidden === held.isUnassignedHidden
   if (isSame) return view
-  return { ...view, visibility: { ...held, hiddenKeys: [...kept, ...added], isUnassignedHidden } }
+  return { ...view, visibility: { ...withHiddenRowKeys(table, held, [...kept, ...added]), isUnassignedHidden } }
 }
 
 /** @purity pure */
 export function tableWithScheduleFilterToggled(view: TableView): TableView {
-  return { ...view, visibility: { ...view.visibility, isApplied: !view.visibility.isApplied } }
+  return { ...view, visibility: { ...view.visibility, isScheduleFilterApplied: !view.visibility.isScheduleFilterApplied } }
 }
 
 // see TV-8, UN-20
 /** @purity pure */
 export function tableWithScheduleFilterOff(view: TableView): TableView {
-  return view.visibility.isApplied ? tableWithScheduleFilterToggled(view) : view
+  return view.visibility.isScheduleFilterApplied ? tableWithScheduleFilterToggled(view) : view
 }
 
 // WHY: rowKeysOf lists the table's rows, read only while a key is hidden;
 // a table that leaves a task out (the report) changes the schedule though no row is Hide.
 /** @purity pure */
 export function isScheduleFilterChanging(
+  table: VisibilityTable,
   visibility: TableVisibility,
   rowKeysOf: () => ReadonlySet<number>,
   isEveryTaskRowed: boolean,
 ): boolean {
   if (!isEveryTaskRowed || visibility.isUnassignedHidden) return true
-  if (visibility.hiddenKeys.length === 0) return false
+  const hidden = hiddenRowKeysOf(table, visibility)
+  if (hidden.length === 0) return false
   const rowKeys = rowKeysOf()
-  return visibility.hiddenKeys.some((key) => rowKeys.has(key))
+  return hidden.some((key) => rowKeys.has(key))
 }
 
 // see TV-5, TV-12, IC-143, EN-8, FR-092
 /** @purity pure */
 export function scheduleFilterEntryOf(visibility: TableVisibility, wouldChange: boolean, language: DisplayLanguage): CommandItem {
-  const isApplied = visibility.isApplied
+  const isScheduleFilterApplied = visibility.isScheduleFilterApplied
   const entry = entryOf(SCHEDULE_FILTER_ENTRY, language)
-  return { ...entry, isEnabled: isApplied || wouldChange, isPressed: isApplied, isScheduleFilterApplied: isApplied }
+  return { ...entry, isEnabled: isScheduleFilterApplied || wouldChange, isPressed: isScheduleFilterApplied, isScheduleFilterApplied: isScheduleFilterApplied }
 }
 
 /** @purity pure */
@@ -538,7 +558,7 @@ export function scheduleFilterRefusalsOf(entry: CommandItem, language: DisplayLa
 /** @purity pure */
 export function tableWithScheduleFilterPressed(view: TableView, entry: IconId, wouldChange: () => boolean): TableView | null {
   if (entry !== SCHEDULE_FILTER_ENTRY) return null
-  if (!view.visibility.isApplied && !wouldChange()) return null
+  if (!view.visibility.isScheduleFilterApplied && !wouldChange()) return null
   return tableWithScheduleFilterToggled(view)
 }
 

@@ -241,7 +241,7 @@ const groupOf = (id: string, treeState: TaskGroup['treeState']): TaskGroup =>
     derivedFromTaskUid: null,
     order: 0,
     treeState,
-    editGroup: null,
+    editPermission: null,
     color: null,
     minHeightPx: null,
   }) as TaskGroup

@@ -199,7 +199,7 @@ describe('item 9 -- a read-only parent: the row is shown and cannot be checked',
   it('the row for VC-11 on the parent carries a refusal and the checked rows make no command from it', () => {
     const rows = proposed(READ_ONLY_PARENT())
     const row = oneRow(rows, 'VC-11', 1)
-    expect(row.refusal ?? null, 'GP-1 refuses an edit of a task in a task group with an editGroup').not.toBeNull()
+    expect(row.refusal ?? null, 'GP-1 refuses an edit of a task in a task group with an editPermission').not.toBeNull()
     expect(commandsOf(machineRows(rows))).toEqual([])
   })
 })

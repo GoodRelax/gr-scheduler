@@ -115,7 +115,7 @@ async function documentWithTaskGroups(baseURL: string, roots: number, offset: nu
         },
         documentSettings: {
           ...held.documentSettings, displayScale: 100, zoomY: 1, zoomX: 1, pinnedTaskGroupIds: [],
-          scrollTaskGroupId: 'r0', scrollGroupOffset: asked.offset, scrollDate: '2026-01-01T00:00:00', scrollDayOffset: 0,
+          scrollTaskGroupId: 'r0', scrollTaskGroupFraction: asked.offset, scrollDate: '2026-01-01T00:00:00', scrollDateFraction: 0,
         },
       })
     }, { count: roots, offset, schemaAddress: TEMPLATE['$schema'] })

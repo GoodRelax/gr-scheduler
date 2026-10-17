@@ -236,7 +236,7 @@ const scheduleOf = (spec: SceneSpec): Loose => ({
     name: id,
     derivedFromTaskUid: null,
     treeState: 'auto',
-    editGroup: null,
+    editPermission: null,
     color: null,
   })),
   taskGroupMembers: GROUP_IDS.map((taskGroupId, at) => ({ taskGroupId, taskUid: at + 1 })),

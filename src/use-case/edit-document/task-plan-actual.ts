@@ -41,7 +41,7 @@ import {
 import { repriced } from './percent-complete'
 
 // see GO-6, GO-7
-const DUMMY_FINISH_HOLDS: readonly ActualGrabHold[] = ['GA-6', 'GA-22']
+const DUMMY_FINISH_HOLDS: readonly ActualGrabHold[] = ['barDummyFinish', 'arrowDummyFinish']
 
 // see FR-011, S-129, S-130, PV-1
 // WHY: a milestone's floor day is its actualStart itself, so no length is counted for it.
@@ -333,11 +333,11 @@ export function setTaskPlanActualState(
   const place = command.place
   const faults: Refusal[] = []
   const dates: readonly (readonly [string, string])[] =
-    place.row === 'PA-1'
+    place.state === 'notStarted'
       ? []
-      : place.row === 'PA-3'
+      : place.state === 'suspendedWithResumeDate'
         ? [['actualStart', place.actualStart], ['stop', place.stop], ['resume', place.resume]]
-        : place.row === 'PA-5'
+        : place.state === 'finished'
           ? [['actualStart', place.actualStart], ['actualFinish', place.actualFinish]]
           : [['actualStart', place.actualStart], ['stop', place.stop]]
   for (const [label, text] of dates) {
@@ -346,13 +346,13 @@ export function setTaskPlanActualState(
   }
   if (faults.length > 0) return refused(faults)
 
-  if (place.row === 'PA-1') {
+  if (place.state === 'notStarted') {
     // TRAP: leave resumeValid alone; T-019's PA-1 cell is a dash, not empty.
     const cleared: Task = { ...task, actualStart: null, stop: null, actualFinish: null, resume: null }
     return edited(withTask(document, repriced(within, actualsEdited(cleared))))
   }
 
-  const askedText = place.row === 'PA-5' ? place.actualFinish : place.stop
+  const askedText = place.state === 'finished' ? place.actualFinish : place.stop
   const from = dayOf(place.actualStart) as CalendarDay
   const asked = dayOf(askedText) as CalendarDay
   const milestone = isMilestone(task)
@@ -366,8 +366,8 @@ export function setTaskPlanActualState(
     ? askedText : textOfFinishSide(settled.lastDay, document.schedule.project)
 
   let placed: Task
-  switch (place.row) {
-    case 'PA-2':
+  switch (place.state) {
+    case 'inProgress':
       placed = {
         ...task,
         actualStart: place.actualStart,
@@ -377,7 +377,7 @@ export function setTaskPlanActualState(
         resumeValid: true,
       }
       break
-    case 'PA-3':
+    case 'suspendedWithResumeDate':
       placed = {
         ...task,
         actualStart: place.actualStart,
@@ -387,7 +387,7 @@ export function setTaskPlanActualState(
         resumeValid: true,
       }
       break
-    case 'PA-4':
+    case 'suspendedWithoutResumeDate':
       placed = {
         ...task,
         actualStart: place.actualStart,
@@ -397,7 +397,7 @@ export function setTaskPlanActualState(
         resumeValid: false,
       }
       break
-    case 'PA-5':
+    case 'finished':
       placed = {
         ...task,
         actualStart: place.actualStart,

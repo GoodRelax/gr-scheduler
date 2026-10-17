@@ -185,7 +185,7 @@ function writeNames(one: Bench, nth: number): void {
   for (let i = 1; i <= nth; i += 1) {
     namesWritten += 1
     const outcome = one.write([
-      { kind: CM_9, uid: FIRST_TASK_UID, name: `edit ${namesWritten}` } as unknown as DocumentCommand,
+      { kind: CM_9, taskUid: FIRST_TASK_UID, name: `edit ${namesWritten}` } as unknown as DocumentCommand,
     ])
     if (!outcome.ok) {
       throw new Error(`write ${i} was refused: ${JSON.stringify(outcome.refusal)}`)

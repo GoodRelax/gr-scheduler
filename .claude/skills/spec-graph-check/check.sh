@@ -1032,14 +1032,14 @@ PYTHONIOENCODING=utf-8 python "$HERE/check-conflict-markers.py" || failed
 echo ""
 section "75  the schedule-to-grs-json guide still yields a document the schema accepts"
 # DFC-1790 (2026-10-03): grs-skeleton.json lacked the required
-# Project.sourceFormat and TaskGroup.editGroup, and both prompts told the AI
+# Project.sourceFormat and TaskGroup.editPermission, and both prompts told the AI
 # to write TaskVisual.lineWeight, which strokeWidthPx replaced -- MEASURED on
 # 633db463: 32 problems (2 in the skeleton, 15 in each prompt). The guide is
 # hand-written for app users who only download files, so no generator and no
 # gen:check stands behind it. It does NOT read what the prose says about
 # values (color forms, ranges), nor whether ja and en agree; the in-app
 # prompt is gen:check's. --self-test feeds a skeleton without sourceFormat
-# and a prompt naming lineWeight and omitting editGroup, and is red unless
+# and a prompt naming lineWeight and omitting editPermission, and is red unless
 # all three are reported and a clean pair reports none.
 PYTHONIOENCODING=utf-8 python "$HERE/check-guide-grs-json.py" --self-test || failed
 PYTHONIOENCODING=utf-8 python "$HERE/check-guide-grs-json.py" || failed

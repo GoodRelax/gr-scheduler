@@ -248,7 +248,7 @@ const scheduleOf = (spec: SceneSpec): Loose => ({
     name: id,
     derivedFromTaskUid: null,
     treeState: treeState ?? 'auto',
-    editGroup: null,
+    editPermission: null,
     color: null,
   })),
   taskGroupMembers: spec.tasks.map(([task, taskGroupId]) => ({ taskGroupId, taskUid: task['uid'] })),
@@ -349,13 +349,13 @@ const middleOfBox = (scene: Scene, id: string): { readonly x: number; readonly y
 const areaMiddleX = (scene: Scene): number => scene.regions.taskGroupArea.x + scene.regions.taskGroupArea.width / 2
 const wantedMiddleY = (scene: Scene): number => scene.regions.taskGroupArea.y + scene.regions.taskGroupArea.height * S_554
 
-const FAR_START = { scrollDate: iso(300), scrollTaskGroupId: 'g25', scrollGroupOffset: 0.4, scrollDayOffset: 0.3 }
+const FAR_START = { scrollDate: iso(300), scrollTaskGroupId: 'g25', scrollTaskGroupFraction: 0.4, scrollDateFraction: 0.3 }
 
 describe(`T-332 SJ-5 / SJ-6 -- ${SJ_5_MIDDLE}`, () => {
   it.each([
     ['from the top', {}, 15],
     ['from a view far below and to the right', FAR_START, 13],
-    ['from a view above the target', { scrollTaskGroupId: 'g2', scrollGroupOffset: 0.7 }, 21],
+    ['from a view above the target', { scrollTaskGroupId: 'g2', scrollTaskGroupFraction: 0.7 }, 21],
     ['from a view that already shows the target', { scrollTaskGroupId: 'g10', scrollDate: iso(30) }, 15],
   ] as const)('a task is put at the Task Group Area middle across and S-554 down, %s', (_name, start, uid) => {
     const { after } = jump(LONG_LIST, TASK(uid), start)
@@ -385,7 +385,7 @@ describe(`T-332 SJ-5 / SJ-6 -- ${SJ_5_MIDDLE}`, () => {
     const { plan, after } = jump(pinned, TASK(1), FAR_START)
     expect(Math.abs(middleOfTask(after, 1).x - areaMiddleX(after)), SJ_6_MIDDLE).toBeLessThanOrEqual(WITHIN_A_PIXEL)
     expect(scrollFieldsOf(plan)['scrollTaskGroupId']).toBe(FAR_START.scrollTaskGroupId)
-    expect(scrollFieldsOf(plan)['scrollGroupOffset']).toBe(FAR_START.scrollGroupOffset)
+    expect(scrollFieldsOf(plan)['scrollTaskGroupFraction']).toBe(FAR_START.scrollTaskGroupFraction)
   })
 
   it('SJ-6: the zoom is not changed -- no write of the plan touches it', () => {
@@ -420,7 +420,7 @@ describe(`T-332 SJ-5 / SJ-6 -- ${SJ_5_MIDDLE}`, () => {
   it('SJ-6: a comment box with no date does not move sideways, and is still put S-554 down', () => {
     const { plan, after } = jump(LONG_LIST, BOX('box-undated'), FAR_START)
     expect(scrollFieldsOf(plan)['scrollDate']).toBe(FAR_START.scrollDate)
-    expect(scrollFieldsOf(plan)['scrollDayOffset']).toBe(FAR_START.scrollDayOffset)
+    expect(scrollFieldsOf(plan)['scrollDateFraction']).toBe(FAR_START.scrollDateFraction)
     expect(Math.abs(middleOfBox(after, 'box-undated').y - wantedMiddleY(after))).toBeLessThanOrEqual(WITHIN_A_PIXEL)
   })
 
@@ -448,7 +448,7 @@ describe(`T-332 SJ-5 -- ${SJ_5_FIRST}`, () => {
   it.each([[2], [1]])('a task %i rows from the top stops at the first task group, so the shape is above the S-554 line', (uid) => {
     const { plan, after } = jump(LONG_LIST, TASK(uid), FAR_START)
     expect(scrollFieldsOf(plan)['scrollTaskGroupId'], SJ_5_FIRST).toBe('g0')
-    expect(scrollFieldsOf(plan)['scrollGroupOffset'], SJ_5_FIRST).toBe(0)
+    expect(scrollFieldsOf(plan)['scrollTaskGroupFraction'], SJ_5_FIRST).toBe(0)
     expect(middleOfTask(after, uid).y, SJ_5_FIRST).toBeLessThan(wantedMiddleY(after))
     expect(Math.abs(middleOfTask(after, uid).x - areaMiddleX(after)), 'SJ-6 still centers it').toBeLessThanOrEqual(WITHIN_A_PIXEL)
   })
@@ -456,8 +456,8 @@ describe(`T-332 SJ-5 -- ${SJ_5_FIRST}`, () => {
   it('the offset the plan writes is never below 0 and below 1 (S-176)', () => {
     for (const uid of [1, 2, 3, 8, 15, 22]) {
       const fields = scrollFieldsOf(jump(LONG_LIST, TASK(uid), FAR_START).plan)
-      expect(fields['scrollGroupOffset'], `task ${String(uid)}`).toBeGreaterThanOrEqual(0)
-      expect(fields['scrollGroupOffset'], `task ${String(uid)}`).toBeLessThan(1)
+      expect(fields['scrollTaskGroupFraction'], `task ${String(uid)}`).toBeGreaterThanOrEqual(0)
+      expect(fields['scrollTaskGroupFraction'], `task ${String(uid)}`).toBeLessThan(1)
     }
   })
 })
@@ -839,7 +839,7 @@ const shellDocument = (
         derivedFromTaskUid: null,
         order: index,
         treeState: one.treeState ?? 'auto',
-        editGroup: null,
+        editPermission: null,
         color: null,
         minHeightPx: null,
       })),
@@ -854,9 +854,9 @@ const shellDocument = (
       ...structuredClone(TEMPLATE['documentSettings']),
       pinnedTaskGroupIds: [],
       scrollDate: '2026-03-30',
-      scrollDayOffset: 0,
+      scrollDateFraction: 0,
       scrollTaskGroupId: rows[0]!.id,
-      scrollGroupOffset: 0,
+      scrollTaskGroupFraction: 0,
       zoomX: 1,
       zoomY: 1,
       levelZeroTreeState: 'auto',

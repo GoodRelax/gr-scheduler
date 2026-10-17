@@ -54,7 +54,7 @@ describe('CR-721 the manuscript these cases are driven by', () => {
 // WHY: CR-722 TV-2 -- every row starts as Show, so a case that needs some rows Hide hides every task but the named ones.
 const onlyShown = (pane: Pane, uids: readonly number[]): Pane => ({
   ...pane,
-  view: { ...pane.view, visibility: { ...pane.view.visibility, hiddenKeys: TASK_UIDS.filter((uid) => !uids.includes(uid)) } },
+  view: { ...pane.view, visibility: { ...pane.view.visibility, hiddenTaskUids: TASK_UIDS.filter((uid) => !uids.includes(uid)) } },
 })
 
 // WHY: a value list holds one item per value the cells carry (SV-7), so both words need one checked and one unchecked task.

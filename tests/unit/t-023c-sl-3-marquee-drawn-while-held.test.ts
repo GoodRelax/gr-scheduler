@@ -307,9 +307,9 @@ function fixtureDocument(): Document {
       // ⚠️ Pinned so every y below reads from the top of a band.
       stackDirection: 'down',
       scrollDate: '2026-04-01',
-      scrollDayOffset: 0,
+      scrollDateFraction: 0,
       scrollTaskGroupId: TASK_GROUPS[0],
-      scrollGroupOffset: 0,
+      scrollTaskGroupFraction: 0,
     },
     documentStamp: structuredClone(template.documentStamp),
     changeLog: [],

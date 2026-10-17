@@ -32,8 +32,8 @@ const bench = (displayScale: number): ShellBench => {
     taskGroupDocument(rows(), {
       displayScale,
       scrollTaskGroupId: SEATED_TASK_GROUP,
-      scrollGroupOffset: SEATED_TASK_GROUP_PART,
-      scrollDayOffset: SEATED_DAY_PART,
+      scrollTaskGroupFraction: SEATED_TASK_GROUP_PART,
+      scrollDateFraction: SEATED_DAY_PART,
     }),
   )
   benches.push(built)

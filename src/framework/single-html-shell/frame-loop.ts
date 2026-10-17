@@ -637,7 +637,7 @@ interface HeldZoomEnds {
 // see OP-10, OP-10a
 // WHY: the view place only shifts task groups and days; it changes no task group's height, order or the stored zoom.
 const VIEW_PLACE_FIELDS: ReadonlySet<string> = new Set<keyof DocumentSettings>([
-  'scrollDate', 'scrollDayOffset', 'scrollTaskGroupId', 'scrollGroupOffset',
+  'scrollDate', 'scrollDateFraction', 'scrollTaskGroupId', 'scrollTaskGroupFraction',
 ])
 
 /** @purity pure */
@@ -1454,9 +1454,9 @@ function spanExportViewOf(
     zoomX: reach.taskGroupArea.width / days / drawnSettingsOf(stored).pxPerDayAt1x,
     zoomY: 1,
     scrollDate: stored.fitSpanStart,
-    scrollDayOffset: 0,
+    scrollDateFraction: 0,
     scrollTaskGroupId: null,
-    scrollGroupOffset: 0,
+    scrollTaskGroupFraction: 0,
   }
   const layout = layoutFromSchedule(
     document.schedule,
@@ -2040,8 +2040,8 @@ function heldGrabScrollOf() {
 // WHY: an edge tick that turned nothing owes no write; writing it would mark an unchanged document as edited.
 /** @purity pure */
 function turnedGrabScrollPlace(owed: HeldGrabScroll, stored: DocumentSettings): Parameters<typeof writeScrollPlace>[1] | null {
-  if (owed.scrollTaskGroupId === stored.scrollTaskGroupId && owed.scrollGroupOffset === stored.scrollGroupOffset) return null
-  return { scrollDate: stored.scrollDate, scrollDayOffset: stored.scrollDayOffset, ...owed }
+  if (owed.scrollTaskGroupId === stored.scrollTaskGroupId && owed.scrollTaskGroupFraction === stored.scrollTaskGroupFraction) return null
+  return { scrollDate: stored.scrollDate, scrollDateFraction: stored.scrollDateFraction, ...owed }
 }
 
 // see HF-15, S-597, S-598
@@ -2241,8 +2241,8 @@ function unstoredZoomOf(view: { readonly settings: DocumentSettings; readonly is
 /** @purity non-pure */
 function writeOwedSight(hands: FrameLoopHands, taskGroupId: string | null, settings: DocumentSettings, frame: FrameValues): boolean {
   if (taskGroupId === null || drawnTaskGroupBoxesOf(frame.layout, frame.regions).some((one) => one.taskGroupId === taskGroupId)) return false
-  const { scrollDate, scrollDayOffset } = settings
-  writeScrollPlace(hands, { scrollDate, scrollTaskGroupId: taskGroupId, scrollDayOffset, scrollGroupOffset: 0 }, frame)
+  const { scrollDate, scrollDateFraction } = settings
+  writeScrollPlace(hands, { scrollDate, scrollTaskGroupId: taskGroupId, scrollDateFraction, scrollTaskGroupFraction: 0 }, frame)
   return true
 }
 
@@ -2251,7 +2251,7 @@ function writeOwedSight(hands: FrameLoopHands, taskGroupId: string | null, setti
 /** @purity non-pure */
 function writeScrollPlace(
   hands: FrameLoopHands,
-  place: Pick<DocumentSettings, 'scrollDate' | 'scrollDayOffset' | 'scrollTaskGroupId' | 'scrollGroupOffset'>,
+  place: Pick<DocumentSettings, 'scrollDate' | 'scrollDateFraction' | 'scrollTaskGroupId' | 'scrollTaskGroupFraction'>,
   frame: FrameValues,
 ): void {
   const kept = frame.unstoredZoom === null ? [] : [{ kind: 'setZoom', ...frame.unstoredZoom } as const]
@@ -2914,12 +2914,12 @@ export function frameLoop(
   // WHY: the delivery window is changeDeliveryStateMachine.delivering; RS-23 returns from its exit.
   const audience: ChangeAudience = {
     /** @purity non-pure */
-    deliver(document: Document, hasMovedSchedule: boolean): void {
+    deliver(document: Document, hasUpdatedSchedule: boolean): void {
       sendToSession(DOCUMENT_REPLACED, null)
       try {
         // WHY: HS-12 -- the notice hands the AI the lower line's AT-140, never the held one's.
         const handed = documentStampedAt(document, readFileSaved().fileSavedAt)
-        const outcome = notifyChangeWatchers(changeWatchers, { document: handed, hasMovedSchedule, dialogue: dialogueLog })
+        const outcome = notifyChangeWatchers(changeWatchers, { document: handed, hasUpdatedSchedule, dialogue: dialogueLog })
         sendToSession({ type: 'changeDelivered', silentWatchers: outcome.failures.length }, null)
       } catch (fault) {
         // TRAP: the window must close on a throw too, or WS-2 refuses every later write.

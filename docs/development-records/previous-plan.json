@@ -1,6 +1,6 @@
 {
  "$schema": "https://goodrelax.github.io/gr-scheduler/spec/_source/grs-document.schema.json",
- "schemaVersion": "2026-10-16T12:35:39Z",
+ "schemaVersion": "2026-10-17T15:27:48Z",
  "schedule": {
   "project": {
    "id": "GRS-PLAN",
@@ -23,7 +23,7 @@
    "defaultStartTime": "00:00:00",
    "defaultFinishTime": "23:59:00",
    "themeHue": 214,
-   "parentProgressToleranceDays": 1,
+   "parentTaskProgressToleranceDays": 1,
    "uidHighWaterMark": 151,
    "importSequence": 0,
    "carry": {},
@@ -2813,7 +2813,7 @@
     "derivedFromTaskUid": null,
     "order": 0,
     "treeState": "auto",
-    "editGroup": null,
+    "editPermission": null,
     "color": null,
     "minHeightPx": null
    },
@@ -2824,7 +2824,7 @@
     "derivedFromTaskUid": null,
     "order": 1,
     "treeState": "auto",
-    "editGroup": null,
+    "editPermission": null,
     "color": null,
     "minHeightPx": null
    },
@@ -2835,7 +2835,7 @@
     "derivedFromTaskUid": null,
     "order": 2,
     "treeState": "auto",
-    "editGroup": null,
+    "editPermission": null,
     "color": null,
     "minHeightPx": null
    },
@@ -2846,7 +2846,7 @@
     "derivedFromTaskUid": null,
     "order": 3,
     "treeState": "auto",
-    "editGroup": null,
+    "editPermission": null,
     "color": null,
     "minHeightPx": null
    },
@@ -2857,7 +2857,7 @@
     "derivedFromTaskUid": null,
     "order": 4,
     "treeState": "auto",
-    "editGroup": null,
+    "editPermission": null,
     "color": null,
     "minHeightPx": null
    },
@@ -2868,7 +2868,7 @@
     "derivedFromTaskUid": null,
     "order": 5,
     "treeState": "auto",
-    "editGroup": null,
+    "editPermission": null,
     "color": null,
     "minHeightPx": null
    },
@@ -2879,7 +2879,7 @@
     "derivedFromTaskUid": null,
     "order": 6,
     "treeState": "auto",
-    "editGroup": null,
+    "editPermission": null,
     "color": null,
     "minHeightPx": null
    },
@@ -2890,7 +2890,7 @@
     "derivedFromTaskUid": null,
     "order": 7,
     "treeState": "auto",
-    "editGroup": null,
+    "editPermission": null,
     "color": null,
     "minHeightPx": null
    },
@@ -2901,7 +2901,7 @@
     "derivedFromTaskUid": null,
     "order": 8,
     "treeState": "auto",
-    "editGroup": null,
+    "editPermission": null,
     "color": null,
     "minHeightPx": null
    },
@@ -2912,7 +2912,7 @@
     "derivedFromTaskUid": null,
     "order": 9,
     "treeState": "auto",
-    "editGroup": null,
+    "editPermission": null,
     "color": null,
     "minHeightPx": null
    },
@@ -2923,7 +2923,7 @@
     "derivedFromTaskUid": null,
     "order": 10,
     "treeState": "auto",
-    "editGroup": null,
+    "editPermission": null,
     "color": null,
     "minHeightPx": null
    }
@@ -5040,7 +5040,7 @@
   "displayTimeZones": [],
   "fitSpanFinish": null,
   "fitSpanStart": null,
-  "fontScale": "M",
+  "fontSizeStep": "M",
   "isActualVisible": true,
   "isAssigneeVisible": false,
   "isBaselineVisible": true,
@@ -5061,8 +5061,8 @@
   "rulerFontSizePx": 21,
   "rulerHeightPx": 69,
   "scrollDate": null,
-  "scrollDayOffset": 0,
-  "scrollGroupOffset": 0,
+  "scrollDateFraction": 0,
+  "scrollTaskGroupFraction": 0,
   "scrollTaskGroupId": null,
   "stackDirection": "down",
   "tableViews": {

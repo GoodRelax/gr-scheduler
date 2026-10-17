@@ -55,7 +55,7 @@ describe('CR-721 the manuscript these cases are driven by', () => {
 })
 
 // WHY: a word, a column width, one Hide row and the Schedule Filter on stand for what the clear must leave alone (CR-722 TV-2).
-const KEPT_VISIBILITY = { hiddenKeys: [3], isUnassignedHidden: false, isApplied: true }
+const KEPT_VISIBILITY = { hiddenTaskUids: [3], hiddenResourceUids: [], isUnassignedHidden: false, isScheduleFilterApplied: true }
 const KEPT: Pane = {
   panel: searchPanelWithColumnWidth({ ...TASK_PANEL.panel, word: 'al' }, 'SQ-1', 333),
   view: { ...NO_VIEW, visibility: KEPT_VISIBILITY },

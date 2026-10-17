@@ -389,7 +389,7 @@ const scheduleOf = (spec: SceneSpec): Schedule =>
       name: id,
       derivedFromTaskUid: null,
       treeState: treeState ?? 'auto',
-      editGroup: null,
+      editPermission: null,
       color: null,
     })),
     taskGroupMembers: spec.tasks.map(([task, taskGroupId]) => ({ taskGroupId, taskUid: task['uid'] })),
@@ -856,7 +856,7 @@ describe(`(a) EL-20 / EL-21 -- ${EL_21_OPEN}`, () => {
       const scroll = onlyOf(writes, SET_SCROLL)
       expect(scroll, EL_12_OPENED).toBeDefined()
       expect(scroll!['scrollTaskGroupId'], `${EL_12_HOW} (S-78 = the far Task's own task group)`).toBe(ownTaskGroup)
-      expect(scroll!['scrollGroupOffset'], `${EL_12_HOW} (S-176)`).toBe(0)
+      expect(scroll!['scrollTaskGroupFraction'], `${EL_12_HOW} (S-176)`).toBe(0)
       expect(dayOf(scroll!['scrollDate']), 'EL-11: Task 2 lies inside across, so the day stays').toBe(dayOf(scene.settings['scrollDate']))
     })
 
@@ -1526,7 +1526,7 @@ const shellDocument = (rows: readonly ShellTaskGroup[], tasks: readonly (readonl
         derivedFromTaskUid: null,
         order: index,
         treeState: one.treeState ?? 'auto',
-        editGroup: null,
+        editPermission: null,
         color: null,
         minHeightPx: null,
       })),
@@ -1541,9 +1541,9 @@ const shellDocument = (rows: readonly ShellTaskGroup[], tasks: readonly (readonl
       ...structuredClone(TEMPLATE.documentSettings),
       pinnedTaskGroupIds: [],
       scrollDate: '2026-03-30',
-      scrollDayOffset: 0,
+      scrollDateFraction: 0,
       scrollTaskGroupId: rows[0]!.id,
-      scrollGroupOffset: 0,
+      scrollTaskGroupFraction: 0,
       zoomX: 1,
       zoomY: 1,
       levelZeroTreeState: 'auto',
@@ -1780,10 +1780,10 @@ describe(`(e) the shell -- EL-21 / UN-14 / UN-8: ${EL_21_ONE_STEP}; ${EL_21_SEND
   it(`control: an undo after a plain send leaves the view where it was sent (${UN_8_VIEW} is outside the history)`, () => {
     const shell = shellOf(SHELL_PLAIN())
     clickAt(shell, shellMark(shell))
-    const sent = [settingOf(shell, 'scrollDate'), settingOf(shell, 'scrollDayOffset'), settingOf(shell, 'scrollTaskGroupId')]
+    const sent = [settingOf(shell, 'scrollDate'), settingOf(shell, 'scrollDateFraction'), settingOf(shell, 'scrollTaskGroupId')]
     shell.send(UNDO)
     expect(
-      [settingOf(shell, 'scrollDate'), settingOf(shell, 'scrollDayOffset'), settingOf(shell, 'scrollTaskGroupId')],
+      [settingOf(shell, 'scrollDate'), settingOf(shell, 'scrollDateFraction'), settingOf(shell, 'scrollTaskGroupId')],
       EL_21_SEND_OUTSIDE,
     ).toEqual(sent)
   })

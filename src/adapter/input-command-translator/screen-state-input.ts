@@ -321,7 +321,7 @@ function screenEventAfterMarkerPress(
     type: 'progressMarkerPressed',
     taskUid: uid,
     rememberedActual: turned.remembered,
-    writes: [{ kind: 'cycleTaskPlanActualState', uid, remembered, snapMinutes: snapAt }],
+    writes: [{ kind: 'cycleTaskPlanActualState', taskUid: uid, remembered, snapMinutes: snapAt }],
   }
 }
 

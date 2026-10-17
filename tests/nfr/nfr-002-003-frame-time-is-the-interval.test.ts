@@ -1379,7 +1379,7 @@ async function measureMspdiRoundTrip(page: Page): Promise<{
           // `AgentWriteOutcome` says so in one field --
           // `agent-api-members.ts:279` -- so the verdict is read, not matched.
           // ⛔ The old test was `/…|false/i` over the whole answer, which an
-          // ACCEPTED outcome also matches through `"hasMovedSchedule":false`.
+          // ACCEPTED outcome also matches through `"hasUpdatedSchedule":false`.
           const outcome = answer !== null && typeof answer === 'object' ? (answer as Bag) : null
           if (outcome?.['ok'] === true) {
             imported = true

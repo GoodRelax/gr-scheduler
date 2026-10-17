@@ -113,7 +113,7 @@ describe(`T-016 ${PLANNED_ROW} -- ${PLANNED_ONE_INPUT}`, () => {
     const commands = committed(OPEN, PLANNED_ROW, DAY)
     expect(commands.map((one) => recordOf(one)['kind'])).toEqual(['setTaskPlanDates'])
     const command = recordOf(commands[0] as DocumentCommand)
-    expect(command['uid']).toBe(OPEN)
+    expect(command['taskUid']).toBe(OPEN)
     expect(command['start']).toBe(command['finish'])
     expect(dayPart(command['start'])).toBe(DAY)
   })
@@ -140,9 +140,9 @@ describe(`T-016 ${ACTUAL_ROW} -- ${ACTUAL_ONE_INPUT}`, () => {
     const commands = committed(OPEN, ACTUAL_ROW, DAY)
     expect(commands.map((one) => recordOf(one)['kind'])).toEqual(['setTaskPlanActualState'])
     const command = recordOf(commands[0] as DocumentCommand)
-    expect(command['uid']).toBe(OPEN)
+    expect(command['taskUid']).toBe(OPEN)
     const place = command['place'] as Readonly<Record<string, unknown>>
-    expect(place['row']).toBe('PA-5')
+    expect(place['state']).toBe('finished')
     expect(dayPart(place['actualStart'])).toBe(DAY)
     expect(dayPart(place['actualFinish'])).toBe(DAY)
   })
@@ -151,7 +151,7 @@ describe(`T-016 ${ACTUAL_ROW} -- ${ACTUAL_ONE_INPUT}`, () => {
     const commands = committed(DONE, ACTUAL_ROW, DAY)
     expect(commands.map((one) => recordOf(one)['kind'])).toEqual(['setTaskPlanActualState'])
     const place = recordOf(commands[0] as DocumentCommand)['place'] as Readonly<Record<string, unknown>>
-    expect(place['row']).toBe('PA-5')
+    expect(place['state']).toBe('finished')
     expect(dayPart(place['actualStart'])).toBe(DAY)
     expect(dayPart(place['actualFinish'])).toBe(DAY)
   })
@@ -160,8 +160,8 @@ describe(`T-016 ${ACTUAL_ROW} -- ${ACTUAL_ONE_INPUT}`, () => {
     const commands = committed(DONE, ACTUAL_ROW, '')
     expect(commands.map((one) => recordOf(one)['kind'])).toEqual(['setTaskPlanActualState'])
     const command = recordOf(commands[0] as DocumentCommand)
-    expect(command['uid']).toBe(DONE)
-    expect((command['place'] as Readonly<Record<string, unknown>>)['row']).toBe('PA-1')
+    expect(command['taskUid']).toBe(DONE)
+    expect((command['place'] as Readonly<Record<string, unknown>>)['state']).toBe('notStarted')
   })
 
   it('the PA-5 command is accepted and leaves actualStart and actualFinish on one day', () => {

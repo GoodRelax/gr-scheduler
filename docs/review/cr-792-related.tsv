@@ -12,3 +12,12 @@ thinFontScale	keep		K-9 / S-9 is a real multiplier (the thin row's font ratio); 
 EDIT_GROUP_LANDS_ON_CHOSEN_TASK_GROUP	add	EDIT_PERMISSION_LANDS_ON_CHOSEN_TASK_GROUP	a test's clause about the editGroup column
 EDIT_GROUP_NAME	add	EDIT_PERMISSION_NAME	a test fixture value written into editGroup
 editGroupOnTaskGroupOne	add	editPermissionOnTaskGroupOne	a test switch that sets editGroup on the first task group
+sourceProjectUids	add	sourceProjectIds	the set of TaskOrigin.sourceProjectUid values (import-document.ts:363); it follows the column's new name (JDG-2683). Found by the stage-1 review
+withParentProgressTolerance	add	withParentTaskProgressTolerance	the CM-87 body (edit-project.ts:251); parent says which parent as JDG-2688 asks. Found by the stage-1 review
+PARENT_PROGRESS_TOLERANCE_KEY	add	PARENT_TASK_PROGRESS_TOLERANCE_KEY	the settings key of the AT-156 field (properties-panel.ts:1256). Found by the stage-1 review
+parentProgressToleranceField	add	parentTaskProgressToleranceField	the properties field of AT-156 (properties-panel.ts:1263). Found by the stage-1 review
+commandFromParentProgressTolerance	add	commandFromParentTaskProgressTolerance	the CM-87 field commit (field-commit.ts:500). Found by the stage-1 review
+hasMoved	keep		a local in frame-loop.ts:4131: whether the pointer moved, not the answer field
+scrollDay	keep		a test parameter for scrollDate (the kept key, JDG-2721), not the fraction
+SCROLL_GROUP	keep		a test constant for S-78 scrollTaskGroupId (kept, JDG-2722), not the fraction
+scrollGroupId	keep		a test's record of the CR-708 rename to scrollTaskGroupId (kept, JDG-2722)

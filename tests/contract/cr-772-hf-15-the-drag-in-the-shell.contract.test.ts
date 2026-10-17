@@ -25,7 +25,7 @@ const rootsOf = (built: Shell): readonly string[] =>
 
 const scrollOf = (built: Shell): unknown => {
   const settings = built.loop.document().documentSettings
-  return { id: settings.scrollTaskGroupId, offset: settings.scrollGroupOffset }
+  return { id: settings.scrollTaskGroupId, offset: settings.scrollTaskGroupFraction }
 }
 
 const firstShown = (built: Shell): string | undefined => built.lastView().taskGroupPanel?.titles[0]?.taskGroupId

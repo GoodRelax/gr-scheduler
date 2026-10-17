@@ -52,10 +52,10 @@ type Stamp = Document['documentStamp']
 const noNotice = (): void => undefined
 
 describe('AM-1 and AG-1: the version the AgentApi hands out is the one the table prints', () => {
-  it('agentApiVersion is 5 -- the number the prose of T-107 gives and the manuscript declares', () => {
-    expect(installAgentApi(stubbedWiring).agentApiVersion).toBe(5)
-    expect(MANUSCRIPT.version).toBe(5)
-    expect(PRINTED).toContain('いまの版は 5 である（`AM-1` が返す値）')
+  it('agentApiVersion is 6 -- the number the prose of T-107 gives and the manuscript declares', () => {
+    expect(installAgentApi(stubbedWiring).agentApiVersion).toBe(6)
+    expect(MANUSCRIPT.version).toBe(6)
+    expect(PRINTED).toContain('いまの版は 6 である（`AM-1` が返す値）')
   })
 
   it('schemaVersion is the format version the page was wired with (AM-2)', () => {

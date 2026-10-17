@@ -112,7 +112,7 @@ function perScale(id: string): Readonly<Record<string, number>> {
 }
 
 const SCALE_ORDER: readonly string[] = specTable('T-215').rows.map((row) => {
-  const found = /fontScaleSizes\.([SML])/.exec(row.by['名前'] ?? '')
+  const found = /fontSizeStepSizes\.([SML])/.exec(row.by['名前'] ?? '')
   if (found === null) throw new Error(`table T-215 row ${row.id} names no step`)
   return found[1] as string
 })
@@ -546,28 +546,28 @@ describe('CR-572 item 7 -- the dual cursor dates are never in the file, and leav
 })
 
 describe('CR-572 item 8 -- the font size stays in the file and the ruler follows it (FR-039)', () => {
-  it(`FR-039 「${FR_039_FONT_REACHES_THE_RULER}」: IC-99 moves fontScale to the next step of T-215, and S-3 / S-2 follow`, () => {
+  it(`FR-039 「${FR_039_FONT_REACHES_THE_RULER}」: IC-99 moves fontSizeStep to the next step of T-215, and S-3 / S-2 follow`, () => {
     const built = bench()
-    const from = settingsOf(built.loop)['fontScale'] as string
+    const from = settingsOf(built.loop)['fontSizeStep'] as string
     const next = SCALE_ORDER[(SCALE_ORDER.indexOf(from) + 1) % SCALE_ORDER.length] as string
     built.press('IC-99')
     const after = settingsOf(built.loop)
-    expect(after['fontScale']).toBe(next)
+    expect(after['fontSizeStep']).toBe(next)
     expect(after['rulerFontSizePx']).toBe(perScale('S-3')[next])
     expect(after['rulerHeightPx']).toBe(perScale('S-2')[next])
   })
 
   it(`FR-039 「${FR_039_FONT_IS_AN_EDIT}」: an unsaved edit, an undo step (UN-13), and in the saved file`, async () => {
     const built = bench()
-    const from = settingsOf(built.loop)['fontScale']
+    const from = settingsOf(built.loop)['fontSizeStep']
     built.press('IC-99')
     expect(built.loop.hasUnsavedEdits()).toBe(true)
     const moved = { ...settingsOf(built.loop) }
     const text = await built.save()
     const written = (JSON.parse(text) as { documentSettings: Record<string, unknown> }).documentSettings
-    expect([written['fontScale'], written['rulerFontSizePx'], written['rulerHeightPx']]).toEqual([moved['fontScale'], moved['rulerFontSizePx'], moved['rulerHeightPx']])
+    expect([written['fontSizeStep'], written['rulerFontSizePx'], written['rulerHeightPx']]).toEqual([moved['fontSizeStep'], moved['rulerFontSizePx'], moved['rulerHeightPx']])
     built.send(UNDO)
-    expect(settingsOf(built.loop)['fontScale']).toBe(from)
+    expect(settingsOf(built.loop)['fontSizeStep']).toBe(from)
   })
 })
 

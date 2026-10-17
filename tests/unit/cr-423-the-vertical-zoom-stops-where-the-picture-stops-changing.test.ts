@@ -248,7 +248,7 @@ function documentOf(rows: readonly RowSpec[], zoomY: number): Document {
         derivedFromTaskUid: null,
         order: index,
         treeState: one.treeState ?? 'auto',
-        editGroup: null,
+        editPermission: null,
         color: null,
         minHeightPx: null,
       })),

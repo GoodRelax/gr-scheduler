@@ -317,7 +317,13 @@
       "properties": {
        "tag": {
         "type": "string",
-        "minLength": 1
+        "minLength": 1,
+        "description": "The discriminant value: a word (CR-792, JDG-2684), never a row id."
+       },
+       "row": {
+        "description": "The table row the variant stands for (T-019 for PlanActualPlacement); check 83 reads it.",
+        "type": "string",
+        "pattern": "^[A-Z]+-[0-9]+$"
        },
        "fields": {
         "type": "array",

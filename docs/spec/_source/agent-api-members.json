@@ -10,7 +10,7 @@
   "Rows are in the order the tables print them and the code declares them, which is not the numeric order. ONE STRING IS ONE PRINTED LINE.",
   "The rules about the Agent API are NOT here -- table T-035 (AG-n) and the requirements the `source` cells name hold them."
  ],
- "version": 5,
+ "version": 6,
  "kinds": {
   "property": {
    "ja": "プロパティ"
@@ -686,7 +686,7 @@
         }
        },
        {
-        "name": "hasMovedSchedule",
+        "name": "hasUpdatedSchedule",
         "type": "boolean",
         "meaning": {
          "ja": "日程データの群を動かしたか（動かせば日程データの群の刻が進む —— `FR-063`）"
@@ -955,7 +955,7 @@
         }
        },
        {
-        "name": "hasMovedSchedule",
+        "name": "hasUpdatedSchedule",
         "type": "boolean",
         "meaning": {
          "ja": "日程データの群を動かしたか"
@@ -1056,7 +1056,7 @@
       }
      },
      {
-      "name": "tables",
+      "name": "filteringTables",
       "type": "readonly VisibilityTable[]",
       "meaning": {
        "ja": "スケジュールフィルタを掛けている表の名の並び"

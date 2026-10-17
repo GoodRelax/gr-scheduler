@@ -323,9 +323,9 @@ function fixtureDocument(fixture: Fixture = {}): Document {
       // WHY: S-1 is a constant (CR-572); the stored zoomX (S-75) carries the day width this fixture draws at.
       zoomX: PX_PER_DAY_AT_1X / SETTINGS_CONSTANTS.pxPerDayAt1x,
       scrollDate: '2026-04-01',
-      scrollDayOffset: 0,
+      scrollDateFraction: 0,
       scrollTaskGroupId: TASK_GROUP_A,
-      scrollGroupOffset: 0,
+      scrollTaskGroupFraction: 0,
       pinnedTaskGroupIds: [...(fixture.pinned ?? [])],
     },
     documentStamp: template['documentStamp'],

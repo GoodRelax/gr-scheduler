@@ -232,9 +232,9 @@ function fixtureDocument(fixture: Fixture = {}): Document {
       ...(template['documentSettings'] as Record<string, unknown>),
       zoomX: (PX_PER_DAY_AT_1X / SETTINGS_CONSTANTS.pxPerDayAt1x) * (fixture.zoomFactor ?? 1),
       scrollDate: '2026-04-01',
-      scrollDayOffset: 0,
+      scrollDateFraction: 0,
       scrollTaskGroupId: ROW.A,
-      scrollGroupOffset: 0,
+      scrollTaskGroupFraction: 0,
       pinnedTaskGroupIds: [],
     },
     documentStamp: template['documentStamp'],
@@ -826,10 +826,10 @@ describe(`T-108 CM-77 .. CM-79: ${OUT_OF_RANGE_REFUSED}`, () => {
 
   it('CM-77 places a width inside S-369, and null, and refuses one outside it or not whole', () => {
     for (const width of [S_369.low, S_369.high, null]) {
-      expect(acceptedBox({ kind: 'setHighlightBoxStrokeWidthPx', id: BOX_ID, strokeWidthPx: width })['strokeWidthPx']).toBe(width)
+      expect(acceptedBox({ kind: 'setHighlightBoxStrokeWidthPx', highlightBoxId: BOX_ID, strokeWidthPx: width })['strokeWidthPx']).toBe(width)
     }
     for (const width of [S_369.low - 1, S_369.high + 1, S_369.low + 0.5]) {
-      expect(refusalOf({ kind: 'setHighlightBoxStrokeWidthPx', id: BOX_ID, strokeWidthPx: width }), `width ${width}`).toEqual(
+      expect(refusalOf({ kind: 'setHighlightBoxStrokeWidthPx', highlightBoxId: BOX_ID, strokeWidthPx: width }), `width ${width}`).toEqual(
         expect.objectContaining({ command: 'CM-77', rule: 'S-369' }),
       )
     }
@@ -837,10 +837,10 @@ describe(`T-108 CM-77 .. CM-79: ${OUT_OF_RANGE_REFUSED}`, () => {
 
   it('CM-79 places a transparency inside S-371, and null, and refuses one outside it or not whole', () => {
     for (const percent of [S_371.low, S_371.high, null]) {
-      expect(acceptedBox({ kind: 'setHighlightBoxFillTransparencyPercent', id: BOX_ID, fillTransparencyPercent: percent })['fillTransparencyPercent']).toBe(percent)
+      expect(acceptedBox({ kind: 'setHighlightBoxFillTransparencyPercent', highlightBoxId: BOX_ID, fillTransparencyPercent: percent })['fillTransparencyPercent']).toBe(percent)
     }
     for (const percent of [S_371.low - 1, S_371.high + 1, 12.5]) {
-      expect(refusalOf({ kind: 'setHighlightBoxFillTransparencyPercent', id: BOX_ID, fillTransparencyPercent: percent }), `percent ${percent}`).toEqual(
+      expect(refusalOf({ kind: 'setHighlightBoxFillTransparencyPercent', highlightBoxId: BOX_ID, fillTransparencyPercent: percent }), `percent ${percent}`).toEqual(
         expect.objectContaining({ command: 'CM-79', rule: 'S-371' }),
       )
     }
@@ -848,10 +848,10 @@ describe(`T-108 CM-77 .. CM-79: ${OUT_OF_RANGE_REFUSED}`, () => {
 
   it(`CM-78 places a palette name, a custom color, transparent and null (${FILL_MAY_BE_TRANSPARENT}), and refuses what is not a color (CV-1)`, () => {
     for (const color of ['red', '#123456/', 'transparent', null]) {
-      expect(acceptedBox({ kind: 'setHighlightBoxFillColor', id: BOX_ID, fillColor: color })['fillColor']).toBe(color)
+      expect(acceptedBox({ kind: 'setHighlightBoxFillColor', highlightBoxId: BOX_ID, fillColor: color })['fillColor']).toBe(color)
     }
     for (const color of ['crimson', '#12345', '']) {
-      expect(refusalOf({ kind: 'setHighlightBoxFillColor', id: BOX_ID, fillColor: color }), `color ${color}`).toEqual(
+      expect(refusalOf({ kind: 'setHighlightBoxFillColor', highlightBoxId: BOX_ID, fillColor: color }), `color ${color}`).toEqual(
         expect.objectContaining({ command: 'CM-78', rule: 'CV-1' }),
       )
     }
@@ -859,21 +859,21 @@ describe(`T-108 CM-77 .. CM-79: ${OUT_OF_RANGE_REFUSED}`, () => {
 
   it('each of the three commands refuses a box that does not exist (AT-116)', () => {
     const missing = '3b000000-0000-4000-8000-0000000000ff'
-    expect(refusalOf({ kind: 'setHighlightBoxStrokeWidthPx', id: missing, strokeWidthPx: 2 })).toEqual(expect.objectContaining({ command: 'CM-77', rule: 'AT-116' }))
-    expect(refusalOf({ kind: 'setHighlightBoxFillColor', id: missing, fillColor: 'red' })).toEqual(expect.objectContaining({ command: 'CM-78', rule: 'AT-116' }))
-    expect(refusalOf({ kind: 'setHighlightBoxFillTransparencyPercent', id: missing, fillTransparencyPercent: 2 })).toEqual(expect.objectContaining({ command: 'CM-79', rule: 'AT-116' }))
+    expect(refusalOf({ kind: 'setHighlightBoxStrokeWidthPx', highlightBoxId: missing, strokeWidthPx: 2 })).toEqual(expect.objectContaining({ command: 'CM-77', rule: 'AT-116' }))
+    expect(refusalOf({ kind: 'setHighlightBoxFillColor', highlightBoxId: missing, fillColor: 'red' })).toEqual(expect.objectContaining({ command: 'CM-78', rule: 'AT-116' }))
+    expect(refusalOf({ kind: 'setHighlightBoxFillTransparencyPercent', highlightBoxId: missing, fillTransparencyPercent: 2 })).toEqual(expect.objectContaining({ command: 'CM-79', rule: 'AT-116' }))
   })
 
   it(`${NO_TRANSPARENT_OUTLINE} -- CM-55 takes a transparent outline`, () => {
-    expect(editAnnotation(document(), { kind: 'setHighlightBoxStrokeColor', id: BOX_ID, strokeColor: 'transparent' }).ok).toBe(true)
+    expect(editAnnotation(document(), { kind: 'setHighlightBoxStrokeColor', highlightBoxId: BOX_ID, strokeColor: 'transparent' }).ok).toBe(true)
   })
 
   it('placing the value a column already holds leaves the box as it was', () => {
     const before = storedBox(stage().loop)
     for (const command of [
-      { kind: 'setHighlightBoxStrokeWidthPx', id: BOX_ID, strokeWidthPx: null },
-      { kind: 'setHighlightBoxFillColor', id: BOX_ID, fillColor: null },
-      { kind: 'setHighlightBoxFillTransparencyPercent', id: BOX_ID, fillTransparencyPercent: null },
+      { kind: 'setHighlightBoxStrokeWidthPx', highlightBoxId: BOX_ID, strokeWidthPx: null },
+      { kind: 'setHighlightBoxFillColor', highlightBoxId: BOX_ID, fillColor: null },
+      { kind: 'setHighlightBoxFillTransparencyPercent', highlightBoxId: BOX_ID, fillTransparencyPercent: null },
     ] as const) {
       expect(acceptedBox(command), command.kind).toEqual(before)
     }
@@ -882,7 +882,7 @@ describe(`T-108 CM-77 .. CM-79: ${OUT_OF_RANGE_REFUSED}`, () => {
   it(`${PLACED_UNFILLED} -- createHighlightBox leaves width and transparency null and copies S-370 to the fill`, () => {
     const result = editAnnotation(document(), {
       kind: 'createHighlightBox',
-      id: OTHER_ID,
+      highlightBoxId: OTHER_ID,
       range: { start: day(20), finish: day(22), topTaskGroupId: ROW.E, bottomTaskGroupId: ROW.F },
     })
     if (!result.ok) throw new Error(`refused: ${JSON.stringify(result.refusals)}`)
