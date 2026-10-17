@@ -40,6 +40,7 @@ import {
   ADD_CHILD_ROW_ENTRY,
   DELETE_ROW_ENTRY,
   TASK_GROUP_CONTROL_GROUND_MARK,
+  fillTaskGroupGrabCues,
   fillTaskGroupTitleTree,
   foldedTaskGroupCountElement,
   headEntryElements,
@@ -48,6 +49,8 @@ import {
   markHeadEntries,
   taskGroupControlsHeightReporter,
   taskGroupControlsMeasureKey,
+  taskGroupGrabCuesOf,
+  taskGroupRowsOf,
   taskGroupsTopPx,
 } from './task-group-panel-drawing'
 import { dialogueFieldPainter } from './dialogue-field-drawing'
@@ -98,6 +101,7 @@ export const ROLE = {
   dropCue: 'Drop Cue',
   taskGroupDropLine: 'Task Group Drop Line',
   taskGroupGrabCopy: 'Task Group Grab Copy',
+  taskGroupGrabCues: 'Task Group Grab Cues',
 } as const
 
 export const HOST_ENTER = 'Enter'
@@ -566,6 +570,9 @@ export function pageGroundStyle(theme: ScreenTheme): string {
 
 export const TASK_GROUP_GRAB_STRIP_MARK = 'data-task-group-grab'
 
+// TRAP: here, not in the drawing file (HF-15): the hover sheet reads it at load, where the import cycle sees undefined.
+export const TASK_GROUP_CARRIED_MARK = 'data-task-group-carried'
+
 export const SCROLLBAR_AXIS_ATTRIBUTE = 'data-axis'
 
 export const SCREEN_Z_ORDER_ATTRIBUTE = 'data-uz'
@@ -608,6 +615,8 @@ function markZOrder(element: HTMLElement, rowId: string): void {
   element.style.zIndex = String(zIndexOf(rowId))
 }
 
+const TASK_GROUP_TREE_NOT_CARRIED = `[data-unit="${UNIT_ROW}"] [${TASK_GROUP_CARRIED_MARK}="false"]`
+
 const TASK_GROUP_CONTROL_SHOWN_CSS =
   `[data-unit="${UNIT_ROW}"] [data-role="${ROLE.taskGroupExpander}"],` +
   `[data-unit="${UNIT_ROW}"] [data-role="${ROLE.taskGroupPin}"],` +
@@ -615,15 +624,15 @@ const TASK_GROUP_CONTROL_SHOWN_CSS =
   `[data-unit="${UNIT_ROW}"] [data-icon="${ADD_CHILD_ROW_ENTRY}"],` +
   `[data-unit="${UNIT_ROW}"] [data-icon="${DELETE_ROW_ENTRY}"]` +
   '{visibility:hidden;}' +
-  `[data-unit="${UNIT_ROW}"] [data-group-id]:hover [data-role="${ROLE.taskGroupExpander}"],` +
-  `[data-unit="${UNIT_ROW}"] [data-group-id]:hover [data-role="${ROLE.taskGroupPin}"],` +
-  `[data-unit="${UNIT_ROW}"] [data-group-id]:hover [${TASK_GROUP_CONTROL_GROUND_MARK}],` +
-  `[data-unit="${UNIT_ROW}"] [data-group-id]:hover [data-icon="${ADD_CHILD_ROW_ENTRY}"],` +
-  `[data-unit="${UNIT_ROW}"] [data-group-id]:hover [data-icon="${DELETE_ROW_ENTRY}"]` +
+  `${TASK_GROUP_TREE_NOT_CARRIED} [data-group-id]:hover [data-role="${ROLE.taskGroupExpander}"],` +
+  `${TASK_GROUP_TREE_NOT_CARRIED} [data-group-id]:hover [data-role="${ROLE.taskGroupPin}"],` +
+  `${TASK_GROUP_TREE_NOT_CARRIED} [data-group-id]:hover [${TASK_GROUP_CONTROL_GROUND_MARK}],` +
+  `${TASK_GROUP_TREE_NOT_CARRIED} [data-group-id]:hover [data-icon="${ADD_CHILD_ROW_ENTRY}"],` +
+  `${TASK_GROUP_TREE_NOT_CARRIED} [data-group-id]:hover [data-icon="${DELETE_ROW_ENTRY}"]` +
   '{visibility:visible;}' +
   // see HF-6, HF-19
   // WHY: task groups paint in tree order, so a later task group covers a hanging group and takes its pointer.
-  `[data-unit="${UNIT_ROW}"] [data-role="${ROLE.taskGroupTitleTree}"] > [data-group-id]:hover` +
+  `${TASK_GROUP_TREE_NOT_CARRIED} > [data-group-id]:hover` +
   '{z-index:1;}'
 
 const PALETTE_FAINTNESS = '0.6'
@@ -664,11 +673,12 @@ export function showPointerShapeOver(mount: HTMLElement, spelling: string): stri
 // WHY: a hanging group may cross canvasPadding but not the horizontal Scrollbars band; no band
 // lies under the Task Group Panel, so the tree stops where the chart's band starts.
 /** @purity non-pure */
-function markFrame(root: HTMLElement, taskGroupTitleTree: HTMLElement, frame: ScreenFrame): void {
+function markFrame(root: HTMLElement, taskGroupTitleTree: HTMLElement, grabCueLayer: HTMLElement, frame: ScreenFrame): void {
   root.setAttribute('data-full-screen', String(frame.isFullScreen))
   const band = horizontalScrollbar(frame)
   const clip = band === undefined ? '' : `clip-path:inset(0 0 calc(100% - ${band.track.y}px) 0);`
   taskGroupTitleTree.setAttribute('style', STYLE.layer + STYLE.treeIsolation + clip + zIndexStyle('UZ-11'))
+  grabCueLayer.setAttribute('style', STYLE.layer + clip + zIndexStyle('UZ-11'))
 }
 
 const SVG_NAMESPACE = 'http://www.w3.org/2000/svg'
@@ -927,6 +937,7 @@ function screenLayersOf(host: Document) {
     frameLayer: made(host, 'div', STYLE.layer),
     taskGroupPanel: part(host, 'div', ROLE.taskGroupPanel, STYLE.hidden),
     taskGroupTitleTree: part(host, 'div', ROLE.taskGroupTitleTree, STYLE.layer + STYLE.treeIsolation),
+    taskGroupGrabCueLayer: part(host, 'div', ROLE.taskGroupGrabCues, STYLE.layer),
     propertiesPanel: part(host, 'div', ROLE.propertiesPanel, STYLE.hidden),
     dividerBandLayer: made(host, 'div', STYLE.layer),
     paletteLayer: made(host, 'div', STYLE.layer),
@@ -959,6 +970,7 @@ function screenLayersOf(host: Document) {
     [layers.dividerBandLayer, 'UZ-10'],
     [layers.taskGroupPanel, 'UZ-11'],
     [layers.taskGroupTitleTree, 'UZ-11'],
+    [layers.taskGroupGrabCueLayer, 'UZ-11'],
     [layers.propertiesPanel, 'UZ-11'],
     [layers.frameLayer, 'UZ-12'],
   ]
@@ -1172,6 +1184,11 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
     drawnKeyedBySurface(() => anchorsOf('helpModal'), HELP_MODAL_SURFACE, (anchors) => help.draw(helpModal, isContentChanged, anchors))
   }
 
+  /** @purity non-pure */
+  function drawTaskGroupGrabCues(panel: ScreenView['taskGroupPanel'], isChanged: boolean): void {
+    if (isChanged) fillTaskGroupGrabCues(host, layers.taskGroupGrabCueLayer, taskGroupTitleTree, panel)
+  }
+
   // see IF-9
   /** @purity non-pure */
   function showScreenView(view: ScreenView): void {
@@ -1183,7 +1200,8 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
     const keys: Record<string, string> = {
       ...frameKeysOf(view.frame),
       appHeaderItems: described(view.appHeaderItems),
-      taskGroupPanel: described(view.taskGroupPanel),
+      taskGroupPanel: described(taskGroupRowsOf(view.taskGroupPanel)),
+      taskGroupGrabCues: described(taskGroupGrabCuesOf(view.taskGroupPanel)),
       propertiesPanel: fieldEditing.panelKeyAfterCommits(propertiesPanelKeyOf(view.propertiesPanel)),
       commandPalette: described(view.commandPalette),
       openModal: described(surfaceModal),
@@ -1222,8 +1240,9 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
     }
     if (changed('frame')) {
       fillScreenFrame(host, frameLayer, dividerBandLayer, view.frame, anchorsOf('frame'))
-      markFrame(root, taskGroupTitleTree, view.frame)
+      markFrame(root, taskGroupTitleTree, layers.taskGroupGrabCueLayer, view.frame)
     }
+    drawTaskGroupGrabCues(view.taskGroupPanel, changed('taskGroupGrabCues'))
     if (changed('taskGroupPanel')) {
       fillTaskGroupTitleTree(host, taskGroupTitleTree, view.taskGroupPanel, anchorsOf('taskGroupPanel'))
       reportRowControlsHeight(taskGroupControlsMeasureKey(view, readTheme(), headerTopPx()))
@@ -1585,6 +1604,13 @@ export const NOT_STORED_TASK_GROUP_GRAB_COPY_SIZES: {
   readonly 'S-599': number
 } = {
   'S-599': 8,
+}
+
+// see T-206
+export const NOT_STORED_TASK_GROUP_DROP_RING_SIZES: {
+  readonly 'S-620': number
+} = {
+  'S-620': 12,
 }
 
 // see T-206

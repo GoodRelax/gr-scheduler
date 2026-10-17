@@ -14,10 +14,12 @@ import {
   NOT_STORED_ICON_SIZES,
   NOT_STORED_TASK_GROUP_BAND_SIZES,
   NOT_STORED_TASK_GROUP_CONTROL_EDGE_SIZES,
+  NOT_STORED_TASK_GROUP_DROP_RING_SIZES,
   NOT_STORED_TASK_GROUP_GRAB_COPY_SIZES,
   NOT_STORED_TASK_GROUP_GRAB_STRIP_SIZES,
   PAINT,
   ROLE,
+  TASK_GROUP_CARRIED_MARK,
   TASK_GROUP_GRAB_STRIP_MARK,
   STYLE,
   anchorKey,
@@ -195,19 +197,27 @@ function heldTaskGroupGroundStyle(): string {
   return `background:${stateGround(PAINT.heldTaskGroup, 'S-215')};`
 }
 
-const DROP_PARENT_MARK = 'data-drop-parent'
-
 const PAST_DEPTH_CAP_MARK = 'data-past-depth-cap'
 
-const GRAB_STRIP_MARK_TEXT = '\u22ee\u22ee'
+const DROP_RING_MARK = 'data-drop-ring'
 
-// see HF-15, S-151, S-213
+const GRAB_STRIP_MARK_TEXT = '⋮⋮'
+
+// see HF-15, S-620, S-213, S-150
+// WHY: centred on the line's left end, so it stands on the indent of the depth the drop takes.
 /** @purity non-pure */
-function markDropParent(row: HTMLElement, taskGroupId: string, cue: TaskGroupPanel['dropCue']): void {
-  if (cue == null || cue.parentTaskGroupId !== taskGroupId) return
-  const band = taskGroupBandPx()
-  row.setAttribute(DROP_PARENT_MARK, 'true')
-  row.setAttribute('style', `${row.getAttribute('style') ?? ''}outline:${band}px solid ${PAINT.heldTaskGroup};outline-offset:-${band}px;`)
+function dropRingElement(host: Document, band: number): HTMLElement {
+  const outer = NOT_STORED_TASK_GROUP_DROP_RING_SIZES['S-620']
+  const ring = made(
+    host,
+    'div',
+    `position:absolute;box-sizing:border-box;left:${-outer / 2}px;top:${band / 2 - outer / 2}px;` +
+      `width:${outer}px;height:${outer}px;border-radius:50%;` +
+      `border:${band}px solid ${PAINT.heldTaskGroup};background:${PAINT.panel};`,
+  )
+  ring.setAttribute(DROP_RING_MARK, 'true')
+  ring.setAttribute('aria-hidden', 'true')
+  return ring
 }
 
 // see HF-15, S-151, S-213
@@ -225,6 +235,7 @@ function dropLineElement(host: Document, cue: NonNullable<TaskGroupPanel['dropCu
   const line = part(host, 'div', ROLE.taskGroupDropLine, `${style}pointer-events:none;`)
   line.setAttribute('aria-hidden', 'true')
   if (isPastDepthCap) line.setAttribute(PAST_DEPTH_CAP_MARK, 'true')
+  line.append(dropRingElement(host, band))
   return line
 }
 
@@ -241,14 +252,41 @@ function grabCopyElement(host: Document, copy: NonNullable<TaskGroupPanel['grabC
   return shown
 }
 
+export interface TaskGroupGrabCues {
+  readonly dropCue: TaskGroupPanel['dropCue'] | null
+  readonly grabCopy: TaskGroupPanel['grabCopy'] | null
+  readonly panelBox: TaskGroupTitle['box'] | null
+}
+
+// see HF-15
+/** @purity pure */
+export function taskGroupGrabCuesOf(panel: TaskGroupPanel): TaskGroupGrabCues {
+  return { dropCue: panel.dropCue ?? null, grabCopy: panel.grabCopy ?? null, panelBox: panel.titles[0]?.box ?? null }
+}
+
+// see HF-15
+// WHY: the panel without its grab cues; the task groups are drawn again only when this changes.
+/** @purity pure */
+export function taskGroupRowsOf(panel: TaskGroupPanel): TaskGroupPanel {
+  return { ...panel, dropCue: null, grabCopy: null }
+}
+
 // see HF-15
 /** @purity non-pure */
-function grabCueElements(host: Document, panel: TaskGroupPanel): readonly HTMLElement[] {
+function grabCueElements(host: Document, cues: TaskGroupGrabCues): readonly HTMLElement[] {
   const shown: HTMLElement[] = []
-  const panelBox = panel.titles[0]?.box
-  if (panel.dropCue != null && panelBox !== undefined) shown.push(dropLineElement(host, panel.dropCue, panelBox))
-  if (panel.grabCopy != null) shown.push(grabCopyElement(host, panel.grabCopy))
+  if (cues.dropCue != null && cues.panelBox !== null) shown.push(dropLineElement(host, cues.dropCue, cues.panelBox))
+  if (cues.grabCopy != null) shown.push(grabCopyElement(host, cues.grabCopy))
   return shown
+}
+
+// see HF-6, HF-15
+// WHY: in a layer in front of the tree, so no task group covers them and moving them redraws no task group.
+/** @purity non-pure */
+export function fillTaskGroupGrabCues(host: Document, layer: HTMLElement, tree: HTMLElement, panel: TaskGroupPanel): void {
+  const cues = taskGroupGrabCuesOf(panel)
+  layer.replaceChildren(...grabCueElements(host, cues))
+  tree.setAttribute(TASK_GROUP_CARRIED_MARK, String(cues.dropCue != null || cues.grabCopy != null))
 }
 
 // see HF-18
@@ -608,13 +646,11 @@ export function fillTaskGroupTitleTree(
   const drawn: HTMLElement[] = []
   for (const title of panel.pinnedTitles) {
     const row = taskGroupTitleElement(host, title, true, { anchors, taskGroupId: title.taskGroupId })
-    markDropParent(row, title.taskGroupId, panel.dropCue)
     anchors.set(anchorKey({ kind: 'taskGroupTitle', taskGroupId: title.taskGroupId }), row)
     drawn.push(row)
   }
   for (const title of panel.titles) {
     const row = taskGroupTitleElement(host, title, false, { anchors, taskGroupId: title.taskGroupId })
-    markDropParent(row, title.taskGroupId, panel.dropCue)
     anchors.set(anchorKey({ kind: 'taskGroupTitle', taskGroupId: title.taskGroupId }), row)
     drawn.push(row)
   }
@@ -627,7 +663,6 @@ export function fillTaskGroupTitleTree(
     drawn.push(rule)
   }
   for (const abbreviation of panel.rulerAbbreviations ?? []) drawn.push(rulerAbbreviationElement(host, abbreviation))
-  drawn.push(...grabCueElements(host, panel))
   tree.replaceChildren(...drawn)
 }
 

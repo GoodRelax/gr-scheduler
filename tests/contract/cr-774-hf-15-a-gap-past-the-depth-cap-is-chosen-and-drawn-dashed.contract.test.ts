@@ -5,7 +5,7 @@ import { describe, expect, it } from 'vitest'
 import { taskGroupPanelFromSchedule } from '../../src/adapter/screen-renderer/task-group-panel'
 import type { ScreenViewReadings, TaskGroupPanel } from '../../src/adapter/screen-renderer/screen-renderer'
 import { emptySelection } from '../../src/entity/document-model/selection/selection'
-import { fillTaskGroupTitleTree } from '../../src/framework/dom-screen-surface/task-group-panel-drawing'
+import { fillTaskGroupGrabCues } from '../../src/framework/dom-screen-surface/task-group-panel-drawing'
 import { emptyScreenSession } from '../../src/use-case/advance-screen-session/advance-screen-session'
 import { stage, type FakeElement } from '../fixtures/fake-browser'
 import { rowOf } from '../unit/cr-541-stage'
@@ -181,9 +181,11 @@ function panelFor(heldId: string, landing: PastCapLanding | null): TaskGroupPane
 
 function lineOf(panel: TaskGroupPanel): FakeElement[] {
   const built = stage()
+  // WHY: CR-789 moved the line from the tree to the cue layer in front of it.
   const tree = built.host.createElement('div') as unknown as FakeElement
-  fillTaskGroupTitleTree(built.host, tree as unknown as HTMLElement, panel, new Map<string, HTMLElement>())
-  return tree.children.filter((one) => one.getAttribute('data-role') === 'Task Group Drop Line')
+  const cues = built.host.createElement('div') as unknown as FakeElement
+  fillTaskGroupGrabCues(built.host, cues as unknown as HTMLElement, tree as unknown as HTMLElement, panel)
+  return cues.children.filter((one) => one.getAttribute('data-role') === 'Task Group Drop Line')
 }
 
 describe('HF-15 -- the drop line is drawn dashed where the descendants go past the limit', () => {

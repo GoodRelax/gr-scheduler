@@ -1741,6 +1741,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `NOT_STORED_SEARCH_PANEL_SIZES` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#NOT_STORED_SEARCH_PANEL_SIZES` | -- | const NOT_STORED_SEARCH_PANEL_SIZES: |
 | `NOT_STORED_TASK_GROUP_BAND_SIZES` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#NOT_STORED_TASK_GROUP_BAND_SIZES` | -- | const NOT_STORED_TASK_GROUP_BAND_SIZES: |
 | `NOT_STORED_TASK_GROUP_CONTROL_EDGE_SIZES` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#NOT_STORED_TASK_GROUP_CONTROL_EDGE_SIZES` | -- | const NOT_STORED_TASK_GROUP_CONTROL_EDGE_SIZES: |
+| `NOT_STORED_TASK_GROUP_DROP_RING_SIZES` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#NOT_STORED_TASK_GROUP_DROP_RING_SIZES` | -- | const NOT_STORED_TASK_GROUP_DROP_RING_SIZES: |
 | `NOT_STORED_TASK_GROUP_GRAB_COPY_SIZES` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#NOT_STORED_TASK_GROUP_GRAB_COPY_SIZES` | -- | const NOT_STORED_TASK_GROUP_GRAB_COPY_SIZES: |
 | `NOT_STORED_TASK_GROUP_GRAB_STRIP_SIZES` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#NOT_STORED_TASK_GROUP_GRAB_STRIP_SIZES` | -- | const NOT_STORED_TASK_GROUP_GRAB_STRIP_SIZES: |
 | `NOT_STORED_WHEEL_UNITS` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#NOT_STORED_WHEEL_UNITS` | -- | const NOT_STORED_WHEEL_UNITS: |
@@ -1764,6 +1765,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `showPointerShapeOver` | entry | function | `src/framework/dom-screen-surface/dom-screen-surface.ts#showPointerShapeOver` | PI-38 | UI パーツの根にポインタの形を書き、形があるあいだは中の要素にその形を継がせる。 |
 | `stateGround` | entry | function | `src/framework/dom-screen-surface/dom-screen-surface.ts#stateGround` | -- | function stateGround(paint: string, depthTaskGroup: 'S-214' \| 'S-215'): string |
 | `STYLE` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#STYLE` | -- | const STYLE = |
+| `TASK_GROUP_CARRIED_MARK` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#TASK_GROUP_CARRIED_MARK` | -- | const TASK_GROUP_CARRIED_MARK = 'data-task-group-carried' |
 | `TASK_GROUP_GRAB_STRIP_MARK` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#TASK_GROUP_GRAB_STRIP_MARK` | -- | const TASK_GROUP_GRAB_STRIP_MARK = 'data-task-group-grab' |
 | `themeStyle` | entry | function | `src/framework/dom-screen-surface/dom-screen-surface.ts#themeStyle` | -- | function themeStyle(theme: ScreenTheme): string |
 | `WindowReaders` | entry | interface | `src/framework/dom-screen-surface/dom-screen-surface.ts#WindowReaders` | -- | interface WindowReaders |
@@ -1845,6 +1847,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `wordFieldElement` | file only | function | `src/framework/dom-screen-surface/search-panel-drawing.ts#wordFieldElement` | -- | function wordFieldElement(host: Document, word: string, fontPx: number): HTMLElement |
 | `ADD_CHILD_ROW_ENTRY` | file only | const | `src/framework/dom-screen-surface/task-group-panel-drawing.ts#ADD_CHILD_ROW_ENTRY` | -- | const ADD_CHILD_ROW_ENTRY = 'IC-91' |
 | `DELETE_ROW_ENTRY` | file only | const | `src/framework/dom-screen-surface/task-group-panel-drawing.ts#DELETE_ROW_ENTRY` | -- | const DELETE_ROW_ENTRY = 'IC-82' |
+| `fillTaskGroupGrabCues` | file only | function | `src/framework/dom-screen-surface/task-group-panel-drawing.ts#fillTaskGroupGrabCues` | -- | function fillTaskGroupGrabCues(host: Document, layer: HTMLElement, tree: HTMLElement, panel: TaskGroupPanel): void |
 | `fillTaskGroupTitleTree` | file only | function | `src/framework/dom-screen-surface/task-group-panel-drawing.ts#fillTaskGroupTitleTree` | -- | function fillTaskGroupTitleTree( host: Document, tree: HTMLElement, panel: TaskGroupPanel, anchors: Map<string, HTMLElement>, ): void |
 | `foldedTaskGroupCountElement` | file only | function | `src/framework/dom-screen-surface/task-group-panel-drawing.ts#foldedTaskGroupCountElement` | -- | function foldedTaskGroupCountElement(host: Document, count: number, rightPx: string): HTMLElement |
 | `HeadEntries` | file only | interface | `src/framework/dom-screen-surface/task-group-panel-drawing.ts#HeadEntries` | -- | interface HeadEntries |
@@ -1855,6 +1858,9 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `TASK_GROUP_CONTROL_GROUND_MARK` | file only | const | `src/framework/dom-screen-surface/task-group-panel-drawing.ts#TASK_GROUP_CONTROL_GROUND_MARK` | -- | const TASK_GROUP_CONTROL_GROUND_MARK = 'data-task-group-control-ground' |
 | `taskGroupControlsHeightReporter` | file only | function | `src/framework/dom-screen-surface/task-group-panel-drawing.ts#taskGroupControlsHeightReporter` | -- | function taskGroupControlsHeightReporter( taskGroupTitleTree: HTMLElement, readClockMs: () => number, wiring: Pick<ScreenSurfaceWiring, 'onTaskGroupControlsH... |
 | `taskGroupControlsMeasureKey` | file only | function | `src/framework/dom-screen-surface/task-group-panel-drawing.ts#taskGroupControlsMeasureKey` | -- | function taskGroupControlsMeasureKey( view: ScreenView, theme: ScreenTheme, headerHeightPx: number, ): string |
+| `TaskGroupGrabCues` | file only | interface | `src/framework/dom-screen-surface/task-group-panel-drawing.ts#TaskGroupGrabCues` | -- | interface TaskGroupGrabCues |
+| `taskGroupGrabCuesOf` | file only | function | `src/framework/dom-screen-surface/task-group-panel-drawing.ts#taskGroupGrabCuesOf` | -- | function taskGroupGrabCuesOf(panel: TaskGroupPanel): TaskGroupGrabCues |
+| `taskGroupRowsOf` | file only | function | `src/framework/dom-screen-surface/task-group-panel-drawing.ts#taskGroupRowsOf` | -- | function taskGroupRowsOf(panel: TaskGroupPanel): TaskGroupPanel |
 | `taskGroupsTopPx` | file only | function | `src/framework/dom-screen-surface/task-group-panel-drawing.ts#taskGroupsTopPx` | -- | function taskGroupsTopPx(panel: TaskGroupPanel): number \| null |
 | `keepTooltipsInside` | file only | function | `src/framework/dom-screen-surface/tooltips-drawing.ts#keepTooltipsInside` | -- | function keepTooltipsInside(layer: HTMLElement): void |
 | `pointTipPlace` | file only | function | `src/framework/dom-screen-surface/tooltips-drawing.ts#pointTipPlace` | -- | function pointTipPlace(point: Point, size: Size, room: Size): { readonly left: number; readonly top: number } |
@@ -2089,4 +2095,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 1061 name(s) leave through a public entry (512 of them published by table T-064), 818 more are exported by a file and not by its entry.
+Totals: 1063 name(s) leave through a public entry (512 of them published by table T-064), 822 more are exported by a file and not by its entry.
