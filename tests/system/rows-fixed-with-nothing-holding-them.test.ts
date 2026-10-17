@@ -158,6 +158,8 @@ const CANVAS = '[data-role="Schedule Canvas"] svg'
 const CANVAS_PART = '[data-role="Schedule Canvas"]'
 const TASK_GROUP_PANEL_BOX = '[data-role="Task Group Panel"]'
 const PROPERTIES = '[data-role="Properties Panel"]'
+// see PR-21
+const COMMENT_BOX_TEXT_ROW = 'PR-21'
 const SCROLLBARS = '[data-role="Scrollbars"]'
 const DIVIDER = '[data-role="Panel Divider"]'
 
@@ -784,14 +786,16 @@ test('DFC-209: the comment box is outside that MUST NOT -- one press still place
       'true',
     )
 
-    const before = await drawnElementCount(page)
+    expect(COMMENT_BOX_TEXT_ROW in (await panelFields(page)), 'nothing is selected before the press').toBe(false)
     await pressAt(page, at)
     await page.waitForTimeout(900)
 
+    // WHY: the drawn-element count is no proof of a placed box: the placed box is selected (CR-782) and the
+    // panel opens beside the schedule, which narrows it and draws fewer elements than before.
     expect(
-      await drawnElementCount(page),
-      'FR-019 / AR-5: a press placed a comment box',
-    ).toBeGreaterThan(before)
+      COMMENT_BOX_TEXT_ROW in (await panelFields(page)),
+      'FR-019 / AR-5: a press placed a comment box, which the panel shows by its body row',
+    ).toBe(true)
   } finally {
     await opened.close()
   }
