@@ -99,7 +99,7 @@ describe('DFC-1338: a started task tells its actual, its assignees and its perce
     expect(lines[2]?.startsWith('実績: ')).toBe(true)
     expect(lines[3]?.startsWith('担当: ')).toBe(true)
     expect(lines[4]?.startsWith('進捗: ')).toBe(true)
-    expect(lines[5]).toContain(dayText('2026-06-09', 'ja'))
+    expect(lines[5]).toBe(`期限: ${dayText('2026-06-09', 'ja')}`)
   })
 
   it('TL-6 an actual that has not finished writes the start day, a space, a hyphen and stops', () => {
@@ -127,12 +127,12 @@ describe('DFC-1338: a started task tells its actual, its assignees and its perce
     expect(lines.every((one) => one.trim() !== '')).toBe(true)
   })
 
-  it('TL-8 the percent is the whole number and a percent sign, not rounded', () => {
-    expect(linesOf({ task: STARTED })).toContain('進捗: 50%')
+  it('TL-8 the percent is the whole number and a percent sign, not rounded, then the state word (SQ-5, PS-5)', () => {
+    expect(linesOf({ task: STARTED })).toContain('進捗: 50% (進行中)')
   })
 
-  it('TL-8 a started task at 0 percent still tells 0%', () => {
-    expect(linesOf({ task: { ...STARTED, percentComplete: 0 } })).toContain('進捗: 0%')
+  it('TL-8 a started task at 0 percent still tells 0% (CR-793: with the state word)', () => {
+    expect(linesOf({ task: { ...STARTED, percentComplete: 0 } })).toContain('進捗: 0% (進行中)')
   })
 
   it('TL-8 an empty percent gives no percent line', () => {

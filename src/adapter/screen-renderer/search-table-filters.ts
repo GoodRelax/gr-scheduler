@@ -41,7 +41,7 @@ const STATUS_COLUMN: SearchColumn = 'SQ-5'
 export type SearchTaskState = TaskSearchRow['planActualState'] | 'DG-1' | 'DG-2' | 'DG-3' | 'PM-4'
 
 /** @purity pure */
-export function searchTaskStateOf(row: TaskSearchRow): SearchTaskState {
+export function searchTaskStateOf(row: Pick<TaskSearchRow, 'progressMarker' | 'planActualState'>): SearchTaskState {
   switch (row.progressMarker) {
     case 'DG-1':
     case 'DG-2':

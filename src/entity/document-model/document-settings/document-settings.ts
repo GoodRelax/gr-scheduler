@@ -390,7 +390,7 @@ export const SETTINGS_CONSTANTS: {
   taskGroupTitleFont: 19.5,
   taskGroupTitleIndent: 16,
   taskGroupTitleTopScale: 1.3,
-  taskHintDelayMs: 1000,
+  taskHintDelayMs: 500,
   thinArrowHeadHeight: 5.6,
   thinArrowHeadLength: 5.6,
   thinFontScale: 0.85,

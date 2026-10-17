@@ -19,7 +19,9 @@ const EZ_6_WAIT =
 const EZ_6_TWO_VALUES = '⚠️ 待ち時間は `S-439` とし、`EZ-2` の待ち（`S-124`）とは別の値として持つこと（MUST）'
 const EZ_6_FROM_THE_STOP = '⚠️ 待ちを数え始めるのは、`EZ-2` と違い、ポインタが止まった時である'
 const S_439_APART = '⚠️ **`S-124` とは別の値である** —— 片方を選び直しても、もう片方は動かない（`EZ-6`）。'
-const S_439_LONGER = '⚠️ **1000 は、利用者が選んだ値である** —— アイコンの説明（`S-124`）より長いのは'
+// WHY: CR-793 -- S-439 was shortened from 1000 to 500 ms (JDG-2701); it is still the longer of the two waits.
+const S_439_CHOSEN = '⚠️ **500 は、利用者が選んだ値である**（2026-10-17 に 1000 から縮めた'
+const S_439_LONGER = 'アイコンの説明（`S-124`）より長いのは、日程の上をなぞる手を説明が覆わないためである。'
 const S_439_FROM_THE_STOP = '⚠️ **待ちは、ポインタがタスクの上で止まった時から数える**（`EZ-6`）'
 const S_124_FROM_ENTERING = '⚠️ **待ちは、ポインタがアイコンに入った時から数える**（`EZ-2`）'
 
@@ -73,7 +75,7 @@ describe('DFC-1363 -- the manuscript these cases are driven by', () => {
     expect(REQUIREMENTS).toContain(clause)
   })
 
-  it.each([S_439_APART, S_439_LONGER, S_439_FROM_THE_STOP, S_124_FROM_ENTERING])('table T-212 still says: %s', (clause) => {
+  it.each([S_439_CHOSEN, S_439_APART, S_439_LONGER, S_439_FROM_THE_STOP, S_124_FROM_ENTERING])('table T-212 still says: %s', (clause) => {
     expect(SETTINGS_TABLES).toContain(clause)
   })
 
@@ -82,6 +84,7 @@ describe('DFC-1363 -- the manuscript these cases are driven by', () => {
     expect(TASK_WAIT.key, 'S-439 names a key').toBe('taskHintDelayMs')
     expect(SETTINGS_CONSTANTS.iconHintDelayMs, 'S-124').toBe(ICON_WAIT.ms)
     expect(SETTINGS_CONSTANTS.taskHintDelayMs, 'S-439').toBe(TASK_WAIT.ms)
+    expect(TASK_WAIT.ms, 'CR-793: S-439 is 500 ms').toBe(500)
   })
 })
 

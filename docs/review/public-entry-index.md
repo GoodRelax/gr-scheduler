@@ -1550,6 +1550,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `timeShiftQuestionItems` | entry | function | `src/adapter/screen-renderer/notices.ts#timeShiftQuestionItems` | PI-37 | タイムシフトの確認（`QN-14`）の文の下に並べる行（表 T-377 の `BS-3`） |
 | `Tooltip` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#Tooltip` | -- | interface Tooltip |
 | `TooltipAnchor` | entry | type | `src/adapter/screen-renderer/screen-renderer.ts#TooltipAnchor` | -- | type TooltipAnchor = \| { readonly kind: 'icon'; readonly icon: IconId; readonly surface?: string; readonly taskGroupId?: string } \| { readonly kind: 'task'; ... |
+| `TooltipRow` | entry | type | `src/adapter/screen-renderer/screen-renderer.ts#TooltipRow` | -- | type TooltipRow = \| { readonly kind: 'whole'; readonly text: string } \| { readonly kind: 'labeled'; readonly label: string; readonly value: string } \| { read... |
 | `UNASSIGNED_ROW_KEY` | entry | const | `src/adapter/screen-renderer/table-window.ts#UNASSIGNED_ROW_KEY` | PI-37 | 担当リストの表の（担当なし）の行の鍵（表 T-370 の `RO-5`）。 |
 | `UNTITLED_DOCUMENT_TITLE` | entry | const | `src/adapter/screen-renderer/open-modals.ts#UNTITLED_DOCUMENT_TITLE` | PI-37 | `AT-3` の文書名が `null` のときに見出しへ出す語 `Untitled`。 |
 | `VerticalWhole` | entry | interface | `src/adapter/screen-renderer/screen-frame.ts#VerticalWhole` | PI-37 | 型。 |
@@ -1623,6 +1624,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `SearchFilterMenuView` | file only | type | `src/adapter/screen-renderer/table-window.ts#SearchFilterMenuView` | -- | type SearchFilterMenuView = \| |
 | `SearchFilterValueView` | file only | interface | `src/adapter/screen-renderer/table-window.ts#SearchFilterValueView` | -- | interface SearchFilterValueView |
 | `SearchRowView` | file only | interface | `src/adapter/screen-renderer/search-panel.ts#SearchRowView` | -- | interface SearchRowView |
+| `taskStateWordOf` | file only | function | `src/adapter/screen-renderer/search-panel.ts#taskStateWordOf` | -- | function taskStateWordOf( task: Task, statusDate: CalendarDay \| null, diagnosed: 'DG-1' \| 'DG-2' \| 'DG-3' \| undefined, language: DisplayLanguage, ): string |
 | `taskTypeWordOf` | file only | function | `src/adapter/screen-renderer/search-panel.ts#taskTypeWordOf` | -- | function taskTypeWordOf(taskType: string, language: DisplayLanguage): string |
 | `taskTypeWordsIn` | file only | function | `src/adapter/screen-renderer/search-panel.ts#taskTypeWordsIn` | -- | function taskTypeWordsIn(language: DisplayLanguage): readonly string[] |
 | `windowTitleEntriesOf` | file only | function | `src/adapter/screen-renderer/table-window.ts#windowTitleEntriesOf` | -- | function windowTitleEntriesOf(shown: WindowShown, language: DisplayLanguage): readonly CommandItem[] |
@@ -1642,7 +1644,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `searchBodyTextOf` | file only | function | `src/adapter/screen-renderer/search-table-filters.ts#searchBodyTextOf` | -- | function searchBodyTextOf(text: string): string |
 | `SearchColumn` | file only | type | `src/adapter/screen-renderer/search-table-filters.ts#SearchColumn` | -- | type SearchColumn = ColumnFilter['column'] |
 | `SearchTaskState` | file only | type | `src/adapter/screen-renderer/search-table-filters.ts#SearchTaskState` | -- | type SearchTaskState = TaskSearchRow['planActualState'] \| 'DG-1' \| 'DG-2' \| 'DG-3' \| 'PM-4' |
-| `searchTaskStateOf` | file only | function | `src/adapter/screen-renderer/search-table-filters.ts#searchTaskStateOf` | -- | function searchTaskStateOf(row: TaskSearchRow): SearchTaskState |
+| `searchTaskStateOf` | file only | function | `src/adapter/screen-renderer/search-table-filters.ts#searchTaskStateOf` | -- | function searchTaskStateOf(row: Pick<TaskSearchRow, 'progressMarker' \| 'planActualState'>): SearchTaskState |
 | `SHOW_VALUE` | file only | const | `src/adapter/screen-renderer/search-table-filters.ts#SHOW_VALUE` | -- | const SHOW_VALUE = 'show' |
 | `TableColumns` | file only | interface | `src/adapter/screen-renderer/search-table-filters.ts#TableColumns` | -- | interface TableColumns<Row> |
 | `tableColumnValues` | file only | function | `src/adapter/screen-renderer/search-table-filters.ts#tableColumnValues` | -- | function tableColumnValues<Row>( rows: readonly Row[], table: TableColumns<Row>, column: SearchColumn, sort: ColumnSort \| null = null, |
@@ -2096,4 +2098,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 1062 name(s) leave through a public entry (512 of them published by table T-064), 824 more are exported by a file and not by its entry.
+Totals: 1063 name(s) leave through a public entry (512 of them published by table T-064), 825 more are exported by a file and not by its entry.

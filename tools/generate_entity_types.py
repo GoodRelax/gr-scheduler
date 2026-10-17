@@ -1521,11 +1521,13 @@ NOT_STORED_TARGETS = {
     # CR-628: S-459, the repository's address, which the help's copyright line
     # (FR-069) and the App Header's Branding (BR-4 of table T-349) both open;
     # both are drawn on this side. A string, as S-350 is in notices.ts.
+    # CR-793: S-621 / S-622, the width and the line cap of the task tooltip's
+    # note (TL-14), which tooltips-drawing.ts draws beside S-339.
     'NOT_STORED_HELP_SIZES': (['S-201', 'S-202', 'S-203', 'S-204', 'S-334',
                                'S-339', 'S-340', 'S-436', 'S-437',
                                'S-457', 'S-458', 'S-460',
                                'S-423', 'S-424', 'S-426', 'S-453', 'S-454',
-                               'S-459'],
+                               'S-459', 'S-621', 'S-622'],
                               DRAWN_WITH_WHERE_IT_STANDS),
     # FR-088's Holiday Settings list (table T-257, CR-406; moved there from
     # FR-099 by CR-722): the text factor RR-1 reads and the rule width RR-5 reads. Not folded into the help line above -- one
