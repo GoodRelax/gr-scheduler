@@ -104,7 +104,7 @@ EXEMPT = {
     },
     'property-items.json': {
         '/items[]/inputKinds[]': (
-            42, 'a CLASSIFICATION, not prose: the seven tokens 文字 / 複数行 / '
+            44, 'a CLASSIFICATION, not prose: the seven tokens 文字 / 複数行 / '
                 '日付 / 数値 / 真偽 / 選択 / 色 that table T-016 has always '
                 'printed in its 入力の型 column, one per GRS JSON column. The '
                 'schema of this manuscript states them as an enum, which is '
@@ -141,7 +141,12 @@ EXEMPT = {
                 'and width, and the Dependency rows), drawn from the same '
                 'closed enum with read-only / one-input qualifiers; raised '
                 'with leave from the user (JDG-1115). Lower it again once '
-                'the qualifiers move to the dictionary (DFC-1676).'),
+                'the qualifiers move to the dictionary (DFC-1676). '
+                '⭐ 42 -> 44 on 2026-10-17: CR-786 adds PR-48 and PR-49 (the '
+                'Bring to Front button of a comment box and of a highlight '
+                'box), each with the one new token 命令 of the same closed '
+                'enum (a button that writes no column); raised with leave '
+                'from the user (JDG-2532).'),
     },
 }
 

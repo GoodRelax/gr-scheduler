@@ -100,16 +100,16 @@ describe('AM-7: the request is the stamp and the bundle of commands', () => {
     expect(requestProperties['commands']?.['type']).toBe('array')
   })
 
-  it('a bundle item is one of 89 alternatives', () => {
-    expect(alternatives).toHaveLength(89)
+  it('a bundle item is one of 91 alternatives', () => {
+    expect(alternatives).toHaveLength(91)
   })
 })
 
 describe('one alternative per command the Agent API takes, in the order of table T-108', () => {
-  it('the kinds are the 88 command names but CM-76, with setDependencyLag twice -- once per lag shape', () => {
+  it('the kinds are the 90 command names but CM-76, with setDependencyLag twice -- once per lag shape', () => {
     const expected = offered.flatMap((command) => waysOf(command).map(() => command.name))
     expect(alternatives.map(kindOf)).toEqual(expected)
-    expect(offered).toHaveLength(88)
+    expect(offered).toHaveLength(90)
     expect(alternativesOf('setDependencyLag')).toHaveLength(2)
   })
 

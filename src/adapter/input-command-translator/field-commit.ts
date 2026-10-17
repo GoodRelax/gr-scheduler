@@ -377,7 +377,6 @@ function commandFromHighlightBoxColumn(
   const id = box.id
   const number = settledNumber(text)
   switch (column) {
-    // see PR-49, CM-101
     case 'id':
       return [{ kind: 'bringHighlightBoxToFront', id }]
     case 'strokeColor':
@@ -409,7 +408,7 @@ function commandFromCommentBoxColumn(
   const id = box.id
   const number = settledNumber(text)
   switch (column) {
-    // see PR-48, CM-100
+    // see PR-48, PR-49, CM-100, CM-101
     case 'id':
       return [{ kind: 'bringCommentBoxToFront', id }]
     case 'text':

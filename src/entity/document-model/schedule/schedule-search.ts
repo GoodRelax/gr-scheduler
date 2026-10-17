@@ -15,7 +15,7 @@ import { instantOnSideReader, startSideOf } from './working-calendar'
 import { planActualState } from './plan-actual-state'
 import type { PlanActualState } from './plan-actual-state'
 import { taskGroupNameOf, taskGroupPathOf } from './task-group-names'
-import type { CommentBox, Schedule, Task } from './schedule-entities'
+import type { CommentBox, HighlightBox, Schedule, Task } from './schedule-entities'
 import { taskGroupRankById } from './schedule-invariants'
 import { progressMarkerOf, type ProgressMarker } from './task-delay'
 
@@ -221,9 +221,8 @@ function rankedCommentBox(
 }
 
 // see FR-019, SQ-9, SJ-6
-// WHY: the one reading of the instant a tip stands at from the document alone: a snapped tip at its target's
-// point (start, finish or their middle), else the free point. The search row, the jump and the release on a
-// deleted target all read it, so the table, the jump and the drawn box agree once the target moves.
+// WHY: the one reading of the instant a tip stands at: its target's point if snapped, else the free point.
+// The search row, the jump and the release on a deleted target all read it, so they agree with the drawn box.
 /** @purity pure */
 export function commentBoxShownDateOf(schedule: Schedule, box: CommentBox): string | null {
   const point = box.anchorSnapPoint ?? null
@@ -236,20 +235,34 @@ export function commentBoxShownDateOf(schedule: Schedule, box: CommentBox): stri
   return textOfInstant(Math.round((left + right) / 2))
 }
 
+type Span = { readonly left: number; readonly right: number }
+
+function holdsId(id: string | null): (box: HighlightBox) => boolean {
+  return (box) => box.id === id
+}
+
 // see FR-019, LF-15
+/** @purity pure */
+function snappedSpanOf(schedule: Schedule, box: CommentBox): Span | null {
+  const taskUid = box.anchorTaskUid ?? null
+  return taskUid !== null
+    ? taskSpanOf(schedule, taskUid, box.anchorTaskFigure === 'actualBar')
+    : highlightSpanOf(schedule, box.anchorHighlightBoxId ?? null)
+}
+
+/** @purity pure */
+function taskSpanOf(schedule: Schedule, taskUid: number, isActual: boolean): Span | null {
+  const task = schedule.tasks.find((one) => one.uid === taskUid)
+  if (task === undefined) return null
+  const left = instantOf(isActual ? (task.actualStart ?? task.start) : task.start)
+  const right = task.milestone ? left : instantOf(isActual ? (task.actualFinish ?? task.finish) : task.finish)
+  return left === null || right === null ? null : { left, right }
+}
+
 // WHY: a highlight box is drawn from the start of its first day to the end of its last, so its right stands a day on.
 /** @purity pure */
-function snappedSpanOf(schedule: Schedule, box: CommentBox): { readonly left: number; readonly right: number } | null {
-  const taskUid = box.anchorTaskUid ?? null
-  if (taskUid !== null) {
-    const task = schedule.tasks.find((one) => one.uid === taskUid)
-    if (task === undefined) return null
-    const isActual = box.anchorTaskFigure === 'actualBar'
-    const left = instantOf(isActual ? (task.actualStart ?? task.start) : task.start)
-    const right = task.milestone ? left : instantOf(isActual ? (task.actualFinish ?? task.finish) : task.finish)
-    return left === null || right === null ? null : { left, right }
-  }
-  const highlight = schedule.highlightBoxes.find((one) => one.id === (box.anchorHighlightBoxId ?? null))
+function highlightSpanOf(schedule: Schedule, highlightBoxId: string | null): Span | null {
+  const highlight = schedule.highlightBoxes.find(holdsId(highlightBoxId))
   const startDay = dayOf(highlight?.start ?? null)
   const finishDay = dayOf(highlight?.finish ?? null)
   if (startDay === null || finishDay === null) return null

@@ -565,6 +565,22 @@
    }
   },
   {
+   "id": "PR-49",
+   "columns": [
+    "id"
+   ],
+   "inputKinds": [
+    "命令"
+   ],
+   "appliesTo": "HighlightBox",
+   "note": {
+    "ja": "[最前面に配置] —— 押すと、そのハイライトボックスをハイライトボックスの並びの最後へ移し（`CM-101`）、ほかのハイライトボックスより前に描く（表 T-020 の `ZO-8`・`ZO-14`）。列は書き換えない"
+   },
+   "mspdi": {
+    "ja": "無い（`GRS JSON` のみ）"
+   }
+  },
+  {
    "id": "PR-23",
    "columns": [
     "strokeWidthPx"
@@ -623,22 +639,6 @@
    "appliesTo": "HighlightBox",
    "note": {
     "ja": "塗りの透過率。0 は不透明、100 は透明。既定と範囲は `_assets/tbl-settings.md` の表 T-217 の `S-371`"
-   },
-   "mspdi": {
-    "ja": "無い（`GRS JSON` のみ）"
-   }
-  },
-  {
-   "id": "PR-49",
-   "columns": [
-    "id"
-   ],
-   "inputKinds": [
-    "命令"
-   ],
-   "appliesTo": "HighlightBox",
-   "note": {
-    "ja": "[最前面に配置] —— 押すと、そのハイライトボックスをハイライトボックスの並びの最後へ移し（`CM-101`）、ほかのハイライトボックスより前に描く（表 T-020 の `ZO-8`・`ZO-14`）。列は書き換えない"
    },
    "mspdi": {
     "ja": "無い（`GRS JSON` のみ）"

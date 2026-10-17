@@ -38,7 +38,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `ColumnShape` | entry | interface | `src/entity/document-model/schedule/schedule-entities.ts#ColumnShape` | -- | interface ColumnShape |
 | `CommentBox` | entry | interface | `src/entity/document-model/schedule/schedule-entities.ts#CommentBox` | -- | interface CommentBox |
 | `CommentBoxSearchRow` | entry | type | `src/entity/document-model/schedule/schedule-search.ts#CommentBoxSearchRow` | PI-1 | 型。 |
-| `commentBoxShownDateOf` | entry | function | `src/entity/document-model/schedule/schedule-search.ts#commentBoxShownDateOf` | -- | function commentBoxShownDateOf(schedule: Schedule, box: CommentBox): string \| null |
+| `commentBoxShownDateOf` | entry | function | `src/entity/document-model/schedule/schedule-search.ts#commentBoxShownDateOf` | PI-1 | コメントボックスの線先が今立つ所の日時（吸着していれば吸着先のその点、していなければ自由点の `anchorDate`、`FR-019`）。 |
 | `compareDays` | entry | function | `src/entity/document-model/schedule/calendar-day.ts#compareDays` | PI-1 | 2 つの日の前後 |
 | `compareDelayFixRows` | entry | function | `src/entity/document-model/schedule/delay-diagnostics-report-table.ts#compareDelayFixRows` | PI-1 | 修正案の行の既定の並びの比べ方（表 T-374） |
 | `CustomColor` | entry | interface | `src/entity/document-model/schedule/stored-color.ts#CustomColor` | -- | interface CustomColor |
@@ -2085,4 +2085,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 1057 name(s) leave through a public entry (507 of them published by table T-064), 818 more are exported by a file and not by its entry.
+Totals: 1057 name(s) leave through a public entry (508 of them published by table T-064), 818 more are exported by a file and not by its entry.

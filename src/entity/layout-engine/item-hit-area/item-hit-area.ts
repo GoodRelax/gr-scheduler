@@ -1111,9 +1111,8 @@ function noteHitOf(
   sizes: GrabSizes,
   onShape: boolean,
 ): Hit | null {
-  // WHY: the tip before the body: the tip is a handle laid on a Task and answers there too, so a
-  // body read first would take it wherever the two meet. Each kind is read front first: a later box is
-  // drawn in front (ZO-8, ZO-9), so where two overlap the one seen answers.
+  // WHY: the tip before the body: a body read first would take the tip's place. Each kind is read front
+  // first: a later box is drawn in front (ZO-8, ZO-9), so where two overlap the one seen answers.
   const comments = [...geometry.commentBoxes].reverse()
   const highlights = [...geometry.highlightBoxes].reverse()
   for (const box of comments) {

@@ -325,16 +325,24 @@ type FrontCommand = Extract<AnnotationCommand, { kind: 'bringCommentBoxToFront' 
 // WHY: the array order is the drawing order (later in front), so the box moves to the end; already last is no edit.
 /** @purity pure */
 function broughtToFront(document: Document, command: FrontCommand): EditResult {
-  const schedule = document.schedule
-  if (command.kind === 'bringCommentBoxToFront') {
-    const box = commentBoxOf(document, command.id)
-    if (box === null) return refused([reject('CM-100', 'AT-110', `no comment box with id ${command.id}`)])
-    const moved = movedToEnd(schedule.commentBoxes, box)
-    return moved === null ? edited(document) : edited(withScheduleParts(document, { commentBoxes: moved }))
-  }
-  const box = highlightBoxOf(document, command.id)
-  if (box === null) return refused([reject('CM-101', 'AT-116', `no highlight box with id ${command.id}`)])
-  const moved = movedToEnd(schedule.highlightBoxes, box)
+  return command.kind === 'bringCommentBoxToFront'
+    ? commentBoxToFront(document, command.id)
+    : highlightBoxToFront(document, command.id)
+}
+
+/** @purity pure */
+function commentBoxToFront(document: Document, id: string): EditResult {
+  const box = commentBoxOf(document, id)
+  if (box === null) return refused([reject('CM-100', 'AT-110', `no comment box with id ${id}`)])
+  const moved = movedToEnd(document.schedule.commentBoxes, box)
+  return moved === null ? edited(document) : edited(withScheduleParts(document, { commentBoxes: moved }))
+}
+
+/** @purity pure */
+function highlightBoxToFront(document: Document, id: string): EditResult {
+  const box = highlightBoxOf(document, id)
+  if (box === null) return refused([reject('CM-101', 'AT-116', `no highlight box with id ${id}`)])
+  const moved = movedToEnd(document.schedule.highlightBoxes, box)
   return moved === null ? edited(document) : edited(withScheduleParts(document, { highlightBoxes: moved }))
 }
 

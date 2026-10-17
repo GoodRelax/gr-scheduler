@@ -1774,6 +1774,13 @@
    }
   },
   {
+   "rowId": "PR-49",
+   "label": {
+    "ja": "最前面に配置",
+    "en": "Bring to Front"
+   }
+  },
+  {
    "rowId": "PR-23",
    "label": {
     "ja": "枠線幅",
@@ -1799,13 +1806,6 @@
    "label": {
     "ja": "塗りの透過率（%）",
     "en": "Fill Transparency (%)"
-   }
-  },
-  {
-   "rowId": "PR-49",
-   "label": {
-    "ja": "最前面に配置",
-    "en": "Bring to Front"
    }
   },
   {
