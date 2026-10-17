@@ -1,0 +1,31 @@
+# summary.txt (round.sh, one line per run: start time, round, sha, fps and interval p95 per stretch)
+17:01:32 A1 6b32d9af MK-1 scroll: 33.73 fps p95 42.5ms;MK-2 zoom: 31.22 fps p95 50ms;MK-7 pan: 33.47 fps p95 36.4ms;MK-6 range select: 65.62 fps p95 24.3ms;GR-28 column border: 7.79 fps p95 158.89ms;
+17:02:34 A1 db02f9ff MK-1 scroll: 32.3 fps p95 45.37ms;MK-2 zoom: 28.38 fps p95 66.66ms;MK-7 pan: 28.1 fps p95 51.4ms;MK-6 range select: 53.64 fps p95 27.17ms;GR-28 column border: 7.64 fps p95 166.66ms;
+17:03:37 A2 6b32d9af MK-1 scroll: 34.92 fps p95 42.4ms;MK-2 zoom: 30.61 fps p95 57.5ms;MK-7 pan: 32.63 fps p95 39.27ms;MK-6 range select: 61.22 fps p95 24.3ms;GR-28 column border: 7.78 fps p95 163.6ms;
+17:04:39 A2 db02f9ff MK-1 scroll: 33.64 fps p95 43.1ms;MK-2 zoom: 31.65 fps p95 51.47ms;MK-7 pan: 31.17 fps p95 50ms;MK-6 range select: 61.6 fps p95 24.4ms;GR-28 column border: 7.84 fps p95 166.66ms;
+17:05:40 A3 6b32d9af MK-1 scroll: 33.93 fps p95 42.5ms;MK-2 zoom: 30.92 fps p95 54.6ms;MK-7 pan: 30.82 fps p95 50ms;MK-6 range select: 62.09 fps p95 24.3ms;GR-28 column border: 7.89 fps p95 164.1ms;
+17:06:41 A3 db02f9ff MK-1 scroll: 32.04 fps p95 45.47ms;MK-2 zoom: 30.35 fps p95 53ms;MK-7 pan: 29.3 fps p95 50ms;MK-6 range select: 64.35 fps p95 24.3ms;GR-28 column border: 7.74 fps p95 166.66ms;
+17:08:05 B1 db02f9ff MK-1 scroll: 27.15 fps p95 54.6ms;MK-2 zoom: 26.05 fps p95 66.66ms;MK-7 pan: 26.86 fps p95 50ms;MK-6 range select: 51.82 fps p95 24.3ms;GR-28 column border: 6.78 fps p95 187.6ms;
+17:09:15 B1 6b32d9af MK-1 scroll: 33.15 fps p95 42.5ms;MK-2 zoom: 31.04 fps p95 54.4ms;MK-7 pan: 29.79 fps p95 50ms;MK-6 range select: 58.15 fps p95 24.4ms;GR-28 column border: 7.95 fps p95 163.44ms;
+17:10:16 B2 db02f9ff MK-1 scroll: 33.33 fps p95 42.4ms;MK-2 zoom: 31.32 fps p95 50ms;MK-7 pan: 29.07 fps p95 50ms;MK-6 range select: 62.9 fps p95 24.3ms;GR-28 column border: 8.17 fps p95 151.3ms;
+17:11:16 B2 6b32d9af MK-1 scroll: 32.66 fps p95 42.6ms;MK-2 zoom: 31.16 fps p95 50ms;MK-7 pan: 33.32 fps p95 39.27ms;MK-6 range select: 62.49 fps p95 24.3ms;GR-28 column border: 7.84 fps p95 166.66ms;
+17:12:17 B3 db02f9ff MK-1 scroll: 34.2 fps p95 42.4ms;MK-2 zoom: 31.63 fps p95 51.47ms;MK-7 pan: 33.19 fps p95 39.37ms;MK-6 range select: 63.63 fps p95 24.3ms;GR-28 column border: 7.99 fps p95 157.7ms;
+17:13:17 B3 6b32d9af MK-1 scroll: 34.64 fps p95 42.4ms;MK-2 zoom: 30.79 fps p95 54.6ms;MK-7 pan: 28.28 fps p95 50ms;MK-6 range select: 59.67 fps p95 24.3ms;GR-28 column border: 7.71 fps p95 166.66ms;
+17:15:20 C1 6b32d9af MK-1 scroll: 31.45 fps p95 50ms;MK-2 zoom: 30.75 fps p95 50ms;MK-7 pan: 29.78 fps p95 50ms;MK-6 range select: 60.87 fps p95 24.3ms;GR-28 column border: 7.91 fps p95 157.47ms;
+17:16:22 C1 db02f9ff MK-1 scroll: 33.78 fps p95 42.4ms;MK-2 zoom: 32.32 fps p95 51.5ms;MK-7 pan: 31.25 fps p95 50ms;MK-6 range select: 62.15 fps p95 24.4ms;GR-28 column border: 7.85 fps p95 162.14ms;
+17:17:22 C2 6b32d9af MK-1 scroll: 35.24 fps p95 39.37ms;MK-2 zoom: 32.2 fps p95 53.17ms;MK-7 pan: 31.01 fps p95 50ms;MK-6 range select: 62.14 fps p95 24.3ms;GR-28 column border: 7.95 fps p95 160.39ms;
+17:18:23 C2 db02f9ff MK-1 scroll: 33.95 fps p95 42.5ms;MK-2 zoom: 31.32 fps p95 50ms;MK-7 pan: 30.51 fps p95 50ms;MK-6 range select: 62.9 fps p95 24.3ms;GR-28 column border: 8.02 fps p95 157.4ms;
+17:19:44 D1 db02f9ff MK-1 scroll: 34.95 fps p95 42.4ms;MK-2 zoom: 31.48 fps p95 50ms;MK-7 pan: 30.54 fps p95 50ms;MK-6 range select: 61.06 fps p95 24.3ms;GR-28 column border: 7.84 fps p95 157.4ms;
+17:20:46 D1 6b32d9af MK-1 scroll: 33.06 fps p95 42.4ms;MK-2 zoom: 30.32 fps p95 54.64ms;MK-7 pan: 31.36 fps p95 42.5ms;MK-6 range select: 59.01 fps p95 24.3ms;GR-28 column border: 8.11 fps p95 151.47ms;
+17:21:46 D2 db02f9ff MK-1 scroll: 32.19 fps p95 48.4ms;MK-2 zoom: 30.09 fps p95 54.7ms;MK-7 pan: 28.06 fps p95 50ms;MK-6 range select: 63.58 fps p95 24.4ms;GR-28 column border: 7.94 fps p95 157.4ms;
+17:22:48 D2 6b32d9af MK-1 scroll: 31.64 fps p95 50ms;MK-2 zoom: 28.28 fps p95 54.37ms;MK-7 pan: 28.54 fps p95 50ms;MK-6 range select: 55.51 fps p95 24.3ms;GR-28 column border: 7.81 fps p95 166.66ms;
+
+# load.txt (load.sh, before and after each group)
+17:01:20 A-before cpu% 10.2 27.2 13.6 20.3 16.4 | OneDrive s | top cpu-seconds in 10s: OneDrive.Sync.Service 9.08s, claude 3.02s, Taskmgr 1.62s, claude 0.66s, claude 0.45s, powershell 0.36s
+17:07:43 A-after cpu% 12.6 13.5 10.4 11.1 15.8 | OneDrive s | top cpu-seconds in 10s: OneDrive.Sync.Service 9.28s, Taskmgr 1.73s, powershell 0.31s, claude 0.25s, claude 0.17s, NVIDIA Overlay 0.09s
+17:07:54 B-before cpu% 12.6 10.8 10.3 12 14.3 | OneDrive s | top cpu-seconds in 10s: OneDrive.Sync.Service 9.33s, Taskmgr 1.58s, powershell 0.33s, claude 0.11s, claude 0.09s, logioptionsplus_agent 0.09s
+17:14:19 B-after cpu% 12.4 11.7 10 14.5 11.2 | OneDrive s | top cpu-seconds in 10s: OneDrive.Sync.Service 9.2s, Taskmgr 1.86s, powershell 0.36s, claude 0.11s, claude 0.09s, HuionTabletCore 0.09s
+17:15:09 C-before cpu% 16.7 14.4 15.1 9.5 20 | OneDrive s | top cpu-seconds in 10s: OneDrive.Sync.Service 9.14s, Taskmgr 1.59s, claude 0.78s, powershell 0.38s, claude 0.12s, nvcontainer 0.11s
+17:19:22 C-after cpu% 17.5 12.3 4.4 21.6 5.8 | OneDrive s | top cpu-seconds in 10s: OneDrive.Sync.Service 9.19s, Taskmgr 1.48s, powershell 0.38s, claude 0.17s, logioptionsplus_agent 0.16s, claude 0.14s
+17:19:33 D-before cpu% 18.5 7.2 10.1 11 14.3 | OneDrive s | top cpu-seconds in 10s: OneDrive.Sync.Service 9.27s, Taskmgr 1.59s, powershell 0.31s, claude 0.14s, claude 0.09s, NVIDIA Overlay 0.09s
+17:23:50 D-after cpu% 11.4 14.3 11.1 9.7 12.1 | OneDrive s | top cpu-seconds in 10s: OneDrive.Sync.Service 9.2s, Taskmgr 1.59s, powershell 0.33s, claude 0.12s, HuionTabletCore 0.12s, claude 0.12s

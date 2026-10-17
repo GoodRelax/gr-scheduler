@@ -1,0 +1,15 @@
+# med.py over rounds A1-A3, B1-B3, C1-C2, D1-D2 (MED_FLAGS=--range). Columns per stretch: fps / interval p95 ms / inside-call p95 ms.
+sha       n   1  fps   1  p95   1 in95   2  fps   2  p95   2 in95   7  fps   7  p95   7 in95   6  fps   6  p95   6 in95  28  fps  28  p95  28 in95
+6b32d9af 10    33.44   42.50   24.90   30.86   54.38   31.70   30.91   50.00   25.55   61.05   24.30    0.80    7.87  163.52   52.85
+db02f9ff 10    33.48   42.80   24.30   31.32   51.48   31.65   29.91   50.00   27.20   62.52   24.30    0.80    7.84  159.92   52.00
+6b32d9af range 31.45-35.24 39.37-50 22.7-27 28.28-32.2 50-57.5 28.2-33 28.28-33.47 36.4-50 20.4-27.3 55.51-65.62 24.3-24.4 0.7-3.5 7.71-8.11 151.47-166.66 51.7-54.2
+db02f9ff range 27.15-34.95 42.4-54.6 22.3-28.2 26.05-32.32 50-66.66 28.9-36 26.86-33.19 39.37-51.4 24.2-30.3 51.82-64.35 24.3-27.17 0.7-0.9 6.78-8.17 151.3-187.6 49.3-62.2
+# pairs.py, groups A-D
+MK-1 db02f9ff lower in 6 of 10 rounds; fps ratio db02f9ff/6b32d9af median 0.975, range 0.819-1.074
+MK-2 db02f9ff lower in 4 of 10 rounds; fps ratio db02f9ff/6b32d9af median 1.016, range 0.839-1.064
+MK-7 db02f9ff lower in 8 of 10 rounds; fps ratio db02f9ff/6b32d9af median 0.965, range 0.840-1.174
+MK-6 db02f9ff lower in 2 of 10 rounds; fps ratio db02f9ff/6b32d9af median 1.017, range 0.817-1.145
+GR-28 db02f9ff lower in 5 of 10 rounds; fps ratio db02f9ff/6b32d9af median 1.000, range 0.853-1.042
+# svg-size.mjs (first screen, untouched): copy, characters, elements, per element name
+6b32d9af 220053 1329 {"defs":1,"marker":1,"path":4,"mask":34,"rect":141,"clipPath":2,"g":123,"line":109,"polygon":265,"polyline":148,"circle":239,"text":262}
+db02f9ff 223078 1347 {"defs":1,"marker":1,"path":22,"mask":34,"rect":141,"clipPath":2,"g":123,"line":109,"polygon":265,"polyline":148,"circle":239,"text":262}
