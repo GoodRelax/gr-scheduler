@@ -1119,6 +1119,15 @@
      }
     },
     {
+     "name": "commentBoxShownDateOf",
+     "note": {
+      "ja": [
+       "コメントボックスの線先が今立つ所の日時（吸着していれば吸着先のその点、していなければ自由点の `anchorDate`、`FR-019`）。",
+       "検索の列 `SQ-9`・飛び先 `SJ-6`・対象を消したときの自由点への書き換えが同じ 1 本を読む"
+      ]
+     }
+    },
+    {
      "name": "isSearchWordFound",
      "note": {
       "ja": [

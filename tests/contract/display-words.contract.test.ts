@@ -1520,8 +1520,11 @@ for (const entry of GENERATED['surfaces'] ?? []) {
  * ⚠️ Read by ROW and never by position: FR-006's order is a MUST of its own and
  * uf-64 is where that is held, so a reordering must not make this file fall too.
  */
-const propertyFieldName = (view: ScreenView, rowId: string): string | undefined =>
-  view.propertiesPanel?.fields.find((field) => field.row === rowId)?.name
+const propertyFieldName = (view: ScreenView, rowId: string): string | undefined => {
+  const field = view.propertiesPanel?.fields.find((one) => one.row === rowId)
+  // WHY: a command row (PR-48, PR-49) has no name cell; its word is the one button it draws (CR-786).
+  return field?.name === '' ? field.controls[0]?.press : field?.name
+}
 
 /**
  * Table T-016's own 対象 column (CR-325, 2026-09-02) and the column it names.

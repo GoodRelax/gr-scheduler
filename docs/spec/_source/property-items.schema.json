@@ -56,7 +56,7 @@
       }
      },
      "inputKinds": {
-      "description": "The 入力の型 of each column, one per entry of `columns` and in the same order. FR-006 (MUST) makes this what the control is drawn as. 日時 (a date and a time, CR-710 X-23) is a date field while the document does not show time of day, and a date-and-time field while it does (FR-158, table T-375 TX-3); 日付 is a whole day. タスクの参照 (taskReference, JDG-1613) is a field that edits nothing: pressing a task name it shows follows to that Task (table T-351 PTL-15 to PTL-17 for PR-15; PR-37 and PR-38 show one name per dependency).",
+      "description": "The 入力の型 of each column, one per entry of `columns` and in the same order. FR-006 (MUST) makes this what the control is drawn as. 日時 (a date and a time, CR-710 X-23) is a date field while the document does not show time of day, and a date-and-time field while it does (FR-158, table T-375 TX-3); 日付 is a whole day. タスクの参照 (taskReference, JDG-1613) is a field that edits nothing: pressing a task name it shows follows to that Task (table T-351 PTL-15 to PTL-17 for PR-15; PR-37 and PR-38 show one name per dependency). 命令 (command, CR-786) is a button that edits no column: its one column is the row's key column `id`, and pressing it carries one document command that row names (PR-48 and PR-49 bring the box to the front, CM-100 and CM-101).",
       "type": "array",
       "minItems": 1,
       "items": {
@@ -70,7 +70,8 @@
         "真偽",
         "選択",
         "色",
-        "タスクの参照"
+        "タスクの参照",
+        "命令"
        ]
       }
      },

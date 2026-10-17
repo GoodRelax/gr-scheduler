@@ -1111,26 +1111,28 @@ function noteHitOf(
   sizes: GrabSizes,
   onShape: boolean,
 ): Hit | null {
-  // WHY: the tip before the body: the tip is a handle laid on a Task and answers there too, so a
-  // body read first would take it wherever the two meet.
-  for (const box of geometry.commentBoxes) {
+  // WHY: the tip before the body: a body read first would take the tip's place. Each kind is read front
+  // first: a later box is drawn in front (ZO-8, ZO-9), so where two overlap the one seen answers.
+  const comments = [...geometry.commentBoxes].reverse()
+  const highlights = [...geometry.highlightBoxes].reverse()
+  for (const box of comments) {
     if (isNearPoint(x, y, box.anchor, sizes['S-292'], sizes['S-292'])) {
       return commentHit(box, { kind: 'anchor' })
     }
   }
-  for (const box of geometry.commentBoxes) {
+  for (const box of comments) {
     if (isInsideRect(x, y, box.body)) return commentHit(box, { kind: 'body' })
   }
-  for (const box of geometry.commentBoxes) {
+  for (const box of comments) {
     // WHY: a box whose anchor sits inside it draws no leader (LF-17), so none answers.
     const leader = leaderOf(box)
     if (leader !== null && isOnPolyline(x, y, leader, sizes['S-291'])) return commentHit(box, { kind: 'leader' })
   }
-  for (const box of geometry.highlightBoxes) {
+  for (const box of highlights) {
     const grabPoint = nearestGrabPointOf(box, x, y, sizes['S-230'])
     if (grabPoint !== null) return highlightHit(box, grabPoint)
   }
-  for (const box of geometry.highlightBoxes) {
+  for (const box of highlights) {
     // WHY: HB-12 measures the reach from the drawn line's edge, so it starts at half the drawn width.
     const half = box.strokeWidthPx / 2
     if (isOnTheFrame(x, y, box.box, onShape ? half : half + sizes['S-293'])) {

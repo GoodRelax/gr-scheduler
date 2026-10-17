@@ -2346,6 +2346,19 @@ const SHAPE_OF_COMMAND_KIND: Readonly<Record<string, SchemaNode>> = {
       },
     },
   },
+  bringCommentBoxToFront: {
+    type: ['object'],
+    required: ['kind', 'id'],
+    closed: true,
+    properties: {
+      kind: {
+        enum: ['bringCommentBoxToFront'],
+      },
+      id: {
+        type: ['string'],
+      },
+    },
+  },
   createHighlightBox: {
     type: ['object'],
     required: ['kind', 'id', 'range'],
@@ -2484,6 +2497,19 @@ const SHAPE_OF_COMMAND_KIND: Readonly<Record<string, SchemaNode>> = {
       },
       fillTransparencyPercent: {
         type: ['integer', 'null'],
+      },
+    },
+  },
+  bringHighlightBoxToFront: {
+    type: ['object'],
+    required: ['kind', 'id'],
+    closed: true,
+    properties: {
+      kind: {
+        enum: ['bringHighlightBoxToFront'],
+      },
+      id: {
+        type: ['string'],
       },
     },
   },
