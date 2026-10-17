@@ -3583,11 +3583,11 @@
   {
    "rowId": "RS-61",
    "text": {
-    "ja": "このタスクグループは読み取り専用です（編集グループが設定されています）",
+    "ja": "このタスクグループは読み取り専用です（編集権限が設定されています）",
     "en": "This task group is read-only (an edit permission is set on it)."
    },
    "nextStep": {
-    "ja": "編集グループの無いタスクグループへコピーしてから編集してください",
+    "ja": "編集権限の無いタスクグループへコピーしてから編集してください",
     "en": "Copy it into a task group with no edit permission, then edit it."
    }
   },
