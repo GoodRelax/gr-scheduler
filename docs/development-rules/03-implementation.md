@@ -100,6 +100,7 @@ NOT_STORED_TASK_GROUP_CONTROL_SIZES         タスクグループの操作子の
 NOT_STORED_TASK_GROUP_CONTROL_EDGE_SIZES    タスクグループの操作子を描く側の、右端からの隔たり（`S-313`）
 NOT_STORED_TASK_GROUP_GRAB_ROOM_SIZES       タスクグループの掴み代が取る場所（`S-138` / `S-218`）
 NOT_STORED_TASK_GROUP_GRAB_COPY_SIZES       運んでいるタスクグループの写しのずれ（`S-599`、`CR-772`）
+NOT_STORED_TASK_GROUP_DROP_RING_SIZES       差し込み線の左端の丸の外径（`S-620`、`CR-789`）
 NOT_STORED_TASK_GROUP_GRAB_SIZES            掴んだタスクグループを運び始める距離と、縁で送る幅と速さ（`S-208` / `S-597` / `S-598`、`CR-772`）
 NOT_STORED_TASK_GROUP_GRAB_STRIP_SIZES      掴み代とタスクグループ名の隔たり（`S-218`）
 NOT_STORED_SCROLLBAR_SIZES           スクロールバーの厚みの下限（`S-205`）

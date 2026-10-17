@@ -12,13 +12,13 @@ what this reading does not see.
 
 | place | T-218 | T-334 | files | case sites | expected-to-fail marks | known-red lines | need the MSPDI XSDs | tied to no spec row |
 | --- | --- | --- | --: | --: | --: | --: | --: | --: |
-| `contract` | TS-5 | VT-2 | 409 | 5165 | 8 | 4 | 11 | 2 |
+| `contract` | TS-5 | VT-2 | 411 | 5196 | 8 | 4 | 11 | 2 |
 | `integration` | TS-2 | - | 3 | 76 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
 | `system` | TS-3 | - | 93 | 594 | 0 | 0 | 0 | 0 |
 | `unit` | TS-6 | - | 186 | 3917 | 1 | 1 | 2 | 0 |
 | `use-case` | TS-1 | VT-1 | 14 | 17 | 2 | 3 | 0 | 0 |
-| **all** | | | 708 | 9786 | 11 | 8 | 13 | 2 |
+| **all** | | | 710 | 9817 | 11 | 8 | 13 | 2 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -477,7 +477,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/cr-768-the-save-chooser-is-handed-the-media-type-of-the-table.contract.test.ts` | 5 | FR-096 | - | T-024, T-346 | IC-2, IC-140, IO-4, IO-8, RW-7 | - | - | - | - |
 | `tests/contract/cr-772-hf-15-one-drag-sets-the-gap-and-the-depth.contract.test.ts` | 32 | FR-042 | - | - | HF-15, S-208, UF-97 | - | - | - | - |
 | `tests/contract/cr-772-hf-15-the-drag-in-the-shell.contract.test.ts` | 8 | - | - | - | HF-15, S-208, S-597 | - | - | - | - |
-| `tests/contract/cr-772-hf-15-the-drop-is-drawn-while-carrying.contract.test.ts` | 14 | - | - | - | HF-15, S-213, S-215, S-599 | - | - | - | - |
+| `tests/contract/cr-772-hf-15-the-drop-is-drawn-while-carrying.contract.test.ts` | 11 | - | - | - | HF-15, S-213, S-215, S-599 | - | - | - | - |
 | `tests/contract/cr-772-hf-15-the-grab-has-three-states.contract.test.ts` | 9 | - | VT-2 | T-289 | HF-15, S-208 | - | - | - | - |
 | `tests/contract/cr-774-hf-15-a-gap-past-the-depth-cap-is-chosen-and-drawn-dashed.contract.test.ts` | 17 | FR-004 | - | T-234 | HF-15, HM-3a, QN-16 | - | - | - | - |
 | `tests/contract/cr-774-hf-15-the-release-asks-qn-16-and-lifts-the-too-deep-groups.contract.test.ts` | 16 | - | - | - | HF-15, HM-3, HM-9, QN-16, S-125, UF-97 | - | - | - | - |
@@ -499,6 +499,8 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/cr-786-the-later-box-answers-the-press.contract.test.ts` | 6 | FR-019 | - | - | - | - | - | - | - |
 | `tests/contract/cr-787-the-settings-face-narrows-with-two-line-names.test.ts` | 28 | FR-038, FR-052, FR-156, FR-159 | - | T-206, T-369, T-376, T-379, T-380 | FO-14, FO-15, FO-17, K-69, K-70, K-120, K-121, K-144, K-145, RN-3, S-171, S-248, S-574, S-602, S-603, S-604, S-605, S-606, S-607, TX-12, WH-1 | - | - | - | - |
 | `tests/contract/cr-788-the-first-checked-is-the-primary.test.ts` | 11 | FR-008, FR-059 | - | T-109, T-206, T-225 | AS-1, AS-3, AS-5, AS-12, AS-13, IC-123, IC-124, IC-125, IC-126, S-607, TL-7 | - | - | - | - |
+| `tests/contract/cr-789-hf-15-a-pointer-move-changes-only-the-cues.contract.test.ts` | 15 | - | - | - | HF-6, HF-15, UZ-11 | - | - | - | - |
+| `tests/contract/cr-789-hf-15-the-drop-is-a-ringed-line.contract.test.ts` | 19 | - | - | - | HF-6, HF-15, S-150, S-151, S-213, S-620 | - | - | - | - |
 | `tests/contract/dfc-1000-hf-10-the-open-all-stance-counts-every-placed-task-group.test.ts` | 9 | - | - | T-051, T-109 | HF-2, HF-10, IC-58, IC-74, RS-31 | - | - | - | - |
 | `tests/contract/dfc-1013-tl-12-the-delay-days-are-told-only-in-the-ez-6-tip.test.ts` | 7 | FR-047 | - | T-038, T-348 | DX-10, EZ-6, OC-8, TL-12 | - | - | - | - |
 | `tests/contract/dfc-1015-fr-019-a-hidden-end-task-group-shrinks-the-frame.test.ts` | 5 | FR-019, UC-008 | - | - | - | - | - | - | - |

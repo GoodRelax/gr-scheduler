@@ -1,4 +1,4 @@
-// CR-772 spec-only cases: while a task group is carried, the screen draws the line, the parent frame, the ground and the copy (HF-15, S-213, S-215, S-599).
+// CR-772 spec-only cases: while a task group is carried, the screen draws the line, the ground and the copy (HF-15, S-213, S-215, S-599).
 
 import { describe, expect, it } from 'vitest'
 
@@ -6,7 +6,7 @@ import { taskGroupPanelFromSchedule } from '../../src/adapter/screen-renderer/ta
 import type { ScreenViewReadings, TaskGroupPanel } from '../../src/adapter/screen-renderer/screen-renderer'
 import { emptySelection } from '../../src/entity/document-model/selection/selection'
 import { PAINT } from '../../src/framework/dom-screen-surface/dom-screen-surface'
-import { fillTaskGroupTitleTree } from '../../src/framework/dom-screen-surface/task-group-panel-drawing'
+import { fillTaskGroupGrabCues, fillTaskGroupTitleTree } from '../../src/framework/dom-screen-surface/task-group-panel-drawing'
 import { emptyScreenSession } from '../../src/use-case/advance-screen-session/advance-screen-session'
 import { stage, type FakeElement } from '../fixtures/fake-browser'
 import { numberIn, rowOf } from '../unit/cr-541-stage'
@@ -22,7 +22,6 @@ describe('CR-772 -- the manuscript these cases are driven by', () => {
   it.each([
     clause.HF_15_DRAW_TARGET,
     clause.HF_15_LINE,
-    clause.HF_15_PARENT_FRAME,
     clause.HF_15_LINE_COLOR,
     clause.HF_15_GROUND,
     clause.HF_15_GROUND_COLOR,
@@ -76,12 +75,11 @@ describe('HF-15 -- the panel describes the drop while a task group is carried', 
     expect(heldIdsOf(panelFor('B', landing))).toEqual(['B', 'B1'])
   })
 
-  it('carries the line at the chosen gap and indent, with the parent to frame', () => {
+  it('carries the line at the chosen gap and indent', () => {
     expect(landing).not.toBeNull()
     expect(panelFor('A2', landing).dropCue).toEqual({
       lineY: landing?.gapY,
       lineIndentPx: landing?.lineIndentPx,
-      parentTaskGroupId: landing?.parentId,
     })
   })
 
@@ -109,22 +107,25 @@ const px = (style: string, property: string): number => {
   return Number(found[1])
 }
 
-function treeOf(panel: TaskGroupPanel): FakeElement {
+// WHY: the rows and the cue layer side by side, so a case can look for a line or a copy in either.
+function treeOf(panel: TaskGroupPanel): { readonly children: FakeElement[] } {
   const built = stage()
   const tree = built.host.createElement('div') as unknown as FakeElement
+  const cues = built.host.createElement('div') as unknown as FakeElement
   fillTaskGroupTitleTree(built.host, tree as unknown as HTMLElement, panel, new Map<string, HTMLElement>())
-  return tree
+  fillTaskGroupGrabCues(built.host, cues as unknown as HTMLElement, tree as unknown as HTMLElement, panel)
+  return { children: [...tree.children, ...cues.children] }
 }
 
-const roleOf = (tree: FakeElement, role: string): FakeElement[] => tree.children.filter((one) => one.getAttribute('data-role') === role)
-const rowOf2 = (tree: FakeElement, id: string): FakeElement => {
+const roleOf = (tree: { readonly children: FakeElement[] }, role: string): FakeElement[] => tree.children.filter((one) => one.getAttribute('data-role') === role)
+const rowOf2 = (tree: { readonly children: FakeElement[] }, id: string): FakeElement => {
   const found = tree.children.find((one) => one.getAttribute('data-group-id') === id)
   if (found === undefined) throw new Error(`premise: ${id} is drawn`)
   return found
 }
 const styleOf = (element: FakeElement): string => element.getAttribute('style') ?? ''
 
-describe('HF-15 -- the drop is drawn: line, parent frame, ground, copy', () => {
+describe('HF-15 -- the drop is drawn: line, ground, copy', () => {
   const landing = landingAt('B', 2, under('A2a'))
   const panel = panelFor('B', landing)
   const tree = treeOf(panel)
@@ -140,28 +141,6 @@ describe('HF-15 -- the drop is drawn: line, parent frame, ground, copy', () => {
     expect(px(style, 'left')).toBeCloseTo((panelBox?.x ?? NaN) + (landing?.lineIndentPx ?? NaN), 6)
     expect(px(style, 'left') + px(style, 'width')).toBeCloseTo((panelBox?.x ?? NaN) + (panelBox?.width ?? NaN), 6)
     expect(style).toContain(PAINT.heldTaskGroup)
-  })
-
-  it('frames the parent that the line makes, S-213 thick, and no other row', () => {
-    expect(landing?.parentId).toBe('A2')
-    const framed = tree.children.filter((one) => one.getAttribute('data-drop-parent') === 'true')
-    expect(framed.map((one) => one.getAttribute('data-group-id'))).toEqual(['A2'])
-    expect(styleOf(framed[0] as FakeElement)).toContain(`${S_213}px`)
-    expect(styleOf(framed[0] as FakeElement)).toContain(PAINT.heldTaskGroup)
-  })
-
-  it('frames nothing when the drop is at the top depth', () => {
-    const top = panelFor('B', landingAt('B', 0, under('C')))
-    expect(top.dropCue?.parentTaskGroupId).toBeNull()
-    expect(treeOf(top).children.filter((one) => one.getAttribute('data-drop-parent') === 'true')).toEqual([])
-  })
-
-  it('frames a folded parent in the same way as an open one', () => {
-    const folded = panelFor('B', landingAt('B', 1, under('C')))
-    expect(folded.dropCue?.parentTaskGroupId).toBe('C')
-    const framed = treeOf(folded).children.filter((one) => one.getAttribute('data-drop-parent') === 'true')
-    expect(framed.map((one) => one.getAttribute('data-group-id'))).toEqual(['C'])
-    expect(styleOf(framed[0] as FakeElement)).toContain(`${S_213}px`)
   })
 
   it('lays the S-215 ground on the held rows only', () => {
