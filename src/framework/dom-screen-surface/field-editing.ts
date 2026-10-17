@@ -132,7 +132,7 @@ function isDateEntry(control: unknown): boolean {
 }
 
 // see IN-6, FR-031
-// WHY: a keyed date changes at every digit (2 is the year 0002), so it waits for the settle; a calendar pick does not.
+// WHY: a keyed date changes at every digit (year 2 is 0002), so it waits; a calendar pick or an emptying does not.
 /** @purity non-pure */
 function keyedDateOf() {
   let isKeyed = false
@@ -142,6 +142,9 @@ function keyedDateOf() {
       if (key !== HOST_ENTER && key !== HOST_ESCAPE_KEY && key !== HOST_TAB_KEY) isKeyed = true
     },
     holds: (target: unknown, held: unknown): boolean => isKeyed && target === held,
+    clear: (): void => {
+      isKeyed = false
+    },
     settle: (held: TextEntryControl | null, valueAtFocus: string): FieldCommit | null => {
       const wasKeyed = isKeyed
       isKeyed = false
@@ -343,9 +346,9 @@ export function fieldEditingOf(host: Document, propertiesPanel: HTMLElement) {
     fieldCommit = assigneeLineDeleted(event) ?? fieldCommit
     const held = heldTextControl
     if (held === null || !isDateEntry(held)) return
-    keyedDate.mark(event)
     const key = event as Partial<KeyboardEvent>
-    if (!isUnchordedDeleteKey(key)) return
+    if (!isUnchordedDeleteKey(key)) return keyedDate.mark(event)
+    keyedDate.clear()
     if (typeof event.preventDefault === 'function') event.preventDefault()
     held.value = ''
     isHeldTextTakenBack = false
