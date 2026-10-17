@@ -266,6 +266,7 @@ interface HelpItem {
   readonly block: string
   readonly segment: string | null
   readonly glyphs: readonly string[]
+  readonly link: { readonly words: string; readonly address: string } | null
 }
 
 const entry = (patch: Partial<HelpItem> = {}): HelpItem => {
@@ -282,6 +283,7 @@ const entry = (patch: Partial<HelpItem> = {}): HelpItem => {
     block: '',
     segment: null,
     glyphs: [ITEM_ICON],
+    link: null,
     ...patch,
   }
 }
@@ -299,7 +301,8 @@ const helpWith = (entries: readonly HelpItem[]): OpenModal =>
     attributions: ['AttributionOne'],
     helpLegal: { licensedUnder: 'LicensedUnderHere', fullText: 'FullTextHere' },
     area: { belowAppHeader: { x: 0, y: 37, width: 1280, height: 763 } },
-    footnotes: [],
+    downloadLink: { words: '', address: '' },
+    aboutLink: { words: '', address: '' },
   }) as unknown as OpenModal
 
 /** The App Header measures to something, so BO-1's dimension is settled. */

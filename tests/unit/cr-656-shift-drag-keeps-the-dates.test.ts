@@ -109,8 +109,11 @@ describe('CR-656 -- the rows these cases are driven by', () => {
     expect(rowText('T-308', 'CY-11')).toContain('押した時点の修飾キーで決め、押しているあいだに `Ctrl` や `Shift` を押しても離しても変えないこと（MUST）')
   })
 
-  it('FR-036: the help lists MK-16 among the T-023 rows', () => {
-    expect(REQUIREMENTS).toContain('表 T-023 の `MK-2` / `MK-5` / `MK-7` / `MK-15` / `MK-16` / `MK-17` と')
+  // WHY: CR-785 moved MK-16 from the rows the help shows to the rows that are known by touching.
+  it('FR-036: the help does not list MK-16; it stands among the T-023 rows learned by touching', () => {
+    expect(REQUIREMENTS).toContain('表 T-023 の `MK-2` / `MK-5` / `MK-7` と')
+    expect(REQUIREMENTS).not.toContain('/ `MK-16` / `MK-17` と')
+    expect(REQUIREMENTS).toContain('`MK-1` / `MK-6` / `MK-8` / `MK-11` / `MK-13` / `MK-15` / `MK-16` / `MK-17`）と、内部の取り決め')
   })
 
   it('S-208: the row of table T-206 is a positive number', () => {

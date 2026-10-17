@@ -112,7 +112,8 @@ const HELP = {
   attributions: ['An attribution'],
   helpLegal: { licensedUnder: 'LicensedUnderHere', fullText: 'FullTextHere' },
   area: { belowAppHeader: { x: 0, y: 37, width: 1280, height: 763 } },
-  footnotes: [],
+  downloadLink: { words: '', address: '' },
+  aboutLink: { words: '', address: '' },
   entries: [
     {
       table: 'T-036',
@@ -127,6 +128,7 @@ const HELP = {
       block: 'b1',
       segment: null,
       glyphs: ['IC-5'],
+      link: null,
     },
   ],
 } as unknown as OpenModal

@@ -133,9 +133,6 @@ const BASIC_ROWS = new Set([
   'MK-2',
   'MK-5',
   'MK-7',
-  'MK-15',
-  'MK-16',
-  'MK-17',
 ])
 
 const BROWSER = 'browser'

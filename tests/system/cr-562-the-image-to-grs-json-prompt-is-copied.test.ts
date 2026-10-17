@@ -67,8 +67,10 @@ const NOT_A_SURFACE = new Set([roleName('U-57'), roleName('U-53')])
 
 const COPY_PROMPT = rowOf(T_109, 'IC-115').id
 const DIALOGUE = rowOf(T_109, 'IC-18').id
+const AGENT_API = rowOf(T_109, 'IC-20').id
 const SCREEN_LANGUAGE = rowOf(T_109, 'IC-21').id
 
+// WHY: CR-785 stands IC-18 on the Dialogue Field alone (JDG-2506), so this group holds IC-115 and IC-20 only.
 // see T-109
 const AI_GROUP: readonly string[] = T_109.rows
   .filter((row) => (row.by['面'] ?? '').trim() === `\`${roleName('U-31')}\`` && (row.by['群'] ?? '').trim() === 'AI')
@@ -262,10 +264,12 @@ test.describe('CR-562 -- the clauses and the generated seam these cases are driv
     expect(NOTICE_ROSTER, RS_15_ROW).toContain(RS_15_ROW)
   })
 
-  test(`表 T-109 puts exactly three entrances in the App Header's group AI, IC-115 and IC-18 among them, and has no IC-19`, () => {
-    expect(AI_GROUP).toHaveLength(3)
+  test(`表 T-109 puts exactly two entrances in the App Header's group AI, IC-115 and IC-20, holds IC-18 on the Dialogue Field alone, and has no IC-19`, () => {
+    expect(AI_GROUP).toHaveLength(2)
     expect(AI_GROUP).toContain(COPY_PROMPT)
-    expect(AI_GROUP).toContain(DIALOGUE)
+    expect(AI_GROUP).toContain(AGENT_API)
+    expect(AI_GROUP).not.toContain(DIALOGUE)
+    expect(rowOf(T_109, DIALOGUE).by['面']?.trim()).toBe(`\`${roleName('U-44')}\``)
     expect(T_109.rows.map((row) => row.id)).not.toContain('IC-19')
     expect(roleName('U-30'), '表 T-103 U-30 names the Help Modal only').toBe('Help Modal')
   })
@@ -371,7 +375,7 @@ test.describe(`IC-115 -- ${FR_068_NO_SURFACE}`, () => {
 })
 
 test.describe('the App Header -- group AI', () => {
-  test('draws the three entrances of group AI and no IC-19, and no AI Export Modal is ever named', async () => {
+  test('draws the two entrances of group AI, not IC-18, and no IC-19, and no AI Export Modal is ever named', async () => {
     const one = await visit()
     try {
       const drawn = await one.page.evaluate(
@@ -382,6 +386,7 @@ test.describe('the App Header -- group AI', () => {
       const known = new Set(T_109.rows.map((row) => row.id))
       expect(drawn.filter((icon) => !known.has(icon)), 'the header draws an entrance 表 T-109 does not hold').toEqual([])
       expect([...new Set(drawn.filter((icon) => AI_GROUP.includes(icon)))].sort()).toEqual([...AI_GROUP].sort())
+      expect(drawn, 'JDG-2506: the App Header no longer draws IC-18').not.toContain(DIALOGUE)
       expect(await one.page.$('[data-icon="IC-19"]')).toBeNull()
       expect(await roles(one.page)).not.toContain('AI Export Modal')
     } finally {
@@ -391,7 +396,8 @@ test.describe('the App Header -- group AI', () => {
 })
 
 test.describe(`IC-18 -- ${FR_066_PRESS}`, () => {
-  test(`${FR_066_NOT_FAINT}; pressed, the field shows and the Agent API is enabled and remembered; hidden again, it stays enabled`, async () => {
+  // WHY: JDG-2506 -- IC-18 has no entrance for now (CR-785)
+  test.fixme(`${FR_066_NOT_FAINT}; pressed, the field shows and the Agent API is enabled and remembered; hidden again, it stays enabled`, async () => {
     const one = await visit()
     try {
       expect(await agentApiPublished(one.page), 'premise: the Agent API starts disabled').toBe(false)

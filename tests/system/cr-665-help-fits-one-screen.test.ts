@@ -12,11 +12,11 @@ const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '
 
 // WHY: each constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
 const FR_036_ONE_SCREEN =
-  'ない環境の両方で、ヘルプの言語が日本語でも英語でも、開いたときの大きさ（表 T-335 の `WB-1`）で全部の塊と、備考 ※1 の行とライセンスの行（`FR-069`）を 1 画面に収め、縦にも横にもスクロールを要さないこと（MUST）'
+  'ない環境の両方で、ヘルプの言語が日本語でも英語でも、開いたときの大きさ（表 T-335 の `WB-1`）で全部の塊とライセンスの行（`FR-069`）を 1 画面に収め、縦にも横にもスクロールを要さないこと（MUST）'
 const S_203_FITS_BOTH =
   'ne-screen/` が持つ。⭐ 収めるためにヘルプの字を小さくしてよい —— `_assets/tbl-settings.md` の 表 T-206 の `S-203` は、上の 2 つの環境で日英の両方が収まる値とすること（MUST）'
-const FR_036_NOTE_1 =
-  '4` の行で持つ。⭐ 本文の領域の段の下、ライセンスの行（`FR-069`）の上に備考 ※1 を 1 行で右寄せに置き、AI のアプリから `Agent API` を使うための束（`FR-150`）と最新版を入手する所を示すこと（MUST）'
+const FR_036_TWO_LINKS =
+  '⭐ ヘルプは、基本操作の塊（辞書の見出しの `basics`）の枠のすぐ上に、2 つのリンクを 1 行ずつ縦に並べて置くこと（MUST）'
 const FR_069_ONE_LINE =
   'スの名・全文と帰属表示を開く入口の 3 つを 1 行に並べて常に見せ、全文と帰属表示はその下に折りたたんで置くこと（MUST）'
 const T_256_SPLIT =
@@ -57,8 +57,6 @@ const SCREENS: readonly (readonly [string, { width: number; height: number }])[]
 
 // WHY: a box laid out at a fractional position reads back a fraction off; less than that is not a move.
 const EDGE = 1.5
-// WHY: pieces of one line in different inline boxes can sit a pixel or two apart; a second line is a whole line lower.
-const LINE_SPREAD = 4
 
 interface Box {
   readonly left: number
@@ -77,7 +75,8 @@ interface HelpLayout {
   readonly blocksInHc4: readonly string[]
   readonly rowsByBlock: Readonly<Record<string, readonly string[]>>
   readonly allRows: readonly string[]
-  readonly note: { readonly box: Box; readonly text: Box; readonly lineTops: readonly number[]; readonly isInAColumn: boolean } | null
+  readonly links: { readonly download: Box | null; readonly about: Box | null; readonly basicsTop: number | null; readonly isInAColumn: boolean }
+  readonly hasFootnote: boolean
   readonly copyright: Box | null
   readonly license: Box | null
   readonly fullText: Box | null
@@ -152,21 +151,15 @@ async function readLayout(page: Page): Promise<HelpLayout> {
         bottom: Math.max(...rects.map((r) => r.bottom)),
       }
     }
-    const note = modal.querySelector('[data-help-footnote]')
-    let noteRead = null
-    if (note !== null) {
-      noteRead = {
-        box: boxOf(note) as Box,
-        text: textBoxOf(note) as Box,
-        lineTops: [...new Set(textRects(note).map((r) => Math.round((r.top + r.bottom) / 2)))],
-        isInAColumn: note.closest('[data-help-column]') !== null,
-      }
-    }
-    const legal = note?.parentElement ?? null
+    // WHY: CR-785 removed note *1; the license line stands in the element that holds the folded full text.
+    const details = modal.querySelector('details')
+    const legal = details?.parentElement ?? null
     const copyright =
-      legal === null ? null : [...legal.children].find((one) => one !== note && one.tagName !== 'DETAILS' && one.querySelector('a') !== null) ?? null
+      legal === null ? null : [...legal.children].find((one) => one.tagName !== 'DETAILS' && one.querySelector('a') !== null) ?? null
+    const downloadLine = modal.querySelector('[data-help-link="download"]')
+    const aboutLine = modal.querySelector('[data-help-link="about"]')
+    const basicsBlock = modal.querySelector('[data-help-block="basics"]')
     const license = copyright?.nextElementSibling ?? null
-    const details = legal?.querySelector('details') ?? null
     return {
       language: modal.getAttribute('data-language') ?? '',
       body: { scrollHeight: body.scrollHeight, clientHeight: body.clientHeight, scrollWidth: body.scrollWidth, clientWidth: body.clientWidth },
@@ -177,7 +170,13 @@ async function readLayout(page: Page): Promise<HelpLayout> {
       blocksInHc4: hc4 === null ? [] : [...hc4.querySelectorAll('[data-help-block]')].map((one) => one.getAttribute('data-help-block') ?? ''),
       rowsByBlock,
       allRows: [...modal.querySelectorAll('[data-row]')].map((one) => one.getAttribute('data-row') ?? ''),
-      note: noteRead,
+      links: {
+        download: boxOf(downloadLine),
+        about: boxOf(aboutLine),
+        basicsTop: basicsBlock === null ? null : basicsBlock.getBoundingClientRect().top,
+        isInAColumn: downloadLine?.closest('[data-help-column]') !== null && aboutLine?.closest('[data-help-column]') !== null,
+      },
+      hasFootnote: modal.querySelector('[data-help-footnote]') !== null,
       copyright: textBoxOf(copyright),
       license: textBoxOf(license),
       fullText: textBoxOf(details?.querySelector('summary')),
@@ -220,7 +219,7 @@ test.describe('CR-665 the manuscript these cases are driven by', () => {
   for (const [name, clause] of [
     ['FR-036 (MUST) one screen in both environments and both languages', FR_036_ONE_SCREEN],
     ['S-203 (MUST) a value that fits both', S_203_FITS_BOTH],
-    ['FR-036 (MUST) note *1 below the columns, above the license, one right-aligned line', FR_036_NOTE_1],
+    ['FR-036 (MUST) two links, one per line, just above the basics block', FR_036_TWO_LINKS],
     ['FR-069 (MUST) copyright, license name and the full-text entrance on one line', FR_069_ONE_LINE],
     ['T-256 (MUST) the align group moves under the Task Group Panel', T_256_SPLIT],
     ['FR-036 the low environment is about 1280 x 627 in CSS', FR_036_LOW_SCREEN],
@@ -267,18 +266,17 @@ for (const [screenName, size] of SCREENS) {
       }
     })
 
-    test(`FR-036 (MUST): ${FR_036_NOTE_1}`, () => {
+    test(`FR-036 (MUST): ${FR_036_TWO_LINKS}`, () => {
       for (const one of layouts()) {
-        const note = one.note
-        if (note === null) throw new Error(`${one.language}: the help draws no note *1`)
-        expect(note.isInAColumn, `${one.language}: the note is not in a column`).toBe(false)
-        expect(note.box.top, `${one.language}: the note stands below the columns`).toBeGreaterThanOrEqual(one.columnsBottom - EDGE)
-        const spread = Math.max(...note.lineTops) - Math.min(...note.lineTops)
-        expect(spread, `${one.language}: the note is one line (${note.lineTops.join(', ')})`).toBeLessThanOrEqual(LINE_SPREAD)
-        expect(Math.abs(note.text.right - note.box.right), `${one.language}: the note is right-aligned`).toBeLessThanOrEqual(EDGE)
-        expect(note.text.left - note.box.left, `${one.language}: the note does not start at the left`).toBeGreaterThan(EDGE)
+        const { download, about, basicsTop, isInAColumn } = one.links
+        if (download === null || about === null || basicsTop === null) throw new Error(`${one.language}: the help draws no download link, no about link or no basics block`)
+        expect(isInAColumn, `${one.language}: the links stand in a column`).toBe(true)
+        expect(download.bottom, `${one.language}: the download link is above the about link, one per line`).toBeLessThanOrEqual(about.top + EDGE)
+        expect(Math.abs(download.left - about.left), `${one.language}: the two lines are stacked at one left edge`).toBeLessThanOrEqual(EDGE)
+        expect(about.bottom, `${one.language}: the about link is just above the basics block`).toBeLessThanOrEqual(basicsTop + EDGE)
+        expect(one.hasFootnote, `${one.language}: note *1 is gone`).toBe(false)
         if (one.copyright === null) throw new Error(`${one.language}: no copyright line`)
-        expect(note.box.bottom, `${one.language}: the note is above the license line`).toBeLessThanOrEqual(one.copyright.top + EDGE)
+        expect(one.copyright.top, `${one.language}: the license line stands below the columns`).toBeGreaterThanOrEqual(one.columnsBottom - EDGE)
       }
     })
 

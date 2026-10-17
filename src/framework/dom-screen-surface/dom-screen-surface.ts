@@ -453,7 +453,6 @@ export const STYLE = {
   helpLegal: '',
   helpLegalSummary: 'cursor:pointer;',
   helpLegalText: 'white-space:pre-wrap;margin:0.5em 0 0;',
-  // see FR-036, FR-069, S-503
   helpLink: `color:${PAINT.link};text-decoration:underline;`,
   formatChoices: 'display:grid;grid-template-columns:max-content;grid-auto-rows:1fr;',
   // TRAP: `left:50%` with a transform, or a `max-width`, shrinks or wraps the telling (NT-9).

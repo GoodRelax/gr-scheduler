@@ -125,8 +125,11 @@ describe('CR-560 premises: the clauses read this way', () => {
     expect(line).toContain('`taskGroupIdOf`: `integer` から `string` への対応')
   })
 
-  it('FR-036: the help lists MK-15', () => {
-    expect(REQUIREMENTS).toContain('表 T-023 の `MK-2` / `MK-5` / `MK-7` / `MK-15` / `MK-16` / `MK-17` と')
+  // WHY: CR-785 moved MK-15 from the rows the help shows to the rows that are known by touching.
+  it('FR-036: the help does not list MK-15; it stands among the T-023 rows learned by touching', () => {
+    expect(REQUIREMENTS).toContain('表 T-023 の `MK-2` / `MK-5` / `MK-7` と')
+    expect(REQUIREMENTS).not.toContain('表 T-023 の `MK-2` / `MK-5` / `MK-7` / `MK-15`')
+    expect(REQUIREMENTS).toContain('`MK-1` / `MK-6` / `MK-8` / `MK-11` / `MK-13` / `MK-15` / `MK-16` / `MK-17`）と、内部の取り決め')
   })
 
   it('S-208 is the distance that tells a copy drag from a press', () => {

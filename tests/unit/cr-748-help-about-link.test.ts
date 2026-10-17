@@ -1,4 +1,4 @@
-// CR-748: FR-036 puts one about link above the frame of the basics block, in the help language.
+// CR-748 (re-pointed by CR-785): FR-036 puts the about link, the lower of two, above the frame of the basics block, in the help language.
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'

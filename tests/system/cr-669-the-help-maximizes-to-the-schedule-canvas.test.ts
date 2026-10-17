@@ -20,7 +20,7 @@ const WB_9_RANGE = 'ウィンドウごとの範囲の外へ広げてはならな
 const FR_036_BRACKETS = '⭐ `IC-54` と `IC-20` の項目に添える語は、丸括弧で囲むこと（MUST）'
 const T_337_THE_FRONT_ONE_TAKES_THE_PRESS = '⭐ 押下は、その点で最も手前に描かれた UI パーツが受けること（MUST）'
 const FR_036_ONE_SCREEN =
-  'ない環境の両方で、ヘルプの言語が日本語でも英語でも、開いたときの大きさ（表 T-335 の `WB-1`）で全部の塊と、備考 ※1 の行とライセンスの行（`FR-069`）を 1 画面に収め、縦にも横にもスクロールを要さないこと（MUST）'
+  'ない環境の両方で、ヘルプの言語が日本語でも英語でも、開いたときの大きさ（表 T-335 の `WB-1`）で全部の塊とライセンスの行（`FR-069`）を 1 画面に収め、縦にも横にもスクロールを要さないこと（MUST）'
 const S_203_FITS_BOTH =
   '⭐ 収めるためにヘルプの字を小さくしてよい —— `_assets/tbl-settings.md` の 表 T-206 の `S-203` は、上の 2 つの環境で日英の両方が収まる値とすること（MUST）'
 // WHY: plain sentences the cases below lean on; no marker of their own.

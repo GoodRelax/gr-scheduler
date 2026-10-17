@@ -310,9 +310,7 @@ const KEY_FIELD: Readonly<Record<string, string>> = {
   // WHY: CR-622 keys the help's two license words (FR-069) by the part they fill.
   helpLegal: 'part',
   helpNotes: 'rowId',
-  // see FR-036, CR-620
-  helpFootnotes: 'footnote',
-  // see FR-036, CR-748
+  // see FR-036, CR-748, CR-785
   helpLinks: 'link',
   browserFunctions: 'rowId',
   reasons: 'rowId',
@@ -1392,6 +1390,12 @@ for (const entry of GENERATED['icons'] ?? []) {
   }
 
   const surfaces = surfacesOf(rowId)
+  // see FR-066, T-109, JDG-2506
+  // WHY: CR-785 stands IC-18 on the Dialogue Field alone and no part of that field draws it; the field cannot open for now.
+  if (rowId === 'IC-18' && !surfaces.includes('App Header')) {
+    drop('icons', rowId, 'FR-066: IC-18 is on the Dialogue Field only (T-109), the field cannot open for now, and no part of it prints this entry')
+    continue
+  }
   const on = (
     what: string,
     unit: string,
@@ -2015,17 +2019,13 @@ for (const entry of GENERATED['helpNotes'] ?? []) {
   )
 }
 
-// WHY: FR-073 draws note *1 as words around a link (SEAM-4 before, address, after),
-// so no one string carries it; the whole-view reading joins the three instead.
-for (const entry of GENERATED['helpFootnotes'] ?? []) {
-  drop(
-    'helpFootnotes',
-    keyOf('helpFootnotes', entry),
-    'FR-036 / FR-073 draw note *1 as words around the S-350 link, so the whole-view reading joins before, address and after',
-  )
+// see FR-036, CR-748, CR-785
+// WHY: CR-785 has two links above the basics block (download, about) and one on the IC-20 item (agentApi).
+const HELP_LINK_READS: Readonly<Record<string, (view: ScreenView) => string | undefined>> = {
+  download: (view) => view.helpModal?.downloadLink.words,
+  about: (view) => view.helpModal?.aboutLink.words,
+  agentApi: (view) => view.helpModal?.entries.find((one) => one.row === 'IC-20')?.link?.words,
 }
-
-// see FR-036, CR-748
 for (const entry of GENERATED['helpLinks'] ?? []) {
   const link = keyOf('helpLinks', entry)
   place({
@@ -2035,7 +2035,7 @@ for (const entry of GENERATED['helpLinks'] ?? []) {
     unit: 'UF-66',
     what: `the help link ${link}`,
     frame: HELP_SHOWN,
-    read: (view) => (link === 'about' ? view.helpModal?.aboutLink.words : undefined),
+    read: HELP_LINK_READS[link] ?? ((): undefined => undefined),
   })
 }
 
@@ -3271,17 +3271,6 @@ const keyNotationFramesShowing = (
     ),
   )
 
-// see FR-036, FR-073
-const helpFootnoteFramesShowing = (
-  word: string,
-  language: string,
-): readonly { readonly what: string; readonly frame: Frame }[] =>
-  FRAMES.filter((one) =>
-    (viewOf(screenViewFromRegions, one.frame, language).helpModal?.footnotes ?? []).some(
-      (note) => `${note.before}${note.address}${note.after}` === withDownloadAddress(word),
-    ),
-  )
-
 // see CR-582, FR-038
 // WHY: `current` carries a `{px}` slot filled with the real height, so a
 // literal match would never see it -- the other three entries hold no slot.
@@ -3838,7 +3827,6 @@ describe('CR-194 section 5 / PND-160 -- fill one word of the manuscript and it r
       cell.section === 'invariants' ||
       cell.section === 'helpHeadings' ||
       cell.section === 'helpNotes' ||
-      cell.section === 'helpFootnotes' ||
       cell.section === 'questions' ||
       cell.section === 'fileStatus' ||
       cell.section === 'exportFormats' ||
@@ -3872,9 +3860,7 @@ describe('CR-194 section 5 / PND-160 -- fill one word of the manuscript and it r
       const on =
         cell.section === 'helpNotes'
           ? helpNoteFramesShowing(cell.key, cell.word, cell.language)
-          : cell.section === 'helpFootnotes'
-            ? helpFootnoteFramesShowing(cell.word, cell.language)
-            : cell.section === 'scaleEcho'
+          : cell.section === 'scaleEcho'
             ? scaleEchoFramesShowing(cell.word, cell.language)
             : cell.section === 'keyNotation'
             ? keyNotationFramesShowing(cell.word, cell.language)

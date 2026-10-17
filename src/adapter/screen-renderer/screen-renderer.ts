@@ -535,7 +535,6 @@ export interface HelpEntry {
   readonly segment: string | null
   readonly glyphs: readonly IconId[]
   // see FR-036, IC-20, S-350
-  // WHY: only IC-20's item carries a link (helpLinks agentApi); every other item holds null.
   readonly link: HelpLink | null
 }
 
