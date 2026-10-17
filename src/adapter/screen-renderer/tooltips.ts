@@ -32,9 +32,7 @@ import {
   cursorInstantAtX,
   labeledAssigneeUidOf,
   lengthTextOf,
-  isPlanSpanningYears,
   clockTextOf,
-  planDateText,
   snappedInstantAtX,
   timeAxisOf,
 } from '../../entity/layout-engine/schedule-layout/schedule-layout'
@@ -145,26 +143,31 @@ function weekdayWordOf(day: CalendarDay, language: DisplayLanguage): string {
 
 // see TL-11, CU-3
 /** @purity pure */
-function withWeekday(written: string, day: CalendarDay, language: DisplayLanguage): string {
-  return `${written} (${weekdayWordOf(day, language)})`
+function weekdayText(day: CalendarDay, language: DisplayLanguage): string {
+  return ` (${weekdayWordOf(day, language)})`
 }
 
 const CURSOR_YEAR_DIGITS = 4
 const CURSOR_MONTH_DAY_DIGITS = 2
+const CLOCK_TEXT_LENGTH = 'hh:mm'.length
+
+// see CU-3, DC-3, TL-10
+/** @purity pure */
+function paddedDateText(day: CalendarDay): string {
+  const padded = (value: number, width: number): string => String(value).padStart(width, '0')
+  const year = padded(day.year, CURSOR_YEAR_DIGITS)
+  const month = padded(day.month, CURSOR_MONTH_DAY_DIGITS)
+  return `${year}/${month}/${padded(day.day, CURSOR_MONTH_DAY_DIGITS)}`
+}
 
 // see CU-3, DC-3
 /** @purity pure */
 export function cursorDateText(day: CalendarDay, language: DisplayLanguage): string {
-  const padded = (value: number, width: number): string => String(value).padStart(width, '0')
-  const year = padded(day.year, CURSOR_YEAR_DIGITS)
-  const month = padded(day.month, CURSOR_MONTH_DAY_DIGITS)
-  const date = padded(day.day, CURSOR_MONTH_DAY_DIGITS)
-  return withWeekday(`${year}/${month}/${date}`, day, language)
+  return `${paddedDateText(day)}${weekdayText(day, language)}`
 }
 
 interface HintContext {
   readonly assigneeNames: readonly string[]
-  readonly isYearWritten: boolean
   readonly shown: InstantOnSide | null
 }
 
@@ -174,13 +177,18 @@ interface HintDay {
   readonly side: DateTimeSide
 }
 
-// see TL-10, ND-4, ND-5, TX-2
+// see TL-10, TL-13, TX-2
 /** @purity pure */
-function hintDayText(at: HintDay, context: HintContext, language: DisplayLanguage): string {
+function hintDayParts(at: HintDay, context: HintContext, language: DisplayLanguage): readonly string[] {
   const instant = context.shown === null ? null : context.shown(at.text, at.side)
   const day = instant === null ? at.day : dayOfInstant(instant)
-  const dated = withWeekday(planDateText(day, context.isYearWritten), day, language)
-  return instant === null ? dated : `${dated} ${clockTextOf(instant)}`
+  const dated = [paddedDateText(day), weekdayText(day, language)]
+  return instant === null ? dated : [...dated, ` ${clockTextOf(instant).padStart(CLOCK_TEXT_LENGTH, '0')}`]
+}
+
+/** @purity pure */
+function hintDayText(at: HintDay, context: HintContext, language: DisplayLanguage): string {
+  return hintDayParts(at, context, language).join('')
 }
 
 /** @purity pure */
@@ -194,13 +202,7 @@ type HintTimes = Pick<DocumentSettings, 'isTimeOfDayVisible' | 'viewTimeZone'>
 
 const NO_HINT_TIMES: HintTimes = { isTimeOfDayVisible: false, viewTimeZone: null }
 
-const NO_HINT_CONTEXT: HintContext = { assigneeNames: [], isYearWritten: false, shown: null }
-
-// see TL-10, ND-5
-/** @purity pure */
-function isYearWrittenIn(schedule: Schedule): boolean {
-  return isPlanSpanningYears(schedule, { day: dayOf })
-}
+const NO_HINT_CONTEXT: HintContext = { assigneeNames: [], shown: null }
 
 // see TL-7, FR-059
 // WHY: asked of labeledAssigneeUidOf one name at a time, so FR-059's filter and order stay in ScheduleLayout alone.
@@ -221,7 +223,7 @@ function assigneeNamesOf(schedule: Schedule, taskUid: number): readonly string[]
 function hintContextOf(schedule: Schedule | null, taskUid: number, times: HintTimes = NO_HINT_TIMES): HintContext {
   if (schedule === null) return NO_HINT_CONTEXT
   const shown = times.isTimeOfDayVisible ? shownInstantReader(schedule, times.viewTimeZone) : null
-  return { assigneeNames: assigneeNamesOf(schedule, taskUid), isYearWritten: isYearWrittenIn(schedule), shown }
+  return { assigneeNames: assigneeNamesOf(schedule, taskUid), shown }
 }
 
 const HINT_LINE_WORDS = new Map(displayWords.hintLines.map((entry) => [entry.rowId, entry.text]))
@@ -291,6 +293,11 @@ function labeledRow(word: string, value: string): TooltipRow {
   return { kind: 'labeled', label: `${word}${LABEL_MARK}`, value }
 }
 
+/** @purity pure */
+function partedRow(word: string, parts: readonly string[]): TooltipRow {
+  return { kind: 'labeled', label: `${word}${LABEL_MARK}`, value: parts.join(''), parts }
+}
+
 // see TL-13
 // WHY: the tip's text keeps the one-line form "word: value"; the two columns are how it is drawn.
 /** @purity pure */
@@ -322,10 +329,11 @@ function daysRow(
   language: DisplayLanguage,
 ): TooltipRow {
   const word = hintLineWord(row, language)
-  const firstText = hintDayText(first, context, language)
-  if (isMilestone) return labeledRow(word, firstText)
-  const lastText = last === null ? '' : ` ${hintDayText(last, context, language)}`
-  return labeledRow(word, `${firstText}${DAY_RANGE_SEPARATOR}${lastText}`)
+  const firstParts = hintDayParts(first, context, language)
+  if (isMilestone) return partedRow(word, firstParts)
+  const [lastDate, ...lastRest] = last === null ? [] : hintDayParts(last, context, language)
+  const lastParts = lastDate === undefined ? [] : [` ${lastDate}`, ...lastRest]
+  return partedRow(word, [...firstParts, DAY_RANGE_SEPARATOR, ...lastParts])
 }
 
 // see TL-5, ND-2, ND-3
@@ -381,7 +389,7 @@ function deadlineDayText(task: Task, context: HintContext, language: DisplayLang
 /** @purity pure */
 function deadlineRow(task: Task, context: HintContext, language: DisplayLanguage): TooltipRow | null {
   const at = hintDayOf(task.deadline, 'finish')
-  return at === null ? null : labeledRow(deadlineWord(language), hintDayText(at, context, language))
+  return at === null ? null : partedRow(deadlineWord(language), hintDayParts(at, context, language))
 }
 
 const LATE_ROW = 'DG-4'

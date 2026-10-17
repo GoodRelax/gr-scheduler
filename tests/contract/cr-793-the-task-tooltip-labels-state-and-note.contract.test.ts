@@ -311,7 +311,7 @@ describe('CR-793 TL-9 -- the deadline line inside the task tip is labelled', () 
   for (const language of LANGUAGES) {
     it(`TL-9 「${TL_9_FORM}」 (${language})`, () => {
       const lines = linesOf({ task: { ...IN_PROGRESS, deadline: day(20) } }, language)
-      const friday = language === 'ja' ? '3/20 (金)' : '3/20 (Fri)'
+      const friday = language === 'ja' ? '2026/03/20 (金)' : '2026/03/20 (Fri)'
       expect(lines.at(-1)).toBe(`${DEADLINE_WORD(language)}: ${friday}`)
     })
   }
@@ -389,7 +389,7 @@ describe('CR-793 TL-14 -- the note line', () => {
     const assignee = lines.findIndex((one) => one.startsWith('Assignee: '))
     expect(assignee).toBeGreaterThanOrEqual(0)
     expect(lines[assignee + 1]).toBe('a note')
-    expect(lines[assignee + 2]).toBe(`${DEADLINE_WORD('en')}: 3/20 (Fri)`)
+    expect(lines[assignee + 2]).toBe(`${DEADLINE_WORD('en')}: 2026/03/20 (Fri)`)
   })
 })
 
@@ -427,7 +427,7 @@ describe('CR-793 TL-13 -- Tooltip.rows: the labelled lines as label and value, t
       }
       const find = (label: string): string | undefined => labeled.find((one) => one.label === label)?.value
       expect(find(`${PROGRESS_WORD(language)}:`)).toBe(`50% (${STATE_WORD('DG-4', language)})`)
-      expect(find(`${DEADLINE_WORD(language)}:`)).toBe(language === 'ja' ? '3/20 (金)' : '3/20 (Fri)')
+      expect(find(`${DEADLINE_WORD(language)}:`)).toBe(language === 'ja' ? '2026/03/20 (金)' : '2026/03/20 (Fri)')
       expect(find(`${STATE_WORD('DG-4', language)}:`)).toBe(`${lateDaysOf(FULL)} ${DAYS_UNIT(language)}`)
       expect(find(`${wordIn(WORDS.delayReportColumns, { rowId: 'DT-2' }, language)}:`)).toBe('Ada, Bob')
     })

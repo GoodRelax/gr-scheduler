@@ -41,7 +41,7 @@
 # LOWERED 2026-10-11 to the measured values (tree density 1476 -> 1458 bp, if-1-svg-surface 86 -> 65) under JDG-520: the CR-710 reconcile, measured on abdafc0c plus its edits.
 # LOWERED 2026-10-15 to the measured value (tree density 1406 -> 1381 bp) under JDG-520: the CR-766 spec-only tests (61139053) added 618 cases with few comments.
 # LOWERED 2026-10-16 to the measured values (tree density 1381 -> 1372 bp, four files: t-233 553 -> 549, t-051-hf-14 depth cap 256 -> 242, t-051-hf-15 588 -> 356, uf-72 2534 -> 2483) under JDG-520: the CR-772 implementation (9a6432c6) rewrote those tests; the CR-772 spec-only tests add no held comment line.
-tree-density-basis-points 1329
+tree-density-basis-points 1328
 tests/contract/display-words.contract.test.ts 1253
 tests/contract/document-invariants.contract.test.ts 341
 tests/contract/erd-seats-are-never-reissued.contract.test.ts 0

@@ -676,7 +676,7 @@ export interface Tooltip {
 
 export type TooltipRow =
   | { readonly kind: 'whole'; readonly text: string }
-  | { readonly kind: 'labeled'; readonly label: string; readonly value: string }
+  | { readonly kind: 'labeled'; readonly label: string; readonly value: string; readonly parts?: readonly string[] }
   | { readonly kind: 'note'; readonly text: string }
 
 export type TooltipAnchor =

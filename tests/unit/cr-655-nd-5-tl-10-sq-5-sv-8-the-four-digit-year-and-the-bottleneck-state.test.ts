@@ -51,7 +51,8 @@ const firstCellOf = (table: string, id: string): string => {
 const ND_5_FOUR_DIGITS = '年（西暦の 4 桁）、`/`、月、`/`、日 の順で書く'
 const ND_5_NOT_TWO = '年を下 2 桁に縮めないのは'
 const ND_5_NO_PADDING = '月と日は `ND-4` のとおり 0 で埋めない'
-const TL_10_EXAMPLE = '暦年をまたぐ文書では `2026/6/3 (月)`'
+// WHY: CR-794 -- the tip day always has the year and two-digit month and day; only the name label keeps m/d (ND-4, ND-5).
+const TL_10_EXAMPLE = '（例: `2026/06/03 (月)`・`2026/06/03 (Mon)`）'
 
 const READER: DayReader = {
   day: (text) => dayOf(text),
@@ -114,18 +115,18 @@ describe('CR-655 ND-5 (table T-251) -- a document that crosses a calendar year w
 })
 
 describe('CR-655 TL-10 (table T-348) -- the tooltip day follows ND-5', () => {
-  it('TL-10 says: 暦年をまたぐ文書では `2026/6/3 (月)`', () => {
+  it('TL-10 says: 例 `2026/06/03 (月)`', () => {
     expect(cellOf('T-348', 'TL-10', '定め') || firstCellOf('T-348', 'TL-10')).toContain(TL_10_EXAMPLE)
   })
 
-  it('TL-10: a deadline day of a two-year document is written yyyy/m/d with the weekday', () => {
+  it('TL-10: a deadline day of a two-year document is written yyyy/mm/dd with the weekday', () => {
     const schedule = scheduleOf([
       taskOf(1, { name: 'Alpha', start: at('2025-12-29'), finish: until('2026-01-05'), deadline: until('2026-06-03') }),
     ])
     const task = schedule.tasks[0]
     if (task === undefined) throw new Error('premise: one task')
     const hint = deadlineHint(task, schedule, 'en')
-    expect(hint).toContain('2026/6/3 (Wed)')
+    expect(hint).toContain('2026/06/03 (Wed)')
     expect(hint, 'TL-10: never the 2-digit year').not.toMatch(/(^|[^0-9])26\/6\/3/)
   })
 })
