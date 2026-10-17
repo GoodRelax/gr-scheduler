@@ -203,42 +203,6 @@
    "note": null
   },
   {
-   "kind": "item",
-   "column": "HC-1",
-   "block": "basics",
-   "segment": null,
-   "table": "T-023",
-   "row": "MK-17",
-   "keys": null,
-   "press": "MK-17",
-   "glyphs": [],
-   "note": null
-  },
-  {
-   "kind": "item",
-   "column": "HC-1",
-   "block": "basics",
-   "segment": null,
-   "table": "T-023",
-   "row": "MK-15",
-   "keys": null,
-   "press": "MK-15",
-   "glyphs": [],
-   "note": null
-  },
-  {
-   "kind": "item",
-   "column": "HC-1",
-   "block": "basics",
-   "segment": null,
-   "table": "T-023",
-   "row": "MK-16",
-   "keys": null,
-   "press": "MK-16",
-   "glyphs": [],
-   "note": null
-  },
-  {
    "kind": "heading",
    "column": "HC-1",
    "block": "browser",
@@ -712,20 +676,6 @@
    "press": null,
    "glyphs": [
     "IC-20"
-   ],
-   "note": "IC-20"
-  },
-  {
-   "kind": "item",
-   "column": "HC-2",
-   "block": "App Header",
-   "segment": null,
-   "table": "T-109",
-   "row": "IC-18",
-   "keys": null,
-   "press": null,
-   "glyphs": [
-    "IC-18"
    ],
    "note": null
   },

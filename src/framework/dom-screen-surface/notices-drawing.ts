@@ -31,9 +31,15 @@ const LINK_KEPT_FROM_INPUT: readonly string[] = ['pointerdown', 'pointerup']
 const LINK_OPENING_KEY = 'Enter'
 
 // see FR-073, FR-069, CN-6
+// WHY: the help passes its own look (FR-036, S-503); the header branding and the notices keep STYLE.noticeLink.
 /** @purity non-pure */
-export function linkElement(host: Document, address: string, words: string = address): HTMLElement {
-  const link = made(host, 'a', STYLE.noticeLink)
+export function linkElement(
+  host: Document,
+  address: string,
+  words: string = address,
+  look: string = STYLE.noticeLink,
+): HTMLElement {
+  const link = made(host, 'a', look)
   link.setAttribute('href', address)
   link.setAttribute('target', LINK_TARGET)
   link.setAttribute('rel', LINK_RELATION)

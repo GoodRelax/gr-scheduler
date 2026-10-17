@@ -134,22 +134,23 @@ SHORTCUT_ENTRANCE_HEADING = u'入口'
 # ⚠️ These are KEYS, not words.
 HELP_HEADINGS =('basics', 'browser', 'App Header', 'Task Group Panel',
                 'Command Palette (continued)', 'Command Palette')
-HELP_NOTES = ('IC-54', 'IC-20')
-# ⭐ The notes below the columns of the help body (FR-036, CR-620): note *1
-# names the bundle for using the Agent API from an AI app and the page that
-# setting S-350 names. A note is not a row of any table, so it is keyed by its
-# number, never by a minted row id. ⚠️ These are KEYS, not words.
-HELP_FOOTNOTES = (1,)
+HELP_NOTES = ('IC-54',)
 # CR-622: the two words of the license lines below the help's columns
 # (FR-069): the line naming the license, and the word that opens the folded
 # full text. No table holds them as rows, so they are HELD HERE, the same move
 # as SEARCH_PANEL_PARTS. The copyright line is not a word: it is NOTICE's own
 # spelling, carried by generate_license.py. These are KEYS, not words.
 HELP_LEGAL_PARTS = ('licensedUnder', 'fullText')
-# CR-748: the links the help body carries (FR-036). One today, the link to
-# the about page (setting S-583) above the basics block. No table holds it
-# as a row, so it is HELD HERE as HELP_LEGAL_PARTS is. These are KEYS.
-HELP_LINKS = ('about',)
+# CR-748, CR-785: the links the help body carries (FR-036). Above the basics
+# block, the download page (setting S-350) and then the technical overview
+# (setting S-583); on IC-20's item, the link to the download page again. No
+# table holds them as rows, so they are HELD HERE as HELP_LEGAL_PARTS is.
+# These are KEYS, not words.
+HELP_LINKS = ('download', 'about', 'agentApi')
+# CR-785: a link that stands on an item of table T-109 names that row beside
+# its key (FR-036: the agentApi link is IC-20's). A link absent here carries no
+# rowId. This is a join to the table, not a word.
+HELP_LINK_ROWS = {'agentApi': 'IC-20'}
 # The browser's own functions FR-036 lists on the help (table T-255, CR-405).
 # Every row takes a word, including one the help does not show today: whether
 # a row is shown is table T-255's closing rule, read by generate_help_roster.py.
@@ -780,7 +781,6 @@ def roster():
         'helpHeadings': list(HELP_HEADINGS),
         'helpLegal': list(HELP_LEGAL_PARTS),
         'helpNotes': list(HELP_NOTES),
-        'helpFootnotes': list(HELP_FOOTNOTES),
         'helpLinks': list(HELP_LINKS),
         'browserFunctions': [row[0] for row in
                              table_rows(REL_REQUIREMENTS, BROWSER_FUNCTION_ROW,
@@ -894,7 +894,6 @@ SHAPE = {
     'helpHeadings': ('block', ('text',)),
     'helpLegal': ('part', ('text',)),
     'helpNotes': ('rowId', ('text',)),
-    'helpFootnotes': ('footnote', ('text',)),
     'helpLinks': ('link', ('text',)),
     'browserFunctions': ('rowId', ('text',)),
     'invariants': ('rowId', ('text', 'nextStep')),
@@ -962,6 +961,12 @@ OPTIONAL_WORD_FIELDS = {
     'properties': ('milestoneLabel',),
 }
 
+# section -> the fields an entry MAY carry that are not words: a join to a row
+# of a table. CR-785: a help link names the T-109 row it stands on.
+OPTIONAL_JOIN_FIELDS = {
+    'helpLinks': ('rowId',),
+}
+
 
 def word_problems(where, word):
     """A printed word is a dictionary of the two languages FR-038 admits."""
@@ -1016,14 +1021,43 @@ def problems(doc, wanted):
                 if field in entry:
                     found.extend(word_problems('%s/%s' % (where, field),
                                                entry[field]))
+            joins = OPTIONAL_JOIN_FIELDS.get(section, ())
             for field in entry:
                 if (field != key_field and field not in word_fields
-                        and field not in optional):
+                        and field not in optional and field not in joins):
                     found.append('%s: %s is not a field of this section'
                                  % (where, field))
     for section in doc:
         if section != '$comment' and section not in SHAPE:
             found.append('%s: is not a section this generator knows' % section)
+    found.extend(help_link_row_problems(doc, wanted))
+    return found
+
+
+def help_link_row_problems(doc, wanted):
+    """Each help link names exactly the T-109 row HELP_LINK_ROWS gives it.
+
+    CR-785 (FR-036): the agentApi link stands on IC-20's item. A link that
+    HELP_LINK_ROWS does not name carries no rowId, and a named row must be a
+    row of table T-109 the icons section asks for.
+
+    @purity pure
+    """
+    found = []
+    entries = doc.get('helpLinks')
+    if not isinstance(entries, list):
+        return found
+    for entry in entries:
+        if not isinstance(entry, dict):
+            continue
+        link = entry.get('link')
+        expected = HELP_LINK_ROWS.get(link)
+        if entry.get('rowId') != expected:
+            found.append('helpLinks/%s: rowId is %s, the specification asks '
+                         'for %s' % (link, entry.get('rowId'), expected))
+        if expected is not None and expected not in wanted['icons']:
+            found.append('helpLinks/%s: %s is not a row of table %s'
+                         % (link, expected, ICON_TABLE))
     return found
 
 
@@ -1044,7 +1078,7 @@ def build(doc, keys_by_row):
     for section in ('icons', 'properties', 'settings', 'paletteGroups',
                     'surfaces', 'notices',
                     'shortcuts', 'helpHeadings', 'helpLegal', 'helpNotes',
-                    'helpFootnotes', 'helpLinks',
+                    'helpLinks',
                     'browserFunctions',
                     'reasons', 'invariants', 'questions', 'confirmation',
                     'noticeDismiss',

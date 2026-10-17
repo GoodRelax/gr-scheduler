@@ -43,9 +43,9 @@ THE LAYOUT IS FR-036'S OWN:
     never as a second item (MUST NOT);
   - the rows armed with AR-3 and `IC-50` as ONE item, drawn with the first
     and the last glyph `S-216` always shows and the glyph of `IC-50`;
-  - the items of `IC-54` and `IC-20` carry their notes (the row id whose note
-    words each reads), never a second item; `IC-102` is the legend and not an
-    item. The note *1 that IC-20 points at is not an item either.
+  - the item of `IC-54` carries its note (the row id whose note words it
+    reads), never a second item; `IC-102` is the legend and not an item. The
+    link on IC-20's item (CR-785) is the dictionary's `helpLinks`, not a note.
 
 A row of table T-109 that no item carries stops the run: dropping an entrance
 from the help in silence is exactly what FR-036's "every row" forbids.
@@ -147,9 +147,12 @@ LEFT_OUT_ROWS = ('IC-52', 'IC-53', 'IC-75')
 # a new row, and this script must not decide it.
 # CR-560: FR-036 names MK-15 (the Ctrl drag that copies the Selection).
 # CR-656: FR-036 names MK-16 (the Shift drag that moves to another task group only).
-# CR-710: FR-036 names MK-17 (the Alt drag of a grab area that snaps to a minute).
-SHOWN_ASSIGNMENTS = ('MK-2', 'MK-5', 'MK-7', 'MK-15', 'MK-16', 'MK-17')
+# CR-710: FR-036 named MK-17 (the Alt drag of a grab area that snaps to a minute).
+# CR-785: FR-036 moved MK-15, MK-16 and MK-17 to the operations a touch
+# teaches, so they are kept off the help now (JDG-2504).
+SHOWN_ASSIGNMENTS = ('MK-2', 'MK-5', 'MK-7')
 UNLISTED_ASSIGNMENTS = ('MK-1', 'MK-6', 'MK-8', 'MK-11', 'MK-13',
+                        'MK-15', 'MK-16', 'MK-17',
                         'MK-9', 'MK-9a', 'MK-10', 'MK-12')
 
 # The screen order of the Task Group Panel. HF-10 of table T-051 orders all five
@@ -167,8 +170,9 @@ MILESTONE_ARM = 'AR-3'
 MILESTONE_LIST_ROW = 'IC-50'
 ALWAYS_SHOWN_GLYPHS = 'S-216'
 HELP_COLUMN_COUNT = 'S-202'
-# FR-036: IC-54 notes that it stands only while armed; IC-20 points at note *1.
-NOTED_ROWS = ('IC-54', 'IC-20')
+# FR-036: IC-54 notes that it stands only while armed. CR-785 dropped note *1
+# and IC-20's note; IC-20's item carries a link instead (helpLinks agentApi).
+NOTED_ROWS = ('IC-54',)
 LEGEND_ROW = 'IC-102'
 # CR-574: FR-036 (MUST) keeps the rows of table T-109 whose surface is the
 # Help Modal alone off the columns -- the legend and the title row's own
@@ -431,7 +435,7 @@ def build():
         browser.append(item(BROWSER, None, BROWSER_TABLE, row.id,
                             keys=assignments_of(keys)))
 
-    # FR-036: the note on IC-54 and on IC-20 belongs to that row's own item, so
+    # FR-036: the note on IC-54 belongs to that row's own item, so
     # an entrance never stands on a second item for it.
     def icon_item(block, segment, rid, glyphs=None):
         return item(block, segment, ICON_TABLE, rid, keys=keys_on.get(rid),

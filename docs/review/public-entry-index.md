@@ -1457,7 +1457,6 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `FIT_SPAN_COPY_TEXT` | entry | const | `src/adapter/screen-renderer/screen-renderer.ts#FIT_SPAN_COPY_TEXT` | PI-37 | 文書の設定の面の、現在表示中の期間をコピーする入口が確定する語。 |
 | `GuideCursorLabel` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#GuideCursorLabel` | -- | interface GuideCursorLabel |
 | `HelpEntry` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#HelpEntry` | -- | interface HelpEntry |
-| `HelpFootnote` | entry | type | `src/adapter/screen-renderer/screen-renderer.ts#HelpFootnote` | -- | type HelpFootnote = LinkedWords |
 | `HelpLink` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#HelpLink` | -- | interface HelpLink |
 | `HelpModal` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#HelpModal` | PI-37 | 型。 |
 | `HelpWindowArea` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#HelpWindowArea` | -- | interface HelpWindowArea |
@@ -1598,6 +1597,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `holidaySettingsOf` | file only | function | `src/adapter/screen-renderer/holiday-settings.ts#holidaySettingsOf` | -- | function holidaySettingsOf( session: ScreenSession, schedule: Schedule, heading: string, commands: readonly CommandItem[], language: DisplayLanguage, ): Holi... |
 | `confirmationAnswers` | file only | function | `src/adapter/screen-renderer/notices.ts#confirmationAnswers` | -- | function confirmationAnswers(language: DisplayLanguage): readonly ConfirmationAnswer[] |
 | `confirmationFromSession` | file only | function | `src/adapter/screen-renderer/notices.ts#confirmationFromSession` | -- | function confirmationFromSession( session: ScreenSession, readings: ScreenViewReadings, ): Confirmation \| null |
+| `downloadPageAddress` | file only | function | `src/adapter/screen-renderer/notices.ts#downloadPageAddress` | -- | function downloadPageAddress(): string |
 | `linkedWordsOf` | file only | function | `src/adapter/screen-renderer/notices.ts#linkedWordsOf` | -- | function linkedWordsOf(word: string): LinkedWords \| null |
 | `noticesFromSession` | file only | function | `src/adapter/screen-renderer/notices.ts#noticesFromSession` | -- | function noticesFromSession(session: ScreenSession, readings: ScreenViewReadings): readonly Notice[] |
 | `reasonNextStepLink` | file only | function | `src/adapter/screen-renderer/notices.ts#reasonNextStepLink` | -- | function reasonNextStepLink(reason: string, language: DisplayLanguage): LinkedWords \| null |
@@ -1796,7 +1796,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `confirmationElement` | file only | function | `src/framework/dom-screen-surface/notices-drawing.ts#confirmationElement` | -- | function confirmationElement(host: Document, confirmation: Confirmation): HTMLElement |
 | `LINK_RELATION` | file only | const | `src/framework/dom-screen-surface/notices-drawing.ts#LINK_RELATION` | -- | const LINK_RELATION = 'noopener noreferrer' |
 | `LINK_TARGET` | file only | const | `src/framework/dom-screen-surface/notices-drawing.ts#LINK_TARGET` | -- | const LINK_TARGET = '_blank' |
-| `linkElement` | file only | function | `src/framework/dom-screen-surface/notices-drawing.ts#linkElement` | -- | function linkElement(host: Document, address: string, words: string = address): HTMLElement |
+| `linkElement` | file only | function | `src/framework/dom-screen-surface/notices-drawing.ts#linkElement` | -- | function linkElement( host: Document, address: string, words: string = address, |
 | `nextStepElement` | file only | function | `src/framework/dom-screen-surface/notices-drawing.ts#nextStepElement` | -- | function nextStepElement(host: Document, text: string, link?: LinkedWords \| null): HTMLElement |
 | `noticeElement` | file only | function | `src/framework/dom-screen-surface/notices-drawing.ts#noticeElement` | -- | function noticeElement(host: Document, notice: Notice): HTMLElement |
 | `helpWindowPainter` | file only | function | `src/framework/dom-screen-surface/open-modals-drawing.ts#helpWindowPainter` | -- | function helpWindowPainter(host: Document, helpLayer: HTMLElement) |
@@ -2089,4 +2089,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 1061 name(s) leave through a public entry (512 of them published by table T-064), 818 more are exported by a file and not by its entry.
+Totals: 1060 name(s) leave through a public entry (512 of them published by table T-064), 819 more are exported by a file and not by its entry.

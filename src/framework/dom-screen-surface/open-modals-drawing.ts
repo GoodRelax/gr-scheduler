@@ -47,15 +47,17 @@ const HOLIDAY_SETTINGS_SURFACE = 'Holiday Settings'
 
 const MODAL_BORDER_PX = 1
 
-// WHY: right-aligned above the license line (JDG-1396); anywhere, as the address has no space to break at.
-const HELP_FOOTNOTE_STYLE = 'text-align:right;overflow-wrap:anywhere;'
-
 // see FR-036
 const BASICS_BLOCK = 'basics'
 
 const HELP_LINK_ATTRIBUTE = 'data-help-link'
 
+const DOWNLOAD_LINK_KEY = 'download'
+
 const ABOUT_LINK_KEY = 'about'
+
+// see FR-036, IC-20
+const AGENT_API_LINK_KEY = 'agentApi'
 
 // STOP: spec does not decide how parts with no T-103 or T-109 row are marked for read-back. Looked in W-4, IF-9
 // @provisional PND-474
@@ -221,6 +223,7 @@ function helpItemElement(
   const written = line.assignment ?? ''
   const text = made(host, 'span', written === '' ? STYLE.helpText : styles.text)
   text.textContent = line.text
+  if (line.link !== null) text.append(' ', helpItemLinkElement(host, line.link))
   row.append(text)
 
   const assignment = made(host, 'span', styles.keys)
@@ -235,14 +238,39 @@ type OpenChooser = Extract<OpenModal, { readonly choices: unknown }>
 
 type ExportChooser = Extract<OpenModal, { readonly formats: unknown }>
 
-// see FR-036, S-583
-// WHY: the link stands in the basics block's column just above its frame, so it reads as the help's first line.
+type HelpLink = HelpModal['aboutLink']
+
+type HelpTopLinks = Pick<HelpModal, 'downloadLink' | 'aboutLink'>
+
+// see FR-036, S-503
 /** @purity non-pure */
-function helpAboutLinkElement(host: Document, aboutLink: HelpModal['aboutLink']): HTMLElement {
-  const line = made(host, 'div', '')
-  line.setAttribute(HELP_LINK_ATTRIBUTE, ABOUT_LINK_KEY)
-  line.append(linkElement(host, aboutLink.address, aboutLink.words))
-  return line
+function helpLinkAnchor(host: Document, link: HelpLink): HTMLElement {
+  return linkElement(host, link.address, link.words, STYLE.helpLink)
+}
+
+// see FR-036, IC-20, S-350
+// WHY: the link follows the item's name after one space; it takes no parentheses, its look marks it apart.
+/** @purity non-pure */
+function helpItemLinkElement(host: Document, link: HelpLink): HTMLElement {
+  const anchor = helpLinkAnchor(host, link)
+  anchor.setAttribute(HELP_LINK_ATTRIBUTE, AGENT_API_LINK_KEY)
+  return anchor
+}
+
+// see FR-036, S-350, S-583
+// WHY: the two links stand in the basics block's column just above its frame, one per line, download first.
+/** @purity non-pure */
+function helpTopLinkElements(host: Document, links: HelpTopLinks): readonly HTMLElement[] {
+  const lines: [string, HelpLink][] = [
+    [DOWNLOAD_LINK_KEY, links.downloadLink],
+    [ABOUT_LINK_KEY, links.aboutLink],
+  ]
+  return lines.map(([key, link]) => {
+    const line = made(host, 'div', '')
+    line.setAttribute(HELP_LINK_ATTRIBUTE, key)
+    line.append(helpLinkAnchor(host, link))
+    return line
+  })
 }
 
 // see FR-036, FR-053, T-256
@@ -252,7 +280,7 @@ function helpColumnsElement(
   host: Document,
   entries: readonly OpenHelpEntry[],
   openedBodyWidthPx: number,
-  aboutLink: HelpModal['aboutLink'],
+  links: HelpTopLinks,
 ): HTMLElement {
   const columns = made(host, 'div', helpColumnsStyle(openedBodyWidthPx))
   const columnByRow = new Map<string, HTMLElement>()
@@ -272,7 +300,7 @@ function helpColumnsElement(
       }
       const opened = made(host, 'div', helpBlockFrameStyle())
       opened.setAttribute('data-help-block', name)
-      if (name === BASICS_BLOCK) column.append(helpAboutLinkElement(host, aboutLink))
+      if (name === BASICS_BLOCK) column.append(...helpTopLinkElements(host, links))
       column.append(opened)
       block = opened
       blockName = name
@@ -293,16 +321,6 @@ function helpColumnsElement(
     block.append(drawnItem.row)
   }
   return columns
-}
-
-/** @purity non-pure */
-function helpFootnoteElements(host: Document, footnotes: HelpModal['footnotes']): readonly HTMLElement[] {
-  return footnotes.map((footnote) => {
-    const note = made(host, 'div', HELP_FOOTNOTE_STYLE)
-    note.setAttribute('data-help-footnote', 'true')
-    note.append(nextStepElement(host, footnote.before, footnote.address === '' ? null : footnote))
-    return note
-  })
 }
 
 interface DrawnModal {
@@ -518,7 +536,7 @@ function helpLegalLeadStyle(): string {
 function helpLegalElement(host: Document, modal: HelpModal): HTMLElement {
   const legal = made(host, 'div', helpLegalStyle())
   const copyright = made(host, 'div', helpLegalLeadStyle())
-  copyright.append(linkElement(host, NOT_STORED_HELP_SIZES['S-459'], modal.copyrightNotice))
+  copyright.append(linkElement(host, NOT_STORED_HELP_SIZES['S-459'], modal.copyrightNotice, STYLE.helpLink))
   const licensedUnder = made(host, 'div', helpLegalLeadStyle())
   licensedUnder.textContent = modal.helpLegal.licensedUnder
   const fullText = made(host, 'details', '')
@@ -530,7 +548,7 @@ function helpLegalElement(host: Document, modal: HelpModal): HTMLElement {
     line.textContent = text
     fullText.append(line)
   }
-  legal.append(...helpFootnoteElements(host, modal.footnotes), copyright, licensedUnder, fullText)
+  legal.append(copyright, licensedUnder, fullText)
   return legal
 }
 
@@ -538,7 +556,7 @@ function helpLegalElement(host: Document, modal: HelpModal): HTMLElement {
 /** @purity non-pure */
 function helpBodyElement(host: Document, modal: HelpModal): HelpColumnsDrawn {
   const body = made(host, 'div', helpBodyStyle())
-  const columns = helpColumnsElement(host, modal.entries, openedHelpBodyWidthPx(modal, 0), modal.aboutLink)
+  const columns = helpColumnsElement(host, modal.entries, openedHelpBodyWidthPx(modal, 0), modal)
   body.append(columns, helpLegalElement(host, modal))
   return { body, columns }
 }

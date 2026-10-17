@@ -485,7 +485,8 @@ export interface HelpModal extends OpenSurface {
   readonly licenseText: string
   readonly copyrightNotice: string
   readonly attributions: readonly string[]
-  readonly footnotes: readonly HelpFootnote[]
+  // see FR-036, S-350, S-583
+  readonly downloadLink: HelpLink
   readonly aboutLink: HelpLink
   readonly helpLegal: { readonly licensedUnder: string; readonly fullText: string }
   readonly area: HelpWindowArea
@@ -513,11 +514,7 @@ export interface OpenChooser extends OpenSurface {
   readonly cancelWord: string
 }
 
-// see FR-036, FR-069
-// WHY: note *1 stands below the columns, above the license line (CR-665), so it names no column.
-export type HelpFootnote = LinkedWords
-
-// see FR-036, S-583
+// see FR-036, S-350, S-583
 export interface HelpLink {
   readonly words: string
   readonly address: string
@@ -538,6 +535,9 @@ export interface HelpEntry {
   readonly block: string
   readonly segment: string | null
   readonly glyphs: readonly IconId[]
+  // see FR-036, IC-20, S-350
+  // WHY: only IC-20's item carries a link (helpLinks agentApi); every other item holds null.
+  readonly link: HelpLink | null
 }
 
 export interface ExportFormatChoice {

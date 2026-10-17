@@ -13,7 +13,6 @@ import type {
   CommandItem,
   DisplayLanguage,
   HelpEntry,
-  HelpFootnote,
   HelpLink,
   HelpModal,
   HelpWindowArea,
@@ -26,7 +25,7 @@ import type {
   ScreenViewReadings,
 } from './screen-renderer'
 import { displayLanguageOf } from './screen-renderer'
-import { confirmationAnswers, linkedWordsOf, reasonNextStepLink, reasonSurfaceWords } from './notices'
+import { confirmationAnswers, downloadPageAddress, reasonNextStepLink, reasonSurfaceWords } from './notices'
 import { assignmentWords, iconHint, iconLabel, keysWords } from './tooltips'
 import { dateText } from './table-window'
 import { fixedFitSpanOf } from '../../entity/layout-engine/schedule-layout/schedule-layout'
@@ -245,6 +244,14 @@ const HELP_NOTES_BY_ROW = new Map(displayWords.helpNotes.map((entry) => [entry.r
 
 const HELP_LINKS_BY_KEY = new Map(displayWords.helpLinks.map((entry) => [entry.link, entry]))
 
+// see FR-036, IC-20
+// WHY: a link that stands on an item names its T-109 row in the dictionary (helpLinks agentApi on IC-20).
+const HELP_LINKS_BY_ROW = new Map(
+  displayWords.helpLinks.flatMap((entry) => (entry.rowId === undefined ? [] : [[entry.rowId, entry] as const])),
+)
+
+const DOWNLOAD_LINK = 'download'
+
 const ABOUT_LINK = 'about'
 
 const LANGUAGE_QUERY = '?lang='
@@ -259,13 +266,14 @@ const BROWSER_FUNCTION_TABLE = 'T-255'
 
 type HelpRosterEntry = (typeof helpRoster.entries)[number]
 
-// see FR-036, FR-073
+// see FR-036, S-350
+// WHY: the download page switches its own language (default English), so its address carries no ?lang.
 /** @purity pure */
-function helpFootnotes(language: DisplayLanguage): readonly HelpFootnote[] {
-  return displayWords.helpFootnotes.map((footnote) => {
-    const word = footnote.text[language]
-    return linkedWordsOf(word) ?? { before: word, address: NO_WORDS, after: NO_WORDS }
-  })
+function helpDownloadLink(language: DisplayLanguage): HelpLink {
+  return {
+    words: HELP_LINKS_BY_KEY.get(DOWNLOAD_LINK)?.text[language] ?? NO_WORDS,
+    address: downloadPageAddress(),
+  }
 }
 
 // see FR-036, S-583
@@ -275,6 +283,16 @@ function helpAboutLink(language: DisplayLanguage): HelpLink {
     words: HELP_LINKS_BY_KEY.get(ABOUT_LINK)?.text[language] ?? NO_WORDS,
     address: `${NOT_STORED_ABOUT_ADDRESS['S-583']}${LANGUAGE_QUERY}${language}`,
   }
+}
+
+// see FR-036, IC-20, S-350
+// WHY: the link on an item follows its name, so the item's text stays the icon label alone.
+/** @purity pure */
+function helpEntryLink(entry: HelpRosterEntry, language: DisplayLanguage): HelpLink | null {
+  if (entry.kind !== 'item' || entry.table !== ICON_TABLE) return null
+  const link = HELP_LINKS_BY_ROW.get(entry.row)
+  if (link === undefined) return null
+  return { words: link.text[language], address: downloadPageAddress() }
 }
 
 // see FR-036
@@ -332,6 +350,7 @@ function helpEntry(entry: HelpRosterEntry, language: DisplayLanguage): HelpEntry
     block: entry.block,
     segment: entry.segment,
     glyphs: entry.glyphs,
+    link: helpEntryLink(entry, language),
   }
 }
 
@@ -446,7 +465,7 @@ export function helpModalFromSession(session: ScreenSession, area: HelpWindowAre
     licenseText: license.licenseText,
     copyrightNotice: license.copyrightNotice,
     attributions: license.attributions,
-    footnotes: helpFootnotes(helpLanguage),
+    downloadLink: helpDownloadLink(helpLanguage),
     aboutLink: helpAboutLink(helpLanguage),
     helpLegal: helpLegalWords(helpLanguage),
     area,

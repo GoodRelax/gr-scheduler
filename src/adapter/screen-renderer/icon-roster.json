@@ -276,7 +276,7 @@
   {
    "rowId": "IC-18",
    "surfaces": [
-    "App Header"
+    "Dialogue Field"
    ],
    "group": "AI",
    "entryTo": "AI との対話欄を表示する・非表示にする",

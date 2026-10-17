@@ -258,6 +258,13 @@ function reasonCell(row: string, cell: ReasonCell, language: DisplayLanguage): s
   return word === '' ? undefined : word
 }
 
+// see FR-036, S-350
+// WHY: S-350 stands in this unit (generated below); the help reads the same address for its download links.
+/** @purity pure */
+export function downloadPageAddress(): string {
+  return NOT_STORED_DOWNLOAD_ADDRESS['S-350']
+}
+
 // see FR-073
 /** @purity pure */
 export function linkedWordsOf(word: string): LinkedWords | null {
@@ -498,6 +505,6 @@ export function confirmationFromSession(
 const NOT_STORED_DOWNLOAD_ADDRESS: {
   readonly 'S-350': string
 } = {
-  'S-350': 'https://goodrelax.github.io/gr-scheduler/download',
+  'S-350': 'https://goodrelax.github.io/gr-scheduler/download/',
 }
 // </generated>
