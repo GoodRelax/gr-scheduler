@@ -23,7 +23,7 @@ import {
   made,
 } from './dom-screen-surface'
 import type { TextEntryControl } from './field-editing'
-import { CONTROL_KEYS, CONTROL_PICKS, SETTLED_AS_ONE_ATTRIBUTE, TYPED_CONTROLS } from './field-editing'
+import { CONTROL_KEYS, CONTROL_PICKS, SETTLED_AS_ONE_ATTRIBUTE, TYPED_CONTROLS, TYPED_ROWS } from './field-editing'
 
 // see FR-006
 /** @purity pure */
@@ -964,6 +964,9 @@ function assigneeFilterOf(host: Document, row: string, control: PropertyControl)
   filter.setAttribute('type', 'text')
   filter.setAttribute('data-assignee-filter', row)
   filter.value = openAssigneeList.typed
+  // WHY: a text entry (T-292): while it holds the focus its keys are its own, not the single-key shortcuts.
+  TYPED_CONTROLS.add(filter)
+  TYPED_ROWS.set(filter, row)
   return filter
 }
 

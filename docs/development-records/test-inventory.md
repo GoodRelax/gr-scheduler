@@ -15,10 +15,10 @@ what this reading does not see.
 | `contract` | TS-5 | VT-2 | 412 | 5199 | 8 | 4 | 11 | 2 |
 | `integration` | TS-2 | - | 3 | 76 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
-| `system` | TS-3 | - | 95 | 602 | 0 | 0 | 0 | 0 |
-| `unit` | TS-6 | - | 187 | 3961 | 1 | 1 | 2 | 0 |
+| `system` | TS-3 | - | 95 | 603 | 0 | 0 | 0 | 0 |
+| `unit` | TS-6 | - | 188 | 3966 | 1 | 1 | 2 | 0 |
 | `use-case` | TS-1 | VT-1 | 14 | 17 | 2 | 3 | 0 | 0 |
-| **all** | | | 714 | 9872 | 11 | 8 | 13 | 2 |
+| **all** | | | 715 | 9878 | 11 | 8 | 13 | 2 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -70,12 +70,12 @@ named either way: 4 of 11.
 | `tests/use-case/uc-010-exchange-with-an-external-wbs-master.test.ts` | UC-010 extension 2a / FR-023, OP-5: a truncated MSPDI file dropped on the schedule is d... | DFC-1016 (via known-red) |
 | `tests/use-case/uc-013-fix-the-schedule-with-an-ai.test.ts` | UC-013 step 2 / FR-066 AG-11: a line typed in the Dialogue Field and sent with Enter is... | DFC-1019, DFC-1020 (via known-red) |
 
-## 6. The unit files kept for now (187) -- listing only
+## 6. The unit files kept for now (188) -- listing only
 
 Re-sorting them waits for the change-request organization (handoff 2026-09-26). "Imports"
 are the callables the file imports by name from `src/`, each with the `@purity` tag above
 its declaration. "UO-1 would omit" marks a file whose every such import is tagged `pure` /
-`semi-pure-a` (rule 04 table UO, row UO-1): 27 of 187.
+`semi-pure-a` (rule 04 table UO, row UO-1): 27 of 188.
 
 | file | imports from src/ (tag) | UO-1 would omit | ties |
 | --- | --- | --- | --- |
@@ -167,6 +167,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/unit/dfc-1620-an-fs-chain-that-starts-the-next-morning-carries-the-whole-delay.test.ts` | documentFromJson (pure) | yes | T-313, T-314 |
 | `tests/unit/dfc-1991-sl-4-a-shift-drag-keeps-the-selection.test.ts` | commandFromInput (pure), grabSizesOf (pure), itemAtPointer (untagged), pressedRowOf (pure), selectionFromInput (pure), selectionOfAll (pure) | - | T-206, T-270 |
 | `tests/unit/dfc-2980-a-marker-pulled-with-many-moves-puts-the-actual.test.ts` | - | - | FR-107, T-270, T-273 |
+| `tests/unit/dfc-3100-the-assignee-filter-takes-its-own-keys.test.ts` | commandFromInput (pure), domScreenSurface (non-pure), emptySelection (pure), selectionWith (pure) | - | T-225 |
 | `tests/unit/dfc-540-541-695-696-1651-the-chosen-task-groups-the-chosen-assignees-and-the-question.test.ts` | installAgentApi (non-pure) | - | FR-085, FR-099, T-371 |
 | `tests/unit/dfc-540-551-686-781-the-shell-orders-notices-and-edit-marks.test.ts` | frameLoop (non-pure), installAgentApi (non-pure) | - | FR-100 |
 | `tests/unit/dfc-540-the-write-path-guards-the-notes-used-to-hold.test.ts` | editDocument (pure), planDocumentChange (pure) | yes | FR-020, FR-063 |
@@ -748,7 +749,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/system/cr-761-a-fix-proposal-value-unchecked-stays-listed.test.ts` | 1 | - | - | T-374 | SV-7 | - | - | - | - |
 | `tests/system/cr-762-sv-18-a-border-pull-follows-the-pointer-and-stops-left-of-the-scrollbar.test.ts` | 6 | - | - | T-025, T-103, T-109, T-330 | GR-25, GR-28, MC-5, MC-8, RO-9, RW-9, S-425, SV-7, SV-18 | - | - | - | - |
 | `tests/system/cr-763-the-jump-landing-ripple-is-rose-and-rounded.test.ts` | 3 | - | - | T-109, T-206, T-236, T-332 | AM-16, S-556, S-557, S-558, S-587, S-588, SJ-10 | - | - | - | - |
-| `tests/system/cr-783-to-cr-789-the-alpha-checklist-rows-on-the-shipped-build.test.ts` | 7 | FR-013, FR-019, FR-052, FR-103 | - | T-267, T-378 | AS-5, AS-13, GR-14, HF-15, K-145, PE-1, PM-1, PR-48, PR-49, S-171, S-602, S-603, S-604, S-620, SJ-6, SK-3, SK-14, SK-18, SK-25, SQ-9, ZO-9 | - | - | - | - |
+| `tests/system/cr-783-to-cr-789-the-alpha-checklist-rows-on-the-shipped-build.test.ts` | 8 | FR-013, FR-019, FR-052, FR-103 | - | T-267, T-378 | AS-5, AS-13, GR-14, HF-15, K-145, PE-1, PM-1, PR-48, PR-49, S-171, S-602, S-603, S-604, S-620, SJ-6, SQ-9, ZO-9 | - | - | - | - |
 | `tests/system/dfc-2178-a-plain-wheel-leaves-a-focused-number-alone.test.ts` | 3 | - | - | T-025 | MC-6, MH-4, MK-1, S-197 | - | - | - | - |
 | `tests/system/dfc-2309-a-refused-open-tells-rs-25-and-leaves-the-document.test.ts` | 3 | FR-023, FR-076 | - | T-233 | IC-1, NT-1, RS-11, RS-25 | - | - | - | - |
 | `tests/system/dfc-2980-the-marker-pull-writes-the-actual-in-the-shipped-build.test.ts` | 1 | FR-095, FR-107 | - | T-245, T-267, T-270 | GA-5, GO-9, PE-8, QN-5 | - | - | - | - |
@@ -872,6 +873,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/unit/dfc-1620-an-fs-chain-that-starts-the-next-morning-carries-the-whole-delay.test.ts` | 4 | - | - | T-313, T-314 | BD-2, BD-4, S-128 | - | - | - | - |
 | `tests/unit/dfc-1991-sl-4-a-shift-drag-keeps-the-selection.test.ts` | 8 | - | - | T-206, T-270 | PE-1, S-208, SL-4, SL-7a, TC-5 | - | - | - | - |
 | `tests/unit/dfc-2980-a-marker-pulled-with-many-moves-puts-the-actual.test.ts` | 7 | FR-107 | - | T-270, T-273 | GO-9, LP-1, PE-8, PE-10, S-129, S-208 | - | - | - | - |
+| `tests/unit/dfc-3100-the-assignee-filter-takes-its-own-keys.test.ts` | 5 | - | - | T-225 | AS-5, IF-9, PR-16, SK-3, SK-18 | - | - | - | - |
 | `tests/unit/dfc-540-541-695-696-1651-the-chosen-task-groups-the-chosen-assignees-and-the-question.test.ts` | 7 | FR-085, FR-099 | - | T-371 | CD-5, IC-66, IN-4, QN-10, RO-1, RS-27, SK-19 | - | - | - | - |
 | `tests/unit/dfc-540-551-686-781-the-shell-orders-notices-and-edit-marks.test.ts` | 10 | FR-100 | - | - | BO-1, IN-1, IN-4a, NT-3, NT-8, WS-2 | - | - | - | - |
 | `tests/unit/dfc-540-the-write-path-guards-the-notes-used-to-hold.test.ts` | 8 | FR-020, FR-063 | - | - | CM-11, CM-38, CM-41, CM-42, CM-43, IV-12 | - | - | - | - |
