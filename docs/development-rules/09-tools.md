@@ -366,5 +366,9 @@ hook は `sweep` と `stats` を自動で走らせるので、Claude のセッ�
 | `tools/session_brief.py` | 課題・帯・持ち物の欠け／形の崩れた帯・逆向きの帯・重なる帯／持ち物の重なり（`body_brief.py` の判定を import）／関門のポート 5992。雛形 `tools/session-brief.md` の差し込みが 1 つでも残れば刷らない | 課題の 1 行が明確か、持ち物が正しいか。調整役がこの道具を使ったか（05 の 13 節が使えと言う） | 調整役が手で（チップを出す前） |
 | `tools/test_route.py` | 範囲（既定 `origin/refactor..HEAD`）の合流した差分を、04 の 7.2 の経路の表に上から当て、PERF・e2e（部分を先に／`GT-2` の中）・`GT-2`・体が操る探りの要否と順を刷る。探りが要るのは、範囲に入った確かめ表（`docs/review/`）の行のうち、行 ID をどの `tests/system/`・`tests/use-case/` のファイルも引かない行。赤にはせず推奨を刷る。`--self-test` は 11 の範囲と、規則の表の食い違い 2 つ | 試験が行 ID を引くことと、行の手順を押すことの違い。5 節の表に無い毎フレームの経路。機械が静かか（`PW-3`）。`GT-2` を省く理由の良し悪し | 調整役が手で（合流の後、push の前）／検査 82 |
 | 検査 82 `tools/test_route.py --check-rule` | 道具の表（`ROUTES`・`STEPS`）と、04 の 7 節の経路の表と段の表との食い違い —— 経路の名・置き場・PERF／e2e／GT-2 の語・行の順・段の名 | 表の外の散文。表の決めごとが正しいか | `check.sh` |
+| 検査 83 `check-source-references.py` | `docs/spec/_source/` の JSON の間の参照（`column`・`rowId`・`valuesOf`・`entity` などの指す欄と、コード区間の行 ID）が、どこにも解けないもの／理由つきの除外 `source-references-exempt.txt` のうち、もう何にも当たらない行。`source_relations.py --check` で、関係の図の元の辺の表 `source-relations.json` が今の参照と合うかも見る | 指す欄の表（`source_refs.py` の `FIELDS`）に無い欄。コード区間の外の裸の行 ID。退いた ID を散文で引くことは赤にせず刷るだけ | `check.sh` |
+| 検査 84 `check-source-names.py` | 名が指す先の名と合わないもの —— 命令の値と、それが書く列（`JDG-2361`）／値と、それが名指す行の鍵の列／保存の鍵と、画面の語。外れは理由つきの許可リスト `source-names-allow.txt`（最初の行は `JDG-2691` の 7 件）。もう何にも当たらない許可の行も赤 | 指す先を持たない名（Agent API のメンバ、命令そのものの名）。語の綴りしか見ないので、語が合っていて意味の違う名 | `check.sh` |
+| `docs/spec/_source/source_relations.py` | （書き出す道具）`_source` の JSON が互いに何を指すかを、上の 2 つの検査と同じ読み手で読み、辺の表 `source-relations.json` と図 `fig-source-relations`（`.drawio` と `_assets/` の `.svg`）を書く。`--matrix` は散文の参照を表で刷る | 図そのものの古さ（`--check` は辺の表だけを比べる。図は `npm run gen:relations` で作り直す） | `npm run gen:relations`／検査 83 |
 
 ⭐ 2026-10-17 に、`JDG-2419` の 2 行（`tools/test_route.py` と検査 82）を本表へ足した。
+⭐ 2026-10-17 に、`JDG-2692` の 3 行（検査 83・84 と `source_relations.py`）を本表へ足した。
