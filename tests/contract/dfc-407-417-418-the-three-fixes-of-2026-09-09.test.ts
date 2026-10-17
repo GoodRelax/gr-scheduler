@@ -56,7 +56,7 @@ import { emptySelection } from '../../src/entity/document-model/selection/select
 import { geometryFromLayout } from '../../src/entity/layout-engine/schedule-geometry/schedule-geometry'
 import { layoutFromSchedule } from '../../src/entity/layout-engine/schedule-layout/schedule-layout'
 import { regionsFromScreen } from '../../src/entity/layout-engine/screen-regions/screen-regions'
-import { svgFromSchedule } from '../../src/adapter/svg-renderer/svg-renderer'
+import { NOT_STORED_DELAY_MARK_SIZES, svgFromSchedule } from '../../src/adapter/svg-renderer/svg-renderer'
 import { editTask } from '../../src/use-case/edit-document/edit-task'
 
 const DEFAULT_TASK_GROUP_NAME_FIXTURE = 'fixture default task group name'
@@ -215,12 +215,12 @@ const onGrid = (value: number): number => Math.round(value / PICTURE_GRID) * PIC
 // see FR-039, T-252
 const drawnOnTheGrid = (stored: number): number => onGrid(stored * DEFAULT_DISPLAY_RATIO)
 
-/** Every `stroke-width` the marker's own figure was spelled with. */
-const markerStrokeWidths = (svg: string): number[] =>
+/** Every `stroke-width` the marker's own figure was spelled with, and whether it is the disc's edge. */
+const markerStrokeWidths = (svg: string): { readonly isDisc: boolean; readonly width: number }[] =>
   [...svg.matchAll(/<[^>]*data-figure="[^"]*-marker"[^>]*>/g)]
-    .map((one) => /stroke-width="([0-9.]+)"/.exec(one[0])?.[1])
-    .filter((one): one is string => one !== undefined)
-    .map(Number)
+    .map((one) => ({ isDisc: one[0].startsWith('<circle'), width: /stroke-width="([0-9.]+)"/.exec(one[0])?.[1] }))
+    .filter((one): one is { isDisc: boolean; width: string } => one.width !== undefined)
+    .map((one) => ({ isDisc: one.isDisc, width: Number(one.width) }))
 
 /** The one faint mark FR-043 draws, as the renderer spelled its points. */
 const dummyPointCount = (svg: string): number => {
@@ -231,7 +231,7 @@ const dummyPointCount = (svg: string): number => {
 
 // ---------------------------------------------------------------------------
 
-describe('DFC-417: the progress marker reads S-24 for its stroke (FR-094)', () => {
+describe('DFC-417: the progress marker reads S-24 for its stroke, and S-24 x S-328 for its symbol bars (FR-094, FR-013)', () => {
   const started = (): Schedule =>
     scheduleOf(
       [task({
@@ -250,10 +250,10 @@ describe('DFC-417: the progress marker reads S-24 for its stroke (FR-094)', () =
     const turned = SETTINGS_CONSTANTS.markerStroke
     // see S-63
     const drawn = markerStrokeWidths(draw(started(), { isProgressMarkerVisible: true }).svg)
-    expect(drawn.length).toBeGreaterThan(0)
-    for (const width of drawn) {
+    expect(drawn.filter((one) => one.isDisc).length).toBe(1)
+    for (const { isDisc, width } of drawn) {
       expect(onGrid(width), 'S-24 x FR-039 の描く比、NS-3 の格子の上で').toBe(
-        drawnOnTheGrid(turned),
+        isDisc ? drawnOnTheGrid(turned) : onGrid(drawnOnTheGrid(turned) * NOT_STORED_DELAY_MARK_SIZES['S-328']),
       )
     }
   })
