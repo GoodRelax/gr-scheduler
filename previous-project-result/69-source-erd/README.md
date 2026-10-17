@@ -46,7 +46,7 @@
 | 利用者が名を残した（`JDG-2691`） | 10 | `isDependencyVisible` ↔ Dependency Lines、`strokeColor` ↔ Outline Color（3 実体）、`milestoneGlyph`、`viewTimeZone`、`levelZeroTreeState` |
 | 改名が決まっている（`CR-792` が着地すると行が古くなり、同じ変更で消す） | 7 | `targetTaskGroupId` ↔ `parentId`（`JDG-2689`）、`uids` ↔ `uid`（`JDG-2685`）、`fontScale` ↔ Font Size、`parentProgressToleranceDays`、`editGroup` ↔ Edit Permission、`scrollDayOffset`・`scrollGroupOffset` |
 | 値の形の都合 | 21 | 注記の錨の形 `AnnotationAnchor` の 7 欄（`date` ↔ `anchorDate` ほか）、`dx`・`dy` ↔ `bodyOffsetPx`、予定・実績の日付の対の欄、MSPDI の名 `resumeValid` |
-| ⚠️ **まだ誰も判じていない** | 3 | `themeHue` ↔ Theme Color、`scrollDate` ↔ Left Edge Date、`scrollTaskGroupId` ↔ Top Task Group |
+| 1 組ずつ問うて残した（`JDG-2720`〜`JDG-2722`、2026-10-17） | 3 | `themeHue` ↔ Theme Color（`JDG-966` で据え置き済みだった）、`scrollDate` ↔ Left Edge Date、`scrollTaskGroupId` ↔ Top Task Group |
 
 ⭐ 改名の後で検査 84 が言うこと: `scrollDateFraction` ↔ Left Edge Time と `scrollTaskGroupFraction` ↔ Top Task Group Position は、新しい名でも画面の語と合わない —— `CR-792` が新しい行（理由は `JDG-2681`）を書く。`fontSizeStep`・`parentTaskProgressToleranceDays`・`editPermission`・`resourceUids`・`parentId` は合うようになり、許可の行は要らなくなる。
 

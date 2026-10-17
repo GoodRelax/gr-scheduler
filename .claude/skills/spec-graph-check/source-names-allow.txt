@@ -50,7 +50,7 @@ screen | K-68 | zoomY | Vertical Zoom | the screen spells the axis Y as Vertical
 screen | K-75 | isAssigneeVisible | Assignee Label | the toggle shows or hides the assignee label on the bar; the screen names the label
 screen | K-76 | isPercentCompleteVisible | Percent Complete Label | the toggle shows or hides the percent-complete label on the bar; the screen names the label
 #
-# -- not judged by anyone yet (baseline 2026-10-17); a ruling replaces the reason or renames --
-screen | K-60 | themeHue | Theme Color | BASELINE not judged: the key holds a hue, the screen says color
-screen | K-69 | scrollDate | Left Edge Date | BASELINE not judged: the key says scroll, the screen says where the left edge is
-screen | K-70 | scrollTaskGroupId | Top Task Group | BASELINE not judged: the key says scroll, the screen says which task group is at the top
+# -- asked one by one on 2026-10-17 and kept (JDG-2720..2722) --
+screen | K-60 | themeHue | Theme Color | JDG-2720: the value is a hue angle 0-359, not a color code; the screen word changed, the identifier stays (JDG-922 #15, JDG-966)
+screen | K-69 | scrollDate | Left Edge Date | JDG-2721: a scroll position (where the view was), one family with scrollDateFraction (JDG-2681); the glossary key rule names it
+screen | K-70 | scrollTaskGroupId | Top Task Group | JDG-2722: a scroll position in the taskGroupId form of JDG-2246; topTaskGroupId is already HighlightBox's column
