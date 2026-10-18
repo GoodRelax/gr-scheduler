@@ -12,13 +12,13 @@ what this reading does not see.
 
 | place | T-218 | T-334 | files | case sites | expected-to-fail marks | known-red lines | need the MSPDI XSDs | tied to no spec row |
 | --- | --- | --- | --: | --: | --: | --: | --: | --: |
-| `contract` | TS-5 | VT-2 | 423 | 5477 | 8 | 4 | 11 | 2 |
+| `contract` | TS-5 | VT-2 | 424 | 5483 | 8 | 4 | 11 | 2 |
 | `integration` | TS-2 | - | 3 | 76 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
 | `system` | TS-3 | - | 96 | 610 | 0 | 0 | 0 | 0 |
 | `unit` | TS-6 | - | 187 | 3929 | 1 | 1 | 2 | 0 |
 | `use-case` | TS-1 | VT-1 | 14 | 17 | 1 | 2 | 0 | 0 |
-| **all** | | | 726 | 10126 | 10 | 7 | 13 | 2 |
+| **all** | | | 727 | 10132 | 10 | 7 | 13 | 2 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -577,6 +577,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/dfc-307-in-4-the-standing-explanation-is-the-last-rung.test.ts` | 28 | FR-031, FR-037, FR-038, FR-072, FR-092 | - | T-016, T-023, T-023c, T-023d, T-028, T-031, T-036, T-040, T-060, T-062, T-075, T-109, T-218, T-266 | CP-19, EZ-2, GA-3, GA-4, GA-5, GA-6, GA-9, GA-16, GA-17, GR-21, IC-7, IN-3, IN-4, IN-4a, LY-5, MK-13, PR-1, PTD-3, SC-4, SK-8, SL-5, TS-6, UF-69, UN-9 | - | - | - | - |
 | `tests/contract/dfc-322-sk-9-the-document-name-is-edited-in-place.test.ts` | 20 | FR-031, FR-035, FR-074, FR-085 | - | T-016, T-023, T-028, T-036, T-062, T-064, T-065, T-103, T-108, T-218 | AT-53, CM-1, CP-18, IF-9, IN-4, IN-5a, MK-13, PI-9, PI-18, PR-1, SK-9, SK-13, SK-15, SK-19, TS-6, U-27, UF-30 | - | - | - | - |
 | `tests/contract/dfc-325-fr-028-a-malformed-request-is-refused-not-thrown.test.ts` | 13 | FR-028 | - | T-035, T-107 | AG-2, AG-9a, AM-7 | - | - | - | - |
+| `tests/contract/dfc-3302-search-word-ime-composition.contract.test.ts` | 6 | - | - | - | SV-2, SV-5 | - | - | - | - |
 | `tests/contract/dfc-337-fr-029-the-three-file-gates-say-why-on-a-second-press.test.ts` | 11 | FR-029, FR-038, FR-060, FR-076 | - | T-024a, T-036, T-037, T-060, T-062, T-066, T-075, T-218, T-233 | CP-25, CS-4, LY-5, NT-1, OP-13, RS-27, SK-10, SK-11, SK-21, TS-3, TS-6, UF-48 | - | - | - | - |
 | `tests/contract/dfc-355-the-four-rulings-of-2026-09-07.test.ts` | 12 | FR-012, FR-020, FR-038, FR-051, FR-054, FR-060, FR-080 | - | T-023d, T-024a, T-076, T-103, T-206, T-218, T-233, T-234 | BR-2, EP-1, GR-21, OP-2, QN-9, RS-52, S-81, S-205, S-225, S-226, TS-6, U-60 | - | - | - | - |
 | `tests/contract/dfc-357-fr-073-a-newer-version-is-opened-not-refused.test.ts` | 10 | FR-073 | - | - | RS-25 | - | - | - | - |

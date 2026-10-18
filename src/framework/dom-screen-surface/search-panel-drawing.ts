@@ -1197,9 +1197,28 @@ function filterSearchKeeper(layer: HTMLElement): (menu: TableWindowView['filterM
 /** @purity non-pure */
 export function typedWordWatch(layer: HTMLElement, onWordTyped: () => void): { readonly read: () => string | null } {
   let typed: string | null = null
-  layer.addEventListener('input', (event: Event) => {
+  let isComposing = false
+  /** @purity non-pure */
+  const wordFieldOf = (event: Event): HTMLInputElement | null => {
     const field = event.target as HTMLInputElement | null
-    if (field === null || field.getAttribute(SEARCH_WORD_FIELD_ATTRIBUTE) === null) return
+    if (field === null || typeof field.getAttribute !== 'function' || field.getAttribute(SEARCH_WORD_FIELD_ATTRIBUTE) === null) return null
+    return field
+  }
+  // WHY: a letter still being converted is not yet a word; sending it redraws the field and drops the composition (DFC-3302).
+  layer.addEventListener('compositionstart', (event: Event) => {
+    if (wordFieldOf(event) !== null) isComposing = true
+  })
+  layer.addEventListener('compositionend', (event: Event) => {
+    const field = wordFieldOf(event)
+    if (field === null) return
+    isComposing = false
+    typed = field.value
+    onWordTyped()
+  })
+  layer.addEventListener('input', (event: Event) => {
+    const field = wordFieldOf(event)
+    if (field === null) return
+    if (isComposing || (event as { readonly isComposing?: unknown }).isComposing === true) return
     typed = field.value
     onWordTyped()
   })
