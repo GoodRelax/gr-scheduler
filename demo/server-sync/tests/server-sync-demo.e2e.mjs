@@ -35,7 +35,7 @@ function startServer(dataDir) {
     const server = spawn('powershell.exe', [
       '-NoProfile', '-ExecutionPolicy', 'Bypass',
       '-File', join(BUILT, 'server', 'grs-demo-server.ps1'),
-      '-Port', String(PORT), '-NoBrowser', '-DataDir', dataDir,
+      '-Port', String(PORT), '-NoBrowser', '-NoTrust', '-DataDir', dataDir,
     ])
     let log = ''
     const timer = setTimeout(() => rejectStart(new Error(`the server did not start:\n${log}`)), 60_000)

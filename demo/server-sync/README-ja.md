@@ -23,8 +23,12 @@ GoodRelax Scheduler（GRS）の画面のまま、ファイルを手元の PC の
 
 ### 初めの 1 回だけ
 
-- 黒い窓（サーバー）が開き、既定のブラウザーで `https://localhost:8443/` が開きます。
-- 「この接続ではプライバシーが保護されません / Your connection is not private」が出たら、「詳細設定 → localhost に進む（安全ではありません）」を押します。証明書はその PC で初回に作る自己署名のものです（`JDG-2582`、`JDG-2584`）。
+- 黒い窓（サーバー）が開き、その PC 用の自己署名の証明書を作ります（`JDG-2582`、`JDG-2584`）。
+- 続けて Windows が「セキュリティ警告 —— 次であると主張する証明機関 (CA) から証明書をインストールしようとしています: localhost …… この証明書をインストールしますか?」と 1 回だけ問います（`JDG-2598`）。
+  - **[はい]**: 証明書をその利用者の「信頼されたルート証明機関」に入れます（管理者権限は要りません。.NET の開発用証明書と同じやり方）。以後、ブラウザーは警告を出しません。
+  - **[いいえ]**: 何も入れません。ブラウザーが「接続がプライベートではありません」（`NET::ERR_CERT_AUTHORITY_INVALID`）を出すので、[詳細設定] →「localhost に進む（安全ではありません）」を押します。次からは問いません（もう一度問わせるには `server\certificate-trust-declined.txt` を消す）。
+- その後、既定のブラウザーで `https://localhost:8443/` が開きます。ブラウザーを既に開いていたときは、一度閉じてから開き直すと警告が消えます。
+- 💡 なぜ警告が出るのか: `localhost` はどの PC でも「自分自身」を指す名前なので、公の認証局はこの名の証明書を誰にも出しません。だから証明書はその PC で作るしかなく、信頼するかはその PC の持ち主が決めます。
 - ブラウザーは **Edge か Chrome** を使います（ファイルの窓は File System Access API に頼るため）。
 
 ### 止め方
@@ -88,7 +92,7 @@ Windows で使える名なら日本語も使えます。`\ / : * ? " < >`・縦�
 
 守り: `127.0.0.1` だけで待ち受ける。`Host` がこのサーバーの名でなければ断り、PUT は `Origin` がこのサーバーでなければ断る（`JDG-1013` と同じ考え方）。名は上の規則だけを通し、`schedule-data` の外へは出ない。1 回に書けるのは 64 MB まで。
 
-サーバーの引数: `-Port <番号>`（既定 8443）、`-DataDir <フォルダ>`、`-Page <html>`、`-NoBrowser`。`start-server.cmd -Port 9443` のように渡せます。
+サーバーの引数: `-Port <番号>`（既定 8443）、`-DataDir <フォルダ>`、`-Page <html>`、`-NoBrowser`、`-NoTrust`（信頼を問わない。試験用）、`-RemoveCertificate`（証明書を消して終える）。`start-server.cmd -Port 9443` のように渡せます。
 
 ## 試験
 
@@ -105,6 +109,7 @@ node tools/gate/gate-queue.mjs run -- node demo/server-sync/tests/server-sync-de
 ## 危うい所
 
 - 会社の PC では、方針で PowerShell の実行が止められていることがあります（`start-server.cmd` は `-ExecutionPolicy Bypass` で起こしますが、グループポリシーには勝てません）。
-- 自己署名の証明書は `Cert:\CurrentUser\My` に「GRS Demo Server (localhost)」の名で残ります。要らなくなったら `certmgr.msc` の「個人 → 証明書」から消せます。
+- 自己署名の証明書は `Cert:\CurrentUser\My`（個人）と、[はい] と答えたときは `Cert:\CurrentUser\Root`（信頼されたルート証明機関）に、「GRS Demo Server (localhost)」の名で残ります。要らなくなったら `start-server.cmd -RemoveCertificate` で両方から消せます（Windows が消してよいかを問います）。`certmgr.msc` からも消せます。
+- 会社の PC では、方針で「信頼されたルート証明機関」に入れられないことがあります。そのときは [いいえ] と同じく、警告を通り抜けて使います。
 - ポート 8443 が使われていると起動しません。`start-server.cmd -Port 9443` で別の番号にします。
 - デモの「単一 HTML」書き出しは、デモのスクリプトごと書き出します（通常の GRS の書き出しは変わりません）。

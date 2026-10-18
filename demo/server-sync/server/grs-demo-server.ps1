@@ -3,7 +3,9 @@
 # It serves the demo page (GRS-Demo.html) and keeps GRS JSON files in one folder
 # (schedule-data). Nothing to install and no administrator rights: the listener is a
 # TcpListener on 127.0.0.1 wrapped in SslStream, and the certificate is a self-signed
-# one made on first start in the current user's store (Cert:\CurrentUser\My).
+# one made on first start in the current user's store (Cert:\CurrentUser\My). On that first
+# start Windows asks once whether to trust it (Cert:\CurrentUser\Root); Yes ends the browser's
+# warning, No keeps it. -RemoveCertificate takes it out of both stores again.
 #
 # API (the page and this server are one origin, so the page's CSP connect-src 'self' holds):
 #   GET  /                  the demo page
@@ -22,7 +24,11 @@ param(
   [int]$Port = 8443,
   [string]$DataDir = '',
   [string]$Page = '',
-  [switch]$NoBrowser
+  [switch]$NoBrowser,
+  # Never ask Windows to trust the certificate (tests; a person who answered No once is not asked again anyway).
+  [switch]$NoTrust,
+  # Take the certificate out of both stores and stop, so nothing of the demo stays in Windows.
+  [switch]$RemoveCertificate
 )
 
 $ErrorActionPreference = 'Stop'
@@ -37,6 +43,32 @@ $MaxBodyBytes = 64MB
 
 function Write-Log([string]$text) {
   [Console]::WriteLine(('{0}  {1}' -f (Get-Date).ToString('HH:mm:ss'), $text))
+}
+
+# Answered No to Windows' trust question for this certificate: not asked again until it changes.
+$TrustDeclinedFile = Join-Path $here 'certificate-trust-declined.txt'
+
+function Open-Store([string]$name) {
+  $store = New-Object System.Security.Cryptography.X509Certificates.X509Store($name, 'CurrentUser')
+  $store.Open('ReadWrite')
+  return $store
+}
+
+if ($RemoveCertificate) {
+  $mine = @(Get-ChildItem -Path Cert:\CurrentUser\My | Where-Object { $_.FriendlyName -eq $CertFriendlyName })
+  $thumbprints = @($mine | ForEach-Object { $_.Thumbprint })
+  $root = Open-Store 'Root'
+  try {
+    foreach ($one in @($root.Certificates | Where-Object { $_.FriendlyName -eq $CertFriendlyName -or $thumbprints -contains $_.Thumbprint })) {
+      # Windows asks before a certificate leaves the trusted roots, as it did when it came in.
+      try { $root.Remove($one); Write-Log "Removed from Trusted Root Certification Authorities: $($one.Thumbprint)" }
+      catch { Write-Log "Left in Trusted Root Certification Authorities: $($one.Thumbprint)" }
+    }
+  } finally { $root.Close() }
+  foreach ($one in $mine) { Remove-Item -LiteralPath "Cert:\CurrentUser\My\$($one.Thumbprint)"; Write-Log "Removed from Personal: $($one.Thumbprint)" }
+  if (Test-Path -LiteralPath $TrustDeclinedFile) { Remove-Item -LiteralPath $TrustDeclinedFile }
+  Write-Log 'Done. The next start makes a new certificate.'
+  exit 0
 }
 
 if (-not (Test-Path -LiteralPath $Page -PathType Leaf)) {
@@ -57,6 +89,41 @@ if ($null -eq $cert) {
   Write-Log 'Making a self-signed certificate for localhost (first start only)...'
   $cert = New-SelfSignedCertificate -DnsName 'localhost' -CertStoreLocation 'Cert:\CurrentUser\My' `
     -FriendlyName $CertFriendlyName -NotAfter (Get-Date).AddYears(2)
+}
+
+# ---- trust: ask once to put the certificate among this user's trusted roots ----
+# No public authority issues a certificate for "localhost", so without this the browser warns
+# (NET::ERR_CERT_AUTHORITY_INVALID). Same approach as `dotnet dev-certs https --trust`: only the
+# public part goes in, for the current user only, and Windows itself asks Yes / No.
+function Test-Trusted($certificate) {
+  return @(Get-ChildItem -Path Cert:\CurrentUser\Root | Where-Object { $_.Thumbprint -eq $certificate.Thumbprint }).Count -gt 0
+}
+
+$declined = (Test-Path -LiteralPath $TrustDeclinedFile) -and
+  ((Get-Content -LiteralPath $TrustDeclinedFile -TotalCount 1) -eq $cert.Thumbprint)
+if (Test-Trusted $cert) {
+  # Trusted already: nothing to ask.
+} elseif ($NoTrust -or $declined) {
+  Write-Log 'The certificate is not trusted, so the browser warns once: press Advanced, then Continue to localhost.'
+  if ($declined) { Write-Log "To be asked again, delete $TrustDeclinedFile" }
+} else {
+  Write-Log 'Asking Windows to trust the certificate (answer Yes to stop the browser warning)...'
+  $public = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2(, $cert.RawData)
+  $public.FriendlyName = $CertFriendlyName
+  $root = Open-Store 'Root'
+  try {
+    $root.Add($public)
+  } catch {
+    # Answered No: the browser warns instead; remember it for this certificate.
+  } finally {
+    $root.Close()
+  }
+  if (Test-Trusted $cert) {
+    Write-Log 'Trusted. Restart the browser if it is already open on this page.'
+  } else {
+    Set-Content -LiteralPath $TrustDeclinedFile -Value @($cert.Thumbprint, 'Delete this file to be asked again.') -Encoding ASCII
+    Write-Log 'Not trusted. The browser warns once: press Advanced, then Continue to localhost.'
+  }
 }
 
 # ---- one connection, handled in its own runspace so a silent connection never blocks the rest ----
