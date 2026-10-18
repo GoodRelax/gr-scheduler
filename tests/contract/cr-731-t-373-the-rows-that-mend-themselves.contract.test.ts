@@ -60,10 +60,12 @@ describe('FR-155 / T-373 -- the manuscript these cases read', () => {
     expect([...named].sort()).toEqual([...EVERY_VIEWPOINT].sort())
   })
 
-  it('T-373 gives every row one of the four fix types, FA-3 alone by its content', () => {
+  it('T-373 gives every row one of the four fix types, FA-3 and FA-25 alone by their content', () => {
     for (const one of T_373.rows) {
       const type = (one.by['修正のしかた'] ?? '').trim()
       if (one.id === 'FA-3') expect(type, one.id).toContain('機械')
+      // WHY: CR-810 gave FA-25 a choose row for a task group under a task group with no span bar.
+      else if (one.id === 'FA-25') expect(type, one.id).toMatch(/^手で修正.*選ぶ/)
       else expect(FOUR_WORDS, one.id).toContain(type)
     }
   })
