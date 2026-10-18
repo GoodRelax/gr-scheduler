@@ -12,6 +12,7 @@
     "agentapi": "python tools/generate_agent_api.py",
     "agentapi:check": "python tools/generate_agent_api.py --check",
     "build": "vite build",
+    "build:demo": "node demo/server-sync/build-demo.mjs",
     "build:relay": "vite build --config vite.relay.config.ts && node tools/build_relay_bundle.mjs",
     "check": "bash .claude/skills/spec-graph-check/check.sh",
     "doccommands": "python tools/generate_document_commands.py",
