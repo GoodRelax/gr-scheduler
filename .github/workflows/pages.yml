@@ -60,6 +60,10 @@ jobs:
         # Needs dist/index.html from the step above: the relay carries those bytes.
         run: npm run build:relay # -> dist-relay/grs-relay.mjs, dist-relay/grs-relay.mcpb, dist-relay/grs-relay.mcpb.sha256
 
+      - name: Build the server-sync demo
+        # Reads dist/index.html unchanged and adds one script (demo/server-sync/README.md).
+        run: npm run build:demo # -> dist-server-sync-demo/grs-server-sync-demo.zip
+
       - name: Attest the MCP relay bundle
         # Not a signature (the bundle is unsigned on purpose): a record of which
         # workflow built it from which commit, checked with `gh attestation verify`.
@@ -105,6 +109,8 @@ jobs:
           test -f _site/download/index.html
           cp dist/index.html _site/download/GRS.html
           cp dist-relay/grs-relay.mcpb dist-relay/grs-relay.mcpb.sha256 dist-relay/grs-relay.mjs _site/download/
+          #    The server-sync demo zip, linked from tab 05 of the overview page (DFC-3071).
+          cp dist-server-sync-demo/grs-server-sync-demo.zip _site/download/
           #    The page shows the build's version under both buttons (CR-799): the commit time
           #    in UTC and its semver form, the same as the bundle's manifest.json.
           node tools/stamp_download_page.mjs _site/download/index.html
