@@ -559,7 +559,9 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   // words still tell that the ranges miss 1d, so only the fingerprint is re-keyed.
   'RS-89': 'afc4b6d7567c09ae',
   // WHY: read 2026-10-18 (CR-796 slice 1); RS-90 tells the relay link dropped, and the words tell the person to reopen the address the AI gives.
-  'RS-90': '1f5e5ee4853bf4ce',
+  // WHY: read 2026-10-19 (CR-808); the scene now says the page's own reconnect tries all failed first, and
+  // the words still tell the link was lost and to reopen the address, so only the fingerprint is re-keyed.
+  'RS-90': 'f6b4a054a668daef',
 }
 
 const fingerprintOf = (rowId: string): string => {
