@@ -12,13 +12,13 @@ what this reading does not see.
 
 | place | T-218 | T-334 | files | case sites | expected-to-fail marks | known-red lines | need the MSPDI XSDs | tied to no spec row |
 | --- | --- | --- | --: | --: | --: | --: | --: | --: |
-| `contract` | TS-5 | VT-2 | 435 | 5773 | 8 | 4 | 11 | 4 |
+| `contract` | TS-5 | VT-2 | 436 | 5799 | 8 | 4 | 11 | 4 |
 | `integration` | TS-2 | - | 3 | 76 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
 | `system` | TS-3 | - | 96 | 611 | 0 | 0 | 0 | 0 |
 | `unit` | TS-6 | - | 187 | 3929 | 1 | 1 | 2 | 0 |
 | `use-case` | TS-1 | VT-1 | 14 | 17 | 1 | 2 | 0 | 0 |
-| **all** | | | 738 | 10423 | 10 | 7 | 13 | 4 |
+| **all** | | | 739 | 10449 | 10 | 7 | 13 | 4 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -419,7 +419,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/cr-731-rw-13-s-573-a-jump-from-a-row-opens-its-field-and-marks-the-related.contract.test.ts` | 12 | - | - | - | EL-17, FA-11, FA-22, PR-4, RW-13, S-573, S-587, SJ-4, VO-3 | - | - | - | - |
 | `tests/contract/cr-731-sx-3-fr-155-the-file-is-written-before-the-fix.contract.test.ts` | 20 | FR-100, FR-130, FR-155 | VT-2 | T-290, T-340 | IC-156, IC-157, IC-158, RW-16, SX-1, SX-2, SX-3, UN-21 | - | - | - | - |
 | `tests/contract/cr-731-t-373-the-rows-a-person-chooses-or-dates.contract.test.ts` | 11 | - | - | T-373 | CM-93, FA-1, FA-3, FA-22, FA-24, VC-1, VO-3 | - | - | - | - |
-| `tests/contract/cr-731-t-373-the-rows-that-mend-themselves.contract.test.ts` | 25 | FR-155 | - | T-310, T-311, T-312, T-373 | FA-1, FA-2, FA-3, FA-8, FA-9, FA-10, FA-11, FA-12, FA-26, RW-16, VC-9, VC-11, VC-12 | - | - | - | - |
+| `tests/contract/cr-731-t-373-the-rows-that-mend-themselves.contract.test.ts` | 25 | FR-155 | - | T-310, T-311, T-312, T-373 | FA-1, FA-2, FA-3, FA-8, FA-9, FA-10, FA-11, FA-12, FA-25, FA-26, RW-16, VC-9, VC-11, VC-12 | - | - | - | - |
 | `tests/contract/cr-731-un-21-one-bundle-is-all-or-nothing-and-one-undo-step.contract.test.ts` | 9 | FR-130, FR-155 | - | - | GP-1, UN-20, UN-21 | - | - | 2: DFC-730, none | - |
 | `tests/contract/cr-735-one-named-dependency-line.contract.test.ts` | 33 | FR-032, FR-135, FR-155 | - | T-064, T-108, T-310, T-373 | CM-37, CM-93, FA-3, FA-9, FA-12, PI-1, RW-16, VC-1, VC-3, VC-9, VC-12, X-3 | - | - | - | - |
 | `tests/contract/cr-736-if-1-the-marquee-overlay-svg.contract.test.ts` | 24 | - | - | T-020, T-064, T-065, T-075 | IF-1, PI-19, SL-3, UF-32, ZO-6 | - | - | - | - |
@@ -528,6 +528,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/cr-806-s-the-commands-say-milestone-fs-and-empty-working-times.contract.test.ts` | 11 | FR-009 | - | T-018 | CM-36, CM-39, DP-1, DP-4, IV-24, S-580, S-582 | - | - | - | - |
 | `tests/contract/cr-807-looking-around-moves-no-stamp.contract.test.ts` | 11 | FR-063 | - | T-027, T-108 | AG-2, CM-9, CM-58, CM-62, CM-65, CM-66, CM-67, UN-3, UN-7, UN-8, UN-13, UN-16, WS-1, WS-4, WS-5 | - | - | - | - |
 | `tests/contract/cr-808-the-page-reconnects-to-the-relay-by-itself.contract.test.ts` | 27 | - | - | T-233 | AG-12, RS-90 | - | - | - | - |
+| `tests/contract/cr-810-a-row-with-no-parent-task-and-a-milestone-heading-its-row.contract.test.ts` | 26 | FR-135, FR-136 | - | - | CM-6, CM-9, CM-18, DG-1, DW-3, FA-25, FM-1, IP-2, IP-5, MP-1, MP-2, VO-4 | - | - | - | - |
 | `tests/contract/dfc-1000-hf-10-the-open-all-stance-counts-every-placed-task-group.test.ts` | 9 | - | - | T-051, T-109 | HF-2, HF-10, IC-58, IC-74, RS-31 | - | - | - | - |
 | `tests/contract/dfc-1013-tl-12-the-delay-days-are-told-only-in-the-ez-6-tip.test.ts` | 8 | FR-047 | - | T-038, T-348 | DG-4, DX-10, EZ-6, OC-8, TL-12 | - | - | - | - |
 | `tests/contract/dfc-1015-fr-019-a-hidden-end-task-group-shrinks-the-frame.test.ts` | 5 | FR-019, UC-008 | - | - | - | - | - | - | - |

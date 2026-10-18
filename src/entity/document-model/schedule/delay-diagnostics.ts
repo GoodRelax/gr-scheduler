@@ -179,6 +179,10 @@ interface Facts extends Structure {
   readonly linksOf: ReadonlyMap<number, readonly Link[]>
   readonly successorsOf: ReadonlyMap<number, readonly number[]>
   readonly achievedOnOf: ReadonlyMap<number, string>
+  // see DW-3, FR-136, JDG-2902
+  readonly originUids: ReadonlySet<number>
+  // see VO-4, FA-25, JDG-2900
+  readonly bareTaskGroupAboveOf: ReadonlyMap<number, string>
 }
 
 // see BD-1, BD-2, T-314
@@ -541,6 +545,51 @@ function structureOf(schedule: Schedule): Structure {
 }
 
 /** @purity pure */
+function membersByTaskGroup(schedule: Schedule): ReadonlyMap<string, readonly number[]> {
+  const members = new Map<string, number[]>()
+  for (const member of schedule.taskGroupMembers) members.set(member.taskGroupId, [...(members.get(member.taskGroupId) ?? []), member.taskUid])
+  return members
+}
+
+// see DW-3, FR-136, JDG-2902
+// WHY: a milestone with no predecessor that heads its own task group by date starts that row; no Task drawn on the row
+// starts before it, so a missing predecessor there is the shape of a kickoff, not a forgotten line.
+/** @purity pure */
+function originUidsOf(schedule: Schedule, byUid: ReadonlyMap<number, Task>,
+                      linksOf: ReadonlyMap<number, readonly Link[]>): ReadonlySet<number> {
+  const members = membersByTaskGroup(schedule)
+  const origins = new Set<number>()
+  for (const member of schedule.taskGroupMembers) {
+    const milestone = byUid.get(member.taskUid)
+    if (milestone?.milestone !== true || (linksOf.get(milestone.uid) ?? []).length > 0) continue
+    const due = plannedEnds(milestone).start
+    if (due === null) continue
+    const rowmates = (members.get(member.taskGroupId) ?? []).map((uid) => byUid.get(uid))
+    if (!rowmates.some((task) => task !== undefined && isBefore(plannedEnds(task).start, due))) origins.add(milestone.uid)
+  }
+  return origins
+}
+
+// see VO-4, FA-25, IP-1, JDG-2900
+// WHY: a task whose parent cannot be derived because the task group above it draws no span bar; the name of that task
+// group is the warning (the report prints it with the finding's values).
+/** @purity pure */
+function bareTaskGroupAboveOf(schedule: Schedule, byUid: ReadonlyMap<number, Task>,
+                              derivations: ReadonlyMap<number, ParentDerivation>): ReadonlyMap<number, string> {
+  const members = membersByTaskGroup(schedule)
+  const groups = new Map(schedule.taskGroups.map((group) => [group.id, group]))
+  const bare = new Map<number, string>()
+  for (const member of schedule.taskGroupMembers) {
+    if (derivations.get(member.taskUid)?.candidates.length !== 0) continue
+    const above = groups.get(groups.get(member.taskGroupId)?.parentId ?? '')
+    if (above === undefined) continue
+    const hasSpanBar = (members.get(above.id) ?? []).some((uid) => byUid.get(uid)?.milestone === false)
+    if (!hasSpanBar) bare.set(member.taskUid, above.name ?? above.id)
+  }
+  return bare
+}
+
+/** @purity pure */
 function factsOf(schedule: Schedule, calendar: WorkingCalendar, statusDate: CalendarDay): Facts {
   const structure = structureOf(schedule)
   const minutesPerDay = minutesPerWorkingDayOf(schedule.project)
@@ -567,6 +616,8 @@ function factsOf(schedule: Schedule, calendar: WorkingCalendar, statusDate: Cale
   return {
     ...structure, calendar, onSide, walk, minutesPerDay, statusDate, statusDayOnSide, statusInstant,
     explicitChildrenOf, childrenOf, linksOf, successorsOf, achievedOnOf,
+    originUids: originUidsOf(schedule, byUid, linksOf),
+    bareTaskGroupAboveOf: bareTaskGroupAboveOf(schedule, byUid, structure.derivations),
   }
 }
 
@@ -911,7 +962,11 @@ function omissionsOf(facts: Facts): readonly DelayFinding[] {
     found.push(...rowOmissions(facts, task), ...successorOmissions(facts, task))
     const derivation = facts.derivations.get(task.uid)
     if (derivation !== undefined && derivation.parentUid === null) {
-      found.push(findingOf('VO-4', task, { ...columnsOf(task, ['parentTaskUid']), candidateUids: derivation.candidates }))
+      const bare = facts.bareTaskGroupAboveOf.get(task.uid)
+      found.push(findingOf('VO-4', task, {
+        ...columnsOf(task, ['parentTaskUid']), candidateUids: derivation.candidates,
+        ...(bare === undefined ? {} : { taskGroupAboveWithoutSpanBar: bare }),
+      }))
     }
     const achieved = facts.achievedOnOf.get(task.uid)
     if (achieved !== undefined) found.push(findingOf('VO-5', task, columnsOf(task, ['actualFinish']), achieved))
@@ -956,7 +1011,7 @@ function wallsOf(facts: Facts, contradictions: readonly DelayFinding[]): Walls {
     if (derivation.parentUid === null) mark('DW-2', uid, derivation.candidates)
   }
   for (const task of facts.tasks) {
-    if (task.milestone !== true || (facts.linksOf.get(task.uid) ?? []).length > 0) continue
+    if (task.milestone !== true || (facts.linksOf.get(task.uid) ?? []).length > 0 || facts.originUids.has(task.uid)) continue
     undiagnosable.add(task.uid)
     mark('DW-3', task.uid, [])
   }

@@ -31,7 +31,7 @@ const FR_135_DERIVE = '`Task.parentTaskUid` が `null` の `Task` について�
 const FR_135_NOT_WRITTEN = '⛔ 導いた親タスクを文書へ書いてはならない（MUST NOT）。'
 const FR_135_NOT_NARROWER = '⛔ 候補が 2 つ以上のとき、狭いほうを親と決めてはならない（MUST NOT）。'
 const FR_135_VO_4 = '導けなかった `Task` を、進捗妥当性検査の指摘（表 T-312 の `VO-4`）として出すこと（MUST）。'
-const FR_136_DW_3 = '先行を 1 つも持たないマイルストーンは、表 T-316 の `DW-3` とすること（MUST）。'
+const FR_136_DW_3 = '先行を 1 つも持たないマイルストーンは、行の先頭のマイルストーン（起点 —— 表 T-316 の `DW-3` の原因の欄）を除き、`DW-3` とすること（MUST）。'
 const FR_136_NO_WRITE =
   '⛔ 診断がマイルストーンの `actualFinish` を書いてはならない（MUST NOT）。'
 const FR_136_VO_5 =
@@ -401,7 +401,8 @@ const LONE_MILESTONE = documentOf(STATUS, [
     id: 'r1',
     parentId: 'r0',
     tasks: [
-      taskOf(M0, { name: 'Gate zero', parentTaskUid: W4, milestone: true, start: S(6), finish: S(6) }),
+      // WHY: T4 starts on its row before M0, so M0 does not head its row and is no origin (DW-3, CR-810).
+      taskOf(M0, { name: 'Gate zero', parentTaskUid: W4, milestone: true, start: S(7), finish: S(7) }),
       taskOf(T4, { name: 'Tooling', parentTaskUid: W4, start: S(6), finish: F(10) }),
     ],
   },

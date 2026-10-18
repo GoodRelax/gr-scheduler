@@ -1037,6 +1037,7 @@ function fixChoiceWordOf(choice: DelayFixChoice, nameOf: (taskUid: number) => st
     predecessor: choice.predecessorUid === null ? '' : nameOf(choice.predecessorUid),
     successor: choice.successorUid === null ? '' : nameOf(choice.successorUid),
     date: dateText(choice.date),
+    taskGroup: choice.taskGroupName ?? '',
   })
 }
 
