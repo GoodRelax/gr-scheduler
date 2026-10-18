@@ -1217,10 +1217,10 @@ describe('FR-063 and ED-1 of table T-229 -- who wrote it, and when', () => {
     expect(after.scheduleUpdatedAt).toBe(before.scheduleUpdatedAt)
   })
 
-  it('FR-063 (MUST): ... and still moves the other instant and the writer', () => {
-    // 「どちらの群であれ動いた刻と、最後に書いた者は、見せ方の群だけを変えた
-    // ときも更新すること（MUST）」 —— 日程データの群の刻だけでは見せ方の群の
-    // 衝突を検出できず、AG-2 の楽観ロックが人の直前の操作を黙って消す.
+  it('FR-063 (MUST NOT): ... and a zoom alone moves neither the other instant nor the writer (CR-807)', () => {
+    // A zoom is UN-8, outside the undo record of table T-027, so FR-063 says
+    // 「2 つの刻も最後に書いた者も動かしてはならない（MUST NOT）」: a person
+    // looking around never stales the stamp an AI read (AG-2).
     const pane = frozen()
     const loop = frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN)
     const before = stampOf(loop.document())
@@ -1228,9 +1228,9 @@ describe('FR-063 and ED-1 of table T-229 -- who wrote it, and when', () => {
     loop.receiveInput(key('+', { shift: true }))
 
     const after = stampOf(loop.document())
-    expect(after.settingsUpdatedAt).not.toBe(before.settingsUpdatedAt)
-    expect(after.settingsUpdatedAt).toBe(INSTANT)
-    expect(after.lastEditedBy).toBe(ED_1_WORD)
+    expect(loop.document().documentSettings).not.toEqual(twoTaskGroupDocument().documentSettings)
+    expect(after.settingsUpdatedAt).toBe(before.settingsUpdatedAt)
+    expect(after.lastEditedBy).toBe(before.lastEditedBy)
   })
 })
 

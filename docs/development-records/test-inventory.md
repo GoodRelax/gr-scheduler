@@ -12,13 +12,13 @@ what this reading does not see.
 
 | place | T-218 | T-334 | files | case sites | expected-to-fail marks | known-red lines | need the MSPDI XSDs | tied to no spec row |
 | --- | --- | --- | --: | --: | --: | --: | --: | --: |
-| `contract` | TS-5 | VT-2 | 434 | 5762 | 8 | 4 | 11 | 4 |
+| `contract` | TS-5 | VT-2 | 435 | 5773 | 8 | 4 | 11 | 4 |
 | `integration` | TS-2 | - | 3 | 76 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
 | `system` | TS-3 | - | 96 | 611 | 0 | 0 | 0 | 0 |
 | `unit` | TS-6 | - | 187 | 3929 | 1 | 1 | 2 | 0 |
 | `use-case` | TS-1 | VT-1 | 14 | 17 | 1 | 2 | 0 | 0 |
-| **all** | | | 737 | 10412 | 10 | 7 | 13 | 4 |
+| **all** | | | 738 | 10423 | 10 | 7 | 13 | 4 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -265,7 +265,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/unit/uf-72-screen-part.test.ts` | domScreenSurface (non-pure) | - | FR-023, FR-029, FR-032, FR-038, FR-041, FR-048, FR-052, FR-053, FR-083, FR-085, FR-098, NFR-010, T-006a, T-015, T-023a, T-023b, T-023c, T-023d, T-026, T-028, T-040, T-051, T-052, T-060, T-062, T-064, T-065, T-075, T-076, T-077, T-078, T-103, T-109, T-206, T-211, T-216, T-218, T-233, T-236, T-337 |
 | `tests/unit/uf-8-9-history-depth.test.ts` | applyDocumentChange (non-pure), documentFromJson (pure), emptyHistory (pure), jsonFromDocument (pure), redoEdit (pure), stepCount (pure), undoEdit (pure) | - | FR-031, T-027, T-108, T-206, T-368 |
 | `tests/unit/uf-8-9-replace-document.test.ts` | emptyHistory (pure), historyWithStep (pure), importDocument (pure), redoEdit (pure), replaceDocument (non-pure), stepCount (pure), undoEdit (pure), unwatchChanges (non-pure), validateImportedDocument (pure), watchChanges (non-pure) | - | FR-023, FR-028, FR-031, FR-062, FR-063, FR-095, T-004, T-024a, T-027, T-028, T-032a, T-034, T-035, T-058, T-062, T-064, T-067, T-075, T-108, T-214, T-218, T-220, T-230, T-342 |
-| `tests/unit/use-case.test.ts` | applyDocumentChange (non-pure), editDocumentSettings (pure), editProject (pure), installAgentApi (non-pure), planDocumentChange (pure), undoEdit (pure), unwatchChanges (non-pure) | - | FR-016, FR-024, FR-031, FR-035, FR-039, FR-046, FR-052, FR-063, FR-080, FR-098, T-050, T-067, T-201, T-202, T-224, T-286 |
+| `tests/unit/use-case.test.ts` | applyDocumentChange (non-pure), editDocumentSettings (pure), editProject (pure), installAgentApi (non-pure), planDocumentChange (pure), undoEdit (pure), unwatchChanges (non-pure) | - | FR-016, FR-024, FR-031, FR-035, FR-039, FR-046, FR-052, FR-063, FR-080, FR-098, T-027, T-050, T-067, T-201, T-202, T-224, T-286 |
 | `tests/unit/wl-16-the-parent-link-answers-a-press-as-a-jump.test.ts` | withPropertyLinkJump (semi-pure-b) | - | T-332 |
 
 ## 7. Every test file
@@ -526,6 +526,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/cr-801-the-heading-box-is-checked-while-any-row-is-checked.contract.test.ts` | 42 | FR-099, FR-151 | - | T-331, T-347, T-353, T-371 | DT-8, RQ-1, SQ-10, TV-2, TV-5, TV-6, UN-20 | - | - | - | - |
 | `tests/contract/cr-802-readschema-hands-the-schema-in-parts.contract.test.ts` | 17 | - | - | - | AG-12, AM-30 | - | - | - | - |
 | `tests/contract/cr-806-s-the-commands-say-milestone-fs-and-empty-working-times.contract.test.ts` | 11 | FR-009 | - | T-018 | CM-36, CM-39, DP-1, DP-4, IV-24, S-580, S-582 | - | - | - | - |
+| `tests/contract/cr-807-looking-around-moves-no-stamp.contract.test.ts` | 11 | FR-063 | - | T-027, T-108 | AG-2, CM-9, CM-58, CM-62, CM-65, CM-66, CM-67, UN-3, UN-7, UN-8, UN-13, UN-16, WS-1, WS-4, WS-5 | - | - | - | - |
 | `tests/contract/cr-808-the-page-reconnects-to-the-relay-by-itself.contract.test.ts` | 27 | - | - | T-233 | AG-12, RS-90 | - | - | - | - |
 | `tests/contract/dfc-1000-hf-10-the-open-all-stance-counts-every-placed-task-group.test.ts` | 9 | - | - | T-051, T-109 | HF-2, HF-10, IC-58, IC-74, RS-31 | - | - | - | - |
 | `tests/contract/dfc-1013-tl-12-the-delay-days-are-told-only-in-the-ez-6-tip.test.ts` | 8 | FR-047 | - | T-038, T-348 | DG-4, DX-10, EZ-6, OC-8, TL-12 | - | - | - | - |
@@ -993,7 +994,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/unit/uf-72-screen-part.test.ts` | 157 | FR-023, FR-029, FR-032, FR-038, FR-041, FR-048, FR-052, FR-053, FR-083, FR-085, FR-098, NFR-010 | - | T-006a, T-015, T-023a, T-023b, T-023c, T-023d, T-026, T-028, T-040, T-051, T-052, T-060, T-062, T-064, T-065, T-075, T-076, T-077, T-078, T-103, T-109, T-206, T-211, T-216, T-218, T-233, T-236, T-337 | AR-1, AR-4, AR-5, AR-6, AT-51, BO-1, CP-38, DR-5, EP-4, EZ-2, GR-19, GR-20, HF-1, HF-2, HF-3, HF-4, HF-5, HF-6, HF-9, HF-10, HF-11, HF-12, HF-13, HF-14, HF-15, HF-16, HF-17, HF-18, HF-20, HR-3, HR-4, HR-5, HR-6, HR-7, HR-8, IC-5, IC-12, IC-13, IC-50, IC-52, IC-53, IC-54, IC-58, IC-59, IC-60, IC-77, IC-82, IC-90, IC-91, IC-106, IF-9, IN-3, IN-4, LY-5, NT-8, PI-35, PI-38, PTD-5, RC-13, RS-30, S-37, S-72, S-73, S-99, S-99e, S-99g, S-116, S-125, S-135a, S-138, S-140, S-149, S-213, SP-1, SP-4, TS-6, U-23, U-30, U-34, U-35, U-46, U-47, U-48, U-57, UF-62, UF-63, UF-67, UF-69, UF-71, UZ-2, W-4, W-6 | - | - | - | - |
 | `tests/unit/uf-8-9-history-depth.test.ts` | 18 | FR-031 | - | T-027, T-108, T-206, T-368 | BT-4, CM-9, CM-91, CP-8, LY-5, PR-1, S-94, S-95, UN-3, UN-16, WF-1, WS-4, WS-7 | - | - | - | - |
 | `tests/unit/uf-8-9-replace-document.test.ts` | 41 | FR-023, FR-028, FR-031, FR-062, FR-063, FR-095 | - | T-004, T-024a, T-027, T-028, T-032a, T-034, T-035, T-058, T-062, T-064, T-067, T-075, T-108, T-214, T-218, T-220, T-230, T-342 | AG-2, AG-6, AG-9, AG-9a, AG-10, BT-4, CM-62, CP-8, CP-17, IN-1a, IV-6, LM-9, MG-12, MM-1, OP-3, OP-4, OP-5, OP-8, PI-8, PI-11, PI-15, RD-1, RD-2, RD-3, RD-4, RD-6, RD-7, TS-6, UF-8, UF-9, UN-6, WS-1, WS-2, WS-3, WS-4, WS-5, WS-6, WS-7 | - | - | - | - |
-| `tests/unit/use-case.test.ts` | 24 | FR-016, FR-024, FR-031, FR-035, FR-039, FR-046, FR-052, FR-063, FR-080, FR-098 | - | T-050, T-067, T-201, T-202, T-224, T-286 | AG-2, AG-3, AG-6, CM-2, CM-67, CM-71, CM-72, CS-1, HF-8, PF-8, PF-9, PI-8, PI-9, RD-1, S-2, S-3, S-73, S-75, S-76, S-95, S-121, S-123, S-127, S-136, SC-3, UN-7, UN-8, UN-16, UN-17, WS-1, WS-2, WS-3, WS-4, WS-5, WS-6, WS-7 | - | - | - | - |
+| `tests/unit/use-case.test.ts` | 24 | FR-016, FR-024, FR-031, FR-035, FR-039, FR-046, FR-052, FR-063, FR-080, FR-098 | - | T-027, T-050, T-067, T-201, T-202, T-224, T-286 | AG-2, AG-3, AG-6, CM-2, CM-67, CM-71, CM-72, CS-1, HF-8, PF-8, PF-9, PI-8, PI-9, RD-1, S-2, S-3, S-73, S-75, S-76, S-95, S-121, S-123, S-127, S-136, SC-3, UN-7, UN-8, UN-16, UN-17, WS-1, WS-2, WS-3, WS-4, WS-5, WS-6, WS-7 | - | - | - | - |
 | `tests/unit/wl-16-the-parent-link-answers-a-press-as-a-jump.test.ts` | 3 | - | - | T-332 | PTL-16, SJ-1 | - | - | - | - |
 | `tests/use-case/uc-001-place-a-task-and-set-its-period.test.ts` | 1 | FR-001, FR-002, FR-003, FR-091, FR-109, UC-001 | VT-1 | T-012, T-334 | IC-23, LP-3, S-35, SH-1, ST-2, ST-3, ST-5, TC-6, TC-9, VT-1 | - | - | - | - |
 | `tests/use-case/uc-002-build-task-groups-as-a-hierarchy.test.ts` | 1 | FR-005, FR-024, FR-042, FR-085, UC-002 | VT-1 | T-015, T-334, T-338 | GR-20, HF-15, HF-16, HF-17, HM-1, HM-2, HR-1a, HR-4, HR-6, IC-58, IC-59, IC-77, IO-2, MH-2, VT-1 | - | - | - | - |

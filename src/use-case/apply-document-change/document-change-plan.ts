@@ -245,7 +245,7 @@ function editedInTurn(input: PlanInput): { readonly held: Document; readonly ref
   return { held, refusals, recountedTaskUids }
 }
 
-// see T-067, AG-3, AG-10
+// see T-067, AG-3, AG-10, FR-063
 /** @purity pure */
 export function planDocumentChange(input: PlanInput): ChangePlan {
   const stale = refusalOfStamp(input.expectedStamp, input.document.documentStamp)
@@ -274,21 +274,15 @@ export function planDocumentChange(input: PlanInput): ChangePlan {
         )
 
   const hasUpdatedSchedule = hasUpdatedScheduleGroup(input.document, settled)
-  if (settled === input.document) {
-    return {
-      ok: true,
-      document: input.document,
-      history,
-      hasUpdatedSchedule,
-      report: { recountedTaskUids: [...recountedTaskUids] },
-    }
-  }
-  const document: Document = {
-    ...settled,
-    documentStamp: advancedStamp(settled.documentStamp, input.editedBy, input.updatedAt, {
-      hasUpdatedSchedule,
-    }),
-  }
+  const document: Document =
+    settled === input.document || recorded.length === 0
+      ? settled
+      : {
+          ...settled,
+          documentStamp: advancedStamp(settled.documentStamp, input.editedBy, input.updatedAt, {
+            hasUpdatedSchedule,
+          }),
+        }
 
   return {
     ok: true,

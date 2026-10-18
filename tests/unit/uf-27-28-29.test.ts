@@ -1163,14 +1163,14 @@ describe('AM-16 focusTask -- the view, not the schedule', () => {
     expect(one.history.done).toHaveLength(0)
   })
 
-  it('does not move the schedule instant when no task group opens, and still refreshes the writer and the time (FR-063)', () => {
+  it('moves no part of the stamp when no task group opens: a scroll alone is outside T-027 (FR-063, CR-807)', () => {
     const one = bench(true, OPEN_SCHEDULE)
     const outcome = accepted(one.api.focusTask(FIRST_UID))
 
     expect(outcome.hasUpdatedSchedule).toBe(false)
     expect(outcome.stamp.scheduleUpdatedAt).toBe(STARTING_STAMP.scheduleUpdatedAt)
-    expect(outcome.stamp.lastEditedBy).toBe(one.writerName)
-    expect(outcome.stamp.settingsUpdatedAt).toBe(READ_AT)
+    expect(outcome.stamp.lastEditedBy).toBe(STARTING_STAMP.lastEditedBy)
+    expect(outcome.stamp.settingsUpdatedAt).toBe(STARTING_STAMP.settingsUpdatedAt)
   })
 
   it('refuses a uid no task carries, as a value, naming its own row (FR-028 / AG-9a)', () => {

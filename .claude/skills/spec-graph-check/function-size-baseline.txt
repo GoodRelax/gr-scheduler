@@ -1,4 +1,5 @@
 excess-lines=5744 excess-branches=509
+# PRUNED document-change-plan.ts::planDocumentChange (held 62/9, now below the band) on 2026-10-19 (CR-807, FR-063): the two stamp returns folded into one. Totals left for the coordinator to lower.
 # PRUNED task-group-grab.ts::taskGroupGrabLandingOf (held 56/7) and taskGroupGrabPlacesInDrawingOrder (held 74/16), both deleted on 2026-10-16 (CR-772: the axis walk became taskGroupGrabLandingAt, under the band). Totals left for the coordinator.
 # PRUNED field-commit.ts::planActualWithColumn (held 38/17) and commandFromTaskColumn (held 47/20), both now below the band, on 2026-10-11 (CR-710 wave 2b, PR-5): the actual length moved to actualEndForLength, which reads d / h / m with time of day (TX-3); commandFromTaskColumn's plan dates moved to commandFromPlanDate. Totals left for the coordinator.
 # LOWERED totals 6216/621 -> 5744/509 on 2026-10-09 (JDG-520): measured at ead296a6 after the 2026-10-08 waves (shrunk handlers and folded copies).
@@ -113,7 +114,6 @@ HELD src/framework/single-html-shell/held-press-preview.ts::tentativeDependencyO
 HELD src/framework/single-html-shell/interaction-record.ts::interactionRecorderOf lines=75 branches=0
 HELD src/framework/single-html-shell/single-html-shell.ts::boot lines=219 branches=6
 HELD src/framework/single-html-shell/view-place.ts::heldViewPlaceOf lines=69 branches=0
-HELD src/use-case/apply-document-change/document-change-plan.ts::planDocumentChange lines=62 branches=9
 HELD src/use-case/apply-document-change/document-change-plan.ts::planDocumentReplacement lines=80 branches=13
 HELD src/use-case/edit-document/edit-annotation.ts::editAnnotation lines=154 branches=39
 HELD src/use-case/edit-document/edit-dependency.ts::editDependency lines=92 branches=21
