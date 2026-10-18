@@ -730,7 +730,7 @@ describe('AM-1 / AM-2 -- the two versions', () => {
     // Nothing in table T-035, table T-107, `_assets/tbl-settings.md` or Chapter
     // 6.1 states the starting value. This case is what falls over when the
     // pending decision is settled the other way. AG-1: CR-708 raised it to 2, CR-730 to 3, CR-710 wave 3b to 4, CR-769 to 5, CR-792 to 6 and then to a date-time (JDG-2741).
-    expect(bench().api.agentApiVersion).toBe('2026-10-18T08:42:32Z')
+    expect(bench().api.agentApiVersion).toBe('2026-10-18T11:45:00Z')
   })
 
   it("AM-2 answers the build's version, not the open document's (T-107 AM-2)", () => {

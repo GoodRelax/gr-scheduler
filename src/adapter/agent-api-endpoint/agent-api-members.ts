@@ -306,7 +306,7 @@ const ELSEWHERE_DECLARED_FIELDS_MATCH: [
 void ELSEWHERE_DECLARED_FIELDS_MATCH
 
 // see AM-1, AG-1
-const AGENT_API_VERSION = '2026-10-18T08:42:32Z'
+const AGENT_API_VERSION = '2026-10-18T11:45:00Z'
 // </generated>
 
 export interface AgentApiWiring {

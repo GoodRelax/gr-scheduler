@@ -213,6 +213,10 @@ def every_line(doc):
         yield 'mcpInstructions.lead', line
     for line in doc['mcpInstructions']['text']['en']:
         yield 'mcpInstructions.text', line
+    for line in prose(doc['schemaNotes']['lead']):
+        yield 'schemaNotes.lead', line
+    for line in doc['schemaNotes']['text']['en']:
+        yield 'schemaNotes.text', line
     for row in doc['members']['rows']:
         for line in prose(row['carries']):
             yield row['id'], line
@@ -353,6 +357,12 @@ def build(doc):
     out += ['', u'**MCP の初期化の答えに載せる案内**', '',
             paragraph(prose(instructions['lead'])), '', '```text']
     out += instructions['text']['en']
+    out += ['```']
+    # CR-802: the notes readSchema returns with which 'notes'.
+    notes = doc['schemaNotes']
+    out += ['', u'**スキーマの注意（`readSchema` の `notes`）**', '',
+            paragraph(prose(notes['lead'])), '', '```text']
+    out += notes['text']['en']
     out += ['```']
     return u'\n'.join(out) + u'\n'
 

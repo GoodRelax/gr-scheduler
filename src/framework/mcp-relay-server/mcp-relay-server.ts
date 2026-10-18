@@ -27,6 +27,7 @@ import {
   relayedCallOf,
   relayRefusalResult,
   relayTimedOutResult,
+  schemaNotes,
 } from '../../adapter/mcp-tool-translator/mcp-tool-translator'
 
 export interface McpRelayOptions {
@@ -115,6 +116,8 @@ const SCHEMA_TEXT_OF: Readonly<Record<string, SchemaResource['text']>> = {
   document: 'documentSchema',
   commands: 'commandsSchema',
 }
+const NOTES = 'notes'
+const DEF_REFERENCE = /"#\/\$defs\/([^"/]+)"/g
 const KEY_PRESENTED = 'relayKeyPresented'
 const CHANGE_NOTICED = 'changeNoticed'
 const CANCELED = 'notifications/cancelled'
@@ -803,16 +806,70 @@ function schemaResourceOf(resource: SchemaResource, options: McpRelayOptions): R
 }
 
 // see AM-30
+// WHY: one line per definition is enough to choose from; the whole description stays in the definition.
+/** @purity pure */
+function aboutOf(definition: unknown): string {
+  const text = isPlainRecord(definition) && typeof definition['description'] === 'string' ? definition['description'] : ''
+  const end = text.search(/\.(\s|$)/)
+  return end < 0 ? text : text.slice(0, end + 1)
+}
+
+/** @purity pure */
+function recordAt(value: unknown, key: string): Record<string, unknown> {
+  const held = isPlainRecord(value) ? value[key] : undefined
+  return isPlainRecord(held) ? held : {}
+}
+
+/** @purity pure */
+function schemaVersionOf(options: McpRelayOptions): unknown {
+  return recordAt(recordAt(parsedJsonOf(options.documentSchema), 'properties'), 'schemaVersion')['const'] ?? null
+}
+
+// see AM-30
+// WHY: the page the relay serves is built with these schemas, so the version printed here is the page's (CR-802).
+/** @purity pure */
+function schemaPartOf(options: McpRelayOptions, which: string, defs: readonly string[] | undefined): string {
+  const schema = parsedJsonOf(options[SCHEMA_TEXT_OF[which]!])
+  const all = recordAt(schema, '$defs')
+  const head = { which, schemaVersion: schemaVersionOf(options) }
+  if (defs === undefined) {
+    return JSON.stringify({
+      ...head,
+      topLevelKeys: Object.keys(recordAt(schema, 'properties')),
+      defs: Object.entries(all).map(([name, definition]) => ({ name, about: aboutOf(definition) })),
+      next: 'Call readSchema again with defs naming the definitions you need, or with full true for the whole text.',
+    })
+  }
+  const picked = Object.fromEntries(defs.filter((name) => Object.hasOwn(all, name)).map((name) => [name, all[name]]))
+  const named = new Set(Array.from(JSON.stringify(picked).matchAll(DEF_REFERENCE), (found) => found[1]!))
+  return JSON.stringify({
+    ...head,
+    defs: picked,
+    refersTo: [...named].filter((name) => !Object.hasOwn(picked, name)),
+    unknown: defs.filter((name) => !Object.hasOwn(all, name)),
+  })
+}
+
+/** @purity pure */
+function isStringList(value: unknown): value is readonly string[] {
+  return Array.isArray(value) && value.every((one) => typeof one === 'string')
+}
+
+// see AM-30
 /** @purity pure */
 function schemaToolResultOf(options: McpRelayOptions, toolArguments: unknown): McpToolResult {
-  const which = isPlainRecord(toolArguments) ? toolArguments['which'] : undefined
-  const text = typeof which === 'string' && Object.prototype.hasOwnProperty.call(SCHEMA_TEXT_OF, which)
-    ? SCHEMA_TEXT_OF[which]
-    : undefined
-  if (text === undefined) {
-    return relayRefusalResult('malformedRequest', "readSchema takes which: 'document' or 'commands'")
+  const given = isPlainRecord(toolArguments) ? toolArguments : {}
+  const { which, defs, full } = given
+  const isSchema = typeof which === 'string' && Object.hasOwn(SCHEMA_TEXT_OF, which)
+  if (!isSchema && which !== NOTES) {
+    return relayRefusalResult('malformedRequest', "readSchema takes which: 'document', 'commands' or 'notes'")
   }
-  return { content: [{ type: 'text', text: options[text] }] }
+  if ((defs !== undefined && !isStringList(defs)) || (full !== undefined && typeof full !== 'boolean')) {
+    return relayRefusalResult('malformedRequest', 'readSchema takes defs as a list of names and full as true or false')
+  }
+  if (!isSchema) return { content: [{ type: 'text', text: schemaNotes() }] }
+  const text = full === true ? options[SCHEMA_TEXT_OF[which]!] : schemaPartOf(options, which, defs)
+  return { content: [{ type: 'text', text }] }
 }
 
 // see AG-12

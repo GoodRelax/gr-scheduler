@@ -15,6 +15,7 @@
   "kinds",
   "mcpOnlyLabel",
   "mcpInstructions",
+  "schemaNotes",
   "relayRefusalTexts",
   "externalTypes",
   "members",
@@ -397,6 +398,32 @@
   },
   "mcpInstructions": {
    "description": "What the relay answers MCP initialize with (AG-12 (8), design-mcp-relay.md 3.1): a lead printed into the table document, and the text the AI reads, in English, one string per line.",
+   "type": "object",
+   "required": [
+    "lead",
+    "text"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "lead": {
+     "$ref": "#/$defs/lines"
+    },
+    "text": {
+     "type": "object",
+     "required": [
+      "en"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "en": {
+       "$ref": "#/$defs/lineList"
+      }
+     }
+    }
+   }
+  },
+  "schemaNotes": {
+   "description": "The short notes readSchema returns with which 'notes' (CR-802, design-mcp-relay.md 3.1): a lead printed into the table document, and the text the AI reads, in English, one string per line.",
    "type": "object",
    "required": [
     "lead",

@@ -26,7 +26,7 @@ const memberNamed = (name: string): PrintedMember => {
 const GLOSSARY = unbroken(readFileSync(join(SPEC, '_assets', 'tbl-glossary.md'), 'utf8'))
 
 const GLOSSARY_POINTER = '表 T-107（`Agent API` のメンバ）と、その呼び方（引数・型・戻り値）は `_assets/tbl-agent-api-members.md` が持つ'
-const VERSION_SENTENCE = 'いまの版は `2026-10-18T08:42:32Z` である（`AM-1` が返す値）。'
+const VERSION_SENTENCE = 'いまの版は `2026-10-18T11:45:00Z` である（`AM-1` が返す値）。'
 const CHANGE_RAISES_VERSION = '呼び方を変える変更は、版をその変更を当てる時刻へ上げる（表 T-035 の `AG-1`）。'
 const TWENTY_TWO = '**`Agent API` は 1 つの面に 23 のメンバをフラットに並べる。**'
 const CALL_SHAPES_ARE_GENERATED =
@@ -43,7 +43,7 @@ const AM_19_POINTS_AT_25 = '`readSearchRows`（`AM-25`）の遅れは基準日�
 const EXPECTED_ROWS: readonly (readonly [string, string, readonly string[], string])[] = [
   ['AM-1', 'agentApiVersion', [], 'string'],
   ['AM-2', 'schemaVersion', [], 'string'],
-  ['AM-30', 'readSchema', ["which: 'document' | 'commands'"], 'string'],
+  ['AM-30', 'readSchema', ["which: 'document' | 'commands' | 'notes'", 'defs: readonly string[]', 'full: boolean'], 'string'],
   ['AM-3', 'readDocument', ['includeCarry: boolean', 'taskUids: readonly number[]'], 'Document'],
   ['AM-4', 'readStamp', [], 'DocumentStamp'],
   ['AM-5', 'readSelection', [], 'Selection'],

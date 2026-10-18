@@ -55,10 +55,10 @@ const noNotice = (): void => undefined
 
 describe('AM-1 and AG-1: the version the AgentApi hands out is the one the table prints', () => {
   it('agentApiVersion is the date-time the prose of T-107 gives and the manuscript declares (JDG-2741)', () => {
-    expect(installAgentApi(stubbedWiring).agentApiVersion).toBe('2026-10-18T08:42:32Z')
-    expect(MANUSCRIPT.version).toBe('2026-10-18T08:42:32Z')
+    expect(installAgentApi(stubbedWiring).agentApiVersion).toBe('2026-10-18T11:45:00Z')
+    expect(MANUSCRIPT.version).toBe('2026-10-18T11:45:00Z')
     expect(MANUSCRIPT.version).toMatch(/^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$/)
-    expect(PRINTED).toContain('いまの版は `2026-10-18T08:42:32Z` である（`AM-1` が返す値）')
+    expect(PRINTED).toContain('いまの版は `2026-10-18T11:45:00Z` である（`AM-1` が返す値）')
   })
 
   it('schemaVersion is the format version the page was wired with (AM-2)', () => {

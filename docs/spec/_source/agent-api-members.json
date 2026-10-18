@@ -10,7 +10,7 @@
   "Rows are in the order the tables print them and the code declares them, which is not the numeric order. ONE STRING IS ONE PRINTED LINE.",
   "The rules about the Agent API are NOT here -- table T-035 (AG-n) and the requirements the `source` cells name hold them."
  ],
- "version": "2026-10-18T08:42:32Z",
+ "version": "2026-10-18T11:45:00Z",
  "kinds": {
   "property": {
    "ja": "プロパティ"
@@ -33,13 +33,38 @@
    "en": [
     "GRS Relay carries each tool call to the Agent API of the GoodRelax Scheduler (GRS) page a person has open in a browser. The page holds the only copy of the schedule document; the relay holds none.",
     "Start with agentApiVersion. If a tool answers with the reason pageNotConnected, ask the person to open the address it gives (all of it, the part after # included), open a document there, and press the Agent API button in the page header. A document open in another browser tab or window does not reach the relay and does not move to the relay's page: the person opens the file again in the page at the relay's address. That address changes each time the relay starts.",
-    "Before you read or write a document, read the resource grs-document.schema.json from this server. It is the JSON Schema of the GRS JSON document, of the same version as the page, with a description on every key: the times, the units and what each column means. Before you write, read the resource grs-commands.schema.json: every command kind applyCommands takes, with its fields.",
-    "If your client cannot read resources, call readSchema with which 'document' or 'commands': it returns the same text.",
+    "Before you write, read the notes (readSchema with which 'notes') and pull only the definitions you need with readSchema and defs, for example ['Task', 'Dependency']; without defs readSchema returns a table of contents. For reading only, the column descriptions in the tool answers are enough.",
+    "The whole schemas are the resources grs-document.schema.json and grs-commands.schema.json, or readSchema with full true; they are large, so read them only when the parts are not enough.",
     "Read in small pieces: readSearchRows returns one page of the Search Panel as the person sees it (an empty word is the whole outline) and readTableRows does the same for the Delay Diagnostics Report and the Resource List; readDocument leaves out the MSPDI pass-through fields unless you ask, and can be narrowed to some tasks; readStamp is cheap. Write with applyCommands, handing over the stamp you last read as expectedStamp; the whole batch is applied or refused as one.",
     "A refusal is a value, not an error: it names the reason and carries the current stamp, never the document. Read again what you need, then retry.",
     "While the person is dragging, typing in place or answering a question, writes are refused; try again shortly.",
     "To save, pass fileName to an export tool: the relay writes into the save folder the person chose in the relay's settings. If the file exists you may be refused with fileExists: ask the person before passing overwrite true, unless they told you not to ask in this conversation. A request to save again under the same name is not permission to replace the file: ask once even then. The old file is kept as .bak. To open a file, call requestOpenFile: the person picks it in their own file window.",
     "The descriptions here use no row ids of the GRS specification; the specification itself is at https://goodrelax.github.io/gr-scheduler/spec-html/"
+   ]
+  }
+ },
+ "schemaNotes": {
+  "lead": {
+   "ja": [
+    "`readSchema` が `which` = `notes` で返す、書く前に読む短い注意である（CR-802）。",
+    "間違えやすい所だけを持ち、どの注意も文書のスキーマの説明と同じことを言う —— 食い違えばスキーマが正である。",
+    "読むのは AI なので英語で書き、1 つの文字列を 1 行として改行で繋ぐ。"
+   ]
+  },
+  "text": {
+   "en": [
+    "GRS JSON notes: the points that are easy to get wrong. The schema descriptions say the same at more length; when they differ, the schema wins.",
+    "Times. Every date-time is a wall clock in project.scheduleDataTimeZone (for example UTC+09:00), written YYYY-MM-DDTHH:MM:SS to the minute, with no Z and no offset; GRS never converts one.",
+    "A date alone (YYYY-MM-DD) is not a date-time: always write the time of day too, for example the start of the working day for a start and its end for a finish.",
+    "project.statusDate is read as a day: its time of day moves neither the status line nor the progress line.",
+    "Lengths. Durations and lags count working minutes of the document calendar; one working day is project.minutesPerDay minutes, 480 when it is null.",
+    "Dependencies. A dependency sits in the dependencies list of the later task and names the earlier task by predecessorUid.",
+    "linkType is a number: 0 finish-to-finish, 1 finish-to-start, 2 start-to-finish, 3 start-to-start.",
+    "linkLag is in tenths of a minute whatever lagFormat says: one working day of lag is project.minutesPerDay x 10.",
+    "Progress. percentComplete follows from the dates: to record progress write actualStart and actualFinish, or stop while the task is unfinished.",
+    "New uids. Tasks, resources, assignments and calendars share one counter: a new uid is project.uidHighWaterMark plus 1, and uids are never reused. In one applyCommands batch each create takes the next number, so a later command of the same batch can name it.",
+    "Milestones. Task.milestone is the fact; TaskVisual.shapeKind only draws it and must agree with it.",
+    "Writing. Send applyCommands with the stamp you last read as expectedStamp; the whole batch is applied or refused as one, and a refusal is a value that names the reason."
    ]
   }
  },
@@ -195,24 +220,44 @@
     "arguments": [
      {
       "name": "which",
-      "type": "'document' | 'commands'",
+      "type": "'document' | 'commands' | 'notes'",
       "meaning": {
-       "ja": "読むスキーマ —— `document` は `GRS JSON` の文書のスキーマ、`commands` は `applyCommands` の命令のスキーマ",
-       "en": "Which schema: 'document' is the JSON Schema of the GRS JSON document, 'commands' the schema of the commands applyCommands takes"
+       "ja": "読むもの —— `document` は `GRS JSON` の文書のスキーマ、`commands` は `applyCommands` の命令のスキーマ、`notes` は書く前に読む短い注意（下の「スキーマの注意」）",
+       "en": "What to read: 'document' is the JSON Schema of the GRS JSON document, 'commands' the schema of the commands applyCommands takes, 'notes' the short notes to read before writing"
+      }
+     },
+     {
+      "name": "defs",
+      "type": "readonly string[]",
+      "meaning": {
+       "ja": "返す定義の名（スキーマの `$defs` の名、例 `Task`・`Dependency`）—— 渡せばその定義だけを返す",
+       "en": "Names of definitions to return, as named in the schema's $defs (for example Task, Dependency); only those are returned"
+      }
+     },
+     {
+      "name": "full",
+      "type": "boolean",
+      "meaning": {
+       "ja": "真ならスキーマの本文の全部を返す（資源と同じ本文） —— `defs` より先に効く",
+       "en": "true returns the whole schema text, the same as the resource; it wins over defs"
       }
      }
     ],
     "returns": "string",
     "carries": {
      "ja": [
-      "取次が中に持つスキーマの本文を返す —— 資源 `grs-document.schema.json`・`grs-commands.schema.json` と同じ本文である。",
-      "資源を読めない客のための道。",
-      "ページはこのメンバを持たない（表 T-035 の `AG-12` の ④）。"
+      "取次が中に持つスキーマを部分ごとに返す（CR-802）。",
+      "`defs` も `full` も無ければ目次を返す —— 一番上の鍵と、`$defs` の名を 1 つに 1 行の説明で、文書のスキーマの版（`schemaVersion`）と共に。",
+      "`defs` を渡せばその定義だけを、それが `$ref` で指すほかの定義の名と共に返し、`full` が真なら本文の全部（資源 `grs-document.schema.json`・`grs-commands.schema.json` と同じ本文）を返す。",
+      "`which` が `notes` なら、書く前に読む短い注意を返す。",
+      "ページはこのメンバを持たない（表 T-035 の `AG-12` の ④）—— 取次が中に持つものだけで答えるので、ページが繋がる前にも答える。"
      ],
      "en": [
-      "Returns the text of a JSON Schema the relay carries: the same text as the resource grs-document.schema.json or grs-commands.schema.json.",
-      "Use it when your client cannot read resources.",
-      "It works even before a page is connected."
+      "Returns a JSON Schema the relay carries, in parts.",
+      "With neither defs nor full it returns a table of contents: the top-level keys and every definition name with one line about it, and the document schema version (schemaVersion).",
+      "With defs it returns only those definitions, with the names of the other definitions they refer to; with full true it returns the whole text, the same as the resource grs-document.schema.json or grs-commands.schema.json.",
+      "With which 'notes' it returns the short notes to read before writing.",
+      "It works even before a page is connected; the schemas are those of the page the relay serves."
      ]
     },
     "source": {

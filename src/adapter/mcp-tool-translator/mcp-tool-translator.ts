@@ -62,6 +62,12 @@ export function mcpInstructions(): string {
   return toolDescriptions.instructions
 }
 
+// see AM-30
+/** @purity pure */
+export function schemaNotes(): string {
+  return toolDescriptions.schemaNotes
+}
+
 // see AG-12, AG-5
 /** @purity pure */
 export function relayedCallOf(toolCall: {

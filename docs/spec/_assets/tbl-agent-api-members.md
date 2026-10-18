@@ -14,7 +14,7 @@
 
 **`Agent API` は 1 つの面に 23 のメンバをフラットに並べる。**  
 用途別に分けない理由は Chapter 5.2 が持つ（`R2.5`）。  
-いまの版は `2026-10-18T08:42:32Z` である（`AM-1` が返す値）。  
+いまの版は `2026-10-18T11:45:00Z` である（`AM-1` が返す値）。  
 版は、文書の形式の版（`FR-073`）と同じ書式の日時である —— 呼び方を変える変更は、版をその変更を当てる時刻へ上げる（表 T-035 の `AG-1`）。  
 ⭐ **呼び方（引数の名・型・意味と戻り値）は本表と 表 T-400 が持つ** —— コードの `AgentApi` の型と、MCP の道具の入力の形は本表の原稿から生成し、手で書かない。  
 境界値は Chapter 6.1 が持つ。
@@ -25,7 +25,7 @@
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | AM-1 | 版 | `agentApiVersion` | プロパティ・`semi-pure-a` | — | `string` | `Agent API` の版 —— `schemaVersion` と同じ書式の日時の文字列（`YYYY-MM-DDTHH:MM:SSZ`）。<br>呼ぶ側が最初に読む | 表 T-035 の `AG-1` |
 | AM-2 | 版 | `schemaVersion` | プロパティ・`semi-pure-a` | — | `string` | この版の `GRS` が読み書きする文書の形式の版。<br>いま開いている文書が持つ値は `AM-3` で読む | 表 T-052 の `DR-4` |
-| AM-30 | 読む | `readSchema` | 動詞＋目的語・`semi-pure-a` | `which`: `'document'` か `'commands'` —— 読むスキーマ —— `document` は `GRS JSON` の文書のスキーマ、`commands` は `applyCommands` の命令のスキーマ | `string` | 取次が中に持つスキーマの本文を返す —— 資源 `grs-document.schema.json`・`grs-commands.schema.json` と同じ本文である。<br>資源を読めない客のための道。<br>ページはこのメンバを持たない（表 T-035 の `AG-12` の ④）。 | 表 T-035 の `AG-12` の ④ ／ `_assets/design-mcp-relay.md` の 3.1 |
+| AM-30 | 読む | `readSchema` | 動詞＋目的語・`semi-pure-a` | `which`: `'document'` か `'commands'` か `'notes'` —— 読むもの —— `document` は `GRS JSON` の文書のスキーマ、`commands` は `applyCommands` の命令のスキーマ、`notes` は書く前に読む短い注意（下の「スキーマの注意」）<br>`defs`: `readonly string[]` —— 返す定義の名（スキーマの `$defs` の名、例 `Task`・`Dependency`）—— 渡せばその定義だけを返す<br>`full`: `boolean` —— 真ならスキーマの本文の全部を返す（資源と同じ本文） —— `defs` より先に効く | `string` | 取次が中に持つスキーマを部分ごとに返す（CR-802）。<br>`defs` も `full` も無ければ目次を返す —— 一番上の鍵と、`$defs` の名を 1 つに 1 行の説明で、文書のスキーマの版（`schemaVersion`）と共に。<br>`defs` を渡せばその定義だけを、それが `$ref` で指すほかの定義の名と共に返し、`full` が真なら本文の全部（資源 `grs-document.schema.json`・`grs-commands.schema.json` と同じ本文）を返す。<br>`which` が `notes` なら、書く前に読む短い注意を返す。<br>ページはこのメンバを持たない（表 T-035 の `AG-12` の ④）—— 取次が中に持つものだけで答えるので、ページが繋がる前にも答える。 | 表 T-035 の `AG-12` の ④ ／ `_assets/design-mcp-relay.md` の 3.1 |
 | AM-3 | 読む | `readDocument` | 動詞＋目的語・`semi-pure-b` | `includeCarry`: `boolean` —— MSPDI の持ち越しの欄（`carry`・`carryElements`）を含めるか —— 省けば `false`<br>`taskUids`: `readonly number[]` —— 読むタスクの `uid` の並び —— 空か省けば全部 | `Document`（表 T-064 の `PI-34`） | 文書の凍結された複製。<br>ルートの 3 群すべてを含む。<br>⭐ 既定では MSPDI の持ち越しの欄（`carry`・`carryElements`）を除き、`includeCarry` が `true` のときだけ含める —— 持ち越しの欄は、MS Project の交換形式から開いた 256 タスクの見本の文書で 84% を占め（1,383,668 字のうち、除くと 220,379 字）、AI の受け口を超える。<br>GRS で作った文書では持ち越しの欄の多くが空なので、減り方はずっと小さい。<br>`taskUids` が空でなければ、タスクに属する 6 つの群（`tasks`・`assignments`・`taskVisuals`・`taskGroupMembers`・`taskOrigins`・`baselineTasks`）をそのタスクだけにする。 | 表 T-035 の `AG-4` ／ 表 T-052 の `DR-1` |
 | AM-4 | 読む | `readStamp` | 動詞＋目的語・`semi-pure-b` | — | `DocumentStamp`（表 T-064 の `PI-3`） | 文書の刻印。<br>楽観ロックの照合に用いる | 表 T-035 の `AG-2` ／ `FR-063` |
 | AM-5 | 読む | `readSelection` | 動詞＋目的語・`semi-pure-b` | — | `Selection`（表 T-064 の `PI-32`） | いま選ばれている対象。<br>選んだ順序を保つ | 表 T-023c の `SL-1` / `SL-7b` |
@@ -90,11 +90,32 @@
 ```text
 GRS Relay carries each tool call to the Agent API of the GoodRelax Scheduler (GRS) page a person has open in a browser. The page holds the only copy of the schedule document; the relay holds none.
 Start with agentApiVersion. If a tool answers with the reason pageNotConnected, ask the person to open the address it gives (all of it, the part after # included), open a document there, and press the Agent API button in the page header. A document open in another browser tab or window does not reach the relay and does not move to the relay's page: the person opens the file again in the page at the relay's address. That address changes each time the relay starts.
-Before you read or write a document, read the resource grs-document.schema.json from this server. It is the JSON Schema of the GRS JSON document, of the same version as the page, with a description on every key: the times, the units and what each column means. Before you write, read the resource grs-commands.schema.json: every command kind applyCommands takes, with its fields.
-If your client cannot read resources, call readSchema with which 'document' or 'commands': it returns the same text.
+Before you write, read the notes (readSchema with which 'notes') and pull only the definitions you need with readSchema and defs, for example ['Task', 'Dependency']; without defs readSchema returns a table of contents. For reading only, the column descriptions in the tool answers are enough.
+The whole schemas are the resources grs-document.schema.json and grs-commands.schema.json, or readSchema with full true; they are large, so read them only when the parts are not enough.
 Read in small pieces: readSearchRows returns one page of the Search Panel as the person sees it (an empty word is the whole outline) and readTableRows does the same for the Delay Diagnostics Report and the Resource List; readDocument leaves out the MSPDI pass-through fields unless you ask, and can be narrowed to some tasks; readStamp is cheap. Write with applyCommands, handing over the stamp you last read as expectedStamp; the whole batch is applied or refused as one.
 A refusal is a value, not an error: it names the reason and carries the current stamp, never the document. Read again what you need, then retry.
 While the person is dragging, typing in place or answering a question, writes are refused; try again shortly.
 To save, pass fileName to an export tool: the relay writes into the save folder the person chose in the relay's settings. If the file exists you may be refused with fileExists: ask the person before passing overwrite true, unless they told you not to ask in this conversation. A request to save again under the same name is not permission to replace the file: ask once even then. The old file is kept as .bak. To open a file, call requestOpenFile: the person picks it in their own file window.
 The descriptions here use no row ids of the GRS specification; the specification itself is at https://goodrelax.github.io/gr-scheduler/spec-html/
+```
+
+**スキーマの注意（`readSchema` の `notes`）**
+
+`readSchema` が `which` = `notes` で返す、書く前に読む短い注意である（CR-802）。  
+間違えやすい所だけを持ち、どの注意も文書のスキーマの説明と同じことを言う —— 食い違えばスキーマが正である。  
+読むのは AI なので英語で書き、1 つの文字列を 1 行として改行で繋ぐ。
+
+```text
+GRS JSON notes: the points that are easy to get wrong. The schema descriptions say the same at more length; when they differ, the schema wins.
+Times. Every date-time is a wall clock in project.scheduleDataTimeZone (for example UTC+09:00), written YYYY-MM-DDTHH:MM:SS to the minute, with no Z and no offset; GRS never converts one.
+A date alone (YYYY-MM-DD) is not a date-time: always write the time of day too, for example the start of the working day for a start and its end for a finish.
+project.statusDate is read as a day: its time of day moves neither the status line nor the progress line.
+Lengths. Durations and lags count working minutes of the document calendar; one working day is project.minutesPerDay minutes, 480 when it is null.
+Dependencies. A dependency sits in the dependencies list of the later task and names the earlier task by predecessorUid.
+linkType is a number: 0 finish-to-finish, 1 finish-to-start, 2 start-to-finish, 3 start-to-start.
+linkLag is in tenths of a minute whatever lagFormat says: one working day of lag is project.minutesPerDay x 10.
+Progress. percentComplete follows from the dates: to record progress write actualStart and actualFinish, or stop while the task is unfinished.
+New uids. Tasks, resources, assignments and calendars share one counter: a new uid is project.uidHighWaterMark plus 1, and uids are never reused. In one applyCommands batch each create takes the next number, so a later command of the same batch can name it.
+Milestones. Task.milestone is the fact; TaskVisual.shapeKind only draws it and must agree with it.
+Writing. Send applyCommands with the stamp you last read as expectedStamp; the whole batch is applied or refused as one, and a refusal is a value that names the reason.
 ```

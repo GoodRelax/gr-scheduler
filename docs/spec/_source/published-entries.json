@@ -4912,6 +4912,15 @@
      }
     },
     {
+     "name": "schemaNotes",
+     "note": {
+      "ja": [
+       "`readSchema` が `notes` で返す、書く前に読む短い注意（CR-802）。",
+       "文は `_source/agent-api-members.json` の `schemaNotes` から刷る（`_assets/design-mcp-relay.md` の 3.1）"
+      ]
+     }
+    },
+    {
      "name": "relayedCallOf",
      "note": {
       "ja": [

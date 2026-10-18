@@ -2083,6 +2083,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `relayedCallOf` | entry | function | `src/adapter/mcp-tool-translator/mcp-tool-translator.ts#relayedCallOf` | PI-40 | MCP の道具の呼び出しを、ページへ運ぶ呼び出しに写す |
 | `relayRefusalResult` | entry | function | `src/adapter/mcp-tool-translator/mcp-tool-translator.ts#relayRefusalResult` | PI-40 | 取次が自ら返す拒否の値（刻印を持たない）。 |
 | `relayTimedOutResult` | entry | function | `src/adapter/mcp-tool-translator/mcp-tool-translator.ts#relayTimedOutResult` | PI-40 | 取次の締め切りを過ぎた呼び出しの答え。 |
+| `schemaNotes` | entry | function | `src/adapter/mcp-tool-translator/mcp-tool-translator.ts#schemaNotes` | PI-40 | `readSchema` が `notes` で返す、書く前に読む短い注意（CR-802）。 |
 
 ## McpRelayServer (PI-41, `src/framework/mcp-relay-server/mcp-relay-server.ts`)
 
@@ -2092,4 +2093,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 1062 name(s) leave through a public entry (518 of them published by table T-064), 830 more are exported by a file and not by its entry.
+Totals: 1063 name(s) leave through a public entry (519 of them published by table T-064), 830 more are exported by a file and not by its entry.

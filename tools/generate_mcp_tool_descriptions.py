@@ -106,7 +106,10 @@ def build():
         text = generate_agent_api.english(
             doc['relayRefusalTexts'][reason], 'relayRefusalTexts.%s' % reason)
         refusals[reason] = ' '.join(text.splitlines())
-    return {'$comment': BANNER, 'instructions': instructions, 'relayRefusals': refusals, 'tools': tools}
+    # CR-802: the notes readSchema hands over with which 'notes' (design-mcp-relay.md 3.1).
+    notes = generate_agent_api.english(doc['schemaNotes']['text'], 'schemaNotes')
+    return {'$comment': BANNER, 'instructions': instructions, 'relayRefusals': refusals,
+            'schemaNotes': notes, 'tools': tools}
 
 
 def main():

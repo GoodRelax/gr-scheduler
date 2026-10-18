@@ -19,7 +19,7 @@ const settled = (text: string): string => text.replace(/\s+/g, ' ')
 const DESIGN = settled(readFileSync(join(SPEC, '_assets', 'design-mcp-relay.md'), 'utf8'))
 
 const RULE_OF_TYPES =
-  "入力の型は TS の型から導く —— `string` は文字列、`number` は数、`boolean` は真偽、数の並びは数の並び、文字列の値の並び（`'a' | 'b'`）は文字列の `enum`、名の付いた型はオブジェクト。"
+  "入力の型は TS の型から導く —— `string` は文字列、`number` は数、`boolean` は真偽、数の並びは数の並び、文字列の並びは文字列の並び（CR-802）、文字列の値の並び（`'a' | 'b'`）は文字列の `enum`、名の付いた型はオブジェクト。"
 const RULE_OF_MEANINGS = '鍵ごとの説明は引数の欄の意味である。'
 const RULE_KEYS_ARE_ARGUMENT_NAMES = '1 つのオブジェクトとし、鍵はそのメンバの引数の名とする'
 const RULE_NOT_BY_HAND =
@@ -44,6 +44,7 @@ const WRITE_REQUEST_TOOL = 'applyCommands'
 const WRITE_REQUEST_KEYS = ['expectedStamp', 'commands']
 
 const NUMBER_LIST = 'readonly number[]'
+const STRING_LIST = 'readonly string[]'
 const STRING_CHOICES = /^'[^']+'( \| '[^']+')+$/
 
 // see AG-12, CR-796
@@ -55,6 +56,9 @@ const schemaOf = (member: PrintedMember, argument: PrintedArgument): Schema => {
   if (argument.typeText === 'boolean') return { type: 'boolean', description }
   if (argument.typeText === NUMBER_LIST) {
     return { type: 'array', items: { type: 'number' }, description }
+  }
+  if (argument.typeText === STRING_LIST) {
+    return { type: 'array', items: { type: 'string' }, description }
   }
   // WHY: a list of string values is a string enum (design 3.1) (see AM-25)
   if (STRING_CHOICES.test(argument.typeText)) {

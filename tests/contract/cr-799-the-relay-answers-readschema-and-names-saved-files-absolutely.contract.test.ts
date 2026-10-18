@@ -298,7 +298,7 @@ describe('AM-30 readSchema: the relay answers it itself, with the text of the ma
     ['commands', COMMANDS_URI, COMMANDS_SCHEMA],
   ])('which %s returns the same text as resources/read, with no page connected', async (which, uri, text) => {
     const { client } = await startRelay()
-    const result = await client.callTool('readSchema', { which })
+    const result = await client.callTool('readSchema', { which, full: true })
     expect(result['isError']).not.toBe(true)
     const content = result['content'] as Json[]
     expect(content).toHaveLength(1)
@@ -310,7 +310,7 @@ describe('AM-30 readSchema: the relay answers it itself, with the text of the ma
   it('still answers when a page is connected, and never asks the page', async () => {
     const started = await startRelay()
     const page = await connectPage(started, () => ({ result: '1.0-fake' }))
-    const result = await started.client.callTool('readSchema', { which: 'document' })
+    const result = await started.client.callTool('readSchema', { which: 'document', full: true })
     expect((result['content'] as Json[])[0]?.['text']).toBe(DOCUMENT_SCHEMA)
     expect(page.callsOf('readSchema')).toHaveLength(0)
   })

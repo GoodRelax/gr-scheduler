@@ -59,6 +59,7 @@ HEADER = HEADER_PREFIX + '%s).'
 
 IDENTIFIER = re.compile(r'^[A-Za-z_$][A-Za-z0-9_$]*$')
 NUMBER_LISTS = ('readonly number[]', 'number[]')
+STRING_LISTS = ('readonly string[]', 'string[]')
 PRIMITIVE_SCHEMAS = {'string': 'string', 'number': 'number', 'boolean': 'boolean'}
 STRING_LITERAL = re.compile(r"^'([^']*)'$")
 # An alternative of a union longer than this is printed one field per line.
@@ -128,6 +129,8 @@ def mcp_value_schema(type_text, where):
         return {'type': PRIMITIVE_SCHEMAS[type_text]}
     if type_text in NUMBER_LISTS:
         return {'type': 'array', 'items': {'type': 'number'}}
+    if type_text in STRING_LISTS:
+        return {'type': 'array', 'items': {'type': 'string'}}
     values = string_literals(type_text)
     if values:
         return {'type': 'string', 'enum': values}
