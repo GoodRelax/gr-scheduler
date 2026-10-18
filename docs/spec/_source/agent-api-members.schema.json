@@ -8,13 +8,14 @@
   "The schema sees the SHAPE. What JSON Schema cannot say -- a row id or a name written twice, a type naming an identifier nobody defines, a line whose parenthesis does not close -- is refused by agent_api_members_json_to_md.py."
  ],
  "title": "The Agent API members manuscript",
- "description": "Table T-107 (the 22 members and how each is called) and table T-400 (the value types they hand over).",
+ "description": "Table T-107 (the 23 members and how each is called) and table T-400 (the value types they hand over).",
  "type": "object",
  "required": [
   "version",
   "kinds",
   "mcpOnlyLabel",
   "mcpInstructions",
+  "relayRefusalTexts",
   "externalTypes",
   "members",
   "values"
@@ -204,6 +205,12 @@
     },
     "source": {
      "$ref": "#/$defs/prose"
+    },
+    "answeredBy": {
+     "description": "The relay answers this member itself from what it carries; the page has no such member (AG-12 (4)).",
+     "enum": [
+      "relay"
+     ]
     }
    }
   },
@@ -337,6 +344,19 @@
      "$ref": "#/$defs/prose"
     }
    }
+  },
+  "englishLines": {
+   "description": "Printed English lines the relay hands to the AI; one string is one sentence.",
+   "type": "object",
+   "required": [
+    "en"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "en": {
+     "$ref": "#/$defs/lineList"
+    }
+   }
   }
  },
  "properties": {
@@ -398,6 +418,27 @@
        "$ref": "#/$defs/lineList"
       }
      }
+    }
+   }
+  },
+  "relayRefusalTexts": {
+   "description": "The `what` of a refusal the relay gives itself, without a page to ask (AG-12, design-mcp-relay.md 5): a lead printed for the reader of the specification, and one English text per reason. A name in braces ({pageUrl}, {member}, {seconds}) is filled by the relay.",
+   "type": "object",
+   "required": [
+    "lead",
+    "pageNotConnected",
+    "relayTimedOut"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "lead": {
+     "$ref": "#/$defs/lines"
+    },
+    "pageNotConnected": {
+     "$ref": "#/$defs/englishLines"
+    },
+    "relayTimedOut": {
+     "$ref": "#/$defs/englishLines"
     }
    }
   },

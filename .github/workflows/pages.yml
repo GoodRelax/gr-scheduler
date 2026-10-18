@@ -105,6 +105,9 @@ jobs:
           test -f _site/download/index.html
           cp dist/index.html _site/download/GRS.html
           cp dist-relay/grs-relay.mcpb dist-relay/grs-relay.mcpb.sha256 dist-relay/grs-relay.mjs _site/download/
+          #    The page shows the build's version under both buttons (CR-799): the commit time
+          #    in UTC and its semver form, the same as the bundle's manifest.json.
+          node tools/stamp_download_page.mjs _site/download/index.html
           # 6) Disable Jekyll so underscore dirs (_static, _assets) are served.
           touch _site/.nojekyll
 

@@ -4,7 +4,7 @@
     python tools/generate_agent_api.py
     python tools/generate_agent_api.py --check
 
-READS   docs/spec/_source/agent-api-members.json (table T-107, the 22 members
+READS   docs/spec/_source/agent-api-members.json (table T-107, the 23 members
         with their arguments and return values, and table T-400, the value
         types they hand over -- CR-765, JDG-2160).
 WRITES  one region per unit, the one that opens
@@ -257,11 +257,20 @@ def member_signature(member):
             '  %s(%s): %s' % (member['name'], args, member['returns'])]
 
 
+def page_members(doc):
+    """The members the page answers: a row marked `answeredBy: relay` is answered by the relay
+    from what it carries and has no member on the page (AG-12 (4), CR-799).
+
+    @purity pure
+    """
+    return [member for member in doc['members']['rows'] if member.get('answeredBy') != 'relay']
+
+
 def agent_api_interface(doc):
     """@purity pure"""
     out = ['// see %s' % doc['members']['table']['id'], 'export interface AgentApi {']
     group = None
-    for member in doc['members']['rows']:
+    for member in page_members(doc):
         if group is not None and member['group']['ja'] != group:
             out.append('')
         group = member['group']['ja']
@@ -293,7 +302,7 @@ def relayed_region(doc):
     @purity pure
     """
     out = ['// see %s, AG-12' % doc['members']['table']['id'], 'export interface RelayedParams {']
-    for member in doc['members']['rows']:
+    for member in page_members(doc):
         if 'mcpOnlyKeys' in member:
             out.append('  // WHY: the relay reads %s itself; the page %s.'
                        % (', '.join(one['name'] for one in member['mcpOnlyKeys']),
@@ -304,7 +313,7 @@ def relayed_region(doc):
         out.append('  %s: %s' % (member['name'], '{ %s }' % params if params else '{}'))
     out.append('}')
     out += ['', '// WHY: only members with arguments, in their argument order.', 'const MEMBER_PARAMETERS = {']
-    for member in doc['members']['rows']:
+    for member in page_members(doc):
         if member['arguments'] and 'mcpOnlyKeys' not in member:
             out.append('  %s: [%s],' % (member['name'], ', '.join(
                 "'%s'" % one['name'] for one in member['arguments'])))

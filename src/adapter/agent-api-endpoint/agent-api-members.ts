@@ -306,7 +306,7 @@ const ELSEWHERE_DECLARED_FIELDS_MATCH: [
 void ELSEWHERE_DECLARED_FIELDS_MATCH
 
 // see AM-1, AG-1
-const AGENT_API_VERSION = '2026-10-18T02:15:42Z'
+const AGENT_API_VERSION = '2026-10-18T08:42:32Z'
 // </generated>
 
 export interface AgentApiWiring {
@@ -690,6 +690,14 @@ function serializedDocument(value: object): HandedText {
   }
 }
 
+const KIND_FIELD = '/kind'
+
+/** @purity pure */
+function commandKindText(command: unknown): string {
+  const kind = typeof command === 'object' && command !== null ? (command as { readonly kind?: unknown }).kind : undefined
+  return typeof kind === 'string' ? `kind ${JSON.stringify(kind)}` : 'no kind'
+}
+
 // see FR-028, AG-9a, T-108
 // WHY: judged before the one path, so a bundle out of shape is refused without touching the document (DFC-2856).
 /** @purity pure */
@@ -698,12 +706,16 @@ function malformedWriteRequestWhat(request: AgentWriteRequest): string | null {
     || (request.expectedStamp as unknown) === null
     || typeof request.expectedStamp !== 'object'
     || !Array.isArray(request.commands)) {
-    return 'AM-7 takes { expectedStamp, commands }; one of the two is missing or not its shape'
+    return 'applyCommands takes { expectedStamp, commands }; one of the two is missing or not its shape'
   }
   for (const [index, command] of (request.commands as readonly unknown[]).entries()) {
     const fault = DocumentCodec.commandShapeFaults(command)[0]
+    if (fault !== undefined && fault.at === KIND_FIELD) {
+      return `command ${index} has ${commandKindText(command)}, which is not a command kind applyCommands takes (see grs-commands.schema.json)`
+    }
     if (fault !== undefined) {
-      return `command ${index} is not the shape table T-108 declares: ${fault.at === '' ? 'it' : fault.at} ${fault.what}`
+      return `command ${index} (${commandKindText(command)}) is not the shape grs-commands.schema.json gives that kind: ` +
+        `${fault.at === '' ? 'it' : `the field ${fault.at}`} ${fault.what}`
     }
   }
   return null
@@ -730,7 +742,7 @@ function writeThroughTheOnePath(
         target,
         'malformedRequest',
         snapshot,
-        `a command of the bundle is not the shape table T-108 declares: ${messageOf(thrown)}`,
+        `a command of the batch does not have the shape grs-commands.schema.json gives its kind: ${messageOf(thrown)}`,
         [],
       ),
     }

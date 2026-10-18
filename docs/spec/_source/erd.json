@@ -488,7 +488,10 @@
      "origin": "Own",
      "exchange": "Project/Name",
      "meaning": {
-      "ja": "プロジェクト名"
+      "ja": "プロジェクト名 —— 画面には出さない（交換形式の `Project/Name` を持ち運ぶ値であり、画面の文書名は `title`）"
+     },
+     "schemaNote": {
+      "en": "The project name of the MS Project exchange format (Project/Name), carried to and from it. GRS does not show it; the name shown on screen is title."
      }
     },
     {
@@ -504,7 +507,10 @@
      "origin": "Own",
      "exchange": "Project/Title",
      "meaning": {
-      "ja": "文書名（`U-27`）"
+      "ja": "文書名（`U-27`） —— 画面の上端に出す文書の名であり、書き出すファイルの既定の名にもなる"
+     },
+     "schemaNote": {
+      "en": "The document title: the name shown on screen at the top of the page, and the default name of an exported file. Read it to tell which document is open."
      }
     },
     {

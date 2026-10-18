@@ -763,10 +763,18 @@
    ],
    "carries": {
     "ja": [
-     "タスクを作る"
+     "タスクを作る",
+     "`shapeKind` は `rectangle`・`chevron`・`arrow`・`endpointSpan`・`milestone` のどれか（`AT-100`） —— `milestone` ならタスクをマイルストーンにする。",
+     "新しいタスクの `uid` は `project.uidHighWaterMark` に 1 を足した値で、最高水位もその値へ進む —— 束の後の命令が `uid` を持つものを作れば、その次の値になる。",
+     "例：`uidHighWaterMark` が 41 なら、束 [`createTask`, `createTask`, `taskUid` 42 の `setTaskName`, `taskUid` 43 の `setTaskName`] は作った 2 つのタスクに名を付ける。",
+     "`taskGroupId` がどのタスクグループも指さなければ、その id で最上位のタスクグループを作る。"
     ],
     "en": [
-     "Creates a task with the given `shapeKind`, `start` and `finish`, placed on the task group `taskGroupId`."
+     "Creates a task with the given `shapeKind`, `start` and `finish`, placed on the task group `taskGroupId`.",
+     "`shapeKind` is one of `rectangle`, `chevron`, `arrow`, `endpointSpan` and `milestone`; `milestone` makes the task a milestone.",
+     "The new task's uid is `project.uidHighWaterMark` plus 1, and the high-water mark moves to it, so a later command of the same batch that creates something with a uid takes the next number.",
+     "Example: when `uidHighWaterMark` is 41, the batch [`createTask`, `createTask`, `setTaskName` with `taskUid` 42, `setTaskName` with `taskUid` 43] names both new tasks.",
+     "A `taskGroupId` that names no task group makes a new top-level task group with that id."
     ]
    },
    "source": {

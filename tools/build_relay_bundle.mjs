@@ -21,6 +21,7 @@ import { existsSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { deflateRawSync } from 'node:zlib'
+import { buildVersion } from './relay_version.mjs'
 
 const ROOT = dirname(dirname(fileURLToPath(import.meta.url)))
 // WHY: not dist/ -- dist/ holds the one .html the app is (CN-1, NFR-004); the relay is a second deliverable.
@@ -30,15 +31,11 @@ const RELAY_JS = join(RELAY_DIST, 'grs-relay.mjs')
 const BUNDLE = join(RELAY_DIST, 'grs-relay.mcpb')
 const BUNDLE_SHA256 = join(RELAY_DIST, 'grs-relay.mcpb.sha256')
 const TOOL_DESCRIPTIONS = join(ROOT, 'src', 'adapter', 'mcp-tool-translator', 'mcp-tool-descriptions.json')
-const PACKAGE_JSON = join(ROOT, 'package.json')
 
 const BUNDLE_NAME = 'grs-relay.mcpb'
 const SERVER_ENTRY = 'server/grs-relay.mjs'
 const MANIFEST_VERSION = '0.3'
 const OLDEST_NODE = '>=18.0.0'
-// CR-791: the version is package.json's plus, as build metadata, the head of the page's SHA-256 --
-// the same string vite.relay.config.ts gives the relay's serverInfo.
-const PAGE_HASH_HEX_DIGITS = 12
 
 // Zip format constants (APPNOTE.TXT).
 const LOCAL_HEADER_SIGNATURE = 0x04034b50
@@ -117,9 +114,9 @@ function zipOf(entries) {
 }
 
 function manifestOf() {
-  const { version: packageVersion } = JSON.parse(readFileSync(PACKAGE_JSON, 'utf8'))
-  const pageHash = createHash('sha256').update(readFileSync(PAGE_HTML)).digest('hex').slice(0, PAGE_HASH_HEX_DIGITS)
-  const version = `${packageVersion}+${pageHash}`
+  // CR-799: the source's commit time in UTC -- semver in `version` (the same string vite.relay.config.ts
+  // gives the relay's serverInfo), the date-time at the head of the description (tools/relay_version.mjs).
+  const { builtAt, semver: version } = buildVersion()
   const { tools } = JSON.parse(readFileSync(TOOL_DESCRIPTIONS, 'utf8'))
   return {
     manifest_version: MANIFEST_VERSION,
@@ -127,6 +124,7 @@ function manifestOf() {
     display_name: 'GRS Relay',
     version,
     description:
+      `Built ${builtAt}. ` +
       'Lets an AI app call the Agent API of a GoodRelax Scheduler page. The relay serves the ' +
       'page on 127.0.0.1 and carries each tool call to it; the page stays the only copy of the document.',
     author: { name: 'gr-scheduler contributors' },

@@ -2,7 +2,7 @@
  "$schema": "./agent-api-members.schema.json",
  "$comment": [
   "SINGLE SOURCE OF TRUTH -- EDIT THIS FILE.",
-  "The members of the Agent API and how each is called (CR-765, JDG-2160): table T-107 (the 22 members: group, confirmed name, kind and purity, arguments, return value, what it carries, source) and table T-400 (the value types the arguments and return values name that table T-064 has no row for).",
+  "The members of the Agent API and how each is called (CR-765, JDG-2160): table T-107 (the 23 members: group, confirmed name, kind and purity, arguments, return value, what it carries, source) and table T-400 (the value types the arguments and return values name that table T-064 has no row for).",
   "Generated FROM this file: _assets/tbl-agent-api-members.md (agent_api_members_json_to_md.py); the generated regions of src/adapter/agent-api-endpoint/agent-api-members.ts (AgentApi, the value types, AGENT_API_VERSION), src/adapter/agent-api-endpoint/relayed-call.ts (RelayedParams, MEMBER_PARAMETERS) and src/framework/mcp-relay-server/mcp-relay-server.ts (the MCP-only key of AM-17) (tools/generate_agent_api.py); and src/adapter/mcp-tool-translator/mcp-tool-descriptions.json, the MCP tool names, descriptions and input shapes (tools/generate_mcp_tool_descriptions.py).",
   "Rebuild: npm run gen   |   npm run gen:check fails if anything has drifted.",
   "Validated by _source/agent-api-members.schema.json. agent_api_members_json_to_md.py also refuses a row id or a name written twice, a type naming an identifier that is neither a row of the value table, a name of `externalTypes` nor a built-in, a line that is empty or holds a line-break tag, and a parenthesis or bold run that does not close on its line.",
@@ -10,7 +10,7 @@
   "Rows are in the order the tables print them and the code declares them, which is not the numeric order. ONE STRING IS ONE PRINTED LINE.",
   "The rules about the Agent API are NOT here -- table T-035 (AG-n) and the requirements the `source` cells name hold them."
  ],
- "version": "2026-10-18T02:15:42Z",
+ "version": "2026-10-18T08:42:32Z",
  "kinds": {
   "property": {
    "ja": "プロパティ"
@@ -32,14 +32,36 @@
   "text": {
    "en": [
     "GRS Relay carries each tool call to the Agent API of the GoodRelax Scheduler (GRS) page a person has open in a browser. The page holds the only copy of the schedule document; the relay holds none.",
-    "Start with agentApiVersion. If a tool answers with the reason pageNotConnected, ask the person to open the address it gives (all of it, the part after # included), open a document there, and press the Agent API button in the page header.",
+    "Start with agentApiVersion. If a tool answers with the reason pageNotConnected, ask the person to open the address it gives (all of it, the part after # included), open a document there, and press the Agent API button in the page header. A document open in another browser tab or window does not reach the relay and does not move to the relay's page: the person opens the file again in the page at the relay's address. That address changes each time the relay starts.",
     "Before you read or write a document, read the resource grs-document.schema.json from this server. It is the JSON Schema of the GRS JSON document, of the same version as the page, with a description on every key: the times, the units and what each column means. Before you write, read the resource grs-commands.schema.json: every command kind applyCommands takes, with its fields.",
-    "If your client cannot read resources, call exportJson: its text begins with $schema, the address of the latest published schema.",
+    "If your client cannot read resources, call readSchema with which 'document' or 'commands': it returns the same text.",
     "Read in small pieces: readSearchRows returns one page of the Search Panel as the person sees it (an empty word is the whole outline) and readTableRows does the same for the Delay Diagnostics Report and the Resource List; readDocument leaves out the MSPDI pass-through fields unless you ask, and can be narrowed to some tasks; readStamp is cheap. Write with applyCommands, handing over the stamp you last read as expectedStamp; the whole batch is applied or refused as one.",
     "A refusal is a value, not an error: it names the reason and carries the current stamp, never the document. Read again what you need, then retry.",
     "While the person is dragging, typing in place or answering a question, writes are refused; try again shortly.",
-    "To save, pass fileName to an export tool: the relay writes into the save folder the person chose in the relay's settings. If the file exists you may be refused with fileExists: ask the person before passing overwrite true, unless they told you not to ask in this conversation. The old file is kept as .bak. To open a file, call requestOpenFile: the person picks it in their own file window.",
+    "To save, pass fileName to an export tool: the relay writes into the save folder the person chose in the relay's settings. If the file exists you may be refused with fileExists: ask the person before passing overwrite true, unless they told you not to ask in this conversation. A request to save again under the same name is not permission to replace the file: ask once even then. The old file is kept as .bak. To open a file, call requestOpenFile: the person picks it in their own file window.",
     "The descriptions here use no row ids of the GRS specification; the specification itself is at https://goodrelax.github.io/gr-scheduler/spec-html/"
+   ]
+  }
+ },
+ "relayRefusalTexts": {
+  "lead": {
+   "ja": [
+    "取次が自分で拒むときの答えの `what` の文である（表 T-035 の `AG-12`、`_assets/design-mcp-relay.md` の 5）。",
+    "読むのは AI なので英語で書き、1 つの文字列を 1 文として空白で繋ぐ。",
+    "波括弧の名（`{pageUrl}`・`{member}`・`{seconds}`）は、取次がその時の値で埋める。"
+   ]
+  },
+  "pageNotConnected": {
+   "en": [
+    "No GRS page is connected to the relay.",
+    "Ask the person to open {pageUrl} in a browser: the whole address, the part after # included.",
+    "Then they open the document in that page (a document open in another tab or window does not count) and press the Agent API button in the page header."
+   ]
+  },
+  "relayTimedOut": {
+   "en": [
+    "{member} did not answer within {seconds} s.",
+    "Ask the person whether a question or a window is open on the GRS page."
    ]
   }
  },
@@ -105,7 +127,7 @@
   },
   "before": {
    "ja": [
-    "**`Agent API` は 1 つの面に 22 のメンバをフラットに並べる。**",
+    "**`Agent API` は 1 つの面に 23 のメンバをフラットに並べる。**",
     "用途別に分けない理由は Chapter 5.2 が持つ（`R2.5`）。",
     "いまの版は `{version}` である（`AM-1` が返す値）。",
     "版は、文書の形式の版（`FR-073`）と同じ書式の日時である —— 呼び方を変える変更は、版をその変更を当てる時刻へ上げる（表 T-035 の `AG-1`）。",
@@ -161,6 +183,42 @@
     "source": {
      "ja": "表 T-052 の `DR-4`"
     }
+   },
+   {
+    "id": "AM-30",
+    "group": {
+     "ja": "読む"
+    },
+    "name": "readSchema",
+    "kind": "method",
+    "purity": "semi-pure-a",
+    "arguments": [
+     {
+      "name": "which",
+      "type": "'document' | 'commands'",
+      "meaning": {
+       "ja": "読むスキーマ —— `document` は `GRS JSON` の文書のスキーマ、`commands` は `applyCommands` の命令のスキーマ",
+       "en": "Which schema: 'document' is the JSON Schema of the GRS JSON document, 'commands' the schema of the commands applyCommands takes"
+      }
+     }
+    ],
+    "returns": "string",
+    "carries": {
+     "ja": [
+      "取次が中に持つスキーマの本文を返す —— 資源 `grs-document.schema.json`・`grs-commands.schema.json` と同じ本文である。",
+      "資源を読めない客のための道。",
+      "ページはこのメンバを持たない（表 T-035 の `AG-12` の ④）。"
+     ],
+     "en": [
+      "Returns the text of a JSON Schema the relay carries: the same text as the resource grs-document.schema.json or grs-commands.schema.json.",
+      "Use it when your client cannot read resources.",
+      "It works even before a page is connected."
+     ]
+    },
+    "source": {
+     "ja": "表 T-035 の `AG-12` の ④ ／ `_assets/design-mcp-relay.md` の 3.1"
+    },
+    "answeredBy": "relay"
    },
    {
     "id": "AM-3",
@@ -267,8 +325,8 @@
       "name": "word",
       "type": "string",
       "meaning": {
-       "ja": "探す語 —— 空なら絞らない（全体の目次として読める）",
-       "en": "The word to look for; an empty word narrows nothing, so the answer is the whole outline"
+       "ja": "探す語 —— タスクの行はタスク名か担当の名に、コメントボックスの行は本文に、この語を含むものを返す（大文字と小文字、全角と半角を区別しない） —— 空なら絞らない（全体の目次として読める）",
+       "en": "The word to look for: a task row is kept when its task name or an assignee name holds the word, a comment box row when its text does; upper and lower case and full and half width are not told apart. An empty word narrows nothing, so the answer is the whole outline"
       }
      },
      {
@@ -307,13 +365,16 @@
       "答えはタスクの表の列の一覧（列の行 ID・画面の名・値の種類）と全部の行数と次の `offset` を持つ（`AV-16`）。",
       "⭐ ステータス（`SQ-5`）は、遅延診断を出していないときの値（`PM-4` か 表 T-019a の状態）で返す —— 診断の値（表 T-315 の `DG-1` 〜 `DG-3`）は `AM-19` の 表 T-317 の `DX-8` が返す（`FR-134` の、AI へ渡す道は 1 つ）。",
       "⚠️ 遅延診断はしない —— ステータスの遅れは、予定の日が基準日を過ぎたタスク・マイルストーン（表 T-021b）を返すだけであり、信用できない・要修正 (?)・ボトルネック・ボトルネック経路 (!!) は入らない。",
+      "`taskTotal` は語と列のフィルタが残したタスクの行の数であり、マイルストーンも親タスクも 1 行に数える（マイルストーンの行は `milestone` が真）。",
+      "予定の列は `SQ-3`・`SQ-4`（行の `plannedStart`・`plannedFinish` —— マイルストーンの `plannedFinish` は `start`）、実績の列は `SQ-11`・`SQ-12`・`SQ-13`（行の `percentComplete`・`actualStart`・`actualFinish`）である。",
       "正確な遅延の解析には遅延診断（`readDelayDiagnostics`、`AM-19`）が要る"
      ],
      "en": [
       "Takes one word and returns the rows of the Search Panel: the task table, one page at a time, and the comment-box table.",
       "The panel's own search field is neither read nor changed. An empty word narrows nothing, so the task rows are the whole outline.",
       "With filters 'asShown' (the default) the column filters and sort the person has set on the task table are applied, so you get the same rows in the same order as on screen. To change them as the person would, send setTableView through applyCommands; the person's table changes too.",
-      "Up to limit task rows (at most 100) are returned from offset. The answer lists the task table's columns (id, on-screen names, value kind), the total task row count and the next offset.",
+      "Up to limit task rows (at most 100) are returned from offset. The answer lists the task table's columns (id, on-screen names, value kind), the total task row count (taskTotal) and the next offset. taskTotal counts every task row the word and the filters keep, milestones and parent tasks included; a milestone row has milestone true.",
+      "Plan and actual: in a task row, plannedStart and plannedFinish are the plan (the columns Planned Start and Planned Finish; a milestone's plannedFinish is its start), and percentComplete, actualStart and actualFinish are the actual (the columns Progress, Actual Start and Actual Finish).",
       "The status column only compares dates with the status date; for the exact delay analysis call readDelayDiagnostics."
      ]
     },
@@ -433,12 +494,22 @@
       "遅延診断のレポート（`FR-134` の 表 T-317）を凍結した値で返す。",
       "画面の値も文書も書かない。",
       "正確な遅延の解析（信用できない値・ボトルネック・ボトルネック経路）はこの命令が返す。",
-      "`readSearchRows`（`AM-25`）の遅れは基準日との比べだけである"
+      "`readSearchRows`（`AM-25`）の遅れは基準日との比べだけである",
+      "量はすべて稼働の分である —— `inheritedDelayMinutes` は先行タスクに押された開始の遅れ、`selfDelayMinutes` は開始に予定の長さを足した時より見込みの終了が遅れる分（親タスクは 0）、`pushOutMinutes` はそのタスクが末端のタスク（マイルストーンと後続の無いタスク）の遅れに占める分を、届く `terminalsReached` 個の末端について足したもの（表 T-314 の `DQ-2` 〜 `DQ-4`）。",
+      "`terminalPushOuts` は末端のタスクごとに、`terminalDelayMinutes`（見込みの終了が予定の終了より遅れる分）と `givenTo`（その遅れを生んだタスクと分）を持つ。",
+      "日に直すには文書の `Project.minutesPerDay`（空なら既定の値 —— 文書のスキーマの説明が持つ）で割る —— 画面は押し出しを切り上げた日で出す。",
+      "`walls` は診断が止まった所の並びであり、原因のタスク 1 つに 1 つ置く —— `row` は種類（`DW-1` 値が矛盾するタスク、`DW-2` 親を導けないタスク、`DW-3` 依存線の無いマイルストーン）、`causeUid` は原因のタスク、`stoppedUids` は診断しなかったタスク（原因が先頭）である。",
+      "同じ種類の壁は `causeUid` で見分ける —— 依存線が輪になったタスクのように、`stoppedUids` が同じ並びになることがある。"
      ],
      "en": [
       "The delay diagnosis report as a frozen value: findings, unreliable values, bottlenecks and bottleneck paths, with the proposed fixes and the fix log.",
       "Changes neither the screen nor the document.",
-      "This is the only exact delay analysis."
+      "This is the only exact delay analysis.",
+      "All amounts are working minutes. inheritedDelayMinutes is how far predecessors push the task's start; selfDelayMinutes is how far its projected finish runs past its start plus its planned length (0 for a parent task); pushOutMinutes is the part of the delay of end tasks (milestones and tasks with no successor) this task causes, summed over the terminalsReached end tasks it reaches.",
+      "terminalPushOuts holds, for each end task, terminalDelayMinutes (its projected finish past its planned finish) and givenTo (the tasks that caused it, with their minutes).",
+      "To turn minutes into days, divide by the document's project.minutesPerDay (when it is null, the value its description in the document schema gives); the screen shows a push-out rounded up to whole days.",
+      "walls lists where the diagnosis stopped, one wall per cause task: row is its kind, told by the number it ends in (1 a task whose own values contradict each other, 2 a task whose parent cannot be derived, 3 a milestone with no dependency); causeUid is the cause task; stoppedUids are the tasks left undiagnosed, the cause first.",
+      "Two walls of the same kind differ by causeUid; their stoppedUids can be the same list, as for tasks whose dependencies form a loop."
      ]
     },
     "source": {
@@ -527,11 +598,15 @@
      "ja": [
       "人にファイルを開いてもらう —— 問い `QN-17`（`NT-7`）を出し、答えを待たずに `AgentImportOutcome`（`AV-15`）の「人に問うたとき」を返す（表 T-035 の `AG-12` の ⑥）。",
       "人が続けるを押すと `IC-1` と同じ道（`FR-087`、`OP-3`）でファイルを選ぶ窓が開く —— ファイルを選ぶのは人である。",
-      "開いた後の書き込みは人の書き込みとして `watchChanges` が知らせる。"
+      "開いた後の書き込みは人の書き込みとして `watchChanges` が知らせる。",
+      "人がファイルを選ぶと、ページは開き方を人に問う（`OP-3` —— ボタンは `Replace`・`Merge`・`Overlay as Baseline`、`IC-71` 〜 `IC-73`） —— AI はその問いが出ることを人に告げる。",
+      "開き終えたかは `watchChanges` で待つ（か `readStamp` の刻印が変わるまで読む） —— どの文書が開いたかは `readDocument` の `project.title`（画面の文書名）で確かめる。"
      ],
      "en": [
       "Asks the person to open a file: the page shows a question and the call returns at once.",
-      "If the person goes on, their own file window opens and they pick the file; the document they open reaches you through watchChanges as their edit."
+      "If the person goes on, their own file window opens and they pick the file; the document they open reaches you through watchChanges as their edit.",
+      "After the person picks a file, the page asks them how to open it, with the buttons Replace, Merge and Overlay as Baseline. Tell the person to expect that question.",
+      "To know when the file is in, call watchChanges (or call readStamp until the stamp changes); then read project.title with readDocument to see which document is open."
      ]
     },
     "source": {
@@ -561,11 +636,13 @@
      "ja": [
       "履歴を 1 段戻す（`05-07-design.md` の 表 T-230 の `RD-1`）。",
       "`expectedStamp` が今の刻印と違えば `staleStamp` で拒む（`AG-2`）。",
-      "⭐ 戻す段を書いたのが呼んだ書き手（表 T-229 の `ED-2`）でなければ `notOwnStep` で拒む —— AI が人の編集を黙って戻さない。"
+      "⭐ 戻す段を書いたのが呼んだ書き手（表 T-229 の `ED-2`）でなければ `notOwnStep` で拒む —— AI が人の編集を黙って戻さない。",
+      "`focusTask`（`AM-16`）がタスクグループを展開したときは、それが呼んだ書き手の 1 段になる —— タスクを作ってから `focusTask` を呼んだ後は、1 回目の `undoEdit` が展開を戻し、2 回目が作成を戻す。"
      ],
      "en": [
       "Undoes the newest step of the edit history, but only a step you wrote yourself; a step the person wrote is refused with notOwnStep.",
-      "Hand over the stamp you last read as expectedStamp; a different stamp is refused with staleStamp."
+      "Hand over the stamp you last read as expectedStamp; a different stamp is refused with staleStamp.",
+      "A focusTask that expanded a task group wrote a step of its own: after creating a task and then calling focusTask, the first undoEdit undoes the expansion and the second the creation."
      ]
     },
     "source": {
@@ -838,10 +915,13 @@
     "returns": "AgentFocusOutcome",
     "carries": {
      "ja": [
-      "指定したタスクが載るタスクグループと祖先を展開し、見える位置へ表示を寄せる"
+      "指定したタスクが載るタスクグループと祖先を展開し、見える位置へ表示を寄せる",
+      "⚠️ 書き込みである —— タスクを見せるために表示を変える（畳んだタスクグループを展開する・表のスケジュールフィルタが隠すタスクを表示にする）ときは、その変更が呼んだ書き手の履歴の 1 段になる（`FR-031`）。",
+      "寄せるだけなら段を足さない（表示の位置は履歴に残らない）。"
      ],
      "en": [
-      "Expands the task groups and ancestors the task sits in and scrolls it into view."
+      "Expands the task groups and ancestors the task sits in and scrolls it into view.",
+      "This is a write: when the task can only be shown by changing what is shown (expanding a collapsed task group, or showing a task a table's schedule filter hides), that change is a step of its own in the edit history, written by you. Scrolling alone adds no step."
      ]
     },
     "source": {
@@ -1620,7 +1700,7 @@
       "name": "taskTotal",
       "type": "number",
       "meaning": {
-       "ja": "絞った後のタスクの行の数"
+       "ja": "絞った後のタスクの行の数 —— マイルストーンと親タスクも 1 行に数える"
       }
      },
      {
@@ -1831,7 +1911,7 @@
       "name": "savedTo",
       "type": "string",
       "meaning": {
-       "ja": "書いたファイルの、保存先のフォルダからの相対の所"
+       "ja": "書いたファイルの絶対の所（保存先のフォルダの下）"
       }
      },
      {
@@ -1845,7 +1925,7 @@
       "name": "backedUpTo",
       "type": "string | null",
       "meaning": {
-       "ja": "上書きの前の中身を移した `.bak` の所 —— 上書きでなければ `null`"
+       "ja": "上書きの前の中身を移した `.bak` の絶対の所（保存先のフォルダの下） —— 上書きでなければ `null`"
       }
      }
     ],

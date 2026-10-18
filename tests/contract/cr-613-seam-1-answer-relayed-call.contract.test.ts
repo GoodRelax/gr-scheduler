@@ -17,8 +17,12 @@ const ARGUMENT_HEADING = '\u5f15\u6570'
 const TOOL_ONLY_LABEL = '\u26a0\ufe0f MCP \u3060\u3051\u306e\u9375'
 const ARGUMENT_NAME = /`([A-Za-z_$][\w$]*)`:/g
 
+// WHY: AM-30 readSchema is answered by the relay itself (AG-12 (4), CR-799); the page's AgentApi, and so this seam, has no such member.
+const RELAY_ANSWERED = new Set(['readSchema'])
+const PAGE_ROWS = specTable('T-107').rows.filter((row) => !RELAY_ANSWERED.has((row.cells[1] ?? '').replace(/`/g, '')))
+
 const PARAM_KEYS: Readonly<Record<string, readonly string[]>> = Object.fromEntries(
-  specTable('T-107').rows.map((row) => {
+  PAGE_ROWS.map((row) => {
     const cell = row.by[ARGUMENT_HEADING] ?? ''
     const keys = cell.includes(TOOL_ONLY_LABEL) ? [] : [...cell.matchAll(ARGUMENT_NAME)].map((found) => found[1] ?? '')
     return [(row.cells[1] ?? '').replace(/`/g, ''), keys]
@@ -30,7 +34,7 @@ const PROPERTIES = new Set(['agentApiVersion', 'schemaVersion'])
 // WHY: the two write members answer { accepted }, every other member { ok } (SEAM-1).
 const ANSWERS_ACCEPTED = new Set(['applyCommands', 'importDocument'])
 
-const MEMBERS: readonly string[] = specTable('T-107').rows.map((row) => (row.cells[1] ?? '').replace(/`/g, ''))
+const MEMBERS: readonly string[] = PAGE_ROWS.map((row) => (row.cells[1] ?? '').replace(/`/g, ''))
 
 const METHODS = MEMBERS.filter((name) => !PROPERTIES.has(name))
 

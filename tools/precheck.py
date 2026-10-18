@@ -154,6 +154,9 @@ BACKTICKED_ID = re.compile(r'`(CR-\d+|PND-\d{3,})`')
 #   - a URL scheme is not a path (http://, file://, and the rest)
 #   - `C:\...\` with the middle elided is already anonymous -- it is an
 #     illustration of a message, not a path anybody follows
+#   - `C:\Users\<name>\` (`&lt;name&gt;` in HTML) is anonymous the same way: the
+#     user name is a placeholder. The download page tells readers where the
+#     relay saves by default (CR-799, the user's ruling R6)
 #   - docs/reference/ is vendored from the exchange partner and is not ours
 #   - a leading ~ is NOT flagged: `~/...` is already relative to the home
 #     folder, which is the form this rule asks for when a path genuinely sits
@@ -161,7 +164,7 @@ BACKTICKED_ID = re.compile(r'`(CR-\d+|PND-\d{3,})`')
 #     regular expression, and a gate that cries at a regex gets turned off
 ABSOLUTE_PATH = re.compile(
     r'''(?<![A-Za-z0-9/])(?:[A-Za-z]:[\\/]|/home/|/Users/)''')
-ANONYMIZED = re.compile(r'''[A-Za-z]:[\\/]\.\.\.''')
+ANONYMIZED = re.compile(r'''[A-Za-z]:[\\/](?:\.\.\.|Users[\\/](?:<name>|&lt;name&gt;)[\\/])''')
 SCHEME = re.compile(r'''[A-Za-z][A-Za-z0-9+.-]*://''')
 
 

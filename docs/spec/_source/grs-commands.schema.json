@@ -16,7 +16,8 @@
      "type": [
       "string",
       "null"
-     ]
+     ],
+     "description": "The document title: the name shown on screen at the top of the page, and the default name of an exported file. Read it to tell which document is open."
     }
    },
    "required": [
@@ -39,7 +40,8 @@
        "type": [
         "string",
         "null"
-       ]
+       ],
+       "description": "The project name of the MS Project exchange format (Project/Name), carried to and from it. GRS does not show it; the name shown on screen is title."
       },
       "subject": {
        "type": [
@@ -248,7 +250,7 @@
   },
   {
    "type": "object",
-   "description": "Creates a task with the given `shapeKind`, `start` and `finish`, placed on the task group `taskGroupId`.",
+   "description": "Creates a task with the given `shapeKind`, `start` and `finish`, placed on the task group `taskGroupId`.\n`shapeKind` is one of `rectangle`, `chevron`, `arrow`, `endpointSpan` and `milestone`; `milestone` makes the task a milestone.\nThe new task's uid is `project.uidHighWaterMark` plus 1, and the high-water mark moves to it, so a later command of the same batch that creates something with a uid takes the next number.\nExample: when `uidHighWaterMark` is 41, the batch [`createTask`, `createTask`, `setTaskName` with `taskUid` 42, `setTaskName` with `taskUid` 43] names both new tasks.\nA `taskGroupId` that names no task group makes a new top-level task group with that id.",
    "properties": {
     "kind": {
      "const": "createTask"

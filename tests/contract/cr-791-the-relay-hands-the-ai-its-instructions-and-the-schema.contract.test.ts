@@ -130,9 +130,10 @@ describe('CR-791 AG-12 (8): the initialize answer carries the instructions', () 
     expect(/[^\n\x20-\x7e]/.test(mcpInstructions())).toBe(false)
   })
 
-  it('the instructions name the schema resource and the exportJson fallback', () => {
+  it('the instructions name the schema resource and the readSchema fallback (CR-799: no longer exportJson)', () => {
     expect(mcpInstructions()).toContain(SCHEMA_NAME)
-    expect(mcpInstructions()).toContain('exportJson')
+    expect(mcpInstructions()).toContain('readSchema')
+    expect(mcpInstructions()).not.toMatch(/call exportJson/)
   })
 })
 
@@ -203,10 +204,10 @@ describe('CR-791 design 3.1: the resources are the GRS JSON schema and the comma
     expect(answer['result']).toBeUndefined()
   })
 
-  it('a resource is not a tool: tools/list still answers mcpToolList() with 22 tools', async () => {
+  it('a resource is not a tool: tools/list still answers mcpToolList() with 23 tools', async () => {
     const answer = await client.request('tools/list', {})
     const tools = (answer['result'] as Json)['tools'] as Json[]
     expect(tools).toEqual(mcpToolList())
-    expect(tools).toHaveLength(22)
+    expect(tools).toHaveLength(23)
   })
 })

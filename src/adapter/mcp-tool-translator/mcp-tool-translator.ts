@@ -114,18 +114,26 @@ export function relayRefusalResult(reason: string, what: string, extra: Record<s
   return { content: [{ type: 'text', text: JSON.stringify(structuredContent) }], structuredContent }
 }
 
+const SLOT = /\{([A-Za-z]+)\}/g
+
+// WHY: the texts are printed from the manuscript (CR-799); a name in braces is filled here, and a
+// name the slots lack is left as written, so a missed slot shows instead of vanishing.
+/** @purity pure */
+function filledText(text: string, slots: Readonly<Record<string, string>>): string {
+  return text.replace(SLOT, (whole: string, name: string) => slots[name] ?? whole)
+}
+
 // see AG-12
 /** @purity pure */
 export function pageNotConnectedResult(pageUrl: string): McpToolResult {
-  const what = `No GRS page is connected to the relay. Open ${pageUrl} in a browser, ` +
-    'open the document there and enable the Agent API.'
+  const what = filledText(toolDescriptions.relayRefusals.pageNotConnected, { pageUrl })
   return relayRefusalResult('pageNotConnected', what, { pageUrl })
 }
 
 // see AG-12
 /** @purity pure */
 export function relayTimedOutResult(member: string, deadlineMs: number): McpToolResult {
-  const what = `${member} did not answer within ${deadlineMs / MS_PER_SECOND} s. ` +
-    'Ask the person whether a question or a window is open on the GRS page.'
+  const seconds = String(deadlineMs / MS_PER_SECOND)
+  const what = filledText(toolDescriptions.relayRefusals.relayTimedOut, { member, seconds })
   return relayRefusalResult('relayTimedOut', what)
 }

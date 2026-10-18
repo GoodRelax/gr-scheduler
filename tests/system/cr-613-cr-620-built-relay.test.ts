@@ -1,7 +1,7 @@
 // CR-613 / CR-620 spec-only tests: the built page's CSP (T-232 PO-7) and the relay artifacts in dist-relay/ (AG-12 (1), design 6).
 
 import { expect, test } from '@playwright/test'
-import { spawn, type ChildProcess } from 'node:child_process'
+import { execFileSync, spawn, type ChildProcess } from 'node:child_process'
 import { createHash } from 'node:crypto'
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { request as httpRequest } from 'node:http'
@@ -127,15 +127,25 @@ test('design 7 / AG-12 (9): the manifest asks for saveFolder and confirmBeforeOv
   ])
 })
 
-// WHY: design 6 -- the version is package.json's version, "+", and the first 12 hex digits of the SHA-256 of dist/index.html.
-function expectedVersion(): string {
-  const packageVersion = (JSON.parse(readFileSync(join(process.cwd(), 'package.json'), 'utf8')) as { version: string }).version
-  return `${packageVersion}+${createHash('sha256').update(built(PAGE)).digest('hex').slice(0, 12)}`
+// WHY: design 6 (CR-799) -- the version is the commit time of the built source, in UTC: builtAt for people, YEAR.MMDD.HHMMSS for semver.
+function expectedBuild(): { builtAt: string; semver: string } {
+  const seconds = Number(execFileSync('git', ['log', '-1', '--format=%ct', 'HEAD'], { cwd: process.cwd(), encoding: 'utf8' }).trim())
+  const builtAt = `${new Date(seconds * 1000).toISOString().slice(0, 19)}Z`
+  const [year = '', month = '', day = '', hour = '', minute = '', second = ''] = builtAt.split(/[-T:Z]/)
+  return { builtAt, semver: `${Number(year)}.${Number(month + day)}.${Number(hour + minute + second)}` }
 }
 
-test('design 6 / CR-791: manifest.json version is package.json version + "+" + first 12 hex digits of the SHA-256 of dist/index.html', () => {
+const expectedVersion = (): string => expectedBuild().semver
+
+test('design 6 / CR-799: manifest.json version is the commit time as YEAR.MMDD.HHMMSS without leading zeros', () => {
   const manifest = JSON.parse((bundled().get('manifest.json') ?? Buffer.alloc(0)).toString('utf8')) as { version?: string }
+  expect(manifest.version).toMatch(/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/)
   expect(manifest.version).toBe(expectedVersion())
+})
+
+test('design 6 / CR-799: the manifest description starts with "Built <date-time>." of the same instant', () => {
+  const manifest = JSON.parse((bundled().get('manifest.json') ?? Buffer.alloc(0)).toString('utf8')) as { description?: string }
+  expect(manifest.description?.startsWith(`Built ${expectedBuild().builtAt}.`)).toBe(true)
 })
 
 test('AG-12 (1) / design 6: dist-relay/grs-relay.mjs is the same JavaScript as the bundle\'s server/grs-relay.mjs', () => {

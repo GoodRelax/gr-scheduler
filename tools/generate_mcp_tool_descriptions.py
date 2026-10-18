@@ -15,6 +15,9 @@ READS   docs/spec/_source/agent-api-members.json, the manuscript of table T-107
         (CR-765; the table itself is printed into
         docs/spec/_assets/tbl-agent-api-members.md).
 
+The manuscript's relayRefusalTexts (CR-799) also travel: the what of each
+refusal the relay gives itself, so no relay text is written by hand.
+
 What travels, in the table's row order: the confirmed name, the description
 (the "what it carries" lines joined by newlines) and the input shape -- one
 object whose keys are the member's arguments (or its MCP-only keys, AG-12
@@ -52,8 +55,13 @@ BANNER = (
     'confirmed name, its description lines joined by newlines, and its input '
     'shape (AG-12 (4) (5), design-mcp-relay.md 3.1). instructions is the text the '
     'relay answers MCP initialize with, the mcpInstructions lines joined by newlines '
-    '(AG-12 (8)).' % (REL_SOURCE, MEMBER_TABLE, REL_SELF)
+    '(AG-12 (8)). relayRefusals holds the what of each refusal the relay gives itself, '
+    'one line per sentence joined by spaces; the relay fills each name in braces (CR-799).'
+    % (REL_SOURCE, MEMBER_TABLE, REL_SELF)
 )
+
+# CR-799: the refusals the relay gives itself, without a page to ask (AG-12, design-mcp-relay.md 5).
+RELAY_REFUSALS = ('pageNotConnected', 'relayTimedOut')
 
 
 def say(message):
@@ -92,7 +100,13 @@ def build():
     instructions = '\n'.join(line.strip() for line in doc['mcpInstructions']['text']['en']).strip()
     if not instructions:
         stop('the manuscript holds no mcpInstructions text')
-    return {'$comment': BANNER, 'instructions': instructions, 'tools': tools}
+    # CR-799: one sentence per line, joined by spaces, since a refusal's what is one string.
+    refusals = {}
+    for reason in RELAY_REFUSALS:
+        text = generate_agent_api.english(
+            doc['relayRefusalTexts'][reason], 'relayRefusalTexts.%s' % reason)
+        refusals[reason] = ' '.join(text.splitlines())
+    return {'$comment': BANNER, 'instructions': instructions, 'relayRefusals': refusals, 'tools': tools}
 
 
 def main():

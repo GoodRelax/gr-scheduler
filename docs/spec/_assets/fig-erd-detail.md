@@ -333,8 +333,8 @@ erDiagram
 | 行 ID | エンティティ | 列 | 型 | `null` | 鍵 | 出自 | 交換相手の要素 | 意味 |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | AT-1 | `Project` | `id` | 文字列（16 字以下） | 可 | — | Own | `Project/UID` | ⚠️ **主キーにしない**（理由は Chapter 5.4）。省略されたときは `TaskOrigin.importSessionId` が代わりを務める |
-| AT-2 | `Project` | `name` | 文字列 | 可 | — | Own | `Project/Name` | プロジェクト名 |
-| AT-3 | `Project` | `title` | 文字列 | 可 | — | Own | `Project/Title` | 文書名（`U-27`） |
+| AT-2 | `Project` | `name` | 文字列 | 可 | — | Own | `Project/Name` | プロジェクト名 —— 画面には出さない（交換形式の `Project/Name` を持ち運ぶ値であり、画面の文書名は `title`） |
+| AT-3 | `Project` | `title` | 文字列 | 可 | — | Own | `Project/Title` | 文書名（`U-27`） —— 画面の上端に出す文書の名であり、書き出すファイルの既定の名にもなる |
 | AT-4 | `Project` | `subject` | 文字列 | 可 | — | Own | `Project/Subject` | 件名 |
 | AT-5 | `Project` | `category` | 文字列 | 可 | — | Own | `Project/Category` | 分類 |
 | AT-6 | `Project` | `company` | 文字列 | 可 | — | Own | `Project/Company` | 会社名 |

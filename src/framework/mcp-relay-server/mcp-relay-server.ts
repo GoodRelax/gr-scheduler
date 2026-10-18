@@ -108,6 +108,13 @@ const SCHEMA_RESOURCES: readonly SchemaResource[] = [
     text: 'commandsSchema',
   },
 ]
+// see AM-30
+// WHY: the one member the relay answers from what it carries, so it works before a page is connected (AG-12 (4)).
+const READ_SCHEMA = 'readSchema'
+const SCHEMA_TEXT_OF: Readonly<Record<string, SchemaResource['text']>> = {
+  document: 'documentSchema',
+  commands: 'commandsSchema',
+}
 const KEY_PRESENTED = 'relayKeyPresented'
 const CHANGE_NOTICED = 'changeNoticed'
 const CANCELED = 'notifications/cancelled'
@@ -602,9 +609,9 @@ function isInside(folder: string, path: string): boolean {
   return way !== '' && !way.startsWith(`..${sep}`) && way !== '..' && !isAbsolute(way)
 }
 
+// WHY: `path` is absolute and is what the AI is told (AV-21 savedTo), so it can tell the person where the file is.
 interface SaveTarget {
   readonly path: string
-  readonly savedTo: string
   readonly exists: boolean
 }
 
@@ -635,14 +642,14 @@ async function saveTargetOf(options: McpRelayOptions, fileName: string): Promise
   if (held !== null && !held.isFile()) {
     return relayRefusalResult('badFileName', `fileName ${fileName} names a folder or a link, not a file`)
   }
-  return { path, savedTo: relative(folder, path).split(sep).join('/'), exists: held !== null }
+  return { path, exists: held !== null }
 }
 
 /** @purity pure */
 function fileExistsResult(target: SaveTarget): McpToolResult {
   return relayRefusalResult(
     'fileExists',
-    `${target.savedTo} already exists in the save folder. Ask the person whether to replace it, ` +
+    `${target.path} already exists. Ask the person whether to replace it, ` +
       'then call again with overwrite true; the old file is kept as .bak.',
   )
 }
@@ -658,9 +665,9 @@ async function writeSaveTarget(target: SaveTarget, bytes: Buffer): Promise<McpTo
     await rename(temporary, target.path)
   } catch (error) {
     await unlink(temporary).catch(() => undefined)
-    return relayRefusalResult('saveFolderUnavailable', `${target.savedTo} could not be written: ${String(error)}`)
+    return relayRefusalResult('saveFolderUnavailable', `${target.path} could not be written: ${String(error)}`)
   }
-  const saved = { ok: true, savedTo: target.savedTo, bytes: bytes.length, backedUpTo: target.exists ? `${target.savedTo}${BAK_SUFFIX}` : null }
+  const saved = { ok: true, savedTo: target.path, bytes: bytes.length, backedUpTo: target.exists ? `${target.path}${BAK_SUFFIX}` : null }
   return { content: [{ type: 'text', text: JSON.stringify(saved) }], structuredContent: saved }
 }
 
@@ -745,6 +752,7 @@ async function toolCallReplyOf(state: RelayState, id: unknown, params: unknown):
   const name = isPlainRecord(params) ? params['name'] : undefined
   const toolArguments = isPlainRecord(params) ? params['arguments'] : undefined
   if (typeof name !== 'string') return { error: { code: INVALID_PARAMS, message: 'tools/call needs a tool name' } }
+  if (name === READ_SCHEMA) return { result: schemaToolResultOf(state.options, toolArguments) }
   const isSaving = Object.prototype.hasOwnProperty.call(SAVED_EXTENSION_OF, name)
   // WHY: the save keys are the relay's own (AG-12 (9)); the page is never handed them.
   const call = relayedCallOf(isPlainRecord(toolArguments) && !isSaving ? { name, arguments: toolArguments } : { name })
@@ -792,6 +800,19 @@ function schemaResourceOf(resource: SchemaResource, options: McpRelayOptions): R
     mimeType: SCHEMA_MIME_TYPE,
     size: Buffer.byteLength(options[resource.text], 'utf8'),
   }
+}
+
+// see AM-30
+/** @purity pure */
+function schemaToolResultOf(options: McpRelayOptions, toolArguments: unknown): McpToolResult {
+  const which = isPlainRecord(toolArguments) ? toolArguments['which'] : undefined
+  const text = typeof which === 'string' && Object.prototype.hasOwnProperty.call(SCHEMA_TEXT_OF, which)
+    ? SCHEMA_TEXT_OF[which]
+    : undefined
+  if (text === undefined) {
+    return relayRefusalResult('malformedRequest', "readSchema takes which: 'document' or 'commands'")
+  }
+  return { content: [{ type: 'text', text: options[text] }] }
 }
 
 // see AG-12

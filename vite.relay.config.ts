@@ -1,5 +1,5 @@
-import { createHash } from 'node:crypto'
 import { existsSync, readFileSync } from 'node:fs'
+import { buildVersion } from './tools/relay_version.mjs'
 import { defineConfig, type Plugin } from 'vite'
 
 // The relay's own build (FR-150, AG-12 (1); docs/spec/_assets/design-mcp-relay.md
@@ -93,14 +93,9 @@ function relayEntry(): Plugin {
   }
 }
 
-const packageVersion = (JSON.parse(readFileSync('package.json', 'utf8')) as { version: string }).version
-// CR-791: package.json's version alone (0.0.0) cannot tell two bundles apart; the build metadata
-// names the page the relay serves. tools/build_relay_bundle.mjs writes the same into manifest.json.
-const PAGE_HASH_HEX_DIGITS = 12
-const pageHash = existsSync(PAGE_HTML_PATH)
-  ? createHash('sha256').update(readFileSync(PAGE_HTML_PATH)).digest('hex').slice(0, PAGE_HASH_HEX_DIGITS)
-  : 'unbuilt'
-const relayVersion = `${packageVersion}+${pageHash}`
+// CR-799: the version is the source's commit time in UTC, in semver form (tools/relay_version.mjs);
+// tools/build_relay_bundle.mjs writes the same into manifest.json, so the AI app and serverInfo agree.
+const relayVersion = buildVersion().semver
 
 export default defineConfig({
   plugins: [relayEntry()],

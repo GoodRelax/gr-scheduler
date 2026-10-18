@@ -157,7 +157,8 @@ const T_107 = [
  * absent seam is answered with a value -- and the two rows are exercised
  * against a REAL seam by the shipped-build probe instead.
  */
-const SURFACE_LACKS: readonly string[] = []
+// ⭐ AM-30 readSchema (CR-799): the relay answers it itself, so the page's surface has no such member (AG-12 (4)).
+const SURFACE_LACKS: readonly string[] = ['AM-30']
 const PROPERTY = 'プロパティ'
 const AM_25_RETURNS = '語を 1 つ受け、検索パネルの 2 つの表と同じ行を返す。'
 
@@ -729,7 +730,7 @@ describe('AM-1 / AM-2 -- the two versions', () => {
     // Nothing in table T-035, table T-107, `_assets/tbl-settings.md` or Chapter
     // 6.1 states the starting value. This case is what falls over when the
     // pending decision is settled the other way. AG-1: CR-708 raised it to 2, CR-730 to 3, CR-710 wave 3b to 4, CR-769 to 5, CR-792 to 6 and then to a date-time (JDG-2741).
-    expect(bench().api.agentApiVersion).toBe('2026-10-18T02:15:42Z')
+    expect(bench().api.agentApiVersion).toBe('2026-10-18T08:42:32Z')
   })
 
   it("AM-2 answers the build's version, not the open document's (T-107 AM-2)", () => {

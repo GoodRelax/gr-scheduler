@@ -34,7 +34,10 @@ import type { Selection } from '../../src/entity/document-model/selection/select
 import { printedMembers } from './cr-765-printed-tables'
 import { unbroken } from './spec-table'
 
-const { members } = printedMembers()
+const { members: printedAll } = printedMembers()
+
+// WHY: AM-30 readSchema is answered by the relay (AG-12 (4)); the page's AgentApi has no such member (CR-799).
+const members = printedAll.filter((one) => one.name !== 'readSchema')
 
 const SCHEMA_VERSION_HELD = 'the-format-version-of-this-build'
 
@@ -52,10 +55,10 @@ const noNotice = (): void => undefined
 
 describe('AM-1 and AG-1: the version the AgentApi hands out is the one the table prints', () => {
   it('agentApiVersion is the date-time the prose of T-107 gives and the manuscript declares (JDG-2741)', () => {
-    expect(installAgentApi(stubbedWiring).agentApiVersion).toBe('2026-10-18T02:15:42Z')
-    expect(MANUSCRIPT.version).toBe('2026-10-18T02:15:42Z')
+    expect(installAgentApi(stubbedWiring).agentApiVersion).toBe('2026-10-18T08:42:32Z')
+    expect(MANUSCRIPT.version).toBe('2026-10-18T08:42:32Z')
     expect(MANUSCRIPT.version).toMatch(/^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$/)
-    expect(PRINTED).toContain('いまの版は `2026-10-18T02:15:42Z` である（`AM-1` が返す値）')
+    expect(PRINTED).toContain('いまの版は `2026-10-18T08:42:32Z` である（`AM-1` が返す値）')
   })
 
   it('schemaVersion is the format version the page was wired with (AM-2)', () => {
@@ -63,7 +66,7 @@ describe('AM-1 and AG-1: the version the AgentApi hands out is the one the table
   })
 })
 
-describe('the AgentApi value has exactly the 22 members of T-107, a property or a method as the table says', () => {
+describe('the AgentApi value has exactly the 22 members of T-107 the page holds (all but the relay-answered AM-30), a property or a method as the table says', () => {
   const api = installAgentApi(stubbedWiring) as unknown as Record<string, unknown>
 
   it('the keys are the confirmed names', () => {

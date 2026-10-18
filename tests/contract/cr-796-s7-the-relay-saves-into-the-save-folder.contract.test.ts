@@ -1,7 +1,7 @@
 // CR-796 slice 7 spec-only tests: the relay saves an export into the save folder -- fileName / overwrite, AV-21, .bak (AG-12 (9), design 3.1, 5, 7).
 
 import { createHash, randomBytes } from 'node:crypto'
-import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, realpathSync, rmSync, symlinkSync, writeFileSync } from 'node:fs'
 import { connect, type Socket } from 'node:net'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
@@ -292,6 +292,9 @@ function freshContent(): Record<string, string> {
   }
 }
 
+// WHY: CR-799 -- savedTo and backedUpTo are the absolute places of the files, under the real place of the save folder (AV-21).
+const placeIn = (folder: string, name: string): string => join(realpathSync(folder), name)
+
 const bytesOfValue = (method: string, value: string): Buffer =>
   method === 'exportPng' ? Buffer.from(value, 'base64') : Buffer.from(value, 'utf8')
 
@@ -362,7 +365,7 @@ describe('AG-12 (9): a save writes the page value into the save folder and answe
     const result = await started.client.callTool(method, { fileName: name })
     expect(result['isError']).not.toBe(true)
     const expected = bytesOfValue(method, content[method] ?? '')
-    expect(structuredOf(result)).toEqual({ ok: true, savedTo: name, bytes: expected.length, backedUpTo: null })
+    expect(structuredOf(result)).toEqual({ ok: true, savedTo: placeIn(place.folder, name), bytes: expected.length, backedUpTo: null })
     expect(filesUnder(place.folder)).toEqual([name])
     expect(readFileSync(join(place.folder, name)).equals(expected)).toBe(true)
   })
@@ -543,7 +546,7 @@ describe('AG-12 (9): a file that exists is not replaced unless overwrite is true
     await started.client.callTool('exportJson', { fileName: 'a.json' })
     content['exportJson'] = 'second'
     const result = await started.client.callTool('exportJson', { fileName: 'a.json', overwrite: true })
-    expect(structuredOf(result)).toEqual({ ok: true, savedTo: 'a.json', bytes: 6, backedUpTo: 'a.json.bak' })
+    expect(structuredOf(result)).toEqual({ ok: true, savedTo: placeIn(place.folder, 'a.json'), bytes: 6, backedUpTo: placeIn(place.folder, 'a.json.bak') })
     expect(readFileSync(join(place.folder, 'a.json'), 'utf8')).toBe('second')
     expect(readFileSync(join(place.folder, 'a.json.bak'), 'utf8')).toBe(FIRST_TEXT)
     expect(filesUnder(place.folder)).toEqual(['a.json', 'a.json.bak'])
@@ -556,7 +559,7 @@ describe('AG-12 (9): a file that exists is not replaced unless overwrite is true
     await started.client.callTool('exportJson', { fileName: 'a.json', overwrite: true })
     content['exportJson'] = 'third!'
     const result = await started.client.callTool('exportJson', { fileName: 'a.json', overwrite: true })
-    expect(structuredOf(result)['backedUpTo']).toBe('a.json.bak')
+    expect(structuredOf(result)['backedUpTo']).toBe(placeIn(place.folder, 'a.json.bak'))
     expect(readFileSync(join(place.folder, 'a.json'), 'utf8')).toBe('third!')
     expect(readFileSync(join(place.folder, 'a.json.bak'), 'utf8')).toBe('second')
     expect(filesUnder(place.folder)).toEqual(['a.json', 'a.json.bak'])
@@ -565,7 +568,7 @@ describe('AG-12 (9): a file that exists is not replaced unless overwrite is true
   it('AV-21: overwrite true on a name that is not there writes it, backedUpTo is null and no .bak appears', async () => {
     const { started, place } = await savingSetup()
     const result = await started.client.callTool('exportJson', { fileName: 'new.json', overwrite: true })
-    expect(structuredOf(result)).toEqual({ ok: true, savedTo: 'new.json', bytes: Buffer.byteLength(FIRST_TEXT), backedUpTo: null })
+    expect(structuredOf(result)).toEqual({ ok: true, savedTo: placeIn(place.folder, 'new.json'), bytes: Buffer.byteLength(FIRST_TEXT), backedUpTo: null })
     expect(filesUnder(place.folder)).toEqual(['new.json'])
   })
 
@@ -575,7 +578,7 @@ describe('AG-12 (9): a file that exists is not replaced unless overwrite is true
     const newer = Buffer.from([1, 2, 3, 4])
     content['exportPng'] = newer.toString('base64')
     const result = await started.client.callTool('exportPng', { fileName: 'picture.png', overwrite: true })
-    expect(structuredOf(result)['backedUpTo']).toBe('picture.png.bak')
+    expect(structuredOf(result)['backedUpTo']).toBe(placeIn(place.folder, 'picture.png.bak'))
     expect(readFileSync(join(place.folder, 'picture.png')).equals(newer)).toBe(true)
     expect(readFileSync(join(place.folder, 'picture.png.bak')).equals(PNG_BYTES)).toBe(true)
   })
@@ -585,7 +588,7 @@ describe('AG-12 (9): a file that exists is not replaced unless overwrite is true
     await started.client.callTool('exportJson', { fileName: 'a.json' })
     content['exportJson'] = 'second'
     const result = await started.client.callTool('exportJson', { fileName: 'a.json' })
-    expect(structuredOf(result)).toEqual({ ok: true, savedTo: 'a.json', bytes: 6, backedUpTo: 'a.json.bak' })
+    expect(structuredOf(result)).toEqual({ ok: true, savedTo: placeIn(place.folder, 'a.json'), bytes: 6, backedUpTo: placeIn(place.folder, 'a.json.bak') })
     expect(readFileSync(join(place.folder, 'a.json'), 'utf8')).toBe('second')
     expect(readFileSync(join(place.folder, 'a.json.bak'), 'utf8')).toBe(FIRST_TEXT)
   })

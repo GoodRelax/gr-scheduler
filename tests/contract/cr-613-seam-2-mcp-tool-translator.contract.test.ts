@@ -111,8 +111,9 @@ describe('SEAM-2 mcpToolList: the tools are table T-107, row for row (AG-12 (4))
   })
 
   // see AM-3, AM-25
-  it('the argument column of T-107 names the ten members with arguments and the MCP-only keys of the export rows and watchChanges', () => {
+  it('the argument column of T-107 names the eleven members with arguments and the MCP-only keys of the export rows and watchChanges', () => {
     expect(Object.entries(PARAM_KEYS).filter(([, keys]) => keys.length > 0)).toEqual([
+      ['readSchema', ['which']],
       ['readDocument', ['includeCarry', 'taskUids']],
       ['readSearchRows', ['word', 'filters', 'offset', 'limit']],
       ['readTableRows', ['table', 'word', 'filters', 'offset', 'limit']],

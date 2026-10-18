@@ -26,9 +26,9 @@ const memberNamed = (name: string): PrintedMember => {
 const GLOSSARY = unbroken(readFileSync(join(SPEC, '_assets', 'tbl-glossary.md'), 'utf8'))
 
 const GLOSSARY_POINTER = '表 T-107（`Agent API` のメンバ）と、その呼び方（引数・型・戻り値）は `_assets/tbl-agent-api-members.md` が持つ'
-const VERSION_SENTENCE = 'いまの版は `2026-10-18T02:15:42Z` である（`AM-1` が返す値）。'
+const VERSION_SENTENCE = 'いまの版は `2026-10-18T08:42:32Z` である（`AM-1` が返す値）。'
 const CHANGE_RAISES_VERSION = '呼び方を変える変更は、版をその変更を当てる時刻へ上げる（表 T-035 の `AG-1`）。'
-const TWENTY_TWO = '**`Agent API` は 1 つの面に 22 のメンバをフラットに並べる。**'
+const TWENTY_TWO = '**`Agent API` は 1 つの面に 23 のメンバをフラットに並べる。**'
 const CALL_SHAPES_ARE_GENERATED =
   '呼び方（引数の名・型・意味と戻り値）は本表と 表 T-400 が持つ** —— コードの `AgentApi` の型と、MCP の道具の入力の形は本表の原稿から生成し、手で書かない'
 
@@ -43,6 +43,7 @@ const AM_19_POINTS_AT_25 = '`readSearchRows`（`AM-25`）の遅れは基準日�
 const EXPECTED_ROWS: readonly (readonly [string, string, readonly string[], string])[] = [
   ['AM-1', 'agentApiVersion', [], 'string'],
   ['AM-2', 'schemaVersion', [], 'string'],
+  ['AM-30', 'readSchema', ["which: 'document' | 'commands'"], 'string'],
   ['AM-3', 'readDocument', ['includeCarry: boolean', 'taskUids: readonly number[]'], 'Document'],
   ['AM-4', 'readStamp', [], 'DocumentStamp'],
   ['AM-5', 'readSelection', [], 'Selection'],
@@ -88,7 +89,7 @@ describe('T-107 is printed in one place, with the two columns CR-765 adds', () =
     expect(caption).toContain('表 T-107 — `Agent API` のメンバ')
   })
 
-  it('the prose above the table says 22 members on one flat surface, the version is a date-time and a change of call shape raises it', () => {
+  it('the prose above the table says 23 members on one flat surface, the version is a date-time and a change of call shape raises it', () => {
     const prose = unbroken(PRINTED_TEXT)
     expect(prose).toContain(TWENTY_TWO)
     expect(prose).toContain(VERSION_SENTENCE)
@@ -96,10 +97,10 @@ describe('T-107 is printed in one place, with the two columns CR-765 adds', () =
     expect(prose).toContain(CALL_SHAPES_ARE_GENERATED)
   })
 
-  it('22 rows, each a distinct row id AM-n and a distinct confirmed name, in the printed order', () => {
-    expect(members).toHaveLength(22)
-    expect(new Set(members.map((one) => one.id)).size).toBe(22)
-    expect(new Set(members.map((one) => one.name)).size).toBe(22)
+  it('23 rows, each a distinct row id AM-n and a distinct confirmed name, in the printed order', () => {
+    expect(members).toHaveLength(23)
+    expect(new Set(members.map((one) => one.id)).size).toBe(23)
+    expect(new Set(members.map((one) => one.name)).size).toBe(23)
     expect(members.map((one) => one.id)).toEqual(EXPECTED_ROWS.map(([id]) => id))
     expect(members.map((one) => one.name)).toEqual(EXPECTED_ROWS.map(([, name]) => name))
   })
@@ -149,9 +150,10 @@ describe('T-107 arguments and return values, row by row', () => {
   })
 
   // see AM-3, AM-25
-  it('the argument columns name ten members that take an argument; the rest print a dash', () => {
+  it('the argument columns name eleven members that take an argument; the rest print a dash', () => {
     const taking = members.filter((one) => one.arguments.some((argument) => !argument.isMcpOnly)).map((one) => one.name)
     expect(taking).toEqual([
+      'readSchema',
       'readDocument',
       'readSearchRows',
       'readTableRows',
@@ -164,7 +166,7 @@ describe('T-107 arguments and return values, row by row', () => {
       'watchChanges',
     ])
     expect(members.filter((one) => one.arguments.length === 0).every((one) => one.argumentsCell === '—')).toBe(true)
-    expect(members.filter((one) => one.arguments.length > 0).length).toBe(15)
+    expect(members.filter((one) => one.arguments.length > 0).length).toBe(16)
   })
 })
 
@@ -243,6 +245,6 @@ describe('AM-25 and AM-19 divide the delay analysis between them, and say so in 
         checked += 1
       }
     }
-    expect(checked).toBe(3)
+    expect(checked).toBe(4)
   })
 })

@@ -586,12 +586,14 @@
      "maxLength": 16
     },
     "name": {
+     "description": "The project name of the MS Project exchange format (Project/Name), carried to and from it. GRS does not show it; the name shown on screen is title.",
      "type": [
       "string",
       "null"
      ]
     },
     "title": {
+     "description": "The document title: the name shown on screen at the top of the page, and the default name of an exported file. Read it to tell which document is open.",
      "type": [
       "string",
       "null"
