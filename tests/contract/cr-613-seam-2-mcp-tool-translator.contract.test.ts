@@ -13,6 +13,7 @@ import {
   type McpTool,
   type McpToolResult,
 } from '../../src/adapter/mcp-tool-translator/mcp-tool-translator'
+import { englishOf, manuscriptMembers } from './cr-796-manuscript-english'
 import { specTable } from './spec-table'
 
 // WHY: read raw rather than through specTable, which drops each `<br>`;
@@ -126,9 +127,10 @@ describe('SEAM-2 mcpToolList: the tools are table T-107, row for row (AG-12 (4))
     expect(mcpToolList().map((tool) => tool.name)).toEqual(T_107.map((row) => row.name))
   })
 
-  it('design 3.1: each description is the row\'s description cell, printed from the table (each <br> a newline)', () => {
+  it('design 3.1: each description is the English of the row\'s description cell, printed from the manuscript (each line a newline)', () => {
+    // see CR-796
     const got = mcpToolList().map((tool) => ({ name: tool.name, description: tool.description }))
-    expect(got).toEqual(T_107.map((row) => ({ name: row.name, description: row.description })))
+    expect(got).toEqual(manuscriptMembers().map((row) => ({ name: row.name, description: englishOf(row.carries) })))
   })
 
   it('design 3.1: each input is one object whose keys are the member\'s parameter names', () => {

@@ -76,9 +76,9 @@ def build():
     doc = generate_agent_api.load()
     tools = []
     for member in doc['members']['rows']:
-        description = '\n'.join(line.strip() for line in member['carries']['ja']).strip()
-        if not description:
-            stop('%s of table %s has an empty description' % (member['id'], MEMBER_TABLE))
+        # CR-796: printed from the English of "what it carries" (design-mcp-relay.md 3.1).
+        description = generate_agent_api.english(
+            member['carries'], '%s of table %s' % (member['id'], MEMBER_TABLE))
         tools.append({
             'name': member['name'],
             'description': description,

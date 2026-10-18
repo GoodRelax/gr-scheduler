@@ -6,6 +6,7 @@ import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 
 import { mcpToolList } from '../../src/adapter/mcp-tool-translator/mcp-tool-translator'
+import { englishLinesOf, englishOf, keyMeaningEnglish, manuscriptMember } from './cr-796-manuscript-english'
 import { printedMembers, type PrintedArgument, type PrintedMember } from './cr-765-printed-tables'
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
@@ -23,7 +24,7 @@ const RULE_OF_MEANINGS = '鍵ごとの説明は引数の欄の意味である。
 const RULE_KEYS_ARE_ARGUMENT_NAMES = '1 つのオブジェクトとし、鍵はそのメンバの引数の名とする'
 const RULE_NOT_BY_HAND =
   '道具の入力の形はその原稿から刷り、手で書かない'
-const RULE_DESCRIPTION_FROM_TABLE = '道具の説明は同表の「何を担うか」の欄から刷り、手で書かない'
+const RULE_DESCRIPTION_FROM_TABLE = '道具の説明は同表の「何を担うか」の欄の英語（原稿の `en`）から刷り、手で書かない'
 const RULE_EMPTY_OBJECT = '引数を持たないメンバとプロパティ（`agentApiVersion` ・ `schemaVersion`）は空のオブジェクトを受ける'
 const RULE_WAIT_KEY = '`watchChanges` だけは受け手の代わりに待つ長さ `waitMs` を受ける（`AG-12` の ⑤）'
 const RULE_WAIT_IS_AM_17 = '表 T-107 の `AM-17` の MCP だけの鍵である'
@@ -43,15 +44,17 @@ const WRITE_REQUEST_KEYS = ['expectedStamp', 'commands']
 
 const NUMBER_LIST = 'readonly number[]'
 
-// see AG-12
-const schemaOf = (argument: PrintedArgument): Schema => {
-  if (argument.typeText === 'string') return { type: 'string', description: argument.meaning }
-  if (argument.typeText === 'number') return { type: 'number', description: argument.meaning }
-  if (argument.typeText === 'boolean') return { type: 'boolean', description: argument.meaning }
+// see AG-12, CR-796
+// WHY: the description of a key is the English (en) of the meaning in the manuscript; the printed table stays Japanese.
+const schemaOf = (member: PrintedMember, argument: PrintedArgument): Schema => {
+  const description = keyMeaningEnglish(member.name, argument.name)
+  if (argument.typeText === 'string') return { type: 'string', description }
+  if (argument.typeText === 'number') return { type: 'number', description }
+  if (argument.typeText === 'boolean') return { type: 'boolean', description }
   if (argument.typeText === NUMBER_LIST) {
-    return { type: 'array', items: { type: 'number' }, description: argument.meaning }
+    return { type: 'array', items: { type: 'number' }, description }
   }
-  return { type: 'object', description: argument.meaning }
+  return { type: 'object', description }
 }
 
 // see AG-12
@@ -97,8 +100,11 @@ describe('mcpToolList: one tool per row of T-107, with the input the argument co
     expect(mcpToolList().map((tool) => tool.name)).toEqual(members.map((one) => one.name))
   })
 
-  it('each description is the "what it carries" cell, each line break a newline', () => {
-    expect(mcpToolList().map((tool) => tool.description)).toEqual(members.map((one) => one.carries))
+  it('each description is the English of the "what it carries" cell, each line a newline', () => {
+    // see CR-796
+    expect(mcpToolList().map((tool) => tool.description)).toEqual(
+      members.map((one) => englishOf(manuscriptMember(one.name).carries)),
+    )
   })
 
   it.each(members.map((one) => [one.id, one.name] as const))('%s %s: the input is an object whose keys are its argument names', (_id, name) => {
@@ -115,10 +121,10 @@ describe('mcpToolList: one tool per row of T-107, with the input the argument co
       for (const argument of keysOf(member)) {
         const at = `${member.id} ${argument.name}`
         if (member.name === WRITE_REQUEST_TOOL) {
-          expect(properties[argument.name], at).toMatchObject(schemaOf(argument))
+          expect(properties[argument.name], at).toMatchObject(schemaOf(member, argument))
           expect(Object.keys(properties[argument.name]?.properties ?? {}), at).toEqual(WRITE_REQUEST_KEYS)
         } else {
-          expect(properties[argument.name], at).toEqual(schemaOf(argument))
+          expect(properties[argument.name], at).toEqual(schemaOf(member, argument))
         }
       }
     }
@@ -154,8 +160,8 @@ describe('AM-17 and AG-12 (5): watchChanges takes waitMs and not its receiver', 
     const properties = toolNamed('watchChanges').inputSchema.properties as Readonly<Record<string, Schema>>
     expect(Object.keys(properties)).toEqual(['waitMs'])
     expect(properties['waitMs']?.type).toBe('number')
-    expect(String(properties['waitMs']?.description)).toContain('待つ長さ（ミリ秒）')
-    expect(String(properties['waitMs']?.description)).toContain('切れたら「まだ無い」を値で返す（`AG-12` の ⑤）')
+    // WHY: the milliseconds and the answer of an expired wait are said in the English of the manuscript
+    expect(properties['waitMs']?.description).toBe(keyMeaningEnglish('watchChanges', 'waitMs'))
   })
 
   it('the receiver the TypeScript signature takes never reaches an MCP tool', () => {
@@ -188,13 +194,20 @@ describe('mcp-tool-descriptions.json is what mcpToolList returns', () => {
 describe('AM-19 and AM-25: the sentences that divide the delay analysis reach the tool descriptions', () => {
   it('readSearchRows tells an AI that its status is not a diagnosis and where the diagnosis is', () => {
     const description = toolNamed('readSearchRows').description
-    expect(description).toContain('遅延診断はしない')
-    expect(description).toContain('正確な遅延の解析には遅延診断（`readDelayDiagnostics`、`AM-19`）が要る')
+    // WHY: the English lines of the manuscript that divide the two, and the name of the tool that diagnoses
+    const lines = englishLinesOf(manuscriptMember('readSearchRows').carries)
+    expect(lines.length).toBeGreaterThan(0)
+    expect(description).toContain(lines[lines.length - 1])
+    expect(description).toContain('readDelayDiagnostics')
   })
 
   it('readDelayDiagnostics tells an AI that it returns the analysis and that the search status is only a comparison with the base date', () => {
     const description = toolNamed('readDelayDiagnostics').description
-    expect(description).toContain('正確な遅延の解析（信用できない値・ボトルネック・ボトルネック経路）はこの命令が返す。')
-    expect(description).toContain('`readSearchRows`（`AM-25`）の遅れは基準日との比べだけである')
+    // WHY: the English lines of both tools -- this one returns the analysis, the search status only compares dates
+    const own = englishLinesOf(manuscriptMember('readDelayDiagnostics').carries)
+    expect(own.length).toBeGreaterThan(0)
+    expect(description).toContain(own[own.length - 1])
+    const search = englishLinesOf(manuscriptMember('readSearchRows').carries)
+    expect(toolNamed('readSearchRows').description).toContain(search[search.length - 1])
   })
 })

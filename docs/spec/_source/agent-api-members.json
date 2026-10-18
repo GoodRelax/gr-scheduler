@@ -39,7 +39,7 @@
     "A refusal is a value, not an error: it names the reason and carries the current stamp. Read again, then retry.",
     "While the person is dragging, typing in place or answering a question, writes are refused; try again shortly.",
     "These tools save nothing to a file. The person saves the document from the page.",
-    "The tool descriptions are in Japanese. Ids in them such as AT-24, AG-2, FR-028 or T-107 are rows of the GRS specification: https://goodrelax.github.io/gr-scheduler/spec-html/"
+    "The descriptions here use no row ids of the GRS specification; the specification itself is at https://goodrelax.github.io/gr-scheduler/spec-html/"
    ]
   }
  },
@@ -128,6 +128,10 @@
      "ja": [
       "`Agent API` の版 —— `schemaVersion` と同じ書式の日時の文字列（`YYYY-MM-DDTHH:MM:SSZ`）。",
       "呼ぶ側が最初に読む"
+     ],
+     "en": [
+      "The Agent API version, a UTC date-time string in the form YYYY-MM-DDTHH:MM:SSZ.",
+      "Read it first."
      ]
     },
     "source": {
@@ -148,6 +152,10 @@
      "ja": [
       "この版の `GRS` が読み書きする文書の形式の版。",
       "いま開いている文書が持つ値は `AM-3` で読む"
+     ],
+     "en": [
+      "The version of the GRS JSON format this GRS reads and writes.",
+      "The open document carries its own value, which readDocument returns."
      ]
     },
     "source": {
@@ -168,6 +176,9 @@
      "ja": [
       "文書ぜんたいの凍結された複製。",
       "ルートの 3 群すべてを含む"
+     ],
+     "en": [
+      "A frozen copy of the whole document, with its three root groups."
      ]
     },
     "source": {
@@ -188,6 +199,10 @@
      "ja": [
       "文書の刻印。",
       "楽観ロックの照合に用いる"
+     ],
+     "en": [
+      "The document stamp, for optimistic locking.",
+      "Hand it back as expectedStamp when you write."
      ]
     },
     "source": {
@@ -208,6 +223,9 @@
      "ja": [
       "いま選ばれている対象。",
       "選んだ順序を保つ"
+     ],
+     "en": [
+      "What the person has selected now, in the order it was selected."
      ]
     },
     "source": {
@@ -228,6 +246,9 @@
      "ja": [
       "人が確定した発話。",
       "文書には保存されない"
+     ],
+     "en": [
+      "The messages the person has confirmed in the dialogue field. They are not saved in the document."
      ]
     },
     "source": {
@@ -247,7 +268,8 @@
       "name": "word",
       "type": "string",
       "meaning": {
-       "ja": "探す語"
+       "ja": "探す語",
+       "en": "The word to look for"
       }
      }
     ],
@@ -260,6 +282,11 @@
       "⭐ ステータス（`SQ-5`）は、遅延診断を出していないときの値（`PM-4` か 表 T-019a の状態）で返す —— 診断の値（表 T-315 の `DG-1` 〜 `DG-3`）は `AM-19` の 表 T-317 の `DX-8` が返す（`FR-134` の、AI へ渡す道は 1 つ）。",
       "⚠️ 遅延診断はしない —— ステータスの遅れは、予定の日が基準日を過ぎたタスク・マイルストーン（表 T-021b）を返すだけであり、信用できない・要修正 (?)・ボトルネック・ボトルネック経路 (!!) は入らない。",
       "正確な遅延の解析には遅延診断（`readDelayDiagnostics`、`AM-19`）が要る"
+     ],
+     "en": [
+      "Takes one word and returns the same rows as the two tables of the Search Panel (tasks and comment boxes).",
+      "No column filter or sort is applied, and the panel is neither read nor changed.",
+      "The status column only compares dates with the status date; for the exact delay analysis call readDelayDiagnostics."
      ]
     },
     "source": {
@@ -280,6 +307,10 @@
      "ja": [
       "いま日程表に描いているタスクの `uid` の並び（`01-04-requirements.md` の 表 T-353 の `TV-1` の積 —— スケジュールフィルタを掛けた表が 1 つも無ければ `null`）と、スケジュールフィルタを掛けている表の名（`searchPanel`・`delayDiagnosticsReport`・`resourceList`）の並びを返す。",
       "返すだけで、画面も文書も書かない"
+     ],
+     "en": [
+      "The uids of the tasks the schedule draws now, or null when no table filters the schedule, and the names of the tables that do.",
+      "Reads only; changes neither the screen nor the document."
      ]
     },
     "source": {
@@ -302,6 +333,11 @@
       "画面の値も文書も書かない。",
       "正確な遅延の解析（信用できない値・ボトルネック・ボトルネック経路）はこの命令が返す。",
       "`readSearchRows`（`AM-25`）の遅れは基準日との比べだけである"
+     ],
+     "en": [
+      "The delay diagnosis report as a frozen value: findings, unreliable values, bottlenecks and bottleneck paths, with the proposed fixes and the fix log.",
+      "Changes neither the screen nor the document.",
+      "This is the only exact delay analysis."
      ]
     },
     "source": {
@@ -321,7 +357,8 @@
       "name": "request",
       "type": "AgentWriteRequest",
       "meaning": {
-       "ja": "照合する刻印と命令の束"
+       "ja": "照合する刻印と命令の束",
+       "en": "The stamp you last read (expectedStamp) and the batch of commands"
       }
      }
     ],
@@ -355,7 +392,8 @@
       "name": "source",
       "type": "AgentImportSource",
       "meaning": {
-       "ja": "取り込む文書"
+       "ja": "取り込む文書",
+       "en": "The document to import: the document itself, { document }, or { text } holding GRS JSON"
       }
      }
     ],
@@ -387,6 +425,9 @@
     "carries": {
      "ja": [
       "履歴を戻す"
+     ],
+     "en": [
+      "Undoes the newest step of the edit history."
      ]
     },
     "source": {
@@ -406,6 +447,9 @@
     "carries": {
      "ja": [
       "履歴を進める"
+     ],
+     "en": [
+      "Redoes the step undone last."
      ]
     },
     "source": {
@@ -425,6 +469,9 @@
     "carries": {
      "ja": [
       "`GRS JSON` を値で返す"
+     ],
+     "en": [
+      "Returns the document as GRS JSON text."
      ]
     },
     "source": {
@@ -444,6 +491,9 @@
     "carries": {
      "ja": [
       "交換形式を値で返す"
+     ],
+     "en": [
+      "Returns the document as Microsoft Project XML (MSPDI)."
      ]
     },
     "source": {
@@ -463,6 +513,9 @@
     "carries": {
      "ja": [
       "書き出す絵（`FR-080`、文書が全体表示時の期間を固定しているときは 表 T-241 の `IX-12`）を値で返す"
+     ],
+     "en": [
+      "Returns the exported picture as SVG text; when the document fixes the span of the fit view, the picture uses that span."
      ]
     },
     "source": {
@@ -483,6 +536,9 @@
      "ja": [
       "画像を値で返す。",
       "失敗も値で返す"
+     ],
+     "en": [
+      "Returns the exported picture as a PNG image; a failure is a value too."
      ]
     },
     "source": {
@@ -502,6 +558,9 @@
     "carries": {
      "ja": [
       "本体と文書を合わせた 1 つの `.html` を値で返す"
+     ],
+     "en": [
+      "Returns one .html file that holds GRS and the document together."
      ]
     },
     "source": {
@@ -521,7 +580,8 @@
       "name": "taskUid",
       "type": "number",
       "meaning": {
-       "ja": "見せるタスクの `uid`"
+       "ja": "見せるタスクの `uid`",
+       "en": "The uid of the task to show"
       }
      }
     ],
@@ -529,6 +589,9 @@
     "carries": {
      "ja": [
       "指定したタスクが載るタスクグループと祖先を展開し、見える位置へ表示を寄せる"
+     ],
+     "en": [
+      "Expands the task groups and ancestors the task sits in and scrolls it into view."
      ]
     },
     "source": {
@@ -588,7 +651,8 @@
       "name": "receive",
       "type": "AgentChangeReceiver",
       "meaning": {
-       "ja": "変更を受け取る手"
+       "ja": "変更を受け取る手",
+       "en": "Receives the notices; the MCP tool takes waitMs instead"
       }
      }
     ],
@@ -606,6 +670,9 @@
     "carries": {
      "ja": [
       "自分以外が確定した変更と発話を待つ"
+     ],
+     "en": [
+      "Waits for changes and messages confirmed by writers other than you."
      ]
     },
     "source": {
@@ -625,7 +692,8 @@
       "name": "text",
       "type": "string",
       "meaning": {
-       "ja": "置く発話"
+       "ja": "置く発話",
+       "en": "The message to put"
       }
      }
     ],
@@ -633,6 +701,9 @@
     "carries": {
      "ja": [
       "AI が確定した発話を対話欄へ置く"
+     ],
+     "en": [
+      "Puts a message the AI has confirmed into the dialogue field."
      ]
     },
     "source": {

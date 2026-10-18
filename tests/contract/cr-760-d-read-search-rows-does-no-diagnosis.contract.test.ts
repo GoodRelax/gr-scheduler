@@ -2,6 +2,7 @@
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
+import { englishLinesOf, manuscriptMember } from './cr-796-manuscript-english'
 
 import { describe, expect, it } from 'vitest'
 
@@ -28,16 +29,6 @@ const descriptionOf = (name: string): string => {
   const found = DESCRIPTIONS.tools.find((one) => one.name === name)
   if (found === undefined) throw new Error(`the MCP descriptions hold no ${name}`)
   return found.description
-}
-
-const AGENT_API_MEMBER_LINES = readFileSync(join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-agent-api-members.md'), 'utf8').split(/\r?\n/)
-
-// WHY: the generated description reads each <br> of the T-107 cell as a newline, and the parsed table has dropped them.
-const linesOfAgentCell = (id: string, opening: string): readonly string[] => {
-  const line = AGENT_API_MEMBER_LINES.find((one) => one.startsWith(`| ${id} |`))
-  const cell = line?.split(' | ').find((one) => one.startsWith(opening))
-  if (cell === undefined) throw new Error(`table T-107 has no cell of ${id} opening with ${opening}`)
-  return cell.split(/<br\s*\/?>/i).map((one) => one.trim()).filter((one) => one !== '')
 }
 
 interface Row {
@@ -104,21 +95,22 @@ describe(`T-107 AM-25 readSearchRows -- ${AM_25_STATUS}`, () => {
   })
 })
 
-describe(`T-107 AM-25 -- the MCP description says ${AM_25_NO_DIAGNOSIS}`, () => {
-  it('the description of readSearchRows is the AM-25 cell, line for line', () => {
+describe('T-107 AM-25 -- the MCP description, printed from the English of the manuscript, sends exact analysis to readDelayDiagnostics', () => {
+  // WHY: design-mcp-relay.md 3.1 prints MCP descriptions from the `en` lines; the Japanese cell stays in the printed table.
+  it('the description of readSearchRows is the AM-25 English, line for line', () => {
     const description = descriptionOf('readSearchRows')
-    const lines = linesOfAgentCell('AM-25', '語を 1 つ受け')
-    expect(lines.length, 'premise: the cell has its lines').toBeGreaterThan(3)
+    const lines = englishLinesOf(manuscriptMember('readSearchRows').carries)
+    expect(lines.length, 'premise: the manuscript has its English lines').toBeGreaterThan(2)
     for (const line of lines) expect(description).toContain(line)
   })
 
-  it('it says no delay diagnosis is done, and names readDelayDiagnostics for the exact analysis', () => {
+  it('it says the status only compares dates, and names readDelayDiagnostics for the exact analysis', () => {
     const description = descriptionOf('readSearchRows')
-    expect(description).toContain(AM_25_NO_DIAGNOSIS)
+    expect(description).toContain('only compares dates with the status date')
     expect(description).toContain('readDelayDiagnostics')
   })
 
-  it('the description of readDelayDiagnostics says it returns the exact analysis', () => {
-    expect(descriptionOf('readDelayDiagnostics')).toContain(AM_19_EXACT)
+  it('the description of readDelayDiagnostics says it is the exact analysis', () => {
+    expect(descriptionOf('readDelayDiagnostics')).toContain('the only exact delay analysis')
   })
 })

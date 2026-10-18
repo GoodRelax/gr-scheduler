@@ -1,10 +1,10 @@
 {
  "$comment": "GENERATED -- do not edit by hand. Generated from docs/spec/_source/agent-api-members.json, table T-107 (the members of the Agent API), and the commands the AM-7 input carries from docs/spec/_source/document-commands.json (table T-108), by tools/generate_mcp_tool_descriptions.py. Rebuild: npm run gen -- npm run gen:check fails on drift. One entry per row in the table's order: the confirmed name, its description lines joined by newlines, and its input shape (AG-12 (4) (5), design-mcp-relay.md 3.1). instructions is the text the relay answers MCP initialize with, the mcpInstructions lines joined by newlines (AG-12 (8)).",
- "instructions": "GRS Relay carries each tool call to the Agent API of the GoodRelax Scheduler (GRS) page a person has open in a browser. The page holds the only copy of the schedule document; the relay holds none.\nStart with agentApiVersion. If a tool answers with the reason pageNotConnected, ask the person to open the address it gives (all of it, the part after # included), open a document there, and press the Agent API button in the page header.\nBefore you read or write a document, read the resource grs-document.schema.json from this server. It is the JSON Schema of the GRS JSON document, of the same version as the page, with a description on every key: the times, the units and what each column means. Before you write, read the resource grs-commands.schema.json: every command kind applyCommands takes, with its fields.\nIf your client cannot read resources, call exportJson: its text begins with $schema, the address of the latest published schema.\nRead with readDocument and readStamp. Write with applyCommands, handing over the stamp you last read as expectedStamp; the whole batch is applied or refused as one.\nA refusal is a value, not an error: it names the reason and carries the current stamp. Read again, then retry.\nWhile the person is dragging, typing in place or answering a question, writes are refused; try again shortly.\nThese tools save nothing to a file. The person saves the document from the page.\nThe tool descriptions are in Japanese. Ids in them such as AT-24, AG-2, FR-028 or T-107 are rows of the GRS specification: https://goodrelax.github.io/gr-scheduler/spec-html/",
+ "instructions": "GRS Relay carries each tool call to the Agent API of the GoodRelax Scheduler (GRS) page a person has open in a browser. The page holds the only copy of the schedule document; the relay holds none.\nStart with agentApiVersion. If a tool answers with the reason pageNotConnected, ask the person to open the address it gives (all of it, the part after # included), open a document there, and press the Agent API button in the page header.\nBefore you read or write a document, read the resource grs-document.schema.json from this server. It is the JSON Schema of the GRS JSON document, of the same version as the page, with a description on every key: the times, the units and what each column means. Before you write, read the resource grs-commands.schema.json: every command kind applyCommands takes, with its fields.\nIf your client cannot read resources, call exportJson: its text begins with $schema, the address of the latest published schema.\nRead with readDocument and readStamp. Write with applyCommands, handing over the stamp you last read as expectedStamp; the whole batch is applied or refused as one.\nA refusal is a value, not an error: it names the reason and carries the current stamp. Read again, then retry.\nWhile the person is dragging, typing in place or answering a question, writes are refused; try again shortly.\nThese tools save nothing to a file. The person saves the document from the page.\nThe descriptions here use no row ids of the GRS specification; the specification itself is at https://goodrelax.github.io/gr-scheduler/spec-html/",
  "tools": [
   {
    "name": "agentApiVersion",
-   "description": "`Agent API` の版 —— `schemaVersion` と同じ書式の日時の文字列（`YYYY-MM-DDTHH:MM:SSZ`）。\n呼ぶ側が最初に読む",
+   "description": "The Agent API version, a UTC date-time string in the form YYYY-MM-DDTHH:MM:SSZ.\nRead it first.",
    "inputSchema": {
     "type": "object",
     "properties": {}
@@ -12,7 +12,7 @@
   },
   {
    "name": "schemaVersion",
-   "description": "この版の `GRS` が読み書きする文書の形式の版。\nいま開いている文書が持つ値は `AM-3` で読む",
+   "description": "The version of the GRS JSON format this GRS reads and writes.\nThe open document carries its own value, which readDocument returns.",
    "inputSchema": {
     "type": "object",
     "properties": {}
@@ -20,7 +20,7 @@
   },
   {
    "name": "readDocument",
-   "description": "文書ぜんたいの凍結された複製。\nルートの 3 群すべてを含む",
+   "description": "A frozen copy of the whole document, with its three root groups.",
    "inputSchema": {
     "type": "object",
     "properties": {}
@@ -28,7 +28,7 @@
   },
   {
    "name": "readStamp",
-   "description": "文書の刻印。\n楽観ロックの照合に用いる",
+   "description": "The document stamp, for optimistic locking.\nHand it back as expectedStamp when you write.",
    "inputSchema": {
     "type": "object",
     "properties": {}
@@ -36,7 +36,7 @@
   },
   {
    "name": "readSelection",
-   "description": "いま選ばれている対象。\n選んだ順序を保つ",
+   "description": "What the person has selected now, in the order it was selected.",
    "inputSchema": {
     "type": "object",
     "properties": {}
@@ -44,7 +44,7 @@
   },
   {
    "name": "readDialogueMessages",
-   "description": "人が確定した発話。\n文書には保存されない",
+   "description": "The messages the person has confirmed in the dialogue field. They are not saved in the document.",
    "inputSchema": {
     "type": "object",
     "properties": {}
@@ -52,20 +52,20 @@
   },
   {
    "name": "readSearchRows",
-   "description": "語を 1 つ受け、検索パネルの 2 つの表と同じ行を返す。\n列のフィルタと並べ替えは当てない。\nパネルを読みも変えもしない。\n⭐ ステータス（`SQ-5`）は、遅延診断を出していないときの値（`PM-4` か 表 T-019a の状態）で返す —— 診断の値（表 T-315 の `DG-1` 〜 `DG-3`）は `AM-19` の 表 T-317 の `DX-8` が返す（`FR-134` の、AI へ渡す道は 1 つ）。\n⚠️ 遅延診断はしない —— ステータスの遅れは、予定の日が基準日を過ぎたタスク・マイルストーン（表 T-021b）を返すだけであり、信用できない・要修正 (?)・ボトルネック・ボトルネック経路 (!!) は入らない。\n正確な遅延の解析には遅延診断（`readDelayDiagnostics`、`AM-19`）が要る",
+   "description": "Takes one word and returns the same rows as the two tables of the Search Panel (tasks and comment boxes).\nNo column filter or sort is applied, and the panel is neither read nor changed.\nThe status column only compares dates with the status date; for the exact delay analysis call readDelayDiagnostics.",
    "inputSchema": {
     "type": "object",
     "properties": {
      "word": {
       "type": "string",
-      "description": "探す語"
+      "description": "The word to look for"
      }
     }
    }
   },
   {
    "name": "readShownTasks",
-   "description": "いま日程表に描いているタスクの `uid` の並び（`01-04-requirements.md` の 表 T-353 の `TV-1` の積 —— スケジュールフィルタを掛けた表が 1 つも無ければ `null`）と、スケジュールフィルタを掛けている表の名（`searchPanel`・`delayDiagnosticsReport`・`resourceList`）の並びを返す。\n返すだけで、画面も文書も書かない",
+   "description": "The uids of the tasks the schedule draws now, or null when no table filters the schedule, and the names of the tables that do.\nReads only; changes neither the screen nor the document.",
    "inputSchema": {
     "type": "object",
     "properties": {}
@@ -73,7 +73,7 @@
   },
   {
    "name": "readDelayDiagnostics",
-   "description": "遅延診断のレポート（`FR-134` の 表 T-317）を凍結した値で返す。\n画面の値も文書も書かない。\n正確な遅延の解析（信用できない値・ボトルネック・ボトルネック経路）はこの命令が返す。\n`readSearchRows`（`AM-25`）の遅れは基準日との比べだけである",
+   "description": "The delay diagnosis report as a frozen value: findings, unreliable values, bottlenecks and bottleneck paths, with the proposed fixes and the fix log.\nChanges neither the screen nor the document.\nThis is the only exact delay analysis.",
    "inputSchema": {
     "type": "object",
     "properties": {}
@@ -81,17 +81,16 @@
   },
   {
    "name": "applyCommands",
-   "description": "一括の書き込み。\n原子的に適用し、受理したか否かを値で返す\n⭐ 命令の種類（表 T-108 の確定名）と命令ごとの欄は、取次の 2 つ目の資源 `grs-commands.schema.json` が持つ（表 T-035 の `AG-12` の ⑧）。",
+   "description": "Writes a batch of commands atomically: every command is applied or the whole batch is refused.\nHand over the stamp you last read as expectedStamp.\nThe kind and the fields of every command are in the resource grs-commands.schema.json.",
    "inputSchema": {
     "type": "object",
     "properties": {
      "request": {
       "type": "object",
-      "description": "照合する刻印と命令の束",
+      "description": "The stamp you last read (expectedStamp) and the batch of commands",
       "properties": {
        "expectedStamp": {
-        "type": "object",
-        "description": "呼ぶ側が最後に読んだ刻印 —— 今の刻印と 1 つでも違えば束ごと拒む（`AG-2`）"
+        "type": "object"
        },
        "commands": {
         "type": "array",
@@ -193,14 +192,13 @@
             "setTaskGroupEditPermission",
             "setLevelZeroTreeState"
            ],
-           "description": "The command, one of the confirmed names of table T-108. The keys and types of each command are in the resource grs-commands.schema.json."
+           "description": "The command. The keys and types of each command are in the resource grs-commands.schema.json. What each command does:\nsetProjectTitle: Renames the document by setting `title`.\nsetProjectProfile: Edits the document's basic information. `fields` holds only the fields to change; fields left out keep their current value.\nsetStatusDate: Sets or moves the status date to `statusDate`.\nclearStatusDate: Clears the status date.\nsetThemeHue: Changes the theme color by setting `themeHue`.\nsetParentTaskProgressToleranceDays: Changes the number of days a parent task's progress may be off before it is flagged as doubtful, by setting `parentTaskProgressToleranceDays`.\nsetScheduleDataTimeZone: Switches the time zone of the schedule data to `scheduleDataTimeZone` without converting: the stored numbers stay the same and only the zone they are read in changes. Send it in one write together with the command that returns the shown time zone to the standard.\nshiftScheduleTimes: Shifts all schedule date-times at once by `minutes` (positive moves later, negative moves earlier). It is one write; the columns it rewrites and the ones it leaves untouched are fixed by the specification. When it arrives from the Agent API, it is applied without asking the person for confirmation.\nshiftScheduleToStartDate: Moves the whole schedule to start on `newStartDate`, shifting by working days. It is one write; which columns move, what stays, and how the move is made are fixed by the specification. When it arrives from the Agent API, it is applied as sent without asking, the same as `shiftScheduleTimes`.\ncreateTask: Creates a task with the given `shapeKind`, `start` and `finish`, placed on the task group `taskGroupId`.\ndeleteTask: Deletes the task `taskUid`.\npasteTasks: Duplicates the tasks listed in `sourceUids`. Descendant tasks that are not among the carried tasks are not copied. `landing` is sent only for a Ctrl-drag copy; it carries where the copy is placed.\nsetTaskName: Sets the name of the task `taskUid` to `name`.\nsetTaskNotes: Sets the notes of the task `taskUid` to `notes`.\nsetTaskPlanDates: Sets the planned `start` and `finish` of the task `taskUid`.\nsetTaskDeadline: Sets the `deadline` of the task `taskUid`.\nsetTaskPlanActualState: Sets the five plan-and-actual columns of the task `taskUid` as described by `place`.\nbeginTaskActual: Starts recording the actual of the task `taskUid` after a plan-and-actual grab handle was dragged. `grabbed` names the handle that was grabbed, `released` is where it was let go, and `snapMinutes` is the snap step in minutes that sets the length of the dummy actual.\ncycleTaskPlanActualState: Advances the plan-and-actual state of the task `taskUid` by one step along the state cycle. When going back from interrupted to not started, the actual that was removed is remembered by the screen state and passed in as `remembered`. `snapMinutes` is the snap step in minutes; when left out, the day step is used.\nsetTaskFadeInDays: Sets the fade-in days of the task `taskUid` to `fadeInDays`.\nsetTaskFadeOutDays: Sets the fade-out days of the task `taskUid` to `fadeOutDays`.\nsetTaskParentTask: Moves the task `taskUid` under the parent task `parentTaskUid`.\nmoveTaskToTaskGroup: Moves the task `taskUid` to another task group `taskGroupId`.\nsetTaskVisualShapeKind: Changes the shape of the task `taskUid` to `shapeKind`.\nsetTaskVisualMilestoneGlyph: Changes the milestone shape of the task `taskUid` to `milestoneGlyph`.\nsetTaskVisualColors: Sets the `fillColor` and `strokeColor` of the task `taskUid`.\nresetTaskVisualColors: Returns the colors of the task `taskUid` to following the theme.\nsetTaskVisualStrokeWidthPx: Sets the line width of the task `taskUid` to `strokeWidthPx`.\ncreateTaskGroup: Creates a task group with the given `id`, `parentId`, `name`, `derivedFromTaskUid` and `order`.\ndeleteTaskGroup: Deletes the task group `taskGroupId`. Warning: the current edit does not read `newTaskGroupId`; it has no effect.\npasteTaskGroupSubtree: Duplicates the subtree of task groups rooted at `sourceTaskGroupId`, placing the copy of the root under `parentId`. `newTaskGroupIds` maps each source `id` to the `id` of its copy.\nsetTaskGroupName: Sets the name of the task group `taskGroupId` to `name`.\nsetTaskGroupColor: Sets the `color` of the task group `taskGroupId`.\nresetTaskGroupColor: Returns the color of the task group `taskGroupId` to following the theme.\nsetTaskGroupMinHeightPx: Sets the minimum height of the task group `taskGroupId` to `minHeightPx`.\nreorderTaskGroupSiblings: Reorders the sibling task groups under `parentId` (null means the top level) into the order given by `orderedIds`. That order becomes their `order`.\ncreateDependency: Draws a dependency line from the task `predecessorUid` to the task `successorUid`. `predecessorEdge` and `successorEdge` name the ends (start or finish); the pair of ends decides the link type.\ndeleteDependency: Deletes the dependency lines from `predecessorUid` to `successorUid`. Every line in that direction is deleted; to delete only one, use `deleteDependencyAt`.\ndeleteDependencyAt: Deletes one dependency line among those in the same direction, named by `successorUid`, `predecessorUid` and its position `order` (0 is the first) in the successor's list of dependencies. Refused if no such line exists. Lines in the same direction have no name of their own, so the position in the list is the only way to name one.\nsetDependencyLag: Changes the lag of the dependency from `predecessorUid` to `successorUid`; the lag is given either as a working-day lag or as a typed lag.\nsetCalendar: Edits the calendar: the working weekdays, one set of working times for a working day, the exception days, and the day the week starts on. `workingDayTypes` lists the working weekdays (1 is Sunday; weekdays not listed are days off). `weekStartDay` is the day the week starts on. `exceptions` is the complete list of exception days after the edit. `workingTimes` is one set of working times for a working day. If the document still has the default calendar, create a calendar first and then edit it. The times of `fromDate` and `toDate` of an exception day are aligned by the side that writes the command into the document.\ncreateResource: Adds a resource named `name`.\nsetResourceName: Renames the resource `resourceUid` to `name`.\ndeleteResources: Deletes the resources listed in `resourceUids`.\ndeleteUnreferencedResources: Deletes all resources that no assignment refers to.\ncreateAssignment: Assigns the resource `resourceUid` to the task `taskUid`.\ndeleteAssignment: Removes the assignment of the resource `resourceUid` from the task `taskUid`.\ncreateCommentBox: Places a comment box with the given `commentBoxId`, attached as `anchor` says. In `anchor`, leave out a key to write it as null. The snapped target (a `taskUid` with `taskFigure`, or a `highlightBoxId`) and `snapPoint` are given together, and only when the box snaps.\ndeleteCommentBox: Deletes the comment box `commentBoxId`.\nsetCommentBoxText: Sets the text of the comment box `commentBoxId` to `text`.\nsetCommentBoxLeaderShapeKind: Sets the leader line shape of the comment box `commentBoxId` to `leaderShapeKind`.\nsetCommentBoxAnchor: Changes where the comment box `commentBoxId` is attached to `anchor`. In `anchor`, leave out a key to write it as null. The snapped target (a `taskUid` with `taskFigure`, or a `highlightBoxId`) and `snapPoint` are given together, and only when the box snaps.\nsetCommentBoxBodyOffsetPx: Changes the offset of the body of the comment box `commentBoxId` from its anchor: `dx` is the horizontal offset in px and `dy` the vertical offset in px.\nsetCommentBoxStrokeColor: Sets the color of the frame and leader line of the comment box `commentBoxId` to `strokeColor`.\nsetCommentBoxStrokeWidthPx: Sets the width of the frame and leader line of the comment box `commentBoxId` to `strokeWidthPx`.\nsetCommentBoxFillColor: Sets the fill color of the body box of the comment box `commentBoxId` to `fillColor`.\nsetCommentBoxFillTransparencyPercent: Sets the fill transparency of the body box of the comment box `commentBoxId` to `fillTransparencyPercent`.\nsetCommentBoxTextColor: Sets the text color of the body of the comment box `commentBoxId` to `textColor`.\nbringCommentBoxToFront: Moves the comment box `commentBoxId` to the end of the list of comment boxes, which is the front-most position.\ncreateHighlightBox: Places a highlight box with the given `highlightBoxId` enclosing `range`.\ndeleteHighlightBox: Deletes the highlight box `highlightBoxId`.\nsetHighlightBoxRange: Changes the area enclosed by the highlight box `highlightBoxId` to `range`.\nsetHighlightBoxStrokeColor: Sets the frame color of the highlight box `highlightBoxId` to `strokeColor`.\nsetHighlightBoxStrokeWidthPx: Sets the frame line width of the highlight box `highlightBoxId` to `strokeWidthPx`.\nsetHighlightBoxFillColor: Sets the fill color of the highlight box `highlightBoxId` to `fillColor`.\nsetHighlightBoxFillTransparencyPercent: Sets the fill transparency of the highlight box `highlightBoxId` to `fillTransparencyPercent`.\nbringHighlightBoxToFront: Moves the highlight box `highlightBoxId` to the end of the list of highlight boxes, which is the front-most position.\nsetStackDirection: Sets the stacking direction to `stackDirection`.\nsetVisibilitySetting: Shows or hides one element of the screen. `setting` names the element and `isVisible` is the value to write.\nsetFontSizeStep: Changes the font size step to `fontSizeStep`.\nsetThemeMonochrome: Sets whether the theme is monochrome to `isThemeMonochrome`.\nsetZoom: Changes the display zoom to `zoomX` and `zoomY`.\nsetScrollPosition: Changes the scroll position to `scrollDate`, `scrollTaskGroupId`, `scrollDateFraction` and `scrollTaskGroupFraction`.\nsetTaskGroupPanelWidthPx: Changes the width of the task group panel to `taskGroupPanelWidthPx`.\npinTaskGroup: Pins the task group `taskGroupId` by adding it to the pinned task groups.\nunpinTaskGroup: Unpins the task group `taskGroupId` by removing it from the pinned task groups.\nfitScheduleToScreen: Sets the zoom and scroll position at which the whole schedule fits the screen: `zoomX`, `zoomY`, `scrollDate`, `scrollTaskGroupId`, `scrollDateFraction` and `scrollTaskGroupFraction`.\nresetTaskGroupTreeStates: Returns the tree state of every task group to `auto`, except task groups that are hidden.\nmoveTaskGroup: Changes the parent and the order of the task group `taskGroupId` to `parentId` and `order`.\nsetDisplayScale: Changes the display scale step to `displayScale`.\nsetFitSpan: Sets or moves the fit span (the period shown when fitting the whole schedule), giving `fitSpanStart` and `fitSpanFinish` together.\nclearFitSpan: Clears the fit span; if it was fixed, the fixing is also removed.\nsetFitSpanFixed: Fixes or unfixes the fit span according to `isFitSpanFixed`. If the fit span is empty, the period currently shown is copied into it: `shownStart` and `shownFinish` give that period (null when none).\nsetTaskGroupPanelWidthFixed: Fixes or unfixes the width of the task group panel according to `isTaskGroupPanelWidthFixed`.\nsetTableView: Replaces how one table looks: the displayed column values, whether the schedule filter is on, the column filters and the sort order. `table` names the table (`searchPanel`, `delayDiagnosticsReport` or `resourceList`) and `view` is the whole new view for it.\nsetViewTimeZone: Changes the time zone in which the schedule is shown to `viewTimeZone`; the shown times are converted accordingly. Null means the standard time row.\nsetDisplayTimeZones: Sets the time zones to display to `displayTimeZones` (0 to 4 of them).\nsetTimeOfDayVisible: Sets whether the time of day is shown to `isTimeOfDayVisible`.\nsetTaskGroupTreeState: Sets the tree state of the task group `taskGroupId` to `treeState`.\nsetTaskGroupEditPermission: Adds or removes the edit group of the task group `taskGroupId` by setting `editPermission`. Not implemented yet: refused if sent. For the person only.\nsetLevelZeroTreeState: Sets the tree state of level 0 to `levelZeroTreeState`."
           }
          },
          "required": [
           "kind"
          ]
-        },
-        "description": "命令の束 —— 束の単位で原子的に適用する（`AG-3`）"
+        }
        }
       },
       "required": [
@@ -213,20 +211,20 @@
   },
   {
    "name": "importDocument",
-   "description": "取り込みと合流。\n⭐ 人に合流の 3 択（`OP-3`、`U-61`）を出したときは、答えを待たずに `AgentImportOutcome`（`AV-15`）の「人に問うたとき」を返す —— 人が選んだ後の書き込みは人の書き込みとして刻印に残り、`watchChanges` が知らせる（表 T-035 の `AG-12` の ⑥）。",
+   "description": "Imports a document into the open one.\nWhen the person must choose how (replace, add, or overlay as the baseline), the call returns at once with an ask outcome; the person's choice is then written as their own edit, so watchChanges reports it.",
    "inputSchema": {
     "type": "object",
     "properties": {
      "source": {
       "type": "object",
-      "description": "取り込む文書"
+      "description": "The document to import: the document itself, { document }, or { text } holding GRS JSON"
      }
     }
    }
   },
   {
    "name": "undoEdit",
-   "description": "履歴を戻す",
+   "description": "Undoes the newest step of the edit history.",
    "inputSchema": {
     "type": "object",
     "properties": {}
@@ -234,7 +232,7 @@
   },
   {
    "name": "redoEdit",
-   "description": "履歴を進める",
+   "description": "Redoes the step undone last.",
    "inputSchema": {
     "type": "object",
     "properties": {}
@@ -242,7 +240,7 @@
   },
   {
    "name": "exportJson",
-   "description": "`GRS JSON` を値で返す",
+   "description": "Returns the document as GRS JSON text.",
    "inputSchema": {
     "type": "object",
     "properties": {}
@@ -250,7 +248,7 @@
   },
   {
    "name": "exportMspdi",
-   "description": "交換形式を値で返す",
+   "description": "Returns the document as Microsoft Project XML (MSPDI).",
    "inputSchema": {
     "type": "object",
     "properties": {}
@@ -258,7 +256,7 @@
   },
   {
    "name": "exportSvg",
-   "description": "書き出す絵（`FR-080`、文書が全体表示時の期間を固定しているときは 表 T-241 の `IX-12`）を値で返す",
+   "description": "Returns the exported picture as SVG text; when the document fixes the span of the fit view, the picture uses that span.",
    "inputSchema": {
     "type": "object",
     "properties": {}
@@ -266,7 +264,7 @@
   },
   {
    "name": "exportPng",
-   "description": "画像を値で返す。\n失敗も値で返す",
+   "description": "Returns the exported picture as a PNG image; a failure is a value too.",
    "inputSchema": {
     "type": "object",
     "properties": {}
@@ -274,7 +272,7 @@
   },
   {
    "name": "exportEmbeddedHtml",
-   "description": "本体と文書を合わせた 1 つの `.html` を値で返す",
+   "description": "Returns one .html file that holds GRS and the document together.",
    "inputSchema": {
     "type": "object",
     "properties": {}
@@ -282,20 +280,20 @@
   },
   {
    "name": "focusTask",
-   "description": "指定したタスクが載るタスクグループと祖先を展開し、見える位置へ表示を寄せる",
+   "description": "Expands the task groups and ancestors the task sits in and scrolls it into view.",
    "inputSchema": {
     "type": "object",
     "properties": {
      "taskUid": {
       "type": "number",
-      "description": "見せるタスクの `uid`"
+      "description": "The uid of the task to show"
      }
     }
    }
   },
   {
    "name": "showOnlyTasks",
-   "description": "`uid` の並びを受けて、検索の表の表示の列を、並びのタスクを「表示」・ほかのすべてを「非表示」に置き換え、検索の表のスケジュールフィルタを掛ける。\n空の並びを受けたら検索の表のスケジュールフィルタを解除する（表示の列の値は残す）。\n解除を `null` にしないのは、道具の入力に型の並びを刷らないためである（表 T-035 の `AG-12` の ⑧）。\n検索パネルが出ていなければ最小化で出してから掛ける —— スケジュールフィルタはウィンドウと一緒に生きる（`TV-8`）。\n掛けたら帯（`U-67`）が出る —— 人の画面に何が起きたかが残る。\n展開は `TV-6` のとおり —— 検索の表のスケジュールフィルタを掛けているあいだに「非表示」から「表示」に戻った行のタスクだけを展開する。\n⚠️ 遅延診断レポートの表と担当リストの表のスケジュールフィルタには触れない。\n出す命令は `setTableView`（表 T-108 の `CM-92`）1 つであり、未保存の編集（`FR-100`）で取り消しの 1 段である（`FR-031` の 表 T-027 の `UN-20`）",
+   "description": "Shows only the listed tasks: rewrites the visibility column of the Search Panel task table and turns on that table's schedule filter, as the person can.\nAn empty list turns the filter off and keeps the visibility values.\nOpens the Search Panel minimized if it is not shown, and the page shows its band so the person sees what happened. The Delay Diagnostics Report and Resource List filters are not touched.",
    "inputSchema": {
     "type": "object",
     "properties": {
@@ -304,33 +302,33 @@
       "items": {
        "type": "number"
       },
-      "description": "表示にするタスクの `uid` の並び —— 空の並びは解除"
+      "description": "The uids of the tasks to show; an empty list clears the filter"
      }
     }
    }
   },
   {
    "name": "watchChanges",
-   "description": "自分以外が確定した変更と発話を待つ",
+   "description": "Waits for changes and messages confirmed by writers other than you.",
    "inputSchema": {
     "type": "object",
     "properties": {
      "waitMs": {
       "type": "number",
-      "description": "待つ長さ（ミリ秒） —— 切れたら「まだ無い」を値で返す（`AG-12` の ⑤） —— 取次の締め切り（`_assets/design-mcp-relay.md` の 5）より短い 40,000 で頭打ちにする"
+      "description": "How long to wait, in milliseconds; when it runs out you get 'nothing yet'. Capped at 40000, below the relay's 45-second deadline"
      }
     }
    }
   },
   {
    "name": "postDialogueMessage",
-   "description": "AI が確定した発話を対話欄へ置く",
+   "description": "Puts a message the AI has confirmed into the dialogue field.",
    "inputSchema": {
     "type": "object",
     "properties": {
      "text": {
       "type": "string",
-      "description": "置く発話"
+      "description": "The message to put"
      }
     }
    }

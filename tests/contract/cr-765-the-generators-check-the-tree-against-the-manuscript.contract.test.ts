@@ -29,8 +29,8 @@ const COPIED = [SOURCE_DIR, MEMBERS_UNIT, RELAYED_UNIT, RELAY_UNIT, DESCRIPTIONS
 
 interface Member {
   id: string
-  arguments: { name: string; meaning: { ja: string } }[]
-  mcpOnlyKeys?: { name: string; meaning: { ja: string } }[]
+  arguments: { name: string; meaning: { ja: string; en: string } }[]
+  mcpOnlyKeys?: { name: string; meaning: { ja: string; en: string } }[]
 }
 
 interface Manuscript {
@@ -137,7 +137,8 @@ describe('on a scratch copy outside the repository: an untouched copy is green, 
     editManuscript(copy, (manuscript) => {
       const argument = memberOf(manuscript, 'AM-25').arguments[0]
       if (argument === undefined) throw new Error('AM-25 has no argument')
-      argument.meaning.ja = `${argument.meaning.ja} (planted)`
+      // WHY: the tool descriptions are printed from the English (en), so the planted change goes there (CR-796).
+      argument.meaning.en = `${argument.meaning.en} (planted)`
     })
     expect(run(copy, GENERATOR)).toMatchObject({ status: 0 })
     const ran = run(copy, DESCRIPTION_GENERATOR)

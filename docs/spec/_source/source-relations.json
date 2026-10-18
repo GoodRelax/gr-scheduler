@@ -542,12 +542,12 @@
   {
    "from": "docs/spec/_source/agent-api-members.json",
    "to": "docs/spec UIDs",
-   "count": 38
+   "count": 37
   },
   {
    "from": "docs/spec/_source/agent-api-members.json",
    "to": "docs/spec/01-04-requirements.md",
-   "count": 141
+   "count": 140
   },
   {
    "from": "docs/spec/_source/agent-api-members.json",
@@ -563,11 +563,6 @@
    "from": "docs/spec/_source/agent-api-members.json",
    "to": "docs/spec/_source/document-commands.json",
    "count": 4
-  },
-  {
-   "from": "docs/spec/_source/agent-api-members.json",
-   "to": "docs/spec/_source/erd.json",
-   "count": 1
   },
   {
    "from": "docs/spec/_source/agent-api-members.json",
@@ -811,33 +806,8 @@
   },
   {
    "from": "docs/spec/_source/grs-commands.schema.json",
-   "to": "docs/spec UIDs",
-   "count": 11
-  },
-  {
-   "from": "docs/spec/_source/grs-commands.schema.json",
-   "to": "docs/spec/01-04-requirements.md",
-   "count": 39
-  },
-  {
-   "from": "docs/spec/_source/grs-commands.schema.json",
-   "to": "docs/spec/_source/agent-api-members.json",
-   "count": 1
-  },
-  {
-   "from": "docs/spec/_source/grs-commands.schema.json",
    "to": "docs/spec/_source/document-commands.json",
-   "count": 4
-  },
-  {
-   "from": "docs/spec/_source/grs-commands.schema.json",
-   "to": "docs/spec/_source/erd.json",
-   "count": 173
-  },
-  {
-   "from": "docs/spec/_source/grs-commands.schema.json",
-   "to": "docs/spec/_source/settings.json",
-   "count": 60
+   "count": 1
   },
   {
    "from": "docs/spec/_source/grs-json-changes.json",

@@ -12,13 +12,13 @@ what this reading does not see.
 
 | place | T-218 | T-334 | files | case sites | expected-to-fail marks | known-red lines | need the MSPDI XSDs | tied to no spec row |
 | --- | --- | --- | --: | --: | --: | --: | --: | --: |
-| `contract` | TS-5 | VT-2 | 420 | 5351 | 8 | 4 | 11 | 2 |
+| `contract` | TS-5 | VT-2 | 421 | 5365 | 8 | 4 | 11 | 2 |
 | `integration` | TS-2 | - | 3 | 76 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
 | `system` | TS-3 | - | 96 | 609 | 0 | 0 | 0 | 0 |
 | `unit` | TS-6 | - | 189 | 3976 | 1 | 1 | 2 | 0 |
 | `use-case` | TS-1 | VT-1 | 14 | 17 | 2 | 3 | 0 | 0 |
-| **all** | | | 725 | 10046 | 11 | 8 | 13 | 2 |
+| **all** | | | 726 | 10060 | 11 | 8 | 13 | 2 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -512,6 +512,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/cr-796-s1-calls-that-wait-on-a-person-return-at-once.contract.test.ts` | 18 | - | - | T-233 | AG-12, AM-8, AM-17, AV-15, RS-90, U-61 | - | - | - | - |
 | `tests/contract/cr-796-s1-the-relay-answers-a-silent-page-after-its-deadline.contract.test.ts` | 9 | - | - | - | AG-12, AM-17 | - | - | - | - |
 | `tests/contract/cr-796-s2-tool-inputs-every-client-keeps.contract.test.ts` | 17 | - | - | T-107, T-108 | AG-12, AM-7, AM-27, S-560, TV-5, TV-8 | - | - | - | - |
+| `tests/contract/cr-796-s3-the-ai-reads-english-without-row-ids.contract.test.ts` | 14 | - | - | T-107, T-108 | AG-12 | - | - | - | - |
 | `tests/contract/cr-797-fr-130-the-diagnosis-is-made-only-when-asked.contract.test.ts` | 23 | FR-130 | - | T-109, T-206, T-270, T-315, T-346 | DG-1, DG-2, DG-3, GA-18, IC-107, IC-157, IC-168, PE-8, PE-10, RW-1, RW-3, RW-16, RW-19, S-623 | - | - | - | - |
 | `tests/contract/dfc-1000-hf-10-the-open-all-stance-counts-every-placed-task-group.test.ts` | 9 | - | - | T-051, T-109 | HF-2, HF-10, IC-58, IC-74, RS-31 | - | - | - | - |
 | `tests/contract/dfc-1013-tl-12-the-delay-days-are-told-only-in-the-ez-6-tip.test.ts` | 8 | FR-047 | - | T-038, T-348 | DG-4, DX-10, EZ-6, OC-8, TL-12 | - | - | - | - |

@@ -83,6 +83,8 @@ ROOT = os.path.dirname(HERE)
 SPEC_SOURCE = os.path.join(ROOT, 'docs', 'spec', '_source')
 sys.path.insert(0, SPEC_SOURCE)
 import document_commands_json_to_md as manuscript  # noqa: E402
+# CR-796: the English an MCP client reads, checked the one way (design-mcp-relay.md 3.1).
+from generate_agent_api import english  # noqa: E402
 
 REL_SOURCE = 'docs/spec/_source/document-commands.json'
 REL_SELF = 'tools/generate_document_commands.py'
@@ -139,12 +141,13 @@ COMMANDS_SCHEMA_COMMENT = (
     'tools/generate_document_commands.py. One oneOf branch per command in the order of the table; a '
     'command with a choice of shapes holds a oneOf of its own.')
 COMMANDS_SCHEMA_DESCRIPTION = (
-    'One command of the batch applyCommands takes (AM-7): kind names the command, the other keys are '
+    'One command of the batch applyCommands takes: kind names the command, the other keys are '
     'the values it carries. A value that writes a column of the document has the shape of that column '
     'in grs-document.schema.json.')
+# CR-796: the head of the kind description; one line per command follows, from its English.
 KIND_DESCRIPTION = (
-    'The command, one of the confirmed names of table T-108. The keys and types of each command are in '
-    'the resource grs-commands.schema.json.')
+    'The command. The keys and types of each command are in the resource grs-commands.schema.json. '
+    'What each command does:')
 
 
 def path_of(rel):
@@ -637,14 +640,52 @@ def value_schema(value, doc, columns, schema):
     return node
 
 
+def column_description(value, columns, schema):
+    """The English description of the column a value points at, or None.
+
+    CR-796: a value is described only in English (design-mcp-relay.md 3.1),
+    and the one English source of a value is the description of its column in
+    grs-document.schema.json; a value with none is printed without one.
+
+    @purity pure
+    """
+    ids = manuscript.pointers(value)
+    if not ids:
+        return None
+    if ids[0] in columns.at:
+        entity, name, _json = columns.at[ids[0]]
+        node = schema['$defs'][entity]['properties'][name]
+    else:
+        node = settings_node(columns.s[ids[0]], schema)
+    if not node or 'description' not in node:
+        return None
+    return english({'en': node['description']}, '%s of %s' % (ids[0], REL_DOCUMENT_SCHEMA))
+
+
+def settings_node(key, schema):
+    """The schema node of a settings key, a dotted one walked part by part, or None.
+
+    @purity pure
+    """
+    node = schema['properties']['documentSettings']
+    for part in key.split('.'):
+        if '$ref' in node:
+            node = schema['$defs'][node['$ref'].rsplit('/', 1)[-1]]
+        node = node.get('properties', {}).get(part)
+        if node is None:
+            return None
+    return node
+
+
 def object_schema(values, doc, columns, schema, description, first=None):
     """@purity pure"""
     properties = dict(first or {})
     required = list(properties)
-    printer = manuscript.Printer(doc, columns)
     for value in values:
         node = value_schema(value, doc, columns, schema)
-        node['description'] = printer.value_lines(value)[0].split(': ', 1)[1]
+        told = column_description(value, columns, schema)
+        if told:
+            node['description'] = told
         properties[value['name']] = node
         if not value.get('optional'):
             required.append(value['name'])
@@ -665,6 +706,14 @@ def shape_schema(shape, doc, columns, schema):
                       for variant in shape['variants']]}
 
 
+def carried(row):
+    """What a command does, in English: its "what it carries" lines (CR-796).
+
+    @purity pure
+    """
+    return english(row['carries'], '%s of %s' % (row['id'], REL_SOURCE))
+
+
 def command_schemas(doc, columns, schema):
     """One alternative per command the Agent API takes, in the table's order.
 
@@ -681,7 +730,7 @@ def command_schemas(doc, columns, schema):
         shapes = manuscript.shapes_by_name(doc)
         ways = [plain + shapes[name]['fields'] for name in choice[0]['oneOf']] if choice else [plain]
         for values in ways:
-            out.append(object_schema(values, doc, columns, schema, '\n'.join(row['carries']['ja']),
+            out.append(object_schema(values, doc, columns, schema, carried(row),
                                      {'kind': {'const': row['name']}}))
     return out
 
@@ -706,7 +755,9 @@ def kind_item_schema(doc):
 
     @purity pure
     """
-    kind = {'type': 'string', 'enum': [row['name'] for row in doc['rows']], 'description': KIND_DESCRIPTION}
+    told = [KIND_DESCRIPTION] + ['%s: %s' % (row['name'], carried(row).replace('\n', ' '))
+                                 for row in doc['rows']]
+    kind = {'type': 'string', 'enum': [row['name'] for row in doc['rows']], 'description': '\n'.join(told)}
     return {'type': 'object', 'properties': {'kind': kind}, 'required': ['kind']}
 
 
@@ -732,7 +783,9 @@ def with_command_shapes(input_schema, member, agent_doc):
         else:
             stop('%s holds the field %s of type %s, which no rule here prints'
                  % (WRITE_REQUEST_TYPE, field['name'], field['type']))
-        node['description'] = field['meaning']['ja']
+        # CR-796: English only; a field whose meaning has none is printed without one.
+        if field['meaning'].get('en'):
+            node['description'] = english(field['meaning'], '%s %s' % (WRITE_REQUEST_TYPE, field['name']))
         properties[field['name']] = node
     out = copy.deepcopy(input_schema)
     for one in written:
@@ -750,7 +803,7 @@ def command_branch(row, doc, columns, schema):
 
     @purity pure
     """
-    description = '\n'.join(row['carries']['ja'])
+    description = carried(row)
     kind = {'kind': {'const': row['name']}}
     plain = [value for value in row['values'] if 'oneOf' not in value]
     choice = [value for value in row['values'] if 'oneOf' in value]

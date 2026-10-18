@@ -7,6 +7,7 @@ import { Ajv2020 } from 'ajv/dist/2020.js'
 import { describe, expect, it } from 'vitest'
 
 import { printedCommands, type PrintedCommand, type PrintedValue } from './cr-766-printed-commands'
+import { commandEnglish } from './cr-796-manuscript-english'
 import { unbroken } from './spec-table'
 
 type Json = Record<string, unknown>
@@ -162,10 +163,12 @@ describe('one alternative per command the Agent API takes, in the order of table
     },
   )
 
-  it.each(offered.map((command) => [command.id, command.name, command.carries] as const))(
+  // see AM-7
+  // WHY: the description is printed from the English of the row's "what it carries" cell in the manuscript, not from the Japanese table.
+  it.each(offered.map((command) => [command.id, command.name] as const))(
     '%s %s: the alternative is described by what the row does',
-    (_id, name, carries) => {
-      for (const alternative of alternativesOf(name)) expect(alternative['description']).toBe(carries)
+    (_id, name) => {
+      for (const alternative of alternativesOf(name)) expect(alternative['description']).toBe(commandEnglish(name))
     },
   )
 })

@@ -63,6 +63,9 @@ PRIMITIVE_SCHEMAS = {'string': 'string', 'number': 'number', 'boolean': 'boolean
 STRING_LITERAL = re.compile(r"^'([^']*)'$")
 # An alternative of a union longer than this is printed one field per line.
 LINE_WIDTH = 100
+# CR-796: a description an MCP client reads names no row of the specification
+# (design-mcp-relay.md 3.1) -- the reading AI cannot follow one.
+ROW_ID = re.compile(r'\b[A-Z]{1,4}-\d+[a-z]?\b')
 
 
 def path_of(rel):
@@ -131,6 +134,29 @@ def mcp_value_schema(type_text, where):
          'to design-mcp-relay.md 3.1 and here together' % (where, type_text))
 
 
+def english(cell, where):
+    """The English (`en`) of a manuscript cell, its lines joined by newlines.
+
+    Stop when it is missing or empty, holds a character outside ASCII, or
+    names a row of the specification (design-mcp-relay.md 3.1, CR-796).
+
+    @purity pure
+    """
+    lines = cell.get('en') or []
+    if isinstance(lines, str):
+        lines = [lines]
+    text = '\n'.join(line.strip() for line in lines).strip()
+    if not text:
+        stop('%s has no English (en) text' % where)
+    if any(ord(char) > 127 for char in text):
+        stop('%s: its English (en) text holds a non-ASCII character: %r' % (where, text))
+    found = ROW_ID.search(text)
+    if found:
+        stop('%s: its English (en) text names the row %s; write it without row ids'
+             % (where, found.group(0)))
+    return text
+
+
 def mcp_input_schema(member):
     """The MCP tool input of one member: its arguments, but a member with
     MCP-only keys takes those instead (AG-12 (5)), each with its meaning.
@@ -141,7 +167,7 @@ def mcp_input_schema(member):
     properties = {}
     for one in keys:
         schema = mcp_value_schema(one['type'], '%s %s' % (member['id'], one['name']))
-        schema['description'] = one['meaning']['ja']
+        schema['description'] = english(one['meaning'], '%s %s' % (member['id'], one['name']))
         properties[one['name']] = schema
     return {'type': 'object', 'properties': properties}
 

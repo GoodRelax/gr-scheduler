@@ -91,5 +91,5 @@ Read with readDocument and readStamp. Write with applyCommands, handing over the
 A refusal is a value, not an error: it names the reason and carries the current stamp. Read again, then retry.
 While the person is dragging, typing in place or answering a question, writes are refused; try again shortly.
 These tools save nothing to a file. The person saves the document from the page.
-The tool descriptions are in Japanese. Ids in them such as AT-24, AG-2, FR-028 or T-107 are rows of the GRS specification: https://goodrelax.github.io/gr-scheduler/spec-html/
+The descriptions here use no row ids of the GRS specification; the specification itself is at https://goodrelax.github.io/gr-scheduler/spec-html/
 ```
