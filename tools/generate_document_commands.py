@@ -36,7 +36,14 @@ WRITES  one region per unit, the one that opens
                                                              it (DFC-2856)
 
         and, through tools/generate_mcp_tool_descriptions.py, which calls
-        with_command_shapes() below, the input shape of the AM-7 MCP tool.
+        with_command_shapes() below, the input shape of the AM-7 MCP tool: the
+        stamp, and each command as an object whose `kind` is one of the
+        confirmed names of table T-108 (no oneOf -- AG-12 (8)).
+WRITES  docs/spec/_source/grs-commands.schema.json whole: the JSON Schema of
+        the commands, one oneOf branch per command of table T-108 with its kind,
+        keys, types and description -- the second MCP resource of the relay
+        (AG-12 (8), design-mcp-relay.md 3.1). Generated -- do not edit it by
+        hand; rebuild with `npm run gen` (`npm run gen:check` fails on drift).
 
 ⭐ A VALUE THAT WRITES A COLUMN IS TYPED BY THAT COLUMN (CR-766 X-d). Its type
 is the entity's own field (`Task['fadeInDays']`, `DocumentSettings['zoomX']`),
@@ -120,6 +127,24 @@ WRITE_REQUEST_TYPE = 'AgentWriteRequest'
 COMMAND_LIST_TYPE = 'readonly DocumentCommand[]'
 STAMP_TYPE = 'DocumentStamp'
 DROPPED_SCHEMA_KEYS = ('description', 'default', '$comment')
+# The second MCP resource of the relay (AG-12 (8), design-mcp-relay.md 3.1).
+REL_COMMANDS_SCHEMA = 'docs/spec/_source/grs-commands.schema.json'
+COMMANDS_SCHEMA_ID = 'https://goodrelax.github.io/gr-scheduler/spec/_source/grs-commands.schema.json'
+JSON_SCHEMA_DIALECT = 'https://json-schema.org/draft/2020-12/schema'
+COMMANDS_SCHEMA_TITLE = 'GRS document commands'
+COMMANDS_SCHEMA_COMMENT = (
+    'Generated from docs/spec/_source/document-commands.json (table T-108, the commands applyCommands '
+    'takes), the column shapes from docs/spec/_source/grs-document.schema.json. Never edit by hand. '
+    'Rebuild: npm run gen -- npm run gen:check fails on drift. The generator is '
+    'tools/generate_document_commands.py. One oneOf branch per command in the order of the table; a '
+    'command with a choice of shapes holds a oneOf of its own.')
+COMMANDS_SCHEMA_DESCRIPTION = (
+    'One command of the batch applyCommands takes (AM-7): kind names the command, the other keys are '
+    'the values it carries. A value that writes a column of the document has the shape of that column '
+    'in grs-document.schema.json.')
+KIND_DESCRIPTION = (
+    'The command, one of the confirmed names of table T-108. The keys and types of each command are in '
+    'the resource grs-commands.schema.json.')
 
 
 def path_of(rel):
@@ -672,9 +697,22 @@ def request_fields(agent_doc):
     stop('the Agent API manuscript holds no value type %s' % WRITE_REQUEST_TYPE)
 
 
+def kind_item_schema(doc):
+    """One command as the AM-7 tool input shows it: an object that must carry `kind`,
+    one of the confirmed names of table T-108 in its order.
+
+    ⛔ NO oneOf (AG-12 (8)): the MCP client drops it, so the keys of each command
+    are in grs-commands.schema.json, the second resource, instead.
+
+    @purity pure
+    """
+    kind = {'type': 'string', 'enum': [row['name'] for row in doc['rows']], 'description': KIND_DESCRIPTION}
+    return {'type': 'object', 'properties': {'kind': kind}, 'required': ['kind']}
+
+
 def with_command_shapes(input_schema, member, agent_doc):
     """The MCP input of one Agent API member, with an AgentWriteRequest argument
-    printed from table T-108: the stamp, and the commands as one alternative each.
+    printed from table T-108: the stamp, and the commands, each an object with its kind.
 
     The member's own description of the argument is kept; each field is
     described by its meaning in table T-400.
@@ -684,14 +722,13 @@ def with_command_shapes(input_schema, member, agent_doc):
     written = [one for one in member['arguments'] if one['type'] == WRITE_REQUEST_TYPE]
     if not written:
         return input_schema
-    doc, columns = load()
-    schema = document_schema()
+    doc, _columns = load()
     properties = {}
     for field in request_fields(agent_doc):
         if field['type'] == STAMP_TYPE:
             node = {'type': 'object'}
         elif field['type'] == COMMAND_LIST_TYPE:
-            node = {'type': 'array', 'items': {'oneOf': command_schemas(doc, columns, schema)}}
+            node = {'type': 'array', 'items': kind_item_schema(doc)}
         else:
             stop('%s holds the field %s of type %s, which no rule here prints'
                  % (WRITE_REQUEST_TYPE, field['name'], field['type']))
@@ -701,6 +738,62 @@ def with_command_shapes(input_schema, member, agent_doc):
     for one in written:
         out['properties'][one['name']].update({'properties': properties, 'required': list(properties)})
     return out
+
+
+# ---------------------------------------------------------------- the commands resource
+
+def command_branch(row, doc, columns, schema):
+    """The branch of one command in grs-commands.schema.json.
+
+    A command with a choice of shapes (CM-38) is one branch holding a oneOf of
+    its ways, so its kind is named once; each way lists `kind` as allowed.
+
+    @purity pure
+    """
+    description = '\n'.join(row['carries']['ja'])
+    kind = {'kind': {'const': row['name']}}
+    plain = [value for value in row['values'] if 'oneOf' not in value]
+    choice = [value for value in row['values'] if 'oneOf' in value]
+    if not choice:
+        return object_schema(plain, doc, columns, schema, description, kind)
+    shapes = manuscript.shapes_by_name(doc)
+    ways = [object_schema(plain + shapes[name]['fields'], doc, columns, schema, None, {'kind': True})
+            for name in choice[0]['oneOf']]
+    return {'type': 'object', 'description': description, 'properties': kind,
+            'required': ['kind'], 'oneOf': ways}
+
+
+def commands_schema_text(doc, columns, schema):
+    """grs-commands.schema.json as it is written: every command of table T-108, in its order.
+
+    @purity pure
+    """
+    out = collections.OrderedDict([
+        ('$schema', JSON_SCHEMA_DIALECT),
+        ('$id', COMMANDS_SCHEMA_ID),
+        ('$comment', COMMANDS_SCHEMA_COMMENT),
+        ('title', COMMANDS_SCHEMA_TITLE),
+        ('description', COMMANDS_SCHEMA_DESCRIPTION),
+        ('oneOf', [command_branch(row, doc, columns, schema) for row in doc['rows']]),
+    ])
+    return json.dumps(out, ensure_ascii=False, indent=1) + '\n'
+
+
+def commands_schema_drifted(doc, columns, schema):
+    """Write grs-commands.schema.json, or under --check say whether it drifted.
+
+    @purity non-pure
+    """
+    built = commands_schema_text(doc, columns, schema)
+    path = path_of(REL_COMMANDS_SCHEMA)
+    held = io.open(path, encoding='utf-8', newline='').read() if os.path.exists(path) else None
+    if held == built:
+        return False
+    if '--check' in sys.argv:
+        return True
+    io.open(path, 'w', encoding='utf-8', newline='').write(built)
+    say('wrote %s' % REL_COMMANDS_SCHEMA)
+    return False
 
 
 # ---------------------------------------------------------------- run-time shape check
@@ -781,8 +874,9 @@ def main():
     @purity non-pure
     """
     doc, columns = load()
-    drifted = []
-    printed = regions(doc, columns) + [shape_check_region(doc, columns, document_schema())]
+    schema = document_schema()
+    drifted = [REL_COMMANDS_SCHEMA] if commands_schema_drifted(doc, columns, schema) else []
+    printed = regions(doc, columns) + [shape_check_region(doc, columns, schema)]
     for rel, what, lines in printed:
         text = io.open(path_of(rel), encoding='utf-8', newline='').read()
         built = rewritten(rel, text, what, lines)
@@ -795,9 +889,10 @@ def main():
             say('wrote the region of %s' % rel)
     if drifted:
         for rel in drifted:
-            say('PROBLEM  the region of %s has drifted from %s -- run `python %s`' % (rel, REL_SOURCE, REL_SELF))
+            say('PROBLEM  %s has drifted from %s -- run `python %s`' % (rel, REL_SOURCE, REL_SELF))
         return 1
-    say('OK       %d unit region(s) match %s (%d commands)' % (len(printed), REL_SOURCE, len(doc['rows'])))
+    say('OK       %d unit region(s) and %s match %s (%d commands)'
+        % (len(printed), REL_COMMANDS_SCHEMA, REL_SOURCE, len(doc['rows'])))
     return 0
 
 

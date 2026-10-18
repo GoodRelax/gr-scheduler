@@ -12,13 +12,13 @@ what this reading does not see.
 
 | place | T-218 | T-334 | files | case sites | expected-to-fail marks | known-red lines | need the MSPDI XSDs | tied to no spec row |
 | --- | --- | --- | --: | --: | --: | --: | --: | --: |
-| `contract` | TS-5 | VT-2 | 419 | 5331 | 8 | 4 | 11 | 2 |
+| `contract` | TS-5 | VT-2 | 420 | 5351 | 8 | 4 | 11 | 2 |
 | `integration` | TS-2 | - | 3 | 76 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
 | `system` | TS-3 | - | 96 | 609 | 0 | 0 | 0 | 0 |
 | `unit` | TS-6 | - | 189 | 3976 | 1 | 1 | 2 | 0 |
 | `use-case` | TS-1 | VT-1 | 14 | 17 | 2 | 3 | 0 | 0 |
-| **all** | | | 724 | 10026 | 11 | 8 | 13 | 2 |
+| **all** | | | 725 | 10046 | 11 | 8 | 13 | 2 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -470,10 +470,10 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/cr-765-the-generators-check-the-tree-against-the-manuscript.contract.test.ts` | 10 | - | - | T-107, T-400 | - | - | - | - | - |
 | `tests/contract/cr-765-the-mcp-tool-inputs-are-the-printed-arguments.contract.test.ts` | 14 | - | - | T-107, T-108 | AG-12, AM-7, AM-17, AM-19, AM-25 | - | - | - | - |
 | `tests/contract/cr-766-t-108-the-printed-commands-and-the-values-they-carry.contract.test.ts` | 19 | - | - | T-058, T-064, T-108, T-202, T-203 | AT-144, CM-1, CM-76, PI-8 | - | - | - | - |
-| `tests/contract/cr-766-the-applycommands-input-is-one-choice-per-command.contract.test.ts` | 16 | - | - | T-019, T-108 | AM-7, CM-13, CM-76 | - | - | - | - |
+| `tests/contract/cr-766-the-applycommands-input-is-one-choice-per-command.contract.test.ts` | 17 | - | - | T-019, T-108 | AG-12, AM-7, CM-13, CM-38, CM-76 | - | - | - | - |
 | `tests/contract/cr-766-the-clauses-that-point-at-t-108.contract.test.ts` | 8 | FR-019, FR-057 | - | T-075, T-108 | CM-39, CM-46, UF-16, WT-6, WT-7 | - | - | - | - |
 | `tests/contract/cr-766-the-command-unions-carry-the-printed-values.contract.test.ts` | 10 | - | - | T-019, T-108 | CM-38, CM-76 | - | - | - | - |
-| `tests/contract/cr-766-the-generators-print-the-commands-from-the-manuscript.contract.test.ts` | 13 | - | - | T-108 | AM-7, CM-16, CM-76, TX-10 | - | - | - | - |
+| `tests/contract/cr-766-the-generators-print-the-commands-from-the-manuscript.contract.test.ts` | 14 | - | - | T-108 | AG-12, AM-7, CM-16, CM-76, TX-10 | - | - | - | - |
 | `tests/contract/cr-768-ic-2-offers-the-rows-the-offered-column-says.contract.test.ts` | 10 | FR-096 | - | - | IC-2, IO-1, IO-2, IO-3, IO-4, IO-5, IO-6, IO-7, IO-8, SK-11, SX-1, SX-2 | - | - | - | - |
 | `tests/contract/cr-768-t-024-holds-the-media-type-and-the-offered-column.contract.test.ts` | 17 | FR-096 | - | T-024, T-340, T-346 | IC-2, IC-140, IO-1, IO-2, IO-3, IO-4, IO-5, IO-6, IO-7, IO-8, RW-7, SX-2 | - | - | - | - |
 | `tests/contract/cr-768-the-hand-copies-are-generated-and-drift-is-caught.contract.test.ts` | 18 | FR-096 | - | T-024, T-229 | ED-1, IO-8, PI-37, RW-7 | - | - | - | - |
@@ -505,12 +505,13 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/cr-788-the-first-checked-is-the-primary.test.ts` | 12 | FR-008, FR-059 | - | T-109, T-206, T-225 | AS-1, AS-3, AS-5, AS-12, AS-13, IC-123, IC-124, IC-125, IC-126, IN-5a, IN-6, S-607, TL-7 | - | - | - | - |
 | `tests/contract/cr-789-hf-15-a-pointer-move-changes-only-the-cues.contract.test.ts` | 15 | - | - | - | HF-6, HF-15, UZ-11 | - | - | - | - |
 | `tests/contract/cr-789-hf-15-the-drop-is-a-ringed-line.contract.test.ts` | 19 | - | - | - | HF-6, HF-15, S-150, S-151, S-213, S-620 | - | - | - | - |
-| `tests/contract/cr-791-the-relay-hands-the-ai-its-instructions-and-the-schema.contract.test.ts` | 12 | - | - | - | AG-12 | - | - | - | - |
+| `tests/contract/cr-791-the-relay-hands-the-ai-its-instructions-and-the-schema.contract.test.ts` | 13 | - | - | - | AG-12 | - | - | - | - |
 | `tests/contract/cr-793-the-task-tooltip-labels-state-and-note.contract.test.ts` | 32 | - | - | T-348 | DG-2, DG-4, DT-3, DX-10, PM-4, PR-10, PS-2, PS-5, S-439, S-621, S-622, SQ-5, TL-1, TL-8, TL-9, TL-12, TL-13, TL-14 | - | - | - | - |
 | `tests/contract/cr-794-the-tip-dates-are-padded-and-their-parts-line-up.contract.test.ts` | 15 | - | - | T-348 | TL-9, TL-10, TL-13, TX-2 | - | - | - | - |
 | `tests/contract/cr-795-rw-19-a-marker-cycles-unless-the-open-report-asks-for-its-row.contract.test.ts` | 13 | - | - | T-270, T-346 | DG-1, DG-3, PE-8, PE-10, RW-1, RW-19 | - | - | - | - |
 | `tests/contract/cr-796-s1-calls-that-wait-on-a-person-return-at-once.contract.test.ts` | 18 | - | - | T-233 | AG-12, AM-8, AM-17, AV-15, RS-90, U-61 | - | - | - | - |
 | `tests/contract/cr-796-s1-the-relay-answers-a-silent-page-after-its-deadline.contract.test.ts` | 9 | - | - | - | AG-12, AM-17 | - | - | - | - |
+| `tests/contract/cr-796-s2-tool-inputs-every-client-keeps.contract.test.ts` | 17 | - | - | T-107, T-108 | AG-12, AM-7, AM-27, S-560, TV-5, TV-8 | - | - | - | - |
 | `tests/contract/cr-797-fr-130-the-diagnosis-is-made-only-when-asked.contract.test.ts` | 23 | FR-130 | - | T-109, T-206, T-270, T-315, T-346 | DG-1, DG-2, DG-3, GA-18, IC-107, IC-157, IC-168, PE-8, PE-10, RW-1, RW-3, RW-16, RW-19, S-623 | - | - | - | - |
 | `tests/contract/dfc-1000-hf-10-the-open-all-stance-counts-every-placed-task-group.test.ts` | 9 | - | - | T-051, T-109 | HF-2, HF-10, IC-58, IC-74, RS-31 | - | - | - | - |
 | `tests/contract/dfc-1013-tl-12-the-delay-days-are-told-only-in-the-ez-6-tip.test.ts` | 8 | FR-047 | - | T-038, T-348 | DG-4, DX-10, EZ-6, OC-8, TL-12 | - | - | - | - |

@@ -36,7 +36,7 @@ export interface RelayedParams {
   exportPng: {}
   exportEmbeddedHtml: {}
   focusTask: { taskUid: number }
-  showOnlyTasks: { taskUids: readonly number[] | null }
+  showOnlyTasks: { taskUids: readonly number[] }
   // WHY: the relay reads waitMs itself; the page only subscribes.
   watchChanges: {}
   postDialogueMessage: { text: string }

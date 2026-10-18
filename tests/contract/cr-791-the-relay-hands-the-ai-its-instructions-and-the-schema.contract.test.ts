@@ -17,6 +17,8 @@ const POLL_MS = 20
 const SCHEMA_URI = 'grs-relay://grs-document.schema.json'
 const SCHEMA_NAME = 'grs-document.schema.json'
 const SCHEMA_MIME = 'application/schema+json'
+const COMMANDS_URI = 'grs-relay://grs-commands.schema.json'
+const COMMANDS_NAME = 'grs-commands.schema.json'
 const RESOURCE_NOT_FOUND = -32002
 
 // WHY: the heading in tbl-agent-api-members.md is Japanese; the code stays ASCII, so it is written as escapes.
@@ -24,6 +26,7 @@ const INSTRUCTIONS_HEADING =
   'MCP の初期化の答えに載せる案内'
 
 const DOCUMENT_SCHEMA = readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'grs-document.schema.json'), 'utf8')
+const COMMANDS_SCHEMA = readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'grs-commands.schema.json'), 'utf8')
 const MEMBERS_TABLE = readFileSync(join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-agent-api-members.md'), 'utf8')
 
 const PAGE_HTML = new Uint8Array(Buffer.from('<!doctype html><html><body>page</body></html>\n', 'utf8'))
@@ -87,6 +90,7 @@ beforeEach(async () => {
     log: () => undefined,
     pageHtml: PAGE_HTML,
     documentSchema: DOCUMENT_SCHEMA,
+    commandsSchema: COMMANDS_SCHEMA,
   })
 })
 
@@ -132,12 +136,22 @@ describe('CR-791 AG-12 (8): the initialize answer carries the instructions', () 
   })
 })
 
-describe('CR-791 design 3.1: the one resource is the GRS JSON schema', () => {
-  it('resources/list returns exactly one resource with the uri, name and mimeType of the design', async () => {
+describe('CR-791 design 3.1: the resources are the GRS JSON schema and the commands schema', () => {
+  // see AG-12
+  it('resources/list returns two resources: the document schema first, the commands schema second', async () => {
     const answer = await client.request('resources/list', {})
     const resources = (answer['result'] as Json)['resources'] as Json[]
-    expect(resources).toHaveLength(1)
+    expect(resources).toHaveLength(2)
     expect(resources[0]).toMatchObject({ uri: SCHEMA_URI, name: SCHEMA_NAME, mimeType: SCHEMA_MIME })
+    expect(resources[1]).toMatchObject({ uri: COMMANDS_URI, name: COMMANDS_NAME, mimeType: SCHEMA_MIME })
+  })
+
+  it('resources/read of the commands uri returns the commands schema text the relay was started with', async () => {
+    const answer = await client.request('resources/read', { uri: COMMANDS_URI })
+    const contents = (answer['result'] as Json)['contents'] as Json[]
+    expect(contents).toHaveLength(1)
+    expect(contents[0]?.['uri']).toBe(COMMANDS_URI)
+    expect(contents[0]?.['text']).toBe(COMMANDS_SCHEMA)
   })
 
   it('resources/read of that uri returns the schema text the relay was started with', async () => {
@@ -164,6 +178,7 @@ describe('CR-791 design 3.1: the one resource is the GRS JSON schema', () => {
       log: () => undefined,
       pageHtml: PAGE_HTML,
       documentSchema: odd,
+      commandsSchema: COMMANDS_SCHEMA,
     })
     try {
       const answer = await other.request('resources/read', { uri: SCHEMA_URI })

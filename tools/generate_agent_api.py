@@ -58,8 +58,9 @@ HEADER_PREFIX = '// From %s (' % REL_SOURCE
 HEADER = HEADER_PREFIX + '%s).'
 
 IDENTIFIER = re.compile(r'^[A-Za-z_$][A-Za-z0-9_$]*$')
-NUMBER_LIST_OR_NULL = 'readonly number[] | null'
-PRIMITIVE_SCHEMAS = {'string': 'string', 'number': 'number'}
+NUMBER_LISTS = ('readonly number[]', 'number[]')
+PRIMITIVE_SCHEMAS = {'string': 'string', 'number': 'number', 'boolean': 'boolean'}
+STRING_LITERAL = re.compile(r"^'([^']*)'$")
 # An alternative of a union longer than this is printed one field per line.
 LINE_WIDTH = 100
 
@@ -91,18 +92,39 @@ def load():
     return json.load(io.open(path_of(REL_SOURCE), encoding='utf-8'))
 
 
+def string_literals(type_text):
+    """The values of a union of string literals ('a' | 'b'), or None.
+
+    @purity pure
+    """
+    values = []
+    for part in type_text.split('|'):
+        found = STRING_LITERAL.match(part.strip())
+        if not found:
+            return None
+        values.append(found.group(1))
+    return values
+
+
 def mcp_value_schema(type_text, where):
     """The MCP input schema of one argument type (design-mcp-relay.md 3.1).
 
-    `string` and `number` map to themselves, a list of numbers or null to an
-    array-or-null of numbers, and a named type to an object.
+    `string`, `number` and `boolean` map to themselves, a list of numbers to
+    an array of numbers, a union of string literals to a string enum, and a
+    named type to an object.
+
+    ⛔ NEVER oneOf, anyOf or a list of types (AG-12 (8)) -- the MCP client
+    drops them, so a type that needs one (`X | null`) stops here.
 
     @purity pure
     """
     if type_text in PRIMITIVE_SCHEMAS:
         return {'type': PRIMITIVE_SCHEMAS[type_text]}
-    if type_text == NUMBER_LIST_OR_NULL:
-        return {'type': ['array', 'null'], 'items': {'type': 'number'}}
+    if type_text in NUMBER_LISTS:
+        return {'type': 'array', 'items': {'type': 'number'}}
+    values = string_literals(type_text)
+    if values:
+        return {'type': 'string', 'enum': values}
     if IDENTIFIER.match(type_text):
         return {'type': 'object'}
     stop('%s: no MCP input shape is derived from the type %r -- add the rule '

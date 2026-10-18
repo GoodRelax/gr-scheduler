@@ -60,7 +60,7 @@ const EXPECTED_ROWS: readonly (readonly [string, string, readonly string[], stri
   ['AM-14', 'exportPng', [], 'Promise<AgentExport<Uint8Array>>'],
   ['AM-15', 'exportEmbeddedHtml', [], 'Promise<AgentExport<string>>'],
   ['AM-16', 'focusTask', ['taskUid: number'], 'AgentFocusOutcome'],
-  ['AM-27', 'showOnlyTasks', ['taskUids: readonly number[] | null'], 'AgentWriteOutcome'],
+  ['AM-27', 'showOnlyTasks', ['taskUids: readonly number[]'], 'AgentWriteOutcome'],
   ['AM-17', 'watchChanges', ['receive: AgentChangeReceiver'], 'AgentWatch'],
   ['AM-18', 'postDialogueMessage', ['text: string'], 'AgentDialogueMessageOutcome'],
 ]

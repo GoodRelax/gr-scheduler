@@ -126,6 +126,9 @@ ARTIFACTS = [
     # Table T-108 (CR-766). The command unions it prints into src/ are regions
     # of hand-written units, each naming the manuscript on its second line.
     ('docs/spec/_assets/tbl-document-commands.md', 'document-commands.json'),
+    # The second MCP resource of the relay (CR-796, AG-12 (8)): the JSON Schema
+    # of every command, printed by tools/generate_document_commands.py.
+    ('docs/spec/_source/grs-commands.schema.json', 'document-commands.json'),
     # The chart's milestone shapes (CR-583): printed from figure F-044 after the
     # generator holds every element against figure F-019 (LF-18 allows two
     # differences), so the figure, not a table, is the manuscript.

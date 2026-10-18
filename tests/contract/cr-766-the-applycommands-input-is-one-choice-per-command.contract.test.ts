@@ -1,4 +1,4 @@
-// CR-766 spec-only tests: the MCP input of applyCommands (AM-7) offers each command of table T-108 as one closed choice.
+// CR-766 / CR-796 spec-only tests: the commands of table T-108 are one closed choice each in the second relay resource, grs-commands.schema.json; the MCP input of applyCommands (AM-7) holds the stamp and, per command, only its kind.
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -6,7 +6,7 @@ import { join } from 'node:path'
 import { Ajv2020 } from 'ajv/dist/2020.js'
 import { describe, expect, it } from 'vitest'
 
-import { isUnimplemented, printedCommands, type PrintedCommand, type PrintedValue } from './cr-766-printed-commands'
+import { printedCommands, type PrintedCommand, type PrintedValue } from './cr-766-printed-commands'
 import { unbroken } from './spec-table'
 
 type Json = Record<string, unknown>
@@ -21,18 +21,37 @@ const DOCUMENT_SCHEMA = JSON.parse(readFileSync(join(ROOT, 'docs', 'spec', '_sou
 }
 const RELAY_DESIGN = unbroken(readFileSync(join(ROOT, 'docs', 'spec', '_assets', 'design-mcp-relay.md'), 'utf8'))
 
-// see AM-7
-const REQUEST_IS_PRINTED =
-  '⭐ ただし `applyCommands`（`AM-7`）の `request` は、刻印と命令の束を鍵に持つオブジェクトとし、束の 1 つは `tbl-document-commands.md` の 表 T-108 の命令ごとの択とする —— 命令の鍵と型は同表の原稿から刷り、文書の列を書く値はその列の文書のスキーマの形を取る。'
+const COMMANDS_SCHEMA = JSON.parse(readFileSync(join(ROOT, 'docs', 'spec', '_source', 'grs-commands.schema.json'), 'utf8')) as {
+  oneOf: Json[]
+}
 
+// see AM-7, AG-12
+const REQUEST_IS_PRINTED = [
+  '⭐ ただし `applyCommands`（`AM-7`）の `request` は、刻印と命令の束を鍵に持つオブジェクトとし、束の 1 つは鍵 `kind`（`tbl-document-commands.md` の 表 T-108 の確定名を並べた `enum`）を必ず持つオブジェクトとする。',
+  '命令ごとの鍵と型は道具の入力に刷らず、2 つ目の資源（下の「資源」）が持つ。',
+  '鍵ごとの説明は引数の欄の意味である。',
+]
+
+// WHY: the resource holds every row of table T-108 (CM-76 too -- the Agent API refuses it at run time, the resource does not hide it).
 const { commands } = printedCommands()
-const offered = commands.filter((command) => !isUnimplemented(command))
+const offered = commands
 
 const tool = DESCRIPTIONS.tools.find((one) => one.name === 'applyCommands')
 const request = ((tool?.inputSchema['properties'] ?? {}) as Record<string, Json>)['request'] ?? {}
 const requestProperties = (request['properties'] ?? {}) as Record<string, Json>
 const items = (requestProperties['commands']?.['items'] ?? {}) as Json
-const alternatives = (items['oneOf'] ?? []) as Json[]
+
+// WHY: a command with a choice of shapes is one branch holding a oneOf of its ways; each way lists `kind` as `true`, so the
+// way is read as an alternative of its own with the branch's kind and words, in the order of the table (AM-7, CM-38).
+const alternatives = COMMANDS_SCHEMA.oneOf.flatMap((branch): Json[] => {
+  const ways = branch['oneOf'] as Json[] | undefined
+  if (ways === undefined) return [branch]
+  return ways.map((way) => ({
+    ...way,
+    description: branch['description'],
+    properties: { ...(way['properties'] as Json), kind: (branch['properties'] as Json)['kind'] },
+  }))
+})
 
 const kindOf = (alternative: Json): string =>
   String(((alternative['properties'] as Record<string, Json> | undefined)?.['kind'] ?? {})['const'] ?? '')
@@ -80,13 +99,13 @@ function columnSchema(writes: string): Json {
 
 const ajv = new Ajv2020({ allErrors: true, strict: false })
 const acceptsRequest = ajv.compile(request)
-const acceptsCommand = ajv.compile({ oneOf: alternatives })
+const acceptsCommand = ajv.compile(COMMANDS_SCHEMA)
 
 const STAMP = { revision: 1 }
 
-describe('the relay design says the request of applyCommands is printed from table T-108', () => {
-  it('design-mcp-relay.md holds the sentence', () => {
-    expect(RELAY_DESIGN).toContain(REQUEST_IS_PRINTED)
+describe('the relay design says the request of applyCommands holds the kind, and the resource holds the shapes', () => {
+  it.each(REQUEST_IS_PRINTED)('design-mcp-relay.md holds the sentence %#', (sentence) => {
+    expect(RELAY_DESIGN).toContain(sentence)
   })
 })
 
@@ -100,21 +119,30 @@ describe('AM-7: the request is the stamp and the bundle of commands', () => {
     expect(requestProperties['commands']?.['type']).toBe('array')
   })
 
-  it('a bundle item is one of 91 alternatives', () => {
-    expect(alternatives).toHaveLength(91)
+  it('a bundle item is an object that must carry a kind, and the kinds are the ones the commands resource holds', () => {
+    expect(items['type']).toBe('object')
+    expect(items['required']).toEqual(['kind'])
+    expect(items['oneOf']).toBeUndefined()
+    expect(items['anyOf']).toBeUndefined()
+    const kind = (propertiesOf(items)['kind'] ?? {}) as Json
+    expect(kind['type']).toBe('string')
+    expect(kind['enum']).toEqual(COMMANDS_SCHEMA.oneOf.map(kindOf))
+    expect(new Set(kind['enum'] as string[])).toEqual(new Set(alternatives.map(kindOf)))
+  })
+
+  it('the resource holds 91 alternatives -- one branch per command, setDependencyLag twice once its choice is opened', () => {
+    expect(COMMANDS_SCHEMA.oneOf).toHaveLength(91)
+    expect(alternatives).toHaveLength(92)
   })
 })
 
 describe('one alternative per command the Agent API takes, in the order of table T-108', () => {
-  it('the kinds are the 90 command names but CM-76, with setDependencyLag twice -- once per lag shape', () => {
+  it('the kinds are the 91 command names of the table, setDependencyLag holding a choice of its two lag shapes', () => {
     const expected = offered.flatMap((command) => waysOf(command).map(() => command.name))
     expect(alternatives.map(kindOf)).toEqual(expected)
-    expect(offered).toHaveLength(90)
+    expect(offered).toHaveLength(91)
     expect(alternativesOf('setDependencyLag')).toHaveLength(2)
-  })
-
-  it('CM-76 setTaskGroupEditPermission, which the table marks as not implemented, is not offered', () => {
-    expect(alternatives.map(kindOf)).not.toContain('setTaskGroupEditPermission')
+    expect(COMMANDS_SCHEMA.oneOf.map(kindOf)).toEqual(offered.map((command) => command.name))
   })
 
   it.each(offered.map((command) => [command.id, command.name, command] as const))(
@@ -203,8 +231,14 @@ describe('a value that writes a document column takes that column\'s shape in th
 describe('the published input refuses a command whose shape is off (schema level; the runtime refusal is DFC-2856)', () => {
   const fadeIn = { kind: 'setTaskFadeInDays', taskUid: 12, fadeInDays: 3 }
 
-  it('a well-formed bundle is accepted', () => {
+  it('a well-formed bundle is accepted, by the tool input and by the commands resource', () => {
     expect(acceptsRequest({ expectedStamp: STAMP, commands: [fadeIn] }), JSON.stringify(acceptsRequest.errors)).toBe(true)
+    expect(acceptsCommand(fadeIn), JSON.stringify(acceptsCommand.errors)).toBe(true)
+  })
+
+  it('the tool input refuses an item without a kind or with a kind table T-108 does not hold', () => {
+    expect(acceptsRequest({ expectedStamp: STAMP, commands: [{ taskUid: 12 }] })).toBe(false)
+    expect(acceptsRequest({ expectedStamp: STAMP, commands: [{ kind: 'setTaskFadeDays' }] })).toBe(false)
   })
 
   it.each([
@@ -213,13 +247,12 @@ describe('the published input refuses a command whose shape is off (schema level
     ['a field left out', { kind: 'setTaskFadeInDays', taskUid: 12 }],
     ['an extra field', { ...fadeIn, days: 3 }],
     ['a kind table T-108 does not hold', { kind: 'setTaskFadeDays', uid: 12, fadeInDays: 3 }],
-    ['CM-76, which only a person uses', { kind: 'setTaskGroupEditPermission', taskGroupId: 'g', editPermission: null }],
     ['both lag shapes at once', { kind: 'setDependencyLag', predecessorUid: 1, successorUid: 2, lagWorkingDays: 1, lagMinutes: 60, lagUnit: 'h' }],
     ['a lag unit outside d, h and m', { kind: 'setDependencyLag', predecessorUid: 1, successorUid: 2, lagMinutes: 60, lagUnit: 'w' }],
     ['a null start where the table says null is not taken', { kind: 'setTaskPlanDates', taskUid: 1, start: null, finish: '2026-04-08T17:00:00' }],
   ])('%s is refused', (_label, command) => {
+    // WHY: the tool input holds no keys of a command (AG-12 (8)); the shape is refused by the resource's schema only.
     expect(acceptsCommand(command)).toBe(false)
-    expect(acceptsRequest({ expectedStamp: STAMP, commands: [command] })).toBe(false)
   })
 
   it('either lag shape alone is accepted', () => {

@@ -138,7 +138,7 @@ describe('the AgentApi type, member by member (T-107)', () => {
     expectTypeOf<ReturnType<AgentApi['redoEdit']>>().toEqualTypeOf<AgentWriteOutcome>()
     expectTypeOf<Parameters<AgentApi['focusTask']>>().toEqualTypeOf<[taskUid: number]>()
     expectTypeOf<ReturnType<AgentApi['focusTask']>>().toEqualTypeOf<AgentFocusOutcome>()
-    expectTypeOf<Parameters<AgentApi['showOnlyTasks']>>().toEqualTypeOf<[taskUids: readonly number[] | null]>()
+    expectTypeOf<Parameters<AgentApi['showOnlyTasks']>>().toEqualTypeOf<[taskUids: readonly number[]]>()
     expectTypeOf<ReturnType<AgentApi['showOnlyTasks']>>().toEqualTypeOf<AgentWriteOutcome>()
   })
 
@@ -173,7 +173,7 @@ describe('RelayedParams: what the relay carries to each member is the argument c
     expectTypeOf<RelayedParams['applyCommands']>().toEqualTypeOf<{ request: AgentWriteRequest }>()
     expectTypeOf<RelayedParams['importDocument']>().toEqualTypeOf<{ source: AgentImportSource }>()
     expectTypeOf<RelayedParams['focusTask']>().toEqualTypeOf<{ taskUid: number }>()
-    expectTypeOf<RelayedParams['showOnlyTasks']>().toEqualTypeOf<{ taskUids: readonly number[] | null }>()
+    expectTypeOf<RelayedParams['showOnlyTasks']>().toEqualTypeOf<{ taskUids: readonly number[] }>()
     expectTypeOf<RelayedParams['postDialogueMessage']>().toEqualTypeOf<{ text: string }>()
   })
 

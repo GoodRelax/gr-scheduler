@@ -17,6 +17,7 @@ const DEADLINE_MS = 200
 const WEBSOCKET_GUID = '258EAFA5-E914-47DA-95CA-C5AB0DC85B11'
 const PAGE_HTML = new Uint8Array(Buffer.from('<!doctype html><title>t</title>\n', 'utf8'))
 const DOCUMENT_SCHEMA = '{"title":"test schema"}\n'
+const COMMANDS_SCHEMA = '{"title":"test commands schema"}'
 
 const sleep = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms))
 
@@ -231,6 +232,7 @@ async function startRelay(options: Json = {}): Promise<Started> {
     log: () => undefined,
     pageHtml: PAGE_HTML,
     documentSchema: DOCUMENT_SCHEMA,
+    commandsSchema: COMMANDS_SCHEMA,
     ...options,
   } as Parameters<typeof startMcpRelay>[0])
   relays.push(relay)

@@ -1,0 +1,3159 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "https://goodrelax.github.io/gr-scheduler/spec/_source/grs-commands.schema.json",
+ "$comment": "Generated from docs/spec/_source/document-commands.json (table T-108, the commands applyCommands takes), the column shapes from docs/spec/_source/grs-document.schema.json. Never edit by hand. Rebuild: npm run gen -- npm run gen:check fails on drift. The generator is tools/generate_document_commands.py. One oneOf branch per command in the order of the table; a command with a choice of shapes holds a oneOf of its own.",
+ "title": "GRS document commands",
+ "description": "One command of the batch applyCommands takes (AM-7): kind names the command, the other keys are the values it carries. A value that writes a column of the document has the shape of that column in grs-document.schema.json.",
+ "oneOf": [
+  {
+   "type": "object",
+   "description": "文書名を変える",
+   "properties": {
+    "kind": {
+     "const": "setProjectTitle"
+    },
+    "title": {
+     "type": [
+      "string",
+      "null"
+     ],
+     "description": "`Project.title`（`AT-3`）を書く"
+    }
+   },
+   "required": [
+    "kind",
+    "title"
+   ],
+   "additionalProperties": false
+  },
+  {
+   "type": "object",
+   "description": "基本情報を直す",
+   "properties": {
+    "kind": {
+     "const": "setProjectProfile"
+    },
+    "fields": {
+     "type": "object",
+     "properties": {
+      "name": {
+       "type": [
+        "string",
+        "null"
+       ],
+       "description": "`Project.name`（`AT-2`）を書く（省いてよい）"
+      },
+      "subject": {
+       "type": [
+        "string",
+        "null"
+       ],
+       "description": "`Project.subject`（`AT-4`）を書く（省いてよい）"
+      },
+      "category": {
+       "type": [
+        "string",
+        "null"
+       ],
+       "description": "`Project.category`（`AT-5`）を書く（省いてよい）"
+      },
+      "company": {
+       "type": [
+        "string",
+        "null"
+       ],
+       "description": "`Project.company`（`AT-6`）を書く（省いてよい）"
+      },
+      "manager": {
+       "type": [
+        "string",
+        "null"
+       ],
+       "description": "`Project.manager`（`AT-7`）を書く（省いてよい）"
+      },
+      "author": {
+       "type": [
+        "string",
+        "null"
+       ],
+       "description": "`Project.author`（`AT-8`）を書く（省いてよい）"
+      },
+      "revision": {
+       "type": [
+        "integer",
+        "null"
+       ],
+       "description": "`Project.revision`（`AT-10`）を書く（省いてよい）"
+      },
+      "startDate": {
+       "type": [
+        "string",
+        "null"
+       ],
+       "pattern": "^-?\\d{4,}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})?$",
+       "description": "`Project.startDate`（`AT-12`）を書く（省いてよい）"
+      }
+     },
+     "required": [],
+     "additionalProperties": false,
+     "description": "`ProjectProfileFields` —— 直す基本情報（持つ欄だけを書き、持たない欄は今のまま）"
+    }
+   },
+   "required": [
+    "kind",
+    "fields"
+   ],
+   "additionalProperties": false
+  },
+  {
+   "type": "object",
+   "description": "基準日を置く・動かす",
+   "properties": {
+    "kind": {
+     "const": "setStatusDate"
+    },
+    "statusDate": {
+     "type": "string",
+     "pattern": "^-?\\d{4,}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})?$",
+     "description": "`Project.statusDate`（`AT-13`）を書く（`null` は受けない）"
+    }
+   },
+   "required": [
+    "kind",
+    "statusDate"
+   ],
+   "additionalProperties": false
+  },
+  {
+   "type": "object",
+   "description": "基準日を消す",
+   "properties": {
+    "kind": {
+     "const": "clearStatusDate"
+    }
+   },
+   "required": [
+    "kind"
+   ],
+   "additionalProperties": false
+  },
+  {
+   "type": "object",
+   "description": "テーマ色を変える",
+   "properties": {
+    "kind": {
+     "const": "setThemeHue"
+    },
+    "themeHue": {
+     "type": "integer",
+     "minimum": 0,
+     "maximum": 359,
+     "description": "`Project.themeHue`（`AT-19`）を書く"
+    }
+   },
+   "required": [
+    "kind",
+    "themeHue"
+   ],
+   "additionalProperties": false
+  },
+  {
+   "type": "object",
+   "description": "親タスクの進捗の疑義が許す日数を変える",
+   "properties": {
+    "kind": {
+     "const": "setParentTaskProgressToleranceDays"
+    },
+    "parentTaskProgressToleranceDays": {
+     "type": "integer",
+     "minimum": 0,
+     "description": "`Project.parentTaskProgressToleranceDays`（`AT-156`）を書く"
+    }
+   },
+   "required": [
+    "kind",
+    "parentTaskProgressToleranceDays"
+   ],
+   "additionalProperties": false
+  },
+  {
+   "type": "object",
+   "description": "日程データのタイムゾーンを付け替える（換算しない —— 保存の数字は変えず、見せる基準を戻す `CM-95` と 1 回の書き込みにする）",
+   "properties": {
+    "kind": {
+     "const": "setScheduleDataTimeZone"
+    },
+    "scheduleDataTimeZone": {
+     "enum": [
+      "UTC-12:00",
+      "UTC-11:00",
+      "UTC-10:00",
+      "UTC-09:00",
+      "UTC-08:00",
+      "UTC-07:00",
+      "UTC-06:00",
+      "UTC-05:00",
+      "UTC-04:00",
+      "UTC-03:00",
+      "UTC-02:00",
+      "UTC-01:00",
+      "UTC+00:00",
+      "UTC+01:00",
+      "UTC+02:00",
+      "UTC+03:00",
+      "UTC+04:00",
+      "UTC+05:00",
+      "UTC+05:30",
+      "UTC+06:00",
+      "UTC+07:00",
+      "UTC+08:00",
+      "UTC+09:00",
+      "UTC+10:00",
+      "UTC+11:00",
+      "UTC+12:00",
+      "UTC+13:00"
+     ],
+     "description": "`Project.scheduleDataTimeZone`（`AT-157`）を書く"
+    }
+   },
+   "required": [
+    "kind",
+    "scheduleDataTimeZone"
+   ],
+   "additionalProperties": false
+  },
+  {
+   "type": "object",
+   "description": "日程の日時を一斉にずらす（書き換える列と書き換えない列は `01-04-requirements.md` の 表 T-377 —— 1 回の書き込みとする）。\n`Agent API` から受けたときは確認の面を経ない（`FR-076` の作法）",
+   "properties": {
+    "kind": {
+     "const": "shiftScheduleTimes"
+    },
+    "minutes": {
+     "type": "integer",
+     "description": "`integer` —— ずらす量（分、正は後へ、負は前へ）"
+    }
+   },
+   "required": [
+    "kind",
+    "minutes"
+   ],
+   "additionalProperties": false
+  },
+  {
+   "type": "object",
+   "description": "日程全体を新しい開始日へ稼働日で移す（動かす列・動かさないもの・移し方は `01-04-requirements.md` の 表 T-379 —— 1 回の書き込みとする）。\n`Agent API` からの命令は、問わずにそのまま当てる（`CM-98` と同じ扱い）",
+   "properties": {
+    "kind": {
+     "const": "shiftScheduleToStartDate"
+    },
+    "newStartDate": {
+     "type": "string",
+     "description": "`string` —— 新しい開始日（日付の文字列）"
+    }
+   },
+   "required": [
+    "kind",
+    "newStartDate"
+   ],
+   "additionalProperties": false
+  },
+  {
+   "type": "object",
+   "description": "タスクを作る",
+   "properties": {
+    "kind": {
+     "const": "createTask"
+    },
+    "shapeKind": {
+     "enum": [
+      "rectangle",
+      "chevron",
+      "arrow",
+      "endpointSpan",
+      "milestone"
+     ],
+     "description": "`TaskVisual.shapeKind`（`AT-100`）を書く（`null` は受けない）"
+    },
+    "start": {
+     "type": "string",
+     "pattern": "^-?\\d{4,}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})?$",
+     "description": "`Task.start`（`AT-28`）を書く（`null` は受けない）"
+    },
+    "finish": {
+     "type": "string",
+     "pattern": "^-?\\d{4,}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})?$",
+     "description": "`Task.finish`（`AT-29`）を書く（`null` は受けない）"
+    },
+    "taskGroupId": {
+     "type": "string",
+     "format": "uuid",
+     "description": "`TaskGroupMember.taskGroupId`（`AT-61`）を書く —— タスクを載せるタスクグループ"
+    }
+   },
+   "required": [
+    "kind",
+    "shapeKind",
+    "start",
+    "finish",
+    "taskGroupId"
+   ],
+   "additionalProperties": false
+  },
+  {
+   "type": "object",
+   "description": "タスクを消す",
+   "properties": {
+    "kind": {
+     "const": "deleteTask"
+    },
+    "taskUid": {
+     "type": "integer",
+     "description": "鍵（`Task.uid`、`AT-24`）"
+    }
+   },
+   "required": [
+    "kind",
+    "taskUid"
+   ],
+   "additionalProperties": false
+  },
+  {
+   "type": "object",
+   "description": "選んだ `Task` を複製する —— 運ばない子孫タスクはコピーしない（`01-04-requirements.md` の 表 T-223 の `DU-1`）。\n`Ctrl` ドラッグのコピーは載せ方も運ぶ（`FR-033` の 表 T-308 の `CY-5` ・ `CY-6`）",
+   "properties": {
+    "kind": {
+     "const": "pasteTasks"
+    },
+    "sourceUids": {
+     "type": "array",
+     "items": {
+      "type": "integer"
+     },
+     "description": "鍵の並び（`Task.uid`、`AT-24`） —— 複製元の `Task`（1 つ以上）"
+    },
+    "landing": {
+     "type": "object",
+     "properties": {
+      "shiftMinutes": {
+       "type": "integer",
+       "description": "`integer` —— コピーをずらす量（分、符号付き、本体の動きと同じ刻み —— `CY-5`）"
+      },
+      "taskGroupIdOf": {
+       "type": "object",
+       "additionalProperties": {
+        "type": "string"
+       },
+       "description": "`integer` から `string` への対応 —— 複製元の `Task.uid` から、そのコピーを載せるタスクグループの `id` へ（`CY-6`）"
+      }
+     },
+     "required": [
+      "shiftMinutes",
+      "taskGroupIdOf"
+     ],
+     "additionalProperties": false,
+     "description": "`PasteLanding`（省いてよい） —— `Ctrl` ドラッグのコピーだけが運ぶ載せ方（`FR-033` の 表 T-308 の `CY-5` ・ `CY-6`）"
+    }
+   },
+   "required": [
+    "kind",
+    "sourceUids"
+   ],
+   "additionalProperties": false
+  },
+  {
+   "type": "object",
+   "description": "名称を変える",
+   "properties": {
+    "kind": {
+     "const": "setTaskName"
+    },
+    "taskUid": {
+     "type": "integer",
+     "description": "鍵（`Task.uid`、`AT-24`）"
+    },
+    "name": {
+     "type": [
+      "string",
+      "null"
+     ],
+     "description": "`Task.name`（`AT-27`）を書く"
+    }
+   },
+   "required": [
+    "kind",
+    "taskUid",
+    "name"
+   ],
+   "additionalProperties": false
+  },
+  {
+   "type": "object",
+   "description": "備考を置く",
+   "properties": {
+    "kind": {
+     "const": "setTaskNotes"
+    },
+    "taskUid": {
+     "type": "integer",
+     "description": "鍵（`Task.uid`、`AT-24`）"
+    },
+    "notes": {
+     "type": [
+      "string",
+      "null"
+     ],
+     "description": "`Task.notes`（`AT-32`）を書く"
+    }
+   },
+   "required": [
+    "kind",
+    "taskUid",
+    "notes"
+   ],
+   "additionalProperties": false
+  },
+  {
+   "type": "object",
+   "description": "予定の開始・終了を置く",
+   "properties": {
+    "kind": {
+     "const": "setTaskPlanDates"
+    },
+    "taskUid": {
+     "type": "integer",
+     "description": "鍵（`Task.uid`、`AT-24`）"
+    },
+    "start": {
+     "type": "string",
+     "pattern": "^-?\\d{4,}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})?$",
+     "description": "`Task.start`（`AT-28`）を書く（`null` は受けない）"
+    },
+    "finish": {
+     "type": "string",
+     "pattern": "^-?\\d{4,}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})?$",
+     "description": "`Task.finish`（`AT-29`）を書く（`null` は受けない）"
+    }
+   },
+   "required": [
+    "kind",
+    "taskUid",
+    "start",
+    "finish"
+   ],
+   "additionalProperties": false
+  },
+  {
+   "type": "object",
+   "description": "期限を置く",
+   "properties": {
+    "kind": {
+     "const": "setTaskDeadline"
+    },
+    "taskUid": {
+     "type": "integer",
+     "description": "鍵（`Task.uid`、`AT-24`）"
+    },
+    "deadline": {
+     "type": [
+      "string",
+      "null"
+     ],
+     "pattern": "^-?\\d{4,}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})?$",
+     "description": "`Task.deadline`（`AT-31`）を書く"
+    }
+   },
+   "required": [
+    "kind",
+    "taskUid",
+    "deadline"
+   ],
+   "additionalProperties": false
+  },
+  {
+   "type": "object",
+   "description": "予実の 5 列を置く",
+   "properties": {
+    "kind": {
+     "const": "setTaskPlanActualState"
+    },
+    "taskUid": {
+     "type": "integer",
+     "description": "鍵（`Task.uid`、`AT-24`）"
+    },
+    "place": {
+     "oneOf": [
+      {
+       "type": "object",
+       "properties": {
+        "state": {
+         "const": "notStarted"
+        }
+       },
+       "required": [
+        "state"
+       ],
+       "additionalProperties": false
+      },
+      {
+       "type": "object",
+       "properties": {
+        "state": {
+         "const": "inProgress"
+        },
+        "actualStart": {
+         "type": "string",
+         "pattern": "^-?\\d{4,}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})?$",
+         "description": "`Task.actualStart`（`AT-34`）を書く（`null` は受けない）"
+        },
+        "stop": {
+         "type": "string",
+         "pattern": "^-?\\d{4,}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})?$",
+         "description": "`Task.stop`（`AT-141`）を書く（`null` は受けない）"
+        }
+       },
+       "required": [
+        "state",
+        "actualStart",
+        "stop"
+       ],
+       "additionalProperties": false
+      },
+      {
+       "type": "object",
+       "properties": {
+        "state": {
+         "const": "suspendedWithResumeDate"
+        },
+        "actualStart": {
+         "type": "string",
+         "pattern": "^-?\\d{4,}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})?$",
+         "description": "`Task.actualStart`（`AT-34`）を書く（`null` は受けない）"
+        },
+        "stop": {
+         "type": "string",
+         "pattern": "^-?\\d{4,}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})?$",
+         "description": "`Task.stop`（`AT-141`）を書く（`null` は受けない）"
+        },
+        "resume": {
+         "type": "string",
+         "pattern": "^-?\\d{4,}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})?$",
+         "description": "`Task.resume`（`AT-37`）を書く（`null` は受けない）"
+        }
+       },
+       "required": [
+        "state",
+        "actualStart",
+        "stop",
+        "resume"
+       ],
+       "additionalProperties": false
+      },
+      {
+       "type": "object",
+       "properties": {
+        "state": {
+         "const": "suspendedWithoutResumeDate"
+        },
+        "actualStart": {
+         "type": "string",
+         "pattern": "^-?\\d{4,}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})?$",
+         "description": "`Task.actualStart`（`AT-34`）を書く（`null` は受けない）"
+        },
+        "stop": {
+         "type": "string",
+         "pattern": "^-?\\d{4,}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})?$",
+         "description": "`Task.stop`（`AT-141`）を書く（`null` は受けない）"
+        }
+       },
+       "required": [
+        "state",
+        "actualStart",
+        "stop"
+       ],
+       "additionalProperties": false
+      },
+      {
+       "type": "object",
+       "properties": {
+        "state": {
+         "const": "finished"
+        },
+        "actualStart": {
+         "type": "string",
+         "pattern": "^-?\\d{4,}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})?$",
+         "description": "`Task.actualStart`（`AT-34`）を書く（`null` は受けない）"
+        },
+        "actualFinish": {
+         "type": "string",
+         "pattern": "^-?\\d{4,}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})?$",
+         "description": "`Task.actualFinish`（`AT-36`）を書く（`null` は受けない）"
+        }
+       },
+       "required": [
+        "state",
+        "actualStart",
+        "actualFinish"
+       ],
+       "additionalProperties": false
+      }
+     ],
+     "description": "`PlanActualPlacement` —— 置く予実（表 T-019 の行と、その行が値を持つ列）"
+    }
+   },
+   "required": [
+    "kind",
+    "taskUid",
+    "place"
+   ],
+   "additionalProperties": false
+  },
+  {
+   "type": "object",
+   "description": "実績を置き始める",
+   "properties": {
+    "kind": {
+     "const": "beginTaskActual"
+    },
+    "taskUid": {
+     "type": "integer",
+     "description": "鍵（`Task.uid`、`AT-24`）"
+    },
+    "grabbed": {
+     "enum": [
+      "barDummyStart",
+      "barDummyFinish",
+      "milestoneDummy",
+      "arrowDummyStart",
+      "arrowDummyFinish"
+     ],
+     "description": "`'barDummyStart'` ・ `'barDummyFinish'` ・ `'milestoneDummy'` ・ `'arrowDummyStart'` ・ `'arrowDummyFinish'` のどれか —— 掴んだ掴み代（表 T-266 の行の語：`barDummyStart` は `GA-5`・`barDummyFinish` は `GA-6`・`milestoneDummy` は `GA-17`・`arrowDummyStart` は `GA-21`・`arrowDummyFinish` は `GA-22`）"
+    },
+    "released": {
+     "type": "object",
+     "properties": {
+      "start": {
+       "type": "string",
+       "description": "`string` —— 離した所の開始の側で読んだ日時"
+      },
+      "finish": {
+       "type": "string",
+       "description": "`string` —— 離した所の終了の側で読んだ日時"
+      }
+     },
+     "required": [
+      "start",
+      "finish"
+     ],
+     "additionalProperties": false,
+     "description": "`ReleasedPlace` —— 離した所の、両側で読んだ位置（`FR-103`、表 T-378）"
+    },
+    "snapMinutes": {
+     "type": "integer",
+     "description": "`integer` —— 離したときの刻み（分）で、ダミーの実績の長さを決める（`FR-011`、表 T-378）"
+    }
+   },
+   "required": [
+    "kind",
+    "taskUid",
+    "grabbed",
+    "released",
+    "snapMinutes"
+   ],
+   "additionalProperties": false
+  },
+  {
+   "type": "object",
+   "description": "予実の状態を、表 T-021a の輪に沿って 1 つ進める。\n中断から未着手へ戻すときに外した実績は `ScreenState` が覚え、本命令はそこから受け取る",
+   "properties": {
+    "kind": {
+     "const": "cycleTaskPlanActualState"
+    },
+    "taskUid": {
+     "type": "integer",
+     "description": "鍵（`Task.uid`、`AT-24`）"
+    },
+    "remembered": {
+     "type": [
+      "object",
+      "null"
+     ],
+     "properties": {
+      "actualStart": {
+       "type": [
+        "string",
+        "null"
+       ],
+       "pattern": "^-?\\d{4,}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})?$",
+       "description": "`Task.actualStart`（`AT-34`）を書く"
+      },
+      "actualFinish": {
+       "type": [
+        "string",
+        "null"
+       ],
+       "pattern": "^-?\\d{4,}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})?$",
+       "description": "`Task.actualFinish`（`AT-36`）を書く"
+      },
+      "stop": {
+       "type": [
+        "string",
+        "null"
+       ],
+       "pattern": "^-?\\d{4,}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})?$",
+       "description": "`Task.stop`（`AT-141`）を書く"
+      },
+      "carriedActualDuration": {
+       "type": [
+        "string",
+        "null"
+       ],
+       "description": "`string` か `null` —— 持ち回りの `ActualDuration`（`G-13`）"
+      }
+     },
+     "required": [
+      "actualStart",
+      "actualFinish",
+      "stop",
+      "carriedActualDuration"
+     ],
+     "additionalProperties": false,
+     "description": "`RememberedActual` か `null` —— 外して覚えた実績（`ScreenState` が渡す）"
+    },
+    "snapMinutes": {
+     "type": "integer",
+     "description": "`integer`（省いてよい） —— 押したときの刻み（分、表 T-378）で、省けば日の刻み"
+    }
+   },
+   "required": [
+    "kind",
+    "taskUid",
+    "remembered"
+   ],
+   "additionalProperties": false
+  },
+  {
+   "type": "object",
+   "description": "フェードイン日数を置く",
+   "properties": {
+    "kind": {
+     "const": "setTaskFadeInDays"
+    },
+    "taskUid": {
+     "type": "integer",
+     "description": "鍵（`Task.uid`、`AT-24`）"
+    },
+    "fadeInDays": {
+     "type": [
+      "integer",
+      "null"
+     ],
+     "minimum": 0,
+     "description": "`Task.fadeInDays`（`AT-40`）を書く"
+    }
+   },
+   "required": [
+    "kind",
+    "taskUid",
+    "fadeInDays"
+   ],
+   "additionalProperties": false
+  },
+  {
+   "type": "object",
+   "description": "フェードアウト日数を置く",
+   "properties": {
+    "kind": {
+     "const": "setTaskFadeOutDays"
+    },
+    "taskUid": {
+     "type": "integer",
+     "description": "鍵（`Task.uid`、`AT-24`）"
+    },
+    "fadeOutDays": {
+     "type": [
+      "integer",
+      "null"
+     ],
+     "minimum": 0,
+     "description": "`Task.fadeOutDays`（`AT-41`）を書く"
+    }
+   },
+   "required": [
+    "kind",
+    "taskUid",
+    "fadeOutDays"
+   ],
+   "additionalProperties": false
+  },
+  {
+   "type": "object",
+   "description": "親タスクを移す",
+   "properties": {
+    "kind": {
+     "const": "setTaskParentTask"
+    },
+    "taskUid": {
+     "type": "integer",
+     "description": "鍵（`Task.uid`、`AT-24`）"
+    },
+    "parentTaskUid": {
+     "type": [
+      "integer",
+      "null"
+     ],
+     "description": "`Task.parentTaskUid`（`AT-25`）を書く"
+    }
+   },
+   "required": [
+    "kind",
+    "taskUid",
+    "parentTaskUid"
+   ],
+   "additionalProperties": false
+  },
+  {
+   "type": "object",
+   "description": "別のタスクグループへ載せ替える",
+   "properties": {
+    "kind": {
+     "const": "moveTaskToTaskGroup"
+    },
+    "taskUid": {
+     "type": "integer",
+     "description": "鍵（`Task.uid`、`AT-24`）"
+    },
+    "taskGroupId": {
+     "type": "string",
+     "format": "uuid",
+     "description": "`TaskGroupMember.taskGroupId`（`AT-61`）を書く"
+    }
+   },
+   "required": [
+    "kind",
+    "taskUid",
+    "taskGroupId"
+   ],
+   "additionalProperties": false
+  },
+  {
+   "type": "object",
+   "description": "タスク形状を変える",
+   "properties": {
+    "kind": {
+     "const": "setTaskVisualShapeKind"
+    },
+    "taskUid": {
+     "type": "integer",
+     "description": "鍵（`Task.uid`、`AT-24`）"
+    },
+    "shapeKind": {
+     "enum": [
+      "rectangle",
+      "chevron",
+      "arrow",
+      "endpointSpan",
+      "milestone"
+     ],
+     "description": "`TaskVisual.shapeKind`（`AT-100`）を書く（`null` は受けない）"
+    }
+   },
+   "required": [
+    "kind",
+    "taskUid",
+    "shapeKind"
+   ],
+   "additionalProperties": false
+  },
+  {
+   "type": "object",
+   "description": "マイルストーン形状を変える",
+   "properties": {
+    "kind": {
+     "const": "setTaskVisualMilestoneGlyph"
+    },
+    "taskUid": {
+     "type": "integer",
+     "description": "鍵（`Task.uid`、`AT-24`）"
+    },
+    "milestoneGlyph": {
+     "enum": [
+      "circle",
+      "hexagon",
+      "pentagon",
+      "diamond",
+      "square",
+      "star",
+      "triangleUp",
+      "triangleDown",
+      "file",
+      "box",
+      "floppyDisk",
+      "cylinder",
+      "person",
+      "smile",
+      "beerMug",
+      null
+     ],
+     "description": "`TaskVisual.milestoneGlyph`（`AT-101`）を書く"
+    }
+   },
+   "required": [
+    "kind",
+    "taskUid",
+    "milestoneGlyph"
+   ],
+   "additionalProperties": false
+  },
+  {
+   "type": "object",
+   "description": "線色と塗り色を置く",
+   "properties": {
+    "kind": {
+     "const": "setTaskVisualColors"
+    },
+    "taskUid": {
+     "type": "integer",
+     "description": "鍵（`Task.uid`、`AT-24`）"
+    },
+    "fillColor": {
+     "type": [
+      "string",
+      "null"
+     ],
+     "pattern": "^(?:white|black|dimgray|lightgray|red|blue|yellow|green|orange|purple|transparent|#[0-9a-fA-F]{6}/(?:#[0-9a-fA-F]{6})?|/#[0-9a-fA-F]{6})$",
+     "description": "`TaskVisual.fillColor`（`AT-102`）を書く"
+    },
+    "strokeColor": {
+     "type": [
+      "string",
+      "null"
+     ],
+     "pattern": "^(?:white|black|dimgray|lightgray|red|blue|yellow|green|orange|purple|transparent|#[0-9a-fA-F]{6}/(?:#[0-9a-fA-F]{6})?|/#[0-9a-fA-F]{6})$",
+     "description": "`TaskVisual.strokeColor`（`AT-103`）を書く"
+    }
+   },
+   "required": [
+    "kind",
+    "taskUid",
+    "fillColor",
+    "strokeColor"
+   ],
+   "additionalProperties": false
+  },
+  {
+   "type": "object",
+   "description": "色をテーマ追随へ戻す",
+   "properties": {
+    "kind": {
+     "const": "resetTaskVisualColors"
+    },
+    "taskUid": {
+     "type": "integer",
+     "description": "鍵（`Task.uid`、`AT-24`）"
+    }
+   },
+   "required": [
+    "kind",
+    "taskUid"
+   ],
+   "additionalProperties": false
+  },
+  {
+   "type": "object",
+   "description": "線の太さを置く",
+   "properties": {
+    "kind": {
+     "const": "setTaskVisualStrokeWidthPx"
+    },
+    "taskUid": {
+     "type": "integer",
+     "description": "鍵（`Task.uid`、`AT-24`）"
+    },
+    "strokeWidthPx": {
+     "type": [
+      "integer",
+      "null"
+     ],
+     "minimum": 1,
+     "maximum": 10,
+     "description": "`TaskVisual.strokeWidthPx`（`AT-104`）を書く"
+    }
+   },
+   "required": [
+    "kind",
+    "taskUid",
+    "strokeWidthPx"
+   ],
+   "additionalProperties": false
+  },
+  {
+   "type": "object",
+   "description": "タスクグループを作る",
+   "properties": {
+    "kind": {
+     "const": "createTaskGroup"
+    },
+    "id": {
+     "type": "string",
+     "format": "uuid",
+     "description": "`TaskGroup.id`（`AT-51`）を書く"
+    },
+    "parentId": {
+     "type": [
+      "string",
+      "null"
+     ],
+     "format": "uuid",
+     "description": "`TaskGroup.parentId`（`AT-52`）を書く"
+    },
+    "name": {
+     "type": [
+      "string",
+      "null"
+     ],
+     "description": "`TaskGroup.name`（`AT-53`）を書く"
+    },
+    "derivedFromTaskUid": {
+     "type": [
+      "integer",
+      "null"
+     ],
+     "description": "`TaskGroup.derivedFromTaskUid`（`AT-54`）を書く"
+    },
+    "order": {
+     "type": "integer",
+     "description": "`TaskGroup.order`（`AT-55`）を書く"
+    }
+   },
+   "required": [
+    "kind",
+    "id",
+    "parentId",
+    "name",
+    "derivedFromTaskUid",
+    "order"
+   ],
+   "additionalProperties": false
+  },
+  {
+   "type": "object",
+   "description": "タスクグループを消す",
+   "properties": {
+    "kind": {
+     "const": "deleteTaskGroup"
+    },
+    "taskGroupId": {
+     "type": "string",
+     "format": "uuid",
+     "description": "鍵（`TaskGroup.id`、`AT-51`）"
+    },
+    "newTaskGroupId": {
+     "type": "string",
+     "description": "`string` —— 新しいタスクグループの `id`（⚠️ いまの編集はこの値を読まない）"
+    }
+   },
+   "required": [
+    "kind",
+    "taskGroupId",
+    "newTaskGroupId"
+   ],
+   "additionalProperties": false
+  },
+  {
+   "type": "object",
+   "description": "タスクグループの部分木を複製する",
+   "properties": {
+    "kind": {
+     "const": "pasteTaskGroupSubtree"
+    },
+    "sourceTaskGroupId": {
+     "type": "string",
+     "format": "uuid",
+     "description": "鍵（`TaskGroup.id`、`AT-51`） —— 複製する部分木の根"
+    },
+    "parentId": {
+     "type": [
+      "string",
+      "null"
+     ],
+     "format": "uuid",
+     "description": "`TaskGroup.parentId`（`AT-52`）を書く —— 写しの根を載せる親"
+    },
+    "newTaskGroupIds": {
+     "type": "object",
+     "additionalProperties": {
+      "type": "string"
+     },
+     "description": "`string` から `string` への対応 —— 複製元の `TaskGroup.id` から、その写しの `id` へ"
+    }
+   },
+   "required": [
+    "kind",
+    "sourceTaskGroupId",
+    "parentId",
+    "newTaskGroupIds"
+   ],
+   "additionalProperties": false
+  },
+  {
+   "type": "object",
+   "description": "タスクグループ名を変える",
+   "properties": {
+    "kind": {
+     "const": "setTaskGroupName"
+    },
+    "taskGroupId": {
+     "type": "string",
+     "format": "uuid",
+     "description": "鍵（`TaskGroup.id`、`AT-51`）"
+    },
+    "name": {
+     "type": [
+      "string",
+      "null"
+     ],
+     "description": "`TaskGroup.name`（`AT-53`）を書く"
+    }
+   },
+   "required": [
+    "kind",
+    "taskGroupId",
+    "name"
+   ],
+   "additionalProperties": false
+  },
+  {
+   "type": "object",
+   "description": "タスクグループの色を置く",
+   "properties": {
+    "kind": {
+     "const": "setTaskGroupColor"
+    },
+    "taskGroupId": {
+     "type": "string",
+     "format": "uuid",
+     "description": "鍵（`TaskGroup.id`、`AT-51`）"
+    },
+    "color": {
+     "type": "string",
+     "pattern": "^(?:white|dimgray|lightgray|red|blue|yellow|green|orange|purple|transparent|#[0-9a-fA-F]{6}/(?:#[0-9a-fA-F]{6})?|/#[0-9a-fA-F]{6})$",
+     "description": "`TaskGroup.color`（`AT-58`）を書く（`null` は受けない）"
+    }
+   },
+   "required": [
+    "kind",
+    "taskGroupId",
+    "color"
+   ],
+   "additionalProperties": false
+  },
+  {
+   "type": "object",
+   "description": "タスクグループの色をテーマ追随へ戻す",
+   "properties": {
+    "kind": {
+     "const": "resetTaskGroupColor"
+    },
+    "taskGroupId": {
+     "type": "string",
+     "format": "uuid",
+     "description": "鍵（`TaskGroup.id`、`AT-51`）"
+    }
+   },
+   "required": [
+    "kind",
+    "taskGroupId"
+   ],
+   "additionalProperties": false
+  },
+  {
+   "type": "object",
+   "description": "タスクグループの最小の高さを置く",
+   "properties": {
+    "kind": {
+     "const": "setTaskGroupMinHeightPx"
+    },
+    "taskGroupId": {
+     "type": "string",
+     "format": "uuid",
+     "description": "鍵（`TaskGroup.id`、`AT-51`）"
+    },
+    "minHeightPx": {
+     "type": [
+      "integer",
+      "null"
+     ],
+     "description": "`TaskGroup.minHeightPx`（`AT-59`）を書く"
+    }
+   },
+   "required": [
+    "kind",
+    "taskGroupId",
+    "minHeightPx"
+   ],
+   "additionalProperties": false
+  },
+  {
+   "type": "object",
+   "description": "兄弟の並びを変える",
+   "properties": {
+    "kind": {
+     "const": "reorderTaskGroupSiblings"
+    },
+    "parentId": {
+     "type": [
+      "string",
+      "null"
+     ],
+     "format": "uuid",
+     "description": "鍵（`TaskGroup.parentId`、`AT-52`） —— 並べ直す兄弟の親（`null` は根の段）"
+    },
+    "orderedIds": {
+     "type": "array",
+     "items": {
+      "type": "string",
+      "format": "uuid"
+     },
+     "description": "鍵の並び（`TaskGroup.id`、`AT-51`） —— 兄弟の新しい並び（この順が `order`（`AT-55`）になる）"
+    }
+   },
+   "required": [
+    "kind",
+    "parentId",
+    "orderedIds"
+   ],
+   "additionalProperties": false
+  },
+  {
+   "type": "object",
+   "description": "依存線を引く",
+   "properties": {
+    "kind": {
+     "const": "createDependency"
+    },
+    "predecessorUid": {
+     "type": "integer",
+     "description": "`Dependency.predecessorUid`（`AT-45`）を書く"
+    },
+    "successorUid": {
+     "type": "integer",
+     "description": "鍵（`Task.uid`、`AT-24`） —— 線を持つ後続の `Task`"
+    },
+    "predecessorEdge": {
+     "enum": [
+      "start",
+      "finish"
+     ],
+     "description": "`'start'` ・ `'finish'` のどれか —— 先行の端（2 つの端の組が `linkType`（`AT-46`）を決める）"
+    },
+    "successorEdge": {
+     "enum": [
+      "start",
+      "finish"
+     ],
+     "description": "`'start'` ・ `'finish'` のどれか —— 後続の端"
+    }
+   },
+   "required": [
+    "kind",
+    "predecessorUid",
+    "successorUid",
+    "predecessorEdge",
+    "successorEdge"
+   ],
+   "additionalProperties": false
+  },
+  {
+   "type": "object",
+   "description": "依存線を消す（先行と後続の組で名指し、その向きの線をすべて —— 1 本だけは `CM-93`）",
+   "properties": {
+    "kind": {
+     "const": "deleteDependency"
+    },
+    "predecessorUid": {
+     "type": "integer",
+     "description": "鍵（`Dependency.predecessorUid`、`AT-45`）"
+    },
+    "successorUid": {
+     "type": "integer",
+     "description": "鍵（`Task.uid`、`AT-24`） —— 線を持つ後続の `Task`"
+    }
+   },
+   "required": [
+    "kind",
+    "predecessorUid",
+    "successorUid"
+   ],
+   "additionalProperties": false
+  },
+  {
+   "type": "object",
+   "description": "同じ向きの線のうち 1 本を、後続と先行と、後続の依存の並び（`_assets/fig-erd-detail.md` の `AT-42`）の中の順とで名指して除く。\nその線が無ければ断る —— 同じ向きの線は線ごとの名を持たず、並びの中の順でしか名指せない",
+   "properties": {
+    "kind": {
+     "const": "deleteDependencyAt"
+    },
+    "predecessorUid": {
+     "type": "integer",
+     "description": "鍵（`Dependency.predecessorUid`、`AT-45`）"
+    },
+    "successorUid": {
+     "type": "integer",
+     "description": "鍵（`Task.uid`、`AT-24`） —— 線を持つ後続の `Task`"
+    },
+    "order": {
+     "type": "integer",
+     "description": "`integer` —— 同じ向きの線のうち何本目か（後続の依存の並び `AT-42` の中の順、0 が最初）"
+    }
+   },
+   "required": [
+    "kind",
+    "predecessorUid",
+    "successorUid",
+    "order"
+   ],
+   "additionalProperties": false
+  },
+  {
+   "type": "object",
+   "description": "ラグを変える",
+   "properties": {
+    "kind": {
+     "const": "setDependencyLag"
+    }
+   },
+   "required": [
+    "kind"
+   ],
+   "oneOf": [
+    {
+     "type": "object",
+     "properties": {
+      "kind": true,
+      "predecessorUid": {
+       "type": "integer",
+       "description": "鍵（`Dependency.predecessorUid`、`AT-45`）"
+      },
+      "successorUid": {
+       "type": "integer",
+       "description": "鍵（`Task.uid`、`AT-24`） —— 線を持つ後続の `Task`"
+      },
+      "lagWorkingDays": {
+       "type": "integer",
+       "description": "`integer` —— ラグ（稼働日）で、`linkLag`（`AT-47`）と `lagFormat`（`AT-48`）へ換えて書く"
+      }
+     },
+     "required": [
+      "kind",
+      "predecessorUid",
+      "successorUid",
+      "lagWorkingDays"
+     ],
+     "additionalProperties": false
+    },
+    {
+     "type": "object",
+     "properties": {
+      "kind": true,
+      "predecessorUid": {
+       "type": "integer",
+       "description": "鍵（`Dependency.predecessorUid`、`AT-45`）"
+      },
+      "successorUid": {
+       "type": "integer",
+       "description": "鍵（`Task.uid`、`AT-24`） —— 線を持つ後続の `Task`"
+      },
+      "lagMinutes": {
+       "type": "integer",
+       "description": "`integer` —— ラグ（分）で、`linkLag`（`AT-47`）へ換えて書く"
+      },
+      "lagUnit": {
+       "enum": [
+        "d",
+        "h",
+        "m"
+       ],
+       "description": "`'d'` ・ `'h'` ・ `'m'` のどれか —— 見せる単位で、`lagFormat`（`AT-48`）を決める"
+      }
+     },
+     "required": [
+      "kind",
+      "predecessorUid",
+      "successorUid",
+      "lagMinutes",
+      "lagUnit"
+     ],
+     "additionalProperties": false
+    }
+   ]
+  },
+  {
+   "type": "object",
+   "description": "暦（稼働する曜日・稼働日の時間帯の 1 組・例外日）と週の始まりを直す。\n時間帯の 1 組をどの曜日と例外日に書くかは `01-04-requirements.md` の `FR-088` が持つ。\n既定の暦のままなら、暦を 1 つ作ってから直す。\n例外日の `fromDate` ／ `toDate` の時刻は、本命令を受けて文書へ書く側が揃える —— 規則は `01-04-requirements.md` の `FR-057` の 表 T-350 の前文が持つ",
+   "properties": {
+    "kind": {
+     "const": "setCalendar"
+    },
+    "workingDayTypes": {
+     "type": "array",
+     "items": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 7
+     },
+     "description": "`WeekDay.dayType`（`AT-73`）の並びを書く（`null` は受けない、省いてよい） —— 稼働する曜日の `dayType`（1 が日曜）で、載らない曜日は休み"
+    },
+    "weekStartDay": {
+     "type": [
+      "integer",
+      "null"
+     ],
+     "minimum": 0,
+     "maximum": 6,
+     "description": "`Project.weekStartDay`（`AT-17`）を書く（省いてよい）"
+    },
+    "exceptions": {
+     "type": "array",
+     "items": {
+      "type": "object",
+      "required": [
+       "ordinal",
+       "name",
+       "fromDate",
+       "toDate",
+       "dayWorking",
+       "recurrenceKind",
+       "workingTimes",
+       "carry",
+       "carryElements"
+      ],
+      "additionalProperties": false,
+      "properties": {
+       "ordinal": {
+        "type": "integer"
+       },
+       "name": {
+        "type": [
+         "string",
+         "null"
+        ]
+       },
+       "fromDate": {
+        "type": [
+         "string",
+         "null"
+        ],
+        "pattern": "^-?\\d{4,}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})?$"
+       },
+       "toDate": {
+        "type": [
+         "string",
+         "null"
+        ],
+        "pattern": "^-?\\d{4,}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})?$"
+       },
+       "dayWorking": {
+        "type": [
+         "boolean",
+         "null"
+        ]
+       },
+       "recurrenceKind": {
+        "type": [
+         "integer",
+         "null"
+        ],
+        "minimum": 1,
+        "maximum": 9
+       },
+       "workingTimes": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "required": [
+          "ordinal",
+          "fromTime",
+          "toTime"
+         ],
+         "additionalProperties": false,
+         "properties": {
+          "ordinal": {
+           "type": "integer"
+          },
+          "fromTime": {
+           "type": [
+            "string",
+            "null"
+           ],
+           "pattern": "^\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})?$"
+          },
+          "toTime": {
+           "type": [
+            "string",
+            "null"
+           ],
+           "pattern": "^\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})?$"
+          }
+         }
+        },
+        "maxItems": 5
+       },
+       "carry": {
+        "type": "object",
+        "additionalProperties": {
+         "type": "string"
+        }
+       },
+       "carryElements": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "required": [
+          "ordinal",
+          "name",
+          "fields",
+          "children"
+         ],
+         "additionalProperties": false,
+         "properties": {
+          "ordinal": {
+           "type": "integer"
+          },
+          "name": {
+           "type": "string"
+          },
+          "fields": {
+           "type": "object",
+           "additionalProperties": {
+            "type": "string"
+           }
+          },
+          "children": {
+           "type": "array",
+           "items": {
+            "type": "object"
+           }
+          }
+         }
+        }
+       }
+      }
+     },
+     "description": "`Calendar.exceptions`（`AT-71`）を書く（省いてよい） —— 編集の後の例外日の全部（表 T-344 の `WC-4` 〜 `WC-6`）"
+    },
+    "workingTimes": {
+     "type": "array",
+     "items": {
+      "type": "object",
+      "required": [
+       "ordinal",
+       "fromTime",
+       "toTime"
+      ],
+      "additionalProperties": false,
+      "properties": {
+       "ordinal": {
+        "type": "integer"
+       },
+       "fromTime": {
+        "type": [
+         "string",
+         "null"
+        ],
+        "pattern": "^\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})?$"
+       },
+       "toTime": {
+        "type": [
+         "string",
+         "null"
+        ],
+        "pattern": "^\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})?$"
+       }
+      }
+     },
+     "maxItems": 5,
+     "description": "`WeekDay.workingTimes` ／ `Exception.workingTimes`（`AT-158` ／ `AT-159`）を書く（省いてよい） —— 稼働日の時間帯の 1 組（どの曜日と例外日に書くかは `FR-088` の `WC-8`）"
+    }
+   },
+   "required": [
+    "kind"
+   ],
+   "additionalProperties": false
+  },
+  {
+   "type": "object",
+   "description": "担当を足す",
+   "properties": {
+    "kind": {
+     "const": "createResource"
+    },
+    "name": {
+     "type": [
+      "string",
+      "null"
+     ],
+     "description": "`Resource.name`（`AT-86`）を書く"
+    }
+   },
+   "required": [
+    "kind",
+    "name"
+   ],
+   "additionalProperties": false
+  },
+  {
+   "type": "object",
+   "description": "担当の名前を変える",
+   "properties": {
+    "kind": {
+     "const": "setResourceName"
+    },
+    "resourceUid": {
+     "type": "integer",
+     "description": "鍵（`Resource.uid`、`AT-85`）"
+    },
+    "name": {
+     "type": [
+      "string",
+      "null"
+     ],
+     "description": "`Resource.name`（`AT-86`）を書く"
+    }
+   },
+   "required": [
+    "kind",
+    "resourceUid",
+    "name"
+   ],
+   "additionalProperties": false
+  },
+  {
+   "type": "object",
+   "description": "選んだ担当を消す",
+   "properties": {
+    "kind": {
+     "const": "deleteResources"
+    },
+    "resourceUids": {
+     "type": "array",
+     "items": {
+      "type": "integer"
+     },
+     "description": "鍵の並び（`Resource.uid`、`AT-85`） —— 消す担当"
+    }
+   },
+   "required": [
+    "kind",
+    "resourceUids"
+   ],
+   "additionalProperties": false
+  },
+  {
+   "type": "object",
+   "description": "未参照をまとめて消す",
+   "properties": {
+    "kind": {
+     "const": "deleteUnreferencedResources"
+    }
+   },
+   "required": [
+    "kind"
+   ],
+   "additionalProperties": false
+  },
+  {
+   "type": "object",
+   "description": "担当を就ける",
+   "properties": {
+    "kind": {
+     "const": "createAssignment"
+    },
+    "taskUid": {
+     "type": "integer",
+     "description": "`Assignment.taskUid`（`AT-93`）を書く（`null` は受けない）"
+    },
+    "resourceUid": {
+     "type": "integer",
+     "description": "`Assignment.resourceUid`（`AT-94`）を書く（`null` は受けない）"
+    }
+   },
+   "required": [
+    "kind",
+    "taskUid",
+    "resourceUid"
+   ],
+   "additionalProperties": false
+  },
+  {
+   "type": "object",
+   "description": "割当を解く",
+   "properties": {
+    "kind": {
+     "const": "deleteAssignment"
+    },
+    "taskUid": {
+     "type": "integer",
+     "description": "鍵（`Assignment.taskUid`、`AT-93`）（`null` は受けない）"
+    },
+    "resourceUid": {
+     "type": "integer",
+     "description": "鍵（`Assignment.resourceUid`、`AT-94`）（`null` は受けない）"
+    }
+   },
+   "required": [
+    "kind",
+    "taskUid",
+    "resourceUid"
+   ],
+   "additionalProperties": false
+  },
+  {
+   "type": "object",
+   "description": "コメントボックスを置く",
+   "properties": {
+    "kind": {
+     "const": "createCommentBox"
+    },
+    "commentBoxId": {
+     "type": "string",
+     "format": "uuid",
+     "description": "`CommentBox.id`（`AT-110`）を書く"
+    },
+    "anchor": {
+     "type": "object",
+     "properties": {
+      "date": {
+       "type": "string",
+       "pattern": "^-?\\d{4,}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})?$",
+       "description": "`CommentBox.anchorDate`（`AT-113`）を書く（`null` は受けない）"
+      },
+      "taskGroupId": {
+       "type": "string",
+       "format": "uuid",
+       "description": "`CommentBox.anchorTaskGroupId`（`AT-114`）を書く（`null` は受けない）"
+      },
+      "bandFraction": {
+       "type": [
+        "number",
+        "null"
+       ],
+       "minimum": 0,
+       "maximum": 1,
+       "description": "`CommentBox.anchorBandFraction`（`AT-163`）を書く（省いてよい）"
+      },
+      "taskUid": {
+       "type": [
+        "integer",
+        "null"
+       ],
+       "description": "`CommentBox.anchorTaskUid`（`AT-164`）を書く（省いてよい）"
+      },
+      "taskFigure": {
+       "enum": [
+        "plannedBar",
+        "actualBar",
+        "milestone",
+        null
+       ],
+       "description": "`CommentBox.anchorTaskFigure`（`AT-165`）を書く（省いてよい）"
+      },
+      "highlightBoxId": {
+       "type": [
+        "string",
+        "null"
+       ],
+       "format": "uuid",
+       "description": "`CommentBox.anchorHighlightBoxId`（`AT-166`）を書く（省いてよい）"
+      },
+      "snapPoint": {
+       "enum": [
+        "topLeftCorner",
+        "topMiddle",
+        "topRightCorner",
+        "rightMiddle",
+        "bottomRightCorner",
+        "bottomMiddle",
+        "bottomLeftCorner",
+        "leftMiddle",
+        null
+       ],
+       "description": "`CommentBox.anchorSnapPoint`（`AT-167`）を書く（省いてよい）"
+      }
+     },
+     "required": [
+      "date",
+      "taskGroupId"
+     ],
+     "additionalProperties": false,
+     "description": "`AnnotationAnchor` —— 留め先 —— 省いた鍵は `null` として書き、吸着した対象（`taskUid` と `taskFigure` の組か `highlightBoxId`）と `snapPoint` は、吸着したときだけ揃えて持つ（`FR-019`）"
+    }
+   },
+   "required": [
+    "kind",
+    "commentBoxId",
+    "anchor"
+   ],
+   "additionalProperties": false
+  },
+  {
+   "type": "object",
+   "description": "コメントボックスを消す",
+   "properties": {
+    "kind": {
+     "const": "deleteCommentBox"
+    },
+    "commentBoxId": {
+     "type": "string",
+     "format": "uuid",
+     "description": "鍵（`CommentBox.id`、`AT-110`）"
+    }
+   },
+   "required": [
+    "kind",
+    "commentBoxId"
+   ],
+   "additionalProperties": false
+  },
+  {
+   "type": "object",
+   "description": "本文を書く",
+   "properties": {
+    "kind": {
+     "const": "setCommentBoxText"
+    },
+    "commentBoxId": {
+     "type": "string",
+     "format": "uuid",
+     "description": "鍵（`CommentBox.id`、`AT-110`）"
+    },
+    "text": {
+     "type": [
+      "string",
+      "null"
+     ],
+     "description": "`CommentBox.text`（`AT-112`）を書く"
+    }
+   },
+   "required": [
+    "kind",
+    "commentBoxId",
+    "text"
+   ],
+   "additionalProperties": false
+  },
+  {
+   "type": "object",
+   "description": "引出し線の形を選ぶ",
+   "properties": {
+    "kind": {
+     "const": "setCommentBoxLeaderShapeKind"
+    },
+    "commentBoxId": {
+     "type": "string",
+     "format": "uuid",
+     "description": "鍵（`CommentBox.id`、`AT-110`）"
+    },
+    "leaderShapeKind": {
+     "enum": [
+      "calloutBox",
+      "polyline"
+     ],
+     "description": "`CommentBox.leaderShapeKind`（`AT-111`）を書く（`null` は受けない）"
+    }
+   },
+   "required": [
+    "kind",
+    "commentBoxId",
+    "leaderShapeKind"
+   ],
+   "additionalProperties": false
+  },
+  {
+   "type": "object",
+   "description": "留め先を変える",
+   "properties": {
+    "kind": {
+     "const": "setCommentBoxAnchor"
+    },
+    "commentBoxId": {
+     "type": "string",
+     "format": "uuid",
+     "description": "鍵（`CommentBox.id`、`AT-110`）"
+    },
+    "anchor": {
+     "type": "object",
+     "properties": {
+      "date": {
+       "type": "string",
+       "pattern": "^-?\\d{4,}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})?$",
+       "description": "`CommentBox.anchorDate`（`AT-113`）を書く（`null` は受けない）"
+      },
+      "taskGroupId": {
+       "type": "string",
+       "format": "uuid",
+       "description": "`CommentBox.anchorTaskGroupId`（`AT-114`）を書く（`null` は受けない）"
+      },
+      "bandFraction": {
+       "type": [
+        "number",
+        "null"
+       ],
+       "minimum": 0,
+       "maximum": 1,
+       "description": "`CommentBox.anchorBandFraction`（`AT-163`）を書く（省いてよい）"
+      },
+      "taskUid": {
+       "type": [
+        "integer",
+        "null"
+       ],
+       "description": "`CommentBox.anchorTaskUid`（`AT-164`）を書く（省いてよい）"
+      },
+      "taskFigure": {
+       "enum": [
+        "plannedBar",
+        "actualBar",
+        "milestone",
+        null
+       ],
+       "description": "`CommentBox.anchorTaskFigure`（`AT-165`）を書く（省いてよい）"
+      },
+      "highlightBoxId": {
+       "type": [
+        "string",
+        "null"
+       ],
+       "format": "uuid",
+       "description": "`CommentBox.anchorHighlightBoxId`（`AT-166`）を書く（省いてよい）"
+      },
+      "snapPoint": {
+       "enum": [
+        "topLeftCorner",
+        "topMiddle",
+        "topRightCorner",
+        "rightMiddle",
+        "bottomRightCorner",
+        "bottomMiddle",
+        "bottomLeftCorner",
+        "leftMiddle",
+        null
+       ],
+       "description": "`CommentBox.anchorSnapPoint`（`AT-167`）を書く（省いてよい）"
+      }
+     },
+     "required": [
+      "date",
+      "taskGroupId"
+     ],
+     "additionalProperties": false,
+     "description": "`AnnotationAnchor` —— 新しい留め先 —— 省いた鍵は `null` として書き、吸着した対象（`taskUid` と `taskFigure` の組か `highlightBoxId`）と `snapPoint` は、吸着したときだけ揃えて持つ（`FR-019`）"
+    }
+   },
+   "required": [
+    "kind",
+    "commentBoxId",
+    "anchor"
+   ],
+   "additionalProperties": false
+  },
+  {
+   "type": "object",
+   "description": "本文のずれを変える",
+   "properties": {
+    "kind": {
+     "const": "setCommentBoxBodyOffsetPx"
+    },
+    "commentBoxId": {
+     "type": "string",
+     "format": "uuid",
+     "description": "鍵（`CommentBox.id`、`AT-110`）"
+    },
+    "dx": {
+     "type": "number",
+     "description": "`number` で `CommentBox.bodyOffsetPx`（`AT-115`）を書く —— 本文のずれの横（px）"
+    },
+    "dy": {
+     "type": "number",
+     "description": "`number` で `CommentBox.bodyOffsetPx`（`AT-115`）を書く —— 本文のずれの縦（px）"
+    }
+   },
+   "required": [
+    "kind",
+    "commentBoxId",
+    "dx",
+    "dy"
+   ],
+   "additionalProperties": false
+  },
+  {
+   "type": "object",
+   "description": "枠と引出し線の色を置く",
+   "properties": {
+    "kind": {
+     "const": "setCommentBoxStrokeColor"
+    },
+    "commentBoxId": {
+     "type": "string",
+     "format": "uuid",
+     "description": "鍵（`CommentBox.id`、`AT-110`）"
+    },
+    "strokeColor": {
+     "type": [
+      "string",
+      "null"
+     ],
+     "pattern": "^(?:white|black|dimgray|lightgray|red|blue|yellow|green|orange|purple|#[0-9a-fA-F]{6}/(?:#[0-9a-fA-F]{6})?|/#[0-9a-fA-F]{6})$",
+     "description": "`CommentBox.strokeColor`（`AT-148`）を書く"
+    }
+   },
+   "required": [
+    "kind",
+    "commentBoxId",
+    "strokeColor"
+   ],
+   "additionalProperties": false
+  },
+  {
+   "type": "object",
+   "description": "枠と引出し線の太さを置く",
+   "properties": {
+    "kind": {
+     "const": "setCommentBoxStrokeWidthPx"
+    },
+    "commentBoxId": {
+     "type": "string",
+     "format": "uuid",
+     "description": "鍵（`CommentBox.id`、`AT-110`）"
+    },
+    "strokeWidthPx": {
+     "type": [
+      "integer",
+      "null"
+     ],
+     "description": "`CommentBox.strokeWidthPx`（`AT-149`）を書く"
+    }
+   },
+   "required": [
+    "kind",
+    "commentBoxId",
+    "strokeWidthPx"
+   ],
+   "additionalProperties": false
+  },
+  {
+   "type": "object",
+   "description": "本文の箱の塗りの色を置く",
+   "properties": {
+    "kind": {
+     "const": "setCommentBoxFillColor"
+    },
+    "commentBoxId": {
+     "type": "string",
+     "format": "uuid",
+     "description": "鍵（`CommentBox.id`、`AT-110`）"
+    },
+    "fillColor": {
+     "type": [
+      "string",
+      "null"
+     ],
+     "pattern": "^(?:white|black|dimgray|lightgray|red|blue|yellow|green|orange|purple|transparent|#[0-9a-fA-F]{6}/(?:#[0-9a-fA-F]{6})?|/#[0-9a-fA-F]{6})$",
+     "description": "`CommentBox.fillColor`（`AT-150`）を書く"
+    }
+   },
+   "required": [
+    "kind",
+    "commentBoxId",
+    "fillColor"
+   ],
+   "additionalProperties": false
+  },
+  {
+   "type": "object",
+   "description": "本文の箱の塗りの透過率を置く",
+   "properties": {
+    "kind": {
+     "const": "setCommentBoxFillTransparencyPercent"
+    },
+    "commentBoxId": {
+     "type": "string",
+     "format": "uuid",
+     "description": "鍵（`CommentBox.id`、`AT-110`）"
+    },
+    "fillTransparencyPercent": {
+     "type": [
+      "integer",
+      "null"
+     ],
+     "description": "`CommentBox.fillTransparencyPercent`（`AT-151`）を書く"
+    }
+   },
+   "required": [
+    "kind",
+    "commentBoxId",
+    "fillTransparencyPercent"
+   ],
+   "additionalProperties": false
+  },
+  {
+   "type": "object",
+   "description": "本文の字の色を置く",
+   "properties": {
+    "kind": {
+     "const": "setCommentBoxTextColor"
+    },
+    "commentBoxId": {
+     "type": "string",
+     "format": "uuid",
+     "description": "鍵（`CommentBox.id`、`AT-110`）"
+    },
+    "textColor": {
+     "type": [
+      "string",
+      "null"
+     ],
+     "pattern": "^(?:white|black|dimgray|lightgray|red|blue|yellow|green|orange|purple|#[0-9a-fA-F]{6}/(?:#[0-9a-fA-F]{6})?|/#[0-9a-fA-F]{6})$",
+     "description": "`CommentBox.textColor`（`AT-152`）を書く"
+    }
+   },
+   "required": [
+    "kind",
+    "commentBoxId",
+    "textColor"
+   ],
+   "additionalProperties": false
+  },
+  {
+   "type": "object",
+   "description": "コメントボックスを、コメントボックスの並びの最後（最前面）へ移す",
+   "properties": {
+    "kind": {
+     "const": "bringCommentBoxToFront"
+    },
+    "commentBoxId": {
+     "type": "string",
+     "format": "uuid",
+     "description": "鍵（`CommentBox.id`、`AT-110`）"
+    }
+   },
+   "required": [
+    "kind",
+    "commentBoxId"
+   ],
+   "additionalProperties": false
+  },
+  {
+   "type": "object",
+   "description": "ハイライトボックスを置く",
+   "properties": {
+    "kind": {
+     "const": "createHighlightBox"
+    },
+    "highlightBoxId": {
+     "type": "string",
+     "format": "uuid",
+     "description": "`HighlightBox.id`（`AT-116`）を書く"
+    },
+    "range": {
+     "type": "object",
+     "properties": {
+      "start": {
+       "type": "string",
+       "pattern": "^-?\\d{4,}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})?$",
+       "description": "`HighlightBox.start`（`AT-117`）を書く（`null` は受けない）"
+      },
+      "finish": {
+       "type": "string",
+       "pattern": "^-?\\d{4,}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})?$",
+       "description": "`HighlightBox.finish`（`AT-118`）を書く（`null` は受けない）"
+      },
+      "topTaskGroupId": {
+       "type": "string",
+       "format": "uuid",
+       "description": "`HighlightBox.topTaskGroupId`（`AT-119`）を書く（`null` は受けない）"
+      },
+      "bottomTaskGroupId": {
+       "type": "string",
+       "format": "uuid",
+       "description": "`HighlightBox.bottomTaskGroupId`（`AT-120`）を書く（`null` は受けない）"
+      }
+     },
+     "required": [
+      "start",
+      "finish",
+      "topTaskGroupId",
+      "bottomTaskGroupId"
+     ],
+     "additionalProperties": false,
+     "description": "`HighlightRange` —— 囲む範囲"
+    }
+   },
+   "required": [
+    "kind",
+    "highlightBoxId",
+    "range"
+   ],
+   "additionalProperties": false
+  },
+  {
+   "type": "object",
+   "description": "ハイライトボックスを消す",
+   "properties": {
+    "kind": {
+     "const": "deleteHighlightBox"
+    },
+    "highlightBoxId": {
+     "type": "string",
+     "format": "uuid",
+     "description": "鍵（`HighlightBox.id`、`AT-116`）"
+    }
+   },
+   "required": [
+    "kind",
+    "highlightBoxId"
+   ],
+   "additionalProperties": false
+  },
+  {
+   "type": "object",
+   "description": "囲む範囲を変える",
+   "properties": {
+    "kind": {
+     "const": "setHighlightBoxRange"
+    },
+    "highlightBoxId": {
+     "type": "string",
+     "format": "uuid",
+     "description": "鍵（`HighlightBox.id`、`AT-116`）"
+    },
+    "range": {
+     "type": "object",
+     "properties": {
+      "start": {
+       "type": "string",
+       "pattern": "^-?\\d{4,}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})?$",
+       "description": "`HighlightBox.start`（`AT-117`）を書く（`null` は受けない）"
+      },
+      "finish": {
+       "type": "string",
+       "pattern": "^-?\\d{4,}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})?$",
+       "description": "`HighlightBox.finish`（`AT-118`）を書く（`null` は受けない）"
+      },
+      "topTaskGroupId": {
+       "type": "string",
+       "format": "uuid",
+       "description": "`HighlightBox.topTaskGroupId`（`AT-119`）を書く（`null` は受けない）"
+      },
+      "bottomTaskGroupId": {
+       "type": "string",
+       "format": "uuid",
+       "description": "`HighlightBox.bottomTaskGroupId`（`AT-120`）を書く（`null` は受けない）"
+      }
+     },
+     "required": [
+      "start",
+      "finish",
+      "topTaskGroupId",
+      "bottomTaskGroupId"
+     ],
+     "additionalProperties": false,
+     "description": "`HighlightRange` —— 新しく囲む範囲"
+    }
+   },
+   "required": [
+    "kind",
+    "highlightBoxId",
+    "range"
+   ],
+   "additionalProperties": false
+  },
+  {
+   "type": "object",
+   "description": "枠の色を置く",
+   "properties": {
+    "kind": {
+     "const": "setHighlightBoxStrokeColor"
+    },
+    "highlightBoxId": {
+     "type": "string",
+     "format": "uuid",
+     "description": "鍵（`HighlightBox.id`、`AT-116`）"
+    },
+    "strokeColor": {
+     "type": [
+      "string",
+      "null"
+     ],
+     "pattern": "^(?:white|black|dimgray|lightgray|red|blue|yellow|green|orange|purple|transparent|#[0-9a-fA-F]{6}/(?:#[0-9a-fA-F]{6})?|/#[0-9a-fA-F]{6})$",
+     "description": "`HighlightBox.strokeColor`（`AT-121`）を書く"
+    }
+   },
+   "required": [
+    "kind",
+    "highlightBoxId",
+    "strokeColor"
+   ],
+   "additionalProperties": false
+  },
+  {
+   "type": "object",
+   "description": "枠の線の太さを置く",
+   "properties": {
+    "kind": {
+     "const": "setHighlightBoxStrokeWidthPx"
+    },
+    "highlightBoxId": {
+     "type": "string",
+     "format": "uuid",
+     "description": "鍵（`HighlightBox.id`、`AT-116`）"
+    },
+    "strokeWidthPx": {
+     "type": [
+      "integer",
+      "null"
+     ],
+     "description": "`HighlightBox.strokeWidthPx`（`AT-145`）を書く"
+    }
+   },
+   "required": [
+    "kind",
+    "highlightBoxId",
+    "strokeWidthPx"
+   ],
+   "additionalProperties": false
+  },
+  {
+   "type": "object",
+   "description": "塗りの色を置く",
+   "properties": {
+    "kind": {
+     "const": "setHighlightBoxFillColor"
+    },
+    "highlightBoxId": {
+     "type": "string",
+     "format": "uuid",
+     "description": "鍵（`HighlightBox.id`、`AT-116`）"
+    },
+    "fillColor": {
+     "type": [
+      "string",
+      "null"
+     ],
+     "pattern": "^(?:white|black|dimgray|lightgray|red|blue|yellow|green|orange|purple|transparent|#[0-9a-fA-F]{6}/(?:#[0-9a-fA-F]{6})?|/#[0-9a-fA-F]{6})$",
+     "description": "`HighlightBox.fillColor`（`AT-146`）を書く"
+    }
+   },
+   "required": [
+    "kind",
+    "highlightBoxId",
+    "fillColor"
+   ],
+   "additionalProperties": false
+  },
+  {
+   "type": "object",
+   "description": "塗りの透過率を置く",
+   "properties": {
+    "kind": {
+     "const": "setHighlightBoxFillTransparencyPercent"
+    },
+    "highlightBoxId": {
+     "type": "string",
+     "format": "uuid",
+     "description": "鍵（`HighlightBox.id`、`AT-116`）"
+    },
+    "fillTransparencyPercent": {
+     "type": [
+      "integer",
+      "null"
+     ],
+     "description": "`HighlightBox.fillTransparencyPercent`（`AT-147`）を書く"
+    }
+   },
+   "required": [
+    "kind",
+    "highlightBoxId",
+    "fillTransparencyPercent"
+   ],
+   "additionalProperties": false
+  },
+  {
+   "type": "object",
+   "description": "ハイライトボックスを、ハイライトボックスの並びの最後（最前面）へ移す",
+   "properties": {
+    "kind": {
+     "const": "bringHighlightBoxToFront"
+    },
+    "highlightBoxId": {
+     "type": "string",
+     "format": "uuid",
+     "description": "鍵（`HighlightBox.id`、`AT-116`）"
+    }
+   },
+   "required": [
+    "kind",
+    "highlightBoxId"
+   ],
+   "additionalProperties": false
+  },
+  {
+   "type": "object",
+   "description": "積む向きを選ぶ",
+   "properties": {
+    "kind": {
+     "const": "setStackDirection"
+    },
+    "stackDirection": {
+     "enum": [
+      "up",
+      "down"
+     ],
+     "description": "`stackDirection`（`S-58`）を書く"
+    }
+   },
+   "required": [
+    "kind",
+    "stackDirection"
+   ],
+   "additionalProperties": false
+  },
+  {
+   "type": "object",
+   "description": "要素の表示を切り替える",
+   "properties": {
+    "kind": {
+     "const": "setVisibilitySetting"
+    },
+    "setting": {
+     "enum": [
+      "isBaselineVisible",
+      "isPlanVisible",
+      "isActualVisible",
+      "isProgressLineVisible",
+      "isProgressMarkerVisible",
+      "isDateGridLinesVisible",
+      "isGroupGridLinesVisible",
+      "isAssigneeVisible",
+      "isPercentCompleteVisible",
+      "isDependencyVisible",
+      "isPlanDatesVisible"
+     ],
+     "description": "`isBaselineVisible`（`S-69`） ・ `isPlanVisible`（`S-227`） ・ `isActualVisible`（`S-228`） ・ `isProgressLineVisible`（`S-64`） ・ `isProgressMarkerVisible`（`S-63`） ・ `isDateGridLinesVisible`（`S-67`） ・ `isGroupGridLinesVisible`（`S-68`） ・ `isAssigneeVisible`（`S-60`） ・ `isPercentCompleteVisible`（`S-61`） ・ `isDependencyVisible`（`S-62`） ・ `isPlanDatesVisible`（`S-232`） のどれか —— 表示を切り替える要素（値はその行の鍵）"
+    },
+    "isVisible": {
+     "type": "boolean",
+     "description": "`boolean` —— `setting` が名指す行に書く値"
+    }
+   },
+   "required": [
+    "kind",
+    "setting",
+    "isVisible"
+   ],
+   "additionalProperties": false
+  },
+  {
+   "type": "object",
+   "description": "文字サイズの段を変える",
+   "properties": {
+    "kind": {
+     "const": "setFontSizeStep"
+    },
+    "fontSizeStep": {
+     "enum": [
+      "S",
+      "M",
+      "L"
+     ],
+     "description": "`fontSizeStep`（`S-70`）を書く"
+    }
+   },
+   "required": [
+    "kind",
+    "fontSizeStep"
+   ],
+   "additionalProperties": false
+  },
+  {
+   "type": "object",
+   "description": "モノクロを選ぶ",
+   "properties": {
+    "kind": {
+     "const": "setThemeMonochrome"
+    },
+    "isThemeMonochrome": {
+     "type": "boolean",
+     "description": "`isThemeMonochrome`（`S-74`）を書く"
+    }
+   },
+   "required": [
+    "kind",
+    "isThemeMonochrome"
+   ],
+   "additionalProperties": false
+  },
+  {
+   "type": "object",
+   "description": "表示倍率を変える",
+   "properties": {
+    "kind": {
+     "const": "setZoom"
+    },
+    "zoomX": {
+     "type": "number",
+     "minimum": 0.02,
+     "maximum": 240,
+     "description": "`zoomX`（`S-75`）を書く"
+    },
+    "zoomY": {
+     "type": "number",
+     "minimum": 0.02,
+     "maximum": 240,
+     "description": "`zoomY`（`S-76`）を書く"
+    }
+   },
+   "required": [
+    "kind",
+    "zoomX",
+    "zoomY"
+   ],
+   "additionalProperties": false
+  },
+  {
+   "type": "object",
+   "description": "表示位置を変える",
+   "properties": {
+    "kind": {
+     "const": "setScrollPosition"
+    },
+    "scrollDate": {
+     "type": [
+      "string",
+      "null"
+     ],
+     "pattern": "^-?\\d{4,}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})?$",
+     "description": "`scrollDate`（`S-77`）を書く"
+    },
+    "scrollTaskGroupId": {
+     "type": [
+      "string",
+      "null"
+     ],
+     "format": "uuid",
+     "description": "`scrollTaskGroupId`（`S-78`）を書く"
+    },
+    "scrollDateFraction": {
+     "type": "number",
+     "description": "`scrollDateFraction`（`S-177`）を書く"
+    },
+    "scrollTaskGroupFraction": {
+     "type": "number",
+     "description": "`scrollTaskGroupFraction`（`S-176`）を書く"
+    }
+   },
+   "required": [
+    "kind",
+    "scrollDate",
+    "scrollTaskGroupId",
+    "scrollDateFraction",
+    "scrollTaskGroupFraction"
+   ],
+   "additionalProperties": false
+  },
+  {
+   "type": "object",
+   "description": "タスクグループパネルの幅を変える",
+   "properties": {
+    "kind": {
+     "const": "setTaskGroupPanelWidthPx"
+    },
+    "taskGroupPanelWidthPx": {
+     "type": "number",
+     "minimum": 80,
+     "description": "`taskGroupPanelWidthPx`（`S-79`）を書く"
+    }
+   },
+   "required": [
+    "kind",
+    "taskGroupPanelWidthPx"
+   ],
+   "additionalProperties": false
+  },
+  {
+   "type": "object",
+   "description": "タスクグループをピン止めする",
+   "properties": {
+    "kind": {
+     "const": "pinTaskGroup"
+    },
+    "taskGroupId": {
+     "type": "string",
+     "format": "uuid",
+     "description": "鍵（`TaskGroup.id`、`AT-51`） —— `pinnedTaskGroupIds`（`S-126`）に足すタスクグループ"
+    }
+   },
+   "required": [
+    "kind",
+    "taskGroupId"
+   ],
+   "additionalProperties": false
+  },
+  {
+   "type": "object",
+   "description": "ピン止めを外す",
+   "properties": {
+    "kind": {
+     "const": "unpinTaskGroup"
+    },
+    "taskGroupId": {
+     "type": "string",
+     "format": "uuid",
+     "description": "鍵（`TaskGroup.id`、`AT-51`） —— `pinnedTaskGroupIds`（`S-126`）から除くタスクグループ"
+    }
+   },
+   "required": [
+    "kind",
+    "taskGroupId"
+   ],
+   "additionalProperties": false
+  },
+  {
+   "type": "object",
+   "description": "全体が収まる倍率と表示位置を置く",
+   "properties": {
+    "kind": {
+     "const": "fitScheduleToScreen"
+    },
+    "zoomX": {
+     "type": "number",
+     "minimum": 0.02,
+     "maximum": 240,
+     "description": "`zoomX`（`S-75`）を書く"
+    },
+    "zoomY": {
+     "type": "number",
+     "minimum": 0.02,
+     "maximum": 240,
+     "description": "`zoomY`（`S-76`）を書く"
+    },
+    "scrollDate": {
+     "type": [
+      "string",
+      "null"
+     ],
+     "pattern": "^-?\\d{4,}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})?$",
+     "description": "`scrollDate`（`S-77`）を書く"
+    },
+    "scrollTaskGroupId": {
+     "type": [
+      "string",
+      "null"
+     ],
+     "format": "uuid",
+     "description": "`scrollTaskGroupId`（`S-78`）を書く"
+    },
+    "scrollDateFraction": {
+     "type": "number",
+     "description": "`scrollDateFraction`（`S-177`）を書く"
+    },
+    "scrollTaskGroupFraction": {
+     "type": "number",
+     "description": "`scrollTaskGroupFraction`（`S-176`）を書く"
+    }
+   },
+   "required": [
+    "kind",
+    "zoomX",
+    "zoomY",
+    "scrollDate",
+    "scrollTaskGroupId",
+    "scrollDateFraction",
+    "scrollTaskGroupFraction"
+   ],
+   "additionalProperties": false
+  },
+  {
+   "type": "object",
+   "description": "隠したタスクグループを除くすべてのタスクグループの木の状態を `auto` へ戻す",
+   "properties": {
+    "kind": {
+     "const": "resetTaskGroupTreeStates"
+    }
+   },
+   "required": [
+    "kind"
+   ],
+   "additionalProperties": false
+  },
+  {
+   "type": "object",
+   "description": "タスクグループの親と並びを変える",
+   "properties": {
+    "kind": {
+     "const": "moveTaskGroup"
+    },
+    "taskGroupId": {
+     "type": "string",
+     "format": "uuid",
+     "description": "鍵（`TaskGroup.id`、`AT-51`）"
+    },
+    "parentId": {
+     "type": [
+      "string",
+      "null"
+     ],
+     "format": "uuid",
+     "description": "`TaskGroup.parentId`（`AT-52`）を書く"
+    },
+    "order": {
+     "type": "integer",
+     "description": "`TaskGroup.order`（`AT-55`）を書く"
+    }
+   },
+   "required": [
+    "kind",
+    "taskGroupId",
+    "parentId",
+    "order"
+   ],
+   "additionalProperties": false
+  },
+  {
+   "type": "object",
+   "description": "表示の倍率の段を変える",
+   "properties": {
+    "kind": {
+     "const": "setDisplayScale"
+    },
+    "displayScale": {
+     "enum": [
+      50,
+      67,
+      75,
+      90,
+      100,
+      110,
+      125,
+      150,
+      175,
+      200
+     ],
+     "description": "`displayScale`（`S-234`）を書く"
+    }
+   },
+   "required": [
+    "kind",
+    "displayScale"
+   ],
+   "additionalProperties": false
+  },
+  {
+   "type": "object",
+   "description": "全体表示時の期間を置く・動かす（開始日と終了日を 1 度に）",
+   "properties": {
+    "kind": {
+     "const": "setFitSpan"
+    },
+    "fitSpanStart": {
+     "type": [
+      "string",
+      "null"
+     ],
+     "pattern": "^-?\\d{4,}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})?$",
+     "description": "`fitSpanStart`（`S-518`）を書く"
+    },
+    "fitSpanFinish": {
+     "type": [
+      "string",
+      "null"
+     ],
+     "pattern": "^-?\\d{4,}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})?$",
+     "description": "`fitSpanFinish`（`S-519`）を書く"
+    }
+   },
+   "required": [
+    "kind",
+    "fitSpanStart",
+    "fitSpanFinish"
+   ],
+   "additionalProperties": false
+  },
+  {
+   "type": "object",
+   "description": "全体表示時の期間を消す（固定していれば固定も外す —— 表 T-367 の `FX-5`）",
+   "properties": {
+    "kind": {
+     "const": "clearFitSpan"
+    }
+   },
+   "required": [
+    "kind"
+   ],
+   "additionalProperties": false
+  },
+  {
+   "type": "object",
+   "description": "全体表示時の期間を固定する・外す（期間が空なら現在表示中の期間をコピーする —— 表 T-367 の `FX-4`）",
+   "properties": {
+    "kind": {
+     "const": "setFitSpanFixed"
+    },
+    "isFitSpanFixed": {
+     "type": "boolean",
+     "description": "`isFitSpanFixed`（`S-532`）を書く"
+    },
+    "shownStart": {
+     "type": [
+      "string",
+      "null"
+     ],
+     "description": "`string` か `null` —— 今の表示の期間の開始（期間が空なら `S-518` へ写す —— 表 T-367 の `FX-4`）"
+    },
+    "shownFinish": {
+     "type": [
+      "string",
+      "null"
+     ],
+     "description": "`string` か `null` —— 今の表示の期間の終了（期間が空なら `S-519` へ写す —— 同）"
+    }
+   },
+   "required": [
+    "kind",
+    "isFitSpanFixed",
+    "shownStart",
+    "shownFinish"
+   ],
+   "additionalProperties": false
+  },
+  {
+   "type": "object",
+   "description": "タスクグループパネルの幅を固定する・外す",
+   "properties": {
+    "kind": {
+     "const": "setTaskGroupPanelWidthFixed"
+    },
+    "isTaskGroupPanelWidthFixed": {
+     "type": "boolean",
+     "description": "`isTaskGroupPanelWidthFixed`（`S-533`）を書く"
+    }
+   },
+   "required": [
+    "kind",
+    "isTaskGroupPanelWidthFixed"
+   ],
+   "additionalProperties": false
+  },
+  {
+   "type": "object",
+   "description": "表 1 つの見え方（表示の列の値・スケジュールフィルタの入切・列のフィルタ・並べ替え —— `_assets/tbl-settings.md` の 表 T-203 の `S-560` 〜 `S-572`）を置き換える",
+   "properties": {
+    "kind": {
+     "const": "setTableView"
+    },
+    "table": {
+     "enum": [
+      "searchPanel",
+      "delayDiagnosticsReport",
+      "resourceList"
+     ],
+     "description": "`'searchPanel'` ・ `'delayDiagnosticsReport'` ・ `'resourceList'` のどれか —— 見え方を置き換える表（`FR-151` の 表 T-353）"
+    },
+    "view": {
+     "type": "object",
+     "properties": {
+      "visibility": {
+       "type": "object",
+       "properties": {
+        "hiddenTaskUids": {
+         "type": "array",
+         "items": {
+          "type": "integer"
+         },
+         "description": "`integer`の並び で `tableViews.searchPanel.hiddenTaskUids` ／ `tableViews.delayDiagnosticsReport.hiddenTaskUids`（`S-561` ／ `S-565`）を書く —— 隠したタスクの `Task.uid`（検索の表と遅延診断の表が書き、担当リストでは空の並び）"
+        },
+        "hiddenResourceUids": {
+         "type": "array",
+         "items": {
+          "type": "integer"
+         },
+         "description": "`integer`の並び で `tableViews.resourceList.hiddenResourceUids`（`S-569`）を書く —— 隠した担当の `Resource.uid`（担当リストだけが書き、ほかの表では空の並び）"
+        },
+        "isUnassignedHidden": {
+         "type": "boolean",
+         "description": "`boolean` で `tableViews.resourceList.isUnassignedHidden`（`S-570`）を書く —— 担当の無い行を隠すか（担当リストだけが書く）"
+        },
+        "isScheduleFilterApplied": {
+         "type": "boolean",
+         "description": "`boolean` で `tableViews.searchPanel.isScheduleFilterApplied` ／ `tableViews.delayDiagnosticsReport.isScheduleFilterApplied` ／ `tableViews.resourceList.isScheduleFilterApplied`（`S-560` ／ `S-564` ／ `S-568`）を書く —— スケジュールフィルタを掛けているか"
+        }
+       },
+       "required": [
+        "hiddenTaskUids",
+        "hiddenResourceUids",
+        "isUnassignedHidden",
+        "isScheduleFilterApplied"
+       ],
+       "additionalProperties": false,
+       "description": "`TableVisibility` —— 表示の列の値"
+      },
+      "columnFilters": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "column",
+         "hiddenValues",
+         "fromDate",
+         "toDate"
+        ],
+        "additionalProperties": false,
+        "properties": {
+         "column": {
+          "type": "string"
+         },
+         "hiddenValues": {
+          "type": "array",
+          "items": {
+           "type": "string"
+          }
+         },
+         "fromDate": {
+          "type": [
+           "string",
+           "null"
+          ],
+          "pattern": "^-?\\d{4,}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})?$"
+         },
+         "toDate": {
+          "type": [
+           "string",
+           "null"
+          ],
+          "pattern": "^-?\\d{4,}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})?$"
+         }
+        }
+       },
+       "description": "`ColumnFilter`（表 T-372）の並び で `tableViews.searchPanel.columnFilters` ／ `tableViews.delayDiagnosticsReport.columnFilters` ／ `tableViews.resourceList.columnFilters`（`S-562` ／ `S-566` ／ `S-571`）を書く —— 列のフィルタ"
+      },
+      "sort": {
+       "type": [
+        "object",
+        "null"
+       ],
+       "required": [
+        "column",
+        "direction"
+       ],
+       "additionalProperties": false,
+       "properties": {
+        "column": {
+         "type": "string"
+        },
+        "direction": {
+         "enum": [
+          "ascending",
+          "descending"
+         ]
+        }
+       },
+       "description": "`ColumnSort`（表 T-372） か `null` で `tableViews.searchPanel.sort` ／ `tableViews.delayDiagnosticsReport.sort` ／ `tableViews.resourceList.sort`（`S-563` ／ `S-567` ／ `S-572`）を書く —— 並べ替え"
+      }
+     },
+     "required": [
+      "visibility",
+      "columnFilters",
+      "sort"
+     ],
+     "additionalProperties": false,
+     "description": "`TableView` —— その表の見え方の全部（`S-560` 〜 `S-572`）"
+    }
+   },
+   "required": [
+    "kind",
+    "table",
+    "view"
+   ],
+   "additionalProperties": false
+  },
+  {
+   "type": "object",
+   "description": "見せる基準を変える（換算して適用する）",
+   "properties": {
+    "kind": {
+     "const": "setViewTimeZone"
+    },
+    "viewTimeZone": {
+     "type": [
+      "string",
+      "null"
+     ],
+     "description": "`string` か `null` で `viewTimeZone`（`S-574`）を書く —— 表 T-376 の種が標準時の行の鍵"
+    }
+   },
+   "required": [
+    "kind",
+    "viewTimeZone"
+   ],
+   "additionalProperties": false
+  },
+  {
+   "type": "object",
+   "description": "表示するタイムゾーンを置く（0 〜 4 つ）",
+   "properties": {
+    "kind": {
+     "const": "setDisplayTimeZones"
+    },
+    "displayTimeZones": {
+     "type": "array",
+     "items": {
+      "enum": [
+       "UTC-12:00",
+       "UTC-11:00",
+       "UTC-10:00",
+       "UTC-09:00",
+       "UTC-08:00",
+       "UTC-08:00 DST",
+       "UTC-07:00",
+       "UTC-07:00 DST",
+       "UTC-06:00",
+       "UTC-06:00 DST",
+       "UTC-05:00",
+       "UTC-05:00 DST",
+       "UTC-04:00",
+       "UTC-04:00 DST",
+       "UTC-03:00",
+       "UTC-03:00 DST",
+       "UTC-02:00",
+       "UTC-01:00",
+       "UTC+00:00",
+       "UTC+00:00 DST",
+       "UTC+01:00",
+       "UTC+01:00 DST",
+       "UTC+02:00",
+       "UTC+02:00 DST",
+       "UTC+03:00",
+       "UTC+03:00 DST",
+       "UTC+04:00",
+       "UTC+05:00",
+       "UTC+05:30",
+       "UTC+06:00",
+       "UTC+07:00",
+       "UTC+08:00",
+       "UTC+09:00",
+       "UTC+10:00",
+       "UTC+11:00",
+       "UTC+11:00 DST",
+       "UTC+12:00",
+       "UTC+13:00",
+       "UTC+13:00 DST"
+      ]
+     },
+     "maxItems": 4,
+     "description": "`displayTimeZones`（`S-575`）を書く"
+    }
+   },
+   "required": [
+    "kind",
+    "displayTimeZones"
+   ],
+   "additionalProperties": false
+  },
+  {
+   "type": "object",
+   "description": "時刻を表示するかを置く",
+   "properties": {
+    "kind": {
+     "const": "setTimeOfDayVisible"
+    },
+    "isTimeOfDayVisible": {
+     "type": "boolean",
+     "description": "`isTimeOfDayVisible`（`S-576`）を書く"
+    }
+   },
+   "required": [
+    "kind",
+    "isTimeOfDayVisible"
+   ],
+   "additionalProperties": false
+  },
+  {
+   "type": "object",
+   "description": "タスクグループの木の状態を置く",
+   "properties": {
+    "kind": {
+     "const": "setTaskGroupTreeState"
+    },
+    "taskGroupId": {
+     "type": "string",
+     "format": "uuid",
+     "description": "鍵（`TaskGroup.id`、`AT-51`）"
+    },
+    "treeState": {
+     "enum": [
+      "auto",
+      "collapsed",
+      "expanded",
+      "temporarilyExpanded",
+      "hidden"
+     ],
+     "description": "`TaskGroup.treeState`（`AT-153`）を書く"
+    }
+   },
+   "required": [
+    "kind",
+    "taskGroupId",
+    "treeState"
+   ],
+   "additionalProperties": false
+  },
+  {
+   "type": "object",
+   "description": "タスクグループの編集グループを入れる・消す。\n人だけが使う（表 T-275 の `GP-1`）",
+   "properties": {
+    "kind": {
+     "const": "setTaskGroupEditPermission"
+    },
+    "taskGroupId": {
+     "type": "string",
+     "format": "uuid",
+     "description": "鍵（`TaskGroup.id`、`AT-51`）"
+    },
+    "editPermission": {
+     "type": [
+      "string",
+      "null"
+     ],
+     "description": "`TaskGroup.editPermission`（`AT-144`）を書く"
+    }
+   },
+   "required": [
+    "kind",
+    "taskGroupId",
+    "editPermission"
+   ],
+   "additionalProperties": false
+  },
+  {
+   "type": "object",
+   "description": "段 0 の木の状態を置く",
+   "properties": {
+    "kind": {
+     "const": "setLevelZeroTreeState"
+    },
+    "levelZeroTreeState": {
+     "enum": [
+      "auto",
+      "collapsed"
+     ],
+     "description": "`levelZeroTreeState`（`S-418`）を書く"
+    }
+   },
+   "required": [
+    "kind",
+    "levelZeroTreeState"
+   ],
+   "additionalProperties": false
+  }
+ ]
+}

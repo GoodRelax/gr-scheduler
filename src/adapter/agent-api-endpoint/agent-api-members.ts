@@ -226,7 +226,7 @@ export interface AgentApi {
   /** @purity non-pure */
   focusTask(taskUid: number): AgentFocusOutcome
   /** @purity non-pure */
-  showOnlyTasks(taskUids: readonly number[] | null): AgentWriteOutcome
+  showOnlyTasks(taskUids: readonly number[]): AgentWriteOutcome
 
   /** @purity non-pure */
   watchChanges(receive: AgentChangeReceiver): AgentWatch
@@ -363,7 +363,7 @@ function delayDiagnosticsWithFixes(document: Document, log: DelayFixLogSource | 
 /** @purity pure */
 function shownTasksRefusalOf(snapshot: AgentSnapshot, taskUids: unknown, held: SearchTableView): AgentRefusal | null {
   if (!Array.isArray(taskUids) || taskUids.some((uid) => typeof uid !== 'number')) {
-    return agentRefusal('AM-27', 'malformedRequest', snapshot, 'taskUids is neither null nor a list of numbers', [])
+    return agentRefusal('AM-27', 'malformedRequest', snapshot, 'taskUids is not a list of numbers', [])
   }
   const known = new Set(snapshot.document.schedule.tasks.map((task) => task.uid))
   const unknown = taskUids.filter((uid) => !known.has(uid))
@@ -383,10 +383,10 @@ function searchTableViewWrite(held: SearchTableView, hiddenTaskUids: readonly nu
 // see AM-27, TV-5, TV-6, TV-8, UN-20, FR-100
 // WHY: one setTableView and the TV-6 reveal writes in one step (JDG-1868); WS-1 gets the stamp just read, as AM-16 does.
 /** @purity non-pure */
-function showOnlyTasksThrough(wiring: AgentApiWiring, snapshot: AgentSnapshot, taskUids: readonly number[] | null): AgentWriteOutcome {
+function showOnlyTasksThrough(wiring: AgentApiWiring, snapshot: AgentSnapshot, taskUids: readonly number[]): AgentWriteOutcome {
   const held = snapshot.document.documentSettings.tableViews.searchPanel
   const stamp = snapshot.document.documentStamp
-  if (taskUids === null) {
+  if (Array.isArray(taskUids) && taskUids.length === 0) {
     if (!held.isScheduleFilterApplied) return { ok: true, stamp: frozenCopy(snapshot.documentAsWritten.documentStamp), hasUpdatedSchedule: false }
     return writeThroughTheOnePath(wiring, snapshot, 'AM-27', stamp, [searchTableViewWrite(held, held.hiddenTaskUids, false)])
   }
@@ -945,7 +945,7 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
     focusTask: (taskUid: number): AgentFocusOutcome => focusTaskThrough(wiring, source.readSnapshot(), taskUid),
 
     /** @purity non-pure */
-    showOnlyTasks: (taskUids: readonly number[] | null): AgentWriteOutcome => showOnlyTasksThrough(wiring, source.readSnapshot(), taskUids),
+    showOnlyTasks: (taskUids: readonly number[]): AgentWriteOutcome => showOnlyTasksThrough(wiring, source.readSnapshot(), taskUids),
 
     /** @purity non-pure */
     watchChanges(receive: AgentChangeReceiver): AgentWatch {

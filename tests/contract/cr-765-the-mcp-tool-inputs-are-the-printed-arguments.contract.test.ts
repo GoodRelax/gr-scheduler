@@ -18,7 +18,7 @@ const settled = (text: string): string => text.replace(/\s+/g, ' ')
 const DESIGN = settled(readFileSync(join(SPEC, '_assets', 'design-mcp-relay.md'), 'utf8'))
 
 const RULE_OF_TYPES =
-  '入力の型は TS の型から導く —— `string` は文字列、`number` は数、数の並びか `null` は数の並びか null、名の付いた型はオブジェクト。'
+  "入力の型は TS の型から導く —— `string` は文字列、`number` は数、`boolean` は真偽、数の並びは数の並び、文字列の値の並び（`'a' | 'b'`）は文字列の `enum`、名の付いた型はオブジェクト。"
 const RULE_OF_MEANINGS = '鍵ごとの説明は引数の欄の意味である。'
 const RULE_KEYS_ARE_ARGUMENT_NAMES = '1 つのオブジェクトとし、鍵はそのメンバの引数の名とする'
 const RULE_NOT_BY_HAND =
@@ -41,14 +41,15 @@ interface Schema {
 const WRITE_REQUEST_TOOL = 'applyCommands'
 const WRITE_REQUEST_KEYS = ['expectedStamp', 'commands']
 
-const NUMBER_LIST_OR_NULL = 'readonly number[] | null'
+const NUMBER_LIST = 'readonly number[]'
 
 // see AG-12
 const schemaOf = (argument: PrintedArgument): Schema => {
   if (argument.typeText === 'string') return { type: 'string', description: argument.meaning }
   if (argument.typeText === 'number') return { type: 'number', description: argument.meaning }
-  if (argument.typeText === NUMBER_LIST_OR_NULL) {
-    return { type: ['array', 'null'], items: { type: 'number' }, description: argument.meaning }
+  if (argument.typeText === 'boolean') return { type: 'boolean', description: argument.meaning }
+  if (argument.typeText === NUMBER_LIST) {
+    return { type: 'array', items: { type: 'number' }, description: argument.meaning }
   }
   return { type: 'object', description: argument.meaning }
 }
@@ -130,14 +131,14 @@ describe('mcpToolList: one tool per row of T-107, with the input the argument co
     expect(empty.filter((one) => one.isProperty).map((one) => one.name)).toEqual(['agentApiVersion', 'schemaVersion'])
   })
 
-  it('the seven members with an argument give their keys the types string, object, object, number, number-list-or-null, number, string', () => {
+  it('the seven members with an argument give their keys the types string, object, object, number, number-list, number, string', () => {
     const typesOf = (name: string): unknown[] =>
       Object.values(toolNamed(name).inputSchema.properties as Readonly<Record<string, Schema>>).map((schema) => schema.type)
     expect(typesOf('readSearchRows')).toEqual(['string'])
     expect(typesOf('applyCommands')).toEqual(['object'])
     expect(typesOf('importDocument')).toEqual(['object'])
     expect(typesOf('focusTask')).toEqual(['number'])
-    expect(typesOf('showOnlyTasks')).toEqual([['array', 'null']])
+    expect(typesOf('showOnlyTasks')).toEqual(['array'])
     expect(typesOf('watchChanges')).toEqual(['number'])
     expect(typesOf('postDialogueMessage')).toEqual(['string'])
   })

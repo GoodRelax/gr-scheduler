@@ -25,6 +25,7 @@ const PAGE_HTML = new Uint8Array(
 )
 
 const DOCUMENT_SCHEMA = '{"$schema":"https://json-schema.org/draft/2020-12/schema","title":"test schema"}\n'
+const COMMANDS_SCHEMA = '{"title":"test commands schema"}'
 
 const sleep = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms))
 
@@ -404,6 +405,7 @@ beforeEach(async () => {
     log: (line) => void logLines.push(line),
     pageHtml: PAGE_HTML,
     documentSchema: DOCUMENT_SCHEMA,
+    commandsSchema: COMMANDS_SCHEMA,
   })
 })
 
@@ -435,6 +437,7 @@ describe('SEAM-3 start: where the relay listens and what it tells (AG-12 (1) (7)
       log: () => undefined,
       pageHtml: PAGE_HTML,
       documentSchema: DOCUMENT_SCHEMA,
+      commandsSchema: COMMANDS_SCHEMA,
     })
     try {
       expect(keyOf(second.pageUrl)).not.toBe(keyOf(theRelay().pageUrl))

@@ -203,10 +203,25 @@ describe('on a scratch copy outside the repository: an untouched copy is green, 
     expect(ran.out).toContain('tbl-document-commands.md')
   })
 
-  it('the same rename leaves the MCP tool descriptions drifted', () => {
+  // see AM-7, AG-12
+  // WHY: the keys of a command are no longer in the MCP tool input; they moved into grs-commands.schema.json, which the command generator checks.
+  it('the same rename no longer reaches the MCP tool descriptions but leaves grs-commands.schema.json drifted', () => {
     const copy = scratchCopy()
     editManuscript(copy, (manuscript) => {
       valueOf(manuscript, 'CM-16', 'fadeInDays').name = 'days'
+    })
+    expect(check(copy, DESCRIPTION_GENERATOR).status).toBe(0)
+    const ran = check(copy, GENERATOR)
+    expect(ran.status).toBe(1)
+    expect(ran.out).toContain('grs-commands.schema.json')
+  })
+
+  it('renaming the kind of a command leaves the MCP tool descriptions drifted, the kind enum being in them', () => {
+    const copy = scratchCopy()
+    editManuscript(copy, (manuscript) => {
+      const row = manuscript.rows.find((one) => one.id === 'CM-16')
+      if (row === undefined) throw new Error('the manuscript has no CM-16')
+      row.name = 'setTaskFadeInDaysRenamed'
     })
     const ran = check(copy, DESCRIPTION_GENERATOR)
     expect(ran.status).toBe(1)

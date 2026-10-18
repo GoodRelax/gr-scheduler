@@ -87,6 +87,7 @@
   "docs/spec/_source/agent-api-members.schema.json",
   "docs/spec/_source/document-commands.schema.json",
   "docs/spec/_source/erd.schema.json",
+  "docs/spec/_source/grs-commands.schema.json",
   "docs/spec/_source/grs-json-changes.schema.json",
   "docs/spec/_source/mspdi-custom-fields.schema.json",
   "docs/spec/_source/notice-reasons.schema.json",
@@ -546,7 +547,7 @@
   {
    "from": "docs/spec/_source/agent-api-members.json",
    "to": "docs/spec/01-04-requirements.md",
-   "count": 137
+   "count": 141
   },
   {
    "from": "docs/spec/_source/agent-api-members.json",
@@ -561,7 +562,7 @@
   {
    "from": "docs/spec/_source/agent-api-members.json",
    "to": "docs/spec/_source/document-commands.json",
-   "count": 3
+   "count": 4
   },
   {
    "from": "docs/spec/_source/agent-api-members.json",
@@ -807,6 +808,36 @@
    "from": "docs/spec/_source/fig-mcp-relay.json",
    "to": "docs/spec/_assets/tbl-glossary.md",
    "count": 2
+  },
+  {
+   "from": "docs/spec/_source/grs-commands.schema.json",
+   "to": "docs/spec UIDs",
+   "count": 11
+  },
+  {
+   "from": "docs/spec/_source/grs-commands.schema.json",
+   "to": "docs/spec/01-04-requirements.md",
+   "count": 39
+  },
+  {
+   "from": "docs/spec/_source/grs-commands.schema.json",
+   "to": "docs/spec/_source/agent-api-members.json",
+   "count": 1
+  },
+  {
+   "from": "docs/spec/_source/grs-commands.schema.json",
+   "to": "docs/spec/_source/document-commands.json",
+   "count": 4
+  },
+  {
+   "from": "docs/spec/_source/grs-commands.schema.json",
+   "to": "docs/spec/_source/erd.json",
+   "count": 173
+  },
+  {
+   "from": "docs/spec/_source/grs-commands.schema.json",
+   "to": "docs/spec/_source/settings.json",
+   "count": 60
   },
   {
    "from": "docs/spec/_source/grs-json-changes.json",

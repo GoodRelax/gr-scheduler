@@ -32,6 +32,8 @@ export interface McpRelayOptions {
   readonly pageHtml: Uint8Array
   readonly documentSchema: string
   // see AG-12
+  readonly commandsSchema: string
+  // see AG-12
   readonly callDeadlineMs?: number
 }
 
@@ -73,12 +75,32 @@ const METHOD_NOT_FOUND = -32601
 const INVALID_PARAMS = -32602
 const INTERNAL_ERROR = -32603
 const RESOURCE_NOT_FOUND = -32002
-const SCHEMA_RESOURCE_URI = 'grs-relay://grs-document.schema.json'
-const SCHEMA_RESOURCE_NAME = 'grs-document.schema.json'
-const SCHEMA_RESOURCE_TITLE = 'GRS JSON document schema'
-const SCHEMA_RESOURCE_DESCRIPTION =
-  'The JSON Schema of the GRS JSON document, the same version as the page this relay serves.'
 const SCHEMA_MIME_TYPE = 'application/schema+json'
+// see AG-12
+// WHY: the two resources of design-mcp-relay.md 3.1, the document's first; `text` names the option holding the bytes.
+interface SchemaResource {
+  readonly uri: string
+  readonly name: string
+  readonly title: string
+  readonly description: string
+  readonly text: 'documentSchema' | 'commandsSchema'
+}
+const SCHEMA_RESOURCES: readonly SchemaResource[] = [
+  {
+    uri: 'grs-relay://grs-document.schema.json',
+    name: 'grs-document.schema.json',
+    title: 'GRS JSON document schema',
+    description: 'The JSON Schema of the GRS JSON document, the same version as the page this relay serves.',
+    text: 'documentSchema',
+  },
+  {
+    uri: 'grs-relay://grs-commands.schema.json',
+    name: 'grs-commands.schema.json',
+    title: 'GRS document commands schema',
+    description: 'The JSON Schema of the commands applyCommands takes: every command kind with its fields.',
+    text: 'commandsSchema',
+  },
+]
 const KEY_PRESENTED = 'relayKeyPresented'
 const CHANGE_NOTICED = 'changeNoticed'
 const CANCELED = 'notifications/cancelled'
@@ -600,24 +622,25 @@ function initializeResultOf(params: unknown): Record<string, unknown> {
 
 // see AG-12
 /** @purity pure */
-function schemaResourceOf(schema: string): Record<string, unknown> {
+function schemaResourceOf(resource: SchemaResource, options: McpRelayOptions): Record<string, unknown> {
   return {
-    uri: SCHEMA_RESOURCE_URI,
-    name: SCHEMA_RESOURCE_NAME,
-    title: SCHEMA_RESOURCE_TITLE,
-    description: SCHEMA_RESOURCE_DESCRIPTION,
+    uri: resource.uri,
+    name: resource.name,
+    title: resource.title,
+    description: resource.description,
     mimeType: SCHEMA_MIME_TYPE,
-    size: Buffer.byteLength(schema, 'utf8'),
+    size: Buffer.byteLength(options[resource.text], 'utf8'),
   }
 }
 
 // see AG-12
 /** @purity pure */
-function resourceReadReplyOf(schema: string, params: unknown): McpReply {
+function resourceReadReplyOf(options: McpRelayOptions, params: unknown): McpReply {
   const uri = isPlainRecord(params) ? params['uri'] : undefined
   if (typeof uri !== 'string') return { error: { code: INVALID_PARAMS, message: 'resources/read needs a uri' } }
-  if (uri !== SCHEMA_RESOURCE_URI) return { error: { code: RESOURCE_NOT_FOUND, message: `Resource not found: ${uri}` } }
-  return { result: { contents: [{ uri, mimeType: SCHEMA_MIME_TYPE, text: schema }] } }
+  const resource = SCHEMA_RESOURCES.find((one) => one.uri === uri)
+  if (resource === undefined) return { error: { code: RESOURCE_NOT_FOUND, message: `Resource not found: ${uri}` } }
+  return { result: { contents: [{ uri, mimeType: SCHEMA_MIME_TYPE, text: options[resource.text] }] } }
 }
 
 /** @purity non-pure */
@@ -632,11 +655,11 @@ function mcpReplyOf(state: RelayState, id: unknown, method: string, params: unkn
     case 'tools/call':
       return toolCallReplyOf(state, id, params)
     case 'resources/list':
-      return { result: { resources: [schemaResourceOf(state.options.documentSchema)] } }
+      return { result: { resources: SCHEMA_RESOURCES.map((one) => schemaResourceOf(one, state.options)) } }
     case 'resources/templates/list':
       return { result: { resourceTemplates: [] } }
     case 'resources/read':
-      return resourceReadReplyOf(state.options.documentSchema, params)
+      return resourceReadReplyOf(state.options, params)
     default:
       return { error: { code: METHOD_NOT_FOUND, message: `Unknown method: ${method}` } }
   }

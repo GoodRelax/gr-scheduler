@@ -284,6 +284,7 @@ beforeEach(async () => {
     log: () => undefined,
     pageHtml: PAGE_HTML,
     documentSchema: '{}',
+    commandsSchema: '{}',
   })
 })
 
