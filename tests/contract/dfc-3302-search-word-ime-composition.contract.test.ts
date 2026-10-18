@@ -19,7 +19,7 @@ import {
   advanceScreenSession,
   emptyScreenSession,
   emptySearchPanelSession,
-  EVERY_ROW_SHOWN,
+  NO_ROW_CHECKED,
   type ScreenSession,
   type SessionEvent,
   type TableView,
@@ -43,7 +43,7 @@ Object.defineProperty(FakeElement.prototype, 'parentElement', {
 })
 
 const CANVAS: ScreenRect = { x: 0, y: 56, width: 1000, height: 600 }
-const NO_VIEW: TableView = { visibility: EVERY_ROW_SHOWN, columnFilters: [], sort: null }
+const NO_VIEW: TableView = { visibility: NO_ROW_CHECKED, columnFilters: [], sort: null }
 const SHOWN: ScreenSession = advanceScreenSession(emptyScreenSession, { type: 'searchEntryPressed' } as unknown as SessionEvent)
   .state
 
