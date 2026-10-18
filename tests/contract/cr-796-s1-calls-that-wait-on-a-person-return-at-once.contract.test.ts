@@ -3,7 +3,7 @@
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 
-import { describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import {
   agentApiMembers,
@@ -226,7 +226,15 @@ describe('CR-796 relayTimedOutResult(member, deadlineMs): the pure answer for a 
   })
 })
 
-describe('CR-796 openAgentApiRelayLink(api, place, openSocket, onLost): RS-90 when the link drops (AG-12 (2))', () => {
+describe('CR-796 / CR-808 openAgentApiRelayLink(api, place, openSocket, onLost): RS-90 only when no reconnect connects (AG-12 (2))', () => {
+  // WHY: CR-808 -- a drop is first answered by up to four reconnect tries (1 s, 2 s, 4 s, 8 s), so time must be ours.
+  beforeEach(() => {
+    vi.useFakeTimers()
+  })
+  afterEach(() => {
+    vi.useRealTimers()
+  })
+
   type Listener = (event: unknown) => void
 
   class FakeSocket {
@@ -263,7 +271,15 @@ describe('CR-796 openAgentApiRelayLink(api, place, openSocket, onLost): RS-90 wh
     }
   }
 
-  const openLink = (): { link: { close(): void } | null; socket: FakeSocket; lost: number[] } => {
+  // WHY: a retry socket that never opens and closes is a try that did not connect (design 5).
+  const failAllTries = (sockets: FakeSocket[]): void => {
+    for (const delayMs of [1000, 2000, 4000, 8000]) {
+      vi.advanceTimersByTime(delayMs)
+      sockets[sockets.length - 1]?.emit('close', { code: 1006 })
+    }
+  }
+
+  const openLink = (): { link: { close(): void } | null; socket: FakeSocket; sockets: FakeSocket[]; lost: number[] } => {
     const sockets: FakeSocket[] = []
     const lost: number[] = []
     const open = openAgentApiRelayLink as unknown as (
@@ -284,22 +300,27 @@ describe('CR-796 openAgentApiRelayLink(api, place, openSocket, onLost): RS-90 wh
     )
     const socket = sockets[0]
     if (socket === undefined) throw new Error('no socket was opened')
-    return { link, socket, lost }
+    return { link, socket, sockets, lost }
   }
 
-  it('AG-12 (2): a socket that had opened and then closes -> onLost is called once', () => {
-    const { socket, lost } = openLink()
+  it('AG-12 (2) / CR-808: a socket that had opened and then closes -> onLost is called once, after all four reconnect tries fail', () => {
+    const { socket, sockets, lost } = openLink()
     socket.emit('open')
     socket.emit('close')
+    expect(lost).toEqual([])
+    failAllTries(sockets)
+    expect(sockets).toHaveLength(5)
     expect(lost).toHaveLength(1)
   })
 
-  it('AG-12 (2): an error followed by the close still calls onLost once, not twice', () => {
-    const { socket, lost } = openLink()
+  it('AG-12 (2) / CR-808: an error followed by the close still calls onLost once, not twice', () => {
+    const { socket, sockets, lost } = openLink()
     socket.emit('open')
     socket.emit('error')
     socket.emit('close')
     socket.emit('close')
+    expect(lost).toEqual([])
+    failAllTries(sockets)
     expect(lost).toHaveLength(1)
   })
 
@@ -346,7 +367,7 @@ describe('CR-796 spec text: RS-90 and AG-12 (6)', () => {
 describe('AG-12 (2) (6) -- the clauses slice 1 added, held verbatim', () => {
   const requirements = readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8')
   const clauses = [
-    '繋いでいた取次との接続が切れたら、ページは 表 T-233 の `RS-90` を告げること（MUST）',
+    'どの試みも繋がらなかったときだけ 表 T-233 の `RS-90` を告げること（MUST）',
     '問いを出したら答えを待たずに値（`_assets/tbl-agent-api-members.md` の 表 T-400 の `AV-15` の「人に問うたとき」）で返すこと（MUST）',
     '人が答えた後の書き込みは人の書き込みとして刻印に残し（`FR-063`）、本表の `AG-6` の監視で呼んだ側へ届けること（MUST）',
     '取次は、ページが答えない呼び出しに、AI のアプリの要求の時間切れより短い締め切り（`_assets/design-mcp-relay.md` の 5）で拒否を値で返すこと（MUST）',
