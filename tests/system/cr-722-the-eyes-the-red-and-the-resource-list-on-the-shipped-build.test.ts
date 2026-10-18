@@ -234,6 +234,20 @@ async function checkListedIn(page: Page, window: string, word: string): Promise<
   await settle(page)
 }
 
+// WHY: once any row is checked the heading box clears every row (SQ-10, CR-801), so a second word is checked row by row.
+/** @purity non-pure */
+async function checkRowIn(page: Page, window: string, word: string): Promise<void> {
+  await press(page, `${window} input`)
+  await page.keyboard.press('Control+a')
+  await page.keyboard.type(word)
+  await settle(page)
+  await press(page, `${window} [data-visibility-key]`)
+  await press(page, `${window} input`)
+  await page.keyboard.press('Control+a')
+  await page.keyboard.press('Backspace')
+  await settle(page)
+}
+
 /** @purity non-pure */
 async function openSearch(page: Page): Promise<void> {
   await page.keyboard.press(OPEN_SEARCH)
@@ -383,7 +397,7 @@ test.describe('CR-722 / FR-151 T-353 / FR-099 T-370 on the shipped build', () =>
       expect(await textOf(page, BAND), 'no bar before an eye').toBeNull()
       await openSearch(page)
       await checkListedIn(page, PANEL, NAMES[DELTA] ?? '')
-      await checkListedIn(page, PANEL, NAMES[ECHO] ?? '')
+      await checkRowIn(page, PANEL, NAMES[ECHO] ?? '')
       await press(page, `${PANEL} [data-icon="${EYE}"]`)
       const one = (await textOf(page, BAND)) ?? ''
       expect(sentencesOf(['Search Panel'], ALL.length, 2).some((sentence) => one.includes(sentence)), `the bar reads ${one}`).toBe(true)
@@ -438,7 +452,7 @@ test.describe('CR-722 / FR-151 T-353 / FR-099 T-370 on the shipped build', () =>
       const { page } = stage
       await openSearch(page)
       await checkListedIn(page, PANEL, SATO)
-      await checkListedIn(page, PANEL, NAMES[ECHO] ?? '')
+      await checkRowIn(page, PANEL, NAMES[ECHO] ?? '')
       await press(page, `${PANEL} [data-icon="${EYE}"]`)
       expect((await readShown(page)).drawnTaskUids).toEqual([ALPHA, CHARLIE, ECHO])
       await press(page, `${PANEL} [data-search-task="${String(BRAVO)}"]`)

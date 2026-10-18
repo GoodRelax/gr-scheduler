@@ -79,9 +79,9 @@ const TV_13_UNASSIGNED = '（担当なし）の行も、初めはチェックが
 const SV_7_NO_ENTRANCE = '⭐ [表示] の列の見出しには `IC-122` を置かず、見出しのチェックボックスだけを置く（`SQ-10` —— 利用者が定めた）。'
 const SV_7_NO_GREEN = '[表示] の列は列のフィルタを持たないので、その見出しのセルを本段の終わりの緑で塗ることは無い。'
 const SQ_10_HEADING_STATES =
-  '見出しのセルは、一覧に出ている行がすべて入っている・一部・1 つも入っていない の 3 つの状態のチェックボックスだけである —— 状態は一覧に出ている行から読み、初めは 1 つも入っていない。'
-const SQ_10_HEADING_ADD = '見出しのチェックボックスを押すと、一覧に出ている行のうち入っていない行があれば、一覧に出ている行をすべて入れ、一覧に出ていない行は変えない。'
-const SQ_10_HEADING_CLEAR = '一覧に出ている行がすべて入っていれば、表のすべての行（語や列のフィルタで一覧に出ていない行も）のチェックを外す（利用者が定めた）。'
+  '見出しのセルは、入っている・空 の 2 つの状態のチェックボックスだけである —— 表の行のどれか 1 つにでもチェックが入っていれば、その行が一覧に出ていても出ていなくても入っているとし、1 つも無ければ空とする（初めは空 —— 利用者が定めた）。'
+const SQ_10_HEADING_ADD = '空のときに押すと、一覧に出ている行をすべて入れ、一覧に出ていない行は変えない。'
+const SQ_10_HEADING_CLEAR = '入っているときに押すと、表のすべての行（語や列のフィルタで一覧に出ていない行も）のチェックを外す（利用者が定めた）。'
 const SJ_0_CHECK = '検索の表とレポートの表で、そのタスクの行だけを「表示」にし（チェックを入れ）'
 const S_562_NONE = '表示の列（表 T-331 の `SQ-10`・表 T-347 の `DT-8`・表 T-371 の `RQ-1`）は列のフィルタを持たない（`SV-7`）'
 
@@ -344,8 +344,8 @@ describe(`FR-151 T-353 TV-2 / TV-13 -- ${TV_2_STARTS} (${TV_13_UNASSIGNED})`, ()
     expect(rows.every((one) => one.isShown === false)).toBe(true)
   })
 
-  it('SQ-10: the heading box reads none of the listed rows in', () => {
-    expect(searchViewOf(searchPane()).showHeading).toBe('none')
+  it('SQ-10: the heading box reads empty', () => {
+    expect(searchViewOf(searchPane()).showHeading).toBe('empty')
   })
 
   it('DT-8: every row of the report reads unchecked before anything is pressed', () => {
@@ -585,7 +585,7 @@ describe(`FR-151 T-330 SV-7 -- ${SV_7_NO_ENTRANCE.slice(0, 40)}`, () => {
   })
 })
 
-// WHY: the box's second press (isShown false, isHeading) clears every row; the first adds the listed rows, so a case names the listed keys as the drawn box would.
+// WHY: CR-801 -- an empty box raises isShown true (adds the listed rows), a checked box raises isShown false (clears every row); a case names the listed keys as the drawn box would.
 const headingChange = (keys: readonly (number | 'unassigned')[], isShown: boolean): SearchFilterChange =>
   ({ kind: 'shown', column: 'SQ-10', keys, isShown, isHeading: true }) as unknown as SearchFilterChange
 
@@ -596,19 +596,23 @@ describe(`FR-151 T-331 SQ-10 -- ${SQ_10_HEADING_ADD.slice(0, 30)} (the Search Pa
   it('the heading box checks every listed row from an unchecked start', () => {
     const after = press(searchPane(), true)
     expect(sorted(after.view.visibility.shownTaskUids)).toEqual(ALL_TASKS)
-    expect(searchViewOf(after).showHeading).toBe('all')
+    expect(searchViewOf(after).showHeading).toBe('checked')
   })
 
-  it('some listed rows checked: the press checks the rest of the listed rows', () => {
+  // WHY: CR-801 -- one checked row is enough for a checked box, so the host raises isShown false and the press clears the table.
+  it('one listed row checked: the box is checked and the press clears every row', () => {
     const some = searchPane(viewWith(startOf('searchPanel'), { shownTaskUids: [ALPHA] }))
-    expect(searchViewOf(some).showHeading, 'premise: some listed rows are in').toBe('some')
-    expect(sorted(press(some, true).view.visibility.shownTaskUids)).toEqual(ALL_TASKS)
+    expect(searchViewOf(some).showHeading).toBe('checked')
+    const after = press(some, false)
+    expect(after.view.visibility.shownTaskUids).toEqual([])
+    expect(searchViewOf(after).showHeading).toBe('empty')
   })
 
-  it('with a word, the press checks the listed rows and leaves the rows the word keeps out as they were', () => {
-    const narrowed = searchPane(viewWith(startOf('searchPanel'), { shownTaskUids: [BRAVO] }), 'alpha')
+  it('with a word and nothing checked, the press checks the listed rows only', () => {
+    const narrowed = searchPane(startOf('searchPanel'), 'alpha')
     expect(listedOf(narrowed), 'premise: the word lists one row').toEqual([ALPHA])
-    expect(sorted(press(narrowed, true).view.visibility.shownTaskUids)).toEqual([ALPHA, BRAVO])
+    expect(searchViewOf(narrowed).showHeading, 'premise: the box is empty').toBe('empty')
+    expect(sorted(press(narrowed, true).view.visibility.shownTaskUids)).toEqual([ALPHA])
   })
 
   it('with a column filter, the press leaves the rows the filter keeps out as they were', () => {
@@ -624,7 +628,7 @@ describe(`FR-151 T-331 SQ-10 -- ${SQ_10_HEADING_ADD.slice(0, 30)} (the Search Pa
   it('every listed row checked: the press clears every row of the table, the rows the word keeps out of the list as well', () => {
     const all = searchPane(viewWith(startOf('searchPanel'), { shownTaskUids: ALL_TASKS }), 'alpha')
     expect(listedOf(all), 'premise: the word lists one row').toEqual([ALPHA])
-    expect(searchViewOf(all).showHeading, 'premise: every listed row is in').toBe('all')
+    expect(searchViewOf(all).showHeading, 'premise: the box is checked').toBe('checked')
     expect(press(all, false).view.visibility.shownTaskUids).toEqual([])
   })
 
@@ -638,10 +642,13 @@ describe(`FR-151 T-331 SQ-10 -- ${SQ_10_HEADING_ADD.slice(0, 30)} (the Search Pa
     expect(press(filtered, false).view.visibility.shownTaskUids).toEqual([])
   })
 
-  it('the unlisted rows alone checked: the heading reads empty and the press checks the listed rows', () => {
+  it('the unlisted rows alone checked: the heading reads checked and the press clears them', () => {
     const outside = searchPane(viewWith(startOf('searchPanel'), { shownTaskUids: [BRAVO, CHARLIE] }), 'alpha')
-    expect(searchViewOf(outside).showHeading).toBe('none')
-    expect(sorted(press(outside, true).view.visibility.shownTaskUids)).toEqual([ALPHA, BRAVO, CHARLIE])
+    expect(listedOf(outside), 'premise: the word lists one row, unchecked').toEqual([ALPHA])
+    expect(searchViewOf(outside).showHeading).toBe('checked')
+    const after = press(outside, false)
+    expect(after.view.visibility.shownTaskUids).toEqual([])
+    expect(searchViewOf(after).showHeading).toBe('empty')
   })
 
   it('check then clear returns to an empty list', () => {
@@ -677,14 +684,26 @@ describe(`FR-134 T-347 DT-8 -- ${SQ_10_HEADING_ADD.slice(0, 30)} (the report)`, 
   })
 
   it('the heading box checks every listed row of the report', () => {
-    expect(sorted(press(reportPane(), true).visibility.shownTaskUids)).toEqual(sorted(EVERY))
+    const after = press(reportPane(), true)
+    expect(sorted(after.visibility.shownTaskUids)).toEqual(sorted(EVERY))
+    expect(reportViewOf({ window: reportPane().window, view: after }).showHeading).toBe('checked')
   })
 
-  it('with a word, the press checks the listed rows and leaves the rows the word keeps out as they were', () => {
-    const kept = EVERY.find((uid) => uid !== listedOf(reportPane(undefined, 'alpha'))[0]) ?? -1
+  it('with a word and nothing checked, the press checks the listed rows only', () => {
+    const narrowed = reportPane(startOf('delayDiagnosticsReport'), 'alpha')
+    expect(reportViewOf(narrowed).showHeading, 'premise: the box is empty').toBe('empty')
+    expect(sorted(press(narrowed, true).visibility.shownTaskUids)).toEqual(sorted(listedOf(narrowed)))
+  })
+
+  // WHY: CR-801 -- a task the word keeps out of the report still counts, so the box is checked and the press clears it.
+  it('a row the word keeps out checked alone: the box is checked and the press clears it', () => {
+    const kept = EVERY.find((uid) => !listedOf(reportPane(undefined, 'alpha')).includes(uid)) ?? -1
     const narrowed = reportPane(viewWith(startOf('delayDiagnosticsReport'), { shownTaskUids: [kept] }), 'alpha')
-    const after = press(narrowed, true).visibility.shownTaskUids
-    expect(sorted(after)).toEqual(sorted([...new Set([kept, ...listedOf(narrowed)])]))
+    expect(listedOf(narrowed), 'premise: the checked task is not listed').not.toContain(kept)
+    expect(reportViewOf(narrowed).showHeading).toBe('checked')
+    const after = press(narrowed, false)
+    expect(after.visibility.shownTaskUids).toEqual([])
+    expect(reportViewOf({ window: narrowed.window, view: after }).showHeading).toBe('empty')
   })
 
   it('every listed row checked: the press clears every row of the report, the rows the word keeps out as well', () => {
@@ -713,15 +732,31 @@ describe(`FR-099 T-371 RQ-1 -- ${SQ_10_HEADING_ADD.slice(0, 30)} (the Resource L
     const after = press(listPane(), true)
     expect(sorted(after.visibility.shownResourceUids)).toEqual(ALL_RESOURCES)
     expect(after.visibility.isUnassignedShown).toBe(true)
+    expect(listViewOf({ window: listPane().window, view: after }).showHeading).toBe('checked')
   })
 
-  it('with a word, the press checks the listed rows and leaves the rows the word keeps out as they were', () => {
-    const narrowed = listPane(viewWith(startOf('resourceList'), { shownResourceUids: [TANAKA] }), 'Sato')
+  it('with a word and nothing checked, the press checks the listed rows only', () => {
+    const narrowed = listPane(startOf('resourceList'), 'Sato')
     const listed = listedOf(narrowed)
     expect(listed, 'premise: the word keeps Tanaka out').not.toContain(TANAKA)
+    expect(listViewOf(narrowed).showHeading, 'premise: the box is empty').toBe('empty')
     const after = press(narrowed, true)
-    expect(sorted(after.visibility.shownResourceUids)).toEqual(sorted([TANAKA, ...listed.filter((key): key is number => key !== UNASSIGNED)]))
+    expect(sorted(after.visibility.shownResourceUids)).toEqual(sorted(listed.filter((key): key is number => key !== UNASSIGNED)))
     expect(after.visibility.isUnassignedShown).toBe(listed.includes(UNASSIGNED))
+  })
+
+  // WHY: CR-801 -- a resource the word keeps out of the list still counts, so the box is checked and the press clears it.
+  it('a resource the word keeps out checked alone: the box is checked and the press clears it', () => {
+    const narrowed = listPane(viewWith(startOf('resourceList'), { shownResourceUids: [TANAKA] }), 'Sato')
+    expect(listedOf(narrowed), 'premise: the word keeps Tanaka out').not.toContain(TANAKA)
+    expect(listViewOf(narrowed).showHeading).toBe('checked')
+    const after = press(narrowed, false)
+    expect(after.visibility.shownResourceUids).toEqual([])
+    expect(after.visibility.isUnassignedShown).toBe(false)
+  })
+
+  it('only the (Unassigned) row checked: the box is checked', () => {
+    expect(listViewOf(listPane(viewWith(startOf('resourceList'), { isUnassignedShown: true }))).showHeading).toBe('checked')
   })
 
   it('every listed row checked: the press clears every resource and the (Unassigned) row, the rows the word keeps out as well', () => {

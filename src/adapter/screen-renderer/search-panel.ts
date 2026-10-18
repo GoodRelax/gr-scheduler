@@ -185,7 +185,7 @@ export interface SearchPanelView {
   readonly jumpAt?: number
   readonly glyphAt?: number | null
   readonly showAt?: number | null
-  readonly showHeading?: 'all' | 'some' | 'none'
+  readonly showHeading?: 'checked' | 'empty'
   readonly entryRefusals?: readonly EntryRefusal[]
 }
 
@@ -387,7 +387,7 @@ export function searchPanelFromSession(
     jumpAt: TABLE_COLUMNS[panel.table].indexOf(JUMP_COLUMN[panel.table]),
     glyphAt: panel.table === 'tasks' ? TABLE_COLUMNS.tasks.indexOf(STATUS_COLUMN) : null,
     showAt: panel.table === 'tasks' ? TABLE_COLUMNS.tasks.indexOf(VISIBILITY_COLUMN) : null,
-    showHeading: visibilityHeadingOf(rows),
+    showHeading: visibilityHeadingOf(readiness),
     entryRefusals: panel.table === 'tasks' ? scheduleFilterRefusalsOf(scheduleFilter, readiness, language) : [],
   }
 }

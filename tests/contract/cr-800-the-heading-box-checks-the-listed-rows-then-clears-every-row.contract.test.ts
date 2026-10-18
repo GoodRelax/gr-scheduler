@@ -1,4 +1,4 @@
-// CR-800 spec-only contract: the heading cell of the check column holds a box and no funnel (SQ-10, SV-7); the box reads the listed rows (all / some / none, none at first); pressing it while some or none of the listed rows are checked checks the listed rows and leaves the rows kept out of view as they were, and pressing it while every listed row is checked clears every row of the table, the unlisted ones and the (Unassigned) row included (SQ-10, DT-8, RQ-1); the eye is off only while no row is checked (TV-5, IC-143, JDG-2820, JDG-2825); one press is one view change (TV-6, UN-20).
+// CR-800 / CR-801 spec-only contract: the heading cell of the check column holds a box and no funnel (SQ-10, SV-7); the box is checked while any row of the table is checked, listed or kept out of view, and empty when none is (empty at first); pressing it while empty checks the listed rows and leaves the rows kept out of view as they were, and pressing it while checked clears every row of the table, the unlisted ones and the (Unassigned) row included (SQ-10, DT-8, RQ-1); the eye is off only while no row is checked (TV-5, IC-143, JDG-2820, JDG-2825); one press is one view change (TV-6, UN-20).
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -46,7 +46,7 @@ type Loose = Record<string, unknown>
 type TableName = 'searchPanel' | 'delayDiagnosticsReport' | 'resourceList'
 type Visibility = TableView['visibility']
 type Key = number | 'unassigned'
-type Heading = 'all' | 'some' | 'none'
+type Heading = 'checked' | 'empty'
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
 const read = (...parts: string[]): string => unbroken(readFileSync(join(SPEC, ...parts), 'utf8'))
@@ -67,10 +67,12 @@ const found = <T>(value: T | undefined | null, what: string): T => {
   return value
 }
 
-const SQ_10_STATES = '見出しのセルは、一覧に出ている行がすべて入っている・一部・1 つも入っていない の 3 つの状態のチェックボックスだけである'
-const SQ_10_FIRST = '初めは 1 つも入っていない'
-const SQ_10_ADD = '一覧に出ている行のうち入っていない行があれば、一覧に出ている行をすべて入れ、一覧に出ていない行は変えない'
-const SQ_10_CLEAR = '一覧に出ている行がすべて入っていれば、表のすべての行（語や列のフィルタで一覧に出ていない行も）のチェックを外す'
+const SQ_10_STATES = '見出しのセルは、入っている・空 の 2 つの状態のチェックボックスだけである'
+const SQ_10_ANY_ROW = '表の行のどれか 1 つにでもチェックが入っていれば、その行が一覧に出ていても出ていなくても入っているとし、1 つも無ければ空とする'
+const SQ_10_FIRST = '初めは空'
+const SQ_10_ADD = '空のときに押すと、一覧に出ている行をすべて入れ、一覧に出ていない行は変えない'
+const SQ_10_CLEAR = '入っているときに押すと、表のすべての行（語や列のフィルタで一覧に出ていない行も）のチェックを外す'
+const SQ_10_RETIRED_THREE_STATES = '3 つの状態'
 const SQ_10_NO_FUNNEL = '持たない —— 見出しに `IC-122` を置かない'
 const SQ_10_RETIRED = '一覧に出ている行だけをすべて入れる（すべて入っていればすべて外す）'
 const SV_7_EXCEPT = '[表示] の列（表 T-331 の `SQ-10`）を除く、どの列の見出しにも `IC-122` を置き'
@@ -84,9 +86,11 @@ const TV_6_ONE_STEP = '1 回の入れ（見出しのチェックボックスの 
 const UN_20_ONE_STEP = '行の「表示」／「非表示」の 1 回（見出しのチェックボックスの 1 回を含む'
 
 describe('CR-800 the manuscript these cases are driven by', () => {
-  it('SQ-10 says the box reads the listed rows, adds to them, and clears every row on the second press', () => {
+  it('SQ-10 says the box reads any row of the table, adds to the listed rows while empty, and clears every row while checked', () => {
     const cell = cellOf('T-331', 'SQ-10', '書き方')
     expect(cell).toContain(SQ_10_STATES)
+    expect(cell).toContain(SQ_10_ANY_ROW)
+    expect(cell).not.toContain(SQ_10_RETIRED_THREE_STATES)
     expect(cell).toContain(SQ_10_FIRST)
     expect(cell).toContain(SQ_10_ADD)
     expect(cell).toContain(SQ_10_CLEAR)
@@ -311,6 +315,10 @@ const headingPress = (probe: Probe, part: Partial<Visibility>, word: string, isS
   return probe.press(part, word, { kind: 'shown', keys, isShown, isHeading: true })
 }
 
+// WHY: CR-801 -- the host raises isShown true from an empty box and false from a checked one, so a case presses by the state the box reads.
+const derivedPress = (probe: Probe, part: Partial<Visibility>, word: string): TableView =>
+  headingPress(probe, part, word, probe.heading({ ...probe.base.visibility, ...part }, word) === 'empty')
+
 describe.each(PROBES)('premises of $name', (probe) => {
   it('the table lists more than one row, a word keeps some out, and another word keeps all out', () => {
     expect(probe.everyKey.length).toBeGreaterThan(1)
@@ -322,95 +330,71 @@ describe.each(PROBES)('premises of $name', (probe) => {
   })
 })
 
-describe.each(PROBES)('FR-151 T-331 SQ-10 / T-347 DT-8 / T-371 RQ-1 ($name) -- 状態は一覧に出ている行から読み、初めは 1 つも入っていない', (probe) => {
-  it('SQ-10 first: nothing checked, the box reads none', () => {
+describe.each(PROBES)('FR-151 T-331 SQ-10 / T-347 DT-8 / T-371 RQ-1 ($name) -- 表の行のどれか 1 つにでもチェックが入っていれば入っている、初めは空', (probe) => {
+  it('SQ-10 first: nothing checked, the box reads empty', () => {
     expect(probe.checkedOf(probe.base.visibility)).toEqual([])
-    expect(probe.heading(NO_ROW_CHECKED, '')).toBe('none')
+    expect(probe.heading(NO_ROW_CHECKED, '')).toBe('empty')
   })
 
-  it('SQ-10: one of the listed rows checked reads some', () => {
+  it('SQ-10: one of the listed rows checked reads checked', () => {
     const first = probe.everyKey[0] as Key
-    expect(probe.heading({ ...NO_ROW_CHECKED, ...probe.visibilityOf([first]) }, '')).toBe('some')
+    expect(probe.heading({ ...NO_ROW_CHECKED, ...probe.visibilityOf([first]) }, '')).toBe('checked')
   })
 
-  it('SQ-10: every listed row checked reads all', () => {
-    expect(probe.heading({ ...NO_ROW_CHECKED, ...probe.visibilityOf(probe.everyKey) }, '')).toBe('all')
+  it('SQ-10: every listed row checked reads checked', () => {
+    expect(probe.heading({ ...NO_ROW_CHECKED, ...probe.visibilityOf(probe.everyKey) }, '')).toBe('checked')
   })
 
-  it('SQ-10: every row the word lists checked reads all, whatever stands unchecked out of view', () => {
+  it('SQ-10: every row the word lists checked reads checked, whatever stands unchecked out of view', () => {
     const listed = probe.listed(NO_ROW_CHECKED, probe.narrowWord)
-    expect(probe.heading({ ...NO_ROW_CHECKED, ...probe.visibilityOf(listed) }, probe.narrowWord)).toBe('all')
+    expect(probe.heading({ ...NO_ROW_CHECKED, ...probe.visibilityOf(listed) }, probe.narrowWord)).toBe('checked')
   })
 
-  it('SQ-10: only rows out of view checked reads none (the state comes from the listed rows)', () => {
+  // WHY: CR-801 -- the state is read over the whole table, so a row the word keeps out of the list still makes the box checked.
+  it('SQ-10: only rows out of view checked reads checked', () => {
     const listed = probe.listed(NO_ROW_CHECKED, probe.narrowWord)
     const outOfView = probe.everyKey.filter((one) => !listed.includes(one))
-    expect(probe.heading({ ...NO_ROW_CHECKED, ...probe.visibilityOf(outOfView) }, probe.narrowWord)).toBe('none')
+    expect(probe.heading({ ...NO_ROW_CHECKED, ...probe.visibilityOf(outOfView) }, probe.narrowWord)).toBe('checked')
+    expect(probe.heading({ ...NO_ROW_CHECKED, ...probe.visibilityOf(outOfView.slice(0, 1)) }, probe.narrowWord)).toBe('checked')
   })
 
-  it('SQ-10: some of the listed rows checked reads some even with every row out of view checked', () => {
-    const listed = probe.listed(NO_ROW_CHECKED, '')
-    const outOfView = probe.everyKey.filter((one) => !probe.listed(NO_ROW_CHECKED, probe.narrowWord).includes(one))
-    const narrowedListed = probe.listed(NO_ROW_CHECKED, probe.narrowWord)
-    expect(narrowedListed.length).toBeGreaterThan(0)
-    expect(listed.length).toBeGreaterThan(narrowedListed.length)
-    // WHY: the word lists the narrowed rows, none of them checked, while the rows out of view are all checked.
-    expect(probe.heading({ ...NO_ROW_CHECKED, ...probe.visibilityOf(outOfView) }, probe.narrowWord)).toBe('none')
+  it('SQ-10: no row listed, rows checked out of view: the box reads checked', () => {
+    expect(probe.heading({ ...NO_ROW_CHECKED, ...probe.visibilityOf(probe.everyKey) }, probe.emptyWord)).toBe('checked')
   })
 
-  it('SQ-10: no row listed reads none', () => {
-    expect(probe.heading({ ...NO_ROW_CHECKED, ...probe.visibilityOf(probe.everyKey) }, probe.emptyWord)).toBe('none')
+  it('SQ-10: no row listed, nothing checked: the box reads empty', () => {
+    expect(probe.heading(NO_ROW_CHECKED, probe.emptyWord)).toBe('empty')
   })
 })
 
-describe.each(PROBES)('FR-151 T-331 SQ-10 ($name) -- 一覧に出ている行のうち入っていない行があれば、一覧に出ている行をすべて入れ、一覧に出ていない行は変えない', (probe) => {
-  it('SQ-10: with nothing checked, the heading press checks every listed row', () => {
-    const after = headingPress(probe, {}, '', true)
+describe.each(PROBES)('FR-151 T-331 SQ-10 ($name) -- 空のときに押すと、一覧に出ている行をすべて入れ、一覧に出ていない行は変えない', (probe) => {
+  it('SQ-10: with nothing checked, the heading press checks every listed row and the box reads checked', () => {
+    const after = derivedPress(probe, {}, '')
     expect(probe.checkedOf(after.visibility)).toEqual(sortedKeys(probe.everyKey))
-  })
-
-  it('SQ-10: with some listed rows checked, the heading press checks every listed row', () => {
-    const first = probe.everyKey[0] as Key
-    const after = headingPress(probe, probe.visibilityOf([first]), '', true)
-    expect(probe.checkedOf(after.visibility)).toEqual(sortedKeys(probe.everyKey))
+    expect(probe.heading(after.visibility, '')).toBe('checked')
   })
 
   it('SQ-10: with a word, the heading press checks the listed rows and the rows out of view stay unchecked', () => {
     const listed = probe.listed(NO_ROW_CHECKED, probe.narrowWord)
-    const after = headingPress(probe, {}, probe.narrowWord, true)
+    expect(probe.heading(NO_ROW_CHECKED, probe.narrowWord), 'premise: the box is empty').toBe('empty')
+    const after = derivedPress(probe, {}, probe.narrowWord)
     expect(probe.checkedOf(after.visibility)).toEqual(sortedKeys(listed))
   })
 
-  it('SQ-10: with a word, the rows out of view that were checked stay checked after the heading press', () => {
-    const listed = probe.listed(NO_ROW_CHECKED, probe.narrowWord)
-    const outOfView = probe.everyKey.filter((one) => !listed.includes(one))
-    const after = headingPress(probe, probe.visibilityOf(outOfView), probe.narrowWord, true)
-    expect(probe.checkedOf(after.visibility)).toEqual(sortedKeys(probe.everyKey))
-  })
-
-  it('SQ-10: with a word and some listed rows checked, the heading press completes the listed rows and leaves the rest as it was', () => {
-    const listed = probe.listed(NO_ROW_CHECKED, probe.narrowWord)
-    const outOfView = probe.everyKey.filter((one) => !listed.includes(one))
-    const keptChecked = outOfView.slice(0, 1)
-    const after = headingPress(probe, probe.visibilityOf([...keptChecked, ...listed.slice(0, 1)]), probe.narrowWord, true)
-    expect(probe.checkedOf(after.visibility)).toEqual(sortedKeys([...keptChecked, ...listed]))
-  })
-
   it('SQ-10: no row listed, the heading press adds nothing and changes no row', () => {
-    const before = probe.visibilityOf(probe.everyKey.slice(0, 1))
-    const after = headingPress(probe, before, probe.emptyWord, true)
-    expect(probe.checkedOf(after.visibility)).toEqual(sortedKeys(probe.everyKey.slice(0, 1)))
+    const after = derivedPress(probe, {}, probe.emptyWord)
+    expect(probe.checkedOf(after.visibility)).toEqual([])
   })
 
   it('SQ-10: the press leaves the Schedule Filter, the column filters and the sort as they were', () => {
-    const after = headingPress(probe, { isScheduleFilterApplied: true }, '', true)
+    const after = derivedPress(probe, { isScheduleFilterApplied: true }, '')
     expect(after.visibility.isScheduleFilterApplied).toBe(true)
     expect(after.columnFilters).toEqual(probe.base.columnFilters)
     expect(after.sort).toEqual(probe.base.sort)
   })
 })
 
-describe.each(PROBES)('FR-151 T-331 SQ-10 ($name) -- 一覧に出ている行がすべて入っていれば、表のすべての行（語や列のフィルタで一覧に出ていない行も）のチェックを外す', (probe) => {
+describe.each(PROBES)('FR-151 T-331 SQ-10 ($name) -- 入っているときに押すと、表のすべての行（語や列のフィルタで一覧に出ていない行も）のチェックを外す', (probe) => {
   const ALL = (): Partial<Visibility> => probe.visibilityOf(probe.everyKey)
 
   it('SQ-10: with every row checked and listed, the heading press clears every row', () => {
@@ -437,18 +421,47 @@ describe.each(PROBES)('FR-151 T-331 SQ-10 ($name) -- 一覧に出ている行が
   })
 
   it('SQ-10: press then press brings the table back to nothing checked (add, then clear)', () => {
-    const added = headingPress(probe, {}, '', true)
-    const cleared = headingPress(probe, { ...added.visibility }, '', false)
+    const added = derivedPress(probe, {}, '')
+    const cleared = derivedPress(probe, { ...added.visibility }, '')
     expect(probe.checkedOf(cleared.visibility)).toEqual([])
+    expect(probe.heading(cleared.visibility, '')).toBe('empty')
   })
 
-  it('SQ-10: with a word, press then press clears the rows the first press never touched', () => {
+  // WHY: CR-801 -- a checked box clears whatever is checked, so a press never adds on top of rows checked out of view.
+  it('SQ-10: one listed row checked, the heading press clears every row', () => {
+    const first = probe.everyKey[0] as Key
+    const part = probe.visibilityOf([first])
+    expect(probe.heading({ ...probe.base.visibility, ...part }, '')).toBe('checked')
+    const after = derivedPress(probe, part, '')
+    expect(probe.checkedOf(after.visibility)).toEqual([])
+    expect(probe.heading(after.visibility, '')).toBe('empty')
+  })
+
+  it('SQ-10: with a word, only rows out of view checked, the heading press clears them', () => {
     const listed = probe.listed(NO_ROW_CHECKED, probe.narrowWord)
     const outOfView = probe.everyKey.filter((one) => !listed.includes(one))
-    const added = headingPress(probe, probe.visibilityOf(outOfView), probe.narrowWord, true)
-    expect(probe.checkedOf(added.visibility)).toEqual(sortedKeys(probe.everyKey))
-    const cleared = headingPress(probe, { ...added.visibility }, probe.narrowWord, false)
+    const part = probe.visibilityOf(outOfView)
+    expect(probe.heading({ ...probe.base.visibility, ...part }, probe.narrowWord)).toBe('checked')
+    const after = derivedPress(probe, part, probe.narrowWord)
+    expect(probe.checkedOf(after.visibility)).toEqual([])
+  })
+
+  it('SQ-10: with a word, a listed row and a row out of view checked, the heading press clears both', () => {
+    const listed = probe.listed(NO_ROW_CHECKED, probe.narrowWord)
+    const outOfView = probe.everyKey.filter((one) => !listed.includes(one))
+    const part = probe.visibilityOf([...outOfView.slice(0, 1), ...listed.slice(0, 1)])
+    expect(probe.heading({ ...probe.base.visibility, ...part }, probe.narrowWord)).toBe('checked')
+    const after = derivedPress(probe, part, probe.narrowWord)
+    expect(probe.checkedOf(after.visibility)).toEqual([])
+  })
+
+  it('SQ-10: with a word, press then press empties the table and the second press checks the listed rows only', () => {
+    const listed = probe.listed(NO_ROW_CHECKED, probe.narrowWord)
+    const outOfView = probe.everyKey.filter((one) => !listed.includes(one))
+    const cleared = derivedPress(probe, probe.visibilityOf(outOfView), probe.narrowWord)
     expect(probe.checkedOf(cleared.visibility)).toEqual([])
+    const added = derivedPress(probe, { ...cleared.visibility }, probe.narrowWord)
+    expect(probe.checkedOf(added.visibility)).toEqual(sortedKeys(listed))
   })
 
   it('SQ-10: a row box of its own (not the heading) clears only its own row, however many rows are checked', () => {
@@ -471,13 +484,19 @@ describe('FR-099 T-371 RQ-1 -- 担当の行と（担当なし）の行', () => {
     expect([...after.visibility.shownResourceUids].sort((a, b) => a - b)).toEqual([SATO, TANAKA, IDLE])
   })
 
-  it('RQ-1: the heading press with a word that lists no (Unassigned) row leaves that row as it was', () => {
+  it('RQ-1: the heading press with a word that lists no (Unassigned) row leaves that row unchecked', () => {
     const listed = LIST_PROBE.listed(NO_ROW_CHECKED, LIST_PROBE.narrowWord)
     expect(listed, 'premise: the word does not list the (Unassigned) row').not.toContain(UNASSIGNED)
-    const kept = headingPress(LIST_PROBE, { isUnassignedShown: true }, LIST_PROBE.narrowWord, true)
-    expect(kept.visibility.isUnassignedShown).toBe(true)
-    const stayed = headingPress(LIST_PROBE, {}, LIST_PROBE.narrowWord, true)
+    const stayed = derivedPress(LIST_PROBE, {}, LIST_PROBE.narrowWord)
     expect(stayed.visibility.isUnassignedShown).toBe(false)
+  })
+
+  // WHY: CR-801 -- the (Unassigned) row alone checked makes the box checked, so the press clears it though the word does not list it.
+  it('RQ-1: the (Unassigned) row checked out of view, the heading press clears it', () => {
+    const part = { isUnassignedShown: true }
+    expect(LIST_PROBE.heading({ ...LIST_PROBE.base.visibility, ...part }, LIST_PROBE.narrowWord)).toBe('checked')
+    const cleared = derivedPress(LIST_PROBE, part, LIST_PROBE.narrowWord)
+    expect(cleared.visibility.isUnassignedShown).toBe(false)
   })
 
   it('RQ-1: the clearing press clears the (Unassigned) row, though the word does not list it', () => {
@@ -489,8 +508,8 @@ describe('FR-099 T-371 RQ-1 -- 担当の行と（担当なし）の行', () => {
     expect(after.visibility.shownResourceUids).toEqual([])
   })
 
-  it('RQ-1: the (Unassigned) row alone checked does not make the box read all of the listed resources', () => {
-    expect(LIST_PROBE.heading({ ...NO_ROW_CHECKED, isUnassignedShown: true }, '')).toBe('some')
+  it('RQ-1: the (Unassigned) row alone checked makes the box read checked', () => {
+    expect(LIST_PROBE.heading({ ...NO_ROW_CHECKED, isUnassignedShown: true }, '')).toBe('checked')
   })
 })
 
@@ -583,15 +602,14 @@ describe.each(PROBES)('FR-151 T-353 TV-5 / IC-143 / JDG-2820 / JDG-2825 ($name) 
   })
 
   it('after the adding heading press the eye is enabled', () => {
-    const added = headingPress(probe, {}, '', true)
+    const added = derivedPress(probe, {}, '')
     expect(probe.eye(added.visibility, '').isEnabled).toBe(true)
   })
 })
 
 describe.each(PROBES)('FR-151 T-353 TV-6 / T-027 UN-20 ($name) -- 見出しのチェックボックスの 1 回は表の見え方の変更の 1 回である', (probe) => {
   it('one heading press hands back one TableView that holds the whole change, with no second press needed', () => {
-    const first = probe.everyKey[0] as Key
-    const after = headingPress(probe, probe.visibilityOf([first]), '', true)
+    const after = derivedPress(probe, {}, '')
     expect(Array.isArray(after)).toBe(false)
     expect(probe.checkedOf(after.visibility)).toEqual(sortedKeys(probe.everyKey))
   })
@@ -603,15 +621,15 @@ describe.each(PROBES)('FR-151 T-353 TV-6 / T-027 UN-20 ($name) -- 見出しの�
   })
 
   it('the press changes the check list and nothing else of the view (the same single step as a row box)', () => {
-    const held = viewWith(probe.base, probe.visibilityOf(probe.everyKey.slice(0, 1)))
-    const after = headingPress(probe, probe.visibilityOf(probe.everyKey.slice(0, 1)), '', true)
+    const held = viewWith(probe.base, {})
+    const after = derivedPress(probe, {}, '')
     const { visibility: ignoredBefore, ...restBefore } = held
     const { visibility: ignoredAfter, ...restAfter } = after
     expect(ignoredBefore).not.toEqual(ignoredAfter)
     expect(restAfter).toEqual(restBefore)
   })
 
-  it('a press that changes nothing (adding to a full list is impossible, clearing an empty one is) returns the view as it was', () => {
+  it('a press that changes nothing (clearing an empty table) returns the view as it was', () => {
     const view = viewWith(probe.base, {})
     const after = probe.press({}, '', { kind: 'shown', keys: [], isShown: false, isHeading: true })
     expect(after).toEqual(view)
@@ -621,7 +639,7 @@ describe.each(PROBES)('FR-151 T-353 TV-6 / T-027 UN-20 ($name) -- 見出しの�
     const part = probe.visibilityOf(probe.everyKey.slice(0, 1))
     const given = viewWith(probe.base, part)
     const snapshot = JSON.parse(JSON.stringify(given)) as TableView
-    probe.press(part, '', { kind: 'shown', keys: probe.listed({ ...probe.base.visibility, ...part }, ''), isShown: true, isHeading: true })
+    derivedPress(probe, part, '')
     expect(JSON.parse(JSON.stringify(given))).toEqual(snapshot)
   })
 })

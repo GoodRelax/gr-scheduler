@@ -598,12 +598,10 @@ export function scheduleFilterBarOf(
   return { text, scheduleFilterOffLabel: wordOf(PANEL_WORDS.get('scheduleFilterOff'), language) }
 }
 
-// WHY: the heading box of the Visibility column: ticked when every listed row is Show, half when some are.
+// WHY: checked while any row of the table is checked, listed or not; the eye reads it too (SQ-10, JDG-2826).
 /** @purity pure */
-export function visibilityHeadingOf(rows: readonly { readonly isShown?: boolean }[]): 'all' | 'some' | 'none' {
-  const ticked = rows.filter((row) => row.isShown === true).length
-  if (ticked === 0) return 'none'
-  return ticked === rows.length ? 'all' : 'some'
+export function visibilityHeadingOf(readiness: ScheduleFilterReadiness): 'checked' | 'empty' {
+  return readiness === 'ready' ? 'checked' : 'empty'
 }
 
 // see RW-9, RO-9, SV-18, GR-28

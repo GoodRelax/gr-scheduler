@@ -12,13 +12,13 @@ what this reading does not see.
 
 | place | T-218 | T-334 | files | case sites | expected-to-fail marks | known-red lines | need the MSPDI XSDs | tied to no spec row |
 | --- | --- | --- | --: | --: | --: | --: | --: | --: |
-| `contract` | TS-5 | VT-2 | 429 | 5658 | 8 | 4 | 11 | 4 |
+| `contract` | TS-5 | VT-2 | 430 | 5704 | 8 | 4 | 11 | 4 |
 | `integration` | TS-2 | - | 3 | 76 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
 | `system` | TS-3 | - | 96 | 611 | 0 | 0 | 0 | 0 |
 | `unit` | TS-6 | - | 187 | 3929 | 1 | 1 | 2 | 0 |
 | `use-case` | TS-1 | VT-1 | 14 | 17 | 1 | 2 | 0 | 0 |
-| **all** | | | 732 | 10308 | 10 | 7 | 13 | 4 |
+| **all** | | | 733 | 10354 | 10 | 7 | 13 | 4 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -518,11 +518,12 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/cr-796-s7-the-ai-asks-the-person-to-open-a-file.contract.test.ts` | 14 | - | - | T-107, T-234, T-400 | AG-12, AM-11, AM-15, AM-29, AV-4, AV-15, QN-17, U-61 | - | - | - | - |
 | `tests/contract/cr-796-s7-the-relay-saves-into-the-save-folder.contract.test.ts` | 22 | - | - | - | AG-12, AM-11, AM-12, AM-13, AM-14, AM-15, AV-21 | - | - | - | - |
 | `tests/contract/cr-797-fr-130-the-diagnosis-is-made-only-when-asked.contract.test.ts` | 23 | FR-130 | - | T-109, T-206, T-270, T-315, T-346 | DG-1, DG-2, DG-3, GA-18, IC-107, IC-157, IC-168, PE-8, PE-10, RW-1, RW-3, RW-16, RW-19, S-623 | - | - | - | - |
-| `tests/contract/cr-798-the-check-column-starts-unchecked-and-its-funnel-checks-or-clears-every-row.contract.test.ts` | 71 | FR-092, FR-099, FR-134, FR-151 | - | T-203, T-330, T-331, T-332, T-347, T-353, T-371 | DT-8, IC-122, IC-143, OP-18, RQ-1, S-561, S-562, S-563, S-565, S-569, S-570, SJ-0, SQ-10, SV-7, TV-1, TV-2, TV-5, TV-9, TV-13 | - | - | - | - |
+| `tests/contract/cr-798-the-check-column-starts-unchecked-and-its-funnel-checks-or-clears-every-row.contract.test.ts` | 74 | FR-092, FR-099, FR-134, FR-151 | - | T-203, T-330, T-331, T-332, T-347, T-353, T-371 | DT-8, IC-122, IC-143, OP-18, RQ-1, S-561, S-562, S-563, S-565, S-569, S-570, SJ-0, SQ-10, SV-7, TV-1, TV-2, TV-5, TV-9, TV-13 | - | - | - | - |
 | `tests/contract/cr-799-the-build-version-the-stamped-page-and-the-texts-the-ai-reads.contract.test.ts` | 18 | - | - | - | - | - | - | - | - |
 | `tests/contract/cr-799-the-download-page-saves-and-versions.contract.test.ts` | 12 | - | - | - | - | - | - | - | - |
 | `tests/contract/cr-799-the-relay-answers-readschema-and-names-saved-files-absolutely.contract.test.ts` | 9 | - | - | - | AG-12, AM-30, AV-21 | - | - | - | - |
-| `tests/contract/cr-800-the-heading-box-checks-the-listed-rows-then-clears-every-row.contract.test.ts` | 52 | FR-092, FR-099, FR-151 | - | T-027, T-330, T-331, T-347, T-353, T-371 | DT-8, IC-122, IC-125, IC-126, IC-143, RQ-1, SQ-10, SV-7, TV-5, TV-6, UN-20 | - | - | - | - |
+| `tests/contract/cr-800-the-heading-box-checks-the-listed-rows-then-clears-every-row.contract.test.ts` | 53 | FR-092, FR-099, FR-151 | - | T-027, T-330, T-331, T-347, T-353, T-371 | DT-8, IC-122, IC-125, IC-126, IC-143, RQ-1, SQ-10, SV-7, TV-5, TV-6, UN-20 | - | - | - | - |
+| `tests/contract/cr-801-the-heading-box-is-checked-while-any-row-is-checked.contract.test.ts` | 42 | FR-099, FR-151 | - | T-331, T-347, T-353, T-371 | DT-8, RQ-1, SQ-10, TV-2, TV-5, TV-6, UN-20 | - | - | - | - |
 | `tests/contract/dfc-1000-hf-10-the-open-all-stance-counts-every-placed-task-group.test.ts` | 9 | - | - | T-051, T-109 | HF-2, HF-10, IC-58, IC-74, RS-31 | - | - | - | - |
 | `tests/contract/dfc-1013-tl-12-the-delay-days-are-told-only-in-the-ez-6-tip.test.ts` | 8 | FR-047 | - | T-038, T-348 | DG-4, DX-10, EZ-6, OC-8, TL-12 | - | - | - | - |
 | `tests/contract/dfc-1015-fr-019-a-hidden-end-task-group-shrinks-the-frame.test.ts` | 5 | FR-019, UC-008 | - | - | - | - | - | - | - |

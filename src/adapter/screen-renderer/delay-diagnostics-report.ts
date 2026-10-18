@@ -581,7 +581,7 @@ export function delayDiagnosticsReportFromWindow(
   const fixView = delayFixViewOf(values, fixTables, words)
   if (values.table === 'diagnosis') return { ...diagnosis, ...fixView }
   const table = fixTableViewOf(window, values.table, fixTables, words)
-  return { ...diagnosis, ...table, summary: [], glyphAt: null, showAt: null, showHeading: 'none', entryRefusals: [], rowRevealed: null, ...fixView }
+  return { ...diagnosis, ...table, summary: [], glyphAt: null, showAt: null, showHeading: 'empty', entryRefusals: [], rowRevealed: null, ...fixView }
 }
 
 // see FR-134, T-346, RW-2, RW-3, RW-4, RW-9, S-564
@@ -625,7 +625,7 @@ function diagnosisReportViewOf(
     rowRevealed: markedAt < 0 ? null : { at: markedAt, count: window.markedRow?.pressCount ?? 0 },
     glyphAt: DELAY_REPORT_COLUMNS.indexOf(STATUS_COLUMN),
     showAt: DELAY_REPORT_COLUMNS.indexOf(VISIBILITY_COLUMN),
-    showHeading: visibilityHeadingOf(rows),
+    showHeading: visibilityHeadingOf(readiness),
     entryRefusals: scheduleFilterRefusalsOf(scheduleFilter, readiness, language),
   }
 }

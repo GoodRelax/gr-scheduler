@@ -462,14 +462,13 @@ function headerCellElement(
 }
 
 // see SQ-10
-// WHY: the heading's box shows all / some / none of the listed rows; some is the host's indeterminate mark.
+// WHY: checked while any row of the table is checked, listed or not (JDG-2826); never half.
 /** @purity non-pure */
 function shownBoxElement(host: Document, showHeading: SearchPanelView['showHeading'] | undefined): HTMLInputElement {
   const box = made(host, 'input', 'margin:0;flex:none;') as HTMLInputElement
   box.setAttribute('type', 'checkbox')
   box.setAttribute(SHOWN_ALL_ATTRIBUTE, 'true')
-  box.checked = showHeading === 'all'
-  box.indeterminate = showHeading === 'some'
+  box.checked = showHeading === 'checked'
   return box
 }
 
@@ -715,7 +714,7 @@ export function searchTableElement(host: Document, view: DrawnTable, fontPx: num
   const head = made(host, 'thead', '')
   const headings = made(host, 'tr', '')
   const showAt = view.showAt ?? null
-  headings.replaceChildren(...view.columns.map((column, at) => headerCellElement(host, column, at === showAt ? (view.showHeading ?? 'none') : null, sizing)))
+  headings.replaceChildren(...view.columns.map((column, at) => headerCellElement(host, column, at === showAt ? (view.showHeading ?? 'empty') : null, sizing)))
   head.append(headings)
   const body = made(host, 'tbody', '')
   const places = { jumpAt: view.jumpAt ?? 0, glyphAt: view.glyphAt ?? null, showAt, chosenAt: view.chosenAt ?? null }

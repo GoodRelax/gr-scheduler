@@ -348,7 +348,7 @@ export function resourceListFromWindow(
     rows,
     chosenAt: RESOURCE_LIST_COLUMNS.indexOf(CHOSEN_COLUMN),
     showAt: RESOURCE_LIST_COLUMNS.indexOf(VISIBILITY_COLUMN),
-    showHeading: visibilityHeadingOf(rows),
+    showHeading: visibilityHeadingOf(readiness),
     entryRefusals: scheduleFilterRefusalsOf(scheduleFilter, readiness, language),
   }
 }

@@ -39,9 +39,9 @@ const SV_8_VISIBILITY = '表示の列（`SQ-10`）では並べ替えない'
 const SV_7_NO_ENTRANCE = '⭐ [表示] の列の見出しには `IC-122` を置かず、見出しのチェックボックスだけを置く（`SQ-10` —— 利用者が定めた）。'
 const SV_7_NO_GREEN = '[表示] の列は列のフィルタを持たないので、その見出しのセルを本段の終わりの緑で塗ることは無い。'
 const SQ_10_HEADING_STATES =
-  '見出しのセルは、一覧に出ている行がすべて入っている・一部・1 つも入っていない の 3 つの状態のチェックボックスだけである —— 状態は一覧に出ている行から読み、初めは 1 つも入っていない。'
-const SQ_10_HEADING_ADD = '見出しのチェックボックスを押すと、一覧に出ている行のうち入っていない行があれば、一覧に出ている行をすべて入れ、一覧に出ていない行は変えない。'
-const SQ_10_HEADING_CLEAR = '一覧に出ている行がすべて入っていれば、表のすべての行（語や列のフィルタで一覧に出ていない行も）のチェックを外す（利用者が定めた）。'
+  '見出しのセルは、入っている・空 の 2 つの状態のチェックボックスだけである —— 表の行のどれか 1 つにでもチェックが入っていれば、その行が一覧に出ていても出ていなくても入っているとし、1 つも無ければ空とする（初めは空 —— 利用者が定めた）。'
+const SQ_10_HEADING_ADD = '空のときに押すと、一覧に出ている行をすべて入れ、一覧に出ていない行は変えない。'
+const SQ_10_HEADING_CLEAR = '入っているときに押すと、表のすべての行（語や列のフィルタで一覧に出ていない行も）のチェックを外す（利用者が定めた）。'
 const SQ_10_NO_VALUES = '持たない —— 見出しに `IC-122` を置かない（表 T-330 の `SV-7`）'
 const SV_6_FIRST_COLUMN_NOTE = '表示・ステータス・進捗・タスク種別・タスク の 5 列'
 
@@ -180,18 +180,19 @@ describe('FR-151 T-331 SQ-10, T-330 SV-8 -- the Visibility column words and valu
     expect(uidsOf(there), 'the rows keep the default order').toEqual([1, 2, 3])
   })
 
-  // WHY: CR-800 SQ-10 -- the heading box adds the listed rows when one is unchecked, so a word that lists one row leaves the others as they were.
-  it('SQ-10: the heading box checks the listed rows only; the rows a word keeps out of the list are not changed', () => {
-    const worded: Pane = { ...onlyShown(TASK_PANEL, [3]), panel: { ...TASK_PANEL.panel, word: 'alpha' } }
+  // WHY: CR-801 SQ-10 -- the box is empty only when no row is checked, so the press that adds the listed rows leaves a word's other rows unchecked.
+  it('SQ-10: the empty heading box checks the listed rows only; the rows a word keeps out of the list stay unchecked', () => {
+    const worded: Pane = { ...TASK_PANEL, panel: { ...TASK_PANEL.panel, word: 'alpha' } }
     expect(uidsOf(worded), 'premise: the word lists one row').toEqual([1])
+    expect(viewOf(worded).showHeading, 'premise: the box is empty').toBe('empty')
     const after = changed(worded, { kind: 'shown', column: 'SQ-10', keys: [1], isShown: true, isHeading: true })
-    expect(checkedOf(after)).toEqual([1, 3])
+    expect(checkedOf(after)).toEqual([1])
   })
 
-  it('SQ-10: the heading box with every listed row in takes every row of the table out, the rows a word keeps out of the list too', () => {
+  it('SQ-10: the checked heading box takes every row of the table out, the rows a word keeps out of the list too', () => {
     const worded: Pane = { ...onlyShown(TASK_PANEL, TASK_UIDS), panel: { ...TASK_PANEL.panel, word: 'alpha' } }
     expect(uidsOf(worded), 'premise: the word lists one row').toEqual([1])
-    expect(viewOf(worded).showHeading, 'premise: the listed row is in').toBe('all')
+    expect(viewOf(worded).showHeading, 'premise: the box is checked').toBe('checked')
     const after = changed(worded, { kind: 'shown', column: 'SQ-10', keys: [1], isShown: false, isHeading: true })
     expect(checkedOf(after)).toEqual([])
   })
@@ -220,39 +221,40 @@ describe('FR-151 T-331 SQ-10, T-330 SV-8 -- the Visibility column words and valu
   })
 })
 
-describe('FR-151 T-331 SQ-10 -- the heading box shows all, some or none of the listed rows', () => {
-  it('none, some and all are read over the rows the list shows (none at first, CR-798 TV-2)', () => {
-    expect(viewOf(TASK_PANEL).showHeading).toBe('none')
-    expect(viewOf(onlyShown(TASK_PANEL, TASK_UIDS)).showHeading).toBe('all')
-    expect(viewOf(onlyShown(TASK_PANEL, [1])).showHeading).toBe('some')
+describe('FR-151 T-331 SQ-10 -- the heading box is checked while any row of the table is checked', () => {
+  it('empty at first (CR-798 TV-2), checked with one row or every row checked', () => {
+    expect(viewOf(TASK_PANEL).showHeading).toBe('empty')
+    expect(viewOf(onlyShown(TASK_PANEL, TASK_UIDS)).showHeading).toBe('checked')
+    expect(viewOf(onlyShown(TASK_PANEL, [1])).showHeading).toBe('checked')
   })
 
-  it('a word that lists one row makes that row the whole list', () => {
+  it('a word that lists one row, the row checked: the box is checked', () => {
     const narrowed = { ...onlyShown(TASK_PANEL, [1]), panel: { ...TASK_PANEL.panel, word: 'alpha' } }
     expect(viewOf(narrowed).rows.length, 'premise: the word lists one row').toBe(1)
-    expect(viewOf(narrowed).showHeading).toBe('all')
+    expect(viewOf(narrowed).showHeading).toBe('checked')
   })
 
-  it('pressing the heading box with every listed row in takes every row out', () => {
+  it('pressing the checked heading box takes every row out and the box reads empty', () => {
     const all = onlyShown(TASK_PANEL, TASK_UIDS)
     const out = changed(all, { kind: 'shown', column: 'SQ-10', keys: TASK_UIDS, isShown: false, isHeading: true })
-    expect(viewOf(out).showHeading).toBe('none')
+    expect(viewOf(out).showHeading).toBe('empty')
   })
 
-  it('pressing the heading box with some listed rows in checks every listed row', () => {
-    const some = onlyShown(TASK_PANEL, [1])
-    expect(viewOf(some).showHeading, 'premise: some of the listed rows are in').toBe('some')
-    const out = changed(some, { kind: 'shown', column: 'SQ-10', keys: TASK_UIDS, isShown: true, isHeading: true })
-    expect(viewOf(out).showHeading).toBe('all')
+  it('pressing the empty heading box checks every listed row and the box reads checked', () => {
+    expect(viewOf(TASK_PANEL).showHeading, 'premise: no row is checked').toBe('empty')
+    const out = changed(TASK_PANEL, { kind: 'shown', column: 'SQ-10', keys: TASK_UIDS, isShown: true, isHeading: true })
+    expect(checkedOf(out)).toEqual([...TASK_UIDS])
+    expect(viewOf(out).showHeading).toBe('checked')
   })
 
-  // WHY: CR-800 Y-a -- the state is read over the listed rows, so rows checked outside the list leave the box empty, and a press then adds the listed row.
-  it('rows checked outside the list leave the heading box empty, and a press checks the listed row', () => {
+  // WHY: CR-801 SQ-10 -- a row the word keeps out of the list still counts, so the box is checked and the press clears the table instead of adding.
+  it('only a row outside the list checked: the box is checked, and the press takes that row out', () => {
     const narrowed: Pane = { ...onlyShown(TASK_PANEL, [2, 3]), panel: { ...TASK_PANEL.panel, word: 'alpha' } }
-    expect(viewOf(narrowed).showHeading).toBe('none')
-    const out = changed(narrowed, { kind: 'shown', column: 'SQ-10', keys: [1], isShown: true, isHeading: true })
-    expect(checkedOf(out)).toEqual([1, 2, 3])
-    expect(viewOf(out).showHeading).toBe('all')
+    expect(uidsOf(narrowed), 'premise: the word lists one row, unchecked').toEqual([1])
+    expect(viewOf(narrowed).showHeading).toBe('checked')
+    const out = changed(narrowed, { kind: 'shown', column: 'SQ-10', keys: [1], isShown: false, isHeading: true })
+    expect(checkedOf(out)).toEqual([])
+    expect(viewOf(out).showHeading).toBe('empty')
   })
 })
 
