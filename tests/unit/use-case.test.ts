@@ -381,9 +381,10 @@ describe('ApplyDocumentChange (PI-8) -- the seven steps of table T-067', () => {
     expect(plan.document.documentStamp.scheduleUpdatedAt).toBe(
       document.documentStamp.scheduleUpdatedAt,
     )
-    // WHY: FR-063 (MUST) still replaces who wrote last and whichever
-    // group's instant moved.
-    expect(plan.document.documentStamp.settingsUpdatedAt).toBe('2026-08-17T01:00:00Z')
+    // WHY: FR-063 (MUST NOT, CR-807): a write of T-027's excluded rows alone
+    // moves neither the other instant nor who wrote last.
+    expect(plan.document.documentStamp.settingsUpdatedAt).toBe(document.documentStamp.settingsUpdatedAt)
+    expect(plan.document.documentStamp.lastEditedBy).toBe(document.documentStamp.lastEditedBy)
   })
 
   it('CM-72 over two collapsed task groups opens both in ONE step (UN-17) and moves the schedule instant, leaving the hidden state alone (HF-8)', () => {
