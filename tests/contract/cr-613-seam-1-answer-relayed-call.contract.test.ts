@@ -39,6 +39,7 @@ const A_STAMP = 'stamp-41'
 const PARAMS_OF: Readonly<Record<string, Record<string, unknown>>> = {
   readDocument: { includeCarry: true, taskUids: [17] },
   readSearchRows: { word: 'kick-off', filters: 'asShown', offset: 0, limit: 100 },
+  readTableRows: { table: 'resourceList', word: 'kick-off', filters: 'asShown', offset: 0, limit: 100 },
   applyCommands: { request: { stamp: A_STAMP, commands: [{ kind: 'setProjectTitle', title: 'x' }] } },
   importDocument: { source: { kind: 'grsJson', text: '{}' } },
   focusTask: { taskUid: 17 },
@@ -124,10 +125,11 @@ describe('SEAM-1: the fake is built from table T-107', () => {
   })
 
   // see AM-3, AM-25
-  it('the argument column gives seven members arguments the relay carries, in their order', () => {
+  it('the argument column gives eight members arguments the relay carries, in their order', () => {
     expect(Object.entries(PARAM_KEYS).filter(([, keys]) => keys.length > 0)).toEqual([
       ['readDocument', ['includeCarry', 'taskUids']],
       ['readSearchRows', ['word', 'filters', 'offset', 'limit']],
+      ['readTableRows', ['table', 'word', 'filters', 'offset', 'limit']],
       ['applyCommands', ['request']],
       ['importDocument', ['source']],
       ['focusTask', ['taskUid']],

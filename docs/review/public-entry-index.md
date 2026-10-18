@@ -758,7 +758,10 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `AgentDelayDiagnostics` | file only | interface | `src/adapter/agent-api-endpoint/agent-api-members.ts#AgentDelayDiagnostics` | -- | interface AgentDelayDiagnostics extends DelayDiagnosticsReport |
 | `AgentImportOutcome` | file only | type | `src/adapter/agent-api-endpoint/agent-api-members.ts#AgentImportOutcome` | -- | type AgentImportOutcome = \| { readonly ok: true; readonly stamp: DocumentStamp; readonly hasUpdatedSchedule: boolean } \| { readonly ok: true; readonly asked:... |
 | `AgentSearchPage` | file only | interface | `src/adapter/agent-api-endpoint/agent-api-members.ts#AgentSearchPage` | -- | interface AgentSearchPage |
+| `AgentTableCell` | file only | interface | `src/adapter/agent-api-endpoint/agent-api-members.ts#AgentTableCell` | -- | interface AgentTableCell |
 | `AgentTableColumn` | file only | interface | `src/adapter/agent-api-endpoint/agent-api-members.ts#AgentTableColumn` | -- | interface AgentTableColumn |
+| `AgentTableRow` | file only | interface | `src/adapter/agent-api-endpoint/agent-api-members.ts#AgentTableRow` | -- | interface AgentTableRow |
+| `AgentTableRows` | file only | type | `src/adapter/agent-api-endpoint/agent-api-members.ts#AgentTableRows` | -- | type AgentTableRows = \| |
 | `AskedSurface` | file only | type | `src/adapter/agent-api-endpoint/agent-api-members.ts#AskedSurface` | -- | type AskedSurface = 'U-61' |
 | `DelayFixLogSource` | file only | interface | `src/adapter/agent-api-endpoint/agent-api-members.ts#DelayFixLogSource` | -- | interface DelayFixLogSource |
 | `ImportLanding` | file only | type | `src/adapter/agent-api-endpoint/agent-api-members.ts#ImportLanding` | -- | type ImportLanding = \| boolean \| { readonly landed: false; readonly refusals: readonly InvariantRefusal[] } // <generated -- do not edit by hand> // From doc... |
@@ -1443,6 +1446,8 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `delayDiagnosticsReportWithInput` | entry | function | `src/adapter/screen-renderer/delay-diagnostics-report.ts#delayDiagnosticsReportWithInput` | PI-37 | 窓の入力欄の語・出している表の列のフィルタの変化・修正案のチェックと択と日付（表 T-346 の `RW-3`・`RW-11`・`RW-16`）を、窓の値と診断結果の表の見え方へ当てる。 |
 | `delayFixBackupFileNameOf` | entry | function | `src/adapter/screen-renderer/open-modals.ts#delayFixBackupFileNameOf` | PI-37 | 直す前のバックアップの提案の名を作る（表 T-346 の `RW-15`）。 |
 | `DelayFixTelling` | entry | type | `src/adapter/screen-renderer/delay-diagnostics-report.ts#DelayFixTelling` | PI-37 | 型。 |
+| `delayReportColumnHeadings` | entry | function | `src/adapter/screen-renderer/delay-diagnostics-report.ts#delayReportColumnHeadings` | PI-37 | 遅延診断レポートの表（表 T-347）の列の一覧（列の行 ID・画面の名・値の種類）。 |
+| `delayReportTableRows` | entry | function | `src/adapter/screen-renderer/delay-diagnostics-report.ts#delayReportTableRows` | PI-37 | 遅延診断レポートの表に語と列のフィルタと並べ替えを当てた行を、画面に出す文字で答える。 |
 | `DialogueField` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#DialogueField` | -- | interface DialogueField |
 | `DialogueInput` | entry | interface | `src/adapter/screen-renderer/screen-surface.ts#DialogueInput` | -- | interface DialogueInput |
 | `dialogueMessageFromInput` | entry | function | `src/adapter/screen-renderer/screen-renderer.ts#dialogueMessageFromInput` | PI-37 | 対話欄で確定した発話。 |
@@ -1510,9 +1515,11 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `RaisedNotice` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#RaisedNotice` | -- | interface RaisedNotice |
 | `resourceListAfterEntry` | entry | function | `src/adapter/screen-renderer/resource-list.ts#resourceListAfterEntry` | PI-37 | 担当リストのウィンドウの入口（表 T-370 の `RO-1`・`RO-2`・表 T-330 の `SV-7`・`SV-8`、表 T-335 の `WB-2`・`WB-3`）を押した後のウィンドウの値を答える。 |
 | `resourceListAfterFilterChange` | entry | function | `src/adapter/screen-renderer/resource-list.ts#resourceListAfterFilterChange` | PI-37 | 列のフィルタの変化と表示の列の印の変化を、担当リストのウィンドウの値へ当てる（表 T-330 の `SV-7`、表 T-353 の `TV-2`）。 |
+| `resourceListColumnHeadings` | entry | function | `src/adapter/screen-renderer/resource-list.ts#resourceListColumnHeadings` | PI-37 | 担当リストの表（表 T-371）の列の一覧（列の行 ID・画面の名・値の種類）。 |
 | `resourceListFromWindow` | entry | function | `src/adapter/screen-renderer/resource-list.ts#resourceListFromWindow` | PI-37 | 担当リストのウィンドウの中身 —— タイトルバー・タイトルバーの下の 1 行・表 T-371 の表 —— を作る（`FR-099` の 表 T-370） |
 | `resourceListListedUidsOf` | entry | function | `src/adapter/screen-renderer/resource-list.ts#resourceListListedUidsOf` | PI-37 | 担当リストの表がいま並べている担当の `uid` —— 語と列のフィルタの後 —— を答える（表 T-370 の `RO-3`）。 |
 | `ResourceListRowView` | entry | interface | `src/adapter/screen-renderer/resource-list.ts#ResourceListRowView` | PI-37 | 型。 |
+| `resourceListTableRows` | entry | function | `src/adapter/screen-renderer/resource-list.ts#resourceListTableRows` | PI-37 | 担当リストの表に語と列のフィルタと並べ替えを当てた行を、画面に出す文字で答える。 |
 | `ResourceListView` | entry | interface | `src/adapter/screen-renderer/resource-list.ts#ResourceListView` | PI-37 | 型。 |
 | `resourceListWithColumnWidth` | entry | function | `src/adapter/screen-renderer/resource-list.ts#resourceListWithColumnWidth` | PI-37 | 列の境目（表 T-023d の `GR-28`）を引いた後の列の幅を、ウィンドウの値へ当てる（表 T-370 の `RO-9`）。 |
 | `resourceListWithFilterClosed` | entry | function | `src/adapter/screen-renderer/resource-list.ts#resourceListWithFilterClosed` | PI-37 | 開いている列のフィルタを閉じたウィンドウの値を答える（表 T-330 の `SV-14`）。 |
@@ -1543,6 +1550,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `shiftAmountText` | entry | function | `src/adapter/screen-renderer/notices.ts#shiftAmountText` | -- | function shiftAmountText(minutes: number): string |
 | `statusGlyphSvg` | entry | function | `src/adapter/screen-renderer/table-window.ts#statusGlyphSvg` | PI-37 | 表のステータスの値の頭に描く絵（`SQ-5`・`DT-1`・`RW-4`）。 |
 | `tableAfterVisibilityChange` | entry | function | `src/adapter/screen-renderer/table-window.ts#tableAfterVisibilityChange` | PI-37 | 表示の列の印の入れ外しを、表の値の「非表示」の行へ当てる（`FR-151` の 表 T-353 の `TV-2`）。 |
+| `TableRowCells` | entry | interface | `src/adapter/screen-renderer/search-table-filters.ts#TableRowCells` | -- | interface TableRowCells |
 | `tableViewsOnTheirColumns` | entry | function | `src/adapter/screen-renderer/table-window.ts#tableViewsOnTheirColumns` | PI-37 | 表の見え方から、その表に無い列の行 ID（表 T-372 の `column`）を持つ列のフィルタと並べ替えを外す（表 T-024a の `OP-18`）。 |
 | `TableWindowState` | entry | interface | `src/adapter/screen-renderer/table-window.ts#TableWindowState` | PI-37 | 型。 |
 | `tableWithScheduleFilterOff` | entry | function | `src/adapter/screen-renderer/table-window.ts#tableWithScheduleFilterOff` | -- | function tableWithScheduleFilterOff(view: TableView): TableView |
@@ -1639,6 +1647,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `ASSIGNEE_SEPARATOR` | file only | const | `src/adapter/screen-renderer/search-table-filters.ts#ASSIGNEE_SEPARATOR` | -- | const ASSIGNEE_SEPARATOR = ', ' |
 | `BLANK_SEARCH_VALUE` | file only | const | `src/adapter/screen-renderer/search-table-filters.ts#BLANK_SEARCH_VALUE` | -- | const BLANK_SEARCH_VALUE = '' |
 | `ColumnFilter` | file only | type | `src/adapter/screen-renderer/search-table-filters.ts#ColumnFilter` | -- | type ColumnFilter = TableView['columnFilters'][number] |
+| `columnHeadingsOf` | file only | function | `src/adapter/screen-renderer/search-table-filters.ts#columnHeadingsOf` | -- | function columnHeadingsOf( columns: readonly SearchColumn[], words: ReadonlyMap<string, { readonly ja: string; readonly en: string }>, isDate: (column: Searc... |
 | `ColumnSort` | file only | type | `src/adapter/screen-renderer/search-table-filters.ts#ColumnSort` | -- | type ColumnSort = NonNullable<TableView['sort']> |
 | `columnValuesOf` | file only | function | `src/adapter/screen-renderer/search-table-filters.ts#columnValuesOf` | -- | function columnValuesOf( rows: SearchRows, column: SearchColumn, hidden: ReadonlySet<number> = NOTHING_HIDDEN, |
 | `COMMENT_BOX_SEARCH_COLUMNS` | file only | const | `src/adapter/screen-renderer/search-table-filters.ts#COMMENT_BOX_SEARCH_COLUMNS` | -- | const COMMENT_BOX_SEARCH_COLUMNS: readonly SearchColumn[] = ['SQ-7', 'SQ-8', 'SQ-9'] |
@@ -2108,4 +2117,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 1070 name(s) leave through a public entry (517 of them published by table T-064), 828 more are exported by a file and not by its entry.
+Totals: 1075 name(s) leave through a public entry (521 of them published by table T-064), 832 more are exported by a file and not by its entry.

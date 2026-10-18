@@ -122,6 +122,7 @@ const T_107 = [
   { row: 'AM-5', name: 'readSelection', isProperty: false },
   { row: 'AM-6', name: 'readDialogueMessages', isProperty: false },
   { row: 'AM-25', name: 'readSearchRows', isProperty: false },
+  { row: 'AM-28', name: 'readTableRows', isProperty: false },
   { row: 'AM-26', name: 'readShownTasks', isProperty: false },
   { row: 'AM-19', name: 'readDelayDiagnostics', isProperty: false },
   { row: 'AM-7', name: 'applyCommands', isProperty: false },

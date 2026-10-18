@@ -28,7 +28,7 @@ const GLOSSARY = unbroken(readFileSync(join(SPEC, '_assets', 'tbl-glossary.md'),
 const GLOSSARY_POINTER = '表 T-107（`Agent API` のメンバ）と、その呼び方（引数・型・戻り値）は `_assets/tbl-agent-api-members.md` が持つ'
 const VERSION_SENTENCE = 'いまの版は `2026-10-17T15:27:48Z` である（`AM-1` が返す値）。'
 const CHANGE_RAISES_VERSION = '呼び方を変える変更は、版をその変更を当てる時刻へ上げる（表 T-035 の `AG-1`）。'
-const TWENTY_TWO = '**`Agent API` は 1 つの面に 22 のメンバをフラットに並べる。**'
+const TWENTY_TWO = '**`Agent API` は 1 つの面に 23 のメンバをフラットに並べる。**'
 const CALL_SHAPES_ARE_GENERATED =
   '呼び方（引数の名・型・意味と戻り値）は本表と 表 T-400 が持つ** —— コードの `AgentApi` の型と、MCP の道具の入力の形は本表の原稿から生成し、手で書かない'
 
@@ -48,6 +48,18 @@ const EXPECTED_ROWS: readonly (readonly [string, string, readonly string[], stri
   ['AM-5', 'readSelection', [], 'Selection'],
   ['AM-6', 'readDialogueMessages', [], 'readonly DialogueMessage[]'],
   ['AM-25', 'readSearchRows', ['word: string', "filters: 'asShown' | 'none'", 'offset: number', 'limit: number'], 'AgentSearchPage'],
+  [
+    'AM-28',
+    'readTableRows',
+    [
+      "table: 'delayDiagnosticsReport' | 'resourceList'",
+      'word: string',
+      "filters: 'asShown' | 'none'",
+      'offset: number',
+      'limit: number',
+    ],
+    'AgentTableRows',
+  ],
   ['AM-26', 'readShownTasks', [], 'AgentShownTasks'],
   ['AM-19', 'readDelayDiagnostics', [], 'AgentDelayDiagnostics'],
   ['AM-7', 'applyCommands', ['request: AgentWriteRequest'], 'AgentWriteOutcome'],
@@ -77,7 +89,7 @@ describe('T-107 is printed in one place, with the two columns CR-765 adds', () =
     expect(caption).toContain('表 T-107 — `Agent API` のメンバ')
   })
 
-  it('the prose above the table says 22 members on one flat surface, the version is a date-time and a change of call shape raises it', () => {
+  it('the prose above the table says 23 members on one flat surface, the version is a date-time and a change of call shape raises it', () => {
     const prose = unbroken(PRINTED_TEXT)
     expect(prose).toContain(TWENTY_TWO)
     expect(prose).toContain(VERSION_SENTENCE)
@@ -85,10 +97,10 @@ describe('T-107 is printed in one place, with the two columns CR-765 adds', () =
     expect(prose).toContain(CALL_SHAPES_ARE_GENERATED)
   })
 
-  it('22 rows, each a distinct row id AM-n and a distinct confirmed name, in the printed order', () => {
-    expect(members).toHaveLength(22)
-    expect(new Set(members.map((one) => one.id)).size).toBe(22)
-    expect(new Set(members.map((one) => one.name)).size).toBe(22)
+  it('23 rows, each a distinct row id AM-n and a distinct confirmed name, in the printed order', () => {
+    expect(members).toHaveLength(23)
+    expect(new Set(members.map((one) => one.id)).size).toBe(23)
+    expect(new Set(members.map((one) => one.name)).size).toBe(23)
     expect(members.map((one) => one.id)).toEqual(EXPECTED_ROWS.map(([id]) => id))
     expect(members.map((one) => one.name)).toEqual(EXPECTED_ROWS.map(([, name]) => name))
   })
@@ -138,11 +150,12 @@ describe('T-107 arguments and return values, row by row', () => {
   })
 
   // see AM-3, AM-25
-  it('the argument columns name eight members that take an argument; the rest print a dash', () => {
+  it('the argument columns name nine members that take an argument; the rest print a dash', () => {
     const taking = members.filter((one) => one.arguments.length > 0).map((one) => one.name)
     expect(taking).toEqual([
       'readDocument',
       'readSearchRows',
+      'readTableRows',
       'applyCommands',
       'importDocument',
       'focusTask',
@@ -205,6 +218,6 @@ describe('AM-25 and AM-19 divide the delay analysis between them, and say so in 
         checked += 1
       }
     }
-    expect(checked).toBe(2)
+    expect(checked).toBe(3)
   })
 })

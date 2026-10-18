@@ -143,11 +143,12 @@ describe('mcpToolList: one tool per row of T-107, with the input the argument co
     expect(empty.filter((one) => one.isProperty).map((one) => one.name)).toEqual(['agentApiVersion', 'schemaVersion'])
   })
 
-  it('the eight members with an argument give their keys the types the rule derives', () => {
+  it('the nine members with an argument give their keys the types the rule derives', () => {
     const typesOf = (name: string): unknown[] =>
       Object.values(toolNamed(name).inputSchema.properties as Readonly<Record<string, Schema>>).map((schema) => schema.type)
     expect(typesOf('readDocument')).toEqual(['boolean', 'array'])
     expect(typesOf('readSearchRows')).toEqual(['string', 'string', 'number', 'number'])
+    expect(typesOf('readTableRows')).toEqual(['string', 'string', 'string', 'number', 'number'])
     expect(typesOf('applyCommands')).toEqual(['object'])
     expect(typesOf('importDocument')).toEqual(['object'])
     expect(typesOf('focusTask')).toEqual(['number'])
@@ -178,7 +179,7 @@ describe('AM-17 and AG-12 (5): watchChanges takes waitMs and not its receiver', 
 
 describe('mcp-tool-descriptions.json is what mcpToolList returns', () => {
   it('the file holds one entry per tool, with the same name, description and input properties', () => {
-    expect(FILE.tools).toHaveLength(22)
+    expect(FILE.tools).toHaveLength(23)
     expect(
       FILE.tools.map((tool) => ({ name: tool.name, description: tool.description, properties: tool.inputSchema.properties })),
     ).toEqual(

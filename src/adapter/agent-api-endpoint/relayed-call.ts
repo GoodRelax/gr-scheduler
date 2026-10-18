@@ -24,6 +24,7 @@ export interface RelayedParams {
   readSelection: {}
   readDialogueMessages: {}
   readSearchRows: { word: string; filters: 'asShown' | 'none'; offset: number; limit: number }
+  readTableRows: { table: 'delayDiagnosticsReport' | 'resourceList'; word: string; filters: 'asShown' | 'none'; offset: number; limit: number }
   readShownTasks: {}
   readDelayDiagnostics: {}
   applyCommands: { request: AgentWriteRequest }
@@ -46,6 +47,7 @@ export interface RelayedParams {
 const MEMBER_PARAMETERS = {
   readDocument: ['includeCarry', 'taskUids'],
   readSearchRows: ['word', 'filters', 'offset', 'limit'],
+  readTableRows: ['table', 'word', 'filters', 'offset', 'limit'],
   applyCommands: ['request'],
   importDocument: ['source'],
   focusTask: ['taskUid'],

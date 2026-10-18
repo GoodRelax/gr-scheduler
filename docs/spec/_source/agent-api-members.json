@@ -35,7 +35,7 @@
     "Start with agentApiVersion. If a tool answers with the reason pageNotConnected, ask the person to open the address it gives (all of it, the part after # included), open a document there, and press the Agent API button in the page header.",
     "Before you read or write a document, read the resource grs-document.schema.json from this server. It is the JSON Schema of the GRS JSON document, of the same version as the page, with a description on every key: the times, the units and what each column means. Before you write, read the resource grs-commands.schema.json: every command kind applyCommands takes, with its fields.",
     "If your client cannot read resources, call exportJson: its text begins with $schema, the address of the latest published schema.",
-    "Read in small pieces: readSearchRows returns one page of the Search Panel as the person sees it (an empty word is the whole outline); readDocument leaves out the MSPDI pass-through fields unless you ask, and can be narrowed to some tasks; readStamp is cheap. Write with applyCommands, handing over the stamp you last read as expectedStamp; the whole batch is applied or refused as one.",
+    "Read in small pieces: readSearchRows returns one page of the Search Panel as the person sees it (an empty word is the whole outline) and readTableRows does the same for the Delay Diagnostics Report and the Resource List; readDocument leaves out the MSPDI pass-through fields unless you ask, and can be narrowed to some tasks; readStamp is cheap. Write with applyCommands, handing over the stamp you last read as expectedStamp; the whole batch is applied or refused as one.",
     "A refusal is a value, not an error: it names the reason and carries the current stamp, never the document. Read again what you need, then retry.",
     "While the person is dragging, typing in place or answering a question, writes are refused; try again shortly.",
     "These tools save nothing to a file. The person saves the document from the page.",
@@ -105,7 +105,7 @@
   },
   "before": {
    "ja": [
-    "**`Agent API` は 1 つの面に 22 のメンバをフラットに並べる。**",
+    "**`Agent API` は 1 つの面に 23 のメンバをフラットに並べる。**",
     "用途別に分けない理由は Chapter 5.2 が持つ（`R2.5`）。",
     "いまの版は `{version}` である（`AM-1` が返す値）。",
     "版は、文書の形式の版（`FR-073`）と同じ書式の日時である —— 呼び方を変える変更は、版をその変更を当てる時刻へ上げる（表 T-035 の `AG-1`）。",
@@ -342,6 +342,79 @@
     },
     "source": {
      "ja": "`FR-151` の 表 T-330 の `SV-4` ／ 表 T-331 "
+    }
+   },
+   {
+    "id": "AM-28",
+    "group": {
+     "ja": "読む"
+    },
+    "name": "readTableRows",
+    "kind": "method",
+    "purity": "semi-pure-b",
+    "arguments": [
+     {
+      "name": "table",
+      "type": "'delayDiagnosticsReport' | 'resourceList'",
+      "meaning": {
+       "ja": "読む表 —— 遅延診断レポートの表か担当リストの表",
+       "en": "The table to read: the Delay Diagnostics Report table or the Resource List table"
+      }
+     },
+     {
+      "name": "word",
+      "type": "string",
+      "meaning": {
+       "ja": "表の入力欄と同じ読み方で行を絞る語 —— 空なら絞らない",
+       "en": "Narrows the rows the way the table's search field does; an empty word narrows nothing"
+      }
+     },
+     {
+      "name": "filters",
+      "type": "'asShown' | 'none'",
+      "meaning": {
+       "ja": "`asShown`（省けばこれ）は人がその表に掛けている列のフィルタと並べ替えを当て、`none` は当てない",
+       "en": "'asShown' (the default) applies the column filters and sort the person has set on that table; 'none' applies neither"
+      }
+     },
+     {
+      "name": "offset",
+      "type": "number",
+      "meaning": {
+       "ja": "最初に返す行の位置（0 から） —— 省けば 0",
+       "en": "The position of the first row to return, from 0; 0 when omitted"
+      }
+     },
+     {
+      "name": "limit",
+      "type": "number",
+      "meaning": {
+       "ja": "返す行の数 —— 省けば 100、上限 100",
+       "en": "How many rows to return; 100 when omitted, at most 100"
+      }
+     }
+    ],
+    "returns": "AgentTableRows",
+    "carries": {
+     "ja": [
+      "遅延診断レポートの表（`FR-134` の 表 T-347）か担当リストの表（`FR-099` の 表 T-371）の行を、ページに分けて返す。",
+      "⭐ `filters` が `asShown` なら、人がその表に掛けている列のフィルタと並べ替え（`_assets/tbl-settings.md` の `S-566`・`S-567`・`S-571`・`S-572`）を当てる —— 人が見ている表と同じ行が同じ順で返る。",
+      "表の入力欄は読みも変えもしない。",
+      "遅延診断レポートの表は、`AM-19` と同じ診断をその時に行って作る —— 画面の値も文書も書かない。",
+      "1 回に返す行は `limit` まで（上限 100）で、答えは列の一覧と全部の行数と次の `offset` を持つ（`AV-18`）。",
+      "AI が列のフィルタと並べ替えを変えるのは `applyCommands` の `setTableView`（表 T-108 の `CM-92`）であり、人の画面の表も同じに変わる。",
+      "⚠️ 検索パネルの表は `readSearchRows`（`AM-25`）が読む —— 1 つの表を読む道は 1 つである。"
+     ],
+     "en": [
+      "Returns the rows of the Delay Diagnostics Report table or the Resource List table, one page at a time, with every cell as the person sees it.",
+      "With filters 'asShown' (the default) the column filters and sort the person has set on that table are applied, so you get the same rows in the same order as on screen. The table's own search field is neither read nor changed.",
+      "The Delay Diagnostics Report table is built from a fresh diagnosis, as readDelayDiagnostics does; nothing on the screen or in the document changes.",
+      "Up to limit rows (at most 100) are returned from offset; the answer lists the columns, the total row count and the next offset.",
+      "To change a table's column filters or sort as the person would, send setTableView through applyCommands. The Search Panel is read with readSearchRows."
+     ]
+    },
+    "source": {
+     "ja": "`FR-134` の 表 T-347 ／ `FR-099` の 表 T-371 ／ `FR-151` の 表 T-353"
     }
    },
    {
@@ -1602,6 +1675,141 @@
     ],
     "source": {
      "ja": "`AM-25` ／ 表 T-331 ／ 表 T-372"
+    }
+   },
+   {
+    "id": "AV-18",
+    "name": "AgentTableRows",
+    "shape": "union",
+    "source": {
+     "ja": "`AM-28`"
+    },
+    "variants": [
+     {
+      "label": {
+       "ja": "読めたとき"
+      },
+      "fields": [
+       {
+        "name": "ok",
+        "type": "true",
+        "meaning": {
+         "ja": "読めた"
+        }
+       },
+       {
+        "name": "table",
+        "type": "string",
+        "meaning": {
+         "ja": "読んだ表の名（`AM-28` の `table`）"
+        }
+       },
+       {
+        "name": "columns",
+        "type": "readonly AgentTableColumn[]",
+        "meaning": {
+         "ja": "その表の列の一覧（`AV-17`）"
+        }
+       },
+       {
+        "name": "rows",
+        "type": "readonly AgentTableRow[]",
+        "meaning": {
+         "ja": "行のうち、`offset` から `limit` まで（`AV-19`）"
+        }
+       },
+       {
+        "name": "total",
+        "type": "number",
+        "meaning": {
+         "ja": "絞った後の行の数"
+        }
+       },
+       {
+        "name": "offset",
+        "type": "number",
+        "meaning": {
+         "ja": "返した最初の行の位置"
+        }
+       },
+       {
+        "name": "nextOffset",
+        "type": "number | null",
+        "meaning": {
+         "ja": "続きの最初の位置 —— 続きが無ければ `null`"
+        }
+       }
+      ]
+     },
+     {
+      "label": {
+       "ja": "拒んだとき"
+      },
+      "fields": [
+       {
+        "name": "ok",
+        "type": "false",
+        "meaning": {
+         "ja": "拒んだ —— 知らない表の名（`malformedRequest`）"
+        }
+       },
+       {
+        "name": "refusal",
+        "type": "AgentRefusal",
+        "meaning": {
+         "ja": "拒否の値"
+        }
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "id": "AV-19",
+    "name": "AgentTableRow",
+    "shape": "interface",
+    "fields": [
+     {
+      "name": "key",
+      "type": "number | string",
+      "meaning": {
+       "ja": "行の対象 —— 遅延診断レポートはタスクの `uid`、担当リストは担当の `uid`（担当の無い行は `'unassigned'`）"
+      }
+     },
+     {
+      "name": "cells",
+      "type": "readonly AgentTableCell[]",
+      "meaning": {
+       "ja": "列ごとの画面の値（`AV-20`）"
+      }
+     }
+    ],
+    "source": {
+     "ja": "`AM-28`"
+    }
+   },
+   {
+    "id": "AV-20",
+    "name": "AgentTableCell",
+    "shape": "interface",
+    "fields": [
+     {
+      "name": "column",
+      "type": "string",
+      "meaning": {
+       "ja": "列の行 ID（表 T-347 の `DT-1` など、表 T-371 の `RQ-1` など）"
+      }
+     },
+     {
+      "name": "text",
+      "type": "string",
+      "meaning": {
+       "ja": "英語の画面に出す値の文字 —— 画面の言語は文書にも呼び出しにも無いので英語に決め、選んでいる担当の印（`RQ-3`）は人の画面の選択を持たないのでいつも選んでいない値になる"
+      }
+     }
+    ],
+    "source": {
+     "ja": "`AM-28`"
     }
    }
   ]

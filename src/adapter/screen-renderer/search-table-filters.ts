@@ -263,7 +263,6 @@ export function filteredTableRows<Row>(
 }
 
 // see AM-25, AV-17, T-331
-// WHY: the task table's columns in screen order with their on-screen words, for the Agent API's page of rows.
 export interface SearchColumnHeading {
   readonly column: SearchColumn
   readonly ja: string
@@ -271,14 +270,30 @@ export interface SearchColumnHeading {
   readonly isDate: boolean
 }
 
+// see AM-25, AM-28, AV-17
+/** @purity pure */
+export function columnHeadingsOf(
+  columns: readonly SearchColumn[],
+  words: ReadonlyMap<string, { readonly ja: string; readonly en: string }>,
+  isDate: (column: SearchColumn) => boolean,
+): readonly SearchColumnHeading[] {
+  return columns.map((column) => {
+    const text = words.get(column)
+    return { column, ja: text?.ja ?? column, en: text?.en ?? column, isDate: isDate(column) }
+  })
+}
+
 // see AM-25, AV-17, T-331
 /** @purity pure */
 export function taskSearchColumnHeadings(): readonly SearchColumnHeading[] {
   const words = new Map(displayWords.searchColumns.map((entry) => [entry.rowId, entry.text]))
-  return TASK_SEARCH_COLUMNS.map((column) => {
-    const text = words.get(column)
-    return { column, ja: text?.ja ?? column, en: text?.en ?? column, isDate: isDateSearchColumn(column) }
-  })
+  return columnHeadingsOf(TASK_SEARCH_COLUMNS, words, isDateSearchColumn)
+}
+
+// see AM-28, AV-19, AV-20, T-347, T-371
+export interface TableRowCells {
+  readonly key: number | string
+  readonly cells: readonly { readonly column: string; readonly text: string }[]
 }
 
 // see SV-7, SV-8

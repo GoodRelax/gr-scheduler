@@ -43,7 +43,14 @@ import * as PostDialogueMessage from '../../use-case/post-dialogue-message/post-
 import * as DocumentCodec from '../document-codec/document-codec'
 import { jsonFromDocument, mspdiFromDocument } from '../document-codec/document-codec'
 import * as ImageExporter from '../image-exporter/image-exporter'
-import { filteredSearchRows, taskSearchColumnHeadings } from '../screen-renderer/screen-renderer'
+import {
+  delayReportColumnHeadings,
+  delayReportTableRows,
+  filteredSearchRows,
+  resourceListColumnHeadings,
+  resourceListTableRows,
+  taskSearchColumnHeadings,
+} from '../screen-renderer/screen-renderer'
 import { hasRoomBelowPinsIn } from '../../entity/layout-engine/schedule-layout/schedule-layout'
 import type { AgentSnapshot, SnapshotSource } from './snapshot-source'
 
@@ -200,6 +207,31 @@ export interface AgentTableColumn {
   readonly kind: 'text' | 'date'
 }
 
+// see AV-18
+export type AgentTableRows =
+  | {
+      readonly ok: true
+      readonly table: string
+      readonly columns: readonly AgentTableColumn[]
+      readonly rows: readonly AgentTableRow[]
+      readonly total: number
+      readonly offset: number
+      readonly nextOffset: number | null
+    }
+  | { readonly ok: false; readonly refusal: AgentRefusal }
+
+// see AV-19
+export interface AgentTableRow {
+  readonly key: number | string
+  readonly cells: readonly AgentTableCell[]
+}
+
+// see AV-20
+export interface AgentTableCell {
+  readonly column: string
+  readonly text: string
+}
+
 // see T-107
 export interface AgentApi {
   readonly agentApiVersion: string
@@ -215,6 +247,8 @@ export interface AgentApi {
   readDialogueMessages(): readonly DialogueMessage[]
   /** @purity semi-pure-b */
   readSearchRows(word: string, filters: 'asShown' | 'none', offset: number, limit: number): AgentSearchPage
+  /** @purity semi-pure-b */
+  readTableRows(table: 'delayDiagnosticsReport' | 'resourceList', word: string, filters: 'asShown' | 'none', offset: number, limit: number): AgentTableRows
   /** @purity semi-pure-b */
   readShownTasks(): AgentShownTasks
   /** @purity semi-pure-b */
@@ -336,31 +370,38 @@ function documentAsRead(document: Document, includeCarry: unknown, taskUids: unk
   return frozenCopy(narrowed, includeCarry === true ? NO_DROPPED_KEYS : CARRY_KEYS)
 }
 
-// see AM-25, AV-17, T-331
+type ColumnHeading = ReturnType<typeof taskSearchColumnHeadings>[number]
+
+/** @purity pure */
+function agentColumnOf(heading: ColumnHeading): AgentTableColumn {
+  return { id: heading.column, ja: heading.ja, en: heading.en, kind: heading.isDate ? 'date' : 'text' }
+}
+
+// see AM-25, AM-28, AV-17, T-331
 const SEARCH_PAGE_LIMIT = 100
-const SEARCH_TABLE_COLUMNS: readonly AgentTableColumn[] = taskSearchColumnHeadings().map((heading) => ({
-  id: heading.column,
-  ja: heading.ja,
-  en: heading.en,
-  kind: heading.isDate ? 'date' : 'text',
-}))
+const SEARCH_TABLE_COLUMNS: readonly AgentTableColumn[] = taskSearchColumnHeadings().map(agentColumnOf)
 
 /** @purity pure */
 function wholeNumberOr(given: unknown, fallback: number): number {
   return typeof given === 'number' && Number.isFinite(given) ? Math.max(0, Math.floor(given)) : fallback
 }
 
+// see AM-25, AM-28
+/** @purity pure */
+function pageBoundsOf(offset: unknown, limit: unknown): { readonly start: number; readonly end: number } {
+  const start = wholeNumberOr(offset, 0)
+  const count = Math.min(SEARCH_PAGE_LIMIT, Math.max(1, wholeNumberOr(limit, SEARCH_PAGE_LIMIT)))
+  return { start, end: start + count }
+}
+
 // see AM-25, AV-16, S-562, S-563
-// WHY: the Search Panel task table's own filter and sort, so the rows come in the order the person sees.
 /** @purity pure */
 function searchPageOf(document: Document, word: string, filters: unknown, offset: unknown, limit: unknown): AgentSearchPage {
   const found = searchRowsOf(document.schedule, typeof word === 'string' ? word : '')
   const held = document.documentSettings.tableViews?.searchPanel
   const isAsShown = filters !== 'none' && held !== undefined
   const rows = isAsShown ? filteredSearchRows(found, held.columnFilters, held.sort, new Set(held.hiddenTaskUids)) : found
-  const start = wholeNumberOr(offset, 0)
-  const count = Math.min(SEARCH_PAGE_LIMIT, Math.max(1, wholeNumberOr(limit, SEARCH_PAGE_LIMIT)))
-  const end = start + count
+  const { start, end } = pageBoundsOf(offset, limit)
   return {
     taskRows: rows.taskRows.slice(start, end),
     commentBoxRows: found.commentBoxRows,
@@ -368,6 +409,49 @@ function searchPageOf(document: Document, word: string, filters: unknown, offset
     taskTotal: rows.taskRows.length,
     offset: start,
     nextOffset: end < rows.taskRows.length ? end : null,
+  }
+}
+
+type AgentTable = Parameters<AgentApi['readTableRows']>[0]
+
+const TABLE_COLUMNS: Readonly<Record<AgentTable, readonly AgentTableColumn[]>> = {
+  delayDiagnosticsReport: delayReportColumnHeadings().map(agentColumnOf),
+  resourceList: resourceListColumnHeadings().map(agentColumnOf),
+}
+
+// see AM-28, AV-20
+// WHY: the Agent API reads no screen value: not the screen language (S-99), nor the choice of resources (RO-3).
+const TABLE_CELL_LANGUAGE = 'en'
+const NO_CHOSEN_RESOURCES: readonly number[] = []
+
+/** @purity pure */
+function isAgentTable(table: unknown): table is AgentTable {
+  return typeof table === 'string' && Object.prototype.hasOwnProperty.call(TABLE_COLUMNS, table)
+}
+
+// see AM-28, AM-19, FR-134, FR-099, S-566, S-567, S-571, S-572
+/** @purity pure */
+function tableRowsListedOf(document: Document, table: AgentTable, word: string, isAsShown: boolean): readonly AgentTableRow[] {
+  const look = { word, isAsShown, language: TABLE_CELL_LANGUAGE } as const
+  const { schedule, documentSettings } = document
+  if (table === 'resourceList') return resourceListTableRows(schedule, documentSettings, NO_CHOSEN_RESOURCES, look)
+  const report = diagnoseDelay(document, workingCalendarOf(schedule))
+  return delayReportTableRows(report, schedule, documentSettings, look)
+}
+
+// see AM-28, AV-18, T-347, T-371
+/** @purity pure */
+function tableRowsPageOf(document: Document, table: AgentTable, word: unknown, filters: unknown, offset: unknown, limit: unknown): AgentTableRows {
+  const rows = tableRowsListedOf(document, table, typeof word === 'string' ? word : '', filters !== 'none')
+  const { start, end } = pageBoundsOf(offset, limit)
+  return {
+    ok: true,
+    table,
+    columns: TABLE_COLUMNS[table],
+    rows: rows.slice(start, end),
+    total: rows.length,
+    offset: start,
+    nextOffset: end < rows.length ? end : null,
   }
 }
 
@@ -819,6 +903,17 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
     /** @purity semi-pure-b */
     readSearchRows: (word: string, filters: 'asShown' | 'none', offset: number, limit: number): AgentSearchPage =>
       frozenCopy(searchPageOf(source.readSnapshot().document, word, filters, offset, limit)),
+
+    // see AM-28, AG-9a
+    /** @purity semi-pure-b */
+    readTableRows(table: AgentTable, word: string, filters: 'asShown' | 'none', offset: number, limit: number): AgentTableRows {
+      const snapshot = source.readSnapshot()
+      if (!isAgentTable(table)) {
+        const refusal = agentRefusal('AM-28', 'malformedRequest', snapshot, `no such table: ${String(table)}`, [])
+        return { ok: false, refusal }
+      }
+      return frozenCopy(tableRowsPageOf(snapshot.document, table, word, filters, offset, limit))
+    },
 
     /** @purity semi-pure-b */
     readShownTasks: (): AgentShownTasks => frozenCopy(wiring.shownTasks?.readShownTasks() ?? NO_SHOWN_TASKS),

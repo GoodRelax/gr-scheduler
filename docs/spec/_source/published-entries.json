@@ -2621,7 +2621,7 @@
      "after": {
       "ja": [
        "。",
-       "⚠️ 外へ公開する 22 メンバの名前は `_assets/tbl-agent-api-members.md` の 表 T-107 が持つ。",
+       "⚠️ 外へ公開する 23 メンバの名前は `_assets/tbl-agent-api-members.md` の 表 T-107 が持つ。",
        "本表に書き写さない（MUST NOT）"
       ]
      }
@@ -4370,6 +4370,42 @@
       "ja": [
        "検索パネルのタスクの表の列の一覧（列の行 ID・画面の名・値の種類）。",
        "`AM-25` の答えの `columns` が読む"
+      ]
+     }
+    },
+    {
+     "name": "delayReportColumnHeadings",
+     "note": {
+      "ja": [
+       "遅延診断レポートの表（表 T-347）の列の一覧（列の行 ID・画面の名・値の種類）。",
+       "`AM-28` の答えの `columns` が読む"
+      ]
+     }
+    },
+    {
+     "name": "delayReportTableRows",
+     "note": {
+      "ja": [
+       "遅延診断レポートの表に語と列のフィルタと並べ替えを当てた行を、画面に出す文字で答える。",
+       "`Agent API` の `readTableRows`（`tbl-agent-api-members.md` の 表 T-107 の `AM-28`）が、人の画面と同じ行を返すために読む"
+      ]
+     }
+    },
+    {
+     "name": "resourceListColumnHeadings",
+     "note": {
+      "ja": [
+       "担当リストの表（表 T-371）の列の一覧（列の行 ID・画面の名・値の種類）。",
+       "`AM-28` の答えの `columns` が読む"
+      ]
+     }
+    },
+    {
+     "name": "resourceListTableRows",
+     "note": {
+      "ja": [
+       "担当リストの表に語と列のフィルタと並べ替えを当てた行を、画面に出す文字で答える。",
+       "`AM-28` が、人の画面と同じ行を返すために読む"
       ]
      }
     }

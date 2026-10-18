@@ -93,7 +93,7 @@ export { imageToJsonPromptText } from './app-header-items'
 export { delayFixBackupFileNameOf, exportFileNameOf, UNTITLED_DOCUMENT_TITLE } from './open-modals'
 export type { SearchFilterChange, SearchPanelShown, SearchPanelView } from './search-panel'
 export { filteredSearchRows, taskSearchColumnHeadings } from './search-table-filters'
-export type { SearchColumnHeading } from './search-table-filters'
+export type { SearchColumnHeading, TableRowCells } from './search-table-filters'
 export {
   MARK_COLOR_ROWS,
   UNASSIGNED_ROW_KEY,
@@ -111,8 +111,10 @@ export {
   OPENED_RESOURCE_LIST,
   resourceListAfterEntry,
   resourceListAfterFilterChange,
+  resourceListColumnHeadings,
   resourceListFromWindow,
   resourceListListedUidsOf,
+  resourceListTableRows,
   resourceListWithColumnWidth,
   resourceListWithFilterClosed,
 } from './resource-list'
@@ -128,6 +130,8 @@ export {
   delayDiagnosticsReportWithColumnWidth,
   delayDiagnosticsReportWithFilterClosed,
   delayDiagnosticsReportWithInput,
+  delayReportColumnHeadings,
+  delayReportTableRows,
 } from './delay-diagnostics-report'
 export type { DelayDiagnosticsReportView, DelayDiagnosticsReportWindow, DelayFixTelling } from './delay-diagnostics-report'
 

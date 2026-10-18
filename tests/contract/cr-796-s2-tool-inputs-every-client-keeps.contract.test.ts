@@ -89,7 +89,7 @@ function bannedShapesIn(node: unknown, at: string): string[] {
 describe('CR-796 s2 -- no tool input carries oneOf, anyOf or a type list (AG-12 (8))', () => {
   const tools = toolsOfDescriptions()
 
-  it('the descriptions hold the 22 tools of table T-107, so the scan below covers every one', () => {
+  it('the descriptions hold every tool of table T-107, so the scan below covers every one', () => {
     expect(tools.length).toBeGreaterThan(0)
     for (const tool of tools) expect(isObject(tool.inputSchema), tool.name).toBe(true)
   })

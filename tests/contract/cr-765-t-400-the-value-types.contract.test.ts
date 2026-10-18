@@ -1,4 +1,4 @@
-// CR-765 spec-only tests: table T-400, the value types AV-1 to AV-17 the members of T-107 hand over, and the reasons of AV-4.
+// CR-765 spec-only tests: table T-400, the value types AV-1 to AV-20 the members of T-107 hand over, and the reasons of AV-4.
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -54,6 +54,9 @@ const EXPECTED_TYPES = [
   ['AV-15', 'AgentImportOutcome'],
   ['AV-16', 'AgentSearchPage'],
   ['AV-17', 'AgentTableColumn'],
+  ['AV-18', 'AgentTableRows'],
+  ['AV-19', 'AgentTableRow'],
+  ['AV-20', 'AgentTableCell'],
 ] as const
 
 // see T-400
@@ -95,6 +98,13 @@ const EXPECTED_FIELDS: Readonly<Record<string, readonly (readonly string[])[]>> 
   // see AV-16, AV-17
   'AV-16': [['taskRows', 'commentBoxRows', 'columns', 'taskTotal', 'offset', 'nextOffset']],
   'AV-17': [['id', 'ja', 'en', 'kind']],
+  // see AV-18, AV-19, AV-20
+  'AV-18': [
+    ['ok', 'table', 'columns', 'rows', 'total', 'offset', 'nextOffset'],
+    ['ok', 'refusal'],
+  ],
+  'AV-19': [['key', 'cells']],
+  'AV-20': [['column', 'text']],
 }
 
 // see AV-4
@@ -139,23 +149,23 @@ const inClosure = (): Set<string> => {
   return seen
 }
 
-describe('T-400 is printed beside T-107 with seventeen rows AV-1 to AV-17 (CR-796)', () => {
+describe('T-400 is printed beside T-107 with twenty rows AV-1 to AV-20 (CR-796)', () => {
   it('the shared table reader finds it in tbl-agent-api-members.md; the columns are row id, type name, fields, source', () => {
     expect(specTable('T-400').file).toBe(join('_assets', 'tbl-agent-api-members.md'))
     expect(headings).toEqual([...T_400_HEADINGS])
     expect(caption).toContain('表 T-400 — `Agent API` が受け渡す値の型')
   })
 
-  it('the rows are AV-1 to AV-17 in order, each a distinct type name', () => {
+  it('the rows are AV-1 to AV-20 in order, each a distinct type name', () => {
     expect(values.map((one) => [one.id, one.bareName])).toEqual(EXPECTED_TYPES.map((one) => [...one]))
-    expect(new Set(values.map((one) => one.bareName)).size).toBe(17)
+    expect(new Set(values.map((one) => one.bareName)).size).toBe(20)
     expect(valueRow('AV-5').typeName).toBe('AgentExport<TValue>')
   })
 
-  it('the prefix AV is registered for table T-400 with its 17 rows', () => {
+  it('the prefix AV is registered for table T-400 with its 20 rows', () => {
     const registered = PREFIXES.split('\n').find((line) => line.startsWith('| `AV` |')) ?? ''
     expect(registered).toContain('`T-400`')
-    expect(registered.trim().endsWith('| 17 |')).toBe(true)
+    expect(registered.trim().endsWith('| 20 |')).toBe(true)
   })
 
   it('AV-13 and AV-14 are declared by other components and printed here with the field names of this table', () => {
@@ -171,11 +181,11 @@ describe('T-400 fields, row by row', () => {
 })
 
 describe('every row of T-400 is used by a member, and every type a member names is a row of T-400', () => {
-  it('the rows a member reaches, directly or through the rows it points at, are all seventeen', () => {
+  it('the rows a member reaches, directly or through the rows it points at, are all twenty', () => {
     expect([...inClosure()].sort((a, b) => Number(a.slice(3)) - Number(b.slice(3)))).toEqual(values.map((one) => one.id))
   })
 
-  it('the rows a member points at directly are AV-1, AV-2, AV-5 to AV-13, AV-15 and AV-16 (CR-796)', () => {
+  it('the rows a member points at directly are AV-1, AV-2, AV-5 to AV-13, AV-15, AV-16 and AV-18 (CR-796)', () => {
     const direct = new Set(
       members.flatMap((one) => [...one.arguments.flatMap((argument) => argument.pointsAt), ...one.returnsPointsAt]).filter((id) => id.startsWith('AV-')),
     )
@@ -193,6 +203,7 @@ describe('every row of T-400 is used by a member, and every type a member names 
       'AV-13',
       'AV-15',
       'AV-16',
+      'AV-18',
     ])
   })
 

@@ -542,12 +542,12 @@
   {
    "from": "docs/spec/_source/agent-api-members.json",
    "to": "docs/spec UIDs",
-   "count": 37
+   "count": 42
   },
   {
    "from": "docs/spec/_source/agent-api-members.json",
    "to": "docs/spec/01-04-requirements.md",
-   "count": 144
+   "count": 154
   },
   {
    "from": "docs/spec/_source/agent-api-members.json",
@@ -562,7 +562,7 @@
   {
    "from": "docs/spec/_source/agent-api-members.json",
    "to": "docs/spec/_source/document-commands.json",
-   "count": 6
+   "count": 8
   },
   {
    "from": "docs/spec/_source/agent-api-members.json",
@@ -577,7 +577,7 @@
   {
    "from": "docs/spec/_source/agent-api-members.json",
    "to": "docs/spec/_source/settings.json",
-   "count": 3
+   "count": 7
   },
   {
    "from": "docs/spec/_source/agent-api-members.schema.json",
@@ -972,7 +972,7 @@
   {
    "from": "docs/spec/_source/published-entries.json",
    "to": "docs/spec/01-04-requirements.md",
-   "count": 679
+   "count": 681
   },
   {
    "from": "docs/spec/_source/published-entries.json",
@@ -987,7 +987,7 @@
   {
    "from": "docs/spec/_source/published-entries.json",
    "to": "docs/spec/_source/agent-api-members.json",
-   "count": 13
+   "count": 18
   },
   {
    "from": "docs/spec/_source/published-entries.json",
@@ -1447,8 +1447,8 @@
    "X": 5
   },
   "docs/spec/_source/agent-api-members.json": {
-   "AM": 22,
-   "AV": 17
+   "AM": 23,
+   "AV": 20
   },
   "docs/spec/_source/document-commands.json": {
    "CM": 91

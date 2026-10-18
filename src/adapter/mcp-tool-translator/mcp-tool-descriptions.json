@@ -1,6 +1,6 @@
 {
  "$comment": "GENERATED -- do not edit by hand. Generated from docs/spec/_source/agent-api-members.json, table T-107 (the members of the Agent API), and the commands the AM-7 input carries from docs/spec/_source/document-commands.json (table T-108), by tools/generate_mcp_tool_descriptions.py. Rebuild: npm run gen -- npm run gen:check fails on drift. One entry per row in the table's order: the confirmed name, its description lines joined by newlines, and its input shape (AG-12 (4) (5), design-mcp-relay.md 3.1). instructions is the text the relay answers MCP initialize with, the mcpInstructions lines joined by newlines (AG-12 (8)).",
- "instructions": "GRS Relay carries each tool call to the Agent API of the GoodRelax Scheduler (GRS) page a person has open in a browser. The page holds the only copy of the schedule document; the relay holds none.\nStart with agentApiVersion. If a tool answers with the reason pageNotConnected, ask the person to open the address it gives (all of it, the part after # included), open a document there, and press the Agent API button in the page header.\nBefore you read or write a document, read the resource grs-document.schema.json from this server. It is the JSON Schema of the GRS JSON document, of the same version as the page, with a description on every key: the times, the units and what each column means. Before you write, read the resource grs-commands.schema.json: every command kind applyCommands takes, with its fields.\nIf your client cannot read resources, call exportJson: its text begins with $schema, the address of the latest published schema.\nRead in small pieces: readSearchRows returns one page of the Search Panel as the person sees it (an empty word is the whole outline); readDocument leaves out the MSPDI pass-through fields unless you ask, and can be narrowed to some tasks; readStamp is cheap. Write with applyCommands, handing over the stamp you last read as expectedStamp; the whole batch is applied or refused as one.\nA refusal is a value, not an error: it names the reason and carries the current stamp, never the document. Read again what you need, then retry.\nWhile the person is dragging, typing in place or answering a question, writes are refused; try again shortly.\nThese tools save nothing to a file. The person saves the document from the page.\nThe descriptions here use no row ids of the GRS specification; the specification itself is at https://goodrelax.github.io/gr-scheduler/spec-html/",
+ "instructions": "GRS Relay carries each tool call to the Agent API of the GoodRelax Scheduler (GRS) page a person has open in a browser. The page holds the only copy of the schedule document; the relay holds none.\nStart with agentApiVersion. If a tool answers with the reason pageNotConnected, ask the person to open the address it gives (all of it, the part after # included), open a document there, and press the Agent API button in the page header.\nBefore you read or write a document, read the resource grs-document.schema.json from this server. It is the JSON Schema of the GRS JSON document, of the same version as the page, with a description on every key: the times, the units and what each column means. Before you write, read the resource grs-commands.schema.json: every command kind applyCommands takes, with its fields.\nIf your client cannot read resources, call exportJson: its text begins with $schema, the address of the latest published schema.\nRead in small pieces: readSearchRows returns one page of the Search Panel as the person sees it (an empty word is the whole outline) and readTableRows does the same for the Delay Diagnostics Report and the Resource List; readDocument leaves out the MSPDI pass-through fields unless you ask, and can be narrowed to some tasks; readStamp is cheap. Write with applyCommands, handing over the stamp you last read as expectedStamp; the whole batch is applied or refused as one.\nA refusal is a value, not an error: it names the reason and carries the current stamp, never the document. Read again what you need, then retry.\nWhile the person is dragging, typing in place or answering a question, writes are refused; try again shortly.\nThese tools save nothing to a file. The person saves the document from the page.\nThe descriptions here use no row ids of the GRS specification; the specification itself is at https://goodrelax.github.io/gr-scheduler/spec-html/",
  "tools": [
   {
    "name": "agentApiVersion",
@@ -87,6 +87,43 @@
      "limit": {
       "type": "number",
       "description": "How many task rows to return; 100 when omitted, at most 100"
+     }
+    }
+   }
+  },
+  {
+   "name": "readTableRows",
+   "description": "Returns the rows of the Delay Diagnostics Report table or the Resource List table, one page at a time, with every cell as the person sees it.\nWith filters 'asShown' (the default) the column filters and sort the person has set on that table are applied, so you get the same rows in the same order as on screen. The table's own search field is neither read nor changed.\nThe Delay Diagnostics Report table is built from a fresh diagnosis, as readDelayDiagnostics does; nothing on the screen or in the document changes.\nUp to limit rows (at most 100) are returned from offset; the answer lists the columns, the total row count and the next offset.\nTo change a table's column filters or sort as the person would, send setTableView through applyCommands. The Search Panel is read with readSearchRows.",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "table": {
+      "type": "string",
+      "enum": [
+       "delayDiagnosticsReport",
+       "resourceList"
+      ],
+      "description": "The table to read: the Delay Diagnostics Report table or the Resource List table"
+     },
+     "word": {
+      "type": "string",
+      "description": "Narrows the rows the way the table's search field does; an empty word narrows nothing"
+     },
+     "filters": {
+      "type": "string",
+      "enum": [
+       "asShown",
+       "none"
+      ],
+      "description": "'asShown' (the default) applies the column filters and sort the person has set on that table; 'none' applies neither"
+     },
+     "offset": {
+      "type": "number",
+      "description": "The position of the first row to return, from 0; 0 when omitted"
+     },
+     "limit": {
+      "type": "number",
+      "description": "How many rows to return; 100 when omitted, at most 100"
      }
     }
    }

@@ -34,8 +34,10 @@ import {
 } from '../../entity/document-model/schedule/schedule'
 import { lengthTextOf } from '../../entity/layout-engine/schedule-layout/schedule-layout'
 import type { ScreenRect } from '../../entity/layout-engine/screen-regions/screen-regions'
+import type { DocumentSettings } from '../../entity/document-model/document-settings/document-settings'
 import {
   emptySearchPanelSession,
+  tableViewOf,
   type ScreenSession,
   type TableView,
 } from '../../use-case/advance-screen-session/advance-screen-session'
@@ -50,6 +52,9 @@ import { taskTypeWordOf, taskTypeWordsIn, type SearchPanelView, type SearchRowVi
 import {
   ASSIGNEE_SEPARATOR,
   BLANK_SEARCH_VALUE,
+  HIDE_VALUE,
+  SHOW_VALUE,
+  columnHeadingsOf,
   compareTaskTypes,
   comparePercentTexts,
   filteredTableRows,
@@ -59,7 +64,9 @@ import {
   TASK_TYPES_ASCENDING,
   withVisibilityColumn,
   type ColumnSort,
+  type SearchColumnHeading,
   type TableColumns,
+  type TableRowCells,
 } from './search-table-filters'
 import {
   clearEntryOf,
@@ -83,6 +90,7 @@ import {
   isWorkingFilter,
   wordOf,
   isScheduleFilterChanging,
+  tableWithViewsCleared,
   type MarkGlyph,
   type SearchFilterChange,
   type ShownDateTimes,
@@ -645,6 +653,36 @@ function reportRowViewsOf(view: TableView, found: readonly ShownTaskGroup[], mar
     target: { kind: 'task', taskUid: shown.row.taskUid },
     isCurrent: shown.row.taskUid === markedUid,
   }))
+}
+
+// see AM-28, AV-17, T-347
+/** @purity pure */
+export function delayReportColumnHeadings(): readonly SearchColumnHeading[] {
+  return columnHeadingsOf(DELAY_REPORT_COLUMNS, COLUMN_WORDS, (column) => REPORT_TABLE.dates[column] !== undefined)
+}
+
+// see AM-28, AV-19, AV-20, DT-8, RW-3, SV-7, SV-8, S-565, S-566, S-567
+// WHY: no window state is read, so the word is the caller's; isAsShown false drops the column filters and the sort.
+/** @purity pure */
+export function delayReportTableRows(
+  report: DelayDiagnosticsReport,
+  schedule: Schedule,
+  settings: DocumentSettings,
+  look: { readonly word: string; readonly isAsShown: boolean; readonly language: DisplayLanguage },
+): readonly TableRowCells[] {
+  const held = tableViewOf(settings, 'delayDiagnosticsReport')
+  const view = look.isAsShown ? held : tableWithViewsCleared(held)
+  const times = shownTimesOf(schedule, settings.isTimeOfDayVisible, settings.viewTimeZone)
+  const withCells = taskGroupsWithCells(delayDiagnosticsReportRows(report, schedule), look.language, times)
+  const hidden = new Set(view.visibility.hiddenTaskUids)
+  return shownTaskGroupsFrom({ word: look.word, view }, withCells).map((shown) => {
+    const shownText = visibilityLabelOf(hidden.has(shown.row.taskUid) ? HIDE_VALUE : SHOW_VALUE, look.language) ?? ''
+    const cells = DELAY_REPORT_COLUMNS.map((column, at) => ({
+      column,
+      text: column === VISIBILITY_COLUMN ? shownText : (shown.cells[at] ?? BLANK_SEARCH_VALUE),
+    }))
+    return { key: shown.row.taskUid, cells }
+  })
 }
 
 // see RW-19, RW-3, RW-11, SV-7, JDG-2195

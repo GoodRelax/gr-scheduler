@@ -5,8 +5,10 @@
 
 import { isSearchWordFound, searchRowsOf, type Schedule } from '../../entity/document-model/schedule/schedule'
 import type { ScreenRect } from '../../entity/layout-engine/screen-regions/screen-regions'
+import type { DocumentSettings } from '../../entity/document-model/document-settings/document-settings'
 import {
   emptySearchPanelSession,
+  tableViewOf,
   type ScreenSession,
   type TableView,
 } from '../../use-case/advance-screen-session/advance-screen-session'
@@ -14,7 +16,18 @@ import displayWords from './display-words.json'
 import type { CommandItem, DisplayLanguage, IconId } from './screen-renderer'
 import { displayLanguageOf } from './screen-renderer'
 import type { SearchPanelView } from './search-panel'
-import { BLANK_SEARCH_VALUE, filteredTableRows, tableColumnValues, withVisibilityColumn, type TableColumns } from './search-table-filters'
+import {
+  BLANK_SEARCH_VALUE,
+  HIDE_VALUE,
+  SHOW_VALUE,
+  columnHeadingsOf,
+  filteredTableRows,
+  tableColumnValues,
+  withVisibilityColumn,
+  type SearchColumnHeading,
+  type TableColumns,
+  type TableRowCells,
+} from './search-table-filters'
 import {
   UNASSIGNED_ROW_KEY,
   clearEntryOf,
@@ -33,6 +46,7 @@ import {
   windowWithColumnWidth,
   wordOf,
   isScheduleFilterChanging,
+  tableWithViewsCleared,
   type SearchFilterChange,
   type TableLook,
   type TableWindowState,
@@ -341,6 +355,41 @@ export function resourceListListedUidsOf(
 ): readonly number[] {
   const all = resourceLinesOf({ schedule, chosenResourceUids, language: COLUMNS_ONLY_LANGUAGE })
   return listedLinesOf({ word: window.panel.word, view }, all).flatMap((line) => (line.key === UNASSIGNED_ROW_KEY ? [] : [line.key]))
+}
+
+// see AM-28, AV-17, T-371
+/** @purity pure */
+export function resourceListColumnHeadings(): readonly SearchColumnHeading[] {
+  return columnHeadingsOf(RESOURCE_LIST_COLUMNS, COLUMN_WORDS, () => false)
+}
+
+// see AM-28, RQ-1, RQ-3, RO-5
+// WHY: the Visibility cell prints the Show or Hide its box stands for; the Chosen cell the word of its IC-67 or IC-68.
+/** @purity pure */
+function lineCellText(view: TableView, line: ResourceLine, column: string, language: DisplayLanguage): string {
+  const at = RESOURCE_LIST_COLUMNS.indexOf(column)
+  if (column === VISIBILITY_COLUMN) return visibilityLabelOf(isRowShown('resourceList', view.visibility, line.key) ? SHOW_VALUE : HIDE_VALUE, language) ?? ''
+  if (column !== CHOSEN_COLUMN) return line.cells[at] ?? BLANK_SEARCH_VALUE
+  return line.isChosen === null ? BLANK_SEARCH_VALUE : iconLabel(line.isChosen ? CHOSEN_ENTRY : UNCHOSEN_ENTRY, language)
+}
+
+// see AM-28, AV-19, AV-20, RO-3, SV-7, SV-8, S-569, S-570, S-571, S-572
+// WHY: the rows the window lists, in its order, each cell as the window prints it; no window state is read, so the
+// word and the choice are the caller's and isAsShown false drops the column filters and the sort.
+/** @purity pure */
+export function resourceListTableRows(
+  schedule: Schedule,
+  settings: DocumentSettings,
+  chosenResourceUids: readonly number[],
+  look: { readonly word: string; readonly isAsShown: boolean; readonly language: DisplayLanguage },
+): readonly TableRowCells[] {
+  const held = tableViewOf(settings, 'resourceList')
+  const view = look.isAsShown ? held : tableWithViewsCleared(held)
+  const all = resourceLinesOf({ schedule, chosenResourceUids, language: look.language })
+  return listedLinesOf({ word: look.word, view }, all).map((line) => ({
+    key: line.key,
+    cells: RESOURCE_LIST_COLUMNS.map((column) => ({ column, text: lineCellText(view, line, column, look.language) })),
+  }))
 }
 
 // see T-370, SV-7, SV-8, WB-2, WB-3, RO-1, RO-2, IC-153, IC-143, TV-8, UN-20
