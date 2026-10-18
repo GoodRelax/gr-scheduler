@@ -252,7 +252,7 @@ function chooseServerFile(mode, suggestedName) {
       panel.close()
       run()
     }
-    const title = `Dummy Server  -  ${location.origin}/schedule-data/`
+    const title = `Dummy Server  -  schedule-data on ${location.host}`
     const panel = openPanel(title, () => settle(() => reject(aborted())))
     const list = element(
       'div',
