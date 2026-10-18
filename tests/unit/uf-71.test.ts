@@ -150,6 +150,8 @@ import { S_235 } from '../fixtures/display-scale'
 import { emptyScreenSession } from '../../src/use-case/advance-screen-session/advance-screen-session'
 
 const LINK_GUARDS: readonly string[] = ['pointerdown', 'pointerup', 'keydown']
+// WHY: DFC-3302 -- the search word field hears composition so a word still being converted is not sent.
+const TEXT_ENTRY_EVENTS: readonly string[] = ['input', 'compositionstart', 'compositionend']
 
 // ---------------------------------------------------------------------------
 // Fixed copies of the tables these cases are driven by.
@@ -1494,7 +1496,8 @@ describe('表 T-078 / NFR-010 (MUST NOT) -- nothing in this unit wakes a frame',
     const root = built.root()
     const noticing = [oneByRole(root, 'Properties Panel')]
     // WHY: the typed word may be heard on the layer holding the search field, but
-    // only as an input event -- the jump and the grab are answers to a point.
+    // only as text entry (an input event, or the composition that ends in one: IF-9 and SV-5,
+    // DFC-3302) -- the jump and the grab are answers to a point.
     const searchLayers = selfAndDescendants(root).filter(
       (one) => one.getAttribute('data-uz') === 'UZ-6',
     )
@@ -1530,7 +1533,7 @@ describe('表 T-078 / NFR-010 (MUST NOT) -- nothing in this unit wakes a frame',
       expect(
         noticing.some((part) => part.contains(one.node)) ||
           isLinkGuard ||
-          (one.type === 'input' && searchLayers.some((layer) => layer.contains(one.node))),
+          (TEXT_ENTRY_EVENTS.includes(one.type) && searchLayers.some((layer) => layer.contains(one.node))),
         `${one.type} on [data-role="${one.node.getAttribute('data-role') ?? ''}"]` +
           `[data-field-row="${one.node.getAttribute('data-field-row') ?? ''}"]`,
       ).toBe(true)
