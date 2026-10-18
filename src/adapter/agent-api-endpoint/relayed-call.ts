@@ -13,6 +13,8 @@ import {
   type AgentWriteRequest,
 } from './agent-api-members'
 
+type DocumentStamp = AgentWriteRequest['expectedStamp']
+
 // <generated -- do not edit by hand>
 // From docs/spec/_source/agent-api-members.json (table T-107).
 // see T-107, AG-12
@@ -29,8 +31,8 @@ export interface RelayedParams {
   readDelayDiagnostics: {}
   applyCommands: { request: AgentWriteRequest }
   importDocument: { source: AgentImportSource }
-  undoEdit: {}
-  redoEdit: {}
+  undoEdit: { expectedStamp: DocumentStamp }
+  redoEdit: { expectedStamp: DocumentStamp }
   exportJson: {}
   exportMspdi: {}
   exportSvg: {}
@@ -50,6 +52,8 @@ const MEMBER_PARAMETERS = {
   readTableRows: ['table', 'word', 'filters', 'offset', 'limit'],
   applyCommands: ['request'],
   importDocument: ['source'],
+  undoEdit: ['expectedStamp'],
+  redoEdit: ['expectedStamp'],
   focusTask: ['taskUid'],
   showOnlyTasks: ['taskUids'],
   postDialogueMessage: ['text'],

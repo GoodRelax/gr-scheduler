@@ -544,18 +544,30 @@
     "name": "undoEdit",
     "kind": "method",
     "purity": "non-pure",
-    "arguments": [],
+    "arguments": [
+     {
+      "name": "expectedStamp",
+      "type": "DocumentStamp",
+      "meaning": {
+       "ja": "呼ぶ側が最後に読んだ刻印 —— `WS-1` が今の刻印と照らす（`AG-2`）",
+       "en": "The stamp you last read; compared with the current stamp"
+      }
+     }
+    ],
     "returns": "AgentWriteOutcome",
     "carries": {
      "ja": [
-      "履歴を戻す"
+      "履歴を 1 段戻す（`05-07-design.md` の 表 T-230 の `RD-1`）。",
+      "`expectedStamp` が今の刻印と違えば `staleStamp` で拒む（`AG-2`）。",
+      "⭐ 戻す段を書いたのが呼んだ書き手（表 T-229 の `ED-2`）でなければ `notOwnStep` で拒む —— AI が人の編集を黙って戻さない。"
      ],
      "en": [
-      "Undoes the newest step of the edit history."
+      "Undoes the newest step of the edit history, but only a step you wrote yourself; a step the person wrote is refused with notOwnStep.",
+      "Hand over the stamp you last read as expectedStamp; a different stamp is refused with staleStamp."
      ]
     },
     "source": {
-     "ja": "`FR-031` ／ 表 T-035 の `AG-10`"
+     "ja": "`FR-031` ／ 表 T-035 の `AG-10` ／ `05-07-design.md` の 表 T-230 の `RD-1`"
     }
    },
    {
@@ -566,18 +578,30 @@
     "name": "redoEdit",
     "kind": "method",
     "purity": "non-pure",
-    "arguments": [],
+    "arguments": [
+     {
+      "name": "expectedStamp",
+      "type": "DocumentStamp",
+      "meaning": {
+       "ja": "呼ぶ側が最後に読んだ刻印 —— `WS-1` が今の刻印と照らす（`AG-2`）",
+       "en": "The stamp you last read; compared with the current stamp"
+      }
+     }
+    ],
     "returns": "AgentWriteOutcome",
     "carries": {
      "ja": [
-      "履歴を進める"
+      "履歴を 1 段進める（`05-07-design.md` の 表 T-230 の `RD-2`）。",
+      "`expectedStamp` が今の刻印と違えば `staleStamp` で拒む（`AG-2`）。",
+      "⭐ 進める段を書いたのが呼んだ書き手（表 T-229 の `ED-2`）でなければ `notOwnStep` で拒む —— AI が人の編集を黙って戻さない。"
      ],
      "en": [
-      "Redoes the step undone last."
+      "Redoes the step undone last, but only a step you wrote yourself; a step the person wrote is refused with notOwnStep.",
+      "Hand over the stamp you last read as expectedStamp; a different stamp is refused with staleStamp."
      ]
     },
     "source": {
-     "ja": "`FR-031`"
+     "ja": "`FR-031` ／ 表 T-035 の `AG-10` ／ `05-07-design.md` の 表 T-230 の `RD-2`"
     }
    },
    {
@@ -1012,6 +1036,12 @@
       "type": "'staleStamp'",
       "meaning": {
        "ja": "渡した刻印が今の刻印と違う（`AG-2`）"
+      }
+     },
+     {
+      "type": "'notOwnStep'",
+      "meaning": {
+       "ja": "戻す段・進める段を書いたのが呼んだ書き手でない（`AM-9`・`AM-10`）"
       }
      },
      {

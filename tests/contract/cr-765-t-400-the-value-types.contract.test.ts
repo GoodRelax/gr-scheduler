@@ -110,6 +110,7 @@ const EXPECTED_FIELDS: Readonly<Record<string, readonly (readonly string[])[]>> 
 // see AV-4
 const FIXED_REASONS = [
   'staleStamp',
+  'notOwnStep',
   'gestureInFlight',
   'editingInPlace',
   'questionAsked',
@@ -273,16 +274,16 @@ describe('every row of T-400 is used by a member, and every type a member names 
 describe('AV-4: the reasons a refusal carries, and what the relay returns of them', () => {
   const printed = quotedReasonsOf(valueRow('AV-4').fieldsCell)
 
-  it('thirteen quoted reasons, then the codec reasons of table T-233 and the invariant rows of table T-220', () => {
+  it('fourteen quoted reasons, then the codec reasons of table T-233 and the invariant rows of table T-220', () => {
     expect(printed).toEqual([...FIXED_REASONS])
-    expect(new Set(printed).size).toBe(13)
+    expect(new Set(printed).size).toBe(14)
     const rest = valueRow('AV-4').fieldsCell.split(/<br\s*\/?>/i).map((line) => line.trim())
     expect(rest.some((line) => line.startsWith('`CodecRefusalReason`（表 T-233）'))).toBe(true)
     expect(rest.some((line) => line.startsWith('`InvariantRow`（表 T-064 の `PI-9`）'))).toBe(true)
     expect(rest[0]).toContain('⛔ 1 つの値へ潰さない（`AG-9a`）')
   })
 
-  it('the type holds those thirteen and the two other families, and nothing else', () => {
+  it('the type holds those fourteen and the two other families, and nothing else', () => {
     expectTypeOf<Exclude<AgentRefusalReason, `IV-${number}` | `RS-${number}`>>().toEqualTypeOf<(typeof FIXED_REASONS)[number]>()
   })
 

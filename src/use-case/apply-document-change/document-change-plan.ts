@@ -268,7 +268,7 @@ export function planDocumentChange(input: PlanInput): ChangePlan {
       ? input.history
       : historyWithStep(
           input.history,
-          { document: input.document, commands: recorded.map((one) => one.kind) },
+          { document: input.document, commands: recorded.map((one) => one.kind), editedBy: input.editedBy },
           stepSizeBytes(input.document),
           input.historyLimits,
         )
@@ -305,9 +305,11 @@ export type ImportCall<TChoice extends ImportRequest['choice']> = Omit<
 > & { readonly choice: TChoice }
 
 // see T-230
+// see AM-9, AM-10, AG-10
+// WHY: writer is named only by the Agent API; the person's press moves any step.
 export type ReplacementCall =
-  | { readonly row: 'RD-1' }
-  | { readonly row: 'RD-2' }
+  | { readonly row: 'RD-1'; readonly writer?: string }
+  | { readonly row: 'RD-2'; readonly writer?: string }
   | {
       readonly row: 'RD-3'
       readonly importing: ImportCall<'merge' | 'baseline'>
@@ -333,9 +335,12 @@ export interface ReplacementInput {
   readonly newTaskGroupId: string
 }
 
+export type StepOwnerRefusal = { readonly step: 'WS-3'; readonly reason: 'noStepToMove' | 'notOwnStep' }
+
 export type ReplacementRefusal =
   | StampRefusal
   | MomentRefusal
+  | StepOwnerRefusal
   | {
       readonly step: 'WS-3'
       readonly reason: 'importRefused'
@@ -377,6 +382,23 @@ function startedAfresh(outgoing: Document, call: Extract<ReplacementCall, { read
   return { ...call.document, documentStamp }
 }
 
+// see AM-9, AM-10, AG-10, ED-2
+/** @purity pure */
+function refusalOfStepOwner(held: HeldDocument, call: ReplacementCall): StepOwnerRefusal | null {
+  if ((call.row !== 'RD-1' && call.row !== 'RD-2') || call.writer === undefined) return null
+  const moved = call.row === 'RD-1' ? held.history.done[held.history.done.length - 1] : held.history.undone[0]
+  if (moved === undefined) return { step: 'WS-3', reason: 'noStepToMove' }
+  return moved.step.editedBy === call.writer ? null : { step: 'WS-3', reason: 'notOwnStep' }
+}
+
+// see WS-1, WS-2, AM-9, AM-10
+/** @purity pure */
+function refusalBeforeReplacing(input: ReplacementInput): ReplacementRefusal | null {
+  return refusalOfStamp(input.expectedStamp, input.held.document.documentStamp)
+    ?? refusalOfMoment(input.moment)
+    ?? refusalOfStepOwner(input.held, input.call)
+}
+
 /** @purity pure */
 function importRefused(refusal: ImportRefusal): ReplacementPlan {
   return { ok: false, refusal: { step: 'WS-3', reason: 'importRefused', refusal } }
@@ -387,11 +409,8 @@ function importRefused(refusal: ImportRefusal): ReplacementPlan {
 export function planDocumentReplacement(input: ReplacementInput): ReplacementPlan {
   const { held, call } = input
 
-  const stale = refusalOfStamp(input.expectedStamp, held.document.documentStamp)
-  if (stale !== null) return { ok: false, refusal: stale }
-
-  const untimely = refusalOfMoment(input.moment)
-  if (untimely !== null) return { ok: false, refusal: untimely }
+  const refused = refusalBeforeReplacing(input)
+  if (refused !== null) return { ok: false, refusal: refused }
 
   switch (call.row) {
     case 'RD-1': {
@@ -422,7 +441,7 @@ export function planDocumentReplacement(input: ReplacementInput): ReplacementPla
         outcome.report.undo === 'oneStep'
           ? historyWithStep(
               held.history,
-              { document: held.document, commands: [] },
+              { document: held.document, commands: [], editedBy: call.editedBy },
               stepSizeBytes(held.document),
               call.historyLimits,
             )

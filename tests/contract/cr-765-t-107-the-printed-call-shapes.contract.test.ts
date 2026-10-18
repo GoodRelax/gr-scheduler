@@ -64,8 +64,8 @@ const EXPECTED_ROWS: readonly (readonly [string, string, readonly string[], stri
   ['AM-19', 'readDelayDiagnostics', [], 'AgentDelayDiagnostics'],
   ['AM-7', 'applyCommands', ['request: AgentWriteRequest'], 'AgentWriteOutcome'],
   ['AM-8', 'importDocument', ['source: AgentImportSource'], 'Promise<AgentImportOutcome>'],
-  ['AM-9', 'undoEdit', [], 'AgentWriteOutcome'],
-  ['AM-10', 'redoEdit', [], 'AgentWriteOutcome'],
+  ['AM-9', 'undoEdit', ['expectedStamp: DocumentStamp'], 'AgentWriteOutcome'],
+  ['AM-10', 'redoEdit', ['expectedStamp: DocumentStamp'], 'AgentWriteOutcome'],
   ['AM-11', 'exportJson', [], 'AgentExport<string>'],
   ['AM-12', 'exportMspdi', [], 'AgentExport<string>'],
   ['AM-13', 'exportSvg', [], 'AgentExport<string>'],
@@ -150,7 +150,7 @@ describe('T-107 arguments and return values, row by row', () => {
   })
 
   // see AM-3, AM-25
-  it('the argument columns name nine members that take an argument; the rest print a dash', () => {
+  it('the argument columns name eleven members that take an argument; the rest print a dash', () => {
     const taking = members.filter((one) => one.arguments.length > 0).map((one) => one.name)
     expect(taking).toEqual([
       'readDocument',
@@ -158,6 +158,8 @@ describe('T-107 arguments and return values, row by row', () => {
       'readTableRows',
       'applyCommands',
       'importDocument',
+      'undoEdit',
+      'redoEdit',
       'focusTask',
       'showOnlyTasks',
       'watchChanges',

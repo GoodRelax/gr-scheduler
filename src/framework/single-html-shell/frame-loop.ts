@@ -78,6 +78,7 @@ import {
   type Refusal,
   type ReplacementCall,
   type ReplacementRefusal,
+  type ReplaceOutcome,
   type WriteMoment,
 } from '../../use-case/apply-document-change/apply-document-change'
 import {
@@ -874,6 +875,9 @@ const NOTICE_REASON_OF_WRITE_REFUSAL: Readonly<
   deliveringNotices: 'RS-9',
   refused: 'RS-10',
   importRefused: null,
+  // WHY: only the Agent API names a writer on RD-1 / RD-2 (AM-9, AM-10); its refusal goes back to the caller.
+  noStepToMove: null,
+  notOwnStep: null,
 }
 
 interface RefusalSituation {
@@ -1361,6 +1365,19 @@ const SENT_AFTER_PRESS_DROPS: ReadonlySet<ScreenValuesEvent['type']> = new Set([
 /** @purity pure */
 function isSentBeforePressDrops(event: ScreenValuesEvent, frame: FrameValues): boolean {
   return !SENT_AFTER_PRESS_DROPS.has(event.type) && !isRefusedPanelWidth(event, frame)
+}
+
+// see AM-9, AM-10, T-230
+/** @purity pure */
+function historyStepsOf(
+  replaceAt: (call: ReplacementCall, expectedStamp: Document['documentStamp']) => ReplaceOutcome,
+): NonNullable<AgentApiWiring['historySteps']> {
+  return {
+    /** @purity non-pure */
+    undoStep: (expectedStamp, writer) => replaceAt({ row: 'RD-1', writer }, expectedStamp),
+    /** @purity non-pure */
+    redoStep: (expectedStamp, writer) => replaceAt({ row: 'RD-2', writer }, expectedStamp),
+  }
 }
 
 // WHY: an Agent API write lands through the holder only; the screen's own writes send the event in writeDocument (FR-100).
@@ -3705,10 +3722,17 @@ export function frameLoop(
   // see T-230
   /** @purity non-pure */
   function replaceHeldDocument(call: ReplacementCall): boolean {
+    // TRAP: the held stamp, not the incoming one, which would refuse every replacement.
+    const outcome = replaceHeldDocumentAt(call, held.document.documentStamp)
+    if (!outcome.ok) raiseWriteRefusal(outcome.refusal)
+    return outcome.ok
+  }
+
+  /** @purity non-pure */
+  function replaceHeldDocumentAt(call: ReplacementCall, expectedStamp: Document['documentStamp']): ReplaceOutcome {
     const outcome = replaceDocument(
       {
-        // TRAP: the held stamp, not the incoming one, which would refuse every replacement.
-        expectedStamp: held.document.documentStamp,
+        expectedStamp,
         moment: collectWriteMoment(),
         call,
         defaultTaskGroupName: DEFAULT_TASK_GROUP_NAME,
@@ -3717,26 +3741,23 @@ export function frameLoop(
       holder,
       audience,
     )
-    if (outcome.ok) {
-      // TRAP: roads outside a happening reach here, and nothing else clears the preview for them.
-      previewDocument = null
-      heldPropertyPanelWidth = null
-      const landing = landingOfReplacement(call.row, held.document === savedDocument)
-      if (landing !== null) sendToSession(landing, values)
-      if (OPEN_OR_NEW_ROWS.has(call.row)) leaveStartupTemplate()
-      if (OPEN_OR_NEW_ROWS.has(call.row)) sendToSession(DOCUMENT_REPLACED_BY_OPEN_OR_NEW, values)
-      if (call.row === 'RD-7') documentFileFlow.forgetOpenedFile()
-      // TRAP: the rows that make it another document, or an arriving document is drawn at the
-      // fit the one before it was given.
-      if (call.row === 'RD-4' || call.row === 'RD-6' || call.row === 'RD-7') {
-        forgetFitForNoPlace()
-        shownTasks.noteDocumentReplaced(() => showDelayDiagnostics(false))
-      }
-      if (isSizeSettled(environment)) ask()
-      return true
+    if (!outcome.ok) return outcome
+    // TRAP: roads outside a happening reach here, and nothing else clears the preview for them.
+    previewDocument = null
+    heldPropertyPanelWidth = null
+    const landing = landingOfReplacement(call.row, held.document === savedDocument)
+    if (landing !== null) sendToSession(landing, values)
+    if (OPEN_OR_NEW_ROWS.has(call.row)) leaveStartupTemplate()
+    if (OPEN_OR_NEW_ROWS.has(call.row)) sendToSession(DOCUMENT_REPLACED_BY_OPEN_OR_NEW, values)
+    if (call.row === 'RD-7') documentFileFlow.forgetOpenedFile()
+    // TRAP: the rows that make it another document, or an arriving document is drawn at the
+    // fit the one before it was given.
+    if (call.row === 'RD-4' || call.row === 'RD-6' || call.row === 'RD-7') {
+      forgetFitForNoPlace()
+      shownTasks.noteDocumentReplaced(() => showDelayDiagnostics(false))
     }
-    raiseWriteRefusal(outcome.refusal)
-    return false
+    if (isSizeSettled(environment)) ask()
+    return outcome
   }
 
   /** @purity non-pure */
@@ -4357,6 +4378,7 @@ export function frameLoop(
       changeWatchers,
       shownTasks: landingAgentHolder(shownTasks.agentHolder(), owedJump.owe, () => values),
       delayFixLog: documentFileFlow,
+      historySteps: historyStepsOf(replaceHeldDocumentAt),
       ...dialogueSeams,
     }),
     /** @purity non-pure */

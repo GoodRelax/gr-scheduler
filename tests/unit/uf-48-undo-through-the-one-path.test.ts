@@ -703,8 +703,8 @@ describe('the specification still says what these cases copy', () => {
       expect(cells['取り消しの 1 段'], `${row} 取り消しの 1 段`).toBe('積まない')
       expect(cells['履歴'], `${row} 履歴`).toBe('問う先が答えたものを据える')
     }
-    expect(rowOf('T-230', 'RD-1').by['呼び手']).toBe('取り消し')
-    expect(rowOf('T-230', 'RD-2').by['呼び手']).toBe('やり直し')
+    expect(rowOf('T-230', 'RD-1').by['呼び手']).toBe('取り消し（人の押下と `Agent API` の `undoEdit`）')
+    expect(rowOf('T-230', 'RD-2').by['呼び手']).toBe('やり直し（人の押下と `Agent API` の `redoEdit`）')
     expect(rowOf('T-230', 'RD-1').by['`WS-3` の位置に立つもの']).toContain('UndoEdit')
     expect(rowOf('T-230', 'RD-2').by['`WS-3` の位置に立つもの']).toContain('RedoEdit')
   })

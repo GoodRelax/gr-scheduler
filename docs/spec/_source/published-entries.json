@@ -2189,6 +2189,15 @@
        "手順は 表 T-067、呼び手ごとの扱いは 表 T-230"
       ]
      }
+    },
+    {
+     "name": "ReplaceOutcome",
+     "note": {
+      "ja": [
+       "まるごと差し替えた結果（`05-07-design.md` の 表 T-230）。",
+       "`Agent API` の `undoEdit`・`redoEdit`（`tbl-agent-api-members.md` の 表 T-107 の `AM-9`・`AM-10`）が、受けたか・拒んだ理由を読む"
+      ]
+     }
     }
    ]
   },

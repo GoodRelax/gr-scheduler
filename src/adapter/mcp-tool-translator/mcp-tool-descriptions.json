@@ -289,18 +289,28 @@
   },
   {
    "name": "undoEdit",
-   "description": "Undoes the newest step of the edit history.",
+   "description": "Undoes the newest step of the edit history, but only a step you wrote yourself; a step the person wrote is refused with notOwnStep.\nHand over the stamp you last read as expectedStamp; a different stamp is refused with staleStamp.",
    "inputSchema": {
     "type": "object",
-    "properties": {}
+    "properties": {
+     "expectedStamp": {
+      "type": "object",
+      "description": "The stamp you last read; compared with the current stamp"
+     }
+    }
    }
   },
   {
    "name": "redoEdit",
-   "description": "Redoes the step undone last.",
+   "description": "Redoes the step undone last, but only a step you wrote yourself; a step the person wrote is refused with notOwnStep.\nHand over the stamp you last read as expectedStamp; a different stamp is refused with staleStamp.",
    "inputSchema": {
     "type": "object",
-    "properties": {}
+    "properties": {
+     "expectedStamp": {
+      "type": "object",
+      "description": "The stamp you last read; compared with the current stamp"
+     }
+    }
    }
   },
   {

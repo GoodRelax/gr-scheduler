@@ -138,12 +138,12 @@ describe('mcpToolList: one tool per row of T-107, with the input the argument co
 
   it('a member without an argument, and the two properties, take an empty object', () => {
     const empty = members.filter((one) => one.arguments.length === 0)
-    expect(empty).toHaveLength(14)
+    expect(empty).toHaveLength(12)
     for (const member of empty) expect(toolNamed(member.name).inputSchema.properties, member.id).toEqual({})
     expect(empty.filter((one) => one.isProperty).map((one) => one.name)).toEqual(['agentApiVersion', 'schemaVersion'])
   })
 
-  it('the nine members with an argument give their keys the types the rule derives', () => {
+  it('the eleven members with an argument give their keys the types the rule derives', () => {
     const typesOf = (name: string): unknown[] =>
       Object.values(toolNamed(name).inputSchema.properties as Readonly<Record<string, Schema>>).map((schema) => schema.type)
     expect(typesOf('readDocument')).toEqual(['boolean', 'array'])
@@ -151,6 +151,8 @@ describe('mcpToolList: one tool per row of T-107, with the input the argument co
     expect(typesOf('readTableRows')).toEqual(['string', 'string', 'string', 'number', 'number'])
     expect(typesOf('applyCommands')).toEqual(['object'])
     expect(typesOf('importDocument')).toEqual(['object'])
+    expect(typesOf('undoEdit')).toEqual(['object'])
+    expect(typesOf('redoEdit')).toEqual(['object'])
     expect(typesOf('focusTask')).toEqual(['number'])
     expect(typesOf('showOnlyTasks')).toEqual(['array'])
     expect(typesOf('watchChanges')).toEqual(['number'])

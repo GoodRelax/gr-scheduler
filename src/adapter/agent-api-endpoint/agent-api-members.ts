@@ -24,11 +24,16 @@ import {
 import type { Selection } from '../../entity/document-model/selection/selection'
 import {
   applyDocumentChange,
+  replaceDocument,
   type ChangeAudience,
   type DocumentCommand,
   type DocumentHolder,
   type PlanRefusal,
   type Refusal,
+  type ReplaceOutcome,
+  type ReplacementCall,
+  type ReplacementRefusal,
+  type WriteMoment,
 } from '../../use-case/apply-document-change/apply-document-change'
 import {
   searchJumpReachOf,
@@ -90,6 +95,13 @@ export interface DelayFixLogSource {
 
 export type AskedSurface = 'U-61'
 
+export interface HistoryStepper {
+  /** @purity non-pure */
+  undoStep(expectedStamp: DocumentStamp, writer: string): ReplaceOutcome
+  /** @purity non-pure */
+  redoStep(expectedStamp: DocumentStamp, writer: string): ReplaceOutcome
+}
+
 // see AM-8, AG-9a
 export type ImportLanding =
   | boolean
@@ -120,6 +132,7 @@ export interface AgentRefusal {
 // see AV-4
 export type AgentRefusalReason =
   | 'staleStamp'
+  | 'notOwnStep'
   | 'gestureInFlight'
   | 'editingInPlace'
   | 'questionAsked'
@@ -260,9 +273,9 @@ export interface AgentApi {
   importDocument(source: AgentImportSource): Promise<AgentImportOutcome>
 
   /** @purity non-pure */
-  undoEdit(): AgentWriteOutcome
+  undoEdit(expectedStamp: DocumentStamp): AgentWriteOutcome
   /** @purity non-pure */
-  redoEdit(): AgentWriteOutcome
+  redoEdit(expectedStamp: DocumentStamp): AgentWriteOutcome
 
   /** @purity semi-pure-b */
   exportJson(): AgentExport<string>
@@ -322,6 +335,8 @@ export interface AgentApiWiring {
   // WHY: optional, unlike its siblings: the log is a screen value of the report window, and a page with no window
   // has written none, so an absent source reads as an empty log.
   readonly delayFixLog?: DelayFixLogSource | undefined
+  // WHY: optional: absent, the holder is stepped through the same use case; the shell's steps also land the screen (FR-100).
+  readonly historySteps?: HistoryStepper | undefined
   // TRAP: must differ from the person's writer name, or AG-6 takes the person's edits for this API's own.
   readonly writerName: string
   readonly schemaVersion: string
@@ -484,6 +499,20 @@ function ruleOfPlanRefusal(refusal: PlanRefusal): string {
     case 'WS-3':
       return 'AG-3'
   }
+}
+
+// WHY: commandRefused for an empty side of the history: AV-4 has no reason of its own, and notAvailable means a missing component.
+/** @purity pure */
+function reasonOfStepRefusal(refusal: ReplacementRefusal): AgentRefusalReason {
+  if (refusal.step !== 'WS-3') return reasonOfPlanRefusal(refusal)
+  return refusal.reason === 'notOwnStep' ? 'notOwnStep' : 'commandRefused'
+}
+
+/** @purity pure */
+function stepRefusalWhat(refusal: ReplacementRefusal): string {
+  if (refusal.step !== 'WS-3') return `${refusal.step} refused it; the rule is ${ruleOfPlanRefusal(refusal)}`
+  if (refusal.reason === 'notOwnStep') return 'AG-10: the step was written by another writer, not by you'
+  return 'FR-031: the history holds no step to move'
 }
 
 /** @purity pure */
@@ -741,6 +770,46 @@ export function messageOf(thrown: unknown): string {
   return thrown instanceof Error ? thrown.message : String(thrown)
 }
 
+/** @purity pure */
+function writeMomentOf(snapshot: AgentSnapshot): WriteMoment {
+  return {
+    gestureInFlight: snapshot.isGestureInFlight,
+    editingInPlace: snapshot.isEditingInPlace,
+    questionAsked: snapshot.isQuestionAsked,
+    deliveringNotices: snapshot.isDeliveringNotices,
+  }
+}
+
+/** @purity non-pure */
+function historyStepsOnHolder(wiring: AgentApiWiring): HistoryStepper {
+  const replaceAt = (call: ReplacementCall, expectedStamp: DocumentStamp): ReplaceOutcome => {
+    const snapshot = wiring.source.readSnapshot()
+    const input = { expectedStamp, moment: writeMomentOf(snapshot), call, defaultTaskGroupName: snapshot.defaultTaskGroupName }
+    return replaceDocument({ ...input, newTaskGroupId: globalThis.crypto.randomUUID() }, wiring.holder, wiring.audience)
+  }
+  return {
+    /** @purity non-pure */
+    undoStep: (expectedStamp, writer) => replaceAt({ row: 'RD-1', writer }, expectedStamp),
+    /** @purity non-pure */
+    redoStep: (expectedStamp, writer) => replaceAt({ row: 'RD-2', writer }, expectedStamp),
+  }
+}
+
+// WHY: WS-1 gets the caller's stamp, and an undo answers the stamp it restored (T-230 keeps it as it came in).
+/** @purity non-pure */
+function historyStepThrough(wiring: AgentApiWiring, snapshot: AgentSnapshot, row: 'RD-1' | 'RD-2', expectedStamp: DocumentStamp): AgentWriteOutcome {
+  const target = row === 'RD-1' ? 'AM-9' : 'AM-10'
+  if ((expectedStamp as unknown) === null || typeof expectedStamp !== 'object') {
+    return { ok: false, refusal: agentRefusal(target, 'malformedRequest', snapshot, `${target} takes expectedStamp; it is missing or not its shape`, []) }
+  }
+  const steps = wiring.historySteps ?? historyStepsOnHolder(wiring)
+  const outcome = row === 'RD-1' ? steps.undoStep(expectedStamp, wiring.writerName) : steps.redoStep(expectedStamp, wiring.writerName)
+  if (!outcome.ok) {
+    return { ok: false, refusal: agentRefusal(target, reasonOfStepRefusal(outcome.refusal), snapshot, stepRefusalWhat(outcome.refusal), []) }
+  }
+  return { ok: true, stamp: stampHandedOut(outcome.document.documentStamp, snapshot), hasUpdatedSchedule: outcome.hasUpdatedSchedule }
+}
+
 /** @purity non-pure */
 function planAndApply(
   wiring: AgentApiWiring,
@@ -752,12 +821,7 @@ function planAndApply(
     {
       expectedStamp,
       commands,
-      moment: {
-        gestureInFlight: snapshot.isGestureInFlight,
-        editingInPlace: snapshot.isEditingInPlace,
-        questionAsked: snapshot.isQuestionAsked,
-        deliveringNotices: snapshot.isDeliveringNotices,
-      },
+      moment: writeMomentOf(snapshot),
       historyLimits: snapshot.historyLimits,
       settingsLimits: snapshot.settingsLimits,
       defaultTaskGroupName: snapshot.defaultTaskGroupName,
@@ -947,29 +1011,13 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
     importDocument: (handedSource: AgentImportSource): Promise<AgentImportOutcome> =>
       importHandedDocument(wiring, handedSource),
 
-    /** @purity semi-pure-b */
-    undoEdit(): AgentWriteOutcome {
-      return {
-        ok: false,
-        refusal: notAvailable(
-          'AM-9',
-          source.readSnapshot(),
-          'AM-9 declares neither a row of table T-230 nor the stamp WS-1 matches',
-        ),
-      }
-    },
+    /** @purity non-pure */
+    undoEdit: (expectedStamp: DocumentStamp): AgentWriteOutcome =>
+      historyStepThrough(wiring, source.readSnapshot(), 'RD-1', expectedStamp),
 
-    /** @purity semi-pure-b */
-    redoEdit(): AgentWriteOutcome {
-      return {
-        ok: false,
-        refusal: notAvailable(
-          'AM-10',
-          source.readSnapshot(),
-          'AM-10 declares neither a row of table T-230 nor the stamp WS-1 matches',
-        ),
-      }
-    },
+    /** @purity non-pure */
+    redoEdit: (expectedStamp: DocumentStamp): AgentWriteOutcome =>
+      historyStepThrough(wiring, source.readSnapshot(), 'RD-2', expectedStamp),
 
     /** @purity semi-pure-b */
     exportJson(): AgentExport<string> {

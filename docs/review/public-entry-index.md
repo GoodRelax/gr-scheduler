@@ -493,10 +493,10 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `PlanRefusal` | entry | type | `src/use-case/apply-document-change/document-change-plan.ts#PlanRefusal` | -- | type PlanRefusal = \| StampRefusal \| MomentRefusal \| { readonly step: 'WS-3'; readonly reason: 'refused'; readonly refusals: readonly Refusal[] } export type ... |
 | `Refusal` | entry | type | `src/use-case/edit-document/edit-document.ts#Refusal` | -- | type Refusal = CommandRefusal \| InvariantRefusal |
 | `replaceDocument` | entry | function | `src/use-case/apply-document-change/apply-document-change.ts#replaceDocument` | PI-8 | `non-pure`。 |
-| `ReplacementCall` | entry | type | `src/use-case/apply-document-change/document-change-plan.ts#ReplacementCall` | -- | type ReplacementCall = \| { readonly row: 'RD-1' } \| { readonly row: 'RD-2' } \| |
+| `ReplacementCall` | entry | type | `src/use-case/apply-document-change/document-change-plan.ts#ReplacementCall` | -- | type ReplacementCall = \| { readonly row: 'RD-1'; readonly writer?: string } \| { readonly row: 'RD-2'; readonly writer?: string } \| |
 | `ReplacementInput` | entry | interface | `src/use-case/apply-document-change/document-change-plan.ts#ReplacementInput` | -- | interface ReplacementInput |
-| `ReplacementRefusal` | entry | type | `src/use-case/apply-document-change/document-change-plan.ts#ReplacementRefusal` | -- | type ReplacementRefusal = \| StampRefusal \| MomentRefusal \| |
-| `ReplaceOutcome` | entry | type | `src/use-case/apply-document-change/apply-document-change.ts#ReplaceOutcome` | -- | type ReplaceOutcome = \| { readonly ok: false; readonly refusal: ReplacementRefusal } \| |
+| `ReplacementRefusal` | entry | type | `src/use-case/apply-document-change/document-change-plan.ts#ReplacementRefusal` | -- | type ReplacementRefusal = \| StampRefusal \| MomentRefusal \| StepOwnerRefusal \| |
+| `ReplaceOutcome` | entry | type | `src/use-case/apply-document-change/apply-document-change.ts#ReplaceOutcome` | PI-8 | まるごと差し替えた結果（`05-07-design.md` の 表 T-230）。 |
 | `SettingsLimits` | entry | interface | `src/use-case/edit-document/edit-document-settings.ts#SettingsLimits` | -- | interface SettingsLimits |
 | `WriteMoment` | entry | interface | `src/use-case/apply-document-change/document-change-plan.ts#WriteMoment` | -- | interface WriteMoment |
 | `ChangePlan` | file only | type | `src/use-case/apply-document-change/document-change-plan.ts#ChangePlan` | -- | type ChangePlan = \| { readonly ok: false; readonly refusal: PlanRefusal } \| |
@@ -505,6 +505,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `planDocumentReplacement` | file only | function | `src/use-case/apply-document-change/document-change-plan.ts#planDocumentReplacement` | -- | function planDocumentReplacement(input: ReplacementInput): ReplacementPlan |
 | `ReplacementPlan` | file only | type | `src/use-case/apply-document-change/document-change-plan.ts#ReplacementPlan` | -- | type ReplacementPlan = \| { readonly ok: false; readonly refusal: ReplacementRefusal } \| |
 | `StampRefusal` | file only | type | `src/use-case/apply-document-change/document-change-plan.ts#StampRefusal` | -- | type StampRefusal = { readonly step: 'WS-1'; readonly reason: 'staleStamp' } |
+| `StepOwnerRefusal` | file only | type | `src/use-case/apply-document-change/document-change-plan.ts#StepOwnerRefusal` | -- | type StepOwnerRefusal = { readonly step: 'WS-3'; readonly reason: 'noStepToMove' \| 'notOwnStep' } |
 
 ## EditDocument (PI-9, `src/use-case/edit-document/edit-document.ts`)
 
@@ -740,7 +741,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `AgentFocusOutcome` | entry | type | `src/adapter/agent-api-endpoint/agent-api-members.ts#AgentFocusOutcome` | -- | type AgentFocusOutcome = \| |
 | `AgentImportSource` | entry | type | `src/adapter/agent-api-endpoint/agent-api-members.ts#AgentImportSource` | -- | type AgentImportSource = \| Document \| { readonly document: Document } \| { readonly text: string } // see AV-8 export interface AgentShownTasks |
 | `AgentRefusal` | entry | interface | `src/adapter/agent-api-endpoint/agent-api-members.ts#AgentRefusal` | -- | interface AgentRefusal |
-| `AgentRefusalReason` | entry | type | `src/adapter/agent-api-endpoint/agent-api-members.ts#AgentRefusalReason` | -- | type AgentRefusalReason = \| 'staleStamp' \| 'gestureInFlight' \| 'editingInPlace' \| 'questionAsked' \| 'deliveringNotices' \| 'commandRefused' \| 'unknownTask' \| ... |
+| `AgentRefusalReason` | entry | type | `src/adapter/agent-api-endpoint/agent-api-members.ts#AgentRefusalReason` | -- | type AgentRefusalReason = \| 'staleStamp' \| 'notOwnStep' \| 'gestureInFlight' \| 'editingInPlace' \| 'questionAsked' \| 'deliveringNotices' \| 'commandRefused' \| '... |
 | `AgentShownTasks` | entry | interface | `src/adapter/agent-api-endpoint/agent-api-members.ts#AgentShownTasks` | -- | interface AgentShownTasks |
 | `AgentSnapshot` | entry | interface | `src/adapter/agent-api-endpoint/snapshot-source.ts#AgentSnapshot` | -- | interface AgentSnapshot |
 | `AgentWatch` | entry | interface | `src/adapter/agent-api-endpoint/agent-api-members.ts#AgentWatch` | -- | interface AgentWatch |
@@ -764,6 +765,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `AgentTableRows` | file only | type | `src/adapter/agent-api-endpoint/agent-api-members.ts#AgentTableRows` | -- | type AgentTableRows = \| |
 | `AskedSurface` | file only | type | `src/adapter/agent-api-endpoint/agent-api-members.ts#AskedSurface` | -- | type AskedSurface = 'U-61' |
 | `DelayFixLogSource` | file only | interface | `src/adapter/agent-api-endpoint/agent-api-members.ts#DelayFixLogSource` | -- | interface DelayFixLogSource |
+| `HistoryStepper` | file only | interface | `src/adapter/agent-api-endpoint/agent-api-members.ts#HistoryStepper` | -- | interface HistoryStepper |
 | `ImportLanding` | file only | type | `src/adapter/agent-api-endpoint/agent-api-members.ts#ImportLanding` | -- | type ImportLanding = \| boolean \| { readonly landed: false; readonly refusals: readonly InvariantRefusal[] } // <generated -- do not edit by hand> // From doc... |
 | `messageOf` | file only | function | `src/adapter/agent-api-endpoint/agent-api-members.ts#messageOf` | -- | function messageOf(thrown: unknown): string |
 | `VisibilityTable` | file only | type | `src/adapter/agent-api-endpoint/agent-api-members.ts#VisibilityTable` | -- | type VisibilityTable = keyof Document['documentSettings']['tableViews'] |
@@ -2117,4 +2119,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 1075 name(s) leave through a public entry (521 of them published by table T-064), 832 more are exported by a file and not by its entry.
+Totals: 1075 name(s) leave through a public entry (522 of them published by table T-064), 834 more are exported by a file and not by its entry.

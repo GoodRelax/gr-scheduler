@@ -656,8 +656,8 @@ function callEveryMember(api: AgentApi): void {
   api.readSearchRows('', 'asShown', 0, 100)
   api.applyCommands({ expectedStamp: api.readStamp(), commands: [RENAME] })
   api.importDocument({ text: '{}' })
-  api.undoEdit()
-  api.redoEdit()
+  api.undoEdit(api.readStamp())
+  api.redoEdit(api.readStamp())
   api.exportJson()
   api.exportMspdi()
   api.exportSvg()
@@ -1354,11 +1354,11 @@ describe('the five rows with nowhere to hand the work -- FR-028 and AG-8', () =>
       return answer.ok ? null : answer.refusal
     },
     'AM-9': async (api) => {
-      const answer = api.undoEdit()
+      const answer = api.undoEdit(api.readStamp())
       return answer.ok ? null : answer.refusal
     },
     'AM-10': async (api) => {
-      const answer = api.redoEdit()
+      const answer = api.redoEdit(api.readStamp())
       return answer.ok ? null : answer.refusal
     },
     'AM-14': async (api) => {
@@ -1657,8 +1657,8 @@ describe('FR-028 -- accepted or refused, always as a value', () => {
       one.api.readSelection(),
       one.api.readDialogueMessages(),
       one.api.applyCommands({ expectedStamp: one.api.readStamp(), commands: [] }),
-      one.api.undoEdit(),
-      one.api.redoEdit(),
+      one.api.undoEdit(one.api.readStamp()),
+      one.api.redoEdit(one.api.readStamp()),
       one.api.exportJson(),
       one.api.exportMspdi(),
       one.api.exportSvg(),

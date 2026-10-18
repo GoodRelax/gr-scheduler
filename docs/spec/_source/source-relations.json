@@ -547,12 +547,12 @@
   {
    "from": "docs/spec/_source/agent-api-members.json",
    "to": "docs/spec/01-04-requirements.md",
-   "count": 154
+   "count": 164
   },
   {
    "from": "docs/spec/_source/agent-api-members.json",
    "to": "docs/spec/05-07-design.md",
-   "count": 2
+   "count": 12
   },
   {
    "from": "docs/spec/_source/agent-api-members.json",
@@ -977,7 +977,7 @@
   {
    "from": "docs/spec/_source/published-entries.json",
    "to": "docs/spec/05-07-design.md",
-   "count": 82
+   "count": 83
   },
   {
    "from": "docs/spec/_source/published-entries.json",
@@ -987,7 +987,7 @@
   {
    "from": "docs/spec/_source/published-entries.json",
    "to": "docs/spec/_source/agent-api-members.json",
-   "count": 18
+   "count": 21
   },
   {
    "from": "docs/spec/_source/published-entries.json",
