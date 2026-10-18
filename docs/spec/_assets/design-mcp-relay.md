@@ -85,6 +85,7 @@
   中身は、取次の組み立てが `_source/grs-document.schema.json` から中に持ったバイト列であり、配るページと同じ版である。  
   2 つ目は命令の形のスキーマであり、所は `grs-relay://grs-commands.schema.json`、名は `grs-commands.schema.json`、型は `application/schema+json` とする。  
   中身は 表 T-108 の原稿（`_source/document-commands.json`）から刷った JSON Schema であり、命令ごとの `kind` の値と鍵・型・説明を持つ —— 命令の択は `oneOf` で書いてよい（資源は AI が読む文書であり、受け手が解く道具の入力ではない）。  
+  命令ごとの形は `$defs` に確定名を鍵として 1 つずつ置き、`oneOf` はその名を `$ref` で指すだけとする（CR-806） —— `readSchema`（表 T-107 の `AM-30`）の目次が命令ごとに 1 行を出し、AI は要る命令の形だけを読める。  
   文書の列を書く値の形は、1 つ目の資源の同じ列の形を指す。  
   資源の一覧はその 2 つを返し、読むとそれぞれの文字列を返す。  
   ほかの所を読む求めには、MCP の「資源が無い」の誤り（`-32002`）を返す。  

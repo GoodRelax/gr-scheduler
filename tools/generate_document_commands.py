@@ -138,8 +138,8 @@ COMMANDS_SCHEMA_COMMENT = (
     'Generated from docs/spec/_source/document-commands.json (table T-108, the commands applyCommands '
     'takes), the column shapes from docs/spec/_source/grs-document.schema.json. Never edit by hand. '
     'Rebuild: npm run gen -- npm run gen:check fails on drift. The generator is '
-    'tools/generate_document_commands.py. One oneOf branch per command in the order of the table; a '
-    'command with a choice of shapes holds a oneOf of its own.')
+    'tools/generate_document_commands.py. One definition per command under $defs, keyed by its kind, and '
+    'a oneOf naming them in the order of the table; a command with a choice of shapes holds a oneOf of its own.')
 COMMANDS_SCHEMA_DESCRIPTION = (
     'One command of the batch applyCommands takes: kind names the command, the other keys are '
     'the values it carries. A value that writes a column of the document has the shape of that column '
@@ -827,7 +827,10 @@ def commands_schema_text(doc, columns, schema):
         ('$comment', COMMANDS_SCHEMA_COMMENT),
         ('title', COMMANDS_SCHEMA_TITLE),
         ('description', COMMANDS_SCHEMA_DESCRIPTION),
-        ('oneOf', [command_branch(row, doc, columns, schema) for row in doc['rows']]),
+        # CR-806: one definition per command, keyed by its confirmed name, so readSchema (AM-30) lists them.
+        ('oneOf', [{'$ref': '#/$defs/%s' % row['name']} for row in doc['rows']]),
+        ('$defs', collections.OrderedDict(
+            (row['name'], command_branch(row, doc, columns, schema)) for row in doc['rows'])),
     ])
     return json.dumps(out, ensure_ascii=False, indent=1) + '\n'
 

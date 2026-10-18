@@ -12,13 +12,13 @@ what this reading does not see.
 
 | place | T-218 | T-334 | files | case sites | expected-to-fail marks | known-red lines | need the MSPDI XSDs | tied to no spec row |
 | --- | --- | --- | --: | --: | --: | --: | --: | --: |
-| `contract` | TS-5 | VT-2 | 436 | 5799 | 8 | 4 | 11 | 4 |
+| `contract` | TS-5 | VT-2 | 437 | 5814 | 8 | 4 | 11 | 4 |
 | `integration` | TS-2 | - | 3 | 76 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
 | `system` | TS-3 | - | 96 | 611 | 0 | 0 | 0 | 0 |
 | `unit` | TS-6 | - | 187 | 3929 | 1 | 1 | 2 | 0 |
 | `use-case` | TS-1 | VT-1 | 14 | 17 | 1 | 2 | 0 | 0 |
-| **all** | | | 739 | 10449 | 10 | 7 | 13 | 4 |
+| **all** | | | 740 | 10464 | 10 | 7 | 13 | 4 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -525,6 +525,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/cr-800-the-heading-box-checks-the-listed-rows-then-clears-every-row.contract.test.ts` | 53 | FR-092, FR-099, FR-151 | - | T-027, T-330, T-331, T-347, T-353, T-371 | DT-8, IC-122, IC-125, IC-126, IC-143, RQ-1, SQ-10, SV-7, TV-5, TV-6, UN-20 | - | - | - | - |
 | `tests/contract/cr-801-the-heading-box-is-checked-while-any-row-is-checked.contract.test.ts` | 42 | FR-099, FR-151 | - | T-331, T-347, T-353, T-371 | DT-8, RQ-1, SQ-10, TV-2, TV-5, TV-6, UN-20 | - | - | - | - |
 | `tests/contract/cr-802-readschema-hands-the-schema-in-parts.contract.test.ts` | 17 | - | - | - | AG-12, AM-30 | - | - | - | - |
+| `tests/contract/cr-806-m-the-commands-schema-has-defs-and-the-page-counts-the-fit.contract.test.ts` | 15 | FR-031, FR-055 | - | T-108 | AM-7, AM-30, CM-71, CM-102, IC-10, UN-8 | - | - | - | - |
 | `tests/contract/cr-806-s-the-commands-say-milestone-fs-and-empty-working-times.contract.test.ts` | 11 | FR-009 | - | T-018 | CM-36, CM-39, DP-1, DP-4, IV-24, S-580, S-582 | - | - | - | - |
 | `tests/contract/cr-807-looking-around-moves-no-stamp.contract.test.ts` | 11 | FR-063 | - | T-027, T-108 | AG-2, CM-9, CM-58, CM-62, CM-65, CM-66, CM-67, UN-3, UN-7, UN-8, UN-13, UN-16, WS-1, WS-4, WS-5 | - | - | - | - |
 | `tests/contract/cr-808-the-page-reconnects-to-the-relay-by-itself.contract.test.ts` | 27 | - | - | T-233 | AG-12, RS-90 | - | - | - | - |

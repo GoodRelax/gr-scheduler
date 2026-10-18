@@ -79,6 +79,7 @@ export type DocumentSettingsCommand =
       readonly scrollDateFraction: DocumentSettings['scrollDateFraction']
       readonly scrollTaskGroupFraction: DocumentSettings['scrollTaskGroupFraction']
     }
+  | { readonly kind: 'fitScheduleToScreenOnPage' }
   | { readonly kind: 'setDisplayScale'; readonly displayScale: DocumentSettings['displayScale'] }
   | {
       readonly kind: 'setFitSpan'
@@ -471,6 +472,33 @@ function composedCommandEdited(settings: DocumentSettings, command: ComposedComm
   return fitSpanCommandEdited(settings, command, put)
 }
 
+// see FR-016
+/** @purity pure */
+function isZoomFinite(zoom: { readonly zoomX: number; readonly zoomY: number }): boolean {
+  return Number.isFinite(zoom.zoomX) && Number.isFinite(zoom.zoomY)
+}
+
+type FitCommand = Extract<DocumentSettingsCommand, { readonly kind: 'fitScheduleToScreen' | 'fitScheduleToScreenOnPage' }>
+
+// see CM-71, CM-102, FR-016, FR-055
+/** @purity pure */
+function fitEdited(command: FitCommand, put: SettingsPut, clamp: (value: number) => number): EditResult {
+  // WHY: the Agent API puts the page's own CM-71 in place of CM-102; reaching here, no page has drawn a screen to count from.
+  if (command.kind === 'fitScheduleToScreenOnPage') {
+    return refused([reject('CM-102', 'FR-055', 'the page has not drawn its screen yet, so it cannot count the fit')])
+  }
+  // TRAP: keep CM-71 and CM-72 two writes in this order, or an undo rewinds the zoom (UN-8, UN-17).
+  if (!isZoomFinite(command)) return refused([reject('CM-71', 'FR-016', 'zoom must be a finite number')])
+  return put({
+    zoomX: clamp(command.zoomX),
+    zoomY: clamp(command.zoomY),
+    scrollDate: command.scrollDate,
+    scrollTaskGroupId: command.scrollTaskGroupId,
+    scrollDateFraction: command.scrollDateFraction,
+    scrollTaskGroupFraction: command.scrollTaskGroupFraction,
+  })
+}
+
 // see CM-88, CM-89, CM-90, FX-1, FX-4, FX-5
 /** @purity pure */
 function fitSpanCommandEdited(settings: DocumentSettings, command: FitSpanCommand, put: SettingsPut): EditResult {
@@ -515,9 +543,7 @@ export function editDocumentSettings(
 
     case 'setZoom': {
       // TRAP: refuse NaN here; it fails both comparisons, so the clamp alone would store it.
-      if (!Number.isFinite(command.zoomX) || !Number.isFinite(command.zoomY)) {
-        return refused([reject('CM-65', 'FR-016', 'zoom must be a finite number')])
-      }
+      if (!isZoomFinite(command)) return refused([reject('CM-65', 'FR-016', 'zoom must be a finite number')])
       return put({ zoomX: clamp(command.zoomX), zoomY: clamp(command.zoomY) })
     }
 
@@ -545,20 +571,9 @@ export function editDocumentSettings(
       return put({ pinnedTaskGroupIds: held.filter((one) => one !== command.taskGroupId) })
     }
 
-    case 'fitScheduleToScreen': {
-      // TRAP: keep CM-71 and CM-72 two writes in this order, or an undo rewinds the zoom (UN-8, UN-17).
-      if (!Number.isFinite(command.zoomX) || !Number.isFinite(command.zoomY)) {
-        return refused([reject('CM-71', 'FR-016', 'zoom must be a finite number')])
-      }
-      return put({
-        zoomX: clamp(command.zoomX),
-        zoomY: clamp(command.zoomY),
-        scrollDate: command.scrollDate,
-        scrollTaskGroupId: command.scrollTaskGroupId,
-        scrollDateFraction: command.scrollDateFraction,
-        scrollTaskGroupFraction: command.scrollTaskGroupFraction,
-      })
-    }
+    case 'fitScheduleToScreen':
+    case 'fitScheduleToScreenOnPage':
+      return fitEdited(command, put, clamp)
 
     case 'setLevelZeroTreeState':
       return levelZeroTreeStateEdited(command, put)

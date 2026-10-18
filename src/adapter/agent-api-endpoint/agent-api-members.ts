@@ -329,6 +329,7 @@ export interface AgentApiWiring {
   readonly historySteps?: HistoryStepper | undefined
   // see AM-29, QN-17
   readonly askToOpenFile?: (() => void) | undefined
+  readonly pageFitWrites?: (() => readonly DocumentCommand[] | null) | undefined
   // TRAP: must differ from the person's writer name, or AG-6 takes the person's edits for this API's own.
   readonly writerName: string
   readonly schemaVersion: string
@@ -719,6 +720,15 @@ function malformedWriteRequestWhat(request: AgentWriteRequest): string | null {
   return null
 }
 
+// see CM-102, CM-71, FR-055
+/** @purity semi-pure-b */
+function withPageFit(wiring: AgentApiWiring, commands: readonly DocumentCommand[]): readonly DocumentCommand[] {
+  if (!commands.some((command) => command.kind === 'fitScheduleToScreenOnPage')) return commands
+  const fit = wiring.pageFitWrites?.() ?? null
+  if (fit === null) return commands
+  return commands.flatMap((command) => (command.kind === 'fitScheduleToScreenOnPage' ? fit : [command]))
+}
+
 // see AG-5
 /** @purity non-pure */
 function writeThroughTheOnePath(
@@ -981,7 +991,7 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
         snapshot,
         'AM-7',
         request.expectedStamp,
-        request.commands,
+        withPageFit(wiring, request.commands),
       )
     },
 

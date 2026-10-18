@@ -672,7 +672,7 @@
   {
    "from": "docs/spec/_source/document-commands.json",
    "to": "docs/spec UIDs",
-   "count": 103
+   "count": 106
   },
   {
    "from": "docs/spec/_source/document-commands.json",
@@ -687,7 +687,7 @@
   {
    "from": "docs/spec/_source/document-commands.json",
    "to": "docs/spec/_source/agent-api-members.json",
-   "count": 2
+   "count": 4
   },
   {
    "from": "docs/spec/_source/document-commands.json",
@@ -977,7 +977,7 @@
   {
    "from": "docs/spec/_source/published-entries.json",
    "to": "docs/spec UIDs",
-   "count": 199
+   "count": 201
   },
   {
    "from": "docs/spec/_source/published-entries.json",
@@ -992,7 +992,7 @@
   {
    "from": "docs/spec/_source/published-entries.json",
    "to": "docs/spec/_assets/tbl-glossary.md",
-   "count": 42
+   "count": 43
   },
   {
    "from": "docs/spec/_source/published-entries.json",
@@ -1002,7 +1002,7 @@
   {
    "from": "docs/spec/_source/published-entries.json",
    "to": "docs/spec/_source/document-commands.json",
-   "count": 29
+   "count": 31
   },
   {
    "from": "docs/spec/_source/published-entries.json",
@@ -1461,7 +1461,7 @@
    "AV": 19
   },
   "docs/spec/_source/document-commands.json": {
-   "CM": 91
+   "CM": 92
   },
   "docs/spec/_source/erd.json": {
    "AT": 159,
