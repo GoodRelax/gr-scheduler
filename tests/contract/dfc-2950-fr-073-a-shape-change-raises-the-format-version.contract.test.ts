@@ -80,6 +80,7 @@ function cloneErd(): Record<string, any> {
 const VERSION_FINGERPRINTS: readonly { readonly version: string; readonly fingerprint: string }[] = [
   { version: '2026-10-16T12:35:39Z', fingerprint: '2c273409e5b2234e4d63cdf9a06dcdef8c6e1f28b40b90495fe35409e29795bb' },
   { version: '2026-10-17T15:27:48Z', fingerprint: '81b900632ae4d04a207af1bc827cfefe7709e4961f65700f4a80e0fc56395781' },
+  { version: '2026-10-18T23:17:29Z', fingerprint: '8c8e8b47321550afe822dc1ec9a25990df1b078f9a4d0a7db007dbcba07cfe92' },
 ]
 
 const NEWEST = VERSION_FINGERPRINTS[VERSION_FINGERPRINTS.length - 1]!

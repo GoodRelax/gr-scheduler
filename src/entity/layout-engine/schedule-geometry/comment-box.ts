@@ -13,7 +13,7 @@ import {
   type Schedule,
 } from '../../document-model/schedule/schedule'
 import { xOfInstant, type ScheduleLayout } from '../schedule-layout/schedule-layout'
-import { drawnAnnotationNumber } from './highlight-box'
+import { drawnAnnotationNumber, drawnCommentTextSizePx } from './highlight-box'
 import {
   point,
   type BarGeometry,
@@ -308,7 +308,8 @@ export function commentGeometry(
     if (anchor === null) continue
     const lines = wrappedLines(box.text ?? '', settings.commentBoxWrapUnits)
     const offset = box.bodyOffsetPx ?? { dx: 0, dy: 0 }
-    const fontSize = settings.fontSizeStepSizes[settings.fontSizeStep]
+    // see AT-168, S-624
+    const fontSize = drawnCommentTextSizePx(box.textSizePx ?? null, settings.fontSizeStepSizes[settings.fontSizeStep])
     const pad = settings.commentBoxPad
     const width = textWidthOf(lines, fontSize, settings.labelCoef) + 2 * pad
     const height = lines.length * fontSize + 2 * pad

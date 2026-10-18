@@ -57,8 +57,8 @@ const FR_106_ANCHOR =
 const LEADER_ONE_CORNER =
   '⭐ 描き方はこうである（MUST）: 留めた点と、本文の箱の 4 隅のうち `05-07-design.md` の 表 T-221 の `LF-17` が選ぶ 1 隅とを、1 本の線で結ぶこと。'
 const NULLS_DRAW_DEFAULTS =
-  '⭐ 太さと透過率の列が `null` のときは 表 T-217 の同じ列の既定で、色の 3 列が `null` のときは、線を注記の色（`_assets/tbl-settings.md` の 表 T-236 の `S-312`）、塗りを地の色（同表の `S-146`）、字を文字の色（同表の `S-147`）で描くこと（MUST） —— 5 列がすべて `null` の箱は、列を足す前と同じ絵になる。'
-const PLACED_WITH_NULLS = '⭐ 置くとき（`_assets/tbl-document-commands.md` の 表 T-108 の `CM-46`）は 5 列を `null` とすること（MUST）'
+  '⭐ 太さと透過率の列が `null` のときは 表 T-217 の同じ列の既定で、色の 3 列が `null` のときは、線を注記の色（`_assets/tbl-settings.md` の 表 T-236 の `S-312`）、塗りを地の色（同表の `S-146`）、字を文字の色（同表の `S-147`）で描き、字の大きさの列（`AT-168`）が `null` のときは文書の文字サイズ（`FR-039` の `fontSizeStep`、表 T-215）で描くこと（MUST） —— 6 列がすべて `null` の箱は、列を足す前と同じ絵になる。'
+const PLACED_WITH_NULLS = '⭐ 置くとき（`_assets/tbl-document-commands.md` の 表 T-108 の `CM-46`）は 6 列を `null` とすること（MUST）'
 const ONE_COLOR_ONE_WIDTH = '⭐ 枠と引出し線は 1 つの色と 1 つの太さで描く'
 const WIDTH_NOT_SCALED = '⛔ 線の太さに倍率を掛けてはならない（MUST NOT）'
 const FILL_RULE =
@@ -78,7 +78,7 @@ const LF_17_TIE = '⭐ 中点に等しいときは左と下を採る'
 const LF_17_INSIDE = '⭐ 留めた点が本文の箱の中（縁を含む）に在るときは、引出し線を描かない'
 const LF_17_HANDLE_INSIDE = '⚠️ 線先の印（同書の 表 T-023d の結び）はそのときも描く'
 const MISSING_COLUMNS_READ_AS_NULL =
-  '`AT-148` 〜 `AT-152` の列を持たない `CommentBox` の項には、その列を `null` として足して読むこと（MUST）'
+  '`AT-148` 〜 `AT-152` と `AT-168` の列を持たない `CommentBox` の項には、その列を `null` として足して読むこと（MUST）'
 const WHATEVER_THE_VERSION = '⭐ 形式の版（`FR-073`）によらずに足す'
 const SILENTLY = '足したことを通知してはならない（MUST NOT）'
 

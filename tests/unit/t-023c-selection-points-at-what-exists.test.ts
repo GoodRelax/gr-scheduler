@@ -313,12 +313,13 @@ function richDocument(edit: (draft: any) => void = () => {}): Document {
           anchorHighlightBoxId: null,
           anchorSnapPoint: null,
           bodyOffsetPx: null,
-          // WHY: fig-erd-detail AT-148..AT-152 are columns of the CommentBox, each nullable.
+          // WHY: fig-erd-detail AT-148..AT-152 and AT-168 are columns of the CommentBox, each nullable.
           strokeColor: null,
           strokeWidthPx: null,
           fillColor: null,
           fillTransparencyPercent: null,
           textColor: null,
+          textSizePx: null,
         },
       ],
       highlightBoxes: [

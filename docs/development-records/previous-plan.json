@@ -1,6 +1,6 @@
 {
  "$schema": "https://goodrelax.github.io/gr-scheduler/spec/_source/grs-document.schema.json",
- "schemaVersion": "2026-10-17T15:27:48Z",
+ "schemaVersion": "2026-10-18T23:17:29Z",
  "schedule": {
   "project": {
    "id": "GRS-PLAN",
@@ -4236,7 +4236,8 @@
     "strokeWidthPx": 1,
     "fillColor": null,
     "fillTransparencyPercent": null,
-    "textColor": null
+    "textColor": null,
+    "textSizePx": null
    }
   ],
   "highlightBoxes": [],

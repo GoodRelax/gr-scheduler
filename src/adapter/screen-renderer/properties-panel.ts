@@ -2144,9 +2144,13 @@ function withColorFields(fields: readonly PropertyField[], look: ColorLook): rea
   )
 }
 
-// see FR-006, PR-5, PR-40, PR-26, PR-23, PR-8
+// see FR-006, PR-5, PR-40, PR-26, PR-23, PR-8, PR-50
 // WHY: keyed by column, so a box's outline width takes the same unit as a task's (CR-689 decision 11).
-const UNIT_PART_OF_COLUMN: Readonly<Record<string, string>> = { strokeWidthPx: 'pxUnit', actualDuration: 'daysUnit' }
+const UNIT_PART_OF_COLUMN: Readonly<Record<string, string>> = {
+  strokeWidthPx: 'pxUnit',
+  textSizePx: 'pxUnit',
+  actualDuration: 'daysUnit',
+}
 const HINT_PART_OF_COLUMN: Readonly<Record<string, string>> = { resumeValid: 'resumeValidHint' }
 
 /** @purity pure */
@@ -2285,12 +2289,14 @@ const NOT_STORED_ANNOTATION_BOUNDS: {
   readonly 'S-371': { readonly key: string; readonly min: number; readonly max: number }
   readonly 'S-374': { readonly key: string; readonly min: number; readonly max: number }
   readonly 'S-375': { readonly key: string; readonly min: number; readonly max: number }
+  readonly 'S-624': { readonly key: string; readonly min: number; readonly max: number }
 } = {
   'S-132': { key: 'cornerRadiusPx', min: 0, max: 24 },
   'S-369': { key: 'HighlightBox.strokeWidthPx', min: 1, max: 10 },
   'S-371': { key: 'HighlightBox.fillTransparencyPercent', min: 0, max: 100 },
   'S-374': { key: 'CommentBox.strokeWidthPx', min: 1, max: 10 },
   'S-375': { key: 'CommentBox.fillTransparencyPercent', min: 0, max: 100 },
+  'S-624': { key: 'CommentBox.textSizePx', min: 9, max: 24 },
 }
 
 // see T-016, FR-006

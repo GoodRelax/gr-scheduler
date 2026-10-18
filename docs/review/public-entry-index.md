@@ -423,6 +423,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `DualCursorDates` | file only | interface | `src/entity/layout-engine/schedule-geometry/dual-cursor.ts#DualCursorDates` | -- | interface DualCursorDates |
 | `dualCursorGeometry` | file only | function | `src/entity/layout-engine/schedule-geometry/dual-cursor.ts#dualCursorGeometry` | -- | function dualCursorGeometry( placed: DualCursorDates \| null, layout: ScheduleLayout, regions: ScreenRegions, ): DualCursorGeometry \| null |
 | `drawnAnnotationNumber` | file only | function | `src/entity/layout-engine/schedule-geometry/highlight-box.ts#drawnAnnotationNumber` | -- | function drawnAnnotationNumber(held: number \| null, row: AnnotationNumberRow): number |
+| `drawnCommentTextSizePx` | file only | function | `src/entity/layout-engine/schedule-geometry/highlight-box.ts#drawnCommentTextSizePx` | -- | function drawnCommentTextSizePx(held: number \| null, stepSizePx: number): number |
 | `highlightGeometry` | file only | function | `src/entity/layout-engine/schedule-geometry/highlight-box.ts#highlightGeometry` | -- | function highlightGeometry(schedule: Schedule, layout: ScheduleLayout): readonly HighlightGeometry[] |
 | `ParentTaskArrowGeometry` | file only | interface | `src/entity/layout-engine/schedule-geometry/parent-task-arrows.ts#ParentTaskArrowGeometry` | -- | interface ParentTaskArrowGeometry |
 | `ParentTaskCandidateGeometry` | file only | interface | `src/entity/layout-engine/schedule-geometry/parent-task-arrows.ts#ParentTaskCandidateGeometry` | -- | interface ParentTaskCandidateGeometry |
@@ -2093,4 +2094,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 1063 name(s) leave through a public entry (519 of them published by table T-064), 830 more are exported by a file and not by its entry.
+Totals: 1063 name(s) leave through a public entry (519 of them published by table T-064), 831 more are exported by a file and not by its entry.

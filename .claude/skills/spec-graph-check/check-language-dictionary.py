@@ -41,13 +41,13 @@ MANUSCRIPT = 'SINGLE SOURCE OF TRUTH'
 EXEMPT = {
     'erd.json': {
         '/entities[]/columns[]/type': (
-            144, 'a CLASSIFICATION, not prose: 「文字列（16 字以下）」 is a type '
+            145, 'a CLASSIFICATION, not prose: 「文字列（16 字以下）」 is a type '
                  'and a range, and the Japanese wording of it is a display '
                  'decision. Wrapping it would fix the wording in the '
                  'manuscript. CR-176 left it for the change that decides how '
                  'the classification is spelled.'),
         '/entities[]/columns[]/nullable': (
-            159, 'the same: 9 distinct values of which 108 are 可 / 否 / '
+            160, 'the same: 9 distinct values of which 108 are 可 / 否 / '
                  '否（空可）. A classification plus a note, not prose.'
                  '⭐ 125->126 / 138->139 on 2026-09-06: '
                  'Project.outlineBase (AT-139) is one more 整数 / 否. '
@@ -92,7 +92,11 @@ EXEMPT = {
                  '(JDG-1976). '
                  '⭐ 139->144 / 154->159 on 2026-10-16: CR-777 adds the five '
                  'CommentBox anchor columns (AT-163..AT-167); raised for now '
-                 'with leave from the user (JDG-2416).'),
+                 'with leave from the user (JDG-2416). '
+                 '⭐ 144->145 / 159->160 on 2026-10-19: CR-809 adds '
+                 'CommentBox.textSizePx (AT-168), one more 整数（px） / 可 '
+                 'of the same classification as strokeWidthPx; a CR that only '
+                 'adds a column raises these by one (JDG-300).'),
         '/container/boxes[]/rows[][]': (
             7, 'the TYPE TOKEN cell of a plain attribute row -- the same '
                'classification the type column holds. The comment cell of the '
@@ -104,7 +108,7 @@ EXEMPT = {
     },
     'property-items.json': {
         '/items[]/inputKinds[]': (
-            44, 'a CLASSIFICATION, not prose: the seven tokens 文字 / 複数行 / '
+            45, 'a CLASSIFICATION, not prose: the seven tokens 文字 / 複数行 / '
                 '日付 / 数値 / 真偽 / 選択 / 色 that table T-016 has always '
                 'printed in its 入力の型 column, one per GRS JSON column. The '
                 'schema of this manuscript states them as an enum, which is '
@@ -146,7 +150,10 @@ EXEMPT = {
                 'Bring to Front button of a comment box and of a highlight '
                 'box), each with the one new token 命令 of the same closed '
                 'enum (a button that writes no column); raised with leave '
-                'from the user (JDG-2532).'),
+                'from the user (JDG-2532). '
+                '⭐ 44 -> 45 on 2026-10-19: CR-809 adds PR-50 (the '
+                'comment box text size), one more 数値 token, with its column '
+                '(JDG-300).'),
     },
 }
 

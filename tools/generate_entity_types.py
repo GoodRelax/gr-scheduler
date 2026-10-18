@@ -2382,6 +2382,11 @@ def annotation_cell(cell):
     """One default cell of table T-217, as a TypeScript literal and type."""
     if isinstance(cell, dict) and 'lit' in cell and cell['lit'].startswith("'"):
         return (cell['lit'], 'string')
+    # CR-809: S-624 (CommentBox.textSizePx) follows fontSizeStep through an
+    # `index` default, as S-3 does; the column's null is drawn at table T-215's
+    # size, so the generated value is null and the caller reads T-215 itself.
+    if isinstance(cell, dict) and 'index' in cell:
+        return ('null', 'null')
     return not_stored_cell(cell)
 
 
@@ -2832,6 +2837,10 @@ def derived_rules(manuscript):
     out = []
     for key in sorted(manuscript):
         cell = manuscript[key]['default']
+        # CR-809: an entity column's default (S-624, CommentBox.textSizePx) is
+        # drawn from the step and never written, so it is no derived setting.
+        if '.' in key:
+            continue
         if isinstance(cell, dict) and 'index' in cell:
             table, by = cell['index']
             out.append("  '%s': { index: '%s', by: '%s', times: %s },"

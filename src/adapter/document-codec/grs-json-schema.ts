@@ -543,7 +543,7 @@ const SCHEMA_DEFS: Readonly<Record<string, SchemaNode>> = {
   },
   CommentBox: {
     type: ['object'],
-    required: ['id', 'leaderShapeKind', 'text', 'anchorDate', 'anchorTaskGroupId', 'bodyOffsetPx', 'anchorBandFraction', 'anchorTaskUid', 'anchorTaskFigure', 'anchorHighlightBoxId', 'anchorSnapPoint', 'strokeColor', 'strokeWidthPx', 'fillColor', 'fillTransparencyPercent', 'textColor'],
+    required: ['id', 'leaderShapeKind', 'text', 'anchorDate', 'anchorTaskGroupId', 'bodyOffsetPx', 'anchorBandFraction', 'anchorTaskUid', 'anchorTaskFigure', 'anchorHighlightBoxId', 'anchorSnapPoint', 'strokeColor', 'strokeWidthPx', 'fillColor', 'fillTransparencyPercent', 'textColor', 'textSizePx'],
     closed: true,
     properties: {
       id: {
@@ -608,6 +608,9 @@ const SCHEMA_DEFS: Readonly<Record<string, SchemaNode>> = {
       textColor: {
         type: ['string', 'null'],
         pattern: '^(?:white|black|dimgray|lightgray|red|blue|yellow|green|orange|purple|#[0-9a-fA-F]{6}/(?:#[0-9a-fA-F]{6})?|/#[0-9a-fA-F]{6})$',
+      },
+      textSizePx: {
+        type: ['integer', 'null'],
       },
     },
   },
@@ -2343,6 +2346,22 @@ const SHAPE_OF_COMMAND_KIND: Readonly<Record<string, SchemaNode>> = {
       },
       textColor: {
         type: ['string', 'null'],
+      },
+    },
+  },
+  setCommentBoxTextSizePx: {
+    type: ['object'],
+    required: ['kind', 'commentBoxId', 'textSizePx'],
+    closed: true,
+    properties: {
+      kind: {
+        enum: ['setCommentBoxTextSizePx'],
+      },
+      commentBoxId: {
+        type: ['string'],
+      },
+      textSizePx: {
+        type: ['integer', 'null'],
       },
     },
   },

@@ -565,6 +565,22 @@
    }
   },
   {
+   "id": "PR-50",
+   "columns": [
+    "textSizePx"
+   ],
+   "inputKinds": [
+    "数値"
+   ],
+   "appliesTo": "CommentBox",
+   "note": {
+    "ja": "本文の字の大きさ（px）。空は文書の文字サイズ（`FR-039`）に従う。範囲は `_assets/tbl-settings.md` の表 T-217 の `S-624`。並びは `FR-006` の見た目の行の順"
+   },
+   "mspdi": {
+    "ja": "無い（`GRS JSON` のみ）"
+   }
+  },
+  {
    "id": "PR-49",
    "columns": [
     "id"

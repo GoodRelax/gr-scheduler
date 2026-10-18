@@ -59,7 +59,7 @@ const NOT_BOTH_TRANSPARENT = '⛔ ただし、塗りと枠の線を同時に透�
 const FILL_MAY_BE_TRANSPARENT = '⭐ 塗りには透明を選ばせてよい'
 // WHY: 05-07-design reads a GRS JSON document this way before the schema runs.
 const MISSING_COLUMNS_READ_AS_NULL =
-  '⭐ 同じくスキーマを走らせる前に、`_assets/fig-erd-detail.md` の `AT-145` ・ `AT-146` ・ `AT-147` の列を持たない `HighlightBox` の項と、`AT-148` 〜 `AT-152` の列を持たない `CommentBox` の項には、その列を `null` として足して読むこと（MUST）'
+  '⭐ 同じくスキーマを走らせる前に、`_assets/fig-erd-detail.md` の `AT-145` ・ `AT-146` ・ `AT-147` の列を持たない `HighlightBox` の項と、`AT-148` 〜 `AT-152` と `AT-168` の列を持たない `CommentBox` の項には、その列を `null` として足して読むこと（MUST）'
 const WHATEVER_THE_VERSION = '⭐ 形式の版（`FR-073`）によらずに足す'
 const SILENTLY = '足したことを通知してはならない（MUST NOT）'
 

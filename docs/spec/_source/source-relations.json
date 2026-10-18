@@ -183,12 +183,12 @@
    "to": "docs/spec/_source/property-items.json",
    "family": "PR",
    "fields": {
-    "rowId": 43
+    "rowId": 44
    },
    "prefixes": [
     "PR"
    ],
-   "count": 43
+   "count": 44
   },
   {
    "from": "docs/spec/_source/document-commands.json",
@@ -207,13 +207,13 @@
    "to": "docs/spec/_source/erd.json",
    "family": "AT",
    "fields": {
-    "column": 92,
-    "key": 60
+    "column": 93,
+    "key": 61
    },
    "prefixes": [
     "AT"
    ],
-   "count": 152
+   "count": 154
   },
   {
    "from": "docs/spec/_source/document-commands.json",
@@ -303,20 +303,20 @@
    "to": "docs/spec/_source/erd.json",
    "family": "column names",
    "fields": {
-    "columns": 42
+    "columns": 43
    },
    "prefixes": [],
-   "count": 42
+   "count": 43
   },
   {
    "from": "docs/spec/_source/property-items.json",
    "to": "docs/spec/_source/erd.json",
    "family": "entity names",
    "fields": {
-    "appliesTo": 20
+    "appliesTo": 21
    },
    "prefixes": [],
-   "count": 20
+   "count": 21
   },
   {
    "from": "docs/spec/_source/published-entries.json",
@@ -672,7 +672,7 @@
   {
    "from": "docs/spec/_source/document-commands.json",
    "to": "docs/spec UIDs",
-   "count": 102
+   "count": 103
   },
   {
    "from": "docs/spec/_source/document-commands.json",
@@ -727,7 +727,7 @@
   {
    "from": "docs/spec/_source/erd.json",
    "to": "docs/spec UIDs",
-   "count": 57
+   "count": 59
   },
   {
    "from": "docs/spec/_source/erd.json",
@@ -757,7 +757,7 @@
   {
    "from": "docs/spec/_source/erd.json",
    "to": "docs/spec/_source/settings.json",
-   "count": 50
+   "count": 54
   },
   {
    "from": "docs/spec/_source/erd.json",
@@ -922,7 +922,7 @@
   {
    "from": "docs/spec/_source/property-items.json",
    "to": "docs/spec UIDs",
-   "count": 30
+   "count": 32
   },
   {
    "from": "docs/spec/_source/property-items.json",
@@ -947,7 +947,7 @@
   {
    "from": "docs/spec/_source/property-items.json",
    "to": "docs/spec/_source/settings.json",
-   "count": 22
+   "count": 24
   },
   {
    "from": "docs/spec/_source/property-items.schema.json",
@@ -1047,7 +1047,7 @@
   {
    "from": "docs/spec/_source/settings.json",
    "to": "docs/spec UIDs",
-   "count": 481
+   "count": 482
   },
   {
    "from": "docs/spec/_source/settings.json",
@@ -1072,7 +1072,7 @@
   {
    "from": "docs/spec/_source/settings.json",
    "to": "docs/spec/_source/erd.json",
-   "count": 15
+   "count": 16
   },
   {
    "from": "docs/spec/_source/settings.json",
@@ -1456,10 +1456,10 @@
    "AV": 19
   },
   "docs/spec/_source/document-commands.json": {
-   "CM": 91
+   "CM": 92
   },
   "docs/spec/_source/erd.json": {
-   "AT": 159,
+   "AT": 160,
    "DV": 14,
    "ET": 19,
    "RL": 34
@@ -1469,13 +1469,13 @@
    "RS": 81
   },
   "docs/spec/_source/property-items.json": {
-   "PR": 43
+   "PR": 44
   },
   "docs/spec/_source/published-entries.json": {
    "PI": 37
   },
   "docs/spec/_source/settings.json": {
-   "S": 522
+   "S": 523
   },
   "docs/spec/_source/state-machines.json": {
    "RG": 16

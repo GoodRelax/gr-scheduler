@@ -1281,7 +1281,7 @@ flowchart TB
 ⭐ 走らせるのは文書を組み立てる側（Chapter 5.2 の `CP-20`）とする（MUST） —— 列の形が違うものは、文書になる前に落ちるべきだからである。  
 ⭐ スキーマを走らせる前に、表 T-297 の列を捨てて読むこと（MUST） —— 仕様が落とした列を、保存済みの文書はまだ持っている。  
 捨てた列を通知してはならず、書き戻してもならない（MUST NOT） —— 読む人の側に直せることが何も無い。  
-⭐ 同じくスキーマを走らせる前に、`_assets/fig-erd-detail.md` の `AT-145` ・ `AT-146` ・ `AT-147` の列を持たない `HighlightBox` の項と、`AT-148` 〜 `AT-152` の列を持たない `CommentBox` の項には、その列を `null` として足して読むこと（MUST） —— 列を足す前に保存した文書は、その鍵を持たない。  
+⭐ 同じくスキーマを走らせる前に、`_assets/fig-erd-detail.md` の `AT-145` ・ `AT-146` ・ `AT-147` の列を持たない `HighlightBox` の項と、`AT-148` 〜 `AT-152` と `AT-168` の列を持たない `CommentBox` の項には、その列を `null` として足して読むこと（MUST） —— 列を足す前に保存した文書は、その鍵を持たない。  
 ⭐ 形式の版（`FR-073`）によらずに足す —— `null` は `_assets/tbl-settings.md` の 表 T-217 の既定か、`01-04-requirements.md` の `FR-019` が名指す色で描く値なので、どの版の文書でも絵が変わらない。  
 足したことを通知してはならない（MUST NOT） —— 読む人の側に直すことが何も無い。  
 
@@ -1297,7 +1297,7 @@ flowchart TB
 ⭐ 公式運用の後に消す列は、本表ではなく、刊行するスキーマの変更の台帳（Chapter 6.2）に「削除」の行として足す —— 同じ意味の表を 2 つ持たない。
 
 ⭐ **公式運用を宣言する変更は、宣言の前に置いた補いと読み替えを消し、本表を台帳へ畳んで、台帳を空から始めること（MUST）。**  
-消すのは 5 つ —— 本表の行（`RK-1`・`RK-2`）、`TaskGroup.editPermission` を `null` で補うこと（`01-04-requirements.md` の `GP-1`）、注記の色 8 列（`_assets/fig-erd-detail.md` の `AT-145` 〜 `AT-152`）を `null` で補うこと、`Project.sourceFormat`（`AT-143`）を補うこと、`actualDuration` から `stop`（`AT-141`）へ読み替えること（`01-04-requirements.md` の `FR-011`）。  
+消すのは 5 つ —— 本表の行（`RK-1`・`RK-2`）、`TaskGroup.editPermission` を `null` で補うこと（`01-04-requirements.md` の `GP-1`）、注記の見た目 9 列（`_assets/fig-erd-detail.md` の `AT-145` 〜 `AT-152` と `AT-168`）を `null` で補うこと、`Project.sourceFormat`（`AT-143`）を補うこと、`actualDuration` から `stop`（`AT-141`）へ読み替えること（`01-04-requirements.md` の `FR-011`）。  
 宣言の前に運用中の文書は無い —— 残せば、台帳に載らない読み替えが残り、「台帳は最新の `GRS` が古い文書にすることの全件」が偽になる。
 
 ⭐ 刊行するスキーマ（`_source/grs-document.schema.json`）は書く者の約束であり、`documentSettings` の群にも、欠けている鍵と知らない鍵を拒む条件と、鍵ごとの型・列挙・下限・上限を持たせたままとすること（MUST） —— `01-04-requirements.md` の `FR-024` は、書き出す文書がこのスキーマに適合することを求めている。  

@@ -93,6 +93,11 @@ export type AnnotationCommand =
       readonly commentBoxId: CommentBox['id']
       readonly textColor: CommentBox['textColor']
     }
+  | {
+      readonly kind: 'setCommentBoxTextSizePx'
+      readonly commentBoxId: CommentBox['id']
+      readonly textSizePx: CommentBox['textSizePx']
+    }
   | { readonly kind: 'bringCommentBoxToFront'; readonly commentBoxId: CommentBox['id'] }
   | {
       readonly kind: 'createHighlightBox'
@@ -421,6 +426,7 @@ export function editAnnotation(document: Document, command: AnnotationCommand): 
         fillColor: null,
         fillTransparencyPercent: null,
         textColor: null,
+        textSizePx: null,
       }
       return edited(withScheduleParts(document, { commentBoxes: [...schedule.commentBoxes, box] }))
     }
@@ -602,6 +608,7 @@ type CommentBoxLookCommand = Extract<
       | 'setCommentBoxFillColor'
       | 'setCommentBoxFillTransparencyPercent'
       | 'setCommentBoxTextColor'
+      | 'setCommentBoxTextSizePx'
   }
 >
 
@@ -622,6 +629,7 @@ const COMMENT_BOX_LOOK_KINDS: ReadonlySet<AnnotationCommand['kind']> = new Set<C
   'setCommentBoxFillColor',
   'setCommentBoxFillTransparencyPercent',
   'setCommentBoxTextColor',
+  'setCommentBoxTextSizePx',
 ])
 
 /** @purity pure */
@@ -629,7 +637,7 @@ function isCommentBoxLookCommand(command: AnnotationCommand): command is Comment
   return COMMENT_BOX_LOOK_KINDS.has(command.kind)
 }
 
-// see CM-48, CM-49, CM-80, CM-81, CM-82, CM-83, CM-84, FR-019
+// see CM-48, CM-49, CM-80, CM-81, CM-82, CM-83, CM-84, CM-102, FR-019
 /** @purity pure */
 function commentBoxLookChange(
   command: CommentBoxLookCommand,
@@ -669,10 +677,17 @@ function commentBoxLookChange(
         refusal: opaqueColorRefusal('CM-84', command.textColor),
         look: { textColor: command.textColor },
       }
+    // see FR-097, S-624
+    case 'setCommentBoxTextSizePx':
+      return {
+        commandRow: 'CM-102',
+        refusal: lookNumberRefusal('CM-102', 'S-624', command.textSizePx),
+        look: { textSizePx: command.textSizePx },
+      }
   }
 }
 
-// see CM-48, CM-49, CM-80, CM-81, CM-82, CM-83, CM-84, UN-5
+// see CM-48, CM-49, CM-80, CM-81, CM-82, CM-83, CM-84, CM-102, UN-5
 /** @purity pure */
 function editCommentBoxLook(document: Document, command: CommentBoxLookCommand): EditResult {
   const { commandRow, refusal, look } = commentBoxLookChange(command)
@@ -713,6 +728,7 @@ const NOT_STORED_ANNOTATION_SIZES: {
   readonly 'S-374': number
   readonly 'S-375': number
   readonly 'S-600': number
+  readonly 'S-624': null
 } = {
   'S-132': 4,
   'S-369': 1,
@@ -721,6 +737,7 @@ const NOT_STORED_ANNOTATION_SIZES: {
   'S-374': 1,
   'S-375': 0,
   'S-600': 12,
+  'S-624': null,
 }
 
 // see T-217, FR-006, FR-019
@@ -730,11 +747,13 @@ const NOT_STORED_ANNOTATION_BOUNDS: {
   readonly 'S-371': { readonly key: string; readonly min: number; readonly max: number }
   readonly 'S-374': { readonly key: string; readonly min: number; readonly max: number }
   readonly 'S-375': { readonly key: string; readonly min: number; readonly max: number }
+  readonly 'S-624': { readonly key: string; readonly min: number; readonly max: number }
 } = {
   'S-132': { key: 'cornerRadiusPx', min: 0, max: 24 },
   'S-369': { key: 'HighlightBox.strokeWidthPx', min: 1, max: 10 },
   'S-371': { key: 'HighlightBox.fillTransparencyPercent', min: 0, max: 100 },
   'S-374': { key: 'CommentBox.strokeWidthPx', min: 1, max: 10 },
   'S-375': { key: 'CommentBox.fillTransparencyPercent', min: 0, max: 100 },
+  'S-624': { key: 'CommentBox.textSizePx', min: 9, max: 24 },
 }
 // </generated>

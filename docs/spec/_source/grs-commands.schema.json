@@ -1983,6 +1983,31 @@
   },
   {
    "type": "object",
+   "description": "Sets the text size (px) of the body of the comment box `commentBoxId` to `textSizePx`; null follows the document's font size step.",
+   "properties": {
+    "kind": {
+     "const": "setCommentBoxTextSizePx"
+    },
+    "commentBoxId": {
+     "type": "string",
+     "format": "uuid"
+    },
+    "textSizePx": {
+     "type": [
+      "integer",
+      "null"
+     ]
+    }
+   },
+   "required": [
+    "kind",
+    "commentBoxId",
+    "textSizePx"
+   ],
+   "additionalProperties": false
+  },
+  {
+   "type": "object",
    "description": "Moves the comment box `commentBoxId` to the end of the list of comment boxes, which is the front-most position.",
    "properties": {
     "kind": {

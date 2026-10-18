@@ -281,11 +281,11 @@ const FR_006_DELETE = '日付の欄（表 T-016 の入力の型が `日付` か 
 const FR_006_EMPTY_COMMIT =
   '空のまま確定したときは、`start` ／ `finish` の欄なら何も書かずに欄を元の値へ戻し、それ以外の日付の欄なら `null` を書くこと（MUST）'
 const FR_006_COLOR_LAST =
-  '見た目の行（表 T-016 の入力の型に `色` を含む行と、塗りの透過率・枠線の幅の行）は、同じ対象の行の並びの末尾に置くこと（MUST）'
+  '見た目の行（表 T-016 の入力の型に `色` を含む行と、塗りの透過率・枠線の幅・字の大きさの行）は、同じ対象の行の並びの末尾に置くこと（MUST）'
 const FR_006_WIDTH_AFTER =
-  '見た目の行どうしは、どの対象でも 枠線の幅 → 枠線の色 → 塗りの色 → 塗りの透過率 → 字の色 の順に並べ、1 つの行に色を 1 つだけ持たせること（MUST）'
+  '見た目の行どうしは、どの対象でも 枠線の幅 → 枠線の色 → 塗りの色 → 塗りの透過率 → 字の色 → 字の大きさ の順に並べ、1 つの行に色を 1 つだけ持たせること（MUST）'
 // WHY: the columns of the look rows in FR-006's order; TaskGroup.color is the task group band's fill.
-const LOOK_ORDER: readonly string[] = ['strokeWidthPx', 'strokeColor', 'fillColor', 'fillTransparencyPercent', 'textColor']
+const LOOK_ORDER: readonly string[] = ['strokeWidthPx', 'strokeColor', 'fillColor', 'fillTransparencyPercent', 'textColor', 'textSizePx']
 const LOOK_ALIAS: Readonly<Record<string, string>> = { color: 'fillColor' }
 
 const T_016 = specTable('T-016')
@@ -361,7 +361,7 @@ describe('FR-006 -- the date fields', () => {
 })
 
 describe('FR-006 E-28 -- the look rows are last in their object order', () => {
-  it('FR-006: 見た目の行は同じ対象の行の並びの末尾、枠線の幅 → 枠線の色 → 塗り → 透過率 → 字の色 -- table T-016 (every object)', () => {
+  it('FR-006: 見た目の行は同じ対象の行の並びの末尾、枠線の幅 → 枠線の色 → 塗り → 透過率 → 字の色 → 字の大きさ -- table T-016 (every object)', () => {
     // see FR-006, T-016
     const lookRank = (row: (typeof T_016.rows)[number]): number => {
       const columns = columnsOf(row)

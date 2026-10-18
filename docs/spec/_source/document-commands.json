@@ -2406,6 +2406,36 @@
    }
   },
   {
+   "id": "CM-102",
+   "group": {
+    "ja": "`CommentBox`"
+   },
+   "name": "setCommentBoxTextSizePx",
+   "union": "AnnotationCommand",
+   "bundle": false,
+   "values": [
+    {
+     "name": "commentBoxId",
+     "key": "AT-110"
+    },
+    {
+     "name": "textSizePx",
+     "column": "AT-168"
+    }
+   ],
+   "carries": {
+    "ja": [
+     "本文の字の大きさを置く"
+    ],
+    "en": [
+     "Sets the text size (px) of the body of the comment box `commentBoxId` to `textSizePx`; null follows the document's font size step."
+    ]
+   },
+   "source": {
+    "ja": "`FR-019`"
+   }
+  },
+  {
    "id": "CM-100",
    "group": {
     "ja": "`CommentBox`"

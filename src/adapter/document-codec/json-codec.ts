@@ -228,12 +228,12 @@ function withTaskGroupColumnsOfAnOlderVersion(parsed: unknown): unknown {
   return { ...parsed, schedule: { ...schedule, taskGroups: shapedTaskGroups } }
 }
 
-// see AT-145, AT-146, AT-147, AT-148, AT-149, AT-150, AT-151, AT-152
+// see AT-145, AT-146, AT-147, AT-148, AT-149, AT-150, AT-151, AT-152, AT-168
 const ANNOTATION_LOOK_COLUMNS: readonly { readonly collection: string; readonly keys: readonly string[] }[] = [
   { collection: 'highlightBoxes', keys: ['strokeWidthPx', 'fillColor', 'fillTransparencyPercent'] },
   {
     collection: 'commentBoxes',
-    keys: ['strokeColor', 'strokeWidthPx', 'fillColor', 'fillTransparencyPercent', 'textColor'],
+    keys: ['strokeColor', 'strokeWidthPx', 'fillColor', 'fillTransparencyPercent', 'textColor', 'textSizePx'],
   },
 ]
 

@@ -169,7 +169,7 @@ STARTUP_TEMPLATE_ELEMENT_ID = 'grs-startup-template'
 # CR-792 (JDG-2681..2683, JDG-2688): scrollDateFraction, scrollTaskGroupFraction,
 # fontSizeStep, TaskOrigin.sourceProjectId, Project.parentTaskProgressToleranceDays
 # and TaskGroup.editPermission take the place of the old keys.
-SCHEMA_VERSION = '2026-10-17T15:27:48Z'
+SCHEMA_VERSION = '2026-10-18T23:17:29Z'
 # CR-699 (DR-4): the first key of every document this file writes. S-540 of
 # table T-206 holds it; read through the one reader of not-stored strings.
 SCHEMA_ADDRESS = settings_reader.not_stored_string('S-540')

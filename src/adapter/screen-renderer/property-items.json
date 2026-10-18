@@ -448,6 +448,19 @@
    "oneInput": false
   },
   {
+   "rowId": "PR-50",
+   "columns": [
+    "textSizePx"
+   ],
+   "inputKinds": [
+    "数値"
+   ],
+   "isReadOnly": false,
+   "appliesTo": "CommentBox",
+   "shownFor": null,
+   "oneInput": false
+  },
+  {
    "rowId": "PR-49",
    "columns": [
     "id"

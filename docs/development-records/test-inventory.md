@@ -16,9 +16,9 @@ what this reading does not see.
 | `integration` | TS-2 | - | 3 | 76 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
 | `system` | TS-3 | - | 96 | 611 | 0 | 0 | 0 | 0 |
-| `unit` | TS-6 | - | 187 | 3929 | 1 | 1 | 2 | 0 |
+| `unit` | TS-6 | - | 188 | 3967 | 1 | 1 | 2 | 0 |
 | `use-case` | TS-1 | VT-1 | 14 | 17 | 1 | 2 | 0 | 0 |
-| **all** | | | 734 | 10371 | 10 | 7 | 13 | 4 |
+| **all** | | | 735 | 10409 | 10 | 7 | 13 | 4 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -71,12 +71,12 @@ named either way: 4 of 10.
 | `tests/unit/cr-439-notices-and-confirmation.test.ts` | NT-5 NT-1 と見分けがつく形にすること（MUST） -- an accepted-with-caution notice does not look like a r... | none |
 | `tests/use-case/uc-010-exchange-with-an-external-wbs-master.test.ts` | UC-010 extension 2a / FR-023, OP-5: a truncated MSPDI file dropped on the schedule is d... | DFC-1016 (via known-red) |
 
-## 6. The unit files kept for now (187) -- listing only
+## 6. The unit files kept for now (188) -- listing only
 
 Re-sorting them waits for the change-request organization (handoff 2026-09-26). "Imports"
 are the callables the file imports by name from `src/`, each with the `@purity` tag above
 its declaration. "UO-1 would omit" marks a file whose every such import is tagged `pure` /
-`semi-pure-a` (rule 04 table UO, row UO-1): 27 of 187.
+`semi-pure-a` (rule 04 table UO, row UO-1): 27 of 188.
 
 | file | imports from src/ (tag) | UO-1 would omit | ties |
 | --- | --- | --- | --- |
@@ -164,6 +164,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/unit/cr-785-the-help-links-and-the-dropped-rows.test.ts` | emptySelection (pure), helpModalFromSession (pure), screenViewFromRegions (pure) | yes | FR-036, FR-038, FR-069, T-023, T-109, T-236 |
 | `tests/unit/cr-787-the-panel-opens-at-the-default-width-of-its-kind.test.ts` | frameLoop (non-pure), grabSizesOf (pure), itemAtPointer (untagged), panelFacesOf (pure) | - | FR-052, FR-072, T-016, T-109, T-206 |
 | `tests/unit/cr-788-the-assignee-field-opens-a-checked-list.test.ts` | domScreenSurface (non-pure) | - | FR-059 |
+| `tests/unit/cr-809-each-comment-box-has-its-own-text-size.test.ts` | documentFromJson (pure), drawnCommentTextSizePx (pure), editAnnotation (pure), frameLoop (non-pure) | - | FR-006, FR-019, FR-031, FR-077, FR-097, T-016, T-108, T-215 |
 | `tests/unit/dfc-1620-an-fs-chain-that-starts-the-next-morning-carries-the-whole-delay.test.ts` | documentFromJson (pure) | yes | T-313, T-314 |
 | `tests/unit/dfc-1991-sl-4-a-shift-drag-keeps-the-selection.test.ts` | commandFromInput (pure), grabSizesOf (pure), itemAtPointer (untagged), pressedRowOf (pure), selectionFromInput (pure), selectionOfAll (pure) | - | T-206, T-270 |
 | `tests/unit/dfc-2980-a-marker-pulled-with-many-moves-puts-the-actual.test.ts` | - | - | FR-107, T-270, T-273 |
@@ -889,6 +890,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/unit/cr-785-the-help-links-and-the-dropped-rows.test.ts` | 41 | FR-036, FR-038, FR-069 | - | T-023, T-109, T-236 | IC-20, IC-54, IC-115, MK-2, MK-5, MK-7, MK-15, MK-16, MK-17, S-350, S-503, S-583 | - | - | - | - |
 | `tests/unit/cr-787-the-panel-opens-at-the-default-width-of-its-kind.test.ts` | 21 | FR-052, FR-072 | - | T-016, T-109, T-206 | GR-14, IC-17, MK-13, S-171, S-248, S-602, S-604, S-605, S-606 | - | - | - | - |
 | `tests/unit/cr-788-the-assignee-field-opens-a-checked-list.test.ts` | 19 | FR-059 | - | - | AS-1, AS-3, AS-4, AS-5, AS-7, AS-8, AS-12, IC-123, IC-124, IC-125, IC-126, PR-16, SV-4 | - | - | - | - |
+| `tests/unit/cr-809-each-comment-box-has-its-own-text-size.test.ts` | 38 | FR-006, FR-019, FR-031, FR-077, FR-097 | - | T-016, T-108, T-215 | AT-110, AT-168, CM-102, PR-46, PR-50, S-181, S-624 | - | - | - | - |
 | `tests/unit/dfc-1620-an-fs-chain-that-starts-the-next-morning-carries-the-whole-delay.test.ts` | 4 | - | - | T-313, T-314 | BD-2, BD-4, S-128 | - | - | - | - |
 | `tests/unit/dfc-1991-sl-4-a-shift-drag-keeps-the-selection.test.ts` | 8 | - | - | T-206, T-270 | PE-1, S-208, SL-4, SL-7a, TC-5 | - | - | - | - |
 | `tests/unit/dfc-2980-a-marker-pulled-with-many-moves-puts-the-actual.test.ts` | 7 | FR-107 | - | T-270, T-273 | GO-9, LP-1, PE-8, PE-10, S-129, S-208 | - | - | - | - |
@@ -949,7 +951,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/unit/t-015-t-051-the-four-folding-controls.test.ts` | 52 | FR-004, FR-018, FR-029, FR-032, FR-085 | - | T-006a, T-015, T-051, T-103, T-109, T-216, T-218, T-233, T-328, T-329 | AT-153, HF-1, HF-2, HF-3, HF-10, HF-11, HF-12, HF-13, HF-14, HF-16, HF-17, HF-18, HF-20, HR-1, HR-1a, HR-2, HR-3, HR-4, HR-5, HR-6, HR-7, IC-82, IC-90, IC-106, IF-9, IN-1, OP-10, RS-28, RS-31, RS-32, S-73, S-418, TD-1, TS-6, UF-48, UF-71, W-4 | - | - | - | - |
 | `tests/unit/t-023-wheel-goes-to-the-browser.test.ts` | 17 | FR-016, FR-027, FR-032, FR-051 | - | T-023, T-023a, T-028, T-034, T-036, T-060, T-062, T-075, T-077, T-109, T-218, T-262, T-336 | BO-1, BT-4, CP-25, HN-1, IN-4, IN-4a, LY-5, MK-1, MK-2, MK-4, MK-5, MK-9, MK-10, PTD-1, PTD-5, S-77, S-78, S-99g, SK-3, SK-8, SK-11, SK-13, TS-6, U-55, UF-48, WB-2, ZE-2, ZE-3 | - | - | - | - |
 | `tests/unit/t-023a-ptd-1-pan-follows-the-pointer.test.ts` | 16 | FR-027, FR-031, FR-053, FR-080, NFR-010, SWS-1, SWS-2, SWS-3, SWS-4, SWS-5, SWS-6, SWS-7, SWS-8 | - | T-012, T-023, T-023a, T-023d, T-027, T-028, T-034, T-060, T-062, T-077, T-078, T-203, T-206, T-218, T-219 | AT-51, BO-1, BT-4, CP-25, CU-1, FT-1, FT-3, GA-9, IF-9, IN-1, IN-2, LY-5, MK-7, MK-9a, MK-10, PTD-1, PTD-3, PTD-7, S-1, S-75, S-77, S-78, S-176, S-177, SH-1, SH-2, SH-3, SH-4, SH-5, TS-3, TS-6, TW-2, UF-48, UN-8 | - | - | - | - |
-| `tests/unit/t-023c-selection-points-at-what-exists.test.ts` | 12 | FR-019, FR-027, FR-032, FR-046, NFR-010 | - | T-023c, T-024a, T-027, T-034, T-036, T-050, T-060, T-062, T-075, T-077, T-107, T-217, T-218, T-230 | AM-5, AT-145, AT-147, AT-148, AT-152, BO-1, BT-4, CD-2, CP-25, LY-5, RD-1, RD-2, RD-6, SK-2, SK-3, SK-6, SK-7, SK-20, SL-1, SL-2, SL-3, SL-7b, TS-6, UF-48, UN-9, UN-13, WS-3 | - | - | - | - |
+| `tests/unit/t-023c-selection-points-at-what-exists.test.ts` | 12 | FR-019, FR-027, FR-032, FR-046, NFR-010 | - | T-023c, T-024a, T-027, T-034, T-036, T-050, T-060, T-062, T-075, T-077, T-107, T-217, T-218, T-230 | AM-5, AT-145, AT-147, AT-148, AT-152, AT-168, BO-1, BT-4, CD-2, CP-25, LY-5, RD-1, RD-2, RD-6, SK-2, SK-3, SK-6, SK-7, SK-20, SL-1, SL-2, SL-3, SL-7b, TS-6, UF-48, UN-9, UN-13, WS-3 | - | - | - | - |
 | `tests/unit/t-023c-sl-3-marquee-drawn-while-held.test.ts` | 17 | FR-027, NFR-010, SWS-1, SWS-2, SWS-3, SWS-4, SWS-5, SWS-6, SWS-7, SWS-8 | - | T-012, T-020, T-023a, T-023c, T-034, T-060, T-062, T-077, T-078, T-103, T-206, T-218, T-219, T-236, T-273 | AR-1, AT-51, BO-1, BT-4, CP-25, CU-1, FT-1, FT-3, IF-1, IF-9, LY-5, PTD-1, PTD-3, PTD-5, S-1, S-75, S-151, S-174, S-175, SH-1, SH-2, SH-3, SH-4, SH-5, SL-1, SL-3, SL-4, SL-8, TS-3, TS-6, TW-2, U-19, U-50, UF-48, ZO-1, ZO-5, ZO-6 | - | - | - | - |
 | `tests/unit/t-023d-follows-the-pointer.test.ts` | 36 | FR-011, FR-013, FR-016, FR-019, FR-027, FR-031, FR-044, FR-046, FR-051, FR-052, FR-053, FR-055, NFR-010 | - | T-012, T-015a, T-019a, T-023a, T-023d, T-027, T-028, T-031, T-034, T-035, T-060, T-062, T-077, T-078, T-108, T-203, T-206, T-218, T-266, T-270, T-280 | AG-9, AT-51, BO-1, BT-4, CM-3, CM-11, CM-13, CM-19, CM-50, CM-51, CM-66, CP-25, CU-1, FT-1, FT-3, GA-1, GA-2, GA-3, GA-4, GA-5, GA-6, GA-7, GA-8, GA-9, GA-16, GA-17, GA-18, GA-19, GA-20, GR-10, GR-11, GR-14, GR-16, GR-19, GR-21, GR-22, GR-23, HM-3, IF-9, IN-1, IN-1a, IN-4, LP-1, LY-5, P-6, PE-8, PE-10, PI-5, PS-3, RF-1, S-1, S-63, S-75, S-77, S-78, S-97, S-205, SC-4, SH-1, SH-2, SH-3, SH-4, SH-5, TS-6, U-21, UF-48, UF-61, UN-8 | - | - | - | - |
 | `tests/unit/t-023d-gr-5-relays-the-actual-duration.test.ts` | 20 | FR-011, FR-012, FR-054 | - | T-019, T-245, T-350 | GA-1, GA-3, GO-3, GO-4, GO-5, PA-2, S-1, S-75, S-130 | - | - | - | - |

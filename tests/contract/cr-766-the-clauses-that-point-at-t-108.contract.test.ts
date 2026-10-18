@@ -17,7 +17,7 @@ const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 
 
 // see FR-019, CM-46
 const CM_46_FIVE_NULLS =
-  '⭐ 置くとき（`_assets/tbl-document-commands.md` の 表 T-108 の `CM-46`）は 5 列を `null` とすること（MUST）'
+  '⭐ 置くとき（`_assets/tbl-document-commands.md` の 表 T-108 の `CM-46`）は 6 列を `null` とすること（MUST）'
 // see FR-057, CM-39
 const CM_39_WRITER_ALIGNS =
   '例外日の `fromDate` ／ `toDate` は、`CM-39`（`_assets/tbl-document-commands.md` の 表 T-108）を受けて文書へ書く側が、足した行と日の動いた列だけを `WT-6` ／ `WT-7` の時刻で書くこと（MUST）'

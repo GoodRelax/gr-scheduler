@@ -3033,6 +3033,22 @@
      "meaning": {
       "ja": "本文の字の色。形は `AT-102` と同じ。ただし透明は取らない（`FR-019`）"
      }
+    },
+    {
+     "seat": 168,
+     "name": "textSizePx",
+     "type": "整数（px）",
+     "nullable": "可（`null` = 表 T-215 の文字サイズ）",
+     "json": {
+      "kind": "integer",
+      "null": true
+     },
+     "key": "",
+     "origin": "GRS",
+     "exchange": "",
+     "meaning": {
+      "ja": "本文の字の大きさ。`null` と範囲は `_assets/tbl-settings.md` の表 T-217 の `S-624`。`null` は文書の文字サイズ（`FR-039` の `fontSizeStep`、表 T-215）で描く。ズームによらず一定に描く（`FR-097`）"
+     }
     }
    ]
   },
