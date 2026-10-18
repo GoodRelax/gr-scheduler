@@ -672,12 +672,17 @@
   {
    "from": "docs/spec/_source/document-commands.json",
    "to": "docs/spec UIDs",
-   "count": 102
+   "count": 103
   },
   {
    "from": "docs/spec/_source/document-commands.json",
    "to": "docs/spec/01-04-requirements.md",
    "count": 46
+  },
+  {
+   "from": "docs/spec/_source/document-commands.json",
+   "to": "docs/spec/05-07-design.md",
+   "count": 2
   },
   {
    "from": "docs/spec/_source/document-commands.json",
@@ -697,7 +702,7 @@
   {
    "from": "docs/spec/_source/document-commands.json",
    "to": "docs/spec/_source/settings.json",
-   "count": 15
+   "count": 19
   },
   {
    "from": "docs/spec/_source/document-commands.json",
