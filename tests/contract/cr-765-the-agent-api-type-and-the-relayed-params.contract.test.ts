@@ -26,13 +26,13 @@ import type {
   AgentWatch,
   AgentWriteOutcome,
   AgentImportOutcome,
+  AgentSearchPage,
   AgentWriteRequest,
 } from '../../src/adapter/agent-api-endpoint/agent-api-members'
 import type { RelayedParams } from '../../src/adapter/agent-api-endpoint/relayed-call'
 import type { DialogueMessage } from '../../src/entity/document-model/dialogue-log/dialogue-log'
 import type { Document } from '../../src/entity/document-model/document/document'
 import type { Selection } from '../../src/entity/document-model/selection/selection'
-import type { SearchRows } from '../../src/entity/document-model/schedule/schedule'
 import { printedMembers } from './cr-765-printed-tables'
 import { unbroken } from './spec-table'
 
@@ -123,10 +123,14 @@ describe('the AgentApi type, member by member (T-107)', () => {
     expectTypeOf<ReturnType<AgentApi['readStamp']>>().toEqualTypeOf<Stamp>()
     expectTypeOf<ReturnType<AgentApi['readSelection']>>().toEqualTypeOf<Selection>()
     expectTypeOf<ReturnType<AgentApi['readDialogueMessages']>>().toEqualTypeOf<readonly DialogueMessage[]>()
-    expectTypeOf<ReturnType<AgentApi['readSearchRows']>>().toEqualTypeOf<SearchRows>()
+    expectTypeOf<ReturnType<AgentApi['readSearchRows']>>().toEqualTypeOf<AgentSearchPage>()
     expectTypeOf<ReturnType<AgentApi['readShownTasks']>>().toEqualTypeOf<AgentShownTasks>()
     expectTypeOf<ReturnType<AgentApi['readDelayDiagnostics']>>().toEqualTypeOf<AgentDelayDiagnostics>()
-    expectTypeOf<Parameters<AgentApi['readSearchRows']>>().toEqualTypeOf<[word: string]>()
+    // see AM-3, AM-25
+    expectTypeOf<Parameters<AgentApi['readDocument']>>().toEqualTypeOf<[includeCarry: boolean, taskUids: readonly number[]]>()
+    expectTypeOf<Parameters<AgentApi['readSearchRows']>>().toEqualTypeOf<
+      [word: string, filters: 'asShown' | 'none', offset: number, limit: number]
+    >()
   })
 
   it('the writers take and return what the argument and return columns name', () => {
@@ -157,8 +161,8 @@ describe('the AgentApi type, member by member (T-107)', () => {
     expectTypeOf<ReturnType<AgentApi['postDialogueMessage']>>().toEqualTypeOf<AgentDialogueMessageOutcome>()
   })
 
-  it('a refusal carries the six fields of AV-3 and its reason is the type of AV-4', () => {
-    expectTypeOf<keyof AgentRefusal>().toEqualTypeOf<'target' | 'reason' | 'stamp' | 'document' | 'refusals' | 'message'>()
+  it('a refusal carries the five fields of AV-3 (no document) and its reason is the type of AV-4', () => {
+    expectTypeOf<keyof AgentRefusal>().toEqualTypeOf<'target' | 'reason' | 'stamp' | 'refusals' | 'message'>()
     expectTypeOf<AgentRefusal['reason']>().toEqualTypeOf<AgentRefusalReason>()
   })
 })
@@ -169,7 +173,13 @@ describe('RelayedParams: what the relay carries to each member is the argument c
   })
 
   it('each entry holds the named arguments of its member', () => {
-    expectTypeOf<RelayedParams['readSearchRows']>().toEqualTypeOf<{ word: string }>()
+    expectTypeOf<RelayedParams['readDocument']>().toEqualTypeOf<{ includeCarry: boolean; taskUids: readonly number[] }>()
+    expectTypeOf<RelayedParams['readSearchRows']>().toEqualTypeOf<{
+      word: string
+      filters: 'asShown' | 'none'
+      offset: number
+      limit: number
+    }>()
     expectTypeOf<RelayedParams['applyCommands']>().toEqualTypeOf<{ request: AgentWriteRequest }>()
     expectTypeOf<RelayedParams['importDocument']>().toEqualTypeOf<{ source: AgentImportSource }>()
     expectTypeOf<RelayedParams['focusTask']>().toEqualTypeOf<{ taskUid: number }>()

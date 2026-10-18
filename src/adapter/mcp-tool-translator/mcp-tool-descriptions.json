@@ -1,6 +1,6 @@
 {
  "$comment": "GENERATED -- do not edit by hand. Generated from docs/spec/_source/agent-api-members.json, table T-107 (the members of the Agent API), and the commands the AM-7 input carries from docs/spec/_source/document-commands.json (table T-108), by tools/generate_mcp_tool_descriptions.py. Rebuild: npm run gen -- npm run gen:check fails on drift. One entry per row in the table's order: the confirmed name, its description lines joined by newlines, and its input shape (AG-12 (4) (5), design-mcp-relay.md 3.1). instructions is the text the relay answers MCP initialize with, the mcpInstructions lines joined by newlines (AG-12 (8)).",
- "instructions": "GRS Relay carries each tool call to the Agent API of the GoodRelax Scheduler (GRS) page a person has open in a browser. The page holds the only copy of the schedule document; the relay holds none.\nStart with agentApiVersion. If a tool answers with the reason pageNotConnected, ask the person to open the address it gives (all of it, the part after # included), open a document there, and press the Agent API button in the page header.\nBefore you read or write a document, read the resource grs-document.schema.json from this server. It is the JSON Schema of the GRS JSON document, of the same version as the page, with a description on every key: the times, the units and what each column means. Before you write, read the resource grs-commands.schema.json: every command kind applyCommands takes, with its fields.\nIf your client cannot read resources, call exportJson: its text begins with $schema, the address of the latest published schema.\nRead with readDocument and readStamp. Write with applyCommands, handing over the stamp you last read as expectedStamp; the whole batch is applied or refused as one.\nA refusal is a value, not an error: it names the reason and carries the current stamp. Read again, then retry.\nWhile the person is dragging, typing in place or answering a question, writes are refused; try again shortly.\nThese tools save nothing to a file. The person saves the document from the page.\nThe descriptions here use no row ids of the GRS specification; the specification itself is at https://goodrelax.github.io/gr-scheduler/spec-html/",
+ "instructions": "GRS Relay carries each tool call to the Agent API of the GoodRelax Scheduler (GRS) page a person has open in a browser. The page holds the only copy of the schedule document; the relay holds none.\nStart with agentApiVersion. If a tool answers with the reason pageNotConnected, ask the person to open the address it gives (all of it, the part after # included), open a document there, and press the Agent API button in the page header.\nBefore you read or write a document, read the resource grs-document.schema.json from this server. It is the JSON Schema of the GRS JSON document, of the same version as the page, with a description on every key: the times, the units and what each column means. Before you write, read the resource grs-commands.schema.json: every command kind applyCommands takes, with its fields.\nIf your client cannot read resources, call exportJson: its text begins with $schema, the address of the latest published schema.\nRead in small pieces: readSearchRows returns one page of the Search Panel as the person sees it (an empty word is the whole outline); readDocument leaves out the MSPDI pass-through fields unless you ask, and can be narrowed to some tasks; readStamp is cheap. Write with applyCommands, handing over the stamp you last read as expectedStamp; the whole batch is applied or refused as one.\nA refusal is a value, not an error: it names the reason and carries the current stamp, never the document. Read again what you need, then retry.\nWhile the person is dragging, typing in place or answering a question, writes are refused; try again shortly.\nThese tools save nothing to a file. The person saves the document from the page.\nThe descriptions here use no row ids of the GRS specification; the specification itself is at https://goodrelax.github.io/gr-scheduler/spec-html/",
  "tools": [
   {
    "name": "agentApiVersion",
@@ -20,10 +20,22 @@
   },
   {
    "name": "readDocument",
-   "description": "A frozen copy of the whole document, with its three root groups.",
+   "description": "A frozen copy of the document with its three root groups.\nBy default the MSPDI pass-through fields (carry, carryElements) are left out; pass includeCarry true to keep them.\nA non-empty taskUids keeps only those tasks in the six task-owned groups: tasks, assignments, taskVisuals, taskGroupMembers, taskOrigins and baselineTasks.",
    "inputSchema": {
     "type": "object",
-    "properties": {}
+    "properties": {
+     "includeCarry": {
+      "type": "boolean",
+      "description": "Whether to keep the MSPDI pass-through fields carry and carryElements; false when omitted"
+     },
+     "taskUids": {
+      "type": "array",
+      "items": {
+       "type": "number"
+      },
+      "description": "The uids of the tasks to read; empty or omitted reads every task"
+     }
+    }
    }
   },
   {
@@ -52,13 +64,29 @@
   },
   {
    "name": "readSearchRows",
-   "description": "Takes one word and returns the same rows as the two tables of the Search Panel (tasks and comment boxes).\nNo column filter or sort is applied, and the panel is neither read nor changed.\nThe status column only compares dates with the status date; for the exact delay analysis call readDelayDiagnostics.",
+   "description": "Takes one word and returns the rows of the Search Panel: the task table, one page at a time, and the comment-box table.\nThe panel's own search field is neither read nor changed. An empty word narrows nothing, so the task rows are the whole outline.\nWith filters 'asShown' (the default) the column filters and sort the person has set on the task table are applied, so you get the same rows in the same order as on screen. To change them as the person would, send setTableView through applyCommands; the person's table changes too.\nUp to limit task rows (at most 100) are returned from offset. The answer lists the task table's columns (id, on-screen names, value kind), the total task row count and the next offset.\nThe status column only compares dates with the status date; for the exact delay analysis call readDelayDiagnostics.",
    "inputSchema": {
     "type": "object",
     "properties": {
      "word": {
       "type": "string",
-      "description": "The word to look for"
+      "description": "The word to look for; an empty word narrows nothing, so the answer is the whole outline"
+     },
+     "filters": {
+      "type": "string",
+      "enum": [
+       "asShown",
+       "none"
+      ],
+      "description": "'asShown' (the default) applies the column filters and sort the person has set on the Search Panel task table; 'none' applies neither"
+     },
+     "offset": {
+      "type": "number",
+      "description": "The position of the first task row to return, from 0; 0 when omitted"
+     },
+     "limit": {
+      "type": "number",
+      "description": "How many task rows to return; 100 when omitted, at most 100"
      }
     }
    }

@@ -648,11 +648,11 @@ function sharesNothingWith(answer: unknown, held: unknown): boolean {
 function callEveryMember(api: AgentApi): void {
   void api.agentApiVersion
   void api.schemaVersion
-  api.readDocument()
+  api.readDocument(false, [])
   api.readStamp()
   api.readSelection()
   api.readDialogueMessages()
-  api.readSearchRows('')
+  api.readSearchRows('', 'asShown', 0, 100)
   api.applyCommands({ expectedStamp: api.readStamp(), commands: [RENAME] })
   api.importDocument({ text: '{}' })
   api.undoEdit()
@@ -778,7 +778,7 @@ describe('AM-1 / AM-2 -- the two versions', () => {
     const one = bench()
     one.document = { ...one.document, schemaVersion: '1970-01-01' } as Document
     expect(one.api.schemaVersion).toBe(one.schemaVersion)
-    expect(one.api.readDocument().schemaVersion).toBe('1970-01-01')
+    expect(one.api.readDocument(false, []).schemaVersion).toBe('1970-01-01')
   })
 })
 
@@ -789,19 +789,20 @@ describe('AM-1 / AM-2 -- the two versions', () => {
 describe('AM-3 to AM-6 -- AG-4, a frozen copy in both of its words', () => {
   it('AM-3 answers a copy that shares nothing with the running document', () => {
     const one = bench()
-    const read = one.api.readDocument()
+    // WHY: carry and carryElements are left out unless asked for, so ask for them to compare the whole (see AM-3)
+    const read = one.api.readDocument(true, [])
 
     expect(read).toEqual(one.document)
     expect(sharesNothingWith(read, one.document)).toBe(true)
   })
 
   it('AM-3 answers a value that is frozen all the way down', () => {
-    expect(everythingFrozen(bench().api.readDocument())).toBe(true)
+    expect(everythingFrozen(bench().api.readDocument(false, []))).toBe(true)
   })
 
   it('AM-3: writing to what was handed over does not change the application (AG-4)', () => {
     const one = bench()
-    const read = one.api.readDocument() as unknown as Loose
+    const read = one.api.readDocument(false, []) as unknown as Loose
     const titleBefore = (one.document.schedule as unknown as Loose)['project']
 
     // AG-4 states the outcome, not the mechanism: a frozen value refuses the
@@ -851,7 +852,7 @@ describe('AM-3 to AM-6 -- AG-4, a frozen copy in both of its words', () => {
   it('AM-5 answers the empty selection when nothing is picked (UN-9 keeps it out of the document)', () => {
     const one = bench()
     expect(one.api.readSelection().items).toEqual([])
-    expect(one.api.readDocument() as unknown as Loose).not.toHaveProperty('selection')
+    expect(one.api.readDocument(false, []) as unknown as Loose).not.toHaveProperty('selection')
   })
 
   it('AM-6 answers nothing while the log is empty', () => {
@@ -875,7 +876,7 @@ describe('AM-3 to AM-6 -- AG-4, a frozen copy in both of its words', () => {
     accepted(one.api.applyCommands({ expectedStamp: before, commands: [RENAME] }))
 
     expect(one.api.readStamp()).not.toEqual(before)
-    expect(one.api.readDocument().schedule.project.title).toBe(RENAME.title)
+    expect(one.api.readDocument(false, []).schedule.project.title).toBe(RENAME.title)
   })
 
   it('a read is answered mid-gesture, because CS-2 froze the document at pointer-down', () => {
@@ -883,8 +884,8 @@ describe('AM-3 to AM-6 -- AG-4, a frozen copy in both of its words', () => {
     one.isGestureInFlight = true
     one.isEditingInPlace = true
 
-    expect(() => one.api.readDocument()).not.toThrow()
-    expect(one.api.readDocument().schemaVersion).toBe(one.document.schemaVersion)
+    expect(() => one.api.readDocument(false, [])).not.toThrow()
+    expect(one.api.readDocument(false, []).schemaVersion).toBe(one.document.schemaVersion)
     expect(one.api.readStamp()).toEqual(one.document.documentStamp)
   })
 })
@@ -974,14 +975,14 @@ describe('AM-7 applyCommands -- AG-2, the optimistic lock', () => {
     }
   })
 
-  it('answers a stale write WITH the current document (AG-2, MUST)', () => {
+  it('answers a stale write with the current stamp and NO document (AG-2, MUST NOT)', () => {
     const one = bench()
     const stale = { ...one.api.readStamp(), scheduleUpdatedAt: '1999-01-01T00:00:00Z' }
     const outcome = refused(one.api.applyCommands({ expectedStamp: stale, commands: [RENAME] }))
 
-    expect(outcome.refusal.document).not.toBeNull()
-    expect(outcome.refusal.document).toEqual(one.document)
-    expect(everythingFrozen(outcome.refusal.document)).toBe(true)
+    // WHY: a staleStamp refusal carries only the stamp (see AG-2, AV-3)
+    expect(outcome.refusal).not.toHaveProperty('document')
+    expect(outcome.refusal.stamp).toEqual(one.document.documentStamp)
   })
 
   it('carries the whole current stamp, so the caller can retry from the answer (AG-2)', () => {
@@ -1095,7 +1096,7 @@ describe('IF-7 -- every current value arrives over the seam (LY-5 of table T-060
     const one = bench()
     const before = one.snapshotReads
 
-    one.api.readDocument()
+    one.api.readDocument(false, [])
     expect(one.snapshotReads).toBe(before + 1)
 
     one.api.applyCommands({ expectedStamp: one.api.readStamp(), commands: [RENAME] })
@@ -1148,7 +1149,7 @@ describe('AG-9a / NT-1 -- what a refusal carries', () => {
       one.api.applyCommands({ expectedStamp: one.api.readStamp(), commands: [RENAME] }),
     )
 
-    expect(refusal.document).toBeNull()
+    expect(refusal).not.toHaveProperty('document')
   })
 
   it('says WHICH command was wrong and which rule refused it (NT-1 of table T-037)', () => {
@@ -1265,7 +1266,8 @@ describe('AM-11 exportJson -- AG-7 and the round trip', () => {
     const read = documentFromJson(exported(one.api.exportJson()))
 
     expect(read.ok, JSON.stringify(read.ok ? [] : read.faults)).toBe(true)
-    if (read.ok) expect(read.document).toEqual(one.api.readDocument())
+    // WHY: the whole document, so carry and carryElements are asked for (see AM-3)
+    if (read.ok) expect(read.document).toEqual(one.api.readDocument(true, []))
   })
 
   it('writes the document as it now stands, not as it stood at install', () => {
@@ -1399,7 +1401,9 @@ describe('AM-17 watchChanges -- AG-6', () => {
     one.writeAsPerson([RENAME], 'a person at the keyboard')
 
     expect(one.notices).toHaveLength(1)
-    expect(one.notices[0]?.document?.schedule.project.title).toBe(RENAME.title)
+    // WHY: the notice carries the stamp; the caller reads again what it needs (see AV-14, AG-6)
+    expect(one.notices[0]?.stamp).toEqual(one.api.readStamp())
+    expect(one.api.readDocument(false, []).schedule.project.title).toBe(RENAME.title)
   })
 
   it('is NOT woken by its own write (AG-6, MUST NOT)', () => {
@@ -1433,7 +1437,7 @@ describe('AM-17 watchChanges -- AG-6', () => {
     expect(one.notices[0]?.messages.map((message) => message.text)).toEqual([
       'wait -- why did you do that',
     ])
-    expect(one.notices[0]?.document).toBeNull()
+    expect(one.notices[0]?.stamp).toEqual(before)
     // ⭐ The watcher woke and not one of the stamp's three fields moved -- the
     // dialogue's own order is what carried it (AG-11, MUST).
     expect(one.api.readStamp()).toEqual(before)
@@ -1539,10 +1543,10 @@ describe('the boundaries -- empty, one, and the bound itself', () => {
   it('AM-3 and AM-11 still answer for an empty schedule, and still round trip (FR-021)', () => {
     const one = bench(true, EMPTY_SCHEDULE)
 
-    expect(one.api.readDocument().schedule.tasks).toEqual([])
+    expect(one.api.readDocument(false, []).schedule.tasks).toEqual([])
     const read = documentFromJson(exported(one.api.exportJson()))
     expect(read.ok, JSON.stringify(read.ok ? [] : read.faults)).toBe(true)
-    if (read.ok) expect(read.document).toEqual(one.api.readDocument())
+    if (read.ok) expect(read.document).toEqual(one.api.readDocument(true, []))
   })
 
   it('AM-16 refuses over an empty schedule, because no uid names a task there', () => {
@@ -1647,7 +1651,7 @@ describe('FR-028 -- accepted or refused, always as a value', () => {
       typeof (value as { then?: unknown }).then === 'function'
 
     const answers: unknown[] = [
-      one.api.readDocument(),
+      one.api.readDocument(false, []),
       one.api.readStamp(),
       one.api.readSelection(),
       one.api.readDialogueMessages(),

@@ -97,6 +97,7 @@
 | dependency | AgentApiEndpoint | ImageExporter | image out | gets the raster image, handing over the document's theme color with the request |  |
 | dependency | AgentApiEndpoint | ScheduleLayout | where a task sits | asks where a task sits, to focus it |  |
 | dependency | AgentApiEndpoint | Schedule | search rows | asks the schedule for the rows a search word finds, for readSearchRows (AM-25) |  |
+| dependency | AgentApiEndpoint | ScreenRenderer | search table filter + columns | applies the Search Panel task table's own column filters and sort and reads its column words, so readSearchRows returns the rows the person sees (AM-25); the column words live only in ScreenRenderer's display words (JF-1) |  |
 | dependency | SvgRenderer | Selection | what is selected | shows the selection by more than color |  |
 | dependency | SvgRenderer | Schedule | colors + theme color | reads themeHue (AT-19), the per-Task colors and the task group color, none of which the geometry carries |  |
 | dependency | SvgRenderer | ScreenRegions | the screen it fills | FR-080 makes the picture the whole screen GRS occupies, so the renderer needs the rectangles, not just the content |  |

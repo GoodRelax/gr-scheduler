@@ -92,6 +92,8 @@ export type { WindowPlace, WindowShown } from './window-box'
 export { imageToJsonPromptText } from './app-header-items'
 export { delayFixBackupFileNameOf, exportFileNameOf, UNTITLED_DOCUMENT_TITLE } from './open-modals'
 export type { SearchFilterChange, SearchPanelShown, SearchPanelView } from './search-panel'
+export { filteredSearchRows, taskSearchColumnHeadings } from './search-table-filters'
+export type { SearchColumnHeading } from './search-table-filters'
 export {
   MARK_COLOR_ROWS,
   UNASSIGNED_ROW_KEY,

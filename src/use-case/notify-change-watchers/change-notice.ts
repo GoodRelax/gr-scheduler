@@ -22,9 +22,11 @@ export interface ConfirmedChange {
   readonly dialogue: DialogueLog
 }
 
+// see AV-14, AG-6
+// WHY: the stamp, never the document: the receiver reads again what it needs (AG-6).
 export interface ChangeNotice {
   readonly watcher: string
-  readonly document: Document | null
+  readonly stamp: Document['documentStamp']
   readonly messages: readonly DialogueMessage[]
   readonly mark: WatcherMark
 }
@@ -53,7 +55,7 @@ export function changeNoticeFor(
 
   return {
     watcher,
-    document: changed ? confirmed.document : null,
+    stamp,
     messages,
     mark: {
       seenScheduleUpdatedAt: changed ? stamp.scheduleUpdatedAt : seen.seenScheduleUpdatedAt,

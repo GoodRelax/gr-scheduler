@@ -110,9 +110,11 @@ describe('SEAM-2 mcpToolList: the tools are table T-107, row for row (AG-12 (4))
     expect(T_107.map((row) => row.name)).toEqual(shared.map((row) => (row.cells[1] ?? '').replace(/`/g, '')))
   })
 
-  it('the argument column of T-107 names the seven arguments and the one MCP-only key', () => {
+  // see AM-3, AM-25
+  it('the argument column of T-107 names the eight members with arguments and the one MCP-only key', () => {
     expect(Object.entries(PARAM_KEYS).filter(([, keys]) => keys.length > 0)).toEqual([
-      ['readSearchRows', ['word']],
+      ['readDocument', ['includeCarry', 'taskUids']],
+      ['readSearchRows', ['word', 'filters', 'offset', 'limit']],
       ['applyCommands', ['request']],
       ['importDocument', ['source']],
       ['focusTask', ['taskUid']],
@@ -252,7 +254,6 @@ describe('SEAM-2 pageNotConnectedResult (AG-12 (2), design 5)', () => {
         target: 'relay',
         reason: 'pageNotConnected',
         stamp: null,
-        document: null,
         refusals: [],
         what: expect.any(String),
         pageUrl: PAGE_URL,

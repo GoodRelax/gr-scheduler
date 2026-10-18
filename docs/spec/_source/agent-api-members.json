@@ -35,8 +35,8 @@
     "Start with agentApiVersion. If a tool answers with the reason pageNotConnected, ask the person to open the address it gives (all of it, the part after # included), open a document there, and press the Agent API button in the page header.",
     "Before you read or write a document, read the resource grs-document.schema.json from this server. It is the JSON Schema of the GRS JSON document, of the same version as the page, with a description on every key: the times, the units and what each column means. Before you write, read the resource grs-commands.schema.json: every command kind applyCommands takes, with its fields.",
     "If your client cannot read resources, call exportJson: its text begins with $schema, the address of the latest published schema.",
-    "Read with readDocument and readStamp. Write with applyCommands, handing over the stamp you last read as expectedStamp; the whole batch is applied or refused as one.",
-    "A refusal is a value, not an error: it names the reason and carries the current stamp. Read again, then retry.",
+    "Read in small pieces: readSearchRows returns one page of the Search Panel as the person sees it (an empty word is the whole outline); readDocument leaves out the MSPDI pass-through fields unless you ask, and can be narrowed to some tasks; readStamp is cheap. Write with applyCommands, handing over the stamp you last read as expectedStamp; the whole batch is applied or refused as one.",
+    "A refusal is a value, not an error: it names the reason and carries the current stamp, never the document. Read again what you need, then retry.",
     "While the person is dragging, typing in place or answering a question, writes are refused; try again shortly.",
     "These tools save nothing to a file. The person saves the document from the page.",
     "The descriptions here use no row ids of the GRS specification; the specification itself is at https://goodrelax.github.io/gr-scheduler/spec-html/"
@@ -170,15 +170,37 @@
     "name": "readDocument",
     "kind": "method",
     "purity": "semi-pure-b",
-    "arguments": [],
+    "arguments": [
+     {
+      "name": "includeCarry",
+      "type": "boolean",
+      "meaning": {
+       "ja": "MSPDI の持ち越しの欄（`carry`・`carryElements`）を含めるか —— 省けば `false`",
+       "en": "Whether to keep the MSPDI pass-through fields carry and carryElements; false when omitted"
+      }
+     },
+     {
+      "name": "taskUids",
+      "type": "readonly number[]",
+      "meaning": {
+       "ja": "読むタスクの `uid` の並び —— 空か省けば全部",
+       "en": "The uids of the tasks to read; empty or omitted reads every task"
+      }
+     }
+    ],
     "returns": "Document",
     "carries": {
      "ja": [
-      "文書ぜんたいの凍結された複製。",
-      "ルートの 3 群すべてを含む"
+      "文書の凍結された複製。",
+      "ルートの 3 群すべてを含む。",
+      "⭐ 既定では MSPDI の持ち越しの欄（`carry`・`carryElements`）を除き、`includeCarry` が `true` のときだけ含める —— 持ち越しの欄は、MS Project の交換形式から開いた 256 タスクの見本の文書で 84% を占め（1,383,668 字のうち、除くと 220,379 字）、AI の受け口を超える。",
+      "GRS で作った文書では持ち越しの欄の多くが空なので、減り方はずっと小さい。",
+      "`taskUids` が空でなければ、タスクに属する 6 つの群（`tasks`・`assignments`・`taskVisuals`・`taskGroupMembers`・`taskOrigins`・`baselineTasks`）をそのタスクだけにする。"
      ],
      "en": [
-      "A frozen copy of the whole document, with its three root groups."
+      "A frozen copy of the document with its three root groups.",
+      "By default the MSPDI pass-through fields (carry, carryElements) are left out; pass includeCarry true to keep them.",
+      "A non-empty taskUids keeps only those tasks in the six task-owned groups: tasks, assignments, taskVisuals, taskGroupMembers, taskOrigins and baselineTasks."
      ]
     },
     "source": {
@@ -268,29 +290,58 @@
       "name": "word",
       "type": "string",
       "meaning": {
-       "ja": "探す語",
-       "en": "The word to look for"
+       "ja": "探す語 —— 空なら絞らない（全体の目次として読める）",
+       "en": "The word to look for; an empty word narrows nothing, so the answer is the whole outline"
+      }
+     },
+     {
+      "name": "filters",
+      "type": "'asShown' | 'none'",
+      "meaning": {
+       "ja": "`asShown`（省けばこれ）は人が検索パネルのタスクの表に掛けている列のフィルタと並べ替えを当て、`none` は当てない",
+       "en": "'asShown' (the default) applies the column filters and sort the person has set on the Search Panel task table; 'none' applies neither"
+      }
+     },
+     {
+      "name": "offset",
+      "type": "number",
+      "meaning": {
+       "ja": "タスクの行の最初に返す位置（0 から） —— 省けば 0",
+       "en": "The position of the first task row to return, from 0; 0 when omitted"
+      }
+     },
+     {
+      "name": "limit",
+      "type": "number",
+      "meaning": {
+       "ja": "返すタスクの行の数 —— 省けば 100、上限 100",
+       "en": "How many task rows to return; 100 when omitted, at most 100"
       }
      }
     ],
-    "returns": "SearchRows",
+    "returns": "AgentSearchPage",
     "carries": {
      "ja": [
       "語を 1 つ受け、検索パネルの 2 つの表と同じ行を返す。",
-      "列のフィルタと並べ替えは当てない。",
-      "パネルを読みも変えもしない。",
+      "パネルの入力欄は読みも変えもしない。",
+      "⭐ `filters` が `asShown` なら、人が検索パネルのタスクの表に掛けている列のフィルタと並べ替え（`_assets/tbl-settings.md` の `S-562`・`S-563`）をタスクの行に当てる —— 人が見ている表と同じ行が同じ順で返る。",
+      "AI が列のフィルタと並べ替えを変えるのは `applyCommands` の `setTableView`（表 T-108 の `CM-92`）であり、人の画面の表も同じに変わる。",
+      "タスクの行は `offset` から `limit` まで返す —— 上限 100 は、空の語の 1 行が約 445 字（1,000 行で 418,200 字を測った）なので約 4.5 万字に収める値である。",
+      "答えはタスクの表の列の一覧（列の行 ID・画面の名・値の種類）と全部の行数と次の `offset` を持つ（`AV-16`）。",
       "⭐ ステータス（`SQ-5`）は、遅延診断を出していないときの値（`PM-4` か 表 T-019a の状態）で返す —— 診断の値（表 T-315 の `DG-1` 〜 `DG-3`）は `AM-19` の 表 T-317 の `DX-8` が返す（`FR-134` の、AI へ渡す道は 1 つ）。",
       "⚠️ 遅延診断はしない —— ステータスの遅れは、予定の日が基準日を過ぎたタスク・マイルストーン（表 T-021b）を返すだけであり、信用できない・要修正 (?)・ボトルネック・ボトルネック経路 (!!) は入らない。",
       "正確な遅延の解析には遅延診断（`readDelayDiagnostics`、`AM-19`）が要る"
      ],
      "en": [
-      "Takes one word and returns the same rows as the two tables of the Search Panel (tasks and comment boxes).",
-      "No column filter or sort is applied, and the panel is neither read nor changed.",
+      "Takes one word and returns the rows of the Search Panel: the task table, one page at a time, and the comment-box table.",
+      "The panel's own search field is neither read nor changed. An empty word narrows nothing, so the task rows are the whole outline.",
+      "With filters 'asShown' (the default) the column filters and sort the person has set on the task table are applied, so you get the same rows in the same order as on screen. To change them as the person would, send setTableView through applyCommands; the person's table changes too.",
+      "Up to limit task rows (at most 100) are returned from offset. The answer lists the task table's columns (id, on-screen names, value kind), the total task row count and the next offset.",
       "The status column only compares dates with the status date; for the exact delay analysis call readDelayDiagnostics."
      ]
     },
     "source": {
-     "ja": "`FR-151` の 表 T-330 の `SV-4` ／ 表 T-331"
+     "ja": "`FR-151` の 表 T-330 の `SV-4` ／ 表 T-331 "
     }
    },
    {
@@ -854,14 +905,7 @@
       "name": "stamp",
       "type": "DocumentStamp",
       "meaning": {
-       "ja": "今の刻印"
-      }
-     },
-     {
-      "name": "document",
-      "type": "Document | null",
-      "meaning": {
-       "ja": "刻印が食い違って拒んだとき（`staleStamp`）だけ今の文書の凍結された複製、ほかは `null`（`AG-2`）"
+       "ja": "今の刻印 —— 刻印が食い違って拒んだとき（`staleStamp`）も文書は返さず、呼ぶ側が要るものを読み直す（`AG-2`）"
       }
      },
      {
@@ -1358,10 +1402,10 @@
       }
      },
      {
-      "name": "document",
-      "type": "Document | null",
+      "name": "stamp",
+      "type": "DocumentStamp",
       "meaning": {
-       "ja": "自分以外が日程データを変えていれば今の文書の凍結された複製、変えていなければ `null`（`AG-6`）"
+       "ja": "今の刻印 —— 文書は持たず、呼ぶ側が要るものを読み直す（`AG-6`）"
       }
      },
      {
@@ -1468,6 +1512,96 @@
     ],
     "source": {
      "ja": "`AM-8` ／ 表 T-035 の `AG-12` の ⑥"
+    }
+   },
+   {
+    "id": "AV-16",
+    "name": "AgentSearchPage",
+    "shape": "interface",
+    "fields": [
+     {
+      "name": "taskRows",
+      "type": "SearchRows['taskRows']",
+      "meaning": {
+       "ja": "タスクの表の行のうち、`offset` から `limit` まで"
+      }
+     },
+     {
+      "name": "commentBoxRows",
+      "type": "SearchRows['commentBoxRows']",
+      "meaning": {
+       "ja": "コメントボックスの表の行（ページに分けない）"
+      }
+     },
+     {
+      "name": "columns",
+      "type": "readonly AgentTableColumn[]",
+      "meaning": {
+       "ja": "タスクの表の列の一覧（`AV-17`）"
+      }
+     },
+     {
+      "name": "taskTotal",
+      "type": "number",
+      "meaning": {
+       "ja": "絞った後のタスクの行の数"
+      }
+     },
+     {
+      "name": "offset",
+      "type": "number",
+      "meaning": {
+       "ja": "返した最初のタスクの行の位置"
+      }
+     },
+     {
+      "name": "nextOffset",
+      "type": "number | null",
+      "meaning": {
+       "ja": "続きの最初の位置 —— 続きが無ければ `null`"
+      }
+     }
+    ],
+    "source": {
+     "ja": "`AM-25` ／ 表 T-331"
+    }
+   },
+   {
+    "id": "AV-17",
+    "name": "AgentTableColumn",
+    "shape": "interface",
+    "fields": [
+     {
+      "name": "id",
+      "type": "string",
+      "meaning": {
+       "ja": "列の行 ID（表 T-331 の `SQ-1` など）"
+      }
+     },
+     {
+      "name": "ja",
+      "type": "string",
+      "meaning": {
+       "ja": "画面の列の名（日本語）"
+      }
+     },
+     {
+      "name": "en",
+      "type": "string",
+      "meaning": {
+       "ja": "画面の列の名（英語）"
+      }
+     },
+     {
+      "name": "kind",
+      "type": "'text' | 'date'",
+      "meaning": {
+       "ja": "値の種類 —— 語か日付か（列のフィルタの形が違う）"
+      }
+     }
+    ],
+    "source": {
+     "ja": "`AM-25` ／ 表 T-331 ／ 表 T-372"
     }
    }
   ]

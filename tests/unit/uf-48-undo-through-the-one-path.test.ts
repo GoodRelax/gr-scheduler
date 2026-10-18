@@ -632,9 +632,9 @@ describe('表 T-067 WS-7 and AG-6 -- the watchers are told', () => {
     loop.receiveInput(UNDO)
 
     expect(taken).toHaveLength(1)
-    expect(taken[0]?.document).not.toBeNull()
-    expect(stampOf(taken[0]!.document!)).toEqual({ ...OPENED_STAMP })
-    expect(projectOf(taken[0]!.document!).statusDate).toBeNull()
+    // WHY: the notice carries the stamp, not the document; the restored document is the one the loop holds (see AV-14, AG-6)
+    expect(taken[0]?.stamp).toEqual({ ...OPENED_STAMP })
+    expect(projectOf(loop.document()).statusDate).toBeNull()
   })
 
   it('the same subscriber, an undone edit -> Ctrl+Y -> it is handed the redone document', () => {
@@ -654,9 +654,8 @@ describe('表 T-067 WS-7 and AG-6 -- the watchers are told', () => {
     loop.receiveInput(REDO)
 
     expect(taken).toHaveLength(1)
-    expect(taken[0]?.document).not.toBeNull()
-    expect(stampOf(taken[0]!.document!)).toEqual(written)
-    expect(projectOf(taken[0]!.document!).statusDate).not.toBeNull()
+    expect(taken[0]?.stamp).toEqual(written)
+    expect(projectOf(loop.document()).statusDate).not.toBeNull()
   })
 })
 

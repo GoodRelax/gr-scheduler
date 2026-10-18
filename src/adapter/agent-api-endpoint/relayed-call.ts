@@ -19,11 +19,11 @@ import {
 export interface RelayedParams {
   agentApiVersion: {}
   schemaVersion: {}
-  readDocument: {}
+  readDocument: { includeCarry: boolean; taskUids: readonly number[] }
   readStamp: {}
   readSelection: {}
   readDialogueMessages: {}
-  readSearchRows: { word: string }
+  readSearchRows: { word: string; filters: 'asShown' | 'none'; offset: number; limit: number }
   readShownTasks: {}
   readDelayDiagnostics: {}
   applyCommands: { request: AgentWriteRequest }
@@ -44,7 +44,8 @@ export interface RelayedParams {
 
 // WHY: only members with arguments, in their argument order.
 const MEMBER_PARAMETERS = {
-  readSearchRows: ['word'],
+  readDocument: ['includeCarry', 'taskUids'],
+  readSearchRows: ['word', 'filters', 'offset', 'limit'],
   applyCommands: ['request'],
   importDocument: ['source'],
   focusTask: ['taskUid'],

@@ -757,6 +757,8 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `agentApiMembers` | file only | function | `src/adapter/agent-api-endpoint/agent-api-members.ts#agentApiMembers` | -- | function agentApiMembers(wiring: AgentApiWiring): AgentApi |
 | `AgentDelayDiagnostics` | file only | interface | `src/adapter/agent-api-endpoint/agent-api-members.ts#AgentDelayDiagnostics` | -- | interface AgentDelayDiagnostics extends DelayDiagnosticsReport |
 | `AgentImportOutcome` | file only | type | `src/adapter/agent-api-endpoint/agent-api-members.ts#AgentImportOutcome` | -- | type AgentImportOutcome = \| { readonly ok: true; readonly stamp: DocumentStamp; readonly hasUpdatedSchedule: boolean } \| { readonly ok: true; readonly asked:... |
+| `AgentSearchPage` | file only | interface | `src/adapter/agent-api-endpoint/agent-api-members.ts#AgentSearchPage` | -- | interface AgentSearchPage |
+| `AgentTableColumn` | file only | interface | `src/adapter/agent-api-endpoint/agent-api-members.ts#AgentTableColumn` | -- | interface AgentTableColumn |
 | `AskedSurface` | file only | type | `src/adapter/agent-api-endpoint/agent-api-members.ts#AskedSurface` | -- | type AskedSurface = 'U-61' |
 | `DelayFixLogSource` | file only | interface | `src/adapter/agent-api-endpoint/agent-api-members.ts#DelayFixLogSource` | -- | interface DelayFixLogSource |
 | `ImportLanding` | file only | type | `src/adapter/agent-api-endpoint/agent-api-members.ts#ImportLanding` | -- | type ImportLanding = \| boolean \| { readonly landed: false; readonly refusals: readonly InvariantRefusal[] } // <generated -- do not edit by hand> // From doc... |
@@ -1457,6 +1459,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `ExportFormatId` | entry | type | `src/adapter/screen-renderer/screen-renderer.ts#ExportFormatId` | -- | type ExportFormatId = string |
 | `FieldCommit` | entry | interface | `src/adapter/screen-renderer/screen-surface.ts#FieldCommit` | -- | interface FieldCommit |
 | `FieldEditNotice` | entry | interface | `src/adapter/screen-renderer/screen-surface.ts#FieldEditNotice` | PI-37 | 型。 |
+| `filteredSearchRows` | entry | function | `src/adapter/screen-renderer/search-table-filters.ts#filteredSearchRows` | PI-37 | 検索パネルのタスクの表に列のフィルタと並べ替えを当てた行。 |
 | `FIT_SPAN_COPY_TEXT` | entry | const | `src/adapter/screen-renderer/screen-renderer.ts#FIT_SPAN_COPY_TEXT` | PI-37 | 文書の設定の面の、現在表示中の期間をコピーする入口が確定する語。 |
 | `GuideCursorLabel` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#GuideCursorLabel` | -- | interface GuideCursorLabel |
 | `HelpEntry` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#HelpEntry` | -- | interface HelpEntry |
@@ -1526,6 +1529,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `Scrollbar` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#Scrollbar` | -- | interface Scrollbar |
 | `ScrollExtent` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#ScrollExtent` | -- | interface ScrollExtent |
 | `scrollExtentOf` | entry | function | `src/adapter/screen-renderer/screen-frame.ts#scrollExtentOf` | PI-37 | 配置と各部の矩形と全体から `ScreenViewReadings` のスクロールの範囲を答える。 |
+| `SearchColumnHeading` | entry | interface | `src/adapter/screen-renderer/search-table-filters.ts#SearchColumnHeading` | -- | interface SearchColumnHeading |
 | `SearchFilterChange` | entry | type | `src/adapter/screen-renderer/table-window.ts#SearchFilterChange` | PI-37 | 型。 |
 | `searchPanelAfterFilterChange` | entry | function | `src/adapter/screen-renderer/search-panel.ts#searchPanelAfterFilterChange` | PI-37 | 開いているフィルタの値ごとの印の入れ外しと、日付の「いつから」「いつまで」の選びを、検索パネルの覚えているフィルタへ当てる（`FR-151` の 表 T-330 の `SV-7`）。 |
 | `searchPanelAfterFilterEntry` | entry | function | `src/adapter/screen-renderer/search-panel.ts#searchPanelAfterFilterEntry` | PI-37 | 開いている列のフィルタの入口（`IC-123` 〜 `IC-126`）の押下を、検索パネルの覚えているフィルタと並べ替えへ当てる（`FR-151` の 表 T-330 の `SV-7`・`SV-8`）。 |
@@ -1549,6 +1553,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `TaskGroupPanel` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#TaskGroupPanel` | -- | interface TaskGroupPanel |
 | `TaskGroupTitle` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#TaskGroupTitle` | -- | interface TaskGroupTitle |
 | `taskGroupTitleFontPxOf` | entry | function | `src/adapter/screen-renderer/task-group-panel.ts#taskGroupTitleFontPxOf` | PI-37 | タスクグループ名の字の大きさ。 |
+| `taskSearchColumnHeadings` | entry | function | `src/adapter/screen-renderer/search-table-filters.ts#taskSearchColumnHeadings` | PI-37 | 検索パネルのタスクの表の列の一覧（列の行 ID・画面の名・値の種類）。 |
 | `TimeShiftPreview` | entry | interface | `src/adapter/screen-renderer/notices.ts#TimeShiftPreview` | -- | interface TimeShiftPreview |
 | `timeShiftQuestionItems` | entry | function | `src/adapter/screen-renderer/notices.ts#timeShiftQuestionItems` | PI-37 | タイムシフトの確認（`QN-14`）の文の下に並べる行（表 T-377 の `BS-3`） |
 | `Tooltip` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#Tooltip` | -- | interface Tooltip |
@@ -1639,7 +1644,6 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `COMMENT_BOX_SEARCH_COLUMNS` | file only | const | `src/adapter/screen-renderer/search-table-filters.ts#COMMENT_BOX_SEARCH_COLUMNS` | -- | const COMMENT_BOX_SEARCH_COLUMNS: readonly SearchColumn[] = ['SQ-7', 'SQ-8', 'SQ-9'] |
 | `comparePercentTexts` | file only | function | `src/adapter/screen-renderer/search-table-filters.ts#comparePercentTexts` | -- | function comparePercentTexts(a: string, b: string): number |
 | `compareTaskTypes` | file only | function | `src/adapter/screen-renderer/search-table-filters.ts#compareTaskTypes` | -- | function compareTaskTypes(a: string, b: string): number |
-| `filteredSearchRows` | file only | function | `src/adapter/screen-renderer/search-table-filters.ts#filteredSearchRows` | -- | function filteredSearchRows( rows: SearchRows, columnFilters: readonly ColumnFilter[], sort: ColumnSort \| null, hidden: ReadonlySet<number> = NOTHING_HIDDEN, |
 | `filteredTableRows` | file only | function | `src/adapter/screen-renderer/search-table-filters.ts#filteredTableRows` | -- | function filteredTableRows<Row>( rows: readonly Row[], table: TableColumns<Row>, columnFilters: readonly ColumnFilter[], sort: ColumnSort \| null, ): readonly... |
 | `HIDE_VALUE` | file only | const | `src/adapter/screen-renderer/search-table-filters.ts#HIDE_VALUE` | -- | const HIDE_VALUE = 'hide' |
 | `isDateSearchColumn` | file only | function | `src/adapter/screen-renderer/search-table-filters.ts#isDateSearchColumn` | -- | function isDateSearchColumn(column: SearchColumn): boolean |
@@ -2104,4 +2108,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 1067 name(s) leave through a public entry (515 of them published by table T-064), 827 more are exported by a file and not by its entry.
+Totals: 1070 name(s) leave through a public entry (517 of them published by table T-064), 828 more are exported by a file and not by its entry.

@@ -43,11 +43,11 @@ const AM_19_POINTS_AT_25 = '`readSearchRows`（`AM-25`）の遅れは基準日�
 const EXPECTED_ROWS: readonly (readonly [string, string, readonly string[], string])[] = [
   ['AM-1', 'agentApiVersion', [], 'string'],
   ['AM-2', 'schemaVersion', [], 'string'],
-  ['AM-3', 'readDocument', [], 'Document'],
+  ['AM-3', 'readDocument', ['includeCarry: boolean', 'taskUids: readonly number[]'], 'Document'],
   ['AM-4', 'readStamp', [], 'DocumentStamp'],
   ['AM-5', 'readSelection', [], 'Selection'],
   ['AM-6', 'readDialogueMessages', [], 'readonly DialogueMessage[]'],
-  ['AM-25', 'readSearchRows', ['word: string'], 'SearchRows'],
+  ['AM-25', 'readSearchRows', ['word: string', "filters: 'asShown' | 'none'", 'offset: number', 'limit: number'], 'AgentSearchPage'],
   ['AM-26', 'readShownTasks', [], 'AgentShownTasks'],
   ['AM-19', 'readDelayDiagnostics', [], 'AgentDelayDiagnostics'],
   ['AM-7', 'applyCommands', ['request: AgentWriteRequest'], 'AgentWriteOutcome'],
@@ -137,9 +137,11 @@ describe('T-107 arguments and return values, row by row', () => {
     }
   })
 
-  it('the argument columns name seven members that take an argument; the rest print a dash', () => {
+  // see AM-3, AM-25
+  it('the argument columns name eight members that take an argument; the rest print a dash', () => {
     const taking = members.filter((one) => one.arguments.length > 0).map((one) => one.name)
     expect(taking).toEqual([
+      'readDocument',
       'readSearchRows',
       'applyCommands',
       'importDocument',

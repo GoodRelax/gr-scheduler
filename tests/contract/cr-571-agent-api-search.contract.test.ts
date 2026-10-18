@@ -38,8 +38,9 @@ function rowOf(table: string, id: string): SpecRow {
 const cellOf = (table: string, id: string, heading: string): string => unbroken(rowOf(table, id).by[heading] ?? '')
 
 const AM_25_RETURNS = '語を 1 つ受け、検索パネルの 2 つの表と同じ行を返す。'
-const AM_25_NO_FILTER = '列のフィルタと並べ替えは当てない。'
-const AM_25_NO_PANEL = 'パネルを読みも変えもしない'
+// WHY: the old no-filter clause is replaced by the asShown line and the panel input line (see AM-25)
+const AM_25_AS_SHOWN = '`filters` が `asShown` なら、人が検索パネルのタスクの表に掛けている列のフィルタと並べ替え'
+const AM_25_NO_PANEL = 'パネルの入力欄は読みも変えもしない'
 const AM_16_DOES = '指定したタスクが載るタスクグループと祖先を展開し、見える位置へ表示を寄せる'
 const SJ_9_WHICH_STEPS = '`_assets/tbl-agent-api-members.md` の 表 T-107 の `AM-16` は `SJ-0`・`SJ-2`・`SJ-5` 〜 `SJ-8`・`SJ-10` を行う'
 const SJ_9_ANSWER = 'ただし `SJ-4` を行わず、パネルに触れず、`SJ-8` では告げずに、寄せなかったことを答えの値で返す'
@@ -237,16 +238,16 @@ const treeStateOf = (document: Document, id: string): string =>
 
 /** @purity semi-pure-b */
 function readSearchRowsOf(api: AgentApi, word: string): SearchRows {
-  const member = (api as unknown as { readSearchRows?: (word: string) => SearchRows }).readSearchRows
-  if (typeof member !== 'function') throw new Error('AM-25: the Agent API has no member readSearchRows')
-  return member.call(api, word)
+  // WHY: the page's rows only; the table has no column filter here, so 'asShown' changes nothing (see AM-25, AV-16)
+  const page = api.readSearchRows(word, 'asShown', 0, 100)
+  return { taskRows: page.taskRows, commentBoxRows: page.commentBoxRows }
 }
 
 describe('table T-107 AM-25 / AM-16 and table T-332 SJ-9 -- the clauses these cases are driven by', () => {
   it('AM-25 is readSearchRows, and still says what it returns and what it leaves alone', () => {
     expect(cellOf('T-107', 'AM-25', '確定名')).toBe('`readSearchRows`')
     const does = cellOf('T-107', 'AM-25', '何を担うか')
-    for (const clause of [AM_25_RETURNS, AM_25_NO_FILTER, AM_25_NO_PANEL]) expect(does).toContain(clause)
+    for (const clause of [AM_25_RETURNS, AM_25_AS_SHOWN, AM_25_NO_PANEL]) expect(does).toContain(clause)
   })
 
   it('AM-16 is focusTask, owned by SJ-9', () => {

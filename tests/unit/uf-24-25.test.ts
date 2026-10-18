@@ -167,17 +167,14 @@ describe('ChangeNotice (UF-25) -- what one watcher has not been told', () => {
       if (notice === null) continue
 
       expect(notice.watcher).toBe(SELF)
-      // WHY: null here means "nothing about the SCHEDULE is new", not "no
-      // notice" -- the utterance-only row above is woken with document: null.
-      expect({ case: row.case, carries: notice.document !== null }).toEqual({
+      // see AV-14, AG-6
+      // WHY: the notice carries the stamp, never the document; whether the SCHEDULE is new shows in the mark,
+      // which moves to the new instant only when the schedule is new -- an utterance-only row leaves it where it was.
+      expect(notice.stamp).toBe(confirmed.document.documentStamp)
+      expect({ case: row.case, mark: notice.mark.seenScheduleUpdatedAt }).toEqual({
         case: row.case,
-        carries: row.carriesDocument,
+        mark: row.carriesDocument ? confirmed.document.documentStamp.scheduleUpdatedAt : SEEN.seenScheduleUpdatedAt,
       })
-      if (row.carriesDocument) {
-        // WHY: the confirmed document is what WS-6 already swapped in, so
-        // the notice hands over that same reference rather than rebuilding it.
-        expect(notice.document).toBe(confirmed.document)
-      }
       expect(notice.messages).toHaveLength(row.messageCount)
       for (const message of notice.messages) expect(message.author).not.toBe(SELF)
     }
@@ -238,7 +235,7 @@ describe('ChangeNotice (UF-25) -- what one watcher has not been told', () => {
 
     expect(notice).not.toBeNull()
     if (notice === null) return
-    expect(notice.document).toBe(restored.document)
+    expect(notice.stamp).toBe(restored.document.documentStamp)
     // WHY: the mark is now t1 -- the watcher holds what it was handed, not
     // the high-water mark of everything it ever saw.
     expect(notice.mark.seenScheduleUpdatedAt).toBe(T1)
@@ -264,7 +261,7 @@ describe('ChangeNotice (UF-25) -- what one watcher has not been told', () => {
     expect(notice).not.toBeNull()
     if (notice === null) return
     expect(notice.messages.map((message) => message.text)).toEqual(['b', 'c'])
-    expect(notice.document).toBeNull()
+    expect(notice.stamp).toBe(confirmed.document.documentStamp)
     expect(notice.mark.seenSequence).toBe(3)
     expect(notice.mark.seenScheduleUpdatedAt).toBe(T0)
     expect(confirmed.document.documentStamp.scheduleUpdatedAt).toBe(T0)
@@ -281,7 +278,7 @@ describe('ChangeNotice (UF-25) -- what one watcher has not been told', () => {
     const first = changeNoticeFor(SELF, SEEN, confirmed)
     expect(first).not.toBeNull()
     if (first === null) return
-    expect(first.document).not.toBeNull()
+    expect(first.mark.seenScheduleUpdatedAt).toBe(T1)
     expect(first.messages).toHaveLength(2)
 
     // WHY: hasUpdatedSchedule is false here because a second announcement of
@@ -297,7 +294,7 @@ describe('ChangeNotice (UF-25) -- what one watcher has not been told', () => {
     const second = changeNoticeFor(SELF, first.mark, next)
     expect(second).not.toBeNull()
     if (second === null) return
-    expect(second.document).toBe(next.document)
+    expect(second.stamp).toBe(next.document.documentStamp)
     expect(second.messages.map((message) => message.text)).toEqual(['c'])
   })
 
@@ -346,7 +343,7 @@ describe('NotifyChangeWatchers (UF-24 / PI-15) -- registering, dropping, deliver
 
     expect([...outcome.notified].sort()).toEqual([SELF])
     expect(heardBySelf).toHaveLength(1)
-    expect(heardBySelf[0]!.document).toBe(confirmed.document)
+    expect(heardBySelf[0]!.stamp).toBe(confirmed.document.documentStamp)
     expect(heardByOther).toHaveLength(0)
   })
 
@@ -367,7 +364,7 @@ describe('NotifyChangeWatchers (UF-24 / PI-15) -- registering, dropping, deliver
       start.document.documentStamp.scheduleUpdatedAt,
     )
     expect(spoken.hasUpdatedSchedule).toBe(false)
-    expect(heard[0]!.document).toBeNull()
+    expect(heard[0]!.stamp).toBe(spoken.document.documentStamp)
     expect(heard[0]!.mark.seenScheduleUpdatedAt).toBe(T0)
   })
 
@@ -386,8 +383,8 @@ describe('NotifyChangeWatchers (UF-24 / PI-15) -- registering, dropping, deliver
     const undone = confirmedOf(start.document, emptyDialogueLog(), false)
     expect([...notifyChangeWatchers(WATCHERS, undone).notified]).toEqual([SELF])
     expect(heard).toHaveLength(2)
-    expect(heard[1]!.document).toBe(start.document)
-    expect(heard[1]!.document?.documentStamp.scheduleUpdatedAt).toBe(T1)
+    expect(heard[1]!.stamp).toBe(start.document.documentStamp)
+    expect(heard[1]!.stamp.scheduleUpdatedAt).toBe(T1)
   })
 
   it('AG-2 settles a same-instant collision as last-writer-wins: the watcher ends on the SECOND', () => {
@@ -408,9 +405,9 @@ describe('NotifyChangeWatchers (UF-24 / PI-15) -- registering, dropping, deliver
     expect([...notifyChangeWatchers(WATCHERS, second).notified]).toEqual([SELF])
 
     expect(heard).toHaveLength(2)
-    expect(heard.at(-1)!.document).toBe(second.document)
-    expect(heard.at(-1)!.document?.documentStamp.lastEditedBy).toBe(SECOND_WRITER)
-    expect(heard.at(-1)!.document).not.toBe(first.document)
+    expect(heard.at(-1)!.stamp).toBe(second.document.documentStamp)
+    expect(heard.at(-1)!.stamp.lastEditedBy).toBe(SECOND_WRITER)
+    expect(heard.at(-1)!.stamp).not.toBe(first.document.documentStamp)
   })
 
   it('AG-6 tells each watcher once: the registry holds the mark of the notice taken', () => {

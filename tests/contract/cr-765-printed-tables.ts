@@ -169,7 +169,8 @@ export function printedValueTypes(): PrintedValueTable {
 }
 
 export const namedTypesOf = (typeText: string): string[] =>
-  (typeText.match(/[A-Za-z_$][\w$]*/g) ?? []).filter((word) => !BUILT_IN_WORDS.has(word))
+  // WHY: a quoted literal such as 'text' is a value, not a named type (AV-17)
+  (typeText.replace(/'[^']*'/g, '').match(/[A-Za-z_$][\w$]*/g) ?? []).filter((word) => !BUILT_IN_WORDS.has(word))
 
 export const valueRowsPointedAt = (text: string): string[] =>
   [...text.matchAll(/`(AV-\d+)`/g)].map((found) => found[1] ?? '')

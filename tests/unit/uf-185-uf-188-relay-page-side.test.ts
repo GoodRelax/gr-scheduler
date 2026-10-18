@@ -188,14 +188,24 @@ describe('UF-188 openAgentApiRelayLink: when the page connects (AG-12 (2) (7))',
 describe('UF-188 openAgentApiRelayLink: answering the relay (design 3.2, 3.3)', () => {
   it('design 3.2: a relay request is answered with the same id and the RelayedAnswer', async () => {
     const { socket, fake } = openedWithKey()
-    socket.deliver({ jsonrpc: '2.0', id: 7, method: 'readSearchRows', params: { word: 'kick-off' } })
+    // WHY: the four arguments in the order the table prints them (see AM-25)
+    socket.deliver({
+      jsonrpc: '2.0',
+      id: 7,
+      method: 'readSearchRows',
+      params: { word: 'kick-off', filters: 'asShown', offset: 0, limit: 100 },
+    })
     await settle()
-    expect(fake.calls).toEqual([{ member: 'readSearchRows', args: ['kick-off'] }])
+    expect(fake.calls).toEqual([{ member: 'readSearchRows', args: ['kick-off', 'asShown', 0, 100] }])
     expect(socket.sent.slice(1)).toEqual([
       {
         jsonrpc: '2.0',
         id: 7,
-        result: { ok: true, stamp: 'stamp-3', value: { member: 'readSearchRows', args: ['kick-off'] } },
+        result: {
+          ok: true,
+          stamp: 'stamp-3',
+          value: { member: 'readSearchRows', args: ['kick-off', 'asShown', 0, 100] },
+        },
       },
     ])
   })

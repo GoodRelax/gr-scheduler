@@ -4354,6 +4354,24 @@
        "`panelFacesOf` が答える中身の種の型"
       ]
      }
+    },
+    {
+     "name": "filteredSearchRows",
+     "note": {
+      "ja": [
+       "検索パネルのタスクの表に列のフィルタと並べ替えを当てた行。",
+       "`Agent API` の `readSearchRows`（`tbl-agent-api-members.md` の 表 T-107 の `AM-25`）が、人の画面と同じ行を返すために読む"
+      ]
+     }
+    },
+    {
+     "name": "taskSearchColumnHeadings",
+     "note": {
+      "ja": [
+       "検索パネルのタスクの表の列の一覧（列の行 ID・画面の名・値の種類）。",
+       "`AM-25` の答えの `columns` が読む"
+      ]
+     }
     }
    ]
   },

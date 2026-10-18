@@ -106,10 +106,10 @@ export function mcpToolResultOf(member: string, answer: RelayedAnswer): McpToolR
     : { content: [{ type: 'text', text }], structuredContent }
 }
 
-// WHY: the relay has no page to ask, so its refusals carry no stamp and no document (AG-9a shape).
+// WHY: the relay has no page to ask, so its refusals carry no stamp; no refusal carries a document (AG-2, AV-3).
 /** @purity pure */
 function relayRefusalResult(reason: string, what: string, extra: Record<string, unknown> = {}): McpToolResult {
-  const refusal = { target: 'relay', reason, stamp: null, document: null, refusals: [], what, ...extra }
+  const refusal = { target: 'relay', reason, stamp: null, refusals: [], what, ...extra }
   const structuredContent = { ok: false, refusal }
   return { content: [{ type: 'text', text: JSON.stringify(structuredContent) }], structuredContent }
 }

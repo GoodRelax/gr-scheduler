@@ -81,9 +81,10 @@ async function documentWithTaskGroups(baseURL: string, roots: number, offset: nu
     await page.waitForTimeout(600)
     return await page.evaluate((asked: { count: number; offset: number; schemaAddress: string }) => {
       type Bag = Record<string, unknown>
-      const api = (window as unknown as { grSchedulerAgentApi?: { readDocument(): unknown } }).grSchedulerAgentApi
+      const api = (window as unknown as { grSchedulerAgentApi?: { readDocument(includeCarry?: boolean): unknown } }).grSchedulerAgentApi
       if (api === undefined) throw new Error('the Agent API did not open')
-      const held = api.readDocument() as { schedule: Bag & { project: Bag; tasks: Bag[]; taskGroups: Bag[] }; documentSettings: Bag }
+      // WHY: AM-3 leaves the MSPDI carry out unless asked, and this fixture is re-opened as a whole document.
+      const held = api.readDocument(true) as { schedule: Bag & { project: Bag; tasks: Bag[]; taskGroups: Bag[] }; documentSettings: Bag }
       const task0 = held.schedule.tasks[0] ?? {}
       const group0 = held.schedule.taskGroups[0] ?? {}
       const groups: Bag[] = []

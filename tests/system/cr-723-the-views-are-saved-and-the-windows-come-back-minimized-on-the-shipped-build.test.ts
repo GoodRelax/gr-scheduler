@@ -40,7 +40,7 @@ type Api = {
   readStamp(): unknown
   applyCommands(request: unknown): { ok: boolean }
   readShownTasks(): { drawnTaskUids: number[] | null; filteringTables: string[] }
-  showOnlyTasks(taskUids: readonly number[] | null): unknown
+  showOnlyTasks(taskUids: readonly number[]): unknown
 }
 
 /** @purity semi-pure-b */
@@ -341,7 +341,7 @@ test.describe('CR-723 on the shipped build', () => {
     }
   })
 
-  test('AM-27: showOnlyTasks writes the search view (one undo step), readDocument reads it, null releases the eye and keeps the rows', async () => {
+  test('AM-27: showOnlyTasks writes the search view (one undo step), readDocument reads it, an empty list releases the eye and keeps the rows', async () => {
     const stage = await opened(NO_VIEWS())
     try {
       const { page } = stage
@@ -349,7 +349,7 @@ test.describe('CR-723 on the shipped build', () => {
       await settle(page)
       expect((await viewsOf(page))['searchPanel']).toMatchObject({ isScheduleFilterApplied: true, hiddenTaskUids: [BRAVO, DELTA, ECHO] })
       expect(await wouldWarn(page), 'FR-100: an Agent API write counts').toBe(true)
-      await page.evaluate(() => (window as unknown as { grSchedulerAgentApi: Api }).grSchedulerAgentApi.showOnlyTasks(null))
+      await page.evaluate(() => (window as unknown as { grSchedulerAgentApi: Api }).grSchedulerAgentApi.showOnlyTasks([]))
       await settle(page)
       expect((await viewsOf(page))['searchPanel']).toMatchObject({ isScheduleFilterApplied: false, hiddenTaskUids: [BRAVO, DELTA, ECHO] })
       expect(await pressEntrance(page, UNDO)).toBe(true)

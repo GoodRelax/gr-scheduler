@@ -43,6 +43,7 @@ import * as PostDialogueMessage from '../../use-case/post-dialogue-message/post-
 import * as DocumentCodec from '../document-codec/document-codec'
 import { jsonFromDocument, mspdiFromDocument } from '../document-codec/document-codec'
 import * as ImageExporter from '../image-exporter/image-exporter'
+import { filteredSearchRows, taskSearchColumnHeadings } from '../screen-renderer/screen-renderer'
 import { hasRoomBelowPinsIn } from '../../entity/layout-engine/schedule-layout/schedule-layout'
 import type { AgentSnapshot, SnapshotSource } from './snapshot-source'
 
@@ -105,7 +106,6 @@ export interface AgentRefusal {
   readonly target: string
   readonly reason: AgentRefusalReason
   readonly stamp: DocumentStamp
-  readonly document: Document | null
   readonly refusals: readonly Refusal[]
   readonly message: string
 }
@@ -182,13 +182,31 @@ export type AgentImportOutcome =
   | { readonly ok: true; readonly asked: string; readonly stamp: DocumentStamp }
   | { readonly ok: false; readonly refusal: AgentRefusal }
 
+// see AV-16
+export interface AgentSearchPage {
+  readonly taskRows: SearchRows['taskRows']
+  readonly commentBoxRows: SearchRows['commentBoxRows']
+  readonly columns: readonly AgentTableColumn[]
+  readonly taskTotal: number
+  readonly offset: number
+  readonly nextOffset: number | null
+}
+
+// see AV-17
+export interface AgentTableColumn {
+  readonly id: string
+  readonly ja: string
+  readonly en: string
+  readonly kind: 'text' | 'date'
+}
+
 // see T-107
 export interface AgentApi {
   readonly agentApiVersion: string
   readonly schemaVersion: string
 
   /** @purity semi-pure-b */
-  readDocument(): Document
+  readDocument(includeCarry: boolean, taskUids: readonly number[]): Document
   /** @purity semi-pure-b */
   readStamp(): DocumentStamp
   /** @purity semi-pure-b */
@@ -196,7 +214,7 @@ export interface AgentApi {
   /** @purity semi-pure-b */
   readDialogueMessages(): readonly DialogueMessage[]
   /** @purity semi-pure-b */
-  readSearchRows(word: string): SearchRows
+  readSearchRows(word: string, filters: 'asShown' | 'none', offset: number, limit: number): AgentSearchPage
   /** @purity semi-pure-b */
   readShownTasks(): AgentShownTasks
   /** @purity semi-pure-b */
@@ -242,7 +260,7 @@ type SameFieldNames<TValue, TNames extends PropertyKey> = [keyof TValue] extends
   : false
 const ELSEWHERE_DECLARED_FIELDS_MATCH: [
   SameFieldNames<DialogueMessage, 'sequence' | 'author' | 'text' | 'settledAt'>,
-  SameFieldNames<ChangeNotice, 'watcher' | 'document' | 'messages' | 'mark'>,
+  SameFieldNames<ChangeNotice, 'watcher' | 'stamp' | 'messages' | 'mark'>,
 ] = [true, true]
 void ELSEWHERE_DECLARED_FIELDS_MATCH
 
@@ -275,19 +293,82 @@ export interface AgentApiWiring {
   readonly schemaVersion: string
 }
 
-// see AG-4
+const NO_DROPPED_KEYS: ReadonlySet<string> = new Set()
+const CARRY_KEYS: ReadonlySet<string> = new Set(['carry', 'carryElements'])
+
+// see AG-4, AM-3
 // WHY: a walk, not structuredClone or a JSON round trip: both throw on some values (FR-028).
 /** @purity pure */
-function frozenCopy<TValue>(value: TValue): TValue {
+function frozenCopy<TValue>(value: TValue, dropped: ReadonlySet<string> = NO_DROPPED_KEYS): TValue {
   if (Array.isArray(value)) {
-    return Object.freeze(value.map((held: unknown) => frozenCopy(held))) as TValue
+    return Object.freeze(value.map((held: unknown) => frozenCopy(held, dropped))) as TValue
   }
   if (typeof value === 'object' && value !== null) {
     const copy: Record<string, unknown> = {}
-    for (const [key, held] of Object.entries(value)) copy[key] = frozenCopy(held)
+    for (const [key, held] of Object.entries(value)) {
+      if (!dropped.has(key)) copy[key] = frozenCopy(held, dropped)
+    }
     return Object.freeze(copy) as TValue
   }
   return value
+}
+
+/** @purity pure */
+function scheduleOfTasks(schedule: Document['schedule'], taskUids: readonly number[]): Document['schedule'] {
+  const named = new Set(taskUids)
+  const isNamed = (uid: number | null): boolean => uid !== null && named.has(uid)
+  return {
+    ...schedule,
+    tasks: schedule.tasks.filter((task) => isNamed(task.uid)),
+    assignments: schedule.assignments.filter((assignment) => isNamed(assignment.taskUid)),
+    taskVisuals: schedule.taskVisuals.filter((visual) => isNamed(visual.taskUid)),
+    taskGroupMembers: schedule.taskGroupMembers.filter((member) => isNamed(member.taskUid)),
+    taskOrigins: schedule.taskOrigins.filter((origin) => isNamed(origin.taskUid)),
+    baselineTasks: schedule.baselineTasks.filter((baseline) => isNamed(baseline.uid)),
+  }
+}
+
+// see AM-3, FR-028
+/** @purity pure */
+function documentAsRead(document: Document, includeCarry: unknown, taskUids: unknown): Document {
+  const isNarrowed = Array.isArray(taskUids) && taskUids.length > 0
+  const narrowed = isNarrowed ? { ...document, schedule: scheduleOfTasks(document.schedule, taskUids as readonly number[]) } : document
+  return frozenCopy(narrowed, includeCarry === true ? NO_DROPPED_KEYS : CARRY_KEYS)
+}
+
+// see AM-25, AV-17, T-331
+const SEARCH_PAGE_LIMIT = 100
+const SEARCH_TABLE_COLUMNS: readonly AgentTableColumn[] = taskSearchColumnHeadings().map((heading) => ({
+  id: heading.column,
+  ja: heading.ja,
+  en: heading.en,
+  kind: heading.isDate ? 'date' : 'text',
+}))
+
+/** @purity pure */
+function wholeNumberOr(given: unknown, fallback: number): number {
+  return typeof given === 'number' && Number.isFinite(given) ? Math.max(0, Math.floor(given)) : fallback
+}
+
+// see AM-25, AV-16, S-562, S-563
+// WHY: the Search Panel task table's own filter and sort, so the rows come in the order the person sees.
+/** @purity pure */
+function searchPageOf(document: Document, word: string, filters: unknown, offset: unknown, limit: unknown): AgentSearchPage {
+  const found = searchRowsOf(document.schedule, typeof word === 'string' ? word : '')
+  const held = document.documentSettings.tableViews?.searchPanel
+  const isAsShown = filters !== 'none' && held !== undefined
+  const rows = isAsShown ? filteredSearchRows(found, held.columnFilters, held.sort, new Set(held.hiddenTaskUids)) : found
+  const start = wholeNumberOr(offset, 0)
+  const count = Math.min(SEARCH_PAGE_LIMIT, Math.max(1, wholeNumberOr(limit, SEARCH_PAGE_LIMIT)))
+  const end = start + count
+  return {
+    taskRows: rows.taskRows.slice(start, end),
+    commentBoxRows: found.commentBoxRows,
+    columns: SEARCH_TABLE_COLUMNS,
+    taskTotal: rows.taskRows.length,
+    offset: start,
+    nextOffset: end < rows.taskRows.length ? end : null,
+  }
 }
 
 // see HS-12, AT-140, AG-4
@@ -329,12 +410,11 @@ function agentRefusal(
   what: string,
   refusals: readonly Refusal[],
 ): AgentRefusal {
-  const handed = snapshot.documentAsWritten
+  // WHY: never the document, even for staleStamp (AG-2, AV-3).
   return {
     target,
     reason,
-    stamp: frozenCopy(handed.documentStamp),
-    document: reason === 'staleStamp' ? frozenCopy(handed) : null,
+    stamp: frozenCopy(snapshot.documentAsWritten.documentStamp),
     refusals,
     message: what,
   }
@@ -715,9 +795,8 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
     schemaVersion: wiring.schemaVersion,
 
     /** @purity semi-pure-b */
-    readDocument(): Document {
-      return frozenCopy(source.readSnapshot().documentAsWritten)
-    },
+    readDocument: (includeCarry: boolean, taskUids: readonly number[]): Document =>
+      documentAsRead(source.readSnapshot().documentAsWritten, includeCarry, taskUids),
 
     /** @purity semi-pure-b */
     readStamp(): DocumentStamp {
@@ -738,9 +817,8 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
     // WHY: no delay diagnosis here, so late is only a planned day past the status date (T-021b) and
     // (?), the bottleneck and (!!) never show; the precise analysis is readDelayDiagnostics'.
     /** @purity semi-pure-b */
-    readSearchRows(word: string): SearchRows {
-      return frozenCopy(searchRowsOf(source.readSnapshot().document.schedule, word))
-    },
+    readSearchRows: (word: string, filters: 'asShown' | 'none', offset: number, limit: number): AgentSearchPage =>
+      frozenCopy(searchPageOf(source.readSnapshot().document, word, filters, offset, limit)),
 
     /** @purity semi-pure-b */
     readShownTasks: (): AgentShownTasks => frozenCopy(wiring.shownTasks?.readShownTasks() ?? NO_SHOWN_TASKS),

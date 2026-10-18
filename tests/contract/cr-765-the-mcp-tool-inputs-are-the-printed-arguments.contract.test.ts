@@ -33,6 +33,7 @@ interface Schema {
   readonly type?: unknown
   readonly items?: unknown
   readonly description?: unknown
+  readonly enum?: unknown
   readonly properties?: Readonly<Record<string, unknown>>
   readonly required?: unknown
 }
@@ -43,6 +44,7 @@ const WRITE_REQUEST_TOOL = 'applyCommands'
 const WRITE_REQUEST_KEYS = ['expectedStamp', 'commands']
 
 const NUMBER_LIST = 'readonly number[]'
+const STRING_CHOICES = /^'[^']+'( \| '[^']+')+$/
 
 // see AG-12, CR-796
 // WHY: the description of a key is the English (en) of the meaning in the manuscript; the printed table stays Japanese.
@@ -53,6 +55,10 @@ const schemaOf = (member: PrintedMember, argument: PrintedArgument): Schema => {
   if (argument.typeText === 'boolean') return { type: 'boolean', description }
   if (argument.typeText === NUMBER_LIST) {
     return { type: 'array', items: { type: 'number' }, description }
+  }
+  // WHY: a list of string values is a string enum (design 3.1) (see AM-25)
+  if (STRING_CHOICES.test(argument.typeText)) {
+    return { type: 'string', enum: argument.typeText.split(' | ').map((one) => one.slice(1, -1)), description }
   }
   return { type: 'object', description }
 }
@@ -132,15 +138,16 @@ describe('mcpToolList: one tool per row of T-107, with the input the argument co
 
   it('a member without an argument, and the two properties, take an empty object', () => {
     const empty = members.filter((one) => one.arguments.length === 0)
-    expect(empty).toHaveLength(15)
+    expect(empty).toHaveLength(14)
     for (const member of empty) expect(toolNamed(member.name).inputSchema.properties, member.id).toEqual({})
     expect(empty.filter((one) => one.isProperty).map((one) => one.name)).toEqual(['agentApiVersion', 'schemaVersion'])
   })
 
-  it('the seven members with an argument give their keys the types string, object, object, number, number-list, number, string', () => {
+  it('the eight members with an argument give their keys the types the rule derives', () => {
     const typesOf = (name: string): unknown[] =>
       Object.values(toolNamed(name).inputSchema.properties as Readonly<Record<string, Schema>>).map((schema) => schema.type)
-    expect(typesOf('readSearchRows')).toEqual(['string'])
+    expect(typesOf('readDocument')).toEqual(['boolean', 'array'])
+    expect(typesOf('readSearchRows')).toEqual(['string', 'string', 'number', 'number'])
     expect(typesOf('applyCommands')).toEqual(['object'])
     expect(typesOf('importDocument')).toEqual(['object'])
     expect(typesOf('focusTask')).toEqual(['number'])
@@ -183,7 +190,7 @@ describe('mcp-tool-descriptions.json is what mcpToolList returns', () => {
   it('every property is a type, an optional items and a description, and nothing else', () => {
     for (const tool of FILE.tools) {
       for (const [key, schema] of Object.entries(tool.inputSchema.properties)) {
-        const allowed = tool.name === WRITE_REQUEST_TOOL ? ['type', 'items', 'description', 'properties', 'required'] : ['type', 'items', 'description']
+        const allowed = tool.name === WRITE_REQUEST_TOOL ? ['type', 'items', 'description', 'properties', 'required'] : ['type', 'items', 'enum', 'description']
         expect(Object.keys(schema).every((one) => allowed.includes(one)), `${tool.name} ${key}`).toBe(true)
         expect(typeof schema.description, `${tool.name} ${key}`).toBe('string')
       }

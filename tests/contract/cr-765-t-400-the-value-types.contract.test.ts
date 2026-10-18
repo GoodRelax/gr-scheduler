@@ -1,4 +1,4 @@
-// CR-765 spec-only tests: table T-400, the value types AV-1 to AV-14 the members of T-107 hand over, and the reasons of AV-4.
+// CR-765 spec-only tests: table T-400, the value types AV-1 to AV-17 the members of T-107 hand over, and the reasons of AV-4.
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -52,6 +52,8 @@ const EXPECTED_TYPES = [
   ['AV-13', 'DialogueMessage'],
   ['AV-14', 'ChangeNotice'],
   ['AV-15', 'AgentImportOutcome'],
+  ['AV-16', 'AgentSearchPage'],
+  ['AV-17', 'AgentTableColumn'],
 ] as const
 
 // see T-400
@@ -61,7 +63,8 @@ const EXPECTED_FIELDS: Readonly<Record<string, readonly (readonly string[])[]>> 
     ['ok', 'stamp', 'hasUpdatedSchedule'],
     ['ok', 'refusal'],
   ],
-  'AV-3': [['target', 'reason', 'stamp', 'document', 'refusals', 'message']],
+  // WHY: a refusal never carries the document (see AV-3, AG-2)
+  'AV-3': [['target', 'reason', 'stamp', 'refusals', 'message']],
   'AV-4': [],
   'AV-5': [
     ['ok', 'value'],
@@ -81,13 +84,17 @@ const EXPECTED_FIELDS: Readonly<Record<string, readonly (readonly string[])[]>> 
     ['ok', 'refusal'],
   ],
   'AV-13': [['sequence', 'author', 'text', 'settledAt']],
-  'AV-14': [['watcher', 'document', 'messages', 'mark']],
+  // WHY: a notice carries the stamp, not the document (see AV-14, AG-6)
+  'AV-14': [['watcher', 'stamp', 'messages', 'mark']],
   // see AV-15
   'AV-15': [
     ['ok', 'stamp', 'hasUpdatedSchedule'],
     ['ok', 'asked', 'stamp'],
     ['ok', 'refusal'],
   ],
+  // see AV-16, AV-17
+  'AV-16': [['taskRows', 'commentBoxRows', 'columns', 'taskTotal', 'offset', 'nextOffset']],
+  'AV-17': [['id', 'ja', 'en', 'kind']],
 }
 
 // see AV-4
@@ -113,7 +120,6 @@ const refusalOf = (reason: string): Record<string, unknown> => ({
   target: 'AM-7',
   reason,
   stamp: A_STAMP,
-  document: null,
   refusals: [],
   what: 'refused',
 })
@@ -133,23 +139,23 @@ const inClosure = (): Set<string> => {
   return seen
 }
 
-describe('T-400 is printed beside T-107 with fifteen rows AV-1 to AV-15 (CR-796)', () => {
+describe('T-400 is printed beside T-107 with seventeen rows AV-1 to AV-17 (CR-796)', () => {
   it('the shared table reader finds it in tbl-agent-api-members.md; the columns are row id, type name, fields, source', () => {
     expect(specTable('T-400').file).toBe(join('_assets', 'tbl-agent-api-members.md'))
     expect(headings).toEqual([...T_400_HEADINGS])
     expect(caption).toContain('表 T-400 — `Agent API` が受け渡す値の型')
   })
 
-  it('the rows are AV-1 to AV-15 in order, each a distinct type name', () => {
+  it('the rows are AV-1 to AV-17 in order, each a distinct type name', () => {
     expect(values.map((one) => [one.id, one.bareName])).toEqual(EXPECTED_TYPES.map((one) => [...one]))
-    expect(new Set(values.map((one) => one.bareName)).size).toBe(15)
+    expect(new Set(values.map((one) => one.bareName)).size).toBe(17)
     expect(valueRow('AV-5').typeName).toBe('AgentExport<TValue>')
   })
 
-  it('the prefix AV is registered for table T-400 with its 15 rows', () => {
+  it('the prefix AV is registered for table T-400 with its 17 rows', () => {
     const registered = PREFIXES.split('\n').find((line) => line.startsWith('| `AV` |')) ?? ''
     expect(registered).toContain('`T-400`')
-    expect(registered.trim().endsWith('| 15 |')).toBe(true)
+    expect(registered.trim().endsWith('| 17 |')).toBe(true)
   })
 
   it('AV-13 and AV-14 are declared by other components and printed here with the field names of this table', () => {
@@ -165,11 +171,11 @@ describe('T-400 fields, row by row', () => {
 })
 
 describe('every row of T-400 is used by a member, and every type a member names is a row of T-400', () => {
-  it('the rows a member reaches, directly or through the rows it points at, are all fourteen', () => {
+  it('the rows a member reaches, directly or through the rows it points at, are all seventeen', () => {
     expect([...inClosure()].sort((a, b) => Number(a.slice(3)) - Number(b.slice(3)))).toEqual(values.map((one) => one.id))
   })
 
-  it('the rows a member points at directly are AV-1, AV-2, AV-5 to AV-13 and AV-15 (CR-796)', () => {
+  it('the rows a member points at directly are AV-1, AV-2, AV-5 to AV-13, AV-15 and AV-16 (CR-796)', () => {
     const direct = new Set(
       members.flatMap((one) => [...one.arguments.flatMap((argument) => argument.pointsAt), ...one.returnsPointsAt]).filter((id) => id.startsWith('AV-')),
     )
@@ -186,6 +192,7 @@ describe('every row of T-400 is used by a member, and every type a member names 
       'AV-12',
       'AV-13',
       'AV-15',
+      'AV-16',
     ])
   })
 
@@ -212,8 +219,9 @@ describe('every row of T-400 is used by a member, and every type a member names 
         { typeText: one.returnsType, pointsAt: one.returnsPointsAt },
       ]
       for (const place of places) {
-        const named = (place.typeText.match(/[A-Za-z_$][\w$]*/g) ?? []).filter(
-          (word) => !['readonly', 'null', 'string', 'number', 'Promise', 'Uint8Array'].includes(word),
+        // WHY: a quoted literal ('asShown', 'none') is a value, not a named type (AM-25)
+        const named = (place.typeText.replace(/'[^']*'/g, '').match(/[A-Za-z_$][\w$]*/g) ?? []).filter(
+          (word) => !['readonly', 'null', 'string', 'number', 'boolean', 'Promise', 'Uint8Array'].includes(word),
         )
         for (const type of named) {
           if (bare.has(type)) continue

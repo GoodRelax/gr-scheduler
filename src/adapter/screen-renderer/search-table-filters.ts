@@ -262,6 +262,25 @@ export function filteredTableRows<Row>(
   return order === null || sort === null ? kept : sortedRows(kept, order, sort.direction)
 }
 
+// see AM-25, AV-17, T-331
+// WHY: the task table's columns in screen order with their on-screen words, for the Agent API's page of rows.
+export interface SearchColumnHeading {
+  readonly column: SearchColumn
+  readonly ja: string
+  readonly en: string
+  readonly isDate: boolean
+}
+
+// see AM-25, AV-17, T-331
+/** @purity pure */
+export function taskSearchColumnHeadings(): readonly SearchColumnHeading[] {
+  const words = new Map(displayWords.searchColumns.map((entry) => [entry.rowId, entry.text]))
+  return TASK_SEARCH_COLUMNS.map((column) => {
+    const text = words.get(column)
+    return { column, ja: text?.ja ?? column, en: text?.en ?? column, isDate: isDateSearchColumn(column) }
+  })
+}
+
 // see SV-7, SV-8
 /** @purity pure */
 export function filteredSearchRows(

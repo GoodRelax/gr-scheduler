@@ -582,6 +582,13 @@
    "description": "asks the schedule for the rows a search word finds, for readSearchRows (AM-25)"
   },
   {
+   "source": "AgentApiEndpoint",
+   "target": "ScreenRenderer",
+   "arrow": "dependency",
+   "label": "search table filter + columns",
+   "description": "applies the Search Panel task table's own column filters and sort and reads its column words, so readSearchRows returns the rows the person sees (AM-25); the column words live only in ScreenRenderer's display words (JF-1)"
+  },
+  {
    "source": "SvgRenderer",
    "target": "Selection",
    "arrow": "dependency",
