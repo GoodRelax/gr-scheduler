@@ -10,9 +10,9 @@ flowchart LR
   S --- D[("schedule-data<br>*.json")]
 ```
 
-## Three stages
+## Three steps
 
-| Stage | What you do | Time | What you find out |
+| Step | What you do | Time | What you find out |
 |---|---|---|---|
 | 1. See it | Run the demo from the zip | 10 min | The server only lists, reads and writes JSON files |
 | 2. Your data | Put your own schedule, as GRS JSON, on the demo server | 30 min | Your data travels through a server into GRS |
@@ -27,18 +27,33 @@ flowchart LR
 5. **Open > Dummy Server**, pick a file, edit it, press `Ctrl` + `S`: the file on the server is updated. **Save As > Dummy Server** (the red sixth choice) saves under a new name.
 6. Watch the black window: each `GET` and `PUT` is the browser reading or writing a file. Close the window to stop the server.
 
+To remove the certificate: `start-server.cmd -RemoveCertificate`.
+
 ## 2. Your data
 
-1. Turn your schedule data into GRS JSON with an AI, as in tab 05 of the [GRS overview page](https://goodrelax.github.io/gr-scheduler/about/?lang=en#trial).
-2. Copy the file into `schedule-data`, then **Open > Dummy Server**.
+1. Give an AI three things: the output format of your system's schedule data (its schema, if there is one), a sample of that data, and the [GRS JSON schema](https://goodrelax.github.io/gr-scheduler/spec/_source/grs-document.schema.json).
+2. Ask as below. Where the result does not fit, keep the dialogue going and have it fixed.
+
+   ```text
+   Convert the attached sample data into JSON that fits the attached GRS JSON schema.
+   For any item that cannot be carried over, ask me how to handle it.
+   ```
+
+3. Put the JSON into `schedule-data`, then **Open > Dummy Server**.
 
 ## 3. Your server
 
 Read [SERVER-API.md](SERVER-API.md): three endpoints, and the page served by the same server. Give it to an AI together with your system's API and ask for a server in your language. The PowerShell server in `server/` is the sample.
 
-## Good to know
+## Notes
 
-- **File level first, edit level later.** This demo moves whole files. To sync edit by edit, GRS has an Agent API, the same one AI agents use. That is the next step, not part of this demo.
-- Stages 1 and 2 run on Windows only. Stage 3 runs on any OS.
-- To remove the certificate: `start-server.cmd -RemoveCertificate`.
-- For the details, see the [specification](https://goodrelax.github.io/gr-scheduler/spec-html/) and the [code](https://github.com/GoodRelax/gr-scheduler). Notes for building the demo are in [DEVELOPING-ja.md](DEVELOPING-ja.md) (Japanese).
+- This demo goes as far as having GRS read and write whole JSON files. To sync schedule edits one by one between a server and GRS, use the Agent API that GRS provides for AI.
+- Steps 1 and 2 run on Windows only. Step 3 runs on any OS.
+
+## Details
+
+- [This demo's design and build steps](https://github.com/GoodRelax/gr-scheduler/blob/main/demo/server-sync/DEVELOPING-ja.md) (Japanese)
+- [GRS specification](https://goodrelax.github.io/gr-scheduler/spec-html/)
+- [Agent API specification](https://github.com/GoodRelax/gr-scheduler/blob/main/docs/spec/_assets/tbl-agent-api-members.md)
+- [GRS source code](https://github.com/GoodRelax/gr-scheduler/tree/main/src)
+- [GRS test code](https://github.com/GoodRelax/gr-scheduler/tree/main/tests)
