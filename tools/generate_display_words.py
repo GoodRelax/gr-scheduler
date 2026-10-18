@@ -380,7 +380,7 @@ WHOLE_SCHEDULE_SHIFT_FIELD_PARTS = ('name', 'apply', 'currentStart',
 READ_ONLY_SETTINGS_PARTS = ('heading', 'groupShowHide', 'groupLabels',
                             'groupView', 'groupGridLinesAndColor',
                             'groupRulerAndStack', 'groupTableViews',
-                            'scheduleFilter', 'hiddenTasks', 'hiddenResources',
+                            'scheduleFilter', 'shownTasks', 'shownResources',
                             'unassignedRow', 'columnFilters', 'sortOrder',
                             'shown', 'hidden', 'overlaid', 'notOverlaid',
                             'monochrome', 'color', 'filterOn', 'filterOff',
@@ -427,12 +427,14 @@ HOLIDAY_SETTINGS_PARTS = ('workingWeekdays', 'weekStart', 'workingHours',
 # between two table names became tableNameSeparator, its word entrance
 # became scheduleFilterOff (it turns every table's Schedule Filter off, TV-8),
 # and the reason IC-143 is disabled became nothingHidden (TV-5).
+# CR-798: every row starts unchecked, so IC-143 is also disabled while no row
+# of the table is checked; that reason is nothingChecked (TV-5, JDG-2820).
 SEARCH_COLUMN_ROW = re.compile(r'^\| (SQ-\d+[a-z]?) \|')
 SEARCH_COLUMN_TABLE = 'T-331'
 PLAN_ACTUAL_STATE_ROW = re.compile(r'^\| (PS-\d+[a-z]?) \|')
 PLAN_ACTUAL_STATE_TABLE = 'T-019a'
 SEARCH_PANEL_PARTS = ('blank', 'noName', 'filterSearch', 'dateFrom', 'dateTo', 'showValue',
-                      'hideValue', 'nothingHidden', 'scheduleFilterBar', 'scheduleFilterOff',
+                      'hideValue', 'nothingHidden', 'nothingChecked', 'scheduleFilterBar', 'scheduleFilterOff',
                       'tableNameSeparator')
 # CR-760: the two values of the Task Type column (SQ-14 of table T-331, DT-9 of
 # table T-347, FM-9 of table T-374): a task or a milestone (AT-30). The three

@@ -37,7 +37,7 @@ export interface SettingsLimits {
 // From docs/spec/_source/document-commands.json (table T-108, DocumentSettingsCommand).
 // see T-108
 export interface TableView {
-  readonly visibility: { readonly hiddenTaskUids: readonly number[]; readonly hiddenResourceUids: readonly number[]; readonly isUnassignedHidden: boolean; readonly isScheduleFilterApplied: boolean }
+  readonly visibility: { readonly shownTaskUids: readonly number[]; readonly shownResourceUids: readonly number[]; readonly isUnassignedShown: boolean; readonly isScheduleFilterApplied: boolean }
   readonly columnFilters: readonly ColumnFilter[]
   readonly sort: ColumnSort | null
 }
@@ -122,7 +122,7 @@ type ColumnSort = NonNullable<TableViews[VisibilityTable]['sort']>
 type TableVisibility = TableView['visibility']
 
 const DEFAULT_TABLE_VIEW: TableView = {
-  visibility: { hiddenTaskUids: [], hiddenResourceUids: [], isUnassignedHidden: false, isScheduleFilterApplied: false },
+  visibility: { shownTaskUids: [], shownResourceUids: [], isUnassignedShown: false, isScheduleFilterApplied: false },
   columnFilters: [],
   sort: null,
 }
@@ -139,10 +139,10 @@ type HeldTableView = TableViews[VisibilityTable]
 
 /** @purity pure */
 function visibilityOf(held: HeldTableView): TableVisibility {
-  if ('hiddenResourceUids' in held) {
-    return { hiddenTaskUids: [], hiddenResourceUids: held.hiddenResourceUids, isUnassignedHidden: held.isUnassignedHidden, isScheduleFilterApplied: held.isScheduleFilterApplied }
+  if ('shownResourceUids' in held) {
+    return { shownTaskUids: [], shownResourceUids: held.shownResourceUids, isUnassignedShown: held.isUnassignedShown, isScheduleFilterApplied: held.isScheduleFilterApplied }
   }
-  return { hiddenTaskUids: held.hiddenTaskUids, hiddenResourceUids: [], isUnassignedHidden: false, isScheduleFilterApplied: held.isScheduleFilterApplied }
+  return { shownTaskUids: held.shownTaskUids, shownResourceUids: [], isUnassignedShown: false, isScheduleFilterApplied: held.isScheduleFilterApplied }
 }
 
 // see FR-151, TV-2, S-560
@@ -167,10 +167,10 @@ function heldViewOf(table: VisibilityTable, view: TableView): HeldTableView {
   const sort = view.sort === null ? null : { column: view.sort.column, direction: view.sort.direction }
   const isScheduleFilterApplied = view.visibility.isScheduleFilterApplied
   if (table !== 'resourceList') {
-    return { columnFilters, hiddenTaskUids: [...view.visibility.hiddenTaskUids], isScheduleFilterApplied, sort }
+    return { columnFilters, shownTaskUids: [...view.visibility.shownTaskUids], isScheduleFilterApplied, sort }
   }
-  const isUnassignedHidden = view.visibility.isUnassignedHidden
-  return { columnFilters, hiddenResourceUids: [...view.visibility.hiddenResourceUids], isScheduleFilterApplied, isUnassignedHidden, sort }
+  const isUnassignedShown = view.visibility.isUnassignedShown
+  return { columnFilters, shownResourceUids: [...view.visibility.shownResourceUids], isScheduleFilterApplied, isUnassignedShown, sort }
 }
 
 /** @purity pure */
@@ -204,9 +204,9 @@ function isColumnSort(value: unknown): boolean {
 
 /** @purity pure */
 function isTableVisibility(value: unknown): boolean {
-  if (!isListOf(fieldOf(value, 'hiddenTaskUids'), Number.isInteger)) return false
-  if (!isListOf(fieldOf(value, 'hiddenResourceUids'), Number.isInteger)) return false
-  return typeof fieldOf(value, 'isUnassignedHidden') === 'boolean' && typeof fieldOf(value, 'isScheduleFilterApplied') === 'boolean'
+  if (!isListOf(fieldOf(value, 'shownTaskUids'), Number.isInteger)) return false
+  if (!isListOf(fieldOf(value, 'shownResourceUids'), Number.isInteger)) return false
+  return typeof fieldOf(value, 'isUnassignedShown') === 'boolean' && typeof fieldOf(value, 'isScheduleFilterApplied') === 'boolean'
 }
 
 // see CM-92, AG-5, T-372
@@ -251,9 +251,9 @@ export function tableViewsKeptIn(settings: DocumentSettings, schedule: Schedule)
   const tasks = new Set(schedule.tasks.map((task) => task.uid))
   const resources = new Set(schedule.resources.map((resource) => resource.uid))
   const kept = {
-    searchPanel: keptUids(views.searchPanel, 'hiddenTaskUids', tasks),
-    delayDiagnosticsReport: keptUids(views.delayDiagnosticsReport, 'hiddenTaskUids', tasks),
-    resourceList: keptUids(views.resourceList, 'hiddenResourceUids', resources),
+    searchPanel: keptUids(views.searchPanel, 'shownTaskUids', tasks),
+    delayDiagnosticsReport: keptUids(views.delayDiagnosticsReport, 'shownTaskUids', tasks),
+    resourceList: keptUids(views.resourceList, 'shownResourceUids', resources),
   }
   const isSame = kept.searchPanel === views.searchPanel && kept.delayDiagnosticsReport === views.delayDiagnosticsReport
   if (isSame && kept.resourceList === views.resourceList) return settings

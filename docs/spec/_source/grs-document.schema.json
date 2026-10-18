@@ -375,8 +375,8 @@
        "type": "object",
        "required": [
         "columnFilters",
-        "hiddenTaskUids",
         "isScheduleFilterApplied",
+        "shownTaskUids",
         "sort"
        ],
        "additionalProperties": false,
@@ -388,16 +388,16 @@
          },
          "default": []
         },
-        "hiddenTaskUids": {
+        "isScheduleFilterApplied": {
+         "type": "boolean",
+         "default": false
+        },
+        "shownTaskUids": {
          "type": "array",
          "items": {
           "type": "integer"
          },
          "default": []
-        },
-        "isScheduleFilterApplied": {
-         "type": "boolean",
-         "default": false
         },
         "sort": {
          "$ref": "#/$defs/ColumnSort",
@@ -409,9 +409,9 @@
        "type": "object",
        "required": [
         "columnFilters",
-        "hiddenResourceUids",
         "isScheduleFilterApplied",
-        "isUnassignedHidden",
+        "isUnassignedShown",
+        "shownResourceUids",
         "sort"
        ],
        "additionalProperties": false,
@@ -423,20 +423,20 @@
          },
          "default": []
         },
-        "hiddenResourceUids": {
+        "isScheduleFilterApplied": {
+         "type": "boolean",
+         "default": false
+        },
+        "isUnassignedShown": {
+         "type": "boolean",
+         "default": false
+        },
+        "shownResourceUids": {
          "type": "array",
          "items": {
           "type": "integer"
          },
          "default": []
-        },
-        "isScheduleFilterApplied": {
-         "type": "boolean",
-         "default": false
-        },
-        "isUnassignedHidden": {
-         "type": "boolean",
-         "default": false
         },
         "sort": {
          "$ref": "#/$defs/ColumnSort",
@@ -448,8 +448,8 @@
        "type": "object",
        "required": [
         "columnFilters",
-        "hiddenTaskUids",
         "isScheduleFilterApplied",
+        "shownTaskUids",
         "sort"
        ],
        "additionalProperties": false,
@@ -461,16 +461,16 @@
          },
          "default": []
         },
-        "hiddenTaskUids": {
+        "isScheduleFilterApplied": {
+         "type": "boolean",
+         "default": false
+        },
+        "shownTaskUids": {
          "type": "array",
          "items": {
           "type": "integer"
          },
          "default": []
-        },
-        "isScheduleFilterApplied": {
-         "type": "boolean",
-         "default": false
         },
         "sort": {
          "$ref": "#/$defs/ColumnSort",

@@ -564,7 +564,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `SearchJumpTarget` | entry | type | `src/use-case/edit-document/search-jump.ts#SearchJumpTarget` | PI-9 | 型。 |
 | `searchJumpWrites` | entry | function | `src/use-case/edit-document/search-jump.ts#searchJumpWrites` | PI-9 | 検索の表の行を押して飛ぶときの書き込み —— タスクグループと祖先を展開し、表示を寄せる（`FR-151` の 表 T-332）。 |
 | `SettingsLimits` | entry | interface | `src/use-case/edit-document/edit-document-settings.ts#SettingsLimits` | PI-9 | 型。 |
-| `shownTasksRevealWrites` | entry | function | `src/use-case/edit-document/search-jump.ts#shownTasksRevealWrites` | PI-9 | スケジュールフィルタを掛けているあいだに表示の列で「表示」に戻ったタスクのタスクグループと祖先を展開する書き込み（`FR-151` の 表 T-353 の `TV-6`、表 T-332 の `SJ-2`）。 |
+| `shownTasksRevealWrites` | entry | function | `src/use-case/edit-document/search-jump.ts#shownTasksRevealWrites` | PI-9 | スケジュールフィルタを掛けているあいだに表示の列で「表示」にしたタスクのタスクグループと祖先を展開する書き込み（`FR-151` の 表 T-353 の `TV-6`、表 T-332 の `SJ-2`）。 |
 | `TableView` | entry | interface | `src/use-case/edit-document/edit-document-settings.ts#TableView` | PI-9 | 型。 |
 | `tableViewOf` | entry | function | `src/use-case/edit-document/edit-document-settings.ts#tableViewOf` | PI-9 | 文書の設定から 1 つの表の見え方を読む（`FR-151`）。 |
 | `tableViewsKeptIn` | entry | function | `src/use-case/edit-document/edit-document-settings.ts#tableViewsKeptIn` | PI-9 | 表の見え方から、日程に無い `Task.uid`・`Resource.uid` を外す（表 T-024a の `OP-18`、表 T-050 の `CD-1`・`CD-2`・`CD-5`）。 |
@@ -1528,7 +1528,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `searchPanelWithTableViewsCleared` | entry | function | `src/adapter/screen-renderer/search-panel.ts#searchPanelWithTableViewsCleared` | PI-37 | `IC-153` の押下で、タスクの表とコメントボックスの表の列のフィルタと並べ替えを戻し、開いているフィルタを閉じた検索パネルの値を答える（`FR-151` の 表 T-330 の `SV-1`）。 |
 | `shiftAmountText` | entry | function | `src/adapter/screen-renderer/notices.ts#shiftAmountText` | -- | function shiftAmountText(minutes: number): string |
 | `statusGlyphSvg` | entry | function | `src/adapter/screen-renderer/table-window.ts#statusGlyphSvg` | PI-37 | 表のステータスの値の頭に描く絵（`SQ-5`・`DT-1`・`RW-4`）。 |
-| `tableAfterVisibilityChange` | entry | function | `src/adapter/screen-renderer/table-window.ts#tableAfterVisibilityChange` | PI-37 | 表示の列の印の入れ外しを、表の値の「非表示」の行へ当てる（`FR-151` の 表 T-353 の `TV-2`）。 |
+| `tableAfterVisibilityChange` | entry | function | `src/adapter/screen-renderer/table-window.ts#tableAfterVisibilityChange` | PI-37 | 表示の列の印の入れ外しを、表の値の「表示」の行へ当てる（`FR-151` の 表 T-353 の `TV-2`）。 |
 | `TableRowCells` | entry | interface | `src/adapter/screen-renderer/search-table-filters.ts#TableRowCells` | -- | interface TableRowCells |
 | `tableViewsOnTheirColumns` | entry | function | `src/adapter/screen-renderer/table-window.ts#tableViewsOnTheirColumns` | PI-37 | 表の見え方から、その表に無い列の行 ID（表 T-372 の `column`）を持つ列のフィルタと並べ替えを外す（表 T-024a の `OP-18`）。 |
 | `TableWindowState` | entry | interface | `src/adapter/screen-renderer/table-window.ts#TableWindowState` | PI-37 | 型。 |
@@ -1627,7 +1627,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `ColumnFilter` | file only | type | `src/adapter/screen-renderer/search-table-filters.ts#ColumnFilter` | -- | type ColumnFilter = TableView['columnFilters'][number] |
 | `columnHeadingsOf` | file only | function | `src/adapter/screen-renderer/search-table-filters.ts#columnHeadingsOf` | -- | function columnHeadingsOf( columns: readonly SearchColumn[], words: ReadonlyMap<string, { readonly ja: string; readonly en: string }>, isDate: (column: Searc... |
 | `ColumnSort` | file only | type | `src/adapter/screen-renderer/search-table-filters.ts#ColumnSort` | -- | type ColumnSort = NonNullable<TableView['sort']> |
-| `columnValuesOf` | file only | function | `src/adapter/screen-renderer/search-table-filters.ts#columnValuesOf` | -- | function columnValuesOf( rows: SearchRows, column: SearchColumn, hidden: ReadonlySet<number> = NOTHING_HIDDEN, |
+| `columnValuesOf` | file only | function | `src/adapter/screen-renderer/search-table-filters.ts#columnValuesOf` | -- | function columnValuesOf( rows: SearchRows, column: SearchColumn, sort: ColumnSort \| null = null, |
 | `COMMENT_BOX_SEARCH_COLUMNS` | file only | const | `src/adapter/screen-renderer/search-table-filters.ts#COMMENT_BOX_SEARCH_COLUMNS` | -- | const COMMENT_BOX_SEARCH_COLUMNS: readonly SearchColumn[] = ['SQ-7', 'SQ-8', 'SQ-9'] |
 | `comparePercentTexts` | file only | function | `src/adapter/screen-renderer/search-table-filters.ts#comparePercentTexts` | -- | function comparePercentTexts(a: string, b: string): number |
 | `compareTaskTypes` | file only | function | `src/adapter/screen-renderer/search-table-filters.ts#compareTaskTypes` | -- | function compareTaskTypes(a: string, b: string): number |
@@ -1647,7 +1647,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `TASK_TYPES_ASCENDING` | file only | const | `src/adapter/screen-renderer/search-table-filters.ts#TASK_TYPES_ASCENDING` | -- | const TASK_TYPES_ASCENDING: readonly TaskType[] = ['task', 'milestone'] |
 | `TaskType` | file only | type | `src/adapter/screen-renderer/search-table-filters.ts#TaskType` | -- | type TaskType = 'task' \| 'milestone' |
 | `taskTypeOf` | file only | function | `src/adapter/screen-renderer/search-table-filters.ts#taskTypeOf` | -- | function taskTypeOf(isMilestone: boolean): TaskType |
-| `withVisibilityColumn` | file only | function | `src/adapter/screen-renderer/search-table-filters.ts#withVisibilityColumn` | -- | function withVisibilityColumn<Row>(table: TableColumns<Row>, column: SearchColumn, isShown: (row: Row) => boolean): TableColumns<Row> |
+| `CheckColumn` | file only | interface | `src/adapter/screen-renderer/table-window.ts#CheckColumn` | -- | interface CheckColumn |
 | `clearEntryOf` | file only | function | `src/adapter/screen-renderer/table-window.ts#clearEntryOf` | -- | function clearEntryOf(view: TableView, language: DisplayLanguage): CommandItem |
 | `DATES_ONLY` | file only | const | `src/adapter/screen-renderer/table-window.ts#DATES_ONLY` | -- | const DATES_ONLY: ShownDateTimes = { isTimeOfDayVisible: false, instantOf: () => null, startSideOf: () => 'start' } |
 | `dateText` | file only | function | `src/adapter/screen-renderer/table-window.ts#dateText` | -- | function dateText(stored: string \| null): string |
@@ -1656,12 +1656,13 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `isClearEntry` | file only | function | `src/adapter/screen-renderer/table-window.ts#isClearEntry` | -- | function isClearEntry(entry: IconId): boolean |
 | `isRowShown` | file only | function | `src/adapter/screen-renderer/table-window.ts#isRowShown` | -- | function isRowShown(table: VisibilityTable, visibility: TableVisibility, key: VisibilityKey): boolean |
 | `isScheduleFilterAppliedIn` | file only | function | `src/adapter/screen-renderer/table-window.ts#isScheduleFilterAppliedIn` | -- | function isScheduleFilterAppliedIn(settings: DocumentSettings, table: VisibilityTable): boolean |
-| `isScheduleFilterChanging` | file only | function | `src/adapter/screen-renderer/table-window.ts#isScheduleFilterChanging` | -- | function isScheduleFilterChanging( table: VisibilityTable, visibility: TableVisibility, rowKeysOf: () => ReadonlySet<number>, isEveryTaskRowed: boolean, ): b... |
 | `isWorkingFilter` | file only | function | `src/adapter/screen-renderer/table-window.ts#isWorkingFilter` | -- | function isWorkingFilter(filter: ColumnFilter): boolean |
 | `openFilterIn` | file only | function | `src/adapter/screen-renderer/table-window.ts#openFilterIn` | -- | function openFilterIn(panel: TableWindowSession, shown: WindowShown \| null, table: WindowTable): SearchColumn \| null |
 | `panelWithFilterShut` | file only | function | `src/adapter/screen-renderer/table-window.ts#panelWithFilterShut` | -- | function panelWithFilterShut<P extends TableWindowSession>(panel: P): P |
-| `scheduleFilterEntryOf` | file only | function | `src/adapter/screen-renderer/table-window.ts#scheduleFilterEntryOf` | -- | function scheduleFilterEntryOf(visibility: TableVisibility, wouldChange: boolean, language: DisplayLanguage): CommandItem |
-| `scheduleFilterRefusalsOf` | file only | function | `src/adapter/screen-renderer/table-window.ts#scheduleFilterRefusalsOf` | -- | function scheduleFilterRefusalsOf(entry: CommandItem, language: DisplayLanguage): readonly EntryRefusal[] |
+| `scheduleFilterEntryOf` | file only | function | `src/adapter/screen-renderer/table-window.ts#scheduleFilterEntryOf` | -- | function scheduleFilterEntryOf(visibility: TableVisibility, readiness: ScheduleFilterReadiness, language: DisplayLanguage): CommandItem |
+| `ScheduleFilterReadiness` | file only | type | `src/adapter/screen-renderer/table-window.ts#ScheduleFilterReadiness` | -- | type ScheduleFilterReadiness = 'ready' \| 'nothingHidden' \| 'nothingChecked' |
+| `scheduleFilterReadinessOf` | file only | function | `src/adapter/screen-renderer/table-window.ts#scheduleFilterReadinessOf` | -- | function scheduleFilterReadinessOf( table: VisibilityTable, visibility: TableVisibility, rowKeysOf: () => ReadonlySet<number>, isEveryTaskRowed: boolean, ): ... |
+| `scheduleFilterRefusalsOf` | file only | function | `src/adapter/screen-renderer/table-window.ts#scheduleFilterRefusalsOf` | -- | function scheduleFilterRefusalsOf(entry: CommandItem, readiness: ScheduleFilterReadiness, language: DisplayLanguage): readonly EntryRefusal[] |
 | `ShownDateTimes` | file only | interface | `src/adapter/screen-renderer/table-window.ts#ShownDateTimes` | -- | interface ShownDateTimes |
 | `shownDateTimesOf` | file only | function | `src/adapter/screen-renderer/table-window.ts#shownDateTimesOf` | -- | function shownDateTimesOf(schedule: Schedule, settings: Pick<DocumentSettings, 'isTimeOfDayVisible' \| 'viewTimeZone'>): ShownDateTimes |
 | `tableAfterFilterChange` | file only | function | `src/adapter/screen-renderer/table-window.ts#tableAfterFilterChange` | -- | function tableAfterFilterChange( panel: TableWindowSession, view: TableView, shown: WindowShown \| null, change: SearchFilterChange, table: WindowTable, ): Ta... |
@@ -1673,11 +1674,11 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `tableWithColumnWidth` | file only | function | `src/adapter/screen-renderer/table-window.ts#tableWithColumnWidth` | -- | function tableWithColumnWidth<P extends TableWindowSession>(panel: P, column: SearchColumn, width: number): P |
 | `tableWithFilterClosed` | file only | function | `src/adapter/screen-renderer/table-window.ts#tableWithFilterClosed` | -- | function tableWithFilterClosed<P extends TableWindowSession>(panel: P, shown: WindowShown \| null, table: WindowTable): P \| null |
 | `tableWithFilterOpened` | file only | function | `src/adapter/screen-renderer/table-window.ts#tableWithFilterOpened` | -- | function tableWithFilterOpened<P extends TableWindowSession>( panel: P, shown: WindowShown \| null, column: SearchColumn, table: WindowTable, ): P \| null |
-| `tableWithScheduleFilterPressed` | file only | function | `src/adapter/screen-renderer/table-window.ts#tableWithScheduleFilterPressed` | -- | function tableWithScheduleFilterPressed(view: TableView, entry: IconId, wouldChange: () => boolean): TableView \| null |
+| `tableWithScheduleFilterPressed` | file only | function | `src/adapter/screen-renderer/table-window.ts#tableWithScheduleFilterPressed` | -- | function tableWithScheduleFilterPressed(view: TableView, entry: IconId, readiness: () => ScheduleFilterReadiness): TableView \| null |
 | `tableWithViewsCleared` | file only | function | `src/adapter/screen-renderer/table-window.ts#tableWithViewsCleared` | -- | function tableWithViewsCleared(view: TableView): TableView |
 | `visibilityHeadingOf` | file only | function | `src/adapter/screen-renderer/table-window.ts#visibilityHeadingOf` | -- | function visibilityHeadingOf(rows: readonly { readonly isShown?: boolean }[]): 'all' \| 'some' \| 'none' |
 | `visibilityLabelOf` | file only | function | `src/adapter/screen-renderer/table-window.ts#visibilityLabelOf` | -- | function visibilityLabelOf(value: string, language: DisplayLanguage): string \| null |
-| `windowAfterEntry` | file only | function | `src/adapter/screen-renderer/table-window.ts#windowAfterEntry` | -- | function windowAfterEntry( window: TableWindowState, view: TableView, entry: IconId, filterColumn: string \| null, answers: { readonly wouldChange: () => bool... |
+| `windowAfterEntry` | file only | function | `src/adapter/screen-renderer/table-window.ts#windowAfterEntry` | -- | function windowAfterEntry( window: TableWindowState, view: TableView, entry: IconId, filterColumn: string \| null, answers: { readonly readiness: () => Schedu... |
 | `windowColumnsViewOf` | file only | function | `src/adapter/screen-renderer/table-window.ts#windowColumnsViewOf` | -- | function windowColumnsViewOf( window: TableWindowState, view: TableView, table: WindowTable, language: DisplayLanguage, ): { readonly columns: readonly Searc... |
 | `windowShownAfterEntry` | file only | function | `src/adapter/screen-renderer/table-window.ts#windowShownAfterEntry` | -- | function windowShownAfterEntry(shown: WindowShown, entry: IconId): WindowShown \| null \| undefined |
 | `WindowTable` | file only | interface | `src/adapter/screen-renderer/table-window.ts#WindowTable` | -- | interface WindowTable |
@@ -1888,7 +1889,6 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `draftClockMinuteOf` | entry | function | `src/use-case/advance-screen-session/calendar-draft.ts#draftClockMinuteOf` | -- | function draftClockMinuteOf(text: string, side: CalendarDraftRangeSide): number \| null |
 | `emptyScreenSession` | entry | const | `src/use-case/advance-screen-session/advance-screen-session.ts#emptyScreenSession` | PI-39 | 初期の状態。 |
 | `emptySearchPanelSession` | entry | const | `src/use-case/advance-screen-session/screen-values.ts#emptySearchPanelSession` | PI-39 | `SearchPanelSession` の初期の値 —— `_assets/tbl-settings.md` の 表 T-206 の `S-419` ・ `S-420` ・ `S-429` の既定 |
-| `EVERY_ROW_SHOWN` | entry | const | `src/use-case/advance-screen-session/screen-values.ts#EVERY_ROW_SHOWN` | PI-39 | `TableVisibility` の初めの値 —— どの行も「表示」で、スケジュールフィルタを掛けていない（表 T-353 の `TV-2`） |
 | `exceptionsInStartOrder` | entry | function | `src/use-case/advance-screen-session/calendar-draft.ts#exceptionsInStartOrder` | PI-39 | 例外日の行を始まりの日の順に並べたもの —— `WC-4` |
 | `FileFlowImportAnswer` | entry | type | `src/use-case/advance-screen-session/file-flow-values.ts#FileFlowImportAnswer` | PI-39 | 型。 |
 | `FileFlowOpenRoute` | entry | type | `src/use-case/advance-screen-session/file-flow-values.ts#FileFlowOpenRoute` | PI-39 | 型。 |
@@ -1900,6 +1900,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `hasCalendarDraftRefusal` | entry | function | `src/use-case/advance-screen-session/calendar-draft.ts#hasCalendarDraftRefusal` | -- | function hasCalendarDraftRefusal(draft: CalendarDraft): boolean |
 | `isHelpStandingIn` | entry | function | `src/use-case/advance-screen-session/screen-values.ts#isHelpStandingIn` | PI-39 | ヘルプが立っているか（`helpDisplayStateMachine` が `shown.normal` か `shown.maximized`）。 |
 | `isWindowStandingIn` | entry | function | `src/use-case/advance-screen-session/screen-values.ts#isWindowStandingIn` | PI-39 | ウィンドウ（`FR-036` の 表 T-335）が立っているか —— 表示の状態機械が `shown.normal` か `shown.maximized`。 |
+| `NO_ROW_CHECKED` | entry | const | `src/use-case/advance-screen-session/screen-values.ts#NO_ROW_CHECKED` | PI-39 | `TableVisibility` の初めの値 —— どの行もチェックが外れ（「非表示」）、スケジュールフィルタを掛けていない（表 T-353 の `TV-2`） |
 | `NOTICE_DISPLAY_OF_REASON` | entry | const | `src/use-case/advance-screen-session/notice-values.ts#NOTICE_DISPLAY_OF_REASON` | PI-39 | 理由ごとの表示の仕方 —— 表 T-233 の表示の仕方の欄（`show` ・ `autoDismiss` ・ `hide` ・ `report`）と、取り込みの拒否が運ぶ 表 T-220 の行の家族の値（`_source/notice-reasons.json` から生成）。 |
 | `NOTICE_MANNER_OF_REASON` | entry | const | `src/use-case/advance-screen-session/notice-values.ts#NOTICE_MANNER_OF_REASON` | PI-39 | 理由ごとの作法 —— 表 T-233 の作法の欄（表 T-037 の行）。 |
 | `NOTICE_WORDS_ROW_OF_REASON` | entry | const | `src/use-case/advance-screen-session/notice-values.ts#NOTICE_WORDS_ROW_OF_REASON` | PI-39 | 理由ごとに語を刷る行 —— 表 T-233 のまとめ方の欄（相乗りしない行は自身、`_source/notice-reasons.json` から生成）。 |
@@ -2091,4 +2092,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 1062 name(s) leave through a public entry (518 of them published by table T-064), 829 more are exported by a file and not by its entry.
+Totals: 1062 name(s) leave through a public entry (518 of them published by table T-064), 830 more are exported by a file and not by its entry.

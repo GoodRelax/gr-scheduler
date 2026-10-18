@@ -97,7 +97,7 @@ export {
   withWeekdayToggled,
 } from './calendar-draft'
 export {
-  EVERY_ROW_SHOWN,
+  NO_ROW_CHECKED,
   SEARCH_PANEL_TEXT_SIZE_ROWS,
   VISIBILITY_TABLES,
   emptySearchPanelSession,

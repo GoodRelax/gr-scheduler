@@ -21,7 +21,7 @@ import {
 import {
   advanceScreenSession,
   emptyScreenSession,
-  EVERY_ROW_SHOWN,
+  NO_ROW_CHECKED,
   emptySearchPanelSession,
   type ScreenSession,
   type SearchPanelSession,
@@ -222,7 +222,7 @@ function sessionIn(language: DisplayLanguage, ...events: readonly string[]): Scr
   } as unknown as ScreenSession
 }
 
-const EMPTY_VIEW: TableView = { visibility: EVERY_ROW_SHOWN, columnFilters: [], sort: null }
+const EMPTY_VIEW: TableView = { visibility: NO_ROW_CHECKED, columnFilters: [], sort: null }
 
 function viewOf(session: ScreenSession, panel: Partial<SearchPanelSession> = {}): SearchPanelView {
   const view = searchPanelFromSession(session, { ...emptySearchPanelSession, ...panel }, EMPTY_VIEW, SCHEDULE, CANVAS)

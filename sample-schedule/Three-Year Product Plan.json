@@ -47589,21 +47589,21 @@
   "tableViews": {
    "delayDiagnosticsReport": {
     "columnFilters": [],
-    "hiddenTaskUids": [],
     "isScheduleFilterApplied": false,
+    "shownTaskUids": [],
     "sort": null
    },
    "resourceList": {
     "columnFilters": [],
-    "hiddenResourceUids": [],
     "isScheduleFilterApplied": false,
-    "isUnassignedHidden": false,
+    "isUnassignedShown": false,
+    "shownResourceUids": [],
     "sort": null
    },
    "searchPanel": {
     "columnFilters": [],
-    "hiddenTaskUids": [],
     "isScheduleFilterApplied": false,
+    "shownTaskUids": [],
     "sort": null
    }
   },

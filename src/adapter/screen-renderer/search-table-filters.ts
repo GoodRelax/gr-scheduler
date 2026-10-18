@@ -129,33 +129,9 @@ const TASK_TABLE: TableColumns<TaskSearchRow> = {
   },
 }
 
-// see SQ-10, DT-8, RQ-1, SV-7, SV-8
+// see SQ-10, DT-8, RQ-1, SV-7, JDG-2811
 export const SHOW_VALUE = 'show'
 export const HIDE_VALUE = 'hide'
-const VISIBILITY_COLUMN: SearchColumn = 'SQ-10'
-const SHOWN_RANKS: ReadonlyMap<string, number> = new Map([[SHOW_VALUE, 0], [HIDE_VALUE, 1]])
-const NOTHING_HIDDEN: ReadonlySet<number> = new Set()
-
-// see SV-8
-/** @purity pure */
-function compareShownValues(a: string, b: string): number {
-  return (SHOWN_RANKS.get(a) ?? SHOWN_RANKS.size) - (SHOWN_RANKS.get(b) ?? SHOWN_RANKS.size)
-}
-
-// WHY: the three tables put the same Visibility column first; each says whether its own row is Show.
-/** @purity pure */
-export function withVisibilityColumn<Row>(table: TableColumns<Row>, column: SearchColumn, isShown: (row: Row) => boolean): TableColumns<Row> {
-  return {
-    ...table,
-    values: { ...table.values, [column]: (row) => [isShown(row) ? SHOW_VALUE : HIDE_VALUE] },
-    orders: { ...table.orders, [column]: compareShownValues },
-  }
-}
-
-/** @purity pure */
-function taskTableOf(hidden: ReadonlySet<number>): TableColumns<TaskSearchRow> {
-  return withVisibilityColumn(TASK_TABLE, VISIBILITY_COLUMN, (row) => !hidden.has(row.taskUid))
-}
 
 const COMMENT_BOX_TABLE: TableColumns<CommentBoxSearchRow> = {
   values: {
@@ -302,10 +278,9 @@ export function filteredSearchRows(
   rows: SearchRows,
   columnFilters: readonly ColumnFilter[],
   sort: ColumnSort | null,
-  hidden: ReadonlySet<number> = NOTHING_HIDDEN,
 ): SearchRows {
   return {
-    taskRows: filteredTableRows(rows.taskRows, taskTableOf(hidden), columnFilters, sort),
+    taskRows: filteredTableRows(rows.taskRows, TASK_TABLE, columnFilters, sort),
     commentBoxRows: filteredTableRows(rows.commentBoxRows, COMMENT_BOX_TABLE, columnFilters, sort),
   }
 }
@@ -333,10 +308,8 @@ export function tableColumnValues<Row>(
 export function columnValuesOf(
   rows: SearchRows,
   column: SearchColumn,
-  hidden: ReadonlySet<number> = NOTHING_HIDDEN,
   sort: ColumnSort | null = null,
 ): readonly string[] {
-  const tasks = taskTableOf(hidden)
-  if (isColumnOf(tasks, column)) return tableColumnValues(rows.taskRows, tasks, column, sort)
+  if (isColumnOf(TASK_TABLE, column)) return tableColumnValues(rows.taskRows, TASK_TABLE, column, sort)
   return tableColumnValues(rows.commentBoxRows, COMMENT_BOX_TABLE, column, sort)
 }

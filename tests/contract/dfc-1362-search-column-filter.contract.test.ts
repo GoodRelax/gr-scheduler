@@ -21,7 +21,7 @@ import { searchPanelBoxOf, searchPanelElement } from '../../src/framework/dom-sc
 import {
   advanceScreenSession,
   emptyScreenSession,
-  EVERY_ROW_SHOWN,
+  NO_ROW_CHECKED,
   emptySearchPanelSession,
   type ScreenSession,
   type SearchPanelSession,
@@ -85,12 +85,12 @@ const IN_4_SEARCH =
   '⭐ 閉じる番の検索パネル（`FR-151`）は、列のフィルタが開いていればフィルタだけを閉じ、次の `Esc` でパネルを閉じる（表 T-330 の `SV-14`）。'
 
 const IC_WORDS: Readonly<Record<string, string>> = {
-  'IC-122': '列のフィルタと並べ替えを開く（列の見出しごとに 1 つ）',
+  'IC-122': '列のフィルタと並べ替えを開く（列の見出しごとに 1 つ）。⭐ [表示] の列では `IC-125`・`IC-126` だけを開く（`FR-151` の 表 T-330 の `SV-7`）',
   // WHY: CR-788 -- the assignee field holds a list (no candidates), and IC-125 / IC-126 work in it too.
   'IC-123': 'その列で昇順に並べる。プロパティパネルでは、担当の欄の一覧を名の昇順に並べる（`FR-008` の 表 T-225 の `AS-5`）',
   'IC-124': 'その列で降順に並べる。プロパティパネルでは、担当の欄の一覧を名の降順に並べる（`FR-008` の 表 T-225 の `AS-5`）',
-  'IC-125': '一覧に出ているすべての値にチェックを付けるプロパティパネルでは、担当の欄の一覧に出ている、就いていない担当をすべて就ける（`FR-008` の 表 T-225 の `AS-5`）',
-  'IC-126': '一覧に出ているすべての値のチェックを外すプロパティパネルでは、担当の欄の一覧に出ている、就いている担当をすべて外す（`FR-008` の 表 T-225 の `AS-5`）',
+  'IC-125': '一覧に出ているすべての値にチェックを付ける⭐ [表示] の列（`FR-151` の 表 T-331 の `SQ-10` ほか）のドロップダウンでは、表のすべての行にチェックを入れる —— 語や列のフィルタで一覧に出ていない行も入れる（`FR-151` の 表 T-330 の `SV-7`）。プロパティパネルでは、担当の欄の一覧に出ている、就いていない担当をすべて就ける（`FR-008` の 表 T-225 の `AS-5`）',
+  'IC-126': '一覧に出ているすべての値のチェックを外す⭐ [表示] の列（`FR-151` の 表 T-331 の `SQ-10` ほか）のドロップダウンでは、表のすべての行のチェックを外す —— 語や列のフィルタで一覧に出ていない行も外す（`FR-151` の 表 T-330 の `SV-7`）。プロパティパネルでは、担当の欄の一覧に出ている、就いている担当をすべて外す（`FR-008` の 表 T-225 の `AS-5`）',
 }
 
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
@@ -294,7 +294,7 @@ function sessionIn(language: DisplayLanguage, ...events: readonly string[]): Scr
 const JA = sessionIn('ja')
 // WHY: CR-723 -- the column filters and the sort are the search table's view the document holds (FR-151); the panel
 // keeps only the screen's values, so a case carries the two together as one pane and threads it through the steps.
-const NO_VIEW: TableView = { visibility: EVERY_ROW_SHOWN, columnFilters: [], sort: null }
+const NO_VIEW: TableView = { visibility: NO_ROW_CHECKED, columnFilters: [], sort: null }
 
 interface Pane {
   readonly panel: SearchPanelSession
@@ -417,7 +417,7 @@ describe('FR-151 / T-330 / T-331 / T-109 / T-028 -- the clauses this file is dri
     for (const id of ['SQ-5', 'SQ-6', 'SQ-7', 'SQ-8']) expect(cellOf('T-331', id, 'フィルタ')).toBe('値の一覧')
     for (const [icon, words] of Object.entries(IC_WORDS)) expect(cellOf('T-109', icon, '何の入口か'), icon).toBe(words)
     expect(BLANK_JA).toBe('（空白）')
-    expect(cellOf('T-331', 'SQ-10', 'フィルタ')).toBe('値の一覧（「表示」「非表示」）')
+    expect(cellOf('T-331', 'SQ-10', 'フィルタ')).toBe('値の一覧を持たない —— `IC-122` は `IC-125`・`IC-126` だけを開き、どちらも表のすべての行（一覧に出ていない行も）に効く（表 T-330 の `SV-7`）')
     expect(TASK_COLUMNS).toEqual(['SQ-10', 'SQ-5', 'SQ-11', 'SQ-14', 'SQ-1', 'SQ-2', 'SQ-3', 'SQ-4', 'SQ-12', 'SQ-13', 'SQ-6'])
     expect(COMMENT_COLUMNS).toEqual(['SQ-7', 'SQ-8', 'SQ-9'])
   })

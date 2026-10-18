@@ -21,7 +21,7 @@ import {
   type Schedule,
 } from '../../src/entity/document-model/schedule/schedule'
 import {
-  EVERY_ROW_SHOWN,
+  NO_ROW_CHECKED,
   type ScreenSession,
   type TableView,
 } from '../../src/use-case/advance-screen-session/advance-screen-session'
@@ -89,7 +89,7 @@ const CANVAS = { x: 0, y: 40, width: 1000, height: 600 }
 
 // WHY: CR-723 -- the table's view (Visibility column, Schedule Filter, column filters, sort) is the document's, so it is
 // handed in beside the window and the steps that change it answer it back.
-const NO_VIEW: TableView = { visibility: EVERY_ROW_SHOWN, columnFilters: [], sort: null }
+const NO_VIEW: TableView = { visibility: NO_ROW_CHECKED, columnFilters: [], sort: null }
 
 const viewOf = (window: DelayDiagnosticsReportWindow, view: TableView = NO_VIEW) =>
   delayDiagnosticsReportFromWindow(SESSION, window, view, REPORT, SCHEDULE, { canvas: CANVAS, textSizeStep: 1 })

@@ -1765,7 +1765,6 @@ type ReadOnlyShape =
   | 'overlaid'
   | 'monochrome'
   | 'filter'
-  | 'hiddenFlag'
   | 'percent'
   | 'leftEdge'
   | 'topEdge'
@@ -1796,18 +1795,18 @@ function shaped(shape: ReadOnlyShape): (key: string) => ReadOnlyRow {
 const visibleRow = shaped('visible')
 
 /** @purity pure */
-function tableViewRows(table: string, hidden: { readonly key: string; readonly namePart: string }, extra: readonly ReadOnlyRow[]): readonly ReadOnlyRow[] {
+function tableViewRows(table: string, checked: { readonly key: string; readonly namePart: string }, extra: readonly ReadOnlyRow[]): readonly ReadOnlyRow[] {
   const at = (key: string): string => `tableViews.${table}.${key}`
   return [
     { key: at('isScheduleFilterApplied'), shape: 'filter', namePart: 'scheduleFilter' },
-    { key: at(hidden.key), shape: 'count', namePart: hidden.namePart },
+    { key: at(checked.key), shape: 'count', namePart: checked.namePart },
     ...extra.map((row) => ({ ...row, key: at(row.key) })),
     { key: at('columnFilters'), shape: 'columns', namePart: 'columnFilters' },
     { key: at('sort'), shape: 'sort', namePart: 'sortOrder' },
   ]
 }
 
-const HIDDEN_TASKS = { key: 'hiddenTaskUids', namePart: 'hiddenTasks' } as const
+const SHOWN_TASKS = { key: 'shownTaskUids', namePart: 'shownTasks' } as const
 
 // see T-380, RN-1, RN-2, RN-3, RN-4, RN-5, RN-6, RN-7, RN-8, JDG-2103
 const READ_ONLY_GROUPS: readonly ReadOnlyGroupRows[] = [
@@ -1835,15 +1834,15 @@ const READ_ONLY_GROUPS: readonly ReadOnlyGroupRows[] = [
     rows: [...['isDateGridLinesVisible', 'isGroupGridLinesVisible'].map(visibleRow), { key: 'isThemeMonochrome', shape: 'monochrome' }],
   },
   { group: 'groupRulerAndStack', rows: [...['rulerFontSizePx', 'rulerHeightPx'].map(shaped('pixels')), { key: 'stackDirection', shape: 'stack' }] },
-  { group: 'groupTableViews', section: 'Search Panel', rows: tableViewRows('searchPanel', HIDDEN_TASKS, []) },
+  { group: 'groupTableViews', section: 'Search Panel', rows: tableViewRows('searchPanel', SHOWN_TASKS, []) },
   {
     group: 'groupTableViews',
     section: 'Resource List',
-    rows: tableViewRows('resourceList', { key: 'hiddenResourceUids', namePart: 'hiddenResources' }, [
-      { key: 'isUnassignedHidden', shape: 'hiddenFlag', namePart: 'unassignedRow' },
+    rows: tableViewRows('resourceList', { key: 'shownResourceUids', namePart: 'shownResources' }, [
+      { key: 'isUnassignedShown', shape: 'visible', namePart: 'unassignedRow' },
     ]),
   },
-  { group: 'groupTableViews', section: 'Delay Diagnostics Report', rows: tableViewRows('delayDiagnosticsReport', HIDDEN_TASKS, []) },
+  { group: 'groupTableViews', section: 'Delay Diagnostics Report', rows: tableViewRows('delayDiagnosticsReport', SHOWN_TASKS, []) },
 ]
 
 const PERCENT_SCALE = 100
@@ -1922,7 +1921,6 @@ const READ_ONLY_FORMATS: Readonly<Record<ReadOnlyShape, ReadOnlyFormat>> = {
   overlaid: either('overlaid', 'notOverlaid'),
   monochrome: either('monochrome', 'color'),
   filter: either('filterOn', 'filterOff'),
-  hiddenFlag: either('hidden', 'shown'),
   percent: (value, _schedule, language) => percentText(Number(value), language),
   leftEdge: (_value, _schedule, language, settings) => leftEdgeText(settings, language),
   topEdge: (_value, schedule, language, settings) => topEdgeText(settings, schedule, language),

@@ -24,7 +24,7 @@ import {
   advanceScreenSession,
   emptyScreenSession,
   emptySearchPanelSession,
-  EVERY_ROW_SHOWN,
+  NO_ROW_CHECKED,
   type ScreenSession,
   type SearchPanelSession,
   type SessionEvent,
@@ -112,7 +112,7 @@ export function sessionIn(language: DisplayLanguage): ScreenSession {
 
 // WHY: CR-723 -- the table view (Visibility column, Schedule Filter, column filters, sort) is the document's, the panel
 // holds only the screen's own values, so a case carries both together as one pane and threads it through the steps.
-export const NO_VIEW: TableView = { visibility: EVERY_ROW_SHOWN, columnFilters: [], sort: null }
+export const NO_VIEW: TableView = { visibility: NO_ROW_CHECKED, columnFilters: [], sort: null }
 
 export interface Pane {
   readonly panel: SearchPanelSession

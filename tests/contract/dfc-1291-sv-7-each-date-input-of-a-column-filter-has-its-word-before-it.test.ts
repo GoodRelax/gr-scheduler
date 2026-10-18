@@ -14,7 +14,7 @@ import {
   advanceScreenSession,
   emptyScreenSession,
   emptySearchPanelSession,
-  EVERY_ROW_SHOWN,
+  NO_ROW_CHECKED,
   type ScreenSession,
   type SessionEvent,
 } from '../../src/use-case/advance-screen-session/advance-screen-session'
@@ -59,9 +59,9 @@ function sessionIn(language: DisplayLanguage): ScreenSession {
 
 function drawnFilter(column: string, table: 'tasks' | 'commentBoxes', language: DisplayLanguage): FakeElement {
   const session = sessionIn(language)
-  const panel = searchPanelWithFilterOpened(session, { ...emptySearchPanelSession, table }, { visibility: EVERY_ROW_SHOWN, columnFilters: [], sort: null }, column)
+  const panel = searchPanelWithFilterOpened(session, { ...emptySearchPanelSession, table }, { visibility: NO_ROW_CHECKED, columnFilters: [], sort: null }, column)
   if (panel === null) throw new Error(`premise: IC-122 on ${column} opens its filter`)
-  const view = searchPanelFromSession(session, panel, { visibility: EVERY_ROW_SHOWN, columnFilters: [], sort: null }, SCHEDULE, CANVAS)
+  const view = searchPanelFromSession(session, panel, { visibility: NO_ROW_CHECKED, columnFilters: [], sort: null }, SCHEDULE, CANVAS)
   if (view === null) throw new Error('premise: the shown panel has a view')
   const built = stage()
   const box = searchPanelBoxOf(view, { width: 0.5, height: 0.5 })

@@ -978,7 +978,7 @@ const GRS_DOCUMENT_SCHEMA: SchemaNode = {
           properties: {
             delayDiagnosticsReport: {
               type: ['object'],
-              required: ['columnFilters', 'hiddenTaskUids', 'isScheduleFilterApplied', 'sort'],
+              required: ['columnFilters', 'isScheduleFilterApplied', 'shownTaskUids', 'sort'],
               closed: true,
               properties: {
                 columnFilters: {
@@ -987,14 +987,14 @@ const GRS_DOCUMENT_SCHEMA: SchemaNode = {
                     ref: 'ColumnFilter',
                   },
                 },
-                hiddenTaskUids: {
+                isScheduleFilterApplied: {
+                  type: ['boolean'],
+                },
+                shownTaskUids: {
                   type: ['array'],
                   items: {
                     type: ['integer'],
                   },
-                },
-                isScheduleFilterApplied: {
-                  type: ['boolean'],
                 },
                 sort: {
                   ref: 'ColumnSort',
@@ -1003,7 +1003,7 @@ const GRS_DOCUMENT_SCHEMA: SchemaNode = {
             },
             resourceList: {
               type: ['object'],
-              required: ['columnFilters', 'hiddenResourceUids', 'isScheduleFilterApplied', 'isUnassignedHidden', 'sort'],
+              required: ['columnFilters', 'isScheduleFilterApplied', 'isUnassignedShown', 'shownResourceUids', 'sort'],
               closed: true,
               properties: {
                 columnFilters: {
@@ -1012,17 +1012,17 @@ const GRS_DOCUMENT_SCHEMA: SchemaNode = {
                     ref: 'ColumnFilter',
                   },
                 },
-                hiddenResourceUids: {
+                isScheduleFilterApplied: {
+                  type: ['boolean'],
+                },
+                isUnassignedShown: {
+                  type: ['boolean'],
+                },
+                shownResourceUids: {
                   type: ['array'],
                   items: {
                     type: ['integer'],
                   },
-                },
-                isScheduleFilterApplied: {
-                  type: ['boolean'],
-                },
-                isUnassignedHidden: {
-                  type: ['boolean'],
                 },
                 sort: {
                   ref: 'ColumnSort',
@@ -1031,7 +1031,7 @@ const GRS_DOCUMENT_SCHEMA: SchemaNode = {
             },
             searchPanel: {
               type: ['object'],
-              required: ['columnFilters', 'hiddenTaskUids', 'isScheduleFilterApplied', 'sort'],
+              required: ['columnFilters', 'isScheduleFilterApplied', 'shownTaskUids', 'sort'],
               closed: true,
               properties: {
                 columnFilters: {
@@ -1040,14 +1040,14 @@ const GRS_DOCUMENT_SCHEMA: SchemaNode = {
                     ref: 'ColumnFilter',
                   },
                 },
-                hiddenTaskUids: {
+                isScheduleFilterApplied: {
+                  type: ['boolean'],
+                },
+                shownTaskUids: {
                   type: ['array'],
                   items: {
                     type: ['integer'],
                   },
-                },
-                isScheduleFilterApplied: {
-                  type: ['boolean'],
                 },
                 sort: {
                   ref: 'ColumnSort',
@@ -2791,22 +2791,22 @@ const SHAPE_OF_COMMAND_KIND: Readonly<Record<string, SchemaNode>> = {
         properties: {
           visibility: {
             type: ['object'],
-            required: ['hiddenTaskUids', 'hiddenResourceUids', 'isUnassignedHidden', 'isScheduleFilterApplied'],
+            required: ['shownTaskUids', 'shownResourceUids', 'isUnassignedShown', 'isScheduleFilterApplied'],
             closed: true,
             properties: {
-              hiddenTaskUids: {
+              shownTaskUids: {
                 type: ['array'],
                 items: {
                   type: ['integer'],
                 },
               },
-              hiddenResourceUids: {
+              shownResourceUids: {
                 type: ['array'],
                 items: {
                   type: ['integer'],
                 },
               },
-              isUnassignedHidden: {
+              isUnassignedShown: {
                 type: ['boolean'],
               },
               isScheduleFilterApplied: {

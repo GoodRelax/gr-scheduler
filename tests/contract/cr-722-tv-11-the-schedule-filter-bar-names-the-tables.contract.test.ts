@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest'
 
 import type { DisplayLanguage } from '../../src/adapter/screen-renderer/screen-renderer'
 import { scheduleFilterBarOf } from '../../src/adapter/screen-renderer/screen-renderer'
-import { ALL_SHOWN, ALL_TASKS, SCHEDULE, SURFACE_OF, visibility, wordOf, type VisibilityTable } from './cr-722-stage'
+import { NONE_CHECKED, ALL_TASKS, SCHEDULE, SURFACE_OF, visibility, wordOf, type VisibilityTable } from './cr-722-stage'
 import { specTable, unbroken } from './spec-table'
 
 const cellOf = (id: string): string => unbroken(specTable('T-353').rows.find((one) => one.id === id)?.by['定め'] ?? '')
@@ -25,7 +25,7 @@ const ORDER: readonly VisibilityTable[] = ['searchPanel', 'delayDiagnosticsRepor
 
 // WHY: section 5.1 names the first argument `tables` without its shape; this value is the list of the tables that are on and the record of all three.
 function tablesOn(on: readonly VisibilityTable[]): readonly VisibilityTable[] {
-  const record = Object.fromEntries(ORDER.map((name) => [name, on.includes(name) ? visibility({ isScheduleFilterApplied: true }) : ALL_SHOWN]))
+  const record = Object.fromEntries(ORDER.map((name) => [name, on.includes(name) ? visibility({ isScheduleFilterApplied: true }) : NONE_CHECKED]))
   return Object.assign([...on], record)
 }
 

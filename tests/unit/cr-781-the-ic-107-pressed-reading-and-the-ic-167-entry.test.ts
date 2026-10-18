@@ -10,7 +10,7 @@ import { delayDiagnosticsReportFromWindow } from '../../src/adapter/screen-rende
 import { OPENED_DELAY_DIAGNOSTICS_REPORT, type ScreenViewReadings } from '../../src/adapter/screen-renderer/screen-renderer'
 import type { DelayDiagnosticsReport, Schedule } from '../../src/entity/document-model/schedule/schedule'
 import { SETTINGS_DEFAULTS, type DocumentSettings } from '../../src/entity/document-model/document-settings/document-settings'
-import { EVERY_ROW_SHOWN, emptyScreenSession, type ScreenSession, type TableView } from '../../src/use-case/advance-screen-session/advance-screen-session'
+import { NO_ROW_CHECKED, emptyScreenSession, type ScreenSession, type TableView } from '../../src/use-case/advance-screen-session/advance-screen-session'
 import { specTable } from '../contract/spec-table'
 import { templateDocument } from '../contract/w3-t3-frame-stage'
 import { DEFAULT_DISPLAY_SCALE } from '../fixtures/display-scale'
@@ -137,7 +137,7 @@ const SCHEDULE = {
   resources: [],
   assignments: [],
 } as unknown as Schedule
-const NO_VIEW: TableView = { visibility: EVERY_ROW_SHOWN, columnFilters: [], sort: null }
+const NO_VIEW: TableView = { visibility: NO_ROW_CHECKED, columnFilters: [], sort: null }
 
 const viewIn = (language: Language) =>
   delayDiagnosticsReportFromWindow(sessionIn(language), OPENED_DELAY_DIAGNOSTICS_REPORT, NO_VIEW, REPORT, SCHEDULE, {

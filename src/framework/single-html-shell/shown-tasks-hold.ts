@@ -61,17 +61,17 @@ function resourceUidsByTask(schedule: Schedule): ReadonlyMap<number, readonly nu
 
 // see TV-13
 /** @purity pure */
-function isShownByResourceList(resourceUids: readonly number[] | undefined, hidden: ReadonlySet<number>, list: TableVisibility, isCreated: boolean): boolean {
-  if (resourceUids === undefined || resourceUids.length === 0) return isCreated || !list.isUnassignedHidden
-  return resourceUids.some((uid) => !hidden.has(uid))
+function isShownByResourceList(resourceUids: readonly number[] | undefined, checked: ReadonlySet<number>, list: TableVisibility, isCreated: boolean): boolean {
+  if (resourceUids === undefined || resourceUids.length === 0) return isCreated || list.isUnassignedShown
+  return resourceUids.some((uid) => checked.has(uid))
 }
 
 // see TV-2, TV-7
 /** @purity pure */
-function isShownByReport(taskUid: number, hidden: ReadonlySet<number>, reportTaskUids: ReadonlySet<number> | null, isCreated: boolean): boolean {
+function isShownByReport(taskUid: number, checked: ReadonlySet<number>, reportTaskUids: ReadonlySet<number> | null, isCreated: boolean): boolean {
   const isCarried = reportTaskUids?.has(taskUid) === true
   if (!isCarried) return isCreated
-  return !hidden.has(taskUid)
+  return checked.has(taskUid)
 }
 
 // see TV-1, TV-2, TV-7, TV-13
@@ -85,17 +85,17 @@ export function drawnTaskUidsOf(
   createdWhileFiltered: ReadonlySet<number>,
 ): ReadonlySet<number> | null {
   if (!search.isScheduleFilterApplied && !report.isScheduleFilterApplied && !resourceList.isScheduleFilterApplied) return null
-  const searchHidden = new Set(search.hiddenTaskUids)
-  const reportHidden = new Set(report.hiddenTaskUids)
-  const resourceHidden = new Set(resourceList.hiddenResourceUids)
+  const searchChecked = new Set(search.shownTaskUids)
+  const reportChecked = new Set(report.shownTaskUids)
+  const resourceChecked = new Set(resourceList.shownResourceUids)
   const resourcesOf = resourceList.isScheduleFilterApplied ? resourceUidsByTask(schedule) : new Map<number, readonly number[]>()
   const drawn = schedule.tasks
     .map((task) => task.uid)
     .filter((uid) => {
       const isCreated = createdWhileFiltered.has(uid)
-      if (search.isScheduleFilterApplied && searchHidden.has(uid)) return false
-      if (report.isScheduleFilterApplied && !isShownByReport(uid, reportHidden, reportTaskUids, isCreated)) return false
-      return !resourceList.isScheduleFilterApplied || isShownByResourceList(resourcesOf.get(uid), resourceHidden, resourceList, isCreated)
+      if (search.isScheduleFilterApplied && !searchChecked.has(uid) && !isCreated) return false
+      if (report.isScheduleFilterApplied && !isShownByReport(uid, reportChecked, reportTaskUids, isCreated)) return false
+      return !resourceList.isScheduleFilterApplied || isShownByResourceList(resourcesOf.get(uid), resourceChecked, resourceList, isCreated)
     })
   return new Set(drawn)
 }
@@ -107,22 +107,22 @@ function appliedTablesOf(tables: TableVisibilities): readonly VisibilityTable[] 
 }
 
 /** @purity pure */
-const taskUidsHidden = (visibility: TableVisibility): readonly number[] => visibility.hiddenTaskUids
+const taskUidsChecked = (visibility: TableVisibility): readonly number[] => visibility.shownTaskUids
 /** @purity pure */
-const resourceUidsHidden = (visibility: TableVisibility): readonly number[] => visibility.hiddenResourceUids
+const resourceUidsChecked = (visibility: TableVisibility): readonly number[] => visibility.shownResourceUids
 
 // see TV-6
 /** @purity pure */
 function keysShownAgain(
   before: TableVisibility,
   after: TableVisibility,
-  hiddenOf: (visibility: TableVisibility) => readonly number[],
+  checkedOf: (visibility: TableVisibility) => readonly number[],
 ): { readonly keys: readonly number[]; readonly isUnassigned: boolean } {
   if (!before.isScheduleFilterApplied || !after.isScheduleFilterApplied || before === after) return { keys: [], isUnassigned: false }
-  const still = new Set(hiddenOf(after))
+  const was = new Set(checkedOf(before))
   return {
-    keys: hiddenOf(before).filter((key) => !still.has(key)),
-    isUnassigned: before.isUnassignedHidden && !after.isUnassignedHidden,
+    keys: checkedOf(after).filter((key) => !was.has(key)),
+    isUnassigned: !before.isUnassignedShown && after.isUnassignedShown,
   }
 }
 
@@ -144,9 +144,9 @@ function tasksOfResourcesShownAgain(schedule: Schedule, shown: ReturnType<typeof
 /** @purity pure */
 function tasksShownAgain(schedule: Schedule, before: TableVisibilities, after: TableVisibilities): readonly number[] {
   const present = taskUidsOf(schedule)
-  const fromSearch = keysShownAgain(before.searchPanel, after.searchPanel, taskUidsHidden).keys
-  const fromReport = keysShownAgain(before.delayDiagnosticsReport, after.delayDiagnosticsReport, taskUidsHidden).keys
-  const fromResources = tasksOfResourcesShownAgain(schedule, keysShownAgain(before.resourceList, after.resourceList, resourceUidsHidden))
+  const fromSearch = keysShownAgain(before.searchPanel, after.searchPanel, taskUidsChecked).keys
+  const fromReport = keysShownAgain(before.delayDiagnosticsReport, after.delayDiagnosticsReport, taskUidsChecked).keys
+  const fromResources = tasksOfResourcesShownAgain(schedule, keysShownAgain(before.resourceList, after.resourceList, resourceUidsChecked))
   return [...new Set([...fromSearch, ...fromReport, ...fromResources])].filter((uid) => present.has(uid))
 }
 
@@ -154,7 +154,8 @@ function tasksShownAgain(schedule: Schedule, before: TableVisibilities, after: T
 /** @purity pure */
 function viewWithKeyShown(view: TableView, key: number): TableView {
   const visibility = view.visibility
-  return { ...view, visibility: { ...visibility, hiddenTaskUids: visibility.hiddenTaskUids.filter((one) => one !== key) } }
+  if (visibility.shownTaskUids.includes(key)) return view
+  return { ...view, visibility: { ...visibility, shownTaskUids: [...visibility.shownTaskUids, key] } }
 }
 
 // see TV-8, SJ-0
@@ -202,13 +203,13 @@ function jumpViewChangesOf(
 ): TableViewChanges {
   const isCreated = judged.created.has(taskUid)
   const search = views.searchPanel.visibility
-  const isSearchHiding = search.isScheduleFilterApplied && search.hiddenTaskUids.includes(taskUid)
+  const isSearchHiding = search.isScheduleFilterApplied && !isCreated && !search.shownTaskUids.includes(taskUid)
   const report = views.delayDiagnosticsReport.visibility
-  const isReportHiding = report.isScheduleFilterApplied && !isShownByReport(taskUid, new Set(report.hiddenTaskUids), judged.reportTaskUids, isCreated)
+  const isReportHiding = report.isScheduleFilterApplied && !isShownByReport(taskUid, new Set(report.shownTaskUids), judged.reportTaskUids, isCreated)
   const isCarried = judged.reportTaskUids?.has(taskUid) === true
   const list = views.resourceList.visibility
   const resourceUids = resourceUidsByTask(schedule).get(taskUid)
-  const isListHiding = list.isScheduleFilterApplied && !isShownByResourceList(resourceUids, new Set(list.hiddenResourceUids), list, isCreated)
+  const isListHiding = list.isScheduleFilterApplied && !isShownByResourceList(resourceUids, new Set(list.shownResourceUids), list, isCreated)
   return {
     ...(isSearchHiding ? { searchPanel: viewWithKeyShown(views.searchPanel, taskUid) } : {}),
     ...(isReportHiding ? { delayDiagnosticsReport: isCarried ? viewWithKeyShown(views.delayDiagnosticsReport, taskUid) : viewWithFilterOff('delayDiagnosticsReport', views.delayDiagnosticsReport) } : {}),
@@ -216,16 +217,28 @@ function jumpViewChangesOf(
   }
 }
 
-// see TV-1, FR-151, DFC-1820
+// see TV-7, JDG-2810
+// WHY: a task made while a filter is on enters the search table checked; the next view write keeps it in the list.
+/** @purity pure */
+function searchViewWithCreated(view: TableView, created: ReadonlySet<number>): TableView {
+  const held = view.visibility.shownTaskUids
+  const added = [...created].filter((uid) => !held.includes(uid))
+  if (added.length === 0) return view
+  return { ...view, visibility: { ...view.visibility, shownTaskUids: [...held, ...added] } }
+}
+
+// see TV-1, TV-7, FR-151, DFC-1820
 /** @purity non-pure */
 function tableViewsKeeper() {
   let readFrom: DocumentSettings['tableViews'] | null = null
+  let createdFrom: ReadonlySet<number> | null = null
   let held: TableViewsHeld | null = null
-  return (settings: DocumentSettings): TableViewsHeld => {
-    if (held !== null && settings.tableViews === readFrom) return held
+  return (settings: DocumentSettings, created: ReadonlySet<number>): TableViewsHeld => {
+    if (held !== null && settings.tableViews === readFrom && created === createdFrom) return held
     readFrom = settings.tableViews
+    createdFrom = created
     held = {
-      searchPanel: tableViewOf(settings, 'searchPanel'),
+      searchPanel: searchViewWithCreated(tableViewOf(settings, 'searchPanel'), created),
       delayDiagnosticsReport: tableViewOf(settings, 'delayDiagnosticsReport'),
       resourceList: tableViewOf(settings, 'resourceList'),
     }
@@ -412,7 +425,7 @@ export function shownTasksHoldOf(hands: FrameLoopHands, windows: HeldTableWindow
   const viewsOf = tableViewsKeeper()
   const created = createdTasksKeeper()
   const drawnSetOf = drawnSetKeeper()
-  const views = (): TableViewsHeld => viewsOf(hands.readHeld().document.documentSettings)
+  const views = (): TableViewsHeld => viewsOf(hands.readHeld().document.documentSettings, created.read())
   const visibilities = (): TableVisibilities => visibilitiesOf(views())
   const isFiltered = (): boolean => appliedTablesOf(visibilities()).length > 0
   const drawnSet = (drawn?: Schedule): ReadonlySet<number> | null => {

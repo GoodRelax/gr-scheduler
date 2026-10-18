@@ -54,8 +54,8 @@ describe('CR-721 the manuscript these cases are driven by', () => {
   })
 })
 
-// WHY: a word, a column width, one Hide row and the Schedule Filter on stand for what the clear must leave alone (CR-722 TV-2).
-const KEPT_VISIBILITY = { hiddenTaskUids: [3], hiddenResourceUids: [], isUnassignedHidden: false, isScheduleFilterApplied: true }
+// WHY: a word, a column width, one checked row and the Schedule Filter on stand for what the clear must leave alone (CR-722 TV-2, CR-798).
+const KEPT_VISIBILITY = { shownTaskUids: [3], shownResourceUids: [], isUnassignedShown: false, isScheduleFilterApplied: true }
 const KEPT: Pane = {
   panel: searchPanelWithColumnWidth({ ...TASK_PANEL.panel, word: 'al' }, 'SQ-1', 333),
   view: { ...NO_VIEW, visibility: KEPT_VISIBILITY },
@@ -123,12 +123,13 @@ describe('FR-151 T-330 SV-1 -- what the clear keeps: the words, the Visibility v
     expect(after.panel.table).toBe('tasks')
   })
 
-  it('a filter on the Visibility column goes, the checked tasks stay', () => {
-    const there = opened('SQ-10', KEPT)
-    const hidden = changed(there, { kind: 'value', column: 'SQ-10', value: valuesOf(there).values[0]?.value ?? '', isShown: false })
-    expect(viewOf(hidden).columns.some((one) => one.column === 'SQ-10' && one.isFiltered), 'premise: the Visibility column is filtered').toBe(true)
-    const after = cleared(hidden)
-    expect(after.view.visibility).toEqual(KEPT_VISIBILITY)
+  // WHY: CR-798 -- the Visibility column holds no column filter any more; its IC-125 checks every row, and that is a Visibility value, which the clear keeps.
+  it('the rows the Visibility column checked (IC-125) are Visibility values, so the clear keeps them', () => {
+    const allChecked = pressed(opened('SQ-10', KEPT), 'IC-125')
+    expect([...allChecked.view.visibility.shownTaskUids].sort((a, b) => a - b), 'premise: IC-125 checked every task').toEqual([1, 2, 3])
+    expect(allChecked.view.columnFilters, 'premise: IC-125 on the Visibility column is no column filter').toEqual([])
+    const after = cleared(allChecked)
+    expect(after.view.visibility).toEqual(allChecked.view.visibility)
   })
 })
 

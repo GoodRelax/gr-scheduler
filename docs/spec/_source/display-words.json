@@ -1041,8 +1041,8 @@
     "en": "Check All"
    },
    "hint": {
-    "ja": "一覧に出ているすべての値にチェックを付ける",
-    "en": "Check every value shown in the list"
+    "ja": "一覧に出ているすべての値にチェックを付ける（[表示] の列では、表のすべての行）",
+    "en": "Check every value shown in the list (in the Visibility column, every row of the table)"
    }
   },
   {
@@ -1052,8 +1052,8 @@
     "en": "Uncheck All"
    },
    "hint": {
-    "ja": "一覧に出ているすべての値のチェックを外す",
-    "en": "Uncheck every value shown in the list"
+    "ja": "一覧に出ているすべての値のチェックを外す（[表示] の列では、表のすべての行）",
+    "en": "Uncheck every value shown in the list (in the Visibility column, every row of the table)"
    }
   },
   {
@@ -5627,17 +5627,17 @@
    }
   },
   {
-   "part": "hiddenTasks",
+   "part": "shownTasks",
    "text": {
-    "ja": "非表示にしたタスク",
-    "en": "Hidden Tasks"
+    "ja": "表示にしたタスク",
+    "en": "Shown Tasks"
    }
   },
   {
-   "part": "hiddenResources",
+   "part": "shownResources",
    "text": {
-    "ja": "非表示にした担当",
-    "en": "Hidden Resources"
+    "ja": "表示にした担当",
+    "en": "Shown Resources"
    }
   },
   {
@@ -6247,6 +6247,13 @@
    "text": {
     "ja": "この表に非表示の行が無いので、スケジュールフィルタを掛けても日程表は変わりません",
     "en": "No row in this table is hidden, so the Schedule Filter would not change the schedule"
+   }
+  },
+  {
+   "part": "nothingChecked",
+   "text": {
+    "ja": "この表にチェックの入った行が無いので、スケジュールフィルタを掛けると日程表が空になります",
+    "en": "No row in this table is checked, so the Schedule Filter would leave the schedule empty"
    }
   },
   {

@@ -421,7 +421,7 @@
    "inline": true,
    "fields": [
     {
-     "name": "hiddenTaskUids",
+     "name": "shownTaskUids",
      "type": "integer",
      "list": true,
      "column": [
@@ -429,24 +429,24 @@
       "S-565"
      ],
      "meaning": {
-      "ja": "隠したタスクの `Task.uid`（検索の表と遅延診断の表が書き、担当リストでは空の並び）"
+      "ja": "チェックを入れた（「表示」の）タスクの `Task.uid`（検索の表と遅延診断の表が書き、担当リストでは空の並び）"
      }
     },
     {
-     "name": "hiddenResourceUids",
+     "name": "shownResourceUids",
      "type": "integer",
      "list": true,
      "column": "S-569",
      "meaning": {
-      "ja": "隠した担当の `Resource.uid`（担当リストだけが書き、ほかの表では空の並び）"
+      "ja": "チェックを入れた（「表示」の）担当の `Resource.uid`（担当リストだけが書き、ほかの表では空の並び）"
      }
     },
     {
-     "name": "isUnassignedHidden",
+     "name": "isUnassignedShown",
      "type": "boolean",
      "column": "S-570",
      "meaning": {
-      "ja": "担当の無い行を隠すか（担当リストだけが書く）"
+      "ja": "担当の無い行にチェックが入っている（「表示」）か（担当リストだけが書く）"
      }
     },
     {

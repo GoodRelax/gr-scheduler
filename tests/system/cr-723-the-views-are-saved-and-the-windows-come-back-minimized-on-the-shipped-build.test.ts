@@ -6,7 +6,7 @@ import { validateDocument } from '../fixtures/grs-document'
 import { CLEARING_UP_MS, launchReferenceBrowser } from './live-app'
 import { UNDO, keyOf, openDocument, openStage, pressEntrance, saveDocument, settle, wouldWarn, type Stage } from './cr-570-tree-state-stage'
 import { rowOf } from './sws-case'
-import { ALPHA, BRAVO, CHARLIE, DELTA, ECHO, SATO, SCROLLED_CLEAR_OF_THE_PALETTE, TANAKA, documentText, scheduleFixture, type Loose } from '../contract/cr-723-fixture'
+import { ALPHA, CHARLIE, DELTA, ECHO, SATO, SCROLLED_CLEAR_OF_THE_PALETTE, documentText, scheduleFixture, type Loose } from '../contract/cr-723-fixture'
 
 const roleOf = (id: string): string => `[data-role="${bare(rowOf(specTable('T-103'), id).cells[0] ?? '')}"]`
 const SEARCH = roleOf('U-64')
@@ -130,9 +130,9 @@ async function paintsRed(page: Page, selector: string): Promise<boolean> {
   )
 }
 
-// WHY: the word narrows the list (SV-4), the heading box then takes every listed row out of Show (SQ-10), and the word is cleared again.
+// WHY: every row starts unchecked (TV-2, CR-798); the word narrows the list (SV-4), the heading box then checks every listed row (SQ-10), and the word is cleared again.
 /** @purity non-pure */
-async function hideListedIn(page: Page, window: string, word: string): Promise<void> {
+async function checkListedIn(page: Page, window: string, word: string): Promise<void> {
   await press(page, `${window} input`)
   await page.keyboard.press('Control+a')
   await page.keyboard.type(word)
@@ -181,18 +181,18 @@ const BY_RESOURCE = { column: 'SQ-2', direction: 'descending' }
 test.describe('CR-723 on the shipped build', () => {
   test.setTimeout(240_000)
 
-  test('S-560 to S-572 / OP-18 / TV-12: hide two rows, one person, filter and sort, two eyes, save; reopen gives the same views, minimized windows and red', async () => {
+  test('S-560 to S-572 / OP-18 / TV-12: check rows, one person, filter and sort, two eyes, save; reopen gives the same views, minimized windows and red', async () => {
     const first = await opened(NO_VIEWS())
     let saved = ''
     try {
       const { page } = first
       await openSearch(page)
-      await hideListedIn(page, SEARCH, 'Sato')
+      await checkListedIn(page, SEARCH, 'Sato')
       await openResourceList(page)
-      await hideListedIn(page, RESOURCE_LIST, 'Tanaka')
+      await checkListedIn(page, RESOURCE_LIST, 'Sato')
       const current = (await viewsOf(page))['searchPanel'] ?? {}
-      expect(current['hiddenTaskUids'], 'premise: the two Sato tasks are Hide').toEqual([ALPHA, CHARLIE])
-      expect(await applyView(page, 'searchPanel', { visibility: { hiddenTaskUids: [ALPHA, CHARLIE], hiddenResourceUids: [], isUnassignedHidden: false, isScheduleFilterApplied: false }, columnFilters: [STATUS_FILTER], sort: BY_RESOURCE })).toBe(true)
+      expect(current['shownTaskUids'], 'premise: the two Sato tasks are checked').toEqual([ALPHA, CHARLIE])
+      expect(await applyView(page, 'searchPanel', { visibility: { shownTaskUids: [ALPHA, CHARLIE, ECHO], shownResourceUids: [], isUnassignedShown: false, isScheduleFilterApplied: false }, columnFilters: [STATUS_FILTER], sort: BY_RESOURCE })).toBe(true)
       await settle(page)
       // STEP: RO-6 -- the Resource List opened later stands in front of the Search Panel; drag it aside to reach the search IC-143
       await dragAside(page, RESOURCE_LIST)
@@ -207,9 +207,9 @@ test.describe('CR-723 on the shipped build', () => {
     const file = JSON.parse(saved) as { documentSettings: { tableViews: Record<string, Record<string, unknown>> } }
     expect(validateDocument(file).errors, 'FR-024: the saved file conforms to the schema').toEqual([])
     const views = file.documentSettings.tableViews
-    expect(views['searchPanel']).toEqual({ isScheduleFilterApplied: true, hiddenTaskUids: [ALPHA, CHARLIE], columnFilters: [STATUS_FILTER], sort: BY_RESOURCE })
-    expect(views['resourceList']).toMatchObject({ isScheduleFilterApplied: true, hiddenResourceUids: [TANAKA], isUnassignedHidden: false })
-    expect(views['delayDiagnosticsReport']).toMatchObject({ isScheduleFilterApplied: false, hiddenTaskUids: [], columnFilters: [], sort: null })
+    expect(views['searchPanel']).toEqual({ isScheduleFilterApplied: true, shownTaskUids: [ALPHA, CHARLIE, ECHO], columnFilters: [STATUS_FILTER], sort: BY_RESOURCE })
+    expect(views['resourceList']).toMatchObject({ isScheduleFilterApplied: true, shownResourceUids: [SATO], isUnassignedShown: false })
+    expect(views['delayDiagnosticsReport']).toMatchObject({ isScheduleFilterApplied: false, shownTaskUids: [], columnFilters: [], sort: null })
     expect(JSON.stringify(file)).not.toMatch(/"(word|textSizeStep|columnWidths|isMinimized)"/)
 
     const second = await opened(saved)
@@ -225,7 +225,7 @@ test.describe('CR-723 on the shipped build', () => {
       expect(await paintsRed(page, `[data-icon="${OPEN_RESOURCE_LIST}"]`), 'TV-12: IC-62').toBe(true)
       expect(await paintsRed(page, `[data-icon="${DIAGNOSE}"]`), 'TV-12 (MUST NOT): IC-107 stays plain').toBe(false)
       expect(await page.locator(BAND).count(), 'TV-11: the bar is shown').toBe(1)
-      expect(await shownOf(page)).toEqual({ drawn: [ECHO], filteringTables: ['resourceList', 'searchPanel'] })
+      expect(await shownOf(page)).toEqual({ drawn: [ALPHA, CHARLIE], filteringTables: ['resourceList', 'searchPanel'] })
       expect(await wouldWarn(page), 'OP-18: opening is not an unsaved edit').toBe(false)
       await press(page, `${SEARCH} [data-icon="${MINIMIZE}"]`)
       expect(await page.inputValue(`${SEARCH} input`), 'FR-151: the word is not part of the document').toBe('')
@@ -234,16 +234,16 @@ test.describe('CR-723 on the shipped build', () => {
     }
   })
 
-  test('UN-20 / FR-100: hiding rows is an unsaved edit and one undo step; undoing it clears the mark', async () => {
+  test('UN-20 / FR-100: checking rows is an unsaved edit and one undo step; undoing it clears the mark', async () => {
     const stage = await opened(NO_VIEWS())
     try {
       const { page } = stage
       expect(await wouldWarn(page)).toBe(false)
       await openSearch(page)
-      await hideListedIn(page, SEARCH, 'Sato')
-      expect(await wouldWarn(page), 'a row made Hide is an unsaved edit').toBe(true)
+      await checkListedIn(page, SEARCH, 'Sato')
+      expect(await wouldWarn(page), 'a row checked is an unsaved edit').toBe(true)
       expect(await pressEntrance(page, UNDO), 'IC-5 is on the screen').toBe(true)
-      expect((await viewsOf(page))['searchPanel']?.['hiddenTaskUids'], 'one undo takes all the rows back').toEqual([])
+      expect((await viewsOf(page))['searchPanel']?.['shownTaskUids'], 'one undo takes all the rows back').toEqual([])
       expect(await wouldWarn(page), 'FR-100: back at the saved document, no unsaved edit').toBe(false)
     } finally {
       await stage.close()
@@ -255,12 +255,12 @@ test.describe('CR-723 on the shipped build', () => {
     try {
       const { page } = stage
       await openSearch(page)
-      await hideListedIn(page, SEARCH, 'Sato')
+      await checkListedIn(page, SEARCH, 'Sato')
       await press(page, `${SEARCH} [data-icon="${EYE}"]`)
       expect((await shownOf(page)).filteringTables).toEqual(['searchPanel'])
       await press(page, `${SEARCH} [data-icon="${CLOSE}"]`)
       expect((await shownOf(page)).filteringTables, 'closing releases the eye').toEqual([])
-      expect((await viewsOf(page))['searchPanel']?.['hiddenTaskUids'], 'TV-8: the Visibility stays').toEqual([ALPHA, CHARLIE])
+      expect((await viewsOf(page))['searchPanel']?.['shownTaskUids'], 'TV-8: the checked rows stay').toEqual([ALPHA, CHARLIE])
       expect(await pressEntrance(page, UNDO)).toBe(true)
       expect((await shownOf(page)).filteringTables, 'undo turns the eye on again').toEqual(['searchPanel'])
       expect(await isMinimized(page, SEARCH), 'WB-2: the window comes back minimized').toBe(true)
@@ -273,9 +273,9 @@ test.describe('CR-723 on the shipped build', () => {
     const text = documentText(
       VIEW_SETTINGS({
         tableViews: {
-          searchPanel: { isScheduleFilterApplied: true, hiddenTaskUids: [ALPHA, 987654], columnFilters: [STATUS_FILTER, { column: 'no-such-column', hiddenValues: [], fromDate: null, toDate: null }], sort: { column: 'no-such-column', direction: 'ascending' } },
-          delayDiagnosticsReport: { isScheduleFilterApplied: false, hiddenTaskUids: [], columnFilters: [], sort: null },
-          resourceList: { isScheduleFilterApplied: false, hiddenResourceUids: [SATO, 876543], isUnassignedHidden: false, columnFilters: [], sort: null },
+          searchPanel: { isScheduleFilterApplied: true, shownTaskUids: [ALPHA, 987654], columnFilters: [STATUS_FILTER, { column: 'no-such-column', hiddenValues: [], fromDate: null, toDate: null }], sort: { column: 'no-such-column', direction: 'ascending' } },
+          delayDiagnosticsReport: { isScheduleFilterApplied: false, shownTaskUids: [], columnFilters: [], sort: null },
+          resourceList: { isScheduleFilterApplied: false, shownResourceUids: [SATO, 876543], isUnassignedShown: false, columnFilters: [], sort: null },
         },
       }),
     )
@@ -283,9 +283,9 @@ test.describe('CR-723 on the shipped build', () => {
     try {
       const { page } = stage
       const views = await viewsOf(page)
-      expect(views['searchPanel']).toEqual({ isScheduleFilterApplied: true, hiddenTaskUids: [ALPHA], columnFilters: [STATUS_FILTER], sort: null })
-      expect(views['resourceList']?.['hiddenResourceUids']).toEqual([SATO])
-      expect((await shownOf(page)).drawn).toEqual([BRAVO, CHARLIE, DELTA, ECHO])
+      expect(views['searchPanel']).toEqual({ isScheduleFilterApplied: true, shownTaskUids: [ALPHA], columnFilters: [STATUS_FILTER], sort: null })
+      expect(views['resourceList']?.['shownResourceUids']).toEqual([SATO])
+      expect((await shownOf(page)).drawn, 'only Alpha is checked in the applied search table').toEqual([ALPHA])
       expect(await wouldWarn(page), 'opening is not an unsaved edit').toBe(false)
     } finally {
       await stage.close()
@@ -296,9 +296,9 @@ test.describe('CR-723 on the shipped build', () => {
     const text = documentText(
       VIEW_SETTINGS({
         tableViews: {
-          searchPanel: { isScheduleFilterApplied: false, hiddenTaskUids: [], columnFilters: [], sort: null },
-          delayDiagnosticsReport: { isScheduleFilterApplied: true, hiddenTaskUids: [DELTA], columnFilters: [], sort: null },
-          resourceList: { isScheduleFilterApplied: false, hiddenResourceUids: [], isUnassignedHidden: false, columnFilters: [], sort: null },
+          searchPanel: { isScheduleFilterApplied: false, shownTaskUids: [], columnFilters: [], sort: null },
+          delayDiagnosticsReport: { isScheduleFilterApplied: true, shownTaskUids: [DELTA], columnFilters: [], sort: null },
+          resourceList: { isScheduleFilterApplied: false, shownResourceUids: [], isUnassignedShown: false, columnFilters: [], sort: null },
         },
       }),
     )
@@ -323,9 +323,9 @@ test.describe('CR-723 on the shipped build', () => {
     const text = documentText(
       VIEW_SETTINGS({
         tableViews: {
-          searchPanel: { isScheduleFilterApplied: false, hiddenTaskUids: [], columnFilters: [], sort: null },
-          delayDiagnosticsReport: { isScheduleFilterApplied: true, hiddenTaskUids: [DELTA], columnFilters: [], sort: null },
-          resourceList: { isScheduleFilterApplied: false, hiddenResourceUids: [], isUnassignedHidden: false, columnFilters: [], sort: null },
+          searchPanel: { isScheduleFilterApplied: false, shownTaskUids: [], columnFilters: [], sort: null },
+          delayDiagnosticsReport: { isScheduleFilterApplied: true, shownTaskUids: [DELTA], columnFilters: [], sort: null },
+          resourceList: { isScheduleFilterApplied: false, shownResourceUids: [], isUnassignedShown: false, columnFilters: [], sort: null },
         },
       }),
       { ...schedule, project },
@@ -341,17 +341,17 @@ test.describe('CR-723 on the shipped build', () => {
     }
   })
 
-  test('AM-27: showOnlyTasks writes the search view (one undo step), readDocument reads it, an empty list releases the eye and keeps the rows', async () => {
+  test('AM-27: showOnlyTasks writes the search view (one undo step), readDocument reads it, an empty list releases the eye and keeps the checked rows', async () => {
     const stage = await opened(NO_VIEWS())
     try {
       const { page } = stage
       await page.evaluate((keep: number[]) => (window as unknown as { grSchedulerAgentApi: Api }).grSchedulerAgentApi.showOnlyTasks(keep), [ALPHA, CHARLIE])
       await settle(page)
-      expect((await viewsOf(page))['searchPanel']).toMatchObject({ isScheduleFilterApplied: true, hiddenTaskUids: [BRAVO, DELTA, ECHO] })
+      expect((await viewsOf(page))['searchPanel']).toMatchObject({ isScheduleFilterApplied: true, shownTaskUids: [ALPHA, CHARLIE] })
       expect(await wouldWarn(page), 'FR-100: an Agent API write counts').toBe(true)
       await page.evaluate(() => (window as unknown as { grSchedulerAgentApi: Api }).grSchedulerAgentApi.showOnlyTasks([]))
       await settle(page)
-      expect((await viewsOf(page))['searchPanel']).toMatchObject({ isScheduleFilterApplied: false, hiddenTaskUids: [BRAVO, DELTA, ECHO] })
+      expect((await viewsOf(page))['searchPanel']).toMatchObject({ isScheduleFilterApplied: false, shownTaskUids: [ALPHA, CHARLIE] })
       expect(await pressEntrance(page, UNDO)).toBe(true)
       expect((await viewsOf(page))['searchPanel']).toMatchObject({ isScheduleFilterApplied: true })
     } finally {

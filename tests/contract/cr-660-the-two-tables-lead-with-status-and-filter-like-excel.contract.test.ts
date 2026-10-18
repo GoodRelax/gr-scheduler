@@ -32,7 +32,7 @@ import {
   advanceScreenSession,
   emptyScreenSession,
   emptySearchPanelSession,
-  EVERY_ROW_SHOWN,
+  NO_ROW_CHECKED,
   type ScreenSession,
   type SearchPanelSession,
   type SessionEvent,
@@ -203,7 +203,7 @@ const step = (session: ScreenSession, type: string): ScreenSession =>
 
 const SHOWN = step(emptyScreenSession, 'searchEntryPressed')
 const JA = { ...SHOWN, screen: { ...SHOWN.screen, screenLanguage: 'ja', helpLanguage: 'ja' } } as unknown as ScreenSession
-const NO_VIEW: TableView = { visibility: EVERY_ROW_SHOWN, columnFilters: [], sort: null }
+const NO_VIEW: TableView = { visibility: NO_ROW_CHECKED, columnFilters: [], sort: null }
 
 // WHY: CR-723 split the panel (screen only) from the table's view (the document's); a pane carries both.
 interface Pane {

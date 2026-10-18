@@ -321,13 +321,14 @@ describe('CR-796 s2 -- AM-27: an empty list turns the Search Panel schedule filt
     const on = (await api.showOnlyTasks([1, 2])) as unknown as Json
     expect(on['ok'], JSON.stringify(on)).toBe(true)
     expect(searchPanelOf(read())['isScheduleFilterApplied']).toBe(true)
-    const hiddenWhileOn = searchPanelOf(read())['hiddenTaskUids']
-    expect(Array.isArray(hiddenWhileOn) && hiddenWhileOn.length > 0).toBe(true)
+    // WHY: CR-798 -- the saved list is the checked tasks, so the named tasks are the ones held checked.
+    const checkedWhileOn = searchPanelOf(read())['shownTaskUids']
+    expect(checkedWhileOn).toEqual([1, 2])
 
     const off = (await api.showOnlyTasks([])) as unknown as Json
     expect(off['ok'], JSON.stringify(off)).toBe(true)
     expect(searchPanelOf(read())['isScheduleFilterApplied']).toBe(false)
-    expect(searchPanelOf(read())['hiddenTaskUids']).toEqual(hiddenWhileOn)
+    expect(searchPanelOf(read())['shownTaskUids']).toEqual(checkedWhileOn)
   })
 
   it('an empty list on a filter that is already off leaves it off', async () => {

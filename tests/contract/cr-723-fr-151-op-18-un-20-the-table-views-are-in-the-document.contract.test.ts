@@ -31,14 +31,14 @@ const TV_6_COUNTS = '掛けたことは `UN-20` の 1 段である。'
 const TV_8_EDIT = '⭐ どの解除も表の見え方の変更であり、未保存の編集で取り消しの 1 段である（表 T-027 の `UN-20`） —— ウィンドウを閉じて解除したときも同じで、取り消すとスケジュールフィルタが掛かり、ウィンドウが最小化（`FR-036` の 表 T-335 の `WB-2`）で戻る（利用者が定めた）。'
 const TV_8_BAND = '帯の「スケジュールフィルタを解除」は、すべての表の解除を合わせて 1 段とする'
 const TV_9_REPLACED = '置き換えた文書が持つ 3 つの表の見え方（`_assets/tbl-settings.md` の 表 T-203 の `S-560` 〜 `S-572`）に替え、スケジュールフィルタを掛けている表のウィンドウを出す（表 T-024a の `OP-18`）。'
-const TV_9_NONE = '見え方を持たない文書（新規・MSPDI）は既定 —— どの行も「表示」、どの表もスケジュールフィルタを掛けず、列のフィルタと並べ替えも無い'
+const TV_9_NONE = '見え方を持たない文書（新規・MSPDI）は既定 —— どの行もチェックが外れ（「非表示」）、どの表もスケジュールフィルタを掛けず、列のフィルタと並べ替えも無い'
 const SV_14_REMEMBER = '語・表の切り替え・列の幅・位置・大きさは、同じ画面のあいだ覚え、開き直したときに戻す'
 const SV_14_STAYS = '表示の列の値（`SQ-10`）・列のフィルタ・並べ替えは、閉じても残る —— 文書が持つ'
 const WB_6_MINIMIZED = '⚠️ 文書を開いたときにスケジュールフィルタのために出すウィンドウ（表 T-024a の `OP-18`）は、`WB-2` から始める'
-const UN_20_SJ = '⭐ 飛ぶ（`SJ-0`）ために行を「表示」に戻したこと・スケジュールフィルタを解除したことは、`SJ-2` の展開と同じ 1 段に入れる。'
+const UN_20_SJ = '⭐ 飛ぶ（`SJ-0`）ために行を「表示」にしたこと・スケジュールフィルタを解除したことは、`SJ-2` の展開と同じ 1 段に入れる。'
 const UN_20_OUT = '⚠️ 語・ウィンドウの位置と大きさ・最小化と最大化・列の幅・開いているフィルタは対象外 —— 文書に保存しない（`FR-151`）'
-const CD_1_TAIL = '表の見え方でその `Task` を「非表示」とする値（`_assets/tbl-settings.md` の `S-561`・`S-565`）'
-const CD_5_TAIL = '表の見え方でその担当を「非表示」とする値（`_assets/tbl-settings.md` の `S-569`）も消える'
+const CD_1_TAIL = '表の見え方でその `Task` を「表示」とする値（`_assets/tbl-settings.md` の `S-561`・`S-565`）'
+const CD_5_TAIL = '表の見え方でその担当を「表示」とする値（`_assets/tbl-settings.md` の `S-569`）も消える'
 const S_445_EXCEPTION = '⭐ 例外: 開いた文書が遅延診断レポートの表のスケジュールフィルタを掛けている（表 T-203 の `S-564` が真）ときは、開いたときに診断を始める（表 T-024a の `OP-18` —— 利用者が定めた）。'
 
 describe('CR-723 -- FR-151, FR-134, FR-099 narrow what is not saved and say what is', () => {
@@ -160,16 +160,16 @@ describe('CR-723 -- table T-203 rows S-560 to S-572 hold the 13 keys with their 
 
   const EXPECTED: readonly { id: string; key: string; initial: string }[] = [
     { id: 'S-560', key: 'tableViews.searchPanel.isScheduleFilterApplied', initial: 'false' },
-    { id: 'S-561', key: 'tableViews.searchPanel.hiddenTaskUids', initial: '[]' },
+    { id: 'S-561', key: 'tableViews.searchPanel.shownTaskUids', initial: '[]' },
     { id: 'S-562', key: 'tableViews.searchPanel.columnFilters', initial: '[]' },
     { id: 'S-563', key: 'tableViews.searchPanel.sort', initial: 'null' },
     { id: 'S-564', key: 'tableViews.delayDiagnosticsReport.isScheduleFilterApplied', initial: 'false' },
-    { id: 'S-565', key: 'tableViews.delayDiagnosticsReport.hiddenTaskUids', initial: '[]' },
+    { id: 'S-565', key: 'tableViews.delayDiagnosticsReport.shownTaskUids', initial: '[]' },
     { id: 'S-566', key: 'tableViews.delayDiagnosticsReport.columnFilters', initial: '[]' },
     { id: 'S-567', key: 'tableViews.delayDiagnosticsReport.sort', initial: 'null' },
     { id: 'S-568', key: 'tableViews.resourceList.isScheduleFilterApplied', initial: 'false' },
-    { id: 'S-569', key: 'tableViews.resourceList.hiddenResourceUids', initial: '[]' },
-    { id: 'S-570', key: 'tableViews.resourceList.isUnassignedHidden', initial: 'false' },
+    { id: 'S-569', key: 'tableViews.resourceList.shownResourceUids', initial: '[]' },
+    { id: 'S-570', key: 'tableViews.resourceList.isUnassignedShown', initial: 'false' },
     { id: 'S-571', key: 'tableViews.resourceList.columnFilters', initial: '[]' },
     { id: 'S-572', key: 'tableViews.resourceList.sort', initial: 'null' },
   ]

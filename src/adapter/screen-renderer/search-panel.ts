@@ -66,7 +66,8 @@ import {
   visibilityLabelOf,
   windowTitleEntriesOf,
   wordOf,
-  isScheduleFilterChanging,
+  scheduleFilterReadinessOf,
+  type ScheduleFilterReadiness,
   type EntryRefusal,
   type MarkGlyph,
   type SearchColumnView,
@@ -252,11 +253,11 @@ function commentBoxCells(row: CommentBoxSearchRow): readonly string[] {
 function rowsOf(found: SearchRows, panel: SearchPanelSession, view: TableView, language: DisplayLanguage,
                 times: ShownDateTimes): readonly SearchRowView[] {
   if (panel.table === 'tasks') {
-    const hidden = hiddenTasksOf(view)
+    const checked = shownTasksOf(view)
     return found.taskRows.map((row) => ({
       cells: taskCells(row, language, times),
       glyph: STATE_GLYPHS[searchTaskStateOf(row)],
-      isShown: !hidden.has(row.taskUid),
+      isShown: checked.has(row.taskUid),
       target: { kind: 'task', taskUid: row.taskUid },
     }))
   }
@@ -269,8 +270,8 @@ function rowsOf(found: SearchRows, panel: SearchPanelSession, view: TableView, l
 
 // see SQ-10, TV-2, S-561
 /** @purity pure */
-function hiddenTasksOf(view: TableView): ReadonlySet<number> {
-  return new Set(view.visibility.hiddenTaskUids)
+function shownTasksOf(view: TableView): ReadonlySet<number> {
+  return new Set(view.visibility.shownTaskUids)
 }
 
 // see SV-7, SQ-5, T-331
@@ -309,15 +310,17 @@ function searchTableOf(
   found: () => SearchRows,
   all?: SearchRows,
   times = DATES_ONLY,
+  everyTaskUid: () => readonly number[] = () => [],
 ): WindowTable {
   const language = displayLanguageOf(session)
   const columns = TABLE_COLUMNS[panel.table]
   return {
     columns,
+    ...(panel.table === 'tasks' ? { checkColumn: { column: VISIBILITY_COLUMN, table: 'searchPanel' as const, everyRowKey: everyTaskUid } } : {}),
     fixedCount: columns.indexOf(JUMP_COLUMN[panel.table]) + 1,
     headingOf: (column) => wordOf(COLUMN_WORDS.get(column)?.text, language),
     isDateColumn: isDateSearchColumn,
-    valuesOf: (column) => columnValuesOf(found(), column, hiddenTasksOf(view), view.sort),
+    valuesOf: (column) => columnValuesOf(found(), column, view.sort),
     labelOf: (column, value) => valueLabelOf(column, value, language),
     ...(all === undefined ? {} : { widthSamplesOf: widthSamplesIn(all, panel, language, times) }),
   }
@@ -329,11 +332,16 @@ function shownIn(session: ScreenSession): SearchPanelShown | null {
   return display.kind === 'hidden' ? null : display.child.kind
 }
 
-// see TV-5, SQ-10
-// WHY: the search table rows every task, so only a Hide row of a task still in the document changes the schedule.
+// see TV-5, SQ-10, JDG-2820
+// WHY: the search table rows every task, so it draws less only while a task is left unchecked.
 /** @purity pure */
-function wouldSearchFilterChange(view: TableView, schedule: Schedule): boolean {
-  return isScheduleFilterChanging('searchPanel', view.visibility, () => new Set(schedule.tasks.map((task) => task.uid)), true)
+function searchFilterReadinessOf(view: TableView, schedule: Schedule): ScheduleFilterReadiness {
+  return scheduleFilterReadinessOf('searchPanel', view.visibility, () => taskUidSetOf(schedule), true)
+}
+
+/** @purity pure */
+function taskUidSetOf(schedule: Schedule): ReadonlySet<number> {
+  return new Set(schedule.tasks.map((task) => task.uid))
 }
 
 // see FR-151, T-330, S-442, SQ-5, S-560, TX-4
@@ -355,9 +363,10 @@ export function searchPanelFromSession(
   const all = found === null || panel.word === '' ? found : searchRowsOf(schedule, '', diagnosed)
   const table = searchTableOf(session, panel, view, () => found ?? NOTHING_FOUND, all ?? undefined, times)
   const open = openFilterIn(panel, shown, table)
-  const kept = found === null ? null : filteredSearchRows(found, view.columnFilters, view.sort, hiddenTasksOf(view))
+  const kept = found === null ? null : filteredSearchRows(found, view.columnFilters, view.sort)
   const rows = kept === null ? [] : rowsOf(kept, panel, view, language, times)
-  const scheduleFilter = scheduleFilterEntryOf(view.visibility, wouldSearchFilterChange(view, schedule), language)
+  const readiness = searchFilterReadinessOf(view, schedule)
+  const scheduleFilter = scheduleFilterEntryOf(view.visibility, readiness, language)
   return {
     heading: wordOf(PANEL_HEADING, language),
     shown,
@@ -380,7 +389,7 @@ export function searchPanelFromSession(
     glyphAt: panel.table === 'tasks' ? TABLE_COLUMNS.tasks.indexOf(STATUS_COLUMN) : null,
     showAt: panel.table === 'tasks' ? TABLE_COLUMNS.tasks.indexOf(VISIBILITY_COLUMN) : null,
     showHeading: visibilityHeadingOf(rows),
-    entryRefusals: panel.table === 'tasks' ? scheduleFilterRefusalsOf(scheduleFilter, language) : [],
+    entryRefusals: panel.table === 'tasks' ? scheduleFilterRefusalsOf(scheduleFilter, readiness, language) : [],
   }
 }
 
@@ -409,9 +418,10 @@ export function searchPanelAfterFilterEntry(
   diagnosed?: ReadonlyMap<number, 'DG-1' | 'DG-2' | 'DG-3'>,
   listed?: readonly string[] | null,
 ): TableView | null {
-  const filtered = tableWithScheduleFilterPressed(view, entry, () => wouldSearchFilterChange(view, schedule))
+  const filtered = tableWithScheduleFilterPressed(view, entry, () => searchFilterReadinessOf(view, schedule))
   if (filtered !== null) return filtered
-  const table = searchTableOf(session, panel, view, () => searchRowsOf(schedule, panel.word, diagnosed))
+  const everyTaskUid = (): readonly number[] => schedule.tasks.map((task) => task.uid)
+  const table = searchTableOf(session, panel, view, () => searchRowsOf(schedule, panel.word, diagnosed), undefined, DATES_ONLY, everyTaskUid)
   return tableAfterFilterEntry(panel, view, shownIn(session), entry, table, listed)
 }
 

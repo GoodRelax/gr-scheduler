@@ -946,7 +946,7 @@ const SCHEDULE_TO_SEARCH = {
 type SearchTableViewSetting = DocumentSettings['tableViews']['searchPanel']
 
 // TRAP: SETTINGS is built from the flat SETTINGS_DEFAULTS, so it holds no nested tableViews group of its own.
-const NO_SEARCH_VIEW: SearchTableViewSetting = { columnFilters: [], hiddenTaskUids: [], isScheduleFilterApplied: false, sort: null }
+const NO_SEARCH_VIEW: SearchTableViewSetting = { columnFilters: [], shownTaskUids: [], isScheduleFilterApplied: false, sort: null }
 
 const searchFrame = (
   shown: 'normal' | 'maximized' | 'minimized',
@@ -969,17 +969,17 @@ const COMMENT_BOX_COLUMNS: ReadonlySet<string> = new Set(['SQ-7', 'SQ-8', 'SQ-9'
 
 const SEARCH_TASKS_SHOWN = searchFrame('normal', { filters: { open: ASSIGNEE_COLUMN } })
 // see SQ-10, TV-11
-const SHOW_COLUMN = 'SQ-10'
 const SHOWN_SEARCH_UIDS: readonly number[] = [2, 3]
-// WHY: CR-722 TV-2 -- every row starts as Show, so the rows not named are the Hide ones.
-const hiddenExcept = (shown: readonly number[], isScheduleFilterApplied: boolean): Partial<SearchTableViewSetting> => ({
-  hiddenTaskUids: Object.values(SEARCH_TASK_BY_STATE).map((one) => one.uid).filter((uid) => !shown.includes(uid)),
+// WHY: CR-798 TV-2 -- every row starts unchecked (Hide), so the rows named are the checked (Show) ones.
+const checkedOnly = (shown: readonly number[], isScheduleFilterApplied: boolean): Partial<SearchTableViewSetting> => ({
+  shownTaskUids: Object.values(SEARCH_TASK_BY_STATE).map((one) => one.uid).filter((uid) => shown.includes(uid)),
   isScheduleFilterApplied: isScheduleFilterApplied,
 })
-const SEARCH_SHOW_FILTER_OPEN = searchFrame('normal', { filters: { open: SHOW_COLUMN } }, hiddenExcept(SHOWN_SEARCH_UIDS, false))
+// WHY: CR-798 TV-5 -- IC-143 is idle for two reasons: no row is checked (the frame's default) or every row is checked (nothing to narrow).
+const SEARCH_EVERY_TASK_CHECKED = searchFrame('normal', {}, checkedOnly(Object.values(SEARCH_TASK_BY_STATE).map((one) => one.uid), false))
 // WHY: the shell hands the product in as a reading (TV-1); the band counts it.
 const SEARCH_SCHEDULE_FILTERED: Frame = (() => {
-  const frame = searchFrame('minimized', {}, hiddenExcept(SHOWN_SEARCH_UIDS, true))
+  const frame = searchFrame('minimized', {}, checkedOnly(SHOWN_SEARCH_UIDS, true))
   return { ...frame, readings: { ...frame.readings, drawnTaskUids: new Set(SHOWN_SEARCH_UIDS) } }
 })()
 // WHY: TV-11 fills {tables}, {total} and {shown}, so the table name and the digits are put back to see the literal word
@@ -1012,7 +1012,7 @@ const HELP_MAXIMIZED = helpShown('maximized')
 const RESTORE_ENTRY = 'IC-131'
 
 // WHY: IC-143 refuses while no row is Hide (TV-5), and its hint would then carry the reason too.
-const SEARCH_TASKS_CHECKED = searchFrame('normal', { filters: { open: ASSIGNEE_COLUMN } }, hiddenExcept(SHOWN_SEARCH_UIDS, false))
+const SEARCH_TASKS_CHECKED = searchFrame('normal', { filters: { open: ASSIGNEE_COLUMN } }, checkedOnly(SHOWN_SEARCH_UIDS, false))
 
 // see S-451, RW-1
 // WHY: the shell holds the report and hands it in as a reading; an empty diagnosis still raises the window.
@@ -2692,9 +2692,9 @@ const READ_ONLY_SETTINGS_READS: Readonly<Record<string, (view: ScreenView) => st
   groupRulerAndStack: (view) => readOnlyGroupNameOf(view, 'groupRulerAndStack'),
   groupTableViews: (view) => readOnlyGroupNameOf(view, 'groupTableViews'),
   scheduleFilter: (view) => settingsRowOf(view, SEARCH_VIEW_ROW('isScheduleFilterApplied'))?.name,
-  hiddenTasks: (view) => settingsRowOf(view, SEARCH_VIEW_ROW('hiddenTaskUids'))?.name,
-  hiddenResources: (view) => settingsRowOf(view, 'tableViews.resourceList.hiddenResourceUids')?.name,
-  unassignedRow: (view) => settingsRowOf(view, 'tableViews.resourceList.isUnassignedHidden')?.name,
+  shownTasks: (view) => settingsRowOf(view, SEARCH_VIEW_ROW('shownTaskUids'))?.name,
+  shownResources: (view) => settingsRowOf(view, 'tableViews.resourceList.shownResourceUids')?.name,
+  unassignedRow: (view) => settingsRowOf(view, 'tableViews.resourceList.isUnassignedShown')?.name,
   columnFilters: (view) => settingsRowOf(view, SEARCH_VIEW_ROW('columnFilters'))?.name,
   sortOrder: (view) => settingsRowOf(view, SEARCH_VIEW_ROW('sort'))?.name,
   shown: (view) => settingsRowOf(view, 'K-122')?.text,
@@ -2704,7 +2704,7 @@ const READ_ONLY_SETTINGS_READS: Readonly<Record<string, (view: ScreenView) => st
   filterOff: (view) => settingsRowOf(view, SEARCH_VIEW_ROW('isScheduleFilterApplied'))?.text,
   stackUp: (view) => settingsRowOf(view, 'K-73')?.text,
   expandedAuto: (view) => settingsRowOf(view, 'K-138')?.text,
-  none: (view) => settingsRowOf(view, SEARCH_VIEW_ROW('hiddenTaskUids'))?.text,
+  none: (view) => settingsRowOf(view, SEARCH_VIEW_ROW('shownTaskUids'))?.text,
   defaultOrder: (view) => settingsRowOf(view, SEARCH_VIEW_ROW('sort'))?.text,
   // WHY: CR-787 (T-380 RN-3) -- the joined left and top edge rows stand under K-69 / K-70; the frame holds no view place.
   viewLeftEdge: (view) => settingsRowOf(view, 'K-69')?.name,
@@ -2913,21 +2913,11 @@ const SEARCH_PANEL_READS: Readonly<
     frame: SEARCH_MAXIMIZED,
     read: (view) => labelIn(view.searchPanel?.titleEntries, MAXIMIZE_ENTRY),
   },
-  showValue: {
-    frame: SEARCH_SHOW_FILTER_OPEN,
-    read: (view) => {
-      const menu = view.searchPanel?.filterMenu
-      return menu?.kind === 'values' ? menu.values.find((one) => one.value === 'show')?.label : undefined
-    },
-  },
-  hideValue: {
-    frame: SEARCH_SHOW_FILTER_OPEN,
-    read: (view) => {
-      const menu = view.searchPanel?.filterMenu
-      return menu?.kind === 'values' ? menu.values.find((one) => one.value === 'hide')?.label : undefined
-    },
-  },
   nothingHidden: {
+    frame: SEARCH_EVERY_TASK_CHECKED,
+    read: (view) => view.searchPanel?.entryRefusals?.find((one) => one.icon === 'IC-143')?.reason,
+  },
+  nothingChecked: {
     frame: SEARCH_TASKS_SHOWN,
     read: (view) => view.searchPanel?.entryRefusals?.find((one) => one.icon === 'IC-143')?.reason,
   },
@@ -2946,6 +2936,11 @@ for (const entry of GENERATED['searchPanel'] ?? []) {
   const reading = SEARCH_PANEL_READS[part]
   if (part === 'tableNameSeparator') {
     drop('searchPanel', part, 'the joining word stands only inside the {tables} slot of the band (TV-11), and a cell-naming word holds no slot to put it in')
+    continue
+  }
+  // WHY: CR-798 -- the Visibility column has no value list, so no frame prints these two words any more; the Agent API's table cells (AM-28) still carry them.
+  if (part === 'showValue' || part === 'hideValue') {
+    drop('searchPanel', part, 'the Visibility column holds no value list (SV-7, CR-798); only the table cells the Agent API reads (AM-28) print this word')
     continue
   }
   if (reading === undefined) {

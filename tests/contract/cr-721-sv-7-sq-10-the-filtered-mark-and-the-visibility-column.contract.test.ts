@@ -1,17 +1,21 @@
-// CR-721 spec-only contract: which headings count as filtered (SV-7), and the Visibility column's words, values, order and heading box (SQ-10, SV-8).
+// CR-721 spec-only contract: which headings count as filtered (SV-7), and the Visibility column's words, rows, dropdown and heading box (SQ-10, SV-7, SV-8). CR-798: rows start unchecked and the column has no value list, no filter and no sort.
 
 import { describe, expect, it } from 'vitest'
 
 import { delayDiagnosticsReportAfterFilterChange } from '../../src/adapter/screen-renderer/delay-diagnostics-report'
+import { searchPanelAfterFilterChange, searchPanelAfterFilterEntry } from '../../src/adapter/screen-renderer/search-panel'
 import {
   OPENED_REPORT,
+  SCHEDULE,
   TASK_PANEL,
   TASK_UIDS,
   changed,
   columnOf,
   columnWordOf,
+  iconWordOf,
   opened,
   panelWordOf,
+  sessionIn,
   pressed,
   reportAfter,
   reportViewOf,
@@ -32,11 +36,12 @@ const cellOf = (table: string, id: string, heading: string): string => {
 const SV_7_GREEN =
   '⭐ 列のフィルタを掛けている列 —— 値の一覧の印を 1 つでも外した列か、「いつから」か「いつまで」を置いた列 —— の見出しのセルは、`_assets/tbl-settings.md` の 表 T-236 の `S-183` で塗り、語と `IC-122` の絵を `S-146`（地の色）で描くこと（MUST）'
 const SV_7_SORT_ONLY = '並べ替えだけを掛けた列の見出しは塗らない —— 緑は列のフィルタだけの合図である（利用者が定めた）'
-const SV_8_VISIBILITY = '表示の列（`SQ-10`）の昇順は 表示 → 非表示、降順はその逆。'
+const SV_8_VISIBILITY = '表示の列（`SQ-10`）では並べ替えない —— そのドロップダウンは `IC-123`・`IC-124` を持たない（`SV-7`）。'
+const SV_7_ROWS_DROPDOWN = '`IC-125` と `IC-126` の 2 つの行だけを持つドロップダウンを開く —— フィルタの中の検索欄・`IC-123`・`IC-124`・値の一覧を置かない（利用者が定めた）。'
 const SQ_10_HEADING_STATES =
   '見出しのセルは、一覧に出ている行がすべて入っている・一部・1 つも入っていない の 3 つの状態のチェックボックスと `IC-122`。'
 const SQ_10_HEADING_PRESS = '見出しのチェックボックスを押すと、一覧に出ている行だけをすべて入れる（すべて入っていればすべて外す）。'
-const SQ_10_VALUES = '値の一覧（「表示」「非表示」）'
+const SQ_10_NO_VALUES = '値の一覧を持たない —— `IC-122` は `IC-125`・`IC-126` だけを開き、どちらも表のすべての行（一覧に出ていない行も）に効く（表 T-330 の `SV-7`）'
 const SV_6_FIRST_COLUMN_NOTE = '表示・ステータス・進捗・タスク種別・タスク の 5 列'
 
 describe('CR-721 the manuscript these cases are driven by', () => {
@@ -44,21 +49,22 @@ describe('CR-721 the manuscript these cases are driven by', () => {
     expect(cellOf('T-330', 'SV-7', '定め')).toContain(SV_7_GREEN)
     expect(cellOf('T-330', 'SV-7', '定め')).toContain(SV_7_SORT_ONLY)
     expect(cellOf('T-330', 'SV-8', '定め')).toContain(SV_8_VISIBILITY)
+    expect(cellOf('T-330', 'SV-7', '定め')).toContain(SV_7_ROWS_DROPDOWN)
     expect(cellOf('T-331', 'SQ-10', '書き方')).toContain(SQ_10_HEADING_STATES)
     expect(cellOf('T-331', 'SQ-10', '書き方')).toContain(SQ_10_HEADING_PRESS)
-    expect(cellOf('T-331', 'SQ-10', 'フィルタ')).toBe(SQ_10_VALUES)
+    expect(cellOf('T-331', 'SQ-10', 'フィルタ')).toBe(SQ_10_NO_VALUES)
     expect(cellOf('T-330', 'SV-6', '定め')).toContain(SV_6_FIRST_COLUMN_NOTE)
   })
 })
 
-// WHY: CR-722 TV-2 -- every row starts as Show, so a case that needs some rows Hide hides every task but the named ones.
+// WHY: CR-798 TV-2 -- every row starts unchecked (Hide), so a case that needs some rows Show checks exactly the named ones.
 const onlyShown = (pane: Pane, uids: readonly number[]): Pane => ({
   ...pane,
-  view: { ...pane.view, visibility: { ...pane.view.visibility, hiddenTaskUids: TASK_UIDS.filter((uid) => !uids.includes(uid)) } },
+  view: { ...pane.view, visibility: { ...pane.view.visibility, shownTaskUids: TASK_UIDS.filter((uid) => uids.includes(uid)) } },
 })
 
-// WHY: a value list holds one item per value the cells carry (SV-7), so both words need one checked and one unchecked task.
-const MIXED = onlyShown(TASK_PANEL, [1])
+const checkedOf = (pane: Pane): readonly number[] => [...pane.view.visibility.shownTaskUids].sort((a, b) => a - b)
+const uidsOf = (pane: Pane): readonly number[] => viewOf(pane).rows.map((one) => (one.target.kind === 'task' ? one.target.taskUid : -1))
 
 const filteredColumns = (pane: Pane): readonly string[] =>
   viewOf({ ...pane, panel: { ...pane.panel, filters: { ...pane.panel.filters, open: null } } }).columns.filter((one) => one.isFiltered).map((one) => one.column)
@@ -90,9 +96,13 @@ describe('FR-151 T-330 SV-7 -- 列のフィルタを掛けている列: a column
     expect(filteredColumns(until)).toEqual(['SQ-4'])
   })
 
-  it('the Visibility column is marked when one of its two values is unchecked', () => {
-    const panel = withValueOff('SQ-10', panelWordOf('hideValue', 'ja'), MIXED)
-    expect(filteredColumns(panel)).toEqual(['SQ-10'])
+  // WHY: CR-798 -- the Visibility column has no value list and no filter, so nothing on it can mark its heading.
+  it('the Visibility column is never marked: IC-125, IC-126 and a row checked are not a column filter', () => {
+    const open = opened('SQ-10', onlyShown(TASK_PANEL, [1]))
+    expect(filteredColumns(open)).toEqual([])
+    expect(filteredColumns(pressed(open, 'IC-125'))).toEqual([])
+    expect(filteredColumns(pressed(open, 'IC-126'))).toEqual([])
+    expect(filteredColumns(changed(TASK_PANEL, { kind: 'shown', column: 'SQ-10', keys: [2], isShown: true }))).toEqual([])
   })
 
   it('two columns filtered are two marks', () => {
@@ -127,34 +137,61 @@ describe('FR-151 T-331 SQ-10, T-330 SV-8 -- the Visibility column words and valu
     expect(columnWordOf('SQ-10', 'en')).toBe('Visibility')
   })
 
-  it('the two values of its filter are 表示 and 非表示, and Show and Hide', () => {
+  it('the dictionary still holds the words 表示 / 非表示 and Show / Hide', () => {
     for (const [language, words] of [['ja', ['表示', '非表示']], ['en', ['Show', 'Hide']]] as const) {
-      const labels = valuesOf(opened('SQ-10', MIXED, language), language).values.map((one) => one.label)
-      expect([...labels].sort()).toEqual([...words].sort())
       expect(panelWordOf('showValue', language)).toBe(words[0])
       expect(panelWordOf('hideValue', language)).toBe(words[1])
     }
   })
 
-  it('CR-722 TV-2: a task is Show until its row is unchecked, then Hide', () => {
+  it('SQ-10 has no value list: its dropdown holds IC-125 and IC-126 only, in the words of each language', () => {
+    for (const language of ['ja', 'en'] as const) {
+      const menu = viewOf(opened('SQ-10', TASK_PANEL, language), language).filterMenu
+      expect(menu?.kind, language).toBe('rows')
+      expect(menu?.entries.map((one) => one.icon), language).toEqual(['IC-125', 'IC-126'])
+      expect(menu?.entries.map((one) => one.label), language).toEqual([iconWordOf('IC-125', language), iconWordOf('IC-126', language)])
+    }
+  })
+
+  it('a value change on the Visibility column does nothing: no column filter is held', () => {
+    const there = opened('SQ-10', onlyShown(TASK_PANEL, [1]))
+    const after = searchPanelAfterFilterChange(sessionIn('ja'), there.panel, there.view, { kind: 'value', column: 'SQ-10', value: 'hidden', isShown: false })
+    expect(after === null || (after.columnFilters.length === 0 && after.visibility === there.view.visibility)).toBe(true)
+  })
+
+  it('CR-798 TV-2: a task is Hide until its row is checked, then Show', () => {
     const before = viewOf(TASK_PANEL).rows.map((one) => one.isShown)
-    expect(before.every((shown) => shown === true)).toBe(true)
-    const after = changed(TASK_PANEL, { kind: 'shown', column: 'SQ-10', keys: [TASK_UIDS[1] ?? 0], isShown: false })
-    expect(viewOf(after).rows.map((one) => one.isShown)).toEqual([true, false, true])
+    expect(before.length, 'premise: the stage lists tasks').toBe(3)
+    expect(before.every((shown) => shown === false)).toBe(true)
+    const after = changed(TASK_PANEL, { kind: 'shown', column: 'SQ-10', keys: [TASK_UIDS[1] ?? 0], isShown: true })
+    expect(viewOf(after).rows.map((one) => one.isShown)).toEqual([false, true, false])
   })
 
-  it('SV-8: ascending puts Show before Hide, descending the reverse, ties in the default order', () => {
-    const checked = onlyShown(TASK_PANEL, [3])
-    const order = (entry: string): readonly number[] =>
-      viewOf(pressed(opened('SQ-10', checked), entry)).rows.map((one) => (one.target.kind === 'task' ? one.target.taskUid : -1))
-    expect(order('IC-123')).toEqual([3, 1, 2])
-    expect(order('IC-124')).toEqual([1, 2, 3])
+  // WHY: CR-798 SV-8 -- the Visibility column is not sorted: no IC-123 / IC-124 in its dropdown, and a press of one there changes nothing.
+  it('SV-8: the Visibility column takes no sort; IC-123 and IC-124 pressed there give no view', () => {
+    const there = opened('SQ-10', onlyShown(TASK_PANEL, [3]))
+    for (const entry of ['IC-123', 'IC-124'] as const) {
+      expect(searchPanelAfterFilterEntry(sessionIn('ja'), there.panel, there.view, entry, SCHEDULE), entry).toBeNull()
+    }
+    expect(uidsOf(there), 'the rows keep the default order').toEqual([1, 2, 3])
   })
 
-  it('unchecking Hide in its filter leaves only the checked tasks in the table', () => {
-    const checked = onlyShown(TASK_PANEL, [2])
-    const panel = withValueOff('SQ-10', panelWordOf('hideValue', 'ja'), checked)
-    expect(viewOf(panel).rows.map((one) => (one.target.kind === 'task' ? one.target.taskUid : -1))).toEqual([2])
+  // WHY: JDG-2811 -- IC-125 and IC-126 reach every row of the table, the rows a word left out of the list too.
+  it('SV-7: IC-125 checks every task and IC-126 unchecks every task, although a word lists only one row', () => {
+    const worded: Pane = { ...TASK_PANEL, panel: { ...TASK_PANEL.panel, word: 'alpha' } }
+    expect(uidsOf(worded), 'premise: the word lists one row').toEqual([1])
+    const all = pressed(opened('SQ-10', worded), 'IC-125')
+    expect(checkedOf(all)).toEqual([1, 2, 3])
+    const none = pressed(all, 'IC-126')
+    expect(checkedOf(none)).toEqual([])
+  })
+
+  it('SV-7: IC-126 leaves the Schedule Filter as it was; a column filter held on another column is not touched', () => {
+    const filtered = withValueOff('SQ-1', 'Alpha', onlyShown({ ...TASK_PANEL, view: { ...TASK_PANEL.view, visibility: { ...TASK_PANEL.view.visibility, isScheduleFilterApplied: true } } }, [1, 2]))
+    const after = pressed(opened('SQ-10', filtered), 'IC-126')
+    expect(checkedOf(after)).toEqual([])
+    expect(after.view.visibility.isScheduleFilterApplied).toBe(true)
+    expect(after.view.columnFilters).toEqual(filtered.view.columnFilters)
   })
 
   it('SQ-10 stands first and the first five columns are fixed (SV-6)', () => {
@@ -169,9 +206,9 @@ describe('FR-151 T-331 SQ-10, T-330 SV-8 -- the Visibility column words and valu
 })
 
 describe('FR-151 T-331 SQ-10 -- the heading box shows all, some or none of the listed rows', () => {
-  it('none, some and all are read over the rows the list shows (all at first, CR-722 TV-2)', () => {
-    expect(viewOf(TASK_PANEL).showHeading).toBe('all')
-    expect(viewOf(onlyShown(TASK_PANEL, [])).showHeading).toBe('none')
+  it('none, some and all are read over the rows the list shows (none at first, CR-798 TV-2)', () => {
+    expect(viewOf(TASK_PANEL).showHeading).toBe('none')
+    expect(viewOf(onlyShown(TASK_PANEL, TASK_UIDS)).showHeading).toBe('all')
     expect(viewOf(onlyShown(TASK_PANEL, [1])).showHeading).toBe('some')
   })
 
