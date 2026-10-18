@@ -32,6 +32,8 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
+# Logs stay English ASCII: .NET words its exception messages in the UI culture.
+[Threading.Thread]::CurrentThread.CurrentUICulture = [Globalization.CultureInfo]::InvariantCulture
 $here = Split-Path -Parent $MyInvocation.MyCommand.Path
 if ($DataDir -eq '') { $DataDir = Join-Path (Split-Path -Parent $here) 'schedule-data' }
 if ($Page -eq '') { $Page = Join-Path (Split-Path -Parent $here) 'GRS-Demo.html' }
@@ -129,6 +131,7 @@ if (Test-Trusted $cert) {
 # ---- one connection, handled in its own runspace so a silent connection never blocks the rest ----
 $handleConnection = {
   param($client, $cert, $config)
+  [Threading.Thread]::CurrentThread.CurrentUICulture = [Globalization.CultureInfo]::InvariantCulture
 
   function Write-Log([string]$text) {
     [Console]::WriteLine(('{0}  {1}' -f (Get-Date).ToString('HH:mm:ss'), $text))
@@ -216,6 +219,10 @@ $handleConnection = {
   }
 
   $stream = $null
+  # A browser opens spare connections and drops the ones it does not use, during the TLS
+  # handshake or before sending a request. Failures there are not errors; judged by phase,
+  # because the exception text is in the Windows display language.
+  $isGreeting = $true
   try {
     $client.ReceiveTimeout = 15000
     $client.SendTimeout = 15000
@@ -224,6 +231,7 @@ $handleConnection = {
 
     $head = Read-Head $stream
     if ($null -eq $head) { return }
+    $isGreeting = $false
     $lines = $head -split "`r`n"
     $requestLine = $lines[0] -split ' '
     if ($requestLine.Count -lt 3) { Send-Text $stream 400 'Bad Request' 'bad request line'; return }
@@ -294,8 +302,8 @@ $handleConnection = {
 
     Send-Text $stream 404 'Not Found' 'not found'
   } catch {
-    $why = $_.Exception.Message
-    if ($why -notmatch 'timed out|forcibly closed|0 bytes|Authentication failed|aborted') { Write-Log "error: $why" }
+    if ($isGreeting) { return }
+    Write-Log "error: $($_.Exception.Message)"
     try { if ($null -ne $stream) { Send-Text $stream 500 'Internal Server Error' 'server error' } } catch { }
   } finally {
     if ($null -ne $stream) { $stream.Dispose() }
