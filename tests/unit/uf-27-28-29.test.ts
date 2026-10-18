@@ -121,6 +121,7 @@ const T_107 = [
   { row: 'AM-7', name: 'applyCommands', isProperty: false },
   { row: 'AM-8', name: 'importDocument', isProperty: false },
   { row: 'AM-29', name: 'requestOpenFile', isProperty: false },
+  { row: 'AM-32', name: 'issueDelayFixes', isProperty: false },
   { row: 'AM-9', name: 'undoEdit', isProperty: false },
   { row: 'AM-10', name: 'redoEdit', isProperty: false },
   { row: 'AM-11', name: 'exportJson', isProperty: false },
@@ -130,6 +131,8 @@ const T_107 = [
   { row: 'AM-15', name: 'exportEmbeddedHtml', isProperty: false },
   { row: 'AM-16', name: 'focusTask', isProperty: false },
   { row: 'AM-27', name: 'showOnlyTasks', isProperty: false },
+  { row: 'AM-31', name: 'runDelayDiagnostics', isProperty: false },
+  { row: 'AM-33', name: 'closeWindow', isProperty: false },
   { row: 'AM-17', name: 'watchChanges', isProperty: false },
 ] as const
 
@@ -614,7 +617,7 @@ function sharesNothingWith(answer: unknown, held: unknown): boolean {
 function callEveryMember(api: AgentApi): void {
   void api.agentApiVersion
   void api.schemaVersion
-  api.readDocument(false, [])
+  api.readDocument(false, [], [])
   api.readStamp()
   api.readSelection()
   api.readSearchRows('', 'asShown', 0, 100)
@@ -730,7 +733,7 @@ describe('AM-1 / AM-2 -- the two versions', () => {
     // Nothing in table T-035, table T-107, `_assets/tbl-settings.md` or Chapter
     // 6.1 states the starting value. This case is what falls over when the
     // pending decision is settled the other way. AG-1: CR-708 raised it to 2, CR-730 to 3, CR-710 wave 3b to 4, CR-769 to 5, CR-792 to 6 and then to a date-time (JDG-2741).
-    expect(bench().api.agentApiVersion).toBe('2026-10-18T11:45:00Z')
+    expect(bench().api.agentApiVersion).toBe('2026-10-19T00:00:00Z')
   })
 
   it("AM-2 answers the build's version, not the open document's (T-107 AM-2)", () => {
@@ -742,7 +745,7 @@ describe('AM-1 / AM-2 -- the two versions', () => {
     const one = bench()
     one.document = { ...one.document, schemaVersion: '1970-01-01' } as Document
     expect(one.api.schemaVersion).toBe(one.schemaVersion)
-    expect(one.api.readDocument(false, []).schemaVersion).toBe('1970-01-01')
+    expect(one.api.readDocument(false, [], []).schemaVersion).toBe('1970-01-01')
   })
 })
 
@@ -754,19 +757,19 @@ describe('AM-3 to AM-5 -- AG-4, a frozen copy in both of its words', () => {
   it('AM-3 answers a copy that shares nothing with the running document', () => {
     const one = bench()
     // WHY: carry and carryElements are left out unless asked for, so ask for them to compare the whole (see AM-3)
-    const read = one.api.readDocument(true, [])
+    const read = one.api.readDocument(true, [], [])
 
     expect(read).toEqual(one.document)
     expect(sharesNothingWith(read, one.document)).toBe(true)
   })
 
   it('AM-3 answers a value that is frozen all the way down', () => {
-    expect(everythingFrozen(bench().api.readDocument(false, []))).toBe(true)
+    expect(everythingFrozen(bench().api.readDocument(false, [], []))).toBe(true)
   })
 
   it('AM-3: writing to what was handed over does not change the application (AG-4)', () => {
     const one = bench()
-    const read = one.api.readDocument(false, []) as unknown as Loose
+    const read = one.api.readDocument(false, [], []) as unknown as Loose
     const titleBefore = (one.document.schedule as unknown as Loose)['project']
 
     // AG-4 states the outcome, not the mechanism: a frozen value refuses the
@@ -816,7 +819,7 @@ describe('AM-3 to AM-5 -- AG-4, a frozen copy in both of its words', () => {
   it('AM-5 answers the empty selection when nothing is picked (UN-9 keeps it out of the document)', () => {
     const one = bench()
     expect(one.api.readSelection().items).toEqual([])
-    expect(one.api.readDocument(false, []) as unknown as Loose).not.toHaveProperty('selection')
+    expect(one.api.readDocument(false, [], []) as unknown as Loose).not.toHaveProperty('selection')
   })
 
   it('every read answers the value as it now stands, never a value cached at install', () => {
@@ -825,7 +828,7 @@ describe('AM-3 to AM-5 -- AG-4, a frozen copy in both of its words', () => {
     accepted(one.api.applyCommands({ expectedStamp: before, commands: [RENAME] }))
 
     expect(one.api.readStamp()).not.toEqual(before)
-    expect(one.api.readDocument(false, []).schedule.project.title).toBe(RENAME.title)
+    expect(one.api.readDocument(false, [], []).schedule.project.title).toBe(RENAME.title)
   })
 
   it('a read is answered mid-gesture, because CS-2 froze the document at pointer-down', () => {
@@ -833,8 +836,8 @@ describe('AM-3 to AM-5 -- AG-4, a frozen copy in both of its words', () => {
     one.isGestureInFlight = true
     one.isEditingInPlace = true
 
-    expect(() => one.api.readDocument(false, [])).not.toThrow()
-    expect(one.api.readDocument(false, []).schemaVersion).toBe(one.document.schemaVersion)
+    expect(() => one.api.readDocument(false, [], [])).not.toThrow()
+    expect(one.api.readDocument(false, [], []).schemaVersion).toBe(one.document.schemaVersion)
     expect(one.api.readStamp()).toEqual(one.document.documentStamp)
   })
 })
@@ -1045,7 +1048,7 @@ describe('IF-7 -- every current value arrives over the seam (LY-5 of table T-060
     const one = bench()
     const before = one.snapshotReads
 
-    one.api.readDocument(false, [])
+    one.api.readDocument(false, [], [])
     expect(one.snapshotReads).toBe(before + 1)
 
     one.api.applyCommands({ expectedStamp: one.api.readStamp(), commands: [RENAME] })
@@ -1216,7 +1219,7 @@ describe('AM-11 exportJson -- AG-7 and the round trip', () => {
 
     expect(read.ok, JSON.stringify(read.ok ? [] : read.faults)).toBe(true)
     // WHY: the whole document, so carry and carryElements are asked for (see AM-3)
-    if (read.ok) expect(read.document).toEqual(one.api.readDocument(true, []))
+    if (read.ok) expect(read.document).toEqual(one.api.readDocument(true, [], []))
   })
 
   it('writes the document as it now stands, not as it stood at install', () => {
@@ -1352,7 +1355,7 @@ describe('AM-17 watchChanges -- AG-6', () => {
     expect(one.notices).toHaveLength(1)
     // WHY: the notice carries the stamp; the caller reads again what it needs (see AV-14, AG-6)
     expect(one.notices[0]?.stamp).toEqual(one.api.readStamp())
-    expect(one.api.readDocument(false, []).schedule.project.title).toBe(RENAME.title)
+    expect(one.api.readDocument(false, [], []).schedule.project.title).toBe(RENAME.title)
   })
 
   it('is NOT woken by its own write (AG-6, MUST NOT)', () => {
@@ -1403,10 +1406,10 @@ describe('the boundaries -- empty, one, and the bound itself', () => {
   it('AM-3 and AM-11 still answer for an empty schedule, and still round trip (FR-021)', () => {
     const one = bench(true, EMPTY_SCHEDULE)
 
-    expect(one.api.readDocument(false, []).schedule.tasks).toEqual([])
+    expect(one.api.readDocument(false, [], []).schedule.tasks).toEqual([])
     const read = documentFromJson(exported(one.api.exportJson()))
     expect(read.ok, JSON.stringify(read.ok ? [] : read.faults)).toBe(true)
-    if (read.ok) expect(read.document).toEqual(one.api.readDocument(true, []))
+    if (read.ok) expect(read.document).toEqual(one.api.readDocument(true, [], []))
   })
 
   it('AM-16 refuses over an empty schedule, because no uid names a task there', () => {
@@ -1511,7 +1514,7 @@ describe('FR-028 -- accepted or refused, always as a value', () => {
       typeof (value as { then?: unknown }).then === 'function'
 
     const answers: unknown[] = [
-      one.api.readDocument(false, []),
+      one.api.readDocument(false, [], []),
       one.api.readStamp(),
       one.api.readSelection(),
       one.api.applyCommands({ expectedStamp: one.api.readStamp(), commands: [] }),

@@ -28,7 +28,7 @@ import { agentApiOf, windowStage, type WindowStage } from './cr-760-stage'
 import { specTable, unbroken } from './spec-table'
 
 const FR_130_NEVER_BY_ITSELF = '⛔ 診断を出しているあいだに文書が変わっても、診断を自分からやり直してはならない（MUST NOT） —— マーカーと一覧は、診断した時の結果のまま残す。'
-const FR_130_ONLY_WHEN_ASKED = 'やり直すのは、`IC-107`（窓を閉じたあと）と `IC-168` を押したときだけである。'
+const FR_130_ONLY_WHEN_ASKED = 'やり直すのは、`IC-107`（窓を閉じたあと）と `IC-168` を押したときと、AI が `Agent API` の `AM-31`（`runDelayDiagnostics`）を呼んだときだけである。'
 const FR_130_IC_168 = '窓の `IC-168`（`RW-3`）を押したら、窓を開いたまま、いまの文書で診断をやり直し、その結果をマーカーと一覧に出すこと（MUST）。'
 const FR_130_OPERATED_DROPS =
   'ただし、進捗マーカーを押して状態を巡らせたか、引いて実績の終了を動かした `Task`（表 T-270 の `PE-8`・`PE-10`）は、次に診断するまで `FR-133` の 表 T-315 の `DG-1` 〜 `DG-3` の印を描かず、普段の状態の印で描くこと（MUST）。'

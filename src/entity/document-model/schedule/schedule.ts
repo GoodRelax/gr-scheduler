@@ -147,7 +147,7 @@ export {
   delayFixRowsInOrder,
   delayFixValueText,
 } from './delay-diagnostics-report-table'
-export { DELAY_FIX_KINDS, delayFixCommands, delayFixLogRowsOf, proposeDelayFixes } from './delay-fixes'
+export { DELAY_FIX_KINDS, delayFixCommands, delayFixLogRowsOf, isRecommendedDelayFix, proposeDelayFixes } from './delay-fixes'
 export type {
   DelayFixCheck,
   DelayFixChoice,

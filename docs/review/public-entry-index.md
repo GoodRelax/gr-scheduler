@@ -115,6 +115,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `isDelayed` | entry | function | `src/entity/document-model/schedule/task-delay.ts#isDelayed` | PI-1 | 表 T-021b の 3 条件 |
 | `isNonRecurringException` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#isNonRecurringException` | PI-1 | 例外日が繰り返しの無いものか。 |
 | `isPlanReversed` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#isPlanReversed` | PI-1 | 予定の `finish` が `start` より前の瞬間か。 |
+| `isRecommendedDelayFix` | entry | function | `src/entity/document-model/schedule/delay-fixes.ts#isRecommendedDelayFix` | PI-1 | 修正案の行が推奨か —— 直し方が 1 つに決まり当てられる行であり、画面の「推奨をすべて採用」（`IC-166`）と `Agent API` の `AM-32` が選ぶ行（CR-803） |
 | `isSameDay` | entry | function | `src/entity/document-model/schedule/calendar-day.ts#isSameDay` | PI-1 | 2 つの日時の字が同じ日か。 |
 | `isSameWorkingTimeSet` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#isSameWorkingTimeSet` | PI-1 | 2 つの時間帯の組が同じか。 |
 | `isSearchWordFound` | entry | function | `src/entity/document-model/schedule/schedule-search.ts#isSearchWordFound` | PI-1 | 名や本文が語に当たるか（表 T-330 の `SV-4` の比べ方） |
@@ -735,7 +736,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `AgentShownTasks` | entry | interface | `src/adapter/agent-api-endpoint/agent-api-members.ts#AgentShownTasks` | -- | interface AgentShownTasks |
 | `AgentSnapshot` | entry | interface | `src/adapter/agent-api-endpoint/snapshot-source.ts#AgentSnapshot` | -- | interface AgentSnapshot |
 | `AgentWatch` | entry | interface | `src/adapter/agent-api-endpoint/agent-api-members.ts#AgentWatch` | -- | interface AgentWatch |
-| `AgentWriteOutcome` | entry | type | `src/adapter/agent-api-endpoint/agent-api-members.ts#AgentWriteOutcome` | -- | type AgentWriteOutcome = \| { readonly ok: true; readonly stamp: DocumentStamp; readonly hasUpdatedSchedule: boolean } \| { readonly ok: false; readonly refusa... |
+| `AgentWriteOutcome` | entry | type | `src/adapter/agent-api-endpoint/agent-api-members.ts#AgentWriteOutcome` | -- | type AgentWriteOutcome = \| |
 | `AgentWriteRequest` | entry | interface | `src/adapter/agent-api-endpoint/agent-api-members.ts#AgentWriteRequest` | -- | interface AgentWriteRequest |
 | `answerRelayedCall` | entry | function | `src/adapter/agent-api-endpoint/relayed-call.ts#answerRelayedCall` | PI-17 | `non-pure`。 |
 | `FrameSnapshot` | entry | interface | `src/adapter/agent-api-endpoint/snapshot-source.ts#FrameSnapshot` | -- | interface FrameSnapshot |
@@ -2093,4 +2094,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 1063 name(s) leave through a public entry (519 of them published by table T-064), 830 more are exported by a file and not by its entry.
+Totals: 1064 name(s) leave through a public entry (520 of them published by table T-064), 830 more are exported by a file and not by its entry.

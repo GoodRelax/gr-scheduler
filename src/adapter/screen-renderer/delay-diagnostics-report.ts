@@ -23,6 +23,7 @@ import {
   type DelayFixLogRow,
   type DelayFixMarkdown,
   type DelayFixMarkdownSection,
+  isRecommendedDelayFix,
   type DelayFixRow,
   type DelayFixWords,
   type DelayReportReason,
@@ -1279,8 +1280,7 @@ function delayFixFooterOf(values: DelayFixWindowValues, tables: DelayFixTables, 
 
 /** @purity pure */
 function isAdoptable(row: DelayFixRow): boolean {
-  const isRecommended = row.fixKind === 'automatic' || (row.fixKind === 'choose' && row.choices.length === 1)
-  return isRecommended && row.isCheckable && !row.checked
+  return isRecommendedDelayFix(row) && !row.checked
 }
 
 // see RW-14

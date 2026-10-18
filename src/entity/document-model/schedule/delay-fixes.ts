@@ -1331,6 +1331,12 @@ export function delayFixCommands(rows: readonly DelayFixRow[]): readonly DelayFi
   return rows.filter(isIssued).sort((a, b) => a.applyOrder - b.applyOrder).flatMap((row) => row.commands)
 }
 
+// WHY: one way to fix and nothing in the way: the rows adopt-all ticks and the Agent API issues by default.
+/** @purity pure */
+export function isRecommendedDelayFix(row: DelayFixRow): boolean {
+  return (row.fixKind === 'automatic' || (row.fixKind === 'choose' && row.choices.length === 1)) && row.isCheckable
+}
+
 // see DX-12, FM-2
 /** @purity pure */
 export function delayFixLogRowsOf(rows: readonly DelayFixRow[], fixedAt: string): readonly DelayFixLogRow[] {
