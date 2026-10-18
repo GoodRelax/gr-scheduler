@@ -5,7 +5,7 @@
 //     start-server.cmd        double-click to start the server and open the page
 //     server/grs-demo-server.ps1
 //     schedule-data/*.json    the three GRS JSON samples (JDG-2585)
-//     README.md, README-ja.md, SERVER-API.md, SERVER-API-ja.md
+//     README.md, README-ja.md, DEMO-SERVER-API.md, DEMO-SERVER-API-ja.md
 //   dist-server-sync-demo/grs-server-sync-demo.zip   the same folder, packed for download
 //
 // dist/index.html is only read, never written: the demo is GRS byte for byte plus one script.
@@ -149,7 +149,7 @@ mkdirSync(join(OUT_DIR, 'schedule-data'), { recursive: true })
 writeFileSync(join(OUT_DIR, 'GRS-Demo.html'), demoHtml, 'utf8')
 copyFileSync(join(DEMO_DIR, 'server', 'grs-demo-server.ps1'), join(OUT_DIR, 'server', 'grs-demo-server.ps1'))
 // What a receiver reads (JDG-2599); the developer notes stay in the repository.
-for (const doc of ['README.md', 'README-ja.md', 'SERVER-API.md', 'SERVER-API-ja.md']) {
+for (const doc of ['README.md', 'README-ja.md', 'DEMO-SERVER-API.md', 'DEMO-SERVER-API-ja.md']) {
   copyFileSync(join(DEMO_DIR, doc), join(OUT_DIR, doc))
 }
 // cmd.exe reads a batch file line by line and wants CRLF; the repository keeps LF (.gitattributes).

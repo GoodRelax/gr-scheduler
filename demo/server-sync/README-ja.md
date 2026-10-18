@@ -2,7 +2,10 @@
 
 [English](README.md) | 日本語
 
-GoodRelax Scheduler（GRS）は 1 つの HTML ファイルで、サーバーを持ちません。このデモは GRS の別のビルドで、ファイルを HTTPS サーバーの先のフォルダ（**Dummy Server**）にも置けます。開く・保存は、PC のファイルとまったく同じ操作です。GRS 本体は変えていません。
+GoodRelax Scheduler（GRS）は 1 つの HTML ファイルで、サーバーを持ちません。  
+このデモ `GRS-Demo.html` は GRS とは別のビルドです。  
+`GRS-Demo.html` は HTTPS サーバー内のフォルダ（**Dummy Server**）にも配置できます。  
+開く・保存は、PC のファイルと同じように操作できます。
 
 ```mermaid
 flowchart LR
@@ -16,7 +19,7 @@ flowchart LR
 |---|---|---|---|
 | 1. 見る | zip のデモを動かす | 10 分 | サーバーがするのは JSON ファイルの一覧・読み・書きだけ |
 | 2. 自分のデータ | 自分の日程を GRS JSON にして、デモのサーバーに置く | 30 分 | 自分のデータがサーバー経由で GRS に出る |
-| 3. 自分のサーバー | 同じ 3 つの口を、自分のサーバーに作る | 半日 | 自分のシステムをつなぐのに何が要るか |
+| 3. 自分のサーバー | 同じ 4 つの API を持つサーバーを作る | 半日 | 自分のシステムをつなぐのに何が要るか |
 
 ## 1. 見る
 
@@ -43,7 +46,16 @@ flowchart LR
 
 ## 3. 自分のサーバー
 
-[SERVER-API-ja.md](SERVER-API-ja.md) を読みます（3 つの口と、ページを同じサーバーから配ること）。それと自分のシステムの API を AI に渡し、自分の言語でサーバーを書かせます。`server/` の PowerShell のサーバーが見本です。
+下記 4 つの API を持つ HTTPS サーバーを構築します。
+
+| 概要 | API 名 | 責務 |
+|---|---|---|
+| ページ | `GET /` | `GRS-Demo.html` を返す（ページと API は同じサーバーから配る） |
+| 一覧 | `GET /api/files` | `schedule-data` にある JSON ファイルの名前・大きさ・更新日時の一覧を返す |
+| 読む | `GET /api/files/{name}` | 1 つのファイルの中身（GRS JSON）を返す |
+| 書く | `PUT /api/files/{name}` | 送られてきた GRS JSON でそのファイルを置き換える |
+
+詳細は [DEMO-SERVER-API-ja.md](DEMO-SERVER-API-ja.md) と [`server/grs-demo-server.ps1`](server/grs-demo-server.ps1) を参照。
 
 ## 注意
 

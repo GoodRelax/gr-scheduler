@@ -2,7 +2,10 @@
 
 English | [日本語](README-ja.md)
 
-GoodRelax Scheduler (GRS) is one HTML file and has no server. This demo is a separate build of GRS that can also keep its files in a folder behind an HTTPS server, called **Dummy Server**. Open and save work just as they do with files on your PC. GRS itself is not changed.
+GoodRelax Scheduler (GRS) is one HTML file and has no server.  
+This demo, `GRS-Demo.html`, is a separate build from GRS.  
+`GRS-Demo.html` can also keep files in a folder on an HTTPS server, called **Dummy Server**.  
+Open and save work the same way as with files on your PC.
 
 ```mermaid
 flowchart LR
@@ -16,7 +19,7 @@ flowchart LR
 |---|---|---|---|
 | 1. See it | Run the demo from the zip | 10 min | The server only lists, reads and writes JSON files |
 | 2. Your data | Put your own schedule, as GRS JSON, on the demo server | 30 min | Your data travels through a server into GRS |
-| 3. Your server | Build the same three endpoints on your own server | half a day | What connecting your system takes |
+| 3. Your server | Build a server with the same four APIs | half a day | What connecting your system takes |
 
 ## 1. See it
 
@@ -43,7 +46,16 @@ To remove the certificate: `start-server.cmd -RemoveCertificate`.
 
 ## 3. Your server
 
-Read [SERVER-API.md](SERVER-API.md): three endpoints, and the page served by the same server. Give it to an AI together with your system's API and ask for a server in your language. The PowerShell server in `server/` is the sample.
+Build an HTTPS server with the four APIs below.
+
+| Purpose | API | Responsibility |
+|---|---|---|
+| Page | `GET /` | Return `GRS-Demo.html` (the page and the API come from one server) |
+| List | `GET /api/files` | Return the names, sizes and modified times of the JSON files in `schedule-data` |
+| Read | `GET /api/files/{name}` | Return the content of one file (GRS JSON) |
+| Write | `PUT /api/files/{name}` | Replace that file with the GRS JSON that was sent |
+
+For details, see [DEMO-SERVER-API.md](DEMO-SERVER-API.md) and [`server/grs-demo-server.ps1`](server/grs-demo-server.ps1).
 
 ## Notes
 

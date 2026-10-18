@@ -1,6 +1,6 @@
 # GRS サーバー連携デモ —— 作る人のメモ
 
-> 受け取って試す人向けの説明は [README-ja.md](README-ja.md)（英語は [README.md](README.md)）、サーバーの約束は [SERVER-API-ja.md](SERVER-API-ja.md)。ここは、デモを組み立てる・直す人のためのメモです。
+> 受け取って試す人向けの説明は [README-ja.md](README-ja.md)（英語は [README.md](README.md)）、サーバーの API 仕様は [DEMO-SERVER-API-ja.md](DEMO-SERVER-API-ja.md)。ここは、デモを組み立てる・直す人のためのメモです。
 
 GoodRelax Scheduler（GRS）の画面のまま、ファイルを手元の PC のフォルダに置く代わりに、**HTTPS サーバーの先のフォルダ（Dummy Server）** に置けることを見せるデモです。
 
