@@ -10,6 +10,7 @@ import {
   NO_VIEW,
   OPENED_REPORT,
   TASK_PANEL,
+  TASK_UIDS,
   changed,
   columnOf,
   iconWordOf,
@@ -123,13 +124,21 @@ describe('FR-151 T-330 SV-1 -- what the clear keeps: the words, the Visibility v
     expect(after.panel.table).toBe('tasks')
   })
 
-  // WHY: CR-798 -- the Visibility column holds no column filter any more; its IC-125 checks every row, and that is a Visibility value, which the clear keeps.
-  it('the rows the Visibility column checked (IC-125) are Visibility values, so the clear keeps them', () => {
-    const allChecked = pressed(opened('SQ-10', KEPT), 'IC-125')
-    expect([...allChecked.view.visibility.shownTaskUids].sort((a, b) => a - b), 'premise: IC-125 checked every task').toEqual([1, 2, 3])
-    expect(allChecked.view.columnFilters, 'premise: IC-125 on the Visibility column is no column filter').toEqual([])
+  // WHY: CR-800 -- the Visibility column holds no column filter and no IC-122; its heading box checks rows, and a checked row is a Visibility value, which the clear keeps.
+  it('the rows the heading box of the Visibility column checked are Visibility values, so the clear keeps them', () => {
+    const allChecked = changed(KEPT, { kind: 'shown', column: 'SQ-10', keys: TASK_UIDS, isShown: true, isHeading: true })
+    expect([...allChecked.view.visibility.shownTaskUids].sort((a, b) => a - b), 'premise: the heading box checked every task').toEqual([1, 2, 3])
+    expect(allChecked.view.columnFilters, 'premise: the heading box is no column filter').toEqual([])
     const after = cleared(allChecked)
     expect(after.view.visibility).toEqual(allChecked.view.visibility)
+  })
+
+  // WHY: the heading box's second press clears every row (SQ-10); IC-153 afterwards keeps the cleared Visibility values as they are.
+  it('the heading box clearing every row leaves nothing for IC-153 to take, and IC-153 does not check anything back', () => {
+    const allChecked = changed(KEPT, { kind: 'shown', column: 'SQ-10', keys: TASK_UIDS, isShown: true, isHeading: true })
+    const none = changed(allChecked, { kind: 'shown', column: 'SQ-10', keys: TASK_UIDS, isShown: false, isHeading: true })
+    expect(none.view.visibility.shownTaskUids, 'premise: the second press cleared every task').toEqual([])
+    expect(cleared(none).view.visibility).toEqual(none.view.visibility)
   })
 })
 

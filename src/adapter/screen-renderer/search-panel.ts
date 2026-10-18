@@ -54,7 +54,7 @@ import {
   scheduleFilterRefusalsOf,
   tableAfterFilterChange,
   tableAfterFilterEntry,
-  tableAfterVisibilityChange,
+  tableAfterShownChange,
   tableColumnsOf,
   tableFilterMenuOf,
   tableWithColumnWidth,
@@ -310,13 +310,12 @@ function searchTableOf(
   found: () => SearchRows,
   all?: SearchRows,
   times = DATES_ONLY,
-  everyTaskUid: () => readonly number[] = () => [],
 ): WindowTable {
   const language = displayLanguageOf(session)
   const columns = TABLE_COLUMNS[panel.table]
   return {
     columns,
-    ...(panel.table === 'tasks' ? { checkColumn: { column: VISIBILITY_COLUMN, table: 'searchPanel' as const, everyRowKey: everyTaskUid } } : {}),
+    ...(panel.table === 'tasks' ? { checkColumn: VISIBILITY_COLUMN } : {}),
     fixedCount: columns.indexOf(JUMP_COLUMN[panel.table]) + 1,
     headingOf: (column) => wordOf(COLUMN_WORDS.get(column)?.text, language),
     isDateColumn: isDateSearchColumn,
@@ -333,10 +332,10 @@ function shownIn(session: ScreenSession): SearchPanelShown | null {
 }
 
 // see TV-5, SQ-10, JDG-2820
-// WHY: the search table rows every task, so it draws less only while a task is left unchecked.
+// WHY: one checked task is enough to apply, every row checked included (JDG-2825).
 /** @purity pure */
 function searchFilterReadinessOf(view: TableView, schedule: Schedule): ScheduleFilterReadiness {
-  return scheduleFilterReadinessOf('searchPanel', view.visibility, () => taskUidSetOf(schedule), true)
+  return scheduleFilterReadinessOf('searchPanel', view.visibility, () => taskUidSetOf(schedule))
 }
 
 /** @purity pure */
@@ -420,8 +419,7 @@ export function searchPanelAfterFilterEntry(
 ): TableView | null {
   const filtered = tableWithScheduleFilterPressed(view, entry, () => searchFilterReadinessOf(view, schedule))
   if (filtered !== null) return filtered
-  const everyTaskUid = (): readonly number[] => schedule.tasks.map((task) => task.uid)
-  const table = searchTableOf(session, panel, view, () => searchRowsOf(schedule, panel.word, diagnosed), undefined, DATES_ONLY, everyTaskUid)
+  const table = searchTableOf(session, panel, view, () => searchRowsOf(schedule, panel.word, diagnosed))
   return tableAfterFilterEntry(panel, view, shownIn(session), entry, table, listed)
 }
 
@@ -444,7 +442,7 @@ export function searchPanelAfterFilterChange(
   view: TableView,
   change: SearchFilterChange,
 ): TableView | null {
-  if (change.kind === 'shown') return tableAfterVisibilityChange('searchPanel', view, change.keys, change.isShown)
+  if (change.kind === 'shown') return tableAfterShownChange('searchPanel', view, change)
   return tableAfterFilterChange(panel, view, shownIn(session), change, searchTableOf(session, panel, view, () => NOTHING_FOUND))
 }
 

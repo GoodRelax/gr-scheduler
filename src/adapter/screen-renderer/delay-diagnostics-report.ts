@@ -77,7 +77,7 @@ import {
   scheduleFilterEntryOf,
   scheduleFilterRefusalsOf,
   tableAfterFilterChange,
-  tableAfterVisibilityChange,
+  tableAfterShownChange,
   tableWithFilterClosed,
   tableWithScheduleFilterOff,
   visibilityHeadingOf,
@@ -509,12 +509,11 @@ function reportTableOf(
   found: () => readonly ShownTaskGroup[],
   language: DisplayLanguage,
   all?: readonly ShownTaskGroup[],
-  everyTaskUid: () => readonly number[] = () => [],
 ): WindowTable {
   const columns = REPORT_TABLE
   return {
     columns: DELAY_REPORT_COLUMNS,
-    checkColumn: { column: VISIBILITY_COLUMN, table: 'delayDiagnosticsReport', everyRowKey: everyTaskUid },
+    checkColumn: VISIBILITY_COLUMN,
     fixedCount: DELAY_REPORT_COLUMNS.indexOf(LAST_FIXED_COLUMN) + 1,
     headingOf: (column) => partWordOf(COLUMN_WORDS, column, language),
     isDateColumn: (column) => REPORT_TABLE.dates[column] !== undefined,
@@ -525,12 +524,11 @@ function reportTableOf(
 }
 
 // see TV-5, JDG-2820
-// WHY: the report shows only the tasks it rows, so a report that leaves one out changes the schedule though every row is checked.
+// WHY: only a checked row the report holds counts; a checked task the report dropped does not.
 /** @purity pure */
-function reportFilterReadinessOf(view: TableView, rows: readonly DelayReportRow[], schedule: Schedule): ScheduleFilterReadiness {
+function reportFilterReadinessOf(view: TableView, rows: readonly DelayReportRow[]): ScheduleFilterReadiness {
   const rowed = new Set(rows.map((row) => row.taskUid))
-  const isEveryTaskRowed = schedule.tasks.every((task) => rowed.has(task.uid))
-  return scheduleFilterReadinessOf('delayDiagnosticsReport', view.visibility, () => rowed, isEveryTaskRowed)
+  return scheduleFilterReadinessOf('delayDiagnosticsReport', view.visibility, () => rowed)
 }
 
 // see RW-4, DX-2, DX-7
@@ -605,7 +603,7 @@ function diagnosisReportViewOf(
   const found = shownTaskGroupsFrom({ word: window.panel.word, view }, withCells)
   const listed = (): readonly ShownTaskGroup[] => shownTaskGroupsFrom({ word: window.panel.word, view: { ...view, columnFilters: [] } }, withCells)
   const table = reportTableOf(view, listed, language, withCells)
-  const readiness = reportFilterReadinessOf(view, reported, schedule)
+  const readiness = reportFilterReadinessOf(view, reported)
   const scheduleFilter = scheduleFilterEntryOf(view.visibility, readiness, language)
   const rows = reportRowViewsOf(view, found, window.markedRow?.taskUid ?? null)
   const markedAt = rows.findIndex((row) => row.isCurrent === true)
@@ -748,8 +746,8 @@ export function delayDiagnosticsReportAfterEntry(
   const all = delayDiagnosticsReportRows(rows.report, rows.schedule)
   const word = window.panel.word
   return windowAfterEntry(window, view, entry, filterColumn, {
-    readiness: () => reportFilterReadinessOf(view, all, rows.schedule),
-    tableOf: (unfiltered) => reportTableOf(view, () => shownTaskGroupsOf({ word, view: unfiltered }, all, rows.language, times), rows.language, undefined, () => all.map((row) => row.taskUid)),
+    readiness: () => reportFilterReadinessOf(view, all),
+    tableOf: (unfiltered) => reportTableOf(view, () => shownTaskGroupsOf({ word, view: unfiltered }, all, rows.language, times), rows.language),
   }, listed)
 }
 
@@ -762,7 +760,7 @@ export function delayDiagnosticsReportAfterFilterChange(
 ): TableView {
   const after =
     change.kind === 'shown'
-      ? tableAfterVisibilityChange('delayDiagnosticsReport', view, change.keys, change.isShown)
+      ? tableAfterShownChange('delayDiagnosticsReport', view, change)
       : tableAfterFilterChange(window.panel, view, window.shown, change, reportTableOf(view, () => [], COLUMNS_ONLY_LANGUAGE))
   return after ?? view
 }
@@ -1456,7 +1454,7 @@ function fixTableStepAfterEntry(
   const all = shownFixRowsOf(table, answers.tables, answers.words)
   const word = window.panel.word
   const step = windowAfterEntry(window, values.views[table], entry, filterColumn, {
-    readiness: () => 'nothingHidden',
+    readiness: () => 'nothingChecked',
     tableOf: (unfiltered) => fixWindowTableOf(table, () => foundFixRowsOf(all, word, unfiltered), answers.words.language),
   }, answers.listed)
   if (step === null) return null

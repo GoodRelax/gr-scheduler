@@ -1,4 +1,4 @@
-// CR-798 spec-only contract: every row of the three tables starts unchecked (TV-2, TV-9, TV-13, S-561, S-565, S-569, S-570), the Schedule Filter draws only the checked rows (TV-1, TV-2, TV-13), the eye is off while nothing is checked (TV-5), the funnel of the check column holds only IC-125 and IC-126 and both act on every row of the table (SV-7, SQ-10, DT-8, RQ-1, IC-125, IC-126), the check column keeps no column filter (S-562) and a jump to an undrawn task checks its row (SJ-0).
+// CR-798 / CR-800 spec-only contract: every row of the three tables starts unchecked (TV-2, TV-9, TV-13, S-561, S-565, S-569, S-570), the Schedule Filter draws only the checked rows (TV-1, TV-2, TV-13), the eye is off only while nothing is checked and works with every row checked (TV-5), the check column holds a heading box and no funnel (SV-7, SQ-10, DT-8, RQ-1), the box checks the listed rows and then clears every row (SQ-10), the check column keeps no column filter (S-562) and a jump to an undrawn task checks its row (SJ-0).
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -24,6 +24,7 @@ import {
 import {
   OPENED_RESOURCE_LIST,
   resourceListAfterEntry,
+  resourceListAfterFilterChange,
   resourceListFromWindow,
   type ResourceListView,
 } from '../../src/adapter/screen-renderer/resource-list'
@@ -71,15 +72,16 @@ const found = <T>(value: T | undefined | null, what: string): T => {
 
 const TV_2_STARTS = '初めはどの表のどの行もチェックが外れている（「非表示」）。'
 const TV_2_KEPT = '文書が持つのは、チェックの入った行の一覧である'
-const TV_5_NOTHING_CHECKED = '掛けていないあいだ、その表にチェックの入った行が 1 つも無いときも、`IC-143` を効かなくし、その理由を説明に出す（`FR-092`）'
+const TV_5_NOTHING_CHECKED = '掛けていないあいだ、その表にチェックの入った行が 1 つも無いときは、`IC-143` を効かなくし、その理由を説明に出す（`FR-092`）'
 const TV_5_STAYS_ON = '掛けているあいだは、行をすべて「表示」にしても、すべての行のチェックを外しても掛けたままとし'
 const TV_9_DEFAULT = '見え方を持たない文書（新規・MSPDI）は既定 —— どの行もチェックが外れ（「非表示」）'
 const TV_13_UNASSIGNED = '（担当なし）の行も、初めはチェックが外れている（`TV-2`）'
-const SV_7_TWO_ENTRIES = '`IC-122` は、本段の操作の段と値の一覧の代わりに、`IC-125` と `IC-126` の 2 つの行だけを持つドロップダウンを開く'
-const SV_7_NO_SEARCH = 'フィルタの中の検索欄・`IC-123`・`IC-124`・値の一覧を置かない'
-const SV_7_EVERY_ROW = '語や列のフィルタで一覧に出ていない行も含め、表のすべての行のチェックを入れる・外す'
+const SV_7_NO_ENTRANCE = '⭐ [表示] の列の見出しには `IC-122` を置かず、見出しのチェックボックスだけを置く（`SQ-10` —— 利用者が定めた）。'
 const SV_7_NO_GREEN = '[表示] の列は列のフィルタを持たないので、その見出しのセルを本段の終わりの緑で塗ることは無い。'
-const SQ_10_HEADING = '見出しのチェックボックスを押すと、一覧に出ている行だけをすべて入れる（すべて入っていればすべて外す）。'
+const SQ_10_HEADING_STATES =
+  '見出しのセルは、一覧に出ている行がすべて入っている・一部・1 つも入っていない の 3 つの状態のチェックボックスだけである —— 状態は一覧に出ている行から読み、初めは 1 つも入っていない。'
+const SQ_10_HEADING_ADD = '見出しのチェックボックスを押すと、一覧に出ている行のうち入っていない行があれば、一覧に出ている行をすべて入れ、一覧に出ていない行は変えない。'
+const SQ_10_HEADING_CLEAR = '一覧に出ている行がすべて入っていれば、表のすべての行（語や列のフィルタで一覧に出ていない行も）のチェックを外す（利用者が定めた）。'
 const SJ_0_CHECK = '検索の表とレポートの表で、そのタスクの行だけを「表示」にし（チェックを入れ）'
 const S_562_NONE = '表示の列（表 T-331 の `SQ-10`・表 T-347 の `DT-8`・表 T-371 の `RQ-1`）は列のフィルタを持たない（`SV-7`）'
 
@@ -91,11 +93,11 @@ describe('CR-798 the manuscript these cases are driven by', () => {
     expect(cellOf('T-353', 'TV-5', '定め')).toContain(TV_5_STAYS_ON)
     expect(cellOf('T-353', 'TV-9', '定め')).toContain(TV_9_DEFAULT)
     expect(cellOf('T-353', 'TV-13', '定め')).toContain(TV_13_UNASSIGNED)
-    expect(cellOf('T-330', 'SV-7', '定め')).toContain(SV_7_TWO_ENTRIES)
-    expect(cellOf('T-330', 'SV-7', '定め')).toContain(SV_7_NO_SEARCH)
-    expect(cellOf('T-330', 'SV-7', '定め')).toContain(SV_7_EVERY_ROW)
+    expect(cellOf('T-330', 'SV-7', '定め')).toContain(SV_7_NO_ENTRANCE)
     expect(cellOf('T-330', 'SV-7', '定め')).toContain(SV_7_NO_GREEN)
-    expect(cellOf('T-331', 'SQ-10', '書き方')).toContain(SQ_10_HEADING)
+    expect(cellOf('T-331', 'SQ-10', '書き方')).toContain(SQ_10_HEADING_STATES)
+    expect(cellOf('T-331', 'SQ-10', '書き方')).toContain(SQ_10_HEADING_ADD)
+    expect(cellOf('T-331', 'SQ-10', '書き方')).toContain(SQ_10_HEADING_CLEAR)
     expect(cellOf('T-332', 'SJ-0', '定め')).toContain(SJ_0_CHECK)
     expect(SETTINGS_BOOK).toContain(S_562_NONE)
     expect(GLOSSARY).toContain('| IC-125 |')
@@ -508,48 +510,73 @@ describe.each(['searchPanel', 'delayDiagnosticsReport', 'resourceList'] as const
   })
 })
 
-describe('FR-151 T-353 TV-5 -- 掛けても描くものが 1 つも変わらないとき（表がすべてのタスクを「表示」とするとき）は、IC-143 を効かなくし (kept)', () => {
-  it('SQ-10: every task checked and not applied: IC-143 is disabled, with a reason', () => {
-    const eye = EYE_OF.searchPanel({ shownTaskUids: ALL_TASKS })
-    expect(eye.isEnabled).toBe(false)
-    expect(eye.refusals.length).toBe(1)
+// WHY: CR-800 JDG-2825 -- one checked row is enough; a table with every row checked draws the same as the table without the filter, and the eye still works.
+const EVERY_CHECKED: Readonly<Record<TableName, () => Partial<Visibility>>> = {
+  searchPanel: () => ({ shownTaskUids: ALL_TASKS }),
+  delayDiagnosticsReport: () => ({ shownTaskUids: [...new Set(reportRowUids(reportViewOf(reportPane())))] }),
+  resourceList: () => ({ shownResourceUids: ALL_RESOURCES, isUnassignedShown: true }),
+}
+
+describe.each(['searchPanel', 'delayDiagnosticsReport', 'resourceList'] as const)('FR-151 T-353 TV-5 / JDG-2825 (%s) -- every row checked: IC-143 is enabled', (table) => {
+  it('not applied and every row checked: IC-143 is enabled and no refusal names it', () => {
+    const eye = EYE_OF[table](EVERY_CHECKED[table]())
+    expect(eye.isEnabled).toBe(true)
+    expect(eye.refusals).toEqual([])
+  })
+
+  it('applied and every row checked: IC-143 stays enabled, so pressing releases', () => {
+    const eye = EYE_OF[table]({ ...EVERY_CHECKED[table](), isScheduleFilterApplied: true })
+    expect(eye.isEnabled).toBe(true)
+    expect(eye.refusals).toEqual([])
   })
 })
 
-const ENTRIES = ['IC-125', 'IC-126']
+describe('FR-151 T-353 TV-5 / JDG-2825 -- pressing the eye with every row checked applies the filter', () => {
+  it('SQ-10: the Search Panel', () => {
+    const pane = searchPane(viewWith(startOf('searchPanel'), EVERY_CHECKED.searchPanel()))
+    expect(searchPressed(pane, 'IC-143').view.visibility.isScheduleFilterApplied).toBe(true)
+  })
+
+  it('DT-8: the report', () => {
+    const pane = reportPane(viewWith(startOf('delayDiagnosticsReport'), EVERY_CHECKED.delayDiagnosticsReport()))
+    expect(reportAfter(pane, 'IC-143', null).view.visibility.isScheduleFilterApplied).toBe(true)
+  })
+
+  it('RQ-1: the Resource List', () => {
+    const pane = listPane(viewWith(startOf('resourceList'), EVERY_CHECKED.resourceList()))
+    expect(listAfter(pane, 'IC-143', null).view.visibility.isScheduleFilterApplied).toBe(true)
+  })
+
+  it('RQ-1: the (Unassigned) row alone is a checked row, so the eye works', () => {
+    expect(EYE_OF.resourceList({ isUnassignedShown: true }).isEnabled).toBe(true)
+  })
+})
 
 function menuOf(view: { readonly filterMenu: SearchPanelView['filterMenu'] }): NonNullable<SearchPanelView['filterMenu']> {
   return found(view.filterMenu, 'an open filter')
 }
 
-describe(`FR-151 T-330 SV-7 -- ${SV_7_TWO_ENTRIES.slice(0, 60)}`, () => {
-  it('SQ-10: its funnel opens with the two entries IC-125 and IC-126 and nothing else', () => {
-    const menu = menuOf(searchViewOf(searchOpened(searchPane(), 'SQ-10')))
-    expect(menu.column).toBe('SQ-10')
-    expect(menu.kind).toBe('rows')
-    expect(menu.entries.map((one) => one.icon)).toEqual(ENTRIES)
-    expect(menu, `${SV_7_NO_SEARCH.slice(0, 20)} -- no value list`).not.toHaveProperty('values')
-    expect(menu, 'no search field').not.toHaveProperty('searchHint')
-    expect(menu.entries.map((one) => one.icon), 'no IC-123 / IC-124 sort entries').not.toContain('IC-123')
-    expect(menu.entries.map((one) => one.icon)).not.toContain('IC-124')
+describe(`FR-151 T-330 SV-7 -- ${SV_7_NO_ENTRANCE.slice(0, 40)}`, () => {
+  it('SQ-10: IC-122 on the check column opens nothing, and no entry is answered without an open filter', () => {
+    expect(searchPanelWithFilterOpened(sessionIn(), searchPane().panel, searchPane().view, 'SQ-10')).toBeNull()
+    expect(searchViewOf(searchPane()).filterMenu).toBeNull()
+    for (const entry of ['IC-125', 'IC-126']) {
+      expect(searchPanelAfterFilterEntry(sessionIn(), searchPane().panel, searchPane().view, entry as never, SCHEDULE), entry).toBeNull()
+    }
   })
 
-  it('DT-8: the report funnel opens with the two entries IC-125 and IC-126 and nothing else', () => {
-    const menu = menuOf(reportViewOf(reportAfter(reportPane(), 'IC-122', 'DT-8')))
-    expect(menu.column).toBe('DT-8')
-    expect(menu.kind).toBe('rows')
-    expect(menu.entries.map((one) => one.icon)).toEqual(ENTRIES)
-    expect(menu).not.toHaveProperty('values')
-    expect(menu).not.toHaveProperty('searchHint')
+  it('DT-8: IC-122 on the check column of the report opens nothing', () => {
+    const pane = reportPane()
+    const step = delayDiagnosticsReportAfterEntry(pane.window, pane.view, 'IC-122' as never, 'DT-8', { report: REPORT, schedule: REPORT_SCHEDULE, language: 'ja' })
+    expect(step).toBeNull()
+    expect(reportViewOf(pane).filterMenu).toBeNull()
   })
 
-  it('RQ-1: the Resource List funnel opens with the two entries IC-125 and IC-126 and nothing else', () => {
-    const menu = menuOf(listViewOf(listAfter(listPane(), 'IC-122', 'RQ-1')))
-    expect(menu.column).toBe('RQ-1')
-    expect(menu.kind).toBe('rows')
-    expect(menu.entries.map((one) => one.icon)).toEqual(ENTRIES)
-    expect(menu).not.toHaveProperty('values')
-    expect(menu).not.toHaveProperty('searchHint')
+  it('RQ-1: IC-122 on the check column of the Resource List opens nothing', () => {
+    const pane = listPane()
+    const step = resourceListAfterEntry(pane.window, pane.view, 'IC-122' as never, 'RQ-1', { schedule: SCHEDULE, chosenResourceUids: [], language: 'ja' })
+    expect(step).toBeNull()
+    expect(listViewOf(pane).filterMenu).toBeNull()
   })
 
   it('a column that is not the check column still opens its value list (SV-7 is unchanged elsewhere)', () => {
@@ -558,112 +585,156 @@ describe(`FR-151 T-330 SV-7 -- ${SV_7_TWO_ENTRIES.slice(0, 60)}`, () => {
   })
 })
 
-describe(`FR-151 T-330 SV-7 / T-331 SQ-10 / IC-125 -- ${SV_7_EVERY_ROW.slice(0, 40)} (the Search Panel)`, () => {
-  const open = (pane: Pane): Pane => searchOpened(pane, 'SQ-10')
+// WHY: the box's second press (isShown false, isHeading) clears every row; the first adds the listed rows, so a case names the listed keys as the drawn box would.
+const headingChange = (keys: readonly (number | 'unassigned')[], isShown: boolean): SearchFilterChange =>
+  ({ kind: 'shown', column: 'SQ-10', keys, isShown, isHeading: true }) as unknown as SearchFilterChange
 
-  it('IC-125 checks every row of the table from an unchecked start', () => {
-    const after = searchPressed(open(searchPane()), 'IC-125')
+describe(`FR-151 T-331 SQ-10 -- ${SQ_10_HEADING_ADD.slice(0, 30)} (the Search Panel)`, () => {
+  const listedOf = (pane: Pane): readonly number[] => searchRowUids(searchViewOf(pane))
+  const press = (pane: Pane, isShown: boolean): Pane => searchChanged(pane, headingChange(listedOf(pane), isShown))
+
+  it('the heading box checks every listed row from an unchecked start', () => {
+    const after = press(searchPane(), true)
     expect(sorted(after.view.visibility.shownTaskUids)).toEqual(ALL_TASKS)
+    expect(searchViewOf(after).showHeading).toBe('all')
   })
 
-  it('IC-125 checks the rows the word keeps out of view as well', () => {
-    const narrowed = open(searchPane(startOf('searchPanel'), 'alpha'))
-    expect(searchRowUids(searchViewOf(narrowed)), 'premise: the word lists one row').toEqual([ALPHA])
-    const after = searchPressed(narrowed, 'IC-125')
-    expect(sorted(after.view.visibility.shownTaskUids)).toEqual(ALL_TASKS)
+  it('some listed rows checked: the press checks the rest of the listed rows', () => {
+    const some = searchPane(viewWith(startOf('searchPanel'), { shownTaskUids: [ALPHA] }))
+    expect(searchViewOf(some).showHeading, 'premise: some listed rows are in').toBe('some')
+    expect(sorted(press(some, true).view.visibility.shownTaskUids)).toEqual(ALL_TASKS)
   })
 
-  it('IC-125 checks the rows a column filter keeps out of view as well', () => {
+  it('with a word, the press checks the listed rows and leaves the rows the word keeps out as they were', () => {
+    const narrowed = searchPane(viewWith(startOf('searchPanel'), { shownTaskUids: [BRAVO] }), 'alpha')
+    expect(listedOf(narrowed), 'premise: the word lists one row').toEqual([ALPHA])
+    expect(sorted(press(narrowed, true).view.visibility.shownTaskUids)).toEqual([ALPHA, BRAVO])
+  })
+
+  it('with a column filter, the press leaves the rows the filter keeps out as they were', () => {
     const base = searchOpened(searchPane(), 'SQ-1')
     const menu = menuOf(searchViewOf(base))
     if (menu.kind !== 'values') throw new Error('the name column lists no values')
     const alpha = found(menu.values.find((one) => one.label === 'Alpha'), 'the value Alpha of the task column')
     const filtered = searchChanged(base, { kind: 'value', column: 'SQ-1', value: alpha.value, isShown: false })
-    expect(searchRowUids(searchViewOf(filtered)), 'premise: Alpha is out of the list').not.toContain(ALPHA)
-    const after = searchPressed(searchOpened(filtered, 'SQ-10'), 'IC-125')
-    expect(sorted(after.view.visibility.shownTaskUids)).toEqual(ALL_TASKS)
+    expect(listedOf(filtered), 'premise: Alpha is out of the list').not.toContain(ALPHA)
+    expect(sorted(press(filtered, true).view.visibility.shownTaskUids)).toEqual(sorted(listedOf(filtered)))
   })
 
-  it('IC-126 clears every row of the table, the rows the word keeps out of view as well', () => {
+  it('every listed row checked: the press clears every row of the table, the rows the word keeps out of the list as well', () => {
     const all = searchPane(viewWith(startOf('searchPanel'), { shownTaskUids: ALL_TASKS }), 'alpha')
-    const after = searchPressed(open(all), 'IC-126')
-    expect(after.view.visibility.shownTaskUids).toEqual([])
+    expect(listedOf(all), 'premise: the word lists one row').toEqual([ALPHA])
+    expect(searchViewOf(all).showHeading, 'premise: every listed row is in').toBe('all')
+    expect(press(all, false).view.visibility.shownTaskUids).toEqual([])
   })
 
-  it('IC-125 then IC-126 returns to an empty list', () => {
-    const there = open(searchPane())
-    const back = searchPressed({ panel: there.panel, view: searchPressed(there, 'IC-125').view }, 'IC-126')
-    expect(back.view.visibility.shownTaskUids).toEqual([])
+  it('every listed row checked: the press clears the rows a column filter keeps out of the list as well', () => {
+    const base = searchOpened(searchPane(viewWith(startOf('searchPanel'), { shownTaskUids: ALL_TASKS })), 'SQ-1')
+    const menu = menuOf(searchViewOf(base))
+    if (menu.kind !== 'values') throw new Error('the name column lists no values')
+    const alpha = found(menu.values.find((one) => one.label === 'Alpha'), 'the value Alpha of the task column')
+    const filtered = searchChanged(base, { kind: 'value', column: 'SQ-1', value: alpha.value, isShown: false })
+    expect(listedOf(filtered), 'premise: Alpha is out of the list').not.toContain(ALPHA)
+    expect(press(filtered, false).view.visibility.shownTaskUids).toEqual([])
   })
 
-  it('pressing the entries changes neither the Schedule Filter, the column filters nor the sort', () => {
-    const before = viewWith(startOf('searchPanel'), { isScheduleFilterApplied: true })
-    const after = searchPressed(open(searchPane(before)), 'IC-125').view
-    expect(after.visibility.isScheduleFilterApplied).toBe(true)
-    expect(after.columnFilters).toEqual([])
-    expect(after.sort).toBeNull()
+  it('the unlisted rows alone checked: the heading reads empty and the press checks the listed rows', () => {
+    const outside = searchPane(viewWith(startOf('searchPanel'), { shownTaskUids: [BRAVO, CHARLIE] }), 'alpha')
+    expect(searchViewOf(outside).showHeading).toBe('none')
+    expect(sorted(press(outside, true).view.visibility.shownTaskUids)).toEqual([ALPHA, BRAVO, CHARLIE])
   })
 
-  it(`SQ-10: ${SQ_10_HEADING.slice(0, 30)} -- the heading box acts on the rows in view only`, () => {
-    const narrowed = searchPane(startOf('searchPanel'), 'alpha')
-    const checked = searchChanged(narrowed, { kind: 'shown', column: 'SQ-10', keys: [ALPHA], isShown: true })
-    expect(checked.view.visibility.shownTaskUids, 'the rows the word keeps out stay unchecked').toEqual([ALPHA])
-    expect(searchViewOf(checked).showHeading, 'the listed rows are all in').toBe('all')
-    const everyone = searchPane(viewWith(startOf('searchPanel'), { shownTaskUids: ALL_TASKS }), 'alpha')
-    const out = searchChanged(everyone, { kind: 'shown', column: 'SQ-10', keys: [ALPHA], isShown: false })
+  it('check then clear returns to an empty list', () => {
+    const checked = press(searchPane(), true)
+    expect(press(checked, false).view.visibility.shownTaskUids).toEqual([])
+  })
+
+  it('pressing the box changes neither the Schedule Filter, the column filters nor the sort', () => {
+    const before = searchPane(viewWith(startOf('searchPanel'), { isScheduleFilterApplied: true }))
+    for (const after of [press(before, true).view, press(press(before, true), false).view]) {
+      expect(after.visibility.isScheduleFilterApplied).toBe(true)
+      expect(after.columnFilters).toEqual([])
+      expect(after.sort).toBeNull()
+    }
+  })
+
+  it('the box of a row (no isHeading) acts on that row only', () => {
+    const all = searchPane(viewWith(startOf('searchPanel'), { shownTaskUids: ALL_TASKS }), 'alpha')
+    const out = searchChanged(all, { kind: 'shown', column: 'SQ-10', keys: [ALPHA], isShown: false })
     expect(sorted(out.view.visibility.shownTaskUids), 'the rows the word keeps out stay checked').toEqual([BRAVO, CHARLIE, DELTA, ECHO])
   })
 })
 
-describe(`FR-134 T-347 DT-8 / IC-125 / IC-126 -- ${SV_7_EVERY_ROW.slice(0, 40)} (the report)`, () => {
-  const EVERY = reportRowUids(reportViewOf(reportPane()))
+describe(`FR-134 T-347 DT-8 -- ${SQ_10_HEADING_ADD.slice(0, 30)} (the report)`, () => {
+  const EVERY = [...new Set(reportRowUids(reportViewOf(reportPane())))]
+  const listedOf = (pane: ReportPane): readonly number[] => [...new Set(reportRowUids(reportViewOf(pane)))]
+  const press = (pane: ReportPane, isShown: boolean): TableView =>
+    delayDiagnosticsReportAfterFilterChange(pane.window, pane.view, headingChange(listedOf(pane), isShown))
 
   it('premise: the report lists more than one task, and a word can keep one of them out', () => {
     expect(EVERY.length).toBeGreaterThan(1)
-    expect(reportRowUids(reportViewOf(reportPane(undefined, 'alpha'))).length).toBeLessThan(EVERY.length)
+    expect(listedOf(reportPane(undefined, 'alpha')).length).toBeLessThan(EVERY.length)
   })
 
-  it('IC-125 checks every row of the report, the rows the word keeps out of view as well', () => {
-    const narrowed = reportAfter(reportPane(undefined, 'alpha'), 'IC-122', 'DT-8')
-    const after = reportAfter({ window: { ...narrowed.window, panel: { ...narrowed.window.panel, word: 'alpha' } }, view: narrowed.view }, 'IC-125', 'DT-8')
-    expect(sorted(after.view.visibility.shownTaskUids)).toEqual(sorted([...new Set(EVERY)]))
+  it('the heading box checks every listed row of the report', () => {
+    expect(sorted(press(reportPane(), true).visibility.shownTaskUids)).toEqual(sorted(EVERY))
   })
 
-  it('IC-126 clears every row of the report, the rows the word keeps out of view as well', () => {
+  it('with a word, the press checks the listed rows and leaves the rows the word keeps out as they were', () => {
+    const kept = EVERY.find((uid) => uid !== listedOf(reportPane(undefined, 'alpha'))[0]) ?? -1
+    const narrowed = reportPane(viewWith(startOf('delayDiagnosticsReport'), { shownTaskUids: [kept] }), 'alpha')
+    const after = press(narrowed, true).visibility.shownTaskUids
+    expect(sorted(after)).toEqual(sorted([...new Set([kept, ...listedOf(narrowed)])]))
+  })
+
+  it('every listed row checked: the press clears every row of the report, the rows the word keeps out as well', () => {
     const all = reportPane(viewWith(startOf('delayDiagnosticsReport'), { shownTaskUids: EVERY }), 'alpha')
-    const opened = reportAfter(all, 'IC-122', 'DT-8')
-    const after = reportAfter({ window: { ...opened.window, panel: { ...opened.window.panel, word: 'alpha' } }, view: opened.view }, 'IC-126', 'DT-8')
-    expect(after.view.visibility.shownTaskUids).toEqual([])
+    expect(listedOf(all).length, 'premise: the word keeps a row out').toBeLessThan(EVERY.length)
+    expect(press(all, false).visibility.shownTaskUids).toEqual([])
   })
 
-  it('the heading box of the report acts on the keys it is given only', () => {
+  it('the press leaves the Schedule Filter as it was', () => {
+    const before = reportPane(viewWith(startOf('delayDiagnosticsReport'), { isScheduleFilterApplied: true }))
+    expect(press(before, true).visibility.isScheduleFilterApplied).toBe(true)
+  })
+
+  it('the box of a row (no isHeading) acts on the keys it is given only', () => {
     const base = reportPane()
     const view = delayDiagnosticsReportAfterFilterChange(base.window, base.view, { kind: 'shown', column: 'DT-8', keys: [ALPHA], isShown: true })
     expect(view.visibility.shownTaskUids).toEqual([ALPHA])
   })
 })
 
-describe(`FR-099 T-371 RQ-1 / IC-125 / IC-126 -- ${SV_7_EVERY_ROW.slice(0, 40)} (the Resource List)`, () => {
-  it('IC-125 checks every resource and the (Unassigned) row, the rows the word keeps out of view as well', () => {
-    const narrowed = listPane(undefined, 'Sato')
-    expect(listViewOf(narrowed).rows.length, 'premise: the word lists fewer than all rows').toBeLessThan(4)
-    const opened = listAfter(narrowed, 'IC-122', 'RQ-1')
-    const after = listAfter(opened, 'IC-125', 'RQ-1')
-    expect(sorted(after.view.visibility.shownResourceUids)).toEqual(ALL_RESOURCES)
-    expect(after.view.visibility.isUnassignedShown).toBe(true)
+describe(`FR-099 T-371 RQ-1 -- ${SQ_10_HEADING_ADD.slice(0, 30)} (the Resource List)`, () => {
+  const listedOf = (pane: ListPane): readonly (number | 'unassigned')[] => listViewOf(pane).rows.map((one) => one.key as number | 'unassigned')
+  const press = (pane: ListPane, isShown: boolean): TableView => resourceListAfterFilterChange(pane.window, pane.view, headingChange(listedOf(pane), isShown))
+
+  it('the heading box checks every resource and the (Unassigned) row', () => {
+    const after = press(listPane(), true)
+    expect(sorted(after.visibility.shownResourceUids)).toEqual(ALL_RESOURCES)
+    expect(after.visibility.isUnassignedShown).toBe(true)
   })
 
-  it('IC-126 clears every resource and the (Unassigned) row, the rows the word keeps out of view as well', () => {
+  it('with a word, the press checks the listed rows and leaves the rows the word keeps out as they were', () => {
+    const narrowed = listPane(viewWith(startOf('resourceList'), { shownResourceUids: [TANAKA] }), 'Sato')
+    const listed = listedOf(narrowed)
+    expect(listed, 'premise: the word keeps Tanaka out').not.toContain(TANAKA)
+    const after = press(narrowed, true)
+    expect(sorted(after.visibility.shownResourceUids)).toEqual(sorted([TANAKA, ...listed.filter((key): key is number => key !== UNASSIGNED)]))
+    expect(after.visibility.isUnassignedShown).toBe(listed.includes(UNASSIGNED))
+  })
+
+  it('every listed row checked: the press clears every resource and the (Unassigned) row, the rows the word keeps out as well', () => {
     const all = listPane(viewWith(startOf('resourceList'), { shownResourceUids: ALL_RESOURCES, isUnassignedShown: true }), 'Sato')
-    const after = listAfter(listAfter(all, 'IC-122', 'RQ-1'), 'IC-126', 'RQ-1')
-    expect(after.view.visibility.shownResourceUids).toEqual([])
-    expect(after.view.visibility.isUnassignedShown).toBe(false)
+    expect(listedOf(all).length, 'premise: the word keeps a row out').toBeLessThan(4)
+    const after = press(all, false)
+    expect(after.visibility.shownResourceUids).toEqual([])
+    expect(after.visibility.isUnassignedShown).toBe(false)
   })
 
-  it('the entries leave the Schedule Filter as it was', () => {
+  it('the press leaves the Schedule Filter as it was', () => {
     const before = listPane(viewWith(startOf('resourceList'), { isScheduleFilterApplied: true }))
-    const after = listAfter(listAfter(before, 'IC-122', 'RQ-1'), 'IC-125', 'RQ-1')
-    expect(after.view.visibility.isScheduleFilterApplied).toBe(true)
+    expect(press(before, true).visibility.isScheduleFilterApplied).toBe(true)
   })
 })
 
@@ -671,11 +742,11 @@ describe(`FR-151 T-330 SV-7 -- ${SV_7_NO_GREEN}`, () => {
   const markedColumns = (view: { readonly columns: readonly { readonly column: string; readonly isFiltered: boolean }[] }): readonly string[] =>
     view.columns.filter((one) => one.isFiltered).map((one) => one.column)
 
-  it('SQ-10: the check column is never marked, from the start, with some rows checked, or after IC-125 and IC-126', () => {
+  it('SQ-10: the check column is never marked, from the start, with some rows checked, or after the heading box checks and clears', () => {
     const start = searchPane()
     const some = searchPane(viewWith(startOf('searchPanel'), { shownTaskUids: [ALPHA] }))
-    const all = searchPressed(searchOpened(start, 'SQ-10'), 'IC-125')
-    const none = searchPressed(all, 'IC-126')
+    const all = searchChanged(start, headingChange(searchRowUids(searchViewOf(start)), true))
+    const none = searchChanged(all, headingChange(searchRowUids(searchViewOf(all)), false))
     for (const pane of [start, some, all, none]) {
       const closed: Pane = { ...pane, panel: { ...pane.panel, filters: { open: null } } }
       expect(markedColumns(searchViewOf(closed))).toEqual([])

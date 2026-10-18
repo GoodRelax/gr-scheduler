@@ -546,15 +546,13 @@ function delayDiagnosticsWithFixes(document: Document, log: DelayFixLogSource | 
 // see AM-27, TV-5, AG-5, FR-028
 // WHY: untyped caller input; a list naming every task hides no row, and TV-5 keeps the filter from turning on for nothing.
 /** @purity pure */
-function shownTasksRefusalOf(snapshot: AgentSnapshot, taskUids: unknown, held: SearchTableView): AgentRefusal | null {
+function shownTasksRefusalOf(snapshot: AgentSnapshot, taskUids: unknown): AgentRefusal | null {
   if (!Array.isArray(taskUids) || taskUids.some((uid) => typeof uid !== 'number')) {
     return agentRefusal('AM-27', 'malformedRequest', snapshot, 'taskUids is not a list of numbers', [])
   }
   const known = new Set(snapshot.document.schedule.tasks.map((task) => task.uid))
   const unknown = taskUids.filter((uid) => !known.has(uid))
   if (unknown.length > 0) return agentRefusal('AM-27', 'unknownTask', snapshot, `no task carries these uids: ${unknown.join(', ')}`, [])
-  const isNothingHidden = new Set(taskUids).size === known.size
-  if (isNothingHidden && !held.isScheduleFilterApplied) return agentRefusal('AM-27', 'commandRefused', snapshot, 'TV-5: no row would be hidden', [])
   return null
 }
 
@@ -575,7 +573,7 @@ function showOnlyTasksThrough(wiring: AgentApiWiring, snapshot: AgentSnapshot, t
     if (!held.isScheduleFilterApplied) return { ok: true, stamp: frozenCopy(snapshot.documentAsWritten.documentStamp), hasUpdatedSchedule: false }
     return writeThroughTheOnePath(wiring, snapshot, 'AM-27', stamp, [searchTableViewWrite(held, held.shownTaskUids, false)])
   }
-  const refusal = shownTasksRefusalOf(snapshot, taskUids, held)
+  const refusal = shownTasksRefusalOf(snapshot, taskUids)
   if (refusal !== null) return { ok: false, refusal }
   const named = new Set(taskUids)
   const shownTaskUids = snapshot.document.schedule.tasks.map((task) => task.uid).filter((uid) => named.has(uid))

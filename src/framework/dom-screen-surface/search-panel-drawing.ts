@@ -450,7 +450,7 @@ function headerCellElement(
   if (showHeading !== null) {
     cell.setAttribute(NO_BORDER_ATTRIBUTE, 'true')
     cell.setAttribute('title', column.heading)
-    line.replaceChildren(shownBoxElement(host, showHeading), filter)
+    line.replaceChildren(shownBoxElement(host, showHeading))
     cell.replaceChildren(line)
     return cell
   }
@@ -548,12 +548,6 @@ export function searchFilterMenuElement(
   const controls = made(host, 'div', FILTER_CONTROLS_STYLE)
   const list = made(host, 'div', FILTER_LIST_STYLE)
   list.setAttribute(FILTER_LIST_ATTRIBUTE, 'true')
-  if (menu.kind === 'rows') {
-    // WHY: the Visibility column's funnel holds its two entries alone, no list (JDG-2811).
-    controls.replaceChildren(entries)
-    box.replaceChildren(controls)
-    return box
-  }
   if (menu.kind === 'dates') {
     controls.replaceChildren(entries)
     list.replaceChildren(filterDateFields(host, menu, fontPx))
@@ -1108,14 +1102,14 @@ function visibilityKeyFrom(written: string): VisibilityKey {
 }
 
 // see SQ-10, DT-8, RQ-1, TV-2
-// WHY: the heading's box names every listed row, read off the drawn boxes, so rows not listed keep their values.
+// WHY: the heading's box names every listed row, so a check leaves the rows not listed; its clear takes every row (SQ-10).
 /** @purity semi-pure-b */
 function shownChangeOf(control: HTMLInputElement, layer: Element, column: string): SearchFilterChange | null {
   const one = control.getAttribute(VISIBILITY_KEY_ATTRIBUTE)
   if (one !== null) return { kind: 'shown', column, keys: [visibilityKeyFrom(one)], isShown: control.checked }
   if (control.getAttribute(SHOWN_ALL_ATTRIBUTE) === null) return null
   const listed = [...layer.querySelectorAll(`[${VISIBILITY_KEY_ATTRIBUTE}]`)].map((box) => visibilityKeyFrom(box.getAttribute(VISIBILITY_KEY_ATTRIBUTE) ?? ''))
-  return { kind: 'shown', column, keys: listed, isShown: control.checked }
+  return { kind: 'shown', column, keys: listed, isShown: control.checked, isHeading: true }
 }
 
 // WHY: input, the one event T-078 lets this layer hear; a check mark or a whole date is settled (IF-9, SV-7).

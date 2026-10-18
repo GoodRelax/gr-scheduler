@@ -85,12 +85,12 @@ const IN_4_SEARCH =
   '⭐ 閉じる番の検索パネル（`FR-151`）は、列のフィルタが開いていればフィルタだけを閉じ、次の `Esc` でパネルを閉じる（表 T-330 の `SV-14`）。'
 
 const IC_WORDS: Readonly<Record<string, string>> = {
-  'IC-122': '列のフィルタと並べ替えを開く（列の見出しごとに 1 つ）。⭐ [表示] の列では `IC-125`・`IC-126` だけを開く（`FR-151` の 表 T-330 の `SV-7`）',
+  'IC-122': '列のフィルタと並べ替えを開く（列の見出しごとに 1 つ）。⭐ [表示] の列には置かない（`FR-151` の 表 T-330 の `SV-7`）',
   // WHY: CR-788 -- the assignee field holds a list (no candidates), and IC-125 / IC-126 work in it too.
   'IC-123': 'その列で昇順に並べる。プロパティパネルでは、担当の欄の一覧を名の昇順に並べる（`FR-008` の 表 T-225 の `AS-5`）',
   'IC-124': 'その列で降順に並べる。プロパティパネルでは、担当の欄の一覧を名の降順に並べる（`FR-008` の 表 T-225 の `AS-5`）',
-  'IC-125': '一覧に出ているすべての値にチェックを付ける⭐ [表示] の列（`FR-151` の 表 T-331 の `SQ-10` ほか）のドロップダウンでは、表のすべての行にチェックを入れる —— 語や列のフィルタで一覧に出ていない行も入れる（`FR-151` の 表 T-330 の `SV-7`）。プロパティパネルでは、担当の欄の一覧に出ている、就いていない担当をすべて就ける（`FR-008` の 表 T-225 の `AS-5`）',
-  'IC-126': '一覧に出ているすべての値のチェックを外す⭐ [表示] の列（`FR-151` の 表 T-331 の `SQ-10` ほか）のドロップダウンでは、表のすべての行のチェックを外す —— 語や列のフィルタで一覧に出ていない行も外す（`FR-151` の 表 T-330 の `SV-7`）。プロパティパネルでは、担当の欄の一覧に出ている、就いている担当をすべて外す（`FR-008` の 表 T-225 の `AS-5`）',
+  'IC-125': '一覧に出ているすべての値にチェックを付けるプロパティパネルでは、担当の欄の一覧に出ている、就いていない担当をすべて就ける（`FR-008` の 表 T-225 の `AS-5`）',
+  'IC-126': '一覧に出ているすべての値のチェックを外すプロパティパネルでは、担当の欄の一覧に出ている、就いている担当をすべて外す（`FR-008` の 表 T-225 の `AS-5`）',
 }
 
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
@@ -123,6 +123,8 @@ const COMMENT_COLUMNS = specTable('T-331')
   .rows.filter((row) => row.by['表'] === 'コメントボックス')
   .map((row) => row.id)
 const DATE_COLUMNS = ['SQ-3', 'SQ-4', 'SQ-12', 'SQ-13', 'SQ-9']
+// see SQ-10
+const CHECK_COLUMN = 'SQ-10'
 
 
 type Loose = Record<string, unknown>
@@ -417,7 +419,7 @@ describe('FR-151 / T-330 / T-331 / T-109 / T-028 -- the clauses this file is dri
     for (const id of ['SQ-5', 'SQ-6', 'SQ-7', 'SQ-8']) expect(cellOf('T-331', id, 'フィルタ')).toBe('値の一覧')
     for (const [icon, words] of Object.entries(IC_WORDS)) expect(cellOf('T-109', icon, '何の入口か'), icon).toBe(words)
     expect(BLANK_JA).toBe('（空白）')
-    expect(cellOf('T-331', 'SQ-10', 'フィルタ')).toBe('値の一覧を持たない —— `IC-122` は `IC-125`・`IC-126` だけを開き、どちらも表のすべての行（一覧に出ていない行も）に効く（表 T-330 の `SV-7`）')
+    expect(cellOf('T-331', 'SQ-10', 'フィルタ')).toBe('持たない —— 見出しに `IC-122` を置かない（表 T-330 の `SV-7`）')
     expect(TASK_COLUMNS).toEqual(['SQ-10', 'SQ-5', 'SQ-11', 'SQ-14', 'SQ-1', 'SQ-2', 'SQ-3', 'SQ-4', 'SQ-12', 'SQ-13', 'SQ-6'])
     expect(COMMENT_COLUMNS).toEqual(['SQ-7', 'SQ-8', 'SQ-9'])
   })
@@ -425,10 +427,10 @@ describe('FR-151 / T-330 / T-331 / T-109 / T-028 -- the clauses this file is dri
 
 
 describe('T-330 SV-7 -- IC-122 on every heading opens the filter of that column, one at a time', () => {
-  it('SV-7: every column heading of the tasks table carries the IC-122 entrance', () => {
+  it('SV-7: every column heading of the tasks table but the Visibility column (SQ-10) carries the IC-122 entrance', () => {
     const columns = viewOf(TASK_PANEL).columns
     expect(columns.map((one) => one.column)).toEqual(TASK_COLUMNS)
-    for (const one of columns) expect(one.filterEntry.icon, one.column).toBe('IC-122')
+    for (const one of columns.filter((each) => each.column !== CHECK_COLUMN)) expect(one.filterEntry.icon, one.column).toBe('IC-122')
   })
 
   it('SV-7: every column heading of the comment box table carries the IC-122 entrance', () => {
@@ -442,10 +444,15 @@ describe('T-330 SV-7 -- IC-122 on every heading opens the filter of that column,
     expect(viewOf(COMMENT_PANEL).filterMenu).toBeNull()
   })
 
-  it.each([...TASK_COLUMNS])('SV-7: pressing IC-122 on %s opens that column\'s filter', (column) => {
+  it.each(TASK_COLUMNS.filter((column) => column !== CHECK_COLUMN))('SV-7: pressing IC-122 on %s opens that column\'s filter', (column) => {
     const panel = opened(column)
     expect(panel.panel.filters.open).toBe(column)
     expect(menuOf(panel).column).toBe(column)
+  })
+
+  // WHY: CR-800 SV-7 -- the Visibility column heading holds the box alone, so there is no IC-122 to press and nothing opens.
+  it('SV-7: the Visibility column (SQ-10) has no IC-122 to press: nothing opens on it', () => {
+    expect(searchPanelWithFilterOpened(JA, TASK_PANEL.panel, TASK_PANEL.view, CHECK_COLUMN)).toBeNull()
   })
 
   it.each([...COMMENT_COLUMNS])('SV-7: pressing IC-122 on %s of the comment box table opens that column\'s filter', (column) => {
@@ -813,9 +820,15 @@ function drawn(panel: Pane): FakeElement {
 }
 
 describe('T-330 SV-7 -- the drawn entrance, host check boxes and host date inputs', () => {
-  it('SV-7: each drawn heading holds its IC-122 entrance', () => {
+  it('SV-7: each drawn heading holds its IC-122 entrance, the Visibility heading (SQ-10) its box alone', () => {
     const root = drawn(TASK_PANEL)
-    for (const column of TASK_COLUMNS) {
+    const checkHeading = found(
+      selfAndDescendants(root).find((one) => one.tagName === 'TH' && one.getAttribute('data-column') === CHECK_COLUMN),
+      'a drawn heading for the Visibility column',
+    )
+    expect(selfAndDescendants(checkHeading).some((one) => one.getAttribute('data-icon') === 'IC-122'), 'no IC-122 on the Visibility heading').toBe(false)
+    expect(selfAndDescendants(checkHeading).some((one) => one.tagName === 'INPUT' && one.getAttribute('type') === 'checkbox'), 'its box').toBe(true)
+    for (const column of TASK_COLUMNS.filter((each) => each !== CHECK_COLUMN)) {
       const heading = found(
         selfAndDescendants(root).find((one) => one.tagName === 'TH' && one.getAttribute('data-column') === column),
         `a drawn heading for ${column}`,

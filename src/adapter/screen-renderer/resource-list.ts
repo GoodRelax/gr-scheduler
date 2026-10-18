@@ -35,7 +35,7 @@ import {
   scheduleFilterEntryOf,
   scheduleFilterRefusalsOf,
   tableAfterFilterChange,
-  tableAfterVisibilityChange,
+  tableAfterShownChange,
   tableWithFilterClosed,
   visibilityHeadingOf,
   visibilityLabelOf,
@@ -266,12 +266,11 @@ function lineTableOf(
   listed: () => readonly ResourceLine[],
   language: DisplayLanguage,
   all?: readonly ResourceLine[],
-  everyLineKey: () => readonly VisibilityKey[] = () => [],
 ): WindowTable {
   const lineColumns = lineColumnsOf(view)
   return {
     columns: RESOURCE_LIST_COLUMNS,
-    checkColumn: { column: VISIBILITY_COLUMN, table: 'resourceList', everyRowKey: everyLineKey },
+    checkColumn: VISIBILITY_COLUMN,
     fixedCount: FIXED_COLUMN_COUNT,
     headingOf: (column) => wordOf(COLUMN_WORDS.get(column), language),
     isDateColumn: () => false,
@@ -282,10 +281,10 @@ function lineTableOf(
 }
 
 // see TV-5, TV-13, JDG-2820
-// WHY: the table rows every task (a resource's or the (Unassigned) row's), so only an unchecked row changes the schedule.
+// WHY: one checked resource row, or the checked (Unassigned) row, is enough to apply.
 /** @purity pure */
 function resourceFilterReadinessOf(view: TableView, schedule: Schedule): ScheduleFilterReadiness {
-  return scheduleFilterReadinessOf('resourceList', view.visibility, () => resourceUidsOf(schedule), true)
+  return scheduleFilterReadinessOf('resourceList', view.visibility, () => resourceUidsOf(schedule))
 }
 
 // see FR-029, FR-099, IC-63, IC-64, IC-65, IC-66, RO-3
@@ -416,7 +415,7 @@ export function resourceListAfterEntry(
   const word = window.panel.word
   return windowAfterEntry(window, view, entry, filterColumn, {
     readiness: () => resourceFilterReadinessOf(view, rows.schedule),
-    tableOf: (unfiltered) => lineTableOf(view, () => listedLinesOf({ word, view: unfiltered }, resourceLinesOf(rows)), rows.language, undefined, () => resourceLinesOf(rows).map((line) => line.key)),
+    tableOf: (unfiltered) => lineTableOf(view, () => listedLinesOf({ word, view: unfiltered }, resourceLinesOf(rows)), rows.language),
   }, listed)
 }
 
@@ -425,7 +424,7 @@ export function resourceListAfterEntry(
 export function resourceListAfterFilterChange(window: TableWindowState, view: TableView, change: SearchFilterChange): TableView {
   const after =
     change.kind === 'shown'
-      ? tableAfterVisibilityChange('resourceList', view, change.keys, change.isShown)
+      ? tableAfterShownChange('resourceList', view, change)
       : tableAfterFilterChange(window.panel, view, window.shown, change, lineTableOf(view, () => [], COLUMNS_ONLY_LANGUAGE))
   return after ?? view
 }

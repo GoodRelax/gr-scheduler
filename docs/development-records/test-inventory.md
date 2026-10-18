@@ -12,13 +12,13 @@ what this reading does not see.
 
 | place | T-218 | T-334 | files | case sites | expected-to-fail marks | known-red lines | need the MSPDI XSDs | tied to no spec row |
 | --- | --- | --- | --: | --: | --: | --: | --: | --: |
-| `contract` | TS-5 | VT-2 | 428 | 5589 | 8 | 4 | 11 | 4 |
+| `contract` | TS-5 | VT-2 | 429 | 5658 | 8 | 4 | 11 | 4 |
 | `integration` | TS-2 | - | 3 | 76 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
 | `system` | TS-3 | - | 96 | 611 | 0 | 0 | 0 | 0 |
 | `unit` | TS-6 | - | 187 | 3929 | 1 | 1 | 2 | 0 |
 | `use-case` | TS-1 | VT-1 | 14 | 17 | 1 | 2 | 0 | 0 |
-| **all** | | | 731 | 10239 | 10 | 7 | 13 | 4 |
+| **all** | | | 732 | 10308 | 10 | 7 | 13 | 4 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -399,9 +399,9 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/cr-719-rs-78-to-rs-83-are-shown-and-rs-84-to-rs-88-leave-by-themselves.contract.test.ts` | 6 | FR-076 | - | T-233 | NT-2, RS-78, RS-83, RS-84, RS-88, S-542 | - | - | - | - |
 | `tests/contract/cr-719-the-import-refusals-name-their-t-233-row.contract.test.ts` | 13 | FR-012, FR-023, FR-076 | - | T-211, T-220, T-233 | AG-9a, NT-6, RS-78, RS-79, RS-80, RS-81 | - | - | - | - |
 | `tests/contract/cr-720-lf-19-a-label-pulled-to-the-left-edge-yields-to-the-next.contract.test.ts` | 3 | FR-017 | - | T-221 | LF-19, S-135 | - | - | - | - |
-| `tests/contract/cr-721-ic-153-the-clear-entry-takes-the-views-and-keeps-the-rest.contract.test.ts` | 14 | FR-092, FR-134, FR-151 | - | T-109, T-330, T-346 | IC-125, IC-143, IC-153, RW-2, SV-1, TV-2 | - | - | - | - |
+| `tests/contract/cr-721-ic-153-the-clear-entry-takes-the-views-and-keeps-the-rest.contract.test.ts` | 15 | FR-092, FR-134, FR-151 | - | T-109, T-330, T-346 | IC-122, IC-143, IC-153, RW-2, SQ-10, SV-1, TV-2 | - | - | - | - |
 | `tests/contract/cr-721-sv-18-rw-9-the-measured-widths-and-their-floor.contract.test.ts` | 14 | FR-151 | - | T-019a, T-206, T-330, T-346 | DG-1, DG-4, DT-1, DT-3, DT-5, DT-6, DT-9, IC-122, RW-9, S-425, S-465, S-496, SQ-5, SQ-10, SV-7, SV-18 | - | - | - | - |
-| `tests/contract/cr-721-sv-7-sq-10-the-filtered-mark-and-the-visibility-column.contract.test.ts` | 23 | FR-134, FR-151 | - | T-330, T-331, T-346 | IC-123, IC-124, IC-125, IC-126, RW-2, SQ-10, SV-6, SV-7, SV-8, TV-2 | - | - | - | - |
+| `tests/contract/cr-721-sv-7-sq-10-the-filtered-mark-and-the-visibility-column.contract.test.ts` | 27 | FR-134, FR-151 | - | T-330, T-331, T-346 | IC-122, IC-123, IC-124, RW-2, SQ-10, SV-6, SV-7, SV-8, TV-2 | - | - | - | - |
 | `tests/contract/cr-722-ro-rq-the-resource-list-is-a-table-window.contract.test.ts` | 9 | FR-099 | - | T-370, T-371 | IC-52, IC-129, RO-4, RO-5, RO-7, RQ-1, RQ-2, RQ-5, SV-12, SV-14, U-49 | - | - | - | - |
 | `tests/contract/cr-722-tv-1-tv-2-tv-13-the-drawn-set-is-the-product-of-the-tables.contract.test.ts` | 23 | FR-151 | - | T-353 | IC-143, TV-1, TV-2, TV-5, TV-7, TV-13 | - | - | - | - |
 | `tests/contract/cr-722-tv-11-the-schedule-filter-bar-names-the-tables.contract.test.ts` | 6 | FR-151 | - | T-353 | TV-11, U-67 | - | - | - | - |
@@ -518,10 +518,11 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/cr-796-s7-the-ai-asks-the-person-to-open-a-file.contract.test.ts` | 14 | - | - | T-107, T-234, T-400 | AG-12, AM-11, AM-15, AM-29, AV-4, AV-15, QN-17, U-61 | - | - | - | - |
 | `tests/contract/cr-796-s7-the-relay-saves-into-the-save-folder.contract.test.ts` | 22 | - | - | - | AG-12, AM-11, AM-12, AM-13, AM-14, AM-15, AV-21 | - | - | - | - |
 | `tests/contract/cr-797-fr-130-the-diagnosis-is-made-only-when-asked.contract.test.ts` | 23 | FR-130 | - | T-109, T-206, T-270, T-315, T-346 | DG-1, DG-2, DG-3, GA-18, IC-107, IC-157, IC-168, PE-8, PE-10, RW-1, RW-3, RW-16, RW-19, S-623 | - | - | - | - |
-| `tests/contract/cr-798-the-check-column-starts-unchecked-and-its-funnel-checks-or-clears-every-row.contract.test.ts` | 60 | FR-092, FR-099, FR-134, FR-151 | - | T-203, T-330, T-331, T-332, T-347, T-353, T-371 | DT-8, IC-125, IC-126, IC-143, OP-18, RQ-1, S-561, S-562, S-563, S-565, S-569, S-570, SJ-0, SQ-10, SV-7, TV-1, TV-2, TV-5, TV-9, TV-13 | - | - | - | - |
+| `tests/contract/cr-798-the-check-column-starts-unchecked-and-its-funnel-checks-or-clears-every-row.contract.test.ts` | 71 | FR-092, FR-099, FR-134, FR-151 | - | T-203, T-330, T-331, T-332, T-347, T-353, T-371 | DT-8, IC-122, IC-143, OP-18, RQ-1, S-561, S-562, S-563, S-565, S-569, S-570, SJ-0, SQ-10, SV-7, TV-1, TV-2, TV-5, TV-9, TV-13 | - | - | - | - |
 | `tests/contract/cr-799-the-build-version-the-stamped-page-and-the-texts-the-ai-reads.contract.test.ts` | 18 | - | - | - | - | - | - | - | - |
 | `tests/contract/cr-799-the-download-page-saves-and-versions.contract.test.ts` | 12 | - | - | - | - | - | - | - | - |
 | `tests/contract/cr-799-the-relay-answers-readschema-and-names-saved-files-absolutely.contract.test.ts` | 9 | - | - | - | AG-12, AM-30, AV-21 | - | - | - | - |
+| `tests/contract/cr-800-the-heading-box-checks-the-listed-rows-then-clears-every-row.contract.test.ts` | 52 | FR-092, FR-099, FR-151 | - | T-027, T-330, T-331, T-347, T-353, T-371 | DT-8, IC-122, IC-125, IC-126, IC-143, RQ-1, SQ-10, SV-7, TV-5, TV-6, UN-20 | - | - | - | - |
 | `tests/contract/dfc-1000-hf-10-the-open-all-stance-counts-every-placed-task-group.test.ts` | 9 | - | - | T-051, T-109 | HF-2, HF-10, IC-58, IC-74, RS-31 | - | - | - | - |
 | `tests/contract/dfc-1013-tl-12-the-delay-days-are-told-only-in-the-ez-6-tip.test.ts` | 8 | FR-047 | - | T-038, T-348 | DG-4, DX-10, EZ-6, OC-8, TL-12 | - | - | - | - |
 | `tests/contract/dfc-1015-fr-019-a-hidden-end-task-group-shrinks-the-frame.test.ts` | 5 | FR-019, UC-008 | - | - | - | - | - | - | - |
@@ -544,7 +545,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/dfc-1338-1356-tl-6-tl-8-the-task-tooltip-lines.test.ts` | 16 | - | - | T-348 | AS-13, EZ-6, PS-5, SQ-5, TL-1, TL-5, TL-6, TL-7, TL-8, TL-10, TL-11 | - | - | - | - |
 | `tests/contract/dfc-1353-1659-2164-fr-039-the-weights-of-the-letters.test.ts` | 8 | FR-039 | - | T-206 | EP-1, S-463, S-529 | - | - | - | - |
 | `tests/contract/dfc-1361-the-search-table-header-stays-on-top.contract.test.ts` | 8 | FR-041, FR-151 | - | T-206, T-330, T-331, T-333 | RR-4, S-146, S-150, SV-6 | - | - | - | - |
-| `tests/contract/dfc-1362-search-column-filter.contract.test.ts` | 62 | FR-151 | - | T-019a, T-021b, T-028, T-109, T-330, T-331 | IC-122, IC-123, IC-124, IC-125, IC-126, IN-4, PM-4, PS-1, PS-2, PS-3, PS-4, PS-5, SQ-1, SQ-3, SQ-5, SQ-6, SQ-7, SQ-8, SV-3, SV-4, SV-7, SV-8, SV-12, SV-14 | - | - | - | - |
+| `tests/contract/dfc-1362-search-column-filter.contract.test.ts` | 63 | FR-151 | - | T-019a, T-021b, T-028, T-109, T-330, T-331 | IC-122, IC-123, IC-124, IC-125, IC-126, IN-4, PM-4, PS-1, PS-2, PS-3, PS-4, PS-5, SQ-1, SQ-3, SQ-5, SQ-6, SQ-7, SQ-8, SQ-10, SV-3, SV-4, SV-7, SV-8, SV-12, SV-14 | - | - | - | - |
 | `tests/contract/dfc-1363-the-task-hint-wakes-at-its-own-wait.contract.test.ts` | 7 | FR-092 | - | T-212 | EZ-2, EZ-6, S-124, S-439 | - | - | - | - |
 | `tests/contract/dfc-1412-fr-006-every-target-lists-its-looks-in-one-order-one-color-a-task-group.test.ts` | 6 | FR-006 | - | T-016 | AT-53 | - | - | - | - |
 | `tests/contract/dfc-1432-sl-8-the-chosen-status-line-is-s-438-wide.test.ts` | 3 | - | - | - | CU-1, S-178, S-333, S-438, SL-8 | - | - | - | - |
