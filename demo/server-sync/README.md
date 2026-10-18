@@ -59,7 +59,8 @@ For details, see [DEMO-SERVER-API.md](DEMO-SERVER-API.md) and [`server/grs-demo-
 
 ## Notes
 
-- This demo goes as far as having GRS read and write whole JSON files. To sync schedule edits one by one between a server and GRS, use the Agent API that GRS provides for AI.
+- This demo goes as far as having GRS read and write whole JSON files.
+- To sync schedule edits one by one between a server and GRS, use the Agent API that GRS provides for AI.
 - Steps 1 and 2 run on Windows only. Step 3 runs on any OS.
 
 ## Details
