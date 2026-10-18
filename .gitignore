@@ -12,7 +12,7 @@ dist/*
 # The relay bundle (npm run build:relay) is built, never committed.
 dist-relay/
 # The server-sync demo folder (npm run build:demo, demo/server-sync/README-ja.md) is built, never committed.
-dist-demo/
+dist-server-sync-demo/
 build/
 .vite/
 _site/

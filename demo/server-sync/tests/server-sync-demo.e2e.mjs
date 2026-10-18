@@ -4,7 +4,7 @@
 //   npm run build:demo
 //   node tools/gate/gate-queue.mjs run -- node demo/server-sync/tests/server-sync-demo.e2e.mjs
 //
-// The server writes into a copy of schedule-data in the temp folder, never into dist-demo.
+// The server writes into a copy of schedule-data in the temp folder, never into dist-server-sync-demo.
 // Windows only (the server is Windows PowerShell 5.1).
 
 import { spawn } from 'node:child_process'
@@ -16,7 +16,7 @@ import { chromium } from 'playwright'
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..', '..')
 // Pass an unpacked zip's folder to test that instead of the built one.
-const BUILT = process.argv[2] ? resolve(process.argv[2]) : join(ROOT, 'dist-demo', 'grs-server-sync-demo')
+const BUILT = process.argv[2] ? resolve(process.argv[2]) : join(ROOT, 'dist-server-sync-demo', 'grs-server-sync-demo')
 const PORT = 18443
 const ORIGIN = `https://localhost:${PORT}`
 const SMALL = 'sample-small-website-renewal.ja.json'

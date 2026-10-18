@@ -1,12 +1,12 @@
 // Builds the GRS server-sync demo folder from the built GRS (npm run build:demo).
 //
-//   dist-demo/grs-server-sync-demo/
+//   dist-server-sync-demo/grs-server-sync-demo/
 //     GRS-Demo.html           dist/index.html with app/demo-client.js put in front of the GRS script
 //     start-server.cmd        double-click to start the server and open the page
 //     server/grs-demo-server.ps1
 //     schedule-data/*.json    the three GRS JSON samples (JDG-2585)
 //     README-ja.md
-//   dist-demo/grs-server-sync-demo.zip   the same folder, packed for download
+//   dist-server-sync-demo/grs-server-sync-demo.zip   the same folder, packed for download
 //
 // dist/index.html is only read, never written: the demo is GRS byte for byte plus one script.
 // The page's Content-Security-Policy pins script-src to hashes, so the demo script's hash is
@@ -23,9 +23,9 @@ const DEMO_DIR = dirname(fileURLToPath(import.meta.url))
 const ROOT = resolve(DEMO_DIR, '..', '..')
 const GRS_PAGE = join(ROOT, 'dist', 'index.html')
 const FOLDER_NAME = 'grs-server-sync-demo'
-const OUT_DIR = join(ROOT, 'dist-demo', FOLDER_NAME)
+const OUT_DIR = join(ROOT, 'dist-server-sync-demo', FOLDER_NAME)
 // The file people download (DFC-3071): the folder above, packed with the folder itself at its top.
-const ZIP_FILE = join(ROOT, 'dist-demo', `${FOLDER_NAME}.zip`)
+const ZIP_FILE = join(ROOT, 'dist-server-sync-demo', `${FOLDER_NAME}.zip`)
 // The third sample comes from sample-schedule/ at build time rather than as a second copy here.
 const SHARED_SAMPLES = [join(ROOT, 'sample-schedule', 'Three-Year Product Plan.json')]
 
@@ -170,5 +170,5 @@ console.log(`dist/index.html          sha256 ${sha256Hex(grsBytes)} (unchanged)`
 console.log(`GRS-Demo.html            sha256 ${sha256Hex(Buffer.from(demoHtml, 'utf8'))}`)
 console.log(`demo script hash added   ${demoHash}`)
 console.log(`schedule-data            ${samples.length} files`)
-console.log(`built                    dist-demo/${FOLDER_NAME}/  (start: start-server.cmd)`)
-console.log(`zip                      dist-demo/${FOLDER_NAME}.zip  (${readFileSync(ZIP_FILE).length} bytes)`)
+console.log(`built                    dist-server-sync-demo/${FOLDER_NAME}/  (start: start-server.cmd)`)
+console.log(`zip                      dist-server-sync-demo/${FOLDER_NAME}.zip  (${readFileSync(ZIP_FILE).length} bytes)`)
