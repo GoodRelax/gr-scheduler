@@ -1495,6 +1495,8 @@ describe('表 T-078 / NFR-010 (MUST NOT) -- nothing in this unit wakes a frame',
     const noticing = [oneByRole(root, 'Properties Panel')]
     // WHY: the typed word may be heard on the layer holding the search field, but
     // only as an input event -- the jump and the grab are answers to a point.
+    // WHY: IF-9 holds back a word still being converted (DFC-3302), so the composition events are heard there too.
+    const SEARCH_WORD_EVENTS = ['input', 'compositionstart', 'compositionend']
     const searchLayers = selfAndDescendants(root).filter(
       (one) => one.getAttribute('data-uz') === 'UZ-6',
     )
@@ -1530,7 +1532,7 @@ describe('表 T-078 / NFR-010 (MUST NOT) -- nothing in this unit wakes a frame',
       expect(
         noticing.some((part) => part.contains(one.node)) ||
           isLinkGuard ||
-          (one.type === 'input' && searchLayers.some((layer) => layer.contains(one.node))),
+          (SEARCH_WORD_EVENTS.includes(one.type) && searchLayers.some((layer) => layer.contains(one.node))),
         `${one.type} on [data-role="${one.node.getAttribute('data-role') ?? ''}"]` +
           `[data-field-row="${one.node.getAttribute('data-field-row') ?? ''}"]`,
       ).toBe(true)
