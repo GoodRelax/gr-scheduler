@@ -65,7 +65,8 @@ test('UC-012 let an AI agent edit (FR-028, FR-064 T-035 AG-1 AG-2 AG-3 AG-4 AG-9
     expect(stale.value.refusal.target).toBeTruthy()
     expect(stale.value.refusal.reason).toBeTruthy()
     expect(stale.value.refusal.stamp).toEqual((await call<Outcome>(page, 'return api.readStamp()')).value)
-    expect(stale.value.refusal.document).toBeTruthy()
+    // WHY: AV-3 carries the current stamp and never the document (CR-796); the caller reads again what it needs.
+    expect(stale.value.refusal.document).toBeUndefined()
     expect(JSON.stringify((await readDocument(page)).schedule)).toBe(before)
     const mixed = await call<Outcome>(page, 'return api.applyCommands({ expectedStamp: arg, commands: [{ kind: "setTaskName", taskUid: ' + TASK + ', name: "Half" }, { kind: "setTaskName", taskUid: 987654, name: "Nobody" }] })', stale.value.refusal.stamp)
     expect(mixed.threw).toBe(false)

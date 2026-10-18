@@ -448,7 +448,9 @@ async function sweep(page: Page): Promise<Measured> {
       return node
     }
 
-    const open = call(given.members.read)
+    // WHY: AM-3 leaves out the required carry fields unless includeCarry is true (CR-796);
+    // without them the handed document no longer fits the schema and FR-073 refuses it with RS-64.
+    const open = call(given.members.read, true)
     const before = tasksOf(open)
     if (before.length < 2) throw new Error('the open document holds fewer than two tasks')
     const uidHeldBack = Number(before[before.length - 1]?.uid)

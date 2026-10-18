@@ -14,7 +14,7 @@ const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '
 // WHY: CR-690 -- table T-369 places the font size field (FO-4) right under the display scale field (FO-3).
 const FONT_SIZE_STEP_FIELD = '文字サイズを選ぶ欄を同表の `FO-4` の場所に置き、表 T-202 の `S-70` の 3 段を選ばせ、選ばれた段で同表の `CM-62` を 1 回発行すること（MUST）'
 const OTHER_TEXT_WEIGHT =
-  '⭐ 名称ラベル・`NT-7` の頭 1 文字・`Document Title` のほかの字は、すべて `_assets/tbl-settings.md` の 表 T-206 の `S-529` の太さで描くこと（MUST）'
+  '⭐ 名称ラベル・`NT-7` の頭 1 文字・`Document Title`・遅延診断レポートの【再診断】（表 T-109 の `IC-168`、`S-623`）のほかの字は、すべて `_assets/tbl-settings.md` の 表 T-206 の `S-529` の太さで描くこと（MUST）'
 
 // see FR-096
 const FORMAT_BUTTON_GAP = '⭐ 上下に隣り合う 2 つの形式のボタンのあいだは、`_assets/tbl-settings.md` の 表 T-206 の `S-517` の隔たりとすること（MUST）'
