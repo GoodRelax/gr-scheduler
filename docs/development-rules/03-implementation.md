@@ -139,6 +139,9 @@ ELSEWHERE_DECLARED_FIELDS_MATCH      ほかのコンポーネントが宣言す�
 MEMBER_PARAMETERS                    引数を持つメンバごとの引数の名の順（表 T-107 の引数の欄。同じ生成器が `relayed-call.ts` に刷る。`CR-765`）
 WATCH_CHANGES                        取次が待つメンバの確定名（表 T-107 の `AM-17`。同じ生成器が `mcp-relay-server.ts` に刷る。`CR-765`）
 WAIT_MS_KEY                          そのメンバの MCP だけの鍵（`AM-17` の `waitMs`、`AG-12` の ⑤。同じ生成器。`CR-765`）
+FILE_NAME_KEY                        書き出しのメンバが保存に受ける MCP だけの鍵（`AM-11`〜`AM-15` の `fileName`、`AG-12` の ⑨。同じ生成器。`CR-796`）
+OVERWRITE_KEY                        上書きを許す MCP だけの鍵（`AM-11`〜`AM-15` の `overwrite`、`AG-12` の ⑨。同じ生成器。`CR-796`）
+SAVED_EXTENSION_OF                   書き出しのメンバごとに保存の名が終わる拡張子（`AM-11`〜`AM-15` の「何を担うか」の欄。同じ生成器。`CR-796`）
 COMMAND_KINDS_BY_UNION               命令の型ごとの命令の名（表 T-108 の行を型ごとに。`_source/document-commands.json` から `tools/generate_document_commands.py` が `edit-document.ts` に刷り、振り分けが読む。`CR-766`）
 PROJECT_PROFILE_FIELD_NAMES          基本情報を直す命令が運べる欄の名（表 T-108 の `ProjectProfileFields`。同じ生成器が `edit-project.ts` に刷る。`CR-766`）
 LENGTH_LETTERS                       長さを綴る字（`TX-10`。表 T-108 の `TypedLag.lagUnit` の値。同じ生成器が `properties-panel.ts` に刷る —— `name-label.ts` には同じ値を型 `LengthLetter` として刷る。`CR-766`）

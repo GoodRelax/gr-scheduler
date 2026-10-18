@@ -159,12 +159,12 @@
    "to": "docs/spec/_source/notice-reasons.json",
    "family": "QN",
    "fields": {
-    "rowId": 13
+    "rowId": 14
    },
    "prefixes": [
     "QN"
    ],
-   "count": 13
+   "count": 14
   },
   {
    "from": "docs/spec/_source/display-words.json",
@@ -451,12 +451,12 @@
    "family": "AM",
    "fields": {
     "evidence": 1,
-    "rows": 3
+    "rows": 4
    },
    "prefixes": [
     "AM"
    ],
-   "count": 4
+   "count": 5
   },
   {
    "from": "docs/spec/_source/state-machines.json",
@@ -490,13 +490,13 @@
    "to": "docs/spec/_source/notice-reasons.json",
    "family": "QN",
    "fields": {
-    "evidence": 26,
-    "rows": 24
+    "evidence": 27,
+    "rows": 27
    },
    "prefixes": [
     "QN"
    ],
-   "count": 50
+   "count": 54
   },
   {
    "from": "docs/spec/_source/state-machines.json",
@@ -542,12 +542,12 @@
   {
    "from": "docs/spec/_source/agent-api-members.json",
    "to": "docs/spec UIDs",
-   "count": 39
+   "count": 41
   },
   {
    "from": "docs/spec/_source/agent-api-members.json",
    "to": "docs/spec/01-04-requirements.md",
-   "count": 151
+   "count": 179
   },
   {
    "from": "docs/spec/_source/agent-api-members.json",
@@ -557,7 +557,7 @@
   {
    "from": "docs/spec/_source/agent-api-members.json",
    "to": "docs/spec/_assets/tbl-glossary.md",
-   "count": 3
+   "count": 4
   },
   {
    "from": "docs/spec/_source/agent-api-members.json",
@@ -567,7 +567,7 @@
   {
    "from": "docs/spec/_source/agent-api-members.json",
    "to": "docs/spec/_source/notice-reasons.json",
-   "count": 3
+   "count": 7
   },
   {
    "from": "docs/spec/_source/agent-api-members.json",
@@ -877,7 +877,7 @@
   {
    "from": "docs/spec/_source/notice-reasons.json",
    "to": "docs/spec/01-04-requirements.md",
-   "count": 105
+   "count": 107
   },
   {
    "from": "docs/spec/_source/notice-reasons.json",
@@ -887,7 +887,12 @@
   {
    "from": "docs/spec/_source/notice-reasons.json",
    "to": "docs/spec/_assets/tbl-glossary.md",
-   "count": 6
+   "count": 7
+  },
+  {
+   "from": "docs/spec/_source/notice-reasons.json",
+   "to": "docs/spec/_source/agent-api-members.json",
+   "count": 2
   },
   {
    "from": "docs/spec/_source/notice-reasons.json",
@@ -972,7 +977,7 @@
   {
    "from": "docs/spec/_source/published-entries.json",
    "to": "docs/spec/01-04-requirements.md",
-   "count": 676
+   "count": 678
   },
   {
    "from": "docs/spec/_source/published-entries.json",
@@ -1117,12 +1122,12 @@
   {
    "from": "docs/spec/_source/state-machines.json",
    "to": "docs/spec/_assets/tbl-glossary.md",
-   "count": 30
+   "count": 31
   },
   {
    "from": "docs/spec/_source/state-machines.json",
    "to": "docs/spec/_source/agent-api-members.json",
-   "count": 2
+   "count": 3
   },
   {
    "from": "docs/spec/_source/state-machines.json",
@@ -1137,7 +1142,7 @@
   {
    "from": "docs/spec/_source/state-machines.json",
    "to": "docs/spec/_source/notice-reasons.json",
-   "count": 17
+   "count": 20
   },
   {
    "from": "docs/spec/_source/state-machines.json",
@@ -1447,8 +1452,8 @@
    "X": 5
   },
   "docs/spec/_source/agent-api-members.json": {
-   "AM": 21,
-   "AV": 18
+   "AM": 22,
+   "AV": 19
   },
   "docs/spec/_source/document-commands.json": {
    "CM": 91
@@ -1460,7 +1465,7 @@
    "RL": 34
   },
   "docs/spec/_source/notice-reasons.json": {
-   "QN": 13,
+   "QN": 14,
    "RS": 81
   },
   "docs/spec/_source/property-items.json": {

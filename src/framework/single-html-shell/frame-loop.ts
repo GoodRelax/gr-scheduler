@@ -840,6 +840,13 @@ const DISCARD_QUESTION: ConfirmationQuestion = 'QN-5'
 const GRS_RESET_ENTRY: IconId = 'IC-139'
 const GRS_RESET_QUESTION: ConfirmationQuestion = 'QN-11'
 
+// see AM-29, QN-17, FR-087
+const AGENT_OPEN_FILE_ASKED: SessionEvent = {
+  type: 'changeQuestionRaised',
+  question: { manner: CONFIRMATION_MANNER, question: 'QN-17', items: [] },
+  owedAction: { kind: 'openDocumentFile' },
+}
+
 const NOTICE_REASON_OF_FILE_FAULT: Readonly<
   Record<DocumentFileFaultReason, NoticeReason | null>
 > = {
@@ -3731,6 +3738,11 @@ export function frameLoop(
       return
     }
     if (owedAction.kind === 'resetGrs') return resetGrs(pageReload)
+    if (owedAction.kind === 'openDocumentFile') {
+      // WHY: the person pressed go on, so the browser lets the file window open as IC-1 does.
+      if (files !== undefined) sendToSession({ type: 'documentOpenAsked', openRoute: OPEN_ROUTE_FROM_CHOOSER }, frame)
+      return
+    }
     if (frame === null) return
     const before = held.document
     for (const bundle of owedAction.writes) writeDocument(bundle, frame)
@@ -4328,6 +4340,10 @@ export function frameLoop(
       shownTasks: landingAgentHolder(shownTasks.agentHolder(), owedJump.owe, () => values),
       delayFixLog: documentFileFlow,
       historySteps: historyStepsOf(replaceHeldDocumentAt),
+      askToOpenFile: () => {
+        sendToSession(AGENT_OPEN_FILE_ASKED, null)
+        ask()
+      },
     }),
     /** @purity non-pure */
     watchAgentApiEnabling(watch: (isEnabled: boolean) => void): void {

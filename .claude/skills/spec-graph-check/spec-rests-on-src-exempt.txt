@@ -5,3 +5,4 @@
 # reds an exemption that no longer matches anything (it would hide a later hit).
 docs/spec/_assets/tbl-published-entries.md | finishSideDayOf | table T-064 lists the public members; the cell introduces the member it names
 docs/spec/_assets/tbl-published-entries.md | isCombo | table T-064 lists the public members; the cell introduces the member it names
+docs/spec/_assets/tbl-published-entries.md | relayRefusalResult | table T-064 lists the public members; the cell introduces the member it names

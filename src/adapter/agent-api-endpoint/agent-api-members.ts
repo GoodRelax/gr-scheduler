@@ -235,6 +235,14 @@ export interface AgentTableCell {
   readonly text: string
 }
 
+// see AV-21
+export interface AgentSavedFile {
+  readonly ok: true
+  readonly savedTo: string
+  readonly bytes: number
+  readonly backedUpTo: string | null
+}
+
 // see T-107
 export interface AgentApi {
   readonly agentApiVersion: string
@@ -259,6 +267,8 @@ export interface AgentApi {
   applyCommands(request: AgentWriteRequest): AgentWriteOutcome
   /** @purity non-pure */
   importDocument(source: AgentImportSource): Promise<AgentImportOutcome>
+  /** @purity non-pure */
+  requestOpenFile(): AgentImportOutcome
 
   /** @purity non-pure */
   undoEdit(expectedStamp: DocumentStamp): AgentWriteOutcome
@@ -317,6 +327,8 @@ export interface AgentApiWiring {
   readonly delayFixLog?: DelayFixLogSource | undefined
   // WHY: optional: absent, the holder is stepped through the same use case; the shell's steps also land the screen (FR-100).
   readonly historySteps?: HistoryStepper | undefined
+  // see AM-29, QN-17
+  readonly askToOpenFile?: (() => void) | undefined
   // TRAP: must differ from the person's writer name, or AG-6 takes the person's edits for this API's own.
   readonly writerName: string
   readonly schemaVersion: string
@@ -876,6 +888,24 @@ async function importHandedDocument(
   return Promise.race([asked, settled])
 }
 
+const OPEN_FILE_QUESTION = 'QN-17'
+
+// see AM-29, AG-12, FR-087, AG-6
+/** @purity non-pure */
+function askToOpenFileThrough(wiring: AgentApiWiring): AgentImportOutcome {
+  const snapshot = wiring.source.readSnapshot()
+  const ask = wiring.askToOpenFile
+  if (ask === undefined) return { ok: false, refusal: notAvailable('AM-29', snapshot, 'the wiring carries no file window') }
+  const busy = snapshot.isGestureInFlight
+    ? 'gestureInFlight'
+    : snapshot.isEditingInPlace ? 'editingInPlace' : snapshot.isQuestionAsked ? 'questionAsked' : null
+  if (busy !== null) {
+    return { ok: false, refusal: agentRefusal('AM-29', busy, snapshot, 'the person is busy on the page; try again shortly', []) }
+  }
+  ask()
+  return { ok: true, asked: OPEN_FILE_QUESTION, stamp: frozenCopy(snapshot.documentAsWritten.documentStamp) }
+}
+
 // see T-107
 /** @purity non-pure */
 export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
@@ -948,6 +978,9 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
     /** @purity non-pure */
     importDocument: (handedSource: AgentImportSource): Promise<AgentImportOutcome> =>
       importHandedDocument(wiring, handedSource),
+
+    /** @purity non-pure */
+    requestOpenFile: (): AgentImportOutcome => askToOpenFileThrough(wiring),
 
     /** @purity non-pure */
     undoEdit: (expectedStamp: DocumentStamp): AgentWriteOutcome =>

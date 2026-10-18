@@ -109,6 +109,24 @@ test('design 6 / CR-620: the manifest runs on node, from server/grs-relay.mjs', 
   expect(manifest.server?.entry_point).toBe(SERVER_ENTRY)
 })
 
+test('design 7 / AG-12 (9): the manifest asks for saveFolder and confirmBeforeOverwrite and passes both to the entry', () => {
+  const manifest = JSON.parse((bundled().get('manifest.json') ?? Buffer.alloc(0)).toString('utf8')) as {
+    server?: { mcp_config?: { args?: string[] } }
+    user_config?: Record<string, { type?: string; default?: unknown }>
+  }
+  expect(manifest.user_config?.['saveFolder']?.type).toBe('directory')
+  expect(manifest.user_config?.['saveFolder']?.default).toBe('${DOCUMENTS}/GRS')
+  expect(manifest.user_config?.['confirmBeforeOverwrite']?.type).toBe('boolean')
+  expect(manifest.user_config?.['confirmBeforeOverwrite']?.default).toBe(true)
+  expect(manifest.server?.mcp_config?.args).toEqual([
+    '${__dirname}/' + SERVER_ENTRY,
+    '--saveFolder',
+    '${user_config.saveFolder}',
+    '--confirmBeforeOverwrite',
+    '${user_config.confirmBeforeOverwrite}',
+  ])
+})
+
 // WHY: design 6 -- the version is package.json's version, "+", and the first 12 hex digits of the SHA-256 of dist/index.html.
 function expectedVersion(): string {
   const packageVersion = (JSON.parse(readFileSync(join(process.cwd(), 'package.json'), 'utf8')) as { version: string }).version

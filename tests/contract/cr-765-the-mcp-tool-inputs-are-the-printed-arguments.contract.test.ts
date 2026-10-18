@@ -138,12 +138,12 @@ describe('mcpToolList: one tool per row of T-107, with the input the argument co
 
   it('a member without an argument, and the two properties, take an empty object', () => {
     const empty = members.filter((one) => one.arguments.length === 0)
-    expect(empty).toHaveLength(11)
+    expect(empty).toHaveLength(7)
     for (const member of empty) expect(toolNamed(member.name).inputSchema.properties, member.id).toEqual({})
     expect(empty.filter((one) => one.isProperty).map((one) => one.name)).toEqual(['agentApiVersion', 'schemaVersion'])
   })
 
-  it('the ten members with an argument give their keys the types the rule derives', () => {
+  it('the members with an argument or an MCP-only key give their keys the types the rule derives', () => {
     const typesOf = (name: string): unknown[] =>
       Object.values(toolNamed(name).inputSchema.properties as Readonly<Record<string, Schema>>).map((schema) => schema.type)
     expect(typesOf('readDocument')).toEqual(['boolean', 'array'])
@@ -156,6 +156,16 @@ describe('mcpToolList: one tool per row of T-107, with the input the argument co
     expect(typesOf('focusTask')).toEqual(['number'])
     expect(typesOf('showOnlyTasks')).toEqual(['array'])
     expect(typesOf('watchChanges')).toEqual(['number'])
+    for (const name of ['exportJson', 'exportMspdi', 'exportSvg', 'exportPng', 'exportEmbeddedHtml']) {
+      expect(typesOf(name), name).toEqual(['string', 'boolean'])
+    }
+  })
+
+  // see AM-11, AM-12, AM-13, AM-14, AM-15
+  it('the five export tools take { fileName, overwrite } and nothing else', () => {
+    for (const name of ['exportJson', 'exportMspdi', 'exportSvg', 'exportPng', 'exportEmbeddedHtml']) {
+      expect(Object.keys(toolNamed(name).inputSchema.properties), name).toEqual(['fileName', 'overwrite'])
+    }
   })
 
   it('a number list gives the type of its items', () => {
@@ -180,7 +190,7 @@ describe('AM-17 and AG-12 (5): watchChanges takes waitMs and not its receiver', 
 
 describe('mcp-tool-descriptions.json is what mcpToolList returns', () => {
   it('the file holds one entry per tool, with the same name, description and input properties', () => {
-    expect(FILE.tools).toHaveLength(21)
+    expect(FILE.tools).toHaveLength(22)
     expect(
       FILE.tools.map((tool) => ({ name: tool.name, description: tool.description, properties: tool.inputSchema.properties })),
     ).toEqual(

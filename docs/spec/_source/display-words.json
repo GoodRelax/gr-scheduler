@@ -3836,6 +3836,13 @@
    }
   },
   {
+   "rowId": "QN-17",
+   "text": {
+    "ja": "AI がファイルを開くよう求めています。ファイルを選ぶ窓を開きますか？",
+    "en": "The AI asks you to open a file. Open the file window?"
+   }
+  },
+  {
    "rowId": "QN-8",
    "text": {
     "ja": "この操作を続けますか？ 取り消しで戻せない変更が起きます",

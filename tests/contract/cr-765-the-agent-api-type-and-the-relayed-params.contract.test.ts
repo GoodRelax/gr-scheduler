@@ -63,7 +63,7 @@ describe('AM-1 and AG-1: the version the AgentApi hands out is the one the table
   })
 })
 
-describe('the AgentApi value has exactly the 21 members of T-107, a property or a method as the table says', () => {
+describe('the AgentApi value has exactly the 22 members of T-107, a property or a method as the table says', () => {
   const api = installAgentApi(stubbedWiring) as unknown as Record<string, unknown>
 
   it('the keys are the confirmed names', () => {
@@ -83,7 +83,7 @@ describe('the AgentApi value has exactly the 21 members of T-107, a property or 
 })
 
 describe('the AgentApi type, member by member (T-107)', () => {
-  it('has 21 members and the published AgentApi is the same type', () => {
+  it('has 22 members and the published AgentApi is the same type', () => {
     expectTypeOf<keyof AgentApi>().toEqualTypeOf<
       | 'agentApiVersion'
       | 'schemaVersion'
@@ -96,6 +96,7 @@ describe('the AgentApi type, member by member (T-107)', () => {
       | 'readDelayDiagnostics'
       | 'applyCommands'
       | 'importDocument'
+      | 'requestOpenFile'
       | 'undoEdit'
       | 'redoEdit'
       | 'exportJson'

@@ -30,12 +30,18 @@ export interface RelayedParams {
   readDelayDiagnostics: {}
   applyCommands: { request: AgentWriteRequest }
   importDocument: { source: AgentImportSource }
+  requestOpenFile: {}
   undoEdit: { expectedStamp: DocumentStamp }
   redoEdit: { expectedStamp: DocumentStamp }
+  // WHY: the relay reads fileName, overwrite itself; the page takes no argument.
   exportJson: {}
+  // WHY: the relay reads fileName, overwrite itself; the page takes no argument.
   exportMspdi: {}
+  // WHY: the relay reads fileName, overwrite itself; the page takes no argument.
   exportSvg: {}
+  // WHY: the relay reads fileName, overwrite itself; the page takes no argument.
   exportPng: {}
+  // WHY: the relay reads fileName, overwrite itself; the page takes no argument.
   exportEmbeddedHtml: {}
   focusTask: { taskUid: number }
   showOnlyTasks: { taskUids: readonly number[] }

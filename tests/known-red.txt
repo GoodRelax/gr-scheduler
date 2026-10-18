@@ -13,7 +13,6 @@
 # matches the specification; when the app is fixed it turns green and its line must go.
 
 DFC-1016 | tests/use-case/uc-010-exchange-with-an-external-wbs-master.test.ts | UC-010 | - | - | UC-010 extension 2a / FR-023 OP-5: a truncated MSPDI file is dropped with no notice
-DFC-1019 | tests/use-case/uc-013-fix-the-schedule-with-an-ai.test.ts | UC-013 | - | - | UC-013 step 2 / FR-066 AG-11: a sent Dialogue Field line is not returned by readDialogueMessages
 DFC-1020 | tests/use-case/uc-013-fix-the-schedule-with-an-ai.test.ts | UC-013 | - | - | UC-013 step 4 / FR-066 DR-4: no change reason reaches changeLog
 DFC-1024 | tests/contract/cr-430-table-pk-the-pointer-shapes.test.ts | -- | STACK_TRACE_ERROR | flaky | the 5 s timeout under a loaded machine; green alone
 DFC-1024 | tests/contract/cr-441-fr-016-the-marker-drag-shows-the-actual-end.test.ts | FR-016 | STACK_TRACE_ERROR | flaky | the 5 s timeout under a loaded machine; green alone

@@ -205,6 +205,7 @@ export type QuestionRow =
   | 'QN-14'
   | 'QN-15'
   | 'QN-16'
+  | 'QN-17'
   | 'QN-8'
 
 // see T-037
@@ -554,6 +555,7 @@ export const QUESTION_DISPLAY_OF_ROW: Readonly<Record<QuestionRow, 'ask' | 'askO
   'QN-14': 'ask',
   'QN-15': 'ask',
   'QN-16': 'ask',
+  'QN-17': 'ask',
   'QN-8': 'ask',
 }
 // </generated>

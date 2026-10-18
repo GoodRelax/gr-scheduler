@@ -748,6 +748,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `agentApiMembers` | file only | function | `src/adapter/agent-api-endpoint/agent-api-members.ts#agentApiMembers` | -- | function agentApiMembers(wiring: AgentApiWiring): AgentApi |
 | `AgentDelayDiagnostics` | file only | interface | `src/adapter/agent-api-endpoint/agent-api-members.ts#AgentDelayDiagnostics` | -- | interface AgentDelayDiagnostics extends DelayDiagnosticsReport |
 | `AgentImportOutcome` | file only | type | `src/adapter/agent-api-endpoint/agent-api-members.ts#AgentImportOutcome` | -- | type AgentImportOutcome = \| { readonly ok: true; readonly stamp: DocumentStamp; readonly hasUpdatedSchedule: boolean } \| { readonly ok: true; readonly asked:... |
+| `AgentSavedFile` | file only | interface | `src/adapter/agent-api-endpoint/agent-api-members.ts#AgentSavedFile` | -- | interface AgentSavedFile |
 | `AgentSearchPage` | file only | interface | `src/adapter/agent-api-endpoint/agent-api-members.ts#AgentSearchPage` | -- | interface AgentSearchPage |
 | `AgentTableCell` | file only | interface | `src/adapter/agent-api-endpoint/agent-api-members.ts#AgentTableCell` | -- | interface AgentTableCell |
 | `AgentTableColumn` | file only | interface | `src/adapter/agent-api-endpoint/agent-api-members.ts#AgentTableColumn` | -- | interface AgentTableColumn |
@@ -2079,6 +2080,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `mcpToolResultOf` | entry | function | `src/adapter/mcp-tool-translator/mcp-tool-translator.ts#mcpToolResultOf` | PI-40 | ページの答えを MCP の道具の答えに写す。 |
 | `pageNotConnectedResult` | entry | function | `src/adapter/mcp-tool-translator/mcp-tool-translator.ts#pageNotConnectedResult` | PI-40 | ページが繋がっていないときの答え。 |
 | `relayedCallOf` | entry | function | `src/adapter/mcp-tool-translator/mcp-tool-translator.ts#relayedCallOf` | PI-40 | MCP の道具の呼び出しを、ページへ運ぶ呼び出しに写す |
+| `relayRefusalResult` | entry | function | `src/adapter/mcp-tool-translator/mcp-tool-translator.ts#relayRefusalResult` | PI-40 | 取次が自ら返す拒否の値（刻印を持たない）。 |
 | `relayTimedOutResult` | entry | function | `src/adapter/mcp-tool-translator/mcp-tool-translator.ts#relayTimedOutResult` | PI-40 | 取次の締め切りを過ぎた呼び出しの答え。 |
 
 ## McpRelayServer (PI-41, `src/framework/mcp-relay-server/mcp-relay-server.ts`)
@@ -2089,4 +2091,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 1061 name(s) leave through a public entry (517 of them published by table T-064), 828 more are exported by a file and not by its entry.
+Totals: 1062 name(s) leave through a public entry (518 of them published by table T-064), 829 more are exported by a file and not by its entry.

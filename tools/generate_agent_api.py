@@ -66,6 +66,9 @@ LINE_WIDTH = 100
 # CR-796: a description an MCP client reads names no row of the specification
 # (design-mcp-relay.md 3.1) -- the reading AI cannot follow one.
 ROW_ID = re.compile(r'\b[A-Z]{1,4}-\d+[a-z]?\b')
+# CR-796: each saving member names the one extension it writes in its carries,
+# as "拡張子 `.json`" (AG-12 (9)); the relay refuses any other.
+SAVE_EXTENSION = re.compile(r'拡張子 `(\.[a-z]+)`')
 
 
 def path_of(rel):
@@ -292,8 +295,9 @@ def relayed_region(doc):
     out = ['// see %s, AG-12' % doc['members']['table']['id'], 'export interface RelayedParams {']
     for member in doc['members']['rows']:
         if 'mcpOnlyKeys' in member:
-            out.append('  // WHY: the relay reads %s itself; the page only subscribes.'
-                       % ', '.join(one['name'] for one in member['mcpOnlyKeys']))
+            out.append('  // WHY: the relay reads %s itself; the page %s.'
+                       % (', '.join(one['name'] for one in member['mcpOnlyKeys']),
+                          'only subscribes' if member['arguments'] else 'takes no argument'))
             out.append('  %s: {}' % member['name'])
             continue
         params = '; '.join('%s: %s' % (one['name'], one['type']) for one in member['arguments'])
@@ -310,20 +314,39 @@ def relayed_region(doc):
 
 
 def relay_server_region(doc):
-    """The region of mcp-relay-server.ts.
+    """The region of mcp-relay-server.ts: the one member that waits (AG-12 (5))
+    and the export members that save (AG-12 (9)), with the extension each writes.
 
     @purity pure
     """
-    waiting = [member for member in doc['members']['rows'] if 'mcpOnlyKeys' in member]
-    if len(waiting) != 1 or len(waiting[0]['mcpOnlyKeys']) != 1:
+    keyed = [member for member in doc['members']['rows'] if 'mcpOnlyKeys' in member]
+    waiting = [member for member in keyed if len(member['mcpOnlyKeys']) == 1]
+    saving = [member for member in keyed if len(member['mcpOnlyKeys']) != 1]
+    if len(waiting) != 1:
         stop('the relay waits on exactly one member with one MCP-only key (AG-12 (5)); '
              'the manuscript gives %d member(s)' % len(waiting))
+    save_keys = [[one['name'] for one in member['mcpOnlyKeys']] for member in saving]
+    if not saving or len(save_keys[0]) != 2 or any(keys != save_keys[0] for keys in save_keys):
+        stop('the saving members (AG-12 (9)) must all take the same two MCP-only keys; '
+             'the manuscript gives %r' % save_keys)
+    extensions = []
+    for one in saving:
+        found = SAVE_EXTENSION.findall(' '.join(one['carries']['ja']))
+        if len(found) != 1:
+            stop('%s names %d extension(s) to save with; it must name exactly one' % (one['id'], len(found)))
+        extensions.append((one['name'], found[0]))
     member = waiting[0]
-    return ('table %s, the MCP-only key of %s' % (doc['members']['table']['id'], member['id']), [
+    saving_ids = ', '.join(one['id'] for one in saving)
+    return ('table %s, the MCP-only keys of %s and %s'
+            % (doc['members']['table']['id'], member['id'], saving_ids), [
         '// see %s, AG-12' % member['id'],
         "const WATCH_CHANGES = '%s'" % member['name'],
         "const WAIT_MS_KEY = '%s'" % member['mcpOnlyKeys'][0]['name'],
-    ])
+        '// see %s, AG-12' % saving_ids,
+        "const FILE_NAME_KEY = '%s'" % save_keys[0][0],
+        "const OVERWRITE_KEY = '%s'" % save_keys[0][1],
+        'const SAVED_EXTENSION_OF: Readonly<Record<string, string>> = {',
+    ] + ["  %s: '%s'," % one for one in extensions] + ['}'])
 
 
 UNITS = [

@@ -126,7 +126,7 @@
 | ④' | 遅延診断レポートと担当リストの表の読み手 `readTableRows`（`AM-28`、`AV-18`〜`AV-20`） | `JDG-2766`・`DFC-3254`・`DFC-3256` | 当てた（`11403b91`）。試験 `tests/contract/cr-796-s4b-*`（別の体）。セルは英語の画面の値、`RQ-3` はいつも選んでいない値 |
 | ⑤ | 取り消し・やり直し（`AM-9`・`AM-10` に `expectedStamp`、自分の段だけ、`notOwnStep`、表 T-230 の `RD-1`・`RD-2`、`AG-10`） | `DFC-3250` | 当てた（`414b843c`）。試験 `tests/contract/cr-796-s5-*`（別の体）。履歴の段に書き手を持たせた |
 | ⑥ | 対話の機能を消す | `JDG-2767` | 仕様と src から消した —— `FR-066`・`U-44`・`IC-18`・`S-99i`・`S-453`・`S-454`・`S-456`・`UZ-9`・`AG-11`・`AM-6`・`AM-18`・`AV-12`・`AV-13`、コンポーネント `PostDialogueMessage`・`DialogueLog`（`CP-16`・`CP-33`・`PI-16`・`PI-33`・`UF-26`・`UF-56`・`UF-68`・`UF-111`・`FT-5`）。退役の席は `retired.py`。表のウィンドウの名は表の見え方の鍵から導く（`ScreenState` → `DocumentSettings` の辺） |
-| ⑦ | ファイルを開く・保存する | `JDG-2760`〜`JDG-2763` | 未 —— 調整役の指示で別の席が当てる（この席のコンテキストが尽きるため）。仕様の直しの原稿は引き継ぎの手引きに添えた |
+| ⑦ | ファイルを開く・保存する（`AM-11`〜`AM-15` の `fileName`・`overwrite`、`AM-29`、`AV-21`、`QN-17`、`AG-12` の ⑨、設計 5・7） | `JDG-2760`〜`JDG-2763` | 当てた。試験 `tests/contract/cr-796-s7-*`（別の体）。保存は取次（Node）が書き、名の確かめと実の所がフォルダの中かの確かめも取次がする。設定は `.mcpb` の `user_config`（`saveFolder`・`confirmBeforeOverwrite`）からコマンド行の同じ名の引数で渡る。問い `QN-17` は表 T-290 の `changeQuestionRaised` で立てる |
 
 ### 片 ① の利用者の手順（1〜3 手）
 
@@ -163,3 +163,9 @@
 
 1. 画面のどこにも対話欄の入口が無く、ヘルプにも対話欄の説明が無い。
 2. AI に「GRS Relay の道具の一覧を見せて」と頼む → `readDialogueMessages`・`postDialogueMessage` が無い（21 の道具）。
+
+### 片 ⑦ の利用者の手順（1〜3 手）
+
+1. 取次を入れ直す → Claude Desktop の拡張の設定に「Save folder」（既定 `ドキュメント\GRS`）と「Confirm before overwrite」（既定オン）が出る。
+2. AI に「`plan.json` で保存して」と頼む → ファイルができる。もう 1 度頼む → AI が上書きしてよいか問う。「いいよ」→ `plan.json.bak` が残る。
+3. AI に「ファイルを開かせて」と頼む → 画面が問う。続けるとファイルを選ぶ窓が開く。

@@ -3,10 +3,11 @@
 // @component McpRelayServer, layer Framework (table T-062)
 // @purity    non-pure
 // @publishes table T-064 row PI-41
-// Generated region: the member and key AG-12 (5) waits on, from docs/spec/_source/agent-api-members.json
-// (table T-107). Do not edit by hand; npm run gen.
+// Generated region: the member and key AG-12 (5) waits on and the keys AG-12 (9) saves by, from
+// docs/spec/_source/agent-api-members.json (table T-107). Do not edit by hand; npm run gen.
 
 import { createHash, randomBytes, timingSafeEqual } from 'node:crypto'
+import { lstat, mkdir, realpath, rename, unlink, writeFile } from 'node:fs/promises'
 import {
   createServer,
   STATUS_CODES,
@@ -15,6 +16,8 @@ import {
   type ServerResponse,
 } from 'node:http'
 import type { AddressInfo, Socket } from 'node:net'
+import { homedir } from 'node:os'
+import { basename, dirname, isAbsolute, join, relative, resolve, sep } from 'node:path'
 
 import {
   mcpInstructions,
@@ -22,6 +25,7 @@ import {
   mcpToolResultOf,
   pageNotConnectedResult,
   relayedCallOf,
+  relayRefusalResult,
   relayTimedOutResult,
 } from '../../adapter/mcp-tool-translator/mcp-tool-translator'
 
@@ -35,6 +39,9 @@ export interface McpRelayOptions {
   readonly commandsSchema: string
   // see AG-12
   readonly callDeadlineMs?: number
+  // see AG-12
+  readonly saveFolder?: string
+  readonly confirmBeforeOverwrite?: boolean
 }
 
 export interface McpRelay {
@@ -113,10 +120,20 @@ const DEFAULT_CALL_DEADLINE_MS = 45_000
 const LONGEST_WATCH_WAIT_MS = 40_000
 
 // <generated -- do not edit by hand>
-// From docs/spec/_source/agent-api-members.json (table T-107, the MCP-only key of AM-17).
+// From docs/spec/_source/agent-api-members.json (table T-107, the MCP-only keys of AM-17 and AM-11, AM-12, AM-13, AM-14, AM-15).
 // see AM-17, AG-12
 const WATCH_CHANGES = 'watchChanges'
 const WAIT_MS_KEY = 'waitMs'
+// see AM-11, AM-12, AM-13, AM-14, AM-15, AG-12
+const FILE_NAME_KEY = 'fileName'
+const OVERWRITE_KEY = 'overwrite'
+const SAVED_EXTENSION_OF: Readonly<Record<string, string>> = {
+  exportJson: '.json',
+  exportMspdi: '.xml',
+  exportSvg: '.svg',
+  exportPng: '.png',
+  exportEmbeddedHtml: '.html',
+}
 // </generated>
 
 const WEBSOCKET_GUID = '258EAFA5-E914-47DA-95CA-C5AB0DC85B11'
@@ -523,19 +540,158 @@ function pageAnswerOf(
   })
 }
 
+type PageReply = { readonly answer: RelayedAnswer } | { readonly unanswered: McpToolResult }
+
 /** @purity non-pure */
-function pageResultOf(state: RelayState, call: RelayedCall, canceled: Promise<null>): Promise<McpToolResult> {
+function pageReplyOf(state: RelayState, call: RelayedCall, canceled: Promise<null>): Promise<PageReply> {
   const page = state.page
-  if (page === null) return Promise.resolve(pageNotConnectedResult(state.pageUrl))
+  if (page === null) return Promise.resolve({ unanswered: pageNotConnectedResult(state.pageUrl) })
   const callId = state.nextPageCallId
   state.nextPageCallId += 1
   const deadlineMs = state.options.callDeadlineMs ?? DEFAULT_CALL_DEADLINE_MS
   const answer = pageAnswerOf(state, callId, deadlineMs, canceled)
   sendText(page, JSON.stringify({ jsonrpc: JSON_RPC_VERSION, id: callId, method: call.member, params: call.params }))
-  return answer.then((received) => {
-    if (received === 'timedOut') return relayTimedOutResult(call.member, deadlineMs)
-    return received === null ? pageNotConnectedResult(state.pageUrl) : mcpToolResultOf(call.member, received)
+  return answer.then((received): PageReply => {
+    if (received === 'timedOut') return { unanswered: relayTimedOutResult(call.member, deadlineMs) }
+    return received === null ? { unanswered: pageNotConnectedResult(state.pageUrl) } : { answer: received }
   })
+}
+
+/** @purity non-pure */
+async function pageResultOf(state: RelayState, call: RelayedCall, canceled: Promise<null>): Promise<McpToolResult> {
+  const reply = await pageReplyOf(state, call, canceled)
+  return 'unanswered' in reply ? reply.unanswered : mcpToolResultOf(call.member, reply.answer)
+}
+
+// WHY: Windows opens these as devices whatever extension follows; `:` would open an alternate data stream.
+const DEVICE_NAME = /^(con|prn|aux|nul|com[0-9¹²³]|lpt[0-9¹²³]|conin\$|conout\$)$/i
+const FORBIDDEN_CHARACTERS = /[<>:"|?*\u0000-\u001f]/
+const PATH_SEPARATORS = /[\\/]/
+const LONGEST_NAME_PART = 255
+const BAK_SUFFIX = '.bak'
+const TEMP_NAME_BYTES = 6
+// WHY: the page hands a PNG over as base64 (AM-14 in relayed-call.ts); every other format is text.
+const BASE64_EXTENSION = '.png'
+
+/** @purity pure */
+function namePartProblemOf(part: string): string | null {
+  if (part === '' || part === '.' || part === '..') return 'must not hold an empty part, "." or ".."'
+  if (part.length > LONGEST_NAME_PART) return `must not hold a part longer than ${LONGEST_NAME_PART} characters`
+  if (/[. ]$/.test(part)) return 'must not hold a part ending in a dot or a space'
+  if (DEVICE_NAME.test(part.split('.')[0]!.trimEnd())) return `must not name the device "${part}"`
+  return null
+}
+
+// see AG-12
+/** @purity pure */
+function saveNameProblemOf(fileName: unknown, extension: string): string | null {
+  if (typeof fileName !== 'string' || fileName === '') return 'fileName must be a non-empty string'
+  if (FORBIDDEN_CHARACTERS.test(fileName) || PATH_SEPARATORS.test(fileName[0]!)) {
+    return 'fileName must be relative to the save folder: no drive, no leading slash, no ":" and none of < > " | ? *'
+  }
+  for (const part of fileName.split(PATH_SEPARATORS)) {
+    const problem = namePartProblemOf(part)
+    if (problem !== null) return `fileName ${problem}`
+  }
+  return fileName.toLowerCase().endsWith(extension) ? null : `fileName must end in ${extension}`
+}
+
+/** @purity pure */
+function isInside(folder: string, path: string): boolean {
+  const way = relative(folder, path)
+  return way !== '' && !way.startsWith(`..${sep}`) && way !== '..' && !isAbsolute(way)
+}
+
+interface SaveTarget {
+  readonly path: string
+  readonly savedTo: string
+  readonly exists: boolean
+}
+
+/** @purity non-pure */
+async function realFolderOf(folder: string): Promise<string | McpToolResult> {
+  try {
+    await mkdir(folder, { recursive: true })
+    return await realpath(folder)
+  } catch (error) {
+    return relayRefusalResult('saveFolderUnavailable', `The save folder ${folder} cannot be made or read: ${String(error)}`)
+  }
+}
+
+// see AG-12
+// TRAP: the real path is checked, not the name: a link or junction inside the folder can lead out of it.
+/** @purity non-pure */
+async function saveTargetOf(options: McpRelayOptions, fileName: string): Promise<SaveTarget | McpToolResult> {
+  const folder = await realFolderOf(resolve(options.saveFolder || join(homedir(), 'Documents', 'GRS')))
+  if (typeof folder !== 'string') return folder
+  const named = resolve(folder, fileName)
+  const leadsOut = relayRefusalResult('badFileName', `fileName ${fileName} leads out of the save folder`)
+  if (!isInside(folder, named)) return leadsOut
+  const parent = await realFolderOf(dirname(named))
+  if (typeof parent !== 'string') return parent
+  const path = join(parent, basename(named))
+  if (!isInside(folder, path)) return leadsOut
+  const held = await lstat(path).catch(() => null)
+  if (held !== null && !held.isFile()) {
+    return relayRefusalResult('badFileName', `fileName ${fileName} names a folder or a link, not a file`)
+  }
+  return { path, savedTo: relative(folder, path).split(sep).join('/'), exists: held !== null }
+}
+
+/** @purity pure */
+function fileExistsResult(target: SaveTarget): McpToolResult {
+  return relayRefusalResult(
+    'fileExists',
+    `${target.savedTo} already exists in the save folder. Ask the person whether to replace it, ` +
+      'then call again with overwrite true; the old file is kept as .bak.',
+  )
+}
+
+// see AG-12, AV-21
+// WHY: the new bytes go to a temporary file first, so a write that stops half way leaves the old file whole.
+/** @purity non-pure */
+async function writeSaveTarget(target: SaveTarget, bytes: Buffer): Promise<McpToolResult> {
+  const temporary = join(dirname(target.path), `.${basename(target.path)}.${randomBytes(TEMP_NAME_BYTES).toString('hex')}.tmp`)
+  try {
+    await writeFile(temporary, bytes, { flag: 'wx' })
+    if (target.exists) await rename(target.path, `${target.path}${BAK_SUFFIX}`)
+    await rename(temporary, target.path)
+  } catch (error) {
+    await unlink(temporary).catch(() => undefined)
+    return relayRefusalResult('saveFolderUnavailable', `${target.savedTo} could not be written: ${String(error)}`)
+  }
+  const saved = { ok: true, savedTo: target.savedTo, bytes: bytes.length, backedUpTo: target.exists ? `${target.savedTo}${BAK_SUFFIX}` : null }
+  return { content: [{ type: 'text', text: JSON.stringify(saved) }], structuredContent: saved }
+}
+
+// see AG-12, AM-11, AM-12, AM-13, AM-14, AM-15
+// TRAP: the target is judged again after the page answers; a file may have appeared in the meantime.
+/** @purity non-pure */
+async function saveResultOf(
+  state: RelayState,
+  call: RelayedCall,
+  toolArguments: Record<string, unknown>,
+  canceled: Promise<null>,
+): Promise<McpToolResult> {
+  const extension = SAVED_EXTENSION_OF[call.member]!
+  const fileName = toolArguments[FILE_NAME_KEY]
+  const problem = saveNameProblemOf(fileName, extension)
+  if (problem !== null) return relayRefusalResult('badFileName', problem)
+  const mayReplace = toolArguments[OVERWRITE_KEY] === true || state.options.confirmBeforeOverwrite === false
+  const judged = async (): Promise<SaveTarget | McpToolResult> => {
+    const target = await saveTargetOf(state.options, fileName as string)
+    return 'path' in target && target.exists && !mayReplace ? fileExistsResult(target) : target
+  }
+  const before = await judged()
+  if (!('path' in before)) return before
+  const reply = await pageReplyOf(state, call, canceled)
+  if ('unanswered' in reply) return reply.unanswered
+  const exported = 'result' in reply.answer && isPlainRecord(reply.answer.result) ? reply.answer.result : {}
+  const value = exported['value']
+  if (exported['ok'] !== true || typeof value !== 'string') return mcpToolResultOf(call.member, reply.answer)
+  const target = await judged()
+  if (!('path' in target)) return target
+  return writeSaveTarget(target, Buffer.from(value, extension === BASE64_EXTENSION ? 'base64' : 'utf8'))
 }
 
 /** @purity non-pure */
@@ -589,8 +745,11 @@ async function toolCallReplyOf(state: RelayState, id: unknown, params: unknown):
   const name = isPlainRecord(params) ? params['name'] : undefined
   const toolArguments = isPlainRecord(params) ? params['arguments'] : undefined
   if (typeof name !== 'string') return { error: { code: INVALID_PARAMS, message: 'tools/call needs a tool name' } }
-  const call = relayedCallOf(isPlainRecord(toolArguments) ? { name, arguments: toolArguments } : { name })
+  const isSaving = Object.prototype.hasOwnProperty.call(SAVED_EXTENSION_OF, name)
+  // WHY: the save keys are the relay's own (AG-12 (9)); the page is never handed them.
+  const call = relayedCallOf(isPlainRecord(toolArguments) && !isSaving ? { name, arguments: toolArguments } : { name })
   if (call === null) return { error: { code: INVALID_PARAMS, message: `Unknown tool: ${name}` } }
+  const saves = isSaving && isPlainRecord(toolArguments) && toolArguments[FILE_NAME_KEY] !== undefined
   const cancelKey = JSON.stringify(id)
   let cancel = (): void => undefined
   const canceled = new Promise<null>((resolve) => {
@@ -600,7 +759,9 @@ async function toolCallReplyOf(state: RelayState, id: unknown, params: unknown):
   const work =
     call.member === WATCH_CHANGES
       ? watchResultOf(state, call, waitMsOf(toolArguments), canceled)
-      : pageResultOf(state, call, canceled)
+      : saves
+        ? saveResultOf(state, call, toolArguments, canceled)
+        : pageResultOf(state, call, canceled)
   try {
     const result = await Promise.race([work, canceled])
     return result === null ? null : { result }

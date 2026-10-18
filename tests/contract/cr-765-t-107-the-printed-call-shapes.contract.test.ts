@@ -28,7 +28,7 @@ const GLOSSARY = unbroken(readFileSync(join(SPEC, '_assets', 'tbl-glossary.md'),
 const GLOSSARY_POINTER = '表 T-107（`Agent API` のメンバ）と、その呼び方（引数・型・戻り値）は `_assets/tbl-agent-api-members.md` が持つ'
 const VERSION_SENTENCE = 'いまの版は `2026-10-18T02:15:42Z` である（`AM-1` が返す値）。'
 const CHANGE_RAISES_VERSION = '呼び方を変える変更は、版をその変更を当てる時刻へ上げる（表 T-035 の `AG-1`）。'
-const TWENTY_ONE = '**`Agent API` は 1 つの面に 21 のメンバをフラットに並べる。**'
+const TWENTY_TWO = '**`Agent API` は 1 つの面に 22 のメンバをフラットに並べる。**'
 const CALL_SHAPES_ARE_GENERATED =
   '呼び方（引数の名・型・意味と戻り値）は本表と 表 T-400 が持つ** —— コードの `AgentApi` の型と、MCP の道具の入力の形は本表の原稿から生成し、手で書かない'
 
@@ -63,6 +63,7 @@ const EXPECTED_ROWS: readonly (readonly [string, string, readonly string[], stri
   ['AM-19', 'readDelayDiagnostics', [], 'AgentDelayDiagnostics'],
   ['AM-7', 'applyCommands', ['request: AgentWriteRequest'], 'AgentWriteOutcome'],
   ['AM-8', 'importDocument', ['source: AgentImportSource'], 'Promise<AgentImportOutcome>'],
+  ['AM-29', 'requestOpenFile', [], 'AgentImportOutcome'],
   ['AM-9', 'undoEdit', ['expectedStamp: DocumentStamp'], 'AgentWriteOutcome'],
   ['AM-10', 'redoEdit', ['expectedStamp: DocumentStamp'], 'AgentWriteOutcome'],
   ['AM-11', 'exportJson', [], 'AgentExport<string>'],
@@ -87,18 +88,18 @@ describe('T-107 is printed in one place, with the two columns CR-765 adds', () =
     expect(caption).toContain('表 T-107 — `Agent API` のメンバ')
   })
 
-  it('the prose above the table says 21 members on one flat surface, the version is a date-time and a change of call shape raises it', () => {
+  it('the prose above the table says 22 members on one flat surface, the version is a date-time and a change of call shape raises it', () => {
     const prose = unbroken(PRINTED_TEXT)
-    expect(prose).toContain(TWENTY_ONE)
+    expect(prose).toContain(TWENTY_TWO)
     expect(prose).toContain(VERSION_SENTENCE)
     expect(prose).toContain(CHANGE_RAISES_VERSION)
     expect(prose).toContain(CALL_SHAPES_ARE_GENERATED)
   })
 
-  it('21 rows, each a distinct row id AM-n and a distinct confirmed name, in the printed order', () => {
-    expect(members).toHaveLength(21)
-    expect(new Set(members.map((one) => one.id)).size).toBe(21)
-    expect(new Set(members.map((one) => one.name)).size).toBe(21)
+  it('22 rows, each a distinct row id AM-n and a distinct confirmed name, in the printed order', () => {
+    expect(members).toHaveLength(22)
+    expect(new Set(members.map((one) => one.id)).size).toBe(22)
+    expect(new Set(members.map((one) => one.name)).size).toBe(22)
     expect(members.map((one) => one.id)).toEqual(EXPECTED_ROWS.map(([id]) => id))
     expect(members.map((one) => one.name)).toEqual(EXPECTED_ROWS.map(([, name]) => name))
   })
@@ -149,7 +150,7 @@ describe('T-107 arguments and return values, row by row', () => {
 
   // see AM-3, AM-25
   it('the argument columns name ten members that take an argument; the rest print a dash', () => {
-    const taking = members.filter((one) => one.arguments.length > 0).map((one) => one.name)
+    const taking = members.filter((one) => one.arguments.some((argument) => !argument.isMcpOnly)).map((one) => one.name)
     expect(taking).toEqual([
       'readDocument',
       'readSearchRows',
@@ -163,10 +164,11 @@ describe('T-107 arguments and return values, row by row', () => {
       'watchChanges',
     ])
     expect(members.filter((one) => one.arguments.length === 0).every((one) => one.argumentsCell === '—')).toBe(true)
+    expect(members.filter((one) => one.arguments.length > 0).length).toBe(15)
   })
 })
 
-describe('AM-17 and AG-12 (5): the one key only the MCP tool takes', () => {
+describe('AM-17 and AM-11 to AM-15: the keys only the MCP tool takes', () => {
   it('watchChanges prints its receiver and then waitMs, a number of milliseconds, marked as an MCP-only key', () => {
     const watch = memberNamed('watchChanges')
     expect(watch.id).toBe('AM-17')
@@ -179,9 +181,33 @@ describe('AM-17 and AG-12 (5): the one key only the MCP tool takes', () => {
     expect(waitMs?.meaning).toContain('切れたら「まだ無い」を値で返す（`AG-12` の ⑤）')
   })
 
+  // see AM-11, AM-12, AM-13, AM-14, AM-15, AV-21
+  it('the five export rows print fileName and overwrite as MCP-only keys', () => {
+    for (const name of ['exportJson', 'exportMspdi', 'exportSvg', 'exportPng', 'exportEmbeddedHtml']) {
+      const one = memberNamed(name)
+      expect(one.arguments.map((argument) => [argument.name, argument.typeText, argument.isMcpOnly]), name).toEqual([
+        ['fileName', 'string', true],
+        ['overwrite', 'boolean', true],
+      ])
+      expect(one.arguments[0]?.meaning, name).toContain('AgentSavedFile')
+    }
+  })
+
   it('no other row prints an MCP-only key', () => {
     const marked = members.flatMap((one) => one.arguments.filter((argument) => argument.isMcpOnly).map(() => one.name))
-    expect(marked).toEqual(['watchChanges'])
+    expect(marked).toEqual([
+      'exportJson',
+      'exportJson',
+      'exportMspdi',
+      'exportMspdi',
+      'exportSvg',
+      'exportSvg',
+      'exportPng',
+      'exportPng',
+      'exportEmbeddedHtml',
+      'exportEmbeddedHtml',
+      'watchChanges',
+    ])
   })
 
   it('AG-12 (5) says the wait is the caller\'s argument and an expired wait answers a value', () => {

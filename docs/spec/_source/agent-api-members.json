@@ -2,7 +2,7 @@
  "$schema": "./agent-api-members.schema.json",
  "$comment": [
   "SINGLE SOURCE OF TRUTH -- EDIT THIS FILE.",
-  "The members of the Agent API and how each is called (CR-765, JDG-2160): table T-107 (the 21 members: group, confirmed name, kind and purity, arguments, return value, what it carries, source) and table T-400 (the value types the arguments and return values name that table T-064 has no row for).",
+  "The members of the Agent API and how each is called (CR-765, JDG-2160): table T-107 (the 22 members: group, confirmed name, kind and purity, arguments, return value, what it carries, source) and table T-400 (the value types the arguments and return values name that table T-064 has no row for).",
   "Generated FROM this file: _assets/tbl-agent-api-members.md (agent_api_members_json_to_md.py); the generated regions of src/adapter/agent-api-endpoint/agent-api-members.ts (AgentApi, the value types, AGENT_API_VERSION), src/adapter/agent-api-endpoint/relayed-call.ts (RelayedParams, MEMBER_PARAMETERS) and src/framework/mcp-relay-server/mcp-relay-server.ts (the MCP-only key of AM-17) (tools/generate_agent_api.py); and src/adapter/mcp-tool-translator/mcp-tool-descriptions.json, the MCP tool names, descriptions and input shapes (tools/generate_mcp_tool_descriptions.py).",
   "Rebuild: npm run gen   |   npm run gen:check fails if anything has drifted.",
   "Validated by _source/agent-api-members.schema.json. agent_api_members_json_to_md.py also refuses a row id or a name written twice, a type naming an identifier that is neither a row of the value table, a name of `externalTypes` nor a built-in, a line that is empty or holds a line-break tag, and a parenthesis or bold run that does not close on its line.",
@@ -38,7 +38,7 @@
     "Read in small pieces: readSearchRows returns one page of the Search Panel as the person sees it (an empty word is the whole outline) and readTableRows does the same for the Delay Diagnostics Report and the Resource List; readDocument leaves out the MSPDI pass-through fields unless you ask, and can be narrowed to some tasks; readStamp is cheap. Write with applyCommands, handing over the stamp you last read as expectedStamp; the whole batch is applied or refused as one.",
     "A refusal is a value, not an error: it names the reason and carries the current stamp, never the document. Read again what you need, then retry.",
     "While the person is dragging, typing in place or answering a question, writes are refused; try again shortly.",
-    "These tools save nothing to a file. The person saves the document from the page.",
+    "To save, pass fileName to an export tool: the relay writes into the save folder the person chose in the relay's settings. If the file exists you may be refused with fileExists: ask the person before passing overwrite true, unless they told you not to ask in this conversation. The old file is kept as .bak. To open a file, call requestOpenFile: the person picks it in their own file window.",
     "The descriptions here use no row ids of the GRS specification; the specification itself is at https://goodrelax.github.io/gr-scheduler/spec-html/"
    ]
   }
@@ -105,7 +105,7 @@
   },
   "before": {
    "ja": [
-    "**`Agent API` は 1 つの面に 21 のメンバをフラットに並べる。**",
+    "**`Agent API` は 1 つの面に 22 のメンバをフラットに並べる。**",
     "用途別に分けない理由は Chapter 5.2 が持つ（`R2.5`）。",
     "いまの版は `{version}` である（`AM-1` が返す値）。",
     "版は、文書の形式の版（`FR-073`）と同じ書式の日時である —— 呼び方を変える変更は、版をその変更を当てる時刻へ上げる（表 T-035 の `AG-1`）。",
@@ -514,6 +514,31 @@
     }
    },
    {
+    "id": "AM-29",
+    "group": {
+     "ja": "書く"
+    },
+    "name": "requestOpenFile",
+    "kind": "method",
+    "purity": "non-pure",
+    "arguments": [],
+    "returns": "AgentImportOutcome",
+    "carries": {
+     "ja": [
+      "人にファイルを開いてもらう —— 問い `QN-17`（`NT-7`）を出し、答えを待たずに `AgentImportOutcome`（`AV-15`）の「人に問うたとき」を返す（表 T-035 の `AG-12` の ⑥）。",
+      "人が続けるを押すと `IC-1` と同じ道（`FR-087`、`OP-3`）でファイルを選ぶ窓が開く —— ファイルを選ぶのは人である。",
+      "開いた後の書き込みは人の書き込みとして `watchChanges` が知らせる。"
+     ],
+     "en": [
+      "Asks the person to open a file: the page shows a question and the call returns at once.",
+      "If the person goes on, their own file window opens and they pick the file; the document they open reaches you through watchChanges as their edit."
+     ]
+    },
+    "source": {
+     "ja": "表 T-035 の `AG-12` の ⑥ ／ `FR-087` ／ 表 T-234 の `QN-17`"
+    }
+   },
+   {
     "id": "AM-9",
     "group": {
      "ja": "履歴"
@@ -593,15 +618,35 @@
     "returns": "AgentExport<string>",
     "carries": {
      "ja": [
-      "`GRS JSON` を値で返す"
+      "`GRS JSON` を値で返す",
+      "⭐ MCP だけの鍵 `fileName`（拡張子 `.json`）を渡すと、取次が値を保存先のフォルダへ書く（表 T-035 の `AG-12` の ⑨）。"
      ],
      "en": [
-      "Returns the document as GRS JSON text."
+      "Returns the document as GRS JSON text.",
+      "Pass fileName (ending in .json) to have the relay save it in the person's save folder instead."
      ]
     },
     "source": {
      "ja": "表 T-024 の `IO-2` ／ `FR-024` ／ 表 T-035 の `AG-7`"
-    }
+    },
+    "mcpOnlyKeys": [
+     {
+      "name": "fileName",
+      "type": "string",
+      "meaning": {
+       "ja": "保存するファイルの名 —— 取次の設定の保存先のフォルダからの相対の所で、渡せば取次がファイルに書き、値の代わりに `AgentSavedFile`（`AV-21`）を返す（表 T-035 の `AG-12` の ⑨）",
+       "en": "The file to save to, relative to the save folder the person set in the relay's settings. When given, the relay writes the file and answers with where it saved and how many bytes, not with the value"
+      }
+     },
+     {
+      "name": "overwrite",
+      "type": "boolean",
+      "meaning": {
+       "ja": "既にあるファイルを上書きするか —— 取次の設定「上書きの前に確認する」が入っているあいだは `true` が無ければ `fileExists` で拒むので、人に問うてから渡す（上書きの前の中身は `.bak` に 1 世代残る）",
+       "en": "Whether to replace a file that exists. While the relay's 'confirm before overwrite' setting is on, an existing file is refused with fileExists unless this is true; ask the person first, unless they told you not to ask in this conversation. The old file is kept as <name>.bak"
+      }
+     }
+    ]
    },
    {
     "id": "AM-12",
@@ -615,15 +660,35 @@
     "returns": "AgentExport<string>",
     "carries": {
      "ja": [
-      "交換形式を値で返す"
+      "交換形式を値で返す",
+      "⭐ MCP だけの鍵 `fileName`（拡張子 `.xml`）を渡すと、取次が値を保存先のフォルダへ書く（表 T-035 の `AG-12` の ⑨）。"
      ],
      "en": [
-      "Returns the document as Microsoft Project XML (MSPDI)."
+      "Returns the document as Microsoft Project XML (MSPDI).",
+      "Pass fileName (ending in .xml) to have the relay save it in the person's save folder instead."
      ]
     },
     "source": {
      "ja": "表 T-024 の `IO-1` ／ `FR-021`"
-    }
+    },
+    "mcpOnlyKeys": [
+     {
+      "name": "fileName",
+      "type": "string",
+      "meaning": {
+       "ja": "保存するファイルの名 —— 取次の設定の保存先のフォルダからの相対の所で、渡せば取次がファイルに書き、値の代わりに `AgentSavedFile`（`AV-21`）を返す（表 T-035 の `AG-12` の ⑨）",
+       "en": "The file to save to, relative to the save folder the person set in the relay's settings. When given, the relay writes the file and answers with where it saved and how many bytes, not with the value"
+      }
+     },
+     {
+      "name": "overwrite",
+      "type": "boolean",
+      "meaning": {
+       "ja": "既にあるファイルを上書きするか —— 取次の設定「上書きの前に確認する」が入っているあいだは `true` が無ければ `fileExists` で拒むので、人に問うてから渡す（上書きの前の中身は `.bak` に 1 世代残る）",
+       "en": "Whether to replace a file that exists. While the relay's 'confirm before overwrite' setting is on, an existing file is refused with fileExists unless this is true; ask the person first, unless they told you not to ask in this conversation. The old file is kept as <name>.bak"
+      }
+     }
+    ]
    },
    {
     "id": "AM-13",
@@ -637,15 +702,35 @@
     "returns": "AgentExport<string>",
     "carries": {
      "ja": [
-      "書き出す絵（`FR-080`、文書が全体表示時の期間を固定しているときは 表 T-241 の `IX-12`）を値で返す"
+      "書き出す絵（`FR-080`、文書が全体表示時の期間を固定しているときは 表 T-241 の `IX-12`）を値で返す",
+      "⭐ MCP だけの鍵 `fileName`（拡張子 `.svg`）を渡すと、取次が値を保存先のフォルダへ書く（表 T-035 の `AG-12` の ⑨）。"
      ],
      "en": [
-      "Returns the exported picture as SVG text; when the document fixes the span of the fit view, the picture uses that span."
+      "Returns the exported picture as SVG text; when the document fixes the span of the fit view, the picture uses that span.",
+      "Pass fileName (ending in .svg) to have the relay save it in the person's save folder instead."
      ]
     },
     "source": {
      "ja": "表 T-024 の `IO-3` ／ `FR-080`"
-    }
+    },
+    "mcpOnlyKeys": [
+     {
+      "name": "fileName",
+      "type": "string",
+      "meaning": {
+       "ja": "保存するファイルの名 —— 取次の設定の保存先のフォルダからの相対の所で、渡せば取次がファイルに書き、値の代わりに `AgentSavedFile`（`AV-21`）を返す（表 T-035 の `AG-12` の ⑨）",
+       "en": "The file to save to, relative to the save folder the person set in the relay's settings. When given, the relay writes the file and answers with where it saved and how many bytes, not with the value"
+      }
+     },
+     {
+      "name": "overwrite",
+      "type": "boolean",
+      "meaning": {
+       "ja": "既にあるファイルを上書きするか —— 取次の設定「上書きの前に確認する」が入っているあいだは `true` が無ければ `fileExists` で拒むので、人に問うてから渡す（上書きの前の中身は `.bak` に 1 世代残る）",
+       "en": "Whether to replace a file that exists. While the relay's 'confirm before overwrite' setting is on, an existing file is refused with fileExists unless this is true; ask the person first, unless they told you not to ask in this conversation. The old file is kept as <name>.bak"
+      }
+     }
+    ]
    },
    {
     "id": "AM-14",
@@ -660,15 +745,35 @@
     "carries": {
      "ja": [
       "画像を値で返す。",
-      "失敗も値で返す"
+      "失敗も値で返す",
+      "⭐ MCP だけの鍵 `fileName`（拡張子 `.png`）を渡すと、取次が値を保存先のフォルダへ書く（表 T-035 の `AG-12` の ⑨）。"
      ],
      "en": [
-      "Returns the exported picture as a PNG image; a failure is a value too."
+      "Returns the exported picture as a PNG image; a failure is a value too.",
+      "Pass fileName (ending in .png) to have the relay save it in the person's save folder instead."
      ]
     },
     "source": {
      "ja": "表 T-024 の `IO-4` ／ `FR-025` ／ 表 T-035 の `AG-8`"
-    }
+    },
+    "mcpOnlyKeys": [
+     {
+      "name": "fileName",
+      "type": "string",
+      "meaning": {
+       "ja": "保存するファイルの名 —— 取次の設定の保存先のフォルダからの相対の所で、渡せば取次がファイルに書き、値の代わりに `AgentSavedFile`（`AV-21`）を返す（表 T-035 の `AG-12` の ⑨）",
+       "en": "The file to save to, relative to the save folder the person set in the relay's settings. When given, the relay writes the file and answers with where it saved and how many bytes, not with the value"
+      }
+     },
+     {
+      "name": "overwrite",
+      "type": "boolean",
+      "meaning": {
+       "ja": "既にあるファイルを上書きするか —— 取次の設定「上書きの前に確認する」が入っているあいだは `true` が無ければ `fileExists` で拒むので、人に問うてから渡す（上書きの前の中身は `.bak` に 1 世代残る）",
+       "en": "Whether to replace a file that exists. While the relay's 'confirm before overwrite' setting is on, an existing file is refused with fileExists unless this is true; ask the person first, unless they told you not to ask in this conversation. The old file is kept as <name>.bak"
+      }
+     }
+    ]
    },
    {
     "id": "AM-15",
@@ -682,15 +787,35 @@
     "returns": "Promise<AgentExport<string>>",
     "carries": {
      "ja": [
-      "本体と文書を合わせた 1 つの `.html` を値で返す"
+      "本体と文書を合わせた 1 つの `.html` を値で返す",
+      "⭐ MCP だけの鍵 `fileName`（拡張子 `.html`）を渡すと、取次が値を保存先のフォルダへ書く（表 T-035 の `AG-12` の ⑨）。"
      ],
      "en": [
-      "Returns one .html file that holds GRS and the document together."
+      "Returns one .html file that holds GRS and the document together.",
+      "Pass fileName (ending in .html) to have the relay save it in the person's save folder instead."
      ]
     },
     "source": {
      "ja": "表 T-024 の `IO-7` ／ `FR-067`"
-    }
+    },
+    "mcpOnlyKeys": [
+     {
+      "name": "fileName",
+      "type": "string",
+      "meaning": {
+       "ja": "保存するファイルの名 —— 取次の設定の保存先のフォルダからの相対の所で、渡せば取次がファイルに書き、値の代わりに `AgentSavedFile`（`AV-21`）を返す（表 T-035 の `AG-12` の ⑨）",
+       "en": "The file to save to, relative to the save folder the person set in the relay's settings. When given, the relay writes the file and answers with where it saved and how many bytes, not with the value"
+      }
+     },
+     {
+      "name": "overwrite",
+      "type": "boolean",
+      "meaning": {
+       "ja": "既にあるファイルを上書きするか —— 取次の設定「上書きの前に確認する」が入っているあいだは `true` が無ければ `fileExists` で拒むので、人に問うてから渡す（上書きの前の中身は `.bak` に 1 世代残る）",
+       "en": "Whether to replace a file that exists. While the relay's 'confirm before overwrite' setting is on, an existing file is refused with fileExists unless this is true; ask the person first, unless they told you not to ask in this conversation. The old file is kept as <name>.bak"
+      }
+     }
+    ]
    },
    {
     "id": "AM-16",
@@ -1427,7 +1552,7 @@
         "name": "asked",
         "type": "string",
         "meaning": {
-         "ja": "人に出した問いの在りか（いまは `U-61` だけ）"
+         "ja": "人に出した問いの在りか（`U-61` か `QN-17`）"
         }
        },
        {
@@ -1462,7 +1587,7 @@
      }
     ],
     "source": {
-     "ja": "`AM-8` ／ 表 T-035 の `AG-12` の ⑥"
+     "ja": "`AM-8` ／ `AM-29` ／ 表 T-035 の `AG-12` の ⑥"
     }
    },
    {
@@ -1688,6 +1813,44 @@
     ],
     "source": {
      "ja": "`AM-28`"
+    }
+   },
+   {
+    "id": "AV-21",
+    "name": "AgentSavedFile",
+    "shape": "interface",
+    "fields": [
+     {
+      "name": "ok",
+      "type": "true",
+      "meaning": {
+       "ja": "書いた"
+      }
+     },
+     {
+      "name": "savedTo",
+      "type": "string",
+      "meaning": {
+       "ja": "書いたファイルの、保存先のフォルダからの相対の所"
+      }
+     },
+     {
+      "name": "bytes",
+      "type": "number",
+      "meaning": {
+       "ja": "書いたバイト数"
+      }
+     },
+     {
+      "name": "backedUpTo",
+      "type": "string | null",
+      "meaning": {
+       "ja": "上書きの前の中身を移した `.bak` の所 —— 上書きでなければ `null`"
+      }
+     }
+    ],
+    "source": {
+     "ja": "⚠️ 取次だけが返す（MCP だけの鍵 `fileName` の答え） ／ 表 T-035 の `AG-12` の ⑨ ／ `_assets/design-mcp-relay.md` の 5"
     }
    }
   ]

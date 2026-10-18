@@ -12,13 +12,13 @@ what this reading does not see.
 
 | place | T-218 | T-334 | files | case sites | expected-to-fail marks | known-red lines | need the MSPDI XSDs | tied to no spec row |
 | --- | --- | --- | --: | --: | --: | --: | --: | --: |
-| `contract` | TS-5 | VT-2 | 421 | 5439 | 8 | 4 | 11 | 2 |
+| `contract` | TS-5 | VT-2 | 423 | 5477 | 8 | 4 | 11 | 2 |
 | `integration` | TS-2 | - | 3 | 76 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
-| `system` | TS-3 | - | 96 | 609 | 0 | 0 | 0 | 0 |
+| `system` | TS-3 | - | 96 | 610 | 0 | 0 | 0 | 0 |
 | `unit` | TS-6 | - | 187 | 3929 | 1 | 1 | 2 | 0 |
-| `use-case` | TS-1 | VT-1 | 14 | 17 | 1 | 3 | 0 | 0 |
-| **all** | | | 724 | 10087 | 10 | 8 | 13 | 2 |
+| `use-case` | TS-1 | VT-1 | 14 | 17 | 1 | 2 | 0 | 0 |
+| **all** | | | 726 | 10126 | 10 | 7 | 13 | 2 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -380,7 +380,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/cr-712-nt-2-a-timed-notice-leaves-by-itself.contract.test.ts` | 15 | FR-076 | VT-2 | T-037, T-078, T-206, T-233, T-286 | MG-10, NT-2, NT-3, NT-5, RS-27, RS-65, RS-77, S-542 | - | - | - | - |
 | `tests/contract/cr-712-qn-5-asks-only-with-unsaved-edits.contract.test.ts` | 8 | FR-095 | VT-2 | T-234, T-290 | OP-3, OP-4, OP-13, QN-5 | - | - | - | - |
 | `tests/contract/cr-712-report-rows-reach-the-import-report.contract.test.ts` | 11 | FR-076 | VT-2 | T-290 | EP-22, MG-14, RS-51, RS-71, RS-72, U-62 | - | - | - | - |
-| `tests/contract/cr-712-the-display-manner-of-every-task-group.contract.test.ts` | 16 | FR-076 | - | T-033, T-220, T-233, T-234 | EX-3, IV-17, NT-1, NT-5, PI-39, QN-5, QN-16, RS-21, RS-69, RS-77, RS-90 | - | - | - | - |
+| `tests/contract/cr-712-the-display-manner-of-every-task-group.contract.test.ts` | 16 | FR-076 | - | T-033, T-220, T-233, T-234 | EX-3, IV-17, NT-1, NT-5, PI-39, QN-5, QN-16, QN-17, RS-21, RS-69, RS-77, RS-90 | - | - | - | - |
 | `tests/contract/cr-712-the-notice-roster-is-printed-from-its-manuscript.contract.test.ts` | 6 | FR-076 | - | T-220, T-233, T-234 | - | - | - | - | - |
 | `tests/contract/cr-712-the-words-and-the-hidden-rows.contract.test.ts` | 13 | FR-016, FR-019, FR-029 | - | T-032, T-233 | HB-3, HF-14, IV-17, MG-10, NT-7, PTL-9, RS-21, RS-27, RS-44, RS-46, RS-55 | - | - | - | - |
 | `tests/contract/cr-714-a-copy-carries-no-parent-links.test.ts` | 11 | FR-058 | - | T-223 | DU-1, DU-2 | - | - | - | - |
@@ -460,12 +460,12 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/cr-763-the-jump-landing-ring-is-rose-rounded-and-holds-the-shape-alone.contract.test.ts` | 29 | FR-041 | - | T-020, T-064, T-273, T-294, T-332, T-346 | LP-2, OC-2, PI-19, PM-2, RW-13, S-151, S-555, S-556, S-573, S-587, S-588, SJ-10, ZO-8, ZO-10 | - | - | - | - |
 | `tests/contract/cr-764-rw-19-fr-130-a-diagnosis-marker-press-in-the-shell.contract.test.ts` | 21 | FR-130 | - | T-270, T-315, T-346 | DG-1, DG-2, DG-3, DG-4, IC-52, IC-107, IC-168, PE-8, PE-10, RW-1, RW-11, RW-14, RW-19, VO-3 | - | - | - | - |
 | `tests/contract/cr-764-rw-19-the-row-uncovered-and-marked.contract.test.ts` | 23 | - | - | T-346, T-347 | DG-1, DG-3, DG-4, DT-1, DT-5, DT-6, DT-8, PI-18, RW-11, RW-19 | - | - | - | - |
-| `tests/contract/cr-765-t-107-the-printed-call-shapes.contract.test.ts` | 16 | - | - | T-107 | AG-12, AM-3, AM-17, AM-19, AM-25 | - | - | - | - |
-| `tests/contract/cr-765-t-400-the-value-types.contract.test.ts` | 15 | - | - | T-064, T-107, T-220, T-233, T-400 | AG-2, AG-6, AM-25, AV-1, AV-2, AV-3, AV-4, AV-5, AV-11, AV-14, AV-15, AV-16, AV-17, AV-18, AV-19, AV-20 | - | - | - | - |
+| `tests/contract/cr-765-t-107-the-printed-call-shapes.contract.test.ts` | 17 | - | - | T-107 | AG-12, AM-3, AM-11, AM-12, AM-13, AM-14, AM-15, AM-17, AM-19, AM-25, AV-21 | - | - | - | - |
+| `tests/contract/cr-765-t-400-the-value-types.contract.test.ts` | 15 | - | - | T-064, T-107, T-220, T-233, T-400 | AG-2, AG-6, AM-25, AV-1, AV-2, AV-3, AV-4, AV-5, AV-11, AV-14, AV-15, AV-16, AV-17, AV-18, AV-19, AV-20, AV-21 | - | - | - | - |
 | `tests/contract/cr-765-the-agent-api-type-and-the-relayed-params.contract.test.ts` | 17 | - | - | T-107, T-400 | AG-1, AM-1, AM-2, AM-3, AM-25, AV-3, AV-4 | - | - | - | - |
 | `tests/contract/cr-765-the-clauses-that-point-at-t-107.contract.test.ts` | 7 | - | - | T-064, T-107, T-400 | AM-8, AV-7, OP-16, PI-17 | - | - | - | - |
 | `tests/contract/cr-765-the-generators-check-the-tree-against-the-manuscript.contract.test.ts` | 10 | - | - | T-107, T-400 | - | - | - | - | - |
-| `tests/contract/cr-765-the-mcp-tool-inputs-are-the-printed-arguments.contract.test.ts` | 14 | - | - | T-107, T-108 | AG-12, AM-7, AM-17, AM-19, AM-25 | - | - | - | - |
+| `tests/contract/cr-765-the-mcp-tool-inputs-are-the-printed-arguments.contract.test.ts` | 15 | - | - | T-107, T-108 | AG-12, AM-7, AM-11, AM-12, AM-13, AM-14, AM-15, AM-17, AM-19, AM-25 | - | - | - | - |
 | `tests/contract/cr-766-t-108-the-printed-commands-and-the-values-they-carry.contract.test.ts` | 19 | - | - | T-058, T-064, T-108, T-202, T-203 | AT-144, CM-1, CM-76, PI-8 | - | - | - | - |
 | `tests/contract/cr-766-the-applycommands-input-is-one-choice-per-command.contract.test.ts` | 17 | - | - | T-019, T-108 | AG-12, AM-7, CM-13, CM-38, CM-76 | - | - | - | - |
 | `tests/contract/cr-766-the-clauses-that-point-at-t-108.contract.test.ts` | 8 | FR-019, FR-057 | - | T-075, T-108 | CM-39, CM-46, UF-16, WT-6, WT-7 | - | - | - | - |
@@ -513,6 +513,8 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/cr-796-s4-the-ai-reads-in-small-pieces.contract.test.ts` | 43 | - | - | T-331, T-372 | AG-2, AG-6, AM-3, AM-25, AV-3, AV-14, AV-16, AV-17, S-562, S-563, SQ-1, SQ-3, SQ-4, SQ-11 | - | - | - | - |
 | `tests/contract/cr-796-s4b-the-ai-reads-the-report-and-the-resource-list.contract.test.ts` | 38 | - | - | T-347, T-371, T-372 | AM-19, AM-25, AM-28, AV-4, AV-17, AV-18, AV-19, AV-20, DL-1, DT-1, DT-4, DT-5, DT-9, RQ-1, RQ-2, RQ-3, RQ-4, RQ-5, S-564, S-566, S-567, S-571, S-572 | - | - | - | - |
 | `tests/contract/cr-796-s5-the-ai-undoes-only-its-own-step.contract.test.ts` | 17 | - | - | - | AG-2, AG-10, AM-9, AM-10, AV-3, AV-4, ED-1, ED-2, RD-1, RD-2 | - | - | - | - |
+| `tests/contract/cr-796-s7-the-ai-asks-the-person-to-open-a-file.contract.test.ts` | 14 | - | - | T-107, T-234, T-400 | AG-12, AM-11, AM-15, AM-29, AV-4, AV-15, QN-17, U-61 | - | - | - | - |
+| `tests/contract/cr-796-s7-the-relay-saves-into-the-save-folder.contract.test.ts` | 22 | - | - | - | AG-12, AM-11, AM-12, AM-13, AM-14, AM-15, AV-21 | - | - | - | - |
 | `tests/contract/cr-797-fr-130-the-diagnosis-is-made-only-when-asked.contract.test.ts` | 23 | FR-130 | - | T-109, T-206, T-270, T-315, T-346 | DG-1, DG-2, DG-3, GA-18, IC-107, IC-157, IC-168, PE-8, PE-10, RW-1, RW-3, RW-16, RW-19, S-623 | - | - | - | - |
 | `tests/contract/dfc-1000-hf-10-the-open-all-stance-counts-every-placed-task-group.test.ts` | 9 | - | - | T-051, T-109 | HF-2, HF-10, IC-58, IC-74, RS-31 | - | - | - | - |
 | `tests/contract/dfc-1013-tl-12-the-delay-days-are-told-only-in-the-ez-6-tip.test.ts` | 8 | FR-047 | - | T-038, T-348 | DG-4, DX-10, EZ-6, OC-8, TL-12 | - | - | - | - |
@@ -715,7 +717,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/system/cr-576-icon-and-task-hints-wait-on-their-own-clocks.test.ts` | 7 | FR-038 | - | T-023d, T-109, T-212 | EZ-2, EZ-6, IC-20, IN-3, IN-4, OP-3, S-124, S-439, TL-5, TL-10, TL-11, U-31, U-53, UZ-2 | - | - | - | - |
 | `tests/system/cr-597-the-search-panel-word-jump-and-grab.test.ts` | 14 | - | - | T-103, T-107, T-109 | AM-25, AT-114, GR-24, GR-25, IF-9, IN-1, IN-4, RG-16, SJ-1, SJ-2, SJ-4, SQ-1, SQ-2, SQ-7, SV-2, SV-5, SV-10, SV-11, U-32, WS-2 | - | - | - | - |
 | `tests/system/cr-610-cr-612-the-built-page-saves-and-opens.test.ts` | 8 | FR-027, FR-067, FR-095 | - | T-024, T-226, T-342 | BT-1, BT-4, HS-1, HS-2, HS-3, HS-8, IC-2, NT-1, OP-2, OP-3, RS-67, SK-11, SK-25, SX-1, U-31 | - | - | - | - |
-| `tests/system/cr-613-cr-620-built-relay.test.ts` | 8 | NFR-004 | - | T-232 | AG-12, CN-1, PO-7 | - | - | - | - |
+| `tests/system/cr-613-cr-620-built-relay.test.ts` | 9 | NFR-004 | - | T-232 | AG-12, CN-1, PO-7 | - | - | - | - |
 | `tests/system/cr-617-the-delay-diagnostics-report-window.test.ts` | 7 | FR-038, FR-130 | - | T-103, T-109, T-347 | IC-40, IC-52, IC-107, IC-108, IC-140, IC-168, RG-16, RW-1, RW-2, RW-3, RW-5, S-451 | - | - | - | - |
 | `tests/system/cr-648-the-delay-diagnostics-report-window-fixes.test.ts` | 3 | FR-134 | - | T-023, T-103, T-109, T-333, T-337, T-347 | DT-4, IC-127, S-429, SJ-1, SJ-3, SV-15, SV-16, U-66, UZ-5, UZ-6 | - | - | - | - |
 | `tests/system/cr-650-the-title-and-the-file-name-share-the-header.test.ts` | 1 | - | - | T-025, T-109, T-206, T-341, T-349 | BR-7, HS-8, HS-9, HS-10, IC-1, IC-71, U-55 | - | - | - | - |
@@ -992,5 +994,5 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/use-case/uc-010-exchange-with-an-external-wbs-master.test.ts` | 1 | FR-021, FR-023, FR-057, FR-087, UC-010 | VT-1 | T-053, T-228, T-334 | DV-12, IC-71, IC-72, MK-13, NR-7, OP-2, OP-3, OP-5, PR-1, VT-1 | - | DFC-1016 | 1: DFC-1016 | - |
 | `tests/use-case/uc-011-save-and-hand-out-the-document.test.ts` | 1 | FR-024, FR-025, FR-027, FR-080, FR-095, FR-096, UC-011 | VT-1 | T-204, T-231, T-334, T-342 | BK-1, BK-2, BT-4, IC-2, IO-2, IO-3, IO-4, NS-5, OP-4, OP-6, OP-10, S-70, S-81, VT-1 | - | - | - | - |
 | `tests/use-case/uc-012-let-an-ai-agent-edit.test.ts` | 2 | FR-028, FR-064, FR-065, UC-012 | VT-1 | T-035, T-334 | AG-1, AG-2, AG-3, AG-4, AG-9a, AM-1, AM-3, AM-4, AM-7, IC-20, VT-1 | - | - | - | - |
-| `tests/use-case/uc-013-fix-the-schedule-with-an-ai.test.ts` | 1 | FR-031, UC-013 | VT-1 | T-334 | AM-3, AM-7, AT-132, DR-4, IC-5, IC-20, VT-1 | - | DFC-1019, DFC-1020 | - | - |
+| `tests/use-case/uc-013-fix-the-schedule-with-an-ai.test.ts` | 1 | FR-031, UC-013 | VT-1 | T-334 | AM-3, AM-7, AT-132, DR-4, IC-5, IC-20, VT-1 | - | DFC-1020 | - | - |
 | `tests/use-case/uc-014-merge-schedules-into-one.test.ts` | 1 | FR-022, FR-056, UC-014 | VT-1 | T-032, T-032a, T-334 | IC-72, IC-95, IC-96, IC-97, MM-1, MM-2, MM-4, NT-8, OP-3, U-61, UZ-4, VT-1 | - | - | - | - |

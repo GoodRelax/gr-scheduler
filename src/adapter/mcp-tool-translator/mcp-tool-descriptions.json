@@ -1,6 +1,6 @@
 {
  "$comment": "GENERATED -- do not edit by hand. Generated from docs/spec/_source/agent-api-members.json, table T-107 (the members of the Agent API), and the commands the AM-7 input carries from docs/spec/_source/document-commands.json (table T-108), by tools/generate_mcp_tool_descriptions.py. Rebuild: npm run gen -- npm run gen:check fails on drift. One entry per row in the table's order: the confirmed name, its description lines joined by newlines, and its input shape (AG-12 (4) (5), design-mcp-relay.md 3.1). instructions is the text the relay answers MCP initialize with, the mcpInstructions lines joined by newlines (AG-12 (8)).",
- "instructions": "GRS Relay carries each tool call to the Agent API of the GoodRelax Scheduler (GRS) page a person has open in a browser. The page holds the only copy of the schedule document; the relay holds none.\nStart with agentApiVersion. If a tool answers with the reason pageNotConnected, ask the person to open the address it gives (all of it, the part after # included), open a document there, and press the Agent API button in the page header.\nBefore you read or write a document, read the resource grs-document.schema.json from this server. It is the JSON Schema of the GRS JSON document, of the same version as the page, with a description on every key: the times, the units and what each column means. Before you write, read the resource grs-commands.schema.json: every command kind applyCommands takes, with its fields.\nIf your client cannot read resources, call exportJson: its text begins with $schema, the address of the latest published schema.\nRead in small pieces: readSearchRows returns one page of the Search Panel as the person sees it (an empty word is the whole outline) and readTableRows does the same for the Delay Diagnostics Report and the Resource List; readDocument leaves out the MSPDI pass-through fields unless you ask, and can be narrowed to some tasks; readStamp is cheap. Write with applyCommands, handing over the stamp you last read as expectedStamp; the whole batch is applied or refused as one.\nA refusal is a value, not an error: it names the reason and carries the current stamp, never the document. Read again what you need, then retry.\nWhile the person is dragging, typing in place or answering a question, writes are refused; try again shortly.\nThese tools save nothing to a file. The person saves the document from the page.\nThe descriptions here use no row ids of the GRS specification; the specification itself is at https://goodrelax.github.io/gr-scheduler/spec-html/",
+ "instructions": "GRS Relay carries each tool call to the Agent API of the GoodRelax Scheduler (GRS) page a person has open in a browser. The page holds the only copy of the schedule document; the relay holds none.\nStart with agentApiVersion. If a tool answers with the reason pageNotConnected, ask the person to open the address it gives (all of it, the part after # included), open a document there, and press the Agent API button in the page header.\nBefore you read or write a document, read the resource grs-document.schema.json from this server. It is the JSON Schema of the GRS JSON document, of the same version as the page, with a description on every key: the times, the units and what each column means. Before you write, read the resource grs-commands.schema.json: every command kind applyCommands takes, with its fields.\nIf your client cannot read resources, call exportJson: its text begins with $schema, the address of the latest published schema.\nRead in small pieces: readSearchRows returns one page of the Search Panel as the person sees it (an empty word is the whole outline) and readTableRows does the same for the Delay Diagnostics Report and the Resource List; readDocument leaves out the MSPDI pass-through fields unless you ask, and can be narrowed to some tasks; readStamp is cheap. Write with applyCommands, handing over the stamp you last read as expectedStamp; the whole batch is applied or refused as one.\nA refusal is a value, not an error: it names the reason and carries the current stamp, never the document. Read again what you need, then retry.\nWhile the person is dragging, typing in place or answering a question, writes are refused; try again shortly.\nTo save, pass fileName to an export tool: the relay writes into the save folder the person chose in the relay's settings. If the file exists you may be refused with fileExists: ask the person before passing overwrite true, unless they told you not to ask in this conversation. The old file is kept as .bak. To open a file, call requestOpenFile: the person picks it in their own file window.\nThe descriptions here use no row ids of the GRS specification; the specification itself is at https://goodrelax.github.io/gr-scheduler/spec-html/",
  "tools": [
   {
    "name": "agentApiVersion",
@@ -280,6 +280,14 @@
    }
   },
   {
+   "name": "requestOpenFile",
+   "description": "Asks the person to open a file: the page shows a question and the call returns at once.\nIf the person goes on, their own file window opens and they pick the file; the document they open reaches you through watchChanges as their edit.",
+   "inputSchema": {
+    "type": "object",
+    "properties": {}
+   }
+  },
+  {
    "name": "undoEdit",
    "description": "Undoes the newest step of the edit history, but only a step you wrote yourself; a step the person wrote is refused with notOwnStep.\nHand over the stamp you last read as expectedStamp; a different stamp is refused with staleStamp.",
    "inputSchema": {
@@ -307,42 +315,87 @@
   },
   {
    "name": "exportJson",
-   "description": "Returns the document as GRS JSON text.",
+   "description": "Returns the document as GRS JSON text.\nPass fileName (ending in .json) to have the relay save it in the person's save folder instead.",
    "inputSchema": {
     "type": "object",
-    "properties": {}
+    "properties": {
+     "fileName": {
+      "type": "string",
+      "description": "The file to save to, relative to the save folder the person set in the relay's settings. When given, the relay writes the file and answers with where it saved and how many bytes, not with the value"
+     },
+     "overwrite": {
+      "type": "boolean",
+      "description": "Whether to replace a file that exists. While the relay's 'confirm before overwrite' setting is on, an existing file is refused with fileExists unless this is true; ask the person first, unless they told you not to ask in this conversation. The old file is kept as <name>.bak"
+     }
+    }
    }
   },
   {
    "name": "exportMspdi",
-   "description": "Returns the document as Microsoft Project XML (MSPDI).",
+   "description": "Returns the document as Microsoft Project XML (MSPDI).\nPass fileName (ending in .xml) to have the relay save it in the person's save folder instead.",
    "inputSchema": {
     "type": "object",
-    "properties": {}
+    "properties": {
+     "fileName": {
+      "type": "string",
+      "description": "The file to save to, relative to the save folder the person set in the relay's settings. When given, the relay writes the file and answers with where it saved and how many bytes, not with the value"
+     },
+     "overwrite": {
+      "type": "boolean",
+      "description": "Whether to replace a file that exists. While the relay's 'confirm before overwrite' setting is on, an existing file is refused with fileExists unless this is true; ask the person first, unless they told you not to ask in this conversation. The old file is kept as <name>.bak"
+     }
+    }
    }
   },
   {
    "name": "exportSvg",
-   "description": "Returns the exported picture as SVG text; when the document fixes the span of the fit view, the picture uses that span.",
+   "description": "Returns the exported picture as SVG text; when the document fixes the span of the fit view, the picture uses that span.\nPass fileName (ending in .svg) to have the relay save it in the person's save folder instead.",
    "inputSchema": {
     "type": "object",
-    "properties": {}
+    "properties": {
+     "fileName": {
+      "type": "string",
+      "description": "The file to save to, relative to the save folder the person set in the relay's settings. When given, the relay writes the file and answers with where it saved and how many bytes, not with the value"
+     },
+     "overwrite": {
+      "type": "boolean",
+      "description": "Whether to replace a file that exists. While the relay's 'confirm before overwrite' setting is on, an existing file is refused with fileExists unless this is true; ask the person first, unless they told you not to ask in this conversation. The old file is kept as <name>.bak"
+     }
+    }
    }
   },
   {
    "name": "exportPng",
-   "description": "Returns the exported picture as a PNG image; a failure is a value too.",
+   "description": "Returns the exported picture as a PNG image; a failure is a value too.\nPass fileName (ending in .png) to have the relay save it in the person's save folder instead.",
    "inputSchema": {
     "type": "object",
-    "properties": {}
+    "properties": {
+     "fileName": {
+      "type": "string",
+      "description": "The file to save to, relative to the save folder the person set in the relay's settings. When given, the relay writes the file and answers with where it saved and how many bytes, not with the value"
+     },
+     "overwrite": {
+      "type": "boolean",
+      "description": "Whether to replace a file that exists. While the relay's 'confirm before overwrite' setting is on, an existing file is refused with fileExists unless this is true; ask the person first, unless they told you not to ask in this conversation. The old file is kept as <name>.bak"
+     }
+    }
    }
   },
   {
    "name": "exportEmbeddedHtml",
-   "description": "Returns one .html file that holds GRS and the document together.",
+   "description": "Returns one .html file that holds GRS and the document together.\nPass fileName (ending in .html) to have the relay save it in the person's save folder instead.",
    "inputSchema": {
     "type": "object",
-    "properties": {}
+    "properties": {
+     "fileName": {
+      "type": "string",
+      "description": "The file to save to, relative to the save folder the person set in the relay's settings. When given, the relay writes the file and answers with where it saved and how many bytes, not with the value"
+     },
+     "overwrite": {
+      "type": "boolean",
+      "description": "Whether to replace a file that exists. While the relay's 'confirm before overwrite' setting is on, an existing file is refused with fileExists unless this is true; ask the person first, unless they told you not to ask in this conversation. The old file is kept as <name>.bak"
+     }
+    }
    }
   },
   {

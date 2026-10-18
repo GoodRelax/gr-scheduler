@@ -866,7 +866,7 @@ stateDiagram-v2
 | `fileFlow/openChoiceAnswered` | 入力（`U-56` の 3 つの入口）: `IC-71` ・ `IC-72` ・ `IC-73` ・ `OP-3` | `openChoice`（`OP-3`。置き換え ／ 合流 ／ 重ね） ／ `question`（`QN-5`。置き換えを選んだときに立てる問い。挙げる名前は操作を始めた時点の文書（`CS-4`）。呼び手が詰める） | `fileOperationStateMachine` ・ `confirmationStateMachine` |
 | `fileFlow/mergeMappingAnswered` | 入力（`U-61` の 3 つの入口）: `IC-95` ・ `IC-96` ・ `IC-97` ・ `FR-022` | `mergeMapping`（`MM-1` ・ `MM-2` ・ `MM-4`） | `fileOperationStateMachine` |
 | `fileFlow/confirmationAnswered` | 入力（`Yes` / `No`、`y` / `n`、`Esc`）: `NT-7` ・ `IN-4` | `isProceeding`（`NT-7`。`Esc`（`IN-4` の段 `confirmation`）は偽。段は呼び手が決める） | `fileOperationStateMachine` ・ `confirmationStateMachine` |
-| `fileFlow/changeQuestionRaised` | 入力（確認を要る書き込みの束（タスクグループの削除・子孫タスクを持つ `Task` の削除・すべてのタスクグループの削除）、担当の削除、掴んで運んだタスクグループの移動と深すぎる配下の引き上げ（表 T-051 の `HF-15`））: `FR-032` ・ `FR-099` ・ `QN-1` ・ `QN-2` ・ `QN-3` ・ `QN-10` ・ `IC-66` ・ `IC-106` ・ `HF-20` ・ `HF-15` ・ `QN-16` | `question`（`QN-1` ・ `QN-2` ・ `QN-3` ・ `QN-10` ・ `QN-16`） ／ `owedAction`（「続ける」で行う書き込みの束） | `confirmationStateMachine` |
+| `fileFlow/changeQuestionRaised` | 入力（確認を要る書き込みの束（タスクグループの削除・子孫タスクを持つ `Task` の削除・すべてのタスクグループの削除）、担当の削除、掴んで運んだタスクグループの移動と深すぎる配下の引き上げ（表 T-051 の `HF-15`）、AI がファイルを開くよう求めた（`AM-29`、`QN-17`））: `FR-032` ・ `FR-099` ・ `QN-1` ・ `QN-2` ・ `QN-3` ・ `QN-10` ・ `IC-66` ・ `IC-106` ・ `HF-20` ・ `HF-15` ・ `QN-16` ・ `AM-29` ・ `QN-17` | `question`（`QN-1` ・ `QN-2` ・ `QN-3` ・ `QN-10` ・ `QN-16` ・ `QN-17`） ／ `owedAction`（「続ける」で行う書き込みの束 —— `QN-17` では、`IC-1` と同じ道でファイルを選ぶ窓を開くこと） | `confirmationStateMachine` |
 | `fileFlow/newDocumentEntryPressed` | 入力（新しく始める入口・`N`）: `IC-98` ・ `SK-25` ・ `FR-095` | `question`（`QN-5`。いまの文書を捨てる問い。呼び手が詰める） | `confirmationStateMachine` |
 | `fileFlow/grsResetEntryPressed` | 入力（GRS リセットの入口）: `IC-139` ・ `FR-153` | `question`（`QN-11`。GRS をリセットする問い。挙げる名前は、未保存の編集があるときだけ、いまの文書。呼び手が詰める） | `confirmationStateMachine` |
 | `fileFlow/flowSurfaceClosed` | ほかの領域の結果（画面の値の副作用 `tellFlowSurfaceClosed`。人が `×` か `Esc` で面を閉じた）: `IC-52` ・ `IN-4` | `surfaceName`（`U-56` ・ `U-61` ・ `U-62`） | 根 ・ `fileOperationStateMachine` |
@@ -991,7 +991,7 @@ stateDiagram-v2
 | `fileFlow/confirmationAnswered` | — | → `notAsked` [`isProceeding` & not `isFileOperationQuestion`] / `carryOutOwedAction`<br>→ `notAsked` [`isProceeding` & `isFileOperationQuestion`]<br>→ `notAsked` [not `isProceeding`] |
 
 - `confirmationStateMachine.notAsked` —— 初期。根拠 `NT-7` ・ `U-55`
-- `confirmationStateMachine.questionAsked` —— 運ぶ値 `question`（`QN-1` ・ `QN-2` ・ `QN-3` ・ `QN-4` ・ `QN-5` ・ `QN-10` ・ `QN-11` ・ `QN-16`） ／ `owedAction`（「続ける」で行う書き込みの束か、新しく始めることか、GRS リセット（`FR-153`）。ファイル操作の問いでは無い）。根拠 `NT-7` ・ `U-55` ・ `QN-1` ・ `QN-2` ・ `QN-3` ・ `QN-4` ・ `QN-5` ・ `QN-10` ・ `QN-11` ・ `QN-16`
+- `confirmationStateMachine.questionAsked` —— 運ぶ値 `question`（`QN-1` ・ `QN-2` ・ `QN-3` ・ `QN-4` ・ `QN-5` ・ `QN-10` ・ `QN-11` ・ `QN-16` ・ `QN-17`） ／ `owedAction`（「続ける」で行う書き込みの束か、新しく始めることか、GRS リセット（`FR-153`）か、ファイルを選ぶ窓を開くこと（`QN-17`）。ファイル操作の問いでは無い）。根拠 `NT-7` ・ `U-55` ・ `QN-1` ・ `QN-2` ・ `QN-3` ・ `QN-4` ・ `QN-5` ・ `QN-10` ・ `QN-11` ・ `QN-16` ・ `QN-17`
 
 表に無い出来事は `confirmationStateMachine` を変えない（同じ参照）。
 

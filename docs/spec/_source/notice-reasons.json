@@ -1126,6 +1126,19 @@
    "display": "ask"
   },
   {
+   "id": "QN-17",
+   "scene": {
+    "ja": "AI が `Agent API` の `requestOpenFile`（`_assets/tbl-agent-api-members.md` の 表 T-107 の `AM-29`）でファイルを開くよう求めたとき。<br>答えが `proceed` なら `IC-1` と同じ道でファイルを選ぶ窓を開き（押したのは人なので窓を開ける）、`cancel` なら何もしない"
+   },
+   "names": {
+    "ja": "挙げない —— 開くファイルは人がこれから選ぶ"
+   },
+   "source": {
+    "ja": "表 T-035 の `AG-12` の ⑥"
+   },
+   "display": "ask"
+  },
+  {
    "id": "QN-8",
    "scene": {
     "ja": "この問いにまだ行が無い"

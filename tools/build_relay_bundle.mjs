@@ -133,7 +133,34 @@ function manifestOf() {
     server: {
       type: 'node',
       entry_point: SERVER_ENTRY,
-      mcp_config: { command: 'node', args: [`\${__dirname}/${SERVER_ENTRY}`] },
+      mcp_config: {
+        command: 'node',
+        args: [
+          `\${__dirname}/${SERVER_ENTRY}`,
+          '--saveFolder',
+          '${user_config.saveFolder}',
+          '--confirmBeforeOverwrite',
+          '${user_config.confirmBeforeOverwrite}',
+        ],
+      },
+    },
+    // AG-12 (9), design-mcp-relay.md 7: the person sets these in the AI app's extension settings;
+    // the AI can change neither.
+    user_config: {
+      saveFolder: {
+        type: 'directory',
+        title: 'Save folder',
+        description: 'The AI saves files only inside this folder. It is made on the first save.',
+        default: '${DOCUMENTS}/GRS',
+        required: false,
+      },
+      confirmBeforeOverwrite: {
+        type: 'boolean',
+        title: 'Confirm before overwrite',
+        description: 'Refuse to replace an existing file until the AI has asked you. The old file is kept as .bak either way.',
+        default: true,
+        required: false,
+      },
     },
     tools: tools.map(({ name, description }) => ({ name, description })),
     compatibility: { runtimes: { node: OLDEST_NODE } },

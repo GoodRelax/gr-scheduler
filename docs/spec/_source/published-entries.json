@@ -2615,7 +2615,7 @@
      "after": {
       "ja": [
        "。",
-       "⚠️ 外へ公開する 21 メンバの名前は `_assets/tbl-agent-api-members.md` の 表 T-107 が持つ。",
+       "⚠️ 外へ公開する 22 メンバの名前は `_assets/tbl-agent-api-members.md` の 表 T-107 が持つ。",
        "本表に書き写さない（MUST NOT）"
       ]
      }
@@ -4943,6 +4943,15 @@
       "ja": [
        "取次の締め切りを過ぎた呼び出しの答え。",
        "理由の区分 `relayTimedOut` とメンバの名を持つ拒否の値である（表 T-035 の `AG-12` の ⑥、`_assets/design-mcp-relay.md` の 5）"
+      ]
+     }
+    },
+    {
+     "name": "relayRefusalResult",
+     "note": {
+      "ja": [
+       "取次が自ら返す拒否の値（刻印を持たない）。",
+       "保存の拒否 `badFileName`・`fileExists`・`saveFolderUnavailable` もこれで返す（表 T-035 の `AG-12` の ⑨、`_assets/design-mcp-relay.md` の 5）"
       ]
      }
     }

@@ -120,6 +120,7 @@ const T_107 = [
   { row: 'AM-19', name: 'readDelayDiagnostics', isProperty: false },
   { row: 'AM-7', name: 'applyCommands', isProperty: false },
   { row: 'AM-8', name: 'importDocument', isProperty: false },
+  { row: 'AM-29', name: 'requestOpenFile', isProperty: false },
   { row: 'AM-9', name: 'undoEdit', isProperty: false },
   { row: 'AM-10', name: 'redoEdit', isProperty: false },
   { row: 'AM-11', name: 'exportJson', isProperty: false },

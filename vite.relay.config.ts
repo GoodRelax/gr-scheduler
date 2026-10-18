@@ -39,6 +39,13 @@ import pageHtmlBase64 from ${JSON.stringify(PAGE_HTML_ID)}
 import documentSchema from ${JSON.stringify(DOCUMENT_SCHEMA_ID)}
 import commandsSchema from ${JSON.stringify(COMMANDS_SCHEMA_ID)}
 
+// The two relay settings (AG-12 (9), design-mcp-relay.md 7), as --saveFolder <folder> and
+// --confirmBeforeOverwrite <true|false>; the .mcpb passes the person's extension settings this way.
+const argumentOf = (name) => {
+  const at = process.argv.indexOf('--' + name)
+  return at < 0 ? undefined : process.argv[at + 1]
+}
+const saveFolder = argumentOf('saveFolder')
 const relay = await startMcpRelay({
   input: process.stdin,
   output: process.stdout,
@@ -46,6 +53,8 @@ const relay = await startMcpRelay({
   pageHtml: Buffer.from(pageHtmlBase64, 'base64'),
   documentSchema,
   commandsSchema,
+  ...(saveFolder && !saveFolder.startsWith('\${') ? { saveFolder } : {}),
+  confirmBeforeOverwrite: argumentOf('confirmBeforeOverwrite') !== 'false',
 })
 let stopping = false
 const stop = () => {

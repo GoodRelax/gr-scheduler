@@ -232,12 +232,12 @@ describe('the generated rosters src reads are the manuscript (PI-39)', () => {
     expect({ ...NOTICE_DISPLAY_OF_REASON }).toEqual(wanted)
   })
 
-  it('QUESTION_DISPLAY_OF_ROW gives every T-234 row its column: ask 12, askOnlyWithUnsavedEdits 1 (QN-5; QN-16 added by CR-774)', () => {
+  it('QUESTION_DISPLAY_OF_ROW gives every T-234 row its column: ask 13, askOnlyWithUnsavedEdits 1 (QN-5; QN-16 added by CR-774, QN-17 by CR-796)', () => {
     const wanted: Record<string, QuestionDisplay> = {}
     for (const one of ROSTER.questions) wanted[one.id] = one.display
     expect({ ...QUESTION_DISPLAY_OF_ROW }).toEqual(wanted)
-    expect(ROSTER.questions).toHaveLength(13)
-    expect(ROSTER.questions.filter((one) => one.display === 'ask')).toHaveLength(12)
+    expect(ROSTER.questions).toHaveLength(14)
+    expect(ROSTER.questions.filter((one) => one.display === 'ask')).toHaveLength(13)
     expect(QUESTION_DISPLAY_OF_ROW['QN-5']).toBe('askOnlyWithUnsavedEdits')
   })
 
