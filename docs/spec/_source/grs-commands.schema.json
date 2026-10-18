@@ -1145,7 +1145,7 @@
   },
   {
    "type": "object",
-   "description": "Draws a dependency line from the task `predecessorUid` to the task `successorUid`.\n`predecessorEdge` and `successorEdge` name the ends (start or finish); the pair of ends decides the link type.",
+   "description": "Draws a dependency line from the task `predecessorUid` to the task `successorUid`.\n`predecessorEdge` and `successorEdge` name the ends (start or finish); the pair of ends decides the link type.\nIf either task is a milestone, the line is always finish-to-start, whatever `predecessorEdge` and `successorEdge` say.",
    "properties": {
     "kind": {
      "const": "createDependency"
@@ -1292,7 +1292,7 @@
   },
   {
    "type": "object",
-   "description": "Edits the calendar: the working weekdays, one set of working times for a working day, the exception days, and the day the week starts on.\n`workingDayTypes` lists the working weekdays (1 is Sunday; weekdays not listed are days off). `weekStartDay` is the day the week starts on. `exceptions` is the complete list of exception days after the edit. `workingTimes` is one set of working times for a working day.\nIf the document still has the default calendar, create a calendar first and then edit it.\nThe times of `fromDate` and `toDate` of an exception day are aligned by the side that writes the command into the document.",
+   "description": "Edits the calendar: the working weekdays, one set of working times for a working day, the exception days, and the day the week starts on.\n`workingDayTypes` lists the working weekdays (1 is Sunday; weekdays not listed are days off). `weekStartDay` is the day the week starts on. `exceptions` is the complete list of exception days after the edit. `workingTimes` is one set of working times for a working day.\nIf the document still has the default calendar, create a calendar first and then edit it.\nThe times of `fromDate` and `toDate` of an exception day are aligned by the side that writes the command into the document.\n`workingTimes` holds 1 to 5 spans: an empty list is refused. To go back to the default working times, pass the two default spans 08:00:00-12:00:00 and 13:00:00-17:00:00.",
    "properties": {
     "kind": {
      "const": "setCalendar"
