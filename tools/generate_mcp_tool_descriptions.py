@@ -17,6 +17,11 @@ READS   docs/spec/_source/agent-api-members.json, the manuscript of table T-107
 
 The manuscript's relayRefusalTexts (CR-799) also travel: the what of each
 refusal the relay gives itself, so no relay text is written by hand.
+So do its schemaNotes (CR-802), the notes readSchema returns with which
+'notes'. They are checked against docs/spec/_source/grs-document.schema.json
+(the npm run gen output): every schema name they say must still be a key or a
+definition there, so a renamed key stops the gen instead of leaving the notes
+behind.
 
 What travels, in the table's row order: the confirmed name, the description
 (the "what it carries" lines joined by newlines) and the input shape -- one
@@ -31,6 +36,7 @@ Run with PYTHONIOENCODING=utf-8.
 import io
 import json
 import os
+import re
 import sys
 
 import generate_agent_api
@@ -79,6 +85,48 @@ def stop(message):
     sys.exit(1)
 
 
+DOCUMENT_SCHEMA = os.path.join(ROOT, 'docs', 'spec', '_source', 'grs-document.schema.json')
+# A word the notes may name: camelCase, or a Type.key pair.
+NOTE_NAME = re.compile(r'\b(?:[A-Z][A-Za-z]+\.)?[a-z]+[A-Z][A-Za-z]*\b|\b[A-Z][A-Za-z]+\.[a-z][A-Za-z]*\b')
+
+
+def known_names(value, into):
+    """Every property and definition name of a JSON Schema, at any depth.
+
+    @purity pure
+    """
+    if isinstance(value, dict):
+        for key in ('properties', '$defs'):
+            if isinstance(value.get(key), dict):
+                into.update(value[key])
+        for one in value.values():
+            known_names(one, into)
+    elif isinstance(value, list):
+        for one in value:
+            known_names(one, into)
+    return into
+
+
+def check_notes_names(notes, doc):
+    """CR-802: the notes are a manuscript beside the schema; every schema name they
+    say must still be in the generated document schema, or the gen stops, so a
+    renamed key cannot leave the notes behind.
+
+    @purity semi-pure-b
+    """
+    schema = json.load(io.open(DOCUMENT_SCHEMA, encoding='utf-8'))
+    names = known_names(schema, set())
+    names.update(row['name'] for row in doc['members']['rows'])
+    for row in doc['values']['rows']:
+        names.update(field['name'] for field in row.get('fields', []))
+    for found in NOTE_NAME.findall(notes):
+        last = found.split('.')[-1]
+        owner = found.split('.')[0] if '.' in found else None
+        if last not in names or (owner and owner[0].isupper() and owner not in names):
+            stop('schemaNotes names %r, which neither the document schema nor table %s holds'
+                 % (found, MEMBER_TABLE))
+
+
 def build():
     """@purity semi-pure-b"""
     doc = generate_agent_api.load()
@@ -108,6 +156,7 @@ def build():
         refusals[reason] = ' '.join(text.splitlines())
     # CR-802: the notes readSchema hands over with which 'notes' (design-mcp-relay.md 3.1).
     notes = generate_agent_api.english(doc['schemaNotes']['text'], 'schemaNotes')
+    check_notes_names(notes, doc)
     return {'$comment': BANNER, 'instructions': instructions, 'relayRefusals': refusals,
             'schemaNotes': notes, 'tools': tools}
 
