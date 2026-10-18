@@ -1,9 +1,9 @@
 # CR-806 —— 命令の説明が AI の知るべきことを言い、命令のスキーマは命令ごとの定義を持ち、ページが全体表示の値を数える
 
-> 状態: 🟡 **当てている** —— 2026-10-19 朝、取次の直しの席 B（`nifty-sanderson-91618d`）が起草し、同じ席が当てる。S の 2 件（指摘 3・4）を先に当て、M の 2 件（指摘 11・14）を次に当てる。仕様 → 実装 → 仕様だけを読む別の体の試験（`tests/contract/cr-806-*`）→ 関門の順。
+> 状態: ✅ **当てた** —— 2026-10-19 朝、取次の直しの席 B（`nifty-sanderson-91618d`）が起草し、同じ席が当てた。S の 2 件（指摘 3・4）を先に、M の 2 件（指摘 11・14）を次の commit で当てた。仕様 → 実装 → 仕様だけを読む別の体の試験（`tests/contract/cr-806-*`）→ 関門の順。
 > 元: 利用者が GRS Relay を実際に使い、AI が 195 タスクの計画を作った記録（利用者の `Report.md`）。取次の席が 25 件に分け、利用者が「中まで全部入れろ」と定めた。本書はそのうち命令の原稿（`docs/spec/_source/document-commands.json`）に触れる 4 件を持つ。
 > 当てる裁定: `JDG-2880`。覆す裁定: 無し。
-> 新しい ID: 命令 1 つ（指摘 14、下の 1 節）。
+> 新しい ID: `CM-102`（`fitScheduleToScreenOnPage`、指摘 14）。
 > 消す ID: 無し。
 
 ---
@@ -40,4 +40,4 @@
 
 ## 2. 試験
 
-仕様だけを読む別の体が書く: `tests/contract/cr-806-s-the-commands-say-milestone-fs-and-empty-working-times.contract.test.ts`（指摘 3・4）、`tests/contract/cr-806-m-*`（指摘 11・14）。命令のスキーマの形を読む古い試験は、`$ref` を辿るように揃える。
+仕様だけを読む別の体が書く: `tests/contract/cr-806-s-the-commands-say-milestone-fs-and-empty-working-times.contract.test.ts`（指摘 3・4）、`tests/contract/cr-806-m-the-commands-schema-has-defs-and-the-page-counts-the-fit.contract.test.ts`（指摘 11・14）。命令のスキーマの形を読む古い試験は、`$ref` を辿るように揃える。

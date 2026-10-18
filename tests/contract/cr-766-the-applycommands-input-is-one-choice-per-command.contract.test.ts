@@ -22,8 +22,13 @@ const DOCUMENT_SCHEMA = JSON.parse(readFileSync(join(ROOT, 'docs', 'spec', '_sou
 }
 const RELAY_DESIGN = unbroken(readFileSync(join(ROOT, 'docs', 'spec', '_assets', 'design-mcp-relay.md'), 'utf8'))
 
-const COMMANDS_SCHEMA = JSON.parse(readFileSync(join(ROOT, 'docs', 'spec', '_source', 'grs-commands.schema.json'), 'utf8')) as {
+const COMMANDS_RESOURCE = JSON.parse(readFileSync(join(ROOT, 'docs', 'spec', '_source', 'grs-commands.schema.json'), 'utf8')) as {
   oneOf: Json[]
+  $defs: Record<string, Json>
+}
+// WHY: the resource names each command's definition by $ref (CR-806); the cases read the definitions in that order.
+const COMMANDS_SCHEMA = {
+  oneOf: COMMANDS_RESOURCE.oneOf.map((one) => COMMANDS_RESOURCE.$defs[String(one['$ref']).replace('#/$defs/', '')] as Json),
 }
 
 // see AM-7, AG-12
@@ -131,17 +136,17 @@ describe('AM-7: the request is the stamp and the bundle of commands', () => {
     expect(new Set(kind['enum'] as string[])).toEqual(new Set(alternatives.map(kindOf)))
   })
 
-  it('the resource holds 91 alternatives -- one branch per command, setDependencyLag twice once its choice is opened', () => {
-    expect(COMMANDS_SCHEMA.oneOf).toHaveLength(91)
-    expect(alternatives).toHaveLength(92)
+  it('the resource holds 92 alternatives -- one branch per command, setDependencyLag twice once its choice is opened', () => {
+    expect(COMMANDS_SCHEMA.oneOf).toHaveLength(92)
+    expect(alternatives).toHaveLength(93)
   })
 })
 
 describe('one alternative per command the Agent API takes, in the order of table T-108', () => {
-  it('the kinds are the 91 command names of the table, setDependencyLag holding a choice of its two lag shapes', () => {
+  it('the kinds are the 92 command names of the table, setDependencyLag holding a choice of its two lag shapes', () => {
     const expected = offered.flatMap((command) => waysOf(command).map(() => command.name))
     expect(alternatives.map(kindOf)).toEqual(expected)
-    expect(offered).toHaveLength(91)
+    expect(offered).toHaveLength(92)
     expect(alternativesOf('setDependencyLag')).toHaveLength(2)
     expect(COMMANDS_SCHEMA.oneOf.map(kindOf)).toEqual(offered.map((command) => command.name))
   })

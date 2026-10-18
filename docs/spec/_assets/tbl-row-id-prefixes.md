@@ -66,7 +66,7 @@
 | `CH` | Challenge | 本製品が解く課題 | 仕様書 | `T-054` | 7 |
 | `CHN` | Channel | 機器と機器のあいだのデータの経路と、その信頼境界（⛔ `R-` は利用者の裁定の行と紛れるので使わない。<br>`RT` が既に「依存線の経路が満たす規則」、`RP` が「その分岐」であり、「経路」は仕様書のなかで既に別のものに使われているので、`RTE-` は選ばなかった） | 仕様書 | `T-008` | 14 |
 | `CL` | — | パレットが持つ色と線の太さの区分 | 仕様書 | `T-017` | 2 |
-| `CM` | Command | 文書を変える命令（`DocumentCommand`）1 つ | 仕様書 | `T-108` | 91 |
+| `CM` | Command | 文書を変える命令（`DocumentCommand`）1 つ | 仕様書 | `T-108` | 92 |
 | `CN` | Constraint | 製品が従う制約事項 | 仕様書 | `T-003` | 9 |
 | `CP` | Component | 設計上のコンポーネント 1 つ | 仕様書 | `T-062` | 37 |
 | `CR` | Change Request | 変更要求 1 通。<br>本体は `change-request/` の 1 ファイルであり、台帳の行はそれを引いて巡ごとの結果を記録したものである | 台帳 | `docs/development-records/W4-adapter.md` ／ `docs/development-records/W5-framework.md` | 10 |
@@ -80,7 +80,7 @@
 | `DC` | Dual Cursor | `Dual Cursor` の操作の条 | 仕様書 | `T-029a` | 9 |
 | `DEV` | Device | 配置図に載る機器（⛔ `D-` は台帳の欠陥の行と紛れるので使わない。<br>`words` は発明した語ではない） | 仕様書 | `T-007` | 6 |
 | `DF` | — | 文書の形の条 —— 交換相手の木をどう写し、解釈しない要素をどこへ置くか | 仕様書 | `T-053` | 5 |
-| `DFC` | Defect | 台帳に載る欠陥（⛔ `D-` は配置図の機器と紛れるので使わない） | 台帳 | `docs/development-records/backlog-plan-2026-10-04.md` ／ `docs/development-records/defects.md` ／ `docs/development-records/evidence/measured-2026-09-06.md` ／ `docs/development-records/evidence/measured-2026-09-07.md` ／ `docs/development-records/evidence/order-2026-09-06.md` ／ `docs/development-records/fixed-defects.md` | 1830 |
+| `DFC` | Defect | 台帳に載る欠陥（⛔ `D-` は配置図の機器と紛れるので使わない） | 台帳 | `docs/development-records/backlog-plan-2026-10-04.md` ／ `docs/development-records/defects.md` ／ `docs/development-records/evidence/measured-2026-09-06.md` ／ `docs/development-records/evidence/measured-2026-09-07.md` ／ `docs/development-records/evidence/order-2026-09-06.md` ／ `docs/development-records/fixed-defects.md` | 1832 |
 | `DG` | — | 遅延診断が進捗マーカーに与える状態 | 仕様書 | `T-315` | 4 |
 | `DI` | Document Identity | 同じ文書かどうかの見分け方と、上書きの確認の条 | 仕様書 | `T-227` | 6 |
 | `DL` | Delay | 遅れの量の数え方の場合分け | 仕様書 | `T-021b` | 3 |

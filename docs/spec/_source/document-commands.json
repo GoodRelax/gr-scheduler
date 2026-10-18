@@ -3000,6 +3000,34 @@
    }
   },
   {
+   "id": "CM-102",
+   "group": {
+    "ja": "見せ方の群"
+   },
+   "name": "fitScheduleToScreenOnPage",
+   "union": "DocumentSettingsCommand",
+   "bundle": false,
+   "values": [],
+   "carries": {
+    "ja": [
+     "画面の全体表示（`01-04-requirements.md` の `FR-055`）の倍率と表示位置を、ページが自分の画面の大きさで数えて置く（CR-806）",
+     "`Agent API` の `applyCommands`（`_assets/tbl-agent-api-members.md` の 表 T-107 の `AM-7`）が受けると、ページは本命令を、全体表示と同じ数えの値を運ぶ `CM-71` に置き換えて書く",
+     "数えるのは束の前に描いた画面である",
+     "全体表示の 2 つの書き込み（`01-04-requirements.md` の `FR-031`）の ① だけを置き、タスクグループの木の状態は戻さない",
+     "画面をまだ描いていないページと、画面を持たない呼び手は断る"
+    ],
+    "en": [
+     "Fits the whole schedule to the screen of the page, as the Fit button does: the page computes the zoom and the scroll position from its own screen size, so you need not know it.",
+     "The page computes them from the screen as drawn before this batch, so send it in a batch of its own after the edits that change the rows.",
+     "It does not unfold the task groups as the Fit button also does; to unfold them, send resetTaskGroupTreeStates in an earlier batch.",
+     "It is refused while the page has not drawn its screen yet."
+    ]
+   },
+   "source": {
+    "ja": "`FR-055`"
+   }
+  },
+  {
    "id": "CM-72",
    "group": {
     "ja": "`TaskGroup`"

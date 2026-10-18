@@ -126,10 +126,10 @@ describe('on the tree: the units, the printed table and the MCP input all match 
     expect(ran.out).toContain('OK')
   })
 
-  it('the printer of table T-108 exits 0 on --check and counts 91 commands', () => {
+  it('the printer of table T-108 exits 0 on --check and counts 92 commands', () => {
     const ran = check(ROOT, TABLE_PRINTER)
     expect(ran, ran.out).toMatchObject({ status: 0 })
-    expect(ran.out).toContain('91 command(s)')
+    expect(ran.out).toContain('92 command(s)')
   })
 
   it('generate_mcp_tool_descriptions.py --check exits 0', () => {
@@ -139,13 +139,13 @@ describe('on the tree: the units, the printed table and the MCP input all match 
 })
 
 describe('the seams: load_valid, command_schemas and with_command_shapes', () => {
-  it('load_valid() reads the manuscript of the tree as valid, 91 rows', () => {
+  it('load_valid() reads the manuscript of the tree as valid, 92 rows', () => {
     const ran = seam(ROOT, 'doc, columns = printer.load_valid()\nprint(len(doc["rows"]) if doc else columns)')
     expect(ran, ran.out).toMatchObject({ status: 0 })
-    expect(ran.out.trim()).toBe('91')
+    expect(ran.out.trim()).toBe('92')
   })
 
-  it('command_schemas() gives 91 alternatives: every command but CM-76, setDependencyLag twice', () => {
+  it('command_schemas() gives 92 alternatives: every command but CM-76, setDependencyLag twice', () => {
     const ran = seam(
       ROOT,
       [
@@ -156,7 +156,7 @@ describe('the seams: load_valid, command_schemas and with_command_shapes', () =>
       ].join('\n'),
     )
     expect(ran, ran.out).toMatchObject({ status: 0 })
-    expect(JSON.parse(ran.out.trim())).toEqual([91, 2, false])
+    expect(JSON.parse(ran.out.trim())).toEqual([92, 2, false])
   })
 
   it('with_command_shapes() leaves the input of a member that takes no write request as it was', () => {
@@ -273,6 +273,6 @@ describe('on a scratch copy outside the repository: an untouched copy is green, 
       ].join('\n'),
     )
     expect(ran, ran.out).toMatchObject({ status: 0 })
-    expect(JSON.parse(ran.out.trim())).toEqual([90, false])
+    expect(JSON.parse(ran.out.trim())).toEqual([91, false])
   })
 })

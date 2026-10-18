@@ -2673,6 +2673,16 @@ const SHAPE_OF_COMMAND_KIND: Readonly<Record<string, SchemaNode>> = {
       },
     },
   },
+  fitScheduleToScreenOnPage: {
+    type: ['object'],
+    required: ['kind'],
+    closed: true,
+    properties: {
+      kind: {
+        enum: ['fitScheduleToScreenOnPage'],
+      },
+    },
+  },
   resetTaskGroupTreeStates: {
     type: ['object'],
     required: ['kind'],

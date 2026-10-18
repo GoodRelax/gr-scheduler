@@ -789,6 +789,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `drawnTaskGroupsOf` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#drawnTaskGroupsOf` | -- | function drawnTaskGroupsOf(layout: ScheduleLayout): readonly TaskGroupPlacement[] |
 | `ENTRY` | entry | const | `src/adapter/input-command-translator/input-command-translator.ts#ENTRY` | -- | const ENTRY = |
 | `escapeContextOf` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#escapeContextOf` | PI-18 | 入力の文脈から `EscapeContext` を詰める（表 T-028 の `IN-4`、表 T-283）。 |
+| `fitWrites` | entry | function | `src/adapter/input-command-translator/zoom-and-fit.ts#fitWrites` | PI-18 | 全体表示（`IC-10`、`FR-055`）の 2 つの書き込みを、`FR-031` の順に答える。 |
 | `foldsOrNothing` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#foldsOrNothing` | -- | function foldsOrNothing( commands: readonly DocumentCommand[], situation: SpentEntranceSituation \| null, ): TranslatedInput |
 | `followingTravel` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#followingTravel` | -- | function followingTravel( at: PointerInput, press: PointerPress, ): { readonly dx: number; readonly dy: number } |
 | `GrabTaskGroup` | entry | type | `src/adapter/input-command-translator/input-command-translator.ts#GrabTaskGroup` | -- | type GrabTaskGroup = GrabArea |
@@ -894,7 +895,6 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `treeWritesOf` | file only | function | `src/adapter/input-command-translator/task-group-tree-entrances.ts#treeWritesOf` | -- | function treeWritesOf(context: InputContext, event: TreeStateEvent): readonly DocumentCommand[] |
 | `commandFromWheel` | file only | function | `src/adapter/input-command-translator/wheel-input.ts#commandFromWheel` | -- | function commandFromWheel( input: WheelInput, context: InputContext, searchPanelBox: ScreenRect \| null = null, |
 | `taskGroupTurnedTo` | file only | function | `src/adapter/input-command-translator/wheel-input.ts#taskGroupTurnedTo` | -- | function taskGroupTurnedTo(context: InputContext, dy: number): TaskGroupAnchor |
-| `fitWrites` | file only | function | `src/adapter/input-command-translator/zoom-and-fit.ts#fitWrites` | -- | function fitWrites(context: InputContext): readonly (readonly DocumentCommand[])[] |
 | `isPlaceNamed` | file only | function | `src/adapter/input-command-translator/zoom-and-fit.ts#isPlaceNamed` | -- | function isPlaceNamed( schedule: Schedule, scrollDate: string \| null, scrollTaskGroupId: string \| null, ): boolean |
 | `isPlaceSeatedIn` | file only | function | `src/adapter/input-command-translator/zoom-and-fit.ts#isPlaceSeatedIn` | -- | function isPlaceSeatedIn(context: InputContext): boolean |
 | `keyZoomFactor` | file only | function | `src/adapter/input-command-translator/zoom-and-fit.ts#keyZoomFactor` | -- | function keyZoomFactor(context: InputContext, isIn: boolean): number |
@@ -2093,4 +2093,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 1063 name(s) leave through a public entry (519 of them published by table T-064), 830 more are exported by a file and not by its entry.
+Totals: 1064 name(s) leave through a public entry (520 of them published by table T-064), 829 more are exported by a file and not by its entry.
