@@ -6,6 +6,7 @@
 //     server/grs-demo-server.ps1
 //     schedule-data/*.json    the three GRS JSON samples (JDG-2585)
 //     README-ja.md
+//   dist-demo/grs-server-sync-demo.zip   the same folder, packed for download
 //
 // dist/index.html is only read, never written: the demo is GRS byte for byte plus one script.
 // The page's Content-Security-Policy pins script-src to hashes, so the demo script's hash is
@@ -15,17 +16,106 @@
 import { createHash } from 'node:crypto'
 import { copyFileSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
+import { deflateRawSync } from 'node:zlib'
 import { fileURLToPath } from 'node:url'
 
 const DEMO_DIR = dirname(fileURLToPath(import.meta.url))
 const ROOT = resolve(DEMO_DIR, '..', '..')
 const GRS_PAGE = join(ROOT, 'dist', 'index.html')
-const OUT_DIR = join(ROOT, 'dist-demo', 'grs-server-sync-demo')
+const FOLDER_NAME = 'grs-server-sync-demo'
+const OUT_DIR = join(ROOT, 'dist-demo', FOLDER_NAME)
+// The file people download (DFC-3071): the folder above, packed with the folder itself at its top.
+const ZIP_FILE = join(ROOT, 'dist-demo', `${FOLDER_NAME}.zip`)
 // The third sample comes from sample-schedule/ at build time rather than as a second copy here.
 const SHARED_SAMPLES = [join(ROOT, 'sample-schedule', 'Three-Year Product Plan.json')]
 
 function sha256Hex(bytes) {
   return createHash('sha256').update(bytes).digest('hex')
+}
+
+// ---- a minimal zip writer (deflate, UTF-8 names), so the build needs no zip tool on any OS ----
+
+const CRC_TABLE = (() => {
+  const table = new Uint32Array(256)
+  for (let n = 0; n < 256; n += 1) {
+    let c = n
+    for (let k = 0; k < 8; k += 1) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1
+    table[n] = c >>> 0
+  }
+  return table
+})()
+
+function crc32(bytes) {
+  let c = 0xffffffff
+  for (const byte of bytes) c = CRC_TABLE[(c ^ byte) & 0xff] ^ (c >>> 8)
+  return (c ^ 0xffffffff) >>> 0
+}
+
+// DOS date and time of the build, which every entry carries.
+function dosStamp(at) {
+  const time = (at.getHours() << 11) | (at.getMinutes() << 5) | Math.floor(at.getSeconds() / 2)
+  const date = ((at.getFullYear() - 1980) << 9) | ((at.getMonth() + 1) << 5) | at.getDate()
+  return { time, date }
+}
+
+function filesUnder(folder, prefix) {
+  const found = []
+  for (const entry of readdirSync(folder, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name))) {
+    const path = join(folder, entry.name)
+    const name = `${prefix}/${entry.name}`
+    if (entry.isDirectory()) found.push(...filesUnder(path, name))
+    else found.push({ path, name })
+  }
+  return found
+}
+
+function zipOfFolder(folder, topName) {
+  const { time, date } = dosStamp(new Date())
+  const locals = []
+  const centrals = []
+  let offset = 0
+  for (const file of filesUnder(folder, topName)) {
+    const name = Buffer.from(file.name, 'utf8')
+    const raw = readFileSync(file.path)
+    const packed = deflateRawSync(raw, { level: 9 })
+    const crc = crc32(raw)
+    const local = Buffer.alloc(30)
+    local.writeUInt32LE(0x04034b50, 0)
+    local.writeUInt16LE(20, 4)
+    local.writeUInt16LE(0x0800, 6)
+    local.writeUInt16LE(8, 8)
+    local.writeUInt16LE(time, 10)
+    local.writeUInt16LE(date, 12)
+    local.writeUInt32LE(crc, 14)
+    local.writeUInt32LE(packed.length, 18)
+    local.writeUInt32LE(raw.length, 22)
+    local.writeUInt16LE(name.length, 26)
+    local.writeUInt16LE(0, 28)
+    const central = Buffer.alloc(46)
+    central.writeUInt32LE(0x02014b50, 0)
+    central.writeUInt16LE(20, 4)
+    central.writeUInt16LE(20, 6)
+    central.writeUInt16LE(0x0800, 8)
+    central.writeUInt16LE(8, 10)
+    central.writeUInt16LE(time, 12)
+    central.writeUInt16LE(date, 14)
+    central.writeUInt32LE(crc, 16)
+    central.writeUInt32LE(packed.length, 20)
+    central.writeUInt32LE(raw.length, 24)
+    central.writeUInt16LE(name.length, 28)
+    central.writeUInt32LE(offset, 42)
+    locals.push(local, name, packed)
+    centrals.push(central, name)
+    offset += local.length + name.length + packed.length
+  }
+  const centralBytes = Buffer.concat(centrals)
+  const end = Buffer.alloc(22)
+  end.writeUInt32LE(0x06054b50, 0)
+  end.writeUInt16LE(centrals.length / 2, 8)
+  end.writeUInt16LE(centrals.length / 2, 10)
+  end.writeUInt32LE(centralBytes.length, 12)
+  end.writeUInt32LE(offset, 16)
+  return Buffer.concat([...locals, centralBytes, end])
 }
 
 function fail(message) {
@@ -70,6 +160,8 @@ const samples = [
 ]
 for (const sample of samples) copyFileSync(sample, join(OUT_DIR, 'schedule-data', sample.split(/[\\/]/).pop()))
 
+writeFileSync(ZIP_FILE, zipOfFolder(OUT_DIR, FOLDER_NAME))
+
 // The proof the demo leaves GRS alone: dist/index.html after the build is the bytes read before it.
 const grsAfter = readFileSync(GRS_PAGE)
 if (!grsAfter.equals(grsBytes)) fail('dist/index.html changed during the build')
@@ -78,4 +170,5 @@ console.log(`dist/index.html          sha256 ${sha256Hex(grsBytes)} (unchanged)`
 console.log(`GRS-Demo.html            sha256 ${sha256Hex(Buffer.from(demoHtml, 'utf8'))}`)
 console.log(`demo script hash added   ${demoHash}`)
 console.log(`schedule-data            ${samples.length} files`)
-console.log(`built                    dist-demo/grs-server-sync-demo/  (start: start-server.cmd)`)
+console.log(`built                    dist-demo/${FOLDER_NAME}/  (start: start-server.cmd)`)
+console.log(`zip                      dist-demo/${FOLDER_NAME}.zip  (${readFileSync(ZIP_FILE).length} bytes)`)

@@ -7,15 +7,19 @@ GoodRelax Scheduler（GRS）の画面のまま、ファイルを手元の PC の
 
 ## 試し方
 
-### リポジトリから
+⭐ **動かすのに要るのは Windows の PowerShell だけです**（Windows に最初から入っています）。Node.js も npm も、導入するものはありません（`JDG-2583`、`JDG-2584`）。
 
-1. `npm run build:demo` —— `dist-demo/grs-server-sync-demo/` ができます（`dist/index.html` が要ります。`src/` を変えたら先に `npm run build`）。
-2. `dist-demo/grs-server-sync-demo/start-server.cmd` をダブルクリックします。
+1. 落とした `grs-server-sync-demo.zip` を右クリック →「プロパティ」→ 下の「許可する」に印を付けて OK（しないと SmartScreen の警告が出ます）。
+2. 展開して、できた `grs-server-sync-demo` フォルダの `start-server.cmd` をダブルクリックします。
 
-### zip から
+### 一式と zip を組み立てる（開発する側だけ）
 
-1. 落とした zip を右クリック →「プロパティ」→ 下の「許可する」に印を付けて OK（しないと SmartScreen の警告が出ます）。
-2. 展開して、`start-server.cmd` をダブルクリックします。
+組み立てにだけ Node.js が要ります。`npm install` は要りません（node の標準の部品しか使いません）。
+
+1. `npm run build:demo` —— `dist-demo/grs-server-sync-demo/`（展開した形）と `dist-demo/grs-server-sync-demo.zip`（配る形）ができます。`dist/index.html` を読むので、`src/` を変えたら先に `npm run build`。
+2. そのまま試すなら `dist-demo/grs-server-sync-demo/start-server.cmd` をダブルクリックします。
+
+`dist-demo/` はコミットしません（`.gitignore`）。zip はリポジトリに置かず、配るときに組み立てます。
 
 ### 初めの 1 回だけ
 
@@ -68,7 +72,7 @@ Windows で使える名なら日本語も使えます。`\ / : * ? " < >`・縦�
 | 部品 | ファイル | 役目 |
 |---|---|---|
 | ページ側 | `app/demo-client.js` | GRS が起動時に一度だけ読む `window.showOpenFilePicker` / `showSaveFilePicker` を包む。ファイルを選ぶ所だけをサーバーに替え、サーバーのファイルは `getFile()` が GET、`createWritable()` の `close()` が PUT の「ファイルの手」として GRS に渡す |
-| ビルド | `build-demo.mjs`（`npm run build:demo`） | `dist/index.html` を**読むだけ**で、デモのスクリプトを GRS のスクリプトの前に足した `GRS-Demo.html` を書き、CSP の `script-src` にそのハッシュを足す。`dist/index.html` が前後で同じバイトであることを確かめて sha256 を出す |
+| ビルド | `build-demo.mjs`（`npm run build:demo`） | 一式と zip を `dist-demo/` に作る。`dist/index.html` を**読むだけ**で、デモのスクリプトを GRS のスクリプトの前に足した `GRS-Demo.html` を書き、CSP の `script-src` にそのハッシュを足す。`dist/index.html` が前後で同じバイトであることを確かめて sha256 を出す |
 | サーバー | `server/grs-demo-server.ps1`、`start-server.cmd` | Windows PowerShell 5.1 の `TcpListener`＋`SslStream`。導入も管理者権限も要らない |
 | データ | `schedule-data/`（＋ビルド時に `sample-schedule/Three-Year Product Plan.json`） | GRS JSON 3 つ（`JDG-2585`）。MSPDI のサンプル 2 つは、GRS で開いて GRS JSON で保存したもの |
 | 試験 | `tests/server-sync-demo.e2e.mjs` | 本物のサーバー・`GRS-Demo.html`・Chromium で UC-1〜UC-4・UC-7 を通す |

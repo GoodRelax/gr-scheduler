@@ -15,7 +15,8 @@ import { fileURLToPath } from 'node:url'
 import { chromium } from 'playwright'
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..', '..')
-const BUILT = join(ROOT, 'dist-demo', 'grs-server-sync-demo')
+// Pass an unpacked zip's folder to test that instead of the built one.
+const BUILT = process.argv[2] ? resolve(process.argv[2]) : join(ROOT, 'dist-demo', 'grs-server-sync-demo')
 const PORT = 18443
 const ORIGIN = `https://localhost:${PORT}`
 const SMALL = 'sample-small-website-renewal.ja.json'
