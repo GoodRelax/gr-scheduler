@@ -88,9 +88,9 @@ export const SCHEDULE = scheduleWith()
 export const ALL_TASKS: readonly number[] = TASKS.map((one) => one.uid)
 
 // see TV-2
-export const ALL_SHOWN: TableVisibility = { hiddenTaskUids: [], hiddenResourceUids: [], isUnassignedHidden: false, isScheduleFilterApplied: false }
+export const NONE_CHECKED: TableVisibility = { shownTaskUids: [], shownResourceUids: [], isUnassignedShown: false, isScheduleFilterApplied: false }
 
-export const visibility = (part: Partial<TableVisibility>): TableVisibility => ({ ...ALL_SHOWN, ...part })
+export const visibility = (part: Partial<TableVisibility>): TableVisibility => ({ ...NONE_CHECKED, ...part })
 
 export interface Tables {
   readonly search?: TableVisibility
@@ -104,10 +104,10 @@ export interface Tables {
 export function drawn(tables: Tables, schedule: Schedule = SCHEDULE): readonly number[] | null {
   const made = drawnTaskUidsOf(
     schedule,
-    tables.search ?? ALL_SHOWN,
-    tables.report ?? ALL_SHOWN,
+    tables.search ?? NONE_CHECKED,
+    tables.report ?? NONE_CHECKED,
     tables.reportTaskUids === undefined || tables.reportTaskUids === null ? null : new Set(tables.reportTaskUids),
-    tables.resourceList ?? ALL_SHOWN,
+    tables.resourceList ?? NONE_CHECKED,
     new Set(tables.created ?? []),
   )
   return made === null ? null : [...made].sort((a, b) => a - b)

@@ -2668,19 +2668,19 @@
       "visibility": {
        "type": "object",
        "properties": {
-        "hiddenTaskUids": {
+        "shownTaskUids": {
          "type": "array",
          "items": {
           "type": "integer"
          }
         },
-        "hiddenResourceUids": {
+        "shownResourceUids": {
          "type": "array",
          "items": {
           "type": "integer"
          }
         },
-        "isUnassignedHidden": {
+        "isUnassignedShown": {
          "type": "boolean"
         },
         "isScheduleFilterApplied": {
@@ -2688,9 +2688,9 @@
         }
        },
        "required": [
-        "hiddenTaskUids",
-        "hiddenResourceUids",
-        "isUnassignedHidden",
+        "shownTaskUids",
+        "shownResourceUids",
+        "isUnassignedShown",
         "isScheduleFilterApplied"
        ],
        "additionalProperties": false

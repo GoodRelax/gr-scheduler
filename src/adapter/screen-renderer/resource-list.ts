@@ -23,7 +23,6 @@ import {
   columnHeadingsOf,
   filteredTableRows,
   tableColumnValues,
-  withVisibilityColumn,
   type SearchColumnHeading,
   type TableColumns,
   type TableRowCells,
@@ -45,7 +44,8 @@ import {
   windowTitleEntriesOf,
   windowWithColumnWidth,
   wordOf,
-  isScheduleFilterChanging,
+  scheduleFilterReadinessOf,
+  type ScheduleFilterReadiness,
   tableWithViewsCleared,
   type SearchFilterChange,
   type TableLook,
@@ -221,10 +221,11 @@ const LINE_TABLE: TableColumns<ResourceLine> = {
   orders: { [COUNT_COLUMN]: compareCounts },
 }
 
-// see RQ-1, TV-2, TV-13, S-569, S-570
+// see RQ-1, SV-7, JDG-2811
+// WHY: the Visibility column holds no filter values and no sort, so the list's columns are the table's own.
 /** @purity pure */
-function lineColumnsOf(view: TableView): TableColumns<ResourceLine> {
-  return withVisibilityColumn(LINE_TABLE, VISIBILITY_COLUMN, (line) => isRowShown('resourceList', view.visibility, line.key))
+function lineColumnsOf(_view: TableView): TableColumns<ResourceLine> {
+  return LINE_TABLE
 }
 
 // see RO-3, SV-4
@@ -260,10 +261,17 @@ function widthSamplesIn(all: readonly ResourceLine[], language: DisplayLanguage)
 
 // see T-371, SV-7, RO-7
 /** @purity pure */
-function lineTableOf(view: TableView, listed: () => readonly ResourceLine[], language: DisplayLanguage, all?: readonly ResourceLine[]): WindowTable {
+function lineTableOf(
+  view: TableView,
+  listed: () => readonly ResourceLine[],
+  language: DisplayLanguage,
+  all?: readonly ResourceLine[],
+  everyLineKey: () => readonly VisibilityKey[] = () => [],
+): WindowTable {
   const lineColumns = lineColumnsOf(view)
   return {
     columns: RESOURCE_LIST_COLUMNS,
+    checkColumn: { column: VISIBILITY_COLUMN, table: 'resourceList', everyRowKey: everyLineKey },
     fixedCount: FIXED_COLUMN_COUNT,
     headingOf: (column) => wordOf(COLUMN_WORDS.get(column), language),
     isDateColumn: () => false,
@@ -273,10 +281,11 @@ function lineTableOf(view: TableView, listed: () => readonly ResourceLine[], lan
   }
 }
 
-// WHY: the table rows every task (a resource's or the (Unassigned) row's), so only a Hide row changes the schedule.
+// see TV-5, TV-13, JDG-2820
+// WHY: the table rows every task (a resource's or the (Unassigned) row's), so only an unchecked row changes the schedule.
 /** @purity pure */
-function wouldResourceFilterChange(view: TableView, schedule: Schedule): boolean {
-  return isScheduleFilterChanging('resourceList', view.visibility, () => resourceUidsOf(schedule), true)
+function resourceFilterReadinessOf(view: TableView, schedule: Schedule): ScheduleFilterReadiness {
+  return scheduleFilterReadinessOf('resourceList', view.visibility, () => resourceUidsOf(schedule), true)
 }
 
 // see FR-029, FR-099, IC-63, IC-64, IC-65, IC-66, RO-3
@@ -322,7 +331,8 @@ export function resourceListFromWindow(
   const all = resourceLinesOf({ schedule, chosenResourceUids, language })
   const listed = window.shown === 'minimized' ? [] : listedLinesOf({ word: window.panel.word, view }, all)
   const table = lineTableOf(view, () => listedLinesOf({ word: window.panel.word, view: { ...view, columnFilters: [] } }, all), language, all)
-  const scheduleFilter = scheduleFilterEntryOf(view.visibility, wouldResourceFilterChange(view, schedule), language)
+  const readiness = resourceFilterReadinessOf(view, schedule)
+  const scheduleFilter = scheduleFilterEntryOf(view.visibility, readiness, language)
   const rows = listed.map((line) => rowViewOf(view, line, language))
   return {
     heading: wordOf(HEADING, language),
@@ -340,7 +350,7 @@ export function resourceListFromWindow(
     chosenAt: RESOURCE_LIST_COLUMNS.indexOf(CHOSEN_COLUMN),
     showAt: RESOURCE_LIST_COLUMNS.indexOf(VISIBILITY_COLUMN),
     showHeading: visibilityHeadingOf(rows),
-    entryRefusals: scheduleFilterRefusalsOf(scheduleFilter, language),
+    entryRefusals: scheduleFilterRefusalsOf(scheduleFilter, readiness, language),
   }
 }
 
@@ -405,8 +415,8 @@ export function resourceListAfterEntry(
 ): WindowStep | null {
   const word = window.panel.word
   return windowAfterEntry(window, view, entry, filterColumn, {
-    wouldChange: () => wouldResourceFilterChange(view, rows.schedule),
-    tableOf: (unfiltered) => lineTableOf(view, () => listedLinesOf({ word, view: unfiltered }, resourceLinesOf(rows)), rows.language),
+    readiness: () => resourceFilterReadinessOf(view, rows.schedule),
+    tableOf: (unfiltered) => lineTableOf(view, () => listedLinesOf({ word, view: unfiltered }, resourceLinesOf(rows)), rows.language, undefined, () => resourceLinesOf(rows).map((line) => line.key)),
   }, listed)
 }
 

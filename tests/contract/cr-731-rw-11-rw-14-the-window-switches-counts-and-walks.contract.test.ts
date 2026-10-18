@@ -228,6 +228,19 @@ describe('item 12 -- RW-14: previous and next walk the rows a person mends, and 
   })
 })
 
+// WHY: CR-798 TV-2 -- every row starts unchecked and IC-143 stays idle while no row is checked (TV-5), so a case that turns the
+// filter on first checks the rows of the report table in the document it opens.
+const withReportChecked = (document: Document, taskUids: readonly number[]): Document => ({
+  ...document,
+  documentSettings: {
+    ...document.documentSettings,
+    tableViews: {
+      ...document.documentSettings.tableViews,
+      delayDiagnosticsReport: { ...document.documentSettings.tableViews.delayDiagnosticsReport, shownTaskUids: taskUids },
+    },
+  },
+})
+
 describe('item 17 -- RW-2: IC-143 stands on the diagnosis table only, and the filter goes on across a switch', () => {
   const planDrawn = (stage: WindowStage, uid: number): boolean => stage.svg().includes(`data-figure="task-${String(uid)}-plan"`)
 
@@ -245,7 +258,7 @@ describe('item 17 -- RW-2: IC-143 stands on the diagnosis table only, and the fi
   })
 
   it('a Schedule Filter that is on stays on while the proposals are shown, and a switch is no edit of its own', async () => {
-    const stage = await opened(ONE_PARENT())
+    const stage = await opened(withReportChecked(ONE_PARENT(), [1, 2, 3]))
     expect(planDrawn(stage, 2), 'premise: every task is drawn before the filter').toBe(true)
     await stage.press('IC-143')
     expect(planDrawn(stage, 2), 'the filter draws only what the report lists').toBe(false)
@@ -256,9 +269,17 @@ describe('item 17 -- RW-2: IC-143 stands on the diagnosis table only, and the fi
     expect(planDrawn(stage, 2), 'still filtered back on the diagnosis').toBe(false)
   })
 
-  it('the switches added no step: one undo takes the filter off', async () => {
+  it('CR-798 TV-5: with no row of the report checked IC-143 does nothing: the schedule is as it was and nothing is unsaved', async () => {
     const stage = await opened(ONE_PARENT())
     await stage.press('IC-143')
+    expect(planDrawn(stage, 2)).toBe(true)
+    expect(stage.loop.hasUnsavedEdits()).toBe(false)
+  })
+
+  it('the switches added no step: one undo takes the filter off', async () => {
+    const stage = await opened(withReportChecked(ONE_PARENT(), [1, 2, 3]))
+    await stage.press('IC-143')
+    expect(planDrawn(stage, 2), 'premise: the filter is on').toBe(false)
     await stage.press('IC-155')
     await stage.press('IC-154')
     await stage.key(undoKey())
@@ -287,7 +308,7 @@ describe('item 16 -- FR-155: nothing of the fix window is written to the documen
   })
 
   it('regression: the Schedule Filter of the diagnosis table is an edit, one step of UN-20', async () => {
-    const stage = await opened(ONE_PARENT())
+    const stage = await opened(withReportChecked(ONE_PARENT(), [1, 2, 3]))
     expect(stage.loop.hasUnsavedEdits()).toBe(false)
     await stage.press('IC-143')
     expect(stage.loop.hasUnsavedEdits()).toBe(true)

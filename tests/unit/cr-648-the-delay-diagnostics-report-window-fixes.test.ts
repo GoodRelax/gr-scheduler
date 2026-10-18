@@ -18,7 +18,7 @@ import {
   type Schedule,
 } from '../../src/entity/document-model/schedule/schedule'
 import {
-  EVERY_ROW_SHOWN,
+  NO_ROW_CHECKED,
   emptySearchPanelSession,
   type ScreenSession,
   type TableView,
@@ -91,7 +91,7 @@ const REPORT: DelayDiagnosticsReport = {
 }
 
 // WHY: CR-723 -- the table's view is the document's and is handed in beside the window; none is set here.
-const NO_VIEW: TableView = { visibility: EVERY_ROW_SHOWN, columnFilters: [], sort: null }
+const NO_VIEW: TableView = { visibility: NO_ROW_CHECKED, columnFilters: [], sort: null }
 
 const sessionIn = (language: 'ja' | 'en') => ({ screen: { screenLanguage: language } }) as unknown as ScreenSession
 

@@ -14,7 +14,7 @@ import {
   advanceScreenSession,
   emptyScreenSession,
   emptySearchPanelSession,
-  EVERY_ROW_SHOWN,
+  NO_ROW_CHECKED,
   type ScreenSession,
   type SearchPanelSession,
   type SessionEvent,
@@ -119,7 +119,7 @@ function shownSession(): ScreenSession {
 }
 
 function viewOf(panel: Partial<SearchPanelSession>): SearchPanelView {
-  const view = searchPanelFromSession(shownSession(), { ...emptySearchPanelSession, ...panel }, { visibility: EVERY_ROW_SHOWN, columnFilters: [], sort: null }, SCHEDULE, CANVAS)
+  const view = searchPanelFromSession(shownSession(), { ...emptySearchPanelSession, ...panel }, { visibility: NO_ROW_CHECKED, columnFilters: [], sort: null }, SCHEDULE, CANVAS)
   if (view === null) throw new Error('premise: a shown panel has a view')
   return view
 }

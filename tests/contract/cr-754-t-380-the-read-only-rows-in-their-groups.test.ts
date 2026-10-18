@@ -130,7 +130,6 @@ function expectedValue(key: string, settings: Loose, language: DisplayLanguage):
   if (leaf === 'isBaselineVisible') return word(value === true ? 'overlaid' : 'notOverlaid', language)
   if (leaf === 'isThemeMonochrome') return word(value === true ? 'monochrome' : 'color', language)
   if (leaf === 'isScheduleFilterApplied') return word(value === true ? 'filterOn' : 'filterOff', language)
-  if (leaf === 'isUnassignedHidden') return word(value === true ? 'hidden' : 'shown', language)
   if (typeof value === 'boolean') return word(value ? 'shown' : 'hidden', language)
   if (leaf === 'zoomX' || leaf === 'zoomY') return word('percent', language, { n: percentOf(value as number) })
   // WHY: CR-787 -- RN-3 joins scrollDate with scrollDateFraction, and scrollTaskGroupId with scrollTaskGroupFraction.
@@ -186,18 +185,18 @@ const MOVED: Loose = {
   rulerHeightPx: 60,
   stackDirection: 'down',
   tableViews: {
-    searchPanel: { isScheduleFilterApplied: true, hiddenTaskUids: [1, 2, 3], columnFilters: [FILTER], sort: { column: 'SQ-5', direction: 'descending' } },
+    searchPanel: { isScheduleFilterApplied: true, shownTaskUids: [1, 2, 3], columnFilters: [FILTER], sort: { column: 'SQ-5', direction: 'descending' } },
     resourceList: {
       isScheduleFilterApplied: true,
-      hiddenResourceUids: [7],
-      isUnassignedHidden: true,
+      shownResourceUids: [7],
+      isUnassignedShown: true,
       columnFilters: [
         { ...FILTER, column: 'RQ-2' },
         { ...FILTER, column: 'RQ-3' },
       ],
       sort: { column: 'RQ-2', direction: 'ascending' },
     },
-    delayDiagnosticsReport: { isScheduleFilterApplied: false, hiddenTaskUids: [], columnFilters: [], sort: { column: 'DT-1', direction: 'ascending' } },
+    delayDiagnosticsReport: { isScheduleFilterApplied: false, shownTaskUids: [], columnFilters: [], sort: { column: 'DT-1', direction: 'ascending' } },
   },
 }
 
@@ -245,10 +244,10 @@ describe('CR-754 premise -- the clauses and table T-380 these cases read', () =>
     expect(partWord(SECTION, 'columnFilters', 'ja')).toBe('列ごとのフィルタ')
   })
 
-  it('JDG-2234 / JDG-2240: the en words are Shown / Hidden, View, Hidden Resources, and the eleven true-false rows read as the things', () => {
+  it('JDG-2234 / JDG-2240: the en words are Shown / Hidden, View, Shown Resources, and the eleven true-false rows read as the things', () => {
     expect([partWord(SECTION, 'shown', 'en'), partWord(SECTION, 'hidden', 'en')]).toEqual(['Shown', 'Hidden'])
     expect(partWord(SECTION, 'groupView', 'en')).toBe('View')
-    expect(partWord(SECTION, 'hiddenResources', 'en')).toBe('Hidden Resources')
+    expect(partWord(SECTION, 'shownResources', 'en')).toBe('Shown Resources')
     const things = ['K-122', 'K-123', 'K-78', 'K-77', 'K-79', 'K-84', 'K-75', 'K-76', 'K-124', 'K-82', 'K-83'].map((one) => settingLabel(one, 'en'))
     expect(things).toEqual([
       'Plan',

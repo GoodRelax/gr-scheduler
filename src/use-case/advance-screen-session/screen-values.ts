@@ -72,10 +72,11 @@ export type TableVisibility = TableView['visibility']
 
 export type VisibilityTable = Extract<DocumentCommand, { readonly kind: 'setTableView' }>['table']
 
-export const EVERY_ROW_SHOWN: TableVisibility = {
-  hiddenTaskUids: [],
-  hiddenResourceUids: [],
-  isUnassignedHidden: false,
+// see TV-2, TV-9
+export const NO_ROW_CHECKED: TableVisibility = {
+  shownTaskUids: [],
+  shownResourceUids: [],
+  isUnassignedShown: false,
   isScheduleFilterApplied: false,
 }
 

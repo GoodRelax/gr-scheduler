@@ -46,21 +46,21 @@ export interface DocumentSettings {
   readonly tableViews: {
     readonly delayDiagnosticsReport: {
       readonly columnFilters: readonly ColumnFilter[]
-      readonly hiddenTaskUids: readonly number[]
       readonly isScheduleFilterApplied: boolean
+      readonly shownTaskUids: readonly number[]
       readonly sort: ColumnSort | null
     }
     readonly resourceList: {
       readonly columnFilters: readonly ColumnFilter[]
-      readonly hiddenResourceUids: readonly number[]
       readonly isScheduleFilterApplied: boolean
-      readonly isUnassignedHidden: boolean
+      readonly isUnassignedShown: boolean
+      readonly shownResourceUids: readonly number[]
       readonly sort: ColumnSort | null
     }
     readonly searchPanel: {
       readonly columnFilters: readonly ColumnFilter[]
-      readonly hiddenTaskUids: readonly number[]
       readonly isScheduleFilterApplied: boolean
+      readonly shownTaskUids: readonly number[]
       readonly sort: ColumnSort | null
     }
   }
@@ -115,17 +115,17 @@ export const SETTINGS_DEFAULTS: Readonly<Record<string, unknown>> = {
   'scrollTaskGroupId': null,
   'stackDirection': 'up',
   'tableViews.delayDiagnosticsReport.columnFilters': [],
-  'tableViews.delayDiagnosticsReport.hiddenTaskUids': [],
   'tableViews.delayDiagnosticsReport.isScheduleFilterApplied': false,
+  'tableViews.delayDiagnosticsReport.shownTaskUids': [],
   'tableViews.delayDiagnosticsReport.sort': null,
   'tableViews.resourceList.columnFilters': [],
-  'tableViews.resourceList.hiddenResourceUids': [],
   'tableViews.resourceList.isScheduleFilterApplied': false,
-  'tableViews.resourceList.isUnassignedHidden': false,
+  'tableViews.resourceList.isUnassignedShown': false,
+  'tableViews.resourceList.shownResourceUids': [],
   'tableViews.resourceList.sort': null,
   'tableViews.searchPanel.columnFilters': [],
-  'tableViews.searchPanel.hiddenTaskUids': [],
   'tableViews.searchPanel.isScheduleFilterApplied': false,
+  'tableViews.searchPanel.shownTaskUids': [],
   'tableViews.searchPanel.sort': null,
   'taskGroupPanelWidthPx': 300,
   'viewTimeZone': null,

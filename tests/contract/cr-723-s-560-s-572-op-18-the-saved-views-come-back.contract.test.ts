@@ -6,7 +6,7 @@ import { documentFromJson, mspdiFromDocument } from '../../src/adapter/document-
 import { documentAsOpened } from '../../src/framework/single-html-shell/document-file-flow'
 import { validateDocument } from '../fixtures/grs-document'
 import {
-  ALL_SHOWN,
+  NONE_CHECKED,
   ALPHA,
   BRAVO,
   BUILT_VERSION,
@@ -55,7 +55,7 @@ describe('S-560 to S-572 / FR-024 -- every one of the 13 keys is written, at its
     for (const table of TABLES) expect(Object.keys(saved[table] ?? {}).sort(), table).toEqual([...KEYS_OF[table]])
   })
 
-  it('every key reads its default: no eye, no hidden row, no filter, no sort', () => {
+  it('every key reads its default: no eye, no checked row, no filter, no sort', () => {
     const saved = tableViewsIn(savedObjectOf(openedFrom(documentText())))
     for (const table of TABLES) {
       const keys = saved[table] ?? {}
@@ -63,10 +63,10 @@ describe('S-560 to S-572 / FR-024 -- every one of the 13 keys is written, at its
       expect(keys['columnFilters'], table).toEqual([])
       expect(keys['sort'], table).toBeNull()
     }
-    expect(saved['searchPanel']?.['hiddenTaskUids']).toEqual([])
-    expect(saved['delayDiagnosticsReport']?.['hiddenTaskUids']).toEqual([])
-    expect(saved['resourceList']?.['hiddenResourceUids']).toEqual([])
-    expect(saved['resourceList']?.['isUnassignedHidden']).toBe(false)
+    expect(saved['searchPanel']?.['shownTaskUids']).toEqual([])
+    expect(saved['delayDiagnosticsReport']?.['shownTaskUids']).toEqual([])
+    expect(saved['resourceList']?.['shownResourceUids']).toEqual([])
+    expect(saved['resourceList']?.['isUnassignedShown']).toBe(false)
   })
 
   it('tableViewOf reads the default view of each table from a default document', () => {
@@ -87,18 +87,18 @@ describe('S-560 to S-572 / FR-024 -- every one of the 13 keys is written, at its
 describe('OP-18 / S-560 to S-572 -- what is saved comes back as it was', () => {
   const saved = (): Loose => savedObjectOf(openedFrom(documentText({ tableViews: tableViewsText(VIEWS_SAVED) })))
 
-  it('the saved file holds the Visibility, the eyes, the column filters (with fromDate and toDate) and the sorts as given', () => {
+  it('the saved file holds the checked rows, the eyes, the column filters (with fromDate and toDate) and the sorts as given', () => {
     const views = tableViewsIn(saved())
     expect(views['searchPanel']).toEqual({
       isScheduleFilterApplied: true,
-      hiddenTaskUids: [ALPHA, BRAVO],
+      shownTaskUids: [ALPHA, BRAVO],
       columnFilters: SEARCH_VIEW.columnFilters,
       sort: SEARCH_VIEW.sort,
     })
     expect(views['resourceList']).toEqual({
       isScheduleFilterApplied: true,
-      hiddenResourceUids: [TANAKA],
-      isUnassignedHidden: true,
+      shownResourceUids: [TANAKA],
+      isUnassignedShown: true,
       columnFilters: RESOURCE_VIEW.columnFilters,
       sort: RESOURCE_VIEW.sort,
     })
@@ -135,6 +135,8 @@ describe('OP-18 -- a uid that points at nothing and a column that is in no table
   const GONE_TASK = 987654
   const GONE_RESOURCE = 876543
   const NOWHERE = 'no-such-column'
+  // WHY: S-562 / S-563 -- the Visibility column (SQ-10) takes no column filter and no sort, so a held one is dropped on read.
+  const VISIBILITY_COLUMN = 'SQ-10'
 
   const strange = (): ReturnType<typeof documentFromJson> =>
     documentFromJson(
@@ -142,14 +144,15 @@ describe('OP-18 -- a uid that points at nothing and a column that is in no table
         tableViews: tableViewsText({
           ...VIEWS_SAVED,
           searchPanel: view({
-            visibility: { hiddenTaskUids: [ALPHA, GONE_TASK], hiddenResourceUids: [], isUnassignedHidden: false, isScheduleFilterApplied: true },
+            visibility: { shownTaskUids: [ALPHA, GONE_TASK], shownResourceUids: [], isUnassignedShown: false, isScheduleFilterApplied: true },
             columnFilters: [
               { column: 'SQ-5', hiddenValues: ['Done'], fromDate: null, toDate: null },
+              { column: VISIBILITY_COLUMN, hiddenValues: ['Hide'], fromDate: null, toDate: null },
               { column: NOWHERE, hiddenValues: ['x'], fromDate: null, toDate: null },
             ],
             sort: { column: NOWHERE, direction: 'ascending' },
           }),
-          resourceList: view({ visibility: { hiddenTaskUids: [], hiddenResourceUids: [SATO, GONE_RESOURCE], isUnassignedHidden: false, isScheduleFilterApplied: false } }),
+          resourceList: view({ visibility: { shownTaskUids: [], shownResourceUids: [SATO, GONE_RESOURCE], isUnassignedShown: false, isScheduleFilterApplied: false } }),
         }),
       }),
       BUILT_VERSION,
@@ -173,27 +176,37 @@ describe('OP-18 -- a uid that points at nothing and a column that is in no table
     return documentAsOpened(opened.document)
   }
 
-  it('the hidden task that is not in the document is dropped and the one that is stays', () => {
-    expect(savedViews()['searchPanel']?.['hiddenTaskUids']).toEqual([ALPHA])
+  it('the checked task that is not in the document is dropped and the one that is stays', () => {
+    expect(savedViews()['searchPanel']?.['shownTaskUids']).toEqual([ALPHA])
   })
 
-  it('the hidden resource that is not in the document is dropped and the one that is stays', () => {
-    expect(savedViews()['resourceList']?.['hiddenResourceUids']).toEqual([SATO])
+  it('the checked resource that is not in the document is dropped and the one that is stays', () => {
+    expect(savedViews()['resourceList']?.['shownResourceUids']).toEqual([SATO])
   })
 
-  it('a column filter on a column that is in no table is dropped and the real one stays; a sort on such a column reads as no sort', () => {
+  it('a column filter on a column that is in no table, or on the Visibility column, is dropped and the real one stays; a sort on such a column reads as no sort', () => {
     const search = tableViewsIn(savedObjectOf(openedAsReplaced()))['searchPanel'] ?? {}
     expect(((search['columnFilters'] ?? []) as Loose[]).map((one) => one['column'])).toEqual(['SQ-5'])
+    expect(search['sort']).toBeNull()
+  })
+
+  it('a sort on the Visibility column (SQ-10) reads as no sort (S-563)', () => {
+    const opened = documentFromJson(
+      documentText({ tableViews: tableViewsText({ ...VIEWS_SAVED, searchPanel: view({ sort: { column: VISIBILITY_COLUMN, direction: 'ascending' } }) }) }),
+      BUILT_VERSION,
+    )
+    if (!opened.ok) throw new Error('refused')
+    const search = tableViewsIn(savedObjectOf(documentAsOpened(opened.document)))['searchPanel'] ?? {}
     expect(search['sort']).toBeNull()
   })
 
   it('tableViewOf reads the same kept values', () => {
     const opened = { document: openedAsReplaced() }
     const read = tableViewOf(opened.document.documentSettings, 'searchPanel')
-    expect(read.visibility.hiddenTaskUids).toEqual([ALPHA])
+    expect(read.visibility.shownTaskUids).toEqual([ALPHA])
     expect(read.columnFilters.map((one: ColumnFilter) => one.column)).toEqual(['SQ-5'])
     expect(read.sort).toBeNull()
-    expect(tableViewOf(opened.document.documentSettings, 'resourceList').visibility.hiddenResourceUids).toEqual([SATO])
+    expect(tableViewOf(opened.document.documentSettings, 'resourceList').visibility.shownResourceUids).toEqual([SATO])
   })
 
   it('the dropped values do not come back in the saved file', () => {
@@ -211,9 +224,9 @@ describe('FR-151 -- what is not a view is not saved', () => {
   })
 
   // WHY: CR-792 (JDG-2723) gave the command value the stored key's own name isScheduleFilterApplied, so it is not listed.
-  it('the old camel-case shapes of the screen values (hiddenKeys, visibility) are not the file\'s keys', () => {
+  it('the old shapes (hiddenKeys, visibility, and the retired hidden lists of CR-798) are not the file\'s keys', () => {
     const found = keysAnywhere(tableViewsIn(savedObjectOf(openedFrom(documentText({ tableViews: tableViewsText(VIEWS_SAVED) })))))
-    for (const key of ['hiddenKeys', 'visibility', 'from', 'to']) expect(found, key).not.toContain(key)
+    for (const key of ['hiddenKeys', 'visibility', 'from', 'to', 'hiddenTaskUids', 'hiddenResourceUids', 'isUnassignedHidden']) expect(found, key).not.toContain(key)
   })
 })
 
@@ -256,12 +269,12 @@ describe('TV-9 -- MSPDI does not carry the views; a document without views is th
     const withViews = mspdiFromDocument(openedFrom(documentText({ tableViews: tableViewsText(VIEWS_SAVED) })), A_MOMENT).text
     const plain = mspdiFromDocument(openedFrom(documentText()), A_MOMENT).text
     expect(withViews).toBe(plain)
-    expect(withViews).not.toMatch(/tableViews|isScheduleFilterApplied|hiddenTaskUids|columnFilters/)
+    expect(withViews).not.toMatch(/tableViews|isScheduleFilterApplied|shownTaskUids|columnFilters/)
     for (const name of ['Alpha', 'Bravo', 'Charlie', 'Delta', 'Echo']) expect(withViews, name).toContain(name)
   })
 
-  it('a document that carries no view reads every table at the all-shown default', () => {
+  it('a document that carries no view reads every table at the none-checked default (TV-9)', () => {
     const document = openedFrom(documentText())
-    for (const table of TABLES) expect(tableViewOf(document.documentSettings, table).visibility).toEqual(ALL_SHOWN)
+    for (const table of TABLES) expect(tableViewOf(document.documentSettings, table).visibility).toEqual(NONE_CHECKED)
   })
 })

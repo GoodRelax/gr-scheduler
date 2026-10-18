@@ -151,6 +151,11 @@ export type SearchFilterMenuView =
       readonly toWord: string
       readonly entries: readonly CommandItem[]
     }
+  | {
+      readonly kind: 'rows'
+      readonly column: SearchColumn
+      readonly entries: readonly CommandItem[]
+    }
 
 // WHY: each change names its column, so a change the host raised for a filter no longer open is dropped.
 export type SearchFilterChange =
@@ -183,6 +188,14 @@ export interface WindowTable {
   readonly valuesOf: (column: SearchColumn) => readonly string[]
   readonly labelOf: (column: SearchColumn, value: string) => string
   readonly widthSamplesOf?: (column: SearchColumn) => readonly string[] | null
+  readonly checkColumn?: CheckColumn
+}
+
+// WHY: everyRowKey lists every row of the table, the rows out of view included (SQ-10, DT-8, RQ-1, JDG-2811).
+export interface CheckColumn {
+  readonly column: SearchColumn
+  readonly table: VisibilityTable
+  readonly everyRowKey: () => readonly VisibilityKey[]
 }
 
 /** @purity pure */
@@ -273,14 +286,16 @@ const COLUMNS_OF_TABLE: { readonly [T in VisibilityTable]: ReadonlySet<string> }
 
 /** @purity pure */
 function heldViewOnColumns<V extends HeldTableViews[VisibilityTable]>(held: V, columns: ReadonlySet<string>): V {
-  const columnFilters = held.columnFilters.filter((one) => columns.has(one.column))
-  const sort = held.sort !== null && !columns.has(held.sort.column) ? null : held.sort
+  const columnFilters = held.columnFilters.filter((one) => columns.has(one.column) && !CHECK_COLUMNS.has(one.column))
+  const sort = held.sort !== null && (!columns.has(held.sort.column) || CHECK_COLUMNS.has(held.sort.column)) ? null : held.sort
   if (columnFilters.length === held.columnFilters.length && sort === held.sort) return held
   return { ...held, columnFilters, sort }
 }
 
-// see OP-18, T-372
-// WHY: a column filter or sort on a column its table does not hold is dropped silently, never refused; the same views back when none goes.
+const CHECK_COLUMNS: ReadonlySet<string> = new Set(['SQ-10', 'DT-8', 'RQ-1'])
+
+// see OP-18, T-372, S-562, S-566, S-571, JDG-2811
+// WHY: a column filter or sort on a column its table does not hold, or on the Visibility column, is dropped silently, never refused; the same views back when none goes.
 /** @purity pure */
 export function tableViewsOnTheirColumns(views: HeldTableViews): HeldTableViews {
   const kept = {
@@ -305,7 +320,7 @@ export function tableColumnsOf(
     isFixed: at < table.fixedCount,
     filterEntry: entryOf(FILTER_ENTRY, language),
     width: panel.columnWidths[column] ?? null,
-    isFiltered: filtered.has(column),
+    isFiltered: filtered.has(column) && table.checkColumn?.column !== column,
     widthSamples: table.widthSamplesOf?.(column) ?? null,
   }))
 }
@@ -367,6 +382,9 @@ export function tableFilterMenuOf(
   table: WindowTable,
   language: DisplayLanguage,
 ): SearchFilterMenuView {
+  if (table.checkColumn?.column === column) {
+    return { kind: 'rows', column, entries: [entryOf(SHOW_ALL_ENTRY, language), entryOf(HIDE_ALL_ENTRY, language)] }
+  }
   const filter = columnFilterOf(view, column)
   const sorts = [entryOf(SORT_ASCENDING_ENTRY, language), entryOf(SORT_DESCENDING_ENTRY, language)]
   if (table.isDateColumn(column)) {
@@ -409,6 +427,7 @@ export function tableAfterFilterEntry(
 ): TableView | null {
   const column = openFilterIn(panel, shown, table)
   if (column === null) return null
+  if (table.checkColumn?.column === column) return tableAfterEveryRowEntry(view, entry, table.checkColumn)
   const direction = SORT_DIRECTIONS[entry]
   if (direction !== undefined) return { ...view, sort: { column, direction } }
   if (table.isDateColumn(column)) return null
@@ -419,6 +438,17 @@ export function tableAfterFilterEntry(
   if (entry === SHOW_ALL_ENTRY) return withColumnFilter(view, { ...filter, hiddenValues: untouched })
   if (entry !== HIDE_ALL_ENTRY) return null
   return withColumnFilter(view, { ...filter, hiddenValues: [...untouched, ...(reached ?? table.valuesOf(column))] })
+}
+
+// see SV-7, TV-6, UN-20, IC-125, IC-126, JDG-2811
+// WHY: one view after the press, so the whole press is one undo step and TV-6 reveals what it checks.
+/** @purity pure */
+function tableAfterEveryRowEntry(view: TableView, entry: IconId, check: CheckColumn): TableView | null {
+  if (entry === SHOW_ALL_ENTRY) return tableAfterVisibilityChange(check.table, view, check.everyRowKey(), true)
+  if (entry !== HIDE_ALL_ENTRY) return null
+  const held = view.visibility
+  if (shownRowKeysOf(check.table, held).length === 0 && !held.isUnassignedShown) return view
+  return { ...view, visibility: { ...withShownRowKeys(check.table, held, []), isUnassignedShown: false } }
 }
 
 // see SV-7, IC-122
@@ -451,6 +481,7 @@ export function tableAfterFilterChange(
 ): TableView | null {
   const column = openFilterIn(panel, shown, table)
   if (change.kind === 'shown' || change.kind === 'fixPick' || column === null || column !== change.column) return null
+  if (table.checkColumn?.column === column) return null
   const filter = columnFilterOf(view, column)
   if (change.kind === 'bound') {
     if (!table.isDateColumn(column)) return null
@@ -468,22 +499,22 @@ export function tableWithFilterClosed<P extends TableWindowSession>(panel: P, sh
   return { ...panel, filters: { ...panel.filters, open: null } }
 }
 
-// see TV-2, JDG-2724
-// WHY: the resource list hides Resource.uid rows and the other tables Task.uid rows; each list is named for what it holds.
+// see TV-2, JDG-2724, JDG-2810
+// WHY: the resource list holds Resource.uid rows and the other tables Task.uid rows; each list holds the checked rows.
 /** @purity pure */
-function hiddenRowKeysOf(table: VisibilityTable, visibility: TableVisibility): readonly number[] {
-  return table === 'resourceList' ? visibility.hiddenResourceUids : visibility.hiddenTaskUids
+function shownRowKeysOf(table: VisibilityTable, visibility: TableVisibility): readonly number[] {
+  return table === 'resourceList' ? visibility.shownResourceUids : visibility.shownTaskUids
 }
 
 /** @purity pure */
-function withHiddenRowKeys(table: VisibilityTable, visibility: TableVisibility, keys: readonly number[]): TableVisibility {
-  return table === 'resourceList' ? { ...visibility, hiddenResourceUids: keys } : { ...visibility, hiddenTaskUids: keys }
+function withShownRowKeys(table: VisibilityTable, visibility: TableVisibility, keys: readonly number[]): TableVisibility {
+  return table === 'resourceList' ? { ...visibility, shownResourceUids: keys } : { ...visibility, shownTaskUids: keys }
 }
 
 /** @purity pure */
 export function isRowShown(table: VisibilityTable, visibility: TableVisibility, key: VisibilityKey): boolean {
-  if (key === UNASSIGNED_ROW_KEY) return !visibility.isUnassignedHidden
-  return !hiddenRowKeysOf(table, visibility).includes(key)
+  if (key === UNASSIGNED_ROW_KEY) return visibility.isUnassignedShown
+  return shownRowKeysOf(table, visibility).includes(key)
 }
 
 // WHY: null for a value of another column, so a caller keeps its own label.
@@ -504,14 +535,14 @@ export function tableAfterVisibilityChange(
   isShown: boolean,
 ): TableView {
   const held = view.visibility
-  const hidden = hiddenRowKeysOf(table, held)
+  const shown = shownRowKeysOf(table, held)
   const named = new Set(keys.filter((key): key is number => key !== UNASSIGNED_ROW_KEY))
-  const kept = hidden.filter((key) => !named.has(key))
-  const added = isShown ? [] : [...named].filter((key) => !hidden.includes(key))
-  const isUnassignedHidden = keys.includes(UNASSIGNED_ROW_KEY) ? !isShown : held.isUnassignedHidden
-  const isSame = kept.length === hidden.length && added.length === 0 && isUnassignedHidden === held.isUnassignedHidden
+  const kept = shown.filter((key) => !named.has(key))
+  const added = isShown ? [...named].filter((key) => !shown.includes(key)) : []
+  const isUnassignedShown = keys.includes(UNASSIGNED_ROW_KEY) ? isShown : held.isUnassignedShown
+  const isSame = (isShown ? added.length === 0 : kept.length === shown.length) && isUnassignedShown === held.isUnassignedShown
   if (isSame) return view
-  return { ...view, visibility: { ...withHiddenRowKeys(table, held, [...kept, ...added]), isUnassignedHidden } }
+  return { ...view, visibility: { ...withShownRowKeys(table, held, isShown ? [...shown, ...added] : kept), isUnassignedShown } }
 }
 
 /** @purity pure */
@@ -525,40 +556,43 @@ export function tableWithScheduleFilterOff(view: TableView): TableView {
   return view.visibility.isScheduleFilterApplied ? tableWithScheduleFilterToggled(view) : view
 }
 
-// WHY: rowKeysOf lists the table's rows, read only while a key is hidden;
-// a table that leaves a task out (the report) changes the schedule though no row is Hide.
+// see TV-5, FR-092, JDG-2820
+export type ScheduleFilterReadiness = 'ready' | 'nothingHidden' | 'nothingChecked'
+
+// WHY: a table that leaves a task out (the report, the unchecked (unassigned) row) narrows though every row is checked.
 /** @purity pure */
-export function isScheduleFilterChanging(
+export function scheduleFilterReadinessOf(
   table: VisibilityTable,
   visibility: TableVisibility,
   rowKeysOf: () => ReadonlySet<number>,
   isEveryTaskRowed: boolean,
-): boolean {
-  if (!isEveryTaskRowed || visibility.isUnassignedHidden) return true
-  const hidden = hiddenRowKeysOf(table, visibility)
-  if (hidden.length === 0) return false
+): ScheduleFilterReadiness {
   const rowKeys = rowKeysOf()
-  return hidden.some((key) => rowKeys.has(key))
+  const checked = shownRowKeysOf(table, visibility).filter((key) => rowKeys.has(key)).length
+  if (checked === 0 && !visibility.isUnassignedShown) return 'nothingChecked'
+  if (!isEveryTaskRowed || (table === 'resourceList' && !visibility.isUnassignedShown)) return 'ready'
+  return checked < rowKeys.size ? 'ready' : 'nothingHidden'
 }
 
 // see TV-5, TV-12, IC-143, EN-8, FR-092
 /** @purity pure */
-export function scheduleFilterEntryOf(visibility: TableVisibility, wouldChange: boolean, language: DisplayLanguage): CommandItem {
+export function scheduleFilterEntryOf(visibility: TableVisibility, readiness: ScheduleFilterReadiness, language: DisplayLanguage): CommandItem {
   const isScheduleFilterApplied = visibility.isScheduleFilterApplied
   const entry = entryOf(SCHEDULE_FILTER_ENTRY, language)
-  return { ...entry, isEnabled: isScheduleFilterApplied || wouldChange, isPressed: isScheduleFilterApplied, isScheduleFilterApplied: isScheduleFilterApplied }
+  const isEnabled = isScheduleFilterApplied || readiness === 'ready'
+  return { ...entry, isEnabled, isPressed: isScheduleFilterApplied, isScheduleFilterApplied: isScheduleFilterApplied }
 }
 
 /** @purity pure */
-export function scheduleFilterRefusalsOf(entry: CommandItem, language: DisplayLanguage): readonly EntryRefusal[] {
-  if (entry.icon !== SCHEDULE_FILTER_ENTRY || entry.isEnabled) return []
-  return [{ icon: SCHEDULE_FILTER_ENTRY, reason: wordOf(PANEL_WORDS.get('nothingHidden'), language) }]
+export function scheduleFilterRefusalsOf(entry: CommandItem, readiness: ScheduleFilterReadiness, language: DisplayLanguage): readonly EntryRefusal[] {
+  if (entry.icon !== SCHEDULE_FILTER_ENTRY || entry.isEnabled || readiness === 'ready') return []
+  return [{ icon: SCHEDULE_FILTER_ENTRY, reason: wordOf(PANEL_WORDS.get(readiness), language) }]
 }
 
 /** @purity pure */
-export function tableWithScheduleFilterPressed(view: TableView, entry: IconId, wouldChange: () => boolean): TableView | null {
+export function tableWithScheduleFilterPressed(view: TableView, entry: IconId, readiness: () => ScheduleFilterReadiness): TableView | null {
   if (entry !== SCHEDULE_FILTER_ENTRY) return null
-  if (!view.visibility.isScheduleFilterApplied && !wouldChange()) return null
+  if (!view.visibility.isScheduleFilterApplied && readiness() !== 'ready') return null
   return tableWithScheduleFilterToggled(view)
 }
 
@@ -622,14 +656,14 @@ export function windowAfterEntry(
   view: TableView,
   entry: IconId,
   filterColumn: string | null,
-  answers: { readonly wouldChange: () => boolean; readonly tableOf: (unfiltered: TableView) => WindowTable },
+  answers: { readonly readiness: () => ScheduleFilterReadiness; readonly tableOf: (unfiltered: TableView) => WindowTable },
   listed?: readonly string[] | null,
 ): WindowStep | null {
   const shown = windowShownAfterEntry(window.shown, entry)
   if (shown === null) return { window: null, view: tableWithScheduleFilterOff(view) }
   if (shown !== undefined) return { window: { ...window, shown }, view }
   if (isClearEntry(entry)) return { window: { ...window, panel: panelWithFilterShut(window.panel) }, view: tableWithViewsCleared(view) }
-  const filtered = tableWithScheduleFilterPressed(view, entry, answers.wouldChange)
+  const filtered = tableWithScheduleFilterPressed(view, entry, answers.readiness)
   if (filtered !== null) return { window, view: filtered }
   return windowAfterFilterEntry(window, view, entry, filterColumn, answers.tableOf, listed)
 }

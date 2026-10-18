@@ -15,7 +15,7 @@ import * as scheduleEntry from '../../src/entity/document-model/schedule/schedul
 import type { DelayDiagnosticsReport, Schedule } from '../../src/entity/document-model/schedule/schedule'
 import { searchPanelBoxOf, searchPanelElement } from '../../src/framework/dom-screen-surface/search-panel-drawing'
 import {
-  EVERY_ROW_SHOWN,
+  NO_ROW_CHECKED,
   type ScreenSession,
   type TableView,
 } from '../../src/use-case/advance-screen-session/advance-screen-session'
@@ -77,7 +77,7 @@ const WALL_ROWS = specTable('T-316').rows.map((one) => one.id)
 
 const ROW_ID = /\b(?:VC|VS|VO|DW|DG|DL|DX|DT)-\d+\b/
 
-const NO_VIEW: TableView = { visibility: EVERY_ROW_SHOWN, columnFilters: [], sort: null }
+const NO_VIEW: TableView = { visibility: NO_ROW_CHECKED, columnFilters: [], sort: null }
 
 const sessionIn = (language: Language) => ({ screen: { screenLanguage: language } }) as unknown as ScreenSession
 

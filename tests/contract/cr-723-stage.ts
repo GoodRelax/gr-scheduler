@@ -37,14 +37,14 @@ export const BUILT_VERSION: string = (startupTemplate as { schemaVersion: string
 
 // see S-560, S-561, S-562, S-563, S-564, S-565, S-566, S-567, S-568, S-569, S-570, S-571, S-572
 export const KEYS_OF: Readonly<Record<VisibilityTable, readonly string[]>> = {
-  searchPanel: ['columnFilters', 'hiddenTaskUids', 'isScheduleFilterApplied', 'sort'],
-  delayDiagnosticsReport: ['columnFilters', 'hiddenTaskUids', 'isScheduleFilterApplied', 'sort'],
-  resourceList: ['columnFilters', 'hiddenResourceUids', 'isScheduleFilterApplied', 'isUnassignedHidden', 'sort'],
+  searchPanel: ['columnFilters', 'isScheduleFilterApplied', 'shownTaskUids', 'sort'],
+  delayDiagnosticsReport: ['columnFilters', 'isScheduleFilterApplied', 'shownTaskUids', 'sort'],
+  resourceList: ['columnFilters', 'isScheduleFilterApplied', 'isUnassignedShown', 'shownResourceUids', 'sort'],
 }
 
 // see TV-2
-export const ALL_SHOWN: TableVisibility = { hiddenTaskUids: [], hiddenResourceUids: [], isUnassignedHidden: false, isScheduleFilterApplied: false }
-export const DEFAULT_VIEW: TableView = { visibility: ALL_SHOWN, columnFilters: [], sort: null }
+export const NONE_CHECKED: TableVisibility = { shownTaskUids: [], shownResourceUids: [], isUnassignedShown: false, isScheduleFilterApplied: false }
+export const DEFAULT_VIEW: TableView = { visibility: NONE_CHECKED, columnFilters: [], sort: null }
 
 export const view = (part: Partial<TableView> = {}): TableView => ({ ...DEFAULT_VIEW, ...part })
 
@@ -54,17 +54,17 @@ export const DATE_FILTER: ColumnFilter = { column: 'SQ-3', hiddenValues: [], fro
 export const BY_RESOURCE: ColumnSort = { column: 'SQ-2', direction: 'descending' }
 
 export const SEARCH_VIEW: TableView = view({
-  visibility: { hiddenTaskUids: [ALPHA, BRAVO], hiddenResourceUids: [], isUnassignedHidden: false, isScheduleFilterApplied: true },
+  visibility: { shownTaskUids: [ALPHA, BRAVO], shownResourceUids: [], isUnassignedShown: false, isScheduleFilterApplied: true },
   columnFilters: [STATUS_FILTER, DATE_FILTER],
   sort: BY_RESOURCE,
 })
 export const REPORT_VIEW: TableView = view({
-  visibility: { hiddenTaskUids: [DELTA], hiddenResourceUids: [], isUnassignedHidden: false, isScheduleFilterApplied: false },
+  visibility: { shownTaskUids: [DELTA], shownResourceUids: [], isUnassignedShown: false, isScheduleFilterApplied: false },
   columnFilters: [{ column: 'DT-1', hiddenValues: ['Done'], fromDate: null, toDate: null }],
   sort: { column: 'DT-4', direction: 'ascending' },
 })
 export const RESOURCE_VIEW: TableView = view({
-  visibility: { hiddenTaskUids: [], hiddenResourceUids: [TANAKA], isUnassignedHidden: true, isScheduleFilterApplied: true },
+  visibility: { shownTaskUids: [], shownResourceUids: [TANAKA], isUnassignedShown: true, isScheduleFilterApplied: true },
   columnFilters: [{ column: 'RQ-2', hiddenValues: [''], fromDate: null, toDate: null }],
   sort: { column: 'RQ-4', direction: 'descending' },
 })
@@ -84,12 +84,12 @@ export function tableViewsText(views: Readonly<Record<VisibilityTable, TableView
     sort: one.sort,
   })
   return {
-    searchPanel: { ...rows(views.searchPanel), hiddenTaskUids: views.searchPanel.visibility.hiddenTaskUids },
-    delayDiagnosticsReport: { ...rows(views.delayDiagnosticsReport), hiddenTaskUids: views.delayDiagnosticsReport.visibility.hiddenTaskUids },
+    searchPanel: { ...rows(views.searchPanel), shownTaskUids: views.searchPanel.visibility.shownTaskUids },
+    delayDiagnosticsReport: { ...rows(views.delayDiagnosticsReport), shownTaskUids: views.delayDiagnosticsReport.visibility.shownTaskUids },
     resourceList: {
       ...rows(views.resourceList),
-      hiddenResourceUids: views.resourceList.visibility.hiddenResourceUids,
-      isUnassignedHidden: views.resourceList.visibility.isUnassignedHidden,
+      shownResourceUids: views.resourceList.visibility.shownResourceUids,
+      isUnassignedShown: views.resourceList.visibility.isUnassignedShown,
     },
   }
 }

@@ -25,7 +25,7 @@ import {
   advanceScreenSession,
   emptyScreenSession,
   emptySearchPanelSession,
-  EVERY_ROW_SHOWN,
+  NO_ROW_CHECKED,
   type ScreenSession,
   type SearchPanelSession,
   type SessionEvent,
@@ -197,7 +197,7 @@ function sessionIn(language: DisplayLanguage): ScreenSession {
 }
 const TASK_PANEL: SearchPanelSession = { ...emptySearchPanelSession, table: 'tasks' }
 // WHY: CR-723 -- the table's view is the document's and is handed in beside the panel; none is set here.
-const NO_VIEW: TableView = { visibility: EVERY_ROW_SHOWN, columnFilters: [], sort: null }
+const NO_VIEW: TableView = { visibility: NO_ROW_CHECKED, columnFilters: [], sort: null }
 
 function viewOf(language: DisplayLanguage, bottleneckUids?: ReadonlyMap<number, 'DG-1' | 'DG-2' | 'DG-3'>): SearchPanelView {
   const view = searchPanelFromSession(sessionIn(language), TASK_PANEL, NO_VIEW, SCHEDULE, CANVAS, bottleneckUids)

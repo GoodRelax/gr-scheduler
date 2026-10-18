@@ -62,7 +62,6 @@ import {
   tableColumnValues,
   taskTypeOf,
   TASK_TYPES_ASCENDING,
-  withVisibilityColumn,
   type ColumnSort,
   type SearchColumnHeading,
   type TableColumns,
@@ -89,7 +88,8 @@ import {
   windowWithColumnWidth,
   isWorkingFilter,
   wordOf,
-  isScheduleFilterChanging,
+  scheduleFilterReadinessOf,
+  type ScheduleFilterReadiness,
   tableWithViewsCleared,
   type MarkGlyph,
   type SearchFilterChange,
@@ -423,13 +423,6 @@ function cellsOf(row: DelayReportRow, language: DisplayLanguage, times: ShownTim
   return DELAY_REPORT_COLUMNS.map((column) => cells[column] ?? BLANK_SEARCH_VALUE)
 }
 
-// see DT-8, TV-2, S-565
-/** @purity pure */
-function reportColumnsOf(view: TableView): TableColumns<ShownTaskGroup> {
-  const hidden = new Set(view.visibility.hiddenTaskUids)
-  return withVisibilityColumn(REPORT_TABLE, VISIBILITY_COLUMN, (shown) => !hidden.has(shown.row.taskUid))
-}
-
 /** @purity pure */
 function cellOf(shown: ShownTaskGroup, column: string): string {
   return shown.cells[DELAY_REPORT_COLUMNS.indexOf(column)] ?? BLANK_SEARCH_VALUE
@@ -481,7 +474,7 @@ function shownTaskGroupsOf(
 /** @purity pure */
 function shownTaskGroupsFrom(look: TableLook, all: readonly ShownTaskGroup[]): readonly ShownTaskGroup[] {
   const found = all.filter((shown) => isWordFound(shown, look.word))
-  return filteredTableRows(found, reportColumnsOf(look.view), look.view.columnFilters, look.view.sort)
+  return filteredTableRows(found, REPORT_TABLE, look.view.columnFilters, look.view.sort)
 }
 
 // see RW-9, SV-18, DT-1
@@ -516,10 +509,12 @@ function reportTableOf(
   found: () => readonly ShownTaskGroup[],
   language: DisplayLanguage,
   all?: readonly ShownTaskGroup[],
+  everyTaskUid: () => readonly number[] = () => [],
 ): WindowTable {
-  const columns = reportColumnsOf(view)
+  const columns = REPORT_TABLE
   return {
     columns: DELAY_REPORT_COLUMNS,
+    checkColumn: { column: VISIBILITY_COLUMN, table: 'delayDiagnosticsReport', everyRowKey: everyTaskUid },
     fixedCount: DELAY_REPORT_COLUMNS.indexOf(LAST_FIXED_COLUMN) + 1,
     headingOf: (column) => partWordOf(COLUMN_WORDS, column, language),
     isDateColumn: (column) => REPORT_TABLE.dates[column] !== undefined,
@@ -529,12 +524,13 @@ function reportTableOf(
   }
 }
 
-// WHY: the report shows only the tasks it rows, so a report that leaves one out changes the schedule with no row Hide.
+// see TV-5, JDG-2820
+// WHY: the report shows only the tasks it rows, so a report that leaves one out changes the schedule though every row is checked.
 /** @purity pure */
-function wouldReportFilterChange(view: TableView, rows: readonly DelayReportRow[], schedule: Schedule): boolean {
+function reportFilterReadinessOf(view: TableView, rows: readonly DelayReportRow[], schedule: Schedule): ScheduleFilterReadiness {
   const rowed = new Set(rows.map((row) => row.taskUid))
   const isEveryTaskRowed = schedule.tasks.every((task) => rowed.has(task.uid))
-  return isScheduleFilterChanging('delayDiagnosticsReport', view.visibility, () => rowed, isEveryTaskRowed)
+  return scheduleFilterReadinessOf('delayDiagnosticsReport', view.visibility, () => rowed, isEveryTaskRowed)
 }
 
 // see RW-4, DX-2, DX-7
@@ -609,7 +605,8 @@ function diagnosisReportViewOf(
   const found = shownTaskGroupsFrom({ word: window.panel.word, view }, withCells)
   const listed = (): readonly ShownTaskGroup[] => shownTaskGroupsFrom({ word: window.panel.word, view: { ...view, columnFilters: [] } }, withCells)
   const table = reportTableOf(view, listed, language, withCells)
-  const scheduleFilter = scheduleFilterEntryOf(view.visibility, wouldReportFilterChange(view, reported, schedule), language)
+  const readiness = reportFilterReadinessOf(view, reported, schedule)
+  const scheduleFilter = scheduleFilterEntryOf(view.visibility, readiness, language)
   const rows = reportRowViewsOf(view, found, window.markedRow?.taskUid ?? null)
   const markedAt = rows.findIndex((row) => row.isCurrent === true)
   return {
@@ -631,7 +628,7 @@ function diagnosisReportViewOf(
     glyphAt: DELAY_REPORT_COLUMNS.indexOf(STATUS_COLUMN),
     showAt: DELAY_REPORT_COLUMNS.indexOf(VISIBILITY_COLUMN),
     showHeading: visibilityHeadingOf(rows),
-    entryRefusals: scheduleFilterRefusalsOf(scheduleFilter, language),
+    entryRefusals: scheduleFilterRefusalsOf(scheduleFilter, readiness, language),
   }
 }
 
@@ -644,12 +641,12 @@ function reportToolEntriesOf(language: DisplayLanguage): readonly CommandItem[] 
 
 /** @purity pure */
 function reportRowViewsOf(view: TableView, found: readonly ShownTaskGroup[], markedUid: number | null): readonly DelayReportRowView[] {
-  const hidden = new Set(view.visibility.hiddenTaskUids)
+  const checked = new Set(view.visibility.shownTaskUids)
   return found.map((shown) => ({
     cells: shown.cells,
     glyph: STATUS_GLYPHS[shown.row.status],
     status: shown.row.status,
-    isShown: !hidden.has(shown.row.taskUid),
+    isShown: checked.has(shown.row.taskUid),
     target: { kind: 'task', taskUid: shown.row.taskUid },
     isCurrent: shown.row.taskUid === markedUid,
   }))
@@ -674,9 +671,9 @@ export function delayReportTableRows(
   const view = look.isAsShown ? held : tableWithViewsCleared(held)
   const times = shownTimesOf(schedule, settings.isTimeOfDayVisible, settings.viewTimeZone)
   const withCells = taskGroupsWithCells(delayDiagnosticsReportRows(report, schedule), look.language, times)
-  const hidden = new Set(view.visibility.hiddenTaskUids)
+  const checked = new Set(view.visibility.shownTaskUids)
   return shownTaskGroupsFrom({ word: look.word, view }, withCells).map((shown) => {
-    const shownText = visibilityLabelOf(hidden.has(shown.row.taskUid) ? HIDE_VALUE : SHOW_VALUE, look.language) ?? ''
+    const shownText = visibilityLabelOf(checked.has(shown.row.taskUid) ? SHOW_VALUE : HIDE_VALUE, look.language) ?? ''
     const cells = DELAY_REPORT_COLUMNS.map((column, at) => ({
       column,
       text: column === VISIBILITY_COLUMN ? shownText : (shown.cells[at] ?? BLANK_SEARCH_VALUE),
@@ -716,7 +713,7 @@ export function delayDiagnosticsReportShowingRow(
 // see SV-7, DT-5, DT-6
 /** @purity pure */
 function filtersShowing(shown: ShownTaskGroup, view: TableView): TableView['columnFilters'] {
-  const columns = reportColumnsOf(view)
+  const columns = REPORT_TABLE
   return view.columnFilters.flatMap((filter) => {
     if (filteredTableRows([shown], columns, [filter], null).length > 0) return [filter]
     const values = new Set(columns.values[filter.column]?.(shown) ?? [])
@@ -751,8 +748,8 @@ export function delayDiagnosticsReportAfterEntry(
   const all = delayDiagnosticsReportRows(rows.report, rows.schedule)
   const word = window.panel.word
   return windowAfterEntry(window, view, entry, filterColumn, {
-    wouldChange: () => wouldReportFilterChange(view, all, rows.schedule),
-    tableOf: (unfiltered) => reportTableOf(view, () => shownTaskGroupsOf({ word, view: unfiltered }, all, rows.language, times), rows.language),
+    readiness: () => reportFilterReadinessOf(view, all, rows.schedule),
+    tableOf: (unfiltered) => reportTableOf(view, () => shownTaskGroupsOf({ word, view: unfiltered }, all, rows.language, times), rows.language, undefined, () => all.map((row) => row.taskUid)),
   }, listed)
 }
 
@@ -960,7 +957,7 @@ export const NO_DELAY_FIX_TABLES: DelayFixTables = { proposals: [], log: [] }
 const NO_FIX_VIEW: TableView = {
   columnFilters: [],
   sort: null,
-  visibility: { isScheduleFilterApplied: false, isUnassignedHidden: false, hiddenTaskUids: [], hiddenResourceUids: [] },
+  visibility: { isScheduleFilterApplied: false, isUnassignedShown: false, shownTaskUids: [], shownResourceUids: [] },
 }
 
 export const NO_DELAY_FIX_VALUES: DelayFixWindowValues = {
@@ -1459,7 +1456,7 @@ function fixTableStepAfterEntry(
   const all = shownFixRowsOf(table, answers.tables, answers.words)
   const word = window.panel.word
   const step = windowAfterEntry(window, values.views[table], entry, filterColumn, {
-    wouldChange: () => false,
+    readiness: () => 'nothingHidden',
     tableOf: (unfiltered) => fixWindowTableOf(table, () => foundFixRowsOf(all, word, unfiltered), answers.words.language),
   }, answers.listed)
   if (step === null) return null

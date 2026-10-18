@@ -1,4 +1,4 @@
-// CR-661 on the shipped build, read after CR-722: narrow to one assignee, set its rows Hide in the Visibility column (SQ-10), press IC-143; the band, minimize and close, SJ-0's three doors, undo, save and export.
+// CR-661 on the shipped build, read after CR-722: narrow to one assignee, check its rows in the Visibility column (SQ-10), press IC-143; the band, minimize and close, SJ-0's three doors, undo, save and export.
 
 import { expect, test, type Browser, type Page } from '@playwright/test'
 import { readFileSync } from 'node:fs'
@@ -35,7 +35,8 @@ test.describe('CR-661 the manuscript these cases are driven by', () => {
     })
   }
   test('T-353 and T-332 still hold the rows these cases press', () => {
-    expect(cellOf(T_353, 'TV-2')).toContain('初めはどの表のどの行も「表示」')
+    expect(cellOf(T_353, 'TV-2')).toContain('初めはどの表のどの行もチェックが外れている（「非表示」）')
+    expect(cellOf(T_353, 'TV-2')).toContain('チェックの入った行が「表示」である')
     expect(cellOf(T_353, 'TV-5')).toContain('`IC-143` を押すと、その表のスケジュールフィルタを掛け')
     expect(cellOf(T_353, 'TV-6')).toContain('スケジュールフィルタを掛けるときは、タスクグループを展開しない')
     expect(cellOf(T_353, 'TV-8')).toContain('⭐ 最小化（`SV-12`）では解除しない')
@@ -237,12 +238,12 @@ async function opened(foldOfP: FoldOfP = 'collapsed'): Promise<Stage> {
   return stage
 }
 
-// WHY: every row starts Show (TV-2); the word narrows the table to Tanaka (SV-4), the heading box sets every listed row Hide (SQ-10), and the word is cleared again.
+// WHY: every row starts unchecked (TV-2, CR-798); the word narrows the table to Sato (SV-4), the heading box checks every listed row (SQ-10), and the word is cleared again.
 /** @purity non-pure */
-async function hideTanaka(page: Page): Promise<void> {
+async function checkSato(page: Page): Promise<void> {
   await page.keyboard.press(OPEN_SEARCH)
   await settle(page)
-  await page.keyboard.type(TANAKA)
+  await page.keyboard.type(SATO)
   await settle(page)
   await press(page, `${PANEL} [data-search-shown-all]`)
   await press(page, `${PANEL} input`)
@@ -253,19 +254,19 @@ async function hideTanaka(page: Page): Promise<void> {
 
 /** @purity non-pure */
 async function enter(page: Page): Promise<void> {
-  await hideTanaka(page)
+  await checkSato(page)
   await press(page, `${PANEL} [data-icon="${ENTER}"]`)
 }
 
 test.describe('FR-151 / T-353 on the shipped build', () => {
   test.setTimeout(180_000)
 
-  test(`FR-151 (MUST): ${FR_151_RULES.slice(-30)} -- the Show tasks only, the band, no task group opened on entering`, async () => {
+  test(`FR-151 (MUST): ${FR_151_RULES.slice(-30)} -- the checked tasks only, the band, no task group opened on entering`, async () => {
     const stage = await opened()
     try {
       const { page } = stage
       const rulerBefore = await boxOf(page, RULER)
-      await hideTanaka(page)
+      await checkSato(page)
       expect(await readShown(page)).toEqual(NOT_NARROWED)
       expect(await bandText(page), 'no band before IC-143').toBeNull()
       await press(page, `${PANEL} [data-icon="${ENTER}"]`)
@@ -306,7 +307,7 @@ test.describe('FR-151 / T-353 on the shipped build', () => {
     }
   })
 
-  test(`FR-151 (MUST): ${FR_151_SAVED.slice(-30)} -- a save holds the Visibility and the eye, and one undo takes back the eye alone`, async () => {
+  test(`FR-151 (MUST): ${FR_151_SAVED.slice(-30)} -- a save holds the checked rows and the eye, and one undo takes back the eye alone`, async () => {
     const stage = await opened()
     try {
       const { page } = stage
@@ -315,18 +316,18 @@ test.describe('FR-151 / T-353 on the shipped build', () => {
       expect(stateOf(await readTree(page), TASK_GROUP_P), 'TV-6: entering opens nothing').toBe('collapsed')
       const savedDuring = JSON.parse(await saveDocument(page)) as Record<string, any>
       expect(savedDuring['schedule']).toEqual(savedBefore['schedule'])
-      expect(savedBefore['documentSettings']['tableViews']['searchPanel']).toMatchObject({ isScheduleFilterApplied: false, hiddenTaskUids: [] })
-      expect(savedDuring['documentSettings']['tableViews']['searchPanel']).toMatchObject({ isScheduleFilterApplied: true, hiddenTaskUids: [BRAVO, DELTA] })
+      expect(savedBefore['documentSettings']['tableViews']['searchPanel']).toMatchObject({ isScheduleFilterApplied: false, shownTaskUids: [] })
+      expect(savedDuring['documentSettings']['tableViews']['searchPanel']).toMatchObject({ isScheduleFilterApplied: true, shownTaskUids: [ALPHA, CHARLIE] })
       expect(await pressEntrance(page, UNDO), 'IC-5 is on the screen').toBe(true)
       expect(stateOf(await readTree(page), TASK_GROUP_P), `${FR_151_ONE_STEP} -- the undo of the eye opens nothing either`).toBe('collapsed')
-      expect(await readShown(page), 'UN-20: one undo took back the eye, the rows stay Hide').toEqual(NOT_NARROWED)
+      expect(await readShown(page), 'UN-20: one undo took back the eye, the rows stay checked').toEqual(NOT_NARROWED)
       expect(await bandText(page)).toBeNull()
     } finally {
       await stage.close()
     }
   })
 
-  test('TV-8: minimizing keeps the Schedule Filter; closing the panel turns it off and keeps the Visibility', async () => {
+  test('TV-8: minimizing keeps the Schedule Filter; closing the panel turns it off and keeps the checked rows', async () => {
     const stage = await opened('expanded')
     try {
       const { page } = stage
@@ -341,13 +342,13 @@ test.describe('FR-151 / T-353 on the shipped build', () => {
       await page.keyboard.press(OPEN_SEARCH)
       await settle(page)
       await press(page, `${PANEL} [data-icon="${ENTER}"]`)
-      expect(await readShown(page), 'the Visibility outlived the close').toEqual(NARROWED)
+      expect(await readShown(page), 'the checked rows outlived the close').toEqual(NARROWED)
     } finally {
       await stage.close()
     }
   })
 
-  test('SJ-0: a jump from the search table to a Hide task sets its row Show first and draws it', async () => {
+  test('SJ-0: a jump from the search table to an unchecked task checks its row first and draws it', async () => {
     const stage = await opened()
     try {
       const { page } = stage
@@ -360,13 +361,13 @@ test.describe('FR-151 / T-353 on the shipped build', () => {
     }
   })
 
-  test(`EL-21 (MUST): ${EL_21_SJ_0.slice(-30)} -- pressing the continuation mark toward Delta sets Delta Show`, async () => {
+  test(`EL-21 (MUST): ${EL_21_SJ_0.slice(-30)} -- pressing the continuation mark toward Delta checks Delta`, async () => {
     const stage = await opened('expanded')
     try {
       const { page } = stage
       await enter(page)
       const dot = `circle[data-figure="dep-${ALPHA}-${DELTA}"]`
-      expect(await boxOf(page, dot), 'the link to the Hide Delta ends in the continuation mark (EL-20)').not.toBeNull()
+      expect(await boxOf(page, dot), 'the link to the unchecked Delta ends in the continuation mark (EL-20)').not.toBeNull()
       await press(page, dot)
       expect(await readShown(page)).toEqual({ drawnTaskUids: [ALPHA, CHARLIE, DELTA], filteringTables: ['searchPanel'] })
       expect(await drawnTaskUids(page)).toContain(DELTA)
@@ -375,14 +376,14 @@ test.describe('FR-151 / T-353 on the shipped build', () => {
     }
   })
 
-  test(`FR-134 (MUST): ${FR_134_JUMP.slice(-30)} -- a report row's name sets its Hide task Show first`, async () => {
+  test(`FR-134 (MUST): ${FR_134_JUMP.slice(-30)} -- a report row's name checks its unchecked task first`, async () => {
     const stage = await opened()
     try {
       const { page } = stage
       await enter(page)
       await press(page, `[data-icon="${DIAGNOSE}"]`)
       const cell = `${REPORT} [data-search-task="${DELTA}"]`
-      expect(await boxOf(page, cell), 'TV-10: the report lists Delta although the search table hides it').not.toBeNull()
+      expect(await boxOf(page, cell), 'TV-10: the report lists Delta although the search table does not check it').not.toBeNull()
       await press(page, cell)
       expect((await readShown(page)).drawnTaskUids).toContain(DELTA)
       expect(await drawnTaskUids(page)).toContain(DELTA)

@@ -236,20 +236,20 @@
     "tableViews": {
       "delayDiagnosticsReport": {
         "columnFilters": [],
-        "hiddenTaskUids": [],
+        "shownTaskUids": [],
         "isScheduleFilterApplied": false,
         "sort": null
       },
       "resourceList": {
         "columnFilters": [],
-        "hiddenResourceUids": [],
+        "shownResourceUids": [],
         "isScheduleFilterApplied": false,
-        "isUnassignedHidden": false,
+        "isUnassignedShown": false,
         "sort": null
       },
       "searchPanel": {
         "columnFilters": [],
-        "hiddenTaskUids": [],
+        "shownTaskUids": [],
         "isScheduleFilterApplied": false,
         "sort": null
       }

@@ -548,6 +548,12 @@ export function searchFilterMenuElement(
   const controls = made(host, 'div', FILTER_CONTROLS_STYLE)
   const list = made(host, 'div', FILTER_LIST_STYLE)
   list.setAttribute(FILTER_LIST_ATTRIBUTE, 'true')
+  if (menu.kind === 'rows') {
+    // WHY: the Visibility column's funnel holds its two entries alone, no list (JDG-2811).
+    controls.replaceChildren(entries)
+    box.replaceChildren(controls)
+    return box
+  }
   if (menu.kind === 'dates') {
     controls.replaceChildren(entries)
     list.replaceChildren(filterDateFields(host, menu, fontPx))

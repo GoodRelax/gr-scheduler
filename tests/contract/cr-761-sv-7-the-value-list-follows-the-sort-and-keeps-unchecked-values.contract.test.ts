@@ -47,7 +47,7 @@ const SV_7_SOURCE = '⭐ 値の一覧は、語で残した行（`SV-4`）の値�
 const SV_7_KEPT = '値のチェックを外しても、その値は一覧に残り、いつでもチェックし直せる。ほかの列のフィルタで表から外れた行の値も一覧に残る'
 const SV_7_BLANK_ITEM = '空のセルは「（空白）」の 1 項目。'
 const SV_8_STATUS = '状態の列（`SQ-5`）の昇順は 信用できない・要修正 → ボトルネック → ボトルネック経路 → 遅れ → 未着手 → 進行中 → 完了 → 中断・再開予定あり → 中断・再開日未定、降順はその逆'
-const SV_8_VISIBILITY = '表示の列（`SQ-10`）の昇順は 表示 → 非表示、降順はその逆。'
+const SV_8_VISIBILITY = '表示の列（`SQ-10`）では並べ替えない —— そのドロップダウンは `IC-123`・`IC-124` を持たない（`SV-7`）。'
 const T_347_STATUS = 'ステータスの欄の昇順は `DT-1` の順、降順はその逆。'
 const T_374_SAME = '⭐ 並べ替え・列のフィルタ・列の幅の変え方・見出し行の縦の固定は 表 T-346 の `RW-9` ・ `RW-10` と同じ作りとする。'
 const HIDDEN_VALUES_BLANK = '空のセルの項目（「（空白）」）は空の文字列。'
@@ -274,13 +274,6 @@ describe(`SV-7 「${SV_7_ORDER.slice(2, 60)}…」 -- Search Panel, tasks table`
   it('the status column follows the SV-8 order both ways', () => {
     expect(labels(panelItems('SQ-5', sortedBy('SQ-5', 'IC-123')))).toEqual(STATUS_ASCENDING)
     expect(labels(panelItems('SQ-5', sortedBy('SQ-5', 'IC-124')))).toEqual([...STATUS_ASCENDING].reverse())
-  })
-
-  it('the Visibility column follows the SV-8 order both ways (Show -> Hide)', () => {
-    const someHidden: Pane = { ...TASK_PANEL, view: { ...NO_VIEW, visibility: { ...NO_VIEW.visibility, hiddenTaskUids: [3] } } }
-    const ascending = [wordOf('searchPanel', 'showValue'), wordOf('searchPanel', 'hideValue')]
-    expect(labels(panelItems('SQ-10', someHidden))).toEqual(ascending)
-    expect(labels(panelItems('SQ-10', sortedBy('SQ-10', 'IC-124', someHidden)))).toEqual([...ascending].reverse())
   })
 
   it('the list of the sorted column reads in the order of the sorted rows', () => {

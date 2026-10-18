@@ -407,7 +407,7 @@ function searchPageOf(document: Document, word: string, filters: unknown, offset
   const found = searchRowsOf(document.schedule, typeof word === 'string' ? word : '')
   const held = document.documentSettings.tableViews?.searchPanel
   const isAsShown = filters !== 'none' && held !== undefined
-  const rows = isAsShown ? filteredSearchRows(found, held.columnFilters, held.sort, new Set(held.hiddenTaskUids)) : found
+  const rows = isAsShown ? filteredSearchRows(found, held.columnFilters, held.sort) : found
   const { start, end } = pageBoundsOf(offset, limit)
   return {
     taskRows: rows.taskRows.slice(start, end),
@@ -560,8 +560,8 @@ function shownTasksRefusalOf(snapshot: AgentSnapshot, taskUids: unknown, held: S
 
 // see AM-27, CM-92, S-560, S-561
 /** @purity pure */
-function searchTableViewWrite(held: SearchTableView, hiddenTaskUids: readonly number[], isScheduleFilterApplied: boolean): DocumentCommand {
-  const visibility = { hiddenTaskUids, hiddenResourceUids: [], isUnassignedHidden: false, isScheduleFilterApplied }
+function searchTableViewWrite(held: SearchTableView, shownTaskUids: readonly number[], isScheduleFilterApplied: boolean): DocumentCommand {
+  const visibility = { shownTaskUids, shownResourceUids: [], isUnassignedShown: false, isScheduleFilterApplied }
   return { kind: 'setTableView', table: 'searchPanel', view: { visibility, columnFilters: held.columnFilters, sort: held.sort } }
 }
 
@@ -573,14 +573,14 @@ function showOnlyTasksThrough(wiring: AgentApiWiring, snapshot: AgentSnapshot, t
   const stamp = snapshot.document.documentStamp
   if (Array.isArray(taskUids) && taskUids.length === 0) {
     if (!held.isScheduleFilterApplied) return { ok: true, stamp: frozenCopy(snapshot.documentAsWritten.documentStamp), hasUpdatedSchedule: false }
-    return writeThroughTheOnePath(wiring, snapshot, 'AM-27', stamp, [searchTableViewWrite(held, held.hiddenTaskUids, false)])
+    return writeThroughTheOnePath(wiring, snapshot, 'AM-27', stamp, [searchTableViewWrite(held, held.shownTaskUids, false)])
   }
   const refusal = shownTasksRefusalOf(snapshot, taskUids, held)
   if (refusal !== null) return { ok: false, refusal }
   const named = new Set(taskUids)
-  const hiddenTaskUids = snapshot.document.schedule.tasks.map((task) => task.uid).filter((uid) => !named.has(uid))
-  const opened = held.isScheduleFilterApplied ? [...named].filter((uid) => held.hiddenTaskUids.includes(uid)) : []
-  const commands = [searchTableViewWrite(held, hiddenTaskUids, true), ...shownTasksRevealWrites(snapshot.document, opened)]
+  const shownTaskUids = snapshot.document.schedule.tasks.map((task) => task.uid).filter((uid) => named.has(uid))
+  const opened = held.isScheduleFilterApplied ? [...named].filter((uid) => !held.shownTaskUids.includes(uid)) : []
+  const commands = [searchTableViewWrite(held, shownTaskUids, true), ...shownTasksRevealWrites(snapshot.document, opened)]
   return writeThroughTheOnePath(wiring, snapshot, 'AM-27', stamp, commands)
 }
 

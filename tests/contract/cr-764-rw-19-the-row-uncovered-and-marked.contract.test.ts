@@ -286,13 +286,15 @@ describe(`RW-19 -- ${RW_19_STEPS_IN_ORDER}`, () => {
     expect(uidsOf(marked), 'Bravo stays hidden by the progress filter').not.toContain(2)
   })
 
-  it('③ the Visibility column (DT-8) is a value list like the others: its value is checked again', () => {
-    const shownLabel = found(itemsOf(OPENED, 'DT-8')[0], 'a value of DT-8').label
-    const hidden = valuesOff(OPENED, 'DT-8', [shownLabel])
-    expect(uidsOf(hidden)).not.toContain(3)
-    const marked = shown(hidden, 3)
+  // WHY: CR-798 -- the Visibility column (DT-8) holds no value list and no column filter, so an unchecked row never hides a row from the list
+  // and the jump neither checks nor unchecks it (the checks are the Schedule Filter's, SJ-0).
+  it('③ the Visibility column (DT-8) hides no row: an unchecked row stays in the list and the jump leaves the checks as they were', () => {
+    const checkedOne: Pane = { ...OPENED, view: { ...OPENED.view, visibility: { ...OPENED.view.visibility, shownTaskUids: [1] } } }
+    expect(uidsOf(checkedOne), 'Task 3 is unchecked and still listed').toContain(3)
+    const marked = shown(checkedOne, 3)
     expect(uidsOf(marked)).toContain(3)
     expect(filterOn(marked.view, 'DT-8')).toBeUndefined()
+    expect(marked.view.visibility.shownTaskUids).toEqual([1])
   })
 
   it('③ a multi-person column: a row still shown through another of its values keeps the filter as it is', () => {

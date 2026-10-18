@@ -13,7 +13,7 @@ import {
   advanceScreenSession,
   emptyScreenSession,
   emptySearchPanelSession,
-  EVERY_ROW_SHOWN,
+  NO_ROW_CHECKED,
   type ScreenSession,
   type SessionEvent,
   type TableView,
@@ -138,7 +138,7 @@ const SCREEN_LANGUAGE = (language: Language): ScreenSession => {
   const shown = advanceScreenSession(emptyScreenSession, { type: 'searchEntryPressed' } as unknown as SessionEvent).state
   return { ...shown, screen: { ...shown.screen, screenLanguage: language, helpLanguage: language } } as unknown as ScreenSession
 }
-const NO_VIEW: TableView = { visibility: EVERY_ROW_SHOWN, columnFilters: [], sort: null }
+const NO_VIEW: TableView = { visibility: NO_ROW_CHECKED, columnFilters: [], sort: null }
 const CANVAS = { x: 0, y: 56, width: 1000, height: 600 }
 
 describe('T-331 SQ-14 / T-347 DT-9 / T-374 FM-9 -- the manuscript these cases read', () => {

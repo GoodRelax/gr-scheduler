@@ -210,16 +210,16 @@
 | S-126 | `pinnedTaskGroupIds` | `TaskGroup.id` の配列 | `[]` | 0 件 | `pinnedTaskGroupMax` | ピン止めしているタスクグループ。<br>上限は `S-127`。<br>指すタスクグループを消したときの規則は表 T-050 の `CD-2` |
 | S-418 | `levelZeroTreeState` | `'auto'` / `'collapsed'` | `'auto'` | — | — | 段 0（タスクグループパネルの頭）の木の状態（表 T-015 の `HR-2`）。<br>`'collapsed'` のとき段 0 が折りたたまれ、タスクグループが 1 つも描かれない（`FR-018` の 表 T-329 の `TD-1`）。<br>⭐ `HR-2` の「押すとタスクグループが 1 つも描かれない状態になりうる」を成り立たせるのは本行であり、その理由も、列を足さないという規則も同行が持つ。<br>⭐ 値を書き換える入口は `_assets/tbl-state-machines.md` の 表 T-328 の根の升が持ち、取り消しの段は同じ押下が書くタスクグループの木の状態と同じである（表 T-027 の `UN-14`）。<br>⚠️ 段 0 には折りたたみ込む先の親が無いので、`hidden` を持たない（`FR-004`）。<br>⭐ 何階層展開するかは 表 T-051 の `HF-17` が持つ |
 | S-560 | `tableViews.searchPanel.isScheduleFilterApplied` | 真偽 | `false` | — | — | 検索の表のスケジュールフィルタを掛けているか（`FR-151` の 表 T-353 の `TV-5`）。<br>⭐ 文書に保存する理由と、変えれば取り消せることは `FR-151` が持つ（表 T-027 の `UN-20`）。<br>⭐ 開いた文書で真なら、その表のウィンドウを最小化で出す（表 T-024a の `OP-18`）。<br>⚠️ 語・ウィンドウの位置と大きさ・列の幅は 表 T-206 の行である（`S-419`・`S-420`・`S-546`） |
-| S-561 | `tableViews.searchPanel.hiddenTaskUids` | `Task.uid` の配列 | `[]` | — | — | 検索の表の表示の列（表 T-331 の `SQ-10`）で「非表示」にしたタスク（表 T-353 の `TV-2`）。<br>「非表示」の行だけを持つ —— 初めはどの行も「表示」である。<br>文書に無い `uid` は読むときに捨てる（表 T-024a の `OP-18`） |
-| S-562 | `tableViews.searchPanel.columnFilters` | `ColumnFilter` の配列（表 T-372） | `[]` | — | — | 検索パネルの 2 つの表（タスクの表・コメントボックスの表）の列のフィルタ（表 T-330 の `SV-7`）。<br>フィルタを掛けている列だけを、列ごとに 1 つ持つ。<br>`S-560` と同じく文書に保存する。<br>表に無い列の行 ID は開くときに捨てる（表 T-024a の `OP-18`） |
-| S-563 | `tableViews.searchPanel.sort` | `ColumnSort` / `null`（表 T-372） | `null` | — | — | 検索パネルの並べ替え（表 T-330 の `SV-8`）。<br>`null` は既定の並びである。<br>`S-560` と同じく文書に保存する |
+| S-561 | `tableViews.searchPanel.shownTaskUids` | `Task.uid` の配列 | `[]` | — | — | 検索の表の表示の列（表 T-331 の `SQ-10`）でチェックを入れた（「表示」の）タスク（表 T-353 の `TV-2`）。<br>チェックの入った行だけを持つ —— 既定の `[]` は、どの行にもチェックが入っていないことである。<br>文書に無い `uid` は読むときに捨てる（表 T-024a の `OP-18`） |
+| S-562 | `tableViews.searchPanel.columnFilters` | `ColumnFilter` の配列（表 T-372） | `[]` | — | — | 検索パネルの 2 つの表（タスクの表・コメントボックスの表）の列のフィルタ（表 T-330 の `SV-7`）。<br>フィルタを掛けている列だけを、列ごとに 1 つ持つ。<br>`S-560` と同じく文書に保存する。<br>表に無い列の行 ID は開くときに捨てる（表 T-024a の `OP-18`）。<br>⭐ 表示の列（表 T-331 の `SQ-10`・表 T-347 の `DT-8`・表 T-371 の `RQ-1`）は列のフィルタを持たない（`SV-7`） —— その列を指す値も、表に無い列と同じく開くときに捨てる |
+| S-563 | `tableViews.searchPanel.sort` | `ColumnSort` / `null`（表 T-372） | `null` | — | — | 検索パネルの並べ替え（表 T-330 の `SV-8`）。<br>`null` は既定の並びである。<br>`S-560` と同じく文書に保存する。<br>⭐ 表示の列は並べ替えない（`SV-8`） —— その列を指す値は、`S-562` と同じく開くときに捨てる |
 | S-564 | `tableViews.delayDiagnosticsReport.isScheduleFilterApplied` | 真偽 | `false` | — | — | 遅延診断レポートの表のスケジュールフィルタを掛けているか。<br>⭐ 開いた文書で真なら、遅延診断を始め、レポートの窓を最小化で出す（表 T-024a の `OP-18` —— 利用者が定めた）。<br>ほかは `S-560` と同じ |
-| S-565 | `tableViews.delayDiagnosticsReport.hiddenTaskUids` | `Task.uid` の配列 | `[]` | — | — | 遅延診断レポートの表の表示の列（`FR-134` の 表 T-347 の `DT-8`）で「非表示」にしたタスク。<br>持ち方・読み方・消したときは `S-561` と同じ |
+| S-565 | `tableViews.delayDiagnosticsReport.shownTaskUids` | `Task.uid` の配列 | `[]` | — | — | 遅延診断レポートの表の表示の列（`FR-134` の 表 T-347 の `DT-8`）でチェックを入れたタスク。<br>持ち方・読み方・消したときは `S-561` と同じ |
 | S-566 | `tableViews.delayDiagnosticsReport.columnFilters` | `ColumnFilter` の配列（表 T-372） | `[]` | — | — | 遅延診断レポートの表の列のフィルタ（`FR-134` の 表 T-346）。<br>持ち方と読み方は `S-562` と同じ |
 | S-567 | `tableViews.delayDiagnosticsReport.sort` | `ColumnSort` / `null`（表 T-372） | `null` | — | — | 遅延診断レポートの表の並べ替え。<br>`S-563` と同じ |
 | S-568 | `tableViews.resourceList.isScheduleFilterApplied` | 真偽 | `false` | — | — | 担当リストの表について、`S-560` と同じ |
-| S-569 | `tableViews.resourceList.hiddenResourceUids` | `Resource.uid` の配列 | `[]` | — | — | 担当リストの表の表示の列（`FR-099` の 表 T-371 の `RQ-1`）で「非表示」にした担当。<br>持ち方と読み方は `S-561` と同じ |
-| S-570 | `tableViews.resourceList.isUnassignedHidden` | 真偽 | `false` | — | — | 担当リストの表の（担当なし）の行（表 T-353 の `TV-13`）が「非表示」か。<br>`S-560` と同じく文書に保存する |
+| S-569 | `tableViews.resourceList.shownResourceUids` | `Resource.uid` の配列 | `[]` | — | — | 担当リストの表の表示の列（`FR-099` の 表 T-371 の `RQ-1`）でチェックを入れた担当。<br>持ち方と読み方は `S-561` と同じ |
+| S-570 | `tableViews.resourceList.isUnassignedShown` | 真偽 | `false` | — | — | 担当リストの表の（担当なし）の行（表 T-353 の `TV-13`）にチェックが入っている（「表示」）か。<br>既定の `false` はチェックが外れていることである（`TV-2`）。<br>`S-560` と同じく文書に保存する |
 | S-571 | `tableViews.resourceList.columnFilters` | `ColumnFilter` の配列（表 T-372） | `[]` | — | — | 担当リストの表の列のフィルタ（`FR-099` の 表 T-370）。<br>持ち方と読み方は `S-562` と同じ |
 | S-572 | `tableViews.resourceList.sort` | `ColumnSort` / `null`（表 T-372） | `null` | — | — | 担当リストの表の並べ替え。<br>`S-563` と同じ |
 
@@ -255,7 +255,7 @@
 
 | 形 | 欄 | 値 | 意味 |
 | --- | --- | --- | --- |
-| `ColumnFilter` | `column` | 文字列 | 列の行 ID —— `01-04-requirements.md` の 表 T-331（検索の表）・表 T-347（遅延診断レポートの表）・表 T-371（担当リストの表）の行（例 `SQ-5`） |
+| `ColumnFilter` | `column` | 文字列 | 列の行 ID —— `01-04-requirements.md` の 表 T-331（検索の表）・表 T-347（遅延診断レポートの表）・表 T-371（担当リストの表）の行（例 `SQ-5`）。<br>⭐ 表示の列（`SQ-10`・`DT-8`・`RQ-1`）は除く —— 列のフィルタも並べ替えも持たない（表 T-330 の `SV-7`・`SV-8`） |
 | `ColumnFilter` | `hiddenValues` | 文字列の配列 | 値の一覧で印を外した値の語（表 T-330 の `SV-7`）。<br>担当名の列では担当の名前、空のセルの項目（「（空白）」）は空の文字列。<br>⚠️ 担当を改名すると、外した名前は何にも当たらなくなる —— 読み替えない |
 | `ColumnFilter` | `fromDate` | 日付 / `null` | 「いつから」（`SV-7`）。<br>日付の列だけが置く —— ほかの列と、置いていない列は `null` |
 | `ColumnFilter` | `toDate` | 日付 / `null` | 「いつまで」。<br>`fromDate` と同じ |
