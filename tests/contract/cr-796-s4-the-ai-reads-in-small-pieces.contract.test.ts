@@ -12,7 +12,6 @@ import {
 } from '../../src/adapter/agent-api-endpoint/agent-api-members'
 import type { AgentSnapshot } from '../../src/adapter/agent-api-endpoint/snapshot-source'
 import { DEFAULT_TASK_GROUP_NAME } from '../../src/adapter/screen-renderer/screen-renderer'
-import { emptyDialogueLog, type DialogueLog } from '../../src/entity/document-model/dialogue-log/dialogue-log'
 import type { Document } from '../../src/entity/document-model/document/document'
 import { NOT_STORED_LIMITS, type EditHistory } from '../../src/entity/document-model/edit-history/edit-history'
 import { searchRowsOf } from '../../src/entity/document-model/schedule/schedule'
@@ -57,13 +56,12 @@ interface Reader {
 interface State {
   document: Document
   history: EditHistory<ChangeStep>
-  dialogue: DialogueLog
 }
 
 const CHANGE_WATCHERS = emptyChangeWatchers()
 
 function stateOf(document: Document): State {
-  return { document, history: { done: [], undone: [] }, dialogue: emptyDialogueLog() }
+  return { document, history: { done: [], undone: [] } }
 }
 
 function wiringFor(state: State, writerName: string): AgentApiWiring {
@@ -72,7 +70,6 @@ function wiringFor(state: State, writerName: string): AgentApiWiring {
     document: state.document,
     documentAsWritten: state.document,
     selection: emptySelection(),
-    dialogue: state.dialogue,
     frame: null,
     exportScene: null,
     isGestureInFlight: false,
@@ -96,18 +93,7 @@ function wiringFor(state: State, writerName: string): AgentApiWiring {
     },
     audience: {
       deliver: (document, hasUpdatedSchedule) =>
-        notifyChangeWatchers(CHANGE_WATCHERS, { document, hasUpdatedSchedule, dialogue: state.dialogue }),
-    },
-    dialogueHolder: {
-      read: () => state.dialogue,
-      replace: (next) => {
-        state.dialogue = next
-      },
-    },
-    dialogueAudience: {
-      deliver: (log) => {
-        state.dialogue = log
-      },
+        notifyChangeWatchers(CHANGE_WATCHERS, { document, hasUpdatedSchedule }),
     },
     rasterizer: undefined,
     takeInDocument: undefined,

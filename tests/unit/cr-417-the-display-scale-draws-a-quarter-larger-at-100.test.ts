@@ -218,7 +218,6 @@ const drawnAt = (displayScale: number): FakeElement => {
   const part: ScreenPart | null = null
   const surface: ScreenSurface = {
     showScreenView: (view) => real.showScreenView(view),
-    readDialogueInput: () => real.readDialogueInput(),
     readFieldCommit: () => real.readFieldCommit(),
     readScreenPartAt: () => part,
   }

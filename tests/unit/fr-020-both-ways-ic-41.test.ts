@@ -227,7 +227,6 @@ function stage(language: DisplayLanguage = 'ja'): Stage {
     showScreenView: (view) => {
       views.push(view)
     },
-    readDialogueInput: () => null,
     readFieldCommit: () => null,
     readScreenPartAt: () => part,
   }

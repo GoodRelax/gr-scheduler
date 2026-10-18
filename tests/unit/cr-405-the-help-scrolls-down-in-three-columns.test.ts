@@ -51,7 +51,7 @@ const CLAUSES: readonly (readonly [string, string])[] = [
   ['FR-036 (MUST) -- every block in a frame of its own (CR-622)', '⭐ 塊を 1 つずつ枠で囲むこと（MUST）'],
   ['FR-036 (MUST) -- the frame line and every space around it (CR-622)', 'どれも `_assets/tbl-settings.md` の 表 T-206 の `S-457` とし、枠の線は 表 T-236 の `S-149` の色、表 T-206 の `S-437` の太さとすること（MUST）。'],
   ['FR-036 (MUST) -- group lines stay inside the Command Palette block (CR-622)', '`Command Palette` の塊の中の群の境目は、線で示すこと（MUST）。'],
-  ['FR-036 (MUST NOT) -- the rows the help leaves off (CR-635, CR-665)', '・`Holiday Settings`・`Dialogue Field`・`Open Chooser`・`Difference Review` の面だけ（`Help Modal` を併せて持つものを含む）である行と、`IC-52`・`IC-53`・`IC-75` を、段に載せてはならない（MUST NOT）'],
+  ['FR-036 (MUST NOT) -- the rows the help leaves off (CR-635, CR-665)', '・`Holiday Settings`・`Open Chooser`・`Difference Review` の面だけ（`Help Modal` を併せて持つものを含む）である行と、`IC-52`・`IC-53`・`IC-75` を、段に載せてはならない（MUST NOT）'],
   ['FR-036 (MUST) -- the palette group T-256 names moves under the Task Group Panel (CR-665)', '⭐ `Command Palette` の入口を 2 つの塊に分け、表 T-109 の `群` が `揃える` の行を、`HC-4` の `Task Group Panel` の塊の下の塊へ移すこと（MUST）'],
   ['FR-036 (MUST) -- an assignment whose entrance is left off sits with the ones that have none (CR-637)', '⭐ 入口の項目が段に載らない割当は、上の「入口の項目の割当の場所に置く」に代えて、入口を持たない割当と同じ塊に置くこと（MUST）'],
 ]
@@ -288,7 +288,6 @@ const EMPTY_VIEW: ScreenView = {
   openModal: null,
   notices: [],
   confirmation: null,
-  dialogueField: null,
   tooltips: [],
 }
 
@@ -572,7 +571,6 @@ function idleLoop() {
   GLOBAL['requestAnimationFrame'] = (callback: (time: number) => void): number => waiting.push(callback)
   const surface: ScreenSurface = {
     showScreenView: () => undefined,
-    readDialogueInput: () => null,
     readFieldCommit: () => null,
     readScreenPartAt: () => null,
   }

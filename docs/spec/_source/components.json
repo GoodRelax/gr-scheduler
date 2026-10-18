@@ -138,13 +138,7 @@
    "name": "NotifyChangeWatchers",
    "shape": "component",
    "description": "Hands confirmed changes to the watchers.",
-   "remark": "AG-6 / AG-11"
-  },
-  {
-   "name": "PostDialogueMessage",
-   "shape": "component",
-   "description": "Takes a confirmed utterance, appends it to DialogueLog and passes it on. Runtime only, never saved.",
-   "remark": "FR-066 / AG-11"
+   "remark": "AG-6"
   },
   {
    "name": "AdvanceScreenSession",
@@ -207,12 +201,6 @@
    "remark": ""
   },
   {
-   "name": "DialogueLog",
-   "shape": "component",
-   "description": "Confirmed utterances, in an order of their own that is independent of the revision. Never saved.",
-   "remark": ""
-  },
-  {
    "name": "ScreenRegions",
    "shape": "component",
    "description": "The rectangle of every screen part, and which region the pointer is in.",
@@ -227,8 +215,8 @@
   {
    "name": "ScreenRenderer",
    "shape": "component",
-   "description": "Builds the description of the UI parts outside the schedule, and passes on the utterance confirmed in the dialogue field. Declares ScreenSurface.",
-   "remark": "FR-051 / FR-006 / FR-036 / FR-053 / FR-076 / FR-066"
+   "description": "Builds the description of the UI parts outside the schedule. Declares ScreenSurface.",
+   "remark": "FR-051 / FR-006 / FR-036 / FR-053 / FR-076"
   },
   {
    "name": "DomScreenSurface",
@@ -314,13 +302,6 @@
    "arrow": "dependency",
    "label": "watch / unwatch",
    "description": "starts and stops watching"
-  },
-  {
-   "source": "AgentApiEndpoint",
-   "target": "PostDialogueMessage",
-   "arrow": "dependency",
-   "label": "utterance",
-   "description": "hands over an utterance"
   },
   {
    "source": "FileGateway",
@@ -541,13 +522,6 @@
   },
   {
    "source": "AgentApiEndpoint",
-   "target": "DialogueLog",
-   "arrow": "dependency",
-   "label": "confirmed utterances",
-   "description": "reads the utterances for readDialogueMessages"
-  },
-  {
-   "source": "AgentApiEndpoint",
    "target": "DocumentCodec",
    "arrow": "dependency",
    "label": "exchange formats",
@@ -624,46 +598,11 @@
    "description": "makes, widens and clears the selection"
   },
   {
-   "source": "PostDialogueMessage",
-   "target": "DialogueLog",
-   "arrow": "dependency",
-   "label": "append one",
-   "description": "appends one confirmed utterance"
-  },
-  {
-   "source": "NotifyChangeWatchers",
-   "target": "DialogueLog",
-   "arrow": "dependency",
-   "label": "utterance order",
-   "description": "picks utterances by their own order"
-  },
-  {
    "source": "SingleHtmlShell",
    "target": "DocumentCodec",
    "arrow": "dependency",
    "label": "implements AppShellSource",
    "description": ""
-  },
-  {
-   "source": "ScreenRenderer",
-   "target": "PostDialogueMessage",
-   "arrow": "dependency",
-   "label": "utterance shape",
-   "description": "shapes the input a person confirmed in the dialogue field as the utterance PostDialogueMessage takes"
-  },
-  {
-   "source": "SingleHtmlShell",
-   "target": "PostDialogueMessage",
-   "arrow": "dependency",
-   "label": "confirmed utterance",
-   "description": "posts the utterance a person confirmed in the dialogue field into the dialogue log the shell holds"
-  },
-  {
-   "source": "PostDialogueMessage",
-   "target": "NotifyChangeWatchers",
-   "arrow": "dependency",
-   "label": "utterance posted",
-   "description": "wakes the watchers although the revision did not move"
   },
   {
    "source": "AdvanceScreenSession",
@@ -880,13 +819,6 @@
    "arrow": "dependency",
    "label": "selection to show",
    "description": "reads what is selected"
-  },
-  {
-   "source": "ScreenRenderer",
-   "target": "DialogueLog",
-   "arrow": "dependency",
-   "label": "utterances shown",
-   "description": "reads the utterances the dialogue field shows"
   },
   {
    "source": "ImageExporter",
@@ -1177,13 +1109,6 @@
   },
   {
    "source": "SingleHtmlShell",
-   "target": "DialogueLog",
-   "arrow": "dependency",
-   "label": "empty log",
-   "description": "starts the dialogue log empty and holds it"
-  },
-  {
-   "source": "SingleHtmlShell",
    "target": "Document",
    "arrow": "dependency",
    "label": "document type",
@@ -1335,6 +1260,13 @@
    "arrow": "dependency",
    "label": "call and answer types",
    "description": "reads only the types of the relayed call and answer (RelayedCall, RelayedAnswer, AgentApi)"
+  },
+  {
+   "source": "ScreenState",
+   "target": "DocumentSettings",
+   "arrow": "dependency",
+   "label": "table windows",
+   "description": "names its table windows by the keys of the three table views (T-353), so the two lists cannot drift"
   }
  ],
  "layout": {
@@ -1362,7 +1294,6 @@
        "DocumentStamp",
        "EditHistory",
        "Selection",
-       "DialogueLog",
        "ScreenState"
       ]
      },
@@ -1398,7 +1329,6 @@
      "ValidateImportedDocument",
      "ChooseStartupDocument",
      "NotifyChangeWatchers",
-     "PostDialogueMessage",
      "AdvanceScreenSession"
     ]
    },
@@ -1500,7 +1430,7 @@
    ]
   },
   "startup": {
-   "label": "Start-up, exposure and dialogue",
+   "label": "Start-up and exposure",
    "nodes": [
     "SingleHtmlShell",
     "DomInputSource",
@@ -1510,11 +1440,9 @@
     "ChooseStartupDocument",
     "ValidateImportedDocument",
     "AgentApiEndpoint",
-    "PostDialogueMessage",
     "NotifyChangeWatchers",
     "ApplyDocumentChange",
     "DocumentStamp",
-    "DialogueLog",
     "Document"
    ]
   }

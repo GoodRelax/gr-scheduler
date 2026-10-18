@@ -907,7 +907,6 @@ const shellOf = (document: Document): Shell => {
   let shown = ''
   const surface: ScreenSurface = {
     showScreenView: () => undefined,
-    readDialogueInput: () => null,
     readFieldCommit: () => null,
     readScreenPartAt: (): ScreenPart | null => null,
   }

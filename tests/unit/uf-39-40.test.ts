@@ -416,7 +416,6 @@ const PROPERTY_FIELD_TEXT = 'EP-8 property value, not drawn'
 const PALETTE_GROUP_NAME = 'EP-11 palette group, U-34, not drawn'
 const PALETTE_ARMED_TEXT = 'EP-11 armed, not drawn'
 const MODAL_HEADING = 'EP-11 modal heading, U-30, not drawn'
-const DIALOGUE_TEXT = 'EP-11 dialogue message, U-44, not drawn'
 const NOTICE_TEXT = 'a notice, which table T-076 gives no row, not drawn'
 const TOOLTIP_TEXT = 'a tooltip, which table T-076 gives no row, not drawn'
 
@@ -428,7 +427,6 @@ const NOT_DRAWN_WORDS: readonly string[] = [
   PALETTE_GROUP_NAME,
   PALETTE_ARMED_TEXT,
   MODAL_HEADING,
-  DIALOGUE_TEXT,
   NOTICE_TEXT,
   TOOLTIP_TEXT,
 ]
@@ -521,12 +519,6 @@ const viewOf = (
   ],
   // NT-7 of table T-037: `null` while nothing is waiting to be answered.
   confirmation: null,
-  dialogueField: {
-    heading: '', shown: 'normal', titleEntries: [], place: { at: null, size: null }, canvas: { x: 0, y: 0, width: 800, height: 600 },
-    messages: [
-      { sequence: 1, author: 'someone', text: DIALOGUE_TEXT, settledAt: '2026-08-19T09:00:00Z' },
-    ],
-  },
   // ⭐ `EZ-2` of 表 T-040 (MUST) puts the row's assignment behind the words, so
   // every tooltip carries the member. `FR-036`: 「どちらも持たない行は、その
   // 場所を空ける」 -- a task group title has neither key nor mouse operation.
@@ -1039,10 +1031,10 @@ const T_076_ROWS: readonly {
   },
   {
     id: 'EP-11',
-    part: 'Command Palette (U-26) / modals (U-30) / Dialogue Field (U-44) / Resource List (U-49)',
+    part: 'Command Palette (U-26) / modals (U-30) / Resource List (U-49)',
     expectation: 'no',
     holds: (assembledSvg) =>
-      !saysAnyOf(assembledSvg, [PALETTE_GROUP_NAME, PALETTE_ARMED_TEXT, MODAL_HEADING, DIALOGUE_TEXT]),
+      !saysAnyOf(assembledSvg, [PALETTE_GROUP_NAME, PALETTE_ARMED_TEXT, MODAL_HEADING]),
   },
   {
     id: 'EP-12',
@@ -1161,7 +1153,6 @@ describe('FR-080 -- a part left out leaves a gap, it does not move its neighbors
             commandPalette: null,
             openModal: null,
             notices: [],
-            dialogueField: null,
             tooltips: [],
           },
         ),

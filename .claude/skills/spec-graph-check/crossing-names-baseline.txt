@@ -40,9 +40,6 @@ ApplyDocumentChange | WriteMoment
 ClipboardGateway | ClipboardContent
 ClipboardGateway | ClipboardFault
 
-DialogueLog | DialogueMessage
-DialogueLog | emptyDialogueLog
-DialogueLog | latestSequence
 
 DocumentCodec | ExchangeFormat
 DocumentCodec | FormatMismatch
@@ -111,7 +108,6 @@ ItemHitArea | Hit
 ItemHitArea | Item
 
 
-PostDialogueMessage | SettledUtterance
 
 Schedule | Assignment
 Schedule | BaselineTask
@@ -152,8 +148,6 @@ ScreenRenderer | AppHeaderItems
 ScreenRenderer | CommandItem
 ScreenRenderer | CommandPalette
 ScreenRenderer | Confirmation
-ScreenRenderer | DialogueField
-ScreenRenderer | DialogueInput
 ScreenRenderer | DisplayLanguage
 ScreenRenderer | ExportFormatId
 ScreenRenderer | FieldCommit

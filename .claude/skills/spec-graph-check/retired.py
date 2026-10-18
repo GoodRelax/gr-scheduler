@@ -376,4 +376,20 @@ RETIRED = {'FR-050', 'T-030',
            # cursor and CM-63 setThemePreference left when the file stopped
            # holding the viewer's screen (CR-572). Check 83 now reds a seat
            # that list names and this set lacks.
-           'CM-25', 'CM-59', 'CM-60', 'CM-61', 'CM-63'}
+           'CM-25', 'CM-59', 'CM-60', 'CM-61', 'CM-63',
+           # CR-796 slice 6 (2026-10-18, ruling JDG-2767): the dialogue
+           # feature left -- the person talks with the AI in the AI's own app.
+           # FR-066 (the Dialogue Field), the glossary word U-44, its entry
+           # IC-18, its display state S-99i, its place and default size
+           # S-456 / S-453 / S-454, its stacking row UZ-9, AG-11 (reading the
+           # utterances), the members AM-6 readDialogueMessages / AM-18
+           # postDialogueMessage and their value types AV-12 / AV-13 left;
+           # with them the components PostDialogueMessage (CP-16, PI-16,
+           # UF-26) and DialogueLog (CP-33, PI-33, UF-56), the units UF-68 /
+           # UF-111 that drew the field, and the frame trigger FT-5 (an
+           # utterance that did not move the revision). CR-796, the
+           # changelog and the ledgers name them, so the seats stay burned.
+           'FR-066', 'U-44', 'IC-18', 'S-99i', 'S-456', 'S-453', 'S-454',
+           'UZ-9', 'AG-11', 'AM-6', 'AM-18', 'AV-12', 'AV-13',
+           'CP-16', 'CP-33', 'PI-16', 'PI-33', 'UF-26', 'UF-56', 'UF-68',
+           'UF-111', 'FT-5'}

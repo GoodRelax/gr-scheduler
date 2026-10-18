@@ -152,7 +152,6 @@ function stage(): { readonly loop: FrameLoop; send(input: HumanInput): void } {
   }
   const surface: ScreenSurface = {
     showScreenView: () => undefined,
-    readDialogueInput: () => null,
     readFieldCommit: () => null,
     readScreenPartAt: (): ScreenPart | null => null,
   }

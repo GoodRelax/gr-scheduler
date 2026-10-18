@@ -171,7 +171,6 @@ function stageFor(document: Document): Bench {
   const asked: string[] = []
   const surface: ScreenSurface = {
     showScreenView: (view) => void views.push(view),
-    readDialogueInput: () => null,
     readFieldCommit: () => null,
     readScreenPartAt: (): ScreenPart | null => part,
   }

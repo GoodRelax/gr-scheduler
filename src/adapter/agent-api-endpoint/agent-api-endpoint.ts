@@ -16,7 +16,6 @@ export type {
   AgentRefusal,
   AgentRefusalReason,
   AgentShownTasks,
-  AgentDialogueMessageOutcome,
   AgentWatch,
   AgentWriteOutcome,
   AgentWriteRequest,

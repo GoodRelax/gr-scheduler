@@ -341,7 +341,6 @@ async function bench(
     showScreenView: (view: ScreenView) => {
       views.push(view)
     },
-    readDialogueInput: () => null,
     readFieldCommit: () => {
       const one = commit
       commit = null
@@ -464,7 +463,6 @@ function drawn(part: Partial<ScreenView>, language: DisplayLanguage): DrawnStage
     openModal: null,
     notices: [],
     confirmation: null,
-    dialogueField: null,
     tooltips: [],
     ...part,
   } as unknown as ScreenView

@@ -141,7 +141,6 @@ const headerAt = (scale: number): ScreenView => {
     showScreenView: (view) => {
       views.push(view)
     },
-    readDialogueInput: () => null,
     readFieldCommit: () => null,
     readScreenPartAt: (): ScreenPart | null => null,
   }

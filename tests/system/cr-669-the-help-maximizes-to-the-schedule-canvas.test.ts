@@ -24,11 +24,10 @@ const FR_036_ONE_SCREEN =
 const S_203_FITS_BOTH =
   '⭐ 収めるためにヘルプの字を小さくしてよい —— `_assets/tbl-settings.md` の 表 T-206 の `S-203` は、上の 2 つの環境で日英の両方が収まる値とすること（MUST）'
 // WHY: plain sentences the cases below lean on; no marker of their own.
-const WB_3_RANGE = 'ヘルプ・検索パネル・遅延診断レポートの窓・対話欄・担当リストのウィンドウのどれも `Schedule Canvas`（`U-32`）の全体'
+const WB_3_RANGE = 'ヘルプ・検索パネル・遅延診断レポートの窓・担当リストのウィンドウのどれも `Schedule Canvas`（`U-32`）の全体'
 const FR_036_HEADER_STAYS = 'ヘルプを実物の横へ寄せて見比べるあいだも、`App Header` の入口は隠れない'
 const FR_036_ONE_SPACE = '項目の説明は名の語と添える語を半角の空白 1 つで繋ぐ'
 const FR_036_IN_THE_DICTIONARY = '括弧は辞書の語の中に持ち、描き手は足さない'
-const UZ_9_CANVAS_BELOW_HEADER = '動かせる範囲は `Schedule Canvas` の中（`FR-066`）なので、`App Header` と重ならない'
 const FR_036_LOW_SCREEN = '⚠️ 後者の環境の閲覧環境の窓は、CSS で約 1280 × 627 である'
 const FR_038_HELP_LANGUAGE_ONLY = '画面の言語だけを替え、ヘルプの言語を替えない'
 
@@ -127,7 +126,7 @@ async function helpBox(page: Page): Promise<Box> {
   return box
 }
 
-// see U-32, UZ-9
+// see U-32
 /** @purity semi-pure-b */
 async function scheduleCanvasBox(page: Page): Promise<Box> {
   const header = await boxOf(page, HEADER)
@@ -218,7 +217,6 @@ test.describe('CR-669 the manuscript these cases are driven by', () => {
     ['FR-036 (MUST) the added words are bracketed', FR_036_BRACKETS],
     ['FR-036 name and added words joined by one space', FR_036_ONE_SPACE],
     ['FR-036 the brackets live in the dictionary', FR_036_IN_THE_DICTIONARY],
-    ['T-337 UZ-9 the Schedule Canvas does not overlap the App Header', UZ_9_CANVAS_BELOW_HEADER],
     ['T-337 (MUST) the front part takes the press', T_337_THE_FRONT_ONE_TAKES_THE_PRESS],
     ['FR-036 (MUST) one screen', FR_036_ONE_SCREEN],
     ['S-203 (MUST) fits both languages', S_203_FITS_BOTH],

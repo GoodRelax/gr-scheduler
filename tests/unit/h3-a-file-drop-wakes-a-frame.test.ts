@@ -130,7 +130,6 @@ async function stage(): Promise<Stage> {
   const part: ScreenPart | null = null
   const surface: ScreenSurface = {
     showScreenView: (view) => void shown.push(view),
-    readDialogueInput: () => null,
     readFieldCommit: () => null,
     readScreenPartAt: () => part,
   }

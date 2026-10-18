@@ -146,13 +146,13 @@
    "family": "rows",
    "fields": {
     "firstRow": 5,
-    "rowId": 272
+    "rowId": 271
    },
    "prefixes": [
     "IC",
     "K"
    ],
-   "count": 277
+   "count": 276
   },
   {
    "from": "docs/spec/_source/display-words.json",
@@ -323,10 +323,10 @@
    "to": "docs/spec/_source/components.json",
    "family": "component names",
    "fields": {
-    "component": 39
+    "component": 37
    },
    "prefixes": [],
-   "count": 39
+   "count": 37
   },
   {
    "from": "docs/spec/_source/settings.json",
@@ -345,20 +345,20 @@
    "to": "docs/spec UIDs",
    "family": "rows",
    "fields": {
-    "evidence": 284,
-    "rows": 92
+    "evidence": 273,
+    "rows": 90
    },
    "prefixes": [
     "FR"
    ],
-   "count": 376
+   "count": 363
   },
   {
    "from": "docs/spec/_source/state-machines.json",
    "to": "docs/spec/01-04-requirements.md",
    "family": "rows",
    "fields": {
-    "evidence": 540,
+    "evidence": 528,
     "rows": 195
    },
    "prefixes": [
@@ -409,7 +409,7 @@
     "WM",
     "ZE"
    ],
-   "count": 735
+   "count": 723
   },
   {
    "from": "docs/spec/_source/state-machines.json",
@@ -436,14 +436,14 @@
    "family": "rows",
    "fields": {
     "effectArgument": 3,
-    "evidence": 74,
-    "rows": 116
+    "evidence": 62,
+    "rows": 110
    },
    "prefixes": [
     "IC",
     "U"
    ],
-   "count": 193
+   "count": 175
   },
   {
    "from": "docs/spec/_source/state-machines.json",
@@ -529,25 +529,25 @@
    "to": "docs/spec/_source/settings.json",
    "family": "S",
    "fields": {
-    "evidence": 77,
+    "evidence": 70,
     "rows": 7
    },
    "prefixes": [
     "S"
    ],
-   "count": 84
+   "count": 77
   }
  ],
  "prose": [
   {
    "from": "docs/spec/_source/agent-api-members.json",
    "to": "docs/spec UIDs",
-   "count": 42
+   "count": 39
   },
   {
    "from": "docs/spec/_source/agent-api-members.json",
    "to": "docs/spec/01-04-requirements.md",
-   "count": 164
+   "count": 151
   },
   {
    "from": "docs/spec/_source/agent-api-members.json",
@@ -592,12 +592,12 @@
   {
    "from": "docs/spec/_source/components.json",
    "to": "docs/spec UIDs",
-   "count": 58
+   "count": 56
   },
   {
    "from": "docs/spec/_source/components.json",
    "to": "docs/spec/01-04-requirements.md",
-   "count": 38
+   "count": 37
   },
   {
    "from": "docs/spec/_source/components.json",
@@ -802,7 +802,7 @@
   {
    "from": "docs/spec/_source/fig-mcp-relay.json",
    "to": "docs/spec/05-07-design.md",
-   "count": 7
+   "count": 8
   },
   {
    "from": "docs/spec/_source/fig-mcp-relay.json",
@@ -972,7 +972,7 @@
   {
    "from": "docs/spec/_source/published-entries.json",
    "to": "docs/spec/01-04-requirements.md",
-   "count": 681
+   "count": 676
   },
   {
    "from": "docs/spec/_source/published-entries.json",
@@ -1012,7 +1012,7 @@
   {
    "from": "docs/spec/_source/published-entries.json",
    "to": "docs/spec/_source/settings.json",
-   "count": 108
+   "count": 107
   },
   {
    "from": "docs/spec/_source/published-entries.json",
@@ -1042,12 +1042,12 @@
   {
    "from": "docs/spec/_source/settings.json",
    "to": "docs/spec UIDs",
-   "count": 491
+   "count": 481
   },
   {
    "from": "docs/spec/_source/settings.json",
    "to": "docs/spec/01-04-requirements.md",
-   "count": 915
+   "count": 907
   },
   {
    "from": "docs/spec/_source/settings.json",
@@ -1057,7 +1057,7 @@
   {
    "from": "docs/spec/_source/settings.json",
    "to": "docs/spec/_assets/tbl-glossary.md",
-   "count": 34
+   "count": 31
   },
   {
    "from": "docs/spec/_source/settings.json",
@@ -1102,7 +1102,7 @@
   {
    "from": "docs/spec/_source/state-machines.json",
    "to": "docs/spec UIDs",
-   "count": 17
+   "count": 14
   },
   {
    "from": "docs/spec/_source/state-machines.json",
@@ -1117,7 +1117,7 @@
   {
    "from": "docs/spec/_source/state-machines.json",
    "to": "docs/spec/_assets/tbl-glossary.md",
-   "count": 31
+   "count": 30
   },
   {
    "from": "docs/spec/_source/state-machines.json",
@@ -1247,7 +1247,7 @@
   "docs/spec/01-04-requirements.md": {
    "A": 16,
    "AC": 4,
-   "AG": 13,
+   "AG": 12,
    "AR": 7,
    "AS": 12,
    "BC": 5,
@@ -1378,7 +1378,7 @@
    "TX": 12,
    "TY": 9,
    "UN": 21,
-   "UZ": 13,
+   "UZ": 12,
    "V": 17,
    "VC": 15,
    "VG": 7,
@@ -1402,10 +1402,10 @@
   "docs/spec/05-07-design.md": {
    "BO": 5,
    "CA": 4,
-   "CP": 39,
+   "CP": 37,
    "CS": 4,
    "EG": 8,
-   "FT": 6,
+   "FT": 5,
    "IF": 8,
    "IV": 23,
    "JF": 4,
@@ -1433,22 +1433,22 @@
    "TR": 3,
    "TW": 3,
    "UD": 5,
-   "UF": 189,
+   "UF": 185,
    "UT": 17,
    "WS": 7
   },
   "docs/spec/_assets/tbl-glossary.md": {
-   "IC": 138,
+   "IC": 137,
    "K": 132,
    "N": 15,
    "P": 22,
-   "U": 67,
+   "U": 66,
    "VK": 4,
    "X": 5
   },
   "docs/spec/_source/agent-api-members.json": {
-   "AM": 23,
-   "AV": 20
+   "AM": 21,
+   "AV": 18
   },
   "docs/spec/_source/document-commands.json": {
    "CM": 91
@@ -1467,10 +1467,10 @@
    "PR": 43
   },
   "docs/spec/_source/published-entries.json": {
-   "PI": 39
+   "PI": 37
   },
   "docs/spec/_source/settings.json": {
-   "S": 526
+   "S": 522
   },
   "docs/spec/_source/state-machines.json": {
    "RG": 16

@@ -97,7 +97,6 @@ export async function windowStage(document: Document): Promise<WindowStage> {
       views.push(view)
       drawn.showScreenView(view)
     },
-    readDialogueInput: () => drawn.readDialogueInput(),
     readFieldCommit: () => drawn.readFieldCommit(),
     readFieldEditNotices: () => (drawn as unknown as { readFieldEditNotices?: () => unknown[] }).readFieldEditNotices?.() ?? [],
     readScreenPartAt: (x: number, y: number): ScreenPart | null => fakePart ?? drawn.readScreenPartAt(x, y),

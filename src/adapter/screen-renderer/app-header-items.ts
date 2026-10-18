@@ -42,7 +42,6 @@ const FULL_SCREEN_ENTRY: IconId = 'IC-11'
 const DISPLAY_SCALE_DOWN_ENTRY: IconId = 'IC-104'
 const DISPLAY_SCALE_UP_ENTRY: IconId = 'IC-105'
 const DOCUMENT_SETTINGS_ENTRY: IconId = 'IC-17'
-const DIALOGUE_FIELD_ENTRY: IconId = 'IC-18'
 const AGENT_API_ENTRY: IconId = 'IC-20'
 const DELAY_DIAGNOSTICS_ENTRY: IconId = 'IC-107'
 const SEARCH_ENTRY: IconId = 'IC-117'
@@ -106,12 +105,6 @@ function displayScaleStateOf(icon: IconId, settings: DocumentSettings): CommandS
   return end === null ? null : { isEnabled: settings.displayScale !== end, isPressed: false }
 }
 
-// see FR-066, T-280
-/** @purity pure */
-function isDialogueFieldShown(session: ScreenSession): boolean {
-  return session.screen.dialogueFieldDisplayState.kind === 'shown'
-}
-
 // see FR-029, T-109, OP-8, CS-4
 /** @purity pure */
 function commandStateOf(
@@ -143,13 +136,6 @@ function commandStateOf(
 
     case DOCUMENT_SETTINGS_ENTRY:
       return { isEnabled: true, isPressed: isShowingSettings(session) }
-
-    // WHY: never faint; a press while Agent API is off enables it and shows the field (FR-066).
-    case DIALOGUE_FIELD_ENTRY:
-      return {
-        isEnabled: true,
-        isPressed: readings.isAgentApiEnabled && isDialogueFieldShown(session),
-      }
 
     case AGENT_API_ENTRY:
       return { isEnabled: true, isPressed: readings.isAgentApiEnabled }

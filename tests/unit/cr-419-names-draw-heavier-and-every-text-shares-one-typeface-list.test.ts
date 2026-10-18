@@ -265,7 +265,6 @@ const domDrawn = (): { readonly mount: FakeElement; readonly svg: string } => {
   let svg = ''
   const surface: ScreenSurface = {
     showScreenView: (view) => real.showScreenView(view),
-    readDialogueInput: () => real.readDialogueInput(),
     readFieldCommit: () => real.readFieldCommit(),
     readScreenPartAt: () => part,
   }

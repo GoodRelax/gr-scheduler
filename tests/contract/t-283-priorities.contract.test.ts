@@ -162,12 +162,12 @@ describe(`table T-283, Esc (RG-1..RG-8, RG-14, RG-16 and RG-17) -- IN-4 (MUST): 
     const rg16 = RUNGS.find((r) => r.id === 'RG-16')
     expect(rg16?.keys).toEqual(['Esc'])
     expect(rg16?.states).toEqual(
-      ['searchPanel', 'help', 'dialogueField'].flatMap((window) => [
+      ['searchPanel', 'help'].flatMap((window) => [
         { in: `${window}DisplayStateMachine.shown.normal` },
         { in: `${window}DisplayStateMachine.shown.maximized` },
       ]),
     )
-    expect(rg16?.evidence).toEqual(['IN-4', 'SV-14', 'HN-2', 'FR-066', 'FR-152', 'RW-1', 'RO-1'])
+    expect(rg16?.evidence).toEqual(['IN-4', 'SV-14', 'HN-2', 'FR-152', 'RW-1', 'RO-1'])
     expect(rg16?.note?.ja ?? '').toContain('`SV-14`')
   })
 
@@ -273,7 +273,6 @@ const NOTHING_ON: Required<Pick<EscapeContext, Flag>> = {
   isDelayDiagnosticsReportStanding: false,
   isResourceListStanding: false,
   isHelpStanding: false,
-  isDialogueFieldStanding: false,
   isArmed: false,
   isSelectionStanding: false,
   dualCursorMode: false,
@@ -284,7 +283,7 @@ const NOTHING_ON: Required<Pick<EscapeContext, Flag>> = {
 }
 
 // see T-283, IN-4, RG-16
-// WHY: inside RG-16 the windows stand in the order of table T-337 (UZ-6, UZ-7, UZ-9) while no window
+// WHY: inside RG-16 the windows stand in the order of table T-337 (UZ-6, UZ-7) while no window
 // holds the focus; the search panel is in front of the report window until RW-5 says otherwise.
 const LADDER: readonly (readonly [string, EscapeTarget, Flag])[] = [
   ['RG-1', 'notice', 'isNoticeStanding'],
@@ -296,7 +295,6 @@ const LADDER: readonly (readonly [string, EscapeTarget, Flag])[] = [
   ['RG-16', 'delayDiagnosticsReport', 'isDelayDiagnosticsReportStanding'],
   ['RG-16', 'resourceList', 'isResourceListStanding'],
   ['RG-16', 'helpModal', 'isHelpStanding'],
-  ['RG-16', 'dialogueField', 'isDialogueFieldStanding'],
   ['RG-14', 'propertiesPanel', 'isPropertiesPanelOpen'],
   ['RG-5', 'armed', 'isArmed'],
   ['RG-6', 'selection', 'isSelectionStanding'],
@@ -311,7 +309,6 @@ const EVERY_WORD: Record<EscapeTarget, true> = {
   searchPanel: true,
   delayDiagnosticsReport: true,
   resourceList: true,
-  dialogueField: true,
   textEntry: true,
   confirmation: true,
   surface: true,
@@ -387,7 +384,7 @@ describe(`PI-36 escapeTarget against table T-283 -- IN-4 (MUST): ${IN_4_ORDER}`,
 })
 
 describe(`RG-16, one window per Esc -- IN-4 (MUST): ${IN_4_ONE_WINDOW}`, () => {
-  const everyWindow = on('isSearchPanelStanding', 'isDelayDiagnosticsReportStanding', 'isHelpStanding', 'isDialogueFieldStanding')
+  const everyWindow = on('isSearchPanelStanding', 'isDelayDiagnosticsReportStanding', 'isHelpStanding')
 
   it('the requirement still says it, word for word', () => {
     expect(REQUIREMENTS).toContain(IN_4_ONE_WINDOW)
@@ -395,12 +392,12 @@ describe(`RG-16, one window per Esc -- IN-4 (MUST): ${IN_4_ONE_WINDOW}`, () => {
     expect(REQUIREMENTS).toContain(IN_4_PANEL_FOCUS_FIRST)
   })
 
-  it.each(['delayDiagnosticsReport', 'helpModal', 'dialogueField'] as const)('the focused %s closes before the front-most window', (window) => {
+  it.each(['delayDiagnosticsReport', 'helpModal'] as const)('the focused %s closes before the front-most window', (window) => {
     expect(escapeTarget({ ...everyWindow, focusedWindow: window })).toBe(window)
   })
 
   it('a focused window that does not stand gives way to the front-most one', () => {
-    expect(escapeTarget({ ...on('isHelpStanding', 'isDialogueFieldStanding'), focusedWindow: 'searchPanel' })).toBe('helpModal')
+    expect(escapeTarget({ ...on('isHelpStanding'), focusedWindow: 'searchPanel' })).toBe('helpModal')
   })
 
   it('RW-5: the report window opened after the search panel is in front of it', () => {

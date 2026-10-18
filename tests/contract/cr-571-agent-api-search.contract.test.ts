@@ -13,7 +13,6 @@ import {
   type FrameSnapshot,
 } from '../../src/adapter/agent-api-endpoint/agent-api-endpoint'
 import { DEFAULT_TASK_GROUP_NAME } from '../../src/adapter/screen-renderer/screen-renderer'
-import { emptyDialogueLog, type DialogueLog } from '../../src/entity/document-model/dialogue-log/dialogue-log'
 import type { Document } from '../../src/entity/document-model/document/document'
 import { NOT_STORED_LIMITS, type EditHistory } from '../../src/entity/document-model/edit-history/edit-history'
 import { searchRowsOf, type SearchRows } from '../../src/entity/document-model/schedule/schedule'
@@ -146,7 +145,6 @@ interface Bench {
   readonly state: {
     document: Document
     history: EditHistory<ChangeStep>
-    dialogue: DialogueLog
     selection: Selection
   }
 }
@@ -165,7 +163,6 @@ function bench(parentState: string, childState: string): Bench {
       changeLog: [],
     } as unknown as Document,
     history: { done: [], undone: [] } as EditHistory<ChangeStep>,
-    dialogue: emptyDialogueLog(),
     selection: emptySelection(),
     isQuestionAsked: false,
     isDeliveringNotices: false,
@@ -175,7 +172,6 @@ function bench(parentState: string, childState: string): Bench {
     document: state.document,
     documentAsWritten: state.document,
     selection: state.selection,
-    dialogue: state.dialogue,
     frame: frameOf(state.document),
     exportScene: null,
     isGestureInFlight: false,
@@ -201,21 +197,10 @@ function bench(parentState: string, childState: string): Bench {
       deliver: (document, hasUpdatedSchedule) => {
         state.isDeliveringNotices = true
         try {
-          notifyChangeWatchers(CHANGE_WATCHERS, { document, hasUpdatedSchedule, dialogue: state.dialogue })
+          notifyChangeWatchers(CHANGE_WATCHERS, { document, hasUpdatedSchedule })
         } finally {
           state.isDeliveringNotices = false
         }
-      },
-    },
-    dialogueHolder: {
-      read: () => state.dialogue,
-      replace: (next) => {
-        state.dialogue = next
-      },
-    },
-    dialogueAudience: {
-      deliver: (log) => {
-        state.dialogue = log
       },
     },
     rasterizer: undefined,

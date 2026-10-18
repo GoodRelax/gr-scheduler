@@ -168,7 +168,6 @@ function bench(): Bench {
     showScreenView: (view) => {
       views.push(view)
     },
-    readDialogueInput: () => null,
     readFieldCommit: () => null,
     readScreenPartAt: (x, y) => {
       if (aimed !== null) return aimed

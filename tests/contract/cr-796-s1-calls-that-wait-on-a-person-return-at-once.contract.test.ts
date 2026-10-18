@@ -11,7 +11,6 @@ import {
 } from '../../src/adapter/agent-api-endpoint/agent-api-members'
 import type { AgentSnapshot } from '../../src/adapter/agent-api-endpoint/snapshot-source'
 import { relayTimedOutResult } from '../../src/adapter/mcp-tool-translator/mcp-tool-translator'
-import { emptyDialogueLog } from '../../src/entity/document-model/dialogue-log/dialogue-log'
 import type { Document } from '../../src/entity/document-model/document/document'
 import { NOT_STORED_LIMITS, type EditHistory } from '../../src/entity/document-model/edit-history/edit-history'
 import { emptySelection } from '../../src/entity/document-model/selection/selection'
@@ -54,14 +53,12 @@ function wiringWith(takeInDocument: TakeIn): AgentApiWiring {
   const state = {
     document: startingDocument(),
     history: { done: [], undone: [] } as EditHistory<ChangeStep>,
-    dialogue: emptyDialogueLog(),
   }
   const readSnapshot = (): AgentSnapshot => ({
     defaultTaskGroupName: DEFAULT_TASK_GROUP_NAME,
     document: state.document,
     documentAsWritten: state.document,
     selection: emptySelection(),
-    dialogue: state.dialogue,
     frame: null,
     exportScene: null,
     isGestureInFlight: false,
@@ -84,17 +81,6 @@ function wiringWith(takeInDocument: TakeIn): AgentApiWiring {
       },
     },
     audience: { deliver: () => undefined },
-    dialogueHolder: {
-      read: () => state.dialogue,
-      replace: (next) => {
-        state.dialogue = next
-      },
-    },
-    dialogueAudience: {
-      deliver: (log) => {
-        state.dialogue = log
-      },
-    },
     rasterizer: undefined,
     takeInDocument,
     shownTasks: undefined,

@@ -274,17 +274,6 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-18",
-   "surfaces": [
-    "Dialogue Field"
-   ],
-   "group": "AI",
-   "entryTo": "AI との対話欄を表示する・非表示にする",
-   "authority": "`FR-066`",
-   "arms": null,
-   "armsShape": null
-  },
-  {
    "rowId": "IC-17",
    "surfaces": [
     "App Header"
@@ -789,11 +778,10 @@
     "Properties Panel",
     "Search Panel",
     "Delay Diagnostics Report",
-    "Holiday Settings",
-    "Dialogue Field"
+    "Holiday Settings"
    ],
    "group": null,
-   "entryTo": "開いている面とプロパティパネルとウィンドウ（`FR-036` の 表 T-335 —— ヘルプ・検索パネル・遅延診断レポートの窓・対話欄・担当リストのウィンドウ）を閉じる",
+   "entryTo": "開いている面とプロパティパネルとウィンドウ（`FR-036` の 表 T-335 —— ヘルプ・検索パネル・遅延診断レポートの窓・担当リストのウィンドウ）を閉じる",
    "authority": "表 T-028 の `IN-4`",
    "arms": null,
    "armsShape": null
@@ -995,11 +983,10 @@
     "Help Modal",
     "Search Panel",
     "Delay Diagnostics Report",
-    "Resource List",
-    "Dialogue Field"
+    "Resource List"
    ],
    "group": null,
-   "entryTo": "ウィンドウ（`FR-036` の 表 T-335）を最小化し、同じ入口で戻す（`S-435`・`S-442`・`S-451`・`S-99i`）。<br>⭐ 図形は `IC-75` と同じである",
+   "entryTo": "ウィンドウ（`FR-036` の 表 T-335）を最小化し、同じ入口で戻す（`S-435`・`S-442`・`S-451`）。<br>⭐ 図形は `IC-75` と同じである",
    "authority": "`FR-036` の 表 T-335",
    "arms": null,
    "armsShape": null
@@ -1010,11 +997,10 @@
     "Help Modal",
     "Search Panel",
     "Delay Diagnostics Report",
-    "Resource List",
-    "Dialogue Field"
+    "Resource List"
    ],
    "group": null,
-   "entryTo": "ウィンドウを最大化する（`S-435`・`S-442`・`S-451`・`S-99i`）",
+   "entryTo": "ウィンドウを最大化する（`S-435`・`S-442`・`S-451`）",
    "authority": "`FR-036` の 表 T-335",
    "arms": null,
    "armsShape": null
@@ -1025,11 +1011,10 @@
     "Help Modal",
     "Search Panel",
     "Delay Diagnostics Report",
-    "Resource List",
-    "Dialogue Field"
+    "Resource List"
    ],
    "group": null,
-   "entryTo": "最大化したウィンドウを元のサイズに戻す（`S-435`・`S-442`・`S-451`・`S-99i`）。<br>⭐ `IC-130` の場所に、最大化しているあいだだけ描く",
+   "entryTo": "最大化したウィンドウを元のサイズに戻す（`S-435`・`S-442`・`S-451`）。<br>⭐ `IC-130` の場所に、最大化しているあいだだけ描く",
    "authority": "`FR-036` の 表 T-335",
    "arms": null,
    "armsShape": null

@@ -221,7 +221,6 @@ const EMPTY_VIEW: ScreenView = {
   openModal: null,
   notices: [],
   confirmation: null,
-  dialogueField: null,
   tooltips: [],
 } as unknown as ScreenView
 
@@ -447,7 +446,6 @@ function loopWith(document: Document): Loop {
 
   const surface: ScreenSurface = {
     showScreenView: () => {},
-    readDialogueInput: () => null,
     readFieldCommit: () => {
       const one = held
       held = null

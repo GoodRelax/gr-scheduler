@@ -474,7 +474,6 @@ export function wiringOf(built: Stage, theme: ScreenTheme): ScreenSurfaceWiring 
   return {
     host: built.host,
     mount: built.mount as unknown as Element,
-    readAuthor: (): string => built.author,
     readClockMs: (): number => built.clockMs,
     onAppHeaderHeightMeasured: (heightPx: number): void => {
       built.reportedHeights.push(heightPx)

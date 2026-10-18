@@ -185,7 +185,6 @@ function loopOf(document: Record<string, unknown>): { loop: FrameLoop; drain(): 
   }
   const surface = {
     showScreenView: () => undefined,
-    readDialogueInput: () => null,
     readFieldCommit: () => null,
     readScreenPartAt: () => null,
   }

@@ -87,7 +87,6 @@ function bench(document: Document, fromTemplate: boolean): Bench {
       views.push(view)
       drawn.showScreenView(view)
     },
-    readDialogueInput: () => drawn.readDialogueInput(),
     readFieldCommit: () => drawn.readFieldCommit(),
     readScreenPartAt: () => aimed,
   } as unknown as ScreenSurface

@@ -242,7 +242,7 @@ describe('UF-188 openAgentApiRelayLink: answering the relay (design 3.2, 3.3)', 
     await settle()
     expect(socket.sent[1]).toEqual({ jsonrpc: '2.0', id: 4, result: { hasReplacedEarlierWatch: false } })
     const first = { kind: 'scheduleChanged', stamp: 'stamp-4' }
-    const second = { kind: 'dialogueMessage', text: 'wait' }
+    const second = { kind: 'scheduleChanged', stamp: 'stamp-5' }
     fake.receivers[0]?.(first)
     fake.receivers[0]?.(second)
     await settle()

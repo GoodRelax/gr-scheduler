@@ -5,7 +5,6 @@
 // @seam      SnapshotSource, implemented in another layer (LR-5)
 
 import type { Document } from '../../entity/document-model/document/document'
-import type { DialogueLog } from '../../entity/document-model/dialogue-log/dialogue-log'
 import type { Selection } from '../../entity/document-model/selection/selection'
 import type { ScheduleLayout } from '../../entity/layout-engine/schedule-layout/schedule-layout'
 import type { PlanInput, SettingsLimits } from '../../use-case/apply-document-change/apply-document-change'
@@ -30,7 +29,6 @@ export interface AgentSnapshot {
   // WHY: the document as bytes written now carry it -- AT-140 is the time the lower line shows, never the held one's.
   readonly documentAsWritten: Document
   readonly selection: Selection
-  readonly dialogue: DialogueLog
   readonly frame: FrameSnapshot | null
   readonly exportScene: ExportArguments[0] | null
   readonly isGestureInFlight: boolean

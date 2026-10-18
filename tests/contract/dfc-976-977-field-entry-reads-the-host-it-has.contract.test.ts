@@ -111,7 +111,6 @@ const bench = (focusPropertyField?: ScreenWiring['focusPropertyField']): Bench =
   const notices: FieldEditNotice[] = []
   const surface: ScreenSurface = {
     showScreenView: (view) => void views.push(view),
-    readDialogueInput: () => null,
     readFieldCommit: () => null,
     readScreenPartAt: () => null,
     readFieldEditNotices: () => notices.splice(0, notices.length),

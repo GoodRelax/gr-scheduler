@@ -245,11 +245,6 @@ export type ScreenValuesKey =
   | 'propertiesPanelContentStateMachine.hidden'
   | 'propertiesPanelContentStateMachine.selectionDisplayed'
   | 'propertiesPanelContentStateMachine.documentSettingsDisplayed'
-  | 'dialogueFieldDisplayStateMachine.hidden'
-  | 'dialogueFieldDisplayStateMachine.shown'
-  | 'dialogueFieldDisplayStateMachine.shown.normal'
-  | 'dialogueFieldDisplayStateMachine.shown.minimized'
-  | 'dialogueFieldDisplayStateMachine.shown.maximized'
   | 'dualCursorModeStateMachine.off'
   | 'dualCursorModeStateMachine.on'
   | 'dualCursorModeStateMachine.on.placingCursorA'
@@ -284,11 +279,6 @@ export type ScreenValuesKey =
 export type PaletteDisplayShownState =
   | { readonly kind: 'expanded' }
   | { readonly kind: 'minimized' }
-
-export type DialogueFieldDisplayShownState =
-  | { readonly kind: 'normal' }
-  | { readonly kind: 'minimized' }
-  | { readonly kind: 'maximized' }
 
 export type DualCursorModeOnState =
   | { readonly kind: 'placingCursorA' }
@@ -337,10 +327,6 @@ export type PropertiesPanelContentState =
   | { readonly kind: 'hidden' }
   | { readonly kind: 'selectionDisplayed'; readonly subject: ScreenValuesStateCarried['subject'] }
   | { readonly kind: 'documentSettingsDisplayed' }
-
-export type DialogueFieldDisplayState =
-  | { readonly kind: 'hidden' }
-  | { readonly kind: 'shown'; readonly child: DialogueFieldDisplayShownState }
 
 export type DualCursorModeState =
   | { readonly kind: 'off' }
@@ -401,7 +387,6 @@ export interface ScreenValues {
   readonly openSurfaceState: OpenSurfaceState
   readonly watermarkDisplayState: WatermarkDisplayState
   readonly propertiesPanelContentState: PropertiesPanelContentState
-  readonly dialogueFieldDisplayState: DialogueFieldDisplayState
   readonly dualCursorModeState: DualCursorModeState
   readonly scaleMessageDisplayState: ScaleMessageDisplayState
   readonly tooltipDisplayState: TooltipDisplayState
@@ -438,10 +423,6 @@ export type ScreenValuesEvent =
   | { readonly type: 'selectionMoved'; readonly subject: ScreenValuesEventCarried['subject'] }
   | { readonly type: 'createdNameSettled' }
   | { readonly type: 'settleKeyPressed'; readonly hasSurfaceOrConfirmation: ScreenValuesEventCarried['hasSurfaceOrConfirmation']; readonly hasUnsettledEntry: ScreenValuesEventCarried['hasUnsettledEntry'] }
-  | { readonly type: 'dialogueFieldEntryPressed'; readonly isAgentApiEnabled: ScreenValuesEventCarried['isAgentApiEnabled'] }
-  | { readonly type: 'dialogueFieldMinimizeToggled' }
-  | { readonly type: 'dialogueFieldMaximizeToggled' }
-  | { readonly type: 'dialogueFieldClosePressed' }
   | { readonly type: 'dualCursorEntryPressed'; readonly date: ScreenValuesEventCarried['date']; readonly hasDaysToPlace: ScreenValuesEventCarried['hasDaysToPlace'] }
   | { readonly type: 'guideCursorEntryPressed'; readonly guideCursor: ScreenValuesEventCarried['guideCursor'] }
   | { readonly type: 'dualCursorPlaced'; readonly date: ScreenValuesEventCarried['date'] }
@@ -507,13 +488,11 @@ export type ScreenValuesEffectName =
 
 const SCREEN_VALUES_INITIAL_CHILDREN: {
   readonly 'paletteDisplayStateMachine.shown': PaletteDisplayShownState
-  readonly 'dialogueFieldDisplayStateMachine.shown': DialogueFieldDisplayShownState
   readonly 'dualCursorModeStateMachine.on': DualCursorModeOnState
   readonly 'searchPanelDisplayStateMachine.shown': SearchPanelDisplayShownState
   readonly 'helpDisplayStateMachine.shown': HelpDisplayShownState
 } = {
   'paletteDisplayStateMachine.shown': { kind: 'expanded' },
-  'dialogueFieldDisplayStateMachine.shown': { kind: 'normal' },
   'dualCursorModeStateMachine.on': { kind: 'placingCursorA' },
   'searchPanelDisplayStateMachine.shown': { kind: 'normal' },
   'helpDisplayStateMachine.shown': { kind: 'normal' },
@@ -527,7 +506,6 @@ const SCREEN_VALUES_INITIAL_AXES: ScreenValuesAxes = {
   openSurfaceState: { kind: 'closed' },
   watermarkDisplayState: { kind: 'shown' },
   propertiesPanelContentState: { kind: 'hidden' },
-  dialogueFieldDisplayState: { kind: 'hidden' },
   dualCursorModeState: { kind: 'off' },
   scaleMessageDisplayState: { kind: 'hidden' },
   tooltipDisplayState: { kind: 'allowed' },
@@ -710,7 +688,7 @@ function tooltipDismissed(values: ScreenValues): ScreenStep {
   return moved(values, { tooltipDisplayState: { kind: 'dismissed' } })
 }
 
-export type ToggleableWindowKey = 'searchPanelDisplayState' | 'helpDisplayState' | 'dialogueFieldDisplayState'
+export type ToggleableWindowKey = 'searchPanelDisplayState' | 'helpDisplayState'
 
 // see RG-16, HN-2, T-335
 /** @purity pure */
@@ -737,7 +715,6 @@ function onEscapePressed(values: ScreenValues, event: EventOf<'escapePressed'>):
   if (event.rung === 'searchPanel') return windowRungConsumed(values, 'searchPanelDisplayState')
   if (event.rung === 'surface') return surfaceRungConsumed(values)
   if (event.rung === 'helpModal') return windowRungConsumed(values, 'helpDisplayState')
-  if (event.rung === 'dialogueField') return windowRungConsumed(values, 'dialogueFieldDisplayState')
   if (event.rung === 'armed') return disarmed(values)
   if (event.rung === 'dualCursorMode') return dualCursorCleared(values)
   if (event.rung === 'tooltip') return tooltipDismissed(values)
@@ -870,27 +847,6 @@ function onSettleKeyPressed(values: ScreenValues, event: EventOf<'settleKeyPress
   if (values.propertiesPanelContentState.kind === 'hidden') return unchanged(values)
   if (event.hasSurfaceOrConfirmation || event.hasUnsettledEntry) return unchanged(values)
   return propertiesPutAway(values)
-}
-
-// see T-280
-/** @purity pure */
-function onDialogueFieldEntryPressed(
-  values: ScreenValues,
-  event: EventOf<'dialogueFieldEntryPressed'>,
-): ScreenStep {
-  const field = values.dialogueFieldDisplayState
-  if (field.kind === 'shown' && event.isAgentApiEnabled) return dialogueFieldHidden(values)
-  // WHY: while Agent API is off the same press enables it (FR-066), so a shown field is shown again in WB-1.
-  if (field.kind === 'shown' && field.child.kind === 'normal') return unchanged(values)
-  const child = SCREEN_VALUES_INITIAL_CHILDREN['dialogueFieldDisplayStateMachine.shown']
-  return moved(values, { dialogueFieldDisplayState: { kind: 'shown', child } })
-}
-
-// see T-280, FR-066
-/** @purity pure */
-function dialogueFieldHidden(values: ScreenValues): ScreenStep {
-  if (values.dialogueFieldDisplayState.kind === 'hidden') return unchanged(values)
-  return moved(values, { dialogueFieldDisplayState: { kind: 'hidden' } })
 }
 
 // see T-280, FR-016
@@ -1060,9 +1016,7 @@ function onFileDragLeft(values: ScreenValues): ScreenStep {
   return moved(values, { dropCueDisplayState: { kind: 'hidden' } })
 }
 
-type WindowShownKind = SearchPanelDisplayShownState['kind'] &
-  HelpDisplayShownState['kind'] &
-  DialogueFieldDisplayShownState['kind']
+type WindowShownKind = SearchPanelDisplayShownState['kind'] & HelpDisplayShownState['kind']
 
 const FOCUS_SEARCH_WORD: readonly ScreenValuesEffect[] = [{ type: 'focusSearchWord' }]
 
@@ -1311,10 +1265,6 @@ const HANDLERS: {
   selectionMoved: leavingDrafts(onSelectionMoved),
   createdNameSettled: leavingDrafts(onCreatedNameSettled),
   settleKeyPressed: leavingDrafts(onSettleKeyPressed),
-  dialogueFieldEntryPressed: onDialogueFieldEntryPressed,
-  dialogueFieldMinimizeToggled: (values) => windowDisplayToggled(values, 'dialogueFieldDisplayState', MINIMIZE_TOGGLED_TO),
-  dialogueFieldMaximizeToggled: (values) => windowDisplayToggled(values, 'dialogueFieldDisplayState', MAXIMIZE_TOGGLED_TO),
-  dialogueFieldClosePressed: dialogueFieldHidden,
   dualCursorEntryPressed: onDualCursorEntryPressed,
   guideCursorEntryPressed: onGuideCursorEntryPressed,
   dualCursorPlaced: onDualCursorPlaced,

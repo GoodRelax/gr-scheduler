@@ -133,10 +133,6 @@ copy | scrollOffsetOf.below :: taskgroupanchorat in input command translator ts 
 twin: stale -- names taskGroupAnchorAt, now a delegate; the twin is src/adapter/input-command-translator/input-command-translator.ts#taskGroupAnchorIn
 why: the inverse; the edge runs InputCommandTranslator->ScheduleLayout, so a slab helper published by ScheduleLayout folds both.
 
-coupling | DIALOGUE_ENTRY :: dom screen surface ts role dialoguefield must spell it the
-twin: src/framework/dom-screen-surface/dom-screen-surface.ts#ROLE (dialogueField)
-why: the 'Dialogue Field' literal restated; ROLE is published by DomScreenSurface's entry, but no DomInputSource->DomScreenSurface edge is declared.
-
 coupling | TRUE_TEXT :: must match how textofvalue properties panel ts writes a boolean
 twin: src/adapter/screen-renderer/properties-panel.ts#textOfValue
 why: the text of a boolean agreed across two components; textOfValue is private; DomScreenSurface->ScreenRenderer is declared, so a published constant folds it.
@@ -149,10 +145,6 @@ why: the 'none' paint copied; NOT_DRAWN is private and no DomScreenSurface->SvgR
 coupling | FIELD_FOCUS_WITHDRAWING_KEYS :: spelled as dom input source ts delivers them tab moves
 twin: the key names src/framework/dom-input-source/dom-input-source.ts delivers
 why: key names spelled as the input source delivers them; SingleHtmlShell->DomInputSource is declared, and no key constant is published.
-
-coupling | DIALOGUE_FIELD_SURFACE :: dom screen surface ts s role dialoguefield must spell it
-twin: src/framework/dom-screen-surface/dom-screen-surface.ts#ROLE (dialogueField)
-why: ROLE is published by DomScreenSurface's entry and SingleHtmlShell->DomScreenSurface is declared; nothing stops reading ROLE.dialogueField.
 
 
 copy | frameLoop.isBrowserDefaultStopped.level :: keep in step with receiveinput which spends presses commandfrominput cannot

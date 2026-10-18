@@ -231,7 +231,6 @@ async function stage(saveTo: RecordingHandle, openFrom: RecordingHandle): Promis
   let part: ScreenPart | null = null
   const surface: ScreenSurface = {
     showScreenView: (view) => void views.push(view),
-    readDialogueInput: () => null,
     readFieldCommit: () => null as never,
     readScreenPartAt: () => part,
   }

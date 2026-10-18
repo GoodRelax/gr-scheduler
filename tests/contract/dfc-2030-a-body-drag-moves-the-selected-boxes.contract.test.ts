@@ -187,7 +187,6 @@ function bench(at: Layout): Bench {
   }
   const surface: ScreenSurface = {
     showScreenView: () => undefined,
-    readDialogueInput: () => null,
     readFieldCommit: () => null,
     readScreenPartAt: (): ScreenPart | null => null,
   }

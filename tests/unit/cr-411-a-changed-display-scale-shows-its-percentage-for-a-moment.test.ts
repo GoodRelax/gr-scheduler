@@ -148,7 +148,6 @@ const bench = (displayScale: number): Bench => {
       views.push(view)
       real.showScreenView(view)
     },
-    readDialogueInput: () => real.readDialogueInput(),
     readFieldCommit: () => real.readFieldCommit(),
     readScreenPartAt: () => part,
   }

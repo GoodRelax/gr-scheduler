@@ -107,37 +107,6 @@ function isHeldEscapeRepeat(event: { readonly key: string; readonly repeat: bool
   return event.key === HOST_ESCAPE && event.repeat
 }
 
-// TRAP: dom-screen-surface.ts ROLE.dialogueField must spell it the same; a misspelling
-// hands the typed letters to table T-036 again.
-const DIALOGUE_ENTRY = '[data-role="Dialogue Field"] input'
-const HOST_DELETE = 'Delete'
-const HOST_BACKSPACE = 'Backspace'
-const HOST_COPY = 'C'
-const HOST_PASTE = 'V'
-const HOST_SELECT_ALL = 'A'
-
-// see IN-5a, SK-2, SK-4, SK-5
-/** @purity semi-pure-b */
-function isTypedIntoDialogueEntry(event: {
-  readonly key: string
-  readonly target: EventTarget | null
-  readonly ctrlKey: boolean
-  readonly altKey: boolean
-  readonly metaKey: boolean
-}): boolean {
-  const target = event.target as { closest?: unknown } | null | undefined
-  if (target === null || target === undefined || typeof target.closest !== 'function') {
-    return false
-  }
-  if ((target as Element).closest(DIALOGUE_ENTRY) === null) return false
-  if (event.altKey || event.metaKey) return false
-  if (event.ctrlKey) {
-    const letter = event.key.toUpperCase()
-    return letter === HOST_COPY || letter === HOST_PASTE || letter === HOST_SELECT_ALL
-  }
-  return event.key.length === 1 || event.key === HOST_DELETE || event.key === HOST_BACKSPACE
-}
-
 // see T-023, S-514, S-515, S-516
 /** @purity pure */
 function pixelsPerUnit(deltaMode: number, pageSize: number): number {
@@ -350,7 +319,7 @@ export function domInputSource(
   function onKeyDown(event: Event): void {
     if (watcher === null) return
     const key = event as KeyboardEvent
-    if (isHeldEscapeRepeat(key) || isTypedIntoDialogueEntry(key)) return
+    if (isHeldEscapeRepeat(key)) return
     deliver({ kind: 'key', key: keyOf(key), modifiers: modifiersOf(key) }, key)
   }
 

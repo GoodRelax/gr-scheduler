@@ -98,7 +98,6 @@ function stage(): Stage {
   const views: ScreenView[] = []
   const surface: ScreenSurface = {
     showScreenView: (view) => void views.push(view),
-    readDialogueInput: () => null,
     readFieldCommit: () => null,
     readScreenPartAt: () => null,
   }

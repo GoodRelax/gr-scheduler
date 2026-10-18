@@ -228,7 +228,6 @@ const RUNGS = [
   'searchPanel',
   'helpModal',
   'delayDiagnosticsReport',
-  'dialogueField',
   'propertiesPanel',
   'armed',
   'selection',
@@ -372,8 +371,6 @@ function guardHolds(name: string, session: ScreenSession, event: Loose): boolean
       return event['rung'] === 'helpModal'
     case 'isRungSearchPanel':
       return event['rung'] === 'searchPanel'
-    case 'isRungDialogueField':
-      return event['rung'] === 'dialogueField'
     case 'isSurfaceTarget':
       return event['target'] === 'surface'
     case 'isPanelTarget':
@@ -749,28 +746,4 @@ describe('CR-571 (T-280, T-330, T-332): searchPanelDisplayStateMachine cells', (
     if (key === `${SEARCH}.shown.maximized`) expect(kindPath(screenOf(result.state)[SEARCH_AXIS])).toEqual(['shown', 'normal'])
     else expect(result.state).toBe(session)
   })
-})
-
-describe('CR-562 (T-280, FR-066, IC-18): the dialogue field entry while Agent API is disabled', () => {
-  const event = { type: 'dialogueFieldEntryPressed', isAgentApiEnabled: false }
-
-  it('starts hidden (CR-621, S-99i)', () => {
-    expect(kindPath(screenOf(emptyScreenSession)['dialogueFieldDisplayState'])).toEqual(['hidden'])
-  })
-
-  it.each([
-    'dialogueFieldDisplayStateMachine.hidden',
-    'dialogueFieldDisplayStateMachine.shown.normal',
-    'dialogueFieldDisplayStateMachine.shown.minimized',
-    'dialogueFieldDisplayStateMachine.shown.maximized',
-  ])(
-    '%s x dialogueFieldEntryPressed [not isAgentApiEnabled] -> shown.normal, no notice, no effect',
-    (key) => {
-      const session = sessionIn(key)
-      expectStepMatchesManuscript(session, event)
-      const result = step(session, event)
-      expect(kindPath(screenOf(result.state)['dialogueFieldDisplayState'])).toEqual(['shown', 'normal'])
-      expect(result.effects).toEqual([])
-    },
-  )
 })

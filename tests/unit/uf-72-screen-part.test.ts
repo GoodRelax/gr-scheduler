@@ -48,8 +48,8 @@
 //                   entry is the side that answers where it is
 //   表 T-023a       (MUST, 01-04-requirements.md:2251) 判定順序を適用するのは
 //                   日程の描画領域だけとすること -- the floating palette, the
-//                   open surface, the `Notification Area` and the dialogue
-//                   field hold no `ScreenRegions` rectangle, so a non-null
+//                   open surface and the `Notification Area`
+//                   hold no `ScreenRegions` rectangle, so a non-null
 //                   answer over them is what stops a press from becoming PTD-5's
 //                   marquee underneath
 //   表 T-023b       the arms, and the entries of 表 T-109 that set them
@@ -120,7 +120,6 @@ import type {
   AppHeaderItems,
   CommandItem,
   CommandPalette,
-  DialogueField,
   Notice,
   HelpModal,
   TaskGroupExpander,
@@ -241,7 +240,6 @@ const T_103_PARTS = [
   { row: 'U-31', name: 'App Header' },
   { row: 'U-34', name: 'Palette Commands' },
   { row: 'U-35', name: 'Header Commands' },
-  { row: 'U-44', name: 'Dialogue Field' },
   { row: 'U-47', name: 'Task Group Expander' },
   { row: 'U-57', name: 'Notification Area' },
 ] as const
@@ -1171,7 +1169,6 @@ function wiringOf(built: Stage): ScreenSurfaceWiring {
   return {
     host: built.host,
     mount: built.mount as unknown as Element,
-    readAuthor: (): string => 'Watcher',
     readClockMs: (): number => Date.UTC(2026, 7, 21, 3, 4, 5),
     onAppHeaderHeightMeasured: (heightPx: number): void => {
       built.reportedHeights.push(heightPx)
@@ -1408,7 +1405,6 @@ const LAYOUT = new Map<string, ScreenRect>([
   [`icon:${T_109_GRAB_BAND.row}`, GRAB_BAND_BOX],
   ['role:Help Modal', rect(500, 380, 400, 300)],
   [`role:${partName('U-57')}`, rect(700, 40, 280, 80)],
-  ['role:Dialogue Field', rect(200, 700, 600, 60)],
   ['icon:IC-52', rect(860, 390, ENTRY, ENTRY)],
   ...Object.entries(HEADER_ENTRY_X).map(
     ([icon, x]): [string, ScreenRect] => [`icon:${icon}`, rect(x, 8, ENTRY, ENTRY)],
@@ -1439,7 +1435,6 @@ const AT = {
   modalOnly: { x: 520, y: 650 },
   modalEntry: { x: 870, y: 400 },
   notices: { x: 900, y: 100 },
-  dialogue: { x: 300, y: 730 },
   taskGroupPin: { x: 144, y: 64 },
   // ⚠️ EACH ONE STEP FURTHER LEFT THAN BEFORE 2026-08-30: HF-1 counts a third
   // control per task group now (IC-77, HF-11), and the four are placed from the right
@@ -1590,13 +1585,6 @@ const NOTICE: Notice = {
   raisedNotices: [],
 }
 
-const DIALOGUE: DialogueField = {
-  messages: [
-    { sequence: 1, author: 'Someone', text: 'MessageOne', settledAt: '2026-08-20T00:00:00Z' },
-  ],
-  heading: '', shown: 'normal', titleEntries: [], place: { at: null, size: null }, canvas: { x: 0, y: 0, width: 800, height: 600 },
-}
-
 const BASE_VIEW: ScreenView = {
   // S-99. `readScreenPartAt` answers with rectangles and entry ids, never with
   // a word, so this member is inert for every case below.
@@ -1625,7 +1613,6 @@ const BASE_VIEW: ScreenView = {
   // what every other absent surface here already carries.
   // ⛔ THIS FILE STILL HAS NO CASE FOR THE CONFIRMATION -- see the report.
   confirmation: null,
-  dialogueField: null,
   tooltips: [],
 }
 
@@ -1636,7 +1623,6 @@ const OVER_THE_SCHEDULE: ScreenView = viewWith({
   commandPalette: PALETTE,
   helpModal: HELP_MODAL,
   notices: [NOTICE],
-  dialogueField: DIALOGUE,
 })
 
 /** The palette with nothing over it. */
@@ -1652,7 +1638,6 @@ describe('the specification still says what these cases copy', () => {
     const supply = row?.cells[row.cells.length - 1] ?? ''
     // The two halves that were always there.
     expect(supply).toContain('作った記述を画面に載せ')
-    expect(supply).toContain('対話欄で確定した発話を返')
     // ⭐ CR-192's third, which is what this whole file tests.
     expect(supply).toContain('画面上の点')
     expect(supply).toContain('UI パーツ')
@@ -1812,11 +1797,11 @@ describe('R7.3 / LY-5 -- the browser arrives, it is not reached for', () => {
 describe('IF-9 of 表 T-065 -- one member per supply the cell names', () => {
   it('publishes readScreenPartAt beside the other members IF-9 names', () => {
     // ⭐ THE MEMBERS ARE WORKED OUT FROM THE CELL, NOT COUNTED. IF-9 reads
-    // 「作った記述を画面に載せ、対話欄で確定した発話を返し、**プロパティパネルの
-    // 欄で確定した値を、その欄が名乗る行 ID とともに返し**、**まだ確定していない
-    // 文字入力があるかを答え**、**画面上の点がどの
-    // UI パーツ（表 T-103）のどの入口（表 T-109）の上か…を答える**」 -- five
-    // duties, and `screen-surface.ts` gives each one a member and says which
+    // 「作った記述を画面に載せ、**編集できる欄で確定した値を、その欄が名乗る
+    // 行 ID とともに返し**、文字入力を受ける欄で編集が始まったことと終わった
+    // ことを…知らせ、**画面上の点がどの
+    // UI パーツ（表 T-103）のどの入口（表 T-109）の上か…を答える**」 -- and
+    // `screen-surface.ts` gives each duty a member and says which
     // clause it serves. ⚠️ The third and the fourth each arrived after this case
     // was written; the list below is what the cell names TODAY, and the case
     // falls again the day a supply is added or dropped rather than merely when a
@@ -1824,7 +1809,6 @@ describe('IF-9 of 表 T-065 -- one member per supply the cell names', () => {
     const surface = surfaceOf(wire())
 
     expect(Object.keys(surface).sort()).toEqual([
-      'readDialogueInput',
       'readFieldCommit',
       // WHY: IF-9's begin/end notices (CR-500 wave B) replaced the boolean member (DFC-1876).
       'readFieldEditNotices',
@@ -1869,7 +1853,7 @@ describe('IF-9 of 表 T-065 -- one member per supply the cell names', () => {
 
 describe("表 T-023a (MUST) -- the decision order is the drawing area's alone", () => {
   // ⛔ 01-04-requirements.md:2251 「判定順序を適用するのは日程の描画領域だけとする
-  // こと（MUST）」. The four parts below hold no `ScreenRegions` rectangle -- PI-35
+  // こと（MUST）」. The three parts below hold no `ScreenRegions` rectangle -- PI-35
   // has six and none of them is one of these -- so `regionAtPointer` answers
   // `taskGroupArea` for a point on any of them. A non-null answer here is what stops
   // PTD-5's marquee from starting underneath an open surface.
@@ -1879,7 +1863,6 @@ describe("表 T-023a (MUST) -- the decision order is the drawing area's alone", 
     // ⭐ U-57 of 表 T-103 settled the name of the part the notices stand in, so
     // the case's own title now quotes the table instead of an invented spelling.
     { part: partName('U-57'), at: AT.notices, why: 'FR-076 raises it over the screen' },
-    { part: 'Dialogue Field', at: AT.dialogue, why: 'FR-066 puts it up' },
   ] as const
 
   it.each(overTheSchedule)(

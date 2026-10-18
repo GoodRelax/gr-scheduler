@@ -184,7 +184,6 @@ export function shell(
     showScreenView: (view) => {
       views.push(view)
     },
-    readDialogueInput: () => null,
     readFieldCommit: () => null,
     readFieldEditNotices: () => pendingEdits.splice(0, pendingEdits.length),
     readScreenPartAt: () => part,

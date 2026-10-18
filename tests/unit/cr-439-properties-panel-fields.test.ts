@@ -118,7 +118,6 @@ function viewWith(panel: PropertiesPanel | null): ScreenView {
     openModal: null,
     notices: [],
     confirmation: null,
-    dialogueField: null,
     tooltips: [],
   }
 }

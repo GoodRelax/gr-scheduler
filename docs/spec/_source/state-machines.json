@@ -124,12 +124,6 @@
      },
      {
       "in": "helpDisplayStateMachine.shown.maximized"
-     },
-     {
-      "in": "dialogueFieldDisplayStateMachine.shown.normal"
-     },
-     {
-      "in": "dialogueFieldDisplayStateMachine.shown.maximized"
      }
     ],
     "also": {
@@ -139,13 +133,12 @@
      "IN-4",
      "SV-14",
      "HN-2",
-     "FR-066",
      "FR-152",
      "RW-1",
      "RO-1"
     ],
     "note": {
-     "ja": "1 度の `Esc` で 1 つだけ閉じる。焦点がその中にあるウィンドウが先、ほかは 表 T-337 の手前から（`IN-4`）。焦点がプロパティパネルの中にあるあいだは立たない —— `RG-14` が先に受ける（`IN-4`）。最小化したウィンドウは立たない。検索パネルは、列のフィルタが開いていればフィルタだけを閉じる（`SV-14`）。遅延診断レポートの窓は窓だけを閉じ、診断の表示は終えない（`RW-1`）。担当リストのウィンドウを閉じると担当リストの表のスケジュールフィルタを解除する（`RO-1`）。対話欄は `Agent API` が有効なあいだだけ立つ（`FR-066`）。`escapePressed` の `rung` の語は `searchPanel` ・ `helpModal` ・ `delayDiagnosticsReport` ・ `resourceList` ・ `dialogueField`"
+     "ja": "1 度の `Esc` で 1 つだけ閉じる。焦点がその中にあるウィンドウが先、ほかは 表 T-337 の手前から（`IN-4`）。焦点がプロパティパネルの中にあるあいだは立たない —— `RG-14` が先に受ける（`IN-4`）。最小化したウィンドウは立たない。検索パネルは、列のフィルタが開いていればフィルタだけを閉じる（`SV-14`）。遅延診断レポートの窓は窓だけを閉じ、診断の表示は終えない（`RW-1`）。担当リストのウィンドウを閉じると担当リストの表のスケジュールフィルタを解除する（`RO-1`）。`escapePressed` の `rung` の語は `searchPanel` ・ `helpModal` ・ `delayDiagnosticsReport` ・ `resourceList`"
     }
    },
    {
@@ -831,61 +824,6 @@
        "name": "hasUnsettledEntry"
       }
      ]
-    },
-    {
-     "key": "dialogueFieldEntryPressed",
-     "source": {
-      "kind": "input",
-      "rows": [
-       "IC-18",
-       "FR-066"
-      ]
-     },
-     "carries": [
-      {
-       "name": "isAgentApiEnabled"
-      }
-     ]
-    },
-    {
-     "key": "dialogueFieldMinimizeToggled",
-     "source": {
-      "kind": "input",
-      "rows": [
-       "IC-129"
-      ],
-      "note": {
-       "ja": "対話欄のタイトルバーの最小化の入口"
-      }
-     },
-     "carries": []
-    },
-    {
-     "key": "dialogueFieldMaximizeToggled",
-     "source": {
-      "kind": "input",
-      "rows": [
-       "IC-130",
-       "IC-131"
-      ],
-      "note": {
-       "ja": "対話欄のタイトルバーの最大化と元に戻す入口"
-      }
-     },
-     "carries": []
-    },
-    {
-     "key": "dialogueFieldClosePressed",
-     "source": {
-      "kind": "input",
-      "rows": [
-       "IC-52"
-      ],
-      "note": {
-       "ja": "対話欄の閉じる入口"
-      }
-     },
-     "carries": []
     },
     {
      "key": "dualCursorEntryPressed",
@@ -2708,195 +2646,6 @@
          "SK-19",
          "FR-070"
         ]
-       }
-      }
-     }
-    },
-    {
-     "name": "dialogueFieldDisplayStateMachine",
-     "states": [
-      {
-       "key": "hidden",
-       "parent": null,
-       "initial": true,
-       "carries": [],
-       "evidence": [
-        "S-99i",
-        "FR-066"
-       ]
-      },
-      {
-       "key": "shown",
-       "parent": null,
-       "initial": false,
-       "carries": [],
-       "evidence": [
-        "S-99i",
-        "FR-066"
-       ]
-      },
-      {
-       "key": "shown.normal",
-       "parent": "shown",
-       "initial": true,
-       "carries": [],
-       "evidence": [
-        "S-99i",
-        "WB-1"
-       ]
-      },
-      {
-       "key": "shown.minimized",
-       "parent": "shown",
-       "initial": false,
-       "carries": [],
-       "evidence": [
-        "S-99i",
-        "WB-2",
-        "IC-129"
-       ]
-      },
-      {
-       "key": "shown.maximized",
-       "parent": "shown",
-       "initial": false,
-       "carries": [],
-       "evidence": [
-        "S-99i",
-        "WB-3",
-        "IC-130"
-       ]
-      }
-     ],
-     "transitions": {
-      "dialogueFieldEntryPressed": {
-       "hidden": {
-        "to": "shown.normal",
-        "evidence": [
-         "S-99i",
-         "IC-18",
-         "FR-066"
-        ],
-        "note": {
-         "ja": "`Agent API` が無効なら、同じ押しで有効にもなる（`agentApi/enablingAskedByDialogueField`）"
-        }
-       },
-       "shown": [
-        {
-         "to": "hidden",
-         "guard": [
-          {
-           "name": "isAgentApiEnabled"
-          }
-         ],
-         "evidence": [
-          "S-99i",
-          "IC-18"
-         ]
-        },
-        {
-         "to": "shown.normal",
-         "guard": [
-          {
-           "name": "isAgentApiEnabled",
-           "not": true
-          }
-         ],
-         "evidence": [
-          "FR-066",
-          "IC-18"
-         ],
-         "note": {
-          "ja": "欄を通常で出し直す。同じ押しで `Agent API` が有効になるので欄が出る（`agentApi/enablingAskedByDialogueField`）"
-         }
-        }
-       ]
-      },
-      "dialogueFieldMinimizeToggled": {
-       "shown.normal": {
-        "to": "shown.minimized",
-        "evidence": [
-         "WB-1",
-         "IC-129"
-        ]
-       },
-       "shown.minimized": {
-        "to": "shown.normal",
-        "evidence": [
-         "WB-2",
-         "WB-5"
-        ]
-       },
-       "shown.maximized": {
-        "to": "shown.minimized",
-        "evidence": [
-         "WB-3",
-         "IC-129"
-        ]
-       }
-      },
-      "dialogueFieldMaximizeToggled": {
-       "shown.normal": {
-        "to": "shown.maximized",
-        "evidence": [
-         "WB-1",
-         "IC-130"
-        ]
-       },
-       "shown.minimized": {
-        "to": "shown.maximized",
-        "evidence": [
-         "WB-2",
-         "IC-130"
-        ]
-       },
-       "shown.maximized": {
-        "to": "shown.normal",
-        "evidence": [
-         "WB-3",
-         "IC-131"
-        ]
-       }
-      },
-      "dialogueFieldClosePressed": {
-       "shown": {
-        "to": "hidden",
-        "evidence": [
-         "IC-52",
-         "FR-066"
-        ]
-       }
-      },
-      "escapePressed": {
-       "shown.normal": {
-        "to": "hidden",
-        "guard": [
-         {
-          "name": "isRungDialogueField"
-         }
-        ],
-        "evidence": [
-         "IN-4",
-         "FR-066"
-        ],
-        "note": {
-         "ja": "`Agent API` は有効のまま（`FR-066`）"
-        }
-       },
-       "shown.maximized": {
-        "to": "hidden",
-        "guard": [
-         {
-          "name": "isRungDialogueField"
-         }
-        ],
-        "evidence": [
-         "IN-4",
-         "FR-066"
-        ],
-        "note": {
-         "ja": "`Agent API` は有効のまま（`FR-066`）"
-        }
        }
       }
      }
@@ -8353,20 +8102,6 @@
      "carries": []
     },
     {
-     "key": "enablingAskedByDialogueField",
-     "source": {
-      "kind": "input",
-      "rows": [
-       "IC-18",
-       "FR-066"
-      ],
-      "note": {
-       "ja": "`IC-18` を押した。`Agent API` が無効なら有効にする —— 対話欄の入口は `Agent API` を無効にしない"
-      }
-     },
-     "carries": []
-    },
-    {
      "key": "rememberedEnablingLoaded",
      "source": {
       "kind": "effectResult",
@@ -8412,7 +8147,6 @@
        "carries": [],
        "evidence": [
         "FR-065",
-        "FR-066",
         "S-99b"
        ]
       }
@@ -8435,20 +8169,6 @@
          "RS-20",
          "NT-5"
         ]
-       }
-      },
-      "enablingAskedByDialogueField": {
-       "disabled": {
-        "to": "enabled",
-        "effect": "storeAgentApiEnabling",
-        "evidence": [
-         "FR-065",
-         "FR-066",
-         "IC-18"
-        ],
-        "note": {
-         "ja": "有効をブラウザ（オリジン）の記憶に書く"
-        }
        }
       },
       "rememberedEnablingLoaded": {

@@ -243,7 +243,6 @@ function bench(document: Document): Bench {
     showScreenView: (view) => {
       views.push(view)
     },
-    readDialogueInput: () => null,
     readFieldCommit: () => null as never,
     readScreenPartAt: () => null as ScreenPart | null,
   }

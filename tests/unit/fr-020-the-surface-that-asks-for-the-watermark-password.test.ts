@@ -318,7 +318,6 @@ function drawnOn(language: DisplayLanguage): FakeElement {
   const surface = domScreenSurface({
     host: built.host,
     mount: built.mount as unknown as Element,
-    readAuthor: (): string => '',
     readClockMs: (): number => 0,
     onAppHeaderHeightMeasured: (): void => {},
     readTheme: (): ScreenTheme => THEME,
@@ -333,7 +332,6 @@ function drawnOn(language: DisplayLanguage): FakeElement {
     openModal: describedOn(language),
     notices: [],
     confirmation: null,
-    dialogueField: null,
     tooltips: [],
   } as unknown as ScreenView
   surface.showScreenView(view)

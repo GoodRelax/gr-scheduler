@@ -1127,7 +1127,6 @@ function screenPane(language: DisplayLanguage = 'ja', themePreference: 'light' |
     showScreenView: (view) => {
       last = view
     },
-    readDialogueInput: () => null,
     readFieldCommit: () => null,
     readScreenPartAt: () => part,
   }

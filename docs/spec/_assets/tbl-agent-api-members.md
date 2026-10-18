@@ -12,9 +12,9 @@
 規則は 表 T-035 と、「正」の列が指す要求が持つ。  
 本書は 表 T-107 と 表 T-400 の全行を印字する。
 
-**`Agent API` は 1 つの面に 23 のメンバをフラットに並べる。**  
+**`Agent API` は 1 つの面に 21 のメンバをフラットに並べる。**  
 用途別に分けない理由は Chapter 5.2 が持つ（`R2.5`）。  
-いまの版は `2026-10-17T15:27:48Z` である（`AM-1` が返す値）。  
+いまの版は `2026-10-18T02:15:42Z` である（`AM-1` が返す値）。  
 版は、文書の形式の版（`FR-073`）と同じ書式の日時である —— 呼び方を変える変更は、版をその変更を当てる時刻へ上げる（表 T-035 の `AG-1`）。  
 ⭐ **呼び方（引数の名・型・意味と戻り値）は本表と 表 T-400 が持つ** —— コードの `AgentApi` の型と、MCP の道具の入力の形は本表の原稿から生成し、手で書かない。  
 境界値は Chapter 6.1 が持つ。
@@ -28,7 +28,6 @@
 | AM-3 | 読む | `readDocument` | 動詞＋目的語・`semi-pure-b` | `includeCarry`: `boolean` —— MSPDI の持ち越しの欄（`carry`・`carryElements`）を含めるか —— 省けば `false`<br>`taskUids`: `readonly number[]` —— 読むタスクの `uid` の並び —— 空か省けば全部 | `Document`（表 T-064 の `PI-34`） | 文書の凍結された複製。<br>ルートの 3 群すべてを含む。<br>⭐ 既定では MSPDI の持ち越しの欄（`carry`・`carryElements`）を除き、`includeCarry` が `true` のときだけ含める —— 持ち越しの欄は、MS Project の交換形式から開いた 256 タスクの見本の文書で 84% を占め（1,383,668 字のうち、除くと 220,379 字）、AI の受け口を超える。<br>GRS で作った文書では持ち越しの欄の多くが空なので、減り方はずっと小さい。<br>`taskUids` が空でなければ、タスクに属する 6 つの群（`tasks`・`assignments`・`taskVisuals`・`taskGroupMembers`・`taskOrigins`・`baselineTasks`）をそのタスクだけにする。 | 表 T-035 の `AG-4` ／ 表 T-052 の `DR-1` |
 | AM-4 | 読む | `readStamp` | 動詞＋目的語・`semi-pure-b` | — | `DocumentStamp`（表 T-064 の `PI-3`） | 文書の刻印。<br>楽観ロックの照合に用いる | 表 T-035 の `AG-2` ／ `FR-063` |
 | AM-5 | 読む | `readSelection` | 動詞＋目的語・`semi-pure-b` | — | `Selection`（表 T-064 の `PI-32`） | いま選ばれている対象。<br>選んだ順序を保つ | 表 T-023c の `SL-1` / `SL-7b` |
-| AM-6 | 読む | `readDialogueMessages` | 動詞＋目的語・`semi-pure-b` | — | `readonly DialogueMessage[]`（`AV-13`） | 人が確定した発話。<br>文書には保存されない | 表 T-035 の `AG-11` ／ `FR-066` |
 | AM-25 | 読む | `readSearchRows` | 動詞＋目的語・`semi-pure-b` | `word`: `string` —— 探す語 —— 空なら絞らない（全体の目次として読める）<br>`filters`: `'asShown'` か `'none'` —— `asShown`（省けばこれ）は人が検索パネルのタスクの表に掛けている列のフィルタと並べ替えを当て、`none` は当てない<br>`offset`: `number` —— タスクの行の最初に返す位置（0 から） —— 省けば 0<br>`limit`: `number` —— 返すタスクの行の数 —— 省けば 100、上限 100 | `AgentSearchPage`（`AV-16`） | 語を 1 つ受け、検索パネルの 2 つの表と同じ行を返す。<br>パネルの入力欄は読みも変えもしない。<br>⭐ `filters` が `asShown` なら、人が検索パネルのタスクの表に掛けている列のフィルタと並べ替え（`_assets/tbl-settings.md` の `S-562`・`S-563`）をタスクの行に当てる —— 人が見ている表と同じ行が同じ順で返る。<br>AI が列のフィルタと並べ替えを変えるのは `applyCommands` の `setTableView`（表 T-108 の `CM-92`）であり、人の画面の表も同じに変わる。<br>タスクの行は `offset` から `limit` まで返す —— 上限 100 は、空の語の 1 行が約 445 字（1,000 行で 418,200 字を測った）なので約 4.5 万字に収める値である。<br>答えはタスクの表の列の一覧（列の行 ID・画面の名・値の種類）と全部の行数と次の `offset` を持つ（`AV-16`）。<br>⭐ ステータス（`SQ-5`）は、遅延診断を出していないときの値（`PM-4` か 表 T-019a の状態）で返す —— 診断の値（表 T-315 の `DG-1` 〜 `DG-3`）は `AM-19` の 表 T-317 の `DX-8` が返す（`FR-134` の、AI へ渡す道は 1 つ）。<br>⚠️ 遅延診断はしない —— ステータスの遅れは、予定の日が基準日を過ぎたタスク・マイルストーン（表 T-021b）を返すだけであり、信用できない・要修正 (?)・ボトルネック・ボトルネック経路 (!!) は入らない。<br>正確な遅延の解析には遅延診断（`readDelayDiagnostics`、`AM-19`）が要る | `FR-151` の 表 T-330 の `SV-4` ／ 表 T-331  |
 | AM-28 | 読む | `readTableRows` | 動詞＋目的語・`semi-pure-b` | `table`: `'delayDiagnosticsReport'` か `'resourceList'` —— 読む表 —— 遅延診断レポートの表か担当リストの表<br>`word`: `string` —— 表の入力欄と同じ読み方で行を絞る語 —— 空なら絞らない<br>`filters`: `'asShown'` か `'none'` —— `asShown`（省けばこれ）は人がその表に掛けている列のフィルタと並べ替えを当て、`none` は当てない<br>`offset`: `number` —— 最初に返す行の位置（0 から） —— 省けば 0<br>`limit`: `number` —— 返す行の数 —— 省けば 100、上限 100 | `AgentTableRows`（`AV-18`） | 遅延診断レポートの表（`FR-134` の 表 T-347）か担当リストの表（`FR-099` の 表 T-371）の行を、ページに分けて返す。<br>⭐ `filters` が `asShown` なら、人がその表に掛けている列のフィルタと並べ替え（`_assets/tbl-settings.md` の `S-566`・`S-567`・`S-571`・`S-572`）を当てる —— 人が見ている表と同じ行が同じ順で返る。<br>表の入力欄は読みも変えもしない。<br>遅延診断レポートの表は、`AM-19` と同じ診断をその時に行って作る —— 画面の値も文書も書かない。<br>1 回に返す行は `limit` まで（上限 100）で、答えは列の一覧と全部の行数と次の `offset` を持つ（`AV-18`）。<br>AI が列のフィルタと並べ替えを変えるのは `applyCommands` の `setTableView`（表 T-108 の `CM-92`）であり、人の画面の表も同じに変わる。<br>⚠️ 検索パネルの表は `readSearchRows`（`AM-25`）が読む —— 1 つの表を読む道は 1 つである。 | `FR-134` の 表 T-347 ／ `FR-099` の 表 T-371 ／ `FR-151` の 表 T-353 |
 | AM-26 | 読む | `readShownTasks` | 動詞＋目的語・`semi-pure-b` | — | `AgentShownTasks`（`AV-8`） | いま日程表に描いているタスクの `uid` の並び（`01-04-requirements.md` の 表 T-353 の `TV-1` の積 —— スケジュールフィルタを掛けた表が 1 つも無ければ `null`）と、スケジュールフィルタを掛けている表の名（`searchPanel`・`delayDiagnosticsReport`・`resourceList`）の並びを返す。<br>返すだけで、画面も文書も書かない | `FR-151` の 表 T-353 |
@@ -44,8 +43,7 @@
 | AM-15 | 出す | `exportEmbeddedHtml` | 動詞＋目的語・`semi-pure-b` | — | `Promise<AgentExport<string>>`（`AV-5`） | 本体と文書を合わせた 1 つの `.html` を値で返す | 表 T-024 の `IO-7` ／ `FR-067` |
 | AM-16 | 見せる | `focusTask` | 動詞＋目的語・`non-pure` | `taskUid`: `number` —— 見せるタスクの `uid` | `AgentFocusOutcome`（`AV-6`） | 指定したタスクが載るタスクグループと祖先を展開し、見える位置へ表示を寄せる | `FR-151` の 表 T-332 の `SJ-9` |
 | AM-27 | 見せる | `showOnlyTasks` | 動詞＋目的語・`non-pure` | `taskUids`: `readonly number[]` —— 表示にするタスクの `uid` の並び —— 空の並びは解除 | `AgentWriteOutcome`（`AV-2`） | `uid` の並びを受けて、検索の表の表示の列を、並びのタスクを「表示」・ほかのすべてを「非表示」に置き換え、検索の表のスケジュールフィルタを掛ける。<br>空の並びを受けたら検索の表のスケジュールフィルタを解除する（表示の列の値は残す）。<br>解除を `null` にしないのは、道具の入力に型の並びを刷らないためである（表 T-035 の `AG-12` の ⑧）。<br>検索パネルが出ていなければ最小化で出してから掛ける —— スケジュールフィルタはウィンドウと一緒に生きる（`TV-8`）。<br>掛けたら帯（`U-67`）が出る —— 人の画面に何が起きたかが残る。<br>展開は `TV-6` のとおり —— 検索の表のスケジュールフィルタを掛けているあいだに「非表示」から「表示」に戻った行のタスクだけを展開する。<br>⚠️ 遅延診断レポートの表と担当リストの表のスケジュールフィルタには触れない。<br>出す命令は `setTableView`（表 T-108 の `CM-92`）1 つであり、未保存の編集（`FR-100`）で取り消しの 1 段である（`FR-031` の 表 T-027 の `UN-20`） | `FR-151` の 表 T-353 の `TV-5` 〜 `TV-8` |
-| AM-17 | 待つ | `watchChanges` | 動詞＋目的語・`non-pure` | `receive`: `AgentChangeReceiver`（`AV-10`） —— 変更を受け取る手<br>⚠️ MCP だけの鍵 `waitMs`: `number` —— 待つ長さ（ミリ秒） —— 切れたら「まだ無い」を値で返す（`AG-12` の ⑤） —— 取次の締め切り（`_assets/design-mcp-relay.md` の 5）より短い 40,000 で頭打ちにする | `AgentWatch`（`AV-11`） | 自分以外が確定した変更と発話を待つ | 表 T-035 の `AG-6` / `AG-11` |
-| AM-18 | 話す | `postDialogueMessage` | 動詞＋目的語・`non-pure` | `text`: `string` —— 置く発話 | `AgentDialogueMessageOutcome`（`AV-12`） | AI が確定した発話を対話欄へ置く | `FR-066` ／ 表 T-035 の `AG-11` |
+| AM-17 | 待つ | `watchChanges` | 動詞＋目的語・`non-pure` | `receive`: `AgentChangeReceiver`（`AV-10`） —— 変更を受け取る手<br>⚠️ MCP だけの鍵 `waitMs`: `number` —— 待つ長さ（ミリ秒） —— 切れたら「まだ無い」を値で返す（`AG-12` の ⑤） —— 取次の締め切り（`_assets/design-mcp-relay.md` の 5）より短い 40,000 で頭打ちにする | `AgentWatch`（`AV-11`） | 自分以外が確定した変更を待つ | 表 T-035 の `AG-6` |
 
 ⚠️ **見せ方の群を読む面も、書く面も置かない。**  
 見せ方の群は文書の一部であり（表 T-052 の `DR-1` / `DR-3`）、**読むのは `AM-3`、書くのは `AM-7` である。**  
@@ -56,7 +54,7 @@
 
 本表は、表 T-107 の引数と戻り値が名指す型のうち、表 T-064 に行を持たないものの欄を持つ。  
 欄の型が名指すほかの型は、型の後ろの括弧が指す行が持つ。  
-`AV-13` と `AV-14` は、ほかのコンポーネント（`DialogueLog`・`NotifyChangeWatchers`）が宣言する型である —— 欄の名は本表と同じとする。
+`AV-14` は、ほかのコンポーネント（`NotifyChangeWatchers`）が宣言する型である —— 欄の名は本表と同じとする。
 
 **表 T-400 — `Agent API` が受け渡す値の型**
 
@@ -73,9 +71,7 @@
 | AV-9 | `AgentDelayDiagnostics` | 遅延診断のレポート `DelayDiagnosticsReport`（表 T-064 の `PI-1`、表 T-317） の欄のすべてに、次の 2 つを足す<br>`fixProposals`: `readonly DelayFixRow[]`（表 T-064 の `PI-1`） —— 修正案の行（`DX-11`）<br>`fixLog`: `readonly DelayFixLogRow[]`（表 T-064 の `PI-1`） —— 修正の記録の行（`DX-12`） | `AM-19` ／ `FR-134` の 表 T-317 |
 | AV-10 | `AgentChangeReceiver` | 知らせを 1 つずつ受け取る手（何も返さない）<br>`notice`: `ChangeNotice`（`AV-14`） —— 届いた知らせ | `AM-17` ／ 表 T-035 の `AG-6` |
 | AV-11 | `AgentWatch` | `hasReplacedEarlierWatch`: `boolean` —— 先に購読していた手を置き換えたか<br>`stopWatching()`: `boolean` —— 購読をやめ、やめた購読があったかを返す | `AM-17` ／ 表 T-035 の `AG-6` |
-| AV-12 | `AgentDialogueMessageOutcome` | **置いたとき**<br>　　`ok`: `true` —— 置いた<br>　　`message`: `DialogueMessage`（`AV-13`） —— 置いた発話<br>**拒んだとき**<br>　　`ok`: `false` —— 拒んだ<br>　　`refusal`: `AgentRefusal`（`AV-3`） —— 拒否の値 | `AM-18` ／ 表 T-035 の `AG-11` / `AG-9a` |
-| AV-13 | `DialogueMessage` | `sequence`: `number` —— 発話の通し番号 —— 刻印とは別に数える（`AG-11`）<br>`author`: `string` —— 発話を確定した書き手の名<br>`text`: `string` —— 発話の本文<br>`settledAt`: `string` —— 確定した時刻 | 表 T-035 の `AG-11` ／ `FR-066` |
-| AV-14 | `ChangeNotice` | `watcher`: `string` —— 知らせを受ける書き手の名<br>`stamp`: `DocumentStamp`（表 T-064 の `PI-3`） —— 今の刻印 —— 文書は持たず、呼ぶ側が要るものを読み直す（`AG-6`）<br>`messages`: `readonly DialogueMessage[]`（`AV-13`） —— まだ受け取っていない、自分以外の発話（`AG-11`）<br>`mark`: `WatcherMark`（表 T-035 の `AG-6`） —— どこまで受け取ったかの印（日程データの群の刻と発話の通し番号） | 表 T-035 の `AG-6` / `AG-11` |
+| AV-14 | `ChangeNotice` | `watcher`: `string` —— 知らせを受ける書き手の名<br>`stamp`: `DocumentStamp`（表 T-064 の `PI-3`） —— 今の刻印 —— 文書は持たず、呼ぶ側が要るものを読み直す（`AG-6`）<br>`mark`: `WatcherMark`（表 T-035 の `AG-6`） —— どこまで受け取ったかの印（日程データの群の刻） | 表 T-035 の `AG-6` |
 | AV-15 | `AgentImportOutcome` | **取り込みが着いたとき**<br>　　`ok`: `true` —— 受理した<br>　　`stamp`: `DocumentStamp`（表 T-064 の `PI-3`） —— 適用した後の刻印<br>　　`hasUpdatedSchedule`: `boolean` —— 日程データの群を動かしたか（`FR-063`）<br>**人に問うたとき**<br>　　`ok`: `true` —— 問いを出した —— まだ書いていない<br>　　`asked`: `string` —— 人に出した問いの在りか（いまは `U-61` だけ）<br>　　`stamp`: `DocumentStamp`（表 T-064 の `PI-3`） —— 問いを出したときの刻印<br>**拒んだとき**<br>　　`ok`: `false` —— 拒んだ<br>　　`refusal`: `AgentRefusal`（`AV-3`） —— 拒否の値 | `AM-8` ／ 表 T-035 の `AG-12` の ⑥ |
 | AV-16 | `AgentSearchPage` | `taskRows`: `SearchRows['taskRows']`（表 T-064 の `PI-1`、表 T-331） —— タスクの表の行のうち、`offset` から `limit` まで<br>`commentBoxRows`: `SearchRows['commentBoxRows']`（表 T-064 の `PI-1`、表 T-331） —— コメントボックスの表の行（ページに分けない）<br>`columns`: `readonly AgentTableColumn[]`（`AV-17`） —— タスクの表の列の一覧（`AV-17`）<br>`taskTotal`: `number` —— 絞った後のタスクの行の数<br>`offset`: `number` —— 返した最初のタスクの行の位置<br>`nextOffset`: `number` か `null` —— 続きの最初の位置 —— 続きが無ければ `null` | `AM-25` ／ 表 T-331 |
 | AV-17 | `AgentTableColumn` | `id`: `string` —— 列の行 ID（表 T-331 の `SQ-1` など）<br>`ja`: `string` —— 画面の列の名（日本語）<br>`en`: `string` —— 画面の列の名（英語）<br>`kind`: `'text'` か `'date'` —— 値の種類 —— 語か日付か（列のフィルタの形が違う） | `AM-25` ／ 表 T-331 ／ 表 T-372 |

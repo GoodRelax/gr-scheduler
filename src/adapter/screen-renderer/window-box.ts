@@ -8,7 +8,7 @@ import type { SearchPanelSession } from '../../use-case/advance-screen-session/a
 
 export type WindowShown = 'normal' | 'minimized' | 'maximized'
 
-// see WB-6, S-419, S-455, S-456
+// see WB-6, S-419, S-455
 export type WindowPlace = Pick<SearchPanelSession, 'at' | 'size'>
 
 export const DEFAULT_WINDOW_PLACE: WindowPlace = { at: null, size: null }

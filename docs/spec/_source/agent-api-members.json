@@ -2,7 +2,7 @@
  "$schema": "./agent-api-members.schema.json",
  "$comment": [
   "SINGLE SOURCE OF TRUTH -- EDIT THIS FILE.",
-  "The members of the Agent API and how each is called (CR-765, JDG-2160): table T-107 (the 22 members: group, confirmed name, kind and purity, arguments, return value, what it carries, source) and table T-400 (the value types the arguments and return values name that table T-064 has no row for).",
+  "The members of the Agent API and how each is called (CR-765, JDG-2160): table T-107 (the 21 members: group, confirmed name, kind and purity, arguments, return value, what it carries, source) and table T-400 (the value types the arguments and return values name that table T-064 has no row for).",
   "Generated FROM this file: _assets/tbl-agent-api-members.md (agent_api_members_json_to_md.py); the generated regions of src/adapter/agent-api-endpoint/agent-api-members.ts (AgentApi, the value types, AGENT_API_VERSION), src/adapter/agent-api-endpoint/relayed-call.ts (RelayedParams, MEMBER_PARAMETERS) and src/framework/mcp-relay-server/mcp-relay-server.ts (the MCP-only key of AM-17) (tools/generate_agent_api.py); and src/adapter/mcp-tool-translator/mcp-tool-descriptions.json, the MCP tool names, descriptions and input shapes (tools/generate_mcp_tool_descriptions.py).",
   "Rebuild: npm run gen   |   npm run gen:check fails if anything has drifted.",
   "Validated by _source/agent-api-members.schema.json. agent_api_members_json_to_md.py also refuses a row id or a name written twice, a type naming an identifier that is neither a row of the value table, a name of `externalTypes` nor a built-in, a line that is empty or holds a line-break tag, and a parenthesis or bold run that does not close on its line.",
@@ -10,7 +10,7 @@
   "Rows are in the order the tables print them and the code declares them, which is not the numeric order. ONE STRING IS ONE PRINTED LINE.",
   "The rules about the Agent API are NOT here -- table T-035 (AG-n) and the requirements the `source` cells name hold them."
  ],
- "version": "2026-10-17T15:27:48Z",
+ "version": "2026-10-18T02:15:42Z",
  "kinds": {
   "property": {
    "ja": "プロパティ"
@@ -105,7 +105,7 @@
   },
   "before": {
    "ja": [
-    "**`Agent API` は 1 つの面に 23 のメンバをフラットに並べる。**",
+    "**`Agent API` は 1 つの面に 21 のメンバをフラットに並べる。**",
     "用途別に分けない理由は Chapter 5.2 が持つ（`R2.5`）。",
     "いまの版は `{version}` である（`AM-1` が返す値）。",
     "版は、文書の形式の版（`FR-073`）と同じ書式の日時である —— 呼び方を変える変更は、版をその変更を当てる時刻へ上げる（表 T-035 の `AG-1`）。",
@@ -252,29 +252,6 @@
     },
     "source": {
      "ja": "表 T-023c の `SL-1` / `SL-7b`"
-    }
-   },
-   {
-    "id": "AM-6",
-    "group": {
-     "ja": "読む"
-    },
-    "name": "readDialogueMessages",
-    "kind": "method",
-    "purity": "semi-pure-b",
-    "arguments": [],
-    "returns": "readonly DialogueMessage[]",
-    "carries": {
-     "ja": [
-      "人が確定した発話。",
-      "文書には保存されない"
-     ],
-     "en": [
-      "The messages the person has confirmed in the dialogue field. They are not saved in the document."
-     ]
-    },
-    "source": {
-     "ja": "表 T-035 の `AG-11` ／ `FR-066`"
     }
    },
    {
@@ -817,45 +794,14 @@
     "returns": "AgentWatch",
     "carries": {
      "ja": [
-      "自分以外が確定した変更と発話を待つ"
+      "自分以外が確定した変更を待つ"
      ],
      "en": [
-      "Waits for changes and messages confirmed by writers other than you."
+      "Waits for changes confirmed by writers other than you."
      ]
     },
     "source": {
-     "ja": "表 T-035 の `AG-6` / `AG-11`"
-    }
-   },
-   {
-    "id": "AM-18",
-    "group": {
-     "ja": "話す"
-    },
-    "name": "postDialogueMessage",
-    "kind": "method",
-    "purity": "non-pure",
-    "arguments": [
-     {
-      "name": "text",
-      "type": "string",
-      "meaning": {
-       "ja": "置く発話",
-       "en": "The message to put"
-      }
-     }
-    ],
-    "returns": "AgentDialogueMessageOutcome",
-    "carries": {
-     "ja": [
-      "AI が確定した発話を対話欄へ置く"
-     ],
-     "en": [
-      "Puts a message the AI has confirmed into the dialogue field."
-     ]
-    },
-    "source": {
-     "ja": "`FR-066` ／ 表 T-035 の `AG-11`"
+     "ja": "表 T-035 の `AG-6`"
     }
    }
   ],
@@ -892,7 +838,7 @@
    "ja": [
     "本表は、表 T-107 の引数と戻り値が名指す型のうち、表 T-064 に行を持たないものの欄を持つ。",
     "欄の型が名指すほかの型は、型の後ろの括弧が指す行が持つ。",
-    "`AV-13` と `AV-14` は、ほかのコンポーネント（`DialogueLog`・`NotifyChangeWatchers`）が宣言する型である —— 欄の名は本表と同じとする。"
+    "`AV-14` は、ほかのコンポーネント（`NotifyChangeWatchers`）が宣言する型である —— 欄の名は本表と同じとする。"
    ]
   },
   "rows": [
@@ -1401,97 +1347,6 @@
     }
    },
    {
-    "id": "AV-12",
-    "name": "AgentDialogueMessageOutcome",
-    "shape": "union",
-    "variants": [
-     {
-      "label": {
-       "ja": "置いたとき"
-      },
-      "fields": [
-       {
-        "name": "ok",
-        "type": "true",
-        "meaning": {
-         "ja": "置いた"
-        }
-       },
-       {
-        "name": "message",
-        "type": "DialogueMessage",
-        "meaning": {
-         "ja": "置いた発話"
-        }
-       }
-      ]
-     },
-     {
-      "label": {
-       "ja": "拒んだとき"
-      },
-      "fields": [
-       {
-        "name": "ok",
-        "type": "false",
-        "meaning": {
-         "ja": "拒んだ"
-        }
-       },
-       {
-        "name": "refusal",
-        "type": "AgentRefusal",
-        "meaning": {
-         "ja": "拒否の値"
-        }
-       }
-      ]
-     }
-    ],
-    "source": {
-     "ja": "`AM-18` ／ 表 T-035 の `AG-11` / `AG-9a`"
-    }
-   },
-   {
-    "id": "AV-13",
-    "name": "DialogueMessage",
-    "shape": "interface",
-    "declaredElsewhere": true,
-    "fields": [
-     {
-      "name": "sequence",
-      "type": "number",
-      "meaning": {
-       "ja": "発話の通し番号 —— 刻印とは別に数える（`AG-11`）"
-      }
-     },
-     {
-      "name": "author",
-      "type": "string",
-      "meaning": {
-       "ja": "発話を確定した書き手の名"
-      }
-     },
-     {
-      "name": "text",
-      "type": "string",
-      "meaning": {
-       "ja": "発話の本文"
-      }
-     },
-     {
-      "name": "settledAt",
-      "type": "string",
-      "meaning": {
-       "ja": "確定した時刻"
-      }
-     }
-    ],
-    "source": {
-     "ja": "表 T-035 の `AG-11` ／ `FR-066`"
-    }
-   },
-   {
     "id": "AV-14",
     "name": "ChangeNotice",
     "shape": "interface",
@@ -1512,22 +1367,15 @@
       }
      },
      {
-      "name": "messages",
-      "type": "readonly DialogueMessage[]",
-      "meaning": {
-       "ja": "まだ受け取っていない、自分以外の発話（`AG-11`）"
-      }
-     },
-     {
       "name": "mark",
       "type": "WatcherMark",
       "meaning": {
-       "ja": "どこまで受け取ったかの印（日程データの群の刻と発話の通し番号）"
+       "ja": "どこまで受け取ったかの印（日程データの群の刻）"
       }
      }
     ],
     "source": {
-     "ja": "表 T-035 の `AG-6` / `AG-11`"
+     "ja": "表 T-035 の `AG-6`"
     }
    },
    {

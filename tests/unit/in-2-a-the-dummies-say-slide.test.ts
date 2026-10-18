@@ -244,7 +244,6 @@ function host(): Host {
 function screenPane(): ScreenWiring {
   const surface: ScreenSurface = {
     showScreenView: () => undefined,
-    readDialogueInput: () => null,
     readFieldCommit: () => null,
     readScreenPartAt: () => null,
   }

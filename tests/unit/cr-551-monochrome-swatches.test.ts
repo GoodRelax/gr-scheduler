@@ -87,7 +87,6 @@ function bench(document: Record<string, unknown>, side: Side): Bench {
       views.push(view)
       drawn.showScreenView(view)
     },
-    readDialogueInput: () => drawn.readDialogueInput(),
     readFieldCommit: () => drawn.readFieldCommit(),
     readFieldEditNotices: () => (drawn as unknown as { readFieldEditNotices?: () => unknown[] }).readFieldEditNotices?.() ?? [],
     readScreenPartAt: () => aimed,

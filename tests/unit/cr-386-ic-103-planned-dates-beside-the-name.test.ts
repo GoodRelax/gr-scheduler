@@ -278,7 +278,6 @@ function stage(
   }
   const surface: ScreenSurface = {
     showScreenView: () => undefined,
-    readDialogueInput: () => null,
     readFieldCommit: () => null,
     readScreenPartAt: (x, y): ScreenPart | null =>
       inside(PALETTE_BOX, { x, y })
@@ -340,7 +339,6 @@ describe('T-109 IC-103 -- placed at the head of its group, left of IC-44', () =>
         ...emptyScreenSession.screen,
         screenLanguage: 'ja',
         helpLanguage: 'ja',
-        dialogueFieldDisplayState: { kind: 'hidden' },
         milestoneListDisplayState: { kind: 'open' },
       },
     }

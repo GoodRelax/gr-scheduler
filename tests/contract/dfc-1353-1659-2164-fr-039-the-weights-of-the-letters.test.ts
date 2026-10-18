@@ -81,7 +81,6 @@ const VIEW = {
   openModal: null,
   notices: [],
   confirmation: null,
-  dialogueField: null,
   tooltips: [{ anchor: { kind: 'task', taskUid: 1 }, text: 'first line\nsecond line', assignment: null, at: { x: 40, y: 60 } }],
 } as unknown as ScreenView
 

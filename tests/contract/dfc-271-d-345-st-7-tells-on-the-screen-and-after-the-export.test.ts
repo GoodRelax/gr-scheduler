@@ -410,7 +410,6 @@ function screenPane(language: DisplayLanguage): ScreenPane {
     showScreenView: (view: ScreenView) => {
       views.push(view)
     },
-    readDialogueInput: () => null,
     readFieldCommit: () => null,
     readScreenPartAt: () => part,
   } as unknown as ScreenSurface

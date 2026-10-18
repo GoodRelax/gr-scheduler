@@ -385,7 +385,6 @@ const pointer = (phase: PointerPhase, x: number, y: number): PointerInput => ({
 const screenPane = (): ScreenWiring => {
   const surface: ScreenSurface = {
     showScreenView: (_view: ScreenView) => {},
-    readDialogueInput: () => null,
     readFieldCommit: () => null,
     readScreenPartAt: (): ScreenPart | null => null,
   }

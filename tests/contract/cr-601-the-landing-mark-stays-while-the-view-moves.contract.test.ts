@@ -396,7 +396,6 @@ const shellOf = (document: Document): Shell => {
   const views: ScreenView[] = []
   const surface: ScreenSurface = {
     showScreenView: (view) => void views.push(view),
-    readDialogueInput: () => null,
     readFieldCommit: () => null,
     readScreenPartAt: (): ScreenPart | null => aimed,
   }

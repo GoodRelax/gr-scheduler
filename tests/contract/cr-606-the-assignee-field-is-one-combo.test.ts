@@ -160,7 +160,6 @@ describe(`AS-5 -- ${AS_5_OPENS}`, () => {
       openModal: null,
       notices: [],
       confirmation: null,
-      dialogueField: null,
       tooltips: [],
     }) as unknown as ScreenView
 

@@ -179,7 +179,6 @@ function loopOf(scene: Scene): FrameLoop {
     waiting.push(callback)
   const surface: ScreenSurface = {
     showScreenView: () => undefined,
-    readDialogueInput: () => null,
     readFieldCommit: () => null,
     readScreenPartAt: (): ScreenPart | null => null,
   }

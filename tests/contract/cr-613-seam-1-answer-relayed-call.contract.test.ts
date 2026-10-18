@@ -46,7 +46,6 @@ const PARAMS_OF: Readonly<Record<string, Record<string, unknown>>> = {
   redoEdit: { expectedStamp: A_STAMP },
   focusTask: { taskUid: 17 },
   showOnlyTasks: { taskUids: [17] },
-  postDialogueMessage: { text: 'why did you move it?' },
 }
 
 const paramsFor = (member: string): Record<string, unknown> => PARAMS_OF[member] ?? {}
@@ -127,7 +126,7 @@ describe('SEAM-1: the fake is built from table T-107', () => {
   })
 
   // see AM-3, AM-25
-  it('the argument column gives ten members arguments the relay carries, in their order', () => {
+  it('the argument column gives nine members arguments the relay carries, in their order', () => {
     expect(Object.entries(PARAM_KEYS).filter(([, keys]) => keys.length > 0)).toEqual([
       ['readDocument', ['includeCarry', 'taskUids']],
       ['readSearchRows', ['word', 'filters', 'offset', 'limit']],
@@ -138,7 +137,6 @@ describe('SEAM-1: the fake is built from table T-107', () => {
       ['redoEdit', ['expectedStamp']],
       ['focusTask', ['taskUid']],
       ['showOnlyTasks', ['taskUids']],
-      ['postDialogueMessage', ['text']],
     ])
   })
 })
@@ -212,7 +210,7 @@ describe('SEAM-1 watchChanges: subscribes and forwards every notice (design 3.3,
     const sent: unknown[] = []
     await answerRelayedCall(fake.api, callOf('watchChanges'), (notice) => void sent.push(notice))
     const first = { kind: 'scheduleChanged', stamp: 'stamp-42' }
-    const second = { kind: 'dialogueMessage', text: 'wait' }
+    const second = { kind: 'scheduleChanged', stamp: 'stamp-43' }
     fake.receivers[0]?.(first)
     fake.receivers[0]?.(second)
     expect(sent).toEqual([first, second])

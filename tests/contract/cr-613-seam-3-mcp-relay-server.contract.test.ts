@@ -758,7 +758,7 @@ describe('SEAM-3 watchChanges: the relay subscribes once and queues (AG-12 (5), 
     const page = await connectPage()
     await client.callTool('watchChanges')
     const first = { kind: 'scheduleChanged', stamp: 'stamp-2' }
-    const second = { kind: 'dialogueMessage', text: 'wait' }
+    const second = { kind: 'scheduleChanged', stamp: 'stamp-43' }
     page.notice(first)
     page.notice(second)
     await client.callTool('readStamp')

@@ -214,7 +214,6 @@ function stage(options: { readonly withHost?: boolean; readonly language?: Displ
   let part: ScreenPart | null = null
   const surface: ScreenSurface = {
     showScreenView: (view) => void views.push(view),
-    readDialogueInput: () => null,
     readFieldCommit: () => null,
     readScreenPartAt: () => part,
   }

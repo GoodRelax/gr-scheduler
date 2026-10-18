@@ -64,10 +64,8 @@ const EXPORT_CHOOSER_ROW = 'U-54'
 // TRAP: never an open surface's name; the drawing side would draw the panel as a modal.
 const PROPERTIES_PANEL = 'Properties Panel'
 
-// see U-64, U-44, S-99g
-// WHY: windows, not open surfaces (T-335): IC-52 on one closes that window, never the surface.
+// WHY: windows, not open surfaces (T-335, U-64, S-99g): IC-52 on one closes that window, never the surface.
 const SEARCH_PANEL = 'Search Panel'
-const DIALOGUE_FIELD = 'Dialogue Field'
 const DELAY_DIAGNOSTICS_REPORT = 'Delay Diagnostics Report'
 const RESOURCE_LIST = 'Resource List'
 
@@ -77,11 +75,6 @@ type WindowEvents = readonly [ScreenValuesEvent, ScreenValuesEvent, ScreenValues
 const WINDOW_EVENTS: Readonly<Record<string, WindowEvents>> = {
   [HELP_MODAL]: [{ type: 'helpMinimizeToggled' }, { type: 'helpMaximizeToggled' }, null],
   [SEARCH_PANEL]: [{ type: 'searchPanelMinimizeToggled' }, { type: 'searchPanelMaximizeToggled' }, { type: 'searchPanelClosePressed' }],
-  [DIALOGUE_FIELD]: [
-    { type: 'dialogueFieldMinimizeToggled' },
-    { type: 'dialogueFieldMaximizeToggled' },
-    { type: 'dialogueFieldClosePressed' },
-  ],
 }
 
 const SEARCH_ENTRY_PRESSED: ScreenValuesEvent = { type: 'searchEntryPressed' }
@@ -250,7 +243,7 @@ function surfaceCloseOf(part: string | null): ScreenValuesEvent | null {
   return part === HELP_MODAL ? HELP_CLOSE_ASKED : SURFACE_CLOSE_ASKED
 }
 
-// see IC-117, WB-7, SV-14, FR-066
+// see IC-117, WB-7, SV-14
 /** @purity pure */
 function windowEventOf(entry: string, part: string): ScreenValuesEvent | null {
   if (entry === ENTRY.search) return SEARCH_ENTRY_PRESSED

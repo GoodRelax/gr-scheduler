@@ -793,7 +793,6 @@ const VIEW: Omit<ScreenView, 'tooltips'> = {
   openModal: null,
   notices: [],
   confirmation: null,
-  dialogueField: null,
 }
 
 const sessionIn = (language: 'ja' | 'en'): ScreenSession => ({

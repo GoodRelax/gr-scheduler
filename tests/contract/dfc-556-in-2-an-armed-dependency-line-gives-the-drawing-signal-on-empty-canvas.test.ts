@@ -55,7 +55,6 @@ function bench(): Bench {
   let part: ScreenPart | null = null
   const surface = {
     showScreenView: () => undefined,
-    readDialogueInput: () => null,
     readFieldCommit: () => null,
     readScreenPartAt: () => part,
   } as unknown as ScreenSurface

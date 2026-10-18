@@ -276,7 +276,6 @@ function host(): {
 function screenPane(language: DisplayLanguage = 'en'): ScreenWiring {
   const surface: ScreenSurface = {
     showScreenView: () => undefined,
-    readDialogueInput: () => null,
     readFieldCommit: () => null,
     readScreenPartAt: (): ScreenPart | null => null,
   }

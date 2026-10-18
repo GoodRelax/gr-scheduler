@@ -161,7 +161,6 @@ const benchAt = (displayScale: number): Bench => {
   }
   const surface: ScreenSurface = {
     showScreenView: () => undefined,
-    readDialogueInput: () => null,
     readFieldCommit: () => null,
     readScreenPartAt: () => null,
   }

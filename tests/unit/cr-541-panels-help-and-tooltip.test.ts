@@ -1,4 +1,4 @@
-// CR-541: what the screen shows in the properties panel, the help, the tooltip and the dialogue.
+// CR-541: what the screen shows in the properties panel, the help and the tooltip.
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -25,15 +25,12 @@ import {
 } from '../../src/framework/dom-screen-surface/dom-screen-surface'
 import { bare, bareAll, specTable } from '../contract/spec-table'
 import {
-  descendants,
   FakeElement,
   oneByRole,
   selfAndDescendants,
   stage,
   styleMap,
   wiringOf,
-  type FakeEvent,
-  type Stage,
 } from '../fixtures/fake-browser'
 import { REQUIREMENTS, taskGroupDocument, rowOf, taskOf } from './cr-541-stage'
 
@@ -50,7 +47,6 @@ const LATER_PLACED_FIELDS = ['K-125', 'K-85', 'K-143', 'K-71', 'IC-44', 'K-142',
 const SHOWN_SPAN_FIELD = 'FX-6'
 const Q17 = '⭐ 画面に依存の種別を出すときは、本表の `名` の欄の略号（括弧の前の `FS` / `SF` / `FF` / `SS`）で出すこと（MUST）'
 const Q18 = '（MUST）。⛔ 保存した数（`linkType`）をそのまま出してはならない（MUST NOT）'
-const Q21 = '⭐ 焦点が対話欄（`FR-066`）にあるときは、打った発話を確定して送ること（MUST）'
 const Q34 = '⛔ タイトルバーを本文のスクロールの中に置いてはならない（MUST NOT）'
 const Q38 = '説明をポインタの点に出すこと（MUST）'
 const IN_3_TAKES_NO_POINTER = '⭐ ツールチップはポインタを受け取らず、下へ通すこと（MUST）'
@@ -58,7 +54,7 @@ const IN_7_BELOW =
   '左上の隅を、ポインタの点と同じ横の位置で、点から `_assets/tbl-settings.md` の 表 T-206 の `S-460` だけ下に置く'
 
 describe('CR-541 -- the clauses still stand in the manuscript', () => {
-  it.each([Q07, Q08, Q08A, Q08B, Q17, Q18, Q21, Q34, Q38, IN_3_TAKES_NO_POINTER, IN_7_BELOW])('%s', (clause) => {
+  it.each([Q07, Q08, Q08A, Q08B, Q17, Q18, Q34, Q38, IN_3_TAKES_NO_POINTER, IN_7_BELOW])('%s', (clause) => {
     expect(REQUIREMENTS).toContain(clause)
   })
 })
@@ -68,7 +64,6 @@ const READINGS = {
   fileSavedAt: null,
   fileSavedByteLength: null,
   isAgentApiEnabled: false,
-  isDialogueFieldVisible: true,
   pointer: null,
   pointerRestedMs: 0,
   hintTargetDwellMs: 0,
@@ -218,64 +213,10 @@ function viewWith(part: Partial<ScreenView>): ScreenView {
     openModal: null,
     notices: [],
     confirmation: null,
-    dialogueField: null,
     tooltips: [],
     ...part,
   }
 }
-
-function raise(built: Stage, node: FakeElement, type: string, extra: Record<string, unknown> = {}): void {
-  const event = {
-    type,
-    key: '',
-    isComposing: false,
-    shiftKey: false,
-    ctrlKey: false,
-    altKey: false,
-    metaKey: false,
-    target: node,
-    currentTarget: null,
-    defaultPrevented: false,
-    preventDefault(): void {
-      ;(this as { defaultPrevented: boolean }).defaultPrevented = true
-    },
-    stopPropagation(): void {},
-    ...extra,
-  } as unknown as FakeEvent
-  let at: FakeElement | null = node
-  while (at !== null) {
-    for (const one of [...built.world.registrations]) {
-      if (one.node === at && one.type === type) {
-        ;(event as { currentTarget: FakeElement | null }).currentTarget = at
-        one.listener(event)
-      }
-    }
-    at = at.parentNode
-  }
-}
-
-describe('SK-19 -- Enter in the dialogue field', () => {
-  it(Q21, () => {
-    const DIALOGUE_FIELD = bare(rowOf('T-103', 'U-44').by['確定名（英）'] ?? '')
-    const ENTER = bare(rowOf('T-036', 'SK-19').by['割当'] ?? '')
-    expect(ENTER).toBe('Enter')
-    const built = stage({ 'App Header': 37 })
-    const surface = domScreenSurface(wiringOf(built, THEME))
-    surface.showScreenView(viewWith({ dialogueField: { messages: [], heading: '', shown: 'normal', titleEntries: [], place: { at: null, size: null }, canvas: { x: 0, y: 0, width: 800, height: 600 } } }))
-    const field = oneByRole(built.root(), DIALOGUE_FIELD)
-    const entry = descendants(field).find((one) => one.tagName === 'INPUT' || one.tagName === 'TEXTAREA')
-    expect(entry, 'premise: the field has an entry').toBeDefined()
-    entry!.focus()
-    raise(built, entry!, 'focusin')
-    entry!.value = 'move the review to Friday'
-    raise(built, entry!, 'input')
-    expect(surface.readDialogueInput(), 'premise: nothing is settled before Enter').toBeNull()
-    raise(built, entry!, 'keydown', { key: ENTER })
-    const said = surface.readDialogueInput()
-    expect(said?.isSettled).toBe(true)
-    expect(said?.text).toBe('move the review to Friday')
-  })
-})
 
 describe('FR-036 -- the help title row stands outside what scrolls', () => {
   it(Q34, () => {

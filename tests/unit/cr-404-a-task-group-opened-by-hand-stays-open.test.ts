@@ -327,7 +327,6 @@ function stage(document: Record<string, any>): Stage {
     showScreenView: (view: any) => {
       views.push(view)
     },
-    readDialogueInput: () => null,
     readFieldCommit: () => null,
     readScreenPartAt: () => part,
   }

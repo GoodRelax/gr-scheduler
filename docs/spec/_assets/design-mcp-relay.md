@@ -99,7 +99,7 @@
   `method` は 表 T-107 の確定名、`params` は 3.1 の道具の入力と同じオブジェクトである。  
   `result` はメンバの答えであり、画像のバイト列だけは base64 の文字列にする。  
   型は `relayed-call.ts` が持つ `RelayedCall` と `RelayedAnswer` である（表 T-064 の `PI-17`）。
-- **知らせる** —— ページは、購読した変更と発話を `changeNoticed` の通知として取次へ送る（3.3）。
+- **知らせる** —— ページは、購読した変更を `changeNoticed` の通知として取次へ送る（3.3）。
 
 ```text
 page  -> relay   {"jsonrpc":"2.0","method":"relayKeyPresented","params":{"key":"<key from #fragment>"}}
@@ -111,7 +111,7 @@ page  -> relay   {"jsonrpc":"2.0","method":"changeNoticed","params":<one change 
 ### 3.3 待つ道具
 
 `watchChanges` の購読は、ページが繋がってから最初に `watchChanges` が呼ばれたとき、取次がページに 1 度だけ求める。  
-届いた変更と発話は取次が届いた順に溜め、`watchChanges` の呼び出しは、溜まっていればすぐに、無ければ `waitMs` だけ待って、溜まっていたものをすべて返す。  
+届いた変更は取次が届いた順に溜め、`watchChanges` の呼び出しは、溜まっていればすぐに、無ければ `waitMs` だけ待って、溜まっていたものをすべて返す。  
 ⭐ `waitMs` は 40,000 で頭打ちにする —— 5 節の締め切りより短くし、待つ道具そのものが AI のアプリの時間切れに当たらないためである。  
 待つあいだに何も届かなければ空の並びを返す —— これが `AG-12` の ⑤ の「まだ無い」である。  
 ページが切れたら購読と溜めたものを捨て、次に繋いだページで購読し直す。  

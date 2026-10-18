@@ -339,7 +339,6 @@ function bench(document: Document, language: DisplayLanguage = 'ja'): Bench {
       views.push(view)
       drawn.showScreenView(view)
     },
-    readDialogueInput: () => drawn.readDialogueInput(),
     readFieldCommit: () => drawn.readFieldCommit(),
     readFieldEditNotices: () => (drawn as unknown as { readFieldEditNotices?: () => unknown[] }).readFieldEditNotices?.() ?? [],
     readScreenPartAt: () => aimed,

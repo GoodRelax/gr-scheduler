@@ -136,7 +136,6 @@ function viewWith(
     openModal: null,
     notices: [],
     confirmation: null,
-    dialogueField: null,
     tooltips,
   }
 }

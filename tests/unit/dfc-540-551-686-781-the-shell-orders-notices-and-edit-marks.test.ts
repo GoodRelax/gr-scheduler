@@ -83,7 +83,6 @@ describe('BO-1 (DFC-551 1) -- no picture before the dimensions settle, and one r
       const views: unknown[] = []
       const surface = {
         showScreenView: (view: unknown) => void views.push(view),
-        readDialogueInput: () => null,
         readFieldCommit: () => null,
         readFieldEditNotices: () => [],
         readScreenPartAt: () => null,

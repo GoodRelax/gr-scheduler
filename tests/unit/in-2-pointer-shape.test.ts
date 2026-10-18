@@ -448,7 +448,6 @@ function screenPane(language: DisplayLanguage = 'en'): ScreenWiring {
     // ⛔ NOTHING IS KEPT. No case here reads a `ScreenView`: IN-2's answer does
     // not travel on IF-9, because the pointer is painted by the host.
     showScreenView: () => undefined,
-    readDialogueInput: () => null,
     readFieldCommit: () => null,
     readScreenPartAt: (x, y): ScreenPart | null => {
       if (!inside(PALETTE_BOX, { x, y })) return null

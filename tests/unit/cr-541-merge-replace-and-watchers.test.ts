@@ -1,8 +1,7 @@
-// CR-541: merge and MSPDI replace, a second subscription, and an utterance during a delivery.
+// CR-541: merge and MSPDI replace, and a second subscription.
 
 import { afterEach, describe, expect, it } from 'vitest'
 
-import { installAgentApi, type AgentApi } from '../../src/adapter/agent-api-endpoint/agent-api-endpoint'
 import { documentFromMspdi, mspdiFromDocument } from '../../src/adapter/document-codec/document-codec'
 import type { Document } from '../../src/entity/document-model/document/document'
 import { importDocument, type ImportRequest } from '../../src/use-case/import-document/import-document'
@@ -13,9 +12,8 @@ import {
   watchChanges,
   type ChangeNotice,
 } from '../../src/use-case/notify-change-watchers/notify-change-watchers'
-import { emptyDialogueLog } from '../../src/entity/document-model/dialogue-log/dialogue-log'
 import { SETTINGS_DEFAULTS } from '../../src/entity/document-model/document-settings/document-settings'
-import { DESIGN, REQUIREMENTS, taskGroupDocument, shell, TEMPLATE, type ShellBench } from './cr-541-stage'
+import { REQUIREMENTS, taskGroupDocument } from './cr-541-stage'
 
 const LAST_SAVED_AT = '2026-10-03T09:00:00'
 
@@ -23,15 +21,10 @@ const Q29 = '⭐ 同じ id のタスクグループ（`TaskGroup`）または注
 const Q30 = '⭐ 置き換えを選んで MSPDI を読んだときは、`documentSettings` のすべての項目を既定値とすること（MUST）'
 const Q31 = '⭐ 同じ名前（表 T-229 の `ED-2`）で 2 度購読したときは、新しい購読が古い購読を置き換えること（MUST）'
 const Q32 = '置き換えたことを、新しい購読の戻り値で答えること（MUST）'
-const Q33 = '⛔ 監視が通知を配っているあいだの発話は、書き込みと同じく受け付けてはならない（MUST NOT）'
-const Q41 = '⭐ 通知を配っているあいだの発話（表 T-035 の `AG-11`）も、書き込みと同じく拒否すること（MUST）'
 
 describe('CR-541 -- the clauses still stand in the manuscript', () => {
-  it.each([Q29, Q30, Q31, Q32, Q33])('%s', (clause) => {
+  it.each([Q29, Q30, Q31, Q32])('%s', (clause) => {
     expect(REQUIREMENTS).toContain(clause)
-  })
-  it(`05-07 Chapter 5.5: ${Q41}`, () => {
-    expect(DESIGN).toContain(Q41)
   })
 })
 
@@ -117,7 +110,7 @@ afterEach(() => {
 describe('AG-6 -- the same name subscribed twice', () => {
   it(`${Q31} / ${Q32}`, () => {
     const document = taskGroupDocument([{ id: 'task-group-1', parentId: null }]) as unknown as Document
-    const since = { seenScheduleUpdatedAt: '2000-01-01T00:00:00Z', seenSequence: 0 }
+    const since = { seenScheduleUpdatedAt: '2000-01-01T00:00:00Z' }
     const first: ChangeNotice[] = []
     const second: ChangeNotice[] = []
     const firstAnswer = watchChanges(WATCHERS, { watcher: WATCHER, since, deliver: (notice) => first.push(notice) })
@@ -128,40 +121,8 @@ describe('AG-6 -- the same name subscribed twice', () => {
       ...document,
       documentStamp: { ...document.documentStamp, scheduleUpdatedAt: '2026-09-22T00:00:00Z', lastEditedBy: 'someone else' },
     } as Document
-    notifyChangeWatchers(WATCHERS, { document: changed, hasUpdatedSchedule: true, dialogue: emptyDialogueLog() })
+    notifyChangeWatchers(WATCHERS, { document: changed, hasUpdatedSchedule: true })
     expect(first, 'the replaced subscription is no longer told').toHaveLength(0)
     expect(second, 'the new subscription is told').toHaveLength(1)
-  })
-})
-
-const benches: ShellBench[] = []
-afterEach(() => {
-  for (const one of benches.splice(0)) one.restore()
-})
-
-describe('AG-11 -- no utterance while notices are being delivered', () => {
-  it(`${Q33} / ${Q41}`, () => {
-    const built = shell(taskGroupDocument([{ id: 'task-group-1', parentId: null }]))
-    benches.push(built)
-    const apiFor = (writerName: string): AgentApi =>
-      installAgentApi({ ...built.loop.agentApiSeams(), writerName, schemaVersion: TEMPLATE.schemaVersion } as never)
-    const a = apiFor('cr-541 agent a')
-    const b = apiFor('cr-541 agent b')
-    let replies = 0
-    const answerBack = (api: AgentApi, text: string) => (): void => {
-      if (replies >= 4) return
-      replies += 1
-      try {
-        api.postDialogueMessage(text)
-      } catch {
-        // WHY: a refusal may be thrown or returned; either way the log below is what is asked.
-      }
-    }
-    a.watchChanges(answerBack(a, 'a answers from inside a delivery'))
-    b.watchChanges(answerBack(b, 'b answers from inside a delivery'))
-    a.postDialogueMessage('a speaks first')
-    const texts = a.readDialogueMessages().map((one) => one.text)
-    expect(replies, 'premise: the utterance was delivered to the other subscriber').toBeGreaterThan(0)
-    expect(texts, 'no utterance posted during the delivery reaches the log').toEqual(['a speaks first'])
   })
 })

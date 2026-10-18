@@ -117,11 +117,8 @@ tests/contract/dfc-49-one-indent-for-the-screen-and-the-picture.test.ts 0
 tests/contract/dfc-507-go-3-go-4-a-finished-actual-finish-follows-the-grab.test.ts 0
 tests/contract/dfc-554-gr-17-released-at-or-left-of-the-dummy-keeps-s-129.test.ts 0
 tests/contract/dfc-568-gr-14-corners-anchor-and-body.test.ts 0
-tests/contract/dfc-571-if-9-a-half-typed-line-is-no-utterance.test.ts 0
 tests/contract/dfc-572-pv-1-pv-2-actual-finish-is-the-finish-day.test.ts 0
 tests/contract/dfc-577-iv-21-import-refuses-a-negative-actual.test.ts 0
-tests/contract/dfc-578-a-press-on-the-dialogue-field-keeps-the-browser-default.test.ts 0
-tests/contract/dfc-579-in-5a-dialogue-keys-go-to-the-field.test.ts 0
 tests/contract/dfc-582-every-invariant-row-has-a-dictionary-entry.test.ts 0
 tests/contract/dfc-587-title-row-entries-are-drawn.test.ts 0
 tests/contract/dfc-592-a-dummy-takes-its-tasks-shape.test.ts 0

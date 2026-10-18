@@ -618,7 +618,6 @@ describe(`DC-8 -- ${DC_8_WIDTH}`, () => {
     let shown = ''
     const surface: ScreenSurface = {
       showScreenView: () => undefined,
-      readDialogueInput: () => null,
       readFieldCommit: () => null,
       readScreenPartAt: (): ScreenPart | null => aimed,
     }

@@ -171,7 +171,6 @@ function loopStage(): LoopStage {
     showScreenView: (view) => {
       views.push(view)
     },
-    readDialogueInput: () => null,
     readFieldCommit: () => null,
     readScreenPartAt: (x, y) => {
       const view = views[views.length - 1]
@@ -441,7 +440,6 @@ const viewWith = (propertiesPanel: PropertiesPanel | null): ScreenView => ({
   openModal: null,
   notices: [],
   confirmation: null,
-  dialogueField: null,
   tooltips: [],
 })
 

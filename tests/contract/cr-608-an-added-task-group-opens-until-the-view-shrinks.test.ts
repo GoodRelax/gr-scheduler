@@ -100,7 +100,6 @@ function stage(document: Record<string, unknown>): Stage {
   let part: unknown = null
   const surface = {
     showScreenView: () => undefined,
-    readDialogueInput: () => null,
     readFieldCommit: () => null,
     readScreenPartAt: () => part,
   }

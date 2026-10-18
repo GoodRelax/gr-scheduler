@@ -208,7 +208,6 @@ export interface InputContext {
   // see RG-16, IF-9
   readonly focusedWindow?: WindowName | null
   readonly isFocusInPropertiesPanel?: boolean
-  readonly isAgentApiEnabled?: boolean
   // see RW-1, RW-5, RW-14, RW-19, RO-1, RO-6, S-451, S-545
   readonly delayDiagnosticsReport?: {
     readonly shown: 'normal' | 'minimized' | 'maximized'
@@ -314,7 +313,6 @@ export type InputAction =
   // Looked in FR-072, SL-1 @provisional PND-144
   | { readonly kind: 'toggleDocumentSettingsProperties' }
   | { readonly kind: 'toggleAgentApi' }
-  | { readonly kind: 'toggleDialogueFieldVisible' }
   | { readonly kind: 'copyImageToJsonPrompt' }
   | { readonly kind: 'toggleMilestoneList' }
   | { readonly kind: 'togglePaletteMinimized' }
@@ -791,7 +789,6 @@ export const ENTRY = {
   documentSettingsProperties: 'IC-17',
   imageToJsonPrompt: 'IC-115',
   agentApi: 'IC-20',
-  dialogueFieldVisible: 'IC-18',
   help: 'IC-22',
   fontSizeStep: 'IC-99',
   isThemeMonochrome: 'IC-100',
@@ -1258,8 +1255,6 @@ function commandFromEntry(
       return acted({ kind: 'toggleDocumentSettingsProperties' })
     case ENTRY.agentApi:
       return acted({ kind: 'toggleAgentApi' })
-    case ENTRY.dialogueFieldVisible:
-      return acted({ kind: 'toggleDialogueFieldVisible' })
     case ENTRY.imageToJsonPrompt:
       return acted({ kind: 'copyImageToJsonPrompt' })
     case ENTRY.resourceListChooseAll:
@@ -1482,8 +1477,6 @@ export function escapeContextOf(context: InputContext): EscapeContext {
     isSearchPanelStanding: isWindowStandingIn(context.screen, 'searchPanelDisplayState'),
     isHelpStanding: isWindowStandingIn(context.screen, 'helpDisplayState'),
     isDelayDiagnosticsReportStanding: report !== null && report.shown !== 'minimized',
-    isDialogueFieldStanding:
-      context.isAgentApiEnabled === true && isWindowStandingIn(context.screen, 'dialogueFieldDisplayState'),
     focusedWindow: context.focusedWindow ?? null,
     isDelayDiagnosticsReportInFront: report?.isInFront === true,
     isResourceListStanding: resourceList !== null && resourceList.shown !== 'minimized',

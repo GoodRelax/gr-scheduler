@@ -5,7 +5,6 @@
 // @publishes table T-064 row PI-37
 
 import displayWords from './display-words.json'
-import type { DialogueLog, DialogueMessage } from '../../entity/document-model/dialogue-log/dialogue-log'
 import type { DocumentSettings } from '../../entity/document-model/document-settings/document-settings'
 import type { DelayDiagnosticsReport, Schedule } from '../../entity/document-model/schedule/schedule'
 import type { Selection } from '../../entity/document-model/selection/selection'
@@ -14,7 +13,6 @@ import type {
   ScreenRegions,
 } from '../../entity/layout-engine/screen-regions/screen-regions'
 import type { TaskGroupPlacement } from '../../entity/layout-engine/schedule-layout/schedule-layout'
-import type { SettledUtterance } from '../../use-case/post-dialogue-message/post-dialogue-message'
 import {
   VISIBILITY_TABLES,
   emptySearchPanelSession,
@@ -25,7 +23,6 @@ import {
 } from '../../use-case/advance-screen-session/advance-screen-session'
 import { appHeaderItemsFromDocument, displayScaleMessageText } from './app-header-items'
 import { commandPaletteFromSession } from './command-palette'
-import { dialogueFieldFromLog } from './dialogue-field'
 import { confirmationFromSession, dismissKeyOf, noticesFromSession } from './notices'
 export { shiftAmountText, timeShiftQuestionItems, wholeScheduleShiftQuestionItems } from './notices'
 export type { TimeShiftPreview, WholeScheduleShiftPreview } from './notices'
@@ -76,7 +73,7 @@ import {
   type ScheduleFilterBarView,
   type TableWindowState,
 } from './table-window'
-import { DEFAULT_WINDOW_PLACE, type WindowPlace, type WindowShown } from './window-box'
+import { DEFAULT_WINDOW_PLACE, type WindowPlace } from './window-box'
 export {
   nextSearchPanelTextSizeStep,
   searchPanelAfterFilterChange,
@@ -140,10 +137,9 @@ import { screenFrameFromRegions } from './screen-frame'
 export { horizontalWholeOf, scrollExtentOf, verticalWholeOf } from './screen-frame'
 export type { HorizontalWhole, VerticalWhole } from './screen-frame'
 export { achromatic, colorOf, isScheduleColorRow } from '../svg-renderer/svg-renderer'
-import type { DialogueInput } from './screen-surface'
 import { dualCursorReadoutOf, guideCursorLabelOf, tooltipsFromScreenView } from './tooltips'
 
-export type { DialogueInput, FieldCommit, FieldEditNotice, ScreenPart, ScreenSurface } from './screen-surface'
+export type { FieldCommit, FieldEditNotice, ScreenPart, ScreenSurface } from './screen-surface'
 export type { WindowName } from '../../use-case/advance-screen-session/advance-screen-session'
 
 export type IconId = string
@@ -664,15 +660,6 @@ export interface ConfirmationAnswer {
   readonly text: string
 }
 
-// see FR-066, T-335
-export interface DialogueField {
-  readonly messages: readonly DialogueMessage[]
-  readonly heading: string
-  readonly shown: WindowShown
-  readonly titleEntries: readonly CommandItem[]
-  readonly place: WindowPlace
-  readonly canvas: ScreenRect
-}
 
 export interface Tooltip {
   readonly anchor: TooltipAnchor
@@ -708,7 +695,6 @@ export interface ScreenView {
   readonly helpModal?: HelpModal | null
   readonly notices: readonly Notice[]
   readonly confirmation: Confirmation | null
-  readonly dialogueField: DialogueField | null
   readonly tooltips: readonly Tooltip[]
   // TRAP: optional so literals compile; absent draws no panel (FR-151), the same as null.
   readonly searchPanel?: SearchPanelView | null
@@ -816,10 +802,9 @@ export interface ScreenViewReadings {
   }
   // WHY: held by the frame loop, never saved (S-419, S-420, S-429); absent reads as the initial values.
   readonly searchPanel?: SearchPanelSession
-  // see WB-6, S-455, S-456
+  // see WB-6, S-455
   readonly windowPlaces?: {
     readonly helpModal: WindowPlace
-    readonly dialogueField: WindowPlace
     readonly closeOnlyTitledSurface?: { readonly x: number; readonly y: number } | null
   }
   readonly isDelayDiagnosticsShown?: boolean
@@ -967,7 +952,6 @@ export function screenViewFromRegions(
   settings: DocumentSettings,
   selection: Selection,
   session: ScreenSession,
-  dialogueLog: DialogueLog,
   readings: ScreenViewReadings,
 ): ScreenView {
   const language = displayLanguageOf(session)
@@ -993,7 +977,6 @@ export function screenViewFromRegions(
     helpModal: help === null ? null : { ...help, place: readings.windowPlaces?.helpModal ?? DEFAULT_WINDOW_PLACE },
     notices: noticesFromSession(session, readings),
     confirmation: confirmationFromSession(session, readings),
-    dialogueField: dialogueFieldFromLog(dialogueLog, session, readings, regions.scheduleCanvas),
     ...tableWindowsOf(session, readings, { schedule, settings, canvas: regions.scheduleCanvas }),
   }
 
@@ -1007,15 +990,6 @@ export function screenViewFromRegions(
       ? {}
       : { scaleMessage: displayScaleMessageText(echo.percent, echo.end, language) }),
   }
-}
-
-// see AG-11
-/** @purity pure */
-export function dialogueMessageFromInput(input: DialogueInput): SettledUtterance | null {
-  if (!input.isSettled) return null
-
-  // STOP: spec does not decide whether an empty, blank or long utterance is refused. Looked in AG-11, FR-066, AM-18 (PND-455)
-  return { author: input.author, text: input.text, settledAt: input.settledAt }
 }
 
 // TRAP: index 0 is Sunday and callers index by weekday number; never rotate by weekStartDay.

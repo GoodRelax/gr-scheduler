@@ -136,7 +136,6 @@ function readingsOf(schedule: Document['schedule'], showing: 'documentSettings' 
     fileSavedAt: null,
     fileSavedByteLength: null,
     isAgentApiEnabled: false,
-    isDialogueFieldVisible: true,
     pointer: null,
     pointerRestedMs: 0,
     hintTargetDwellMs: 0,
@@ -246,7 +245,6 @@ const EMPTY_VIEW = {
   openModal: null,
   notices: [],
   confirmation: null,
-  dialogueField: null,
   tooltips: [],
 } as unknown as ScreenView
 

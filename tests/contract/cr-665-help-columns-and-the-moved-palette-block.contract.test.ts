@@ -12,7 +12,6 @@ import {
   type HelpModal,
   type ScreenViewReadings,
 } from '../../src/adapter/screen-renderer/screen-renderer'
-import { emptyDialogueLog } from '../../src/entity/document-model/dialogue-log/dialogue-log'
 import { SETTINGS_CONSTANTS, SETTINGS_DEFAULTS, type DocumentSettings } from '../../src/entity/document-model/document-settings/document-settings'
 import type { Schedule } from '../../src/entity/document-model/schedule/schedule'
 import { emptySelection } from '../../src/entity/document-model/selection/selection'
@@ -29,7 +28,7 @@ const T_256_SPLIT =
 const T_256_CONTINUED_HEADING =
   '段目をタスクグループパネルの下の枠へ移すと定めた。群は名で名指す —— 群の中の行は 表 T-109 の `群` の欄が決めるので、行が群を移っても本表は書き換えない。⭐ 移した塊の見出しは、パレットの続きであることを言う語とすること（MUST）'
 const FR_036_LEFT_OFF =
-  'd`・`Open Chooser`・`Difference Review` の面だけ（`Help Modal` を併せて持つものを含む）である行と、`IC-52`・`IC-53`・`IC-75` を、段に載せてはならない（MUST NOT）'
+  's`・`Open Chooser`・`Difference Review` の面だけ（`Help Modal` を併せて持つものを含む）である行と、`IC-52`・`IC-53`・`IC-75` を、段に載せてはならない（MUST NOT）'
 const T_256_USER_WORDS = '（利用者が「コマンドパレット（続き）」と定めた）'
 
 const CLAUSES: readonly (readonly [string, string])[] = [
@@ -131,7 +130,7 @@ const helpShown = (language: DisplayLanguage): ScreenSession => ({
 })
 
 const helpOf = (language: DisplayLanguage): HelpModal => {
-  const view = screenViewFromRegions(REGIONS, SCHEDULE, SETTINGS, emptySelection(), helpShown(language), emptyDialogueLog(), READINGS)
+  const view = screenViewFromRegions(REGIONS, SCHEDULE, SETTINGS, emptySelection(), helpShown(language), READINGS)
   if (view.helpModal === undefined || view.helpModal === null) throw new Error('the help is not in the view')
   return view.helpModal
 }

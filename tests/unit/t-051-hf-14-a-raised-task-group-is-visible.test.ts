@@ -323,7 +323,6 @@ function screenPane(language: DisplayLanguage): ScreenPane {
     showScreenView: (view) => {
       views.push(view)
     },
-    readDialogueInput: () => null,
     readFieldCommit: () => null,
     readScreenPartAt: () => part,
   }

@@ -70,7 +70,6 @@ function viewWith(tooltips: readonly Tooltip[]): ScreenView {
     openModal: null,
     notices: [],
     confirmation: null,
-    dialogueField: null,
     tooltips,
   }
 }

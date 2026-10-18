@@ -68,8 +68,8 @@
 // same color, so no case here has to tell `EN-2` from `EN-4`.
 // ⚠️ `EN-5` JOINED THEM WITH DEFECT DFC-149 (利用者の裁定 2026-08-31) and is the
 // same picture again -- `isPressed`, `S-183`. It reaches no PALETTE entrance,
-// so the count above is unchanged: the entrances it stands on (`IC-18`, and
-// `IC-7` by the row's own words) are both `App Header` rows of 表 T-109.
+// so the count above is unchanged: the entrance it stands on (`IC-7` by the
+// row's own words) is an `App Header` row of 表 T-109.
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -244,7 +244,6 @@ const EMPTY_VIEW: ScreenView = {
   openModal: null,
   notices: [],
   confirmation: null,
-  dialogueField: null,
   tooltips: [],
 }
 
@@ -361,8 +360,7 @@ describe('the manuscripts still say what these cases read', () => {
     // 表示・非表示を切り替えるものを、いま表示している（表 T-206）」, in `S-183`. It
     // reaches the screen through `isPressed`, the same member `EN-2` and `EN-4`
     // use, so the cases below cover its picture without knowing it by name;
-    // which entrances stand in it is
-    // tests/unit/fr-066-the-dialogue-field-keeps-its-own-value.test.ts's.
+    // which entrances stand in it is the unit tests' to say.
     expect(T_237_ROWS.map((row) => row.id)).toEqual(['EN-8', 'EN-1', 'EN-2', 'EN-3', 'EN-4', 'EN-5', 'EN-6', 'EN-7'])
     for (const preference of THEMES) {
       expect(t236('S-146', preference).length).toBeGreaterThan(0)

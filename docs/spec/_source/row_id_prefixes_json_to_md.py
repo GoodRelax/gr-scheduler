@@ -83,6 +83,21 @@ TREE_WORD = dict((key, word) for key, _, word in TREES)
 # Folders that are not manuscripts.
 SKIP_DIRS = ('output', '__pycache__')
 
+# The ids the specification retired on purpose (.claude/skills/spec-graph-check/
+# retired.py, a module that holds data and nothing else). A ledger row about a
+# retired id records a row the owner DID define, so it is no second meaning.
+RETIRED_PY = os.path.join(ROOT, '.claude', 'skills', 'spec-graph-check', 'retired.py')
+
+
+def retired_ids():
+    """The burned seats, or none when the module is absent."""
+    if not os.path.exists(RETIRED_PY):
+        return set()
+    space = {}
+    with io.open(RETIRED_PY, encoding='utf-8') as f:
+        exec(compile(f.read(), RETIRED_PY, 'exec'), space)
+    return set(space.get('RETIRED', ()))
+
 # The first cell of a table row, wrapped however the manuscripts wrap it.
 ROW = re.compile(r'^\|\s*(?:\*\*)?`?([A-Z][A-Za-z]*)-(\d+[a-z]?)`?(?:\*\*)?\s*\|')
 # 「**表 T-023a — ポインタを押したときの判定順序**」
@@ -551,7 +566,7 @@ def problems(doc, rosters, suppressed):
                 # wrote. This is what tells a record apart from a collision.
                 theirs = rosters[key][prefix]['ids']
                 ours = rosters[owner][prefix]['ids'] if owner in used else set()
-                foreign = sorted(theirs - ours)
+                foreign = sorted(theirs - ours - retired_ids())
                 if foreign:
                     found.append(
                         '%s is declared a mirror in %s, but %d of its %d '

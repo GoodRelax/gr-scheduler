@@ -91,7 +91,6 @@ const VIEW: ScreenView = {
   openModal: null,
   notices: [],
   confirmation: null,
-  dialogueField: null,
   tooltips: [],
 }
 
@@ -183,7 +182,7 @@ describe('IN-5a -- 文字入力を確定していない間 (the state the surfac
     expect(textEntryStandsOpen(surface)).toBe(true)
   })
 
-  it('AG-11 / IN-4 書きかけの文字 -- nothing is handed back while the text stands unsettled', () => {
+  it('IN-4 書きかけの文字 -- nothing is handed back while the text stands unsettled', () => {
     const { surface } = typing('Kick-off meeting')
     expect(surface.readFieldCommit()).toBeNull()
   })

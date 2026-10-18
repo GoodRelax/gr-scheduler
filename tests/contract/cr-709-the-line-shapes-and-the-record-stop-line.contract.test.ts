@@ -89,7 +89,6 @@ function heldFrames(): () => void {
 const silentSurface = (part: () => ScreenPart | null): ScreenSurface =>
   ({
     showScreenView: () => undefined,
-    readDialogueInput: () => null,
     readFieldCommit: () => null,
     readScreenPartAt: () => part(),
   }) as ScreenSurface

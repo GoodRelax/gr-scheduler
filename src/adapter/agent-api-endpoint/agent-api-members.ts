@@ -7,10 +7,6 @@
 
 import type { Document } from '../../entity/document-model/document/document'
 import {
-  latestSequence,
-  type DialogueMessage,
-} from '../../entity/document-model/dialogue-log/dialogue-log'
-import {
   delayFixProposalRows,
   diagnoseDelay,
   proposeDelayFixes,
@@ -44,7 +40,6 @@ import {
   type InvariantRow,
 } from '../../use-case/edit-document/edit-document'
 import * as NotifyChangeWatchers from '../../use-case/notify-change-watchers/notify-change-watchers'
-import * as PostDialogueMessage from '../../use-case/post-dialogue-message/post-dialogue-message'
 import * as DocumentCodec from '../document-codec/document-codec'
 import { jsonFromDocument, mspdiFromDocument } from '../document-codec/document-codec'
 import * as ImageExporter from '../image-exporter/image-exporter'
@@ -191,11 +186,6 @@ export interface AgentWatch {
   stopWatching(): boolean
 }
 
-// see AV-12
-export type AgentDialogueMessageOutcome =
-  | { readonly ok: true; readonly message: DialogueMessage }
-  | { readonly ok: false; readonly refusal: AgentRefusal }
-
 // see AV-15
 export type AgentImportOutcome =
   | { readonly ok: true; readonly stamp: DocumentStamp; readonly hasUpdatedSchedule: boolean }
@@ -257,8 +247,6 @@ export interface AgentApi {
   /** @purity semi-pure-b */
   readSelection(): Selection
   /** @purity semi-pure-b */
-  readDialogueMessages(): readonly DialogueMessage[]
-  /** @purity semi-pure-b */
   readSearchRows(word: string, filters: 'asShown' | 'none', offset: number, limit: number): AgentSearchPage
   /** @purity semi-pure-b */
   readTableRows(table: 'delayDiagnosticsReport' | 'resourceList', word: string, filters: 'asShown' | 'none', offset: number, limit: number): AgentTableRows
@@ -295,36 +283,29 @@ export interface AgentApi {
 
   /** @purity non-pure */
   watchChanges(receive: AgentChangeReceiver): AgentWatch
-
-  /** @purity non-pure */
-  postDialogueMessage(text: string): AgentDialogueMessageOutcome
 }
 
-// see AV-13, AV-14
+// see AV-14
 // WHY: declared by their own components; their field names are held against table T-400 here.
 type SameFieldNames<TValue, TNames extends PropertyKey> = [keyof TValue] extends [TNames]
   ? ([TNames] extends [keyof TValue] ? true : false)
   : false
 const ELSEWHERE_DECLARED_FIELDS_MATCH: [
-  SameFieldNames<DialogueMessage, 'sequence' | 'author' | 'text' | 'settledAt'>,
-  SameFieldNames<ChangeNotice, 'watcher' | 'stamp' | 'messages' | 'mark'>,
-] = [true, true]
+  SameFieldNames<ChangeNotice, 'watcher' | 'stamp' | 'mark'>,
+] = [true]
 void ELSEWHERE_DECLARED_FIELDS_MATCH
 
 // see AM-1, AG-1
-const AGENT_API_VERSION = '2026-10-17T15:27:48Z'
+const AGENT_API_VERSION = '2026-10-18T02:15:42Z'
 // </generated>
 
 export interface AgentApiWiring {
   readonly source: SnapshotSource
   readonly holder: DocumentHolder
   readonly audience: ChangeAudience
-  readonly dialogueHolder: PostDialogueMessage.DialogueLogHolder
-  readonly dialogueAudience: PostDialogueMessage.DialogueAudience
   // see SF-10
   readonly changeWatchers: NotifyChangeWatchers.ChangeWatchers
-  // TRAP: required but possibly undefined, never optional (so too appShell and takeInDocument):
-  // an optional member lets a wiring forget it silently.
+  // TRAP: required but possibly undefined, never optional (so too appShell and takeInDocument): an optional member lets a wiring forget it silently.
   readonly rasterizer: ImageExporter.Rasterizer | undefined
   readonly appShell: DocumentCodec.AppShellSource | undefined
   readonly takeInDocument:
@@ -332,8 +313,7 @@ export interface AgentApiWiring {
     | undefined
   // see AM-26, AM-27
   readonly shownTasks: ShownTasksHolder | undefined
-  // WHY: optional, unlike its siblings: the log is a screen value of the report window, and a page with no window
-  // has written none, so an absent source reads as an empty log.
+  // WHY: optional, unlike its siblings: the log is a screen value of the report window, and a page with no window has written none, so an absent source reads as an empty log.
   readonly delayFixLog?: DelayFixLogSource | undefined
   // WHY: optional: absent, the holder is stepped through the same use case; the shell's steps also land the screen (FR-100).
   readonly historySteps?: HistoryStepper | undefined
@@ -839,43 +819,6 @@ function mspdiOfSnapshot(snapshot: AgentSnapshot): string {
   return mspdiFromDocument(snapshot.document, snapshot.localReadAt).text
 }
 
-// see AM-18, AG-11, T-233, WS-2
-// WHY: refused like a write -- a subscriber answering mid-delivery would
-// keep the round from ever finishing (Chapter 5.5).
-/** @purity non-pure */
-function postAgentUtterance(
-  wiring: AgentApiWiring,
-  snapshot: AgentSnapshot,
-  text: string,
-): AgentDialogueMessageOutcome {
-  if (NotifyChangeWatchers.isDeliveringNotices(wiring.changeWatchers)) {
-    return {
-      ok: false,
-      refusal: agentRefusal(
-        'AM-18',
-        'deliveringNotices',
-        snapshot,
-        'Chapter 5.5 with AG-11: a subscriber answering mid-delivery would never let the round end',
-        [],
-      ),
-    }
-  }
-  const utterance: PostDialogueMessage.SettledUtterance = {
-    author: wiring.writerName,
-    text,
-    settledAt: snapshot.readAt,
-  }
-  const posted = PostDialogueMessage.postDialogueMessage(
-    utterance,
-    wiring.dialogueHolder,
-    wiring.dialogueAudience,
-  )
-  return {
-    ok: true,
-    message: frozenCopy({ ...utterance, sequence: latestSequence(posted) }),
-  }
-}
-
 /** @purity semi-pure-b */
 function importLandingOutcome(landing: ImportLanding, after: AgentSnapshot): AgentWriteOutcome {
   // TRAP: `!landing` compiles but takes a refusal object for a landed import.
@@ -954,11 +897,6 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
     /** @purity semi-pure-b */
     readSelection(): Selection {
       return frozenCopy(source.readSnapshot().selection)
-    },
-
-    /** @purity semi-pure-b */
-    readDialogueMessages(): readonly DialogueMessage[] {
-      return frozenCopy(source.readSnapshot().dialogue.messages)
     },
 
     // see AM-25, AM-19
@@ -1173,10 +1111,7 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
       const snapshot = source.readSnapshot()
       const hasReplacedEarlierWatch = NotifyChangeWatchers.watchChanges(wiring.changeWatchers, {
         watcher: wiring.writerName,
-        since: {
-          seenScheduleUpdatedAt: snapshot.document.documentStamp.scheduleUpdatedAt,
-          seenSequence: latestSequence(snapshot.dialogue),
-        },
+        since: { seenScheduleUpdatedAt: snapshot.document.documentStamp.scheduleUpdatedAt },
         deliver: receive,
       })
 
@@ -1187,11 +1122,6 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
           return NotifyChangeWatchers.unwatchChanges(wiring.changeWatchers, wiring.writerName)
         },
       }
-    },
-
-    /** @purity non-pure */
-    postDialogueMessage(text: string): AgentDialogueMessageOutcome {
-      return postAgentUtterance(wiring, source.readSnapshot(), text)
     },
   }
 }

@@ -81,7 +81,6 @@ function viewWith(openModal: OpenModal): ScreenView {
     openModal,
     notices: [],
     confirmation: null,
-    dialogueField: null,
     tooltips: [],
   }
 }

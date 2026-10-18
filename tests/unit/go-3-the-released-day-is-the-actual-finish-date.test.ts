@@ -246,7 +246,6 @@ function host(): { readonly surface: { showSvg(svg: string): void }; runAnimatio
 function screenPane(): ScreenWiring {
   const surface: ScreenSurface = {
     showScreenView: () => undefined,
-    readDialogueInput: () => null,
     readFieldCommit: () => null,
     readScreenPartAt: (): ScreenPart | null => null,
   }

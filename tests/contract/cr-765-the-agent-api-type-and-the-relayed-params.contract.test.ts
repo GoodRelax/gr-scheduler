@@ -22,7 +22,6 @@ import type {
   AgentRefusal,
   AgentRefusalReason,
   AgentShownTasks,
-  AgentDialogueMessageOutcome,
   AgentWatch,
   AgentWriteOutcome,
   AgentImportOutcome,
@@ -30,7 +29,6 @@ import type {
   AgentWriteRequest,
 } from '../../src/adapter/agent-api-endpoint/agent-api-members'
 import type { RelayedParams } from '../../src/adapter/agent-api-endpoint/relayed-call'
-import type { DialogueMessage } from '../../src/entity/document-model/dialogue-log/dialogue-log'
 import type { Document } from '../../src/entity/document-model/document/document'
 import type { Selection } from '../../src/entity/document-model/selection/selection'
 import { printedMembers } from './cr-765-printed-tables'
@@ -54,10 +52,10 @@ const noNotice = (): void => undefined
 
 describe('AM-1 and AG-1: the version the AgentApi hands out is the one the table prints', () => {
   it('agentApiVersion is the date-time the prose of T-107 gives and the manuscript declares (JDG-2741)', () => {
-    expect(installAgentApi(stubbedWiring).agentApiVersion).toBe('2026-10-17T15:27:48Z')
-    expect(MANUSCRIPT.version).toBe('2026-10-17T15:27:48Z')
+    expect(installAgentApi(stubbedWiring).agentApiVersion).toBe('2026-10-18T02:15:42Z')
+    expect(MANUSCRIPT.version).toBe('2026-10-18T02:15:42Z')
     expect(MANUSCRIPT.version).toMatch(/^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$/)
-    expect(PRINTED).toContain('いまの版は `2026-10-17T15:27:48Z` である（`AM-1` が返す値）')
+    expect(PRINTED).toContain('いまの版は `2026-10-18T02:15:42Z` である（`AM-1` が返す値）')
   })
 
   it('schemaVersion is the format version the page was wired with (AM-2)', () => {
@@ -65,7 +63,7 @@ describe('AM-1 and AG-1: the version the AgentApi hands out is the one the table
   })
 })
 
-describe('the AgentApi value has exactly the 23 members of T-107, a property or a method as the table says', () => {
+describe('the AgentApi value has exactly the 21 members of T-107, a property or a method as the table says', () => {
   const api = installAgentApi(stubbedWiring) as unknown as Record<string, unknown>
 
   it('the keys are the confirmed names', () => {
@@ -85,14 +83,13 @@ describe('the AgentApi value has exactly the 23 members of T-107, a property or 
 })
 
 describe('the AgentApi type, member by member (T-107)', () => {
-  it('has 23 members and the published AgentApi is the same type', () => {
+  it('has 21 members and the published AgentApi is the same type', () => {
     expectTypeOf<keyof AgentApi>().toEqualTypeOf<
       | 'agentApiVersion'
       | 'schemaVersion'
       | 'readDocument'
       | 'readStamp'
       | 'readSelection'
-      | 'readDialogueMessages'
       | 'readSearchRows'
       | 'readTableRows'
       | 'readShownTasks'
@@ -109,7 +106,6 @@ describe('the AgentApi type, member by member (T-107)', () => {
       | 'focusTask'
       | 'showOnlyTasks'
       | 'watchChanges'
-      | 'postDialogueMessage'
     >()
     expectTypeOf<PublishedAgentApi>().toEqualTypeOf<AgentApi>()
   })
@@ -123,7 +119,6 @@ describe('the AgentApi type, member by member (T-107)', () => {
     expectTypeOf<ReturnType<AgentApi['readDocument']>>().toEqualTypeOf<Document>()
     expectTypeOf<ReturnType<AgentApi['readStamp']>>().toEqualTypeOf<Stamp>()
     expectTypeOf<ReturnType<AgentApi['readSelection']>>().toEqualTypeOf<Selection>()
-    expectTypeOf<ReturnType<AgentApi['readDialogueMessages']>>().toEqualTypeOf<readonly DialogueMessage[]>()
     expectTypeOf<ReturnType<AgentApi['readSearchRows']>>().toEqualTypeOf<AgentSearchPage>()
     expectTypeOf<ReturnType<AgentApi['readShownTasks']>>().toEqualTypeOf<AgentShownTasks>()
     expectTypeOf<ReturnType<AgentApi['readDelayDiagnostics']>>().toEqualTypeOf<AgentDelayDiagnostics>()
@@ -155,11 +150,9 @@ describe('the AgentApi type, member by member (T-107)', () => {
     expectTypeOf<ReturnType<AgentApi['exportEmbeddedHtml']>>().toEqualTypeOf<Promise<AgentExport<string>>>()
   })
 
-  it('watching takes a receiver and returns a watch; posting takes a text and returns an utterance outcome', () => {
+  it('watching takes a receiver and returns a watch', () => {
     expectTypeOf<Parameters<AgentApi['watchChanges']>>().toEqualTypeOf<[receive: AgentChangeReceiver]>()
     expectTypeOf<ReturnType<AgentApi['watchChanges']>>().toEqualTypeOf<AgentWatch>()
-    expectTypeOf<Parameters<AgentApi['postDialogueMessage']>>().toEqualTypeOf<[text: string]>()
-    expectTypeOf<ReturnType<AgentApi['postDialogueMessage']>>().toEqualTypeOf<AgentDialogueMessageOutcome>()
   })
 
   it('a refusal carries the five fields of AV-3 (no document) and its reason is the type of AV-4', () => {
@@ -185,7 +178,6 @@ describe('RelayedParams: what the relay carries to each member is the argument c
     expectTypeOf<RelayedParams['importDocument']>().toEqualTypeOf<{ source: AgentImportSource }>()
     expectTypeOf<RelayedParams['focusTask']>().toEqualTypeOf<{ taskUid: number }>()
     expectTypeOf<RelayedParams['showOnlyTasks']>().toEqualTypeOf<{ taskUids: readonly number[] }>()
-    expectTypeOf<RelayedParams['postDialogueMessage']>().toEqualTypeOf<{ text: string }>()
   })
 
   it('watchChanges carries nothing -- the relay reads waitMs itself and the page supplies the receiver', () => {

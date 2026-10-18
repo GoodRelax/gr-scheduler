@@ -779,7 +779,6 @@ CR-196  AM-13 の結線             ✅  **2026-08-23 に閉じた。赤 2 件�
 | UF-60 | `screen-renderer.ts` | **公開エントリ** | pure | PI-37 | ✅ 受入済 |
 | UF-62 | `app-header-items.ts` | 内部 | pure |  | ✅ 受入済 |
 | UF-65 | `command-palette.ts` | 内部 | pure |  | ✅ 受入済 |
-| UF-68 | `dialogue-field.ts` | 内部 | pure |  | ✅ 受入済 |
 | UF-67 | `notices.ts` | 内部 | pure |  | ✅ 受入済 |
 | UF-66 | `open-modals.ts` | 内部 | pure |  | ✅ 受入済 |
 | UF-64 | `properties-panel.ts` | 内部 | pure |  | ✅ 受入済 |

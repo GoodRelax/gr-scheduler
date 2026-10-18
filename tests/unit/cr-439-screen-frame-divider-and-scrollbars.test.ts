@@ -82,7 +82,6 @@ function viewWith(frame: ScreenView['frame']): ScreenView {
     openModal: null,
     notices: [],
     confirmation: null,
-    dialogueField: null,
     tooltips: [],
   }
 }

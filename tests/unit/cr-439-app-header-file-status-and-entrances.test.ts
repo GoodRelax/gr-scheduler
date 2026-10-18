@@ -111,7 +111,6 @@ function viewWith(items: AppHeaderItems): ScreenView {
     openModal: null,
     notices: [],
     confirmation: null,
-    dialogueField: null,
     tooltips: [],
   }
 }

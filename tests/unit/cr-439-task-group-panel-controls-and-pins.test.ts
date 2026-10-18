@@ -129,7 +129,6 @@ function viewWith(panel: TaskGroupPanel): ScreenView {
     openModal: null,
     notices: [],
     confirmation: null,
-    dialogueField: null,
     tooltips: [],
   }
 }

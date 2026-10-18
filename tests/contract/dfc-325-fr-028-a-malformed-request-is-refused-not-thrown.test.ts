@@ -13,7 +13,6 @@ import {
   type AgentSnapshot,
   type AgentWriteOutcome,
 } from '../../src/adapter/agent-api-endpoint/agent-api-endpoint'
-import { emptyDialogueLog } from '../../src/entity/document-model/dialogue-log/dialogue-log'
 import type { Document } from '../../src/entity/document-model/document/document'
 import {
   NOT_STORED_LIMITS,
@@ -99,7 +98,6 @@ function bench(): Bench {
       } as unknown as Document
     })(),
     history: { done: [], undone: [] } as EditHistory<ChangeStep>,
-    dialogue: emptyDialogueLog(),
   }
 
   const readSnapshot = (): AgentSnapshot => ({
@@ -107,7 +105,6 @@ function bench(): Bench {
     document: state.document,
     documentAsWritten: state.document,
     selection: emptySelection(),
-    dialogue: state.dialogue,
     frame: null,
     exportScene: null,
     isGestureInFlight: false,
@@ -131,17 +128,6 @@ function bench(): Bench {
       },
     },
     audience: { deliver: () => undefined },
-    dialogueHolder: {
-      read: () => state.dialogue,
-      replace: (next) => {
-        state.dialogue = next
-      },
-    },
-    dialogueAudience: {
-      deliver: (log) => {
-        state.dialogue = log
-      },
-    },
     rasterizer: undefined,
     takeInDocument: undefined,
     shownTasks: undefined,

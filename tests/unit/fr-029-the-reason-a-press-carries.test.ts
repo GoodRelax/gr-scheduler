@@ -412,7 +412,6 @@ function screenPane(language: DisplayLanguage = 'ja'): ScreenPane {
     showScreenView: (view) => {
       views.push(view)
     },
-    readDialogueInput: () => null,
     readFieldCommit: () => null,
     readScreenPartAt: () => part,
   }
@@ -614,7 +613,6 @@ const SPENT: readonly Spent[] = [
     onTaskGroup: null,
     because: 'no Task is chosen, so FR-034 has nothing to align',
   },
-  // WHY: IC-18 left with RS-35 (CR-562); FR-066 keeps IC-18 un-faint, so its press has work.
 ]
 
 /** Aim one entrance of one task group -- or of a surface, where the task group is null. */

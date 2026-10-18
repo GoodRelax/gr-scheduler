@@ -55,14 +55,6 @@
    }
   },
   {
-   "name": "readDialogueMessages",
-   "description": "The messages the person has confirmed in the dialogue field. They are not saved in the document.",
-   "inputSchema": {
-    "type": "object",
-    "properties": {}
-   }
-  },
-  {
    "name": "readSearchRows",
    "description": "Takes one word and returns the rows of the Search Panel: the task table, one page at a time, and the comment-box table.\nThe panel's own search field is neither read nor changed. An empty word narrows nothing, so the task rows are the whole outline.\nWith filters 'asShown' (the default) the column filters and sort the person has set on the task table are applied, so you get the same rows in the same order as on screen. To change them as the person would, send setTableView through applyCommands; the person's table changes too.\nUp to limit task rows (at most 100) are returned from offset. The answer lists the task table's columns (id, on-screen names, value kind), the total task row count and the next offset.\nThe status column only compares dates with the status date; for the exact delay analysis call readDelayDiagnostics.",
    "inputSchema": {
@@ -384,26 +376,13 @@
   },
   {
    "name": "watchChanges",
-   "description": "Waits for changes and messages confirmed by writers other than you.",
+   "description": "Waits for changes confirmed by writers other than you.",
    "inputSchema": {
     "type": "object",
     "properties": {
      "waitMs": {
       "type": "number",
       "description": "How long to wait, in milliseconds; when it runs out you get 'nothing yet'. Capped at 40000, below the relay's 45-second deadline"
-     }
-    }
-   }
-  },
-  {
-   "name": "postDialogueMessage",
-   "description": "Puts a message the AI has confirmed into the dialogue field.",
-   "inputSchema": {
-    "type": "object",
-    "properties": {
-     "text": {
-      "type": "string",
-      "description": "The message to put"
      }
     }
    }

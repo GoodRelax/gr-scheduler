@@ -234,7 +234,6 @@ function screenPane(language: DisplayLanguage = 'ja'): ScreenPane {
     showScreenView: (view) => {
       views.push(view)
     },
-    readDialogueInput: () => null,
     readFieldCommit: () => {
       const one = commit
       commit = null

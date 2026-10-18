@@ -406,7 +406,6 @@ function bench(document: Document): Bench {
   let part: ScreenPart | null = null
   const surface: ScreenSurface = {
     showScreenView: (view) => real.showScreenView(view),
-    readDialogueInput: () => real.readDialogueInput(),
     readFieldCommit: () => real.readFieldCommit(),
     readScreenPartAt: () => part,
   }

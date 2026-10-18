@@ -203,7 +203,6 @@ export function stage(document: Document): Stage {
   const shapes: string[] = []
   const surface: ScreenSurface = {
     showScreenView: () => undefined,
-    readDialogueInput: () => null,
     readFieldCommit: () => null,
     readScreenPartAt: (): ScreenPart | null => null,
   }

@@ -53,7 +53,7 @@
       "name": "UseCase and Entity",
       "shape": "box",
       "description": "Unchanged. Every check, refusal and stamp comparison stays here (AG-5).",
-      "remark": "CP-1 .. CP-16, CP-32 .. CP-36, CP-39"
+      "remark": "CP-1 .. CP-15, CP-32, CP-34 .. CP-36, CP-39"
     }
   ],
   "edges": [

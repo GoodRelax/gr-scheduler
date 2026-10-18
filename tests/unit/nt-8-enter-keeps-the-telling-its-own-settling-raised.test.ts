@@ -200,7 +200,6 @@ function loopWith(document: Document): Loop {
     showScreenView: (view) => {
       views.push(view)
     },
-    readDialogueInput: () => null,
     readFieldCommit: () => {
       const one = held
       held = null

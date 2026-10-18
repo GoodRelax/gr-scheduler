@@ -327,7 +327,6 @@ export function stage(document: Document, emptyDocument?: Document): Stage {
     showScreenView: (view) => {
       views.push(view)
     },
-    readDialogueInput: () => null,
     readFieldCommit: () => null,
     readScreenPartAt: (): ScreenPart | null => part,
   }

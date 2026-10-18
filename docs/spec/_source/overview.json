@@ -137,13 +137,7 @@
    "name": "NotifyChangeWatchers",
    "shape": "component",
    "description": "Hands confirmed changes to the watchers.",
-   "remark": "AG-6 / AG-11"
-  },
-  {
-   "name": "PostDialogueMessage",
-   "shape": "component",
-   "description": "Takes a confirmed utterance, appends it to DialogueLog and passes it on. Runtime only, never saved.",
-   "remark": "FR-066 / AG-11"
+   "remark": "AG-6"
   },
   {
    "name": "AdvanceScreenSession",
@@ -206,12 +200,6 @@
    "remark": ""
   },
   {
-   "name": "DialogueLog",
-   "shape": "component",
-   "description": "Confirmed utterances, in an order of their own that is independent of the revision. Never saved.",
-   "remark": ""
-  },
-  {
    "name": "ScreenRegions",
    "shape": "component",
    "description": "The rectangle of every screen part, and which region the pointer is in.",
@@ -226,8 +214,8 @@
   {
    "name": "ScreenRenderer",
    "shape": "component",
-   "description": "Builds the description of the UI parts outside the schedule, and passes on the utterance confirmed in the dialogue field. Declares ScreenSurface.",
-   "remark": "FR-051 / FR-006 / FR-036 / FR-053 / FR-076 / FR-066"
+   "description": "Builds the description of the UI parts outside the schedule. Declares ScreenSurface.",
+   "remark": "FR-051 / FR-006 / FR-036 / FR-053 / FR-076"
   },
   {
    "name": "DomScreenSurface",
@@ -254,7 +242,7 @@
    "target": "documentModel",
    "arrow": "dependency",
    "label": "converts",
-   "description": "backed by 20 component edge(s): SvgRenderer -> DocumentSettings; AgentApiEndpoint -> Selection; AgentApiEndpoint -> DialogueLog; AgentApiEndpoint -> Schedule; SvgRenderer -> Selection; SvgRenderer -> Schedule; InputCommandTranslator -> Selection; DocumentCodec -> Document; AgentApiEndpoint -> Document; InputCommandTranslator -> ScreenState; ScreenRenderer -> Schedule; ScreenRenderer -> DocumentSettings; ScreenRenderer -> Selection; ScreenRenderer -> DialogueLog; DocumentCodec -> DocumentSettings; DocumentCodec -> Schedule; ImageExporter -> DocumentSettings; InputCommandTranslator -> Document; InputCommandTranslator -> DocumentSettings; InputCommandTranslator -> Schedule"
+   "description": "backed by 18 component edge(s): SvgRenderer -> DocumentSettings; AgentApiEndpoint -> Selection; AgentApiEndpoint -> Schedule; SvgRenderer -> Selection; SvgRenderer -> Schedule; InputCommandTranslator -> Selection; DocumentCodec -> Document; AgentApiEndpoint -> Document; InputCommandTranslator -> ScreenState; ScreenRenderer -> Schedule; ScreenRenderer -> DocumentSettings; ScreenRenderer -> Selection; DocumentCodec -> DocumentSettings; DocumentCodec -> Schedule; ImageExporter -> DocumentSettings; InputCommandTranslator -> Document; InputCommandTranslator -> DocumentSettings; InputCommandTranslator -> Schedule"
   },
   {
    "source": "adapter",
@@ -268,7 +256,7 @@
    "target": "usecase",
    "arrow": "dependency",
    "label": "one operation",
-   "description": "backed by 11 component edge(s): InputCommandTranslator -> ApplyDocumentChange; AgentApiEndpoint -> ApplyDocumentChange; AgentApiEndpoint -> NotifyChangeWatchers; AgentApiEndpoint -> PostDialogueMessage; FileGateway -> ApplyDocumentChange; ScreenRenderer -> PostDialogueMessage; AgentApiEndpoint -> EditDocument; DocumentCodec -> EditDocument; InputCommandTranslator -> EditDocument; InputCommandTranslator -> AdvanceScreenSession; ScreenRenderer -> AdvanceScreenSession"
+   "description": "backed by 9 component edge(s): InputCommandTranslator -> ApplyDocumentChange; AgentApiEndpoint -> ApplyDocumentChange; AgentApiEndpoint -> NotifyChangeWatchers; FileGateway -> ApplyDocumentChange; AgentApiEndpoint -> EditDocument; DocumentCodec -> EditDocument; InputCommandTranslator -> EditDocument; InputCommandTranslator -> AdvanceScreenSession; ScreenRenderer -> AdvanceScreenSession"
   },
   {
    "source": "framework",
@@ -282,7 +270,7 @@
    "target": "documentModel",
    "arrow": "dependency",
    "label": "holds the current value",
-   "description": "backed by 7 component edge(s): SingleHtmlShell -> DialogueLog; SingleHtmlShell -> Document; SingleHtmlShell -> DocumentSettings; SingleHtmlShell -> EditHistory; SingleHtmlShell -> Schedule; SingleHtmlShell -> ScreenState; SingleHtmlShell -> Selection"
+   "description": "backed by 6 component edge(s): SingleHtmlShell -> Document; SingleHtmlShell -> DocumentSettings; SingleHtmlShell -> EditHistory; SingleHtmlShell -> Schedule; SingleHtmlShell -> ScreenState; SingleHtmlShell -> Selection"
   },
   {
    "source": "framework",
@@ -296,7 +284,7 @@
    "target": "usecase",
    "arrow": "dependency",
    "label": "candidates",
-   "description": "backed by 8 component edge(s): SingleHtmlShell -> ChooseStartupDocument; SingleHtmlShell -> PostDialogueMessage; SingleHtmlShell -> ApplyDocumentChange; SingleHtmlShell -> EditDocument; SingleHtmlShell -> ImportDocument; SingleHtmlShell -> NotifyChangeWatchers; SingleHtmlShell -> ValidateImportedDocument; SingleHtmlShell -> AdvanceScreenSession"
+   "description": "backed by 7 component edge(s): SingleHtmlShell -> ChooseStartupDocument; SingleHtmlShell -> ApplyDocumentChange; SingleHtmlShell -> EditDocument; SingleHtmlShell -> ImportDocument; SingleHtmlShell -> NotifyChangeWatchers; SingleHtmlShell -> ValidateImportedDocument; SingleHtmlShell -> AdvanceScreenSession"
   },
   {
    "source": "layoutEngine",
@@ -310,7 +298,7 @@
    "target": "documentModel",
    "arrow": "dependency",
    "label": "updates",
-   "description": "backed by 28 component edge(s): ApplyDocumentChange -> DocumentStamp; ApplyDocumentChange -> EditHistory; ChooseStartupDocument -> DocumentStamp; UndoEdit -> EditHistory; RedoEdit -> EditHistory; EditDocument -> Schedule; EditDocument -> DocumentSettings; ImportDocument -> Schedule; PostDialogueMessage -> DialogueLog; NotifyChangeWatchers -> DialogueLog; AdvanceScreenSession -> ScreenState; AdvanceScreenSession -> Selection; AdvanceScreenSession -> Schedule; AdvanceScreenSession -> DocumentSettings; ApplyDocumentChange -> Document; ApplyDocumentChange -> DocumentSettings; ApplyDocumentChange -> Schedule; ChooseStartupDocument -> Document; EditDocument -> Document; EditDocument -> ScreenState; ImportDocument -> Document; ImportDocument -> DocumentSettings; NotifyChangeWatchers -> Document; RedoEdit -> Document; UndoEdit -> Document; ValidateImportedDocument -> Document; ValidateImportedDocument -> DocumentSettings; ValidateImportedDocument -> Schedule"
+   "description": "backed by 26 component edge(s): ApplyDocumentChange -> DocumentStamp; ApplyDocumentChange -> EditHistory; ChooseStartupDocument -> DocumentStamp; UndoEdit -> EditHistory; RedoEdit -> EditHistory; EditDocument -> Schedule; EditDocument -> DocumentSettings; ImportDocument -> Schedule; AdvanceScreenSession -> ScreenState; AdvanceScreenSession -> Selection; AdvanceScreenSession -> Schedule; AdvanceScreenSession -> DocumentSettings; ApplyDocumentChange -> Document; ApplyDocumentChange -> DocumentSettings; ApplyDocumentChange -> Schedule; ChooseStartupDocument -> Document; EditDocument -> Document; EditDocument -> ScreenState; ImportDocument -> Document; ImportDocument -> DocumentSettings; NotifyChangeWatchers -> Document; RedoEdit -> Document; UndoEdit -> Document; ValidateImportedDocument -> Document; ValidateImportedDocument -> DocumentSettings; ValidateImportedDocument -> Schedule"
   },
   {
    "source": "usecase",
@@ -345,7 +333,6 @@
        "DocumentStamp",
        "EditHistory",
        "Selection",
-       "DialogueLog",
        "ScreenState"
       ]
      },
@@ -381,7 +368,6 @@
      "ValidateImportedDocument",
      "ChooseStartupDocument",
      "NotifyChangeWatchers",
-     "PostDialogueMessage",
      "AdvanceScreenSession"
     ]
    },

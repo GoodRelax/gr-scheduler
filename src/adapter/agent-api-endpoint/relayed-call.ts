@@ -24,7 +24,6 @@ export interface RelayedParams {
   readDocument: { includeCarry: boolean; taskUids: readonly number[] }
   readStamp: {}
   readSelection: {}
-  readDialogueMessages: {}
   readSearchRows: { word: string; filters: 'asShown' | 'none'; offset: number; limit: number }
   readTableRows: { table: 'delayDiagnosticsReport' | 'resourceList'; word: string; filters: 'asShown' | 'none'; offset: number; limit: number }
   readShownTasks: {}
@@ -42,7 +41,6 @@ export interface RelayedParams {
   showOnlyTasks: { taskUids: readonly number[] }
   // WHY: the relay reads waitMs itself; the page only subscribes.
   watchChanges: {}
-  postDialogueMessage: { text: string }
 }
 
 // WHY: only members with arguments, in their argument order.
@@ -56,7 +54,6 @@ const MEMBER_PARAMETERS = {
   redoEdit: ['expectedStamp'],
   focusTask: ['taskUid'],
   showOnlyTasks: ['taskUids'],
-  postDialogueMessage: ['text'],
 } as const satisfies { readonly [K in ParameterizedMember]: readonly (keyof RelayedParams[K])[] }
 // </generated>
 

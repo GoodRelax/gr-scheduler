@@ -29,13 +29,6 @@ import {
 } from '../../src/entity/document-model/edit-history/edit-history'
 
 import {
-  emptyDialogueLog,
-  latestSequence,
-  logWithMessage,
-  messagesSince,
-} from '../../src/entity/document-model/dialogue-log/dialogue-log'
-
-import {
   advancedStamp,
   isStampMatched,
   type DocumentStamp,
@@ -123,38 +116,6 @@ describe('EditHistory (PI-4)', () => {
   it('undo and redo on an empty history hand back nothing', () => {
     expect(previousStep(emptyHistory<string>(), kept).step).toBeNull()
     expect(nextStep(emptyHistory<string>(), kept).step).toBeNull()
-  })
-})
-
-describe('DialogueLog (PI-33)', () => {
-  const settle = (author: string, text: string) => ({
-    author,
-    text,
-    settledAt: '2026-08-17T00:00:00Z',
-  })
-
-  it('AG-11 counts in an order of its own, separate from the stamp', () => {
-    let log = emptyDialogueLog()
-    log = logWithMessage(log, settle('human', 'wait'))
-    log = logWithMessage(log, settle('agent', 'why'))
-    expect(log.messages.map((oneMatch) => oneMatch.sequence)).toEqual([1, 2])
-    expect(latestSequence(log)).toBe(2)
-  })
-
-  it('AG-6 hands a watcher what it has not seen, from someone else', () => {
-    let log = emptyDialogueLog()
-    log = logWithMessage(log, settle('human', 'one'))
-    log = logWithMessage(log, settle('agent', 'two'))
-    log = logWithMessage(log, settle('human', 'three'))
-
-    expect(messagesSince(log, 0, 'agent').map((oneMatch) => oneMatch.text)).toEqual(['one', 'three'])
-    expect(messagesSince(log, 2, 'agent').map((oneMatch) => oneMatch.text)).toEqual(['three'])
-    expect(messagesSince(log, 3, 'agent')).toEqual([])
-  })
-
-  it('AG-6 does not wake a writer for its own utterance', () => {
-    const log = logWithMessage(emptyDialogueLog(), settle('agent', 'mine'))
-    expect(messagesSince(log, 0, 'agent')).toEqual([])
   })
 })
 

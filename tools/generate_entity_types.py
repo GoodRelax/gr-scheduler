@@ -1512,9 +1512,8 @@ NOT_STORED_TARGETS = {
     # CR-621: S-423 / S-424 (the floor under a window's width and height) and
     # S-426 (the strip a window's edge is held by, GR-25) are rows of table
     # T-335, which FR-036 holds for the help, the search panel, the Delay
-    # Diagnostics Report and the dialogue field alike; S-453 / S-454 are the
-    # dialogue field's default size, em ratios like S-436 (FR-066). They ride
-    # this constant, as S-475 .. S-481 ride the search panel's (CR-639): every
+    # Diagnostics Report and the Resource List alike. They ride this
+    # constant, as S-475 .. S-481 ride the search panel's (CR-639): every
     # window is drawn by this file's drawing units, and a constant of their own
     # would stand unread until the code wave draws them -- noUnusedLocals
     # refuses an unread const and check 30 an exported copy nobody imports.
@@ -1526,7 +1525,7 @@ NOT_STORED_TARGETS = {
     'NOT_STORED_HELP_SIZES': (['S-201', 'S-202', 'S-203', 'S-204', 'S-334',
                                'S-339', 'S-340', 'S-436', 'S-437',
                                'S-457', 'S-458', 'S-460',
-                               'S-423', 'S-424', 'S-426', 'S-453', 'S-454',
+                               'S-423', 'S-424', 'S-426',
                                'S-459', 'S-621', 'S-622'],
                               DRAWN_WITH_WHERE_IT_STANDS),
     # FR-088's Holiday Settings list (table T-257, CR-406; moved there from

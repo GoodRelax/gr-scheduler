@@ -53,7 +53,6 @@ import {
   taskGroupRowsOf,
   taskGroupsTopPx,
 } from './task-group-panel-drawing'
-import { dialogueFieldPainter } from './dialogue-field-drawing'
 import { helpWindowPainter, modalElement } from './open-modals-drawing'
 import { HOLIDAY_SETTINGS_TARGET_ATTRIBUTE, isHolidaySettingsModal, replaceKeepingListScroll } from './holiday-settings-drawing'
 import { SEARCH_WORD_ROW, searchPanelPainter, type TableWindowIdentity, type TableWindowView } from './search-panel-drawing'
@@ -94,7 +93,6 @@ export const ROLE = {
   commandPalette: 'Command Palette',
   paletteGroups: 'Palette Groups',
   paletteCommands: 'Palette Commands',
-  dialogueField: 'Dialogue Field',
   notices: 'Notification Area',
   confirmation: 'Confirmation',
   tooltips: 'Tooltip',
@@ -482,14 +480,6 @@ export const STYLE = {
   watermarkUnlockEntry:
     `display:block;box-sizing:border-box;width:100%;margin:0.5em 0;font:inherit;` +
     `background:${PAINT.ground};color:${PAINT.ink};border:1px solid ${PAINT.rule};`,
-  dialogueField:
-    'box-sizing:border-box;display:flex;flex-direction:column;overflow:hidden;' +
-    `background:${PAINT.ground};color:${PAINT.ink};` +
-    `border:1px solid ${PAINT.rule};pointer-events:auto;`,
-  dialogueMessages: 'flex:1;overflow-y:auto;padding:0 0.5em;',
-  dialogueMessage: 'line-height:1.5;',
-  dialogueAuthor: `color:${PAINT.quiet};margin-right:0.5em;`,
-  dialogueEntry: 'font:inherit;margin-top:0.25em;',
   // TRAP: none, or the box takes the press meant for the entrance under it (IN-3, UZ-2).
   tooltip:
     'position:absolute;width:max-content;white-space:normal;' +
@@ -590,7 +580,6 @@ export const SCREEN_Z_ORDER: readonly string[] = [
   'UZ-13',
   'UZ-7',
   'UZ-8',
-  'UZ-9',
   'UZ-10',
   'UZ-11',
   'UZ-12',
@@ -868,7 +857,6 @@ function drawnKeyedBySurface(
 export interface ScreenSurfaceWiring {
   readonly host: Document
   readonly mount: Element
-  readonly readAuthor: () => string
   readonly readClockMs: () => number
   readonly onAppHeaderHeightMeasured: (heightPx: number) => void
   readonly onTaskGroupControlsHeightMeasured?: (heightPx: number) => void
@@ -946,7 +934,6 @@ function screenLayersOf(host: Document) {
     resourceListLayer: made(host, 'div', STYLE.layer),
     reportLayer: made(host, 'div', STYLE.layer),
     scheduleFilterBarLayer: made(host, 'div', STYLE.layer),
-    dialogueField: part(host, 'div', ROLE.dialogueField, STYLE.hidden),
     appHeader: part(host, 'div', ROLE.appHeader, appHeaderStyle()),
     // WHY: (T-337) every open surface but Help, which JDG-666 gives its own layer (helpLayer, UZ-7).
     modalLayer: made(host, 'div', STYLE.layer),
@@ -967,7 +954,6 @@ function screenLayersOf(host: Document) {
     [layers.helpLayer, 'UZ-7'],
     [layers.appHeader, 'UZ-8'],
     [layers.scheduleFilterBarLayer, 'UZ-8'],
-    [layers.dialogueField, 'UZ-9'],
     [layers.dividerBandLayer, 'UZ-10'],
     [layers.taskGroupPanel, 'UZ-11'],
     [layers.taskGroupTitleTree, 'UZ-11'],
@@ -1042,13 +1028,13 @@ function tableWindowsInOrder(...windows: readonly (readonly [HTMLElement, TableW
 // see IF-9, PI-38
 /** @purity non-pure */
 export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
-  const { host, readAuthor, readClockMs, onAppHeaderHeightMeasured, readTheme } = wiring
+  const { host, readClockMs, onAppHeaderHeightMeasured, readTheme } = wiring
 
   const root = made(host, 'div', STYLE.root + typefaceStyle() + themeStyle(readTheme()))
   root.setAttribute('data-unit', UNIT_ROW)
   const layers = screenLayersOf(host)
   const { frameLayer, taskGroupPanel, taskGroupTitleTree, propertiesPanel, dividerBandLayer, paletteLayer, searchPanelLayer } = layers
-  const { dialogueField, appHeader, modalLayer, helpLayer, noticeLayer, confirmationLayer, tooltipLayer, reportLayer, resourceListLayer } = layers
+  const { appHeader, modalLayer, helpLayer, noticeLayer, confirmationLayer, tooltipLayer, reportLayer, resourceListLayer } = layers
 
   const { openEveryTaskGroup, collapseEveryTaskGroup, openLevelZero, addTopTaskGroup, deleteEveryTaskGroup } =
     headEntryElements(host)
@@ -1111,8 +1097,6 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
   }
 
   const reportRowControlsHeight = taskGroupControlsHeightReporter(taskGroupTitleTree, readClockMs, wiring)
-
-  const dialogue = dialogueFieldPainter(host, dialogueField, readAuthor, readClockMs)
 
   const help = helpWindowPainter(host, helpLayer)
 
@@ -1210,7 +1194,6 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
       ...helpKeysOf(helpModal),
       notices: described(view.notices),
       confirmation: described(view.confirmation),
-      dialogueField: described(view.dialogueField),
       searchPanel: described(view.searchPanel),
       delayDiagnosticsReport: described(view.delayDiagnosticsReport ?? null),
       resourceList: described(view.resourceList ?? null),
@@ -1302,7 +1285,6 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
 
     if (changed('framePlace') || changed('commandPalette')) reportPaletteBand()
     if (isHeaderMoved || changed('frame') || changed('propertiesPanel')) placePanels(view)
-    if (changed('dialogueField')) dialogue.draw(view.dialogueField ?? null, anchorsOf('dialogueField'), zIndexStyle('UZ-9'))
     if (isHeaderMoved || changed('notices')) {
       noticeLayer.setAttribute('style', STYLE.notices + `top:${headerTopPx()}px;` + zIndexStyle('UZ-4'))
     }
@@ -1316,11 +1298,8 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
     showUnpressableWords(host, scaleMessageLayer, readoutLayer, view)
     showDropCue(host, dropCueLayer, view.dropCue)
     showJumpRipple(host, jumpRippleLayer, view.jumpRipple, readTheme().monochrome === true)
-    // TRAP: shown synchronously, never inside a frame callback: a first paint that waits for one
-    // leaves a white screen until an input arrives.
+    // TRAP: shown synchronously, never inside a frame callback: a first paint that waits for one leaves a white screen until an input arrives.
     root.setAttribute('style', STYLE.rootShown + typefaceStyle() + themeStyle(readTheme()))
-
-    dialogue.forgetSettled()
   }
 
   const fieldEditing = fieldEditingOf(host, propertiesPanel)
@@ -1390,11 +1369,10 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
   /** @purity semi-pure-b */
   const windowsAnswerAt = (asked: PointAsked): ScreenPart | null => {
     const answered = tableWindows.answerAt(asked)
-    return withPropertyLinkJump(dialogue.answerAt({ ...asked, walked: help.answerAt({ ...asked, walked: answered }) }), asked.first)
+    return withPropertyLinkJump(help.answerAt({ ...asked, walked: answered }), asked.first)
   }
 
-  // TRAP: onAppHeaderHeightMeasured fires here, before this factory returns: the callback may not
-  // reach for the surface, and BO-1's regions must wait for it.
+  // TRAP: onAppHeaderHeightMeasured fires here, before this factory returns: the callback may not reach for the surface, and BO-1's regions must wait for it.
   reportHeaderHeight()
 
   // see SV-2
@@ -1403,13 +1381,12 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
   )
 
   wiring.holdReadWatermarkUnlockAnswer?.(fieldEditing.readWatermarkUnlockAnswer)
-  const windowLayers = { searchPanel: searchPanelLayer, delayDiagnosticsReport: reportLayer, resourceList: resourceListLayer, helpModal: helpLayer, dialogueField }
+  const windowLayers = { searchPanel: searchPanelLayer, delayDiagnosticsReport: reportLayer, resourceList: resourceListLayer, helpModal: helpLayer }
   wiring.holdWindowReaders?.(windowReadersOf(host, windowLayers, propertiesPanel, { search: searchPanel, report, resourceList }))
 
   // WHY: focusPropertyField travels on the wiring: the IF-9 cell of table T-065 names exactly these.
   return {
     showScreenView,
-    readDialogueInput: dialogue.readDialogueInput,
     readFieldCommit: fieldEditing.readFieldCommit,
     readScreenPartAt,
     readFieldEditNotices: fieldEditing.readFieldEditNotices,
@@ -1647,8 +1624,6 @@ export const NOT_STORED_HELP_SIZES: {
   readonly 'S-423': number
   readonly 'S-424': number
   readonly 'S-426': number
-  readonly 'S-453': number
-  readonly 'S-454': number
   readonly 'S-459': string
   readonly 'S-621': number
   readonly 'S-622': number
@@ -1668,8 +1643,6 @@ export const NOT_STORED_HELP_SIZES: {
   'S-423': 360,
   'S-424': 160,
   'S-426': 6,
-  'S-453': 24,
-  'S-454': 14,
   'S-459': 'https://github.com/GoodRelax/gr-scheduler',
   'S-621': 40,
   'S-622': 10,

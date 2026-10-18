@@ -100,7 +100,6 @@ function bench(document: Record<string, unknown>): Bench {
   let aimed: ScreenPart | null = null
   const surface = {
     showScreenView: (view: never) => drawn.showScreenView(view),
-    readDialogueInput: () => drawn.readDialogueInput(),
     readFieldCommit: () => drawn.readFieldCommit(),
     readFieldEditNotices: () =>
       (drawn as unknown as { readFieldEditNotices?: () => unknown[] }).readFieldEditNotices?.() ?? [],

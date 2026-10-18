@@ -1,4 +1,4 @@
-// CR-562 on the shipped build: IC-115 copies the image-to-GRS-JSON prompt, and IC-18 turns the Agent API on.
+// CR-562 on the shipped build: IC-115 copies the image-to-GRS-JSON prompt, and IC-20 turns the Agent API on.
 
 import { expect, test, type Browser, type BrowserContext, type Page } from '@playwright/test'
 import { readFileSync } from 'node:fs'
@@ -11,7 +11,6 @@ import {
   BASE_SCREEN,
   REQUIREMENTS,
   SHIPPED_BUILD,
-  isArmed,
   openDocument,
   openStage,
   pressEntrance,
@@ -34,10 +33,6 @@ const FR_068_BASE =
 const FR_068_OPENED_BY_OP_2 = '返った文書は 表 T-024a の `OP-2` の「開く」1 つから入る。'
 const FR_068_NO_SURFACE = '⭐ 入口は 表 T-109 の `IC-115` とし、押されたときに面を開かずにプロンプトをコピーすること（MUST）。'
 const FR_068_TELL = '⭐ コピーできたときは、コピーしたことと次に行うことを告げること（MUST） —— 運ぶ理由は 表 T-233 の `RS-65` とする。'
-const FR_066_PRESS =
-  '⭐ `Agent API` が無効のあいだに `IC-18` が押されたときは、欄を表示にし、`Agent API` も有効にすること（MUST）'
-const FR_066_NO_REVERSE = '⚠️ 逆向きは無い —— 欄を非表示にしても `Agent API` は有効のままである。'
-const FR_066_NOT_FAINT = '⚠️ そのため `IC-18` は、`Agent API` が無効のあいだも薄く描かない'
 const FR_065_REMEMBERED = '有効化はブラウザ（オリジン）ごとに記憶すること（MUST）'
 const RS_15_ROW = '| RS-15 | この理由にまだ行が無い |'
 
@@ -49,9 +44,6 @@ const CLAUSES: readonly string[] = [
   FR_068_OPENED_BY_OP_2,
   FR_068_NO_SURFACE,
   FR_068_TELL,
-  FR_066_PRESS,
-  FR_066_NO_REVERSE,
-  FR_066_NOT_FAINT,
   FR_065_REMEMBERED,
 ]
 
@@ -62,15 +54,12 @@ const roleName = (id: string): string => bare(rowOf(T_103, id).by['確定名（�
 const roleOf = (id: string): string => `[data-role="${roleName(id)}"]`
 
 const APP_HEADER = roleOf('U-31')
-const DIALOGUE_FIELD = roleOf('U-44')
 const NOT_A_SURFACE = new Set([roleName('U-57'), roleName('U-53')])
 
 const COPY_PROMPT = rowOf(T_109, 'IC-115').id
-const DIALOGUE = rowOf(T_109, 'IC-18').id
 const AGENT_API = rowOf(T_109, 'IC-20').id
 const SCREEN_LANGUAGE = rowOf(T_109, 'IC-21').id
 
-// WHY: CR-785 stands IC-18 on the Dialogue Field alone (JDG-2506), so this group holds IC-115 and IC-20 only.
 // see T-109
 const AI_GROUP: readonly string[] = T_109.rows
   .filter((row) => (row.by['面'] ?? '').trim() === `\`${roleName('U-31')}\`` && (row.by['群'] ?? '').trim() === 'AI')
@@ -187,7 +176,7 @@ test.afterAll(async () => {
   await browser?.close()
 })
 
-// WHY: not openStage -- that one presses IC-20 first, and IC-18 is judged here from a disabled Agent API.
+// WHY: not openStage -- that one presses IC-20 first, and the entrances are judged here from a disabled Agent API.
 /** @purity non-pure */
 async function visit(refuseCopy = false): Promise<Visit> {
   if (browser === null) throw new Error('no browser')
@@ -245,31 +234,16 @@ async function roles(page: Page): Promise<readonly string[]> {
   )
 }
 
-/** @purity semi-pure-b */
-async function isDrawn(page: Page, selector: string): Promise<boolean> {
-  return page.evaluate((wanted: string) => {
-    const box = document.querySelector(wanted)?.getBoundingClientRect()
-    return box !== undefined && box.width > 0 && box.height > 0
-  }, selector)
-}
-
-/** @purity semi-pure-b */
-async function agentApiPublished(page: Page): Promise<boolean> {
-  return page.evaluate(() => typeof (globalThis as unknown as Record<string, unknown>)['grSchedulerAgentApi'] === 'object')
-}
-
 test.describe('CR-562 -- the clauses and the generated seam these cases are driven by', () => {
-  test('FR-068, FR-066, FR-065 and RS-15 still read this way', () => {
+  test('FR-068, FR-065 and RS-15 still read this way', () => {
     for (const clause of CLAUSES) expect(REQUIREMENTS, clause).toContain(clause)
     expect(NOTICE_ROSTER, RS_15_ROW).toContain(RS_15_ROW)
   })
 
-  test(`表 T-109 puts exactly two entrances in the App Header's group AI, IC-115 and IC-20, holds IC-18 on the Dialogue Field alone, and has no IC-19`, () => {
+  test(`表 T-109 puts exactly two entrances in the App Header's group AI, IC-115 and IC-20, and has no IC-19`, () => {
     expect(AI_GROUP).toHaveLength(2)
     expect(AI_GROUP).toContain(COPY_PROMPT)
     expect(AI_GROUP).toContain(AGENT_API)
-    expect(AI_GROUP).not.toContain(DIALOGUE)
-    expect(rowOf(T_109, DIALOGUE).by['面']?.trim()).toBe(`\`${roleName('U-44')}\``)
     expect(T_109.rows.map((row) => row.id)).not.toContain('IC-19')
     expect(roleName('U-30'), '表 T-103 U-30 names the Help Modal only').toBe('Help Modal')
   })
@@ -375,7 +349,7 @@ test.describe(`IC-115 -- ${FR_068_NO_SURFACE}`, () => {
 })
 
 test.describe('the App Header -- group AI', () => {
-  test('draws the two entrances of group AI, not IC-18, and no IC-19, and no AI Export Modal is ever named', async () => {
+  test('draws the two entrances of group AI, and no IC-19, and no AI Export Modal is ever named', async () => {
     const one = await visit()
     try {
       const drawn = await one.page.evaluate(
@@ -386,35 +360,8 @@ test.describe('the App Header -- group AI', () => {
       const known = new Set(T_109.rows.map((row) => row.id))
       expect(drawn.filter((icon) => !known.has(icon)), 'the header draws an entrance 表 T-109 does not hold').toEqual([])
       expect([...new Set(drawn.filter((icon) => AI_GROUP.includes(icon)))].sort()).toEqual([...AI_GROUP].sort())
-      expect(drawn, 'JDG-2506: the App Header no longer draws IC-18').not.toContain(DIALOGUE)
       expect(await one.page.$('[data-icon="IC-19"]')).toBeNull()
       expect(await roles(one.page)).not.toContain('AI Export Modal')
-    } finally {
-      await one.context.close()
-    }
-  })
-})
-
-test.describe(`IC-18 -- ${FR_066_PRESS}`, () => {
-  // WHY: JDG-2506 -- IC-18 has no entrance for now (CR-785)
-  test.fixme(`${FR_066_NOT_FAINT}; pressed, the field shows and the Agent API is enabled and remembered; hidden again, it stays enabled`, async () => {
-    const one = await visit()
-    try {
-      expect(await agentApiPublished(one.page), 'premise: the Agent API starts disabled').toBe(false)
-      expect(await isDrawn(one.page, DIALOGUE_FIELD), 'premise: no field while the Agent API is disabled').toBe(false)
-      expect(await isArmed(one.page, DIALOGUE), FR_066_NOT_FAINT).toBe(true)
-
-      expect(await pressEntrance(one.page, DIALOGUE), `${DIALOGUE} is on the screen`).toBe(true)
-      expect(await isDrawn(one.page, DIALOGUE_FIELD), FR_066_PRESS).toBe(true)
-      expect(await agentApiPublished(one.page), FR_066_PRESS).toBe(true)
-
-      expect(await pressEntrance(one.page, DIALOGUE), `${DIALOGUE} is on the screen`).toBe(true)
-      expect(await isDrawn(one.page, DIALOGUE_FIELD), 'the second press hides the field').toBe(false)
-      expect(await agentApiPublished(one.page), FR_066_NO_REVERSE).toBe(true)
-
-      await one.page.reload()
-      await readSettledDrawnSvg(one.page)
-      expect(await agentApiPublished(one.page), FR_065_REMEMBERED).toBe(true)
     } finally {
       await one.context.close()
     }

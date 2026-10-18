@@ -17,11 +17,11 @@ describe('DFC-1280 -- the words of an Esc rung and of a close target are named',
     for (const word of ['`target`', '`surface`', '`panel`', '`helpModal`']) expect(line, word).toContain(word)
   })
 
-  it('escapePressed carries a rung, and the rung words of the search panel, the help, the report and the dialogue field are named in table T-283', () => {
+  it('escapePressed carries a rung, and the rung words of the search panel, the help, the report and the resource list are named in table T-283', () => {
     expect(lineOf('| `screen/escapePressed`')).toContain('`rung`')
     const rungs = TABLES.split('\n').filter((line) => line.startsWith('| RG-'))
     const named = rungs.join('\n')
-    for (const word of ['searchPanel', 'helpModal', 'delayDiagnosticsReport', 'dialogueField']) expect(named, word).toContain(word)
+    for (const word of ['searchPanel', 'helpModal', 'delayDiagnosticsReport', 'resourceList']) expect(named, word).toContain(word)
   })
 })
 

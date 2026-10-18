@@ -3382,7 +3382,7 @@
    "seat": 17,
    "name": "changeLog",
    "description": {
-    "ja": "変更の理由。**会話そのものは保存しない**（`FR-066`）",
+    "ja": "変更の理由。**会話そのものは保存しない**（`UC-013` の拡張 4a）",
     "en": "Why a change was made; the conversation that led to it is not stored."
    },
    "export": false,

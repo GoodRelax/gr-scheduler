@@ -20,8 +20,7 @@
 //                 AG-4 the frozen copy, AG-6 which writers wake a watcher,
 //                 AG-7 an export is a value, AG-8 a failed image is a value,
 //                 AG-9 the two mid-gesture flags, AG-9a what a refusal carries,
-//                 AG-10 a call that runs but leaves no step, AG-11 the
-//                 utterance order
+//                 AG-10 a call that runs but leaves no step
 //   FR-028        accepted or refused, as a value; never a thrown exception
 //   FR-063        the schedule-data instant moves only for the schedule-data
 //                 group, and the writer and the settings instant are refreshed
@@ -60,10 +59,6 @@ import {
   mspdiFromDocument,
 } from '../../src/adapter/document-codec/document-codec'
 import type { ExportScene } from '../../src/adapter/image-exporter/image-exporter'
-import {
-  emptyDialogueLog,
-  type DialogueLog,
-} from '../../src/entity/document-model/dialogue-log/dialogue-log'
 import type { Document } from '../../src/entity/document-model/document/document'
 import { SETTINGS_CONSTANTS } from '../../src/entity/document-model/document-settings/document-settings'
 import {
@@ -94,7 +89,6 @@ import {
   unwatchChanges,
   type ChangeNotice,
 } from '../../src/use-case/notify-change-watchers/notify-change-watchers'
-import { postDialogueMessage } from '../../src/use-case/post-dialogue-message/post-dialogue-message'
 // ⚠️ The one reach into `Framework` this file makes, and it stands in for the
 // implementor of IF-7: FR-080's export environment is the shell's to build
 // (LY-5 of table T-060, MN-6 of table T-070), so the bench asks the shell for
@@ -120,7 +114,6 @@ const T_107 = [
   { row: 'AM-3', name: 'readDocument', isProperty: false },
   { row: 'AM-4', name: 'readStamp', isProperty: false },
   { row: 'AM-5', name: 'readSelection', isProperty: false },
-  { row: 'AM-6', name: 'readDialogueMessages', isProperty: false },
   { row: 'AM-25', name: 'readSearchRows', isProperty: false },
   { row: 'AM-28', name: 'readTableRows', isProperty: false },
   { row: 'AM-26', name: 'readShownTasks', isProperty: false },
@@ -137,7 +130,6 @@ const T_107 = [
   { row: 'AM-16', name: 'focusTask', isProperty: false },
   { row: 'AM-27', name: 'showOnlyTasks', isProperty: false },
   { row: 'AM-17', name: 'watchChanges', isProperty: false },
-  { row: 'AM-18', name: 'postDialogueMessage', isProperty: false },
 ] as const
 
 /**
@@ -365,7 +357,6 @@ interface Bench {
   snapshotReads: number
   document: Document
   history: EditHistory<ChangeStep>
-  dialogue: DialogueLog
   selection: Selection
   frame: FrameSnapshot | null
   isGestureInFlight: boolean
@@ -378,8 +369,6 @@ interface Bench {
   readonly notices: ChangeNotice[]
   /** A write made by somebody who is not this API, through the one write path. */
   writeAsPerson(commands: readonly DocumentCommand[], editedBy: string): void
-  /** An utterance settled by somebody who is not this API. */
-  speakAsPerson(text: string, author: string): void
 }
 
 let benchCount = 0
@@ -402,7 +391,6 @@ function bench(startWithFrame = true, schedule: Loose = SMALL_SCHEDULE): Bench {
     snapshotReads: 0,
     document,
     history: { done: [], undone: [] } as EditHistory<ChangeStep>,
-    dialogue: emptyDialogueLog(),
     selection: emptySelection(),
     frame: startWithFrame ? frameOf(document) : null,
     isGestureInFlight: false,
@@ -424,7 +412,6 @@ function bench(startWithFrame = true, schedule: Loose = SMALL_SCHEDULE): Bench {
       document: state.document,
       documentAsWritten: state.document,
       selection: state.selection,
-      dialogue: state.dialogue,
       frame: state.frame,
       // ⚠️ The two absences travel together: an implementor that has settled no
       // size (BO-1 of table T-077) has neither a frame nor an environment to
@@ -463,24 +450,10 @@ function bench(startWithFrame = true, schedule: Loose = SMALL_SCHEDULE): Bench {
         // `finally` so a throwing watcher cannot leave WS-2 refusing for ever.
         state.isDeliveringNotices = true
         try {
-          notifyChangeWatchers(CHANGE_WATCHERS, { document, hasUpdatedSchedule, dialogue: state.dialogue })
+          notifyChangeWatchers(CHANGE_WATCHERS, { document, hasUpdatedSchedule })
         } finally {
           state.isDeliveringNotices = false
         }
-      },
-    },
-    dialogueHolder: {
-      read: () => state.dialogue,
-      replace: (next) => {
-        state.dialogue = next
-      },
-    },
-    dialogueAudience: {
-      deliver: (log) => {
-        state.dialogue = log
-        // `false` for an utterance: AG-11 is not a schedule change, which is
-        // what `ConfirmedChange.hasUpdatedSchedule` states for this very case.
-        notifyChangeWatchers(CHANGE_WATCHERS, { document: state.document, hasUpdatedSchedule: false, dialogue: log })
       },
     },
     // ⚠️ IF-6 AND IF-8 ARE PRESENT AND ABSENT (台帳 DFC-356). `AgentApiWiring`
@@ -510,9 +483,6 @@ function bench(startWithFrame = true, schedule: Loose = SMALL_SCHEDULE): Bench {
     },
     get history() {
       return state.history
-    },
-    get dialogue() {
-      return state.dialogue
     },
     get selection() {
       return state.selection
@@ -565,13 +535,6 @@ function bench(startWithFrame = true, schedule: Loose = SMALL_SCHEDULE): Bench {
         },
         wiring.holder,
         wiring.audience,
-      )
-    },
-    speakAsPerson: (text, author) => {
-      postDialogueMessage(
-        { author, text, settledAt: state.readAt },
-        wiring.dialogueHolder,
-        wiring.dialogueAudience,
       )
     },
   } as Bench
@@ -652,7 +615,6 @@ function callEveryMember(api: AgentApi): void {
   api.readDocument(false, [])
   api.readStamp()
   api.readSelection()
-  api.readDialogueMessages()
   api.readSearchRows('', 'asShown', 0, 100)
   api.applyCommands({ expectedStamp: api.readStamp(), commands: [RENAME] })
   api.importDocument({ text: '{}' })
@@ -668,7 +630,6 @@ function callEveryMember(api: AgentApi): void {
   void api.exportEmbeddedHtml()
   api.focusTask(FIRST_UID)
   api.watchChanges(() => undefined).stopWatching()
-  api.postDialogueMessage('a settled utterance')
 }
 
 // ---------------------------------------------------------------------------
@@ -767,7 +728,7 @@ describe('AM-1 / AM-2 -- the two versions', () => {
     // Nothing in table T-035, table T-107, `_assets/tbl-settings.md` or Chapter
     // 6.1 states the starting value. This case is what falls over when the
     // pending decision is settled the other way. AG-1: CR-708 raised it to 2, CR-730 to 3, CR-710 wave 3b to 4, CR-769 to 5, CR-792 to 6 and then to a date-time (JDG-2741).
-    expect(bench().api.agentApiVersion).toBe('2026-10-17T15:27:48Z')
+    expect(bench().api.agentApiVersion).toBe('2026-10-18T02:15:42Z')
   })
 
   it("AM-2 answers the build's version, not the open document's (T-107 AM-2)", () => {
@@ -784,10 +745,10 @@ describe('AM-1 / AM-2 -- the two versions', () => {
 })
 
 // ---------------------------------------------------------------------------
-// AM-3 to AM-6 -- AG-4's frozen copy.
+// AM-3 to AM-5 -- AG-4's frozen copy.
 // ---------------------------------------------------------------------------
 
-describe('AM-3 to AM-6 -- AG-4, a frozen copy in both of its words', () => {
+describe('AM-3 to AM-5 -- AG-4, a frozen copy in both of its words', () => {
   it('AM-3 answers a copy that shares nothing with the running document', () => {
     const one = bench()
     // WHY: carry and carryElements are left out unless asked for, so ask for them to compare the whole (see AM-3)
@@ -854,21 +815,6 @@ describe('AM-3 to AM-6 -- AG-4, a frozen copy in both of its words', () => {
     const one = bench()
     expect(one.api.readSelection().items).toEqual([])
     expect(one.api.readDocument(false, []) as unknown as Loose).not.toHaveProperty('selection')
-  })
-
-  it('AM-6 answers nothing while the log is empty', () => {
-    expect(bench().api.readDialogueMessages()).toEqual([])
-  })
-
-  it('AM-6 answers one settled utterance, frozen and copied (AG-11)', () => {
-    const one = bench()
-    one.speakAsPerson('please move the survey phase', 'a person at the keyboard')
-    const read = one.api.readDialogueMessages()
-
-    expect(read).toHaveLength(1)
-    expect(read[0]?.text).toBe('please move the survey phase')
-    expect(everythingFrozen(read)).toBe(true)
-    expect(sharesNothingWith(read, one.dialogue)).toBe(true)
   })
 
   it('every read answers the value as it now stands, never a value cached at install', () => {
@@ -1256,7 +1202,7 @@ describe('AM-16 focusTask -- the view, not the schedule', () => {
 // ---------------------------------------------------------------------------
 
 describe('AM-11 exportJson -- AG-7 and the round trip', () => {
-  it('answers the GRS JSON as a value, with no dialogue of any kind (AG-7)', () => {
+  it('answers the GRS JSON as a value, as a value (AG-7)', () => {
     const text = exported(bench().api.exportJson())
     expect(typeof text).toBe('string')
     expect(() => JSON.parse(text) as unknown).not.toThrow()
@@ -1416,48 +1362,18 @@ describe('AM-17 watchChanges -- AG-6', () => {
     expect(one.notices).toEqual([])
   })
 
-  it('is NOT woken by its own utterance either (AG-6 selects on the same name)', () => {
-    const one = bench()
-    one.api.watchChanges((notice) => one.notices.push(notice))
-
-    one.api.postDialogueMessage('a thing the agent said')
-
-    expect(one.notices).toEqual([])
-  })
-
-  it('wakes for an utterance somebody else settled, although NO instant moved (AG-11)', () => {
-    // AG-11: 「発話は日程データではないので日程データの群の刻を動かさない
-    // （`FR-063`）。それでも監視は起きること（`AG-6`）」.
-    const one = bench()
-    const before = one.api.readStamp()
-    one.api.watchChanges((notice) => one.notices.push(notice))
-
-    one.speakAsPerson('wait -- why did you do that', 'a person at the keyboard')
-
-    expect(one.notices).toHaveLength(1)
-    expect(one.notices[0]?.messages.map((message) => message.text)).toEqual([
-      'wait -- why did you do that',
-    ])
-    expect(one.notices[0]?.stamp).toEqual(before)
-    // ⭐ The watcher woke and not one of the stamp's three fields moved -- the
-    // dialogue's own order is what carried it (AG-11, MUST).
-    expect(one.api.readStamp()).toEqual(before)
-    expect(one.notices[0]?.mark.seenScheduleUpdatedAt).toBe(before.scheduleUpdatedAt)
-    expect(one.notices[0]?.mark.seenSequence).toBe(1)
-  })
-
   it('is told only what happens from now on -- the tripwire PND-62 asks for', () => {
     // AG-6 says only "what I have not received yet", and nothing states what a
     // watcher that has never received anything is owed. This case is what falls
     // over when the pending decision is settled the other way.
     const one = bench()
-    one.speakAsPerson('said before anybody was watching', 'a person at the keyboard')
+    one.writeAsPerson([RENAME], 'a person at the keyboard')
 
     one.api.watchChanges((notice) => one.notices.push(notice))
-    one.speakAsPerson('said after', 'a person at the keyboard')
+    expect(one.notices).toEqual([])
+    one.writeAsPerson([{ kind: 'setProjectTitle', title: 'said after' }], 'a person at the keyboard')
 
     expect(one.notices).toHaveLength(1)
-    expect(one.notices[0]?.messages.map((message) => message.text)).toEqual(['said after'])
   })
 
   it('hands back a way to stop, since table T-107 has no member for it', () => {
@@ -1474,65 +1390,6 @@ describe('AM-17 watchChanges -- AG-6', () => {
     const one = bench()
     expect(one.api.watchChanges(() => undefined).hasReplacedEarlierWatch).toBe(false)
     expect(one.api.watchChanges(() => undefined).hasReplacedEarlierWatch).toBe(true)
-  })
-})
-
-// ---------------------------------------------------------------------------
-// AM-18 -- the utterance. AG-11.
-// ---------------------------------------------------------------------------
-
-describe('AM-18 postDialogueMessage -- AG-11', () => {
-  it('answers the message the log gave a sequence to', () => {
-    const one = bench()
-    const posted = accepted(one.api.postDialogueMessage('the survey phase now ends a week later')).message
-
-    expect(posted.text).toBe('the survey phase now ends a week later')
-    expect(posted.sequence).toBe(1)
-    expect(one.api.readDialogueMessages()).toHaveLength(1)
-  })
-
-  it('records the author under the name AM-17 subscribes with (AG-6 compares against it)', () => {
-    const one = bench()
-    expect(accepted(one.api.postDialogueMessage('anything')).message.author).toBe(one.writerName)
-  })
-
-  it('takes the time from the snapshot rather than reading a clock (CS-1, LY-5)', () => {
-    const one = bench()
-    one.readAt = '2027-01-02T03:04:05Z'
-    expect(accepted(one.api.postDialogueMessage('anything')).message.settledAt).toBe(
-      '2027-01-02T03:04:05Z',
-    )
-  })
-
-  it("moves no instant, so a caller's AG-2 lock survives a post (AG-11)", () => {
-    const one = bench()
-    const before = one.api.readStamp()
-
-    one.api.postDialogueMessage('anything')
-
-    expect(one.api.readStamp()).toEqual(before)
-    expect(accepted(one.api.applyCommands({ expectedStamp: before, commands: [RENAME] }))).toBeTruthy()
-  })
-
-  it('counts in an order of its own, rising by one past what the log already held', () => {
-    const one = bench()
-    one.speakAsPerson('first', 'a person at the keyboard')
-    one.speakAsPerson('second', 'a person at the keyboard')
-
-    expect(accepted(one.api.postDialogueMessage('third')).message.sequence).toBe(3)
-    expect(one.api.readDialogueMessages().map((message) => message.text)).toEqual([
-      'first',
-      'second',
-      'third',
-    ])
-  })
-
-  it('answers with a value for empty text, since no row states a rule it could fail', () => {
-    const one = bench()
-    const posted = accepted(one.api.postDialogueMessage('')).message
-
-    expect(posted.text).toBe('')
-    expect(one.api.readDialogueMessages()).toHaveLength(1)
   })
 })
 
@@ -1641,10 +1498,10 @@ describe('FR-028 -- accepted or refused, always as a value', () => {
   // ⛔ NO EXPECTATION IS LOWERED: the row moves to the case below, which pins the
   // half of FR-028 that survives -- the promise settles and never rejects.
   //
-  // ⭐ WHAT THE CASE STILL PINS is the twelve that answer from values already
+  // ⭐ WHAT THE CASE STILL PINS is the ten that answer from values already
   // held: a read or a write that quietly became a promise would leave every
   // caller holding an object instead of an answer.
-  it('answers no promise from the twelve rows that need no wait (FR-028)', () => {
+  it('answers no promise from the ten rows that need no wait (FR-028)', () => {
     const one = bench()
     const isThenable = (value: unknown): boolean =>
       typeof value === 'object' &&
@@ -1655,7 +1512,6 @@ describe('FR-028 -- accepted or refused, always as a value', () => {
       one.api.readDocument(false, []),
       one.api.readStamp(),
       one.api.readSelection(),
-      one.api.readDialogueMessages(),
       one.api.applyCommands({ expectedStamp: one.api.readStamp(), commands: [] }),
       one.api.undoEdit(one.api.readStamp()),
       one.api.redoEdit(one.api.readStamp()),
@@ -1663,7 +1519,6 @@ describe('FR-028 -- accepted or refused, always as a value', () => {
       one.api.exportMspdi(),
       one.api.exportSvg(),
       one.api.focusTask(FIRST_UID),
-      one.api.postDialogueMessage('anything'),
     ]
 
     for (const answer of answers) expect(isThenable(answer)).toBe(false)

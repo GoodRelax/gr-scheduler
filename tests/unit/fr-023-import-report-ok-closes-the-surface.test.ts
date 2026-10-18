@@ -294,7 +294,6 @@ function drawnImportReport(): {
     openModal: describedOn('ja'),
     notices: [],
     confirmation: null,
-    dialogueField: null,
     tooltips: [],
   } as unknown as ScreenView
   surface.showScreenView(view)

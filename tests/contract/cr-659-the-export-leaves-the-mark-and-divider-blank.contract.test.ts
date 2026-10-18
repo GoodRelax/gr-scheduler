@@ -79,7 +79,6 @@ const VIEW: ScreenView = {
   openModal: null,
   notices: [],
   confirmation: null,
-  dialogueField: null,
   tooltips: [],
 }
 

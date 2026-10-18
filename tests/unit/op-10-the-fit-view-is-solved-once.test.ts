@@ -297,7 +297,6 @@ function bench(document: Loose, env: FrameEnvironment = SCREEN, pen: Pump = pump
     showScreenView: (view: Loose) => {
       views.push(view)
     },
-    readDialogueInput: () => null,
     readFieldCommit: () => null,
     readScreenPartAt: () => part,
   }

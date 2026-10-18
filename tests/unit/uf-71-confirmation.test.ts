@@ -971,7 +971,6 @@ function wiringOf(built: Stage): ScreenSurfaceWiring {
   return {
     host: built.host,
     mount: built.mount as unknown as Element,
-    readAuthor: (): string => 'Watcher',
     readClockMs: (): number => Date.UTC(2026, 7, 22, 3, 4, 5),
     onAppHeaderHeightMeasured: (heightPx: number): void => {
       built.reportedHeights.push(heightPx)
@@ -1276,7 +1275,6 @@ const BASE_VIEW: ScreenView = {
   openModal: null,
   notices: [],
   confirmation: null,
-  dialogueField: null,
   tooltips: [],
 }
 
@@ -1313,7 +1311,6 @@ const rootAsking: ScreenSession = {
     ...emptyScreenSession.screen,
     screenLanguage: LANGUAGE,
     helpLanguage: LANGUAGE,
-    dialogueFieldDisplayState: { kind: 'shown', child: { kind: 'normal' } },
     milestoneListDisplayState: { kind: 'closed' },
     paletteDisplayState: { kind: 'shown', child: { kind: 'expanded' } },
     dualCursorModeState: { kind: 'off' },

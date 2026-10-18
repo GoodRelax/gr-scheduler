@@ -18,12 +18,10 @@ import {
 } from '../../adapter/document-codec/document-codec'
 import {
   UNTITLED_DOCUMENT_TITLE,
-  dialogueMessageFromInput,
   type DisplayLanguage,
   type ScreenSurface,
   type SearchFilterChange,
 } from '../../adapter/screen-renderer/screen-renderer'
-import { postDialogueMessage } from '../../use-case/post-dialogue-message/post-dialogue-message'
 import { domInputSource, escapeKeyLockOf, type EscapeKeyLock } from '../dom-input-source/dom-input-source'
 import {
   domScreenSurface,
@@ -65,10 +63,6 @@ const SCHEDULE_CANVAS_ROLE = 'Schedule Canvas'
 const AT_WINDOW_ORIGIN = 'position:fixed;left:0;top:0;right:0;bottom:0;'
 
 const SCROLLBAR_PROBE_PX = 100
-
-// DEVIATION: spec says the person writes as user (ED-1); here the name is empty (DFC-560)
-// TRAP: AG-6 tells writers apart by name alone, so a subscriber under an empty name is woken by the person's own lines.
-const AUTHOR_NOT_HELD = ''
 
 // WHY: taken once at boot: fetch(location.href) fails on file:// (LM-14), and the live DOM carries the drawn screen.
 let deliveredAppShellHtml: string | null = null
@@ -471,17 +465,6 @@ function publishAgentApiWhileEnabled(running: FrameLoop, schemaVersion: string):
   })
 }
 
-// see SF-10, AG-11, FR-066
-// TRAP: read before the view is shown: showing it forgets the settled utterance (dom-screen-surface.ts).
-/** @purity non-pure */
-function postSettledUtterance(surface: ScreenSurface, running: FrameLoop | null): void {
-  const input = surface.readDialogueInput()
-  const utterance = input === null ? null : dialogueMessageFromInput(input)
-  if (utterance === null || running === null) return
-  const seams = running.agentApiSeams()
-  postDialogueMessage(utterance, seams.dialogueHolder, seams.dialogueAudience)
-}
-
 /** @purity non-pure */
 function boot(): void {
   // TRAP: must stay the first statement; the lines below write the screen into the page IF-8 hands out.
@@ -568,7 +551,6 @@ function boot(): void {
   const screenSurface = domScreenSurface({
     host: document,
     mount: screenParts,
-    readAuthor: () => AUTHOR_NOT_HELD,
     readClockMs: () => Date.now(),
     readTheme: heldTheme,
     /** @purity non-pure */
@@ -621,7 +603,6 @@ function boot(): void {
       paintPageGround()
       nameDocumentLanguage(view.language)
       nameBrowserTab(view.appHeaderItems.documentTitle)
-      postSettledUtterance(screenSurface, loop)
       screenSurface.showScreenView(view)
     },
   }

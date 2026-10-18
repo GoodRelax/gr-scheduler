@@ -110,7 +110,7 @@
 | U-27 | `Document Title` | 文書名。<br>MSPDI の `Project/Title` に対応する。<br>⚠️ **「表題」「題名」と呼んではならない（MUST NOT）** —— 同じ値を指す |
 | U-30 | `Help Modal` | ヘルプ |
 | U-31 | `App Header` | ヘッダー |
-| U-32 | `Schedule Canvas` | （画面に出ない構造名。<br>日本語を当てない）。<br>範囲は、`App Header`（`U-31`）の下の縁からウィンドウの下の端までの、ウィンドウの全幅とする —— スケジュールフィルタの帯（`U-67`）が出ているあいだは、その帯の下の縁から（`01-04-requirements.md` の 表 T-353 の `TV-11`）。<br>利用者が見て押すのはこの範囲であり、仕様が `Schedule Canvas` の全体・中・角と書くときもこの範囲を指す（同書の 表 T-337 の `UZ-9`、表 T-335 の `WB-3` ほか）。<br>⚠️ ページの中で `data-role` に `Schedule Canvas` を持つ要素は、ウィンドウの左上の角 (0, 0) からウィンドウ全体を覆う描画の層であり、`App Header` の帯の上も含む —— 範囲とは別である（利用者が定めた）。<br>⛔ `Schedule Canvas` の範囲を、`data-role` に `Schedule Canvas` を持つ要素の箱から読んではならない（MUST NOT） —— 範囲は `App Header` の下の縁から測る |
+| U-32 | `Schedule Canvas` | （画面に出ない構造名。<br>日本語を当てない）。<br>範囲は、`App Header`（`U-31`）の下の縁からウィンドウの下の端までの、ウィンドウの全幅とする —— スケジュールフィルタの帯（`U-67`）が出ているあいだは、その帯の下の縁から（`01-04-requirements.md` の 表 T-353 の `TV-11`）。<br>利用者が見て押すのはこの範囲であり、仕様が `Schedule Canvas` の全体・中・角と書くときもこの範囲を指す（同書の 表 T-335 の `WB-3` ほか）。<br>⚠️ ページの中で `data-role` に `Schedule Canvas` を持つ要素は、ウィンドウの左上の角 (0, 0) からウィンドウ全体を覆う描画の層であり、`App Header` の帯の上も含む —— 範囲とは別である（利用者が定めた）。<br>⛔ `Schedule Canvas` の範囲を、`data-role` に `Schedule Canvas` を持つ要素の箱から読んではならない（MUST NOT） —— 範囲は `App Header` の下の縁から測る |
 | U-33 | `Canvas Overlays` | （同上） |
 | U-34 | `Palette Groups` / `Palette Commands` | （同上） |
 | U-35 | `Header Commands` / `Branding` | （同上）。<br>`Branding` は `App Header` の左端に置く製品の略称の字であり、規則は `01-04-requirements.md` の `FR-051` の 表 T-349 が持つ |
@@ -122,7 +122,6 @@
 | U-41 | `Percent Complete Label` | 完了率ラベル |
 | U-42 | `Pointer` | ポインタ。<br>マウスが指す点 |
 | U-43 | `Grab Region` / `Grab Point` | 掴み領域 / 掴み点。<br>形と大きさの全数は表 T-266、応える順は表 T-267 と表 T-268（日程の形でないものは表 T-023d）が持つ |
-| U-44 | `Dialogue Field` | 対話欄 |
 | U-45 | `GoodRelax Scheduler` | 本ソフトウェアの名称。<br>略称は `GRS`。<br>日本語に訳さない |
 | U-46 | `Pinned Task Group` | ピン止めしたタスクグループ。<br>縦にスクロールしても画面に残る |
 | U-47 | `Task Group Expander` | タスクグループの折りたたみの操作子。<br>⛔ **員数と置き方は 表 T-051 の `HF-1` が持ち、本行は持たない** —— **同じ数が 2 か所に載ると、必ず離れていく** |
@@ -381,7 +380,7 @@
 **Type**: SECTION
 
 **本表はアイコンの全数である**（`FR-029`）。  
-**138 行ある。**  
+**137 行ある。**  
 ⭐ 入口を並べる順は、面ごとに、本表の `群` の欄と行の順が決める —— 同じ面で同じ `群` の行を 1 つの塊に寄せ、塊どうしは塊の最初の行が本表に現れる順に、塊の中は本表の行の順に並べること（MUST）。  
 ⛔ 本表の `群` の欄は、この塊を決めるためだけに在る。  
 画面に刷ってはならない（MUST NOT） —— 規則と理由は `FR-053` が持つ。  
@@ -389,11 +388,11 @@
 **繋ぎ目は行 ID `IC-nn` だけである** —— 図では各図形の下に刷り、本表では第 1 列に立つ。  
 **`面` の欄は 表 T-103 の確定名である。**  
  新しい面の名を作らない。
-⚠️ **本表は英名の欄を持たない** —— 持つと 138 個の確定名を新たに作ることになる。  
+⚠️ **本表は英名の欄を持たない** —— 持つと 137 個の確定名を新たに作ることになる。  
 **表 T-012 の `SH-5` が既に書いている表記だけを使う。**  
 ⭐ `milestoneGlyph` の綴りは `_source/erd.json` が持つ—— 本表にコピーしない。  
 ⚠️ **`図形` の欄を持たないのも同じ理由である。**  
-⭐ **図形を持たない行は無い** —— 全 138 行が 図 F-019 に図形を持つ。  
+⭐ **図形を持たない行は無い** —— 全 137 行が 図 F-019 に図形を持つ。  
 新しく起こした図形を実物と見比べて選び直す義務は 表 T-026 の `RC-13` が持つ。
 
 ⭐ `構え` の欄は、その入口が押されたときポインタが入る 表 T-023b の行である。  
@@ -435,7 +434,6 @@
 | IC-107 | `App Header` | 調べる | 遅延診断を行う・レポートの窓を閉じていれば診断をやり直して開く・開いていれば窓だけを閉じる（押されている見た目は窓が開いていること —— `S-451`） | `FR-130` | — | — |
 | IC-115 | `App Header` | AI | 日程の画像をデータ化するプロンプトをクリップボードへコピーする | `FR-068` | — | — |
 | IC-20 | `App Header` | AI | `Agent API` を有効にする・無効にする | `FR-065` | — | — |
-| IC-18 | `Dialogue Field` | AI | AI との対話欄を表示する・非表示にする | `FR-066` | — | — |
 | IC-17 | `App Header` | 補助 | 文書の描画設定をプロパティパネルに表示する・プロパティパネルを閉じる（`S-99h`）。<br>⭐ テーマ色は、その面の先頭の欄で選ぶ（`FR-041` の 表 T-305） | `FR-072` | — | — |
 | IC-21 | `App Header` | 補助 | 画面の言語を選ぶ（`S-99`）。<br>ヘルプの中の言語は変えない —— ヘルプの言語は `IC-128` | `FR-038` | — | — |
 | IC-22 | `App Header` | 補助 | ヘルプを開く | `FR-036` | — | — |
@@ -481,7 +479,7 @@
 | IC-48 | `Command Palette` | カーソル | 同・`'single-vertical'` | `FR-048` | `S-66`（`'single-vertical'`） | — |
 | IC-45 | `Command Palette` | カーソル | デュアルカーソルの 2 本を置く（`S-65`）| `FR-082` | — | — |
 | IC-50 | `Command Palette` | 置く | マイルストーンの図形の一覧を、**同じ入口で展開し、折りたたむ**（`S-142`）。<br>⭐ **トグルは 1 つである**（`IC-11` / `IC-60` が先例）—— ⛔ 2 つ置くと 図 F-019 が同じ図形を 2 度描くことになり、読む人に見分けのつかない入口が並んで、どちらの状態でも片方が何もしない | `FR-078` | — | — |
-| IC-52 | `Help Modal` / `Resource List` / `Export Chooser` / `Open Chooser` / `Properties Panel` / `Search Panel` / `Delay Diagnostics Report` / `Holiday Settings` / `Dialogue Field` | — | 開いている面とプロパティパネルとウィンドウ（`FR-036` の 表 T-335 —— ヘルプ・検索パネル・遅延診断レポートの窓・対話欄・担当リストのウィンドウ）を閉じる | 表 T-028 の `IN-4` | — | — |
+| IC-52 | `Help Modal` / `Resource List` / `Export Chooser` / `Open Chooser` / `Properties Panel` / `Search Panel` / `Delay Diagnostics Report` / `Holiday Settings` | — | 開いている面とプロパティパネルとウィンドウ（`FR-036` の 表 T-335 —— ヘルプ・検索パネル・遅延診断レポートの窓・担当リストのウィンドウ）を閉じる | 表 T-028 の `IN-4` | — | — |
 | IC-53 | `Command Palette` | — | 掴んで動かせることを示す。<br>**ボタンではない** | `FR-053` | — | — |
 | IC-75 | `Command Palette` | — | 掴み帯の右端で、パレットを最小化し、**同じ入口で戻す**（`S-200`）。<br>⭐ **`IC-53` の右に並ぶ**（`FR-053`）| `FR-053` | — | — |
 | IC-54 | `Command Palette` | 構え | いま構えている図形を示す。<br>**ボタンではない** | 表 T-023b | — | — |
@@ -499,9 +497,9 @@
 | IC-119 | `Search Panel` | — | コメントボックスの表を出す | `FR-151` | — | — |
 | IC-153 | `Search Panel` / `Delay Diagnostics Report` / `Resource List` | — | その表のすべての列のフィルタをクリアし、並びを既定の並び（`FR-151` の 表 T-330 の `SV-8`）へ戻す。<br>⭐ 語・表示の列の値・スケジュールフィルタ（`IC-143`）は変えない。<br>戻すものが無いあいだは効かない | `FR-151` の 表 T-330 の `SV-1` | — | — |
 | IC-143 | `Search Panel` / `Delay Diagnostics Report` / `Resource List` | — | その表のスケジュールフィルタを掛け、同じ入口で解除する（`_assets/tbl-settings.md` の 表 T-203 の `S-560`・`S-564`・`S-568`）。<br>⭐ 検索パネルではタスクの表を出しているときだけ置く。<br>掛けていないあいだ、掛けても日程表が変わらないときは効かない（`FR-151` の 表 T-353 の `TV-5`）。<br>掛けているあいだは赤（同表の `TV-12`） | `FR-151` の 表 T-353 | — | — |
-| IC-129 | `Help Modal` / `Search Panel` / `Delay Diagnostics Report` / `Resource List` / `Dialogue Field` | — | ウィンドウ（`FR-036` の 表 T-335）を最小化し、同じ入口で戻す（`S-435`・`S-442`・`S-451`・`S-99i`）。<br>⭐ 図形は `IC-75` と同じである | `FR-036` の 表 T-335 | — | — |
-| IC-130 | `Help Modal` / `Search Panel` / `Delay Diagnostics Report` / `Resource List` / `Dialogue Field` | — | ウィンドウを最大化する（`S-435`・`S-442`・`S-451`・`S-99i`） | `FR-036` の 表 T-335 | — | — |
-| IC-131 | `Help Modal` / `Search Panel` / `Delay Diagnostics Report` / `Resource List` / `Dialogue Field` | — | 最大化したウィンドウを元のサイズに戻す（`S-435`・`S-442`・`S-451`・`S-99i`）。<br>⭐ `IC-130` の場所に、最大化しているあいだだけ描く | `FR-036` の 表 T-335 | — | — |
+| IC-129 | `Help Modal` / `Search Panel` / `Delay Diagnostics Report` / `Resource List` | — | ウィンドウ（`FR-036` の 表 T-335）を最小化し、同じ入口で戻す（`S-435`・`S-442`・`S-451`）。<br>⭐ 図形は `IC-75` と同じである | `FR-036` の 表 T-335 | — | — |
+| IC-130 | `Help Modal` / `Search Panel` / `Delay Diagnostics Report` / `Resource List` | — | ウィンドウを最大化する（`S-435`・`S-442`・`S-451`） | `FR-036` の 表 T-335 | — | — |
+| IC-131 | `Help Modal` / `Search Panel` / `Delay Diagnostics Report` / `Resource List` | — | 最大化したウィンドウを元のサイズに戻す（`S-435`・`S-442`・`S-451`）。<br>⭐ `IC-130` の場所に、最大化しているあいだだけ描く | `FR-036` の 表 T-335 | — | — |
 | IC-122 | `Search Panel` / `Delay Diagnostics Report` / `Resource List` | — | 列のフィルタと並べ替えを開く（列の見出しごとに 1 つ） | `FR-151` | — | — |
 | IC-123 | `Search Panel` / `Delay Diagnostics Report` / `Resource List` / `Properties Panel` | — | その列で昇順に並べる。<br>プロパティパネルでは、担当の欄の一覧を名の昇順に並べる（`FR-008` の 表 T-225 の `AS-5`） | `FR-151` ・ `FR-008` | — | — |
 | IC-124 | `Search Panel` / `Delay Diagnostics Report` / `Resource List` / `Properties Panel` | — | その列で降順に並べる。<br>プロパティパネルでは、担当の欄の一覧を名の降順に並べる（`FR-008` の 表 T-225 の `AS-5`） | `FR-151` ・ `FR-008` | — | — |

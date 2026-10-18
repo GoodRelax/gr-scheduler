@@ -276,17 +276,6 @@
    }
   },
   {
-   "rowId": "IC-18",
-   "label": {
-    "ja": "対話欄",
-    "en": "Chat"
-   },
-   "hint": {
-    "ja": "AI との対話欄の表示切替（Agent API も有効にする）",
-    "en": "Show or hide the Chat with the AI (also turns the Agent API on)"
-   }
-  },
-  {
    "rowId": "IC-17",
    "label": {
     "ja": "文書の設定",
@@ -2848,13 +2837,6 @@
    "heading": {
     "ja": "休日の設定",
     "en": "Working Time"
-   }
-  },
-  {
-   "name": "Dialogue Field",
-   "heading": {
-    "ja": "対話欄",
-    "en": "Chat"
    }
   }
  ],

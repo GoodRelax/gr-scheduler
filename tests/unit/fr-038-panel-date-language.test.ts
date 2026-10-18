@@ -571,7 +571,6 @@ function wiringOf(built: Stage): ScreenSurfaceWiring {
   return {
     host: built.host,
     mount: built.mount as unknown as Element,
-    readAuthor: (): string => built.author,
     readClockMs: (): number => built.clockMs,
     onAppHeaderHeightMeasured: (heightPx: number): void => {
       built.reportedHeights.push(heightPx)
@@ -769,7 +768,6 @@ const EMPTY_VIEW: ScreenView = {
   openModal: null,
   notices: [],
   confirmation: null,
-  dialogueField: null,
   tooltips: [],
 }
 

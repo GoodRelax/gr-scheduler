@@ -398,7 +398,6 @@ function screenPane(language: DisplayLanguage = 'ja'): ScreenPane {
     showScreenView: (view) => {
       views.push(view)
     },
-    readDialogueInput: () => null,
     readFieldCommit: () => null,
     readScreenPartAt: () => part,
   }
@@ -597,7 +596,6 @@ const PANEL_VIEW: ScreenView = {
   openModal: null,
   notices: [],
   confirmation: null,
-  dialogueField: null,
   tooltips: [],
 } as unknown as ScreenView
 

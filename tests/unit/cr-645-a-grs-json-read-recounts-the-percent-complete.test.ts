@@ -310,7 +310,6 @@ async function openedByReplacing(text: string, fileName: string): Promise<Opened
     showScreenView: (view) => {
       views.push(view)
     },
-    readDialogueInput: () => null,
     readFieldCommit: () => null,
     readScreenPartAt: () => part,
   }

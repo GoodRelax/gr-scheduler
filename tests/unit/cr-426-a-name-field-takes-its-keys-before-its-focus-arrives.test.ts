@@ -186,7 +186,6 @@ const benchWith = (answers: (asked: number) => boolean): Bench => {
   let part: ScreenPart | null = null
   const surface: ScreenSurface = {
     showScreenView: (view) => void views.push(view),
-    readDialogueInput: () => null,
     readFieldCommit: () => null,
     readScreenPartAt: () => part,
   }

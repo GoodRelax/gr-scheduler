@@ -88,7 +88,6 @@ const benchOf = (isProgressMarkerVisible: boolean) => {
   let shown = ''
   const surface: ScreenSurface = {
     showScreenView: () => undefined,
-    readDialogueInput: () => null,
     readFieldCommit: () => null,
     readScreenPartAt: () => aimed,
   }

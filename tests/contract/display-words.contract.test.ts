@@ -188,7 +188,6 @@ import {
   SETTINGS_DEFAULTS,
   type DocumentSettings,
 } from '../../src/entity/document-model/document-settings/document-settings'
-import { emptyDialogueLog, type DialogueLog } from '../../src/entity/document-model/dialogue-log/dialogue-log'
 import type { DelayDiagnosticsReport, Schedule } from '../../src/entity/document-model/schedule/schedule'
 import {
   emptySelection,
@@ -832,7 +831,6 @@ interface Frame {
   readonly settings: DocumentSettings
   readonly selection: Selection
   readonly root: ScreenSession
-  readonly dialogueLog: DialogueLog
   readonly readings: ScreenViewReadings
 }
 
@@ -842,7 +840,6 @@ const BASE: Frame = {
   settings: SETTINGS,
   selection: HOLDING_A_TASK,
   root: SCREEN_ROOT,
-  dialogueLog: emptyDialogueLog(),
   readings: SESSION,
 }
 
@@ -1075,13 +1072,6 @@ const resourceListShown = (shown: 'normal' | 'maximized', isChosen: boolean): Fr
   return frameWith({ readings: sessionWith({ resourceList, selectedResourceUids: isChosen ? [1] : [] }) })
 }
 
-// see FR-066, S-99i
-const dialogueFieldShown = (shown: 'normal' | 'maximized'): Frame =>
-  frameWith({
-    root: rootWith({ dialogueFieldDisplayState: { kind: 'shown', child: { kind: shown } } }),
-    readings: sessionWith({ isAgentApiEnabled: true }),
-  })
-
 type TableWindowView =
   | NonNullable<ScreenView['searchPanel']>
   | NonNullable<ScreenView['delayDiagnosticsReport']>
@@ -1163,14 +1153,6 @@ const SCENE_OF_WINDOW: ReadonlyMap<string, SurfaceScene> = new Map([
       frame: (rowId) => resourceListShown(rowId === RESTORE_ENTRY ? 'maximized' : 'normal', rowId === 'IC-67'),
       heading: (view) => view.resourceList?.heading,
       entries: (view) => tableWindowEntries(view.resourceList),
-    },
-  ],
-  [
-    'Dialogue Field',
-    {
-      frame: (rowId) => dialogueFieldShown(rowId === RESTORE_ENTRY ? 'maximized' : 'normal'),
-      heading: (view) => view.dialogueField?.heading,
-      entries: (view) => view.dialogueField?.titleEntries,
     },
   ],
   [
@@ -1281,7 +1263,6 @@ const freshViewOf = (build: Build, frame: Frame, language: string): ScreenView =
     frame.settings,
     frame.selection,
     withScreen(frame.root, { screenLanguage: language as DisplayLanguage, helpLanguage: language as DisplayLanguage }),
-    frame.dialogueLog,
     frame.readings,
   )
 
@@ -1390,12 +1371,6 @@ for (const entry of GENERATED['icons'] ?? []) {
   }
 
   const surfaces = surfacesOf(rowId)
-  // see FR-066, T-109, JDG-2506
-  // WHY: CR-785 stands IC-18 on the Dialogue Field alone and no part of that field draws it; the field cannot open for now.
-  if (rowId === 'IC-18' && !surfaces.includes('App Header')) {
-    drop('icons', rowId, 'FR-066: IC-18 is on the Dialogue Field only (T-109), the field cannot open for now, and no part of it prints this entry')
-    continue
-  }
   const on = (
     what: string,
     unit: string,

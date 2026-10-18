@@ -63,7 +63,6 @@ function probeBench(
   let aimed: ScreenPart | null = null
   const surface = {
     showScreenView: (view: ScreenView) => views.push(view),
-    readDialogueInput: () => null,
     readFieldCommit: () => null,
     readFieldEditNotices: () => [],
     readScreenPartAt: () => aimed,
@@ -276,7 +275,6 @@ function panelBench(document: Record<string, unknown>): PanelBench {
       views.push(view)
       drawn.showScreenView(view)
     },
-    readDialogueInput: () => drawn.readDialogueInput(),
     readFieldCommit: () => drawn.readFieldCommit(),
     readFieldEditNotices: () =>
       (drawn as unknown as { readFieldEditNotices?: () => unknown[] }).readFieldEditNotices?.() ?? [],

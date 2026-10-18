@@ -866,7 +866,7 @@ describe('WS-2 -- 書ける時機かを見る、三つの moment', () => {
   // WHY: these two cases go through the shell; the delivery window is
   // changeDeliveryStateMachine.delivering, so only the shell's WS-7 can refuse.
   const SHELL_WATCHER = 'uf-8-9 WS-2 subscriber'
-  const LONG_AGO = { seenScheduleUpdatedAt: '2000-01-01T00:00:00Z', seenSequence: 0 }
+  const LONG_AGO = { seenScheduleUpdatedAt: '2000-01-01T00:00:00Z' }
   const shellDocument = (rows: number): Document =>
     taskGroupDocument(
       Array.from({ length: rows }, (_one, index) => ({ id: `row-${index + 1}`, parentId: null })),

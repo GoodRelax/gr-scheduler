@@ -85,7 +85,6 @@ function bench(under: ScreenPart | null) {
   const asked: string[] = []
   const surface = {
     showScreenView: () => undefined,
-    readDialogueInput: () => null,
     readFieldCommit: () => null,
     readFieldEditNotices: () => [],
     readScreenPartAt: () => under,
@@ -166,7 +165,6 @@ describe('IF-9 / MK-13: the surface answers the Document Title for a point on th
     openModal: null,
     notices: [],
     confirmation: null,
-    dialogueField: null,
     tooltips: [],
   }) as unknown as ScreenView
 

@@ -219,7 +219,7 @@ async function boxOf(page: Page, selector: string): Promise<Box | null> {
 }
 
 // WHY: the range starts at the App Header's lower edge; the element with the role spans the window.
-// see U-32, UZ-9
+// see U-32
 /** @purity semi-pure-b */
 async function scheduleCanvasRange(page: Page): Promise<Box> {
   const header = await boxOf(page, APP_HEADER)

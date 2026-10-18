@@ -1,4 +1,4 @@
-// CR-785: the two help links, the IC-20 link in S-503 underlined, and the rows (MK-15, MK-16, MK-17, IC-18, note *1) the help drops.
+// CR-785: the two help links, the IC-20 link in S-503 underlined, and the rows (MK-15, MK-16, MK-17, note *1) the help drops.
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -13,7 +13,6 @@ import {
   type ScreenView,
   type ScreenViewReadings,
 } from '../../src/adapter/screen-renderer/screen-renderer'
-import { emptyDialogueLog } from '../../src/entity/document-model/dialogue-log/dialogue-log'
 import {
   SETTINGS_CONSTANTS,
   SETTINGS_DEFAULTS,
@@ -85,7 +84,7 @@ const LINK_INK = {
   dark: bare(S_503?.by['暗いテーマ'] ?? '').toLowerCase(),
 }
 
-const ROWS_LEFT_OFF_THE_HELP = ['MK-15', 'MK-16', 'MK-17', 'IC-18']
+const ROWS_LEFT_OFF_THE_HELP = ['MK-15', 'MK-16', 'MK-17']
 
 const rect = (x: number, y: number, width: number, height: number): ScreenRect => ({ x, y, width, height })
 
@@ -178,7 +177,6 @@ const viewOf = (
     SETTINGS,
     emptySelection(),
     sessionWith(screenLanguage, helpLanguage, isHelpShown),
-    emptyDialogueLog(),
     { ...READINGS, ...readings },
   )
 
@@ -208,7 +206,6 @@ const EMPTY_VIEW: ScreenView = {
   openModal: null,
   notices: [],
   confirmation: null,
-  dialogueField: null,
   tooltips: [],
 }
 
@@ -327,14 +324,8 @@ describe('CR-785 -- the premises read from the specification', () => {
     expect(REQUIREMENTS).toContain('`MK-13` / `MK-15` / `MK-16` / `MK-17`）と、内部の取り決め')
   })
 
-  it('table T-109 stands IC-18 on the Dialogue Field alone and IC-20 on the App Header', () => {
-    expect(surfacesOf('IC-18')).toEqual(['Dialogue Field'])
+  it('table T-109 stands IC-20 on the App Header', () => {
     expect(surfacesOf('IC-20')).toContain('App Header')
-  })
-
-  it('FR-066 says the field cannot be opened for now', () => {
-    expect(REQUIREMENTS).toContain('いま `IC-18` は 表 T-109 で `Dialogue Field` の面だけに在り、`App Header` に無い')
-    expect(REQUIREMENTS).toContain('対話欄を開く入口はほかに無いので、欄はいま開かない。')
   })
 
   it('the dictionary holds helpLinks download, about and agentApi in both languages, with no footnote and one helpNotes word', () => {
@@ -443,8 +434,8 @@ describe('FR-036 (MUST) -- note *1 is gone', () => {
   })
 })
 
-describe('FR-036 (MUST) -- MK-15, MK-16, MK-17 and IC-18 are not in the help', () => {
-  it.each(LANGUAGES)('%s: no item stands on any of the four rows', (language) => {
+describe('FR-036 (MUST) -- MK-15, MK-16 and MK-17 are not in the help', () => {
+  it.each(LANGUAGES)('%s: no item stands on any of the three rows', (language) => {
     const rows = helpOf(language).entries.map((one) => one.row)
     for (const row of ROWS_LEFT_OFF_THE_HELP) expect(rows, row).not.toContain(row)
   })
@@ -453,19 +444,9 @@ describe('FR-036 (MUST) -- MK-15, MK-16, MK-17 and IC-18 are not in the help', (
     const rows = helpOf(language).entries.filter((one) => one.table === 'T-023').map((one) => one.row)
     expect([...rows].sort()).toEqual(['MK-2', 'MK-5', 'MK-7'])
   })
-
-  it.each(LANGUAGES)('%s: no item names the Dialogue Field entrance by its icon', (language) => {
-    const icons = helpOf(language).entries.flatMap((one) => [one.icon, ...one.glyphs])
-    expect(icons).not.toContain('IC-18')
-  })
 })
 
-describe('FR-066 / T-109 -- IC-18 is not in the App Header (JDG-2506)', () => {
-  it.each(LANGUAGES)('%s: the header items do not hold IC-18', (language) => {
-    const icons = viewOf(language, language, false).appHeaderItems.commands.map((one) => one.icon)
-    expect(icons).not.toContain('IC-18')
-  })
-
+describe('T-109 -- the entrances of the App Header', () => {
   it.each(LANGUAGES)('%s: the header still holds the other entrances of the AI group, IC-20 and IC-115', (language) => {
     const icons = viewOf(language, language, false).appHeaderItems.commands.map((one) => one.icon)
     expect(icons).toContain('IC-20')
@@ -594,7 +575,7 @@ describe('FR-036 (MUST) -- the IC-20 item draws its link after its name, in a ne
     expect(others.map((one) => one.getAttribute('data-row'))).toEqual([])
   })
 
-  it.each(LANGUAGES)('%s: no item is drawn for MK-15, MK-16, MK-17 or IC-18', (language) => {
+  it.each(LANGUAGES)('%s: no item is drawn for MK-15, MK-16 or MK-17', (language) => {
     const { help } = drawnHelp(language)
     const drawnRows = selfAndDescendants(help)
       .filter((one) => one.getAttribute('data-table') !== null)

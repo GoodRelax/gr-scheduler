@@ -243,7 +243,6 @@ function stage(settings: Readonly<Record<string, unknown>>): Stage {
   let part: ScreenPart | null = null
   const surface: ScreenSurface = {
     showScreenView: () => undefined,
-    readDialogueInput: () => null,
     readFieldCommit: () => null,
     readScreenPartAt: () => part,
   }

@@ -621,7 +621,6 @@ function screenPane(language: DisplayLanguage = 'en'): ScreenWiring {
     showScreenView: (view) => {
       views.push(view)
     },
-    readDialogueInput: () => null,
     readFieldCommit: () => null,
     readScreenPartAt: (): ScreenPart | null => null,
   }
@@ -1601,7 +1600,6 @@ function laneStage(): LaneStage {
     showScreenView: (one) => {
       views.push(one)
     },
-    readDialogueInput: () => null,
     readFieldCommit: () => null,
     // ⭐⭐ A REAL ANSWER, WHERE THE FIXTURE THIS BLOCK USED TO USE ANSWERED
     // `null` EVERYWHERE. `ScreenPart.scrollbarAxis` (`screen-surface.ts`) is

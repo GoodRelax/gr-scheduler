@@ -125,7 +125,6 @@ const VIEW: Omit<ScreenView, 'tooltips'> = {
   openModal: null,
   notices: [],
   confirmation: null,
-  dialogueField: null,
 } as unknown as Omit<ScreenView, 'tooltips'>
 
 const sessionIn = (language: Language): ScreenSession => ({

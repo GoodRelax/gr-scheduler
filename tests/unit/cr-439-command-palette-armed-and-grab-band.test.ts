@@ -85,7 +85,6 @@ function viewWith(palette: CommandPalette | null): ScreenView {
     openModal: null,
     notices: [],
     confirmation: null,
-    dialogueField: null,
     tooltips: [],
   }
 }

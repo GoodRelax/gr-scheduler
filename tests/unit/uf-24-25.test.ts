@@ -1,13 +1,7 @@
-// Unit test: NotifyChangeWatchers (UF-24/UF-25) -- who a watcher wakes, table T-035 AG-6/AG-11.
+// Unit test: NotifyChangeWatchers (UF-24/UF-25) -- who a watcher wakes, table T-035 AG-6.
 
 import { afterEach, describe, expect, it } from 'vitest'
 
-import {
-  emptyDialogueLog,
-  latestSequence,
-  logWithMessage,
-  type DialogueLog,
-} from '../../src/entity/document-model/dialogue-log/dialogue-log'
 import type { Document } from '../../src/entity/document-model/document/document'
 import {
   changeNoticeFor,
@@ -22,8 +16,8 @@ import {
   type ChangeNotice,
 } from '../../src/use-case/notify-change-watchers/notify-change-watchers'
 
-// WHY: AG-6 compares a watcher's name against DocumentStamp.lastEditedBy and
-// DialogueMessage.author, so these must be the same strings that land there.
+// WHY: AG-6 compares a watcher's name against DocumentStamp.lastEditedBy,
+// so these must be the same strings that land there.
 const SELF = 'ai'
 const OTHER = 'user'
 
@@ -52,29 +46,19 @@ const documentOf = (
     changeLog: [],
   }) as unknown as Document
 
-const logOf = (...utterances: readonly (readonly [author: string, text: string])[]): DialogueLog =>
-  utterances.reduce(
-    (log, [author, text]) =>
-      logWithMessage(log, { author, text, settledAt: '2026-08-17T00:00:01' }),
-    emptyDialogueLog(),
-  )
-
-// WHY: document and dialogue sit side by side because FR-066 keeps the
-// conversation out of the document; hasUpdatedSchedule is WS-5's own judgment.
-const confirmedOf = (
-  document: Document,
-  dialogue: DialogueLog = emptyDialogueLog(),
-  hasUpdatedSchedule = false,
-): ConfirmedChange => ({ document, hasUpdatedSchedule, dialogue })
+// WHY: hasUpdatedSchedule is WS-5's own judgment.
+const confirmedOf = (document: Document, hasUpdatedSchedule = false): ConfirmedChange => ({
+  document,
+  hasUpdatedSchedule,
+})
 
 const markAt = (confirmed: ConfirmedChange): WatcherMark => ({
   seenScheduleUpdatedAt: confirmed.document.documentStamp.scheduleUpdatedAt,
-  seenSequence: latestSequence(confirmed.dialogue),
 })
 
 // WHY: table T-035's AG-6, copied here as fixed cases per Chapter 1.9 --
 // the watcher is SELF, already handed the document as it stood at T0.
-const SEEN: WatcherMark = { seenScheduleUpdatedAt: T0, seenSequence: 0 }
+const SEEN: WatcherMark = { seenScheduleUpdatedAt: T0 }
 
 const AG_6_CASES = [
   {
@@ -82,78 +66,39 @@ const AG_6_CASES = [
     scheduleUpdatedAt: T1,
     movedSchedule: true,
     writer: OTHER,
-    spokenBy: null,
     woken: true,
     carriesDocument: true,
-    messageCount: 0,
   },
   {
     case: 'my own write moved the schedule-data group (MUST NOT wake me)',
     scheduleUpdatedAt: T1,
     movedSchedule: true,
     writer: SELF,
-    spokenBy: null,
     woken: false,
     carriesDocument: false,
-    messageCount: 0,
-  },
-  {
-    case: 'someone else settled an utterance, which moves no instant (AG-11)',
-    scheduleUpdatedAt: T0,
-    movedSchedule: false,
-    writer: OTHER,
-    spokenBy: OTHER,
-    woken: true,
-    carriesDocument: false,
-    messageCount: 1,
-  },
-  {
-    case: 'my own utterance (MUST NOT wake me)',
-    scheduleUpdatedAt: T0,
-    movedSchedule: false,
-    writer: OTHER,
-    spokenBy: SELF,
-    woken: false,
-    carriesDocument: false,
-    messageCount: 0,
-  },
-  {
-    case: 'both halves at once: a change and an utterance by someone else',
-    scheduleUpdatedAt: T1,
-    movedSchedule: true,
-    writer: OTHER,
-    spokenBy: OTHER,
-    woken: true,
-    carriesDocument: true,
-    messageCount: 1,
   },
   {
     case: 'nothing new to me',
     scheduleUpdatedAt: T0,
     movedSchedule: false,
     writer: OTHER,
-    spokenBy: null,
     woken: false,
     carriesDocument: false,
-    messageCount: 0,
   },
 ] as const satisfies readonly {
   case: string
   scheduleUpdatedAt: string
   movedSchedule: boolean
   writer: string
-  spokenBy: string | null
   woken: boolean
   carriesDocument: boolean
-  messageCount: number
 }[]
 
 describe('ChangeNotice (UF-25) -- what one watcher has not been told', () => {
-  it('AG-6 wakes a watcher for the confirmed changes and utterances of OTHER writers only', () => {
+  it('AG-6 wakes a watcher for the confirmed changes of OTHER writers only', () => {
     for (const row of AG_6_CASES) {
       const confirmed = confirmedOf(
         documentOf(row.scheduleUpdatedAt, row.writer),
-        row.spokenBy === null ? emptyDialogueLog() : logOf([row.spokenBy, 'ま']),
         row.movedSchedule,
       )
       const notice = changeNoticeFor(SELF, SEEN, confirmed)
@@ -169,14 +114,12 @@ describe('ChangeNotice (UF-25) -- what one watcher has not been told', () => {
       expect(notice.watcher).toBe(SELF)
       // see AV-14, AG-6
       // WHY: the notice carries the stamp, never the document; whether the SCHEDULE is new shows in the mark,
-      // which moves to the new instant only when the schedule is new -- an utterance-only row leaves it where it was.
+      // which moves to the new instant only when the schedule is new.
       expect(notice.stamp).toBe(confirmed.document.documentStamp)
       expect({ case: row.case, mark: notice.mark.seenScheduleUpdatedAt }).toEqual({
         case: row.case,
         mark: row.carriesDocument ? confirmed.document.documentStamp.scheduleUpdatedAt : SEEN.seenScheduleUpdatedAt,
       })
-      expect(notice.messages).toHaveLength(row.messageCount)
-      for (const message of notice.messages) expect(message.author).not.toBe(SELF)
     }
   })
 
@@ -185,7 +128,6 @@ describe('ChangeNotice (UF-25) -- what one watcher has not been told', () => {
     // still while the other two stamp fields move (FR-063 MUST NOT).
     const presentationOnly = confirmedOf(
       documentOf(T0, OTHER, '2026-08-17T09:00:00Z'),
-      emptyDialogueLog(),
       false,
     )
     expect(changeNoticeFor(SELF, SEEN, presentationOnly)).toBeNull()
@@ -195,13 +137,12 @@ describe('ChangeNotice (UF-25) -- what one watcher has not been told', () => {
     for (let n = 1; n <= 30; n += 1) {
       const again = confirmedOf(
         documentOf(T0, OTHER, `2026-08-17T09:00:${String(n).padStart(2, '0')}Z`),
-        emptyDialogueLog(),
-        false,
+          false,
       )
       expect(changeNoticeFor(SELF, SEEN, again), `presentation write ${n}`).toBeNull()
     }
 
-    const moved = confirmedOf(documentOf(T1, OTHER, '2026-08-17T09:00:00Z'), emptyDialogueLog(), true)
+    const moved = confirmedOf(documentOf(T1, OTHER, '2026-08-17T09:00:00Z'), true)
     expect(changeNoticeFor(SELF, SEEN, moved)).not.toBeNull()
   })
 
@@ -210,10 +151,10 @@ describe('ChangeNotice (UF-25) -- what one watcher has not been told', () => {
     // selection can talk round it -- not WS-5's judgment, not the mark equality.
     for (const movedSchedule of [true, false]) {
       for (const held of [T0, T2]) {
-        const confirmed = confirmedOf(documentOf(T1, SELF), emptyDialogueLog(), movedSchedule)
+        const confirmed = confirmedOf(documentOf(T1, SELF), movedSchedule)
         const notice = changeNoticeFor(
           SELF,
-          { seenScheduleUpdatedAt: held, seenSequence: 0 },
+          { seenScheduleUpdatedAt: held },
           confirmed,
         )
         expect(notice, `movedSchedule=${movedSchedule} held=${held}`).toBeNull()
@@ -224,13 +165,13 @@ describe('ChangeNotice (UF-25) -- what one watcher has not been told', () => {
   it('AG-6 wakes a watcher holding t2 when an UNDO returns the document to t1', () => {
     // WHY: this is the one case that goes red if an ordering read of the
     // stamp ever comes back (FR-063 MUST NOT); CR-205 was raised against it.
-    const held: WatcherMark = { seenScheduleUpdatedAt: T2, seenSequence: 0 }
+    const held: WatcherMark = { seenScheduleUpdatedAt: T2 }
 
     expect(T1 < T2).toBe(true)
 
     // WHY: the restore claims no fresh schedule edit, so only the mark
     // equality against the watcher's held instant can wake it here.
-    const restored = confirmedOf(documentOf(T1, OTHER), emptyDialogueLog(), false)
+    const restored = confirmedOf(documentOf(T1, OTHER), false)
     const notice = changeNoticeFor(SELF, held, restored)
 
     expect(notice).not.toBeNull()
@@ -240,73 +181,41 @@ describe('ChangeNotice (UF-25) -- what one watcher has not been told', () => {
     // the high-water mark of everything it ever saw.
     expect(notice.mark.seenScheduleUpdatedAt).toBe(T1)
 
-    const asAMove = confirmedOf(documentOf(T1, OTHER), emptyDialogueLog(), true)
+    const asAMove = confirmedOf(documentOf(T1, OTHER), true)
     expect(changeNoticeFor(SELF, held, asAMove)).not.toBeNull()
 
-    const alreadyThere: WatcherMark = { seenScheduleUpdatedAt: T1, seenSequence: 0 }
+    const alreadyThere: WatcherMark = { seenScheduleUpdatedAt: T1 }
     expect(changeNoticeFor(SELF, alreadyThere, restored)).toBeNull()
-  })
-
-  it('AG-11 counts utterances in an order of their own, separate from the stamp', () => {
-    // WHY: AG-11 counts utterances in their own sequence, separate from the
-    // stamp; a watcher told up to sequence 1 is owed the two after it.
-    const dialogue = logOf([OTHER, 'a'], [OTHER, 'b'], [OTHER, 'c'])
-    const confirmed = confirmedOf(documentOf(T0, OTHER), dialogue, false)
-
-    const notice = changeNoticeFor(
-      SELF,
-      { seenScheduleUpdatedAt: T0, seenSequence: 1 },
-      confirmed,
-    )
-    expect(notice).not.toBeNull()
-    if (notice === null) return
-    expect(notice.messages.map((message) => message.text)).toEqual(['b', 'c'])
-    expect(notice.stamp).toBe(confirmed.document.documentStamp)
-    expect(notice.mark.seenSequence).toBe(3)
-    expect(notice.mark.seenScheduleUpdatedAt).toBe(T0)
-    expect(confirmed.document.documentStamp.scheduleUpdatedAt).toBe(T0)
   })
 
   it('AG-6 tells a watcher only what it has NOT received: its mark silences the repeat', () => {
     // WHY: whatever the notice's mark is, it must be far enough along that
     // the same confirmed change said twice is not delivered twice.
-    const confirmed = confirmedOf(
-      documentOf(T1, OTHER),
-      logOf([OTHER, 'a'], [OTHER, 'b']),
-      true,
-    )
+    const confirmed = confirmedOf(documentOf(T1, OTHER), true)
     const first = changeNoticeFor(SELF, SEEN, confirmed)
     expect(first).not.toBeNull()
     if (first === null) return
     expect(first.mark.seenScheduleUpdatedAt).toBe(T1)
-    expect(first.messages).toHaveLength(2)
 
     // WHY: hasUpdatedSchedule is false here because a second announcement of
     // the SAME write is not a second write -- only the mark equality is left to select on.
-    const saidAgain = confirmedOf(confirmed.document, confirmed.dialogue, false)
+    const saidAgain = confirmedOf(confirmed.document, false)
     expect(changeNoticeFor(SELF, first.mark, saidAgain)).toBeNull()
 
-    const next = confirmedOf(
-      documentOf(T2, OTHER),
-      logOf([OTHER, 'a'], [OTHER, 'b'], [OTHER, 'c']),
-      true,
-    )
+    const next = confirmedOf(documentOf(T2, OTHER), true)
     const second = changeNoticeFor(SELF, first.mark, next)
     expect(second).not.toBeNull()
     if (second === null) return
     expect(second.stamp).toBe(next.document.documentStamp)
-    expect(second.messages.map((message) => message.text)).toEqual(['c'])
   })
 
   it('UT-3 is pure: the same two values always answer the same, and neither is touched', () => {
     // WHY: UT-3 (table T-063) -- the selection is pure, so calling it twice
     // cannot differ and cannot mutate anything it was handed.
-    const dialogue = logOf([OTHER, 'a'])
-    const confirmed = confirmedOf(documentOf(T1, OTHER), dialogue, true)
+    const confirmed = confirmedOf(documentOf(T1, OTHER), true)
     const once = changeNoticeFor(SELF, SEEN, confirmed)
     const twice = changeNoticeFor(SELF, SEEN, confirmed)
     expect(once).toEqual(twice)
-    expect(confirmed.dialogue).toEqual(dialogue)
     expect(confirmed.hasUpdatedSchedule).toBe(true)
     expect(confirmed.document.documentStamp).toEqual({
       scheduleUpdatedAt: T1,
@@ -338,34 +247,13 @@ describe('NotifyChangeWatchers (UF-24 / PI-15) -- registering, dropping, deliver
     subscribe(SELF, markAt(start), heardBySelf)
     subscribe(OTHER, markAt(start), heardByOther)
 
-    const confirmed = confirmedOf(documentOf(T1, OTHER), emptyDialogueLog(), true)
+    const confirmed = confirmedOf(documentOf(T1, OTHER), true)
     const outcome = notifyChangeWatchers(WATCHERS, confirmed)
 
     expect([...outcome.notified].sort()).toEqual([SELF])
     expect(heardBySelf).toHaveLength(1)
     expect(heardBySelf[0]!.stamp).toBe(confirmed.document.documentStamp)
     expect(heardByOther).toHaveLength(0)
-  })
-
-  it('AG-11 wakes the watchers for an utterance although no instant moved (FT-5)', () => {
-    const start = confirmedOf(documentOf(T0, OTHER))
-    const heard: ChangeNotice[] = []
-    subscribe(SELF, markAt(start), heard)
-
-    const spoken = confirmedOf(
-      documentOf(T0, OTHER),
-      logOf([OTHER, 'なぜそうしたか']),
-      false,
-    )
-    expect([...notifyChangeWatchers(WATCHERS, spoken).notified]).toEqual([SELF])
-    expect(heard).toHaveLength(1)
-    expect(heard[0]!.messages.map((message) => message.text)).toEqual(['なぜそうしたか'])
-    expect(spoken.document.documentStamp.scheduleUpdatedAt).toBe(
-      start.document.documentStamp.scheduleUpdatedAt,
-    )
-    expect(spoken.hasUpdatedSchedule).toBe(false)
-    expect(heard[0]!.stamp).toBe(spoken.document.documentStamp)
-    expect(heard[0]!.mark.seenScheduleUpdatedAt).toBe(T0)
   })
 
   it('AG-6 delivers the UNDO to a watcher that already took t2, all the way through the registry', () => {
@@ -375,12 +263,12 @@ describe('NotifyChangeWatchers (UF-24 / PI-15) -- registering, dropping, deliver
     const heard: ChangeNotice[] = []
     subscribe(SELF, markAt(start), heard)
 
-    const moved = confirmedOf(documentOf(T2, OTHER), emptyDialogueLog(), true)
+    const moved = confirmedOf(documentOf(T2, OTHER), true)
     expect([...notifyChangeWatchers(WATCHERS, moved).notified]).toEqual([SELF])
     expect(heard).toHaveLength(1)
     expect(heard[0]!.mark.seenScheduleUpdatedAt).toBe(T2)
 
-    const undone = confirmedOf(start.document, emptyDialogueLog(), false)
+    const undone = confirmedOf(start.document, false)
     expect([...notifyChangeWatchers(WATCHERS, undone).notified]).toEqual([SELF])
     expect(heard).toHaveLength(2)
     expect(heard[1]!.stamp).toBe(start.document.documentStamp)
@@ -395,8 +283,8 @@ describe('NotifyChangeWatchers (UF-24 / PI-15) -- registering, dropping, deliver
     const heard: ChangeNotice[] = []
     subscribe(SELF, markAt(start), heard)
 
-    const first = confirmedOf(documentOf(T1, OTHER), emptyDialogueLog(), true)
-    const second = confirmedOf(documentOf(T1, SECOND_WRITER), emptyDialogueLog(), true)
+    const first = confirmedOf(documentOf(T1, OTHER), true)
+    const second = confirmedOf(documentOf(T1, SECOND_WRITER), true)
     expect(first.document.documentStamp.scheduleUpdatedAt).toBe(
       second.document.documentStamp.scheduleUpdatedAt,
     )
@@ -415,11 +303,11 @@ describe('NotifyChangeWatchers (UF-24 / PI-15) -- registering, dropping, deliver
     const heard: ChangeNotice[] = []
     subscribe(SELF, markAt(start), heard)
 
-    const confirmed = confirmedOf(documentOf(T1, OTHER), logOf([OTHER, 'a']), true)
+    const confirmed = confirmedOf(documentOf(T1, OTHER), true)
     expect([...notifyChangeWatchers(WATCHERS, confirmed).notified]).toEqual([SELF])
     // WHY: said again as the same write, not a second one, so the second
     // round has nothing left to select and nobody is woken twice.
-    const saidAgain = confirmedOf(confirmed.document, confirmed.dialogue, false)
+    const saidAgain = confirmedOf(confirmed.document, false)
     expect(notifyChangeWatchers(WATCHERS, saidAgain).notified).toEqual([])
     expect(heard).toHaveLength(1)
   })
@@ -430,12 +318,12 @@ describe('NotifyChangeWatchers (UF-24 / PI-15) -- registering, dropping, deliver
     subscribe(SELF, markAt(start), heard)
 
     expect(
-      [...notifyChangeWatchers(WATCHERS, confirmedOf(documentOf(T1, OTHER), emptyDialogueLog(), true))
+      [...notifyChangeWatchers(WATCHERS, confirmedOf(documentOf(T1, OTHER), true))
         .notified],
     ).toEqual([SELF])
     unwatchChanges(WATCHERS, REGISTERED.pop()!)
     expect(
-      notifyChangeWatchers(WATCHERS, confirmedOf(documentOf(T2, OTHER), emptyDialogueLog(), true)).notified,
+      notifyChangeWatchers(WATCHERS, confirmedOf(documentOf(T2, OTHER), true)).notified,
     ).toEqual([])
     expect(heard).toHaveLength(1)
   })

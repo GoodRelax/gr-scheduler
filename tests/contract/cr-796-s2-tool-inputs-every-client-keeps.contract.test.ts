@@ -12,7 +12,6 @@ import {
 } from '../../src/adapter/agent-api-endpoint/agent-api-members'
 import type { AgentSnapshot } from '../../src/adapter/agent-api-endpoint/snapshot-source'
 import { DEFAULT_TASK_GROUP_NAME } from '../../src/adapter/screen-renderer/screen-renderer'
-import { emptyDialogueLog } from '../../src/entity/document-model/dialogue-log/dialogue-log'
 import type { Document } from '../../src/entity/document-model/document/document'
 import { NOT_STORED_LIMITS, type EditHistory } from '../../src/entity/document-model/edit-history/edit-history'
 import { emptySelection } from '../../src/entity/document-model/selection/selection'
@@ -273,14 +272,12 @@ describe('CR-796 s2 -- AM-27: an empty list turns the Search Panel schedule filt
         changeLog: [],
       } as unknown as Document,
       history: { done: [], undone: [] } as EditHistory<ChangeStep>,
-      dialogue: emptyDialogueLog(),
     }
     const readSnapshot = (): AgentSnapshot => ({
       defaultTaskGroupName: DEFAULT_TASK_GROUP_NAME,
       document: state.document,
       documentAsWritten: state.document,
       selection: emptySelection(),
-      dialogue: state.dialogue,
       frame: null,
       exportScene: null,
       isGestureInFlight: false,
@@ -303,17 +300,6 @@ describe('CR-796 s2 -- AM-27: an empty list turns the Search Panel schedule filt
         },
       },
       audience: { deliver: () => undefined },
-      dialogueHolder: {
-        read: () => state.dialogue,
-        replace: (next) => {
-          state.dialogue = next
-        },
-      },
-      dialogueAudience: {
-        deliver: (log) => {
-          state.dialogue = log
-        },
-      },
       rasterizer: undefined,
       takeInDocument: (async () => true) as unknown as AgentApiWiring['takeInDocument'],
       shownTasks: undefined,

@@ -70,13 +70,6 @@ export interface ScreenPart {
   readonly holidaySettingsTarget?: string
 }
 
-export interface DialogueInput {
-  readonly text: string
-  readonly isSettled: boolean
-  readonly author: string
-  readonly settledAt: string
-}
-
 export interface FieldCommit {
   readonly row: string
   readonly key: PropertyFieldKey
@@ -101,9 +94,6 @@ export interface FieldEditNotice {
 export interface ScreenSurface {
   /** @purity non-pure */
   showScreenView(view: ScreenView): void
-
-  /** @purity semi-pure-b */
-  readDialogueInput(): DialogueInput | null
 
   // TRAP: reading takes the commit; a commit answered twice is written twice.
   /** @purity semi-pure-b */

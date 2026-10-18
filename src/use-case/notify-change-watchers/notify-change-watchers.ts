@@ -60,7 +60,7 @@ export function unwatchChanges(watchers: ChangeWatchers, watcher: string): boole
   return watchers.byWatcher.delete(watcher)
 }
 
-// see AG-11, T-233
+// see WS-2, RS-9
 /** @purity semi-pure-b */
 export function isDeliveringNotices(watchers: ChangeWatchers): boolean {
   return watchers.isDelivering

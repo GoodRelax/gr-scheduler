@@ -320,7 +320,6 @@ function pane(): Pane {
     showScreenView: (view) => {
       views.push(view)
     },
-    readDialogueInput: () => null,
     readFieldCommit: () => null,
     readScreenPartAt: (x, y): ScreenPart | null => {
       const view = views[views.length - 1]

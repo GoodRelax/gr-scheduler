@@ -105,7 +105,6 @@ function viewWith(notices: readonly Notice[], confirmation: Confirmation | null)
     openModal: null,
     notices,
     confirmation,
-    dialogueField: null,
     tooltips: [],
   }
 }

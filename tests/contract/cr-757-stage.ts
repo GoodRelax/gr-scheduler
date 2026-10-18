@@ -447,7 +447,6 @@ export async function shiftStage(document: Document, language: DisplayLanguage =
     showScreenView: (view: ScreenView) => {
       views.push(view)
     },
-    readDialogueInput: () => null,
     readFieldCommit: () => {
       const held = nextCommit
       nextCommit = null

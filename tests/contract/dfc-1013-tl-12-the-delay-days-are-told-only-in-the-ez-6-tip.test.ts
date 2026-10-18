@@ -194,7 +194,6 @@ describe('DFC-1013 -- FR-047 (MUST NOT) the picture holds no days of delay', () 
     const pictures: string[] = []
     const surface = {
       showScreenView: () => undefined,
-      readDialogueInput: () => null,
       readFieldCommit: () => null,
       readScreenPartAt: () => null,
     }

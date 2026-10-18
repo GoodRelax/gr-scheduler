@@ -4,6 +4,8 @@
 // @purity    pure
 // @publishes table T-064 row PI-36
 
+import type { TableViews } from '../document-settings/document-settings'
+
 // see PV-4, PV-5
 export interface RememberedActual {
   readonly actualStart: string | null
@@ -13,8 +15,8 @@ export interface RememberedActual {
 }
 
 // see T-335, RG-16
-// WHY: the words of escapePressed.rung that RG-16 names, one per window of table T-335.
-export type WindowName = 'searchPanel' | 'helpModal' | 'delayDiagnosticsReport' | 'dialogueField' | 'resourceList'
+// WHY: the words of escapePressed.rung that RG-16 names: the three table windows (T-353) and the help.
+export type WindowName = keyof TableViews | 'helpModal'
 
 export type EscapeTarget =
   | 'notice'
@@ -37,7 +39,6 @@ export interface WindowStanding {
   readonly isSearchPanelStanding?: boolean
   readonly isHelpStanding?: boolean
   readonly isDelayDiagnosticsReportStanding?: boolean
-  readonly isDialogueFieldStanding?: boolean
   readonly isResourceListStanding?: boolean
   readonly focusedWindow?: WindowName | null
   // WHY: RW-5, RO-6 -- the three table windows share UZ-6; the one opened later is in front.
@@ -72,7 +73,7 @@ function windowsFrontToBack(standing: WindowStanding): readonly WindowName[] {
       : ['searchPanel', 'delayDiagnosticsReport']
   const sharedLayer: readonly WindowName[] =
     standing.isResourceListInFront === true ? ['resourceList', ...reportAndSearch] : [...reportAndSearch, 'resourceList']
-  return [...sharedLayer, 'helpModal', 'dialogueField']
+  return [...sharedLayer, 'helpModal']
 }
 
 /** @purity pure */
@@ -84,8 +85,6 @@ function isWindowStanding(standing: WindowStanding, window: WindowName): boolean
       return standing.isHelpStanding === true
     case 'delayDiagnosticsReport':
       return standing.isDelayDiagnosticsReportStanding === true
-    case 'dialogueField':
-      return standing.isDialogueFieldStanding === true
     case 'resourceList':
       return standing.isResourceListStanding === true
   }

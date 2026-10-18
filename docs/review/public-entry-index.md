@@ -720,15 +720,6 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `WatcherMark` | entry | interface | `src/use-case/notify-change-watchers/change-notice.ts#WatcherMark` | -- | interface WatcherMark |
 | `changeNoticeFor` | file only | function | `src/use-case/notify-change-watchers/change-notice.ts#changeNoticeFor` | -- | function changeNoticeFor( watcher: string, seen: WatcherMark, confirmed: ConfirmedChange, ): ChangeNotice \| null |
 
-## PostDialogueMessage (PI-16, `src/use-case/post-dialogue-message/post-dialogue-message.ts`)
-
-| name | reach | kind | declared in | T-064 | what it is for / its declaration |
-| --- | --- | --- | --- | --- | --- |
-| `DialogueAudience` | entry | interface | `src/use-case/post-dialogue-message/post-dialogue-message.ts#DialogueAudience` | -- | interface DialogueAudience |
-| `DialogueLogHolder` | entry | interface | `src/use-case/post-dialogue-message/post-dialogue-message.ts#DialogueLogHolder` | -- | interface DialogueLogHolder |
-| `postDialogueMessage` | entry | function | `src/use-case/post-dialogue-message/post-dialogue-message.ts#postDialogueMessage` | PI-16 | `non-pure` |
-| `SettledUtterance` | entry | type | `src/use-case/post-dialogue-message/post-dialogue-message.ts#SettledUtterance` | -- | type SettledUtterance = Omit<DialogueMessage, 'sequence'> |
-
 ## AgentApiEndpoint (PI-17, `src/adapter/agent-api-endpoint/agent-api-endpoint.ts`)
 
 | name | reach | kind | declared in | T-064 | what it is for / its declaration |
@@ -736,7 +727,6 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `AgentApi` | entry | interface | `src/adapter/agent-api-endpoint/agent-api-members.ts#AgentApi` | -- | interface AgentApi |
 | `AgentApiWiring` | entry | interface | `src/adapter/agent-api-endpoint/agent-api-members.ts#AgentApiWiring` | -- | interface AgentApiWiring |
 | `AgentChangeReceiver` | entry | type | `src/adapter/agent-api-endpoint/agent-api-members.ts#AgentChangeReceiver` | -- | type AgentChangeReceiver = (notice: ChangeNotice) => void |
-| `AgentDialogueMessageOutcome` | entry | type | `src/adapter/agent-api-endpoint/agent-api-members.ts#AgentDialogueMessageOutcome` | -- | type AgentDialogueMessageOutcome = \| { readonly ok: true; readonly message: DialogueMessage } \| { readonly ok: false; readonly refusal: AgentRefusal } // see... |
 | `AgentExport` | entry | type | `src/adapter/agent-api-endpoint/agent-api-members.ts#AgentExport` | -- | type AgentExport<TValue> = \| { readonly ok: true; readonly value: TValue } \| { readonly ok: false; readonly refusal: AgentRefusal } // see AV-6 export type A... |
 | `AgentFocusOutcome` | entry | type | `src/adapter/agent-api-endpoint/agent-api-members.ts#AgentFocusOutcome` | -- | type AgentFocusOutcome = \| |
 | `AgentImportSource` | entry | type | `src/adapter/agent-api-endpoint/agent-api-members.ts#AgentImportSource` | -- | type AgentImportSource = \| Document \| { readonly document: Document } \| { readonly text: string } // see AV-8 export interface AgentShownTasks |
@@ -1362,17 +1352,6 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `selectionWithout` | entry | function | `src/entity/document-model/selection/selection.ts#selectionWithout` | PI-32 | function selectionWithout(selection: Selection, item: ItemRef): Selection |
 | `taskUidsIn` | entry | function | `src/entity/document-model/selection/selection.ts#taskUidsIn` | PI-32 | 選択に含まれる `Task` の `uid` を、選んだ順に答える（`SL-1`、`SL-7b`）。 |
 
-## DialogueLog (PI-33, `src/entity/document-model/dialogue-log/dialogue-log.ts`)
-
-| name | reach | kind | declared in | T-064 | what it is for / its declaration |
-| --- | --- | --- | --- | --- | --- |
-| `DialogueLog` | entry | interface | `src/entity/document-model/dialogue-log/dialogue-log.ts#DialogueLog` | PI-33 | 型。 |
-| `DialogueMessage` | entry | interface | `src/entity/document-model/dialogue-log/dialogue-log.ts#DialogueMessage` | -- | interface DialogueMessage |
-| `emptyDialogueLog` | entry | function | `src/entity/document-model/dialogue-log/dialogue-log.ts#emptyDialogueLog` | -- | function emptyDialogueLog(): DialogueLog |
-| `latestSequence` | entry | function | `src/entity/document-model/dialogue-log/dialogue-log.ts#latestSequence` | -- | function latestSequence(log: DialogueLog): number |
-| `logWithMessage` | entry | function | `src/entity/document-model/dialogue-log/dialogue-log.ts#logWithMessage` | PI-33 | 1 件積む |
-| `messagesSince` | entry | function | `src/entity/document-model/dialogue-log/dialogue-log.ts#messagesSince` | PI-33 | `AG-6` の選び方 |
-
 ## Document (PI-34, `src/entity/document-model/document/document.ts`)
 
 | name | reach | kind | declared in | T-064 | what it is for / its declaration |
@@ -1450,9 +1429,6 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `DelayFixTelling` | entry | type | `src/adapter/screen-renderer/delay-diagnostics-report.ts#DelayFixTelling` | PI-37 | 型。 |
 | `delayReportColumnHeadings` | entry | function | `src/adapter/screen-renderer/delay-diagnostics-report.ts#delayReportColumnHeadings` | PI-37 | 遅延診断レポートの表（表 T-347）の列の一覧（列の行 ID・画面の名・値の種類）。 |
 | `delayReportTableRows` | entry | function | `src/adapter/screen-renderer/delay-diagnostics-report.ts#delayReportTableRows` | PI-37 | 遅延診断レポートの表に語と列のフィルタと並べ替えを当てた行を、画面に出す文字で答える。 |
-| `DialogueField` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#DialogueField` | -- | interface DialogueField |
-| `DialogueInput` | entry | interface | `src/adapter/screen-renderer/screen-surface.ts#DialogueInput` | -- | interface DialogueInput |
-| `dialogueMessageFromInput` | entry | function | `src/adapter/screen-renderer/screen-renderer.ts#dialogueMessageFromInput` | PI-37 | 対話欄で確定した発話。 |
 | `dismissKeyOf` | entry | function | `src/adapter/screen-renderer/notices.ts#dismissKeyOf` | PI-37 | 表 T-037 の `NT-8` で人が消した告げを名指す鍵 |
 | `DISPLAY_TIME_ZONE_SLOT_SEPARATOR` | entry | const | `src/adapter/screen-renderer/screen-renderer.ts#DISPLAY_TIME_ZONE_SLOT_SEPARATOR` | PI-37 | 表示するタイムゾーンの 4 つの選ぶ欄（表 T-369 の `FO-15`）の値が、どの欄かを運ぶ区切り |
 | `DisplayLanguage` | entry | type | `src/adapter/screen-renderer/screen-renderer.ts#DisplayLanguage` | -- | type DisplayLanguage = 'ja' \| 'en' |
@@ -1611,7 +1587,6 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `DelayReportTable` | file only | type | `src/adapter/screen-renderer/delay-diagnostics-report.ts#DelayReportTable` | -- | type DelayReportTable = 'diagnosis' \| 'proposals' \| 'log' |
 | `NO_DELAY_FIX_TABLES` | file only | const | `src/adapter/screen-renderer/delay-diagnostics-report.ts#NO_DELAY_FIX_TABLES` | -- | const NO_DELAY_FIX_TABLES: DelayFixTables = { proposals: [], log: [] } |
 | `NO_DELAY_FIX_VALUES` | file only | const | `src/adapter/screen-renderer/delay-diagnostics-report.ts#NO_DELAY_FIX_VALUES` | -- | const NO_DELAY_FIX_VALUES: DelayFixWindowValues = |
-| `dialogueFieldFromLog` | file only | function | `src/adapter/screen-renderer/dialogue-field.ts#dialogueFieldFromLog` | -- | function dialogueFieldFromLog( log: DialogueLog, session: ScreenSession, readings: ScreenViewReadings, canvas: ScreenRect, ): DialogueField \| null |
 | `HOLIDAY_SETTINGS_SURFACE` | file only | const | `src/adapter/screen-renderer/holiday-settings.ts#HOLIDAY_SETTINGS_SURFACE` | -- | const HOLIDAY_SETTINGS_SURFACE = 'Holiday Settings' |
 | `holidaySettingsOf` | file only | function | `src/adapter/screen-renderer/holiday-settings.ts#holidaySettingsOf` | -- | function holidaySettingsOf( session: ScreenSession, schedule: Schedule, heading: string, commands: readonly CommandItem[], language: DisplayLanguage, ): Holi... |
 | `confirmationAnswers` | file only | function | `src/adapter/screen-renderer/notices.ts#confirmationAnswers` | -- | function confirmationAnswers(language: DisplayLanguage): readonly ConfirmationAnswer[] |
@@ -1800,9 +1775,6 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `paletteColumnsStyle` | file only | function | `src/framework/dom-screen-surface/command-palette-drawing.ts#paletteColumnsStyle` | -- | function paletteColumnsStyle(entranceCount: number): string |
 | `paletteElement` | file only | function | `src/framework/dom-screen-surface/command-palette-drawing.ts#paletteElement` | -- | function paletteElement( host: Document, palette: CommandPalette, anchors: Map<string, HTMLElement>, ): HTMLElement |
 | `paletteGroupRuleStyle` | file only | function | `src/framework/dom-screen-surface/command-palette-drawing.ts#paletteGroupRuleStyle` | -- | function paletteGroupRuleStyle(): string |
-| `dialogueFieldPainter` | file only | function | `src/framework/dom-screen-surface/dialogue-field-drawing.ts#dialogueFieldPainter` | -- | function dialogueFieldPainter( host: Document, dialogueField: HTMLElement, readAuthor: () => string, readClockMs: () => number, ) |
-| `dialogueFieldPlacedOf` | file only | function | `src/framework/dom-screen-surface/dialogue-field-drawing.ts#dialogueFieldPlacedOf` | -- | function dialogueFieldPlacedOf(field: DialogueField, emPx: number): PlacedWindow |
-| `fillDialogueMessages` | file only | function | `src/framework/dom-screen-surface/dialogue-field-drawing.ts#fillDialogueMessages` | -- | function fillDialogueMessages(host: Document, box: HTMLElement, field: DialogueField): void |
 | `CONTROL_KEYS` | file only | const | `src/framework/dom-screen-surface/field-editing.ts#CONTROL_KEYS` | -- | const CONTROL_KEYS = new WeakMap<Element, { row: string; key: PropertyFieldKey }>() |
 | `CONTROL_PICKS` | file only | const | `src/framework/dom-screen-surface/field-editing.ts#CONTROL_PICKS` | -- | const CONTROL_PICKS = new WeakMap<Element, NonNullable<FieldCommit['pick']>>() |
 | `fieldEditingOf` | file only | function | `src/framework/dom-screen-surface/field-editing.ts#fieldEditingOf` | -- | function fieldEditingOf(host: Document, propertiesPanel: HTMLElement) |
@@ -1967,7 +1939,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `AgentApiValuesAxes` | file only | type | `src/use-case/advance-screen-session/agent-api-values.ts#AgentApiValuesAxes` | -- | type AgentApiValuesAxes = Omit<AgentApiValues, never> |
 | `AgentApiValuesEffect` | file only | type | `src/use-case/advance-screen-session/agent-api-values.ts#AgentApiValuesEffect` | -- | type AgentApiValuesEffect = \| { readonly type: Exclude<AgentApiValuesEffectName, 'raiseNotice'> } \| { readonly type: 'raiseNotice'; readonly reason: 'RS-20' ... |
 | `AgentApiValuesEffectName` | file only | type | `src/use-case/advance-screen-session/agent-api-values.ts#AgentApiValuesEffectName` | -- | type AgentApiValuesEffectName = \| 'storeAgentApiEnabling' \| 'raiseNotice' const AGENT_API_VALUES_INITIAL_AXES: AgentApiValuesAxes = |
-| `AgentApiValuesEvent` | file only | type | `src/use-case/advance-screen-session/agent-api-values.ts#AgentApiValuesEvent` | -- | type AgentApiValuesEvent = \| { readonly type: 'agentApiEntryPressed' } \| { readonly type: 'enablingAskedByDialogueField' } \| { readonly type: 'rememberedEnab... |
+| `AgentApiValuesEvent` | file only | type | `src/use-case/advance-screen-session/agent-api-values.ts#AgentApiValuesEvent` | -- | type AgentApiValuesEvent = \| { readonly type: 'agentApiEntryPressed' } \| { readonly type: 'rememberedEnablingLoaded'; readonly isRememberedEnabled: AgentApiV... |
 | `AgentApiValuesEventCarried` | file only | interface | `src/use-case/advance-screen-session/agent-api-values.ts#AgentApiValuesEventCarried` | -- | interface AgentApiValuesEventCarried |
 | `AgentApiValuesKey` | file only | type | `src/use-case/advance-screen-session/agent-api-values.ts#AgentApiValuesKey` | -- | type AgentApiValuesKey = \| 'agentApi' \| 'agentApiEnablingStateMachine.disabled' \| 'agentApiEnablingStateMachine.enabled' export type AgentApiEnablingState = ... |
 | `emptyAgentApiValues` | file only | const | `src/use-case/advance-screen-session/agent-api-values.ts#emptyAgentApiValues` | -- | const emptyAgentApiValues: AgentApiValues = { ...AGENT_API_VALUES_INITIAL_AXES } |
@@ -2048,8 +2020,6 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `ArmModeState` | file only | type | `src/use-case/advance-screen-session/screen-values.ts#ArmModeState` | -- | type ArmModeState = \| { readonly kind: 'notArmed' } \| { readonly kind: 'taskShapeArmed'; readonly shapeKind: ScreenValuesStateCarried['shapeKind'] } \| { read... |
 | `BaseTimeZoneDraftState` | file only | type | `src/use-case/advance-screen-session/screen-values.ts#BaseTimeZoneDraftState` | -- | type BaseTimeZoneDraftState = \| { readonly kind: 'untouched' } \| { readonly kind: 'drafted'; readonly chosenRegion: ScreenValuesStateCarried['chosenRegion'] ... |
 | `CalendarDraftState` | file only | type | `src/use-case/advance-screen-session/screen-values.ts#CalendarDraftState` | -- | type CalendarDraftState = \| { readonly kind: 'untouched' } \| { readonly kind: 'drafted'; readonly calendarDraft: ScreenValuesStateCarried['calendarDraft'] } ... |
-| `DialogueFieldDisplayShownState` | file only | type | `src/use-case/advance-screen-session/screen-values.ts#DialogueFieldDisplayShownState` | -- | type DialogueFieldDisplayShownState = \| { readonly kind: 'normal' } \| { readonly kind: 'minimized' } \| { readonly kind: 'maximized' } export type DualCursorM... |
-| `DialogueFieldDisplayState` | file only | type | `src/use-case/advance-screen-session/screen-values.ts#DialogueFieldDisplayState` | -- | type DialogueFieldDisplayState = \| { readonly kind: 'hidden' } \| { readonly kind: 'shown'; readonly child: DialogueFieldDisplayShownState } export type DualC... |
 | `DropCueDisplayState` | file only | type | `src/use-case/advance-screen-session/screen-values.ts#DropCueDisplayState` | -- | type DropCueDisplayState = \| { readonly kind: 'hidden' } \| { readonly kind: 'shown' } export type BaseTimeZoneDraftState = \| { readonly kind: 'untouched' } \|... |
 | `DualCursorModeOnState` | file only | type | `src/use-case/advance-screen-session/screen-values.ts#DualCursorModeOnState` | -- | type DualCursorModeOnState = \| { readonly kind: 'placingCursorA' } \| { readonly kind: 'placingCursorB' } export type SearchPanelDisplayShownState = \| { reado... |
 | `DualCursorModeState` | file only | type | `src/use-case/advance-screen-session/screen-values.ts#DualCursorModeState` | -- | type DualCursorModeState = \| { readonly kind: 'off' } \| { readonly kind: 'on'; readonly child: DualCursorModeOnState } export type ScaleMessageDisplayState =... |
@@ -2060,7 +2030,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `LandingMarkDisplayState` | file only | type | `src/use-case/advance-screen-session/screen-values.ts#LandingMarkDisplayState` | -- | type LandingMarkDisplayState = \| { readonly kind: 'hidden' } \| { readonly kind: 'shown'; readonly landedBy: ScreenValuesStateCarried['landedBy']; readonly la... |
 | `MilestoneListDisplayState` | file only | type | `src/use-case/advance-screen-session/screen-values.ts#MilestoneListDisplayState` | -- | type MilestoneListDisplayState = \| { readonly kind: 'closed' } \| { readonly kind: 'open' } export type FullScreenModeState = \| { readonly kind: 'normal' } \| ... |
 | `OpenSurfaceState` | file only | type | `src/use-case/advance-screen-session/screen-values.ts#OpenSurfaceState` | -- | type OpenSurfaceState = \| { readonly kind: 'closed' } \| { readonly kind: 'open'; readonly surfaceName: ScreenValuesStateCarried['surfaceName'] } export type ... |
-| `PaletteDisplayShownState` | file only | type | `src/use-case/advance-screen-session/screen-values.ts#PaletteDisplayShownState` | -- | type PaletteDisplayShownState = \| { readonly kind: 'expanded' } \| { readonly kind: 'minimized' } export type DialogueFieldDisplayShownState = \| { readonly ki... |
+| `PaletteDisplayShownState` | file only | type | `src/use-case/advance-screen-session/screen-values.ts#PaletteDisplayShownState` | -- | type PaletteDisplayShownState = \| { readonly kind: 'expanded' } \| { readonly kind: 'minimized' } export type DualCursorModeOnState = \| { readonly kind: 'plac... |
 | `PaletteDisplayState` | file only | type | `src/use-case/advance-screen-session/screen-values.ts#PaletteDisplayState` | -- | type PaletteDisplayState = \| { readonly kind: 'shown'; readonly child: PaletteDisplayShownState } \| { readonly kind: 'hidden' } export type MilestoneListDisp... |
 | `PropertiesPanelContentState` | file only | type | `src/use-case/advance-screen-session/screen-values.ts#PropertiesPanelContentState` | -- | type PropertiesPanelContentState = \| { readonly kind: 'hidden' } \| { readonly kind: 'selectionDisplayed'; readonly subject: ScreenValuesStateCarried['subject... |
 | `ScaleMessageDisplayState` | file only | type | `src/use-case/advance-screen-session/screen-values.ts#ScaleMessageDisplayState` | -- | type ScaleMessageDisplayState = \| { readonly kind: 'hidden' } \| { readonly kind: 'shown'; readonly percent: ScreenValuesStateCarried['percent']; readonly end... |
@@ -2075,7 +2045,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `SearchPanelDisplayState` | file only | type | `src/use-case/advance-screen-session/screen-values.ts#SearchPanelDisplayState` | -- | type SearchPanelDisplayState = \| { readonly kind: 'hidden' } \| { readonly kind: 'shown'; readonly child: SearchPanelDisplayShownState } export type HelpDispl... |
 | `stepScreenValues` | file only | function | `src/use-case/advance-screen-session/screen-values.ts#stepScreenValues` | -- | function stepScreenValues(values: ScreenValues, event: ScreenValuesEvent): ScreenStep |
 | `TimeShiftDraftState` | file only | type | `src/use-case/advance-screen-session/screen-values.ts#TimeShiftDraftState` | -- | type TimeShiftDraftState = \| { readonly kind: 'empty' } \| { readonly kind: 'amountHeld'; readonly shiftMinutes: ScreenValuesStateCarried['shiftMinutes'] } ex... |
-| `ToggleableWindowKey` | file only | type | `src/use-case/advance-screen-session/screen-values.ts#ToggleableWindowKey` | -- | type ToggleableWindowKey = 'searchPanelDisplayState' \| 'helpDisplayState' \| 'dialogueFieldDisplayState' |
+| `ToggleableWindowKey` | file only | type | `src/use-case/advance-screen-session/screen-values.ts#ToggleableWindowKey` | -- | type ToggleableWindowKey = 'searchPanelDisplayState' \| 'helpDisplayState' |
 | `TooltipDisplayState` | file only | type | `src/use-case/advance-screen-session/screen-values.ts#TooltipDisplayState` | -- | type TooltipDisplayState = \| { readonly kind: 'allowed' } \| { readonly kind: 'dismissed' } export type SearchPanelDisplayState = \| { readonly kind: 'hidden' ... |
 | `WatermarkDisplayState` | file only | type | `src/use-case/advance-screen-session/screen-values.ts#WatermarkDisplayState` | -- | type WatermarkDisplayState = \| { readonly kind: 'shown' } \| { readonly kind: 'hidden' } export type PropertiesPanelContentState = \| { readonly kind: 'hidden'... |
 | `WholeScheduleShiftDraftState` | file only | type | `src/use-case/advance-screen-session/screen-values.ts#WholeScheduleShiftDraftState` | -- | type WholeScheduleShiftDraftState = \| { readonly kind: 'empty' } \| { readonly kind: 'dateHeld'; readonly newStartDate: ScreenValuesStateCarried['newStartDate... |
@@ -2119,4 +2089,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 1075 name(s) leave through a public entry (522 of them published by table T-064), 834 more are exported by a file and not by its entry.
+Totals: 1061 name(s) leave through a public entry (517 of them published by table T-064), 828 more are exported by a file and not by its entry.

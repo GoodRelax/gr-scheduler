@@ -223,7 +223,6 @@ export function stage(options: StageOptions = {}): Stage {
   let aimed: ScreenPart | null = null
   const screenSurface: ScreenSurface = {
     showScreenView: (_view: ScreenView) => {},
-    readDialogueInput: () => null,
     readFieldCommit: () => null,
     readScreenPartAt: (): ScreenPart | null => aimed,
   }

@@ -560,7 +560,6 @@ const VIEW_WITH_TITLE: ScreenView = {
   openModal: null,
   notices: [],
   confirmation: null,
-  dialogueField: null,
   tooltips: [],
 }
 

@@ -102,7 +102,6 @@ const VIEW: Omit<ScreenView, 'tooltips'> = {
   openModal: null,
   notices: [],
   confirmation: null,
-  dialogueField: null,
 }
 
 const SESSION: ScreenSession = {

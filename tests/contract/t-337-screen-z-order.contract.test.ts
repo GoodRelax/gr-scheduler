@@ -187,7 +187,6 @@ const viewWith = (openModal: OpenModal): ScreenView => ({
   openModal,
   notices: [NOTICE],
   confirmation: CONFIRMATION,
-  dialogueField: null,
   tooltips: [],
   searchPanel: SEARCH_PANEL,
   delayDiagnosticsReport: REPORT,
@@ -249,7 +248,11 @@ const stackedOf = (built: Stage): { id: string; z: number }[] =>
 describe('T-337 -- the premises read from the manuscript', () => {
   it(`${T_337_CAPTION}: the rows are written in the order of ${RANK}, 1 at the top`, () => {
     expect(ROWS.length, T_337_CAPTION).toBeGreaterThan(0)
-    expect(ROWS.map((one) => one.rank), T_337_CAPTION).toEqual(ROWS.map((_one, index) => index + 1))
+    const ranks = ROWS.map((one) => one.rank)
+    // WHY: the table prints no row at order 10, so the ranks rise from 1 without being contiguous.
+    expect(ranks[0], T_337_CAPTION).toBe(1)
+    expect(ranks, T_337_CAPTION).toEqual([...ranks].sort((a, b) => a - b))
+    expect(new Set(ranks).size, T_337_CAPTION).toBe(ranks.length)
   })
 
   it(T_337_ROW_ORDER_IS_NOT_ID_ORDER, () => {

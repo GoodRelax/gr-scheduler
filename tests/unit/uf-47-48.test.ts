@@ -925,7 +925,6 @@ function screenPane(language: DisplayLanguage = 'ja'): ScreenPane {
       views.push(view)
     },
     // WHY: this fake draws nothing, which readScreenPartAt answers as "the schedule below is exposed".
-    readDialogueInput: () => null,
     readFieldCommit: () => null,
     readScreenPartAt: () => null,
   }
@@ -1561,7 +1560,7 @@ describe('NFR-011 and FT-2 -- the description is whole, and it describes THIS do
     // NFR-011 (MUST NOT): "空白のまま残る画面も、内容が欠けたまま出る画面も出さ
     // ないこと". ⚠️ The members that may be `null` are the ones a requirement
     // says are absent -- a closed properties panel (FR-072), a hidden palette
-    // (S-99e), no open surface (S-99g), the `Agent API` off (FR-066), nothing
+    // (S-99e), no open surface (S-99g), nothing
     // waiting to be answered (NT-7). The rest are always there.
     const pane = host()
     const screen = screenPane()

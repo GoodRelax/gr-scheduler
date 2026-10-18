@@ -77,7 +77,6 @@ function bench(document: Record<string, unknown>): Bench {
   const views: ScreenView[] = []
   const surface = {
     showScreenView: (view: ScreenView) => views.push(view),
-    readDialogueInput: () => null,
     readFieldCommit: () => null,
     readFieldEditNotices: () => [],
     readScreenPartAt: () => null,

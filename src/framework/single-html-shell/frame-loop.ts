@@ -7,8 +7,6 @@ import type { Document } from '../../entity/document-model/document/document'
 import type { DelayFixLogRow } from '../../entity/document-model/schedule/schedule'
 import type { DocumentSettings } from '../../entity/document-model/document-settings/document-settings'
 import { SETTINGS_CONSTANTS } from '../../entity/document-model/document-settings/document-settings'
-import { emptyDialogueLog } from '../../entity/document-model/dialogue-log/dialogue-log'
-import type { DialogueLog } from '../../entity/document-model/dialogue-log/dialogue-log'
 import {
   escapeTarget,
   type DualCursorSide,
@@ -733,7 +731,6 @@ const ESCAPE_SURFACE: ScreenValuesEvent = { type: 'escapePressed', rung: 'surfac
 const ESCAPE_ARMED: ScreenValuesEvent = { type: 'escapePressed', rung: 'armed' }
 const ESCAPE_HELP: ScreenValuesEvent = { type: 'escapePressed', rung: 'helpModal' }
 const ESCAPE_SEARCH_PANEL: ScreenValuesEvent = { type: 'escapePressed', rung: 'searchPanel' }
-const ESCAPE_DIALOGUE_FIELD: ScreenValuesEvent = { type: 'escapePressed', rung: 'dialogueField' }
 const ESCAPE_DUAL_CURSOR: ScreenValuesEvent = { type: 'escapePressed', rung: 'dualCursorMode' }
 const ESCAPE_TOOLTIP: ScreenValuesEvent = { type: 'escapePressed', rung: 'tooltip' }
 // see IN-4, RG-17, FR-071
@@ -762,7 +759,6 @@ const SELECTION_ESCAPE_PRESSED: SessionEvent = { type: 'selectionEscapePressed',
 const SELECTION_SETTLE_KEY_PRESSED: SessionEvent = { type: 'selectionSettleKeyPressed' }
 const INTERACTION_RECORD_TOGGLED: SessionEvent = { type: 'interactionRecordToggled' }
 const AGENT_API_ENTRY_PRESSED: SessionEvent = { type: 'agentApiEntryPressed' }
-const ENABLING_ASKED_BY_DIALOGUE_FIELD: SessionEvent = { type: 'enablingAskedByDialogueField' }
 // see FR-100, T-230, T-290
 // WHY: null for the open road's rows, which land as documentOpenLanded with the choice they carry.
 const LANDING_OF_REPLACEMENT_ROW: Readonly<Record<ReplacementCall['row'], SessionEvent | null>> = {
@@ -817,22 +813,12 @@ const ESCAPE_RUNG_EVENTS: { readonly [R in EscapeTarget]: ScreenValuesEvent | nu
   helpModal: ESCAPE_HELP,
   delayDiagnosticsReport: null,
   resourceList: null,
-  dialogueField: ESCAPE_DIALOGUE_FIELD,
   propertiesPanel: ESCAPE_SURFACE,
   armed: ESCAPE_ARMED,
   selection: null,
   dualCursorMode: ESCAPE_DUAL_CURSOR,
   tooltip: ESCAPE_TOOLTIP,
   fullScreen: ESCAPE_FULL_SCREEN,
-}
-
-// see T-335, RG-16
-const WINDOW_DISPLAY_KEYS: { readonly [W in WindowName]: Parameters<typeof isWindowStandingIn>[1] | null } = {
-  searchPanel: 'searchPanelDisplayState',
-  helpModal: 'helpDisplayState',
-  delayDiagnosticsReport: null,
-  resourceList: null,
-  dialogueField: 'dialogueFieldDisplayState',
 }
 
 const FULL_SCREEN_REFUSED_REASON: NoticeReason = 'RS-59'
@@ -988,10 +974,6 @@ export function noWorkingWeekdayReason(document: Document): StartupNoticeReason 
 
 // see U-56, T-280
 export const OPEN_CHOOSER_ROW: FileFlowSurfaceName = 'U-56'
-
-// TRAP: dom-screen-surface.ts's ROLE.dialogueField must spell it the same; a mismatch
-// silently leaves the Dialogue Field's press stopped like any other taskGroupArea press.
-const DIALOGUE_FIELD_SURFACE = 'Dialogue Field'
 
 // see U-65
 const HOLIDAY_SETTINGS_SURFACE = 'Holiday Settings'
@@ -1196,7 +1178,6 @@ function pictureSessionOf(session: ScreenSession): ScreenSession {
     helpLanguage: now.helpLanguage,
     themePreference: now.themePreference,
     paletteDisplayState: { kind: 'hidden' },
-    dialogueFieldDisplayState: { kind: 'hidden' },
   }
   return { ...emptyScreenSession, screen }
 }
@@ -1707,10 +1688,18 @@ function windowGrabPointerOf(on: ScreenPart | null): PointerShape | null {
   return region === undefined || region === 'titleBand' ? null : pointerImageOf(WINDOW_GRAB_POINTERS[region])
 }
 
+// see T-335, RG-16
+// WHY: only the search panel and the help have a display machine; the report and resource list windows have none (RW-1, RO-1).
+/** @purity pure */
+function windowDisplayKeyOf(window: WindowName): Parameters<typeof isWindowStandingIn>[1] | null {
+  if (window === 'searchPanel') return 'searchPanelDisplayState'
+  return window === 'helpModal' ? 'helpDisplayState' : null
+}
+
 // see T-335
 /** @purity pure */
 function windowShownIn(session: ScreenSession, window: WindowName): WindowShown | null {
-  const display = WINDOW_DISPLAY_KEYS[window]
+  const display = windowDisplayKeyOf(window)
   const shown = display === null ? null : session.screen[display]
   return shown === null || shown.kind === 'hidden' ? null : shown.child.kind
 }
@@ -1733,7 +1722,6 @@ const TABLE_WINDOW_OF_SURFACE: { readonly [surface: string]: VisibilityTable | u
 interface WindowPlaces {
   readonly searchPanel: SearchPanelSession
   readonly helpModal: WindowPlace
-  readonly dialogueField: WindowPlace
   readonly delayDiagnosticsReport: DelayDiagnosticsReportWindow | null
   readonly resourceList: ResourceListWindow | null
   readonly closedReport: DelayDiagnosticsReportWindow | null
@@ -1745,7 +1733,6 @@ interface WindowPlaces {
 const STARTING_WINDOW_PLACES: WindowPlaces = {
   searchPanel: emptySearchPanelSession,
   helpModal: DEFAULT_WINDOW_PLACE,
-  dialogueField: DEFAULT_WINDOW_PLACE,
   delayDiagnosticsReport: null,
   resourceList: null,
   closedReport: null,
@@ -1903,7 +1890,7 @@ function windowReadingsOf(held: WindowPlaces, diagnostics: Pick<HeldDelayDiagnos
     searchPanel: held.searchPanel,
     resourceList: held.resourceList,
     drawnTaskUids,
-    windowPlaces: { helpModal: held.helpModal, dialogueField: held.dialogueField, closeOnlyTitledSurface: held.closeOnlyTitledSurface },
+    windowPlaces: { helpModal: held.helpModal, closeOnlyTitledSurface: held.closeOnlyTitledSurface },
     delayDiagnosticsReport: window === null || report === null ? null : { window, report, fixTables: fixTablesOf() },
     diagnosedMarkers: diagnostics?.drawing.symbolByUid,
   }
@@ -2136,7 +2123,7 @@ function taskGroupGrabCarryOf(hands: FrameLoopHands) {
   return { scrolled: held.scrolled, scrollTo, readingAt, end }
 }
 
-// see T-335, WB-6, WB-8, WB-9, SV-14, SV-18, S-419, S-451, S-455, S-456
+// see T-335, WB-6, WB-8, WB-9, SV-14, SV-18, S-419, S-451, S-455
 /** @purity non-pure */
 function heldWindowsOf(shownTasks: () => Pick<ShownTasksHold, 'views' | 'letScheduleFilterGo'>) {
   let held: WindowPlaces = STARTING_WINDOW_PLACES
@@ -2404,13 +2391,13 @@ function isLeftToTheHost(input: HumanInput, surface: ScreenSurface | undefined):
   return surface.readScreenPartAt(input.x, input.y)?.part === PROPERTIES_PANEL_SURFACE
 }
 
-// see FR-066, U-65, WC-3, WC-4, WC-8, IN-6
+// see U-65, WC-3, WC-4, WC-8, IN-6
 // TRAP: taskGroupArea also covers these floating fields; stopped, their press takes no native focus (DFC-578).
 /** @purity semi-pure-b */
 function isFloatingFieldPress(input: HumanInput, surface: ScreenSurface | undefined): boolean {
   if (input.kind !== 'pointer' || input.phase !== 'down' || surface === undefined) return false
   const on = surface.readScreenPartAt(input.x, input.y)
-  return on?.part === DIALOGUE_FIELD_SURFACE || (on?.part === HOLIDAY_SETTINGS_SURFACE && on.entry === null)
+  return on?.part === HOLIDAY_SETTINGS_SURFACE && on.entry === null
 }
 
 // see IN-5a, SV-5, IN-4
@@ -2470,12 +2457,11 @@ function windowFocusContextOf(
   screen: ScreenWiring | undefined,
   session: ScreenSession,
   windows: { readonly report: DelayDiagnosticsReportWindow | null; readonly resourceList: ResourceListWindow | null; readonly schedule: Document['schedule']; readonly view: TableView },
-): Pick<InputContext, 'focusedWindow' | 'isFocusInPropertiesPanel' | 'isAgentApiEnabled' | 'delayDiagnosticsReport' | 'resourceList' | 'listedResourceUids'> {
+): Pick<InputContext, 'focusedWindow' | 'isFocusInPropertiesPanel' | 'delayDiagnosticsReport' | 'resourceList' | 'listedResourceUids'> {
   const { report, resourceList } = windows
   return {
     focusedWindow: screen?.readFocusedWindow?.() ?? null,
     isFocusInPropertiesPanel: screen?.isFocusInPropertiesPanel?.() === true,
-    isAgentApiEnabled: isAgentApiEnabledIn(session),
     delayDiagnosticsReport: report === null ? null : { shown: report.shown, isInFront: report.isInFront, markedRowTaskUid: report.markedRow?.taskUid ?? null },
     resourceList: resourceList === null ? null : { shown: resourceList.shown, isInFront: resourceList.isInFront },
     ...(resourceList === null ? {} : { listedResourceUids: resourceListListedUidsOf(resourceList, windows.view, windows.schedule, session.selection.chosenResources) }),
@@ -2929,7 +2915,6 @@ export function frameLoop(
   let drawnPicture: DrawnPicture | null = null
   let isTooltipStanding = false
   let shownNotices: ScreenView['notices'] = []
-  let dialogueLog: DialogueLog = emptyDialogueLog()
   const changeWatchers = emptyChangeWatchers()
 
   const holder: DocumentHolder = {
@@ -2960,7 +2945,7 @@ export function frameLoop(
       try {
         // WHY: HS-12 -- the notice hands the AI the lower line's AT-140, never the held one's.
         const handed = documentStampedAt(document, readFileSaved().fileSavedAt)
-        const outcome = notifyChangeWatchers(changeWatchers, { document: handed, hasUpdatedSchedule, dialogue: dialogueLog })
+        const outcome = notifyChangeWatchers(changeWatchers, { document: handed, hasUpdatedSchedule })
         sendToSession({ type: 'changeDelivered', silentWatchers: outcome.failures.length }, null)
       } catch (fault) {
         // TRAP: the window must close on a throw too, or WS-2 refuses every later write.
@@ -3171,7 +3156,6 @@ export function frameLoop(
         settings,
         chosenObjects,
         session,
-        dialogueLog,
         screenViewReadingsOf(document, regions, layout, heldWholeOf(pressed), {
           openedFileName: session.fileFlow.openedFileName,
           ...readFileSaved(),
@@ -3465,7 +3449,6 @@ export function frameLoop(
         settings,
         nothingSelected,
         pictureSessionOf(session),
-        dialogueLog,
         screenViewReadingsOf(document, regions, layout, null, {
           openedFileName: null,
           ...NO_FILE_SAVED,
@@ -3534,7 +3517,6 @@ export function frameLoop(
         document: held.document,
         documentAsWritten: documentStampedAt(held.document, readFileSaved().fileSavedAt),
         selection: selectedObjectsIn(session),
-        dialogue: dialogueLog,
         frame,
         exportScene: exportScene(),
         isGestureInFlight: isChangingDocumentIn(session),
@@ -3546,25 +3528,6 @@ export function frameLoop(
         defaultTaskGroupName: DEFAULT_TASK_GROUP_NAME,
         readAt: readInstantOfWrite(), localReadAt: readLocalMoment(),
       }
-    },
-  }
-
-  const dialogueSeams: Pick<AgentApiSeams, 'dialogueHolder' | 'dialogueAudience'> = {
-    dialogueHolder: {
-      /** @purity semi-pure-b */
-      read: () => dialogueLog,
-      /** @purity non-pure */
-      replace(next: DialogueLog): void {
-        dialogueLog = next
-      },
-    },
-    dialogueAudience: {
-      /** @purity non-pure */
-      deliver(): void {
-        // DEVIATION: spec says writes are refused while notices go out (Chapter 5.5); here not for utterances (DFC-562)
-        audience.deliver(held.document, false)
-        if (isSizeSettled(environment)) ask()
-      },
     },
   }
 
@@ -4009,11 +3972,6 @@ export function frameLoop(
       case 'toggleAgentApi':
         sendToSession(AGENT_API_ENTRY_PRESSED, frame)
         return
-      case 'toggleDialogueFieldVisible':
-        // STOP: spec does not decide whether turning the API off resets S-99i. Looked in FR-066, S-99i
-        // @provisional PND-419
-        dialogueFieldEntryPressed(frame)
-        return
       case 'copyImageToJsonPrompt':
         copyImageToJsonPrompt()
         return
@@ -4035,15 +3993,6 @@ export function frameLoop(
   function followChoiceOnPanel(frame: FrameValues): void {
     const subject = subjectOfChoice(selectedObjectsIn(session), session.selection.chosenTaskGroups, session, 'inferredFromShownPanel')
     if (subject !== null) sendToSession({ type: 'selectionMoved', subject }, frame)
-  }
-
-  // see FR-066, IC-18, T-280, T-296
-  // TRAP: both events read Agent API before the press; the field would hide on the first press.
-  /** @purity non-pure */
-  function dialogueFieldEntryPressed(frame: FrameValues): void {
-    const isAgentApiEnabled = isAgentApiEnabledIn(session)
-    sendToSession({ type: 'dialogueFieldEntryPressed', isAgentApiEnabled }, frame)
-    sendToSession(ENABLING_ASKED_BY_DIALOGUE_FIELD, frame)
   }
 
   // see FR-068, IC-115, RS-65, UF-48
@@ -4379,7 +4328,6 @@ export function frameLoop(
       shownTasks: landingAgentHolder(shownTasks.agentHolder(), owedJump.owe, () => values),
       delayFixLog: documentFileFlow,
       historySteps: historyStepsOf(replaceHeldDocumentAt),
-      ...dialogueSeams,
     }),
     /** @purity non-pure */
     watchAgentApiEnabling(watch: (isEnabled: boolean) => void): void {

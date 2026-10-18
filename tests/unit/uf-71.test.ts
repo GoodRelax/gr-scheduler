@@ -47,8 +47,6 @@
 //   表 T-078 FT-3   a changed screen dimension is a trigger the shell observes;
 //                   with NFR-010, nothing this table does not list may wake a
 //                   frame -- so no timer and no listener that draws
-//   表 T-035 AG-11  what has not been settled MUST NOT be read as an utterance
-//   FR-066          the field is up only while the `Agent API` is on
 //   FR-029          用途を言葉ではなくアイコンで伝える; 「各アイコンの図形は
 //                   同書の 図 F-019 に従うこと（MUST）」; and what cannot be used
 //                   is drawn faint and gives its reason, rather than going quiet
@@ -110,8 +108,6 @@
 //   - what the `Task Group Title Tree` draws for a task group whose `name` is `null`
 //     (FR-058 forbids the document to hold one, and no requirement says what to
 //     draw when one arrives anyway)
-//   - whether the entry keeps what was typed across a frame in which the field
-//     is down; FR-066 settles only that the field is not up
 //   - what the `Task Group Panel` draws when the frame lists no `Panel Divider`
 //     for it. PND-155's fallback (the window's edge and the contents' width) is
 //     a provisional decision, and SC-3 of 表 T-031 speaks of the panel not
@@ -123,11 +119,9 @@ import { join } from 'node:path'
 import { describe, expect, it, vi } from 'vitest'
 
 import {
-  dialogueMessageFromInput,
   type AppHeaderItems,
   type CommandItem,
   type CommandPalette,
-  type DialogueField,
   type HelpModal,
   type Notice,
   type PropertiesPanel,
@@ -187,7 +181,6 @@ const T_103_PARTS = [
   { row: 'U-34', name: 'Palette Groups' },
   { row: 'U-34', name: 'Palette Commands' },
   { row: 'U-35', name: 'Header Commands' },
-  { row: 'U-44', name: 'Dialogue Field' },
   { row: 'U-46', name: 'Pinned Task Group' },
   { row: 'U-47', name: 'Task Group Expander' },
   { row: 'U-48', name: 'Task Group Pin' },
@@ -806,10 +799,6 @@ function wiringOf(built: Stage): ScreenSurfaceWiring {
   return {
     host: built.host,
     mount: built.mount as unknown as Element,
-    readAuthor: (): string => {
-      built.authors.push(built.author)
-      return built.author
-    },
     readClockMs: (): number => built.clockMs,
     onAppHeaderHeightMeasured: (heightPx: number): void => {
       built.reportedHeights.push(heightPx)
@@ -1083,7 +1072,6 @@ const EMPTY_VIEW: ScreenView = {
   openModal: null,
   notices: [],
   confirmation: null,
-  dialogueField: null,
   tooltips: [],
 }
 
@@ -1194,11 +1182,6 @@ const PROPERTIES: PropertiesPanel = {
   commands: [],
 } as PropertiesPanel
 
-const DIALOGUE: DialogueField = {
-  messages: [{ sequence: 1, author: 'Someone', text: 'MessageOne', settledAt: '2026-08-19T00:00:00Z' }],
-  heading: '', shown: 'normal', titleEntries: [], place: { at: null, size: null }, canvas: { x: 0, y: 0, width: 800, height: 600 },
-}
-
 const HELP_MODAL: HelpModal = {
   surface: 'Help Modal',
   heading: 'HelpHeading',
@@ -1274,21 +1257,8 @@ const RICH_VIEW: ScreenView = viewWith({
   commandPalette: PALETTE,
   helpModal: HELP_MODAL,
   notices: [notice({ manner: 'NT-6', text: 'NoticeTextOne' })],
-  dialogueField: DIALOGUE,
   tooltips: [iconTooltip('IC-20', 'TooltipTextOne')],
 })
-
-/** The one `input` inside the `Dialogue Field` -- the head comment's own landmark. */
-function dialogueEntry(root: FakeElement): FakeElement {
-  const field = oneByRole(root, 'Dialogue Field')
-  const inputs = descendants(field).filter((one) => one.tagName === 'INPUT')
-  const first = inputs[0]
-  if (first === undefined) throw new Error('the Dialogue Field holds no entry')
-  expect(inputs).toHaveLength(1)
-  return first
-}
-
-const isoSeconds = (ms: number): string => `${new Date(ms).toISOString().slice(0, 19)}Z`
 
 // ===========================================================================
 
@@ -1309,14 +1279,13 @@ describe('the tables these cases copy still say what the copies say', () => {
 })
 
 describe('IF-9 / PI-38 -- the seam is realized and not widened', () => {
-  // ⭐ ONE MEMBER PER SUPPLY THE IF-9 CELL NAMES, and the cell names five.
-  // 表 T-065's IF-9 names five duties, in this order: put the description on
-  // the screen, hand back the settled utterance, hand back the settled value of
-  // an editable field with its row ID, tell when editing in a text field began
-  // and ended, and answer what is drawn at a point:
+  // ⭐ ONE MEMBER PER SUPPLY THE IF-9 CELL NAMES.
+  // 表 T-065's IF-9 names its duties in this order: put the description on
+  // the screen, hand back the settled value of an editable field with its row
+  // ID, tell when editing in a text field began and ended, and answer what is
+  // drawn at a point:
   //
   //   put the description on the screen        showScreenView
-  //   hand back the settled utterance          readDialogueInput
   //   hand back the settled field value        readFieldCommit
   //   tell when editing began and ended        readFieldEditNotices
   //   answer what is drawn at a point          readScreenPartAt
@@ -1328,7 +1297,6 @@ describe('IF-9 / PI-38 -- the seam is realized and not widened', () => {
   // read (rule 04 section 1) and which pairs each member with the clause of the
   // cell it serves -- so this stays red the day a supply is added or dropped.
   const IF_9_MEMBERS = [
-    'readDialogueInput',
     'readFieldCommit',
     'readFieldEditNotices',
     'readScreenPartAt',
@@ -1498,10 +1466,10 @@ describe('表 T-078 / NFR-010 (MUST NOT) -- nothing in this unit wakes a frame',
     // value that is READ rather than pushed still has to be noticed being
     // settled, so more listeners with no more frames is exactly right.
     //
-    // ⭐ WHAT IS ASSERTED INSTEAD IS WHERE THEY SIT. IF-9 names two things this
-    // unit hands BACK from what a person did -- the utterance settled in the
-    // 対話欄 and the value settled in a プロパティパネルの欄 -- so a listener has
-    // a duty to serve only inside those two parts. ⚠ THERE WAS ONE ELSEWHERE:
+    // ⭐ WHAT IS ASSERTED INSTEAD IS WHERE THEY SIT. IF-9 names one thing this
+    // unit hands BACK from what a person did -- the value settled in a
+    // プロパティパネルの欄 -- so a listener has a duty to serve only inside
+    // that part. ⚠ THERE WAS ONE ELSEWHERE:
     // it sat on a control inside a tooltip that put the tooltip away, and `IN-4`
     // of 表 T-028 (MUST) has since taken that job -- its ladder ends 「出ている
     // 説明」 and says why: 「説明を最後に置くのは、`IN-3` が求める「消せること」
@@ -1517,14 +1485,14 @@ describe('表 T-078 / NFR-010 (MUST NOT) -- nothing in this unit wakes a frame',
     // 立てること（MUST）。そのタスクグループのプロパティパネルを出し、名前の欄で名づけさせる
     // こと（MUST）」 with 「改名と別の道を作ってはならない（MUST NOT）」 beside it
     // ⇒ THE NAMING HAPPENS IN THE `Properties Panel`, which was already one of
-    // the two parts IF-9 names, so the roster goes back to two.
+    // the two parts IF-9 names, so the roster is the one part.
     // ⭐ THE LIST IS DERIVED AND NOT COUNTED: it is exactly the parts the IF-9
-    // cell names as carrying something a PERSON settled -- 「対話欄で確定した
-    // 発話を返し、プロパティパネルの欄で確定した値を…返し」 -- and nothing else.
+    // cell names as carrying something a PERSON settled -- 「編集できる欄で
+    // 確定した値を、その欄が名乗る行 ID とともに返し」 -- and nothing else.
     // ⛔ A listener among the task groups now falls this case, which is how the row's
     // own MUST NOT is held down from here.
     const root = built.root()
-    const noticing = [oneByRole(root, 'Dialogue Field'), oneByRole(root, 'Properties Panel')]
+    const noticing = [oneByRole(root, 'Properties Panel')]
     // WHY: the typed word may be heard on the layer holding the search field, but
     // only as an input event -- the jump and the grab are answers to a point.
     const searchLayers = selfAndDescendants(root).filter(
@@ -1932,149 +1900,6 @@ describe('HF-14 of 表 T-051 (MUST) -- 既定の名前でタスクグループ�
     expect(sk19?.cells.join(' ')).toContain('Enter')
     // ⭐ AND THE TELLING STANDS AHEAD OF IT SINCE 2026-08-31.
     expect(sk19?.cells.join(' ')).toContain('出ている通知があるときは、それを 1 つ消すこと（MUST）')
-  })
-})
-
-describe('AG-11 of 表 T-035 (MUST NOT) -- an unsettled line is not an utterance', () => {
-  function typed(text: string): { built: Stage; surface: ScreenSurface; entry: FakeElement } {
-    const built = wire({ 'App Header': 37 })
-    const surface = surfaceOf(built)
-    surface.showScreenView(viewWith({ dialogueField: DIALOGUE }))
-    const entry = dialogueEntry(built.root())
-    entry.value = text
-    return { built, surface, entry }
-  }
-
-  it('answers null while the person has entered nothing', () => {
-    const built = wire({ 'App Header': 37 })
-    const surface = surfaceOf(built)
-
-    expect(surface.readDialogueInput()).toBeNull()
-
-    surface.showScreenView(viewWith({ dialogueField: DIALOGUE }))
-    expect(surface.readDialogueInput()).toBeNull()
-  })
-
-  it('IF-9 of 表 T-065 対話欄で確定した発話を返し -- a half-typed line is no utterance', () => {
-    const { surface } = typed('half a thou')
-
-    expect(surface.readDialogueInput()).toBeNull()
-  })
-
-  it('dialogueMessageFromInput (PI-37) is handed nothing for the half-typed line', () => {
-    const { surface } = typed('half a thou')
-
-    const read = surface.readDialogueInput()
-
-    expect(read).toBeNull()
-    expect(read === null ? null : dialogueMessageFromInput(read)).toBeNull()
-  })
-
-  it('PND-150: a plain Enter settles it, with the author and the clock of that moment', () => {
-    const { built, surface, entry } = typed('please wait')
-    built.author = 'Reader'
-    const at = Date.UTC(2026, 7, 20, 9, 30, 0)
-    built.clockMs = at
-
-    keyPress(entry, 'Enter')
-    // The clock moves on; the stamp still names the press.
-    built.clockMs = at + 120_000
-
-    const read = surface.readDialogueInput()
-
-    expect(read?.isSettled).toBe(true)
-    expect(read?.text).toBe('please wait')
-    expect(read?.author).toBe('Reader')
-    expect(read?.settledAt).toBe(isoSeconds(at))
-    expect(read?.settledAt).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/)
-  })
-
-  it('PND-150: ⛔ an Enter an input method is confirming settles nothing', () => {
-    const { surface, entry } = typed('half a thou')
-
-    keyPress(entry, 'Enter', { isComposing: true })
-
-    expect(surface.readDialogueInput()).toBeNull()
-  })
-
-  it('PND-150: an Enter with a modifier settles nothing', () => {
-    const { surface, entry } = typed('half a thou')
-
-    keyPress(entry, 'Enter', { shiftKey: true })
-    keyPress(entry, 'Enter', { ctrlKey: true })
-
-    expect(surface.readDialogueInput()).toBeNull()
-  })
-
-  it('reads the author each time rather than taking it once at wiring', () => {
-    const { built, surface, entry } = typed('one')
-    built.author = 'First'
-    keyPress(entry, 'Enter')
-    expect(surface.readDialogueInput()?.author).toBe('First')
-
-    surface.showScreenView(viewWith({ dialogueField: DIALOGUE }))
-    const again = dialogueEntry(built.root())
-    again.value = 'two'
-    built.author = 'Second'
-    keyPress(again, 'Enter')
-
-    expect(surface.readDialogueInput()?.author).toBe('Second')
-  })
-
-  it('semi-pure-b: the read does not take the settled line away -- the draw does', () => {
-    const { surface, entry } = typed('please wait')
-    keyPress(entry, 'Enter')
-
-    // ⭐ Contract line 2: read BEFORE drawing. Two reads answer the same, so a
-    // caller cannot lose the utterance by looking twice.
-    expect(surface.readDialogueInput()?.isSettled).toBe(true)
-    expect(surface.readDialogueInput()?.isSettled).toBe(true)
-
-    surface.showScreenView(viewWith({ dialogueField: DIALOGUE }))
-
-    // ⛔ and the draw is what takes it away, so the same utterance is not handed
-    // to postDialogueMessage twice.
-    const after = surface.readDialogueInput()
-    expect(after === null || after.isSettled === false).toBe(true)
-  })
-})
-
-describe('FR-066 -- no dialogue field while the Agent API is off', () => {
-  it('draws no field, and reads nothing, while ScreenView.dialogueField is null', () => {
-    const built = wire({ 'App Header': 37 })
-    const surface = surfaceOf(built)
-
-    surface.showScreenView(viewWith({ dialogueField: null }))
-
-    for (const one of byRole(built.root(), 'Dialogue Field')) {
-      expect(isShown(one)).toBe(false)
-    }
-    expect(surface.readDialogueInput()).toBeNull()
-  })
-
-  it('draws the field, and its settled utterances, while it is non-null', () => {
-    const built = wire({ 'App Header': 37 })
-    const surface = surfaceOf(built)
-
-    surface.showScreenView(viewWith({ dialogueField: DIALOGUE }))
-
-    const field = oneByRole(built.root(), 'Dialogue Field')
-    expect(isShown(field)).toBe(true)
-    expect(field.textContent).toContain('MessageOne')
-    expect(field.textContent).toContain('Someone')
-  })
-
-  it('⛔ stops reading the field again once the Agent API goes off', () => {
-    const built = wire({ 'App Header': 37 })
-    const surface = surfaceOf(built)
-    surface.showScreenView(viewWith({ dialogueField: DIALOGUE }))
-    const entry = dialogueEntry(built.root())
-    entry.value = 'please wait'
-    keyPress(entry, 'Enter')
-
-    surface.showScreenView(viewWith({ dialogueField: null }))
-
-    expect(surface.readDialogueInput()).toBeNull()
   })
 })
 
@@ -2988,7 +2813,6 @@ describe('showScreenView twice -- the whole description each time', () => {
       notice({ manner: 'NT-6', text: 'NoticeTwo' }),
       notice({ manner: 'NT-3a', text: 'NoticeThree', nextSteps: ['StepOne'] }),
     ],
-    dialogueField: DIALOGUE,
     tooltips: [iconTooltip('IC-20', 'TooltipOne')],
   })
 
@@ -3009,7 +2833,7 @@ describe('showScreenView twice -- the whole description each time', () => {
     // ⚠️ `start` stands where `PropertiesHeading` did: FR-072 (MUST NOT) leaves
     // the panel no heading row, so the word the closed panel has to take away
     // with it is its field's item name (CR-272).
-    for (const gone of ['TitleOne', 'NoticeOne', 'NoticeTwo', 'NoticeThree', 'StepOne', 'HelpHeading', 'LicenseTextHere', 'PaletteCommandOne', 'start', 'MessageOne', 'TooltipOne']) {
+    for (const gone of ['TitleOne', 'NoticeOne', 'NoticeTwo', 'NoticeThree', 'StepOne', 'HelpHeading', 'LicenseTextHere', 'PaletteCommandOne', 'start', 'TooltipOne']) {
       expect(text, gone).not.toContain(gone)
     }
     expect(text).toContain('TitleTwo')
@@ -3023,7 +2847,7 @@ describe('showScreenView twice -- the whole description each time', () => {
 
     surface.showScreenView(second)
 
-    for (const role of ['Help Modal', 'Command Palette', 'Properties Panel', 'Dialogue Field']) {
+    for (const role of ['Help Modal', 'Command Palette', 'Properties Panel']) {
       for (const one of byRole(built.root(), role)) {
         expect(isShown(one), role).toBe(false)
       }
@@ -3084,7 +2908,6 @@ describe('boundaries', () => {
         propertiesPanel: null,
         commandPalette: null,
         openModal: null,
-        dialogueField: null,
         appHeaderItems: { ...EMPTY_HEADER, documentTitle: null },
         taskGroupPanel: {
           pinnedTitles: [],
@@ -3152,7 +2975,7 @@ describe('LY-5 of 表 T-060 / R7.3 -- the outside arrives as an argument', () =>
     // See the case above for why FT-1 and 表 T-078 are untouched by it.
     const built = wire({ 'App Header': 37 })
     surfaceOf(built).showScreenView(RICH_VIEW)
-    surfaceOf(built).readDialogueInput()
+    surfaceOf(built).readFieldCommit()
 
     expect([...new Set(built.world.hostMembers)].sort()).toEqual([
       'addEventListener',
@@ -3170,17 +2993,47 @@ describe('LY-5 of 表 T-060 / R7.3 -- the outside arrives as an argument', () =>
   })
 
   it('holds what is current here, so a second surface starts clean', () => {
+    // WHY: a text field of the Properties Panel is the one place this unit holds a settled value.
+    const panel = {
+      showing: 'selection',
+      isSubjectGone: false,
+      fields: [
+        {
+          row: 'PR-1',
+          name: 'name',
+          text: 'Held',
+          isEditable: true,
+          controls: [
+            {
+              key: { holder: 'taskGroup', taskGroupId: 'g-1', column: 'name' },
+              kind: 'text',
+              text: 'Held',
+              choices: null,
+              min: null,
+              max: null,
+              widthInFontSizes: 8,
+            },
+          ],
+        } as PropertyField,
+      ],
+      commands: [],
+    } as PropertiesPanel
     const one = wire({ 'App Header': 37 })
-    surfaceOf(one).showScreenView(viewWith({ dialogueField: DIALOGUE }))
-    const entry = dialogueEntry(one.root())
-    entry.value = 'please wait'
-    keyPress(entry, 'Enter')
+    surfaceOf(one).showScreenView(viewWith({ propertiesPanel: panel }))
+    const field = selfAndDescendants(oneByRole(one.root(), partName('U-25'))).find(
+      (node) => node.tagName === 'INPUT' || node.tagName === 'TEXTAREA',
+    ) as FakeElement
+    field.focus()
+    keyPress(field, '', { type: 'focusin' })
+    field.value = 'please wait'
+    keyPress(field, '', { type: 'input' })
+    keyPress(field, 'Enter')
 
     const other = wire({ 'App Header': 37 })
-    surfaceOf(other).showScreenView(viewWith({ dialogueField: DIALOGUE }))
+    surfaceOf(other).showScreenView(viewWith({ propertiesPanel: panel }))
 
-    expect(surfaceOf(other).readDialogueInput()).toBeNull()
-    expect(surfaceOf(one).readDialogueInput()?.isSettled).toBe(true)
+    expect(surfaceOf(other).readFieldCommit()).toBeNull()
+    expect(surfaceOf(one).readFieldCommit()).not.toBeNull()
   })
 })
 

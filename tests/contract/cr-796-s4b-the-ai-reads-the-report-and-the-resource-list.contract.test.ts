@@ -8,7 +8,6 @@ import { describe, expect, it } from 'vitest'
 import { agentApiMembers, type AgentApiWiring } from '../../src/adapter/agent-api-endpoint/agent-api-members'
 import type { AgentSnapshot } from '../../src/adapter/agent-api-endpoint/snapshot-source'
 import { DEFAULT_TASK_GROUP_NAME } from '../../src/adapter/screen-renderer/screen-renderer'
-import { emptyDialogueLog, type DialogueLog } from '../../src/entity/document-model/dialogue-log/dialogue-log'
 import type { Document } from '../../src/entity/document-model/document/document'
 import { NOT_STORED_LIMITS, type EditHistory } from '../../src/entity/document-model/edit-history/edit-history'
 import { emptySelection } from '../../src/entity/document-model/selection/selection'
@@ -74,12 +73,11 @@ interface Reader {
 interface State {
   document: Document
   history: EditHistory<ChangeStep>
-  dialogue: DialogueLog
 }
 
 const CHANGE_WATCHERS = emptyChangeWatchers()
 
-const stateOf = (document: Document): State => ({ document, history: { done: [], undone: [] }, dialogue: emptyDialogueLog() })
+const stateOf = (document: Document): State => ({ document, history: { done: [], undone: [] } })
 
 function wiringFor(state: State): AgentApiWiring {
   const readSnapshot = (): AgentSnapshot => ({
@@ -87,7 +85,6 @@ function wiringFor(state: State): AgentApiWiring {
     document: state.document,
     documentAsWritten: state.document,
     selection: emptySelection(),
-    dialogue: state.dialogue,
     frame: null,
     exportScene: null,
     isGestureInFlight: false,
@@ -111,18 +108,7 @@ function wiringFor(state: State): AgentApiWiring {
     },
     audience: {
       deliver: (document, hasUpdatedSchedule) =>
-        notifyChangeWatchers(CHANGE_WATCHERS, { document, hasUpdatedSchedule, dialogue: state.dialogue }),
-    },
-    dialogueHolder: {
-      read: () => state.dialogue,
-      replace: (next) => {
-        state.dialogue = next
-      },
-    },
-    dialogueAudience: {
-      deliver: (log) => {
-        state.dialogue = log
-      },
+        notifyChangeWatchers(CHANGE_WATCHERS, { document, hasUpdatedSchedule }),
     },
     rasterizer: undefined,
     takeInDocument: undefined,

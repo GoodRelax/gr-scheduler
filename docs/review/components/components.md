@@ -25,8 +25,7 @@
 | usecase | RedoEdit | Steps the history forward by one. | FR-031 |
 | usecase | ValidateImportedDocument | Checks untrusted input. Shared by every intake path. | FR-023 / NFR-009 |
 | usecase | ChooseStartupDocument | Picks the document to open at start-up, in the given order. | FR-062 / T-034 |
-| usecase | NotifyChangeWatchers | Hands confirmed changes to the watchers. | AG-6 / AG-11 |
-| usecase | PostDialogueMessage | Takes a confirmed utterance, appends it to DialogueLog and passes it on. Runtime only, never saved. | FR-066 / AG-11 |
+| usecase | NotifyChangeWatchers | Hands confirmed changes to the watchers. | AG-6 |
 | usecase | AdvanceScreenSession | Advances the unsaved screen session by one event and returns the next state with the effects to run; it runs none of them. | ADR-002 / T-249 / T-250 |
 | entity / documentModel | Document | The document root. Composes the three groups of table T-052 and holds the DR-1 invariant. | table T-052 DR-1 |
 | entity / documentModel | Schedule | The schedule-data group and its invariants. | DR-2 / T-056 |
@@ -37,10 +36,9 @@
 | entity / layoutEngine | ScheduleGeometry | Vertices of everything drawn: bars, dependency routes, progress line, cursors, annotations, watermark. | FR-094 / FR-009 / FR-014 / FR-048 / FR-086 |
 | entity / layoutEngine | ItemHitArea | Which item the pointer is over. | SL-1 / PG-9 |
 | entity / documentModel | Selection | The set of selected objects and the order they were selected in. Never saved. |  |
-| entity / documentModel | DialogueLog | Confirmed utterances, in an order of their own that is independent of the revision. Never saved. |  |
 | entity / layoutEngine | ScreenRegions | The rectangle of every screen part, and which region the pointer is in. | FR-051 / T-103 |
 | entity / documentModel | ScreenState | The screen values the document never saves: what is armed, which surface is open, the palette and the full screen. | FR-053 / FR-071 / T-023b |
-| adapter | ScreenRenderer | Builds the description of the UI parts outside the schedule, and passes on the utterance confirmed in the dialogue field. Declares ScreenSurface. | FR-051 / FR-006 / FR-036 / FR-053 / FR-076 / FR-066 |
+| adapter | ScreenRenderer | Builds the description of the UI parts outside the schedule. Declares ScreenSurface. | FR-051 / FR-006 / FR-036 / FR-053 / FR-076 |
 | framework | DomScreenSurface | Puts that description on the page. | implements ScreenSurface |
 | adapter | McpToolTranslator | Maps MCP tool calls and answers to and from the Agent API members; runs in the relay process, not in the page. | FR-150 / AG-12 |
 | framework | McpRelayServer | Carries an MCP client's calls to the page it served on 127.0.0.1 and holds the key, the connected page, the pending calls and the queued notices. | FR-150 / AG-12 |
@@ -59,7 +57,6 @@
 | dependency | InputCommandTranslator | ApplyDocumentChange | one operation | hands over one operation |  |
 | dependency | AgentApiEndpoint | ApplyDocumentChange | same operation | hands over the same operation |  |
 | dependency | AgentApiEndpoint | NotifyChangeWatchers | watch / unwatch | starts and stops watching |  |
-| dependency | AgentApiEndpoint | PostDialogueMessage | utterance | hands over an utterance |  |
 | dependency | FileGateway | ApplyDocumentChange | intake | asks for an intake |  |
 | dependency | ImageExporter | SvgRenderer | SVG string and every color | takes the SVG string, and asks the same renderer for every color it paints, AT THE DOCUMENT'S HUE -- EP-9 forbids a new settings key for it and table T-236's S-149 already holds the line color, so it is asked rather than written as a literal; and without the hue the answer comes back at hue 0 |  |
 | dependency | FileGateway | DocumentCodec | format | gets the exchange format |  |
@@ -91,7 +88,6 @@
 | dependency | ScheduleGeometry | Schedule | tasks + annotations | reads tasks and annotations |  |
 | dependency | ItemHitArea | ScheduleGeometry | vertices | reads the vertices |  |
 | dependency | AgentApiEndpoint | Selection | what is selected | reads the selection for readSelection |  |
-| dependency | AgentApiEndpoint | DialogueLog | confirmed utterances | reads the utterances for readDialogueMessages |  |
 | dependency | AgentApiEndpoint | DocumentCodec | exchange formats | gets JSON, MSPDI and the single .html |  |
 | dependency | AgentApiEndpoint | SvgRenderer | picture arguments | names what the frame hands over, through PI-19's own signature (AG-4) |  |
 | dependency | AgentApiEndpoint | ImageExporter | image out | gets the raster image, handing over the document's theme color with the request |  |
@@ -103,12 +99,7 @@
 | dependency | SvgRenderer | ScreenRegions | the screen it fills | FR-080 makes the picture the whole screen GRS occupies, so the renderer needs the rectangles, not just the content |  |
 | dependency | ScheduleGeometry | Selection | what is selected | puts handles on selected tasks only |  |
 | dependency | InputCommandTranslator | Selection | make and clear | makes, widens and clears the selection |  |
-| dependency | PostDialogueMessage | DialogueLog | append one | appends one confirmed utterance |  |
-| dependency | NotifyChangeWatchers | DialogueLog | utterance order | picks utterances by their own order |  |
 | dependency | SingleHtmlShell | DocumentCodec | implements AppShellSource |  |  |
-| dependency | ScreenRenderer | PostDialogueMessage | utterance shape | shapes the input a person confirmed in the dialogue field as the utterance PostDialogueMessage takes |  |
-| dependency | SingleHtmlShell | PostDialogueMessage | confirmed utterance | posts the utterance a person confirmed in the dialogue field into the dialogue log the shell holds |  |
-| dependency | PostDialogueMessage | NotifyChangeWatchers | utterance posted | wakes the watchers although the revision did not move |  |
 | dependency | AdvanceScreenSession | ScreenState | carried types | reads the remembered-actual and Esc-rung types the screen values carry |  |
 | dependency | AdvanceScreenSession | Selection | panel subject | reads the selection type, and the empty selection, a properties-panel subject is built from |  |
 | dependency | AdvanceScreenSession | EditDocument | carried writes | reads the command type a writing effect carries |  |
@@ -140,7 +131,6 @@
 | dependency | ScreenRenderer | Schedule | task group names + attributes | reads the task group names and the attributes the properties panel shows |  |
 | dependency | ScreenRenderer | DocumentSettings | outer presentation | reads the presentation values |  |
 | dependency | ScreenRenderer | Selection | selection to show | reads what is selected |  |
-| dependency | ScreenRenderer | DialogueLog | utterances shown | reads the utterances the dialogue field shows |  |
 | dependency | ImageExporter | ScreenRenderer | parts that go out | takes the parts table T-076 lets into the export (EP-1 / EP-3) |  |
 | dependency | AgentApiEndpoint | EditDocument | refusal types | reads the two types an invariant refusal is written in |  |
 | dependency | ApplyDocumentChange | DocumentSettings | settings type | reads the settings type a change plan carries |  |
@@ -182,7 +172,6 @@
 | dependency | SingleHtmlShell | ApplyDocumentChange | one write | hands over each operation, replaces the whole document, and reads the refusal and write-moment types it answers with |  |
 | dependency | SingleHtmlShell | BrowserClipboard | clipboard implementation | wires the browser clipboard in as the Clipboard the adapter declared |  |
 | dependency | SingleHtmlShell | CanvasRasterizer | rasterizer implementation | wires the canvas rasterizer in as the Rasterizer the adapter declared |  |
-| dependency | SingleHtmlShell | DialogueLog | empty log | starts the dialogue log empty and holds it |  |
 | dependency | SingleHtmlShell | Document | document type | reads the document root type of the current value it holds |  |
 | dependency | SingleHtmlShell | DocumentSettings | settings defaults | starts the settings at their defaults and holds them |  |
 | dependency | SingleHtmlShell | DomInputSource | input implementation | wires the DOM input source in as the InputSource the adapter declared |  |
@@ -205,6 +194,7 @@
 | dependency | ValidateImportedDocument | Schedule | date columns + day maths | reads the date columns and the day arithmetic each taken-in task is checked with |  |
 | dependency | McpRelayServer | McpToolTranslator | translate tool calls | maps each MCP tool call to a relayed call and each answer back |  |
 | dependency | McpToolTranslator | AgentApiEndpoint | call and answer types | reads only the types of the relayed call and answer (RelayedCall, RelayedAnswer, AgentApi) |  |
+| dependency | ScreenState | DocumentSettings | table windows | names its table windows by the keys of the three table views (T-353), so the two lists cannot drift |  |
 
 ## Clusters
 

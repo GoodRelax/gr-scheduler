@@ -55,7 +55,6 @@ import {
   type AgentExport,
   type AgentSnapshot,
 } from '../../src/adapter/agent-api-endpoint/agent-api-endpoint'
-import { emptyDialogueLog } from '../../src/entity/document-model/dialogue-log/dialogue-log'
 import type { Document } from '../../src/entity/document-model/document/document'
 import { NOT_STORED_LIMITS } from '../../src/entity/document-model/edit-history/edit-history'
 import { emptySelection } from '../../src/entity/document-model/selection/selection'
@@ -184,7 +183,6 @@ function endpointWithoutScene(over: Shell): Endpoint {
 function endpoint(over: Shell = shell(), withholdScene = false): Endpoint {
   let reads = 0
   let last: AgentSnapshot | null = null
-  const dialogue = emptyDialogueLog()
 
   const readSnapshot = (): AgentSnapshot => {
     reads += 1
@@ -195,7 +193,6 @@ function endpoint(over: Shell = shell(), withholdScene = false): Endpoint {
       document,
       documentAsWritten: document,
       selection: emptySelection(),
-      dialogue,
       frame: frame === null ? null : { ...frame },
       // The export half of IF-7's supplies column, and the whole reason this
       // file joins the two sides: the answer is the shell's, and it is read
@@ -243,8 +240,6 @@ function endpoint(over: Shell = shell(), withholdScene = false): Endpoint {
       replace: () => undefined,
     },
     audience: { deliver: () => undefined },
-    dialogueHolder: { read: () => dialogue, replace: () => undefined },
-    dialogueAudience: { deliver: () => undefined },
     // ⚠️ IF-6 AND IF-8 ARE PRESENT AND ABSENT (台帳 DFC-356). `AgentApiWiring`
     // requires both fields and lets either be `undefined`, which is the shape a
     // loop that touches no picture runs in; this bench is one of those, so

@@ -2581,21 +2581,6 @@
    ]
   },
   {
-   "id": "PI-16",
-   "layer": "UseCase",
-   "component": "PostDialogueMessage",
-   "members": [
-    {
-     "name": "postDialogueMessage",
-     "note": {
-      "ja": [
-       "`non-pure`"
-      ]
-     }
-    }
-   ]
-  },
-  {
    "id": "PI-17",
    "layer": "Adapter",
    "component": "AgentApiEndpoint",
@@ -2630,7 +2615,7 @@
      "after": {
       "ja": [
        "。",
-       "⚠️ 外へ公開する 23 メンバの名前は `_assets/tbl-agent-api-members.md` の 表 T-107 が持つ。",
+       "⚠️ 外へ公開する 21 メンバの名前は `_assets/tbl-agent-api-members.md` の 表 T-107 が持つ。",
        "本表に書き写さない（MUST NOT）"
       ]
      }
@@ -3281,38 +3266,6 @@
    ]
   },
   {
-   "id": "PI-33",
-   "layer": "documentModel",
-   "component": "DialogueLog",
-   "members": [
-    {
-     "name": "DialogueLog",
-     "note": {
-      "ja": [
-       "型。",
-       "刻印とは別の順序は 表 T-035 の `AG-11`"
-      ]
-     }
-    },
-    {
-     "name": "logWithMessage",
-     "note": {
-      "ja": [
-       "1 件積む"
-      ]
-     }
-    },
-    {
-     "name": "messagesSince",
-     "note": {
-      "ja": [
-       "`AG-6` の選び方"
-      ]
-     }
-    }
-   ]
-  },
-  {
    "id": "PI-34",
    "layer": "documentModel",
    "component": "Document",
@@ -3579,15 +3532,6 @@
       "ja": [
        "根の状態（`PI-39` の `ScreenSession`）と `ScreenViewReadings` から `ScreenView` を作る。",
        "根の状態は読むだけである"
-      ]
-     }
-    },
-    {
-     "name": "dialogueMessageFromInput",
-     "note": {
-      "ja": [
-       "対話欄で確定した発話。",
-       "順序の規則は 表 T-035 の `AG-11`"
       ]
      }
     },
@@ -4191,7 +4135,7 @@
       "ja": [
        "型。",
        "ウィンドウの覚えた位置と大きさ（画面の px）。",
-       "文書にも閲覧環境の保管庫にも置かない（表 T-335 の `WB-6`、`S-455`・`S-456`）"
+       "文書にも閲覧環境の保管庫にも置かない（表 T-335 の `WB-6`、`S-455`）"
       ]
      }
     },

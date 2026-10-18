@@ -87,14 +87,13 @@ describe('bareAll -- every value a cell states', () => {
     ])
   })
 
-  it('gives all nine surfaces 表 T-109 IC-52 stands on', () => {
+  it('gives all eight surfaces 表 T-109 IC-52 stands on', () => {
     // ⭐ THE CELL `DFC-351` WAS RAISED ON. Sixteen files filtered this column with
     // `===` on a first span, so each of them answered for one surface of six.
     const surfaces = bareAll(rowOf('T-109', 'IC-52')['面'] ?? '')
-    expect(surfaces).toHaveLength(9)
+    expect(surfaces).toHaveLength(8)
     expect(surfaces[0]).toBe('Help Modal')
-    expect(surfaces.at(-2)).toBe('Holiday Settings')
-    expect(surfaces.at(-1)).toBe('Dialogue Field')
+    expect(surfaces.at(-1)).toBe('Holiday Settings')
   })
 
   it('gives both purities 表 T-075 UF-41 states', () => {
@@ -125,7 +124,7 @@ describe('bare -- the single value a cell states', () => {
   })
 
   it('⛔ REFUSES an enumerating cell rather than returning the first of several (DFC-351)', () => {
-    expect(() => bare(rowOf('T-109', 'IC-52')['面'] ?? '')).toThrow(/states 9 values/)
+    expect(() => bare(rowOf('T-109', 'IC-52')['面'] ?? '')).toThrow(/states 8 values/)
     expect(() => bare(rowOf('T-036', 'SK-3')['割当'] ?? '')).toThrow(/states 2 values/)
     expect(() => bare(rowOf('T-075', 'UF-41')['純粋性'] ?? '')).toThrow(/states 2 values/)
   })

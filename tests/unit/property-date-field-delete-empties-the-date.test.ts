@@ -108,7 +108,6 @@ const viewWith = (panel: PropertiesPanel): ScreenView => ({
   openModal: null,
   notices: [],
   confirmation: null,
-  dialogueField: null,
   tooltips: [],
 })
 

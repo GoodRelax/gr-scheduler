@@ -35,7 +35,6 @@ export type AgentApiValuesAxes = Omit<AgentApiValues, never>
 
 export type AgentApiValuesEvent =
   | { readonly type: 'agentApiEntryPressed' }
-  | { readonly type: 'enablingAskedByDialogueField' }
   | { readonly type: 'rememberedEnablingLoaded'; readonly isRememberedEnabled: AgentApiValuesEventCarried['isRememberedEnabled'] }
 
 export type AgentApiValuesEffectName =
@@ -68,13 +67,6 @@ function onAgentApiEntryPressed(values: AgentApiValues): AgentApiStep {
   }
 }
 
-// WHY: the dialogue field entry only ever enables (FR-066); an enabled API stays as it is.
-/** @purity pure */
-function onEnablingAskedByDialogueField(values: AgentApiValues): AgentApiStep {
-  if (values.agentApiEnablingState.kind !== 'disabled') return unchanged(values)
-  return { state: { ...values, agentApiEnablingState: ENABLED }, effects: [{ type: 'storeAgentApiEnabling' }] }
-}
-
 /** @purity pure */
 function isRememberedEnabled(event: EventOf<'rememberedEnablingLoaded'>): boolean {
   return event.isRememberedEnabled
@@ -91,7 +83,6 @@ const HANDLERS: {
   readonly [T in AgentApiValuesEvent['type']]: (values: AgentApiValues, event: EventOf<T>) => AgentApiStep
 } = {
   agentApiEntryPressed: onAgentApiEntryPressed,
-  enablingAskedByDialogueField: onEnablingAskedByDialogueField,
   rememberedEnablingLoaded: onRememberedEnablingLoaded,
 }
 

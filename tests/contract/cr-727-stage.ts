@@ -8,7 +8,6 @@ import {
   SETTINGS_DEFAULTS,
   type DocumentSettings,
 } from '../../src/entity/document-model/document-settings/document-settings'
-import { emptyDialogueLog } from '../../src/entity/document-model/dialogue-log/dialogue-log'
 import type { Schedule } from '../../src/entity/document-model/schedule/schedule'
 import { emptySelection } from '../../src/entity/document-model/selection/selection'
 import type { ScreenRect, ScreenRegions } from '../../src/entity/layout-engine/screen-regions/screen-regions'
@@ -107,7 +106,7 @@ const READINGS: ScreenViewReadings = {
 } as unknown as ScreenViewReadings
 
 export const viewOf = (session: ScreenSession): ScreenView =>
-  screenViewFromRegions(REGIONS, SCHEDULE, SETTINGS, emptySelection(), session, emptyDialogueLog(), READINGS)
+  screenViewFromRegions(REGIONS, SCHEDULE, SETTINGS, emptySelection(), session, READINGS)
 
 export function inLanguage(session: ScreenSession, screenLanguage: DisplayLanguage): ScreenSession {
   return { ...session, screen: { ...session.screen, screenLanguage } }

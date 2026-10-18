@@ -78,7 +78,6 @@ const viewOf = (rows: readonly Placed[]): ScreenView =>
     openModal: null,
     notices: [],
     confirmation: null,
-    dialogueField: null,
     tooltips: [],
   }) as unknown as ScreenView
 

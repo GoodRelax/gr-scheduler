@@ -341,7 +341,6 @@ export async function shellStage(options: StageOptions = {}): Promise<ShellStage
       views.push(view)
       drawn?.showScreenView(view)
     },
-    readDialogueInput: () => null,
     readFieldCommit: () => null,
     readScreenPartAt: () => part,
   } as ScreenSurface

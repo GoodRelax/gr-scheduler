@@ -335,7 +335,6 @@ const sceneIndentedBy = (indentPx: number): ExportScene => {
     openModal: null,
     notices: [],
     confirmation: null,
-    dialogueField: null,
     tooltips: [],
   }
   return {

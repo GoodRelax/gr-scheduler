@@ -69,7 +69,6 @@ export function shell(document: Document = longDocument(), language: 'ja' | 'en'
   let drawn: ScreenPart | null = null
   const surface = {
     showScreenView: (view: ScreenView) => void views.push(view),
-    readDialogueInput: () => null,
     readFieldCommit: () => null,
     readScreenPartAt: () => drawn,
   } as unknown as ScreenSurface

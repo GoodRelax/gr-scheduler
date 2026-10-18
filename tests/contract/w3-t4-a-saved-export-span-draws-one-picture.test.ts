@@ -172,7 +172,6 @@ function fieldRig(document: Document): FieldRig {
     showScreenView: (view) => {
       views.push(view)
     },
-    readDialogueInput: () => null,
     readFieldCommit: () => {
       const one = held
       held = null

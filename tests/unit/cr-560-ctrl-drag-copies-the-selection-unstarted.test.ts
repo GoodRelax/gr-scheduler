@@ -321,7 +321,6 @@ function stage(): Stage {
   }
   const surface: ScreenSurface = {
     showScreenView: () => undefined,
-    readDialogueInput: () => null,
     readFieldCommit: () => null,
     readScreenPartAt: (x, y): ScreenPart | null =>
       insideBox(PALETTE_BOX, { x, y })

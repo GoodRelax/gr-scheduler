@@ -85,7 +85,6 @@ const stage = (settings: Record<string, unknown>): Stage => {
   }
   const surface: ScreenSurface = {
     showScreenView: () => undefined,
-    readDialogueInput: () => null,
     readFieldCommit: () => null,
     readScreenPartAt: (): ScreenPart | null => null,
   }
