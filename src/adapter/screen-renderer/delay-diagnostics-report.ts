@@ -584,7 +584,9 @@ export function delayDiagnosticsReportFromWindow(
   const fixView = delayFixViewOf(values, fixTables, words)
   if (values.table === 'diagnosis') return { ...diagnosis, ...fixView }
   const table = fixTableViewOf(window, values.table, fixTables, words)
-  return { ...diagnosis, ...table, summary: [], glyphAt: null, showAt: null, showHeading: 'empty', entryRefusals: [], rowRevealed: null, ...fixView }
+  const showAt = values.table === 'proposals' ? PROPOSAL_COLUMNS.indexOf(FIX_CHECK_COLUMN) : null
+  const showHeading = delayFixBundleOf(fixTables.proposals).length > 0 ? 'checked' : 'empty'
+  return { ...diagnosis, ...table, summary: [], glyphAt: null, showAt, showHeading, entryRefusals: [], rowRevealed: null, ...fixView }
 }
 
 // see FR-134, T-346, RW-2, RW-3, RW-4, RW-9, S-564
@@ -1207,6 +1209,7 @@ function fixWindowTableOf(
   return {
     columns,
     fixedCount: columns.indexOf(FIX_JUMP_COLUMN) + 1,
+    ...(table === 'log' ? {} : { checkColumn: FIX_CHECK_COLUMN }),
     headingOf: (column) => partWordOf(FIX_COLUMN_WORDS, column, language),
     isDateColumn: (column) => column === FIX_DATE_COLUMN,
     valuesOf: (column) => tableColumnValues(listed.rows(), FIX_TABLE, column, listed.sort),
@@ -1575,6 +1578,25 @@ export function delayDiagnosticsReportWithAdoptAll(window: DelayDiagnosticsRepor
   )
 }
 
+// see FM-1, FR-155, JDG-2920, JDG-2921
+// WHY: empty, it checks every listed row that can take a check; checked, it clears every row, the unlisted ones included.
+/** @purity pure */
+export function delayDiagnosticsReportWithFixHeading(
+  window: DelayDiagnosticsReportWindow,
+  tables: DelayFixTables,
+  heading: { readonly isChecked: boolean; readonly listedKeys: readonly string[] },
+): DelayDiagnosticsReportWindow {
+  const listed = new Set(heading.listedKeys)
+  const reached = heading.isChecked
+    ? tables.proposals.filter((row) => listed.has(row.key) && row.isCheckable && !row.checked)
+    : tables.proposals.filter((row) => row.isCheckable && row.checked)
+  const value = heading.isChecked ? CHECK_MARK : ''
+  return reached.reduce(
+    (held, row) => delayDiagnosticsReportWithPick(held, { kind: 'fixPick', column: FIX_CHECK_COLUMN, key: row.key, part: 'check', value }),
+    window,
+  )
+}
+
 // see RW-3, RW-8, RW-11, RW-16, SV-7, UN-20
 // WHY: one reducer for what the window's host raised: the word, the filter changes of the table shown, and the picks.
 /** @purity pure */
@@ -1582,6 +1604,7 @@ export function delayDiagnosticsReportWithInput(
   window: DelayDiagnosticsReportWindow | null,
   view: TableView,
   input: { readonly word: string | null; readonly changes: readonly SearchFilterChange[] } | undefined,
+  tables?: DelayFixTables,
 ): { readonly window: DelayDiagnosticsReportWindow | null; readonly view: TableView } {
   if (window === null || input === undefined) return { window, view }
   const typed = input.word === null ? window : { ...window, panel: { ...window.panel, word: input.word } }
@@ -1590,6 +1613,9 @@ export function delayDiagnosticsReportWithInput(
     if (change.kind === 'fixPick') return { ...held, window: delayDiagnosticsReportWithPick(held.window, change) }
     const values = delayFixValuesOf(held.window)
     if (values.table === 'diagnosis') return { ...held, view: delayDiagnosticsReportAfterFilterChange(held.window, held.view, change) }
+    if (change.kind === 'shown' && change.isHeading === true && values.table === 'proposals' && tables !== undefined) {
+      return { ...held, window: delayDiagnosticsReportWithFixHeading(held.window, tables, { isChecked: change.isShown, listedKeys: change.fixKeys ?? [] }) }
+    }
     const fixView = delayFixAfterFilterChange(held.window, values, change)
     return { ...held, window: withFixValues(held.window, { views: { ...values.views, [values.table]: fixView } }) }
   }, { window: typed as DelayDiagnosticsReportWindow | null, view })

@@ -86,16 +86,16 @@ describe('T-374 / SV-18 -- FM-1 is measured like the other columns at 9, 10 and 
 })
 
 describe('T-374 / GR-28 / SV-7 -- FM-1 has a right edge like the other columns', () => {
-  it('its heading holds IC-122 off the right edge by the same clearance as the next column (SV-7 sets it only where GR-28 stands)', async () => {
+  it('its heading holds the box and the word and no IC-122, so SV-7 sets no clearance there (FM-1, CR-816)', async () => {
     const drawn = drawnTable(await proposalsOpened(ONE_PARENT()))
     const heading = (row: string): FakeElement => {
       const found = drawn.headings.find((one) => one.textContent.trim() === columnWord(row))
       if (found === undefined) throw new Error(`no heading reads ${columnWord(row)}`)
       return found
     }
-    expect(selfAndDescendants(heading('FM-1')).some((one) => one.getAttribute('data-icon') === 'IC-122'), 'premise: FM-1 carries IC-122').toBe(true)
-    expect(styleOf(heading('FM-3'), 'padding-right'), 'premise: FM-3 keeps a clearance').not.toBe('')
-    expect(styleOf(heading('FM-1'), 'padding-right')).toBe(styleOf(heading('FM-3'), 'padding-right'))
+    expect(selfAndDescendants(heading('FM-1')).some((one) => one.getAttribute('data-icon') === 'IC-122'), 'FM-1 carries no IC-122').toBe(false)
+    expect(styleOf(heading('FM-3'), 'padding-right'), 'premise: FM-3 keeps a clearance for its IC-122').not.toBe('')
+    expect(selfAndDescendants(heading('FM-1')).some((one) => one.getAttribute('data-search-shown-all') !== null), 'FM-1 carries the heading box').toBe(true)
   })
 
   it.todo('dragging the right edge of FM-1 changes its width and stops at S-425 (GR-28): the stand-in DOM lays nothing out, so no pointer can be aimed at a column edge from the window stage')

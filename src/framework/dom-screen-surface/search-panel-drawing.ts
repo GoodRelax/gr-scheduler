@@ -447,7 +447,7 @@ function headerCellElement(
   const filter = commandEntry(host, column.filterEntry)
   if (column.isFiltered) filter.setAttribute('style', (filter.getAttribute('style') ?? '') + filteredEntryStyle())
   filter.setAttribute(SEARCH_FILTER_COLUMN_ATTRIBUTE, column.column)
-  if (showHeading !== null) {
+  if (showHeading !== null && VISIBILITY_COLUMNS.includes(column.column)) {
     cell.setAttribute(NO_BORDER_ATTRIBUTE, 'true')
     cell.setAttribute('title', column.heading)
     line.replaceChildren(shownBoxElement(host, showHeading))
@@ -456,7 +456,8 @@ function headerCellElement(
   }
   const heading = made(host, 'span', HEADING_WORD_STYLE)
   heading.textContent = column.heading
-  line.replaceChildren(heading, filter)
+  // WHY: FM-1 keeps its word beside the box and its border, so the column name stays readable (T-374).
+  line.replaceChildren(...(showHeading === null ? [heading, filter] : [shownBoxElement(host, showHeading), heading]))
   cell.replaceChildren(line)
   return cell
 }
@@ -668,18 +669,30 @@ function bodyRowElement(host: Document, row: DrawnRow, columns: readonly SearchC
     const isFixed = columns[at]?.isFixed === true
     const fixed = isFixed ? fixedColumnStyle() + stackStyle('fixedBodyCell') : ''
     const cell = made(host, 'td', cellStyle() + fixed + (isJump ? jumpCellStyle() : ''))
-    const fixControl = fixControlOf(host, row.fix, columns[at]?.column)
-    if (at === places.glyphAt) cell.replaceChildren(glyphElement(host, row.glyph ?? null), text)
-    else if (at === places.showAt && key !== null) cell.replaceChildren(shownRowBox(host, key, row.isShown === true))
-    else if (at === places.chosenAt) cell.replaceChildren(...chosenEntryOf(host, row.chosenEntry))
-    else if (fixControl !== null) cell.replaceChildren(fixControl)
-    else cell.textContent = text
+    fillBodyCell(host, cell, { row, text, at, key, column: columns[at]?.column }, places)
     if (isFixed) cell.setAttribute(FIXED_COLUMN_ATTRIBUTE, 'true')
     if (isJump && row.target?.kind === 'task') markJumpCell(cell, row.target)
     if (isJump && row.target?.kind === 'commentBox') cell.setAttribute(SEARCH_JUMP_COMMENT_BOX_ATTRIBUTE, row.target.commentBoxId)
     line.append(cell)
   })
   return line
+}
+
+// WHY: a fix row's own control wins over the Visibility box, so FM-1 shows the fix check (SQ-10, FM-1, FM-8).
+/** @purity non-pure */
+function fillBodyCell(
+  host: Document,
+  cell: HTMLElement,
+  at: { readonly row: DrawnRow; readonly text: string; readonly at: number; readonly key: VisibilityKey | null; readonly column: string | undefined },
+  places: DrawnPlaces,
+): void {
+  const { row, text, key } = at
+  const fixControl = fixControlOf(host, row.fix, at.column)
+  if (at.at === places.glyphAt) cell.replaceChildren(glyphElement(host, row.glyph ?? null), text)
+  else if (at.at === places.showAt && key !== null && (row.fix ?? null) === null) cell.replaceChildren(shownRowBox(host, key, row.isShown === true))
+  else if (at.at === places.chosenAt) cell.replaceChildren(...chosenEntryOf(host, row.chosenEntry))
+  else if (fixControl !== null) cell.replaceChildren(fixControl)
+  else cell.textContent = text
 }
 
 interface DrawnPlaces {
@@ -1108,7 +1121,8 @@ function shownChangeOf(control: HTMLInputElement, layer: Element, column: string
   if (one !== null) return { kind: 'shown', column, keys: [visibilityKeyFrom(one)], isShown: control.checked }
   if (control.getAttribute(SHOWN_ALL_ATTRIBUTE) === null) return null
   const listed = [...layer.querySelectorAll(`[${VISIBILITY_KEY_ATTRIBUTE}]`)].map((box) => visibilityKeyFrom(box.getAttribute(VISIBILITY_KEY_ATTRIBUTE) ?? ''))
-  return { kind: 'shown', column, keys: listed, isShown: control.checked, isHeading: true }
+  const fixKeys = [...layer.querySelectorAll(`[${DELAY_FIX_PART_ATTRIBUTE}="check"]`)].map((box) => box.getAttribute(DELAY_FIX_KEY_ATTRIBUTE) ?? '')
+  return { kind: 'shown', column, keys: listed, isShown: control.checked, isHeading: true, fixKeys }
 }
 
 // WHY: input, the one event T-078 lets this layer hear; a check mark or a whole date is settled (IF-9, SV-7).

@@ -113,7 +113,7 @@ describe('RW-11 -- three tables, one at a time, the diagnosis first', () => {
     await stage.press('IC-155')
     const container = stage.need(PROPOSALS_ROLE)
     expect(container.textContent).toContain(fixWord('openFieldHint'))
-    const boxes = selfAndDescendants(container).filter((one) => one.tagName === 'INPUT' && one.getAttribute('type') === 'checkbox')
+    const boxes = selfAndDescendants(container).filter((one) => one.tagName === 'INPUT' && one.getAttribute('type') === 'checkbox' && one.getAttribute('data-search-shown-all') === null)
     expect(boxes).toHaveLength(0)
   })
 
