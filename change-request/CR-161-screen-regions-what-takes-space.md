@@ -18,13 +18,13 @@
 
 ### ⭐ 前プロジェクトの PoC が、3 つとも実測で答えを持っていた
 
-`previous-project-result/08-poc/poc-integrated.html` の逐語である。
+`studies/08-poc/poc-integrated.html` の逐語である。
 
 **スクロールバー**（`:218` 〜 `:224`）:
 
 ```
 Scrollbars -- always visible, half the environment default width.
-  previous-project-result/03-ui-naming/ui-detail-spec-ja.md  5-2
+  studies/03-ui-naming/ui-detail-spec-ja.md  5-2
 
 Always visible because a scrollbar that appears and disappears changes the
 canvas width, and a changed width re-runs the layout and moves the stacks.
@@ -73,7 +73,7 @@ ENV.canvasH = ENV.viewH - ENV.headerH;
 **`Scrollbars` は `Row Area` から場所を取ること（MUST）。太さは環境の既定の半分とすること（MUST）**
 —— 常時表示にする理由（`SC-4`）が幅の変動を避けることである以上、**場所を取らない形では `SC-4` が
 意味を持たない。** 半分にするのは、常に出しているものが描画領域を丸ごと食わないためである
-（由来は `previous-project-result/03-ui-naming/ui-detail-spec-ja.md` の 5-2）。
+（由来は `studies/03-ui-naming/ui-detail-spec-ja.md` の 5-2）。
 
 **`Panel Divider` は `Row Area` から場所を取ってはならない（MUST NOT）** —— パネルの境界に重なる
 掴み帯である。**取ると、掴みやすさのために広げた帯がそのまま描画領域を削る。**

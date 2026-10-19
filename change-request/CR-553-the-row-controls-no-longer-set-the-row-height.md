@@ -511,7 +511,7 @@ for p in LF HF S VG; do
 done
 #   -> LF 15, HF 120 (a word in a test comment; the table's last row is HF-19, CR-551 takes HF-20),
 #      S 999 (a test sentinel; the last row is S-338 after CR-551), VG 7
-git grep -n "\bLF-16\b\|rowControlLatticeHeightPx" -- . ':!previous-project-result'
+git grep -n "\bLF-16\b\|rowControlLatticeHeightPx" -- . ':!studies'
 #   -> nothing but this file
 grep -ohE 'JDG-[0-9]+' docs/development-records/rulings.md | sort -t- -k2 -n | tail -1   # -> JDG-399
 grep -ohE 'DFC-[0-9]+' docs/development-records/defects.md | sort -t- -k2 -n | tail -1   # -> DFC-793

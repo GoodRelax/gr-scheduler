@@ -3,7 +3,7 @@
 ⭐ **利用者の指示（2026-08-31、逐語）**「**引き継ぎ書にサンプルと仕様書と今の実装を徹底的に比較して、
 サンプルに合わせて仕様書を書き、仕様書に合わせて実装するようにしろ。**」
 
-⛔ **見本は `previous-project-result/11-row-controls/row-controls-sample.html` である。**
+⛔ **見本は `studies/11-row-controls/row-controls-sample.html` である。**
 ⭐ **突き合わせの全数は [`docs/review/sample-vs-spec-vs-implementation-2026-08-31.md`](../docs/review/sample-vs-spec-vs-implementation-2026-08-31.md) が持つ。**
 
 ---

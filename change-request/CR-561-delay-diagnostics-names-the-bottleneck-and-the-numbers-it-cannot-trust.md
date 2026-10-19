@@ -2079,9 +2079,9 @@ PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/md-checks.py | gre
 
 # the bands and the new identifiers are unused (2026-09-24, ebc71984; re-measured at 61bbd572: only IC-107 in CR-562,
 #   which the coordinator moved to IC-115, and the history hits below)
-git grep -nE "\bS-3(8[5-9]|9[0-9])\b|\bT-31[0-9]\b|\bJDG-(4[7-9][0-9])\b|\bDFC-(89[0-9]|90[0-9])\b|\bPND-(58[1-9]|59[0-9]|600)\b|\bCR-561\b" origin/refactor -- . ':!previous-project-result'
+git grep -nE "\bS-3(8[5-9]|9[0-9])\b|\bT-31[0-9]\b|\bJDG-(4[7-9][0-9])\b|\bDFC-(89[0-9]|90[0-9])\b|\bPND-(58[1-9]|59[0-9]|600)\b|\bCR-561\b" origin/refactor -- . ':!studies'
 #   -> only CR-110:397 (T-301..T-319 of the deleted tbl-datamodel.md) and CR-548:100 (text "T-293")
-git grep -ohE "\bDP-[0-9]+|\bV-14\b|\bVK-4\b|\bAM-19\b|\bIC-10[78]\b|\bUC-015\b|\bGL-009\b|\bCH-7\b|\bPLM-9\b|\bFR-13[0-7]\b|\bVC-[0-9]+|\bVS-[0-9]+|\bVO-[0-9]+|\bBD-[0-9]+|\bDQ-[0-9]+|\bDG-[0-9]+|\bDW-[0-9]+|\bIP-[0-9]+|\bMP-[0-9]+" -- . ':!previous-project-result' | sort | uniq -c
+git grep -ohE "\bDP-[0-9]+|\bV-14\b|\bVK-4\b|\bAM-19\b|\bIC-10[78]\b|\bUC-015\b|\bGL-009\b|\bCH-7\b|\bPLM-9\b|\bFR-13[0-7]\b|\bVC-[0-9]+|\bVS-[0-9]+|\bVO-[0-9]+|\bBD-[0-9]+|\bDQ-[0-9]+|\bDG-[0-9]+|\bDW-[0-9]+|\bIP-[0-9]+|\bMP-[0-9]+" -- . ':!studies' | sort | uniq -c
 #   -> DP-1..4 (used -> DX taken instead), V-14 x2 (docs/review/inventory local labels only), nothing else
 for p in VC VS VO BD DQ DG DW DX IP MP; do grep -c "\"prefix\": \"$p\"" docs/spec/_source/row-id-prefixes.json; done   # -> all 0
 python -c "import json;print(len(json.load(open('docs/spec/_source/row-id-prefixes.json',encoding='utf-8'))['prefixes']))"   # -> 162 at ebc71984; 163 at 61bbd572

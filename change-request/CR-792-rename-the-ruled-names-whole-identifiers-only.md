@@ -2,7 +2,7 @@
 
 > 状態: ⭐ **当てた** —— 段 1（改名表と下見）は 2026-10-17、改名の席が `79feea99` の上で書いた（`19eaa1de`）。段 2 は 2026-10-18、改名を当てる席が `19eaa1de` の上で、別の席の下見のレビューを受けてから当てた（7 節）。変更履歴は 5.05。`perf-pending` の行は 242。
 > 当てる裁定: `JDG-2680`〜`JDG-2690`（名の調べ N-1〜N-11）・`editGroup` → `editPermission`（利用者の選択、2026-10-17）・`JDG-2723`・`JDG-2724`・`JDG-2740`（予実の値の語、利用者の選択 2026-10-18）。覆す裁定: 無し。覆す規則: 無し。
-> 出どころ: 名の調べ `previous-project-result/67-naming-audit/README.md`。前の段（段 0）は `_source` の関係図と検査 83・84（`585b29cc`・`46f2e5a2`、`previous-project-result/69-source-erd/README.md`）。
+> 出どころ: 名の調べ `studies/67-naming-audit/README.md`。前の段（段 0）は `_source` の関係図と検査 83・84（`585b29cc`・`46f2e5a2`、`studies/69-source-erd/README.md`）。
 > 台帳: 新しい行 ID は無い。消す行 ID は無い。辞書の語は足さない・消さない（画面の語は変えない —— 変えるのは鍵と命令と API の名だけ）。
 
 ---
@@ -136,7 +136,7 @@
 | `docs/spec/`（手、上の 3 群を除かない） | 112 | |
 | 規則・ガイド・検査 | 27 | |
 
-⚠️ 記録として古い名を引くファイルは替えない: 検査 84 の許可リストと検査 83・84・`source_refs.py` の説明（`cr792_rename.py` の `SKIP`）、`change-request/`・`docs/development-records/`・`previous-project-result/`。
+⚠️ 記録として古い名を引くファイルは替えない: 検査 84 の許可リストと検査 83・84・`source_refs.py` の説明（`cr792_rename.py` の `SKIP`）、`change-request/`・`docs/development-records/`・`studies/`。
 
 ## 5. 段 2 の手順（当てる —— 調整役が利用者に下見を見せた後）
 

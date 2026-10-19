@@ -231,9 +231,9 @@ SEAM (CR-699)
 | 表の行 | +2（表 T-206） | +2（`S-540`・`S-541`）。書き換え 1（`DR-4`） |
 | 要求 ID・図 | 0 | 0。`（MUST）` +7（足した 12・消した 5）、`（MUST NOT）` +3（足した 6・消した 3）—— 2 つの設計書の差分の `+`/`-` 行で数えた |
 | `_source/` のファイル | +2 | +2（`grs-json-changes.json`・`grs-json-changes.schema.json`）。検査 +1（検査 76、`check-grs-json-ledger.py`） |
-| 版の値を直に持つファイル（`2026-10-04` と `schemaVersion` が同じファイルにある所。`previous-project-result/` を除く） | 12 —— `tools/generate_startup_template.py`・`docs/spec/_source/grs-document.schema.json`（生成）・`src/framework/single-html-shell/` の 3 つ（生成）・`src/adapter/screen-renderer/image-to-grs-json-prompt.json`（生成）・`docs/guides/schedule-to-grs-json/grs-skeleton.json`・`sample-schedule/Three-Year Product Plan.json`・`tests/fixtures/measuring-document.json`・`tests/unit/` の 3 つ || 12 のうち、生成物 6 つ（`tests/fixtures/measuring-document.json` も生成器が書く）は `npm run gen` が書き直し、手で直したのは案内の骨組み・見本・試験 2 つ（`cr-646`・`cr-651`。`edit-calendar.test.ts` は版を引かない文中の日付）と生成器 1 つ。ほかに試験の根の組み立て 86 か所に `$schema` を足した（X-10） |
+| 版の値を直に持つファイル（`2026-10-04` と `schemaVersion` が同じファイルにある所。`studies/` を除く） | 12 —— `tools/generate_startup_template.py`・`docs/spec/_source/grs-document.schema.json`（生成）・`src/framework/single-html-shell/` の 3 つ（生成）・`src/adapter/screen-renderer/image-to-grs-json-prompt.json`（生成）・`docs/guides/schedule-to-grs-json/grs-skeleton.json`・`sample-schedule/Three-Year Product Plan.json`・`tests/fixtures/measuring-document.json`・`tests/unit/` の 3 つ || 12 のうち、生成物 6 つ（`tests/fixtures/measuring-document.json` も生成器が書く）は `npm run gen` が書き直し、手で直したのは案内の骨組み・見本・試験 2 つ（`cr-646`・`cr-651`。`edit-calendar.test.ts` は版を引かない文中の日付）と生成器 1 つ。ほかに試験の根の組み立て 86 か所に `$schema` を足した（X-10） |
 
-⚠️ 12 のうち生成物は 5 つ（`npm run gen` が書き直す）。手で直すのは見本・案内の骨組み・試験の 6 つと、生成器の 1 つ。`previous-project-result/` の 2 つは過去の記録なので触らない。
+⚠️ 12 のうち生成物は 5 つ（`npm run gen` が書き直す）。手で直すのは見本・案内の骨組み・試験の 6 つと、生成器の 1 つ。`studies/` の 2 つは過去の記録なので触らない。
 ⚠️ 手で直す 6 つは、版と同時に先頭の `"$schema"` も足す（`JDG-1693`）。`"$schema"` を持たない文書を読ませる試験は、拒むことを確かめる試験になる（X-6）。
 
 ---

@@ -4,7 +4,7 @@
 > 当てる裁定: `JDG-2463`・`JDG-2465`・`JDG-2466`・`JDG-2467`〜`JDG-2469`・`JDG-2540`・`JDG-2541`（利用者が答えた）。`JDG-2464` は幅だけ当てる（ボタンの場所は `DFC-2973` の変更要求へ渡す）。覆す裁定: `JDG-2350`（どの中身も 560 px —— 2026-10-17 に `JDG-2466` が一部覆した）。
 > 出どころ: 利用者の報告（2026-10-17）の 3)・4)、確かめ表 2026-10-16 の 2 行目の 5)、報告の席の調べ（`DFC-2962`〜`DFC-2965`・`DFC-2970`。`docs/review/user-report-2026-10-17.md`）。
 > 台帳: 新しい行 ID は `S-602`〜`S-607`（表 T-206）。消す行 ID は無い。辞書の部分の名を 3 つ足し（`viewLeftEdge`・`viewTopEdge`・`groupFromTop`）、3 つ消し・替える（`dayOffset`・`topZero` を消し、`zoneName` を `zoneHead` に替える）。
-> 見本: `previous-project-result/62-properties-panel-widths/`（出荷の描き方をそのまま束ねた 1 ファイルと、Edge で幅を掃く `sweep.mjs`）。
+> 見本: `studies/62-properties-panel-widths/`（出荷の描き方をそのまま束ねた 1 ファイルと、Edge で幅を掃く `sweep.mjs`）。
 
 ---
 

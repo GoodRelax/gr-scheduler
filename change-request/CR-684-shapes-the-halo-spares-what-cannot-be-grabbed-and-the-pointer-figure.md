@@ -147,7 +147,7 @@ RATIONALE の後に 表 T-355 を立てる:
 
 **E-08** 図 F-025:
 
-- 見本 `previous-project-result/16-grab-area-sizing/grab-area-sizing-sample.html` に `parentLinkGlyph`（`PK-17`）を足した。道は出荷のコード（`src/framework/single-html-shell/pointer-shape.ts` の `PARENT_LINK_PATH`）と同じ、白の中身に黒の縁（見本のほかの矢印と同じ `rimmed`）、角は丸め、一辺は見本の `S.cur`（`S-249`）。
+- 見本 `studies/16-grab-area-sizing/grab-area-sizing-sample.html` に `parentLinkGlyph`（`PK-17`）を足した。道は出荷のコード（`src/framework/single-html-shell/pointer-shape.ts` の `PARENT_LINK_PATH`）と同じ、白の中身に黒の縁（見本のほかの矢印と同じ `rimmed`）、角は丸め、一辺は見本の `S.cur`（`S-249`）。
 - 探針 `tools/probe/grab-figures.mjs` の描く形の一覧に `PK-17` を、環境の形の一覧に `PK-18`（`not-allowed`）を足した。
 - `node tools/probe/grab-figures.mjs` で刷り直した。設定の門は 46 件一致で通り、書き換わったのは `fig-pointer-shapes.svg` だけ（ほかの 5 枚は 1 字も変わらない）。図の題は「14 種」→「16 種」、描いた形は 8 → 9、環境の形は 9 → 10。
 

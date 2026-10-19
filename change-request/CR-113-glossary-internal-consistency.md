@@ -191,7 +191,7 @@
 
 ### ⑤ 席を塞いでいる壊れた参照（`05-07-design.md:65`）
 
-> 未記入。文書の形（エンティティと関係）を JSON Schema として置く。永続ストアを持たない場合は「持たない」と書き、Chapter 2.4 の表 T-009（X-3）と揃える。出どころは `previous-project-result/02-data-model/grs-native-erd-ja.md`。
+> 未記入。文書の形（エンティティと関係）を JSON Schema として置く。永続ストアを持たない場合は「持たない」と書き、Chapter 2.4 の表 T-009（X-3）と揃える。出どころは `studies/02-data-model/grs-native-erd-ja.md`。
 
 **表 T-009 の実際の行（`01-04-requirements.md:406-411`）**
 
@@ -310,7 +310,7 @@
 ### 本 CR で変更しないもの（記録）
 
 **1. `Item`（`N-4a`）は直さない。** 前資産が廃止したのは**「`Task` の別名としての `item`」**である ——
-`previous-project-result/03-ui-naming/ui-parts-ja.md:98`（「`item` / `activity` / `Activity Span` → **`Task`**」）、
+`studies/03-ui-naming/ui-parts-ja.md:98`（「`item` / `activity` / `Activity Span` → **`Task`**」）、
 `:488`（「`item` は廃止語（正は `Task`）」）、`:638`。
 **辞書の `Item` は「当たり判定と選択の対象となるものの総称」であり、別概念である。**
 辞書自身が `N-4a` で **⚠️ `Task` の別名ではない** と注記し、外延が広いので命名の規約に当たらない理由まで書いている。

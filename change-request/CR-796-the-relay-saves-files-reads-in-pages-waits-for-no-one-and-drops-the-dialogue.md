@@ -100,7 +100,7 @@
 
 ## 3. 測ったこと
 
-- 取次の 22 の道具を 2026-10-18 に Claude Code から呼んだ結果: `previous-project-result/70-alpha-hands-on/relay-tools-2026-10-18.md`（✅ 17・❌ 5）。表の 3 つの窓の人と AI の対照: 同 `relay-table-windows-2026-10-18.md`。
+- 取次の 22 の道具を 2026-10-18 に Claude Code から呼んだ結果: `studies/70-alpha-hands-on/relay-tools-2026-10-18.md`（✅ 17・❌ 5）。表の 3 つの窓の人と AI の対照: 同 `relay-table-windows-2026-10-18.md`。
 - 大きさ（空白を詰めた JSON の字数を Python で数えた）: 雛形の `readDocument` 1,383,668 字、持ち越しを除いて 220,379 字、タスクの要点 9 欄で 55,486 字。空の語の検索 1,000 行で 418,200 字。
 - 命令の数: `mcp-tool-descriptions.json` の `applyCommands` の `commands.items.oneOf` の長さ 91（Python で数えた）。
 - 当てる前の測り（2026-10-18、`.claude/skills/spec-graph-check/`）: `induced.py AG-2 AG-6 AG-11 AG-12 FR-066 FR-150 UC-013 RD-1 RD-2 U-44 IC-18 S-99i UZ-9 T-230 T-233 T-234` —— 種 16 のうち 16、種の中の辺 21、閉路 3（`FR-066`・`IC-18`・`S-99i`・`UC-013`・`UZ-9` の 5 つ、`AG-11`↔`AG-6`、`AG-12`↔`FR-150`）。どの閉路も 1 つの片の中で 1 度に書く。`impact.py AG-12 FR-066 AG-11` —— `AG-12` を指す所 43、`FR-066` を指す要求 4 件・所 26、`AG-11` を指す要求 3 件・所 19。

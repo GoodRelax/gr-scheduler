@@ -1,7 +1,7 @@
 # CR-613 — MCP のローカルの取次に、AI が読める短い設計書と構成図を持たせる
 
 > 起草の状態: 当てた（2026-10-01、枝 `mcp-relay`、`refactor` `bfbe7eb7` の上。コードと同じ合流 —— 検査 26b）。4 節の旧 22 件のうち 20 件は 1 回ずつ現れ、そのまま当てた。E-17 ・ E-18 は、先に着いた `CR-615` が `FR-152` の起点を埋めて数を動かしていたので、今の数に合わせた —— 起点を名指す要求 106 → 107、起点をまだ書いていない要求 20 → 19、1 つ目の理由 15 → 14（名簿から `FR-150` を外した）。2 節の番号は当てる日に測り直し、2 節のとおりに使った。
-> （起草の記: 起草（2026-10-01、枝 `b3-export-shell-crs`）。）4 節の旧 22 件（E-02 〜 E-20 と E-13b、J-01 ・ J-02）は、読んだ木で各 1 回だった（13 節）。新しいファイル 1 つ（E-01）と図の 3 ファイルは、`previous-project-result/26-export-shell-crs/mcp-relay/` に下書きがある。11 節の 3 つの問いは 2026-10-01 に答えを得た（`JDG-974`、3 つとも推奨）—— 問い 1 は E-20 の `connect-src 'self'`、問い 3 は決定 6（口の番号は OS が選ぶ）のとおりであり、問い 2 の 2 章は別の変更要求が書く（`DFC-1428`、番号は調整役が振る）。
+> （起草の記: 起草（2026-10-01、枝 `b3-export-shell-crs`）。）4 節の旧 22 件（E-02 〜 E-20 と E-13b、J-01 ・ J-02）は、読んだ木で各 1 回だった（13 節）。新しいファイル 1 つ（E-01）と図の 3 ファイルは、`studies/26-export-shell-crs/mcp-relay/` に下書きがある。11 節の 3 つの問いは 2026-10-01 に答えを得た（`JDG-974`、3 つとも推奨）—— 問い 1 は E-20 の `connect-src 'self'`、問い 3 は決定 6（口の番号は OS が選ぶ）のとおりであり、問い 2 の 2 章は別の変更要求が書く（`DFC-1428`、番号は調整役が振る）。
 > 読んだ木: `refactor` `0590ad03`（枝 `b3-export-shell-crs` の切り口）。行番号・数は、すべてこの木で測った（13 節）。
 > ID の帯: 調整役から `CR-613` を受けた。台帳の番号（`DFC-` ・ `JDG-` ・ `PND-`）は取らない（12 節）。
 > 当てる順: 持ち場 L4 が合流した後の、仕様を 1 度に当てる回（8 節）。兄弟の `CR-610` ・ `CR-611` は、読んだ時点（同じ日）で本書の旧に触れない（`CR-611` は `05-07-design.md` の `RD-7` を書くが別の塊）。`CR-612` はまだ読めなかった。⚠️ E-18 の旧は `FR-095` も並べている —— 兄弟が `FR-095` に起点のユニットを与えるなら同じ塊を書くので、そちらを先に当て、本書は当てる木で旧を数え直す。E-07 ・ E-08（コンポーネントとユニットの全数）も、兄弟がユニットを足せば数が動く。後から当てる側が数え直す。
@@ -656,7 +656,7 @@ page  -> relay   {"jsonrpc":"2.0","method":"changeNoticed","params":<one change 
 }
 ```
 
-**図の 3 ファイル**（仕様の文ではないので旧 ・ 新を持たない。下書きをそのまま移す）: `previous-project-result/26-export-shell-crs/mcp-relay/` の `fig-mcp-relay.json` → `docs/spec/_source/`、`fig-mcp-relay.drawio` → `docs/spec/_source/`、`fig-mcp-relay.svg` → `docs/spec/_assets/`。移し方と作り直し方は同じフォルダの `README.md`。
+**図の 3 ファイル**（仕様の文ではないので旧 ・ 新を持たない。下書きをそのまま移す）: `studies/26-export-shell-crs/mcp-relay/` の `fig-mcp-relay.json` → `docs/spec/_source/`、`fig-mcp-relay.drawio` → `docs/spec/_source/`、`fig-mcp-relay.svg` → `docs/spec/_assets/`。移し方と作り直し方は同じフォルダの `README.md`。
 
 当てた後に打つもの: `npm run gen`（表 T-064 と 行 ID の接頭辞の登録簿を刷る —— `PO` の行数が 6 → 7）→ `python docs/spec/_source/build.py`（`components.json` を足した後、図 F-013 と経路の図を刷る）→ `python tools/generate_unit_tree.py`（4 ユニットの空の木）→ `bash .claude/skills/spec-graph-check/check.sh`（8 節の赤の見込み）。
 
@@ -836,7 +836,7 @@ python .claude/skills/spec-graph-check/style-checks.py             # -> same cou
 python .claude/skills/spec-graph-check/check-spec-holds-no-history.py .   # -> 0 sites
 strictdoc export docs/spec --output-dir <scratchpad>/g613/sdout    # -> exported; design-mcp-relay.html shows the figure, 0 raw **
 
-# the figure (previous-project-result/26-export-shell-crs/mcp-relay/)
+# the figure (studies/26-export-shell-crs/mcp-relay/)
 python <drawio-uml skill>/scripts/draw.py fig-mcp-relay.json fig-mcp-relay.drawio
 draw.io -x --embed-svg-fonts false -f svg -b 12 -o fig-mcp-relay.svg fig-mcp-relay.drawio
 ```
@@ -846,4 +846,4 @@ draw.io -x --embed-svg-fonts false -f svg -b 12 -o fig-mcp-relay.svg fig-mcp-rel
 - 検査 21（`check-provenance.py`）は写しの `docs/review/` が無いので 2 件赤だった（持ち込まなかったファイルのせい）。`_source` の 2 つの新しいファイル（`fig-mcp-relay.json` ・ `.drawio`）は名乗りを通った。
 - `check.sh` の全体は走らせていない（前に立つ者が走らせる）。`build.py` と `generate_unit_tree.py` も写しで走らせていない。
 - `connect-src 'self'` が同じ origin の `ws:` を通すことは実測していない（問い 1 の答え A の前提。8 節の波 4 で測る）。`http://127.0.0.1` のページで File System Access API が使えることも実測していない（`127.0.0.1` は安全な文脈として扱われるはず、という読みだけ）。
-- `previous-project-result/10-agent-interface/` は読んでいない —— 振る舞いは `CR-563` と `AG-12` が既に決めており、本書は組み方だけを書いた。
+- `studies/10-agent-interface/` は読んでいない —— 振る舞いは `CR-563` と `AG-12` が既に決めており、本書は組み方だけを書いた。

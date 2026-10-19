@@ -17,7 +17,7 @@
 
 ### ② レビュー観点のどの条項を当て、何が出たか
 
-- **`R1.3`（唯一の正）** —— 取得手順の正は `previous-project-result/01-mspdi/mspdi/README.md` の 1 か所のまま（`docs/reference/README.md` の「手順を複製しない」）。pj15 の取得手順もそこへ足し、参照棚の README は置き場の説明だけを持つ。
+- **`R1.3`（唯一の正）** —— 取得手順の正は `studies/01-mspdi/mspdi/README.md` の 1 か所のまま（`docs/reference/README.md` の「手順を複製しない」）。pj15 の取得手順もそこへ足し、参照棚の README は置き場の説明だけを持つ。
 - **`R1.3`（参照の一意性）** —— 仕様書の中でローカル複製をフルパスで指す所は 5 か所（`EX-8` 1、`05-07-design.md` 1、`_source/mspdi-custom-fields.json` 3）。版の入ったファイル名は変えないので、`mspdi_pj12.xsd:NNN` の形の引用は 1 つも動かない。
 - **表 T-003 の `CN-7`（出典はファイル名と行番号）** —— ファイル名を変えないことで、既存の引用がそのまま `CN-7` を満たす。
 
@@ -63,9 +63,9 @@
 | 3〜5 | `docs/spec/_source/mspdi-custom-fields.json:15`、`:20`、`:25` | `docs/reference/mspdi/mspdi_pj12.xsd:NNNN` | `docs/reference/mspdi/pj12/mspdi_pj12.xsd:NNNN`（行番号はそのまま）|
 | 6〜7 | `tests/unit/uf-36.test.ts:11`、`:90` | `…'mspdi', 'mspdi_pj12.xsd'` | `…'mspdi', 'pj12', 'mspdi_pj12.xsd'` |
 | 8 | `tools/generate_startup_template.py:499`（注釈）| `docs/reference/mspdi/_erd-part-M2-task.md` | `docs/reference/mspdi/pj12/_erd-part-M2-task.md` |
-| 9〜10 | `previous-project-result/README.md:105`、`:188` | `docs/reference/mspdi/mspdi_pj12.xsd` | `docs/reference/mspdi/pj12/mspdi_pj12.xsd` |
+| 9〜10 | `studies/README.md:105`、`:188` | `docs/reference/mspdi/mspdi_pj12.xsd` | `docs/reference/mspdi/pj12/mspdi_pj12.xsd` |
 | 11 | `docs/development-rules/04-verification.md:388` | `docs/reference/mspdi/*.xsd` | `docs/reference/mspdi/pj12/mspdi_pj12.xsd` |
-| 12 | `previous-project-result/01-mspdi/mspdi/README.md` | pj12 だけの取得手順 | 版ごとの置き場、pj15 の取り出し手順（`7z`、`.msi` は実行しない）、両方のハッシュ、pj15 に公式 URL が無いこと |
+| 12 | `studies/01-mspdi/mspdi/README.md` | pj12 だけの取得手順 | 版ごとの置き場、pj15 の取り出し手順（`7z`、`.msi` は実行しない）、両方のハッシュ、pj15 に公式 URL が無いこと |
 | 13 | `docs/reference/README.md` の `mspdi/` の行 | 平置きの説明 | `pj12/` ／ `pj15/` ／ `learn-docs/` の説明 |
 
 ## 5. 数の予測

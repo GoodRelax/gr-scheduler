@@ -230,7 +230,7 @@ SEAM (CR-646, spec wave)
 - 古い形の `GRS JSON` を読み替えない（表 T-297 に行を足さない、補って読む列も足さない —— `JDG-1206`）。
 - 版を 2 度上げない（コードの波は `SCHEMA_VERSION` を動かさない）。
 - `textOfDay` の字を変えない —— 毎フレームの `Map` の鍵に使う（14 節 K-1）。
-- `previous-project-result/10-agent-interface/samples/grs-document-with-revision-stamp.json` は記録の見本であり作り直さない（`DFC-1799` が名指すもう 1 本）。
+- `studies/10-agent-interface/samples/grs-document-with-revision-stamp.json` は記録の見本であり作り直さない（`DFC-1799` が名指すもう 1 本）。
 
 ---
 

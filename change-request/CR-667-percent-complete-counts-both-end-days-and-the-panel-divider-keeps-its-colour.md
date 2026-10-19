@@ -163,7 +163,7 @@ SEAM (CR-667)
 | 起動時の見本の数え直し | 0 → 0（作り直した見本で） | 同 |
 | 起動時の見本、100 を超える / ちょうど 100 | 19 / 100 → 24 / 86 | 同 |
 | 起動時の見本の動いた列 | `percentComplete` 157・`actualFinish` 155・`stop` 51・`resumeValid` 6 | 作り直す前と後の JSON を比べた |
-| `previous-project-result/38-project-progress/gr-scheduler-progress-2026-10-04.json` | 開くと 12 件を数え直す（100 を超える 4 → 0） | 同。別の席の成果物なので書き換えない（報告の 1 行） |
+| `studies/38-project-progress/gr-scheduler-progress-2026-10-04.json` | 開くと 12 件を数え直す（100 を超える 4 → 0） | 同。別の席の成果物なので書き換えない（報告の 1 行） |
 | 検査 39 の拾えていない条項 | 2227 → 2222 | `check-must-clause-coverage.py` |
 
 ---

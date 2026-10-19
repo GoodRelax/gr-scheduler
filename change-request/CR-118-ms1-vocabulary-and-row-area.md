@@ -90,7 +90,7 @@
 ⚠️ **ただし `Entity` は 2 義になった。** 表 T-006a の `W-7`「データの属性（散文で指すとき）｜ `Entity.field` 形式」が
 **層ではない `Entity`** を先に使っている。**本 CR は `Entity` を `MS-1` に書かないので触れないが、開放論点として §6-2 に記録した。**
 
-⚠️ **`R2.16` は `docs/spec` の外にある**（`previous-project-result/21-review-standard/review-standards.md:487`）。
+⚠️ **`R2.16` は `docs/spec` の外にある**（`studies/21-review-standard/review-standards.md:487`）。
 **しかも「層の数は問わない」と書いており、4 層は既定にすぎない。** **正は Chapter 5.1 であって `R2.16` ではない。**
 
 ### 2-5. 変えない 4 語（**実測して残すと決めた**）

@@ -19,7 +19,7 @@
 | `JDG-962` | 「「!」と同じ 1.7 (Recommended)」 | 横棒の太さは `S-24` × `S-328`（1.7）。`S-328` を「!」と「−」で共有する | E-03・E-04 |
 | `JDG-370`（覆される） | 「進捗マーカーはデフォルトを非表示にしろ」 | —— 本書が覆す。`JDG-371`（遅延診断を実行したときは自動で表示）はそのまま生きる | E-01。当てたら `JDG-370` の状態に「`JDG-867` が覆した」を足す |
 
-問うた場面（2026-10-01）: 触れる見本 `previous-project-result/24-pause-glyph-and-weekend-shade/pause-glyph-sample.html` の撮影画像 2 枚（`pause-shared-light.png` = 1.7、`pause-own-2.6-round-light.png` = 2.6・端丸め）を見せて問うた。
+問うた場面（2026-10-01）: 触れる見本 `studies/24-pause-glyph-and-weekend-shade/pause-glyph-sample.html` の撮影画像 2 枚（`pause-shared-light.png` = 1.7、`pause-own-2.6-round-light.png` = 2.6・端丸め）を見せて問うた。
 
 ### 0.2 調べた結果（b4af9080）
 

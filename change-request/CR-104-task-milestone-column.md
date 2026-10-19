@@ -28,7 +28,7 @@ MSPDI へ `Task/Milestone` を書くために**書き出さないはずの視覚
 要らない、という利点）を崩す。
 
 **継承したデータモデルも、機械可読な実例も、列を持っている** ——
-`previous-project-result/02-data-model/grs-native-erd-ja.md:260` / `:1511`（`Own` 列）、
+`studies/02-data-model/grs-native-erd-ja.md:260` / `:1511`（`Own` 列）、
 `07-plan-actual/plan-actual-decisions-ja.md:356`（「書き出す側なのでこちらが正」）、
 `10-agent-interface/samples/grs-document-with-revision-stamp.json:42` ほか（3 タスク全部に `"milestone"`）。
 
@@ -111,4 +111,4 @@ python .claude/skills/spec-graph-check/impact.py G-1 N-1
 
 ## 7. 最終判断日時
 
-**2026-08-14**（利用者回答。`previous-project-result/temp/decisions-2026-08-13.md` の `Q8`）
+**2026-08-14**（利用者回答。`studies/temp/decisions-2026-08-13.md` の `Q8`）

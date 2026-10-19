@@ -1,7 +1,7 @@
 # CR-764 —— 日程表の (?) を押すと、遅延診断レポートのその行が出て光る（閉じた窓も開き直す）
 
 > 起草の状態: 起草だけ（2026-10-15、`0d9fdb3f` の上）。当てていない —— `docs/spec`・`src`・`tests` に触れていない。11 節の 5 つの問いには利用者が答えた（`JDG-2193`〜`JDG-2197`。`JDG-2157` で聞き取りの席が調整役へ戻した細目）。仕様の差し替え・コード・試験は調整役が体に手配する。
-> ID の帯: 番号 `CR-764` を調整役から受けた（`git grep -c "CR-764" 0d9fdb3f -- docs src tests change-request previous-project-result` は 0 件）。台帳と `PND` の番号は本書では使わない。11 節の答えは調整役が渡した帯から `JDG-2193`〜`JDG-2197` に記録した。新しい行は 1 つ（2 節、仮の名 `RW-新`）—— 番号は当てる時に測り直して取る（規則 02 の 2.5 節）。変更履歴の版は当てる体が調整役から受ける。
+> ID の帯: 番号 `CR-764` を調整役から受けた（`git grep -c "CR-764" 0d9fdb3f -- docs src tests change-request studies` は 0 件）。台帳と `PND` の番号は本書では使わない。11 節の答えは調整役が渡した帯から `JDG-2193`〜`JDG-2197` に記録した。新しい行は 1 つ（2 節、仮の名 `RW-新`）—— 番号は当てる時に測り直して取る（規則 02 の 2.5 節）。変更履歴の版は当てる体が調整役から受ける。
 > 当てるもの: 利用者の裁定 `JDG-2151`（遅延診断のあいだ、日程表の (?) を押したら、遅延診断レポートのその行を選んで光らせる。窓が閉じていれば開く。行が隠れていれば見せる）と、11 節の答え `JDG-2193`（診断のあいだ巡らせない）・`JDG-2194`（`DG-1`〜`DG-3`）・`JDG-2195`（その行の分だけ外す）・`JDG-2196`（修正案の表は追わない）・`JDG-2197`（窓を閉じたあと `IC-107` を押せば診断をやり直す）。閉じるもの: 台帳 `DFC-2611`（日程表から行へ）と `DFC-2615`（閉じた窓を開き直す入口が無い —— `JDG-2197` で閉じる）。対応方針の欄は「指示 —— CR-764 が当てる」。
 > 覆すもの: `JDG-2193`（Q1 の答え）が `JDG-187`・`JDG-239`（マーカーの押下で状態を巡らせる）を診断のあいだの `DG-1`〜`DG-3` のマーカーについて一部覆す（2 行の状態に記した）。`JDG-2197`（Q5 の答え）が `JDG-775`（`IC-107` の説明の文を今のまま）を `IC-107` の 1 件について一部覆す（同行の状態に記した）。
 > 隣の変更要求: `CR-759`（修正案の表、別の席が起草中 —— 本書は読んでも書いてもいない）。どの条項をどちらが持つかは 7 節。
@@ -298,7 +298,7 @@
 
 ```
 # tree: worktree at 0d9fdb3f
-git grep -c "CR-764" 0d9fdb3f -- docs src tests change-request previous-project-result      # 0
+git grep -c "CR-764" 0d9fdb3f -- docs src tests change-request studies      # 0
 grep -o "| RW-[0-9]* " docs/spec/01-04-requirements.md | sort -t- -k2 -n | tail -1             # RW-17
 PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/md-checks.py | grep uids=          # tables=240 figures=30 rows=3269 uids=183
 grep -o "（MUST）" docs/spec/01-04-requirements.md | wc -l                                         # 1812

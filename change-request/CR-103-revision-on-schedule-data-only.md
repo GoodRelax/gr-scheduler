@@ -20,7 +20,7 @@
 
 **発話は保存されない。** それなのに版数を上げると書いてあり、`FR-063` の定義と衝突する。
 前プロジェクトの原典も逆を言っている ——
-`previous-project-result/10-agent-interface/agent-interface-requirements-ja.md:168`
+`studies/10-agent-interface/agent-interface-requirements-ja.md:168`
 「GRS は会話を保存しないので（`A-12`）、チャットに書いても `revision` は進まず、監視は起きない」。
 
 **さらに、現行の定義は望まない帰結を生む。** 監視の起床条件は
@@ -113,4 +113,4 @@ grep -n "版数を上げ" docs/spec/01-04-requirements.md
 
 ## 7. 最終判断日時
 
-**2026-08-14**（利用者回答。`previous-project-result/temp/decisions-2026-08-13.md` の `Q10`）
+**2026-08-14**（利用者回答。`studies/temp/decisions-2026-08-13.md` の `Q10`）

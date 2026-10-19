@@ -1,12 +1,12 @@
 # CR-763 —— 飛んだ先の印はローズの角丸で、予定の形だけを囲む（進捗マーカーは囲みの外）
 
 > 起草の状態: 起草だけ（2026-10-15、`0d9fdb3f` の上）。当てていない —— `docs/spec`・`src`・`tests` に触れていない。11 節の 3 つの問いには利用者が答えた（`JDG-2190`〜`JDG-2192`、3 つとも推奨の択）。Q1 の答えは、見本 56 を見た利用者が後から A（隙間 0）に替えた（`JDG-2198`、`JDG-2190` を覆す）。仕様の差し替え・`npm run gen`・コード・試験は調整役が体に手配する。
-> ID の帯: 番号 `CR-763` を調整役から受けた（`git grep -c "CR-763" 0d9fdb3f -- docs src tests change-request previous-project-result` は 0 件）。台帳と `PND` の番号は本書では使わない。11 節の答えは調整役が渡した帯から `JDG-2190`〜`JDG-2192` に、Q1 の答えの替えは同じ帯の `JDG-2198` に記録した。新しい行は 2 つ（2 節、仮の名 `S-新色`・`S-新角`）—— 番号は当てる時に測り直して取る（規則 02 の 2.5 節）。変更履歴の版と `perf-pending` の番号は当てる体が調整役から受ける。
+> ID の帯: 番号 `CR-763` を調整役から受けた（`git grep -c "CR-763" 0d9fdb3f -- docs src tests change-request studies` は 0 件）。台帳と `PND` の番号は本書では使わない。11 節の答えは調整役が渡した帯から `JDG-2190`〜`JDG-2192` に、Q1 の答えの替えは同じ帯の `JDG-2198` に記録した。新しい行は 2 つ（2 節、仮の名 `S-新色`・`S-新角`）—— 番号は当てる時に測り直して取る（規則 02 の 2.5 節）。変更履歴の版と `perf-pending` の番号は当てる体が調整役から受ける。
 > 当てるもの: 利用者の裁定 `JDG-2145`（見本 49 を参考に直す、囲みの色相を変える）・`JDG-2152`（A ローズ 335 —— 明 `#b31959` ／ 暗 `#f17eae`、新しい色の行、テーマの色相に追随しない）・`JDG-2153`（角丸、マイルストーンのグリフとタスクの線だけを囲む、進捗マーカーは囲みの外）。11 節の答え `JDG-2198`（隙間 `S-555` を 0px —— 形に接する。`JDG-2190` の 1.5px を覆した）・`JDG-2191`（モノクロは灰の二重線）・`JDG-2192`（囲みと波紋をマーカーと札の奥 `ZO-8` に描く）。閉じるもの: 台帳 `DFC-2605`（対応方針の欄は「指示 —— CR-763 が当てる」）。
 > 当てる順: ⛔ `CR-758`（依存線の張り出しとマーカーの隙間、起草済み・別の席が当てる）の後（8 節・11 節の Q3）。
 > 覆すもの: `JDG-1893` のうち囲みと波紋の色（強調の色 `S-151`）—— `JDG-2152` が覆した。本書はその着地である。11 節の 3 つの答えはどれも裁定を覆さない。⚠️ Q1 の答えの替え `JDG-2198`（隙間 0）は、Q1 の最初の答え `JDG-2190`（1.5px）を覆す —— `JDG-2190` は当てない。
 > 当てた: 2026-10-15、Wave D の席（`3eca47e4` の上）。仮の名は `S-新色` ＝ `S-587`、`S-新角` ＝ `S-588` とした。変更履歴の版は 4.73。11 節に Q4（`DFC-2680`）を未決として足し、推奨の上に当てた（値は変えていない）。
-> 見本: `previous-project-result/49-jump-placement-and-highlight/index.html`（2026-10-15 に更新済み）。11 節の Q1・Q2 には、並んで作られている `previous-project-result/56-jump-mark-gap-and-mono/index.html`（本書と同じコミットで木に入れた）が同じ択を並べる。
+> 見本: `studies/49-jump-placement-and-highlight/index.html`（2026-10-15 に更新済み）。11 節の Q1・Q2 には、並んで作られている `studies/56-jump-mark-gap-and-mono/index.html`（本書と同じコミットで木に入れた）が同じ択を並べる。
 
 ---
 
@@ -357,14 +357,14 @@ ZO-10:  （「飛んだ先の印」の項を外す。ほかは変えない）
 
 ```
 # tree: worktree at 0d9fdb3f
-git grep -c "CR-763" 0d9fdb3f -- docs src tests change-request previous-project-result      # 0
+git grep -c "CR-763" 0d9fdb3f -- docs src tests change-request studies      # 0
 python -c "import re;s=open('docs/spec/_source/settings.json',encoding='utf-8').read();print(max(int(x) for x in re.findall(r'\"S-(\d+)\"',s)))"   # 583
 PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/md-checks.py | grep uids=                    # tables=240 figures=30 rows=3269 uids=183
 grep -o "（MUST）" docs/spec/01-04-requirements.md | wc -l                                                   # 1812
 PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/impact.py SJ-10 S-151 S-555 S-556 S-557 S-558 S-559 S-573 RW-13
 strictdoc export docs/spec --formats=json --output-dir scratch/spec-check/sd-out
 PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/induced.py SJ-10 S-151 S-555 S-556 S-557 S-558 S-559 S-573 RW-13 FR-041 FR-151 FR-134 ZO-10 SL-8 LP-2 EL-17 PI-19
-# sample 49 ring: previous-project-result/49-jump-placement-and-highlight/index.html ringFit / ringPath / jumpTo
+# sample 49 ring: studies/49-jump-placement-and-highlight/index.html ringFit / ringPath / jumpTo
 # shipped ring: src/adapter/svg-renderer/schedule-overlays.ts jumpLandingRingOf / ringSvg; svg-renderer.ts selectionFrameSvg
 # contrast: WCAG 2.1 on table T-236 values (k = 0), 8-bit sRGB, grey keeps HSL lightness; script in the session scratchpad
 ```

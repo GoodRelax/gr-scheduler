@@ -5,7 +5,7 @@
 > 新しい行の番号は当てるときに振った —— `cb96300c` で測り直すと、表 T-332 の行は `SJ-9` まで、設定値は `S-553` まで（`CR-727` が `S-553` を取った）だったので、`SJ-10`・`S-554`〜`S-559` とした（14 節）。変更履歴の版 `4.32` と `perf-pending` の行 165 は調整役から受けた。
 > 当てる裁定: `JDG-1891`（左右の中央・上から 1/3、飛んだ後のハイライト）・`JDG-1893`（案 2 囲み＋波紋）・`JDG-1894`（`focusTask` も印を出す）。
 > 覆す裁定: `JDG-617` の置き場所（「対象の行を一番上にもってきて」「開始日が左端の少し内側」）—— `JDG-1891` が覆す。当てたときに `JDG-617` の状態を「一部 覆された（`JDG-1891`）」にした。`JDG-877` も「左上」に置く分だけ一部 覆された（14.2 の X-9）—— 名札が切れないことは、形が画面より広いときに戻る今の置き方の中に残す。
-> 閉じるもの: 台帳 `DFC-2317`。見本: `previous-project-result/49-jump-placement-and-highlight/index.html`。
+> 閉じるもの: 台帳 `DFC-2317`。見本: `studies/49-jump-placement-and-highlight/index.html`。
 
 ---
 
@@ -288,7 +288,7 @@
 # motion words: git grep -c "点滅\|アニメ\|パルス\|reduced" docs/spec -> 0
 # graph: python .claude/skills/spec-graph-check/impact.py SJ-5 SJ-6 SJ-7 SJ-8 SJ-9 S-428 EL-16 EL-17 AM-16 SL-8
 #        python .claude/skills/spec-graph-check/induced.py SJ-0 SJ-4 SJ-5 SJ-6 SJ-7 SJ-8 SJ-9 S-428 EL-16 EL-17 AM-16 SL-8 FR-151 FR-134 PTL-16 S-151 S-447 FR-046 EL-11
-# sample: previous-project-result/49-jump-placement-and-highlight/index.html, screenshots by a Playwright probe in the session scratchpad
+# sample: studies/49-jump-placement-and-highlight/index.html, screenshots by a Playwright probe in the session scratchpad
 ```
 
 ---

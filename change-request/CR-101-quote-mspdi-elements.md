@@ -1,7 +1,7 @@
 # CR-101 — 交換相手のスキーマの要素名と列挙値を、出典つきで引用できるようにする
 
 ⚠️ **番号について**: 前プロジェクトが `CR-001` 〜 `CR-017` を使っており、
-`docs/review/requirement-gaps-2026-08-12.md` や `previous-project-result/` から参照されている。
+`docs/review/requirement-gaps-2026-08-12.md` や `studies/` から参照されている。
 **衝突を避けるため、本プロジェクトの CR は `CR-101` から採る。**
 
 ---
@@ -78,4 +78,4 @@ python .claude/skills/spec-graph-check/impact.py CN-7 T-003
 
 ## 7. 最終判断日時
 
-**2026-08-14**（利用者回答。`previous-project-result/temp/decisions-2026-08-13.md` の `Q6`）
+**2026-08-14**（利用者回答。`studies/temp/decisions-2026-08-13.md` の `Q6`）

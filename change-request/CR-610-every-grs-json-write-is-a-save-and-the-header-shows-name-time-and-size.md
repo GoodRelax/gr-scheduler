@@ -28,7 +28,7 @@
 3. **MSPDI も同じく上書きする先になる**（`:94` の `mspdi`。`DFC-720` が「`SK-11` の対象形式と食い違う疑い」として開いている）。ただし `isOverwritableOpenedFile`（`document-file-flow.ts:677-679`）が拡張子 `.xml` の取っ手を上書きの相手と見なさないので、次の `SK-11` は保存先を問う。⇒ 害は出ていないが、`SX-2` の「上書きする先を変えない」とは食い違う（問い 4。答えは A —— `mspdi` を外す、`JDG-971`）。
 4. **状態機械は送る順を受け入れる。** `beginWritingDocumentFile`（`:385-393`）は書き終えると必ず `endFileOperation(DOCUMENT_FILE_WRITE_ENDED)` を送る。`documentFileSaved` を先に送れば `onDocumentFileSaved`（`src/use-case/advance-screen-session/file-flow-values.ts:414-418`）が `idle` へ戻し、後の `documentFileWriteEnded` は `onDocumentFileWriteEnded`（`:434-437`）で素通りする。⇒ `file-flow-values.ts` を変えずに `IC-2` の道から送れる。
 5. **取っ手を残さずに書く道（ダウンロード）は、仕様にもコードにも無い。** `writeChosenFile`（`file-system-access-file-store.ts:448-453`）は選択面が無ければ `unavailable` で断る（`CN-2` ／ `LM-14`、表 T-233 の `RS-3`）。表 T-065 の `IF-3` は「ハンドルは実装が保持する」とだけ言う。⇒ 依頼文の「取っ手の無い書き込み」は今は起こらない。表 T-340 の下の注でそう書き、道を足す変更要求に行を足させる（決定 4）。
-6. **いまのヘッダーが高くなる理由を測った。** `STYLE.fileStatus`（`src/framework/dom-screen-surface/dom-screen-surface.ts:292-295`）は箱に 0.75em（`FILE_STATUS_TEXT_SCALE`、`:262`）と行の高さ 1.2 を宣言し、2 段が流れの中で 12px × 1.2 × 2 ＝ 28.8px を取る。ほかの中身（入口の箱 16px、`Document Title` 13.3px × 1.2 ＝ 16px）より高い。同じ寸法で組んだ見本で測ると、ヘッダーは 29.0px → 41.8px（12.8px、44% 高い）になる（`previous-project-result/26-export-shell-crs/header-save-status/`）。⚠️ **仕様とコードの食い違いがもう 1 つある** —— `FR-051`（`01-04-requirements.md:4754`）は 2 段の字に「宿主の地の文字に `S-235` を掛けてから同表の `S-210` を掛ける」と定める（`CR-395` の決定 1）が、コードは `S-235` を掛けない（`S-210` の備考の実測「名前も日時も 12px」は 16px × 0.75）。台帳の行は `DFC-1423`（前に立つ者が起こした。12 節）。
+6. **いまのヘッダーが高くなる理由を測った。** `STYLE.fileStatus`（`src/framework/dom-screen-surface/dom-screen-surface.ts:292-295`）は箱に 0.75em（`FILE_STATUS_TEXT_SCALE`、`:262`）と行の高さ 1.2 を宣言し、2 段が流れの中で 12px × 1.2 × 2 ＝ 28.8px を取る。ほかの中身（入口の箱 16px、`Document Title` 13.3px × 1.2 ＝ 16px）より高い。同じ寸法で組んだ見本で測ると、ヘッダーは 29.0px → 41.8px（12.8px、44% 高い）になる（`studies/26-export-shell-crs/header-save-status/`）。⚠️ **仕様とコードの食い違いがもう 1 つある** —— `FR-051`（`01-04-requirements.md:4754`）は 2 段の字に「宿主の地の文字に `S-235` を掛けてから同表の `S-210` を掛ける」と定める（`CR-395` の決定 1）が、コードは `S-235` を掛けない（`S-210` の備考の実測「名前も日時も 12px」は 16px × 0.75）。台帳の行は `DFC-1423`（前に立つ者が起こした。12 節）。
 7. **時刻の綴りは今 `yyyy-mm-dd hh:mm:ss`。** `readableStamp`（`src/framework/dom-screen-surface/app-header-drawing.ts:34-48`）が綴り、頭に `STOP` と `@provisional PND-325` を持つ。
 8. **`S-210` は生成されず、手で写されている。** `FILE_STATUS_TEXT_SCALE = 0.75`（`dom-screen-surface.ts:262`）。`tools/generate_entity_types.py` は `S-210` を挙げない（`S-235` は `:1289` の `NOT_STORED_CHROME_SCALE`）。⇒ 台帳の `DFC-553` の ② と同じ件である（前に立つ者が起こした `DFC-1424` は、同じ件として取り下げた）。
 9. **開いたファイルの名前がヘッダーに出ない（`DFC-574`）は今も真。** `landOpenedDocument`（`document-file-flow.ts:450-458`）は置き換えでも `openedFileName: null` を送る。受け手の `onDocumentOpenLanded`（`file-flow-values.ts:401-411`）は名が運ばれたときだけ書く。⇒ `HS-6`（開いた後の 2 段）を満たすには、この 1 行も直す（9 節）。
@@ -69,7 +69,7 @@
 | # | 決めたこと | 導き | 代償 |
 |---|---|---|---|
 | 決定 10 | 置き換えでファイルを開いた後、まだそのファイルへ書いていないときは、下段に、開いた文書の `AT-140` の時刻と読んだ中身の大きさを出す（`HS-6`）。`AT-140` が空なら `HS-5` に当たる | 問い 1 の答え A（`JDG-971` の ①）。ヘッダーがいま向かっているファイルを述べる | 保存のたびに `AT-140` を文書へ書く造りが要る（`DFC-459` の直し、9 節） |
-| 決定 11 | 上段の係数 `S-449` を 1.125、下段の係数 `S-210` を 0.9375 とする（既定の地の文字 16px で 12px ／ 10px） | 問い 2 の答え A（`JDG-971` の ②、見本 `previous-project-result/26-export-shell-crs/header-save-status/` の候補 A） | 地の文字を 20px に上げた閲覧者では上下が 1.4px ずつ切れる（決定 9 の代償と同じ） |
+| 決定 11 | 上段の係数 `S-449` を 1.125、下段の係数 `S-210` を 0.9375 とする（既定の地の文字 16px で 12px ／ 10px） | 問い 2 の答え A（`JDG-971` の ②、見本 `studies/26-export-shell-crs/header-save-status/` の候補 A） | 地の文字を 20px に上げた閲覧者では上下が 1.4px ずつ切れる（決定 9 の代償と同じ） |
 
 ---
 
@@ -545,7 +545,7 @@ seeds: FR-096 FR-101 FR-060 FR-051 FR-100 T-290 T-024 T-227 T-206
 | 問い | 案と代償 | 推奨 ／ 答え |
 |---|---|---|
 | **問い 1** —— ファイルを開いた（置き換えた）直後、まだ保存していないとき、下段に何を出すか | **A** 開いた文書が持つ最後の保存時刻（`AT-140`）と、読んだファイルの大きさを出す。`AT-140` が空（一度も GRS で保存していない）なら「ファイル未保存」。代償: 保存のたびに `AT-140` を文書へ書く造りが要る（`DFC-459`、`実装待ち`）。`DFC-783` も閉じる ／ **B** 保存するまで「ファイル未保存」と出し、大きさを出さない。代償: 小さい。ただしファイルを開いた直後に「ファイル未保存」と出るので、#35 と同じ読み違い（保存が効いていない）を招く | **A** —— ヘッダーがいま向かっているファイルを正しく述べる。`DFC-783` の台帳も「`DFC-459` の直しで閉じる見込み」と読んでいる。⭐ **答え: A（`JDG-971` の ①）** —— `HS-6`（E-04） |
-| **問い 2** —— 下段の字の大きさ（見本 `previous-project-result/26-export-shell-crs/header-save-status/header-save-status-sample.html`） | **A** 上段 12px ・下段 10px（`S-449` 1.125 ・ `S-210` 0.9375）。既定の地の文字で 1.6px 余る ／ **B** 上段 10.7px ・下段 9.3px（1.0 ・ 0.875）。地の文字 20px でも切れない ／ **C** 上段 12px ・下段 10.7px（1.125 ・ 1.0）。既定で 0.03px はみ出す（ほぼ切れる寸前）。どれもヘッダーの高さは 29.0px のまま（いまは 41.8px） | **A** —— 名前はいまと同じ 12px で読め、下段は目に見えて小さい。地の文字を 20px に上げた人では上下が 1.4px ずつ切れる。⭐ **答え: A（`JDG-971` の ②）** —— E-06 の `S-449` 1.125 ・ `S-210` 0.9375 |
+| **問い 2** —— 下段の字の大きさ（見本 `studies/26-export-shell-crs/header-save-status/header-save-status-sample.html`） | **A** 上段 12px ・下段 10px（`S-449` 1.125 ・ `S-210` 0.9375）。既定の地の文字で 1.6px 余る ／ **B** 上段 10.7px ・下段 9.3px（1.0 ・ 0.875）。地の文字 20px でも切れない ／ **C** 上段 12px ・下段 10.7px（1.125 ・ 1.0）。既定で 0.03px はみ出す（ほぼ切れる寸前）。どれもヘッダーの高さは 29.0px のまま（いまは 41.8px） | **A** —— 名前はいまと同じ 12px で読め、下段は目に見えて小さい。地の文字を 20px に上げた人では上下が 1.4px ずつ切れる。⭐ **答え: A（`JDG-971` の ②）** —— E-06 の `S-449` 1.125 ・ `S-210` 0.9375 |
 | **問い 3** —— 大きさの綴り | **A** `48.2[kB]`（1000 で割る、小数 1 桁、図の `[kB]` のまま。開き方の面（`JDG-854` の「(100kB)」）も同じ綴りにする）／ **B** 整数 `48[kB]`（図の「xx」を 2 桁の整数と読む。500 バイト未満は `0[kB]`）／ **C** 1024 で割る（Windows のファイル一覧と数が揃う。ただし単位は `KiB` と書くのが正しい）。どれも代償は綴りの違いだけ | **A** —— `kB` は 1000 倍。小数 1 桁なら小さな文書でも違いが読める。2 つの面を 1 つの綴りにする（`R2.21`）。⭐ **答え: A（`JDG-971` の ③）** —— `HS-3`（E-04） |
 | **問い 4** —— `IC-2` で MSPDI を書いた後、上書きする先を動かすか（`DFC-720` の半分） | **A** 動かさない（`SX-2`。`ROUND_TRIP_FORMS` から `mspdi` を外す）。次の `Ctrl` ＋ `S` は元の `.json` へ問わずに書く ／ **B** いまのまま `.xml` を上書きする先にする。次の `Ctrl` ＋ `S` は保存先を問う（`.xml` へは書かない）。代償: 表 T-340 の `SX-2` の「上書きする先」の升を「MSPDI だけは書いたファイル」に分け、ヘッダーの名前は動かない（名前と上書きする先が食い違う） | **A** —— 「GRS JSON 以外の形式は書き出しのまま」（`JDG-892`）の読み方であり、名前と上書きする先が揃う。⭐ **答え: A（`JDG-971` の ④）** —— `SX-2`（E-01）と 9 節の `ROUND_TRIP_FORMS` |
 
@@ -636,7 +636,7 @@ grep -l "保存が書けた\|書き出しが終わった、または" change-req
 PYTHONIOENCODING=utf-8 python <scratchpad>/g610/verify.py change-request/CR-610-*.md
 
 # header height (section 0.2 item 6, question 2): open the sample, viewport 1280x900
-#   previous-project-result/26-export-shell-crs/header-save-status/header-save-status-sample.html
+#   studies/26-export-shell-crs/header-save-status/header-save-status-sample.html
 #   read .readout[data-height] / [data-over] per case, ground 16px and 20px
 #   -> 16px: base 29.0, today 41.8, A/B/C 29.0 (clip 0 / 0 / 0.03)
 #   -> 20px: base 31.6, A/B/C 31.6 (clip 1.4 / 0 / 1.9)

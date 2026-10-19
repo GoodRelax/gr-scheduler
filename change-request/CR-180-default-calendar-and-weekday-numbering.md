@@ -45,7 +45,7 @@
 | 4 | ⭐ **実装だけが知っていた** —— `schedule.ts` に `dayWorking: dayType >= 2 && dayType <= 6` と書かれ、その行のコメント「AT-73 codes the days 1..7 from Sunday」が**この対応が書かれていた唯一の場所だった** |
 | 5 | ⭐ **正典は `docs/reference/mspdi/` に在った**（利用者の指摘）。`xml-schema-for-the-calendars-element.md` が `0=Exception, 1=Sunday, … 7=Saturday`、`mspdi_pj12.xsd` が `WeekStartDay` を `0=Sunday, … 6=Saturday` と書いている |
 
-⚠️ **私は直前に「XSD はリポジトリに無い」と報告した。誤りだった** —— 見ていたのは `previous-project-result/01-mspdi/`（README だけ）で、正典は `docs/reference/` に在る。**記憶を訂正した。**
+⚠️ **私は直前に「XSD はリポジトリに無い」と報告した。誤りだった** —— 見ていたのは `studies/01-mspdi/`（README だけ）で、正典は `docs/reference/` に在る。**記憶を訂正した。**
 
 ## 2. やったこと
 

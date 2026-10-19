@@ -1,7 +1,7 @@
 # CR-665 — ヘルプを、拡大率 150% の画面でも 1 画面に収める
 
 > 起草の状態: **当てた**（2026-10-04 夜、`8a02e43d` から早送りした作業木。起草は枝 `coord` の `e7d889f1` から切った別の作業木で、`docs/spec` にも `src` にも触れずに書いた）。当てた席が足したこと・変えたことは 14 節。
-> ID の帯: 番号 `CR-665` と、`JDG-1390`〜`JDG-1404`・`PND-720`〜`PND-727`・`DFC-2045`〜`DFC-2054`・見本のフォルダ `previous-project-result/37-` は調整役から受けた。⭐ 本書は仕様の新しい識別子を 1 つも取らない（2 節）。台帳は `JDG-1390`〜`JDG-1396`・`DFC-2045`〜`DFC-2047`・`PND-720`・`PND-721` を使った（12 節）。当てた席は帯 `JDG-1397`〜`JDG-1399`・`DFC-2079`〜`DFC-2080` を受け、`JDG-1397` だけを使った（当てる直前に木のどこにも `JDG-1397` が無いことを数えた）。仕様の新しい識別子は当てた席も取っていない。
+> ID の帯: 番号 `CR-665` と、`JDG-1390`〜`JDG-1404`・`PND-720`〜`PND-727`・`DFC-2045`〜`DFC-2054`・見本のフォルダ `studies/37-` は調整役から受けた。⭐ 本書は仕様の新しい識別子を 1 つも取らない（2 節）。台帳は `JDG-1390`〜`JDG-1396`・`DFC-2045`〜`DFC-2047`・`PND-720`・`PND-721` を使った（12 節）。当てた席は帯 `JDG-1397`〜`JDG-1399`・`DFC-2079`〜`DFC-2080` を受け、`JDG-1397` だけを使った（当てる直前に木のどこにも `JDG-1397` が無いことを数えた）。仕様の新しい識別子は当てた席も取っていない。
 > 当てる順: **`CR-658` の後**（同じヘルプの名簿を触る。10 節）。`CR-660`・`CR-661` とは触る行が重ならない。
 > 閉じるもの: `JDG-1390`〜`JDG-1396` の仕様の側。コードの側は `DFC-2045` が持つ（9 節）。
 
@@ -26,7 +26,7 @@
 
 ### ① この変更は `CH-` / `GL-` のどれを前へ進めるか
 
-⭐ **`GL-006`**（説明を読まずに操作できる）—— ヘルプは「どこにどの入口が在り、どのキーが同じことをするかを 1 画面で見渡す道」（`FR-036` の RATIONALE）である。利用者の画面（1920×1080・拡大率 150%・ブラウザの窓を最大化）では、いまのヘルプは縦に 239px あふれ、スクロールしないと見渡せない（`previous-project-result/37-help-fits-one-screen/`）。1 画面で見渡せないヘルプは、その道を果たしていない。
+⭐ **`GL-006`**（説明を読まずに操作できる）—— ヘルプは「どこにどの入口が在り、どのキーが同じことをするかを 1 画面で見渡す道」（`FR-036` の RATIONALE）である。利用者の画面（1920×1080・拡大率 150%・ブラウザの窓を最大化）では、いまのヘルプは縦に 239px あふれ、スクロールしないと見渡せない（`studies/37-help-fits-one-screen/`）。1 画面で見渡せないヘルプは、その道を果たしていない。
 
 ### ② レビュー観点のどの条項を当て、何が出たか
 
@@ -161,7 +161,7 @@
 新:
 
 > 基準環境（表 T-025 の MC-6）と、画面 1920 × 1080・画面の拡大率 150%・ブラウザの窓を最大化（全画面でない）・ブックマークバーを出さない環境の両方で、ヘルプの言語が日本語でも英語でも、開いたときの大きさ（表 T-335 の `WB-1`）で全部の塊と、備考 ※1 の行とライセンスの行（`FR-069`）を 1 画面に収め、縦にも横にもスクロールを要さないこと（MUST） —— 利用者が、4 段組で日英とも 1 画面に収めるよう定め、拡大率 150% の画面でも収めると定めた（`JDG-1392`）。  
-> ⚠️ 後者の環境の閲覧環境の窓は、CSS で約 1280 × 627 である —— 利用者の写し（Edge）から読んだ値であり、ブラウザの枠の高さで数 px 変わる。測り方は `previous-project-result/37-help-fits-one-screen/` が持つ。
+> ⚠️ 後者の環境の閲覧環境の窓は、CSS で約 1280 × 627 である —— 利用者の写し（Edge）から読んだ値であり、ブラウザの枠の高さで数 px 変わる。測り方は `studies/37-help-fits-one-screen/` が持つ。
 
 旧（`:8061`）: 「それより低い画面ではスクロールを許す。」 → 新: 「それらより低い画面ではスクロールを許す。」
 
@@ -191,11 +191,11 @@
 
 注の旧（2 文）:
 
-> ⭐ **基準環境（表 T-025 の `MC-6`）で、ヘルプの言語が日本語でも英語でも、開いたときの大きさで全部の塊とライセンスの 2 行が 1 画面に収まる値とする** （`FR-036`）—— 収まらなければ、アイコンの大きさより小さくしてよい（利用者が「フォントは小さくしてよい」と定めた）。⚠️ 今の 0.80 で日英の両方が収まるかは、本行を当てる波が見本 `previous-project-result/32-help-layout/index.html` と出荷ビルドで測る —— 収まらなければ 0.05 ずつ下げ、測った方法を本注に書く
+> ⭐ **基準環境（表 T-025 の `MC-6`）で、ヘルプの言語が日本語でも英語でも、開いたときの大きさで全部の塊とライセンスの 2 行が 1 画面に収まる値とする** （`FR-036`）—— 収まらなければ、アイコンの大きさより小さくしてよい（利用者が「フォントは小さくしてよい」と定めた）。⚠️ 今の 0.80 で日英の両方が収まるかは、本行を当てる波が見本 `studies/32-help-layout/index.html` と出荷ビルドで測る —— 収まらなければ 0.05 ずつ下げ、測った方法を本注に書く
 
 新:
 
-> ⭐ **`FR-036` の 1 画面の段落が挙げる 2 つの環境で、ヘルプの言語が日本語でも英語でも、開いたときの大きさで全部の塊と備考 ※1 の行とライセンスの行が 1 画面に収まる値とする** （`FR-036`）—— 収まらなければ、アイコンの大きさより小さくしてよい（利用者が「フォントは小さくしてよい」と定めた）。⭐ 0.75 は利用者が選んだ値である（`JDG-1393`）。`e7d889f1` の出荷ビルドのヘルプを `CR-665` の割り付けに組み替えて測ると、0.80（既定の地の文字で 12.8px）では 1280 × 627 で日本語 27px・英語 44px あふれ、0.75（12.0px）では 1280 × 627 と 1920 × 1080 の両方、日英の両方で余りが 0px だった（`previous-project-result/37-help-fits-one-screen/` の `measure-help-fit.cjs`）。⚠️ 余りが 0 なので、語や項目が増えたら測り直し、収まらなければ 0.01 ずつ下げ、測った方法を本注に書く
+> ⭐ **`FR-036` の 1 画面の段落が挙げる 2 つの環境で、ヘルプの言語が日本語でも英語でも、開いたときの大きさで全部の塊と備考 ※1 の行とライセンスの行が 1 画面に収まる値とする** （`FR-036`）—— 収まらなければ、アイコンの大きさより小さくしてよい（利用者が「フォントは小さくしてよい」と定めた）。⭐ 0.75 は利用者が選んだ値である（`JDG-1393`）。`e7d889f1` の出荷ビルドのヘルプを `CR-665` の割り付けに組み替えて測ると、0.80（既定の地の文字で 12.8px）では 1280 × 627 で日本語 27px・英語 44px あふれ、0.75（12.0px）では 1280 × 627 と 1920 × 1080 の両方、日英の両方で余りが 0px だった（`studies/37-help-fits-one-screen/` の `measure-help-fit.cjs`）。⚠️ 余りが 0 なので、語や項目が増えたら測り直し、収まらなければ 0.01 ずつ下げ、測った方法を本注に書く
 
 ### E-08 —— `S-202` の注（`settings.json` の `S-202`）
 
@@ -314,10 +314,10 @@ E-01〜E-05 は `FR-036` の中の別々の段落、E-06 は `FR-069`、E-07・E
 #   display scale 150%) -> help box 1808 physical px wide, content area 940 physical px tall
 #   -> CSS 1205 x 627; a 1280 x 627 viewport opens a 1216 x 568 help box, which matches
 # the fit (section 0.1 / E-07):
-node previous-project-result/37-help-fits-one-screen/measure-help-fit.cjs <root node_modules> dist/index.html <out> 1280 627 0      # now: 788 / 549
-node previous-project-result/37-help-fits-one-screen/measure-help-fit.cjs <root node_modules> dist/index.html <out> 1280 627 1234   # 4 points: ja 576, en 593 / 549; fitAt sweeps the font
-node previous-project-result/37-help-fits-one-screen/measure-help-fit.cjs <root node_modules> dist/index.html <out> 1280 627 1234f  # + 12px: 549 / 549 both
-node previous-project-result/37-help-fits-one-screen/measure-help-fit.cjs <root node_modules> dist/index.html <out> 1920 1080 1234f # 979 / 979 both
+node studies/37-help-fits-one-screen/measure-help-fit.cjs <root node_modules> dist/index.html <out> 1280 627 0      # now: 788 / 549
+node studies/37-help-fits-one-screen/measure-help-fit.cjs <root node_modules> dist/index.html <out> 1280 627 1234   # 4 points: ja 576, en 593 / 549; fitAt sweeps the font
+node studies/37-help-fits-one-screen/measure-help-fit.cjs <root node_modules> dist/index.html <out> 1280 627 1234f  # + 12px: 549 / 549 both
+node studies/37-help-fits-one-screen/measure-help-fit.cjs <root node_modules> dist/index.html <out> 1920 1080 1234f # 979 / 979 both
 # graph (section 6): PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/impact.py FR-036 | T-256 | FR-069 | S-202 | S-203 | MC-6
 # roster counts (section 7): group help-roster.json entries by (column, block, kind)
 # tests that quote the rewritten sentences: grep -rn for each old sentence's distinctive phrase under tests/ -> 0
@@ -343,7 +343,7 @@ node previous-project-result/37-help-fits-one-screen/measure-help-fit.cjs <root 
 
 ### 14.3 測り（当てた木の出荷ビルド、組み替えなし）
 
-道具は `previous-project-result/37-help-fits-one-screen/` の `measure-help-slack.cjs`（新しく置いた）と `measure-help-fit.cjs`（`steps` が `0`）。字は 12.0px（`S-203` 0.75）。
+道具は `studies/37-help-fits-one-screen/` の `measure-help-slack.cjs`（新しく置いた）と `measure-help-fit.cjs`（`steps` が `0`）。字は 12.0px（`S-203` 0.75）。
 
 | 大きさ | 言語 | 要る高さ ／ 見える高さ（px） | 余り | 横 |
 |---|---|---|---|---|

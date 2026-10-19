@@ -144,7 +144,7 @@ SEAM (CR-669)
 | 数 | 前 → 後 | 方法 |
 |---|---|---|
 | 最大化したヘルプの箱（1280 × 627） | `[0, 0, 1280, 627]` → `[0, 29, 1280, 627]`（`App Header` の下の縁 29px から。当てた出荷ビルドで測った） | 13 節の重なりの測り（`max`） |
-| ヘルプの余り（1280 × 627、日 / 英） | 2px / 2px → 2px / 2px（最も高い段は `HC-3` の 490px のまま —— 括弧を足しても `IC-54` の項目は 1 行に収まる）。1920 × 1080 は 432px / 432px のまま | `previous-project-result/37-help-fits-one-screen/measure-help-slack.cjs` |
+| ヘルプの余り（1280 × 627、日 / 英） | 2px / 2px → 2px / 2px（最も高い段は `HC-3` の 490px のまま —— 括弧を足しても `IC-54` の項目は 1 行に収まる）。1920 × 1080 は 432px / 432px のまま | `studies/37-help-fits-one-screen/measure-help-slack.cjs` |
 | 開いた直後にパレットの下に在る塊（1280 × 627） | 「基本操作」144 × 181px・`App Header` 40 × 181px（変えない） | 13 節の重なりの測り |
 | 検査 39 の拾えていない条項 | 2226 → 2226（基線 2223。差の 3 は統合点 `032c9ce4` に既に在った。本書の差は 0 —— E-04 の新しい MUST が 1 つ増え、旧の「動かし大きさを変えられる範囲も、閲覧環境の窓の全体とする（MUST）」が 1 つ消えた。E-01 は `tests/system/cr-574-help-window.test.ts` が新しい字で引く。「最小化したヘルプと…表 T-336 に従うこと（MUST）」は前から拾えていない窓の字が替わっただけ） | `check-must-clause-coverage.py` と、窓の集合を前後で比べる scratch の写し |
 
@@ -219,8 +219,8 @@ PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/impact.py WB-3 IC-
 grep -n "閲覧環境の窓" docs/spec/*.md docs/spec/_assets/*.md
 
 # section 7: the shipped build (vite build), then
-node previous-project-result/37-help-fits-one-screen/measure-help-slack.cjs <abs node_modules> <abs dist/index.html> 1280 627
-node previous-project-result/37-help-fits-one-screen/measure-help-slack.cjs <abs node_modules> <abs dist/index.html> 1920 1080
+node studies/37-help-fits-one-screen/measure-help-slack.cjs <abs node_modules> <abs dist/index.html> 1280 627
+node studies/37-help-fits-one-screen/measure-help-slack.cjs <abs node_modules> <abs dist/index.html> 1920 1080
 # overlap probe (scratchpad, not committed): opens the help with F1 and prints the palette's rect,
 # the help's rect and, per data-help-block, the area the palette covers; "max" presses IC-130 first.
 

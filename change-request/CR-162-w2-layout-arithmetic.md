@@ -35,7 +35,7 @@
 
 ### ⭐ PoC が 3 つとも実測で持っていた
 
-`previous-project-result/08-poc/poc-integrated.html` の逐語である。
+`studies/08-poc/poc-integrated.html` の逐語である。
 
 **(a) 間引き**（`:1796` 〜 `:1801`）:
 

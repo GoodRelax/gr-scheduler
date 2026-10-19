@@ -4,7 +4,7 @@
 > 読んだ木: `refactor` `67605ad4`（`CR-596` が当たった木）。行番号・数は、すべてこの木で測った（13 節）。
 > ID の帯: 調整役から `CR-601`・`JDG-900` 〜 `JDG-909`・`DFC-1380` 〜 `DFC-1389` を受けた。⭐ 本書は仕様の新しい識別子を 1 つも取らない（2 節）。
 > ⛔ 当てる順: `CR-596` の後（`EL-17` は `CR-596` が足した）。`CR-598` とは同じ行を書き換えないので、どちらが先でもよい（6 節）。
-> 閉じるもの: `JDG-900`・`JDG-902` 〜 `JDG-906`。見本: `previous-project-result/22-jump-followups/`。
+> 閉じるもの: `JDG-900`・`JDG-902` 〜 `JDG-906`。見本: `studies/22-jump-followups/`。
 
 ---
 
@@ -22,7 +22,7 @@
 | `JDG-906` | 「残す (推奨)」（「表示の倍率（IC-104 / IC-105）を変えたときも赤を残しますか？」） | 表示の倍率では消さない | E-01 |
 | `JDG-794` | （`CR-596` の問い「赤い印を消す「ほかの操作」に、ホイールでのスクロールも入れますか？」への答え。`rulings.md` の同じ行） | 押下・キー・ホイールのどれでも消す | ⚠️ 本書が一部を覆す —— 同じ行の状態を「覆された（一部）」に変えた |
 
-問うた場面: 枝 `jump-followups` のセッションが、触れる見本（`previous-project-result/22-jump-followups/jump-followups-sample.html`）を見せて、`CR-598` の問い 1（`JDG-901`）と合わせて 4 つをまとめて問い、答えの問い 2 が拡大縮小を足したので、境目の 2 つ（`JDG-905` ・ `JDG-906`）を追って問うた。
+問うた場面: 枝 `jump-followups` のセッションが、触れる見本（`studies/22-jump-followups/jump-followups-sample.html`）を見せて、`CR-598` の問い 1（`JDG-901`）と合わせて 4 つをまとめて問い、答えの問い 2 が拡大縮小を足したので、境目の 2 つ（`JDG-905` ・ `JDG-906`）を追って問うた。
 
 ### 0.2 調べた結果（`67605ad4`）
 
@@ -297,7 +297,7 @@ PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/induced.py FR-009 
 PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/md-checks.py   # -> tables=212 figures=29 rows=2685 uids=176
 
 # the sample: 10 inputs x 2 modes = 20 cases as ruled, page errors 0
-node previous-project-result/22-jump-followups/sweep-sample.mjs
+node studies/22-jump-followups/sweep-sample.mjs
 ```
 
 ### 13.1 ⚠️ 測りが見られなかったもの

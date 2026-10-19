@@ -574,7 +574,7 @@ for p in PTD MK PK SL PE UN DU CM IC FR T; do
   git grep -ohE "\b$p-[0-9]+[a-z]?\b" -- docs/spec src tests tools change-request | sed "s/$p-//;s/[a-z]$//" | sort -n | uniq | tail -1
 done
 #   -> PTD 5, MK 14, PK 10, SL 9 (a CR-300 name), PE 13, UN 18, DU 2, CM 75, IC 106, FR 112, T 319 (a range in CR-110)
-git grep -nE "\bT-308\b|\bPTD-7\b|\bMK-15\b|\bPK-16\b|\bCY-[0-9]+|\bJDG-(46[7-9]|52[1-3])\b|\bDFC-87[23]\b" -- . ':!previous-project-result' ':!dist'
+git grep -nE "\bT-308\b|\bPTD-7\b|\bMK-15\b|\bPK-16\b|\bCY-[0-9]+|\bJDG-(46[7-9]|52[1-3])\b|\bDFC-87[23]\b" -- . ':!studies' ':!dist'
 #   -> only CR-110:397 (the words "T-301 .. T-319", a range) and CR-300/301/437 (SL-9, MK-14 as retired names)
 git grep -nE "\bCY-[0-9]+" -- . ':!dist'
 #   -> nothing

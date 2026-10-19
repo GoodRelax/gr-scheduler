@@ -69,7 +69,7 @@ grep -rn "resumeValid" docs/spec/01-04-requirements.md docs/spec/_assets/*.md
 <ResumeValid>1</ResumeValid>
 ```
 
-（`previous-project-result/01-mspdi/mspdi-core-tree.md:250`。同書 §C-5 も「`Stop`/`Resume` は開始/終了ではなく中断/再開」と記録している）
+（`studies/01-mspdi/mspdi-core-tree.md:250`。同書 §C-5 も「`Stop`/`Resume` は開始/終了ではなく中断/再開」と記録している）
 
 **表 T-019 の `PA-5`（完了）は `resume` 空・`resumeValid` `false`・`Stop` 書かない を要求する。上のタスクは 5 行のどれにも当たらない。** そして `FR-010` が **「そこから外れる入力を受け付けないこと」** と定めているので、`FR-023` の検証がこのファイルを弾く。
 

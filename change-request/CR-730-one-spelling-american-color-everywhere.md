@@ -47,7 +47,7 @@
 
 | # | 決めたこと | 導き | 代償 |
 |---|---|---|---|
-| X-1 | 履歴は替えない —— `docs/development-records/`（rulings の逐語・台帳・計測）、`change-request/`、`docs/review/`、`previous-project-result/`（見本のフォルダ名 `23-status-date-line-colour/` などを含む） | `JDG-1857`・`JDG-1863` の注（「ウインドウ」「取込」は履歴なので直さない）と同じ。裁定の逐語が見本のパスを引いている | 履歴に colour が 1,790 か所残る（3.1 の l の行。パス 25 を含む）。検査 32 は履歴を読まないので赤くならない |
+| X-1 | 履歴は替えない —— `docs/development-records/`（rulings の逐語・台帳・計測）、`change-request/`、`docs/review/`、`studies/`（見本のフォルダ名 `23-status-date-line-colour/` などを含む） | `JDG-1857`・`JDG-1863` の注（「ウインドウ」「取込」は履歴なので直さない）と同じ。裁定の逐語が見本のパスを引いている | 履歴に colour が 1,790 か所残る（3.1 の l の行。パス 25 を含む）。検査 32 は履歴を読まないので赤くならない |
 | X-2 | 生成物は手で直さない —— `npm run gen` と各生成器、`npm run build` が追う | CR-708 の 7 節と同じ | 無い |
 | X-3 | GRS JSON の形式は変わらない —— 鍵 150 と列挙の値 36 にイギリス式は 0。変わるのは `erd.json` の説明の文 2 か所（生成されたスキーマの説明が追う）だけ。`SCHEMA_VERSION` を上げない | CR-708 の 2.3 の「説明の文 —— 変わらない（鍵と型は同じ）」と同じ扱い | 無い。利用者の手元の文書もそのまま開ける |
 | X-4 | 他人の名は替えない（4 節の表）—— MCP の `notifications/cancelled`、MITRE、URL のドメイン、MSPDI の名 | `JDG-1921` は GRS 自身の綴りの話。他人の名を替えると通じなくなる | 道具に「除く所の表」が要る（7 節） |
@@ -217,7 +217,7 @@
 | 団体名・URL | `software-quality-standards-ja.md:235` の MITRE、`usability-principles-ja.md:400` の `centercentre.com` | 2 | 他人の名 |
 | MSPDI の名 | XSD（`docs/reference/mspdi/`、gitignored）の名 | 0 | MS Project の名は始めから color・center。規則は「MSPDI の名を変えない」のまま |
 | `LICENSE`・`NOTICE`・`package-lock.json` | Apache の本文 | 0 | 始めから License。他人の文 |
-| 履歴 | rulings の逐語、台帳、`change-request/`、`docs/review/`、`previous-project-result/` | 3,263 | X-1 |
+| 履歴 | rulings の逐語、台帳、`change-request/`、`docs/review/`、`studies/` | 3,263 | X-1 |
 | 利用者の手元と見本の文書 | `sample-schedule/Three-Year Product Plan.json` | 8 | X-5 |
 | アメリカ英語でも正しい綴り | dialogue・towards | 1,128 ほか | X-6・X-7 |
 
@@ -300,7 +300,7 @@
 
 | 書く | 書かない | 裁定 | 検査 32 | 注 |
 |---|---|---|---|---|
-| color | colour | `JDG-1921`（`CR-730`） | 止める | アメリカ式。Colour・COLOUR も止める（E-09）。⛔ 利用者の逐語と、台帳・変更要求・レビューの記録・`previous-project-result/` の中の colour は履歴であり、直さない。⛔ MSPDI と他人の名は範囲の外 |
+| color | colour | `JDG-1921`（`CR-730`） | 止める | アメリカ式。Colour・COLOUR も止める（E-09）。⛔ 利用者の逐語と、台帳・変更要求・レビューの記録・`studies/` の中の colour は履歴であり、直さない。⛔ MSPDI と他人の名は範囲の外 |
 | 新しく書く英語はアメリカ式 | イギリス式の綴り | `JDG-1921` | 止めない（A のときは下の行で止める） | 綴りの集まりが閉じていないので、機械は家族ごとの行で止める |
 
 問い 1 で A のとき、家族ごとに「止める」の行を足す: center ｜ centre、gray ｜ grey、behavior ｜ behaviour、neighbor ｜ neighbour、honor ｜ honour、flavor ｜ flavour、minimize ｜ minimise、maximize ｜ maximise、normalize ｜ normalise、summarize ｜ summarise、recognize ｜ recognise、organize ｜ organise、serialize ｜ serialise、analyze ｜ analyse、canceled ｜ cancelled、labeled ｜ labelled、traveled ｜ travelled、license ｜ licence、judgment ｜ judgement、spelled ｜ spelt。⚠️ program ｜ programme は「programmer」「programmed」の中の programme も赤にするので、検査 32 の範囲（仕様・辞書・手引き）で 0 になることを当てた後に測ってから止める（規則 02 の 5 節「行を止めるにするのは 0 件にしてから」）。

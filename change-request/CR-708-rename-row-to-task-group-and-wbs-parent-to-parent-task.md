@@ -72,7 +72,7 @@
 | X-1 | 数は機械の分類で測り直し、元の一覧（読んで分けた数）との差を足して見込みとした | 1,667 パターンを読み直す時間は無い。差分は機械で確かめられる | 和文の素の「行」は、当てる段で 1 行ずつ読む（7 節） |
 | X-2 | `rowTitlePanel*` は `taskGroupPanel*`（Title を落とす） | `JDG-1659` のパネルの名「タスクグループパネル」/ Task Group Panel | 無い |
 | X-3 | 縦のズームのコード名は `vertical*`（`verticalZoom*`・`vertical-axis`）とし、`zoomY*` にはしない | `zoomY` は既に設定の鍵の名であり、軸の名には画面の語「縦軸」をそのまま使う | 無い |
-| X-4 | 履歴は改名しない —— `docs/development-records/`・`change-request/`・`docs/review/`・`previous-project-result/` の名と文、rulings.md の逐語 | 逐語は 1 文字も変えない。過去の成果物の名は過去の事実 | 古い文書を読むときは本書の対応表を引く |
+| X-4 | 履歴は改名しない —— `docs/development-records/`・`change-request/`・`docs/review/`・`studies/` の名と文、rulings.md の逐語 | 逐語は 1 文字も変えない。過去の成果物の名は過去の事実 | 古い文書を読むときは本書の対応表を引く |
 | X-5 | 表 T-006b の `A-2` を消す。`A-1` ③・`A-3`・`A-4` は語を変えて残す | 一覧の 3.1 節。語が 1 つになると `A-2` が守るものが無い | 無い |
 | X-6 | 図 `fig-hit-stacked-row.svg` は `fig-hit-stacked-task-group.svg` にする（中身は変えない） | 一覧の 3.1 節 | 無い |
 | X-7 | 設定値の行が指す見本のフォルダ名（`33-wbs-parent-palette-icons`・`11-row-controls` など）は変えない | X-4 と同じ —— 過去の成果物の住所 | 識別子の中に古い名が残る（7 節の除外の表に載せる） |
@@ -105,7 +105,7 @@
 | `src` の識別子・ファイル名・DOM の名・文字列・注釈 | `src/**`（参照する `tests` を含む、X-11） | 2 |
 | 道具 | `tools/**`（生成器・探り針の例 `row-controls-press-all.mjs` など。区分 a の名 36 種 98 件、`wbsParent*` 5 種 17 件、`WL-n` 2 件 —— 13.2 節）、`.claude/skills/spec-graph-check/*.py` の名指し | 2 |
 | 試験だけが持つ名 | 試験のファイル名、固定データの鍵、DOM のセレクタの文字列、注釈、`tests/known-red.txt`、生成の `test-inventory.md` | 3 |
-| リポジトリの中の GRS 文書（`JDG-1732`） | ⭐ 追従する: 組み込みの起動テンプレート（`tools/generate_startup_template.py` が作る `src/framework/single-html-shell/startup-template.json`）と手引き `docs/guides/schedule-to-grs-json/`（`grs-skeleton.json` と prompt の和英）—— 段 1（X-16）。⛔ 書き直さない: `previous-project-result/38-project-progress/*.json` の 5 本と `sample-schedule/Three-Year Product Plan.json`（改名の後は開けなくてよい） | 1 |
+| リポジトリの中の GRS 文書（`JDG-1732`） | ⭐ 追従する: 組み込みの起動テンプレート（`tools/generate_startup_template.py` が作る `src/framework/single-html-shell/startup-template.json`）と手引き `docs/guides/schedule-to-grs-json/`（`grs-skeleton.json` と prompt の和英）—— 段 1（X-16）。⛔ 書き直さない: `studies/38-project-progress/*.json` の 5 本と `sample-schedule/Three-Year Product Plan.json`（改名の後は開けなくてよい） | 1 |
 | 見本を読む試験（`JDG-1732`） | `tests/contract/dfc-2228-a-document-without-the-export-span-opens.contract.test.ts` の見本の場合を組み込みのテンプレートへ替える。`tests/contract/dfc-378-a-write-that-changed-nothing-answers-the-same-document.test.ts` は替えない（X-17） | 3（段 1 で先に替えてよい、8 節） |
 | 基準値のファイルの行 | 改名するパス・区分 a の名・`wbsParent*` を持つ行 45（comment-rules-tests 16・twin-comments 12・function-size 10・crossing-names 3・literal-restatement 1・quoted-source 1・repeated-expressions 1・ruling-landed 1 —— 13.2 節。下書きの 37 は別の数え方） | 3（調整役、`JDG-520`） |
 
@@ -331,7 +331,7 @@
 | MSPDI の名 | `WBS`・`WBSMask`・`WBSMasks`・`WBSLevel`・`OutlineLevel`・`OutlineNumber`、要素名すべて、`mspdi-codec.ts` の `rowPath`・`rowsOf`（MSPDI のデータの行） | ⛔ MSPDI の名は決して変えない（`JDG-1668`） |
 | 「WBS」という木の名 | 用語集 `G-6`「WBS: タスクの親子の木」、「WBS の深さ」「外部 WBS マスタ」、`Task.wbsOrder` | 11 節の問 3・問 4 |
 | 型の引数 | `TableColumns<Row>`・`inGroupBlocks<Row>` | 総称の型の名 |
-| 過去の事実 | 従来の日程管理ソフトの行（「1 行に 1 タスク」）、`previous-project-result/` のパスと `.row`、見本のフォルダ名 `33-wbs-parent-palette-icons`、rulings.md の逐語、`change-request/` の過去の CR | X-4・X-7 |
+| 過去の事実 | 従来の日程管理ソフトの行（「1 行に 1 タスク」）、`studies/` のパスと `.row`、見本のフォルダ名 `33-wbs-parent-palette-icons`、rulings.md の逐語、`change-request/` の過去の CR | X-4・X-7 |
 | 試験のファイル名（区分 b） | `cr-571-search-rows`・`cr-592-monochrome-greys-every-t-236-row`・`cr-606-the-panel-rows-follow-t-016`・`dfc-582-every-invariant-row-has-a-dictionary-entry`・`dfc-587-title-row-entries-are-drawn`・`cr-664-the-colour-rows-line-up-with-the-other-fields`・`cr-652-palette-rows-and-armed-label`・`cr-441-t-274-principles-and-rows-both-ways`、`d32b2b4a` までに足された `cr-712-report-rows-reach-the-import-report`・`cr-712-the-display-manner-of-every-row`・`cr-712-the-words-and-the-hidden-rows`・`dfc-1412-fr-006-every-target-lists-its-looks-in-one-order-one-colour-a-row`・`dfc-703-t-280-the-screen-session-names-its-surfaces-by-u-row`・`dfc-732-ir-3-the-record-names-the-t-220-row-of-a-refused-import`（表の行・欄の行。名だけを読んで決めた —— 当てる段で中身を確かめる） | X-13 |
 
 ---
@@ -406,7 +406,7 @@
 - 基準値のファイルの行 —— `d32b2b4a` で、改名するパス・区分 a の名・`wbsParent*` のどれかを持つ行が 45（comment-rules-tests 16・twin-comments 12・function-size 10・crossing-names 3・literal-restatement 1・quoted-source 1・repeated-expressions 1・ruling-landed 1。`c42039df` も同じ 45。下書きの 37 は別の数え方で、再現できなかった）。名だけを変え、数は変えない（`JDG-520`、調整役）。基準値のファイルに `WL-n` は 0。
 - `docs/development-records/perf-pending.md` の行（同じ数え方で `d32b2b4a` が 15 行、`c42039df` は 12 行。下書きの 10 は別の数え方）と `test-inventory.md`（生成）—— パスの名だけ。⛔ その中の `WL-n`（perf-pending の 120 番）は書き換えない（X-15）。
 - `docs/guides/schedule-to-grs-json/`（skeleton と prompt の和英）—— 段 1 で直す（X-16）。検査 75（`check-guide-grs-json.py`）がスキーマで検める。
-- ⛔ `previous-project-result/38-project-progress/*.json` の 5 本と `sample-schedule/Three-Year Product Plan.json` は書き直さない（`JDG-1732`）。改名の後は開けない。
+- ⛔ `studies/38-project-progress/*.json` の 5 本と `sample-schedule/Three-Year Product Plan.json` は書き直さない（`JDG-1732`）。改名の後は開けない。
 - 毎フレームの経路は語と名だけが変わり、仕事は変わらない —— `perf-pending.md` に行を足さない（測り直しは要らない）。
 
 ---

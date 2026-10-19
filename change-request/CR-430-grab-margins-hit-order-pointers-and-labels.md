@@ -8,7 +8,7 @@
 > - 利用者の答え: 「Bで進めろ」
 >
 > **正本**（本書はここから起こした。⛔ 本書に中身を丸写ししない所は、指し先を読むこと）:
-> - `previous-project-result/16-grab-area-sizing/spec-draft-ja.md` —— 表・定数・図・追跡・§8 の答え・§9 の今の仕様との突き合わせ
+> - `studies/16-grab-area-sizing/spec-draft-ja.md` —— 表・定数・図・追跡・§8 の答え・§9 の今の仕様との突き合わせ
 > - 同フォルダ `old-to-new-map-ja.md` —— Step 1a の対応表（旧 → 新 425 件 ＋ 本書が足した 13 件）
 > - 同フォルダ `cr-inventory-ja.md` —— 同じ CR に入れる要素の洗い出し 23 件
 > - 同フォルダ `grab-area-sizing-sample.html` —— **振る舞いの正本**（規則はすべて実装して測ってある）
@@ -111,7 +111,7 @@ cycles in the induced graph: 2
 
 ### 3.1 在り処と数
 
-`previous-project-result/16-grab-area-sizing/old-to-new-map-ja.md`（425 件: A 189 ＋ B 236）。⛔ **本書に丸写ししない。** 当てる体は、対応表の行を 1 つずつ開いて当てる。
+`studies/16-grab-area-sizing/old-to-new-map-ja.md`（425 件: A 189 ＋ B 236）。⛔ **本書に丸写ししない。** 当てる体は、対応表の行を 1 つずつ開いて当てる。
 
 | 分担 | 数えたもの | 削除 | ポインタ化 | 意図して捨てる | 書き直す | 残す |
 |---|--:|--:|--:|--:|--:|--:|
@@ -242,7 +242,7 @@ cycles in the induced graph: 2
 
 **書き出しの手順**（当てる体が踏む）:
 1. 探り針は追跡される所（`tools/probe/` の下）に置く —— `playwright` が根の `node_modules` へ上向きに解決するので、リポジトリの外の一時フォルダに置くと解決しない。
-2. `chromium.launch()` → `page.goto('file://…/previous-project-result/16-grab-area-sizing/grab-area-sizing-sample.html')` → `localStorage.clear()`（ペインの幅を覚えている）→ `reload`。
+2. `chromium.launch()` → `page.goto('file://…/studies/16-grab-area-sizing/grab-area-sizing-sample.html')` → `localStorage.clear()`（ペインの幅を覚えている）→ `reload`。
 3. ⭐ **値は `docs/spec/_source/settings.json` を読んで入れ、見本の既定と 1 つでも違えば止める**（図が仕様の値から起きることの担保）。表示の倍率 100、`dayPx` 12、表示の切り替えはすべてオン。
 4. ⛔ **名前を中立の語に替える**（見本の業種の例をそのまま書き出さない。タスク A〜F、マイルストーン A、担当 A〜C）。
 5. `#stage` を複製し、`viewBox` を行の帯に絞り、ページの CSS の地の色と書体を SVG の `<style>` と背景の矩形へ写し、`<title>` と「生成物・原稿・作り直し方」の注を頭に置く。

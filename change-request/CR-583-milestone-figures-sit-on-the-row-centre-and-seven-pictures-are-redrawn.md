@@ -3,7 +3,7 @@
 > 起草の状態: 当てた（2026-09-26、枝 `cr-organise`、波 W5。`JDG-740`）。当てた木は `c891b6ca` に `CR-577`・`CR-582`・`CR-586` を当てた作業木（枝 `cr-organise`、未コミット）。4 節・5 節の案と 11 節の答え（問い 1 は (a)、問い 2 は線 —— `JDG-729`・`JDG-741`・`JDG-742`）を 4.1 節の旧・新の塊 17 へ起こし（文 4、図 F-019 の 13）、どの旧も 1 度だけ現れることを数えてから当てた。当てるときに旧を今の文へ合わせた所は無い。当てるときに新を直した所と、その理由は 4.1 節の頭の ① 〜 ⑤ に書いた —— とくに ④ 図 F-019 の `IC-28`（六角形）と `IC-85`（フロッピー）もチャートの形へ直した（5 節は「変えない」としたが、問い 1 の (a) は 2 つの違いのほかを許さず、今のグリフとチャートは違う形である）、⑤ 杯をまるごと左へ 0.02 動かした（5 節の頭の「外接枠の中心を (0, 0) に置く」に合わせた）。新しい図 `docs/spec/_assets/fig-milestone-shapes.svg`（図 F-044）と、生成器 `tools/generate_milestone_shapes.py`（図 F-044 を 図 F-019 と照らしてから、チャートの形の表 `src/entity/layout-engine/schedule-geometry/milestone-shapes.json` を刷る。`npm run milestones` ／ `milestones:check` として `gen` ／ `gen:check` に入れた）を足した。E-05（変更履歴）は調整役が足す。E-06（コード）は波 2 に残る。
 > （起草の記: **起草だけ**（2026-09-26、枝 `milestone-glyphs`、`29ccf623` の上）。）利用者の指示「OK、この形でCRを起草しろ。 終わったら司令塔に伝えて、完了宣言しろ。 仕様書や実装の修正はここでは不要。」により、仕様にもコードにも当てていない。
 > 範囲: マイルストーン（表 T-012 の `SH-5`）の 15 形のうち、縦の位置（4 形）と絵の形（7 形のうち 6 形。フロッピーは変えない）。対象は **パレットのグリフ（図 F-019）・予定・実績** の 3 つ。ダミーは実績の形を描くので、一緒に変わる。
-> 触れる見本: `previous-project-result/19-milestone-glyphs/milestone-glyphs-sample.html`（形の正は本書の 5 節。見本はその描き出し）。
+> 触れる見本: `studies/19-milestone-glyphs/milestone-glyphs-sample.html`（形の正は本書の 5 節。見本はその描き出し）。
 > 読んだ木: `29ccf623`（`refactor`、2026-09-26）。数はどれもこの木で測った（13 節）。
 > ID の帯: `CR-583` と台帳 `DFC-1160`〜`1169`、裁定 `JDG-730`〜`739` は調整役が配った。新しい仕様の行は仮番号で書き、コミットの前に `tools/renumber_ids.py compact` で `LF-18` へ詰めた（2026-09-26、`29ccf623` の上。`LF-17` は `CR-559` が名指す）。
 
@@ -544,7 +544,7 @@
 
 # the centre offsets: open the sample and read the table in its section 6,
 # or run the sweep (Playwright from the root's node_modules, Edge channel)
-node previous-project-result/19-milestone-glyphs/sweep-sample.mjs
+node studies/19-milestone-glyphs/sweep-sample.mjs
 #   zoomY 0.5  current: pentagon -0.67 star -0.67 triUp -1.75 triDown 1.75 ...  proposed: all 0.00
 #   zoomY 2    current: pentagon -2.67 star -2.67 triUp -7.00 triDown 7.00 ...  proposed: all 0.00
 #   zoomY 4    current: pentagon -5.35 star -5.35 triUp -14.00 triDown 14.00 ... proposed: all 0.00

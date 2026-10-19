@@ -60,7 +60,7 @@ MCP サーバーは待ち受けるプロセスであり、ブラウザのペー�
   MCP でもこの非対称は消えないので、拒否は**値**で返す必要がある（`AG-9a`）。
 - **`R5`（パフォーマンス — ネットワーク）** —— ⚠️ **ここで 1 つ衝突が出た。**
   将棋 PoC の裁定は「**遅さの実体は思考時間ではなく往復回数**」であり、着手と発言を 1 往復に束ねていた
-  （`previous-project-result/10-agent-interface/shogi/slash-command-shogi.md`）。
+  （`studies/10-agent-interface/shogi/slash-command-shogi.md`）。
   18 メンバ 1 対 1 を守ると「編集して、ひとこと言う」が必ず 2 往復になる。
   ⇒ 5 節 ⑦ に立てた。
 
@@ -240,6 +240,6 @@ PoC の実測は「束ねろ」と言い、`R1.3` は「束ねるな」と言う
 - 設置: `src/framework/single-html-shell/single-html-shell.ts:459` 〜 `:470`
 - 契約: `docs/spec/01-04-requirements.md` の `FR-028`／`FR-064`（表 T-035）／`FR-065`／`FR-066`
 - 語彙: `docs/spec/_assets/tbl-glossary.md` の 表 T-107（18 メンバ）
-- 前プロジェクトの実測: `previous-project-result/10-agent-interface/`（要求 17 件・API 契約・実測）
-- 動く先例: `previous-project-result/10-agent-interface/shogi/`
+- 前プロジェクトの実測: `studies/10-agent-interface/`（要求 17 件・API 契約・実測）
+- 動く先例: `studies/10-agent-interface/shogi/`
   （2026-09-21 に `d1d08743` で復元。`RESTORED-ja.md` に経緯）

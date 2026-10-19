@@ -7,7 +7,7 @@
 > 同じ意味になっているのがわかるだろう。分からなければ、サンプルを実際に触ってみろ。**
 > **この作業に俺の裁定は要らない。ただ「サンプルと同じ動作にしろ」というのが俺の指示だ。**
 
-⛔ **見本は `previous-project-result/11-row-controls/row-controls-sample.html` である。**
+⛔ **見本は `studies/11-row-controls/row-controls-sample.html` である。**
 
 ---
 

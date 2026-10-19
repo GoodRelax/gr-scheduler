@@ -512,7 +512,7 @@
 <!-- EDIT id=E-29 file=docs/spec/01-04-requirements.md -->
 項目 16。旧
 ```text
-| CV-9 | 色の欄 | プロパティパネルの色の欄は、表 T-294 の名とカスタムカラーの入口を並べて選ばせること（MUST）。<br>並べ方は試作の色の選び（`previous-project-result/08-poc/poc-integrated.html` の `selHue`、`:940` / `:2777-2780`）に倣い、名を 1 列に表 T-294 の行の順で並べ、カスタムカラーの入口をその後に置く。<br>名の見本は、その欄が描く形（`CV-6`）の、いま描いている明暗の値で塗ること（MUST） —— 見本と描かれる色が食い違わない。<br>⭐ 欄には、選んでいる色の明るいテーマと暗いテーマの見本を並べて示すこと（MUST）（例: `ライト ■ / ダーク ■（ライトと同じ）`）。<br>未定義の側は、`CV-3` で描く値の見本に、どちらの側と同じかを添える。<br>ハイライトボックスの枠の欄には透明を並べない（`FR-019`）。<br>行の色の欄には黒を並べない（表 T-294 の `S-315`）。<br>語は `FR-038` の辞書が持つ |
+| CV-9 | 色の欄 | プロパティパネルの色の欄は、表 T-294 の名とカスタムカラーの入口を並べて選ばせること（MUST）。<br>並べ方は試作の色の選び（`studies/08-poc/poc-integrated.html` の `selHue`、`:940` / `:2777-2780`）に倣い、名を 1 列に表 T-294 の行の順で並べ、カスタムカラーの入口をその後に置く。<br>名の見本は、その欄が描く形（`CV-6`）の、いま描いている明暗の値で塗ること（MUST） —— 見本と描かれる色が食い違わない。<br>⭐ 欄には、選んでいる色の明るいテーマと暗いテーマの見本を並べて示すこと（MUST）（例: `ライト ■ / ダーク ■（ライトと同じ）`）。<br>未定義の側は、`CV-3` で描く値の見本に、どちらの側と同じかを添える。<br>ハイライトボックスの枠の欄には透明を並べない（`FR-019`）。<br>行の色の欄には黒を並べない（表 T-294 の `S-315`）。<br>語は `FR-038` の辞書が持つ |
 ```
 新
 ```text
@@ -1459,7 +1459,7 @@ for p in S PK EN DC HF CD IC EZ IN CV ND PR NT FD QN RR; do
 done
 #   -> S 324 (999 is a test sentinel), PK 9, EN 6, DC 8, HF 19 (120 is a word in a test comment), CD 5, IC 105,
 #      IN 6, QN 9, RR 5
-git grep -lE "\bS-32[5-9]\b|\bS-33[0-8]\b|\bPK-10\b|\bEN-7\b|\bIC-106\b|\bHF-20\b|\bCD-6\b|\bDC-9\b|\bRK-[0-9]+|\bT-297\b|\bQN-10\b|\bRR-6\b|\bIN-7\b" -- . ':!previous-project-result'
+git grep -lE "\bS-32[5-9]\b|\bS-33[0-8]\b|\bPK-10\b|\bEN-7\b|\bIC-106\b|\bHF-20\b|\bCD-6\b|\bDC-9\b|\bRK-[0-9]+|\bT-297\b|\bQN-10\b|\bRR-6\b|\bIN-7\b" -- . ':!studies'
 #   -> nothing but this file (RK-, T-297 checked the same way)
 
 # graph

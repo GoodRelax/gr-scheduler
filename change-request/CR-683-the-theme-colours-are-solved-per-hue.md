@@ -1,7 +1,7 @@
 # CR-683 —— テーマ色を色相ごとに解く（明度の寄せ・地の彩度・注記の色・掴み点・ツールチップ・字の太さ）
 
 > 起草の状態: 当てた（2026-10-04 夜、調整役の統合点 `16ca854f` から早送りした作業木、持ち場 W0-S4）。起草と当てを同じ作業木で行った。⛔ `src/` は手で書いていない（生成物 1 行だけが動いた —— 4.1 節）。
-> ID の帯: 番号 `CR-683`、裁定 `JDG-1506`〜`JDG-1507`、台帳 `DFC-2117`〜`DFC-2118`、保留 `PND-764`、見本のフォルダー `previous-project-result/43-` は調整役から受けた。使ったのは `DFC-2117`・`DFC-2118` と見本のフォルダー。`JDG-1506`・`JDG-1507`・`PND-764` は使わない（利用者の答え `JDG-1486`・`JDG-1487` は台帳の体が記す）。
+> ID の帯: 番号 `CR-683`、裁定 `JDG-1506`〜`JDG-1507`、台帳 `DFC-2117`〜`DFC-2118`、保留 `PND-764`、見本のフォルダー `studies/43-` は調整役から受けた。使ったのは `DFC-2117`・`DFC-2118` と見本のフォルダー。`JDG-1506`・`JDG-1507`・`PND-764` は使わない（利用者の答え `JDG-1486`・`JDG-1487` は台帳の体が記す）。
 > 仕様の新しい識別子（当てる直前に、どれも木に無いことを測った。13 節）: 表 T-366、`CF-1`〜`CF-6`（行の頭字 `CF` を登録）、`S-520`〜`S-529`、`LM-21`。⚠️ 統合点 `e5649ffe` へ合流したとき、設定値を `S-516`〜`S-525` から `S-520`〜`S-529` へ振り直した —— `S-514`〜`S-517` は `CR-681`・`CR-685` が、`S-518`・`S-519` は `CR-677` が持つ。並行した CR と重なれば調整役が振り直す。
 > 閉じるもの: 台帳 `DFC-865`・`DFC-728`・`DFC-729`・`DFC-1220`・`DFC-1655`・`DFC-1659`（仕様の側）。コードは W2-D3・W2-D5 が持つ（5 節）。
 
@@ -16,7 +16,7 @@
 | `JDG-1486`（2026-10-04 夜、問い Q7、`DFC-728`） | 推奨（③ 色相ごとの寄せと一緒に暗いテーマの塗りを寄せる）ではなく ①「基準はページの地に対してだけ掛け、行の上で溶けるのは既知の限界として記す」 | 表 T-017a の `CT-5` を地（`S-146`）に対してとし、行の地と行の帯の上の溶けを `LM-21` に数で書く（E-02・E-06） |
 | `JDG-1487`（同、問い Q8、`DFC-729`） | ② 既存の行を借りる（面は地の色、縁は輪郭線の色） | 表 T-236 に `S-527`（`S-146` に同じ）・`S-528`（`S-156` に同じ）を足す（E-09・E-12） |
 | `JDG-453`（2026-09-24、`DFC-865`） | 試作の明度の寄せと地の彩度の解きは次の変更要求で入れる（対応案 ①） | 表 T-366 を立て、数を設定値の行にする（E-03・E-05・E-11） |
-| `JDG-777`（2026-09-27、`DFC-1220`） | 暗いテーマのモノクロの注記の色を別の変更要求で選び直す。値は触れる見本で選ぶ | `S-312` の暗いテーマの値を推奨の `#df670c` にし、見本 `previous-project-result/43-theme-colour-solve/` で選び直せるようにした（E-10） |
+| `JDG-777`（2026-09-27、`DFC-1220`） | 暗いテーマのモノクロの注記の色を別の変更要求で選び直す。値は触れる見本で選ぶ | `S-312` の暗いテーマの値を推奨の `#df670c` にし、見本 `studies/43-theme-colour-solve/` で選び直せるようにした（E-10） |
 
 ### 0.2 裁定の鎖（rulings.md を「寄せ」「地の彩度」「注記の色」「掴み点」「太さ」「ツールチップ」で引いた。⛔ どれも覆さない）
 
@@ -105,7 +105,7 @@
 
 ## 4. 書き直す所（当てた文）
 
-**E-01** `FR-007`: 「解き方は `FR-041` の 表 T-366 が持つ（`previous-project-result/08-poc/poc-integrated.html` の「色と縁取り」タブが参照実装である）。」
+**E-01** `FR-007`: 「解き方は `FR-041` の 表 T-366 が持つ（`studies/08-poc/poc-integrated.html` の「色と縁取り」タブが参照実装である）。」
 
 **E-02** 表 T-017a の `CT-5`:
 
@@ -186,7 +186,7 @@
 
 ## 7. 数の予測と実測（測り方）
 
-**測り方**: HSL を CSS と同じ式で sRGB へ換算し、各成分を 8 ビットへ丸め（`floor(c × 255 + 0.5)`）、WCAG 2.1 の相対輝度 L から (L1 + 0.05) ÷ (L2 + 0.05) を求めた。モノクロは HSL の明度を保ち彩度 0 にした灰（`(最大 + 最小) ÷ 2` を丸めた値）で測った。色相は 0 〜 359 の 360 と、表 T-305 の 10。台本は 2 つで同じ数を出した: Python の台本（作業の scratch）と、見本 `previous-project-result/43-theme-colour-solve/index.html` の「360 の色相の数」（Playwright で押して読んだ）。
+**測り方**: HSL を CSS と同じ式で sRGB へ換算し、各成分を 8 ビットへ丸め（`floor(c × 255 + 0.5)`）、WCAG 2.1 の相対輝度 L から (L1 + 0.05) ÷ (L2 + 0.05) を求めた。モノクロは HSL の明度を保ち彩度 0 にした灰（`(最大 + 最小) ÷ 2` を丸めた値）で測った。色相は 0 〜 359 の 360 と、表 T-305 の 10。台本は 2 つで同じ数を出した: Python の台本（作業の scratch）と、見本 `studies/43-theme-colour-solve/index.html` の「360 の色相の数」（Playwright で押して読んだ）。
 
 | 数 | 前（寄せも解きも無い） → 後（表 T-366） |
 |---|---|
@@ -282,8 +282,8 @@ grep -rn "LM-21" docs/spec                            # nothing before this CR
 # graph (section 6)
 PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/impact.py FR-041 FR-007 FR-039 FR-075 IN-7 CT-5 S-312 S-146
 
-# section 7: open previous-project-result/43-theme-colour-solve/index.html with Playwright,
+# section 7: open studies/43-theme-colour-solve/index.html with Playwright,
 # choose each "描き方" and press "いまの描き方で 360 色相を測る"; read #sweepOut.
-# The PoC numbers: open previous-project-result/08-poc/poc-integrated.html, and for each hue set
+# The PoC numbers: open studies/08-poc/poc-integrated.html, and for each hue set
 # theme.themeHue, call POC_UI.setTheme(mode) and applyPalette(), read paletteShift and paletteSaturation.
 ```

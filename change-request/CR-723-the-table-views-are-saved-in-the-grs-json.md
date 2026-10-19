@@ -30,7 +30,7 @@
 | `DFC-2329`: 表の表示状態とフィルタは文書に残らない | 正しい（`6195af6b`）。`FR-151` の「⛔ パネルの表示・位置・大きさ・語・フィルタ・並べ替え・列の幅を文書に保存してはならない（MUST NOT）」と「⛔ 表ごとの表示の列の値とスケジュールフィルタの入切も文書に保存してはならない（MUST NOT）」、`FR-134` の「⛔ レポートと窓の状態（…フィルタ・並べ替え）を文書に書いてはならない（MUST NOT）」、`FR-099` の「⛔ ウィンドウの状態（…列のフィルタ・並べ替え…）を文書に保存してはならない（MUST NOT）」。設定値は 表 T-206 の `S-420`・`S-494`・`S-495`・`S-546`・`S-547`・`S-548` | 保存するものだけを 表 T-203 へ移し、⛔ を狭める |
 | 設定値の形は文字列の配列までしか作れない | 半分正しい。`erd_json_to_schema.py` の `settings_type` は型の欄からは文字列の配列しか作らないが、`settings.json` の行の `json`（`erd.json` の列と同じ形）は既に整数の配列を書ける。書けないのは、欄を持つ値（列のフィルタ）と、それを 3 つの表で 1 度だけ持つこと | 行の `json` で書き、形は形の表に 1 度だけ置く（X-3・X-13） |
 | 形式の版を上げれば台帳に行が要る | 誤り。`S-541` は `null`、台帳（`grs-json-changes.json` の `changes`）は空 —— 検査 76 | 台帳に行を足さない。版だけを上げる |
-| 版を上げると、今の版の文書は開けなくなる（下書きの 0.2・E-12・10 節） | **誤り**（`6195af6b` で測った —— 14.2）。版が古い文書は拒まず（`formatVersionReading` は新しい版だけを分ける）、欠けた `tableViews` は `OP-6` が既定で補う。`previous-project-result/38-project-progress/` の 10-10・10-10b・10-10c の 3 つは開ける。開けない 6 つ（10-04・10-08〜10-08d・`sample-schedule/Three-Year Product Plan.json`）は本書の前から開けない —— `CR-708` の改名（`wbsParentUid` → `parentTaskUid`）であり、本書の鍵の誤りは 0 件 | 進捗の文書は刷り直さない。本書の外の 6 つは 14.2 で調整役へ返す |
+| 版を上げると、今の版の文書は開けなくなる（下書きの 0.2・E-12・10 節） | **誤り**（`6195af6b` で測った —— 14.2）。版が古い文書は拒まず（`formatVersionReading` は新しい版だけを分ける）、欠けた `tableViews` は `OP-6` が既定で補う。`studies/38-project-progress/` の 10-10・10-10b・10-10c の 3 つは開ける。開けない 6 つ（10-04・10-08〜10-08d・`sample-schedule/Three-Year Product Plan.json`）は本書の前から開けない —— `CR-708` の改名（`wbsParentUid` → `parentTaskUid`）であり、本書の鍵の誤りは 0 件 | 進捗の文書は刷り直さない。本書の外の 6 つは 14.2 で調整役へ返す |
 
 ### 0.2 裁定の鎖（rulings.md を「保存」「文書に保存」「GRS JSON」「documentSettings」「未保存」「取り消し」「treeState」「画面だけ」「最小化して開く」「x-grsChanges」「SCHEMA_VERSION」で引いた。当てる前に「スケジュールフィルタ」「表示の列」「CR-723」で引き直した）
 
@@ -327,7 +327,7 @@
 - 台帳（`x-grsChanges`）に行を足さない —— 運用の前（`S-541` が `null`）。古い形の文書の読み替えは足さない（`JDG-1663`・`JDG-1733`）。欠けた `tableViews` は今の `OP-6` が既定で補う。
 - ウィンドウの位置・大きさ・字の段・列の幅は保存しない（`JDG-1825`）。
 - 合流（`FR-022`、`Difference Review`）で 2 つの文書の `tableViews` が違うときの取捨は足さない —— 今の合流が `documentSettings` をどう扱うかのまま。波 2 は、合流が `documentSettings` の鍵を 1 つずつ問うなら 13 鍵が問いに出ないかを確かめ、出るなら調整役へ返す。
-- `previous-project-result/38-project-progress/` の進捗の文書は刷り直さない（開ける —— 14.2）。
+- `studies/38-project-progress/` の進捗の文書は刷り直さない（開ける —— 14.2）。
 
 ---
 
@@ -384,7 +384,7 @@ cat docs/spec/_source/grs-json-changes.json                         # "changes":
 grep -n "SCHEMA_VERSION =" tools/generate_startup_template.py       # 2026-10-09T11:56:15Z
 grep -rl "2026-10-09T11:56:15Z" . --include=*.json --include=*.ts --include=*.md --include=*.py --include=*.html   # 14
 # open-ability (14.2): a throwaway vitest file calling documentFromJson(text, own version) on
-#   previous-project-result/38-project-progress/*.json and sample-schedule/*.json, counting faults by path
+#   studies/38-project-progress/*.json and sample-schedule/*.json, counting faults by path
 ```
 
 ---
@@ -410,7 +410,7 @@ grep -rl "2026-10-09T11:56:15Z" . --include=*.json --include=*.ts --include=*.md
 
 | 文書 | 開けるか | 理由 |
 |---|---|---|
-| `previous-project-result/38-project-progress/gr-scheduler-progress-2026-10-10.json`・`-10b.json`・`-10c.json`（3） | 開ける（誤り 0） | 版が古いだけでは拒まない。欠けた `tableViews` は `OP-6` が既定で補う |
+| `studies/38-project-progress/gr-scheduler-progress-2026-10-10.json`・`-10b.json`・`-10c.json`（3） | 開ける（誤り 0） | 版が古いだけでは拒まない。欠けた `tableViews` は `OP-6` が既定で補う |
 | 同 `-10-04.json`・`-10-08.json`・`-10-08b.json`・`-10-08c.json`・`-10-08d.json`（5） | 開けない | 本書の前から —— 誤りはすべて `/schedule/tasks/N/parentTaskUid` が無い・`wbsParentUid` を知らない（`CR-708` の改名）。`documentSettings` の誤りは 0 件 |
 | `sample-schedule/Three-Year Product Plan.json`（1） | 開けない | 同上（誤り 2000 件、すべて `CR-708` の改名） |
 | `sample-schedule/*.xml`（6） | 開ける | MSPDI は `GRS JSON` の形式の版に関わらない |

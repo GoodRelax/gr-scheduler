@@ -262,7 +262,7 @@
 ## 13. 測り方の再現
 
 ```
-git grep -c "CR-766" 4a907919 -- change-request docs src tests previous-project-result tools   # 0 件
+git grep -c "CR-766" 4a907919 -- change-request docs src tests studies tools   # 0 件
 grep -c "^| CM-" docs/spec/_assets/tbl-glossary.md                                            # 88
 grep -n "^export type DocumentCommand" -A9 src/use-case/edit-document/edit-document.ts         # 8 つの和
 grep -rn "setTaskGroupEditGroup" src | wc -l                                                    # 0

@@ -12,7 +12,7 @@
 
 **同じ「移す」「写す」でも、答えが 2 通りに割れているのに、仕様書が片方しか書いていない。**
 
-継承した設計（`previous-project-result/02-data-model/grs-native-erd-ja.md:976-992`「二軸の追随は片方向」）は、
+継承した設計（`studies/02-data-model/grs-native-erd-ja.md:976-992`「二軸の追随は片方向」）は、
 移動については確定している ——
 
 | 操作 | WBS | `TaskGroup` | 子タスクは | 外部マスタへ |

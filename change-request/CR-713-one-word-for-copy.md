@@ -119,7 +119,7 @@
 | `published-entries.json` の `PI-` 行の「場面から 表 T-233 の行への写し」 | 写し | 場面から行への対応（写像） |
 | `row-id-prefixes.json` の文書の形の条 | 交換相手の木をどう写し | 交換の形の写像 |
 
-`docs/review/`・`docs/development-records/`・`change-request/`・`previous-project-result/` の記録は書き換えない（過去の記録）。`.claude/skills/spec-graph-check/list-inverted-authority.py` の説明文は、直す前の仕様の文（`DFC-470`）を引いた記録なので残す。`check-quoted-source.py` の「原稿を写すな、指させ」は利用者の言葉の引用なので残す。
+`docs/review/`・`docs/development-records/`・`change-request/`・`studies/` の記録は書き換えない（過去の記録）。`.claude/skills/spec-graph-check/list-inverted-authority.py` の説明文は、直す前の仕様の文（`DFC-470`）を引いた記録なので残す。`check-quoted-source.py` の「原稿を写すな、指させ」は利用者の言葉の引用なので残す。
 
 ---
 
