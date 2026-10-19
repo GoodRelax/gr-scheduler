@@ -1,4 +1,4 @@
-// CR-812 spec-only cases: RW-20 / IO-9 / IC-169 (the Fix Log saves as .tsv), FM-6 (Property), PTL-15 (derived parent label).
+// CR-813 spec-only cases: RW-20 / IO-9 / IC-169 (the Fix Log saves as .tsv), FM-6 (Property), PTL-15 (derived parent label).
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'

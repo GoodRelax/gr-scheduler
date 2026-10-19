@@ -1722,6 +1722,13 @@
    }
   },
   {
+   "rowId": "PR-50",
+   "label": {
+    "ja": "フォントサイズ",
+    "en": "Font Size"
+   }
+  },
+  {
    "rowId": "PR-48",
    "label": {
     "ja": "最前面に配置",
@@ -1761,13 +1768,6 @@
    "label": {
     "ja": "文字色",
     "en": "Text Color"
-   }
-  },
-  {
-   "rowId": "PR-50",
-   "label": {
-    "ja": "フォントサイズ",
-    "en": "Font Size"
    }
   },
   {

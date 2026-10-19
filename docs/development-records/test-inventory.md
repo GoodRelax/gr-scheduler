@@ -16,9 +16,9 @@ what this reading does not see.
 | `integration` | TS-2 | - | 3 | 76 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
 | `system` | TS-3 | - | 97 | 616 | 0 | 0 | 0 | 0 |
-| `unit` | TS-6 | - | 189 | 4005 | 1 | 1 | 2 | 0 |
+| `unit` | TS-6 | - | 189 | 4006 | 1 | 1 | 2 | 0 |
 | `use-case` | TS-1 | VT-1 | 14 | 17 | 1 | 2 | 0 | 0 |
-| **all** | | | 744 | 10565 | 10 | 7 | 13 | 4 |
+| **all** | | | 744 | 10566 | 10 | 7 | 13 | 4 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -165,7 +165,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/unit/cr-787-the-panel-opens-at-the-default-width-of-its-kind.test.ts` | frameLoop (non-pure), grabSizesOf (pure), itemAtPointer (untagged), panelFacesOf (pure) | - | FR-052, FR-072, T-016, T-109, T-206 |
 | `tests/unit/cr-788-the-assignee-field-opens-a-checked-list.test.ts` | domScreenSurface (non-pure) | - | FR-059 |
 | `tests/unit/cr-811-the-comment-box-font-size-is-8-to-24-and-10-by-default.test.ts` | documentFromJson (pure), editAnnotation (pure), frameLoop (non-pure) | - | FR-006, FR-019, FR-031, FR-077, FR-097, T-016, T-108, T-215 |
-| `tests/unit/cr-812-the-fix-log-saves-as-tsv-and-two-words-change.test.ts` | delayDiagnosticsReportAfterEntry (pure), delayDiagnosticsReportFromWindow (pure), delayFixLogFileNameOf (pure), delayFixLogTsv (pure), delayFixLogTsvOf (pure) | yes | T-024, T-109, T-351, T-352, T-374 |
+| `tests/unit/cr-813-the-fix-log-saves-as-tsv-and-two-words-change.test.ts` | delayDiagnosticsReportAfterEntry (pure), delayDiagnosticsReportFromWindow (pure), delayFixLogFileNameOf (pure), delayFixLogTsv (pure), delayFixLogTsvOf (pure) | yes | T-024, T-109, T-351, T-352, T-374 |
 | `tests/unit/dfc-1620-an-fs-chain-that-starts-the-next-morning-carries-the-whole-delay.test.ts` | documentFromJson (pure) | yes | T-313, T-314 |
 | `tests/unit/dfc-1991-sl-4-a-shift-drag-keeps-the-selection.test.ts` | commandFromInput (pure), grabSizesOf (pure), itemAtPointer (untagged), pressedRowOf (pure), selectionFromInput (pure), selectionOfAll (pure) | - | T-206, T-270 |
 | `tests/unit/dfc-2980-a-marker-pulled-with-many-moves-puts-the-actual.test.ts` | - | - | FR-107, T-270, T-273 |
@@ -500,7 +500,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/cr-786-a-snapped-tip-is-searched-where-it-stands.contract.test.ts` | 17 | FR-019 | - | T-331, T-332 | AT-113, AT-118, LF-15, SJ-6, SQ-9 | - | - | - | - |
 | `tests/contract/cr-786-bring-to-front-commands.contract.test.ts` | 16 | FR-019, FR-031 | - | T-108 | CM-100, CM-101 | - | - | - | - |
 | `tests/contract/cr-786-fr-019-holds-the-four-sentences.contract.test.ts` | 3 | FR-019 | - | - | - | - | - | - | - |
-| `tests/contract/cr-786-the-bring-to-front-button.contract.test.ts` | 15 | FR-006, FR-019, FR-038 | - | T-016 | CM-100, CM-101, PR-21, PR-48, PR-49 | - | - | - | - |
+| `tests/contract/cr-786-the-bring-to-front-button.contract.test.ts` | 15 | FR-006, FR-019, FR-038 | - | T-016 | CM-100, CM-101, PR-21, PR-48, PR-49, PR-50 | - | - | - | - |
 | `tests/contract/cr-786-the-later-box-answers-the-press.contract.test.ts` | 6 | FR-019 | - | - | - | - | - | - | - |
 | `tests/contract/cr-787-the-settings-face-narrows-with-two-line-names.test.ts` | 28 | FR-038, FR-052, FR-156, FR-159 | - | T-206, T-369, T-376, T-379, T-380 | FO-14, FO-15, FO-17, K-69, K-70, K-120, K-121, K-144, K-145, RN-3, S-171, S-248, S-574, S-602, S-603, S-604, S-605, S-606, S-607, TX-12, WH-1 | - | - | - | - |
 | `tests/contract/cr-788-the-first-checked-is-the-primary.test.ts` | 12 | FR-008, FR-059 | - | T-109, T-206, T-225 | AS-1, AS-3, AS-5, AS-12, AS-13, IC-123, IC-124, IC-125, IC-126, IN-5a, IN-6, S-607, TL-7 | - | - | - | - |
@@ -899,8 +899,8 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/unit/cr-785-the-help-links-and-the-dropped-rows.test.ts` | 41 | FR-036, FR-038, FR-069 | - | T-023, T-109, T-236 | IC-20, IC-54, IC-115, MK-2, MK-5, MK-7, MK-15, MK-16, MK-17, S-350, S-503, S-583 | - | - | - | - |
 | `tests/unit/cr-787-the-panel-opens-at-the-default-width-of-its-kind.test.ts` | 21 | FR-052, FR-072 | - | T-016, T-109, T-206 | GR-14, IC-17, MK-13, S-171, S-248, S-602, S-604, S-605, S-606 | - | - | - | - |
 | `tests/unit/cr-788-the-assignee-field-opens-a-checked-list.test.ts` | 19 | FR-059 | - | - | AS-1, AS-3, AS-4, AS-5, AS-7, AS-8, AS-12, IC-123, IC-124, IC-125, IC-126, PR-16, SV-4 | - | - | - | - |
-| `tests/unit/cr-811-the-comment-box-font-size-is-8-to-24-and-10-by-default.test.ts` | 39 | FR-006, FR-019, FR-031, FR-077, FR-097 | - | T-016, T-108, T-215 | AT-110, AT-168, CM-46, CM-103, PR-46, PR-50, S-624 | - | - | - | - |
-| `tests/unit/cr-812-the-fix-log-saves-as-tsv-and-two-words-change.test.ts` | 37 | - | - | T-024, T-109, T-351, T-352, T-374 | FM-6, FN-1, FN-2, FN-3, FN-4, FN-5, IC-156, IC-157, IC-158, IC-169, IO-9, PTL-15, RW-7, RW-12, RW-20 | - | - | - | - |
+| `tests/unit/cr-811-the-comment-box-font-size-is-8-to-24-and-10-by-default.test.ts` | 40 | FR-006, FR-019, FR-031, FR-077, FR-097 | - | T-016, T-108, T-215 | AT-110, AT-168, CM-46, CM-103, PR-21, PR-48, PR-50, S-624 | - | - | - | - |
+| `tests/unit/cr-813-the-fix-log-saves-as-tsv-and-two-words-change.test.ts` | 37 | - | - | T-024, T-109, T-351, T-352, T-374 | FM-6, FN-1, FN-2, FN-3, FN-4, FN-5, IC-156, IC-157, IC-158, IC-169, IO-9, PTL-15, RW-7, RW-12, RW-20 | - | - | - | - |
 | `tests/unit/dfc-1620-an-fs-chain-that-starts-the-next-morning-carries-the-whole-delay.test.ts` | 4 | - | - | T-313, T-314 | BD-2, BD-4, S-128 | - | - | - | - |
 | `tests/unit/dfc-1991-sl-4-a-shift-drag-keeps-the-selection.test.ts` | 8 | - | - | T-206, T-270 | PE-1, S-208, SL-4, SL-7a, TC-5 | - | - | - | - |
 | `tests/unit/dfc-2980-a-marker-pulled-with-many-moves-puts-the-actual.test.ts` | 7 | FR-107 | - | T-270, T-273 | GO-9, LP-1, PE-8, PE-10, S-129, S-208 | - | - | - | - |
