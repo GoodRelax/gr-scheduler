@@ -80,6 +80,7 @@
   "pageNotConnected": {
    "en": [
     "No GRS page is connected to the relay.",
+    "If the page was connected a moment ago, it is reconnecting by itself (it tries for about 15 s while the relay keeps running): call readStamp again after that, and ask the person only if it still answers pageNotConnected.",
     "Ask the person to open {pageUrl} in a browser: the whole address, the part after # included.",
     "Then they open the document in that page (a document open in another tab or window does not count) and press the Agent API button in the page header."
    ]
