@@ -4,7 +4,7 @@
     python tools/generate_agent_api.py
     python tools/generate_agent_api.py --check
 
-READS   docs/spec/_source/agent-api-members.json (table T-107, the 23 members
+READS   docs/spec/_source/agent-api-members.json (table T-107, the 26 members
         with their arguments and return values, and table T-400, the value
         types they hand over -- CR-765, JDG-2160).
 WRITES  one region per unit, the one that opens

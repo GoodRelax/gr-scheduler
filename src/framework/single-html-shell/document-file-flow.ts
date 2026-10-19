@@ -549,6 +549,13 @@ function delayFixBundleHoldOf(hands: DocumentFileFlowHands) {
       landed = []
       telling = null
     },
+    // WHY: the Agent API writes the bundle itself (its own step, no save first); only the log is kept here.
+    /** @purity non-pure */
+    landDelayFixes(rows: readonly DelayFixRow[], before: Document, after: Document): void {
+      if (rows.length === 0 || after === before) return
+      landed = [...landed, { logRows: delayFixLogRowsOf(rows, readLocalMoment()), before, after }]
+      telling = { kind: 'fixed', count: rows.length }
+    },
   }
 }
 

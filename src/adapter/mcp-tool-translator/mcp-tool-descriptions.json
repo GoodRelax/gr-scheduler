@@ -1,6 +1,6 @@
 {
  "$comment": "GENERATED -- do not edit by hand. Generated from docs/spec/_source/agent-api-members.json, table T-107 (the members of the Agent API), and the commands the AM-7 input carries from docs/spec/_source/document-commands.json (table T-108), by tools/generate_mcp_tool_descriptions.py. Rebuild: npm run gen -- npm run gen:check fails on drift. One entry per row in the table's order: the confirmed name, its description lines joined by newlines, and its input shape (AG-12 (4) (5), design-mcp-relay.md 3.1). instructions is the text the relay answers MCP initialize with, the mcpInstructions lines joined by newlines (AG-12 (8)). relayRefusals holds the what of each refusal the relay gives itself, one line per sentence joined by spaces; the relay fills each name in braces (CR-799).",
- "instructions": "GRS Relay carries each tool call to the Agent API of the GoodRelax Scheduler (GRS) page a person has open in a browser. The page holds the only copy of the schedule document; the relay holds none.\nStart with agentApiVersion. If a tool answers with the reason pageNotConnected, ask the person to open the address it gives (all of it, the part after # included), open a document there, and press the Agent API button in the page header. A document open in another browser tab or window does not reach the relay and does not move to the relay's page: the person opens the file again in the page at the relay's address. That address changes each time the relay starts.\nBefore you write, read the notes (readSchema with which 'notes') and pull only the definitions you need with readSchema and defs, for example ['Task', 'Dependency']; without defs readSchema returns a table of contents. For reading only, the column descriptions in the tool answers are enough.\nThe whole schemas are the resources grs-document.schema.json and grs-commands.schema.json, or readSchema with full true; they are large, so read them only when the parts are not enough.\nRead in small pieces: readSearchRows returns one page of the Search Panel as the person sees it (an empty word is the whole outline) and readTableRows does the same for the Delay Diagnostics Report and the Resource List; readDocument leaves out the MSPDI pass-through fields unless you ask, and can be narrowed to some tasks; readStamp is cheap. Write with applyCommands, handing over the stamp you last read as expectedStamp; the whole batch is applied or refused as one.\nA refusal is a value, not an error: it names the reason and carries the current stamp, never the document. Read again what you need, then retry.\nWhile the person is dragging, typing in place or answering a question, writes are refused; try again shortly.\nTo save, pass fileName to an export tool: the relay writes into the save folder the person chose in the relay's settings. If the file exists you may be refused with fileExists: ask the person before passing overwrite true, unless they told you not to ask in this conversation. A request to save again under the same name is not permission to replace the file: ask once even then. The old file is kept as .bak. To open a file, call requestOpenFile: the person picks it in their own file window.\nThe descriptions here use no row ids of the GRS specification; the specification itself is at https://goodrelax.github.io/gr-scheduler/spec-html/",
+ "instructions": "GRS Relay carries each tool call to the Agent API of the GoodRelax Scheduler (GRS) page a person has open in a browser. The page holds the only copy of the schedule document; the relay holds none.\nStart with agentApiVersion. If a tool answers with the reason pageNotConnected, ask the person to open the address it gives (all of it, the part after # included), open a document there, and press the Agent API button in the page header. A document open in another browser tab or window does not reach the relay and does not move to the relay's page: the person opens the file again in the page at the relay's address. That address changes each time the relay starts.\nBefore you write, read the notes (readSchema with which 'notes') and pull only the definitions you need with readSchema and defs, for example ['Task', 'Dependency']; without defs readSchema returns a table of contents. For reading only, the column descriptions in the tool answers are enough.\nThe whole schemas are the resources grs-document.schema.json and grs-commands.schema.json, or readSchema with full true; they are large, so read them only when the parts are not enough.\nRead in small pieces: readSearchRows returns one page of the Search Panel as the person sees it (an empty word is the whole outline) and readTableRows does the same for the Delay Diagnostics Report and the Resource List; readDocument leaves out the MSPDI pass-through fields unless you ask, and can be narrowed to some tasks; readStamp is cheap. Write with applyCommands, handing over the stamp you last read as expectedStamp; the whole batch is applied or refused as one.\nreadDelayDiagnostics only computes: it changes nothing on the screen. To run the Delay Diagnostics on the screen as the person does, call runDelayDiagnostics; to apply its fix proposals as the screen's Fix does, call issueDelayFixes. Say which you did: reading the values is not running them on the screen.\nA refusal is a value, not an error: it names the reason and carries the current stamp, never the document. Read again what you need, then retry.\nWhile the person is dragging, typing in place or answering a question, writes are refused; try again shortly.\nTo save, pass fileName to an export tool: the relay writes into the save folder the person chose in the relay's settings. If the file exists you may be refused with fileExists: ask the person before passing overwrite true, unless they told you not to ask in this conversation. A request to save again under the same name is not permission to replace the file: ask once even then. The old file is kept as .bak. To open a file, call requestOpenFile: the person picks it in their own file window.\nThe descriptions here use no row ids of the GRS specification; the specification itself is at https://goodrelax.github.io/gr-scheduler/spec-html/",
  "relayRefusals": {
   "pageNotConnected": "No GRS page is connected to the relay. Ask the person to open {pageUrl} in a browser: the whole address, the part after # included. Then they open the document in that page (a document open in another tab or window does not count) and press the Agent API button in the page header.",
   "relayTimedOut": "{member} did not answer within {seconds} s. Ask the person whether a question or a window is open on the GRS page."
@@ -68,6 +68,13 @@
        "type": "number"
       },
       "description": "The uids of the tasks to read; empty or omitted reads every task"
+     },
+     "parts": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      },
+      "description": "Names of the parts to keep: keys of schedule (tasks, calendars, resources, assignments, taskGroups, taskGroupMembers, taskVisuals and the rest) and documentSettings, changeLog; an empty list keeps everything. project and documentStamp are always kept; a part left out is absent from the answer"
      }
     }
    }
@@ -133,7 +140,7 @@
      },
      "word": {
       "type": "string",
-      "description": "Narrows the rows the way the table's search field does; an empty word narrows nothing"
+      "description": "Narrows the rows the way the table's search field does; an empty word narrows nothing. To narrow by a status column (Unreliable and the like), set that column's filter with setTableView through applyCommands, then read with filters 'asShown'"
      },
      "filters": {
       "type": "string",
@@ -167,7 +174,19 @@
    "description": "The delay diagnosis report as a frozen value: findings, unreliable values, bottlenecks and bottleneck paths, with the proposed fixes and the fix log.\nChanges neither the screen nor the document.\nThis is the only exact delay analysis.\nAll amounts are working minutes. inheritedDelayMinutes is how far predecessors push the task's start; selfDelayMinutes is how far its projected finish runs past its start plus its planned length (0 for a parent task); pushOutMinutes is the part of the delay of end tasks (milestones and tasks with no successor) this task causes, summed over the terminalsReached end tasks it reaches.\nterminalPushOuts holds, for each end task, terminalDelayMinutes (its projected finish past its planned finish) and givenTo (the tasks that caused it, with their minutes).\nTo turn minutes into days, divide by the document's project.minutesPerDay (when it is null, the value its description in the document schema gives); the screen shows a push-out rounded up to whole days.\nwalls lists where the diagnosis stopped, one wall per cause task: row is its kind, told by the number it ends in (1 a task whose own values contradict each other, 2 a task whose parent cannot be derived, 3 a milestone with no dependency); causeUid is the cause task; stoppedUids are the tasks left undiagnosed, the cause first.\nTwo walls of the same kind differ by causeUid; their stoppedUids can be the same list, as for tasks whose dependencies form a loop.",
    "inputSchema": {
     "type": "object",
-    "properties": {}
+    "properties": {
+     "parts": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      },
+      "description": "Names of the parts to keep (findings, bottlenecks, terminalPushOuts, walls, markerStates, settledPushOuts, derivedParentTasks, lateDays, fixProposals, fixLog); an empty list keeps everything. outcome, statusDate and unreliableCount are always kept"
+     },
+     "limit": {
+      "type": "number",
+      "description": "The most entries returned in each list; 0 means no limit"
+     }
+    }
    }
   },
   {
@@ -323,6 +342,26 @@
    }
   },
   {
+   "name": "issueDelayFixes",
+   "description": "Issues fix proposals of the Delay Diagnostics as one bundle, as the screen's Fix does: the bundle is one undo step, and if any row is refused nothing is applied.\nIssued rows are recorded in the fix log (fixLog of readDelayDiagnostics) and leave the proposals table.\nUnlike the screen it does not save first: the step is yours, so undoEdit takes it back; save with an export tool's fileName.\nIssuing does not run the diagnosis again; call runDelayDiagnostics for that.",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "expectedStamp": {
+      "type": "object",
+      "description": "The stamp you last read; compared with the current stamp"
+     },
+     "fixKeys": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      },
+      "description": "Keys of the fix proposal rows to issue, as readDelayDiagnostics lists them in fixProposals; an empty list issues the recommended rows, as the screen's adopt-all button picks them"
+     }
+    }
+   }
+  },
+  {
    "name": "undoEdit",
    "description": "Undoes the newest step of the edit history, but only a step you wrote yourself; a step the person wrote is refused with notOwnStep.\nHand over the stamp you last read as expectedStamp; a different stamp is refused with staleStamp.\nA focusTask that expanded a task group wrote a step of its own: after creating a task and then calling focusTask, the first undoEdit undoes the expansion and the second the creation.",
    "inputSchema": {
@@ -458,6 +497,31 @@
        "type": "number"
       },
       "description": "The uids of the tasks to show; an empty list clears the filter"
+     }
+    }
+   }
+  },
+  {
+   "name": "runDelayDiagnostics",
+   "description": "Runs the Delay Diagnostics on the screen, as the person's flame button does: it diagnoses, opens the Delay Diagnostics Report window and shows the diagnosis marks on the progress markers.\nWhen the window is already open it runs the diagnosis again, as its Re-diagnose button does.\nIt changes no document, so the stamp stays and no undo step is added.\nreadDelayDiagnostics reads the values; this tool only shows them on the screen.",
+   "inputSchema": {
+    "type": "object",
+    "properties": {}
+   }
+  },
+  {
+   "name": "closeWindow",
+   "description": "Closes the Delay Diagnostics Report window or the Properties Panel, as its close button does.\nThe report window closes alone and the diagnosis marks stay on the progress markers; the Properties Panel closes as its close button closes it.\nWhen it is already closed nothing happens. It changes no document.",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "which": {
+      "type": "string",
+      "enum": [
+       "delayDiagnosticsReport",
+       "propertiesPanel"
+      ],
+      "description": "What to close: the Delay Diagnostics Report window or the Properties Panel"
      }
     }
    }

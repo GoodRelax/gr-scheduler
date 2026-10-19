@@ -214,6 +214,14 @@
      }
     },
     {
+     "name": "isRecommendedDelayFix",
+     "note": {
+      "ja": [
+       "修正案の行が推奨か —— 直し方が 1 つに決まり当てられる行であり、画面の「推奨をすべて採用」（`IC-166`）と `Agent API` の `AM-32` が選ぶ行（CR-803）"
+      ]
+     }
+    },
+    {
      "name": "delayFixLogRowsOf",
      "note": {
       "ja": [
@@ -2615,7 +2623,7 @@
      "after": {
       "ja": [
        "。",
-       "⚠️ 外へ公開する 23 メンバの名前は `_assets/tbl-agent-api-members.md` の 表 T-107 が持つ。",
+       "⚠️ 外へ公開する 26 メンバの名前は `_assets/tbl-agent-api-members.md` の 表 T-107 が持つ。",
        "本表に書き写さない（MUST NOT）"
       ]
      }

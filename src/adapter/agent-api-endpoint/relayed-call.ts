@@ -21,16 +21,17 @@ type DocumentStamp = AgentWriteRequest['expectedStamp']
 export interface RelayedParams {
   agentApiVersion: {}
   schemaVersion: {}
-  readDocument: { includeCarry: boolean; taskUids: readonly number[] }
+  readDocument: { includeCarry: boolean; taskUids: readonly number[]; parts: readonly string[] }
   readStamp: {}
   readSelection: {}
   readSearchRows: { word: string; filters: 'asShown' | 'none'; offset: number; limit: number }
   readTableRows: { table: 'delayDiagnosticsReport' | 'resourceList'; word: string; filters: 'asShown' | 'none'; offset: number; limit: number }
   readShownTasks: {}
-  readDelayDiagnostics: {}
+  readDelayDiagnostics: { parts: readonly string[]; limit: number }
   applyCommands: { request: AgentWriteRequest }
   importDocument: { source: AgentImportSource }
   requestOpenFile: {}
+  issueDelayFixes: { expectedStamp: DocumentStamp; fixKeys: readonly string[] }
   undoEdit: { expectedStamp: DocumentStamp }
   redoEdit: { expectedStamp: DocumentStamp }
   // WHY: the relay reads fileName, overwrite itself; the page takes no argument.
@@ -45,21 +46,26 @@ export interface RelayedParams {
   exportEmbeddedHtml: {}
   focusTask: { taskUid: number }
   showOnlyTasks: { taskUids: readonly number[] }
+  runDelayDiagnostics: {}
+  closeWindow: { which: 'delayDiagnosticsReport' | 'propertiesPanel' }
   // WHY: the relay reads waitMs itself; the page only subscribes.
   watchChanges: {}
 }
 
 // WHY: only members with arguments, in their argument order.
 const MEMBER_PARAMETERS = {
-  readDocument: ['includeCarry', 'taskUids'],
+  readDocument: ['includeCarry', 'taskUids', 'parts'],
   readSearchRows: ['word', 'filters', 'offset', 'limit'],
   readTableRows: ['table', 'word', 'filters', 'offset', 'limit'],
+  readDelayDiagnostics: ['parts', 'limit'],
   applyCommands: ['request'],
   importDocument: ['source'],
+  issueDelayFixes: ['expectedStamp', 'fixKeys'],
   undoEdit: ['expectedStamp'],
   redoEdit: ['expectedStamp'],
   focusTask: ['taskUid'],
   showOnlyTasks: ['taskUids'],
+  closeWindow: ['which'],
 } as const satisfies { readonly [K in ParameterizedMember]: readonly (keyof RelayedParams[K])[] }
 // </generated>
 

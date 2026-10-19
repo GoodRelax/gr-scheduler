@@ -17,7 +17,7 @@ const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 
 const PUBLISHED = unbroken(readFileSync(join(SPEC, '_assets', 'tbl-published-entries.md'), 'utf8'))
 
 const OP_16_NO_FILE_NO_NAME = '—— 空の段では、名が無いのか読めなかったのかが読めない。⚠️ ファイルを持たずに渡された文書（`_assets/tbl-agent-api-members.md` の 表 T-107 の `AM-8`）では ② を出さないこと（MUST）'
-const PI_17_NOT_COPIED = ' `SnapshotSource`（表 T-065）。　　⚠️ 外へ公開する 23 メンバの名前は `_assets/tbl-agent-api-members.md` の 表 T-107 が持つ。　　本表に書き写さない（MUST NOT）'
+const PI_17_NOT_COPIED = ' `SnapshotSource`（表 T-065）。　　⚠️ 外へ公開する 26 メンバの名前は `_assets/tbl-agent-api-members.md` の 表 T-107 が持つ。　　本表に書き写さない（MUST NOT）'
 
 const markdownUnder = (folder: string): string[] =>
   readdirSync(folder).flatMap((name) => {
@@ -44,7 +44,7 @@ describe('OP-16 (MUST): a document handed over without a file shows no file row,
   })
 })
 
-describe('PI-17 (MUST NOT): table T-064 does not copy the 23 member names that table T-107 holds', () => {
+describe('PI-17 (MUST NOT): table T-064 does not copy the 26 member names that table T-107 holds', () => {
   it('the row still says the names are table T-107\'s, in the file that holds it', () => {
     expect(PUBLISHED).toContain(PI_17_NOT_COPIED)
   })

@@ -68,7 +68,7 @@ describe(`HS-12 -- ${HS_12_MUST}`, () => {
     const { built, shown } = await openedThenSaved()
     const api = agentOf(built)
     expect(api.readStamp().fileSavedAt, 'AM-4').toBe(shown)
-    expect(api.readDocument(false, []).documentStamp.fileSavedAt, 'AM-3').toBe(shown)
+    expect(api.readDocument(false, [], []).documentStamp.fileSavedAt, 'AM-3').toBe(shown)
   })
 
   it('AM-11 exportJson carries the time the lower line shows after a save', async () => {
@@ -101,7 +101,7 @@ describe(`HS-12 -- ${HS_12_NEVER_SAVED}`, () => {
     expect(built.last().appHeaderItems.fileSavedAt, 'premise: HS-5, nothing written yet').toBeNull()
     const api = agentOf(built)
     expect(api.readStamp().fileSavedAt, 'AM-4').toBeNull()
-    expect(api.readDocument(false, []).documentStamp.fileSavedAt, 'AM-3').toBeNull()
+    expect(api.readDocument(false, [], []).documentStamp.fileSavedAt, 'AM-3').toBeNull()
     expect(stampOfJson((api.exportJson() as { value: string }).value), 'AM-11').toBeNull()
   })
 
@@ -141,7 +141,7 @@ describe(`HS-12 -- ${HS_12_NO_REWRITE}`, () => {
   it('reading through the Agent API does not rewrite the open document either', async () => {
     const { built } = await openedThenSaved()
     const api = agentOf(built)
-    api.readDocument(false, [])
+    api.readDocument(false, [], [])
     api.readStamp()
     api.exportJson()
     expect(built.loop.document().documentStamp.fileSavedAt).toBe(OPENED_STAMP)

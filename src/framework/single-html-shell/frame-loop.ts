@@ -4347,6 +4347,15 @@ export function frameLoop(
         sendToSession(AGENT_OPEN_FILE_ASKED, null)
         ask()
       },
+      runDelayDiagnostics: () => {
+        showDelayDiagnostics(true)
+        ask()
+      },
+      closeWindow: (which) => {
+        if (which === 'propertiesPanel') sendToSession(PANEL_CLOSE_ASKED, null)
+        else if (isDelayDiagnosticsReportOpen(delayDiagnosticsShown, windows.report())) answerReportEntry(CLOSE_SURFACE_ENTRY, null)
+        ask()
+      },
     }),
     /** @purity non-pure */
     watchAgentApiEnabling(watch: (isEnabled: boolean) => void): void {

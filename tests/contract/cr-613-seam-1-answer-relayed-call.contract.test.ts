@@ -41,15 +41,18 @@ const METHODS = MEMBERS.filter((name) => !PROPERTIES.has(name))
 const A_STAMP = 'stamp-41'
 
 const PARAMS_OF: Readonly<Record<string, Record<string, unknown>>> = {
-  readDocument: { includeCarry: true, taskUids: [17] },
+  readDocument: { includeCarry: true, taskUids: [17], parts: ['tasks'] },
   readSearchRows: { word: 'kick-off', filters: 'asShown', offset: 0, limit: 100 },
   readTableRows: { table: 'resourceList', word: 'kick-off', filters: 'asShown', offset: 0, limit: 100 },
+  readDelayDiagnostics: { parts: ['findings'], limit: 2 },
   applyCommands: { request: { stamp: A_STAMP, commands: [{ kind: 'setProjectTitle', title: 'x' }] } },
   importDocument: { source: { kind: 'grsJson', text: '{}' } },
+  issueDelayFixes: { expectedStamp: A_STAMP, fixKeys: ['FA-11:1'] },
   undoEdit: { expectedStamp: A_STAMP },
   redoEdit: { expectedStamp: A_STAMP },
   focusTask: { taskUid: 17 },
   showOnlyTasks: { taskUids: [17] },
+  closeWindow: { which: 'delayDiagnosticsReport' },
 }
 
 const paramsFor = (member: string): Record<string, unknown> => PARAMS_OF[member] ?? {}
@@ -130,17 +133,20 @@ describe('SEAM-1: the fake is built from table T-107', () => {
   })
 
   // see AM-3, AM-25
-  it('the argument column gives nine members arguments the relay carries, in their order', () => {
+  it('the argument column gives twelve members arguments the relay carries, in their order', () => {
     expect(Object.entries(PARAM_KEYS).filter(([, keys]) => keys.length > 0)).toEqual([
-      ['readDocument', ['includeCarry', 'taskUids']],
+      ['readDocument', ['includeCarry', 'taskUids', 'parts']],
       ['readSearchRows', ['word', 'filters', 'offset', 'limit']],
       ['readTableRows', ['table', 'word', 'filters', 'offset', 'limit']],
+      ['readDelayDiagnostics', ['parts', 'limit']],
       ['applyCommands', ['request']],
       ['importDocument', ['source']],
+      ['issueDelayFixes', ['expectedStamp', 'fixKeys']],
       ['undoEdit', ['expectedStamp']],
       ['redoEdit', ['expectedStamp']],
       ['focusTask', ['taskUid']],
       ['showOnlyTasks', ['taskUids']],
+      ['closeWindow', ['which']],
     ])
   })
 })
