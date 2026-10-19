@@ -319,7 +319,7 @@ function richDocument(edit: (draft: any) => void = () => {}): Document {
           fillColor: null,
           fillTransparencyPercent: null,
           textColor: null,
-          textSizePx: null,
+          fontSizePx: null,
         },
       ],
       highlightBoxes: [

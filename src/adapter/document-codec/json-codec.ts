@@ -233,7 +233,7 @@ const ANNOTATION_LOOK_COLUMNS: readonly { readonly collection: string; readonly 
   { collection: 'highlightBoxes', keys: ['strokeWidthPx', 'fillColor', 'fillTransparencyPercent'] },
   {
     collection: 'commentBoxes',
-    keys: ['strokeColor', 'strokeWidthPx', 'fillColor', 'fillTransparencyPercent', 'textColor', 'textSizePx'],
+    keys: ['strokeColor', 'strokeWidthPx', 'fillColor', 'fillTransparencyPercent', 'textColor', 'fontSizePx'],
   },
 ]
 

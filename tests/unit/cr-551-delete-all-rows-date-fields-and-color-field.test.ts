@@ -285,7 +285,7 @@ const FR_006_COLOR_LAST =
 const FR_006_WIDTH_AFTER =
   '見た目の行どうしは、どの対象でも 枠線の幅 → 枠線の色 → 塗りの色 → 塗りの透過率 → 字の色 → 字の大きさ の順に並べ、1 つの行に色を 1 つだけ持たせること（MUST）'
 // WHY: the columns of the look rows in FR-006's order; TaskGroup.color is the task group band's fill.
-const LOOK_ORDER: readonly string[] = ['strokeWidthPx', 'strokeColor', 'fillColor', 'fillTransparencyPercent', 'textColor', 'textSizePx']
+const LOOK_ORDER: readonly string[] = ['strokeWidthPx', 'strokeColor', 'fillColor', 'fillTransparencyPercent', 'textColor', 'fontSizePx']
 const LOOK_ALIAS: Readonly<Record<string, string>> = { color: 'fillColor' }
 
 const T_016 = specTable('T-016')

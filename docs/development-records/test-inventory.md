@@ -16,9 +16,9 @@ what this reading does not see.
 | `integration` | TS-2 | - | 3 | 76 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
 | `system` | TS-3 | - | 97 | 616 | 0 | 0 | 0 | 0 |
-| `unit` | TS-6 | - | 188 | 3967 | 1 | 1 | 2 | 0 |
+| `unit` | TS-6 | - | 188 | 3968 | 1 | 1 | 2 | 0 |
 | `use-case` | TS-1 | VT-1 | 14 | 17 | 1 | 2 | 0 | 0 |
-| **all** | | | 743 | 10527 | 10 | 7 | 13 | 4 |
+| **all** | | | 743 | 10528 | 10 | 7 | 13 | 4 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -164,7 +164,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/unit/cr-785-the-help-links-and-the-dropped-rows.test.ts` | emptySelection (pure), helpModalFromSession (pure), screenViewFromRegions (pure) | yes | FR-036, FR-038, FR-069, T-023, T-109, T-236 |
 | `tests/unit/cr-787-the-panel-opens-at-the-default-width-of-its-kind.test.ts` | frameLoop (non-pure), grabSizesOf (pure), itemAtPointer (untagged), panelFacesOf (pure) | - | FR-052, FR-072, T-016, T-109, T-206 |
 | `tests/unit/cr-788-the-assignee-field-opens-a-checked-list.test.ts` | domScreenSurface (non-pure) | - | FR-059 |
-| `tests/unit/cr-809-each-comment-box-has-its-own-text-size.test.ts` | documentFromJson (pure), drawnCommentTextSizePx (pure), editAnnotation (pure), frameLoop (non-pure) | - | FR-006, FR-019, FR-031, FR-077, FR-097, T-016, T-108, T-215 |
+| `tests/unit/cr-811-the-comment-box-font-size-is-8-to-24-and-10-by-default.test.ts` | documentFromJson (pure), editAnnotation (pure), frameLoop (non-pure) | - | FR-006, FR-019, FR-031, FR-077, FR-097, T-016, T-108, T-215 |
 | `tests/unit/dfc-1620-an-fs-chain-that-starts-the-next-morning-carries-the-whole-delay.test.ts` | documentFromJson (pure) | yes | T-313, T-314 |
 | `tests/unit/dfc-1991-sl-4-a-shift-drag-keeps-the-selection.test.ts` | commandFromInput (pure), grabSizesOf (pure), itemAtPointer (untagged), pressedRowOf (pure), selectionFromInput (pure), selectionOfAll (pure) | - | T-206, T-270 |
 | `tests/unit/dfc-2980-a-marker-pulled-with-many-moves-puts-the-actual.test.ts` | - | - | FR-107, T-270, T-273 |
@@ -628,7 +628,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/dfc-703-t-280-the-screen-session-names-its-surfaces-by-u-task-group.test.ts` | 10 | - | VT-2 | T-103, T-109, T-280 | IC-2, IC-52, IC-62, PI-18, RO-1, RS-27, SK-12, U-49, U-54, U-56, U-60, U-61, U-62, U-65, X-2 | - | - | - | - |
 | `tests/contract/dfc-707-fr-102-a-hidden-palette-is-never-recorded-as-minimized.test.ts` | 4 | FR-102 | VT-2 | T-280 | IC-75, IC-76, SK-14 | - | - | - | - |
 | `tests/contract/dfc-709-pi-18-sk-15-f11-makes-the-full-screen-entry-event.test.ts` | 10 | FR-071 | VT-2 | T-036, T-280 | IC-11, MK-10, PI-18, SK-15 | - | - | - | - |
-| `tests/contract/dfc-722-fr-097-an-empty-comment-box-keeps-the-font-size-floor.test.ts` | 3 | FR-097 | - | T-215 | S-30 | - | - | - | - |
+| `tests/contract/dfc-722-fr-097-an-empty-comment-box-keeps-the-font-size-floor.test.ts` | 3 | FR-097 | - | - | S-30, S-624 | - | - | - | - |
 | `tests/contract/dfc-724-en-5-the-watermark-entrance-is-filled-while-the-watermark-shows.test.ts` | 6 | FR-029 | - | T-109, T-206, T-237 | EN-5, IC-41, S-144, S-183 | - | - | - | - |
 | `tests/contract/dfc-725-lf-13-the-undated-resume-icon-is-faint-by-s-308.test.ts` | 4 | FR-044 | - | T-236 | LF-13, S-161, S-308, S-310 | - | - | - | - |
 | `tests/contract/dfc-732-ir-3-the-record-names-the-t-220-task-group-of-a-refused-import.test.ts` | 7 | - | - | T-220, T-233, T-263 | IR-3, IV-23, NT-1, SK-10 | - | - | - | - |
@@ -898,7 +898,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/unit/cr-785-the-help-links-and-the-dropped-rows.test.ts` | 41 | FR-036, FR-038, FR-069 | - | T-023, T-109, T-236 | IC-20, IC-54, IC-115, MK-2, MK-5, MK-7, MK-15, MK-16, MK-17, S-350, S-503, S-583 | - | - | - | - |
 | `tests/unit/cr-787-the-panel-opens-at-the-default-width-of-its-kind.test.ts` | 21 | FR-052, FR-072 | - | T-016, T-109, T-206 | GR-14, IC-17, MK-13, S-171, S-248, S-602, S-604, S-605, S-606 | - | - | - | - |
 | `tests/unit/cr-788-the-assignee-field-opens-a-checked-list.test.ts` | 19 | FR-059 | - | - | AS-1, AS-3, AS-4, AS-5, AS-7, AS-8, AS-12, IC-123, IC-124, IC-125, IC-126, PR-16, SV-4 | - | - | - | - |
-| `tests/unit/cr-809-each-comment-box-has-its-own-text-size.test.ts` | 38 | FR-006, FR-019, FR-031, FR-077, FR-097 | - | T-016, T-108, T-215 | AT-110, AT-168, CM-103, PR-46, PR-50, S-181, S-624 | - | - | - | - |
+| `tests/unit/cr-811-the-comment-box-font-size-is-8-to-24-and-10-by-default.test.ts` | 39 | FR-006, FR-019, FR-031, FR-077, FR-097 | - | T-016, T-108, T-215 | AT-110, AT-168, CM-46, CM-103, PR-46, PR-50, S-624 | - | - | - | - |
 | `tests/unit/dfc-1620-an-fs-chain-that-starts-the-next-morning-carries-the-whole-delay.test.ts` | 4 | - | - | T-313, T-314 | BD-2, BD-4, S-128 | - | - | - | - |
 | `tests/unit/dfc-1991-sl-4-a-shift-drag-keeps-the-selection.test.ts` | 8 | - | - | T-206, T-270 | PE-1, S-208, SL-4, SL-7a, TC-5 | - | - | - | - |
 | `tests/unit/dfc-2980-a-marker-pulled-with-many-moves-puts-the-actual.test.ts` | 7 | FR-107 | - | T-270, T-273 | GO-9, LP-1, PE-8, PE-10, S-129, S-208 | - | - | - | - |

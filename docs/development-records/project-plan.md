@@ -74,7 +74,8 @@ GRS で `project-plan.json` を開くと、1 つ前の計画（10-16 20:47 時�
 - `python -I tools/schema-only-writer/validate.py docs/spec/_source/grs-document.schema.json docs/development-records/project-plan.json` → 違反 0（`previous-plan.json` も 0）
 - `node tools/schema-only-writer/measure.mjs`（**コミット済みの `dist/index.html`**、`9171429f` で作り直した物）→ 2 ファイルとも PASS（拒み 0・知らせ 0・エラー 0・例外 0・数え直し 0、読み戻し 124 と 107）
 - ⭐ `CR-792` で 6 つの保存の鍵の名を改め（`editGroup` → `editPermission` ほか）、形式の版を `2026-10-17T15:27:48Z` へ上げた。`project-plan.json` と `previous-plan.json` は鍵の名と版の字だけを替え（改名の道具の `--apply`）、上の `validate.py` で違反 0（2 ファイルとも）。`measure.mjs` は、新しい dist を作ってから回す
-- ⭐ `CR-809` でコメントボックスに字の大きさの列 `textSizePx` を足し、形式の版を `2026-10-18T23:17:29Z` へ上げた。`project-plan.json` と `previous-plan.json` は版の字を替え、コメントボックスに `textSizePx: null` を足しただけ（絵は変わらない）
+- ⭐ `CR-809` でコメントボックスに字の大きさの列 `fontSizePx` を足し、形式の版を `2026-10-18T23:17:29Z` へ上げた。`project-plan.json` と `previous-plan.json` は版の字を替え、コメントボックスに `fontSizePx: null` を足しただけ（絵は変わらない）
+- ⭐ `CR-811` で列の名を `fontSizePx` へ改め、形式の版を `2026-10-19T00:35:37Z` へ上げた。2 つの計画ファイルは列の名と版の字だけを替えた
 
 ## スキーマで迷った点
 

@@ -567,14 +567,14 @@
   {
    "id": "PR-50",
    "columns": [
-    "textSizePx"
+    "fontSizePx"
    ],
    "inputKinds": [
     "数値"
    ],
    "appliesTo": "CommentBox",
    "note": {
-    "ja": "本文の字の大きさ（px）。空は文書の文字サイズ（`FR-039`）に従う。範囲は `_assets/tbl-settings.md` の表 T-217 の `S-624`。並びは `FR-006` の見た目の行の順"
+    "ja": "本文の字の大きさ（フォントサイズ、px）。⭐ 列が `null` の箱は、既定の値（`_assets/tbl-settings.md` の表 T-217 の `S-624`）を欄に出す —— 作成者は、何も置いていない箱が何 px で描かれているかを欄で読める。欄を空にして確定すると `null` に戻る。範囲は同じ行。並びは `FR-006` の見た目の行の順"
    },
    "mspdi": {
     "ja": "無い（`GRS JSON` のみ）"

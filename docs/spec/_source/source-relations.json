@@ -732,7 +732,7 @@
   {
    "from": "docs/spec/_source/erd.json",
    "to": "docs/spec UIDs",
-   "count": 61
+   "count": 60
   },
   {
    "from": "docs/spec/_source/erd.json",
@@ -762,7 +762,7 @@
   {
    "from": "docs/spec/_source/erd.json",
    "to": "docs/spec/_source/settings.json",
-   "count": 54
+   "count": 53
   },
   {
    "from": "docs/spec/_source/erd.json",
@@ -927,7 +927,7 @@
   {
    "from": "docs/spec/_source/property-items.json",
    "to": "docs/spec UIDs",
-   "count": 32
+   "count": 31
   },
   {
    "from": "docs/spec/_source/property-items.json",
@@ -1087,7 +1087,7 @@
   {
    "from": "docs/spec/_source/settings.json",
    "to": "docs/spec/_source/property-items.json",
-   "count": 9
+   "count": 10
   },
   {
    "from": "docs/spec/_source/settings.json",

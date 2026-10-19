@@ -65,7 +65,7 @@
 | PR-45 | `fillColor` | 色 | `CommentBox` | — | 本文の箱の塗りの色。<br>`null` ＝ `FR-019` が名指す地の色（`_assets/tbl-settings.md` の 表 T-236 の `S-146`）。<br>並びは `FR-006` の見た目の行の順 | 無い（`GRS JSON` のみ） |
 | PR-27 | `fillTransparencyPercent` | 数値 | `CommentBox` | — | 本文の箱の塗りの透過率。<br>0 は不透明、100 は透明。<br>既定と範囲は `_assets/tbl-settings.md` の表 T-217 の `S-375` | 無い（`GRS JSON` のみ） |
 | PR-46 | `textColor` | 色 | `CommentBox` | — | 本文の字の色。<br>`null` ＝ `FR-019` が名指す文字の色（`_assets/tbl-settings.md` の 表 T-236 の `S-147`）。<br>並びは `FR-006` の見た目の行の順 | 無い（`GRS JSON` のみ） |
-| PR-50 | `textSizePx` | 数値 | `CommentBox` | — | 本文の字の大きさ（px）。<br>空は文書の文字サイズ（`FR-039`）に従う。<br>範囲は `_assets/tbl-settings.md` の表 T-217 の `S-624`。<br>並びは `FR-006` の見た目の行の順 | 無い（`GRS JSON` のみ） |
+| PR-50 | `fontSizePx` | 数値 | `CommentBox` | — | 本文の字の大きさ（フォントサイズ、px）。<br>⭐ 列が `null` の箱は、既定の値（`_assets/tbl-settings.md` の表 T-217 の `S-624`）を欄に出す —— 作成者は、何も置いていない箱が何 px で描かれているかを欄で読める。<br>欄を空にして確定すると `null` に戻る。<br>範囲は同じ行。<br>並びは `FR-006` の見た目の行の順 | 無い（`GRS JSON` のみ） |
 | PR-49 | `id` | 命令 | `HighlightBox` | — | [最前面に配置] —— 押すと、そのハイライトボックスをハイライトボックスの並びの最後へ移し（`CM-101`）、ほかのハイライトボックスより前に描く（表 T-020 の `ZO-8`・`ZO-14`）。<br>列は書き換えない | 無い（`GRS JSON` のみ） |
 | PR-23 | `strokeWidthPx` | 数値 | `HighlightBox` | — | 枠の線の太さ（px）。<br>既定と範囲は `_assets/tbl-settings.md` の表 T-217 の `S-369` | 無い（`GRS JSON` のみ） |
 | PR-22 | `strokeColor` | 色 | `HighlightBox` | — | ハイライトボックスの枠の色（`CM-55`）。<br>`null` ＝ 注記の色 `S-312`（テーマ色に従わない —— 色の欄の語は既定の色）。<br>透明（線なし）も取るが、塗りと同時には取らない（`FR-019`、表 T-017b の `CV-9`） | 無い（`GRS JSON` のみ） |
