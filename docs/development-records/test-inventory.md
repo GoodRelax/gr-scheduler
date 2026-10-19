@@ -12,13 +12,13 @@ what this reading does not see.
 
 | place | T-218 | T-334 | files | case sites | expected-to-fail marks | known-red lines | need the MSPDI XSDs | tied to no spec row |
 | --- | --- | --- | --: | --: | --: | --: | --: | --: |
-| `contract` | TS-5 | VT-2 | 438 | 5834 | 8 | 4 | 11 | 4 |
+| `contract` | TS-5 | VT-2 | 439 | 5862 | 8 | 4 | 11 | 4 |
 | `integration` | TS-2 | - | 3 | 76 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
 | `system` | TS-3 | - | 97 | 616 | 0 | 0 | 0 | 0 |
 | `unit` | TS-6 | - | 189 | 4006 | 1 | 1 | 2 | 0 |
 | `use-case` | TS-1 | VT-1 | 14 | 17 | 1 | 2 | 0 | 0 |
-| **all** | | | 744 | 10566 | 10 | 7 | 13 | 4 |
+| **all** | | | 745 | 10594 | 10 | 7 | 13 | 4 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -533,6 +533,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/cr-807-looking-around-moves-no-stamp.contract.test.ts` | 11 | FR-063 | - | T-027, T-108 | AG-2, CM-9, CM-58, CM-62, CM-65, CM-66, CM-67, UN-3, UN-7, UN-8, UN-13, UN-16, WS-1, WS-4, WS-5 | - | - | - | - |
 | `tests/contract/cr-808-the-page-reconnects-to-the-relay-by-itself.contract.test.ts` | 27 | - | - | T-233 | AG-12, RS-90 | - | - | - | - |
 | `tests/contract/cr-810-a-row-with-no-parent-task-and-a-milestone-heading-its-row.contract.test.ts` | 26 | FR-135, FR-136 | - | - | CM-6, CM-9, CM-18, DG-1, DW-3, FA-25, FM-1, IP-2, IP-5, MP-1, MP-2, VO-4 | - | - | - | - |
+| `tests/contract/cr-816-the-fix-heading-box-checks-the-listed-rows-then-clears-every-row.contract.test.ts` | 28 | FR-155 | - | T-346, T-373, T-374 | FM-1, IC-122, IC-157, IC-158, RW-12 | - | - | - | - |
 | `tests/contract/dfc-1000-hf-10-the-open-all-stance-counts-every-placed-task-group.test.ts` | 9 | - | - | T-051, T-109 | HF-2, HF-10, IC-58, IC-74, RS-31 | - | - | - | - |
 | `tests/contract/dfc-1013-tl-12-the-delay-days-are-told-only-in-the-ez-6-tip.test.ts` | 8 | FR-047 | - | T-038, T-348 | DG-4, DX-10, EZ-6, OC-8, TL-12 | - | - | - | - |
 | `tests/contract/dfc-1015-fr-019-a-hidden-end-task-group-shrinks-the-frame.test.ts` | 5 | FR-019, UC-008 | - | - | - | - | - | - | - |

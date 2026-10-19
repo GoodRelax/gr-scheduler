@@ -1859,8 +1859,13 @@ interface TypedTable<W> {
 
 // see RW-3, RW-8, SV-7, UN-20
 /** @purity pure */
-function reportWithInput(window: DelayDiagnosticsReportWindow | null, view: TableView, input: ReportInput | undefined): TypedTable<DelayDiagnosticsReportWindow> {
-  return delayDiagnosticsReportWithInput(window, view, input)
+function reportWithInput(
+  window: DelayDiagnosticsReportWindow | null,
+  view: TableView,
+  input: ReportInput | undefined,
+  fixTables?: DelayFixTables,
+): TypedTable<DelayDiagnosticsReportWindow> {
+  return delayDiagnosticsReportWithInput(window, view, input, fixTables)
 }
 
 // see RO-3, SV-7, RQ-1, UN-20
@@ -1879,9 +1884,12 @@ function windowPlacesAfterTyping(
   session: ScreenSession,
   screen: ScreenWiring | undefined,
   views: TableViewsHeld,
+  fixTablesOf: () => DelayFixTables | undefined = () => undefined,
 ): { readonly places: WindowPlaces; readonly views: TableViewChanges } {
   const searchPanel = searchPanelWithTypedWord(held.searchPanel, screen?.surface)
-  const report = reportWithInput(held.delayDiagnosticsReport, views.delayDiagnosticsReport, screen?.readDelayDiagnosticsReportInput?.())
+  const reportInput = screen?.readDelayDiagnosticsReportInput?.()
+  const isHeadingPressed = reportInput?.changes.some((change) => change.kind === 'shown' && change.isHeading === true) === true
+  const report = reportWithInput(held.delayDiagnosticsReport, views.delayDiagnosticsReport, reportInput, isHeadingPressed ? fixTablesOf() : undefined)
   const list = resourceListWithInput(held.resourceList, views.resourceList, screen?.readResourceListInput?.())
   return {
     places: { ...held, searchPanel, delayDiagnosticsReport: report.window, resourceList: list.window },
@@ -2142,8 +2150,8 @@ function heldWindowsOf(shownTasks: () => Pick<ShownTasksHold, 'views' | 'letSche
   return {
     ...windowsHeld,
     /** @purity non-pure */
-    takeTypedInput(session: ScreenSession, screen: ScreenWiring | undefined): TableViewChanges {
-      const typed = windowPlacesAfterTyping(held, session, screen, shownTasks().views())
+    takeTypedInput(session: ScreenSession, screen: ScreenWiring | undefined, fixTablesOf?: () => DelayFixTables | undefined): TableViewChanges {
+      const typed = windowPlacesAfterTyping(held, session, screen, shownTasks().views(), fixTablesOf)
       held = typed.places
       return typed.views
     },
@@ -3291,7 +3299,7 @@ export function frameLoop(
   /** @purity non-pure */
   function runAskedFrame(): void {
     if (values !== null) spendFieldCommit(hands, values)
-    shownTasks.writeViews(windows.takeTypedInput(session, screen), values)
+    shownTasks.writeViews(windows.takeTypedInput(session, screen, () => windows.fixTablesNow(delayDiagnosticsNow(), documentFileFlow)), values)
     runFrame()
   }
 

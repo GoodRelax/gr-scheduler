@@ -1575,6 +1575,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `DELAY_REPORT_COLUMNS` | file only | const | `src/adapter/screen-renderer/delay-diagnostics-report.ts#DELAY_REPORT_COLUMNS` | -- | const DELAY_REPORT_COLUMNS: readonly string[] = displayWords.delayReportColumns.map((entry) => entry.rowId) |
 | `delayDiagnosticsReportFromWindow` | file only | function | `src/adapter/screen-renderer/delay-diagnostics-report.ts#delayDiagnosticsReportFromWindow` | -- | function delayDiagnosticsReportFromWindow( session: ScreenSession, window: DelayDiagnosticsReportWindow \| null, view: TableView, report: DelayDiagnosticsRepo... |
 | `delayDiagnosticsReportWithAdoptAll` | file only | function | `src/adapter/screen-renderer/delay-diagnostics-report.ts#delayDiagnosticsReportWithAdoptAll` | -- | function delayDiagnosticsReportWithAdoptAll(window: DelayDiagnosticsReportWindow, tables: DelayFixTables): DelayDiagnosticsReportWindow |
+| `delayDiagnosticsReportWithFixHeading` | file only | function | `src/adapter/screen-renderer/delay-diagnostics-report.ts#delayDiagnosticsReportWithFixHeading` | -- | function delayDiagnosticsReportWithFixHeading( window: DelayDiagnosticsReportWindow, tables: DelayFixTables, heading: { readonly isChecked: boolean; readonly... |
 | `delayDiagnosticsReportWithPick` | file only | function | `src/adapter/screen-renderer/delay-diagnostics-report.ts#delayDiagnosticsReportWithPick` | -- | function delayDiagnosticsReportWithPick(window: DelayDiagnosticsReportWindow, change: DelayFixPickChange): DelayDiagnosticsReportWindow |
 | `delayFixBundleOf` | file only | function | `src/adapter/screen-renderer/delay-diagnostics-report.ts#delayFixBundleOf` | -- | function delayFixBundleOf(rows: readonly DelayFixRow[]): readonly DelayFixRow[] |
 | `DelayFixCellView` | file only | interface | `src/adapter/screen-renderer/delay-diagnostics-report.ts#DelayFixCellView` | -- | interface DelayFixCellView |
@@ -2098,4 +2099,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 1069 name(s) leave through a public entry (525 of them published by table T-064), 829 more are exported by a file and not by its entry.
+Totals: 1069 name(s) leave through a public entry (525 of them published by table T-064), 830 more are exported by a file and not by its entry.

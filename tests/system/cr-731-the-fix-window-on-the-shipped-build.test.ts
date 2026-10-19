@@ -13,7 +13,7 @@ const SHOW_PROPOSALS = 'IC-155'
 const OVERWRITE_AND_FIX = 'IC-157'
 const PROPOSALS = '[data-role="Delay Fix Proposals"]'
 const FOOTER = '[data-role="Delay Fix Footer"]'
-const RW_12_COUNT = '「修正件数 : n 件」（チェックの入った行の数 —— 辞書の `delayFixes` の `fixCount`）'
+const RW_12_COUNT = '「修正件数 : n 件」（チェックの入った行の数 —— 見出しのチェックボックス（表 T-374 の `FM-1`）で入れ外しした行を含む、辞書の `delayFixes` の `fixCount`）'
 
 const FIX_COUNT = (
   JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8')) as {
@@ -120,7 +120,7 @@ async function proposalsOver(text: string): Promise<Stage> {
 /** @purity semi-pure-b */
 async function checkedCount(page: Page): Promise<{ checked: boolean; disabled: boolean }[]> {
   return page.evaluate((selector: string) => {
-    const boxes = Array.from(document.querySelectorAll(`${selector} input[type="checkbox"]`)) as HTMLInputElement[]
+    const boxes = Array.from(document.querySelectorAll(`${selector} input[type="checkbox"]:not([data-search-shown-all])`)) as HTMLInputElement[]
     return boxes.map((one) => ({ checked: one.checked, disabled: one.disabled }))
   }, PROPOSALS)
 }
@@ -148,13 +148,13 @@ test.describe('item 2 -- RW-16: the chain row follows the box of the row it foll
       const before = await checkedCount(page)
       expect(before.length, 'FA-11 on the middle parent and on the root after it').toBe(2)
       expect(before.every((one) => one.checked && !one.disabled)).toBe(true)
-      await page.locator(`${PROPOSALS} input[type="checkbox"]`).first().click()
+      await page.locator(`${PROPOSALS} input[type="checkbox"]:not([data-search-shown-all])`).first().click()
       await settle(page)
       expect(await checkedCount(page)).toEqual([
         { checked: false, disabled: false },
         { checked: false, disabled: true },
       ])
-      await page.locator(`${PROPOSALS} input[type="checkbox"]`).first().click()
+      await page.locator(`${PROPOSALS} input[type="checkbox"]:not([data-search-shown-all])`).first().click()
       await settle(page)
       expect(await checkedCount(page)).toEqual(before)
     } finally {
@@ -176,10 +176,10 @@ test.describe('item 2 -- RW-16: the chain row follows the box of the row it foll
         expect(saysCount(strip, n), `the strip says ${n} in the fixCount words: "${strip}"`).toBe(true)
       }
       await counted(2)
-      await page.locator(`${PROPOSALS} input[type="checkbox"]`).first().click()
+      await page.locator(`${PROPOSALS} input[type="checkbox"]:not([data-search-shown-all])`).first().click()
       await settle(page)
       await counted(0)
-      await page.locator(`${PROPOSALS} input[type="checkbox"]`).first().click()
+      await page.locator(`${PROPOSALS} input[type="checkbox"]:not([data-search-shown-all])`).first().click()
       await settle(page)
       await counted(2)
     } finally {
@@ -215,7 +215,7 @@ test.describe('item 5 -- FA-24: a suggested date waits for the box, and one undo
     const { page, close } = await proposalsOver(STARTED_SUCCESSOR())
     try {
       // WHY: FM-8 -- the row of a suggested date is the one holding a date field; the choice rows (FA-23) sort before it.
-      const boxes = page.locator(`${PROPOSALS} tr:has(input[type="date"]) input[type="checkbox"]`)
+      const boxes = page.locator(`${PROPOSALS} tr:has(input[type="date"]) input[type="checkbox"]:not([data-search-shown-all])`)
       expect((await checkedCount(page)).some((one) => one.checked), 'no suggested date is checked at first').toBe(false)
       await boxes.first().click()
       await settle(page)

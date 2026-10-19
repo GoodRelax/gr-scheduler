@@ -130,7 +130,7 @@ describe('CR-800 the manuscript these cases are driven by', () => {
   })
 
   it('IC-122, IC-143 and the words: no funnel in the check column, eye off for an empty list only, nothingHidden gone', () => {
-    expect(glossaryRow('IC-122')).toContain('[表示] の列には置かない')
+    expect(glossaryRow('IC-122')).toContain('[表示] の列と、修正案の表の `FM-1` には置かない')
     expect(glossaryRow('IC-143')).toContain('チェックの入った行が 1 つも無いときは効かない')
     expect(glossaryRow('IC-143')).not.toContain('描くものが')
     expect(DISPLAY_WORDS).toContain('"part": "nothingChecked"')

@@ -161,7 +161,14 @@ export type SearchFilterChange =
       readonly bound: 'since' | 'until'
       readonly day: string | null
     }
-  | { readonly kind: 'shown'; readonly column: SearchColumn; readonly keys: readonly VisibilityKey[]; readonly isShown: boolean; readonly isHeading?: true }
+  | {
+      readonly kind: 'shown'
+      readonly column: SearchColumn
+      readonly keys: readonly VisibilityKey[]
+      readonly isShown: boolean
+      readonly isHeading?: true
+      readonly fixKeys?: readonly string[]
+    }
   | { readonly kind: 'fixPick'; readonly column: SearchColumn; readonly key: string; readonly part: 'check' | 'choice' | 'date'; readonly value: string }
 
 export interface ScheduleFilterBarView {

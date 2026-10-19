@@ -500,7 +500,7 @@
 | IC-129 | `Help Modal` / `Search Panel` / `Delay Diagnostics Report` / `Resource List` | — | ウィンドウ（`FR-036` の 表 T-335）を最小化し、同じ入口で戻す（`S-435`・`S-442`・`S-451`）。<br>⭐ 図形は `IC-75` と同じである | `FR-036` の 表 T-335 | — | — |
 | IC-130 | `Help Modal` / `Search Panel` / `Delay Diagnostics Report` / `Resource List` | — | ウィンドウを最大化する（`S-435`・`S-442`・`S-451`） | `FR-036` の 表 T-335 | — | — |
 | IC-131 | `Help Modal` / `Search Panel` / `Delay Diagnostics Report` / `Resource List` | — | 最大化したウィンドウを元のサイズに戻す（`S-435`・`S-442`・`S-451`）。<br>⭐ `IC-130` の場所に、最大化しているあいだだけ描く | `FR-036` の 表 T-335 | — | — |
-| IC-122 | `Search Panel` / `Delay Diagnostics Report` / `Resource List` | — | 列のフィルタと並べ替えを開く（列の見出しごとに 1 つ）。<br>⭐ [表示] の列には置かない（`FR-151` の 表 T-330 の `SV-7`） | `FR-151` | — | — |
+| IC-122 | `Search Panel` / `Delay Diagnostics Report` / `Resource List` | — | 列のフィルタと並べ替えを開く（列の見出しごとに 1 つ）。<br>⭐ [表示] の列と、修正案の表の `FM-1` には置かない（`FR-151` の 表 T-330 の `SV-7`、`FR-134` の 表 T-374 の `FM-1`） | `FR-151` | — | — |
 | IC-123 | `Search Panel` / `Delay Diagnostics Report` / `Resource List` / `Properties Panel` | — | その列で昇順に並べる。<br>プロパティパネルでは、担当の欄の一覧を名の昇順に並べる（`FR-008` の 表 T-225 の `AS-5`） | `FR-151` ・ `FR-008` | — | — |
 | IC-124 | `Search Panel` / `Delay Diagnostics Report` / `Resource List` / `Properties Panel` | — | その列で降順に並べる。<br>プロパティパネルでは、担当の欄の一覧を名の降順に並べる（`FR-008` の 表 T-225 の `AS-5`） | `FR-151` ・ `FR-008` | — | — |
 | IC-125 | `Search Panel` / `Delay Diagnostics Report` / `Resource List` / `Properties Panel` | — | 一覧に出ているすべての値にチェックを付ける<br>プロパティパネルでは、担当の欄の一覧に出ている、就いていない担当をすべて就ける（`FR-008` の 表 T-225 の `AS-5`） | `FR-151` ・ `FR-008` | — | — |
