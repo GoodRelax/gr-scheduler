@@ -511,6 +511,24 @@ function fixSectionLines(section: DelayFixMarkdownSection, words: DelayReportWor
   ]
 }
 
+const TSV_BYTE_ORDER_MARK = '﻿'
+
+const TSV_CELL_JOIN = '\t'
+
+const TSV_LINE_JOIN = '\r\n'
+
+const TSV_CELL_BREAK = /\r\n|[\t\r\n]/g
+
+const TSV_CELL_BREAK_WORD = ' '
+
+// see RW-20, IO-9
+// WHY: a tab or a line break inside a cell would split it, so each one becomes one space (RW-20).
+/** @purity pure */
+export function delayFixLogTsv(headings: readonly string[], rows: readonly (readonly string[])[]): string {
+  const line = (cells: readonly string[]): string => cells.map((cell) => cell.replace(TSV_CELL_BREAK, TSV_CELL_BREAK_WORD)).join(TSV_CELL_JOIN)
+  return TSV_BYTE_ORDER_MARK + [headings, ...rows].map(line).join(TSV_LINE_JOIN)
+}
+
 // see RW-6
 /** @purity pure */
 function fixMarkdownLines(fixes: DelayFixMarkdown | undefined, words: DelayReportWords): readonly string[] {

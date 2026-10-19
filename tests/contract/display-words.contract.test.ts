@@ -1033,7 +1033,7 @@ const NO_DELAY_FOUND: DelayDiagnosticsReport = {
 // WHY: a filter stands open, so IC-123 .. IC-126 stand in its menu (RW-2, SV-7).
 const REPORT_FILTER_OPEN = { ...OPENED_DELAY_DIAGNOSTICS_REPORT.panel, filters: { open: 'DT-1' } }
 // WHY: CR-731 -- IC-157 and IC-158 stand in the footer under the fix proposals only (RW-12), so their frame shows that table.
-const delayReportShown = (shown: 'normal' | 'maximized', table: 'diagnosis' | 'proposals' = 'diagnosis'): Frame =>
+const delayReportShown = (shown: 'normal' | 'maximized', table: 'diagnosis' | 'proposals' | 'log' = 'diagnosis'): Frame =>
   frameWith({
     readings: sessionWith({
       delayDiagnosticsReport: {
@@ -1046,6 +1046,8 @@ const delayReportShown = (shown: 'normal' | 'maximized', table: 'diagnosis' | 'p
 
 // see RW-12
 const FIX_FOOTER_ENTRIES: readonly string[] = ['IC-166', 'IC-157', 'IC-158']
+
+const FIX_LOG_FOOTER_ENTRIES: readonly string[] = ['IC-169']
 
 // WHY: CR-731 -- IC-156 stands only once the fix log holds a row (RW-11); the row's own fields are not read here.
 const ONE_FIX_LOGGED = {
@@ -1142,7 +1144,7 @@ const SCENE_OF_WINDOW: ReadonlyMap<string, SurfaceScene> = new Map([
   [
     'Delay Diagnostics Report',
     {
-      frame: (rowId) => delayReportShown(rowId === RESTORE_ENTRY ? 'maximized' : 'normal', FIX_FOOTER_ENTRIES.includes(rowId ?? '') ? 'proposals' : 'diagnosis'),
+      frame: (rowId) => delayReportShown(rowId === RESTORE_ENTRY ? 'maximized' : 'normal', FIX_FOOTER_ENTRIES.includes(rowId ?? '') ? 'proposals' : FIX_LOG_FOOTER_ENTRIES.includes(rowId ?? '') ? 'log' : 'diagnosis'),
       heading: (view) => view.delayDiagnosticsReport?.heading,
       entries: (view) => tableWindowEntries(view.delayDiagnosticsReport),
     },

@@ -46,6 +46,10 @@
   {
    "rowId": "IO-8",
    "extension": ".md"
+  },
+  {
+   "rowId": "IO-9",
+   "extension": ".tsv"
   }
  ]
 }

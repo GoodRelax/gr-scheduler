@@ -546,5 +546,6 @@ const MEDIA_TYPE_OF_EXTENSION: Readonly<Record<string, string>> = {
   '.svg': 'image/x-grs-svg',
   '.png': 'image/png',
   '.md': 'text/x-grs-markdown',
+  '.tsv': 'text/tab-separated-values',
 }
 // </generated>
