@@ -18,6 +18,7 @@ import { copyFileSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSy
 import { dirname, join, resolve } from 'node:path'
 import { deflateRawSync } from 'node:zlib'
 import { fileURLToPath } from 'node:url'
+import { artifactBuiltAt } from '../../tools/relay_version.mjs'
 
 const DEMO_DIR = dirname(fileURLToPath(import.meta.url))
 const ROOT = resolve(DEMO_DIR, '..', '..')
@@ -51,16 +52,18 @@ function crc32(bytes) {
   return (c ^ 0xffffffff) >>> 0
 }
 
-// DOS date and time of the build, which every entry carries.
+// DOS date and time every entry carries: the time the demo's inputs last changed, in UTC
+// (tools/artifact-versions.json, CR-820), never the time of the build -- so the same commit
+// always packs the same bytes, on any machine and in any time zone.
 function dosStamp(at) {
-  const time = (at.getHours() << 11) | (at.getMinutes() << 5) | Math.floor(at.getSeconds() / 2)
-  const date = ((at.getFullYear() - 1980) << 9) | ((at.getMonth() + 1) << 5) | at.getDate()
+  const time = (at.getUTCHours() << 11) | (at.getUTCMinutes() << 5) | Math.floor(at.getUTCSeconds() / 2)
+  const date = ((at.getUTCFullYear() - 1980) << 9) | ((at.getUTCMonth() + 1) << 5) | at.getUTCDate()
   return { time, date }
 }
 
 function filesUnder(folder, prefix) {
   const found = []
-  for (const entry of readdirSync(folder, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name))) {
+  for (const entry of readdirSync(folder, { withFileTypes: true }).sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0))) {
     const path = join(folder, entry.name)
     const name = `${prefix}/${entry.name}`
     if (entry.isDirectory()) found.push(...filesUnder(path, name))
@@ -70,7 +73,7 @@ function filesUnder(folder, prefix) {
 }
 
 function zipOfFolder(folder, topName) {
-  const { time, date } = dosStamp(new Date())
+  const { time, date } = dosStamp(new Date(artifactBuiltAt('serverSyncDemoBuiltAt')))
   const locals = []
   const centrals = []
   let offset = 0
