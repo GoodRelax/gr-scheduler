@@ -1,4 +1,4 @@
-// DFC-722: an empty or null comment body gives a box no smaller than T-215's font size in width and height (FR-097).
+// DFC-722: an empty or null comment body gives a box no smaller than its font size in width and height (FR-097).
 
 import { describe, expect, it } from 'vitest'
 
@@ -6,7 +6,7 @@ import { cellOf, day, sceneOf, taskOf } from '../unit/cr-430-cross-section-scene
 
 const FONT_SIZE_OF = { S: 'S-121', M: 'S-122', L: 'S-123' } as const
 
-const floorOf = (scale: keyof typeof FONT_SIZE_OF): number => Number(cellOf('T-215', FONT_SIZE_OF[scale], '値').replace(/[^\d.]/g, ''))
+const floorOf = (_scale: keyof typeof FONT_SIZE_OF): number => Number(cellOf('T-217', 'S-624', '既定').replace(/[^\d.]/g, ''))
 
 const box = (text: string | null) => ({
   id: 'c1',
@@ -33,14 +33,14 @@ const bodyOf = (text: string | null, fontSizeStep: keyof typeof FONT_SIZE_OF): B
   return found.body
 }
 
-describe('DFC-722: an empty or null body is no smaller than the font size (FR-097, T-215)', () => {
+describe('DFC-722: an empty or null body is no smaller than the font size (FR-097, S-624)', () => {
   for (const scale of ['S', 'M', 'L'] as const) {
     for (const [name, text] of [['empty', ''], ['null', null]] as const) {
-      it(`FR-097 a ${name} body is at least the T-215 font size wide at fontSizeStep ${scale}`, () => {
+      it(`FR-097 a ${name} body is at least the S-624 font size wide at fontSizeStep ${scale}`, () => {
         expect(bodyOf(text, scale).width).toBeGreaterThanOrEqual(floorOf(scale))
       })
 
-      it(`FR-097 a ${name} body is at least the T-215 font size high at fontSizeStep ${scale}`, () => {
+      it(`FR-097 a ${name} body is at least the S-624 font size high at fontSizeStep ${scale}`, () => {
         expect(bodyOf(text, scale).height).toBeGreaterThanOrEqual(floorOf(scale))
       })
     }

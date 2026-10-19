@@ -15,11 +15,7 @@ function rightEdgeOfDay(layout: ScheduleLayout, day: CalendarDay): number {
   return xFromDay(layout, day) + layout.pxPerDay
 }
 
-type AnnotationBoundRow = keyof typeof NOT_STORED_ANNOTATION_BOUNDS
-// WHY: S-624's default is no number -- a null text size follows the font size step (T-215) -- so it has its own reader.
-type AnnotationNumberRow = {
-  [Row in AnnotationBoundRow]: (typeof NOT_STORED_ANNOTATION_SIZES)[Row] extends number ? Row : never
-}[AnnotationBoundRow]
+type AnnotationNumberRow = keyof typeof NOT_STORED_ANNOTATION_BOUNDS
 
 // see T-217, FR-019
 // WHY: a null column draws the table's default, and a stored value outside the bounds is drawn clamped while the
@@ -28,16 +24,6 @@ type AnnotationNumberRow = {
 export function drawnAnnotationNumber(held: number | null, row: AnnotationNumberRow): number {
   const { min, max } = NOT_STORED_ANNOTATION_BOUNDS[row]
   return Math.min(max, Math.max(min, held ?? NOT_STORED_ANNOTATION_SIZES[row]))
-}
-
-// see S-624, FR-097, AT-168
-// WHY: a null column draws the document's font size step, as a box did before the column existed; a stored value
-// outside S-624 is drawn clamped, by the same rule as the other look numbers.
-/** @purity pure */
-export function drawnCommentTextSizePx(held: number | null, stepSizePx: number): number {
-  if (held === null) return stepSizePx
-  const { min, max } = NOT_STORED_ANNOTATION_BOUNDS['S-624']
-  return Math.min(max, Math.max(min, held))
 }
 
 // see HB-10, HB-11
@@ -152,7 +138,7 @@ const NOT_STORED_ANNOTATION_SIZES: {
   readonly 'S-374': number
   readonly 'S-375': number
   readonly 'S-600': number
-  readonly 'S-624': null
+  readonly 'S-624': number
 } = {
   'S-132': 4,
   'S-369': 1,
@@ -161,23 +147,23 @@ const NOT_STORED_ANNOTATION_SIZES: {
   'S-374': 1,
   'S-375': 0,
   'S-600': 12,
-  'S-624': null,
+  'S-624': 10,
 }
 
 // see T-217, FR-006, FR-019
 const NOT_STORED_ANNOTATION_BOUNDS: {
-  readonly 'S-132': { readonly key: string; readonly min: number; readonly max: number }
-  readonly 'S-369': { readonly key: string; readonly min: number; readonly max: number }
-  readonly 'S-371': { readonly key: string; readonly min: number; readonly max: number }
-  readonly 'S-374': { readonly key: string; readonly min: number; readonly max: number }
-  readonly 'S-375': { readonly key: string; readonly min: number; readonly max: number }
-  readonly 'S-624': { readonly key: string; readonly min: number; readonly max: number }
+  readonly 'S-132': { readonly key: string; readonly min: number; readonly max: number; readonly default: number }
+  readonly 'S-369': { readonly key: string; readonly min: number; readonly max: number; readonly default: number }
+  readonly 'S-371': { readonly key: string; readonly min: number; readonly max: number; readonly default: number }
+  readonly 'S-374': { readonly key: string; readonly min: number; readonly max: number; readonly default: number }
+  readonly 'S-375': { readonly key: string; readonly min: number; readonly max: number; readonly default: number }
+  readonly 'S-624': { readonly key: string; readonly min: number; readonly max: number; readonly default: number }
 } = {
-  'S-132': { key: 'cornerRadiusPx', min: 0, max: 24 },
-  'S-369': { key: 'HighlightBox.strokeWidthPx', min: 1, max: 10 },
-  'S-371': { key: 'HighlightBox.fillTransparencyPercent', min: 0, max: 100 },
-  'S-374': { key: 'CommentBox.strokeWidthPx', min: 1, max: 10 },
-  'S-375': { key: 'CommentBox.fillTransparencyPercent', min: 0, max: 100 },
-  'S-624': { key: 'CommentBox.textSizePx', min: 9, max: 24 },
+  'S-132': { key: 'cornerRadiusPx', min: 0, max: 24, default: 4 },
+  'S-369': { key: 'HighlightBox.strokeWidthPx', min: 1, max: 10, default: 1 },
+  'S-371': { key: 'HighlightBox.fillTransparencyPercent', min: 0, max: 100, default: 50 },
+  'S-374': { key: 'CommentBox.strokeWidthPx', min: 1, max: 10, default: 1 },
+  'S-375': { key: 'CommentBox.fillTransparencyPercent', min: 0, max: 100, default: 0 },
+  'S-624': { key: 'CommentBox.fontSizePx', min: 8, max: 24, default: 10 },
 }
 // </generated>

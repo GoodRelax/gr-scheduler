@@ -85,7 +85,7 @@
 | CM-82 | `CommentBox` | `setCommentBoxFillColor` | — | `commentBoxId`: 鍵（`CommentBox.id`、`AT-110`）<br>`fillColor`: `CommentBox.fillColor`（`AT-150`）を書く | 本文の箱の塗りの色を置く | `FR-019` |
 | CM-83 | `CommentBox` | `setCommentBoxFillTransparencyPercent` | — | `commentBoxId`: 鍵（`CommentBox.id`、`AT-110`）<br>`fillTransparencyPercent`: `CommentBox.fillTransparencyPercent`（`AT-151`）を書く | 本文の箱の塗りの透過率を置く | `FR-019` |
 | CM-84 | `CommentBox` | `setCommentBoxTextColor` | — | `commentBoxId`: 鍵（`CommentBox.id`、`AT-110`）<br>`textColor`: `CommentBox.textColor`（`AT-152`）を書く | 本文の字の色を置く | `FR-019` |
-| CM-103 | `CommentBox` | `setCommentBoxTextSizePx` | — | `commentBoxId`: 鍵（`CommentBox.id`、`AT-110`）<br>`textSizePx`: `CommentBox.textSizePx`（`AT-168`）を書く | 本文の字の大きさを置く | `FR-019` |
+| CM-103 | `CommentBox` | `setCommentBoxFontSizePx` | — | `commentBoxId`: 鍵（`CommentBox.id`、`AT-110`）<br>`fontSizePx`: `CommentBox.fontSizePx`（`AT-168`）を書く | 本文の字の大きさを置く | `FR-019` |
 | CM-100 | `CommentBox` | `bringCommentBoxToFront` | — | `commentBoxId`: 鍵（`CommentBox.id`、`AT-110`） | コメントボックスを、コメントボックスの並びの最後（最前面）へ移す | `FR-019` |
 | CM-52 | `HighlightBox` | `createHighlightBox` | — | `highlightBoxId`: `HighlightBox.id`（`AT-116`）を書く<br>`range`: `HighlightRange` —— 囲む範囲<br>　　`start`: `HighlightBox.start`（`AT-117`）を書く（`null` は受けない）<br>　　`finish`: `HighlightBox.finish`（`AT-118`）を書く（`null` は受けない）<br>　　`topTaskGroupId`: `HighlightBox.topTaskGroupId`（`AT-119`）を書く（`null` は受けない）<br>　　`bottomTaskGroupId`: `HighlightBox.bottomTaskGroupId`（`AT-120`）を書く（`null` は受けない） | ハイライトボックスを置く | `FR-019` |
 | CM-53 | `HighlightBox` | `deleteHighlightBox` | — | `highlightBoxId`: 鍵（`HighlightBox.id`、`AT-116`） | ハイライトボックスを消す | `FR-032` |

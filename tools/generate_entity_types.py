@@ -2382,11 +2382,6 @@ def annotation_cell(cell):
     """One default cell of table T-217, as a TypeScript literal and type."""
     if isinstance(cell, dict) and 'lit' in cell and cell['lit'].startswith("'"):
         return (cell['lit'], 'string')
-    # CR-809: S-624 (CommentBox.textSizePx) follows fontSizeStep through an
-    # `index` default, as S-3 does; the column's null is drawn at table T-215's
-    # size, so the generated value is null and the caller reads T-215 itself.
-    if isinstance(cell, dict) and 'index' in cell:
-        return ('null', 'null')
     return not_stored_cell(cell)
 
 
@@ -2695,16 +2690,23 @@ def annotation_bounds_block():
         key = re.sub(r'^`|`$', '', row.get('key', ''))
         if not key:
             raise SystemExit('table T-217 row %s holds no key' % row['id'])
-        got.append((row['id'], key, low['num'], high['num']))
+        # CR-811: the default rides along, so the Properties Panel can show
+        # what a null column draws (PR-50) without a second hand-typed copy.
+        default = row.get('default')
+        if not (isinstance(default, dict) and 'num' in default):
+            raise SystemExit('table T-217 row %s states bounds and no numeric '
+                             'default' % row['id'])
+        got.append((row['id'], key, low['num'], high['num'], default['num']))
     if not got:
         raise SystemExit('table T-217 holds no row with bounds')
     out = ['// see T-217, FR-006, FR-019', 'export const NOT_STORED_ANNOTATION_BOUNDS: {']
-    for row_id, _key, _low, _high in got:
+    for row_id, _key, _low, _high, _default in got:
         out.append("  readonly '%s': { readonly key: string; readonly min: number; "
-                   "readonly max: number }" % row_id)
+                   "readonly max: number; readonly default: number }" % row_id)
     out.append('} = {')
-    for row_id, key, low, high in got:
-        out.append("  '%s': { key: '%s', min: %s, max: %s }," % (row_id, key, low, high))
+    for row_id, key, low, high, default in got:
+        out.append("  '%s': { key: '%s', min: %s, max: %s, default: %s },"
+                   % (row_id, key, low, high, default))
     out.append('}')
     return '\n'.join(out)
 
@@ -2837,10 +2839,6 @@ def derived_rules(manuscript):
     out = []
     for key in sorted(manuscript):
         cell = manuscript[key]['default']
-        # CR-809: an entity column's default (S-624, CommentBox.textSizePx) is
-        # drawn from the step and never written, so it is no derived setting.
-        if '.' in key:
-            continue
         if isinstance(cell, dict) and 'index' in cell:
             table, by = cell['index']
             out.append("  '%s': { index: '%s', by: '%s', times: %s },"

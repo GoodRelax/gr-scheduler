@@ -430,8 +430,8 @@ function commandFromCommentBoxColumn(
       return number === undefined
         ? []
         : [{ kind: 'setCommentBoxFillTransparencyPercent', commentBoxId: id, fillTransparencyPercent: number }]
-    case 'textSizePx':
-      return number === undefined ? [] : [{ kind: 'setCommentBoxTextSizePx', commentBoxId: id, textSizePx: number }]
+    case 'fontSizePx':
+      return number === undefined ? [] : [{ kind: 'setCommentBoxFontSizePx', commentBoxId: id, fontSizePx: number }]
     default:
       return []
   }

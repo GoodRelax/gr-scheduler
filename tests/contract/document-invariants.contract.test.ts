@@ -543,7 +543,7 @@ const COMMENT_BOX_ONE: CommentBox = {
   fillColor: null,
   fillTransparencyPercent: null,
   textColor: null,
-  textSizePx: null,
+  fontSizePx: null,
 }
 
 const HIGHLIGHT_BOX_ONE: HighlightBox = {

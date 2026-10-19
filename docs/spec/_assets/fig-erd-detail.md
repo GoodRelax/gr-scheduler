@@ -179,7 +179,7 @@ erDiagram
         文字列 fillColor "GRS"
         整数 fillTransparencyPercent "GRS・0〜100"
         文字列 textColor "GRS"
-        整数 textSizePx "GRS・px"
+        整数 fontSizePx "GRS・px"
     }
     HighlightBox {
         文字列 **id** PK "GRS・UUID"
@@ -465,7 +465,7 @@ erDiagram
 | AT-150 | `CommentBox` | `fillColor` | 文字列 | 可（`null` = 地の色 `S-146`） | — | GRS | — | 本文の箱の塗りの色。形は `AT-102` と同じ。透明も取る（`FR-019`） |
 | AT-151 | `CommentBox` | `fillTransparencyPercent` | 整数（0〜100） | 可（`null` = 表 T-217 の既定） | — | GRS | — | 本文の箱の塗りの透過率。**0 は不透明、100 は透明**。`null` と範囲は `_assets/tbl-settings.md` の表 T-217 の `S-375`（`FR-019`） |
 | AT-152 | `CommentBox` | `textColor` | 文字列 | 可（`null` = 文字の色 `S-147`） | — | GRS | — | 本文の字の色。形は `AT-102` と同じ。ただし透明は取らない（`FR-019`） |
-| AT-168 | `CommentBox` | `textSizePx` | 整数（px） | 可（`null` = 表 T-215 の文字サイズ） | — | GRS | — | 本文の字の大きさ。`null` と範囲は `_assets/tbl-settings.md` の表 T-217 の `S-624`。`null` は文書の文字サイズ（`FR-039` の `fontSizeStep`、表 T-215）で描く。ズームによらず一定に描く（`FR-097`） |
+| AT-168 | `CommentBox` | `fontSizePx` | 整数（px） | 可（`null` = 表 T-217 の既定） | — | GRS | — | 本文の字の大きさ（フォントサイズ）。`null` と範囲は `_assets/tbl-settings.md` の表 T-217 の `S-624`。ズームによらず一定に描く（`FR-097`） |
 | AT-116 | `HighlightBox` | `id` | 文字列（UUID） | 否 | PK | GRS | — | 注記の識別子 |
 | AT-117 | `HighlightBox` | `start` | 日時 | 可 | — | GRS | — | 囲む範囲の左端 |
 | AT-118 | `HighlightBox` | `finish` | 日時 | 可 | — | GRS | — | 囲む範囲の右端 |

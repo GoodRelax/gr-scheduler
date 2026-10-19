@@ -327,7 +327,7 @@ export interface CommentBox {
   /** AT-152 */
   readonly textColor: string | null
   /** AT-168 */
-  readonly textSizePx: number | null
+  readonly fontSizePx: number | null
 }
 
 /** ET-14 of table T-056. */
@@ -510,7 +510,7 @@ export const COLUMN_SHAPES: {
     fillColor: { kind: 'color', choices: ['white', 'black', 'dimgray', 'lightgray', 'red', 'blue', 'yellow', 'green', 'orange', 'purple', 'transparent'], min: null, max: null, isNullable: true },
     fillTransparencyPercent: { kind: 'integer', choices: null, min: null, max: null, isNullable: true },
     textColor: { kind: 'color', choices: ['white', 'black', 'dimgray', 'lightgray', 'red', 'blue', 'yellow', 'green', 'orange', 'purple'], min: null, max: null, isNullable: true },
-    textSizePx: { kind: 'integer', choices: null, min: null, max: null, isNullable: true },
+    fontSizePx: { kind: 'integer', choices: null, min: null, max: null, isNullable: true },
   },
   HighlightBox: {
     id: { kind: 'string', choices: null, min: null, max: null, isNullable: false },

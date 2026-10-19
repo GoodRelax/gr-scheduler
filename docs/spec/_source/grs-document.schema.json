@@ -22,7 +22,7 @@
   },
   "schemaVersion": {
    "type": "string",
-   "const": "2026-10-18T23:17:29Z"
+   "const": "2026-10-19T00:35:37Z"
   },
   "schedule": {
    "type": "object",
@@ -1459,7 +1459,7 @@
     "fillColor",
     "fillTransparencyPercent",
     "textColor",
-    "textSizePx"
+    "fontSizePx"
    ],
    "additionalProperties": false,
    "properties": {
@@ -1584,7 +1584,7 @@
      ],
      "pattern": "^(?:white|black|dimgray|lightgray|red|blue|yellow|green|orange|purple|#[0-9a-fA-F]{6}/(?:#[0-9a-fA-F]{6})?|/#[0-9a-fA-F]{6})$"
     },
-    "textSizePx": {
+    "fontSizePx": {
      "type": [
       "integer",
       "null"
