@@ -11,6 +11,7 @@ import {
   delayFixColumnsOf,
   delayFixLogCells,
   delayFixLogRowsInOrder,
+  delayFixLogTsv,
   delayFixProposalCells,
   delayFixRowsInOrder,
   isSameDay,
@@ -25,6 +26,7 @@ import {
   type DelayFixMarkdownSection,
   isRecommendedDelayFix,
   type DelayFixRow,
+  type DelayFixValue,
   type DelayFixWords,
   type DelayReportReason,
   type DelayReportRow,
@@ -870,6 +872,7 @@ const LOG_ENTRY: IconId = 'IC-156'
 const OVERWRITE_FIX_ENTRY: IconId = 'IC-157'
 const BACKUP_FIX_ENTRY: IconId = 'IC-158'
 const ADOPT_ALL_ENTRY: IconId = 'IC-166'
+const FIX_LOG_TSV_ENTRY: IconId = 'IC-169'
 const PREVIOUS_FIX_ENTRY: IconId = 'IC-159'
 const NEXT_FIX_ENTRY: IconId = 'IC-160'
 
@@ -1267,11 +1270,12 @@ function delayFixTellingText(telling: DelayFixTelling, words: FixWords): string 
   return filled(fixWordOf('refusedNotice', language), { row, reason: rowWordOf(REASON_ROW_WORDS, telling.reason, language) })
 }
 
-// see RW-12, RW-17, RW-18, IC-166, IC-157, IC-158, FR-092
+// see RW-12, RW-17, RW-18, RW-20, IC-166, IC-157, IC-158, IC-169, FR-092
 /** @purity pure */
 function delayFixFooterOf(values: DelayFixWindowValues, tables: DelayFixTables, words: FixWords): DelayFixFooterView | null {
-  if (values.table !== 'proposals') return null
   const language = words.language
+  if (values.table === 'log') return { count: '', entries: [entryOf(FIX_LOG_TSV_ENTRY, language)], notice: null }
+  if (values.table !== 'proposals') return null
   const count = delayFixBundleOf(tables.proposals).length
   const adoptAll = { ...entryOf(ADOPT_ALL_ENTRY, language), isEnabled: tables.proposals.some(isAdoptable) }
   const writes = [OVERWRITE_FIX_ENTRY, BACKUP_FIX_ENTRY].map((icon) => ({ ...entryOf(icon, language), isEnabled: count > 0 }))
@@ -1378,6 +1382,47 @@ function fixMarkdownSectionOf(table: FixTable, window: DelayDiagnosticsReportWin
     rows: found.map((shown) => shown.cells),
   }
 }
+
+// see RW-20
+// WHY: no DelayFixValue kind names a Task yet, so the two uid cells stay empty until one does.
+/** @purity pure */
+function taskUidCellOf(value: DelayFixValue | null): string {
+  if (value === null) return ''
+  switch (value.kind) {
+    case 'empty':
+    case 'date':
+    case 'dates':
+    case 'flag':
+    case 'links':
+      return ''
+  }
+}
+
+const FIX_LOG_TSV_UID_PARTS = ['tsvTaskUid', 'tsvBeforeUid', 'tsvAfterUid'] as const
+
+// see RW-20, IO-9, IC-169
+// WHY: the rows the Fix Log table shows, in its order and filter, so the file is what the person sees (RW-6).
+/** @purity pure */
+export function delayFixLogTsvOf(
+  window: DelayDiagnosticsReportWindow,
+  report: DelayDiagnosticsReport,
+  schedule: Schedule,
+  language: DisplayLanguage,
+  fixTables: DelayFixTables = NO_DELAY_FIX_TABLES,
+  isTimeOfDayVisible = false,
+  viewTimeZone: unknown = null,
+): string {
+  const words = fixWordsOf(schedule, language, report, shownTimesOf(schedule, isTimeOfDayVisible, viewTimeZone))
+  const found = foundFixRowsOf(shownFixRowsOf('log', fixTables, words), window.panel.word, delayFixValuesOf(window).views.log)
+  const headings = [
+    ...LOG_COLUMNS.map((column) => partWordOf(FIX_COLUMN_WORDS, column, language)),
+    ...FIX_LOG_TSV_UID_PARTS.map((part) => fixWordOf(part, language)),
+  ]
+  const rows = found.map((shown) => [...shown.cells, String(shown.row.taskUid), taskUidCellOf(shown.row.before), taskUidCellOf(shown.row.after)])
+  return delayFixLogTsv(headings, rows)
+}
+
+export const DELAY_FIX_LOG_EXTENSION = exportFormats.files.find((one) => one.rowId === 'IO-9')?.extension ?? ''
 
 // see RW-6
 /** @purity pure */

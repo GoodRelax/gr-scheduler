@@ -142,6 +142,7 @@ export {
   delayFixColumnsOf,
   delayFixLogCells,
   delayFixLogRowsInOrder,
+  delayFixLogTsv,
   delayFixProposalCells,
   delayFixProposalRows,
   delayFixRowsInOrder,

@@ -1167,6 +1167,17 @@
    }
   },
   {
+   "rowId": "IC-169",
+   "label": {
+    "ja": ".tsv で保存",
+    "en": "Save As .tsv"
+   },
+   "hint": {
+    "ja": "修正の記録の表を .tsv のファイルに書き出す。表計算ソフトでそのまま開ける",
+    "en": "Write the Fix Log table to a .tsv file that a spreadsheet opens as it is"
+   }
+  },
+  {
    "rowId": "IC-159",
    "label": {
     "ja": "前へ",
@@ -4908,8 +4919,8 @@
   {
    "part": "derivedParent",
    "text": {
-    "ja": "{name}（導出）",
-    "en": "{name} (derived)"
+    "ja": "{name}（推定(自明)）",
+    "en": "{name} (inferred)"
    }
   },
   {
@@ -6850,8 +6861,8 @@
   {
    "rowId": "FM-6",
    "text": {
-    "ja": "列",
-    "en": "Field"
+    "ja": "プロパティ",
+    "en": "Property"
    }
   },
   {
@@ -7064,6 +7075,27 @@
    "text": {
     "ja": "行「{taskGroup}」から親タスクを作る",
     "en": "Make a Parent Task from the Row \"{taskGroup}\""
+   }
+  },
+  {
+   "part": "tsvTaskUid",
+   "text": {
+    "ja": "タスク UID",
+    "en": "Task UID"
+   }
+  },
+  {
+   "part": "tsvBeforeUid",
+   "text": {
+    "ja": "修正前 UID",
+    "en": "Before UID"
+   }
+  },
+  {
+   "part": "tsvAfterUid",
+   "text": {
+    "ja": "修正後 UID",
+    "en": "After UID"
    }
   }
  ]

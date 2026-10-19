@@ -16,9 +16,9 @@ what this reading does not see.
 | `integration` | TS-2 | - | 3 | 76 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
 | `system` | TS-3 | - | 97 | 616 | 0 | 0 | 0 | 0 |
-| `unit` | TS-6 | - | 188 | 3969 | 1 | 1 | 2 | 0 |
+| `unit` | TS-6 | - | 189 | 4006 | 1 | 1 | 2 | 0 |
 | `use-case` | TS-1 | VT-1 | 14 | 17 | 1 | 2 | 0 | 0 |
-| **all** | | | 743 | 10529 | 10 | 7 | 13 | 4 |
+| **all** | | | 744 | 10566 | 10 | 7 | 13 | 4 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -71,12 +71,12 @@ named either way: 4 of 10.
 | `tests/unit/cr-439-notices-and-confirmation.test.ts` | NT-5 NT-1 と見分けがつく形にすること（MUST） -- an accepted-with-caution notice does not look like a r... | none |
 | `tests/use-case/uc-010-exchange-with-an-external-wbs-master.test.ts` | UC-010 extension 2a / FR-023, OP-5: a truncated MSPDI file dropped on the schedule is d... | DFC-1016 (via known-red) |
 
-## 6. The unit files kept for now (188) -- listing only
+## 6. The unit files kept for now (189) -- listing only
 
 Re-sorting them waits for the change-request organization (handoff 2026-09-26). "Imports"
 are the callables the file imports by name from `src/`, each with the `@purity` tag above
 its declaration. "UO-1 would omit" marks a file whose every such import is tagged `pure` /
-`semi-pure-a` (rule 04 table UO, row UO-1): 27 of 188.
+`semi-pure-a` (rule 04 table UO, row UO-1): 28 of 189.
 
 | file | imports from src/ (tag) | UO-1 would omit | ties |
 | --- | --- | --- | --- |
@@ -165,6 +165,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/unit/cr-787-the-panel-opens-at-the-default-width-of-its-kind.test.ts` | frameLoop (non-pure), grabSizesOf (pure), itemAtPointer (untagged), panelFacesOf (pure) | - | FR-052, FR-072, T-016, T-109, T-206 |
 | `tests/unit/cr-788-the-assignee-field-opens-a-checked-list.test.ts` | domScreenSurface (non-pure) | - | FR-059 |
 | `tests/unit/cr-811-the-comment-box-font-size-is-8-to-24-and-10-by-default.test.ts` | documentFromJson (pure), editAnnotation (pure), frameLoop (non-pure) | - | FR-006, FR-019, FR-031, FR-077, FR-097, T-016, T-108, T-215 |
+| `tests/unit/cr-813-the-fix-log-saves-as-tsv-and-two-words-change.test.ts` | delayDiagnosticsReportAfterEntry (pure), delayDiagnosticsReportFromWindow (pure), delayFixLogFileNameOf (pure), delayFixLogTsv (pure), delayFixLogTsvOf (pure) | yes | T-024, T-109, T-351, T-352, T-374 |
 | `tests/unit/dfc-1620-an-fs-chain-that-starts-the-next-morning-carries-the-whole-delay.test.ts` | documentFromJson (pure) | yes | T-313, T-314 |
 | `tests/unit/dfc-1991-sl-4-a-shift-drag-keeps-the-selection.test.ts` | commandFromInput (pure), grabSizesOf (pure), itemAtPointer (untagged), pressedRowOf (pure), selectionFromInput (pure), selectionOfAll (pure) | - | T-206, T-270 |
 | `tests/unit/dfc-2980-a-marker-pulled-with-many-moves-puts-the-actual.test.ts` | - | - | FR-107, T-270, T-273 |
@@ -474,8 +475,8 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/cr-766-the-clauses-that-point-at-t-108.contract.test.ts` | 8 | FR-019, FR-057 | - | T-075, T-108 | CM-39, CM-46, UF-16, WT-6, WT-7 | - | - | - | - |
 | `tests/contract/cr-766-the-command-unions-carry-the-printed-values.contract.test.ts` | 10 | - | - | T-019, T-108 | CM-38, CM-76 | - | - | - | - |
 | `tests/contract/cr-766-the-generators-print-the-commands-from-the-manuscript.contract.test.ts` | 14 | - | - | T-108 | AG-12, AM-7, CM-16, CM-76, TX-10 | - | - | - | - |
-| `tests/contract/cr-768-ic-2-offers-the-rows-the-offered-column-says.contract.test.ts` | 10 | FR-096 | - | - | IC-2, IO-1, IO-2, IO-3, IO-4, IO-5, IO-6, IO-7, IO-8, SK-11, SX-1, SX-2 | - | - | - | - |
-| `tests/contract/cr-768-t-024-holds-the-media-type-and-the-offered-column.contract.test.ts` | 17 | FR-096 | - | T-024, T-340, T-346 | IC-2, IC-140, IO-1, IO-2, IO-3, IO-4, IO-5, IO-6, IO-7, IO-8, RW-7, SX-2 | - | - | - | - |
+| `tests/contract/cr-768-ic-2-offers-the-rows-the-offered-column-says.contract.test.ts` | 10 | FR-096 | - | - | IC-2, IO-1, IO-2, IO-3, IO-4, IO-5, IO-6, IO-7, IO-8, IO-9, SK-11, SX-1, SX-2 | - | - | - | - |
+| `tests/contract/cr-768-t-024-holds-the-media-type-and-the-offered-column.contract.test.ts` | 17 | FR-096 | - | T-024, T-340, T-346 | IC-2, IC-140, IO-1, IO-2, IO-3, IO-4, IO-5, IO-6, IO-7, IO-8, IO-9, RW-7, SX-2 | - | - | - | - |
 | `tests/contract/cr-768-the-hand-copies-are-generated-and-drift-is-caught.contract.test.ts` | 18 | FR-096 | - | T-024, T-229 | ED-1, IO-8, PI-37, RW-7 | - | - | - | - |
 | `tests/contract/cr-768-the-save-chooser-is-handed-the-media-type-of-the-table.contract.test.ts` | 5 | FR-096 | - | T-024, T-346 | IC-2, IC-140, IO-4, IO-8, RW-7 | - | - | - | - |
 | `tests/contract/cr-772-hf-15-one-drag-sets-the-gap-and-the-depth.contract.test.ts` | 32 | FR-042 | - | - | HF-15, S-208, UF-97 | - | - | - | - |
@@ -899,6 +900,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/unit/cr-787-the-panel-opens-at-the-default-width-of-its-kind.test.ts` | 21 | FR-052, FR-072 | - | T-016, T-109, T-206 | GR-14, IC-17, MK-13, S-171, S-248, S-602, S-604, S-605, S-606 | - | - | - | - |
 | `tests/unit/cr-788-the-assignee-field-opens-a-checked-list.test.ts` | 19 | FR-059 | - | - | AS-1, AS-3, AS-4, AS-5, AS-7, AS-8, AS-12, IC-123, IC-124, IC-125, IC-126, PR-16, SV-4 | - | - | - | - |
 | `tests/unit/cr-811-the-comment-box-font-size-is-8-to-24-and-10-by-default.test.ts` | 40 | FR-006, FR-019, FR-031, FR-077, FR-097 | - | T-016, T-108, T-215 | AT-110, AT-168, CM-46, CM-103, PR-21, PR-48, PR-50, S-624 | - | - | - | - |
+| `tests/unit/cr-813-the-fix-log-saves-as-tsv-and-two-words-change.test.ts` | 37 | - | - | T-024, T-109, T-351, T-352, T-374 | FM-6, FN-1, FN-2, FN-3, FN-4, FN-5, IC-156, IC-157, IC-158, IC-169, IO-9, PTL-15, RW-7, RW-12, RW-20 | - | - | - | - |
 | `tests/unit/dfc-1620-an-fs-chain-that-starts-the-next-morning-carries-the-whole-delay.test.ts` | 4 | - | - | T-313, T-314 | BD-2, BD-4, S-128 | - | - | - | - |
 | `tests/unit/dfc-1991-sl-4-a-shift-drag-keeps-the-selection.test.ts` | 8 | - | - | T-206, T-270 | PE-1, S-208, SL-4, SL-7a, TC-5 | - | - | - | - |
 | `tests/unit/dfc-2980-a-marker-pulled-with-many-moves-puts-the-actual.test.ts` | 7 | FR-107 | - | T-270, T-273 | GO-9, LP-1, PE-8, PE-10, S-129, S-208 | - | - | - | - |

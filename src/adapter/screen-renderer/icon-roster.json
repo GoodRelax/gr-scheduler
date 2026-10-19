@@ -1201,6 +1201,17 @@
    "armsShape": null
   },
   {
+   "rowId": "IC-169",
+   "surfaces": [
+    "Delay Diagnostics Report"
+   ],
+   "group": null,
+   "entryTo": "修正の記録の表を `.tsv` のファイルに書き出す。<br>置き場・名・中身は 表 T-346 の `RW-20`",
+   "authority": "`FR-155` ・ 表 T-346 の `RW-20`",
+   "arms": null,
+   "armsShape": null
+  },
+  {
    "rowId": "IC-159",
    "surfaces": [
     "Delay Diagnostics Report"

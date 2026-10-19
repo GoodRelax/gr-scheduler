@@ -547,7 +547,10 @@ DELAY_FIX_PARTS = ('fixCount', 'humanCounter', 'automatic', 'choose',
                    'clearMilestoneActuals', 'finishPredecessorsOnMilestoneDate',
                    'moveSuccessorToEarliestDate', 'deleteLink',
                    'moveStatusDateToActual', 'markAsFinished',
-                   'markAsStillInProgress', 'makeParentTaskFromTaskGroup')
+                   'markAsStillInProgress', 'makeParentTaskFromTaskGroup',
+                   # The three headings table T-346's RW-20 puts after the Fix
+                   # Log columns in the .tsv (CR-813).
+                   'tsvTaskUid', 'tsvBeforeUid', 'tsvAfterUid')
 
 HINT_LINE_ROW = re.compile(r'^\| (TL-\d+[a-z]?) \|')
 HINT_LINE_TABLE = 'T-348'

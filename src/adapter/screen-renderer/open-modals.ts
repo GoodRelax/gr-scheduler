@@ -219,13 +219,27 @@ export function exportFileNameOf(documentName: string, extension: string): strin
 
 const BACKUP_FILE_WORD = 'before-fix'
 
+const FIX_LOG_FILE_WORD = 'fix-log'
+
 const BACKUP_MINUTE_OF_MOMENT = /^(\d{4}-\d{2}-\d{2})T(\d{2}):(\d{2}).*$/
+
+// see RW-15, RW-20
+/** @purity pure */
+function momentFileNameOf(documentName: string, word: string, localMoment: string, extension: string): string {
+  const body = exportNameBodyOf(documentName)
+  const minute = localMoment.replace(BACKUP_MINUTE_OF_MOMENT, '$1-$2$3')
+  return [...(body === NO_WORDS ? [] : [body]), word, minute].join(FILE_NAME_JOINER) + extension
+}
 
 /** @purity pure */
 export function delayFixBackupFileNameOf(documentName: string, localMoment: string, extension: string): string {
-  const body = exportNameBodyOf(documentName)
-  const minute = localMoment.replace(BACKUP_MINUTE_OF_MOMENT, '$1-$2$3')
-  return [...(body === NO_WORDS ? [] : [body]), BACKUP_FILE_WORD, minute].join(FILE_NAME_JOINER) + extension
+  return momentFileNameOf(documentName, BACKUP_FILE_WORD, localMoment, extension)
+}
+
+// see RW-20, IO-9
+/** @purity pure */
+export function delayFixLogFileNameOf(documentName: string, localMoment: string, extension: string): string {
+  return momentFileNameOf(documentName, FIX_LOG_FILE_WORD, localMoment, extension)
 }
 
 const MOUSE_PRESS_BY_ROW = new Map(

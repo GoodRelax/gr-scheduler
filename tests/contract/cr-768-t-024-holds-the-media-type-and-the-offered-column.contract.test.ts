@@ -94,10 +94,11 @@ describe('CR-768 -- table T-024 carries the two new columns', () => {
     ])
   })
 
-  it('holds IO-1 to IO-8 and no other row, and IO-8 stands right after IO-4', () => {
+  it('holds IO-1 to IO-9 and no other row, IO-8 stands right after IO-4 and IO-9 right after IO-8', () => {
     const ids = formatRows().map((one) => one.id)
-    expect([...ids].sort()).toEqual(['IO-1', 'IO-2', 'IO-3', 'IO-4', 'IO-5', 'IO-6', 'IO-7', 'IO-8'])
+    expect([...ids].sort()).toEqual(['IO-1', 'IO-2', 'IO-3', 'IO-4', 'IO-5', 'IO-6', 'IO-7', 'IO-8', 'IO-9'])
     expect(ids.indexOf('IO-8')).toBe(ids.indexOf('IO-4') + 1)
+    expect(ids.indexOf('IO-9')).toBe(ids.indexOf('IO-8') + 1)
   })
 
   it('the offered column says 出す or 出さない in every row and nothing else', () => {
@@ -132,8 +133,8 @@ describe('CR-768 -- every row of table T-024 against the rules its notes and FR-
     }
   })
 
-  it('exactly the rows that go out as a file are IO-1, IO-2, IO-3, IO-4, IO-7 and IO-8', () => {
-    expect(fileRows().map((one) => one.id).sort()).toEqual(['IO-1', 'IO-2', 'IO-3', 'IO-4', 'IO-7', 'IO-8'])
+  it('exactly the rows that go out as a file are IO-1, IO-2, IO-3, IO-4, IO-7, IO-8 and IO-9', () => {
+    expect(fileRows().map((one) => one.id).sort()).toEqual(['IO-1', 'IO-2', 'IO-3', 'IO-4', 'IO-7', 'IO-8', 'IO-9'])
   })
 
   it('two rows never share an extension or a media type, so a suggested name and a chooser key stay unambiguous', () => {

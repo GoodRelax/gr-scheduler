@@ -87,7 +87,7 @@ export {
 export { DEFAULT_WINDOW_PLACE, windowBoxAfterGrab, windowBoxOf, windowEdgeAt, windowNormalBoxOf, windowPlaceOf } from './window-box'
 export type { WindowPlace, WindowShown } from './window-box'
 export { imageToJsonPromptText } from './app-header-items'
-export { delayFixBackupFileNameOf, exportFileNameOf, UNTITLED_DOCUMENT_TITLE } from './open-modals'
+export { delayFixBackupFileNameOf, delayFixLogFileNameOf, exportFileNameOf, UNTITLED_DOCUMENT_TITLE } from './open-modals'
 export type { SearchFilterChange, SearchPanelShown, SearchPanelView } from './search-panel'
 export { filteredSearchRows, taskSearchColumnHeadings } from './search-table-filters'
 export type { SearchColumnHeading, TableRowCells } from './search-table-filters'
@@ -118,11 +118,13 @@ export {
 export type { ResourceListRowView, ResourceListView } from './resource-list'
 export {
   DELAY_DIAGNOSTICS_REPORT_EXTENSION,
+  DELAY_FIX_LOG_EXTENSION,
   OPENED_DELAY_DIAGNOSTICS_REPORT,
   delayDiagnosticsReportAfterEntry,
   delayDiagnosticsReportAfterFilterChange,
   delayDiagnosticsReportFileNameOf,
   delayDiagnosticsReportMarkdownOf,
+  delayFixLogTsvOf,
   delayDiagnosticsReportShowingRow,
   delayDiagnosticsReportWithColumnWidth,
   delayDiagnosticsReportWithFilterClosed,

@@ -17,9 +17,12 @@ import type { TableView } from '../../use-case/advance-screen-session/advance-sc
 import type { DocumentFileFault, FileStore } from '../../adapter/file-gateway/file-gateway'
 import {
   DELAY_DIAGNOSTICS_REPORT_EXTENSION,
+  DELAY_FIX_LOG_EXTENSION,
   delayDiagnosticsReportAfterEntry,
   delayDiagnosticsReportFileNameOf,
   delayDiagnosticsReportMarkdownOf,
+  delayFixLogFileNameOf,
+  delayFixLogTsvOf,
   type DelayDiagnosticsReportWindow,
   type DisplayLanguage,
   type IconId,
@@ -30,6 +33,7 @@ export const DELAY_DIAGNOSTICS_REPORT_SURFACE = 'Delay Diagnostics Report'
 
 const COPY_ENTRY: IconId = 'IC-108'
 const EXPORT_ENTRY: IconId = 'IC-140'
+const FIX_LOG_TSV_ENTRY: IconId = 'IC-169'
 
 export interface ReportHeld {
   readonly window: DelayDiagnosticsReportWindow
@@ -69,6 +73,13 @@ function madeAtText(now: Date): string {
   return `${now.getFullYear()}/${two(now.getMonth() + 1)}/${two(now.getDate())} ${two(now.getHours())}:${two(now.getMinutes())}`
 }
 
+// see RW-15, RW-20
+/** @purity pure */
+function localMomentOf(now: Date): string {
+  const two = (value: number): string => String(value).padStart(2, '0')
+  return `${now.getFullYear()}-${two(now.getMonth() + 1)}-${two(now.getDate())}T${two(now.getHours())}:${two(now.getMinutes())}`
+}
+
 // see FR-134, RW-6, RW-7, T-227
 // WHY: a text that is no document: never the opened file (FR-096 holds one export entry), always asked before an occupied file.
 // TRAP: started inside the input's own call; deferred, the browser can refuse the clipboard write and the picker.
@@ -97,6 +108,23 @@ function handOutMarkdown(entry: IconId, held: ReportHeld, outlets: ReportOutlets
     .then((writing) => (writing.ok ? undefined : outlets.raiseFileFault(writing.fault)))
 }
 
+// see RW-20, IO-9, IC-169
+/** @purity non-pure */
+function handOutFixLogTsv(held: ReportHeld, outlets: ReportOutlets): void {
+  const files = outlets.files
+  if (files === undefined) return
+  const text = delayFixLogTsvOf(held.window, held.report, held.schedule, held.language, held.fixTables, held.isTimeOfDayVisible, held.viewTimeZone)
+  void files
+    .writeChosenFile({
+      bytes: new TextEncoder().encode(text),
+      suggestedFileName: delayFixLogFileNameOf(held.documentName, localMomentOf(new Date()), DELAY_FIX_LOG_EXTENSION),
+      extension: DELAY_FIX_LOG_EXTENSION,
+      shouldBecomeOpenedFile: false,
+      askToWriteOver: async (there) => !(there.kind === 'occupied' && there.bytes.byteLength > 0) || (await outlets.confirmOverwrite()),
+    })
+    .then((writing) => (writing.ok ? undefined : outlets.raiseFileFault(writing.fault)))
+}
+
 // see T-346, IC-108, IC-140, RW-1, TV-8, UN-20
 // WHY: the view is written before the window is held, so a close that lifts the filter writes it once (CM-92).
 /** @purity non-pure */
@@ -110,6 +138,10 @@ export function answerDelayDiagnosticsReportEntry(
   if (held === null) return false
   if (entry === COPY_ENTRY || entry === EXPORT_ENTRY) {
     handOutMarkdown(entry, held, outlets)
+    return true
+  }
+  if (entry === FIX_LOG_TSV_ENTRY) {
+    handOutFixLogTsv(held, outlets)
     return true
   }
   const answer = delayDiagnosticsReportAfterEntry(held.window, held.view, entry, filterColumn, held, listed)

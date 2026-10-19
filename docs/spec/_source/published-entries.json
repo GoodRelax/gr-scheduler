@@ -155,6 +155,16 @@
      }
     },
     {
+     "name": "delayFixLogTsv",
+     "note": {
+      "ja": [
+       "遅延診断レポートの修正の記録を `.tsv` の文字列 1 つにする（表 T-346 の `RW-20`）。",
+       "BOM・TAB・CRLF とセルの中のタブと改行の置き換えを 1 か所に置く。",
+       "`ScreenRenderer` が `IC-169` の中身を作るために使う"
+      ]
+     }
+    },
+    {
      "name": "DELAY_REPORT_STATUSES",
      "note": {
       "ja": [
@@ -3850,6 +3860,24 @@
      }
     },
     {
+     "name": "DELAY_FIX_LOG_EXTENSION",
+     "note": {
+      "ja": [
+       "修正の記録を書き出すファイルの拡張子（表 T-024 の `IO-9`、表 T-346 の `RW-20`）。",
+       "`SingleHtmlShell` が `IC-169` の書き出しの依頼に載せ、保存の選択面はこの拡張子と同じ行の媒体の型で開く"
+      ]
+     }
+    },
+    {
+     "name": "delayFixLogTsvOf",
+     "note": {
+      "ja": [
+       "修正の記録の表が出している行（並べ替えとフィルタを済ませた行）から `.tsv` の文字列を作る（表 T-346 の `RW-20`）。",
+       "`SingleHtmlShell` が `IC-169` に使う"
+      ]
+     }
+    },
+    {
      "name": "DelayFixTelling",
      "note": {
       "ja": [
@@ -4033,6 +4061,16 @@
        "直す前のバックアップの提案の名を作る（表 T-346 の `RW-15`）。",
        "文書名は `exportFileNameOf` と同じ 表 T-352 で整える。",
        "`SingleHtmlShell` が `IC-158` に使う"
+      ]
+     }
+    },
+    {
+     "name": "delayFixLogFileNameOf",
+     "note": {
+      "ja": [
+       "修正の記録の `.tsv` の提案の名を作る（表 T-346 の `RW-20`）。",
+       "名の作りは `delayFixBackupFileNameOf` と同じ（`RW-15`）で、語だけが `fix-log` である。",
+       "`SingleHtmlShell` が `IC-169` に使う"
       ]
      }
     },

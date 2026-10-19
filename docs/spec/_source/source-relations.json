@@ -146,13 +146,13 @@
    "family": "rows",
    "fields": {
     "firstRow": 5,
-    "rowId": 271
+    "rowId": 272
    },
    "prefixes": [
     "IC",
     "K"
    ],
-   "count": 276
+   "count": 277
   },
   {
    "from": "docs/spec/_source/display-words.json",
@@ -982,7 +982,7 @@
   {
    "from": "docs/spec/_source/published-entries.json",
    "to": "docs/spec/01-04-requirements.md",
-   "count": 678
+   "count": 689
   },
   {
    "from": "docs/spec/_source/published-entries.json",
@@ -992,7 +992,7 @@
   {
    "from": "docs/spec/_source/published-entries.json",
    "to": "docs/spec/_assets/tbl-glossary.md",
-   "count": 44
+   "count": 48
   },
   {
    "from": "docs/spec/_source/published-entries.json",
@@ -1324,7 +1324,7 @@
    "HS": 12,
    "HT": 4,
    "IN": 11,
-   "IO": 8,
+   "IO": 9,
    "IP": 5,
    "IR": 4,
    "IX": 16,
@@ -1364,7 +1364,7 @@
    "RQ": 5,
    "RR": 6,
    "RT": 7,
-   "RW": 19,
+   "RW": 20,
    "SC": 6,
    "SE": 5,
    "SG": 4,
@@ -1448,7 +1448,7 @@
    "WS": 7
   },
   "docs/spec/_assets/tbl-glossary.md": {
-   "IC": 137,
+   "IC": 138,
    "K": 132,
    "N": 15,
    "P": 22,

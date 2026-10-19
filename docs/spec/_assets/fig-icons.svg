@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 452 548" width="452" height="548" role="img" aria-label="GRS icon glyphs IC-1 to IC-168 (IC-18, IC-19, IC-46, IC-49, IC-120, IC-121 and IC-167 retired; IC-109 to IC-114, IC-116 and IC-144 to IC-152 unused)">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 452 592" width="452" height="592" role="img" aria-label="GRS icon glyphs IC-1 to IC-169 (IC-18, IC-19, IC-46, IC-49, IC-120, IC-121 and IC-167 retired; IC-109 to IC-114, IC-116 and IC-144 to IC-152 unused)">
   <title>図 F-019 — アイコンの図形</title>
   <style>
     svg { color: #1f2328; }
@@ -826,4 +826,13 @@
     <path class="s" d="M9 15 L12 18 L20.5 7.5"/>
   </g>
   <text class="lbl" x="424" y="530">IC-166</text>
+  <g transform="translate(16 540)">
+    <path class="s" d="M6 3.5 H13.5 L18 8 V20.5 H6 Z"/>
+    <path class="s" d="M13.5 3.5 V8 H18"/>
+    <path class="s" d="M8.5 12 H15.5"/>
+    <path class="s" d="M8.5 15 H15.5"/>
+    <path class="s" d="M8.5 18 H15.5"/>
+    <path class="s" d="M12 10.5 V18"/>
+  </g>
+  <text class="lbl" x="28" y="574">IC-169</text>
 </svg>

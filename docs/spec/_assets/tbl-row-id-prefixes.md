@@ -80,7 +80,7 @@
 | `DC` | Dual Cursor | `Dual Cursor` の操作の条 | 仕様書 | `T-029a` | 9 |
 | `DEV` | Device | 配置図に載る機器（⛔ `D-` は台帳の欠陥の行と紛れるので使わない。<br>`words` は発明した語ではない） | 仕様書 | `T-007` | 6 |
 | `DF` | — | 文書の形の条 —— 交換相手の木をどう写し、解釈しない要素をどこへ置くか | 仕様書 | `T-053` | 5 |
-| `DFC` | Defect | 台帳に載る欠陥（⛔ `D-` は配置図の機器と紛れるので使わない） | 台帳 | `docs/development-records/backlog-plan-2026-10-04.md` ／ `docs/development-records/defects.md` ／ `docs/development-records/evidence/measured-2026-09-06.md` ／ `docs/development-records/evidence/measured-2026-09-07.md` ／ `docs/development-records/evidence/order-2026-09-06.md` ／ `docs/development-records/fixed-defects.md` | 1843 |
+| `DFC` | Defect | 台帳に載る欠陥（⛔ `D-` は配置図の機器と紛れるので使わない） | 台帳 | `docs/development-records/backlog-plan-2026-10-04.md` ／ `docs/development-records/defects.md` ／ `docs/development-records/evidence/measured-2026-09-06.md` ／ `docs/development-records/evidence/measured-2026-09-07.md` ／ `docs/development-records/evidence/order-2026-09-06.md` ／ `docs/development-records/fixed-defects.md` | 1847 |
 | `DG` | — | 遅延診断が進捗マーカーに与える状態 | 仕様書 | `T-315` | 4 |
 | `DI` | Document Identity | 同じ文書かどうかの見分け方と、上書きの確認の条 | 仕様書 | `T-227` | 6 |
 | `DL` | Delay | 遅れの量の数え方の場合分け | 仕様書 | `T-021b` | 3 |
@@ -126,15 +126,15 @@
 | `HR` | Hierarchy | 階層の操作（展開・折りたたみ・隠し）の種別 | 仕様書 | `T-015` | 9 |
 | `HS` | Header Status | ヘッダーのファイルの状態（名前・書けた時刻・大きさ）の見せ方の項目 | 仕様書 | `T-341` | 12 |
 | `HT` | Hit Test | 応える掴み代を 1 つに決める手順（1〜4） | 仕様書 | `T-267` | 4 |
-| `IC` | Icon | 画面に出すアイコン 1 つ | 仕様書（台帳にも 5 行。コピーとして申告済み） | `T-109` | 137 |
+| `IC` | Icon | 画面に出すアイコン 1 つ | 仕様書（台帳にも 5 行。コピーとして申告済み） | `T-109` | 138 |
 | `IF` | Interface | 層をまたぐインターフェース 1 本 | 仕様書 | `T-065` | 8 |
 | `IN` | Input | 入力の作法の条 | 仕様書 | `T-028` | 11 |
-| `IO` | Input / Output | 読み書きする入出力の形式 | 仕様書 | `T-024` | 8 |
+| `IO` | Input / Output | 読み書きする入出力の形式 | 仕様書 | `T-024` | 9 |
 | `IP` | — | 明記されていない親タスクの導き方 | 仕様書 | `T-318` | 5 |
 | `IR` | Interaction Record | 人の操作と画面の描画の記録に、描いたフレームごとに書く画面の状態 | 仕様書 | `T-263` | 4 |
 | `IV` | Invariant | 文書が満たす不変条件 | 仕様書（台帳にも 1 行。コピーとして申告済み） | `T-220` | 23 |
 | `IX` | Image eXport | 画像の書き出しの規則の条 | 仕様書 | `T-241` | 16 |
-| `JDG` | Judgment | 利用者の裁定（⛔ `R-` はデータの経路と紛れるので使わない。<br>`RL` が「実体のあいだの関係」であり `RLG-` は 1 字違い、`RUL-` は「規則」と紛れるので選ばなかった） | 台帳 | `docs/development-records/rulings.md` | 1695 |
+| `JDG` | Judgment | 利用者の裁定（⛔ `R-` はデータの経路と紛れるので使わない。<br>`RL` が「実体のあいだの関係」であり `RLG-` は 1 字違い、`RUL-` は「規則」と紛れるので選ばなかった） | 台帳 | `docs/development-records/rulings.md` | 1705 |
 | `JF` | — | `src/` の `.json` の置き場 | 仕様書 | `T-248` | 4 |
 | `K` | Key | 設定値のキー 1 つ | 仕様書 | `T-104` | 132 |
 | `L` | Level of Detail | 表示量の増減（LOD）の種別 | 仕様書 | `T-005a` | 2 |
@@ -199,7 +199,7 @@
 | `RS` | — | 通知が運ぶ理由 | 仕様書 | `T-233` | 81 |
 | `RT` | — | 依存線の経路が満たす規則 | 仕様書 | `T-018a` | 7 |
 | `RV` | — | 描くときに求める値（文書は持たず、描くたびに導く） | 仕様書 | `T-069` | 6 |
-| `RW` | — | 遅延診断レポートの窓が検索パネルと違う所 | 仕様書 | `T-346` | 19 |
+| `RW` | — | 遅延診断レポートの窓が検索パネルと違う所 | 仕様書 | `T-346` | 20 |
 | `S` | Setting | 設定値 1 つ。<br>一連の通し番号を主題ごとに複数の表へ割っているだけであり、同じ綴りが別のものを指しているのではない | 仕様書 | `T-201` ／ `T-202` ／ `T-203` ／ `T-216` ／ `T-204` ／ `T-205` ／ `T-206` ／ `T-333` ／ `T-207` ／ `T-236` ／ `T-294` ／ `T-212` ／ `T-211` ／ `T-213` ／ `T-214` ／ `T-215` ／ `T-210` ／ `T-209` ／ `T-208` ／ `T-217` | 523 |
 | `SC` | Scroll | 何がスクロールし、何がしないか | 仕様書 | `T-031` | 6 |
 | `SD` | State-machine Definition | 状態機械の原稿が持つものの条 | 仕様書 | `T-250` | 5 |
