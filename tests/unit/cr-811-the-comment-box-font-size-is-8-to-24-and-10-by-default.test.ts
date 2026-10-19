@@ -40,7 +40,10 @@ const BELOW_FONT_MIN = '⚠️ 既定と下限は `fontMin`（表 T-201 の `S-8
 const FLOOR_NOT_APPLIED = '`FR-077` の可読の下限は、この選んだ大きさには当てない。'
 const BOX_FONT_NOT_FLOORED = 'コメントボックスの字は本要求の下限に当てない（`FR-097`、利用者が定めた）。'
 // see FR-006
-const FR_006_ORDER = '枠線の幅 → 枠線の色 → 塗りの色 → 塗りの透過率 → 字の色 → 字の大きさ の順に並べ'
+const FR_006_FONT_SIZE_BELOW_BODY = 'コメントボックスの字の大きさ（表 T-016 の `PR-50`）は見た目の行に数えず、本文の欄（`PR-21`）のすぐ下に置くこと（MUST）'
+const FR_006_LOOK_ORDER = '見た目の行どうしは、どの対象でも 枠線の幅 → 枠線の色 → 塗りの色 → 塗りの透過率 → 字の色 の順に並べ'
+// see PR-48
+const PR_48_BELOW_FONT_SIZE = '本文の欄とフォントサイズの欄（`PR-50`）のすぐ下に置く'
 // see PR-50
 const PR_50_SHOWS_DEFAULT = '列が `null` の箱は、既定の値（`_assets/tbl-settings.md` の表 T-217 の `S-624`）を欄に出す'
 const PR_50_EMPTY_IS_NULL = '欄を空にして確定すると `null` に戻る。'
@@ -257,7 +260,7 @@ const attributeOf = (tag: string, name: string): string | null => new RegExp(`\\
 
 describe('CR-811 premises: the clauses these cases read, and the numbers they stand on', () => {
   it('FR-019, FR-097, FR-077, FR-006, T-016 PR-50 and 05-07-design say it, word for word', () => {
-    for (const clause of [NULL_DRAWS_DEFAULT, DEFAULT_NOT_STEP, PLACED_WITH_NULLS, SIZE_IS_OWN_OR_DEFAULT, RANGE_IS_S_624, WIDTH_FROM_ESTIMATE, BELOW_FONT_MIN, FLOOR_NOT_APPLIED, BOX_FONT_NOT_FLOORED, FR_006_ORDER]) {
+    for (const clause of [NULL_DRAWS_DEFAULT, DEFAULT_NOT_STEP, PLACED_WITH_NULLS, SIZE_IS_OWN_OR_DEFAULT, RANGE_IS_S_624, WIDTH_FROM_ESTIMATE, BELOW_FONT_MIN, FLOOR_NOT_APPLIED, BOX_FONT_NOT_FLOORED, FR_006_FONT_SIZE_BELOW_BODY, FR_006_LOOK_ORDER]) {
       expect(REQUIREMENTS, 'the requirements lost a clause').toContain(clause)
     }
     expect(DESIGN, 'the design lost the read clause').toContain(MISSING_COLUMNS_READ_AS_NULL)
@@ -265,6 +268,7 @@ describe('CR-811 premises: the clauses these cases read, and the numbers they st
     const items = unbroken(readFileSync(join(SPEC, '_assets', 'tbl-property-items.md'), 'utf8').replace(/\r\n/g, '\n').replace(/<br>/g, ''))
     expect(items, 'T-016 lost the PR-50 default clause').toContain(PR_50_SHOWS_DEFAULT)
     expect(items, 'T-016 lost the PR-50 empty clause').toContain(PR_50_EMPTY_IS_NULL)
+    expect(items, 'T-016 lost the PR-48 placing clause').toContain(PR_48_BELOW_FONT_SIZE)
   })
 
   it('AT-168 is CommentBox.fontSizePx, an integer that takes null; CM-103 is setCommentBoxFontSizePx; S-624 is 8..24 with default 10; T-215 is S 12 / M 14 / L 16', () => {
@@ -514,7 +518,7 @@ describe(`05-07-design: ${MISSING_COLUMNS_READ_AS_NULL}`, () => {
   })
 })
 
-describe('T-016 PR-50 and FR-006: the Font Size row sits right after PR-46 in the comment box panel', () => {
+describe('T-016 PR-50 and FR-006: the Font Size row sits right after the body row in the comment box panel', () => {
   const NOTE = 'c1'
   const panelWith = (fontSizePx: number | null) =>
     panelOf(documentOf({ tasks: [], commentBoxes: [commentBoxOf(NOTE, { fontSizePx })] }), { kind: 'commentBox', id: NOTE })
@@ -526,12 +530,18 @@ describe('T-016 PR-50 and FR-006: the Font Size row sits right after PR-46 in th
     expect(item.inputKinds).toEqual(['数値'])
   })
 
-  it(`${FR_006_ORDER} -- the comment box panel lists PR-50 immediately after PR-46`, () => {
+  it(`${FR_006_FONT_SIZE_BELOW_BODY} -- the comment box panel lists PR-50 immediately after PR-21`, () => {
     const rows = panelWith(null).fields.map((one) => one.row)
-    expect(rows).toContain('PR-46')
+    expect(rows).toContain('PR-21')
     expect(rows).toContain('PR-50')
-    expect(rows.indexOf('PR-50')).toBe(rows.indexOf('PR-46') + 1)
+    expect(rows.indexOf('PR-50')).toBe(rows.indexOf('PR-21') + 1)
     expect(rows.filter((one) => one === 'PR-50')).toHaveLength(1)
+  })
+
+  it(`${PR_48_BELOW_FONT_SIZE} -- the comment box panel lists PR-48 immediately after PR-50`, () => {
+    const rows = panelWith(null).fields.map((one) => one.row)
+    expect(rows).toContain('PR-48')
+    expect(rows.indexOf('PR-48')).toBe(rows.indexOf('PR-50') + 1)
   })
 
   it('the row carries one number control on CommentBox.fontSizePx, labelled フォントサイズ', () => {

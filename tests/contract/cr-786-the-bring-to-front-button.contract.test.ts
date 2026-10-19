@@ -71,8 +71,9 @@ describe('CR-786 premise -- T-016 holds PR-48 and PR-49 as command rows with the
     expect(bare(t016(row)['対象'] ?? '')).toBe(target)
   })
 
-  it('T-016 prints PR-48 right after PR-21 (PR-48 note: right below the text field)', () => {
-    expect(T_016_ORDER.indexOf(PR_48)).toBe(T_016_ORDER.indexOf(PR_21) + 1)
+  it('T-016 prints PR-48 right after PR-21 and PR-50 (PR-48 note: right below the text and font size fields)', () => {
+    expect(T_016_ORDER.indexOf(PR_48)).toBe(T_016_ORDER.indexOf(PR_21) + 2)
+    expect(T_016_ORDER.indexOf(PR_48)).toBe(T_016_ORDER.indexOf('PR-50') + 1)
   })
 
   it('T-016 prints PR-49 first among the HighlightBox rows (FR-006: the look rows close the rows of a target)', () => {

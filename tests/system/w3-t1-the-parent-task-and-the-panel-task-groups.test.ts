@@ -17,7 +17,7 @@ const FR_135_FIELD = 'プロパティパネルの親タスクの欄の出し方�
 const FR_135_HANDS = '—— 候補がどれかを図の上で読み、そのまま引いて結べる。親タスクを結ぶ・外す手は 表 T-351 に従うこと（MUST）'
 const FR_075_COLORS = '掴み点の寸法は `_assets/tbl-settings.md` の表 T-210 が持つ。掴み点の面と縁は、同書の 表 T-236 の `S-527` と `S-528` の色で描くこと（MUST）'
 const FR_006_LOOK_LAST =
-  '⭐ 見た目の行（表 T-016 の入力の型に `色` を含む行と、塗りの透過率・枠線の幅・字の大きさの行）は、同じ対象の行の並びの末尾に置くこと（MUST）'
+  '⭐ 見た目の行（表 T-016 の入力の型に `色` を含む行と、塗りの透過率・枠線の幅の行）は、同じ対象の行の並びの末尾に置くこと（MUST）'
 // WHY: CR-690 -- the old span row retired; the field rule is FX-5 of table T-367 (one settle, written only while fixed).
 const IX_17_FIELD =
   '⭐ 2 つの入力は 1 つの欄として確定し、確定した値で 表 T-108 の `CM-88` を、片方か 2 つともを空にして確定したら同表の `CM-89` を、1 回発行すること（MUST）'
