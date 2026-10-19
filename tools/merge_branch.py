@@ -4,7 +4,7 @@
     python tools/merge_branch.py <branch or sha> [--band DFC=1100-1109 ...]
                                  [--gate GT-1|GT-2|none] [--no-commit]
 
-Run it in the checkout of the branch that receives the merge (refactor). It
+Run it in the checkout of the branch that receives the merge (develop). It
 NEVER pushes. It prints five lines; the full output of every step goes to
 scratch/merge-branch/last-run.log.
 

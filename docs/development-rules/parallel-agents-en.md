@@ -19,12 +19,12 @@ The Japanese version is [parallel-agents-ja.md](parallel-agents-ja.md).
 3. **Commit only your own files.** List the paths in `git add`. Report the privacy-check counts before commit and push. The developer makes tags.
    ⭐ Commands that sweep up other sessions' changes are stopped by a machine, the hook `.claude/hooks/block-sweeping-git.py`: `git add -A`, `git add .`, `git add -u`, `git commit -a` and `git stash` (`list` and `show` are let through).
 4. **Heavy runs one at a time.** Only one session at a time runs e2e or a performance measurement. The developer allows a performance measurement before it starts.
-5. **Try the root's `dist/index.html`.** Try it only after the main session has moved `refactor`, rebuilt it, and said "ready to try" with the branch and commit.
+5. **Try the root's `dist/index.html`.** Try it only after the main session has moved `develop`, rebuilt it, and said "ready to try" with the branch and commit.
 
 ## The first message for a second session
 
 ````text
-Another session (the main one) is working at the same time in the root of the refactor branch. Keep to the following.
+Another session (the main one) is working at the same time in the root of the develop branch. Keep to the following.
 - You may touch only [folders or files]. Only read everything else.
 - Do not write rulings.md, defects.md, fixed-defects.md, handoff.md or the check baselines. When something needs recording, give me text to paste into the main session.
 - List paths in git add. Commit only your own files, after reporting the privacy-check counts. (git add -A, git add ., git add -u, git commit -a and git stash are blocked by a hook.)
