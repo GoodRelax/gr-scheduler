@@ -181,13 +181,20 @@ JavaScript が、同じ版の単一 `.html` と `GRS JSON` のスキーマを中
 束を入れる人は Node も何も入れなくてよい —— 実行の土台は AI のアプリが持つ（`AG-12` の ①）。  
 後者の形は、同じ JavaScript のファイル 1 つ（`grs-relay.mjs`）である。  
 取次は、動くときに手元のファイルを 1 つも読まない。  
-⭐ 束と取次の版は、組み立てたソースのコミットの時刻を UTC で表した日時とする（CR-799、利用者の裁定 R4） —— 人が読む形は `2026-10-18T08:12:34Z` である。  
+⭐ 束と取次の版は、取次の中身（下の「取次の中身」）を最後に変えた時刻を UTC で表した日時とする（CR-799、CR-820） —— 人が読む形は `2026-10-18T08:12:34Z` である。  
+⭐ 版は `tools/artifact-versions.json` に書いてコミットし、組み立ては git に問わずにそれを読む（CR-820、利用者が版をファイルに書くと定めた） —— 中身に触れないコミット（docs だけのコミット）からは、同じ版と同じバイト列ができる。  
+公開の組み立ての checkout は浅く、履歴を持たない。  
+取次の中身は、`src/`・`dist/index.html`・`vite.relay.config.ts`・`tools/build_relay_bundle.mjs`・`tools/relay_version.mjs`・2 つのスキーマ（`docs/spec/_source/grs-document.schema.json`・`grs-commands.schema.json`）・`package-lock.json` であり、同じファイルの `grsRelayInputs` が持つ。  
+⛔ 中身を変えて版を上げないままにしてはならない（MUST NOT） —— `check.sh` の検査が、中身を最後に変えたコミットが版の行を最後に変えたコミットより後ならば止める。  
+版を上げるのは `node tools/artifact_versions.mjs bump grsRelay` である。  
 `manifest.json` の `version` と、初期化の答えの `serverInfo` の版は semver でなければならないので、同じ時刻を `年.月日.時分秒` の 3 つの数（例 `2026.1018.81234`）で書く —— semver は数の頭の 0 を許さないので、月日と時分秒は頭の 0 を落とした数である（1 月 5 日 0 時 12 分 34 秒は `2026.105.1234`）。  
 ⭐ pre-release の印（`0.0.0-20261018T081234Z` の形）にしない —— 入れる側がその版を「不安定」と読みうる。  
 3 つの数の形なら、semver として比べた順が時刻の順になる。  
 人が読む形は `manifest.json` の `description` の頭（`Built 2026-10-18T08:12:34Z.`）と、入手する所の頁の 2 つのボタンの下に出す。  
-同じコミットから作れば同じ版になる —— 時刻は組み立てのときに git から取る（`tools/relay_version.mjs`）。  
-公開の組み立ては push したコミットから作るので、頁の版は配るファイルの版と一致する。  
+同じコミットから作れば、いつどの機械で作っても同じバイト列になる —— 時計・地域の設定・ファイルの並びは束に届かない。  
+GT-2 は束を 2 度作り、SHA-256 が同じことを確かめる（`tools/check_reproducible_artifacts.mjs`）。  
+⭐ サーバー同期のデモの zip（`grs-server-sync-demo.zip`）も同じく、中身（`demo/server-sync/`・`dist/index.html`・`sample-schedule/` の 1 つの見本）を最後に変えた時刻を `serverSyncDemoBuiltAt` に持ち、zip の各項目はその時刻（UTC）を持つ —— 組み立てた時刻を持たない。  
+頁の版も同じファイルから書くので、配るファイルの版と一致する。  
 ⚠️ これは CR-791 の版（`package.json` の版に単一 `.html` の SHA-256 の頭 12 桁を繋いだもの）を置き換える —— 利用者が、版を日時にすると定めた。  
 どちらも公開する単一 `.html` と同じ組み立てで作り、最新版を入手する所（`_assets/tbl-settings.md` の 表 T-206 の `S-350`）の頁に置く —— `GRS` はその頁を、ヘルプの左上のリンクと `IC-20` の項目のリンクで案内するだけで、自分では取得しない（`FR-036`、表 T-003 の `CN-6`）。  
 ⛔ バッチファイル・シェルのスクリプト・実行ファイルでは配らない —— インターネットから落とした署名の無いこれらを OS の保護が止め、止まらない機械でも利用者に警告を越えさせる。  

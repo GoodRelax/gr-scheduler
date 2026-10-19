@@ -3,6 +3,7 @@
 //
 //   node tools/gate/run-gate.mjs GT-1   commit:  precheck, typecheck, gen:check, vitest, check.sh
 //   node tools/gate/run-gate.mjs GT-2   push:    precheck --unpushed, GT-1, vite build, relay build,
+//                                                both artifacts built twice to the same bytes,
 //                                                use-case tests (file://) and e2e, parity
 //   GRS_PERF=1 node tools/gate/run-gate.mjs PERF   performance: vite build, the two clock-reading
 //                                                files of tests/nfr with GRS_PERF=1 (JDG-605)
@@ -259,6 +260,8 @@ function main(gate, argv = []) {
 
     mustPass('vite build', 'npm run build', env)
     mustPass('relay build', 'npm run build:relay', env)
+    // CR-820: the same commit packs the same grs-relay.mcpb and demo zip, built twice.
+    mustPass('reproducible artifacts', 'node tools/check_reproducible_artifacts.mjs', env)
     const playwrightReport = join(scratch, 'playwright.json')
     run('use-case tests (file://) and e2e', process.execPath, [
       findInNodeModules(join('@playwright', 'test', 'cli.js')), 'test', '--reporter=list,json',

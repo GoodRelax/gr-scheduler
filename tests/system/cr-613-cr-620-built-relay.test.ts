@@ -1,7 +1,7 @@
 // CR-613 / CR-620 spec-only tests: the built page's CSP (T-232 PO-7) and the relay artifacts in dist-relay/ (AG-12 (1), design 6).
 
 import { expect, test } from '@playwright/test'
-import { execFileSync, spawn, type ChildProcess } from 'node:child_process'
+import { spawn, type ChildProcess } from 'node:child_process'
 import { createHash } from 'node:crypto'
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { request as httpRequest } from 'node:http'
@@ -127,10 +127,12 @@ test('design 7 / AG-12 (9): the manifest asks for saveFolder and confirmBeforeOv
   ])
 })
 
-// WHY: design 6 (CR-799) -- the version is the commit time of the built source, in UTC: builtAt for people, YEAR.MMDD.HHMMSS for semver.
+// WHY: design 6 (CR-799, CR-820) -- the version is the UTC time held as grsRelayBuiltAt in tools/artifact-versions.json (never asked of git):
+// builtAt for people, YEAR.MMDD.HHMMSS for semver.
 function expectedBuild(): { builtAt: string; semver: string } {
-  const seconds = Number(execFileSync('git', ['log', '-1', '--format=%ct', 'HEAD'], { cwd: process.cwd(), encoding: 'utf8' }).trim())
-  const builtAt = `${new Date(seconds * 1000).toISOString().slice(0, 19)}Z`
+  const versions = JSON.parse(readFileSync(join(process.cwd(), 'tools', 'artifact-versions.json'), 'utf8')) as { grsRelayBuiltAt?: string }
+  const builtAt = versions.grsRelayBuiltAt ?? ''
+  if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/.test(builtAt)) throw new Error(`grsRelayBuiltAt is missing or malformed: ${builtAt}`)
   const [year = '', month = '', day = '', hour = '', minute = '', second = ''] = builtAt.split(/[-T:Z]/)
   return { builtAt, semver: `${Number(year)}.${Number(month + day)}.${Number(hour + minute + second)}` }
 }
