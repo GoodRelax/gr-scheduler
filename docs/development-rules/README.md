@@ -77,6 +77,7 @@
 |---|---|---|
 | [`parallel-agents-ja.md`](parallel-agents-ja.md) ／ [`parallel-agents-en.md`](parallel-agents-en.md) | AI のセッションを 2 つ以上同時に動かすとき、開発する人がすること。巻き込む git コマンドはフック `.claude/hooks/block-sweeping-git.py` が止める。⭐ セッションどうしの作法（調整役・番号・push の口）は 05 の 13 が持つ | セッションを 2 つ以上開くとき |
 | [`usability-principles-ja.md`](usability-principles-ja.md) | 使い勝手の原則と、その出典 | UI の振る舞いを提案・審査するとき |
+| [`user-wording.md`](user-wording.md)（正は [`user-wording.json`](user-wording.json)、`npm run wording` が作る） | 利用者が画面の外で読む文の語の日英の表（副）。使う語と避ける語（ダウンロード・インストール など）。画面の語は用語集が正 | README・リリースノート・配るページの文を書くとき |
 
 ⭐ **規則ではなく、開発する人のための手引きである。** だから番号を振らず、上の「毎回読む」本数にも数えない。
 

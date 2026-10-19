@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 """Say whether a commit may be pushed, and print the push command when it may.
 
-    python tools/push_guard.py <sha or ref> [--base origin/refactor] [--no-gt2 "reason"]
+    python tools/push_guard.py <sha or ref> [--base origin/develop] [--no-gt2 "reason"]
     python tools/push_guard.py --hook      # PreToolUse: read the tool call on stdin
     python tools/push_guard.py --self-test # the check of the check
 
 THE RULE (JDG-2120, JDG-2126). This repository is public, and a push cannot be
-taken back. A push publishes what <base>...<sha> adds (base: origin/refactor;
-run `git fetch origin` first so it is current), and:
+taken back. A push publishes what <base>...<sha> adds (base: origin/develop, or
+origin/refactor while origin has no develop -- JDG-2935; run `git fetch origin` first
+so it is current), and:
 
   1. the privacy count of that range (tools/privacy_count.py --range) is 0,
      always;
@@ -33,7 +34,7 @@ no flag does. `--hook` refuses a push when it reaches main in any form: `x:main`
 refspec it cannot read (a `$` or a backtick in the target), and a push with no refspec while
 the current branch is main, tracks main, or push.default / remote.<name>.push would send
 main. The command is also read inside `bash -c "..."` / `pwsh -Command "..."` and behind
-`command` / `env` / `nohup` / `sudo`. A release is a refactor -> main pull request that the
+`command` / `env` / `nohup` / `sudo`. A release is a develop -> main pull request that the
 user reviews and merges on GitHub (docs/development-records/handoff.md, "Release to main").
 Pushing tags is not guarded.
 
@@ -60,7 +61,9 @@ import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
-DEFAULT_BASE = 'origin/refactor'
+# JDG-2935: the development branch refactor is renamed develop. Until the user deletes
+# origin/refactor, the first of these that origin has is the push target and the default base.
+DEV_BRANCHES = ('develop', 'refactor')
 # JDG-1965 (rule 04 section 4): a push that changes none of these is data only and needs no GT-2.
 GATED_PREFIXES = ('src/', 'tests/', 'dist/', 'docs/spec/')
 RULE = 'JDG-2120'
@@ -115,8 +118,18 @@ def privacy_clean(spec):
     return done.returncode == 0, done.stdout.strip()
 
 
-def verdict(ref, base=DEFAULT_BASE, reason=None, results=None):
+def dev_branch():
+    """The development branch origin has: develop, else refactor (JDG-2935); develop when neither resolves."""
+    for name in DEV_BRANCHES:
+        if full_sha('origin/' + name):
+            return name
+    return DEV_BRANCHES[0]
+
+
+def verdict(ref, base=None, reason=None, results=None):
     """(may push, lines saying why). `reason` is the coordinator's word that GT-2 is not needed."""
+    target = dev_branch()
+    base = base or 'origin/' + target
     sha = full_sha(ref)
     if sha is None:
         return False, ['cannot resolve %r to a commit' % ref]
@@ -154,8 +167,8 @@ def verdict(ref, base=DEFAULT_BASE, reason=None, results=None):
                      % (len(gated), ' '.join(GATED_PREFIXES), gated[0], sha[:8], REASON_VARIABLE))
         ok = False
     if ok:
-        # JDG-2930: main is never pushed; a release is a refactor -> main pull request.
-        lines.append('%sgit push origin %s:refactor' % (prefix, sha))
+        # JDG-2930: main is never pushed; a release is a develop -> main pull request.
+        lines.append('%sgit push origin %s:%s' % (prefix, sha, target))
     return ok, lines
 
 
@@ -190,7 +203,7 @@ def pushed_refs(args):
     sources = []
     for refspec in refspecs:
         source = refspec.lstrip('+').split(':', 1)[0]
-        # WHY no repeats: the coordinator pushes one sha to two names (<sha>:refactor <sha>:main).
+        # WHY no repeats: the coordinator pushes one sha to two names (<sha>:develop <sha>:main).
         if source and source not in sources:
             sources.append(source)
     return sources
@@ -330,7 +343,7 @@ def refusal_of(command, judge=verdict, reader=None, query=git, reason=None, dept
         why = main_target_of(call[1], ask)
         if why:
             return ('`git push` refused by tools/push_guard.py (%s): %s. main is never pushed -- push only '
-                    'to refactor; a release is a refactor -> main pull request opened after GT-2 passed on '
+                    'to develop; a release is a develop -> main pull request opened after GT-2 passed on '
                     'that sha, which the user reviews and merges on GitHub (docs/development-records/'
                     'handoff.md, "Release to main"). No flag or environment variable overrides this.'
                     % (MAIN_RULE, why))
@@ -361,11 +374,18 @@ SELF_TEST = [
     ('GRS_PUSH_NO_GT2="ledger rows only" git push origin needs:refactor', {'needs'}, False),
     ('$env:GRS_PUSH_NO_GT2="ledger rows only"; git push origin needs:refactor', {'needs'}, False),
     ('GRS_PUSH_NO_GT2= git push origin needs:refactor', {'needs'}, True),
+    # JDG-2935: develop is judged as refactor was
+    ('git push origin abc:develop abc:main', set(), True),
+    ('git push origin abc:develop', set(), False),
+    ('git push origin +abc:develop', {'abc'}, True),
+    ('git push origin needs:develop', {'needs'}, True),
+    ('GRS_PUSH_NO_GT2="ledger rows only" git push origin needs:develop', {'needs'}, False),
 ]
 
 
 # JDG-2930: every form of a push that reaches main. state: what `git config` / HEAD say (see stub_query).
 ON_REFACTOR = {'branch': 'refactor'}
+ON_DEVELOP = {'branch': 'develop'}  # JDG-2935
 MAIN_CASES = [
     # (command, repository state, expect refusal)
     ('git push origin abc:main', ON_REFACTOR, True),
@@ -379,6 +399,8 @@ MAIN_CASES = [
     ('git push origin :main', ON_REFACTOR, True),
     ('git push origin --delete main', ON_REFACTOR, True),
     ('git push origin abc:refactor abc:main', ON_REFACTOR, True),
+    ('git push origin abc:develop abc:main', ON_DEVELOP, True),
+    ('git push', {'branch': 'develop', 'branch.develop.merge': 'refs/heads/main'}, True),
     ('git push origin abc:heads/main', ON_REFACTOR, True),
     ('git push --all', ON_REFACTOR, True),
     ('git push --all origin', ON_REFACTOR, True),
@@ -418,6 +440,14 @@ MAIN_CASES = [
     ('git push origin HEAD:refactor', ON_REFACTOR, False),
     ('git push origin refs/heads/main:refs/heads/refactor', ON_REFACTOR, False),
     ('git push origin abc:mainline', ON_REFACTOR, False),
+    ('git push origin abc:develop', ON_DEVELOP, False),
+    ('git push origin abc:refs/heads/develop', ON_DEVELOP, False),
+    ('git push origin +abc:develop', ON_DEVELOP, False),
+    ('git push origin HEAD:develop', ON_DEVELOP, False),
+    ('git push origin develop', ON_DEVELOP, False),
+    ('git push', ON_DEVELOP, False),
+    ('git push origin', {'branch': 'develop', 'branch.develop.merge': 'refs/heads/develop'}, False),
+    ('git push origin abc:develop', ON_REFACTOR, False),
     ('git push origin abc:feature/main', ON_REFACTOR, False),
     ('git push origin --delete old-branch', ON_REFACTOR, False),
     ('git push origin :old-branch', ON_REFACTOR, False),
@@ -482,7 +512,7 @@ def main(argv):
             return 0
         sys.stderr.write(reason + '\n')
         return 2
-    base = argv[argv.index('--base') + 1] if '--base' in argv else DEFAULT_BASE
+    base = argv[argv.index('--base') + 1] if '--base' in argv else None
     reason = argv[argv.index('--no-gt2') + 1] if '--no-gt2' in argv else None
     ok, lines = verdict(argv[0], base, reason)
     for line in lines:

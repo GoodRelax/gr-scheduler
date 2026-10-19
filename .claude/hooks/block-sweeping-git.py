@@ -187,7 +187,7 @@ SELF_TEST = [
     ('git add docs/a.md docs/b.md', False),
     ('git add docs/guides/', False),
     ('git commit -m "never use git add -A"', False),
-    ('git commit -q -F - <<\'EOF\'\nWe stopped using git add -A and git stash.\nEOF\ngit push origin refactor', False),
+    ('git commit -q -F - <<\'EOF\'\nWe stopped using git add -A and git stash.\nEOF\ngit push origin develop', False),
     ('git commit -q -F - <<\'EOF\'\ngit add -A is refused now\ngit stash too\nEOF', False),
     ('git commit -q -F - <<\'EOF\'\nmessage\nEOF\ngit add -A', True),
     ('git commit -mall', False),

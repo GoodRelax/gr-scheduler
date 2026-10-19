@@ -18,12 +18,12 @@ AI 側の詳しい規則は `docs/development-rules/05-working-method.md`（3 �
 3. **commit は自分のファイルだけ。** `git add` にはパスを並べる。個人情報の点検の数を報告してから commit・push する。タグは開発する人が打つ。
    ⭐ 他のセッションの変更を巻き込むコマンドは、フック `.claude/hooks/block-sweeping-git.py` が機械で止める —— `git add -A`・`git add .`・`git add -u`・`git commit -a`・`git stash`（`list` と `show` は通す）。
 4. **重い走行は 1 つずつ。** e2e と性能の測定は、同時に 1 つのセッションだけが回す。性能の測定の前は開発する人が許す。
-5. **試すのは根の `dist/index.html`。** 主が `refactor` を進めて作り直し、「試せる」とブランチ・commit を添えて言ったときだけ試す。
+5. **試すのは根の `dist/index.html`。** 主が `develop` を進めて作り直し、「試せる」とブランチ・commit を添えて言ったときだけ試す。
 
 ## 2 つ目のセッションに貼る最初の文
 
 ````text
-refactor ブランチの根で、別のセッション（主）が同時に作業している。次を守れ。
+develop ブランチの根で、別のセッション（主）が同時に作業している。次を守れ。
 - 触ってよいのは ［フォルダやファイル］ だけ。それ以外は読むだけにせよ。
 - rulings.md・defects.md・fixed-defects.md・handoff.md・検査の基準線は書くな。記録が要るときは、主に貼る文を私に渡せ。
 - git add はパスを並べよ。git add -A と git stash は使うな。commit は自分のファイルだけ、個人情報の点検の数を報告してから。

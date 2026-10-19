@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Say which of the costly tests a merged range needs, and in which order.
 
-    python tools/test_route.py [<A..B>]       # default origin/refactor..HEAD
+    python tools/test_route.py [<A..B>]       # default origin/develop..HEAD
     python tools/test_route.py --self-test    # each route on a planted file list
     python tools/test_route.py --check-rule   # ROUTES and STEPS match rule 04 section 7
 
@@ -50,7 +50,7 @@ ROOT = os.path.dirname(HERE)
 sys.path.insert(0, HERE)
 from push_guard import GATED_PREFIXES  # noqa: E402  -- one list of the paths GT-2 guards
 
-DEFAULT_RANGE = 'origin/refactor..HEAD'
+DEFAULT_RANGE = 'origin/develop..HEAD'
 RULE = 'docs/development-rules/04-verification.md'
 PENDING = 'docs/development-records/perf-pending.md'
 CHECKLISTS = 'docs/review/'

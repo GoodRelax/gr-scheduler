@@ -250,12 +250,13 @@
 
 ## main へのリリース（2026-10-20、利用者の裁定 `JDG-2930`〜`JDG-2934`）
 
-- α 版 ＝ 2026-10-19 昼の `34d6ee84`（ビルド版 `2026.1019.22508`）。origin の `main`・`refactor` と GitHub Pages がこの版である。
+- α 版 ＝ 2026-10-19 昼の `34d6ee84`（ビルド版 `2026.1019.22508`）。origin の `main`・`refactor`（2026-10-20 に `develop` へ改名、`JDG-2935`）と GitHub Pages がこの版である。
 - ⛔ **`main` は保護されている。** みだりに push しない。壁は 2 枚: (1) GitHub の ruleset（`main` は PR のみ・バイパス無し。**利用者が GitHub で設定する** —— 設定したら本節に 1 行足す、`JDG-2932`）。(2) `tools/push_guard.py`（Claude のフックが `git push` ごとに呼び、`main` に届く形をすべて拒む。環境変数もフラグも上書きにならない。`python tools/push_guard.py --self-test`）。GitHub は Claude の push と利用者の push を区別できない（どちらも利用者の認証）ので、2 枚目が要る。
-- 日々: push 先は `refactor` だけ。`python tools/push_guard.py <sha>` が刷る `git push origin <sha>:refactor` を、`grep -q "GT-2 <sha> passed"` を見てから単独の 1 コマンドで打つ。
-- リリース: 1) 出す sha に `GT-2` が通っている。2) `refactor` → `main` の PR を開く（`gh pr create --base main --head refactor`。本文に変更履歴の版・ビルド版・`GT-2` の結果を書く）。3) **利用者が GitHub で見て合流する。** 4) 合流の後、利用者がタグを打つ。5) 配備: `pages.yml` は `workflow_dispatch` だけなので、合流の後に `gh workflow run pages.yml --ref main`（push ではない）。
+- 日々: push 先は `develop` だけ（旧名 `refactor`、`JDG-2935`）。`python tools/push_guard.py <sha>` が刷る `git push origin <sha>:develop` を、`grep -q "GT-2 <sha> passed"` を見てから単独の 1 コマンドで打つ。
+- リリース: 1) 出す sha に `GT-2` が通っている。2) `develop` → `main` の PR を開く（`gh pr create --base main --head develop`。本文に変更履歴の版・ビルド版・`GT-2` の結果を書く）。3) **利用者が GitHub で見て合流する。** 4) 合流の後、利用者がタグを打つ。5) 配備: `pages.yml` は `workflow_dispatch` だけなので、合流の後に `gh workflow run pages.yml --ref main`（push ではない）。
 - ⛔ 調整役は PR を合流しない・タグを打たない・`main` へ push しない。
 - `previous-project-result/` は 2026-10-20 に `studies/` に改めた（`JDG-2940`〜`JDG-2944`）。逐語・当てた CR・過去の記録には古い名が残る。着地済みの変更要求の道の改名は `path-renames.txt` の行が説明する（検査 62、`JDG-2945`）。
+- 古い 4 枝（`grab-area-spec`・`mspdi-both-versions`・`restart`・`scale-and-fold`）は、記念のタグを打ってから GitHub から消す。どちらも利用者がする（`JDG-2947`）。
 
 ## 次のセッションに貼る 1 通目
 
@@ -265,9 +266,9 @@
 あなたは新しい調整役である（2026-10-17 に前の調整役 coord-1016 が、コンテキストを 1 度圧縮したので引き継いだ）。⛔ 調整だけをする（利用者の裁定 2026-10-17「調整役/司令塔に実業務をさせるな」）—— 調べもの・試験・台帳の手直し・継ぎ目の直し・ファイルの読み込みは、すべて席（セッション）か体（Agent）に出す。調整役が手を動かすのは、帯と持ち場と順を決めること、合流（衝突は生成物を作り直すだけ。継ぎ目の直しは席へ返す）、関門（GT-2・PERF）、根の早送り、push だけ。前の調整役は継ぎ目の直しを自分でしてコンテキストを使った —— まねるな。説明は日本語、コードとコミット文は英語 ASCII。
 唯一の引継書は docs/development-records/handoff.md である。冒頭の 🆕 の節（2026-10-16〜17 の巡）から読め。計画は docs/development-records/project-plan.json（読み方は project-plan.md）—— 最初の指示はこの計画に沿って利用者と決める。次にメモリーを読め: alpha-scope-by-agreement・coordinator-only-role・gt2-read-the-verdict-before-push・onedrive-stays-ask-user・rulings-in-origin-session・merge-count-ids-both-sides・never-report-unrun-actions・chrome-extension-drag-does-not-reach-grs。試験の選び方は規則 04 の 7 節と tools/test_route.py（JDG-2419）。
 
-0. 今の姿（⛔ 信じず測れ: git log -1 origin/refactor・根の git log -1）
+0. 今の姿（⛔ 信じず測れ: git log -1 origin/develop・根の git log -1）
    - origin は 9171429f。根と統合の枝 integ/coord-1016（作業木 .claude/worktrees/coord-1016）は 4392d587 の上の引継書のコミット（git log -1 で測れ）（push していない。docs/spec の生成表を含むので GT-2 の後に push）。あなたは自分の作業木を切り、git merge --ff-only 4392d587 の上の引継書のコミット（git log -1 で測れ） から積め。根の早送りは調整役が git -C <根> merge --ff-only <sha> で自分でやる。
-   - GT-2: 根で node tools/gate/gate-queue.mjs enqueue GT-2 → GRS_DEV_PORT=5992 node tools/gate/gate-queue.mjs drain > ログ（リポジトリの外）。push は grep -q "GT-2 <sha> passed" を見てから git push origin <sha>:refactor を単独の 1 コマンドで（⛔ main へは push しない、JDG-2930。リリースは「main へのリリース」の節の PR）。OneDrive は止まっていることを確かめる（止まっていなければ利用者に頼む）。
+   - GT-2: 根で node tools/gate/gate-queue.mjs enqueue GT-2 → GRS_DEV_PORT=5992 node tools/gate/gate-queue.mjs drain > ログ（リポジトリの外）。push は grep -q "GT-2 <sha> passed" を見てから git push origin <sha>:develop を単独の 1 コマンドで（⛔ main へは push しない、JDG-2930。リリースは「main へのリリース」の節の PR）。OneDrive は止まっていることを確かめる（止まっていなければ利用者に頼む）。
 1. 最初にやること
    1) 不具合を受け付ける席の提案チップを出す（利用者の指示）。利用者の報告「実績を入力するUIが変になった」を最初に渡す。疑い: DFC-2870 の 1 回目の直し 35fcdfa4（9171429f で公開済み）・レーン 1 の当て直し 1e1f6707／bcd5a4dd（未合流）・CR-782（レーン 3、パネルを開く）。
    2) 未合流の 2 本を合流: レーン 1 bcd5a4dd（DFC-2870 当て直し・CR-783）、レーン 3 0f2d5e47（CR-782）。継ぎ目の赤は元の席へ返す。合流したら python tools/test_route.py <範囲> で PERF・e2e・GT-2・探りの要否と順を決める（レーン 1 の未走行 Playwright 1 本、レーン 3 の uc-008／open-defect-pins を含める）。dist の作り直しと GT-2 → push。
