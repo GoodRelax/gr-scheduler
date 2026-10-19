@@ -1,7 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 373 900 98" width="900" height="98" role="img" aria-label="stacked task group hit-test raster, 1px steps, colored by the resolved grab area">
   <title>図 F-023 -- 積んだタスクグループの応え方（hitAt を 1px 刻みで塗る）</title>
   <!-- GENERATED ARTIFACT: do not hand-edit.
-     source: previous-project-result/16-grab-area-sizing/grab-area-sizing-sample.html (behavior)
+     source: studies/16-grab-area-sizing/grab-area-sizing-sample.html (behavior)
              + docs/spec/_source/settings.json (values, gated: see the probe's settings-gate)
      regenerate: node tools/probe/grab-figures.mjs
      produced this file: docs/spec/_assets/fig-hit-stacked-task-group.svg

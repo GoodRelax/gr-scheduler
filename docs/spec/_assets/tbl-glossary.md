@@ -7,7 +7,7 @@
 本書と食い違う名前を他所で見たら、本書が勝つ。  
 本書は `01-04-requirements.md` の Chapter 1.8 から参照される。
 
-由来は前プロジェクトの命名確定版（`previous-project-result/03-ui-naming/ui-parts-ja.md` §2-1）である。
+由来は前プロジェクトの命名確定版（`studies/03-ui-naming/ui-parts-ja.md` §2-1）である。
 
 記法の規則と、単独で使ってはならない曖昧な日本語は **`01-04-requirements.md` の 1.9 表記規約**が持つ。  
 ここには置かない。

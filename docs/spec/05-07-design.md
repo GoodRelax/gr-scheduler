@@ -1010,7 +1010,7 @@ stateDiagram-v2
 **Type**: SECTION
 
 本節は設計の判断を記録する。  
-採番は ADR-000 から始め、前プロジェクトの記録番号は引き継がない（`previous-project-result/README.md` の §0-4）。  
+採番は ADR-000 から始め、前プロジェクトの記録番号は引き継がない（`studies/README.md` の §0-4）。  
 書式は `docs/development-rules/08-spec-template/spec-template.md` の 4 項目に従う。
 
 ⚠️ **4 項目は散文で書き、表にしない。**  
@@ -1812,7 +1812,7 @@ JSON を扱うエディタの多くは、データの文書の `"$schema"` を�
 
 **性能ゲートを先に置く。**
 
-**ゲートを先に置くのは、測らずに機能を積むと、落ちたときに取り返せないからである**（`previous-project-result/04-performance/performance-notes-ja.md` の記録 N-1）。  
+**ゲートを先に置くのは、測らずに機能を積むと、落ちたときに取り返せないからである**（`studies/04-performance/performance-notes-ja.md` の記録 N-1）。  
 **測る動機は、合否が工程を止めるときにしか続かない。**
 
 節目は、その節目で測り直しが済み、合格条件を満たすまで閉じないこと（MUST）。

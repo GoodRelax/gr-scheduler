@@ -15,7 +15,7 @@
 name: Deploy to GitHub Pages
 
 # PAUSED. The automatic trigger is removed while the repository is rebuilt from
-# previous-project-result/: package.json, the app sources and docs/spec/ do not
+# studies/: package.json, the app sources and docs/spec/ do not
 # exist yet, so every push-triggered run fails at "npm ci". The steps below are
 # kept as-is on purpose -- they record the layout that used to work and are the
 # starting point for the rewrite. Restore `push: branches: [main]` only after the

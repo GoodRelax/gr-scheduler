@@ -415,9 +415,9 @@ import ではないので読み手として数えない。
 1. docs/spec                                      ⛔ 仕様が勝つ
 2. docs/reference/mspdi                           交換相手の正典（XSD ＋ 公式文書）
    docs/reference/wcag                            アクセシビリティの正典
-3. previous-project-result/03-ui-naming/          前プロジェクトの確定文書
-4. previous-project-result/08-poc/                動く試作（値を発明せずに済む）
+3. studies/03-ui-naming/          前プロジェクトの確定文書
+4. studies/08-poc/                動く試作（値を発明せずに済む）
 ```
 
 ⛔ **参考のコードを流用しない。** ⭐ **値と規則だけを採る。**
-⚠️ **`previous-project-result/01-mspdi/` は README だけである。** 正典は `docs/reference/` にある。
+⚠️ **`studies/01-mspdi/` は README だけである。** 正典は `docs/reference/` にある。

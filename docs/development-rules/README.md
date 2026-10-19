@@ -57,9 +57,9 @@
 
 | | 何を答えるか | いつ | なぜ |
 |---|---|---|---|
-| [`previous-project-result/README.md`](../../previous-project-result/README.md) | 引継 35 本の入口。**§00 が全ファイルの `type:` の読み方**を定める | 着手時 | ⛔ **`Decision Record`（従う）と `Frozen Record`（追随させない）を取り違えると、当時の検討を決定として採る** |
-| [`previous-project-result/user-order.md`](../../previous-project-result/user-order.md) | **要望の入力そのもの。仕様書の冒頭が「正」と名指す**（17 か所） | 参照時のみ | ⭐ **仕様書が自分自身と食い違ったとき、意図の側を裁ける唯一の上位文書。** CR-186 はこれで解いた |
-| [`previous-project-result/04-performance/performance-notes-ja.md`](../../previous-project-result/04-performance/performance-notes-ja.md) | 「ぬるサク」の引継ぎ。効いた手・効かなかった手・実測基準線 | 仕様を書くとき | ⭐ **仕様書が「これを読んだうえで決める」と条件付けている唯一の引継ぎ文書** |
+| [`studies/README.md`](../../studies/README.md) | 引継 35 本の入口。**§00 が全ファイルの `type:` の読み方**を定める | 着手時 | ⛔ **`Decision Record`（従う）と `Frozen Record`（追随させない）を取り違えると、当時の検討を決定として採る** |
+| [`studies/user-order.md`](../../studies/user-order.md) | **要望の入力そのもの。仕様書の冒頭が「正」と名指す**（17 か所） | 参照時のみ | ⭐ **仕様書が自分自身と食い違ったとき、意図の側を裁ける唯一の上位文書。** CR-186 はこれで解いた |
+| [`studies/04-performance/performance-notes-ja.md`](../../studies/04-performance/performance-notes-ja.md) | 「ぬるサク」の引継ぎ。効いた手・効かなかった手・実測基準線 | 仕様を書くとき | ⭐ **仕様書が「これを読んだうえで決める」と条件付けている唯一の引継ぎ文書** |
 | [`.claude/skills/spec-graph-check/SKILL.md`](../../.claude/skills/spec-graph-check/SKILL.md) | 機械検査と**グラフ道具の使い方**（`impact.py` / `induced.py` / `graph.py`）と過去の罠 | 着手時 | ⛔ **規則 02 が「影響をグラフで測ってから書く」と言う、その道具の使い方がここにしかない** |
 
 ⭐ **小さくて元が取れるもの**: [`docs/spec/strictdoc-quirks.tsv`](../spec/strictdoc-quirks.tsv)（986 バイト。⚠️ **行番号を出さない 3 つのエラーの原因**）と

@@ -62,7 +62,7 @@ REL_PJ15 = 'docs/reference/mspdi/pj15/mspdi_pj15.xsd'
 REL_PJ12 = 'docs/reference/mspdi/pj12/mspdi_pj12.xsd'
 REL_OUT = 'src/adapter/document-codec/mspdi-child-order.json'
 REL_SELF = 'tools/generate_mspdi_child_order.py'
-REL_FETCH = 'previous-project-result/01-mspdi/mspdi/README.md'
+REL_FETCH = 'studies/01-mspdi/mspdi/README.md'
 
 XS = '{http://www.w3.org/2001/XMLSchema}'
 ROOT_ELEMENT = 'Project'

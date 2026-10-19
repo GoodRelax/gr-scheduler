@@ -1,0 +1,23 @@
+# path-renames.txt -- the table of top-level path renames, one row per rename.
+#
+# ROLE (JDG-2945). This file is READ BY check 62 (check-identifier-reservation.py).
+# A tracked change request that git reports as modified is normally IN FLIGHT:
+# check 62 re-measures its "free" claims against today's tree. A rename of a
+# path rewrites a landed change request on purpose, and that rewrite says
+# nothing new -- so a modified change request whose whole diff against HEAD is
+# explained by the rows below is NOT in flight. "Explained" means: every
+# removed line, after every row here is applied to it (in file order), equals
+# the added line that replaces it. Any other change (an added word, an added or
+# removed line) keeps the change request in flight, as before.
+#
+# FORMAT. `old -> new | date | JDG id`. `old` and `new` are the text the rename
+# replaces and the text it writes (a leading `# ` makes the whole line a
+# comment). Rows apply top to bottom, so put the longer form first. A row is
+# appended when a rename is ruled and is never edited or removed afterwards:
+# the table is the record of what the landed change requests used to say.
+#
+# NOT COVERED, on purpose: the bold 「...」 cells of rulings.md (the user's own
+# words), past changelog rows and docs/review/ -- those keep the old name and no
+# check reads them through this table.
+previous-project-result/ -> studies/ | 2026-10-20 | JDG-2941
+previous-project-result -> studies | 2026-10-20 | JDG-2941

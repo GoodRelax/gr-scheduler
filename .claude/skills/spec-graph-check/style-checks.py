@@ -361,9 +361,10 @@ def spelling_targets():
 
 
 # A path into the history folders, in backticks, names a file that is never
-# renamed (CR-730 X-1: change-request/ and previous-project-result/ keep their
-# spelling), so the spelling inside it is not the writer's and is not matched.
-HISTORY_PATH = re.compile(r'`(?:change-request|previous-project-result)/[^`\s]*`')
+# renamed (CR-730 X-1: change-request/ and studies/ keep their spelling; the
+# old name previous-project-result/ survives in the landed records), so the
+# spelling inside it is not the writer's and is not matched.
+HISTORY_PATH = re.compile(r'`(?:change-request|studies|previous-project-result)/[^`\s]*`')
 
 
 def without_history_paths(line):
@@ -483,9 +484,9 @@ def self_test():
                             'COLOR_NAME_VALUES', 'defaultColor'])])]
     # CR-730 X-1: a backticked history path keeps its spelling; the same word outside stays red.
     history_hits = [(rel, i) for rel, i, _, _ in scan_spellings(
-        english, [('h.md', ['see `previous-project-result/43-theme-colour-solve/`',
+        english, [('h.md', ['see `studies/43-theme-colour-solve/`',
                             'see `change-request/CR-683-the-theme-colours-are-solved-per-hue.md`',
-                            'see `docs/colour.md`', 'the colour of `previous-project-result/x/`'])])]
+                            'see `docs/colour.md`', 'the colour of `studies/x/`'])])]
     real = gated_spellings(read(NOTATION_RULES))
     # JDG-1862: an in-memory Title Case row over an in-memory dictionary.
     tc_rule = title_case_rule([
@@ -519,7 +520,7 @@ def self_test():
         ('colour, Colour, COLOUR and defaultColour red; color, Color, COLOR and '
          'defaultColor green: exactly 4 hits (JDG-1921, CR-730)',
          sorted(english_hits) == [('e.md', 1), ('e.md', 2), ('e.md', 3), ('e.md', 4)]),
-        ('a backticked change-request/ or previous-project-result/ path is green; '
+        ('a backticked change-request/ or studies/ path is green; '
          'colour in another path or in prose is red: exactly 2 hits (CR-730 X-1)',
          sorted(history_hits) == [('h.md', 3), ('h.md', 4)]),
         ('the real table still gates %s -> %s' % (MUST_GATE[1], MUST_GATE[0]),

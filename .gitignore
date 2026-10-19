@@ -42,11 +42,11 @@ docs/reference/**
 # The same rule for the frozen input set. It carries no copies of its own -- the
 # README below is a pointer to docs/reference/mspdi/ -- but keep the net in place
 # so a stray re-fetch there cannot be committed by accident.
-previous-project-result/01-mspdi/mspdi/*
-!previous-project-result/01-mspdi/mspdi/README.md
+studies/01-mspdi/mspdi/*
+!studies/01-mspdi/mspdi/README.md
 
 # ---- Internal working notes. Never published. ----
-previous-project-result/temp/
+studies/temp/
 # Scratch copies of documents that are still being edited elsewhere in the tree.
 temp/
 
@@ -90,4 +90,4 @@ tmp/
 # still stay out.
 
 # The restored shogi PoC writes its running game beside its server.
-previous-project-result/10-agent-interface/shogi/state.json
+studies/10-agent-interface/shogi/state.json

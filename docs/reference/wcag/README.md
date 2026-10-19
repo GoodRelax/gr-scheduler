@@ -6,7 +6,7 @@
 
 ## 何のためにあるか
 
-`previous-project-result/05-security-a11y/a11y-wcag21-aa-checklist.md` の
+`studies/05-security-a11y/a11y-wcag21-aa-checklist.md` の
 **A / AA 全 50 基準の突合**は、この原文を一次資料として作った。
 **要約や記憶で基準を書かない**ための置き場である。
 
@@ -59,5 +59,5 @@ W3C の文書は **W3C Software and Document License** による。
 
 | 文書 | 何が書いてあるか |
 |---|---|
-| `previous-project-result/05-security-a11y/a11y-wcag21-aa-checklist.md` | **A / AA 全 50 基準の突合表**（適合 / 該当なし / 要対応） |
-| `previous-project-result/NEXT-STEPS-ja.md` ステップ 1 | 適合範囲を要求として確定させる作業 |
+| `studies/05-security-a11y/a11y-wcag21-aa-checklist.md` | **A / AA 全 50 基準の突合表**（適合 / 該当なし / 要対応） |
+| `studies/NEXT-STEPS-ja.md` ステップ 1 | 適合範囲を要求として確定させる作業 |

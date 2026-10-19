@@ -54,6 +54,14 @@ HOW IT SCOPES, and why the scoping is the load-bearing part.
   at the moment they were applied. Run with `--all` to see what dropping the
   scoping would cost; that number is in check.sh's comment.
 
+  ⭐ A RENAMED PATH IS NOT A NEW CLAIM (JDG-2945). A rename of a top-level
+  path rewrites landed change requests, and git then reports them as
+  modified. A modified change request whose whole diff against HEAD is
+  explained by the rows of path-renames.txt is therefore NOT in flight: every
+  removed line, with those rows applied, must equal the line added in its
+  place. Any other change -- one added word, a line added or removed -- keeps
+  it in flight exactly as before. `--self-test` breaks this on purpose.
+
   ⚠️ So on a clean tree this check passes having read nothing. That is
   correct and it is the same shape as check 41: it is the guard on the round
   that writes the change request, not an audit of the folder.
@@ -69,6 +77,7 @@ Usage:
     PYTHONIOENCODING=utf-8 python check-identifier-reservation.py
     PYTHONIOENCODING=utf-8 python check-identifier-reservation.py --all
     PYTHONIOENCODING=utf-8 python check-identifier-reservation.py <path> ...
+    PYTHONIOENCODING=utf-8 python check-identifier-reservation.py --self-test
 """
 import glob
 import io
@@ -83,6 +92,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.dirname(HERE)))
 
 REL_CRS = 'change-request'
 REL_PREFIXES = 'docs/spec/_source/row-id-prefixes.json'
+REL_RENAMES = os.path.join(HERE, 'path-renames.txt')
 SPEC_GLOBS = ('docs/spec/*.md', 'docs/spec/_assets/*.md')
 
 # A backticked name, as every document of this tree writes an identifier.
@@ -154,8 +164,73 @@ def biggest_table(tables):
     return max(tables, key=lambda name: int(re.match(r'T-([0-9]+)', name).group(1)))
 
 
+def load_renames(path=REL_RENAMES):
+    """The rows of path-renames.txt as (old, new) pairs, in file order."""
+    rows = []
+    for line in read_text(path).split('\n'):
+        line = line.strip()
+        if not line or line.startswith('#'):
+            continue
+        change = line.split(' | ')[0]
+        if ' -> ' not in change:
+            continue
+        old, new = change.split(' -> ', 1)
+        rows.append((old.strip(), new.strip()))
+    return rows
+
+
+def apply_renames(text, renames):
+    for old, new in renames:
+        text = text.replace(old, new)
+    return text
+
+
+def explained_by_renames(diff_text, renames):
+    """True when every changed line of a `git diff -U0` is only a rename.
+
+    The removed lines and the added lines of each hunk must pair one to one,
+    and each removed line with the rows applied must equal its added line. An
+    empty diff is not explained: there is nothing to explain, and the caller
+    keeps such a file in flight.
+    """
+    hunks = []
+    removed, added = [], []
+    for line in diff_text.replace('\r', '').split('\n'):
+        if line.startswith('@@'):
+            hunks.append((removed, added))
+            removed, added = [], []
+        elif line.startswith('---') or line.startswith('+++'):
+            continue
+        elif line.startswith('-'):
+            removed.append(line[1:])
+        elif line.startswith('+'):
+            added.append(line[1:])
+    hunks.append((removed, added))
+    changed = 0
+    for gone, came in hunks:
+        if len(gone) != len(came):
+            return False
+        for before, after in zip(gone, came):
+            changed += 1
+            if apply_renames(before, renames) != after:
+                return False
+    return changed > 0
+
+
+def only_a_rename(relative):
+    """A tracked, modified change request whose diff against HEAD is only a rename."""
+    diff = subprocess.run(
+        ['git', 'diff', 'HEAD', '-U0', '--no-renames', '--', relative],
+        cwd=ROOT, capture_output=True, text=True, encoding='utf-8', errors='replace',
+    ).stdout
+    return explained_by_renames(diff, load_renames())
+
+
 def in_flight():
-    """Change requests git reports as untracked or modified -- precheck.py's reader."""
+    """Change requests git reports as untracked or modified -- precheck.py's reader.
+
+    A tracked file whose whole diff is a path rename (path-renames.txt) is left out.
+    """
     out = subprocess.run(
         ['git', 'status', '--porcelain', '--', REL_CRS],
         cwd=ROOT, capture_output=True, text=True, encoding='utf-8', errors='replace',
@@ -173,6 +248,8 @@ def in_flight():
                 for one in names:
                     full = os.path.join(base, one)
                     found.append(os.path.relpath(full, ROOT).replace(os.sep, '/'))
+            continue
+        if line[:2].strip() in ('M', 'MM') and only_a_rename(name):
             continue
         found.append(name)
     return [one for one in found
@@ -232,7 +309,55 @@ def judge(relative, ids, tables, prefixes, largest):
     return faults, read
 
 
+def self_test():
+    """The rename rule, broken on purpose: every case runs on an in-memory diff."""
+    renames = [('old-dir/', 'new-dir/'), ('old-dir', 'new-dir')]
+
+    def diff(*pairs):
+        out = ['--- a/x.md', '+++ b/x.md']
+        for number, (gone, came) in enumerate(pairs, 1):
+            out.append('@@ -%d +%d @@' % (number, number))
+            out.extend('-' + one for one in gone)
+            out.extend('+' + one for one in came)
+        return '\n'.join(out)
+
+    cases = [
+        ('a pure rename is explained',
+         explained_by_renames(diff((['see `old-dir/a.md`'], ['see `new-dir/a.md`'])), renames), True),
+        ('a bare-name rename is explained',
+         explained_by_renames(diff((['the old-dir folder'], ['the new-dir folder'])), renames), True),
+        ('two hunks of pure renames are explained',
+         explained_by_renames(diff((['a old-dir/x'], ['a new-dir/x']),
+                                   (['b old-dir'], ['b new-dir'])), renames), True),
+        ('a CRLF diff of a pure rename is explained',
+         explained_by_renames(diff((['see old-dir/a\r'], ['see new-dir/a\r'])), renames), True),
+        ('a rename plus one added word is NOT explained',
+         explained_by_renames(diff((['see `old-dir/a.md`'], ['see `new-dir/a.md` now'])), renames), False),
+        ('a line that changes without any rename is NOT explained',
+         explained_by_renames(diff((['`T-275` is free'], ['`T-276` is free'])), renames), False),
+        ('a pure added line is NOT explained',
+         explained_by_renames(diff(([], ['a new line'])), renames), False),
+        ('a pure removed line is NOT explained',
+         explained_by_renames(diff((['a gone line'], [])), renames), False),
+        ('an empty diff is NOT explained',
+         explained_by_renames('', renames), False),
+        ('the real table renames previous-project-result/ to studies/',
+         apply_renames('see previous-project-result/01-x', load_renames()) == 'see studies/01-x', True),
+        ('the real table renames the bare name too',
+         apply_renames('the previous-project-result folder', load_renames()) == 'the studies folder', True),
+    ]
+    wrong = 0
+    for label, got, want in cases:
+        if got != want:
+            wrong += 1
+            say('WRONG    %s: got %s, wanted %s' % (label, got, want))
+    say('%s  %d case(s), %d wrong' % ('OK' if not wrong else 'FAIL', len(cases), wrong))
+    return 1 if wrong else 0
+
+
 def main(argv):
+    if '--self-test' in argv:
+        return self_test()
     everything = '--all' in argv
     named = [one for one in argv if not one.startswith('--')]
 

@@ -58,7 +58,7 @@ NPM_RUN = re.compile(r'npm run ([A-Za-z0-9:_.-]+)')
 CHECK_NO = re.compile(r'検査\s*(\d+b?)(?!\d)')
 RECORD = re.compile(r'⚠️\s*\**\s*実測（\d{4}-\d{2}-\d{2}）')
 PATH_ROOTS = ('tools/', 'docs/', 'src/', 'tests/', '.claude/', 'change-request/',
-              'previous-project-result/', 'sample-schedule/', 'dist/', 'scratch/')
+              'studies/', 'sample-schedule/', 'dist/', 'scratch/')
 FILE_EXT = re.compile(r'\.(py|mjs|js|ts|md|json|txt|sh|bat|jsonl|html|tsv|ya?ml|drawio|svg)$')
 NOT_A_PATH = re.compile(r'[\s*<>{}$|…?]|\.\.\.')
 SECTION = re.compile(r'^section "([^"]*)"', re.M)

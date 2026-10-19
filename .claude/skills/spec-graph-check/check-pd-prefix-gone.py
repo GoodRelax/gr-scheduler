@@ -13,7 +13,7 @@ written. Three kinds of `PD-` survive the rename on purpose:
   * the papers of the rename itself -- the inventory of all 1,922 sites, its
     summary, the split plan, the handover prompt and CR-371. Every one of them
     QUOTES the old spelling, because the old spelling is their subject;
-  * previous-project-result/ -- a finished project's record, out of scope;
+  * studies/ -- a finished project's record, out of scope;
   * a handful of sentences that name the defect rather than a row.
 
 ⇒ So the exclusions are NAMED, one at a time, each with the reason it is
@@ -44,7 +44,7 @@ PATTERN = re.compile(r'[Pp][Dd]-[0-9]')
 
 # ---- Excluded TREES -- with the reason each one is out of scope -------------
 TREES = [
-    ('previous-project-result/',
+    ('studies/',
      u'a finished project\'s record, put out of scope by the user\'s ruling '
      u'of 2026-09-12. CR-371 renames what is being built, not what is over'),
     ('dist/',

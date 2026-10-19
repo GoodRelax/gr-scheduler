@@ -15,7 +15,7 @@
                                  ⛔ 裁定の唯一の置き場である。利用者は既に裁いていることが多い
 1. docs/spec を読み切る          ⭐ 半分以上は「実は在る」
 2. docs/reference/ を当たる       交換相手とアクセシビリティの正典
-3. previous-project-result/ を当たる（03-ui-naming → 08-poc の順）
+3. studies/ を当たる（03-ui-naming → 08-poc の順）
 4. ⛔ それでも無ければ、初めて裁定待ちである
 ```
 
@@ -113,7 +113,7 @@
 
 ```
 1. 引継書が挙げる未裁定を読む
-2. ⛔ 1 の作法（仕様 → docs/reference/ → previous-project-result/）を、狙った grep で当てる
+2. ⛔ 1 の作法（仕様 → docs/reference/ → studies/）を、狙った grep で当てる
    ⭐ 通読ではない。「本当に未決か」を確かめるだけである
 3. 問う
 4. ⭐ 答えを待つあいだ、裁定に依らない仕事を進める
