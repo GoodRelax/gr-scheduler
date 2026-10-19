@@ -309,12 +309,14 @@
       "ルートの 3 群すべてを含む。",
       "⭐ 既定では MSPDI の持ち越しの欄（`carry`・`carryElements`）を除き、`includeCarry` が `true` のときだけ含める —— 持ち越しの欄は、MS Project の交換形式から開いた 256 タスクの見本の文書で 84% を占め（1,383,668 字のうち、除くと 220,379 字）、AI の受け口を超える。",
       "GRS で作った文書では持ち越しの欄の多くが空なので、減り方はずっと小さい。",
-      "`taskUids` が空でなければ、タスクに属する 6 つの群（`tasks`・`assignments`・`taskVisuals`・`taskGroupMembers`・`taskOrigins`・`baselineTasks`）をそのタスクだけにする。"
+      "`taskUids` が空でなければ、タスクに属する 6 つの群（`tasks`・`assignments`・`taskVisuals`・`taskGroupMembers`・`taskOrigins`・`baselineTasks`）をそのタスクだけにする。",
+      "タスクグループの一覧だけ（id・名・親・順）を読むには `parts` に `taskGroups` だけを渡す —— タスク・暦・担当は付いてこない（利用者 2026-10-19）"
      ],
      "en": [
       "A frozen copy of the document with its three root groups.",
       "By default the MSPDI pass-through fields (carry, carryElements) are left out; pass includeCarry true to keep them.",
-      "A non-empty taskUids keeps only those tasks in the six task-owned groups: tasks, assignments, taskVisuals, taskGroupMembers, taskOrigins and baselineTasks."
+      "A non-empty taskUids keeps only those tasks in the six task-owned groups: tasks, assignments, taskVisuals, taskGroupMembers, taskOrigins and baselineTasks.",
+      "To get only the task group list (id, name, parent, order), pass parts ['taskGroups']: no task, calendar or resource comes with it."
      ]
     },
     "source": {
