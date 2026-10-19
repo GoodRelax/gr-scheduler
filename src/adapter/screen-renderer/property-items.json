@@ -370,6 +370,19 @@
    "oneInput": false
   },
   {
+   "rowId": "PR-50",
+   "columns": [
+    "fontSizePx"
+   ],
+   "inputKinds": [
+    "数値"
+   ],
+   "isReadOnly": false,
+   "appliesTo": "CommentBox",
+   "shownFor": null,
+   "oneInput": false
+  },
+  {
    "rowId": "PR-48",
    "columns": [
     "id"
@@ -441,19 +454,6 @@
    ],
    "inputKinds": [
     "色"
-   ],
-   "isReadOnly": false,
-   "appliesTo": "CommentBox",
-   "shownFor": null,
-   "oneInput": false
-  },
-  {
-   "rowId": "PR-50",
-   "columns": [
-    "fontSizePx"
-   ],
-   "inputKinds": [
-    "数値"
    ],
    "isReadOnly": false,
    "appliesTo": "CommentBox",

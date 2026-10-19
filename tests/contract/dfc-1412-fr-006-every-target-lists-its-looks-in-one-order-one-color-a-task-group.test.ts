@@ -19,7 +19,7 @@ import {
 
 // see FR-006
 const FR_006_VISUAL_ORDER =
-  '⭐ 見た目の行どうしは、どの対象でも 枠線の幅 → 枠線の色 → 塗りの色 → 塗りの透過率 → 字の色 → 字の大きさ の順に並べ、1 つの行に色を 1 つだけ持たせること（MUST）'
+  '⭐ 見た目の行どうしは、どの対象でも 枠線の幅 → 枠線の色 → 塗りの色 → 塗りの透過率 → 字の色 の順に並べ、1 つの行に色を 1 つだけ持たせること（MUST）'
 
 // WHY: the manuscript names the five looks by their words; table T-016 names the column each one is.
 const LOOK_ORDER = [
