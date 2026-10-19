@@ -256,6 +256,7 @@
 - リリース: 1) 出す sha に `GT-2` が通っている。2) `develop` → `main` の PR を開く（`gh pr create --base main --head develop`。本文に変更履歴の版・ビルド版・`GT-2` の結果を書く）。3) **利用者が GitHub で見て合流する。** 4) 合流の後、利用者がタグを打つ。5) 配備: `pages.yml` は `workflow_dispatch` だけなので、合流の後に `gh workflow run pages.yml --ref main`（push ではない）。
 - ⛔ 調整役は PR を合流しない・タグを打たない・`main` へ push しない。
 - `previous-project-result/` は 2026-10-20 に `studies/` に改めた（`JDG-2940`〜`JDG-2944`）。逐語・当てた CR・過去の記録には古い名が残る。着地済みの変更要求の道の改名は `path-renames.txt` の行が説明する（検査 62、`JDG-2945`）。
+- リリースノートは `docs/release-notes/<タグ>.md`（英語）と `<タグ>-ja.md`（日本語）。変更は分野ごとの「CR | 何が変わったか」の表と、前の版のタグから閉じた DFC の「直した不具合」の表で、どちらも読者の言葉で 1 行ずつ書く（利用者に見えない修正は「内部の修正 N 件」にまとめる。`JDG-2957`・`JDG-2959`）。
 - 古い 4 枝（`grab-area-spec`・`mspdi-both-versions`・`restart`・`scale-and-fold`）は、記念のタグを打ってから GitHub から消す。どちらも利用者がする（`JDG-2947`）。
 
 ## 次のセッションに貼る 1 通目
