@@ -1,6 +1,6 @@
 {
   "name": "gr-scheduler",
-  "version": "0.0.0",
+  "version": "20261019T022508Z",
   "private": true,
   "description": "Single-HTML-file Gantt chart scheduler with plan vs. actual, delay diagnostics, MSPDI import/export, and an MCP server for AI agents. No install, no server.",
   "license": "Apache-2.0",

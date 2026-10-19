@@ -39,7 +39,7 @@ docs/development-records/
   pending-decisions.md 裁定待ちの一覧（PND。検査 25 が印と突き合わせる）
   perf-pending.md      性能の測り待ち（1 行 1 変更要求。規則 04 の 5 節の表 PW、JDG-605）
   magic-numbers.md     src/ のマジックナンバーの作業表（ファイル単位。不具合台帳とは別）
-  changelog.md         仕様書の変更履歴（版番号は仕様書独自。検査 38）
+  changelog.md         仕様書の変更履歴（版の形は ../development-rules/10-versions.md。検査 38）
   handoff.md           次の巡への引継ぎ。⛔ 番号を増やさず、毎巡この 1 ファイルを書き換える
   project-plan.json    計画（GRS JSON。GRS で開いて読む）。読み方は project-plan.md（検査 79）
   previous-plan.json   1 つ前の計画（JDG-2307）

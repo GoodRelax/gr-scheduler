@@ -3,9 +3,9 @@
 //     node tools/stamp_download_page.mjs _site/download/index.html
 //
 // The page's source (docs/download/index.html) holds a placeholder in every
-// <span data-built-at> and <span data-relay-version>; this fills them with the source's
-// commit time in UTC and its semver form (tools/relay_version.mjs), the same values the
-// bundle's manifest.json carries. Only the copy being published is changed, never docs/.
+// <span data-built-at> and <span data-relay-version>; this fills them with the relay's version
+// (tools/relay_version.mjs; the rule is docs/development-rules/10-versions.md), the same values
+// the bundle's manifest.json carries. Only the copy being published is changed, never docs/.
 // The spans are text, not a style or a script, so the page's Content Security Policy hashes
 // stay valid.
 
