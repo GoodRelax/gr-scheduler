@@ -54,7 +54,7 @@
   },
   {
    "name": "readDocument",
-   "description": "A frozen copy of the document with its three root groups.\nBy default the MSPDI pass-through fields (carry, carryElements) are left out; pass includeCarry true to keep them.\nA non-empty taskUids keeps only those tasks in the six task-owned groups: tasks, assignments, taskVisuals, taskGroupMembers, taskOrigins and baselineTasks.",
+   "description": "A frozen copy of the document with its three root groups.\nBy default the MSPDI pass-through fields (carry, carryElements) are left out; pass includeCarry true to keep them.\nA non-empty taskUids keeps only those tasks in the six task-owned groups: tasks, assignments, taskVisuals, taskGroupMembers, taskOrigins and baselineTasks.\nTo get only the task group list (id, name, parent, order), pass parts ['taskGroups']: no task, calendar or resource comes with it.",
    "inputSchema": {
     "type": "object",
     "properties": {
