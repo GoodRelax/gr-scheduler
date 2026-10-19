@@ -960,7 +960,7 @@ push の口は 1 つ（調整役）。push の前に、生きている相手に�
 ⛔ 仕様だけが先に行く枝（仕様の波）を、そのコードの持ち場が着地する前に根の develop へ早送りするな
    ⚠️ 実測（2026-10-03）: spec-pass-1001 を載せた refactor で GT-2 の型検査が赤になり、段 0 で 0 に戻した ⇒ 合流は別の作業木で組み、型検査 0 を見てから進める
 ⛔ push は tools/push_guard.py <sha> が刷るコマンドで打つ（JDG-2120）。Claude のフックが同じ判定で git push を止める
-⛔ main へは push しない（JDG-2930）。push 先は develop だけ（旧名 refactor、JDG-2935）。リリースは GT-2 が通った sha で develop → main の PR を開き、利用者が GitHub で合流してタグを打つ（引継書の「main へのリリース」）
+⛔ main へは push しない（JDG-2930）。push 先は develop だけ（旧名 refactor、JDG-2935）。リリースの版・タグ・手順は規則 10（10-versions.md）の表が持つ
 ⛔ 台帳を合わせたら python tools/ledger_id_count.py の lost が 0（JDG-2122）。merge_branch.py と検査 78 も数える
 ⛔ 台帳の衝突を git checkout --ours で解くな —— ファイル丸ごとを取る
    ⚠️ 実測（2026-09-22）: 件数の塊の衝突を --ours で解き、新しい 7 行（DFC-750〜756）が黙って消えた

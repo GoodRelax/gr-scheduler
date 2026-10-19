@@ -13,13 +13,16 @@ const READ = (...parts: string[]): string => readFileSync(join(process.cwd(), ..
 
 const REQUIREMENTS = unbroken(READ('docs', 'spec', '01-04-requirements.md'))
 const DESIGN = unbroken(READ('docs', 'spec', '05-07-design.md'))
+// WHY: CR-822 (JDG-2985) moved when and how often the version is raised to the version table; FR-073 keeps the promise.
+const VERSION_TABLE = unbroken(READ('docs', 'development-rules', '10-versions.md'))
 
 // WHY: each clause is cut from the manuscript as check 39 reads it, ending right before its (MUST) marker.
-const FR_073_RAISE_TO_INSTANT = '変える変更は、形式の版を、その変更を当てる時刻へ上げること'
+const FR_073_RAISE_TO_INSTANT = '変われば、形式の版は、それまでのどの版よりも新しい時刻になること'
 const FR_073_RAISE_TO_INSTANT_WITH_MARKER = `${FR_073_RAISE_TO_INSTANT}（MUST）`
 const FR_073_FORM = '書式は RFC 3339 の UTC の `YYYY-MM-DDTHH:MM:SSZ` とすること（MUST）'
 const FR_073_STRING_ORDER = '判別は文字列の大小で行うこと（MUST）'
-const FR_073_ONE_RAISE_PER_CR = '1 つの変更要求の中で版を上げるのは 1 度だけとする'
+const TABLE_RAISE_AT_THE_CHANGE = '文書の形（表 T-058 の列と 表 T-052 の鍵）を変える変更を当てる時刻'
+const TABLE_ONE_RAISE_PER_CR = '1 つの変更要求の中で版を上げるのは 1 度だけとする'
 const FR_073_NO_LEDGER_ROW_BEFORE_USE = '⛔ 公式運用の前は、台帳に行を足してはならない（MUST NOT）'
 const CH_6_2_VERSION_CONST = '⭐ `schemaVersion` は、その造りの版を `const` で言うこと（MUST）'
 const CH_6_2_LEDGER_EMPTY_BEFORE_USE = '⚠️ 公式運用の前（`S-541` が `null`）は、台帳は空の配列である'
@@ -108,10 +111,13 @@ describe('DFC-2950 the clauses these cases hold are the manuscript words', () =>
     FR_073_RAISE_TO_INSTANT_WITH_MARKER,
     FR_073_FORM,
     FR_073_STRING_ORDER,
-    FR_073_ONE_RAISE_PER_CR,
     FR_073_NO_LEDGER_ROW_BEFORE_USE,
   ])('01-04 FR-073 still says it: %s', (clause) => {
     expect(REQUIREMENTS).toContain(clause)
+  })
+
+  it.each([TABLE_RAISE_AT_THE_CHANGE, TABLE_ONE_RAISE_PER_CR])('the version table still says it: %s', (clause) => {
+    expect(VERSION_TABLE).toContain(clause)
   })
 
   it.each([CH_6_2_VERSION_CONST, CH_6_2_LEDGER_EMPTY_BEFORE_USE])('05-07 Chapter 6.2 still says it: %s', (clause) => {

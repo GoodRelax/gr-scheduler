@@ -27,7 +27,8 @@ const GLOSSARY = unbroken(readFileSync(join(SPEC, '_assets', 'tbl-glossary.md'),
 
 const GLOSSARY_POINTER = '表 T-107（`Agent API` のメンバ）と、その呼び方（引数・型・戻り値）は `_assets/tbl-agent-api-members.md` が持つ'
 const VERSION_SENTENCE = 'いまの版は `2026-10-19T01:15:00Z` である（`AM-1` が返す値）。'
-const CHANGE_RAISES_VERSION = '呼び方を変える変更は、版をその変更を当てる時刻へ上げる（表 T-035 の `AG-1`）。'
+// WHY: CR-822 (JDG-2985) keeps the promise here; when and how the version is raised is docs/development-rules/10-versions.md.
+const CHANGE_RAISES_VERSION = '呼び方が変われば、版はそれまでのどの版よりも新しい時刻になる（表 T-035 の `AG-1`）。'
 const TWENTY_TWO = '**`Agent API` は 1 つの面に 27 のメンバをフラットに並べる。**'
 const CALL_SHAPES_ARE_GENERATED =
   '呼び方（引数の名・型・意味と戻り値）は本表と 表 T-400 が持つ** —— コードの `AgentApi` の型と、MCP の道具の入力の形は本表の原稿から生成し、手で書かない'

@@ -253,10 +253,9 @@
 - α 版 ＝ 2026-10-19 昼の `34d6ee84`（ビルド版 `2026.1019.22508`）。origin の `main`・`refactor`（2026-10-20 に `develop` へ改名、`JDG-2935`）と GitHub Pages がこの版である。
 - ⛔ **`main` は保護されている。** みだりに push しない。壁は 2 枚: (1) GitHub の ruleset（`main` は PR のみ・バイパス無し。**利用者が GitHub で設定する** —— 設定したら本節に 1 行足す、`JDG-2932`）。(2) `tools/push_guard.py`（Claude のフックが `git push` ごとに呼び、`main` に届く形をすべて拒む。環境変数もフラグも上書きにならない。`python tools/push_guard.py --self-test`）。GitHub は Claude の push と利用者の push を区別できない（どちらも利用者の認証）ので、2 枚目が要る。
 - 日々: push 先は `develop` だけ（旧名 `refactor`、`JDG-2935`）。`python tools/push_guard.py <sha>` が刷る `git push origin <sha>:develop` を、`grep -q "GT-2 <sha> passed"` を見てから単独の 1 コマンドで打つ。
-- リリース: 1) 出す sha に `GT-2` が通っている。2) `develop` → `main` の PR を開く（`gh pr create --base main --head develop`。本文に変更履歴の版・ビルド版・`GT-2` の結果を書く）。3) **利用者が GitHub で見て合流する。** 4) 合流の後、利用者がタグを打つ。5) 配備: `pages.yml` は `workflow_dispatch` だけなので、合流の後に `gh workflow run pages.yml --ref main`（push ではない）。
+- リリース —— 版・タグ・リリースノート・手順の段は `docs/development-rules/10-versions.md` の 2 節と 2.1 節の表が持つ（`CR-822`）。本書は写しを持たない。
 - ⛔ 調整役は PR を合流しない・タグを打たない・`main` へ push しない。
 - `previous-project-result/` は 2026-10-20 に `studies/` に改めた（`JDG-2940`〜`JDG-2944`）。逐語・当てた CR・過去の記録には古い名が残る。着地済みの変更要求の道の改名は `path-renames.txt` の行が説明する（検査 62、`JDG-2945`）。
-- リリースノートは `docs/release-notes/<タグ>.md`（英語）と `<タグ>-ja.md`（日本語）。変更は分野ごとの「CR | 何が変わったか」の表と、前の版のタグから閉じた DFC の「直した不具合」の表で、どちらも読者の言葉で 1 行ずつ書く（利用者に見えない修正は「内部の修正 N 件」にまとめる。`JDG-2957`・`JDG-2959`）。
 - **（解除済み）`CR-820` は 2026-10-20 に急ぎの PR #2（`82a1b539`）で `main` に着き、`main` からの Pages の配備を再び許した。** 配備 run `39328238602` の後に配っているのは GRS.html `0bff5da4`・mcpb `f101ce23`（2026.1019.22508）・デモ zip `b5b0eddb`。α 版の元のデモ zip `35474c51` は作り直せない（作った時刻を含んでいた）。次の `develop` → `main` の合流では、両側で足した `tools/artifact-versions.json` は `develop` 側の値（2026-10-19T19:51:01Z）を取る。そのとき Relay の版は 1 度だけ 2026.1019.195101 に動く（アプリの中身が本当に変わったため）。
 - 古い 4 枝（`grab-area-spec`・`mspdi-both-versions`・`restart`・`scale-and-fold`）は、記念のタグを打ってから GitHub から消す。どちらも利用者がする（`JDG-2947`）。
 

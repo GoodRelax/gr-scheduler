@@ -411,6 +411,10 @@
 #   85     tools/artifact_versions.mjs check : an input of grs-relay.mcpb or
 #          of the server-sync demo zip changed after the line holding its
 #          version (tools/artifact-versions.json) last moved. CR-820. Baseline 0
+#   86     tools/check_versions.mjs : package.json, package-lock.json or the
+#          README version lines do not name the newest release note, a release
+#          note is misnamed or lacks its pair, or the version rule is stated
+#          outside docs/development-rules/10-versions.md. CR-822. Baseline 0
 #
 # Green does NOT prove the specification is sound: defects of meaning have
 # appeared while all of these were green. They stop broken references, not
@@ -1171,6 +1175,15 @@ section "85  a published artifact's version moves with its inputs"
 # now lives in tools/artifact-versions.json. MEASURED 2026-10-20 on 922d57a8b:
 # both artifacts green; a src edit with no bump goes red. Baseline 0.
 node "$REPO/tools/artifact_versions.mjs" check || failed
+
+echo ""
+section "86  the version rule is stated in one place and the release versions agree"
+# CR-822 (2026-10-20, JDG-2980): the version rule lives only in
+# docs/development-rules/10-versions.md. MEASURED 2026-10-20, the first run on
+# bbdfeec2f with the table added: 13 rule statements in 5 files, 10 files
+# without a pointer, 5 release versions off; 0 after CR-822. Baseline 0.
+node "$REPO/tools/check_versions.mjs" --self-test || failed
+node "$REPO/tools/check_versions.mjs" || failed
 
 echo ""
 section "NOT COVERED  what this run did not look at"
