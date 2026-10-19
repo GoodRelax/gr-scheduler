@@ -1,6 +1,6 @@
 # W4 `Adapter` —— 開発の記録
 
-**規則は [`docs/development-rules/05-working-method.md`](../development-rules/05-working-method.md)。書式は [README](README.md)。**
+**規則は [`docs/development-rules/05-working-method.md`](../../development-rules/05-working-method.md)。書式は [README](../README.md)。**
 
 **対象**: `src/adapter`   ⭐ **機械検査がこの宣言を読み、状態表と実物を突き合わせる。**
 

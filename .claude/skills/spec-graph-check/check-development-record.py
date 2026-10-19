@@ -63,13 +63,29 @@ def units_of(folder):
     return out, []
 
 
+def record_files():
+    """(name, path) of every Markdown file in the records folder and in its
+    history/ folder, where the finished records live (JDG-2972). The wave
+    records W4 and W5 moved there with the rest, and this check still holds
+    their state tables against the tree."""
+    out = []
+    for folder in (RECORDS, os.path.join(RECORDS, 'history')):
+        if not os.path.isdir(folder):
+            continue
+        for name in sorted(os.listdir(folder)):
+            path = os.path.join(folder, name)
+            if os.path.isfile(path):
+                out.append((name, path))
+    return out
+
+
 def main():
     if not os.path.isdir(RECORDS):
         sys.stdout.write('OK       no development record yet\n')
         return 0
 
     problems, checked = [], 0
-    for name in sorted(os.listdir(RECORDS)):
+    for name, path in record_files():
         # ⚠️ Not every file here is a wave record. The index, the
         # pending-decision list and the defect ledger live beside them: the
         # first answers to nothing, the second to check 25, the third is
@@ -119,6 +135,9 @@ def main():
         # project-plan.md is the seventeenth: how to read project-plan.json,
         # the plan as a GRS JSON schedule, both overwritten every round
         # (JDG-2123); check 79 holds the pair, not this check.
+        # ⭐ Since JDG-2972 the finished records -- the report, the three
+        # refactor files and the two plans above, and the wave records W4 and
+        # W5 -- sit in history/, whose README.md is that folder's index.
         if not name.endswith('.md') or name in (
             'README.md', 'pending-decisions.md', 'defects.md', 'handoff.md',
             'fixed-defects.md', 'rulings.md', 'changelog.md', 'magic-numbers.md',
@@ -133,7 +152,6 @@ def main():
             'project-plan.md'
         ):
             continue
-        path = os.path.join(RECORDS, name)
         body = io.open(path, encoding='utf-8').read()
         found = TARGET.search(body)
         if not found:

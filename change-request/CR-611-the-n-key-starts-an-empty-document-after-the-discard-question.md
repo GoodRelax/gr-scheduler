@@ -434,7 +434,7 @@ Observable (for the tester, from the spec only):
 
 ## 8. 波 —— 持ち場で割る
 
-⭐ 仕様（E-01 〜 E-11）は、L4 が合流した後に `docs/development-records/cr-plan-2026-09-26.md` の W0 〜 W5 と同じ 1 回の通しで当てる。⭐ E-04 ・ E-10 と 9 節の題は、問い 1 ・ 2 の答え（`JDG-972`）で決まっている。
+⭐ 仕様（E-01 〜 E-11）は、L4 が合流した後に `docs/development-records/history/cr-plan-2026-09-26.md` の W0 〜 W5 と同じ 1 回の通しで当てる。⭐ E-04 ・ E-10 と 9 節の題は、問い 1 ・ 2 の答え（`JDG-972`）で決まっている。
 
 | 波 | 持ち場 | ファイル | 待つもの |
 |---|---|---|---|

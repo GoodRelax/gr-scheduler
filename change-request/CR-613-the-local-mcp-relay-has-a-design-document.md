@@ -710,7 +710,7 @@ SEAM-3 (relay process, McpRelayServer PI-41; page link UF-188)
 
 ## 8. 波 —— 持ち場で割る
 
-⭐ **仕様の文は、持ち場 L4 が合流した後に、ほかの変更要求と 1 度に当てる**（`docs/development-records/cr-plan-2026-09-26.md` の W0 〜 W5 と同じ形）。実装は後の波である。
+⭐ **仕様の文は、持ち場 L4 が合流した後に、ほかの変更要求と 1 度に当てる**（`docs/development-records/history/cr-plan-2026-09-26.md` の W0 〜 W5 と同じ形）。実装は後の波である。
 
 | 波 | 持ち場 | 中身 | 体 |
 |---|---|---|---|

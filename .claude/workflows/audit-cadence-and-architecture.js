@@ -63,7 +63,7 @@ name the bottlenecks with numbers.
    \`restart\`. How many commits, over what span, what is the median gap between
    them? Which commits are specification-only, which are code, which are both
    (\`git show --stat\`)?
-2. **What each round actually cost.** \`docs/development-records/W4-adapter.md\`
+2. **What each round actually cost.** \`docs/development-records/history/W4-adapter.md\`
    and \`W5-framework.md\` hold a 「現在地」 block per round with measured numbers
    (test counts, red counts, build size, check results). Extract the series:
    how did the red count move round over round? How many rounds ended green?

@@ -15,7 +15,7 @@
 > **⛔ 本書が絶対にしないこと**: `.claude/skills/spec-graph-check/function-size-baseline.txt` の編集と、`docs/spec/` の編集。
 > 基準線と表の行は、分割そのもののコミットが書き換える（7 節・8 節）。
 >
-> **正本**: `docs/development-records/refactor-plan-report-2026-09-13.md` の状態表の段 5 の行（`:96`）、同書の「段 5 入力の翻訳係」（`:297`）、試験の計画の段 5 の行（`:325`）。
+> **正本**: `docs/development-records/history/refactor-plan-report-2026-09-13.md` の状態表の段 5 の行（`:96`）、同書の「段 5 入力の翻訳係」（`:297`）、試験の計画の段 5 の行（`:325`）。
 > **型**: `CR-432`（とくに 0 節・4.1 の S1〜S5 と共変の数え方・5.2・7・8・12・13 節）。
 
 ---
@@ -555,7 +555,7 @@ S3 には当たらない —— `switch` の腕は閉じたまとまりである
 ### 11.2 記録（⛔ 本書は書かない）
 
 - `docs/development-records/changelog.md` に 1 行。
-- `docs/development-records/refactor-plan-report-2026-09-13.md` の段 5 の行 —— 入口の条件が満たされたこと。
+- `docs/development-records/history/refactor-plan-report-2026-09-13.md` の段 5 の行 —— 入口の条件が満たされたこと。
 - 8.4 の「直す」行。
 - ⚠️ 前に立つ者が相手のセッションへ渡すもの: `CR-450` の 9 件、`frame-loop.ts:672` `:1334` の 2 つのコメント。
 - ⚠️ 積むかを前に立つ者が決めるもの: 4.6 の `FR-081` の読み（`selectionFromInput` が 表 T-023c の割当を決めている）、5.3 の e2e の見る範囲が入口だけに縮むこと。

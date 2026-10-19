@@ -47,7 +47,7 @@
 
 | | 何を答えるか | いつ |
 |---|---|---|
-| [`W4-adapter.md`](../development-records/W4-adapter.md) ／ [`W5-framework.md`](../development-records/W5-framework.md) | **いまどのユニットのどの段にいるか。次の一手は何か** | **毎回、最初に** |
+| [`W4-adapter.md`](../development-records/history/W4-adapter.md) ／ [`W5-framework.md`](../development-records/history/W5-framework.md) | **いまどのユニットのどの段にいるか。次の一手は何か** | **毎回、最初に** |
 | [`pending-decisions.md`](../development-records/pending-decisions.md) | 推奨値で進めた暫定と、その印（検査 25 が突き合わせる）| **毎回** |
 | [`docs/development-records/README.md`](../development-records/README.md) | 記録の書式と、再開の 4 段 | 着手時 |
 

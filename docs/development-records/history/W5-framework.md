@@ -1,6 +1,6 @@
 # W5 `Framework` —— 開発の記録
 
-**規則は [`docs/development-rules/05-working-method.md`](../development-rules/05-working-method.md)。書式は [README](README.md)。**
+**規則は [`docs/development-rules/05-working-method.md`](../../development-rules/05-working-method.md)。書式は [README](../README.md)。**
 
 **対象**: `src/framework`   ⭐ **機械検査がこの宣言を読み、状態表と実物を突き合わせる。**
 
@@ -258,7 +258,7 @@ tests/contract/display-words.contract.test.ts の 3 件
 
 ⭐ **2026-08-23（第 11 巡）: 門を直した。仕様は 1 行も動いていない。**
 
-⛔ **本巡は配線を 1 本も足していない** —— 監査（[`../review/audit-cadence-and-architecture-2026-08-23.md`](../review/audit-cadence-and-architecture-2026-08-23.md)）が
+⛔ **本巡は配線を 1 本も足していない** —— 監査（[`../review/audit-cadence-and-architecture-2026-08-23.md`](../../review/audit-cadence-and-architecture-2026-08-23.md)）が
 「門が 3 割を見ていない」と測ったので、**繋ぐ前に門を直す** 順にした。
 ⚠️ **順が逆だと、足した配線が正しいかどうかを誰も言えない。**
 
@@ -318,7 +318,7 @@ test 3496 通過 / 0 赤   build 923.23 kB
 ### ⭐ 先頭で取った裁定 1 件（規則 06 の 3b）
 
 ⛔ **監査が「測れなかったこと」に唯一挙げた裁定待ちである** —— 表 T-014 の `ST-7` と `FR-028` の調停。
-⭐ **利用者の裁定: 値で返す ／ 表 T-233 に行を新設する**（`PND-178`。記録は [`../review/rulings-2026-08-23/RULINGS.md`](../review/rulings-2026-08-23/RULINGS.md)）。
+⭐ **利用者の裁定: 値で返す ／ 表 T-233 に行を新設する**（`PND-178`。記録は [`../review/rulings-2026-08-23/RULINGS.md`](../../review/rulings-2026-08-23/RULINGS.md)）。
 ⚠️ **問う前に引いた** —— **前プロジェクトの確定文書がこの安全弁について 2 か所で「到達したら人に知らせる（黙って捨てない）」と書いていた。**
 
 ### ⛔ 次の一手

@@ -18,7 +18,7 @@
 > **⛔ 本書が絶対にしないこと**: `.claude/skills/spec-graph-check/function-size-baseline.txt` の編集。
 > 基準線は分割そのもののコミットが書き換える（7 節）。
 >
-> **正本**: `docs/development-records/refactor-plan-report-2026-09-13.md` の状態表の段 4 の行と、同書の 2 節（なぜ神が生まれたか）。
+> **正本**: `docs/development-records/history/refactor-plan-report-2026-09-13.md` の状態表の段 4 の行と、同書の 2 節（なぜ神が生まれたか）。
 
 ---
 
@@ -466,7 +466,7 @@
 
 ### 4.7 段 4 の出口 —— ⭐ 利用者の裁定で決めた（9 節の ②）
 
-計画の状態表（`docs/development-records/refactor-plan-report-2026-09-13.md:95`）は段 4 の出口を「500 行を超える関数が `frameLoop` と `domScreenSurface` だけ」と書いている。  
+計画の状態表（`docs/development-records/history/refactor-plan-report-2026-09-13.md:95`）は段 4 の出口を「500 行を超える関数が `frameLoop` と `domScreenSurface` だけ」と書いている。  
 ⛔ **この出口は目的を測っていなかった。**  
 `editTask`（487 行）と `editTaskGroup`（434 行）は今日すでに 500 行を下回っており、割らなくても通る。  
 また 1 つの関数を 3 つに等分しても通る。
@@ -696,7 +696,7 @@
 
 - `docs/development-records/changelog.md` に 1 行。
 - `docs/development-records/rulings.md` —— 9 節の 3 つの裁定を積む。⛔ 前に立つ者が書く（本書を当てた体は書かない）。
-- `docs/development-records/refactor-plan-report-2026-09-13.md` の状態表の段 4 の行 —— 入口の条件が満たされたことを書く。
+- `docs/development-records/history/refactor-plan-report-2026-09-13.md` の状態表の段 4 の行 —— 入口の条件が満たされたことを書く。
   ⚠️ **⛔ 本書を当てる体は、この 2 ファイルを別の体が同時に触っていないことを確かめてから書くこと。**
 
 ### 11.4 実装と試験（⛔ 本書は 1 行も直さない。所だけ書く）
