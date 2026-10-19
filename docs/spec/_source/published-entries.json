@@ -2633,7 +2633,7 @@
      "after": {
       "ja": [
        "。",
-       "⚠️ 外へ公開する 26 メンバの名前は `_assets/tbl-agent-api-members.md` の 表 T-107 が持つ。",
+       "⚠️ 外へ公開する 27 メンバの名前は `_assets/tbl-agent-api-members.md` の 表 T-107 が持つ。",
        "本表に書き写さない（MUST NOT）"
       ]
      }
@@ -4397,6 +4397,30 @@
       "ja": [
        "遅延診断レポートの表に語と列のフィルタと並べ替えを当てた行を、画面に出す文字で答える。",
        "`Agent API` の `readTableRows`（`tbl-agent-api-members.md` の 表 T-107 の `AM-28`）が、人の画面と同じ行を返すために読む"
+      ]
+     }
+    },
+    {
+     "name": "delayFixColumnHeadings",
+     "note": {
+      "ja": [
+       "修正案の表と修正の記録の表（表 T-374）の列の見出しを日本語と英語で答える —— `readTableRows`（`AM-28`）が列の一覧に読む（CR-814）"
+      ]
+     }
+    },
+    {
+     "name": "delayFixLogTsvWhole",
+     "note": {
+      "ja": [
+       "修正の記録の全部の行を、窓の語と列のフィルタを読まずに表の順で `.tsv` の文字列にする —— `Agent API` の `exportFixLogTsv`（`AM-34`）が読む（CR-814）"
+      ]
+     }
+    },
+    {
+     "name": "delayFixTableRows",
+     "note": {
+      "ja": [
+       "修正案の表か修正の記録の表の行に語を当て、窓が出すとおりの文字で答える —— `readTableRows`（`AM-28`）が読む（CR-814）"
       ]
      }
     },

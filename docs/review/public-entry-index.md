@@ -1430,8 +1430,11 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `delayDiagnosticsReportWithFilterClosed` | entry | function | `src/adapter/screen-renderer/delay-diagnostics-report.ts#delayDiagnosticsReportWithFilterClosed` | PI-37 | 開いている列のフィルタを閉じた窓の値を答える（表 T-330 の `SV-14`）。 |
 | `delayDiagnosticsReportWithInput` | entry | function | `src/adapter/screen-renderer/delay-diagnostics-report.ts#delayDiagnosticsReportWithInput` | PI-37 | 窓の入力欄の語・出している表の列のフィルタの変化・修正案のチェックと択と日付（表 T-346 の `RW-3`・`RW-11`・`RW-16`）を、窓の値と診断結果の表の見え方へ当てる。 |
 | `delayFixBackupFileNameOf` | entry | function | `src/adapter/screen-renderer/open-modals.ts#delayFixBackupFileNameOf` | PI-37 | 直す前のバックアップの提案の名を作る（表 T-346 の `RW-15`）。 |
+| `delayFixColumnHeadings` | entry | function | `src/adapter/screen-renderer/delay-diagnostics-report.ts#delayFixColumnHeadings` | PI-37 | 修正案の表と修正の記録の表（表 T-374）の列の見出しを日本語と英語で答える —— `readTableRows`（`AM-28`）が列の一覧に読む（CR-814） |
 | `delayFixLogFileNameOf` | entry | function | `src/adapter/screen-renderer/open-modals.ts#delayFixLogFileNameOf` | PI-37 | 修正の記録の `.tsv` の提案の名を作る（表 T-346 の `RW-20`）。 |
 | `delayFixLogTsvOf` | entry | function | `src/adapter/screen-renderer/delay-diagnostics-report.ts#delayFixLogTsvOf` | PI-37 | 修正の記録の表が出している行（並べ替えとフィルタを済ませた行）から `.tsv` の文字列を作る（表 T-346 の `RW-20`）。 |
+| `delayFixLogTsvWhole` | entry | function | `src/adapter/screen-renderer/delay-diagnostics-report.ts#delayFixLogTsvWhole` | PI-37 | 修正の記録の全部の行を、窓の語と列のフィルタを読まずに表の順で `.tsv` の文字列にする —— `Agent API` の `exportFixLogTsv`（`AM-34`）が読む（CR-814） |
+| `delayFixTableRows` | entry | function | `src/adapter/screen-renderer/delay-diagnostics-report.ts#delayFixTableRows` | PI-37 | 修正案の表か修正の記録の表の行に語を当て、窓が出すとおりの文字で答える —— `readTableRows`（`AM-28`）が読む（CR-814） |
 | `DelayFixTelling` | entry | type | `src/adapter/screen-renderer/delay-diagnostics-report.ts#DelayFixTelling` | PI-37 | 型。 |
 | `delayReportColumnHeadings` | entry | function | `src/adapter/screen-renderer/delay-diagnostics-report.ts#delayReportColumnHeadings` | PI-37 | 遅延診断レポートの表（表 T-347）の列の一覧（列の行 ID・画面の名・値の種類）。 |
 | `delayReportTableRows` | entry | function | `src/adapter/screen-renderer/delay-diagnostics-report.ts#delayReportTableRows` | PI-37 | 遅延診断レポートの表に語と列のフィルタと並べ替えを当てた行を、画面に出す文字で答える。 |
@@ -2098,4 +2101,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 1069 name(s) leave through a public entry (525 of them published by table T-064), 829 more are exported by a file and not by its entry.
+Totals: 1072 name(s) leave through a public entry (528 of them published by table T-064), 829 more are exported by a file and not by its entry.

@@ -55,10 +55,10 @@ const noNotice = (): void => undefined
 
 describe('AM-1 and AG-1: the version the AgentApi hands out is the one the table prints', () => {
   it('agentApiVersion is the date-time the prose of T-107 gives and the manuscript declares (JDG-2741)', () => {
-    expect(installAgentApi(stubbedWiring).agentApiVersion).toBe('2026-10-19T00:00:00Z')
-    expect(MANUSCRIPT.version).toBe('2026-10-19T00:00:00Z')
+    expect(installAgentApi(stubbedWiring).agentApiVersion).toBe('2026-10-19T01:15:00Z')
+    expect(MANUSCRIPT.version).toBe('2026-10-19T01:15:00Z')
     expect(MANUSCRIPT.version).toMatch(/^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$/)
-    expect(PRINTED).toContain('いまの版は `2026-10-19T00:00:00Z` である（`AM-1` が返す値）')
+    expect(PRINTED).toContain('いまの版は `2026-10-19T01:15:00Z` である（`AM-1` が返す値）')
   })
 
   it('schemaVersion is the format version the page was wired with (AM-2)', () => {
@@ -86,7 +86,7 @@ describe('the AgentApi value has exactly the 22 members of T-107 the page holds 
 })
 
 describe('the AgentApi type, member by member (T-107)', () => {
-  it('has 25 members and the published AgentApi is the same type', () => {
+  it('has 26 members and the published AgentApi is the same type', () => {
     expectTypeOf<keyof AgentApi>().toEqualTypeOf<
       | 'agentApiVersion'
       | 'schemaVersion'
@@ -108,6 +108,7 @@ describe('the AgentApi type, member by member (T-107)', () => {
       | 'exportSvg'
       | 'exportPng'
       | 'exportEmbeddedHtml'
+      | 'exportFixLogTsv'
       | 'focusTask'
       | 'showOnlyTasks'
       | 'runDelayDiagnostics'

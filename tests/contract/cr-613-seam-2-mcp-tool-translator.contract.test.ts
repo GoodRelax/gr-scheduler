@@ -134,6 +134,7 @@ describe('SEAM-2 mcpToolList: the tools are table T-107, row for row (AG-12 (4))
       exportSvg: ['fileName', 'overwrite'],
       exportPng: ['fileName', 'overwrite'],
       exportEmbeddedHtml: ['fileName', 'overwrite'],
+      exportFixLogTsv: ['fileName', 'overwrite'],
       watchChanges: ['waitMs'],
     })
   })

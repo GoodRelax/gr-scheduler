@@ -204,10 +204,10 @@ describe('CR-791 design 3.1: the resources are the GRS JSON schema and the comma
     expect(answer['result']).toBeUndefined()
   })
 
-  it('a resource is not a tool: tools/list still answers mcpToolList() with 26 tools', async () => {
+  it('a resource is not a tool: tools/list still answers mcpToolList() with 27 tools', async () => {
     const answer = await client.request('tools/list', {})
     const tools = (answer['result'] as Json)['tools'] as Json[]
     expect(tools).toEqual(mcpToolList())
-    expect(tools).toHaveLength(26)
+    expect(tools).toHaveLength(27)
   })
 })

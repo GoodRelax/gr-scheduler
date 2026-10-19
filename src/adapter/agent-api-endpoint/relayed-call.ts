@@ -25,7 +25,7 @@ export interface RelayedParams {
   readStamp: {}
   readSelection: {}
   readSearchRows: { word: string; filters: 'asShown' | 'none'; offset: number; limit: number }
-  readTableRows: { table: 'delayDiagnosticsReport' | 'resourceList'; word: string; filters: 'asShown' | 'none'; offset: number; limit: number }
+  readTableRows: { table: 'delayDiagnosticsReport' | 'resourceList' | 'delayFixProposals' | 'delayFixLog'; word: string; filters: 'asShown' | 'none'; offset: number; limit: number }
   readShownTasks: {}
   readDelayDiagnostics: { parts: readonly string[]; limit: number }
   applyCommands: { request: AgentWriteRequest }
@@ -44,6 +44,8 @@ export interface RelayedParams {
   exportPng: {}
   // WHY: the relay reads fileName, overwrite itself; the page takes no argument.
   exportEmbeddedHtml: {}
+  // WHY: the relay reads fileName, overwrite itself; the page takes no argument.
+  exportFixLogTsv: {}
   focusTask: { taskUid: number }
   showOnlyTasks: { taskUids: readonly number[] }
   runDelayDiagnostics: {}

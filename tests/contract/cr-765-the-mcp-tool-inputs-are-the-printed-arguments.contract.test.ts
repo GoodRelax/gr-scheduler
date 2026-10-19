@@ -198,7 +198,7 @@ describe('AM-17 and AG-12 (5): watchChanges takes waitMs and not its receiver', 
 
 describe('mcp-tool-descriptions.json is what mcpToolList returns', () => {
   it('the file holds one entry per tool, with the same name, description and input properties', () => {
-    expect(FILE.tools).toHaveLength(26)
+    expect(FILE.tools).toHaveLength(27)
     expect(
       FILE.tools.map((tool) => ({ name: tool.name, description: tool.description, properties: tool.inputSchema.properties })),
     ).toEqual(

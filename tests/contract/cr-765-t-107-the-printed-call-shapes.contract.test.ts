@@ -26,9 +26,9 @@ const memberNamed = (name: string): PrintedMember => {
 const GLOSSARY = unbroken(readFileSync(join(SPEC, '_assets', 'tbl-glossary.md'), 'utf8'))
 
 const GLOSSARY_POINTER = '表 T-107（`Agent API` のメンバ）と、その呼び方（引数・型・戻り値）は `_assets/tbl-agent-api-members.md` が持つ'
-const VERSION_SENTENCE = 'いまの版は `2026-10-19T00:00:00Z` である（`AM-1` が返す値）。'
+const VERSION_SENTENCE = 'いまの版は `2026-10-19T01:15:00Z` である（`AM-1` が返す値）。'
 const CHANGE_RAISES_VERSION = '呼び方を変える変更は、版をその変更を当てる時刻へ上げる（表 T-035 の `AG-1`）。'
-const TWENTY_TWO = '**`Agent API` は 1 つの面に 26 のメンバをフラットに並べる。**'
+const TWENTY_TWO = '**`Agent API` は 1 つの面に 27 のメンバをフラットに並べる。**'
 const CALL_SHAPES_ARE_GENERATED =
   '呼び方（引数の名・型・意味と戻り値）は本表と 表 T-400 が持つ** —— コードの `AgentApi` の型と、MCP の道具の入力の形は本表の原稿から生成し、手で書かない'
 
@@ -52,7 +52,7 @@ const EXPECTED_ROWS: readonly (readonly [string, string, readonly string[], stri
     'AM-28',
     'readTableRows',
     [
-      "table: 'delayDiagnosticsReport' | 'resourceList'",
+      "table: 'delayDiagnosticsReport' | 'resourceList' | 'delayFixProposals' | 'delayFixLog'",
       'word: string',
       "filters: 'asShown' | 'none'",
       'offset: number',
@@ -73,6 +73,7 @@ const EXPECTED_ROWS: readonly (readonly [string, string, readonly string[], stri
   ['AM-13', 'exportSvg', [], 'AgentExport<string>'],
   ['AM-14', 'exportPng', [], 'Promise<AgentExport<Uint8Array>>'],
   ['AM-15', 'exportEmbeddedHtml', [], 'Promise<AgentExport<string>>'],
+  ['AM-34', 'exportFixLogTsv', [], 'AgentExport<string>'],
   ['AM-16', 'focusTask', ['taskUid: number'], 'AgentFocusOutcome'],
   ['AM-27', 'showOnlyTasks', ['taskUids: readonly number[]'], 'AgentWriteOutcome'],
   ['AM-31', 'runDelayDiagnostics', [], 'AgentWriteOutcome'],
@@ -92,7 +93,7 @@ describe('T-107 is printed in one place, with the two columns CR-765 adds', () =
     expect(caption).toContain('表 T-107 — `Agent API` のメンバ')
   })
 
-  it('the prose above the table says 26 members on one flat surface, the version is a date-time and a change of call shape raises it', () => {
+  it('the prose above the table says 27 members on one flat surface, the version is a date-time and a change of call shape raises it', () => {
     const prose = unbroken(PRINTED_TEXT)
     expect(prose).toContain(TWENTY_TWO)
     expect(prose).toContain(VERSION_SENTENCE)
@@ -100,10 +101,10 @@ describe('T-107 is printed in one place, with the two columns CR-765 adds', () =
     expect(prose).toContain(CALL_SHAPES_ARE_GENERATED)
   })
 
-  it('26 rows, each a distinct row id AM-n and a distinct confirmed name, in the printed order', () => {
-    expect(members).toHaveLength(26)
-    expect(new Set(members.map((one) => one.id)).size).toBe(26)
-    expect(new Set(members.map((one) => one.name)).size).toBe(26)
+  it('27 rows, each a distinct row id AM-n and a distinct confirmed name, in the printed order', () => {
+    expect(members).toHaveLength(27)
+    expect(new Set(members.map((one) => one.id)).size).toBe(27)
+    expect(new Set(members.map((one) => one.name)).size).toBe(27)
     expect(members.map((one) => one.id)).toEqual(EXPECTED_ROWS.map(([id]) => id))
     expect(members.map((one) => one.name)).toEqual(EXPECTED_ROWS.map(([, name]) => name))
   })
@@ -172,7 +173,7 @@ describe('T-107 arguments and return values, row by row', () => {
       'watchChanges',
     ])
     expect(members.filter((one) => one.arguments.length === 0).every((one) => one.argumentsCell === '—')).toBe(true)
-    expect(members.filter((one) => one.arguments.length > 0).length).toBe(19)
+    expect(members.filter((one) => one.arguments.length > 0).length).toBe(20)
   })
 })
 
@@ -190,8 +191,8 @@ describe('AM-17 and AM-11 to AM-15: the keys only the MCP tool takes', () => {
   })
 
   // see AM-11, AM-12, AM-13, AM-14, AM-15, AV-21
-  it('the five export rows print fileName and overwrite as MCP-only keys', () => {
-    for (const name of ['exportJson', 'exportMspdi', 'exportSvg', 'exportPng', 'exportEmbeddedHtml']) {
+  it('the six export rows print fileName and overwrite as MCP-only keys', () => {
+    for (const name of ['exportJson', 'exportMspdi', 'exportSvg', 'exportPng', 'exportEmbeddedHtml', 'exportFixLogTsv']) {
       const one = memberNamed(name)
       expect(one.arguments.map((argument) => [argument.name, argument.typeText, argument.isMcpOnly]), name).toEqual([
         ['fileName', 'string', true],
@@ -214,6 +215,8 @@ describe('AM-17 and AM-11 to AM-15: the keys only the MCP tool takes', () => {
       'exportPng',
       'exportEmbeddedHtml',
       'exportEmbeddedHtml',
+      'exportFixLogTsv',
+      'exportFixLogTsv',
       'watchChanges',
     ])
   })

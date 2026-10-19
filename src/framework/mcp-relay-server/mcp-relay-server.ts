@@ -130,11 +130,11 @@ const DEFAULT_CALL_DEADLINE_MS = 45_000
 const LONGEST_WATCH_WAIT_MS = 40_000
 
 // <generated -- do not edit by hand>
-// From docs/spec/_source/agent-api-members.json (table T-107, the MCP-only keys of AM-17 and AM-11, AM-12, AM-13, AM-14, AM-15).
+// From docs/spec/_source/agent-api-members.json (table T-107, the MCP-only keys of AM-17 and AM-11, AM-12, AM-13, AM-14, AM-15, AM-34).
 // see AM-17, AG-12
 const WATCH_CHANGES = 'watchChanges'
 const WAIT_MS_KEY = 'waitMs'
-// see AM-11, AM-12, AM-13, AM-14, AM-15, AG-12
+// see AM-11, AM-12, AM-13, AM-14, AM-15, AM-34, AG-12
 const FILE_NAME_KEY = 'fileName'
 const OVERWRITE_KEY = 'overwrite'
 const SAVED_EXTENSION_OF: Readonly<Record<string, string>> = {
@@ -143,6 +143,7 @@ const SAVED_EXTENSION_OF: Readonly<Record<string, string>> = {
   exportSvg: '.svg',
   exportPng: '.png',
   exportEmbeddedHtml: '.html',
+  exportFixLogTsv: '.tsv',
 }
 // </generated>
 

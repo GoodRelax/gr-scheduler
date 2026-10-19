@@ -46,6 +46,9 @@ import * as DocumentCodec from '../document-codec/document-codec'
 import { jsonFromDocument, mspdiFromDocument } from '../document-codec/document-codec'
 import * as ImageExporter from '../image-exporter/image-exporter'
 import {
+  delayFixColumnHeadings,
+  delayFixLogTsvWhole,
+  delayFixTableRows,
   delayReportColumnHeadings,
   delayReportTableRows,
   filteredSearchRows,
@@ -266,7 +269,7 @@ export interface AgentApi {
   /** @purity semi-pure-b */
   readSearchRows(word: string, filters: 'asShown' | 'none', offset: number, limit: number): AgentSearchPage
   /** @purity semi-pure-b */
-  readTableRows(table: 'delayDiagnosticsReport' | 'resourceList', word: string, filters: 'asShown' | 'none', offset: number, limit: number): AgentTableRows
+  readTableRows(table: 'delayDiagnosticsReport' | 'resourceList' | 'delayFixProposals' | 'delayFixLog', word: string, filters: 'asShown' | 'none', offset: number, limit: number): AgentTableRows
   /** @purity semi-pure-b */
   readShownTasks(): AgentShownTasks
   /** @purity semi-pure-b */
@@ -296,6 +299,8 @@ export interface AgentApi {
   exportPng(): Promise<AgentExport<Uint8Array>>
   /** @purity semi-pure-b */
   exportEmbeddedHtml(): Promise<AgentExport<string>>
+  /** @purity semi-pure-b */
+  exportFixLogTsv(): AgentExport<string>
 
   /** @purity non-pure */
   focusTask(taskUid: number): AgentFocusOutcome
@@ -321,7 +326,7 @@ const ELSEWHERE_DECLARED_FIELDS_MATCH: [
 void ELSEWHERE_DECLARED_FIELDS_MATCH
 
 // see AM-1, AG-1
-const AGENT_API_VERSION = '2026-10-19T00:00:00Z'
+const AGENT_API_VERSION = '2026-10-19T01:15:00Z'
 // </generated>
 
 export interface AgentApiWiring {
@@ -474,6 +479,13 @@ type AgentTable = Parameters<AgentApi['readTableRows']>[0]
 const TABLE_COLUMNS: Readonly<Record<AgentTable, readonly AgentTableColumn[]>> = {
   delayDiagnosticsReport: delayReportColumnHeadings().map(agentColumnOf),
   resourceList: resourceListColumnHeadings().map(agentColumnOf),
+  delayFixProposals: delayFixColumnHeadings('proposals').map(fixColumnOf),
+  delayFixLog: delayFixColumnHeadings('log').map(fixColumnOf),
+}
+
+/** @purity pure */
+function fixColumnOf(heading: { readonly column: string; readonly ja: string; readonly en: string }): AgentTableColumn {
+  return { id: heading.column, ja: heading.ja, en: heading.en, kind: 'text' }
 }
 
 // see AM-28, AV-20
@@ -487,19 +499,22 @@ function isAgentTable(table: unknown): table is AgentTable {
 }
 
 // see AM-28, AM-19, FR-134, FR-099, S-566, S-567, S-571, S-572
-/** @purity pure */
-function tableRowsListedOf(document: Document, table: AgentTable, word: string, isAsShown: boolean): readonly AgentTableRow[] {
+/** @purity semi-pure-b */
+function tableRowsListedOf(document: Document, table: AgentTable, word: string, isAsShown: boolean, log: DelayFixLogSource | undefined): readonly AgentTableRow[] {
   const look = { word, isAsShown, language: TABLE_CELL_LANGUAGE } as const
   const { schedule, documentSettings } = document
   if (table === 'resourceList') return resourceListTableRows(schedule, documentSettings, NO_CHOSEN_RESOURCES, look)
   const report = diagnoseDelay(document, workingCalendarOf(schedule))
-  return delayReportTableRows(report, schedule, documentSettings, look)
+  if (table === 'delayDiagnosticsReport') return delayReportTableRows(report, schedule, documentSettings, look)
+  const { fixProposals, fixLog } = delayDiagnosticsWithFixes(document, log)
+  const fixTable = table === 'delayFixLog' ? 'log' : 'proposals'
+  return delayFixTableRows(fixTable, { proposals: fixProposals, log: fixLog }, document, report, look)
 }
 
 // see AM-28, AV-18, T-347, T-371
-/** @purity pure */
-function tableRowsPageOf(document: Document, table: AgentTable, word: unknown, filters: unknown, offset: unknown, limit: unknown): AgentTableRows {
-  const rows = tableRowsListedOf(document, table, typeof word === 'string' ? word : '', filters !== 'none')
+/** @purity semi-pure-b */
+function tableRowsPageOf(document: Document, table: AgentTable, look: { readonly word: unknown; readonly filters: unknown; readonly log: DelayFixLogSource | undefined }, offset: unknown, limit: unknown): AgentTableRows {
+  const rows = tableRowsListedOf(document, table, typeof look.word === 'string' ? look.word : '', look.filters !== 'none', look.log)
   const { start, end } = pageBoundsOf(offset, limit)
   return {
     ok: true,
@@ -1092,7 +1107,7 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
         const refusal = agentRefusal('AM-28', 'malformedRequest', snapshot, `no such table: ${String(table)}`, [])
         return { ok: false, refusal }
       }
-      return frozenCopy(tableRowsPageOf(snapshot.document, table, word, filters, offset, limit))
+      return frozenCopy(tableRowsPageOf(snapshot.document, table, { word, filters, log: wiring.delayFixLog }, offset, limit))
     },
 
     /** @purity semi-pure-b */
@@ -1283,6 +1298,15 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
         }
       }
       return { ok: true, value: made.html }
+    },
+
+    // see AM-34, RW-20, IO-9
+    /** @purity semi-pure-b */
+    exportFixLogTsv(): AgentExport<string> {
+      const document = source.readSnapshot().document
+      const { fixProposals, fixLog } = delayDiagnosticsWithFixes(document, wiring.delayFixLog)
+      const report = diagnoseDelay(document, workingCalendarOf(document.schedule))
+      return { ok: true, value: delayFixLogTsvWhole({ proposals: fixProposals, log: fixLog }, document, report, TABLE_CELL_LANGUAGE) }
     },
 
     /** @purity non-pure */

@@ -8,7 +8,7 @@
   "The schema sees the SHAPE. What JSON Schema cannot say -- a row id or a name written twice, a type naming an identifier nobody defines, a line whose parenthesis does not close -- is refused by agent_api_members_json_to_md.py."
  ],
  "title": "The Agent API members manuscript",
- "description": "Table T-107 (the 26 members and how each is called) and table T-400 (the value types they hand over).",
+ "description": "Table T-107 (the 27 members and how each is called) and table T-400 (the value types they hand over).",
  "type": "object",
  "required": [
   "version",

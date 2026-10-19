@@ -1152,6 +1152,28 @@ function withCascadesUnderOrigins(kept: readonly ShownFixRow[]): readonly ShownF
   return delayFixRowsInOrder(proposals, (a, b) => placeOf(a) - placeOf(b)).flatMap((row) => kept[placeOf(row)] ?? [])
 }
 
+/** @purity pure */
+export function delayFixColumnHeadings(table: FixTable): readonly { readonly column: string; readonly ja: string; readonly en: string }[] {
+  return (table === 'log' ? LOG_COLUMNS : PROPOSAL_COLUMNS).map((column) => ({ column, ja: partWordOf(FIX_COLUMN_WORDS, column, 'ja'), en: partWordOf(FIX_COLUMN_WORDS, column, 'en') }))
+}
+
+// see AM-28, T-374, RW-11
+// WHY: no window state is read: the word is the caller's, and the fix tables hold no view in the document (FR-155).
+/** @purity pure */
+export function delayFixTableRows(
+  table: FixTable,
+  tables: DelayFixTables,
+  document: { readonly schedule: Schedule; readonly documentSettings: DocumentSettings },
+  report: DelayDiagnosticsReport,
+  look: { readonly word: string; readonly language: DisplayLanguage },
+): readonly TableRowCells[] {
+  const { schedule, documentSettings } = document
+  const words = fixWordsOf(schedule, look.language, report, shownTimesOf(schedule, documentSettings.isTimeOfDayVisible, documentSettings.viewTimeZone))
+  return shownFixRowsOf(table, tables, words)
+    .filter((shown) => isFixWordFound(shown, look.word))
+    .map((shown, at) => ({ key: 'key' in shown.row ? shown.row.key : at, cells: shown.columns.map((column) => ({ column, text: fixCellOf(shown, column) })) }))
+}
+
 // see RW-11, SV-4
 /** @purity pure */
 function isFixWordFound(shown: ShownFixRow, word: string): boolean {
@@ -1413,7 +1435,24 @@ export function delayFixLogTsvOf(
   viewTimeZone: unknown = null,
 ): string {
   const words = fixWordsOf(schedule, language, report, shownTimesOf(schedule, isTimeOfDayVisible, viewTimeZone))
-  const found = foundFixRowsOf(shownFixRowsOf('log', fixTables, words), window.panel.word, delayFixValuesOf(window).views.log)
+  return fixLogTsvOf(foundFixRowsOf(shownFixRowsOf('log', fixTables, words), window.panel.word, delayFixValuesOf(window).views.log), language)
+}
+
+// WHY: no window state is read, so every row of the log in the table's order (CR-814).
+/** @purity pure */
+export function delayFixLogTsvWhole(
+  fixTables: DelayFixTables,
+  document: { readonly schedule: Schedule; readonly documentSettings: DocumentSettings },
+  report: DelayDiagnosticsReport,
+  language: DisplayLanguage,
+): string {
+  const { schedule, documentSettings } = document
+  const words = fixWordsOf(schedule, language, report, shownTimesOf(schedule, documentSettings.isTimeOfDayVisible, documentSettings.viewTimeZone))
+  return fixLogTsvOf(shownFixRowsOf('log', fixTables, words), language)
+}
+
+/** @purity pure */
+function fixLogTsvOf(found: ReturnType<typeof foundFixRowsOf>, language: DisplayLanguage): string {
   const headings = [
     ...LOG_COLUMNS.map((column) => partWordOf(FIX_COLUMN_WORDS, column, language)),
     ...FIX_LOG_TSV_UID_PARTS.map((part) => fixWordOf(part, language)),

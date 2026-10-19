@@ -2,7 +2,7 @@
  "$schema": "./agent-api-members.schema.json",
  "$comment": [
   "SINGLE SOURCE OF TRUTH -- EDIT THIS FILE.",
-  "The members of the Agent API and how each is called (CR-765, JDG-2160): table T-107 (the 26 members: group, confirmed name, kind and purity, arguments, return value, what it carries, source) and table T-400 (the value types the arguments and return values name that table T-064 has no row for).",
+  "The members of the Agent API and how each is called (CR-765, JDG-2160): table T-107 (the 27 members: group, confirmed name, kind and purity, arguments, return value, what it carries, source) and table T-400 (the value types the arguments and return values name that table T-064 has no row for).",
   "Generated FROM this file: _assets/tbl-agent-api-members.md (agent_api_members_json_to_md.py); the generated regions of src/adapter/agent-api-endpoint/agent-api-members.ts (AgentApi, the value types, AGENT_API_VERSION), src/adapter/agent-api-endpoint/relayed-call.ts (RelayedParams, MEMBER_PARAMETERS) and src/framework/mcp-relay-server/mcp-relay-server.ts (the MCP-only key of AM-17) (tools/generate_agent_api.py); and src/adapter/mcp-tool-translator/mcp-tool-descriptions.json, the MCP tool names, descriptions and input shapes (tools/generate_mcp_tool_descriptions.py).",
   "Rebuild: npm run gen   |   npm run gen:check fails if anything has drifted.",
   "Validated by _source/agent-api-members.schema.json. agent_api_members_json_to_md.py also refuses a row id or a name written twice, a type naming an identifier that is neither a row of the value table, a name of `externalTypes` nor a built-in, a line that is empty or holds a line-break tag, and a parenthesis or bold run that does not close on its line.",
@@ -10,7 +10,7 @@
   "Rows are in the order the tables print them and the code declares them, which is not the numeric order. ONE STRING IS ONE PRINTED LINE.",
   "The rules about the Agent API are NOT here -- table T-035 (AG-n) and the requirements the `source` cells name hold them."
  ],
- "version": "2026-10-19T00:00:00Z",
+ "version": "2026-10-19T01:15:00Z",
  "kinds": {
   "property": {
    "ja": "プロパティ"
@@ -65,6 +65,7 @@
     "Progress. percentComplete follows from the dates: to record progress write actualStart and actualFinish, or stop while the task is unfinished.",
     "New uids. Tasks, resources, assignments and calendars share one counter: a new uid is project.uidHighWaterMark plus 1, and uids are never reused. In one applyCommands batch each create takes the next number, so a later command of the same batch can name it.",
     "Milestones. Task.milestone is the fact; TaskVisual.shapeKind only draws it and must agree with it.",
+    "Comment boxes. CommentBox.fontSizePx is the text size of one comment box, 8 to 24 px; null draws 10 px. Change it with setCommentBoxFontSizePx.",
     "Writing. Send applyCommands with the stamp you last read as expectedStamp; the whole batch is applied or refused as one, and a refusal is a value that names the reason."
    ]
   }
@@ -154,7 +155,7 @@
   },
   "before": {
    "ja": [
-    "**`Agent API` は 1 つの面に 26 のメンバをフラットに並べる。**",
+    "**`Agent API` は 1 つの面に 27 のメンバをフラットに並べる。**",
     "用途別に分けない理由は Chapter 5.2 が持つ（`R2.5`）。",
     "いまの版は `{version}` である（`AM-1` が返す値）。",
     "版は、文書の形式の版（`FR-073`）と同じ書式の日時である —— 呼び方を変える変更は、版をその変更を当てる時刻へ上げる（表 T-035 の `AG-1`）。",
@@ -448,10 +449,10 @@
     "arguments": [
      {
       "name": "table",
-      "type": "'delayDiagnosticsReport' | 'resourceList'",
+      "type": "'delayDiagnosticsReport' | 'resourceList' | 'delayFixProposals' | 'delayFixLog'",
       "meaning": {
-       "ja": "読む表 —— 遅延診断レポートの表か担当リストの表",
-       "en": "The table to read: the Delay Diagnostics Report table or the Resource List table"
+       "ja": "読む表 —— 遅延診断レポートの表・担当リストの表・修正案の表・修正の記録の表（表 T-374、CR-814） —— 修正案と修正の記録の表は列のフィルタと並べ替えを文書に持たない（`FR-155`）ので、`filters` は効かない",
+       "en": "The table to read: the Delay Diagnostics Report table, the Resource List table, the fix proposals table or the fix log table. The two fix tables keep no column filter or sort in the document, so filters changes nothing for them"
       }
      },
      {
@@ -496,14 +497,16 @@
       "遅延診断レポートの表は、`AM-19` と同じ診断をその時に行って作る —— 画面の値も文書も書かない。",
       "1 回に返す行は `limit` まで（上限 100）で、答えは列の一覧と全部の行数と次の `offset` を持つ（`AV-18`）。",
       "AI が列のフィルタと並べ替えを変えるのは `applyCommands` の `setTableView`（表 T-108 の `CM-92`）であり、人の画面の表も同じに変わる。",
-      "⚠️ 検索パネルの表は `readSearchRows`（`AM-25`）が読む —— 1 つの表を読む道は 1 つである。"
+      "⚠️ 検索パネルの表は `readSearchRows`（`AM-25`）が読む —— 1 つの表を読む道は 1 つである。",
+      "修正案と修正の記録の表は、`readDelayDiagnostics` の `fixProposals`・`fixLog` と同じ行を、窓が出すとおりの列でページに分けて返す（CR-814）"
      ],
      "en": [
       "Returns the rows of the Delay Diagnostics Report table or the Resource List table, one page at a time, with every cell as the person sees it.",
       "With filters 'asShown' (the default) the column filters and sort the person has set on that table are applied, so you get the same rows in the same order as on screen. The table's own search field is neither read nor changed.",
       "The Delay Diagnostics Report table is built from a fresh diagnosis, as readDelayDiagnostics does; nothing on the screen or in the document changes.",
       "Up to limit rows (at most 100) are returned from offset; the answer lists the columns, the total row count and the next offset.",
-      "To change a table's column filters or sort as the person would, send setTableView through applyCommands. The Search Panel is read with readSearchRows."
+      "To change a table's column filters or sort as the person would, send setTableView through applyCommands. The Search Panel is read with readSearchRows.",
+      "The fix proposals and fix log tables list the same rows readDelayDiagnostics returns in fixProposals and fixLog, as the report window shows them, a page at a time."
      ]
     },
     "source": {
@@ -991,6 +994,48 @@
     },
     "source": {
      "ja": "表 T-024 の `IO-7` ／ `FR-067`"
+    },
+    "mcpOnlyKeys": [
+     {
+      "name": "fileName",
+      "type": "string",
+      "meaning": {
+       "ja": "保存するファイルの名 —— 取次の設定の保存先のフォルダからの相対の所で、渡せば取次がファイルに書き、値の代わりに `AgentSavedFile`（`AV-21`）を返す（表 T-035 の `AG-12` の ⑨）",
+       "en": "The file to save to, relative to the save folder the person set in the relay's settings. When given, the relay writes the file and answers with where it saved and how many bytes, not with the value"
+      }
+     },
+     {
+      "name": "overwrite",
+      "type": "boolean",
+      "meaning": {
+       "ja": "既にあるファイルを上書きするか —— 取次の設定「上書きの前に確認する」が入っているあいだは `true` が無ければ `fileExists` で拒むので、人に問うてから渡す（上書きの前の中身は `.bak` に 1 世代残る）",
+       "en": "Whether to replace a file that exists. While the relay's 'confirm before overwrite' setting is on, an existing file is refused with fileExists unless this is true; ask the person first, unless they told you not to ask in this conversation. The old file is kept as <name>.bak"
+      }
+     }
+    ]
+   },
+   {
+    "id": "AM-34",
+    "group": {
+     "ja": "出す"
+    },
+    "name": "exportFixLogTsv",
+    "kind": "method",
+    "purity": "semi-pure-b",
+    "arguments": [],
+    "returns": "AgentExport<string>",
+    "carries": {
+     "ja": [
+      "遅延診断の修正の記録（表 T-374）を `.tsv` の文字列で返す —— 人の「.tsv で保存」（`IC-169`、`RW-20`）と同じ列と書き方で、記録の全部の行を表の順に（窓の語と列のフィルタは読まない、CR-814）",
+      "⭐ MCP だけの鍵 `fileName`（拡張子 `.tsv`）を渡すと、取次が値を保存先のフォルダへ書く（表 T-035 の `AG-12` の ⑨）。"
+     ],
+     "en": [
+      "Returns the fix log of the Delay Diagnostics as tab-separated text, with the same columns and form as the person's Save As .tsv: every row of the log in the table's order.",
+      "Pass fileName (ending in .tsv) to have the relay save it in the person's save folder instead."
+     ]
+    },
+    "source": {
+     "ja": "表 T-024 の `IO-9` ／ 表 T-346 の `RW-20`"
     },
     "mcpOnlyKeys": [
      {

@@ -119,7 +119,7 @@ ANNOTATION = re.compile(r'^(?:export\s+)?const\s+[A-Za-z_$][\w$]*\s*:\s*(?:Reado
 # `(typeof B)[number]`, `keyof typeof B`, `B[number]`, `B['k']`.
 ALIAS = re.compile(r'^(?:export\s+)?type\s+([A-Za-z_$][\w$]*)\s*=\s*(.*?);?\s*$')
 ALIAS_WRAPPERS = frozenset(['typeof', 'keyof', 'number', 'readonly', 'NonNullable',
-                            'Readonly', 'ReadonlyArray'])
+                            'Readonly', 'ReadonlyArray', 'Parameters'])
 SOURCE_LINE = re.compile(r'\bdocs/\S+')
 
 

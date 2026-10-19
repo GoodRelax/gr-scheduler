@@ -129,6 +129,9 @@ export {
   delayDiagnosticsReportWithColumnWidth,
   delayDiagnosticsReportWithFilterClosed,
   delayDiagnosticsReportWithInput,
+  delayFixColumnHeadings,
+  delayFixLogTsvWhole,
+  delayFixTableRows,
   delayReportColumnHeadings,
   delayReportTableRows,
 } from './delay-diagnostics-report'

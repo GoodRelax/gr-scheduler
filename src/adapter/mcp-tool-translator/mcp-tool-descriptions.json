@@ -5,7 +5,7 @@
   "pageNotConnected": "No GRS page is connected to the relay. If the page was connected a moment ago, it is reconnecting by itself (it tries for about 15 s while the relay keeps running): call readStamp again after that, and ask the person only if it still answers pageNotConnected. Ask the person to open {pageUrl} in a browser: the whole address, the part after # included. Then they open the document in that page (a document open in another tab or window does not count) and press the Agent API button in the page header.",
   "relayTimedOut": "{member} did not answer within {seconds} s. Ask the person whether a question or a window is open on the GRS page."
  },
- "schemaNotes": "GRS JSON notes: the points that are easy to get wrong. The schema descriptions say the same at more length; when they differ, the schema wins.\nTimes. Every date-time is a wall clock in project.scheduleDataTimeZone (for example UTC+09:00), written YYYY-MM-DDTHH:MM:SS to the minute, with no Z and no offset; GRS never converts one.\nA date alone (YYYY-MM-DD) is not a date-time: always write the time of day too, for example the start of the working day for a start and its end for a finish.\nproject.statusDate is read as a day: its time of day moves neither the status line nor the progress line.\nLengths. Durations and lags count working minutes of the document calendar; one working day is project.minutesPerDay minutes, 480 when it is null.\nDependencies. A dependency sits in the dependencies list of the later task and names the earlier task by predecessorUid.\nlinkType is a number: 0 finish-to-finish, 1 finish-to-start, 2 start-to-finish, 3 start-to-start.\nlinkLag is in tenths of a minute whatever lagFormat says: one working day of lag is project.minutesPerDay x 10.\nProgress. percentComplete follows from the dates: to record progress write actualStart and actualFinish, or stop while the task is unfinished.\nNew uids. Tasks, resources, assignments and calendars share one counter: a new uid is project.uidHighWaterMark plus 1, and uids are never reused. In one applyCommands batch each create takes the next number, so a later command of the same batch can name it.\nMilestones. Task.milestone is the fact; TaskVisual.shapeKind only draws it and must agree with it.\nWriting. Send applyCommands with the stamp you last read as expectedStamp; the whole batch is applied or refused as one, and a refusal is a value that names the reason.",
+ "schemaNotes": "GRS JSON notes: the points that are easy to get wrong. The schema descriptions say the same at more length; when they differ, the schema wins.\nTimes. Every date-time is a wall clock in project.scheduleDataTimeZone (for example UTC+09:00), written YYYY-MM-DDTHH:MM:SS to the minute, with no Z and no offset; GRS never converts one.\nA date alone (YYYY-MM-DD) is not a date-time: always write the time of day too, for example the start of the working day for a start and its end for a finish.\nproject.statusDate is read as a day: its time of day moves neither the status line nor the progress line.\nLengths. Durations and lags count working minutes of the document calendar; one working day is project.minutesPerDay minutes, 480 when it is null.\nDependencies. A dependency sits in the dependencies list of the later task and names the earlier task by predecessorUid.\nlinkType is a number: 0 finish-to-finish, 1 finish-to-start, 2 start-to-finish, 3 start-to-start.\nlinkLag is in tenths of a minute whatever lagFormat says: one working day of lag is project.minutesPerDay x 10.\nProgress. percentComplete follows from the dates: to record progress write actualStart and actualFinish, or stop while the task is unfinished.\nNew uids. Tasks, resources, assignments and calendars share one counter: a new uid is project.uidHighWaterMark plus 1, and uids are never reused. In one applyCommands batch each create takes the next number, so a later command of the same batch can name it.\nMilestones. Task.milestone is the fact; TaskVisual.shapeKind only draws it and must agree with it.\nComment boxes. CommentBox.fontSizePx is the text size of one comment box, 8 to 24 px; null draws 10 px. Change it with setCommentBoxFontSizePx.\nWriting. Send applyCommands with the stamp you last read as expectedStamp; the whole batch is applied or refused as one, and a refusal is a value that names the reason.",
  "tools": [
   {
    "name": "agentApiVersion",
@@ -126,7 +126,7 @@
   },
   {
    "name": "readTableRows",
-   "description": "Returns the rows of the Delay Diagnostics Report table or the Resource List table, one page at a time, with every cell as the person sees it.\nWith filters 'asShown' (the default) the column filters and sort the person has set on that table are applied, so you get the same rows in the same order as on screen. The table's own search field is neither read nor changed.\nThe Delay Diagnostics Report table is built from a fresh diagnosis, as readDelayDiagnostics does; nothing on the screen or in the document changes.\nUp to limit rows (at most 100) are returned from offset; the answer lists the columns, the total row count and the next offset.\nTo change a table's column filters or sort as the person would, send setTableView through applyCommands. The Search Panel is read with readSearchRows.",
+   "description": "Returns the rows of the Delay Diagnostics Report table or the Resource List table, one page at a time, with every cell as the person sees it.\nWith filters 'asShown' (the default) the column filters and sort the person has set on that table are applied, so you get the same rows in the same order as on screen. The table's own search field is neither read nor changed.\nThe Delay Diagnostics Report table is built from a fresh diagnosis, as readDelayDiagnostics does; nothing on the screen or in the document changes.\nUp to limit rows (at most 100) are returned from offset; the answer lists the columns, the total row count and the next offset.\nTo change a table's column filters or sort as the person would, send setTableView through applyCommands. The Search Panel is read with readSearchRows.\nThe fix proposals and fix log tables list the same rows readDelayDiagnostics returns in fixProposals and fixLog, as the report window shows them, a page at a time.",
    "inputSchema": {
     "type": "object",
     "properties": {
@@ -134,9 +134,11 @@
       "type": "string",
       "enum": [
        "delayDiagnosticsReport",
-       "resourceList"
+       "resourceList",
+       "delayFixProposals",
+       "delayFixLog"
       ],
-      "description": "The table to read: the Delay Diagnostics Report table or the Resource List table"
+      "description": "The table to read: the Delay Diagnostics Report table, the Resource List table, the fix proposals table or the fix log table. The two fix tables keep no column filter or sort in the document, so filters changes nothing for them"
      },
      "word": {
       "type": "string",
@@ -459,6 +461,23 @@
   {
    "name": "exportEmbeddedHtml",
    "description": "Returns one .html file that holds GRS and the document together.\nPass fileName (ending in .html) to have the relay save it in the person's save folder instead.",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "fileName": {
+      "type": "string",
+      "description": "The file to save to, relative to the save folder the person set in the relay's settings. When given, the relay writes the file and answers with where it saved and how many bytes, not with the value"
+     },
+     "overwrite": {
+      "type": "boolean",
+      "description": "Whether to replace a file that exists. While the relay's 'confirm before overwrite' setting is on, an existing file is refused with fileExists unless this is true; ask the person first, unless they told you not to ask in this conversation. The old file is kept as <name>.bak"
+     }
+    }
+   }
+  },
+  {
+   "name": "exportFixLogTsv",
+   "description": "Returns the fix log of the Delay Diagnostics as tab-separated text, with the same columns and form as the person's Save As .tsv: every row of the log in the table's order.\nPass fileName (ending in .tsv) to have the relay save it in the person's save folder instead.",
    "inputSchema": {
     "type": "object",
     "properties": {

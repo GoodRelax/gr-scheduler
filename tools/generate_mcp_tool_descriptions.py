@@ -86,6 +86,7 @@ def stop(message):
 
 
 DOCUMENT_SCHEMA = os.path.join(ROOT, 'docs', 'spec', '_source', 'grs-document.schema.json')
+COMMANDS_SCHEMA = os.path.join(ROOT, 'docs', 'spec', '_source', 'grs-commands.schema.json')
 # A word the notes may name: camelCase, or a Type.key pair.
 NOTE_NAME = re.compile(r'\b(?:[A-Z][A-Za-z]+\.)?[a-z]+[A-Z][A-Za-z]*\b|\b[A-Z][A-Za-z]+\.[a-z][A-Za-z]*\b')
 
@@ -107,6 +108,23 @@ def known_names(value, into):
     return into
 
 
+def command_kinds(value, into):
+    """Every `kind` const of the commands schema, at any depth.
+
+    @purity pure
+    """
+    if isinstance(value, dict):
+        kind = value.get('properties', {}).get('kind') if isinstance(value.get('properties'), dict) else None
+        if isinstance(kind, dict) and isinstance(kind.get('const'), str):
+            into.add(kind['const'])
+        for one in value.values():
+            command_kinds(one, into)
+    elif isinstance(value, list):
+        for one in value:
+            command_kinds(one, into)
+    return into
+
+
 def check_notes_names(notes, doc):
     """CR-802: the notes are a manuscript beside the schema; every schema name they
     say must still be in the generated document schema, or the gen stops, so a
@@ -117,6 +135,10 @@ def check_notes_names(notes, doc):
     schema = json.load(io.open(DOCUMENT_SCHEMA, encoding='utf-8'))
     names = known_names(schema, set())
     names.update(row['name'] for row in doc['members']['rows'])
+    # CR-814: the notes may name a command kind (each command's `kind` const) and its keys.
+    commands = json.load(io.open(COMMANDS_SCHEMA, encoding='utf-8'))
+    names.update(command_kinds(commands, set()))
+    known_names(commands, names)
     for row in doc['values']['rows']:
         names.update(field['name'] for field in row.get('fields', []))
     for found in NOTE_NAME.findall(notes):
