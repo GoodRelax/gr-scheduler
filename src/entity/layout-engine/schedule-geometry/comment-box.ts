@@ -13,7 +13,7 @@ import {
   type Schedule,
 } from '../../document-model/schedule/schedule'
 import { xOfInstant, type ScheduleLayout } from '../schedule-layout/schedule-layout'
-import { drawnAnnotationNumber, drawnCommentTextSizePx } from './highlight-box'
+import { drawnAnnotationNumber } from './highlight-box'
 import {
   point,
   type BarGeometry,
@@ -283,8 +283,8 @@ function wrappedLines(text: string, limit: number): readonly string[] {
   return out
 }
 
-// see FR-093, FR-097, T-215
-// WHY: an empty or null text estimates 0 units, so it takes T-215's font size as its floor, never one full-width
+// see FR-093, FR-097, S-624
+// WHY: an empty or null text estimates 0 units, so it takes the box's own font size as its floor, never one full-width
 // character: that one is scaled by S-30 and would move the floor with a document setting (FR-097).
 /** @purity pure */
 function textWidthOf(lines: readonly string[], fontSize: number, labelCoef: number): number {
@@ -309,7 +309,7 @@ export function commentGeometry(
     const lines = wrappedLines(box.text ?? '', settings.commentBoxWrapUnits)
     const offset = box.bodyOffsetPx ?? { dx: 0, dy: 0 }
     // see AT-168, S-624
-    const fontSize = drawnCommentTextSizePx(box.textSizePx ?? null, settings.fontSizeStepSizes[settings.fontSizeStep])
+    const fontSize = drawnAnnotationNumber(box.fontSizePx ?? null, 'S-624')
     const pad = settings.commentBoxPad
     const width = textWidthOf(lines, fontSize, settings.labelCoef) + 2 * pad
     const height = lines.length * fontSize + 2 * pad

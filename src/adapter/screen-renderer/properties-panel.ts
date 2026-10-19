@@ -575,9 +575,22 @@ function parentField(schedule: Schedule, task: Task, item: TaskPropertyItem, lan
 // see FR-006, T-217
 // WHY: the schema leaves these columns unbounded on purpose; table T-217 holds their range (FR-006).
 /** @purity pure */
-function annotationBoundsOf(entity: ShapedEntity, column: string): { readonly min: number; readonly max: number } | null {
+function annotationBoundsOf(
+  entity: ShapedEntity,
+  column: string,
+): { readonly min: number; readonly max: number; readonly default: number } | null {
   const key = `${entity}.${column}`
   return Object.values(NOT_STORED_ANNOTATION_BOUNDS).find((row) => row.key === key) ?? null
+}
+
+// see PR-50, S-624
+// WHY: a null font size is drawn at the table's default, so its field shows that number instead of an empty box.
+const SHOWS_ITS_DEFAULT: ReadonlySet<string> = new Set(['CommentBox.fontSizePx'])
+
+/** @purity pure */
+function shownValueOf(entity: ShapedEntity, column: string, value: unknown): unknown {
+  if ((value !== null && value !== undefined) || !SHOWS_ITS_DEFAULT.has(`${entity}.${column}`)) return value
+  return annotationBoundsOf(entity, column)?.default ?? value
 }
 
 // see FR-006
@@ -1074,11 +1087,12 @@ function objectFields<Held>(
     return {
       row: rows.rowOf?.(item) ?? item.row,
       name: itemName(item.row, language),
-      text: item.columns.map((column) => textOfValue(held[column])).join(PART_SEPARATOR),
+      text: item.columns.map((column) => textOfValue(shownValueOf(entity, column, held[column]))).join(PART_SEPARATOR),
       isEditable: !READ_ONLY_ROWS.includes(item.row),
       controls: READ_ONLY_ROWS.includes(item.row)
         ? []
-        : item.columns.map((column) => controlOf(keyOf(column), entity, column, textOfValue(held[column]), labelCoef)),
+        : item.columns.map((column) =>
+          controlOf(keyOf(column), entity, column, textOfValue(shownValueOf(entity, column, held[column])), labelCoef)),
     }
   })
 }
@@ -2152,7 +2166,7 @@ function withColorFields(fields: readonly PropertyField[], look: ColorLook): rea
 // WHY: keyed by column, so a box's outline width takes the same unit as a task's (CR-689 decision 11).
 const UNIT_PART_OF_COLUMN: Readonly<Record<string, string>> = {
   strokeWidthPx: 'pxUnit',
-  textSizePx: 'pxUnit',
+  fontSizePx: 'pxUnit',
   actualDuration: 'daysUnit',
 }
 const HINT_PART_OF_COLUMN: Readonly<Record<string, string>> = { resumeValid: 'resumeValidHint' }
@@ -2288,19 +2302,19 @@ const NOT_STORED_PROPERTY_CONTROL_SIZES: {
 
 // see T-217, FR-006, FR-019
 const NOT_STORED_ANNOTATION_BOUNDS: {
-  readonly 'S-132': { readonly key: string; readonly min: number; readonly max: number }
-  readonly 'S-369': { readonly key: string; readonly min: number; readonly max: number }
-  readonly 'S-371': { readonly key: string; readonly min: number; readonly max: number }
-  readonly 'S-374': { readonly key: string; readonly min: number; readonly max: number }
-  readonly 'S-375': { readonly key: string; readonly min: number; readonly max: number }
-  readonly 'S-624': { readonly key: string; readonly min: number; readonly max: number }
+  readonly 'S-132': { readonly key: string; readonly min: number; readonly max: number; readonly default: number }
+  readonly 'S-369': { readonly key: string; readonly min: number; readonly max: number; readonly default: number }
+  readonly 'S-371': { readonly key: string; readonly min: number; readonly max: number; readonly default: number }
+  readonly 'S-374': { readonly key: string; readonly min: number; readonly max: number; readonly default: number }
+  readonly 'S-375': { readonly key: string; readonly min: number; readonly max: number; readonly default: number }
+  readonly 'S-624': { readonly key: string; readonly min: number; readonly max: number; readonly default: number }
 } = {
-  'S-132': { key: 'cornerRadiusPx', min: 0, max: 24 },
-  'S-369': { key: 'HighlightBox.strokeWidthPx', min: 1, max: 10 },
-  'S-371': { key: 'HighlightBox.fillTransparencyPercent', min: 0, max: 100 },
-  'S-374': { key: 'CommentBox.strokeWidthPx', min: 1, max: 10 },
-  'S-375': { key: 'CommentBox.fillTransparencyPercent', min: 0, max: 100 },
-  'S-624': { key: 'CommentBox.textSizePx', min: 9, max: 24 },
+  'S-132': { key: 'cornerRadiusPx', min: 0, max: 24, default: 4 },
+  'S-369': { key: 'HighlightBox.strokeWidthPx', min: 1, max: 10, default: 1 },
+  'S-371': { key: 'HighlightBox.fillTransparencyPercent', min: 0, max: 100, default: 50 },
+  'S-374': { key: 'CommentBox.strokeWidthPx', min: 1, max: 10, default: 1 },
+  'S-375': { key: 'CommentBox.fillTransparencyPercent', min: 0, max: 100, default: 0 },
+  'S-624': { key: 'CommentBox.fontSizePx', min: 8, max: 24, default: 10 },
 }
 
 // see T-016, FR-006

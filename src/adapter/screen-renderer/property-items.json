@@ -450,7 +450,7 @@
   {
    "rowId": "PR-50",
    "columns": [
-    "textSizePx"
+    "fontSizePx"
    ],
    "inputKinds": [
     "数値"

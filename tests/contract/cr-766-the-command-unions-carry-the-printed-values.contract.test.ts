@@ -198,7 +198,7 @@ const PRINTED_VALUES = {
     'fillTransparencyPercent:column:CommentBox.fillTransparencyPercent:',
   ],
   setCommentBoxTextColor: ['commentBoxId:key:CommentBox.id:', 'textColor:column:CommentBox.textColor:'],
-  setCommentBoxTextSizePx: ['commentBoxId:key:CommentBox.id:', 'textSizePx:column:CommentBox.textSizePx:'],
+  setCommentBoxFontSizePx: ['commentBoxId:key:CommentBox.id:', 'fontSizePx:column:CommentBox.fontSizePx:'],
   bringCommentBoxToFront: ['commentBoxId:key:CommentBox.id:'],
   createHighlightBox: [
     'highlightBoxId:column:HighlightBox.id:',

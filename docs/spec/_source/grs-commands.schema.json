@@ -180,7 +180,7 @@
    "$ref": "#/$defs/setCommentBoxTextColor"
   },
   {
-   "$ref": "#/$defs/setCommentBoxTextSizePx"
+   "$ref": "#/$defs/setCommentBoxFontSizePx"
   },
   {
    "$ref": "#/$defs/bringCommentBoxToFront"
@@ -2262,18 +2262,18 @@
    ],
    "additionalProperties": false
   },
-  "setCommentBoxTextSizePx": {
+  "setCommentBoxFontSizePx": {
    "type": "object",
-   "description": "Sets the text size (px) of the body of the comment box `commentBoxId` to `textSizePx`; null follows the document's font size step.",
+   "description": "Sets the font size (px) of the body of the comment box `commentBoxId` to `fontSizePx`; null draws the default size.",
    "properties": {
     "kind": {
-     "const": "setCommentBoxTextSizePx"
+     "const": "setCommentBoxFontSizePx"
     },
     "commentBoxId": {
      "type": "string",
      "format": "uuid"
     },
-    "textSizePx": {
+    "fontSizePx": {
      "type": [
       "integer",
       "null"
@@ -2283,7 +2283,7 @@
    "required": [
     "kind",
     "commentBoxId",
-    "textSizePx"
+    "fontSizePx"
    ],
    "additionalProperties": false
   },

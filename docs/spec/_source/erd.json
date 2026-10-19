@@ -3036,9 +3036,9 @@
     },
     {
      "seat": 168,
-     "name": "textSizePx",
+     "name": "fontSizePx",
      "type": "整数（px）",
-     "nullable": "可（`null` = 表 T-215 の文字サイズ）",
+     "nullable": "可（`null` = 表 T-217 の既定）",
      "json": {
       "kind": "integer",
       "null": true
@@ -3047,7 +3047,7 @@
      "origin": "GRS",
      "exchange": "",
      "meaning": {
-      "ja": "本文の字の大きさ。`null` と範囲は `_assets/tbl-settings.md` の表 T-217 の `S-624`。`null` は文書の文字サイズ（`FR-039` の `fontSizeStep`、表 T-215）で描く。ズームによらず一定に描く（`FR-097`）"
+      "ja": "本文の字の大きさ（フォントサイズ）。`null` と範囲は `_assets/tbl-settings.md` の表 T-217 の `S-624`。ズームによらず一定に描く（`FR-097`）"
      }
     }
    ]

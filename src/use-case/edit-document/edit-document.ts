@@ -206,7 +206,7 @@ const COMMAND_KINDS_BY_UNION = {
     'setCommentBoxFillColor',
     'setCommentBoxFillTransparencyPercent',
     'setCommentBoxTextColor',
-    'setCommentBoxTextSizePx',
+    'setCommentBoxFontSizePx',
     'bringCommentBoxToFront',
     'createHighlightBox',
     'deleteHighlightBox',
