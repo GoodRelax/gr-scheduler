@@ -149,6 +149,7 @@ import {
   pressedRowOf,
   screenEventFromInput,
   selectionFromInput,
+  fitWrites,
   zoomEntranceEndsOf,
   NOT_STORED_ZOOM_STEP,
   type HumanInput,
@@ -4340,8 +4341,19 @@ export function frameLoop(
       shownTasks: landingAgentHolder(shownTasks.agentHolder(), owedJump.owe, () => values),
       delayFixLog: documentFileFlow,
       historySteps: historyStepsOf(replaceHeldDocumentAt),
+      // see CM-102, FR-055
+      pageFitWrites: () => (values === null ? null : fitWrites(collectInputContext(values))[0] ?? null),
       askToOpenFile: () => {
         sendToSession(AGENT_OPEN_FILE_ASKED, null)
+        ask()
+      },
+      runDelayDiagnostics: () => {
+        showDelayDiagnostics(true)
+        ask()
+      },
+      closeWindow: (which) => {
+        if (which === 'propertiesPanel') sendToSession(PANEL_CLOSE_ASKED, null)
+        else if (isDelayDiagnosticsReportOpen(delayDiagnosticsShown, windows.report())) answerReportEntry(CLOSE_SURFACE_ENTRY, null)
         ask()
       },
     }),

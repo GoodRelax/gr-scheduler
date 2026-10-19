@@ -1,8 +1,8 @@
 # CR-809 —— コメントボックスごとに本文の字の大きさを持てる
 
-> 状態: ⭐ **当てた** —— 2026-10-19、取次の席 E が仕様とコードを当てた（変更履歴は 5.17、`perf-pending` に 1 行）。仕様だけを読む別の席が試験を書いた（`tests/unit/cr-809-each-comment-box-has-its-own-text-size.test.ts`）。
+> 状態: ⭐ **当てた** —— 2026-10-19、取次の席 E が仕様とコードを当てた（変更履歴は 5.23、`perf-pending` に 1 行）。仕様だけを読む別の席が試験を書いた（`tests/unit/cr-809-each-comment-box-has-its-own-text-size.test.ts`）。
 > 当てる裁定: `JDG-2895`（`DFC-3345`）。同じ席の問いで `JDG-2896`（`DFC-3346`、書き出しにメモを載せる件は取り下げ）。
-> 新しい ID: `_assets/fig-erd-detail.md` の `AT-168`、`_assets/tbl-settings.md` の表 T-217 の `S-624`、表 T-016 の `PR-50`、表 T-108 の `CM-102`。
+> 新しい ID: `_assets/fig-erd-detail.md` の `AT-168`、`_assets/tbl-settings.md` の表 T-217 の `S-624`、表 T-016 の `PR-50`、表 T-108 の `CM-103`。
 
 ---
 
@@ -33,7 +33,7 @@
 |---|---|---|---|
 | 1 | コメントボックスに本文の字の大きさの列を足す（整数 px、`null` = 文字サイズの段） | `AT-168`・表 T-217 の `S-624`・`FR-019`・`FR-097` | `erd.json`・`settings.json` → 生成（スキーマ・実体の型・範囲の表） |
 | 2 | 範囲は 9 〜 24 px（`fontMin` 12 を割る —— 利用者が定めた）。`FR-077` の可読の下限は当てない | `S-624`・`FR-077`・`FR-097` | `settings.json`、原稿 2 か所 |
-| 3 | 命令 `setCommentBoxTextSizePx`（範囲の外と整数でない値を拒む） | 表 T-108 の `CM-102` | `document-commands.json`（席 B に同じ文を送った）、`edit-annotation.ts` の `commentBoxLookChange` |
+| 3 | 命令 `setCommentBoxTextSizePx`（範囲の外と整数でない値を拒む） | 表 T-108 の `CM-103` | `document-commands.json`（席 B に同じ文を送った）、`edit-annotation.ts` の `commentBoxLookChange` |
 | 4 | パネルの欄（文字色の次） | 表 T-016 の `PR-50`・`FR-006` の見た目の行の順 | `property-items.json`・`display-words.json`、`field-commit.ts`、`properties-panel.ts` の単位 |
 | 5 | 本文の箱は、その箱の字の大きさで量る | `FR-097` | `comment-box.ts` の `commentGeometry`、`highlight-box.ts` の `drawnCommentTextSizePx` |
 | 6 | 列の無い項に `null` を足して読む | 05-07 の補いの段 | `json-codec.ts` の `ANNOTATION_LOOK_COLUMNS` |

@@ -248,6 +248,7 @@ const COMMAND_KINDS_BY_UNION = {
     'pinTaskGroup',
     'unpinTaskGroup',
     'fitScheduleToScreen',
+    'fitScheduleToScreenOnPage',
     'setDisplayScale',
     'setFitSpan',
     'clearFitSpan',

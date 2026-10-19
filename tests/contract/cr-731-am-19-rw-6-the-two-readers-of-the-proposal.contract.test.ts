@@ -3,7 +3,7 @@
 import { describe, expect, it } from 'vitest'
 
 import { installAgentApi, type AgentApi } from '../../src/adapter/agent-api-endpoint/agent-api-endpoint'
-import { FR_155_NO_AGENT_API_ENTRANCE } from './cr-731-clauses'
+import { FR_155_AGENT_API_ISSUES_WITHOUT_SAVING } from './cr-731-clauses'
 import { FS_SUCCESSOR_STARTED, ONE_PARENT } from './cr-731-documents'
 import { BUILT_VERSION, REQUIREMENTS, WORDS, cellOf, dayTextIn, rowText } from './cr-731-stage'
 import { windowStage, type WindowStage } from './cr-731-window-stage'
@@ -59,8 +59,8 @@ describe('DX-11, DX-12, RW-6 -- the manuscript these cases read', () => {
     expect(cellOf('T-107', 'AM-19', '何を担うか')).toContain('表 T-317')
   })
 
-  it('FR-155 keeps the Agent API free of the approval', () => {
-    expect(REQUIREMENTS).toContain(FR_155_NO_AGENT_API_ENTRANCE)
+  it('FR-155 lets the Agent API issue the bundle without saving first (CR-803)', () => {
+    expect(REQUIREMENTS).toContain(FR_155_AGENT_API_ISSUES_WITHOUT_SAVING)
   })
 })
 
@@ -106,16 +106,16 @@ describe('item 14 -- AM-19: the value carries the proposal (DX-11) and, after a 
   })
 })
 
-describe('FR-155 MUST NOT -- the Agent API holds no entrance that approves a fix', () => {
+describe('FR-155 -- the Agent API approves a fix only through AM-32 (CR-803)', () => {
   it('no member of the Agent API is named after an overwrite, a backup, an approval or a fix', async () => {
     const stage = await windowStage(ONE_PARENT())
     const names = Object.keys(apiOf(stage)).filter((one) => /overwrite|backup|approve|apply.*fix|fix.*apply|mend/i.test(one))
     expect(names).toEqual([])
   })
 
-  it('T-107 names no member for IC-157 or IC-158', () => {
-    const rows = specTable('T-107').rows.map((one) => one.cells.join(' '))
-    expect(rows.filter((one) => /IC-15[78]/.test(one))).toEqual([])
+  it('T-107 names IC-157 and IC-158 in one row only, AM-32', () => {
+    const rows = specTable('T-107').rows.filter((one) => /IC-15[78]/.test(one.cells.join(' ')))
+    expect(rows.map((one) => one.id)).toEqual(['AM-32'])
   })
 
   it('a bundle for the Agent API is written with applyCommands (AM-7), one step, like any other write', async () => {

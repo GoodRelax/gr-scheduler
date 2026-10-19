@@ -2,7 +2,7 @@
  "$schema": "./agent-api-members.schema.json",
  "$comment": [
   "SINGLE SOURCE OF TRUTH -- EDIT THIS FILE.",
-  "The members of the Agent API and how each is called (CR-765, JDG-2160): table T-107 (the 23 members: group, confirmed name, kind and purity, arguments, return value, what it carries, source) and table T-400 (the value types the arguments and return values name that table T-064 has no row for).",
+  "The members of the Agent API and how each is called (CR-765, JDG-2160): table T-107 (the 26 members: group, confirmed name, kind and purity, arguments, return value, what it carries, source) and table T-400 (the value types the arguments and return values name that table T-064 has no row for).",
   "Generated FROM this file: _assets/tbl-agent-api-members.md (agent_api_members_json_to_md.py); the generated regions of src/adapter/agent-api-endpoint/agent-api-members.ts (AgentApi, the value types, AGENT_API_VERSION), src/adapter/agent-api-endpoint/relayed-call.ts (RelayedParams, MEMBER_PARAMETERS) and src/framework/mcp-relay-server/mcp-relay-server.ts (the MCP-only key of AM-17) (tools/generate_agent_api.py); and src/adapter/mcp-tool-translator/mcp-tool-descriptions.json, the MCP tool names, descriptions and input shapes (tools/generate_mcp_tool_descriptions.py).",
   "Rebuild: npm run gen   |   npm run gen:check fails if anything has drifted.",
   "Validated by _source/agent-api-members.schema.json. agent_api_members_json_to_md.py also refuses a row id or a name written twice, a type naming an identifier that is neither a row of the value table, a name of `externalTypes` nor a built-in, a line that is empty or holds a line-break tag, and a parenthesis or bold run that does not close on its line.",
@@ -10,7 +10,7 @@
   "Rows are in the order the tables print them and the code declares them, which is not the numeric order. ONE STRING IS ONE PRINTED LINE.",
   "The rules about the Agent API are NOT here -- table T-035 (AG-n) and the requirements the `source` cells name hold them."
  ],
- "version": "2026-10-18T11:45:00Z",
+ "version": "2026-10-19T00:00:00Z",
  "kinds": {
   "property": {
    "ja": "プロパティ"
@@ -36,6 +36,7 @@
     "Before you write, read the notes (readSchema with which 'notes') and pull only the definitions you need with readSchema and defs, for example ['Task', 'Dependency']; without defs readSchema returns a table of contents. For reading only, the column descriptions in the tool answers are enough.",
     "The whole schemas are the resources grs-document.schema.json and grs-commands.schema.json, or readSchema with full true; they are large, so read them only when the parts are not enough.",
     "Read in small pieces: readSearchRows returns one page of the Search Panel as the person sees it (an empty word is the whole outline) and readTableRows does the same for the Delay Diagnostics Report and the Resource List; readDocument leaves out the MSPDI pass-through fields unless you ask, and can be narrowed to some tasks; readStamp is cheap. Write with applyCommands, handing over the stamp you last read as expectedStamp; the whole batch is applied or refused as one.",
+    "readDelayDiagnostics only computes: it changes nothing on the screen. To run the Delay Diagnostics on the screen as the person does, call runDelayDiagnostics; to apply its fix proposals as the screen's Fix does, call issueDelayFixes. Say which you did: reading the values is not running them on the screen.",
     "A refusal is a value, not an error: it names the reason and carries the current stamp, never the document. Read again what you need, then retry.",
     "While the person is dragging, typing in place or answering a question, writes are refused; try again shortly.",
     "To save, pass fileName to an export tool: the relay writes into the save folder the person chose in the relay's settings. If the file exists you may be refused with fileExists: ask the person before passing overwrite true, unless they told you not to ask in this conversation. A request to save again under the same name is not permission to replace the file: ask once even then. The old file is kept as .bak. To open a file, call requestOpenFile: the person picks it in their own file window.",
@@ -152,7 +153,7 @@
   },
   "before": {
    "ja": [
-    "**`Agent API` は 1 つの面に 23 のメンバをフラットに並べる。**",
+    "**`Agent API` は 1 つの面に 26 のメンバをフラットに並べる。**",
     "用途別に分けない理由は Chapter 5.2 が持つ（`R2.5`）。",
     "いまの版は `{version}` である（`AM-1` が返す値）。",
     "版は、文書の形式の版（`FR-073`）と同じ書式の日時である —— 呼び方を変える変更は、版をその変更を当てる時刻へ上げる（表 T-035 の `AG-1`）。",
@@ -288,6 +289,14 @@
       "meaning": {
        "ja": "読むタスクの `uid` の並び —— 空か省けば全部",
        "en": "The uids of the tasks to read; empty or omitted reads every task"
+      }
+     },
+     {
+      "name": "parts",
+      "type": "readonly string[]",
+      "meaning": {
+       "ja": "残す部分の名 —— 日程データの群の鍵（`tasks`・`calendars`・`resources`・`assignments`・`taskGroups` ほか）と `documentSettings`・`changeLog` —— 空なら全部、`project`・`documentStamp` はいつも残す（CR-803）",
+       "en": "Names of the parts to keep: keys of schedule (tasks, calendars, resources, assignments, taskGroups, taskGroupMembers, taskVisuals and the rest) and documentSettings, changeLog; an empty list keeps everything. project and documentStamp are always kept; a part left out is absent from the answer"
       }
      }
     ],
@@ -448,8 +457,8 @@
       "name": "word",
       "type": "string",
       "meaning": {
-       "ja": "表の入力欄と同じ読み方で行を絞る語 —— 空なら絞らない",
-       "en": "Narrows the rows the way the table's search field does; an empty word narrows nothing"
+       "ja": "表の入力欄と同じ読み方で行を絞る語 —— 空なら絞らない —— 状態の列（信頼できない など）で絞るには、その列のフィルタを `setTableView` で掛けて `filters` を `asShown` で読む（CR-803）",
+       "en": "Narrows the rows the way the table's search field does; an empty word narrows nothing. To narrow by a status column (Unreliable and the like), set that column's filter with setTableView through applyCommands, then read with filters 'asShown'"
       }
      },
      {
@@ -532,7 +541,24 @@
     "name": "readDelayDiagnostics",
     "kind": "method",
     "purity": "semi-pure-b",
-    "arguments": [],
+    "arguments": [
+     {
+      "name": "parts",
+      "type": "readonly string[]",
+      "meaning": {
+       "ja": "残す部分の名（`findings`・`bottlenecks`・`terminalPushOuts`・`walls`・`markerStates`・`fixProposals`・`fixLog` ほか）—— 空なら全部、`outcome`・`statusDate`・`unreliableCount` はいつも残す（CR-803）",
+       "en": "Names of the parts to keep (findings, bottlenecks, terminalPushOuts, walls, markerStates, settledPushOuts, derivedParentTasks, lateDays, fixProposals, fixLog); an empty list keeps everything. outcome, statusDate and unreliableCount are always kept"
+      }
+     },
+     {
+      "name": "limit",
+      "type": "number",
+      "meaning": {
+       "ja": "1 つの並びに返す要素の上限 —— 0 なら上限なし",
+       "en": "The most entries returned in each list; 0 means no limit"
+      }
+     }
+    ],
     "returns": "AgentDelayDiagnostics",
     "carries": {
      "ja": [
@@ -656,6 +682,51 @@
     },
     "source": {
      "ja": "表 T-035 の `AG-12` の ⑥ ／ `FR-087` ／ 表 T-234 の `QN-17`"
+    }
+   },
+   {
+    "id": "AM-32",
+    "group": {
+     "ja": "書く"
+    },
+    "name": "issueDelayFixes",
+    "kind": "method",
+    "purity": "non-pure",
+    "arguments": [
+     {
+      "name": "expectedStamp",
+      "type": "DocumentStamp",
+      "meaning": {
+       "ja": "呼ぶ側が最後に読んだ刻印 —— `WS-1` が今の刻印と照らす（`AG-2`）",
+       "en": "The stamp you last read; compared with the current stamp"
+      }
+     },
+     {
+      "name": "fixKeys",
+      "type": "readonly string[]",
+      "meaning": {
+       "ja": "当てる修正案の行の `key`（`readDelayDiagnostics` の `fixProposals`）—— 空なら画面の「推奨をすべて採用」（`IC-166`）と同じ行",
+       "en": "Keys of the fix proposal rows to issue, as readDelayDiagnostics lists them in fixProposals; an empty list issues the recommended rows, as the screen's adopt-all button picks them"
+      }
+     }
+    ],
+    "returns": "AgentWriteOutcome",
+    "carries": {
+     "ja": [
+      "遅延診断の修正案を、画面の修正（`FR-155`）と同じく 1 つの束として当てる —— 束は 1 つの取り消しの段（`UN-21`）であり、1 つでも断られれば何も当てない。",
+      "当てた行は修正ログ（`DX-12`）に残り、修正案の表から外れる。",
+      "⚠️ 画面と違い、先に保存しない（利用者の裁定、CR-803） —— 段は呼んだ書き手のものなので `undoEdit` で戻せ、保存は書き出しの道具の `fileName` でする。",
+      "当てても診断は作り直さない —— 作り直すのは `runDelayDiagnostics`"
+     ],
+     "en": [
+      "Issues fix proposals of the Delay Diagnostics as one bundle, as the screen's Fix does: the bundle is one undo step, and if any row is refused nothing is applied.",
+      "Issued rows are recorded in the fix log (fixLog of readDelayDiagnostics) and leave the proposals table.",
+      "Unlike the screen it does not save first: the step is yours, so undoEdit takes it back; save with an export tool's fileName.",
+      "Issuing does not run the diagnosis again; call runDelayDiagnostics for that."
+     ]
+    },
+    "source": {
+     "ja": "`FR-155` ／ 表 T-109 の `IC-157`・`IC-158`・`IC-166` ／ `UN-21` ／ 表 T-035 の `AG-10`"
     }
    },
    {
@@ -1014,6 +1085,70 @@
     }
    },
    {
+    "id": "AM-31",
+    "group": {
+     "ja": "見せる"
+    },
+    "name": "runDelayDiagnostics",
+    "kind": "method",
+    "purity": "non-pure",
+    "arguments": [],
+    "returns": "AgentWriteOutcome",
+    "carries": {
+     "ja": [
+      "画面で遅延診断を実行する —— 人が炎（`IC-107`）を押したのと同じく、診断し、遅延診断レポートの窓を開き、進捗マーカーに診断の印を出す（`FR-130`）。",
+      "窓が開いていれば【再診断】（`IC-168`）と同じく作り直す。",
+      "文書は変えない（`FR-130` の MUST NOT）ので刻印は変わらず、取り消しの段も積まない。",
+      "診断の値を読むのは `readDelayDiagnostics`（`AM-19`）であり、こちらは画面に出すだけである（CR-803）"
+     ],
+     "en": [
+      "Runs the Delay Diagnostics on the screen, as the person's flame button does: it diagnoses, opens the Delay Diagnostics Report window and shows the diagnosis marks on the progress markers.",
+      "When the window is already open it runs the diagnosis again, as its Re-diagnose button does.",
+      "It changes no document, so the stamp stays and no undo step is added.",
+      "readDelayDiagnostics reads the values; this tool only shows them on the screen."
+     ]
+    },
+    "source": {
+     "ja": "`FR-130` ／ 表 T-109 の `IC-107`・`IC-168` ／ 表 T-035 の `AG-12`"
+    }
+   },
+   {
+    "id": "AM-33",
+    "group": {
+     "ja": "見せる"
+    },
+    "name": "closeWindow",
+    "kind": "method",
+    "purity": "non-pure",
+    "arguments": [
+     {
+      "name": "which",
+      "type": "'delayDiagnosticsReport' | 'propertiesPanel'",
+      "meaning": {
+       "ja": "閉じるもの —— 遅延診断レポートの窓か、プロパティパネル",
+       "en": "What to close: the Delay Diagnostics Report window or the Properties Panel"
+      }
+     }
+    ],
+    "returns": "AgentWriteOutcome",
+    "carries": {
+     "ja": [
+      "遅延診断レポートの窓かプロパティパネルを閉じる —— 人がその閉じる入口（`IC-52`）を押したのと同じである（CR-803）。",
+      "レポートの窓は窓だけを閉じ、進捗マーカーの診断の印は残す（`RW-1`）。",
+      "プロパティパネルは、その閉じる入口と同じく閉じる（`FR-072`）。",
+      "閉じていれば何もしない —— 文書は変えない"
+     ],
+     "en": [
+      "Closes the Delay Diagnostics Report window or the Properties Panel, as its close button does.",
+      "The report window closes alone and the diagnosis marks stay on the progress markers; the Properties Panel closes as its close button closes it.",
+      "When it is already closed nothing happens. It changes no document."
+     ]
+    },
+    "source": {
+     "ja": "表 T-346 の `RW-1` ／ `FR-072` ／ 表 T-109 の `IC-52`"
+    }
+   },
+   {
     "id": "AM-17",
     "group": {
      "ja": "待つ"
@@ -1145,6 +1280,13 @@
         "type": "boolean",
         "meaning": {
          "ja": "日程データの群を動かしたか（動かせば日程データの群の刻が進む —— `FR-063`）"
+        }
+       },
+       {
+        "name": "createdUids",
+        "type": "readonly number[]",
+        "meaning": {
+         "ja": "この書き込みで作ったものの `uid`（タスク・担当・割り当て・暦が分け合う 1 つの数え —— `uidHighWaterMark` が進んだ分）を小さい順に —— 作らなければ空（CR-803）"
         }
        }
       ]

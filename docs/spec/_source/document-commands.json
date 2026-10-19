@@ -1697,11 +1697,13 @@
    ],
    "carries": {
     "ja": [
-     "依存線を引く"
+     "依存線を引く",
+     "端のどちらかがマイルストーンなら、`predecessorEdge` ／ `successorEdge` に関わらず FS（`linkType` が 1）で引く —— 規則は `01-04-requirements.md` の `FR-009` が持つ（CR-806）"
     ],
     "en": [
      "Draws a dependency line from the task `predecessorUid` to the task `successorUid`.",
-     "`predecessorEdge` and `successorEdge` name the ends (start or finish); the pair of ends decides the link type."
+     "`predecessorEdge` and `successorEdge` name the ends (start or finish); the pair of ends decides the link type.",
+     "If either task is a milestone, the line is always finish-to-start, whatever `predecessorEdge` and `successorEdge` say."
     ]
    },
    "source": {
@@ -1874,13 +1876,16 @@
      "暦（稼働する曜日・稼働日の時間帯の 1 組・例外日）と週の始まりを直す。",
      "時間帯の 1 組をどの曜日と例外日に書くかは `01-04-requirements.md` の `FR-088` が持つ。",
      "既定の暦のままなら、暦を 1 つ作ってから直す。",
-     "例外日の `fromDate` ／ `toDate` の時刻は、本命令を受けて文書へ書く側が揃える —— 規則は `01-04-requirements.md` の `FR-057` の 表 T-350 の前文が持つ"
+     "例外日の `fromDate` ／ `toDate` の時刻は、本命令を受けて文書へ書く側が揃える —— 規則は `01-04-requirements.md` の `FR-057` の 表 T-350 の前文が持つ",
+     "時間帯の 1 組（`workingTimes`）は 1 〜 `_assets/tbl-settings.md` の 表 T-211 の `S-582` 本を持ち、空の組は `05-07-design.md` の 表 T-220 の `IV-24` で断る（CR-806）",
+     "既定の時間帯（`_assets/tbl-settings.md` の 表 T-209 の `S-580`）へ戻すには、その 2 本を渡す"
     ],
     "en": [
      "Edits the calendar: the working weekdays, one set of working times for a working day, the exception days, and the day the week starts on.",
      "`workingDayTypes` lists the working weekdays (1 is Sunday; weekdays not listed are days off). `weekStartDay` is the day the week starts on. `exceptions` is the complete list of exception days after the edit. `workingTimes` is one set of working times for a working day.",
      "If the document still has the default calendar, create a calendar first and then edit it.",
-     "The times of `fromDate` and `toDate` of an exception day are aligned by the side that writes the command into the document."
+     "The times of `fromDate` and `toDate` of an exception day are aligned by the side that writes the command into the document.",
+     "`workingTimes` holds 1 to 5 spans: an empty list is refused. To go back to the default working times, pass the two default spans 08:00:00-12:00:00 and 13:00:00-17:00:00."
     ]
    },
    "source": {
@@ -2406,7 +2411,7 @@
    }
   },
   {
-   "id": "CM-102",
+   "id": "CM-103",
    "group": {
     "ja": "`CommentBox`"
    },
@@ -3018,6 +3023,34 @@
     ],
     "en": [
      "Sets the zoom and scroll position at which the whole schedule fits the screen: `zoomX`, `zoomY`, `scrollDate`, `scrollTaskGroupId`, `scrollDateFraction` and `scrollTaskGroupFraction`."
+    ]
+   },
+   "source": {
+    "ja": "`FR-055`"
+   }
+  },
+  {
+   "id": "CM-102",
+   "group": {
+    "ja": "見せ方の群"
+   },
+   "name": "fitScheduleToScreenOnPage",
+   "union": "DocumentSettingsCommand",
+   "bundle": false,
+   "values": [],
+   "carries": {
+    "ja": [
+     "画面の全体表示（`01-04-requirements.md` の `FR-055`）の倍率と表示位置を、ページが自分の画面の大きさで数えて置く（CR-806）",
+     "`Agent API` の `applyCommands`（`_assets/tbl-agent-api-members.md` の 表 T-107 の `AM-7`）が受けると、ページは本命令を、全体表示と同じ数えの値を運ぶ `CM-71` に置き換えて書く",
+     "数えるのは束の前に描いた画面である",
+     "全体表示の 2 つの書き込み（`01-04-requirements.md` の `FR-031`）の ① だけを置き、タスクグループの木の状態は戻さない",
+     "画面をまだ描いていないページと、画面を持たない呼び手は断る"
+    ],
+    "en": [
+     "Fits the whole schedule to the screen of the page, as the Fit button does: the page computes the zoom and the scroll position from its own screen size, so you need not know it.",
+     "The page computes them from the screen as drawn before this batch, so send it in a batch of its own after the edits that change the rows.",
+     "It does not unfold the task groups as the Fit button also does; to unfold them, send resetTaskGroupTreeStates in an earlier batch.",
+     "It is refused while the page has not drawn its screen yet."
     ]
    },
    "source": {

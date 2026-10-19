@@ -34,7 +34,7 @@ const PLACED_WITH_NULLS = '⭐ 置くとき（`_assets/tbl-document-commands.md`
 const SIZE_IS_OWN_OR_STEP =
   '文字の大きさは、その箱の `CommentBox.textSizePx`（`_assets/fig-erd-detail.md` の `AT-168`）が `null` でなければその値（px）、`null` なら `FR-039` の `fontSizeStep`（表 T-215）に従い、**1 行の高さは文字の大きさに等しいものとして数えること（MUST）。**'
 const RANGE_IS_S_624 =
-  '⭐ `AT-168` の範囲は `_assets/tbl-settings.md` の 表 T-217 の `S-624` とすること（MUST） —— 範囲の外の値を置く命令（`_assets/tbl-document-commands.md` の 表 T-108 の `CM-102`）は拒み、読んだ値は範囲へ寄せて描く（`FR-019` の太さと同じ規則）。'
+  '⭐ `AT-168` の範囲は `_assets/tbl-settings.md` の 表 T-217 の `S-624` とすること（MUST） —— 範囲の外の値を置く命令（`_assets/tbl-document-commands.md` の 表 T-108 の `CM-103`）は拒み、読んだ値は範囲へ寄せて描く（`FR-019` の太さと同じ規則）。'
 const WIDTH_FROM_ESTIMATE = '幅は `FR-093` の概算で求め、**文字の実寸を測ってはならない（MUST NOT）。**'
 // see FR-077
 const CHOSEN_SIZE_NOT_FLOORED = '箱ごとに選ぶ大きさは本要求の下限に当てない（`FR-097`、利用者が定めた）。'
@@ -264,9 +264,9 @@ describe('CR-809 premises: the clauses these cases read, and the numbers they st
     )
   })
 
-  it('AT-168 is CommentBox.textSizePx, an integer that takes null; CM-102 is setCommentBoxTextSizePx; S-624 is 9..24; T-215 is S 12 / M 14 / L 16', () => {
+  it('AT-168 is CommentBox.textSizePx, an integer that takes null; CM-103 is setCommentBoxTextSizePx; S-624 is 9..24; T-215 is S 12 / M 14 / L 16', () => {
     expect(ERD_DETAIL).toContain('| AT-168 | `CommentBox` | `textSizePx` | 整数（px） | 可（`null` = 表 T-215 の文字サイズ）')
-    expect(DOCUMENT_COMMANDS).toContain('| CM-102 | `CommentBox` | `setCommentBoxTextSizePx` |')
+    expect(DOCUMENT_COMMANDS).toContain('| CM-103 | `CommentBox` | `setCommentBoxTextSizePx` |')
     expect([LOW, HIGH]).toEqual([9, 24])
     expect(STEP_SIZE).toEqual({ S: 12, M: 14, L: 16 })
     expect(PAD, 'S-181 is a positive pad').toBeGreaterThan(0)
@@ -383,7 +383,7 @@ describe(`FR-097: ${SIZE_IS_OWN_OR_STEP.slice(0, 80)}... -- the body box follows
   })
 })
 
-describe(`T-108 CM-102: ${RANGE_IS_S_624.slice(0, 60)}...`, () => {
+describe(`T-108 CM-103: ${RANGE_IS_S_624.slice(0, 60)}...`, () => {
   type Command = Parameters<typeof editAnnotation>[1]
 
   const refusalOf = (command: Command): { command?: string; rule: string } | null => {
@@ -399,21 +399,21 @@ describe(`T-108 CM-102: ${RANGE_IS_S_624.slice(0, 60)}...`, () => {
     return storedNote(result.document)
   }
 
-  it('CM-102 places 9 and 24 (the bounds), a size in between, and null', () => {
+  it('CM-103 places 9 and 24 (the bounds), a size in between, and null', () => {
     for (const size of [9, 24, 14, 17, null]) {
       expect(acceptedNote({ kind: 'setCommentBoxTextSizePx', commentBoxId: NOTE_ID, textSizePx: size })['textSizePx'], `size ${String(size)}`).toBe(size)
     }
   })
 
-  it('CM-102 refuses 8, 25 and 12.5 (outside 9..24 or not whole)', () => {
+  it('CM-103 refuses 8, 25 and 12.5 (outside 9..24 or not whole)', () => {
     for (const size of [8, 25, 12.5]) {
       expect(refusalOf({ kind: 'setCommentBoxTextSizePx', commentBoxId: NOTE_ID, textSizePx: size }), `size ${size}`).toEqual(
-        expect.objectContaining({ command: 'CM-102', rule: 'S-624' }),
+        expect.objectContaining({ command: 'CM-103', rule: 'S-624' }),
       )
     }
   })
 
-  it('CM-102 also refuses 0, a negative size and 100', () => {
+  it('CM-103 also refuses 0, a negative size and 100', () => {
     for (const size of [0, -12, 100]) {
       expect(refusalOf({ kind: 'setCommentBoxTextSizePx', commentBoxId: NOTE_ID, textSizePx: size }), `size ${size}`).not.toBeNull()
     }
@@ -426,13 +426,13 @@ describe(`T-108 CM-102: ${RANGE_IS_S_624.slice(0, 60)}...`, () => {
     expect(storedNote(before)['textSizePx']).toBeNull()
   })
 
-  it('CM-102 refuses a note that does not exist (AT-110)', () => {
+  it('CM-103 refuses a note that does not exist (AT-110)', () => {
     expect(refusalOf({ kind: 'setCommentBoxTextSizePx', commentBoxId: '3c000000-0000-4000-8000-0000000000ff', textSizePx: 12 })).toEqual(
-      expect.objectContaining({ command: 'CM-102', rule: 'AT-110' }),
+      expect.objectContaining({ command: 'CM-103', rule: 'AT-110' }),
     )
   })
 
-  it('CM-102 writes the other box not at all', () => {
+  it('CM-103 writes the other box not at all', () => {
     const document = fixtureDocument({ notes: [{}, { id: OTHER_NOTE_ID }] })
     const result = editAnnotation(document, { kind: 'setCommentBoxTextSizePx', commentBoxId: NOTE_ID, textSizePx: 20 })
     if (!result.ok) throw new Error(`refused: ${JSON.stringify(result.refusals)}`)

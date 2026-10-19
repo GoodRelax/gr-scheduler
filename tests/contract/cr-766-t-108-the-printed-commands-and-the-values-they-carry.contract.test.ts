@@ -92,11 +92,11 @@ describe('T-108 is printed from its manuscript into tbl-document-commands.md', (
     expect(table.headings).toEqual([...T_108_HEADINGS])
   })
 
-  it('it holds 92 rows, one command name each, none of the ten retired numbers the manuscript keeps', () => {
+  it('it holds 93 rows, one command name each, none of the ten retired numbers the manuscript keeps', () => {
     expect(RETIRED_IDS).toHaveLength(10)
-    expect(commands).toHaveLength(92)
-    expect(new Set(commands.map((command) => command.id)).size).toBe(92)
-    expect(new Set(commands.map((command) => command.name)).size).toBe(92)
+    expect(commands).toHaveLength(93)
+    expect(new Set(commands.map((command) => command.id)).size).toBe(93)
+    expect(new Set(commands.map((command) => command.name)).size).toBe(93)
     for (const command of commands) expect(command.id).toMatch(/^CM-\d+$/)
     for (const retired of RETIRED_IDS) expect(commands.map((command) => command.id)).not.toContain(retired)
   })
@@ -104,11 +104,11 @@ describe('T-108 is printed from its manuscript into tbl-document-commands.md', (
   it('the numbers in use and the retired numbers together fill CM-1 to the highest number', () => {
     const numbers = [...commands.map((command) => command.id), ...RETIRED_IDS].map((id) => Number(id.slice(3)))
     const highest = Math.max(...numbers)
-    expect(highest).toBe(102)
+    expect(highest).toBe(103)
     expect([...numbers].sort((a, b) => a - b)).toEqual(Array.from({ length: highest }, (_, at) => at + 1))
   })
 
-  it('the 92 commands carry 173 values (a choice of two shapes counts as one value), and name 11 shapes', () => {
+  it('the 93 commands carry 173 values (a choice of two shapes counts as one value), and name 11 shapes', () => {
     expect(commands.reduce((sum, command) => sum + carriedCountOf(command), 0)).toBe(173)
     expect(shapeNamesOf(commands)).toEqual(SHAPES)
   })

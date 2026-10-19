@@ -7,8 +7,10 @@
 
 import type { Document } from '../../entity/document-model/document/document'
 import {
+  delayFixCommands,
   delayFixProposalRows,
   diagnoseDelay,
+  isRecommendedDelayFix,
   proposeDelayFixes,
   searchRowsOf,
   workingCalendarOf,
@@ -86,6 +88,8 @@ export interface ShownTasksHolder {
 export interface DelayFixLogSource {
   /** @purity semi-pure-b */
   readDelayFixLog(): readonly DelayFixLogRow[]
+  /** @purity non-pure */
+  landDelayFixes?(rows: readonly DelayFixRow[], before: Document, after: Document): void
 }
 
 export type AskedSurface = 'U-61'
@@ -112,7 +116,12 @@ export interface AgentWriteRequest {
 
 // see AV-2
 export type AgentWriteOutcome =
-  | { readonly ok: true; readonly stamp: DocumentStamp; readonly hasUpdatedSchedule: boolean }
+  | {
+      readonly ok: true
+      readonly stamp: DocumentStamp
+      readonly hasUpdatedSchedule: boolean
+      readonly createdUids: readonly number[]
+    }
   | { readonly ok: false; readonly refusal: AgentRefusal }
 
 // see AV-3
@@ -249,7 +258,7 @@ export interface AgentApi {
   readonly schemaVersion: string
 
   /** @purity semi-pure-b */
-  readDocument(includeCarry: boolean, taskUids: readonly number[]): Document
+  readDocument(includeCarry: boolean, taskUids: readonly number[], parts: readonly string[]): Document
   /** @purity semi-pure-b */
   readStamp(): DocumentStamp
   /** @purity semi-pure-b */
@@ -261,7 +270,7 @@ export interface AgentApi {
   /** @purity semi-pure-b */
   readShownTasks(): AgentShownTasks
   /** @purity semi-pure-b */
-  readDelayDiagnostics(): AgentDelayDiagnostics
+  readDelayDiagnostics(parts: readonly string[], limit: number): AgentDelayDiagnostics
 
   /** @purity non-pure */
   applyCommands(request: AgentWriteRequest): AgentWriteOutcome
@@ -269,6 +278,8 @@ export interface AgentApi {
   importDocument(source: AgentImportSource): Promise<AgentImportOutcome>
   /** @purity non-pure */
   requestOpenFile(): AgentImportOutcome
+  /** @purity non-pure */
+  issueDelayFixes(expectedStamp: DocumentStamp, fixKeys: readonly string[]): AgentWriteOutcome
 
   /** @purity non-pure */
   undoEdit(expectedStamp: DocumentStamp): AgentWriteOutcome
@@ -290,6 +301,10 @@ export interface AgentApi {
   focusTask(taskUid: number): AgentFocusOutcome
   /** @purity non-pure */
   showOnlyTasks(taskUids: readonly number[]): AgentWriteOutcome
+  /** @purity non-pure */
+  runDelayDiagnostics(): AgentWriteOutcome
+  /** @purity non-pure */
+  closeWindow(which: 'delayDiagnosticsReport' | 'propertiesPanel'): AgentWriteOutcome
 
   /** @purity non-pure */
   watchChanges(receive: AgentChangeReceiver): AgentWatch
@@ -306,7 +321,7 @@ const ELSEWHERE_DECLARED_FIELDS_MATCH: [
 void ELSEWHERE_DECLARED_FIELDS_MATCH
 
 // see AM-1, AG-1
-const AGENT_API_VERSION = '2026-10-18T11:45:00Z'
+const AGENT_API_VERSION = '2026-10-19T00:00:00Z'
 // </generated>
 
 export interface AgentApiWiring {
@@ -329,6 +344,10 @@ export interface AgentApiWiring {
   readonly historySteps?: HistoryStepper | undefined
   // see AM-29, QN-17
   readonly askToOpenFile?: (() => void) | undefined
+  readonly pageFitWrites?: (() => readonly DocumentCommand[] | null) | undefined
+  // see AM-31, FR-130
+  readonly runDelayDiagnostics?: (() => void) | undefined
+  readonly closeWindow?: ((which: 'delayDiagnosticsReport' | 'propertiesPanel') => void) | undefined
   // TRAP: must differ from the person's writer name, or AG-6 takes the person's edits for this API's own.
   readonly writerName: string
   readonly schemaVersion: string
@@ -367,6 +386,37 @@ function scheduleOfTasks(schedule: Document['schedule'], taskUids: readonly numb
     taskOrigins: schedule.taskOrigins.filter((origin) => isNamed(origin.taskUid)),
     baselineTasks: schedule.baselineTasks.filter((baseline) => isNamed(baseline.uid)),
   }
+}
+
+// see AM-3
+const KEPT_DOCUMENT_PARTS: ReadonlySet<string> = new Set(['$schema', 'schemaVersion', 'documentStamp', 'project'])
+
+/** @purity pure */
+function namesOf(parts: unknown): readonly string[] {
+  return Array.isArray(parts) ? parts.filter((one): one is string => typeof one === 'string') : []
+}
+
+/** @purity pure */
+function keptPartsOf<T extends object>(value: T, parts: readonly string[], kept: ReadonlySet<string>): T {
+  return Object.fromEntries(Object.entries(value).filter(([key]) => kept.has(key) || parts.includes(key))) as T
+}
+
+/** @purity pure */
+function documentPartsOf(document: Document, parts: unknown): Document {
+  const named = namesOf(parts)
+  if (named.length === 0) return document
+  return { ...keptPartsOf(document, named, KEPT_DOCUMENT_PARTS), schedule: keptPartsOf(document.schedule, named, KEPT_DOCUMENT_PARTS) }
+}
+
+const KEPT_DIAGNOSIS_PARTS: ReadonlySet<string> = new Set(['outcome', 'statusDate', 'unreliableCount'])
+
+// see AM-19
+/** @purity pure */
+function diagnosticsPartsOf(diagnostics: AgentDelayDiagnostics, parts: unknown, limit: unknown): AgentDelayDiagnostics {
+  const named = namesOf(parts)
+  const kept = named.length === 0 ? diagnostics : keptPartsOf(diagnostics, named, KEPT_DIAGNOSIS_PARTS)
+  if (typeof limit !== 'number' || !(limit > 0)) return kept
+  return Object.fromEntries(Object.entries(kept).map(([key, value]) => [key, Array.isArray(value) ? value.slice(0, limit) : value])) as AgentDelayDiagnostics
 }
 
 // see AM-3, FR-028
@@ -570,7 +620,7 @@ function showOnlyTasksThrough(wiring: AgentApiWiring, snapshot: AgentSnapshot, t
   const held = snapshot.document.documentSettings.tableViews.searchPanel
   const stamp = snapshot.document.documentStamp
   if (Array.isArray(taskUids) && taskUids.length === 0) {
-    if (!held.isScheduleFilterApplied) return { ok: true, stamp: frozenCopy(snapshot.documentAsWritten.documentStamp), hasUpdatedSchedule: false }
+    if (!held.isScheduleFilterApplied) return unchangedOutcomeOf(snapshot)
     return writeThroughTheOnePath(wiring, snapshot, 'AM-27', stamp, [searchTableViewWrite(held, held.shownTaskUids, false)])
   }
   const refusal = shownTasksRefusalOf(snapshot, taskUids)
@@ -719,6 +769,15 @@ function malformedWriteRequestWhat(request: AgentWriteRequest): string | null {
   return null
 }
 
+// see CM-102, CM-71, FR-055
+/** @purity semi-pure-b */
+function withPageFit(wiring: AgentApiWiring, commands: readonly DocumentCommand[]): readonly DocumentCommand[] {
+  if (!commands.some((command) => command.kind === 'fitScheduleToScreenOnPage')) return commands
+  const fit = wiring.pageFitWrites?.() ?? null
+  if (fit === null) return commands
+  return commands.flatMap((command) => (command.kind === 'fitScheduleToScreenOnPage' ? fit : [command]))
+}
+
 // see AG-5
 /** @purity non-pure */
 function writeThroughTheOnePath(
@@ -764,7 +823,16 @@ function writeThroughTheOnePath(
     ok: true,
     stamp: stampHandedOut(outcome.document.documentStamp, snapshot),
     hasUpdatedSchedule: outcome.hasUpdatedSchedule,
+    createdUids: createdUidsOf(snapshot.document, outcome.document),
   }
+}
+
+// WHY: tasks, resources, assignments and calendars share one counter, so what a write made is the range it moved.
+/** @purity pure */
+function createdUidsOf(before: Document, after: Document): readonly number[] {
+  const from = before.schedule.project.uidHighWaterMark ?? 0
+  const to = after.schedule.project.uidHighWaterMark ?? 0
+  return Array.from({ length: Math.max(0, to - from) }, (_unused, index) => from + index + 1)
 }
 
 /** @purity pure */
@@ -809,7 +877,7 @@ function historyStepThrough(wiring: AgentApiWiring, snapshot: AgentSnapshot, row
   if (!outcome.ok) {
     return { ok: false, refusal: agentRefusal(target, reasonOfStepRefusal(outcome.refusal), snapshot, stepRefusalWhat(outcome.refusal), []) }
   }
-  return { ok: true, stamp: stampHandedOut(outcome.document.documentStamp, snapshot), hasUpdatedSchedule: outcome.hasUpdatedSchedule }
+  return { ok: true, stamp: stampHandedOut(outcome.document.documentStamp, snapshot), hasUpdatedSchedule: outcome.hasUpdatedSchedule, createdUids: [] }
 }
 
 /** @purity non-pure */
@@ -845,7 +913,7 @@ function mspdiOfSnapshot(snapshot: AgentSnapshot): string {
 function importLandingOutcome(landing: ImportLanding, after: AgentSnapshot): AgentWriteOutcome {
   // TRAP: `!landing` compiles but takes a refusal object for a landed import.
   if (landing === true) {
-    return { ok: true, stamp: frozenCopy(after.documentAsWritten.documentStamp), hasUpdatedSchedule: true }
+    return { ok: true, stamp: frozenCopy(after.documentAsWritten.documentStamp), hasUpdatedSchedule: true, createdUids: [] }
   }
   const refusals = landing === false ? [] : landing.refusals
   const first = refusals[0]
@@ -906,14 +974,84 @@ function askToOpenFileThrough(wiring: AgentApiWiring): AgentImportOutcome {
   const snapshot = wiring.source.readSnapshot()
   const ask = wiring.askToOpenFile
   if (ask === undefined) return { ok: false, refusal: notAvailable('AM-29', snapshot, 'the wiring carries no file window') }
+  const busy = busyRefusalOf('AM-29', snapshot)
+  if (busy !== null) return { ok: false, refusal: busy }
+  ask()
+  return { ok: true, asked: OPEN_FILE_QUESTION, stamp: frozenCopy(snapshot.documentAsWritten.documentStamp) }
+}
+
+/** @purity pure */
+function busyRefusalOf(target: string, snapshot: AgentSnapshot): AgentRefusal | null {
   const busy = snapshot.isGestureInFlight
     ? 'gestureInFlight'
     : snapshot.isEditingInPlace ? 'editingInPlace' : snapshot.isQuestionAsked ? 'questionAsked' : null
-  if (busy !== null) {
-    return { ok: false, refusal: agentRefusal('AM-29', busy, snapshot, 'the person is busy on the page; try again shortly', []) }
+  return busy === null ? null : agentRefusal(target, busy, snapshot, 'the person is busy on the page; try again shortly', [])
+}
+
+/** @purity pure */
+function unchangedOutcomeOf(snapshot: AgentSnapshot): AgentWriteOutcome {
+  return { ok: true, stamp: frozenCopy(snapshot.documentAsWritten.documentStamp), hasUpdatedSchedule: false, createdUids: [] }
+}
+
+// see AM-31, FR-130, IC-107, IC-168
+/** @purity non-pure */
+function runDelayDiagnosticsThrough(wiring: AgentApiWiring): AgentWriteOutcome {
+  const snapshot = wiring.source.readSnapshot()
+  const run = wiring.runDelayDiagnostics
+  if (run === undefined) return { ok: false, refusal: notAvailable('AM-31', snapshot, 'the wiring carries no Delay Diagnostics window') }
+  const busy = busyRefusalOf('AM-31', snapshot)
+  if (busy !== null) return { ok: false, refusal: busy }
+  run()
+  return unchangedOutcomeOf(snapshot)
+}
+
+// see AM-33, RW-1, IC-52
+/** @purity non-pure */
+function closeWindowThrough(wiring: AgentApiWiring, which: unknown): AgentWriteOutcome {
+  const snapshot = wiring.source.readSnapshot()
+  if (which !== 'delayDiagnosticsReport' && which !== 'propertiesPanel') {
+    return { ok: false, refusal: agentRefusal('AM-33', 'malformedRequest', snapshot, "which is 'delayDiagnosticsReport' or 'propertiesPanel'", []) }
   }
-  ask()
-  return { ok: true, asked: OPEN_FILE_QUESTION, stamp: frozenCopy(snapshot.documentAsWritten.documentStamp) }
+  const close = wiring.closeWindow
+  if (close === undefined) return { ok: false, refusal: notAvailable('AM-33', snapshot, 'the wiring carries no window to close') }
+  const busy = busyRefusalOf('AM-33', snapshot)
+  if (busy !== null) return { ok: false, refusal: busy }
+  close(which)
+  return unchangedOutcomeOf(snapshot)
+}
+
+// see AM-32, FR-155, IC-166
+// WHY: the rows are rebuilt from the document as readDelayDiagnostics lists them, so a key the caller read names the same row.
+/** @purity pure */
+function issuedFixRowsOf(document: Document, fixKeys: readonly string[]): { rows: readonly DelayFixRow[]; unknown: readonly string[] } {
+  const report = diagnoseDelay(document, workingCalendarOf(document.schedule))
+  const proposed = proposeDelayFixes(document, report, [])
+  const known = new Set(proposed.map((row) => row.key))
+  const picked = fixKeys.length > 0 ? fixKeys.filter((key) => known.has(key)) : proposed.filter(isRecommendedDelayFix).map((row) => row.key)
+  const checks = picked.map((key) => ({ key, checked: true, choice: null, date: null }))
+  const rows = proposeDelayFixes(document, report, checks).filter((row) => row.checked && row.isCheckable)
+  return { rows, unknown: fixKeys.filter((key) => !known.has(key)) }
+}
+
+// see AM-32, FR-155, UN-21, AG-10
+// WHY: no save first, unlike the screen's Fix (CR-803): the step is the caller's, so the caller can undo it.
+/** @purity non-pure */
+function issueDelayFixesThrough(wiring: AgentApiWiring, expectedStamp: DocumentStamp, fixKeys: unknown): AgentWriteOutcome {
+  const snapshot = wiring.source.readSnapshot()
+  if (!Array.isArray(fixKeys) || fixKeys.some((key) => typeof key !== 'string')) {
+    return { ok: false, refusal: agentRefusal('AM-32', 'malformedRequest', snapshot, 'fixKeys is not a list of strings', []) }
+  }
+  const { rows, unknown } = issuedFixRowsOf(snapshot.document, fixKeys as readonly string[])
+  if (unknown.length > 0) {
+    return { ok: false, refusal: agentRefusal('AM-32', 'malformedRequest', snapshot, `no fix proposal has these keys: ${unknown.join(', ')}`, []) }
+  }
+  if (rows.length === 0) {
+    return { ok: false, refusal: agentRefusal('AM-32', 'commandRefused', snapshot, 'there is no fix proposal to issue', []) }
+  }
+  const before = wiring.holder.read().document
+  const outcome = writeThroughTheOnePath(wiring, snapshot, 'AM-32', expectedStamp, delayFixCommands(rows))
+  if (outcome.ok) wiring.delayFixLog?.landDelayFixes?.(rows, before, wiring.holder.read().document)
+  return outcome
 }
 
 // see T-107
@@ -926,8 +1064,8 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
     schemaVersion: wiring.schemaVersion,
 
     /** @purity semi-pure-b */
-    readDocument: (includeCarry: boolean, taskUids: readonly number[]): Document =>
-      documentAsRead(source.readSnapshot().documentAsWritten, includeCarry, taskUids),
+    readDocument: (includeCarry: boolean, taskUids: readonly number[], parts: readonly string[]): Document =>
+      documentPartsOf(documentAsRead(source.readSnapshot().documentAsWritten, includeCarry, taskUids), parts),
 
     /** @purity semi-pure-b */
     readStamp(): DocumentStamp {
@@ -964,9 +1102,9 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
     // WHY: diagnosed afresh, never the shell's held report: AM-19 writes no screen value, so it
     // answers whether or not S-445 is on.
     /** @purity semi-pure-b */
-    readDelayDiagnostics(): AgentDelayDiagnostics {
+    readDelayDiagnostics(parts: readonly string[], limit: number): AgentDelayDiagnostics {
       const document = source.readSnapshot().document
-      return frozenCopy(delayDiagnosticsWithFixes(document, wiring.delayFixLog))
+      return frozenCopy(diagnosticsPartsOf(delayDiagnosticsWithFixes(document, wiring.delayFixLog), parts, limit))
     },
 
     /** @purity non-pure */
@@ -981,7 +1119,7 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
         snapshot,
         'AM-7',
         request.expectedStamp,
-        request.commands,
+        withPageFit(wiring, request.commands),
       )
     },
 
@@ -991,6 +1129,10 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
 
     /** @purity non-pure */
     requestOpenFile: (): AgentImportOutcome => askToOpenFileThrough(wiring),
+
+    /** @purity non-pure */
+    issueDelayFixes: (expectedStamp: DocumentStamp, fixKeys: readonly string[]): AgentWriteOutcome =>
+      issueDelayFixesThrough(wiring, expectedStamp, fixKeys),
 
     /** @purity non-pure */
     undoEdit: (expectedStamp: DocumentStamp): AgentWriteOutcome =>
@@ -1148,6 +1290,12 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
 
     /** @purity non-pure */
     showOnlyTasks: (taskUids: readonly number[]): AgentWriteOutcome => showOnlyTasksThrough(wiring, source.readSnapshot(), taskUids),
+
+    /** @purity non-pure */
+    runDelayDiagnostics: (): AgentWriteOutcome => runDelayDiagnosticsThrough(wiring),
+
+    /** @purity non-pure */
+    closeWindow: (which: 'delayDiagnosticsReport' | 'propertiesPanel'): AgentWriteOutcome => closeWindowThrough(wiring, which),
 
     /** @purity non-pure */
     watchChanges(receive: AgentChangeReceiver): AgentWatch {

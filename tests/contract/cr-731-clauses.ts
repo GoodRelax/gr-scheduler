@@ -18,8 +18,8 @@ export const FR_155_LOG_ROWS_ADDED =
 export const FR_155_NOTHING_IN_THE_DOCUMENT =
   '⛔ 修正案・チェック・選んだ択・書き換えた日付・修正の記録と、修正案の表と修正の記録の表の列のフィルタと並べ替えを、文書に書いてはならない（MUST NOT）'
 
-export const FR_155_NO_AGENT_API_ENTRANCE =
-  '⛔ `IC-157` ・ `IC-158` に当たる入口を `Agent API`（表 T-107）に置いてはならない（MUST NOT）'
+export const FR_155_AGENT_API_ISSUES_WITHOUT_SAVING =
+  '⚠️ `AM-32` は先に保存しない（利用者の裁定、CR-803）'
 
 // WHY: CR-735 (JDG-1954) retired the T-373 preface that sent a derived pair to the hand; T-310 VC-9 now says a
 // derived parent is not judged, so no FA-9 to FA-12 row stands on that pair at all.

@@ -72,6 +72,9 @@ export type DelayFixCommand =
   | { readonly kind: 'setTaskPlanDates'; readonly taskUid: number; readonly start: string; readonly finish: string }
   | { readonly kind: 'setTaskPlanActualState'; readonly taskUid: number; readonly place: DelayFixPlacement }
   | { readonly kind: 'setStatusDate'; readonly statusDate: string }
+  | { readonly kind: 'createTask'; readonly shapeKind: 'rectangle'; readonly start: string; readonly finish: string; readonly taskGroupId: string }
+  | { readonly kind: 'setTaskName'; readonly taskUid: number; readonly name: string | null }
+  | { readonly kind: 'setTaskParentTask'; readonly taskUid: number; readonly parentTaskUid: number | null }
 
 // see T-373
 export type DelayFixChoiceWord =
@@ -89,6 +92,7 @@ export type DelayFixChoiceWord =
   | 'moveStatusDateToActual'
   | 'markAsFinished'
   | 'markAsStillInProgress'
+  | 'makeParentTaskFromTaskGroup'
 
 // see T-373, FM-8
 // WHY: predecessorUid, successorUid and date fill the placeholders of the choice's words.
@@ -98,6 +102,7 @@ export interface DelayFixChoice {
   readonly predecessorUid: number | null
   readonly successorUid: number | null
   readonly date: string | null
+  readonly taskGroupName: string | null
   readonly after: DelayFixValue
   readonly commands: readonly DelayFixCommand[]
 }
@@ -354,6 +359,24 @@ function withTaskEdited(schedule: Schedule, uid: number, edit: (task: Task) => T
   return { ...schedule, tasks: schedule.tasks.map((task) => (task.uid === uid ? edit(task) : task)) }
 }
 
+// see CM-6, FA-25
+// WHY: the Task CM-6 makes, with the uid CM-6 gives it, so a later row of the same bundle names the next uid.
+/** @purity pure */
+function scheduleWithCreatedTask(schedule: Schedule, command: Extract<DelayFixCommand, { readonly kind: 'createTask' }>): Schedule {
+  const uid = schedule.project.uidHighWaterMark + 1
+  const created: Task = {
+    uid, parentTaskUid: null, wbsOrder: null, name: null, start: command.start, finish: command.finish, milestone: false,
+    deadline: null, notes: null, calendarUid: null, actualStart: null, stop: null, actualFinish: null, resume: null,
+    resumeValid: null, percentComplete: null, fadeInDays: null, fadeOutDays: null, dependencies: [], carry: {}, carryElements: [],
+  }
+  return {
+    ...schedule,
+    project: { ...schedule.project, uidHighWaterMark: uid },
+    tasks: [...schedule.tasks, created],
+    taskGroupMembers: [...schedule.taskGroupMembers, { taskUid: uid, taskGroupId: command.taskGroupId }],
+  }
+}
+
 // see T-373
 // WHY: applied to a simulated schedule, so the chain is found before anything is issued.
 /** @purity pure */
@@ -373,6 +396,12 @@ function scheduleAfter(schedule: Schedule, command: DelayFixCommand): Schedule {
       return withTaskEdited(schedule, command.taskUid, (task) => ({ ...task, start: command.start, finish: command.finish }))
     case 'setTaskPlanActualState':
       return withTaskEdited(schedule, command.taskUid, (task) => taskAfterPlacement(task, command.place))
+    case 'createTask':
+      return scheduleWithCreatedTask(schedule, command)
+    case 'setTaskName':
+      return withTaskEdited(schedule, command.taskUid, (task) => ({ ...task, name: command.name }))
+    case 'setTaskParentTask':
+      return withTaskEdited(schedule, command.taskUid, (task) => ({ ...task, parentTaskUid: command.parentTaskUid }))
   }
 }
 
@@ -386,7 +415,11 @@ function writtenUidsOf(command: DelayFixCommand): readonly number[] {
       return [command.successorUid]
     case 'setTaskPlanDates':
     case 'setTaskPlanActualState':
+    case 'setTaskName':
+    case 'setTaskParentTask':
       return [command.taskUid]
+    case 'createTask':
+      return []
   }
 }
 
@@ -440,7 +473,7 @@ function field(taskUid: number, rowId: string): DelayFixOpenField {
 function choiceOf(
   key: string,
   word: DelayFixChoiceWord,
-  fill: { readonly predecessorUid?: number; readonly successorUid?: number; readonly date?: string | null },
+  fill: { readonly predecessorUid?: number; readonly successorUid?: number; readonly date?: string | null; readonly taskGroupName?: string | null },
   outcome: FixOutcome,
 ): DelayFixChoice {
   return {
@@ -449,6 +482,7 @@ function choiceOf(
     predecessorUid: fill.predecessorUid ?? null,
     successorUid: fill.successorUid ?? null,
     date: fill.date ?? null,
+    taskGroupName: fill.taskGroupName ?? null,
     after: outcome.after,
     commands: outcome.commands,
   }
@@ -1005,10 +1039,46 @@ function finishOmissionDrafts(context: FixContext, finding: DelayFinding): reado
   })]
 }
 
+// see FA-25, VO-4, IP-1
+/** @purity pure */
+function orphansOfTaskGroup(context: FixContext, taskGroupId: string): readonly Task[] {
+  return context.schedule.taskGroupMembers
+    .filter((member) => member.taskGroupId === taskGroupId)
+    .map((member) => context.byUid.get(member.taskUid))
+    .filter((task): task is Task => task !== undefined && task.parentTaskUid === null)
+}
+
+// see FA-25, VO-4, CM-6, CM-18, JDG-2900
+// WHY: one row for each task group: only its task with the smallest uid offers it; the others keep their by-hand row.
+// TRAP: the bare task group above is read from the finding, never the settled schedule, where a sibling's new parent hides it.
+/** @purity pure */
+function parentTaskFromTaskGroupChoice(context: FixContext, finding: DelayFinding): DelayFixChoice | null {
+  if (typeof finding.values['taskGroupAboveWithoutSpanBar'] !== 'string') return null
+  const taskGroupId = context.schedule.taskGroupMembers.find((member) => member.taskUid === finding.uid)?.taskGroupId
+  const taskGroup = context.schedule.taskGroups.find((group) => group.id === taskGroupId)
+  if (taskGroup === undefined || taskGroup.parentId === null) return null
+  const orphans = orphansOfTaskGroup(context, taskGroup.id)
+  if (orphans.length === 0 || Math.min(...orphans.map((task) => task.uid)) !== finding.uid) return null
+  const start = extremeText(orphans.map((task) => task.start), false)
+  const finish = extremeText(orphans.map((task) => task.finish), true)
+  if (start === null || finish === null) return null
+  const parentTaskUid = context.schedule.project.uidHighWaterMark + 1
+  const commands: DelayFixCommand[] = [
+    { kind: 'createTask', shapeKind: 'rectangle', start, finish, taskGroupId: taskGroup.parentId },
+    { kind: 'setTaskName', taskUid: parentTaskUid, name: taskGroup.name },
+    ...orphans.map((task) => ({ kind: 'setTaskParentTask' as const, taskUid: task.uid, parentTaskUid })),
+  ]
+  return choiceOf('makeParentTaskFromTaskGroup', 'makeParentTaskFromTaskGroup', { taskGroupName: taskGroup.name },
+    { after: EMPTY, commands })
+}
+
 // see FA-25, VO-4, PR-15
 /** @purity pure */
-function undecidedParentDrafts(_context: FixContext, finding: DelayFinding): readonly FixDraft[] {
-  return [draftOf({ openField: field(finding.uid, 'PR-15'), related: numbersIn(finding, 'candidateUids') })]
+function undecidedParentDrafts(context: FixContext, finding: DelayFinding): readonly FixDraft[] {
+  const related = numbersIn(finding, 'candidateUids')
+  const choice = parentTaskFromTaskGroupChoice(context, finding)
+  if (choice === null) return [draftOf({ openField: field(finding.uid, 'PR-15'), related })]
+  return [draftOf({ fixKind: 'choose', choices: [choice], openField: field(finding.uid, 'PR-15'), related })]
 }
 
 // see FA-26, VO-5, MP-4, PR-36
@@ -1329,6 +1399,12 @@ export function proposeDelayFixes(
 /** @purity pure */
 export function delayFixCommands(rows: readonly DelayFixRow[]): readonly DelayFixCommand[] {
   return rows.filter(isIssued).sort((a, b) => a.applyOrder - b.applyOrder).flatMap((row) => row.commands)
+}
+
+// WHY: one way to fix and nothing in the way: the rows adopt-all ticks and the Agent API issues by default.
+/** @purity pure */
+export function isRecommendedDelayFix(row: DelayFixRow): boolean {
+  return (row.fixKind === 'automatic' || (row.fixKind === 'choose' && row.choices.length === 1)) && row.isCheckable
 }
 
 // see DX-12, FM-2

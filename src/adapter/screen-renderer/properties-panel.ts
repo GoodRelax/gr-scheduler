@@ -30,6 +30,7 @@ import {
   TENTHS_OF_A_MINUTE,
   TRANSPARENT,
   taskByUid,
+  taskGroupNameOf,
   textOfDay,
   textOfInstant,
   parentTaskResolutionsOf,
@@ -1159,9 +1160,11 @@ const MIN_HEIGHT_CHECK_TASK_GROUP = 'MH-2'
 
 const MIN_HEIGHT_READOUT_TASK_GROUP = 'MH-3'
 
-// see FR-042
+// see FR-042, FR-058
+// WHY: the name field shows the name the panel shows (FR-058), so a derived name is not an empty field (DFC-3320).
 /** @purity pure */
 function groupFields(
+  schedule: Schedule,
   group: TaskGroup,
   labelCoef: number,
   language: DisplayLanguage,
@@ -1172,7 +1175,8 @@ function groupFields(
     taskGroupId: group.id,
     column,
   })
-  const rows = { items: GROUP_ITEMS, held: group, keyOf, entity: 'TaskGroup', rowOf: declaredRowOf } as const
+  const held = { ...group, name: taskGroupNameOf(schedule, group.id) }
+  const rows = { items: GROUP_ITEMS, held, keyOf, entity: 'TaskGroup', rowOf: declaredRowOf } as const
   return objectFields(rows, labelCoef, language).flatMap((field) =>
     minHeightFields(field, group.id, placedTaskGroups, language),
   )
@@ -1204,7 +1208,7 @@ function fieldsOfSubject(
 
   const group = schedule.taskGroups.find((held) => held.id === taskGroupId)
   if (group === undefined) return null
-  return groupFields(group, labelCoef, language, placedTaskGroups)
+  return groupFields(schedule, group, labelCoef, language, placedTaskGroups)
 }
 
 // TRAP: repeats the private reach() walk of clampedSettings; change both together.
@@ -1900,7 +1904,7 @@ function topEdgeText(settings: DocumentSettings, schedule: Schedule, language: D
   const group = schedule.taskGroups.find((one) => one.id === settings.scrollTaskGroupId)
   if (group === undefined) return readOnlyWord('notSetFromTop', language)
   return readOnlyWord('groupFromTop', language)
-    .replace(NAME_OF_GROUP_SLOT, () => group.name ?? '')
+    .replace(NAME_OF_GROUP_SLOT, () => taskGroupNameOf(schedule, group.id))
     .replace(PERCENT_SLOT, percentText(settings.scrollTaskGroupFraction, language))
 }
 

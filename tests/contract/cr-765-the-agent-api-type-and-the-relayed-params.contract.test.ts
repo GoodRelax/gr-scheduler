@@ -55,10 +55,10 @@ const noNotice = (): void => undefined
 
 describe('AM-1 and AG-1: the version the AgentApi hands out is the one the table prints', () => {
   it('agentApiVersion is the date-time the prose of T-107 gives and the manuscript declares (JDG-2741)', () => {
-    expect(installAgentApi(stubbedWiring).agentApiVersion).toBe('2026-10-18T11:45:00Z')
-    expect(MANUSCRIPT.version).toBe('2026-10-18T11:45:00Z')
+    expect(installAgentApi(stubbedWiring).agentApiVersion).toBe('2026-10-19T00:00:00Z')
+    expect(MANUSCRIPT.version).toBe('2026-10-19T00:00:00Z')
     expect(MANUSCRIPT.version).toMatch(/^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$/)
-    expect(PRINTED).toContain('いまの版は `2026-10-18T11:45:00Z` である（`AM-1` が返す値）')
+    expect(PRINTED).toContain('いまの版は `2026-10-19T00:00:00Z` である（`AM-1` が返す値）')
   })
 
   it('schemaVersion is the format version the page was wired with (AM-2)', () => {
@@ -86,7 +86,7 @@ describe('the AgentApi value has exactly the 22 members of T-107 the page holds 
 })
 
 describe('the AgentApi type, member by member (T-107)', () => {
-  it('has 22 members and the published AgentApi is the same type', () => {
+  it('has 25 members and the published AgentApi is the same type', () => {
     expectTypeOf<keyof AgentApi>().toEqualTypeOf<
       | 'agentApiVersion'
       | 'schemaVersion'
@@ -100,6 +100,7 @@ describe('the AgentApi type, member by member (T-107)', () => {
       | 'applyCommands'
       | 'importDocument'
       | 'requestOpenFile'
+      | 'issueDelayFixes'
       | 'undoEdit'
       | 'redoEdit'
       | 'exportJson'
@@ -109,6 +110,8 @@ describe('the AgentApi type, member by member (T-107)', () => {
       | 'exportEmbeddedHtml'
       | 'focusTask'
       | 'showOnlyTasks'
+      | 'runDelayDiagnostics'
+      | 'closeWindow'
       | 'watchChanges'
     >()
     expectTypeOf<PublishedAgentApi>().toEqualTypeOf<AgentApi>()
@@ -127,7 +130,9 @@ describe('the AgentApi type, member by member (T-107)', () => {
     expectTypeOf<ReturnType<AgentApi['readShownTasks']>>().toEqualTypeOf<AgentShownTasks>()
     expectTypeOf<ReturnType<AgentApi['readDelayDiagnostics']>>().toEqualTypeOf<AgentDelayDiagnostics>()
     // see AM-3, AM-25
-    expectTypeOf<Parameters<AgentApi['readDocument']>>().toEqualTypeOf<[includeCarry: boolean, taskUids: readonly number[]]>()
+    expectTypeOf<Parameters<AgentApi['readDocument']>>().toEqualTypeOf<
+      [includeCarry: boolean, taskUids: readonly number[], parts: readonly string[]]
+    >()
     expectTypeOf<Parameters<AgentApi['readSearchRows']>>().toEqualTypeOf<
       [word: string, filters: 'asShown' | 'none', offset: number, limit: number]
     >()
@@ -171,7 +176,11 @@ describe('RelayedParams: what the relay carries to each member is the argument c
   })
 
   it('each entry holds the named arguments of its member', () => {
-    expectTypeOf<RelayedParams['readDocument']>().toEqualTypeOf<{ includeCarry: boolean; taskUids: readonly number[] }>()
+    expectTypeOf<RelayedParams['readDocument']>().toEqualTypeOf<{
+      includeCarry: boolean
+      taskUids: readonly number[]
+      parts: readonly string[]
+    }>()
     expectTypeOf<RelayedParams['readSearchRows']>().toEqualTypeOf<{
       word: string
       filters: 'asShown' | 'none'
@@ -182,6 +191,10 @@ describe('RelayedParams: what the relay carries to each member is the argument c
     expectTypeOf<RelayedParams['importDocument']>().toEqualTypeOf<{ source: AgentImportSource }>()
     expectTypeOf<RelayedParams['focusTask']>().toEqualTypeOf<{ taskUid: number }>()
     expectTypeOf<RelayedParams['showOnlyTasks']>().toEqualTypeOf<{ taskUids: readonly number[] }>()
+    expectTypeOf<RelayedParams['readDelayDiagnostics']>().toEqualTypeOf<{ parts: readonly string[]; limit: number }>()
+    expectTypeOf<RelayedParams['issueDelayFixes']>().toEqualTypeOf<{ expectedStamp: Stamp; fixKeys: readonly string[] }>()
+    expectTypeOf<RelayedParams['runDelayDiagnostics']>().toEqualTypeOf<{}>()
+    expectTypeOf<RelayedParams['closeWindow']>().toEqualTypeOf<{ which: 'delayDiagnosticsReport' | 'propertiesPanel' }>()
   })
 
   it('watchChanges carries nothing -- the relay reads waitMs itself and the page supplies the receiver', () => {

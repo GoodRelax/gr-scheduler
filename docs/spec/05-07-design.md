@@ -156,7 +156,7 @@ graph RL
 > `FR-028` が「受理したか否かを値で返すこと」を、`AG-9a` が拒否の値の中身を、それぞれ MUST で定めているためである。  
 > 状態変更とその結果通知を分けると、2 回の呼び出しの間に別の書き込みが入り、`AG-3` の原子性が保てない。
 
-> **`R2.5`（ISP・SHOULD）** —— `Agent API` は 23 のメンバを 1 つの面に載せ、用途別に分けない。  
+> **`R2.5`（ISP・SHOULD）** —— `Agent API` は 26 のメンバを 1 つの面に載せ、用途別に分けない。  
 > **`FR-028` が入口を 1 つと定めているためである。**  
 > 呼ぶ側が複数の面を持つと「人間向け UI と同格」が崩れる。  
 > 同条項が禁じているのは「使わないメソッドを実装させられること」であり、実装は 1 つなのでその害は生じない。
@@ -332,7 +332,7 @@ src/
 | UT-1 | `ApplyDocumentChange` | `apply-document-change.ts` ／ `document-change-plan.ts` | **純粋性**（表 T-060 の `LY-3`） |
 | UT-2 | `EditDocument` | `edit-document.ts` と、集約ごとの 8 ファイル ／ `deletion-confirmations.ts` ／ `search-jump.ts` ／ `whole-schedule-shift.ts` | **純粋性ではない** —— 表 T-075 のとおり 12 とも同じである。<br>そのうち 2 つは `UT-9` でさらに割った。<br>**集約ごとに変更の理由が別なので割った** —— タスクの規則が変わっても暦の規則は変わらない<br>`deletion-confirmations.ts` は、削除が負う問い（表 T-050 と 表 T-234 の削除の行）が変わったときに書き直す —— 集約をまたいで数えるので、どの集約のファイルにも置かない。<br>`search-jump.ts` は、検索パネルからの飛び方（`FR-151` の 表 T-332）が変わったときに書き直す —— タスクグループの木と表示の位置をまたいで書くので、どの集約のファイルにも置かない。<br>`whole-schedule-shift.ts` は、全体日程シフトの移し方（`FR-159` の 表 T-379）が変わったときに書き直す —— `Task`・基準計画・`Project`・注記と設定の値（`S-77`・`S-518`・`S-519`）をまたいで 1 回で書くので、どの集約のファイルにも置かない |
 | UT-3 | `NotifyChangeWatchers` | `notify-change-watchers.ts` ／ `change-notice.ts` | **純粋性**（`LY-3`）。<br>⚠️ 選び方の規則は 表 T-035 の `AG-6` にある。<br>値だけで決まる |
-| UT-4 | `AgentApiEndpoint` | `agent-api-endpoint.ts` ／ `agent-api-members.ts` ／ `relayed-call.ts` | **純粋性ではない** —— 表 T-075 のとおり 3 つとも同じである。<br>設置は `FR-065`（既定で公開しない）が、23 メンバは 表 T-107 が、取次が運んだ呼び出しの受け方は 表 T-035 の `AG-12` が縛るので、変更の理由が別である |
+| UT-4 | `AgentApiEndpoint` | `agent-api-endpoint.ts` ／ `agent-api-members.ts` ／ `relayed-call.ts` | **純粋性ではない** —— 表 T-075 のとおり 3 つとも同じである。<br>設置は `FR-065`（既定で公開しない）が、26 メンバは 表 T-107 が、取次が運んだ呼び出しの受け方は 表 T-035 の `AG-12` が縛るので、変更の理由が別である |
 | UT-5 | `DocumentCodec` | `document-codec.ts` ／ `json-codec.ts` ／ `mspdi-codec.ts` ／ `embedded-html-codec.ts` | **一部は純粋性** —— 単一 `.html` だけが `AppShellSource` を呼ぶ。<br>**残りは形式ごとに正が別だからである** —— `GRS JSON` は `FR-024`、`MSPDI` は交換相手のスキーマ、単一 `.html` は `FR-067` |
 | UT-6 | `SingleHtmlShell` | `single-html-shell.ts` ／ `frame-loop.ts` ／ `session-effects.ts` ／ `pointer-shape.ts` ／ `held-press-preview.ts` ／ `browser-stored-values.ts` ／ `interaction-record.ts` ／ `view-place.ts` ／ `frame-clock-wakes.ts` ／ `field-entry.ts` ／ `document-file-flow.ts` ／ `watermark-unlock.ts` ／ `task-group-band-ceiling-cache.ts` ／ `copy-and-paste.ts` ／ `agent-api-relay-link.ts` ／ `parent-task-hold.ts` ／ `shown-tasks-hold.ts` ／ `beneath-picture-hold.ts` | **純粋性ではない** —— 表 T-075 のとおり `held-press-preview.ts` は `semi-pure-b` で、ほかは `non-pure` である。<br>起動は `FR-067` と `FR-065` が、フレームの走行は 表 T-060 の `LY-5` と 5.6 の ADR-001 が縛るので、変更の理由が別である。<br>`session-effects.ts` は、副作用の名の全数（表 T-280 ・ 表 T-286 ・ 表 T-289 ・ 表 T-290 ・ 表 T-292 ・ 表 T-293 の状態遷移表の升）と、返った順に 1 つずつ実行すること（表 T-249 の `SF-6`）を負い、フレームの回し方とは変更の理由が互いに素である（表 T-276 の `UD-1`）—— 「副作用が 2 度実行された」「種類の漏れが型検査を通った」は本ファイル、「書き込みの中身が違う」は `frame-loop.ts` の実行の行である（`UD-5`）。<br>`frame-loop.ts` の周期から、変更の理由が別の塊を兄弟へ出した（`UD-1`）—— ブラウザに残す値は 表 T-206 の `S-99`〜`S-99c` の鍵と読めないときの扱いが、ポインタの形は 表 T-269 と 表 T-266 の欄が、表示の場所は `OP-10` と `FR-055` が、透かしの解除は `FR-020` と `S-99c`・`S-101` が、縦軸のズームの天井の使い回しは 表 T-071 の `CA-1` が、掴んで動かす間の先の描画は 表 T-023d が、操作の記録は `FR-102` と 表 T-295 が、時間でフレームを起こす待ちは 表 T-078 の `FT-4` が、名前付けと入力欄は 表 T-292 が、文書のファイルの流れは 表 T-290 と 表 T-024・表 T-024a が、コピーと貼り付けは `FR-033` が、取次へ繋ぐ口は 表 T-035 の `AG-12` が、親タスクと子タスクの見せ方と混ざった選択の 2 択は `FR-135` と 表 T-351 が、スケジュールフィルタのチェックは 表 T-353 と `SJ-0` が、下の絵の使い回しは 表 T-071 の `CA-1` の ③ が変わったときに書き直す。<br>兄弟が共有する語彙は `frame-loop.ts` に置き、`frame-loop.ts` が兄弟の名を出し直す。<br>兄弟は閉包の値を、`frame-loop.ts` が 1 度だけ作る手の束（`FrameLoopHands`）から読む —— 状態を覚える兄弟は自分の値だけを持つ小さな作り手であり、ほかは手の束を引数で受ける関数である。<br> ⚠️ **割らないと 1 つのユニットが複数の事柄を負い、`R2.2` に反する** —— 5.2 の分割基準が、ユニットの側でも同じことを言う |
 | UT-7 | `ScreenRenderer` | `screen-renderer.ts` と、UI パーツごとの 11 ファイル | **純粋性ではない** —— 表 T-075 のとおり 12 とも同じである。<br>**UI パーツごとに縛る要求が別なので割った**（`UT-2` と同じ形である）—— ヘルプの規則が変わってもプロパティパネルの規則は変わらない。<br>検索パネルは、中身（`search-panel.ts`）と、列のフィルタと並べ替え（`search-table-filters.ts`）の 2 つに割った —— 列のフィルタの規則（`FR-151` の 表 T-330 の `SV-7`・`SV-8`）が変わっても、パネルの中身の組み立ては変わらない |
@@ -456,7 +456,7 @@ src/
 | UF-24 | `NotifyChangeWatchers` | `notify-change-watchers.ts` | `non-pure` | 購読の登録・解除と、配ること | — |
 | UF-25 | `NotifyChangeWatchers` | `change-notice.ts` | `pure` | まだ受け取っていない変更を選ぶ | — |
 | UF-27 | `AgentApiEndpoint` | `agent-api-endpoint.ts` | `non-pure` | 設置と公開点の管理 | `FR-064`（`OW-3`）・`FR-065`（`OW-2`） |
-| UF-28 | `AgentApiEndpoint` | `agent-api-members.ts` | `non-pure` | 表 T-107 の 23 メンバの結線 | `FR-028`（`OW-2`） |
+| UF-28 | `AgentApiEndpoint` | `agent-api-members.ts` | `non-pure` | 表 T-107 の 26 メンバの結線 | `FR-028`（`OW-2`） |
 | UF-185 | `AgentApiEndpoint` | `relayed-call.ts` | `non-pure` | 取次が運んだ呼び出しを 1 つずつ、表 T-107 の同じ確定名のメンバへ渡し、答えを運べる値にして返す（`answerRelayedCall`） —— 画像のバイト列は base64 の文字列にし、購読した変更は渡された送り口へ流す（`_assets/design-mcp-relay.md` の 3.2 ・ 3.3）。<br>呼び出しと答えの型（`RelayedCall` ・ `RelayedAnswer`）を宣言する | — |
 | UF-29 | `AgentApiEndpoint` | `snapshot-source.ts` | `—` | `SnapshotSource` の宣言（`IF-7`） | — |
 | UF-30 | `InputCommandTranslator` | `input-command-translator.ts` | `pure` | `CP-18` の残り —— 入力の種類と押した所から、答える兄弟を選ぶ（表 T-023a・表 T-109）。<br>兄弟が共有する語彙と補助 —— 出力の型、日とタスクグループの座標、スクロールの錨 —— を持つ。<br>縦軸の上限の字と帯を、コピーせずに `PI-5`・`PI-37` へ問う | `FR-016`（`OW-3`）・`FR-034`（`OW-1`）・`FR-040`（`OW-4`）・`FR-070`（`OW-3`） |
@@ -732,7 +732,7 @@ src/
 | WS-2 | 2 | 書ける時機かを見る。<br>**身振りの最中・編集入力の確定前・通知の配布中は拒否する**<br>⚠️ 編集入力の確定前でも、`01-04-requirements.md` の 表 T-027 の `UN-8`（ズーム・スクロール・パン）だけから成る書き込みは拒否しない —— 確定される欄の値にも取り消しの段にも触れず、同書の 表 T-338 の `MH-4` が欄を編集しながら倍率を変えることを求める<br>⭐ 確認の問い（`01-04-requirements.md` の 表 T-037 の `NT-7`）が立っている間も拒否する —— 上の `UN-8` だけから成る書き込みは、問いが立っている間も拒否しない<br>⭐ 時機は、呼び手（`Framework`）が集めて引数で渡す 4 つの真偽 —— 身振りの最中・編集入力の確定前・確認の問いが立っている・通知の配布中 —— で見ること（MUST）。<br>拒否の理由は、この順で最初に当たったものとし、`01-04-requirements.md` の 表 T-233 の `RS-7`・`RS-8`・`RS-74`・`RS-9` とする。<br>⛔ 書き込みが `UN-8` だけから成るかの判じは本行だけが持ち、呼び手が前もって判じて書き込みを止めてはならない（MUST NOT） —— 判じが 2 か所にあると、編集入力の確定前と問いの間とで例外が食い違う。<br>画面からの書き込み（取り消し・やり直しを含む）が問いのために拒まれたら、呼び手は `NT-7` のとおり `RS-27` として捨てる | `pure` | `AG-9` ／ `NT-7` ／ 本節 |
 | WS-3 | 3 | 操作を検証し、新しい文書を組み立てる。<br>**1 つでも拒まれたら全部を捨てる** | `pure` | `AG-3` ／ 表 T-063 の `UT-1` |
 | WS-4 | 4 | 取り消しの履歴に 1 段積む。<br>表 T-027 の対象外なら積まない | `pure` | `FR-031` ／ `AG-10` |
-| WS-5 | 5 | 刻印を進める。<br>日程データの群の刻を動かすのは、その群を変えたときだけ。<br>どちらの群であれ動いた刻と、最後に書いた者は必ず更新する ⚠️ **まるごと差し替える道では 表 T-230 の刻印の欄に従う** | `pure` | `FR-063` |
+| WS-5 | 5 | 刻印を進める。<br>日程データの群の刻を動かすのは、その群を変えたときだけ。<br>どちらの群であれ動いた刻と、最後に書いた者は、取り消しの対象（`01-04-requirements.md` の 表 T-027）の書き込みを 1 つでも含むとき更新する<br>⭐ 対象外（`WS-4` が積まないもの）だけから成る書き込みでは、刻印のどれも動かさない —— 同書の `FR-063` ⚠️ **まるごと差し替える道では 表 T-230 の刻印の欄に従う** | `pure` | `FR-063` |
 | WS-6 | 6 | ⭐ **現在値を差し替える** | `non-pure` | 表 T-060 の `LY-5` |
 | WS-7 | 7 | ⭐ **差し替えの後に通知を配る** | `non-pure` | `AG-6` |
 
@@ -1237,7 +1237,7 @@ flowchart TB
 | --- | --- | --- |
 | NF-1 | Chapter 5.3（ファイル構成）の図 | **ディレクトリ木はコードブロックで足りる。<br>** 図にすると生成物が 1 つ増え、原稿と食い違う余地が生まれる |
 | NF-2 | Chapter 5.5 の相互作用のシーケンス図 | **表 T-067 と 表 T-077 が順序を持つ。<br>** どちらも順ごとに担い手を書いているので、**図にしても表以上の情報が出ない** |
-| NF-3 | `Agent API` の 23 メンバの図 | **表 T-107 が全数を持つ。<br>** 図に書き写すと 2 か所で管理することになる（表 T-064 の `PI-17` が MUST NOT で禁じている） |
+| NF-3 | `Agent API` の 26 メンバの図 | **表 T-107 が全数を持つ。<br>** 図に書き写すと 2 か所で管理することになる（表 T-064 の `PI-17` が MUST NOT で禁じている） |
 | NF-4 | 図の席番号 F-008 と F-009 | ⚠️ **欠番のままとする。<br>** 使われないまま残った席番号であり、**別のものに割り当て直してはならない（MUST NOT）** —— F-002 〜 F-007 の封印と同じ扱いである |
 
 **意図して払う代償の全数を 表 T-073 に示す。**

@@ -1,11 +1,292 @@
 {
  "$schema": "https://json-schema.org/draft/2020-12/schema",
  "$id": "https://goodrelax.github.io/gr-scheduler/spec/_source/grs-commands.schema.json",
- "$comment": "Generated from docs/spec/_source/document-commands.json (table T-108, the commands applyCommands takes), the column shapes from docs/spec/_source/grs-document.schema.json. Never edit by hand. Rebuild: npm run gen -- npm run gen:check fails on drift. The generator is tools/generate_document_commands.py. One oneOf branch per command in the order of the table; a command with a choice of shapes holds a oneOf of its own.",
+ "$comment": "Generated from docs/spec/_source/document-commands.json (table T-108, the commands applyCommands takes), the column shapes from docs/spec/_source/grs-document.schema.json. Never edit by hand. Rebuild: npm run gen -- npm run gen:check fails on drift. The generator is tools/generate_document_commands.py. One definition per command under $defs, keyed by its kind, and a oneOf naming them in the order of the table; a command with a choice of shapes holds a oneOf of its own.",
  "title": "GRS document commands",
  "description": "One command of the batch applyCommands takes: kind names the command, the other keys are the values it carries. A value that writes a column of the document has the shape of that column in grs-document.schema.json.",
  "oneOf": [
   {
+   "$ref": "#/$defs/setProjectTitle"
+  },
+  {
+   "$ref": "#/$defs/setProjectProfile"
+  },
+  {
+   "$ref": "#/$defs/setStatusDate"
+  },
+  {
+   "$ref": "#/$defs/clearStatusDate"
+  },
+  {
+   "$ref": "#/$defs/setThemeHue"
+  },
+  {
+   "$ref": "#/$defs/setParentTaskProgressToleranceDays"
+  },
+  {
+   "$ref": "#/$defs/setScheduleDataTimeZone"
+  },
+  {
+   "$ref": "#/$defs/shiftScheduleTimes"
+  },
+  {
+   "$ref": "#/$defs/shiftScheduleToStartDate"
+  },
+  {
+   "$ref": "#/$defs/createTask"
+  },
+  {
+   "$ref": "#/$defs/deleteTask"
+  },
+  {
+   "$ref": "#/$defs/pasteTasks"
+  },
+  {
+   "$ref": "#/$defs/setTaskName"
+  },
+  {
+   "$ref": "#/$defs/setTaskNotes"
+  },
+  {
+   "$ref": "#/$defs/setTaskPlanDates"
+  },
+  {
+   "$ref": "#/$defs/setTaskDeadline"
+  },
+  {
+   "$ref": "#/$defs/setTaskPlanActualState"
+  },
+  {
+   "$ref": "#/$defs/beginTaskActual"
+  },
+  {
+   "$ref": "#/$defs/cycleTaskPlanActualState"
+  },
+  {
+   "$ref": "#/$defs/setTaskFadeInDays"
+  },
+  {
+   "$ref": "#/$defs/setTaskFadeOutDays"
+  },
+  {
+   "$ref": "#/$defs/setTaskParentTask"
+  },
+  {
+   "$ref": "#/$defs/moveTaskToTaskGroup"
+  },
+  {
+   "$ref": "#/$defs/setTaskVisualShapeKind"
+  },
+  {
+   "$ref": "#/$defs/setTaskVisualMilestoneGlyph"
+  },
+  {
+   "$ref": "#/$defs/setTaskVisualColors"
+  },
+  {
+   "$ref": "#/$defs/resetTaskVisualColors"
+  },
+  {
+   "$ref": "#/$defs/setTaskVisualStrokeWidthPx"
+  },
+  {
+   "$ref": "#/$defs/createTaskGroup"
+  },
+  {
+   "$ref": "#/$defs/deleteTaskGroup"
+  },
+  {
+   "$ref": "#/$defs/pasteTaskGroupSubtree"
+  },
+  {
+   "$ref": "#/$defs/setTaskGroupName"
+  },
+  {
+   "$ref": "#/$defs/setTaskGroupColor"
+  },
+  {
+   "$ref": "#/$defs/resetTaskGroupColor"
+  },
+  {
+   "$ref": "#/$defs/setTaskGroupMinHeightPx"
+  },
+  {
+   "$ref": "#/$defs/reorderTaskGroupSiblings"
+  },
+  {
+   "$ref": "#/$defs/createDependency"
+  },
+  {
+   "$ref": "#/$defs/deleteDependency"
+  },
+  {
+   "$ref": "#/$defs/deleteDependencyAt"
+  },
+  {
+   "$ref": "#/$defs/setDependencyLag"
+  },
+  {
+   "$ref": "#/$defs/setCalendar"
+  },
+  {
+   "$ref": "#/$defs/createResource"
+  },
+  {
+   "$ref": "#/$defs/setResourceName"
+  },
+  {
+   "$ref": "#/$defs/deleteResources"
+  },
+  {
+   "$ref": "#/$defs/deleteUnreferencedResources"
+  },
+  {
+   "$ref": "#/$defs/createAssignment"
+  },
+  {
+   "$ref": "#/$defs/deleteAssignment"
+  },
+  {
+   "$ref": "#/$defs/createCommentBox"
+  },
+  {
+   "$ref": "#/$defs/deleteCommentBox"
+  },
+  {
+   "$ref": "#/$defs/setCommentBoxText"
+  },
+  {
+   "$ref": "#/$defs/setCommentBoxLeaderShapeKind"
+  },
+  {
+   "$ref": "#/$defs/setCommentBoxAnchor"
+  },
+  {
+   "$ref": "#/$defs/setCommentBoxBodyOffsetPx"
+  },
+  {
+   "$ref": "#/$defs/setCommentBoxStrokeColor"
+  },
+  {
+   "$ref": "#/$defs/setCommentBoxStrokeWidthPx"
+  },
+  {
+   "$ref": "#/$defs/setCommentBoxFillColor"
+  },
+  {
+   "$ref": "#/$defs/setCommentBoxFillTransparencyPercent"
+  },
+  {
+   "$ref": "#/$defs/setCommentBoxTextColor"
+  },
+  {
+   "$ref": "#/$defs/setCommentBoxTextSizePx"
+  },
+  {
+   "$ref": "#/$defs/bringCommentBoxToFront"
+  },
+  {
+   "$ref": "#/$defs/createHighlightBox"
+  },
+  {
+   "$ref": "#/$defs/deleteHighlightBox"
+  },
+  {
+   "$ref": "#/$defs/setHighlightBoxRange"
+  },
+  {
+   "$ref": "#/$defs/setHighlightBoxStrokeColor"
+  },
+  {
+   "$ref": "#/$defs/setHighlightBoxStrokeWidthPx"
+  },
+  {
+   "$ref": "#/$defs/setHighlightBoxFillColor"
+  },
+  {
+   "$ref": "#/$defs/setHighlightBoxFillTransparencyPercent"
+  },
+  {
+   "$ref": "#/$defs/bringHighlightBoxToFront"
+  },
+  {
+   "$ref": "#/$defs/setStackDirection"
+  },
+  {
+   "$ref": "#/$defs/setVisibilitySetting"
+  },
+  {
+   "$ref": "#/$defs/setFontSizeStep"
+  },
+  {
+   "$ref": "#/$defs/setThemeMonochrome"
+  },
+  {
+   "$ref": "#/$defs/setZoom"
+  },
+  {
+   "$ref": "#/$defs/setScrollPosition"
+  },
+  {
+   "$ref": "#/$defs/setTaskGroupPanelWidthPx"
+  },
+  {
+   "$ref": "#/$defs/pinTaskGroup"
+  },
+  {
+   "$ref": "#/$defs/unpinTaskGroup"
+  },
+  {
+   "$ref": "#/$defs/fitScheduleToScreen"
+  },
+  {
+   "$ref": "#/$defs/fitScheduleToScreenOnPage"
+  },
+  {
+   "$ref": "#/$defs/resetTaskGroupTreeStates"
+  },
+  {
+   "$ref": "#/$defs/moveTaskGroup"
+  },
+  {
+   "$ref": "#/$defs/setDisplayScale"
+  },
+  {
+   "$ref": "#/$defs/setFitSpan"
+  },
+  {
+   "$ref": "#/$defs/clearFitSpan"
+  },
+  {
+   "$ref": "#/$defs/setFitSpanFixed"
+  },
+  {
+   "$ref": "#/$defs/setTaskGroupPanelWidthFixed"
+  },
+  {
+   "$ref": "#/$defs/setTableView"
+  },
+  {
+   "$ref": "#/$defs/setViewTimeZone"
+  },
+  {
+   "$ref": "#/$defs/setDisplayTimeZones"
+  },
+  {
+   "$ref": "#/$defs/setTimeOfDayVisible"
+  },
+  {
+   "$ref": "#/$defs/setTaskGroupTreeState"
+  },
+  {
+   "$ref": "#/$defs/setTaskGroupEditPermission"
+  },
+  {
+   "$ref": "#/$defs/setLevelZeroTreeState"
+  }
+ ],
+ "$defs": {
+  "setProjectTitle": {
    "type": "object",
    "description": "Renames the document by setting `title`.",
    "properties": {
@@ -26,7 +307,7 @@
    ],
    "additionalProperties": false
   },
-  {
+  "setProjectProfile": {
    "type": "object",
    "description": "Edits the document's basic information. `fields` holds only the fields to change; fields left out keep their current value.",
    "properties": {
@@ -97,7 +378,7 @@
    ],
    "additionalProperties": false
   },
-  {
+  "setStatusDate": {
    "type": "object",
    "description": "Sets or moves the status date to `statusDate`.",
    "properties": {
@@ -116,7 +397,7 @@
    ],
    "additionalProperties": false
   },
-  {
+  "clearStatusDate": {
    "type": "object",
    "description": "Clears the status date.",
    "properties": {
@@ -129,7 +410,7 @@
    ],
    "additionalProperties": false
   },
-  {
+  "setThemeHue": {
    "type": "object",
    "description": "Changes the theme color by setting `themeHue`.",
    "properties": {
@@ -149,7 +430,7 @@
    ],
    "additionalProperties": false
   },
-  {
+  "setParentTaskProgressToleranceDays": {
    "type": "object",
    "description": "Changes the number of days a parent task's progress may be off before it is flagged as doubtful, by setting `parentTaskProgressToleranceDays`.",
    "properties": {
@@ -168,7 +449,7 @@
    ],
    "additionalProperties": false
   },
-  {
+  "setScheduleDataTimeZone": {
    "type": "object",
    "description": "Switches the time zone of the schedule data to `scheduleDataTimeZone` without converting: the stored numbers stay the same and only the zone they are read in changes.\nSend it in one write together with the command that returns the shown time zone to the standard.",
    "properties": {
@@ -214,7 +495,7 @@
    ],
    "additionalProperties": false
   },
-  {
+  "shiftScheduleTimes": {
    "type": "object",
    "description": "Shifts all schedule date-times at once by `minutes` (positive moves later, negative moves earlier). It is one write; the columns it rewrites and the ones it leaves untouched are fixed by the specification.\nWhen it arrives from the Agent API, it is applied without asking the person for confirmation.",
    "properties": {
@@ -231,7 +512,7 @@
    ],
    "additionalProperties": false
   },
-  {
+  "shiftScheduleToStartDate": {
    "type": "object",
    "description": "Moves the whole schedule to start on `newStartDate`, shifting by working days. It is one write; which columns move, what stays, and how the move is made are fixed by the specification.\nWhen it arrives from the Agent API, it is applied as sent without asking, the same as `shiftScheduleTimes`.",
    "properties": {
@@ -248,7 +529,7 @@
    ],
    "additionalProperties": false
   },
-  {
+  "createTask": {
    "type": "object",
    "description": "Creates a task with the given `shapeKind`, `start` and `finish`, placed on the task group `taskGroupId`.\n`shapeKind` is one of `rectangle`, `chevron`, `arrow`, `endpointSpan` and `milestone`; `milestone` makes the task a milestone.\nThe new task's uid is `project.uidHighWaterMark` plus 1, and the high-water mark moves to it, so a later command of the same batch that creates something with a uid takes the next number.\nExample: when `uidHighWaterMark` is 41, the batch [`createTask`, `createTask`, `setTaskName` with `taskUid` 42, `setTaskName` with `taskUid` 43] names both new tasks.\nA `taskGroupId` that names no task group makes a new top-level task group with that id.",
    "properties": {
@@ -286,7 +567,7 @@
    ],
    "additionalProperties": false
   },
-  {
+  "deleteTask": {
    "type": "object",
    "description": "Deletes the task `taskUid`.",
    "properties": {
@@ -303,7 +584,7 @@
    ],
    "additionalProperties": false
   },
-  {
+  "pasteTasks": {
    "type": "object",
    "description": "Duplicates the tasks listed in `sourceUids`. Descendant tasks that are not among the carried tasks are not copied.\n`landing` is sent only for a Ctrl-drag copy; it carries where the copy is placed.",
    "properties": {
@@ -342,7 +623,7 @@
    ],
    "additionalProperties": false
   },
-  {
+  "setTaskName": {
    "type": "object",
    "description": "Sets the name of the task `taskUid` to `name`.",
    "properties": {
@@ -366,7 +647,7 @@
    ],
    "additionalProperties": false
   },
-  {
+  "setTaskNotes": {
    "type": "object",
    "description": "Sets the notes of the task `taskUid` to `notes`.",
    "properties": {
@@ -390,7 +671,7 @@
    ],
    "additionalProperties": false
   },
-  {
+  "setTaskPlanDates": {
    "type": "object",
    "description": "Sets the planned `start` and `finish` of the task `taskUid`.",
    "properties": {
@@ -417,7 +698,7 @@
    ],
    "additionalProperties": false
   },
-  {
+  "setTaskDeadline": {
    "type": "object",
    "description": "Sets the `deadline` of the task `taskUid`.",
    "properties": {
@@ -442,7 +723,7 @@
    ],
    "additionalProperties": false
   },
-  {
+  "setTaskPlanActualState": {
    "type": "object",
    "description": "Sets the five plan-and-actual columns of the task `taskUid` as described by `place`.",
    "properties": {
@@ -573,7 +854,7 @@
    ],
    "additionalProperties": false
   },
-  {
+  "beginTaskActual": {
    "type": "object",
    "description": "Starts recording the actual of the task `taskUid` after a plan-and-actual grab handle was dragged.\n`grabbed` names the handle that was grabbed, `released` is where it was let go, and `snapMinutes` is the snap step in minutes that sets the length of the dummy actual.",
    "properties": {
@@ -621,7 +902,7 @@
    ],
    "additionalProperties": false
   },
-  {
+  "cycleTaskPlanActualState": {
    "type": "object",
    "description": "Advances the plan-and-actual state of the task `taskUid` by one step along the state cycle.\nWhen going back from interrupted to not started, the actual that was removed is remembered by the screen state and passed in as `remembered`. `snapMinutes` is the snap step in minutes; when left out, the day step is used.",
    "properties": {
@@ -685,7 +966,7 @@
    ],
    "additionalProperties": false
   },
-  {
+  "setTaskFadeInDays": {
    "type": "object",
    "description": "Sets the fade-in days of the task `taskUid` to `fadeInDays`.",
    "properties": {
@@ -711,7 +992,7 @@
    ],
    "additionalProperties": false
   },
-  {
+  "setTaskFadeOutDays": {
    "type": "object",
    "description": "Sets the fade-out days of the task `taskUid` to `fadeOutDays`.",
    "properties": {
@@ -737,7 +1018,7 @@
    ],
    "additionalProperties": false
   },
-  {
+  "setTaskParentTask": {
    "type": "object",
    "description": "Moves the task `taskUid` under the parent task `parentTaskUid`.",
    "properties": {
@@ -761,7 +1042,7 @@
    ],
    "additionalProperties": false
   },
-  {
+  "moveTaskToTaskGroup": {
    "type": "object",
    "description": "Moves the task `taskUid` to another task group `taskGroupId`.",
    "properties": {
@@ -783,7 +1064,7 @@
    ],
    "additionalProperties": false
   },
-  {
+  "setTaskVisualShapeKind": {
    "type": "object",
    "description": "Changes the shape of the task `taskUid` to `shapeKind`.",
    "properties": {
@@ -810,7 +1091,7 @@
    ],
    "additionalProperties": false
   },
-  {
+  "setTaskVisualMilestoneGlyph": {
    "type": "object",
    "description": "Changes the milestone shape of the task `taskUid` to `milestoneGlyph`.",
    "properties": {
@@ -848,7 +1129,7 @@
    ],
    "additionalProperties": false
   },
-  {
+  "setTaskVisualColors": {
    "type": "object",
    "description": "Sets the `fillColor` and `strokeColor` of the task `taskUid`.",
    "properties": {
@@ -881,7 +1162,7 @@
    ],
    "additionalProperties": false
   },
-  {
+  "resetTaskVisualColors": {
    "type": "object",
    "description": "Returns the colors of the task `taskUid` to following the theme.",
    "properties": {
@@ -898,7 +1179,7 @@
    ],
    "additionalProperties": false
   },
-  {
+  "setTaskVisualStrokeWidthPx": {
    "type": "object",
    "description": "Sets the line width of the task `taskUid` to `strokeWidthPx`.",
    "properties": {
@@ -924,7 +1205,7 @@
    ],
    "additionalProperties": false
   },
-  {
+  "createTaskGroup": {
    "type": "object",
    "description": "Creates a task group with the given `id`, `parentId`, `name`, `derivedFromTaskUid` and `order`.",
    "properties": {
@@ -968,7 +1249,7 @@
    ],
    "additionalProperties": false
   },
-  {
+  "deleteTaskGroup": {
    "type": "object",
    "description": "Deletes the task group `taskGroupId`.\nWarning: the current edit does not read `newTaskGroupId`; it has no effect.",
    "properties": {
@@ -990,7 +1271,7 @@
    ],
    "additionalProperties": false
   },
-  {
+  "pasteTaskGroupSubtree": {
    "type": "object",
    "description": "Duplicates the subtree of task groups rooted at `sourceTaskGroupId`, placing the copy of the root under `parentId`.\n`newTaskGroupIds` maps each source `id` to the `id` of its copy.",
    "properties": {
@@ -1023,7 +1304,7 @@
    ],
    "additionalProperties": false
   },
-  {
+  "setTaskGroupName": {
    "type": "object",
    "description": "Sets the name of the task group `taskGroupId` to `name`.",
    "properties": {
@@ -1048,7 +1329,7 @@
    ],
    "additionalProperties": false
   },
-  {
+  "setTaskGroupColor": {
    "type": "object",
    "description": "Sets the `color` of the task group `taskGroupId`.",
    "properties": {
@@ -1071,7 +1352,7 @@
    ],
    "additionalProperties": false
   },
-  {
+  "resetTaskGroupColor": {
    "type": "object",
    "description": "Returns the color of the task group `taskGroupId` to following the theme.",
    "properties": {
@@ -1089,7 +1370,7 @@
    ],
    "additionalProperties": false
   },
-  {
+  "setTaskGroupMinHeightPx": {
    "type": "object",
    "description": "Sets the minimum height of the task group `taskGroupId` to `minHeightPx`.",
    "properties": {
@@ -1114,7 +1395,7 @@
    ],
    "additionalProperties": false
   },
-  {
+  "reorderTaskGroupSiblings": {
    "type": "object",
    "description": "Reorders the sibling task groups under `parentId` (null means the top level) into the order given by `orderedIds`. That order becomes their `order`.",
    "properties": {
@@ -1143,9 +1424,9 @@
    ],
    "additionalProperties": false
   },
-  {
+  "createDependency": {
    "type": "object",
-   "description": "Draws a dependency line from the task `predecessorUid` to the task `successorUid`.\n`predecessorEdge` and `successorEdge` name the ends (start or finish); the pair of ends decides the link type.",
+   "description": "Draws a dependency line from the task `predecessorUid` to the task `successorUid`.\n`predecessorEdge` and `successorEdge` name the ends (start or finish); the pair of ends decides the link type.\nIf either task is a milestone, the line is always finish-to-start, whatever `predecessorEdge` and `successorEdge` say.",
    "properties": {
     "kind": {
      "const": "createDependency"
@@ -1178,7 +1459,7 @@
    ],
    "additionalProperties": false
   },
-  {
+  "deleteDependency": {
    "type": "object",
    "description": "Deletes the dependency lines from `predecessorUid` to `successorUid`. Every line in that direction is deleted; to delete only one, use `deleteDependencyAt`.",
    "properties": {
@@ -1199,7 +1480,7 @@
    ],
    "additionalProperties": false
   },
-  {
+  "deleteDependencyAt": {
    "type": "object",
    "description": "Deletes one dependency line among those in the same direction, named by `successorUid`, `predecessorUid` and its position `order` (0 is the first) in the successor's list of dependencies.\nRefused if no such line exists. Lines in the same direction have no name of their own, so the position in the list is the only way to name one.",
    "properties": {
@@ -1224,7 +1505,7 @@
    ],
    "additionalProperties": false
   },
-  {
+  "setDependencyLag": {
    "type": "object",
    "description": "Changes the lag of the dependency from `predecessorUid` to `successorUid`; the lag is given either as a working-day lag or as a typed lag.",
    "properties": {
@@ -1290,9 +1571,9 @@
     }
    ]
   },
-  {
+  "setCalendar": {
    "type": "object",
-   "description": "Edits the calendar: the working weekdays, one set of working times for a working day, the exception days, and the day the week starts on.\n`workingDayTypes` lists the working weekdays (1 is Sunday; weekdays not listed are days off). `weekStartDay` is the day the week starts on. `exceptions` is the complete list of exception days after the edit. `workingTimes` is one set of working times for a working day.\nIf the document still has the default calendar, create a calendar first and then edit it.\nThe times of `fromDate` and `toDate` of an exception day are aligned by the side that writes the command into the document.",
+   "description": "Edits the calendar: the working weekdays, one set of working times for a working day, the exception days, and the day the week starts on.\n`workingDayTypes` lists the working weekdays (1 is Sunday; weekdays not listed are days off). `weekStartDay` is the day the week starts on. `exceptions` is the complete list of exception days after the edit. `workingTimes` is one set of working times for a working day.\nIf the document still has the default calendar, create a calendar first and then edit it.\nThe times of `fromDate` and `toDate` of an exception day are aligned by the side that writes the command into the document.\n`workingTimes` holds 1 to 5 spans: an empty list is refused. To go back to the default working times, pass the two default spans 08:00:00-12:00:00 and 13:00:00-17:00:00.",
    "properties": {
     "kind": {
      "const": "setCalendar"
@@ -1482,7 +1763,7 @@
    ],
    "additionalProperties": false
   },
-  {
+  "createResource": {
    "type": "object",
    "description": "Adds a resource named `name`.",
    "properties": {
@@ -1502,7 +1783,7 @@
    ],
    "additionalProperties": false
   },
-  {
+  "setResourceName": {
    "type": "object",
    "description": "Renames the resource `resourceUid` to `name`.",
    "properties": {
@@ -1526,7 +1807,7 @@
    ],
    "additionalProperties": false
   },
-  {
+  "deleteResources": {
    "type": "object",
    "description": "Deletes the resources listed in `resourceUids`.",
    "properties": {
@@ -1546,7 +1827,7 @@
    ],
    "additionalProperties": false
   },
-  {
+  "deleteUnreferencedResources": {
    "type": "object",
    "description": "Deletes all resources that no assignment refers to.",
    "properties": {
@@ -1559,7 +1840,7 @@
    ],
    "additionalProperties": false
   },
-  {
+  "createAssignment": {
    "type": "object",
    "description": "Assigns the resource `resourceUid` to the task `taskUid`.",
    "properties": {
@@ -1580,7 +1861,7 @@
    ],
    "additionalProperties": false
   },
-  {
+  "deleteAssignment": {
    "type": "object",
    "description": "Removes the assignment of the resource `resourceUid` from the task `taskUid`.",
    "properties": {
@@ -1601,7 +1882,7 @@
    ],
    "additionalProperties": false
   },
-  {
+  "createCommentBox": {
    "type": "object",
    "description": "Places a comment box with the given `commentBoxId`, attached as `anchor` says.\nIn `anchor`, leave out a key to write it as null. The snapped target (a `taskUid` with `taskFigure`, or a `highlightBoxId`) and `snapPoint` are given together, and only when the box snaps.",
    "properties": {
@@ -1680,7 +1961,7 @@
    ],
    "additionalProperties": false
   },
-  {
+  "deleteCommentBox": {
    "type": "object",
    "description": "Deletes the comment box `commentBoxId`.",
    "properties": {
@@ -1698,7 +1979,7 @@
    ],
    "additionalProperties": false
   },
-  {
+  "setCommentBoxText": {
    "type": "object",
    "description": "Sets the text of the comment box `commentBoxId` to `text`.",
    "properties": {
@@ -1723,7 +2004,7 @@
    ],
    "additionalProperties": false
   },
-  {
+  "setCommentBoxLeaderShapeKind": {
    "type": "object",
    "description": "Sets the leader line shape of the comment box `commentBoxId` to `leaderShapeKind`.",
    "properties": {
@@ -1748,7 +2029,7 @@
    ],
    "additionalProperties": false
   },
-  {
+  "setCommentBoxAnchor": {
    "type": "object",
    "description": "Changes where the comment box `commentBoxId` is attached to `anchor`.\nIn `anchor`, leave out a key to write it as null. The snapped target (a `taskUid` with `taskFigure`, or a `highlightBoxId`) and `snapPoint` are given together, and only when the box snaps.",
    "properties": {
@@ -1827,7 +2108,7 @@
    ],
    "additionalProperties": false
   },
-  {
+  "setCommentBoxBodyOffsetPx": {
    "type": "object",
    "description": "Changes the offset of the body of the comment box `commentBoxId` from its anchor: `dx` is the horizontal offset in px and `dy` the vertical offset in px.",
    "properties": {
@@ -1853,7 +2134,7 @@
    ],
    "additionalProperties": false
   },
-  {
+  "setCommentBoxStrokeColor": {
    "type": "object",
    "description": "Sets the color of the frame and leader line of the comment box `commentBoxId` to `strokeColor`.",
    "properties": {
@@ -1879,7 +2160,7 @@
    ],
    "additionalProperties": false
   },
-  {
+  "setCommentBoxStrokeWidthPx": {
    "type": "object",
    "description": "Sets the width of the frame and leader line of the comment box `commentBoxId` to `strokeWidthPx`.",
    "properties": {
@@ -1904,7 +2185,7 @@
    ],
    "additionalProperties": false
   },
-  {
+  "setCommentBoxFillColor": {
    "type": "object",
    "description": "Sets the fill color of the body box of the comment box `commentBoxId` to `fillColor`.",
    "properties": {
@@ -1930,7 +2211,7 @@
    ],
    "additionalProperties": false
   },
-  {
+  "setCommentBoxFillTransparencyPercent": {
    "type": "object",
    "description": "Sets the fill transparency of the body box of the comment box `commentBoxId` to `fillTransparencyPercent`.",
    "properties": {
@@ -1955,7 +2236,7 @@
    ],
    "additionalProperties": false
   },
-  {
+  "setCommentBoxTextColor": {
    "type": "object",
    "description": "Sets the text color of the body of the comment box `commentBoxId` to `textColor`.",
    "properties": {
@@ -1981,7 +2262,7 @@
    ],
    "additionalProperties": false
   },
-  {
+  "setCommentBoxTextSizePx": {
    "type": "object",
    "description": "Sets the text size (px) of the body of the comment box `commentBoxId` to `textSizePx`; null follows the document's font size step.",
    "properties": {
@@ -2006,7 +2287,7 @@
    ],
    "additionalProperties": false
   },
-  {
+  "bringCommentBoxToFront": {
    "type": "object",
    "description": "Moves the comment box `commentBoxId` to the end of the list of comment boxes, which is the front-most position.",
    "properties": {
@@ -2024,7 +2305,7 @@
    ],
    "additionalProperties": false
   },
-  {
+  "createHighlightBox": {
    "type": "object",
    "description": "Places a highlight box with the given `highlightBoxId` enclosing `range`.",
    "properties": {
@@ -2071,7 +2352,7 @@
    ],
    "additionalProperties": false
   },
-  {
+  "deleteHighlightBox": {
    "type": "object",
    "description": "Deletes the highlight box `highlightBoxId`.",
    "properties": {
@@ -2089,7 +2370,7 @@
    ],
    "additionalProperties": false
   },
-  {
+  "setHighlightBoxRange": {
    "type": "object",
    "description": "Changes the area enclosed by the highlight box `highlightBoxId` to `range`.",
    "properties": {
@@ -2136,7 +2417,7 @@
    ],
    "additionalProperties": false
   },
-  {
+  "setHighlightBoxStrokeColor": {
    "type": "object",
    "description": "Sets the frame color of the highlight box `highlightBoxId` to `strokeColor`.",
    "properties": {
@@ -2162,7 +2443,7 @@
    ],
    "additionalProperties": false
   },
-  {
+  "setHighlightBoxStrokeWidthPx": {
    "type": "object",
    "description": "Sets the frame line width of the highlight box `highlightBoxId` to `strokeWidthPx`.",
    "properties": {
@@ -2187,7 +2468,7 @@
    ],
    "additionalProperties": false
   },
-  {
+  "setHighlightBoxFillColor": {
    "type": "object",
    "description": "Sets the fill color of the highlight box `highlightBoxId` to `fillColor`.",
    "properties": {
@@ -2213,7 +2494,7 @@
    ],
    "additionalProperties": false
   },
-  {
+  "setHighlightBoxFillTransparencyPercent": {
    "type": "object",
    "description": "Sets the fill transparency of the highlight box `highlightBoxId` to `fillTransparencyPercent`.",
    "properties": {
@@ -2238,7 +2519,7 @@
    ],
    "additionalProperties": false
   },
-  {
+  "bringHighlightBoxToFront": {
    "type": "object",
    "description": "Moves the highlight box `highlightBoxId` to the end of the list of highlight boxes, which is the front-most position.",
    "properties": {
@@ -2256,7 +2537,7 @@
    ],
    "additionalProperties": false
   },
-  {
+  "setStackDirection": {
    "type": "object",
    "description": "Sets the stacking direction to `stackDirection`.",
    "properties": {
@@ -2277,7 +2558,7 @@
    ],
    "additionalProperties": false
   },
-  {
+  "setVisibilitySetting": {
    "type": "object",
    "description": "Shows or hides one element of the screen. `setting` names the element and `isVisible` is the value to write.",
    "properties": {
@@ -2310,7 +2591,7 @@
    ],
    "additionalProperties": false
   },
-  {
+  "setFontSizeStep": {
    "type": "object",
    "description": "Changes the font size step to `fontSizeStep`.",
    "properties": {
@@ -2331,7 +2612,7 @@
    ],
    "additionalProperties": false
   },
-  {
+  "setThemeMonochrome": {
    "type": "object",
    "description": "Sets whether the theme is monochrome to `isThemeMonochrome`.",
    "properties": {
@@ -2348,7 +2629,7 @@
    ],
    "additionalProperties": false
   },
-  {
+  "setZoom": {
    "type": "object",
    "description": "Changes the display zoom to `zoomX` and `zoomY`.",
    "properties": {
@@ -2373,7 +2654,7 @@
    ],
    "additionalProperties": false
   },
-  {
+  "setScrollPosition": {
    "type": "object",
    "description": "Changes the scroll position to `scrollDate`, `scrollTaskGroupId`, `scrollDateFraction` and `scrollTaskGroupFraction`.",
    "properties": {
@@ -2410,7 +2691,7 @@
    ],
    "additionalProperties": false
   },
-  {
+  "setTaskGroupPanelWidthPx": {
    "type": "object",
    "description": "Changes the width of the task group panel to `taskGroupPanelWidthPx`.",
    "properties": {
@@ -2428,7 +2709,7 @@
    ],
    "additionalProperties": false
   },
-  {
+  "pinTaskGroup": {
    "type": "object",
    "description": "Pins the task group `taskGroupId` by adding it to the pinned task groups.",
    "properties": {
@@ -2446,7 +2727,7 @@
    ],
    "additionalProperties": false
   },
-  {
+  "unpinTaskGroup": {
    "type": "object",
    "description": "Unpins the task group `taskGroupId` by removing it from the pinned task groups.",
    "properties": {
@@ -2464,7 +2745,7 @@
    ],
    "additionalProperties": false
   },
-  {
+  "fitScheduleToScreen": {
    "type": "object",
    "description": "Sets the zoom and scroll position at which the whole schedule fits the screen: `zoomX`, `zoomY`, `scrollDate`, `scrollTaskGroupId`, `scrollDateFraction` and `scrollTaskGroupFraction`.",
    "properties": {
@@ -2513,7 +2794,20 @@
    ],
    "additionalProperties": false
   },
-  {
+  "fitScheduleToScreenOnPage": {
+   "type": "object",
+   "description": "Fits the whole schedule to the screen of the page, as the Fit button does: the page computes the zoom and the scroll position from its own screen size, so you need not know it.\nThe page computes them from the screen as drawn before this batch, so send it in a batch of its own after the edits that change the rows.\nIt does not unfold the task groups as the Fit button also does; to unfold them, send resetTaskGroupTreeStates in an earlier batch.\nIt is refused while the page has not drawn its screen yet.",
+   "properties": {
+    "kind": {
+     "const": "fitScheduleToScreenOnPage"
+    }
+   },
+   "required": [
+    "kind"
+   ],
+   "additionalProperties": false
+  },
+  "resetTaskGroupTreeStates": {
    "type": "object",
    "description": "Returns the tree state of every task group to `auto`, except task groups that are hidden.",
    "properties": {
@@ -2526,7 +2820,7 @@
    ],
    "additionalProperties": false
   },
-  {
+  "moveTaskGroup": {
    "type": "object",
    "description": "Changes the parent and the order of the task group `taskGroupId` to `parentId` and `order`.",
    "properties": {
@@ -2556,7 +2850,7 @@
    ],
    "additionalProperties": false
   },
-  {
+  "setDisplayScale": {
    "type": "object",
    "description": "Changes the display scale step to `displayScale`.",
    "properties": {
@@ -2584,7 +2878,7 @@
    ],
    "additionalProperties": false
   },
-  {
+  "setFitSpan": {
    "type": "object",
    "description": "Sets or moves the fit span (the period shown when fitting the whole schedule), giving `fitSpanStart` and `fitSpanFinish` together.",
    "properties": {
@@ -2613,7 +2907,7 @@
    ],
    "additionalProperties": false
   },
-  {
+  "clearFitSpan": {
    "type": "object",
    "description": "Clears the fit span; if it was fixed, the fixing is also removed.",
    "properties": {
@@ -2626,7 +2920,7 @@
    ],
    "additionalProperties": false
   },
-  {
+  "setFitSpanFixed": {
    "type": "object",
    "description": "Fixes or unfixes the fit span according to `isFitSpanFixed`.\nIf the fit span is empty, the period currently shown is copied into it: `shownStart` and `shownFinish` give that period (null when none).",
    "properties": {
@@ -2658,7 +2952,7 @@
    ],
    "additionalProperties": false
   },
-  {
+  "setTaskGroupPanelWidthFixed": {
    "type": "object",
    "description": "Fixes or unfixes the width of the task group panel according to `isTaskGroupPanelWidthFixed`.",
    "properties": {
@@ -2675,7 +2969,7 @@
    ],
    "additionalProperties": false
   },
-  {
+  "setTableView": {
    "type": "object",
    "description": "Replaces how one table looks: the displayed column values, whether the schedule filter is on, the column filters and the sort order.\n`table` names the table (`searchPanel`, `delayDiagnosticsReport` or `resourceList`) and `view` is the whole new view for it.",
    "properties": {
@@ -2798,7 +3092,7 @@
    ],
    "additionalProperties": false
   },
-  {
+  "setViewTimeZone": {
    "type": "object",
    "description": "Changes the time zone in which the schedule is shown to `viewTimeZone`; the shown times are converted accordingly. Null means the standard time row.",
    "properties": {
@@ -2818,7 +3112,7 @@
    ],
    "additionalProperties": false
   },
-  {
+  "setDisplayTimeZones": {
    "type": "object",
    "description": "Sets the time zones to display to `displayTimeZones` (0 to 4 of them).",
    "properties": {
@@ -2880,7 +3174,7 @@
    ],
    "additionalProperties": false
   },
-  {
+  "setTimeOfDayVisible": {
    "type": "object",
    "description": "Sets whether the time of day is shown to `isTimeOfDayVisible`.",
    "properties": {
@@ -2898,7 +3192,7 @@
    ],
    "additionalProperties": false
   },
-  {
+  "setTaskGroupTreeState": {
    "type": "object",
    "description": "Sets the tree state of the task group `taskGroupId` to `treeState`.",
    "properties": {
@@ -2927,7 +3221,7 @@
    ],
    "additionalProperties": false
   },
-  {
+  "setTaskGroupEditPermission": {
    "type": "object",
    "description": "Adds or removes the edit group of the task group `taskGroupId` by setting `editPermission`.\nNot implemented yet: refused if sent. For the person only.",
    "properties": {
@@ -2952,7 +3246,7 @@
    ],
    "additionalProperties": false
   },
-  {
+  "setLevelZeroTreeState": {
    "type": "object",
    "description": "Sets the tree state of level 0 to `levelZeroTreeState`.",
    "properties": {
@@ -2972,5 +3266,5 @@
    ],
    "additionalProperties": false
   }
- ]
+ }
 }

@@ -540,14 +540,14 @@ DELAY_FIX_PARTS = ('fixCount', 'humanCounter', 'automatic', 'choose',
                    # The words of the choices of table T-373's choose rows
                    # (JDG-1950), one per distinct choice word: FA-1, FA-3,
                    # FA-4 (twice, told apart by the date), FA-7, FA-9, FA-14,
-                   # FA-15 and FA-16 (deleteLink), FA-20, FA-23.
+                   # FA-15 and FA-16 (deleteLink), FA-20, FA-23, FA-25 (CR-810).
                    'deleteLinkBetween', 'keepThisLink', 'setPlannedDate',
                    'clearPauseValues', 'markAsStarted',
                    'clearParentActualFinish', 'finishChildrenOnParentFinish',
                    'clearMilestoneActuals', 'finishPredecessorsOnMilestoneDate',
                    'moveSuccessorToEarliestDate', 'deleteLink',
                    'moveStatusDateToActual', 'markAsFinished',
-                   'markAsStillInProgress')
+                   'markAsStillInProgress', 'makeParentTaskFromTaskGroup')
 
 HINT_LINE_ROW = re.compile(r'^\| (TL-\d+[a-z]?) \|')
 HINT_LINE_TABLE = 'T-348'

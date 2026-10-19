@@ -542,22 +542,22 @@
   {
    "from": "docs/spec/_source/agent-api-members.json",
    "to": "docs/spec UIDs",
-   "count": 42
+   "count": 49
   },
   {
    "from": "docs/spec/_source/agent-api-members.json",
    "to": "docs/spec/01-04-requirements.md",
-   "count": 197
+   "count": 208
   },
   {
    "from": "docs/spec/_source/agent-api-members.json",
    "to": "docs/spec/05-07-design.md",
-   "count": 12
+   "count": 13
   },
   {
    "from": "docs/spec/_source/agent-api-members.json",
    "to": "docs/spec/_assets/tbl-glossary.md",
-   "count": 6
+   "count": 19
   },
   {
    "from": "docs/spec/_source/agent-api-members.json",
@@ -672,7 +672,7 @@
   {
    "from": "docs/spec/_source/document-commands.json",
    "to": "docs/spec UIDs",
-   "count": 103
+   "count": 107
   },
   {
    "from": "docs/spec/_source/document-commands.json",
@@ -681,8 +681,13 @@
   },
   {
    "from": "docs/spec/_source/document-commands.json",
-   "to": "docs/spec/_source/agent-api-members.json",
+   "to": "docs/spec/05-07-design.md",
    "count": 2
+  },
+  {
+   "from": "docs/spec/_source/document-commands.json",
+   "to": "docs/spec/_source/agent-api-members.json",
+   "count": 4
   },
   {
    "from": "docs/spec/_source/document-commands.json",
@@ -697,7 +702,7 @@
   {
    "from": "docs/spec/_source/document-commands.json",
    "to": "docs/spec/_source/settings.json",
-   "count": 15
+   "count": 19
   },
   {
    "from": "docs/spec/_source/document-commands.json",
@@ -727,12 +732,12 @@
   {
    "from": "docs/spec/_source/erd.json",
    "to": "docs/spec UIDs",
-   "count": 59
+   "count": 61
   },
   {
    "from": "docs/spec/_source/erd.json",
    "to": "docs/spec/01-04-requirements.md",
-   "count": 73
+   "count": 75
   },
   {
    "from": "docs/spec/_source/erd.json",
@@ -972,7 +977,7 @@
   {
    "from": "docs/spec/_source/published-entries.json",
    "to": "docs/spec UIDs",
-   "count": 199
+   "count": 201
   },
   {
    "from": "docs/spec/_source/published-entries.json",
@@ -987,17 +992,17 @@
   {
    "from": "docs/spec/_source/published-entries.json",
    "to": "docs/spec/_assets/tbl-glossary.md",
-   "count": 42
+   "count": 44
   },
   {
    "from": "docs/spec/_source/published-entries.json",
    "to": "docs/spec/_source/agent-api-members.json",
-   "count": 21
+   "count": 22
   },
   {
    "from": "docs/spec/_source/published-entries.json",
    "to": "docs/spec/_source/document-commands.json",
-   "count": 29
+   "count": 31
   },
   {
    "from": "docs/spec/_source/published-entries.json",
@@ -1452,11 +1457,11 @@
    "X": 5
   },
   "docs/spec/_source/agent-api-members.json": {
-   "AM": 23,
+   "AM": 26,
    "AV": 19
   },
   "docs/spec/_source/document-commands.json": {
-   "CM": 92
+   "CM": 93
   },
   "docs/spec/_source/erd.json": {
    "AT": 160,

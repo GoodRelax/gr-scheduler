@@ -637,7 +637,7 @@ function isCommentBoxLookCommand(command: AnnotationCommand): command is Comment
   return COMMENT_BOX_LOOK_KINDS.has(command.kind)
 }
 
-// see CM-48, CM-49, CM-80, CM-81, CM-82, CM-83, CM-84, CM-102, FR-019
+// see CM-48, CM-49, CM-80, CM-81, CM-82, CM-83, CM-84, CM-103, FR-019
 /** @purity pure */
 function commentBoxLookChange(
   command: CommentBoxLookCommand,
@@ -680,14 +680,14 @@ function commentBoxLookChange(
     // see FR-097, S-624
     case 'setCommentBoxTextSizePx':
       return {
-        commandRow: 'CM-102',
-        refusal: lookNumberRefusal('CM-102', 'S-624', command.textSizePx),
+        commandRow: 'CM-103',
+        refusal: lookNumberRefusal('CM-103', 'S-624', command.textSizePx),
         look: { textSizePx: command.textSizePx },
       }
   }
 }
 
-// see CM-48, CM-49, CM-80, CM-81, CM-82, CM-83, CM-84, CM-102, UN-5
+// see CM-48, CM-49, CM-80, CM-81, CM-82, CM-83, CM-84, CM-103, UN-5
 /** @purity pure */
 function editCommentBoxLook(document: Document, command: CommentBoxLookCommand): EditResult {
   const { commandRow, refusal, look } = commentBoxLookChange(command)

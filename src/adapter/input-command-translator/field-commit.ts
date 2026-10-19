@@ -401,7 +401,7 @@ function commandFromHighlightBoxColumn(
 
 type CommentBox = Schedule['commentBoxes'][number]
 
-// see PR-21, PR-26, PR-27, PR-28, PR-50, CM-48, CM-80, CM-81, CM-82, CM-83, CM-84, CM-102
+// see PR-21, PR-26, PR-27, PR-28, PR-50, CM-48, CM-80, CM-81, CM-82, CM-83, CM-84, CM-103
 // WHY: dispatched by column: one field per column, and PR-28's three colors must not land in the text (S-7).
 /** @purity pure */
 function commandFromCommentBoxColumn(

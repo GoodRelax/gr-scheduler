@@ -143,7 +143,8 @@ describe('CR-796 slice 3 -- the spec address is given once, in the initialize in
 })
 
 describe('CR-796 slice 3 -- grs-commands.schema.json reads English', () => {
-  const branches: any[] = commandsSchema.oneOf
+  // WHY: each oneOf entry names its command's definition by $ref (CR-806).
+  const branches: any[] = commandsSchema.oneOf.map((one: any) => commandsSchema.$defs[one.$ref.replace('#/$defs/', '')])
 
   function kindOf(branch: any): string {
     return branch.properties.kind.const

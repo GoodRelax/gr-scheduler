@@ -62,7 +62,7 @@ const EXPECTED_TYPES = [
 const EXPECTED_FIELDS: Readonly<Record<string, readonly (readonly string[])[]>> = {
   'AV-1': [['expectedStamp', 'commands']],
   'AV-2': [
-    ['ok', 'stamp', 'hasUpdatedSchedule'],
+    ['ok', 'stamp', 'hasUpdatedSchedule', 'createdUids'],
     ['ok', 'refusal'],
   ],
   // WHY: a refusal never carries the document (see AV-3, AG-2)

@@ -7649,6 +7649,13 @@
     "ja": "まだ作業中とする",
     "en": "Mark as Still in Progress"
    }
+  },
+  {
+   "part": "makeParentTaskFromTaskGroup",
+   "text": {
+    "ja": "行「{taskGroup}」から親タスクを作る",
+    "en": "Make a Parent Task from the Row \"{taskGroup}\""
+   }
   }
  ]
 }
