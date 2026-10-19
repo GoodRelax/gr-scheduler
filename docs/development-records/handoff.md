@@ -25,6 +25,7 @@
 > - **実地の利用で見つかった中継の所見のうち「低」（後回し、利用者 2026-10-19「低は引継に残してもらえ」、中継の席 `e3cec674` の振り分け、台帳の行はまだ無い）**: 13 明暗の切り替えを API から（全画面は人の操作が要るので不可）／16 deleteTaskGroup の newTaskGroupId が必須なのに使われない／17 すべて消したあとに id の空な「Untitled」の行が残る／18 行の最小の高さが縦の Fit を妨げる／19 強調の枠が 1 つのタスクに合わせられる／20 短いタスクの色が実績の帯に隠れる／23 子が隙間を残すと親の進捗が怪しい／25 親タスクから作った行の名が見えない。番号は振り分け表（中継の席の共有メモ `relay-report-md-triage-2026-10-19.md`、追跡外）の ID。必須・高・中は中継の席と席 B〜F が α に向けて扱う。
 > - **AI が表を絞った状態で読む（後回し、利用者 2026-10-19「次回の拡張として、フィルタした状態でAIが表を参照できるようにしろ。 他の検索系パネルも同様だ。 そうしないとAIのコンテキストを食いつぶすだろ？」）**: 中継の席 `e3cec674` が `CR-815` に下書きする（当てない）。どの表・検索系パネルも、画面で絞り・並べた状態（asShown）で、選んだ列だけを、ページに分けて AI が読む。いまあるもの（`readSearchRows` の絞り・並べ・100 行のページ、`readTableRows` の遅延診断レポートと担当リスト、`readDelayDiagnostics` の parts/limit、`CR-814` で足す修正の記録）と、残りの表の穴を CR-815 が並べる。
 > - **親子関係のタブ（後回し、利用者 2026-10-19「提案通り親子関係は次回に回そう！」「設計内容はCRに残せ。」）**: 設計と引き継ぎは `CR-813` の 2 片目の節にある（1 片目の .tsv での保存と名前の改めは当てた）。週の使用量が戻ってから新しい席で当てる。
+> - **2026-10-19 昼の GT-2 と PERF（`34d6ee84`、push 済み、利用者の判断待ち）**: GT-2 は赤 3 件（known-red に無い）。① `tests/system/nfr-004-file-scheme-sweep.sws.test.ts` SWS-8 —— `CR-813` の `IO-9`（.tsv）を押す探りが無い。② `tests/system/w3-t2-file-and-picture-clauses.test.ts` —— `FR-135` の `parentTaskUid` の文が変わったのに古い文を引く。③ `tests/use-case/uc-008-tell-by-annotations.test.ts:76` —— コメントの本文をダブルクリックしてもパネルの `PR-21` に焦点が入らない（`CR-811`/`812` が関わる疑い、未調査、振る舞いの後戻りかもしれない）。PERF は赤: MK-1 32.95 fps・MK-2 25.89・MK-7 30.43・MK-6 の p95 23.7 ms・GR-28 6.85 fps（10/17 の `db02f9ff` は MK-1 35・MK-2 29・MK-7 31・GR-28 7）。前の版との交互の比べ（`JDG-726`）はまだ。ログは調整役の scratchpad（追跡外）。
 > - **サーバー同期のデモ（`DFC-3070`/`3071`、`JDG-2580`〜`2590`、聞き取りの席 `7f4ae598`/`db02f9ff`）**: 利用者 2026-10-17「デモはα版の後で実装しろ。 まずは動くものを作るのが先だ。」—— α の後に Opus の体 1 つで（見込み 200〜400 万トークン）。`dist/index.html` は 1 バイトも変えない。
 > - **後回し（`JDG-2481`）**: 表 `T-021` を `docs/spec/_source/` の JSON に移すのは後にする（利用者の指示。受付の席 `ad6b6a10` が記録）。進行中の記号を (→) にする `DFC-2981`（`JDG-2480`）は `CR-784` を予約、起草はトークンの使い方を利用者が決めてから。`DFC-3003`（ヘルプでライセンス全文を開くと窓が画面の下端まで伸び、右にスクロールバー。`JDG-2503`・`JDG-2514`）は α の後に回す（利用者の指示 2026-10-17）。対話欄のコードは今は残し、後で消す（`JDG-2506`。ヘッダーのアイコンとヘルプの行だけを `CR-785` が外す）。
 > - **チェックリスト**: `docs/review/user-checklist-2026-10-16.md`（13 行）と利用者の `temp/user-checklist-2026-10-16.xlsx`（F 列に結果。行 5〜14 は Playwright で押した: OK 7・NG 1（`DFC-2870`）・未確認 2（画面で押せない `CR-776`・`DFC-2856`））。
@@ -247,6 +248,16 @@
 
 ---
 
+## main へのリリース（2026-10-20、利用者の裁定 `JDG-2930`〜`JDG-2934`）
+
+- α 版 ＝ 2026-10-19 昼の `34d6ee84`（ビルド版 `2026.1019.22508`）。origin の `main`・`refactor`（2026-10-20 に `develop` へ改名、`JDG-2935`）と GitHub Pages がこの版である。
+- ⛔ **`main` は保護されている。** みだりに push しない。壁は 2 枚: (1) GitHub の ruleset（`main` は PR のみ・バイパス無し。**利用者が GitHub で設定する** —— 設定したら本節に 1 行足す、`JDG-2932`）。(2) `tools/push_guard.py`（Claude のフックが `git push` ごとに呼び、`main` に届く形をすべて拒む。環境変数もフラグも上書きにならない。`python tools/push_guard.py --self-test`）。GitHub は Claude の push と利用者の push を区別できない（どちらも利用者の認証）ので、2 枚目が要る。
+- 日々: push 先は `develop` だけ（旧名 `refactor`、`JDG-2935`）。`python tools/push_guard.py <sha>` が刷る `git push origin <sha>:develop` を、`grep -q "GT-2 <sha> passed"` を見てから単独の 1 コマンドで打つ。
+- リリース: 1) 出す sha に `GT-2` が通っている。2) `develop` → `main` の PR を開く（`gh pr create --base main --head develop`。本文に変更履歴の版・ビルド版・`GT-2` の結果を書く）。3) **利用者が GitHub で見て合流する。** 4) 合流の後、利用者がタグを打つ。5) 配備: `pages.yml` は `workflow_dispatch` だけなので、合流の後に `gh workflow run pages.yml --ref main`（push ではない）。
+- ⛔ 調整役は PR を合流しない・タグを打たない・`main` へ push しない。
+- リリースノートは `docs/release-notes/<タグ>.md`（英語）と `<タグ>-ja.md`（日本語）。変更は分野ごとの「CR | 何が変わったか」の表と、前の版のタグから閉じた DFC の「直した不具合」の表で、どちらも読者の言葉で 1 行ずつ書く（利用者に見えない修正は「内部の修正 N 件」にまとめる。`JDG-2957`・`JDG-2959`）。
+- 古い 4 枝（`grab-area-spec`・`mspdi-both-versions`・`restart`・`scale-and-fold`）は、記念のタグを打ってから GitHub から消す。どちらも利用者がする（`JDG-2947`）。
+
 ## 次のセッションに貼る 1 通目
 
 利用者はこの節のブロックをそのまま新しいセッションに貼る。巡ごとに本節も書き換える。
@@ -255,9 +266,9 @@
 あなたは新しい調整役である（2026-10-17 に前の調整役 coord-1016 が、コンテキストを 1 度圧縮したので引き継いだ）。⛔ 調整だけをする（利用者の裁定 2026-10-17「調整役/司令塔に実業務をさせるな」）—— 調べもの・試験・台帳の手直し・継ぎ目の直し・ファイルの読み込みは、すべて席（セッション）か体（Agent）に出す。調整役が手を動かすのは、帯と持ち場と順を決めること、合流（衝突は生成物を作り直すだけ。継ぎ目の直しは席へ返す）、関門（GT-2・PERF）、根の早送り、push だけ。前の調整役は継ぎ目の直しを自分でしてコンテキストを使った —— まねるな。説明は日本語、コードとコミット文は英語 ASCII。
 唯一の引継書は docs/development-records/handoff.md である。冒頭の 🆕 の節（2026-10-16〜17 の巡）から読め。計画は docs/development-records/project-plan.json（読み方は project-plan.md）—— 最初の指示はこの計画に沿って利用者と決める。次にメモリーを読め: alpha-scope-by-agreement・coordinator-only-role・gt2-read-the-verdict-before-push・onedrive-stays-ask-user・rulings-in-origin-session・merge-count-ids-both-sides・never-report-unrun-actions・chrome-extension-drag-does-not-reach-grs。試験の選び方は規則 04 の 7 節と tools/test_route.py（JDG-2419）。
 
-0. 今の姿（⛔ 信じず測れ: git log -1 origin/refactor・根の git log -1）
+0. 今の姿（⛔ 信じず測れ: git log -1 origin/develop・根の git log -1）
    - origin は 9171429f。根と統合の枝 integ/coord-1016（作業木 .claude/worktrees/coord-1016）は 4392d587 の上の引継書のコミット（git log -1 で測れ）（push していない。docs/spec の生成表を含むので GT-2 の後に push）。あなたは自分の作業木を切り、git merge --ff-only 4392d587 の上の引継書のコミット（git log -1 で測れ） から積め。根の早送りは調整役が git -C <根> merge --ff-only <sha> で自分でやる。
-   - GT-2: 根で node tools/gate/gate-queue.mjs enqueue GT-2 → GRS_DEV_PORT=5992 node tools/gate/gate-queue.mjs drain > ログ（リポジトリの外）。push は grep -q "GT-2 <sha> passed" を見てから git push origin <sha>:refactor <sha>:main を単独の 1 コマンドで。続けて gh workflow run pages.yml --ref main。OneDrive は止まっていることを確かめる（止まっていなければ利用者に頼む）。
+   - GT-2: 根で node tools/gate/gate-queue.mjs enqueue GT-2 → GRS_DEV_PORT=5992 node tools/gate/gate-queue.mjs drain > ログ（リポジトリの外）。push は grep -q "GT-2 <sha> passed" を見てから git push origin <sha>:develop を単独の 1 コマンドで（⛔ main へは push しない、JDG-2930。リリースは「main へのリリース」の節の PR）。OneDrive は止まっていることを確かめる（止まっていなければ利用者に頼む）。
 1. 最初にやること
    1) 不具合を受け付ける席の提案チップを出す（利用者の指示）。利用者の報告「実績を入力するUIが変になった」を最初に渡す。疑い: DFC-2870 の 1 回目の直し 35fcdfa4（9171429f で公開済み）・レーン 1 の当て直し 1e1f6707／bcd5a4dd（未合流）・CR-782（レーン 3、パネルを開く）。
    2) 未合流の 2 本を合流: レーン 1 bcd5a4dd（DFC-2870 当て直し・CR-783）、レーン 3 0f2d5e47（CR-782）。継ぎ目の赤は元の席へ返す。合流したら python tools/test_route.py <範囲> で PERF・e2e・GT-2・探りの要否と順を決める（レーン 1 の未走行 Playwright 1 本、レーン 3 の uc-008／open-defect-pins を含める）。dist の作り直しと GT-2 → push。

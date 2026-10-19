@@ -1,0 +1,44 @@
+{
+ "$comment": [
+  "SINGLE SOURCE OF TRUTH -- EDIT THIS FILE.",
+  "The everyday words for text a user reads outside the screen (README, release notes, the download page, the about page, the demo README), Japanese and English side by side, with the developer words to avoid. A harness for Claude: words any Japanese reader takes for granted, which is why the product glossary does not hold them.",
+  "The product glossary wins: docs/spec/_assets/tbl-glossary.md and docs/spec/_source/display-words.json own every word shown on the screen. A row here never restates one of those; it may point at one in remark.",
+  "Generated FROM this file: docs/development-rules/user-wording.md (tools/generate_user_wording.py).",
+  "Rebuild: npm run wording   |   npm run wording:check (part of gen:check) fails when the .md has drifted."
+ ],
+ "preamble": [
+  "# 利用者に見せる文の語 —— 日英の表（副）",
+  "",
+  "**利用者が画面の外で読む文（README・リリースノート・ダウンロードページ・紹介ページ・デモの README）は、この表の `ja` / `en` の語で書き、`avoid-ja` / `avoid-en` の語を使わない。**",
+  "",
+  "⭐ **正は GRS の用語集である** —— 画面に出る語は [`tbl-glossary.md`](../spec/_assets/tbl-glossary.md) と [`display-words.json`](../spec/_source/display-words.json) が持ち、この表より勝つ。この表は副で、日本人なら当たり前の語を Claude が開発の言い回しで崩さないためのハーネスである。",
+  "⛔ **この .md を手で直さない。** 正は [`user-wording.json`](user-wording.json)。`npm run wording` で作り直し、`npm run gen:check` が食い違いを赤にする。"
+ ],
+ "appliesToHeading": "**applies-to の値**",
+ "appliesToHeader": "| 値 | 何か |",
+ "appliesTo": {
+  "readme": "README.md / README-ja.md",
+  "release-notes": "docs/release-notes/",
+  "download-page": "docs/download/index.html",
+  "about-page": "docs/about/index.html",
+  "demo-readme": "demo/server-sync/README*.md"
+ },
+ "rows": [
+  {"id": "UW-1", "ja": "ダウンロードする", "en": "download", "meaning": "配るファイルを取ってくる", "avoidJa": ["落とす", "入手する"], "avoidEn": ["fetch", "grab"], "appliesTo": ["readme", "release-notes", "download-page", "about-page", "demo-readme"], "remark": ""},
+  {"id": "UW-2", "ja": "ダウンロードページ", "en": "download page", "meaning": "配るファイルを置いたページの名", "avoidJa": ["入手のページ", "入手の頁"], "avoidEn": [], "appliesTo": ["readme", "release-notes", "about-page"], "remark": ""},
+  {"id": "UW-3", "ja": "インストールする", "en": "install", "meaning": "アプリ・MCP サーバー・拡張機能を足す", "avoidJa": ["入れる"], "avoidEn": ["put in"], "appliesTo": ["readme", "release-notes", "download-page", "demo-readme"], "remark": ""},
+  {"id": "UW-4", "ja": "インストール方法", "en": "How to install", "meaning": "足し方を説く節の見出し", "avoidJa": ["入れ方"], "avoidEn": [], "appliesTo": ["readme", "release-notes", "download-page"], "remark": ""},
+  {"id": "UW-5", "ja": "ダウンロードせずに使う", "en": "use it without downloading", "meaning": "ブラウザーで開くだけの使い方", "avoidJa": ["入れずに使う"], "avoidEn": ["no install"], "appliesTo": ["readme", "release-notes", "download-page"], "remark": ""},
+  {"id": "UW-6", "ja": "再インストールする", "en": "reinstall", "meaning": "足したものを足し直す", "avoidJa": ["入れ直す"], "avoidEn": ["put back"], "appliesTo": ["release-notes", "download-page"], "remark": ""},
+  {"id": "UW-7", "ja": "アンインストールする", "en": "uninstall", "meaning": "足したものを取り除く", "avoidJa": ["外す", "抜く"], "avoidEn": ["take out"], "appliesTo": ["release-notes", "download-page"], "remark": ""},
+  {"id": "UW-8", "ja": "起動する", "en": "start", "meaning": "アプリ・サーバーを動かし始める", "avoidJa": ["立ち上げる", "起こす"], "avoidEn": ["wake"], "appliesTo": ["readme", "release-notes", "download-page", "demo-readme"], "remark": ""},
+  {"id": "UW-9", "ja": "拡張機能", "en": "extension", "meaning": "ブラウザーや AI アプリに機能を足すもの", "avoidJa": ["拡張", "足し物"], "avoidEn": ["add-on piece"], "appliesTo": ["readme", "release-notes", "download-page"], "remark": ""},
+  {"id": "UW-10", "ja": "接続する", "en": "connect", "meaning": "ページと GRS Relay を通じさせる", "avoidJa": ["つなぐ", "繋ぐ"], "avoidEn": ["hook up"], "appliesTo": ["readme", "release-notes", "download-page", "about-page"], "remark": ""},
+  {"id": "UW-11", "ja": "GRS Relay", "en": "GRS Relay", "meaning": "AI からの依頼をページへ伝える MCP サーバー", "avoidJa": ["取次"], "avoidEn": ["the relay"], "appliesTo": ["readme", "release-notes", "download-page", "about-page"], "remark": "利用者向けの文では製品の名で呼ぶ"},
+  {"id": "UW-12", "ja": "依頼", "en": "request", "meaning": "AI が GRS にしてほしいこと", "avoidJa": ["求め"], "avoidEn": [], "appliesTo": ["readme", "release-notes", "download-page", "about-page"], "remark": ""},
+  {"id": "UW-13", "ja": "自動で", "en": "automatically", "meaning": "人の操作なしに機械がする", "avoidJa": ["自分で（機械が主語のとき）"], "avoidEn": ["by itself"], "appliesTo": ["readme", "release-notes", "download-page", "about-page"], "remark": ""},
+  {"id": "UW-14", "ja": "バックアップを取る", "en": "keep a backup", "meaning": "ファイルの複製を残して守る", "avoidJa": ["控えを取る"], "avoidEn": ["keep a copy"], "appliesTo": ["readme", "release-notes"], "remark": ""},
+  {"id": "UW-15", "ja": "ページ", "en": "page", "meaning": "ウェブのページ", "avoidJa": ["頁"], "avoidEn": [], "appliesTo": ["readme", "release-notes", "download-page", "about-page", "demo-readme"], "remark": ""},
+  {"id": "UW-16", "ja": "クリックする", "en": "click", "meaning": "マウスでボタンなどを押す", "avoidJa": ["押す（マウスの操作を言うとき）"], "avoidEn": ["press (with the mouse)"], "appliesTo": ["readme", "release-notes", "download-page", "demo-readme"], "remark": "キーやボタン全般を言うときは「押す」でよい。画面のボタンの名は display-words.json が正"}
+ ]
+}

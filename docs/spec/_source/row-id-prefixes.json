@@ -615,7 +615,7 @@
    "words": "Gate",
    "owner": "rules",
    "means": {
-    "ja": "関門 1 つ —— commit・`refactor` への push・`main` の早送りの前に打つものと、その口"
+    "ja": "関門 1 つ —— commit・`develop` への push・`main` の早送りの前に打つものと、その口"
    }
   },
   {
@@ -1581,6 +1581,14 @@
    "owner": "spec",
    "means": {
     "ja": "ユニットを割った理由"
+   }
+  },
+  {
+   "prefix": "UW",
+   "words": "User Wording",
+   "owner": "rules",
+   "means": {
+    "ja": "利用者が画面の外で読む文の語 1 つ —— 日英の使う語と避ける語（副。画面の語は用語集が正）"
    }
   },
   {

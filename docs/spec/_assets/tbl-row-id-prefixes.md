@@ -80,7 +80,7 @@
 | `DC` | Dual Cursor | `Dual Cursor` の操作の条 | 仕様書 | `T-029a` | 9 |
 | `DEV` | Device | 配置図に載る機器（⛔ `D-` は台帳の欠陥の行と紛れるので使わない。<br>`words` は発明した語ではない） | 仕様書 | `T-007` | 6 |
 | `DF` | — | 文書の形の条 —— 交換相手の木をどう写し、解釈しない要素をどこへ置くか | 仕様書 | `T-053` | 5 |
-| `DFC` | Defect | 台帳に載る欠陥（⛔ `D-` は配置図の機器と紛れるので使わない） | 台帳 | `docs/development-records/backlog-plan-2026-10-04.md` ／ `docs/development-records/defects.md` ／ `docs/development-records/evidence/measured-2026-09-06.md` ／ `docs/development-records/evidence/measured-2026-09-07.md` ／ `docs/development-records/evidence/order-2026-09-06.md` ／ `docs/development-records/fixed-defects.md` | 1848 |
+| `DFC` | Defect | 台帳に載る欠陥（⛔ `D-` は配置図の機器と紛れるので使わない） | 台帳 | `docs/development-records/backlog-plan-2026-10-04.md` ／ `docs/development-records/defects.md` ／ `docs/development-records/evidence/measured-2026-09-06.md` ／ `docs/development-records/evidence/measured-2026-09-07.md` ／ `docs/development-records/evidence/order-2026-09-06.md` ／ `docs/development-records/fixed-defects.md` | 1853 |
 | `DG` | — | 遅延診断が進捗マーカーに与える状態 | 仕様書 | `T-315` | 4 |
 | `DI` | Document Identity | 同じ文書かどうかの見分け方と、上書きの確認の条 | 仕様書 | `T-227` | 6 |
 | `DL` | Delay | 遅れの量の数え方の場合分け | 仕様書 | `T-021b` | 3 |
@@ -117,7 +117,7 @@
 | `GO` | Grab outcome | 掴んだ端を離したときに置く値と据え置く値の行 | 仕様書 | `T-245` | 11 |
 | `GP` | Group Permission | タスクグループの編集グループの規則の条 | 仕様書 | `T-275` | 7 |
 | `GR` | Grab region | 掴み領域 1 つと、その優先順位の段 | 仕様書 | `T-023d` | 14 |
-| `GT` | Gate | 関門 1 つ —— commit・`refactor` への push・`main` の早送りの前に打つものと、その口 | 規則 | `docs/development-rules/04-verification.md` | 3 |
+| `GT` | Gate | 関門 1 つ —— commit・`develop` への push・`main` の早送りの前に打つものと、その口 | 規則 | `docs/development-rules/04-verification.md` | 3 |
 | `HB` | Highlight box | ハイライトボックスの掴み点と枠の場所・掴み代・ポインタと、離したときに置く値の行 | 仕様書 | `T-246` | 12 |
 | `HC` | Help Column | ヘルプの段と、段に置く塊の並び | 仕様書 | `T-256` | 4 |
 | `HF` | — | タスクグループごとの折りたたみと隠しの操作面の条 | 仕様書 | `T-051` | 20 |
@@ -134,7 +134,7 @@
 | `IR` | Interaction Record | 人の操作と画面の描画の記録に、描いたフレームごとに書く画面の状態 | 仕様書 | `T-263` | 4 |
 | `IV` | Invariant | 文書が満たす不変条件 | 仕様書（台帳にも 1 行。コピーとして申告済み） | `T-220` | 23 |
 | `IX` | Image eXport | 画像の書き出しの規則の条 | 仕様書 | `T-241` | 16 |
-| `JDG` | Judgment | 利用者の裁定（⛔ `R-` はデータの経路と紛れるので使わない。<br>`RL` が「実体のあいだの関係」であり `RLG-` は 1 字違い、`RUL-` は「規則」と紛れるので選ばなかった） | 台帳 | `docs/development-records/rulings.md` | 1713 |
+| `JDG` | Judgment | 利用者の裁定（⛔ `R-` はデータの経路と紛れるので使わない。<br>`RL` が「実体のあいだの関係」であり `RLG-` は 1 字違い、`RUL-` は「規則」と紛れるので選ばなかった） | 台帳 | `docs/development-records/rulings.md` | 1732 |
 | `JF` | — | `src/` の `.json` の置き場 | 仕様書 | `T-248` | 4 |
 | `K` | Key | 設定値のキー 1 つ | 仕様書 | `T-104` | 132 |
 | `L` | Level of Detail | 表示量の増減（LOD）の種別 | 仕様書 | `T-005a` | 2 |
@@ -236,6 +236,7 @@
 | `UN` | Undo | 取り消しの対象と対象外 | 仕様書 | `T-027` | 21 |
 | `UO` | Unit-test Omission | 単体試験を省略してよい場合 1 つ。<br>どの行にも当たらない関数には単体試験を書く | 規則 | `docs/development-rules/04-verification.md` | 11 |
 | `UT` | — | ユニットを割った理由 | 仕様書 | `T-063` | 17 |
+| `UW` | User Wording | 利用者が画面の外で読む文の語 1 つ —— 日英の使う語と避ける語（副。<br>画面の語は用語集が正） | 規則 | `docs/development-rules/user-wording.md` | 16 |
 | `UZ` | UI Z-Order | 画面の UI パーツの重ね順（前面から背面へ）の段 | 仕様書 | `T-337` | 12 |
 | `V` | — | ユースケースと、前プロジェクトの要望との対応 | 仕様書 | `T-011` | 17 |
 | `VC` | Validation Contradiction | 進捗妥当性検査の矛盾の観点 | 仕様書 | `T-310` | 15 |

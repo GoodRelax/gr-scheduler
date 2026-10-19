@@ -244,7 +244,7 @@ B  docs/spec だけを読んで試験を書く。A の本体ロジックは読�
 | 行 ID | 関門 | 打つもの | 打つ口 |
 |---|---|---|---|
 | GT-1 | commit | `gen:check` ＋ vitest ＋ `check.sh` | `npm run guard:commit`（`precheck` と `typecheck` も含む） |
-| GT-2 | `refactor` へ push | `GT-1` ＋ `vite build` ＋ `npm run build:relay` ＋ ユースケース試験（file://）＋ e2e ＋ `npm run parity` | `npm run guard:publish` |
+| GT-2 | `develop` へ push | `GT-1` ＋ `vite build` ＋ `npm run build:relay` ＋ ユースケース試験（file://）＋ e2e ＋ `npm run parity` | `npm run guard:publish` |
 | GT-3 | `main` の早送り | `GT-2` ＋ その CR の場面を出荷ビルドで 1 回押す ＋ 利用者に問う（`JDG-61`） | 手 |
 
 ⭐ どの関門も、既知の赤の一覧と突き合わせる（3.9 節）。⛔ **どの関門も `GRS_PERF` を付けない**（`JDG-640`・`JDG-643`）—— 性能を測る時は 5 節の表 `PW` が決める。
@@ -252,7 +252,7 @@ B  docs/spec だけを読んで試験を書く。A の本体ロジックは読�
 ⭐ データだけのコミット（`src/`・`tests/`・`dist/`・`docs/spec/` を変えず、台帳・見本・下書きの変更要求だけを変えるもの）の push には `GT-2` が要らない —— 調整役は、利用者に問わずに push してよい（`JDG-1965`）。
 ⚠️ `GT-2` の 5 秒・30 秒の時間切れは、まず機械の込み具合を疑う —— 実測（2026-10-14）: OneDrive の同期が試験のあいだ 1.4〜1.8 コアを使い、根の配下の作業木 約 400 を抱えた木で `GT-2` が 3 回続けて、毎回違うファイルの時間切れで落ちた（`DFC-2473`）。作業木を掃き、OneDrive を止めると通った。⇒ `GT-2` のあいだは OneDrive を止め（利用者に頼む）、合流済みの体の作業木は 6.11 の手順で溜めずに掃く。
 ⭐ **`OneDrive.exe` が動いている間、`gate-queue.mjs drain` と `run-gate.mjs` は `GT-2`・`PERF` を始めずに止まる**（JDG-2121）。止まった文言が、そのまま利用者への頼みである。⛔ 承知の上で走らせるときだけ `--onedrive-running-ok` を付ける。
-⭐ **push は `python tools/push_guard.py <sha>` が刷るコマンドで打つ**（JDG-2120）—— 個人情報の数 0、その sha の最後の `GT-2` が失敗なら拒む、上の 4 つの場所を含むのに `GT-2` の合格が無ければ、調整役が規模とリスクで判断した理由を `GRS_PUSH_NO_GT2="…"` で添える（JDG-2126）。Claude の PreToolUse フックが同じ判定で `git push` を止める。
+⭐ **push は `python tools/push_guard.py <sha>` が刷るコマンドで打つ**（JDG-2120）—— 個人情報の数 0、その sha の最後の `GT-2` が失敗なら拒む、上の 4 つの場所を含むのに `GT-2` の合格が無ければ、調整役が規模とリスクで判断した理由を `GRS_PUSH_NO_GT2="…"` で添える（JDG-2126）。Claude の PreToolUse フックが同じ判定で `git push` を止める。 ⛔ **push 先は `develop`（旧名 `refactor`、JDG-2935）だけである。`main` へは push しない**（`JDG-2930`）—— `tools/push_guard.py` が `main` に届く push をどの形でも、上書き無しで拒む。リリースは、`GT-2` が通った sha で `develop` → `main` の PR を開き、利用者が GitHub で合流してタグを打つ（引継書の「main へのリリース」）。
 ⚠️ `guard:publish` が `GT-2` のすべてを打つ形になるのは、`tests/use-case/` が埋まり、`tools/gate/run-gate.mjs` が入った後である（`CR-573` の波 2 と 3c）。それまでは足りない分を手で打つ。
 
 ### ⭐ 何が何を強制するか
@@ -689,7 +689,7 @@ grep -rln "development-records/defects.md" tests/
 ## 7. ⛔ 試験の選び方と順番 —— 席は最小、合流の後は差分で選ぶ（`JDG-2419`）
 
 ⚠️ 実測（2026-10-17）: 調整役は 13 行の確かめ表を利用者に手で押させ、次に Edge の拡張で押してドラッグが 1 度も入らないまま 1 行を OK と報告し、さらに確かめ表の全行を Playwright で押す体を出した —— その体は画面写しを読むので、モデルのトークンを大きく食う。どの試験が要るかを、差分から選んでいなかった。
-⭐ **選ぶのは調整役である。** `python tools/test_route.py [<A..B>]`（既定の範囲は `origin/refactor..HEAD`）が、7.2 の 2 つの表で推奨を刷る。道具の表と本節の表が食い違えば検査 82 が赤くなる。
+⭐ **選ぶのは調整役である。** `python tools/test_route.py [<A..B>]`（既定の範囲は `origin/develop..HEAD`）が、7.2 の 2 つの表で推奨を刷る。道具の表と本節の表が食い違えば検査 82 が赤くなる。
 ⭐ 選んだ段と省いた段を、理由ごと報告に書く。道具は推奨であって、判断の代わりではない。
 
 | 試験の種類 | 打つもの | 費やすもの | 決める者 |
