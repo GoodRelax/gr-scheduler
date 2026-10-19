@@ -12,13 +12,13 @@ what this reading does not see.
 
 | place | T-218 | T-334 | files | case sites | expected-to-fail marks | known-red lines | need the MSPDI XSDs | tied to no spec row |
 | --- | --- | --- | --: | --: | --: | --: | --: | --: |
-| `contract` | TS-5 | VT-2 | 440 | 5893 | 8 | 4 | 11 | 4 |
+| `contract` | TS-5 | VT-2 | 441 | 5913 | 8 | 4 | 11 | 5 |
 | `integration` | TS-2 | - | 3 | 76 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
-| `system` | TS-3 | - | 97 | 616 | 0 | 0 | 0 | 0 |
+| `system` | TS-3 | - | 98 | 622 | 0 | 0 | 0 | 1 |
 | `unit` | TS-6 | - | 189 | 4006 | 1 | 1 | 2 | 0 |
 | `use-case` | TS-1 | VT-1 | 14 | 17 | 1 | 2 | 0 | 0 |
-| **all** | | | 746 | 10625 | 10 | 7 | 13 | 4 |
+| **all** | | | 748 | 10651 | 10 | 7 | 13 | 6 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -42,14 +42,16 @@ Nodes with the prefixes `FR`, `NFR`, `UC`, `SWS`. A node named only in a test of
 | UC | 15 | 14 | UC-015 |
 | SWS | 8 | 8 | - |
 
-## 4. Test files tied to no spec row (4)
+## 4. Test files tied to no spec row (6)
 
 | file | ledger rows it names instead |
 | --- | --- |
 | `tests/contract/cr-799-the-build-version-the-stamped-page-and-the-texts-the-ai-reads.contract.test.ts` | - |
 | `tests/contract/cr-799-the-download-page-saves-and-versions.contract.test.ts` | - |
+| `tests/contract/cr-820-an-artifact-version-moves-only-with-its-inputs.contract.test.ts` | - |
 | `tests/contract/mspdi-xsd-local-only.test.ts` | - |
 | `tests/contract/w3-t5-the-grs-json-schema-is-generated-from-the-manuscripts.contract.test.ts` | - |
+| `tests/system/cr-820-the-same-commit-builds-the-same-bytes.test.ts` | - |
 
 ## 5. Expected-to-fail cases (10)
 
@@ -535,6 +537,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/cr-810-a-row-with-no-parent-task-and-a-milestone-heading-its-row.contract.test.ts` | 26 | FR-135, FR-136 | - | - | CM-6, CM-9, CM-18, DG-1, DW-3, FA-25, FM-1, IP-2, IP-5, MP-1, MP-2, VO-4 | - | - | - | - |
 | `tests/contract/cr-814-the-ai-reads-and-saves-the-fix-log.contract.test.ts` | 31 | - | - | - | AM-28, AM-30, AM-34, RW-20 | - | - | - | - |
 | `tests/contract/cr-816-the-fix-heading-box-checks-the-listed-rows-then-clears-every-row.contract.test.ts` | 28 | FR-155 | - | T-346, T-373, T-374 | FM-1, IC-122, IC-157, IC-158, RW-12 | - | - | - | - |
+| `tests/contract/cr-820-an-artifact-version-moves-only-with-its-inputs.contract.test.ts` | 20 | - | - | - | - | - | - | - | - |
 | `tests/contract/dfc-1000-hf-10-the-open-all-stance-counts-every-placed-task-group.test.ts` | 9 | - | - | T-051, T-109 | HF-2, HF-10, IC-58, IC-74, RS-31 | - | - | - | - |
 | `tests/contract/dfc-1013-tl-12-the-delay-days-are-told-only-in-the-ez-6-tip.test.ts` | 8 | FR-047 | - | T-038, T-348 | DG-4, DX-10, EZ-6, OC-8, TL-12 | - | - | - | - |
 | `tests/contract/dfc-1015-fr-019-a-hidden-end-task-group-shrinks-the-frame.test.ts` | 5 | FR-019, UC-008 | - | - | - | - | - | - | - |
@@ -781,6 +784,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/system/cr-763-the-jump-landing-ripple-is-rose-and-rounded.test.ts` | 3 | - | - | T-109, T-206, T-236, T-332 | AM-16, S-556, S-557, S-558, S-587, S-588, SJ-10 | - | - | - | - |
 | `tests/system/cr-783-to-cr-789-the-alpha-checklist-rows-on-the-shipped-build.test.ts` | 8 | FR-013, FR-019, FR-052, FR-103 | - | T-267, T-378 | AS-5, AS-13, GR-14, HF-15, K-145, PE-1, PM-1, PR-48, PR-49, S-171, S-602, S-603, S-604, S-620, SJ-6, SQ-9, ZO-9 | - | - | - | - |
 | `tests/system/cr-803-run-and-close-the-report-window-from-the-agent-api.test.ts` | 5 | - | - | T-109 | AM-31, AM-33, IC-107 | - | - | - | - |
+| `tests/system/cr-820-the-same-commit-builds-the-same-bytes.test.ts` | 6 | - | - | - | - | - | - | - | - |
 | `tests/system/dfc-2178-a-plain-wheel-leaves-a-focused-number-alone.test.ts` | 3 | - | - | T-025 | MC-6, MH-4, MK-1, S-197 | - | - | - | - |
 | `tests/system/dfc-2309-a-refused-open-tells-rs-25-and-leaves-the-document.test.ts` | 3 | FR-023, FR-076 | - | T-233 | IC-1, NT-1, RS-11, RS-25 | - | - | - | - |
 | `tests/system/dfc-2980-the-marker-pull-writes-the-actual-in-the-shipped-build.test.ts` | 1 | FR-095, FR-107 | - | T-245, T-267, T-270 | GA-5, GO-9, PE-8, QN-5 | - | - | - | - |

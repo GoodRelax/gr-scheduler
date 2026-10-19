@@ -408,6 +408,9 @@
 #          key against its screen word -- and is not on the allow-list
 #          (source-names-allow.txt, reasons required; JDG-2691 seeds it), or
 #          a stale allow-list line. JDG-2692. Baseline 0
+#   85     tools/artifact_versions.mjs check : an input of grs-relay.mcpb or
+#          of the server-sync demo zip changed after the line holding its
+#          version (tools/artifact-versions.json) last moved. CR-820. Baseline 0
 #
 # Green does NOT prove the specification is sound: defects of meaning have
 # appeared while all of these were green. They stop broken references, not
@@ -1160,6 +1163,14 @@ section "84  a name in the _source JSON files matches what it points at"
 # that is red too: delete the line in the same change.
 PYTHONIOENCODING=utf-8 python "$HERE/check-source-names.py" --self-test || failed
 PYTHONIOENCODING=utf-8 python "$HERE/check-source-names.py" || failed
+
+echo ""
+section "85  a published artifact's version moves with its inputs"
+# CR-820 (2026-10-20). A Pages build from a docs-only merge re-stamped
+# grs-relay.mcpb because its version was the HEAD commit's time; the version
+# now lives in tools/artifact-versions.json. MEASURED 2026-10-20 on 922d57a8b:
+# both artifacts green; a src edit with no bump goes red. Baseline 0.
+node "$REPO/tools/artifact_versions.mjs" check || failed
 
 echo ""
 section "NOT COVERED  what this run did not look at"

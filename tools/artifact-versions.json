@@ -1,0 +1,26 @@
+{
+ "$comment": [
+  "THE VERSION OF EACH PUBLISHED ARTIFACT -- EDIT ONLY WITH `node tools/artifact_versions.mjs bump` (CR-820).",
+  "A version is the UTC time its inputs last changed, written here and committed, so the same commit always builds the same bytes and a commit that touches none of the inputs (a docs-only commit) changes neither the version nor the bytes. The build never asks git for it: the Pages checkout is shallow.",
+  "grsRelay: grs-relay.mcpb, grs-relay.mjs and the relay's serverInfo (semver YEAR.MMDD.HHMMSS, docs/spec/_assets/design-mcp-relay.md section 6). The download page shows the same time.",
+  "serverSyncDemo: grs-server-sync-demo.zip; every entry carries this time, so the zip is byte-reproducible.",
+  "node tools/artifact_versions.mjs check (check.sh) is red when an input changed after the line holding the artifact's BuiltAt last changed."
+ ],
+ "grsRelayBuiltAt": "2026-10-19T19:51:01Z",
+ "grsRelayInputs": [
+  "src",
+  "dist/index.html",
+  "vite.relay.config.ts",
+  "tools/build_relay_bundle.mjs",
+  "tools/relay_version.mjs",
+  "docs/spec/_source/grs-document.schema.json",
+  "docs/spec/_source/grs-commands.schema.json",
+  "package-lock.json"
+ ],
+ "serverSyncDemoBuiltAt": "2026-10-19T19:51:01Z",
+ "serverSyncDemoInputs": [
+  "demo/server-sync",
+  "dist/index.html",
+  "sample-schedule/Three-Year Product Plan.json"
+ ]
+}
