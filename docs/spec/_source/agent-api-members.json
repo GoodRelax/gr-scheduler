@@ -576,7 +576,8 @@
       "`terminalPushOuts` は末端のタスクごとに、`terminalDelayMinutes`（見込みの終了が予定の終了より遅れる分）と `givenTo`（その遅れを生んだタスクと分）を持つ。",
       "日に直すには文書の `Project.minutesPerDay`（空なら既定の値 —— 文書のスキーマの説明が持つ）で割る —— 画面は押し出しを切り上げた日で出す。",
       "`walls` は診断が止まった所の並びであり、原因のタスク 1 つに 1 つ置く —— `row` は種類（`DW-1` 値が矛盾するタスク、`DW-2` 親を導けないタスク、`DW-3` 依存線の無いマイルストーン）、`causeUid` は原因のタスク、`stoppedUids` は診断しなかったタスク（原因が先頭）である。",
-      "同じ種類の壁は `causeUid` で見分ける —— 依存線が輪になったタスクのように、`stoppedUids` が同じ並びになることがある。"
+      "同じ種類の壁は `causeUid` で見分ける —— 依存線が輪になったタスクのように、`stoppedUids` が同じ並びになることがある。",
+      "タスクグループの先頭のマイルストーン（そのタスクグループに、それより前の日に始まるタスクが無いもの）は日程の起点であり、先行が無くても壁にしない（表 T-316 の `DW-3`、CR-817）"
      ],
      "en": [
       "The delay diagnosis report as a frozen value: findings, unreliable values, bottlenecks and bottleneck paths, with the proposed fixes and the fix log.",
@@ -585,7 +586,8 @@
       "All amounts are working minutes. inheritedDelayMinutes is how far predecessors push the task's start; selfDelayMinutes is how far its projected finish runs past its start plus its planned length (0 for a parent task); pushOutMinutes is the part of the delay of end tasks (milestones and tasks with no successor) this task causes, summed over the terminalsReached end tasks it reaches.",
       "terminalPushOuts holds, for each end task, terminalDelayMinutes (its projected finish past its planned finish) and givenTo (the tasks that caused it, with their minutes).",
       "To turn minutes into days, divide by the document's project.minutesPerDay (when it is null, the value its description in the document schema gives); the screen shows a push-out rounded up to whole days.",
-      "walls lists where the diagnosis stopped, one wall per cause task: row is its kind, told by the number it ends in (1 a task whose own values contradict each other, 2 a task whose parent cannot be derived, 3 a milestone with no dependency); causeUid is the cause task; stoppedUids are the tasks left undiagnosed, the cause first.",
+      "walls lists where the diagnosis stopped, one wall per cause task: row is its kind, told by the number it ends in (1 a task whose own values contradict each other, 2 a task whose parent cannot be inferred, 3 a milestone with no predecessor); causeUid is the cause task; stoppedUids are the tasks left undiagnosed, the cause first.",
+      "A milestone that heads its own task group (no task of that task group starts on an earlier day) is the schedule's origin: it needs no predecessor and is no wall.",
       "Two walls of the same kind differ by causeUid; their stoppedUids can be the same list, as for tasks whose dependencies form a loop."
      ]
     },
@@ -722,13 +724,15 @@
       "遅延診断の修正案を、画面の修正（`FR-155`）と同じく 1 つの束として当てる —— 束は 1 つの取り消しの段（`UN-21`）であり、1 つでも断られれば何も当てない。",
       "当てた行は修正ログ（`DX-12`）に残り、修正案の表から外れる。",
       "⚠️ 画面と違い、先に保存しない（利用者の裁定、CR-803） —— 段は呼んだ書き手のものなので `undoEdit` で戻せ、保存は書き出しの道具の `fileName` でする。",
-      "当てても診断は作り直さない —— 作り直すのは `runDelayDiagnostics`"
+      "当てても診断は作り直さない —— 作り直すのは `runDelayDiagnostics`",
+      "推奨の行には、親タスクの無いタスクグループから親タスクを作る行（表 T-373 の `FA-25`）も入る —— 作ったタスクは答えの `createdUids` に載る（CR-817）"
      ],
      "en": [
       "Issues fix proposals of the Delay Diagnostics as one bundle, as the screen's Fix does: the bundle is one undo step, and if any row is refused nothing is applied.",
       "Issued rows are recorded in the fix log (fixLog of readDelayDiagnostics) and leave the proposals table.",
       "Unlike the screen it does not save first: the step is yours, so undoEdit takes it back; save with an export tool's fileName.",
-      "Issuing does not run the diagnosis again; call runDelayDiagnostics for that."
+      "Issuing does not run the diagnosis again; call runDelayDiagnostics for that.",
+      "A recommended row can make a parent task from a task group whose tasks have none; createdUids in the answer lists the tasks it made."
      ]
     },
     "source": {

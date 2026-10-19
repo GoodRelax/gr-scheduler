@@ -547,7 +547,7 @@
   {
    "from": "docs/spec/_source/agent-api-members.json",
    "to": "docs/spec/01-04-requirements.md",
-   "count": 219
+   "count": 223
   },
   {
    "from": "docs/spec/_source/agent-api-members.json",
