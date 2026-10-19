@@ -17,16 +17,22 @@ Single-HTML-file Gantt chart scheduler with plan vs. actual, delay diagnostics, 
 - Version `2026.1019.22508`, tag `Alpha-20261019T022508Z` (2026-10-19).
 - What this version holds, its known limits and how to install it: see [the release notes](docs/release-notes/Alpha-20261019T022508Z.md) and [GitHub Releases](https://github.com/GoodRelax/gr-scheduler/releases).
 - The open items are listed in [the handoff](docs/development-records/handoff.md) and the [change requests](change-request/).
-- Things may change between versions. Keep a backup of your files.
+- During the alpha, the GRS JSON format can change from one version to the next, and a newer version may not open a file saved by an older one. Keep the `GRS.html` you used together with your files.
 
 ## Use with an AI (GRS Relay)
 
-GRS Relay is a small MCP server that you add to an AI desktop app that supports MCP. It passes the AI's requests to the GRS page you have open, so the AI can read the schedule, change it, run the Delay Diagnostics and save files, while you watch every change on the screen. The schedule stays in your browser; the relay keeps no copy. The download page has the steps to install it and to connect the page.
+GRS Relay is an MCP server that links an AI app to the GRS page. It works with any AI app that supports MCP (the common way for AI apps to use outside tools). The AI can read the schedule you have open, change it, run the Delay Diagnostics and save files, while you watch every change on the screen. The schedule stays in your browser; GRS Relay keeps no copy.
+
+- `grs-relay.mcpb` -- in an AI app that reads MCP bundles (.mcpb), install it by drag and drop.
+- `grs-relay.mjs` -- in other MCP apps, register this file as an MCP server; it needs Node.js 18 or later.
+
+The steps are on the [download page](https://goodrelax.github.io/gr-scheduler/download/).
 
 ## Files
 
 - **GRS JSON** -- the native format. One file holds the whole schedule.
 - **MSPDI** (Microsoft Project XML) -- import and export.
+- **Single HTML** -- export the app and the schedule together as one HTML file. Whoever receives it opens the .html file in a browser and can view and edit the schedule at once, without getting GRS first.
 
 ## Docs
 
