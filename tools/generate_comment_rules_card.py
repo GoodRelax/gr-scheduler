@@ -2,7 +2,7 @@
 """Write the comment rules card from docs/review/comment-rules-src.md.
 
 The card is what a brief to a subagent pastes instead of the rules themselves
-(JDG-59, record 11 of docs/development-records/refactor-plan-report-2026-09-13.md):
+(JDG-59, record 11 of docs/development-records/history/refactor-plan-report-2026-09-13.md):
 no more than MAX_LINES lines, generated so it cannot drift from the ruling it
 condenses.
 

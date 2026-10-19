@@ -84,10 +84,16 @@ def closed_waves():
     closed = []
     if not os.path.isdir(RECORDS):
         return closed
-    for name in sorted(os.listdir(RECORDS)):
+    # ⭐ The finished records, the wave records W4 and W5 among them, sit in
+    # history/ since JDG-2972; a closed wave is still a closed wave there.
+    named = [(RECORDS, name) for name in sorted(os.listdir(RECORDS))]
+    history = os.path.join(RECORDS, 'history')
+    if os.path.isdir(history):
+        named += [(history, name) for name in sorted(os.listdir(history))]
+    for folder, name in named:
         if not name.endswith('.md') or name in ('README.md', 'pending-decisions.md'):
             continue
-        body = io.open(os.path.join(RECORDS, name), encoding='utf-8').read()
+        body = io.open(os.path.join(folder, name), encoding='utf-8').read()
         if '✅' in body and not any(mark in body for mark in UNFINISHED):
             closed.append(name[:-3])
     return closed

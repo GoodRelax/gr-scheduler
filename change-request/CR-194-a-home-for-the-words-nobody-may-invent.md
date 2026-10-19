@@ -219,7 +219,7 @@ FR-074 / FR-088 の見出し ⛔ 表 T-103 が名を与えていないので、�
 | # | オブジェクト | 何を書くか |
 |---|---|---|
 | 15 | `docs/development-records/pending-decisions.md` | `PND-3` / `PND-4` の文言を**新しい真実**に書き換え、**`PND-160` を足す**（語そのものが未記入であること）|
-| 16 | `docs/development-records/W4-adapter.md` | 記録表に段ごとに追記 |
+| 16 | `docs/development-records/history/W4-adapter.md` | 記録表に段ごとに追記 |
 
 ### 数の予測
 

@@ -5,7 +5,7 @@
 > - `JDG-69`: 「選択: 日付を正にする (Recommended)」
 >
 > ⛔ **起草だけである。仕様書・コード・試験・台帳は 1 文字も動かしていない。**
-> ⭐ 置く位置はリファクタ計画（`docs/development-records/refactor-plan-report-2026-09-13.md` の 現在地 4）に従う —— **段 2a・2b とは別の 1 本**（理由は文書のデータの持ち方であり、辺の規則や保存しない状態の置き場とは違う）、**段 2a の前**（書き直す `edit-task.ts` は段 4、`input-command-translator.ts` は段 5 で割るので、記録 7 節の a により割る前に直す）。仕様への適用は段 2a・2b と同じ仕様のセッションでまとめてよい（規則 05 の 6）。
+> ⭐ 置く位置はリファクタ計画（`docs/development-records/history/refactor-plan-report-2026-09-13.md` の 現在地 4）に従う —— **段 2a・2b とは別の 1 本**（理由は文書のデータの持ち方であり、辺の規則や保存しない状態の置き場とは違う）、**段 2a の前**（書き直す `edit-task.ts` は段 4、`input-command-translator.ts` は段 5 で割るので、記録 7 節の a により割る前に直す）。仕様への適用は段 2a・2b と同じ仕様のセッションでまとめてよい（規則 05 の 6）。
 
 ---
 
@@ -185,7 +185,7 @@
 `tests/unit/fr-011-a-the-started-actual-keeps-one-worked-day.test.ts`、`tests/unit/go-3-the-released-day-is-the-actual-finish-date.test.ts`、`tests/unit/gr-17-the-released-day-is-the-actual-finish-date.test.ts`、`tests/unit/fr-103-t-245-what-a-released-end-puts.test.ts`、`tests/unit/dfc-507-go-3-go-4-a-finished-actual-finish-follows-the-grab.test.ts`、`tests/unit/dfc-554-gr-17-released-at-or-left-of-the-dummy-keeps-s-129.test.ts`、`tests/unit/dfc-572-pv-1-pv-2-actual-finish-is-the-finish-day.test.ts`、`tests/unit/dfc-294-t-019-the-carried-original-is-dropped-only-by-an-actual-edit.test.ts`、`tests/unit/t-023d-gr-5-relays-the-actual-duration.test.ts`、`tests/unit/uf-36.test.ts`、`tests/unit/edit-task.test.ts`、`tests/unit/layout-engine.test.ts`。
 ⚠️ 残りは実装の波で測る（本書では 1 本ずつ読んでいない）。⚠️ `uf-36` は `docs/reference/mspdi/` を読むので、作業木では読み込めない（その資料は gitignore の対象）。
 
-**段 1 と段 2b への影響**: 段 1 の棚卸し（`refactor-stage1-state-inventory-2026-09-13.md`）と段 2b の状態のモデルは保存しない状態だけを扱う（記録 12 節）。本書が動かすのは文書の列だけである。`grep -c "actualDuration\|actualFinish\|\bstop\b" docs/development-records/refactor-stage1-state-inventory-2026-09-13.md` ⇒ **0 行**。⇒ 棚卸しの一覧と段 2b の変更要求に、本書が数えさせる行は無い。
+**段 1 と段 2b への影響**: 段 1 の棚卸し（`refactor-stage1-state-inventory-2026-09-13.md`）と段 2b の状態のモデルは保存しない状態だけを扱う（記録 12 節）。本書が動かすのは文書の列だけである。`grep -c "actualDuration\|actualFinish\|\bstop\b" docs/development-records/history/refactor-stage1-state-inventory-2026-09-13.md` ⇒ **0 行**。⇒ 棚卸しの一覧と段 2b の変更要求に、本書が数えさせる行は無い。
 
 ---
 

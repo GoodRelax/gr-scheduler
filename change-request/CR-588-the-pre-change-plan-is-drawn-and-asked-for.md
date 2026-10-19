@@ -4,7 +4,7 @@
 > （起草の記: 起草した（2026-09-26）。）利用者の裁定 `JDG-722`（`DFC-1142` の問 2 への答えを含む。逐語は 0.1 節）を当てる本文の案である。⛔ 仕様・コード・試験・台帳はまだ 1 文字も変えていない。
 > 読んだ木: 枝 `cr-organise` の `87d98a47`。⚠️ 起草のあいだ、同じ作業木で調整役の波 W1 の編集（`01-04-requirements.md`・`settings.json` ほか）が進んでいた ⇒ 本書の数・行番号・旧の塊は、どれも `git archive 87d98a47` で写した木で測った（13 節）。
 > ID の帯: 調整役から `CR-588` と仮の番号の帯 `90800` 〜 `90899` を受けた。新しい行 ID・表・設定値の行はどれも仮である（2 節）—— 調整役が当てる直前に測り直して詰める（規則 02 の 2.5 節）。
-> 当てる順: 波 W4 の `CR-575` の後（`docs/development-records/cr-plan-2026-09-26.md`、`JDG-740`）。表 T-020 は W3 の `CR-558` → `CR-556` → `CR-559` と W4 の `CR-575` が先に書く ⇒ 4 節の表 T-020 まわりの旧は、それらの新を当てた写しの上で数えた（13 節）。表 T-201 の `S-39` を「予定の輪郭と同じ太さ」として読むのは、W2 の `CR-572` が表 T-201 を定数にした後の読みである。
+> 当てる順: 波 W4 の `CR-575` の後（`docs/development-records/history/cr-plan-2026-09-26.md`、`JDG-740`）。表 T-020 は W3 の `CR-558` → `CR-556` → `CR-559` と W4 の `CR-575` が先に書く ⇒ 4 節の表 T-020 まわりの旧は、それらの新を当てた写しの上で数えた（13 節）。表 T-201 の `S-39` を「予定の輪郭と同じ太さ」として読むのは、W2 の `CR-572` が表 T-201 を定数にした後の読みである。
 > 閉じるもの: `DFC-1014`（`IC-73` で重ねを読み込んでも輪郭が 1 つも描かれない）と `DFC-1142`（利用者の指摘「変更前の予定と重ねて表示が動いてない」と、重ねる予定が無いときの `IC-4`）。
 > ⛔ 覆すもの: 表 T-109 の `IC-4` の「⚠️ **ファイルを読む入口ではない**」を、重ねる予定が無いときに限って覆す（`JDG-722`）。表 T-024a の `OP-9` の「選ぶ入口は `OP-3` の第 3 の選択肢である」を広げる。表 T-020 の注「変更前の予定の重ね … まだ描いていないので本表に行を持たない」は、描くので偽になり書き直す。
 
@@ -716,7 +716,7 @@ wave 1  spec (ONE body, after CR-575 landed in W4)
           apply E-01..E-18 and J-01..J-07 in section 4's order,
           then tools/generate_entity_types.py (section 4.3), npm run gen && npm run gen:check
           -> the cycle FR-015 / FR-049 / FR-087 / OP-3 / OP-9 / UC-006 is written in this one pass
-wave 2  code, lane L1 (docs/development-records/cr-plan-2026-09-26.md: 555 -> 556 -> 583 -> 588)
+wave 2  code, lane L1 (docs/development-records/history/cr-plan-2026-09-26.md: 555 -> 556 -> 583 -> 588)
           2a entity/layout-engine  schedule-geometry.ts (S-1)
           2b adapter/svg-renderer  svg-renderer.ts, schedule-task-figures.ts (S-2) -- cut from 2a
           2c input + file flow     input-command-translator.ts, file-store.ts,

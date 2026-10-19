@@ -36,6 +36,11 @@
 | `d137-divider-grab-band.png` | DFC-137 | 境目の 8px の掴み帯（赤く塗ってある）。⛔ **「ポインタが何も答えない」が誤測だった**ことがこれで分かった |
 | `d170-pinned-row-over-the-scrolled-rows.png` | DFC-170 | ⛔⛔ **ピン止めした行の帯に、別の行のバーが載っている** —— **`Whole Product` を留めてホイールで 4 ノッチ送ったところ。**⭐ **パネルは `Whole Product` / `Phone Sign In` を並べているのに、帯は `Deliver the whole product` / `Phone App workstream` / `Phone Sign In` を並べる** —— **1 段ずれている** |
 | `ruling-2026-09-14-abnormal-paths-and-words.md` | JDG-78 / JDG-79（DFC-586 / DFC-585） | ⚠️ 絵ではなく、利用者の答えの逐語の全文 —— 異常系・準正常系の方針（4 項）と、表示語の見直しの頁の語ごとの注（`//`） |
+| `blockers-2026-09-06.md` | 当時の `defects.md` の残件 50 行 | ⚠️ 絵ではなく、日付つきの写し —— 残件を「何が止めているか」で束ね直した表 |
+| `order-2026-09-06.md` | 当時の残件 51 行 | ⚠️ 同 —— 残件を最小の手数で閉じる順序 |
+| `measured-2026-09-06.md`〜`measured-2026-09-09.md`（4 本） | 当時の `実測待ち` の行 | ⚠️ 同 —— 出荷ビルドを押して測った日ごとの実測。道具は追跡しない `scratch/` に在ったので、ここには無い |
+
+⭐ 2026-10-20 に、本フォルダごと `docs/development-records/history/` へ移した（`JDG-2973`）。絵を置く運用は 2026-08-31 を最後に使われておらず、今は見本を `studies/` に置く。
 
 ---
 

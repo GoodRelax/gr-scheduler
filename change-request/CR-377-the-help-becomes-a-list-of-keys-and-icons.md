@@ -237,7 +237,7 @@
 
 ## 5. 実装（ファイルだけ）
 
-⭐ **置く位置**: リファクタ計画の記録 7 節の a に従い、段 6 で `dom-screen-surface.ts` を割る前に入れる（`docs/development-records/refactor-plan-report-2026-09-13.md:34`）。原稿の行と読む側の直しは 1 つの波にする（規則 02 の 3.5）。
+⭐ **置く位置**: リファクタ計画の記録 7 節の a に従い、段 6 で `dom-screen-surface.ts` を割る前に入れる（`docs/development-records/history/refactor-plan-report-2026-09-13.md:34`）。原稿の行と読む側の直しは 1 つの波にする（規則 02 の 3.5）。
 
 | ファイル | 何が変わるか |
 |---|---|

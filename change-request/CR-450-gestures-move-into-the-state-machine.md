@@ -8,7 +8,7 @@
 > ⛔ **本書は、その新しい形の原稿と生成器が木に着地していることを前提にする**（第 3 節の波 A の入口）。
 >
 > **閉じるもの**:
-> - 計画の記録 4 の移す順の 3 番目「身振り」（`docs/development-records/refactor-plan-report-2026-09-13.md:250`。領域の例 `pressed` `previewDocument` `rowGrabbedAt` は `:239`）。
+> - 計画の記録 4 の移す順の 3 番目「身振り」（`docs/development-records/history/refactor-plan-report-2026-09-13.md:250`。領域の例 `pressed` `previewDocument` `rowGrabbedAt` は `:239`）。
 > - 計画の記録 13 の「状態機械が動くのは、操作を始めたとき・やめたとき・指しているパーツが変わったときだけ」（同 `:505`）を、身振りの領域で形にすること。
 > - 第 3 領域「身振り」の原稿（出来事の定義と 2 つの機械）、その領域のユニット・契約試験・根への合成。
 >
@@ -240,8 +240,8 @@
 
 | 所 | 何が動くか | いつ |
 |---|---|---|
-| `docs/development-records/refactor-plan-report-2026-09-13.md` | 記録 4 の移す順の 3 番目に着地先 | 波 A ／ B |
-| `docs/development-records/refactor-stage1-state-inventory-2026-09-13.md` | 記録 4 の「`grabAtPointer` が `pressed` を読む」（`:238`）はいま偽（第 1 節） | 前に立つ者が判じる |
+| `docs/development-records/history/refactor-plan-report-2026-09-13.md` | 記録 4 の移す順の 3 番目に着地先 | 波 A ／ B |
+| `docs/development-records/history/refactor-stage1-state-inventory-2026-09-13.md` | 記録 4 の「`grabAtPointer` が `pressed` を読む」（`:238`）はいま偽（第 1 節） | 前に立つ者が判じる |
 | `docs/development-records/handoff-state-machine.md` | §3 の「次の領域」に第 3 領域 | 波 A |
 | `docs/development-records/changelog.md` | A-appendix の 1 行と、版 0.29 の「（4）」→「（5）」 | 波 A |
 | `CR-436` | 波 B2 の `T-283` に 2.1 の 1 行を申し送る。⛔ 本書は `CR-436` を書き換えない | 波 A の後 |

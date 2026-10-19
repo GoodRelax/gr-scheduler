@@ -1,5 +1,5 @@
 # Check 55, tests/ half -- the comments of tests/ against JDG-62
-# (docs/development-records/refactor-plan-report-2026-09-13.md, record 15):
+# (docs/development-records/history/refactor-plan-report-2026-09-13.md, record 15):
 # the character and the forms of src/ (docs/review/comment-rules-src.md), plus
 # `// STEP:` -- 1 line, at most 3 in one it/test body. Held by
 # check-comment-rules.py; `--list tests` prints it file by file and

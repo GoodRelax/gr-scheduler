@@ -126,7 +126,7 @@ python docs/development-records/measurements/frame-time-ab-2026-09-16/dfc-611-tr
 （前半は配線の体の実測、後半の commit 済みの値は台帳の体が `git show 7ca9524b:dist/index.html | sha256sum` で確かめた）。
 
 ⛔ **旧記の `8460eaa9…` がどこから来たのかは分かっていない。**
-⚠️ 同じ値は `docs/development-records/refactor-plan-report-2026-09-13.md:769` も主張しているが、
+⚠️ 同じ値は `docs/development-records/history/refactor-plan-report-2026-09-13.md:769` も主張しているが、
 **そちらは過去の記録なので書き換えていない** —— 記録は当時書いたままに残し、訂正は本書が持つ。
 
 ## 本番（2026-09-16）
