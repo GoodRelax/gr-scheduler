@@ -84,6 +84,7 @@
 | 規則 | 仕組み | 拒む・赤にするもの | 実際に起きた漏れ |
 |---|---|---|---|
 | push の前に関門の結果を読む | `tools/push_guard.py`（Claude の PreToolUse フックが `git push` ごとに呼ぶ） | 個人情報の数が 0 でない ／ その sha の最後の `GT-2` が失敗 ／ `src/`・`tests/`・`dist/`・`docs/spec/` を含むのに `GT-2` の合格も、調整役の判断の 1 行（`GRS_PUSH_NO_GT2="…"`）も無い | 2026-10-09、`echo $?` の 0 を読んで、失敗した `GT-2` の上へ push した |
+| `main` へは push しない（α の後、`JDG-2930`〜`JDG-2934`） | `tools/push_guard.py`（同じフック。拒みは他の判定より先） | `main` に届く push のすべての形 —— `x:main`・`x:refs/heads/main`・`main`・`HEAD:main`・`:main`・force・`--all`・`--mirror`・glob・refspec 無しで現在の枝が `main` など。環境変数もフラグも上書きにならない。タグは拒まない | 2026-10-19 まで調整役は `refactor` と `main` へ同じ sha を一緒に push し、利用者の裁定で `GT-2` を省いても通した ⇒ α の後に利用者が禁じた（2026-10-20）。2 枚目の壁は GitHub の ruleset（`main` は PR のみ・バイパス無し、利用者が設定） |
 | `GT-2` の間は OneDrive を止める（利用者に頼む） | `tools/gate/gate-queue.mjs` の `drain` と `run-gate.mjs` | `OneDrive.exe` が動いている間の `GT-2`・`PERF`（`--onedrive-running-ok` で明示して通す） | 2026-10-14、同期の負荷で `GT-2` が 3 回続けて時間切れ（`DFC-2473`） |
 | 台帳の合流で行を落とさない | 検査 78 ＋ `tools/ledger_id_count.py`（`merge_branch.py` の手順 5 も呼ぶ） | 頭のセルが `\| ID \|` の形でない行 ／ 2 行の頭に立つ ID ／ 合流で消えた ID | 2026-10-08、10 行が `\|  DFC-` の形で読み手から消え、検査は緑のままであった |
 | 計画は 2 つのファイルで、名前は ID だけにしない | 検査 79 | 片方だけ ／ 片方だけが後のコミットで変わる ／ `CR-758` のような ID だけのタスク名 | （先回り。計画は `CR-751` の後に書く） |
@@ -959,6 +960,7 @@ push の口は 1 つ（調整役）。push の前に、生きている相手に�
 ⛔ 仕様だけが先に行く枝（仕様の波）を、そのコードの持ち場が着地する前に根の refactor へ早送りするな
    ⚠️ 実測（2026-10-03）: spec-pass-1001 を載せた refactor で GT-2 の型検査が赤になり、段 0 で 0 に戻した ⇒ 合流は別の作業木で組み、型検査 0 を見てから進める
 ⛔ push は tools/push_guard.py <sha> が刷るコマンドで打つ（JDG-2120）。Claude のフックが同じ判定で git push を止める
+⛔ main へは push しない（JDG-2930）。push 先は refactor だけ。リリースは GT-2 が通った sha で refactor → main の PR を開き、利用者が GitHub で合流してタグを打つ（引継書の「main へのリリース」）
 ⛔ 台帳を合わせたら python tools/ledger_id_count.py の lost が 0（JDG-2122）。merge_branch.py と検査 78 も数える
 ⛔ 台帳の衝突を git checkout --ours で解くな —— ファイル丸ごとを取る
    ⚠️ 実測（2026-09-22）: 件数の塊の衝突を --ours で解き、新しい 7 行（DFC-750〜756）が黙って消えた

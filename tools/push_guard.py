@@ -25,6 +25,18 @@ run `git fetch origin` first so it is current), and:
 
 It prints the verdict, one line per reason, and on a pass the command to type.
 
+MAIN IS NEVER PUSHED (JDG-2930, JDG-2931; the user, 2026-10-20, after the alpha 34d6ee84).
+This comes before everything above and nothing overrides it -- GRS_PUSH_NO_GT2 does not,
+no flag does. `--hook` refuses a push when it reaches main in any form: `x:main`,
+`x:refs/heads/main`, a bare `main`, `HEAD:main`, a `:main` delete, a force (`+x:main`,
+`--force`), a glob (`refs/heads/*:refs/heads/*`), `--all`, `--mirror`, `--branches`, a
+refspec it cannot read (a `$` or a backtick in the target), and a push with no refspec while
+the current branch is main, tracks main, or push.default / remote.<name>.push would send
+main. The command is also read inside `bash -c "..."` / `pwsh -Command "..."` and behind
+`command` / `env` / `nohup` / `sudo`. A release is a refactor -> main pull request that the
+user reviews and merges on GitHub (docs/development-records/handoff.md, "Release to main").
+Pushing tags is not guarded.
+
 WHY A TOOL AND A HOOK. 2026-10-09: the coordinator chained the push after a
 background `drain > log; echo $?`, read the echo's exit 0, and pushed a commit
 whose GT-2 had FAILED. A rule that says "read the verdict first" was in memory
@@ -33,8 +45,10 @@ PreToolUse hook (.claude/hooks/block-sweeping-git.py) on every command that
 runs `git push`, and refuses the call when any pushed sha fails the rule.
 
 WHAT IT CANNOT SEE: a push typed by a person in their own terminal (the hook
-is Claude's); whether the reason given is a good one; a refspec it cannot
-resolve is refused, not guessed. Deleting a remote ref (`--delete`, `:dst`)
+is Claude's); a push through `gh api`, a git alias, or a script file; whether
+the reason given is a good one; a refspec it cannot
+resolve is refused, not guessed. The second wall is the GitHub ruleset on main
+(pull request only, no bypass), which the user sets. Deleting a remote ref (`--delete`, `:dst`)
 publishes nothing and is allowed.
 """
 import importlib.util
@@ -50,6 +64,11 @@ DEFAULT_BASE = 'origin/refactor'
 # JDG-1965 (rule 04 section 4): a push that changes none of these is data only and needs no GT-2.
 GATED_PREFIXES = ('src/', 'tests/', 'dist/', 'docs/spec/')
 RULE = 'JDG-2120'
+MAIN_RULE = 'JDG-2930, JDG-2931'
+MAIN_NAMES = ('main', 'refs/heads/main', 'heads/main')
+PUSH_ALL_FLAGS = ('--all', '--mirror', '--branches')
+WRAPPER_WORDS = {'command', 'env', 'nohup', 'time', 'exec', 'sudo', 'nice', 'builtin'}
+SHELL_PROGRAMS = {'bash', 'sh', 'zsh', 'dash', 'pwsh', 'powershell', 'cmd', 'eval', 'iex', 'invoke-expression'}
 REASON_VARIABLE = 'GRS_PUSH_NO_GT2'
 REASON_IN_COMMAND = re.compile(r'''\b%s=(?:"([^"]*)"|'([^']*)'|(\S+))''' % REASON_VARIABLE)
 PUSH_OPTIONS_WITH_VALUE = {'--repo', '--receive-pack', '--exec', '-o', '--push-option', '--signed'}
@@ -135,7 +154,8 @@ def verdict(ref, base=DEFAULT_BASE, reason=None, results=None):
                      % (len(gated), ' '.join(GATED_PREFIXES), gated[0], sha[:8], REASON_VARIABLE))
         ok = False
     if ok:
-        lines.append('%sgit push origin %s:refactor %s:main' % (prefix, sha, sha))
+        # JDG-2930: main is never pushed; a release is a refactor -> main pull request.
+        lines.append('%sgit push origin %s:refactor' % (prefix, sha))
     return ok, lines
 
 
@@ -184,13 +204,136 @@ def reason_of(command):
     return next((one for one in found.groups() if one is not None), None)
 
 
-def refusal_of(command, judge=verdict, reader=None):
+def dest_of(refspec):
+    """The remote name a refspec writes: `+x:main` -> `main`; a name with no colon is its own target."""
+    body = refspec.lstrip('+')
+    return (body.split(':', 1)[1] if ':' in body else body).strip()
+
+
+def refspec_reaches_main(refspec):
+    """Why this refspec reaches main, or None."""
+    dest = dest_of(refspec)
+    if dest in MAIN_NAMES:
+        return 'the refspec %r writes main' % refspec
+    if re.search(r'[$`%]', dest):
+        return 'the target of %r cannot be read (a variable), so it may be main' % refspec
+    if '*' in dest and not dest.startswith('refs/tags/'):
+        return 'the refspec %r is a pattern that includes main' % refspec
+    return None
+
+
+def bare_push_reaches_main(remote, query):
+    """Why a push with no refspec reaches main, or None. `query(git args)` -> (status, output)."""
+    status, branch = query(['symbolic-ref', '--short', '-q', 'HEAD'])
+    if status != 0 or not branch:
+        return 'the current branch cannot be read, so where a push with no refspec goes is unknown'
+    if branch in ('main', 'master'):
+        return 'the current branch is %s' % branch
+    _, merge = query(['config', '--get', 'branch.%s.merge' % branch])
+    if merge.strip() in MAIN_NAMES:
+        return 'the current branch %s tracks main' % branch
+    _, default = query(['config', '--get', 'push.default'])
+    if default.strip().lower() == 'matching':
+        return 'push.default=matching pushes every branch that exists on both sides, main included'
+    if not remote:
+        _, remote = query(['config', '--get', 'branch.%s.remote' % branch])
+    _, configured = query(['config', '--get-all', 'remote.%s.push' % (remote.strip() or 'origin')])
+    for line in configured.splitlines():
+        found = refspec_reaches_main(line)
+        if found:
+            return 'remote.%s.push is set and %s' % (remote.strip() or 'origin', found)
+    return None
+
+
+def main_target_of(args, query=git):
+    """Why `git push <args>` reaches main, or None. Nothing overrides this (JDG-2930)."""
+    words, flags, skip = [], [], False
+    for arg in args:
+        if skip:
+            skip = False
+            continue
+        if arg in PUSH_OPTIONS_WITH_VALUE:
+            skip = True
+            continue
+        (flags if arg.startswith('-') else words).append(arg)
+    for flag in flags:
+        if flag in PUSH_ALL_FLAGS:
+            return '%s pushes every branch, main included' % flag
+    # WHY --repo: with it the first word is already a refspec, not the remote.
+    has_repo = any(one == '--repo' or one.startswith('--repo=') for one in list(args))
+    remote = '' if has_repo else (words[0] if words else '')
+    refspecs = words if has_repo else words[1:]
+    kept, after_tag, saw_tag = [], False, False
+    for spec in refspecs:
+        if after_tag:
+            after_tag = False  # `tag <name>` pushes refs/tags/<name>
+        elif spec == 'tag':
+            after_tag = saw_tag = True
+        else:
+            kept.append(spec)
+    for spec in kept:
+        found = refspec_reaches_main(spec)
+        if found:
+            return found
+    if kept or saw_tag or ('--tags' in flags and '--follow-tags' not in flags):
+        return None  # a refspec was checked above; `git push --tags` and `tag <name>` publish tags only
+    return bare_push_reaches_main(remote, query)
+
+
+def work_dir_of(segment):
+    """The last `git -C <dir>` in front of the subcommand, or None."""
+    found = None
+    for position, word in enumerate(segment[:-1]):
+        if word == 'push':
+            break
+        if word == '-C':
+            found = segment[position + 1]
+    return found
+
+
+def unwrapped(segment):
+    """The segment without leading `VAR=x`, `command`, `env -i`, `nohup`, `sudo` ... words."""
+    words = list(segment)
+    while words:
+        head = words[0]
+        if re.fullmatch(r'[A-Za-z_][A-Za-z0-9_]*=.*', head) or head.lower() in WRAPPER_WORDS:
+            words.pop(0)
+            while words and words[0].startswith('-') and head.lower() in WRAPPER_WORDS:
+                words.pop(0)
+        else:
+            break
+    return words
+
+
+def refusal_of(command, judge=verdict, reader=None, query=git, reason=None, depth=0):
     reader = reader or load_command_reader()
-    reason = reason_of(command)
+    reason = reason_of(command) or reason
     for segment in reader.segments_of(reader.tokens_of(command)):
+        segment = unwrapped(segment)
+        if not segment:
+            continue
+        program = segment[0].replace('\\', '/').rsplit('/', 1)[-1].lower()
+        if program.endswith('.exe'):
+            program = program[:-4]
+        if program in SHELL_PROGRAMS and depth < 3:
+            for word in segment[1:]:
+                if 'git' in word and 'push' in word:
+                    found = refusal_of(word, judge, reader, query, reason, depth + 1)
+                    if found:
+                        return found
+            continue
         call = reader.git_call(segment)
         if call is None or call[0] != 'push':
             continue
+        folder = work_dir_of(segment)
+        ask = query if folder is None else (lambda args, folder=folder: git(['-C', folder] + args))
+        why = main_target_of(call[1], ask)
+        if why:
+            return ('`git push` refused by tools/push_guard.py (%s): %s. main is never pushed -- push only '
+                    'to refactor; a release is a refactor -> main pull request opened after GT-2 passed on '
+                    'that sha, which the user reviews and merges on GitHub (docs/development-records/'
+                    'handoff.md, "Release to main"). No flag or environment variable overrides this.'
+                    % (MAIN_RULE, why))
         for ref in pushed_refs(call[1]) or []:
             ok, lines = judge(ref, reason=reason)
             if not ok:
@@ -202,7 +345,8 @@ def refusal_of(command, judge=verdict, reader=None):
 SELF_TEST = [
     # (command, refs the stub judge refuses, expect refusal)
     ('git push origin abc:refactor abc:main', {'abc'}, True),
-    ('git push origin abc:refactor abc:main', set(), False),
+    ('git push origin abc:refactor abc:main', set(), True),  # JDG-2930: main is refused though the judge passes
+    ('git push origin abc:refactor', set(), False),
     ('git push origin +abc:refactor', {'abc'}, True),
     ('git push', {'HEAD'}, True),
     ('git push origin --delete old-branch', {'old-branch', 'HEAD'}, False),
@@ -220,17 +364,104 @@ SELF_TEST = [
 ]
 
 
+# JDG-2930: every form of a push that reaches main. state: what `git config` / HEAD say (see stub_query).
+ON_REFACTOR = {'branch': 'refactor'}
+MAIN_CASES = [
+    # (command, repository state, expect refusal)
+    ('git push origin abc:main', ON_REFACTOR, True),
+    ('git push origin abc:refs/heads/main', ON_REFACTOR, True),
+    ('git push origin HEAD:main', ON_REFACTOR, True),
+    ('git push origin main', ON_REFACTOR, True),
+    ('git push origin refs/heads/main', ON_REFACTOR, True),
+    ('git push origin +abc:main', ON_REFACTOR, True),
+    ('git push --force origin abc:main', ON_REFACTOR, True),
+    ('git push -f origin main', ON_REFACTOR, True),
+    ('git push origin :main', ON_REFACTOR, True),
+    ('git push origin --delete main', ON_REFACTOR, True),
+    ('git push origin abc:refactor abc:main', ON_REFACTOR, True),
+    ('git push origin abc:heads/main', ON_REFACTOR, True),
+    ('git push --all', ON_REFACTOR, True),
+    ('git push --all origin', ON_REFACTOR, True),
+    ('git push --mirror origin', ON_REFACTOR, True),
+    ('git push --branches origin', ON_REFACTOR, True),
+    ('git push origin refs/heads/*:refs/heads/*', ON_REFACTOR, True),
+    ('git push origin $SHA:$DEST', ON_REFACTOR, True),
+    ('git push --repo origin abc:main', ON_REFACTOR, True),
+    ('git push --repo=origin main', ON_REFACTOR, True),
+    ('git push -o ci.skip origin abc:main', ON_REFACTOR, True),
+    ('git -C ../root push origin abc:main', ON_REFACTOR, True),
+    ('GRS_PUSH_NO_GT2="ledger rows only" git push origin abc:main', ON_REFACTOR, True),
+    ('$env:GRS_PUSH_NO_GT2="x"; git push origin abc:main', ON_REFACTOR, True),
+    ('git status && git push origin abc:main && echo done', ON_REFACTOR, True),
+    ('command git push origin abc:main', ON_REFACTOR, True),
+    ('env -i git push origin abc:main', ON_REFACTOR, True),
+    ('nohup git push origin abc:main', ON_REFACTOR, True),
+    ('sudo git push origin abc:main', ON_REFACTOR, True),
+    ('bash -c "git push origin abc:main"', ON_REFACTOR, True),
+    ('pwsh -NoProfile -Command "git push origin abc:main"', ON_REFACTOR, True),
+    ('powershell.exe -Command "& git push origin HEAD:main"', ON_REFACTOR, True),
+    ('git.exe push origin abc:main', ON_REFACTOR, True),
+    # a push with no refspec goes where the current branch, the upstream and the config say
+    ('git push', {'branch': 'main'}, True),
+    ('git push origin', {'branch': 'main'}, True),
+    ('git push --follow-tags', {'branch': 'main'}, True),
+    ('git push', {'branch': 'refactor', 'branch.refactor.merge': 'refs/heads/main'}, True),
+    ('git push', {'branch': 'refactor', 'push.default': 'matching'}, True),
+    ('git push origin', {'branch': 'refactor', 'remote.origin.push': 'refs/heads/*:refs/heads/*'}, True),
+    ('git push origin', {'branch': 'refactor', 'remote.origin.push': 'HEAD:refs/heads/main'}, True),
+    ('git push', {}, True),  # the current branch cannot be read
+    # allowed
+    ('git push origin abc:refactor', ON_REFACTOR, False),
+    ('git push origin abc:refs/heads/refactor', ON_REFACTOR, False),
+    ('git push origin +abc:refactor', ON_REFACTOR, False),
+    ('git push origin refactor', ON_REFACTOR, False),
+    ('git push origin HEAD:refactor', ON_REFACTOR, False),
+    ('git push origin refs/heads/main:refs/heads/refactor', ON_REFACTOR, False),
+    ('git push origin abc:mainline', ON_REFACTOR, False),
+    ('git push origin abc:feature/main', ON_REFACTOR, False),
+    ('git push origin --delete old-branch', ON_REFACTOR, False),
+    ('git push origin :old-branch', ON_REFACTOR, False),
+    ('git push', {'branch': 'refactor'}, False),
+    ('git push origin', {'branch': 'refactor', 'branch.refactor.merge': 'refs/heads/refactor'}, False),
+    ('git push --tags', {'branch': 'main'}, False),
+    ('git push origin --tags', {'branch': 'main'}, False),
+    ('git push origin v1.0', ON_REFACTOR, False),
+    ('git push origin refs/tags/v1.0', ON_REFACTOR, False),
+    ('git push origin tag v1.0', {'branch': 'main'}, False),
+    ('git push origin refs/tags/*:refs/tags/*', ON_REFACTOR, False),
+    ('git commit -m "never git push origin abc:main"', ON_REFACTOR, False),
+    ('echo git push origin abc:main', ON_REFACTOR, False),
+    ('git log origin/main --oneline', ON_REFACTOR, False),
+    ('git fetch origin main', ON_REFACTOR, False),
+]
+
+
+def stub_query(state):
+    """`query` for main_target_of over a dict: HEAD's branch plus config keys; a missing key is empty."""
+    def query(args):
+        if args[0] == 'symbolic-ref':
+            return (0, state['branch']) if 'branch' in state else (1, '')
+        return 0, state.get(args[-1], '')
+    return query
+
+
 def self_test():
     reader = load_command_reader()
     wrong = []
     for command, refused, expected in SELF_TEST:
         def judge(ref, reason=None, refused=refused):
             return (ref not in refused or (ref == 'needs' and bool(reason))), ['stub']
-        if (refusal_of(command, judge, reader) is not None) != expected:
+        if (refusal_of(command, judge, reader, stub_query(ON_REFACTOR)) is not None) != expected:
+            wrong.append((command, expected))
+    for command, state, expected in MAIN_CASES:
+        # the judge passes everything: only the main rule can refuse here
+        said = refusal_of(command, lambda ref, reason=None: (True, ['stub']), reader, stub_query(state))
+        if (said is not None) != expected or (expected and MAIN_RULE not in said):
             wrong.append((command, expected))
     for command, expected in wrong:
         print('WRONG  expected %s: %r' % ('refuse' if expected else 'allow', command))
-    print('%s  %d case(s), %d wrong' % ('OK' if not wrong else 'FAIL', len(SELF_TEST), len(wrong)))
+    total = len(SELF_TEST) + len(MAIN_CASES)
+    print('%s  %d case(s), %d wrong' % ('OK' if not wrong else 'FAIL', total, len(wrong)))
     return 0 if not wrong else 1
 
 

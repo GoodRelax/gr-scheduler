@@ -248,6 +248,14 @@
 
 ---
 
+## main へのリリース（2026-10-20、利用者の裁定 `JDG-2930`〜`JDG-2934`）
+
+- α 版 ＝ 2026-10-19 昼の `34d6ee84`（ビルド版 `2026.1019.22508`）。origin の `main`・`refactor` と GitHub Pages がこの版である。
+- ⛔ **`main` は保護されている。** みだりに push しない。壁は 2 枚: (1) GitHub の ruleset（`main` は PR のみ・バイパス無し。**利用者が GitHub で設定する** —— 設定したら本節に 1 行足す、`JDG-2932`）。(2) `tools/push_guard.py`（Claude のフックが `git push` ごとに呼び、`main` に届く形をすべて拒む。環境変数もフラグも上書きにならない。`python tools/push_guard.py --self-test`）。GitHub は Claude の push と利用者の push を区別できない（どちらも利用者の認証）ので、2 枚目が要る。
+- 日々: push 先は `refactor` だけ。`python tools/push_guard.py <sha>` が刷る `git push origin <sha>:refactor` を、`grep -q "GT-2 <sha> passed"` を見てから単独の 1 コマンドで打つ。
+- リリース: 1) 出す sha に `GT-2` が通っている。2) `refactor` → `main` の PR を開く（`gh pr create --base main --head refactor`。本文に変更履歴の版・ビルド版・`GT-2` の結果を書く）。3) **利用者が GitHub で見て合流する。** 4) 合流の後、利用者がタグを打つ。5) 配備: `pages.yml` は `workflow_dispatch` だけなので、合流の後に `gh workflow run pages.yml --ref main`（push ではない）。
+- ⛔ 調整役は PR を合流しない・タグを打たない・`main` へ push しない。
+
 ## 次のセッションに貼る 1 通目
 
 利用者はこの節のブロックをそのまま新しいセッションに貼る。巡ごとに本節も書き換える。
@@ -258,7 +266,7 @@
 
 0. 今の姿（⛔ 信じず測れ: git log -1 origin/refactor・根の git log -1）
    - origin は 9171429f。根と統合の枝 integ/coord-1016（作業木 .claude/worktrees/coord-1016）は 4392d587 の上の引継書のコミット（git log -1 で測れ）（push していない。docs/spec の生成表を含むので GT-2 の後に push）。あなたは自分の作業木を切り、git merge --ff-only 4392d587 の上の引継書のコミット（git log -1 で測れ） から積め。根の早送りは調整役が git -C <根> merge --ff-only <sha> で自分でやる。
-   - GT-2: 根で node tools/gate/gate-queue.mjs enqueue GT-2 → GRS_DEV_PORT=5992 node tools/gate/gate-queue.mjs drain > ログ（リポジトリの外）。push は grep -q "GT-2 <sha> passed" を見てから git push origin <sha>:refactor <sha>:main を単独の 1 コマンドで。続けて gh workflow run pages.yml --ref main。OneDrive は止まっていることを確かめる（止まっていなければ利用者に頼む）。
+   - GT-2: 根で node tools/gate/gate-queue.mjs enqueue GT-2 → GRS_DEV_PORT=5992 node tools/gate/gate-queue.mjs drain > ログ（リポジトリの外）。push は grep -q "GT-2 <sha> passed" を見てから git push origin <sha>:refactor を単独の 1 コマンドで（⛔ main へは push しない、JDG-2930。リリースは「main へのリリース」の節の PR）。OneDrive は止まっていることを確かめる（止まっていなければ利用者に頼む）。
 1. 最初にやること
    1) 不具合を受け付ける席の提案チップを出す（利用者の指示）。利用者の報告「実績を入力するUIが変になった」を最初に渡す。疑い: DFC-2870 の 1 回目の直し 35fcdfa4（9171429f で公開済み）・レーン 1 の当て直し 1e1f6707／bcd5a4dd（未合流）・CR-782（レーン 3、パネルを開く）。
    2) 未合流の 2 本を合流: レーン 1 bcd5a4dd（DFC-2870 当て直し・CR-783）、レーン 3 0f2d5e47（CR-782）。継ぎ目の赤は元の席へ返す。合流したら python tools/test_route.py <範囲> で PERF・e2e・GT-2・探りの要否と順を決める（レーン 1 の未走行 Playwright 1 本、レーン 3 の uc-008／open-defect-pins を含める）。dist の作り直しと GT-2 → push。
