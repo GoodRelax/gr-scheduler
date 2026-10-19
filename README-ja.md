@@ -15,7 +15,7 @@ HTML ファイル 1 つで動くガントチャートの日程管理ツールで
 ## 状態: α 版
 
 - 版 `2026.1019.22508`、タグ `Alpha-20261019T022508Z`（2026-10-19）。
-- この版でできること・分かっている制約・インストール方法は、[リリースノート](docs/release-notes/Alpha-20261019T022508Z.md) と [GitHub Releases](https://github.com/GoodRelax/gr-scheduler/releases) を見てください。
+- この版でできること・分かっている制約・インストール方法は、[リリースノート](docs/release-notes/Alpha-20261019T022508Z-ja.md) と [GitHub Releases](https://github.com/GoodRelax/gr-scheduler/releases) を見てください。
 - 残っている項目は [引継書](docs/development-records/handoff.md) と [変更要求](change-request/) にあります。
 - 版のあいだで変わることがあります。ファイルのバックアップを取っておいてください。
 
