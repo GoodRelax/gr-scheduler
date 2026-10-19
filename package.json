@@ -2,8 +2,16 @@
   "name": "gr-scheduler",
   "version": "0.0.0",
   "private": true,
-  "description": "GoodRelax Scheduler (GRS) -- a schedule editor that draws what it is told and hands the file back unchanged.",
+  "description": "Single-HTML-file Gantt chart scheduler with plan vs. actual, delay diagnostics, MSPDI import/export, and an MCP server for AI agents. No install, no server.",
   "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/GoodRelax/gr-scheduler.git"
+  },
+  "homepage": "https://goodrelax.github.io/gr-scheduler/",
+  "bugs": {
+    "url": "https://github.com/GoodRelax/gr-scheduler/issues"
+  },
   "type": "module",
   "engines": {
     "node": "^20.19.0 || >=22.12.0"

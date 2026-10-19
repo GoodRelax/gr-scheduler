@@ -2,7 +2,7 @@
 
 English | [日本語](README-ja.md)
 
-A schedule chart editor in one HTML file: it runs in your browser, with no install and no server.
+Single-HTML-file Gantt chart scheduler with plan vs. actual, delay diagnostics, MSPDI import/export, and an MCP server for AI agents. No install, no server.
 
 ## Try it now
 
@@ -35,7 +35,7 @@ GRS Relay is a small MCP server that you add to an AI desktop app that supports 
 
 ## Feedback
 
-Please report problems and ideas in [GitHub Issues](https://github.com/GoodRelax/gr-scheduler/issues).
+Please report problems and ideas in [GitHub Issues](https://github.com/GoodRelax/gr-scheduler/issues). See [CONTRIBUTING.md](CONTRIBUTING.md) for what to write. To report a vulnerability, follow [SECURITY.md](SECURITY.md) instead of opening a public issue.
 
 ## For developers
 

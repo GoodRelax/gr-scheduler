@@ -2,7 +2,7 @@
 
 [English](README.md) | 日本語
 
-1 つの HTML ファイルでできた日程表のエディターです。ブラウザーで動き、インストールもサーバーも要りません。
+HTML ファイル 1 つで動くガントチャートの日程管理ツールです。予定と実績の比較、遅延診断、MSPDI の読み込み・書き出し、AI エージェント向けの MCP サーバーを備えます。インストールもサーバーも不要です。
 
 ## すぐに試す
 
@@ -35,7 +35,7 @@ GRS Relay は、MCP に対応した AI のデスクトップアプリにイン�
 
 ## ご意見
 
-不具合や要望は [GitHub Issues](https://github.com/GoodRelax/gr-scheduler/issues) へお寄せください。
+不具合や要望は [GitHub Issues](https://github.com/GoodRelax/gr-scheduler/issues) へお寄せください。書いてほしいことは [CONTRIBUTING.md](CONTRIBUTING.md) にあります。脆弱性は公開の Issue ではなく、[SECURITY.md](SECURITY.md) の手順で報告してください。
 
 ## 開発する人へ
 
