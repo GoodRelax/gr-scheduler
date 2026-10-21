@@ -135,6 +135,10 @@ def main():
         # project-plan.md is the seventeenth: how to read project-plan.json,
         # the plan as a GRS JSON schedule, both overwritten every round
         # (JDG-2123); check 79 holds the pair, not this check.
+        # relay-address-incident-report-2026-10-22.md is the eighteenth: the
+        # report on the first-time AI that could not give the relay's page
+        # address (JDG-3024, CR-823), keyed by root cause rather than by a
+        # folder of units.
         # ⭐ Since JDG-2972 the finished records -- the report, the three
         # refactor files and the two plans above, and the wave records W4 and
         # W5 -- sit in history/, whose README.md is that folder's index.
@@ -149,7 +153,8 @@ def main():
             'test-inventory.md',
             'cr-plan-2026-09-26.md',
             'backlog-plan-2026-10-04.md',
-            'project-plan.md'
+            'project-plan.md',
+            'relay-address-incident-report-2026-10-22.md'
         ):
             continue
         body = io.open(path, encoding='utf-8').read()
