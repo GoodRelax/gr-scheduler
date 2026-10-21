@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'sha256-l02g+XaHU+Xu2tVUYkkL+GinKHxhvtfE4sJ3WJpgq4s='; script-src 'sha256-WV669eWoz6z/x3UJ/lhVRRwXxFeGZssG2T5dhKyapw0='; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'sha256-KTuPiPpQqnoIpDq1t+hLO+phXQ2L53mLTTByooJl+VM='; script-src 'sha256-pgeRcLcqYoLMcNu+cXOySjwSd0rQ8g87qRHoptzWh/g='; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <title>Download GoodRelax Scheduler</title>
 <style>
@@ -163,6 +163,37 @@ p, ul, ol { margin: 8px 0; }
   margin: 6px 0;
   font-weight: 600;
 }
+.prompt-box {
+  position: relative;
+  margin: 6px 0;
+}
+.prompt-box .prompt {
+  margin: 0;
+  padding: 8px 88px 8px 12px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-weight: 600;
+}
+.copy {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  font: inherit;
+  font-size: 14px;
+  padding: 2px 10px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+}
+kbd {
+  font-family: inherit;
+  font-size: 14px;
+  padding: 0 5px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+}
 code, pre {
   font-family: ui-monospace, "Cascadia Mono", Consolas, "Menlo", monospace;
   font-size: 14px;
@@ -255,9 +286,11 @@ footer { margin-top: 48px; padding-top: 12px; border-top: 1px solid var(--line);
     <div class="note">Claude Desktop shows a red warning that the extension gets access to everything on your computer and that its developer is not verified by Anthropic. It says this for every extension that is not from its directory. GRS Relay comes from this page; all it does is serve the GRS page on <code>127.0.0.1</code> and carry Claude&rsquo;s calls to it. It writes only the files Claude saves for you, and only into the save folder you choose (below).</div>
   </li>
   <li><b>Check that it is on.</b> In <span class="menu">Settings › Extensions</span>, open <b>GRS Relay</b>: the <span class="menu">Enabled</span> switch is on.</li>
-  <li><b>Ask Claude for the address of the GRS page.</b> In Claude Desktop, start a new chat in <span class="menu">Claude (chat)</span> or <span class="menu">Claude Code</span> and send:
-    <span class="say">Use GRS Relay and tell me the address to open the GRS page.</span>
-    If Claude asks whether it may use a tool of GRS Relay, allow it. Claude answers with an address that starts with <code>http://127.0.0.1:</code> and has a long part after <code>#</code>.</li>
+  <li><b>Ask Claude for the address of the GRS page.</b> In Claude Desktop, start a new conversation in <span class="menu">Claude Code</span> (or <span class="menu">Claude (chat)</span>) and send this text as it is:
+    <div class="prompt-box"><pre class="prompt" id="prompt-ask-en">Call agentApiVersion of GRS Relay and show the pageUrl it returns exactly, including everything after #.</pre><button type="button" class="copy" data-copy="prompt-ask-en" data-done="Copied">Copy</button></div>
+    If Claude asks whether it may use a tool of GRS Relay, allow it. Claude answers with an address that starts with <code>http://127.0.0.1:</code> and has a long part after <code>#</code>. If it does not, see <a href="#no-address-en">Claude gives no address</a> below.
+    <div class="note">The address differs between Claude (chat) and Claude Code. Open the address you got where you will work with Claude.</div>
+    <p class="small">We plan to make asking for the address simpler in the beta.</p></li>
   <li><b>Open that address in your browser.</b> Copy the <b>whole</b> address, including the part after <code>#</code>, and open it in a new tab. GRS opens.</li>
   <li><b>Open your schedule in that tab</b> with the <span class="menu">Open…</span> button <svg class="ic" aria-hidden="true"><use href="#ic-open"/></svg> in the header. You can also try it with the sample that is shown.
     <div class="note">Use this tab for work with Claude. A GRS.html you opened from a file on your PC does not connect to Claude.</div>
@@ -273,7 +306,12 @@ footer { margin-top: 48px; padding-top: 12px; border-top: 1px solid var(--line);
   <h3>Where Claude saves files, and how to change it</h3>
   <p>By default Claude saves into the folder <code>GRS</code> under your Documents folder. To change it: in Claude Desktop open <span class="menu">Settings › Extensions</span>, click <span class="menu">Configure</span> on the <b>GRS Relay</b> row, pick a folder with <span class="menu">Browse</span> in the <span class="menu">Save folder</span> field (the default is <code>${DOCUMENTS}/GRS</code>), and click <span class="menu">Save</span>.</p>
   <div class="note"><b>If your Documents folder is moved to OneDrive,</b> the default is <code>C:\Users\&lt;name&gt;\Documents\GRS</code>. That is <b>not</b> the Documents folder Explorer shows (<code>C:\Users\&lt;name&gt;\OneDrive\Documents</code>). If you want the files somewhere else, pick the folder with <span class="menu">Browse</span>.</div>
-  <p><span class="menu">Confirm before overwrite</span> (on by default): Claude cannot replace a file that already exists until it has asked you; the old file is kept as <code>.bak</code> either way.</p>
+  <p><span class="menu">Confirm before overwrite</span> (on by default) decides what happens when you ask Claude to save and a file with the same name is already in the save folder:</p>
+  <ul>
+    <li><b>On:</b> the relay first refuses to replace the file, and Claude asks you whether it may. The file is replaced only after you say yes.</li>
+    <li><b>Off:</b> the file is replaced without asking.</li>
+  </ul>
+  <p>Either way, the file as it was before is kept in the same folder as the original name plus <code>.bak</code> (for example <code>plan.json.bak</code>). Only one is kept: the next replacement turns the newer old file into the <code>.bak</code>.</p>
 </div>
 
 <div class="note"><b>Each time Claude Desktop starts the relay again (for example when the app restarts), the address changes and the tab disconnects.</b> Ask Claude for the address again (step 5), open it, open your file, and press <span class="menu">Agent API</span> again (steps 6 to 8). Save your work before you quit Claude Desktop.</div>
@@ -317,10 +355,43 @@ footer { margin-top: 48px; padding-top: 12px; border-top: 1px solid var(--line);
 
 <h2>If something does not work</h2>
 <ul>
+  <li id="no-address-en"><b>Claude gives no address, or does not know GRS Relay.</b> Copy the text below and send it in a new conversation in Claude Code (or Claude (chat)). Claude looks for the cause by itself.
+    <div class="prompt-box"><pre class="prompt" id="prompt-fix-en">[Goal]
+I want you (Claude) to read and edit my schedule in GoodRelax Scheduler (GRS).
+For that, I want to open the GRS page in my browser and connect it to you.
+Please tell me the address of the page to open.
+
+[Clues]
+- GRS Relay is an MCP server installed as an extension in Claude Desktop.
+  It serves the GRS page at an address of the form http://127.0.0.1:&lt;port&gt;/#&lt;key&gt;.
+- The address is in the pageUrl field of the refusal (reason pageNotConnected)
+  that a GRS Relay tool returns while no page is connected.
+  agentApiVersion is the lightest tool.
+  If it returns an ordinary value (a date-time), a page is already connected and no address is needed.
+- In Claude Code, the tool descriptions may not be loaded at first.
+  Search the tools for "agentApiVersion" or "GRS_Relay"
+  (names look like mcp__GRS_Relay__agentApiVersion).
+- Claude (chat) and Claude Code run separate GRS Relays, so their addresses differ.
+  All Claude Code conversations share one address; the chat has a different one.
+- If this conversation has no GRS Relay tool at all, the extension has not reached it.
+  Possible reasons: the extension is disabled (Settings › Extensions);
+  Claude Desktop was not fully quit and started again after installing it
+  (quit from the notification area icon, and check Task Manager for a Claude left running);
+  this conversation was started before the extension was installed.
+
+[Request]
+- Find out by yourself and tell me the whole address, including the part after #.
+- If you cannot, tell me the cause and what I should do next, in short plain words.
+- Do not make up an address.</pre><button type="button" class="copy" data-copy="prompt-fix-en" data-done="Copied">Copy</button></div>
+    If Claude tells you to start Claude Desktop again, quit it and start it again. Closing the window does not quit it.
+    <ul>
+      <li>Windows: right-click the Claude icon in the notification area (bottom right of the screen) and choose <span class="menu">Exit</span>. Then press <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Esc</kbd> to open Task Manager and check that no Claude is left under <span class="menu">Processes</span>. If one is left, select it and click <span class="menu">End task</span>.</li>
+      <li>macOS: choose <span class="menu">Claude › Quit Claude</span> (<kbd>⌘</kbd><kbd>Q</kbd>).</li>
+    </ul>
+    Then send the text again in a new conversation. If that still does not help, try it once in Claude (chat), and then try again in Claude Code.</li>
   <li><b>Claude says no GRS page is connected.</b> Open the address it gives you (the whole address, with the part after <code>#</code>) and press <span class="menu">Agent API</span> in that tab.</li>
   <li><b>The address does not open.</b> Claude Desktop has started again, so the address has changed. Ask Claude for the address again.</li>
   <li><b><span class="menu">Agent API</span> is pressed but nothing connects.</b> Check that you are in the tab opened from the address, not in a GRS.html opened from a file. Close other tabs with the same address: only one tab connects.</li>
-  <li><b>Claude does not know GRS Relay.</b> Check step 4, then start a new chat.</li>
 </ul>
 
 <details>
@@ -386,9 +457,11 @@ footer { margin-top: 48px; padding-top: 12px; border-top: 1px solid var(--line);
     <div class="note">GRS Relay の画面には「インストールすると、この拡張機能にコンピュータ上のすべてのデータへのアクセス権が付与されます。…」という赤い警告が出ます。ディレクトリに載っていない拡張機能には、必ずこの警告が出ます。GRS Relay の配布元はこのページです。GRS Relay がするのは、GRS のページを <code>127.0.0.1</code> で提供し、Claude からの呼び出しをそこへ中継することだけです。書き込むのは、Claude に保存させたファイルを、あなたが決めた保存先のフォルダ（下）へ書くときだけです。</div>
   </li>
   <li><b>有効になっているか確認します。</b><span class="menu">設定 › 拡張機能</span> の「コンピューターにインストール済み」で <b>GRS Relay</b> の <span class="menu">設定</span> を押し、<span class="menu">有効</span> のスイッチがオンなら大丈夫です。</li>
-  <li><b>GRS のページのアドレスを Claude に尋ねます。</b>Claude Desktop の <span class="menu">Claude（チャット）</span>か <span class="menu">Claude Code</span> で新しい会話を始め、次のように送ってください。
-    <span class="say">GRS Relay を使って、GRS のページを開くアドレスを教えて。</span>
-    GRS Relay のツールの使用許可を Claude が求めたら、許可してください。Claude は <code>http://127.0.0.1:</code> で始まり、<code>#</code> の後ろに長い文字列が続くアドレスを答えます。</li>
+  <li><b>GRS のページのアドレスを Claude に尋ねます。</b>Claude Desktop の <span class="menu">Claude Code</span>（または <span class="menu">Claude（チャット）</span>）で新しい会話を始め、次の文をそのまま送ってください。
+    <div class="prompt-box"><pre class="prompt" id="prompt-ask-ja">GRS Relay の agentApiVersion を呼び、返ってきた pageUrl を # 以降まで一字も変えずに示せ。</pre><button type="button" class="copy" data-copy="prompt-ask-ja" data-done="コピーしました">コピー</button></div>
+    GRS Relay のツールの使用許可を Claude が求めたら、許可してください。Claude は <code>http://127.0.0.1:</code> で始まり、<code>#</code> の後ろに長い文字列が続くアドレスを答えます。答えないときは、下の <a href="#no-address-ja">Claude がアドレスを答えない</a> を見てください。
+    <div class="note">アドレスは Claude（チャット）と Claude Code で別々です。Claude と作業する所で尋ねたアドレスを開いてください。</div>
+    <p class="small">アドレスを尋ねる手順は、β 版で簡単にする予定です。</p></li>
   <li><b>そのアドレスをブラウザで開きます。</b><code>#</code> の後ろまで含めて、アドレスを<b>まるごと</b>コピーし、新しいタブで開いてください。GRS が開きます。</li>
   <li><b>そのタブで日程を開きます。</b>ヘッダーの <span class="menu">開く</span> ボタン <svg class="ic" aria-hidden="true"><use href="#ic-open"/></svg> を使います。表示されている見本で試すこともできます。
     <div class="note">Claude と作業するときは、このタブを使ってください。PC のファイルから開いた GRS.html は Claude とつながりません。</div>
@@ -404,7 +477,12 @@ footer { margin-top: 48px; padding-top: 12px; border-top: 1px solid var(--line);
   <h3>Claude が保存する場所と、その変え方</h3>
   <p>既定では、ドキュメントの下の <code>GRS</code> フォルダに保存します。変えるには、Claude Desktop で <span class="menu">設定 › 拡張機能</span> を開き、<b>GRS Relay</b> の行の <span class="menu">設定</span> ボタンを押し、<span class="menu">Save folder</span> の欄（既定は <code>${DOCUMENTS}/GRS</code>）で <span class="menu">参照</span> を押してフォルダを選び、<span class="menu">保存</span> を押します。</p>
   <div class="note"><b>ドキュメントフォルダを OneDrive へ移している PC では、</b>既定は <code>C:\Users\&lt;name&gt;\Documents\GRS</code> です。これはエクスプローラーの「ドキュメント」（<code>C:\Users\&lt;name&gt;\OneDrive\Documents</code>）<b>ではありません</b>。別の場所に置きたいときは、<span class="menu">参照</span> でフォルダを選んでください。</div>
-  <p><span class="menu">Confirm before overwrite</span>（既定はオン）: 既にあるファイルを、Claude があなたに尋ねるまで置き換えさせません。古いファイルはどちらでも <code>.bak</code> として残ります。</p>
+  <p><span class="menu">Confirm before overwrite</span>（上書きの前に確認する。既定はオン）は、Claude に保存を頼んだとき、保存先のフォルダに同じ名前のファイルが既にある場合の動きを決めます。</p>
+  <ul>
+    <li><b>オン:</b> 中継はいったん置き換えを断り、Claude が「置き換えてよいか」をあなたに尋ねます。あなたが許したときだけ置き換えます。</li>
+    <li><b>オフ:</b> 尋ねずに置き換えます。</li>
+  </ul>
+  <p>どちらでも、置き換える前のファイルは、同じフォルダに「元の名前＋<code>.bak</code>」（例: <code>plan.json.bak</code>）として残ります。残るのは 1 つだけで、次に置き換えると、その直前のファイルが新しい <code>.bak</code> になります。</p>
 </div>
 
 <div class="note"><b>Claude Desktop が中継を再起動するたびに（アプリを再起動したときなど）、アドレスが変わり、タブとの接続が切れます。</b>もう一度 Claude にアドレスを尋ね（手順 5）、開き、ファイルを開き、<span class="menu">Agent API</span> を押し直してください（手順 6〜8）。Claude Desktop を終える前に、作業を保存してください。</div>
@@ -448,10 +526,43 @@ footer { margin-top: 48px; padding-top: 12px; border-top: 1px solid var(--line);
 
 <h2>うまくいかないとき</h2>
 <ul>
+  <li id="no-address-ja"><b>Claude がアドレスを答えない・GRS Relay を知らない。</b>下の文をコピーして、Claude Code（または Claude（チャット））の新しい会話に貼って送ってください。Claude が自分で原因を調べます。
+    <div class="prompt-box"><pre class="prompt" id="prompt-fix-ja">【目的】
+私は GoodRelax Scheduler（GRS）の日程を、あなた（Claude）に読み書きしてもらいたい。
+そのために、GRS のページをブラウザで開いて、あなたとつなぎたい。
+開くべきページのアドレスを、私に教えてほしい。
+
+【手がかり】
+- GRS Relay は、Claude Desktop に拡張機能として入れた MCP サーバーです。
+  GRS のページを http://127.0.0.1:&lt;口の番号&gt;/#&lt;鍵&gt; というアドレスで出しています。
+- アドレスは、ページがつながっていないときに GRS Relay のツールが返す断り
+  （reason が pageNotConnected）の pageUrl の欄に入っています。
+  agentApiVersion がいちばん軽いツールです。
+  答えが普通の値（日時）なら、ページはもうつながっていて、アドレスは要りません。
+- Claude Code では、ツールの説明が最初は読み込まれていないことがあります。
+  ツールを「agentApiVersion」や「GRS_Relay」で検索してください
+  （名前は mcp__GRS_Relay__agentApiVersion のような形です）。
+- Claude（チャット）と Claude Code は、別々の GRS Relay を動かすので、アドレスも別です。
+  Claude Code の会話どうしは同じアドレスで、チャットのアドレスとは違います。
+- この会話に GRS Relay のツールが一つも無いなら、拡張機能がこの会話に渡っていません。
+  考えられる理由は、拡張機能が無効になっている（設定 › 拡張機能）、
+  入れた後に Claude Desktop を完全に終了して起動し直していない
+  （通知領域のアイコンから終了し、タスクマネージャーで Claude が残っていないか確かめる）、
+  この会話を入れる前に始めた、などです。
+
+【お願い】
+- 自分で調べて、アドレスを # の後ろまでまるごと教えてください。
+- 出せないときは、原因と、私が次にすることを、短い言葉で教えてください。
+- アドレスを推測で作らないでください。</pre><button type="button" class="copy" data-copy="prompt-fix-ja" data-done="コピーしました">コピー</button></div>
+    「起動し直して」と言われたら、Claude Desktop を終了して、起動し直してください。ウィンドウを閉じるだけでは終了しません。
+    <ul>
+      <li>Windows: 画面右下の通知領域にある Claude のアイコンを右クリックして、<span class="menu">終了</span>（英語の画面では <span class="menu">Exit</span>）を選びます。そのあと <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Esc</kbd> でタスクマネージャーを開き、<span class="menu">プロセス</span> に Claude が残っていないことを確かめます。残っていたら、それを選んで <span class="menu">タスクを終了</span> を押します。</li>
+      <li>macOS: メニューの <span class="menu">Claude › Claude を終了</span>（<kbd>⌘</kbd><kbd>Q</kbd>）を選びます。</li>
+    </ul>
+    それから、新しい会話でもう一度送ってください。それでも駄目なときは、一度 Claude（チャット）で送って試し、そのあと Claude Code で試してください。</li>
   <li><b>GRS のページがつながっていないと Claude が言う。</b>Claude が示すアドレスを（<code>#</code> の後ろまでまるごと）開き、そのタブで <span class="menu">Agent API</span> を押してください。</li>
   <li><b>アドレスが開かない。</b>Claude Desktop が再起動したため、アドレスが変わっています。もう一度 Claude にアドレスを聞いてください。</li>
   <li><b><span class="menu">Agent API</span> を押したのにつながらない。</b>ファイルから開いた GRS.html ではなく、アドレスから開いたタブを使っているか確かめてください。同じアドレスのタブがほかにあれば閉じてください —— つながるのは 1 つのタブだけです。</li>
-  <li><b>Claude が GRS Relay を知らない。</b>手順 4 を確認してから、新しいチャットを始めてください。</li>
 </ul>
 
 <details>
@@ -523,6 +634,37 @@ footer { margin-top: 48px; padding-top: 12px; border-top: 1px solid var(--line);
   }
 
   show(readSaved() || DEFAULT_LANG);
+
+  // Copy a prompt the person sends to Claude (design-mcp-relay.md section 6).
+  var DONE_MS = 2000;
+  function selectText(node) {
+    var range = document.createRange();
+    range.selectNodeContents(node);
+    var selection = window.getSelection();
+    selection.removeAllRanges();
+    selection.addRange(range);
+  }
+  var copies = document.querySelectorAll('[data-copy]');
+  for (var m = 0; m < copies.length; m++) {
+    copies[m].addEventListener('click', function (event) {
+      var button = event.currentTarget;
+      var source = document.getElementById(button.getAttribute('data-copy'));
+      if (!source) return;
+      var label = button.getAttribute('data-label') || button.textContent;
+      button.setAttribute('data-label', label);
+      var done = function () {
+        button.textContent = button.getAttribute('data-done');
+        window.setTimeout(function () { button.textContent = label; }, DONE_MS);
+      };
+      // WHY: without the clipboard (an insecure origin, a refused permission) the text is
+      // selected instead, so the person can still copy it with the keyboard.
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(source.textContent).then(done, function () { selectText(source); });
+      } else {
+        selectText(source);
+      }
+    });
+  }
 })();
 </script>
 </body>
