@@ -1,0 +1,5 @@
+{
+  "name": "handover-guard",
+  "version": "0.1.0",
+  "description": "Hand over before an unintended compaction: warn at 85% context or under 60k tokens left, hold back automatic compaction until the handoff note is fresh, re-inject it after compaction, and keep a local registry of the coordinator and its child sessions."
+}

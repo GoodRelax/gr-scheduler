@@ -1,0 +1,52 @@
+{
+  "statusLine": {
+    "type": "command",
+    "command": "python \"$CLAUDE_PROJECT_DIR/tools/handover_guard/guard.py\" statusline"
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"$CLAUDE_PROJECT_DIR/tools/handover_guard/guard.py\" hook session-start",
+            "timeout": 20
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"$CLAUDE_PROJECT_DIR/tools/handover_guard/guard.py\" hook post-tool-use",
+            "timeout": 15
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"$CLAUDE_PROJECT_DIR/tools/handover_guard/guard.py\" hook pre-compact",
+            "timeout": 20
+          }
+        ]
+      }
+    ],
+    "PostCompact": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"$CLAUDE_PROJECT_DIR/tools/handover_guard/guard.py\" hook post-compact",
+            "timeout": 20
+          }
+        ]
+      }
+    ]
+  }
+}
