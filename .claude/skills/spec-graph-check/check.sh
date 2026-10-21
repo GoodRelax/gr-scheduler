@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# All 81 mechanical checks for the gr-scheduler specification.
+# All 86 mechanical checks for the gr-scheduler specification.
 #
 # The count is the numbered checks below, NOT counting check 0 (the rules
 # index, which prints before any check runs). ⛔ Recount it in the same change
@@ -10,7 +10,9 @@
 #
 # then add up the ranges in the headings (1-4 is four, 5-10 is six, and so
 # on). A heading may carry several numbers because one script answers them.
-# The ranges today are 1 + 4 + 8 + 4 + 64. (Recounted 2026-10-17 at checks 83-84
+# The ranges today are 1 + 4 + 8 + 4 + 69. (Recounted 2026-10-22 at checks 87-88
+# (retired session words, the handoff note sections; JDG-3040..3042): 84 + 2 --
+# the line still read 81 although 84 were in. Recounted 2026-10-17 at checks 83-84
 # (the _source references and names, JDG-2692): 62 + 2. Recounted 2026-10-17 at check 82
 # (the test route table, JDG-2419): 61 + 1. Recounted 2026-10-15 at checks 78-81
 # (ledger row form, project plan, drafted rulings cited, the spec resting on
@@ -415,6 +417,15 @@
 #          README version lines do not name the newest release note, a release
 #          note is misnamed or lacks its pair, or the version rule is stated
 #          outside docs/development-rules/10-versions.md. CR-822. Baseline 0
+#   87     check-old-session-words.py : a living document (docs/ outside the
+#          verbatim records, tools/, .claude/) holds more of the session words
+#          retired by JDG-3042 than its line in old-session-words-baseline.txt.
+#          The words come from docs/development-rules/session-names.md.
+#          Baseline: 490 words in 17 files on 5dd50095c, lower only
+#   88     tools/handover_guard : the handoff note keeps its newest dated
+#          section and the first message for the next session (check-handoff
+#          --no-registry; check 72 keeps lessons, not this), and the guard's
+#          scenario test passes at a 5% threshold. JDG-3040. Baseline 0
 #
 # Green does NOT prove the specification is sound: defects of meaning have
 # appeared while all of these were green. They stop broken references, not
@@ -1184,6 +1195,21 @@ section "86  the version rule is stated in one place and the release versions ag
 # without a pointer, 5 release versions off; 0 after CR-822. Baseline 0.
 node "$REPO/tools/check_versions.mjs" --self-test || failed
 node "$REPO/tools/check_versions.mjs" || failed
+
+echo ""
+section "87  no new retired session words in the living documents"
+# JDG-3042 (2026-10-22): one set of names for parent and child sessions; three
+# old words retired. MEASURED 2026-10-22 on 5dd50095c, the first run: 490
+# words in 17 files, all in the baseline; replacing them is a separate wave.
+PYTHONIOENCODING=utf-8 python "$HERE/check-old-session-words.py" --self-test || failed
+PYTHONIOENCODING=utf-8 python "$HERE/check-old-session-words.py" || failed
+
+echo ""
+section "88  the handoff note holds its sections and the handover guard works"
+# JDG-3040 (2026-10-22). The registry part of check-handoff is local state and
+# is not gated here. MEASURED 2026-10-22: handoff green; scenario 23 of 23.
+PYTHONIOENCODING=utf-8 python "$REPO/tools/handover_guard/guard.py" check-handoff --no-registry || failed
+PYTHONIOENCODING=utf-8 python "$REPO/tools/handover_guard/self_test.py" || failed
 
 echo ""
 section "NOT COVERED  what this run did not look at"
