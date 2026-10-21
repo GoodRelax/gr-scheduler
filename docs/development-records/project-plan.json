@@ -3046,6 +3046,180 @@
     "dependencies": [],
     "carry": {},
     "carryElements": []
+   },
+   {
+    "uid": 241,
+    "parentTaskUid": null,
+    "wbsOrder": 118,
+    "name": "取次からページのアドレスを得る直し(DFC-3400・3401)の案 B1〜B6 に答える",
+    "start": "2026-10-27T21:00:00",
+    "finish": "2026-10-27T22:00:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "案は DFC-3400 の対応案の欄。暫定の直しはダウンロード頁の文で済んだ(CR-823)。恒久は後でじっくり考える(JDG-3012)。",
+    "calendarUid": null,
+    "actualStart": null,
+    "stop": null,
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": null,
+    "percentComplete": 0,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 242,
+    "parentTaskUid": null,
+    "wbsOrder": 119,
+    "name": "取次から AI がページのアドレスを得る恒久の直し(DFC-3400・3401: B1〜B6 を決めてから CR)",
+    "start": "2026-10-28T03:00:00",
+    "finish": "2026-10-28T11:00:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "席の推奨は B1(取次が自分で答える道具 getPageUrl、案内の 1 行目で呼ばせる)。CR-697(口と鍵を覚える)とは別の直し。",
+    "calendarUid": null,
+    "actualStart": null,
+    "stop": null,
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": null,
+    "percentComplete": 0,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [
+     {
+      "predecessorUid": 241,
+      "linkType": 1,
+      "linkLag": 0,
+      "lagFormat": 7,
+      "carry": {},
+      "carryElements": []
+     }
+    ],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 243,
+    "parentTaskUid": null,
+    "wbsOrder": 120,
+    "name": "DFC-3410(フィルタの条件に名前を付けて GRS JSON に幾つも保存する)の CR の起草",
+    "start": "2026-10-25T04:00:00",
+    "finish": "2026-10-25T08:00:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "細部は利用者と別に詰める(JDG-3030「詳細は別途」)。FR-151 の結びの段・表 T-203 の S-560〜S-572・表 T-372 を読む。形式の版を DFC-3393・3394 と 1 回にまとめられるか見る。",
+    "calendarUid": null,
+    "actualStart": null,
+    "stop": null,
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": null,
+    "percentComplete": 0,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 244,
+    "parentTaskUid": null,
+    "wbsOrder": 121,
+    "name": "DFC-3410(名前付きのフィルタの条件)の細部に答える",
+    "start": "2026-10-25T11:00:00",
+    "finish": "2026-10-25T12:00:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "問うのは起草の席(JDG-1753)。",
+    "calendarUid": null,
+    "actualStart": null,
+    "stop": null,
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": null,
+    "percentComplete": 0,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [
+     {
+      "predecessorUid": 243,
+      "linkType": 1,
+      "linkLag": 0,
+      "lagFormat": 7,
+      "carry": {},
+      "carryElements": []
+     }
+    ],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 245,
+    "parentTaskUid": null,
+    "wbsOrder": 122,
+    "name": "DFC-3410(名前付きのフィルタの条件)の仕様と実装",
+    "start": "2026-10-29T11:00:00",
+    "finish": "2026-10-30T03:00:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "ハイパーリンクとダークの任意色の実装(219)が形式の版を上げた後に始める。",
+    "calendarUid": null,
+    "actualStart": null,
+    "stop": null,
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": null,
+    "percentComplete": 0,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [
+     {
+      "predecessorUid": 244,
+      "linkType": 1,
+      "linkLag": 0,
+      "lagFormat": 7,
+      "carry": {},
+      "carryElements": []
+     }
+    ],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 246,
+    "parentTaskUid": null,
+    "wbsOrder": 123,
+    "name": "DFC-3410(名前付きのフィルタの条件)の仕様だけを読む試験(別の体)",
+    "start": "2026-10-30T03:00:00",
+    "finish": "2026-10-30T11:00:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "作り手は自分の単位を試験しない。",
+    "calendarUid": null,
+    "actualStart": null,
+    "stop": null,
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": null,
+    "percentComplete": 0,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [
+     {
+      "predecessorUid": 245,
+      "linkType": 1,
+      "linkLag": 0,
+      "lagFormat": 7,
+      "carry": {},
+      "carryElements": []
+     }
+    ],
+    "carry": {},
+    "carryElements": []
    }
   ],
   "resources": [],
@@ -3634,6 +3808,30 @@
    {
     "taskUid": 240,
     "taskGroupId": "92288265-9367-5757-9974-b1a8154ae4b6"
+   },
+   {
+    "taskUid": 241,
+    "taskGroupId": "f2b5a632-0e6d-56dd-acc2-4e8c5d72d9fc"
+   },
+   {
+    "taskUid": 242,
+    "taskGroupId": "da39bfdb-f716-589c-8150-97dd28796ef9"
+   },
+   {
+    "taskUid": 243,
+    "taskGroupId": "45e69727-3ec2-537e-a8f6-f1153006e8c3"
+   },
+   {
+    "taskUid": 244,
+    "taskGroupId": "f2b5a632-0e6d-56dd-acc2-4e8c5d72d9fc"
+   },
+   {
+    "taskUid": 245,
+    "taskGroupId": "f38bb5e1-b65d-5bbd-a634-2a1c78cb558f"
+   },
+   {
+    "taskUid": 246,
+    "taskGroupId": "06bb553e-298b-5794-98aa-8762a050243f"
    }
   ],
   "taskVisuals": [
@@ -4575,6 +4773,54 @@
    },
    {
     "taskUid": 240,
+    "shapeKind": "rectangle",
+    "milestoneGlyph": "diamond",
+    "fillColor": "blue",
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 241,
+    "shapeKind": "rectangle",
+    "milestoneGlyph": "diamond",
+    "fillColor": "orange",
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 242,
+    "shapeKind": "rectangle",
+    "milestoneGlyph": "diamond",
+    "fillColor": "#2a9d8f/#5fd3c4",
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 243,
+    "shapeKind": "rectangle",
+    "milestoneGlyph": "diamond",
+    "fillColor": "blue",
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 244,
+    "shapeKind": "rectangle",
+    "milestoneGlyph": "diamond",
+    "fillColor": "orange",
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 245,
+    "shapeKind": "rectangle",
+    "milestoneGlyph": "diamond",
+    "fillColor": "blue",
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 246,
     "shapeKind": "rectangle",
     "milestoneGlyph": "diamond",
     "fillColor": "blue",
@@ -5580,7 +5826,7 @@
   "zoomY": 1.099862517185352
  },
  "documentStamp": {
-  "scheduleUpdatedAt": "2026-10-21T02:10:00Z",
+  "scheduleUpdatedAt": "2026-10-21T20:35:00Z",
   "lastEditedBy": "project-plan session",
   "settingsUpdatedAt": "2026-10-20T20:24:42Z",
   "fileSavedAt": "2026-10-20T20:29:16Z"
@@ -5603,6 +5849,18 @@
    "editedBy": "project-plan session",
    "explanation": "Added DFC-3397 (draft, the user's answer, apply, spec-only test) into free slots of seats 2 and 4 and the user row (phase 5); nothing else moved.",
    "changedAt": "2026-10-21T02:10:00Z"
+  },
+  {
+   "ordinal": 4,
+   "editedBy": "project-plan session",
+   "explanation": "Added the relay page-address fix (DFC-3400/3401): the user's choice among B1..B6 on the user row and the fix on seat 3, in free slots of phase 4 (CR-823 seat); nothing else moved.",
+   "changedAt": "2026-10-21T14:20:00Z"
+  },
+  {
+   "ordinal": 5,
+   "editedBy": "project-plan session",
+   "explanation": "Added DFC-3410 (named saved filters in the GRS JSON: draft, the user's answer, apply, spec-only test) into free slots of seats 2, 1 and 5 and the user row (phase 5); nothing else moved.",
+   "changedAt": "2026-10-21T20:35:00Z"
   }
  ]
 }
