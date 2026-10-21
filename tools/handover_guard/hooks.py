@@ -89,6 +89,10 @@ def _warning_text(record, config, role, reason):
     head = ('[handover-guard] Context %.0f%% used, %dk tokens left (warning line %.0f%% or %dk left). '
             % (record['used_pct'], record['remaining_tokens'] // 1000, config['warn_pct'],
                config['warn_remaining'] // 1000))
+    if role == 'outsider':
+        return head + ('This session is not in the session registry, so compaction is not held back. '
+                       'Report your state to your parent now; a new coordinator runs '
+                       '`python tools/handover_guard/guard.py registry coordinator`.')
     if role == 'child':
         return head + ('Hand over now (%s): record your next steps with '
                        '`python tools/handover_guard/guard.py registry note --next "..."`, '
@@ -123,13 +127,25 @@ def _ack_texts(data, role, host, sess):
     return texts
 
 
+def _role(data, host):
+    """The registry role; 'outsider' when a coordinator is registered but this session is unknown.
+
+    Only an outsider is never held back: with no registry at all (another
+    project, no coordinator yet) the session is treated as the coordinator.
+    """
+    role = registry.role_of(data, host)
+    if role is None and (data.get('coordinator') or {}).get('host_id'):
+        return 'outsider'
+    return role
+
+
 def on_post_tool_use(state, payload):
     sid = payload.get('session_id') or 'unknown'
     cwd = payload.get('cwd') or os.getcwd()
     config = settings(state)
     sess = _load_session(state, sid)
     data = registry.load(state)
-    role = registry.role_of(data, sess.get('host_id'))
+    role = _role(data, sess.get('host_id'))
     record = current_usage(state, sid, payload.get('transcript_path'), config['window_size'])
     texts = []
     if over_warn_line(record, config):
@@ -166,6 +182,8 @@ def on_pre_compact(state, payload):
         verdict, reason = 'allow', 'usage unknown'
     elif used >= config['ceiling_pct']:
         verdict, reason = 'allow', 'at or above the ceiling %.0f%%' % config['ceiling_pct']
+    elif _role(registry.load(state), sess.get('host_id')) == 'outsider':
+        verdict, reason = 'allow', 'session not in the registry'
     else:
         done, why = handed_over(state, sess, registry.load(state), payload.get('cwd') or os.getcwd())
         verdict, reason = ('allow', why) if done else ('block', why)

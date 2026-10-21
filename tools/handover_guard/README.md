@@ -16,7 +16,7 @@ child sessions in step. Rulings JDG-3040..3042 (2026-10-22); names as in
 | Re-inject | `guard.py hook session-start` (SessionStart) | After `compact`: the handoff note's newest section, the registry, and "tell your parent and children again". On any start: unacked children / a new parent. |
 | Session registry | `guard.py registry ...` | Coordinator, children, state, ID bands, branch, next steps; acks; Session complete. |
 | Handoff check | `guard.py check-handoff [--no-registry]` | Newest dated section, the first-message heading, every live child named. Check 88 runs the structural part. |
-| Scenario test | `self_test.py [--keep DIR]` | 21 scenarios at a 5% threshold in a temp folder. Check 88 runs it. |
+| Scenario test | `self_test.py [--keep DIR]` | 23 scenarios at a 5% threshold in a temp folder. Check 88 runs it. |
 
 "Handed over": the coordinator's handoff note was written after the notice and
 passes `check-handoff`; a child ran `registry note` (or `registry complete`)

@@ -139,7 +139,15 @@ def scenario(r):
     r.expect('a completed child is no longer pending', code == 0 and out.strip() == 'none')
     code, out, _ = r.call(['registry', 'show'])
     r.expect('registry shows the completed child as ended', '[complete, ended]' in out)
-    # 10. no status line: the transcript's last usage is the fallback
+    # 10. a session the registry does not know is warned but never held back
+    stranger = 'local_eeee5555-0'
+    r.call(['statusline'], {'session_id': 'cli-s', 'context_window':
+                            {'context_window_size': 200000, 'used_percentage': 8}})
+    code, out, _ = r.call(['hook', 'post-tool-use'], payload('PostToolUse', 'cli-s'), host=stranger)
+    r.expect('an unregistered session is warned to report to its parent', 'not in the session registry' in out)
+    code, _, _ = r.call(['hook', 'pre-compact'], payload('PreCompact', 'cli-s', trigger='auto'), host=stranger)
+    r.expect('an unregistered session is not held back', code == 0)
+    # 11. no status line: the transcript's last usage is the fallback
     transcript = os.path.join(r.root, 't.jsonl')
     with open(transcript, 'w', encoding='utf-8') as f:
         f.write(json.dumps({'message': {'model': 'm', 'usage': {
