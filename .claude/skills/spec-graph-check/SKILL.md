@@ -77,7 +77,7 @@ already holds T-064's **rows** against table T-075, and nothing held a row's
 declared and unwritten while every other check was green.
 
 **Its two known gaps are held in a baseline, and a held gap is still a defect.**
-`published-members-baseline.txt` carries the shape check 11 uses for the 26
+`published-members-baseline.txt` carries the shape check 11 uses for the standing
 standing duplications: the run is green when the gaps it finds are **exactly**
 the ones held there, red when a gap appears that is **not** held there, and red
 when a held line no longer matches a real gap — a debt that was paid must leave
@@ -312,5 +312,5 @@ so the rest of a filled-in unit is left alone.
 
 `docs/review/dup-check.py` and `duplication-baseline.txt` live in the
 repository and are invoked by `check.sh`. **The detector and its baseline
-must be used together** — without the baseline all 18 known groups report as
+must be used together** — without the baseline every known group (the count is the line count of docs/review/duplication-baseline.txt) reports as
 new. It only finds similar *wording*; a paraphrase walks straight past it.

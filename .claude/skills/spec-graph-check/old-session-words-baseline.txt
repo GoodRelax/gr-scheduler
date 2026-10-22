@@ -4,14 +4,9 @@ docs/development-records/handoff.md	140
 docs/development-records/perf-pending.md	15
 docs/development-records/project-plan.json	28
 docs/development-records/project-plan.md	31
-docs/development-rules/02-changing-the-spec.md	6
+docs/development-rules/02-changing-the-spec.md	2
 docs/development-rules/03-implementation.md	2
-docs/development-rules/04-verification.md	58
-docs/development-rules/05-working-method.md	161
-docs/development-rules/06-pending-decisions.md	1
 docs/development-rules/07-review-standards.md	2
 docs/development-rules/08-spec-template/spec-writing-rules.md	2
-docs/development-rules/09-tools.md	17
-docs/development-rules/10-versions.md	5
-docs/development-rules/parallel-agents-ja.md	1
-tools/schema-only-writer/README.md	4
+docs/development-rules/09-tools.md	6
+tools/schema-only-writer/README.md	2
