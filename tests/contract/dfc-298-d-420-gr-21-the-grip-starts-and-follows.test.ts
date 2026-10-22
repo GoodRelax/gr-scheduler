@@ -50,9 +50,9 @@
 //   - What a press on the LANE OUTSIDE the grip does. GR-21 says of itself
 //     「つまみの外の帯を押したときの振る舞いは、本行は定めない（未決）」.
 //   - The grip's exact length.
-//     `tests/unit/dfc-405-gr-21-the-grip-is-a-fraction-of-its-lane.test.ts` holds
-//     that half. ⚠️ THIS LINE USED TO NAME `tests/unit/uf-61.test.ts`, AND THAT
-//     WAS FALSE (台帳 DFC-405, measured 2026-09-08): that file asserts only that
+//     `tests/contract/dfc-405-gr-21-the-grip-is-a-fraction-of-its-lane.test.ts` holds
+//     that half. ⚠️ THIS LINE USED TO NAME the uf-61 unit test (since deleted by CR-573), AND THAT
+//     WAS FALSE (台帳 DFC-405, measured 2026-09-08): that file asserted only that
 //     the grip is wider and taller than nought, so halving the length, taking
 //     the floor away and returning the grip to the whole lane each took ZERO
 //     cases red.

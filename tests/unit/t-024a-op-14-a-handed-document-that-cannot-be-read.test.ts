@@ -25,7 +25,7 @@
 // ⛔ WRITTEN FROM docs/spec AND NOTHING ELSE (docs/development-rules/
 // 04-verification.md, section 1). ⛔ NO FILE UNDER src/ WAS READ. The host and
 // the fake surface are copied from tests/unit/fr-029-the-reason-a-press-
-// carries.test.ts; the candidates are shaped as tests/unit/uf-23.test.ts shapes
+// carries.test.ts; the candidates are shaped as the uf-23 unit test (deleted by CR-573) shaped
 // them; `startup-template.json` is a generated document read as data.
 //
 // ---------------------------------------------------------------------------
@@ -80,7 +80,7 @@ import {
 } from '../../src/framework/single-html-shell/frame-loop'
 
 // ---------------------------------------------------------------------------
-// The manuscript, read at run time (Chapter 1.9, :275)
+// The manuscript, read at run time (Chapter 1.9)
 // ---------------------------------------------------------------------------
 
 const T_233 = specTable('T-233')

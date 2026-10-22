@@ -92,7 +92,7 @@ import {
 } from '../../src/framework/single-html-shell/frame-loop'
 
 // ---------------------------------------------------------------------------
-// The manuscript, read at run time (Chapter 1.9, :275)
+// The manuscript, read at run time (Chapter 1.9)
 // ---------------------------------------------------------------------------
 
 const T_036 = specTable('T-036')

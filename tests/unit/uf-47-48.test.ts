@@ -16,7 +16,7 @@
 // node environment (vitest.config.ts) there is no host for it to boot into and
 // nothing here imports it. Table T-077's BO-2 -- the order of table T-034,
 // which FR-062 and FR-027 state -- is `chooseStartupDocument` (UF-23) and is
-// driven by tests/unit/uf-23.test.ts; UF-48 receives the winner as its `first`
+// driven by tests/unit/io-7-bt-1-the-exported-file-reopens-itself.test.ts (uf-23's own unit test was deleted by CR-573); UF-48 receives the winner as its `first`
 // argument, so BO-2 is out of reach from this file.
 //
 // ⚠️ `requestAnimationFrame` does not exist under node. Every case installs its
@@ -84,8 +84,8 @@ import {
 import { validateDocument } from '../fixtures/grs-document'
 // ⭐ Borrowed from the contract kind on purpose: it is the one reader that takes
 // the copy of a table from the .md at read time, which is what keeps table
-// T-230's 履歴 column below from falling behind the manuscript (Chapter 1.9
-// :275 -- a test of a requirement that points at a table is driven by the
+// T-230's 履歴 column below from falling behind the manuscript (Chapter 1.9 --
+// a test of a requirement that points at a table is driven by the
 // table).
 import { specTable } from '../contract/spec-table'
 import { displayRatioAt } from '../fixtures/display-scale'
@@ -418,8 +418,8 @@ function drawnPoints(svg: string): { readonly x: number; readonly y: number }[] 
  * Every word the picture prints, in the order it prints them.
  *
  * ⭐ The shape of one label is the neighbor's, not this file's guess:
- * tests/unit/uf-32-ruler-band.test.ts reads a 目盛ラベル the same way, and it is
- * the file that owns what the band draws.
+ * the uf-32 ruler-band unit test (deleted by CR-573) read a 目盛ラベル the same way, and it was
+ * the file that owned what the band draws.
  */
 const labelsInOrder = (svg: string): readonly string[] =>
   [...svg.matchAll(/<text\b[^>]*>([\s\S]*?)<\/text>/g)].map((hit) => (hit[1] ?? '').trim())
@@ -437,7 +437,7 @@ const withoutWords = (svg: string): string =>
  * ⚠️ CARRIES rather than IS: FR-038 (MUST NOT) forbids a weekday being written
  * into a requirement or a table, so a case can only ask the dictionary for the
  * roster; and how much of a 段 the word takes up is FR-017's rule and
- * tests/unit/uf-32-ruler-band.test.ts's to drive. ⛔ An empty entry is skipped
+ * was the uf-32 ruler-band unit test's to drive (deleted by CR-573). ⛔ An empty entry is skipped
  * -- FR-038's fallback for a word not yet written matches every label.
  */
 const weekdaySlotIn = (label: string, roster: readonly string[]): number =>
@@ -486,7 +486,7 @@ describe('the document these cases drive', () => {
 describe('UF-48 frameLoop -- BO-5 of table T-077', () => {
   it('puts the first frame up as boot ends, not on the animation frame after it', () => {
     // Table T-078 closes with "⚠️ 最初の 1 枚は 表 T-077 の `BO-5` が起こす" --
-    // the first frame belongs to the boot order, not to any of FT-1..FT-5. So
+    // the first frame belongs to the boot order, not to any of FT-1..FT-4 or FT-6. So
     // it is already on the surface before an animation frame has run.
     const pane = host()
     frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN)
@@ -1509,8 +1509,8 @@ describe('FR-038 -- the display language is the environment, not the document', 
     // ⭐ The language actually arrived: each picture carries the roster of the
     // language its own screen was opened in, and none of the other's.
     // ⚠️ CARRIES, not equals. Whether the 曜日 stands alone on a 段 of its own
-    // is FR-017's, and tests/unit/uf-32-ruler-band.test.ts is the file that
-    // drives it; measuring it a second time here would make one defect fail two
+    // is FR-017's, and the uf-32 ruler-band unit test was the file that
+    // drove it until CR-573 deleted it; measuring it here too would have made one defect fail two
     // files. What is UF-48's is which words got there.
     for (const one of [
       { language: 'ja', printed: printedInJapanese, own: inJa, other: inEn },

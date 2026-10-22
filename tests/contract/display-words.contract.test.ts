@@ -89,8 +89,8 @@
 //      this file raises one telling per row of that table and asks whether the
 //      words arrive. ⚠️ That claim was impossible while the dictionary held no
 //      section a reason could be looked up under -- the debt was the
-//      manuscript's, it has been paid, and tests/unit/uf-67.test.ts no longer
-//      stands red on it.
+//      manuscript's, and it has been paid (the uf-67 unit test that stood
+//      red on it was deleted by CR-573).
 //      ⭐ THE SAME NOW HOLDS OF THE QUESTIONS. FR-076 (MUST) makes what a
 //      question shows a row of table T-234 and bars a question it does not hold
 //      (MUST NOT), so this file raises one question per row of that table too.
@@ -106,7 +106,7 @@
 //      ⛔ THE `notices` SECTION STAYS OUT: what a row of table T-037 is CALLED
 //      is carried by a member of UF-67's that this file may not name, and the
 //      whole-view reading could only reach the three manners table T-233 writes
-//      a row against. `tests/unit/uf-67.test.ts` is where that member is held.
+//      a row against. The uf-67 unit test that held that member was deleted by CR-573.
 //   3. IC-58 / IC-59 / IC-60. Table T-109 stands them on the `Task Group Name
 //      Panel`, which is UF-63's -- not one of the five either. ⚠️ IC-53 and
 //      IC-54 are left out for a different reason: table T-109 marks each of
@@ -289,7 +289,7 @@ const KEY_FIELD: Readonly<Record<string, string>> = {
   properties: 'rowId',
   // ⭐ THE NAME THE SAME PANEL SHOWS FOR A ROW OF TABLE T-104 (CR-344,
   // 2026-09-03). The paragraph under table T-006a
-  // (docs/spec/01-04-requirements.md:316) puts the settings face under the
+  // (docs/spec/01-04-requirements.md) puts the settings face under the
   // property panel's own rule -- 「⛔⛔ **同じ面が文書の設定を出すときも、これに
   // 従うこと（MUST）。内部の綴りや識別子をそのまま出してはならない（MUST NOT）**」
   // -- so the keys of `DocumentSettings` show a WORD now instead of the spelling
@@ -2199,7 +2199,7 @@ for (const section of ['fileStatus', 'exportFormats']) {
 // ⛔⛔ DO NOT REACH FOR THE WITHDRAWN SENTENCE OF FR-038 HERE. 2026-09-04 まで
 // `FR-038` の本文は「表 T-016 の項目名は翻訳の対象ではない」と書いており、この注は
 // かつてそれを根拠にしていた。⛔ 同日の利用者の裁定がそれを撤回し、いまの本文は
-// 逆を定める ——「タスク名とタスクグループ名、および 表 T-016 の項目名も、他の語と同じく表示
+// 逆を定める ——「タスク名とタスクグループ名、および 表 T-016 の項目名も、他の語と同じく画面の
 // 言語に従うこと（MUST）」。⇒ 「タスクグループ名は訳さない」はもう引ける規則ではない。
 // ⭐ WHAT HOLDS THIS OMISSION IS `FR-032` ALONE, and it is enough: the word is
 // settled INTO the document before any frame could print it, so what a reader
@@ -3576,8 +3576,8 @@ describe('CR-194 section 5 / PND-160 -- fill one word of the manuscript and it r
     // ⭐ THE ROSTER IS THE SPECIFICATION'S AND NOT THE MANUSCRIPT'S. Chapter 6.2
     // (MUST NOT) says so: the manuscript holds words only, and the roster sits
     // with the requirement that puts a word on the screen -- for the panel, that
-    // is FR-072. It now names no heading at all: 「⛔ **パネルの先頭に見出しの
-    // 行を置いてはならない（MUST NOT）**」. So the words
+    // is FR-072. It now names no heading at all: 「⛔ **パネルの先頭にタイトルバーを
+    // 置いてはならない（MUST NOT）**」. So the words
     // for `selection`, `documentSettings` and `noSelection` have no roster to be
     // raised from, and a dictionary that still holds them holds words for a part
     // of the screen the requirement forbids.
@@ -3659,7 +3659,7 @@ describe('CR-194 section 5 / PND-160 -- fill one word of the manuscript and it r
     // and is readable here.
     //
     // ⛔ AT-17 IS HELD FIRST, so this case is driven by the specification's own
-    // sentence rather than by the roster below it (Chapter 1.9 :275). AT-17 of
+    // sentence rather than by the roster below it (Chapter 1.9). AT-17 of
     // table T-058: 「週の始まりの曜日。…**`0` が日曜で、土曜の `6` まで 1 ずつ
     // 増える**（正は Chapter 6.2 が指す公式 XSD）。」 ⚠️ Matched in Japanese
     // because that sentence is the only place the specification states the

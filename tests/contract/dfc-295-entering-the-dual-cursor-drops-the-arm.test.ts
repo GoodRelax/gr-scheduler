@@ -1,4 +1,4 @@
-// 表 T-023b の締めの段落 (docs/spec/01-04-requirements.md:2312):
+// 表 T-023b の締めの段落 (docs/spec/01-04-requirements.md):
 //
 //   「**`Dual Cursor` モード（表 T-029a）に入るときも構えを外すこと（MUST）**
 //    —— 同モードは作成・移動・編集を受け付けないので、構えたまま入れると何も

@@ -78,7 +78,7 @@ const settingsOf = (saved: Record<string, unknown>): Record<string, unknown> =>
   saved['documentSettings'] as Record<string, unknown>
 
 describe('CR-572 -- the manuscript these cases are driven by', () => {
-  it('tbl-settings.md:30, FR-024 (01-04:6221, :6227) and FR-063 (01-04:6874) still say it word for word', () => {
+  it('tbl-settings.md, FR-024 and FR-063 still say it word for word', () => {
     expect(SETTINGS_BOOK).toContain(ONLY_CONTENT_IS_HELD)
     expect(SETTINGS_BOOK).toContain(GROUP_IS_DECIDED_BY_T_052)
     expect(REQUIREMENTS).toContain(WRITE_EVERY_KEY)

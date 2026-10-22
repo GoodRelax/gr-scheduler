@@ -37,8 +37,8 @@
 //             大きいことをもって行うこと（MUST）……これが 0 以下になる組を
 //             受け付けてはならない（MUST NOT）」 and 「タスクグループパネルの幅を 0 に
 //             できてはならない（MUST NOT）」.
-//   T-023d    its closing rule for the fade: 「`GA-7` / `GA-8` を掴んでいる
-//             あいだ、置くことになるフェードの形と掴み点を描いて示すこと
+//   T-023d    its closing rule for the fade: 「フェードの掴み点（同表の `GA-7` / `GA-8`）を掴んでいる
+//             あいだは、置くことになるフェードの形と掴み点を描いて示すこと
 //             （MUST）。掴み点はポインタが決める日に置くこと（MUST）……⚠️ 確定は
 //             表 T-028 の `IN-1` に従う（離した時点）」,
 //   T-023d    and the write ban the closing states once for every following
@@ -185,7 +185,7 @@ function pointNamedBy(grabTaskGroup: string): number {
  * `{ 横, 縦 }` by point number.
  *
  * ⛔ `specTable` CANNOT READ THIS ONE. Its first column is 「点」 and not
- * 「行 ID」, so that helper throws by design (Chapter 1.9 :274). The table is
+ * 「行 ID」, so that helper throws by design (Chapter 1.9). The table is
  * still read out of the manuscript rather than copied, for the same reason.
  */
 function fadeOutlinePoints(): Map<number, { readonly x: string; readonly y: string }> {

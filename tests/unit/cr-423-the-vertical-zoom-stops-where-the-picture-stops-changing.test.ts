@@ -724,8 +724,8 @@ describe('T-262 is not applied to MK-2', () => {
 })
 
 describe('CR-423 section 9 -- returned questions', () => {
-  it.skip('the zoomY a fit-all writes when it picks depth 1 -- open: PND-204 (CR-423 question 1)', () => {})
-  it.skip('whether an IC-14 / IC-15 pressed at an end also raises the FR-029 reason notice beside the message -- open: CR-423 question 2', () => {})
+  it.skip('the zoomY a fit-all writes when it picks depth 1 -- PND-204 was ruled by JDG-300, but no clause of the manuscript states the value yet (CR-423 question 1)', () => {})
+  it.skip('whether an IC-14 / IC-15 pressed at an end also raises the FR-029 reason notice beside the message -- ruled by JDG-300 Q9 (it does not); no case written yet (CR-423 question 2)', () => {})
   it.skip('a zoom-in from above the vertical-axis ceiling -- open: DFC-641 item 1 (CR-423 question 3)', () => {})
   it.skip('whether a vertical-axis press that did change zoomY shows a message -- open: CR-423 question 4', () => {})
 })

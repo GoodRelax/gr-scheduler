@@ -96,7 +96,7 @@
 //      case below asserts that exactly ONE of them went, and refuses to say
 //      which.
 //   2. THAT PRESSING IC-52 CLOSES IT. That is the entrance, and
-//      tests/unit/fr-006-panel-close-entrance.test.ts already holds it. ⛔ Not
+//      a unit test CR-573 deleted held it. ⛔ Not
 //      repeated here: FR-029 (MUST NOT) makes them one operation with two ways
 //      in -- a keystroke and an entrance -- and one rule in two files rots.
 //   3. WHETHER THE PANEL COMES BACK on the next selection. ⭐ NO LONGER A HOLE:
@@ -549,7 +549,7 @@ function selectTheTask(built: Stage): void {
  * so these cases double click the bar's body.
  *
  * ⚠️ BOTH HALVES OF THE GESTURE CARRY THE COUNT, the shape
- * tests/unit/t-023d-double-click-only-rows.test.ts drives MK-13 by: IN-1 settles
+ * the t-023d double-click unit test (deleted by CR-573) drove MK-13 by: IN-1 settles
  * a pointer operation on the release, so the release is the half that has to
  * say it was the second click.
  */
@@ -606,7 +606,7 @@ describe('the manuscript still says what these cases read', () => {
     // the manuscript itself calls the panel a 面 and points at the rule that
     // closes one.
     // ⚠️ HOW MANY entrances the table places there is FR-029's rule and
-    // tests/unit/fr-006-panel-close-entrance.test.ts owns it; this case reads
+    // was held by a unit test CR-573 deleted; this case reads
     // only that one of them names the panel a 面 and points at IN-4.
     const entrance = PANEL_ENTRANCES.find((row) => bare(row.by[AUTHORITY_COLUMN] ?? '') === 'IN-4')
     expect(entrance, `a row of table T-109 stands on ${U_25} on IN-4's authority`).not.toBe(

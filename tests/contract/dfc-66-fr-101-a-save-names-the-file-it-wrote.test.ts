@@ -7,8 +7,8 @@
 // of 表 T-062). It is the unit that holds the current value and drives the save
 // road, so it is the only side that HAS a saved file to name; UF-62
 // `app-header-items.ts` turns whatever it is handed into the two members
-// (tests/unit/uf-62.test.ts owns that mapping) and UF-71 places them
-// (tests/unit/fr-101-the-name-stands-above-the-time.test.ts owns the order).
+// (the uf-62 unit test that owned that mapping was deleted by CR-573) and UF-71 places them
+// (tests/contract/fr-101-the-name-stands-above-the-time.test.ts owns the order).
 //
 // ⚠️ Chapter 9 does not admit Unit as a TEST_LEVEL, so these have no node in
 // the specification. 表 T-218 of Chapter 7 gives them their place: TS-6,
@@ -26,9 +26,9 @@
 // いた。**それがこの行の正体である。**」 CR-280 raised `FR-101` to say what the
 // screen owes instead, and the row's own note says the fix is 「まだ半分しか見て
 // いない」: nothing in tests/ presses save and asks what the header carries
-// afterwards. ⭐ tests/unit/uf-62.test.ts:426 asks the neighboring question --
+// afterwards. ⭐ the uf-62 unit test (deleted by CR-573) asked the neighboring question --
 // that a session ALREADY carrying a name and a moment reaches the two members --
-// and can be green while no save ever fills that session in.
+// and could be green while no save ever filled that session in.
 //
 // ---------------------------------------------------------------------------
 // THE ROWS THESE CASES ANSWER TO (rule 03 §3: name the row, do not copy it)
@@ -87,7 +87,7 @@
 //      manuscript, not a reading of it.
 //   2. WHERE THE TWO STAND ON THE SCREEN. `FR-101`'s 「名前を時刻の上に置くこと
 //      （MUST）」 is UF-71's by 表 T-075, and
-//      tests/unit/fr-101-the-name-stands-above-the-time.test.ts holds it.
+//      tests/contract/fr-101-the-name-stands-above-the-time.test.ts holds it.
 //   3. THE SPELLING OF THE MOMENT ON THE SCREEN. `FR-101` says in as many words
 //      「⚠️ **時刻の綴りそのものは本書が定めない**」, so nothing here reads the
 //      drawn text; what is asserted is the STORED value, which the same
@@ -128,7 +128,7 @@ import { bare, specTable, type SpecRow, type SpecTable, unbroken } from './spec-
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 // ---------------------------------------------------------------------------
-// The manuscript, read at read time rather than copied (Chapter 1.9, :275)
+// The manuscript, read at read time rather than copied (Chapter 1.9)
 // ---------------------------------------------------------------------------
 
 const T_036: SpecTable = specTable('T-036')

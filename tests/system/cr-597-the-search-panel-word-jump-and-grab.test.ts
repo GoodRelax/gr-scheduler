@@ -320,7 +320,7 @@ async function grabAndHold(page: Page, from: Spot, dx: number, dy: number): Prom
 }
 
 test.describe('CR-597 -- the clauses these cases are driven by', () => {
-  test('IF-9, SV-5, SV-10, SV-11, SJ-1, SJ-2, SJ-4, GR-24, GR-25, RG-15, AM-25 and IN-1 still read this way', () => {
+  test('IF-9, SV-5, SV-10, SV-11, SJ-1, SJ-2, SJ-4, GR-24, GR-25, RG-16, AM-25 and IN-1 still read this way', () => {
     expect(DESIGN).toContain(IF_9_WORD)
     expect(DESIGN).toContain(IF_9_POINT)
     expect(DESIGN).toContain(IF_9_OTHER_CELLS)

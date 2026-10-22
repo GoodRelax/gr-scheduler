@@ -1,4 +1,4 @@
-// `FR-028`'s STATEMENT (docs/spec/01-04-requirements.md:3616):
+// `FR-028`'s STATEMENT (docs/spec/01-04-requirements.md):
 
 import { emptyChangeWatchers } from '../../src/use-case/notify-change-watchers/notify-change-watchers'
 import { readFileSync } from 'node:fs'

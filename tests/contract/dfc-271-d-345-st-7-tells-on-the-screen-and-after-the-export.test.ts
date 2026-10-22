@@ -190,7 +190,7 @@ const MANNER_OF_RS_24 = bare(rowOf(T_233, RS_24).by['作法'] ?? '')
 
 /**
  * The keystroke 表 T-036 assigns one row, read out of its 割当 column.
- * ⚠️ Copied from tests/unit/dfc-337-....test.ts, including its warning against
+ * ⚠️ Copied from tests/contract/dfc-337-fr-029-the-three-file-gates-say-why-on-a-second-press.test.ts, including its warning against
  * `bare`: `SK-21`'s 割当 is 「`Ctrl` ＋ `R`」 and `bare` would answer `Ctrl`.
  */
 function keyOf(id: string): KeyInput {

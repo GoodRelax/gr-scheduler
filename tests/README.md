@@ -25,17 +25,18 @@ is verified is table T-334 of Chapter 7, and the result is the output of the
 gate run. A test under `integration/` or `system/` still carries, in a form a
 machine can read, the `SWS-xxx` it hangs from and its GIVEN / WHEN / THEN.
 
-The contract row is the reason this directory exists. Seventy-one units can each
-be green on their own while the application does not run, and the place that
+The contract row is the reason this directory exists. Every unit can be green
+on its own while the application does not run, and the place that
 breaks is always the seam between two of them. A test owned by one side of a
 seam tests that side's idea of the seam, which is the thing in question.
 
 ## How a contract test is written
 
-Chapter 1.9 of `docs/spec/01-04-requirements.md` sets both rules:
+Chapter 1.9 of `docs/spec/01-04-requirements.md` hands its writing rules to
+`docs/development-rules/08-spec-template/spec-writing-rules.md`, which sets both:
 
-- `:274` (MUST) the first column of a table is the row ID
-- `:275` (SHOULD) a test that verifies a requirement pointing at a table is
+- (MUST) the first column of a table is the row ID
+- (SHOULD) a test that verifies a requirement pointing at a table is
   driven by fixed data copied from that table — **one test walks every row**,
   rather than one test per row
 
@@ -52,8 +53,8 @@ later can tell why" is made of; more prose does not make it.
 
 ```
 tests/
-  contract/     Vitest.      *.contract.test.ts, driven by a specification table
-  integration/  Vitest.      *.sws.test.ts, one case per SWS node of Chapter 6.1
+  contract/     Vitest.      the seams, each driven by a specification table
+  integration/  Vitest.      units wired together; a file for an SWS node is *.sws.test.ts
   unit/         Vitest.      only where no omission rule applies
   use-case/     Playwright.  one per UC-xxx, on the built dist/index.html over file://
   system/       Playwright.  *.sws.test.ts and the rest, through the UI

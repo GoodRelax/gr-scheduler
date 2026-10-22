@@ -530,7 +530,7 @@ const emptyDragPoint = (loop: FrameLoop): Point => {
 // with no assumption beyond "it is SVG".
 //
 // ⭐ The four helpers below are copied in shape from
-// tests/unit/t-023c-selected-line-width.test.ts, which reads the OTHER half of
+// the t-023c selected-line-width unit test (deleted by CR-573), which read the OTHER half of
 // the same pair of settings out of the same kind of string.
 // ===========================================================================
 

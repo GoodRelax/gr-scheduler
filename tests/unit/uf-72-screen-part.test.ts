@@ -1,5 +1,5 @@
 // Unit tests for the THIRD member of `ScreenSurface` -- `readScreenPartAt`,
-// which CR-192 added to IF-9 of 表 T-065 (docs/spec/05-07-design.md:386). The
+// which CR-192 added to IF-9 of 表 T-065 (docs/spec/05-07-design.md). The
 // unit that implements it is UF-71 `dom-screen-surface.ts` (表 T-075),
 // component `DomScreenSurface` (CP-38 of 表 T-062), published as PI-38 of
 // 表 T-064.
@@ -46,7 +46,7 @@
 //                   UI パーツ（表 T-103）のどの入口（表 T-109）の上かを答える」,
 //                   with the MUST under that table (:390): the side that DREW an
 //                   entry is the side that answers where it is
-//   表 T-023a       (MUST, 01-04-requirements.md:2251) 判定順序を適用するのは
+//   表 T-023a       (MUST, 01-04-requirements.md) 判定順序を適用するのは
 //                   日程の描画領域だけとすること -- the floating palette, the
 //                   open surface and the `Notification Area`
 //                   hold no `ScreenRegions` rectangle, so a non-null
@@ -71,7 +71,7 @@
 //                   and never by the `Task Group Title Tree`; and 表 T-109's 面 column
 //                   is the containing surface, not the grouping inside it
 //   表 T-206 S-99g  「面」とは、画面の上に重ねて開き、`Esc` の第 1 階層で閉じ
-//                   られるもの (_assets/tbl-settings.md:251) -- with IN-4 of
+//                   られるもの (_assets/tbl-settings.md) -- with IN-4 of
 //                   表 T-028 putting 開いている面 FIRST in that order, an open
 //                   surface stands over the palette where the two overlap
 //   表 T-077 BO-1   nothing is drawn until the dimensions are settled, so before
@@ -415,7 +415,7 @@ function entranceForRule(rule: string): string {
  *
  * ⚠️ WHAT THE CLOSING SIDE MEANS WAS REPLACED ON 2026-08-30 (利用者の裁定,
  * recorded in `HF-3`'s own cell). `IC-59` used to be 表 T-015 の `HR-5`
- * (そのタスクグループ自身を折りたたむ); it is now `HR-6` -- 「**隠す操作子は、そのタスクグループを隠すこと
+ * (そのタスクグループ自身を折りたたむ); it is now `HR-6` -- 「タスクグループを隠す。**あわせて、そのタスクグループと、その配下を折りたたんだ状態にすること
  * （MUST）**」 -- and `HR-5` stays in 表 T-015 with no entrance at all. ⛔ It is
  * the MEANING that moved and not the roster row: this unit still owes them
  * nothing but telling a press on one from a press on another.
@@ -502,7 +502,7 @@ const T_051_HF1_LATTICE = [
 
 /**
  * 表 T-051 — the rules the pair above answers to, copied from
- * docs/spec/01-04-requirements.md:1307-1309.
+ * docs/spec/01-04-requirements.md.
  *
  * ⚠️ HF-2 and HF-3 are what the two ENTRIES mean; neither is carried out by this
  * unit, which draws. What this unit owes them is that a press on either can be
@@ -1338,7 +1338,7 @@ const PALETTE_BOX = rect(400, 300, 220, 180)
  *
  * ⚠️ THE NUMBER IS THIS FILE'S OWN, and 表 T-206 states the real one at
  * `S-135a`. Rule 03 section 1 keeps that value in one place and
- * `tests/unit/uf-65.test.ts` is the bench that holds a described band to the
+ * the uf-65 unit test (deleted by CR-573) was the bench that held a described band to the
  * manuscript; what THIS unit owes GR-19 is that a point on the band answers the
  * band, whatever height the description carries. ⭐ Chosen to stop exactly where
  * the first row of entries begins, so R3.4 has one edge to resolve between them.
@@ -1852,7 +1852,7 @@ describe('IF-9 of 表 T-065 -- one member per supply the cell names', () => {
 })
 
 describe("表 T-023a (MUST) -- the decision order is the drawing area's alone", () => {
-  // ⛔ 01-04-requirements.md:2251 「判定順序を適用するのは日程の描画領域だけとする
+  // ⛔ 01-04-requirements.md 「判定順序を適用するのは日程の描画領域だけとする
   // こと（MUST）」. The three parts below hold no `ScreenRegions` rectangle -- PI-35
   // has six and none of them is one of these -- so `regionAtPointer` answers
   // `taskGroupArea` for a point on any of them. A non-null answer here is what stops
@@ -2343,11 +2343,11 @@ describe('the entries of 表 T-109 on the `Task Group Panel`', () => {
   // at the registration site (see the note in `LAYOUT`); the expectation was
   // never touched (docs/development-rules/04-verification.md §1).
   //
-  // 表 T-065 IF-9, docs/spec/05-07-design.md:386, and its MUST at :390:
+  // 表 T-065 IF-9, docs/spec/05-07-design.md, and its MUST:
   //   「画面上の点がどの UI パーツ（表 T-103）のどの入口（表 T-109）の上かを答える」
   //   「点がどの入口の上かは、その入口を描いた側が答えること（MUST）」
   //
-  // 表 T-109, docs/spec/_assets/tbl-glossary.md:503-505, holds three entries on
+  // 表 T-109, docs/spec/_assets/tbl-glossary.md, holds three entries on
   // the `Task Group Panel`:
   //   IC-58  タスクグループの配下をすべて展開する            表 T-051 の HF-2
   //   IC-59  そのタスクグループ自身を折りたたむ               表 T-051 の HF-3
@@ -2390,7 +2390,7 @@ describe('the entries of 表 T-109 on the `Task Group Panel`', () => {
 // controls DO (`HF-2` opens the row's whole subtree, `HF-3` collapses the row
 // itself -- 表 T-015's `HR-3` and `HR-5`); carrying that out is the use case's. What IF-9 owes, and all these cases ask for, is that a
 // press on one can be told from a press on the other -- 「点がどの入口の上かは、
-// その入口を描いた側が答えること（MUST）」 (docs/spec/05-07-design.md:390). ⛔ A
+// その入口を描いた側が答えること（MUST）」 (docs/spec/05-07-design.md). ⛔ A
 // unit that drew one control, or that drew two and named neither, would leave
 // the shell with one place to hang two different effects on, and 表 T-051 would
 // have no way to be obeyed downstream.
@@ -2536,7 +2536,7 @@ describe('表 T-051 HF-1 -- one opening control and one closing control per task
     //
     //   `HF-13` (docs/spec/01-04-requirements.md):
     //     「**1 階層だけ展開する操作子を、タスクグループごとに 1 つ置くこと（MUST）**」
-    //     「⛔ **開ける直下の子が 1 つも無いときは、`FR-029` に従って薄く描く
+    //     「⛔ **展開できる直下の子が 1 つも無いときは、`FR-029` に従って薄く描く
     //       こと（MUST）**」
     //   `HF-14`:
     //     「**配下にタスクグループを足す操作子を、タスクグループごとに 1 つ置くこと（MUST）**」
@@ -2584,7 +2584,7 @@ describe('表 T-051 HF-1 -- one opening control and one closing control per task
 //     表 T-015 の `HR-7` である。⭐ 「**`HF-2`（配下をすべて展開する）とは別の入口と
 //     すること（MUST）。同じ入口に兼ねさせてはならない（MUST NOT）**」 ——
 //     「押すたびに違う量を展開する入口は、何が起きるかを押す前に読めない」。
-//     ⛔ 「**開ける直下の子が 1 つも無いときは、`FR-029` に従って薄く描くこと
+//     ⛔ 「**展開できる直下の子が 1 つも無いときは、`FR-029` に従って薄く描くこと
 //     （MUST）。**」⭐ 「**入口は 表 T-109 の `IC-90` である**」
 //   `HF-14`: 「**配下にタスクグループを足す操作子を、タスクグループごとに 1 つ置くこと（MUST）**」 ——
 //     表 T-015 の `HR-8` である。⭐ 「**入口は 表 T-109 の `IC-91` である**」
@@ -2673,7 +2673,7 @@ describe('表 T-051 HF-13 -- 1 階層だけ展開する操作子を、タスク�
     expect(ask(built, AT.taskGroupExpanderOpen.x, AT.taskGroupExpanderOpen.y)?.entry).toBe(IC_OPEN_ALL_BELOW)
   })
 
-  it(`⛔ GIVEN a task group with no direct child to open WHEN it is drawn THEN ${IC_OPEN_ONE_LEVEL} is drawn FAINT and not taken away (「開ける直下の子が 1 つも無いときは、FR-029 に従って薄く描くこと（MUST）」)`, () => {
+  it(`⛔ GIVEN a task group with no direct child to open WHEN it is drawn THEN ${IC_OPEN_ONE_LEVEL} is drawn FAINT and not taken away (「展開できる直下の子が 1 つも無いときは、FR-029 に従って薄く描くこと（MUST）」)`, () => {
     const armed = drawn(twoTaskGroups({ canOpenOneLevel: true }))
     const spent = drawn(twoTaskGroups({ canOpenOneLevel: false }))
     const armedOne = everyEntry(armed, IC_OPEN_ONE_LEVEL)[0] as FakeElement
@@ -2698,7 +2698,7 @@ describe('表 T-051 HF-13 -- 1 階層だけ展開する操作子を、タスク�
 
     // ⛔ FR-029: 「**薄く描いた入口を、宿主の意味で無効にしてはならない
     // （MUST NOT）** —— 無効にすると押下そのものが届かず、下の理由を告げる引き金
-    // が消える。**押されたときに限り、行えない理由を通知すること（MUST）**」.
+    // が消える。**押されたときに限り、行えない理由を通知の仕組みへ運ぶこと（MUST）**」.
     // ⭐ 表 T-233's `RS-30`「直下に、画面へ戻せる子が 1 つも無い」 is the reason waiting
     // on that press, and a `disabled` attribute is what would swallow it.
     expect(
@@ -2889,7 +2889,7 @@ describe('表 T-109 IC-58 / IC-59 -- the entry a press on either side answers', 
     expect([opening?.entry, closing?.entry]).toEqual(['IC-58', 'IC-59'])
   })
 
-  it('GIVEN the pair is drawn WHEN the entries answered are compared with the tree THEN the unit answers only what it itself drew (IF-9 MUST, 05-07-design.md:390)', () => {
+  it('GIVEN the pair is drawn WHEN the entries answered are compared with the tree THEN the unit answers only what it itself drew (IF-9 MUST, 05-07-design.md)', () => {
     const built = drawn(withExpander({ canOpen: true, canClose: true, canCloseBelow: false }))
 
     for (const one of T_109_TASK_GROUP_EXPANDER) {
@@ -3038,7 +3038,7 @@ describe('the Task Group Expander at the edges -- R3.4, the bare panel, and a re
 // A BOX, AND MUST TAKE THE POINTER.
 //
 // ⭐ WHY THIS BLOCK EXISTS. 表 T-109 puts three entries on the `Task Group Name
-// Panel` (_assets/tbl-glossary.md:499-501) and 表 T-065's IF-9 joins each to a
+// Panel` (_assets/tbl-glossary.md) and 表 T-065's IF-9 joins each to a
 // point on the screen. Twenty-one of these controls were found in the live DOM
 // at 4 x 0 pixels: they could not be seen and could not be pressed. ⛔ EVERY
 // CASE IN THIS FILE WAS GREEN WHILE THAT WAS TRUE, and the reason is worth
@@ -3079,10 +3079,10 @@ describe('the Task Group Expander at the edges -- R3.4, the bare panel, and a re
 //   FR-029          RATIONALE 「無反応だと故障に見える」
 // ===========================================================================
 
-/** 表 T-051 HF-5, copied from docs/spec/01-04-requirements.md:1311. */
+/** 表 T-051 HF-5, copied from docs/spec/01-04-requirements.md. */
 const T_051_HF5_SAME_SIZE = '操作子を同じ大きさで描くこと（MUST）'
 
-/** FR-098's MUST, copied from docs/spec/01-04-requirements.md:2594. */
+/** FR-098's MUST, copied from docs/spec/01-04-requirements.md. */
 const FR_098_ONE_PER_TASK_GROUP = 'タスクグループパネルの各タスクグループに 1 つ置くこと（MUST）'
 
 /** A length that contributes nothing. ⚠️ `none` and `auto` are a length's absence, not zero. */
@@ -3399,7 +3399,7 @@ describe('表 T-109 IC-58 / IC-59 / IC-60 -- the control takes the pointer', () 
       const node = entryFor(built.root(), row)
       const reaching = inheritedPointerEvents(node)
 
-      // ⛔ FR-098 (docs/spec/01-04-requirements.md:2594, MUST):
+      // ⛔ FR-098 (docs/spec/01-04-requirements.md, MUST):
       //   「ピン止めの操作子（`Task Group Pin`）を、タスクグループパネルの各タスクグループに 1 つ置くこと
       //    （MUST）」…「その操作子で同じようにピン止めを外せること（MUST）」
       // 「外せること」 is a press. 表 T-051 HF-1 asks the same of the expander,
@@ -3407,7 +3407,7 @@ describe('表 T-109 IC-58 / IC-59 / IC-60 -- the control takes the pointer', () 
       // ⚠️ `pointer-events` INHERITS. A control inside a subtree that declared
       // `pointer-events:none` is not a hit target, so a real
       // `document.elementFromPoint` answers whatever is BEHIND it and IF-9 can
-      // never name the entry -- which is 表 T-065's MUST at 05-07-design.md:390
+      // never name the entry -- which is 表 T-065's MUST at 05-07-design.md
       // failing in the browser while every case above stays green, because the
       // fake's `stackAt` models `visibility` and `display` and not this.
       expect(
@@ -3435,20 +3435,20 @@ describe('表 T-109 IC-58 / IC-59 / IC-60 -- the control takes the pointer', () 
 // controls are kept from being drawn while nothing points at them, and whether
 // a pointer draws them -- and asks them of the same three controls.
 //
-// FR-098 (docs/spec/01-04-requirements.md:2610) binds the `Task Group Pin` to that row
+// FR-098 (docs/spec/01-04-requirements.md) binds the `Task Group Pin` to that row
 // rather than restating it, which is why all three answer to it:
 //   「置き方・大きさ・濃さと、並べた結果が収まらないときの扱いは、折りたたみの
 //     操作子と同じとする（表 T-051 の `HF-4` 〜 `HF-6` と `HF-9`）」
 // ===========================================================================
 
-/** FR-098's referral of 置き方 to HF-4 .. HF-6, copied from docs/spec/01-04-requirements.md:2610. */
+/** FR-098's referral of 置き方 to HF-4 .. HF-6, copied from docs/spec/01-04-requirements.md. */
 const FR_098_SAME_AS_THE_EXPANDER = '置き方・大きさ・濃さと'
 
 // ===========================================================================
 // 表 T-051 HF-4 -- THE CONTROLS HOLD THE RIGHT EDGE, WHATEVER THE NAME IS AND
 // HOWEVER DEEP THE TASK GROUP SITS.
 //
-// 表 T-051 HF-4 (docs/spec/01-04-requirements.md:1310, MUST):
+// 表 T-051 HF-4 (docs/spec/01-04-requirements.md, MUST):
 //   「タスクグループ名の長さにかかわらず、操作子をタスクグループパネルの右端に揃えること
 //     （MUST）」—— 名前ごとに位置が変わると狙えない
 // FR-098 (:2594) binds the `Task Group Pin` to that rule rather than restating it:
@@ -3490,7 +3490,7 @@ const FR_098_SAME_AS_THE_EXPANDER = '置き方・大きさ・濃さと'
 // so a task group narrower than the panel would be UF-63's finding, not this unit's.
 // ===========================================================================
 
-/** 表 T-051 HF-4, copied from docs/spec/01-04-requirements.md:1310. */
+/** 表 T-051 HF-4, copied from docs/spec/01-04-requirements.md. */
 const T_051_HF4_RIGHT_EDGE =
   'タスクグループ名の長さにかかわらず、操作子をタスクグループパネルの右端に揃えること（MUST）'
 
@@ -3511,7 +3511,7 @@ function settingNumber(table: string, row: string): number {
 /**
  * `maxGroupDepth` (S-125) as 表 T-211 holds it.
  *
- * ⭐ 表 T-211 (docs/spec/_assets/tbl-settings.md:286): 「`TaskGroup` の深さの上限。
+ * ⭐ 表 T-211 (docs/spec/_assets/tbl-settings.md): 「`TaskGroup` の深さの上限。
  * …**根のタスクグループを深さ 1 と数える**」 -- so 1 and this number are the two ends.
  */
 const MAX_GROUP_DEPTH = settingNumber('T-211', 'S-125')
@@ -3890,7 +3890,7 @@ describe('表 T-051 HF-4 / FR-085 -- the task group depth moves the name, never 
     },
   )
 
-  it('⭐ GIVEN the deepest task group S-125 allows and a root task group WHEN their drawings are compared THEN they DIFFER -- the depth was spent, and spent on the name side (FR-085 :1272)', () => {
+  it('⭐ GIVEN the deepest task group S-125 allows and a root task group WHEN their drawings are compared THEN they DIFFER -- the depth was spent, and spent on the name side (FR-085)', () => {
     const root = drawn(taskGroupNamed('TaskGroupOne', 1))
     const deepest = drawn(taskGroupNamed('TaskGroupOne', MAX_GROUP_DEPTH))
 
@@ -4047,7 +4047,7 @@ function restingDeclaration(
   return found
 }
 
-/** 表 T-051 HF-6's two rules, copied from docs/spec/01-04-requirements.md:1312. */
+/** 表 T-051 HF-6's two rules, copied from docs/spec/01-04-requirements.md. */
 const T_051_HF6_ONLY_WHILE_POINTED =
   '操作子は、そのタスクグループ名か、そのタスクグループのために描いた操作子の群（下の段が地を敷く範囲）にポインタが乗っているあいだだけ描くこと（MUST）'
 const T_051_HF6_THE_GROUP_STAYS =

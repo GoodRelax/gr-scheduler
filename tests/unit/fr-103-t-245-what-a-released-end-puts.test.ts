@@ -606,7 +606,7 @@ describe('table T-245 GO-3 -- the actual end', () => {
     expect(actualLengthOf(monday.after) - actualLengthOf(friday.after)).toBe(1)
   })
 
-  it('GO-3: 離した日が非稼働日であっても、その日を最後の日とすること（MUST） -- released on Sat 18', () => {
+  it('GO-3: 離した所が非稼働日であっても、その日を最後の日とすること（MUST） -- released on Sat 18', () => {
     const friday = actualEndReleasedAt(2)
     const saturday = actualEndReleasedAt(3)
     expect([friday.released, saturday.released], 'premise').toEqual(['2026-04-17', '2026-04-18'])
