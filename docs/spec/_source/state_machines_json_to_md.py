@@ -66,6 +66,8 @@ import os
 import re
 import sys
 
+from spec_md_printing import say
+
 HERE = os.path.dirname(os.path.abspath(__file__))
 SPEC = os.path.dirname(HERE)
 ASSETS = os.path.join(SPEC, '_assets')
@@ -95,13 +97,6 @@ ROW = re.compile(r'^\|\s*(?:\*\*)?`?([A-Z][A-Za-z]*-\d+[a-z]?)`?(?:\*\*)?\s*\|')
 UID = re.compile(r'^\*\*UID\*\*:\s*(\S+)')
 PLACEHOLDER = re.compile(r'^\{([a-z][A-Za-z0-9]*)\}$')
 GUARD_NAME = re.compile(r'^(is|has|can)[A-Z]')
-
-
-def say(message):
-    """The console may be cp932 while the manuscript quotes marks it cannot
-    print; the same guard settings_json_to_md.py carries."""
-    enc = getattr(sys.stdout, 'encoding', None) or 'utf-8'
-    sys.stdout.write(message.encode(enc, 'replace').decode(enc) + '\n')
 
 
 def text(value):

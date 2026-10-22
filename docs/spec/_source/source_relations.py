@@ -71,7 +71,6 @@ NAME_FAMILY = {
     'node': 'component names',
     'schema': 'schema',
 }
-FIELD_ORDER = ('$schema',)
 
 # The order of the files that other files name, left to right.
 TARGET_ORDER = ['components.json', 'agent-api-members.json',
