@@ -46,6 +46,10 @@ EXEMPT = (
     'docs/development-records/fixed-defects.md',
     'docs/development-records/changelog.md',
     'docs/development-records/pending-decisions.md',
+    # The plan one round back, copied byte for byte when the plan is redrawn
+    # (JDG-2307): a frozen record, not a living document. Counting it reddened
+    # GT-2 on 9eb28ce44 (28 words against a baseline of 16) for a copy nobody wrote.
+    'docs/development-records/previous-plan.json',
     'docs/development-records/history/',
     'docs/development-records/measurements/',
     'docs/review/',

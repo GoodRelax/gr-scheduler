@@ -29,6 +29,6 @@
 | 体 | サブエージェント |
 | 指令役 | 調整役 |
 
-⭐ **数えないもの**: 「」の中（人の言葉の逐語と、本表のような語の名指し）・バッククォートの中・逐語の記録（`rulings.md`・`defects.md`・`fixed-defects.md`・`changelog.md`・`pending-decisions.md`・`history/`・`change-request/`・`docs/review/`）。どのファイルを見るかは検査の道具の頭が持つ。
+⭐ **数えないもの**: 「」の中（人の言葉の逐語と、本表のような語の名指し）・バッククォートの中・逐語の記録（`rulings.md`・`defects.md`・`fixed-defects.md`・`changelog.md`・`pending-decisions.md`・`previous-plan.json`（1 つ前の計画の写し）・`history/`・`change-request/`・`docs/review/`）。どのファイルを見るかは検査の道具の頭が持つ。
 
 ⚠️ **すでに書かれた旧い語は基準線に数えてある**（`.claude/skills/spec-graph-check/old-session-words-baseline.txt`）。基準線より増えたファイルだけが赤になる。置き換えは別の波で行う。
