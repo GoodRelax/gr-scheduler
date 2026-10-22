@@ -70,6 +70,8 @@ import os
 import re
 import sys
 
+from spec_md_printing import say, schema_problems
+
 HERE = os.path.dirname(os.path.abspath(__file__))
 ASSETS = os.path.join(os.path.dirname(HERE), '_assets')
 SRC = os.path.join(HERE, 'published-entries.json')
@@ -85,14 +87,6 @@ BR = '<br>'
 INDENT = chr(0x3000) * 2     # the lines under a member name, two ideographic spaces
 # The same reading check 26b makes of one piece of the member cell.
 PUBLISHED_NAME = re.compile(u'^`[A-Za-z_$][A-Za-z0-9_$]*`(?:$|' + OPEN + u')')
-
-
-def say(message):
-    """The Windows console is cp932 and these messages quote a manuscript
-    holding marks it cannot encode, so write them through a replacing
-    encoder rather than raise from inside the problem reporter."""
-    enc = getattr(sys.stdout, 'encoding', None) or 'utf-8'
-    sys.stdout.write(message.encode(enc, 'replace').decode(enc) + '\n')
 
 
 def prose(cell):
@@ -123,18 +117,8 @@ def member_cell(members):
     return (BR + SLASH + u' ').join(piece_text(one) for one in members)
 
 
-def schema_problems(doc):
-    try:
-        import jsonschema
-    except ImportError:
-        return []
-    schema = json.load(io.open(SCHEMA, encoding='utf-8'))
-    return ['schema: %s at /%s' % (e.message, '/'.join(str(p) for p in e.path))
-            for e in jsonschema.Draft202012Validator(schema).iter_errors(doc)]
-
-
 def problems(doc):
-    found = schema_problems(doc)
+    found = schema_problems(doc, SCHEMA)
     if found:
         return found
     t_id = doc['table']['id']

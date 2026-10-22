@@ -1087,7 +1087,7 @@
   {
    "from": "docs/spec/_source/settings.json",
    "to": "docs/spec/_source/property-items.json",
-   "count": 10
+   "count": 9
   },
   {
    "from": "docs/spec/_source/settings.json",
