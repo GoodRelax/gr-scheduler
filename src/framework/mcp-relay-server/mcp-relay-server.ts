@@ -56,7 +56,7 @@ type RelayedAnswer = Parameters<typeof mcpToolResultOf>[1]
 type RelayedCall = NonNullable<ReturnType<typeof relayedCallOf>>
 type McpToolResult = ReturnType<typeof mcpToolResultOf>
 
-// WHY: the version is package.json's, defined by the relay build (vite.relay.config.ts);
+// WHY: the version is grsRelay's in tools/artifact-versions.json, defined by the relay build (vite.relay.config.ts);
 // a run from source (a test) has no build, so it says so instead.
 declare const __GRS_RELAY_VERSION__: string
 const RELAY_VERSION =

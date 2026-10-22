@@ -5,6 +5,7 @@
 
 import {
   MINUTES_PER_CALENDAR_DAY,
+  MS_PER_DAY,
   compareDays,
   dayFromSerial,
   dayOf,
@@ -101,7 +102,7 @@ function isWorkingDayAt(index: CalendarIndex, atSerial: number): boolean {
 
 /** @purity pure */
 function dayTypeAt(atSerial: number): number {
-  return new Date(atSerial * 86400000).getUTCDay() + 1
+  return new Date(atSerial * MS_PER_DAY).getUTCDay() + 1
 }
 
 /** @purity pure */
@@ -233,12 +234,6 @@ export function nextWorkingDay(within: WorkingCalendar, from: CalendarDay): Cale
     at += 1
   }
   return dayFromSerial(at)
-}
-
-// see FR-159, WH-3
-/** @purity pure */
-export function previousWorkingDay(within: WorkingCalendar, from: CalendarDay): CalendarDay {
-  return dayFromSerial(previousWorkingSerial(indexOfCalendar(within), serial(from), within.calendar.uid))
 }
 
 /** @purity pure */

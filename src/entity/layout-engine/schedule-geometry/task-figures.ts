@@ -827,17 +827,6 @@ export function taskGeometryOf(inputs: GeometryInputs, task: Task, placed: TaskP
 //   docs/spec/_source/settings.json (table T-206)
 // Rebuild: npm run gen   ||   npm run gen:check fails on drift.
 // see T-206
-export const NOT_STORED_DUMMY_SIZES: {
-  readonly 'S-180': number
-  readonly 'S-247': number
-  readonly 'S-585': number
-} = {
-  'S-180': 30,
-  'S-247': 0.5,
-  'S-585': 60,
-}
-
-// see T-206
 const NOT_STORED_DEADLINE_MARK_SIZES: {
   readonly 'S-365': number
   readonly 'S-366': number

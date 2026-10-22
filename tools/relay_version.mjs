@@ -1,5 +1,5 @@
 // The version of a published artifact: the UTC time its inputs last changed, read from
-// tools/artifact-versions.json (CR-820, design-mcp-relay.md section 6).
+// tools/artifact-versions.json (CR-820, docs/development-rules/10-versions.md).
 //
 //     node tools/relay_version.mjs        -> {"builtAt":"2026-10-19T19:51:01Z","semver":"2026.1019.195101"}
 //

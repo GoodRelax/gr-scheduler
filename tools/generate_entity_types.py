@@ -3348,23 +3348,13 @@ TARGETS = [
     (os.path.join(MODEL, 'screen-state', 'screen-state.ts'),
      lambda _erd: search_panel_font_sizes_block(),
      ['docs/spec/_source/settings.json (table T-333)']),
-    # ⭐ The name label's lift, in the unit that decides where the label goes.
-    # The label column of table T-012 is what chooses whether the gap applies.
-    # ⭐⭐ AND S-180 BESIDE IT, BECAUSE THE DRAWN MARK IS READ TWICE. Table
-    # T-023d's closing rule (MUST) sends 「描かれたダミー
-    # の印の画素」 to GR-17, so the hit test has to know the rectangle the mark
-    # was drawn in. DM-3 of table T-240 (CR-421) states its width as the
-    # marker's diameter times S-247, at most S-180, which only a unit holding
-    # the placed label font can solve. ⇒ This unit solves it once, onto
-    # `DummyGeometry.ink`, and the renderer and the hit test both read that one
-    # rectangle (`schedule-layout.ts` counts the same width into its reach, and
-    # may not import this unit, which imports it). ⛔ Solving it in the renderer and
-    # again in the hit test is the copied-value defect rule 03 section 1 names.
-    # It stands in task-figures.ts, the one unit of ScheduleGeometry that reads
-    # it (CR-554 15.6.7); the public entry re-exports it for the tests.
+    # The deadline mark's head and shaft (S-366, S-367), drawn here.
+    # NOT_STORED_DUMMY_SIZES no longer stands here: the dummy mark's width
+    # (DM-3 of table T-240) is solved once, by `dummyInkWidthOf` in
+    # schedule-layout.ts, and this unit copies that width onto
+    # `DummyGeometry.ink`, which the renderer and the hit test (GR-17) both read.
     (os.path.join(LAYOUT, 'schedule-geometry', 'task-figures.ts'),
-     lambda _erd: not_stored_block('NOT_STORED_DUMMY_SIZES') + NEWLINE * 2
-     + not_stored_block('NOT_STORED_DEADLINE_MARK_SIZES'),
+     lambda _erd: not_stored_block('NOT_STORED_DEADLINE_MARK_SIZES'),
      ['docs/spec/_source/settings.json (table T-206)']),
     # S-447 STANDS HERE AS WELL AS IN `svg-renderer.ts`, for the same reason
     # (CR-399). Table T-023d's closing rule (MUST) has GR-13 take only the
@@ -3447,6 +3437,8 @@ TARGETS = [
     # anywhere -- not even in this file. JDG-139 prints a constant nobody
     # outside its file reads as a plain `const`, and a plain `const` nobody
     # reads at all is refused by noUnusedLocals, so it is no longer generated.
+    # NOT_STORED_DUMMY_SIZES leads it now for `dummyInkWidthOf` (DM-3), the one
+    # place the dummy mark's width is solved.
     (os.path.join(LAYOUT, 'schedule-layout', 'schedule-layout.ts'),
      lambda _erd: not_stored_block('NOT_STORED_DUMMY_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_LABEL_SIZES') + NEWLINE * 2
@@ -3888,9 +3880,6 @@ PUBLISHED_READ_BY_SRC = {
         'DATE_COLUMNS',
         'DEFAULT_CALENDAR_VALUES',
         'ENTITY_ROWS',
-    ),
-    'src/entity/layout-engine/schedule-geometry/task-figures.ts': (
-        'NOT_STORED_DUMMY_SIZES',
     ),
     'src/entity/layout-engine/schedule-layout/label-placement.ts': (
         'NOT_STORED_SIZES',

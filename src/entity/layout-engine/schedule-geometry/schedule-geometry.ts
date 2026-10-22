@@ -54,7 +54,6 @@ import { parentTaskGeometryOf, type ParentTaskFamilies, type ParentTaskGeometry 
 export { anchorSnapsOf, commentAnchorPointOf, freeAnchorPointOf, leaderOf } from './comment-box'
 export type { AnchorSnap, AnchorSnapPoint, AnchorTarget, AnchorTaskFigure } from './comment-box'
 export { arrowHeadOf, selectedLinksOf } from './dependency-route'
-export { NOT_STORED_DUMMY_SIZES } from './task-figures'
 export type { ParentTaskFamilies } from './parent-task-arrows'
 
 export interface Point {
