@@ -21,6 +21,13 @@ from common import append_log, now_utc, read_json, write_json
 DEFAULT_WINDOW = 200000
 EXTENDED_WINDOW = 1000000
 TRANSCRIPT_TAIL_BYTES = 2 * 1024 * 1024
+# Model id prefix -> context window, for models measured in this environment.
+# claude-opus-5-5: MEASURED 2026-10-22 in the desktop app, a session held 179k
+# input tokens with CLAUDE_AUTOCOMPACT_PCT_OVERRIDE=80 and was not compacted,
+# so its window is larger than 200k.
+MODEL_WINDOWS = {
+    'claude-opus-5-5': EXTENDED_WINDOW,
+}
 
 
 def usage_path(state, session_id):
@@ -85,16 +92,21 @@ def _last_usage_in_transcript(transcript_path):
 def window_size_guess(tokens, model, window_setting=0):
     """The window size when no status line has reported it.
 
-    In order: the `window_size` setting; 1M for a model id with "[1m]"; 1M when
-    the session already holds more than the auto-compact line of a 200k window
+    In order: the `window_size` setting; 1M for a model id with "[1m]"; the
+    window of a model id that starts with a MODEL_WINDOWS key; 1M when the
+    session already holds more than the auto-compact line of a 200k window
     (CLAUDE_AUTOCOMPACT_PCT_OVERRIDE, else 95%) and was not compacted -- a 200k
     window would have been; otherwise 200k. The transcript does not carry the
-    size, so below that line a 1M session reads as a 200k one until it is set.
+    size, so an unlisted 1M model reads as 200k below that line (DFC-3422):
+    list it in MODEL_WINDOWS or set `window_size`.
     """
     if window_setting:
         return int(window_setting)
     if model and '[1m]' in model:
         return EXTENDED_WINDOW
+    for prefix, size in MODEL_WINDOWS.items():
+        if model and model.startswith(prefix):
+            return size
     try:
         compact_pct = float(os.environ.get('CLAUDE_AUTOCOMPACT_PCT_OVERRIDE') or 95)
     except ValueError:

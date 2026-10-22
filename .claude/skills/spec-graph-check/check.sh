@@ -1207,7 +1207,7 @@ PYTHONIOENCODING=utf-8 python "$HERE/check-old-session-words.py" || failed
 echo ""
 section "88  the handoff note holds its sections and the handover guard works"
 # JDG-3040 (2026-10-22). The registry part of check-handoff is local state and
-# is not gated here. MEASURED 2026-10-22: handoff green; scenario 23 of 23.
+# is not gated here. MEASURED 2026-10-22: handoff green; scenario 29 of 29 (DFC-3422..3425 added).
 PYTHONIOENCODING=utf-8 python "$REPO/tools/handover_guard/guard.py" check-handoff --no-registry || failed
 PYTHONIOENCODING=utf-8 python "$REPO/tools/handover_guard/self_test.py" || failed
 

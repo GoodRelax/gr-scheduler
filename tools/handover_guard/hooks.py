@@ -3,11 +3,13 @@
 
   post-tool-use   (PostToolUse, every tool)  warn once the context crosses the
                   warning line (85% used OR fewer than 60k tokens left) until
-                  the session has handed over; remind a coordinator of children
+                  the session has handed over, and forget the warning once usage
+                  is back under the line; remind a coordinator of children
                   that have not acked it, and a child of a parent it has not acked.
   pre-compact     (PreCompact)  block an AUTOMATIC compaction (exit 2) while the
                   session has not handed over since the warning. A manual
-                  /compact always passes, and so does any compaction once usage
+                  /compact always passes, so does a session the registry does
+                  not know (no role), and so does any compaction once usage
                   reaches the ceiling (95%): that one may be the recovery from a
                   context-limit error, which a block would turn into a failed
                   request (code.claude.com hooks page, PreCompact).
@@ -18,12 +20,14 @@
                   on any start, tell a coordinator about unacked children and a
                   child about a new parent.
 
-"Handed over" means: a coordinator (or a session the registry does not know)
-has a handoff note that passes check-handoff and was written after the warning;
-a child has run `registry note` or `registry complete` after the warning.
+"Handed over" means: the coordinator has a handoff note that passes
+check-handoff and was written after the warning; a child has run `registry
+note` or `registry complete` after the warning. A session with no role is
+only told, in neutral words, to write down where it stands (DFC-3424).
 Every decision is logged to <state>/events.jsonl.
 """
 import datetime
+import glob
 import json
 import os
 import sys
@@ -89,10 +93,11 @@ def _warning_text(record, config, role, reason):
     head = ('[handover-guard] Context %.0f%% used, %dk tokens left (warning line %.0f%% or %dk left). '
             % (record['used_pct'], record['remaining_tokens'] // 1000, config['warn_pct'],
                config['warn_remaining'] // 1000))
-    if role == 'outsider':
-        return head + ('This session is not in the session registry, so compaction is not held back. '
-                       'Report your state to your parent now; a new coordinator runs '
-                       '`python tools/handover_guard/guard.py registry coordinator`.')
+    if role is None:
+        return head + ('This session is not in the session registry (no role), so compaction is not held '
+                       'back. Write down where you stand now: a child session reports to its parent; a '
+                       'coordinator registers with `python tools/handover_guard/guard.py registry coordinator` '
+                       'and keeps the handoff note.')
     if role == 'child':
         return head + ('Hand over now (%s): record your next steps with '
                        '`python tools/handover_guard/guard.py registry note --next "..."`, '
@@ -127,25 +132,15 @@ def _ack_texts(data, role, host, sess):
     return texts
 
 
-def _role(data, host):
-    """The registry role; 'outsider' when a coordinator is registered but this session is unknown.
-
-    Only an outsider is never held back: with no registry at all (another
-    project, no coordinator yet) the session is treated as the coordinator.
-    """
-    role = registry.role_of(data, host)
-    if role is None and (data.get('coordinator') or {}).get('host_id'):
-        return 'outsider'
-    return role
-
-
 def on_post_tool_use(state, payload):
     sid = payload.get('session_id') or 'unknown'
     cwd = payload.get('cwd') or os.getcwd()
     config = settings(state)
     sess = _load_session(state, sid)
     data = registry.load(state)
-    role = _role(data, sess.get('host_id'))
+    role = registry.role_of(data, sess.get('host_id'))
+    if payload.get('transcript_path'):
+        sess['transcript_path'] = payload['transcript_path']
     record = current_usage(state, sid, payload.get('transcript_path'), config['window_size'])
     texts = []
     if over_warn_line(record, config):
@@ -154,11 +149,19 @@ def on_post_tool_use(state, payload):
             append_log(state, 'warn-crossed', session_id=sid, used_pct=record['used_pct'],
                        remaining=record['remaining_tokens'], source=record.get('source'))
         done, reason = handed_over(state, sess, data, cwd)
-        if not done:
+        if role is None:
+            if _due(sess.get('last_notice_at'), REMIND_EVERY):
+                texts.append(_warning_text(record, config, role, reason))
+        elif not done:
             texts.append(_warning_text(record, config, role, reason))
         elif _due(sess.get('last_notice_at'), REMIND_EVERY):
             texts.append('[handover-guard] Handed over (%s). Finish the handover; compaction is allowed now.'
                          % reason)
+    elif record and record.get('used_pct') is not None and sess.get('warned_at'):
+        # Back under the line (DFC-3425): the next crossing starts a new cycle.
+        append_log(state, 'warn-cleared', session_id=sid, used_pct=record['used_pct'],
+                   warned_at=sess['warned_at'])
+        sess['warned_at'] = None
     texts += _ack_texts(data, role, sess.get('host_id'), sess)
     if texts:
         sess['last_notice_at'] = now_utc()
@@ -182,8 +185,8 @@ def on_pre_compact(state, payload):
         verdict, reason = 'allow', 'usage unknown'
     elif used >= config['ceiling_pct']:
         verdict, reason = 'allow', 'at or above the ceiling %.0f%%' % config['ceiling_pct']
-    elif _role(registry.load(state), sess.get('host_id')) == 'outsider':
-        verdict, reason = 'allow', 'session not in the registry'
+    elif registry.role_of(registry.load(state), sess.get('host_id')) is None:
+        verdict, reason = 'allow', 'session not in the registry (no role)'
     else:
         done, why = handed_over(state, sess, registry.load(state), payload.get('cwd') or os.getcwd())
         verdict, reason = ('allow', why) if done else ('block', why)
@@ -238,6 +241,8 @@ def on_session_start(state, payload):
     sid = payload.get('session_id') or 'unknown'
     cwd = payload.get('cwd') or os.getcwd()
     sess = _load_session(state, sid)
+    if payload.get('transcript_path'):
+        sess['transcript_path'] = payload['transcript_path']
     data = registry.load(state)
     role = registry.role_of(data, sess.get('host_id'))
     texts = []
@@ -275,11 +280,22 @@ def run(event, payload):
         return 0
 
 
+def _find_transcript(session_id):
+    """<config dir>/projects/*/<session_id>.jsonl, or None."""
+    if not session_id:
+        return None
+    config_dir = os.environ.get('CLAUDE_CONFIG_DIR') or os.path.join(os.path.expanduser('~'), '.claude')
+    found = glob.glob(os.path.join(config_dir, 'projects', '*', '%s.jsonl' % session_id))
+    return found[0] if found else None
+
+
 def status_text(session_id, transcript_path, cwd):
     state = state_dir(cwd)
     config = settings(state)
     data = registry.load(state)
     sess = _load_session(state, session_id or 'unknown')
+    # The CLI gets no hook input, so it reads the transcript the hooks last saw (DFC-3423).
+    transcript_path = transcript_path or sess.get('transcript_path') or _find_transcript(session_id)
     record = current_usage(state, session_id, transcript_path, config['window_size'])
     done, reason = handed_over(state, sess, data, cwd)
     lines = ['State folder: %s' % os.path.relpath(state, cwd).replace(os.sep, '/'),

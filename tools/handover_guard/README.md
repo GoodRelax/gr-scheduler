@@ -16,7 +16,7 @@ child sessions in step. Rulings JDG-3040..3042 (2026-10-22); names as in
 | Re-inject | `guard.py hook session-start` (SessionStart) | After `compact`: the handoff note's newest section, the registry, and "tell your parent and children again". On any start: unacked children / a new parent. |
 | Session registry | `guard.py registry ...` | Coordinator, children, state, ID bands, branch, next steps; acks; Session complete. |
 | Handoff check | `guard.py check-handoff [--no-registry]` | Newest dated section, the first-message heading, every live child named. Check 88 runs the structural part. |
-| Scenario test | `self_test.py [--keep DIR]` | 23 scenarios at a 5% threshold in a temp folder. Check 88 runs it. |
+| Scenario test | `self_test.py [--keep DIR]` | 29 scenarios at a 5% threshold (DFC-3422..3425 included) in a temp folder. Check 88 runs it. |
 
 "Handed over": the coordinator's handoff note was written after the notice and
 passes `check-handoff`; a child ran `registry note` (or `registry complete`)
@@ -39,8 +39,15 @@ Settings (`guard.py config <key> <value>`, or the environment): `warn_pct` 85
   `.claude/settings.json` for about 25 turns, no usage file appeared. The bridge
   therefore relies on the transcript fallback there.
 - The transcript does not carry the window size. The guess: `window_size`
-  setting, then `[1m]` in the model id, then 1M once usage is past the
-  auto-compact line of a 200k window, else 200k. Set `window_size` when known.
+  setting, then `[1m]` in the model id, then the model table `MODEL_WINDOWS`
+  in `usage.py` (`claude-opus-5-5` = 1M, measured), then 1M once usage is past
+  the auto-compact line of a 200k window, else 200k (DFC-3422).
+- `guard.py status` reads the transcript the hooks last saw for the session
+  (`CLAUDE_CODE_SESSION_ID`), so it works without hook input (DFC-3423).
+- A session the registry does not know has no role: it gets a neutral notice
+  every 10 minutes and is never held back. Only a registered coordinator or
+  child is held back (DFC-3424). The notice cycle ends when usage falls back
+  under the line (DFC-3425).
 - The desktop app sets `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE=80`, so automatic
   compaction comes BEFORE the 85% notice. The PreCompact hold-back is what lets
   the notice happen: until the session has handed over, `auto` is held back

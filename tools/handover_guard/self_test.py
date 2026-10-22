@@ -34,12 +34,14 @@ class Run:
         self.log = []
         self.failures = []
 
-    def call(self, args, payload=None, host=None):
+    def call(self, args, payload=None, host=None, env_extra=None):
         env = dict(os.environ, GRS_GUARD_STATE_DIR=self.state, GRS_GUARD_HANDOFF=self.handoff,
-                   GRS_GUARD_WARN_PCT='5', PYTHONIOENCODING='utf-8')
-        env.pop('CLAUDE_CODE_HOST_SESSION_ID', None)
+                   GRS_GUARD_WARN_PCT='5', PYTHONIOENCODING='utf-8', CLAUDE_AUTOCOMPACT_PCT_OVERRIDE='80')
+        for name in ('CLAUDE_CODE_HOST_SESSION_ID', 'CLAUDE_CODE_SESSION_ID', 'GRS_GUARD_WINDOW'):
+            env.pop(name, None)
         if host:
             env['CLAUDE_CODE_HOST_SESSION_ID'] = host
+        env.update(env_extra or {})
         out = subprocess.run([sys.executable, GUARD] + args, input=json.dumps(payload or {}).encode('utf-8'),
                              capture_output=True, env=env, cwd=self.root, timeout=60)
         result = (out.returncode, out.stdout.decode('utf-8', 'replace'), out.stderr.decode('utf-8', 'replace'))
@@ -155,6 +157,48 @@ def scenario(r):
             'output_tokens': 5}}}) + '\n')
     code, out, _ = r.call(['hook', 'post-tool-use'], payload('PostToolUse', 'cli-t', transcript_path=transcript))
     r.expect('transcript fallback reads 20000/200000 = 10% and warns', 'Context 10% used' in out)
+    regressions(r)
+
+
+def write_transcript(path, tokens, model):
+    with open(path, 'w', encoding='utf-8') as f:
+        f.write(json.dumps({'message': {'model': model, 'usage': {
+            'input_tokens': 0, 'cache_creation_input_tokens': 0, 'cache_read_input_tokens': tokens,
+            'output_tokens': 5}}}) + chr(10))
+
+
+def regressions(r):
+    """DFC-3422..3425, found by the live test of 2026-10-22."""
+    at85 = {'GRS_GUARD_WARN_PCT': '85'}
+    # DFC-3422: a 1M model below 160k tokens was read against a guessed 200k window
+    transcript = os.path.join(r.root, 'opus.jsonl')
+    write_transcript(transcript, 150000, 'claude-opus-5-5')
+    code, out, _ = r.call(['hook', 'post-tool-use'], payload('PostToolUse', 'cli-a', transcript_path=transcript),
+                          env_extra=at85)
+    r.expect('DFC-3422 a known 1M model at 150k tokens is not warned', 'Hand over now' not in out
+             and 'Context' not in out)
+    code, out, _ = r.call(['status'], env_extra=dict(at85, CLAUDE_CODE_SESSION_ID='cli-a'))
+    r.expect('DFC-3423 status reads the transcript the hooks saw (15% of 1M)',
+             '"used_pct": 15.0' in out and '"window_size": 1000000' in out)
+    # DFC-3424: with an empty registry a session has no role and gets the neutral text
+    empty = os.path.join(r.root, 'empty-state')
+    env_empty = {'GRS_GUARD_STATE_DIR': empty}
+    r.call(['statusline'], {'session_id': 'cli-e', 'context_window':
+                            {'context_window_size': 200000, 'used_percentage': 8}}, env_extra=env_empty)
+    code, out, _ = r.call(['hook', 'post-tool-use'], payload('PostToolUse', 'cli-e'), host='local_ffff6666-0',
+                          env_extra=env_empty)
+    r.expect('DFC-3424 an empty registry gives the neutral text, not "rewrite the handoff note"',
+             'not in the session registry' in out and 'rewrite the handoff note' not in out)
+    code, _, _ = r.call(['hook', 'pre-compact'], payload('PreCompact', 'cli-e', trigger='auto'),
+                        host='local_ffff6666-0', env_extra=env_empty)
+    r.expect('DFC-3424 a session with no role is not held back', code == 0)
+    # DFC-3425: the warning is cleared once usage falls back under the line
+    r.call(['statusline'], {'session_id': 'cli-e', 'context_window':
+                            {'context_window_size': 200000, 'used_percentage': 3}}, env_extra=env_empty)
+    r.call(['hook', 'post-tool-use'], payload('PostToolUse', 'cli-e'), host='local_ffff6666-0',
+           env_extra=env_empty)
+    sess = json.load(open(os.path.join(empty, 'sessions', 'cli-e.json'), encoding='utf-8'))
+    r.expect('DFC-3425 warned_at is cleared under the line', sess.get('warned_at') is None)
 
 
 def main(argv):
