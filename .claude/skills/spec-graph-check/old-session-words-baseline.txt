@@ -2,7 +2,6 @@
 .claude/skills/spec-graph-check/retired.py	1
 docs/development-records/handoff.md	140
 docs/development-records/perf-pending.md	15
-docs/development-records/previous-plan.json	16
 docs/development-records/project-plan.json	28
 docs/development-records/project-plan.md	31
 docs/development-rules/02-changing-the-spec.md	6
