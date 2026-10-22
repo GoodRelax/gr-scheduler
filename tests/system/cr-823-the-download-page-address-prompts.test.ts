@@ -13,7 +13,7 @@ const DESIGN = unbroken(readFileSync(join(SPEC, '_assets', 'design-mcp-relay.md'
 const MEMBERS = unbroken(readFileSync(join(SPEC, '_assets', 'tbl-agent-api-members.md'), 'utf8'))
 
 const DESIGN_STEPS =
-  'AI 連携を使い始める手順 —— 束を落とす・AI のアプリに入れる・入って有効であることを確かめる・AI に開く所を尋ねる・その所を開く・文書を開く・`IC-20` を押す・AI に頼む・保存する、の順である。'
+  'AI 連携を使い始める手順 —— 束をダウンロードする・AI のアプリにインストールする・インストールされて有効であることを確かめる・AI に開く所を尋ねる・その所を開く・文書を開く・`IC-20` を押す・AI に頼む・保存する、の順である。'
 const DESIGN_RESTART =
   '頼み文の後に、AI のアプリを終了して起動し直す道を書く —— 窓を閉じるだけでは終わらないことと、終わったことを OS の道具（Windows のタスクマネージャー）で確かめる道。'
 const DESIGN_NOT_A_STEP = '起動し直すことは手順の 1 段にしない'
@@ -28,7 +28,7 @@ const DESIGN_TROUBLE_NO_GUESS = '所を推し量って作らない'
 const DESIGN_REASON = '理由の区分は `pageNotConnected` とし、開く URL を添える'
 const DESIGN_LISTEN = '待ち受けるのは `127.0.0.1` だけであり'
 const DESIGN_SWITCH = '右上に `English` と `日本語` の 2 つ並びのボタンを置いて、選んでいる方を塗りつぶす。'
-const DESIGN_SCREEN_WORDS = '頁は 1 つの AI のアプリを名指し、その作り手のいまの画面の語（拡張を入れる設定の道筋）で手順を書く。'
+const DESIGN_SCREEN_WORDS = '頁は 1 つの AI のアプリを名指し、その作り手のいまの画面の語（拡張機能をインストールする設定の道筋）で手順を書く。'
 const MEMBERS_VERSION = '| AM-1 | 版 | `agentApiVersion` |'
 
 const backticked = (clause: string): string[] => [...clause.matchAll(/`([^`]+)`/g)].map((found) => found[1] ?? '')

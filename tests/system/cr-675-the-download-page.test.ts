@@ -15,10 +15,10 @@ const DESIGN = unbroken(readFileSync(join(SPEC, '_assets', 'design-mcp-relay.md'
 const SETTINGS = unbroken(readFileSync(join(SPEC, '_assets', 'tbl-settings.md'), 'utf8'))
 
 const DESIGN_SELF_CONTAINED = '頁は外の資源を読まない —— 頁の中の書式とスクリプトは、頁の Content Security Policy に SHA-256 を書いたものだけが動く。'
-const DESIGN_TOP_BUTTON = '最上部の大きなボタン —— 押すと `GRS.html` を落とす。'
-const DESIGN_NOTHING_ON_OPEN = '⛔ 頁を開いただけでは何も落とさない（理由は `S-350` の注）。'
+const DESIGN_TOP_BUTTON = '最上部の大きなボタン —— 押すと `GRS.html` をダウンロードする。'
+const DESIGN_NOTHING_ON_OPEN = '⛔ 頁を開いただけでは何もダウンロードしない（理由は `S-350` の注）。'
 const DESIGN_STEPS =
-  'AI 連携を使い始める手順 —— 束を落とす・AI のアプリに入れる・入って有効であることを確かめる・AI に開く所を尋ねる・その所を開く・文書を開く・`IC-20` を押す・AI に頼む・保存する、の順である。'
+  'AI 連携を使い始める手順 —— 束をダウンロードする・AI のアプリにインストールする・インストールされて有効であることを確かめる・AI に開く所を尋ねる・その所を開く・文書を開く・`IC-20` を押す・AI に頼む・保存する、の順である。'
 const DESIGN_WHOLE_ADDRESS = '`#` の後ろの鍵まで丸ごと開く。'
 const DESIGN_ADDRESS_CHANGES = '開く所は、取次を起動するたびに変わること（4 節の 1）。'
 const DESIGN_CAN = 'AI にできること・できないこと'
@@ -27,7 +27,7 @@ const DESIGN_TURN_OFF = '止め方 —— `IC-20` をもう一度押す。'
 const DESIGN_TAKEN_BACK = '⚠️ 既に読まれたものは取り戻せない（`FR-065`）。'
 const DESIGN_TROUBLE = 'うまくいかないときの手当て。'
 const DESIGN_ADVANCED =
-  '進んだ人向けに、コマンドで MCP の相手を起動する客で `grs-relay.mjs` を動かす形と、`grs-relay.mcpb.sha256` で落としたものを確かめる手。'
+  '進んだ人向けに、コマンドで MCP の相手を起動する客で `grs-relay.mjs` を動かす形と、`grs-relay.mcpb.sha256` でダウンロードしたものを確かめる手。'
 const DESIGN_SWITCH = '右上に `English` と `日本語` の 2 つ並びのボタンを置いて、選んでいる方を塗りつぶす。'
 const DESIGN_DEFAULT = '既定は英語とする —— 頁は、閲覧者がどの言語を読むかを知る前に開かれる。'
 const DESIGN_REMEMBERED = '選んだ言語は閲覧者のブラウザにだけ覚えさせる'
