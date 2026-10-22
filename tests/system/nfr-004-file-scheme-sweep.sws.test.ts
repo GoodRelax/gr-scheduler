@@ -40,6 +40,7 @@ import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { specTable } from '../contract/spec-table'
 import { launchReferenceBrowser } from './live-app'
+import { taskGroupsDocument } from './w3-t1-stage'
 import { expectDeclarationsUsable, swsRegistry } from './sws-case'
 
 const registry = swsRegistry()
@@ -1073,6 +1074,30 @@ const TIME_ZOOM_STEPS = 12
 // WHY: the one place the GR-14 probe put a comment box, for its act to grab.
 let placedCommentBoxTip: Spot | null = null
 
+function fixableDocumentText(): string {
+  const base = JSON.parse(taskGroupsDocument({ rows: 2, parentTaskOf: {} })) as {
+    schedule: { project: { statusDate: string | null }; tasks: Record<string, unknown>[] }
+  }
+  base.schedule.project.statusDate = '2027-05-31T17:00:00'
+  const dates: Record<number, readonly [string, string, string?]> = {
+    1: ['2027-05-10', '2027-05-14'],
+    2: ['2027-05-17', '2027-05-21', '2027-05-28'],
+  }
+  for (const task of base.schedule.tasks) {
+    const given = dates[task['uid'] as number]
+    if (given === undefined) continue
+    task['start'] = `${given[0]}T08:00:00`
+    task['finish'] = `${given[1]}T17:00:00`
+    if (given[2] !== undefined) {
+      task['actualStart'] = `${given[2]}T08:00:00`
+      task['percentComplete'] = 30
+    }
+    task['dependencies'] =
+      task['uid'] === 2 ? [{ predecessorUid: 1, linkType: 1, linkLag: null, lagFormat: null, carry: {}, carryElements: [] }] : []
+  }
+  return JSON.stringify(base)
+}
+
 const PROBES: readonly Probe[] = [
   { rows: ['MK-1'], expect: 'answers', act: async (p, g) => { await wheelAt(p, g.barBody, [], 400); return null } },
   { rows: ['MK-2'], expect: 'answers', act: async (p, g) => { await wheelAt(p, g.barBody, ['Control'], -300); return null } },
@@ -2022,6 +2047,64 @@ const PROBES: readonly Probe[] = [
       return held
     },
   },
+  {
+    // see IO-9, FR-155, RW-20
+    rows: ['IO-9'],
+    expect: 'answers',
+    setUp: async (p) => {
+      let stage = 'hand the file over'
+      try {
+        await p.evaluate((text: string) => {
+          ;(window as unknown as { __grsNextOpen: unknown }).__grsNextOpen = { name: 'fix-log.grs.json', text }
+        }, fixableDocumentText())
+        try {
+          await press(p, 'IC-1')
+          await p.waitForSelector('[data-icon="IC-71"]', { timeout: 8_000 })
+          await press(p, 'IC-71')
+          const proceed = await p
+            .waitForSelector('[data-role="Confirmation"] [data-confirmation-answer="proceed"]', { timeout: 4_000 })
+            .catch(() => null)
+          if (proceed !== null) await proceed.click({ timeout: 3_000 })
+          await p.waitForFunction(() => document.title.startsWith('Span plan'), undefined, { timeout: 8_000 })
+        } finally {
+          await p.evaluate(() => {
+            ;(window as unknown as { __grsNextOpen: unknown }).__grsNextOpen = null
+          })
+        }
+        stage = 'diagnose'
+        await press(p, (await p.$('[data-icon="IC-168"]')) === null ? 'IC-107' : 'IC-168')
+        await p.waitForSelector('[data-icon="IC-155"]', { timeout: 8_000 })
+        await press(p, 'IC-155')
+        stage = 'check the date row'
+        const dateRowBox = '[data-role="Delay Fix Proposals"] tr:has(input[type="date"]) input[type="checkbox"]:not([data-search-shown-all])'
+        await p.waitForSelector(dateRowBox, { timeout: 8_000 })
+        await p.click(dateRowBox, { timeout: 8_000 })
+        await p.waitForTimeout(300)
+        stage = 'fix'
+        await press(p, 'IC-157')
+        await p.waitForSelector('[data-icon="IC-156"]', { timeout: 8_000 })
+        stage = 'show the log'
+        await press(p, 'IC-156')
+        await p.waitForSelector('[data-icon="IC-169"]', { timeout: 8_000 })
+      } catch (thrown) {
+        const onScreen = await p.evaluate(() =>
+          JSON.stringify({
+            title: document.title,
+            dateInputs: document.querySelectorAll('[data-role="Delay Fix Proposals"] input[type="date"]').length,
+            rows: document.querySelectorAll('[data-role="Delay Fix Proposals"] tr').length,
+            roles: [...new Set([...document.querySelectorAll('[data-role]')].map((one) => one.getAttribute('data-role')))].filter((role) => /Confirm|Chooser|Delay|Report/.test(String(role))),
+            notices: [...document.querySelectorAll('[data-role="Notification Area"],[data-role="Confirmation"]')].map((one) => (one.textContent ?? '').slice(0, 80)),
+          }),
+        )
+        throw new Error(`stage "${stage}" ${onScreen} -- ${String(thrown).replace(/\s+/g, ' ').slice(0, 60)}`)
+      }
+    },
+    act: async (p) => {
+      await press(p, 'IC-169')
+      await p.waitForTimeout(2_000)
+      return null
+    },
+  },
 ]
 
 interface SweepResult {
@@ -2145,7 +2228,7 @@ function comparable(one: Outcome): unknown {
     newRoles: one.newRoles,
     goneRoles: one.goneRoles,
     wroteFiles: one.wroteFiles,
-    askedNames: one.askedNames,
+    askedNames: one.askedNames.map((name) => name.replace(/\d{4}-\d{2}-\d{2}-\d{4}/, 'yyyy-mm-dd-hhmm')),
     clipboardDelta: one.clipboardDelta,
     failure: one.failure,
   }
