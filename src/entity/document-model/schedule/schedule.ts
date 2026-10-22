@@ -45,6 +45,7 @@ export {
   dayFromSerial,
   dayOf,
   dayOfInstant,
+  edgeInstantOf,
   finishSideDayFrom,
   finishSideDayOf,
   instantOf,

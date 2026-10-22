@@ -7,7 +7,7 @@
 import type { DocumentSettings, DrawnSettings } from '../../document-model/document-settings/document-settings'
 import {
   dayOf,
-  finishSideDayFrom,
+  edgeInstantOf,
   instantOnSideReader,
   startSideOf,
   workingCalendarOf,
@@ -511,21 +511,12 @@ function planExtentOf(placed: TaskPlacement, settings: DrawnSettings): { readonl
   return { top: thinTierMiddle(placed, settings, false) - half, height: half * 2 }
 }
 
-// see BL-2, RV-6, FR-054, FR-158
-// WHY: as the plan bar: the instant with time of day; whole columns without, a 00:00 end closing the day before.
+// see BL-2
 /** @purity pure */
 function baselineEdgeXOf(text: string | null, side: DateTimeSide, reading: DateTimeSide,
                          inputs: GeometryInputs, onSide: InstantOnSide): number | null {
-  if (inputs.settings.isTimeOfDayVisible) {
-    const instant = onSide(text, reading)
-    return instant === null ? null : xOfInstant(inputs.layout, instant)
-  }
-  if (side === 'start') {
-    const day = dayOf(text)
-    return day === null ? null : xFromDay(inputs.layout, day)
-  }
-  const last = finishSideDayFrom(dayOf(text), text)
-  return last === null ? null : xFromDay(inputs.layout, last) + inputs.layout.pxPerDay
+  const edge = edgeInstantOf(text, side, () => onSide(text, reading), inputs.settings.isTimeOfDayVisible, dayOf)
+  return edge === null ? null : xOfInstant(inputs.layout, edge)
 }
 
 // see BL-1, BL-2

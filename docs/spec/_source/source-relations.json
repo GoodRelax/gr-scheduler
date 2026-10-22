@@ -977,17 +977,17 @@
   {
    "from": "docs/spec/_source/published-entries.json",
    "to": "docs/spec UIDs",
-   "count": 201
+   "count": 203
   },
   {
    "from": "docs/spec/_source/published-entries.json",
    "to": "docs/spec/01-04-requirements.md",
-   "count": 690
+   "count": 692
   },
   {
    "from": "docs/spec/_source/published-entries.json",
    "to": "docs/spec/05-07-design.md",
-   "count": 83
+   "count": 86
   },
   {
    "from": "docs/spec/_source/published-entries.json",

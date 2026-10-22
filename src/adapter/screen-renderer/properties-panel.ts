@@ -2233,9 +2233,7 @@ export function panelFacesOf(
   return PANEL_FACE_ORDER.filter((face) => shown.has(face))
 }
 
-// see FR-072, U-25
-// STOP: spec does not decide what is kept when the selection empties; the subject is kept, not the fields. Looked in FR-072, SL-1, FR-085
-// @provisional PND-144
+// see FR-072, U-25, T-280
 /** @purity pure */
 export function propertiesPanelFromSelection(
   schedule: Schedule,

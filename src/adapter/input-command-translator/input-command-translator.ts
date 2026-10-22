@@ -307,8 +307,7 @@ export type InputAction =
   | { readonly kind: 'chooseResources'; readonly uids: readonly number[] }
   // see FR-099, T-293
   | { readonly kind: 'toggleChosenResource'; readonly uid: number }
-  // STOP: spec does not decide what the properties panel keeps when the selection goes.
-  // Looked in FR-072, SL-1 @provisional PND-144
+  // see FR-072, T-280
   | { readonly kind: 'toggleDocumentSettingsProperties' }
   | { readonly kind: 'toggleAgentApi' }
   | { readonly kind: 'copyImageToJsonPrompt' }

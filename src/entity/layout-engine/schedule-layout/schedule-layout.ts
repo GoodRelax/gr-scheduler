@@ -10,7 +10,7 @@ import {
   actualEndOf,
   dateFromWorkingDays,
   dayOf,
-  finishSideDayFrom,
+  edgeInstantOf,
   instantOnSideReader,
   MINUTES_PER_CALENDAR_DAY,
   serial,
@@ -211,23 +211,6 @@ interface EdgeReader {
   readonly isTimeOfDayVisible: boolean
 }
 
-// see RV-1, RV-6, FR-054, FR-158
-// WHY: without time of day the finish column is FR-054's finish-side day, so an end at 00:00 closes the day before.
-/** @purity pure */
-function edgeOf(text: string | null, side: 'start' | 'finish', instantAt: () => number | null,
-                isTimeOfDayVisible: boolean, dayAt: (text: string | null) => CalendarDay | null): number | null {
-  if (isTimeOfDayVisible) {
-    const instant = instantAt()
-    return instant === null ? null : instant / MINUTES_PER_CALENDAR_DAY
-  }
-  if (side === 'start') {
-    const day = dayAt(text)
-    return day === null ? null : serialOf(day)
-  }
-  const last = finishSideDayFrom(dayAt(text), text)
-  return last === null ? null : serialOf(last) + 1
-}
-
 // see DC-2, DC-3, CU-3, T-378, TX-6, FR-158
 // WHY: on the day unit (SG-1) the line stands on the day the point is in, as without time of day; finer, on the snapped instant.
 /** @purity pure */
@@ -267,7 +250,8 @@ function dayReaderFor(within: WorkingCalendar, isTimeOfDayVisible: boolean, show
       const key = text ?? ''
       const held = slot.get(key)
       if (held !== undefined) return held
-      const made = edgeOf(text ?? null, side, () => onSide(text, reading), isTimeOfDayVisible, day)
+      const instant = edgeInstantOf(text ?? null, side, () => onSide(text, reading), isTimeOfDayVisible, day)
+      const made = instant === null ? null : instant / MINUTES_PER_CALENDAR_DAY
       slot.set(key, made)
       return made
     },

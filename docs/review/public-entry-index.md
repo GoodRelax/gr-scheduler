@@ -101,6 +101,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `Dependency` | entry | interface | `src/entity/document-model/schedule/schedule-entities.ts#Dependency` | -- | interface Dependency |
 | `diagnoseDelay` | entry | function | `src/entity/document-model/schedule/delay-diagnostics.ts#diagnoseDelay` | PI-1 | 遅延診断のレポート（表 T-317）を作る。 |
 | `earliestPlanStartDayOf` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#earliestPlanStartDayOf` | PI-1 | 全体日程シフトの最初のタスクの開始日（表 T-379 の `WH-1`）—— `Task` の予定の開始を開始の側で読んだ、いちばん早い日。 |
+| `edgeInstantOf` | entry | function | `src/entity/document-model/schedule/calendar-day.ts#edgeInstantOf` | PI-1 | 日程表に描く端（予定バー・実績バーの左右の端、期限、変更前の予定の輪郭の左右の端）が時間軸に立つ瞬間（分）。 |
 | `EntityRows` | entry | interface | `src/entity/document-model/schedule/schedule-entities.ts#EntityRows` | -- | interface EntityRows |
 | `Exception` | entry | interface | `src/entity/document-model/schedule/schedule-entities.ts#Exception` | -- | interface Exception |
 | `finishSideDayFrom` | entry | function | `src/entity/document-model/schedule/calendar-day.ts#finishSideDayFrom` | PI-1 | `finishSideDayOf` と同じ日を、読み手が既に読んだその字の日（`dayOf` の答え）から数える。 |
@@ -2100,4 +2101,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 1071 name(s) leave through a public entry (528 of them published by table T-064), 829 more are exported by a file and not by its entry.
+Totals: 1072 name(s) leave through a public entry (529 of them published by table T-064), 829 more are exported by a file and not by its entry.

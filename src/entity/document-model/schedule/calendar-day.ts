@@ -89,6 +89,19 @@ export function finishSideDayFrom(day: CalendarDay | null, text: string | null):
   return dayFromSerial(serial(read.day) - (read.minute > 0 ? 0 : 1))
 }
 
+// see RV-1, RV-6, BL-2, FR-054, FR-158
+/** @purity pure */
+export function edgeInstantOf(text: string | null, side: 'start' | 'finish', instantAt: () => number | null,
+                              isTimeOfDayVisible: boolean, dayAt: (text: string | null) => CalendarDay | null): number | null {
+  if (isTimeOfDayVisible) return instantAt()
+  if (side === 'start') {
+    const day = dayAt(text)
+    return day === null ? null : serial(day) * MINUTES_PER_CALENDAR_DAY
+  }
+  const last = finishSideDayFrom(dayAt(text), text)
+  return last === null ? null : (serial(last) + 1) * MINUTES_PER_CALENDAR_DAY
+}
+
 /** @purity pure */
 export function textOfInstant(instant: number): string {
   const day = dayOfInstant(instant)

@@ -4045,8 +4045,7 @@ export function frameLoop(
   function showPropertiesOfChoice(pick: PanelSubjectPick): void {
     const subject = subjectOfChoice(selectedObjectsIn(session), session.selection.chosenTaskGroups, session, pick)
     if (subject === null) return
-    // STOP: spec does not decide what the panel keeps when the selection empties. Looked in FR-072, SL-1
-    // @provisional PND-144
+    // see FR-072, T-280
     sendToSession({ type: 'propertiesOfChoiceAsked', subject }, values)
   }
 
