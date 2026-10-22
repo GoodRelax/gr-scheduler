@@ -6,14 +6,14 @@
 
 | | |
 |---|---|
-| `writer-brief.md` | ⭐ **書き手の体に渡す指示書。**`{SCHEMA}` と `{OUT}` を差し替えて、そのまま渡す |
+| `writer-brief.md` | ⭐ **書き手のサブエージェントに渡す指示書。**`{SCHEMA}` と `{OUT}` を差し替えて、そのまま渡す |
 | `measure.mjs` | 書かれたファイルを 1 本ずつ測り、`<名>.measure.json` を書く。1 本につき 1 行の要約を出す |
 | `validate.py` | `measure.mjs` が呼ぶ検証（Python の `jsonschema`、draft 2020-12） |
 
 ## 手順
 
 1. スキーマを scratch のフォルダへ写す（例: `scratch/x14/schema/grs-document.schema.json`）。⛔ 書き手に作業木の中の他のファイルを見せない
-2. **新しい体**に `writer-brief.md` を渡す —— `{SCHEMA}` は写したスキーマ、`{OUT}` は書かせるフォルダ。⛔ 仕様・コード・見本・前の版は渡さない
+2. **新しいサブエージェント**に `writer-brief.md` を渡す —— `{SCHEMA}` は写したスキーマ、`{OUT}` は書かせるフォルダ。⛔ 仕様・コード・見本・前の版は渡さない
 3. 測る（作業木の根から。⛔ `npx` は使わない）:
 
 ```bash

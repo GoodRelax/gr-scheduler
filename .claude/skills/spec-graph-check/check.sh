@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# All 86 mechanical checks for the gr-scheduler specification.
+# Every numbered mechanical check for the gr-scheduler specification (the count lives in 09-tools.md, not here).
 #
 # The count is the numbered checks below, NOT counting check 0 (the rules
 # index, which prints before any check runs). ⛔ Recount it in the same change

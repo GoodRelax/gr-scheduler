@@ -14,13 +14,9 @@
 # from source on every push to main and deploys it as a Pages artifact.
 name: Deploy to GitHub Pages
 
-# PAUSED. The automatic trigger is removed while the repository is rebuilt from
-# studies/: package.json, the app sources and docs/spec/ do not
-# exist yet, so every push-triggered run fails at "npm ci". The steps below are
-# kept as-is on purpose -- they record the layout that used to work and are the
-# starting point for the rewrite. Restore `push: branches: [main]` only after the
-# file structure fixed in Chapter 5.3 of the spec is in place and `npm run build`
-# succeeds locally.
+# Started by hand only: `gh workflow run pages.yml --ref main` after a release is
+# merged (docs/development-rules/10-versions.md section 2.1). There is no push
+# trigger on purpose; whether to restore one is the user's call.
 on:
   workflow_dispatch:
 
@@ -111,8 +107,9 @@ jobs:
           cp dist-relay/grs-relay.mcpb dist-relay/grs-relay.mcpb.sha256 dist-relay/grs-relay.mjs _site/download/
           #    The server-sync demo zip, linked from tab 05 of the overview page (DFC-3071).
           cp dist-server-sync-demo/grs-server-sync-demo.zip _site/download/
-          #    The page shows the build's version under both buttons (CR-799): the commit time
-          #    in UTC and its semver form, the same as the bundle's manifest.json.
+          #    The page shows the build's version under both buttons (CR-799): the time its inputs
+          #    last changed (tools/artifact-versions.json; rule: docs/development-rules/10-versions.md), in
+          #    both spellings, the same as the bundle's manifest.json.
           node tools/stamp_download_page.mjs _site/download/index.html
           # 6) Disable Jekyll so underscore dirs (_static, _assets) are served.
           touch _site/.nojekyll
