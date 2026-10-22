@@ -30,9 +30,7 @@ import { DEFAULT_TASK_GROUP_NAME } from '../../adapter/screen-renderer/screen-re
 import type { FrameLoopHands, FrameValues } from './frame-loop'
 import type { GrabbedArea } from './pointer-shape'
 
-// STOP: spec does not decide which T-023d rows draw while held beyond its two
-// closing rules. Looked in T-023d, FR-052, IN-1
-// @provisional PND-250
+// see T-023d, FR-052
 const PREVIEWED_GRABS: Readonly<Record<GrabbedArea, boolean>> = {
   'GA-1': true,
   'GA-2': true,

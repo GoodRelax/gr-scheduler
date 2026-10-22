@@ -161,8 +161,7 @@ export interface TaskGeometry {
   readonly fadeHandles: readonly Point[]
   readonly label: ScreenRect | null
   readonly assigneeLabel: ScreenRect | null
-  // see FR-009, RT-4a
-  // WHY: optional, read as true when absent: a hand-built geometry may not say.
+  // WHY: FR-009 / RT-4a; optional, read as true when absent: a hand-built geometry may not say.
   readonly hasPlanDates?: boolean
   // WHY: FR-045 / T-304; optional, read as null when absent: a hand-built geometry may not say.
   readonly deadline?: DeadlineGeometry | null

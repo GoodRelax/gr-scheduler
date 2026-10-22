@@ -303,11 +303,9 @@ export type InputAction =
       readonly taskGroupId: string
       readonly isExtending: boolean
     }
-  // STOP: spec does not decide where the chosen resources are held. Looked in FR-099, SL-1
-  // @provisional PND-143
+  // see FR-099, T-293
   | { readonly kind: 'chooseResources'; readonly uids: readonly number[] }
-  // STOP: spec does not decide where the chosen resources are held. Looked in FR-099, SL-1
-  // @provisional PND-143
+  // see FR-099, T-293
   | { readonly kind: 'toggleChosenResource'; readonly uid: number }
   // STOP: spec does not decide what the properties panel keeps when the selection goes.
   // Looked in FR-072, SL-1 @provisional PND-144

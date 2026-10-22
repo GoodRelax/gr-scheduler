@@ -205,7 +205,6 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `ZoneClock` | entry | interface | `src/entity/document-model/schedule/time-zone.ts#ZoneClock` | -- | interface ZoneClock |
 | `zoneClockOf` | entry | function | `src/entity/document-model/schedule/time-zone.ts#zoneClockOf` | PI-1 | 表 T-376 の行の固定の UTC の差で読む時計（壁時計の分と UTC の分の換算）。 |
 | `isDateWithoutTime` | file only | function | `src/entity/document-model/schedule/calendar-day.ts#isDateWithoutTime` | -- | function isDateWithoutTime(text: string): boolean |
-| `MS_PER_DAY` | file only | const | `src/entity/document-model/schedule/calendar-day.ts#MS_PER_DAY` | -- | const MS_PER_DAY = 86400000 |
 | `textOfDayAt` | file only | function | `src/entity/document-model/schedule/calendar-day.ts#textOfDayAt` | -- | function textOfDayAt(day: CalendarDay, time: string): string |
 | `DelayReportWall` | file only | interface | `src/entity/document-model/schedule/delay-diagnostics-report-table.ts#DelayReportWall` | -- | interface DelayReportWall |
 | `AnalysisWall` | file only | interface | `src/entity/document-model/schedule/delay-diagnostics.ts#AnalysisWall` | -- | interface AnalysisWall |
@@ -2101,4 +2100,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 1071 name(s) leave through a public entry (528 of them published by table T-064), 830 more are exported by a file and not by its entry.
+Totals: 1071 name(s) leave through a public entry (528 of them published by table T-064), 829 more are exported by a file and not by its entry.

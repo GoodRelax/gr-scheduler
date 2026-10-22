@@ -27,8 +27,6 @@ export function dayOf(text: string | null): CalendarDay | null {
 
 export const MINUTES_PER_CALENDAR_DAY = 1440
 
-export const MS_PER_DAY = 86400000
-
 const MINUTES_PER_HOUR = 60
 const HOURS_PER_DAY = 24
 const SECONDS_PER_MINUTE = 60
@@ -152,7 +150,7 @@ export function isSameDay(left: string | null, right: string | null): boolean {
 // the mapping, so a fix must change both.
 /** @purity pure */
 export function serial(day: CalendarDay): number {
-  return Date.UTC(day.year, day.month - 1, day.day) / MS_PER_DAY
+  return Date.UTC(day.year, day.month - 1, day.day) / 86400000
 }
 
 /** @purity pure */
@@ -204,6 +202,6 @@ export function calendarSpanOf(a: CalendarDay, b: CalendarDay): CalendarSpan {
 
 /** @purity pure */
 export function dayFromSerial(value: number): CalendarDay {
-  const at = new Date(value * MS_PER_DAY)
+  const at = new Date(value * 86400000)
   return { year: at.getUTCFullYear(), month: at.getUTCMonth() + 1, day: at.getUTCDate() }
 }
