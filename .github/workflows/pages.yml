@@ -14,10 +14,13 @@
 # from source on every push to main and deploys it as a Pages artifact.
 name: Deploy to GitHub Pages
 
-# Started by hand only: `gh workflow run pages.yml --ref main` after a release is
-# merged (docs/development-rules/10-versions.md section 2.1). There is no push
-# trigger on purpose; whether to restore one is the user's call.
+# Runs on every push to main -- main moves only when the user merges a pull
+# request (JDG-2930), so the merge is the deploy (JDG-3115,
+# docs/development-rules/10-versions.md section 2.1). Started by hand too, to
+# deploy main again: `gh workflow run pages.yml --ref main`.
 on:
+  push:
+    branches: [main]
   workflow_dispatch:
 
 # Least-privilege token required by actions/deploy-pages.
