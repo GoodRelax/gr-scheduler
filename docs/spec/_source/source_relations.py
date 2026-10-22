@@ -54,11 +54,13 @@ SKILL = os.path.expanduser(os.path.join('~', '.claude', 'skills', 'drawio-uml',
 DRAWIO = os.environ.get('DRAWIO_EXE') or shutil.which('draw.io') \
     or os.path.join(os.environ.get('ProgramFiles', ''), 'draw.io', 'draw.io.exe')
 
+# WHY: the manuscript folder is in backticks: tools/precheck.py reads a backticked
+# folder as this artifact's manuscript tree, so a regenerated file is not a hand edit.
 BANNER = [
     'GENERATED -- do not edit by hand. Your change is overwritten by the next '
     'rebuild.',
     'Written by docs/spec/_source/source_relations.py from the references the '
-    'JSON manuscripts of docs/spec/_source/ hold (read by '
+    'JSON manuscripts of `docs/spec/_source/` hold (read by '
     '.claude/skills/spec-graph-check/source_refs.py).',
     'Rebuild: npm run gen:relations',
 ]

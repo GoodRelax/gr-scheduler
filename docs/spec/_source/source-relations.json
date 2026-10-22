@@ -1,7 +1,7 @@
 {
  "$comment": [
   "GENERATED -- do not edit by hand. Your change is overwritten by the next rebuild.",
-  "Written by docs/spec/_source/source_relations.py from the references the JSON manuscripts of docs/spec/_source/ hold (read by .claude/skills/spec-graph-check/source_refs.py).",
+  "Written by docs/spec/_source/source_relations.py from the references the JSON manuscripts of `docs/spec/_source/` hold (read by .claude/skills/spec-graph-check/source_refs.py).",
   "Rebuild: npm run gen:relations"
  ],
  "manuscripts": [
