@@ -42,7 +42,8 @@
 # LOWERED 2026-10-15 to the measured value (tree density 1406 -> 1381 bp) under JDG-520: the CR-766 spec-only tests (61139053) added 618 cases with few comments.
 # LOWERED 2026-10-16 to the measured values (tree density 1381 -> 1372 bp, four files: t-233 553 -> 549, t-051-hf-14 depth cap 256 -> 242, t-051-hf-15 588 -> 356, uf-72 2534 -> 2483) under JDG-520: the CR-772 implementation (9a6432c6) rewrote those tests; the CR-772 spec-only tests add no held comment line.
 # LOWERED on 2026-10-23 to the measured values (tree density 1327 -> 1284 bp; 7 files: dfc-355 246 -> 214, fr-029-in-effect 333 -> 332, fr-027 324 -> 323, t-023d-follows-the-pointer 752 -> 706, uf-27-28-29 359 -> 346, uf-48-input 551 -> 549, uf-71 1421 -> 1407; the uf-26 line dropped, the file is gone) under JDG-520: the wave 2 test cleanup.
-tree-density-basis-points 1284
+# LOWERED on 2026-10-23 to 1283 bp after CR-825 under JDG-520.
+tree-density-basis-points 1283
 tests/contract/display-words.contract.test.ts 1253
 tests/contract/document-invariants.contract.test.ts 341
 tests/contract/erd-seats-are-never-reissued.contract.test.ts 0
