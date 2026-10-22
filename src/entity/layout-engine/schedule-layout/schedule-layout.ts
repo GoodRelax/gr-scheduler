@@ -654,8 +654,7 @@ export function layoutFromSchedule(
         }
       }
       if (lane < 0) {
-        // STOP: spec does not decide whether ST-7 admits S-89 lanes or stops at the S-89th. Looked in ST-7, S-89
-        // @provisional PND-430
+        // see ST-7, S-89
         // TRAP: break before the task group is placed: a partial task group leaves laneOf shorter than measured.
         if (lanes.length >= settings.stackSafetyCap) {
           capStop = { taskGroupId: row.id, cap: settings.stackSafetyCap }

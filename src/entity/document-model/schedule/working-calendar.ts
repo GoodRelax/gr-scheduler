@@ -235,12 +235,6 @@ export function nextWorkingDay(within: WorkingCalendar, from: CalendarDay): Cale
   return dayFromSerial(at)
 }
 
-// see FR-159, WH-3
-/** @purity pure */
-export function previousWorkingDay(within: WorkingCalendar, from: CalendarDay): CalendarDay {
-  return dayFromSerial(previousWorkingSerial(indexOfCalendar(within), serial(from), within.calendar.uid))
-}
-
 /** @purity pure */
 function previousWorkingSerial(index: CalendarIndex, fromSerial: number, calendarUid: number): number {
   let at = fromSerial - 1

@@ -754,8 +754,7 @@ export interface ScreenViewReadings {
   readonly pointer: { readonly x: number; readonly y: number } | null
   readonly pointerRestedMs: number
   readonly hintTargetDwellMs: number
-  // STOP: spec does not decide what answers which icon is under the pointer. Looked in EZ-2, FR-092, FR-029, T-109, T-206
-  // @provisional PND-141
+  // see IF-9, EZ-2
   readonly iconUnderPointer: IconId | null
   readonly isPointerOnHelp?: boolean
   readonly isPointerOnSearchPanel?: boolean
@@ -777,8 +776,7 @@ export interface ScreenViewReadings {
   } | null
   // see FR-085, T-293
   readonly selectedTaskGroupIds: readonly string[]
-  // STOP: spec does not decide where the chosen resources are held. Looked in FR-099, SL-1, T-203, T-206
-  // @provisional PND-143
+  // see FR-099, T-293
   readonly selectedResourceUids: readonly number[]
   readonly mergeCandidates?: readonly MergeCandidateLine[]
   readonly unreadColumns?: readonly string[]

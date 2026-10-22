@@ -1093,9 +1093,7 @@ interface ScreenViewReadingsTaken {
   readonly jumpRipple?: ScreenViewReadings['jumpRipple']
 }
 
-// see PI-37, SF-5, SF-10
-// STOP: spec does not decide where the chosen assignees are held. Looked in FR-099, SL-1
-// @provisional PND-143
+// see PI-37, SF-5, SF-10, FR-099
 /** @purity pure */
 function screenViewReadingsOf(
   held: Document,
@@ -2916,8 +2914,6 @@ export function frameLoop(
   let delayDiagnosticsShown = false
   let delayDiagnosticsHeld: HeldDelayDiagnostics | null = null
   const parentTasks = parentTaskHoldOf()
-  // STOP: spec does not decide where chosen resources are held. Looked in FR-099, AS-6, SL-1
-  // @provisional PND-143
   let agentApiEnablingWatch: ((isEnabled: boolean) => void) | null = null
   // WHY: a frame value, not a region state (CR-440 decision 8): the cap is the frame's layout result.
   let stackSafetyCapToldFor: string | null = null
@@ -3973,13 +3969,11 @@ export function frameLoop(
         return
       }
       case 'chooseResources':
-        // STOP: spec does not decide where the chosen resources are held. Looked in FR-099, SL-1
-        // @provisional PND-143
+        // see FR-099, T-293
         sendToSession({ type: 'resourcesPicked', chosenResources: action.uids }, frame)
         return
       case 'toggleChosenResource': {
-        // STOP: spec does not decide where the chosen resources are held. Looked in FR-099, SL-1
-        // @provisional PND-143
+        // see FR-099, T-293
         const chosen = session.selection.chosenResources
         const chosenResources = chosen.includes(action.uid)
           ? chosen.filter((one) => one !== action.uid)

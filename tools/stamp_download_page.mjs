@@ -1,4 +1,4 @@
-// Write the build's version into the published download page (CR-799, design-mcp-relay.md section 6).
+// Write the build's version into the published download page (CR-799, docs/development-rules/10-versions.md).
 //
 //     node tools/stamp_download_page.mjs _site/download/index.html
 //
