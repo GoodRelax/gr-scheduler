@@ -82,10 +82,10 @@
 // WHAT IS DELIBERATELY NOT ASSERTED
 // ---------------------------------------------------------------------------
 //   - The WORDS of any explanation. FR-038's dictionary holds those and
-//     tests/unit/uf-69.test.ts drives them; a case here that compared text
+//     the uf-69 unit test drove them until CR-573 deleted it; a case here that compared text
 //     would be measuring the wrong member.
 //   - IN-3's other condition (引き金が外れるまで出ていること). DFC-307 is
-//     about the first, and the second is a rest that uf-69.test.ts already holds.
+//     about the first, and the second is a rest the uf-69 unit test held (deleted by CR-573).
 //   - Where the ladder's `propertiesPanel` rung sits, EXCEPT against the
 //     selection. Since Q20 (2026-09-22) IN-4 prints the panel its own rung, right
 //     after the drag, and only its place above the selection is asserted here:

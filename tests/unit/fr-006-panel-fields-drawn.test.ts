@@ -7,7 +7,7 @@
 // IF-9 that turns a `ScreenView` into nodes, so it is the only side that states
 // a width or builds a chooser at all -- UF-64 (`properties-panel.ts`, CP-37)
 // says WHICH items the panel holds and what each one's words are, and
-// tests/unit/uf-64.test.ts already drives that half.
+// that half was driven by the uf-64 unit test, which CR-573 deleted.
 //
 // ⚠️ Chapter 9 does not admit Unit as a TEST_LEVEL, so these cases have no node
 // in the specification. Table T-218 of Chapter 7 gives them their place: TS-6,
@@ -58,7 +58,7 @@
 //   T-225 AS-6  ⛔ 「人に見せるのは担当名、文書に書くのは `uid` とすること
 //               （MUST）。利用者に `uid` を覚えさせてはならない（MUST NOT）」.
 //   T-225 AS-9  ⛔ 「プロパティパネルで `uid` を選んだ …… その `uid` の `Resource`
-//               へ割り当て、担当名は名簿から引き当てて示すこと（MUST）—— 同姓
+//               へ割り当て、担当名は担当リストから引き当てて示すこと（MUST）—— 同姓
 //               同名を見分ける経路はここだけである」.
 //   T-032 MG-5  ⛔ 「画面で同名を入力したときは統合してはならない（MUST NOT）」 --
 //               so two same-named people stay two candidates in the chooser.
@@ -128,7 +128,7 @@
 //      the count is reported as a hole.
 //   4. THE PARTIAL-MATCH SEARCH AS-5 makes a MUST. `PropertyControl` publishes
 //      nothing that could carry one and no table gives it a shape --
-//      tests/unit/t-225-choosing-who-is-on-a-task.test.ts already reports it.
+//      the t-225 unit test that reported it was deleted by CR-573.
 //   5. ANY WORD SHOWN TO A PERSON. FR-038 puts the panel in the chosen language
 //      and no table holds a translated string; every word below is this file's.
 //   6. AN EMPTY ROW STANDING ABOVE THE FIRST FIELD. FR-072's MUST NOT is asked
@@ -158,7 +158,7 @@ import { bare, specTable } from '../contract/spec-table'
 import { emptyScreenSession } from '../../src/use-case/advance-screen-session/advance-screen-session'
 
 // ---------------------------------------------------------------------------
-// The manuscript, read at run time rather than copied here (Chapter 1.9 :275).
+// The manuscript, read at run time rather than copied here (Chapter 1.9).
 // ---------------------------------------------------------------------------
 
 const T_206 = specTable('T-206')
@@ -1056,8 +1056,8 @@ const ASSIGNEE_FIELD: PropertyField = {
     controlOf({
       // ⛔ THE KEY IS MINTED, AND IT HAS TO BE. 表 T-016's own remark on PR-16
       // says 「`Task` の列ではない** —— 実体は `Assignment` であり」, and no member of
-      // `PropertyFieldKey` can name one. That absence is already reported by
-      // tests/unit/t-225-choosing-who-is-on-a-task.test.ts; nothing below turns
+      // `PropertyFieldKey` can name one. That absence was reported by
+      // the t-225 unit test (deleted by CR-573); nothing below turns
       // on which key rides along.
       key: { holder: 'task', uid: 1, column: 'assignee' } as unknown as PropertyControl['key'],
       kind: 'choice',
@@ -1230,7 +1230,7 @@ describe('表 T-225 AS-5 / AS-6 / AS-9 -- what the drawn assignee field says and
 
   it('⛔ AS-6 (MUST) -- the drawn field names the person who is seated', () => {
     // 「人に見せるのは担当名」. ⭐ Asked of the DRAWN TREE and not of the
-    // description: tests/unit/uf-64.test.ts already asks it of the description,
+    // description: the uf-64 unit test asked it of the description until CR-573,
     // and a surface that dropped the name on the way to the nodes would leave
     // that case green.
     const { panel } = drawPanel([ASSIGNEE_FIELD])

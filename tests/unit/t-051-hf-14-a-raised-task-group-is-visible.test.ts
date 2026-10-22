@@ -26,7 +26,7 @@
 // this same unit through the same seam; `startup-template.json` is a
 // generated document and is read as data. `groupDepthLimit`'s call shape
 // (one `DocumentSettings` argument) is copied from
-// tests/unit/layout-engine.test.ts, the only place it is already driven.
+// the layout-engine unit test (deleted by CR-573); tests/unit/fr-027-startup-shows-its-depth.test.ts also calls it.
 //
 // ---------------------------------------------------------------------------
 // ⛔ WHAT IS DELIBERATELY NOT ASSERTED, AND WHY
@@ -171,7 +171,7 @@ const MAX_GROUP_DEPTH = ((): number => {
  *
  * ⭐ `threshold(d) = base × ratio^(d − 2)` (表 T-205's own row for `S-87`), so a
  * `zoomY` set to exactly this value clears depth 2 but not depth 3 -- the same
- * fact tests/unit/layout-engine.test.ts's own case already exercises
+ * fact a layout-engine unit case exercised before CR-573 deleted it
  * (`groupDepthLimit(settingsOf({ ...LAYOUT_SETTINGS, zoomY: 0.32 })) === 2`).
  * ⛔ Read from the manuscript, never typed as `0.32`.
  */
@@ -443,8 +443,8 @@ describe('the manuscript still says what these cases read', () => {
 
   it('⭐ FR-018 still gives the group-LOD formula this file computes its zoomY from', () => {
     expect(says('T-205', 'S-87')).toContain('threshold(d) = base × ratio^(d − 2)')
-    // The worked value this file reuses, already exercised by
-    // tests/unit/layout-engine.test.ts: zoomY at exactly S-87's default clears
+    // The worked value this file reuses, once exercised by
+    // the layout-engine unit test (deleted by CR-573): zoomY at exactly S-87's default clears
     // depth 2 and misses depth 3.
     // TEMPLATE is Record<string, unknown>, so the settings object has to be
     // narrowed before it can be spread.

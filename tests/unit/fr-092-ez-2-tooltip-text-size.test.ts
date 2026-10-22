@@ -20,8 +20,8 @@
 // (0.875 = 14 / 16) and hung it on the tooltip, and the row has stood at
 // 「試験待ち」 since. ⛔ NOTHING IN tests/ ASKS FOR IT: tests/unit/uf-71.test.ts
 // (IN-3 of 表 T-028) holds the tooltip to being pointable and to not going by
-// itself, and tests/unit/fr-036-assignment-of-an-entrance.test.ts holds the
-// WORDS it carries -- neither asks how big they are.
+// itself, and the fr-036 unit test that held the
+// WORDS it carries was deleted by CR-573 -- neither asked how big they are.
 //
 // ---------------------------------------------------------------------------
 // The rules these cases answer to
@@ -64,8 +64,8 @@
 //      tooltip is not drawn into an exported picture and that 「場所は空けない
 //      —— 浮いて重なるだけ」.
 //   2. HOW THE EXPLANATION AND THE ASSIGNMENT ARE JOINED. `EZ-2` says 「説明の
-//      後ろに」 and stops; tests/unit/fr-036-assignment-of-an-entrance.test.ts
-//      records the same silence.
+//      後ろに」 and stops; the fr-036 unit test CR-573 deleted
+//      recorded the same silence.
 //   3. THAT THE TOOLTIP IS SMALLER THAN ANY NEIGHBOR IN PARTICULAR. The ruling
 //      that produced `S-204` is a RATIO against the host's own base, which is
 //      what the cases below drive; 「2 段階」 names no other part of the screen.
@@ -102,7 +102,7 @@ import {
 import { bare, specTable, unbroken } from '../contract/spec-table'
 
 // ---------------------------------------------------------------------------
-// The manuscripts, read at run time rather than copied here (Chapter 1.9 :275).
+// The manuscripts, read at run time rather than copied here (Chapter 1.9).
 // ---------------------------------------------------------------------------
 
 const REQUIREMENTS = unbroken(readFileSync(

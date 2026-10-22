@@ -2,7 +2,7 @@
 // to `false`; a task that never had one is left where it stands.
 //
 // ---------------------------------------------------------------------------
-// THE CLAUSE, QUOTED VERBATIM (docs/spec/01-04-requirements.md:2051)
+// THE CLAUSE, QUOTED VERBATIM (docs/spec/01-04-requirements.md)
 // ---------------------------------------------------------------------------
 //
 //   **再開予定日を置いたとき、`resumeValid` を `true` にすること（MUST）** ——
@@ -48,8 +48,8 @@
 // ⛔ NO FUNCTION BODY WAS READ. Nothing was read of how a date branch decides
 // what to place; every expectation below is 表 T-019's and FR-044's.
 // ⭐ THE SHAPE OF THE FIXTURE AND OF `BASE_CONTEXT` IS COPIED, NOT INVENTED --
-// tests/unit/t-016-choosing-the-wbs-parent.test.ts drives the same seam for
-// `PR-15` and says at length why each member is where it is.
+// the t-016 wbs-parent unit test (deleted by CR-573) drove the same seam for
+// `PR-15` and said at length why each member is where it is.
 //
 // ---------------------------------------------------------------------------
 // THE ROWS THESE CASES REST ON
@@ -196,7 +196,7 @@ const RESUME_VALID_COLUMN = columnOf('PR-8')
 const stateNameOf = (id: string): string => bare(rowOf(T_019, id).by['状態'] ?? '')
 
 // ===========================================================================
-// 3. The fixture. Shape copied from tests/unit/t-016-choosing-the-wbs-parent.test.ts
+// 3. The fixture. Shape copied from the t-016 wbs-parent unit test (deleted by CR-573)
 // ===========================================================================
 
 const nested = (flat: Readonly<Record<string, unknown>>): Record<string, unknown> => {

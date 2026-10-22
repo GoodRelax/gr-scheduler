@@ -27,7 +27,7 @@
 // ⭐ THE SHAPE IS COPIED, NOT INVENTED. `host` / `screenPane` / `stage` / `key`
 // and the template-based document come from tests/unit/in-4-escape-closes-the-
 // panel.test.ts and tests/unit/uf-48-input.test.ts, which drive this same unit;
-// `wheelOf` is tests/unit/mk-wheel-scrolling.test.ts's, which drives the same
+// `wheelOf` is the mk-wheel-scrolling unit test's (deleted by CR-573), which drove the same
 // five rows one seam lower.
 //
 // ---------------------------------------------------------------------------
@@ -97,7 +97,7 @@
 //      the range against the table's own wheel rows instead of against a number.
 //      ⛔ NOTHING ABOUT THE WHEEL ROWS IS LEFT UNASSERTED.
 //   2. HOW FAR a turn would have scrolled or zoomed. No row anywhere states it
-//      (see the head of tests/unit/mk-wheel-scrolling.test.ts), so the free
+//      (the head of the mk-wheel-scrolling unit test, deleted by CR-573, said so), so the free
 //      control asks only THAT the document moved.
 //   3. WHICH of the two surfaces `Esc` spends its level on when both stand at
 //      once. IN-4 orders the LEVELS against each other and never orders two 面

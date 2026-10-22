@@ -7,7 +7,7 @@
 // between them can be asked whether the string one built is the string the
 // other showed, so that question is asked here, once, from the table.
 //
-// Driven by a fixed copy of table T-065 row IF-1 (Chapter 1.9 :275). The copy
+// Driven by a fixed copy of table T-065 row IF-1 (Chapter 1.9). The copy
 // is transcribed rather than parsed: `seams.contract.test.ts` already walks all
 // nine rows structurally, and this file is about the one row's behavior, so a
 // failure here names IF-1 and nothing else.

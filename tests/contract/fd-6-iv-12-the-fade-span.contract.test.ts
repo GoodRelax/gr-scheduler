@@ -31,7 +31,7 @@
 // disagreement itself: 「非稼働日をまたぐ予定で、`FD-6` が許すフェードを `IV-12`
 // が拒む」. On a task that spans no non-working day the two counts coincide and
 // every case below would pass over a unit that counted either way -- which is
-// exactly what tests/unit/edit-task.test.ts says of its own IV-12 case
+// exactly what the edit-task unit test (deleted by CR-573) said of its own IV-12 case
 // (「Monday to Friday: four days, whichever way the span is counted」) and what
 // tests/contract/document-invariants.contract.test.ts:48 files as missing.
 //
@@ -90,7 +90,7 @@ import {
 } from '../../src/entity/layout-engine/screen-regions/screen-regions'
 
 // ---------------------------------------------------------------------------
-// The rows, read out of the manuscript at run time (Chapter 1.9, :275)
+// The rows, read out of the manuscript at run time (Chapter 1.9)
 // ---------------------------------------------------------------------------
 
 const cellOf = (tableId: string, rowId: string): string => {

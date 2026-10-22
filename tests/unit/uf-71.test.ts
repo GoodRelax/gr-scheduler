@@ -162,8 +162,7 @@ const TEXT_ENTRY_EVENTS: readonly string[] = ['input', 'compositionstart', 'comp
  *
  * ⭐ The settled name is what reaches the DOM as `data-role`, so a part can be
  * found by the name the specification gave it rather than by a shape. The `row`
- * column is here so that a failure names one line of the specification (1.9
- * :274), and `readsFromTable` below checks every name against the table itself.
+ * column is here so that a failure names one line of the specification (1.9), and `readsFromTable` below checks every name against the table itself.
  *
  * ⚠️ `U-30` spells two names in one cell and `U-34` / `U-35` do the same, which
  * is why the copy is a list of names rather than a list of rows.
@@ -1141,7 +1140,7 @@ const PALETTE: CommandPalette = {
   // GR-19 of 表 T-023d -- how far down the band along the palette's top edge
   // reaches. ⚠️ THE NUMBER IS THIS FILE'S OWN and no case here means it: 表
   // T-206 states the height at `S-135a`, and rule 03 section 1 keeps that value
-  // in one place -- `tests/unit/uf-65.test.ts` is the bench that holds a
+  // in one place -- the uf-65 unit test (deleted by CR-573) was the bench that held a
   // described band to the manuscript. What THIS unit owes the band is where it
   // is drawn and what it is marked with, not how tall the description says it is.
   grabBandHeight: 10,
@@ -1175,7 +1174,7 @@ const PALETTE: CommandPalette = {
  * declares a member for a heading is the implementation's answer, and a fixture
  * that turned either answer into a COMPILE error would take every case in this
  * file down with it. Rule 04 section 1 asks a disagreement to arrive as a test
- * that falls, and tests/unit/uf-64.test.ts is where that one falls.
+ * that falls; the uf-64 unit test, where that one fell, was deleted by CR-573.
  */
 const PROPERTIES: PropertiesPanel = {
   showing: 'selection',
@@ -1625,7 +1624,7 @@ describe('表 T-078 / NFR-010 (MUST NOT) -- nothing in this unit wakes a frame',
 //     arrives. ⛔ A case here could only check that a task group the fixture itself put
 //     into the view was drawn, which says nothing at all about a tier being
 //     opened. That MUST belongs to the side that chooses the tier.
-//   - 「薄いまま押されたときは、タスクグループを立てずに理由を告げること（MUST）。理由は 表
+//   - 「薄いまま押されたときは、そのタスクグループの配下に新しいタスクグループを立てないこと（MUST）。運ぶ理由は 表
 //     T-233 の `RS-46`」 is likewise raised elsewhere; this unit draws whatever
 //     `notices` it is handed.
 //
@@ -2672,7 +2671,7 @@ describe('FR-053 (MUST) -- a minimized palette shows the grab band and nothing e
   //
   // ⛔ WHAT THIS UNIT OWES AND WHAT IT DOES NOT. UF-65 decides that a minimized
   // palette carries no `armedText` -- that is the adapter's answer and
-  // tests/unit/fr-053-minimized-shows-the-band-alone.test.ts holds it. What THIS
+  // the fr-053 minimised-band unit test held it until CR-573 deleted it. What THIS
   // unit owes is that a description carrying no reading draws no box for one:
   // an empty word laid out is still something on the screen beside the band.
 
@@ -3044,7 +3043,7 @@ describe('LY-5 of 表 T-060 / R7.3 -- the outside arrives as an argument', () =>
 // FR-029 (MUST) -- the box a shape is drawn in, and the MUST NOT that keeps it
 // the same on every surface.
 //
-// docs/spec/01-04-requirements.md:3699 (FR-029 STATEMENT):
+// docs/spec/01-04-requirements.md (FR-029 STATEMENT):
 //   「図形を描く箱の一辺は `_assets/tbl-settings.md` の 表 T-206 の `S-138` に
 //    従うこと（MUST）。載る面によって変えてはならない（MUST NOT）」
 //   —— 同じ図形が面ごとに違う大きさで出ると、同じものだと読めなくなる。
@@ -3056,7 +3055,7 @@ describe('LY-5 of 表 T-060 / R7.3 -- the outside arrives as an argument', () =>
 // the line it sits on is not a fault, and asserting otherwise would test the
 // sentence the requirement wrote down to exclude.
 //
-// docs/spec/_assets/tbl-settings.md:245 (表 T-206, S-138):
+// docs/spec/_assets/tbl-settings.md (表 T-206, S-138):
 //   | S-138 | 入口の図形を描く箱の一辺（`FR-029`） | 12px 🔎 | ... |
 //   ⛔ 「閲覧者の文字サイズに追随させない」 -- which is why a box stated in `em`
 //      is a failure here and not a difference of spelling.
@@ -3077,10 +3076,10 @@ describe('LY-5 of 表 T-060 / R7.3 -- the outside arrives as an argument', () =>
 // expectations here really are the manuscript's, and not a number typed twice.
 // ===========================================================================
 
-/** 表 T-051 HF-5's first MUST, copied from docs/spec/01-04-requirements.md:1312. */
+/** 表 T-051 HF-5's first MUST, copied from docs/spec/01-04-requirements.md. */
 const T_051_HF5_SAME_SIZE_HERE = '操作子を同じ大きさで描くこと（MUST）'
 
-/** FR-029's two sentences about the box, copied from docs/spec/01-04-requirements.md:3699. */
+/** FR-029's two sentences about the box, copied from docs/spec/01-04-requirements.md. */
 const FR_029_THE_BOX = '図形を描く箱の一辺は'
 const FR_029_NOT_BY_SURFACE = '載る面によって変えてはならない（MUST NOT）'
 
@@ -3088,7 +3087,7 @@ const FR_029_NOT_BY_SURFACE = '載る面によって変えてはならない（M
  * One entry per surface a shape is drawn on, each with the row of 表 T-109 that
  * names it and the 面 that table puts it on.
  *
- * ⭐ 表 T-109 (docs/spec/_assets/tbl-glossary.md:465, 497, 503-506):
+ * ⭐ 表 T-109 (docs/spec/_assets/tbl-glossary.md):
  *   | IC-20 | `App Header`       | ... | `Agent API` を有効にする・無効にする |
  *   | IC-52 | `Help Modal` / ... | ... | 開いている面を閉じる |
  *   | IC-58 | `Task Group Panel`  | ... | タスクグループの配下をすべて展開する |

@@ -1,7 +1,7 @@
 // System case for FR-052's clause on a properties panel that is not shown (GR-22 of table T-023d).
 
 // WHY: a Playwright file, not a unit -- which part a press reaches is decided by
-// the page the shell builds; tests/unit/uf-61.test.ts holds the frame side.
+// the page the shell builds; the uf-61 unit test that held the frame side was deleted by CR-573.
 // WHY: every number asserted (screen, band width, press/drag boundary) is read
 // out of docs/spec at read time, never measured locally.
 

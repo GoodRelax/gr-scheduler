@@ -12,8 +12,8 @@
 // `src/framework/single-html-shell/startup-template.json` (which FR-027 makes
 // a document and not code) is read here as bytes, the way any GRS JSON is.
 //
-// ⭐ WHY THIS FILE EXISTS BESIDE THE FOUR `fr-055-*` FILES AND `uf-47-48`.
-// Those four drive fixtures this repository builds by hand, and `uf-47-48`
+// ⭐ WHY THIS FILE EXISTS BESIDE `uf-47-48` (AND THE FOUR `fr-055-*` FILES CR-573 DELETED).
+// Those four drove fixtures this repository builds by hand, and `uf-47-48`
 // drives OP-10's three branches as a RULE on a two-task-group document. Not one of
 // them asks what the ONE document the specification has actually decided --
 // BT-4 of table T-034, the template FR-027 keeps exactly one of -- looks like
@@ -21,10 +21,10 @@
 // case below restates a rule those files already state:
 //   * the FR-018 ladder itself (that threshold(d) stands where S-87 and S-88
 //     put it, that depth 1 is never a candidate, that it never runs backwards)
-//     is `fr-055-vertical-fit.test.ts`. This file CALLS `groupDepthLimit` and
+//     was `fr-055-vertical-fit.test.ts`'s (deleted by CR-573). This file CALLS `groupDepthLimit` and
 //     asks what the shipped document draws under it.
 //   * that the fit takes the deepest tier that fits, on documents built to
-//     answer 5 / 4 / 3 / 1, is `fr-055-fit-reaches-deep-tiers.test.ts`.
+//     answer 5 / 4 / 3 / 1, was the fr-055 deep-tiers unit test's (deleted by CR-573).
 //   * that OP-10 branches on null, on a dangling id, and on a good place is
 //     `uf-47-48.test.ts`.
 //
@@ -134,7 +134,7 @@ const GROUPS = (SCHEDULE as unknown as Loose)['taskGroups'] as readonly Loose[]
 const TASKS = (SCHEDULE as unknown as Loose)['tasks'] as readonly Loose[]
 
 // ---------------------------------------------------------------------------
-// The rows, read out of the manuscript at run time (Chapter 1.9, :275), so a
+// The rows, read out of the manuscript at run time (Chapter 1.9), so a
 // re-ruled cell moves these cases instead of leaving a stale figure behind.
 // ---------------------------------------------------------------------------
 
@@ -299,7 +299,7 @@ const taskGroupsInFirstScreenful = (layout: ScheduleLayout) =>
 
 // ---------------------------------------------------------------------------
 // One press of the entrance SK-18 of table T-036 names, built the way
-// `fr-055-fit-reaches-deep-tiers.test.ts` builds it: the answer FR-055 owes is
+// the fr-055 deep-tiers unit test (deleted by CR-573) built it: the answer FR-055 owes is
 // read off the `CM-71` write, because the rule after table T-068 runs that
 // table up to twice and no row says which component holds the loop.
 // ---------------------------------------------------------------------------
@@ -344,9 +344,8 @@ function fitWrite(settings: DocumentSettings): Record<string, unknown> {
  * published ladder between S-97 and S-98.
  *
  * ⭐ THE EXPRESSION IS NOT COPIED HERE. S-87's cell carries
- * `threshold(d) = base x ratio^(d - 2)` and `fr-055-vertical-fit.test.ts`
- * already checks the ladder against it; restating it would put the same claim
- * in two files. What this needs is only WHERE the rung is, and the ladder is
+ * `threshold(d) = base x ratio^(d - 2)`, and `fr-055-vertical-fit.test.ts`
+ * checked the ladder against it until CR-573 deleted that file. What this needs is only WHERE the rung is, and the ladder is
  * monotone in `zoomY` (S-88 above one, which that same file checks), so a
  * bisection finds it from the published answer alone.
  */
@@ -439,7 +438,7 @@ describe('OP-10 (MUST NOT) -- the template carries no place of its own', () => {
 describe('FR-018 -- the depths the first frame of the shipped template draws', () => {
   it('draws task groups deeper than the first level', () => {
     // ⭐ THE WHOLE POINT. OP-10 does not hand a BT-4 document to FR-055:
-    // 「起動テンプレートから開いた文書には働かせてはならない（MUST NOT）」, and
+    // 「`BT-4`（起動テンプレート）から開いた文書には働かせてはならない（MUST NOT）」, and
     // 「倍率は文書が持つものをそのまま使う」. So the `zoomY` in force is the one
     // BO-3 of table T-077 read out of the display group, and FR-018 draws every
     // depth that `zoomY` admits.
@@ -490,8 +489,8 @@ describe('FR-018 -- the depths the first frame of the shipped template draws', (
   })
 
   it('draws exactly the depths the ladder admits at the stored zoomY, and none deeper', () => {
-    // FR-018 decides the depth from the zoom in force. Where the rungs stand is
-    // `fr-055-vertical-fit.test.ts`; what this case adds is that the SHIPPED
+    // FR-018 decides the depth from the zoom in force. Where the rungs stand was
+    // `fr-055-vertical-fit.test.ts`'s (deleted by CR-573); what this case adds is that the SHIPPED
     // document is drawn under them rather than under a zoom something else
     // chose.
     const admitted = groupDepthLimit(drawnSettingsOf(SETTINGS))

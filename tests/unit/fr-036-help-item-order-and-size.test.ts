@@ -20,8 +20,8 @@
 // も違う」（利用者の指摘 2026-08-29）. CR-282 closed the specification side on
 // 2026-08-29 -- FR-036 now states the user's own order and sends the size to
 // `S-203` -- and the ledger's own note says what is left: 「残るのは実物での 1 画面
-// 確認だけである」. Nothing in tests/ asks for either. tests/unit/uf-66.test.ts
-// refuses the neighboring question in as many words (「THE ORDER two entries
+// 確認だけである」. Nothing in tests/ asks for either. The uf-66 unit test (deleted by CR-573)
+// refused the neighboring question in as many words (「THE ORDER two entries
 // stand in on one surface」), and that is a different order: the order of the
 // ITEMS, not the order of the three parts INSIDE one item.
 //
@@ -113,7 +113,7 @@ import {
 import { bare, bareAll, specTable, unbroken } from '../contract/spec-table'
 
 // ---------------------------------------------------------------------------
-// The manuscripts, read at run time rather than copied here (Chapter 1.9 :275).
+// The manuscripts, read at run time rather than copied here (Chapter 1.9).
 // ---------------------------------------------------------------------------
 
 const REQUIREMENTS = unbroken(readFileSync(

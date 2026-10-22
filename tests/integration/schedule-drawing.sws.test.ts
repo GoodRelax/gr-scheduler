@@ -21,7 +21,7 @@
 // next to the five below, and the completeness check at the bottom of this
 // file will not notice the gap -- SWS-6 points at no row of table T-221.
 //
-// HOW THEY ARE DRIVEN. Chapter 1.9 of docs/spec/01-04-requirements.md, :275:
+// HOW THEY ARE DRIVEN. Chapter 1.9 of docs/spec/01-04-requirements.md:
 // a test that verifies a requirement pointing at a table is driven by fixed
 // data copied from that table, and ONE test walks every row. The copy is taken
 // at read time by tests/contract/spec-table.ts, so it cannot fall behind the
@@ -147,7 +147,7 @@ function swsCase(one: SwsCase): string {
 }
 
 // ---------------------------------------------------------------------------
-// The tables, read out of the specification at read time (Chapter 1.9, :275)
+// The tables, read out of the specification at read time (Chapter 1.9)
 // ---------------------------------------------------------------------------
 
 const T221: SpecTable = specTable('T-221')
@@ -1187,7 +1187,7 @@ describe('SWS-3 -- draw the route of a dependency line (FR-009)', () => {
       then: 'the row of table T-222 that is chosen, and its bend count, are the row written for it',
     }),
     () => {
-      // One test walks every row (Chapter 1.9, :275). The bend count is not
+      // One test walks every row (Chapter 1.9). The bend count is not
       // transcribed: table T-222 states it in a column of its own and this
       // reads it from there.
       const scenarios = routeScenarios()

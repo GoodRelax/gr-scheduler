@@ -21,7 +21,7 @@
 //
 //   FR-019   the refusal, its 作法 and its 理由; and 「タスクグループを 1 つ作って載せては
 //            ならない（MUST NOT）」.
-//   FR-029   「押されたときに限り、行えない理由を通知すること（MUST）」 and
+//   FR-029   「押されたときに限り、行えない理由を通知の仕組みへ運ぶこと（MUST）」 and
 //            「当たる行があるのに落ち先を運んではならない（MUST NOT）」.
 //   T-233    RS-44 -- 「注記を置こうとした所に、指すタスクグループが無い」, manner NT-1;
 //            and RS-15, the fallback that MUST NOT be carried in its place.

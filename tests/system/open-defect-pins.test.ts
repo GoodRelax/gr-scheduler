@@ -1,12 +1,10 @@
-// System test: pins for open ledger rows, driven against the live app (DFC-06, DFC-147, DFC-182, DFC-232).
+// System test: regression cases for settled ledger rows, driven against the live app (DFC-06, DFC-147, DFC-182, DFC-232).
 
 // WHY: not driven through `npm run parity` -- that harness compares against a
 // task-groups-only sample with no task bars, canvas or watermark to press.
 
-// WHY: each pinned case is `test.fail()` so the run stays green while the row
-// is open, and turns "expected to fail, but passed" the day it is fixed.
-// WHY: an expected-to-fail case cannot guard itself, so each is preceded by a
-// plain CONTROL case proving the same gesture still reaches the product.
+// WHY: each case is preceded by a plain CONTROL case proving the same gesture
+// still reaches the product, so a case cannot pass by pressing something inert.
 
 import { expect, test, type Browser, type Page } from '@playwright/test'
 import { readFileSync } from 'node:fs'

@@ -411,6 +411,6 @@ describe(`FR-106 (MUST NOT) -- ${FR_106_NO_DISPLAY_SCALE}`, () => {
 })
 
 describe('CR-427 section 9 -- what the change request leaves open', () => {
-  it.skip('milestone figures and the fade corners (GA-7 / GA-8) keep their own shapes -- open: CR-427 questions 1 and 2, PND-445', () => {})
-  it.skip('the 24px side is chosen again after it is seen -- open: CR-427 question 3', () => {})
+  it.skip('milestone figures and the fade corners (GA-7 / GA-8) keep their own shapes -- PND-445 was ruled by JDG-300 (the host default where IN-2 names no shape); no case written yet (CR-427 questions 1 and 2)', () => {})
+  it.skip('the 24px side is chosen again after it is seen -- settled by JDG-181 (S-249 is 16px), which the FR-106 cases above read from the manuscript (CR-427 question 3)', () => {})
 })

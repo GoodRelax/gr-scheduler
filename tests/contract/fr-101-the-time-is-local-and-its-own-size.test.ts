@@ -65,7 +65,7 @@
 //      one would be this file choosing it. REPORTED, not asserted.
 //   4. NOTHING IS ASSERTED ABOUT WHERE THE TWO STAND. FR-101's 「名前を時刻の上に
 //      置くこと（MUST）」 is already driven by
-//      tests/unit/fr-101-the-name-stands-above-the-time.test.ts.
+//      tests/contract/fr-101-the-name-stands-above-the-time.test.ts.
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -89,7 +89,7 @@ import {
 import { bare, specTable, unbroken } from './spec-table'
 
 // ---------------------------------------------------------------------------
-// The manuscripts, read at run time rather than copied here (Chapter 1.9 :275).
+// The manuscripts, read at run time rather than copied here (Chapter 1.9).
 // ---------------------------------------------------------------------------
 
 const REQUIREMENTS = unbroken(readFileSync(

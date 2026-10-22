@@ -16,14 +16,14 @@
 //
 //   FR-029 (Chapter 3, 「用途をアイコンと形で伝える」), third paragraph:
 //
-//     DFC-71 「その入口がいま効いていることを示すときは、図形を描く箱を塗りつぶし、図形
+//     DFC-71 「その入口がいま効いていることを示すときは、その入口の枠の内側を塗りつぶし、図形
 //      そのものを `_assets/tbl-settings.md` の 表 T-236 の `S-146`（地の色）で抜く
 //      こと（MUST）。縁の色や太さで示してはならない（MUST NOT）」
 //      （利用者の裁定 2026-08-30。逐語「アイコン自体を緑で塗れ。例: イナズマ線が
 //      有効ならイナズマ線アイコンを緑で塗れ」）
 //
-//     ⛔ 「抜き色に白を使ってはならない（MUST NOT）」 —— 「暗いテーマの塗りは明るい
-//      色なので、白では図形が浮かない。」⭐ 「地の色なら両テーマで自動的に隔たりが
+//     ⛔ 「白と直に書いてはならない（MUST NOT）」「抜き色は `S-146` とすること（MUST）」 —— 「暗いテーマの塗りは明るい
+//      色なので、白のままでは図形が浮かない。」⭐ 「地の色を指せば、両テーマで自動的に隔たりが
 //      立つ。」
 //
 //     ⛔ 「何が効いているときに何の色で塗るかは 表 T-237 に従うこと（MUST）」
@@ -104,7 +104,7 @@ import {
 import { bare, specTable, unbroken } from './spec-table'
 
 // ---------------------------------------------------------------------------
-// The manuscripts, read at run time rather than copied here (Chapter 1.9 :275).
+// The manuscripts, read at run time rather than copied here (Chapter 1.9).
 // ---------------------------------------------------------------------------
 
 const rowOf = (table: string, id: string) => {
@@ -418,7 +418,7 @@ describe('the manuscripts still say what these cases read', () => {
   })
 
   it('⛔ the dark rendering of `S-146` is not white, which is why the MUST NOT bites', () => {
-    // 「暗いテーマの塗りは明るい色なので、白では図形が浮かない。」 In the light
+    // 「暗いテーマの塗りは明るい色なので、白のままでは図形が浮かない。」 In the light
     // rendering `S-146` IS white, so the sentence only has force in the dark
     // one -- and it is there that the case below asks it.
     expect(WHITE.has(t236('S-146', 'dark'))).toBe(false)
@@ -469,8 +469,8 @@ describe('FR-029 (MUST) -- an entrance that is in effect is FILLED, in both rend
   }
 
   it('⛔ the knockout is not white in the dark rendering (MUST NOT)', () => {
-    // 「抜き色に白を使ってはならない（MUST NOT）」 —— 「暗いテーマの塗りは明るい色な
-    // ので、白では図形が浮かない。」
+    // 「抜き色は `S-146` とすること（MUST）」 —— 「暗いテーマの塗りは明るい色な
+    // ので、白のままでは図形が浮かない。」
     const built = drawn(paletteShowing(command({ icon: IC_ARMS_A_DEPENDENCY, isArmed: true })), 'dark')
     const entry = entranceIn(built, IC_ARMS_A_DEPENDENCY)
 
@@ -638,6 +638,6 @@ describe('FR-029 (MUST NOT) -- the fill is not applied to an entrance drawn fain
 
 // ===========================================================================
 // ⚠️ NO CASE FOR EN-3 HERE. 表 T-237 hands that row to 表 T-051's `HF-6`, and the
-// entrance it fills is a task group control rather than a palette one, so it is held
-// by tests/unit/t-051-hf-6-the-pinned-task-groups-pin-is-filled.test.ts.
+// entrance it fills is a task group control rather than a palette one, so it was held
+// by the t-051-hf-6 pinned-pin unit test, which CR-573 deleted.
 // ===========================================================================

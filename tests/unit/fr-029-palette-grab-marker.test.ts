@@ -19,7 +19,7 @@
 // IC-53 is answered for and it is described, but nothing asked whether it is
 // DRAWN:
 //
-//   tests/unit/uf-65.test.ts        the description carries a band, S-135a tall
+//   uf-65 (deleted by CR-573)      the description carries a band, S-135a tall
 //   tests/unit/uf-72-screen-part.test.ts  a point on the band answers IC-53,
 //                                   and beats whatever is drawn beneath it
 //   tests/unit/uf-71.test.ts        every `CommandItem` draws 図 F-019's shape
@@ -98,8 +98,8 @@
 //      holds `CommandItem`s, and IC-53 is not one, so whether S-138 governs a
 //      marker that is not an entry is a reading no row settles.
 //   3. THE BAND'S OWN HEIGHT IN THE PAGE. `S-135a` reaches this unit through
-//      `CommandPalette.grabBandHeight`, and tests/unit/uf-65.test.ts is the
-//      bench that holds the described band to the manuscript.
+//      `CommandPalette.grabBandHeight`; the uf-65 unit test, the
+//      bench that held the described band to the manuscript, was deleted by CR-573.
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -127,7 +127,7 @@ import { bare, bareAll, specTable } from '../contract/spec-table'
 import { emptyScreenSession } from '../../src/use-case/advance-screen-session/advance-screen-session'
 
 // ---------------------------------------------------------------------------
-// The manuscripts, read at run time rather than copied here (Chapter 1.9 :275).
+// The manuscripts, read at run time rather than copied here (Chapter 1.9).
 // ---------------------------------------------------------------------------
 
 const T_206 = specTable('T-206')
@@ -935,7 +935,7 @@ describe('FR-029 (MUST) -- IC-53 is drawn on the palette, with 図 F-019\'s shap
     // marker repeated down the palette would also be a second thing to grab in a
     // table whose first row (GR-19) is about grabbing exactly one.
     // ⚠️ THE SHAPES ARE DRIVEN, NOT COUNTED: the real palette's groups are
-    // UF-65's answer and tests/unit/uf-65.test.ts is the bench that holds them,
+    // UF-65's answer (the uf-65 unit test that held them was deleted by CR-573),
     // so the numbers below are inputs and no case here means them.
     const shapes: readonly { readonly what: string; readonly palette: CommandPalette }[] = [
       { what: 'one group of one entry', palette: paletteWith({ groups: [groupOf(1)] }) },
