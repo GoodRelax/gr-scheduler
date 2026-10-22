@@ -1102,19 +1102,11 @@ function highlightHit(box: HighlightGeometry, boxPart: BoxPart): Hit {
   return { item: { kind: 'highlightBox', id: box.id }, grab: 'GR-14', boxPart }
 }
 
-// see GR-14, ZO-8, ZO-9
+// see GR-14, ZO-9
 /** @purity pure */
-function noteHitOf(
-  geometry: ScheduleGeometry,
-  x: number,
-  y: number,
-  sizes: GrabSizes,
-  onShape: boolean,
-): Hit | null {
-  // WHY: the tip before the body: a body read first would take the tip's place. Each kind is read front
-  // first: a later box is drawn in front (ZO-8, ZO-9), so where two overlap the one seen answers.
-  const comments = [...geometry.commentBoxes].reverse()
-  const highlights = [...geometry.highlightBoxes].reverse()
+function commentBoxHitOf(boxes: readonly CommentGeometry[], x: number, y: number, sizes: GrabSizes): Hit | null {
+  // WHY: the tip before the body, or the body takes its place; front first, as a later box is drawn in front.
+  const comments = [...boxes].reverse()
   for (const box of comments) {
     if (isNearPoint(x, y, box.anchor, sizes['S-292'], sizes['S-292'])) {
       return commentHit(box, { kind: 'anchor' })
@@ -1128,6 +1120,21 @@ function noteHitOf(
     const leader = leaderOf(box)
     if (leader !== null && isOnPolyline(x, y, leader, sizes['S-291'])) return commentHit(box, { kind: 'leader' })
   }
+  return null
+}
+
+// see GR-14, ZO-8, ZO-9
+/** @purity pure */
+function noteHitOf(
+  geometry: ScheduleGeometry,
+  x: number,
+  y: number,
+  sizes: GrabSizes,
+  onShape: boolean,
+): Hit | null {
+  const comment = commentBoxHitOf(geometry.commentBoxes, x, y, sizes)
+  if (comment !== null) return comment
+  const highlights = [...geometry.highlightBoxes].reverse()
   for (const box of highlights) {
     const grabPoint = nearestGrabPointOf(box, x, y, sizes['S-230'])
     if (grabPoint !== null) return highlightHit(box, grabPoint)
@@ -1256,7 +1263,8 @@ export function itemAtPointer(
   landed: LandedLink = null,
 ): Hit | HintHolder | null {
   if (resolving === 'doubleClick') {
-    const label = labelHitOf(geometry, x, y)
+    // WHY: a comment box is drawn in front of the labels (ZO-9, ZO-5), so where it covers one it answers (MK-13).
+    const label = commentBoxHitOf(geometry.commentBoxes, x, y, sizes) ?? labelHitOf(geometry, x, y)
     if (label !== null) return label
   }
   const answers = answersAtPointer(pointerWalkOf(geometry, sizes, landed), x, y)
