@@ -43,7 +43,7 @@
 | 3 | その sha に `GT-2` が通る | 調整役 | `tools/push_guard.py`（最後の `GT-2` が失敗なら push を拒む） |
 | 4 | `develop` → `main` の PR を開く（`gh pr create --base main --head develop`。本文に変更履歴の範囲・ビルド版・`GT-2` の結果） | 調整役 | ⛔ `main` へは push しない（`tools/push_guard.py`、`JDG-2930`） |
 | 5 | GitHub で見て合流する | 利用者 | GitHub の ruleset（`main` は PR のみ） |
-| 6 | 配備 —— `gh workflow run pages.yml --ref main`（`pages.yml` は手で起こすだけ） | 合流の後 | 配備の組み立てが版を書き入れる |
+| 6 | 配備 —— 5 の合流（`main` への push）で `pages.yml` がひとりでに動く。⭐ 配備をやり直すときだけ `gh workflow run pages.yml --ref main` を手で起こす（`JDG-3115`） | 機械（合流の後） | 配備の組み立てが版を書き入れる |
 | 7 | 1 が出したタグを打ち、GitHub Release を作る | 利用者 | — |
 
 ## 3. 規則を表の外へ戻さない機械（`JDG-2986`）
