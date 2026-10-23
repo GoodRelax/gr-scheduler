@@ -35,6 +35,8 @@ const FR_096_OLD_CHOICE = '表 T-024 のうち書出の方向を持ち、ファ�
 
 const T_024_MEDIA_NOTE = '⭐ **媒体の型の欄も、ファイルとして出る行がすべて持つ** —— `FR-096` が保存の選択面に渡す値の正が本表である。'
 const T_024_OFFERED_NOTE = '⭐ **「`IC-2` に出す」の欄は、`FR-096` の選択面に並ぶ行を決める**'
+// WHY: CR-827 added this note when IO-10 came to share .json with IO-2.
+const T_024_SHARED_EXTENSION_NOTE = '拡張子を分け合う行は、媒体の型も同じであること（MUST）'
 
 const RW_7_EXTENSION_FROM_IO_8 = '＋ 表 T-024 の `IO-8` の拡張子。'
 const RW_7_ENDS_AND_MEDIA_TYPE =
@@ -67,6 +69,7 @@ describe('CR-768 -- the manuscript these cases read', () => {
   it('T-024 says in a note that the media type column and the offered column are the sources', () => {
     expect(REQUIREMENTS).toContain(T_024_MEDIA_NOTE)
     expect(REQUIREMENTS).toContain(T_024_OFFERED_NOTE)
+    expect(REQUIREMENTS).toContain(T_024_SHARED_EXTENSION_NOTE)
   })
 
   it('RW-7 and SX-2 read their extension and their set from table T-024', () => {
@@ -94,11 +97,14 @@ describe('CR-768 -- table T-024 carries the two new columns', () => {
     ])
   })
 
-  it('holds IO-1 to IO-9 and no other row, IO-8 stands right after IO-4 and IO-9 right after IO-8', () => {
+  // WHY: CR-827 added IO-10 (the GRS JSON schema) after IO-9 and before IO-5.
+  it('holds IO-1 to IO-10 and no other row, IO-8 stands right after IO-4, IO-9 right after IO-8 and IO-10 between IO-9 and IO-5', () => {
     const ids = formatRows().map((one) => one.id)
-    expect([...ids].sort()).toEqual(['IO-1', 'IO-2', 'IO-3', 'IO-4', 'IO-5', 'IO-6', 'IO-7', 'IO-8', 'IO-9'])
+    expect([...ids].sort()).toEqual(['IO-1', 'IO-10', 'IO-2', 'IO-3', 'IO-4', 'IO-5', 'IO-6', 'IO-7', 'IO-8', 'IO-9'])
     expect(ids.indexOf('IO-8')).toBe(ids.indexOf('IO-4') + 1)
     expect(ids.indexOf('IO-9')).toBe(ids.indexOf('IO-8') + 1)
+    expect(ids.indexOf('IO-10')).toBe(ids.indexOf('IO-9') + 1)
+    expect(ids.indexOf('IO-5')).toBe(ids.indexOf('IO-10') + 1)
   })
 
   it('the offered column says 出す or 出さない in every row and nothing else', () => {
@@ -133,15 +139,27 @@ describe('CR-768 -- every row of table T-024 against the rules its notes and FR-
     }
   })
 
-  it('exactly the rows that go out as a file are IO-1, IO-2, IO-3, IO-4, IO-7, IO-8 and IO-9', () => {
-    expect(fileRows().map((one) => one.id).sort()).toEqual(['IO-1', 'IO-2', 'IO-3', 'IO-4', 'IO-7', 'IO-8', 'IO-9'])
+  // WHY: CR-827 IO-10 carries the schema as a .json file, so it goes out as a file too.
+  it('exactly the rows that go out as a file are IO-1, IO-2, IO-3, IO-4, IO-7, IO-8, IO-9 and IO-10', () => {
+    expect(fileRows().map((one) => one.id).sort()).toEqual(['IO-1', 'IO-10', 'IO-2', 'IO-3', 'IO-4', 'IO-7', 'IO-8', 'IO-9'])
   })
 
-  it('two rows never share an extension or a media type, so a suggested name and a chooser key stay unambiguous', () => {
-    const extensions = fileRows().map((one) => one.extension)
-    const mediaTypes = fileRows().map((one) => one.mediaType)
+  // WHY: CR-827 replaced "never share" with the note's MUST: rows sharing an extension carry the same media type.
+  it(`"${T_024_SHARED_EXTENSION_NOTE}" -- an extension maps to one media type, and IO-10 shares .json and its type with IO-2`, () => {
+    const typesOf = new Map<string | null, Set<string | null>>()
+    for (const row of fileRows()) typesOf.set(row.extension, (typesOf.get(row.extension) ?? new Set()).add(row.mediaType))
+    for (const [extension, types] of typesOf) expect([...types], `${extension}: one media type`).toHaveLength(1)
+    expect(extensionOf('IO-10')).toBe(extensionOf('IO-2'))
+    expect(mediaTypeOf('IO-10')).toBe(mediaTypeOf('IO-2'))
+  })
+
+  // WHY: CR-827 note -- rows taken in still differ in extension, so the extension and first-character pair names one row.
+  it('the rows taken in never share an extension; IO-10 is not taken in and is not offered on IC-2', () => {
+    const takenIn = fileRows().filter((one) => one.direction.includes('取り込み'))
+    const extensions = takenIn.map((one) => one.extension)
     expect(new Set(extensions).size).toBe(extensions.length)
-    expect(new Set(mediaTypes).size).toBe(mediaTypes.length)
+    expect(rowOf('IO-10').direction).toBe('書出のみ')
+    expect(rowOf('IO-10').offered).toBe(NOT_OFFERED_WORD)
   })
 
   it('.svg, .html and .md carry the product own x- type; .json, .xml and .png carry a registered one', () => {

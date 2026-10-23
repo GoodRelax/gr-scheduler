@@ -49,10 +49,14 @@ describe('CR-768 -- the manuscript these cases read', () => {
 })
 
 describe('FR-096 / T-024 -- the copies of the table in src are generated regions that equal the table', () => {
-  it('MEDIA_TYPE_OF_EXTENSION lies in a generated region and holds the extension and media type of every file row, in the order of the table, and no other pair', () => {
+  // WHY: CR-827 IO-10 shares .json (and application/json) with IO-2, and a map keyed by extension holds .json once.
+  it('MEDIA_TYPE_OF_EXTENSION lies in a generated region and holds each extension of the file rows with its media type, at its first row in the order of the table, and no other pair', () => {
     const region = regionHolding(STORE, 'MEDIA_TYPE_OF_EXTENSION')
     expect(region).toContain('docs/spec/01-04-requirements.md (table T-024)')
-    expect(pairsOf(region)).toEqual(fileRows().map((one) => [one.extension, one.mediaType]))
+    const expected = fileRows()
+      .filter((one, index, rows) => rows.findIndex((other) => other.extension === one.extension) === index)
+      .map((one) => [one.extension, one.mediaType])
+    expect(pairsOf(region)).toEqual(expected)
   })
 
   it('the file store declares MEDIA_TYPE_OF_EXTENSION once, and that once is inside the generated region', () => {

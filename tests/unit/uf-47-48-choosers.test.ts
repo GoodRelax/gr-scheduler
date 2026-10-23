@@ -2584,7 +2584,8 @@ describe('the tables are read by position, so the positions are pinned', () => {
     // that moves a row moves the save list with it, and the two cases in
     // `FR-096 -- the name the chooser proposes` that drive the surface would go
     // on passing, because they read the same table. This is where it is caught.
-    expect(outDirectionRows()).toEqual(['IO-2', 'IO-1', 'IO-7', 'IO-3', 'IO-4', 'IO-8', 'IO-9', 'IO-6'])
+    // WHY: CR-827 added IO-10 (out only) after IO-9 and before IO-5, so it goes out between IO-9 and IO-6.
+    expect(outDirectionRows()).toEqual(['IO-2', 'IO-1', 'IO-7', 'IO-3', 'IO-4', 'IO-8', 'IO-9', 'IO-10', 'IO-6'])
     expect(offeredOnIc2Rows()).toEqual(['IO-2', 'IO-1', 'IO-7', 'IO-3', 'IO-4'])
     // ⭐ And the same order said in extensions, which is how the person stated
     // it -- read out of the table rather than typed beside the row IDs above.
