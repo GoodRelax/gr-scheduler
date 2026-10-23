@@ -133,7 +133,7 @@ export {
 export type { SystemTimeZone, StandardTimeZoneKey, TimeZoneRow, ZoneClock } from './time-zone'
 export { delayStart, delayWorkingDays, isDelayed, progressMarkerOf } from './task-delay'
 export type { ProgressMarker } from './task-delay'
-export { diagnoseDelay, parentCandidatesOf, parentTaskResolutionsOf } from './delay-diagnostics'
+export { diagnoseDelay, diagnosedMarkerRowsOf, parentCandidatesOf, parentTaskResolutionsOf } from './delay-diagnostics'
 export type { DelayDiagnosticsReport, ParentTaskResolution } from './delay-diagnostics'
 export {
   DELAY_REPORT_STATUSES,

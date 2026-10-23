@@ -978,12 +978,12 @@
   {
    "from": "docs/spec/_source/published-entries.json",
    "to": "docs/spec UIDs",
-   "count": 203
+   "count": 205
   },
   {
    "from": "docs/spec/_source/published-entries.json",
    "to": "docs/spec/01-04-requirements.md",
-   "count": 693
+   "count": 709
   },
   {
    "from": "docs/spec/_source/published-entries.json",

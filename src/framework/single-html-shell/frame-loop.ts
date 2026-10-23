@@ -23,6 +23,7 @@ import {
 import {
   delayDiagnosticsReportRows,
   diagnoseDelay,
+  diagnosedMarkerRowsOf,
   scheduleViolations,
   standardTimeZoneKeyForSystem,
   textOfDay,
@@ -526,12 +527,11 @@ interface HeldDelayDiagnostics {
 const NO_MARKED_TASKS: ReadonlySet<number> = new Set()
 
 // see FR-130, FR-133, PE-8, T-315, S-3, JDG-2803, JDG-2804, JDG-2806
-// WHY: DG-4 is left out; the geometry already draws it as PM-4. Made only on a run (IC-107, IC-168), never on an edit.
+// WHY: made only on a run (IC-107, IC-168), never on an edit.
 /** @purity pure */
 function delayDiagnosticsOf(document: Document, fixLogAtRun: ReadonlySet<DelayFixLogRow>): HeldDelayDiagnostics {
   const report = diagnoseDelay(document, workingCalendarOf(document.schedule))
-  const symbolByUid = new Map<number, 'DG-1' | 'DG-2' | 'DG-3'>()
-  for (const one of report.markerStates) if (one.row !== 'DG-4') symbolByUid.set(one.uid, one.row)
+  const symbolByUid = new Map(diagnosedMarkerRowsOf(report, document.schedule))
   const reportTaskUids = new Set(delayDiagnosticsReportRows(report, document.schedule).map((row) => row.taskUid))
   return { of: document, report, drawing: { shown: true, symbolByUid }, reportTaskUids, markedTaskUids: new Set(symbolByUid.keys()), fixLogAtRun }
 }

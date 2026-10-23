@@ -100,6 +100,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `delayWorkingDays` | entry | function | `src/entity/document-model/schedule/task-delay.ts#delayWorkingDays` | PI-1 | 表 T-021b の起点と終点 |
 | `Dependency` | entry | interface | `src/entity/document-model/schedule/schedule-entities.ts#Dependency` | -- | interface Dependency |
 | `diagnoseDelay` | entry | function | `src/entity/document-model/schedule/delay-diagnostics.ts#diagnoseDelay` | PI-1 | 遅延診断のレポート（表 T-317）を作る。 |
+| `diagnosedMarkerRowsOf` | entry | function | `src/entity/document-model/schedule/delay-diagnostics.ts#diagnosedMarkerRowsOf` | PI-1 | 遅延診断を出しているあいだ日程表に描く 表 T-315 の行（`DG-1` 〜 `DG-3`）を、`Task.uid` ごとに求める（`FR-133`）。 |
 | `earliestPlanStartDayOf` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#earliestPlanStartDayOf` | PI-1 | 全体日程シフトの最初のタスクの開始日（表 T-379 の `WH-1`）—— `Task` の予定の開始を開始の側で読んだ、いちばん早い日。 |
 | `edgeInstantOf` | entry | function | `src/entity/document-model/schedule/calendar-day.ts#edgeInstantOf` | PI-1 | 日程表に描く端（予定バー・実績バーの左右の端、期限、変更前の予定の輪郭の左右の端）が時間軸に立つ瞬間（分）。 |
 | `EntityRows` | entry | interface | `src/entity/document-model/schedule/schedule-entities.ts#EntityRows` | -- | interface EntityRows |
@@ -2112,4 +2113,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 1074 name(s) leave through a public entry (531 of them published by table T-064), 838 more are exported by a file and not by its entry.
+Totals: 1075 name(s) leave through a public entry (532 of them published by table T-064), 838 more are exported by a file and not by its entry.
