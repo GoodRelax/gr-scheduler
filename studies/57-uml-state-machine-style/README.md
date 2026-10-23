@@ -4,7 +4,7 @@ title: UML の状態遷移の見本 —— 図・表・ガードの書き方
 description: CR-767 の問いを見比べるための 1 ファイルの見本。状態機械の原稿から刷った UML の図（drawio-uml）と、列 ＝ 今の状態・行 ＝ 出来事・升 ＝ 遷移先とガード条件の状態遷移表を、ガードを名・言葉・式で書いた 3 つの形で並べる。Entry ／ Exit と、兄弟の囲みの代わりの複合状態も描く。2026-10-15。
 tags: [state-machine, uml, guard, transition-table, drawio-uml, sample]
 phase: design
-status: proposed
+status: accepted
 ---
 
 # UML の状態遷移の見本 —— 図・表・ガードの書き方
@@ -50,4 +50,12 @@ status: proposed
 
 ## 決まったこと
 
-まだ無い —— CR-767 の 11 節の Q1〜Q3 は利用者の答えを待つ（2026-10-15、利用者は眠っていた）。
+利用者が 2026-10-15 に 3 つとも推奨の択で答えた。
+
+| 問い | 答え | 裁定 |
+|---|---|---|
+| Q1 ガードの条件の書き方 | B 式 —— 原稿の領域ごとのガードの一覧が式を持ち、表の升は式を刷る。図のラベルは名のまま | `JDG-2362` |
+| Q2 図を描く道具 | A drawio-uml —— 状態機械ごとの SVG を置き、`--check` は図の元の指紋で確かめる | `JDG-2363` |
+| Q3 兄弟の囲み | A 本物の複合状態を足す（`armModeStateMachine`・`taskGroupGrabStateMachine`） | `JDG-2364` |
+
+当てたのは CR-767 の波 1（2026-10-23）—— 式・ガードの一覧・entry ／ exit・UML の図。Q3 の複合状態は生成する型と `src` が動くので波 2 で当てる。

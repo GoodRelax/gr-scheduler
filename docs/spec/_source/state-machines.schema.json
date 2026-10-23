@@ -4,12 +4,12 @@
  "$comment": [
   "HAND-WRITTEN CONTRACT -- EDIT THIS FILE.",
   "Validates _source/state-machines.json, which is the single source of truth. Same role as _source/settings.schema.json.",
-  "The shape only. What the manuscript may hold is table T-250 of docs/spec/05-07-design.md; the cross-entry rules (evidence ids defined, states and events resolved, every target a state of the same machine, one initial state per union, machine names unique, no event key in two regions) are checked by the generators, because a schema cannot see another entry."
+  "The shape only. What the manuscript may hold is table T-250 of docs/spec/05-07-design.md; the cross-entry rules (evidence ids defined, states and events resolved, every target a state of the same machine, one initial state per union, machine names unique, no event key in two regions, every guard a cell names defined once in its region's `guards` and every condition written in `guardLanguage` and resolved) are checked by the generators, because a schema cannot see another entry."
  ],
  "title": "The state-machine manuscript",
- "description": "Per region: the events it receives (defined once), the values its root carries, and one state machine per orthogonal concern -- its states and its state transition table keyed event -> current state -> cell. docs/spec/_assets/tbl-state-machines.md and the generated region of each region unit are printed from it.",
+ "description": "Per region: the events it receives (defined once), the values its root carries, its guards with their conditions, and one state machine per orthogonal concern -- its states and its state transition table keyed event -> current state -> cell. The language the conditions are written in is `guardLanguage`, once for every region. docs/spec/_assets/tbl-state-machines.md and the generated region of each region unit are printed from it.",
  "type": "object",
- "required": ["regions"],
+ "required": ["guardLanguage", "regions"],
  "additionalProperties": false,
  "properties": {
   "$schema": {"type": "string"},
@@ -19,6 +19,7 @@
    "items": {"type": "string"}
   },
   "priorities": {"$ref": "#/$defs/priorities"},
+  "guardLanguage": {"$ref": "#/$defs/guardLanguage"},
   "regions": {
    "type": "array",
    "minItems": 1,
@@ -26,6 +27,63 @@
   }
  },
  "$defs": {
+  "guardLanguage": {
+   "description": "SD-3: the language every guard condition is written in -- its terms, its operators and the named functions a condition may call. Printed once at the head of the state machine document; the loader parses every condition against it.",
+   "type": "object",
+   "required": ["terms", "operators", "functions"],
+   "additionalProperties": false,
+   "properties": {
+    "terms": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/guardForm"}},
+    "operators": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/guardForm"}},
+    "functions": {"type": "array", "items": {"$ref": "#/$defs/guardFunction"}}
+   }
+  },
+  "guardForm": {
+   "description": "One form of the guard language as a condition writes it, and what it means.",
+   "type": "object",
+   "required": ["form", "meaning"],
+   "additionalProperties": false,
+   "properties": {
+    "form": {"type": "string", "minLength": 1},
+    "meaning": {"$ref": "#/$defs/text"}
+   }
+  },
+  "guardFunction": {
+   "description": "A named function a condition may call: its parameters, what it returns, and the rows that define that value.",
+   "type": "object",
+   "required": ["name", "parameters", "meaning", "evidence"],
+   "additionalProperties": false,
+   "properties": {
+    "name": {"$ref": "#/$defs/identifier"},
+    "parameters": {"type": "array", "items": {"$ref": "#/$defs/identifier"}},
+    "meaning": {"$ref": "#/$defs/text"},
+    "evidence": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/rowId"}}
+   }
+  },
+  "guard": {
+   "description": "SD-3: one guard of a region -- the name the cells use and its condition, an expression in the guard language. Defined once per region; a name two regions use is defined in each.",
+   "type": "object",
+   "required": ["name", "condition", "evidence"],
+   "additionalProperties": false,
+   "properties": {
+    "name": {"$ref": "#/$defs/identifier"},
+    "condition": {"type": "string", "minLength": 1},
+    "evidence": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/rowId"}},
+    "note": {"$ref": "#/$defs/text"}
+   }
+  },
+  "stateEffect": {
+   "description": "SD-1: the effect a state runs on entry (every transition that enters it) or on exit (every transition that leaves it), as UML runs them: exit, then the transition's effect, then entry. A transition to itself neither enters nor leaves.",
+   "type": "object",
+   "required": ["effect", "evidence"],
+   "additionalProperties": false,
+   "properties": {
+    "effect": {"$ref": "#/$defs/identifier"},
+    "effectArgument": {"$ref": "#/$defs/rowId"},
+    "evidence": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/rowId"}},
+    "note": {"$ref": "#/$defs/text"}
+   }
+  },
   "priorities": {
    "description": "SD-4: the order across regions in which the contested keys are consumed (table T-283). Each rung names the states that stand on it; the order itself is the requirement rows the rung cites.",
    "type": "object",
@@ -144,6 +202,7 @@
     "figure": {"$ref": "#/$defs/caption"},
     "root": {"$ref": "#/$defs/root"},
     "events": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/event"}},
+    "guards": {"type": "array", "items": {"$ref": "#/$defs/guard"}},
     "machines": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/machine"}}
    }
   },
@@ -213,11 +272,13 @@
     "parent": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/stateKey"}]},
     "initial": {"type": "boolean"},
     "carries": {"type": "array", "items": {"$ref": "#/$defs/carry"}},
-    "evidence": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/rowId"}}
+    "evidence": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/rowId"}},
+    "entry": {"$ref": "#/$defs/stateEffect"},
+    "exit": {"$ref": "#/$defs/stateEffect"}
    }
   },
   "guardTerm": {
-   "description": "A named guard (its expression is the code's), or a state another machine of the same region must be in.",
+   "description": "The name of a guard in this region's guard list (its condition is there), or a state another machine of the same region must be in.",
    "oneOf": [
     {
      "type": "object",

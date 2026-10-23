@@ -345,20 +345,20 @@
    "to": "docs/spec UIDs",
    "family": "rows",
    "fields": {
-    "evidence": 273,
+    "evidence": 304,
     "rows": 90
    },
    "prefixes": [
     "FR"
    ],
-   "count": 363
+   "count": 394
   },
   {
    "from": "docs/spec/_source/state-machines.json",
    "to": "docs/spec/01-04-requirements.md",
    "family": "rows",
    "fields": {
-    "evidence": 528,
+    "evidence": 625,
     "rows": 195
    },
    "prefixes": [
@@ -409,14 +409,14 @@
     "WM",
     "ZE"
    ],
-   "count": 723
+   "count": 820
   },
   {
    "from": "docs/spec/_source/state-machines.json",
    "to": "docs/spec/05-07-design.md",
    "family": "rows",
    "fields": {
-    "evidence": 56,
+    "evidence": 59,
     "rows": 25
    },
    "prefixes": [
@@ -428,7 +428,7 @@
     "RD",
     "WS"
    ],
-   "count": 81
+   "count": 84
   },
   {
    "from": "docs/spec/_source/state-machines.json",
@@ -436,27 +436,27 @@
    "family": "rows",
    "fields": {
     "effectArgument": 3,
-    "evidence": 62,
+    "evidence": 73,
     "rows": 110
    },
    "prefixes": [
     "IC",
     "U"
    ],
-   "count": 175
+   "count": 186
   },
   {
    "from": "docs/spec/_source/state-machines.json",
    "to": "docs/spec/_source/agent-api-members.json",
    "family": "AM",
    "fields": {
-    "evidence": 1,
+    "evidence": 2,
     "rows": 4
    },
    "prefixes": [
     "AM"
    ],
-   "count": 5
+   "count": 6
   },
   {
    "from": "docs/spec/_source/state-machines.json",
@@ -490,13 +490,13 @@
    "to": "docs/spec/_source/notice-reasons.json",
    "family": "QN",
    "fields": {
-    "evidence": 27,
+    "evidence": 28,
     "rows": 27
    },
    "prefixes": [
     "QN"
    ],
-   "count": 54
+   "count": 55
   },
   {
    "from": "docs/spec/_source/state-machines.json",
@@ -504,38 +504,39 @@
    "family": "RS",
    "fields": {
     "effectArgument": 21,
-    "evidence": 13,
+    "evidence": 15,
     "rows": 4
    },
    "prefixes": [
     "RS"
    ],
-   "count": 38
+   "count": 40
   },
   {
    "from": "docs/spec/_source/state-machines.json",
    "to": "docs/spec/_source/property-items.json",
    "family": "PR",
    "fields": {
+    "evidence": 1,
     "rows": 17
    },
    "prefixes": [
     "PR"
    ],
-   "count": 17
+   "count": 18
   },
   {
    "from": "docs/spec/_source/state-machines.json",
    "to": "docs/spec/_source/settings.json",
    "family": "S",
    "fields": {
-    "evidence": 70,
+    "evidence": 78,
     "rows": 7
    },
    "prefixes": [
     "S"
    ],
-   "count": 77
+   "count": 85
   }
  ],
  "prose": [
@@ -1112,22 +1113,22 @@
   {
    "from": "docs/spec/_source/state-machines.json",
    "to": "docs/spec UIDs",
-   "count": 14
+   "count": 15
   },
   {
    "from": "docs/spec/_source/state-machines.json",
    "to": "docs/spec/01-04-requirements.md",
-   "count": 69
+   "count": 80
   },
   {
    "from": "docs/spec/_source/state-machines.json",
    "to": "docs/spec/05-07-design.md",
-   "count": 23
+   "count": 25
   },
   {
    "from": "docs/spec/_source/state-machines.json",
    "to": "docs/spec/_assets/tbl-glossary.md",
-   "count": 31
+   "count": 51
   },
   {
    "from": "docs/spec/_source/state-machines.json",
@@ -1147,17 +1148,17 @@
   {
    "from": "docs/spec/_source/state-machines.json",
    "to": "docs/spec/_source/notice-reasons.json",
-   "count": 20
+   "count": 24
   },
   {
    "from": "docs/spec/_source/state-machines.json",
    "to": "docs/spec/_source/property-items.json",
-   "count": 5
+   "count": 6
   },
   {
    "from": "docs/spec/_source/state-machines.json",
    "to": "docs/spec/_source/settings.json",
-   "count": 20
+   "count": 21
   },
   {
    "from": "docs/spec/_source/state-machines.schema.json",
@@ -1167,7 +1168,7 @@
   {
    "from": "docs/spec/_source/state-machines.schema.json",
    "to": "docs/spec/05-07-design.md",
-   "count": 12
+   "count": 15
   },
   {
    "from": "docs/spec/_source/state-machines.schema.json",

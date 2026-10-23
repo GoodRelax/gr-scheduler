@@ -160,7 +160,7 @@ stateDiagram-v2
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | `screen/escapePressed` | — | → `notArmed` [`isRungArmed`]<br>それ以外 → — | → `notArmed` [`isRungArmed`]<br>それ以外 → — | → `notArmed` [`isRungArmed`]<br>それ以外 → — | → `notArmed` [`isRungArmed`]<br>それ以外 → — | → `notArmed` [`isRungArmed`]<br>それ以外 → — | → `notArmed` [`isRungArmed`]<br>それ以外 → — |
 | `screen/armEntryPressed` | → `{armKind}` | → `notArmed` [`isSameArm`]<br>→ `{armKind}` [not `isSameArm`] | → `notArmed` [`isSameArm`]<br>→ `{armKind}` [not `isSameArm`] | → `notArmed` [`isSameArm`]<br>→ `{armKind}` [not `isSameArm`] | → `notArmed` [`isSameArm`]<br>→ `{armKind}` [not `isSameArm`] | → `notArmed` [`isSameArm`]<br>→ `{armKind}` [not `isSameArm`] | → `notArmed` [`isSameArm`]<br>→ `{armKind}` [not `isSameArm`] |
-| `screen/dualCursorEntryPressed` | — | → `notArmed` [`canEnterDualCursor`]<br>それ以外 → — | → `notArmed` [`canEnterDualCursor`]<br>それ以外 → — | → `notArmed` [`canEnterDualCursor`]<br>それ以外 → — | → `notArmed` [`canEnterDualCursor`]<br>それ以外 → — | → `notArmed` [`canEnterDualCursor`]<br>それ以外 → — | → `notArmed` [`canEnterDualCursor`]<br>それ以外 → — |
+| `screen/dualCursorEntryPressed` | — | → `notArmed` [`dualCursorModeStateMachine.off` にいる & `hasDaysToPlace`]<br>それ以外 → — | → `notArmed` [`dualCursorModeStateMachine.off` にいる & `hasDaysToPlace`]<br>それ以外 → — | → `notArmed` [`dualCursorModeStateMachine.off` にいる & `hasDaysToPlace`]<br>それ以外 → — | → `notArmed` [`dualCursorModeStateMachine.off` にいる & `hasDaysToPlace`]<br>それ以外 → — | → `notArmed` [`dualCursorModeStateMachine.off` にいる & `hasDaysToPlace`]<br>それ以外 → — | → `notArmed` [`dualCursorModeStateMachine.off` にいる & `hasDaysToPlace`]<br>それ以外 → — |
 
 - `armModeStateMachine.notArmed` —— 初期。根拠 `AR-1`
 - `armModeStateMachine.taskShapeArmed` —— 運ぶ値 `shapeKind`（`SH-1` ・ `SH-2` ・ `SH-3` ・ `SH-4`）。根拠 `AR-2` ・ `IC-23` ・ `IC-24` ・ `IC-25` ・ `IC-26`
@@ -268,7 +268,7 @@ stateDiagram-v2
 | `screen/flowSurfaceAnswered` | — | → `closed`（`tellFlowSurfaceClosed` を返さない —— 答えた後に「閉じた」が戻らない） |
 | `screen/surfaceCloseAsked` | — | → `closed` [`isSurfaceTarget`] / `tellFlowSurfaceClosed`<br>それ以外 → — |
 | `screen/escapePressed` | — | → `closed` [`isRungSurface`] / `tellFlowSurfaceClosed`<br>それ以外 → — |
-| `screen/watermarkEntryPressed` | → `open` [`watermarkDisplayStateMachine.shown` にいる]（`surfaceName` は `U-60`）<br>それ以外 → — | → 自己 [`watermarkDisplayStateMachine.shown` にいる & `isAnotherSurface` & not `isFlowAwaitingAnswer`] / `tellFlowSurfaceClosed`（開いている面を閉じて、押した入口の面に差し替える。`surfaceName` を書き換える（`U-60`））<br>→ 自己 [`watermarkDisplayStateMachine.shown` にいる & `isAnotherSurface` & `isFlowAwaitingAnswer`] / `raiseNotice`（`RS-27`）（開く道の答えを待つ面（`flowSurfaceAnswered` で答える `U-56`・`U-61`）は差し替えない。押した入口が効かない理由として運ぶ）<br>それ以外 → — |
+| `screen/watermarkEntryPressed` | → `open` [`watermarkDisplayStateMachine.shown` にいる]（`surfaceName` は `U-60`）<br>それ以外 → — | → 自己 [`watermarkDisplayStateMachine.shown` にいる & not `isWatermarkUnlockSurface` & not `isFlowAwaitingAnswer`] / `tellFlowSurfaceClosed`（開いている面を閉じて、押した入口の面に差し替える。`surfaceName` を書き換える（`U-60`））<br>→ 自己 [`watermarkDisplayStateMachine.shown` にいる & not `isWatermarkUnlockSurface` & `isFlowAwaitingAnswer`] / `raiseNotice`（`RS-27`）（開く道の答えを待つ面（`flowSurfaceAnswered` で答える `U-56`・`U-61`）は差し替えない。押した入口が効かない理由として運ぶ）<br>それ以外 → — |
 | `screen/watermarkUnlockAnswered` | — | → 自己 [`isWatermarkUnlockSurface` & `isProceeding`] / `matchWatermarkUnlock`<br>→ `closed` [`isWatermarkUnlockSurface` & not `isProceeding`]<br>それ以外 → — |
 | `screen/watermarkUnlockMatched` | — | → `closed` [`watermarkDisplayStateMachine.shown` にいる & `isWatermarkUnlockSurface`]<br>それ以外 → — |
 | `screen/watermarkUnlockMismatched` | — | → 自己 [`isWatermarkUnlockSurface`] / `raiseNotice`（`RS-41`）（面を閉じない）<br>それ以外 → — |
@@ -322,7 +322,7 @@ stateDiagram-v2
 | 出来事 | `hidden` | `selectionDisplayed` | `documentSettingsDisplayed` |
 | --- | --- | --- | --- |
 | `screen/surfaceCloseAsked` | — | → `hidden` [`isPanelTarget`]<br>それ以外 → — | → `hidden` [`isPanelTarget`]<br>それ以外 → — |
-| `screen/escapePressed` | — | → `hidden` [`isRungSurface` & `isPanelTopmost`]<br>それ以外 → — | → `hidden` [`isRungSurface` & `isPanelTopmost`]<br>それ以外 → — |
+| `screen/escapePressed` | — | → `hidden` [`isRungSurface` & `openSurfaceStateMachine.closed` にいる]<br>それ以外 → — | → `hidden` [`isRungSurface` & `openSurfaceStateMachine.closed` にいる]<br>それ以外 → — |
 | `screen/settingsEntryPressed` | → `documentSettingsDisplayed` | → `documentSettingsDisplayed` | → `hidden`（直前の選択物の有無を問わない） |
 | `screen/propertiesOfChoiceAsked` | → `selectionDisplayed` | → 自己（`subject` を書き換える） | → `selectionDisplayed` |
 | `screen/selectionMoved` | — | → 自己 [`hasChoice`]（`subject` を書き換える）<br>それ以外 → — | → `selectionDisplayed` [`hasChoice`]（`subject` を書き換える。設定を出していても、選んだものへ移る）<br>それ以外 → — |
@@ -356,9 +356,9 @@ stateDiagram-v2
 
 | 出来事 | `off` | `on.placingCursorA` | `on.placingCursorB` |
 | --- | --- | --- | --- |
-| `screen/escapePressed` | — | → `off` [`isRungDualCursor`] / `storeClearedDualCursor`<br>それ以外 → —（親 `on` の升） | → `off` [`isRungDualCursor`] / `storeClearedDualCursor`<br>それ以外 → —（親 `on` の升） |
-| `screen/dualCursorEntryPressed` | → `on` [`hasDaysToPlace`] / `storePlacedDualCursorClearingGuide`<br>それ以外 → — | → `off` / `storeClearedDualCursor`（親 `on` の升） | → `off` / `storeClearedDualCursor`（親 `on` の升） |
-| `screen/guideCursorEntryPressed` | — | → `off` / `storeClearedDualCursor`（親 `on` の升） | → `off` / `storeClearedDualCursor`（親 `on` の升） |
+| `screen/escapePressed` | — | → `off` [`isRungDualCursor`]<br>それ以外 → —（親 `on` の升） | → `off` [`isRungDualCursor`]<br>それ以外 → —（親 `on` の升） |
+| `screen/dualCursorEntryPressed` | → `on` [`hasDaysToPlace`] / `storePlacedDualCursorClearingGuide`<br>それ以外 → — | → `off`（親 `on` の升） | → `off`（親 `on` の升） |
+| `screen/guideCursorEntryPressed` | — | → `off`（親 `on` の升） | → `off`（親 `on` の升） |
 | `screen/dualCursorPlaced` | — | → `on.placingCursorB` / `storeFixedCursorADate` | → `on.placingCursorA` / `storeFixedCursorBDate` |
 
 - `dualCursorModeStateMachine.off` —— 初期。根拠 `DC-1`
@@ -383,8 +383,8 @@ stateDiagram-v2
 
 | 出来事 | `hidden` | `shown` |
 | --- | --- | --- |
-| `screen/displayScaleStepped` | → `shown` / `startScaleMessageTimer` | → 自己 / `restartScaleMessageTimer`（中身を書き換える） |
-| `screen/verticalZoomEndReached` | → `shown` / `startScaleMessageTimer` | → 自己 / `restartScaleMessageTimer`（中身を書き換える） |
+| `screen/displayScaleStepped` | → `shown` | → 自己 / `restartScaleMessageTimer`（中身を書き換える） |
+| `screen/verticalZoomEndReached` | → `shown` | → 自己 / `restartScaleMessageTimer`（中身を書き換える） |
 | `screen/scaleMessageTimeElapsed` | — | → `hidden` |
 
 - `scaleMessageDisplayStateMachine.hidden` —— 初期。根拠 `SE-1`
@@ -810,7 +810,7 @@ stateDiagram-v2
 | `gesture/pointerPressed` | → `changingDocument` [`isDocumentChangingPress`]<br>→ `viewingDocument` [not `isDocumentChangingPress` & `isOnRepeatingEntry`] / `startEntryRepeat`（前の待ちを捨てて張り直す）<br>→ `viewingDocument` [not `isDocumentChangingPress` & not `isOnRepeatingEntry`] | — | — |
 | `gesture/pointerReleased` | — | → `notPressed` | → `notPressed` |
 | `gesture/pressInterrupted` | — | → `notPressed` [`isOnPaletteBand`] / `restorePaletteCorner`（パレットを押した時点の角へ戻す）<br>→ `notPressed` [not `isOnPaletteBand`] | → `notPressed` [`isOnPaletteBand`] / `restorePaletteCorner`（パレットを押した時点の角へ戻す）<br>→ `notPressed` [not `isOnPaletteBand`] |
-| `gesture/entryRepeatTimeElapsed` | — | — | → 自己 [`isOnRepeatingEntry`] / `repeatHeldEntry`（入口の命令をもう 1 度実行し、`S-173` の待ちを張る）<br>それ以外 → — |
+| `gesture/entryRepeatTimeElapsed` | — | — | → 自己 [`isHeldOnRepeatingEntry`] / `repeatHeldEntry`（入口の命令をもう 1 度実行し、`S-173` の待ちを張る）<br>それ以外 → — |
 
 - `pointerPressStateMachine.notPressed` —— 初期。根拠 `IN-1` ・ `AG-9`
 - `pointerPressStateMachine.changingDocument` —— 運ぶ値 `pressRow`（押した時点の押下の行） ／ `pressedOn`（押したもの）。根拠 `AG-9` ・ `WS-2` ・ `CS-2` ・ `IN-4` ・ `UN-4`
@@ -941,15 +941,15 @@ stateDiagram-v2
 
 | 出来事 | `idle` | `readingDocumentFile` | `awaitingOpenChoice` | `awaitingDiscardAnswer` | `importingDocument` | `awaitingMergeMapping` | `writingDocumentFile` |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| `fileFlow/documentOpenAsked` | → `readingDocumentFile` [`confirmationStateMachine.notAsked` にいる] / `readDocumentFile`<br>→ 自己 [`confirmationStateMachine.questionAsked` にいる] / `raiseNotice`（`RS-27`） | → 自己 / `raiseNotice`（`RS-27`） | → 自己 / `raiseNotice`（`RS-27`） | → 自己 / `raiseNotice`（`RS-27`） | → 自己 / `raiseNotice`（`RS-27`） | → 自己 / `raiseNotice`（`RS-27`） | → 自己 / `raiseNotice`（`RS-27`） |
-| `fileFlow/agentDocumentHanded` | → `readingDocumentFile` [`confirmationStateMachine.notAsked` にいる] / `readDocumentFile`（`openRoute` は `handed`）<br>それ以外 → — | — | — | — | — | — | — |
+| `fileFlow/documentOpenAsked` | → `readingDocumentFile` [`confirmationStateMachine.notAsked` にいる]<br>→ 自己 [`confirmationStateMachine.questionAsked` にいる] / `raiseNotice`（`RS-27`） | → 自己 / `raiseNotice`（`RS-27`） | → 自己 / `raiseNotice`（`RS-27`） | → 自己 / `raiseNotice`（`RS-27`） | → 自己 / `raiseNotice`（`RS-27`） | → 自己 / `raiseNotice`（`RS-27`） | → 自己 / `raiseNotice`（`RS-27`） |
+| `fileFlow/agentDocumentHanded` | → `readingDocumentFile` [`confirmationStateMachine.notAsked` にいる]（`openRoute` は `handed`）<br>それ以外 → — | — | — | — | — | — | — |
 | `fileFlow/documentFileWriteAsked` | → `writingDocumentFile` [`confirmationStateMachine.notAsked` にいる] / `writeDocumentFile`<br>→ 自己 [`confirmationStateMachine.questionAsked` にいる] / `raiseNotice`（`RS-27`） | → 自己 / `raiseNotice`（`RS-27`） | → 自己 / `raiseNotice`（`RS-27`） | → 自己 / `raiseNotice`（`RS-27`） | → 自己 / `raiseNotice`（`RS-27`） | → 自己 / `raiseNotice`（`RS-27`） | → 自己 / `raiseNotice`（`RS-27`） |
-| `fileFlow/documentFileRead` | — | → `awaitingDiscardAnswer` [`isReopenRoute` & `unsavedEditsStateMachine.editsUnsaved` にいる]<br>→ `importingDocument` [`isReopenRoute` & `unsavedEditsStateMachine.nothingUnsaved` にいる] / `importIncomingDocument`（保存していない編集が無いので問わずに置き換える（表 T-234 の `QN-5` の問うか））<br>→ `importingDocument` [`isBaselineRoute`] / `importIncomingDocument`<br>→ `awaitingOpenChoice` [not `isReopenRoute` & not `isBaselineRoute`] / `raiseFlowSurface`（`U-56`） | — | — | — | — | — |
+| `fileFlow/documentFileRead` | — | → `awaitingDiscardAnswer` [`isReopenRoute` & `unsavedEditsStateMachine.editsUnsaved` にいる]<br>→ `importingDocument` [`isReopenRoute` & `unsavedEditsStateMachine.nothingUnsaved` にいる]（保存していない編集が無いので問わずに置き換える（表 T-234 の `QN-5` の問うか））<br>→ `importingDocument` [`isBaselineRoute`]<br>→ `awaitingOpenChoice` [not `isReopenRoute` & not `isBaselineRoute`] / `raiseFlowSurface`（`U-56`） | — | — | — | — | — |
 | `fileFlow/documentOpenFailed` | — | → `idle` | — | — | → `idle` | — | — |
-| `fileFlow/openChoiceAnswered` | — | — | → `awaitingDiscardAnswer` [`isReplaceChoice` & `unsavedEditsStateMachine.editsUnsaved` にいる]<br>→ `importingDocument` [`isReplaceChoice` & `unsavedEditsStateMachine.nothingUnsaved` にいる] / `importIncomingDocument`（保存していない編集が無いので問わずに置き換える（表 T-234 の `QN-5` の問うか））<br>→ `importingDocument` [not `isReplaceChoice`] / `importIncomingDocument` | — | — | — | — |
-| `fileFlow/confirmationAnswered` | — | — | — | → `importingDocument` [`isProceeding`] / `importIncomingDocument`<br>→ `idle` [not `isProceeding`] / `discardIncomingDocument` | — | — | → 自己 [`isOverwriteQuestion`] / `answerOverwriteQuestion`<br>それ以外 → — |
+| `fileFlow/openChoiceAnswered` | — | — | → `awaitingDiscardAnswer` [`isReplaceChoice` & `unsavedEditsStateMachine.editsUnsaved` にいる]<br>→ `importingDocument` [`isReplaceChoice` & `unsavedEditsStateMachine.nothingUnsaved` にいる]（保存していない編集が無いので問わずに置き換える（表 T-234 の `QN-5` の問うか））<br>→ `importingDocument` [not `isReplaceChoice`] | — | — | — | — |
+| `fileFlow/confirmationAnswered` | — | — | — | → `importingDocument` [`isProceeding`]<br>→ `idle` [not `isProceeding`] / `discardIncomingDocument` | — | — | → 自己 [`isOverwriteQuestion`] / `answerOverwriteQuestion`<br>それ以外 → — |
 | `fileFlow/mergeMappingAsked` | — | — | — | — | → `awaitingMergeMapping` / `raiseFlowSurface`（`U-61`） | — | — |
-| `fileFlow/mergeMappingAnswered` | — | — | — | — | — | → `idle` [`isImportCanceled`] / `discardIncomingDocument`<br>→ `importingDocument` [not `isImportCanceled`] / `importIncomingDocument` | — |
+| `fileFlow/mergeMappingAnswered` | — | — | — | — | — | → `idle` [`isImportCanceled`] / `discardIncomingDocument`<br>→ `importingDocument` [not `isImportCanceled`] | — |
 | `fileFlow/flowSurfaceClosed` | — | — | → `idle` [`isOpenChooserSurface`] / `discardIncomingDocument`<br>それ以外 → — | — | — | → `idle` [`isDifferenceReviewSurface`] / `discardIncomingDocument`<br>それ以外 → — | — |
 | `fileFlow/documentOpenLanded` | — | — | — | — | → `idle` | — | — |
 | `fileFlow/documentFileSaved` | — | — | — | — | — | — | → `idle` / `issueDelayFixBundle`（運んだ `fixBundle` があれば 1 つの束として発行する（`writeForm` が `beforeFixOverwrite` のとき）。束のどれかを命令が断ったら何も当てず、断った行と理由を告げる） |

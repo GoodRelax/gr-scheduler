@@ -2,13 +2,13 @@
  "$schema": "./state-machines.schema.json",
  "$comment": [
   "SINGLE SOURCE OF TRUTH -- EDIT THIS FILE.",
-  "The unsaved screen and session values as state machines (ADR-002 of Chapter 5.6), plus the task group tree (TaskGroup.treeState), the one saved value this file holds (SD-5 of table T-250): per region, the events it receives (defined once), the values its root carries, and one state machine per orthogonal concern -- its states and its state transition table. What the manuscript holds and does not hold is table T-250 of docs/spec/05-07-design.md; the form of the machine is table T-249.",
+  "The unsaved screen and session values as state machines (ADR-002 of Chapter 5.6), plus the task group tree (TaskGroup.treeState), the one saved value this file holds (SD-5 of table T-250): per region, the events it receives (defined once), the values its root carries, its guards, and one state machine per orthogonal concern -- its states (each may name an `entry` and an `exit` effect, run as UML runs them: exit, the transition's effect, entry; a transition to itself runs neither) and its state transition table. What the manuscript holds and does not hold is table T-250 of docs/spec/05-07-design.md; the form of the machine is table T-249.",
   "NAMES, NOT NUMBERS (JDG-286, R4.4 of docs/development-rules/07-review-standards.md). A machine -- the definition -- is a noun phrase of what it tracks plus `StateMachine`, unique across every region (armModeStateMachine); the code holds its CURRENT state in a field and type named the same noun phrase plus `State` (armModeState, ArmModeState). A state reads 'the machine is now <state>': a past participle or adjective (taskShapeArmed, hidden, idle) or a present participle with its object (delivering, placingCursorA), never a bare noun; its id is machine.state (paletteDisplayStateMachine.shown.expanded). An event is subject plus past tense, defined once per region, id region/key (screen/armEntryPressed). A transition is its cell -- machine, current state and event.",
-  "A TABLE IS event -> current state -> cell. A cell is one branch {to, guard?, effect?, effectArgument?, evidence, note?} or a list of two or more told apart by their guards. An ABSENT cell means the machine does not change and keeps the same reference (SD-3). `to` equal to the current state is a transition to itself. A cell on a composite state answers for every state below it. A guard term is a name the code holds, or {in: <state id>} of ANOTHER machine of the region. `to` may be {name}: a value the event carries, standing for any top-level kind of the machine but its initial one.",
+  "A TABLE IS event -> current state -> cell. A cell is one branch {to, guard?, effect?, effectArgument?, evidence, note?} or a list of two or more told apart by their guards. An ABSENT cell means the machine does not change and keeps the same reference (SD-3). `to` equal to the current state is a transition to itself. A cell on a composite state answers for every state below it. A guard term is the name of a guard in the region's `guards` -- {name, condition, evidence, note?}, defined once per region, every one named by some cell -- or {in: <state id>} of ANOTHER machine of the region. `to` may be {name}: a value the event carries, standing for any top-level kind of the machine but its initial one.",
   "Generated FROM this file: _assets/tbl-state-machines.md (state_machines_json_to_md.py) -- per region the event definitions, the root's values and, per machine, its state diagram, its state transition table and its states; and, in the generated region of the unit each region names (`unit`; tools/generate_state_machine_types.py), the discriminated unions and the initial values. The transition-table constant is printed only where code reads it -- the unit itself or another file (JDG-139; the generator's TRANSITIONS_READ) -- today task-group-folding.ts alone (TREE_STATE_TRANSITIONS, table T-328); CR-573 removed the tests that were the only readers of the others. A region that holds documentData (SD-5) gets only its events and, where it is read, its transition-table constant, and its state keys must be the enum values of the erd.json column it names, in the same order.",
   "Rebuild: npm run gen   |   npm run gen:check fails if anything has drifted.",
-  "Validated by _source/state-machines.schema.json before a byte is written. Both generators also refuse: an evidence id docs/spec does not define, a cell whose state or target is not a state of its machine, an event a table uses that its region does not define, a union without exactly one initial state, a machine name or event key used twice, a machine name that does not end in StateMachine.",
-  "Guard expressions and effect bodies are NOT here -- the code holds them (SD-3). Every string that is printed prose is a language dictionary.",
+  "Validated by _source/state-machines.schema.json before a byte is written. Both generators also refuse: an evidence id docs/spec does not define, a cell whose state or target is not a state of its machine, an event a table uses that its region does not define, a union without exactly one initial state, a machine name or event key used twice, a machine name that does not end in StateMachine, a guard a cell names that its region does not define (or one defined but never named), and a condition the guard language cannot read or whose terms do not resolve.",
+  "Guard conditions are here (each region's `guards`, in the language of `guardLanguage`); effect bodies are NOT -- the code holds them (SD-3). Every string that is printed prose is a language dictionary.",
   "PRIORITIES ARE ONE TABLE ACROSS THE REGIONS (SD-4, table T-283): per contested key, its rungs in the order they consume it, each naming the states that stand on it with ids this file already defines. The ORDER is not this file's: it is the requirement rows each rung cites (IN-4, SK-19, NT-7), and the generator holds the Esc rungs word for word, in order, against the chain IN-4 writes with arrows. Printed at the head of _assets/tbl-state-machines.md; no code constant is generated from it -- the code's Esc rung is escapeTarget."
  ],
  "priorities": {
@@ -373,6 +373,226 @@
     "note": {
      "ja": "`NT-8` の消去の次、`IN-4` と `SK-19` の階層より先"
     }
+   }
+  ]
+ },
+ "guardLanguage": {
+  "terms": [
+   {
+    "form": "event.<運ぶ値>",
+    "meaning": {
+     "ja": "升の出来事が運ぶ値（`SD-2`）。ガードを使うどの升の出来事も、その値を運ぶ。後ろに続く `.欄` はコードの型の欄であり、生成器は引かない"
+    }
+   },
+   {
+    "form": "root.<運ぶ値>",
+    "meaning": {
+     "ja": "領域の根が運ぶ値"
+    }
+   },
+   {
+    "form": "<状態機械>.<運ぶ値>",
+    "meaning": {
+     "ja": "同じ領域のその状態機械の、いまの状態が運ぶ値。いまの状態がその値を運ばなければ `null`"
+    }
+   },
+   {
+    "form": "taskGroup.<列>",
+    "meaning": {
+     "ja": "文書に保存する値を持つ領域（`SD-5`）だけ: 升が木の状態を決めるタスクグループの列（`_assets/fig-erd-detail.md` の `TaskGroup`）"
+    }
+   },
+   {
+    "form": "in(<状態機械>.<状態>)",
+    "meaning": {
+     "ja": "同じ領域のその状態機械が、いまその状態か、その下の状態にいる"
+    }
+   },
+   {
+    "form": "inAfter(<状態機械>.<状態>)",
+    "meaning": {
+     "ja": "同じ出来事の 1 段を終えた後に、同じ領域のその状態機械がその状態か、その下の状態にいる"
+    }
+   },
+   {
+    "form": "<関数>(<引数>, …)",
+    "meaning": {
+     "ja": "下の関数の値。引数の数は関数ごとに決まっている"
+    }
+   },
+   {
+    "form": "'字' ・ 0 ・ true ・ false ・ null ・ [a, b, …]",
+    "meaning": {
+     "ja": "字・整数・真偽・値が無いこと・並び。`null` の欄は `null` である"
+    }
+   }
+  ],
+  "operators": [
+   {
+    "form": "!x",
+    "meaning": {
+     "ja": "x でない"
+    }
+   },
+   {
+    "form": "x && y",
+    "meaning": {
+     "ja": "x かつ y"
+    }
+   },
+   {
+    "form": "x || y",
+    "meaning": {
+     "ja": "x または y"
+    }
+   },
+   {
+    "form": "x == y ・ x != y",
+    "meaning": {
+     "ja": "等しい ・ 等しくない"
+    }
+   },
+   {
+    "form": "x < y ・ x <= y ・ x > y ・ x >= y",
+    "meaning": {
+     "ja": "数の大小"
+    }
+   },
+   {
+    "form": "x in y",
+    "meaning": {
+     "ja": "x が並び y のどれかに等しい"
+    }
+   },
+   {
+    "form": "x.length",
+    "meaning": {
+     "ja": "並び x の長さ"
+    }
+   },
+   {
+    "form": "( x )",
+    "meaning": {
+     "ja": "先に結ぶ。結ぶ強さは `!` ＞ 比較と `in` ＞ `&&` ＞ `||`"
+    }
+   }
+  ],
+  "functions": [
+   {
+    "name": "after",
+    "parameters": [
+     "value"
+    ],
+    "meaning": {
+     "ja": "同じ出来事の 1 段を終えた後の、その状態機械の運ぶ値（`<状態機械>.<運ぶ値>` を渡す）。その後の状態がその値を運ばなければ `null`"
+    },
+    "evidence": [
+     "FR-088",
+     "S-99g"
+    ]
+   },
+   {
+    "name": "ancestors",
+    "parameters": [
+     "taskGroupId"
+    ],
+    "meaning": {
+     "ja": "その `id` のタスクグループの親、親の親……と最上位までの `id` の並び（自身は含まない）。その `id` のタスクグループが無ければ空"
+    },
+    "evidence": [
+     "HR-3",
+     "HR-1a",
+     "SJ-2"
+    ]
+   },
+   {
+    "name": "calendarDraftRefusals",
+    "parameters": [
+     "calendarDraft"
+    ],
+    "meaning": {
+     "ja": "休日の設定の下書きが当てられない断りの並び（`WC-10` の 1 件 1 行）"
+    },
+    "evidence": [
+     "WC-10",
+     "WC-7"
+    ]
+   },
+   {
+    "name": "childTaskGroups",
+    "parameters": [
+     "taskGroupId"
+    ],
+    "meaning": {
+     "ja": "親（`parentId`）がその `id` のタスクグループである、直下の子のタスクグループの並び"
+    },
+    "evidence": [
+     "HR-7",
+     "TD-6"
+    ]
+   },
+   {
+    "name": "noticeDisplay",
+    "parameters": [
+     "reason"
+    ],
+    "meaning": {
+     "ja": "表 T-233 の、その理由の表示の仕方（`_source/notice-reasons.json` の `display`。`'hide'` は「出さない」、`'autoDismiss'` は「時間で消す」）"
+    },
+    "evidence": [
+     "FR-076",
+     "NT-2"
+    ]
+   },
+   {
+    "name": "reasonsOf",
+    "parameters": [
+     "standing"
+    ],
+    "meaning": {
+     "ja": "立っている通知の並びの、1 枚ずつの理由（表 T-233 の行）の並び"
+    },
+    "evidence": [
+     "NT-8",
+     "NT-2"
+    ]
+   },
+   {
+    "name": "setting",
+    "parameters": [
+     "row"
+    ],
+    "meaning": {
+     "ja": "設定の行（`_assets/tbl-settings.md` の `S-` 行）の、いま文書が持つ値"
+    },
+    "evidence": [
+     "S-418"
+    ]
+   },
+   {
+    "name": "wordsRow",
+    "parameters": [
+     "reason"
+    ],
+    "meaning": {
+     "ja": "表 T-233 で、その理由が語を借りる行（まとめ方の「語は …」）。借りなければその理由自身"
+    },
+    "evidence": [
+     "NT-3",
+     "FR-076"
+    ]
+   },
+   {
+    "name": "wordsRowsOf",
+    "parameters": [
+     "standing"
+    ],
+    "meaning": {
+     "ja": "立っている通知の並びの、1 枚ずつの `wordsRow` の並び"
+    },
+    "evidence": [
+     "NT-3"
+    ]
    }
   ]
  },
@@ -1468,6 +1688,231 @@
      "carries": []
     }
    ],
+   "guards": [
+    {
+     "name": "hasCalendarDraftRefusal",
+     "condition": "calendarDraftRefusals(calendarDraftStateMachine.calendarDraft).length > 0",
+     "evidence": [
+      "WC-10",
+      "WC-7"
+     ]
+    },
+    {
+     "name": "hasChoice",
+     "condition": "event.subject.selection.items.length > 0 || event.subject.taskGroupIds.length > 0",
+     "evidence": [
+      "FR-072"
+     ]
+    },
+    {
+     "name": "hasDaysToPlace",
+     "condition": "event.hasDaysToPlace",
+     "evidence": [
+      "DC-1"
+     ],
+     "note": {
+      "ja": "画面の中央（`Task Group Area` の横の中点）に置く日付があるかは、呼び手が判じて運ぶ"
+     }
+    },
+    {
+     "name": "hasSurfaceOrConfirmation",
+     "condition": "event.hasSurfaceOrConfirmation",
+     "evidence": [
+      "SK-19",
+      "FR-070"
+     ],
+     "note": {
+      "ja": "`Enter` の時点で面か問いが立っているかは、呼び手が判じて運ぶ"
+     }
+    },
+    {
+     "name": "hasUnsettledEntry",
+     "condition": "event.hasUnsettledEntry",
+     "evidence": [
+      "SK-19"
+     ],
+     "note": {
+      "ja": "`Enter` の時点で確定していないその場の編集があるかは、呼び手が判じて運ぶ"
+     }
+    },
+    {
+     "name": "isAnotherSurface",
+     "condition": "in(openSurfaceStateMachine.open) && openSurfaceStateMachine.surfaceName != event.surfaceName",
+     "evidence": [
+      "S-99g"
+     ]
+    },
+    {
+     "name": "isFlowAwaitingAnswer",
+     "condition": "openSurfaceStateMachine.surfaceName in ['U-56', 'U-61']",
+     "evidence": [
+      "OP-3",
+      "U-56",
+      "U-61",
+      "RS-27"
+     ]
+    },
+    {
+     "name": "isFullScreen",
+     "condition": "event.isFullScreen",
+     "evidence": [
+      "FR-071"
+     ]
+    },
+    {
+     "name": "isHelpTarget",
+     "condition": "event.target == 'helpModal'",
+     "evidence": [
+      "IC-52",
+      "FR-036"
+     ]
+    },
+    {
+     "name": "isLeavingDocumentSettings",
+     "condition": "in(propertiesPanelContentStateMachine.documentSettingsDisplayed) && !inAfter(propertiesPanelContentStateMachine.documentSettingsDisplayed)",
+     "evidence": [
+      "FR-072",
+      "FR-156",
+      "FR-157",
+      "FR-159"
+     ]
+    },
+    {
+     "name": "isLeavingHolidaySettings",
+     "condition": "openSurfaceStateMachine.surfaceName == 'U-65' && after(openSurfaceStateMachine.surfaceName) != 'U-65'",
+     "evidence": [
+      "FR-088",
+      "S-99g",
+      "U-65"
+     ]
+    },
+    {
+     "name": "isNewStartDateEmpty",
+     "condition": "event.newStartDate == ''",
+     "evidence": [
+      "FO-17",
+      "WH-12"
+     ]
+    },
+    {
+     "name": "isOpenAccepted",
+     "condition": "event.isOpenAccepted",
+     "evidence": [
+      "OP-17"
+     ],
+     "note": {
+      "ja": "いまファイルを開けるか（領域 `fileFlow` の `fileOperationStateMachine.idle` で、問いが立っていない）は、呼び手が判じて運ぶ"
+     }
+    },
+    {
+     "name": "isOtherThanShownBase",
+     "condition": "event.isOtherThanShownBase",
+     "evidence": [
+      "FO-14"
+     ],
+     "note": {
+      "ja": "選んだタイムゾーンが、いまの見せる基準と違うかは、呼び手が判じて運ぶ"
+     }
+    },
+    {
+     "name": "isPanelTarget",
+     "condition": "event.target == 'panel'",
+     "evidence": [
+      "IC-52",
+      "FR-072"
+     ]
+    },
+    {
+     "name": "isProceeding",
+     "condition": "event.isProceeding",
+     "evidence": [
+      "WM-6",
+      "WM-9"
+     ]
+    },
+    {
+     "name": "isRungArmed",
+     "condition": "event.rung == 'armed'",
+     "evidence": [
+      "IN-4",
+      "FR-016"
+     ]
+    },
+    {
+     "name": "isRungDualCursor",
+     "condition": "event.rung == 'dualCursorMode'",
+     "evidence": [
+      "IN-4",
+      "DC-7"
+     ]
+    },
+    {
+     "name": "isRungHelp",
+     "condition": "event.rung == 'helpModal'",
+     "evidence": [
+      "IN-4",
+      "HN-2"
+     ]
+    },
+    {
+     "name": "isRungSearchPanel",
+     "condition": "event.rung == 'searchPanel'",
+     "evidence": [
+      "IN-4",
+      "SV-14"
+     ]
+    },
+    {
+     "name": "isRungSurface",
+     "condition": "event.rung == 'surface'",
+     "evidence": [
+      "IN-4"
+     ]
+    },
+    {
+     "name": "isRungTooltip",
+     "condition": "event.rung == 'tooltip'",
+     "evidence": [
+      "IN-4",
+      "IN-3"
+     ]
+    },
+    {
+     "name": "isSameArm",
+     "condition": "event.armKind == 'taskShapeArmed' && in(armModeStateMachine.taskShapeArmed) && event.shapeKind == armModeStateMachine.shapeKind || event.armKind == 'milestoneShapeArmed' && in(armModeStateMachine.milestoneShapeArmed) && event.glyph == armModeStateMachine.glyph || event.armKind == 'dependencyArmed' && in(armModeStateMachine.dependencyArmed) || event.armKind == 'commentBoxArmed' && in(armModeStateMachine.commentBoxArmed) || event.armKind == 'highlightBoxArmed' && in(armModeStateMachine.highlightBoxArmed) || event.armKind == 'parentTaskArmed' && in(armModeStateMachine.parentTaskArmed)",
+     "evidence": [
+      "SP-4",
+      "FR-016",
+      "PTL-2"
+     ],
+     "note": {
+      "ja": "押した入口が、いま構えている入口そのもの —— 種類が同じで、形（`shapeKind`）・記号（`glyph`）を運ぶ種類ではそれも同じ"
+     }
+    },
+    {
+     "name": "isShiftZero",
+     "condition": "event.shiftMinutes == 0",
+     "evidence": [
+      "FO-16",
+      "FR-157"
+     ]
+    },
+    {
+     "name": "isSurfaceTarget",
+     "condition": "event.target == 'surface'",
+     "evidence": [
+      "IC-52"
+     ]
+    },
+    {
+     "name": "isWatermarkUnlockSurface",
+     "condition": "openSurfaceStateMachine.surfaceName == 'U-60'",
+     "evidence": [
+      "U-60",
+      "WM-6"
+     ]
+    }
+   ],
    "machines": [
     {
      "name": "armModeStateMachine",
@@ -1814,7 +2259,10 @@
         "to": "notArmed",
         "guard": [
          {
-          "name": "canEnterDualCursor"
+          "in": "dualCursorModeStateMachine.off"
+         },
+         {
+          "name": "hasDaysToPlace"
          }
         ],
         "evidence": [
@@ -1825,7 +2273,10 @@
         "to": "notArmed",
         "guard": [
          {
-          "name": "canEnterDualCursor"
+          "in": "dualCursorModeStateMachine.off"
+         },
+         {
+          "name": "hasDaysToPlace"
          }
         ],
         "evidence": [
@@ -1836,7 +2287,10 @@
         "to": "notArmed",
         "guard": [
          {
-          "name": "canEnterDualCursor"
+          "in": "dualCursorModeStateMachine.off"
+         },
+         {
+          "name": "hasDaysToPlace"
          }
         ],
         "evidence": [
@@ -1847,7 +2301,10 @@
         "to": "notArmed",
         "guard": [
          {
-          "name": "canEnterDualCursor"
+          "in": "dualCursorModeStateMachine.off"
+         },
+         {
+          "name": "hasDaysToPlace"
          }
         ],
         "evidence": [
@@ -1858,7 +2315,10 @@
         "to": "notArmed",
         "guard": [
          {
-          "name": "canEnterDualCursor"
+          "in": "dualCursorModeStateMachine.off"
+         },
+         {
+          "name": "hasDaysToPlace"
          }
         ],
         "evidence": [
@@ -1869,7 +2329,10 @@
         "to": "notArmed",
         "guard": [
          {
-          "name": "canEnterDualCursor"
+          "in": "dualCursorModeStateMachine.off"
+         },
+         {
+          "name": "hasDaysToPlace"
          }
         ],
         "evidence": [
@@ -2247,7 +2710,8 @@
            "in": "watermarkDisplayStateMachine.shown"
           },
           {
-           "name": "isAnotherSurface"
+           "name": "isWatermarkUnlockSurface",
+           "not": true
           },
           {
            "name": "isFlowAwaitingAnswer",
@@ -2270,7 +2734,8 @@
            "in": "watermarkDisplayStateMachine.shown"
           },
           {
-           "name": "isAnotherSurface"
+           "name": "isWatermarkUnlockSurface",
+           "not": true
           },
           {
            "name": "isFlowAwaitingAnswer"
@@ -2487,7 +2952,7 @@
           "name": "isRungSurface"
          },
          {
-          "name": "isPanelTopmost"
+          "in": "openSurfaceStateMachine.closed"
          }
         ],
         "evidence": [
@@ -2502,7 +2967,7 @@
           "name": "isRungSurface"
          },
          {
-          "name": "isPanelTopmost"
+          "in": "openSurfaceStateMachine.closed"
          }
         ],
         "evidence": [
@@ -2670,7 +3135,17 @@
        "evidence": [
         "DC-1",
         "PTD-2"
-       ]
+       ],
+       "exit": {
+        "effect": "storeClearedDualCursor",
+        "evidence": [
+         "DC-4",
+         "DC-7"
+        ],
+        "note": {
+         "ja": "どの出方でも、二重カーソルを消したことを覚える"
+        }
+       }
       },
       {
        "key": "on.placingCursorA",
@@ -2701,7 +3176,6 @@
           "name": "isRungDualCursor"
          }
         ],
-        "effect": "storeClearedDualCursor",
         "evidence": [
          "DC-7",
          "IN-4"
@@ -2724,7 +3198,6 @@
        },
        "on": {
         "to": "off",
-        "effect": "storeClearedDualCursor",
         "evidence": [
          "DC-4"
         ]
@@ -2733,7 +3206,6 @@
       "guideCursorEntryPressed": {
        "on": {
         "to": "off",
-        "effect": "storeClearedDualCursor",
         "evidence": [
          "DC-4",
          "DC-7",
@@ -2792,14 +3264,19 @@
         "SE-2",
         "ZE-5",
         "S-244"
-       ]
+       ],
+       "entry": {
+        "effect": "startScaleMessageTimer",
+        "evidence": [
+         "SE-2"
+        ]
+       }
       }
      ],
      "transitions": {
       "displayScaleStepped": {
        "hidden": {
         "to": "shown",
-        "effect": "startScaleMessageTimer",
         "evidence": [
          "SE-1",
          "SE-2"
@@ -2819,7 +3296,6 @@
       "verticalZoomEndReached": {
        "hidden": {
         "to": "shown",
-        "effect": "startScaleMessageTimer",
         "evidence": [
          "ZE-5",
          "SE-2"
@@ -4428,6 +4904,60 @@
      ]
     }
    ],
+   "guards": [
+    {
+     "name": "hasSilentWatcher",
+     "condition": "event.silentWatchers > 0",
+     "evidence": [
+      "RS-23",
+      "AG-6"
+     ]
+    },
+    {
+     "name": "isHiddenReason",
+     "condition": "noticeDisplay(event.reason) == 'hide'",
+     "evidence": [
+      "FR-076"
+     ]
+    },
+    {
+     "name": "isLeavingNone",
+     "condition": "event.reason in reasonsOf(noticeDisplayStateMachine.standing) && noticeDisplayStateMachine.standing.length == 1",
+     "evidence": [
+      "NT-8"
+     ]
+    },
+    {
+     "name": "isLeavingSome",
+     "condition": "event.reason in reasonsOf(noticeDisplayStateMachine.standing) && noticeDisplayStateMachine.standing.length > 1",
+     "evidence": [
+      "NT-8"
+     ]
+    },
+    {
+     "name": "isOnlyOneStanding",
+     "condition": "noticeDisplayStateMachine.standing.length == 1",
+     "evidence": [
+      "NT-8",
+      "NT-2"
+     ]
+    },
+    {
+     "name": "isSameReasonStanding",
+     "condition": "wordsRow(event.reason) in wordsRowsOf(noticeDisplayStateMachine.standing)",
+     "evidence": [
+      "NT-3",
+      "FR-076"
+     ]
+    },
+    {
+     "name": "isTimedCard",
+     "condition": "noticeDisplay(event.reason) == 'autoDismiss' && event.reason in reasonsOf(noticeDisplayStateMachine.standing)",
+     "evidence": [
+      "NT-2"
+     ]
+    }
+   ],
    "machines": [
     {
      "name": "noticeDisplayStateMachine",
@@ -4840,6 +5370,60 @@
      "carries": []
     }
    ],
+   "guards": [
+    {
+     "name": "isDocumentChangingPress",
+     "condition": "(event.pressedOn == null || event.pressedOn.kind == 'grab') && !(event.pressRow in ['PTD-1', 'PTD-5']) || event.pressedOn != null && !(event.pressedOn.kind in ['grab', 'scrollbarThumb', 'panelBorder', 'paletteBand']) && !(event.pressedOn.kind == 'entry' && event.pressedOn.entry in ['IC-12', 'IC-13', 'IC-14', 'IC-15'])",
+     "evidence": [
+      "AG-9",
+      "UN-8",
+      "UN-9",
+      "UN-16",
+      "PTD-1",
+      "PTD-5",
+      "FR-018",
+      "FR-053"
+     ],
+     "note": {
+      "ja": "押下の先を先に問い、押下の行は後に問う —— 描いた入口の押下は `PTD-5` に落ちるので、行を先に問うとパレットのどの押下も `AG-9` から外れる。文書を変えない押下は、取り消しの対象（表 T-027）でないものを書く押下である —— スクロールバーのつまみ（`UN-8`）、パネルの境界（`UN-16`）、パレットの掴み帯（`FR-053`）、押し続けると繰り返す入口（`UN-8`）"
+     }
+    },
+    {
+     "name": "isHeldOnRepeatingEntry",
+     "condition": "pointerPressStateMachine.pressedOn.kind == 'entry' && pointerPressStateMachine.pressedOn.entry in ['IC-12', 'IC-13', 'IC-14', 'IC-15']",
+     "evidence": [
+      "FR-018",
+      "S-173"
+     ],
+     "note": {
+      "ja": "押し続けている押下が、押し続けると繰り返す入口の上にある（刻みの出来事は押下の先を運ばない）"
+     }
+    },
+    {
+     "name": "isOnPaletteBand",
+     "condition": "pointerPressStateMachine.pressedOn.kind == 'paletteBand'",
+     "evidence": [
+      "FR-053",
+      "GR-19"
+     ]
+    },
+    {
+     "name": "isOnRepeatingEntry",
+     "condition": "event.pressedOn.kind == 'entry' && event.pressedOn.entry in ['IC-12', 'IC-13', 'IC-14', 'IC-15']",
+     "evidence": [
+      "FR-018",
+      "S-172"
+     ]
+    },
+    {
+     "name": "isTaskGroupGrabStrip",
+     "condition": "event.pressedOn.kind == 'taskGroupGrabStrip'",
+     "evidence": [
+      "HF-15",
+      "GR-20"
+     ]
+    }
+   ],
    "machines": [
     {
      "name": "pointerPressStateMachine",
@@ -5058,7 +5642,7 @@
         "to": "viewingDocument",
         "guard": [
          {
-          "name": "isOnRepeatingEntry"
+          "name": "isHeldOnRepeatingEntry"
          }
         ],
         "effect": "repeatHeldEntry",
@@ -5860,6 +6444,108 @@
      "carries": []
     }
    ],
+   "guards": [
+    {
+     "name": "hasAnythingToReport",
+     "condition": "event.droppedTaskNames.length > 0 || event.missingTaskNames.length > 0 || event.reportedCounts.length > 0",
+     "evidence": [
+      "FR-023",
+      "MG-14",
+      "U-62",
+      "FR-076"
+     ]
+    },
+    {
+     "name": "isBackToSavedDocument",
+     "condition": "event.isBackToSavedDocument",
+     "evidence": [
+      "FR-100"
+     ],
+     "note": {
+      "ja": "取り消し・やり直しの着地で、文書が印を下ろした時点の文書そのものに戻ったかは、呼び手が判じて運ぶ"
+     }
+    },
+    {
+     "name": "isBaselineRoute",
+     "condition": "fileOperationStateMachine.openRoute == 'baseline'",
+     "evidence": [
+      "OP-15"
+     ]
+    },
+    {
+     "name": "isDifferenceReviewSurface",
+     "condition": "event.surfaceName == 'U-61'",
+     "evidence": [
+      "U-61",
+      "MG-6"
+     ]
+    },
+    {
+     "name": "isFileOperationQuestion",
+     "condition": "confirmationStateMachine.owedAction == null",
+     "evidence": [
+      "OP-4",
+      "DI-4",
+      "NT-7"
+     ],
+     "note": {
+      "ja": "ファイル操作が自ら立てた問い（`OP-4`・`DI-4`）は、答えた後に果たす操作を運ばない"
+     }
+    },
+    {
+     "name": "isImportCanceled",
+     "condition": "event.mergeMapping.kind == 'cancelImport'",
+     "evidence": [
+      "MM-4",
+      "MG-6"
+     ]
+    },
+    {
+     "name": "isImportReportSurface",
+     "condition": "event.surfaceName == 'U-62'",
+     "evidence": [
+      "U-62"
+     ]
+    },
+    {
+     "name": "isOpenChooserSurface",
+     "condition": "event.surfaceName == 'U-56'",
+     "evidence": [
+      "U-56",
+      "OP-3"
+     ]
+    },
+    {
+     "name": "isOverwriteQuestion",
+     "condition": "confirmationStateMachine.question.question == 'QN-4'",
+     "evidence": [
+      "DI-4",
+      "QN-4"
+     ]
+    },
+    {
+     "name": "isProceeding",
+     "condition": "event.isProceeding",
+     "evidence": [
+      "NT-7"
+     ]
+    },
+    {
+     "name": "isReopenRoute",
+     "condition": "fileOperationStateMachine.openRoute == 'reopen'",
+     "evidence": [
+      "OP-13"
+     ]
+    },
+    {
+     "name": "isReplaceChoice",
+     "condition": "event.openChoice == 'replace'",
+     "evidence": [
+      "OP-3",
+      "OP-4"
+     ]
+    }
+   ],
    "machines": [
     {
      "name": "fileOperationStateMachine",
@@ -5895,7 +6581,15 @@
         "OP-12",
         "OP-13",
         "CS-4"
-       ]
+       ],
+       "entry": {
+        "effect": "readDocumentFile",
+        "evidence": [
+         "OP-2",
+         "OP-13",
+         "AM-8"
+        ]
+       }
       },
       {
        "key": "awaitingOpenChoice",
@@ -5937,7 +6631,15 @@
         "RD-4",
         "OP-9",
         "FR-022"
-       ]
+       ],
+       "entry": {
+        "effect": "importIncomingDocument",
+        "evidence": [
+         "RD-3",
+         "RD-4",
+         "FR-022"
+        ]
+       }
       },
       {
        "key": "awaitingMergeMapping",
@@ -5994,7 +6696,6 @@
            "in": "confirmationStateMachine.notAsked"
           }
          ],
-         "effect": "readDocumentFile",
          "evidence": [
           "OP-2",
           "OP-13",
@@ -6073,7 +6774,6 @@
           "in": "confirmationStateMachine.notAsked"
          }
         ],
-        "effect": "readDocumentFile",
         "evidence": [
          "AM-8",
          "OP-8"
@@ -6190,7 +6890,6 @@
            "in": "unsavedEditsStateMachine.nothingUnsaved"
           }
          ],
-         "effect": "importIncomingDocument",
          "evidence": [
           "OP-13",
           "QN-5",
@@ -6207,7 +6906,6 @@
            "name": "isBaselineRoute"
           }
          ],
-         "effect": "importIncomingDocument",
          "evidence": [
           "OP-15",
           "OP-9",
@@ -6277,7 +6975,6 @@
            "in": "unsavedEditsStateMachine.nothingUnsaved"
           }
          ],
-         "effect": "importIncomingDocument",
          "evidence": [
           "OP-4",
           "QN-5",
@@ -6295,7 +6992,6 @@
            "not": true
           }
          ],
-         "effect": "importIncomingDocument",
          "evidence": [
           "OP-3",
           "OP-9",
@@ -6313,7 +7009,6 @@
            "name": "isProceeding"
           }
          ],
-         "effect": "importIncomingDocument",
          "evidence": [
           "OP-4",
           "RD-4"
@@ -6381,7 +7076,6 @@
            "not": true
           }
          ],
-         "effect": "importIncomingDocument",
          "evidence": [
           "MM-1",
           "MM-2",
@@ -7049,6 +7743,33 @@
       }
      },
      "carries": []
+    }
+   ],
+   "guards": [
+    {
+     "name": "isCreatedTask",
+     "condition": "event.created.kind == 'task'",
+     "evidence": [
+      "TC-9",
+      "FR-091",
+      "HF-17"
+     ]
+    },
+    {
+     "name": "isEditedField",
+     "condition": "in(fieldEditStateMachine.editingField) && fieldEditStateMachine.fieldRow == event.fieldRow",
+     "evidence": [
+      "IF-9",
+      "IN-5b"
+     ]
+    },
+    {
+     "name": "isNameField",
+     "condition": "event.fieldRow == 'PR-1'",
+     "evidence": [
+      "FR-091",
+      "PR-1"
+     ]
     }
    ],
    "machines": [
@@ -7750,6 +8471,31 @@
      ]
     }
    ],
+   "guards": [
+    {
+     "name": "hasPickedObjects",
+     "condition": "event.pickedObjects.items.length > 0",
+     "evidence": [
+      "SL-3",
+      "SL-4"
+     ]
+    },
+    {
+     "name": "hasRemainingObjects",
+     "condition": "event.remainingObjects.items.length > 0",
+     "evidence": [
+      "FR-081",
+      "UN-9"
+     ]
+    },
+    {
+     "name": "isRungSelection",
+     "condition": "event.rung == 'selection'",
+     "evidence": [
+      "IN-4"
+     ]
+    }
+   ],
    "machines": [
     {
      "name": "selectionStateMachine",
@@ -8128,6 +8874,16 @@
         "ja": "記憶が有効を指すか"
        }
       }
+     ]
+    }
+   ],
+   "guards": [
+    {
+     "name": "isRememberedEnabled",
+     "condition": "event.isRememberedEnabled",
+     "evidence": [
+      "FR-065",
+      "S-99b"
      ]
     }
    ],
@@ -8553,6 +9309,68 @@
         "ja": "飛ぶ先のタスクグループの id"
        }
       }
+     ]
+    }
+   ],
+   "guards": [
+    {
+     "name": "isBelowPressedTaskGroup",
+     "condition": "event.pressedRowId in ancestors(taskGroup.id)",
+     "evidence": [
+      "HR-3",
+      "HR-4",
+      "HR-6",
+      "HR-1a"
+     ]
+    },
+    {
+     "name": "isChildOfPressedTaskGroup",
+     "condition": "event.pressedRowId != null && taskGroup.parentId == event.pressedRowId",
+     "evidence": [
+      "HR-7",
+      "HF-13"
+     ]
+    },
+    {
+     "name": "isLeafTaskGroup",
+     "condition": "childTaskGroups(taskGroup.id).length == 0",
+     "evidence": [
+      "TD-6",
+      "HR-3"
+     ]
+    },
+    {
+     "name": "isLevelZeroCollapsed",
+     "condition": "setting('S-418') == 'collapsed'",
+     "evidence": [
+      "S-418",
+      "HR-2"
+     ]
+    },
+    {
+     "name": "isPressedTaskGroup",
+     "condition": "taskGroup.id == event.pressedRowId",
+     "evidence": [
+      "HR-3",
+      "HR-4",
+      "HR-6",
+      "HR-7",
+      "HR-8"
+     ]
+    },
+    {
+     "name": "isRevealedTaskGroupOrAncestor",
+     "condition": "taskGroup.id == event.revealedRowId || taskGroup.id in ancestors(event.revealedRowId)",
+     "evidence": [
+      "SJ-2"
+     ]
+    },
+    {
+     "name": "isTopLevelTaskGroup",
+     "condition": "taskGroup.parentId == null",
+     "evidence": [
+      "HF-16",
+      "HR-7"
      ]
     }
    ],

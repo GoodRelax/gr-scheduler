@@ -26,10 +26,30 @@ state under the same noun phrase plus `State` (`armModeStateMachine` ->
 `armModeState`); a state is `machine.key`; an event is `region/key`; a
 transition is its cell -- the machine, the current state and the event.
 
+GUARDS ARE CONDITIONS (JDG-2161, JDG-2362). Each region lists its guards,
+and each guard's condition is an expression in the one language the
+manuscript's `guardLanguage` defines; `load()` parses every condition here
+and resolves every term it reads, so a printed condition cannot name a value
+nothing holds. Entry and exit effects run as UML runs them -- exit, the
+transition's own effect, entry; a transition to itself crosses nothing.
+
 What `load()` refuses (CR-436 section 3.1 and wave A2), on top of the schema:
-  - an evidence id -- of a state, the root, a branch, an event source, a
-    carried value or an effect argument -- that no table row or requirement
-    of docs/spec defines (this file's own output is not counted);
+  - an evidence id -- of a state, its entry or exit, the root, a branch, an
+    event source, a carried value, an effect argument, a guard or a function
+    of the guard language -- that no table row or requirement of docs/spec
+    defines (this file's own output is not counted);
+  - a guard a cell names that its region's `guards` does not define, a guard
+    defined twice in one region, and a defined guard no cell of the region
+    names (CR-767);
+  - a condition the guard language cannot read, and a term it reads that does
+    not resolve: `event.x` the event of some cell using the guard does not
+    carry, `root.x` the root does not carry, `machine.x` no state of that
+    machine of the region carries, an entity term (`taskGroup.x`) outside a
+    documentData region or naming no column of that entity in erd.json,
+    `in(...)` / `inAfter(...)` naming no state of the region, and a function
+    `guardLanguage` does not define or that is given the wrong number of
+    arguments;
+  - a function `guardLanguage` defines twice, or that no condition calls;
   - a cell whose state is not a state of its machine, whose `to` is not a
     state of the SAME machine, or whose `{name}` target is not a value the
     event carries (such a target stands for any top-level kind of the
@@ -146,6 +166,10 @@ def schema_problems(doc):
     return out
 
 
+def names_of(carries):
+    return [c['name'] for c in carries]
+
+
 def branches_of(cell):
     """A cell is one branch or a list of two or more; always a list here."""
     return cell if isinstance(cell, list) else [cell]
@@ -160,6 +184,135 @@ def guard_words(guard):
         else:
             words.append(('not ' if term.get('not') else '') + term['name'])
     return ' & '.join(words)
+
+
+# --- the guard language ------------------------------------------------------
+#
+# A small recursive descent over the forms `guardLanguage` writes down. `!`
+# binds tighter than a comparison or `in`, which bind tighter than `&&`, which
+# binds tighter than `||`. The tree is tuples: ('lit', value), ('list', [x]),
+# ('path', [word, ...]), ('field', x, word), ('call', name, [x]),
+# ('state', 'in' | 'inAfter', state id), ('not', x) and (operator, left, right).
+
+# A number, a quoted text, a word, or an operator.
+TOKEN = re.compile(r"\s*(?:(\d+)|('[^']*')|([A-Za-z][A-Za-z0-9]*)"
+                   r"|(&&|\|\||==|!=|<=|>=|[!<>().,\[\]]))")
+COMPARE = ('==', '!=', '<', '<=', '>', '>=', 'in')
+LITERALS = {'true': True, 'false': False, 'null': None}
+STATE_TERMS = ('in', 'inAfter')
+
+
+def tokens(condition):
+    out = []
+    at = 0
+    while condition[at:].strip():
+        found = TOKEN.match(condition, at)
+        if not found:
+            raise ValueError('cannot read %r' % condition[at:].strip())
+        out.append(next(g for g in found.groups() if g is not None))
+        at = found.end()
+    return out
+
+
+class Condition(object):
+    """One condition read into its tree; ValueError says where it stopped."""
+
+    def __init__(self, condition):
+        self.words = tokens(condition)
+        self.at = 0
+        self.tree = self.either()
+        if self.peek() is not None:
+            raise ValueError('unexpected %s' % self.peek())
+
+    def peek(self):
+        return self.words[self.at] if self.at < len(self.words) else None
+
+    def take(self, wanted=None):
+        word = self.peek()
+        if word is None or wanted is not None and word != wanted:
+            raise ValueError('expected %s, found %s' % (wanted or 'more', word or 'the end'))
+        self.at += 1
+        return word
+
+    def either(self):
+        tree = self.both()
+        while self.peek() == '||':
+            tree = (self.take(), tree, self.both())
+        return tree
+
+    def both(self):
+        tree = self.compared()
+        while self.peek() == '&&':
+            tree = (self.take(), tree, self.compared())
+        return tree
+
+    def compared(self):
+        tree = self.negated()
+        if self.peek() in COMPARE:
+            tree = (self.take(), tree, self.negated())
+        return tree
+
+    def negated(self):
+        if self.peek() == '!':
+            self.take()
+            return ('not', self.negated())
+        return self.postfix()
+
+    def postfix(self):
+        tree = self.primary()
+        while self.peek() == '.':
+            self.take()
+            word = self.take()
+            if not word[0].isalpha():
+                raise ValueError('expected a field name, found %s' % word)
+            tree = ('path', tree[1] + [word]) if tree[0] == 'path' else ('field', tree, word)
+        return tree
+
+    def primary(self):
+        word = self.take()
+        if word == '(':
+            tree = self.either()
+            self.take(')')
+            return tree
+        if word == '[':
+            return ('list', self.items(']'))
+        if word.isdigit():
+            return ('lit', int(word))
+        if word.startswith("'"):
+            return ('lit', word[1:-1])
+        if word in LITERALS:
+            return ('lit', LITERALS[word])
+        if not word[0].isalpha():
+            raise ValueError('unexpected %s' % word)
+        if self.peek() != '(':
+            return ('path', [word])
+        self.take()
+        if word not in STATE_TERMS:
+            return ('call', word, self.items(')'))
+        state = self.postfix()
+        self.take(')')
+        if state[0] != 'path':
+            raise ValueError('%s() takes a state id' % word)
+        return ('state', word, '.'.join(state[1]))
+
+    def items(self, close):
+        out = []
+        while self.peek() != close:
+            if out:
+                self.take(',')
+            out.append(self.either())
+        self.take(close)
+        return out
+
+    def nodes(self, tree=None):
+        """Every node of the tree, the tree itself first."""
+        tree = self.tree if tree is None else tree
+        yield tree
+        for part in tree[1:]:
+            for child in (part if isinstance(part, list) else [part]):
+                if isinstance(child, tuple):
+                    for one in self.nodes(child):
+                        yield one
 
 
 class Machine(object):
@@ -249,6 +402,29 @@ class Machine(object):
             for key, cell in row.items():
                 yield event, key, branches_of(cell)
 
+    def crossed(self, key, target):
+        """(left, entered) by a transition from `key` to `target`: the states it
+        leaves, innermost first, and those it enters, outermost first."""
+        if target == key:
+            return [], []
+        source = [key] + self.ancestors(key)[::-1]
+        aim = [target] + self.ancestors(target)[::-1]
+        return [s for s in source if s not in aim], [s for s in aim[::-1] if s not in source]
+
+    def effects_of(self, key, branch, event):
+        """The effect names one branch runs, in UML's order: the exits of the
+        states it leaves, its own effect, the entries of the states it enters
+        (a `{name}` target may enter any of the kinds the value names)."""
+        left, entered = [], []
+        for target in self.targets_of(branch['to'], event):
+            out, into = self.crossed(key, target)
+            left += [s for s in out if s not in left]
+            entered += [s for s in into if s not in entered]
+        names = [self.by_key[s]['exit']['effect'] for s in left if 'exit' in self.by_key[s]]
+        names += [branch['effect']] if branch.get('effect') else []
+        return names + [self.by_key[s]['entry']['effect'] for s in entered
+                        if 'entry' in self.by_key[s]]
+
 
 class Region(object):
     """One region, read and cross-checked. Everything a printer needs."""
@@ -267,9 +443,109 @@ class Region(object):
         self.machines = [Machine(self, m) for m in raw['machines']]
         self.machine_by_name = collections.OrderedDict(
             (m.name, m) for m in self.machines)
+        self.guards = collections.OrderedDict((g['name'], g) for g in raw.get('guards', []))
 
     def event_id(self, key):
         return '%s/%s' % (self.name, key)
+
+    def effect_order(self):
+        """Every effect the region's cells run, in the order the cells stand --
+        the root's first -- and a branch's own in UML's order (effects_of)."""
+        names = [b['effect'] for _e, branches in self.root_cells() for b in branches
+                 if b.get('effect')]
+        for machine in self.machines:
+            for event, key, branches in machine.cells():
+                for branch in branches:
+                    names += machine.effects_of(key, branch, self.event_by_key[event])
+        return names
+
+    def guard_uses(self):
+        """guard name -> [(cell, event key), ...] for every cell naming it."""
+        uses = collections.OrderedDict()
+        rows = [(self.name, event, branches) for event, branches in self.root_cells()]
+        rows += [(m.state_id(key), event, branches)
+                 for m in self.machines for event, key, branches in m.cells()]
+        for cell, event, branches in rows:
+            for branch in branches:
+                for term in branch.get('guard') or []:
+                    if 'name' in term:
+                        uses.setdefault(term['name'], []).append((cell, event))
+        return uses
+
+    def check_guards(self, functions, found):
+        """The guard list against the cells, and each condition against the
+        guard language and this region; returns the function names called."""
+        called = set()
+        found.extend('%s: guard %s is defined twice' % (self.name, d)
+                     for d in duplicates(g['name'] for g in self.raw.get('guards', [])))
+        uses = self.guard_uses()
+        found.extend('%s: guard %s is named by %s but not defined in the region'
+                     % (self.name, name, cells[0][0])
+                     for name, cells in uses.items() if name not in self.guards)
+        for name, guard in self.guards.items():
+            where = '%s: guard %s' % (self.name, name)
+            if name not in uses:
+                found.append('%s is defined but no cell names it' % where)
+                continue
+            try:
+                condition = Condition(guard['condition'])
+            except ValueError as e:
+                found.append('%s: %s' % (where, e))
+                continue
+            for node in condition.nodes():
+                if node[0] == 'call':
+                    called.add(node[1])
+                problem = self.unresolved(node, uses[name], functions)
+                if problem:
+                    found.append('%s: %s' % (where, problem))
+        return called
+
+    def unresolved(self, node, cells, functions):
+        """Why one node of a condition names nothing, or None."""
+        if node[0] == 'state' and self.state_of(node[2])[0] is None:
+            return '%s(%s) names no state of region %s' % (node[1], node[2], self.name)
+        if node[0] == 'call':
+            if node[1] not in functions:
+                return 'calls %s, which guardLanguage does not define' % node[1]
+            if len(functions[node[1]]) != len(node[2]):
+                return '%s takes %d argument(s), not %d' % (
+                    node[1], len(functions[node[1]]), len(node[2]))
+        if node[0] == 'path':
+            return self.unresolved_path(node[1], cells)
+        return None
+
+    def unresolved_path(self, words, cells):
+        head = words[0]
+        carry = words[1] if len(words) > 1 else None
+        if carry is None:
+            return '%s is no term of the guard language' % head
+        if head == 'event':
+            for cell, event in cells:
+                known = self.event_by_key.get(event)
+                if known is not None and carry not in names_of(known['carries']):
+                    return 'reads event.%s, which %s does not carry (%s)' % (
+                        carry, self.event_id(event), cell)
+            return None
+        if head == 'root':
+            if carry not in names_of(self.root['carries']):
+                return 'reads root.%s, which the root does not carry' % carry
+            return None
+        if head in self.machine_by_name:
+            if not any(carry in names_of(s['carries']) for s in self.machine_by_name[head].states):
+                return 'reads %s.%s, which no state of %s carries' % (head, carry, head)
+            return None
+        entity = self.document_entity()
+        if entity is not None and head == entity['name'][0].lower() + entity['name'][1:]:
+            if carry not in [c['name'] for c in entity['columns']]:
+                return '%s.%s is no column of %s in erd.json' % (head, carry, entity['name'])
+            return None
+        return '%s.%s is no term of the guard language in region %s' % (head, carry, self.name)
+
+    def document_entity(self):
+        """SD-5: the erd.json entity whose column a documentData region holds."""
+        if not self.holds_document_data or 'column' not in self.raw:
+            return None
+        return entity_of_column(self.raw['column'])[0]
 
     def root_cells(self):
         for event, cell in self.root['transitions'].items():
@@ -366,11 +642,18 @@ class Region(object):
                 if branch.get('effectArgument'):
                     cited.append(branch['effectArgument'])
                 out.append(('%s x %s' % (self.name, self.event_id(event)), cited))
+        for guard in self.guards.values():
+            out.append(('%s: guard %s' % (self.name, guard['name']), guard['evidence']))
         for machine in self.machines:
             for state in machine.states:
                 cited = list(state['evidence'])
                 for carried in state['carries']:
                     cited.extend(carried.get('rows', []))
+                for moment in ('entry', 'exit'):
+                    if moment in state:
+                        cited.extend(state[moment]['evidence'])
+                        if state[moment].get('effectArgument'):
+                            cited.append(state[moment]['effectArgument'])
                 out.append((machine.state_id(state['key']), cited))
             for event, key, branches in machine.cells():
                 for branch in branches:
@@ -404,15 +687,22 @@ def shared_event_keys(regions):
             for key, names in owners.items() if len(names) > 1]
 
 
-def enum_of_column(seat_id):
-    """The enum values of the erd.json column whose seat is `AT-<n>`, or None."""
+def entity_of_column(seat_id):
+    """(entity, column) of erd.json for the column whose seat is `AT-<n>`,
+    or (None, None)."""
     erd = json.load(io.open(ERD, encoding='utf-8'))
     seat = int(seat_id.split('-')[1])
     for entity in erd['entities']:
         for column in entity.get('columns', []):
             if column.get('seat') == seat:
-                return column.get('json', {}).get('values')
-    return None
+                return entity, column
+    return None, None
+
+
+def enum_of_column(seat_id):
+    """The enum values of the erd.json column whose seat is `AT-<n>`, or None."""
+    column = entity_of_column(seat_id)[1]
+    return None if column is None else column.get('json', {}).get('values')
 
 
 def document_data_problems(region):
@@ -461,6 +751,14 @@ def load():
     found.extend('table or figure %s appears twice' % d for d in duplicates(captions))
     found.extend(shared_event_keys(regions))
     known = defined_ids()
+    language = doc['guardLanguage']
+    found.extend('guardLanguage: function %s appears twice' % d
+                 for d in duplicates(f['name'] for f in language['functions']))
+    functions = dict((f['name'], f['parameters']) for f in language['functions'])
+    called = set()
+    for one in language['functions']:
+        found.extend('guardLanguage: function %s: %s is not defined in docs/spec' % (one['name'], e)
+                     for e in one['evidence'] if e not in known)
     for region in regions:
         found.extend('event %s appears twice' % region.event_id(d)
                      for d in duplicates(e['key'] for e in region.events))
@@ -470,11 +768,14 @@ def load():
             machine.classify(found)
             machine.check_initials(found)
         region.check_tables(found)
+        called |= region.check_guards(functions, found)
         found.extend(document_data_problems(region))
         for where, cited in region.evidence():
             for one in cited:
                 if one not in known:
                     found.append('%s: %s is not defined in docs/spec' % (where, one))
+    found.extend('guardLanguage: function %s is called by no condition' % name
+                 for name in functions if name not in called)
     return regions, found
 
 

@@ -263,10 +263,11 @@ class Printer(object):
                     yield machine.state_id(key), event, branch, machine.state_id(branch['to'])
 
     def effect_names(self):
+        # WHY: entry and exit effects (SD-1) are named where the cells that run them stand.
         names = []
-        for _state, _event, branch, _to in self.rows():
-            if branch.get('effect') and branch['effect'] not in names:
-                names.append(branch['effect'])
+        for effect in self.region.effect_order():
+            if effect not in names:
+                names.append(effect)
         # A region whose tables name no effect (table T-293) has none to name.
         if not names:
             return ['export type %sEffectName = never' % self.stem, '']
