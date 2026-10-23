@@ -12,6 +12,7 @@ import {
   type SessionEvent,
 } from '../../src/use-case/advance-screen-session/advance-screen-session'
 import { NO_EFFECTS } from '../../src/use-case/advance-screen-session/session-step'
+import { termHolds } from './guard-language'
 
 type Carried = { readonly name: string }
 type SmRow = {
@@ -146,20 +147,6 @@ function step(session: ScreenSession, event: Loose): ReturnType<typeof advanceSc
   return advanceScreenSession(session, event as unknown as SessionEvent)
 }
 
-const ROSTER = (
-  JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'notice-reasons.json'), 'utf8')) as {
-    readonly reasons: readonly { readonly id: string; readonly display: string; readonly wordsOf?: string }[]
-  }
-).reasons
-
-function displayOf(reason: unknown): string {
-  return ROSTER.find((one) => one.id === reason)?.display ?? 'show'
-}
-
-function wordsRowOf(reason: unknown): unknown {
-  return ROSTER.find((one) => one.id === reason)?.wordsOf ?? reason
-}
-
 // see NT-3, T-233
 const OLDEST: Notice = { reason: 'RS-41', affectedCount: 3 }
 const NEWEST: Notice = { reason: 'RS-35', affectedCount: null }
@@ -242,30 +229,6 @@ function standingOf(notices: Loose): readonly Notice[] {
   return onScreen['kind'] === 'shown' ? (onScreen['standing'] as readonly Notice[]) : []
 }
 
-// see NT-3, NT-8, AG-6
-function guardHolds(name: string, notices: Loose, event: Loose): boolean {
-  const standing = standingOf(notices)
-  const reasonStands = standing.some((n) => n.reason === event['reason'])
-  switch (name) {
-    case 'isSameReasonStanding':
-      return standing.some((n) => wordsRowOf(n.reason) === wordsRowOf(event['reason']))
-    case 'isHiddenReason':
-      return displayOf(event['reason']) === 'hide'
-    case 'isTimedCard':
-      return reasonStands && displayOf(event['reason']) === 'autoDismiss'
-    case 'isOnlyOneStanding':
-      return standing.length === 1
-    case 'isLeavingNone':
-      return reasonStands && standing.length === 1
-    case 'isLeavingSome':
-      return reasonStands && standing.length > 1
-    case 'hasSilentWatcher':
-      return Number(event['silentWatchers']) > 0
-    default:
-      throw new Error(`guard ${name} is named by the manuscript but not by this file's oracle`)
-  }
-}
-
 function holds(notices: Loose, key: string): boolean {
   if (key === NOTICES.region) return true
   const { axis, path } = axisAndPath(key)
@@ -277,7 +240,7 @@ function firingRows(notices: Loose, event: Loose): TnRow[] {
     (row) =>
       row.event === event['type'] &&
       row.from.some((conj) => conj.every((key) => holds(notices, key))) &&
-      (row.guard ?? []).every((g) => guardHolds(g.name, notices, event) !== (g.not === true)),
+      (row.guard ?? []).every((g) => termHolds({ region: 'notices', values: notices, event }, g)),
   )
 }
 

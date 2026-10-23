@@ -12,6 +12,7 @@ import {
   type SessionEvent,
 } from '../../src/use-case/advance-screen-session/advance-screen-session'
 import { NO_EFFECTS } from '../../src/use-case/advance-screen-session/session-step'
+import { branchHolds } from './guard-language'
 
 type Loose = Record<string, unknown>
 type RawGuard = { readonly name?: string; readonly not?: boolean; readonly in?: string }
@@ -162,22 +163,8 @@ function itemsOf(selection: unknown): readonly unknown[] {
   return (selection as { items: readonly unknown[] }).items
 }
 
-// see IN-4, FR-072, SL-7b
-function guardHolds(guard: RawGuard, event: Loose): boolean {
-  switch (guard.name) {
-    case 'hasPickedObjects':
-      return itemsOf(event['pickedObjects']).length > 0
-    case 'hasRemainingObjects':
-      return itemsOf(event['remainingObjects']).length > 0
-    case 'isRungSelection':
-      return event['rung'] === 'selection'
-    default:
-      throw new Error(`guard ${String(guard.name)} is named by the manuscript but not by this file's oracle`)
-  }
-}
-
-function pick(cell: RawCell | undefined, event: Loose): RawBranch | undefined {
-  return branchesOf(cell).find((b) => (b.guard ?? []).every((g) => guardHolds(g, event) !== (g.not === true)))
+function pick(cell: RawCell | undefined, values: Loose, event: Loose): RawBranch | undefined {
+  return branchesOf(cell).find((b) => branchHolds({ region: 'selection', values, event }, b))
 }
 
 // WHY: the T-293 notes say what each cell writes; a created task is selected alone (FR-091),
@@ -199,7 +186,7 @@ function expectedSelected(event: Loose): { items: unknown; ordered?: unknown; sa
 
 function expectedRoot(event: Loose, before: Loose): Loose {
   const kept = { chosenTaskGroups: before['chosenTaskGroups'], chosenResources: before['chosenResources'], copiedForPaste: before['copiedForPaste'] }
-  if (pick(SELECTION.root.transitions[String(event['type'])], event) === undefined) return kept
+  if (pick(SELECTION.root.transitions[String(event['type'])], before, event) === undefined) return kept
   switch (event['type']) {
     case 'taskGroupsPicked':
       return { ...kept, chosenTaskGroups: event['chosenTaskGroups'] }
@@ -229,7 +216,7 @@ function expectSelectionStep(session: ScreenSession, event: Loose): void {
   const before = selectionOf(session)
   const field = fieldOf(SELECTION_MACHINE.name)
   const now = before[field] as Loose
-  const branch = pick(SELECTION_MACHINE.transitions[String(event['type'])]?.[kindOf(now)], event)
+  const branch = pick(SELECTION_MACHINE.transitions[String(event['type'])]?.[kindOf(now)], before, event)
   const rootAfter = expectedRoot(event, before)
   const rootChanges = Object.keys(rootAfter).filter((k) => !sameValue(rootAfter[k], before[k]))
   const want = branch?.to === 'objectsSelected' ? expectedSelected(event) : undefined

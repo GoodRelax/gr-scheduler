@@ -12,6 +12,7 @@ import {
   type SessionEvent,
 } from '../../src/use-case/advance-screen-session/advance-screen-session'
 import { NO_EFFECTS } from '../../src/use-case/advance-screen-session/session-step'
+import { branchHolds } from './guard-language'
 
 type Loose = Record<string, unknown>
 type RawGuard = { readonly name?: string; readonly not?: boolean; readonly in?: string }
@@ -228,51 +229,8 @@ function describeEvent(event: Loose): string {
   return `${String(event['type'])}${parts.length === 0 ? '' : `(${parts.join(', ')})`}`
 }
 
-// see OP-4, DI-4, QN-4, MM-4, MG-6, MG-14, U-56, U-61, U-62, RS-50, RS-73, FR-095, OP-13
-function guardHolds(guard: RawGuard, flow: Loose, event: Loose): boolean {
-  if (guard.in !== undefined) {
-    const [machineName, state] = guard.in.split('.')
-    return kindOf(flow[fieldOf(machineName ?? '')]) === state
-  }
-  const operation = flow['fileOperationState'] as Loose
-  const confirmation = flow['confirmationState'] as Loose
-  switch (guard.name) {
-    case 'isReopenRoute':
-      return operation['openRoute'] === 'reopen'
-    // WHY: OP-15 -- the route IC-4 opened with overlays without asking the three choices of OP-3 (MUST).
-    case 'isBaselineRoute':
-      return operation['openRoute'] === 'baseline'
-    case 'isReplaceChoice':
-      return event['openChoice'] === 'replace'
-    case 'isProceeding':
-      return event['isProceeding'] === true
-    case 'isOverwriteQuestion':
-      return (confirmation['question'] as Loose | undefined)?.['question'] === 'QN-4'
-    // WHY: the questions the file machine raises itself (OP-4, DI-4) owe no write; a change
-    // question (FR-032, FR-099) or the new-document one (FR-095) owes the action it carries.
-    case 'isFileOperationQuestion':
-      return confirmation['owedAction'] === null
-    case 'isImportCanceled':
-      return (event['mergeMapping'] as Loose)['kind'] === 'cancelImport'
-    case 'isOpenChooserSurface':
-      return event['surfaceName'] === 'U-56'
-    case 'isDifferenceReviewSurface':
-      return event['surfaceName'] === 'U-61'
-    case 'isImportReportSurface':
-      return event['surfaceName'] === 'U-62'
-    case 'hasAnythingToReport':
-      return (
-        (event['droppedTaskNames'] as readonly unknown[]).length > 0 ||
-        (event['missingTaskNames'] as readonly unknown[]).length > 0 ||
-        (event['reportedCounts'] as readonly unknown[]).length > 0
-      )
-    default:
-      throw new Error(`guard ${String(guard.name)} is named by the manuscript but not by this file's oracle`)
-  }
-}
-
 function pick(cell: RawCell | undefined, flow: Loose, event: Loose): RawBranch | undefined {
-  return branchesOf(cell).find((b) => (b.guard ?? []).every((g) => guardHolds(g, flow, event) !== (g.not === true)))
+  return branchesOf(cell).find((b) => branchHolds({ region: 'fileFlow', values: flow, event }, b))
 }
 
 type Fired = { machine: RawMachine; branch: RawBranch }

@@ -12,6 +12,7 @@ import {
   type SessionEvent,
 } from '../../src/use-case/advance-screen-session/advance-screen-session'
 import { NO_EFFECTS } from '../../src/use-case/advance-screen-session/session-step'
+import { branchHolds } from './guard-language'
 
 type Loose = Record<string, unknown>
 type RawGuard = { readonly name?: string; readonly not?: boolean; readonly in?: string }
@@ -148,23 +149,8 @@ function entryEvents(): Loose[] {
   })
 }
 
-function guardHolds(guard: RawGuard, entry: Loose, event: Loose): boolean {
-  switch (guard.name) {
-    case 'isCreatedTask':
-      return (event['created'] as Loose | undefined)?.['kind'] === 'task'
-    case 'isNameField':
-      return event['fieldRow'] === TASK_FIELD
-    case 'isEditedField': {
-      const edit = entry['fieldEditState'] as Loose
-      return edit['kind'] === 'editingField' && edit['fieldRow'] === event['fieldRow']
-    }
-    default:
-      throw new Error(`guard ${String(guard.name)} is named by the manuscript but not by this file's oracle`)
-  }
-}
-
 function pick(cell: RawCell | undefined, entry: Loose, event: Loose): RawBranch | undefined {
-  return branchesOf(cell).find((b) => (b.guard ?? []).every((g) => guardHolds(g, entry, event) !== (g.not === true)))
+  return branchesOf(cell).find((b) => branchHolds({ region: 'fieldEntry', values: entry, event }, b))
 }
 
 // WHY: the T-292 notes say which carried value a cell writes; only a creation writes a new

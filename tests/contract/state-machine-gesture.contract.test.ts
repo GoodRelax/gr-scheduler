@@ -12,6 +12,7 @@ import {
   type SessionEvent,
 } from '../../src/use-case/advance-screen-session/advance-screen-session'
 import { NO_EFFECTS } from '../../src/use-case/advance-screen-session/session-step'
+import { branchHolds } from './guard-language'
 
 type Loose = Record<string, unknown>
 type RawGuard = { readonly name: string; readonly not?: boolean }
@@ -169,35 +170,6 @@ function pressLabel(pressRow: unknown, pressedOn: unknown): string {
   return found.label
 }
 
-function isOnEntry(pressedOn: unknown, entry: string): boolean {
-  const on = pressedOn as Loose | null
-  return on !== null && on['kind'] === 'entry' && on['entry'] === entry
-}
-
-function isOnRepeatingEntry(pressedOn: unknown): boolean {
-  return REPEATING_ENTRIES.some((entry) => isOnEntry(pressedOn, entry))
-}
-
-// see AG-9, FR-018, FR-053, GR-19, HF-15
-function guardHolds(name: string, gesture: Loose, event: Loose): boolean {
-  const pressedOnNow = (gesture['pointerPressState'] as Loose)['pressedOn']
-  switch (name) {
-    case 'isDocumentChangingPress':
-      return DOCUMENT_CHANGING[pressLabel(event['pressRow'], event['pressedOn'])] === true
-    case 'isTaskGroupGrabStrip':
-      return (event['pressedOn'] as Loose | null)?.['kind'] === 'taskGroupGrabStrip'
-    case 'isOnRepeatingEntry':
-      return isOnRepeatingEntry(event['pressedOn'])
-    // WHY: the held press, not the event -- the repeat tick carries no pressedOn of its own.
-    case 'isHeldOnRepeatingEntry':
-      return isOnRepeatingEntry(pressedOnNow)
-    case 'isOnPaletteBand':
-      return (pressedOnNow as Loose | null | undefined)?.['kind'] === 'paletteBand'
-    default:
-      throw new Error(`guard ${name} is named by the manuscript but not by this file's oracle`)
-  }
-}
-
 type Fired = { machine: RawMachine; branch: RawBranch }
 
 function firing(gesture: Loose, event: Loose): Fired[] {
@@ -205,7 +177,7 @@ function firing(gesture: Loose, event: Loose): Fired[] {
   for (const machine of GESTURE.machines) {
     const now = stateKeyOf(gesture[fieldOf(machine)])
     const branch = branchesOf(cellFor(machine, String(event['type']), now)).find((b) =>
-      (b.guard ?? []).every((g) => guardHolds(g.name, gesture, event) !== (g.not === true)),
+      branchHolds({ region: 'gesture', values: gesture, event }, b),
     )
     if (branch !== undefined) fired.push({ machine, branch })
   }
@@ -305,14 +277,23 @@ describe('SD-3 (T-289): every gesture state (both machines crossed) x every gest
   const cases = crossedSessions().flatMap((s) =>
     gestureEvents().map((event) => [`${s.name} x ${describeEvent(event)}`, s.session, event] as const),
   )
-  it.each(cases.filter(([, session, event]) => !isPinnedByDfc687(session, event)))('%s', (_, session, event) => {
+  it.each(cases)('%s', (_, session, event) => {
     expectGestureStep(session, event)
   })
+})
 
-  // DEVIATION: AG-9 keeps these presses out of changingDocument; the region copies today's
-  // shell until the move is shown equal (DFC-687, JDG-57).
-  it.fails.each(cases.filter(([, session, event]) => isPinnedByDfc687(session, event)))('%s (DFC-687)', (_, session, event) => {
-    expectGestureStep(session, event)
+describe('AG-9 (DFC-687): a press that changes no document stays out of changingDocument', () => {
+  const pinned = crossedSessions().flatMap((s) =>
+    gestureEvents()
+      .filter((event) => isPinnedByDfc687(s.session, event))
+      .map((event) => [`${s.name} x ${describeEvent(event)}`, s.session, event] as const),
+  )
+
+  // DEVIATION: the manuscript condition of isDocumentChangingPress writes today's judgment, which
+  // reads these presses as changing the document (its note leaves AG-9 undecided; DFC-687, JDG-57).
+  it.fails.each(pinned)('%s (DFC-687)', (_, session, event) => {
+    expect(DOCUMENT_CHANGING[pressLabel(event['pressRow'], event['pressedOn'])]).toBe(false)
+    expect(kindOf(gestureOf(step(session, event).state)['pointerPressState'])).toBe('viewingDocument')
   })
 })
 

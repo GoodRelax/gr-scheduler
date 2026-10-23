@@ -7,6 +7,8 @@ import { describe, expect, it } from 'vitest'
 
 import type { Schedule, TaskGroup } from '../../src/entity/document-model/schedule/schedule-entities'
 import { treeStateWritesFor, type TreeStateEvent } from '../../src/use-case/edit-document/task-group-folding'
+import { treeFunctions } from './guard-functions'
+import { termHolds } from './guard-language'
 import { specTable, unbroken } from './spec-table'
 
 type TreeState = TaskGroup['treeState']
@@ -105,42 +107,17 @@ function scheduleWith(states: Readonly<Record<string, TreeState>>): Schedule {
   return { ...TEMPLATE.schedule, taskGroups, taskGroupMembers: [], tasks: [] }
 }
 
-/** @purity pure */
-function isBelow(id: string, ancestor: string): boolean {
-  let at = TREE.find((row) => row.id === id)?.parentId ?? null
-  while (at !== null) {
-    if (at === ancestor) return true
-    at = TREE.find((row) => row.id === at)?.parentId ?? null
-  }
-  return false
-}
+// see T-328, S-418
+// WHY: the tree's named functions read TREE; the machine cells name no setting, so none is given.
+const TREE_FUNCTIONS = treeFunctions(TREE, {})
 
-// see T-328
-// WHY: guard words read as CR-570 section 14.3 and T-332 SJ-2 define them; a guard the table names
-// and this file cannot read fails loudly instead of passing as true.
+// WHY: a guard the table names and the manuscript condition cannot read fails loudly instead of passing as true.
 /** @purity pure */
-function guardHolds(guard: Guard, id: string, pressed: string | null, revealed: string | null): boolean {
+function guardTrue(guard: Guard, id: string, pressed: string | null, revealed: string | null): boolean {
   const row = TREE.find((one) => one.id === id)
   if (row === undefined) throw new Error(`no task group ${id}`)
-  const said = ((): boolean => {
-    switch (guard.name) {
-      case 'isPressedTaskGroup':
-        return id === pressed
-      case 'isChildOfPressedTaskGroup':
-        return pressed !== null && row.parentId === pressed
-      case 'isBelowPressedTaskGroup':
-        return pressed !== null && isBelow(id, pressed)
-      case 'isLeafTaskGroup':
-        return !TREE.some((one) => one.parentId === id)
-      case 'isTopLevelTaskGroup':
-        return row.parentId === null
-      case 'isRevealedTaskGroupOrAncestor':
-        return revealed !== null && (id === revealed || isBelow(revealed, id))
-      default:
-        throw new Error(`table T-328 names a guard this file cannot read: ${guard.name}`)
-    }
-  })()
-  return guard.not === true ? !said : said
+  const event = { ...(pressed === null ? {} : { pressedRowId: pressed }), ...(revealed === null ? {} : { revealedRowId: revealed }) }
+  return termHolds({ region: 'taskGroupTree', values: {}, event, taskGroup: row, functions: TREE_FUNCTIONS }, guard)
 }
 
 /** @purity pure */
@@ -159,7 +136,7 @@ function manuscriptAnswer(
   revealed: string | null,
 ): TreeState | null {
   const taken = branchesOf(MACHINE?.transitions[event]?.[from]).filter((b) =>
-    (b.guard ?? []).every((g) => guardHolds(g, id, pressed, revealed)),
+    (b.guard ?? []).every((g) => guardTrue(g, id, pressed, revealed)),
   )
   if (taken.length > 1) throw new Error(`table T-328 gives ${id} in ${from} on ${event} ${taken.length} branches`)
   const to = taken[0]?.to ?? null

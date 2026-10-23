@@ -382,9 +382,9 @@ function guardNameUnion(generated: string, stem: string): string[] | null {
 }
 
 describe('5.5, T-285 RA-2: every region\'s guard list is printed as the generated name union <Stem>GuardName', () => {
-  it('5.5 says: "TypeScript の判別共用体と初期値とガードの名の型を生成する"', () => {
-    expect(DESIGN).toContain('TypeScript の判別共用体と初期値とガードの名の型を生成する')
-    expect(DESIGN).toContain('コードは領域ごとにガードと同じ名の判定を 1 つずつ持ち、その表を生成したガードの名の型で確かめる')
+  it('5.5 says: "TypeScript の判別共用体と初期値とガードの名の型を生成し、ガードごとの判定をその条件の式から生成する"', () => {
+    expect(DESIGN).toContain('TypeScript の判別共用体と初期値とガードの名の型を生成し、ガードごとの判定をその条件の式から生成する')
+    expect(DESIGN).toContain('領域ごとに、ガードと同じ名の判定を 1 つずつ持つ表をその式から生成し、遷移の関数はその表を通して呼ぶ（条件と判定が黙ってずれる道を残さない）')
   })
 
   it.each(MANUSCRIPT.regions.map((r) => [r.region, r] as const))('region %s: the union lists exactly the manuscript guards', (_, region) => {

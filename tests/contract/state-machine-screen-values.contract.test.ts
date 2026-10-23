@@ -12,6 +12,7 @@ import {
   type SessionEvent,
 } from '../../src/use-case/advance-screen-session/advance-screen-session'
 import { NO_EFFECTS } from '../../src/use-case/advance-screen-session/session-step'
+import { type GuardScope, termHolds } from './guard-language'
 
 type Carried = { readonly name: string }
 type StateEffect = { readonly effect: string }
@@ -337,98 +338,40 @@ function holds(session: ScreenSession, key: string): boolean {
   return path.every((segment, i) => now[i] === segment)
 }
 
-function hasChoice(subject: unknown): boolean {
-  const s = subject as { selection: { items: readonly unknown[] }; taskGroupIds: readonly unknown[] }
-  return s.selection.items.length > 0 || s.taskGroupIds.length > 0
+function scopeOf(session: ScreenSession, event: Loose): GuardScope {
+  return { region: 'screen', values: screenOf(session), event, after: (machine) => valueAfter(session, event, machine) }
 }
 
-// see IN-4, FR-016, FR-070, WM-6, WM-8, FR-072
-function guardHolds(name: string, session: ScreenSession, event: Loose): boolean {
-  const screen = screenOf(session)
-  switch (name) {
-    case 'isFullScreen':
-    case 'isProceeding':
-    case 'hasSurfaceOrConfirmation':
-    case 'hasUnsettledEntry':
-    case 'isAgentApiEnabled':
-    case 'hasDaysToPlace':
-    case 'isOpenAccepted':
-    case 'isOtherThanShownBase':
-      return event[name] === true
-    case 'isSameArm': {
-      const arm = screen['armModeState'] as Loose
-      if (arm['kind'] !== 'armed') return false
-      const armed = arm['child'] as Loose
-      if (armed['kind'] !== event['armKind']) return false
-      if (armed['kind'] === 'taskShapeArmed') return armed['shapeKind'] === event['shapeKind']
-      if (armed['kind'] === 'milestoneShapeArmed') return armed['glyph'] === event['glyph']
-      return true
-    }
-    case 'isWatermarkUnlockSurface': {
-      const surface = screen['openSurfaceState'] as Loose
-      return surface['kind'] === 'open' && surface['surfaceName'] === UNLOCK_SURFACE
-    }
-    case 'isAnotherSurface': {
-      const surface = screen['openSurfaceState'] as Loose
-      return surface['kind'] === 'open' && surface['surfaceName'] !== openingSurfaceName(event)
-    }
-    case 'isFlowAwaitingAnswer': {
-      const surface = screen['openSurfaceState'] as Loose
-      return surface['kind'] === 'open' && ['U-56', 'U-61'].includes(String(surface['surfaceName']))
-    }
-    case 'isRungSurface':
-      return event['rung'] === 'surface'
-    case 'isRungArmed':
-      return event['rung'] === 'armed'
-    // see RG-14, DFC-2720
-    case 'isRungPropertiesPanel':
-      return event['rung'] === 'propertiesPanel'
-    case 'isRungDualCursor':
-      return event['rung'] === 'dualCursorMode'
-    case 'isRungTooltip':
-      return event['rung'] === 'tooltip'
-    // see RG-16
-    case 'isRungHelp':
-      return event['rung'] === 'helpModal'
-    case 'isRungSearchPanel':
-      return event['rung'] === 'searchPanel'
-    case 'isSurfaceTarget':
-      return event['target'] === 'surface'
-    case 'isPanelTarget':
-      return event['target'] === 'panel'
-    case 'isHelpTarget':
-      return event['target'] === 'helpModal'
-    case 'hasChoice':
-      return hasChoice(event['subject'])
-    // see FR-157, FO-16
-    case 'isShiftZero':
-      return event['shiftMinutes'] === 0
-    // see FR-159, FO-17
-    case 'isNewStartDateEmpty':
-      return event['newStartDate'] === ''
-    // see WC-10
-    case 'hasCalendarDraftRefusal':
-      return (screen['calendarDraftState'] as Loose)['calendarDraft'] === REFUSED_CALENDAR_DRAFT
-    // see FR-156, FR-157
-    case 'isLeavingDocumentSettings':
-      return holds(session, 'propertiesPanelContentStateMachine.documentSettingsDisplayed')
-        && landingsOn(session, event, 'propertiesPanelContentStateMachine').some((row) => row.to !== 'self')
-    // see FR-088, S-99g
-    case 'isLeavingHolidaySettings': {
-      const surface = screen['openSurfaceState'] as Loose
-      return surface['kind'] === 'open' && surface['surfaceName'] === HOLIDAY_SURFACE
-        && surfaceNameAfter(session, event) !== HOLIDAY_SURFACE
-    }
-    default:
-      throw new Error(`guard ${name} is named by the manuscript but not by this file's oracle`)
+function termTrue(session: ScreenSession, event: Loose, g: Guard): boolean {
+  return termHolds(scopeOf(session, event), g)
+}
+
+function nested(path: readonly string[]): Loose | undefined {
+  const [kind, ...rest] = path
+  if (kind === undefined) return undefined
+  const child = nested(rest)
+  return child === undefined ? { kind } : { kind, child }
+}
+
+// see FR-088, S-99g, FR-156, FR-157
+// WHY: inAfter / after read a machine after the same event's step; the step is predicted from the
+// machine's own cells, and only the surface name is carried over, as the T-280 notes write it.
+function valueAfter(session: ScreenSession, event: Loose, machine: string): unknown {
+  const now = screenOf(session)[axisAndPath(`${machine}.x`).axis]
+  if (machine === 'openSurfaceStateMachine') {
+    const name = surfaceNameAfter(session, event)
+    return name === null ? { kind: 'closed' } : { kind: 'open', surfaceName: name }
   }
+  const row = landingsOn(session, event, machine)[0]
+  if (row === undefined || row.to === 'self') return now
+  return nested(targetPath(row.to[0] as string, event))
 }
 
 // WHY: the rows of one machine only, so a guard reading another machine's step cannot call itself.
 function landingsOn(session: ScreenSession, event: Loose, machine: string): TnRow[] {
   return TRANSITIONS.filter((row) => row.event === event['type']
     && row.from.some((conj) => conj.some((key) => key.startsWith(`${machine}.`)) && conj.every((key) => holds(session, key)))
-    && (row.guard ?? []).every((g) => guardHolds(g.name, session, event) !== (g.not === true)))
+    && (row.guard ?? []).every((g) => termTrue(session, event, g)))
 }
 
 function openingSurfaceName(event: Loose): unknown {
@@ -452,7 +395,7 @@ function firingRows(session: ScreenSession, event: Loose): Firing[] {
   for (const row of TRANSITIONS) {
     if (row.event !== event['type']) continue
     if (!row.from.some((conj) => conj.every((key) => holds(session, key)))) continue
-    if (!(row.guard ?? []).every((g) => guardHolds(g.name, session, event) !== (g.not === true))) continue
+    if (!(row.guard ?? []).every((g) => termTrue(session, event, g))) continue
     fired.push({ row, axes: row.to === 'self' ? [] : row.to.map((k) => axisAndPath(k).axis) })
   }
   return fired
