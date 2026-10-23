@@ -5,16 +5,16 @@
     "project": {
       "id": "GRS-PLAN",
       "name": "gr-scheduler のプロジェクト計画",
-      "title": "gr-scheduler のプロジェクト計画(β 版に向けて、10-22 08:15 JST 時点)",
+      "title": "gr-scheduler のプロジェクト計画(β 版に向けて、10-23 06:21 JST 時点)",
       "subject": "α 版の後から β 版のリリースまで",
       "category": null,
       "company": null,
       "manager": null,
       "author": null,
-      "creationDate": "2026-10-22T08:15:00",
-      "revision": 2,
+      "creationDate": "2026-10-23T06:21:00",
+      "revision": 3,
       "startDate": "2026-10-17T05:30:00",
-      "statusDate": "2026-10-23T05:40:00",
+      "statusDate": "2026-10-23T06:21:00",
       "minutesPerDay": 1440,
       "minutesPerWeek": 10080,
       "daysPerMonth": 30,
@@ -24,7 +24,7 @@
       "defaultFinishTime": "23:59:00",
       "themeHue": 214,
       "parentTaskProgressToleranceDays": 1,
-      "uidHighWaterMark": 270,
+      "uidHighWaterMark": 275,
       "importSequence": 0,
       "carry": {},
       "carryElements": [],
@@ -1002,14 +1002,14 @@
         "wbsOrder": 38,
         "name": "第 1 波の合流と GT-2(赤 3 件が消えたか)・develop へ push",
         "start": "2026-10-22T20:16:00",
-        "finish": "2026-10-22T21:28:00",
+        "finish": "2026-10-22T21:29:00",
         "milestone": false,
         "deadline": null,
-        "notes": null,
+        "notes": "10-23 測り直し: 終わり = refs/remotes/origin/develop の update by push 21:29（bf4a2b287）。",
         "calendarUid": null,
         "actualStart": "2026-10-22T20:16:00",
         "stop": null,
-        "actualFinish": "2026-10-22T21:28:00",
+        "actualFinish": "2026-10-22T21:29:00",
         "resume": null,
         "resumeValid": null,
         "percentComplete": 100,
@@ -1104,19 +1104,19 @@
         "uid": 261,
         "parentTaskUid": null,
         "wbsOrder": 40,
-        "name": "第 2 波の後の基準線の下げ(G1・G3)と GT-2(D1・D7 を外す)",
-        "start": "2026-10-24T18:00:00",
-        "finish": "2026-10-24T21:00:00",
+        "name": "第 2 波の後の基準線の下げ(G1・G3、検査 5 つ)と develop へ push —— D1・D7 を外すのは 275 へ分けた",
+        "start": "2026-10-23T05:50:00",
+        "finish": "2026-10-23T05:59:00",
         "milestone": false,
         "deadline": null,
-        "notes": "棚卸しの 10 節の「順」。基準線を下げるだけの仕事は調整役が最後に 1 回で行う。",
+        "notes": "棚卸しの 10 節の「順」。基準線を下げるだけの仕事は調整役が最後に 1 回で行う。 実績: W5 を統合の枝へ合流した 05:50 から、40cdf29ef の push 05:59（update by push）まで。下げたのは検査 42・39・44・55・60、上げた行は無い。GT-2 で D1・D7 を外す仕事は、GT-2 が時間切れ 0 で通る（DFC-3456 の答えの後）まで待つので 275 に分けた。",
         "calendarUid": null,
-        "actualStart": null,
+        "actualStart": "2026-10-23T05:50:00",
         "stop": null,
-        "actualFinish": null,
+        "actualFinish": "2026-10-23T05:59:00",
         "resume": null,
         "resumeValid": null,
-        "percentComplete": 0,
+        "percentComplete": 100,
         "fadeInDays": null,
         "fadeOutDays": null,
         "dependencies": [
@@ -1133,12 +1133,44 @@
         "carryElements": []
       },
       {
-        "uid": 87,
+        "uid": 275,
         "parentTaskUid": null,
         "wbsOrder": 41,
+        "name": "known-red の揺れる 4 行(D1)と時間切れの延ばし(D7)を外し、GT-2 が時間切れ 0 で通るのを確かめる",
+        "start": "2026-10-23T08:45:00",
+        "finish": "2026-10-23T11:45:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "棚卸しの D1・D7。外す条件は「GT-2 が時間切れ 0 で通る」。d24fc728 の GT-2 は cr-820 の 1 件が時間切れ（DFC-3456）なので、その答え（272）の後。261 から分けた。",
+        "calendarUid": null,
+        "actualStart": null,
+        "stop": null,
+        "actualFinish": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 272,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 87,
+        "parentTaskUid": null,
+        "wbsOrder": 42,
         "name": "CR-767(状態機械の原稿)の合流と確かめ",
-        "start": "2026-10-25T09:00:00",
-        "finish": "2026-10-25T10:00:00",
+        "start": "2026-10-23T15:21:00",
+        "finish": "2026-10-23T16:21:00",
         "milestone": false,
         "deadline": null,
         "notes": null,
@@ -1167,10 +1199,10 @@
       {
         "uid": 105,
         "parentTaskUid": null,
-        "wbsOrder": 42,
+        "wbsOrder": 43,
         "name": "CR-768(保存の媒体の型)の C の合流と確かめ",
-        "start": "2026-10-25T14:00:00",
-        "finish": "2026-10-25T15:00:00",
+        "start": "2026-10-23T19:21:00",
+        "finish": "2026-10-23T20:21:00",
         "milestone": false,
         "deadline": null,
         "notes": null,
@@ -1199,7 +1231,7 @@
       {
         "uid": 199,
         "parentTaskUid": null,
-        "wbsOrder": 43,
+        "wbsOrder": 44,
         "name": "週の使用量の戻り(10-28 水 19:00)",
         "start": "2026-10-28T19:00:00",
         "finish": "2026-10-28T19:00:00",
@@ -1222,10 +1254,10 @@
       {
         "uid": 36,
         "parentTaskUid": null,
-        "wbsOrder": 44,
+        "wbsOrder": 45,
         "name": "片付けの合流と台帳の締め",
-        "start": "2026-10-30T07:00:00",
-        "finish": "2026-10-30T09:00:00",
+        "start": "2026-10-24T18:06:00",
+        "finish": "2026-10-24T20:06:00",
         "milestone": false,
         "deadline": null,
         "notes": "集まる依存線は描いていない(下の中央のコメント)。",
@@ -1245,10 +1277,10 @@
       {
         "uid": 31,
         "parentTaskUid": null,
-        "wbsOrder": 45,
+        "wbsOrder": 46,
         "name": "W4・W5 の合流と GT-2・push",
-        "start": "2026-10-31T03:00:00",
-        "finish": "2026-10-31T06:00:00",
+        "start": "2026-10-25T12:36:00",
+        "finish": "2026-10-25T15:36:00",
         "milestone": false,
         "deadline": null,
         "notes": null,
@@ -1277,10 +1309,10 @@
       {
         "uid": 141,
         "parentTaskUid": null,
-        "wbsOrder": 46,
+        "wbsOrder": 47,
         "name": "片付けの入った一括の GT-2 と push",
-        "start": "2026-10-31T06:00:00",
-        "finish": "2026-10-31T09:00:00",
+        "start": "2026-10-25T15:36:00",
+        "finish": "2026-10-25T18:36:00",
         "milestone": false,
         "deadline": null,
         "notes": null,
@@ -1300,10 +1332,10 @@
       {
         "uid": 210,
         "parentTaskUid": null,
-        "wbsOrder": 47,
+        "wbsOrder": 48,
         "name": "PERF の測り(OneDrive を止めて)",
-        "start": "2026-11-01T09:00:00",
-        "finish": "2026-11-01T11:00:00",
+        "start": "2026-10-29T12:45:00",
+        "finish": "2026-10-29T14:45:00",
         "milestone": false,
         "deadline": null,
         "notes": null,
@@ -1332,10 +1364,10 @@
       {
         "uid": 207,
         "parentTaskUid": null,
-        "wbsOrder": 48,
+        "wbsOrder": 49,
         "name": "不具合の合流と GT-2・push",
-        "start": "2026-11-04T19:00:00",
-        "finish": "2026-11-04T22:00:00",
+        "start": "2026-10-29T19:00:00",
+        "finish": "2026-10-29T22:00:00",
         "milestone": false,
         "deadline": null,
         "notes": null,
@@ -1355,7 +1387,7 @@
       {
         "uid": 216,
         "parentTaskUid": null,
-        "wbsOrder": 49,
+        "wbsOrder": 50,
         "name": "週の使用量の戻り(11-04 水 19:00)",
         "start": "2026-11-04T19:00:00",
         "finish": "2026-11-04T19:00:00",
@@ -1378,10 +1410,10 @@
       {
         "uid": 48,
         "parentTaskUid": null,
-        "wbsOrder": 50,
+        "wbsOrder": 51,
         "name": "AI 連携の合流と GT-2・push",
-        "start": "2026-11-05T19:00:00",
-        "finish": "2026-11-05T22:00:00",
+        "start": "2026-10-30T13:00:00",
+        "finish": "2026-10-30T16:00:00",
         "milestone": false,
         "deadline": null,
         "notes": null,
@@ -1401,10 +1433,10 @@
       {
         "uid": 221,
         "parentTaskUid": null,
-        "wbsOrder": 51,
+        "wbsOrder": 52,
         "name": "新機能の合流と GT-2・push",
-        "start": "2026-11-06T11:00:00",
-        "finish": "2026-11-06T14:00:00",
+        "start": "2026-10-30T19:00:00",
+        "finish": "2026-10-30T22:00:00",
         "milestone": false,
         "deadline": null,
         "notes": null,
@@ -1433,10 +1465,10 @@
       {
         "uid": 228,
         "parentTaskUid": null,
-        "wbsOrder": 52,
+        "wbsOrder": 53,
         "name": "最後の合流と PERF・GT-2(重い試験は 1 回だけ)",
-        "start": "2026-11-07T21:00:00",
-        "finish": "2026-11-08T03:00:00",
+        "start": "2026-10-31T20:00:00",
+        "finish": "2026-11-01T02:00:00",
         "milestone": false,
         "deadline": null,
         "notes": null,
@@ -1465,10 +1497,10 @@
       {
         "uid": 229,
         "parentTaskUid": null,
-        "wbsOrder": 53,
+        "wbsOrder": 54,
         "name": "node tools/release_version.mjs Beta・リリースノート(英日)・README の版の行",
-        "start": "2026-11-08T03:00:00",
-        "finish": "2026-11-08T07:00:00",
+        "start": "2026-11-01T02:00:00",
+        "finish": "2026-11-01T06:00:00",
         "milestone": false,
         "deadline": null,
         "notes": null,
@@ -1497,10 +1529,10 @@
       {
         "uid": 230,
         "parentTaskUid": null,
-        "wbsOrder": 54,
+        "wbsOrder": 55,
         "name": "リリースの sha の GT-2 と develop → main の PR",
-        "start": "2026-11-08T07:00:00",
-        "finish": "2026-11-08T10:00:00",
+        "start": "2026-11-01T06:00:00",
+        "finish": "2026-11-01T09:00:00",
         "milestone": false,
         "deadline": null,
         "notes": null,
@@ -1529,10 +1561,10 @@
       {
         "uid": 232,
         "parentTaskUid": null,
-        "wbsOrder": 55,
+        "wbsOrder": 56,
         "name": "Pages の配備(gh workflow run pages.yml --ref main)",
-        "start": "2026-11-08T11:00:00",
-        "finish": "2026-11-08T12:00:00",
+        "start": "2026-11-01T10:00:00",
+        "finish": "2026-11-01T11:00:00",
         "milestone": false,
         "deadline": null,
         "notes": null,
@@ -1561,10 +1593,10 @@
       {
         "uid": 49,
         "parentTaskUid": null,
-        "wbsOrder": 56,
+        "wbsOrder": 57,
         "name": "計画の終わり",
-        "start": "2026-11-08T13:00:00",
-        "finish": "2026-11-08T13:00:00",
+        "start": "2026-11-01T12:00:00",
+        "finish": "2026-11-01T12:00:00",
         "milestone": true,
         "deadline": null,
         "notes": null,
@@ -1593,7 +1625,7 @@
       {
         "uid": 200,
         "parentTaskUid": null,
-        "wbsOrder": 57,
+        "wbsOrder": 58,
         "name": "遅延診断の ? と炎の裁定(DFC-3390: 基準日より後を開始で読むか・壁の件数も外すか)に答える",
         "start": "2026-10-22T08:24:00",
         "finish": "2026-10-22T08:29:00",
@@ -1625,7 +1657,7 @@
       {
         "uid": 218,
         "parentTaskUid": null,
-        "wbsOrder": 58,
+        "wbsOrder": 59,
         "name": "ハイパーリンク(MSPDI に写すか・コメントのアイコンの置き場)とダークの色の導き方(JDG-326 の ② を覆す)に答える",
         "start": "2026-10-22T20:14:00",
         "finish": "2026-10-22T20:44:00",
@@ -1657,7 +1689,7 @@
       {
         "uid": 238,
         "parentTaskUid": null,
-        "wbsOrder": 59,
+        "wbsOrder": 60,
         "name": "DFC-3397(左端に出す名前と札)の細部の協議に答える",
         "start": "2026-10-22T20:26:00",
         "finish": "2026-10-22T20:33:00",
@@ -1689,7 +1721,7 @@
       {
         "uid": 254,
         "parentTaskUid": null,
-        "wbsOrder": 60,
+        "wbsOrder": 61,
         "name": "DFC-3392・3395(プロンプトの写し方・保存の確認の文)の裁定に答える",
         "start": "2026-10-22T20:44:00",
         "finish": "2026-10-22T20:45:00",
@@ -1721,13 +1753,13 @@
       {
         "uid": 263,
         "parentTaskUid": null,
-        "wbsOrder": 61,
-        "name": "見本の Developer C の重なり(C7, AS-8 のためのわざと)と pages.yml の起動(E17)の裁定に答える",
+        "wbsOrder": 62,
+        "name": "裁定 5 行(DFC-3430 端の日・DFC-3433 C7 の Developer C・DFC-3453 E17 の pages.yml・DFC-3456 時間切れ・PND-144)に答える",
         "start": "2026-10-23T06:45:00",
         "finish": "2026-10-23T07:15:00",
         "milestone": false,
         "deadline": null,
-        "notes": "棚卸しの 11 節。C7 は計画 196 から外すのを棚卸しが推す。",
+        "notes": "棚卸しの 11 節。C7 は計画 196 から外すのを棚卸しが推す。 10-23: 棚卸しの C7・E17 は台帳の DFC-3433・DFC-3453 になり、ほかの 3 行と一緒に裁定 5 行の問い（271）が問う。",
         "calendarUid": null,
         "actualStart": null,
         "stop": null,
@@ -1753,7 +1785,7 @@
       {
         "uid": 252,
         "parentTaskUid": null,
-        "wbsOrder": 62,
+        "wbsOrder": 63,
         "name": "憲章の下書き(temp/charter-draft/CHARTER-ja.md)を直す",
         "start": "2026-10-23T21:00:00",
         "finish": "2026-10-23T23:00:00",
@@ -1776,7 +1808,7 @@
       {
         "uid": 241,
         "parentTaskUid": null,
-        "wbsOrder": 63,
+        "wbsOrder": 64,
         "name": "取次からページのアドレスを得る直し(DFC-3400・3401)の案 B1〜B6 に答える",
         "start": "2026-10-27T21:00:00",
         "finish": "2026-10-27T22:00:00",
@@ -1799,10 +1831,10 @@
       {
         "uid": 244,
         "parentTaskUid": null,
-        "wbsOrder": 64,
+        "wbsOrder": 65,
         "name": "DFC-3410(名前付きのフィルタの条件)の細部に答える",
-        "start": "2026-10-31T11:00:00",
-        "finish": "2026-10-31T12:00:00",
+        "start": "2026-10-25T18:36:00",
+        "finish": "2026-10-25T19:36:00",
         "milestone": false,
         "deadline": null,
         "notes": "問うのは起草の子セッション(JDG-1753)。",
@@ -1831,10 +1863,10 @@
       {
         "uid": 226,
         "parentTaskUid": null,
-        "wbsOrder": 65,
+        "wbsOrder": 66,
         "name": "チェックリストを実物で触る",
-        "start": "2026-11-07T09:00:00",
-        "finish": "2026-11-07T13:00:00",
+        "start": "2026-10-31T10:00:00",
+        "finish": "2026-10-31T14:00:00",
         "milestone": false,
         "deadline": null,
         "notes": null,
@@ -1863,10 +1895,10 @@
       {
         "uid": 231,
         "parentTaskUid": null,
-        "wbsOrder": 66,
+        "wbsOrder": 67,
         "name": "PR を見て main へ合流する",
-        "start": "2026-11-08T10:00:00",
-        "finish": "2026-11-08T11:00:00",
+        "start": "2026-11-01T09:00:00",
+        "finish": "2026-11-01T10:00:00",
         "milestone": false,
         "deadline": null,
         "notes": null,
@@ -1895,10 +1927,10 @@
       {
         "uid": 233,
         "parentTaskUid": null,
-        "wbsOrder": 67,
+        "wbsOrder": 68,
         "name": "Beta のタグを打ち、GitHub Release を作る",
-        "start": "2026-11-08T12:00:00",
-        "finish": "2026-11-08T13:00:00",
+        "start": "2026-11-01T11:00:00",
+        "finish": "2026-11-01T12:00:00",
         "milestone": false,
         "deadline": null,
         "notes": null,
@@ -1927,10 +1959,10 @@
       {
         "uid": 234,
         "parentTaskUid": null,
-        "wbsOrder": 68,
+        "wbsOrder": 69,
         "name": "β 版のリリース(条件: β に入れた仕事が全部済み、GT-2 と PERF が通る。目安 11-09 09:00)",
-        "start": "2026-11-08T13:00:00",
-        "finish": "2026-11-08T13:00:00",
+        "start": "2026-11-01T12:00:00",
+        "finish": "2026-11-01T12:00:00",
         "milestone": true,
         "deadline": "2026-11-09T09:00:00",
         "notes": "JDG-3001。日付で縛らない —— 目安は締め切り(deadline)に書いた。",
@@ -1959,15 +1991,15 @@
       {
         "uid": 247,
         "parentTaskUid": null,
-        "wbsOrder": 69,
+        "wbsOrder": 70,
         "name": "β への計画の引き直しと利用者の答え 5 つの記録(JDG-3043〜3047)",
-        "start": "2026-10-22T08:15:00",
+        "start": "2026-10-22T08:18:00",
         "finish": "2026-10-22T08:54:00",
         "milestone": false,
         "deadline": null,
-        "notes": "利用者と調整役が 10-22 08:00 に計画を見直した答え(JDG-3043〜3047)を記録し、計画を今日の始まりに合わせてずらした。",
+        "notes": "利用者と調整役が 10-22 08:00 に計画を見直した答え(JDG-3043〜3047)を記録し、計画を今日の始まりに合わせてずらした。 10-23 測り直し: 実績の開始 = 枝の作られた時刻（git reflog）。",
         "calendarUid": null,
-        "actualStart": "2026-10-22T08:15:00",
+        "actualStart": "2026-10-22T08:18:00",
         "stop": null,
         "actualFinish": "2026-10-22T08:54:00",
         "resume": null,
@@ -1982,7 +2014,7 @@
       {
         "uid": 248,
         "parentTaskUid": null,
-        "wbsOrder": 70,
+        "wbsOrder": 71,
         "name": "読むだけの棚卸し(仕様・_source・_asset・コード・試験・道具の 6 つの所を数える)",
         "start": "2026-10-22T08:15:00",
         "finish": "2026-10-22T08:39:00",
@@ -2005,15 +2037,15 @@
       {
         "uid": 192,
         "parentTaskUid": null,
-        "wbsOrder": 71,
+        "wbsOrder": 72,
         "name": "GT-2 の赤 ③ uc-008:76(コメントのダブルクリックで PR-21 に焦点が入らない)の調べと直し",
-        "start": "2026-10-22T08:15:00",
+        "start": "2026-10-22T08:24:00",
         "finish": "2026-10-22T09:31:00",
         "milestone": false,
         "deadline": null,
-        "notes": "利用者に見える後戻りの疑い(CR-811/812 が関わる疑い)。台帳の行は調べた子セッションが立てる。",
+        "notes": "利用者に見える後戻りの疑い(CR-811/812 が関わる疑い)。台帳の行は調べた子セッションが立てる。 10-23 測り直し: 実績の開始 = 枝の作られた時刻（git reflog）。 枝には合流のときの後追いのコミット f5d36ee36（20:35）があるが、終わりは主の直し e3759a2f7 に置いた。",
         "calendarUid": null,
-        "actualStart": "2026-10-22T08:15:00",
+        "actualStart": "2026-10-22T08:24:00",
         "stop": null,
         "actualFinish": "2026-10-22T09:31:00",
         "resume": null,
@@ -2028,15 +2060,15 @@
       {
         "uid": 193,
         "parentTaskUid": null,
-        "wbsOrder": 72,
+        "wbsOrder": 73,
         "name": "GT-2 の赤 ① nfr-004 SWS-8(.tsv の IO-9 を押す探り)を足す",
-        "start": "2026-10-22T08:15:00",
+        "start": "2026-10-22T08:21:00",
         "finish": "2026-10-22T11:17:00",
         "milestone": false,
         "deadline": null,
-        "notes": null,
+        "notes": "10-23 測り直し: 実績の開始 = 枝の作られた時刻（git reflog）。",
         "calendarUid": null,
-        "actualStart": "2026-10-22T08:15:00",
+        "actualStart": "2026-10-22T08:21:00",
         "stop": null,
         "actualFinish": "2026-10-22T11:17:00",
         "resume": null,
@@ -2051,15 +2083,15 @@
       {
         "uid": 194,
         "parentTaskUid": null,
-        "wbsOrder": 73,
+        "wbsOrder": 74,
         "name": "GT-2 の赤 ② w3-t2(FR-135 の古い引用)を直す",
-        "start": "2026-10-22T08:15:00",
+        "start": "2026-10-22T08:21:00",
         "finish": "2026-10-22T11:17:00",
         "milestone": false,
         "deadline": null,
-        "notes": "実績: 193 と同じ子セッション(gt2-red-tests)が 1 つのコミット 9e4a15c1c で 2 件を直した。194 だけの開始は記録に無いので 193 と同じ 08:15 に置いた。",
+        "notes": "実績: 193 と同じ子セッション(gt2-red-tests)が 1 つのコミット 9e4a15c1c で 2 件を直した。194 だけの開始は記録に無いので 193 と同じ 08:15 に置いた。 10-23 測り直し: 実績の開始 = 枝の作られた時刻（git reflog）。",
         "calendarUid": null,
-        "actualStart": "2026-10-22T08:15:00",
+        "actualStart": "2026-10-22T08:21:00",
         "stop": null,
         "actualFinish": "2026-10-22T11:17:00",
         "resume": null,
@@ -2074,15 +2106,15 @@
       {
         "uid": 195,
         "parentTaskUid": null,
-        "wbsOrder": 74,
+        "wbsOrder": 75,
         "name": "紹介頁・ダウンロード頁・デモの頁の語の直し(データだけ)",
-        "start": "2026-10-22T08:15:00",
+        "start": "2026-10-22T08:21:00",
         "finish": "2026-10-22T08:39:00",
         "milestone": false,
         "deadline": null,
-        "notes": "データだけの push は GT-2 なし(JDG-1965)。",
+        "notes": "データだけの push は GT-2 なし(JDG-1965)。 10-23 測り直し: 実績の開始 = 枝の作られた時刻（git reflog）。 枝には後追いのコミット 5635f576d（21:04、DFC-3421）があるが、終わりは主の直し 14f838bc2 に置いた。",
         "calendarUid": null,
-        "actualStart": "2026-10-22T08:15:00",
+        "actualStart": "2026-10-22T08:21:00",
         "stop": null,
         "actualFinish": "2026-10-22T08:39:00",
         "resume": null,
@@ -2097,15 +2129,15 @@
       {
         "uid": 249,
         "parentTaskUid": null,
-        "wbsOrder": 75,
+        "wbsOrder": 76,
         "name": "意図しない圧縮への備え(85% の知らせ・セッション台帳・引継書の検査・呼び名の統一)の仕組みと試し",
-        "start": "2026-10-22T08:15:00",
+        "start": "2026-10-22T08:18:00",
         "finish": "2026-10-22T22:10:00",
         "milestone": false,
         "deadline": null,
-        "notes": "JDG-3040〜3042・3044: 第 1 波と並行。試しは低いしきい値で知らせを出させ、コンテキストをわざと埋めない。",
+        "notes": "JDG-3040〜3042・3044: 第 1 波と並行。試しは低いしきい値で知らせを出させ、コンテキストをわざと埋めない。 10-23 測り直し: 実績の開始 = 枝の作られた時刻（git reflog）。",
         "calendarUid": null,
-        "actualStart": "2026-10-22T08:15:00",
+        "actualStart": "2026-10-22T08:18:00",
         "stop": null,
         "actualFinish": "2026-10-22T22:10:00",
         "resume": null,
@@ -2120,15 +2152,15 @@
       {
         "uid": 250,
         "parentTaskUid": null,
-        "wbsOrder": 76,
+        "wbsOrder": 77,
         "name": "利用者の裁定が要る 6 件(DFC-3390・3392・3393・3394・3395・3397)を 1 問ずつ問う",
-        "start": "2026-10-22T08:15:00",
+        "start": "2026-10-22T08:18:00",
         "finish": "2026-10-22T20:45:00",
         "milestone": false,
         "deadline": null,
-        "notes": "JDG-3047「今すぐ」: 1 問ずつ、場面・画面の名・2〜4 案・推奨と理由を添える(JDG-1753)。答えは利用者の行 200・218・238・254。",
+        "notes": "JDG-3047「今すぐ」: 1 問ずつ、場面・画面の名・2〜4 案・推奨と理由を添える(JDG-1753)。答えは利用者の行 200・218・238・254。 10-23 測り直し: 実績の開始 = 枝の作られた時刻（git reflog）。",
         "calendarUid": null,
-        "actualStart": "2026-10-22T08:15:00",
+        "actualStart": "2026-10-22T08:18:00",
         "stop": null,
         "actualFinish": "2026-10-22T20:45:00",
         "resume": null,
@@ -2143,7 +2175,7 @@
       {
         "uid": 262,
         "parentTaskUid": null,
-        "wbsOrder": 77,
+        "wbsOrder": 78,
         "name": "裁定 6 件の答えの記録(JDG の行と台帳)",
         "start": "2026-10-22T20:45:00",
         "finish": "2026-10-22T20:57:00",
@@ -2175,13 +2207,13 @@
       {
         "uid": 251,
         "parentTaskUid": null,
-        "wbsOrder": 78,
+        "wbsOrder": 79,
         "name": "合流済みの作業木の掃除(第 1 波の後半)",
         "start": "2026-10-23T03:03:00",
         "finish": "2026-10-23T03:49:00",
         "milestone": false,
         "deadline": null,
-        "notes": "第 1 波の合流(198)の後。動いている子セッションの作業木には触れない。 実績 10-23: 54 本のうち 31 本を消した。残り 23 本は自動の判定に 2 度断られて止めた(共有メモ sweep-1023-work-note.md)。",
+        "notes": "第 1 波の合流(198)の後。動いている子セッションの作業木には触れない。 実績 10-23: 54 本のうち 31 本を消した。残り 23 本は自動の判定に 2 度断られて止めた(共有メモ sweep-1023-work-note.md)。 残りの 23 本は 274。",
         "calendarUid": null,
         "actualStart": "2026-10-23T03:03:00",
         "stop": null,
@@ -2196,12 +2228,35 @@
         "carryElements": []
       },
       {
+        "uid": 274,
+        "parentTaskUid": null,
+        "wbsOrder": 80,
+        "name": "合流済みの作業木の掃除の残り 23 本(自動の判定に断られて止めた分)",
+        "start": "2026-10-23T06:21:00",
+        "finish": "2026-10-23T06:51:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "251 の続き。一覧は作業木の掃除の作業メモ（共有メモ sweep-1023-work-note.md）。自動の判定が 2 度断ったので、利用者の許しか利用者の手で消す。長さは 251 の速さ（31 本で 46 分）から 30 分。",
+        "calendarUid": null,
+        "actualStart": null,
+        "stop": null,
+        "actualFinish": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [],
+        "carry": {},
+        "carryElements": []
+      },
+      {
         "uid": 253,
         "parentTaskUid": null,
-        "wbsOrder": 79,
+        "wbsOrder": 81,
         "name": "プロジェクト憲章(利用者が直した CHARTER-ja.md から)の仕上げ",
         "start": "2026-10-23T23:00:00",
-        "finish": "2026-10-24T03:00:00",
+        "finish": "2026-10-24T02:00:00",
         "milestone": false,
         "deadline": null,
         "notes": "利用者が下書きを直した後に続ける。コミットするかは利用者が決める。",
@@ -2230,7 +2285,7 @@
       {
         "uid": 256,
         "parentTaskUid": null,
-        "wbsOrder": 80,
+        "wbsOrder": 82,
         "name": "W1 仕様と _source／_assets の掃除(棚卸しの A・B の行、C3 の仕様の側 PI-9)",
         "start": "2026-10-23T03:03:00",
         "finish": "2026-10-23T04:45:00",
@@ -2260,41 +2315,9 @@
         "carryElements": []
       },
       {
-        "uid": 115,
-        "parentTaskUid": null,
-        "wbsOrder": 81,
-        "name": "edgeOf と baselineEdgeXOf(重複した関数, C1)の 1 つへの寄せ",
-        "start": "2026-10-23T03:00:00",
-        "finish": "2026-10-23T03:30:00",
-        "milestone": false,
-        "deadline": null,
-        "notes": "10-23: W2 が寄せると検査 26b が 123→126 で赤になったので捨てた。表 T-064 の行か基準線の許しが要る(DFC-3430)。",
-        "calendarUid": null,
-        "actualStart": null,
-        "stop": null,
-        "actualFinish": null,
-        "resume": null,
-        "resumeValid": null,
-        "percentComplete": 0,
-        "fadeInDays": null,
-        "fadeOutDays": null,
-        "dependencies": [
-          {
-            "predecessorUid": 248,
-            "linkType": 1,
-            "linkLag": 0,
-            "lagFormat": 7,
-            "carry": {},
-            "carryElements": []
-          }
-        ],
-        "carry": {},
-        "carryElements": []
-      },
-      {
         "uid": 116,
         "parentTaskUid": null,
-        "wbsOrder": 82,
+        "wbsOrder": 83,
         "name": "NOT_STORED_DUMMY_SIZES(生成済みの寸法, C2・E28)の読まれない写しと古い注の始末",
         "start": "2026-10-23T03:03:00",
         "finish": "2026-10-23T03:11:00",
@@ -2317,13 +2340,13 @@
       {
         "uid": 196,
         "parentTaskUid": null,
-        "wbsOrder": 83,
+        "wbsOrder": 84,
         "name": "衛生の小物(PlanActualState の中の語の 2 組, C8)の揃え",
-        "start": "2026-10-23T04:00:00",
-        "finish": "2026-10-23T06:00:00",
+        "start": "2026-10-23T06:21:00",
+        "finish": "2026-10-23T07:51:00",
         "milestone": false,
         "deadline": null,
-        "notes": "作業木の掃除は第 1 波の行 251 へ分けた。見本の Developer C の重なりはわざと(棚卸しの C7) —— 利用者の行 263 で問う。 10-23: W2 の報告に C8 は無い(手を付けていない)。",
+        "notes": "作業木の掃除は第 1 波の行 251 へ分けた。見本の Developer C の重なりはわざと(棚卸しの C7) —— 利用者の行 263 で問う。 10-23: W2 の報告に C8 は無い(手を付けていない)。 10-23: W2 の行の残り（今から）。",
         "calendarUid": null,
         "actualStart": null,
         "stop": null,
@@ -2340,7 +2363,7 @@
       {
         "uid": 77,
         "parentTaskUid": null,
-        "wbsOrder": 84,
+        "wbsOrder": 85,
         "name": "古い STOP の印 15 件(DFC-2730, C9)の除去",
         "start": "2026-10-23T03:11:00",
         "finish": "2026-10-23T03:32:00",
@@ -2363,7 +2386,7 @@
       {
         "uid": 257,
         "parentTaskUid": null,
-        "wbsOrder": 85,
+        "wbsOrder": 86,
         "name": "W2 src の掃除(棚卸しの C4・C10・C15・E15・E16 ほか)",
         "start": "2026-10-23T03:03:00",
         "finish": "2026-10-23T03:32:00",
@@ -2386,13 +2409,13 @@
       {
         "uid": 117,
         "parentTaskUid": null,
-        "wbsOrder": 86,
+        "wbsOrder": 87,
         "name": "baseChangeCommandOf(名の複数形, C3)の言い直し —— W1 で仕様 PI-9 の名を直した後",
-        "start": "2026-10-24T01:00:00",
-        "finish": "2026-10-24T03:00:00",
+        "start": "2026-10-23T06:21:00",
+        "finish": "2026-10-23T07:51:00",
         "milestone": false,
         "deadline": null,
-        "notes": "仕様の PI-9 がこの名を名指すので、仕様の変更(W1)が先(棚卸しの 9 節)。 10-23: 仕様 PI-9 の変更が先(DFC-3432)。W2 は名を変えていない。",
+        "notes": "仕様の PI-9 がこの名を名指すので、仕様の変更(W1)が先(棚卸しの 9 節)。 10-23: 仕様 PI-9 の変更が先(DFC-3432)。W2 は名を変えていない。 10-23: W2 の行の残り。仕様 PI-9 の変更が先。",
         "calendarUid": null,
         "actualStart": null,
         "stop": null,
@@ -2407,9 +2430,49 @@
         "carryElements": []
       },
       {
+        "uid": 115,
+        "parentTaskUid": null,
+        "wbsOrder": 88,
+        "name": "edgeOf と baselineEdgeXOf(重複した関数, C1)の 1 つへの寄せ",
+        "start": "2026-10-23T08:45:00",
+        "finish": "2026-10-23T09:00:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "10-23: W2 が寄せると検査 26b が 123→126 で赤になったので捨てた。表 T-064 の行か基準線の許しが要る(DFC-3430)。 10-23: DFC-3430 の答えの記録（272）の後。",
+        "calendarUid": null,
+        "actualStart": null,
+        "stop": null,
+        "actualFinish": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 248,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          },
+          {
+            "predecessorUid": 272,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
         "uid": 258,
         "parentTaskUid": null,
-        "wbsOrder": 87,
+        "wbsOrder": 89,
         "name": "W3 試験の掃除(棚卸しの D の行と G2)",
         "start": "2026-10-23T03:03:00",
         "finish": "2026-10-23T03:44:00",
@@ -2441,7 +2504,7 @@
       {
         "uid": 259,
         "parentTaskUid": null,
-        "wbsOrder": 88,
+        "wbsOrder": 90,
         "name": "W4 道具と目録の掃除(棚卸しの E の行・09-tools.md・About の版の形)",
         "start": "2026-10-23T03:03:00",
         "finish": "2026-10-23T03:22:00",
@@ -2473,10 +2536,10 @@
       {
         "uid": 118,
         "parentTaskUid": null,
-        "wbsOrder": 89,
+        "wbsOrder": 91,
         "name": "DFC-2646〜2648(STOP の仕分けで出た 3 行)の始末 —— 2647 の刈り取り(F3)",
-        "start": "2026-10-24T06:00:00",
-        "finish": "2026-10-24T06:30:00",
+        "start": "2026-10-23T06:21:00",
+        "finish": "2026-10-23T06:36:00",
         "milestone": false,
         "deadline": null,
         "notes": "台帳を書くのは W5 だけなので W5 の行に置いた。2646 は CR の候補(行 270)、2648 は大きさ L(棚卸しの F5)で後に残る。 10-23: W5 が DFC-2647 の数を測り直した(STOP 20)。fixed-defects.md への刈り取りは全行の刈り取りと一緒に行う。",
@@ -2496,15 +2559,93 @@
       {
         "uid": 260,
         "parentTaskUid": null,
-        "wbsOrder": 90,
+        "wbsOrder": 92,
         "name": "W5 台帳と記録の掃除(棚卸しの F の行。古い STOP の台帳 F2 は W2 の後)",
-        "start": "2026-10-24T06:30:00",
-        "finish": "2026-10-24T18:00:00",
+        "start": "2026-10-23T05:24:00",
+        "finish": "2026-10-23T05:49:00",
         "milestone": false,
         "deadline": null,
-        "notes": "棚卸しの 10 節。台帳を書くのはこの持ち場だけ。W2 が着いた後、最後に回す。",
+        "notes": "棚卸しの 10 節。台帳を書くのはこの持ち場だけ。W2 が着いた後、最後に回す。 実績: 枝 w5-records-1023 の作られた時刻 05:24 から e8f9be588 05:49 まで。DFC-2647 の刈り取り（118）は全行の刈り取りと一緒に残した。",
         "calendarUid": null,
         "actualStart": "2026-10-23T05:24:00",
+        "stop": null,
+        "actualFinish": "2026-10-23T05:49:00",
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 100,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 271,
+        "parentTaskUid": null,
+        "wbsOrder": 93,
+        "name": "裁定 5 行(DFC-3430・3433・3453・3456・PND-144)を 1 問ずつ問う",
+        "start": "2026-10-23T06:14:00",
+        "finish": "2026-10-23T07:15:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "子セッション rulings-five。始まり = 枝 rulings-five-1023 の作られた時刻 06:14（git reflog）。1 問ずつ、場面・画面の名・2〜4 案・推奨を添える（JDG-1753）。答えは利用者の行 263。",
+        "calendarUid": null,
+        "actualStart": "2026-10-23T06:14:00",
+        "stop": null,
+        "actualFinish": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 272,
+        "parentTaskUid": null,
+        "wbsOrder": 94,
+        "name": "裁定 5 行の答えの記録(JDG の行と台帳)",
+        "start": "2026-10-23T07:15:00",
+        "finish": "2026-10-23T08:45:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "利用者が答えた後（263）。DFC-3430 の答えで 115、DFC-3456 の答えで 275 が動ける。",
+        "calendarUid": null,
+        "actualStart": null,
+        "stop": null,
+        "actualFinish": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 263,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 273,
+        "parentTaskUid": null,
+        "wbsOrder": 95,
+        "name": "計画の予実の更新(実績の測り直しと、まだの仕事の組み直し)",
+        "start": "2026-10-23T06:21:00",
+        "finish": "2026-10-23T08:36:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "子セッション plan-actuals-1023（この計画を書いたもの）。始まり = 枝 plan-actuals-1023 の作られた時刻 06:21。見積は計画の引き直し 247 の 3 時間 × 0.74（2 時間 15 分）。",
+        "calendarUid": null,
+        "actualStart": "2026-10-23T06:21:00",
         "stop": null,
         "actualFinish": null,
         "resume": null,
@@ -2519,10 +2660,10 @@
       {
         "uid": 15,
         "parentTaskUid": null,
-        "wbsOrder": 91,
+        "wbsOrder": 96,
         "name": "T-064(公開の名 約 479 の呼び出し形, DFC-2640)の書き起こしと再検討",
-        "start": "2026-10-24T21:00:00",
-        "finish": "2026-10-25T09:00:00",
+        "start": "2026-10-23T06:21:00",
+        "finish": "2026-10-23T15:21:00",
         "milestone": false,
         "deadline": null,
         "notes": null,
@@ -2542,10 +2683,10 @@
       {
         "uid": 264,
         "parentTaskUid": null,
-        "wbsOrder": 92,
+        "wbsOrder": 97,
         "name": "src の写しの畳み込み(C14・G13・F11・F12・F17)",
-        "start": "2026-10-28T19:00:00",
-        "finish": "2026-10-29T07:00:00",
+        "start": "2026-10-23T15:21:00",
+        "finish": "2026-10-24T00:21:00",
         "milestone": false,
         "deadline": null,
         "notes": "棚卸しの 10 節「第 2 波に入れない大きなもの」。大きさ L(時間は仮に 12 時間)。W2 の後。",
@@ -2565,10 +2706,10 @@
       {
         "uid": 12,
         "parentTaskUid": null,
-        "wbsOrder": 93,
+        "wbsOrder": 98,
         "name": "罠の束(DFC-544・547・548・549)の実装",
-        "start": "2026-10-29T07:00:00",
-        "finish": "2026-10-29T15:00:00",
+        "start": "2026-10-24T00:21:00",
+        "finish": "2026-10-24T06:21:00",
         "milestone": false,
         "deadline": null,
         "notes": null,
@@ -2588,10 +2729,10 @@
       {
         "uid": 20,
         "parentTaskUid": null,
-        "wbsOrder": 94,
+        "wbsOrder": 99,
         "name": "実装待ちの残り(DFC-464・532〜562・582・630 ほか 35 行)の実装",
-        "start": "2026-10-29T15:00:00",
-        "finish": "2026-10-30T07:00:00",
+        "start": "2026-10-24T06:21:00",
+        "finish": "2026-10-24T18:06:00",
         "milestone": false,
         "deadline": null,
         "notes": null,
@@ -2611,10 +2752,10 @@
       {
         "uid": 203,
         "parentTaskUid": null,
-        "wbsOrder": 95,
+        "wbsOrder": 100,
         "name": "予定の日が 1 日前へずれる疑い(初見 AI の試験の子セッションの報告)の再現と直し",
-        "start": "2026-10-31T09:00:00",
-        "finish": "2026-10-31T17:00:00",
+        "start": "2026-10-28T19:00:00",
+        "finish": "2026-10-29T01:00:00",
         "milestone": false,
         "deadline": null,
         "notes": "再現の点は引継書。台帳の行は再現した子セッションが立てる。",
@@ -2634,10 +2775,10 @@
       {
         "uid": 204,
         "parentTaskUid": null,
-        "wbsOrder": 96,
+        "wbsOrder": 101,
         "name": "依存線の縦の部分が重なる(O-1)の直し",
-        "start": "2026-10-31T17:00:00",
-        "finish": "2026-10-31T21:00:00",
+        "start": "2026-10-29T01:00:00",
+        "finish": "2026-10-29T04:00:00",
         "milestone": false,
         "deadline": null,
         "notes": "CR が要る(描き方)。",
@@ -2657,10 +2798,10 @@
       {
         "uid": 235,
         "parentTaskUid": null,
-        "wbsOrder": 97,
+        "wbsOrder": 102,
         "name": "DFC-3396(.html に保存して開くと表示の状態が違う)の再現と直し",
-        "start": "2026-10-31T21:00:00",
-        "finish": "2026-11-01T01:00:00",
+        "start": "2026-10-29T04:00:00",
+        "finish": "2026-10-29T07:00:00",
         "milestone": false,
         "deadline": null,
         "notes": "再現の手順はまだ無い。集めることは台帳の行。直すのに CR が要るかは再現してから。",
@@ -2680,10 +2821,10 @@
       {
         "uid": 270,
         "parentTaskUid": null,
-        "wbsOrder": 98,
+        "wbsOrder": 103,
         "name": "食い違う写しの畳み込みと px の比べ方の揃え(F4 DFC-2646・F9 DFC-630)の CR の起草と当て",
-        "start": "2026-11-01T01:00:00",
-        "finish": "2026-11-01T09:00:00",
+        "start": "2026-10-29T07:00:00",
+        "finish": "2026-10-29T13:00:00",
         "milestone": false,
         "deadline": null,
         "notes": "棚卸しの 11 節。CR の候補(答えが変わる疑い)。",
@@ -2703,10 +2844,10 @@
       {
         "uid": 211,
         "parentTaskUid": null,
-        "wbsOrder": 99,
+        "wbsOrder": 104,
         "name": "CR-813 の 2 片目(遅延診断レポートの親子関係のタブ, DFC-3358)の当て",
-        "start": "2026-11-04T19:00:00",
-        "finish": "2026-11-05T07:00:00",
+        "start": "2026-10-29T13:00:00",
+        "finish": "2026-10-29T22:00:00",
         "milestone": false,
         "deadline": null,
         "notes": "設計は CR-813 の 2 片目の節。利用者が実物で試してから Agent API と GRS Relay へ。",
@@ -2726,10 +2867,10 @@
       {
         "uid": 46,
         "parentTaskUid": null,
-        "wbsOrder": 100,
+        "wbsOrder": 105,
         "name": "CR-697(取次が口と鍵を覚える)の起草と当て",
-        "start": "2026-11-05T07:00:00",
-        "finish": "2026-11-05T11:00:00",
+        "start": "2026-10-29T22:00:00",
+        "finish": "2026-10-30T01:00:00",
         "milestone": false,
         "deadline": null,
         "notes": "CR を起草する。",
@@ -2749,10 +2890,10 @@
       {
         "uid": 245,
         "parentTaskUid": null,
-        "wbsOrder": 101,
+        "wbsOrder": 106,
         "name": "DFC-3410(名前付きのフィルタの条件)の仕様と実装",
-        "start": "2026-11-05T11:00:00",
-        "finish": "2026-11-06T03:00:00",
+        "start": "2026-10-30T01:00:00",
+        "finish": "2026-10-30T12:45:00",
         "milestone": false,
         "deadline": null,
         "notes": "ハイパーリンクとダークの任意色の実装(219)が形式の版を上げた後に始める。",
@@ -2781,10 +2922,10 @@
       {
         "uid": 222,
         "parentTaskUid": null,
-        "wbsOrder": 102,
+        "wbsOrder": 107,
         "name": "実測待ちの行を出荷ビルドで押す(1/3: 日程表・パネル・ドラッグ)",
-        "start": "2026-11-06T14:00:00",
-        "finish": "2026-11-07T02:00:00",
+        "start": "2026-10-30T22:00:00",
+        "finish": "2026-10-31T07:00:00",
         "milestone": false,
         "deadline": null,
         "notes": "実測待ち 約 525 行。Playwright で画面ごとに押し、実測済へ。",
@@ -2804,10 +2945,10 @@
       {
         "uid": 227,
         "parentTaskUid": null,
-        "wbsOrder": 103,
+        "wbsOrder": 108,
         "name": "チェックリストで出た直し(仮置き)",
-        "start": "2026-11-07T13:00:00",
-        "finish": "2026-11-07T21:00:00",
+        "start": "2026-10-31T14:00:00",
+        "finish": "2026-10-31T20:00:00",
         "milestone": false,
         "deadline": null,
         "notes": null,
@@ -2836,10 +2977,10 @@
       {
         "uid": 85,
         "parentTaskUid": null,
-        "wbsOrder": 104,
+        "wbsOrder": 109,
         "name": "CR-767(状態機械の原稿)の波 1 の実装",
-        "start": "2026-10-24T21:00:00",
-        "finish": "2026-10-25T03:00:00",
+        "start": "2026-10-23T06:21:00",
+        "finish": "2026-10-23T10:51:00",
         "milestone": false,
         "deadline": null,
         "notes": null,
@@ -2859,10 +3000,10 @@
       {
         "uid": 86,
         "parentTaskUid": null,
-        "wbsOrder": 105,
+        "wbsOrder": 110,
         "name": "CR-767(状態機械の原稿)の波 2 の実装",
-        "start": "2026-10-25T03:00:00",
-        "finish": "2026-10-25T09:00:00",
+        "start": "2026-10-23T10:51:00",
+        "finish": "2026-10-23T15:21:00",
         "milestone": false,
         "deadline": null,
         "notes": null,
@@ -2882,10 +3023,10 @@
       {
         "uid": 104,
         "parentTaskUid": null,
-        "wbsOrder": 106,
+        "wbsOrder": 111,
         "name": "CR-768(保存の媒体の型)の C と CM-27 の注の実装",
-        "start": "2026-10-25T10:00:00",
-        "finish": "2026-10-25T14:00:00",
+        "start": "2026-10-23T16:21:00",
+        "finish": "2026-10-23T19:21:00",
         "milestone": false,
         "deadline": null,
         "notes": null,
@@ -2905,10 +3046,10 @@
       {
         "uid": 27,
         "parentTaskUid": null,
-        "wbsOrder": 107,
+        "wbsOrder": 112,
         "name": "W4(アダプタ層の分割)の前半 CR-578→579→580 の実装(偶然の写し DFC-1071〜1073)",
-        "start": "2026-10-28T19:00:00",
-        "finish": "2026-10-29T11:00:00",
+        "start": "2026-10-23T19:21:00",
+        "finish": "2026-10-24T07:06:00",
         "milestone": false,
         "deadline": null,
         "notes": null,
@@ -2928,10 +3069,10 @@
       {
         "uid": 28,
         "parentTaskUid": null,
-        "wbsOrder": 108,
+        "wbsOrder": 113,
         "name": "W4 の後半(CR-581 の後半と properties-panel、DFC-1074・1075)の実装",
-        "start": "2026-10-29T11:00:00",
-        "finish": "2026-10-30T03:00:00",
+        "start": "2026-10-24T07:06:00",
+        "finish": "2026-10-24T18:51:00",
         "milestone": false,
         "deadline": null,
         "notes": null,
@@ -2951,10 +3092,10 @@
       {
         "uid": 29,
         "parentTaskUid": null,
-        "wbsOrder": 109,
+        "wbsOrder": 114,
         "name": "W5(異常系 DFC-586 ほか)の仕様",
-        "start": "2026-10-30T03:00:00",
-        "finish": "2026-10-30T11:00:00",
+        "start": "2026-10-24T18:51:00",
+        "finish": "2026-10-25T00:51:00",
         "milestone": false,
         "deadline": null,
         "notes": null,
@@ -2974,10 +3115,10 @@
       {
         "uid": 30,
         "parentTaskUid": null,
-        "wbsOrder": 110,
+        "wbsOrder": 115,
         "name": "W5(異常系)の実装と試験 —— 既知の赤 cr-586-iv-22 の 2 件(DFC-922)を緑に",
-        "start": "2026-10-30T11:00:00",
-        "finish": "2026-10-31T03:00:00",
+        "start": "2026-10-25T00:51:00",
+        "finish": "2026-10-25T12:36:00",
         "milestone": false,
         "deadline": null,
         "notes": null,
@@ -2997,10 +3138,10 @@
       {
         "uid": 217,
         "parentTaskUid": null,
-        "wbsOrder": 111,
+        "wbsOrder": 116,
         "name": "DFC-3393・3394(ハイパーリンク・ダークの任意色)の CR の起草",
-        "start": "2026-10-31T03:00:00",
-        "finish": "2026-10-31T07:00:00",
+        "start": "2026-10-25T12:36:00",
+        "finish": "2026-10-25T15:36:00",
         "milestone": false,
         "deadline": null,
         "notes": "MSPDI は Task に Hyperlink・HyperlinkAddress・HyperlinkSubAddress を持つ。形式の版を 1 回だけ上げる(FR-073)。古い形を読む道は作らない。",
@@ -3029,10 +3170,10 @@
       {
         "uid": 243,
         "parentTaskUid": null,
-        "wbsOrder": 112,
+        "wbsOrder": 117,
         "name": "DFC-3410(フィルタの条件に名前を付けて GRS JSON に幾つも保存する)の CR の起草",
-        "start": "2026-10-31T07:00:00",
-        "finish": "2026-10-31T11:00:00",
+        "start": "2026-10-25T15:36:00",
+        "finish": "2026-10-25T18:36:00",
         "milestone": false,
         "deadline": null,
         "notes": "細部は利用者と別に詰める(JDG-3030「詳細は別途」)。FR-151 の結びの段・表 T-203 の S-560〜S-572・表 T-372 を読む。形式の版を DFC-3393・3394 と 1 回にまとめられるか見る。",
@@ -3052,10 +3193,10 @@
       {
         "uid": 219,
         "parentTaskUid": null,
-        "wbsOrder": 113,
+        "wbsOrder": 118,
         "name": "ハイパーリンクとダークの任意色の仕様と実装",
-        "start": "2026-10-31T11:00:00",
-        "finish": "2026-11-01T03:00:00",
+        "start": "2026-10-28T19:00:00",
+        "finish": "2026-10-29T06:45:00",
         "milestone": false,
         "deadline": null,
         "notes": null,
@@ -3084,10 +3225,10 @@
       {
         "uid": 237,
         "parentTaskUid": null,
-        "wbsOrder": 114,
+        "wbsOrder": 119,
         "name": "DFC-3397(横に拡大して両端が外に出たタスクの名前を左端に出す)の CR の起草",
-        "start": "2026-11-01T03:00:00",
-        "finish": "2026-11-01T07:00:00",
+        "start": "2026-10-29T06:45:00",
+        "finish": "2026-10-29T09:45:00",
         "milestone": false,
         "deadline": null,
         "notes": "細部は利用者と別に協議する(JDG-3006)。表 T-273(FR-109)の LP-1〜LP-6 と札の並び(表 T-272)を読む。",
@@ -3116,10 +3257,10 @@
       {
         "uid": 239,
         "parentTaskUid": null,
-        "wbsOrder": 115,
+        "wbsOrder": 120,
         "name": "DFC-3397(左端に出す名前と札)の仕様と実装",
-        "start": "2026-11-01T07:00:00",
-        "finish": "2026-11-01T15:00:00",
+        "start": "2026-10-29T09:45:00",
+        "finish": "2026-10-29T15:45:00",
         "milestone": false,
         "deadline": null,
         "notes": null,
@@ -3148,10 +3289,10 @@
       {
         "uid": 225,
         "parentTaskUid": null,
-        "wbsOrder": 116,
+        "wbsOrder": 121,
         "name": "利用者のチェックリスト 1 枚(今日の 5 件・新機能・押せなかった行)",
-        "start": "2026-11-07T02:00:00",
-        "finish": "2026-11-07T06:00:00",
+        "start": "2026-10-31T07:00:00",
+        "finish": "2026-10-31T10:00:00",
         "milestone": false,
         "deadline": null,
         "notes": null,
@@ -3171,10 +3312,10 @@
       {
         "uid": 17,
         "parentTaskUid": null,
-        "wbsOrder": 117,
+        "wbsOrder": 122,
         "name": "試験待ち 23 行(DFC-550・567・641 ほか)の仕様だけを読む試験",
-        "start": "2026-10-24T21:00:00",
-        "finish": "2026-10-25T05:00:00",
+        "start": "2026-10-23T06:21:00",
+        "finish": "2026-10-23T12:21:00",
         "milestone": false,
         "deadline": null,
         "notes": null,
@@ -3194,10 +3335,10 @@
       {
         "uid": 265,
         "parentTaskUid": null,
-        "wbsOrder": 118,
+        "wbsOrder": 123,
         "name": "長い関数とファイルを割る(C19・F13、07 R2 の設計の判断)",
-        "start": "2026-10-25T05:00:00",
-        "finish": "2026-10-25T17:00:00",
+        "start": "2026-10-23T12:21:00",
+        "finish": "2026-10-23T21:21:00",
         "milestone": false,
         "deadline": null,
         "notes": "棚卸しの 10 節「第 2 波に入れない大きなもの」。大きさ L(時間は仮に 12 時間)。",
@@ -3217,10 +3358,10 @@
       {
         "uid": 266,
         "parentTaskUid": null,
-        "wbsOrder": 119,
+        "wbsOrder": 124,
         "name": "試験の補助の写しの共通化(D14・D15)",
-        "start": "2026-10-28T19:00:00",
-        "finish": "2026-10-29T07:00:00",
+        "start": "2026-10-23T21:21:00",
+        "finish": "2026-10-24T06:21:00",
         "milestone": false,
         "deadline": null,
         "notes": "棚卸しの 10 節「第 2 波に入れない大きなもの」。大きさ L(時間は仮に 12 時間)。W3 の後に 1 つの子セッションで。",
@@ -3240,10 +3381,10 @@
       {
         "uid": 13,
         "parentTaskUid": null,
-        "wbsOrder": 120,
+        "wbsOrder": 125,
         "name": "用語集の JSON 化(DFC-2175、7 表 382 行)の仕様と実装",
-        "start": "2026-10-29T07:00:00",
-        "finish": "2026-10-29T19:00:00",
+        "start": "2026-10-24T06:21:00",
+        "finish": "2026-10-24T15:21:00",
         "milestone": false,
         "deadline": null,
         "notes": "数は棚卸しの A3 で 9 表 463 行から直した。第 2 波には入れない(_source の生成器と検査が W1 とぶつかる)。",
@@ -3263,10 +3404,10 @@
       {
         "uid": 201,
         "parentTaskUid": null,
-        "wbsOrder": 121,
+        "wbsOrder": 126,
         "name": "DFC-3390(基準日より後のタスクの ? と炎)の CR の起草と当て",
-        "start": "2026-10-31T09:00:00",
-        "finish": "2026-10-31T17:00:00",
+        "start": "2026-10-28T19:00:00",
+        "finish": "2026-10-29T01:00:00",
         "milestone": false,
         "deadline": null,
         "notes": "CR が要る(表 T-315・T-316、FR-133・FR-136)。",
@@ -3295,10 +3436,10 @@
       {
         "uid": 242,
         "parentTaskUid": null,
-        "wbsOrder": 122,
+        "wbsOrder": 127,
         "name": "取次から AI がページのアドレスを得る恒久の直し(DFC-3400・3401: B1〜B6 を決めてから CR)",
-        "start": "2026-10-31T17:00:00",
-        "finish": "2026-11-01T01:00:00",
+        "start": "2026-10-29T01:00:00",
+        "finish": "2026-10-29T07:00:00",
         "milestone": false,
         "deadline": null,
         "notes": "調べた子セッションの推奨は B1(取次が自分で答える道具 getPageUrl、案内の 1 行目で呼ばせる)。CR-697(口と鍵を覚える)とは別の直し。",
@@ -3327,10 +3468,10 @@
       {
         "uid": 205,
         "parentTaskUid": null,
-        "wbsOrder": 123,
+        "wbsOrder": 128,
         "name": "ポインタの当たり判定(予定と依存線の優先順位)の見直し —— 見本と Playwright の掃き",
-        "start": "2026-11-01T01:00:00",
-        "finish": "2026-11-01T09:00:00",
+        "start": "2026-10-29T07:00:00",
+        "finish": "2026-10-29T13:00:00",
         "milestone": false,
         "deadline": null,
         "notes": "利用者 2026-10-17 の報告。ログは利用者の手元。CR が要る。",
@@ -3350,10 +3491,10 @@
       {
         "uid": 268,
         "parentTaskUid": null,
-        "wbsOrder": 124,
+        "wbsOrder": 129,
         "name": "既定値の選び直しと公開スキーマの $id・比率の数(A10・B5・B10・F27)の CR の起草と当て",
-        "start": "2026-11-01T09:00:00",
-        "finish": "2026-11-01T17:00:00",
+        "start": "2026-10-29T13:00:00",
+        "finish": "2026-10-29T19:00:00",
         "milestone": false,
         "deadline": null,
         "notes": "棚卸しの 11 節。振る舞いが変わるので掃除の外。",
@@ -3373,10 +3514,10 @@
       {
         "uid": 214,
         "parentTaskUid": null,
-        "wbsOrder": 125,
+        "wbsOrder": 130,
         "name": "中継の所見の残り(R5: 4・8・9・10・11・14・17・20・24)の当て",
-        "start": "2026-11-04T19:00:00",
-        "finish": "2026-11-05T07:00:00",
+        "start": "2026-10-29T19:00:00",
+        "finish": "2026-10-30T04:00:00",
         "milestone": false,
         "deadline": null,
         "notes": "CR が要る。",
@@ -3396,10 +3537,10 @@
       {
         "uid": 215,
         "parentTaskUid": null,
-        "wbsOrder": 126,
+        "wbsOrder": 131,
         "name": "中継の所見の「低」8 件(13・16・17・18・19・20・23・25)",
-        "start": "2026-11-05T07:00:00",
-        "finish": "2026-11-05T15:00:00",
+        "start": "2026-10-30T04:00:00",
+        "finish": "2026-10-30T10:00:00",
         "milestone": false,
         "deadline": null,
         "notes": null,
@@ -3419,10 +3560,10 @@
       {
         "uid": 47,
         "parentTaskUid": null,
-        "wbsOrder": 127,
+        "wbsOrder": 132,
         "name": "DFC-2214・2215(AI が読む遅延診断にイナズマ線の頂点・読み方)の仕様と実装",
-        "start": "2026-11-05T15:00:00",
-        "finish": "2026-11-05T19:00:00",
+        "start": "2026-10-30T10:00:00",
+        "finish": "2026-10-30T13:00:00",
         "milestone": false,
         "deadline": null,
         "notes": null,
@@ -3442,10 +3583,10 @@
       {
         "uid": 220,
         "parentTaskUid": null,
-        "wbsOrder": 128,
+        "wbsOrder": 133,
         "name": "ハイパーリンクとダークの任意色の仕様だけを読む試験(別のサブエージェント)",
-        "start": "2026-11-05T19:00:00",
-        "finish": "2026-11-06T03:00:00",
+        "start": "2026-10-30T13:00:00",
+        "finish": "2026-10-30T19:00:00",
         "milestone": false,
         "deadline": null,
         "notes": "作り手は自分の単位を試験しない。",
@@ -3474,10 +3615,10 @@
       {
         "uid": 11,
         "parentTaskUid": null,
-        "wbsOrder": 129,
+        "wbsOrder": 134,
         "name": "未検討 72 行(DFC-611・2560〜2569・2690〜2699・2770 ほか)のトリアージ",
-        "start": "2026-10-24T21:00:00",
-        "finish": "2026-10-25T05:00:00",
+        "start": "2026-10-23T06:21:00",
+        "finish": "2026-10-23T12:21:00",
         "milestone": false,
         "deadline": null,
         "notes": null,
@@ -3497,10 +3638,10 @@
       {
         "uid": 267,
         "parentTaskUid": null,
-        "wbsOrder": 130,
+        "wbsOrder": 135,
         "name": "道具の補助の写しの共通化(E20〜E22)",
-        "start": "2026-10-25T05:00:00",
-        "finish": "2026-10-25T17:00:00",
+        "start": "2026-10-23T12:21:00",
+        "finish": "2026-10-23T21:21:00",
         "milestone": false,
         "deadline": null,
         "notes": "棚卸しの 10 節「第 2 波に入れない大きなもの」。大きさ L(時間は仮に 12 時間)。共通の部品の置き場の設計から。",
@@ -3520,10 +3661,10 @@
       {
         "uid": 32,
         "parentTaskUid": null,
-        "wbsOrder": 131,
+        "wbsOrder": 136,
         "name": "トリアージで出た直しの実装",
-        "start": "2026-10-28T19:00:00",
-        "finish": "2026-10-29T11:00:00",
+        "start": "2026-10-23T21:21:00",
+        "finish": "2026-10-24T09:06:00",
         "milestone": false,
         "deadline": null,
         "notes": null,
@@ -3543,10 +3684,10 @@
       {
         "uid": 202,
         "parentTaskUid": null,
-        "wbsOrder": 132,
+        "wbsOrder": 137,
         "name": "DFC-3391・3392(プロンプトは本文だけ写し、スキーマは自動で保存)の CR の起草と当て",
-        "start": "2026-10-31T09:00:00",
-        "finish": "2026-10-31T17:00:00",
+        "start": "2026-10-28T19:00:00",
+        "finish": "2026-10-29T01:00:00",
         "milestone": false,
         "deadline": null,
         "notes": "CR が要る(FR-068 の (3)・JDG-502 の一部を覆す、新しい IO- の行)。DFC-3391 の再現の手順もこの子セッションが探す。DFC-3392 の答えは行 254。",
@@ -3575,10 +3716,10 @@
       {
         "uid": 206,
         "parentTaskUid": null,
-        "wbsOrder": 133,
+        "wbsOrder": 138,
         "name": "日付の範囲(S-119/S-120 と MS Project の 1984〜2149)・DFC-3003(ライセンスの窓)",
-        "start": "2026-10-31T17:00:00",
-        "finish": "2026-10-31T21:00:00",
+        "start": "2026-10-29T01:00:00",
+        "finish": "2026-10-29T04:00:00",
         "milestone": false,
         "deadline": null,
         "notes": null,
@@ -3598,10 +3739,10 @@
       {
         "uid": 236,
         "parentTaskUid": null,
-        "wbsOrder": 134,
+        "wbsOrder": 139,
         "name": "DFC-3395(保存の確認がサイトの名を出し、通信するように読める)の調べと対応の案",
-        "start": "2026-10-31T21:00:00",
-        "finish": "2026-10-31T23:00:00",
+        "start": "2026-10-29T04:00:00",
+        "finish": "2026-10-29T05:30:00",
         "milestone": false,
         "deadline": null,
         "notes": "DFC-3395 の答え(行 254)に沿って手当てする。",
@@ -3630,10 +3771,10 @@
       {
         "uid": 269,
         "parentTaskUid": null,
-        "wbsOrder": 135,
+        "wbsOrder": 140,
         "name": "uid の最高水位と「行」と「タスクグループ」(F10 DFC-1066・F25 DFC-2174)の CR の起草と当て",
-        "start": "2026-10-31T23:00:00",
-        "finish": "2026-11-01T07:00:00",
+        "start": "2026-10-29T05:30:00",
+        "finish": "2026-10-29T11:30:00",
         "milestone": false,
         "deadline": null,
         "notes": "棚卸しの 11 節。振る舞いが変わるので掃除の外。",
@@ -3653,10 +3794,10 @@
       {
         "uid": 212,
         "parentTaskUid": null,
-        "wbsOrder": 136,
+        "wbsOrder": 141,
         "name": "CR-815(絞った表を AI が選んだ列でページに分けて読む)の当て",
-        "start": "2026-11-01T07:00:00",
-        "finish": "2026-11-01T19:00:00",
+        "start": "2026-10-29T11:30:00",
+        "finish": "2026-10-29T20:30:00",
         "milestone": false,
         "deadline": null,
         "notes": null,
@@ -3676,10 +3817,10 @@
       {
         "uid": 213,
         "parentTaskUid": null,
-        "wbsOrder": 137,
+        "wbsOrder": 142,
         "name": "接続が黙って切れる件(DFC-3340〜3342: ping・ページの下書き)の当て",
-        "start": "2026-11-04T19:00:00",
-        "finish": "2026-11-05T07:00:00",
+        "start": "2026-10-29T20:30:00",
+        "finish": "2026-10-30T05:30:00",
         "milestone": false,
         "deadline": null,
         "notes": "DFC-3341 の下書きは CR が要る(L)。",
@@ -3699,10 +3840,10 @@
       {
         "uid": 240,
         "parentTaskUid": null,
-        "wbsOrder": 138,
+        "wbsOrder": 143,
         "name": "DFC-3397(左端に出す名前と札)の仕様だけを読む試験(別のサブエージェント)",
-        "start": "2026-11-05T07:00:00",
-        "finish": "2026-11-05T11:00:00",
+        "start": "2026-10-30T05:30:00",
+        "finish": "2026-10-30T08:30:00",
         "milestone": false,
         "deadline": null,
         "notes": "作り手は自分の単位を試験しない。",
@@ -3731,10 +3872,10 @@
       {
         "uid": 223,
         "parentTaskUid": null,
-        "wbsOrder": 139,
+        "wbsOrder": 144,
         "name": "実測待ちの行を出荷ビルドで押す(2/3: 遅延診断・表・検索)",
-        "start": "2026-11-06T14:00:00",
-        "finish": "2026-11-07T02:00:00",
+        "start": "2026-10-30T22:00:00",
+        "finish": "2026-10-31T07:00:00",
         "milestone": false,
         "deadline": null,
         "notes": null,
@@ -3754,10 +3895,10 @@
       {
         "uid": 197,
         "parentTaskUid": null,
-        "wbsOrder": 140,
+        "wbsOrder": 145,
         "name": "サーバー同期のデモの仕上げ(DFC-3070・3071 の状態を測り直し、配る zip で試す)",
-        "start": "2026-10-22T12:15:00",
-        "finish": "2026-10-22T16:15:00",
+        "start": "2026-10-23T06:21:00",
+        "finish": "2026-10-23T09:21:00",
         "milestone": false,
         "deadline": null,
         "notes": "アプリ本体(dist/index.html)は 1 バイトも変えない。利用者 2026-10-17「まずは動くものを作るのが先だ」。",
@@ -3777,10 +3918,10 @@
       {
         "uid": 18,
         "parentTaskUid": null,
-        "wbsOrder": 141,
+        "wbsOrder": 146,
         "name": "仕様待ち 31 行の残り(DFC-560・631・1063〜1073 ほか)の CR の起草",
-        "start": "2026-10-24T21:00:00",
-        "finish": "2026-10-25T01:00:00",
+        "start": "2026-10-23T09:21:00",
+        "finish": "2026-10-23T12:21:00",
         "milestone": false,
         "deadline": null,
         "notes": null,
@@ -3800,10 +3941,10 @@
       {
         "uid": 35,
         "parentTaskUid": null,
-        "wbsOrder": 142,
+        "wbsOrder": 147,
         "name": "仕様待ちの残りの CR の実装",
-        "start": "2026-10-25T01:00:00",
-        "finish": "2026-10-25T17:00:00",
+        "start": "2026-10-23T12:21:00",
+        "finish": "2026-10-24T00:06:00",
         "milestone": false,
         "deadline": null,
         "notes": null,
@@ -3823,10 +3964,10 @@
       {
         "uid": 19,
         "parentTaskUid": null,
-        "wbsOrder": 143,
+        "wbsOrder": 148,
         "name": "DFC-730(GP-1 編集権限の行は読み取り専用)の実装",
-        "start": "2026-10-28T19:00:00",
-        "finish": "2026-10-28T23:00:00",
+        "start": "2026-10-24T00:06:00",
+        "finish": "2026-10-24T03:06:00",
         "milestone": false,
         "deadline": null,
         "notes": null,
@@ -3846,10 +3987,10 @@
       {
         "uid": 167,
         "parentTaskUid": null,
-        "wbsOrder": 144,
+        "wbsOrder": 149,
         "name": "DFC-2966・2967・2969(文書の形と実績の組み合わせの表, 束 E)の仕様と実装",
-        "start": "2026-10-28T23:00:00",
-        "finish": "2026-10-29T07:00:00",
+        "start": "2026-10-24T03:06:00",
+        "finish": "2026-10-24T09:06:00",
         "milestone": false,
         "deadline": null,
         "notes": null,
@@ -3869,10 +4010,10 @@
       {
         "uid": 208,
         "parentTaskUid": null,
-        "wbsOrder": 145,
+        "wbsOrder": 150,
         "name": "性能の赤の切り分け —— 前の版との交互の比べ(JDG-726)と GR-28・MK-1 のプロファイル",
-        "start": "2026-10-31T09:00:00",
-        "finish": "2026-10-31T17:00:00",
+        "start": "2026-10-28T19:00:00",
+        "finish": "2026-10-29T01:00:00",
         "milestone": false,
         "deadline": null,
         "notes": "α の PERF: MK-1 32.95 fps・MK-2 25.89・MK-7 30.43・GR-28 6.85 fps(60 fps に届かない、NFR-002/003)。",
@@ -3892,10 +4033,10 @@
       {
         "uid": 209,
         "parentTaskUid": null,
-        "wbsOrder": 146,
+        "wbsOrder": 151,
         "name": "重い処理の直し(最も遅い GR-28 から)",
-        "start": "2026-10-31T17:00:00",
-        "finish": "2026-11-01T09:00:00",
+        "start": "2026-10-29T01:00:00",
+        "finish": "2026-10-29T12:45:00",
         "milestone": false,
         "deadline": null,
         "notes": "CR が要る(描く手順の変更)。",
@@ -3915,10 +4056,10 @@
       {
         "uid": 246,
         "parentTaskUid": null,
-        "wbsOrder": 147,
+        "wbsOrder": 152,
         "name": "DFC-3410(名前付きのフィルタの条件)の仕様だけを読む試験(別のサブエージェント)",
-        "start": "2026-11-06T03:00:00",
-        "finish": "2026-11-06T11:00:00",
+        "start": "2026-10-30T12:45:00",
+        "finish": "2026-10-30T18:45:00",
         "milestone": false,
         "deadline": null,
         "notes": "作り手は自分の単位を試験しない。",
@@ -3947,10 +4088,10 @@
       {
         "uid": 224,
         "parentTaskUid": null,
-        "wbsOrder": 148,
+        "wbsOrder": 153,
         "name": "実測待ちの行を出荷ビルドで押す(3/3: ファイル・書き出し・AI 連携)",
-        "start": "2026-11-06T14:00:00",
-        "finish": "2026-11-07T02:00:00",
+        "start": "2026-10-30T22:00:00",
+        "finish": "2026-10-31T07:00:00",
         "milestone": false,
         "deadline": null,
         "notes": null,
@@ -4020,7 +4161,7 @@
         "parentId": "e353eb29-4e4b-404e-81d9-e615d5d9e8f7",
         "name": "子セッション 1(片付け → 不具合 → 親子関係のタブ → 名前付きのフィルタ)",
         "derivedFromTaskUid": null,
-        "order": 3,
+        "order": 4,
         "treeState": "auto",
         "editPermission": null,
         "color": null,
@@ -4031,7 +4172,7 @@
         "parentId": "e353eb29-4e4b-404e-81d9-e615d5d9e8f7",
         "name": "子セッション 2(CR-767・768 → W4・W5 → ハイパーリンクとダークの色)",
         "derivedFromTaskUid": null,
-        "order": 4,
+        "order": 5,
         "treeState": "auto",
         "editPermission": null,
         "color": null,
@@ -4042,7 +4183,7 @@
         "parentId": "e353eb29-4e4b-404e-81d9-e615d5d9e8f7",
         "name": "子セッション 3(試験待ち・用語集 → 遅延診断の印 → 中継の所見)",
         "derivedFromTaskUid": null,
-        "order": 5,
+        "order": 6,
         "treeState": "auto",
         "editPermission": null,
         "color": null,
@@ -4053,7 +4194,7 @@
         "parentId": "e353eb29-4e4b-404e-81d9-e615d5d9e8f7",
         "name": "子セッション 4(トリアージ → プロンプト → 絞った表の読み → 接続)",
         "derivedFromTaskUid": null,
-        "order": 6,
+        "order": 7,
         "treeState": "auto",
         "editPermission": null,
         "color": null,
@@ -4064,7 +4205,7 @@
         "parentId": "e353eb29-4e4b-404e-81d9-e615d5d9e8f7",
         "name": "子セッション 5(デモ → 仕様待ち → 性能)",
         "derivedFromTaskUid": null,
-        "order": 7,
+        "order": 8,
         "treeState": "auto",
         "editPermission": null,
         "color": null,
@@ -4252,6 +4393,39 @@
         "name": "W5 台帳と記録(最後)",
         "derivedFromTaskUid": null,
         "order": 4,
+        "treeState": "auto",
+        "editPermission": null,
+        "color": null,
+        "minHeightPx": null
+      },
+      {
+        "id": "31f5e8a7-0ac8-5ef3-81fd-bb281a722e70",
+        "parentId": "e353eb29-4e4b-404e-81d9-e615d5d9e8f7",
+        "name": "第 2 波の後(10-23 06:14〜。裁定 5 行の問い・予実の更新)",
+        "derivedFromTaskUid": null,
+        "order": 3,
+        "treeState": "temporarilyExpanded",
+        "editPermission": null,
+        "color": null,
+        "minHeightPx": null
+      },
+      {
+        "id": "0ffb9237-a4e3-5cca-baa4-c49a53590543",
+        "parentId": "31f5e8a7-0ac8-5ef3-81fd-bb281a722e70",
+        "name": "裁定 5 行の問い(rulings-five)",
+        "derivedFromTaskUid": null,
+        "order": 0,
+        "treeState": "auto",
+        "editPermission": null,
+        "color": null,
+        "minHeightPx": null
+      },
+      {
+        "id": "d4ccc192-cb4a-529f-8958-ef36ad1f90e9",
+        "parentId": "31f5e8a7-0ac8-5ef3-81fd-bb281a722e70",
+        "name": "計画の予実の更新(plan-actuals-1023)",
+        "derivedFromTaskUid": null,
+        "order": 1,
         "treeState": "auto",
         "editPermission": null,
         "color": null,
@@ -4850,6 +5024,26 @@
       {
         "taskUid": 224,
         "taskGroupId": "06bb553e-298b-5794-98aa-8762a050243f"
+      },
+      {
+        "taskUid": 271,
+        "taskGroupId": "0ffb9237-a4e3-5cca-baa4-c49a53590543"
+      },
+      {
+        "taskUid": 272,
+        "taskGroupId": "0ffb9237-a4e3-5cca-baa4-c49a53590543"
+      },
+      {
+        "taskUid": 273,
+        "taskGroupId": "d4ccc192-cb4a-529f-8958-ef36ad1f90e9"
+      },
+      {
+        "taskUid": 274,
+        "taskGroupId": "9955f6b8-8904-53f9-a107-f05bd597dd51"
+      },
+      {
+        "taskUid": 275,
+        "taskGroupId": "360eebfe-b421-54f7-ae66-8f611ac2263d"
       }
     ],
     "taskVisuals": [
@@ -5169,7 +5363,7 @@
         "taskUid": 261,
         "shapeKind": "rectangle",
         "milestoneGlyph": "diamond",
-        "fillColor": "purple",
+        "fillColor": "dimgray",
         "strokeColor": null,
         "strokeWidthPx": null
       },
@@ -5569,7 +5763,7 @@
         "taskUid": 260,
         "shapeKind": "rectangle",
         "milestoneGlyph": "diamond",
-        "fillColor": "green",
+        "fillColor": "dimgray",
         "strokeColor": null,
         "strokeWidthPx": null
       },
@@ -6036,6 +6230,46 @@
         "fillColor": "green",
         "strokeColor": null,
         "strokeWidthPx": null
+      },
+      {
+        "taskUid": 271,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": "diamond",
+        "fillColor": "blue",
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 272,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": "diamond",
+        "fillColor": "blue",
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 273,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": "diamond",
+        "fillColor": "green",
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 274,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": "diamond",
+        "fillColor": "green",
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 275,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": "diamond",
+        "fillColor": "purple",
+        "strokeColor": null,
+        "strokeWidthPx": null
       }
     ],
     "commentBoxes": [
@@ -6043,7 +6277,7 @@
         "id": "30d43a70-88a0-5a43-a205-c99ebce45f1d",
         "leaderShapeKind": "calloutBox",
         "text": "調整役の行「片付けの合流と台帳の締め」へは、子セッション 1・3・4・5 の片付けが全部集まる:\n実装待ちの残り・用語集の JSON・トリアージの直し・束 E(W4・W5 は次の一括の GT-2)\n集まる依存線は描いていない(多すぎて読めないため)",
-        "anchorDate": "2026-10-30T00:00:00",
+        "anchorDate": "2026-10-24T00:00:00",
         "anchorTaskGroupId": "360eebfe-b421-54f7-ae66-8f611ac2263d",
         "anchorBandFraction": null,
         "anchorTaskUid": 36,
@@ -6086,8 +6320,8 @@
       {
         "id": "d84d3491-08b2-5c37-9156-5be9ec8861f3",
         "leaderShapeKind": "calloutBox",
-        "text": "β 版は条件で出す(JDG-3001): β に入れた仕事が全部済み、GT-2 と PERF が通ったら。\n目安 11-09(月)09:00 は締め切り(deadline)に書いた(JDG-3043 で変えない)。\n週の使用量は水 19:00 ごとに戻る。11-08 19:00 からまた休み",
-        "anchorDate": "2026-11-08T00:00:00",
+        "text": "β 版は条件で出す(JDG-3001): β に入れた仕事が全部済み、GT-2 と PERF が通ったら。\n目安 11-09(月)09:00 は締め切り(deadline)に書いた(JDG-3043 で変えない)。\n週の使用量は水 19:00 ごとに戻る。最も早い形は 11-01(日)12:00。11-01 19:00 から休みなので、余りは 7 時間",
+        "anchorDate": "2026-11-01T00:00:00",
         "anchorTaskGroupId": "f2b5a632-0e6d-56dd-acc2-4e8c5d72d9fc",
         "anchorBandFraction": null,
         "anchorTaskUid": 234,
@@ -6111,7 +6345,7 @@
     "baselineTasks": [
       {
         "uid": 157,
-        "name": "席 1・3(DFC-2870・CR-783・CR-782)の合流",
+        "name": "子セッション 1・3(DFC-2870・CR-783・CR-782)の合流",
         "start": "2026-10-17T05:30:00",
         "finish": "2026-10-17T08:28:00",
         "milestone": false
@@ -6121,6 +6355,27 @@
         "name": "不具合の聞き取り(実績を入力する UI)",
         "start": "2026-10-17T05:30:00",
         "finish": "2026-10-17T09:15:00",
+        "milestone": false
+      },
+      {
+        "uid": 163,
+        "name": "CR-789(タスクグループを運ぶ手掛かり, 束 A)の実装",
+        "start": "2026-10-17T06:00:00",
+        "finish": "2026-10-17T12:44:00",
+        "milestone": false
+      },
+      {
+        "uid": 164,
+        "name": "CR-787(パネルの幅, 束 B)の実装",
+        "start": "2026-10-17T06:00:00",
+        "finish": "2026-10-17T11:48:00",
+        "milestone": false
+      },
+      {
+        "uid": 166,
+        "name": "CR-786(最前面に配置, 束 D)の実装",
+        "start": "2026-10-17T06:00:00",
+        "finish": "2026-10-17T10:50:00",
         "milestone": false
       },
       {
@@ -6138,17 +6393,10 @@
         "milestone": false
       },
       {
-        "uid": 166,
-        "name": "CR-786(最前面に配置, 束 D)の実装",
-        "start": "2026-10-17T06:00:00",
-        "finish": "2026-10-17T10:50:00",
-        "milestone": false
-      },
-      {
-        "uid": 164,
-        "name": "CR-787(パネルの幅, 束 B)の実装",
-        "start": "2026-10-17T06:00:00",
-        "finish": "2026-10-17T11:48:00",
+        "uid": 170,
+        "name": "CR-785(ヘルプのリンクと行, DFC-3000〜3006)の適用",
+        "start": "2026-10-17T09:43:00",
+        "finish": "2026-10-17T13:14:00",
         "milestone": false
       },
       {
@@ -6156,20 +6404,6 @@
         "name": "CR-788(担当の欄, 束 C)の実装",
         "start": "2026-10-17T11:48:00",
         "finish": "2026-10-17T12:36:00",
-        "milestone": false
-      },
-      {
-        "uid": 163,
-        "name": "CR-789(タスクグループを運ぶ手掛かり, 束 A)の実装",
-        "start": "2026-10-17T06:00:00",
-        "finish": "2026-10-17T12:44:00",
-        "milestone": false
-      },
-      {
-        "uid": 170,
-        "name": "CR-785(ヘルプのリンクと行, DFC-3000〜3006)の適用",
-        "start": "2026-10-17T09:43:00",
-        "finish": "2026-10-17T13:14:00",
         "milestone": false
       },
       {
@@ -6201,20 +6435,6 @@
         "milestone": false
       },
       {
-        "uid": 173,
-        "name": "CR-793・794(タスクのツールチップ)の適用",
-        "start": "2026-10-17T21:13:00",
-        "finish": "2026-10-17T22:44:00",
-        "milestone": false
-      },
-      {
-        "uid": 174,
-        "name": "CR-792(改名 14 件と状態の語)の段 0〜2",
-        "start": "2026-10-17T21:53:00",
-        "finish": "2026-10-18T02:13:00",
-        "milestone": false
-      },
-      {
         "uid": 175,
         "name": "CR-791(取次の説明とスキーマの資源)の適用",
         "start": "2026-10-17T20:45:00",
@@ -6226,6 +6446,20 @@
         "name": "α 前の段ごとの GT-2 と push(ab1e1a3c・f1a0ec6d・815ecba8・0829239a)",
         "start": "2026-10-17T21:13:00",
         "finish": "2026-10-18T03:16:00",
+        "milestone": false
+      },
+      {
+        "uid": 173,
+        "name": "CR-793・794(タスクのツールチップ)の適用",
+        "start": "2026-10-17T21:13:00",
+        "finish": "2026-10-17T22:44:00",
+        "milestone": false
+      },
+      {
+        "uid": 174,
+        "name": "CR-792(改名 14 件と状態の語)の段 0〜2",
+        "start": "2026-10-17T21:53:00",
+        "finish": "2026-10-18T02:13:00",
         "milestone": false
       },
       {
@@ -6306,6 +6540,13 @@
         "milestone": false
       },
       {
+        "uid": 140,
+        "name": "α 版のリリース(Alpha-20261019T022508Z)",
+        "start": "2026-10-19T11:25:00",
+        "finish": "2026-10-19T11:25:00",
+        "milestone": true
+      },
+      {
         "uid": 185,
         "name": "main への push を止める仕組み(JDG-2930〜2934)",
         "start": "2026-10-20T03:30:00",
@@ -6348,592 +6589,193 @@
         "milestone": false
       },
       {
-        "uid": 140,
-        "name": "α 版のリリース(Alpha-20261019T022508Z)",
-        "start": "2026-10-19T11:25:00",
-        "finish": "2026-10-19T11:25:00",
-        "milestone": true
+        "uid": 191,
+        "name": "不具合 2 件・改善 3 件の記録と β に向けた計画の書き直し(記録と計画の子セッション)",
+        "start": "2026-10-20T23:20:00",
+        "finish": "2026-10-22T05:46:00",
+        "milestone": false
       },
       {
         "uid": 147,
-        "name": "週の使用量の戻り(水 19:00)と仕事の再開",
-        "start": "2026-10-21T19:00:00",
-        "finish": "2026-10-21T19:00:00",
+        "name": "週の使用量の戻り(10-21 水 19:00)と仕事の再開(10-22 木 08:15、第 1 波)",
+        "start": "2026-10-22T08:15:00",
+        "finish": "2026-10-22T08:15:00",
         "milestone": true
       },
       {
-        "uid": 191,
-        "name": "不具合 2 件・改善 3 件の記録と β に向けた計画の書き直し(この席)",
-        "start": "2026-10-20T23:20:00",
-        "finish": "2026-10-21T07:00:00",
-        "milestone": false
-      },
-      {
-        "uid": 192,
-        "name": "GT-2 の赤 ③ uc-008:76(コメントのダブルクリックで PR-21 に焦点が入らない)の調べと直し",
-        "start": "2026-10-21T19:00:00",
-        "finish": "2026-10-21T23:00:00",
-        "milestone": false
-      },
-      {
-        "uid": 193,
-        "name": "GT-2 の赤 ① nfr-004 SWS-8(.tsv の IO-9 を押す探り)を足す",
-        "start": "2026-10-21T19:00:00",
-        "finish": "2026-10-21T21:00:00",
-        "milestone": false
-      },
-      {
-        "uid": 194,
-        "name": "GT-2 の赤 ② w3-t2(FR-135 の古い引用)を直す",
-        "start": "2026-10-21T21:00:00",
-        "finish": "2026-10-21T23:00:00",
-        "milestone": false
-      },
-      {
-        "uid": 195,
-        "name": "紹介頁・ダウンロード頁・デモの頁の語の直し(データだけ)",
-        "start": "2026-10-21T19:00:00",
-        "finish": "2026-10-21T23:00:00",
-        "milestone": false
-      },
-      {
-        "uid": 196,
-        "name": "衛生の小物(見本の担当 Developer C の重複・PlanActualState の中の語・作業木の掃除)",
-        "start": "2026-10-21T23:00:00",
-        "finish": "2026-10-22T01:00:00",
-        "milestone": false
-      },
-      {
-        "uid": 197,
-        "name": "サーバー同期のデモの仕上げ(DFC-3070・3071 の状態を測り直し、配る zip で試す)",
-        "start": "2026-10-22T01:00:00",
-        "finish": "2026-10-22T05:00:00",
-        "milestone": false
-      },
-      {
         "uid": 198,
-        "name": "合流と GT-2(赤 3 件が消えたか)・develop へ push",
-        "start": "2026-10-21T23:00:00",
-        "finish": "2026-10-22T02:00:00",
+        "name": "第 1 波の合流と GT-2(赤 3 件が消えたか)・develop へ push",
+        "start": "2026-10-22T20:16:00",
+        "finish": "2026-10-22T21:28:00",
         "milestone": false
       },
       {
-        "uid": 85,
-        "name": "CR-767(状態機械の原稿)の波 1 の実装",
-        "start": "2026-10-21T19:00:00",
-        "finish": "2026-10-22T01:00:00",
+        "uid": 255,
+        "name": "第 2 波 W1〜W4 の合流と GT-2(中継の版の上げは 1 回)",
+        "start": "2026-10-23T03:33:00",
+        "finish": "2026-10-23T05:12:00",
         "milestone": false
       },
       {
-        "uid": 86,
-        "name": "CR-767(状態機械の原稿)の波 2 の実装",
-        "start": "2026-10-22T01:00:00",
-        "finish": "2026-10-22T07:00:00",
+        "uid": 261,
+        "name": "第 2 波の後の基準線の下げ(G1・G3)と GT-2(D1・D7 を外す)",
+        "start": "2026-10-24T18:00:00",
+        "finish": "2026-10-24T21:00:00",
         "milestone": false
       },
       {
         "uid": 87,
         "name": "CR-767(状態機械の原稿)の合流と確かめ",
-        "start": "2026-10-22T07:00:00",
-        "finish": "2026-10-22T08:00:00",
-        "milestone": false
-      },
-      {
-        "uid": 104,
-        "name": "CR-768(保存の媒体の型)の C と CM-27 の注の実装",
-        "start": "2026-10-22T08:00:00",
-        "finish": "2026-10-22T12:00:00",
-        "milestone": false
-      },
-      {
-        "uid": 105,
-        "name": "CR-768(保存の媒体の型)の C の合流と確かめ",
-        "start": "2026-10-22T12:00:00",
-        "finish": "2026-10-22T13:00:00",
-        "milestone": false
-      },
-      {
-        "uid": 27,
-        "name": "W4(アダプタ層の分割)の前半 CR-578→579→580 の実装(偶然の写し DFC-1071〜1073)",
-        "start": "2026-10-22T13:00:00",
-        "finish": "2026-10-23T05:00:00",
-        "milestone": false
-      },
-      {
-        "uid": 28,
-        "name": "W4 の後半(CR-581 の後半と properties-panel、DFC-1074・1075)の実装",
-        "start": "2026-10-23T05:00:00",
-        "finish": "2026-10-23T21:00:00",
-        "milestone": false
-      },
-      {
-        "uid": 29,
-        "name": "W5(異常系 DFC-586 ほか)の仕様",
-        "start": "2026-10-23T21:00:00",
-        "finish": "2026-10-24T05:00:00",
-        "milestone": false
-      },
-      {
-        "uid": 30,
-        "name": "W5(異常系)の実装と試験 —— 既知の赤 cr-586-iv-22 の 2 件(DFC-922)を緑に",
-        "start": "2026-10-24T05:00:00",
-        "finish": "2026-10-24T21:00:00",
-        "milestone": false
-      },
-      {
-        "uid": 31,
-        "name": "W4・W5 の合流と GT-2・push",
-        "start": "2026-10-24T21:00:00",
-        "finish": "2026-10-25T00:00:00",
-        "milestone": false
-      },
-      {
-        "uid": 15,
-        "name": "T-064(公開の名 約 479 の呼び出し形, DFC-2640)の書き起こしと再検討",
-        "start": "2026-10-21T23:00:00",
-        "finish": "2026-10-22T11:00:00",
-        "milestone": false
-      },
-      {
-        "uid": 77,
-        "name": "古い STOP の印 16 件(DFC-2730)の除去",
-        "start": "2026-10-22T11:00:00",
-        "finish": "2026-10-22T15:00:00",
-        "milestone": false
-      },
-      {
-        "uid": 12,
-        "name": "罠の束(DFC-544・547・548・549)の実装",
-        "start": "2026-10-22T15:00:00",
-        "finish": "2026-10-22T23:00:00",
-        "milestone": false
-      },
-      {
-        "uid": 20,
-        "name": "実装待ちの残り(DFC-464・532〜562・582・630 ほか 35 行)の実装",
-        "start": "2026-10-22T23:00:00",
-        "finish": "2026-10-23T15:00:00",
-        "milestone": false
-      },
-      {
-        "uid": 115,
-        "name": "edgeOf(重複した関数)の 1 つへの寄せ",
-        "start": "2026-10-21T23:00:00",
-        "finish": "2026-10-22T01:00:00",
-        "milestone": false
-      },
-      {
-        "uid": 116,
-        "name": "NOT_STORED_DUMMY_SIZES(手で持つ寸法)の生成への置き換え",
-        "start": "2026-10-22T01:00:00",
-        "finish": "2026-10-22T03:00:00",
-        "milestone": false
-      },
-      {
-        "uid": 117,
-        "name": "baseChangeCommandOf(名の複数形)の言い直し",
-        "start": "2026-10-22T03:00:00",
-        "finish": "2026-10-22T05:00:00",
-        "milestone": false
-      },
-      {
-        "uid": 17,
-        "name": "試験待ち 23 行(DFC-550・567・641 ほか)の仕様だけを読む試験",
-        "start": "2026-10-22T05:00:00",
-        "finish": "2026-10-22T13:00:00",
-        "milestone": false
-      },
-      {
-        "uid": 13,
-        "name": "用語集の JSON 化(DFC-2175、9 表 463 行)の仕様と実装",
-        "start": "2026-10-22T13:00:00",
-        "finish": "2026-10-23T01:00:00",
-        "milestone": false
-      },
-      {
-        "uid": 118,
-        "name": "DFC-2646〜2648(STOP の仕分けで出た 3 行)の直し",
-        "start": "2026-10-21T19:00:00",
-        "finish": "2026-10-21T23:00:00",
-        "milestone": false
-      },
-      {
-        "uid": 11,
-        "name": "未検討 72 行(DFC-611・2560〜2569・2690〜2699・2770 ほか)のトリアージ",
-        "start": "2026-10-21T23:00:00",
-        "finish": "2026-10-22T07:00:00",
-        "milestone": false
-      },
-      {
-        "uid": 32,
-        "name": "トリアージで出た直しの実装",
-        "start": "2026-10-22T07:00:00",
-        "finish": "2026-10-22T23:00:00",
-        "milestone": false
-      },
-      {
-        "uid": 18,
-        "name": "仕様待ち 31 行の残り(DFC-560・631・1063〜1073 ほか)の CR の起草",
-        "start": "2026-10-22T05:00:00",
-        "finish": "2026-10-22T09:00:00",
-        "milestone": false
-      },
-      {
-        "uid": 35,
-        "name": "仕様待ちの残りの CR の実装",
-        "start": "2026-10-22T09:00:00",
-        "finish": "2026-10-23T01:00:00",
-        "milestone": false
-      },
-      {
-        "uid": 19,
-        "name": "DFC-730(GP-1 編集権限の行は読み取り専用)の実装",
-        "start": "2026-10-23T01:00:00",
-        "finish": "2026-10-23T05:00:00",
-        "milestone": false
-      },
-      {
-        "uid": 167,
-        "name": "DFC-2966・2967・2969(文書の形と実績の組み合わせの表, 束 E)の仕様と実装",
-        "start": "2026-10-23T05:00:00",
-        "finish": "2026-10-23T13:00:00",
-        "milestone": false
-      },
-      {
-        "uid": 36,
-        "name": "片付けの合流と台帳の締め",
-        "start": "2026-10-23T15:00:00",
-        "finish": "2026-10-23T17:00:00",
-        "milestone": false
-      },
-      {
-        "uid": 141,
-        "name": "片付けの入った一括の GT-2 と push",
-        "start": "2026-10-25T00:00:00",
-        "finish": "2026-10-25T03:00:00",
-        "milestone": false
-      },
-      {
-        "uid": 199,
-        "name": "週の使用量の戻り(水 19:00)",
-        "start": "2026-10-28T19:00:00",
-        "finish": "2026-10-28T19:00:00",
-        "milestone": true
-      },
-      {
-        "uid": 200,
-        "name": "遅延診断の ? と炎の裁定(DFC-3390: 基準日より後を開始で読むか・壁の件数も外すか)に答える",
         "start": "2026-10-25T09:00:00",
         "finish": "2026-10-25T10:00:00",
         "milestone": false
       },
       {
-        "uid": 201,
-        "name": "DFC-3390(基準日より後のタスクの ? と炎)の CR の起草と当て",
-        "start": "2026-10-25T10:00:00",
-        "finish": "2026-10-25T18:00:00",
-        "milestone": false
-      },
-      {
-        "uid": 202,
-        "name": "DFC-3391・3392(プロンプトは本文だけ写し、スキーマは自動で保存)の CR の起草と当て",
-        "start": "2026-10-25T03:00:00",
-        "finish": "2026-10-25T11:00:00",
-        "milestone": false
-      },
-      {
-        "uid": 203,
-        "name": "予定の日が 1 日前へずれる疑い(初見 AI の試験の席の報告)の再現と直し",
-        "start": "2026-10-25T03:00:00",
-        "finish": "2026-10-25T11:00:00",
-        "milestone": false
-      },
-      {
-        "uid": 204,
-        "name": "依存線の縦の部分が重なる(O-1)の直し",
-        "start": "2026-10-25T11:00:00",
+        "uid": 105,
+        "name": "CR-768(保存の媒体の型)の C の合流と確かめ",
+        "start": "2026-10-25T14:00:00",
         "finish": "2026-10-25T15:00:00",
         "milestone": false
       },
       {
-        "uid": 235,
-        "name": "DFC-3396(.html に保存して開くと表示の状態が違う)の再現と直し",
-        "start": "2026-10-25T15:00:00",
-        "finish": "2026-10-25T19:00:00",
-        "milestone": false
-      },
-      {
-        "uid": 205,
-        "name": "ポインタの当たり判定(予定と依存線の優先順位)の見直し —— 見本と Playwright の掃き",
+        "uid": 199,
+        "name": "週の使用量の戻り(10-28 水 19:00)",
         "start": "2026-10-28T19:00:00",
-        "finish": "2026-10-29T03:00:00",
+        "finish": "2026-10-28T19:00:00",
+        "milestone": true
+      },
+      {
+        "uid": 36,
+        "name": "片付けの合流と台帳の締め",
+        "start": "2026-10-30T07:00:00",
+        "finish": "2026-10-30T09:00:00",
         "milestone": false
       },
       {
-        "uid": 206,
-        "name": "日付の範囲(S-119/S-120 と MS Project の 1984〜2149)・DFC-3003(ライセンスの窓)",
-        "start": "2026-10-25T11:00:00",
-        "finish": "2026-10-25T15:00:00",
+        "uid": 31,
+        "name": "W4・W5 の合流と GT-2・push",
+        "start": "2026-10-31T03:00:00",
+        "finish": "2026-10-31T06:00:00",
         "milestone": false
       },
       {
-        "uid": 236,
-        "name": "DFC-3395(保存の確認がサイトの名を出し、通信するように読める)の調べと対応の案",
-        "start": "2026-10-25T15:00:00",
-        "finish": "2026-10-25T17:00:00",
-        "milestone": false
-      },
-      {
-        "uid": 207,
-        "name": "不具合の合流と GT-2・push",
-        "start": "2026-10-29T03:00:00",
-        "finish": "2026-10-29T06:00:00",
-        "milestone": false
-      },
-      {
-        "uid": 208,
-        "name": "性能の赤の切り分け —— 前の版との交互の比べ(JDG-726)と GR-28・MK-1 のプロファイル",
-        "start": "2026-10-25T03:00:00",
-        "finish": "2026-10-25T11:00:00",
-        "milestone": false
-      },
-      {
-        "uid": 209,
-        "name": "重い処理の直し(最も遅い GR-28 から)",
-        "start": "2026-10-28T19:00:00",
-        "finish": "2026-10-29T11:00:00",
+        "uid": 141,
+        "name": "片付けの入った一括の GT-2 と push",
+        "start": "2026-10-31T06:00:00",
+        "finish": "2026-10-31T09:00:00",
         "milestone": false
       },
       {
         "uid": 210,
         "name": "PERF の測り(OneDrive を止めて)",
-        "start": "2026-10-29T11:00:00",
-        "finish": "2026-10-29T13:00:00",
+        "start": "2026-11-01T09:00:00",
+        "finish": "2026-11-01T11:00:00",
         "milestone": false
       },
       {
-        "uid": 211,
-        "name": "CR-813 の 2 片目(遅延診断レポートの親子関係のタブ, DFC-3358)の当て",
-        "start": "2026-10-28T19:00:00",
-        "finish": "2026-10-29T07:00:00",
-        "milestone": false
-      },
-      {
-        "uid": 46,
-        "name": "CR-697(取次が口と鍵を覚える)の起草と当て",
-        "start": "2026-10-29T07:00:00",
-        "finish": "2026-10-29T11:00:00",
-        "milestone": false
-      },
-      {
-        "uid": 212,
-        "name": "CR-815(絞った表を AI が選んだ列でページに分けて読む)の当て",
-        "start": "2026-10-28T19:00:00",
-        "finish": "2026-10-29T07:00:00",
-        "milestone": false
-      },
-      {
-        "uid": 213,
-        "name": "接続が黙って切れる件(DFC-3340〜3342: ping・ページの下書き)の当て",
-        "start": "2026-10-29T07:00:00",
-        "finish": "2026-10-29T19:00:00",
-        "milestone": false
-      },
-      {
-        "uid": 240,
-        "name": "DFC-3397(左端に出す名前と札)の仕様だけを読む試験(別の体)",
-        "start": "2026-10-30T06:00:00",
-        "finish": "2026-10-30T10:00:00",
-        "milestone": false
-      },
-      {
-        "uid": 214,
-        "name": "中継の所見の残り(R5: 4・8・9・10・11・14・17・20・24)の当て",
-        "start": "2026-10-29T03:00:00",
-        "finish": "2026-10-29T15:00:00",
-        "milestone": false
-      },
-      {
-        "uid": 215,
-        "name": "中継の所見の「低」8 件(13・16・17・18・19・20・23・25)",
-        "start": "2026-10-29T15:00:00",
-        "finish": "2026-10-29T23:00:00",
-        "milestone": false
-      },
-      {
-        "uid": 47,
-        "name": "DFC-2214・2215(AI が読む遅延診断にイナズマ線の頂点・読み方)の仕様と実装",
-        "start": "2026-10-29T23:00:00",
-        "finish": "2026-10-30T03:00:00",
-        "milestone": false
-      },
-      {
-        "uid": 48,
-        "name": "AI 連携の合流と GT-2・push",
-        "start": "2026-10-30T03:00:00",
-        "finish": "2026-10-30T06:00:00",
+        "uid": 207,
+        "name": "不具合の合流と GT-2・push",
+        "start": "2026-11-04T19:00:00",
+        "finish": "2026-11-04T22:00:00",
         "milestone": false
       },
       {
         "uid": 216,
-        "name": "週の使用量の戻り(水 19:00)",
+        "name": "週の使用量の戻り(11-04 水 19:00)",
         "start": "2026-11-04T19:00:00",
         "finish": "2026-11-04T19:00:00",
         "milestone": true
       },
       {
-        "uid": 217,
-        "name": "DFC-3393・3394(ハイパーリンク・ダークの任意色)の CR の起草",
-        "start": "2026-10-25T00:00:00",
-        "finish": "2026-10-25T04:00:00",
-        "milestone": false
-      },
-      {
-        "uid": 218,
-        "name": "ハイパーリンク(MSPDI に写すか・コメントのアイコンの置き場)とダークの色の導き方(JDG-326 の ② を覆す)に答える",
-        "start": "2026-10-25T10:00:00",
-        "finish": "2026-10-25T11:00:00",
-        "milestone": false
-      },
-      {
-        "uid": 238,
-        "name": "DFC-3397(左端に出す名前と札)の細部の協議に答える",
-        "start": "2026-10-29T21:00:00",
-        "finish": "2026-10-29T22:00:00",
-        "milestone": false
-      },
-      {
-        "uid": 219,
-        "name": "ハイパーリンクとダークの任意色の仕様と実装",
-        "start": "2026-10-28T19:00:00",
-        "finish": "2026-10-29T11:00:00",
-        "milestone": false
-      },
-      {
-        "uid": 237,
-        "name": "DFC-3397(横に拡大して両端が外に出たタスクの名前を左端に出す)の CR の起草",
-        "start": "2026-10-29T11:00:00",
-        "finish": "2026-10-29T15:00:00",
-        "milestone": false
-      },
-      {
-        "uid": 239,
-        "name": "DFC-3397(左端に出す名前と札)の仕様と実装",
-        "start": "2026-10-29T22:00:00",
-        "finish": "2026-10-30T06:00:00",
-        "milestone": false
-      },
-      {
-        "uid": 220,
-        "name": "ハイパーリンクとダークの任意色の仕様だけを読む試験(別の体)",
-        "start": "2026-10-30T03:00:00",
-        "finish": "2026-10-30T11:00:00",
+        "uid": 48,
+        "name": "AI 連携の合流と GT-2・push",
+        "start": "2026-11-05T19:00:00",
+        "finish": "2026-11-05T22:00:00",
         "milestone": false
       },
       {
         "uid": 221,
         "name": "新機能の合流と GT-2・push",
-        "start": "2026-10-30T11:00:00",
-        "finish": "2026-10-30T14:00:00",
-        "milestone": false
-      },
-      {
-        "uid": 222,
-        "name": "実測待ちの行を出荷ビルドで押す(1/3: 日程表・パネル・ドラッグ)",
-        "start": "2026-10-30T14:00:00",
-        "finish": "2026-10-31T02:00:00",
-        "milestone": false
-      },
-      {
-        "uid": 223,
-        "name": "実測待ちの行を出荷ビルドで押す(2/3: 遅延診断・表・検索)",
-        "start": "2026-10-30T14:00:00",
-        "finish": "2026-10-31T02:00:00",
-        "milestone": false
-      },
-      {
-        "uid": 224,
-        "name": "実測待ちの行を出荷ビルドで押す(3/3: ファイル・書き出し・AI 連携)",
-        "start": "2026-10-30T14:00:00",
-        "finish": "2026-10-31T02:00:00",
-        "milestone": false
-      },
-      {
-        "uid": 225,
-        "name": "利用者のチェックリスト 1 枚(今日の 5 件・新機能・押せなかった行)",
-        "start": "2026-10-31T02:00:00",
-        "finish": "2026-10-31T06:00:00",
-        "milestone": false
-      },
-      {
-        "uid": 226,
-        "name": "チェックリストを実物で触る",
-        "start": "2026-10-31T09:00:00",
-        "finish": "2026-10-31T13:00:00",
-        "milestone": false
-      },
-      {
-        "uid": 227,
-        "name": "チェックリストで出た直し(仮置き)",
-        "start": "2026-10-31T13:00:00",
-        "finish": "2026-10-31T21:00:00",
+        "start": "2026-11-06T11:00:00",
+        "finish": "2026-11-06T14:00:00",
         "milestone": false
       },
       {
         "uid": 228,
         "name": "最後の合流と PERF・GT-2(重い試験は 1 回だけ)",
-        "start": "2026-10-31T21:00:00",
-        "finish": "2026-11-01T03:00:00",
+        "start": "2026-11-07T21:00:00",
+        "finish": "2026-11-08T03:00:00",
         "milestone": false
       },
       {
         "uid": 229,
         "name": "node tools/release_version.mjs Beta・リリースノート(英日)・README の版の行",
-        "start": "2026-11-01T03:00:00",
-        "finish": "2026-11-01T07:00:00",
+        "start": "2026-11-08T03:00:00",
+        "finish": "2026-11-08T07:00:00",
         "milestone": false
       },
       {
         "uid": 230,
         "name": "リリースの sha の GT-2 と develop → main の PR",
-        "start": "2026-11-01T07:00:00",
-        "finish": "2026-11-01T10:00:00",
-        "milestone": false
-      },
-      {
-        "uid": 231,
-        "name": "PR を見て main へ合流する",
-        "start": "2026-11-01T10:00:00",
-        "finish": "2026-11-01T11:00:00",
+        "start": "2026-11-08T07:00:00",
+        "finish": "2026-11-08T10:00:00",
         "milestone": false
       },
       {
         "uid": 232,
         "name": "Pages の配備(gh workflow run pages.yml --ref main)",
-        "start": "2026-11-01T11:00:00",
-        "finish": "2026-11-01T12:00:00",
+        "start": "2026-11-08T11:00:00",
+        "finish": "2026-11-08T12:00:00",
         "milestone": false
-      },
-      {
-        "uid": 233,
-        "name": "Beta のタグを打ち、GitHub Release を作る",
-        "start": "2026-11-01T12:00:00",
-        "finish": "2026-11-01T13:00:00",
-        "milestone": false
-      },
-      {
-        "uid": 234,
-        "name": "β 版のリリース(条件: β に入れた仕事が全部済み、GT-2 と PERF が通る。目安 11-09 09:00)",
-        "start": "2026-11-01T13:00:00",
-        "finish": "2026-11-01T13:00:00",
-        "milestone": true
       },
       {
         "uid": 49,
         "name": "計画の終わり",
-        "start": "2026-11-01T13:00:00",
-        "finish": "2026-11-01T13:00:00",
+        "start": "2026-11-08T13:00:00",
+        "finish": "2026-11-08T13:00:00",
         "milestone": true
+      },
+      {
+        "uid": 200,
+        "name": "遅延診断の ? と炎の裁定(DFC-3390: 基準日より後を開始で読むか・壁の件数も外すか)に答える",
+        "start": "2026-10-22T08:24:00",
+        "finish": "2026-10-22T08:29:00",
+        "milestone": false
+      },
+      {
+        "uid": 218,
+        "name": "ハイパーリンク(MSPDI に写すか・コメントのアイコンの置き場)とダークの色の導き方(JDG-326 の ② を覆す)に答える",
+        "start": "2026-10-22T20:14:00",
+        "finish": "2026-10-22T20:44:00",
+        "milestone": false
+      },
+      {
+        "uid": 238,
+        "name": "DFC-3397(左端に出す名前と札)の細部の協議に答える",
+        "start": "2026-10-22T20:26:00",
+        "finish": "2026-10-22T20:33:00",
+        "milestone": false
+      },
+      {
+        "uid": 254,
+        "name": "DFC-3392・3395(プロンプトの写し方・保存の確認の文)の裁定に答える",
+        "start": "2026-10-22T20:44:00",
+        "finish": "2026-10-22T20:45:00",
+        "milestone": false
+      },
+      {
+        "uid": 263,
+        "name": "見本の Developer C の重なり(C7, AS-8 のためのわざと)と pages.yml の起動(E17)の裁定に答える",
+        "start": "2026-10-23T06:45:00",
+        "finish": "2026-10-23T07:15:00",
+        "milestone": false
+      },
+      {
+        "uid": 252,
+        "name": "憲章の下書き(temp/charter-draft/CHARTER-ja.md)を直す",
+        "start": "2026-10-23T21:00:00",
+        "finish": "2026-10-23T23:00:00",
+        "milestone": false
       },
       {
         "uid": 241,
@@ -6943,38 +6785,598 @@
         "milestone": false
       },
       {
-        "uid": 242,
-        "name": "取次から AI がページのアドレスを得る恒久の直し(DFC-3400・3401: B1〜B6 を決めてから CR)",
-        "start": "2026-10-28T03:00:00",
-        "finish": "2026-10-28T11:00:00",
-        "milestone": false
-      },
-      {
-        "uid": 243,
-        "name": "DFC-3410(フィルタの条件に名前を付けて GRS JSON に幾つも保存する)の CR の起草",
-        "start": "2026-10-25T04:00:00",
-        "finish": "2026-10-25T08:00:00",
-        "milestone": false
-      },
-      {
         "uid": 244,
         "name": "DFC-3410(名前付きのフィルタの条件)の細部に答える",
-        "start": "2026-10-25T11:00:00",
-        "finish": "2026-10-25T12:00:00",
+        "start": "2026-10-31T11:00:00",
+        "finish": "2026-10-31T12:00:00",
+        "milestone": false
+      },
+      {
+        "uid": 226,
+        "name": "チェックリストを実物で触る",
+        "start": "2026-11-07T09:00:00",
+        "finish": "2026-11-07T13:00:00",
+        "milestone": false
+      },
+      {
+        "uid": 231,
+        "name": "PR を見て main へ合流する",
+        "start": "2026-11-08T10:00:00",
+        "finish": "2026-11-08T11:00:00",
+        "milestone": false
+      },
+      {
+        "uid": 233,
+        "name": "Beta のタグを打ち、GitHub Release を作る",
+        "start": "2026-11-08T12:00:00",
+        "finish": "2026-11-08T13:00:00",
+        "milestone": false
+      },
+      {
+        "uid": 234,
+        "name": "β 版のリリース(条件: β に入れた仕事が全部済み、GT-2 と PERF が通る。目安 11-09 09:00)",
+        "start": "2026-11-08T13:00:00",
+        "finish": "2026-11-08T13:00:00",
+        "milestone": true
+      },
+      {
+        "uid": 247,
+        "name": "β への計画の引き直しと利用者の答え 5 つの記録(JDG-3043〜3047)",
+        "start": "2026-10-22T08:15:00",
+        "finish": "2026-10-22T08:54:00",
+        "milestone": false
+      },
+      {
+        "uid": 248,
+        "name": "読むだけの棚卸し(仕様・_source・_asset・コード・試験・道具の 6 つの所を数える)",
+        "start": "2026-10-22T08:15:00",
+        "finish": "2026-10-22T08:39:00",
+        "milestone": false
+      },
+      {
+        "uid": 192,
+        "name": "GT-2 の赤 ③ uc-008:76(コメントのダブルクリックで PR-21 に焦点が入らない)の調べと直し",
+        "start": "2026-10-22T08:15:00",
+        "finish": "2026-10-22T09:31:00",
+        "milestone": false
+      },
+      {
+        "uid": 193,
+        "name": "GT-2 の赤 ① nfr-004 SWS-8(.tsv の IO-9 を押す探り)を足す",
+        "start": "2026-10-22T08:15:00",
+        "finish": "2026-10-22T11:17:00",
+        "milestone": false
+      },
+      {
+        "uid": 194,
+        "name": "GT-2 の赤 ② w3-t2(FR-135 の古い引用)を直す",
+        "start": "2026-10-22T08:15:00",
+        "finish": "2026-10-22T11:17:00",
+        "milestone": false
+      },
+      {
+        "uid": 195,
+        "name": "紹介頁・ダウンロード頁・デモの頁の語の直し(データだけ)",
+        "start": "2026-10-22T08:15:00",
+        "finish": "2026-10-22T08:39:00",
+        "milestone": false
+      },
+      {
+        "uid": 249,
+        "name": "意図しない圧縮への備え(85% の知らせ・セッション台帳・引継書の検査・呼び名の統一)の仕組みと試し",
+        "start": "2026-10-22T08:15:00",
+        "finish": "2026-10-22T22:10:00",
+        "milestone": false
+      },
+      {
+        "uid": 250,
+        "name": "利用者の裁定が要る 6 件(DFC-3390・3392・3393・3394・3395・3397)を 1 問ずつ問う",
+        "start": "2026-10-22T08:15:00",
+        "finish": "2026-10-22T20:45:00",
+        "milestone": false
+      },
+      {
+        "uid": 262,
+        "name": "裁定 6 件の答えの記録(JDG の行と台帳)",
+        "start": "2026-10-22T20:45:00",
+        "finish": "2026-10-22T20:57:00",
+        "milestone": false
+      },
+      {
+        "uid": 251,
+        "name": "合流済みの作業木の掃除(第 1 波の後半)",
+        "start": "2026-10-23T03:03:00",
+        "finish": "2026-10-23T03:49:00",
+        "milestone": false
+      },
+      {
+        "uid": 253,
+        "name": "プロジェクト憲章(利用者が直した CHARTER-ja.md から)の仕上げ",
+        "start": "2026-10-23T23:00:00",
+        "finish": "2026-10-24T03:00:00",
+        "milestone": false
+      },
+      {
+        "uid": 256,
+        "name": "W1 仕様と _source／_assets の掃除(棚卸しの A・B の行、C3 の仕様の側 PI-9)",
+        "start": "2026-10-23T03:03:00",
+        "finish": "2026-10-23T04:45:00",
+        "milestone": false
+      },
+      {
+        "uid": 115,
+        "name": "edgeOf と baselineEdgeXOf(重複した関数, C1)の 1 つへの寄せ",
+        "start": "2026-10-23T03:00:00",
+        "finish": "2026-10-23T03:30:00",
+        "milestone": false
+      },
+      {
+        "uid": 116,
+        "name": "NOT_STORED_DUMMY_SIZES(生成済みの寸法, C2・E28)の読まれない写しと古い注の始末",
+        "start": "2026-10-23T03:03:00",
+        "finish": "2026-10-23T03:11:00",
+        "milestone": false
+      },
+      {
+        "uid": 196,
+        "name": "衛生の小物(PlanActualState の中の語の 2 組, C8)の揃え",
+        "start": "2026-10-23T04:00:00",
+        "finish": "2026-10-23T06:00:00",
+        "milestone": false
+      },
+      {
+        "uid": 77,
+        "name": "古い STOP の印 15 件(DFC-2730, C9)の除去",
+        "start": "2026-10-23T03:11:00",
+        "finish": "2026-10-23T03:32:00",
+        "milestone": false
+      },
+      {
+        "uid": 257,
+        "name": "W2 src の掃除(棚卸しの C4・C10・C15・E15・E16 ほか)",
+        "start": "2026-10-23T03:03:00",
+        "finish": "2026-10-23T03:32:00",
+        "milestone": false
+      },
+      {
+        "uid": 117,
+        "name": "baseChangeCommandOf(名の複数形, C3)の言い直し —— W1 で仕様 PI-9 の名を直した後",
+        "start": "2026-10-24T01:00:00",
+        "finish": "2026-10-24T03:00:00",
+        "milestone": false
+      },
+      {
+        "uid": 258,
+        "name": "W3 試験の掃除(棚卸しの D の行と G2)",
+        "start": "2026-10-23T03:03:00",
+        "finish": "2026-10-23T03:44:00",
+        "milestone": false
+      },
+      {
+        "uid": 259,
+        "name": "W4 道具と目録の掃除(棚卸しの E の行・09-tools.md・About の版の形)",
+        "start": "2026-10-23T03:03:00",
+        "finish": "2026-10-23T03:22:00",
+        "milestone": false
+      },
+      {
+        "uid": 118,
+        "name": "DFC-2646〜2648(STOP の仕分けで出た 3 行)の始末 —— 2647 の刈り取り(F3)",
+        "start": "2026-10-24T06:00:00",
+        "finish": "2026-10-24T06:30:00",
+        "milestone": false
+      },
+      {
+        "uid": 260,
+        "name": "W5 台帳と記録の掃除(棚卸しの F の行。古い STOP の台帳 F2 は W2 の後)",
+        "start": "2026-10-24T06:30:00",
+        "finish": "2026-10-24T18:00:00",
+        "milestone": false
+      },
+      {
+        "uid": 15,
+        "name": "T-064(公開の名 約 479 の呼び出し形, DFC-2640)の書き起こしと再検討",
+        "start": "2026-10-24T21:00:00",
+        "finish": "2026-10-25T09:00:00",
+        "milestone": false
+      },
+      {
+        "uid": 264,
+        "name": "src の写しの畳み込み(C14・G13・F11・F12・F17)",
+        "start": "2026-10-28T19:00:00",
+        "finish": "2026-10-29T07:00:00",
+        "milestone": false
+      },
+      {
+        "uid": 12,
+        "name": "罠の束(DFC-544・547・548・549)の実装",
+        "start": "2026-10-29T07:00:00",
+        "finish": "2026-10-29T15:00:00",
+        "milestone": false
+      },
+      {
+        "uid": 20,
+        "name": "実装待ちの残り(DFC-464・532〜562・582・630 ほか 35 行)の実装",
+        "start": "2026-10-29T15:00:00",
+        "finish": "2026-10-30T07:00:00",
+        "milestone": false
+      },
+      {
+        "uid": 203,
+        "name": "予定の日が 1 日前へずれる疑い(初見 AI の試験の子セッションの報告)の再現と直し",
+        "start": "2026-10-31T09:00:00",
+        "finish": "2026-10-31T17:00:00",
+        "milestone": false
+      },
+      {
+        "uid": 204,
+        "name": "依存線の縦の部分が重なる(O-1)の直し",
+        "start": "2026-10-31T17:00:00",
+        "finish": "2026-10-31T21:00:00",
+        "milestone": false
+      },
+      {
+        "uid": 235,
+        "name": "DFC-3396(.html に保存して開くと表示の状態が違う)の再現と直し",
+        "start": "2026-10-31T21:00:00",
+        "finish": "2026-11-01T01:00:00",
+        "milestone": false
+      },
+      {
+        "uid": 270,
+        "name": "食い違う写しの畳み込みと px の比べ方の揃え(F4 DFC-2646・F9 DFC-630)の CR の起草と当て",
+        "start": "2026-11-01T01:00:00",
+        "finish": "2026-11-01T09:00:00",
+        "milestone": false
+      },
+      {
+        "uid": 211,
+        "name": "CR-813 の 2 片目(遅延診断レポートの親子関係のタブ, DFC-3358)の当て",
+        "start": "2026-11-04T19:00:00",
+        "finish": "2026-11-05T07:00:00",
+        "milestone": false
+      },
+      {
+        "uid": 46,
+        "name": "CR-697(取次が口と鍵を覚える)の起草と当て",
+        "start": "2026-11-05T07:00:00",
+        "finish": "2026-11-05T11:00:00",
         "milestone": false
       },
       {
         "uid": 245,
         "name": "DFC-3410(名前付きのフィルタの条件)の仕様と実装",
+        "start": "2026-11-05T11:00:00",
+        "finish": "2026-11-06T03:00:00",
+        "milestone": false
+      },
+      {
+        "uid": 222,
+        "name": "実測待ちの行を出荷ビルドで押す(1/3: 日程表・パネル・ドラッグ)",
+        "start": "2026-11-06T14:00:00",
+        "finish": "2026-11-07T02:00:00",
+        "milestone": false
+      },
+      {
+        "uid": 227,
+        "name": "チェックリストで出た直し(仮置き)",
+        "start": "2026-11-07T13:00:00",
+        "finish": "2026-11-07T21:00:00",
+        "milestone": false
+      },
+      {
+        "uid": 85,
+        "name": "CR-767(状態機械の原稿)の波 1 の実装",
+        "start": "2026-10-24T21:00:00",
+        "finish": "2026-10-25T03:00:00",
+        "milestone": false
+      },
+      {
+        "uid": 86,
+        "name": "CR-767(状態機械の原稿)の波 2 の実装",
+        "start": "2026-10-25T03:00:00",
+        "finish": "2026-10-25T09:00:00",
+        "milestone": false
+      },
+      {
+        "uid": 104,
+        "name": "CR-768(保存の媒体の型)の C と CM-27 の注の実装",
+        "start": "2026-10-25T10:00:00",
+        "finish": "2026-10-25T14:00:00",
+        "milestone": false
+      },
+      {
+        "uid": 27,
+        "name": "W4(アダプタ層の分割)の前半 CR-578→579→580 の実装(偶然の写し DFC-1071〜1073)",
+        "start": "2026-10-28T19:00:00",
+        "finish": "2026-10-29T11:00:00",
+        "milestone": false
+      },
+      {
+        "uid": 28,
+        "name": "W4 の後半(CR-581 の後半と properties-panel、DFC-1074・1075)の実装",
         "start": "2026-10-29T11:00:00",
         "finish": "2026-10-30T03:00:00",
         "milestone": false
       },
       {
-        "uid": 246,
-        "name": "DFC-3410(名前付きのフィルタの条件)の仕様だけを読む試験(別の体)",
+        "uid": 29,
+        "name": "W5(異常系 DFC-586 ほか)の仕様",
         "start": "2026-10-30T03:00:00",
         "finish": "2026-10-30T11:00:00",
+        "milestone": false
+      },
+      {
+        "uid": 30,
+        "name": "W5(異常系)の実装と試験 —— 既知の赤 cr-586-iv-22 の 2 件(DFC-922)を緑に",
+        "start": "2026-10-30T11:00:00",
+        "finish": "2026-10-31T03:00:00",
+        "milestone": false
+      },
+      {
+        "uid": 217,
+        "name": "DFC-3393・3394(ハイパーリンク・ダークの任意色)の CR の起草",
+        "start": "2026-10-31T03:00:00",
+        "finish": "2026-10-31T07:00:00",
+        "milestone": false
+      },
+      {
+        "uid": 243,
+        "name": "DFC-3410(フィルタの条件に名前を付けて GRS JSON に幾つも保存する)の CR の起草",
+        "start": "2026-10-31T07:00:00",
+        "finish": "2026-10-31T11:00:00",
+        "milestone": false
+      },
+      {
+        "uid": 219,
+        "name": "ハイパーリンクとダークの任意色の仕様と実装",
+        "start": "2026-10-31T11:00:00",
+        "finish": "2026-11-01T03:00:00",
+        "milestone": false
+      },
+      {
+        "uid": 237,
+        "name": "DFC-3397(横に拡大して両端が外に出たタスクの名前を左端に出す)の CR の起草",
+        "start": "2026-11-01T03:00:00",
+        "finish": "2026-11-01T07:00:00",
+        "milestone": false
+      },
+      {
+        "uid": 239,
+        "name": "DFC-3397(左端に出す名前と札)の仕様と実装",
+        "start": "2026-11-01T07:00:00",
+        "finish": "2026-11-01T15:00:00",
+        "milestone": false
+      },
+      {
+        "uid": 225,
+        "name": "利用者のチェックリスト 1 枚(今日の 5 件・新機能・押せなかった行)",
+        "start": "2026-11-07T02:00:00",
+        "finish": "2026-11-07T06:00:00",
+        "milestone": false
+      },
+      {
+        "uid": 17,
+        "name": "試験待ち 23 行(DFC-550・567・641 ほか)の仕様だけを読む試験",
+        "start": "2026-10-24T21:00:00",
+        "finish": "2026-10-25T05:00:00",
+        "milestone": false
+      },
+      {
+        "uid": 265,
+        "name": "長い関数とファイルを割る(C19・F13、07 R2 の設計の判断)",
+        "start": "2026-10-25T05:00:00",
+        "finish": "2026-10-25T17:00:00",
+        "milestone": false
+      },
+      {
+        "uid": 266,
+        "name": "試験の補助の写しの共通化(D14・D15)",
+        "start": "2026-10-28T19:00:00",
+        "finish": "2026-10-29T07:00:00",
+        "milestone": false
+      },
+      {
+        "uid": 13,
+        "name": "用語集の JSON 化(DFC-2175、7 表 382 行)の仕様と実装",
+        "start": "2026-10-29T07:00:00",
+        "finish": "2026-10-29T19:00:00",
+        "milestone": false
+      },
+      {
+        "uid": 201,
+        "name": "DFC-3390(基準日より後のタスクの ? と炎)の CR の起草と当て",
+        "start": "2026-10-31T09:00:00",
+        "finish": "2026-10-31T17:00:00",
+        "milestone": false
+      },
+      {
+        "uid": 242,
+        "name": "取次から AI がページのアドレスを得る恒久の直し(DFC-3400・3401: B1〜B6 を決めてから CR)",
+        "start": "2026-10-31T17:00:00",
+        "finish": "2026-11-01T01:00:00",
+        "milestone": false
+      },
+      {
+        "uid": 205,
+        "name": "ポインタの当たり判定(予定と依存線の優先順位)の見直し —— 見本と Playwright の掃き",
+        "start": "2026-11-01T01:00:00",
+        "finish": "2026-11-01T09:00:00",
+        "milestone": false
+      },
+      {
+        "uid": 268,
+        "name": "既定値の選び直しと公開スキーマの $id・比率の数(A10・B5・B10・F27)の CR の起草と当て",
+        "start": "2026-11-01T09:00:00",
+        "finish": "2026-11-01T17:00:00",
+        "milestone": false
+      },
+      {
+        "uid": 214,
+        "name": "中継の所見の残り(R5: 4・8・9・10・11・14・17・20・24)の当て",
+        "start": "2026-11-04T19:00:00",
+        "finish": "2026-11-05T07:00:00",
+        "milestone": false
+      },
+      {
+        "uid": 215,
+        "name": "中継の所見の「低」8 件(13・16・17・18・19・20・23・25)",
+        "start": "2026-11-05T07:00:00",
+        "finish": "2026-11-05T15:00:00",
+        "milestone": false
+      },
+      {
+        "uid": 47,
+        "name": "DFC-2214・2215(AI が読む遅延診断にイナズマ線の頂点・読み方)の仕様と実装",
+        "start": "2026-11-05T15:00:00",
+        "finish": "2026-11-05T19:00:00",
+        "milestone": false
+      },
+      {
+        "uid": 220,
+        "name": "ハイパーリンクとダークの任意色の仕様だけを読む試験(別のサブエージェント)",
+        "start": "2026-11-05T19:00:00",
+        "finish": "2026-11-06T03:00:00",
+        "milestone": false
+      },
+      {
+        "uid": 11,
+        "name": "未検討 72 行(DFC-611・2560〜2569・2690〜2699・2770 ほか)のトリアージ",
+        "start": "2026-10-24T21:00:00",
+        "finish": "2026-10-25T05:00:00",
+        "milestone": false
+      },
+      {
+        "uid": 267,
+        "name": "道具の補助の写しの共通化(E20〜E22)",
+        "start": "2026-10-25T05:00:00",
+        "finish": "2026-10-25T17:00:00",
+        "milestone": false
+      },
+      {
+        "uid": 32,
+        "name": "トリアージで出た直しの実装",
+        "start": "2026-10-28T19:00:00",
+        "finish": "2026-10-29T11:00:00",
+        "milestone": false
+      },
+      {
+        "uid": 202,
+        "name": "DFC-3391・3392(プロンプトは本文だけ写し、スキーマは自動で保存)の CR の起草と当て",
+        "start": "2026-10-31T09:00:00",
+        "finish": "2026-10-31T17:00:00",
+        "milestone": false
+      },
+      {
+        "uid": 206,
+        "name": "日付の範囲(S-119/S-120 と MS Project の 1984〜2149)・DFC-3003(ライセンスの窓)",
+        "start": "2026-10-31T17:00:00",
+        "finish": "2026-10-31T21:00:00",
+        "milestone": false
+      },
+      {
+        "uid": 236,
+        "name": "DFC-3395(保存の確認がサイトの名を出し、通信するように読める)の調べと対応の案",
+        "start": "2026-10-31T21:00:00",
+        "finish": "2026-10-31T23:00:00",
+        "milestone": false
+      },
+      {
+        "uid": 269,
+        "name": "uid の最高水位と「行」と「タスクグループ」(F10 DFC-1066・F25 DFC-2174)の CR の起草と当て",
+        "start": "2026-10-31T23:00:00",
+        "finish": "2026-11-01T07:00:00",
+        "milestone": false
+      },
+      {
+        "uid": 212,
+        "name": "CR-815(絞った表を AI が選んだ列でページに分けて読む)の当て",
+        "start": "2026-11-01T07:00:00",
+        "finish": "2026-11-01T19:00:00",
+        "milestone": false
+      },
+      {
+        "uid": 213,
+        "name": "接続が黙って切れる件(DFC-3340〜3342: ping・ページの下書き)の当て",
+        "start": "2026-11-04T19:00:00",
+        "finish": "2026-11-05T07:00:00",
+        "milestone": false
+      },
+      {
+        "uid": 240,
+        "name": "DFC-3397(左端に出す名前と札)の仕様だけを読む試験(別のサブエージェント)",
+        "start": "2026-11-05T07:00:00",
+        "finish": "2026-11-05T11:00:00",
+        "milestone": false
+      },
+      {
+        "uid": 223,
+        "name": "実測待ちの行を出荷ビルドで押す(2/3: 遅延診断・表・検索)",
+        "start": "2026-11-06T14:00:00",
+        "finish": "2026-11-07T02:00:00",
+        "milestone": false
+      },
+      {
+        "uid": 197,
+        "name": "サーバー同期のデモの仕上げ(DFC-3070・3071 の状態を測り直し、配る zip で試す)",
+        "start": "2026-10-22T12:15:00",
+        "finish": "2026-10-22T16:15:00",
+        "milestone": false
+      },
+      {
+        "uid": 18,
+        "name": "仕様待ち 31 行の残り(DFC-560・631・1063〜1073 ほか)の CR の起草",
+        "start": "2026-10-24T21:00:00",
+        "finish": "2026-10-25T01:00:00",
+        "milestone": false
+      },
+      {
+        "uid": 35,
+        "name": "仕様待ちの残りの CR の実装",
+        "start": "2026-10-25T01:00:00",
+        "finish": "2026-10-25T17:00:00",
+        "milestone": false
+      },
+      {
+        "uid": 19,
+        "name": "DFC-730(GP-1 編集権限の行は読み取り専用)の実装",
+        "start": "2026-10-28T19:00:00",
+        "finish": "2026-10-28T23:00:00",
+        "milestone": false
+      },
+      {
+        "uid": 167,
+        "name": "DFC-2966・2967・2969(文書の形と実績の組み合わせの表, 束 E)の仕様と実装",
+        "start": "2026-10-28T23:00:00",
+        "finish": "2026-10-29T07:00:00",
+        "milestone": false
+      },
+      {
+        "uid": 208,
+        "name": "性能の赤の切り分け —— 前の版との交互の比べ(JDG-726)と GR-28・MK-1 のプロファイル",
+        "start": "2026-10-31T09:00:00",
+        "finish": "2026-10-31T17:00:00",
+        "milestone": false
+      },
+      {
+        "uid": 209,
+        "name": "重い処理の直し(最も遅い GR-28 から)",
+        "start": "2026-10-31T17:00:00",
+        "finish": "2026-11-01T09:00:00",
+        "milestone": false
+      },
+      {
+        "uid": 246,
+        "name": "DFC-3410(名前付きのフィルタの条件)の仕様だけを読む試験(別のサブエージェント)",
+        "start": "2026-11-06T03:00:00",
+        "finish": "2026-11-06T11:00:00",
+        "milestone": false
+      },
+      {
+        "uid": 224,
+        "name": "実測待ちの行を出荷ビルドで押す(3/3: ファイル・書き出し・AI 連携)",
+        "start": "2026-11-06T14:00:00",
+        "finish": "2026-11-07T02:00:00",
         "milestone": false
       }
     ]
@@ -7036,10 +7438,10 @@
     "zoomY": 1.099862517185352
   },
   "documentStamp": {
-    "scheduleUpdatedAt": "2026-10-21T23:46:00Z",
-    "lastEditedBy": "project-plan child session",
+    "scheduleUpdatedAt": "2026-10-22T21:40:00Z",
+    "lastEditedBy": "plan-actuals child session",
     "settingsUpdatedAt": "2026-10-20T20:24:42Z",
-    "fileSavedAt": "2026-10-20T20:29:16Z"
+    "fileSavedAt": "2026-10-22T21:40:00Z"
   },
   "changeLog": [
     {
@@ -7077,6 +7479,12 @@
       "editedBy": "project-plan child session",
       "explanation": "Plan redrawn at 2026-10-22 08:15 JST (JDG-3043..3047): wave 1 started, wave 2 (cleanup by area) provisional, CR-767 after the src cleanup, the rest shifted without cutting scope; the 2026-10-21 plan is the baseline.",
       "changedAt": "2026-10-21T23:46:00Z"
+    },
+    {
+      "ordinal": 7,
+      "editedBy": "plan-actuals child session",
+      "explanation": "Actuals to 2026-10-23 06:21 JST (40cdf29ef): W5 and the baseline lowering done, start times re-measured from branch reflogs; rulings-five, this update, the 23-worktree sweep and D1/D7 added (271-275); the rest re-placed from now with session estimates x0.74; the 2026-10-22 plan is the baseline.",
+      "changedAt": "2026-10-22T21:40:00Z"
     }
   ]
 }
