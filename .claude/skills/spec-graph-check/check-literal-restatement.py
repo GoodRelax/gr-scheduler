@@ -37,6 +37,13 @@ object literal under `satisfies` refuses an extra key and a missing one, as a
 Record does; CR-767 wave 2). Nothing guards VALUES, so a values set is never
 exempted.
 
+WHAT IT LEAVES OUT OF THE POOL (coordinator ruling 2026-10-23, CR-767 wave
+3): a list inside a generated judgment table (`const <STEM>_GUARDS = {`) of
+a fence generated_fences.py proves -- its generator exists, says it writes
+the file (`--units`) and its `--check` is green. Such a list is an operand
+of one guard's condition, not a set the specification publishes for reuse.
+A fence naming such a generator in a file it does not write is a PROBLEM.
+
 WHAT IT DELIBERATELY DOES NOT CATCH:
   - a per-literal vocabulary. The icon-roster surface names are 27 single
     literals spread over 8 files; no set shape holds them, so a restatement
@@ -91,6 +98,10 @@ import os
 import re
 import sys
 import time
+
+sys.dont_write_bytecode = True
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from generated_fences import Provenance, inside  # noqa: E402
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(
@@ -590,8 +601,35 @@ def json_source(data):
 # The verdict, on a tree held as {relative path: text}.
 # ---------------------------------------------------------------------------
 
-def collect(files):
+# The provenance of generated fences; self-tests put a stand-in here.
+PROVENANCE = []
+JUDGMENT_TABLE = re.compile(r'^const [A-Z][A-Z0-9_]*_GUARDS = \{$')
+
+
+def provenance():
+    if not PROVENANCE:
+        PROVENANCE.append(Provenance(ROOT))
+    return PROVENANCE[0]
+
+
+def judgment_lines(rel, text, problems):
+    """The lines of the generated judgment tables in the file's proven fences."""
+    ranges, wrong = provenance().proven(rel, text)
+    problems.extend(wrong)
+    out = []
+    start = None
+    for no, line in enumerate(text.split('\n'), 1):
+        if start is None and JUDGMENT_TABLE.match(line) and inside(no, ranges):
+            start = no
+        elif start is not None and line == '}':
+            out.append((start, no))
+            start = None
+    return out
+
+
+def collect(files, fence_problems=None):
     """(hand sets, generated pool, generated type names, hand mapped generics)."""
+    fence_problems = [] if fence_problems is None else fence_problems
     hand, pool, gen_names = [], [], set()
     aliases = {}
     mapped_generics = set()
@@ -638,7 +676,10 @@ def collect(files):
             gmatch = bracket_pairs(gtokens)
             genclosing = enclosing_brackets(gtokens)
             found = literal_sets(gtokens, gtoklines, gmatch) + field_bags(gtokens, gtoklines)
+            operands = judgment_lines(rel, text, fence_problems)
             for shape, first, _last, members, _top, at in found:
+                if inside(first, operands):
+                    continue        # an operand of a generated judgment
                 decl, _line = declared_name(glines, first)
                 path = key_path(gtokens, genclosing, at) if at is not None else ''
                 for suffix, members_set in variants(members):
@@ -748,7 +789,8 @@ def best_match(h, pool, index):
 
 def hits_of(files):
     """(hits, guarded, counts): hits and RG-exempted records, keyed by name."""
-    hand, pool, gen_names, mapped_generics = collect(files)
+    fence_problems = []
+    hand, pool, gen_names, mapped_generics = collect(files, fence_problems)
     index = {}
     for gi, g in enumerate(pool):
         for member in g['set']:
@@ -768,7 +810,8 @@ def hits_of(files):
                   'shared': shared, 'source': g['source'], 'gwhere': g['where'],
                   'guard': guard_of(h, gen_names, mapped_generics)}
         (guarded if record['guard'] else hits).append(record)
-    return hits, guarded, {'hand': len(hand), 'pool': len(pool)}
+    return hits, guarded, {'hand': len(hand), 'pool': len(pool),
+                           'fenceProblems': fence_problems}
 
 
 # ---------------------------------------------------------------------------
@@ -813,6 +856,7 @@ def verdict(files, baseline_text):
     hits, guarded, counts = hits_of(files)
     held, malformed = parse_baseline(baseline_text)
     problems = ['the baseline cannot be read: %s' % bad for bad in malformed]
+    problems += counts.pop('fenceProblems', [])
     found = {}
     for hit in hits:
         found.setdefault(hit['key'], []).append(hit)
@@ -946,6 +990,35 @@ why: restates FruitId (docs/spec/_source/settings.json) -- self-test record.
 '''
 
 
+FENCE_GENERATOR = 'tools/generate_check_69_fixture.py'
+
+SELF_TEST_JUDGMENTS = u'''\
+// <generated -- do not edit by hand>
+// From docs/spec/_source/check-69-fixture.json
+// Rebuild: npm run gen (tools/generate_check_69_fixture.py).
+const FRUIT_GUARDS = {
+  isCitrus: (event: { readonly fruit: string }): boolean =>
+    (['kiwi', 'lime', 'date', 'yuzu'] as readonly unknown[]).includes(event.fruit),
+}
+// </generated>
+'''
+
+SELF_TEST_CITRUS = u'''\
+export const CITRUS = ['kiwi', 'lime', 'date', 'yuzu']
+'''
+
+
+def fence_case(label, statuses, wanted):
+    """A judgment table's list against a hand list, under a stand-in provenance."""
+    files = {'src/gen/fruit.ts': SELF_TEST_GENERATED, 'src/gen/guards.ts': SELF_TEST_JUDGMENTS,
+             'src/app/pick.ts': SELF_TEST_CLEAN, 'src/app/citrus.ts': SELF_TEST_CITRUS}
+    PROVENANCE[:] = [Provenance(ROOT, statuses)]
+    try:
+        return self_test_case(label, files, '', wanted)
+    finally:
+        PROVENANCE[:] = []
+
+
 def self_test_case(label, files, baseline, wanted):
     """`wanted` is None for green, or a substring a PROBLEM must hold."""
     problems, _known, _numbers = verdict(files, baseline)
@@ -987,14 +1060,22 @@ def self_test():
                        SELF_TEST_HELD, 'a debt that was paid must leave the file'),
         self_test_case('case 6 (a record without a why: line)', planted,
                        SELF_TEST_HELD.split('\n')[0] + '\n', 'has no "why:" line'),
+        fence_case('case 7 (a list inside a proven generated judgment table)',
+                   {FENCE_GENERATOR: ({'src/gen/guards.ts'}, True)}, None),
+        fence_case('case 8 (the same fence in a file its generator does not write)',
+                   {FENCE_GENERATOR: ({'src/gen/other.ts'}, True)}, 'buys no exemption'),
+        fence_case('case 9 (the same fence, its generator\'s --check red)',
+                   {FENCE_GENERATOR: ({'src/gen/guards.ts'}, False)},
+                   'CITRUS | array | generated FRUIT_GUARDS'),
     ]
     failures = [r for r in results if r]
     for failure in failures:
         say('FAIL     check 69 self-test: %s' % failure)
     if failures:
         return 1
-    say('OK       check 69 self-test: 5 break(s) went red and the clean, guarded, '
-        'satisfied, held and moved trees held in memory are green')
+    say('OK       check 69 self-test: 7 break(s) went red (2 of them generated fences '
+        'that prove nothing) and the clean, guarded, satisfied, held, moved and '
+        'proven-judgment trees held in memory are green')
     return 0
 
 

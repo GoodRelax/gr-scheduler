@@ -39,6 +39,7 @@ tools/generate_entity_types.py  公開する写しの一覧（`PUBLISHED_READ_BY
 ⭐ **表 T-206 以外の表から出すときは、その表用の出力式を新しく書く** ——
 **`not_stored_block` は 表 T-206 専用である**（`S-132` は 表 T-217 なので `annotation_defaults_block` を足した）。
 ```
+AGENT_API_VALUES_GUARDS              `Agent API` のガードごとの判定（表 T-296 の領域のガードの一覧の式から組む。`tools/generate_state_machine_types.py` が刷る。`CR-767` の波 3）
 AGENT_API_VALUES_INITIAL_AXES        `Agent API` の状態機械の初期の種類（表 T-296 の状態の一覧の初期。`tools/generate_state_machine_types.py` が刷る）
 COLOR_NAME_VALUES                   パレット色の名ごとの描く値（表 T-294。`SvgRenderer` が塗る）
 COLUMN_DEFAULTS                      列の既定値（表 T-058 が刷る）
@@ -48,8 +49,11 @@ DEFAULT_CALENDAR_VALUES              既定の暦（表 T-209）
 EDITED_BY_SCREEN                     画面を操作する人が `lastEditedBy` に書く語（表 T-229 の `ED-1`。`CR-768`）
 ENTITY_ROWS                          実体の行（`erd.json`）
 FINDING_LAYERS                       遅延診断の矛盾と疑義の観点ごとの層（表 T-310・表 T-311 の「層」の欄、`DX-3`。`delay-diagnostics.ts` が読む）
+FIELD_ENTRY_VALUES_GUARDS            名前付けと入力欄のガードごとの判定（表 T-292 の領域のガードの一覧の式から組む。`tools/generate_state_machine_types.py` が刷る。`CR-767` の波 3）
 FIELD_ENTRY_VALUES_INITIAL_AXES      名前付けと入力欄の各状態機械の初期の種類（表 T-292 の状態の一覧の初期。`tools/generate_state_machine_types.py` が刷る）
+FILE_FLOW_VALUES_GUARDS              ファイル操作と問いのガードごとの判定（表 T-290 の領域のガードの一覧の式から組む。`tools/generate_state_machine_types.py` が刷る。`CR-767` の波 3）
 FILE_FLOW_VALUES_INITIAL_AXES        ファイル操作と問いの各状態機械の初期の種類（表 T-290 の状態の一覧の初期。`tools/generate_state_machine_types.py` が刷る）
+GESTURE_VALUES_GUARDS                身振りのガードごとの判定（表 T-289 の領域のガードの一覧の式から組む。`tools/generate_state_machine_types.py` が刷る。`CR-767` の波 3）
 GESTURE_VALUES_INITIAL_AXES          身振りの各状態機械の初期の種類（表 T-289 の状態の一覧の初期。`tools/generate_state_machine_types.py` が刷る）
 GESTURE_VALUES_INITIAL_CHILDREN      掴みの複合状態 `grabbed` に入ったときの子の種類（表 T-289 の状態の一覧の初期。同じ生成器。`CR-767` の波 2）
 GRS_DOCUMENT_SCHEMA                  `GRS JSON` を読むときに当てるスキーマの根（`grs-document.schema.json`。`tools/generate_json_schema_validator.py` が刷る）
@@ -133,6 +137,7 @@ NOT_STORED_ZOOM_STEP                 1 ノッチの倍率（`S-96`）
 NOTICE_MANNER_OF_REASON              通知の理由ごとの作法（表 T-233 の作法の欄と、取り込みの拒否が運ぶ 表 T-220 の行。`_source/notice-reasons.json` から `tools/generate_notice_reasons.py` が刷る。`CR-712`）
 NOTICE_DISPLAY_OF_REASON             通知の理由ごとの表示の仕方（表 T-233 の表示の仕方の欄と、表 T-220 の行の家族の値。同じ生成器。`CR-712`）
 NOTICE_WORDS_ROW_OF_REASON           通知の理由ごとに語を刷る行（表 T-233 のまとめ方の欄。相乗りしない行は自身。同じ生成器。`CR-712`）
+NOTICE_VALUES_GUARDS                 通知のガードごとの判定（表 T-286 の領域のガードの一覧の式から組む。`tools/generate_state_machine_types.py` が刷る。`CR-767` の波 3）
 NOTICE_VALUES_INITIAL_AXES           通知の各状態機械の初期の種類（表 T-286 の状態の一覧の初期。`tools/generate_state_machine_types.py` が刷る）
 QUESTION_DISPLAY_OF_ROW              問いごとの問うか（表 T-234 の問うかの欄。同じ生成器。`CR-712`）
 AGENT_API_VERSION                    `Agent API` の版（`AM-1` が返す値。`_source/agent-api-members.json` の `version` から `tools/generate_agent_api.py` が `agent-api-members.ts` に刷る。`CR-765`）
@@ -153,9 +158,11 @@ SCHEDULE_COLORS_SOURCES             その行のうち、ほかの行を継ぐ�
 SAVE_FILE_FORMS                      `FileGateway` が保存する形の並び —— 表 T-024 の「`IC-2` に出す」が「出す」の行の行 ID（`FR-096`、`CR-768`）。`SingleHtmlShell` が選ばれた行を形にする。型 `SaveFileForm` は `FileGateway` に同じ生成器が刷る
 SCHEMA_DEFS                          そのスキーマの `$defs`（`GRS_DOCUMENT_SCHEMA` と同じ生成器）
 SCREEN_COLORS                       画面の地の色（表 T-236 のうち `DomScreenSurface` が塗る分）
+SCREEN_VALUES_GUARDS                 画面の値のガードごとの判定（表 T-280 の領域のガードの一覧の式から組む。`tools/generate_state_machine_types.py` が刷る。`CR-767` の波 3）
 SCREEN_VALUES_INITIAL_AXES           画面の値の各状態機械の初期の種類（表 T-280 の状態の一覧の初期。`tools/generate_state_machine_types.py` が刷る）
 SCREEN_VALUES_INITIAL_CHILDREN       入れ子の状態に入ったときの子の種類（表 T-280 の状態の一覧の初期。同じ生成器）
 SEARCH_COLUMN_WIDTH_ROWS             検索の表と遅延診断レポートの表の列ごとに、既定の幅を持つ 表 T-206 の行（`S-466` 〜 `S-481`・`S-500` 〜 `S-502` の値の欄が名指す列から、`CR-660`）
+SELECTION_VALUES_GUARDS              選択のガードごとの判定（表 T-293 の領域のガードの一覧の式から組む。`tools/generate_state_machine_types.py` が刷る。`CR-767` の波 3）
 SELECTION_VALUES_INITIAL_AXES        選択の状態機械の初期の種類（表 T-293 の状態の一覧の初期。`tools/generate_state_machine_types.py` が刷る）
 SETTINGS_CONSTANTS                   文書に保存しない設定の値（`_assets/tbl-settings.md` の見出しに「文書には保存しない」とある表。表 T-064 の `PI-2`、`CR-572`）
 SETTINGS_BOUNDS                      その下限・上限
@@ -227,6 +234,11 @@ NOT_STORED_NAME_LABEL_WEIGHT         タスクとマイルストーンの名称�
 ⭐ **検査 30 の自己試験**（`--self-test`）は、メモリに持った木を 6 通りに破り、どれも赤になり、破る前の木が緑であることを確かめる。
 ⚠️ **検査 30 が見ないもの**: 試験がソースを文字列として読み、`export const 名前` を探す形。
 import ではないので読み手として数えない。
+
+### ⭐ 生成した判定は、関数の大きさ（検査 60）と集まりの写し（検査 69）で数えない
+
+⭐ **調整役の裁定（2026-10-23、`CR-767` の波 3）** —— 生成器が原稿のガードの式から組んだ判定（`<STEM>_GUARDS`）の大きさは、式の大きさである。縮めるのは仕様の仕事で、コードの側で割らない。判定の中の並びは式の項であり、仕様が使い回すために出す集まりではない。
+⛔ 免除は、囲みの頭が名指す生成器が `tools/` に在り、そのファイルを書くと答え（`--units`）、`--check` が緑の囲みの中だけ（`.claude/skills/spec-graph-check/generated_fences.py`）。その生成器が書かないファイルの囲みは赤、手で書いた関数と並びは今までどおり数える。
 
 ---
 

@@ -731,7 +731,6 @@ function onFullScreenChanged(values: ScreenValues, event: EventOf<'fullScreenCha
 
 // see T-280, S-99g, RS-27
 // WHY: an entrance pressed over a surface awaiting its answer is told; one raised by the flow is not.
-// isAnother is the cell's own guard: isAnotherSurface for an entrance, not isWatermarkUnlockSurface for the watermark.
 /** @purity pure */
 function surfaceOpenedOver(values: ScreenValues, surfaceName: string, isPressed: boolean, isAnother: boolean): ScreenStep {
   const surface = values.openSurfaceState
@@ -745,7 +744,6 @@ function surfaceOpenedOver(values: ScreenValues, surfaceName: string, isPressed:
   ])
 }
 
-// see T-280
 /** @purity pure */
 function onSurfaceOpened(
   values: ScreenValues,
@@ -864,14 +862,12 @@ function onArmEntryPressed(values: ScreenValues, event: EventOf<'armEntryPressed
   return moved(values, { armModeState: { kind: 'armed', child: ARMED_BY_KIND[event.armKind](event) } })
 }
 
-// see T-280
 /** @purity pure */
 function onWatermarkEntryPressed(values: ScreenValues): ScreenStep {
   if (values.watermarkDisplayState.kind === 'hidden') return moved(values, { watermarkDisplayState: { kind: 'shown' } })
   return surfaceOpenedOver(values, WATERMARK_UNLOCK_SURFACE, true, !SCREEN_VALUES_GUARDS.isWatermarkUnlockSurface(values))
 }
 
-// see T-280
 /** @purity pure */
 function onWatermarkUnlockAnswered(
   values: ScreenValues,
@@ -882,7 +878,6 @@ function onWatermarkUnlockAnswered(
   return moved(values, { openSurfaceState: { kind: 'closed' } })
 }
 
-// see T-280
 /** @purity pure */
 function onWatermarkUnlockMatched(values: ScreenValues): ScreenStep {
   if (values.watermarkDisplayState.kind === 'hidden' || !SCREEN_VALUES_GUARDS.isWatermarkUnlockSurface(values)) {
@@ -1292,8 +1287,7 @@ function calendarDraftDropped(values: ScreenValues): Partial<DraftAxes> {
   return values.calendarDraftState.kind === 'untouched' ? {} : { calendarDraftState: { kind: 'untouched' } }
 }
 
-// see WC-10, WC-7
-// WHY: the guard language's calendarDraftRefusals; an untouched draft (no draft carried) has none.
+// WHY: the guard language's calendarDraftRefusals (WC-10); an untouched draft carries none.
 /** @purity pure */
 function calendarDraftRefusals(calendarDraft: CalendarDraft | null): readonly CalendarDraftRefusal[] {
   return calendarDraft === null ? [] : calendarDraftRefusalsOf(calendarDraft)

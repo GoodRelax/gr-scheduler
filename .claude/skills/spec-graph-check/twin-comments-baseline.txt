@@ -175,10 +175,6 @@ copy | GesturePressRow :: the translator s pressrow again usecase may not read a
 twin: src/adapter/input-command-translator/input-command-translator.ts#PressRow
 why: T-061 reason; InputCommandTranslator->AdvanceScreenSession is declared, so the translator can import this type instead.
 
-copy | REPEATING_ENTRIES :: copies of the shell s repeating entries and press changes
-twin: stale -- the shell no longer holds REPEATING_ENTRIES or PRESS_CHANGES_DOCUMENT
-why: the comment outlived its twin (CR-450 wave B); delete the comment and this record together.
-
 coupling | isUndoable :: change together with columnsoutsidehistory a command answering false here must
 twin: src/use-case/apply-document-change/document-change-plan.ts#columnsOutsideHistory
 why: one file: a command answering false must write only the columns listed there; two lists that must agree, not a copy.

@@ -78,7 +78,7 @@ hook は `sweep` と `stats` を自動で走らせるので、Claude のセッ�
 | 生成器 | **28** | `tools/` に 18、`docs/spec/_source/` に 9、`tools/probe/` に 1 |
 | 修理 | **4** | `tools/` に 4 |
 | 調査 | **21** | `.claude/skills/spec-graph-check/` に 8、`tools/probe/examples/` に 8、`tools/` に 3、`tools/probe/` に 1、`tools/parity/` に 1 |
-| 部品・走者 | **8** | `.claude/skills/spec-graph-check/` に 6、`tools/` に 2 |
+| 部品・走者 | **10** | `.claude/skills/spec-graph-check/` に 7、`tools/` に 3 |
 | **合計** | **154**（2026-10-23 実測） | `.mjs` 26 ＋ `.py` 127 ＋ `.sh` 1。数え方: `git ls-files tools .claude/skills .claude/hooks \| grep -E '\.(py\|mjs\|sh)$' \| wc -l` |
 
 ⚠️ 上の種別ごとの本数は 2026-09-26 に数えたまま（合計 105）で、2026-10-23 に数え直していない。種別の振り分けは棚卸し E5・E6 の後の波で作り直す。
@@ -227,7 +227,7 @@ hook は `sweep` と `stats` を自動で走らせるので、Claude のセッ�
 
 ---
 
-## 8. 部品と走者（8 本）
+## 8. 部品と走者（10 本）
 
 ⛔ **部品を「誰も呼んでいない」と読むな。** 名指しではなく `import` で呼ばれている。
 
@@ -241,6 +241,8 @@ hook は `sweep` と `stats` を自動で走らせるので、Claude のセッ�
 | `specindex.py` | docs/spec と docs/spec/_assets の .md を 1 度だけ読み、表 T-nnn とその行 ID、UID、行→所有者の対応（owner_at）、列数の食い違い、references_to(対象) の逆引き、そして known（行＋UID＋表＋RETIRED）を提供する。 | 索引に入る形は「`**表 T-nnn —` 見出し」「`**UID**:` 行」「`#` 見出し」「`\|` で始まる行」の 4 つだけ —— 図の見出し `**図 F-nnn —` は 1 つも索引されないので、known を通す道具にとって図は存在しない（実測 2026-09-11、F-019 が「未定義」の最頻トークン）。discover() は 2 階層しか走査しないので docs/spec/<下位>/<下位>.md は不可視、references_to は 1 行に閉じた文字列一致なので行をまたぐ参照は 0 件。 | 9 本が import |
 | `function-size.mjs` | 検査 60（`check-function-size.py`）のために、rolldown/parseAst で src/ の TypeScript を構文木に解析し、関数ごとの行数・枝の数・開始/終了行と、名前の衝突・構文エラーを JSON で刷る。判断も基準線も持たない。 | 関数と数えるのは本体を持つ FunctionDeclaration／FunctionExpression／ArrowFunctionExpression だけで、オーバーロード宣言（本体 null）は数えない。1 ファイルの構文エラーは `errors` に記録して落とすだけで、その回全体は止めない。 | 検査 60 |
 | `merge_branch.py` | 受け取る枝のチェックアウトで、指定の枝を合流する —— 合流ドライバを入れ直す → 両側が同じ新 ID を取っていれば入ってくる側を付け替えた写しを合流する → 衝突したファイルは、塊ごとに「こちら側」と「向こう側」で解いた版をそれぞれ再生成し、同じバイトになれば生成物として解く → 再生成・仮番号の詰め・`--band` → `check.sh` と `gen:check` → `privacy_count.py --staged` → すべて緑のときだけコミットし、関門（既定は GT-2）を列に積む。 | 両側が**同じことを言っているか**は見ない —— 手書きの文書どうしが衝突なく合流しても、食い違いは検査と読み手が拾う。手書きの衝突は解かずに、ファイルの一覧を出して合流を途中のまま残す（再生成したファイルは戻すので `git merge --abort` が通る、`DFC-1431`）。⛔ push はしない。 | `npm run merge:branch -- <枝>`（調整役） |
+| `generated_fences.py` | 検査 60・69 のために、`src/` のファイルの生成の囲みのうち、出どころが確かなもの（囲みの頭が名指す生成器が `tools/` に在り、`--units` でそのファイルを書くと答え、`--check` が緑）の行の範囲を返す。名指す生成器が書かないファイルの囲みを問題として返す（調整役の裁定 2026-10-23、`CR-767` の波 3） | `--units` に答えない生成器の囲みは確かめず、免除もしない（手のコードとして数える）。生成器の `--check` を毎回 1 度走らせる | `check-function-size.py`・`check-literal-restatement.py` |
+| `state_machine_guard_judgments.py`（`tools/`） | `generate_state_machine_types.py` のために、領域のガードの条件の式（原稿の `guardLanguage`）を、ユニットの判定の表 `<STEM>_GUARDS` の TypeScript に組む（`CR-767` の波 3） | 文書のデータを持つ領域（タスクグループの木）は組まない。式の意味は読み手 `state_machines_json_to_md.py` の `Condition` の木に頼る | `generate_state_machine_types.py` |
 
 ---
 

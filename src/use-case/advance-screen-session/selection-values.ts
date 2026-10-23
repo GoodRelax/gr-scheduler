@@ -174,8 +174,7 @@ function onObjectsPicked(values: SelectionValues, event: EventOf<'objectsPicked'
   return SELECTION_VALUES_GUARDS.hasPickedObjects(event) ? selected(values, event.pickedObjects) : deselected(values)
 }
 
-// see FR-085, T-293
-// WHY: the root's chosenTaskGroups moves in the same step as the machine; neither moving keeps the reference (SF-3).
+// WHY: the root's chosenTaskGroups moves in the same step as the machine; neither moving keeps the reference (SF-3, FR-085).
 /** @purity pure */
 function withTaskGroupsAlso(step: SelectionStep, chosenTaskGroups: readonly string[]): SelectionStep {
   if (isSameList(step.state.chosenTaskGroups, chosenTaskGroups)) return step

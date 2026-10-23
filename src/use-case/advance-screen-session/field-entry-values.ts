@@ -116,7 +116,6 @@ const TASK_NAME_FIELD_ROW: FieldEntryFieldRow = 'PR-1'
 
 const TASK_GROUP_NAME_FIELD_TASK_GROUP: FieldEntryFieldRow = 'AT-53'
 
-// see T-292
 export const emptyFieldEntryValues: FieldEntryValues = { ...FIELD_ENTRY_VALUES_INITIAL_AXES }
 
 // WHY: an unmoved machine, or a carried value rewritten with itself, keeps its reference (SD-3, SF-3).
@@ -175,7 +174,6 @@ function onFieldFocusAsked(values: FieldEntryValues, event: EventOf<'fieldFocusA
 /** @purity pure */
 function onCreationLanded(values: FieldEntryValues, event: EventOf<'creationLanded'>): FieldEntryStep {
   const { createdTaskNamingState: naming, fieldEditState: edit } = values
-  // WHY: the generated isCreatedTask answers the cell (T-292) and narrows nothing, so each branch reads its own variant.
   if (FIELD_ENTRY_VALUES_GUARDS.isCreatedTask(event)) {
     const task = event.created as FieldEntryCreatedTask
     return combined(values, named(naming, task.uid), wanted(edit, TASK_NAME_FIELD_ROW), NO_EFFECTS)

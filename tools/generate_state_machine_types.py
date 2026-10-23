@@ -66,6 +66,10 @@ half of the unit is not this script's to write.
 Usage:
     python tools/generate_state_machine_types.py           write the regions
     python tools/generate_state_machine_types.py --check   exit 1 when one differs
+    python tools/generate_state_machine_types.py --units   print the units it writes, one
+                                                           path a line (checks 60 and 69 read
+                                                           it, .claude/skills/spec-graph-check/
+                                                           generated_fences.py)
 Run with PYTHONIOENCODING=utf-8.
 """
 import io
@@ -387,6 +391,10 @@ def main(argv):
         say('FAIL     state-machines.json: %d problem(s); nothing written' % len(found))
         return 1
     refuse_unknown_transition_units(regions)
+    if '--units' in argv:
+        for region in regions:
+            say(region.raw['unit'])
+        return 0
     failed = 0
     for region in regions:
         rel = region.raw['unit']
