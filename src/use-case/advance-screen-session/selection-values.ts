@@ -10,7 +10,7 @@ import {
   selectionWith,
   type Selection,
 } from '../../entity/document-model/selection/selection'
-import { NO_EFFECTS, unchanged, type Step } from './session-step'
+import { NO_EFFECTS, unchanged, type GuardJudgments, type Step } from './session-step'
 
 // see FR-033, SL-7b
 export interface SelectionCopiedTask {
@@ -84,6 +84,11 @@ export type SelectionValuesEvent =
   | { readonly type: 'copyTaken'; readonly copiedForPaste: SelectionValuesEventCarried['copiedForPaste'] }
 
 export type SelectionValuesEffectName = never
+
+export type SelectionValuesGuardName =
+  | 'hasPickedObjects'
+  | 'hasRemainingObjects'
+  | 'isRungSelection'
 
 const SELECTION_VALUES_INITIAL_AXES: SelectionValuesAxes = {
   selectionState: { kind: 'nothingSelected' },
@@ -169,10 +174,16 @@ function isRungSelection(event: EventOf<'selectionEscapePressed'>): boolean {
   return event.rung === 'selection'
 }
 
+const SELECTION_VALUES_GUARDS = {
+  hasPickedObjects,
+  hasRemainingObjects,
+  isRungSelection,
+} satisfies GuardJudgments<SelectionValuesGuardName>
+
 // WHY: an empty pick clears; with nothing selected it changes nothing (the fall-through of T-293).
 /** @purity pure */
 function onObjectsPicked(values: SelectionValues, event: EventOf<'objectsPicked'>): SelectionStep {
-  return hasPickedObjects(event) ? selected(values, event.pickedObjects) : deselected(values)
+  return SELECTION_VALUES_GUARDS.hasPickedObjects(event) ? selected(values, event.pickedObjects) : deselected(values)
 }
 
 // see FR-085, T-293
@@ -187,7 +198,7 @@ function withTaskGroupsAlso(step: SelectionStep, chosenTaskGroups: readonly stri
 /** @purity pure */
 function objectsPruned(values: SelectionValues, event: EventOf<'selectionPruned'>): SelectionStep {
   if (values.selectionState.kind === 'nothingSelected') return unchanged(values)
-  return hasRemainingObjects(event) ? selected(values, event.remainingObjects) : deselected(values)
+  return SELECTION_VALUES_GUARDS.hasRemainingObjects(event) ? selected(values, event.remainingObjects) : deselected(values)
 }
 
 /** @purity pure */
@@ -198,7 +209,8 @@ function onSelectionPruned(values: SelectionValues, event: EventOf<'selectionPru
 // see IN-4, FR-085
 /** @purity pure */
 function onSelectionEscapePressed(values: SelectionValues, event: EventOf<'selectionEscapePressed'>): SelectionStep {
-  return isRungSelection(event) ? withTaskGroupsAlso(deselected(values), NO_CHOSEN_TASK_GROUPS) : unchanged(values)
+  if (!SELECTION_VALUES_GUARDS.isRungSelection(event)) return unchanged(values)
+  return withTaskGroupsAlso(deselected(values), NO_CHOSEN_TASK_GROUPS)
 }
 
 // see SK-19, FR-085

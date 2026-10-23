@@ -4,7 +4,7 @@
 // @purity    pure
 // Generated region below the carried-value types: docs/spec/_source/state-machines.json. Do not edit by hand; npm run gen.
 
-import { NO_EFFECTS, unchanged, type Step } from './session-step'
+import { NO_EFFECTS, unchanged, type GuardJudgments, type Step } from './session-step'
 
 // WHY: the rows asked for focus; an edited field may name any editable row (IF-9), so carried rows are strings.
 export type FieldEntryFieldRow = 'PR-1' | 'AT-53' | 'PR-16' | 'PR-21' | 'PR-22' | 'U-27'
@@ -81,6 +81,11 @@ export type FieldEntryValuesEvent =
 export type FieldEntryValuesEffectName =
   | 'bringCreatedTaskGroupIntoSight'
 
+export type FieldEntryValuesGuardName =
+  | 'isCreatedTask'
+  | 'isEditedField'
+  | 'isNameField'
+
 const FIELD_ENTRY_VALUES_INITIAL_AXES: FieldEntryValuesAxes = {
   createdTaskNamingState: { kind: 'idle' },
   fieldEditState: { kind: 'idle' },
@@ -141,10 +146,16 @@ function isNameField(fieldRow: string): boolean {
   return fieldRow === TASK_NAME_FIELD_ROW
 }
 
+const FIELD_ENTRY_VALUES_GUARDS = {
+  isCreatedTask,
+  isEditedField,
+  isNameField,
+} satisfies GuardJudgments<FieldEntryValuesGuardName>
+
 // WHY: an end of the name field, committed or canceled, makes the next Enter the one that settles the name (FR-091).
 /** @purity pure */
 function nameEnded(naming: CreatedTaskNamingState, fieldRow: string): CreatedTaskNamingState {
-  if (naming.kind !== 'namingCreatedTask' || !isNameField(fieldRow)) return naming
+  if (naming.kind !== 'namingCreatedTask' || !FIELD_ENTRY_VALUES_GUARDS.isNameField(fieldRow)) return naming
   return { kind: 'createdNameEnded', createdTaskUid: naming.createdTaskUid }
 }
 
@@ -163,7 +174,7 @@ function named(naming: CreatedTaskNamingState, createdTaskUid: number): CreatedT
 
 /** @purity pure */
 function onFieldFocusAsked(values: FieldEntryValues, event: EventOf<'fieldFocusAsked'>): FieldEntryStep {
-  if (isEditedField(values.fieldEditState, event.fieldRow)) return unchanged(values)
+  if (FIELD_ENTRY_VALUES_GUARDS.isEditedField(values.fieldEditState, event.fieldRow)) return unchanged(values)
   const want = wanted(values.fieldEditState, event.fieldRow)
   return combined(values, values.createdTaskNamingState, want, NO_EFFECTS)
 }
@@ -173,7 +184,7 @@ function onFieldFocusAsked(values: FieldEntryValues, event: EventOf<'fieldFocusA
 function onCreationLanded(values: FieldEntryValues, event: EventOf<'creationLanded'>): FieldEntryStep {
   const { created } = event
   const { createdTaskNamingState: naming, fieldEditState: edit } = values
-  if (isCreatedTask(created)) {
+  if (FIELD_ENTRY_VALUES_GUARDS.isCreatedTask(created)) {
     return combined(values, named(naming, created.uid), wanted(edit, TASK_NAME_FIELD_ROW), NO_EFFECTS)
   }
   const effects: Effects = [{ type: 'bringCreatedTaskGroupIntoSight', taskGroupId: created.taskGroupId }]
@@ -196,7 +207,7 @@ function onFieldEditBegan(values: FieldEntryValues, event: EventOf<'fieldEditBeg
 /** @purity pure */
 function onFieldEditEnded(values: FieldEntryValues, event: EventOf<'fieldEditEnded'>): FieldEntryStep {
   const naming = nameEnded(values.createdTaskNamingState, event.fieldRow)
-  const isEdited = isEditedField(values.fieldEditState, event.fieldRow)
+  const isEdited = FIELD_ENTRY_VALUES_GUARDS.isEditedField(values.fieldEditState, event.fieldRow)
   const edit = isEdited ? FIELD_ENTRY_VALUES_INITIAL_AXES.fieldEditState : values.fieldEditState
   return combined(values, naming, edit, NO_EFFECTS)
 }

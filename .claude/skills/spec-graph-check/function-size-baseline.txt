@@ -1,4 +1,5 @@
 excess-lines=5383 excess-branches=467
+# PRUNED armed-placement.ts::commandFromArmed (held 51/16, now below the band) on 2026-10-23 (CR-767 wave 2, FR-019): the highlight box placement moved to highlightBoxPlacement. Totals left for the coordinator to lower.
 # LOWERED totals 5744/509 -> 5383/467 and every HELD line to its measured value on 2026-10-23 (JDG-520): the wave 2 cleanup shrank the held functions; no HELD line rose, the key set is unchanged.
 # PRUNED document-change-plan.ts::planDocumentChange (held 62/9, now below the band) on 2026-10-19 (CR-807, FR-063): the two stamp returns folded into one. Totals left for the coordinator to lower.
 # PRUNED task-group-grab.ts::taskGroupGrabLandingOf (held 56/7) and taskGroupGrabPlacesInDrawingOrder (held 74/16), both deleted on 2026-10-16 (CR-772: the axis walk became taskGroupGrabLandingAt, under the band). Totals left for the coordinator.
@@ -70,7 +71,6 @@ HELD src/adapter/agent-api-endpoint/agent-api-members.ts::exportPng lines=62 bra
 HELD src/adapter/document-codec/grs-json-schema.ts::collectFaults lines=44 branches=16
 HELD src/adapter/document-codec/mspdi-codec.ts::tasksInWbsOrder lines=31 branches=16
 HELD src/adapter/document-codec/mspdi-xml.ts::readXml lines=87 branches=26
-HELD src/adapter/input-command-translator/armed-placement.ts::commandFromArmed lines=51 branches=16
 HELD src/adapter/input-command-translator/input-command-translator.ts::commandFromEntry lines=139 branches=59
 HELD src/adapter/input-command-translator/input-command-translator.ts::pointerAssignment lines=39 branches=21
 HELD src/adapter/input-command-translator/item-grab.ts::commandFromGrab lines=122 branches=57

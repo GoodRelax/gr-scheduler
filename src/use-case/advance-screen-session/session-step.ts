@@ -20,3 +20,8 @@ export function unchanged<S, E>(state: S): Step<S, E> {
 export function assertNever(x: never): never {
   throw new Error(`unhandled case: ${String(x)}`)
 }
+
+// see SD-3
+// WHY: one judgment per guard of a region's guard list, each typed for what it reads; `satisfies`
+// against the generated name union refuses a judgment the manuscript does not name and a name with none.
+export type GuardJudgments<N extends string> = { readonly [K in N]: (...args: never[]) => boolean }

@@ -23,6 +23,7 @@ import {
   type Item,
 } from '../../entity/layout-engine/item-hit-area/item-hit-area'
 import type { ScreenRect } from '../../entity/layout-engine/screen-regions/screen-regions'
+import { armedOf } from '../../use-case/advance-screen-session/advance-screen-session'
 import type {
   HumanInput,
   PointerInput,
@@ -136,7 +137,7 @@ function pickRowOf(press: PointerPress, release: PointerInput, context: InputCon
 /** @purity pure */
 function isChoiceKeptByDrag(grab: GrabTaskGroup, ref: ItemRef, press: PointerPress, release: PointerInput,
                            context: InputContext): boolean {
-  const isArmedForParents = context.screen.armModeState.kind === 'parentTaskArmed'
+  const isArmedForParents = armedOf(context.screen.armModeState)?.kind === 'parentTaskArmed'
   const isDragGrab = BODY_GRAB_TASK_GROUPS.has(grab) || isArmedForParents
   return isDragGrab && isSelected(context.selection, ref) && hasDraggedPastThreshold(press, release)
 }
@@ -144,7 +145,7 @@ function isChoiceKeptByDrag(grab: GrabTaskGroup, ref: ItemRef, press: PointerPre
 // see SL-4, MK-16
 /** @purity pure */
 function isShiftBodyMove(press: PointerPress, release: PointerInput, context: InputContext): boolean {
-  const armed = context.screen.armModeState.kind
+  const armed = armedOf(context.screen.armModeState)?.kind
   const isMoveArm = armed !== 'dependencyArmed' && armed !== 'parentTaskArmed'
   return isMoveArm && isDateKeepingDrag(press) && hasDraggedPastThreshold(press, release)
 }

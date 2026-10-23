@@ -729,6 +729,7 @@ export const EXPORT_CHOOSER_ROW = 'U-54'
 export const WATERMARK_UNLOCK_ROW = 'U-60'
 
 const ESCAPE_SURFACE: ScreenValuesEvent = { type: 'escapePressed', rung: 'surface' }
+const ESCAPE_PROPERTIES_PANEL: ScreenValuesEvent = { type: 'escapePressed', rung: 'propertiesPanel' }
 const ESCAPE_ARMED: ScreenValuesEvent = { type: 'escapePressed', rung: 'armed' }
 const ESCAPE_HELP: ScreenValuesEvent = { type: 'escapePressed', rung: 'helpModal' }
 const ESCAPE_SEARCH_PANEL: ScreenValuesEvent = { type: 'escapePressed', rung: 'searchPanel' }
@@ -814,7 +815,7 @@ const ESCAPE_RUNG_EVENTS: { readonly [R in EscapeTarget]: ScreenValuesEvent | nu
   helpModal: ESCAPE_HELP,
   delayDiagnosticsReport: null,
   resourceList: null,
-  propertiesPanel: ESCAPE_SURFACE,
+  propertiesPanel: ESCAPE_PROPERTIES_PANEL,
   armed: ESCAPE_ARMED,
   selection: null,
   dualCursorMode: ESCAPE_DUAL_CURSOR,
@@ -2115,7 +2116,8 @@ function taskGroupGrabCarryOf(hands: FrameLoopHands) {
   /** @purity non-pure */
   function readingAt(frame: FrameValues | null, pointer: { readonly x: number; readonly y: number } | null): ScreenViewReadingsTaken['taskGroupGrabbedAt'] {
     const press = hands.readPressed()
-    const isCarrying = hands.readSession().gesture.taskGroupGrabState.kind === 'carrying'
+    const grab = hands.readSession().gesture.taskGroupGrabState
+    const isCarrying = grab.kind === 'grabbed' && grab.child.kind === 'carrying'
     if (!isCarrying || frame === null || press === null || pointer === null) return (tickedAtMs = null)
     const context = hands.collectInputContext(frame)
     const follow = commandFromInput({ ...press.at, phase: 'move', x: pointer.x, y: pointer.y }, context).action
