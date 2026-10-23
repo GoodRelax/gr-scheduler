@@ -1,0 +1,47 @@
+{
+ "top": {
+  "E": "FrameEnvironment FrameValues HeldDocumentCall AgentApiWiring HandedImport AgentApiSeams StartupNoticeReason FrameLoop FullScreenHost ScreenWiring FrameLoopHands startingSession UNSAVED_MARK_DROPPING_EVENTS documentAtUnsavedMarkDrop startupReadingLanded FULL_SCREEN_REFUSED_REASON MergeCandidateLine MergeChoices MergeMapping PROPERTIES_PANEL_SURFACE",
+  "NR": "NOTICE_REASON_OF_FILE_FAULT NOTICE_REASON_OF_WRITE_REFUSAL RefusalSituation REFUSAL_SITUATIONS situationReasonOf noticeReasonOfRefusals reasonOfWriteRefusal RECOUNTED_PERCENT_COMPLETE_REASON HEIGHT_CEILING_REASON PROMPT_COPIED_REASON PROMPT_NOT_COPIED_REASON PICTURE_COPIED_REASON NOTICE_REASON_OF_RASTER_FAULT SEAM_ABSENT_REASON NO_WORKING_WEEKDAY_REASON STACK_SAFETY_CAP_REASON NOTHING_TO_DO_REASON NOTICE_REASON_OF_SPENT_ENTRANCE NO_WORKING_WEEKDAY_INVARIANT noWorkingWeekdayReason CONFIRMATION_MANNER ConfirmationQuestion DISCARD_QUESTION GRS_RESET_ENTRY GRS_RESET_QUESTION AGENT_OPEN_FILE_ASKED changeQuestionRaisedBy grsResetEntryPressedOf discardQuestionOf",
+  "SR": "openSurfaceNameIn dualCursorFollowingIn screenLanguageIn PanelShowing panelShowingIn standingNoticesIn isDeliveringNoticesIn importReportLinesIn raisedNoticesOf landedLinkIn isChangingDocumentIn isAgentApiEnabledIn NO_OBJECTS_SELECTED selectedObjectsIn isQuestionAskedIn fileDragEventIn isAnySurfaceStanding questionIn fileOperationKindIn mergeReviewIn isFlowSurface FLOW_SURFACE_ROWS DIFFERENCE_REVIEW_ROW",
+  "TW": "WindowGrab windowDisplayKeyOf windowShownIn grabbedWindowBox TABLE_WINDOW_OF_SURFACE WindowPlaces STARTING_WINDOW_PLACES ResourceListInput withTableWindows withFrontFlag withFrontTableWindow withTableWindowRaised withFrontTableWindowSettled windowPlacesAtPress ReportInput windowPlacesAfterGrab windowPlacesAfterColumnDrag TypedTable reportWithInput resourceListWithInput windowPlacesAfterTyping windowReadingsOf windowPlacesAfterClosing grabbedShown windowPlacesAfterEscape isFilterPressedOutside windowPlacesAfterOutsidePress closedTablesOf closingHoldOf tableWindowsHeldIn heldWindowsOf FixLogSource searchViewWithFilterChanges searchPanelWithTypedWord ESCAPE_SURFACE ESCAPE_PROPERTIES_PANEL ESCAPE_ARMED ESCAPE_HELP ESCAPE_SEARCH_PANEL ESCAPE_DUAL_CURSOR ESCAPE_TOOLTIP ESCAPE_FULL_SCREEN ESCAPE_RUNG_EVENTS DelayFixSubjectKey proposalsNotIssuedSinceRun",
+  "PS": "WINDOW_GRAB_POINTERS windowGrabPointerOf",
+  "SJ": "SEARCH_HIT_JUMPED PINNED_TASK_GROUPS_LEAVE_NO_ROOM_REASON SearchJumpCell searchJumpOnRelease searchHitOf actionWithJumpViews ReportBeforeJump jumpToSearchHit landJump OwedJump JumpLandingHold owedJumpHolder landingAgentHolder",
+  "DD": "DELAY_DIAGNOSTICS_ENTRY RE_DIAGNOSE_ENTRY DelayDiagnosticsDrawing HeldDelayDiagnostics delayDiagnosticsOf heldAfterMarkerOperated isDelayDiagnosticsReportOpen DelayDiagnosticsPress answerDelayDiagnosticsEntry reportHeldOf",
+  "CP": "PALETTE_GRAB_BAND_ENTRY paletteCornerOf windowSizeOf paletteCornerInWindow bandSizeOf",
+  "UP": "NO_POINTER_ANSWERS isSameScreenPart isSameGrab isSameGrabbedItem dualCursorDrawnOf hintReleasedEntryAfter hintEntryOf HintHolder HintTarget NO_HINT_TARGET iconRowOf hintTargetOf HintWalk hintWalkAt isSameHintTarget HINT_TARGET_CHANGED itemKeyOf",
+  "PP": "HeldWholes measuredAtPress heldWholeOf followedPressOf pressedOnOf POINTER_RELEASED PRESS_INTERRUPTED",
+  "IR": "ESCAPE_KEY ENTER_KEY GUIDE_CURSOR_NONE CONFIRMATION_PROCEED_ANSWER CONFIRMATION_PROCEED_KEY CONFIRMATION_CANCEL_KEY isConfirmationAnswerKey isNoticeDismissKey isLandingMarkClearedBy continuationMarkClickedOf isRefusedPanelWidth SENT_AFTER_PRESS_DROPS isSentBeforePressDrops pickedObjectsOf choiceEventOf isTaskGroupChoiceSpentBy hasEndedGesture escapeLevelOf isFloatingFieldPress HOLIDAY_SETTINGS_SURFACE LANDING_MARK_CLEAR_ASKED NEWEST_NOTICE_DISMISS_ASKED SELECTION_ESCAPE_PRESSED SELECTION_SETTLE_KEY_PRESSED isOnTableWindowBody isWindowGrabPress isLeftToTheHost",
+  "AC": "TASK_GROUP_GRAB_TRAVEL_PASSED AGENT_API_ENTRY_PRESSED SAVE_WRITE_FORM TIME_SHIFT_LANDED WHOLE_SCHEDULE_SHIFT_LANDED PERCENT_PER_WHOLE taskGroupsChosenWith CreatedSubject creationLandingOf copyPromptAndHandSchema startingAfreshCall startedDocumentOf resetGrs SELECTION_CLEARED PanelSubjectPick subjectOfChoice",
+  "EA": "SCREEN_LANGUAGE_ENTRY HELP_LANGUAGE_ENTRY MILESTONE_LIST_ENTRY PALETTE_MINIMIZE_ENTRY INTERACTION_RECORD_ENTRY NEW_DOCUMENT_ENTRY CLOSE_SURFACE_ENTRY OPEN_CHOICE_OF_ENTRY MERGE_MAPPING_OF_ENTRY PROGRESS_MARKER_ENTRY INTERACTION_RECORD_TOGGLED PANEL_CLOSE_ASKED SEARCH_TASKS_ENTRY SEARCH_COMMENT_BOXES_ENTRY SEARCH_TEXT_SIZE_ENTRY SEARCH_FILTER_ENTRY SEARCH_CLEAR_ENTRY searchPanelAfterEntry filterColumnOf filterListedOf REPORT_RESTORE_ENTRY entrySettledOnRelease answerSettledOnRelease surfaceSettledOnRelease formatSettledOnRelease",
+  "DW": "BYTES_PER_MEGABYTE HISTORY_LIMITS DOCUMENT_REPLACED DOCUMENT_REPLACED_BY_OPEN_OR_NEW OPEN_OR_NEW_ROWS DOCUMENT_EDIT_LANDED DOCUMENT_BACK_TO_SAVED LANDING_OF_REPLACEMENT_ROW landingOfReplacement historyStepsOf agentHolderOf taskGroupsWithinSchedule resourcePruningOf",
+  "FD": "ScreenViewReadingsTaken screenViewReadingsOf shownSpanTextsOf environmentForRegionsOf unstoredZoomOf writeOwedSight beneathAndMarqueeOverlayShowerOf HELP_MODAL_SURFACE SEARCH_PANEL_SURFACE SEARCH_WORD_ROW stackSafetyCapToldAfter ExportSceneWithCapStop ExportView screenExportViewOf regionsClosedUnderTaskGroupArea spanExportViewOf pictureSessionOf ZoomEntranceEnds HeldZoomEnds VIEW_PLACE_FIELDS isSameApartFromViewPlace isSameZoomEndsInputs zoomEntranceEndsHoldOf isSizeSettled isSameEnvironment propertiesPanelWidthOf defaultPanelWidthOf panelFacesIn panelFaceWidthEventOf",
+  "DP": "GeometryArguments PictureInputs DrawnPicture isSameRecord isSameScreenRegions isSameScheduleApartFromStatusDate isSameLayoutInputs isSamePictureInputs drawnPictureOf",
+  "GG": "MS_PER_SECOND HeldGrabScroll PLAIN_MODIFIERS heldGrabScrollOf turnedGrabScrollPlace taskGroupGrabCarryOf writeScrollPlace",
+  "SE": "ScreenEffectHands effectRunnersOf ScreenDraftEffectName screenDraftRunnersOf",
+  "CR": "readToday PC_OFFSET_HOUR JANUARY JULY readSystemStandardTimeZone readInstantOfWrite readLocalMoment readMonotonicMs",
+  "FCW": "ENTRY_REPEAT_TIME_ELAPSED",
+  "FE": "CHOICE_MOVED FIELD_FOCUS_WITHDRAWING_KEYS FIELD_FOCUS_WITHDRAWN",
+  "WU": "WATERMARK_UNLOCK_ROW",
+  "DFF": "AGENT_DOCUMENT_HANDED DOCUMENT_OPEN_FAILED DOCUMENT_FILE_WRITE_ENDED EXPORT_CHOOSER_ROW OPEN_CHOOSER_ROW GREATEST_KNOWN_SCHEMA_VERSION",
+  "ICC": "windowFocusContextOf SEARCH_FIELD_ROWS NO_MARKED_TASKS"
+ },
+ "closure": {
+  "E": "session savedDocument environment changeWatchers sendToSession hands showBeneathAndMarqueeOverlay windows parentTasks shownTasks owedJump zoomEntranceEndsAt beneathPicture heldViewPlace grabCarry interactionRecorder fieldFocusRetries documentFileFlow askBrowserForFullScreen <ExpressionStatement> <IfStatement> {3019} {3022} {3026} {3027} {3031} {3034} {3036} {3038} isPropertiesPanelOnScreen agentApiEnablingWatch storeAgentApiEnabling snapshotSource raiseNotice endFileOperation sendFromFlow",
+  "DW": "held holder audience collectWriteMoment writeDocument replaceHeldDocument replaceHeldDocumentAt settingsLimitsOf",
+  "FD": "runFrame ask runAskedFrame drawnPicture stackSafetyCapToldFor isTooltipStanding shownNotices isSearchWordFocusOwed addedTaskGroupOwedSight exportViewNow exportScene watermarkStampedAt watermarkStoredName watermarkOpenedBy watermarkNow lastPanelFaces followPanelFace values owed",
+  "PP": "pressed previewDocument heldPropertyPanelWidth collectPress beginPointerPress endPointerPress",
+  "CP": "commandPaletteDraggedTo commandPaletteCornerAtPress",
+  "DD": "delayDiagnosticsShown delayDiagnosticsHeld delayDiagnosticsNow showDelayDiagnostics showDiagnosisRow",
+  "DRW": "answerReportEntry",
+  "UP": "pointerAt partUnderPointer grabUnderPointer pointerWalk answersAtPointerOf hintReleasedEntry hintTarget hintWalk noteHintTarget",
+  "IR": "receiveInput owesFrame spendNoticeRungFirst dismissNoticeByKey answerConfirmation spentOnParentTaskChoice startsNoTextSelection pruneChoiceTo",
+  "AC": "carryOutAction settleOnScreen copyImageToJsonPrompt standOnWhatWasCreated askToStartNewDocument carryOutOwedAction repeatHeldEntry showDisplayScaleMessage showVerticalZoomEndMessage followChoiceOnPanel showPropertiesOfChoice",
+  "EA": "answerSettledEntry",
+  "SE": "effectRunners",
+  "NR": "raiseFileFault raiseWriteRefusal",
+  "ICC": "collectInputContext"
+ },
+ "returnMembers": {
+  "isBrowserDefaultStopped": "IR"
+ }
+}
