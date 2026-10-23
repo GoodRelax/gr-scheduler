@@ -1432,17 +1432,19 @@ const STATUS_DATE_KEY = { holder: 'project', column: 'statusDate' } as const
 
 const STATUS_DATE_ENTRY: IconId = 'IC-44'
 
-// see FR-046, IC-44, CM-3, CM-4
+// see FR-046, IC-44, CM-3, CM-4, TX-3
 // WHY: named by IC-44's own words (FR-046), so the field and the palette entry say the same thing.
+// With time of day shown it is a date-and-time entry like a Task's (TX-3), read on the finish side (WT-4).
 /** @purity pure */
-function statusDateField(statusDate: string | null, language: DisplayLanguage): PropertyField {
-  const text = textOfDateColumn(statusDate)
+function statusDateField(statusDate: string | null, language: DisplayLanguage, inTime: InstantOnSide | null): PropertyField {
+  const text = inTime === null ? textOfDateColumn(statusDate) : textOfDateTimeColumn(statusDate, 'finish', inTime)
+  const control = settingsControl(STATUS_DATE_KEY, 'date', text, dateEntryWidthOf(false))
   return {
     row: STATUS_DATE_ENTRY,
     name: iconLabel(STATUS_DATE_ENTRY, language),
     text,
     isEditable: true,
-    controls: [settingsControl(STATUS_DATE_KEY, 'date', text, dateEntryWidthOf(false))],
+    controls: [inTime === null ? control : controlInTime(control, STATUS_DATE_KEY.column)],
   }
 }
 
@@ -1986,7 +1988,8 @@ function settingsFields(
     checkField(settings, 'isTaskGroupPanelWidthFixed', language),
     taskGroupPanelWidthField(settings, language),
     drawnWidthField(readings, language),
-    statusDateField(schedule.project.statusDate, language),
+    statusDateField(schedule.project.statusDate, language,
+                    settings.isTimeOfDayVisible ? shownInstantReader(schedule, settings.viewTimeZone) : null),
     checkField(settings, 'isFitSpanFixed', language),
     fitSpanField(settings, language),
     shownSpanField(settings, readings, language),

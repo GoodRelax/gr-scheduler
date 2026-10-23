@@ -37,9 +37,9 @@ describe('the clauses these cases are built from still read as quoted', () => {
     expect(REQUIREMENTS).toContain('時刻の表示を切ったとき、`zoomX` が日付の軸の上限を超えていれば、その上限へ戻すこと（MUST）')
   })
 
-  it('FR-103: a released position is read as an instant snapped by table T-378, and the lower row wins', () => {
+  it('FR-103: a released position is read as an instant snapped by table T-378, and Alt selects no unit (CR-850)', () => {
     expect(REQUIREMENTS).toContain('離した位置は、表 T-378 の単位で寄せた瞬間として読むこと（MUST）')
-    expect(REQUIREMENTS).toContain('⭐ 2 つ以上の行に当たるときは、本表で下にある行の単位とすること（MUST）')
+    expect(REQUIREMENTS).toContain('（欠番 —— CR-850 で消した —— `Alt` は寄せの単位を選ばず、利用者が `Alt` の 1 分は要らないと定めた）')
   })
 
   it('FR-158: every place that shows a date-time is a row of table T-375', () => {
@@ -129,24 +129,36 @@ describe('FR-103, T-378: snapMinutesOf', () => {
 
   it.each([
     ['SG-1: the time not shown, whatever the width', false, S_578 * 4, false, DAY],
-    ['SG-1: the time not shown, with Alt held (MK-17 stands only while the time is shown)', false, S_578 * 4, true, DAY],
+    ['SG-1: the time not shown, with Alt held (Alt selects no unit)', false, S_578 * 4, true, DAY],
     ['SG-1: shown but the ruler has not reached the hour tier', true, S_577 - 1, false, DAY],
-    ['SG-2: shown, on the hour tier', true, S_577 + 1, false, 60],
-    ['SG-2: shown, just under the half-hour width', true, S_578 - 1, false, 60],
-    ['SG-3: shown, from the half-hour width', true, S_578 + 1, false, 30],
-    ['SG-3: shown, far over the half-hour width', true, S_578 * 5, false, 30],
-    ['SG-4: shown, Alt held, on the hour tier', true, S_577 + 1, true, 1],
-    ['SG-4: shown, Alt held, on the half-hour width (the lowest row wins)', true, S_578 + 1, true, 1],
-    ['SG-4: shown, Alt held, even before the hour tier', true, S_577 - 100, true, 1],
+    ['SG-2: shown, on the hour tier', true, S_577 + 1, false, 15],
+    ['SG-2: shown, just under the half-hour width', true, S_578 - 1, false, 15],
+    ['SG-2: shown, from the half-hour width (S-578 and above are SG-2 too)', true, S_578 + 1, false, 15],
+    ['SG-2: shown, far over the half-hour width', true, S_578 * 5, false, 15],
+    ['SG-2: shown, Alt held, on the hour tier (Alt selects no unit)', true, S_577 + 1, true, 15],
+    ['SG-2: shown, Alt held, on the half-hour width (Alt selects no unit)', true, S_578 + 1, true, 15],
+    ['SG-1: shown, Alt held, before the hour tier (Alt selects no unit)', true, S_577 - 100, true, DAY],
   ])('%s', (_name, shows, threshold, alt, minutes) => {
     expect(snapMinutesOf(px(threshold), withTime(shows), alt)).toBe(minutes)
   })
 
-  it('table T-378 names those four rows with those four units', () => {
+  it('Alt held gives the same unit as Alt not held at every width, shown or not (CR-850: SG-4 retired)', () => {
+    for (const shows of [false, true]) {
+      for (let threshold = 1; threshold <= S_578 * 3; threshold += 7) {
+        expect(snapMinutesOf(px(threshold), withTime(shows), true), `${shows} ${threshold}`).toBe(
+          snapMinutesOf(px(threshold), withTime(shows), false),
+        )
+      }
+    }
+  })
+
+  it('table T-378 has two live rows, day and 15 minutes, and SG-3 / SG-4 are retired', () => {
     expect(cellOf('T-378', 'SG-1', '単位')).toBe('日')
-    expect(cellOf('T-378', 'SG-2', '単位')).toBe('1 時間')
-    expect(cellOf('T-378', 'SG-3', '単位')).toBe('30 分')
-    expect(cellOf('T-378', 'SG-4', '単位')).toBe('1 分')
+    expect(cellOf('T-378', 'SG-2', '単位')).toBe('15 分')
+    expect(cellOf('T-378', 'SG-3', '単位')).toBe('—')
+    expect(cellOf('T-378', 'SG-4', '単位')).toBe('—')
+    expect(rowOf('T-378', 'SG-3').by['とき']?.startsWith('（欠番')).toBe(true)
+    expect(rowOf('T-378', 'SG-4').by['とき']?.startsWith('（欠番')).toBe(true)
   })
 })
 
@@ -189,6 +201,11 @@ describe('FR-103, RV-1, RV-6: an instant and the x it stands on', () => {
     expect(snapAt(ORIGIN_X + 575, 30)).toBe('2026-01-05T09:30:00')
     expect(snapAt(ORIGIN_X + 590, 30)).toBe('2026-01-05T10:00:00')
     expect(snapAt(ORIGIN_X + 600, 30)).toBe('2026-01-05T10:00:00')
+    expect(snapAt(ORIGIN_X + 545, 15)).toBe('2026-01-05T09:00:00')
+    expect(snapAt(ORIGIN_X + 556, 15)).toBe('2026-01-05T09:15:00')
+    expect(snapAt(ORIGIN_X + 575, 15)).toBe('2026-01-05T09:30:00')
+    expect(snapAt(ORIGIN_X + 590, 15)).toBe('2026-01-05T09:45:00')
+    expect(snapAt(ORIGIN_X + 600, 15)).toBe('2026-01-05T10:00:00')
     expect(snapAt(ORIGIN_X + 545.3, 1)).toBe('2026-01-05T09:05:00')
     expect(snapAt(ORIGIN_X + 545.7, 1)).toBe('2026-01-05T09:06:00')
   })
