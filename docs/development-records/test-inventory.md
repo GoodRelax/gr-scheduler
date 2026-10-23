@@ -16,9 +16,9 @@ what this reading does not see.
 | `integration` | TS-2 | - | 3 | 76 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
 | `system` | TS-3 | - | 99 | 628 | 0 | 0 | 0 | 1 |
-| `unit` | TS-6 | - | 190 | 4015 | 1 | 1 | 2 | 0 |
+| `unit` | TS-6 | - | 191 | 4025 | 1 | 1 | 2 | 0 |
 | `use-case` | TS-1 | VT-1 | 14 | 17 | 1 | 2 | 0 | 0 |
-| **all** | | | 757 | 10762 | 10 | 7 | 13 | 7 |
+| **all** | | | 758 | 10772 | 10 | 7 | 13 | 7 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -74,12 +74,12 @@ named either way: 4 of 10.
 | `tests/unit/cr-439-notices-and-confirmation.test.ts` | NT-5 NT-1 と見分けがつく形にすること（MUST） -- an accepted-with-caution notice does not look like a r... | none |
 | `tests/use-case/uc-010-exchange-with-an-external-wbs-master.test.ts` | UC-010 extension 2a / FR-023, OP-5: a truncated MSPDI file dropped on the schedule is d... | DFC-1016 (via known-red) |
 
-## 6. The unit files kept for now (190) -- listing only
+## 6. The unit files kept for now (191) -- listing only
 
 Re-sorting them waits for the change-request organization (handoff 2026-09-26). "Imports"
 are the callables the file imports by name from `src/`, each with the `@purity` tag above
 its declaration. "UO-1 would omit" marks a file whose every such import is tagged `pure` /
-`semi-pure-a` (rule 04 table UO, row UO-1): 29 of 190.
+`semi-pure-a` (rule 04 table UO, row UO-1): 29 of 191.
 
 | file | imports from src/ (tag) | UO-1 would omit | ties |
 | --- | --- | --- | --- |
@@ -149,7 +149,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/unit/cr-631-wbs-parent-palette-chooser-and-picture.test.ts` | choiceStepOf (pure), commandPaletteFromSession (pure), confirmationFromSession (pure), drawnSettingsOf (pure), emptySelection (pure), grabSizesOf (pure), isMixedParentPick (pure), itemAtPointer (untagged), parentTaskHoldOf (non-pure), parentTaskParts (pure), pointerImageOf (pure), pointerRowOf (pure), selectionOfAll (pure), selectionOfParentChoice (pure) | - | FR-135, T-076, T-109, T-234, T-269, T-351 |
 | `tests/unit/cr-644-the-lag-is-stored-in-tenths-of-a-minute-and-shown-in-working-days.test.ts` | diagnoseDelay (pure), documentFromJson (pure), editDependency (pure), workingCalendarOf (pure) | yes | FR-009, FR-054, T-075, T-209, T-213, T-314, T-375 |
 | `tests/unit/cr-645-a-grs-json-read-recounts-the-percent-complete.test.ts` | blankTaskVisual (pure), documentFromEmbeddedHtml (pure), documentFromJson (pure), documentFromMspdi (pure), frameLoop (non-pure), jsonFromDocument (pure), mspdiFromDocument (pure) | - | FR-011, FR-012, FR-021, FR-054, FR-100, T-024a, T-036, T-103, T-233, T-350 |
-| `tests/unit/cr-646-edits-write-side-times.test.ts` | dayOf (pure), editDocument (pure), textOfDay (pure) | yes | FR-013, FR-019, FR-054, FR-083, T-245, T-350 |
+| `tests/unit/cr-646-edits-write-side-times.test.ts` | dayOf (pure), editDocument (pure), textOfDay (pure) | yes | FR-013, FR-019, FR-054, FR-083, T-245, T-270, T-350 |
 | `tests/unit/cr-646-grs-json-shape.test.ts` | documentFromJson (pure), importDocument (pure), jsonFromDocument (pure), scheduleViolations (pure), validateImportedDocument (pure) | yes | FR-022, FR-073, T-220, T-224, T-297 |
 | `tests/unit/cr-646-mspdi-times-and-last-saved.test.ts` | dayOf (pure), documentFromMspdi (pure), editDocument (pure), mspdiFromDocument (pure), readLocalMoment (semi-pure-b) | - | FR-021, FR-101, T-059, T-220, T-228 |
 | `tests/unit/cr-646-side-time-writers.test.ts` | dayOf (pure) | yes | T-064, T-209, T-350 |
@@ -175,6 +175,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/unit/dfc-2980-a-marker-pulled-with-many-moves-puts-the-actual.test.ts` | - | - | FR-107, T-270, T-273 |
 | `tests/unit/dfc-3100-the-assignee-filter-takes-its-own-keys.test.ts` | commandFromInput (pure), domScreenSurface (non-pure), emptySelection (pure), selectionWith (pure) | - | T-225 |
 | `tests/unit/dfc-3102-dfc-3103-shifted-keys-and-keyed-dates.test.ts` | commandFromInput (pure), domScreenSurface (non-pure), emptySelection (pure) | - | 3 rows |
+| `tests/unit/dfc-3479-a-press-on-an-end-or-fade-grab-writes-nothing.test.ts` | itemAtPointer (untagged) | - | T-206, T-245, T-266, T-267, T-268, T-270 |
 | `tests/unit/dfc-540-541-695-696-1651-the-chosen-task-groups-the-chosen-assignees-and-the-question.test.ts` | installAgentApi (non-pure) | - | FR-085, FR-099, T-371 |
 | `tests/unit/dfc-540-551-686-781-the-shell-orders-notices-and-edit-marks.test.ts` | frameLoop (non-pure), installAgentApi (non-pure) | - | FR-100 |
 | `tests/unit/dfc-540-the-write-path-guards-the-notes-used-to-hold.test.ts` | editDocument (pure), planDocumentChange (pure) | yes | FR-020, FR-063 |
@@ -897,7 +898,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/unit/cr-631-wbs-parent-palette-chooser-and-picture.test.ts` | 28 | FR-135 | - | T-076, T-109, T-234, T-269, T-351 | AR-7, IC-81, IC-141, IC-142, PK-17, PK-18, PTL-13, PTL-14, QN-12, S-249, S-389, S-398, S-447, S-484, S-486, SL-8, VO-4 | - | - | - | - |
 | `tests/unit/cr-644-the-lag-is-stored-in-tenths-of-a-minute-and-shown-in-working-days.test.ts` | 30 | FR-009, FR-054 | - | T-075, T-209, T-213, T-314, T-375 | AT-48, BD-2, CM-36, CM-38, PR-42, S-117, S-118, S-128, TX-3, TX-10, UF-128, VC-15 | - | - | - | - |
 | `tests/unit/cr-645-a-grs-json-read-recounts-the-percent-complete.test.ts` | 15 | FR-011, FR-012, FR-021, FR-054, FR-100 | - | T-024a, T-036, T-103, T-233, T-350 | AT-39, IO-7, NT-3, OP-3, OP-4, OP-6, RS-52, VC-5 | - | - | - | - |
-| `tests/unit/cr-646-edits-write-side-times.test.ts` | 25 | FR-013, FR-019, FR-054, FR-083 | - | T-245, T-350 | AT-154, AT-155, CM-14, CM-15, CM-50, CM-54, EX-4, GA-9, GA-18, GO-1, GO-2, GO-3, GO-5, GO-7, GO-8, GO-10, GO-11, IC-23, IC-35, IC-36, S-77, S-482, S-483, S-584, WT-1, WT-2, WT-3, WT-4, WT-5, WT-6, WT-7, WT-8, WT-10, X-1, X-2, X-3, X-4 | - | - | - | - |
+| `tests/unit/cr-646-edits-write-side-times.test.ts` | 25 | FR-013, FR-019, FR-054, FR-083 | - | T-245, T-270, T-350 | AT-154, AT-155, CM-14, CM-15, CM-50, CM-54, EX-4, GA-9, GA-18, GO-1, GO-2, GO-3, GO-5, GO-7, GO-8, GO-10, GO-11, IC-23, IC-35, IC-36, PE-3, S-77, S-208, S-482, S-483, S-584, WT-1, WT-2, WT-3, WT-4, WT-5, WT-6, WT-7, WT-8, WT-10, X-1, X-2, X-3, X-4 | - | - | - | - |
 | `tests/unit/cr-646-grs-json-shape.test.ts` | 33 | FR-022, FR-073 | - | T-220, T-224, T-297 | AT-154, AT-155, BK-4, CP-13, IV-1, IV-23, MG-4, NT-1, OP-5, PF-1, PF-9, PI-13, RS-25, S-58, S-482, S-483, ST-5, ST-6, WT-9, WT-10 | - | - | - | - |
 | `tests/unit/cr-646-mspdi-times-and-last-saved.test.ts` | 26 | FR-021, FR-101 | - | T-059, T-220, T-228 | AT-154, AT-155, DV-12, EX-4, EX-10, EX-11, EX-12, IV-23, K-3, NR-1, NR-7, S-482, UF-36, WT-1, WT-9, WT-10, X-5 | - | - | - | - |
 | `tests/unit/cr-646-side-time-writers.test.ts` | 18 | - | - | T-064, T-209, T-350 | AT-154, AT-155, EX-7, K-1, PI-1, S-482, S-483, WT-1, WT-2, WT-3, WT-4, WT-5, WT-6, WT-7, WT-8, WT-10, X-1, X-2 | - | - | - | - |
@@ -923,6 +924,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/unit/dfc-2980-a-marker-pulled-with-many-moves-puts-the-actual.test.ts` | 7 | FR-107 | - | T-270, T-273 | GO-9, LP-1, PE-8, PE-10, S-129, S-208 | - | - | - | - |
 | `tests/unit/dfc-3100-the-assignee-filter-takes-its-own-keys.test.ts` | 5 | - | - | T-225 | AS-5, IF-9, PR-16, SK-3, SK-18 | - | - | - | - |
 | `tests/unit/dfc-3102-dfc-3103-shifted-keys-and-keyed-dates.test.ts` | 10 | - | - | - | IN-5a, IN-6, SK-16 | - | - | - | - |
+| `tests/unit/dfc-3479-a-press-on-an-end-or-fade-grab-writes-nothing.test.ts` | 10 | - | - | T-206, T-245, T-266, T-267, T-268, T-270 | GA-1, GA-2, GA-7, GA-8, GA-10, GA-11, GO-1, GO-2, PE-3, PE-11, S-208 | - | - | - | - |
 | `tests/unit/dfc-540-541-695-696-1651-the-chosen-task-groups-the-chosen-assignees-and-the-question.test.ts` | 7 | FR-085, FR-099 | - | T-371 | CD-5, IC-66, IN-4, QN-10, RO-1, RS-27, SK-19 | - | - | - | - |
 | `tests/unit/dfc-540-551-686-781-the-shell-orders-notices-and-edit-marks.test.ts` | 10 | FR-100 | - | - | BO-1, IN-1, IN-4a, NT-3, NT-8, WS-2 | - | - | - | - |
 | `tests/unit/dfc-540-the-write-path-guards-the-notes-used-to-hold.test.ts` | 8 | FR-020, FR-063 | - | - | CM-11, CM-38, CM-41, CM-42, CM-43, IV-12 | - | - | - | - |
