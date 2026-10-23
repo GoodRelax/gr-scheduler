@@ -257,7 +257,7 @@
     "App Header"
    ],
    "group": "AI",
-   "entryTo": "日程の画像をデータ化するプロンプトをクリップボードへコピーする",
+   "entryTo": "日程の画像をデータ化するプロンプトをクリップボードへコピーし、スキーマのファイルをダウンロードに渡す",
    "authority": "`FR-068`",
    "arms": null,
    "armsShape": null

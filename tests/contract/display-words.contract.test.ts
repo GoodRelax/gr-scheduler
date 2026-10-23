@@ -309,6 +309,8 @@ const KEY_FIELD: Readonly<Record<string, string>> = {
   // WHY: CR-622 keys the help's two license words (FR-069) by the part they fill.
   helpLegal: 'part',
   helpNotes: 'rowId',
+  // WHY: CR-828 keys the one sentence under the browser functions block (FR-036, JDG-3087) by that block.
+  helpBlockNotes: 'block',
   // see FR-036, CR-748, CR-785
   helpLinks: 'link',
   browserFunctions: 'rowId',
@@ -1994,6 +1996,11 @@ for (const entry of GENERATED['helpNotes'] ?? []) {
     keyOf('helpNotes', entry),
     'FR-036 names no member of the help that carries this word, so the whole-view reading asks for it instead',
   )
+}
+
+// WHY: CR-828 -- FR-036 names no member for the browser block's sentence, so the whole-view reading asks for it.
+for (const entry of GENERATED['helpBlockNotes'] ?? []) {
+  drop('helpBlockNotes', keyOf('helpBlockNotes', entry), 'FR-036 names no member of the help that carries this sentence')
 }
 
 // see FR-036, CR-748, CR-785
@@ -3800,6 +3807,7 @@ describe('CR-194 section 5 / PND-160 -- fill one word of the manuscript and it r
       cell.section === 'invariants' ||
       cell.section === 'helpHeadings' ||
       cell.section === 'helpNotes' ||
+      cell.section === 'helpBlockNotes' ||
       cell.section === 'questions' ||
       cell.section === 'fileStatus' ||
       cell.section === 'exportFormats' ||

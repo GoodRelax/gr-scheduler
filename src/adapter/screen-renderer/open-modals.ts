@@ -61,6 +61,8 @@ const SEPARATE_NOTE_PART = 'separateNote'
 
 const HELP_LEGAL_WORDS_BY_PART = new Map(displayWords.helpLegal.map((entry) => [entry.part, entry]))
 
+const HELP_BLOCK_NOTES = displayWords.helpBlockNotes
+
 const WATERMARK_UNLOCK = 'Watermark Unlock'
 
 const DIFFERENCE_REVIEW = 'Difference Review'
@@ -411,6 +413,11 @@ function helpLegalWords(language: DisplayLanguage): HelpModal['helpLegal'] {
   }
 }
 
+/** @purity pure */
+function helpBlockNotes(language: DisplayLanguage): HelpModal['blockNotes'] {
+  return HELP_BLOCK_NOTES.map((entry) => ({ block: entry.block, text: entry.text[language] }))
+}
+
 // see MG-10, U-61
 /** @purity pure */
 function separateNoteOf(readings: ScreenViewReadings, language: DisplayLanguage): string {
@@ -482,6 +489,7 @@ export function helpModalFromSession(session: ScreenSession, area: HelpWindowAre
     downloadLink: helpDownloadLink(helpLanguage),
     aboutLink: helpAboutLink(helpLanguage),
     helpLegal: helpLegalWords(helpLanguage),
+    blockNotes: helpBlockNotes(helpLanguage),
     area,
   }
 }

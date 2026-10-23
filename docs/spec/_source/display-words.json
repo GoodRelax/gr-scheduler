@@ -260,8 +260,8 @@
     "en": "Schedule Image-to-JSON Prompt"
    },
    "hint": {
-    "ja": "AIにPPTやExcelなどで作った日程をGoodRelax Schedulerで処理できるJSONデータに変換させるプロンプトをクリップボードに出力する",
-    "en": "Copy to the clipboard a prompt that has an AI convert a schedule made in PowerPoint, Excel, etc. into JSON data GoodRelax Scheduler can process"
+    "ja": "AIにPPTやExcelなどで作った日程をGoodRelax Schedulerで処理できるJSONデータに変換させるプロンプトをクリップボードに出力し、そのスキーマのファイルをダウンロードする",
+    "en": "Copy to the clipboard a prompt that has an AI convert a schedule made in PowerPoint, Excel, etc. into JSON data GoodRelax Scheduler can process, and download its schema file"
    }
   },
   {
@@ -3627,8 +3627,8 @@
   {
    "rowId": "RS-65",
    "text": {
-    "ja": "クリップボードに貼り付けたプロンプトをAIに渡してください。",
-    "en": "Paste the prompt from the clipboard into an AI."
+    "ja": "クリップボードのプロンプトを、ダウンロードしたスキーマのファイル grs-document.schema.json と一緒にAIに渡してください。",
+    "en": "Paste the prompt from the clipboard into an AI, together with the downloaded schema file grs-document.schema.json."
    },
    "nextStep": {
     "ja": "冒頭部分は適宜編集してください。",
@@ -4465,6 +4465,15 @@
    "text": {
     "ja": "(構えている間だけ出る)",
     "en": "(while a tool is selected)"
+   }
+  }
+ ],
+ "helpBlockNotes": [
+  {
+   "block": "browser",
+   "text": {
+    "ja": "保存の前にブラウザが出す確認にサイトの名が出ても、GRS は手元のファイルを書き換えるだけで、どこへも送りません。",
+    "en": "Even if the browser's confirmation before saving names a site, GRS only rewrites the file on your computer and sends it nowhere."
    }
   }
  ],

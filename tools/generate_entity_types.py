@@ -2498,10 +2498,16 @@ def media_types_block():
            '// TRAP: .svg, .html and .md carry x- types: a well-known type makes Chromium list every',
            '// extension it maps to that type (text/html brings .htm and .shtml; DFC-1722, JDG-1165).',
            'const MEDIA_TYPE_OF_EXTENSION: Readonly<Record<string, string>> = {']
+    printed = set()
     for row_id, extension, media_type, _offered in generate_exchange_formats.file_rows():
         if not PLAIN_EXTENSION.match(extension):
             raise SystemExit('table T-024 row %s writes the extension %r, which '
                              'this region cannot print as a key' % (row_id, extension))
+        # WHY: IO-10 shares `.json` with IO-2 (CR-827); generate_exchange_formats.py
+        # has already refused two media types on one extension, so the first stands.
+        if extension in printed:
+            continue
+        printed.add(extension)
         out.append("  '%s': '%s'," % (extension, media_type))
     out.append('}')
     return NEWLINE.join(out)

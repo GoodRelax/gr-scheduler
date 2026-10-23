@@ -1567,6 +1567,7 @@ const HELP_MODAL: HelpModal = {
   copyrightNotice: 'CopyrightNoticeHere',
   attributions: ['AttributionOne'],
   helpLegal: { licensedUnder: 'LicensedUnderHere', fullText: 'FullTextHere' },
+  blockNotes: [],
   area: { belowAppHeader: { x: 0, y: 37, width: 1280, height: 763 } },
   downloadLink: { words: '', address: '' },
   aboutLink: { words: '', address: '' },

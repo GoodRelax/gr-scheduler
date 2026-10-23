@@ -1324,6 +1324,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `ReadableFile` | entry | interface | `src/framework/file-system-access-file-store/file-system-access-file-store.ts#ReadableFile` | -- | interface ReadableFile |
 | `SaveFilePicker` | entry | type | `src/framework/file-system-access-file-store/file-system-access-file-store.ts#SaveFilePicker` | -- | type SaveFilePicker = (options: ChooserPlace & |
 | `SaveFileType` | entry | interface | `src/framework/file-system-access-file-store/file-system-access-file-store.ts#SaveFileType` | -- | interface SaveFileType |
+| `StartDownload` | entry | type | `src/framework/file-system-access-file-store/file-system-access-file-store.ts#StartDownload` | -- | type StartDownload = (fileName: string, bytes: Uint8Array, mediaType: string) => void |
 | `WritableFileStream` | entry | interface | `src/framework/file-system-access-file-store/file-system-access-file-store.ts#WritableFileStream` | -- | interface WritableFileStream |
 
 ## BrowserClipboard (PI-30, `src/framework/browser-clipboard/browser-clipboard.ts`)
@@ -1469,6 +1470,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `horizontalWholeOf` | entry | function | `src/adapter/screen-renderer/screen-frame.ts#horizontalWholeOf` | PI-37 | function horizontalWholeOf(layout: ScheduleLayout, regions: ScreenRegions): HorizontalWhole |
 | `IconId` | entry | type | `src/adapter/screen-renderer/screen-renderer.ts#IconId` | -- | type IconId = string |
 | `imageToJsonPromptText` | entry | function | `src/adapter/screen-renderer/app-header-items.ts#imageToJsonPromptText` | PI-37 | `IC-115` がコピーする、画像から `GRS JSON` を作るプロンプトの全文を、画面の言語と版で組む。 |
+| `imageToJsonSchemaFile` | entry | function | `src/adapter/screen-renderer/app-header-items.ts#imageToJsonSchemaFile` | PI-37 | `IC-115` の同じ押下でダウンロードに渡す、`GRS JSON` のスキーマのファイル（表 T-024 の `IO-10`）の名と中身を返す。 |
 | `ImportReportLine` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#ImportReportLine` | -- | interface ImportReportLine |
 | `isFilterValueListed` | entry | function | `src/adapter/screen-renderer/table-window.ts#isFilterValueListed` | PI-37 | 列のフィルタの中の検索欄の語が、その項目の語に当たるか（`FR-151` の 表 T-330 の `SV-7`、比べ方は `SV-4`）。 |
 | `isScheduleColorRow` | entry | function | `src/adapter/svg-renderer/svg-renderer.ts#isScheduleColorRow` | PI-37 | `SvgRenderer` の `isScheduleColorRow` を、`DomScreenSurface` へ渡すためにコピーせずに公開し直したもの。 |
@@ -1801,6 +1803,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `replaceKeepingListScroll` | file only | function | `src/framework/dom-screen-surface/holiday-settings-drawing.ts#replaceKeepingListScroll` | -- | function replaceKeepingListScroll(layer: Element, drawn: readonly HTMLElement[]): void |
 | `confirmationAnswerElement` | file only | function | `src/framework/dom-screen-surface/notices-drawing.ts#confirmationAnswerElement` | -- | function confirmationAnswerElement( host: Document, answer: Confirmation['answers'][number], ): HTMLElement |
 | `confirmationElement` | file only | function | `src/framework/dom-screen-surface/notices-drawing.ts#confirmationElement` | -- | function confirmationElement(host: Document, confirmation: Confirmation): HTMLElement |
+| `keepFromInput` | file only | function | `src/framework/dom-screen-surface/notices-drawing.ts#keepFromInput` | -- | function keepFromInput(element: HTMLElement): void |
 | `LINK_RELATION` | file only | const | `src/framework/dom-screen-surface/notices-drawing.ts#LINK_RELATION` | -- | const LINK_RELATION = 'noopener noreferrer' |
 | `LINK_TARGET` | file only | const | `src/framework/dom-screen-surface/notices-drawing.ts#LINK_TARGET` | -- | const LINK_TARGET = '_blank' |
 | `linkElement` | file only | function | `src/framework/dom-screen-surface/notices-drawing.ts#linkElement` | -- | function linkElement( host: Document, address: string, words: string = address, |
@@ -2112,4 +2115,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 1074 name(s) leave through a public entry (531 of them published by table T-064), 838 more are exported by a file and not by its entry.
+Totals: 1076 name(s) leave through a public entry (532 of them published by table T-064), 839 more are exported by a file and not by its entry.

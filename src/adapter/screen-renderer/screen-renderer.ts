@@ -86,7 +86,7 @@ export {
 } from './search-panel'
 export { DEFAULT_WINDOW_PLACE, windowBoxAfterGrab, windowBoxOf, windowEdgeAt, windowNormalBoxOf, windowPlaceOf } from './window-box'
 export type { WindowPlace, WindowShown } from './window-box'
-export { imageToJsonPromptText } from './app-header-items'
+export { imageToJsonPromptText, imageToJsonSchemaFile } from './app-header-items'
 export { delayFixBackupFileNameOf, delayFixLogFileNameOf, exportFileNameOf, UNTITLED_DOCUMENT_TITLE } from './open-modals'
 export type { SearchFilterChange, SearchPanelShown, SearchPanelView } from './search-panel'
 export { filteredSearchRows, taskSearchColumnHeadings } from './search-table-filters'
@@ -497,6 +497,8 @@ export interface HelpModal extends OpenSurface {
   readonly downloadLink: HelpLink
   readonly aboutLink: HelpLink
   readonly helpLegal: { readonly licensedUnder: string; readonly fullText: string }
+  // see FR-036, T-255
+  readonly blockNotes: readonly { readonly block: string; readonly text: string }[]
   readonly area: HelpWindowArea
   readonly place?: WindowPlace
 }

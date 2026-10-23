@@ -978,12 +978,12 @@
   {
    "from": "docs/spec/_source/published-entries.json",
    "to": "docs/spec UIDs",
-   "count": 203
+   "count": 204
   },
   {
    "from": "docs/spec/_source/published-entries.json",
    "to": "docs/spec/01-04-requirements.md",
-   "count": 693
+   "count": 695
   },
   {
    "from": "docs/spec/_source/published-entries.json",
@@ -993,7 +993,7 @@
   {
    "from": "docs/spec/_source/published-entries.json",
    "to": "docs/spec/_assets/tbl-glossary.md",
-   "count": 48
+   "count": 49
   },
   {
    "from": "docs/spec/_source/published-entries.json",
@@ -1325,7 +1325,7 @@
    "HS": 12,
    "HT": 4,
    "IN": 11,
-   "IO": 9,
+   "IO": 10,
    "IP": 5,
    "IR": 4,
    "IX": 16,
