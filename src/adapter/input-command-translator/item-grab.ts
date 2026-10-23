@@ -123,11 +123,10 @@ export function commandFromGrab(
   if (opened !== null) return opened
 
   if (item.kind === 'statusLine' && hit.grab === 'GR-16') {
-    const day = dayAtX(context.layout, release.x)
-    const project = context.document.schedule.project
-    return day === null
+    const statusDate = releasedStatusDate(context, release)
+    return statusDate === null
       ? CONSUMED_ELSEWHERE
-      : changed([{ kind: 'setStatusDate', statusDate: textOfFinishSide(day, project) }])
+      : changed([{ kind: 'setStatusDate', statusDate }])
   }
 
   // TRAP: must stay above GR-14's moves below, or a double click and a drag on one place are one press.
@@ -521,7 +520,20 @@ function releasedDay(context: InputContext, release: PointerInput, side: Release
   return boundary === null ? null : dayOfBoundary(boundary, side, isMilestone)
 }
 
-// see FR-103, T-378, MK-17, T-350
+// see FR-046, T-378, SG-1, SG-2, WT-4
+// WHY: on the day unit the day column the release falls in, as before time of day; the status line has no start side.
+/** @purity pure */
+function releasedStatusDate(context: InputContext, release: PointerInput): string | null {
+  const snap = releasedSnapOf(context, release)
+  if (snap === MINUTES_PER_CALENDAR_DAY) {
+    const day = dayAtX(context.layout, release.x)
+    return day === null ? null : textOfFinishSide(day, context.document.schedule.project)
+  }
+  const instant = snappedInstantAtX(context.layout, release.x, snap)
+  return instant === null ? null : textOfInstant(instant)
+}
+
+// see FR-103, T-378, T-350
 // WHY: the released place as the text written; a whole-day unit keeps the day's default time of T-350.
 /** @purity pure */
 function releasedText(context: InputContext, release: PointerInput, side: ReleasedSide, isMilestone: boolean): string | null {

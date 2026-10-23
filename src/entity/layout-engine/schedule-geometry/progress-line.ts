@@ -10,7 +10,7 @@ import {
   type Task,
 } from '../../document-model/schedule/schedule'
 import { xFromDay, type TaskPlacement } from '../schedule-layout/schedule-layout'
-import { point, type GeometryInputs, type Path, type Point } from './schedule-geometry'
+import { point, statusLineXOf, type GeometryInputs, type Path, type Point } from './schedule-geometry'
 
 // see T-022, RV-1
 // WHY: the day comes from progressPointDayOf, which VS-6 reads too; the in-progress x stays the drawn actual bar's end.
@@ -34,7 +34,8 @@ export function progressLineOf(inputs: GeometryInputs): Path {
   const last = layout.taskGroups[layout.taskGroups.length - 1]
   if (first === undefined || last === undefined) return []
 
-  const baseX = xFromDay(layout, statusDate)
+  // see FR-014: a lane with no vertex passes where the status line stands (FR-046).
+  const baseX = statusLineXOf(inputs) ?? xFromDay(layout, statusDate)
   const half = layout.rectangleHeight / 2
   // WHY: bucketed by task group and lane: by task group alone each lane rescans its task group, quadratic once Tasks overlap (NFR-013).
   const byLane = new Map<string, TaskPlacement[][]>()

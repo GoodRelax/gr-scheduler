@@ -33,7 +33,6 @@ import {
   labeledAssigneeUidOf,
   lengthTextOf,
   clockTextOf,
-  snappedInstantAtX,
   timeAxisOf,
 } from '../../entity/layout-engine/schedule-layout/schedule-layout'
 import {
@@ -702,8 +701,6 @@ export function dualCursorReadoutOf(
 
 const GUIDE_CURSOR_NONE = 'none'
 
-const GUIDE_LABEL_MINUTES = 1
-
 // see CU-3, DC-9
 // WHY: tooltips is this frame's set: CU-3 stands down in the frame an EZ-6 tip (one placed at the point) is shown.
 /** @purity pure */
@@ -720,9 +717,8 @@ export function guideCursorLabelOf(
   if (isDualCursorOn(session) || regionAtPointer(regions, pointer.x, pointer.y) !== 'taskGroupArea') return null
   if (tooltips.some((one) => one.at !== undefined)) return null
   const axis = timeAxisOf(settings, regions)
-  const instant = settings.isTimeOfDayVisible
-    ? snappedInstantAtX(axis, pointer.x, GUIDE_LABEL_MINUTES)
-    : cursorInstantAtX(axis, pointer.x, settings)
+  // see CU-3, T-378: the label reads the snapped instant, as the Dual Cursor line does; the line itself follows the pointer.
+  const instant = cursorInstantAtX(axis, pointer.x, settings)
   const shown = cursorViewOf(settings, dataRegion)(instant)
   if (shown === null) return null
   return { text: cursorInstantText(shown, settings.isTimeOfDayVisible, displayLanguageOf(session)), at: pointer }

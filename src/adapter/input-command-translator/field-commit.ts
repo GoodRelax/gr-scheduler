@@ -505,10 +505,12 @@ function commandFromParentTaskProgressTolerance(text: string): readonly Document
   return [{ kind: 'setParentTaskProgressToleranceDays', parentTaskProgressToleranceDays: workingDays }]
 }
 
-// see FR-046, CM-3, CM-4, WT-4
+// see FR-046, CM-3, CM-4, WT-4, TX-3
+// WHY: a typed minute is kept as typed (FR-046); only a date alone takes the finish side's default time.
 /** @purity pure */
 function commandsFromStatusDate(text: string, context: InputContext): readonly DocumentCommand[] {
-  const date = settledDay(text, (day) => textOfFinishSide(day, context.document.schedule.project))
+  const typed = typedDataWallTextOf(text, context)
+  const date = settledDay(typed, (day) => textOfFinishSide(day, context.document.schedule.project))
   if (date === undefined) return []
   if (date === null) return [{ kind: 'clearStatusDate' }]
   return [{ kind: 'setStatusDate', statusDate: date }, ...statusLineCentered(context, date)]
@@ -762,9 +764,15 @@ export function commandFromFieldCommit(
 // WHY: the panel shows a Task's date-time in the view base (properties-panel.ts), so a typed one goes back to the data's clock.
 /** @purity pure */
 function dataWallTextOf(text: string, column: keyof Task, context: InputContext): string {
+  return DATE_COLUMNS.Task.includes(column) ? typedDataWallTextOf(text, context) : text
+}
+
+// see TX-3, FR-156, FR-046
+// WHY: a typed date-time is shown in the view base, so it goes back to the data's clock; a date alone is left as typed.
+/** @purity pure */
+function typedDataWallTextOf(text: string, context: InputContext): string {
   const settings = context.document.documentSettings
-  const held = text.trim()
-  const instant = settings.isTimeOfDayVisible && DATE_COLUMNS.Task.includes(column) ? typedInstantOf(held) : null
+  const instant = settings.isTimeOfDayVisible ? typedInstantOf(text.trim()) : null
   const data = context.document.schedule.project.scheduleDataTimeZone
   const view = viewRegionOf(data, settings.viewTimeZone)
   if (instant === null || view === data) return text
