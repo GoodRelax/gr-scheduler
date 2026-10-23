@@ -327,7 +327,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `ScheduleLayout` | entry | interface | `src/entity/layout-engine/schedule-layout/schedule-layout.ts#ScheduleLayout` | PI-5 | 型 |
 | `ShapeKind` | entry | type | `src/entity/layout-engine/schedule-layout/schedule-layout.ts#ShapeKind` | -- | type ShapeKind = NonNullable<TaskVisual['shapeKind']> |
 | `shownSpanOf` | entry | function | `src/entity/layout-engine/schedule-layout/time-axis.ts#shownSpanOf` | PI-5 | `Task Group Area` の左端の位置と、右端の 1 px 手前の位置が指す 2 つの日を求める。 |
-| `snapMinutesOf` | entry | function | `src/entity/layout-engine/schedule-layout/time-axis.ts#snapMinutesOf` | PI-5 | 寄せの単位（分） —— `FR-103` の 表 T-378 の `SG-1`〜`SG-4` |
+| `snapMinutesOf` | entry | function | `src/entity/layout-engine/schedule-layout/time-axis.ts#snapMinutesOf` | PI-5 | 寄せの単位（分） —— `FR-103` の 表 T-378 の `SG-1`・`SG-2` |
 | `snappedInstantAtX` | entry | function | `src/entity/layout-engine/schedule-layout/time-axis.ts#snappedInstantAtX` | PI-5 | 横の位置を、寄せの単位で寄せた瞬間（分）として読む（`FR-103`） |
 | `StackSafetyCapStop` | entry | interface | `src/entity/layout-engine/schedule-layout/schedule-layout.ts#StackSafetyCapStop` | -- | interface StackSafetyCapStop |
 | `taskGroupAnchorIn` | entry | function | `src/entity/layout-engine/schedule-layout/task-group-scroll.ts#taskGroupAnchorIn` | PI-5 | 表示の上端の y を、`S-78` と `S-176` の組に直す —— 本コンポーネントの縦のスクロールの読み方の逆である。 |

@@ -5163,17 +5163,6 @@
    }
   },
   {
-   "rowId": "MK-17",
-   "text": {
-    "ja": "1 分の単位で寄せて、離した所に置く",
-    "en": "Snap to the minute where you release"
-   },
-   "press": {
-    "ja": "掴み代の上で Alt+ドラッグ（時刻を表示しているとき）",
-    "en": "Alt+drag on a grab handle (while time of day is shown)"
-   }
-  },
-  {
    "rowId": "MK-12",
    "text": {
     "ja": "ブラウザに委ねる",

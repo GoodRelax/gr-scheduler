@@ -57,7 +57,7 @@
     "GRS JSON notes: the points that are easy to get wrong. The schema descriptions say the same at more length; when they differ, the schema wins.",
     "Times. Every date-time is a wall clock in project.scheduleDataTimeZone (for example UTC+09:00), written YYYY-MM-DDTHH:MM:SS to the minute, with no Z and no offset; GRS never converts one.",
     "A date alone (YYYY-MM-DD) is not a date-time: always write the time of day too, for example the start of the working day for a start and its end for a finish.",
-    "project.statusDate is read as a day: its time of day moves neither the status line nor the progress line.",
+    "project.statusDate is an instant like the other date-times: when the document shows time of day the status line and the progress line stand at its time of day, otherwise at its day.",
     "Lengths. Durations and lags count working minutes of the document calendar; one working day is project.minutesPerDay minutes, 480 when it is null.",
     "Dependencies. A dependency sits in the dependencies list of the later task and names the earlier task by predecessorUid.",
     "linkType is a number: 0 finish-to-finish, 1 finish-to-start, 2 start-to-finish, 3 start-to-start.",

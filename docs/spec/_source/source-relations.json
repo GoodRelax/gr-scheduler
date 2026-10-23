@@ -103,7 +103,7 @@
    "to": "docs/spec/01-04-requirements.md",
    "family": "rows",
    "fields": {
-    "rowId": 172
+    "rowId": 171
    },
    "prefixes": [
     "AR",
@@ -126,7 +126,7 @@
     "VS",
     "ZN"
    ],
-   "count": 172
+   "count": 171
   },
   {
    "from": "docs/spec/_source/display-words.json",
@@ -1053,12 +1053,12 @@
   {
    "from": "docs/spec/_source/settings.json",
    "to": "docs/spec UIDs",
-   "count": 482
+   "count": 481
   },
   {
    "from": "docs/spec/_source/settings.json",
    "to": "docs/spec/01-04-requirements.md",
-   "count": 922
+   "count": 920
   },
   {
    "from": "docs/spec/_source/settings.json",
