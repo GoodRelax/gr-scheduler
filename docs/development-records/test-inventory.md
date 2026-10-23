@@ -12,13 +12,13 @@ what this reading does not see.
 
 | place | T-218 | T-334 | files | case sites | expected-to-fail marks | known-red lines | need the MSPDI XSDs | tied to no spec row |
 | --- | --- | --- | --: | --: | --: | --: | --: | --: |
-| `contract` | TS-5 | VT-2 | 447 | 5998 | 8 | 4 | 11 | 6 |
+| `contract` | TS-5 | VT-2 | 448 | 6009 | 8 | 4 | 11 | 6 |
 | `integration` | TS-2 | - | 3 | 76 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
 | `system` | TS-3 | - | 99 | 628 | 0 | 0 | 0 | 1 |
 | `unit` | TS-6 | - | 190 | 4015 | 1 | 1 | 2 | 0 |
 | `use-case` | TS-1 | VT-1 | 14 | 17 | 1 | 2 | 0 | 0 |
-| **all** | | | 756 | 10751 | 10 | 7 | 13 | 7 |
+| **all** | | | 757 | 10762 | 10 | 7 | 13 | 7 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -482,6 +482,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/cr-767-guard-conditions-entry-exit-and-figures.contract.test.ts` | 11 | - | - | T-250 | SD-1, SD-3 | - | - | - | - |
 | `tests/contract/cr-767-wave-2-composites-and-the-panel-rung.contract.test.ts` | 34 | FR-016 | VT-2 | T-280, T-283, T-285, T-289 | HF-15, IN-1, IN-4, PI-36, RA-2, RG-3, RG-5, RG-14, SH-1, SH-2, SP-4 | - | - | - | - |
 | `tests/contract/cr-767-wave-3-generated-judgments.contract.test.ts` | 16 | FR-018, FR-053, FR-072, FR-085 | - | T-233, T-250, T-285 | AG-9, GR-19, IV-17, NT-3, NT-7, NT-8, OP-16, QN-1, QN-4, QN-5, RA-2, RA-3, SD-3, SD-5, SF-3, WC-8, WC-10 | - | - | - | - |
+| `tests/contract/cr-768-c-the-tree-judgments-are-generated.contract.test.ts` | 11 | - | VT-2 | T-250, T-328 | HF-13, HF-14, HF-16, HR-1, HR-1a, HR-2, HR-3, HR-4, HR-6, HR-7, HR-8, IC-93, RA-2, RA-3, S-418, SD-3, SD-5, SJ-2, TD-6 | - | - | - | - |
 | `tests/contract/cr-768-ic-2-offers-the-rows-the-offered-column-says.contract.test.ts` | 10 | FR-096 | - | - | IC-2, IO-1, IO-2, IO-3, IO-4, IO-5, IO-6, IO-7, IO-8, IO-9, SK-11, SX-1, SX-2 | - | - | - | - |
 | `tests/contract/cr-768-t-024-holds-the-media-type-and-the-offered-column.contract.test.ts` | 17 | FR-096 | - | T-024, T-340, T-346 | IC-2, IC-140, IO-1, IO-2, IO-3, IO-4, IO-5, IO-6, IO-7, IO-8, IO-9, RW-7, SX-2 | - | - | - | - |
 | `tests/contract/cr-768-the-hand-copies-are-generated-and-drift-is-caught.contract.test.ts` | 18 | FR-096 | - | T-024, T-229 | ED-1, IO-8, PI-37, RW-7 | - | - | - | - |

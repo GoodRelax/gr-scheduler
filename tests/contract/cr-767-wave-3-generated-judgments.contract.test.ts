@@ -98,9 +98,14 @@ describe('5.5, T-250 SD-3 and SD-5, T-285 RA-2 and RA-3: the clauses this file i
     expect(DESIGN).toContain('式が呼ぶ名の付いた関数は、領域のユニットが同じ名で手で書く（無ければ型の検査が止める）')
   })
 
-  it('SD-3 says "コードの判定もその式から生成する"; SD-5 generates only events, tables, figures, the state list and the constant', () => {
+  it('SD-3 says "コードの判定もその式から生成する"; SD-5 generates the events, tables, figures, the state list, the guard names, the judgments and the constant', () => {
     expect(rowText('T-250', 'SD-3')).toContain('コードの判定もその式から生成する')
-    expect(rowText('T-250', 'SD-5')).toContain('その領域は、出来事・状態遷移表・状態遷移図・状態の一覧と、遷移表の定数だけを生成する')
+    expect(rowText('T-250', 'SD-5')).toContain(
+      'その領域は、出来事・状態遷移表・状態遷移図・状態の一覧と、ガードの名の型・ガードごとの判定・遷移表の定数だけを生成する',
+    )
+    expect(rowText('T-250', 'SD-5')).toContain(
+      '判定は 1 つの入力（升が木の状態を決めるタスクグループ —— 根の升では無い ——、出来事が運ぶ値、式が呼ぶ名の付いた関数）を受け、遷移の関数は升のガードの名でその表から引く',
+    )
   })
 
   it('RA-2 prints "ガードごとの判定"; RA-3 writes the named functions by hand under the same names', () => {
@@ -125,8 +130,10 @@ describe('SD-3, RA-2: each guarded region prints const <STEM>_GUARDS keyed by it
     }
   })
 
-  it.each(DOCUMENT_DATA.map((r) => [r.region, r] as const))('SD-5, region %s (documentData): the generated region prints no guard table', (_, region) => {
-    expect(generatedRegionOf(region.unit)).not.toMatch(/_GUARDS = \{/)
+  it.each(DOCUMENT_DATA.map((r) => [r.region, r] as const))('SD-5, region %s (documentData): the generated region prints its guard table too', (_, region) => {
+    const keys = guardTableKeys(generatedRegionOf(region.unit), region.typeStem)
+    expect(keys, `${region.unit} prints no ${upperSnake(region.typeStem)}_GUARDS`).not.toBeNull()
+    expect(keys).toEqual((region.guards ?? []).map((g) => g.name))
   })
 })
 
