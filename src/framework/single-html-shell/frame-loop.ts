@@ -207,6 +207,7 @@ import {
   type SearchFilterChange,
   type VerticalWhole,
   imageToJsonPromptText,
+  imageToJsonSchemaFile,
 } from '../../adapter/screen-renderer/screen-renderer'
 import { jumpLandingRingOf, marqueeOverlaySvg, svgFromSchedule, type SvgSurface } from '../../adapter/svg-renderer/svg-renderer'
 import {
@@ -2864,6 +2865,17 @@ function creationLandingOf(
   }
 }
 
+// see FR-068, IC-115, IO-10
+// WHY: the clipboard goes first: it needs the page focused, and the download's own display can take it.
+/** @purity non-pure */
+function copyPromptAndHandSchema(seam: Clipboard, files: FileStore | undefined, language: DisplayLanguage): Promise<boolean> {
+  const text = imageToJsonPromptText(language, GREATEST_KNOWN_SCHEMA_VERSION)
+  const copying = writeClipboard(seam, { kind: 'document', text })
+  const schemaFile = imageToJsonSchemaFile()
+  files?.downloadFile?.(schemaFile.fileName, new TextEncoder().encode(schemaFile.text))
+  return copying.then((writing) => writing.ok)
+}
+
 /** @purity non-pure */
 export function frameLoop(
   surface: SvgSurface,
@@ -4012,7 +4024,7 @@ export function frameLoop(
     if (subject !== null) sendToSession({ type: 'selectionMoved', subject }, frame)
   }
 
-  // see FR-068, IC-115, RS-65, UF-48
+  // see FR-068, IC-115, RS-65, UF-48, IO-10
   /** @purity non-pure */
   function copyImageToJsonPrompt(): void {
     const seam = clipboard
@@ -4020,10 +4032,9 @@ export function frameLoop(
       raiseNotice(PROMPT_NOT_COPIED_REASON, null)
       return
     }
-    // TRAP: started inside the input's own call; deferred, the browser can refuse the write.
-    const text = imageToJsonPromptText(screenLanguageIn(session), GREATEST_KNOWN_SCHEMA_VERSION)
-    void writeClipboard(seam, { kind: 'document', text }).then((writing) => {
-      raiseNotice(writing.ok ? PROMPT_COPIED_REASON : PROMPT_NOT_COPIED_REASON, null)
+    // TRAP: started inside the input's own call; deferred, the browser can refuse the write and the download.
+    void copyPromptAndHandSchema(seam, files, screenLanguageIn(session)).then((isCopied) => {
+      raiseNotice(isCopied ? PROMPT_COPIED_REASON : PROMPT_NOT_COPIED_REASON, null)
     })
   }
 

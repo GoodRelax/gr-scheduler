@@ -90,11 +90,16 @@ export type SaveFilePicker = (options: ChooserPlace & {
   readonly excludeAcceptAllOption?: boolean
 }) => Promise<FileHandle>
 
+// see FR-068, IO-10
+// WHY: the page's own download, handed in; it takes no chooser and reports nothing back.
+export type StartDownload = (fileName: string, bytes: Uint8Array, mediaType: string) => void
+
 // WHY: every browser object arrives in here so the unit runs under Node; never reach for window.
 export interface FileSystemAccessEnvironment {
   readonly openFilePicker: OpenFilePicker | undefined
   readonly saveFilePicker: SaveFilePicker | undefined
   readonly dropSurface: DropSurface
+  readonly startDownload?: StartDownload
 }
 
 // see FR-096, T-024
@@ -106,6 +111,16 @@ function saveFileTypesFor(extension: string): readonly SaveFileType[] | undefine
   if (mediaType === undefined) return undefined
   return [{ accept: { [mediaType]: [extension] } }]
 }
+
+// see T-024, IO-10
+/** @purity pure */
+function mediaTypeOfFileName(fileName: string): string {
+  const dot = fileName.lastIndexOf('.')
+  const extension = dot < 0 ? '' : fileName.slice(dot)
+  return MEDIA_TYPE_OF_EXTENSION[extension] ?? UNKNOWN_MEDIA_TYPE
+}
+
+const UNKNOWN_MEDIA_TYPE = 'application/octet-stream'
 
 /** @purity pure */
 function fault(reason: FileStoreFaultReason, what: string): FileStoreFault {
@@ -274,7 +289,19 @@ async function readChosenFile(
   }
 }
 
+// see OP-13
+/** @purity non-pure */
+async function readFileOfHandle(handle: FileHandle): Promise<FileReading> {
+  try {
+    const file = await handle.getFile()
+    return { ok: true, file: { bytes: new Uint8Array(await file.arrayBuffer()), fileName: file.name } }
+  } catch (thrown) {
+    return { ok: false, fault: fault('unavailable', `${handle.name}: ${whyOf(thrown)}`) }
+  }
+}
+
 // see PI-28, IF-3, FR-060
+// WHY: a downloaded file keeps no handle; it is neither the save target nor the chooser's folder.
 /** @purity non-pure */
 export function fileSystemAccessFileStore(
   environment: FileSystemAccessEnvironment,
@@ -344,14 +371,9 @@ export function fileSystemAccessFileStore(
     if (handle === null) {
       return { ok: false, fault: fault('canceled', 'no file is open to read again') }
     }
-    try {
-      const file = await handle.getFile()
-      const bytes = new Uint8Array(await file.arrayBuffer())
-      noteHandleUsed(handle)
-      return { ok: true, file: { bytes, fileName: file.name } }
-    } catch (thrown) {
-      return { ok: false, fault: fault('unavailable', `${handle.name}: ${whyOf(thrown)}`) }
-    }
+    const reading = await readFileOfHandle(handle)
+    if (reading.ok) noteHandleUsed(handle)
+    return reading
   }
 
   /** @purity non-pure */
@@ -474,6 +496,10 @@ export function fileSystemAccessFileStore(
         isBusy = false
       }
     },
+
+    // see IF-3, FR-068, IO-10
+    /** @purity non-pure */
+    downloadFile: (fileName, bytes) => environment.startDownload?.(fileName, bytes, mediaTypeOfFileName(fileName)),
 
     /** @purity non-pure */
     async writeChosenFile(write: ChosenFileWrite): Promise<FileWriting> {

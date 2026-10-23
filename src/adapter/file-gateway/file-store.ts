@@ -73,4 +73,8 @@ export interface FileStore {
   overwriteOpenedFile(bytes: Uint8Array): Promise<FileWriting>
 
   writeChosenFile(write: ChosenFileWrite): Promise<FileWriting>
+
+  // see IF-3, FR-068, IO-10
+  // WHY: optional: a host with no page (Node, a test's store) has no download to hand a file to.
+  downloadFile?(fileName: string, bytes: Uint8Array): void
 }

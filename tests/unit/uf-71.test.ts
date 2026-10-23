@@ -1198,6 +1198,7 @@ const HELP_MODAL: HelpModal = {
   copyrightNotice: 'CopyrightNoticeHere',
   attributions: ['AttributionOne'],
   helpLegal: { licensedUnder: 'LicensedUnderHere', fullText: 'FullTextHere' },
+  blockNotes: [],
   area: { belowAppHeader: { x: 0, y: 37, width: 1280, height: 763 } },
   downloadLink: { words: '', address: '' },
   aboutLink: { words: '', address: '' },
@@ -1529,9 +1530,17 @@ describe('表 T-078 / NFR-010 (MUST NOT) -- nothing in this unit wakes a frame',
       // would be this unit becoming a second source of input.
       // WHY: FR-069 / FR-073 links keep their own press and Enter from the shell, so they open; they raise no frame.
       const isLinkGuard = one.node.getAttribute('target') === '_blank' && LINK_GUARDS.includes(one.type)
+      // WHY: CR-832 / FR-069 -- the help's full-text summary keeps its press and Enter from the shell like the links, and its
+      // details hears toggle so the drawn help box stretches; neither reports to the shell nor raises a frame (T-078).
+      const inHelp = byRole(root, 'Help Modal').some((help) => help.contains(one.node))
+      const isFullTextGuard =
+        inHelp &&
+        ((one.node.tagName === 'SUMMARY' && one.node.parentNode?.tagName === 'DETAILS' && LINK_GUARDS.includes(one.type)) ||
+          (one.node.tagName === 'DETAILS' && one.type === 'toggle'))
       expect(
         noticing.some((part) => part.contains(one.node)) ||
           isLinkGuard ||
+          isFullTextGuard ||
           (TEXT_ENTRY_EVENTS.includes(one.type) && searchLayers.some((layer) => layer.contains(one.node))),
         `${one.type} on [data-role="${one.node.getAttribute('data-role') ?? ''}"]` +
           `[data-field-row="${one.node.getAttribute('data-field-row') ?? ''}"]`,

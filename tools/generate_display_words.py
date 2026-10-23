@@ -135,6 +135,11 @@ SHORTCUT_ENTRANCE_HEADING = u'入口'
 HELP_HEADINGS =('basics', 'browser', 'App Header', 'Task Group Panel',
                 'Command Palette (continued)', 'Command Palette')
 HELP_NOTES = ('IC-54',)
+# CR-828: the one sentence under a block of the help, keyed by the block's
+# name in the help roster as HELP_HEADINGS is (FR-036: under table T-255's
+# block, the browser's save confirmation sends nothing anywhere, JDG-3087).
+# These are KEYS, not words.
+HELP_BLOCK_NOTES = ('browser',)
 # CR-622: the two words of the license lines below the help's columns
 # (FR-069): the line naming the license, and the word that opens the folded
 # full text. No table holds them as rows, so they are HELD HERE, the same move
@@ -788,6 +793,7 @@ def roster():
         'helpHeadings': list(HELP_HEADINGS),
         'helpLegal': list(HELP_LEGAL_PARTS),
         'helpNotes': list(HELP_NOTES),
+        'helpBlockNotes': list(HELP_BLOCK_NOTES),
         'helpLinks': list(HELP_LINKS),
         'browserFunctions': [row[0] for row in
                              table_rows(REL_REQUIREMENTS, BROWSER_FUNCTION_ROW,
@@ -901,6 +907,7 @@ SHAPE = {
     'helpHeadings': ('block', ('text',)),
     'helpLegal': ('part', ('text',)),
     'helpNotes': ('rowId', ('text',)),
+    'helpBlockNotes': ('block', ('text',)),
     'helpLinks': ('link', ('text',)),
     'browserFunctions': ('rowId', ('text',)),
     'invariants': ('rowId', ('text', 'nextStep')),
@@ -1085,7 +1092,7 @@ def build(doc, keys_by_row):
     for section in ('icons', 'properties', 'settings', 'paletteGroups',
                     'surfaces', 'notices',
                     'shortcuts', 'helpHeadings', 'helpLegal', 'helpNotes',
-                    'helpLinks',
+                    'helpBlockNotes', 'helpLinks',
                     'browserFunctions',
                     'reasons', 'invariants', 'questions', 'confirmation',
                     'noticeDismiss',

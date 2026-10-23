@@ -4331,6 +4331,15 @@
      }
     },
     {
+     "name": "imageToJsonSchemaFile",
+     "note": {
+      "ja": [
+       "`IC-115` の同じ押下でダウンロードに渡す、`GRS JSON` のスキーマのファイル（表 T-024 の `IO-10`）の名と中身を返す。",
+       "`FR-068` —— `SingleHtmlShell` が押しの呼び出しの中でダウンロードに渡すために公開した"
+      ]
+     }
+    },
+    {
      "name": "DISPLAY_TIME_ZONE_SLOT_SEPARATOR",
      "note": {
       "ja": [

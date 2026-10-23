@@ -1744,6 +1744,24 @@ const PROBES: readonly Probe[] = [
       return null
     },
   },
+  {
+    // see IO-10, FR-068
+    // WHY: CR-827 -- IC-115 hands the schema to the download and writes the prompt to the clipboard in one press.
+    rows: ['IO-10'],
+    expect: 'answers',
+    act: async (p) => {
+      const start = await read(p)
+      const before = start.clipboardWrites + start.notices.length
+      await press(p, 'IC-115')
+      const deadline = Date.now() + IO_6_REACH_MS
+      while (Date.now() < deadline) {
+        const now = await read(p)
+        if (now.clipboardWrites + now.notices.length > before) break
+        await p.waitForTimeout(QUIET_MS)
+      }
+      return null
+    },
+  },
 
   {
     // WHY: late in the list -- the copy is a new bar, and the widest-bar

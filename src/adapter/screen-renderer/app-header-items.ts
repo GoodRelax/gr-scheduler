@@ -265,9 +265,14 @@ const JSON_FENCE_CLOSE = '\n```'
 /** @purity pure */
 export function imageToJsonPromptText(language: DisplayLanguage, schemaVersion: string): string {
   const versionLine = `schemaVersion: ${schemaVersion}`
-  const schema = JSON_FENCE_OPEN + imageToJsonPrompt.schema + JSON_FENCE_CLOSE
   const emptyDocument = JSON_FENCE_OPEN + imageToJsonPrompt.emptyDocument + JSON_FENCE_CLOSE
-  return [imageToJsonPrompt[language], versionLine, schema, emptyDocument].join('\n\n') + '\n'
+  return [imageToJsonPrompt[language], versionLine, emptyDocument].join('\n\n') + '\n'
+}
+
+// see FR-068, IO-10
+/** @purity pure */
+export function imageToJsonSchemaFile(): { readonly fileName: string; readonly text: string } {
+  return { fileName: imageToJsonPrompt.schemaFileName, text: imageToJsonPrompt.schema + '\n' }
 }
 
 // <generated -- do not edit by hand>

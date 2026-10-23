@@ -325,13 +325,20 @@ def read_formats():
         sys.exit('generate_exchange_formats: two rows of table %s share an '
                  'extension and a first non-blank character, so OP-12 could '
                  'not name one row' % TABLE)
-    # ⛔ And no two rows may share an extension at all, judged or not: FR-096
-    # (MUST) suggests the document name with the chosen row extension, and the
-    # Framework's media types are keyed by it.
-    named = [f['extension'] for f in formats if f['extension'] is not None]
-    if len(set(named)) != len(named):
-        sys.exit('generate_exchange_formats: two rows of table %s share an '
-                 'extension, so FR-096 could not suggest one name' % TABLE)
+    # ⛔ Two rows may share an extension only with one media type: the
+    # Framework's media types are keyed by the extension, so two types on one
+    # extension would leave one of them unreachable. FR-096 suggests the name
+    # by the chosen ROW, so a shared extension does not blur the name (CR-827:
+    # IO-10, the schema handed with the image prompt, is `.json` as IO-2 is).
+    media_by_extension = {}
+    for f in formats:
+        if f['extension'] is None:
+            continue
+        seen = media_by_extension.setdefault(f['extension'], f['mediaType'])
+        if seen != f['mediaType']:
+            sys.exit('generate_exchange_formats: two rows of table %s share the '
+                     'extension %s with two media types, so the Framework '
+                     'could not key one type by it' % (TABLE, f['extension']))
     return table.headings, formats
 
 
