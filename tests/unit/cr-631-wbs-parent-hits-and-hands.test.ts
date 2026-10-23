@@ -234,7 +234,7 @@ describe('PTL-1 / PTL-2 / AR-7 -- arming the parent link', () => {
   it('PTL-1: pressing IC-142 arms, and the selection stays', () => {
     const before = emptyScreenSession
     const after = pressed(before)
-    expect(after.screen.armModeState).toEqual({ kind: 'parentTaskArmed' })
+    expect(after.screen.armModeState).toEqual({ kind: 'armed', child: { kind: 'parentTaskArmed' } })
     expect(after.selection).toEqual(before.selection)
   })
 

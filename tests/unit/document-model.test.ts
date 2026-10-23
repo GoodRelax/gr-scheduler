@@ -738,7 +738,8 @@ describe('ScreenState (PI-36) -- Esc over a standing question (IN-4, IN-4a)', ()
     expect(rungOf(armedOnly, context)).toBe('confirmation')
     expect(rungOf(armedOnly, context)).toBe('confirmation')
     expect(context.isConfirmationStanding).toBe(true)
-    expect(armedOnly.armModeState.kind).toBe('dependencyArmed')
+    // WHY: wave 2 of CR-767 (JDG-2364) holds the arm as a child of the composite `armed`.
+    expect(armedOnly.armModeState).toEqual({ kind: 'armed', child: { kind: 'dependencyArmed' } })
   })
 })
 

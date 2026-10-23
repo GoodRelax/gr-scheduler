@@ -340,14 +340,20 @@ describe('SS-5: every event of the other regions leaves the selection region at 
 })
 
 // see SP-1, SP-2, SP-3, SP-4, JDG-289
+// WHY: wave 2 of CR-767 (JDG-2364) holds every arm as a child of the composite `armed`.
 const ARM_VALUES: readonly Loose[] = [
   { kind: 'notArmed' },
-  { kind: 'taskShapeArmed', shapeKind: 'SH-1' },
-  { kind: 'milestoneShapeArmed', glyph: 'SH-5' },
-  { kind: 'dependencyArmed' },
-  { kind: 'commentBoxArmed' },
-  { kind: 'highlightBoxArmed' },
+  { kind: 'armed', child: { kind: 'taskShapeArmed', shapeKind: 'SH-1' } },
+  { kind: 'armed', child: { kind: 'milestoneShapeArmed', glyph: 'SH-5' } },
+  { kind: 'armed', child: { kind: 'dependencyArmed' } },
+  { kind: 'armed', child: { kind: 'commentBoxArmed' } },
+  { kind: 'armed', child: { kind: 'highlightBoxArmed' } },
 ]
+
+// WHY: the arm a value holds is notArmed or the child of armed.
+function armKindOf(arm: Loose): string {
+  return arm['child'] === undefined ? kindOf(arm) : kindOf(arm['child'])
+}
 
 function armEvent(armKind: string): Loose {
   return {
@@ -361,11 +367,11 @@ function armEvent(armKind: string): Loose {
 describe('JDG-289: the selection is orthogonal to armModeStateMachine (6 x 2)', () => {
   const combos = ARM_VALUES.flatMap((arm) =>
     SELECTION_MACHINE.states.map((s) => ({
-      name: `${kindOf(arm)} & ${s.key}`,
+      name: `${armKindOf(arm)} & ${s.key}`,
       session: withSelection({ selectionState: { kind: s.key, ...(SELECTION_VALUES[s.key]?.[0] ?? {}) } }, { armModeState: arm }),
     })),
   )
-  const armEvents = [...ARM_VALUES.slice(1).map((a) => armEvent(kindOf(a))), { type: 'escapePressed', rung: 'armed' }]
+  const armEvents = [...ARM_VALUES.slice(1).map((a) => armEvent(armKindOf(a))), { type: 'escapePressed', rung: 'armed' }]
 
   it.each(combos.flatMap((c) => armEvents.map((e) => [`${c.name} x ${describeCarried(e)} ${String(e['type'])}`, c.session, e] as const)))(
     'an arm event leaves the selection: %s',
@@ -384,7 +390,7 @@ describe('JDG-289: the selection is orthogonal to armModeStateMachine (6 x 2)', 
 
 describe('IN-4: with an arm and a selection both held, Esc clears the arm first and the selection second', () => {
   const both = ARM_VALUES.slice(1).map((arm) => [
-    kindOf(arm),
+    armKindOf(arm),
     withSelection({ selectionState: { kind: 'objectsSelected', selectedObjects: PICKED } }, { armModeState: arm }),
   ] as const)
 

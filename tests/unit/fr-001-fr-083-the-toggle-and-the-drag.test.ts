@@ -639,14 +639,21 @@ function creations(action: InputAction | null): readonly any[] {
 // RULING A -- the palette entrance is a toggle, and the selection has no say
 // ---------------------------------------------------------------------------
 
+// WHY: wave 2 of CR-767 (JDG-2364) holds every arm as a child of the composite `armed`;
+// this reads the arm itself -- the child, or notArmed.
+function armOf(screen: ScreenValues): { readonly kind: string } {
+  const state = screen.armModeState
+  return state.kind === 'armed' ? state.child : state
+}
+
 describe('FR-083 SP-1..SP-4 and table T-023b: the entrance is a toggle', () => {
   it('⛔ THE CONTROL: pressing an entrance with nothing armed ARMS it', () => {
     // ⚠️ WITHOUT THIS, A BUILD THAT ARMED NOTHING AT ALL WOULD PASS EVERY
     // DISARM CASE BELOW -- an arm that never stands is an arm that is always
     // down. SP-1 of table T-023a is what this reads.
     const armed = pressEntrance(RECTANGLE, emptyScreenSession.screen)
-    expect(armed.armModeState.kind).toBe('taskShapeArmed')
-    expect((armed.armModeState as any).shapeKind).toBe(RECTANGLE_SPELLING)
+    expect(armOf(armed).kind).toBe('taskShapeArmed')
+    expect((armOf(armed) as any).shapeKind).toBe(RECTANGLE_SPELLING)
   })
 
   it('⭐ SP-4: pressing the ARMED entrance again puts the arm down', () => {
@@ -671,7 +678,7 @@ describe('FR-083 SP-1..SP-4 and table T-023b: the entrance is a toggle', () => {
     // would fail both.
     const once = pressEntrance(RECTANGLE, emptyScreenSession.screen, SOMETHING_SELECTED)
     const twice = pressEntrance(RECTANGLE, once, SOMETHING_SELECTED)
-    expect(once.armModeState.kind, 'the first press armed nothing').toBe('taskShapeArmed')
+    expect(armOf(once).kind, 'the first press armed nothing').toBe('taskShapeArmed')
     expect(twice.armModeState.kind).toBe('notArmed')
   })
 
@@ -695,8 +702,8 @@ describe('FR-083 SP-1..SP-4 and table T-023b: the entrance is a toggle', () => {
     // WOULD PASS THE THREE CASES ABOVE.
     const armed = pressEntrance(RECTANGLE, emptyScreenSession.screen, SOMETHING_SELECTED)
     const moved = pressEntrance(CHEVRON, armed, SOMETHING_SELECTED)
-    expect(moved.armModeState.kind).toBe('taskShapeArmed')
-    expect((moved.armModeState as any).shapeKind).toBe(CHEVRON_SPELLING)
+    expect(armOf(moved).kind).toBe('taskShapeArmed')
+    expect((armOf(moved) as any).shapeKind).toBe(CHEVRON_SPELLING)
   })
 
   it('⭐ the arms of table T-023b are exclusive: the milestone press takes the shape arm off', () => {
@@ -704,7 +711,7 @@ describe('FR-083 SP-1..SP-4 and table T-023b: the entrance is a toggle', () => {
     // table T-023b says the values are exclusive.
     const armed = pressEntrance(RECTANGLE, emptyScreenSession.screen)
     const moved = pressEntrance(MILESTONE, armed)
-    expect(moved.armModeState.kind).toBe('milestoneShapeArmed')
+    expect(armOf(moved).kind).toBe('milestoneShapeArmed')
   })
 })
 

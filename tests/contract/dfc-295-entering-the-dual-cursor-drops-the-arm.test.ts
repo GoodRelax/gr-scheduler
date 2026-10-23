@@ -336,7 +336,10 @@ const ARMS: ReadonlyArray<{ readonly row: string; readonly armed: Armed }> = [
   { row: 'AR-7', armed: { kind: 'parentTaskArmed' } },
 ]
 
-const armedWith = (armed: Armed): ScreenValues => ({ ...emptyScreenSession.screen, armModeState: armed })
+// WHY: wave 2 of CR-767 (JDG-2364) holds every arm as a child of the composite `armed`.
+const armState = (armed: Armed): ScreenValues['armModeState'] => ({ kind: 'armed', child: armed })
+
+const armedWith = (armed: Armed): ScreenValues => ({ ...emptyScreenSession.screen, armModeState: armState(armed) })
 
 // ===========================================================================
 // 3. The premises every case below stands on
@@ -393,7 +396,7 @@ describe('T-023b closing paragraph (MUST) -- entering the Dual Cursor drops the 
     // surface, put the palette back, or leave full screen.
     const before: ScreenValues = {
       ...emptyScreenSession.screen,
-      armModeState: { kind: 'dependencyArmed' },
+      armModeState: armState({ kind: 'dependencyArmed' }),
       paletteDisplayState: { kind: 'hidden' },
       fullScreenModeState: { kind: 'full' },
       openSurfaceState: { kind: 'open', surfaceName: 'U-53' },
@@ -425,16 +428,16 @@ describe('T-029a DC-4 -- going out leaves the arm alone', () => {
     // 2026-08-26 and that `null` there means not in the mode.
     const before = armedWith(armed)
     const after = pressing(IC_45, before, 'cursorA')
-    expect(after.armModeState).toEqual(armed)
+    expect(after.armModeState).toEqual(armState(armed))
   })
 
   it('answers the same whichever side is following', () => {
     // ⚠️ DC-2 swaps the following side on every click, so both values are
     // reachable at the moment DC-4's press arrives.
     for (const side of ['cursorA', 'cursorB'] as const satisfies readonly DualCursorSide[]) {
-      expect(pressing(IC_45, armedWith({ kind: 'commentBoxArmed' }), side).armModeState, side).toEqual({
-        kind: 'commentBoxArmed',
-      })
+      expect(pressing(IC_45, armedWith({ kind: 'commentBoxArmed' }), side).armModeState, side).toEqual(
+        armState({ kind: 'commentBoxArmed' }),
+      )
     }
   })
 })
@@ -507,7 +510,7 @@ describe('FR-083 SP-1 / SP-4 -- the arming entrances still arm and still un-arm'
     for (const entry of guideCursorEntries) {
       expect(armRowOfEntry(entry), `${entry} is no longer a bare cursor entrance`).toBe('—')
       const after = pressing(entry, armedWith({ kind: 'highlightBoxArmed' }), null)
-      expect(after.armModeState, entry).toEqual({ kind: 'highlightBoxArmed' })
+      expect(after.armModeState, entry).toEqual(armState({ kind: 'highlightBoxArmed' }))
     }
   })
 })

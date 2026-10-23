@@ -290,8 +290,10 @@ const EVENT_CARRIED_VARIANTS: Record<string, readonly unknown[]> = {
   calendarDraft: [CLEAN_CALENDAR_DRAFT],
 }
 
-const ARM_KINDS = STATES.filter((s) => s.parent === ROOT && s.key.startsWith('armModeStateMachine.') && !s.initial).map(
-  (s) => axisAndPath(s.key).path[0] as string,
+// WHY: the arms are the children of the composite `armed`, which has no initial child; the
+// event's armKind names the child the cell `armed.{armKind}` enters (JDG-2364).
+const ARM_KINDS = STATES.filter((s) => s.parent === 'armModeStateMachine.armed').map(
+  (s) => axisAndPath(s.key).path[1] as string,
 )
 
 // see T-280, FR-016
@@ -354,7 +356,9 @@ function guardHolds(name: string, session: ScreenSession, event: Loose): boolean
     case 'isOtherThanShownBase':
       return event[name] === true
     case 'isSameArm': {
-      const armed = screen['armModeState'] as Loose
+      const arm = screen['armModeState'] as Loose
+      if (arm['kind'] !== 'armed') return false
+      const armed = arm['child'] as Loose
       if (armed['kind'] !== event['armKind']) return false
       if (armed['kind'] === 'taskShapeArmed') return armed['shapeKind'] === event['shapeKind']
       if (armed['kind'] === 'milestoneShapeArmed') return armed['glyph'] === event['glyph']
@@ -376,6 +380,9 @@ function guardHolds(name: string, session: ScreenSession, event: Loose): boolean
       return event['rung'] === 'surface'
     case 'isRungArmed':
       return event['rung'] === 'armed'
+    // see RG-14, DFC-2720
+    case 'isRungPropertiesPanel':
+      return event['rung'] === 'propertiesPanel'
     case 'isRungDualCursor':
       return event['rung'] === 'dualCursorMode'
     case 'isRungTooltip':
@@ -604,7 +611,7 @@ describe('SD-3 guards across two machines: openSurfaceState and propertiesPanelC
   ] as const
 
   it.each(surfaceAndPanel.flatMap(([p, s]) => RUNGS.map((rung) => [`surface.open & properties.${p} x rung=${rung}`, s, rung] as const)))(
-    'escapePressed (in openSurfaceStateMachine.closed): %s',
+    'escapePressed (isRungPropertiesPanel, DFC-2720): %s',
     (_, session, rung) => {
       expectStepMatchesManuscript(session, { type: 'escapePressed', rung })
     },
@@ -643,16 +650,18 @@ describe('DFC-3458 guard isLeavingHolidaySettings: the U-65 surface closed or re
 })
 
 describe('SD-3 guard isSameArm (armModeState x armEntryPressed): same kind and same carried value', () => {
-  it('not isSameArm: armModeStateMachine.taskShapeArmed(SH-1) x armEntryPressed(taskShapeArmed, SH-2) stays armed on SH-2', () => {
-    const session = sessionIn('armModeStateMachine.taskShapeArmed')
+  const armedChild = (session: ScreenSession): Loose => (screenOf(session)['armModeState'] as Loose)['child'] as Loose
+
+  it('not isSameArm: armModeStateMachine.armed.taskShapeArmed(SH-1) x armEntryPressed(taskShapeArmed, SH-2) stays armed on SH-2', () => {
+    const session = sessionIn('armModeStateMachine.armed.taskShapeArmed')
     expectStepMatchesManuscript(session, armEvent('taskShapeArmed', 'SH-2'))
-    expect((screenOf(step(session, armEvent('taskShapeArmed', 'SH-2')).state)['armModeState'] as Loose)['shapeKind']).toBe('SH-2')
+    expect(armedChild(step(session, armEvent('taskShapeArmed', 'SH-2')).state)['shapeKind']).toBe('SH-2')
   })
 
-  it('not isSameArm: armModeStateMachine.milestoneShapeArmed(SH-5) x armEntryPressed(milestoneShapeArmed, other glyph) stays armed on it', () => {
-    const session = sessionIn('armModeStateMachine.milestoneShapeArmed')
+  it('not isSameArm: armModeStateMachine.armed.milestoneShapeArmed(SH-5) x armEntryPressed(milestoneShapeArmed, other glyph) stays armed on it', () => {
+    const session = sessionIn('armModeStateMachine.armed.milestoneShapeArmed')
     expectStepMatchesManuscript(session, armEvent('milestoneShapeArmed', 'SH-5b'))
-    expect((screenOf(step(session, armEvent('milestoneShapeArmed', 'SH-5b')).state)['armModeState'] as Loose)['glyph']).toBe('SH-5b')
+    expect(armedChild(step(session, armEvent('milestoneShapeArmed', 'SH-5b')).state)['glyph']).toBe('SH-5b')
   })
 })
 
