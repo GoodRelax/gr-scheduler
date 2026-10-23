@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>依存線と予定の掴み代 —— 見本 71</title>
+<style>
+  :root { --bg: #ffffff; --fg: #1d2330; --muted: #5a6475; --pane: #f4f6fa; --line: #d6dbe4; --accent: #2a62c9; }
+  :root[data-theme="dark"] { --bg: #151a22; --fg: #e5e9f0; --muted: #a0a9b8; --pane: #1e2430; --line: #333c4c; --accent: #7aa7ff; }
+  html, body { margin: 0; height: 100%; background: var(--bg); color: var(--fg); font: 16px/1.7 system-ui, sans-serif; }
+  #app { display: flex; height: 100vh; }
+  #picture { flex: 1 1 auto; overflow: auto; position: relative; }
+  #picture-inner { position: relative; padding: 12px; width: max-content; }
+  #stage { position: relative; }
+  #stage canvas { position: absolute; left: 0; top: 0; pointer-events: none; }
+  #splitter { flex: 0 0 6px; cursor: col-resize; background: var(--line); }
+  #settings { flex: 0 0 420px; overflow: auto; background: var(--pane); }
+  #settings-inner { padding: 12px 16px; }
+  h1 { font-size: 18px; margin: 0 0 8px; }
+  h2 { font-size: 16px; margin: 16px 0 4px; }
+  label { display: block; margin: 4px 0; }
+  .hint { color: var(--muted); font-size: 13px; }
+  #readout { font: 15px/1.6 ui-monospace, monospace; background: var(--bg); border: 1px solid var(--line); padding: 6px 8px; min-height: 3.2em; }
+  #summary { font: 13px/1.5 ui-monospace, monospace; background: var(--bg); border: 1px solid var(--line); padding: 6px 8px; white-space: pre-wrap; user-select: all; }
+  table { border-collapse: collapse; font-size: 13px; }
+  td, th { border: 1px solid var(--line); padding: 2px 6px; text-align: left; }
+  .swatch { display: inline-block; width: 12px; height: 12px; vertical-align: middle; margin-right: 4px; }
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="picture"><div id="picture-inner"><div id="stage"><div id="svg"></div><canvas id="map"></canvas></div></div></div>
+  <div id="splitter" title="引いて幅を変える"></div>
+  <div id="settings"><div id="settings-inner">
+    <h1>依存線と予定の掴み代（見本 71）</h1>
+    <p class="hint">描いた絵と、ポインタの下で答える掴み代は、出荷のコード（src/）そのものを束ねて出している。案は、その掴み代の候補の並びだけを入れ替える。</p>
+
+    <h2>場面</h2>
+    <label><input type="radio" name="scene" value="hit" checked> 当たり判定（予定の端と依存線・進捗マーカー）</label>
+    <label><input type="radio" name="scene" value="overlap"> 依存線の縦の重なり</label>
+
+    <h2>当たりの決め方（uid 205）</h2>
+    <label><input type="radio" name="variant" value="shipped" checked> 決定（CR-830、案 B）—— 予定の端の掴み代の中では、依存線は描いた線（本線と矢じり）だけで答える。順（表 T-268 の TY-2）はそのまま</label>
+    <label><input type="radio" name="variant" value="endsFirst"> 退けた案 A —— 形の外でも予定の端が依存線より先（JDG-141 が退けた B2）</label>
+    <p class="hint">CR-830 の前の当たり（線の余白 2px も端より先）は README の数に残した。</p>
+
+    <h2>縦の重なり（uid 204）</h2>
+    <p class="hint">別々の 2 本の線の縦の走りが同じ x で重なるとき（後続の開始が同じ日など）、後の線（後続の uid の大きいほう）をどうするか。</p>
+    <label><input type="radio" name="separate" value="none" checked> 決定（JDG-3135、直さない）—— 重ねたまま</label>
+    <label><input type="radio" name="separate" value="shift"> 退けた案 X —— 後の線の縦の走りを、外へ「ずらす量」だけずらす</label>
+    <label><input type="radio" name="separate" value="corridor"> 退けた案 Y —— 後の線は、後続のすぐ上の段間（通路）を横に走ってから降りる（縦の長い走りは先行の側に来る）</label>
+    <label>ずらす量（案 X） <input type="range" id="step" min="0" max="3" step="0.25" value="1"> 線の縁（地の色の縁）の幅の <span id="step-out"></span> 倍 = <span id="step-px"></span> px</label>
+    <label><input type="checkbox" id="fanin" checked> 同じ後続へ入る線（合流）と、同じ先行から出る線（分岐）は重ねたまま</label>
+
+    <h2>見え方</h2>
+    <label>横の倍率 zoomX <input type="range" id="zoom" min="2" max="40" step="1" value="12"> <span id="zoom-out"></span></label>
+    <label>表示の倍率 <select id="scale"><option>50</option><option>75</option><option selected>100</option><option>150</option><option>200</option></select></label>
+    <label>拡大して見る <select id="magnify"><option value="1">×1</option><option value="2">×2</option><option value="3" selected>×3</option><option value="4">×4</option></select></label>
+    <label><input type="checkbox" id="paint" checked> 掴み代を塗る（本体 GA-9 は塗らない）</label>
+    <label><input type="checkbox" id="dark"> 暗い</label>
+
+    <h2>ポインタの下</h2>
+    <div id="readout">（絵の上でポインタを動かす）</div>
+    <div id="legend"></div>
+
+    <h2>値を伝える（貼る）</h2>
+    <div id="summary"></div>
+  </div></div>
+</div>
+<script>/*BUNDLE*/</script>
+<script>
+(() => {
+  const $ = (id) => document.getElementById(id)
+  const state = { scene: 'hit', variant: 'shipped', separate: 'none', step: 1, magnify: 3, fanin: true, zoom: 12, scale: 100, paint: true, dark: false }
+  try { Object.assign(state, JSON.parse(localStorage.getItem('sample71b') || '{}')) } catch (e) {}
+  if (location.hash === '#dark') state.dark = true
+  let built = null
+  let lines = []
+
+  const COLORS = {
+    'GA-1': '#ffb3b3', 'GA-2': '#ff8080', 'GA-9': '#c8e6c9', 'GA-18': '#ffe082', 'GA-19': '#9fd3ff', 'GA-24': '#b39ddb',
+    'GA-3': '#f8bbd0', 'GA-4': '#f48fb1',
+  }
+  const colorOf = (grab) => COLORS[grab] || '#dddddd'
+
+  // ---- uid 205 variants: reorder the real candidate regions --------------------------------------------
+  const distToSeg = (px, py, a, b) => {
+    const dx = b.x - a.x, dy = b.y - a.y
+    const len = dx * dx + dy * dy
+    let t = len === 0 ? 0 : ((px - a.x) * dx + (py - a.y) * dy) / len
+    t = Math.max(0, Math.min(1, t))
+    return Math.hypot(px - (a.x + t * dx), py - (a.y + t * dy))
+  }
+  const onInk = (region, x, y) => {
+    const line = lines.find((one) => one.predecessorUid === region.item.predecessorUid && one.successorUid === region.item.successorUid)
+    if (!line) return true
+    const pts = line.drawnPoints && line.drawnPoints.length > 0 ? line.drawnPoints : line.points
+    const half = (line.strokeWidth || 0) / 2
+    for (let i = 1; i < pts.length; i += 1) if (distToSeg(x, y, pts[i - 1], pts[i]) <= half) return true
+    return false
+  }
+  const VARIANTS = {
+    shipped: (out) => out,
+    endsFirst: (out, x, y, onShape) => {
+      if (onShape || !out.some((r) => r.type === 'planEnd')) return out
+      return out.filter((r) => r.type !== 'dependency' && r.type !== 'dependencyContinuation')
+    },
+    inkInEnds: (out, x, y, onShape) => {
+      if (onShape || !out.some((r) => r.type === 'planEnd')) return out
+      return out.filter((r) => r.type !== 'dependency' || onInk(r, x, y))
+    },
+    inkInEndsMarker: (out, x, y, onShape) => {
+      const kept = VARIANTS.inkInEnds(out, x, y, onShape)
+      if (onShape || !kept.some((r) => r.type === 'planEnd')) return kept
+      // the marker keeps its drawn box; only its leftward stretch to the edge (GA-18 star) yields
+      return kept.filter((r) => r.grab !== 'GA-18' || insideMarkerBox(r, x, y))
+    },
+  }
+  const insideMarkerBox = (region, x, y) => {
+    const task = (built.tasks || []).find((one) => one.taskUid === region.taskUid)
+    const m = task && task.marker
+    if (!m) return true
+    return Math.abs(x - m.center.x) <= m.radius && Math.abs(y - m.center.y) <= m.radius
+  }
+
+  // ---- uid 204: separate vertical runs of different lines at the same x -------------------------------
+  const verticalsOf = (line) => {
+    const out = []
+    const pts = line.points
+    for (let i = 1; i < pts.length; i += 1) {
+      if (Math.abs(pts[i].x - pts[i - 1].x) < 1e-6 && Math.abs(pts[i].y - pts[i - 1].y) > 1e-6) {
+        const role = i === 2 ? 'exit' : i === pts.length - 2 ? 'entry' : 'mid'
+        out.push({ index: i, x: pts[i].x, y0: Math.min(pts[i].y, pts[i - 1].y), y1: Math.max(pts[i].y, pts[i - 1].y), role })
+      }
+    }
+    return out
+  }
+  const haloOf = (geometry) => {
+    const one = geometry.dependencies[0]
+    return one ? one.strokeWidth * 3 : 4.5
+  }
+  const planBoxes = (geometry) => geometry.tasks.map((t) => {
+    const pts = t.plan && t.plan.points ? t.plan.points : []
+    if (pts.length === 0) return null
+    const ys = pts.map((q) => q.y)
+    return { uid: t.taskUid, top: Math.min(...ys), bottom: Math.max(...ys) }
+  }).filter((b) => b !== null)
+  const viaSuccessorCorridor = (geometry, line) => {
+    const boxes = planBoxes(geometry)
+    const to = boxes.find((b) => b.uid === line.successorUid)
+    if (!to) return
+    const above = boxes.filter((b) => b.bottom <= to.top + 0.5 && b.uid !== line.successorUid).map((b) => b.bottom)
+    if (above.length === 0) return
+    const corridor = (Math.max(...above) + to.top) / 2
+    const pts = line.points
+    if (pts.length !== 6) return
+    pts[2].y = corridor; pts[3].y = corridor
+  }
+  const separate = (geometry) => {
+    const step = state.step * haloOf(geometry)
+    const deps = geometry.dependencies.map((one) => ({ ...one, points: one.points.map((p) => ({ ...p })) }))
+    const order = deps.map((one, index) => index).sort((a, b) =>
+      deps[a].successorUid - deps[b].successorUid || deps[a].predecessorUid - deps[b].predecessorUid)
+    const placed = []
+    for (const index of order) {
+      const line = deps[index]
+      if (line.elision !== 'EL-3') { continue }
+      for (const run of verticalsOf(line)) {
+        const outward = run.role === 'entry' ? -1 : 1
+        let shift = 0
+        for (let guard = 0; guard < 12; guard += 1) {
+          const x = run.x + outward * shift
+          const clash = placed.some((other) => other.line !== line && Math.abs(other.x - x) < step - 1e-6 &&
+            other.y0 < run.y1 - 1e-6 && run.y0 < other.y1 - 1e-6 &&
+            !(state.fanin && ((run.role === 'entry' && other.role === 'entry' && other.line.successorUid === line.successorUid) ||
+                              (run.role === 'exit' && other.role === 'exit' && other.line.predecessorUid === line.predecessorUid))))
+          if (!clash) break
+          shift += step
+        }
+        if (shift > 0 && state.separate === 'corridor' && run.role === 'entry') {
+          viaSuccessorCorridor(geometry, line)
+          shift = 0
+          const again = verticalsOf(line).find((one) => one.role === 'entry')
+          if (again) { run.y0 = again.y0; run.y1 = again.y1 }
+        } else if (shift > 0) {
+          const nx = run.x + outward * shift
+          line.points[run.index].x = nx
+          line.points[run.index - 1].x = nx
+        }
+        placed.push({ line, x: run.x + outward * shift, y0: run.y0, y1: run.y1, role: run.role })
+      }
+      line.drawnPoints = line.points
+    }
+    return { ...geometry, dependencies: deps }
+  }
+
+  const render = () => {
+    try { localStorage.setItem('sample71b', JSON.stringify(state)) } catch (e) {}
+    document.documentElement.dataset.theme = state.dark ? 'dark' : 'light'
+    window.grsHitVariant = null
+    built = window.grs.build(state.scene, {
+      zoomX: state.zoom, displayScale: state.scale, dark: state.dark,
+      reshape: state.separate !== 'none' ? separate : undefined,
+    })
+    lines = built.dependencies
+    window.grsHitVariant = VARIANTS[state.variant]
+    $('svg').innerHTML = built.svg
+    const svg = $('svg').querySelector('svg')
+    const w = Math.ceil(svg.getBoundingClientRect().width), h = Math.ceil(svg.getBoundingClientRect().height)
+    const canvas = $('map')
+    canvas.width = w; canvas.height = h
+    const ctx = canvas.getContext('2d')
+    ctx.clearRect(0, 0, w, h)
+    const counts = {}
+    if (state.paint) {
+      const xmax = Math.min(w, 900), ymax = Math.min(h, 520)
+      for (let y = 0; y < ymax; y += 1) for (let x = 0; x < xmax; x += 1) {
+        const hit = built.answerAt(x + 0.5, y + 0.5)
+        if (hit === null || hit.grab === 'GA-9') continue
+        counts[hit.grab] = (counts[hit.grab] || 0) + 1
+        ctx.fillStyle = colorOf(hit.grab)
+        ctx.globalAlpha = 0.55
+        ctx.fillRect(x, y, 1, 1)
+      }
+    }
+    $('legend').innerHTML = Object.keys(counts).sort().map((g) =>
+      `<span class="swatch" style="background:${colorOf(g)}"></span>${g} ${counts[g]} px²`).join('<br>')
+    $('step-out').textContent = state.step
+    $('step-px').textContent = (state.step * haloOf({ dependencies: built.dependencies })).toFixed(2)
+    $('stage').style.transform = `scale(${state.magnify})`
+    $('stage').style.transformOrigin = '0 0'
+    $('picture-inner').style.width = (w * state.magnify + 24) + 'px'
+    $('picture-inner').style.height = (h * state.magnify + 24) + 'px'
+    $('zoom-out').textContent = state.zoom
+    $('summary').textContent = JSON.stringify(state)
+    window.sampleCounts = counts
+  }
+
+  const svgPoint = (event) => {
+    const svg = $('svg').querySelector('svg')
+    const box = svg.getBoundingClientRect()
+    return { x: (event.clientX - box.left) / state.magnify, y: (event.clientY - box.top) / state.magnify }
+  }
+  $('stage').addEventListener('mousemove', (event) => {
+    const p = svgPoint(event)
+    const hit = built.answerAt(p.x, p.y)
+    $('readout').textContent = `x=${p.x.toFixed(1)} y=${p.y.toFixed(1)}  ` + (hit === null ? '（なし）' : `${hit.grab}  ${hit.item}`)
+  })
+  window.sampleAnswerAt = (x, y) => built.answerAt(x, y)
+  window.sampleLines = () => lines
+  window.sampleTasks = () => built.tasks
+  window.sampleSet = (over) => { Object.assign(state, over); syncInputs(); render() }
+
+  const syncInputs = () => {
+    document.querySelectorAll('input[name=scene]').forEach((one) => { one.checked = one.value === state.scene })
+    document.querySelectorAll('input[name=variant]').forEach((one) => { one.checked = one.value === state.variant })
+    document.querySelectorAll('input[name=separate]').forEach((one) => { one.checked = one.value === state.separate })
+    $('magnify').value = String(state.magnify); $('step').value = state.step; $('fanin').checked = state.fanin
+    $('zoom').value = state.zoom; $('scale').value = String(state.scale); $('paint').checked = state.paint; $('dark').checked = state.dark
+  }
+  document.querySelectorAll('input[name=scene]').forEach((one) => one.addEventListener('change', () => { state.scene = one.value; render() }))
+  document.querySelectorAll('input[name=variant]').forEach((one) => one.addEventListener('change', () => { state.variant = one.value; render() }))
+  document.querySelectorAll('input[name=separate]').forEach((one) => one.addEventListener('change', () => { state.separate = one.value; render() }))
+  $('magnify').addEventListener('change', (e) => { state.magnify = Number(e.target.value); render() })
+  $('step').addEventListener('input', (e) => { state.step = Number(e.target.value); render() })
+  $('fanin').addEventListener('change', (e) => { state.fanin = e.target.checked; render() })
+  $('zoom').addEventListener('input', (e) => { state.zoom = Number(e.target.value); render() })
+  $('scale').addEventListener('change', (e) => { state.scale = Number(e.target.value); render() })
+  $('paint').addEventListener('change', (e) => { state.paint = e.target.checked; render() })
+  $('dark').addEventListener('change', (e) => { state.dark = e.target.checked; render() })
+
+  let dragging = false
+  $('splitter').addEventListener('mousedown', () => { dragging = true })
+  window.addEventListener('mouseup', () => { dragging = false })
+  window.addEventListener('mousemove', (e) => {
+    if (!dragging) return
+    $('settings').style.flexBasis = Math.max(200, window.innerWidth - e.clientX) + 'px'
+  })
+  syncInputs()
+  render()
+})()
+</script>
+</body>
+</html>

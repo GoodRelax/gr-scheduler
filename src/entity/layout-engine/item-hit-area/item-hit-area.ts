@@ -912,8 +912,10 @@ export function pointerWalkOf(geometry: ScheduleGeometry, sizes: GrabSizes, land
 /** @purity pure */
 function claimingRegions(walk: PointerWalk, x: number, y: number, onShape: boolean): readonly Region[] {
   const out = walk.taskRegions.filter((region) => region.covers(x, y))
+  const isInkOnlyInPlanEndGrab = !onShape && out.some((region) => region.type === 'planEnd')
   for (const { line, index, region, mark } of onShape ? walk.linesOnShape : walk.linesOffShape) {
-    if (isCovering(region, x, y)) out.push(region)
+    const answering = isInkOnlyInPlanEndGrab ? walk.linesOnShape[index]?.region ?? null : region
+    if (isCovering(answering, x, y)) out.push(answering)
     if (mark !== null && line.continuation !== null && mark.covers(x, y)) {
       out.push({ ...mark, nearness: nearnessOf(line, line.continuation.farUid, walk.shapes, index) })
     }

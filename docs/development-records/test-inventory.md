@@ -12,13 +12,13 @@ what this reading does not see.
 
 | place | T-218 | T-334 | files | case sites | expected-to-fail marks | known-red lines | need the MSPDI XSDs | tied to no spec row |
 | --- | --- | --- | --: | --: | --: | --: | --: | --: |
-| `contract` | TS-5 | VT-2 | 449 | 6023 | 8 | 4 | 11 | 6 |
+| `contract` | TS-5 | VT-2 | 450 | 6029 | 8 | 4 | 11 | 6 |
 | `integration` | TS-2 | - | 3 | 76 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
 | `system` | TS-3 | - | 99 | 628 | 0 | 0 | 0 | 1 |
 | `unit` | TS-6 | - | 191 | 4028 | 1 | 1 | 2 | 0 |
 | `use-case` | TS-1 | VT-1 | 14 | 17 | 1 | 2 | 0 | 0 |
-| **all** | | | 759 | 10789 | 10 | 7 | 13 | 7 |
+| **all** | | | 760 | 10795 | 10 | 7 | 13 | 7 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -549,6 +549,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/cr-822-a-lock-version-change-moves-no-artifact-version.contract.test.ts` | 4 | - | - | - | - | - | - | - | - |
 | `tests/contract/cr-824-a-comment-box-over-a-label-answers-the-double-click.contract.test.ts` | 9 | FR-019, FR-109 | - | T-020, T-023, T-023d | GR-10, GR-11, GR-14, MK-13, ZO-5, ZO-9 | - | - | - | - |
 | `tests/contract/cr-826-fr-133-no-question-mark-or-flame-on-a-task-not-due-yet.contract.test.ts` | 14 | FR-133 | - | T-310 | DG-1, DG-2, DG-3, DT-1, DW-1, DX-6, DX-7, DX-8 | - | - | - | - |
+| `tests/contract/cr-830-a-plan-end-takes-the-margin-of-a-dependency-line.test.ts` | 6 | FR-104 | - | T-266 | GA-2, GA-19, RP-1, S-253, S-285 | - | - | - | - |
 | `tests/contract/dfc-1000-hf-10-the-open-all-stance-counts-every-placed-task-group.test.ts` | 9 | - | - | T-051, T-109 | HF-2, HF-10, IC-58, IC-74, RS-31 | - | - | - | - |
 | `tests/contract/dfc-1013-tl-12-the-delay-days-are-told-only-in-the-ez-6-tip.test.ts` | 8 | FR-047 | - | T-038, T-348 | DG-4, DX-10, EZ-6, OC-8, TL-12 | - | - | - | - |
 | `tests/contract/dfc-1015-fr-019-a-hidden-end-task-group-shrinks-the-frame.test.ts` | 5 | FR-019, UC-008 | - | - | - | - | - | - | - |
