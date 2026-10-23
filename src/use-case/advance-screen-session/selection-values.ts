@@ -10,7 +10,7 @@ import {
   selectionWith,
   type Selection,
 } from '../../entity/document-model/selection/selection'
-import { NO_EFFECTS, unchanged, type GuardJudgments, type Step } from './session-step'
+import { NO_EFFECTS, unchanged, type Step } from './session-step'
 
 // see FR-033, SL-7b
 export interface SelectionCopiedTask {
@@ -93,6 +93,15 @@ export type SelectionValuesGuardName =
 const SELECTION_VALUES_INITIAL_AXES: SelectionValuesAxes = {
   selectionState: { kind: 'nothingSelected' },
 }
+
+const SELECTION_VALUES_GUARDS = {
+  hasPickedObjects: (event: Extract<SelectionValuesEvent, { readonly type: 'objectsPicked' }>): boolean =>
+    (event.pickedObjects?.items?.length ?? NaN) > 0,
+  hasRemainingObjects: (event: Extract<SelectionValuesEvent, { readonly type: 'selectionPruned' }>): boolean =>
+    (event.remainingObjects?.items?.length ?? NaN) > 0,
+  isRungSelection: (event: Extract<SelectionValuesEvent, { readonly type: 'selectionEscapePressed' }>): boolean =>
+    event.rung === 'selection',
+}
 // </generated>
 
 type SelectionStep = Step<SelectionValues, SelectionValuesEffect>
@@ -158,27 +167,6 @@ function deselected(values: SelectionValues): SelectionStep {
   if (values.selectionState.kind === 'nothingSelected') return unchanged(values)
   return { state: { ...values, selectionState: NOTHING_SELECTED }, effects: NO_EFFECTS }
 }
-
-/** @purity pure */
-function hasPickedObjects(event: EventOf<'objectsPicked'>): boolean {
-  return event.pickedObjects.items.length > 0
-}
-
-/** @purity pure */
-function hasRemainingObjects(event: EventOf<'selectionPruned'>): boolean {
-  return event.remainingObjects.items.length > 0
-}
-
-/** @purity pure */
-function isRungSelection(event: EventOf<'selectionEscapePressed'>): boolean {
-  return event.rung === 'selection'
-}
-
-const SELECTION_VALUES_GUARDS = {
-  hasPickedObjects,
-  hasRemainingObjects,
-  isRungSelection,
-} satisfies GuardJudgments<SelectionValuesGuardName>
 
 // WHY: an empty pick clears; with nothing selected it changes nothing (the fall-through of T-293).
 /** @purity pure */
@@ -285,3 +273,4 @@ export function stepSelectionValues(values: SelectionValues, event: SelectionVal
   const handler = HANDLERS[event.type] as (values: SelectionValues, event: SelectionValuesEvent) => SelectionStep
   return handler(values, event)
 }
+

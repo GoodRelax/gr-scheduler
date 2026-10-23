@@ -2085,7 +2085,6 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `SelectionValuesStateCarried` | file only | interface | `src/use-case/advance-screen-session/selection-values.ts#SelectionValuesStateCarried` | -- | interface SelectionValuesStateCarried |
 | `stepSelectionValues` | file only | function | `src/use-case/advance-screen-session/selection-values.ts#stepSelectionValues` | -- | function stepSelectionValues(values: SelectionValues, event: SelectionValuesEvent): SelectionStep |
 | `assertNever` | file only | function | `src/use-case/advance-screen-session/session-step.ts#assertNever` | -- | function assertNever(x: never): never |
-| `GuardJudgments` | file only | type | `src/use-case/advance-screen-session/session-step.ts#GuardJudgments` | -- | type GuardJudgments<N extends string> = { readonly [K in N]: (...args: never[]) => boolean } |
 | `NO_EFFECTS` | file only | const | `src/use-case/advance-screen-session/session-step.ts#NO_EFFECTS` | -- | const NO_EFFECTS: readonly never[] = Object.freeze([]) |
 | `Step` | file only | type | `src/use-case/advance-screen-session/session-step.ts#Step` | -- | type Step<S, E> = { readonly state: S; readonly effects: readonly E[] } |
 | `unchanged` | file only | function | `src/use-case/advance-screen-session/session-step.ts#unchanged` | -- | function unchanged<S, E>(state: S): Step<S, E> |
@@ -2113,4 +2112,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 1074 name(s) leave through a public entry (531 of them published by table T-064), 839 more are exported by a file and not by its entry.
+Totals: 1074 name(s) leave through a public entry (531 of them published by table T-064), 838 more are exported by a file and not by its entry.

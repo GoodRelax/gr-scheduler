@@ -40,9 +40,9 @@
 | `x && y` | x かつ y |
 | <code>x &#124;&#124; y</code> | x または y |
 | `x == y, x != y` | 等しい ・ 等しくない |
-| `x < y, x <= y, x > y, x >= y` | 数の大小 |
+| `x < y, x <= y, x > y, x >= y` | 数の大小。どちらかが `null` なら偽 |
 | `x in y` | x が並び y のどれかに等しい |
-| `x.length` | 並び x の長さ |
+| `x.length` | 並び x の長さ。x が `null` なら `null` |
 | `( x )` | 先に結ぶ。結ぶ強さは `!` ＞ 比較と `in` ＞ `&&` ＞ <code>&#124;&#124;</code> |
 
 ### 関数
@@ -51,13 +51,13 @@
 | --- | --- | --- |
 | `after(value)` | 同じ出来事の 1 段を終えた後の、その状態機械の運ぶ値（`<状態機械>.<運ぶ値>` を渡す）。その後の状態がその値を運ばなければ `null` | `FR-088` ・ `S-99g` |
 | `ancestors(taskGroupId)` | その `id` のタスクグループの親、親の親……と最上位までの `id` の並び（自身は含まない）。その `id` のタスクグループが無ければ空 | `HR-3` ・ `HR-1a` ・ `SJ-2` |
-| `calendarDraftRefusals(calendarDraft)` | 休日の設定の下書きが当てられない断りの並び（`WC-10` の 1 件 1 行） | `WC-10` ・ `WC-7` |
+| `calendarDraftRefusals(calendarDraft)` | 休日の設定の下書きが当てられない断りの並び（`WC-10` の 1 件 1 行）。`null` を受けると空 | `WC-10` ・ `WC-7` |
 | `childTaskGroups(taskGroupId)` | 親（`parentId`）がその `id` のタスクグループである、直下の子のタスクグループの並び | `HR-7` ・ `TD-6` |
-| `noticeDisplay(reason)` | 表 T-233 の、その理由の表示の仕方（`_source/notice-reasons.json` の `display`。`'hide'` は「出さない」、`'autoDismiss'` は「時間で消す」） | `FR-076` ・ `NT-2` |
-| `reasonsOf(standing)` | 立っている通知の並びの、1 枚ずつの理由（表 T-233 の行）の並び | `NT-8` ・ `NT-2` |
+| `noticeDisplay(reason)` | 表 T-233 の、その理由の表示の仕方（`_source/notice-reasons.json` の `display`。`'hide'` は「出さない」、`'autoDismiss'` は「時間で消す」）。表に無い理由なら `null` | `FR-076` ・ `NT-2` |
+| `reasonsOf(standing)` | 立っている通知の並びの、1 枚ずつの理由（表 T-233 の行）の並び。`null` を受けると空 | `NT-8` ・ `NT-2` |
 | `setting(row)` | 設定の行（`_assets/tbl-settings.md` の `S-` 行）の、いま文書が持つ値 | `S-418` |
 | `wordsRow(reason)` | 表 T-233 で、その理由が語を借りる行（まとめ方の「語は …」）。借りなければその理由自身 | `NT-3` ・ `FR-076` |
-| `wordsRowsOf(standing)` | 立っている通知の並びの、1 枚ずつの `wordsRow` の並び | `NT-3` |
+| `wordsRowsOf(standing)` | 立っている通知の並びの、1 枚ずつの `wordsRow` の並び。`null` を受けると空 | `NT-3` |
 
 ## 領域をまたぐ優先順
 

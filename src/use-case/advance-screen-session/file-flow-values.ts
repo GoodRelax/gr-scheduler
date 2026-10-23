@@ -6,7 +6,7 @@
 
 import type { DocumentCommand } from '../edit-document/edit-document'
 import { QUESTION_DISPLAY_OF_ROW } from './notice-values'
-import { NO_EFFECTS, unchanged, type GuardJudgments, type Step } from './session-step'
+import { NO_EFFECTS, unchanged, type Step } from './session-step'
 
 // WHY: the file store's OpenRoute plus the Agent API hand-over; UseCase may not read an Adapter type (table T-061).
 export type FileFlowOpenRoute = 'chooser' | 'drop' | 'reopen' | 'baseline' | 'handed'
@@ -232,6 +232,51 @@ const FILE_FLOW_VALUES_INITIAL_AXES: FileFlowValuesAxes = {
   confirmationState: { kind: 'notAsked' },
   unsavedEditsState: { kind: 'nothingUnsaved' },
 }
+
+const FILE_FLOW_VALUES_GUARDS = {
+  hasAnythingToReport: (event: Extract<FileFlowValuesEvent, { readonly type: 'documentOpenLanded' }>): boolean =>
+    (event.droppedTaskNames?.length ?? NaN) > 0
+      || (event.missingTaskNames?.length ?? NaN) > 0
+      || (event.reportedCounts?.length ?? NaN) > 0,
+  isBackToSavedDocument: (event: Extract<FileFlowValuesEvent, { readonly type: 'documentEditLanded' }>): boolean =>
+    event.isBackToSavedDocument,
+  isBaselineRoute: (values: FileFlowValues): boolean => {
+    const fileOperationOpenRoute =
+      values.fileOperationState.kind === 'readingDocumentFile' ? values.fileOperationState.openRoute
+      : null
+    return fileOperationOpenRoute === 'baseline'
+  },
+  isDifferenceReviewSurface: (event: Extract<FileFlowValuesEvent, { readonly type: 'flowSurfaceClosed' }>): boolean =>
+    event.surfaceName === 'U-61',
+  isFileOperationQuestion: (values: FileFlowValues): boolean => {
+    const confirmationOwedAction =
+      values.confirmationState.kind === 'questionAsked' ? values.confirmationState.owedAction
+      : null
+    return confirmationOwedAction == null
+  },
+  isImportCanceled: (event: Extract<FileFlowValuesEvent, { readonly type: 'mergeMappingAnswered' }>): boolean =>
+    event.mergeMapping?.kind === 'cancelImport',
+  isImportReportSurface: (event: Extract<FileFlowValuesEvent, { readonly type: 'flowSurfaceClosed' }>): boolean =>
+    event.surfaceName === 'U-62',
+  isOpenChooserSurface: (event: Extract<FileFlowValuesEvent, { readonly type: 'flowSurfaceClosed' }>): boolean =>
+    event.surfaceName === 'U-56',
+  isOverwriteQuestion: (values: FileFlowValues): boolean => {
+    const confirmationQuestion =
+      values.confirmationState.kind === 'questionAsked' ? values.confirmationState.question
+      : null
+    return confirmationQuestion?.question === 'QN-4'
+  },
+  isProceeding: (event: Extract<FileFlowValuesEvent, { readonly type: 'confirmationAnswered' }>): boolean =>
+    event.isProceeding,
+  isReopenRoute: (values: FileFlowValues): boolean => {
+    const fileOperationOpenRoute =
+      values.fileOperationState.kind === 'readingDocumentFile' ? values.fileOperationState.openRoute
+      : null
+    return fileOperationOpenRoute === 'reopen'
+  },
+  isReplaceChoice: (event: Extract<FileFlowValuesEvent, { readonly type: 'openChoiceAnswered' | 'documentOpenLanded' }>): boolean =>
+    event.openChoice === 'replace',
+}
 // </generated>
 
 type FileFlowStep = Step<FileFlowValues, FileFlowValuesEffect>
@@ -265,34 +310,6 @@ export const emptyFileFlowValues: FileFlowValues = {
 function isQuestionAsked(values: FileFlowValues): boolean {
   return values.confirmationState.kind === 'questionAsked'
 }
-
-/** @purity pure */
-function isReadingOn(values: FileFlowValues, openRoute: FileFlowOpenRoute): boolean {
-  const operation = values.fileOperationState
-  return operation.kind === 'readingDocumentFile' && operation.openRoute === openRoute
-}
-
-type AskedConfirmation = Extract<ConfirmationState, { readonly kind: 'questionAsked' }>
-
-const FILE_FLOW_VALUES_GUARDS = {
-  // see U-62, FR-023, FR-076, MG-14
-  hasAnythingToReport: (event: EventOf<'documentOpenLanded'>): boolean =>
-    event.droppedTaskNames.length > 0 || event.missingTaskNames.length > 0 || event.reportedCounts.length > 0,
-  isBackToSavedDocument: (event: EventOf<'documentEditLanded'>): boolean => event.isBackToSavedDocument,
-  // see OP-15
-  isBaselineRoute: (values: FileFlowValues): boolean => isReadingOn(values, 'baseline'),
-  isDifferenceReviewSurface: (event: EventOf<'flowSurfaceClosed'>): boolean => event.surfaceName === 'U-61',
-  isFileOperationQuestion: (confirmation: AskedConfirmation): boolean => confirmation.owedAction === null,
-  isImportCanceled: (event: EventOf<'mergeMappingAnswered'>): boolean => event.mergeMapping.kind === 'cancelImport',
-  isImportReportSurface: (event: EventOf<'flowSurfaceClosed'>): boolean => event.surfaceName === 'U-62',
-  isOpenChooserSurface: (event: EventOf<'flowSurfaceClosed'>): boolean => event.surfaceName === 'U-56',
-  isOverwriteQuestion: (values: FileFlowValues): boolean =>
-    values.confirmationState.kind === 'questionAsked' && values.confirmationState.question.question === 'QN-4',
-  isProceeding: (event: EventOf<'confirmationAnswered'>): boolean => event.isProceeding,
-  isReopenRoute: (values: FileFlowValues): boolean => isReadingOn(values, 'reopen'),
-  isReplaceChoice: (event: EventOf<'documentOpenLanded'> | EventOf<'openChoiceAnswered'>): boolean =>
-    event.openChoice === 'replace',
-} satisfies GuardJudgments<FileFlowValuesGuardName>
 
 /** @purity pure */
 function emptied(names: readonly (string | null)[]): readonly (string | null)[] {
@@ -429,9 +446,10 @@ function answeredOperation(values: FileFlowValues, isProceeding: boolean): Step<
 }
 
 /** @purity pure */
-function answeredQuestion(confirmation: ConfirmationState, isProceeding: boolean): Step<ConfirmationState, FileFlowValuesEffect> {
+function answeredQuestion(values: FileFlowValues, isProceeding: boolean): Step<ConfirmationState, FileFlowValuesEffect> {
+  const confirmation = values.confirmationState
   if (confirmation.kind === 'notAsked') return unchanged(confirmation)
-  if (!isProceeding || FILE_FLOW_VALUES_GUARDS.isFileOperationQuestion(confirmation)) {
+  if (!isProceeding || FILE_FLOW_VALUES_GUARDS.isFileOperationQuestion(values)) {
     return { state: NOT_ASKED, effects: NO_EFFECTS }
   }
   return { state: NOT_ASKED, effects: owedActionCarriedOut(confirmation.owedAction) }
@@ -447,7 +465,7 @@ function owedActionCarriedOut(owedAction: FileFlowOwedAction | null): Effects {
 function onConfirmationAnswered(values: FileFlowValues, event: EventOf<'confirmationAnswered'>): FileFlowStep {
   const isProceeding = FILE_FLOW_VALUES_GUARDS.isProceeding(event)
   const operation = answeredOperation(values, isProceeding)
-  const confirmation = answeredQuestion(values.confirmationState, isProceeding)
+  const confirmation = answeredQuestion(values, isProceeding)
   const moves = { fileOperationState: operation.state, confirmationState: confirmation.state }
   return combined(values, moves, [...operation.effects, ...confirmation.effects])
 }
@@ -613,3 +631,4 @@ export function stepFileFlowValues(values: FileFlowValues, event: FileFlowValues
   const handler = HANDLERS[event.type] as (values: FileFlowValues, event: FileFlowValuesEvent) => FileFlowStep
   return handler(values, event)
 }
+

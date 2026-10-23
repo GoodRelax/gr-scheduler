@@ -4,7 +4,7 @@
 // @purity    pure
 // Generated region below the carried-value types: docs/spec/_source/state-machines.json. Do not edit by hand; npm run gen.
 
-import { NO_EFFECTS, unchanged, type GuardJudgments, type Step } from './session-step'
+import { NO_EFFECTS, unchanged, type Step } from './session-step'
 
 // WHY: the translator's PressRow again; UseCase may not read an Adapter type (table T-061).
 export type GesturePressRow = 'PTD-7' | 'PTD-1' | 'PTD-2' | 'PTD-3' | 'PTD-4' | 'PTD-4a' | 'PTD-5'
@@ -94,6 +94,32 @@ const GESTURE_VALUES_INITIAL_AXES: GestureValuesAxes = {
   pointerPressState: { kind: 'notPressed' },
   taskGroupGrabState: { kind: 'notGrabbed' },
 }
+
+const GESTURE_VALUES_GUARDS = {
+  isDocumentChangingPress: (event: Extract<GestureValuesEvent, { readonly type: 'pointerPressed' }>): boolean =>
+    ((event.pressedOn == null) || (event.pressedOn?.kind === 'grab')) && !((['PTD-1', 'PTD-5'] as readonly unknown[]).includes(event.pressRow))
+      || ((event.pressedOn != null) && !((['grab', 'scrollbarThumb'] as readonly unknown[]).includes(event.pressedOn?.kind))) && !((event.pressedOn?.kind === 'entry') && (['IC-12', 'IC-13', 'IC-14', 'IC-15'] as readonly unknown[]).includes(event.pressedOn?.entry)),
+  isHeldOnRepeatingEntry: (values: GestureValues): boolean => {
+    const pointerPressPressedOn =
+      values.pointerPressState.kind === 'changingDocument' ? values.pointerPressState.pressedOn
+      : values.pointerPressState.kind === 'viewingDocument' ? values.pointerPressState.pressedOn
+      : null
+    return pointerPressPressedOn?.kind === 'entry'
+      && (['IC-12', 'IC-13', 'IC-14', 'IC-15'] as readonly unknown[]).includes(pointerPressPressedOn?.entry)
+  },
+  isOnPaletteBand: (values: GestureValues): boolean => {
+    const pointerPressPressedOn =
+      values.pointerPressState.kind === 'changingDocument' ? values.pointerPressState.pressedOn
+      : values.pointerPressState.kind === 'viewingDocument' ? values.pointerPressState.pressedOn
+      : null
+    return pointerPressPressedOn?.kind === 'paletteBand'
+  },
+  isOnRepeatingEntry: (event: Extract<GestureValuesEvent, { readonly type: 'pointerPressed' }>): boolean =>
+    event.pressedOn?.kind === 'entry'
+      && (['IC-12', 'IC-13', 'IC-14', 'IC-15'] as readonly unknown[]).includes(event.pressedOn?.entry),
+  isTaskGroupGrabStrip: (event: Extract<GestureValuesEvent, { readonly type: 'pointerPressed' }>): boolean =>
+    event.pressedOn?.kind === 'taskGroupGrabStrip',
+}
 // </generated>
 
 type GestureStep = Step<GestureValues, GestureValuesEffect>
@@ -102,43 +128,6 @@ type EventOf<T extends GestureValuesEvent['type']> = Extract<GestureValuesEvent,
 
 // see T-289
 export const emptyGestureValues: GestureValues = { ...GESTURE_VALUES_INITIAL_AXES }
-
-// TRAP: copies of the shell's REPEATING_ENTRIES and PRESS_CHANGES_DOCUMENT until wave B of CR-450
-// has the shell read these; the two must not drift before then.
-const REPEATING_ENTRIES: readonly string[] = ['IC-12', 'IC-13', 'IC-14', 'IC-15']
-
-const VIEWING_PRESS_ROWS: readonly GesturePressRow[] = ['PTD-1', 'PTD-5']
-
-// see FR-018
-/** @purity pure */
-function isRepeatingEntry(pressedOn: PressedOn | null): boolean {
-  return pressedOn?.kind === 'entry' && REPEATING_ENTRIES.includes(pressedOn.entry)
-}
-
-/** @purity pure */
-function heldPressedOn(values: GestureValues): PressedOn | null {
-  const press = values.pointerPressState
-  return press.kind === 'notPressed' ? null : press.pressedOn
-}
-
-// TRAP: ask the place before the row; a press on a drawn entry lands on PTD-5, so the row first
-// would take AG-9 off every palette press. A scrollbar drag writes only the display (UN-8).
-// see AG-9, WS-2
-/** @purity pure */
-function isDocumentChangingPress(event: EventOf<'pointerPressed'>): boolean {
-  const pressedOn = event.pressedOn
-  if (pressedOn === null || pressedOn.kind === 'grab') return !VIEWING_PRESS_ROWS.includes(event.pressRow)
-  if (pressedOn.kind === 'scrollbarThumb') return false
-  return pressedOn.kind !== 'entry' || !isRepeatingEntry(pressedOn)
-}
-
-const GESTURE_VALUES_GUARDS = {
-  isDocumentChangingPress,
-  isHeldOnRepeatingEntry: (values: GestureValues): boolean => isRepeatingEntry(heldPressedOn(values)),
-  isOnPaletteBand: (values: GestureValues): boolean => heldPressedOn(values)?.kind === 'paletteBand',
-  isOnRepeatingEntry: (event: EventOf<'pointerPressed'>): boolean => isRepeatingEntry(event.pressedOn),
-  isTaskGroupGrabStrip: (event: EventOf<'pointerPressed'>): boolean => event.pressedOn?.kind === 'taskGroupGrabStrip',
-} satisfies GuardJudgments<GestureValuesGuardName>
 
 // WHY: a machine the event leaves alone keeps its reference, and so does the region (SD-3, SF-3).
 /** @purity pure */
@@ -213,3 +202,4 @@ export function stepGestureValues(values: GestureValues, event: GestureValuesEve
   const handler = HANDLERS[event.type] as (values: GestureValues, event: GestureValuesEvent) => GestureStep
   return handler(values, event)
 }
+

@@ -1123,7 +1123,7 @@
   {
    "from": "docs/spec/_source/state-machines.json",
    "to": "docs/spec/05-07-design.md",
-   "count": 25
+   "count": 26
   },
   {
    "from": "docs/spec/_source/state-machines.json",

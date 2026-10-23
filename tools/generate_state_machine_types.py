@@ -25,9 +25,12 @@ a machine's name without `StateMachine`, in PascalCase (JDG-286, R4.4):
   <Stem>EffectName          every effect name the tables use (`never` when
                             they use none)
   <Stem>GuardName           every guard name of the region's guard list (not
-                            printed for a region that has none); the unit
-                            holds one judgment per name in a table checked
-                            against it (CR-767 X-k)
+                            printed for a region that has none)
+  <STEM>_GUARDS             one judgment per guard, compiled from its
+                            condition (CR-767 wave 3,
+                            tools/state_machine_guard_judgments.py); the
+                            transition functions call the guards through it.
+                            Not printed for a documentData region (below)
   <Stem>Transition          the row shape of the table below: one branch of
                             one cell (state x event); printed only with it
   <STEM>_INITIAL_CHILDREN   the kind entered below a composite state (not
@@ -53,8 +56,9 @@ its state type is the erd.json enum column the region names. Only <Stem>Key,
 printed for it (table T-328).
 
 Everything else in the unit -- the carried-value types, the transition
-functions, the bodies of the guards and the effect payloads -- is hand written (table T-250,
-SD-3), and a contract test holds the functions against the manuscript.
+functions, the named functions a condition calls (`guardLanguage`, under the
+same names) and the effect payloads -- is hand written (table T-250, SD-3), and
+a contract test holds the functions against the manuscript.
 
 A file without the two markers is refused, never created: the hand-written
 half of the unit is not this script's to write.
@@ -76,6 +80,8 @@ SOURCE_DIR = os.path.join(ROOT, 'docs', 'spec', '_source')
 sys.dont_write_bytecode = True
 sys.path.insert(0, SOURCE_DIR)
 import state_machines_json_to_md as manuscript  # noqa: E402
+sys.path.insert(0, HERE)
+from state_machine_guard_judgments import judgment_lines  # noqa: E402
 
 OPEN = '// <generated -- do not edit by hand>'
 CLOSE = '// </generated>'
@@ -352,6 +358,7 @@ class Printer(object):
         if not saved:
             lines += self.initial_children()
             lines += self.initial_axes()
+        lines += judgment_lines(self, lambda text: manuscript.Condition(text).tree)
         if mode:
             lines += self.transitions(mode)
         while lines[-1] == '':
