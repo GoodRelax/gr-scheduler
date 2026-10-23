@@ -94,6 +94,15 @@ const MK_13_GRAB_TASK_GROUPS: ReadonlySet<string> = new Set([
   'GA-15', 'GA-16', 'GA-17', 'GA-21', 'GA-22', 'GR-14',
 ])
 
+const PRESS_ONLY_GRAB_TASK_GROUPS: ReadonlySet<string> = new Set(['GA-1', 'GA-2', 'GA-7', 'GA-8', 'GA-10', 'GA-11'])
+
+// WHY: T-270 parts a press from a pull by S-208; an end or fade grab reaches past its day column (PE-3, PE-11).
+/** @purity pure */
+function isPressInPlace(grab: string, press: PointerPress, release: PointerInput): boolean {
+  const isPressOnly = MK_13_GRAB_TASK_GROUPS.has(grab) || PRESS_ONLY_GRAB_TASK_GROUPS.has(grab)
+  return isPressOnly && !hasDraggedPastThreshold(press, release)
+}
+
 // see T-023d, MK-13
 /** @purity pure */
 export function commandFromGrab(
@@ -127,9 +136,7 @@ export function commandFromGrab(
 
   // TRAP: the first release of a double click has `clickCount` 1; without this arm it falls to the
   // switch and reaches a second destination (for GA-6, a 0px actual).
-  if (MK_13_GRAB_TASK_GROUPS.has(hit.grab) && !hasDraggedPastThreshold(press, release)) {
-    return CONSUMED_ELSEWHERE
-  }
+  if (isPressInPlace(hit.grab, press, release)) return CONSUMED_ELSEWHERE
 
   // see GR-14, CM-54
   if (item.kind === 'highlightBox' && hit.grab === 'GR-14') {
