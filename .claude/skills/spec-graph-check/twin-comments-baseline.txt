@@ -101,10 +101,6 @@ copy | expressionValueOf :: repeats boundvalueof of schedule invariants ts iv 16
 twin: src/entity/document-model/schedule/schedule-invariants.ts#boundValueOf
 why: private in Schedule; the edge runs Schedule->DocumentSettings, so the evaluator belongs here for Schedule to import; already diverged -- invariants count a list as its length (IV-16).
 
-coupling | serial :: date utc maps years 0 to 99 onto 1900 to
-twin: src/entity/document-model/schedule/calendar-day.ts#dayOf
-why: one file: serial and dayOf's round-trip check share the Date.UTC 0-99 mapping; a shared assumption, not a copy.
-
 coupling | settingNumberOf :: a list counts as its length tools generate startup template
 twin: tools/generate_startup_template.py (outside src/)
 why: a Python generator must count a list as its length the same way; no import joins them -- a generated constant or a test would.

@@ -15,6 +15,7 @@ import {
 } from '../../entity/document-model/schedule/schedule'
 import type { EditResult, Refusal } from './edit-document'
 import { refused, edited, reject } from './edit-document'
+import { isAcceptedDay } from './edit-project'
 
 export type CommentBoxLeaderShapeKind = NonNullable<CommentBox['leaderShapeKind']>
 
@@ -231,8 +232,11 @@ function isSameAnchor(box: CommentBox, columns: CommentAnchorColumns): boolean {
 /** @purity pure */
 function anchorRefusals(command: string, document: Document, anchor: AnnotationAnchor): Refusal[] {
   const found: Refusal[] = []
-  if (dayOf(anchor.date) === null) {
+  const anchoredDay = dayOf(anchor.date)
+  if (anchoredDay === null) {
     found.push(reject(command, 'AT-113', `the anchored day is not a date: ${anchor.date}`))
+  } else if (!isAcceptedDay(anchoredDay)) {
+    found.push(reject(command, 'IV-14', `the anchored day leaves the accepted days (table T-214): ${anchor.date}`))
   }
   if (!hasGroup(document, anchor.taskGroupId)) {
     found.push(reject(command, 'IV-2', `the document holds no task group with id ${anchor.taskGroupId} (RL-18)`))
@@ -380,11 +384,17 @@ function movedToEnd<Item>(list: readonly Item[], item: Item): readonly Item[] | 
 /** @purity pure */
 function rangeRefusals(command: string, document: Document, range: HighlightRange): Refusal[] {
   const found: Refusal[] = []
-  if (dayOf(range.start) === null) {
+  const leftDay = dayOf(range.start)
+  if (leftDay === null) {
     found.push(reject(command, 'AT-117', `the left edge is not a date: ${range.start}`))
+  } else if (!isAcceptedDay(leftDay)) {
+    found.push(reject(command, 'IV-14', `the left edge leaves the accepted days (table T-214): ${range.start}`))
   }
-  if (dayOf(range.finish) === null) {
+  const rightDay = dayOf(range.finish)
+  if (rightDay === null) {
     found.push(reject(command, 'AT-118', `the right edge is not a date: ${range.finish}`))
+  } else if (!isAcceptedDay(rightDay)) {
+    found.push(reject(command, 'IV-14', `the right edge leaves the accepted days (table T-214): ${range.finish}`))
   }
   if (!hasGroup(document, range.topTaskGroupId)) {
     found.push(reject(command, 'IV-2', `the document holds no task group with id ${range.topTaskGroupId} (RL-19)`))
