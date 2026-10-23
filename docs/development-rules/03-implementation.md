@@ -51,6 +51,7 @@ FINDING_LAYERS                       遅延診断の矛盾と疑義の観点ご�
 FIELD_ENTRY_VALUES_INITIAL_AXES      名前付けと入力欄の各状態機械の初期の種類（表 T-292 の状態の一覧の初期。`tools/generate_state_machine_types.py` が刷る）
 FILE_FLOW_VALUES_INITIAL_AXES        ファイル操作と問いの各状態機械の初期の種類（表 T-290 の状態の一覧の初期。`tools/generate_state_machine_types.py` が刷る）
 GESTURE_VALUES_INITIAL_AXES          身振りの各状態機械の初期の種類（表 T-289 の状態の一覧の初期。`tools/generate_state_machine_types.py` が刷る）
+GESTURE_VALUES_INITIAL_CHILDREN      掴みの複合状態 `grabbed` に入ったときの子の種類（表 T-289 の状態の一覧の初期。同じ生成器。`CR-767` の波 2）
 GRS_DOCUMENT_SCHEMA                  `GRS JSON` を読むときに当てるスキーマの根（`grs-document.schema.json`。`tools/generate_json_schema_validator.py` が刷る）
 INTERACTION_RECORD_VALUES_INITIAL_AXES 操作の記録の状態機械の初期の種類（表 T-295 の状態の一覧の初期。`tools/generate_state_machine_types.py` が刷る）
 MEDIA_TYPE_OF_EXTENSION              保存の選択面に渡す媒体の型を拡張子ごとに（表 T-024 の媒体の型の欄。`FR-096`、`JDG-2163`、`CR-768`）

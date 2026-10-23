@@ -55,7 +55,8 @@ const DESIGN = unbroken(readFileSync(join(SPEC, '05-07-design.md'), 'utf8'))
 const SECTION_5_5_GENERATES =
   '原稿から、ガードの式の書き方、領域ごとの出来事の定義・ガードの一覧・優先順の表と、状態機械ごとの状態遷移図（UML）・状態遷移表・状態の一覧を生成し'
 const SECTION_5_5_NO_HAND_EDIT = '状態遷移図と状態遷移表を手で直してはならない（MUST NOT）'
-const SECTION_5_5_CONDITIONS = 'ガードの条件は原稿が持ち、コードの判定はそれに従う。'
+// WHY: wave 2 of CR-767 continues the sentence with the generated guard-name type.
+const SECTION_5_5_CONDITIONS = 'ガードの条件は原稿が持ち、コードの判定はそれに従う'
 const SD_1_ENTRY_EXIT = '入るとき・出るときに必ず起きる副作用（entry ／ exit）'
 const SD_3_CONDITIONS =
   'ガードの条件は領域ごとのガードの一覧が式で持ち（式の書き方は原稿の頭に 1 度だけ定める）、升と一覧はその式を刷る。'

@@ -82,8 +82,8 @@ const rungsOf = (key: string): readonly Rung[] => RUNGS.filter((r) => r.keys.inc
 
 const stateKeyExists = (ref: StateRef): boolean => {
   if (ref.in !== undefined) {
-    const [machine, state] = ref.in.split('.')
-    return MACHINES.get(machine ?? '')?.states.some((s) => s.key === state) ?? false
+    const [machine, ...path] = ref.in.split('.')
+    return MACHINES.get(machine ?? '')?.states.some((s) => s.key === path.join('.')) ?? false
   }
   const machine = MACHINES.get(ref.machine ?? '')
   return machine !== undefined && machine.states.some((s) => s.key === ref.except)
@@ -143,7 +143,8 @@ describe(`table T-283, Esc (RG-1..RG-8, RG-14, RG-16 and RG-17) -- IN-4 (MUST): 
     expect(REQUIREMENTS).toContain(IN_4_SELECTION_AFTER_ARM)
     const ids = rungsOf('Esc').map((r) => r.id)
     expect(ids.indexOf('RG-5')).toBeLessThan(ids.indexOf('RG-6'))
-    expect(RUNGS.find((r) => r.id === 'RG-5')?.states).toEqual([{ machine: 'armModeStateMachine', except: 'notArmed' }])
+    // WHY: wave 2 of CR-767 (JDG-2364) gathers the six arms under the composite `armed`.
+    expect(RUNGS.find((r) => r.id === 'RG-5')?.states).toEqual([{ in: 'armModeStateMachine.armed' }])
     expect(RUNGS.find((r) => r.id === 'RG-6')?.states).toEqual([{ in: 'selectionStateMachine.objectsSelected' }])
   })
 

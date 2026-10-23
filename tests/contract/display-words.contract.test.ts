@@ -2107,13 +2107,14 @@ for (const entry of GENERATED['assignments'] ?? []) {
  * gives `milestoneGlyph`. Neither reaches the word -- table T-023b gives AR-2
  * and AR-3 one row each, whatever shape is on them.
  */
+// WHY: wave 2 of CR-767 (JDG-2364) holds every arm as a child of the composite `armed`.
 const ARMED_BY_ROW: Readonly<Record<string, ScreenValues['armModeState']>> = {
   'AR-1': { kind: 'notArmed' },
-  'AR-2': { kind: 'taskShapeArmed', shapeKind: 'rectangle' },
-  'AR-3': { kind: 'milestoneShapeArmed', glyph: 'diamond' },
-  'AR-4': { kind: 'dependencyArmed' },
-  'AR-5': { kind: 'commentBoxArmed' },
-  'AR-6': { kind: 'highlightBoxArmed' },
+  'AR-2': { kind: 'armed', child: { kind: 'taskShapeArmed', shapeKind: 'rectangle' } },
+  'AR-3': { kind: 'armed', child: { kind: 'milestoneShapeArmed', glyph: 'diamond' } },
+  'AR-4': { kind: 'armed', child: { kind: 'dependencyArmed' } },
+  'AR-5': { kind: 'armed', child: { kind: 'commentBoxArmed' } },
+  'AR-6': { kind: 'armed', child: { kind: 'highlightBoxArmed' } },
 }
 
 for (const entry of GENERATED['arms'] ?? []) {

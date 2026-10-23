@@ -4,7 +4,7 @@
  "$comment": [
   "HAND-WRITTEN CONTRACT -- EDIT THIS FILE.",
   "Validates _source/state-machines.json, which is the single source of truth. Same role as _source/settings.schema.json.",
-  "The shape only. What the manuscript may hold is table T-250 of docs/spec/05-07-design.md; the cross-entry rules (evidence ids defined, states and events resolved, every target a state of the same machine, one initial state per union, machine names unique, no event key in two regions, every guard a cell names defined once in its region's `guards` and every condition written in `guardLanguage` and resolved) are checked by the generators, because a schema cannot see another entry."
+  "The shape only. What the manuscript may hold is table T-250 of docs/spec/05-07-design.md; the cross-entry rules (evidence ids defined, states and events resolved, every target a state of the same machine, one initial state per union (none in a composite entered only by naming a child), machine names unique, no event key in two regions, every guard a cell names defined once in its region's `guards` and every condition written in `guardLanguage` and resolved) are checked by the generators, because a schema cannot see another entry."
  ],
  "title": "The state-machine manuscript",
  "description": "Per region: the events it receives (defined once), the values its root carries, its guards with their conditions, and one state machine per orthogonal concern -- its states and its state transition table keyed event -> current state -> cell. The language the conditions are written in is `guardLanguage`, once for every region. docs/spec/_assets/tbl-state-machines.md and the generated region of each region unit are printed from it.",
@@ -157,9 +157,9 @@
    "pattern": "^[a-z][A-Za-z0-9]*StateMachine(\\.[a-z][A-Za-z0-9]*)+$"
   },
   "targetKey": {
-   "description": "Where a cell leads: a state key of the same machine, or {name} -- a value the event carries, standing for any top-level kind of the machine but its initial one.",
+   "description": "Where a cell leads: a state key of the same machine, {name} -- a value the event carries, standing for any top-level kind of the machine but its initial one -- or parent.{name}, standing for any kind of that composite state but its initial one.",
    "type": "string",
-   "pattern": "^([a-z][A-Za-z0-9]*(\\.[a-z][A-Za-z0-9]*)*|\\{[a-z][A-Za-z0-9]*\\})$"
+   "pattern": "^([a-z][A-Za-z0-9]*(\\.[a-z][A-Za-z0-9]*)*|([a-z][A-Za-z0-9]*(\\.[a-z][A-Za-z0-9]*)*\\.)?\\{[a-z][A-Za-z0-9]*\\})$"
   },
   "caption": {
    "type": "object",

@@ -13,7 +13,7 @@ import {
   textOfStartSide,
   type CalendarDay,
 } from '../../entity/document-model/schedule/schedule'
-import { snappedInstantAtX } from '../../entity/layout-engine/schedule-layout/schedule-layout'
+import { snappedInstantAtX, type TaskGroupPlacement } from '../../entity/layout-engine/schedule-layout/schedule-layout'
 import {
   dependencyEndAtPointer,
   dependencyStartOfHit,
@@ -22,6 +22,7 @@ import {
 } from '../../entity/layout-engine/item-hit-area/item-hit-area'
 import { taskUidsIn } from '../../entity/document-model/selection/selection'
 import type { DocumentCommand } from '../../use-case/edit-document/edit-document'
+import { armedOf } from '../../use-case/advance-screen-session/advance-screen-session'
 import type { PointerInput } from './input-source'
 import {
   CONSUMED_ELSEWHERE,
@@ -39,6 +40,7 @@ import {
   taskGroupAtY,
   taskGroupRankById,
   taskShapeKindOf,
+  type Armed,
   type InputContext,
   type PointerPress,
   type TranslatedInput,
@@ -132,7 +134,7 @@ function commentBoxPlacement(context: InputContext, press: PointerPress): Transl
   return changedAndCreated([[{ kind: 'createCommentBox', commentBoxId: id, anchor: placed.anchor }]], { kind: 'commentBox', id })
 }
 
-type TaskShapeArmed = Extract<InputContext['screen']['armModeState'], { readonly kind: 'taskShapeArmed' | 'milestoneShapeArmed' }>
+type TaskShapeArmed = Extract<Armed, { readonly kind: 'taskShapeArmed' | 'milestoneShapeArmed' }>
 
 interface ArmedDrag {
   readonly press: PointerPress
@@ -203,7 +205,8 @@ export function commandFromArmed(
   press: PointerPress,
   context: InputContext,
 ): TranslatedInput {
-  const armed = context.screen.armModeState
+  const armed = armedOf(context.screen.armModeState)
+  if (armed === null) return CONSUMED_ELSEWHERE
   const from = dayAtX(context.layout, press.at.x)
   const to = dayAtX(context.layout, release.x)
   const taskGroup = taskGroupAtY(context.layout, press.at.y)
@@ -219,33 +222,39 @@ export function commandFromArmed(
 
   if (armed.kind === 'commentBoxArmed') return commentBoxPlacement(context, press)
 
-  if (armed.kind === 'highlightBoxArmed') {
-    if (!dragged) return CONSUMED_ELSEWHERE
-
-    const releaseTaskGroup = taskGroupAtY(context.layout, release.y)
-    if (taskGroup === null || releaseTaskGroup === null) return nothingToDo('noTaskGroupToPutTheAnnotationOn')
-
-    // TRAP: rank task groups by tree order, not TaskGroupPlacement.y: once FR-098 pins a task group,
-    // comparing y writes pairs IV-19 refuses.
-    const rankById = taskGroupRankById(context.document.schedule.taskGroups)
-    const pressRank = rankById.get(taskGroup.taskGroupId) ?? 0
-    const releaseRank = rankById.get(releaseTaskGroup.taskGroupId) ?? 0
-    const isPressAbove = pressRank <= releaseRank
-    const top = isPressAbove ? taskGroup : releaseTaskGroup
-    const bottom = isPressAbove ? releaseTaskGroup : taskGroup
-    return changed([
-      {
-        kind: 'createHighlightBox',
-        highlightBoxId: context.newHighlightBoxId,
-        range: {
-          start: textOfDayStart(early),
-          finish: textOfDayEnd(late),
-          topTaskGroupId: top.taskGroupId,
-          bottomTaskGroupId: bottom.taskGroupId,
-        },
-      },
-    ])
-  }
-
+  if (armed.kind === 'highlightBoxArmed' && dragged) return highlightBoxPlacement(context, release, taskGroup, { early, late })
   return CONSUMED_ELSEWHERE
+}
+
+// see PTD-4, FR-019
+/** @purity pure */
+function highlightBoxPlacement(
+  context: InputContext,
+  release: PointerInput,
+  taskGroup: TaskGroupPlacement | null,
+  days: Pick<DraggedDays, 'early' | 'late'>,
+): TranslatedInput {
+  const releaseTaskGroup = taskGroupAtY(context.layout, release.y)
+  if (taskGroup === null || releaseTaskGroup === null) return nothingToDo('noTaskGroupToPutTheAnnotationOn')
+
+  // TRAP: rank task groups by tree order, not TaskGroupPlacement.y: once FR-098 pins a task group,
+  // comparing y writes pairs IV-19 refuses.
+  const rankById = taskGroupRankById(context.document.schedule.taskGroups)
+  const pressRank = rankById.get(taskGroup.taskGroupId) ?? 0
+  const releaseRank = rankById.get(releaseTaskGroup.taskGroupId) ?? 0
+  const isPressAbove = pressRank <= releaseRank
+  const top = isPressAbove ? taskGroup : releaseTaskGroup
+  const bottom = isPressAbove ? releaseTaskGroup : taskGroup
+  return changed([
+    {
+      kind: 'createHighlightBox',
+      highlightBoxId: context.newHighlightBoxId,
+      range: {
+        start: textOfDayStart(days.early),
+        finish: textOfDayEnd(days.late),
+        topTaskGroupId: top.taskGroupId,
+        bottomTaskGroupId: bottom.taskGroupId,
+      },
+    },
+  ])
 }

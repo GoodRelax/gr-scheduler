@@ -18,8 +18,17 @@ const TRAVEL_EVENT = 'taskGroupGrabTravelPassed'
 
 const STRIP = { kind: 'taskGroupGrabStrip', taskGroupId: 'g1' }
 
-const grabOf = (session: ScreenSession): string =>
-  String((((session as unknown as Loose)['gesture'] as Loose)['taskGroupGrabState'] as Loose)['kind'])
+// WHY: wave 2 of CR-767 (JDG-2364) puts grabPressed and carrying under the composite grabbed;
+// the value holds the child, read back here as the dotted state key (grabbed.carrying).
+const grabOf = (session: ScreenSession): string => {
+  const path: string[] = []
+  let at = ((session as unknown as Loose)['gesture'] as Loose)['taskGroupGrabState'] as Loose | undefined
+  while (at !== undefined) {
+    path.push(String(at['kind']))
+    at = at['child'] as Loose | undefined
+  }
+  return path.join('.')
+}
 
 const send = (session: ScreenSession, event: Loose): ScreenSession =>
   advanceScreenSession(session, event as unknown as SessionEvent).state
@@ -27,10 +36,18 @@ const send = (session: ScreenSession, event: Loose): ScreenSession =>
 const PRESS = { type: 'pointerPressed', pressRow: 'PTD-3', pressedOn: STRIP }
 
 describe('T-289 -- the grab machine the manuscript prints', () => {
-  it('has the three states, the first one initial, and no axis state', () => {
+  it('has the three states -- notGrabbed initial, grabPressed and carrying under the composite grabbed, grabPressed its initial child', () => {
     const states = MACHINE['states'] as readonly Loose[]
-    expect(states.map((one) => one['key'])).toEqual(['notGrabbed', 'grabPressed', 'carrying'])
-    expect(states.filter((one) => one['initial'] === true).map((one) => one['key'])).toEqual(['notGrabbed'])
+    expect(states.map((one) => [one['key'], one['parent']])).toEqual([
+      ['notGrabbed', null],
+      ['grabbed', null],
+      ['grabbed.grabPressed', 'grabbed'],
+      ['grabbed.carrying', 'grabbed'],
+    ])
+    expect(states.filter((one) => one['initial'] === true && one['parent'] === null).map((one) => one['key'])).toEqual(['notGrabbed'])
+    expect(states.filter((one) => one['initial'] === true && one['parent'] === 'grabbed').map((one) => one['key'])).toEqual([
+      'grabbed.grabPressed',
+    ])
   })
 
   it('passes the travel with one event that carries nothing', () => {
@@ -38,8 +55,8 @@ describe('T-289 -- the grab machine the manuscript prints', () => {
     expect(event).toBeDefined()
     expect(event?.['carries']).toEqual([])
     const transitions = MACHINE['transitions'] as Record<string, Record<string, Loose>>
-    expect(Object.keys(transitions[TRAVEL_EVENT] ?? {})).toEqual(['grabPressed'])
-    expect(transitions[TRAVEL_EVENT]?.['grabPressed']?.['to']).toBe('carrying')
+    expect(Object.keys(transitions[TRAVEL_EVENT] ?? {})).toEqual(['grabbed.grabPressed'])
+    expect(transitions[TRAVEL_EVENT]?.['grabbed.grabPressed']?.['to']).toBe('grabbed.carrying')
   })
 })
 
@@ -49,7 +66,7 @@ describe('HF-15 -- notGrabbed, then grabPressed, then carrying, then notGrabbed'
   })
 
   it('a press on the grab strip is grabPressed', () => {
-    expect(grabOf(send(emptyScreenSession, PRESS))).toBe('grabPressed')
+    expect(grabOf(send(emptyScreenSession, PRESS))).toBe('grabbed.grabPressed')
   })
 
   it('a press anywhere else is not a grab', () => {
@@ -59,7 +76,7 @@ describe('HF-15 -- notGrabbed, then grabPressed, then carrying, then notGrabbed'
   it('the travel event makes it carrying, and a release ends it', () => {
     const pressed = send(emptyScreenSession, PRESS)
     const carrying = send(pressed, { type: TRAVEL_EVENT })
-    expect(grabOf(carrying)).toBe('carrying')
+    expect(grabOf(carrying)).toBe('grabbed.carrying')
     expect(grabOf(send(carrying, { type: 'pointerReleased' }))).toBe('notGrabbed')
   })
 
@@ -76,6 +93,6 @@ describe('HF-15 -- notGrabbed, then grabPressed, then carrying, then notGrabbed'
   it('the travel event with nothing grabbed changes nothing, and carrying stays carrying when it comes again', () => {
     expect(grabOf(send(emptyScreenSession, { type: TRAVEL_EVENT }))).toBe('notGrabbed')
     const carrying = send(send(emptyScreenSession, PRESS), { type: TRAVEL_EVENT })
-    expect(grabOf(send(carrying, { type: TRAVEL_EVENT }))).toBe('carrying')
+    expect(grabOf(send(carrying, { type: TRAVEL_EVENT }))).toBe('grabbed.carrying')
   })
 })

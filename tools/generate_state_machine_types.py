@@ -24,6 +24,10 @@ a machine's name without `StateMachine`, in PascalCase (JDG-286, R4.4):
                             carried values typed through <Stem>EventCarried
   <Stem>EffectName          every effect name the tables use (`never` when
                             they use none)
+  <Stem>GuardName           every guard name of the region's guard list (not
+                            printed for a region that has none); the unit
+                            holds one judgment per name in a table checked
+                            against it (CR-767 X-k)
   <Stem>Transition          the row shape of the table below: one branch of
                             one cell (state x event); printed only with it
   <STEM>_INITIAL_CHILDREN   the kind entered below a composite state (not
@@ -49,7 +53,7 @@ its state type is the erd.json enum column the region names. Only <Stem>Key,
 printed for it (table T-328).
 
 Everything else in the unit -- the carried-value types, the transition
-functions, the guards and the effect payloads -- is hand written (table T-250,
+functions, the bodies of the guards and the effect payloads -- is hand written (table T-250,
 SD-3), and a contract test holds the functions against the manuscript.
 
 A file without the two markers is refused, never created: the hand-written
@@ -222,7 +226,10 @@ class Printer(object):
     def initial_children(self):
         # WHY: a region whose states nest no composite (`notices`) would get an
         # empty table nobody reads, and noUnusedLocals refuses an unread constant.
-        composites = self.composites()
+        # A composite with no initial child (`armed`, entered only by naming a
+        # child) has no initial value to print.
+        composites = [(m, p) for m, p in self.composites()
+                      if any(s['initial'] for s in m.children[p])]
         if not composites:
             return []
         name = '%s_INITIAL_CHILDREN' % self.upper
@@ -272,6 +279,14 @@ class Printer(object):
         if not names:
             return ['export type %sEffectName = never' % self.stem, '']
         lines = ['export type %sEffectName =' % self.stem]
+        lines += ['  | %s' % quoted(n) for n in names]
+        return lines + ['']
+
+    def guard_names(self):
+        names = list(self.region.guards)
+        if not names:
+            return []
+        lines = ['export type %sGuardName =' % self.stem]
         lines += ['  | %s' % quoted(n) for n in names]
         return lines + ['']
 
@@ -329,6 +344,7 @@ class Printer(object):
             lines += self.root_type()
         lines += self.events()
         lines += self.effect_names()
+        lines += self.guard_names()
         # JDG-139: the table and its row type only where something reads it.
         mode = TRANSITIONS_READ.get(self.region.raw['unit'])
         if mode:

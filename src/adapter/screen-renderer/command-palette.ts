@@ -8,9 +8,10 @@
 import type { DocumentSettings } from '../../entity/document-model/document-settings/document-settings'
 import type { Schedule } from '../../entity/document-model/schedule/schedule'
 import type { Selection } from '../../entity/document-model/selection/selection'
-import type {
-  ScreenSession,
-  ScreenValues,
+import {
+  armedOf,
+  type ScreenSession,
+  type ScreenValues,
 } from '../../use-case/advance-screen-session/advance-screen-session'
 import type {
   CommandItem,
@@ -269,10 +270,10 @@ interface ArmedEntry {
 
 // see T-023b
 /** @purity pure */
-function armedEntry(armed: ScreenSession['screen']['armModeState']): ArmedEntry {
+function armedEntry(armMode: ScreenSession['screen']['armModeState']): ArmedEntry {
+  const armed = armedOf(armMode)
+  if (armed === null) return { row: 'AR-1', shape: null }
   switch (armed.kind) {
-    case 'notArmed':
-      return { row: 'AR-1', shape: null }
     case 'taskShapeArmed':
       return { row: 'AR-2', shape: armed.shapeKind }
     case 'milestoneShapeArmed':

@@ -4,7 +4,7 @@
 // @purity    pure
 // Generated region below the carried-value and effect types: docs/spec/_source/state-machines.json. Do not edit by hand; npm run gen.
 
-import { NO_EFFECTS, unchanged, type Step } from './session-step'
+import { NO_EFFECTS, unchanged, type GuardJudgments, type Step } from './session-step'
 
 export interface AgentApiValuesEventCarried {
   readonly isRememberedEnabled: boolean
@@ -41,6 +41,9 @@ export type AgentApiValuesEffectName =
   | 'storeAgentApiEnabling'
   | 'raiseNotice'
 
+export type AgentApiValuesGuardName =
+  | 'isRememberedEnabled'
+
 const AGENT_API_VALUES_INITIAL_AXES: AgentApiValuesAxes = {
   agentApiEnablingState: { kind: 'disabled' },
 }
@@ -72,10 +75,16 @@ function isRememberedEnabled(event: EventOf<'rememberedEnablingLoaded'>): boolea
   return event.isRememberedEnabled
 }
 
+const AGENT_API_VALUES_GUARDS = {
+  isRememberedEnabled,
+} satisfies GuardJudgments<AgentApiValuesGuardName>
+
 // WHY: the startup read of S-99b comes back as an event; it neither stores nor tells anything.
 /** @purity pure */
 function onRememberedEnablingLoaded(values: AgentApiValues, event: EventOf<'rememberedEnablingLoaded'>): AgentApiStep {
-  if (values.agentApiEnablingState.kind !== 'disabled' || !isRememberedEnabled(event)) return unchanged(values)
+  if (values.agentApiEnablingState.kind !== 'disabled' || !AGENT_API_VALUES_GUARDS.isRememberedEnabled(event)) {
+    return unchanged(values)
+  }
   return { state: { ...values, agentApiEnablingState: ENABLED }, effects: NO_EFFECTS }
 }
 

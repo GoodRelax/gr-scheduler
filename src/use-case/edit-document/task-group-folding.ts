@@ -232,6 +232,15 @@ export type TreeStateEffectName =
   | 'writeLevelZeroCollapsed'
   | 'writeLevelZeroAuto'
 
+export type TreeStateGuardName =
+  | 'isBelowPressedTaskGroup'
+  | 'isChildOfPressedTaskGroup'
+  | 'isLeafTaskGroup'
+  | 'isLevelZeroCollapsed'
+  | 'isPressedTaskGroup'
+  | 'isRevealedTaskGroupOrAncestor'
+  | 'isTopLevelTaskGroup'
+
 export interface TreeStateTransition {
   readonly state: TreeStateKey
   readonly event: TreeStateEvent['type']

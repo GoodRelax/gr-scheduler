@@ -44,8 +44,8 @@ why: restates the IC rows of table T-109 that carry an arm (icon-roster.json); k
 FONT_SIZE_STEPS | array | generated DocumentSettings.fontSizeStep union
 why: restates the fontSizeStep values of docs/spec/_source/settings.json (DocumentSettings.fontSizeStep); typed FontSizeStep, so a removed step fails to compile but a new one is never reached.
 
-TASK_GROUP_GUARDS | keys | generated TREE_STATE_TRANSITIONS field guard~words
-why: restates the guard names of table T-328 (docs/spec/_source/state-machines.json, region taskGroupTree); Record<string, ...>, so an unknown guard throws only at run time.
+TASK_GROUP_GUARDS | keys | generated TreeStateGuardName union
+why: restates the guard names of table T-328 (docs/spec/_source/state-machines.json, region taskGroupTree); Record<string, ...>, so an unknown guard throws only at run time. Matched against the generated TreeStateGuardName union since CR-767 wave 2 printed it (2026-10-23; before: the guard words of TREE_STATE_TRANSITIONS) -- the same debt, paid by CR-768 part C (DFC-2645).
 
 # --- coincidental (2; CR-770 paid 1 on 2026-10-15) -----------------------
 

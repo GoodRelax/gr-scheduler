@@ -344,8 +344,9 @@ describe('premise: the scenes sit on the T-378 rows they are named after', () =>
 
   it('the bar shape and the milestone are armed by an entrance the spec names', () => {
     expect(RECTANGLE.surface).toBe('Command Palette')
-    expect(armedBy(loopOf(HOUR_TIER), RECTANGLE).armModeState.kind).toBe('taskShapeArmed')
-    expect(armedBy(loopOf(HOUR_TIER), MILESTONE).armModeState.kind).toBe('milestoneShapeArmed')
+    // WHY: wave 2 of CR-767 (JDG-2364) holds the arm as a child of the composite `armed`.
+    expect(armedBy(loopOf(HOUR_TIER), RECTANGLE).armModeState).toMatchObject({ kind: 'armed', child: { kind: 'taskShapeArmed' } })
+    expect(armedBy(loopOf(HOUR_TIER), MILESTONE).armModeState).toMatchObject({ kind: 'armed', child: { kind: 'milestoneShapeArmed' } })
   })
 })
 

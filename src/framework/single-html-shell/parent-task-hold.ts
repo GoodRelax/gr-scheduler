@@ -12,7 +12,7 @@ import { taskUidsIn, type Selection } from '../../entity/document-model/selectio
 import type { ParentTaskFamilies } from '../../entity/layout-engine/schedule-geometry/schedule-geometry'
 import type { HumanInput } from '../../adapter/input-command-translator/input-command-translator'
 import type { IconId, ScreenViewReadings } from '../../adapter/screen-renderer/screen-renderer'
-import type { ScreenSession } from '../../use-case/advance-screen-session/advance-screen-session'
+import { armedOf, type ScreenSession } from '../../use-case/advance-screen-session/advance-screen-session'
 
 const PARENT_TASK_LINKS_ENTRY: IconId = 'IC-141'
 
@@ -99,7 +99,7 @@ export function choiceStepOf(mixed: Selection, input: HumanInput, answer: string
 
 /** @purity pure */
 function isParentTaskArmed(session: ScreenSession): boolean {
-  return session.screen.armModeState.kind === 'parentTaskArmed'
+  return armedOf(session.screen.armModeState)?.kind === 'parentTaskArmed'
 }
 
 // see FR-135, S-484, AR-7
