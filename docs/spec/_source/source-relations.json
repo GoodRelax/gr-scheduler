@@ -1118,7 +1118,7 @@
   {
    "from": "docs/spec/_source/state-machines.json",
    "to": "docs/spec/01-04-requirements.md",
-   "count": 80
+   "count": 84
   },
   {
    "from": "docs/spec/_source/state-machines.json",

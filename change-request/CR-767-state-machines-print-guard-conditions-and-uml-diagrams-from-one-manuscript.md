@@ -1,8 +1,15 @@
 # CR-767 —— 状態機械は 1 つの原稿が唯一の正であり、状態遷移表はガードの条件まで、状態遷移図は UML で、どちらもそこから刷る
 
-> 起草の状態: 起草だけ（2026-10-15、`4a907919` の上で起草した）。当てていない —— `docs/spec`・`src`・`tests`・生成器に触れていない。11 節に利用者へ問う 3 つ（Q1 ガードの条件の書き方、Q2 図を描く道具、Q3 兄弟の囲みの代わり）を残した。利用者は 2026-10-15 に戻り、3 つとも答えた（`JDG-2362`〜`JDG-2364`）。見本は `studies/57-uml-state-machine-style/`。
+> 起草の状態: 波 1 を当てた（2026-10-23、枝 `cr767-wave1`、起点 develop `5f905886a`）。波 2（コードのガードの名の判定と Q3 の 2 つの複合状態）と波 3（式の評価と判定の本体の生成）は未着手。起草は 2026-10-15、`4a907919` の上。11 節に利用者へ問う 3 つ（Q1 ガードの条件の書き方、Q2 図を描く道具、Q3 兄弟の囲みの代わり）を残した。利用者は 2026-10-15 に戻り、3 つとも答えた（`JDG-2362`〜`JDG-2364`）。見本は `studies/57-uml-state-machine-style/`。
 > ID の帯: 番号 `CR-765`〜`CR-768`、裁定 `JDG-2220`〜`JDG-2229`、台帳 `DFC-2720`〜`DFC-2729`、`PND-948`〜`PND-951`、見本の置き場 `57` を調整役から受けた（4 つの変更要求で共有）。本書が使うのは `CR-767`・見本 `57`・台帳 `DFC-2720`〜`DFC-2722`（0.1 で見つけた食い違い 3 つ）。`4a907919` の木で `CR-767` を名乗るもの、`studies/57-*` は 0 件だった（13 節）。
 > 当てるもの: 裁定 `JDG-2161`（状態機械は `_source/state-machines.json` を唯一の正とし、表と図はそこから刷る。ガードの条件も JSON が持つ。表は列 ＝ 今の状態・行 ＝ 出来事・交点 ＝ 遷移先とガード条件、要るなら Entry ／ Exit も書く。図は UML に準拠する）。閉じるもの: 台帳 `DFC-2643`・`DFC-2644`。`DFC-2645` の `TASK_GROUP_GUARDS` は本書の後に `CR-768` の C 部が消す。
+
+> ⭐ 波 1 の着地（2026-10-23、子セッションが `5f905886a` で測り直した）:
+> - 今の木の数: 9 の領域・31 の機械・90 の状態・308 の升。ガードの名は 64（起草の 65 から、`CR-796` が対話の機能を消して `isAgentApiEnabled`・`isRungDialogueField` が、ほかの CR で `isPositionAxis` が消え、`isNewStartDateEmpty`・`isOtherThanShownBase` が足され、3 つが `not` 付きの名へ改まった）。付録 A は 10-15 の下書きのまま残す —— 決まった式は原稿の領域ごとの `guards` が持つ。
+> - 当てたもの: 原稿の頭の `guardLanguage`（語 8・演算子 8・関数 9）と領域ごとの `guards`（64 の定義、63 の名 —— `isProceeding` は 2 つの領域に在る）、読み手 `load()` の式の構文と名の解決、4 つの状態の entry ／ exit（X-f）、X-j の 2 つ（`isPanelTopmost`・`canEnterDualCursor` を `in` の項へ）、刷り手（升の「名（条件）」、ガードの一覧、entry ／ exit の行）、31 の `fig-sm-<機械>.svg`（drawio-uml、指紋で `--check`）、5.5 節・表 T-250 の `SD-1`・`SD-3`・表 T-285 の `RA-1`・規則 07 の R4.4。生成する `src` の領域は 1 バイトも変わらない。
+> - 書き起こしで分けたもの: 押し続けると繰り返す入口の時間の升は、出来事が押下を運ばないので、同じ名 `isOnRepeatingEntry` で別の値を読まないよう新しい名 `isHeldOnRepeatingEntry`（押している最中の押下を読む）に分けた（`JDG-820` の「名はそれが指すものを言う」）。透かしの入口の 2 升は `isAnotherSurface` の代わりに `not isWatermarkUnlockSurface` とした（面が開いているときは同じ判定）。
+> - 食い違い: `isDocumentChangingPress` の式は今のコードの判定を書いた —— `AG-9` と表 T-027 との食い違いは `DFC-687` が持ち、利用者は 2026-09-13 に「どちらが正かは決めない」とした（重複して立てた `DFC-3457` は取下げ）。`DFC-3458`（契約試験の `isLeavingHolidaySettings` —— 試験を原稿の式に合わせ、コードは通った）。`DFC-2721` は取下げ（今の原稿は 2 つの副作用を根の升と `on` の升に既に持つ）。`DFC-2720`・`DFC-2722` は残る。
+> - ⚠️ Q3 の複合状態（`armed`・`grabbed`）は波 2 へ移した —— 原稿に親を足すと生成する判別共用体が入れ子（`{kind: 'armed', child: …}`）になり、手で書いた `src` の 90 行ほどと試験が動く。波 1 は `src` に触れないので、構えの図は ◇ を通して今の状態のまま描く。
 
 ---
 
@@ -196,7 +203,7 @@
 | 波 | 触る `src` のファイル | 進行中の変更要求と共有するファイル |
 |---|---|---|
 | 1 仕様と図 | 無い（原稿・契約・刷り手・生成器・図、規則 07 の R4.4） | `CR-755`・`CR-757`・`CR-759` が原稿に触れる |
-| 2 ガードの名の判定 | `screen-values.ts`・`notice-values.ts`・`gesture-values.ts`・`file-flow-values.ts`・`field-entry-values.ts`・`selection-values.ts`・`interaction-record-values.ts`・`agent-api-values.ts`・`task-group-folding.ts`（と `frame-loop.ts` —— `DFC-2720`） | `screen-values.ts`（`CR-755`・`CR-757`）、`frame-loop.ts`（`CR-740`・`CR-754`・`CR-757`・`CR-760`・`CR-762`） |
+| 2 ガードの名の判定と Q3 の 2 つの複合状態（波 1 から移した） | `screen-values.ts`・`notice-values.ts`・`gesture-values.ts`・`file-flow-values.ts`・`field-entry-values.ts`・`selection-values.ts`・`interaction-record-values.ts`・`agent-api-values.ts`・`task-group-folding.ts`（と `frame-loop.ts` —— `DFC-2720`） | `screen-values.ts`（`CR-755`・`CR-757`）、`frame-loop.ts`（`CR-740`・`CR-754`・`CR-757`・`CR-760`・`CR-762`） |
 | 3（Q1 が択 B のとき） | 同じ 9 ファイル（判定の本体を生成へ） | 同じ |
 
 ⇒ 波 1 は前に立つ者か体 1 つ（ガードの条件の書き起こしは 1 体、図の刷り手は 1 体 —— 原稿のファイルが同じなので順に）。波 2 は領域ごとにファイルが分かれるので 3 体まで並べられる（画面の値 1 ／ 通知・身振り・ファイル操作 1 ／ 残り 5 と木 1）。試験の体は領域ごとに 1 つ。

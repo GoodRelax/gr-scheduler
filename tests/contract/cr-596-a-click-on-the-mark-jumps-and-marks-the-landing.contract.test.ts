@@ -176,7 +176,22 @@ const T_280_CLICKED = '| `screen/continuationMarkClicked` | → `shown` | → �
 const T_280_CLEARED = '| `screen/landingMarkClearAsked` | — | → `hidden` |'
 const T_280_OTHERS = '表に無い出来事は `landingMarkDisplayStateMachine` を変えない（同じ参照）。'
 const T_280_HIDDEN_FIRST = '`landingMarkDisplayStateMachine.hidden` —— 初期。'
-const T_328_HIDDEN_OPENS = 'treeStateMachine_hidden --> treeStateMachine_expanded : taskGroupRevealAsked'
+// WHY: CR-767 drew the state diagrams from the manuscript (fig-sm-<machine>.svg), so the T-328
+// transition hidden --taskGroupRevealAsked--> expanded is read from the manuscript itself.
+const T_328_FIGURE = '[![treeStateMachine](fig-sm-treeStateMachine.svg)](fig-sm-treeStateMachine.svg)'
+type TreeBranch = { readonly to?: string }
+const TREE_MACHINE = (
+  JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'state-machines.json'), 'utf8')) as {
+    readonly regions: readonly {
+      readonly region: string
+      readonly machines: readonly {
+        readonly name: string
+        readonly transitions: Readonly<Record<string, Readonly<Record<string, TreeBranch | readonly TreeBranch[]>>>>
+      }[]
+    }[]
+  }
+).regions.find((r) => r.region === 'taskGroupTree')?.machines.find((m) => m.name === 'treeStateMachine')
+const T_328_HIDDEN_OPENS: readonly TreeBranch[] = [TREE_MACHINE?.transitions['taskGroupRevealAsked']?.['hidden'] ?? []].flat()
 
 describe('CR-596 -- the manuscript these cases are driven by', () => {
   it.each([
@@ -239,9 +254,10 @@ describe('CR-596 -- the manuscript these cases are driven by', () => {
   it('FR-009 front order, table T-280 and table T-328 still say it', () => {
     expect(REQUIREMENTS, FR_009_ZERO).toContain(FR_009_ZERO)
     expect(REQUIREMENTS, 'EP-12 does not draw it').toMatch(/\| EP-12 \|[^\n]*\| 描かない \|/)
-    for (const clause of [T_280_CLICKED, T_280_CLEARED, T_280_OTHERS, T_280_HIDDEN_FIRST, T_328_HIDDEN_OPENS]) {
+    for (const clause of [T_280_CLICKED, T_280_CLEARED, T_280_OTHERS, T_280_HIDDEN_FIRST, T_328_FIGURE]) {
       expect(STATE_MACHINES, clause).toContain(clause)
     }
+    expect(T_328_HIDDEN_OPENS.map((b) => b.to), 'T-328 hidden x taskGroupRevealAsked').toEqual(['expanded'])
   })
 
   it(`the values: S-447 is a positive addend (${S_447_ADDS}); S-159 is a color in both themes`, () => {

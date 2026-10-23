@@ -141,7 +141,10 @@ function guardHolds(name: string, gesture: Loose, event: Loose): boolean {
     case 'isTaskGroupGrabStrip':
       return (event['pressedOn'] as Loose | null)?.['kind'] === 'taskGroupGrabStrip'
     case 'isOnRepeatingEntry':
-      return isOnRepeatingEntry(event['type'] === 'pointerPressed' ? event['pressedOn'] : pressedOnNow)
+      return isOnRepeatingEntry(event['pressedOn'])
+    // WHY: the held press, not the event -- the repeat tick carries no pressedOn of its own.
+    case 'isHeldOnRepeatingEntry':
+      return isOnRepeatingEntry(pressedOnNow)
     case 'isOnPaletteBand':
       return (pressedOnNow as Loose | null | undefined)?.['kind'] === 'paletteBand'
     default:

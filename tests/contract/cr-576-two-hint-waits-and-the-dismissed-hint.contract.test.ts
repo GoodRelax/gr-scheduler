@@ -33,7 +33,7 @@ const EZ_6_FROM_THE_STOP = '⚠️ 待ちを数え始めるのは、`EZ-2` と�
 const S_439_APART = '⚠️ **`S-124` とは別の値である** —— 片方を選び直しても、もう片方は動かない（`EZ-6`）。'
 const S_124_ICON_ONLY = '⚠️ **アイコンの説明だけの待ちである** —— タスクの説明（`EZ-6`）の待ちは `S-439` が持つ。'
 const IN_3_CAN_BE_PUT_AWAY = '**消せること** —— ポインタもフォーカスも動かさずに消す手立てがあること。'
-const MACHINE_ROW_ESCAPE = '| `screen/escapePressed` | → `dismissed` [`isRungTooltip`]それ以外 → — | — |'
+const MACHINE_ROW_ESCAPE = "| `screen/escapePressed` | → `dismissed` [`isRungTooltip`（`event.rung == 'tooltip'`）]それ以外 → — | — |"
 const MACHINE_ROW_TARGET = '| `screen/hintTargetChanged` | — | → `allowed` |'
 const MACHINE_UNLISTED = '表に無い出来事は `tooltipDisplayStateMachine` を変えない（同じ参照）。'
 const EVENT_ROW_TARGET = '| `screen/hintTargetChanged` | 入力: `EZ-2` ・ `EZ-6` ・ `FR-037` ・ `IN-3` | — | `tooltipDisplayStateMachine` |'

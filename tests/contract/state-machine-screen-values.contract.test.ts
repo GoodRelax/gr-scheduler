@@ -14,12 +14,15 @@ import {
 import { NO_EFFECTS } from '../../src/use-case/advance-screen-session/session-step'
 
 type Carried = { readonly name: string }
+type StateEffect = { readonly effect: string }
 type SmRow = {
   readonly id: string
   readonly key: string
   readonly parent: string | null
   readonly initial: boolean
   readonly carries: readonly Carried[]
+  readonly entry?: StateEffect
+  readonly exit?: StateEffect
 }
 type EvRow = { readonly id: string; readonly key: string; readonly carries: readonly Carried[] }
 type Guard = { readonly name: string; readonly not?: boolean }
@@ -52,7 +55,14 @@ type RawRegion = {
   readonly events: readonly { readonly key: string; readonly carries: readonly Carried[] }[]
   readonly machines: readonly {
     readonly name: string
-    readonly states: readonly { readonly key: string; readonly parent: string | null; readonly initial: boolean; readonly carries: readonly Carried[] }[]
+    readonly states: readonly {
+      readonly key: string
+      readonly parent: string | null
+      readonly initial: boolean
+      readonly carries: readonly Carried[]
+      readonly entry?: StateEffect
+      readonly exit?: StateEffect
+    }[]
     readonly transitions: Readonly<Record<string, Readonly<Record<string, RawCell>>>>
   }[]
 }
@@ -84,7 +94,16 @@ function regionOf(raw: RawRegion): Region {
   for (const m of raw.machines) {
     for (const s of m.states) {
       const key = `${m.name}.${s.key}`
-      states.push({ id: key, key, parent: s.parent === null ? raw.region : `${m.name}.${s.parent}`, initial: s.initial, carries: s.carries })
+      const parent = s.parent === null ? raw.region : `${m.name}.${s.parent}`
+      states.push({
+        id: key,
+        key,
+        parent,
+        initial: s.initial,
+        carries: s.carries,
+        ...(s.entry === undefined ? {} : { entry: s.entry }),
+        ...(s.exit === undefined ? {} : { exit: s.exit }),
+      })
     }
   }
   const rootRows = Object.entries(raw.root.transitions).flatMap(([event, cell]) =>
@@ -341,18 +360,13 @@ function guardHolds(name: string, session: ScreenSession, event: Loose): boolean
       if (armed['kind'] === 'milestoneShapeArmed') return armed['glyph'] === event['glyph']
       return true
     }
-    // WHY: entering the mode is dualCursorModeStateMachine.off with hasDaysToPlace; FR-016 disarms
-    // on entering, so leaving the mode (from dualCursorModeStateMachine.on) keeps the arm.
-    case 'canEnterDualCursor':
-      return holds(session, 'dualCursorModeStateMachine.off') && event['hasDaysToPlace'] === true
     case 'isWatermarkUnlockSurface': {
       const surface = screen['openSurfaceState'] as Loose
       return surface['kind'] === 'open' && surface['surfaceName'] === UNLOCK_SURFACE
     }
     case 'isAnotherSurface': {
       const surface = screen['openSurfaceState'] as Loose
-      const opening = event['type'] === 'watermarkEntryPressed' ? UNLOCK_SURFACE : event['surfaceName']
-      return surface['kind'] === 'open' && surface['surfaceName'] !== opening
+      return surface['kind'] === 'open' && surface['surfaceName'] !== openingSurfaceName(event)
     }
     case 'isFlowAwaitingAnswer': {
       const surface = screen['openSurfaceState'] as Loose
@@ -377,10 +391,6 @@ function guardHolds(name: string, session: ScreenSession, event: Loose): boolean
       return event['target'] === 'panel'
     case 'isHelpTarget':
       return event['target'] === 'helpModal'
-    // WHY: req:4194 sends the closing hand to a standing surface, not the panel
-    // behind it, so the panel is topmost only while no surface is open.
-    case 'isPanelTopmost':
-      return holds(session, 'openSurfaceStateMachine.closed')
     case 'hasChoice':
       return hasChoice(event['subject'])
     // see FR-157, FO-16
@@ -395,12 +405,12 @@ function guardHolds(name: string, session: ScreenSession, event: Loose): boolean
     // see FR-156, FR-157
     case 'isLeavingDocumentSettings':
       return holds(session, 'propertiesPanelContentStateMachine.documentSettingsDisplayed')
-        && landingsOn(session, event, 'propertiesPanelContentStateMachine').some((to) => to !== 'self')
+        && landingsOn(session, event, 'propertiesPanelContentStateMachine').some((row) => row.to !== 'self')
     // see FR-088, S-99g
     case 'isLeavingHolidaySettings': {
       const surface = screen['openSurfaceState'] as Loose
       return surface['kind'] === 'open' && surface['surfaceName'] === HOLIDAY_SURFACE
-        && landingsOn(session, event, 'openSurfaceStateMachine').some((to) => to !== 'self')
+        && surfaceNameAfter(session, event) !== HOLIDAY_SURFACE
     }
     default:
       throw new Error(`guard ${name} is named by the manuscript but not by this file's oracle`)
@@ -408,11 +418,24 @@ function guardHolds(name: string, session: ScreenSession, event: Loose): boolean
 }
 
 // WHY: the rows of one machine only, so a guard reading another machine's step cannot call itself.
-function landingsOn(session: ScreenSession, event: Loose, machine: string): TnRow['to'][] {
+function landingsOn(session: ScreenSession, event: Loose, machine: string): TnRow[] {
   return TRANSITIONS.filter((row) => row.event === event['type']
     && row.from.some((conj) => conj.some((key) => key.startsWith(`${machine}.`)) && conj.every((key) => holds(session, key)))
     && (row.guard ?? []).every((g) => guardHolds(g.name, session, event) !== (g.not === true)))
-    .map((row) => row.to)
+}
+
+function openingSurfaceName(event: Loose): unknown {
+  return event['type'] === 'watermarkEntryPressed' ? UNLOCK_SURFACE : event['surfaceName']
+}
+
+// WHY: an open -> open cell rewrites surfaceName only when it replaces the surface, and those
+// cells are the ones that tell the replaced surface it closed.
+function surfaceNameAfter(session: ScreenSession, event: Loose): unknown {
+  const surface = screenOf(session)['openSurfaceState'] as Loose
+  const row = landingsOn(session, event, 'openSurfaceStateMachine')[0]
+  if (row === undefined) return surface['kind'] === 'open' ? surface['surfaceName'] : null
+  if (row.to !== 'self') return row.to[0] === 'openSurfaceStateMachine.open' ? openingSurfaceName(event) : null
+  return row.effect?.name === 'tellFlowSurfaceClosed' ? openingSurfaceName(event) : surface['surfaceName']
 }
 
 type Firing = { row: TnRow; axes: string[] }
@@ -430,6 +453,33 @@ function firingRows(session: ScreenSession, event: Loose): Firing[] {
 
 function targetPath(key: string, event: Loose): string[] {
   return completePath(key.replace(/\{(\w+)\}/g, (_, name: string) => String(event[name])))
+}
+
+function stateRow(key: string): SmRow | undefined {
+  return STATES.find((s) => s.key === key)
+}
+
+// see SD-1, SD-3
+function cellEffects(session: ScreenSession, row: TnRow, event: Loose): string[] {
+  const own = row.effect === null ? [] : [row.effect.name]
+  if (row.to === 'self') return own
+  const crossing: { exits: string[]; entries: string[] } = { exits: [], entries: [] }
+  for (const to of row.to) {
+    const machine = to.split('.')[0] ?? ''
+    const now = kindPath(screenOf(session)[axisAndPath(to).axis])
+    const next = targetPath(to, event)
+    let common = 0
+    while (common < now.length && common < next.length && now[common] === next[common]) common += 1
+    for (let depth = now.length; depth > common; depth -= 1) {
+      const exit = stateRow(`${machine}.${now.slice(0, depth).join('.')}`)?.exit
+      if (exit !== undefined) crossing.exits.push(exit.effect)
+    }
+    for (let depth = common + 1; depth <= next.length; depth += 1) {
+      const entry = stateRow(`${machine}.${next.slice(0, depth).join('.')}`)?.entry
+      if (entry !== undefined) crossing.entries.push(entry.effect)
+    }
+  }
+  return [...crossing.exits, ...own, ...crossing.entries]
 }
 
 function isAxis(value: unknown): boolean {
@@ -468,7 +518,7 @@ function expectStepMatchesManuscript(session: ScreenSession, event: Loose): void
     }
   }
 
-  const expected = rows.flatMap((f) => (f.row.effect === null ? [] : [f.row.effect])).map((e) => e.name).sort()
+  const expected = rows.flatMap((f) => cellEffects(session, f.row, event)).sort()
   const effects = result.effects.map((e) => e as unknown as Loose)
   expect(effects.map((e) => String(e['type'])).sort(), `effects of ${rows.map((f) => f.row.id).join(', ')}`).toEqual(
     expected,
@@ -554,7 +604,7 @@ describe('SD-3 guards across two machines: openSurfaceState and propertiesPanelC
   ] as const
 
   it.each(surfaceAndPanel.flatMap(([p, s]) => RUNGS.map((rung) => [`surface.open & properties.${p} x rung=${rung}`, s, rung] as const)))(
-    'escapePressed (isPanelTopmost): %s',
+    'escapePressed (in openSurfaceStateMachine.closed): %s',
     (_, session, rung) => {
       expectStepMatchesManuscript(session, { type: 'escapePressed', rung })
     },
@@ -566,6 +616,30 @@ describe('SD-3 guards across two machines: openSurfaceState and propertiesPanelC
       expectStepMatchesManuscript(session, { type: 'surfaceCloseAsked', target })
     },
   )
+})
+
+describe('DFC-3458 guard isLeavingHolidaySettings: the U-65 surface closed or replaced drops the calendar draft', () => {
+  const holidayOpen = (...more: string[]): ScreenSession =>
+    withAxes(sessionIn('calendarDraftStateMachine.drafted', ...more), {
+      openSurfaceState: { kind: 'open', surfaceName: HOLIDAY_SURFACE },
+    })
+  const cases: readonly (readonly [string, readonly string[], Loose, boolean])[] = [
+    ['replaced by surfaceEntryPressed(U-30)', [], { type: 'surfaceEntryPressed', surfaceName: 'U-30' }, true],
+    ['surfaceEntryPressed(U-65) on itself', [], { type: 'surfaceEntryPressed', surfaceName: HOLIDAY_SURFACE }, false],
+    ['replaced by surfaceRaisedByFlow(U-56)', [], { type: 'surfaceRaisedByFlow', surfaceName: 'U-56' }, true],
+    ['replaced by watermarkEntryPressed', ['watermarkDisplayStateMachine.shown'], { type: 'watermarkEntryPressed' }, true],
+    ['watermarkEntryPressed with no watermark', ['watermarkDisplayStateMachine.hidden'], { type: 'watermarkEntryPressed' }, false],
+    ['closed by escapePressed(rung=surface)', [], { type: 'escapePressed', rung: 'surface' }, true],
+    ['escapePressed(rung=propertiesPanel)', [], { type: 'escapePressed', rung: 'propertiesPanel' }, false],
+    ['closed by surfaceCloseAsked(target=surface)', [], { type: 'surfaceCloseAsked', target: 'surface' }, true],
+    ['surfaceCloseAsked(target=panel)', [], { type: 'surfaceCloseAsked', target: 'panel' }, false],
+  ]
+
+  it.each(cases)('open(U-65) & calendarDraftStateMachine.drafted: %s', (_, more, event, leaves) => {
+    const session = holidayOpen(...more)
+    expectStepMatchesManuscript(session, event)
+    expect(kindPath(screenOf(step(session, event).state)['calendarDraftState'])).toEqual([leaves ? 'untouched' : 'drafted'])
+  })
 })
 
 describe('SD-3 guard isSameArm (armModeState x armEntryPressed): same kind and same carried value', () => {

@@ -379,49 +379,49 @@
  "guardLanguage": {
   "terms": [
    {
-    "form": "event.<運ぶ値>",
+    "form": "event.<carry>",
     "meaning": {
      "ja": "升の出来事が運ぶ値（`SD-2`）。ガードを使うどの升の出来事も、その値を運ぶ。後ろに続く `.欄` はコードの型の欄であり、生成器は引かない"
     }
    },
    {
-    "form": "root.<運ぶ値>",
+    "form": "root.<carry>",
     "meaning": {
      "ja": "領域の根が運ぶ値"
     }
    },
    {
-    "form": "<状態機械>.<運ぶ値>",
+    "form": "<machine>.<carry>",
     "meaning": {
      "ja": "同じ領域のその状態機械の、いまの状態が運ぶ値。いまの状態がその値を運ばなければ `null`"
     }
    },
    {
-    "form": "taskGroup.<列>",
+    "form": "taskGroup.<column>",
     "meaning": {
      "ja": "文書に保存する値を持つ領域（`SD-5`）だけ: 升が木の状態を決めるタスクグループの列（`_assets/fig-erd-detail.md` の `TaskGroup`）"
     }
    },
    {
-    "form": "in(<状態機械>.<状態>)",
+    "form": "in(<machine>.<state>)",
     "meaning": {
      "ja": "同じ領域のその状態機械が、いまその状態か、その下の状態にいる"
     }
    },
    {
-    "form": "inAfter(<状態機械>.<状態>)",
+    "form": "inAfter(<machine>.<state>)",
     "meaning": {
      "ja": "同じ出来事の 1 段を終えた後に、同じ領域のその状態機械がその状態か、その下の状態にいる"
     }
    },
    {
-    "form": "<関数>(<引数>, …)",
+    "form": "<function>(<argument>, ...)",
     "meaning": {
      "ja": "下の関数の値。引数の数は関数ごとに決まっている"
     }
    },
    {
-    "form": "'字' ・ 0 ・ true ・ false ・ null ・ [a, b, …]",
+    "form": "'text', 0, true, false, null, [a, b, ...]",
     "meaning": {
      "ja": "字・整数・真偽・値が無いこと・並び。`null` の欄は `null` である"
     }
@@ -447,13 +447,13 @@
     }
    },
    {
-    "form": "x == y ・ x != y",
+    "form": "x == y, x != y",
     "meaning": {
      "ja": "等しい ・ 等しくない"
     }
    },
    {
-    "form": "x < y ・ x <= y ・ x > y ・ x >= y",
+    "form": "x < y, x <= y, x > y, x >= y",
     "meaning": {
      "ja": "数の大小"
     }
@@ -5373,7 +5373,7 @@
    "guards": [
     {
      "name": "isDocumentChangingPress",
-     "condition": "(event.pressedOn == null || event.pressedOn.kind == 'grab') && !(event.pressRow in ['PTD-1', 'PTD-5']) || event.pressedOn != null && !(event.pressedOn.kind in ['grab', 'scrollbarThumb', 'panelBorder', 'paletteBand']) && !(event.pressedOn.kind == 'entry' && event.pressedOn.entry in ['IC-12', 'IC-13', 'IC-14', 'IC-15'])",
+     "condition": "(event.pressedOn == null || event.pressedOn.kind == 'grab') && !(event.pressRow in ['PTD-1', 'PTD-5']) || event.pressedOn != null && !(event.pressedOn.kind in ['grab', 'scrollbarThumb']) && !(event.pressedOn.kind == 'entry' && event.pressedOn.entry in ['IC-12', 'IC-13', 'IC-14', 'IC-15'])",
      "evidence": [
       "AG-9",
       "UN-8",
@@ -5385,7 +5385,7 @@
       "FR-053"
      ],
      "note": {
-      "ja": "押下の先を先に問い、押下の行は後に問う —— 描いた入口の押下は `PTD-5` に落ちるので、行を先に問うとパレットのどの押下も `AG-9` から外れる。文書を変えない押下は、取り消しの対象（表 T-027）でないものを書く押下である —— スクロールバーのつまみ（`UN-8`）、パネルの境界（`UN-16`）、パレットの掴み帯（`FR-053`）、押し続けると繰り返す入口（`UN-8`）"
+      "ja": "押下の先を先に問い、押下の行は後に問う —— 描いた入口の押下は `PTD-5` に落ちるので、行を先に問うとパレットのどの押下も `AG-9` から外れる。文書を変えない押下は、見るだけの押下行（`PTD-1`・`PTD-5`）、スクロールバーのつまみ（`UN-8`）、押し続けると繰り返す入口（`UN-8`）である。⚠️ 式は今の判定を書いた —— パネルの境界（`UN-16`）・パレットの掴み帯（`FR-053`）・`PTD-2`・`PTD-4a`・繰り返さない入口を取り消しの対象（表 T-027）と突き合わせると外れうる。どちらが正かは決めていない"
      }
     },
     {

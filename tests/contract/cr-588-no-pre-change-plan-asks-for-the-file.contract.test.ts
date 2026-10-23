@@ -79,6 +79,7 @@ type RawGuard = { readonly name?: string; readonly not?: boolean; readonly in?: 
 type RawBranch = { readonly to?: string; readonly guard?: readonly RawGuard[]; readonly effect?: string }
 type RawMachine = {
   readonly name: string
+  readonly states: readonly { readonly key: string; readonly entry?: { readonly effect: string } }[]
   readonly transitions: Readonly<Record<string, Readonly<Record<string, RawBranch | readonly RawBranch[]>>>>
 }
 type RawRegion = {
@@ -131,9 +132,12 @@ describe('CR-588 premises -- the clauses these cases quote still stand', () => {
     expect(SETTINGS_TABLE).toContain(S_69_ROW)
   })
 
+  // WHY: SD-1 / SD-3 (CR-767) -- importIncomingDocument is importingDocument's entry, so the
+  // cell entering it no longer repeats it.
   it('the fileFlow manuscript still routes documentFileRead under isBaselineRoute to importingDocument', () => {
     expect(BASELINE_READ_BRANCH?.to).toBe('importingDocument')
-    expect(BASELINE_READ_BRANCH?.effect).toBe('importIncomingDocument')
+    expect(BASELINE_READ_BRANCH?.effect).toBeUndefined()
+    expect(OPERATION_MACHINE?.states.find((s) => s.key === 'importingDocument')?.entry?.effect).toBe('importIncomingDocument')
     const openAsked = FLOW_REGION?.events.find((e) => e.key === 'documentOpenAsked')
     expect(openAsked?.carries.find((c) => c.name === 'openRoute')?.note?.ja ?? '').toContain('`baseline`')
   })

@@ -23,14 +23,14 @@
 
 | 項 | 意味 |
 | --- | --- |
-| `event.<運ぶ値>` | 升の出来事が運ぶ値（`SD-2`）。ガードを使うどの升の出来事も、その値を運ぶ。後ろに続く `.欄` はコードの型の欄であり、生成器は引かない |
-| `root.<運ぶ値>` | 領域の根が運ぶ値 |
-| `<状態機械>.<運ぶ値>` | 同じ領域のその状態機械の、いまの状態が運ぶ値。いまの状態がその値を運ばなければ `null` |
-| `taskGroup.<列>` | 文書に保存する値を持つ領域（`SD-5`）だけ: 升が木の状態を決めるタスクグループの列（`_assets/fig-erd-detail.md` の `TaskGroup`） |
-| `in(<状態機械>.<状態>)` | 同じ領域のその状態機械が、いまその状態か、その下の状態にいる |
-| `inAfter(<状態機械>.<状態>)` | 同じ出来事の 1 段を終えた後に、同じ領域のその状態機械がその状態か、その下の状態にいる |
-| `<関数>(<引数>, …)` | 下の関数の値。引数の数は関数ごとに決まっている |
-| `'字'` ・ `0` ・ `true` ・ `false` ・ `null` ・ `[a, b, …]` | 字・整数・真偽・値が無いこと・並び。`null` の欄は `null` である |
+| `event.<carry>` | 升の出来事が運ぶ値（`SD-2`）。ガードを使うどの升の出来事も、その値を運ぶ。後ろに続く `.欄` はコードの型の欄であり、生成器は引かない |
+| `root.<carry>` | 領域の根が運ぶ値 |
+| `<machine>.<carry>` | 同じ領域のその状態機械の、いまの状態が運ぶ値。いまの状態がその値を運ばなければ `null` |
+| `taskGroup.<column>` | 文書に保存する値を持つ領域（`SD-5`）だけ: 升が木の状態を決めるタスクグループの列（`_assets/fig-erd-detail.md` の `TaskGroup`） |
+| `in(<machine>.<state>)` | 同じ領域のその状態機械が、いまその状態か、その下の状態にいる |
+| `inAfter(<machine>.<state>)` | 同じ出来事の 1 段を終えた後に、同じ領域のその状態機械がその状態か、その下の状態にいる |
+| `<function>(<argument>, ...)` | 下の関数の値。引数の数は関数ごとに決まっている |
+| `'text', 0, true, false, null, [a, b, ...]` | 字・整数・真偽・値が無いこと・並び。`null` の欄は `null` である |
 
 ### 演算
 
@@ -39,8 +39,8 @@
 | `!x` | x でない |
 | `x && y` | x かつ y |
 | <code>x &#124;&#124; y</code> | x または y |
-| `x == y` ・ `x != y` | 等しい ・ 等しくない |
-| `x < y` ・ `x <= y` ・ `x > y` ・ `x >= y` | 数の大小 |
+| `x == y, x != y` | 等しい ・ 等しくない |
+| `x < y, x <= y, x > y, x >= y` | 数の大小 |
 | `x in y` | x が並び y のどれかに等しい |
 | `x.length` | 並び x の長さ |
 | `( x )` | 先に結ぶ。結ぶ強さは `!` ＞ 比較と `in` ＞ `&&` ＞ <code>&#124;&#124;</code> |
@@ -650,7 +650,7 @@
 
 | ガード | 条件 | 根拠 |
 | --- | --- | --- |
-| `isDocumentChangingPress` | <code>(event.pressedOn == null &#124;&#124; event.pressedOn.kind == 'grab') &amp;&amp; !(event.pressRow in ['PTD-1', 'PTD-5']) &#124;&#124; event.pressedOn != null &amp;&amp; !(event.pressedOn.kind in ['grab', 'scrollbarThumb', 'panelBorder', 'paletteBand']) &amp;&amp; !(event.pressedOn.kind == 'entry' &amp;&amp; event.pressedOn.entry in ['IC-12', 'IC-13', 'IC-14', 'IC-15'])</code>（押下の先を先に問い、押下の行は後に問う —— 描いた入口の押下は `PTD-5` に落ちるので、行を先に問うとパレットのどの押下も `AG-9` から外れる。文書を変えない押下は、取り消しの対象（表 T-027）でないものを書く押下である —— スクロールバーのつまみ（`UN-8`）、パネルの境界（`UN-16`）、パレットの掴み帯（`FR-053`）、押し続けると繰り返す入口（`UN-8`）） | `AG-9` ・ `UN-8` ・ `UN-9` ・ `UN-16` ・ `PTD-1` ・ `PTD-5` ・ `FR-018` ・ `FR-053` |
+| `isDocumentChangingPress` | <code>(event.pressedOn == null &#124;&#124; event.pressedOn.kind == 'grab') &amp;&amp; !(event.pressRow in ['PTD-1', 'PTD-5']) &#124;&#124; event.pressedOn != null &amp;&amp; !(event.pressedOn.kind in ['grab', 'scrollbarThumb']) &amp;&amp; !(event.pressedOn.kind == 'entry' &amp;&amp; event.pressedOn.entry in ['IC-12', 'IC-13', 'IC-14', 'IC-15'])</code>（押下の先を先に問い、押下の行は後に問う —— 描いた入口の押下は `PTD-5` に落ちるので、行を先に問うとパレットのどの押下も `AG-9` から外れる。文書を変えない押下は、見るだけの押下行（`PTD-1`・`PTD-5`）、スクロールバーのつまみ（`UN-8`）、押し続けると繰り返す入口（`UN-8`）である。⚠️ 式は今の判定を書いた —— パネルの境界（`UN-16`）・パレットの掴み帯（`FR-053`）・`PTD-2`・`PTD-4a`・繰り返さない入口を取り消しの対象（表 T-027）と突き合わせると外れうる。どちらが正かは決めていない） | `AG-9` ・ `UN-8` ・ `UN-9` ・ `UN-16` ・ `PTD-1` ・ `PTD-5` ・ `FR-018` ・ `FR-053` |
 | `isHeldOnRepeatingEntry` | `pointerPressStateMachine.pressedOn.kind == 'entry' && pointerPressStateMachine.pressedOn.entry in ['IC-12', 'IC-13', 'IC-14', 'IC-15']`（押し続けている押下が、押し続けると繰り返す入口の上にある（刻みの出来事は押下の先を運ばない）） | `FR-018` ・ `S-173` |
 | `isOnPaletteBand` | `pointerPressStateMachine.pressedOn.kind == 'paletteBand'` | `FR-053` ・ `GR-19` |
 | `isOnRepeatingEntry` | `event.pressedOn.kind == 'entry' && event.pressedOn.entry in ['IC-12', 'IC-13', 'IC-14', 'IC-15']` | `FR-018` ・ `S-172` |
@@ -676,7 +676,7 @@
 
 | 出来事 | `notPressed` | `changingDocument` | `viewingDocument` |
 | --- | --- | --- | --- |
-| `gesture/pointerPressed` | → `changingDocument` [`isDocumentChangingPress`（<code>(event.pressedOn == null &#124;&#124; event.pressedOn.kind == 'grab') &amp;&amp; !(event.pressRow in ['PTD-1', 'PTD-5']) &#124;&#124; event.pressedOn != null &amp;&amp; !(event.pressedOn.kind in ['grab', 'scrollbarThumb', 'panelBorder', 'paletteBand']) &amp;&amp; !(event.pressedOn.kind == 'entry' &amp;&amp; event.pressedOn.entry in ['IC-12', 'IC-13', 'IC-14', 'IC-15'])</code>）]<br>→ `viewingDocument` [not `isDocumentChangingPress`（<code>(event.pressedOn == null &#124;&#124; event.pressedOn.kind == 'grab') &amp;&amp; !(event.pressRow in ['PTD-1', 'PTD-5']) &#124;&#124; event.pressedOn != null &amp;&amp; !(event.pressedOn.kind in ['grab', 'scrollbarThumb', 'panelBorder', 'paletteBand']) &amp;&amp; !(event.pressedOn.kind == 'entry' &amp;&amp; event.pressedOn.entry in ['IC-12', 'IC-13', 'IC-14', 'IC-15'])</code>） & `isOnRepeatingEntry`（`event.pressedOn.kind == 'entry' && event.pressedOn.entry in ['IC-12', 'IC-13', 'IC-14', 'IC-15']`）] / `startEntryRepeat`（前の待ちを捨てて張り直す）<br>→ `viewingDocument` [not `isDocumentChangingPress`（<code>(event.pressedOn == null &#124;&#124; event.pressedOn.kind == 'grab') &amp;&amp; !(event.pressRow in ['PTD-1', 'PTD-5']) &#124;&#124; event.pressedOn != null &amp;&amp; !(event.pressedOn.kind in ['grab', 'scrollbarThumb', 'panelBorder', 'paletteBand']) &amp;&amp; !(event.pressedOn.kind == 'entry' &amp;&amp; event.pressedOn.entry in ['IC-12', 'IC-13', 'IC-14', 'IC-15'])</code>） & not `isOnRepeatingEntry`（`event.pressedOn.kind == 'entry' && event.pressedOn.entry in ['IC-12', 'IC-13', 'IC-14', 'IC-15']`）] | — | — |
+| `gesture/pointerPressed` | → `changingDocument` [`isDocumentChangingPress`（<code>(event.pressedOn == null &#124;&#124; event.pressedOn.kind == 'grab') &amp;&amp; !(event.pressRow in ['PTD-1', 'PTD-5']) &#124;&#124; event.pressedOn != null &amp;&amp; !(event.pressedOn.kind in ['grab', 'scrollbarThumb']) &amp;&amp; !(event.pressedOn.kind == 'entry' &amp;&amp; event.pressedOn.entry in ['IC-12', 'IC-13', 'IC-14', 'IC-15'])</code>）]<br>→ `viewingDocument` [not `isDocumentChangingPress`（<code>(event.pressedOn == null &#124;&#124; event.pressedOn.kind == 'grab') &amp;&amp; !(event.pressRow in ['PTD-1', 'PTD-5']) &#124;&#124; event.pressedOn != null &amp;&amp; !(event.pressedOn.kind in ['grab', 'scrollbarThumb']) &amp;&amp; !(event.pressedOn.kind == 'entry' &amp;&amp; event.pressedOn.entry in ['IC-12', 'IC-13', 'IC-14', 'IC-15'])</code>） & `isOnRepeatingEntry`（`event.pressedOn.kind == 'entry' && event.pressedOn.entry in ['IC-12', 'IC-13', 'IC-14', 'IC-15']`）] / `startEntryRepeat`（前の待ちを捨てて張り直す）<br>→ `viewingDocument` [not `isDocumentChangingPress`（<code>(event.pressedOn == null &#124;&#124; event.pressedOn.kind == 'grab') &amp;&amp; !(event.pressRow in ['PTD-1', 'PTD-5']) &#124;&#124; event.pressedOn != null &amp;&amp; !(event.pressedOn.kind in ['grab', 'scrollbarThumb']) &amp;&amp; !(event.pressedOn.kind == 'entry' &amp;&amp; event.pressedOn.entry in ['IC-12', 'IC-13', 'IC-14', 'IC-15'])</code>） & not `isOnRepeatingEntry`（`event.pressedOn.kind == 'entry' && event.pressedOn.entry in ['IC-12', 'IC-13', 'IC-14', 'IC-15']`）] | — | — |
 | `gesture/pointerReleased` | — | → `notPressed` | → `notPressed` |
 | `gesture/pressInterrupted` | — | → `notPressed` [`isOnPaletteBand`（`pointerPressStateMachine.pressedOn.kind == 'paletteBand'`）] / `restorePaletteCorner`（パレットを押した時点の角へ戻す）<br>→ `notPressed` [not `isOnPaletteBand`（`pointerPressStateMachine.pressedOn.kind == 'paletteBand'`）] | → `notPressed` [`isOnPaletteBand`（`pointerPressStateMachine.pressedOn.kind == 'paletteBand'`）] / `restorePaletteCorner`（パレットを押した時点の角へ戻す）<br>→ `notPressed` [not `isOnPaletteBand`（`pointerPressStateMachine.pressedOn.kind == 'paletteBand'`）] |
 | `gesture/entryRepeatTimeElapsed` | — | — | → 自己 [`isHeldOnRepeatingEntry`（`pointerPressStateMachine.pressedOn.kind == 'entry' && pointerPressStateMachine.pressedOn.entry in ['IC-12', 'IC-13', 'IC-14', 'IC-15']`）] / `repeatHeldEntry`（入口の命令をもう 1 度実行し、`S-173` の待ちを張る）<br>それ以外 → — |
