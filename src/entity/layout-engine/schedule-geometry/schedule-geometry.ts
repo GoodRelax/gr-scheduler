@@ -283,7 +283,6 @@ export interface GeometryInputs {
   readonly within: WorkingCalendar
   readonly taskByUid: ReadonlyMap<number, Task>
   readonly statusDate: CalendarDay | null
-  // see FR-046, FR-158: the statusDate instant, read only while time of day is shown.
   readonly statusInstant?: number | null
   readonly isPlanVisible: boolean
   readonly isActualVisible: boolean
@@ -564,20 +563,17 @@ function baselineOutlinesOf(schedule: Schedule, inputs: GeometryInputs): Baselin
 }
 
 // see FR-046, FR-014, CU-1, FR-158
-// WHY: with time of day shown the line stands at the instant (a 15-minute drag lands where it was let go); hidden, at the day's left edge.
 /** @purity pure */
-export function statusLineXOf(inputs: GeometryInputs): number | null {
-  if (inputs.statusDate === null) return null
+export function statusLineXOf(inputs: GeometryInputs, statusDate: CalendarDay): number {
   const instant = inputs.settings.isTimeOfDayVisible ? inputs.statusInstant ?? null : null
-  return instant === null ? xFromDay(inputs.layout, inputs.statusDate) : xOfInstant(inputs.layout, instant)
+  return instant === null ? xFromDay(inputs.layout, statusDate) : xOfInstant(inputs.layout, instant)
 }
 
 /** @purity pure */
 function statusLineOf(inputs: GeometryInputs, regions: ScreenRegions): ScheduleGeometry['statusLine'] {
-  const x = statusLineXOf(inputs)
-  if (x === null) return null
+  if (inputs.statusDate === null) return null
   const area = regions.taskGroupArea
-  return { x, top: area.y, bottom: area.y + area.height }
+  return { x: statusLineXOf(inputs, inputs.statusDate), top: area.y, bottom: area.y + area.height }
 }
 
 // see CP-6, LC-10, LC-11, RV-5

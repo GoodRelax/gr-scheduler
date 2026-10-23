@@ -717,7 +717,6 @@ export function guideCursorLabelOf(
   if (isDualCursorOn(session) || regionAtPointer(regions, pointer.x, pointer.y) !== 'taskGroupArea') return null
   if (tooltips.some((one) => one.at !== undefined)) return null
   const axis = timeAxisOf(settings, regions)
-  // see CU-3, T-378: the label reads the snapped instant, as the Dual Cursor line does; the line itself follows the pointer.
   const instant = cursorInstantAtX(axis, pointer.x, settings)
   const shown = cursorViewOf(settings, dataRegion)(instant)
   if (shown === null) return null

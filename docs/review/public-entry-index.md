@@ -409,6 +409,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `ScheduleGeometry` | entry | interface | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#ScheduleGeometry` | PI-6 | 型 |
 | `selectedLinksOf` | entry | function | `src/entity/layout-engine/schedule-geometry/dependency-route.ts#selectedLinksOf` | PI-6 | 選んでいる依存線（表 T-023c の `SL-8`）を、先行と後続の `UID` の対の鍵の集合で答える。 |
 | `SpanDot` | entry | interface | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#SpanDot` | -- | interface SpanDot |
+| `statusLineXOf` | entry | function | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#statusLineXOf` | -- | function statusLineXOf(inputs: GeometryInputs, statusDate: CalendarDay): number |
 | `TaskGeometry` | entry | interface | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#TaskGeometry` | -- | interface TaskGeometry |
 | `AnchorSurroundings` | file only | interface | `src/entity/layout-engine/schedule-geometry/comment-box.ts#AnchorSurroundings` | -- | interface AnchorSurroundings |
 | `commentGeometry` | file only | function | `src/entity/layout-engine/schedule-geometry/comment-box.ts#commentGeometry` | -- | function commentGeometry( schedule: Schedule, settings: DrawnSettings, layout: ScheduleLayout, snaps: readonly AnchorSnap[], ): readonly CommentGeometry[] |
@@ -2116,4 +2117,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 1077 name(s) leave through a public entry (533 of them published by table T-064), 839 more are exported by a file and not by its entry.
+Totals: 1078 name(s) leave through a public entry (533 of them published by table T-064), 839 more are exported by a file and not by its entry.

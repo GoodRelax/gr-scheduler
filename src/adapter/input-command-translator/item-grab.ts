@@ -521,7 +521,6 @@ function releasedDay(context: InputContext, release: PointerInput, side: Release
 }
 
 // see FR-046, T-378, SG-1, SG-2, WT-4
-// WHY: on the day unit the day column the release falls in, as before time of day; the status line has no start side.
 /** @purity pure */
 function releasedStatusDate(context: InputContext, release: PointerInput): string | null {
   const snap = releasedSnapOf(context, release)

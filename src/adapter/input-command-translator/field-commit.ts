@@ -506,7 +506,6 @@ function commandFromParentTaskProgressTolerance(text: string): readonly Document
 }
 
 // see FR-046, CM-3, CM-4, WT-4, TX-3
-// WHY: a typed minute is kept as typed (FR-046); only a date alone takes the finish side's default time.
 /** @purity pure */
 function commandsFromStatusDate(text: string, context: InputContext): readonly DocumentCommand[] {
   const typed = typedDataWallTextOf(text, context)
@@ -768,7 +767,6 @@ function dataWallTextOf(text: string, column: keyof Task, context: InputContext)
 }
 
 // see TX-3, FR-156, FR-046
-// WHY: a typed date-time is shown in the view base, so it goes back to the data's clock; a date alone is left as typed.
 /** @purity pure */
 function typedDataWallTextOf(text: string, context: InputContext): string {
   const settings = context.document.documentSettings

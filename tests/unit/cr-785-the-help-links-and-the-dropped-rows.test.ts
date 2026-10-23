@@ -319,9 +319,11 @@ describe('CR-785 -- the premises read from the specification', () => {
     expect(REQUIREMENTS).toContain('`IC-20` に添えるリンクは囲まない')
   })
 
-  it('FR-036 names MK-2 / MK-5 / MK-7 alone of table T-023 and puts MK-15 / MK-16 / MK-17 among the rows learned by touching', () => {
+  // WHY: CR-850 retired MK-17; FR-036 now names it as a gap of table T-023, still left off the help.
+  it('FR-036 names MK-2 / MK-5 / MK-7 alone of table T-023, puts MK-15 / MK-16 among the rows learned by touching and MK-17 among the gaps', () => {
     expect(REQUIREMENTS).toContain('表 T-023 の `MK-2` / `MK-5` / `MK-7` と、下の 表 T-255 の行を示すこと（MUST）')
-    expect(REQUIREMENTS).toContain('`MK-13` / `MK-15` / `MK-16` / `MK-17`）と、内部の取り決め')
+    expect(REQUIREMENTS).toContain('`MK-13` / `MK-15` / `MK-16`）と、内部の取り決め')
+    expect(REQUIREMENTS).toContain('欠番（`MK-17`）')
   })
 
   it('table T-109 stands IC-20 on the App Header', () => {

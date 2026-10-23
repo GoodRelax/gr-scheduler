@@ -1,6 +1,6 @@
 # CR-850 —— 基準日線・カーソル・掴み代の寄せを 15 分にする
 
-> 起草の状態: 仕様へ当てた（2026-10-24、枝 `baseline-15min`、`67c291388` の上）。`src` と試験は、W4 の子（`CR-578`〜`CR-580`）が合流した後に、その時の統合の枝の先端で当てる（調整役の許しを待つ）。
+> 起草の状態: 仕様とコードを当てた（2026-10-24、枝 `baseline-15min`。仕様は `67c291388` の上、コードは統合の枝 `c9a390431` を取り込んだ上）。⚠️ `input-command-translator.ts` の側の 3 か所（X-3a）は、W4 の子（`CR-578`〜`CR-580`）の合流を待つ —— 振る舞いは今のままで本書どおり。
 > ID の帯: 調整役から番号 `CR-850`、台帳 `DFC-3549`〜`DFC-3553`、裁定 `JDG-3201`〜`JDG-3205`、保留 `PND-950`〜`PND-951`、性能の測り待ち `272`、見本 `74` を受けた。仕様の新しい行 ID は無い（`SG-3`・`SG-4`・`MK-17` は欠番にする）。`67c291388` の木で `CR-850` を名乗る変更要求は 0 件だった（9 節）。
 > 当てるもの: `JDG-3201`〜`JDG-3205`（`DFC-3549`）。`JDG-1783` の寄せの部分を覆す。
 
@@ -107,7 +107,19 @@
 - `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts`（`statusLineOf`）と `progress-line.ts`（頂点の無い段の `baseX`）: 時刻を表示するときは `statusDate` の瞬間の x（`xOfInstant`）。
 - `src/adapter/screen-renderer/properties-panel.ts`（`statusDateField`）と `src/adapter/input-command-translator/field-commit.ts`（`commandsFromStatusDate`）: 時刻を表示するときはタスクの日時の欄と同じ欄と読み方。
 - `src/adapter/screen-renderer/tooltips.ts`: ガイドカーソルの札は `cursorInstantAtX` で読む。
-- `tools/generate_help_roster.py` の `MK-17` を消す。
+- `tools/generate_help_roster.py` の `MK-17` は、欠番として触れば分かる操作の組の後ろに名指す（`FR-036` が欠番と名指す）。`tools/generate_display_words.py` は欠番の行（`（欠番` で始まる）に語を求めない。
+
+#### X-3a —— ⛔ W4（`CR-579`、`input-command-translator.ts` を割る）の合流を待つ所
+
+調整役の指示（2026-10-24）で、`input-command-translator.ts` とその兄弟になるファイル（同じ所の `screen-state-input.ts` を含む）と `frame-loop.ts` には触れていない。`snapMinutesOf` は第 3 引数を読まなくなった（`_isAltHeld?`）ので、今のままで振る舞いは本書どおりである。合流の後に次を当てる:
+
+| 所（`c9a390431` の行） | 当てること |
+|---|---|
+| `input-command-translator.ts:434-437` の `releasedSnapOf` | `release.modifiers.alt` を渡さない（`snapMinutesOf(context.layout.pxPerDay, context.document.documentSettings)`）。注の `SG-4` を消す（検査 44 が欠番を名指す参照として数える） |
+| `screen-state-input.ts:334` | `snapMinutesOf(…, false)` の `false` を消す |
+| `time-axis.ts` の `snapMinutesOf` | 上の 2 つの後に `_isAltHeld?` の引数と TRAP の注を消す |
+
+W4 が `releasedSnapOf` を別のファイルへ移したときは、移った先で同じことをする。
 
 ### X-4 —— ガイドカーソル（同書の 表 T-029 の `CU-3`）
 
@@ -124,6 +136,9 @@
 - 継ぎ目は `snapMinutesOf` の 1 つ。掴み代・バーを引いて作る・コピー・デュアルカーソル・基準日線・ガイドカーソルの札が同じ関数を読む。
 - 新しい試験は、仕様だけを読む別のサブエージェントが書く: 表 T-378 の 15 分（時の段 ／ 30 分の点線の段 ／ 日の段 ／ 時刻を表示しない）、`Alt` で寄せが変わらないこと、基準日線のドラッグ（日 ／ 15 分）と線の位置、基準日の欄（日時、打った分のまま）、デュアルカーソルとガイドカーソルの札。
 - 前提が崩れる既存の試験（1 時間 ／ 30 分 ／ `Alt` の 1 分を期待するもの）は、別のサブエージェントが前提だけを直す。
+- 実測（`52c2e6e2e` の上）: 新しい試験 66 件（契約 24・単体 42、`tests/contract/cr-850-*`・`tests/unit/cr-850-*`）は緑、仕様に反する所見 0。契約の試験は新しい MUST の 5 文を逐語で持つ。前提を直した既存の試験は 10 ファイル 363 件で緑 —— `cr-710-w2` 2 つ・`cr-753`・`cr-756`・`cr-775`・`cr-783`・`dfc-3004`・`cr-560`・`cr-656`・`cr-785`。`Alt` の 1 分だけを押していた `cr-775`・`cr-783` の (c) は、「`Alt` は単位を選ばない」の逆の主張へ替えた。`cr-783` の (e) の時の段の 2 件は、15 分の中で引くと 4.59px で `S-208` の 6px に届かずクリックになるので外し、30 分の点線の段（同じ `SG-2`）で残した。
+- 単体・契約の全数: 657 ファイルのうち赤は `cr-586-iv-22`（2 件）だけ —— 根の `develop` の `d0ae3a9c8` でも同じ 2 件が赤く、本書の前から在る（サブエージェントが測った）。
+- e2e は回していない —— e2e の一部は組んだ `dist` を開き、`dist` は組み直さない約束（合流の後に調整役が 1 回だけ組み直す）なので、今回の変更を押せない。
 - 毎フレームの経路: `schedule-geometry.ts`・`progress-line.ts`・`tooltips.ts` に触れるので `perf-pending` の 272。
 
 ---
@@ -139,7 +154,7 @@
 
 - 予測: 要求 ±0、表 ±0、表の行 ±0（欠番は行のまま残る）、`（MUST）` +2（−2: `FR-103` の 2 文、+4: `FR-046` の 3 文・`CU-3` の 1 文）、`（MUST NOT）` ±0。
 - 実測（`67c291388` → 作業木、`01-04-requirements.md` を数えた）: 要求 ±0（161）、表の行 ±0（1423）、`（MUST）` +3（1902 → 1905。予測より 1 多い —— 表 T-378 の後の「本表の単位は … も読むこと（MUST）」を数え落とした）、`（MUST NOT）` ±0（972）。
-- 検査 39（逐語で試験に押さえられていない MUST）: 2039 → 2043（新しい 4 文）。⚠️ 試験が当たるまで赤のまま —— 仕様だけを読む試験が逐語で押さえて基準線に戻す（基準線は上げない）。
+- 検査 39（逐語で試験に押さえられていない MUST）: 仕様の段で 2039 → 2043（新しい文は 5 つ）。試験が当たった後は 2020（基準線 2039 を下回る。基準線を下げるかは調整役が決める —— 本書では動かさない）。
 - 検査 37: `MK-12` の行の字が変わり（`MK-17` を除く を消した）、語「ブラウザに委ねる」はそのまま正しいので指紋を書き直した。`MK-17` の対は消した。
 - 検査 85: `mcp-tool-descriptions.json`（中継の入力）が変わったので `grsRelay` が赤。`tools/artifact-versions.json` は合流の後に調整役が 1 回だけ上げる（本書では上げない）。`serverSyncDemo` の赤は `67c291388` から在る。
 

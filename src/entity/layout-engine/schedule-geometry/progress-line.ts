@@ -34,8 +34,7 @@ export function progressLineOf(inputs: GeometryInputs): Path {
   const last = layout.taskGroups[layout.taskGroups.length - 1]
   if (first === undefined || last === undefined) return []
 
-  // see FR-014: a lane with no vertex passes where the status line stands (FR-046).
-  const baseX = statusLineXOf(inputs) ?? xFromDay(layout, statusDate)
+  const baseX = statusLineXOf(inputs, statusDate)
   const half = layout.rectangleHeight / 2
   // WHY: bucketed by task group and lane: by task group alone each lane rescans its task group, quadratic once Tasks overlap (NFR-013).
   const byLane = new Map<string, TaskPlacement[][]>()
