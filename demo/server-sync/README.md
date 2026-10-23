@@ -26,7 +26,7 @@ flowchart LR
 1. Download `grs-server-sync-demo.zip`, then right-click it: **Properties > Unblock > OK**.
 2. Extract it and double-click `start-server.cmd` in the `grs-server-sync-demo` folder.
 3. The first time, Windows asks whether to install a certificate for `localhost`. Answer **Yes** and the browser will not warn. (With **No**, the browser warns once: press **Advanced > Continue to localhost**.)
-4. Edge or Chrome opens `https://localhost:8443/`. The logo reads **Demo**.
+4. Your default browser opens `https://localhost:8443/`. The logo reads **Demo**. Use Edge or Chrome: if another browser opened, paste that address into Edge or Chrome.
 5. **Open > Dummy Server**, pick a file, edit it, press `Ctrl` + `S`: the file on the server is updated. **Save As > Dummy Server** (the red sixth choice) saves under a new name.
 6. Watch the black window: each `GET` and `PUT` is the browser reading or writing a file. Close the window to stop the server.
 
