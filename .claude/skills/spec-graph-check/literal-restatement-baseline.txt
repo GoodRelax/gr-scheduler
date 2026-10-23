@@ -36,16 +36,13 @@
 # Measured 2026-09-26 on the tree of branch p3/cr-581-duplicate-prevention:
 # 19 records, 14 restates and 5 coincidental.
 
-# --- restates (3; CR-768 paid 9, CR-765 paid 1 on 2026-10-15) -----------
+# --- restates (2; CR-768 paid 10, CR-765 paid 1 by 2026-10-23) ---------
 
 ARMED_BY_ENTRY | keys | icon-roster.json $.icons[arms].rowId
 why: restates the IC rows of table T-109 that carry an arm (icon-roster.json); keyed by Record<string, ...>, so a new arming icon compiles and arms nothing.
 
 FONT_SIZE_STEPS | array | generated DocumentSettings.fontSizeStep union
 why: restates the fontSizeStep values of docs/spec/_source/settings.json (DocumentSettings.fontSizeStep); typed FontSizeStep, so a removed step fails to compile but a new one is never reached.
-
-TASK_GROUP_GUARDS | keys | generated TreeStateGuardName union
-why: restates the guard names of table T-328 (docs/spec/_source/state-machines.json, region taskGroupTree); Record<string, ...>, so an unknown guard throws only at run time. Matched against the generated TreeStateGuardName union since CR-767 wave 2 printed it (2026-10-23; before: the guard words of TREE_STATE_TRANSITIONS) -- the same debt, paid by CR-768 part C (DFC-2645).
 
 # --- coincidental (2; CR-770 paid 1 on 2026-10-15) -----------------------
 

@@ -38,89 +38,111 @@ const LEVEL_ZERO_WRITTEN_BY: Readonly<Record<TreeStateEffectName, LevelZeroTreeS
   writeLevelZeroAuto: 'auto',
 }
 
-interface TaskGroupTreeFacts {
-  readonly byId: ReadonlyMap<string, TaskGroup>
-  readonly parentIds: ReadonlySet<string>
-  readonly pressedRowId: string | null
-  readonly revealedRowId: string | null
+type TreeStateEventValues = { readonly [carry in keyof TreeStateEventCarried]: TreeStateEventCarried[carry] | null }
+
+// WHY: one input for every judgment of table T-328 (SD-5), so a cell's guard is looked up by name; the
+// task group is null in a root cell (level zero), and a value the event does not carry is null.
+interface TreeStateGuardInput {
+  readonly taskGroup: TaskGroup | null
+  readonly event: TreeStateEventValues
+  readonly ancestors: (taskGroupId: string | null | undefined) => readonly string[]
+  readonly childTaskGroups: (taskGroupId: string | null | undefined) => readonly TaskGroup[]
+  readonly setting: (row: 'S-418') => LevelZeroTreeState
 }
 
-const TASK_GROUP_GUARDS: Readonly<Record<string, (taskGroup: TaskGroup, facts: TaskGroupTreeFacts) => boolean>> = {
-  isPressedTaskGroup: (taskGroup, facts) => facts.pressedRowId !== null && taskGroup.id === facts.pressedRowId,
-  isChildOfPressedTaskGroup: (taskGroup, facts) =>
-    facts.pressedRowId !== null && taskGroup.parentId === facts.pressedRowId,
-  isBelowPressedTaskGroup: (taskGroup, facts) => isBelowTaskGroup(taskGroup, facts.pressedRowId, facts.byId),
-  isLeafTaskGroup: (taskGroup, facts) => !facts.parentIds.has(taskGroup.id),
-  isTopLevelTaskGroup: (taskGroup) => taskGroup.parentId === null,
-  isRevealedTaskGroupOrAncestor,
-}
-
-const ROOT_GUARDS: Readonly<Record<string, (levelZeroTreeState: LevelZeroTreeState) => boolean>> = {
-  isLevelZeroCollapsed: (levelZeroTreeState) => levelZeroTreeState === 'collapsed',
+// WHY: keyed by the generated name type, so a guard added to or dropped from table T-328 fails to compile here.
+const TREE_STATE_GUARDS: Readonly<Record<TreeStateGuardName, (input: TreeStateGuardInput) => boolean>> = {
+  isBelowPressedTaskGroup: ({ taskGroup, event, ancestors }) =>
+    (ancestors(taskGroup?.id) as readonly unknown[]).includes(event.pressedRowId),
+  isChildOfPressedTaskGroup: ({ taskGroup, event }) =>
+    event.pressedRowId != null && taskGroup?.parentId === event.pressedRowId,
+  isLeafTaskGroup: ({ taskGroup, childTaskGroups }) => childTaskGroups(taskGroup?.id)?.length === 0,
+  isLevelZeroCollapsed: ({ setting }) => setting('S-418') === 'collapsed',
+  isPressedTaskGroup: ({ taskGroup, event }) => taskGroup?.id === event.pressedRowId,
+  isRevealedTaskGroupOrAncestor: ({ taskGroup, event, ancestors }) =>
+    taskGroup?.id === event.revealedRowId
+    || (ancestors(event.revealedRowId) as readonly unknown[]).includes(taskGroup?.id),
+  isTopLevelTaskGroup: ({ taskGroup }) => taskGroup?.parentId == null,
 }
 
 // TRAP: the guard is a name, "not name", or terms joined by " & " (the generator prints no other
 // form); a name this unit does not hold throws rather than reading as false and moving no task group.
 /** @purity pure */
-function isGuardHeld(guard: string | null, isNamedGuardHeld: (name: string) => boolean): boolean {
+function isGuardHeld(guard: string | null, input: TreeStateGuardInput): boolean {
   if (guard === null) return true
   return guard.split(' & ').every((term) =>
-    term.startsWith('not ') ? !isNamedGuardHeld(term.slice('not '.length)) : isNamedGuardHeld(term),
+    term.startsWith('not ') ? !isNamedGuardHeld(term.slice('not '.length), input) : isNamedGuardHeld(term, input),
   )
 }
 
 /** @purity pure */
-function namedGuardOf<T>(guards: Readonly<Record<string, T>>, name: string): T {
-  const guard = guards[name]
-  if (guard === undefined) throw new Error(`table T-328 names a guard this unit does not hold: ${name}`)
-  return guard
-}
-
-// WHY: walks up with a step cap, so a parent cycle in a broken document cannot hang the press.
-/** @purity pure */
-function isBelowTaskGroup(
-  taskGroup: TaskGroup,
-  ancestorId: string | null,
-  byId: ReadonlyMap<string, TaskGroup>,
-): boolean {
-  if (ancestorId === null) return false
-  let parentId = taskGroup.parentId
-  for (let steps = 0; parentId !== null && steps <= byId.size; steps++) {
-    if (parentId === ancestorId) return true
-    parentId = byId.get(parentId)?.parentId ?? null
-  }
-  return false
-}
-
-// see T-328, SJ-2
-/** @purity pure */
-function isRevealedTaskGroupOrAncestor(taskGroup: TaskGroup, facts: TaskGroupTreeFacts): boolean {
-  const revealed = facts.revealedRowId === null ? undefined : facts.byId.get(facts.revealedRowId)
-  if (revealed === undefined) return false
-  return revealed.id === taskGroup.id || isBelowTaskGroup(revealed, taskGroup.id, facts.byId)
+function isNamedGuardHeld(name: string, input: TreeStateGuardInput): boolean {
+  if (!isTreeStateGuardName(name)) throw new Error(`table T-328 names a guard this unit does not hold: ${name}`)
+  return TREE_STATE_GUARDS[name](input)
 }
 
 /** @purity pure */
-function taskGroupTreeFactsOf(schedule: Schedule, event: TreeStateEvent): TaskGroupTreeFacts {
-  const taskGroups = schedule.taskGroups
-  const parentIds = new Set<string>()
-  for (const taskGroup of taskGroups) if (taskGroup.parentId !== null) parentIds.add(taskGroup.parentId)
+function isTreeStateGuardName(name: string): name is TreeStateGuardName {
+  return Object.hasOwn(TREE_STATE_GUARDS, name)
+}
+
+// TRAP: a press of the task groups is handed no document settings, and level zero's no schedule; a cell
+// that reads what its side was not handed throws rather than guessing.
+/** @purity pure */
+function notHanded(what: string): never {
+  throw new Error(`table T-328: a cell reads ${what}, which this side of the tree is not handed`)
+}
+
+/** @purity pure */
+function eventValuesOf(event: TreeStateEvent): TreeStateEventValues {
   return {
-    byId: new Map(taskGroups.map((taskGroup) => [taskGroup.id, taskGroup])),
-    parentIds,
     pressedRowId: 'pressedRowId' in event ? event.pressedRowId : null,
     revealedRowId: 'revealedRowId' in event ? event.revealedRowId : null,
   }
 }
 
+// WHY: walks up with a step cap, so a parent cycle in a broken document cannot hang the press.
 /** @purity pure */
-function nextTreeStateOf(taskGroup: TaskGroup, event: TreeStateEvent, facts: TaskGroupTreeFacts): TreeState {
+function ancestorsOf(taskGroupId: string | null | undefined, byId: ReadonlyMap<string, TaskGroup>): readonly string[] {
+  const found: string[] = []
+  let parentId = taskGroupId == null ? null : (byId.get(taskGroupId)?.parentId ?? null)
+  for (let steps = 0; parentId !== null && steps <= byId.size; steps++) {
+    found.push(parentId)
+    parentId = byId.get(parentId)?.parentId ?? null
+  }
+  return found
+}
+
+// see T-328, HR-3, SJ-2
+/** @purity pure */
+function taskGroupGuardInputOf(schedule: Schedule, event: TreeStateEvent): Omit<TreeStateGuardInput, 'taskGroup'> {
+  const taskGroups = schedule.taskGroups
+  const byId = new Map(taskGroups.map((taskGroup) => [taskGroup.id, taskGroup]))
+  const childrenById = new Map<string, TaskGroup[]>()
+  for (const taskGroup of taskGroups) {
+    if (taskGroup.parentId === null) continue
+    const children = childrenById.get(taskGroup.parentId)
+    if (children === undefined) childrenById.set(taskGroup.parentId, [taskGroup])
+    else children.push(taskGroup)
+  }
+  return {
+    event: eventValuesOf(event),
+    ancestors: (taskGroupId) => ancestorsOf(taskGroupId, byId),
+    childTaskGroups: (taskGroupId) => (taskGroupId == null ? undefined : childrenById.get(taskGroupId)) ?? [],
+    setting: () => notHanded('a setting'),
+  }
+}
+
+/** @purity pure */
+function nextTreeStateOf(
+  taskGroup: TaskGroup,
+  event: TreeStateEvent,
+  pressInput: Omit<TreeStateGuardInput, 'taskGroup'>,
+): TreeState {
   const state = `${ROW_STATE_KEY_PREFIX}${taskGroup.treeState}`
+  const input: TreeStateGuardInput = { ...pressInput, taskGroup }
   const cell = TREE_STATE_TRANSITIONS.find(
-    (branch) =>
-      branch.state === state &&
-      branch.event === event.type &&
-      isGuardHeld(branch.guard, (name) => namedGuardOf(TASK_GROUP_GUARDS, name)(taskGroup, facts)),
+    (branch) => branch.state === state && branch.event === event.type && isGuardHeld(branch.guard, input),
   )
   if (cell === undefined) return taskGroup.treeState
   const next = cell.to.slice(ROW_STATE_KEY_PREFIX.length)
@@ -139,10 +161,10 @@ export function treeStateWritesFor(
   schedule: Schedule,
   event: TreeStateEvent,
 ): readonly DocumentCommand[] {
-  const facts = taskGroupTreeFactsOf(schedule, event)
+  const pressInput = taskGroupGuardInputOf(schedule, event)
   const writes: DocumentCommand[] = []
   for (const taskGroup of schedule.taskGroups) {
-    const treeState = nextTreeStateOf(taskGroup, event, facts)
+    const treeState = nextTreeStateOf(taskGroup, event, pressInput)
     if (treeState !== taskGroup.treeState) {
       writes.push({ kind: 'setTaskGroupTreeState', taskGroupId: taskGroup.id, treeState })
     }
@@ -156,11 +178,16 @@ export function levelZeroWritesFor(
   levelZeroTreeState: LevelZeroTreeState,
   event: TreeStateEvent,
 ): readonly DocumentSettingsCommand[] {
+  const settings = { 'S-418': levelZeroTreeState } as const
+  const input: TreeStateGuardInput = {
+    taskGroup: null,
+    event: eventValuesOf(event),
+    ancestors: () => notHanded('the task groups'),
+    childTaskGroups: () => notHanded('the task groups'),
+    setting: (row) => settings[row],
+  }
   const cell = TREE_STATE_TRANSITIONS.find(
-    (branch) =>
-      branch.state === ROOT_STATE_KEY &&
-      branch.event === event.type &&
-      isGuardHeld(branch.guard, (name) => namedGuardOf(ROOT_GUARDS, name)(levelZeroTreeState)),
+    (branch) => branch.state === ROOT_STATE_KEY && branch.event === event.type && isGuardHeld(branch.guard, input),
   )
   if (cell === undefined || cell.effect === null) return []
   const written = LEVEL_ZERO_WRITTEN_BY[cell.effect]
@@ -192,10 +219,10 @@ export function setTaskGroupTreeState(
 export function resetTaskGroupTreeStates(document: Document): EditResult {
   const schedule = document.schedule
   const fit: TreeStateEvent = { type: 'fitPressed' }
-  const facts = taskGroupTreeFactsOf(schedule, fit)
+  const pressInput = taskGroupGuardInputOf(schedule, fit)
   const taskGroups = schedule.taskGroups
   const reset = taskGroups.map((taskGroup) => {
-    const treeState = nextTreeStateOf(taskGroup, fit, facts)
+    const treeState = nextTreeStateOf(taskGroup, fit, pressInput)
     return treeState === taskGroup.treeState ? taskGroup : { ...taskGroup, treeState }
   })
   if (reset.every((taskGroup, at) => taskGroup === taskGroups[at])) return edited(document)
