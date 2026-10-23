@@ -232,12 +232,12 @@ const edgeDocument = (): Document =>
       task({
         uid: EDGE_UID,
         name: 'Edge',
-        start: '2200-12-15T00:00:00',
-        finish: '2200-12-26T00:00:00',
+        start: '2149-12-15T00:00:00',
+        finish: '2149-12-26T00:00:00',
       }),
     ],
     [TASK_GROUP_A],
-    '2200-12-01T00:00:00',
+    '2149-12-01T00:00:00',
   )
 
 const CALENDAR = workingCalendarOf(aprilDocument().schedule)
@@ -551,7 +551,7 @@ describe('table T-245 GO-2 -- the plan end', () => {
     const built = stage(edgeDocument())
     const releaseX = columnFrom(built.loop, planBox(built.loop, EDGE_UID).x1, 2)
     const released = dayUnder(built.loop, releaseX)
-    expect(released <= '2200-12-31', 'premise: on or before S-120').toBe(true)
+    expect(released <= '2149-12-31', 'premise: on or before S-120').toBe(true)
 
     grab(built, planEndPress(built.loop, EDGE_UID), releaseX)
 
@@ -562,7 +562,7 @@ describe('table T-245 GO-2 -- the plan end', () => {
     const built = stage(edgeDocument())
     const before = structuredClone(taskOf(built.loop, EDGE_UID))
     const releaseX = columnFrom(built.loop, planBox(built.loop, EDGE_UID).x1, 12)
-    expect(dayUnder(built.loop, releaseX) > '2200-12-31', 'premise: after S-120 importMaxDate').toBe(true)
+    expect(dayUnder(built.loop, releaseX) > '2149-12-31', 'premise: after S-120 importMaxDate').toBe(true)
 
     grab(built, planEndPress(built.loop, EDGE_UID), releaseX)
 

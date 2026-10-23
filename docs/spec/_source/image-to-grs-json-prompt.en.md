@@ -23,7 +23,7 @@ You are an expert at reading and converting schedule charts. Read the attached s
    - Every object has all of the schema's required keys and no key the schema does not list (additionalProperties is false). When there is no value, use null (only for keys whose type allows null).
    - carry is {} and carryElements is [] (in tasks, dependencies, resources, assignments, calendars and project).
    - Dates and date-times are strings shaped "YYYY-MM-DDTHH:MM:SS" (no zone), always written with their time. When the original shows only the day, the time follows the column's side: a start-side date (start, actualStart, resume, project.startDate) takes project.defaultStartTime ({{S-482}} when that is null), a finish-side date (finish, actualFinish, stop, deadline, project.statusDate) takes project.defaultFinishTime ({{S-483}} when that is null). A milestone takes the finish-side time for both start and finish, so that the two are the same instant. A calendar exception's fromDate is 00:00:00 and its toDate 23:59:00. Only documentStamp uses "YYYY-MM-DDTHH:MM:SSZ".
-   - Dates lie between 1970-01-01 and 2200-12-31.
+   - Dates lie between 1984-01-01 and 2149-12-31.
 3. Task groups (taskGroups)
    - Make one TaskGroup for each heading row of the original. id is a lowercase UUID (e.g. "3f1c2a9e-8b7d-4c21-9e0a-5d6f7a8b9c01"), unique within the document.
    - Put the heading's text in name. derivedFromTaskUid is null.

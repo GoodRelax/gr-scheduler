@@ -4,6 +4,7 @@
 // @purity    pure
 
 import {
+  DaySpanTooWide,
   workingCalendarOf,
   workingTimeCounterOf,
   type Schedule,
@@ -34,6 +35,18 @@ function repricedBy(count: WorkingTimeCounter, task: Task): Task {
   return { ...task, percentComplete: percentCompleteOf(count, task) }
 }
 
+// WHY: a date outside table T-214 spans more days than the calendar walks; FR-023 drops that Task (IV-14)
+// right after the GRS JSON read, so its stored value is held instead of throwing before the check.
+/** @purity pure */
+function recountedOrHeld(count: WorkingTimeCounter, task: Task): Task {
+  try {
+    return repricedBy(count, task)
+  } catch (error) {
+    if (error instanceof DaySpanTooWide) return task
+    throw error
+  }
+}
+
 export interface PercentCompleteRecount {
   readonly schedule: Schedule
   readonly movedTaskUids: readonly number[]
@@ -48,7 +61,7 @@ export function recountedPercentComplete(schedule: Schedule): PercentCompleteRec
   const movedTaskUids: number[] = []
 
   const tasks: Task[] = schedule.tasks.map((task) => {
-    const next = repricedBy(count, task)
+    const next = recountedOrHeld(count, task)
     if (next.percentComplete === task.percentComplete) return task
     // WHY: a finish before its start counts below 0; FR-023 drops that Task (IV-10), so it is not told.
     if (next.percentComplete !== null && next.percentComplete < 0) return task

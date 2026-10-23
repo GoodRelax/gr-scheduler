@@ -93,8 +93,12 @@ export function editProject(document: Document, command: ProjectCommand): EditRe
       return withProjectProfile(document, command.fields)
 
     case 'setStatusDate': {
-      if (dayOf(command.statusDate) === null) {
+      const statusDay = dayOf(command.statusDate)
+      if (statusDay === null) {
         return refused([reject('CM-3', 'FR-046', `not a date: ${command.statusDate}`)])
+      }
+      if (!isAcceptedDay(statusDay)) {
+        return refused([reject('CM-3', 'IV-14', `the status date leaves the accepted days (table T-214): ${command.statusDate}`)])
       }
       if (project.statusDate === command.statusDate) return edited(document)
       return edited(withProject(document, { ...project, statusDate: command.statusDate }))

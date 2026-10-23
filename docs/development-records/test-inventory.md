@@ -16,9 +16,9 @@ what this reading does not see.
 | `integration` | TS-2 | - | 3 | 76 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
 | `system` | TS-3 | - | 99 | 628 | 0 | 0 | 0 | 1 |
-| `unit` | TS-6 | - | 191 | 4028 | 1 | 1 | 2 | 0 |
+| `unit` | TS-6 | - | 192 | 4052 | 1 | 1 | 2 | 0 |
 | `use-case` | TS-1 | VT-1 | 14 | 17 | 1 | 2 | 0 | 0 |
-| **all** | | | 760 | 10795 | 10 | 7 | 13 | 7 |
+| **all** | | | 761 | 10819 | 10 | 7 | 13 | 7 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -74,12 +74,12 @@ named either way: 4 of 10.
 | `tests/unit/cr-439-notices-and-confirmation.test.ts` | NT-5 NT-1 と見分けがつく形にすること（MUST） -- an accepted-with-caution notice does not look like a r... | none |
 | `tests/use-case/uc-010-exchange-with-an-external-wbs-master.test.ts` | UC-010 extension 2a / FR-023, OP-5: a truncated MSPDI file dropped on the schedule is d... | DFC-1016 (via known-red) |
 
-## 6. The unit files kept for now (191) -- listing only
+## 6. The unit files kept for now (192) -- listing only
 
 Re-sorting them waits for the change-request organization (handoff 2026-09-26). "Imports"
 are the callables the file imports by name from `src/`, each with the `@purity` tag above
 its declaration. "UO-1 would omit" marks a file whose every such import is tagged `pure` /
-`semi-pure-a` (rule 04 table UO, row UO-1): 29 of 191.
+`semi-pure-a` (rule 04 table UO, row UO-1): 30 of 192.
 
 | file | imports from src/ (tag) | UO-1 would omit | ties |
 | --- | --- | --- | --- |
@@ -171,6 +171,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/unit/cr-813-the-fix-log-saves-as-tsv-and-two-words-change.test.ts` | delayDiagnosticsReportAfterEntry (pure), delayDiagnosticsReportFromWindow (pure), delayFixLogFileNameOf (pure), delayFixLogTsv (pure), delayFixLogTsvOf (pure) | yes | T-024, T-109, T-351, T-352, T-374 |
 | `tests/unit/cr-825-one-edge-rule-for-the-layout-and-the-baseline-outline.test.ts` | dayOf (pure), edgeInstantOf (pure), serial (pure) | yes | FR-054, T-064 |
 | `tests/unit/cr-826-no-question-mark-or-flame-on-a-task-not-due-yet.test.ts` | - | - | FR-133, T-315 |
+| `tests/unit/cr-831-the-accepted-days-match-ms-project.test.ts` | dayOf (pure), documentFromJson (pure), documentFromMspdi (pure), editDocument (pure), instantOf (pure), mspdiFromDocument (pure), scheduleViolations (pure), textOfInstant (pure), validateImportedDocument (pure) | yes | FR-023, FR-054, T-214, T-220 |
 | `tests/unit/dfc-1620-an-fs-chain-that-starts-the-next-morning-carries-the-whole-delay.test.ts` | documentFromJson (pure) | yes | T-313, T-314 |
 | `tests/unit/dfc-1991-sl-4-a-shift-drag-keeps-the-selection.test.ts` | commandFromInput (pure), grabSizesOf (pure), itemAtPointer (untagged), pressedRowOf (pure), selectionFromInput (pure), selectionOfAll (pure) | - | T-206, T-270 |
 | `tests/unit/dfc-2980-a-marker-pulled-with-many-moves-puts-the-actual.test.ts` | - | - | FR-107, T-270, T-273 |
@@ -922,6 +923,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/unit/cr-813-the-fix-log-saves-as-tsv-and-two-words-change.test.ts` | 37 | - | - | T-024, T-109, T-351, T-352, T-374 | FM-6, FN-1, FN-2, FN-3, FN-4, FN-5, IC-156, IC-157, IC-158, IC-169, IO-9, PTL-15, RW-7, RW-12, RW-20 | - | - | - | - |
 | `tests/unit/cr-825-one-edge-rule-for-the-layout-and-the-baseline-outline.test.ts` | 9 | FR-054 | - | T-064 | BL-2, PI-1, RV-1, RV-6 | - | - | - | - |
 | `tests/unit/cr-826-no-question-mark-or-flame-on-a-task-not-due-yet.test.ts` | 13 | FR-133 | - | T-315 | DG-1, DG-2, DG-3, DG-4, DW-1, DW-3, DX-8, IP-1, MP-1, MP-3, PM-4 | - | - | - | - |
+| `tests/unit/cr-831-the-accepted-days-match-ms-project.test.ts` | 24 | FR-023, FR-054 | - | T-214, T-220 | AG-9a, IV-10, IV-14, S-119, S-120 | - | - | - | - |
 | `tests/unit/dfc-1620-an-fs-chain-that-starts-the-next-morning-carries-the-whole-delay.test.ts` | 4 | - | - | T-313, T-314 | BD-2, BD-4, S-128 | - | - | - | - |
 | `tests/unit/dfc-1991-sl-4-a-shift-drag-keeps-the-selection.test.ts` | 8 | - | - | T-206, T-270 | PE-1, S-208, SL-4, SL-7a, TC-5 | - | - | - | - |
 | `tests/unit/dfc-2980-a-marker-pulled-with-many-moves-puts-the-actual.test.ts` | 7 | FR-107 | - | T-270, T-273 | GO-9, LP-1, PE-8, PE-10, S-129, S-208 | - | - | - | - |
