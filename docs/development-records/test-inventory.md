@@ -789,7 +789,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/system/cr-761-a-fix-proposal-value-unchecked-stays-listed.test.ts` | 1 | - | - | T-374 | SV-7 | - | - | - | - |
 | `tests/system/cr-762-sv-18-a-border-pull-follows-the-pointer-and-stops-left-of-the-scrollbar.test.ts` | 6 | - | - | T-025, T-103, T-109, T-330 | GR-25, GR-28, MC-5, MC-8, RO-9, RW-9, S-425, SV-7, SV-18 | - | - | - | - |
 | `tests/system/cr-763-the-jump-landing-ripple-is-rose-and-rounded.test.ts` | 3 | - | - | T-109, T-206, T-236, T-332 | AM-16, S-556, S-557, S-558, S-587, S-588, SJ-10 | - | - | - | - |
-| `tests/system/cr-783-to-cr-789-the-alpha-checklist-rows-on-the-shipped-build.test.ts` | 8 | FR-013, FR-019, FR-052, FR-103 | - | T-267, T-378 | AS-5, AS-13, GR-14, HF-15, K-145, PE-1, PM-1, PR-48, PR-49, S-171, S-602, S-603, S-604, S-620, SJ-6, SQ-9, ZO-9 | - | - | - | - |
+| `tests/system/cr-783-to-cr-789-the-alpha-checklist-rows-on-the-shipped-build.test.ts` | 8 | FR-013, FR-019, FR-052, FR-103 | - | T-267, T-378 | AS-5, AS-13, GR-14, HF-15, IC-13, K-145, OP-10, PE-1, PM-1, PR-48, PR-49, S-53, S-171, S-602, S-603, S-604, S-620, SJ-6, SQ-9, ZO-9 | - | - | - | - |
 | `tests/system/cr-803-run-and-close-the-report-window-from-the-agent-api.test.ts` | 5 | - | - | T-109 | AM-31, AM-33, IC-107 | - | - | - | - |
 | `tests/system/cr-820-the-same-commit-builds-the-same-bytes.test.ts` | 6 | - | - | - | - | - | - | - | - |
 | `tests/system/cr-823-the-download-page-address-prompts.test.ts` | 6 | - | - | - | S-350 | - | - | - | - |

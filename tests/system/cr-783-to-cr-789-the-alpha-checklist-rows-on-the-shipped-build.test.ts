@@ -9,9 +9,11 @@ test.use({ viewport: VIEWPORT, locale: 'ja-JP' })
 
 type Point = { x: number; y: number }
 
+// WHY: the app paints in the animation frame the pointer event asks for, so one frame is enough to read it;
+// measured on 487 points of CR-789 section 10, three runs: a second frame changed no reading (DFC-3459).
 /** @purity non-pure */
 async function frame(page: Page): Promise<void> {
-  await page.evaluate(() => new Promise<void>((done) => requestAnimationFrame(() => requestAnimationFrame(() => done()))))
+  await page.evaluate(() => new Promise<void>((done) => requestAnimationFrame(() => done())))
 }
 
 /** @purity non-pure */
@@ -90,11 +92,23 @@ test.describe('CR-783: a drag-created task snaps like a grabbed end (FR-103, tab
           .map((e) => ({ minute: Number((e.getAttribute('data-figure') ?? '').split('-tick-')[1]), x: e.getBoundingClientRect().x }))
           .sort((a, b) => a.minute - b.minute),
       )
-    for (let i = 0; i < 80; i += 1) {
-      const ticks = await hourTicks()
-      if (ticks.length > 2 && ticks[1]!.minute - ticks[0]!.minute === 60) break
-      await press(page, 'IC-13')
+    // WHY: one batch to the zoom 48 presses of IC-13 reach (zoomStep 1.1, S-53), whose waits took 19 s (DFC-3459);
+    // the place goes with it, as OP-10 draws the fit while the place is null. The premise below holds the hour tier.
+    const fresh = await readDocument(page)
+    const place = {
+      kind: 'setScrollPosition',
+      scrollDate: `${String(fresh.schedule.project['creationDate']).slice(0, 10)}T00:00:00`,
+      scrollDateFraction: 0,
+      scrollTaskGroupId: fresh.schedule.taskGroups[0]!['id'],
+      scrollTaskGroupFraction: 0,
     }
+    const zoom = { kind: 'setZoom', zoomX: 1.1 ** 48, zoomY: fresh.documentSettings['zoomY'] }
+    const zoomed = await page.evaluate((commands) => {
+      const api = (window as unknown as { grSchedulerAgentApi: { readStamp(): unknown; applyCommands(request: unknown): { ok: boolean } } }).grSchedulerAgentApi
+      return api.applyCommands({ expectedStamp: api.readStamp(), commands }).ok
+    }, [zoom, place])
+    expect(zoomed, 'premise: the zoom is applied').toBe(true)
+    await settle(page)
     const ticks = await hourTicks()
     expect(ticks[1]!.minute - ticks[0]!.minute, 'premise: the ruler shows the one-hour tier').toBe(60)
     const perMinute = (ticks[ticks.length - 1]!.x - ticks[0]!.x) / (ticks[ticks.length - 1]!.minute - ticks[0]!.minute)
