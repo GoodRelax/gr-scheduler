@@ -345,20 +345,20 @@
    "to": "docs/spec UIDs",
    "family": "rows",
    "fields": {
-    "evidence": 304,
+    "evidence": 285,
     "rows": 90
    },
    "prefixes": [
     "FR"
    ],
-   "count": 394
+   "count": 375
   },
   {
    "from": "docs/spec/_source/state-machines.json",
    "to": "docs/spec/01-04-requirements.md",
    "family": "rows",
    "fields": {
-    "evidence": 625,
+    "evidence": 613,
     "rows": 195
    },
    "prefixes": [
@@ -409,7 +409,7 @@
     "WM",
     "ZE"
    ],
-   "count": 820
+   "count": 808
   },
   {
    "from": "docs/spec/_source/state-machines.json",
@@ -983,7 +983,7 @@
   {
    "from": "docs/spec/_source/published-entries.json",
    "to": "docs/spec/01-04-requirements.md",
-   "count": 692
+   "count": 693
   },
   {
    "from": "docs/spec/_source/published-entries.json",
@@ -1028,7 +1028,7 @@
   {
    "from": "docs/spec/_source/published-entries.json",
    "to": "docs/spec/_source/state-machines.json",
-   "count": 53
+   "count": 54
   },
   {
    "from": "docs/spec/_source/published-entries.schema.json",

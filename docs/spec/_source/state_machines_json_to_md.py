@@ -58,14 +58,17 @@ What `load()` refuses (CR-436 section 3.1 and wave A2), on top of the schema:
   - a cell whose state is not a state of its machine, whose `to` is not a
     state of the SAME machine, or whose `{name}` target is not a value the
     event carries (such a target stands for any top-level kind of the
-    machine but its initial one);
+    machine but its initial one; `parent.{name}` for any kind of that
+    composite state but its initial one);
   - a guard term `in` that names no state of another machine of the region;
   - an event a machine's or the root's table uses that its region does not
     define, and an event no table uses;
   - an event with a cell on a state and on one of that state's ancestors in
     the same machine, and a cell of two or more branches one of which has no
     guard;
-  - a union without exactly one initial state;
+  - a union without exactly one initial state -- but a composite state that
+    no cell names as its target and that is not itself initial may have none
+    (every transition enters it by naming a child, as `armed.{armKind}`);
   - a key that is not one word below its parent (or one word at the top);
   - a duplicate state key or event key, and a machine name two machines
     share, in one region or across regions;
@@ -379,28 +382,37 @@ class Machine(object):
                 continue
             self.children.setdefault(parent, []).append(state)
 
-    def unions(self):
-        """(label, [state, ...]) for every union of kinds in this machine."""
-        return [(self.name if parent is None else self.state_id(parent), members)
-                for parent, members in self.children.items()]
+    def entered_by_child_only(self, parent):
+        """A composite no cell targets and its union does not start in: every
+        transition enters it by naming a child, so it needs no initial child."""
+        if parent is None or self.by_key[parent]['initial']:
+            return False
+        return all(b['to'] != parent for _, _, branches in self.cells() for b in branches)
 
     def check_initials(self, found):
-        for label, members in self.unions():
+        for parent, members in self.children.items():
+            label = self.name if parent is None else self.state_id(parent)
             count = sum(1 for s in members if s['initial'])
+            if count == 0 and self.entered_by_child_only(parent):
+                continue
             if count != 1:
                 found.append('%s: %d initial states in the union %s'
                              % (self.name, count, label))
 
     def targets_of(self, key, event):
-        """The state keys a `to` can mean: itself, or the kinds a value names."""
-        hole = PLACEHOLDER.match(key)
+        """The state keys a `to` can mean: itself, or the kinds a value names --
+        `{name}` among the top-level kinds, `parent.{name}` among a composite's."""
+        parent, _, last = key.rpartition('.')
+        hole = PLACEHOLDER.match(last)
         if not hole:
             return [key] if key in self.by_key else []
         if hole.group(1) not in [c['name'] for c in event['carries']]:
             return []
+        if parent and parent not in self.children:
+            return []
         # The value names a kind that is ENTERED, so never the union's
         # initial kind -- the absence the union starts from (`none`).
-        return [s['key'] for s in self.children.get(None, []) if not s['initial']]
+        return [s['key'] for s in self.children.get(parent or None, []) if not s['initial']]
 
     def cells(self):
         """(event key, state key, [branch, ...]) in the manuscript's order."""

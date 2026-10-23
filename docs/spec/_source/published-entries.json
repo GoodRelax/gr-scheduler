@@ -4592,6 +4592,15 @@
      }
     },
     {
+     "name": "ArmModeArmedState",
+     "note": {
+      "ja": [
+       "型。",
+       "構えている状態の子 —— 表 T-280 の `armModeStateMachine.armed` の子の判別共用体（構えの種類と運ぶ値）"
+      ]
+     }
+    },
+    {
      "name": "FileOperationState",
      "note": {
       "ja": [
@@ -4958,6 +4967,15 @@
       "ja": [
        "ヘルプが立っているか（`helpDisplayStateMachine` が `shown.normal` か `shown.maximized`）。",
        "`InputCommandTranslator` が `Esc` の段（表 T-283 の `RG-16`）と、面が立っているかの判じに読む"
+      ]
+     }
+    },
+    {
+     "name": "armedOf",
+     "note": {
+      "ja": [
+       "構えている子（`armModeStateMachine.armed` の子）、構えていなければ `null`。",
+       "`InputCommandTranslator`・`ScreenRenderer`・シェルが、構えの種類（表 T-023b）を読むのに使う"
       ]
      }
     },

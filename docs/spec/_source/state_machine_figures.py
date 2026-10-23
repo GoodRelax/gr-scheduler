@@ -9,7 +9,9 @@ the printer) validated.
 
 ONE UML STATE MACHINE DIAGRAM PER MACHINE (JDG-2161, JDG-2363). Per machine a
 drawio-uml model (`model_of`) is built from the manuscript alone:
-  - an initial pseudo-state per union -- the top and every composite state;
+  - an initial pseudo-state per union -- the top and every composite state
+    that has an initial child (one every transition enters by naming a child,
+    as `armed`, has none);
   - a leaf state is a rounded box; a composite state is a solid rounded
     container holding its children and its own initial pseudo-state; an
     entry / exit effect is written inside the state's box;
@@ -19,7 +21,8 @@ drawio-uml model (`model_of`) is built from the manuscript alone:
     in the region's guard list of the document;
   - a transition to itself is a self loop;
   - a `{name}` target goes through one choice pseudo-state per value name,
-    with one branch `[name = kind]` per top-level kind but the initial one.
+    with one branch `[name = kind]` per top-level kind but the initial one
+    (`parent.{name}`: per kind of that composite state but its initial one).
 
 The model goes through the drawio-uml skill's draw.py (engine "dot") into a
 .drawio in a temporary folder, three fixes study 57 needed are applied (label
@@ -154,10 +157,13 @@ class Figure(object):
         """The cluster of one union: its initial pseudo-state, its leaves and
         its composite children, each composite a labelled cluster."""
         machine = self.machine
+        members = machine.children.get(parent, [])
         initial = (parent + '.' if parent else '') + '__initial'
-        self.node(initial, 'initial', None)
-        leaves, inner = [initial], []
-        for state in machine.children.get(parent, []):
+        leaves, inner = [], []
+        if any(state['initial'] for state in members):
+            self.node(initial, 'initial', None)
+            leaves.append(initial)
+        for state in members:
             key = state['key']
             if state['initial']:
                 self.arrow(initial, self.ref(key), None)
@@ -181,7 +187,7 @@ class Figure(object):
         for event, key, branches in machine.cells():
             carried = machine.region.event_by_key[event]
             for branch in branches:
-                hole = PLACEHOLDER.match(branch['to'])
+                hole = PLACEHOLDER.match(branch['to'].rpartition('.')[2])
                 target = self.ref(branch['to'])
                 if hole:
                     target = '__choice_' + hole.group(1)
@@ -192,7 +198,7 @@ class Figure(object):
             self.node(name, 'decision', '', 34, 34)
             top.append(name)
             for kind in kinds:
-                self.arrow(name, self.ref(kind), '[%s = %s]' % (value, kind))
+                self.arrow(name, self.ref(kind), '[%s = %s]' % (value, kind.rpartition('.')[2]))
 
     def model(self):
         edges = [dict({'source': s, 'target': t, 'arrow': 'transition'},
