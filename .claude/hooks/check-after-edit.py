@@ -95,6 +95,7 @@ GENERATORS = {
     'property_items_json_to_md.py': [ITEMS_MD],
     'row_id_prefixes_json_to_md.py': [PREFIXES_MD],
     'state_machines_json_to_md.py': [MACHINES_MD, MACHINES_TYPES],
+    'state_machine_figures.py': [MACHINES_MD],
     'verification_json_to_md.py': [VERIFICATION_MD],
     'build.py': [COMPONENTS],
 }

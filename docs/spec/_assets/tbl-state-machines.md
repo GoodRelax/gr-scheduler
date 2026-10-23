@@ -14,6 +14,51 @@
 原稿が持つもの・持たないものは `05-07-design.md` の 表 T-250 が、状態機械の形は 表 T-249 が持つ。  
 名前の読み方は `05-07-design.md` の 5.5 が持つ。
 
+## ガードの条件の書き方
+
+各領域のガードの一覧の条件は、次の項・演算・関数だけで書く式である。  
+生成器は条件を 1 つずつ読み、読む値が在ることを確かめる（`_source/state_machines_json_to_md.py` の `load()`）。
+
+### 項
+
+| 項 | 意味 |
+| --- | --- |
+| `event.<運ぶ値>` | 升の出来事が運ぶ値（`SD-2`）。ガードを使うどの升の出来事も、その値を運ぶ。後ろに続く `.欄` はコードの型の欄であり、生成器は引かない |
+| `root.<運ぶ値>` | 領域の根が運ぶ値 |
+| `<状態機械>.<運ぶ値>` | 同じ領域のその状態機械の、いまの状態が運ぶ値。いまの状態がその値を運ばなければ `null` |
+| `taskGroup.<列>` | 文書に保存する値を持つ領域（`SD-5`）だけ: 升が木の状態を決めるタスクグループの列（`_assets/fig-erd-detail.md` の `TaskGroup`） |
+| `in(<状態機械>.<状態>)` | 同じ領域のその状態機械が、いまその状態か、その下の状態にいる |
+| `inAfter(<状態機械>.<状態>)` | 同じ出来事の 1 段を終えた後に、同じ領域のその状態機械がその状態か、その下の状態にいる |
+| `<関数>(<引数>, …)` | 下の関数の値。引数の数は関数ごとに決まっている |
+| `'字'` ・ `0` ・ `true` ・ `false` ・ `null` ・ `[a, b, …]` | 字・整数・真偽・値が無いこと・並び。`null` の欄は `null` である |
+
+### 演算
+
+| 演算 | 意味 |
+| --- | --- |
+| `!x` | x でない |
+| `x && y` | x かつ y |
+| <code>x &#124;&#124; y</code> | x または y |
+| `x == y` ・ `x != y` | 等しい ・ 等しくない |
+| `x < y` ・ `x <= y` ・ `x > y` ・ `x >= y` | 数の大小 |
+| `x in y` | x が並び y のどれかに等しい |
+| `x.length` | 並び x の長さ |
+| `( x )` | 先に結ぶ。結ぶ強さは `!` ＞ 比較と `in` ＞ `&&` ＞ <code>&#124;&#124;</code> |
+
+### 関数
+
+| 関数 | 意味 | 根拠 |
+| --- | --- | --- |
+| `after(value)` | 同じ出来事の 1 段を終えた後の、その状態機械の運ぶ値（`<状態機械>.<運ぶ値>` を渡す）。その後の状態がその値を運ばなければ `null` | `FR-088` ・ `S-99g` |
+| `ancestors(taskGroupId)` | その `id` のタスクグループの親、親の親……と最上位までの `id` の並び（自身は含まない）。その `id` のタスクグループが無ければ空 | `HR-3` ・ `HR-1a` ・ `SJ-2` |
+| `calendarDraftRefusals(calendarDraft)` | 休日の設定の下書きが当てられない断りの並び（`WC-10` の 1 件 1 行） | `WC-10` ・ `WC-7` |
+| `childTaskGroups(taskGroupId)` | 親（`parentId`）がその `id` のタスクグループである、直下の子のタスクグループの並び | `HR-7` ・ `TD-6` |
+| `noticeDisplay(reason)` | 表 T-233 の、その理由の表示の仕方（`_source/notice-reasons.json` の `display`。`'hide'` は「出さない」、`'autoDismiss'` は「時間で消す」） | `FR-076` ・ `NT-2` |
+| `reasonsOf(standing)` | 立っている通知の並びの、1 枚ずつの理由（表 T-233 の行）の並び | `NT-8` ・ `NT-2` |
+| `setting(row)` | 設定の行（`_assets/tbl-settings.md` の `S-` 行）の、いま文書が持つ値 | `S-418` |
+| `wordsRow(reason)` | 表 T-233 で、その理由が語を借りる行（まとめ方の「語は …」）。借りなければその理由自身 | `NT-3` ・ `FR-076` |
+| `wordsRowsOf(standing)` | 立っている通知の並びの、1 枚ずつの `wordsRow` の並び | `NT-3` |
+
 ## 領域をまたぐ優先順
 
 **表 T-283 — 領域をまたぐ優先順**
@@ -48,6 +93,8 @@
 
 本表は、出来事の定義・根の値・状態機械ごとの状態遷移表と状態の一覧からなる。  
 状態遷移表の行はその状態機械を動かす出来事、列はその状態機械の葉の状態、升は「→ 次の状態 [ガード] / 副作用」である。  
+ガードは名と条件を「`名`（`条件`）」と刷り、条件は同じ領域のガードの一覧と同じである。  
+状態に entry ／ exit の副作用がある状態機械は、出来事の行の上に `entry` ／ `exit` の行を置く —— その状態へ入る遷移・出る遷移が、出 → 遷移の副作用 → 入の順に起こし、自己への遷移（「→ 自己」）は起こさない。  
 升の「—」は変化なし（同じ参照）を表す。  
 ガードの付いた枝がすべての場合を覆わない升には「それ以外 → —」を添え、どの場合に何が起きるかを升ごとに言い切る。  
 親の状態に置いた升は、その子のすべての列に同じ升を刷り、「親 … の升」と書き添える。
@@ -114,6 +161,39 @@
 | `screen/calendarApplyEntryPressed` | 入力: `IC-138` ・ `WC-7` | — | `calendarDraftStateMachine` |
 | `screen/documentReplacedByOpenOrNew` | 副作用の結果（文書を置き換えて開いた（`RD-4`）か、新しく始めた（`RD-7`）差し替えが受け入れられた。取り消し・やり直し・合流と重ね・画面と `Agent API` の書き込みでは送らない —— 領域 `notices` の同じ鍵（書き込みの毎巡）とは別の出来事である）: `RD-4` ・ `RD-7` | — | `baseTimeZoneDraftStateMachine` ・ `timeShiftDraftStateMachine` ・ `wholeScheduleShiftDraftStateMachine` ・ `calendarDraftStateMachine` |
 
+### 画面の値のガード
+
+升が名で引くガードと、その条件（本書の頭の「ガードの条件の書き方」で書く）。
+
+| ガード | 条件 | 根拠 |
+| --- | --- | --- |
+| `hasCalendarDraftRefusal` | `calendarDraftRefusals(calendarDraftStateMachine.calendarDraft).length > 0` | `WC-10` ・ `WC-7` |
+| `hasChoice` | <code>event.subject.selection.items.length &gt; 0 &#124;&#124; event.subject.taskGroupIds.length &gt; 0</code> | `FR-072` |
+| `hasDaysToPlace` | `event.hasDaysToPlace`（画面の中央（`Task Group Area` の横の中点）に置く日付があるかは、呼び手が判じて運ぶ） | `DC-1` |
+| `hasSurfaceOrConfirmation` | `event.hasSurfaceOrConfirmation`（`Enter` の時点で面か問いが立っているかは、呼び手が判じて運ぶ） | `SK-19` ・ `FR-070` |
+| `hasUnsettledEntry` | `event.hasUnsettledEntry`（`Enter` の時点で確定していないその場の編集があるかは、呼び手が判じて運ぶ） | `SK-19` |
+| `isAnotherSurface` | `in(openSurfaceStateMachine.open) && openSurfaceStateMachine.surfaceName != event.surfaceName` | `S-99g` |
+| `isFlowAwaitingAnswer` | `openSurfaceStateMachine.surfaceName in ['U-56', 'U-61']` | `OP-3` ・ `U-56` ・ `U-61` ・ `RS-27` |
+| `isFullScreen` | `event.isFullScreen` | `FR-071` |
+| `isHelpTarget` | `event.target == 'helpModal'` | `IC-52` ・ `FR-036` |
+| `isLeavingDocumentSettings` | `in(propertiesPanelContentStateMachine.documentSettingsDisplayed) && !inAfter(propertiesPanelContentStateMachine.documentSettingsDisplayed)` | `FR-072` ・ `FR-156` ・ `FR-157` ・ `FR-159` |
+| `isLeavingHolidaySettings` | `openSurfaceStateMachine.surfaceName == 'U-65' && after(openSurfaceStateMachine.surfaceName) != 'U-65'` | `FR-088` ・ `S-99g` ・ `U-65` |
+| `isNewStartDateEmpty` | `event.newStartDate == ''` | `FO-17` ・ `WH-12` |
+| `isOpenAccepted` | `event.isOpenAccepted`（いまファイルを開けるか（領域 `fileFlow` の `fileOperationStateMachine.idle` で、問いが立っていない）は、呼び手が判じて運ぶ） | `OP-17` |
+| `isOtherThanShownBase` | `event.isOtherThanShownBase`（選んだタイムゾーンが、いまの見せる基準と違うかは、呼び手が判じて運ぶ） | `FO-14` |
+| `isPanelTarget` | `event.target == 'panel'` | `IC-52` ・ `FR-072` |
+| `isProceeding` | `event.isProceeding` | `WM-6` ・ `WM-9` |
+| `isRungArmed` | `event.rung == 'armed'` | `IN-4` ・ `FR-016` |
+| `isRungDualCursor` | `event.rung == 'dualCursorMode'` | `IN-4` ・ `DC-7` |
+| `isRungHelp` | `event.rung == 'helpModal'` | `IN-4` ・ `HN-2` |
+| `isRungSearchPanel` | `event.rung == 'searchPanel'` | `IN-4` ・ `SV-14` |
+| `isRungSurface` | `event.rung == 'surface'` | `IN-4` |
+| `isRungTooltip` | `event.rung == 'tooltip'` | `IN-4` ・ `IN-3` |
+| `isSameArm` | <code>event.armKind == 'taskShapeArmed' &amp;&amp; in(armModeStateMachine.taskShapeArmed) &amp;&amp; event.shapeKind == armModeStateMachine.shapeKind &#124;&#124; event.armKind == 'milestoneShapeArmed' &amp;&amp; in(armModeStateMachine.milestoneShapeArmed) &amp;&amp; event.glyph == armModeStateMachine.glyph &#124;&#124; event.armKind == 'dependencyArmed' &amp;&amp; in(armModeStateMachine.dependencyArmed) &#124;&#124; event.armKind == 'commentBoxArmed' &amp;&amp; in(armModeStateMachine.commentBoxArmed) &#124;&#124; event.armKind == 'highlightBoxArmed' &amp;&amp; in(armModeStateMachine.highlightBoxArmed) &#124;&#124; event.armKind == 'parentTaskArmed' &amp;&amp; in(armModeStateMachine.parentTaskArmed)</code>（押した入口が、いま構えている入口そのもの —— 種類が同じで、形（`shapeKind`）・記号（`glyph`）を運ぶ種類ではそれも同じ） | `SP-4` ・ `FR-016` ・ `PTL-2` |
+| `isShiftZero` | `event.shiftMinutes == 0` | `FO-16` ・ `FR-157` |
+| `isSurfaceTarget` | `event.target == 'surface'` | `IC-52` |
+| `isWatermarkUnlockSurface` | `openSurfaceStateMachine.surfaceName == 'U-60'` | `U-60` ・ `WM-6` |
+
 ### 根 `screen` の値
 
 運ぶ値: `screenLanguage` ／ `helpLanguage` ／ `rememberedActuals` ／ `themePreference` ／ `guideCursorMode` ／ `dualCursor` ／ `propertyPanelWidth`。  
@@ -131,36 +211,19 @@
 **図 F-026 — 画面の値の状態遷移**
 
 状態機械ごとに 1 つの図に分け、その状態機械の節に置く。状態機械どうしは直交する。  
-矢印のラベルは出来事のキーだけであり、ガード・副作用は同じ節の状態遷移表が持つ。  
-⚠️ 図は畳んである —— 同じ出来事・ガード・先・副作用の升が 3 つ以上の兄弟の種類のどの 2 つの間も結ぶか、それらのどれからも同じ 1 つの種類へ出るか、同じ 1 つの種類から入るときは、兄弟を 1 つの箱に囲み、その遷移を箱から 1 本だけ描く（どの 2 つの間も結ぶ遷移は、箱の注に出来事のキーを書く）。  
-⭐ 遷移の全数は 表 T-280 の状態遷移表が持つ。
+図は UML の状態機械図である —— 矢印のラベルは「出来事 [ガード] / 副作用」、同じ 2 つの状態を結ぶ遷移は 1 本の矢印に 1 行ずつ並べる。ガードは名で書き、条件は同じ領域のガードの一覧が持つ。  
+行き先が運ぶ値で決まる升は選択の擬似状態（◇）で分ける。entry ／ exit は状態の箱の中に書く。  
+⭐ 遷移の全数は 表 T-280 の状態遷移表が持つ。図と表はどちらも原稿から刷る。
 
 ### 状態機械 `armModeStateMachine`
 
-```mermaid
-stateDiagram-v2
-    direction TB
-    [*] --> armModeStateMachine_notArmed
-    armModeStateMachine_notArmed : notArmed
-    state "notArmed 以外" as armModeStateMachine_group {
-        armModeStateMachine_taskShapeArmed : taskShapeArmed
-        armModeStateMachine_milestoneShapeArmed : milestoneShapeArmed
-        armModeStateMachine_dependencyArmed : dependencyArmed
-        armModeStateMachine_commentBoxArmed : commentBoxArmed
-        armModeStateMachine_highlightBoxArmed : highlightBoxArmed
-        armModeStateMachine_parentTaskArmed : parentTaskArmed
-    }
-    note right of armModeStateMachine_group : armEntryPressed は組のどの 2 つの間も結ぶ
-    armModeStateMachine_group --> armModeStateMachine_notArmed : escapePressed, armEntryPressed, dualCursorEntryPressed
-    armModeStateMachine_notArmed --> armModeStateMachine_group : armEntryPressed
-    armModeStateMachine_group --> armModeStateMachine_group : armEntryPressed
-```
+[![armModeStateMachine](fig-sm-armModeStateMachine.svg)](fig-sm-armModeStateMachine.svg)
 
 | 出来事 | `notArmed` | `taskShapeArmed` | `milestoneShapeArmed` | `dependencyArmed` | `commentBoxArmed` | `highlightBoxArmed` | `parentTaskArmed` |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| `screen/escapePressed` | — | → `notArmed` [`isRungArmed`]<br>それ以外 → — | → `notArmed` [`isRungArmed`]<br>それ以外 → — | → `notArmed` [`isRungArmed`]<br>それ以外 → — | → `notArmed` [`isRungArmed`]<br>それ以外 → — | → `notArmed` [`isRungArmed`]<br>それ以外 → — | → `notArmed` [`isRungArmed`]<br>それ以外 → — |
-| `screen/armEntryPressed` | → `{armKind}` | → `notArmed` [`isSameArm`]<br>→ `{armKind}` [not `isSameArm`] | → `notArmed` [`isSameArm`]<br>→ `{armKind}` [not `isSameArm`] | → `notArmed` [`isSameArm`]<br>→ `{armKind}` [not `isSameArm`] | → `notArmed` [`isSameArm`]<br>→ `{armKind}` [not `isSameArm`] | → `notArmed` [`isSameArm`]<br>→ `{armKind}` [not `isSameArm`] | → `notArmed` [`isSameArm`]<br>→ `{armKind}` [not `isSameArm`] |
-| `screen/dualCursorEntryPressed` | — | → `notArmed` [`dualCursorModeStateMachine.off` にいる & `hasDaysToPlace`]<br>それ以外 → — | → `notArmed` [`dualCursorModeStateMachine.off` にいる & `hasDaysToPlace`]<br>それ以外 → — | → `notArmed` [`dualCursorModeStateMachine.off` にいる & `hasDaysToPlace`]<br>それ以外 → — | → `notArmed` [`dualCursorModeStateMachine.off` にいる & `hasDaysToPlace`]<br>それ以外 → — | → `notArmed` [`dualCursorModeStateMachine.off` にいる & `hasDaysToPlace`]<br>それ以外 → — | → `notArmed` [`dualCursorModeStateMachine.off` にいる & `hasDaysToPlace`]<br>それ以外 → — |
+| `screen/escapePressed` | — | → `notArmed` [`isRungArmed`（`event.rung == 'armed'`）]<br>それ以外 → — | → `notArmed` [`isRungArmed`（`event.rung == 'armed'`）]<br>それ以外 → — | → `notArmed` [`isRungArmed`（`event.rung == 'armed'`）]<br>それ以外 → — | → `notArmed` [`isRungArmed`（`event.rung == 'armed'`）]<br>それ以外 → — | → `notArmed` [`isRungArmed`（`event.rung == 'armed'`）]<br>それ以外 → — | → `notArmed` [`isRungArmed`（`event.rung == 'armed'`）]<br>それ以外 → — |
+| `screen/armEntryPressed` | → `{armKind}` | → `notArmed` [`isSameArm`（<code>event.armKind == 'taskShapeArmed' &amp;&amp; in(armModeStateMachine.taskShapeArmed) &amp;&amp; event.shapeKind == armModeStateMachine.shapeKind &#124;&#124; event.armKind == 'milestoneShapeArmed' &amp;&amp; in(armModeStateMachine.milestoneShapeArmed) &amp;&amp; event.glyph == armModeStateMachine.glyph &#124;&#124; event.armKind == 'dependencyArmed' &amp;&amp; in(armModeStateMachine.dependencyArmed) &#124;&#124; event.armKind == 'commentBoxArmed' &amp;&amp; in(armModeStateMachine.commentBoxArmed) &#124;&#124; event.armKind == 'highlightBoxArmed' &amp;&amp; in(armModeStateMachine.highlightBoxArmed) &#124;&#124; event.armKind == 'parentTaskArmed' &amp;&amp; in(armModeStateMachine.parentTaskArmed)</code>）]<br>→ `{armKind}` [not `isSameArm`（<code>event.armKind == 'taskShapeArmed' &amp;&amp; in(armModeStateMachine.taskShapeArmed) &amp;&amp; event.shapeKind == armModeStateMachine.shapeKind &#124;&#124; event.armKind == 'milestoneShapeArmed' &amp;&amp; in(armModeStateMachine.milestoneShapeArmed) &amp;&amp; event.glyph == armModeStateMachine.glyph &#124;&#124; event.armKind == 'dependencyArmed' &amp;&amp; in(armModeStateMachine.dependencyArmed) &#124;&#124; event.armKind == 'commentBoxArmed' &amp;&amp; in(armModeStateMachine.commentBoxArmed) &#124;&#124; event.armKind == 'highlightBoxArmed' &amp;&amp; in(armModeStateMachine.highlightBoxArmed) &#124;&#124; event.armKind == 'parentTaskArmed' &amp;&amp; in(armModeStateMachine.parentTaskArmed)</code>）] | → `notArmed` [`isSameArm`（<code>event.armKind == 'taskShapeArmed' &amp;&amp; in(armModeStateMachine.taskShapeArmed) &amp;&amp; event.shapeKind == armModeStateMachine.shapeKind &#124;&#124; event.armKind == 'milestoneShapeArmed' &amp;&amp; in(armModeStateMachine.milestoneShapeArmed) &amp;&amp; event.glyph == armModeStateMachine.glyph &#124;&#124; event.armKind == 'dependencyArmed' &amp;&amp; in(armModeStateMachine.dependencyArmed) &#124;&#124; event.armKind == 'commentBoxArmed' &amp;&amp; in(armModeStateMachine.commentBoxArmed) &#124;&#124; event.armKind == 'highlightBoxArmed' &amp;&amp; in(armModeStateMachine.highlightBoxArmed) &#124;&#124; event.armKind == 'parentTaskArmed' &amp;&amp; in(armModeStateMachine.parentTaskArmed)</code>）]<br>→ `{armKind}` [not `isSameArm`（<code>event.armKind == 'taskShapeArmed' &amp;&amp; in(armModeStateMachine.taskShapeArmed) &amp;&amp; event.shapeKind == armModeStateMachine.shapeKind &#124;&#124; event.armKind == 'milestoneShapeArmed' &amp;&amp; in(armModeStateMachine.milestoneShapeArmed) &amp;&amp; event.glyph == armModeStateMachine.glyph &#124;&#124; event.armKind == 'dependencyArmed' &amp;&amp; in(armModeStateMachine.dependencyArmed) &#124;&#124; event.armKind == 'commentBoxArmed' &amp;&amp; in(armModeStateMachine.commentBoxArmed) &#124;&#124; event.armKind == 'highlightBoxArmed' &amp;&amp; in(armModeStateMachine.highlightBoxArmed) &#124;&#124; event.armKind == 'parentTaskArmed' &amp;&amp; in(armModeStateMachine.parentTaskArmed)</code>）] | → `notArmed` [`isSameArm`（<code>event.armKind == 'taskShapeArmed' &amp;&amp; in(armModeStateMachine.taskShapeArmed) &amp;&amp; event.shapeKind == armModeStateMachine.shapeKind &#124;&#124; event.armKind == 'milestoneShapeArmed' &amp;&amp; in(armModeStateMachine.milestoneShapeArmed) &amp;&amp; event.glyph == armModeStateMachine.glyph &#124;&#124; event.armKind == 'dependencyArmed' &amp;&amp; in(armModeStateMachine.dependencyArmed) &#124;&#124; event.armKind == 'commentBoxArmed' &amp;&amp; in(armModeStateMachine.commentBoxArmed) &#124;&#124; event.armKind == 'highlightBoxArmed' &amp;&amp; in(armModeStateMachine.highlightBoxArmed) &#124;&#124; event.armKind == 'parentTaskArmed' &amp;&amp; in(armModeStateMachine.parentTaskArmed)</code>）]<br>→ `{armKind}` [not `isSameArm`（<code>event.armKind == 'taskShapeArmed' &amp;&amp; in(armModeStateMachine.taskShapeArmed) &amp;&amp; event.shapeKind == armModeStateMachine.shapeKind &#124;&#124; event.armKind == 'milestoneShapeArmed' &amp;&amp; in(armModeStateMachine.milestoneShapeArmed) &amp;&amp; event.glyph == armModeStateMachine.glyph &#124;&#124; event.armKind == 'dependencyArmed' &amp;&amp; in(armModeStateMachine.dependencyArmed) &#124;&#124; event.armKind == 'commentBoxArmed' &amp;&amp; in(armModeStateMachine.commentBoxArmed) &#124;&#124; event.armKind == 'highlightBoxArmed' &amp;&amp; in(armModeStateMachine.highlightBoxArmed) &#124;&#124; event.armKind == 'parentTaskArmed' &amp;&amp; in(armModeStateMachine.parentTaskArmed)</code>）] | → `notArmed` [`isSameArm`（<code>event.armKind == 'taskShapeArmed' &amp;&amp; in(armModeStateMachine.taskShapeArmed) &amp;&amp; event.shapeKind == armModeStateMachine.shapeKind &#124;&#124; event.armKind == 'milestoneShapeArmed' &amp;&amp; in(armModeStateMachine.milestoneShapeArmed) &amp;&amp; event.glyph == armModeStateMachine.glyph &#124;&#124; event.armKind == 'dependencyArmed' &amp;&amp; in(armModeStateMachine.dependencyArmed) &#124;&#124; event.armKind == 'commentBoxArmed' &amp;&amp; in(armModeStateMachine.commentBoxArmed) &#124;&#124; event.armKind == 'highlightBoxArmed' &amp;&amp; in(armModeStateMachine.highlightBoxArmed) &#124;&#124; event.armKind == 'parentTaskArmed' &amp;&amp; in(armModeStateMachine.parentTaskArmed)</code>）]<br>→ `{armKind}` [not `isSameArm`（<code>event.armKind == 'taskShapeArmed' &amp;&amp; in(armModeStateMachine.taskShapeArmed) &amp;&amp; event.shapeKind == armModeStateMachine.shapeKind &#124;&#124; event.armKind == 'milestoneShapeArmed' &amp;&amp; in(armModeStateMachine.milestoneShapeArmed) &amp;&amp; event.glyph == armModeStateMachine.glyph &#124;&#124; event.armKind == 'dependencyArmed' &amp;&amp; in(armModeStateMachine.dependencyArmed) &#124;&#124; event.armKind == 'commentBoxArmed' &amp;&amp; in(armModeStateMachine.commentBoxArmed) &#124;&#124; event.armKind == 'highlightBoxArmed' &amp;&amp; in(armModeStateMachine.highlightBoxArmed) &#124;&#124; event.armKind == 'parentTaskArmed' &amp;&amp; in(armModeStateMachine.parentTaskArmed)</code>）] | → `notArmed` [`isSameArm`（<code>event.armKind == 'taskShapeArmed' &amp;&amp; in(armModeStateMachine.taskShapeArmed) &amp;&amp; event.shapeKind == armModeStateMachine.shapeKind &#124;&#124; event.armKind == 'milestoneShapeArmed' &amp;&amp; in(armModeStateMachine.milestoneShapeArmed) &amp;&amp; event.glyph == armModeStateMachine.glyph &#124;&#124; event.armKind == 'dependencyArmed' &amp;&amp; in(armModeStateMachine.dependencyArmed) &#124;&#124; event.armKind == 'commentBoxArmed' &amp;&amp; in(armModeStateMachine.commentBoxArmed) &#124;&#124; event.armKind == 'highlightBoxArmed' &amp;&amp; in(armModeStateMachine.highlightBoxArmed) &#124;&#124; event.armKind == 'parentTaskArmed' &amp;&amp; in(armModeStateMachine.parentTaskArmed)</code>）]<br>→ `{armKind}` [not `isSameArm`（<code>event.armKind == 'taskShapeArmed' &amp;&amp; in(armModeStateMachine.taskShapeArmed) &amp;&amp; event.shapeKind == armModeStateMachine.shapeKind &#124;&#124; event.armKind == 'milestoneShapeArmed' &amp;&amp; in(armModeStateMachine.milestoneShapeArmed) &amp;&amp; event.glyph == armModeStateMachine.glyph &#124;&#124; event.armKind == 'dependencyArmed' &amp;&amp; in(armModeStateMachine.dependencyArmed) &#124;&#124; event.armKind == 'commentBoxArmed' &amp;&amp; in(armModeStateMachine.commentBoxArmed) &#124;&#124; event.armKind == 'highlightBoxArmed' &amp;&amp; in(armModeStateMachine.highlightBoxArmed) &#124;&#124; event.armKind == 'parentTaskArmed' &amp;&amp; in(armModeStateMachine.parentTaskArmed)</code>）] | → `notArmed` [`isSameArm`（<code>event.armKind == 'taskShapeArmed' &amp;&amp; in(armModeStateMachine.taskShapeArmed) &amp;&amp; event.shapeKind == armModeStateMachine.shapeKind &#124;&#124; event.armKind == 'milestoneShapeArmed' &amp;&amp; in(armModeStateMachine.milestoneShapeArmed) &amp;&amp; event.glyph == armModeStateMachine.glyph &#124;&#124; event.armKind == 'dependencyArmed' &amp;&amp; in(armModeStateMachine.dependencyArmed) &#124;&#124; event.armKind == 'commentBoxArmed' &amp;&amp; in(armModeStateMachine.commentBoxArmed) &#124;&#124; event.armKind == 'highlightBoxArmed' &amp;&amp; in(armModeStateMachine.highlightBoxArmed) &#124;&#124; event.armKind == 'parentTaskArmed' &amp;&amp; in(armModeStateMachine.parentTaskArmed)</code>）]<br>→ `{armKind}` [not `isSameArm`（<code>event.armKind == 'taskShapeArmed' &amp;&amp; in(armModeStateMachine.taskShapeArmed) &amp;&amp; event.shapeKind == armModeStateMachine.shapeKind &#124;&#124; event.armKind == 'milestoneShapeArmed' &amp;&amp; in(armModeStateMachine.milestoneShapeArmed) &amp;&amp; event.glyph == armModeStateMachine.glyph &#124;&#124; event.armKind == 'dependencyArmed' &amp;&amp; in(armModeStateMachine.dependencyArmed) &#124;&#124; event.armKind == 'commentBoxArmed' &amp;&amp; in(armModeStateMachine.commentBoxArmed) &#124;&#124; event.armKind == 'highlightBoxArmed' &amp;&amp; in(armModeStateMachine.highlightBoxArmed) &#124;&#124; event.armKind == 'parentTaskArmed' &amp;&amp; in(armModeStateMachine.parentTaskArmed)</code>）] |
+| `screen/dualCursorEntryPressed` | — | → `notArmed` [`dualCursorModeStateMachine.off` にいる & `hasDaysToPlace`（`event.hasDaysToPlace`）]<br>それ以外 → — | → `notArmed` [`dualCursorModeStateMachine.off` にいる & `hasDaysToPlace`（`event.hasDaysToPlace`）]<br>それ以外 → — | → `notArmed` [`dualCursorModeStateMachine.off` にいる & `hasDaysToPlace`（`event.hasDaysToPlace`）]<br>それ以外 → — | → `notArmed` [`dualCursorModeStateMachine.off` にいる & `hasDaysToPlace`（`event.hasDaysToPlace`）]<br>それ以外 → — | → `notArmed` [`dualCursorModeStateMachine.off` にいる & `hasDaysToPlace`（`event.hasDaysToPlace`）]<br>それ以外 → — | → `notArmed` [`dualCursorModeStateMachine.off` にいる & `hasDaysToPlace`（`event.hasDaysToPlace`）]<br>それ以外 → — |
 
 - `armModeStateMachine.notArmed` —— 初期。根拠 `AR-1`
 - `armModeStateMachine.taskShapeArmed` —— 運ぶ値 `shapeKind`（`SH-1` ・ `SH-2` ・ `SH-3` ・ `SH-4`）。根拠 `AR-2` ・ `IC-23` ・ `IC-24` ・ `IC-25` ・ `IC-26`
@@ -174,22 +237,7 @@ stateDiagram-v2
 
 ### 状態機械 `paletteDisplayStateMachine`
 
-```mermaid
-stateDiagram-v2
-    direction TB
-    [*] --> paletteDisplayStateMachine_shown
-    paletteDisplayStateMachine_shown : shown
-    state paletteDisplayStateMachine_shown {
-        [*] --> paletteDisplayStateMachine_shown_expanded
-        paletteDisplayStateMachine_shown_expanded : expanded
-        paletteDisplayStateMachine_shown_minimized : minimized
-        paletteDisplayStateMachine_shown_expanded --> paletteDisplayStateMachine_shown_minimized : paletteMinimizeToggled
-        paletteDisplayStateMachine_shown_minimized --> paletteDisplayStateMachine_shown_expanded : paletteMinimizeToggled
-    }
-    paletteDisplayStateMachine_hidden : hidden
-    paletteDisplayStateMachine_shown --> paletteDisplayStateMachine_hidden : paletteToggled
-    paletteDisplayStateMachine_hidden --> paletteDisplayStateMachine_shown : paletteToggled
-```
+[![paletteDisplayStateMachine](fig-sm-paletteDisplayStateMachine.svg)](fig-sm-paletteDisplayStateMachine.svg)
 
 | 出来事 | `shown.expanded` | `shown.minimized` | `hidden` |
 | --- | --- | --- | --- |
@@ -205,15 +253,7 @@ stateDiagram-v2
 
 ### 状態機械 `milestoneListDisplayStateMachine`
 
-```mermaid
-stateDiagram-v2
-    direction LR
-    [*] --> milestoneListDisplayStateMachine_closed
-    milestoneListDisplayStateMachine_closed : closed
-    milestoneListDisplayStateMachine_open : open
-    milestoneListDisplayStateMachine_closed --> milestoneListDisplayStateMachine_open : milestoneListToggled
-    milestoneListDisplayStateMachine_open --> milestoneListDisplayStateMachine_closed : milestoneListToggled
-```
+[![milestoneListDisplayStateMachine](fig-sm-milestoneListDisplayStateMachine.svg)](fig-sm-milestoneListDisplayStateMachine.svg)
 
 | 出来事 | `closed` | `open` |
 | --- | --- | --- |
@@ -226,22 +266,12 @@ stateDiagram-v2
 
 ### 状態機械 `fullScreenModeStateMachine`
 
-```mermaid
-stateDiagram-v2
-    direction LR
-    [*] --> fullScreenModeStateMachine_normal
-    fullScreenModeStateMachine_normal : normal
-    fullScreenModeStateMachine_full : full
-    fullScreenModeStateMachine_normal --> fullScreenModeStateMachine_normal : fullScreenEntryPressed
-    fullScreenModeStateMachine_full --> fullScreenModeStateMachine_full : fullScreenEntryPressed
-    fullScreenModeStateMachine_normal --> fullScreenModeStateMachine_full : fullScreenChanged
-    fullScreenModeStateMachine_full --> fullScreenModeStateMachine_normal : fullScreenChanged
-```
+[![fullScreenModeStateMachine](fig-sm-fullScreenModeStateMachine.svg)](fig-sm-fullScreenModeStateMachine.svg)
 
 | 出来事 | `normal` | `full` |
 | --- | --- | --- |
 | `screen/fullScreenEntryPressed` | → 自己 / `askBrowserForFullScreen` | → 自己 / `askBrowserForFullScreen` |
-| `screen/fullScreenChanged` | → `full` [`isFullScreen`]<br>それ以外 → — | → `normal` [not `isFullScreen`]<br>それ以外 → — |
+| `screen/fullScreenChanged` | → `full` [`isFullScreen`（`event.isFullScreen`）]<br>それ以外 → — | → `normal` [not `isFullScreen`（`event.isFullScreen`）]<br>それ以外 → — |
 
 - `fullScreenModeStateMachine.normal` —— 初期。根拠 `S-99f`
 - `fullScreenModeStateMachine.full` —— 根拠 `S-99f` ・ `FR-071`
@@ -250,28 +280,19 @@ stateDiagram-v2
 
 ### 状態機械 `openSurfaceStateMachine`
 
-```mermaid
-stateDiagram-v2
-    direction LR
-    [*] --> openSurfaceStateMachine_closed
-    openSurfaceStateMachine_closed : closed
-    openSurfaceStateMachine_open : open
-    openSurfaceStateMachine_closed --> openSurfaceStateMachine_open : surfaceEntryPressed, surfaceRaisedByFlow, watermarkEntryPressed
-    openSurfaceStateMachine_open --> openSurfaceStateMachine_open : surfaceEntryPressed, surfaceRaisedByFlow, watermarkEntryPressed, watermarkUnlockAnswered, watermarkUnlockMismatched
-    openSurfaceStateMachine_open --> openSurfaceStateMachine_closed : flowSurfaceAnswered, surfaceCloseAsked, escapePressed, watermarkUnlockAnswered, watermarkUnlockMatched
-```
+[![openSurfaceStateMachine](fig-sm-openSurfaceStateMachine.svg)](fig-sm-openSurfaceStateMachine.svg)
 
 | 出来事 | `closed` | `open` |
 | --- | --- | --- |
-| `screen/surfaceEntryPressed` | → `open` | → 自己 [`isAnotherSurface` & not `isFlowAwaitingAnswer`] / `tellFlowSurfaceClosed`（開いている面を閉じて、押した入口の面に差し替える。`surfaceName` を書き換える）<br>→ 自己 [`isAnotherSurface` & `isFlowAwaitingAnswer`] / `raiseNotice`（`RS-27`）（開く道の答えを待つ面（`flowSurfaceAnswered` で答える `U-56`・`U-61`）は差し替えない。押した入口が効かない理由として運ぶ）<br>それ以外 → — |
-| `screen/surfaceRaisedByFlow` | → `open` | → 自己 [`isAnotherSurface` & not `isFlowAwaitingAnswer`] / `tellFlowSurfaceClosed`（開く道が立てる面も、開いている面を差し替える。答えを待つ面が開いているあいだ、開く道は次の面を立てない）<br>それ以外 → — |
+| `screen/surfaceEntryPressed` | → `open` | → 自己 [`isAnotherSurface`（`in(openSurfaceStateMachine.open) && openSurfaceStateMachine.surfaceName != event.surfaceName`） & not `isFlowAwaitingAnswer`（`openSurfaceStateMachine.surfaceName in ['U-56', 'U-61']`）] / `tellFlowSurfaceClosed`（開いている面を閉じて、押した入口の面に差し替える。`surfaceName` を書き換える）<br>→ 自己 [`isAnotherSurface`（`in(openSurfaceStateMachine.open) && openSurfaceStateMachine.surfaceName != event.surfaceName`） & `isFlowAwaitingAnswer`（`openSurfaceStateMachine.surfaceName in ['U-56', 'U-61']`）] / `raiseNotice`（`RS-27`）（開く道の答えを待つ面（`flowSurfaceAnswered` で答える `U-56`・`U-61`）は差し替えない。押した入口が効かない理由として運ぶ）<br>それ以外 → — |
+| `screen/surfaceRaisedByFlow` | → `open` | → 自己 [`isAnotherSurface`（`in(openSurfaceStateMachine.open) && openSurfaceStateMachine.surfaceName != event.surfaceName`） & not `isFlowAwaitingAnswer`（`openSurfaceStateMachine.surfaceName in ['U-56', 'U-61']`）] / `tellFlowSurfaceClosed`（開く道が立てる面も、開いている面を差し替える。答えを待つ面が開いているあいだ、開く道は次の面を立てない）<br>それ以外 → — |
 | `screen/flowSurfaceAnswered` | — | → `closed`（`tellFlowSurfaceClosed` を返さない —— 答えた後に「閉じた」が戻らない） |
-| `screen/surfaceCloseAsked` | — | → `closed` [`isSurfaceTarget`] / `tellFlowSurfaceClosed`<br>それ以外 → — |
-| `screen/escapePressed` | — | → `closed` [`isRungSurface`] / `tellFlowSurfaceClosed`<br>それ以外 → — |
-| `screen/watermarkEntryPressed` | → `open` [`watermarkDisplayStateMachine.shown` にいる]（`surfaceName` は `U-60`）<br>それ以外 → — | → 自己 [`watermarkDisplayStateMachine.shown` にいる & not `isWatermarkUnlockSurface` & not `isFlowAwaitingAnswer`] / `tellFlowSurfaceClosed`（開いている面を閉じて、押した入口の面に差し替える。`surfaceName` を書き換える（`U-60`））<br>→ 自己 [`watermarkDisplayStateMachine.shown` にいる & not `isWatermarkUnlockSurface` & `isFlowAwaitingAnswer`] / `raiseNotice`（`RS-27`）（開く道の答えを待つ面（`flowSurfaceAnswered` で答える `U-56`・`U-61`）は差し替えない。押した入口が効かない理由として運ぶ）<br>それ以外 → — |
-| `screen/watermarkUnlockAnswered` | — | → 自己 [`isWatermarkUnlockSurface` & `isProceeding`] / `matchWatermarkUnlock`<br>→ `closed` [`isWatermarkUnlockSurface` & not `isProceeding`]<br>それ以外 → — |
-| `screen/watermarkUnlockMatched` | — | → `closed` [`watermarkDisplayStateMachine.shown` にいる & `isWatermarkUnlockSurface`]<br>それ以外 → — |
-| `screen/watermarkUnlockMismatched` | — | → 自己 [`isWatermarkUnlockSurface`] / `raiseNotice`（`RS-41`）（面を閉じない）<br>それ以外 → — |
+| `screen/surfaceCloseAsked` | — | → `closed` [`isSurfaceTarget`（`event.target == 'surface'`）] / `tellFlowSurfaceClosed`<br>それ以外 → — |
+| `screen/escapePressed` | — | → `closed` [`isRungSurface`（`event.rung == 'surface'`）] / `tellFlowSurfaceClosed`<br>それ以外 → — |
+| `screen/watermarkEntryPressed` | → `open` [`watermarkDisplayStateMachine.shown` にいる]（`surfaceName` は `U-60`）<br>それ以外 → — | → 自己 [`watermarkDisplayStateMachine.shown` にいる & not `isWatermarkUnlockSurface`（`openSurfaceStateMachine.surfaceName == 'U-60'`） & not `isFlowAwaitingAnswer`（`openSurfaceStateMachine.surfaceName in ['U-56', 'U-61']`）] / `tellFlowSurfaceClosed`（開いている面を閉じて、押した入口の面に差し替える。`surfaceName` を書き換える（`U-60`））<br>→ 自己 [`watermarkDisplayStateMachine.shown` にいる & not `isWatermarkUnlockSurface`（`openSurfaceStateMachine.surfaceName == 'U-60'`） & `isFlowAwaitingAnswer`（`openSurfaceStateMachine.surfaceName in ['U-56', 'U-61']`）] / `raiseNotice`（`RS-27`）（開く道の答えを待つ面（`flowSurfaceAnswered` で答える `U-56`・`U-61`）は差し替えない。押した入口が効かない理由として運ぶ）<br>それ以外 → — |
+| `screen/watermarkUnlockAnswered` | — | → 自己 [`isWatermarkUnlockSurface`（`openSurfaceStateMachine.surfaceName == 'U-60'`） & `isProceeding`（`event.isProceeding`）] / `matchWatermarkUnlock`<br>→ `closed` [`isWatermarkUnlockSurface`（`openSurfaceStateMachine.surfaceName == 'U-60'`） & not `isProceeding`（`event.isProceeding`）]<br>それ以外 → — |
+| `screen/watermarkUnlockMatched` | — | → `closed` [`watermarkDisplayStateMachine.shown` にいる & `isWatermarkUnlockSurface`（`openSurfaceStateMachine.surfaceName == 'U-60'`）]<br>それ以外 → — |
+| `screen/watermarkUnlockMismatched` | — | → 自己 [`isWatermarkUnlockSurface`（`openSurfaceStateMachine.surfaceName == 'U-60'`）] / `raiseNotice`（`RS-41`）（面を閉じない）<br>それ以外 → — |
 
 - `openSurfaceStateMachine.closed` —— 初期。根拠 `S-99g`
 - `openSurfaceStateMachine.open` —— 運ぶ値 `surfaceName`（`U-54` ・ `U-56` ・ `U-60` ・ `U-61` ・ `U-62` ・ `U-65`）。根拠 `S-99g` ・ `IC-52`
@@ -280,20 +301,12 @@ stateDiagram-v2
 
 ### 状態機械 `watermarkDisplayStateMachine`
 
-```mermaid
-stateDiagram-v2
-    direction LR
-    [*] --> watermarkDisplayStateMachine_shown
-    watermarkDisplayStateMachine_shown : shown
-    watermarkDisplayStateMachine_hidden : hidden
-    watermarkDisplayStateMachine_hidden --> watermarkDisplayStateMachine_shown : watermarkEntryPressed
-    watermarkDisplayStateMachine_shown --> watermarkDisplayStateMachine_hidden : watermarkUnlockMatched
-```
+[![watermarkDisplayStateMachine](fig-sm-watermarkDisplayStateMachine.svg)](fig-sm-watermarkDisplayStateMachine.svg)
 
 | 出来事 | `shown` | `hidden` |
 | --- | --- | --- |
 | `screen/watermarkEntryPressed` | — | → `shown` |
-| `screen/watermarkUnlockMatched` | → `hidden` [`openSurfaceStateMachine.open` にいる & `isWatermarkUnlockSurface`]<br>それ以外 → — | — |
+| `screen/watermarkUnlockMatched` | → `hidden` [`openSurfaceStateMachine.open` にいる & `isWatermarkUnlockSurface`（`openSurfaceStateMachine.surfaceName == 'U-60'`）]<br>それ以外 → — | — |
 
 - `watermarkDisplayStateMachine.shown` —— 初期。根拠 `S-144`
 - `watermarkDisplayStateMachine.hidden` —— 根拠 `WM-8`
@@ -302,32 +315,17 @@ stateDiagram-v2
 
 ### 状態機械 `propertiesPanelContentStateMachine`
 
-```mermaid
-stateDiagram-v2
-    direction LR
-    [*] --> propertiesPanelContentStateMachine_hidden
-    propertiesPanelContentStateMachine_hidden : hidden
-    propertiesPanelContentStateMachine_selectionDisplayed : selectionDisplayed
-    propertiesPanelContentStateMachine_documentSettingsDisplayed : documentSettingsDisplayed
-    propertiesPanelContentStateMachine_selectionDisplayed --> propertiesPanelContentStateMachine_hidden : surfaceCloseAsked, escapePressed, createdNameSettled, settleKeyPressed
-    propertiesPanelContentStateMachine_documentSettingsDisplayed --> propertiesPanelContentStateMachine_hidden : surfaceCloseAsked, escapePressed, settingsEntryPressed, createdNameSettled, settleKeyPressed
-    propertiesPanelContentStateMachine_hidden --> propertiesPanelContentStateMachine_documentSettingsDisplayed : settingsEntryPressed
-    propertiesPanelContentStateMachine_selectionDisplayed --> propertiesPanelContentStateMachine_documentSettingsDisplayed : settingsEntryPressed
-    propertiesPanelContentStateMachine_hidden --> propertiesPanelContentStateMachine_selectionDisplayed : propertiesOfChoiceAsked
-    propertiesPanelContentStateMachine_selectionDisplayed --> propertiesPanelContentStateMachine_selectionDisplayed : propertiesOfChoiceAsked, selectionMoved
-    propertiesPanelContentStateMachine_documentSettingsDisplayed --> propertiesPanelContentStateMachine_selectionDisplayed : propertiesOfChoiceAsked, selectionMoved
-    propertiesPanelContentStateMachine_hidden --> propertiesPanelContentStateMachine_hidden : createdNameSettled
-```
+[![propertiesPanelContentStateMachine](fig-sm-propertiesPanelContentStateMachine.svg)](fig-sm-propertiesPanelContentStateMachine.svg)
 
 | 出来事 | `hidden` | `selectionDisplayed` | `documentSettingsDisplayed` |
 | --- | --- | --- | --- |
-| `screen/surfaceCloseAsked` | — | → `hidden` [`isPanelTarget`]<br>それ以外 → — | → `hidden` [`isPanelTarget`]<br>それ以外 → — |
-| `screen/escapePressed` | — | → `hidden` [`isRungSurface` & `openSurfaceStateMachine.closed` にいる]<br>それ以外 → — | → `hidden` [`isRungSurface` & `openSurfaceStateMachine.closed` にいる]<br>それ以外 → — |
+| `screen/surfaceCloseAsked` | — | → `hidden` [`isPanelTarget`（`event.target == 'panel'`）]<br>それ以外 → — | → `hidden` [`isPanelTarget`（`event.target == 'panel'`）]<br>それ以外 → — |
+| `screen/escapePressed` | — | → `hidden` [`isRungSurface`（`event.rung == 'surface'`） & `openSurfaceStateMachine.closed` にいる]<br>それ以外 → — | → `hidden` [`isRungSurface`（`event.rung == 'surface'`） & `openSurfaceStateMachine.closed` にいる]<br>それ以外 → — |
 | `screen/settingsEntryPressed` | → `documentSettingsDisplayed` | → `documentSettingsDisplayed` | → `hidden`（直前の選択物の有無を問わない） |
 | `screen/propertiesOfChoiceAsked` | → `selectionDisplayed` | → 自己（`subject` を書き換える） | → `selectionDisplayed` |
-| `screen/selectionMoved` | — | → 自己 [`hasChoice`]（`subject` を書き換える）<br>それ以外 → — | → `selectionDisplayed` [`hasChoice`]（`subject` を書き換える。設定を出していても、選んだものへ移る）<br>それ以外 → — |
+| `screen/selectionMoved` | — | → 自己 [`hasChoice`（<code>event.subject.selection.items.length &gt; 0 &#124;&#124; event.subject.taskGroupIds.length &gt; 0</code>）]（`subject` を書き換える）<br>それ以外 → — | → `selectionDisplayed` [`hasChoice`（<code>event.subject.selection.items.length &gt; 0 &#124;&#124; event.subject.taskGroupIds.length &gt; 0</code>）]（`subject` を書き換える。設定を出していても、選んだものへ移る）<br>それ以外 → — |
 | `screen/createdNameSettled` | → 自己 / `clearSelection` | → `hidden` / `clearSelection` | → `hidden` / `clearSelection` |
-| `screen/settleKeyPressed` | — | → `hidden` [not `hasSurfaceOrConfirmation` & not `hasUnsettledEntry`]<br>それ以外 → — | → `hidden` [not `hasSurfaceOrConfirmation` & not `hasUnsettledEntry`]<br>それ以外 → — |
+| `screen/settleKeyPressed` | — | → `hidden` [not `hasSurfaceOrConfirmation`（`event.hasSurfaceOrConfirmation`） & not `hasUnsettledEntry`（`event.hasUnsettledEntry`）]<br>それ以外 → — | → `hidden` [not `hasSurfaceOrConfirmation`（`event.hasSurfaceOrConfirmation`） & not `hasUnsettledEntry`（`event.hasUnsettledEntry`）]<br>それ以外 → — |
 
 - `propertiesPanelContentStateMachine.hidden` —— 初期。根拠 `S-99h`
 - `propertiesPanelContentStateMachine.selectionDisplayed` —— 運ぶ値 `subject`（選択とタスクグループの集合）。根拠 `S-99h` ・ `IR-2` ・ `FR-072`
@@ -337,32 +335,18 @@ stateDiagram-v2
 
 ### 状態機械 `dualCursorModeStateMachine`
 
-```mermaid
-stateDiagram-v2
-    direction TB
-    [*] --> dualCursorModeStateMachine_off
-    dualCursorModeStateMachine_off : off
-    dualCursorModeStateMachine_on : on
-    state dualCursorModeStateMachine_on {
-        [*] --> dualCursorModeStateMachine_on_placingCursorA
-        dualCursorModeStateMachine_on_placingCursorA : placingCursorA
-        dualCursorModeStateMachine_on_placingCursorB : placingCursorB
-        dualCursorModeStateMachine_on_placingCursorA --> dualCursorModeStateMachine_on_placingCursorB : dualCursorPlaced
-        dualCursorModeStateMachine_on_placingCursorB --> dualCursorModeStateMachine_on_placingCursorA : dualCursorPlaced
-    }
-    dualCursorModeStateMachine_on --> dualCursorModeStateMachine_off : escapePressed, dualCursorEntryPressed, guideCursorEntryPressed
-    dualCursorModeStateMachine_off --> dualCursorModeStateMachine_on : dualCursorEntryPressed
-```
+[![dualCursorModeStateMachine](fig-sm-dualCursorModeStateMachine.svg)](fig-sm-dualCursorModeStateMachine.svg)
 
 | 出来事 | `off` | `on.placingCursorA` | `on.placingCursorB` |
 | --- | --- | --- | --- |
-| `screen/escapePressed` | — | → `off` [`isRungDualCursor`]<br>それ以外 → —（親 `on` の升） | → `off` [`isRungDualCursor`]<br>それ以外 → —（親 `on` の升） |
-| `screen/dualCursorEntryPressed` | → `on` [`hasDaysToPlace`] / `storePlacedDualCursorClearingGuide`<br>それ以外 → — | → `off`（親 `on` の升） | → `off`（親 `on` の升） |
+| exit | — | / `storeClearedDualCursor`（どの出方でも、二重カーソルを消したことを覚える）（親 `on` の升） | / `storeClearedDualCursor`（どの出方でも、二重カーソルを消したことを覚える）（親 `on` の升） |
+| `screen/escapePressed` | — | → `off` [`isRungDualCursor`（`event.rung == 'dualCursorMode'`）]<br>それ以外 → —（親 `on` の升） | → `off` [`isRungDualCursor`（`event.rung == 'dualCursorMode'`）]<br>それ以外 → —（親 `on` の升） |
+| `screen/dualCursorEntryPressed` | → `on` [`hasDaysToPlace`（`event.hasDaysToPlace`）] / `storePlacedDualCursorClearingGuide`<br>それ以外 → — | → `off`（親 `on` の升） | → `off`（親 `on` の升） |
 | `screen/guideCursorEntryPressed` | — | → `off`（親 `on` の升） | → `off`（親 `on` の升） |
 | `screen/dualCursorPlaced` | — | → `on.placingCursorB` / `storeFixedCursorADate` | → `on.placingCursorA` / `storeFixedCursorBDate` |
 
 - `dualCursorModeStateMachine.off` —— 初期。根拠 `DC-1`
-- `dualCursorModeStateMachine.on` —— 根拠 `DC-1` ・ `PTD-2`
+- `dualCursorModeStateMachine.on` —— exit / `storeClearedDualCursor`。根拠 `DC-1` ・ `PTD-2`
 - `dualCursorModeStateMachine.on.placingCursorA` —— 初期。親 `dualCursorModeStateMachine.on`。根拠 `DC-1`
 - `dualCursorModeStateMachine.on.placingCursorB` —— 親 `dualCursorModeStateMachine.on`。根拠 `DC-2` ・ `DC-8`
 
@@ -370,43 +354,27 @@ stateDiagram-v2
 
 ### 状態機械 `scaleMessageDisplayStateMachine`
 
-```mermaid
-stateDiagram-v2
-    direction LR
-    [*] --> scaleMessageDisplayStateMachine_hidden
-    scaleMessageDisplayStateMachine_hidden : hidden
-    scaleMessageDisplayStateMachine_shown : shown
-    scaleMessageDisplayStateMachine_hidden --> scaleMessageDisplayStateMachine_shown : displayScaleStepped, verticalZoomEndReached
-    scaleMessageDisplayStateMachine_shown --> scaleMessageDisplayStateMachine_shown : displayScaleStepped, verticalZoomEndReached
-    scaleMessageDisplayStateMachine_shown --> scaleMessageDisplayStateMachine_hidden : scaleMessageTimeElapsed
-```
+[![scaleMessageDisplayStateMachine](fig-sm-scaleMessageDisplayStateMachine.svg)](fig-sm-scaleMessageDisplayStateMachine.svg)
 
 | 出来事 | `hidden` | `shown` |
 | --- | --- | --- |
+| entry | — | / `startScaleMessageTimer` |
 | `screen/displayScaleStepped` | → `shown` | → 自己 / `restartScaleMessageTimer`（中身を書き換える） |
 | `screen/verticalZoomEndReached` | → `shown` | → 自己 / `restartScaleMessageTimer`（中身を書き換える） |
 | `screen/scaleMessageTimeElapsed` | — | → `hidden` |
 
 - `scaleMessageDisplayStateMachine.hidden` —— 初期。根拠 `SE-1`
-- `scaleMessageDisplayStateMachine.shown` —— 運ぶ値 `percent` ／ `end`（`max` ・ `min` ・ なし）。根拠 `SE-2` ・ `ZE-5` ・ `S-244`
+- `scaleMessageDisplayStateMachine.shown` —— 運ぶ値 `percent` ／ `end`（`max` ・ `min` ・ なし）。entry / `startScaleMessageTimer`。根拠 `SE-2` ・ `ZE-5` ・ `S-244`
 
 表に無い出来事は `scaleMessageDisplayStateMachine` を変えない（同じ参照）。
 
 ### 状態機械 `tooltipDisplayStateMachine`
 
-```mermaid
-stateDiagram-v2
-    direction LR
-    [*] --> tooltipDisplayStateMachine_allowed
-    tooltipDisplayStateMachine_allowed : allowed
-    tooltipDisplayStateMachine_dismissed : dismissed
-    tooltipDisplayStateMachine_allowed --> tooltipDisplayStateMachine_dismissed : escapePressed
-    tooltipDisplayStateMachine_dismissed --> tooltipDisplayStateMachine_allowed : hintTargetChanged
-```
+[![tooltipDisplayStateMachine](fig-sm-tooltipDisplayStateMachine.svg)](fig-sm-tooltipDisplayStateMachine.svg)
 
 | 出来事 | `allowed` | `dismissed` |
 | --- | --- | --- |
-| `screen/escapePressed` | → `dismissed` [`isRungTooltip`]<br>それ以外 → — | — |
+| `screen/escapePressed` | → `dismissed` [`isRungTooltip`（`event.rung == 'tooltip'`）]<br>それ以外 → — | — |
 | `screen/hintTargetChanged` | — | → `allowed` |
 
 - `tooltipDisplayStateMachine.allowed` —— 初期。根拠 `IN-3`
@@ -416,31 +384,7 @@ stateDiagram-v2
 
 ### 状態機械 `searchPanelDisplayStateMachine`
 
-```mermaid
-stateDiagram-v2
-    direction TB
-    [*] --> searchPanelDisplayStateMachine_hidden
-    searchPanelDisplayStateMachine_hidden : hidden
-    searchPanelDisplayStateMachine_shown : shown
-    state searchPanelDisplayStateMachine_shown {
-        [*] --> searchPanelDisplayStateMachine_shown_normal
-        searchPanelDisplayStateMachine_shown_normal : normal
-        searchPanelDisplayStateMachine_shown_minimized : minimized
-        searchPanelDisplayStateMachine_shown_maximized : maximized
-        searchPanelDisplayStateMachine_shown_normal --> searchPanelDisplayStateMachine_shown_normal : searchEntryPressed
-        searchPanelDisplayStateMachine_shown_minimized --> searchPanelDisplayStateMachine_shown_normal : searchEntryPressed, searchPanelMinimizeToggled
-        searchPanelDisplayStateMachine_shown_maximized --> searchPanelDisplayStateMachine_shown_maximized : searchEntryPressed
-        searchPanelDisplayStateMachine_shown_normal --> searchPanelDisplayStateMachine_shown_minimized : searchPanelMinimizeToggled
-        searchPanelDisplayStateMachine_shown_maximized --> searchPanelDisplayStateMachine_shown_minimized : searchPanelMinimizeToggled
-        searchPanelDisplayStateMachine_shown_normal --> searchPanelDisplayStateMachine_shown_maximized : searchPanelMaximizeToggled
-        searchPanelDisplayStateMachine_shown_minimized --> searchPanelDisplayStateMachine_shown_maximized : searchPanelMaximizeToggled
-        searchPanelDisplayStateMachine_shown_maximized --> searchPanelDisplayStateMachine_shown_normal : searchPanelMaximizeToggled, searchHitJumped
-    }
-    searchPanelDisplayStateMachine_hidden --> searchPanelDisplayStateMachine_shown_normal : searchEntryPressed
-    searchPanelDisplayStateMachine_shown --> searchPanelDisplayStateMachine_hidden : searchPanelClosePressed
-    searchPanelDisplayStateMachine_shown_normal --> searchPanelDisplayStateMachine_hidden : escapePressed
-    searchPanelDisplayStateMachine_shown_maximized --> searchPanelDisplayStateMachine_hidden : escapePressed
-```
+[![searchPanelDisplayStateMachine](fig-sm-searchPanelDisplayStateMachine.svg)](fig-sm-searchPanelDisplayStateMachine.svg)
 
 | 出来事 | `hidden` | `shown.normal` | `shown.minimized` | `shown.maximized` |
 | --- | --- | --- | --- | --- |
@@ -448,7 +392,7 @@ stateDiagram-v2
 | `screen/searchPanelMinimizeToggled` | — | → `shown.minimized` | → `shown.normal` | → `shown.minimized` |
 | `screen/searchPanelMaximizeToggled` | — | → `shown.maximized` | → `shown.maximized` | → `shown.normal` |
 | `screen/searchPanelClosePressed` | — | → `hidden`（親 `shown` の升） | → `hidden`（親 `shown` の升） | → `hidden`（親 `shown` の升） |
-| `screen/escapePressed` | — | → `hidden` [`isRungSearchPanel`]<br>それ以外 → — | — | → `hidden` [`isRungSearchPanel`]<br>それ以外 → — |
+| `screen/escapePressed` | — | → `hidden` [`isRungSearchPanel`（`event.rung == 'searchPanel'`）]<br>それ以外 → — | — | → `hidden` [`isRungSearchPanel`（`event.rung == 'searchPanel'`）]<br>それ以外 → — |
 | `screen/searchHitJumped` | — | — | — | → `shown.normal` |
 
 - `searchPanelDisplayStateMachine.hidden` —— 初期。根拠 `S-442`
@@ -461,37 +405,15 @@ stateDiagram-v2
 
 ### 状態機械 `helpDisplayStateMachine`
 
-```mermaid
-stateDiagram-v2
-    direction TB
-    [*] --> helpDisplayStateMachine_hidden
-    helpDisplayStateMachine_hidden : hidden
-    helpDisplayStateMachine_shown : shown
-    state helpDisplayStateMachine_shown {
-        [*] --> helpDisplayStateMachine_shown_normal
-        helpDisplayStateMachine_shown_normal : normal
-        helpDisplayStateMachine_shown_minimized : minimized
-        helpDisplayStateMachine_shown_maximized : maximized
-        helpDisplayStateMachine_shown_minimized --> helpDisplayStateMachine_shown_normal : helpEntryPressed, helpMinimizeToggled
-        helpDisplayStateMachine_shown_normal --> helpDisplayStateMachine_shown_minimized : helpMinimizeToggled
-        helpDisplayStateMachine_shown_maximized --> helpDisplayStateMachine_shown_minimized : helpMinimizeToggled
-        helpDisplayStateMachine_shown_normal --> helpDisplayStateMachine_shown_maximized : helpMaximizeToggled
-        helpDisplayStateMachine_shown_minimized --> helpDisplayStateMachine_shown_maximized : helpMaximizeToggled
-        helpDisplayStateMachine_shown_maximized --> helpDisplayStateMachine_shown_normal : helpMaximizeToggled
-    }
-    helpDisplayStateMachine_hidden --> helpDisplayStateMachine_shown_normal : helpEntryPressed
-    helpDisplayStateMachine_shown --> helpDisplayStateMachine_hidden : surfaceCloseAsked
-    helpDisplayStateMachine_shown_normal --> helpDisplayStateMachine_hidden : escapePressed
-    helpDisplayStateMachine_shown_maximized --> helpDisplayStateMachine_hidden : escapePressed
-```
+[![helpDisplayStateMachine](fig-sm-helpDisplayStateMachine.svg)](fig-sm-helpDisplayStateMachine.svg)
 
 | 出来事 | `hidden` | `shown.normal` | `shown.minimized` | `shown.maximized` |
 | --- | --- | --- | --- | --- |
 | `screen/helpEntryPressed` | → `shown.normal` / `seedHelpLanguage` | — | → `shown.normal` | — |
 | `screen/helpMinimizeToggled` | — | → `shown.minimized` | → `shown.normal` | → `shown.minimized` |
 | `screen/helpMaximizeToggled` | — | → `shown.maximized` | → `shown.maximized` | → `shown.normal` |
-| `screen/surfaceCloseAsked` | — | → `hidden` [`isHelpTarget`]<br>それ以外 → —（親 `shown` の升） | → `hidden` [`isHelpTarget`]<br>それ以外 → —（親 `shown` の升） | → `hidden` [`isHelpTarget`]<br>それ以外 → —（親 `shown` の升） |
-| `screen/escapePressed` | — | → `hidden` [`isRungHelp`]<br>それ以外 → — | — | → `hidden` [`isRungHelp`]<br>それ以外 → — |
+| `screen/surfaceCloseAsked` | — | → `hidden` [`isHelpTarget`（`event.target == 'helpModal'`）]<br>それ以外 → —（親 `shown` の升） | → `hidden` [`isHelpTarget`（`event.target == 'helpModal'`）]<br>それ以外 → —（親 `shown` の升） | → `hidden` [`isHelpTarget`（`event.target == 'helpModal'`）]<br>それ以外 → —（親 `shown` の升） |
+| `screen/escapePressed` | — | → `hidden` [`isRungHelp`（`event.rung == 'helpModal'`）]<br>それ以外 → — | — | → `hidden` [`isRungHelp`（`event.rung == 'helpModal'`）]<br>それ以外 → — |
 
 - `helpDisplayStateMachine.hidden` —— 初期。根拠 `S-435`
 - `helpDisplayStateMachine.shown` —— 根拠 `S-435` ・ `FR-036`
@@ -503,16 +425,7 @@ stateDiagram-v2
 
 ### 状態機械 `landingMarkDisplayStateMachine`
 
-```mermaid
-stateDiagram-v2
-    direction LR
-    [*] --> landingMarkDisplayStateMachine_hidden
-    landingMarkDisplayStateMachine_hidden : hidden
-    landingMarkDisplayStateMachine_shown : shown
-    landingMarkDisplayStateMachine_hidden --> landingMarkDisplayStateMachine_shown : continuationMarkClicked, searchJumpLanded
-    landingMarkDisplayStateMachine_shown --> landingMarkDisplayStateMachine_shown : continuationMarkClicked, searchJumpLanded
-    landingMarkDisplayStateMachine_shown --> landingMarkDisplayStateMachine_hidden : landingMarkClearAsked
-```
+[![landingMarkDisplayStateMachine](fig-sm-landingMarkDisplayStateMachine.svg)](fig-sm-landingMarkDisplayStateMachine.svg)
 
 | 出来事 | `hidden` | `shown` |
 | --- | --- | --- |
@@ -527,19 +440,11 @@ stateDiagram-v2
 
 ### 状態機械 `dropCueDisplayStateMachine`
 
-```mermaid
-stateDiagram-v2
-    direction LR
-    [*] --> dropCueDisplayStateMachine_hidden
-    dropCueDisplayStateMachine_hidden : hidden
-    dropCueDisplayStateMachine_shown : shown
-    dropCueDisplayStateMachine_hidden --> dropCueDisplayStateMachine_shown : fileDragEntered
-    dropCueDisplayStateMachine_shown --> dropCueDisplayStateMachine_hidden : fileDragLeft
-```
+[![dropCueDisplayStateMachine](fig-sm-dropCueDisplayStateMachine.svg)](fig-sm-dropCueDisplayStateMachine.svg)
 
 | 出来事 | `hidden` | `shown` |
 | --- | --- | --- |
-| `screen/fileDragEntered` | → `shown` [`isOpenAccepted`]（`isOpenAccepted` は、表 T-290 の `fileOperationStateMachine` が `idle` で、`confirmationStateMachine` が `notAsked` のとき真 —— 偽なら `fileFlow/documentOpenAsked` が `RS-27` で断るので、案内を出さない）<br>それ以外 → — | — |
+| `screen/fileDragEntered` | → `shown` [`isOpenAccepted`（`event.isOpenAccepted`）]（`isOpenAccepted` は、表 T-290 の `fileOperationStateMachine` が `idle` で、`confirmationStateMachine` が `notAsked` のとき真 —— 偽なら `fileFlow/documentOpenAsked` が `RS-27` で断るので、案内を出さない）<br>それ以外 → — | — |
 | `screen/fileDragLeft` | — | → `hidden` |
 
 - `dropCueDisplayStateMachine.hidden` —— 初期。根拠 `OP-17`
@@ -549,29 +454,20 @@ stateDiagram-v2
 
 ### 状態機械 `baseTimeZoneDraftStateMachine`
 
-```mermaid
-stateDiagram-v2
-    direction LR
-    [*] --> baseTimeZoneDraftStateMachine_untouched
-    baseTimeZoneDraftStateMachine_untouched : untouched
-    baseTimeZoneDraftStateMachine_drafted : drafted
-    baseTimeZoneDraftStateMachine_untouched --> baseTimeZoneDraftStateMachine_drafted : baseTimeZoneChosen
-    baseTimeZoneDraftStateMachine_drafted --> baseTimeZoneDraftStateMachine_drafted : baseTimeZoneChosen
-    baseTimeZoneDraftStateMachine_drafted --> baseTimeZoneDraftStateMachine_untouched : baseTimeZoneChosen, baseChangeEntryPressed, baseChangeCancelPressed, surfaceCloseAsked, escapePressed, settingsEntryPressed, propertiesOfChoiceAsked, selectionMoved, createdNameSettled, settleKeyPressed, documentReplacedByOpenOrNew
-```
+[![baseTimeZoneDraftStateMachine](fig-sm-baseTimeZoneDraftStateMachine.svg)](fig-sm-baseTimeZoneDraftStateMachine.svg)
 
 | 出来事 | `untouched` | `drafted` |
 | --- | --- | --- |
-| `screen/baseTimeZoneChosen` | → `drafted` [`isOtherThanShownBase`]（いまの見せる基準と同じタイムゾーンを選んだときは移らない）<br>それ以外 → — | → 自己 [`isOtherThanShownBase`]（`chosenRegion` を書き換える）<br>→ `untouched` [not `isOtherThanShownBase`]（いまの見せる基準を選び直したので、下書きを捨てる） |
+| `screen/baseTimeZoneChosen` | → `drafted` [`isOtherThanShownBase`（`event.isOtherThanShownBase`）]（いまの見せる基準と同じタイムゾーンを選んだときは移らない）<br>それ以外 → — | → 自己 [`isOtherThanShownBase`（`event.isOtherThanShownBase`）]（`chosenRegion` を書き換える）<br>→ `untouched` [not `isOtherThanShownBase`（`event.isOtherThanShownBase`）]（いまの見せる基準を選び直したので、下書きを捨てる） |
 | `screen/baseChangeEntryPressed` | — | → `untouched` / `issueBaseChangeCommand`（`keepGlobalTime` は `CM-95` を、`keepLocalTime` は `CM-94` と `CM-95`（`null`）を、1 回の書き込みで出す。確認を取らない） |
 | `screen/baseChangeCancelPressed` | — | → `untouched`（何も書かない） |
-| `screen/surfaceCloseAsked` | — | → `untouched` [`isLeavingDocumentSettings`]（プロパティパネルが文書の設定を出さなくなるときだけ、下書きを捨てる）<br>それ以外 → — |
-| `screen/escapePressed` | — | → `untouched` [`isLeavingDocumentSettings`]（プロパティパネルが文書の設定を出さなくなるときだけ、下書きを捨てる）<br>それ以外 → — |
-| `screen/settingsEntryPressed` | — | → `untouched` [`isLeavingDocumentSettings`]（プロパティパネルが文書の設定を出さなくなるときだけ、下書きを捨てる）<br>それ以外 → — |
-| `screen/propertiesOfChoiceAsked` | — | → `untouched` [`isLeavingDocumentSettings`]（プロパティパネルが文書の設定を出さなくなるときだけ、下書きを捨てる）<br>それ以外 → — |
-| `screen/selectionMoved` | — | → `untouched` [`isLeavingDocumentSettings`]（プロパティパネルが文書の設定を出さなくなるときだけ、下書きを捨てる）<br>それ以外 → — |
-| `screen/createdNameSettled` | — | → `untouched` [`isLeavingDocumentSettings`]（プロパティパネルが文書の設定を出さなくなるときだけ、下書きを捨てる）<br>それ以外 → — |
-| `screen/settleKeyPressed` | — | → `untouched` [`isLeavingDocumentSettings`]（プロパティパネルが文書の設定を出さなくなるときだけ、下書きを捨てる）<br>それ以外 → — |
+| `screen/surfaceCloseAsked` | — | → `untouched` [`isLeavingDocumentSettings`（`in(propertiesPanelContentStateMachine.documentSettingsDisplayed) && !inAfter(propertiesPanelContentStateMachine.documentSettingsDisplayed)`）]（プロパティパネルが文書の設定を出さなくなるときだけ、下書きを捨てる）<br>それ以外 → — |
+| `screen/escapePressed` | — | → `untouched` [`isLeavingDocumentSettings`（`in(propertiesPanelContentStateMachine.documentSettingsDisplayed) && !inAfter(propertiesPanelContentStateMachine.documentSettingsDisplayed)`）]（プロパティパネルが文書の設定を出さなくなるときだけ、下書きを捨てる）<br>それ以外 → — |
+| `screen/settingsEntryPressed` | — | → `untouched` [`isLeavingDocumentSettings`（`in(propertiesPanelContentStateMachine.documentSettingsDisplayed) && !inAfter(propertiesPanelContentStateMachine.documentSettingsDisplayed)`）]（プロパティパネルが文書の設定を出さなくなるときだけ、下書きを捨てる）<br>それ以外 → — |
+| `screen/propertiesOfChoiceAsked` | — | → `untouched` [`isLeavingDocumentSettings`（`in(propertiesPanelContentStateMachine.documentSettingsDisplayed) && !inAfter(propertiesPanelContentStateMachine.documentSettingsDisplayed)`）]（プロパティパネルが文書の設定を出さなくなるときだけ、下書きを捨てる）<br>それ以外 → — |
+| `screen/selectionMoved` | — | → `untouched` [`isLeavingDocumentSettings`（`in(propertiesPanelContentStateMachine.documentSettingsDisplayed) && !inAfter(propertiesPanelContentStateMachine.documentSettingsDisplayed)`）]（プロパティパネルが文書の設定を出さなくなるときだけ、下書きを捨てる）<br>それ以外 → — |
+| `screen/createdNameSettled` | — | → `untouched` [`isLeavingDocumentSettings`（`in(propertiesPanelContentStateMachine.documentSettingsDisplayed) && !inAfter(propertiesPanelContentStateMachine.documentSettingsDisplayed)`）]（プロパティパネルが文書の設定を出さなくなるときだけ、下書きを捨てる）<br>それ以外 → — |
+| `screen/settleKeyPressed` | — | → `untouched` [`isLeavingDocumentSettings`（`in(propertiesPanelContentStateMachine.documentSettingsDisplayed) && !inAfter(propertiesPanelContentStateMachine.documentSettingsDisplayed)`）]（プロパティパネルが文書の設定を出さなくなるときだけ、下書きを捨てる）<br>それ以外 → — |
 | `screen/documentReplacedByOpenOrNew` | — | → `untouched` |
 
 - `baseTimeZoneDraftStateMachine.untouched` —— 初期。根拠 `FO-14` ・ `FR-156`
@@ -581,29 +477,20 @@ stateDiagram-v2
 
 ### 状態機械 `timeShiftDraftStateMachine`
 
-```mermaid
-stateDiagram-v2
-    direction LR
-    [*] --> timeShiftDraftStateMachine_empty
-    timeShiftDraftStateMachine_empty : empty
-    timeShiftDraftStateMachine_amountHeld : amountHeld
-    timeShiftDraftStateMachine_empty --> timeShiftDraftStateMachine_amountHeld : timeShiftAmountSettled
-    timeShiftDraftStateMachine_amountHeld --> timeShiftDraftStateMachine_amountHeld : timeShiftAmountSettled, timeShiftEntryPressed
-    timeShiftDraftStateMachine_amountHeld --> timeShiftDraftStateMachine_empty : timeShiftAmountSettled, timeShiftLanded, surfaceCloseAsked, escapePressed, settingsEntryPressed, propertiesOfChoiceAsked, selectionMoved, createdNameSettled, settleKeyPressed, documentReplacedByOpenOrNew
-```
+[![timeShiftDraftStateMachine](fig-sm-timeShiftDraftStateMachine.svg)](fig-sm-timeShiftDraftStateMachine.svg)
 
 | 出来事 | `empty` | `amountHeld` |
 | --- | --- | --- |
-| `screen/timeShiftAmountSettled` | → `amountHeld` [not `isShiftZero`]<br>それ以外 → — | → 自己 [not `isShiftZero`]（`shiftMinutes` を書き換える）<br>→ `empty` [`isShiftZero`] |
+| `screen/timeShiftAmountSettled` | → `amountHeld` [not `isShiftZero`（`event.shiftMinutes == 0`）]<br>それ以外 → — | → 自己 [not `isShiftZero`（`event.shiftMinutes == 0`）]（`shiftMinutes` を書き換える）<br>→ `empty` [`isShiftZero`（`event.shiftMinutes == 0`）] |
 | `screen/timeShiftEntryPressed` | — | → 自己 / `raiseTimeShiftQuestion`（下書きの量で `QN-14` を問う。続けると答えたら `CM-98` を 1 回出す。量が 0 か空のあいだは `IC-162` が薄い（`FR-029`）） |
 | `screen/timeShiftLanded` | — | → `empty` |
-| `screen/surfaceCloseAsked` | — | → `empty` [`isLeavingDocumentSettings`]（プロパティパネルが文書の設定を出さなくなるときだけ、量を捨てる）<br>それ以外 → — |
-| `screen/escapePressed` | — | → `empty` [`isLeavingDocumentSettings`]（プロパティパネルが文書の設定を出さなくなるときだけ、量を捨てる）<br>それ以外 → — |
-| `screen/settingsEntryPressed` | — | → `empty` [`isLeavingDocumentSettings`]（プロパティパネルが文書の設定を出さなくなるときだけ、量を捨てる）<br>それ以外 → — |
-| `screen/propertiesOfChoiceAsked` | — | → `empty` [`isLeavingDocumentSettings`]（プロパティパネルが文書の設定を出さなくなるときだけ、量を捨てる）<br>それ以外 → — |
-| `screen/selectionMoved` | — | → `empty` [`isLeavingDocumentSettings`]（プロパティパネルが文書の設定を出さなくなるときだけ、量を捨てる）<br>それ以外 → — |
-| `screen/createdNameSettled` | — | → `empty` [`isLeavingDocumentSettings`]（プロパティパネルが文書の設定を出さなくなるときだけ、量を捨てる）<br>それ以外 → — |
-| `screen/settleKeyPressed` | — | → `empty` [`isLeavingDocumentSettings`]（プロパティパネルが文書の設定を出さなくなるときだけ、量を捨てる）<br>それ以外 → — |
+| `screen/surfaceCloseAsked` | — | → `empty` [`isLeavingDocumentSettings`（`in(propertiesPanelContentStateMachine.documentSettingsDisplayed) && !inAfter(propertiesPanelContentStateMachine.documentSettingsDisplayed)`）]（プロパティパネルが文書の設定を出さなくなるときだけ、量を捨てる）<br>それ以外 → — |
+| `screen/escapePressed` | — | → `empty` [`isLeavingDocumentSettings`（`in(propertiesPanelContentStateMachine.documentSettingsDisplayed) && !inAfter(propertiesPanelContentStateMachine.documentSettingsDisplayed)`）]（プロパティパネルが文書の設定を出さなくなるときだけ、量を捨てる）<br>それ以外 → — |
+| `screen/settingsEntryPressed` | — | → `empty` [`isLeavingDocumentSettings`（`in(propertiesPanelContentStateMachine.documentSettingsDisplayed) && !inAfter(propertiesPanelContentStateMachine.documentSettingsDisplayed)`）]（プロパティパネルが文書の設定を出さなくなるときだけ、量を捨てる）<br>それ以外 → — |
+| `screen/propertiesOfChoiceAsked` | — | → `empty` [`isLeavingDocumentSettings`（`in(propertiesPanelContentStateMachine.documentSettingsDisplayed) && !inAfter(propertiesPanelContentStateMachine.documentSettingsDisplayed)`）]（プロパティパネルが文書の設定を出さなくなるときだけ、量を捨てる）<br>それ以外 → — |
+| `screen/selectionMoved` | — | → `empty` [`isLeavingDocumentSettings`（`in(propertiesPanelContentStateMachine.documentSettingsDisplayed) && !inAfter(propertiesPanelContentStateMachine.documentSettingsDisplayed)`）]（プロパティパネルが文書の設定を出さなくなるときだけ、量を捨てる）<br>それ以外 → — |
+| `screen/createdNameSettled` | — | → `empty` [`isLeavingDocumentSettings`（`in(propertiesPanelContentStateMachine.documentSettingsDisplayed) && !inAfter(propertiesPanelContentStateMachine.documentSettingsDisplayed)`）]（プロパティパネルが文書の設定を出さなくなるときだけ、量を捨てる）<br>それ以外 → — |
+| `screen/settleKeyPressed` | — | → `empty` [`isLeavingDocumentSettings`（`in(propertiesPanelContentStateMachine.documentSettingsDisplayed) && !inAfter(propertiesPanelContentStateMachine.documentSettingsDisplayed)`）]（プロパティパネルが文書の設定を出さなくなるときだけ、量を捨てる）<br>それ以外 → — |
 | `screen/documentReplacedByOpenOrNew` | — | → `empty` |
 
 - `timeShiftDraftStateMachine.empty` —— 初期。根拠 `FO-16`
@@ -613,29 +500,20 @@ stateDiagram-v2
 
 ### 状態機械 `wholeScheduleShiftDraftStateMachine`
 
-```mermaid
-stateDiagram-v2
-    direction LR
-    [*] --> wholeScheduleShiftDraftStateMachine_empty
-    wholeScheduleShiftDraftStateMachine_empty : empty
-    wholeScheduleShiftDraftStateMachine_dateHeld : dateHeld
-    wholeScheduleShiftDraftStateMachine_empty --> wholeScheduleShiftDraftStateMachine_dateHeld : wholeScheduleShiftDateSettled
-    wholeScheduleShiftDraftStateMachine_dateHeld --> wholeScheduleShiftDraftStateMachine_dateHeld : wholeScheduleShiftDateSettled, wholeScheduleShiftEntryPressed
-    wholeScheduleShiftDraftStateMachine_dateHeld --> wholeScheduleShiftDraftStateMachine_empty : wholeScheduleShiftDateSettled, wholeScheduleShiftLanded, surfaceCloseAsked, escapePressed, settingsEntryPressed, propertiesOfChoiceAsked, selectionMoved, createdNameSettled, settleKeyPressed, documentReplacedByOpenOrNew
-```
+[![wholeScheduleShiftDraftStateMachine](fig-sm-wholeScheduleShiftDraftStateMachine.svg)](fig-sm-wholeScheduleShiftDraftStateMachine.svg)
 
 | 出来事 | `empty` | `dateHeld` |
 | --- | --- | --- |
-| `screen/wholeScheduleShiftDateSettled` | → `dateHeld` [not `isNewStartDateEmpty`]<br>それ以外 → — | → 自己 [not `isNewStartDateEmpty`]（`newStartDate` を書き換える）<br>→ `empty` [`isNewStartDateEmpty`] |
+| `screen/wholeScheduleShiftDateSettled` | → `dateHeld` [not `isNewStartDateEmpty`（`event.newStartDate == ''`）]<br>それ以外 → — | → 自己 [not `isNewStartDateEmpty`（`event.newStartDate == ''`）]（`newStartDate` を書き換える）<br>→ `empty` [`isNewStartDateEmpty`（`event.newStartDate == ''`）] |
 | `screen/wholeScheduleShiftEntryPressed` | — | → 自己 / `raiseWholeScheduleShiftQuestion`（下書きの日で `QN-15` を問う。続けると答えたら `CM-99` を 1 回出す。適用のボタンが押せないあいだ（`WH-12`）は何もしない） |
 | `screen/wholeScheduleShiftLanded` | — | → `empty` |
-| `screen/surfaceCloseAsked` | — | → `empty` [`isLeavingDocumentSettings`]（プロパティパネルが文書の設定を出さなくなるときだけ、新しい開始日を捨てる）<br>それ以外 → — |
-| `screen/escapePressed` | — | → `empty` [`isLeavingDocumentSettings`]（プロパティパネルが文書の設定を出さなくなるときだけ、新しい開始日を捨てる）<br>それ以外 → — |
-| `screen/settingsEntryPressed` | — | → `empty` [`isLeavingDocumentSettings`]（プロパティパネルが文書の設定を出さなくなるときだけ、新しい開始日を捨てる）<br>それ以外 → — |
-| `screen/propertiesOfChoiceAsked` | — | → `empty` [`isLeavingDocumentSettings`]（プロパティパネルが文書の設定を出さなくなるときだけ、新しい開始日を捨てる）<br>それ以外 → — |
-| `screen/selectionMoved` | — | → `empty` [`isLeavingDocumentSettings`]（プロパティパネルが文書の設定を出さなくなるときだけ、新しい開始日を捨てる）<br>それ以外 → — |
-| `screen/createdNameSettled` | — | → `empty` [`isLeavingDocumentSettings`]（プロパティパネルが文書の設定を出さなくなるときだけ、新しい開始日を捨てる）<br>それ以外 → — |
-| `screen/settleKeyPressed` | — | → `empty` [`isLeavingDocumentSettings`]（プロパティパネルが文書の設定を出さなくなるときだけ、新しい開始日を捨てる）<br>それ以外 → — |
+| `screen/surfaceCloseAsked` | — | → `empty` [`isLeavingDocumentSettings`（`in(propertiesPanelContentStateMachine.documentSettingsDisplayed) && !inAfter(propertiesPanelContentStateMachine.documentSettingsDisplayed)`）]（プロパティパネルが文書の設定を出さなくなるときだけ、新しい開始日を捨てる）<br>それ以外 → — |
+| `screen/escapePressed` | — | → `empty` [`isLeavingDocumentSettings`（`in(propertiesPanelContentStateMachine.documentSettingsDisplayed) && !inAfter(propertiesPanelContentStateMachine.documentSettingsDisplayed)`）]（プロパティパネルが文書の設定を出さなくなるときだけ、新しい開始日を捨てる）<br>それ以外 → — |
+| `screen/settingsEntryPressed` | — | → `empty` [`isLeavingDocumentSettings`（`in(propertiesPanelContentStateMachine.documentSettingsDisplayed) && !inAfter(propertiesPanelContentStateMachine.documentSettingsDisplayed)`）]（プロパティパネルが文書の設定を出さなくなるときだけ、新しい開始日を捨てる）<br>それ以外 → — |
+| `screen/propertiesOfChoiceAsked` | — | → `empty` [`isLeavingDocumentSettings`（`in(propertiesPanelContentStateMachine.documentSettingsDisplayed) && !inAfter(propertiesPanelContentStateMachine.documentSettingsDisplayed)`）]（プロパティパネルが文書の設定を出さなくなるときだけ、新しい開始日を捨てる）<br>それ以外 → — |
+| `screen/selectionMoved` | — | → `empty` [`isLeavingDocumentSettings`（`in(propertiesPanelContentStateMachine.documentSettingsDisplayed) && !inAfter(propertiesPanelContentStateMachine.documentSettingsDisplayed)`）]（プロパティパネルが文書の設定を出さなくなるときだけ、新しい開始日を捨てる）<br>それ以外 → — |
+| `screen/createdNameSettled` | — | → `empty` [`isLeavingDocumentSettings`（`in(propertiesPanelContentStateMachine.documentSettingsDisplayed) && !inAfter(propertiesPanelContentStateMachine.documentSettingsDisplayed)`）]（プロパティパネルが文書の設定を出さなくなるときだけ、新しい開始日を捨てる）<br>それ以外 → — |
+| `screen/settleKeyPressed` | — | → `empty` [`isLeavingDocumentSettings`（`in(propertiesPanelContentStateMachine.documentSettingsDisplayed) && !inAfter(propertiesPanelContentStateMachine.documentSettingsDisplayed)`）]（プロパティパネルが文書の設定を出さなくなるときだけ、新しい開始日を捨てる）<br>それ以外 → — |
 | `screen/documentReplacedByOpenOrNew` | — | → `empty` |
 
 - `wholeScheduleShiftDraftStateMachine.empty` —— 初期。根拠 `FO-17`
@@ -645,26 +523,17 @@ stateDiagram-v2
 
 ### 状態機械 `calendarDraftStateMachine`
 
-```mermaid
-stateDiagram-v2
-    direction LR
-    [*] --> calendarDraftStateMachine_untouched
-    calendarDraftStateMachine_untouched : untouched
-    calendarDraftStateMachine_drafted : drafted
-    calendarDraftStateMachine_untouched --> calendarDraftStateMachine_drafted : calendarDraftEdited
-    calendarDraftStateMachine_drafted --> calendarDraftStateMachine_drafted : calendarDraftEdited
-    calendarDraftStateMachine_drafted --> calendarDraftStateMachine_untouched : calendarApplyEntryPressed, surfaceCloseAsked, escapePressed, surfaceEntryPressed, surfaceRaisedByFlow, watermarkEntryPressed, documentReplacedByOpenOrNew
-```
+[![calendarDraftStateMachine](fig-sm-calendarDraftStateMachine.svg)](fig-sm-calendarDraftStateMachine.svg)
 
 | 出来事 | `untouched` | `drafted` |
 | --- | --- | --- |
 | `screen/calendarDraftEdited` | → `drafted`（翻訳が文書の暦から組んだ下書きに直しを当てたものを運ぶ） | → 自己（`calendarDraft` を書き換える） |
-| `screen/calendarApplyEntryPressed` | — | → `untouched` [not `hasCalendarDraftRefusal`] / `issueCalendarCommand`（下書きで `CM-39` を 1 回出す。`CM-39` が文書を変え、当てた 1 組の合計が `Project.minutesPerDay`（空なら `S-128`）と違えば `RS-89` を 1 度告げる。面は開いたまま、当てた後の文書を見せる）<br>それ以外 → — |
-| `screen/surfaceCloseAsked` | — | → `untouched` [`isLeavingHolidaySettings`]（開いている面が `U-65` でなくなるときだけ、下書きを捨てる）<br>それ以外 → — |
-| `screen/escapePressed` | — | → `untouched` [`isLeavingHolidaySettings`]（開いている面が `U-65` でなくなるときだけ、下書きを捨てる）<br>それ以外 → — |
-| `screen/surfaceEntryPressed` | — | → `untouched` [`isLeavingHolidaySettings`]（開いている面が `U-65` でなくなるときだけ、下書きを捨てる）<br>それ以外 → — |
-| `screen/surfaceRaisedByFlow` | — | → `untouched` [`isLeavingHolidaySettings`]（開いている面が `U-65` でなくなるときだけ、下書きを捨てる）<br>それ以外 → — |
-| `screen/watermarkEntryPressed` | — | → `untouched` [`isLeavingHolidaySettings`]（開いている面が `U-65` でなくなるときだけ、下書きを捨てる）<br>それ以外 → — |
+| `screen/calendarApplyEntryPressed` | — | → `untouched` [not `hasCalendarDraftRefusal`（`calendarDraftRefusals(calendarDraftStateMachine.calendarDraft).length > 0`）] / `issueCalendarCommand`（下書きで `CM-39` を 1 回出す。`CM-39` が文書を変え、当てた 1 組の合計が `Project.minutesPerDay`（空なら `S-128`）と違えば `RS-89` を 1 度告げる。面は開いたまま、当てた後の文書を見せる）<br>それ以外 → — |
+| `screen/surfaceCloseAsked` | — | → `untouched` [`isLeavingHolidaySettings`（`openSurfaceStateMachine.surfaceName == 'U-65' && after(openSurfaceStateMachine.surfaceName) != 'U-65'`）]（開いている面が `U-65` でなくなるときだけ、下書きを捨てる）<br>それ以外 → — |
+| `screen/escapePressed` | — | → `untouched` [`isLeavingHolidaySettings`（`openSurfaceStateMachine.surfaceName == 'U-65' && after(openSurfaceStateMachine.surfaceName) != 'U-65'`）]（開いている面が `U-65` でなくなるときだけ、下書きを捨てる）<br>それ以外 → — |
+| `screen/surfaceEntryPressed` | — | → `untouched` [`isLeavingHolidaySettings`（`openSurfaceStateMachine.surfaceName == 'U-65' && after(openSurfaceStateMachine.surfaceName) != 'U-65'`）]（開いている面が `U-65` でなくなるときだけ、下書きを捨てる）<br>それ以外 → — |
+| `screen/surfaceRaisedByFlow` | — | → `untouched` [`isLeavingHolidaySettings`（`openSurfaceStateMachine.surfaceName == 'U-65' && after(openSurfaceStateMachine.surfaceName) != 'U-65'`）]（開いている面が `U-65` でなくなるときだけ、下書きを捨てる）<br>それ以外 → — |
+| `screen/watermarkEntryPressed` | — | → `untouched` [`isLeavingHolidaySettings`（`openSurfaceStateMachine.surfaceName == 'U-65' && after(openSurfaceStateMachine.surfaceName) != 'U-65'`）]（開いている面が `U-65` でなくなるときだけ、下書きを捨てる）<br>それ以外 → — |
 | `screen/documentReplacedByOpenOrNew` | — | → `untouched` |
 
 - `calendarDraftStateMachine.untouched` —— 初期。根拠 `FR-088` ・ `WC-7`
@@ -678,6 +547,8 @@ stateDiagram-v2
 
 本表は、出来事の定義・根の値・状態機械ごとの状態遷移表と状態の一覧からなる。  
 状態遷移表の行はその状態機械を動かす出来事、列はその状態機械の葉の状態、升は「→ 次の状態 [ガード] / 副作用」である。  
+ガードは名と条件を「`名`（`条件`）」と刷り、条件は同じ領域のガードの一覧と同じである。  
+状態に entry ／ exit の副作用がある状態機械は、出来事の行の上に `entry` ／ `exit` の行を置く —— その状態へ入る遷移・出る遷移が、出 → 遷移の副作用 → 入の順に起こし、自己への遷移（「→ 自己」）は起こさない。  
 升の「—」は変化なし（同じ参照）を表す。  
 ガードの付いた枝がすべての場合を覆わない升には「それ以外 → —」を添え、どの場合に何が起きるかを升ごとに言い切る。  
 親の状態に置いた升は、その子のすべての列に同じ升を刷り、「親 … の升」と書き添える。
@@ -693,6 +564,20 @@ stateDiagram-v2
 | `notices/documentReplaced` | 副作用の結果（`WS-6` の差し替えが済み、`WS-7` の配りが始まる）: `WS-6` ・ `WS-7` | — | `changeDeliveryStateMachine` |
 | `notices/changeDelivered` | 副作用の結果（`WS-7` の配りが終わった）: `WS-7` ・ `AG-6` | `silentWatchers`（答えを返さなかった配り先の数） | `changeDeliveryStateMachine` |
 
+### 通知のガード
+
+升が名で引くガードと、その条件（本書の頭の「ガードの条件の書き方」で書く）。
+
+| ガード | 条件 | 根拠 |
+| --- | --- | --- |
+| `hasSilentWatcher` | `event.silentWatchers > 0` | `RS-23` ・ `AG-6` |
+| `isHiddenReason` | `noticeDisplay(event.reason) == 'hide'` | `FR-076` |
+| `isLeavingNone` | `event.reason in reasonsOf(noticeDisplayStateMachine.standing) && noticeDisplayStateMachine.standing.length == 1` | `NT-8` |
+| `isLeavingSome` | `event.reason in reasonsOf(noticeDisplayStateMachine.standing) && noticeDisplayStateMachine.standing.length > 1` | `NT-8` |
+| `isOnlyOneStanding` | `noticeDisplayStateMachine.standing.length == 1` | `NT-8` ・ `NT-2` |
+| `isSameReasonStanding` | `wordsRow(event.reason) in wordsRowsOf(noticeDisplayStateMachine.standing)` | `NT-3` ・ `FR-076` |
+| `isTimedCard` | `noticeDisplay(event.reason) == 'autoDismiss' && event.reason in reasonsOf(noticeDisplayStateMachine.standing)` | `NT-2` |
+
 ### 根 `notices` の値
 
 運ぶ値: —。  
@@ -703,30 +588,20 @@ stateDiagram-v2
 **図 F-029 — 通知の状態遷移**
 
 状態機械ごとに 1 つの図に分け、その状態機械の節に置く。状態機械どうしは直交する。  
-矢印のラベルは出来事のキーだけであり、ガード・副作用は同じ節の状態遷移表が持つ。  
-⚠️ 図は畳んである —— 同じ出来事・ガード・先・副作用の升が 3 つ以上の兄弟の種類のどの 2 つの間も結ぶか、それらのどれからも同じ 1 つの種類へ出るか、同じ 1 つの種類から入るときは、兄弟を 1 つの箱に囲み、その遷移を箱から 1 本だけ描く（どの 2 つの間も結ぶ遷移は、箱の注に出来事のキーを書く）。  
-⭐ 遷移の全数は 表 T-286 の状態遷移表が持つ。
+図は UML の状態機械図である —— 矢印のラベルは「出来事 [ガード] / 副作用」、同じ 2 つの状態を結ぶ遷移は 1 本の矢印に 1 行ずつ並べる。ガードは名で書き、条件は同じ領域のガードの一覧が持つ。  
+行き先が運ぶ値で決まる升は選択の擬似状態（◇）で分ける。entry ／ exit は状態の箱の中に書く。  
+⭐ 遷移の全数は 表 T-286 の状態遷移表が持つ。図と表はどちらも原稿から刷る。
 
 ### 状態機械 `noticeDisplayStateMachine`
 
-```mermaid
-stateDiagram-v2
-    direction LR
-    [*] --> noticeDisplayStateMachine_hidden
-    noticeDisplayStateMachine_hidden : hidden
-    noticeDisplayStateMachine_shown : shown
-    noticeDisplayStateMachine_hidden --> noticeDisplayStateMachine_hidden : noticeRaised
-    noticeDisplayStateMachine_hidden --> noticeDisplayStateMachine_shown : noticeRaised
-    noticeDisplayStateMachine_shown --> noticeDisplayStateMachine_shown : noticeRaised, noticeTimeElapsed, newestNoticeDismissAsked, noticeDismissPressed
-    noticeDisplayStateMachine_shown --> noticeDisplayStateMachine_hidden : noticeTimeElapsed, newestNoticeDismissAsked, noticeDismissPressed
-```
+[![noticeDisplayStateMachine](fig-sm-noticeDisplayStateMachine.svg)](fig-sm-noticeDisplayStateMachine.svg)
 
 | 出来事 | `hidden` | `shown` |
 | --- | --- | --- |
-| `notices/noticeRaised` | → 自己 [`isHiddenReason`]（立てない（表 T-233 の表示の仕方が「出さない」））<br>→ `shown` [not `isHiddenReason`]（1 枚） | → 自己 [`isHiddenReason`]（変えない）<br>→ 自己 [not `isHiddenReason` & `isSameReasonStanding`]（その 1 枚の件数を増やし、いちばん新しい位置へ動かす。相乗りする理由どうし（表 T-233 のまとめ方）は同じ理由と数える）<br>→ 自己 [not `isHiddenReason` & not `isSameReasonStanding`]（いちばん新しいものとして足す。枚数に上限を置かない） |
-| `notices/noticeTimeElapsed` | — | → `hidden` [`isTimedCard` & `isOnlyOneStanding`]<br>→ 自己 [`isTimedCard` & not `isOnlyOneStanding`]（その 1 枚を除く）<br>それ以外 → — |
-| `notices/newestNoticeDismissAsked` | — | → `hidden` [`isOnlyOneStanding`]<br>→ 自己 [not `isOnlyOneStanding`]（いちばん新しいものを除く） |
-| `notices/noticeDismissPressed` | — | → `hidden` [`isLeavingNone`]<br>→ 自己 [`isLeavingSome`]（押されたものを除く）<br>それ以外 → — |
+| `notices/noticeRaised` | → 自己 [`isHiddenReason`（`noticeDisplay(event.reason) == 'hide'`）]（立てない（表 T-233 の表示の仕方が「出さない」））<br>→ `shown` [not `isHiddenReason`（`noticeDisplay(event.reason) == 'hide'`）]（1 枚） | → 自己 [`isHiddenReason`（`noticeDisplay(event.reason) == 'hide'`）]（変えない）<br>→ 自己 [not `isHiddenReason`（`noticeDisplay(event.reason) == 'hide'`） & `isSameReasonStanding`（`wordsRow(event.reason) in wordsRowsOf(noticeDisplayStateMachine.standing)`）]（その 1 枚の件数を増やし、いちばん新しい位置へ動かす。相乗りする理由どうし（表 T-233 のまとめ方）は同じ理由と数える）<br>→ 自己 [not `isHiddenReason`（`noticeDisplay(event.reason) == 'hide'`） & not `isSameReasonStanding`（`wordsRow(event.reason) in wordsRowsOf(noticeDisplayStateMachine.standing)`）]（いちばん新しいものとして足す。枚数に上限を置かない） |
+| `notices/noticeTimeElapsed` | — | → `hidden` [`isTimedCard`（`noticeDisplay(event.reason) == 'autoDismiss' && event.reason in reasonsOf(noticeDisplayStateMachine.standing)`） & `isOnlyOneStanding`（`noticeDisplayStateMachine.standing.length == 1`）]<br>→ 自己 [`isTimedCard`（`noticeDisplay(event.reason) == 'autoDismiss' && event.reason in reasonsOf(noticeDisplayStateMachine.standing)`） & not `isOnlyOneStanding`（`noticeDisplayStateMachine.standing.length == 1`）]（その 1 枚を除く）<br>それ以外 → — |
+| `notices/newestNoticeDismissAsked` | — | → `hidden` [`isOnlyOneStanding`（`noticeDisplayStateMachine.standing.length == 1`）]<br>→ 自己 [not `isOnlyOneStanding`（`noticeDisplayStateMachine.standing.length == 1`）]（いちばん新しいものを除く） |
+| `notices/noticeDismissPressed` | — | → `hidden` [`isLeavingNone`（`event.reason in reasonsOf(noticeDisplayStateMachine.standing) && noticeDisplayStateMachine.standing.length == 1`）]<br>→ 自己 [`isLeavingSome`（`event.reason in reasonsOf(noticeDisplayStateMachine.standing) && noticeDisplayStateMachine.standing.length > 1`）]（押されたものを除く）<br>それ以外 → — |
 
 - `noticeDisplayStateMachine.hidden` —— 初期。根拠 `NT-8` ・ `IN-4`
 - `noticeDisplayStateMachine.shown` —— 運ぶ値 `standing`（出ている通知の列。古い順。1 つは理由と件数）。根拠 `FR-076` ・ `NT-3` ・ `NT-8` ・ `IN-4` ・ `SK-19` ・ `IR-3`
@@ -735,20 +610,12 @@ stateDiagram-v2
 
 ### 状態機械 `changeDeliveryStateMachine`
 
-```mermaid
-stateDiagram-v2
-    direction LR
-    [*] --> changeDeliveryStateMachine_idle
-    changeDeliveryStateMachine_idle : idle
-    changeDeliveryStateMachine_delivering : delivering
-    changeDeliveryStateMachine_idle --> changeDeliveryStateMachine_delivering : documentReplaced
-    changeDeliveryStateMachine_delivering --> changeDeliveryStateMachine_idle : changeDelivered
-```
+[![changeDeliveryStateMachine](fig-sm-changeDeliveryStateMachine.svg)](fig-sm-changeDeliveryStateMachine.svg)
 
 | 出来事 | `idle` | `delivering` |
 | --- | --- | --- |
 | `notices/documentReplaced` | → `delivering` | — |
-| `notices/changeDelivered` | — | → `idle` [not `hasSilentWatcher`]<br>→ `idle` [`hasSilentWatcher`] / `raiseNotice`（`RS-23`） |
+| `notices/changeDelivered` | — | → `idle` [not `hasSilentWatcher`（`event.silentWatchers > 0`）]<br>→ `idle` [`hasSilentWatcher`（`event.silentWatchers > 0`）] / `raiseNotice`（`RS-23`） |
 
 - `changeDeliveryStateMachine.idle` —— 初期。根拠 `WS-7`
 - `changeDeliveryStateMachine.delivering` —— 根拠 `WS-2` ・ `RS-9` ・ `CA-3`
@@ -761,6 +628,8 @@ stateDiagram-v2
 
 本表は、出来事の定義・根の値・状態機械ごとの状態遷移表と状態の一覧からなる。  
 状態遷移表の行はその状態機械を動かす出来事、列はその状態機械の葉の状態、升は「→ 次の状態 [ガード] / 副作用」である。  
+ガードは名と条件を「`名`（`条件`）」と刷り、条件は同じ領域のガードの一覧と同じである。  
+状態に entry ／ exit の副作用がある状態機械は、出来事の行の上に `entry` ／ `exit` の行を置く —— その状態へ入る遷移・出る遷移が、出 → 遷移の副作用 → 入の順に起こし、自己への遷移（「→ 自己」）は起こさない。  
 升の「—」は変化なし（同じ参照）を表す。  
 ガードの付いた枝がすべての場合を覆わない升には「それ以外 → —」を添え、どの場合に何が起きるかを升ごとに言い切る。  
 親の状態に置いた升は、その子のすべての列に同じ升を刷り、「親 … の升」と書き添える。
@@ -775,6 +644,18 @@ stateDiagram-v2
 | `gesture/taskGroupGrabTravelPassed` | 入力（タスクグループを掴んだまま、押した点から初めて `S-208` を超えて動いた）: `HF-15` ・ `S-208` | — | `taskGroupGrabStateMachine` |
 | `gesture/entryRepeatTimeElapsed` | 時間（`startEntryRepeat` の待ち（`S-172`）か、`repeatHeldEntry` の待ち（`S-173`）が明けた）: `FR-018` ・ `S-172` ・ `S-173` | — | `pointerPressStateMachine` |
 
+### 身振りのガード
+
+升が名で引くガードと、その条件（本書の頭の「ガードの条件の書き方」で書く）。
+
+| ガード | 条件 | 根拠 |
+| --- | --- | --- |
+| `isDocumentChangingPress` | <code>(event.pressedOn == null &#124;&#124; event.pressedOn.kind == 'grab') &amp;&amp; !(event.pressRow in ['PTD-1', 'PTD-5']) &#124;&#124; event.pressedOn != null &amp;&amp; !(event.pressedOn.kind in ['grab', 'scrollbarThumb', 'panelBorder', 'paletteBand']) &amp;&amp; !(event.pressedOn.kind == 'entry' &amp;&amp; event.pressedOn.entry in ['IC-12', 'IC-13', 'IC-14', 'IC-15'])</code>（押下の先を先に問い、押下の行は後に問う —— 描いた入口の押下は `PTD-5` に落ちるので、行を先に問うとパレットのどの押下も `AG-9` から外れる。文書を変えない押下は、取り消しの対象（表 T-027）でないものを書く押下である —— スクロールバーのつまみ（`UN-8`）、パネルの境界（`UN-16`）、パレットの掴み帯（`FR-053`）、押し続けると繰り返す入口（`UN-8`）） | `AG-9` ・ `UN-8` ・ `UN-9` ・ `UN-16` ・ `PTD-1` ・ `PTD-5` ・ `FR-018` ・ `FR-053` |
+| `isHeldOnRepeatingEntry` | `pointerPressStateMachine.pressedOn.kind == 'entry' && pointerPressStateMachine.pressedOn.entry in ['IC-12', 'IC-13', 'IC-14', 'IC-15']`（押し続けている押下が、押し続けると繰り返す入口の上にある（刻みの出来事は押下の先を運ばない）） | `FR-018` ・ `S-173` |
+| `isOnPaletteBand` | `pointerPressStateMachine.pressedOn.kind == 'paletteBand'` | `FR-053` ・ `GR-19` |
+| `isOnRepeatingEntry` | `event.pressedOn.kind == 'entry' && event.pressedOn.entry in ['IC-12', 'IC-13', 'IC-14', 'IC-15']` | `FR-018` ・ `S-172` |
+| `isTaskGroupGrabStrip` | `event.pressedOn.kind == 'taskGroupGrabStrip'` | `HF-15` ・ `GR-20` |
+
 ### 根 `gesture` の値
 
 運ぶ値: —。  
@@ -785,32 +666,20 @@ stateDiagram-v2
 **図 F-035 — 身振りの状態遷移**
 
 状態機械ごとに 1 つの図に分け、その状態機械の節に置く。状態機械どうしは直交する。  
-矢印のラベルは出来事のキーだけであり、ガード・副作用は同じ節の状態遷移表が持つ。  
-⚠️ 図は畳んである —— 同じ出来事・ガード・先・副作用の升が 3 つ以上の兄弟の種類のどの 2 つの間も結ぶか、それらのどれからも同じ 1 つの種類へ出るか、同じ 1 つの種類から入るときは、兄弟を 1 つの箱に囲み、その遷移を箱から 1 本だけ描く（どの 2 つの間も結ぶ遷移は、箱の注に出来事のキーを書く）。  
-⭐ 遷移の全数は 表 T-289 の状態遷移表が持つ。
+図は UML の状態機械図である —— 矢印のラベルは「出来事 [ガード] / 副作用」、同じ 2 つの状態を結ぶ遷移は 1 本の矢印に 1 行ずつ並べる。ガードは名で書き、条件は同じ領域のガードの一覧が持つ。  
+行き先が運ぶ値で決まる升は選択の擬似状態（◇）で分ける。entry ／ exit は状態の箱の中に書く。  
+⭐ 遷移の全数は 表 T-289 の状態遷移表が持つ。図と表はどちらも原稿から刷る。
 
 ### 状態機械 `pointerPressStateMachine`
 
-```mermaid
-stateDiagram-v2
-    direction LR
-    [*] --> pointerPressStateMachine_notPressed
-    pointerPressStateMachine_notPressed : notPressed
-    pointerPressStateMachine_changingDocument : changingDocument
-    pointerPressStateMachine_viewingDocument : viewingDocument
-    pointerPressStateMachine_notPressed --> pointerPressStateMachine_changingDocument : pointerPressed
-    pointerPressStateMachine_notPressed --> pointerPressStateMachine_viewingDocument : pointerPressed
-    pointerPressStateMachine_changingDocument --> pointerPressStateMachine_notPressed : pointerReleased, pressInterrupted
-    pointerPressStateMachine_viewingDocument --> pointerPressStateMachine_notPressed : pointerReleased, pressInterrupted
-    pointerPressStateMachine_viewingDocument --> pointerPressStateMachine_viewingDocument : entryRepeatTimeElapsed
-```
+[![pointerPressStateMachine](fig-sm-pointerPressStateMachine.svg)](fig-sm-pointerPressStateMachine.svg)
 
 | 出来事 | `notPressed` | `changingDocument` | `viewingDocument` |
 | --- | --- | --- | --- |
-| `gesture/pointerPressed` | → `changingDocument` [`isDocumentChangingPress`]<br>→ `viewingDocument` [not `isDocumentChangingPress` & `isOnRepeatingEntry`] / `startEntryRepeat`（前の待ちを捨てて張り直す）<br>→ `viewingDocument` [not `isDocumentChangingPress` & not `isOnRepeatingEntry`] | — | — |
+| `gesture/pointerPressed` | → `changingDocument` [`isDocumentChangingPress`（<code>(event.pressedOn == null &#124;&#124; event.pressedOn.kind == 'grab') &amp;&amp; !(event.pressRow in ['PTD-1', 'PTD-5']) &#124;&#124; event.pressedOn != null &amp;&amp; !(event.pressedOn.kind in ['grab', 'scrollbarThumb', 'panelBorder', 'paletteBand']) &amp;&amp; !(event.pressedOn.kind == 'entry' &amp;&amp; event.pressedOn.entry in ['IC-12', 'IC-13', 'IC-14', 'IC-15'])</code>）]<br>→ `viewingDocument` [not `isDocumentChangingPress`（<code>(event.pressedOn == null &#124;&#124; event.pressedOn.kind == 'grab') &amp;&amp; !(event.pressRow in ['PTD-1', 'PTD-5']) &#124;&#124; event.pressedOn != null &amp;&amp; !(event.pressedOn.kind in ['grab', 'scrollbarThumb', 'panelBorder', 'paletteBand']) &amp;&amp; !(event.pressedOn.kind == 'entry' &amp;&amp; event.pressedOn.entry in ['IC-12', 'IC-13', 'IC-14', 'IC-15'])</code>） & `isOnRepeatingEntry`（`event.pressedOn.kind == 'entry' && event.pressedOn.entry in ['IC-12', 'IC-13', 'IC-14', 'IC-15']`）] / `startEntryRepeat`（前の待ちを捨てて張り直す）<br>→ `viewingDocument` [not `isDocumentChangingPress`（<code>(event.pressedOn == null &#124;&#124; event.pressedOn.kind == 'grab') &amp;&amp; !(event.pressRow in ['PTD-1', 'PTD-5']) &#124;&#124; event.pressedOn != null &amp;&amp; !(event.pressedOn.kind in ['grab', 'scrollbarThumb', 'panelBorder', 'paletteBand']) &amp;&amp; !(event.pressedOn.kind == 'entry' &amp;&amp; event.pressedOn.entry in ['IC-12', 'IC-13', 'IC-14', 'IC-15'])</code>） & not `isOnRepeatingEntry`（`event.pressedOn.kind == 'entry' && event.pressedOn.entry in ['IC-12', 'IC-13', 'IC-14', 'IC-15']`）] | — | — |
 | `gesture/pointerReleased` | — | → `notPressed` | → `notPressed` |
-| `gesture/pressInterrupted` | — | → `notPressed` [`isOnPaletteBand`] / `restorePaletteCorner`（パレットを押した時点の角へ戻す）<br>→ `notPressed` [not `isOnPaletteBand`] | → `notPressed` [`isOnPaletteBand`] / `restorePaletteCorner`（パレットを押した時点の角へ戻す）<br>→ `notPressed` [not `isOnPaletteBand`] |
-| `gesture/entryRepeatTimeElapsed` | — | — | → 自己 [`isHeldOnRepeatingEntry`] / `repeatHeldEntry`（入口の命令をもう 1 度実行し、`S-173` の待ちを張る）<br>それ以外 → — |
+| `gesture/pressInterrupted` | — | → `notPressed` [`isOnPaletteBand`（`pointerPressStateMachine.pressedOn.kind == 'paletteBand'`）] / `restorePaletteCorner`（パレットを押した時点の角へ戻す）<br>→ `notPressed` [not `isOnPaletteBand`（`pointerPressStateMachine.pressedOn.kind == 'paletteBand'`）] | → `notPressed` [`isOnPaletteBand`（`pointerPressStateMachine.pressedOn.kind == 'paletteBand'`）] / `restorePaletteCorner`（パレットを押した時点の角へ戻す）<br>→ `notPressed` [not `isOnPaletteBand`（`pointerPressStateMachine.pressedOn.kind == 'paletteBand'`）] |
+| `gesture/entryRepeatTimeElapsed` | — | — | → 自己 [`isHeldOnRepeatingEntry`（`pointerPressStateMachine.pressedOn.kind == 'entry' && pointerPressStateMachine.pressedOn.entry in ['IC-12', 'IC-13', 'IC-14', 'IC-15']`）] / `repeatHeldEntry`（入口の命令をもう 1 度実行し、`S-173` の待ちを張る）<br>それ以外 → — |
 
 - `pointerPressStateMachine.notPressed` —— 初期。根拠 `IN-1` ・ `AG-9`
 - `pointerPressStateMachine.changingDocument` —— 運ぶ値 `pressRow`（押した時点の押下の行） ／ `pressedOn`（押したもの）。根拠 `AG-9` ・ `WS-2` ・ `CS-2` ・ `IN-4` ・ `UN-4`
@@ -820,22 +689,11 @@ stateDiagram-v2
 
 ### 状態機械 `taskGroupGrabStateMachine`
 
-```mermaid
-stateDiagram-v2
-    direction LR
-    [*] --> taskGroupGrabStateMachine_notGrabbed
-    taskGroupGrabStateMachine_notGrabbed : notGrabbed
-    taskGroupGrabStateMachine_grabPressed : grabPressed
-    taskGroupGrabStateMachine_carrying : carrying
-    taskGroupGrabStateMachine_notGrabbed --> taskGroupGrabStateMachine_grabPressed : pointerPressed
-    taskGroupGrabStateMachine_grabPressed --> taskGroupGrabStateMachine_notGrabbed : pointerReleased, pressInterrupted
-    taskGroupGrabStateMachine_carrying --> taskGroupGrabStateMachine_notGrabbed : pointerReleased, pressInterrupted
-    taskGroupGrabStateMachine_grabPressed --> taskGroupGrabStateMachine_carrying : taskGroupGrabTravelPassed
-```
+[![taskGroupGrabStateMachine](fig-sm-taskGroupGrabStateMachine.svg)](fig-sm-taskGroupGrabStateMachine.svg)
 
 | 出来事 | `notGrabbed` | `grabPressed` | `carrying` |
 | --- | --- | --- | --- |
-| `gesture/pointerPressed` | → `grabPressed` [`isTaskGroupGrabStrip`]<br>それ以外 → — | — | — |
+| `gesture/pointerPressed` | → `grabPressed` [`isTaskGroupGrabStrip`（`event.pressedOn.kind == 'taskGroupGrabStrip'`）]<br>それ以外 → — | — | — |
 | `gesture/pointerReleased` | — | → `notGrabbed` | → `notGrabbed` |
 | `gesture/pressInterrupted` | — | → `notGrabbed` | → `notGrabbed` |
 | `gesture/taskGroupGrabTravelPassed` | — | → `carrying` | — |
@@ -852,6 +710,8 @@ stateDiagram-v2
 
 本表は、出来事の定義・根の値・状態機械ごとの状態遷移表と状態の一覧からなる。  
 状態遷移表の行はその状態機械を動かす出来事、列はその状態機械の葉の状態、升は「→ 次の状態 [ガード] / 副作用」である。  
+ガードは名と条件を「`名`（`条件`）」と刷り、条件は同じ領域のガードの一覧と同じである。  
+状態に entry ／ exit の副作用がある状態機械は、出来事の行の上に `entry` ／ `exit` の行を置く —— その状態へ入る遷移・出る遷移が、出 → 遷移の副作用 → 入の順に起こし、自己への遷移（「→ 自己」）は起こさない。  
 升の「—」は変化なし（同じ参照）を表す。  
 ガードの付いた枝がすべての場合を覆わない升には「それ以外 → —」を添え、どの場合に何が起きるかを升ごとに言い切る。  
 親の状態に置いた升は、その子のすべての列に同じ升を刷り、「親 … の升」と書き添える。
@@ -882,6 +742,25 @@ stateDiagram-v2
 | `fileFlow/newDocumentLanded` | 副作用の結果（`carryOutOwedAction`（新しく始めること）の差し替えが受け入れられた）: `FR-095` ・ `RD-7` | — | 根 ・ `unsavedEditsStateMachine` |
 | `fileFlow/startupDocumentHeld` | 副作用の結果（起動時の文書の差し替えが受け入れられた）: `FR-062` ・ `RD-6` | — | `unsavedEditsStateMachine` |
 
+### ファイル操作と問いのガード
+
+升が名で引くガードと、その条件（本書の頭の「ガードの条件の書き方」で書く）。
+
+| ガード | 条件 | 根拠 |
+| --- | --- | --- |
+| `hasAnythingToReport` | <code>event.droppedTaskNames.length &gt; 0 &#124;&#124; event.missingTaskNames.length &gt; 0 &#124;&#124; event.reportedCounts.length &gt; 0</code> | `FR-023` ・ `MG-14` ・ `U-62` ・ `FR-076` |
+| `isBackToSavedDocument` | `event.isBackToSavedDocument`（取り消し・やり直しの着地で、文書が印を下ろした時点の文書そのものに戻ったかは、呼び手が判じて運ぶ） | `FR-100` |
+| `isBaselineRoute` | `fileOperationStateMachine.openRoute == 'baseline'` | `OP-15` |
+| `isDifferenceReviewSurface` | `event.surfaceName == 'U-61'` | `U-61` ・ `MG-6` |
+| `isFileOperationQuestion` | `confirmationStateMachine.owedAction == null`（ファイル操作が自ら立てた問い（`OP-4`・`DI-4`）は、答えた後に果たす操作を運ばない） | `OP-4` ・ `DI-4` ・ `NT-7` |
+| `isImportCanceled` | `event.mergeMapping.kind == 'cancelImport'` | `MM-4` ・ `MG-6` |
+| `isImportReportSurface` | `event.surfaceName == 'U-62'` | `U-62` |
+| `isOpenChooserSurface` | `event.surfaceName == 'U-56'` | `U-56` ・ `OP-3` |
+| `isOverwriteQuestion` | `confirmationStateMachine.question.question == 'QN-4'` | `DI-4` ・ `QN-4` |
+| `isProceeding` | `event.isProceeding` | `NT-7` |
+| `isReopenRoute` | `fileOperationStateMachine.openRoute == 'reopen'` | `OP-13` |
+| `isReplaceChoice` | `event.openChoice == 'replace'` | `OP-3` ・ `OP-4` |
+
 ### 根 `fileFlow` の値
 
 運ぶ値: `openedFileName`（`U-58` ・ `FR-101`） ／ `droppedTaskNames`（`U-62` ・ `RS-50`） ／ `missingTaskNames`（`U-62` ・ `RS-73` ・ `MG-11`） ／ `reportedCounts`（`U-62` ・ `FR-076`）。  
@@ -890,77 +769,44 @@ stateDiagram-v2
 | 出来事 | `fileFlow` |
 | --- | --- |
 | `fileFlow/documentFileSaved` | → 自己（`openedFileName` を書き換える（名が運ばれたときだけ）） |
-| `fileFlow/documentOpenLanded` | → 自己 [`hasAnythingToReport`] / `raiseFlowSurface`（`U-62`）（`droppedTaskNames` と `missingTaskNames` と `reportedCounts` と `openedFileName` を書き換える（名は運ばれたときだけ））<br>→ 自己 [not `hasAnythingToReport`]（`openedFileName` を書き換える（名が運ばれたときだけ）） |
-| `fileFlow/flowSurfaceClosed` | → 自己 [`isImportReportSurface`]（`droppedTaskNames` と `missingTaskNames` と `reportedCounts` を空にする）<br>それ以外 → — |
+| `fileFlow/documentOpenLanded` | → 自己 [`hasAnythingToReport`（<code>event.droppedTaskNames.length &gt; 0 &#124;&#124; event.missingTaskNames.length &gt; 0 &#124;&#124; event.reportedCounts.length &gt; 0</code>）] / `raiseFlowSurface`（`U-62`）（`droppedTaskNames` と `missingTaskNames` と `reportedCounts` と `openedFileName` を書き換える（名は運ばれたときだけ））<br>→ 自己 [not `hasAnythingToReport`（<code>event.droppedTaskNames.length &gt; 0 &#124;&#124; event.missingTaskNames.length &gt; 0 &#124;&#124; event.reportedCounts.length &gt; 0</code>）]（`openedFileName` を書き換える（名が運ばれたときだけ）） |
+| `fileFlow/flowSurfaceClosed` | → 自己 [`isImportReportSurface`（`event.surfaceName == 'U-62'`）]（`droppedTaskNames` と `missingTaskNames` と `reportedCounts` を空にする）<br>それ以外 → — |
 | `fileFlow/newDocumentLanded` | → 自己（`openedFileName` を空にする（新しく始めた文書はどのファイルにも無い —— `FR-095`）） |
 
 **図 F-036 — ファイル操作と問いの状態遷移**
 
 状態機械ごとに 1 つの図に分け、その状態機械の節に置く。状態機械どうしは直交する。  
-矢印のラベルは出来事のキーだけであり、ガード・副作用は同じ節の状態遷移表が持つ。  
-⚠️ 図は畳んである —— 同じ出来事・ガード・先・副作用の升が 3 つ以上の兄弟の種類のどの 2 つの間も結ぶか、それらのどれからも同じ 1 つの種類へ出るか、同じ 1 つの種類から入るときは、兄弟を 1 つの箱に囲み、その遷移を箱から 1 本だけ描く（どの 2 つの間も結ぶ遷移は、箱の注に出来事のキーを書く）。  
-⭐ 遷移の全数は 表 T-290 の状態遷移表が持つ。
+図は UML の状態機械図である —— 矢印のラベルは「出来事 [ガード] / 副作用」、同じ 2 つの状態を結ぶ遷移は 1 本の矢印に 1 行ずつ並べる。ガードは名で書き、条件は同じ領域のガードの一覧が持つ。  
+行き先が運ぶ値で決まる升は選択の擬似状態（◇）で分ける。entry ／ exit は状態の箱の中に書く。  
+⭐ 遷移の全数は 表 T-290 の状態遷移表が持つ。図と表はどちらも原稿から刷る。
 
 ### 状態機械 `fileOperationStateMachine`
 
-```mermaid
-stateDiagram-v2
-    direction LR
-    [*] --> fileOperationStateMachine_idle
-    fileOperationStateMachine_idle : idle
-    fileOperationStateMachine_readingDocumentFile : readingDocumentFile
-    fileOperationStateMachine_awaitingOpenChoice : awaitingOpenChoice
-    fileOperationStateMachine_awaitingDiscardAnswer : awaitingDiscardAnswer
-    fileOperationStateMachine_importingDocument : importingDocument
-    fileOperationStateMachine_awaitingMergeMapping : awaitingMergeMapping
-    fileOperationStateMachine_writingDocumentFile : writingDocumentFile
-    fileOperationStateMachine_idle --> fileOperationStateMachine_readingDocumentFile : documentOpenAsked, agentDocumentHanded
-    fileOperationStateMachine_idle --> fileOperationStateMachine_idle : documentOpenAsked, documentFileWriteAsked
-    fileOperationStateMachine_readingDocumentFile --> fileOperationStateMachine_readingDocumentFile : documentOpenAsked, documentFileWriteAsked
-    fileOperationStateMachine_awaitingOpenChoice --> fileOperationStateMachine_awaitingOpenChoice : documentOpenAsked, documentFileWriteAsked
-    fileOperationStateMachine_awaitingDiscardAnswer --> fileOperationStateMachine_awaitingDiscardAnswer : documentOpenAsked, documentFileWriteAsked
-    fileOperationStateMachine_importingDocument --> fileOperationStateMachine_importingDocument : documentOpenAsked, documentFileWriteAsked
-    fileOperationStateMachine_awaitingMergeMapping --> fileOperationStateMachine_awaitingMergeMapping : documentOpenAsked, documentFileWriteAsked
-    fileOperationStateMachine_writingDocumentFile --> fileOperationStateMachine_writingDocumentFile : documentOpenAsked, documentFileWriteAsked, confirmationAnswered
-    fileOperationStateMachine_idle --> fileOperationStateMachine_writingDocumentFile : documentFileWriteAsked
-    fileOperationStateMachine_readingDocumentFile --> fileOperationStateMachine_awaitingDiscardAnswer : documentFileRead
-    fileOperationStateMachine_readingDocumentFile --> fileOperationStateMachine_importingDocument : documentFileRead
-    fileOperationStateMachine_readingDocumentFile --> fileOperationStateMachine_awaitingOpenChoice : documentFileRead
-    fileOperationStateMachine_readingDocumentFile --> fileOperationStateMachine_idle : documentOpenFailed
-    fileOperationStateMachine_importingDocument --> fileOperationStateMachine_idle : documentOpenFailed, documentOpenLanded
-    fileOperationStateMachine_awaitingOpenChoice --> fileOperationStateMachine_awaitingDiscardAnswer : openChoiceAnswered
-    fileOperationStateMachine_awaitingOpenChoice --> fileOperationStateMachine_importingDocument : openChoiceAnswered
-    fileOperationStateMachine_awaitingDiscardAnswer --> fileOperationStateMachine_importingDocument : confirmationAnswered
-    fileOperationStateMachine_awaitingDiscardAnswer --> fileOperationStateMachine_idle : confirmationAnswered
-    fileOperationStateMachine_importingDocument --> fileOperationStateMachine_awaitingMergeMapping : mergeMappingAsked
-    fileOperationStateMachine_awaitingMergeMapping --> fileOperationStateMachine_idle : mergeMappingAnswered, flowSurfaceClosed
-    fileOperationStateMachine_awaitingMergeMapping --> fileOperationStateMachine_importingDocument : mergeMappingAnswered
-    fileOperationStateMachine_awaitingOpenChoice --> fileOperationStateMachine_idle : flowSurfaceClosed
-    fileOperationStateMachine_writingDocumentFile --> fileOperationStateMachine_idle : documentFileSaved, diagnosticFixBackupSaved, documentFileWriteEnded
-```
+[![fileOperationStateMachine](fig-sm-fileOperationStateMachine.svg)](fig-sm-fileOperationStateMachine.svg)
 
 | 出来事 | `idle` | `readingDocumentFile` | `awaitingOpenChoice` | `awaitingDiscardAnswer` | `importingDocument` | `awaitingMergeMapping` | `writingDocumentFile` |
 | --- | --- | --- | --- | --- | --- | --- | --- |
+| entry | — | / `readDocumentFile` | — | — | / `importIncomingDocument` | — | — |
 | `fileFlow/documentOpenAsked` | → `readingDocumentFile` [`confirmationStateMachine.notAsked` にいる]<br>→ 自己 [`confirmationStateMachine.questionAsked` にいる] / `raiseNotice`（`RS-27`） | → 自己 / `raiseNotice`（`RS-27`） | → 自己 / `raiseNotice`（`RS-27`） | → 自己 / `raiseNotice`（`RS-27`） | → 自己 / `raiseNotice`（`RS-27`） | → 自己 / `raiseNotice`（`RS-27`） | → 自己 / `raiseNotice`（`RS-27`） |
 | `fileFlow/agentDocumentHanded` | → `readingDocumentFile` [`confirmationStateMachine.notAsked` にいる]（`openRoute` は `handed`）<br>それ以外 → — | — | — | — | — | — | — |
 | `fileFlow/documentFileWriteAsked` | → `writingDocumentFile` [`confirmationStateMachine.notAsked` にいる] / `writeDocumentFile`<br>→ 自己 [`confirmationStateMachine.questionAsked` にいる] / `raiseNotice`（`RS-27`） | → 自己 / `raiseNotice`（`RS-27`） | → 自己 / `raiseNotice`（`RS-27`） | → 自己 / `raiseNotice`（`RS-27`） | → 自己 / `raiseNotice`（`RS-27`） | → 自己 / `raiseNotice`（`RS-27`） | → 自己 / `raiseNotice`（`RS-27`） |
-| `fileFlow/documentFileRead` | — | → `awaitingDiscardAnswer` [`isReopenRoute` & `unsavedEditsStateMachine.editsUnsaved` にいる]<br>→ `importingDocument` [`isReopenRoute` & `unsavedEditsStateMachine.nothingUnsaved` にいる]（保存していない編集が無いので問わずに置き換える（表 T-234 の `QN-5` の問うか））<br>→ `importingDocument` [`isBaselineRoute`]<br>→ `awaitingOpenChoice` [not `isReopenRoute` & not `isBaselineRoute`] / `raiseFlowSurface`（`U-56`） | — | — | — | — | — |
+| `fileFlow/documentFileRead` | — | → `awaitingDiscardAnswer` [`isReopenRoute`（`fileOperationStateMachine.openRoute == 'reopen'`） & `unsavedEditsStateMachine.editsUnsaved` にいる]<br>→ `importingDocument` [`isReopenRoute`（`fileOperationStateMachine.openRoute == 'reopen'`） & `unsavedEditsStateMachine.nothingUnsaved` にいる]（保存していない編集が無いので問わずに置き換える（表 T-234 の `QN-5` の問うか））<br>→ `importingDocument` [`isBaselineRoute`（`fileOperationStateMachine.openRoute == 'baseline'`）]<br>→ `awaitingOpenChoice` [not `isReopenRoute`（`fileOperationStateMachine.openRoute == 'reopen'`） & not `isBaselineRoute`（`fileOperationStateMachine.openRoute == 'baseline'`）] / `raiseFlowSurface`（`U-56`） | — | — | — | — | — |
 | `fileFlow/documentOpenFailed` | — | → `idle` | — | — | → `idle` | — | — |
-| `fileFlow/openChoiceAnswered` | — | — | → `awaitingDiscardAnswer` [`isReplaceChoice` & `unsavedEditsStateMachine.editsUnsaved` にいる]<br>→ `importingDocument` [`isReplaceChoice` & `unsavedEditsStateMachine.nothingUnsaved` にいる]（保存していない編集が無いので問わずに置き換える（表 T-234 の `QN-5` の問うか））<br>→ `importingDocument` [not `isReplaceChoice`] | — | — | — | — |
-| `fileFlow/confirmationAnswered` | — | — | — | → `importingDocument` [`isProceeding`]<br>→ `idle` [not `isProceeding`] / `discardIncomingDocument` | — | — | → 自己 [`isOverwriteQuestion`] / `answerOverwriteQuestion`<br>それ以外 → — |
+| `fileFlow/openChoiceAnswered` | — | — | → `awaitingDiscardAnswer` [`isReplaceChoice`（`event.openChoice == 'replace'`） & `unsavedEditsStateMachine.editsUnsaved` にいる]<br>→ `importingDocument` [`isReplaceChoice`（`event.openChoice == 'replace'`） & `unsavedEditsStateMachine.nothingUnsaved` にいる]（保存していない編集が無いので問わずに置き換える（表 T-234 の `QN-5` の問うか））<br>→ `importingDocument` [not `isReplaceChoice`（`event.openChoice == 'replace'`）] | — | — | — | — |
+| `fileFlow/confirmationAnswered` | — | — | — | → `importingDocument` [`isProceeding`（`event.isProceeding`）]<br>→ `idle` [not `isProceeding`（`event.isProceeding`）] / `discardIncomingDocument` | — | — | → 自己 [`isOverwriteQuestion`（`confirmationStateMachine.question.question == 'QN-4'`）] / `answerOverwriteQuestion`<br>それ以外 → — |
 | `fileFlow/mergeMappingAsked` | — | — | — | — | → `awaitingMergeMapping` / `raiseFlowSurface`（`U-61`） | — | — |
-| `fileFlow/mergeMappingAnswered` | — | — | — | — | — | → `idle` [`isImportCanceled`] / `discardIncomingDocument`<br>→ `importingDocument` [not `isImportCanceled`] | — |
-| `fileFlow/flowSurfaceClosed` | — | — | → `idle` [`isOpenChooserSurface`] / `discardIncomingDocument`<br>それ以外 → — | — | — | → `idle` [`isDifferenceReviewSurface`] / `discardIncomingDocument`<br>それ以外 → — | — |
+| `fileFlow/mergeMappingAnswered` | — | — | — | — | — | → `idle` [`isImportCanceled`（`event.mergeMapping.kind == 'cancelImport'`）] / `discardIncomingDocument`<br>→ `importingDocument` [not `isImportCanceled`（`event.mergeMapping.kind == 'cancelImport'`）] | — |
+| `fileFlow/flowSurfaceClosed` | — | — | → `idle` [`isOpenChooserSurface`（`event.surfaceName == 'U-56'`）] / `discardIncomingDocument`<br>それ以外 → — | — | — | → `idle` [`isDifferenceReviewSurface`（`event.surfaceName == 'U-61'`）] / `discardIncomingDocument`<br>それ以外 → — | — |
 | `fileFlow/documentOpenLanded` | — | — | — | — | → `idle` | — | — |
 | `fileFlow/documentFileSaved` | — | — | — | — | — | — | → `idle` / `issueDelayFixBundle`（運んだ `fixBundle` があれば 1 つの束として発行する（`writeForm` が `beforeFixOverwrite` のとき）。束のどれかを命令が断ったら何も当てず、断った行と理由を告げる） |
 | `fileFlow/diagnosticFixBackupSaved` | — | — | — | — | — | — | → `idle` / `issueDelayFixBundle`（運んだ `fixBundle` を 1 つの束として発行する。`unsavedEditsStateMachine` とヘッダーのファイルの状態は動かさない（`SX-3`）） |
 | `fileFlow/documentFileWriteEnded` | — | — | — | — | — | — | → `idle`（運んだ `fixBundle` は捨てる —— 書けなかったときは直さない（`FR-155`）） |
 
 - `fileOperationStateMachine.idle` —— 初期。根拠 `OP-8` ・ `CS-4`
-- `fileOperationStateMachine.readingDocumentFile` —— 運ぶ値 `openRoute`（`OP-2` ・ `OP-13` ・ `OP-15`）。根拠 `OP-2` ・ `OP-5` ・ `OP-8` ・ `OP-12` ・ `OP-13` ・ `CS-4`
+- `fileOperationStateMachine.readingDocumentFile` —— 運ぶ値 `openRoute`（`OP-2` ・ `OP-13` ・ `OP-15`）。entry / `readDocumentFile`。根拠 `OP-2` ・ `OP-5` ・ `OP-8` ・ `OP-12` ・ `OP-13` ・ `CS-4`
 - `fileOperationStateMachine.awaitingOpenChoice` —— 運ぶ値 `incomingFile`（`OP-16`）。根拠 `OP-3` ・ `U-56` ・ `OP-5` ・ `CS-4`
 - `fileOperationStateMachine.awaitingDiscardAnswer` —— 根拠 `OP-4` ・ `QN-5` ・ `OP-13`
-- `fileOperationStateMachine.importingDocument` —— 根拠 `RD-3` ・ `RD-4` ・ `OP-9` ・ `FR-022`
+- `fileOperationStateMachine.importingDocument` —— entry / `importIncomingDocument`。根拠 `RD-3` ・ `RD-4` ・ `OP-9` ・ `FR-022`
 - `fileOperationStateMachine.awaitingMergeMapping` —— 運ぶ値 `mergeCandidates`（`U-61`） ／ `unreadColumns`（`FR-073`）。根拠 `FR-022` ・ `U-61` ・ `FR-073`
 - `fileOperationStateMachine.writingDocumentFile` —— 運ぶ値 `fixBundle`（書けたら 1 つの束として発行する直し（`FR-155`）。直す前の保存でなければ `null`）。根拠 `FR-060` ・ `FR-096` ・ `DI-4` ・ `CS-4` ・ `FR-155`
 
@@ -968,27 +814,17 @@ stateDiagram-v2
 
 ### 状態機械 `confirmationStateMachine`
 
-```mermaid
-stateDiagram-v2
-    direction LR
-    [*] --> confirmationStateMachine_notAsked
-    confirmationStateMachine_notAsked : notAsked
-    confirmationStateMachine_questionAsked : questionAsked
-    confirmationStateMachine_notAsked --> confirmationStateMachine_questionAsked : changeQuestionRaised, newDocumentEntryPressed, grsResetEntryPressed, openChoiceAnswered, documentFileRead, overwriteQuestionRaised
-    confirmationStateMachine_notAsked --> confirmationStateMachine_notAsked : newDocumentEntryPressed
-    confirmationStateMachine_questionAsked --> confirmationStateMachine_questionAsked : newDocumentEntryPressed, grsResetEntryPressed, openChoiceAnswered, documentFileRead, overwriteQuestionRaised
-    confirmationStateMachine_questionAsked --> confirmationStateMachine_notAsked : confirmationAnswered
-```
+[![confirmationStateMachine](fig-sm-confirmationStateMachine.svg)](fig-sm-confirmationStateMachine.svg)
 
 | 出来事 | `notAsked` | `questionAsked` |
 | --- | --- | --- |
 | `fileFlow/changeQuestionRaised` | → `questionAsked` | — |
 | `fileFlow/newDocumentEntryPressed` | → `questionAsked` [`unsavedEditsStateMachine.editsUnsaved` にいる]<br>→ 自己 [`unsavedEditsStateMachine.nothingUnsaved` にいる] / `carryOutOwedAction`（保存していない編集が無いので問わずに新しく始める（表 T-234 の `QN-5` の問うか）） | → 自己 / `raiseNotice`（`RS-27`） |
 | `fileFlow/grsResetEntryPressed` | → `questionAsked` | → 自己 / `raiseNotice`（`RS-27`） |
-| `fileFlow/openChoiceAnswered` | → `questionAsked` [`isReplaceChoice` & `fileOperationStateMachine.awaitingOpenChoice` にいる & `unsavedEditsStateMachine.editsUnsaved` にいる]<br>それ以外 → — | → 自己 [`isReplaceChoice` & `fileOperationStateMachine.awaitingOpenChoice` にいる & `unsavedEditsStateMachine.editsUnsaved` にいる]<br>それ以外 → — |
-| `fileFlow/documentFileRead` | → `questionAsked` [`isReopenRoute` & `fileOperationStateMachine.readingDocumentFile` にいる & `unsavedEditsStateMachine.editsUnsaved` にいる]<br>それ以外 → — | → 自己 [`isReopenRoute` & `fileOperationStateMachine.readingDocumentFile` にいる & `unsavedEditsStateMachine.editsUnsaved` にいる]<br>それ以外 → — |
+| `fileFlow/openChoiceAnswered` | → `questionAsked` [`isReplaceChoice`（`event.openChoice == 'replace'`） & `fileOperationStateMachine.awaitingOpenChoice` にいる & `unsavedEditsStateMachine.editsUnsaved` にいる]<br>それ以外 → — | → 自己 [`isReplaceChoice`（`event.openChoice == 'replace'`） & `fileOperationStateMachine.awaitingOpenChoice` にいる & `unsavedEditsStateMachine.editsUnsaved` にいる]<br>それ以外 → — |
+| `fileFlow/documentFileRead` | → `questionAsked` [`isReopenRoute`（`fileOperationStateMachine.openRoute == 'reopen'`） & `fileOperationStateMachine.readingDocumentFile` にいる & `unsavedEditsStateMachine.editsUnsaved` にいる]<br>それ以外 → — | → 自己 [`isReopenRoute`（`fileOperationStateMachine.openRoute == 'reopen'`） & `fileOperationStateMachine.readingDocumentFile` にいる & `unsavedEditsStateMachine.editsUnsaved` にいる]<br>それ以外 → — |
 | `fileFlow/overwriteQuestionRaised` | → `questionAsked` | → 自己 |
-| `fileFlow/confirmationAnswered` | — | → `notAsked` [`isProceeding` & not `isFileOperationQuestion`] / `carryOutOwedAction`<br>→ `notAsked` [`isProceeding` & `isFileOperationQuestion`]<br>→ `notAsked` [not `isProceeding`] |
+| `fileFlow/confirmationAnswered` | — | → `notAsked` [`isProceeding`（`event.isProceeding`） & not `isFileOperationQuestion`（`confirmationStateMachine.owedAction == null`）] / `carryOutOwedAction`<br>→ `notAsked` [`isProceeding`（`event.isProceeding`） & `isFileOperationQuestion`（`confirmationStateMachine.owedAction == null`）]<br>→ `notAsked` [not `isProceeding`（`event.isProceeding`）] |
 
 - `confirmationStateMachine.notAsked` —— 初期。根拠 `NT-7` ・ `U-55`
 - `confirmationStateMachine.questionAsked` —— 運ぶ値 `question`（`QN-1` ・ `QN-2` ・ `QN-3` ・ `QN-4` ・ `QN-5` ・ `QN-10` ・ `QN-11` ・ `QN-16` ・ `QN-17`） ／ `owedAction`（「続ける」で行う書き込みの束か、新しく始めることか、GRS リセット（`FR-153`）か、ファイルを選ぶ窓を開くこと（`QN-17`）。ファイル操作の問いでは無い）。根拠 `NT-7` ・ `U-55` ・ `QN-1` ・ `QN-2` ・ `QN-3` ・ `QN-4` ・ `QN-5` ・ `QN-10` ・ `QN-11` ・ `QN-16` ・ `QN-17`
@@ -997,20 +833,12 @@ stateDiagram-v2
 
 ### 状態機械 `unsavedEditsStateMachine`
 
-```mermaid
-stateDiagram-v2
-    direction LR
-    [*] --> unsavedEditsStateMachine_nothingUnsaved
-    unsavedEditsStateMachine_nothingUnsaved : nothingUnsaved
-    unsavedEditsStateMachine_editsUnsaved : editsUnsaved
-    unsavedEditsStateMachine_nothingUnsaved --> unsavedEditsStateMachine_editsUnsaved : documentEditLanded, documentOpenLanded
-    unsavedEditsStateMachine_editsUnsaved --> unsavedEditsStateMachine_nothingUnsaved : documentEditLanded, documentOpenLanded, documentFileSaved, newDocumentLanded, startupDocumentHeld
-```
+[![unsavedEditsStateMachine](fig-sm-unsavedEditsStateMachine.svg)](fig-sm-unsavedEditsStateMachine.svg)
 
 | 出来事 | `nothingUnsaved` | `editsUnsaved` |
 | --- | --- | --- |
-| `fileFlow/documentEditLanded` | → `editsUnsaved` | → `nothingUnsaved` [`isBackToSavedDocument`]（取り消し・やり直しが、印を下ろした時点（保存・置き換え・新しく始める・起動）に持っていた文書そのものへ戻した）<br>それ以外 → — |
-| `fileFlow/documentOpenLanded` | → `editsUnsaved` [not `isReplaceChoice`]（合流・重ねは、ファイルに無い文書を作る。重ねも、重ねた予定と `S-69` を文書に書くので数える）<br>それ以外 → — | → `nothingUnsaved` [`isReplaceChoice`]（置き換えは、開いたファイルと同じ文書にする）<br>それ以外 → — |
+| `fileFlow/documentEditLanded` | → `editsUnsaved` | → `nothingUnsaved` [`isBackToSavedDocument`（`event.isBackToSavedDocument`）]（取り消し・やり直しが、印を下ろした時点（保存・置き換え・新しく始める・起動）に持っていた文書そのものへ戻した）<br>それ以外 → — |
+| `fileFlow/documentOpenLanded` | → `editsUnsaved` [not `isReplaceChoice`（`event.openChoice == 'replace'`）]（合流・重ねは、ファイルに無い文書を作る。重ねも、重ねた予定と `S-69` を文書に書くので数える）<br>それ以外 → — | → `nothingUnsaved` [`isReplaceChoice`（`event.openChoice == 'replace'`）]（置き換えは、開いたファイルと同じ文書にする）<br>それ以外 → — |
 | `fileFlow/documentFileSaved` | — | → `nothingUnsaved` |
 | `fileFlow/newDocumentLanded` | — | → `nothingUnsaved` |
 | `fileFlow/startupDocumentHeld` | — | → `nothingUnsaved` |
@@ -1026,6 +854,8 @@ stateDiagram-v2
 
 本表は、出来事の定義・根の値・状態機械ごとの状態遷移表と状態の一覧からなる。  
 状態遷移表の行はその状態機械を動かす出来事、列はその状態機械の葉の状態、升は「→ 次の状態 [ガード] / 副作用」である。  
+ガードは名と条件を「`名`（`条件`）」と刷り、条件は同じ領域のガードの一覧と同じである。  
+状態に entry ／ exit の副作用がある状態機械は、出来事の行の上に `entry` ／ `exit` の行を置く —— その状態へ入る遷移・出る遷移が、出 → 遷移の副作用 → 入の順に起こし、自己への遷移（「→ 自己」）は起こさない。  
 升の「—」は変化なし（同じ参照）を表す。  
 ガードの付いた枝がすべての場合を覆わない升には「それ以外 → —」を添え、どの場合に何が起きるかを升ごとに言い切る。  
 親の状態に置いた升は、その子のすべての列に同じ升を刷り、「親 … の升」と書き添える。
@@ -1041,6 +871,16 @@ stateDiagram-v2
 | `fieldEntry/fieldEditEnded` | 入力（宿主が知らせる: その欄の編集が終わった（確定・取り消し・欄が消えた —— どれでも））: `IF-9` ・ `SK-19` ・ `IN-4` ・ `IN-6` ・ `FR-091` | `fieldRow`（`IF-9` ・ `PR-1` ・ `AT-53` ・ `PR-16` ・ `PR-21` ・ `U-27` ・ `U-60`。編集が終わった欄が名乗る行 ID） | `createdTaskNamingStateMachine` ・ `fieldEditStateMachine` |
 | `fieldEntry/choiceMoved` | ほかの領域の結果（選択。作ったものを選んだ変化は `creationLanded` が運ぶので送らない）: `FR-091` ・ `FR-072` | — | `createdTaskNamingStateMachine` |
 
+### 名前付けと入力欄のガード
+
+升が名で引くガードと、その条件（本書の頭の「ガードの条件の書き方」で書く）。
+
+| ガード | 条件 | 根拠 |
+| --- | --- | --- |
+| `isCreatedTask` | `event.created.kind == 'task'` | `TC-9` ・ `FR-091` ・ `HF-17` |
+| `isEditedField` | `in(fieldEditStateMachine.editingField) && fieldEditStateMachine.fieldRow == event.fieldRow` | `IF-9` ・ `IN-5b` |
+| `isNameField` | `event.fieldRow == 'PR-1'` | `FR-091` ・ `PR-1` |
+
 ### 根 `fieldEntry` の値
 
 運ぶ値: —。  
@@ -1048,36 +888,23 @@ stateDiagram-v2
 
 | 出来事 | `fieldEntry` |
 | --- | --- |
-| `fieldEntry/creationLanded` | → 自己 [not `isCreatedTask`] / `bringCreatedTaskGroupIntoSight`（足したタスクグループが描かれていないときだけ送る。描かれているかはシェルが次のレイアウトで判じる）<br>それ以外 → — |
+| `fieldEntry/creationLanded` | → 自己 [not `isCreatedTask`（`event.created.kind == 'task'`）] / `bringCreatedTaskGroupIntoSight`（足したタスクグループが描かれていないときだけ送る。描かれているかはシェルが次のレイアウトで判じる）<br>それ以外 → — |
 
 **図 F-038 — 名前付けと入力欄の状態遷移**
 
 状態機械ごとに 1 つの図に分け、その状態機械の節に置く。状態機械どうしは直交する。  
-矢印のラベルは出来事のキーだけであり、ガード・副作用は同じ節の状態遷移表が持つ。  
-⚠️ 図は畳んである —— 同じ出来事・ガード・先・副作用の升が 3 つ以上の兄弟の種類のどの 2 つの間も結ぶか、それらのどれからも同じ 1 つの種類へ出るか、同じ 1 つの種類から入るときは、兄弟を 1 つの箱に囲み、その遷移を箱から 1 本だけ描く（どの 2 つの間も結ぶ遷移は、箱の注に出来事のキーを書く）。  
-⭐ 遷移の全数は 表 T-292 の状態遷移表が持つ。
+図は UML の状態機械図である —— 矢印のラベルは「出来事 [ガード] / 副作用」、同じ 2 つの状態を結ぶ遷移は 1 本の矢印に 1 行ずつ並べる。ガードは名で書き、条件は同じ領域のガードの一覧が持つ。  
+行き先が運ぶ値で決まる升は選択の擬似状態（◇）で分ける。entry ／ exit は状態の箱の中に書く。  
+⭐ 遷移の全数は 表 T-292 の状態遷移表が持つ。図と表はどちらも原稿から刷る。
 
 ### 状態機械 `createdTaskNamingStateMachine`
 
-```mermaid
-stateDiagram-v2
-    direction LR
-    [*] --> createdTaskNamingStateMachine_idle
-    createdTaskNamingStateMachine_idle : idle
-    createdTaskNamingStateMachine_namingCreatedTask : namingCreatedTask
-    createdTaskNamingStateMachine_createdNameEnded : createdNameEnded
-    createdTaskNamingStateMachine_idle --> createdTaskNamingStateMachine_namingCreatedTask : creationLanded
-    createdTaskNamingStateMachine_namingCreatedTask --> createdTaskNamingStateMachine_namingCreatedTask : creationLanded
-    createdTaskNamingStateMachine_createdNameEnded --> createdTaskNamingStateMachine_namingCreatedTask : creationLanded, fieldEditBegan
-    createdTaskNamingStateMachine_namingCreatedTask --> createdTaskNamingStateMachine_createdNameEnded : fieldEditEnded
-    createdTaskNamingStateMachine_namingCreatedTask --> createdTaskNamingStateMachine_idle : choiceMoved
-    createdTaskNamingStateMachine_createdNameEnded --> createdTaskNamingStateMachine_idle : choiceMoved
-```
+[![createdTaskNamingStateMachine](fig-sm-createdTaskNamingStateMachine.svg)](fig-sm-createdTaskNamingStateMachine.svg)
 
 | 出来事 | `idle` | `namingCreatedTask` | `createdNameEnded` |
 | --- | --- | --- | --- |
-| `fieldEntry/creationLanded` | → `namingCreatedTask` [`isCreatedTask`]<br>それ以外 → — | → 自己 [`isCreatedTask`]（`createdTaskUid` を書き換える）<br>それ以外 → — | → `namingCreatedTask` [`isCreatedTask`]（`createdTaskUid` を書き換える（次に作ったタスクの名前付けが始まる））<br>それ以外 → — |
-| `fieldEntry/fieldEditEnded` | — | → `createdNameEnded` [`isNameField`]（終わった欄が名前の欄（`PR-1`）。確定でも取り消しでも同じ —— 次の `Enter` が名前を確定する押下である）<br>それ以外 → — | — |
+| `fieldEntry/creationLanded` | → `namingCreatedTask` [`isCreatedTask`（`event.created.kind == 'task'`）]<br>それ以外 → — | → 自己 [`isCreatedTask`（`event.created.kind == 'task'`）]（`createdTaskUid` を書き換える）<br>それ以外 → — | → `namingCreatedTask` [`isCreatedTask`（`event.created.kind == 'task'`）]（`createdTaskUid` を書き換える（次に作ったタスクの名前付けが始まる））<br>それ以外 → — |
+| `fieldEntry/fieldEditEnded` | — | → `createdNameEnded` [`isNameField`（`event.fieldRow == 'PR-1'`）]（終わった欄が名前の欄（`PR-1`）。確定でも取り消しでも同じ —— 次の `Enter` が名前を確定する押下である）<br>それ以外 → — | — |
 | `fieldEntry/fieldEditBegan` | — | — | → `namingCreatedTask`（欄の編集がまた始まった —— 名前の編集の終わりは最後の出来事ではなくなる） |
 | `fieldEntry/choiceMoved` | — | → `idle` | → `idle` |
 
@@ -1089,29 +916,14 @@ stateDiagram-v2
 
 ### 状態機械 `fieldEditStateMachine`
 
-```mermaid
-stateDiagram-v2
-    direction LR
-    [*] --> fieldEditStateMachine_idle
-    fieldEditStateMachine_idle : idle
-    fieldEditStateMachine_fieldFocusWanted : fieldFocusWanted
-    fieldEditStateMachine_editingField : editingField
-    fieldEditStateMachine_idle --> fieldEditStateMachine_fieldFocusWanted : fieldFocusAsked, creationLanded
-    fieldEditStateMachine_fieldFocusWanted --> fieldEditStateMachine_fieldFocusWanted : fieldFocusAsked, creationLanded
-    fieldEditStateMachine_editingField --> fieldEditStateMachine_fieldFocusWanted : fieldFocusAsked, creationLanded
-    fieldEditStateMachine_idle --> fieldEditStateMachine_editingField : fieldEditBegan
-    fieldEditStateMachine_fieldFocusWanted --> fieldEditStateMachine_editingField : fieldEditBegan
-    fieldEditStateMachine_editingField --> fieldEditStateMachine_editingField : fieldEditBegan
-    fieldEditStateMachine_editingField --> fieldEditStateMachine_idle : fieldEditEnded
-    fieldEditStateMachine_fieldFocusWanted --> fieldEditStateMachine_idle : fieldFocusWithdrawn
-```
+[![fieldEditStateMachine](fig-sm-fieldEditStateMachine.svg)](fig-sm-fieldEditStateMachine.svg)
 
 | 出来事 | `idle` | `fieldFocusWanted` | `editingField` |
 | --- | --- | --- | --- |
-| `fieldEntry/fieldFocusAsked` | → `fieldFocusWanted` | → 自己（`fieldRow` を書き換える） | → `fieldFocusWanted` [not `isEditedField`]（求めた欄が編集中の欄なら求めは既に満ちている）<br>それ以外 → — |
+| `fieldEntry/fieldFocusAsked` | → `fieldFocusWanted` | → 自己（`fieldRow` を書き換える） | → `fieldFocusWanted` [not `isEditedField`（`in(fieldEditStateMachine.editingField) && fieldEditStateMachine.fieldRow == event.fieldRow`）]（求めた欄が編集中の欄なら求めは既に満ちている）<br>それ以外 → — |
 | `fieldEntry/creationLanded` | → `fieldFocusWanted`（`fieldRow` はタスクなら `PR-1`、タスクグループなら `AT-53`） | → 自己（`fieldRow` を書き換える） | → `fieldFocusWanted`（`fieldRow` はタスクなら `PR-1`、タスクグループなら `AT-53`） |
 | `fieldEntry/fieldEditBegan` | → `editingField` | → `editingField`（求めた欄なら焦点が入った。別の欄なら人が焦点を動かした —— どちらも求めは終わる） | → 自己（`fieldRow` を書き換える（編集する欄が替わった）） |
-| `fieldEntry/fieldEditEnded` | — | — | → `idle` [`isEditedField`]<br>それ以外 → — |
+| `fieldEntry/fieldEditEnded` | — | — | → `idle` [`isEditedField`（`in(fieldEditStateMachine.editingField) && fieldEditStateMachine.fieldRow == event.fieldRow`）]<br>それ以外 → — |
 | `fieldEntry/fieldFocusWithdrawn` | — | → `idle` | — |
 
 - `fieldEditStateMachine.idle` —— 初期。根拠 `IN-5a` ・ `IN-5b` ・ `AG-9`
@@ -1126,6 +938,8 @@ stateDiagram-v2
 
 本表は、出来事の定義・根の値・状態機械ごとの状態遷移表と状態の一覧からなる。  
 状態遷移表の行はその状態機械を動かす出来事、列はその状態機械の葉の状態、升は「→ 次の状態 [ガード] / 副作用」である。  
+ガードは名と条件を「`名`（`条件`）」と刷り、条件は同じ領域のガードの一覧と同じである。  
+状態に entry ／ exit の副作用がある状態機械は、出来事の行の上に `entry` ／ `exit` の行を置く —— その状態へ入る遷移・出る遷移が、出 → 遷移の副作用 → 入の順に起こし、自己への遷移（「→ 自己」）は起こさない。  
 升の「—」は変化なし（同じ参照）を表す。  
 ガードの付いた枝がすべての場合を覆わない升には「それ以外 → —」を添え、どの場合に何が起きるかを升ごとに言い切る。  
 親の状態に置いた升は、その子のすべての列に同じ升を刷り、「親 … の升」と書き添える。
@@ -1147,6 +961,16 @@ stateDiagram-v2
 | `selection/resourcesPicked` | 入力（担当リストで選ぶ・すべて選択・選択をすべて解除・増減する）: `FR-099` ・ `AS-6` | `chosenResources` | 根 |
 | `selection/copyTaken` | 入力（コピーできる選び方のときだけ呼び手が送る。コピーできないときは `RS-27` で断り、出来事を作らない）: `SK-4` ・ `FR-033` | `copiedForPaste` | 根 |
 
+### 選択のガード
+
+升が名で引くガードと、その条件（本書の頭の「ガードの条件の書き方」で書く）。
+
+| ガード | 条件 | 根拠 |
+| --- | --- | --- |
+| `hasPickedObjects` | `event.pickedObjects.items.length > 0` | `SL-3` ・ `SL-4` |
+| `hasRemainingObjects` | `event.remainingObjects.items.length > 0` | `FR-081` ・ `UN-9` |
+| `isRungSelection` | `event.rung == 'selection'` | `IN-4` |
+
 ### 根 `selection` の値
 
 運ぶ値: `chosenTaskGroups`（`FR-085`） ／ `chosenResources`（`FR-099` ・ `AS-6`） ／ `copiedForPaste`（`FR-033`。無いこともある。`Task` をコピーしたときは、選ばれていた `Task` をすべて持つ）。  
@@ -1158,38 +982,29 @@ stateDiagram-v2
 | `selection/createdTaskGroupSelected` | → 自己（`chosenTaskGroups` を作ったタスクグループ 1 つにする） |
 | `selection/resourcesPicked` | → 自己（`chosenResources` を書き換える） |
 | `selection/copyTaken` | → 自己（`copiedForPaste` を書き換える） |
-| `selection/selectionEscapePressed` | → 自己 [`isRungSelection`]（`chosenTaskGroups` を空にする —— 段「選択」は対象とタスクグループの両方を解く）<br>それ以外 → — |
+| `selection/selectionEscapePressed` | → 自己 [`isRungSelection`（`event.rung == 'selection'`）]（`chosenTaskGroups` を空にする —— 段「選択」は対象とタスクグループの両方を解く）<br>それ以外 → — |
 | `selection/selectionSettleKeyPressed` | → 自己（`chosenTaskGroups` を空にする —— 対象とタスクグループの両方を解く） |
 | `selection/selectionPruned` | → 自己（`chosenTaskGroups` を、運ぶ `chosenTaskGroups`（文書に在るタスクグループだけ）に置き換える） |
 
 **図 F-039 — 選択の状態遷移**
 
 状態機械ごとに 1 つの図に分け、その状態機械の節に置く。状態機械どうしは直交する。  
-矢印のラベルは出来事のキーだけであり、ガード・副作用は同じ節の状態遷移表が持つ。  
-⚠️ 図は畳んである —— 同じ出来事・ガード・先・副作用の升が 3 つ以上の兄弟の種類のどの 2 つの間も結ぶか、それらのどれからも同じ 1 つの種類へ出るか、同じ 1 つの種類から入るときは、兄弟を 1 つの箱に囲み、その遷移を箱から 1 本だけ描く（どの 2 つの間も結ぶ遷移は、箱の注に出来事のキーを書く）。  
-⭐ 遷移の全数は 表 T-293 の状態遷移表が持つ。
+図は UML の状態機械図である —— 矢印のラベルは「出来事 [ガード] / 副作用」、同じ 2 つの状態を結ぶ遷移は 1 本の矢印に 1 行ずつ並べる。ガードは名で書き、条件は同じ領域のガードの一覧が持つ。  
+行き先が運ぶ値で決まる升は選択の擬似状態（◇）で分ける。entry ／ exit は状態の箱の中に書く。  
+⭐ 遷移の全数は 表 T-293 の状態遷移表が持つ。図と表はどちらも原稿から刷る。
 
 ### 状態機械 `selectionStateMachine`
 
-```mermaid
-stateDiagram-v2
-    direction LR
-    [*] --> selectionStateMachine_nothingSelected
-    selectionStateMachine_nothingSelected : nothingSelected
-    selectionStateMachine_objectsSelected : objectsSelected
-    selectionStateMachine_nothingSelected --> selectionStateMachine_objectsSelected : objectsPicked, createdTaskSelected, createdCommentBoxSelected
-    selectionStateMachine_objectsSelected --> selectionStateMachine_objectsSelected : objectsPicked, selectionPruned, createdTaskSelected, createdCommentBoxSelected
-    selectionStateMachine_objectsSelected --> selectionStateMachine_nothingSelected : objectsPicked, emptyAreaClicked, selectionEscapePressed, selectionSettleKeyPressed, selectionCleared, selectionPruned
-```
+[![selectionStateMachine](fig-sm-selectionStateMachine.svg)](fig-sm-selectionStateMachine.svg)
 
 | 出来事 | `nothingSelected` | `objectsSelected` |
 | --- | --- | --- |
-| `selection/objectsPicked` | → `objectsSelected` [`hasPickedObjects`]<br>それ以外 → — | → 自己 [`hasPickedObjects`]（`selectedObjects` を書き換える）<br>→ `nothingSelected` [not `hasPickedObjects`] |
+| `selection/objectsPicked` | → `objectsSelected` [`hasPickedObjects`（`event.pickedObjects.items.length > 0`）]<br>それ以外 → — | → 自己 [`hasPickedObjects`（`event.pickedObjects.items.length > 0`）]（`selectedObjects` を書き換える）<br>→ `nothingSelected` [not `hasPickedObjects`（`event.pickedObjects.items.length > 0`）] |
 | `selection/emptyAreaClicked` | — | → `nothingSelected` |
-| `selection/selectionEscapePressed` | — | → `nothingSelected` [`isRungSelection`]<br>それ以外 → — |
+| `selection/selectionEscapePressed` | — | → `nothingSelected` [`isRungSelection`（`event.rung == 'selection'`）]<br>それ以外 → — |
 | `selection/selectionSettleKeyPressed` | — | → `nothingSelected` |
 | `selection/selectionCleared` | — | → `nothingSelected` |
-| `selection/selectionPruned` | — | → 自己 [`hasRemainingObjects`]（`selectedObjects` を書き換える）<br>→ `nothingSelected` [not `hasRemainingObjects`] |
+| `selection/selectionPruned` | — | → 自己 [`hasRemainingObjects`（`event.remainingObjects.items.length > 0`）]（`selectedObjects` を書き換える）<br>→ `nothingSelected` [not `hasRemainingObjects`（`event.remainingObjects.items.length > 0`）] |
 | `selection/createdTaskSelected` | → `objectsSelected`（`selectedObjects` は作ったタスク 1 つ） | → 自己（`selectedObjects` を作ったタスク 1 つに置き換える） |
 | `selection/createdCommentBoxSelected` | → `objectsSelected`（`selectedObjects` は置いたコメントボックス 1 つ） | → 自己（`selectedObjects` を置いたコメントボックス 1 つに置き換える） |
 
@@ -1204,6 +1019,8 @@ stateDiagram-v2
 
 本表は、出来事の定義・根の値・状態機械ごとの状態遷移表と状態の一覧からなる。  
 状態遷移表の行はその状態機械を動かす出来事、列はその状態機械の葉の状態、升は「→ 次の状態 [ガード] / 副作用」である。  
+ガードは名と条件を「`名`（`条件`）」と刷り、条件は同じ領域のガードの一覧と同じである。  
+状態に entry ／ exit の副作用がある状態機械は、出来事の行の上に `entry` ／ `exit` の行を置く —— その状態へ入る遷移・出る遷移が、出 → 遷移の副作用 → 入の順に起こし、自己への遷移（「→ 自己」）は起こさない。  
 升の「—」は変化なし（同じ参照）を表す。  
 ガードの付いた枝がすべての場合を覆わない升には「それ以外 → —」を添え、どの場合に何が起きるかを升ごとに言い切る。  
 親の状態に置いた升は、その子のすべての列に同じ升を刷り、「親 … の升」と書き添える。
@@ -1224,21 +1041,13 @@ stateDiagram-v2
 **図 F-041 — 操作の記録の状態遷移**
 
 状態機械ごとに 1 つの図に分け、その状態機械の節に置く。状態機械どうしは直交する。  
-矢印のラベルは出来事のキーだけであり、ガード・副作用は同じ節の状態遷移表が持つ。  
-⚠️ 図は畳んである —— 同じ出来事・ガード・先・副作用の升が 3 つ以上の兄弟の種類のどの 2 つの間も結ぶか、それらのどれからも同じ 1 つの種類へ出るか、同じ 1 つの種類から入るときは、兄弟を 1 つの箱に囲み、その遷移を箱から 1 本だけ描く（どの 2 つの間も結ぶ遷移は、箱の注に出来事のキーを書く）。  
-⭐ 遷移の全数は 表 T-295 の状態遷移表が持つ。
+図は UML の状態機械図である —— 矢印のラベルは「出来事 [ガード] / 副作用」、同じ 2 つの状態を結ぶ遷移は 1 本の矢印に 1 行ずつ並べる。ガードは名で書き、条件は同じ領域のガードの一覧が持つ。  
+行き先が運ぶ値で決まる升は選択の擬似状態（◇）で分ける。entry ／ exit は状態の箱の中に書く。  
+⭐ 遷移の全数は 表 T-295 の状態遷移表が持つ。図と表はどちらも原稿から刷る。
 
 ### 状態機械 `interactionRecordingStateMachine`
 
-```mermaid
-stateDiagram-v2
-    direction LR
-    [*] --> interactionRecordingStateMachine_notRecording
-    interactionRecordingStateMachine_notRecording : notRecording
-    interactionRecordingStateMachine_recordingInteractions : recordingInteractions
-    interactionRecordingStateMachine_notRecording --> interactionRecordingStateMachine_recordingInteractions : interactionRecordToggled
-    interactionRecordingStateMachine_recordingInteractions --> interactionRecordingStateMachine_notRecording : interactionRecordToggled
-```
+[![interactionRecordingStateMachine](fig-sm-interactionRecordingStateMachine.svg)](fig-sm-interactionRecordingStateMachine.svg)
 
 | 出来事 | `notRecording` | `recordingInteractions` |
 | --- | --- | --- |
@@ -1255,6 +1064,8 @@ stateDiagram-v2
 
 本表は、出来事の定義・根の値・状態機械ごとの状態遷移表と状態の一覧からなる。  
 状態遷移表の行はその状態機械を動かす出来事、列はその状態機械の葉の状態、升は「→ 次の状態 [ガード] / 副作用」である。  
+ガードは名と条件を「`名`（`条件`）」と刷り、条件は同じ領域のガードの一覧と同じである。  
+状態に entry ／ exit の副作用がある状態機械は、出来事の行の上に `entry` ／ `exit` の行を置く —— その状態へ入る遷移・出る遷移が、出 → 遷移の副作用 → 入の順に起こし、自己への遷移（「→ 自己」）は起こさない。  
 升の「—」は変化なし（同じ参照）を表す。  
 ガードの付いた枝がすべての場合を覆わない升には「それ以外 → —」を添え、どの場合に何が起きるかを升ごとに言い切る。  
 親の状態に置いた升は、その子のすべての列に同じ升を刷り、「親 … の升」と書き添える。
@@ -1265,6 +1076,14 @@ stateDiagram-v2
 | --- | --- | --- | --- |
 | `agentApi/agentApiEntryPressed` | 入力（`IC-20` を押した。無効のときは有効にし、有効のときは無効にする —— 有効にするのと無効にするのは同じ 1 つの入口である）: `IC-20` ・ `FR-065` | — | 根 ・ `agentApiEnablingStateMachine` |
 | `agentApi/rememberedEnablingLoaded` | 副作用の結果（起動のとき、シェルがブラウザ（オリジン）の記憶を読んだ結果）: `FR-065` ・ `S-99b` | `isRememberedEnabled`（`S-99b`。記憶が有効を指すか） | `agentApiEnablingStateMachine` |
+
+### `Agent API` のガード
+
+升が名で引くガードと、その条件（本書の頭の「ガードの条件の書き方」で書く）。
+
+| ガード | 条件 | 根拠 |
+| --- | --- | --- |
+| `isRememberedEnabled` | `event.isRememberedEnabled` | `FR-065` ・ `S-99b` |
 
 ### 根 `agentApi` の値
 
@@ -1278,26 +1097,18 @@ stateDiagram-v2
 **図 F-042 — `Agent API` の状態遷移**
 
 状態機械ごとに 1 つの図に分け、その状態機械の節に置く。状態機械どうしは直交する。  
-矢印のラベルは出来事のキーだけであり、ガード・副作用は同じ節の状態遷移表が持つ。  
-⚠️ 図は畳んである —— 同じ出来事・ガード・先・副作用の升が 3 つ以上の兄弟の種類のどの 2 つの間も結ぶか、それらのどれからも同じ 1 つの種類へ出るか、同じ 1 つの種類から入るときは、兄弟を 1 つの箱に囲み、その遷移を箱から 1 本だけ描く（どの 2 つの間も結ぶ遷移は、箱の注に出来事のキーを書く）。  
-⭐ 遷移の全数は 表 T-296 の状態遷移表が持つ。
+図は UML の状態機械図である —— 矢印のラベルは「出来事 [ガード] / 副作用」、同じ 2 つの状態を結ぶ遷移は 1 本の矢印に 1 行ずつ並べる。ガードは名で書き、条件は同じ領域のガードの一覧が持つ。  
+行き先が運ぶ値で決まる升は選択の擬似状態（◇）で分ける。entry ／ exit は状態の箱の中に書く。  
+⭐ 遷移の全数は 表 T-296 の状態遷移表が持つ。図と表はどちらも原稿から刷る。
 
 ### 状態機械 `agentApiEnablingStateMachine`
 
-```mermaid
-stateDiagram-v2
-    direction LR
-    [*] --> agentApiEnablingStateMachine_disabled
-    agentApiEnablingStateMachine_disabled : disabled
-    agentApiEnablingStateMachine_enabled : enabled
-    agentApiEnablingStateMachine_disabled --> agentApiEnablingStateMachine_enabled : agentApiEntryPressed, rememberedEnablingLoaded
-    agentApiEnablingStateMachine_enabled --> agentApiEnablingStateMachine_disabled : agentApiEntryPressed
-```
+[![agentApiEnablingStateMachine](fig-sm-agentApiEnablingStateMachine.svg)](fig-sm-agentApiEnablingStateMachine.svg)
 
 | 出来事 | `disabled` | `enabled` |
 | --- | --- | --- |
 | `agentApi/agentApiEntryPressed` | → `enabled` | → `disabled` / `raiseNotice`（`RS-20`） |
-| `agentApi/rememberedEnablingLoaded` | → `enabled` [`isRememberedEnabled`]<br>それ以外 → — | — |
+| `agentApi/rememberedEnablingLoaded` | → `enabled` [`isRememberedEnabled`（`event.isRememberedEnabled`）]<br>それ以外 → — | — |
 
 - `agentApiEnablingStateMachine.disabled` —— 初期。根拠 `FR-065` ・ `CP-17`
 - `agentApiEnablingStateMachine.enabled` —— 根拠 `FR-065` ・ `S-99b`
@@ -1310,6 +1121,8 @@ stateDiagram-v2
 
 本表は、出来事の定義・根の値・状態機械ごとの状態遷移表と状態の一覧からなる。  
 状態遷移表の行はその状態機械を動かす出来事、列はその状態機械の葉の状態、升は「→ 次の状態 [ガード] / 副作用」である。  
+ガードは名と条件を「`名`（`条件`）」と刷り、条件は同じ領域のガードの一覧と同じである。  
+状態に entry ／ exit の副作用がある状態機械は、出来事の行の上に `entry` ／ `exit` の行を置く —— その状態へ入る遷移・出る遷移が、出 → 遷移の副作用 → 入の順に起こし、自己への遷移（「→ 自己」）は起こさない。  
 升の「—」は変化なし（同じ参照）を表す。  
 ガードの付いた枝がすべての場合を覆わない升には「それ以外 → —」を添え、どの場合に何が起きるかを升ごとに言い切る。  
 親の状態に置いた升は、その子のすべての列に同じ升を刷り、「親 … の升」と書き添える。
@@ -1334,6 +1147,20 @@ stateDiagram-v2
 | `taskGroupTree/verticalZoomShrinkPressed` | 入力（縦軸を縮める入力。縮める側の端で倍率を書き換えないとき（`ZE-2`）も送る。拡げる入力・日付の軸のズーム・`Agent API` の `setZoom` では送らない）: `MK-2` ・ `MK-4` ・ `IC-14` ・ `SK-16c` ・ `ZE-2` | — | `treeStateMachine` |
 | `taskGroupTree/taskGroupRevealAsked` | 入力（検索パネルの表の行を押して飛ぶ（`SJ-1`）か、`Agent API` の `focusTask`（`AM-16`）が飛ぶか、依存線の続きの印を押して折りたたんだタスクグループか隠したタスクグループの配下の端へ送る（`EL-21`）か、スケジュールフィルタを掛けているあいだに表の行を「非表示」から「表示」にする（`FR-151` の 表 T-353 の `TV-6`）。⭐ スケジュールフィルタを掛けることでは展開しない（同行））: `SJ-1` ・ `AM-16` ・ `EL-21` ・ `TV-6` | `revealedRowId`（飛ぶ先のタスクグループの id） | 根 ・ `treeStateMachine` |
 
+### タスクグループの木のガード
+
+升が名で引くガードと、その条件（本書の頭の「ガードの条件の書き方」で書く）。
+
+| ガード | 条件 | 根拠 |
+| --- | --- | --- |
+| `isBelowPressedTaskGroup` | `event.pressedRowId in ancestors(taskGroup.id)` | `HR-3` ・ `HR-4` ・ `HR-6` ・ `HR-1a` |
+| `isChildOfPressedTaskGroup` | `event.pressedRowId != null && taskGroup.parentId == event.pressedRowId` | `HR-7` ・ `HF-13` |
+| `isLeafTaskGroup` | `childTaskGroups(taskGroup.id).length == 0` | `TD-6` ・ `HR-3` |
+| `isLevelZeroCollapsed` | `setting('S-418') == 'collapsed'` | `S-418` ・ `HR-2` |
+| `isPressedTaskGroup` | `taskGroup.id == event.pressedRowId` | `HR-3` ・ `HR-4` ・ `HR-6` ・ `HR-7` ・ `HR-8` |
+| `isRevealedTaskGroupOrAncestor` | <code>taskGroup.id == event.revealedRowId &#124;&#124; taskGroup.id in ancestors(event.revealedRowId)</code> | `SJ-2` |
+| `isTopLevelTaskGroup` | `taskGroup.parentId == null` | `HF-16` ・ `HR-7` |
+
 ### 根 `taskGroupTree` の値
 
 運ぶ値: —。  
@@ -1342,65 +1169,37 @@ stateDiagram-v2
 | 出来事 | `taskGroupTree` |
 | --- | --- |
 | `taskGroupTree/everyTaskGroupFoldPressed` | → 自己 / `writeLevelZeroCollapsed`（段 0 を折りたたむ（`S-418` を `'collapsed'` に）。タスクグループの値と同じ束に入れる） |
-| `taskGroupTree/everyTaskGroupOpenPressed` | → 自己 [`isLevelZeroCollapsed`] / `writeLevelZeroAuto`（段 0 を展開する（`S-418` を `'auto'` に）。タスクグループの値と同じ束に入れる）<br>それ以外 → — |
-| `taskGroupTree/topLevelOpenPressed` | → 自己 [`isLevelZeroCollapsed`] / `writeLevelZeroAuto`（同上）<br>それ以外 → — |
-| `taskGroupTree/childTaskGroupAddPressed` | → 自己 [`isLevelZeroCollapsed`] / `writeLevelZeroAuto`（同上。1 階層だけ展開し、タスクグループの値は変えない（`HF-17`））<br>それ以外 → — |
-| `taskGroupTree/fitPressed` | → 自己 [`isLevelZeroCollapsed`] / `writeLevelZeroAuto`（同上）<br>それ以外 → — |
-| `taskGroupTree/everyTaskGroupDeletePressed` | → 自己 [`isLevelZeroCollapsed`] / `writeLevelZeroAuto`（同上。消す書き込みと同じ束に入れる（`HF-20`））<br>それ以外 → — |
-| `taskGroupTree/taskGroupRevealAsked` | → 自己 [`isLevelZeroCollapsed`] / `writeLevelZeroAuto`（段 0 を展開する（`S-418` を `'auto'` に）。タスクグループの値と同じ束に入れる）<br>それ以外 → — |
+| `taskGroupTree/everyTaskGroupOpenPressed` | → 自己 [`isLevelZeroCollapsed`（`setting('S-418') == 'collapsed'`）] / `writeLevelZeroAuto`（段 0 を展開する（`S-418` を `'auto'` に）。タスクグループの値と同じ束に入れる）<br>それ以外 → — |
+| `taskGroupTree/topLevelOpenPressed` | → 自己 [`isLevelZeroCollapsed`（`setting('S-418') == 'collapsed'`）] / `writeLevelZeroAuto`（同上）<br>それ以外 → — |
+| `taskGroupTree/childTaskGroupAddPressed` | → 自己 [`isLevelZeroCollapsed`（`setting('S-418') == 'collapsed'`）] / `writeLevelZeroAuto`（同上。1 階層だけ展開し、タスクグループの値は変えない（`HF-17`））<br>それ以外 → — |
+| `taskGroupTree/fitPressed` | → 自己 [`isLevelZeroCollapsed`（`setting('S-418') == 'collapsed'`）] / `writeLevelZeroAuto`（同上）<br>それ以外 → — |
+| `taskGroupTree/everyTaskGroupDeletePressed` | → 自己 [`isLevelZeroCollapsed`（`setting('S-418') == 'collapsed'`）] / `writeLevelZeroAuto`（同上。消す書き込みと同じ束に入れる（`HF-20`））<br>それ以外 → — |
+| `taskGroupTree/taskGroupRevealAsked` | → 自己 [`isLevelZeroCollapsed`（`setting('S-418') == 'collapsed'`）] / `writeLevelZeroAuto`（段 0 を展開する（`S-418` を `'auto'` に）。タスクグループの値と同じ束に入れる）<br>それ以外 → — |
 
 **図 F-043 — タスクグループの木の状態遷移**
 
 状態機械ごとに 1 つの図に分け、その状態機械の節に置く。状態機械どうしは直交する。  
-矢印のラベルは出来事のキーだけであり、ガード・副作用は同じ節の状態遷移表が持つ。  
-⚠️ 図は畳んである —— 同じ出来事・ガード・先・副作用の升が 3 つ以上の兄弟の種類のどの 2 つの間も結ぶか、それらのどれからも同じ 1 つの種類へ出るか、同じ 1 つの種類から入るときは、兄弟を 1 つの箱に囲み、その遷移を箱から 1 本だけ描く（どの 2 つの間も結ぶ遷移は、箱の注に出来事のキーを書く）。  
-⭐ 遷移の全数は 表 T-328 の状態遷移表が持つ。
+図は UML の状態機械図である —— 矢印のラベルは「出来事 [ガード] / 副作用」、同じ 2 つの状態を結ぶ遷移は 1 本の矢印に 1 行ずつ並べる。ガードは名で書き、条件は同じ領域のガードの一覧が持つ。  
+行き先が運ぶ値で決まる升は選択の擬似状態（◇）で分ける。entry ／ exit は状態の箱の中に書く。  
+⭐ 遷移の全数は 表 T-328 の状態遷移表が持つ。図と表はどちらも原稿から刷る。
 
 ### 状態機械 `treeStateMachine`
 
-```mermaid
-stateDiagram-v2
-    direction LR
-    [*] --> treeStateMachine_temporarilyExpanded
-    treeStateMachine_auto : auto
-    treeStateMachine_collapsed : collapsed
-    treeStateMachine_expanded : expanded
-    treeStateMachine_temporarilyExpanded : temporarilyExpanded
-    treeStateMachine_hidden : hidden
-    treeStateMachine_auto --> treeStateMachine_expanded : oneLevelOpenPressed, taskGroupRevealAsked
-    treeStateMachine_collapsed --> treeStateMachine_expanded : oneLevelOpenPressed, taskGroupRevealAsked
-    treeStateMachine_temporarilyExpanded --> treeStateMachine_expanded : oneLevelOpenPressed, taskGroupRevealAsked
-    treeStateMachine_hidden --> treeStateMachine_collapsed : oneLevelOpenPressed, topLevelOpenPressed
-    treeStateMachine_auto --> treeStateMachine_temporarilyExpanded : allBelowOpenPressed, everyTaskGroupOpenPressed, childTaskGroupAddPressed
-    treeStateMachine_collapsed --> treeStateMachine_temporarilyExpanded : allBelowOpenPressed, everyTaskGroupOpenPressed, childTaskGroupAddPressed
-    treeStateMachine_collapsed --> treeStateMachine_auto : allBelowOpenPressed, everyTaskGroupOpenPressed, fitPressed
-    treeStateMachine_hidden --> treeStateMachine_temporarilyExpanded : allBelowOpenPressed, everyTaskGroupOpenPressed
-    treeStateMachine_hidden --> treeStateMachine_auto : allBelowOpenPressed, everyTaskGroupOpenPressed
-    treeStateMachine_auto --> treeStateMachine_hidden : hidePressed
-    treeStateMachine_auto --> treeStateMachine_collapsed : hidePressed, allBelowFoldPressed, everyTaskGroupFoldPressed
-    treeStateMachine_collapsed --> treeStateMachine_hidden : hidePressed
-    treeStateMachine_expanded --> treeStateMachine_hidden : hidePressed
-    treeStateMachine_expanded --> treeStateMachine_collapsed : hidePressed, allBelowFoldPressed, everyTaskGroupFoldPressed
-    treeStateMachine_temporarilyExpanded --> treeStateMachine_hidden : hidePressed
-    treeStateMachine_temporarilyExpanded --> treeStateMachine_collapsed : hidePressed, allBelowFoldPressed, everyTaskGroupFoldPressed
-    treeStateMachine_expanded --> treeStateMachine_auto : fitPressed
-    treeStateMachine_temporarilyExpanded --> treeStateMachine_auto : fitPressed, verticalZoomShrinkPressed
-    treeStateMachine_hidden --> treeStateMachine_expanded : taskGroupRevealAsked
-```
+[![treeStateMachine](fig-sm-treeStateMachine.svg)](fig-sm-treeStateMachine.svg)
 
 | 出来事 | `auto` | `collapsed` | `expanded` | `temporarilyExpanded` | `hidden` |
 | --- | --- | --- | --- | --- | --- |
-| `taskGroupTree/oneLevelOpenPressed` | → `expanded` [`isPressedTaskGroup`]<br>それ以外 → — | → `expanded` [`isPressedTaskGroup`]<br>それ以外 → — | — | → `expanded` [`isPressedTaskGroup`]<br>それ以外 → — | → `collapsed` [`isChildOfPressedTaskGroup`]<br>それ以外 → — |
-| `taskGroupTree/allBelowOpenPressed` | → `temporarilyExpanded` [`isPressedTaskGroup`]<br>→ `temporarilyExpanded` [`isBelowPressedTaskGroup` & not `isLeafTaskGroup`]<br>それ以外 → — | → `temporarilyExpanded` [`isPressedTaskGroup`]<br>→ `temporarilyExpanded` [`isBelowPressedTaskGroup` & not `isLeafTaskGroup`]<br>→ `auto` [`isBelowPressedTaskGroup` & `isLeafTaskGroup`]<br>それ以外 → — | — | — | → `temporarilyExpanded` [`isBelowPressedTaskGroup` & not `isLeafTaskGroup`]<br>→ `auto` [`isBelowPressedTaskGroup` & `isLeafTaskGroup`]<br>それ以外 → — |
-| `taskGroupTree/hidePressed` | → `hidden` [`isPressedTaskGroup`]<br>→ `collapsed` [`isBelowPressedTaskGroup`]<br>それ以外 → — | → `hidden` [`isPressedTaskGroup`]<br>それ以外 → — | → `hidden` [`isPressedTaskGroup`]<br>→ `collapsed` [`isBelowPressedTaskGroup`]<br>それ以外 → — | → `hidden` [`isPressedTaskGroup`]<br>→ `collapsed` [`isBelowPressedTaskGroup`]<br>それ以外 → — | — |
-| `taskGroupTree/allBelowFoldPressed` | → `collapsed` [`isPressedTaskGroup`]<br>→ `collapsed` [`isBelowPressedTaskGroup`]<br>それ以外 → — | — | → `collapsed` [`isPressedTaskGroup`]<br>→ `collapsed` [`isBelowPressedTaskGroup`]<br>それ以外 → — | → `collapsed` [`isPressedTaskGroup`]<br>→ `collapsed` [`isBelowPressedTaskGroup`]<br>それ以外 → — | — |
-| `taskGroupTree/everyTaskGroupOpenPressed` | → `temporarilyExpanded` [not `isLeafTaskGroup`]<br>それ以外 → — | → `temporarilyExpanded` [not `isLeafTaskGroup`]<br>→ `auto` [`isLeafTaskGroup`] | — | — | → `temporarilyExpanded` [not `isLeafTaskGroup`]<br>→ `auto` [`isLeafTaskGroup`] |
+| `taskGroupTree/oneLevelOpenPressed` | → `expanded` [`isPressedTaskGroup`（`taskGroup.id == event.pressedRowId`）]<br>それ以外 → — | → `expanded` [`isPressedTaskGroup`（`taskGroup.id == event.pressedRowId`）]<br>それ以外 → — | — | → `expanded` [`isPressedTaskGroup`（`taskGroup.id == event.pressedRowId`）]<br>それ以外 → — | → `collapsed` [`isChildOfPressedTaskGroup`（`event.pressedRowId != null && taskGroup.parentId == event.pressedRowId`）]<br>それ以外 → — |
+| `taskGroupTree/allBelowOpenPressed` | → `temporarilyExpanded` [`isPressedTaskGroup`（`taskGroup.id == event.pressedRowId`）]<br>→ `temporarilyExpanded` [`isBelowPressedTaskGroup`（`event.pressedRowId in ancestors(taskGroup.id)`） & not `isLeafTaskGroup`（`childTaskGroups(taskGroup.id).length == 0`）]<br>それ以外 → — | → `temporarilyExpanded` [`isPressedTaskGroup`（`taskGroup.id == event.pressedRowId`）]<br>→ `temporarilyExpanded` [`isBelowPressedTaskGroup`（`event.pressedRowId in ancestors(taskGroup.id)`） & not `isLeafTaskGroup`（`childTaskGroups(taskGroup.id).length == 0`）]<br>→ `auto` [`isBelowPressedTaskGroup`（`event.pressedRowId in ancestors(taskGroup.id)`） & `isLeafTaskGroup`（`childTaskGroups(taskGroup.id).length == 0`）]<br>それ以外 → — | — | — | → `temporarilyExpanded` [`isBelowPressedTaskGroup`（`event.pressedRowId in ancestors(taskGroup.id)`） & not `isLeafTaskGroup`（`childTaskGroups(taskGroup.id).length == 0`）]<br>→ `auto` [`isBelowPressedTaskGroup`（`event.pressedRowId in ancestors(taskGroup.id)`） & `isLeafTaskGroup`（`childTaskGroups(taskGroup.id).length == 0`）]<br>それ以外 → — |
+| `taskGroupTree/hidePressed` | → `hidden` [`isPressedTaskGroup`（`taskGroup.id == event.pressedRowId`）]<br>→ `collapsed` [`isBelowPressedTaskGroup`（`event.pressedRowId in ancestors(taskGroup.id)`）]<br>それ以外 → — | → `hidden` [`isPressedTaskGroup`（`taskGroup.id == event.pressedRowId`）]<br>それ以外 → — | → `hidden` [`isPressedTaskGroup`（`taskGroup.id == event.pressedRowId`）]<br>→ `collapsed` [`isBelowPressedTaskGroup`（`event.pressedRowId in ancestors(taskGroup.id)`）]<br>それ以外 → — | → `hidden` [`isPressedTaskGroup`（`taskGroup.id == event.pressedRowId`）]<br>→ `collapsed` [`isBelowPressedTaskGroup`（`event.pressedRowId in ancestors(taskGroup.id)`）]<br>それ以外 → — | — |
+| `taskGroupTree/allBelowFoldPressed` | → `collapsed` [`isPressedTaskGroup`（`taskGroup.id == event.pressedRowId`）]<br>→ `collapsed` [`isBelowPressedTaskGroup`（`event.pressedRowId in ancestors(taskGroup.id)`）]<br>それ以外 → — | — | → `collapsed` [`isPressedTaskGroup`（`taskGroup.id == event.pressedRowId`）]<br>→ `collapsed` [`isBelowPressedTaskGroup`（`event.pressedRowId in ancestors(taskGroup.id)`）]<br>それ以外 → — | → `collapsed` [`isPressedTaskGroup`（`taskGroup.id == event.pressedRowId`）]<br>→ `collapsed` [`isBelowPressedTaskGroup`（`event.pressedRowId in ancestors(taskGroup.id)`）]<br>それ以外 → — | — |
+| `taskGroupTree/everyTaskGroupOpenPressed` | → `temporarilyExpanded` [not `isLeafTaskGroup`（`childTaskGroups(taskGroup.id).length == 0`）]<br>それ以外 → — | → `temporarilyExpanded` [not `isLeafTaskGroup`（`childTaskGroups(taskGroup.id).length == 0`）]<br>→ `auto` [`isLeafTaskGroup`（`childTaskGroups(taskGroup.id).length == 0`）] | — | — | → `temporarilyExpanded` [not `isLeafTaskGroup`（`childTaskGroups(taskGroup.id).length == 0`）]<br>→ `auto` [`isLeafTaskGroup`（`childTaskGroups(taskGroup.id).length == 0`）] |
 | `taskGroupTree/everyTaskGroupFoldPressed` | → `collapsed` | — | → `collapsed` | → `collapsed` | — |
-| `taskGroupTree/topLevelOpenPressed` | — | — | — | — | → `collapsed` [`isTopLevelTaskGroup`]<br>それ以外 → — |
-| `taskGroupTree/childTaskGroupAddPressed` | → `temporarilyExpanded` [`isPressedTaskGroup`]<br>それ以外 → — | → `temporarilyExpanded` [`isPressedTaskGroup`]<br>それ以外 → — | — | — | — |
+| `taskGroupTree/topLevelOpenPressed` | — | — | — | — | → `collapsed` [`isTopLevelTaskGroup`（`taskGroup.parentId == null`）]<br>それ以外 → — |
+| `taskGroupTree/childTaskGroupAddPressed` | → `temporarilyExpanded` [`isPressedTaskGroup`（`taskGroup.id == event.pressedRowId`）]<br>それ以外 → — | → `temporarilyExpanded` [`isPressedTaskGroup`（`taskGroup.id == event.pressedRowId`）]<br>それ以外 → — | — | — | — |
 | `taskGroupTree/fitPressed` | — | → `auto` | → `auto` | → `auto` | — |
 | `taskGroupTree/verticalZoomShrinkPressed` | — | — | — | → `auto` | — |
-| `taskGroupTree/taskGroupRevealAsked` | → `expanded` [`isRevealedTaskGroupOrAncestor`]<br>それ以外 → — | → `expanded` [`isRevealedTaskGroupOrAncestor`]<br>それ以外 → — | — | → `expanded` [`isRevealedTaskGroupOrAncestor`]<br>それ以外 → — | → `expanded` [`isRevealedTaskGroupOrAncestor`]<br>それ以外 → — |
+| `taskGroupTree/taskGroupRevealAsked` | → `expanded` [`isRevealedTaskGroupOrAncestor`（<code>taskGroup.id == event.revealedRowId &#124;&#124; taskGroup.id in ancestors(event.revealedRowId)</code>）]<br>それ以外 → — | → `expanded` [`isRevealedTaskGroupOrAncestor`（<code>taskGroup.id == event.revealedRowId &#124;&#124; taskGroup.id in ancestors(event.revealedRowId)</code>）]<br>それ以外 → — | — | → `expanded` [`isRevealedTaskGroupOrAncestor`（<code>taskGroup.id == event.revealedRowId &#124;&#124; taskGroup.id in ancestors(event.revealedRowId)</code>）]<br>それ以外 → — | → `expanded` [`isRevealedTaskGroupOrAncestor`（<code>taskGroup.id == event.revealedRowId &#124;&#124; taskGroup.id in ancestors(event.revealedRowId)</code>）]<br>それ以外 → — |
 
 - `treeStateMachine.auto` —— 根拠 `AT-153` ・ `FR-018`
 - `treeStateMachine.collapsed` —— 根拠 `HR-4` ・ `HR-1a`

@@ -1,19 +1,24 @@
 # -*- coding: utf-8 -*-
-"""state-machines.json -> docs/spec/_assets/tbl-state-machines.md
+"""state-machines.json -> docs/spec/_assets/tbl-state-machines.md and fig-sm-*.svg
 
 state-machines.json is the manuscript for the unsaved state machines (ADR-002
 of Chapter 5.6, table T-250 of docs/spec/05-07-design.md). EDIT THAT. This
-file prints, per region, the event definitions, the root's values and one
-section per state machine -- its state diagram, its state transition table and
-its states -- and _assets/tbl-state-machines.md is a generated artifact: a
-hand edit to it is overwritten, and --check catches one before it can be
-committed. Ahead of the regions it prints table T-283, the order across
-regions (SD-4), from the manuscript's top-level `priorities`; what
-`load_priorities()` refuses is written on it. Only this printer reads
-`priorities` -- no code constant is generated from it.
+file prints, per region, the event definitions, the guard list, the root's
+values and one section per state machine -- the link to its UML figure, its
+state transition table and its states -- and _assets/tbl-state-machines.md is
+a generated artifact: a hand edit to it is overwritten, and --check catches
+one before it can be committed. Ahead of the regions it prints the guard
+language (`guardLanguage`) and table T-283, the order across regions (SD-4),
+from the manuscript's top-level `priorities`; what `load_priorities()`
+refuses is written on it. Only this printer reads `priorities` -- no code
+constant is generated from it. The figures, one SVG per machine, are drawn by
+state_machine_figures.py, which this file runs.
 
-    python state_machines_json_to_md.py           rebuild the document
-    python state_machines_json_to_md.py --check   exit 1 if the file differs
+    python state_machines_json_to_md.py           rebuild the document and
+                                                  redraw the stale figures
+    python state_machines_json_to_md.py --check   exit 1 if the document
+                                                  differs or a figure's
+                                                  fingerprint does (no drawing)
 
 It is also the ONE reader of the manuscript: tools/generate_state_machine_types.py
 imports `load()` from here, so the two artifacts are printed from one
@@ -86,6 +91,7 @@ import os
 import re
 import sys
 
+import state_machine_figures as figures
 from spec_md_printing import say
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -881,24 +887,60 @@ def source_cell(source):
     return u'%s: %s' % (word, JOIN.join(code(r) for r in source['rows']))
 
 
-def guard_text(guard):
+CODE_SPAN = re.compile(u'`([^`]*)`')
+
+
+def html_code(content):
+    escaped = content.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
+    return u'<code>%s</code>' % escaped.replace('|', '&#124;')
+
+
+def bar_free(cell):
+    """A table cell with no `|` left in it. ⛔ Not even in a code span: every
+    reader of docs/spec splits a row on the bar (check 10 counts the cells),
+    and a guard condition holds `||`. A code span holding one becomes an HTML
+    code element with the bar as a character reference; a bare bar becomes
+    the reference alone."""
+    if '|' not in cell:
+        return cell
+    cell = CODE_SPAN.sub(lambda m: html_code(m.group(1)) if '|' in m.group(1) else m.group(0), cell)
+    return cell.replace('|', '&#124;')
+
+
+def named_guard(name, region):
+    """A named guard term as「`name`（`condition`）」(D3 of CR-767)."""
+    guard = region.guards.get(name) if region is not None else None
+    if guard is None:
+        return code(name)
+    return u'%s（%s）' % (code(name), code(guard['condition']))
+
+
+def guard_text(guard, region=None):
     terms = []
     for term in guard:
         if 'in' in term:
             terms.append(u'%s にいる' % code(term['in']))
         else:
-            terms.append((u'not ' if term.get('not') else u'') + code(term['name']))
+            terms.append((u'not ' if term.get('not') else u'') + named_guard(term['name'], region))
     return u'[%s]' % AND.join(terms)
 
 
-def branch_text(branch, source):
+def effect_text(holder):
+    """「/ `effect`（`argument`）」of a branch, an entry or an exit."""
+    cell = u'/ ' + code(holder['effect'])
+    if holder.get('effectArgument'):
+        cell += u'（%s）' % code(holder['effectArgument'])
+    return cell
+
+
+def branch_text(branch, source, region=None):
     """One branch as「→ 次 [ガード] / 副作用」. `source` is the state the cell is on."""
     if 'to' not in branch or branch['to'] == source:
         cell = u'→ 自己'
     else:
         cell = u'→ ' + code(branch['to'])
     if branch.get('guard'):
-        cell += u' ' + guard_text(branch['guard'])
+        cell += u' ' + guard_text(branch['guard'], region)
     if branch.get('effect'):
         cell += u' / ' + code(branch['effect'])
         if branch.get('effectArgument'):
@@ -953,7 +995,7 @@ def covers_every_case(branches, region=None):
 def cell_text(branches, source, leaf, region=None):
     """Every case of the cell is stated (R4.4): guards that leave cases open get
     an explicit fall-through to no change."""
-    lines = [branch_text(b, source) for b in branches]
+    lines = [branch_text(b, source, region) for b in branches]
     if not covers_every_case(branches, region):
         lines.append(u'それ以外 → %s' % NONE_CELL)
     body = u'<br>'.join(lines)
@@ -966,7 +1008,7 @@ def table_lines(head, rows):
     lines = [u'| ' + u' | '.join(head) + u' |',
              u'| ' + u' | '.join([u'---'] * len(head)) + u' |']
     for cells in rows:
-        lines.append(u'| ' + u' | '.join(cells) + u' |')
+        lines.append(u'| ' + u' | '.join(bar_free(c) for c in cells) + u' |')
     return lines
 
 
@@ -995,9 +1037,39 @@ def root_lines(region):
     return lines
 
 
+MOMENTS = ('entry', 'exit')
+
+
+def moment_rows(machine):
+    """The `entry` / `exit` rows above the event rows (CR-767 X-b): one per
+    moment some state of the machine has, its effect printed in the column of
+    every leaf at or below the state that has it."""
+    leaves = machine.leaves()
+    for moment in MOMENTS:
+        holders = [s for s in machine.states if moment in s]
+        if not holders:
+            continue
+        cells = [moment]
+        for leaf in leaves:
+            pieces = []
+            for state in holders:
+                if not machine.covers(state['key'], leaf['key']):
+                    continue
+                piece = effect_text(state[moment])
+                if state[moment].get('note'):
+                    piece += u'（%s）' % text(state[moment]['note'])
+                if state['key'] != leaf['key']:
+                    piece += u'（親 %s の升）' % code(state['key'])
+                pieces.append(piece)
+            cells.append(u'<br>'.join(pieces) if pieces else NONE_CELL)
+        yield cells
+
+
 def transition_rows(machine):
     region = machine.region
     leaves = machine.leaves()
+    for cells in moment_rows(machine):
+        yield cells
     for event, row in machine.table.items():
         cells = [code(region.event_id(event))]
         for leaf in leaves:
@@ -1019,193 +1091,17 @@ def state_list(machine):
             parts.append(u'親 %s' % code(machine.state_id(s['parent'])))
         if s['carries']:
             parts.append(u'運ぶ値 %s' % carried_cell(s['carries']))
+        for moment in MOMENTS:
+            if moment in s:
+                parts.append(u'%s %s' % (moment, effect_text(s[moment])))
         parts.append(u'根拠 %s' % cited(s['evidence']))
         lines.append(u'- %s —— %s' % (code(machine.state_id(s['key'])), u'。'.join(parts)))
     return lines
 
 
-# --- the diagram -------------------------------------------------------------
-#
-# ONE FIGURE PER REGION, ONE BLOCK PER MACHINE. A single diagram of every
-# machine side by side came out about 1600px wide with labels a few pixels
-# tall, so each machine is drawn in its own stateDiagram-v2 block, inside its
-# own section, all under the region's one figure caption.
-#
-# THE PICTURE IS FOLDED; the machine's state transition table is the full
-# truth. A fold unit is one outcome -- the same event, guard, target and
-# effect -- written in several cells. Two folds, both read off the manuscript
-# mechanically and never by name:
-#   - a GROUP is a set of at least MIN_GROUP sibling kinds that one unit links
-#     pairwise in both directions (a full mesh), or that one unit leaves for a
-#     single kind outside the set (a fan-in), or enters from a single kind
-#     outside the set (a fan-out). The siblings are drawn inside one
-#     composite state;
-#   - a unit that meshes the group is drawn ONCE as a self-loop on the
-#     composite, and a fan-in or fan-out is drawn once from or to the
-#     composite. A note beside the composite names the meshing events.
-# Two candidate groups that overlap without being equal are both left
-# unfolded rather than choosing one. Arrow labels carry the event key only;
-# the guard and the effect are in the table.
-
-MIN_GROUP = 3
-
-
-def node(machine, key):
-    return machine.name + (u'_' + key.replace('.', '_') if key else u'')
-
-
-def scope_of(machine, source, target):
-    """The innermost composite holding both ends (None for the top) -- where
-    mermaid needs the arrow written, or it draws a second copy elsewhere."""
-    common = None
-    for a, b in zip(machine.ancestors(source), machine.ancestors(target)):
-        if a != b:
-            break
-        common = a
-    return common
-
-
-def arrows(machine):
-    """{section: [(unit, label, source, target), ...]} for one machine."""
-    region = machine.region
-    units = collections.OrderedDict()
-    drawn = collections.OrderedDict()
-    for event, key, branches in machine.cells():
-        for branch in branches:
-            unit = units.setdefault(
-                (event, guard_words(branch.get('guard')), branch['to'],
-                 branch.get('effect'), branch.get('effectArgument')), len(units))
-            if branch['to'] == key:
-                pairs = [(key, key)]
-            else:
-                ends = machine.targets_of(branch['to'], region.event_by_key[event])
-                pairs = [(key, one) for one in ends if one != key or len(ends) == 1]
-            for source, target in pairs:
-                section = drawn.setdefault(scope_of(machine, source, target), [])
-                if (unit, event, source, target) not in section:
-                    section.append((unit, event, source, target))
-    return drawn
-
-
-def by_unit(edges):
-    units = collections.OrderedDict()
-    for unit, _label, source, target in edges:
-        units.setdefault(unit, []).append((source, target))
-    return units
-
-
-def fold_shape(pairs):
-    """('mesh' | 'in' | 'out', the set, the outside kind) for one unit, or None."""
-    sources = set(s for s, _ in pairs)
-    targets = set(t for _, t in pairs)
-    if len(sources) >= MIN_GROUP and sources == targets:
-        wanted = set((a, b) for a in sources for b in sources if a != b)
-        if wanted <= set(pairs):
-            return ('mesh', frozenset(sources), None)
-    if len(sources) >= MIN_GROUP and len(targets) == 1 and not targets & sources:
-        return ('in', frozenset(sources), next(iter(targets)))
-    if len(targets) >= MIN_GROUP and len(sources) == 1 and not sources & targets:
-        return ('out', frozenset(targets), next(iter(sources)))
-    return None
-
-
-def group_of(edges):
-    """The one group this section folds, and how each unit folds into it."""
-    shapes = collections.OrderedDict()
-    for unit, pairs in by_unit(edges).items():
-        shape = fold_shape(pairs)
-        if shape:
-            shapes[unit] = shape
-    sets = set(shape[1] for shape in shapes.values())
-    if len(sets) != 1:
-        return None, {}
-    return next(iter(sets)), shapes
-
-
-def group_label(machine, members, group):
-    """What the composite is called: the kinds it leaves out, or those it holds."""
-    outside = [s for s in members if s['key'] not in group]
-    if len(outside) == 1:
-        return u'%s 以外' % machine.word(outside[0])
-    return u' ・ '.join(machine.word(s) for s in members if s['key'] in group)
-
-
-def edge_lines(pad, edges):
-    merged = collections.OrderedDict()
-    for label, source, target in edges:
-        labels = merged.setdefault((source, target), [])
-        if label not in labels:
-            labels.append(label)
-    return [pad + u'%s --> %s : %s' % (source, target, u', '.join(labels))
-            for (source, target), labels in merged.items()]
-
-
-def section_lines(machine, parent, drawn, indent):
-    pad = u' ' * indent
-    members = machine.children.get(parent, [])
-    edges = drawn.get(parent, [])
-    group, shapes = group_of(edges)
-    labels = dict((unit, label) for unit, label, _s, _t in edges)
-    lines = []
-    for s in members:
-        if s['initial']:
-            lines.append(pad + u'[*] --> %s' % node(machine, s['key']))
-    grouped = [s for s in members if group and s['key'] in group]
-    for s in members:
-        if s in grouped:
-            continue
-        lines.extend(state_lines(machine, s, drawn, indent))
-    out = []
-    if grouped:
-        box = node(machine, parent) + u'_group'
-        lines.append(pad + u'state "%s" as %s {' % (group_label(machine, members, group), box))
-        for s in grouped:
-            lines.extend(state_lines(machine, s, drawn, indent + 4))
-        lines.append(pad + u'}')
-        meshes = []
-        for unit, (kind, _members, other) in shapes.items():
-            if kind == 'mesh':
-                out.append((labels[unit], box, box))
-                if labels[unit] not in meshes:
-                    meshes.append(labels[unit])
-            elif kind == 'in':
-                out.append((labels[unit], box, node(machine, other)))
-            else:
-                out.append((labels[unit], node(machine, other), box))
-        if meshes:
-            lines.append(pad + u'note right of %s : %s は組のどの 2 つの間も結ぶ'
-                         % (box, u' ・ '.join(meshes)))
-    for unit, label, source, target in edges:
-        if unit in shapes:
-            continue
-        out.append((label, node(machine, source), node(machine, target)))
-    return lines + edge_lines(pad, out)
-
-
-def state_lines(machine, s, drawn, indent):
-    pad = u' ' * indent
-    lines = [pad + u'%s : %s' % (node(machine, s['key']), machine.word(s))]
-    if s['key'] in machine.children:
-        lines.append(pad + u'state %s {' % node(machine, s['key']))
-        lines.extend(section_lines(machine, s['key'], drawn, indent + 4))
-        lines.append(pad + u'}')
-    return lines
-
-
-def diagram(machine):
-    drawn = arrows(machine)
-    body = section_lines(machine, None, drawn, 4)
-    # LR keeps a flat machine one row high; a nested or folded one reads narrower TB.
-    nested = len(machine.children) > 1
-    folded = group_of(drawn.get(None, []))[0] is not None
-    direction = u'TB' if nested or folded else u'LR'
-    return [u'```mermaid', u'stateDiagram-v2', u'    direction %s' % direction] \
-        + body + [u'```']
-
-
 def machine_lines(machine):
     lines = [u'', u'### 状態機械 %s' % code(machine.name), u'']
-    lines += diagram(machine)
+    lines.append(figures.link(machine))
     lines.append(u'')
     head = [u'出来事'] + [code(s['key']) for s in machine.leaves()]
     lines += table_lines(head, transition_rows(machine))
@@ -1246,6 +1142,10 @@ def region_lines(region):
     lines.append(u'本表は、出来事の定義・根の値・状態機械ごとの状態遷移表と状態の一覧からなる。  ')
     lines.append(u'状態遷移表の行はその状態機械を動かす出来事、列はその状態機械の葉の状態、'
                  u'升は「→ 次の状態 [ガード] / 副作用」である。  ')
+    lines.append(u'ガードは名と条件を「`名`（`条件`）」と刷り、条件は同じ領域のガードの一覧と同じである。  ')
+    lines.append(u'状態に entry ／ exit の副作用がある状態機械は、出来事の行の上に `entry` ／ `exit` の行を置く'
+                 u' —— その状態へ入る遷移・出る遷移が、出 → 遷移の副作用 → 入の順に起こし、'
+                 u'自己への遷移（「→ 自己」）は起こさない。  ')
     lines.append(u'升の「%s」は変化なし（同じ参照）を表す。  ' % NONE_CELL)
     lines.append(u'ガードの付いた枝がすべての場合を覆わない升には「それ以外 → %s」を添え、どの場合に何が起きるかを升ごとに言い切る。  ' % NONE_CELL)
     lines.append(u'親の状態に置いた升は、その子のすべての列に同じ升を刷り、「親 … の升」と書き添える。')
@@ -1260,17 +1160,60 @@ def region_lines(region):
     lines += [u'', u'### %s%sの出来事' % (name, u' ' if name.endswith(u'`') else u''), u'']
     lines += table_lines([u'出来事', u'どこから来るか', u'運ぶ値', u'動かすもの'],
                          event_rows(region))
+    lines += guard_list_lines(region, name)
     lines += root_lines(region)
     lines += [u'', u'**図 %s — %s**' % (figure['id'], text(figure['caption'])), u'']
     lines.append(u'状態機械ごとに 1 つの図に分け、その状態機械の節に置く。状態機械どうしは直交する。  ')
-    lines.append(u'矢印のラベルは出来事のキーだけであり、ガード・副作用は同じ節の状態遷移表が持つ。  ')
-    lines.append(u'⚠️ 図は畳んである —— 同じ出来事・ガード・先・副作用の升が %d つ以上の兄弟の種類の'
-                 u'どの 2 つの間も結ぶか、それらのどれからも同じ 1 つの種類へ出るか、'
-                 u'同じ 1 つの種類から入るときは、兄弟を 1 つの箱に囲み、その遷移を箱から 1 本だけ描く'
-                 u'（どの 2 つの間も結ぶ遷移は、箱の注に出来事のキーを書く）。  ' % MIN_GROUP)
-    lines.append(u'⭐ 遷移の全数は 表 %s の状態遷移表が持つ。' % table['id'])
+    lines.append(u'図は UML の状態機械図である —— 矢印のラベルは「出来事 [ガード] / 副作用」、'
+                 u'同じ 2 つの状態を結ぶ遷移は 1 本の矢印に 1 行ずつ並べる。'
+                 u'ガードは名で書き、条件は同じ領域のガードの一覧が持つ。  ')
+    lines.append(u'行き先が運ぶ値で決まる升は選択の擬似状態（◇）で分ける。'
+                 u'entry ／ exit は状態の箱の中に書く。  ')
+    lines.append(u'⭐ 遷移の全数は 表 %s の状態遷移表が持つ。図と表はどちらも原稿から刷る。' % table['id'])
     for machine in region.machines:
         lines += machine_lines(machine)
+    return lines
+
+
+def guard_list_lines(region, name):
+    """The region's guard list (CR-767 X-e): a table with no number, next to
+    the tables whose cells name the guards (R4.4)."""
+    if not region.guards:
+        return []
+    lines = [u'', u'### %s%sのガード' % (name, u' ' if name.endswith(u'`') else u''), u'']
+    lines.append(u'升が名で引くガードと、その条件（本書の頭の「ガードの条件の書き方」で書く）。')
+    lines.append(u'')
+    rows = []
+    for guard in region.guards.values():
+        condition = code(guard['condition'])
+        if guard.get('note'):
+            condition += u'（%s）' % text(guard['note'])
+        rows.append([code(guard['name']), condition, cited(guard['evidence'])])
+    return lines + table_lines([u'ガード', u'条件', u'根拠'], rows)
+
+
+def form_cell(form):
+    """A form of the guard language, each of its ・-separated forms as code."""
+    return JOIN.join(code(one) for one in form.split(JOIN))
+
+
+def language_lines(language):
+    """The guard language (`guardLanguage`), once, ahead of the regions."""
+    lines = [u'', u'## ガードの条件の書き方', u'']
+    lines.append(u'各領域のガードの一覧の条件は、次の項・演算・関数だけで書く式である。  ')
+    lines.append(u'生成器は条件を 1 つずつ読み、読む値が在ることを確かめる'
+                 u'（`_source/state_machines_json_to_md.py` の `load()`）。')
+    lines += [u'', u'### 項', u'']
+    lines += table_lines([u'項', u'意味'],
+                         [[form_cell(t['form']), text(t['meaning'])] for t in language['terms']])
+    lines += [u'', u'### 演算', u'']
+    lines += table_lines([u'演算', u'意味'],
+                         [[form_cell(o['form']), text(o['meaning'])] for o in language['operators']])
+    lines += [u'', u'### 関数', u'']
+    lines += table_lines([u'関数', u'意味', u'根拠'],
+                         [[code(u'%s(%s)' % (f['name'], u', '.join(f['parameters']))),
+                           text(f['meaning']), cited(f['evidence'])]
+                          for f in language['functions']])
     return lines
 
 
@@ -1306,13 +1249,51 @@ def priority_lines(priorities):
     return lines
 
 
-def build(regions, priorities=None):
+def build(regions, priorities=None, language=None):
     lines = list(HEADER)
+    if language is not None:
+        lines += language_lines(language)
     if priorities is not None:
         lines += priority_lines(priorities)
     for region in regions:
         lines += region_lines(region)
     return u'\n'.join(lines) + u'\n'
+
+
+def guard_language():
+    """The manuscript's `guardLanguage`, which load() has already checked."""
+    return json.load(io.open(SRC, encoding='utf-8'),
+                     object_pairs_hook=collections.OrderedDict)['guardLanguage']
+
+
+def check(regions, body):
+    """--check: the document and every figure's fingerprint; nothing drawn."""
+    current = io.open(OUT, encoding='utf-8', newline='').read() \
+        if os.path.exists(OUT) else None
+    problems = []
+    if current != body:
+        problems.append('docs/spec/_assets/%s differs from %s -- run npm run gen'
+                        % (OUT_NAME, os.path.basename(SRC)))
+    problems += figures.check(regions)
+    for one in problems:
+        say('FAIL     ' + one)
+    if problems:
+        return 1
+    say('OK       docs/spec/_assets/%s and its %d figures match the manuscript'
+        % (OUT_NAME, sum(len(r.machines) for r in regions)))
+    return 0
+
+
+def write(regions, body):
+    """Print the document, then redraw the figures that are missing or stale."""
+    io.open(OUT, 'w', encoding='utf-8', newline='\n').write(body)
+    say('wrote    docs/spec/_assets/%s' % OUT_NAME)
+    drawn, problems, seconds = figures.redraw(regions)
+    if drawn:
+        say('drew     %d figure(s) in %.1fs: %s' % (len(drawn), seconds, ', '.join(drawn)))
+    for one in problems:
+        say('FAIL     ' + one)
+    return 1 if problems else 0
 
 
 def main(argv):
@@ -1324,19 +1305,10 @@ def main(argv):
             say('PROBLEM  ' + one)
         say('FAIL     %s: %d problem(s); nothing written' % (os.path.basename(SRC), len(found)))
         return 1
-    body = build(regions, priorities)
+    body = build(regions, priorities, guard_language())
     if '--check' in argv:
-        current = io.open(OUT, encoding='utf-8', newline='').read() \
-            if os.path.exists(OUT) else None
-        if current != body:
-            say('FAIL     docs/spec/_assets/%s differs from %s -- run npm run gen'
-                % (OUT_NAME, os.path.basename(SRC)))
-            return 1
-        say('OK       docs/spec/_assets/%s matches its manuscript' % OUT_NAME)
-        return 0
-    io.open(OUT, 'w', encoding='utf-8', newline='\n').write(body)
-    say('wrote    docs/spec/_assets/%s' % OUT_NAME)
-    return 0
+        return check(regions, body)
+    return write(regions, body)
 
 
 if __name__ == '__main__':
