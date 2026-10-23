@@ -19,6 +19,16 @@ import { frameLoop, type FrameEnvironment, type FrameLoop } from '../../src/fram
 import { bare, specTable, unbroken } from '../contract/spec-table'
 import { DEFAULT_DISPLAY_SCALE, DISPLAY_SCALE_STEPS } from '../fixtures/display-scale'
 import { SETTINGS_CONSTANTS } from '../../src/entity/document-model/document-settings/document-settings'
+import {
+  FADED_UID,
+  FRESH_MILESTONE_UID,
+  MILESTONE_UID,
+  benchDocument,
+  drawnTask,
+  pointer as pointerAt,
+  pressAndRelease,
+  stage,
+} from './cr-430-stage'
 
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
@@ -411,6 +421,93 @@ describe(`FR-106 (MUST NOT) -- ${FR_106_NO_DISPLAY_SCALE}`, () => {
 })
 
 describe('CR-427 section 9 -- what the change request leaves open', () => {
-  it.skip('milestone figures and the fade corners (GA-7 / GA-8) keep their own shapes -- PND-445 was ruled by JDG-300 (the host default where IN-2 names no shape); no case written yet (CR-427 questions 1 and 2)', () => {})
+  // WHY: DFC-3447 -- PND-445 (JDG-300) asked for the host default where IN-2 named no shape; table T-266 now names
+  // WHY: PK-3 for GA-7 / GA-8 and PK-5 for GA-15 .. GA-17, so the case follows the manuscript as it stands.
+  it('GA-7 / GA-8 / GA-15 / GA-16 / GA-17: milestone figures and the fade corners show the T-269 shape table T-266 names (PK-3, PK-5) with their fallbacks, not the host default (CR-427 questions 1 and 2, DFC-3447)', () => {
+    const T_269_PK_5_ON_MILESTONES = '⭐ マイルストーンの上の「掴めることの合図」（同じく `IN-2`）は、`PK-5` に置き換わる。'
+    const T_269_FALLBACKS =
+      '端の箱の矢印・フェードの三角・マイルストーンの実績とダミーの ●・再開の折れ矢印は `ew-resize`、マイルストーンの予定の ○ は `move`（横にも縦にも動く）'
+    const T_269_PK_3 = '| PK-3 | 三角 入 ／ 出 | 直角三角形。入は左上へ、出は右下へ広がる | 白 ／ 黒 | 丸め | `S-294` | 直角の頂点 |'
+    const T_269_PK_5 = '| PK-5 | 円 | 円 | 予定は ○（白 ／ 黒）、実績とダミーは ●（黒 ／ 白）（同上） | — | 径は `S-295`（○ と ● で別の値） | 中心 |'
+    for (const clause of [T_269_PK_5_ON_MILESTONES, T_269_FALLBACKS, T_269_PK_3, T_269_PK_5]) expect(REQUIREMENTS).toContain(clause)
+    const pointerCell = (id: string): string => (specTable('T-266').rows.find((one) => one.id === id)?.by['ポインタ（表 T-269）'] ?? '').trim()
+    expect(['GA-7', 'GA-8', 'GA-15', 'GA-16', 'GA-17'].map(pointerCell)).toEqual(['三角 入（`PK-3`）', '三角 出（`PK-3`）', '円 ○（`PK-5`）', '円 ●（`PK-5`）', '円 ●（`PK-5`）'])
+    const settingCell = (id: string): readonly number[] =>
+      (bare(specTable('T-206').rows.find((one) => one.id === id)?.by['既定'] ?? '').match(/\d+(?:\.\d+)?/g) ?? []).map(Number)
+    const [triangleWidth, triangleHeight] = settingCell('S-294')
+    const [openDiameter, filledDiameter] = settingCell('S-295')
+    expect([triangleWidth, triangleHeight, openDiameter, filledDiameter], 'premise: S-294 and S-295 state two numbers each').toEqual([10, 7.5, 12, 8])
+
+    const built = stage(benchDocument())
+    const middleOf = (bar: BarGeometry | null, what: string): Point => {
+      if (bar === null || bar.form !== 'outline') throw new Error(`premise: ${what} is drawn as an outline`)
+      const xs = bar.points.map((one) => one.x)
+      const ys = bar.points.map((one) => one.y)
+      return { x: (Math.min(...xs) + Math.max(...xs)) / 2, y: (Math.min(...ys) + Math.max(...ys)) / 2 }
+    }
+    const shapeAt = (at: Point): string | null => {
+      built.send(pointerAt('move', at.x, at.y))
+      return built.shown()[built.shown().length - 1] ?? null
+    }
+    const started = drawnTask(built.loop, MILESTONE_UID)
+    const fresh = drawnTask(built.loop, FRESH_MILESTONE_UID)
+    const dummy = fresh.dummies.find((one) => one.grab === 'GA-17')
+    if (dummy === undefined) throw new Error('premise: the milestone that has not started draws its dummy (GA-17)')
+    const written: Record<'GA-7' | 'GA-8' | 'GA-15' | 'GA-16' | 'GA-17', string | null> = {
+      'GA-15': shapeAt(middleOf(started.plan, 'the milestone plan')),
+      'GA-16': shapeAt(middleOf(started.actual, 'the milestone actual')),
+      'GA-17': shapeAt(dummy.at),
+      'GA-7': null,
+      'GA-8': null,
+    }
+    // WHY: FR-075 draws the fade grab points only on the selected Task.
+    pressAndRelease(built, middleOf(drawnTask(built.loop, FADED_UID).plan, 'the faded plan'))
+    const handles = [...drawnTask(built.loop, FADED_UID).fadeHandles].sort((a, b) => a.y - b.y)
+    expect(handles, 'premise (FR-075): the selected faded Task draws its two grab points').toHaveLength(2)
+    written['GA-7'] = shapeAt(handles[0]!)
+    written['GA-8'] = shapeAt(handles[1]!)
+
+    const circle = (row: 'GA-15' | 'GA-16' | 'GA-17', diameter: number, fill: string, stroke: string, fallback: string): void => {
+      const cursor = cursorOf(written[row])
+      expect(cursor, `${row}: an image, not the host default -- ${T_269_PK_5_ON_MILESTONES} (written ${String(written[row])})`).not.toBeNull()
+      const circleTag = /<circle\b[^>]*>/.exec(cursor!.svg)?.[0] ?? ''
+      const root = /<svg\b[^>]*>/.exec(cursor!.svg)?.[0] ?? ''
+      expect(circleTag, `${row}: PK-5 is a circle`).not.toBe('')
+      expect(Number(attributeOf(circleTag, 'r')) * 2 + Number(attributeOf(circleTag, 'stroke-width')), `${row}: S-295`).toBeCloseTo(diameter, 5)
+      expect([paintOf(circleTag, 'fill'), paintOf(circleTag, 'stroke')], `${row}: ${T_269_PK_5}`).toEqual([fill, stroke])
+      expect([cursor!.hotspotX, cursor!.hotspotY], `${row}: the hotspot is the center`).toEqual([
+        Number(attributeOf(root, 'width')) / 2,
+        Number(attributeOf(root, 'height')) / 2,
+      ])
+      expect(cursor!.fallback, `${row}: ${T_269_FALLBACKS}`).toBe(fallback)
+    }
+    circle('GA-15', openDiameter!, '#ffffff', '#000000', 'move')
+    circle('GA-16', filledDiameter!, '#000000', '#ffffff', 'ew-resize')
+    circle('GA-17', filledDiameter!, '#000000', '#ffffff', 'ew-resize')
+
+    // WHY: PK-3 holds the right angle as the hotspot; in spreads up-left from it, out spreads down-right.
+    const triangle = (row: 'GA-7' | 'GA-8', isIn: boolean): void => {
+      const cursor = cursorOf(written[row])
+      expect(cursor, `${row}: an image, not the host default -- ${T_269_PK_3} (written ${String(written[row])})`).not.toBeNull()
+      const root = /<svg\b[^>]*>/.exec(cursor!.svg)?.[0] ?? ''
+      const width = Number(attributeOf(root, 'width'))
+      const height = Number(attributeOf(root, 'height'))
+      expect([width, height], `${row}: S-294`).toEqual([triangleWidth, triangleHeight])
+      const tag = /<(polygon|path)\b[^>]*>/.exec(cursor!.svg)?.[0] ?? ''
+      expect([paintOf(tag, 'fill'), paintOf(tag, 'stroke')], `${row}: ${T_269_PK_3}`).toEqual(['#ffffff', '#000000'])
+      const corners = attributeOf(tag, 'points') !== null ? pairsOf(attributeOf(tag, 'points')!) : pathPointsOf(attributeOf(tag, 'd') ?? '')
+      expect(corners.some((one) => one.x === cursor!.hotspotX && one.y === cursor!.hotspotY), `${row}: the hotspot is a corner of the triangle`).toBe(true)
+      const isRightAngle = corners.some((one) => one.x === cursor!.hotspotX && one.y !== cursor!.hotspotY) &&
+        corners.some((one) => one.y === cursor!.hotspotY && one.x !== cursor!.hotspotX)
+      expect(isRightAngle, `${row}: the hotspot is the right angle`).toBe(true)
+      const others = corners.filter((one) => one.x !== cursor!.hotspotX || one.y !== cursor!.hotspotY)
+      const spreadsUpLeft = others.every((one) => one.x <= cursor!.hotspotX && one.y <= cursor!.hotspotY)
+      const spreadsDownRight = others.every((one) => one.x >= cursor!.hotspotX && one.y >= cursor!.hotspotY)
+      expect(isIn ? spreadsUpLeft : spreadsDownRight, `${row}: ${T_269_PK_3}`).toBe(true)
+      expect(cursor!.fallback, `${row}: ${T_269_FALLBACKS}`).toBe('ew-resize')
+    }
+    triangle('GA-7', true)
+    triangle('GA-8', false)
+  })
   it.skip('the 24px side is chosen again after it is seen -- settled by JDG-181 (S-249 is 16px), which the FR-106 cases above read from the manuscript (CR-427 question 3)', () => {})
 })

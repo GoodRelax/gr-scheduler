@@ -725,7 +725,23 @@ describe('T-262 is not applied to MK-2', () => {
 
 describe('CR-423 section 9 -- returned questions', () => {
   it.skip('the zoomY a fit-all writes when it picks depth 1 -- PND-204 was ruled by JDG-300, but no clause of the manuscript states the value yet (CR-423 question 1)', () => {})
-  it.skip('whether an IC-14 / IC-15 pressed at an end also raises the FR-029 reason notice beside the message -- ruled by JDG-300 Q9 (it does not); no case written yet (CR-423 question 2)', () => {})
+  // WHY: the raise seam (noticeRaised) is held by tests/unit/dfc-3446-fr-029-an-end-zoom-entrance-raises-no-reason.test.ts; this case holds what the screen shows.
+  it('T-260 SE-5 (MUST NOT) -- an IC-14 / IC-15 pressed at an end stands the end message and no FR-029 reason notice beside it (JDG-300 Q9, CR-423 question 2)', () => {
+    const SE_5_NO_REASON =
+      '⭐ 端の段で押して倍率が変わらなかった入口（`SE-1` の後段と、縦軸のズームの 表 T-262 の `ZE-2` / `ZE-3`）には、`FR-029` の行えない理由の通知を出してはならない（MUST NOT）'
+    expect(REQUIREMENTS).toContain(SE_5_NO_REASON)
+    const low = bench(documentOf(DEEP, AT_THE_LOWER_END))
+    const lowBefore = low.notices()
+    low.pressEntrance('IC-14')
+    expect(low.messages(), ZE_5_THE_MESSAGE).toEqual([endMessage(AT_THE_LOWER_END, MIN_WORD)])
+    expect(low.notices(), SE_5_NO_REASON).toBe(lowBefore)
+    const ceiling = ceilingReachedBySk16a()
+    const high = bench(documentOf(FLAT, ceiling))
+    const highBefore = high.notices()
+    high.pressEntrance('IC-15')
+    expect(high.messages(), ZE_5_THE_MESSAGE).toEqual([endMessage(ceiling, MAX_WORD)])
+    expect(high.notices(), SE_5_NO_REASON).toBe(highBefore)
+  })
   it.skip('a zoom-in from above the vertical-axis ceiling -- open: DFC-641 item 1 (CR-423 question 3)', () => {})
   it.skip('whether a vertical-axis press that did change zoomY shows a message -- open: CR-423 question 4', () => {})
 })
