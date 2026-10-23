@@ -30,7 +30,8 @@ a machine's name without `StateMachine`, in PascalCase (JDG-286, R4.4):
                             condition (CR-767 wave 3,
                             tools/state_machine_guard_judgments.py); the
                             transition functions call the guards through it.
-                            Not printed for a documentData region (below)
+                            For a documentData region every judgment takes
+                            the one hand-written <Stem>GuardInput (below)
   <Stem>Transition          the row shape of the table below: one branch of
                             one cell (state x event); printed only with it
   <STEM>_INITIAL_CHILDREN   the kind entered below a composite state (not
@@ -52,8 +53,11 @@ A region that holds documentData (SD-5 of table T-250 -- the task group tree, wh
 unit is src/use-case/edit-document/task-group-folding.ts) is a SAVED value of
 the document, so it gets no state unions, no root type and no initial values:
 its state type is the erd.json enum column the region names. Only <Stem>Key,
-<Stem>Event, <Stem>EffectName, <Stem>Transition and <STEM>_TRANSITIONS are
-printed for it (table T-328).
+<Stem>Event, <Stem>EffectName, <Stem>GuardName, <STEM>_GUARDS, <Stem>Transition
+and <STEM>_TRANSITIONS are printed for it (table T-328). Its judgments decide
+one task group at a time, and the transition function looks a cell's guard up
+by name, so each takes the unit's <Stem>GuardInput (the task group, null in a
+root cell; the values the event carries; the named functions).
 
 Everything else in the unit -- the carried-value types, the transition
 functions, the named functions a condition calls (`guardLanguage`, under the

@@ -50,21 +50,6 @@ interface TreeStateGuardInput {
   readonly setting: (row: 'S-418') => LevelZeroTreeState
 }
 
-// WHY: keyed by the generated name type, so a guard added to or dropped from table T-328 fails to compile here.
-const TREE_STATE_GUARDS: Readonly<Record<TreeStateGuardName, (input: TreeStateGuardInput) => boolean>> = {
-  isBelowPressedTaskGroup: ({ taskGroup, event, ancestors }) =>
-    (ancestors(taskGroup?.id) as readonly unknown[]).includes(event.pressedRowId),
-  isChildOfPressedTaskGroup: ({ taskGroup, event }) =>
-    event.pressedRowId != null && taskGroup?.parentId === event.pressedRowId,
-  isLeafTaskGroup: ({ taskGroup, childTaskGroups }) => childTaskGroups(taskGroup?.id)?.length === 0,
-  isLevelZeroCollapsed: ({ setting }) => setting('S-418') === 'collapsed',
-  isPressedTaskGroup: ({ taskGroup, event }) => taskGroup?.id === event.pressedRowId,
-  isRevealedTaskGroupOrAncestor: ({ taskGroup, event, ancestors }) =>
-    taskGroup?.id === event.revealedRowId
-    || (ancestors(event.revealedRowId) as readonly unknown[]).includes(taskGroup?.id),
-  isTopLevelTaskGroup: ({ taskGroup }) => taskGroup?.parentId == null,
-}
-
 // TRAP: the guard is a name, "not name", or terms joined by " & " (the generator prints no other
 // form); a name this unit does not hold throws rather than reading as false and moving no task group.
 /** @purity pure */
@@ -275,6 +260,22 @@ export interface TreeStateTransition {
   readonly to: string
   readonly effect: TreeStateEffectName | null
   readonly effectArgument: string | null
+}
+
+const TREE_STATE_GUARDS = {
+  isBelowPressedTaskGroup: ({ taskGroup, event, ancestors }: TreeStateGuardInput): boolean =>
+    (ancestors(taskGroup?.id) as readonly unknown[]).includes(event.pressedRowId),
+  isChildOfPressedTaskGroup: ({ taskGroup, event }: TreeStateGuardInput): boolean =>
+    (event.pressedRowId != null) && (taskGroup?.parentId === event.pressedRowId),
+  isLeafTaskGroup: ({ taskGroup, childTaskGroups }: TreeStateGuardInput): boolean =>
+    childTaskGroups(taskGroup?.id)?.length === 0,
+  isLevelZeroCollapsed: ({ setting }: TreeStateGuardInput): boolean => setting('S-418') === 'collapsed',
+  isPressedTaskGroup: ({ taskGroup, event }: TreeStateGuardInput): boolean =>
+    taskGroup?.id === event.pressedRowId,
+  isRevealedTaskGroupOrAncestor: ({ taskGroup, event, ancestors }: TreeStateGuardInput): boolean =>
+    taskGroup?.id === event.revealedRowId
+      || (ancestors(event.revealedRowId) as readonly unknown[]).includes(taskGroup?.id),
+  isTopLevelTaskGroup: ({ taskGroup }: TreeStateGuardInput): boolean => taskGroup?.parentId == null,
 }
 
 const TREE_STATE_TRANSITIONS: readonly TreeStateTransition[] = [

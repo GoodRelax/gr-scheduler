@@ -29,8 +29,18 @@ How each form of `guardLanguage` is printed:
   <function>(...)     a call of the hand-written function of that name in the
                       unit (the type check stops a unit that lacks it)
 
-A documentData region (SD-5, the task group tree) is not compiled here: its
-judgments read one task group at a time (`taskGroup.<column>`).
+A documentData region (SD-5, the task group tree) decides one task group at a
+time and its transition function looks a cell's guard up by name, so every
+judgment takes the same one input, the hand-written <Stem>GuardInput, and
+destructures only what its condition reads, in this order:
+  taskGroup   the task group the cell decides, null in a root cell
+                                               -- taskGroup.<column>, printed ?.
+  event       the values the event carries, null when it carries none
+                                               -- event.<carry>
+  <function>  each named function, in first-call order (a member of the input,
+              since it reads the document) -- <function>(...)
+Such a region has no unsaved values: root.<carry>, <machine>.<carry>, in(),
+inAfter() and after() are refused.
 """
 
 
@@ -55,6 +65,8 @@ class Judgment(object):
         self.reads_values = False
         self.reads_event = False
         self.reads_after = False
+        self.reads_task_group = False
+        self.functions = []      # the named functions called, in first-call order
         self.expression = self.top(tree)
 
     # --- the parameters ------------------------------------------------------
@@ -68,6 +80,8 @@ class Judgment(object):
         return 'Extract<%sEvent, { readonly type: %s }>' % (self.printer.stem, union)
 
     def parameters(self):
+        if self.region.holds_document_data:
+            return self.input_parameter()
         out = []
         if self.reads_values:
             out.append('values: %s' % self.printer.stem)
@@ -76,6 +90,11 @@ class Judgment(object):
         if self.reads_after:
             out.append('after: %s' % self.printer.stem)
         return ', '.join(out)
+
+    def input_parameter(self):
+        members = (['taskGroup'] if self.reads_task_group else []) + (
+            ['event'] if self.reads_event else []) + self.functions
+        return '{ %s }: %sGuardInput' % (', '.join(members), self.printer.stem)
 
     # --- the states ----------------------------------------------------------
 
@@ -136,7 +155,13 @@ class Judgment(object):
 
     def path(self, words):
         head, rest = words[0], words[1:]
-        if head == 'event':
+        if self.region.holds_document_data and head not in ('event', 'taskGroup'):
+            raise ValueError('%s: %s.%s reads an unsaved value, which a documentData region has none of'
+                             % (self.name, head, rest[0]))
+        if head == 'taskGroup' and self.region.holds_document_data:
+            self.reads_task_group = True
+            text = 'taskGroup?.' + rest[0]
+        elif head == 'event':
             self.reads_event = True
             text = 'event.' + rest[0]
         elif head == 'root':
@@ -151,6 +176,12 @@ class Judgment(object):
         return text + ''.join('?.' + w for w in rest[1:])
 
     def call(self, name, args):
+        if self.region.holds_document_data:
+            if name == 'after':
+                raise ValueError('%s: after() reads an unsaved value, which a documentData region has none of'
+                                 % self.name)
+            if name not in self.functions:
+                self.functions.append(name)
         if name == 'after':
             words = args[0][1] if args and args[0][0] == 'path' else None
             if words is None or words[0] not in self.region.machine_by_name or len(words) != 2:
@@ -183,6 +214,9 @@ class Judgment(object):
         if kind == 'call':
             return self.call(node[1], node[2])
         if kind == 'state':
+            if self.region.holds_document_data:
+                raise ValueError('%s: in() reads an unsaved state, which a documentData region has none of'
+                                 % self.name)
             var = 'after' if node[1] == 'inAfter' else 'values'
             if var == 'after':
                 self.reads_after = True
@@ -264,7 +298,7 @@ def judgment_lines(printer, condition_of):
     condition_of(text) -> the parsed tree (state_machines_json_to_md.Condition).
     """
     region = printer.region
-    if not region.guards or region.holds_document_data:
+    if not region.guards:
         return []
     uses = region.guard_uses()
     lines = ['const %s_GUARDS = {' % printer.upper]
