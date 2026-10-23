@@ -167,7 +167,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/unit/cr-785-the-help-links-and-the-dropped-rows.test.ts` | emptySelection (pure), helpModalFromSession (pure), screenViewFromRegions (pure) | yes | FR-036, FR-038, FR-069, T-023, T-109, T-236 |
 | `tests/unit/cr-787-the-panel-opens-at-the-default-width-of-its-kind.test.ts` | frameLoop (non-pure), grabSizesOf (pure), itemAtPointer (untagged), panelFacesOf (pure) | - | FR-052, FR-072, T-016, T-109, T-206 |
 | `tests/unit/cr-788-the-assignee-field-opens-a-checked-list.test.ts` | domScreenSurface (non-pure) | - | FR-059 |
-| `tests/unit/cr-811-the-comment-box-font-size-is-8-to-24-and-10-by-default.test.ts` | documentFromJson (pure), editAnnotation (pure), frameLoop (non-pure) | - | FR-006, FR-019, FR-031, FR-077, FR-097, T-016, T-108, T-215 |
+| `tests/unit/cr-811-the-comment-box-font-size-is-8-to-24-and-10-by-default.test.ts` | documentFromJson (pure), editAnnotation (pure), frameLoop (non-pure) | - | FR-006, FR-019, FR-020, FR-031, FR-077, FR-097, T-016, T-108, T-215 |
 | `tests/unit/cr-813-the-fix-log-saves-as-tsv-and-two-words-change.test.ts` | delayDiagnosticsReportAfterEntry (pure), delayDiagnosticsReportFromWindow (pure), delayFixLogFileNameOf (pure), delayFixLogTsv (pure), delayFixLogTsvOf (pure) | yes | T-024, T-109, T-351, T-352, T-374 |
 | `tests/unit/cr-825-one-edge-rule-for-the-layout-and-the-baseline-outline.test.ts` | dayOf (pure), edgeInstantOf (pure), serial (pure) | yes | FR-054, T-064 |
 | `tests/unit/dfc-1620-an-fs-chain-that-starts-the-next-morning-carries-the-whole-delay.test.ts` | documentFromJson (pure) | yes | T-313, T-314 |
@@ -912,7 +912,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/unit/cr-785-the-help-links-and-the-dropped-rows.test.ts` | 41 | FR-036, FR-038, FR-069 | - | T-023, T-109, T-236 | IC-20, IC-54, IC-115, MK-2, MK-5, MK-7, MK-15, MK-16, MK-17, S-350, S-503, S-583 | - | - | - | - |
 | `tests/unit/cr-787-the-panel-opens-at-the-default-width-of-its-kind.test.ts` | 21 | FR-052, FR-072 | - | T-016, T-109, T-206 | GR-14, IC-17, MK-13, S-171, S-248, S-602, S-604, S-605, S-606 | - | - | - | - |
 | `tests/unit/cr-788-the-assignee-field-opens-a-checked-list.test.ts` | 19 | FR-059 | - | - | AS-1, AS-3, AS-4, AS-5, AS-7, AS-8, AS-12, IC-123, IC-124, IC-125, IC-126, PR-16, SV-4 | - | - | - | - |
-| `tests/unit/cr-811-the-comment-box-font-size-is-8-to-24-and-10-by-default.test.ts` | 40 | FR-006, FR-019, FR-031, FR-077, FR-097 | - | T-016, T-108, T-215 | AT-110, AT-168, CM-46, CM-103, PR-21, PR-48, PR-50, S-624 | - | - | - | - |
+| `tests/unit/cr-811-the-comment-box-font-size-is-8-to-24-and-10-by-default.test.ts` | 40 | FR-006, FR-019, FR-020, FR-031, FR-077, FR-097 | - | T-016, T-108, T-215 | AT-110, AT-168, CM-46, CM-103, PR-21, PR-48, PR-50, S-624 | - | - | - | - |
 | `tests/unit/cr-813-the-fix-log-saves-as-tsv-and-two-words-change.test.ts` | 37 | - | - | T-024, T-109, T-351, T-352, T-374 | FM-6, FN-1, FN-2, FN-3, FN-4, FN-5, IC-156, IC-157, IC-158, IC-169, IO-9, PTL-15, RW-7, RW-12, RW-20 | - | - | - | - |
 | `tests/unit/cr-825-one-edge-rule-for-the-layout-and-the-baseline-outline.test.ts` | 9 | FR-054 | - | T-064 | BL-2, PI-1, RV-1, RV-6 | - | - | - | - |
 | `tests/unit/dfc-1620-an-fs-chain-that-starts-the-next-morning-carries-the-whole-delay.test.ts` | 4 | - | - | T-313, T-314 | BD-2, BD-4, S-128 | - | - | - | - |

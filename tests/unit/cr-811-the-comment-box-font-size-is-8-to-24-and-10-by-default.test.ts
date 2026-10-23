@@ -3,7 +3,7 @@
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { documentFromJson } from '../../src/adapter/document-codec/json-codec'
 import type { HumanInput, PointerInput, PointerPhase } from '../../src/adapter/input-command-translator/input-command-translator'
@@ -502,7 +502,14 @@ describe(`05-07-design: ${MISSING_COLUMNS_READ_AS_NULL}`, () => {
   it(`${MISSING_COLUMN_DEFAULT_DIFFERS} -- a note read without the column draws like one holding null, at ${String(DEFAULT)} px even at step L`, () => {
     const read = documentFromJson(withoutColumn('2026-08-20'))
     if (!read.ok) throw new Error(`refused: ${JSON.stringify(read.faults)}`)
-    expect(stageOf(read.document).lastSvg()).toEqual(stage().lastSvg())
+    // WHY: the watermark carries the second each loop was built (FR-020); two loops built across a second differ (DFC-3467).
+    vi.useFakeTimers({ toFake: ['Date'] })
+    try {
+      vi.setSystemTime(new Date(2026, 3, 1, 12, 0, 0))
+      expect(stageOf(read.document).lastSvg()).toEqual(stage().lastSvg())
+    } finally {
+      vi.useRealTimers()
+    }
     const large = documentFromJson(withoutColumn())
     if (!large.ok) throw new Error(`refused: ${JSON.stringify(large.faults)}`)
     const withStepL = { ...large.document, documentSettings: { ...large.document.documentSettings, fontSizeStep: 'L' } } as unknown as Document
