@@ -5,13 +5,14 @@
 ⛔ **公開なので、個人情報・絶対パス・秘密を書かないこと。**
 ⛔ **本書は状態だけを持つ** —— 着地・止めたもの・次にやること・利用者の確認待ち。**学びと規則は `docs/development-rules/` へ下ろす**（規則 05 の 1）。検査 72 が、最新の日付の節の外に残った学びを赤にする。
 
-> 🆕⭐ **2026-10-22〜24（調整役 coord-1022。セッション台帳に調整役として登録済み）—— 本節が最新。** ⛔ 数は測り直せ（`git log -1 origin/develop`・根の `git log -1`・`python tools/handover_guard/guard.py registry show`）。
-> - **枝**: 統合の枝 `integ/coord-1022`（作業木 `.claude/worktrees/coord-1022`）。origin の develop ＝ develop ＝ 統合の枝 ＝ `ee5b5afb8`（2026-10-24 に測った。GT-2 を通した後、02:46 に push）。main は `6b5776e6` のまま。根のチェックアウトは今、cr-822 の子セッションの枝 `cr822-timeout`（`a60f69ed5` から）にある。GT-2 の前に OneDrive が止まっていることを `tasklist` で確かめる。
-> - **着地（第 1 波・第 2 波・その後・段 2）**: 計画の引き直し（`JDG-3043`〜`3047`）と予実の更新（`76ba4d104`）・棚卸しと持ち場ごとの掃除 W1〜W5（基準線 5 つを下げた）・GT-2 の赤 3 件（`CR-824` ほか）・圧縮への備え（`tools/handover_guard/`、検査 87・88、利用者がフックを有効にした `3d25d2e79`）・裁定 6 件（`JDG-3073`〜`3087`）・裁定 5 件（`JDG-3113`〜`3117`）と当て 3 つ（`CR-825` の端の日の規則・見本の 2 人目の Developer C・`PND-144` の印）・`CR-767` 波 1〜3（ガードの式・UML の図・複合状態・判定の生成）・`CR-768` C 部と木の判定の生成（`DFC-3460`）・試験の揺れ `DFC-3456`（cr-820 を 20 秒、`JDG-3116`）・`DFC-3459`（遅い試験 2 本を速く、`JDG-3118`）・`DFC-3467`（cr-811 の時計）。**段 2 の不具合（push `ee5b5afb8`）**: `CR-826`（基準日より後のタスクに ? と炎を出さない、`DFC-3390`）・`CR-827`（画像のプロンプトはスキーマをダウンロードで渡す、`DFC-3392`）・`CR-828`（ヘルプが保存は何も送らないと言う、`DFC-3395`）・`CR-830`（予定の端が依存線の掴み代を取る、`JDG-3134`、`DFC-3483`）・`CR-831`（受ける日付を 1984〜2149 に狭める、`JDG-3139`、`DFC-3490`）・`CR-832`（ライセンスの窓、`DFC-3003`）・`DFC-3478`・`3479`（押すだけでは日付を書かない）・依存線の縦の重なり O-1 は直さない（`JDG-3135`）。
-> - **計画**: 予実と本節の更新は枝 `plan-handoff-1024`（`ee5b5afb8` から）にあり、合流待ち。計画は 10-24 05:27 の姿（162 タスク、済み 85）、β の最も早い日は 10-30（金）00:00、目安は 11-09（月）09:00 のまま。読み方は `docs/development-records/project-plan.md`。
-> - **動いている子セッション**: `cr822-timeout`（`local_53840df8-d655-4b2d-8dbe-5cf9eccbe85a`。根のチェックアウトで、cr-822 の試験の時間切れを 1 件 20 秒にする —— `JDG-3144`・`DFC-3493`）と `plan-handoff-1024`（`local_cc272839-c5af-4374-9860-2ab3b46783be`。計画の予実と本節の更新）。台帳のほかの子セッションは全員 complete（2026-10-24 に `guard.py registry show` で測った）。
-> - **次の番号（2026-10-24 に `ee5b5afb8` で測った最大 ＋ 1）**: JDG `3144`・DFC `3493` は cr-822 の子セッションが持つので、次に配るのは JDG `3145`・DFC `3494`。PND `986`・CR `833`（`CR-829` は配ったが使われなかった欠番）・perf-pending `271`・studies `72`・検査 `89`。
-> - **後に回したもの**: 憲章（利用者が `temp/charter-draft/CHARTER-ja.md` を直すのを待つ。計画 252・253）・統計の道具 `collect_stats.py` の OSError・作業木の掃除の残り 23 件（自動判定に断られて止めた。計画 274）・`isSameArm` を縮める案（仕様の仕事）・`DFC-2720`・`2722`・CR-768 の本文の頭が古い（直すと検査 62 が赤）・`DFC-3396`（子セッションが調べたが再現せず、利用者の手掛かり待ち。計画 235）・`DFC-3468`（炎の再現）・known-red の D1・D7 を外す（GT-2 が時間切れ 0 で通ってから。計画 275）・実物での確かめ待ちの行（`DFC-3411`・`3430`・`3433`・`3479`・`3483`・`3390`・`3392` ほか —— 1 枚のチェックリストにまとめる。計画 225）。⚠️ 作業木の子セッションは main から切られるので、作業木の設定にフックが無い（根で動くセッションだけが守られる）。
+> 🆕⭐ **2026-10-22〜24（調整役 coord-1022。セッション台帳に調整役として登録済み。使用 86% で交代）—— 本節が最新。** ⛔ 数は測り直せ（`git log -1 origin/develop`・根の `git log -1`・`python tools/handover_guard/guard.py registry show`）。
+> - **枝**: 統合の枝 `integ/coord-1022`（作業木 `.claude/worktrees/coord-1022`）の先端 `efed5c9a3`。origin の develop は `d0ae3a9c8` で、統合の枝が 16 コミット先（未 push）。⛔ その中に `CR-850` の src があり、dist の組み直しと中継の版の bump がまだ（検査 85 が赤）—— push の前に、根を早送り → `npm run build` → `node tools/artifact_versions.mjs bump grsRelay`・`serverSyncDemo` → コミット → GT-2（OneDrive を止めて）。main は `6b5776e6` のまま。根のチェックアウトの枝が `develop` であることを先に確かめる。
+> - **利用者の優先の順（2026-10-24、逐語「まずは再発防止が終わって、次に色のスキーマ問題、それが解決したら他の案件。 OK?」）**: ① 再発防止の検査 3 つ（カード task_c8ba1528「Finish recurrence prevention: three checks for rule 07」、検査 91〜93）→ ② `CR-851`（GRS JSON の形を β の前に 1 回だけ直し、開けない古い文書は AI に変換させる。カード task_f535d27e。`CR-848`・`849` も同じ子が書く）→ ③ ほかの案件。⚠️ 2 つのカードはまだ起こされていない —— 次の調整役は、カードがまだあれば利用者に起こしてもらう（無ければ同じ指示書で起こし直す）。CR-851 の子へ渡すこと 3 つ: `"dark": null` は Null Trap に反する（キーを省く）・erd.schema.json の nullable の説明の例「null = 根」も直す・CR の第 0 節②に OKPN と OMPV を書き JDG-3226・3227 を引く。
+> - **着地（この巡の後半、統合の枝）**: 段 2 と CR-826〜832・GT-2 通過で push（`ee5b5afb8`・`8dacb823b`・`d0ae3a9c8`）。その後、未 push: 作業木の掃除の続き（デモ `67c291388`）・トリアージ 96 行（裁定待ち 24 行、問いは未）・試験待ち 25 行の試験・仕様待ちの CR 6 本の起草（`CR-833`〜`838`、当てるのは計画 uid 35）・W4 の計画の記録（`docs/review/w4-first-half-2026-10-24/`）・`CR-850` の途中（基準線 15 分、X-3a の 3 か所は W4 の後）・規則 07 を原本（gr-sw-maker の review-standards）の派生に作り直し・検査 90（データ要素の OKPN と null、違反 195 は CR-851 で 0 に）。
+> - **止めて待つ子セッション（利用者の指示「他は一旦止めさせろ」）**: `w4-first-half`（`local_5b5ca6db-868c-48ee-bc84-fc4948bd04ac`、CR-578〜580、UF-208〜240・検査 89 を持つ、R2 の名の審査を利用者に見せる前で停止）・`baseline-15min`（`local_35c7d808-b84e-4d79-bdce-bfd67ebf6b47`、CR-850 の X-3a は W4 の合流の後）。利用者の答え待ち: `answers-ahead`（`local_d0fd8823-dad7-4b6a-ac5f-37f98d638310`、CR-846・847 の起草と PND-933 の問いに戻った）。
+> - **予約した番号**: `CR-852`（仕様の旧い規約番号の参照 約 50 を章＋観点の名へ。07 の末尾の対応表を使う。別の子セッションで、まだ起こしていない）。
+> - **次の番号（2026-10-24 夕に測った最大 ＋ 1）**: JDG `3259`（3250〜3258 は配った）・DFC `3579`（3566〜3578 は配った）・PND `956`（940〜955 は配った）・CR `853`・perf-pending `273`・studies `76`・検査 `94`（91〜93 は再発防止のカードに配った）。
+> - **後に回したもの**: トリアージの裁定待ち 24 行（調べたトリアージの子 `local_fa128ce7-4030-4916-a799-50e518494b44` が問うのがよい）・計画 208 の性能の切り分け（静かな機械で）・憲章（利用者の直し待ち）・`collect_stats.py` の OSError・作業木の掃除の残り 23 件・実物での確かめ待ちの行を 1 枚のチェックリストへ。⚠️ 作業木の子セッションは main から切られるので、作業木の設定にフックが無い。カードは `use_worktree: true` を付けて出す（付けないと根を共有して根の枝を切り替える）。利用者の私的な調べ（特許など）は `temp/` にだけ置き、本書・台帳に書かない。
 
 > **2026-10-20〜21（α の後、調整役 coord-1017）—— 前の節。** β 版への計画は `docs/development-records/project-plan.json`（読み方 `project-plan.md`。114 タスク・8 段、β は条件で出し目標 11-09 09:00、早ければ 11-01 13:00。`JDG-3001`〜`3004`）。掃除とリファクタを先にする（`JDG-3004`）。
 > - **記録だけの件（利用者 2026-10-20〜21「今すぐの対応ではないが、下記を記録しておけ」ほか）**: `DFC-3390` 遅延診断で基準日より後のタスクにも ? や炎が出る（仕様がそう求める —— 裁定待ち）・`DFC-3391` 画像から日程を作るプロンプトのスキーマの版（9da0f3fa で再現せず）・`DFC-3392` プロンプトは文だけ写しスキーマは内蔵のものを保存（仕様待ち）・`DFC-3393` タスク等に hyperLink（MSPDI に Hyperlink あり。仕様待ち）・`DFC-3394` 任意色のダークモードの色合い（裁定待ち）。
@@ -285,32 +286,24 @@
 利用者はこの節のブロックをそのまま新しいセッションに貼る。巡ごとに本節も書き換える。
 
 ```text
-あなたは新しい調整役（Coordinator）である（2026-10-22、前の調整役 coord-1017 から交代した。前の調整役はコンテキストを 1 度圧縮した）。⛔ 調整だけをする —— 調べもの・試験・台帳の手直し・継ぎ目の直し・ファイルの読み込みは、すべて子セッションかサブエージェントに出す。調整役が手を動かすのは、番号の幅と持ち場と順を決めること、合流（衝突は生成物を作り直すだけ。継ぎ目の直しは子へ返す）、関門（GT-2・PERF）、根の早送り、push と PR だけ。説明は日本語（普段の言葉。docs/development-rules/user-wording.json）、コードとコミット文は英語 ASCII、帰属の行は付けない。呼び名は JDG-3042 の表に揃える（利用者・調整役・親セッション・子セッション・サブエージェント・引継書・セッション台帳・調整役の交代・セッション完了。「席」「体」「指令役」は使わない）。
-唯一の引継書は docs/development-records/handoff.md である。冒頭の 🆕 の節（2026-10-20〜21）から読め。計画は docs/development-records/project-plan.json（読み方は project-plan.md。GRS で開く）。版の規則は docs/development-rules/10-versions.md だけにある（変更履歴の行は UTC の時刻。番号を配らない）。次にメモリーを読め: pre-compaction-handover-plan・do-not-restate-child-questions・no-push-to-main・coordinator-only-role・gt2-read-the-verdict-before-push・onedrive-stays-ask-user・rulings-in-origin-session・cr-numbers-assigned-up-front・never-report-unrun-actions。
+あなたは gr-scheduler の新しい調整役（Coordinator）である（2026-10-24、前の調整役 coord-1022 から交代した。前の調整役は使用 86% で交代した。圧縮はしていない）。⛔ 調整だけをする —— 調べもの・試験・台帳の手直し・継ぎ目の直し・ファイルの読み込みは、子セッションかサブエージェントに出す。調整役が手を動かすのは、番号の幅と持ち場と順を決めること、合流（衝突は生成物を作り直し、台帳は行ごとに 3 方向で比べる）、関門（GT-2・PERF）、根の早送り、dist の組み直しと版の bump（子にはさせない）、push と PR だけ。説明は日本語（普段の言葉。docs/development-rules/user-wording.json）、コードとコミット文は英語 ASCII、帰属の行は付けない。呼び名は JDG-3042 の表（docs/development-rules/session-names.md）。1 つのセッションは 1 つの責務（利用者 2026-10-24）。
+唯一の引継書は docs/development-records/handoff.md である。冒頭の 🆕 の節（2026-10-22〜24）から読め。計画は docs/development-records/project-plan.json（読み方 project-plan.md）。セッション台帳は `python tools/handover_guard/guard.py registry show`。最初に `python tools/handover_guard/guard.py registry coordinator --host <あなたの local_ の id>` で調整役を引き継ぎ、生きている子に新しい調整役を知らせる。次にメモリーを読め: pre-compaction-handover-plan・cards-need-use-worktree・do-not-restate-child-questions・no-push-to-main・coordinator-only-role・gt2-read-the-verdict-before-push・onedrive-stays-ask-user・rulings-in-origin-session・cr-numbers-assigned-up-front・never-report-unrun-actions・patent-findings-never-pushed。
 
-0. 今の姿（⛔ 信じず測れ: git -C <根> log -1・git log -1 origin/develop・git log -1 origin/main）
-   - main = 6b5776e6（α 版 34d6ee84 に PR #1〜#4 を合流。保護あり、push 禁止、変えるのは利用者が合流する PR だけ）。GitHub の Release Alpha-20261019T022508Z はある。Pages は main から配備（gh workflow run pages.yml --ref main）。配備の後に確かめるときは Ctrl+F5（Cache-Control max-age=600）。
-   - develop = f37d7d45（計画の 3 ファイルだけを先に出した）。統合の枝 integ/coord-1017（作業木 .claude/worktrees/coord-1017）と根（develop）は 97fd5342 以降（git log -1 で測れ）—— CR-819〜823 の develop 側・台帳の行・引継書を持ち、まだ push していない。dist が変わっているので push には GT-2 が要る。あなたは自分の作業木を切り、統合の枝の先端から積め。根の早送りは調整役が git -C <根> merge --ff-only <sha> で自分でやる。
-   - GT-2: 根で node tools/gate/gate-queue.mjs enqueue GT-2 → GRS_DEV_PORT=5992 node tools/gate/gate-queue.mjs drain > ログ（リポジトリの外）。push は grep -q "GT-2 <sha> passed" を見てから git push origin <sha>:refs/heads/develop を単独の 1 コマンドで。OneDrive が止まっていることを確かめる（止まっていなければ利用者に頼む）。リリースは引継書の「main へのリリース」の節（develop → main の PR を利用者が合流。急ぎの直しは main から切った hotfix の PR）。
-1. 最初にやること（利用者 2026-10-22「次のセッションで新しい計画を見直してから再開する」）
-   1) 計画を利用者と見直す。計画の作業は 10-21 19:00 再開の予定から 1 つも始まっていない（約 1 日の遅れ）。第 1 波の案: GT-2 の赤 3 件（uid 192〜194）・語の直し（195）・小さなリファクタ（115〜117・196）・118・CR-767 の波 1（85）。計画をずらすのは計画の子セッションに任せる。
-   2) 次の段の最初の仕事: 意図しない圧縮への備えを機械で守る仕組み（JDG-3040〜3042、メモリー pre-compaction-handover-plan）。子セッションに作らせ、低いしきい値で試す。
-   3) 利用者の裁定が要る 6 件（DFC-3390・3392・3393・3394・3395・3397）を問う子セッションを 1 つ起こす（論点は引継書の 🆕 の節）。
-   4) 憲章: 利用者が根の temp/charter-draft/CHARTER-ja.md を直した後、新しい子セッションが同じフォルダの HANDOVER.md から続ける。
-   5) 週の使用量は 2026-10-22 01:30 に 4%（戻りは 10-28 19:00 JST）。
-2. 子セッション（SendMessage の宛先は local_ の id）
-   - 今の巡の子はすべて「セッション完了」を宣言した。ただし憲章の子 local_d8924283 は完了していない（下書きは temp/charter-draft/ に移した。新しい子に引き継ぐので、この子は使わない）。
-   - ⛔ 他のセッションへの送信は、利用者の書き込み 1 回につき 10 通まで。
-3. 次の番号（⛔ 配る前に grep で測り直せ）: JDG 3043・DFC 3411・PND 932・CR 824・perf-pending 263・studies のフォルダ 71・検査 87。変更履歴は UTC の時刻（番号なし）。仕様の行 ID は配る前に docs/spec の最大を測る。
+0. 今の姿（⛔ 信じず測れ: git -C <根> log -1・git log -1 origin/develop・git log -1 origin/main・根の枝が develop か）
+   - main = 6b5776e6（保護あり、push 禁止）。develop = d0ae3a9c8。統合の枝 integ/coord-1022 = efed5c9a3（16 コミット先、未 push。CR-850 の src を含み、dist の組み直しと bump がまだ）。
+   - GT-2: 根で node tools/gate/gate-queue.mjs enqueue GT-2 → GRS_DEV_PORT=5992 node tools/gate/gate-queue.mjs drain > ログ（リポジトリの外）。push は grep -q "GT-2 <sha> passed" を見てから git push origin <sha>:refs/heads/develop を単独で。OneDrive が止まっているか tasklist で確かめる（動いていれば利用者に頼む）。
+1. 最初にやること（利用者の優先の順）
+   1) 再発防止の検査 3 つ（カード「Finish recurrence prevention: three checks for rule 07」）。
+   2) CR-851（カード「CR-851: reshape GRS JSON once before beta, AI conversion」）と、その形に乗る CR-848・849。引継書の 🆕 の節の「CR-851 の子へ渡すこと 3 つ」を、その子が起きたら送る。
+   3) それが片付いたら、止めている子（W4・CR-850）の再開、トリアージの裁定 24 行、CR-852、計画の残り。
+2. 子セッション（SendMessage の宛先は local_ の id。一覧は引継書の 🆕 の節とセッション台帳）。⛔ 他のセッションへの送信は、利用者の書き込み 1 回につき 10 通まで。子からの知らせで始まったターンでは start_session はカードになる（own_initiative）—— カードは use_worktree: true を必ず付ける。
+3. 次の番号（⛔ 配る前に grep で測り直せ）: JDG 3259・DFC 3579・PND 956・CR 853・perf-pending 273・studies 76・検査 94。変更履歴は UTC の時刻（番号なし）。
 4. 毎回の約束
-   - 子セッションは最小の試験（自分のファイル ＋ tsc ＋ check.sh 1 回）だけで報告する。PERF・全体の試験・サブエージェントが操る Playwright は調整役が tools/test_route.py で決める。
-   - ⛔ 子は途中の報告を送らない。報告はコミットした後の 1 通だけ。目的を果たしたら結果を報告して「セッション完了」を宣言する。調整役も途中の知らせを利用者に伝えない。
-   - ⛔ 子が利用者の答えを待っているときは、その子へのリンクの 1 行だけを書く。子の質問や選択肢を写さない（利用者 2026-10-22）。
-   - ⛔ 子を止める・向きを変えるのは調整役が直接やる（SendMessage、要れば stop_session）。子が許されなかった操作を調整役が代わりにやらない —— 利用者に聞く。
-   - 指示書には CR の番号・番号の幅を最初から書く。仕様だけを読む試験は、実装とは別のサブエージェントが書く。
-   - 合流のたびに台帳の ID を両側で数える。生成物は片側を採って作り直す。利用者の裁定は、詳しく調べた子から 1 問ずつ。
-   - コミット／push は許可済み（gr-scheduler に限る、main を除く）。コミットの前に毎回 python tools/privacy_count.py --staged の数を報告。⛔ MSPDI の XSD と SDK のファイルはコミットも push もしない。
-   - コンテキストが 85% を超えたら（または残りが 6 万を切ったら）、区切りで計画の子に計画を更新させ、本節を書き換えて引き継ぐ。
+   - 子は最小の試験だけで報告し、途中の報告は送らない。コミットの後の 1 通で「セッション完了」。
+   - src を触る子が並ぶときは、子に dist と bump をコミットさせない。合流の後に調整役が 1 回だけ組み直す。
+   - 子が利用者の答えを待っているときは、その子へのリンクの 1 行だけを書く。
+   - コミット／push は許可済み（gr-scheduler に限る、main を除く）。コミットの前に毎回 python tools/privacy_count.py --staged の数を報告。gr-scheduler の外のリポジトリは読むだけ。
+   - 使用が 85% を超えたら、計画の子に予実を更新させ、本節を書き換えて引き継ぐ。
 ```
 
 ---

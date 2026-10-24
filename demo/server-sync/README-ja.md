@@ -26,7 +26,7 @@ flowchart LR
 1. `grs-server-sync-demo.zip` をダウンロードし、右クリック →「プロパティ」→「許可する」に印を付けて OK。
 2. 展開し、`grs-server-sync-demo` フォルダの `start-server.cmd` をダブルクリック。
 3. 初回だけ、Windows が `localhost` の証明書をインストールするかを問います。**[はい]** ならブラウザーは警告しません（**[いいえ]** なら、ブラウザーの警告で「詳細設定 → localhost に進む」を押す）。
-4. Edge か Chrome で `https://localhost:8443/` が開きます。左上のロゴは **Demo** です。
+4. 既定のブラウザーで `https://localhost:8443/` が開きます。左上のロゴは **Demo** です。Edge か Chrome を使います。別のブラウザーが開いたときは、そのアドレスを Edge か Chrome に貼り付けます。
 5. **開く → Dummy Server** でファイルを選び、編集して `Ctrl`＋`S` ⇒ サーバーのファイルが更新されます。**ファイルに保存 → Dummy Server**（赤い 6 つ目）で名前を付けて保存します。
 6. 黒い窓を見てください。`GET` と `PUT` の 1 行ずつが、ブラウザーがファイルを読んだ・書いた記録です。窓を閉じるとサーバーが止まります。
 

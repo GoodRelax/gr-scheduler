@@ -1,4 +1,4 @@
-// CR-775 spec-only cases: Alt at release (FR-103), Shift keeps dates (MK-16), Ctrl+Shift copy amount 0 (CY-5), dark S-587 (NFR-007).
+// CR-775 spec-only cases: Alt selects no snap unit (FR-103, CR-850), Shift keeps dates (MK-16), Ctrl+Shift copy amount 0 (CY-5), dark S-587 (NFR-007).
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -152,8 +152,8 @@ function fixtureDocument(scene: Scene): Document {
   } as unknown as Document
 }
 
-// WHY: SG-2 -- judged between S-577 and S-578.
-const HOUR_SNAP: Scene = {
+// WHY: SG-2 on the hour tier -- judged between S-577 and S-578.
+const HOUR_TIER: Scene = {
   start: '2026-10-14T09:00:00',
   finish: '2026-10-14T12:00:00',
   isTimeOfDayVisible: true,
@@ -162,9 +162,9 @@ const HOUR_SNAP: Scene = {
   scrollDateFraction: 0.25,
 }
 
-// WHY: SG-3 -- judged over S-578, kept under the FR-016 zoomX ceiling S-55 by staying near S-578.
-const HALF_HOUR_SNAP: Scene = {
-  ...HOUR_SNAP,
+// WHY: SG-2 on the half-hour grid tier (CR-850 folded SG-3 into SG-2) -- judged over S-578, kept under the FR-016 zoomX ceiling S-55 by staying near S-578.
+const HALF_HOUR_TIER: Scene = {
+  ...HOUR_TIER,
   zoomX: zoomXFor(S_578 * 1.3),
 }
 
@@ -391,63 +391,75 @@ function writesOfDrag(
 const settingsOf = (scene: Scene): DocumentSettings =>
   ({ ...SETTINGS_DEFAULTS, isTimeOfDayVisible: scene.isTimeOfDayVisible, zoomX: scene.zoomX }) as unknown as DocumentSettings
 
-// WHY: a pull of 2 h 20 min makes the hour snap (11:00) and the 1-minute snap (11:20) differ.
+// WHY: a pull of 2 h 20 min ends off a quarter hour: the 15-minute snap (11:15) differs from the raw pull (11:20).
 const PULL_DAYS = hours(2 + 20 / 60)
 
 describe('premise: the scenes sit on the T-378 rows they are named after', () => {
   it.each([
-    ['SG-2', HOUR_SNAP, 60],
-    ['SG-3', HALF_HOUR_SNAP, 30],
+    ['SG-2 on the hour tier', HOUR_TIER, 15],
+    ['SG-2 on the half-hour grid tier', HALF_HOUR_TIER, 15],
   ])('%s', (_name, scene, minutes) => {
     const built = stage(scene)
     expect(snapMinutesOf(pxPerDay(built.loop), settingsOf(scene), false)).toBe(minutes)
     expect(PULL_DAYS * pxPerDay(built.loop), 'premise: the pull is past S-208').toBeGreaterThan(S_208)
   })
 
-  it('SG-4: Alt asks for the 1-minute unit', () => {
-    const built = stage(HOUR_SNAP)
-    expect(snapMinutesOf(pxPerDay(built.loop), settingsOf(HOUR_SNAP), true)).toBe(1)
+  // WHY: CR-850 retired SG-4 -- the case that Alt asks for 1 minute is replaced by its opposite.
+  it.each([
+    ['the hour tier', HOUR_TIER],
+    ['the half-hour grid tier', HALF_HOUR_TIER],
+  ])('Alt selects no unit: Alt held at %s is the same 15 minutes', (_name, scene) => {
+    const built = stage(scene)
+    expect(snapMinutesOf(pxPerDay(built.loop), settingsOf(scene), true)).toBe(15)
   })
 })
 
-const FR_103_ALT_AT_RELEASE = '⭐ `Alt`（`SG-4`）は離した時点で読むこと（MUST）'
+const T_378_SG_4_RETIRED = '（欠番 —— CR-850 で消した —— `Alt` は寄せの単位を選ばず、利用者が `Alt` の 1 分は要らないと定めた）'
+const T_023_MK_17_RETIRED = '（欠番 —— CR-850 で消した —— `Alt` ＋ 掴み代のドラッグは寄せの単位を選ばず、`MK-12` の割当の無い組合せであり、利用者が `Alt` の 1 分は要らないと定めた）'
+const QUARTER_HOUR_LANDING = { start: '2026-10-14T11:15:00', finish: '2026-10-14T14:15:00' }
 
-describe(`FR-103 / T-378 SG-4 -- ${FR_103_ALT_AT_RELEASE} -- Alt is read at release, not at press`, () => {
-  it.each([true, false])('FR-103 -- pressed without Alt, released with Alt (move carries Alt: %s): the start lands on a 1-minute step', (carries) => {
-    const built = stage(HOUR_SNAP)
+// WHY: CR-850 deleted "Alt (SG-4) is read at release"; these cases press the opposite -- Alt at press or release changes nothing.
+describe(`FR-103 / T-378 SG-4 -- ${T_378_SG_4_RETIRED} -- Alt selects no snap unit, at press or at release`, () => {
+  it('the retired rows still read as quoted', () => {
+    expect(rowOf('T-378', 'SG-4').by['とき']).toBe(T_378_SG_4_RETIRED)
+    expect(rowOf('T-023', 'MK-17').cells.join(' | ')).toContain(T_023_MK_17_RETIRED)
+  })
+
+  it.each([true, false])('FR-103 -- pressed without Alt, released with Alt (move carries Alt: %s): the start lands on the 15-minute step', (carries) => {
+    const built = stage(HOUR_TIER)
     dragWith(built, bodyOf(built.loop, SOURCE), travel(built.loop, PULL_DAYS), PLAIN, ALT, carries)
-    expect(planOf(taskOf(built, SOURCE))).toEqual({ start: '2026-10-14T11:20:00', finish: '2026-10-14T14:20:00' })
+    expect(planOf(taskOf(built, SOURCE))).toEqual(QUARTER_HOUR_LANDING)
   })
 
-  it.each([true, false])('FR-103 -- pressed with Alt, released without Alt (move carries Alt: %s): the start lands on the hour', (carries) => {
-    const built = stage(HOUR_SNAP)
+  it.each([true, false])('FR-103 -- pressed with Alt, released without Alt (move carries Alt: %s): the start lands on the 15-minute step', (carries) => {
+    const built = stage(HOUR_TIER)
     dragWith(built, bodyOf(built.loop, SOURCE), travel(built.loop, PULL_DAYS), ALT, PLAIN, carries)
-    expect(planOf(taskOf(built, SOURCE))).toEqual({ start: '2026-10-14T11:00:00', finish: '2026-10-14T14:00:00' })
+    expect(planOf(taskOf(built, SOURCE))).toEqual(QUARTER_HOUR_LANDING)
   })
 
-  it('FR-103 contrast -- pressed and released without Alt: the hour unit', () => {
-    const built = stage(HOUR_SNAP)
+  it('FR-103 contrast -- pressed and released without Alt: the 15-minute unit', () => {
+    const built = stage(HOUR_TIER)
     dragWith(built, bodyOf(built.loop, SOURCE), travel(built.loop, PULL_DAYS), PLAIN, PLAIN)
-    expect(planOf(taskOf(built, SOURCE))).toEqual({ start: '2026-10-14T11:00:00', finish: '2026-10-14T14:00:00' })
+    expect(planOf(taskOf(built, SOURCE))).toEqual(QUARTER_HOUR_LANDING)
   })
 
-  it('FR-103 contrast -- pressed and released with Alt: the 1-minute unit (MK-17)', () => {
-    const built = stage(HOUR_SNAP)
+  it('FR-103 contrast -- pressed and released with Alt: the same 15-minute unit, no 1-minute unit (MK-17 retired)', () => {
+    const built = stage(HOUR_TIER)
     dragWith(built, bodyOf(built.loop, SOURCE), travel(built.loop, PULL_DAYS), ALT, ALT)
-    expect(planOf(taskOf(built, SOURCE))).toEqual({ start: '2026-10-14T11:20:00', finish: '2026-10-14T14:20:00' })
+    expect(planOf(taskOf(built, SOURCE))).toEqual(QUARTER_HOUR_LANDING)
   })
 })
 
 describe('FR-107 / MK-16 -- a Shift-only body drag keeps the dates whatever the snap unit', () => {
   const RELEASES: readonly [string, Partial<InputModifiers>][] = [
     ['Shift held', SHIFT],
-    ['Shift and Alt held (1-minute snap)', SHIFT_ALT],
+    ['Shift and Alt held', SHIFT_ALT],
     ['only Alt held', ALT],
     ['nothing held', PLAIN],
   ]
   const SCENES: readonly [string, Scene][] = [
-    ['SG-2 hour tier', HOUR_SNAP],
-    ['SG-3 30-minute tier', HALF_HOUR_SNAP],
+    ['SG-2 hour tier', HOUR_TIER],
+    ['SG-2 half-hour grid tier', HALF_HOUR_TIER],
   ]
 
   describe.each(SCENES)('%s', (_tier, scene) => {
@@ -469,7 +481,7 @@ describe('FR-107 / MK-16 -- a Shift-only body drag keeps the dates whatever the 
   })
 
   it('MK-16 -- the same holds for a selected task', () => {
-    const built = stage(HOUR_SNAP)
+    const built = stage(HOUR_TIER)
     selectSource(built)
     const before = taskOf(built, SOURCE)
     dragWith(built, bodyOf(built.loop, SOURCE), travel(built.loop, PULL_DAYS, TASK_GROUP_B), SHIFT, SHIFT_ALT)
@@ -483,25 +495,25 @@ describe('CY-5 / CY-11 / MK-15 -- a Ctrl+Shift copy keeps the dates; Alt at rele
     ['Ctrl+Shift', CTRL_SHIFT],
     ['Ctrl+Shift+Alt', CTRL_SHIFT_ALT],
   ])('CY-5 -- pressed with Ctrl+Shift, released with %s at the hour tier: the copy has the original start and finish', (_name, released) => {
-    const built = stage(HOUR_SNAP)
+    const built = stage(HOUR_TIER)
     selectSource(built)
     const before = built.tasks()
     dragWith(built, bodyOf(built.loop, SOURCE), travel(built.loop, PULL_DAYS, TASK_GROUP_B), CTRL_SHIFT, released)
     const copy = theCopy(before, built.tasks())
-    expect(planOf(copy)).toEqual({ start: HOUR_SNAP.start, finish: HOUR_SNAP.finish })
+    expect(planOf(copy)).toEqual({ start: HOUR_TIER.start, finish: HOUR_TIER.finish })
     expect(groupOf(built, copy.uid), 'CY-6: the copy sits in the task group pulled to').toBe(TASK_GROUP_B)
-    expect(planOf(taskOf(built, SOURCE)), 'the original stays').toEqual({ start: HOUR_SNAP.start, finish: HOUR_SNAP.finish })
+    expect(planOf(taskOf(built, SOURCE)), 'the original stays').toEqual({ start: HOUR_TIER.start, finish: HOUR_TIER.finish })
   })
 
   it('CY-5 -- the Alt-at-release copy writes one pasteTasks with an amount of 0', () => {
-    const writes = writesOfDrag(HOUR_SNAP, PULL_DAYS, TASK_GROUP_B, CTRL_SHIFT, CTRL_SHIFT_ALT)
+    const writes = writesOfDrag(HOUR_TIER, PULL_DAYS, TASK_GROUP_B, CTRL_SHIFT, CTRL_SHIFT_ALT)
     const pastes = writes.filter((one) => (one as unknown as { kind: string }).kind === 'pasteTasks')
     expect(pastes.length).toBe(1)
     expect((pastes[0] as unknown as { landing: { shiftMinutes: number } }).landing.shiftMinutes).toBe(0)
   })
 
   it('CY-11 -- Alt held at the release only (no task group change) copies nothing, as CY-9 says for amount 0', () => {
-    const built = stage(HOUR_SNAP)
+    const built = stage(HOUR_TIER)
     selectSource(built)
     const before = built.tasks()
     dragWith(built, bodyOf(built.loop, SOURCE), travel(built.loop, PULL_DAYS), CTRL_SHIFT, CTRL_SHIFT_ALT)
@@ -514,7 +526,7 @@ describe('MK-15 / MK-12 -- a press with Ctrl+Shift+Alt on a selected task body d
     ['across and one task group down', PULL_DAYS, TASK_GROUP_B],
     ['across only', PULL_DAYS, TASK_GROUP_A],
   ])('MK-15 -- %s: no new task appears', (_name, days, to) => {
-    const built = stage(HOUR_SNAP)
+    const built = stage(HOUR_TIER)
     selectSource(built)
     const before = built.tasks()
     dragWith(built, bodyOf(built.loop, SOURCE), travel(built.loop, days, to), CTRL_SHIFT_ALT, CTRL_SHIFT_ALT)
@@ -522,12 +534,12 @@ describe('MK-15 / MK-12 -- a press with Ctrl+Shift+Alt on a selected task body d
   })
 
   it('MK-12 -- the release writes no pasteTasks', () => {
-    const writes = writesOfDrag(HOUR_SNAP, PULL_DAYS, TASK_GROUP_B, CTRL_SHIFT_ALT, CTRL_SHIFT_ALT)
+    const writes = writesOfDrag(HOUR_TIER, PULL_DAYS, TASK_GROUP_B, CTRL_SHIFT_ALT, CTRL_SHIFT_ALT)
     expect(hasKind(writes, 'pasteTasks')).toBe(false)
   })
 
   it('MK-12 -- releasing Alt before the end does not turn the press into a copy (CY-11)', () => {
-    const writes = writesOfDrag(HOUR_SNAP, PULL_DAYS, TASK_GROUP_B, CTRL_SHIFT_ALT, CTRL_SHIFT)
+    const writes = writesOfDrag(HOUR_TIER, PULL_DAYS, TASK_GROUP_B, CTRL_SHIFT_ALT, CTRL_SHIFT)
     expect(hasKind(writes, 'pasteTasks')).toBe(false)
   })
 })

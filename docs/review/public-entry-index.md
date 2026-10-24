@@ -327,7 +327,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `ScheduleLayout` | entry | interface | `src/entity/layout-engine/schedule-layout/schedule-layout.ts#ScheduleLayout` | PI-5 | 型 |
 | `ShapeKind` | entry | type | `src/entity/layout-engine/schedule-layout/schedule-layout.ts#ShapeKind` | -- | type ShapeKind = NonNullable<TaskVisual['shapeKind']> |
 | `shownSpanOf` | entry | function | `src/entity/layout-engine/schedule-layout/time-axis.ts#shownSpanOf` | PI-5 | `Task Group Area` の左端の位置と、右端の 1 px 手前の位置が指す 2 つの日を求める。 |
-| `snapMinutesOf` | entry | function | `src/entity/layout-engine/schedule-layout/time-axis.ts#snapMinutesOf` | PI-5 | 寄せの単位（分） —— `FR-103` の 表 T-378 の `SG-1`〜`SG-4` |
+| `snapMinutesOf` | entry | function | `src/entity/layout-engine/schedule-layout/time-axis.ts#snapMinutesOf` | PI-5 | 寄せの単位（分） —— `FR-103` の 表 T-378 の `SG-1`・`SG-2` |
 | `snappedInstantAtX` | entry | function | `src/entity/layout-engine/schedule-layout/time-axis.ts#snappedInstantAtX` | PI-5 | 横の位置を、寄せの単位で寄せた瞬間（分）として読む（`FR-103`） |
 | `StackSafetyCapStop` | entry | interface | `src/entity/layout-engine/schedule-layout/schedule-layout.ts#StackSafetyCapStop` | -- | interface StackSafetyCapStop |
 | `taskGroupAnchorIn` | entry | function | `src/entity/layout-engine/schedule-layout/task-group-scroll.ts#taskGroupAnchorIn` | PI-5 | 表示の上端の y を、`S-78` と `S-176` の組に直す —— 本コンポーネントの縦のスクロールの読み方の逆である。 |
@@ -409,6 +409,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `ScheduleGeometry` | entry | interface | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#ScheduleGeometry` | PI-6 | 型 |
 | `selectedLinksOf` | entry | function | `src/entity/layout-engine/schedule-geometry/dependency-route.ts#selectedLinksOf` | PI-6 | 選んでいる依存線（表 T-023c の `SL-8`）を、先行と後続の `UID` の対の鍵の集合で答える。 |
 | `SpanDot` | entry | interface | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#SpanDot` | -- | interface SpanDot |
+| `statusLineXOf` | entry | function | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#statusLineXOf` | -- | function statusLineXOf(inputs: GeometryInputs, statusDate: CalendarDay): number |
 | `TaskGeometry` | entry | interface | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#TaskGeometry` | -- | interface TaskGeometry |
 | `AnchorSurroundings` | file only | interface | `src/entity/layout-engine/schedule-geometry/comment-box.ts#AnchorSurroundings` | -- | interface AnchorSurroundings |
 | `commentGeometry` | file only | function | `src/entity/layout-engine/schedule-geometry/comment-box.ts#commentGeometry` | -- | function commentGeometry( schedule: Schedule, settings: DrawnSettings, layout: ScheduleLayout, snaps: readonly AnchorSnap[], ): readonly CommentGeometry[] |
@@ -2116,4 +2117,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 1077 name(s) leave through a public entry (533 of them published by table T-064), 839 more are exported by a file and not by its entry.
+Totals: 1078 name(s) leave through a public entry (533 of them published by table T-064), 839 more are exported by a file and not by its entry.

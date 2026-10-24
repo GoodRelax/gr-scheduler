@@ -219,7 +219,7 @@ export function cursorInstantAtX(
   x: number,
   settings: DocumentSettings,
 ): number | null {
-  const snap = snapMinutesOf(axis.pxPerDay, settings, false)
+  const snap = snapMinutesOf(axis.pxPerDay, settings)
   if (snap < MINUTES_PER_CALENDAR_DAY) return snappedInstantAtX(axis, x, snap)
   const day = dateAtX(axis, x)
   return day === null ? null : serial(day) * MINUTES_PER_CALENDAR_DAY

@@ -150,10 +150,12 @@ LEFT_OUT_ROWS = ('IC-52', 'IC-53', 'IC-75')
 # CR-710: FR-036 named MK-17 (the Alt drag of a grab area that snaps to a minute).
 # CR-785: FR-036 moved MK-15, MK-16 and MK-17 to the operations a touch
 # teaches, so they are kept off the help now (JDG-2504).
+# CR-850: MK-17 is retired (no Alt snap, JDG-3203); FR-036 names it as a gap.
 SHOWN_ASSIGNMENTS = ('MK-2', 'MK-5', 'MK-7')
 UNLISTED_ASSIGNMENTS = ('MK-1', 'MK-6', 'MK-8', 'MK-11', 'MK-13',
-                        'MK-15', 'MK-16', 'MK-17',
-                        'MK-9', 'MK-9a', 'MK-10', 'MK-12')
+                        'MK-15', 'MK-16',
+                        'MK-9', 'MK-9a', 'MK-10', 'MK-12',
+                        'MK-17')
 
 # The screen order of the Task Group Panel. HF-10 of table T-051 orders all five
 # head entrances on one line (collapse all, open one level, open all, add,

@@ -8,6 +8,7 @@ import type { DocumentSettings, DrawnSettings } from '../../document-model/docum
 import {
   dayOf,
   edgeInstantOf,
+  instantOf,
   instantOnSideReader,
   startSideOf,
   workingCalendarOf,
@@ -282,6 +283,7 @@ export interface GeometryInputs {
   readonly within: WorkingCalendar
   readonly taskByUid: ReadonlyMap<number, Task>
   readonly statusDate: CalendarDay | null
+  readonly statusInstant?: number | null
   readonly isPlanVisible: boolean
   readonly isActualVisible: boolean
   readonly selectedTaskUids: ReadonlySet<number>
@@ -560,11 +562,18 @@ function baselineOutlinesOf(schedule: Schedule, inputs: GeometryInputs): Baselin
   return out
 }
 
+// see FR-046, FR-014, CU-1, FR-158
+/** @purity pure */
+export function statusLineXOf(inputs: GeometryInputs, statusDate: CalendarDay): number {
+  const instant = inputs.settings.isTimeOfDayVisible ? inputs.statusInstant ?? null : null
+  return instant === null ? xFromDay(inputs.layout, statusDate) : xOfInstant(inputs.layout, instant)
+}
+
 /** @purity pure */
 function statusLineOf(inputs: GeometryInputs, regions: ScreenRegions): ScheduleGeometry['statusLine'] {
   if (inputs.statusDate === null) return null
   const area = regions.taskGroupArea
-  return { x: xFromDay(inputs.layout, inputs.statusDate), top: area.y, bottom: area.y + area.height }
+  return { x: statusLineXOf(inputs, inputs.statusDate), top: area.y, bottom: area.y + area.height }
 }
 
 // see CP-6, LC-10, LC-11, RV-5
@@ -587,6 +596,7 @@ export function geometryFromLayout(
     within: workingCalendarOf(schedule),
     taskByUid: new Map(schedule.tasks.map((one) => [one.uid, one])),
     statusDate: dayOf(schedule.project.statusDate),
+    statusInstant: instantOf(schedule.project.statusDate),
     isPlanVisible: settings.isPlanVisible,
     isActualVisible: settings.isActualVisible,
     selectedTaskUids: new Set(taskUidsIn(selection)),

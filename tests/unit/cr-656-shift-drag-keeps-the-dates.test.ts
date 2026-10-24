@@ -67,9 +67,10 @@ describe('CR-656 -- the rows these cases are driven by', () => {
     expect(mk15).toContain('`Shift` を伴えば日付を変えずにコピーする')
   })
 
-  it('MK-12: only Alt + drag is unassigned; Ctrl + Shift + drag is assigned (MK-7, MK-15)', () => {
+  // WHY: CR-850 retired MK-17, so MK-12 no longer carves the Alt grab drag out of the unassigned combination.
+  it('MK-12: only Alt + drag is unassigned, with no MK-17 exception; Ctrl + Shift + drag is assigned (MK-7, MK-15)', () => {
     const row = rowOf('T-023', 'MK-12')
-    expect(flat(row.cells[0] ?? '')).toBe('割当の無い修飾キー付きドラッグ（`Alt` ＋ ドラッグ。`MK-17` を除く）')
+    expect(flat(row.cells[0] ?? '')).toBe('割当の無い修飾キー付きドラッグ（`Alt` ＋ ドラッグ）')
     expect(rowText('T-023', 'MK-12')).toContain('`Ctrl` ＋ `Shift` ＋ ドラッグは割当を持つ（`MK-7` ・ `MK-15`）')
     expect(rowText('T-023', 'MK-12')).toContain('当たっていれば `PTD-3` によりそのものへの操作になる')
   })
@@ -109,11 +110,11 @@ describe('CR-656 -- the rows these cases are driven by', () => {
     expect(rowText('T-308', 'CY-11')).toContain('押した時点の修飾キーで決め、押しているあいだに `Ctrl` や `Shift` を押しても離しても変えないこと（MUST）')
   })
 
-  // WHY: CR-785 moved MK-16 from the rows the help shows to the rows that are known by touching.
+  // WHY: CR-785 moved MK-16 from the rows the help shows to the rows that are known by touching; CR-850 then retired MK-17 from that list.
   it('FR-036: the help does not list MK-16; it stands among the T-023 rows learned by touching', () => {
     expect(REQUIREMENTS).toContain('表 T-023 の `MK-2` / `MK-5` / `MK-7` と')
     expect(REQUIREMENTS).not.toContain('/ `MK-16` / `MK-17` と')
-    expect(REQUIREMENTS).toContain('`MK-1` / `MK-6` / `MK-8` / `MK-11` / `MK-13` / `MK-15` / `MK-16` / `MK-17`）と、内部の取り決め')
+    expect(REQUIREMENTS).toContain('`MK-1` / `MK-6` / `MK-8` / `MK-11` / `MK-13` / `MK-15` / `MK-16`）と、内部の取り決め')
   })
 
   it('S-208: the row of table T-206 is a positive number', () => {

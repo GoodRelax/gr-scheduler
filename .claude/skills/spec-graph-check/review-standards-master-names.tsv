@@ -1,0 +1,114 @@
+# check 92: the perspective names of rule 07's master. Written by --refresh; never by hand.
+# kind TAB fields. commit: language, repository, file, last commit of that file.
+commit	ja	gr-sw-maker:process-rules/review-standards-ja.md	63e6fdc
+commit	en	gr-sw-maker:process-rules/review-standards-en.md	b723439
+heading	## R1: 要求品質レビュー観点（仕様書 Ch1-4 対象）	## R1: Requirements Quality Review Perspectives (Targeting Spec Ch1-4)
+heading	### R1a: 要求構造品質	### R1a: Requirements Structural Quality
+heading	### R1b: 要求表現品質（要求工学的観点）	### R1b: Requirements Expression Quality (Requirements Engineering Perspective)
+heading	## R2: SW設計原則レビュー観点（仕様書 Ch5-6・コード対象）	## R2: Software Design Principles Review Perspectives (Targeting Spec Ch5-6 and Code)
+heading	### Naming（命名）— 名は体を表す（MUST・最重要）	### Naming — A Name Shows What It Is (MUST, Most Important)
+heading	### SOLID 原則	### SOLID Principles
+heading	### その他の設計原則	### Other Design Principles
+heading	## R3: コーディング品質レビュー観点（コード対象）	## R3: Coding Quality Review Perspectives (Targeting Code)
+heading	### エラーハンドリング	### Error Handling
+heading	### ログと観測	### Logging and Observability
+heading	### 防御的プログラミング	### Defensive Programming
+heading	### 境界とインデックス	### Boundaries and Indexes
+heading	### 資源の生存期間	### Resource Lifetime
+heading	### 時刻	### Time
+heading	### Null Trap（null の罠）	### Null Trap
+heading	## R4: 並行性・状態遷移レビュー観点	## R4: Concurrency and State Transition Review Perspectives
+heading	### デッドロック	### Deadlock
+heading	### レースコンディション	### Race Condition
+heading	### グリッジ（状態遷移中の瞬間的な不正状態）	### Glitch (Momentary Invalid State During State Transition)
+heading	### 状態機械	### State Machine
+heading	## R5: パフォーマンスレビュー観点	## R5: Performance Review Perspectives
+heading	### アルゴリズム・データ構造	### Algorithms and Data Structures
+heading	### データベース・I/O	### Database and I/O
+heading	### メモリ・リソース	### Memory and Resources
+heading	### ネットワーク・フロントエンド	### Network and Frontend
+heading	## R6: テスト品質レビュー観点（テストコード対象）	## R6: Test Quality Review Perspectives (Targeting Test Code)
+heading	## R7: 純粋性・構造レビュー観点（仕様書 Ch5-6・コード対象）	## R7: Purity and Structure Review Perspectives (Targeting Spec Ch5-6 and Code)
+heading	### 純粋性の分類	### Purity Classification
+heading	### 計算ロジックの純粋性	### Purity of Calculation Logic
+heading	### 外部読取の引き上げ	### Lifting External Reads
+heading	### 収集と処理の分離	### Separation of Collection and Processing
+heading	### 純粋側クラスの不変性	### Immutability of Pure-Side Classes
+heading	### `@purity` タグ	### `@purity` Tag
+heading	### 構造の分離	### Structural Separation
+heading	### 失敗の表現	### Failure Representation
+heading	## R8: セキュリティレビュー観点（仕様書・コード対象）	## R8: Security Review Perspectives (Targeting Spec and Code)
+heading	### 秘密情報	### Secrets
+heading	### 入力と注入	### Input and Injection
+heading	### 認証と認可	### Authentication and Authorization
+heading	### 依存と OSS	### Dependencies and OSS
+pair	R1	要求構造品質	Requirements Structural Quality
+pair	R1	曖昧性の排除	Elimination of ambiguity
+pair	R1	仕様の重複・競合の排除	Elimination of specification duplication and conflicts
+pair	R1	異常系・準正常系の網羅	Coverage of abnormal and semi-normal cases
+pair	R1	完全性の検証	Completeness verification
+pair	R1	否定形・受動態の排除	Elimination of negation and passive voice
+pair	R1	トレーサビリティ	Traceability
+pair	R1	要求の記法（EARS: Easy Approach to Requirements Syntax）	Requirements notation (EARS: Easy Approach to Requirements Syntax)
+pair	R2	Naming	Naming
+pair	R2	SRP（Single Responsibility Principle / 単一責任原則）	SRP (Single Responsibility Principle)
+pair	R2	SRP（責務文）	SRP (responsibility sentence)
+pair	R2	SRP（上位の要素）	SRP (higher-level element)
+pair	R2	OCP（Open-Closed Principle / 開放閉鎖原則）	OCP (Open-Closed Principle)
+pair	R2	LSP（Liskov Substitution Principle / リスコフ置換原則）	LSP (Liskov Substitution Principle)
+pair	R2	ISP（Interface Segregation Principle / インターフェース分離原則）	ISP (Interface Segregation Principle)
+pair	R2	DIP（Dependency Inversion Principle / 依存性逆転原則）	DIP (Dependency Inversion Principle)
+pair	R2	DRY（Don't Repeat Yourself / 繰り返しを避ける）	DRY (Don't Repeat Yourself)
+pair	R2	KISS（Keep It Simple, Stupid / シンプルに保つ）	KISS (Keep It Simple, Stupid)
+pair	R2	YAGNI（You Aren't Gonna Need It / 必要になるまで作らない）	YAGNI (You Aren't Gonna Need It)
+pair	R2	SoC（Separation of Concerns / 関心の分離）	SoC (Separation of Concerns)
+pair	R2	SLAP（Single Level of Abstraction Principle / 単一抽象レベル原則）	SLAP (Single Level of Abstraction Principle)
+pair	R2	LoD（Law of Demeter / デメテルの法則 / 最小知識の原則）	LoD (Law of Demeter / Principle of Least Knowledge)
+pair	R2	CQS（Command-Query Separation / コマンド・クエリ分離）	CQS (Command-Query Separation)
+pair	R2	POLA（Principle of Least Astonishment / 最小驚き原則）	POLA (Principle of Least Astonishment)
+pair	R2	PIE（Program Intently and Expressively / 意図を明確に表現する）	PIE (Program Intently and Expressively)
+pair	R2	CA（Clean Architecture / クリーンアーキテクチャ / レイヤードアーキテクチャ）	CA (Clean Architecture / Layered Architecture)
+pair	R2	プロンプト工学	Prompt Engineering
+pair	R2	最小構成との比較	Comparison with the Minimal Configuration
+pair	R2	コンポーネント境界	Component Boundaries
+pair	R2	キャッシュ方針	Cache Policy
+pair	R2	DRY（1 か所）	DRY (one place)
+pair	R2	DRY（公開面）	DRY (public face)
+pair	R2	OKPN（One Kind Per Name / 1つの名前に1種類の値）	OKPN (One Kind Per Name)
+pair	R2	OMPV（One Meaning Per Value / 1つの値に1つの意味）	OMPV (One Meaning Per Value)
+pair	R2	互換性と版	Compatibility and Versions
+pair	R2	ビルドの版	Build Versions
+pair	R3	エラーハンドリング	Error Handling
+pair	R3	エラーメッセージ	Error Messages
+pair	R3	防御的プログラミング	Defensive Programming
+pair	R3	境界とインデックス	Boundaries and Indexes
+pair	R3	資源の生存期間	Resource Lifetime
+pair	R3	時刻	Time
+pair	R3	Null Trap	Null Trap
+pair	R3	ログと観測	Logging and Observability
+pair	R4	デッドロック	Deadlock
+pair	R4	レースコンディション	Race Condition
+pair	R4	グリッチ	Glitch
+pair	R4	状態機械	State Machine
+pair	R5	アルゴリズム・データ構造	Algorithms and Data Structures
+pair	R5	データベース・I/O	Database and I/O
+pair	R5	メモリ・リソース	Memory and Resources
+pair	R5	ネットワーク・フロントエンド	Network and Frontend
+pair	R6	独立性	Independence
+pair	R6	網羅	Coverage
+pair	R6	テストの名前	Test Names
+pair	R6	Gherkin	Gherkin
+pair	R7	純粋性の分類	Purity Classification
+pair	R7	計算ロジックの純粋性	Purity of Calculation Logic
+pair	R7	外部読取の引き上げ	Lifting External Reads
+pair	R7	収集と処理の分離	Separation of Collection and Processing
+pair	R7	純粋側クラスの不変性	Immutability of Pure-Side Classes
+pair	R7	`@purity` タグ	`@purity` Tag
+pair	R7	構造の分離（並び順）	Structural Separation (order)
+pair	R7	構造の分離（状態と計算）	Structural Separation (state and computation)
+pair	R7	構造の分離（ファイル）	Structural Separation (files)
+pair	R7	失敗の表現	Failure Representation
+pair	R8	秘密情報	Secrets
+pair	R8	入力と注入	Input and Injection
+pair	R8	認証と認可	Authentication and Authorization
+pair	R8	依存と OSS	Dependencies and OSS

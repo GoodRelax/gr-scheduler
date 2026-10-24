@@ -3,7 +3,8 @@
  "$id": "https://github.com/GoodRelax/gr-scheduler/docs/spec/_source/erd.schema.json",
  "$comment": [
   "HAND-WRITTEN CONTRACT -- EDIT THIS FILE.",
-  "Validates _source/erd.json, which is the single source of truth. It is not generated from anything and nothing is generated from it: it exists so that a manuscript missing a bound, a type or a language is refused instead of quietly producing a wrong artifact."
+  "Validates _source/erd.json, which is the single source of truth. It is not generated from anything and nothing is generated from it: it exists so that a manuscript missing a bound, a type or a language is refused instead of quietly producing a wrong artifact.",
+  "A column added or changed here obeys OKPN and OMPV (R2) and Null Trap (R3) of docs/development-rules/07-review-standards.md: one kind of value per name, one meaning per value, and an absent value is an omitted key, not null. The nullable field below predates the rule; check 90 holds the columns that still take null on its baseline."
  ],
  "title": "gr-scheduler data model source",
  "description": "The single source for the data-model figure and its explanation tables. A generator turns this into a StrictDoc markdown document; the prose that explains the tables lives in the specification body, never here.",
