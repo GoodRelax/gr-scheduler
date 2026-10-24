@@ -1,0 +1,211 @@
+{
+ "contracts": {
+  "json-doc": {
+   "rows": 674,
+   "review_lines": 3582,
+   "by_kind": {
+    "table-row": 599,
+    "anchor": 11,
+    "block": 64
+   },
+   "defines": 468,
+   "constrains": 206
+  },
+  "commands": {
+   "rows": 136,
+   "review_lines": 846,
+   "by_kind": {
+    "table-row": 124,
+    "block": 11,
+    "anchor": 1
+   },
+   "defines": 98,
+   "constrains": 38
+  },
+  "agent-api": {
+   "rows": 190,
+   "review_lines": 1069,
+   "by_kind": {
+    "block": 15,
+    "table-row": 172,
+    "anchor": 3
+   },
+   "defines": 99,
+   "constrains": 91
+  },
+  "mcp-relay": {
+   "rows": 41,
+   "review_lines": 422,
+   "by_kind": {
+    "table-row": 16,
+    "block": 2,
+    "anchor": 23
+   },
+   "defines": 31,
+   "constrains": 10
+  },
+  "versions": {
+   "rows": 19,
+   "review_lines": 194,
+   "by_kind": {
+    "table-row": 10,
+    "block": 3,
+    "anchor": 6
+   },
+   "defines": 14,
+   "constrains": 5
+  },
+  "mspdi": {
+   "rows": 244,
+   "review_lines": 1220,
+   "by_kind": {
+    "table-row": 210,
+    "block": 26,
+    "anchor": 8
+   },
+   "defines": 173,
+   "constrains": 71
+  },
+  "html-embed": {
+   "rows": 27,
+   "review_lines": 229,
+   "by_kind": {
+    "table-row": 19,
+    "block": 8
+   },
+   "defines": 11,
+   "constrains": 16
+  },
+  "picture-export": {
+   "rows": 34,
+   "review_lines": 224,
+   "by_kind": {
+    "table-row": 30,
+    "block": 4
+   },
+   "defines": 9,
+   "constrains": 25
+  },
+  "fix-log": {
+   "rows": 12,
+   "review_lines": 77,
+   "by_kind": {
+    "table-row": 11,
+    "block": 1
+   },
+   "defines": 10,
+   "constrains": 2
+  },
+  "delay-report": {
+   "rows": 21,
+   "review_lines": 88,
+   "by_kind": {
+    "table-row": 20,
+    "block": 1
+   },
+   "defines": 19,
+   "constrains": 2
+  },
+  "ai-prompt": {
+   "rows": 23,
+   "review_lines": 57,
+   "by_kind": {
+    "table-row": 2,
+    "block": 1,
+    "anchor": 20
+   },
+   "defines": 22,
+   "constrains": 1
+  },
+  "local-storage": {
+   "rows": 34,
+   "review_lines": 278,
+   "by_kind": {
+    "table-row": 23,
+    "block": 9,
+    "anchor": 2
+   },
+   "defines": 14,
+   "constrains": 20
+  },
+  "interaction-log": {
+   "rows": 9,
+   "review_lines": 44,
+   "by_kind": {
+    "table-row": 8,
+    "block": 1
+   },
+   "defines": 7,
+   "constrains": 2
+  },
+  "clipboard": {
+   "rows": 7,
+   "review_lines": 126,
+   "by_kind": {
+    "table-row": 3,
+    "block": 4
+   },
+   "defines": 6,
+   "constrains": 1
+  },
+  "server-sync": {
+   "rows": 6,
+   "review_lines": 23,
+   "by_kind": {
+    "table-row": 3,
+    "block": 1,
+    "anchor": 2
+   },
+   "defines": 1,
+   "constrains": 5
+  },
+  "hyperlink": {
+   "rows": 1,
+   "review_lines": 6,
+   "by_kind": {
+    "table-row": 1
+   },
+   "defines": 0,
+   "constrains": 1
+  },
+  "json-changes": {
+   "rows": 3,
+   "review_lines": 51,
+   "by_kind": {
+    "block": 1,
+    "anchor": 1,
+    "table-row": 1
+   },
+   "defines": 3,
+   "constrains": 0
+  },
+  "file-names": {
+   "rows": 6,
+   "review_lines": 65,
+   "by_kind": {
+    "block": 1,
+    "table-row": 5
+   },
+   "defines": 0,
+   "constrains": 6
+  },
+  "published-url": {
+   "rows": 2,
+   "review_lines": 129,
+   "by_kind": {
+    "table-row": 1,
+    "block": 1
+   },
+   "defines": 0,
+   "constrains": 2
+  }
+ },
+ "distinct_rows": 1234,
+ "distinct_review_lines": 6324,
+ "distinct_by_kind": {
+  "table-row": 1060,
+  "anchor": 76,
+  "block": 98
+ },
+ "pairs": 1489
+}
