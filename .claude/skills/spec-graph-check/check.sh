@@ -10,7 +10,8 @@
 #
 # then add up the ranges in the headings (1-4 is four, 5-10 is six, and so
 # on). A heading may carry several numbers because one script answers them.
-# The ranges today are 1 + 4 + 8 + 4 + 69. (Recounted 2026-10-22 at checks 87-88
+# The ranges today are 1 + 4 + 8 + 4 + 70. (Recounted 2026-10-24 at check 90
+# (data elements, JDG-3226): 69 + 1 -- 89 is held by another branch. Recounted 2026-10-22 at checks 87-88
 # (retired session words, the handoff note sections; JDG-3040..3042): 84 + 2 --
 # the line still read 81 although 84 were in. Recounted 2026-10-17 at checks 83-84
 # (the _source references and names, JDG-2692): 62 + 2. Recounted 2026-10-17 at check 82
@@ -99,7 +100,9 @@
 #          which of the three it is. A stale signpost is worse than none
 #   22     check-cr-discipline.py : every change request from CR-175 on
 #          answers standing rules 1, 2 and 8 -- a rule carried only as a
-#          principle is skipped, so the answers are checked
+#          principle is skipped, so the answers are checked. From CR-851 on,
+#          one that touches a data-element manuscript (erd.json and the like)
+#          names OKPN and OMPV in its section 2 (JDG-3226)
 #   23     check-language-dictionary.py : a manuscript holds its PRINTED prose
 #          as a language dictionary (Chapter 6.2), so adding an edition is a
 #          fill-in. Japanese that is a classification rather than prose is
@@ -426,6 +429,12 @@
 #          section and the first message for the next session (check-handoff
 #          --no-registry; check 72 keeps lessons, not this), and the guard's
 #          scenario test passes at a 5% threshold. JDG-3040. Baseline 0
+#   90     check-data-element-kinds.py : a data element of the generated GRS
+#          JSON or command schema packs two values behind a separator, mixes
+#          bare words with a format in one pattern, holds two values in one
+#          enum member (OKPN in R2) or takes null (Null Trap in R3) and is not on
+#          data-element-kinds-baseline.txt; or a baseline line is no longer
+#          found. JDG-3226. Baseline 195 on 8d162d7c7, lower only
 #
 # Green does NOT prove the specification is sound: defects of meaning have
 # appeared while all of these were green. They stop broken references, not
@@ -1210,6 +1219,16 @@ section "88  the handoff note holds its sections and the handover guard works"
 # is not gated here. MEASURED 2026-10-22: handoff green; scenario 29 of 29 (DFC-3422..3425 added).
 PYTHONIOENCODING=utf-8 python "$REPO/tools/handover_guard/guard.py" check-handoff --no-registry || failed
 PYTHONIOENCODING=utf-8 python "$REPO/tools/handover_guard/self_test.py" || failed
+
+echo ""
+section "90  a data element of the generated schemas takes one kind of value and no null"
+# OKPN (R2) and Null Trap (R3) of 07-review-standards.md (JDG-3221..3230). MEASURED
+# 2026-10-24 on 8d162d7c7: 195 findings, all on the baseline -- packed 16,
+# mixed 16 (the colour elements), spaced 2 (the DST time-zone keys), null 161.
+# Before the {n,m} quantifiers were struck, 36 date-time patterns read as
+# packed because of the comma in \d{4,}; the self-test now carries one.
+PYTHONIOENCODING=utf-8 python "$HERE/check-data-element-kinds.py" --self-test || failed
+PYTHONIOENCODING=utf-8 python "$HERE/check-data-element-kinds.py" || failed
 
 echo ""
 section "NOT COVERED  what this run did not look at"

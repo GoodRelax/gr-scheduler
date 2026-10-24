@@ -5,7 +5,8 @@
   "The schedule group of a GRS JSON document: its entities, columns, relations and the machine-readable type of every column (the \"json\" key).",
   "Generated FROM this file: _assets/fig-erd-detail.md and _assets/fig-erd-overview.md (erd_json_to_md.py), _source/grs-document.schema.json (erd_json_to_schema.py), and the entity types in src/entity/document-model (tools/generate_entity_types.py).",
   "Rebuild: npm run gen   |   npm run gen:check fails if anything has drifted.",
-  "Validated by _source/erd.schema.json before a byte is written."
+  "Validated by _source/erd.schema.json before a byte is written.",
+  "Every data element here obeys OKPN and OMPV (R2) and Null Trap (R3) of docs/development-rules/07-review-standards.md. Check 90 (check-data-element-kinds.py) reds a new violation in the generated schema; the ones older than the rule sit on its baseline, which only goes down."
  ],
  "printed": {
   "$comment": [
