@@ -1,0 +1,546 @@
+[
+ {
+  "osDpi": 1,
+  "zoom": 0.5,
+  "headed": false,
+  "dpr": 0.5,
+  "innerW": 2512,
+  "innerH": 1416,
+  "outerW": 1280,
+  "outerH": 800,
+  "screenW": 800,
+  "vvScale": 1,
+  "res": [
+   0.5
+  ],
+  "outerOverInner": 0.5096
+ },
+ {
+  "osDpi": 1,
+  "zoom": 0.67,
+  "headed": false,
+  "dpr": 0.6700000166893005,
+  "innerW": 1874,
+  "innerH": 1056,
+  "outerW": 1280,
+  "outerH": 800,
+  "screenW": 800,
+  "vvScale": 1,
+  "res": [
+   0.67
+  ],
+  "outerOverInner": 0.683
+ },
+ {
+  "osDpi": 1,
+  "zoom": 0.8,
+  "headed": false,
+  "dpr": 0.800000011920929,
+  "innerW": 1570,
+  "innerH": 885,
+  "outerW": 1280,
+  "outerH": 800,
+  "screenW": 800,
+  "vvScale": 1,
+  "res": [
+   0.8
+  ],
+  "outerOverInner": 0.8153
+ },
+ {
+  "osDpi": 1,
+  "zoom": 0.9,
+  "headed": false,
+  "dpr": 0.8999999761581421,
+  "innerW": 1395,
+  "innerH": 786,
+  "outerW": 1280,
+  "outerH": 800,
+  "screenW": 800,
+  "vvScale": 1,
+  "res": [
+   0.9
+  ],
+  "outerOverInner": 0.9176
+ },
+ {
+  "osDpi": 1,
+  "zoom": 1,
+  "headed": false,
+  "dpr": 1,
+  "innerW": 1256,
+  "innerH": 708,
+  "outerW": 1280,
+  "outerH": 800,
+  "screenW": 800,
+  "vvScale": 1,
+  "res": [
+   1
+  ],
+  "outerOverInner": 1.0191
+ },
+ {
+  "osDpi": 1,
+  "zoom": 1.1,
+  "headed": false,
+  "dpr": 1.100000023841858,
+  "innerW": 1142,
+  "innerH": 644,
+  "outerW": 1280,
+  "outerH": 800,
+  "screenW": 800,
+  "vvScale": 1,
+  "res": [
+   1.1
+  ],
+  "outerOverInner": 1.1208
+ },
+ {
+  "osDpi": 1,
+  "zoom": 1.25,
+  "headed": false,
+  "dpr": 1.25,
+  "innerW": 1005,
+  "innerH": 566,
+  "outerW": 1280,
+  "outerH": 800,
+  "screenW": 800,
+  "vvScale": 1,
+  "res": [
+   1.25
+  ],
+  "outerOverInner": 1.2736
+ },
+ {
+  "osDpi": 1,
+  "zoom": 1.5,
+  "headed": false,
+  "dpr": 1.5,
+  "innerW": 837,
+  "innerH": 472,
+  "outerW": 1280,
+  "outerH": 800,
+  "screenW": 800,
+  "vvScale": 1,
+  "res": [
+   1.5
+  ],
+  "outerOverInner": 1.5293
+ },
+ {
+  "osDpi": 1,
+  "zoom": 2,
+  "headed": false,
+  "dpr": 2,
+  "innerW": 628,
+  "innerH": 354,
+  "outerW": 1280,
+  "outerH": 800,
+  "screenW": 800,
+  "vvScale": 1,
+  "res": [
+   2
+  ],
+  "outerOverInner": 2.0382
+ },
+ {
+  "osDpi": 1.25,
+  "zoom": 0.5,
+  "headed": false,
+  "dpr": 0.625,
+  "innerW": 2512,
+  "innerH": 1416,
+  "outerW": 1281,
+  "outerH": 801,
+  "screenW": 512,
+  "vvScale": 1,
+  "res": [],
+  "outerOverInner": 0.51
+ },
+ {
+  "osDpi": 1.25,
+  "zoom": 0.67,
+  "headed": false,
+  "dpr": 0.8375000357627869,
+  "innerW": 1874,
+  "innerH": 1056,
+  "outerW": 1281,
+  "outerH": 801,
+  "screenW": 512,
+  "vvScale": 1,
+  "res": [],
+  "outerOverInner": 0.6836
+ },
+ {
+  "osDpi": 1.25,
+  "zoom": 0.8,
+  "headed": false,
+  "dpr": 1,
+  "innerW": 1570,
+  "innerH": 885,
+  "outerW": 1281,
+  "outerH": 801,
+  "screenW": 512,
+  "vvScale": 1,
+  "res": [
+   1
+  ],
+  "outerOverInner": 0.8159
+ },
+ {
+  "osDpi": 1.25,
+  "zoom": 0.9,
+  "headed": false,
+  "dpr": 1.125,
+  "innerW": 1396,
+  "innerH": 787,
+  "outerW": 1281,
+  "outerH": 801,
+  "screenW": 512,
+  "vvScale": 1,
+  "res": [],
+  "outerOverInner": 0.9176
+ },
+ {
+  "osDpi": 1.25,
+  "zoom": 1,
+  "headed": false,
+  "dpr": 1.25,
+  "innerW": 1256,
+  "innerH": 708,
+  "outerW": 1281,
+  "outerH": 801,
+  "screenW": 512,
+  "vvScale": 1,
+  "res": [
+   1.25
+  ],
+  "outerOverInner": 1.0199
+ },
+ {
+  "osDpi": 1.25,
+  "zoom": 1.1,
+  "headed": false,
+  "dpr": 1.375,
+  "innerW": 1142,
+  "innerH": 644,
+  "outerW": 1281,
+  "outerH": 801,
+  "screenW": 512,
+  "vvScale": 1,
+  "res": [],
+  "outerOverInner": 1.1217
+ },
+ {
+  "osDpi": 1.25,
+  "zoom": 1.25,
+  "headed": false,
+  "dpr": 1.5625,
+  "innerW": 1005,
+  "innerH": 566,
+  "outerW": 1281,
+  "outerH": 801,
+  "screenW": 512,
+  "vvScale": 1,
+  "res": [],
+  "outerOverInner": 1.2746
+ },
+ {
+  "osDpi": 1.25,
+  "zoom": 1.5,
+  "headed": false,
+  "dpr": 1.875,
+  "innerW": 837,
+  "innerH": 472,
+  "outerW": 1281,
+  "outerH": 801,
+  "screenW": 512,
+  "vvScale": 1,
+  "res": [],
+  "outerOverInner": 1.5305
+ },
+ {
+  "osDpi": 1.25,
+  "zoom": 2,
+  "headed": false,
+  "dpr": 2.5,
+  "innerW": 628,
+  "innerH": 354,
+  "outerW": 1281,
+  "outerH": 801,
+  "screenW": 512,
+  "vvScale": 1,
+  "res": [
+   2.5
+  ],
+  "outerOverInner": 2.0398
+ },
+ {
+  "osDpi": 1.5,
+  "zoom": 0.5,
+  "headed": false,
+  "dpr": 0.75,
+  "innerW": 2512,
+  "innerH": 1416,
+  "outerW": 1280,
+  "outerH": 800,
+  "screenW": 356,
+  "vvScale": 1,
+  "res": [
+   0.75
+  ],
+  "outerOverInner": 0.5096
+ },
+ {
+  "osDpi": 1.5,
+  "zoom": 0.67,
+  "headed": false,
+  "dpr": 1.0049999952316284,
+  "innerW": 1875,
+  "innerH": 1057,
+  "outerW": 1280,
+  "outerH": 800,
+  "screenW": 356,
+  "vvScale": 1,
+  "res": [],
+  "outerOverInner": 0.6827
+ },
+ {
+  "osDpi": 1.5,
+  "zoom": 0.8,
+  "headed": false,
+  "dpr": 1.2000000476837158,
+  "innerW": 1570,
+  "innerH": 885,
+  "outerW": 1280,
+  "outerH": 800,
+  "screenW": 356,
+  "vvScale": 1,
+  "res": [],
+  "outerOverInner": 0.8153
+ },
+ {
+  "osDpi": 1.5,
+  "zoom": 0.9,
+  "headed": false,
+  "dpr": 1.3499999046325684,
+  "innerW": 1395,
+  "innerH": 787,
+  "outerW": 1280,
+  "outerH": 800,
+  "screenW": 356,
+  "vvScale": 1,
+  "res": [],
+  "outerOverInner": 0.9176
+ },
+ {
+  "osDpi": 1.5,
+  "zoom": 1,
+  "headed": false,
+  "dpr": 1.5,
+  "innerW": 1256,
+  "innerH": 708,
+  "outerW": 1280,
+  "outerH": 800,
+  "screenW": 356,
+  "vvScale": 1,
+  "res": [
+   1.5
+  ],
+  "outerOverInner": 1.0191
+ },
+ {
+  "osDpi": 1.5,
+  "zoom": 1.1,
+  "headed": false,
+  "dpr": 1.6500000953674316,
+  "innerW": 1142,
+  "innerH": 643,
+  "outerW": 1280,
+  "outerH": 800,
+  "screenW": 356,
+  "vvScale": 1,
+  "res": [],
+  "outerOverInner": 1.1208
+ },
+ {
+  "osDpi": 1.5,
+  "zoom": 1.25,
+  "headed": false,
+  "dpr": 1.875,
+  "innerW": 1005,
+  "innerH": 566,
+  "outerW": 1280,
+  "outerH": 800,
+  "screenW": 356,
+  "vvScale": 1,
+  "res": [],
+  "outerOverInner": 1.2736
+ },
+ {
+  "osDpi": 1.5,
+  "zoom": 1.5,
+  "headed": false,
+  "dpr": 2.25,
+  "innerW": 837,
+  "innerH": 472,
+  "outerW": 1280,
+  "outerH": 800,
+  "screenW": 356,
+  "vvScale": 1,
+  "res": [],
+  "outerOverInner": 1.5293
+ },
+ {
+  "osDpi": 1.5,
+  "zoom": 2,
+  "headed": false,
+  "dpr": 3,
+  "innerW": 628,
+  "innerH": 354,
+  "outerW": 1280,
+  "outerH": 800,
+  "screenW": 356,
+  "vvScale": 1,
+  "res": [
+   3
+  ],
+  "outerOverInner": 2.0382
+ },
+ {
+  "osDpi": 2,
+  "zoom": 0.5,
+  "headed": false,
+  "dpr": 1,
+  "innerW": 2512,
+  "innerH": 1416,
+  "outerW": 1280,
+  "outerH": 800,
+  "screenW": 200,
+  "vvScale": 1,
+  "res": [
+   1
+  ],
+  "outerOverInner": 0.5096
+ },
+ {
+  "osDpi": 2,
+  "zoom": 0.67,
+  "headed": false,
+  "dpr": 1.340000033378601,
+  "innerW": 1875,
+  "innerH": 1057,
+  "outerW": 1280,
+  "outerH": 800,
+  "screenW": 200,
+  "vvScale": 1,
+  "res": [],
+  "outerOverInner": 0.6827
+ },
+ {
+  "osDpi": 2,
+  "zoom": 0.8,
+  "headed": false,
+  "dpr": 1.600000023841858,
+  "innerW": 1570,
+  "innerH": 885,
+  "outerW": 1280,
+  "outerH": 800,
+  "screenW": 200,
+  "vvScale": 1,
+  "res": [],
+  "outerOverInner": 0.8153
+ },
+ {
+  "osDpi": 2,
+  "zoom": 0.9,
+  "headed": false,
+  "dpr": 1.7999999523162842,
+  "innerW": 1395,
+  "innerH": 786,
+  "outerW": 1280,
+  "outerH": 800,
+  "screenW": 200,
+  "vvScale": 1,
+  "res": [],
+  "outerOverInner": 0.9176
+ },
+ {
+  "osDpi": 2,
+  "zoom": 1,
+  "headed": false,
+  "dpr": 2,
+  "innerW": 1256,
+  "innerH": 708,
+  "outerW": 1280,
+  "outerH": 800,
+  "screenW": 200,
+  "vvScale": 1,
+  "res": [
+   2
+  ],
+  "outerOverInner": 1.0191
+ },
+ {
+  "osDpi": 2,
+  "zoom": 1.1,
+  "headed": false,
+  "dpr": 2.200000047683716,
+  "innerW": 1142,
+  "innerH": 643,
+  "outerW": 1280,
+  "outerH": 800,
+  "screenW": 200,
+  "vvScale": 1,
+  "res": [],
+  "outerOverInner": 1.1208
+ },
+ {
+  "osDpi": 2,
+  "zoom": 1.25,
+  "headed": false,
+  "dpr": 2.5,
+  "innerW": 1005,
+  "innerH": 566,
+  "outerW": 1280,
+  "outerH": 800,
+  "screenW": 200,
+  "vvScale": 1,
+  "res": [
+   2.5
+  ],
+  "outerOverInner": 1.2736
+ },
+ {
+  "osDpi": 2,
+  "zoom": 1.5,
+  "headed": false,
+  "dpr": 3,
+  "innerW": 837,
+  "innerH": 472,
+  "outerW": 1280,
+  "outerH": 800,
+  "screenW": 200,
+  "vvScale": 1,
+  "res": [
+   3
+  ],
+  "outerOverInner": 1.5293
+ },
+ {
+  "osDpi": 2,
+  "zoom": 2,
+  "headed": false,
+  "dpr": 4,
+  "innerW": 628,
+  "innerH": 354,
+  "outerW": 1280,
+  "outerH": 800,
+  "screenW": 200,
+  "vvScale": 1,
+  "res": [
+   4
+  ],
+  "outerOverInner": 2.0382
+ }
+]

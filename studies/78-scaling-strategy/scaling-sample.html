@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Scaling layers sample</title>
+<style>
+  :root { --ink: #1d2330; --muted: #5b6475; --line: #c9cfdb; --ground: #ffffff; --pane: #f4f6fa; --accent: #2f6fd6; --warn: #b4531a; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 16px/1.7 system-ui, "Segoe UI", "Yu Gothic UI", sans-serif; color: var(--ink); background: var(--pane); }
+  header { padding: 12px 16px; background: var(--ground); border-bottom: 1px solid var(--line); }
+  header h1 { margin: 0; font-size: 20px; }
+  header p { margin: 4px 0 0; color: var(--muted); font-size: 14px; }
+  main { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 0; min-height: calc(100vh - 80px); }
+  #pictures { padding: 16px; overflow: auto; }
+  #settings { padding: 16px; background: var(--ground); border-left: 1px solid var(--line); overflow: auto; }
+  h2 { font-size: 16px; margin: 16px 0 6px; }
+  h2:first-child { margin-top: 0; }
+  .card { background: var(--ground); border: 1px solid var(--line); border-radius: 6px; padding: 10px 12px; margin-bottom: 16px; }
+  .card h3 { margin: 0 0 6px; font-size: 15px; }
+  .facts { font-size: 13px; color: var(--muted); margin: 6px 0 0; }
+  .facts b { color: var(--ink); }
+  svg.frame { display: block; width: 100%; height: auto; background: #20242c; border-radius: 4px; }
+  label { display: block; font-size: 14px; margin: 8px 0 2px; }
+  select, input[type=range] { width: 100%; font-size: 14px; }
+  .row { display: flex; gap: 8px; align-items: center; }
+  .row output { min-width: 64px; text-align: right; font-variant-numeric: tabular-nums; font-size: 14px; }
+  .note { font-size: 13px; color: var(--muted); }
+  .warn { color: var(--warn); }
+  table { border-collapse: collapse; width: 100%; font-size: 13px; }
+  td, th { border-bottom: 1px solid var(--line); padding: 3px 4px; text-align: left; vertical-align: top; }
+  td.n { text-align: right; font-variant-numeric: tabular-nums; }
+  pre#summary { background: #eceff4; padding: 8px; font-size: 12px; white-space: pre-wrap; border-radius: 4px; }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 900px) { main { grid-template-columns: 1fr; } .two { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<header>
+  <h1>拡大縮小の層 —— 触れる見本（study 78）</h1>
+  <p>OS の倍率・ブラウザの倍率・GRS の表示の倍率・文字サイズ・ズームが、画面と書き出す PNG にどう効くかを試す。数は GRS の既定値を写した模型であり、出荷のコードではない。</p>
+</header>
+<main>
+<section id="pictures">
+  <div class="card">
+    <h3>1. あなたの画面（模型）</h3>
+    <svg class="frame" id="screen"></svg>
+    <p class="facts" id="screenFacts"></p>
+  </div>
+  <div class="two">
+    <div class="card">
+      <h3>2. 書き出す PNG —— 案 A「画面のとおり」（今の作り）</h3>
+      <svg class="frame" id="pngA"></svg>
+      <p class="facts" id="factsA"></p>
+    </div>
+    <div class="card">
+      <h3>3. 書き出す PNG —— 案 B「基準の画面で組み直す」</h3>
+      <svg class="frame" id="pngB"></svg>
+      <p class="facts" id="factsB"></p>
+    </div>
+  </div>
+  <div class="card">
+    <h3>4. このブラウザの本物の値（Ctrl ＋ / Ctrl − / Ctrl 0 で変わる）</h3>
+    <table id="live"></table>
+    <p class="note">devicePixelRatio は「OS の倍率 × ブラウザの倍率」の積である。積しか読めないので、GRS には 2 つのどちらが動いたのかが分からない（OS 150% ・ブラウザ 100% と、OS 100% ・ブラウザ 150% は、同じ 1.5 になる）。ブラウザの倍率を GRS から変える手段は無い。</p>
+  </div>
+</section>
+<aside id="settings">
+  <h2>読む人の環境（文書に残らない）</h2>
+  <label for="monitor">モニター（物理の画素）</label>
+  <select id="monitor">
+    <option value="1366x768">1366 × 768</option>
+    <option value="1920x1080" selected>1920 × 1080（基準 MC-6）</option>
+    <option value="2560x1440">2560 × 1440</option>
+    <option value="3840x2160">3840 × 2160（4K）</option>
+  </select>
+  <label for="osDpi">OS の倍率（Windows の「拡大/縮小」）</label>
+  <select id="osDpi">
+    <option value="1" selected>100%</option><option value="1.25">125%</option><option value="1.5">150%</option><option value="1.75">175%</option><option value="2">200%</option>
+  </select>
+  <label for="browserZoom">ブラウザの倍率（Ctrl ＋ / Ctrl −）</label>
+  <select id="browserZoom">
+    <option value="0.5">50%</option><option value="0.67">67%</option><option value="0.75">75%</option><option value="0.8">80%</option><option value="0.9">90%</option>
+    <option value="1" selected>100%</option><option value="1.1">110%</option><option value="1.25">125%</option><option value="1.5">150%</option><option value="1.75">175%</option><option value="2">200%</option>
+  </select>
+  <label for="windowShare">ブラウザの窓の幅（モニターに対する割合）</label>
+  <div class="row"><input type="range" id="windowShare" min="40" max="100" step="5" value="100"><output id="windowShareOut"></output></div>
+
+  <h2>文書が持つ値（GRS JSON に残る）</h2>
+  <label for="displayScale">表示の倍率 <code>displayScale</code>（S-234）</label>
+  <select id="displayScale">
+    <option>50</option><option>67</option><option>75</option><option>90</option><option selected>100</option><option>110</option><option>125</option><option>150</option><option>175</option><option>200</option>
+  </select>
+  <label for="fontSizeStep">文字サイズ <code>fontSizeStep</code>（S-70）</label>
+  <select id="fontSizeStep"><option value="S">S</option><option value="M" selected>M</option><option value="L">L</option></select>
+  <label><input type="checkbox" id="fit" checked> 全体表示（Fit）—— 横のズームを画面の幅に合わせる</label>
+  <p class="note">入れると、横のズームはその画面の幅から求まる（今の作りで開いた直後や全体表示を押した後）。案 B では基準の画面の幅から求まる。</p>
+  <label for="zoomX">横のズーム <code>zoomX</code>（S-75）</label>
+  <div class="row"><input type="range" id="zoomX" min="-3" max="3" step="0.05" value="0"><output id="zoomXOut"></output></div>
+  <label for="zoomY">縦のズーム <code>zoomY</code>（S-76）</label>
+  <div class="row"><input type="range" id="zoomY" min="-1.5" max="1.5" step="0.05" value="0"><output id="zoomYOut"></output></div>
+  <label><input type="checkbox" id="boxFollows"> コメントボックスも表示の倍率に従う（案「px を 1 つの意味に揃える」）</label>
+  <p class="note">外すと今の作り —— コメントボックスの字と線（<code>fontSizePx</code>・<code>strokeWidthPx</code>）は表示の倍率でも動かない。</p>
+
+  <h2>値を伝える</h2>
+  <p class="note">下の灰色の塊をそのまま貼ってください。</p>
+  <pre id="summary"></pre>
+</aside>
+</main>
+<script>
+'use strict'
+// Model constants copied from docs/spec/_assets/tbl-settings.md (develop 80927c91d).
+const BASE = {
+  drawBase: 0.625,          // S-236, folded into the values by CR-851
+  pxPerDay: 6,              // S-1
+  basePlanHeight: 28,       // S-4
+  stackGap: 6,              // S-11, not scaled (DS-10)
+  canvasPadding: 10,        // S-56, not scaled (DS-5)
+  taskGroupPanelWidth: 300, // S-79
+  taskGroupTitleFont: 19.5, // S-36
+  rulerFontOfStep: 1.5,     // S-3 = step px x 1.5
+  rulerLabelPad: 2,         // S-136
+  fontOfStep: { S: 12, M: 14, L: 16 }, // T-215
+  headerHeight: 40,         // App Header band, model value; scaled by S-235 only
+  headerScale: 0.6667,      // S-235
+  commentFont: 10,          // S-624 default
+  commentStroke: 1,         // S-374 default
+  exportWidth: 1920,        // S-81
+  referenceCss: { width: 1920, height: 1080 }, // MC-6
+}
+const GROUPS = [
+  { name: 'Planning', tasks: [[0, 18, 'Kick-off and scope'], [14, 30, 'Requirements']] },
+  { name: 'Design', tasks: [[28, 55, 'Screen design'], [40, 70, 'Data model']] },
+  { name: 'Build', tasks: [[60, 110, 'Implementation'], [95, 125, 'Integration test']] },
+  { name: 'Release', tasks: [[120, 140, 'User test'], [140, 141, 'Go live']] },
+]
+const SPAN_DAYS = 145
+const $ = (id) => document.getElementById(id)
+const ids = ['monitor', 'osDpi', 'browserZoom', 'windowShare', 'displayScale', 'fontSizeStep', 'zoomX', 'zoomY', 'boxFollows', 'fit']
+
+function state() {
+  const [mw, mh] = $('monitor').value.split('x').map(Number)
+  return {
+    monitorW: mw, monitorH: mh, osDpi: Number($('osDpi').value), browserZoom: Number($('browserZoom').value),
+    windowShare: Number($('windowShare').value) / 100, displayScale: Number($('displayScale').value),
+    fontSizeStep: $('fontSizeStep').value, zoomX: Math.round(Math.pow(2, Number($('zoomX').value)) * 1000) / 1000,
+    zoomY: Math.round(Math.pow(2, Number($('zoomY').value)) * 1000) / 1000, boxFollows: $('boxFollows').checked, fit: $('fit').checked,
+  }
+}
+
+// What the page sees: CSS px of the window, and the one product devicePixelRatio.
+function cssViewport(s) {
+  const dpr = s.osDpi * s.browserZoom
+  return { width: Math.floor(s.monitorW * s.windowShare / dpr), height: Math.floor((s.monitorH - 72 * s.osDpi) / dpr), dpr }
+}
+
+// Lay out the model screen in CSS px; r is the draw ratio of FR-039.
+function layout(s, view) {
+  const r = s.displayScale / 100 * BASE.drawBase
+  const font = BASE.fontOfStep[s.fontSizeStep]
+  const rulerFont = font * BASE.rulerFontOfStep
+  const rulerH = (rulerFont * 3 + BASE.rulerLabelPad * 3) * r
+  const headerH = BASE.headerHeight * BASE.headerScale
+  const panelW = BASE.taskGroupPanelWidth * r
+  const areaWidth = Math.max(0, view.width - panelW)
+  const zoomX = s.fit ? areaWidth / (SPAN_DAYS * BASE.pxPerDay * r) : s.zoomX
+  const dayW = BASE.pxPerDay * r * zoomX
+  const rowH = BASE.basePlanHeight * r * s.zoomY
+  const groupH = rowH * 2 + BASE.stackGap * 3
+  const areaX = panelW
+  const areaW = Math.max(0, view.width - panelW)
+  const boxScale = s.boxFollows ? s.displayScale / 100 : 1
+  return {
+    r, zoomX, font: font * r, rulerFont: rulerFont * r, rulerH, headerH, panelW, dayW, rowH, groupH, areaX, areaW,
+    titleFont: BASE.taskGroupTitleFont * r, days: areaW / dayW, groupsShown: Math.max(0, (view.height - headerH - rulerH) / groupH),
+    commentFont: BASE.commentFont * boxScale, commentStroke: BASE.commentStroke * boxScale,
+  }
+}
+
+function sceneSvg(view, L, s) {
+  const w = view.width, h = view.height
+  const parts = []
+  parts.push(`<rect width="${w}" height="${h}" fill="#fff"/>`)
+  parts.push(`<rect width="${w}" height="${L.headerH}" fill="#e9edf5"/><text x="8" y="${L.headerH * 0.66}" font-size="${14 * BASE.headerScale * 1.2}" fill="#1d2330" font-weight="700">Website renewal</text>`)
+  const top = L.headerH
+  parts.push(`<rect x="0" y="${top}" width="${L.panelW}" height="${h - top}" fill="#f7f8fb"/>`)
+  parts.push(`<rect x="${L.areaX}" y="${top}" width="${L.areaW}" height="${L.rulerH}" fill="#f0f2f7"/>`)
+  for (let d = 0; d * L.dayW < L.areaW; d += 7) {
+    const x = L.areaX + d * L.dayW
+    parts.push(`<line x1="${x}" y1="${top}" x2="${x}" y2="${h}" stroke="#e3e6ee" stroke-width="1"/>`)
+    if (d % 14 === 0 && 7 * L.dayW > L.rulerFont * 1.2) parts.push(`<text x="${x + 2}" y="${top + L.rulerFont + 1}" font-size="${L.rulerFont}" fill="#5b6475">W${d / 7 + 1}</text>`)
+  }
+  let y = top + L.rulerH
+  for (const g of GROUPS) {
+    parts.push(`<text x="6" y="${y + L.titleFont + 2}" font-size="${L.titleFont}" fill="#1d2330">${g.name}</text>`)
+    parts.push(`<line x1="0" y1="${y + L.groupH}" x2="${w}" y2="${y + L.groupH}" stroke="#d6dbe5" stroke-width="1"/>`)
+    g.tasks.forEach(([a, b, name], i) => {
+      const ty = y + BASE.stackGap + i * (L.rowH + BASE.stackGap)
+      const x = L.areaX + a * L.dayW, bw = Math.max(4 * L.r / BASE.drawBase, (b - a) * L.dayW)
+      parts.push(`<rect x="${x}" y="${ty}" width="${bw}" height="${L.rowH}" fill="#7fa7e8" stroke="#2f5fae" stroke-width="${1 * L.r / BASE.drawBase}"/>`)
+      parts.push(`<text x="${x + bw + 4}" y="${ty + L.rowH * 0.7}" font-size="${L.font}" fill="#1d2330">${name}</text>`)
+    })
+    y += L.groupH
+  }
+  const cx = L.areaX + 50 * L.dayW, cy = top + L.rulerH + L.groupH * 0.5
+  parts.push(`<rect x="${cx}" y="${cy}" width="${L.commentFont * 11}" height="${L.commentFont * 2.4}" fill="#fff8d6" stroke="#8a7a2a" stroke-width="${L.commentStroke}"/>`)
+  parts.push(`<text x="${cx + 4}" y="${cy + L.commentFont * 1.6}" font-size="${L.commentFont}" fill="#4a4320">Comment box: review</text>`)
+  return parts.join('')
+}
+
+function draw() {
+  const s = state()
+  $('windowShareOut').value = Math.round(s.windowShare * 100) + '%'
+  $('zoomXOut').value = s.zoomX.toFixed(3)
+  $('zoomYOut').value = s.zoomY.toFixed(3)
+  const view = cssViewport(s)
+  const L = layout(s, view)
+  // 1. The screen: drawn in CSS px, shown inside the monitor at physical size.
+  const scr = $('screen')
+  scr.setAttribute('viewBox', `0 0 ${s.monitorW} ${s.monitorH}`)
+  scr.innerHTML = `<rect width="${s.monitorW}" height="${s.monitorH}" fill="#20242c"/>` +
+    `<g transform="translate(0 ${72 * s.osDpi}) scale(${view.dpr})">${sceneSvg(view, L, s)}</g>` +
+    `<rect width="${s.monitorW * s.windowShare}" height="${72 * s.osDpi}" fill="#3a404c"/><text x="12" y="${48 * s.osDpi}" font-size="${28 * s.osDpi}" fill="#cfd5e0">browser tabs and address bar</text>`
+  $('screenFacts').innerHTML = `ページが読む値: <b>CSS の幅 ${view.width} px</b>・高さ ${view.height} px・<b>devicePixelRatio ${view.dpr.toFixed(3)}</b>（= OS ${s.osDpi * 100}% × ブラウザ ${Math.round(s.browserZoom * 100)}%）。` +
+    `描く比 ${L.r.toFixed(4)}・横のズーム ${L.zoomX.toFixed(3)}・1 日 ${L.dayW.toFixed(2)} px・見える日数 <b>${L.days.toFixed(1)} 日</b>・字 ${L.font.toFixed(2)} CSS px（物理 ${(L.font * view.dpr).toFixed(1)} 画素）`
+  // 2. Plan A: the screen shrunk by 1920 / CSS width (FR-080, today).
+  const ratioA = BASE.exportWidth / view.width
+  const hA = Math.max(1080, Math.ceil(view.height * ratioA))
+  const a = $('pngA'); a.setAttribute('viewBox', `0 0 1920 ${hA}`)
+  a.innerHTML = `<rect width="1920" height="${hA}" fill="#fff"/><g transform="scale(${ratioA})">${sceneSvg(view, L, s)}</g>`
+  $('factsA').innerHTML = `縮める比 <b>${ratioA.toFixed(3)}</b>・PNG 1920 × ${hA}・見える日数 ${L.days.toFixed(1)} 日・PNG の中の字 <b>${(L.font * ratioA).toFixed(1)} px</b>・目盛の字 ${(L.rulerFont * ratioA).toFixed(1)} px。` +
+    (hA > 4096 ? ' <span class="warn">高さの天井 4096 を超える —— 書き出さない</span>' : '') +
+    ' ブラウザの倍率・OS の倍率・窓の幅で変わる。'
+  // 3. Plan B: re-layout on the reference screen 1920 x 1080 CSS px, browser zoom 100%.
+  const ref = { width: BASE.referenceCss.width, height: BASE.referenceCss.height - 0, dpr: 1 }
+  const LB = layout(s, ref)
+  const b = $('pngB'); b.setAttribute('viewBox', `0 0 1920 1080`)
+  b.innerHTML = `<rect width="1920" height="1080" fill="#fff"/>${sceneSvg(ref, LB, s)}`
+  $('factsB').innerHTML = `縮める比 <b>1</b>・PNG 1920 × 1080・見える日数 ${LB.days.toFixed(1)} 日・PNG の中の字 <b>${LB.font.toFixed(1)} px</b>・目盛の字 ${LB.rulerFont.toFixed(1)} px。` +
+    ' 文書の値だけで決まり、だれの画面でも同じ絵になる。画面とは見える範囲が違いうる。'
+  $('summary').textContent = [
+    `monitor ${s.monitorW}x${s.monitorH}, osDpi ${s.osDpi}, browserZoom ${s.browserZoom}, window ${Math.round(s.windowShare * 100)}%`,
+    `css viewport ${view.width}x${view.height}, devicePixelRatio ${view.dpr.toFixed(3)}`,
+    `displayScale ${s.displayScale}, fontSizeStep ${s.fontSizeStep}, zoomX ${s.zoomX}, zoomY ${s.zoomY}, commentBoxFollowsDisplayScale ${s.boxFollows}`,
+    `screen: days ${L.days.toFixed(1)}, text ${L.font.toFixed(2)} css px`,
+    `plan A (screen): ratio ${ratioA.toFixed(4)}, png 1920x${hA}, text ${(L.font * ratioA).toFixed(2)} px`,
+    `plan B (reference): ratio 1, png 1920x1080, days ${LB.days.toFixed(1)}, text ${LB.font.toFixed(2)} px`,
+    `fit ${s.fit}, zoomX used: screen ${L.zoomX.toFixed(3)}, reference ${LB.zoomX.toFixed(3)}`,
+  ].join('\n')
+}
+
+function live() {
+  const rows = [
+    ['devicePixelRatio', devicePixelRatio.toFixed(4)],
+    ['innerWidth × innerHeight（CSS px）', innerWidth + ' × ' + innerHeight],
+    ['screen.width × screen.height', screen.width + ' × ' + screen.height + '（ブラウザの倍率では変わらない）'],
+    ['outerWidth ÷ innerWidth', (outerWidth / innerWidth).toFixed(4) + '（窓の枠・横の帯・開発者ツールで狂う近似）'],
+    ['visualViewport.scale', window.visualViewport ? visualViewport.scale.toFixed(3) + '（指でつまむ拡大だけ）' : '—'],
+  ]
+  $('live').innerHTML = rows.map(([k, v]) => `<tr><th>${k}</th><td class="n">${v}</td></tr>`).join('')
+}
+
+for (const id of ids) $(id).addEventListener('input', draw)
+addEventListener('resize', live)
+let watched = null
+function watchDpr() {
+  if (watched) watched.removeEventListener('change', onDpr)
+  watched = matchMedia(`(resolution: ${devicePixelRatio}dppx)`)
+  watched.addEventListener('change', onDpr)
+}
+function onDpr() { live(); watchDpr() }
+watchDpr(); live(); draw()
+window.sampleSet = (values) => { for (const [k, v] of Object.entries(values)) { const el = $(k); if (el.type === 'checkbox') el.checked = v; else el.value = String(v) } draw(); return $('summary').textContent }
+</script>
+</body>
+</html>
