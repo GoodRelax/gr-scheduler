@@ -377,10 +377,23 @@ hook は `sweep` と `stats` を自動で走らせるので、Claude のセッ�
 | 検査 87 `check-old-session-words.py` | 生きている文書（逐語の記録の外の `docs/`・`tools/`・`.claude/`）で、`JDG-3042` が止めた旧い語（`docs/development-rules/session-names.md` の 2 節の表）がファイルの基準線（`old-session-words-baseline.txt`）より増えたもの | 1 字の語が本当にセッションの意味か。「」とバッククォートの中。逐語の記録。英語の語 | `check.sh` |
 | 検査 88 `tools/handover_guard/` | 引継書の最新の日付節と「次のセッションに貼る 1 通目」の見出しが無い（`check-handoff --no-registry`。学びの置き場は検査 72 の領分）／見張りの 29 の場面の試験（5% のしきい値）が通らない | 台帳との突き合わせ（台帳は手元の状態なので門に入れない。`guard.py check-handoff` を手で打つ）。引継書の文が正しいか | `check.sh` |
 | 検査 90 `check-data-element-kinds.py` | 生成した GRS JSON とコマンドのスキーマ（`grs-document.schema.json`・`grs-commands.schema.json`）の要素で、区切り文字（`/` `;` `,` 空白）で 2 値を詰める `pattern`・名前の語と書式を 1 つの `pattern` に混ぜるもの・空白や区切り文字を持つ列挙の値（R2 の OKPN）・`null` を取るもの（R3 の Null Trap）のうち、基準線（`data-element-kinds-baseline.txt`）に無いもの／基準線に在るのにもう見つからない行（基準線は下げるだけ）。`JDG-3226`。2026-10-24 の `8d162d7c7` で 195 件 | `OMPV` の多く（`0` に「親が無い」を足すような、散文にしか無い 2 つ目の意味）。`pattern` も列挙も持たない文字列の中の区切り。`src/`（全数は `docs/review/data-element-survey-2026-10-24.md` が 1 度数え、1 件ずつ決める） | `check.sh` |
+| 検査 91 `check-old-review-numbers.py` | git が追うテキストのファイルで、規則 07 の旧い項目の番号（07 の末尾の「旧番号の対応表」の 1 列目。道具は写しを持たない）がファイルの基準線（`old-review-numbers-baseline.txt`）より増えたもの。台帳と CR も数える（新しい行も新しい文である）。数えないのは 07 の対応表の節・`dist/`・凍った写し（`previous-plan.json`・`history/`・`measurements/`）・`docs/reference/`。`JDG-3251`。2026-10-24 の `efed5c9a3` で 625 ファイル 2,788 件（`docs/spec` は 10 ファイル 46 件、`change-request/` は 508 ファイル 2,192 件）。`CR-852` が仕様の参照を章＋観点の名に書き換えるにつれて `--update` で下げる（`--update` は下げるだけで、上がるファイルがあれば断る） | 数えた綴りが本当に規則 07 の項目か（この木に `R` 数字 `.` 数字の別の名は今は無い）。番号を言葉で書いた参照。追っていないファイル | `check.sh` |
+| 検査 92 `check-review-standards-master.py` | 規則 07 の R1〜R8 の見出し（`## R…` とその下の `###`）・総合レビューチェックリストの（章, 観点）の組・07 の頭が名指す原本のコミットが、原本の写し（`review-standards-master-names.tsv`。日英の名とコミットを持つ）と食い違うもの／07 の旧番号の対応表の行が、チェックリストに無い（章, 観点）を指すもの。`JDG-3252`。2026-10-24 は見出し 40・観点 70 で食い違い 0 | 観点の本文（箇条書きの行）。写しを作り直したあとに原本が変わったこと（下の手順で作り直すまで見えない）。07 が GRS のために足した節（R1〜R8 の外）と、観点の本文に足した行 | `check.sh` |
+| 検査 93 `check-dependencies-and-oss.py` | `package-lock.json` が版 2 未満／その根の項目の依存の表が `package.json` と違う（lock を作り直していない）／`package.json` が名指す包みに版・取得先・`integrity` の固定が無い／`dev` の印の無い包み（製品に届くので `FR-069` が帰属表示を求める）／`src/`（ページも中継もここから組み立てる）が `node:` 以外の包みを import する（`vite` が束ねてしまい、帰属表示が空という前提が崩れる）／根の外の `package.json` の横に lock が無い。規則 07 の R8「依存と OSS」のうち、検査 27（`generate_license.py --check`: ライセンスの表記と `dependencies` が空）と検査 86（版の行）が持たない所だけ。`JDG-3253`。2026-10-24 は包み 119 本すべて build 専用・`src/` の 185 ファイルの import 1,132 件に包み 0 で赤 0。包みのライセンスは数えて刷るだけ（MIT 73・Apache-2.0 26・MPL-2.0 12・BSD-3-Clause 5・ISC 3） | 既知の脆弱性（`npm audit` は網が要り、`check.sh` は外へ出ない）。lock に無いものの許諾。build の道具のライセンスの良し悪し（製品に届かないので刷るだけ） | `check.sh` |
 
 ⭐ 2026-10-17 に、`JDG-2419` の 2 行（`tools/test_route.py` と検査 82）を本表へ足した。
 ⭐ 2026-10-17 に、`JDG-2692` の 3 行（検査 83・84 と `source_relations.py`）を本表へ足した。
 ⭐ 2026-10-22 に、`JDG-3040`〜`3042` の 3 行（`guard.py`・検査 87・88）を本表へ足した。
+⭐ 2026-10-24 に、`JDG-3251`〜`3253` の 3 行（検査 91・92・93）を本表へ足した。
+
+### 検査 92 の写しを作り直す手順（原本を直したとき）
+
+⭐ **`check.sh` は gr-scheduler の中だけで閉じる** —— 検査 92 は原本を読まず、写し `.claude/skills/spec-graph-check/review-standards-master-names.tsv` を読む。⛔ 写しを手で書き換えない。
+
+1. gr-sw-maker の原本（`process-rules/review-standards-ja.md` とその英語版）を先に直し、その main を手元の取り出しに取り込む。
+2. gr-scheduler の根で `python .claude/skills/spec-graph-check/check-review-standards-master.py --refresh <gr-sw-maker の取り出し> [--rev main]` を打つ（取り出しの場所は相対の道で渡す。外のリポジトリは読むだけ）。原本の日英で見出しかチェックリストの行の数や章が揃わないと、写しを書かずに断る —— 英語版を先に追いつかせる（2026-10-24 の実測: `aca2204` では英語版が見出し 20・行 0 で断られ、`c64aed8` で揃った）。
+3. `python .claude/skills/spec-graph-check/check-review-standards-master.py` が赤なら、07 を原本に追いつかせ、07 の頭の原本の行のコミットを写しの `commit ja` の値に直す。
+4. 写しと 07 を同じコミットに入れる。
 
 ## 15. 第 9 節で名が出ていなかった道具 —— 版・生成器・検査・守り（2026-10-23、棚卸し E1〜E5）
 

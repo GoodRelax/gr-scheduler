@@ -10,7 +10,9 @@
 #
 # then add up the ranges in the headings (1-4 is four, 5-10 is six, and so
 # on). A heading may carry several numbers because one script answers them.
-# The ranges today are 1 + 4 + 8 + 4 + 70. (Recounted 2026-10-24 at check 90
+# The ranges today are 1 + 4 + 8 + 4 + 73. (Recounted 2026-10-24 at checks 91-93
+# (old rule-07 numbers, rule 07 against its master, the lockfile and OSS;
+# JDG-3251..3253): 70 + 3. Recounted 2026-10-24 at check 90
 # (data elements, JDG-3226): 69 + 1 -- 89 is held by another branch. Recounted 2026-10-22 at checks 87-88
 # (retired session words, the handoff note sections; JDG-3040..3042): 84 + 2 --
 # the line still read 81 although 84 were in. Recounted 2026-10-17 at checks 83-84
@@ -435,6 +437,20 @@
 #          enum member (OKPN in R2) or takes null (Null Trap in R3) and is not on
 #          data-element-kinds-baseline.txt; or a baseline line is no longer
 #          found. JDG-3226. Baseline 195 on 8d162d7c7, lower only
+#   91     check-old-review-numbers.py : a tracked text file holds more of the
+#          retired rule-07 item numbers (the first column of the old-number
+#          table at the end of 07-review-standards.md) than its
+#          line in old-review-numbers-baseline.txt. CR-852 lowers it. JDG-3251.
+#          Baseline: 2788 in 625 files on efed5c9a3, lower only
+#   92     check-review-standards-master.py : the R1-R8 headings, the checklist's
+#          (chapter, perspective) pairs or the master commit of 07 differ from
+#          the copy of the gr-sw-maker master (review-standards-master-names.tsv,
+#          refreshed by hand -- 09-tools.md, check 92 row), or a row of 07's
+#          old-number table names a pair the checklist lacks. JDG-3252. Baseline 0
+#   93     check-dependencies-and-oss.py : package-lock.json does not pin what
+#          package.json declares, a locked package is not build-only, or src/
+#          imports a package (it would be bundled, and FR-069's empty attribution
+#          list would be false). R8 of 07. JDG-3253. Baseline 0
 #
 # Green does NOT prove the specification is sound: defects of meaning have
 # appeared while all of these were green. They stop broken references, not
@@ -1231,6 +1247,30 @@ PYTHONIOENCODING=utf-8 python "$HERE/check-data-element-kinds.py" --self-test ||
 PYTHONIOENCODING=utf-8 python "$HERE/check-data-element-kinds.py" || failed
 
 echo ""
+section "91  no new reference to a retired rule-07 item number"
+# Rule 07 names an item by chapter and perspective since 2026-10-24 (JDG-3251).
+# MEASURED 2026-10-24 on efed5c9a3, the first run: 2788 references in 625 files
+# (docs/spec 46 in 10, change-request 2192 in 508), all on the baseline.
+PYTHONIOENCODING=utf-8 python "$HERE/check-old-review-numbers.py" --self-test || failed
+PYTHONIOENCODING=utf-8 python "$HERE/check-old-review-numbers.py" || failed
+
+echo ""
+section "92  rule 07 holds the perspectives of its master in gr-sw-maker"
+# Reads the copy beside the script, never the other repository (JDG-3252).
+# MEASURED 2026-10-24: 40 chapter headings and 70 checklist pairs, no difference.
+PYTHONIOENCODING=utf-8 python "$HERE/check-review-standards-master.py" --self-test || failed
+PYTHONIOENCODING=utf-8 python "$HERE/check-review-standards-master.py" || failed
+
+echo ""
+section "93  the lockfile pins package.json, and no installed package ships"
+# R8 "dependencies and OSS" of 07, the part checks 27 and 86 do not hold
+# (JDG-3253). MEASURED 2026-10-24: 119 locked packages, all build-only; 1132
+# import specifiers in 185 src files, none a package. Known vulnerabilities
+# are not looked at -- npm audit needs the network.
+PYTHONIOENCODING=utf-8 python "$HERE/check-dependencies-and-oss.py" --self-test || failed
+PYTHONIOENCODING=utf-8 python "$HERE/check-dependencies-and-oss.py" || failed
+
+echo ""
 section "NOT COVERED  what this run did not look at"
 # ⛔ Printed on every run, green or red. A suite that names only what it
 # checked gets read as having checked everything, so a gate that sees only
@@ -1250,6 +1290,11 @@ echo "   2026-09-11 -- but it is deliberately NOT in this suite: measured over"
 echo "   a 30-line sample, 19 were really stale, so a gate would stop better"
 echo "   than one round in three for nothing. Run it by hand in a cleanup:"
 echo "     python .claude/skills/spec-graph-check/list-asserted-claims.py"
+echo ""
+echo "   Check 92 compares rule 07 with a COPY of its gr-sw-maker master, so a"
+echo "   change to the master is not seen until somebody refreshes the copy"
+echo "   (09-tools.md, check 92 row). Check 93 does not ask whether a locked"
+echo "   package has a known vulnerability: npm audit needs the network."
 
 # ⛔ A WARNING, NEVER A FAILURE -- `fail` is untouched on purpose. The tree
 # below appears because somebody OPENED the specification, and a gate that goes
