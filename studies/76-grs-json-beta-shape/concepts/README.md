@@ -11,7 +11,12 @@
 | `carried-mspdi-values.md` | GRS が使わない MSPDI の値を持って書き戻すこと（carry） | D105・D106・D115・D116・D161・D162 ほか |
 | `task-progress.md` | 進捗の状態（未着手・進行中・中断・完了）と percentComplete の数え方 | D139・D154・D155 |
 
-## スキーマの冒頭に入れる文言 —— 席の案
+## スキーマの冒頭に入れる文言
+
+⭐ **確定（2026-10-26、`JDG-3341`）** —— 確定した冒頭は `root-description-draft.md` にある。下の 6 行は、それより前の席の案として残す。
+時刻の行は冒頭に置かず、例外の 2 つのプロパティの説明にだけ書くことになった（`JDG-3342`）。
+
+### 席の最初の案（確定の前）
 
 5 枚の案をそのまま足すと 11 行・約 220 語になり、`JDG-3331`（「長い文は読む気を無くす」で冒頭を削った）に戻ってしまう。
 席は、1 話題 1 行にまとめた次の 6 行を勧める（約 110 語）。「Terms:」の後、「The shape of GRS JSON:」の木の前に置く。
@@ -20,7 +25,7 @@
 Concepts:
 WBS is the tree of parent and child tasks, as in MSPDI. Task groups are GRS's own rows of the task group panel; each task is drawn in exactly one.
 Schedule date-times are wall-clock times with no offset, in project.scheduleDataTimeZone; GRS never converts them. Record times are UTC.
-An end time of 00:00:00 means 24:00, the end of the day before.
+An end of 00:00:00 means 24:00: a finish of 2026-06-24T00:00:00 ends on 23 June, and a toTime of 00:00:00 ends its own day.
 GRS counts every working day with one calendar, the one that project.calendarUid names.
 "Carried" means GRS does not use the value, but keeps it and writes it back to MSPDI unchanged.
 A task is not started, in progress, suspended or finished, read from its actual dates; GRS recounts percentComplete from the dates.

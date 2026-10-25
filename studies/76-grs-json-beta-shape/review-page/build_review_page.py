@@ -51,7 +51,7 @@ PLACEHOLDER = re.compile(r'\{\{(S-\d+)\}\}')
 
 
 def filled(text):
-    """Show a settings placeholder as the value the generator prints, with its row id."""
+    """Show a settings placeholder as the value the generator prints, and only that (JDG-3340)."""
     def one(m):
         try:
             value = erd_json_to_schema.settings_reader.with_calendar_rows_printed(m.group(0), 'review page')
@@ -59,7 +59,7 @@ def filled(text):
             # The generator could not print it either: keep it visible and report it.
             UNFILLED.add(m.group(1))
             return m.group(0)
-        return '%s (%s)' % (value, m.group(1))
+        return value
     return PLACEHOLDER.sub(one, text)
 
 

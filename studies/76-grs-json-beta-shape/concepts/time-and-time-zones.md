@@ -113,8 +113,12 @@ GRS JSON の時刻は、次の 5 種類である。
 
 ### 3.2 理由は妥当か —— 妥当と判断する
 
-1. **MSPDI がそう書く。** 真夜中に終わる時間帯（夜勤の 16:00-24:00、24 時間の暦）を MS Project は `ToTime 00:00:00` と書く【一般知識】。`JDG-1192` は MSPDI の値の意味を変えないことを求める。00:00:00 を「その日の始まり」と読むと、取り込んだ夜勤の暦が壊れる。
-2. **ほかの書き方が無い。** `xsd:time` は 1 日の中の時刻の型であり、「24:00」を書けない（`JDG-3261` で `HH:MM:SS` だけを通すことにしたので、GRS JSON でも書けない）。
+1. **MSPDI を扱う道具がそう読む。** 2026-10-25 に裏取りした（利用者の問い）。
+   - Microsoft の資料（MSDN の Project 2007 の Calendar Elements and XML Structure、Learn の ToTime Element）は、`ToTime` を「the end of the working time」とだけ書き、真夜中の書き方を言わない。ローカルの写し（`docs/reference/mspdi`）と公式 XSD も同じ。MS Project そのものが書いたファイルでは確かめていない（手元に MS Project が無い）。
+   - MSPDI を読み書きする公開のライブラリ MPXJ は、`ToTime` を時刻のまま読み、終わりが 00:00 の時間帯を 1 日の終わり（24 時間）として長さを数える（`org.mpxj.common.LocalTimeHelper.getMillisecondsInRange`、`setEndTime` の注釈「midnight representing the end of the day」）。書き出しも同じ値を `00:00:00` のまま返す（`MSPDIWriter` の `time.setToTime(range.getEnd())`）。
+   - MS Project の組み込みの「24 Hours」の暦は、外の解説で「12 a.m. – 12 a.m.」と書かれる（一般知識）。
+   - `JDG-1192` は MSPDI の値の意味を変えないことを求める。00:00:00 を「その日の始まり」と読むと、取り込んだ夜勤の暦が壊れる。
+2. **XML では真夜中を区別できない。** XML Schema の `xsd:time` では `24:00:00` と `00:00:00` は同じ値の別の書き方で、正式な形は `00:00:00` である（W3C の議論）。.NET の XML の読み手は `24:00:00` を読めないという外部の報告もある。始まりの 0:00 と終わりの 24:00 を値で分けられないので、終わりの側の 00:00:00 を 24:00 と読むしかない（`JDG-3261` で `HH:MM:SS` だけを通すことにしたので、GRS JSON でも `24:00:00` は書かない）。
 3. **不変条件と合う。** `IV-24` は「始まりが終わりより前」を求める（`05-07-design.md:1347`）。00:00:00 を 0 分と読むと、16:00-00:00 が逆向きになって断られる。コードも終わりの側の 0 分だけを 1440 分と読む（`src/entity/document-model/schedule/working-calendar.ts:524`〜`:528`）。
 4. **日時の終了の読みと同じ筋である。** `JDG-1714` の「終了 6/24 00:00 は 6/23 の終わり」と、`toTime` の「00:00:00 は 24:00」は、どちらも「終わりの側の 0:00 は前の日を閉じる」の 1 つの読みである。`toTime` は日付を持たないので、閉じる日は時間帯のその日になる。
 
