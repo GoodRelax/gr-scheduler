@@ -2,7 +2,7 @@
 
 > 起草の状態: **起草した。当てていない**（2026-10-25、枝 `claude/cr851-json-reshape-8cc2ca`、`develop` の `80927c91d` を取り込んだ上）。⛔ 利用者の指示 `JDG-3274` により、仕様・スキーマ・`src` へは、利用者が本書の変わる行を全部見て良しとした後に当てる。行は `studies/76-grs-json-beta-shape/` の 3 つの表（文書の要素・命令と拒否の理由・仕様の文）にある。
 > ID の帯: 調整役から `CR-851`（と同じ形に乗る `CR-848`・`CR-849`）、台帳 `DFC-3579`〜`DFC-3588`、裁定 `JDG-3259`〜`JDG-3268`・`JDG-3274`〜`JDG-3289`・`JDG-3300`〜`JDG-3319`、保留 `PND-956`〜`PND-965`、性能の測り待ち `273`、見本 `76` を受けた。前の席 `answers-ahead` が `JDG-3206`〜`JDG-3209` を使った。拡大縮小の名は拡大縮小の席（`CR-853`）の `JDG-3290`〜`JDG-3297` を当てる。
-> 当てるもの: `JDG-3206`〜`JDG-3208`（形を β の前に直す・網羅的に見直す）、`JDG-3226`・`JDG-3227`（検査 90 を 0 にする・5.4 に OKPN/OMPV）、本席の `JDG-3259`〜`JDG-3315`、拡大縮小の名 `JDG-3290`〜`JDG-3297`。
+> 当てるもの: `JDG-3206`〜`JDG-3208`（形を β の前に直す・網羅的に見直す）、`JDG-3226`・`JDG-3227`（検査 90 を 0 にする・5.4 に OKPN/OMPV）、本席の `JDG-3259`〜`JDG-3315`、拡大縮小の名 `JDG-3290`〜`JDG-3297`（`JDG-3292` の `dayWidthPx`・`displayScalePercent`、`JDG-3293`・`JDG-3296` の `verticalZoomRatio` と `taskGroupAutoExpandDepth`、`JDG-3294` の目盛の 2 つ（`rulerFontSizePx`・`rulerHeightPx`）を文書から外すこと、`JDG-3295` の `fontSizeStep` の語の値を含む）。
 
 ---
 
@@ -41,8 +41,8 @@
 - **`OKPN`（One Kind Per Name、07 の R2 の「OKPN/OMPV」。`JDG-3226`・`JDG-3227`）** —— 色の 8 欄が明暗の 2 値を 1 つの字列に詰め、パレットの名と同じ欄に混ぜていた（`"#c0504d/#b2423f"`）。`kind` で種類を言う入れ物に分けた（`JDG-3260`）。タイムゾーンの `" DST"`・表示の倍率とズーム・`zoomY` の 1 未満の働き・書き手の語なども 1 つの名に 2 種の値を持っていた —— 文書の表の `F13`・`F49`・`JDG-3293` の行。
 - **`OMPV`（One Meaning Per Value、同。`JDG-3226`・`JDG-3227`）** —— `null` に「テーマに従う」「根」「誰でも」「導く」など欄ごとの意味を持たせていた。値が無いことはプロパティを書かないこと 1 つで言い（`JDG-3309`）、「別の何かに従う」は `kind` の値で言う（`theme`・`sameAsScheduleData`・`notDecided`）。名の値の一致で振る舞いを決める案（同じ名ならタスクグループ名も変える）は OMPV に反するので採らなかった（`JDG-3303`）。
 - **Null Trap（07 の R3）** —— 文書とコマンドのスキーマの `null` を 0 にする（検査 90 の基準線 195 と、`$ref` 越しの 26）。
-- `R2.1`（名は指すものを言う）—— `settingsUpdatedAt` → `documentUpdatedAt`、`derivedFromTaskUid` → `representedTaskUid`、`editPermission` → `editGroup` ほか（文書の表）。
-- `R1.3`・`R2.7`（同じことを 2 か所で言わない）—— `TaskVisual.shapeKind` の `milestone` は `Task.milestone` と同じ事実を 2 か所に持っていた。`taskShape`・`milestoneShape` に分け、`IV-22` を消す（`JDG-3311`）。
+- 07 の R2 の Naming（名は指すものを言う）—— `settingsUpdatedAt` → `documentUpdatedAt`、`derivedFromTaskUid` → `representedTaskUid`、`editPermission` → `editGroup` ほか（文書の表）。
+- 07 の R1 の「仕様の重複・競合の排除」と R2 の DRY（同じことを 2 か所で言わない）—— `TaskVisual.shapeKind` の `milestone` は `Task.milestone` と同じ事実を 2 か所に持っていた。`taskShape`・`milestoneShape` に分け、`IV-22` を消す（`JDG-3311`）。
 
 ### ③ 利用者に問わずに決めたこと
 

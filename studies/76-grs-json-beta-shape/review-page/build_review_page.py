@@ -123,6 +123,9 @@ def cmd_tag(*names):
                 return tag
     return 'MSPDI'
 
+# A row with no old element names a placeholder there; key it by its new name so two new rows never share a review.
+NO_OLD = ('-', '(新)', '(無い)')
+
 doc = rows_of('doc-shape-map.tsv')
 items = []
 for i, r in enumerate(doc, 1):
@@ -138,7 +141,7 @@ tables.append({'key': 'doc', 'name': 'GRS JSON のプロパティ', 'source': 'd
 cmd = rows_of('commands-map.tsv')
 items = []
 for i, r in enumerate(cmd, 1):
-    key = r['command_old'] if r['command_old'] != '-' else r['command_new']
+    key = r['command_old'] if r['command_old'] not in NO_OLD else r['command_new']
     old = '-' if r['command_old'] == '-' else r['command_old'] + '\n' + r['values_old']
     new = r['command_new'] + '\n' + r['values_new']
     extra = '' if r['rule_moved'] in ('', '-') else '移す決まり: ' + r['rule_moved']
@@ -153,15 +156,21 @@ for i, r in enumerate(ref, 1):
     old = r['reason_old']
     new = r['reason_new'] + '\n' + r['meaning']
     extra = '出どころ: ' + r['comes_from'] + ('' if r['extras'] in ('', '-') else '\n添える欄: ' + r['extras'])
-    items.append(pack('ref', r['reason_old'], 'R%03d' % i, old, new, r['note'], extra, r['level'],
+    key = r['reason_old'] if r['reason_old'] not in NO_OLD else r['reason_new']
+    items.append(pack('ref', key, 'R%03d' % i, old, new, r['note'], extra, r['level'],
                       ex(r.get('example_old')), ex(r.get('example_new')), 'API'))
 tables.append({'key': 'ref', 'name': 'Agent API の拒否の理由', 'source': 'refusal-reasons-map.tsv', 'rows': items})
 
 spec = rows_of('spec-rows-map.tsv')
 items = []
 if spec:
+    # Key on the n-th occurrence of (file, row_id), not on the row position: inserting a row
+    # must not move the review state of the rows after it.
+    seen = {}
     for i, r in enumerate(spec, 1):
-        key = r.get('file', '') + '|' + r.get('row_id', '') + '|' + str(i)
+        pair = r.get('file', '') + '|' + r.get('row_id', '')
+        seen[pair] = seen.get(pair, 0) + 1
+        key = pair + '|' + str(seen[pair])
         old = r.get('old', '')
         new = r.get('new', '')
         extra = r.get('file', '') + ' ' + r.get('row_id', '') + ' ' + r.get('cr', '')
