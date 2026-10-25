@@ -43,6 +43,29 @@ def jdgs(*texts):
     return seen
 
 
+SOURCE = os.path.join(SRC, '..', '..', 'docs', 'spec', '_source')
+sys.path.insert(0, SOURCE)
+sys.dont_write_bytecode = True  # leave no __pycache__ in docs/spec/_source
+import erd_json_to_schema  # noqa: E402  (the schema generator: it fills {{S-nnn}} the same way)
+PLACEHOLDER = re.compile(r'\{\{(S-\d+)\}\}')
+
+
+def filled(text):
+    """Show a settings placeholder as the value the generator prints, with its row id."""
+    def one(m):
+        try:
+            value = erd_json_to_schema.settings_reader.with_calendar_rows_printed(m.group(0), 'review page')
+        except SystemExit:
+            # The generator could not print it either: keep it visible and report it.
+            UNFILLED.add(m.group(1))
+            return m.group(0)
+        return '%s (%s)' % (value, m.group(1))
+    return PLACEHOLDER.sub(one, text)
+
+
+UNFILLED = set()
+
+
 def ex(cell):
     cell = (cell or '').strip()
     return '' if cell in ('', '-') else cell.replace('\\n', '\n')
@@ -151,6 +174,11 @@ for i, r in enumerate(doc, 1):
     key = r['element_old'] if r['element_old'] != '-' else r['element_new']
     old = '-' if r['element_old'] == '-' else r['element_old'] + '\n' + r['type_old']
     new = '-' if r['element_new'] == '-' else r['element_new'] + '\n' + r['type_new']
+    # The English description that ships in grs-document.schema.json (JDG-3327).
+    if old != '-' and ex(r.get('description_old')):
+        old += '\ndescription: ' + filled(ex(r.get('description_old')))
+    if new != '-' and ex(r.get('description_new')):
+        new += '\ndescription: ' + filled(ex(r.get('description_new')))
     extra = '' if r['screen_behaviour_change'] in ('', 'none') else '画面の変化: ' + r['screen_behaviour_change']
     why = r['why'] + ('' if r['spec_row'] in ('', '-') else ' (' + r['spec_row'] + ')')
     items.append(pack('doc', key, 'D%03d' % i, old, new, why, extra, r['change'],
@@ -214,3 +242,5 @@ page = page.replace('/*__DATA__*/[]', data)
 with io.open(OUT, 'w', encoding='utf-8', newline='\n') as f:
     f.write(page)
 print('rows', {t['key']: len(t['rows']) for t in tables}, 'bytes', len(page.encode('utf-8')))
+if UNFILLED:
+    print('placeholders the generator cannot print:', ', '.join(sorted(UNFILLED)))
