@@ -124,7 +124,7 @@ def cmd_tag(*names):
     return 'MSPDI'
 
 # A row with no old element names a placeholder there; key it by its new name so two new rows never share a review.
-NO_OLD = ('-', '(新)', '(無い)')
+NO_OLD = ('-', '(新)', '(無い)', '(new)', '(none)')
 
 doc = rows_of('doc-shape-map.tsv')
 items = []
@@ -144,6 +144,11 @@ for i, r in enumerate(cmd, 1):
     key = r['command_old'] if r['command_old'] not in NO_OLD else r['command_new']
     old = '-' if r['command_old'] == '-' else r['command_old'] + '\n' + r['values_old']
     new = r['command_new'] + '\n' + r['values_new']
+    # The English description that ships in grs-commands.schema.json (JDG-3321).
+    if ex(r.get('description_old')):
+        old += '\ndescription: ' + ex(r.get('description_old'))
+    if ex(r.get('description_new')):
+        new += '\ndescription: ' + ex(r.get('description_new'))
     extra = '' if r['rule_moved'] in ('', '-') else '移す決まり: ' + r['rule_moved']
     items.append(pack('cmd', key, 'C%03d' % i, old, new, r['why'], extra, r['kind'],
                       ex(r.get('example_old')), ex(r.get('example_new')),
