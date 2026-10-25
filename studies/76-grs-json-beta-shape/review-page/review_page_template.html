@@ -115,7 +115,14 @@ button:focus-visible, textarea:focus-visible, input:focus-visible { outline: 2px
 .tag-VIEW { color: var(--g-view); background: var(--g-view-soft); border-color: var(--g-view); }
 .tag-STAMP { color: var(--g-stamp); background: var(--g-stamp-soft); border-color: var(--g-stamp); }
 .tag-TYPE, .tag-API, .tag-SPEC, .tag-BOX { color: var(--g-type); background: var(--g-type-soft); border-color: var(--g-type); }
-.tagsel { font: inherit; font-size: 15px; padding: 3px 8px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); color: var(--ink); }
+.tagchips { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.tagchips .label { font-size: 14px; color: var(--muted); }
+.tagchip { font: inherit; font-size: 14px; border: 1px solid var(--line); background: var(--sheet); color: var(--ink); border-radius: 12px; padding: 1px 10px; cursor: pointer; font-variant-numeric: tabular-nums; }
+.tagchip[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); font-weight: 700; }
+.divider { display: flex; align-items: center; gap: 10px; margin: 10px 0 0; color: var(--muted); font: 700 14px var(--font-code); }
+.divider::before { content: ""; flex: 0 0 24px; border-top: 2px solid var(--line); }
+.divider::after { content: ""; flex: 1; border-top: 2px solid var(--line); }
+.divider .n { font: 400 13px var(--font-body); }
 .erd-intro { margin: 0; max-width: 75ch; }
 .legend { display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: center; font-size: 15px; }
 .legend span.tag { margin-right: 4px; }
@@ -154,14 +161,7 @@ svg.focus .erd-edge.on { opacity: 1; stroke: var(--accent); stroke-width: 2; }
         <button class="filter" type="button" id="f-comment" data-f="comment" aria-pressed="false">コメントあり</button>
         <button class="filter" type="button" id="f-changed" data-f="changed" aria-pressed="false">変わった行</button>
       </div>
-      <select class="tagsel" id="tagsel" aria-label="群で絞る">
-        <option value="">すべての群</option>
-        <option value="MSPDI">MSPDI 由来</option>
-        <option value="GRS">GRS 独自</option>
-        <option value="VIEW">画面設定</option>
-        <option value="STAMP">刻印・履歴</option>
-        <option value="TYPE">共通の型</option>
-      </select>
+      <div class="tagchips" id="tagchips" role="group" aria-label="分類で絞る"></div>
       <input class="search" id="search" type="search" placeholder="行を絞る（名・JDG・語）" aria-label="行を絞る">
       <span class="progress" id="progress"></span>
     </div>
@@ -174,7 +174,8 @@ svg.focus .erd-edge.on { opacity: 1; stroke: var(--accent); stroke-width: 2; }
 const TABLES = /*__DATA__*/[];
 const state = { scroll: {}, tab: TABLES[0].key, filter: 'all', query: '', tag: '', reviews: new Map(), db: null, writing: new Map() };
 const VIEWS = TABLES.concat([{ key: 'erd', name: '全体図（ERD）', erd: true, rows: [] }]);
-const TAG_NAME = { MSPDI: 'MSPDI 由来', GRS: 'GRS 独自', VIEW: '画面設定', STAMP: '刻印・履歴', TYPE: '共通の型', BOX: '日程データの入れ物', API: 'Agent API', SPEC: '仕様の文' };
+const TAG_NAME = { MSPDI: 'MSPDI 由来', GRS: 'GRS 独自', VIEW: '画面設定', STAMP: '刻印・履歴', TYPE: '共通の型', BOX: '日程データの入れ物', API: 'Agent API', SPEC: '仕様の文', 'CR-851': 'CR-851', 'CR-848': 'CR-848', 'CR-849': 'CR-849' };
+const TAG_ORDER = ['MSPDI', 'GRS', 'BOX', 'VIEW', 'STAMP', 'TYPE', 'API', 'CR-851', 'CR-848', 'CR-849', 'SPEC'];
 const byId = new Map();
 TABLES.forEach(t => t.rows.forEach(r => { r.table = t.key; byId.set(r.id, r); }));
 
@@ -216,7 +217,7 @@ function renderProgress() {
   const p = document.getElementById('progress');
   const isErd = !!t.erd;
   document.getElementById('filters').hidden = isErd;
-  document.getElementById('tagsel').hidden = isErd;
+  renderTagChips(t, isErd);
   document.getElementById('search').hidden = isErd;
   if (isErd) { p.textContent = ''; return; }
   const c = tabCounts(t);
@@ -226,6 +227,27 @@ function renderProgress() {
   bar.style.width = (c.total ? Math.round(100 * c.ok / c.total) : 0) + '%';
   m.append(bar);
   p.append(m);
+}
+
+// Category buttons (JDG-3325): only the categories this tab has, with their row counts.
+function renderTagChips(t, isErd) {
+  const box = document.getElementById('tagchips');
+  box.textContent = '';
+  const count = new Map();
+  if (!isErd) t.rows.forEach(r => count.set(r.tag, (count.get(r.tag) || 0) + 1));
+  if (state.tag && !count.has(state.tag)) state.tag = '';
+  box.hidden = count.size < 2;
+  if (box.hidden) return;
+  box.append(el('span', { class: 'label' }, '分類:'));
+  const add = (tag, text) => {
+    const b = el('button', { class: 'tagchip', type: 'button', 'aria-pressed': String(state.tag === tag) }, text);
+    b.addEventListener('click', () => { state.tag = tag; renderAll(); });
+    box.append(b);
+  };
+  add('', 'すべて ' + t.rows.length);
+  TAG_ORDER.concat([...count.keys()].filter(k => !TAG_ORDER.includes(k))).forEach(tag => {
+    if (count.has(tag)) add(tag, (TAG_NAME[tag] || tag) + ' ' + count.get(tag));
+  });
 }
 
 function matches(row) {
@@ -344,7 +366,19 @@ function renderList() {
   const shown = t.rows.filter(matches);
   if (!shown.length) { list.append(el('p', { class: 'empty' }, 'この絞り込みに当たる行はありません。')); return; }
   const frag = document.createDocumentFragment();
-  shown.forEach(r => frag.append(card(r)));
+  const per = new Map();
+  shown.forEach(r => per.set(r.section, (per.get(r.section) || 0) + 1));
+  let section = null;
+  shown.forEach(r => {
+    // A divider where the section changes, as the rows stand in the file (JDG-3325).
+    if (r.section && r.section !== section) {
+      const d = el('div', { class: 'divider', role: 'separator' });
+      d.append(el('span', null, r.section), el('span', { class: 'n' }, per.get(r.section) + ' 行'));
+      frag.append(d);
+    }
+    section = r.section;
+    frag.append(card(r));
+  });
   list.append(frag);
 }
 
@@ -516,7 +550,6 @@ document.getElementById('filters').addEventListener('click', e => {
   document.querySelectorAll('.filter').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
   renderAll();
 });
-document.getElementById('tagsel').addEventListener('change', e => { state.tag = e.target.value; renderAll(); });
 let qTimer = 0;
 document.getElementById('search').addEventListener('input', e => { clearTimeout(qTimer); qTimer = setTimeout(() => { state.query = e.target.value.trim(); renderAll(); }, 200); });
 

@@ -126,6 +126,25 @@ def cmd_tag(*names):
 # A row with no old element names a placeholder there; key it by its new name so two new rows never share a review.
 NO_OLD = ('-', '(新)', '(無い)', '(new)', '(none)')
 
+# Sections (JDG-3325): the page draws a divider where the section of the next row changes.
+def doc_section(pointer):
+    p = pointer.split(' ; ')[0]
+    m = re.match(r'/\$defs/([A-Za-z]+)', p)
+    if m:
+        return '$defs/' + m.group(1)
+    names = re.findall(r'/properties/([^/]+)', p)
+    if names[0] == 'schedule':
+        return 'schedule'
+    if names[0] == 'documentSettings':
+        return 'documentSettings'
+    if names[0] in ('documentStamp', 'changeLog', 'changeLogEntries'):
+        return 'documentStamp / changeLogEntries'
+    return '$schema / schemaVersion / buildVersion'
+
+
+REF_SECTION = {'shape': '拒否の形', 'top': '呼び出しの拒否の理由', 'top / command': '呼び出しの拒否の理由',
+               'command': '命令ごとの拒否の理由', 'fault': '文書の欠陥', 'relay': '取次の拒否'}
+
 doc = rows_of('doc-shape-map.tsv')
 items = []
 for i, r in enumerate(doc, 1):
@@ -136,6 +155,7 @@ for i, r in enumerate(doc, 1):
     why = r['why'] + ('' if r['spec_row'] in ('', '-') else ' (' + r['spec_row'] + ')')
     items.append(pack('doc', key, 'D%03d' % i, old, new, why, extra, r['change'],
                       ex(r.get('example_old')), ex(r.get('example_new')), doc_tag(key)))
+    items[-1]['section'] = doc_section(r['element_new'] if r['element_new'] != '-' else r['element_old'])
 tables.append({'key': 'doc', 'name': 'GRS JSON のプロパティ', 'source': 'doc-shape-map.tsv', 'rows': items})
 
 cmd = rows_of('commands-map.tsv')
@@ -153,6 +173,7 @@ for i, r in enumerate(cmd, 1):
     items.append(pack('cmd', key, 'C%03d' % i, old, new, r['why'], extra, r['kind'],
                       ex(r.get('example_old')), ex(r.get('example_new')),
                       cmd_tag(r['command_new'], r['command_old'])))
+    items[-1]['section'] = r.get('entity', '')
 tables.append({'key': 'cmd', 'name': 'コマンド（applyCommands）', 'source': 'commands-map.tsv', 'rows': items})
 
 ref = rows_of('refusal-reasons-map.tsv')
@@ -164,6 +185,7 @@ for i, r in enumerate(ref, 1):
     key = r['reason_old'] if r['reason_old'] not in NO_OLD else r['reason_new']
     items.append(pack('ref', key, 'R%03d' % i, old, new, r['note'], extra, r['level'],
                       ex(r.get('example_old')), ex(r.get('example_new')), 'API'))
+    items[-1]['section'] = REF_SECTION.get(r['level'], r['level'])
 tables.append({'key': 'ref', 'name': 'Agent API の拒否の理由', 'source': 'refusal-reasons-map.tsv', 'rows': items})
 
 spec = rows_of('spec-rows-map.tsv')
@@ -180,7 +202,8 @@ if spec:
         new = r.get('new', '')
         extra = r.get('file', '') + ' ' + r.get('row_id', '') + ' ' + r.get('cr', '')
         items.append(pack('spec', key, 'S%03d' % i, old, new, r.get('why', ''), extra, r.get('kind', ''),
-                          ex(r.get('example_old')), ex(r.get('example_new')), 'SPEC'))
+                          ex(r.get('example_old')), ex(r.get('example_new')), r.get('cr', '')))
+        items[-1]['section'] = r.get('file', '')
 tables.append({'key': 'spec', 'name': '仕様の文', 'source': 'spec-rows-map.tsv', 'rows': items,
                'pending': spec is None})
 
