@@ -119,10 +119,18 @@ button:focus-visible, textarea:focus-visible, input:focus-visible { outline: 2px
 .tagchips .label { font-size: 14px; color: var(--muted); }
 .tagchip { font: inherit; font-size: 14px; border: 1px solid var(--line); background: var(--sheet); color: var(--ink); border-radius: 12px; padding: 1px 10px; cursor: pointer; font-variant-numeric: tabular-nums; }
 .tagchip[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); font-weight: 700; }
-.divider { display: flex; align-items: center; gap: 10px; margin: 10px 0 0; color: var(--muted); font: 700 14px var(--font-code); }
-.divider::before { content: ""; flex: 0 0 24px; border-top: 2px solid var(--line); }
-.divider::after { content: ""; flex: 1; border-top: 2px solid var(--line); }
-.divider .n { font: 400 13px var(--font-body); }
+/* A section line reaches past the row sheets on both sides, so it reads as a break in the flow. */
+.divider { display: flex; align-items: center; gap: 10px; margin: 14px -14px 2px; color: var(--ink); font: 700 15px var(--font-code); }
+.divider::before { content: ""; flex: 0 0 14px; border-top: 2px solid var(--muted); }
+.divider::after { content: ""; flex: 1; border-top: 2px solid var(--muted); }
+.divider .n { font: 400 13px var(--font-body); color: var(--muted); }
+.toc { font-size: 15px; }
+.toc summary { cursor: pointer; color: var(--accent); font-weight: 700; width: max-content; }
+.toc ol { margin: 4px 0 2px; padding-left: 1.6em; max-height: 50vh; overflow: auto; columns: 2 18em; column-gap: 24px; }
+.toc li { break-inside: avoid; }
+.toc a { color: var(--ink); text-decoration: none; font-family: var(--font-code); font-size: 14px; }
+.toc a:hover, .toc a:focus-visible { color: var(--accent); text-decoration: underline; }
+.toc .n { color: var(--muted); font-size: 13px; margin-left: 6px; }
 .erd-intro { margin: 0; max-width: 75ch; }
 .legend { display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: center; font-size: 15px; }
 .legend span.tag { margin-right: 4px; }
@@ -165,6 +173,7 @@ svg.focus .erd-edge.on { opacity: 1; stroke: var(--accent); stroke-width: 2; }
       <input class="search" id="search" type="search" placeholder="行を絞る（名・JDG・語）" aria-label="行を絞る">
       <span class="progress" id="progress"></span>
     </div>
+    <details class="toc" id="toc" hidden><summary id="tocsum">目次</summary><ol id="toclist"></ol></details>
   </div>
 </div>
 
@@ -218,6 +227,7 @@ function renderProgress() {
   const isErd = !!t.erd;
   document.getElementById('filters').hidden = isErd;
   renderTagChips(t, isErd);
+  if (isErd) document.getElementById('toc').hidden = true;
   document.getElementById('search').hidden = isErd;
   if (isErd) { p.textContent = ''; return; }
   const c = tabCounts(t);
@@ -368,18 +378,46 @@ function renderList() {
   const frag = document.createDocumentFragment();
   const per = new Map();
   shown.forEach(r => per.set(r.section, (per.get(r.section) || 0) + 1));
+  const toc = [];
   let section = null;
   shown.forEach(r => {
     // A divider where the section changes, as the rows stand in the file (JDG-3325).
     if (r.section && r.section !== section) {
-      const d = el('div', { class: 'divider', role: 'separator' });
+      const id = 'sec-' + toc.length;
+      const d = el('div', { class: 'divider', role: 'separator', id });
       d.append(el('span', null, r.section), el('span', { class: 'n' }, per.get(r.section) + ' 行'));
       frag.append(d);
+      toc.push({ id, name: r.section, rowsShown: per.get(r.section) });
     }
     section = r.section;
     frag.append(card(r));
   });
+  renderToc(toc);
   list.append(frag);
+}
+
+// Contents (JDG-3326): one link per divider of the rows now shown; a click jumps below the sticky bar.
+function renderToc(entries) {
+  const box = document.getElementById('toc');
+  const list = document.getElementById('toclist');
+  list.textContent = '';
+  box.hidden = entries.length < 2;
+  document.getElementById('tocsum').textContent = '目次（' + entries.length + ' 段）';
+  entries.forEach(e => {
+    const li = el('li');
+    const a = el('a', { href: '#' + e.id }, e.name);
+    a.addEventListener('click', ev => {
+      ev.preventDefault();
+      // Close first: the open list makes the sticky bar taller.
+      box.open = false;
+      const bar = document.querySelector('.bar').getBoundingClientRect().height;
+      const top = document.getElementById(e.id).getBoundingClientRect().top + window.scrollY - bar - 8;
+      const smooth = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      window.scrollTo({ top: Math.max(0, top), behavior: smooth ? 'smooth' : 'auto' });
+    });
+    li.append(a, el('span', { class: 'n' }, e.rowsShown + ' 行'));
+    list.append(li);
+  });
 }
 
 function refreshStates() {
