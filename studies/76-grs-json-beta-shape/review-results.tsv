@@ -1,0 +1,6 @@
+table	label	tag	ok	current	comment	updated_at	row_id
+doc	D001	STAMP	yes	yes		2026-10-25T00:14:05.958Z	doc-9e3ef5a5
+doc	D002	STAMP	no	no	UTC instant CR-851 lands の意味が分からない。 スキーマを更新した日時とかそういう初見者に分かる奴で。	2026-10-25T00:15:54.511Z	doc-904a26d7
+doc	D003	STAMP	no	no	スキーマバージョンとビルドバージョンの2つがいる理由が不明。 解説せよ。	2026-10-25T00:16:35.277Z	doc-20707d6e
+doc	D004	STAMP	no	yes	Schema自体は直さなくていいけど、タグは(MSPDI由来)で合ってる？	2026-10-25T00:31:42.215Z	doc-1e59cf9f
+doc	D009	MSPDI	no	no		2026-10-25T00:34:31.073Z	doc-212b0958
