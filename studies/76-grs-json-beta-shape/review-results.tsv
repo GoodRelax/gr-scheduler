@@ -1,11 +1,11 @@
 table	label	tag	ok	current	comment	updated_at	row_id
 doc	D000	ROOT	no	no	... highlightBoxes (GRS）の GRSは冗長だな。 / 書くなら... highlightBoxes (GRS only） とか要るし documentSettings  とかにも要るし。 / (GRS)を削除すべきでは？	2026-10-25T10:39:16.060Z	doc-02a098c9
-doc	D001	STAMP	yes	no		2026-10-25T10:40:19.241Z	doc-9e3ef5a5
+doc	D001	STAMP	yes	yes		2026-10-25T10:56:46.890Z	doc-9e3ef5a5
 doc	D002	STAMP	yes	yes		2026-10-25T10:40:07.650Z	doc-904a26d7
-doc	D003	STAMP	no	no	 3rd property (right after $schema and schemaVersion) これは自明だよね？ 書く必要ないだろ。 / it tells which build wrote the file. To know whether you can read a document, check only schemaVersion. / って長くない？ / he UTC time (YYYY-MM-DDTHH:MM:SSZ) when the GRS build that wrote this file was made.  The purpose of this property is just for debugging, use only schemaVersion for general usage. / っ的な感じでいいのでは？	2026-10-25T07:30:03.840Z	doc-20707d6e
-doc	D004	BOX	no	no	it ってなに？ to draw the scheduleってこと？	2026-10-25T07:31:06.377Z	doc-1e59cf9f
-doc	D005	MSPDI	no	no	まぁ、いいけど、MSPDIって書かなくていいの？	2026-10-25T07:32:06.446Z	doc-7223170f
-doc	D006	MSPDI	yes	no	任意（要素が無いときはプロパティを書かない。空の配列 [] は書かない: minItems 1） を日本語で書いたらいかんやろ。	2026-10-25T04:30:02.410Z	doc-700942f9
+doc	D003	STAMP	yes	yes		2026-10-25T10:58:42.683Z	doc-20707d6e
+doc	D004	BOX	yes	yes		2026-10-25T10:59:08.818Z	doc-1e59cf9f
+doc	D005	MSPDI	yes	yes		2026-10-25T10:59:30.332Z	doc-7223170f
+doc	D006	MSPDI	yes	no		2026-10-25T10:59:53.315Z	doc-700942f9
 doc	D007	MSPDI	yes	no		2026-10-25T02:56:01.203Z	doc-00ccc7a0
 doc	D008	MSPDI	yes	no		2026-10-25T02:56:58.961Z	doc-39787c7f
 doc	D009	MSPDI	yes	no		2026-10-25T02:57:12.386Z	doc-212b0958
