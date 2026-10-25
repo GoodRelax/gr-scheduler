@@ -114,7 +114,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible { outline: 2px
 .tag-GRS { color: var(--g-grs); background: var(--g-grs-soft); border-color: var(--g-grs); }
 .tag-VIEW { color: var(--g-view); background: var(--g-view-soft); border-color: var(--g-view); }
 .tag-STAMP { color: var(--g-stamp); background: var(--g-stamp-soft); border-color: var(--g-stamp); }
-.tag-TYPE, .tag-API, .tag-SPEC, .tag-BOX { color: var(--g-type); background: var(--g-type-soft); border-color: var(--g-type); }
+.tag-TYPE, .tag-API, .tag-SPEC, .tag-BOX, .tag-ROOT { color: var(--g-type); background: var(--g-type-soft); border-color: var(--g-type); }
 .tagchips { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
 .tagchips .label { font-size: 14px; color: var(--muted); }
 .tagchip { font: inherit; font-size: 14px; border: 1px solid var(--line); background: var(--sheet); color: var(--ink); border-radius: 12px; padding: 1px 10px; cursor: pointer; font-variant-numeric: tabular-nums; }
@@ -187,8 +187,8 @@ svg.focus .erd-edge.on { opacity: 1; stroke: var(--accent); stroke-width: 2; }
 const TABLES = /*__DATA__*/[];
 const state = { scroll: {}, tab: TABLES[0].key, filter: 'all', query: '', tag: '', reviews: new Map(), db: null, writing: new Map() };
 const VIEWS = TABLES.concat([{ key: 'erd', name: '全体図（ERD）', erd: true, rows: [] }]);
-const TAG_NAME = { MSPDI: 'MSPDI 由来', GRS: 'GRS 独自', VIEW: '画面設定', STAMP: '刻印・履歴', TYPE: '共通の型', BOX: '日程データの入れ物', API: 'Agent API', SPEC: '仕様の文', 'CR-851': 'CR-851', 'CR-848': 'CR-848', 'CR-849': 'CR-849' };
-const TAG_ORDER = ['MSPDI', 'GRS', 'BOX', 'VIEW', 'STAMP', 'TYPE', 'API', 'CR-851', 'CR-848', 'CR-849', 'SPEC'];
+const TAG_NAME = { MSPDI: 'MSPDI 由来', GRS: 'GRS 独自', VIEW: '画面設定', STAMP: '刻印・履歴', TYPE: '共通の型', BOX: '日程データの入れ物', API: 'Agent API', SPEC: '仕様の文', ROOT: 'スキーマの頭', 'CR-851': 'CR-851', 'CR-848': 'CR-848', 'CR-849': 'CR-849' };
+const TAG_ORDER = ['ROOT', 'MSPDI', 'GRS', 'BOX', 'VIEW', 'STAMP', 'TYPE', 'API', 'CR-851', 'CR-848', 'CR-849', 'SPEC'];
 const byId = new Map();
 TABLES.forEach(t => t.rows.forEach(r => { r.table = t.key; byId.set(r.id, r); }));
 

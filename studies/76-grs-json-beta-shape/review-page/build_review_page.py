@@ -184,6 +184,14 @@ for i, r in enumerate(doc, 1):
     items.append(pack('doc', key, 'D%03d' % i, old, new, why, extra, r['change'],
                       ex(r.get('example_old')), ex(r.get('example_new')), doc_tag(key)))
     items[-1]['section'] = doc_section(r['element_new'] if r['element_new'] != '-' else r['element_old'])
+# The schema's own description comes first in the file, before any property, and it defines
+# the terms the rows use ("Same as MSPDI X"), so the property tab starts with it too (JDG-3330).
+for r in rows_of('spec-rows-map.tsv') or []:
+    if r.get('row_id') == 'ROOT_DESCRIPTION':
+        root = pack('doc', '(schema root)', 'D000', '(schema root) description\n' + r['old'].replace('\\n', '\n'),
+                    '(schema root) description\n' + r['new'].replace('\\n', '\n'), r['why'], '', r['kind'], '', '', 'ROOT')
+        root['section'] = 'schema root'
+        items.insert(0, root)
 tables.append({'key': 'doc', 'name': 'GRS JSON のプロパティ', 'source': 'doc-shape-map.tsv', 'rows': items})
 
 cmd = rows_of('commands-map.tsv')
@@ -228,6 +236,9 @@ if spec:
         key = pair + '|' + str(seen[pair])
         old = r.get('old', '')
         new = r.get('new', '')
+        if r.get('file', '').endswith('.py'):
+            # a line break in generator text is written as the two characters \n
+            old, new = old.replace('\\n', '\n'), new.replace('\\n', '\n')
         extra = r.get('file', '') + ' ' + r.get('row_id', '') + ' ' + r.get('cr', '')
         items.append(pack('spec', key, 'S%03d' % i, old, new, r.get('why', ''), extra, r.get('kind', ''),
                           ex(r.get('example_old')), ex(r.get('example_new')), r.get('cr', '')))
