@@ -246,10 +246,61 @@ if spec:
 tables.append({'key': 'spec', 'name': '仕様の文', 'source': 'spec-rows-map.tsv', 'rows': items,
                'pending': spec is None})
 
+
+def api_overview(tables):
+    """The Agent API overview tab (JDG-3345): members from agent-api-members.json, the commands
+    and refusals from the tables of this study, each linked to its rows. Nothing is typed by hand."""
+    by_key = {t['key']: t for t in tables}
+    spec_rows = {}
+    for r in by_key['spec']['rows']:
+        parts = r['extra'].split(' ')
+        if len(parts) >= 2 and parts[0].endswith('agent-api-members.json'):
+            member = re.match(r'(AM-\d+)', parts[1])
+            if member:
+                spec_rows.setdefault(member.group(1), []).append(r['id'])
+    path = os.path.join(SRC, '..', '..', 'docs', 'spec', '_source', 'agent-api-members.json')
+    with io.open(path, encoding='utf-8') as f:
+        members_src = json.load(f)['members']['rows']
+    groups, members = [], []
+    for m in members_src:
+        group = m['group']['ja']
+        if group not in groups:
+            groups.append(group)
+        members.append({'id': m['id'], 'name': m['name'], 'group': group, 'kind': m['kind'],
+                        'args': [a['name'] for a in m.get('arguments', [])],
+                        'mcpOnly': bool(m.get('mcpOnlyKeys')), 'rows': spec_rows.get(m['id'], [])})
+    entities = []
+    for r in by_key['cmd']['rows']:
+        name = r['new'].split('\n', 1)[0]
+        if r['chip'] == 'retired':
+            # a retired command has no beta name: show the name it has today
+            name = re.sub(r'\s*\(retired\)$', '', re.sub(r'^CM-\d+\s+', '', r['old'].split('\n', 1)[0]))
+        ent = next((e for e in entities if e['entity'] == r['section']), None)
+        if ent is None:
+            ent = {'entity': r['section'], 'commands': []}
+            entities.append(ent)
+        cmd = next((c for c in ent['commands'] if c['name'] == name), None)
+        if cmd is None:
+            cmd = {'name': name, 'rows': [], 'kinds': []}
+            ent['commands'].append(cmd)
+        cmd['rows'].append(r['id'])
+        if r['chip'] not in cmd['kinds']:
+            cmd['kinds'].append(r['chip'])
+    refusals = []
+    for r in by_key['ref']['rows']:
+        sec = next((s for s in refusals if s['section'] == r['section']), None)
+        if sec is None:
+            sec = {'section': r['section'], 'rows': []}
+            refusals.append(sec)
+        sec['rows'].append(r['id'])
+    return {'groups': groups, 'members': members, 'entities': entities, 'refusals': refusals}
+
+
+api = json.dumps(api_overview(tables), ensure_ascii=False, separators=(',', ':')).replace('</', '<\\/')
 data = json.dumps(tables, ensure_ascii=False, separators=(',', ':')).replace('</', '<\\/')
 with io.open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'review_page_template.html'), encoding='utf-8') as f:
     page = f.read()
-page = page.replace('/*__DATA__*/[]', data)
+page = page.replace('/*__DATA__*/[]', data).replace('/*__API__*/{}', api)
 with io.open(OUT, 'w', encoding='utf-8', newline='\n') as f:
     f.write(page)
 print('rows', {t['key']: len(t['rows']) for t in tables}, 'bytes', len(page.encode('utf-8')))

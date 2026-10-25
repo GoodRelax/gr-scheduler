@@ -153,6 +153,23 @@ svg.focus .erd-edge:not(.on) { opacity: 0.08; }
 svg.focus .erd-edge.on { opacity: 1; stroke: var(--accent); stroke-width: 2; }
 .erd-list { font-size: 15px; margin: 0; padding-left: 1.2em; columns: 2 22em; column-gap: 24px; }
 .erd-list li { break-inside: avoid; }
+.api-flow { list-style: none; margin: 4px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px 28px; }
+.api-flow li { position: relative; flex: 1 1 200px; min-width: 0; border: 1px solid var(--accent); border-radius: 8px; background: var(--accent-soft); padding: 6px 10px; display: flex; flex-direction: column; gap: 2px; font-size: 14px; }
+.api-flow li b { font-size: 15px; color: var(--accent); }
+.api-flow li + li::before { content: "→"; position: absolute; left: -22px; top: 50%; transform: translateY(-50%); color: var(--muted); font-weight: 700; }
+.api-h { margin: 14px 0 0; font-size: 17px; }
+.api-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 17em), 1fr)); gap: 8px; }
+.api-box { border: 1px solid var(--line); border-radius: 8px; background: var(--sheet); padding: 6px 10px; min-width: 0; }
+.api-box h3 { margin: 0 0 4px; font-size: 15px; }
+.api-member { display: flex; flex-wrap: wrap; gap: 4px 8px; align-items: center; padding: 2px 0; }
+.api-member code { font: 14px var(--font-code); overflow-wrap: anywhere; }
+.api-wrap { gap: 8px; }
+.api-chip { font: inherit; font-size: 14px; border: 1px solid var(--accent); background: var(--sheet); color: var(--accent); border-radius: 12px; padding: 0 9px; cursor: pointer; font-family: var(--font-code); }
+.api-chip:disabled { opacity: 0.55; cursor: default; }
+.api-kinds { font-size: 13px; color: var(--muted); }
+.api-steps { margin: 4px 0 0; padding-left: 1.4em; font-size: 15px; display: flex; flex-direction: column; gap: 2px; }
+.row.flash { outline: 3px solid var(--accent); outline-offset: 2px; }
+@media (max-width: 720px) { .api-flow { flex-direction: column; gap: 22px; } .api-flow li { flex: none; } .api-flow li + li::before { content: "↓"; left: 50%; top: -18px; transform: translateX(-50%); } }
 @media (max-width: 720px) { .side { grid-template-columns: 1fr; } .meter { width: 100px; } }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 </style>
@@ -186,7 +203,9 @@ svg.focus .erd-edge.on { opacity: 1; stroke: var(--accent); stroke-width: 2; }
 <script>
 const TABLES = /*__DATA__*/[];
 const state = { scroll: {}, tab: TABLES[0].key, filter: 'all', query: '', tag: '', reviews: new Map(), db: null, writing: new Map() };
-const VIEWS = TABLES.concat([{ key: 'erd', name: '全体図（ERD）', erd: true, rows: [] }]);
+const API = /*__API__*/{};
+const VIEWS = TABLES.concat([{ key: 'erd', name: '全体図（ERD）', erd: true, rows: [] },
+  { key: 'api', name: '全体図（Agent API）', erd: true, api: true, rows: [] }]);
 const TAG_NAME = { MSPDI: 'MSPDI 由来', GRS: 'GRS 独自', VIEW: '画面設定', STAMP: '刻印・履歴', TYPE: '共通の型', BOX: '日程データの入れ物', API: 'Agent API', SPEC: '仕様の文', ROOT: 'スキーマの頭', 'CR-851': 'CR-851', 'CR-848': 'CR-848', 'CR-849': 'CR-849' };
 const TAG_ORDER = ['ROOT', 'MSPDI', 'GRS', 'BOX', 'VIEW', 'STAMP', 'TYPE', 'API', 'CR-851', 'CR-848', 'CR-849', 'SPEC'];
 const byId = new Map();
@@ -375,6 +394,7 @@ function renderList() {
   const list = document.getElementById('list');
   list.textContent = '';
   const t = VIEWS.find(x => x.key === state.tab);
+  if (t.api) { renderApi(list); return; }
   if (t.erd) { renderErd(list); return; }
   if (t.pending) { list.append(el('p', { class: 'empty' }, 'この表は起草中です。出来たらこのページに足して出し直します。')); return; }
   const shown = t.rows.filter(matches);
@@ -558,6 +578,90 @@ function renderErd(list) {
   const kindName = { ref: '参照', nest: '入れ子', match: '値の一致' };
   edges.forEach(e => ul.append(el('li', null, e.from + '.' + e.col + ' → ' + e.to + '（' + kindName[e.kind] + '）')));
   list.append(ul);
+}
+
+// ---- Agent API overview (JDG-3345) ---------------------------------------
+// The data is generated from agent-api-members.json and the tables of this study; a chip
+// opens the row it stands for in its own tab.
+const KIND_NAME = { added: '足す', retired: '廃止', 'edit-fold': 'まとめる', 'named-kept': 'そのまま', 'named-renamed': '改名' };
+function jumpTo(tabKey, rowId) {
+  state.scroll[state.tab] = window.scrollY;
+  state.tab = tabKey; state.filter = 'all'; state.query = ''; state.tag = '';
+  document.querySelectorAll('.filter').forEach(x => x.setAttribute('aria-pressed', String(x.dataset.f === 'all')));
+  document.getElementById('search').value = '';
+  renderAll();
+  // setTimeout, not requestAnimationFrame: a hidden pane never paints.
+  setTimeout(() => {
+    const c = document.getElementById('row-' + rowId); if (!c) return;
+    const bar = document.querySelector('.bar').getBoundingClientRect().height;
+    window.scrollTo(0, Math.max(0, c.getBoundingClientRect().top + window.scrollY - bar - 8));
+    c.classList.add('flash'); setTimeout(() => c.classList.remove('flash'), 1600);
+  }, 0);
+}
+function apiChip(text, rowId, tabKey, title) {
+  const b = el('button', { class: 'api-chip', type: 'button' }, text);
+  if (title) b.title = title;
+  if (rowId) b.addEventListener('click', () => jumpTo(tabKey, rowId)); else b.disabled = true;
+  return b;
+}
+function renderApi(list) {
+  list.append(el('p', { class: 'erd-intro' }, 'AI が GRS の文書を読み書きする道筋です。AI は取次（GRS Relay、MCP のサーバー）の道具を呼び、取次は開いているページの Agent API のメンバーへ渡します。印の付いた札を押すと、その行のタブへ飛びます。'));
+  const flow = el('ol', { class: 'api-flow' });
+  [['AI', 'MCP のクライアント（Claude など）'],
+   ['GRS Relay', '取次。MCP の道具 ' + API.members.length + '。道具の名はメンバーの名と同じ（CR-846 で変わりうる）'],
+   ['Agent API', '開いているページの入口。メンバー ' + API.members.length],
+   ['文書', 'ページだけが持つ GRS JSON。取次は写しを持たない']].forEach(([h, p]) => {
+    const li = el('li'); li.append(el('b', null, h), el('span', null, p)); flow.append(li);
+  });
+  list.append(flow);
+
+  list.append(el('h2', { class: 'api-h' }, 'Agent API のメンバー'));
+  list.append(el('p', { class: 'extra' }, 'メンバーの名と引数は今の仕様書のもの。「CR-851」の札は、CR-851 で名・引数・答えが変わるメンバー（押すと仕様の文のタブのその行へ）。「MCP だけの鍵」は、取次の道具にだけある引数を持つメンバー。'));
+  const grid = el('div', { class: 'api-grid' });
+  API.groups.forEach(g => {
+    const box = el('section', { class: 'api-box' });
+    const ms = API.members.filter(m => m.group === g);
+    box.append(el('h3', null, g + '（' + ms.length + '）'));
+    ms.forEach(m => {
+      const line = el('div', { class: 'api-member' });
+      line.append(el('code', null, m.name + (m.kind === 'method' ? '(' + m.args.join(', ') + ')' : '')));
+      if (m.rows.length) line.append(apiChip('CR-851 ' + m.rows.length, m.rows[0], 'spec', m.id + ' の変わる行 ' + m.rows.length));
+      if (m.mcpOnly) line.append(el('span', { class: 'chip' }, 'MCP だけの鍵'));
+      box.append(line);
+    });
+    grid.append(box);
+  });
+  list.append(grid);
+
+  list.append(el('h2', { class: 'api-h' }, 'applyCommands の命令（相手ごと）'));
+  list.append(el('p', { class: 'extra' }, 'applyCommands は命令をまとめて受け、全部を当てるか、全部を断る。札は β の命令の名と、それに当たる行の数（押すとコマンドのタブのその行へ）。「まとめる」は、今の小さな命令をいくつか 1 つの命令にまとめた行。'));
+  const cg = el('div', { class: 'api-grid' });
+  API.entities.forEach(e => {
+    const box = el('section', { class: 'api-box' });
+    const n = e.commands.reduce((s, c) => s + c.rows.length, 0);
+    box.append(el('h3', null, e.entity + '（' + n + ' 行）'));
+    e.commands.forEach(c => {
+      const line = el('div', { class: 'api-member' });
+      line.append(apiChip(c.name + ' ' + c.rows.length, c.rows[0], 'cmd'));
+      line.append(el('span', { class: 'api-kinds' }, c.kinds.map(k => KIND_NAME[k] || k).join('・')));
+      box.append(line);
+    });
+    cg.append(box);
+  });
+  list.append(cg);
+
+  list.append(el('h2', { class: 'api-h' }, '書くときの印（stamp）'));
+  const steps = el('ol', { class: 'api-steps' });
+  ['readStamp で、今の文書の印を読む。',
+   'applyCommands に、読んだ印を expectedStamp として添えて渡す。',
+   '印が今の文書と同じなら、命令を全部当てる。違えば（人や別の AI が先に書いた）、何も当てずに staleStamp で断り、今の印を返す。',
+   '断られたら、要るものを読み直して、新しい印で出し直す。'].forEach(s => steps.append(el('li', null, s)));
+  list.append(steps);
+
+  list.append(el('h2', { class: 'api-h' }, '拒否の理由（段ごと）'));
+  const rg = el('div', { class: 'api-member api-wrap' });
+  API.refusals.forEach(s => rg.append(apiChip(s.section + ' ' + s.rows.length, s.rows[0], 'ref')));
+  list.append(rg);
 }
 
 function renderAll() { renderTabs(); renderProgress(); renderList(); }
