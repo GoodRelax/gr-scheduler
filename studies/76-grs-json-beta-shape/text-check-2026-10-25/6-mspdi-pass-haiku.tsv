@@ -1,0 +1,107 @@
+id	explanation_ja	hard_parts
+ROOT	このファイルは GRS の予定表文書の JSON Schema の説明文である。MSPDI は Microsoft Project の XML 形式、GRS はこのファイルを作るツール、「Same as MSPDI X」は MSPDI の要素 X と同じ意味と値であることを示し、違いがあればその後に書かれる。主な規則は、$schema は先頭に置き、schedule がデータ、documentSettings が描画、documentStamp と changeLogEntries が変更の記録を持つこと。値のないプロパティは省略し、null や空配列は書かない。時刻は壁時計時刻（タイムゾーンなし、秒は切り捨て）と UTC の記録時刻の2種類、色は theme・palette・custom の3種類である。	一度に多くの規則が詰め込まれ、文が非常に長い。「Same as MSPDI X」と GRS 独自の差分の境界が分かりにくい。開始側と終了側で日付だけの値の既定時刻が変わる規則が複雑。色の kind と chosen・derived の関係が分かりにくい。
+D004	予定表のデータ本体で、MSPDI に書き出される内容と、GRS が描画のために追加する内容を含む。	-
+D005	MSPDI の Project と同じ。プロジェクト全体の設定を入れる。	MSPDI の Project 要素の中身を知らないと、この行だけでは内容が分からない。
+D006	MSPDI の Calendars と同じ。カレンダーの一覧で、項目がなければ省略し、空の配列は書かない。	「minItems 1」が何を意味するか説明がなく、空の配列の扱いが分かりにくい。
+D007	MSPDI の Tasks と同じだが、WBS の階層は Task.parentTaskUid と Task.siblingOrder で表す。推測: MSPDI の OutlineNumber の代わりに、この2項目で親子と並び順を表すという意味。	parentTaskUid と siblingOrder はこの表に定義がなく、この行だけでは意味が決まらない。
+D008	MSPDI の Resources と同じ。資源の一覧。	-
+D009	MSPDI の Assignments と同じ。タスクと資源の割り当ての一覧。	-
+D078	MSPDI の Project と同じ。プロジェクト全体の設定を入れる。	MSPDI の Project 要素の中身を知らないと、この行だけでは内容が分からない。
+D079	MSPDI の Project/UID と同じ。ただし GRS はこれを主キーとして使わない。	「キーとして使わない」と書かれているが、どの用途のキーかが分からない。
+D080	MSPDI の Project/CalendarUID と同じ。GRS は稼働日を数えるとき、この1つのカレンダーだけを使う。	「すべての稼働日を数える」の範囲が曖昧で、タスク側の calendarUid との関係が分からない。
+D081	MSPDI の Project/Name と同じ。GRS は画面に表示せず、画面の名前は title を使う。	画面の名前が title であることは、D082 を読まないと分からない。
+D082	MSPDI の Project/Title と同じ。GRS はページ上部に表示し、書き出すファイルの既定名にも使う。省略時は Untitled と表示する。	-
+D083	MSPDI の Project/Subject と同じ。件名の文字列。	GRS での扱いの記述がなく、画面に出るかどうか分からない。
+D084	MSPDI の Project/Category と同じ。分類の文字列。	GRS での扱いの記述がなく、使われるかどうか分からない。
+D085	MSPDI の Project/Company と同じ。会社名の文字列。	GRS での扱いの記述がなく、使われるかどうか分からない。
+D086	MSPDI の Project/Manager と同じ。管理者の名前。	GRS での扱いの記述がなく、使われるかどうか分からない。
+D087	MSPDI の Project/Author と同じ。作成者の名前で、最後に書いた人ではない（最後の編集者は documentStamp.lastEditedBy）。	「作成者」と「最後の編集者」の違いは、別の項目を読まないと確認できない。
+D088	MSPDI の Project/Revision と同じ。改訂の番号で、documentStamp の時刻ではない。	改訂番号がどのように増えるかの規則が書かれていない。
+D089	MSPDI の Project/CreationDate と同じ。GRS は新しい文書を作るときに書き込む。	DateTime の形式が本文にはなく、D277 を読む必要がある。
+D090	MSPDI の Project/StartDate と同じ。プロジェクトの開始日時。	開始日時がどのタイムゾーンの壁時計時刻かは、本文だけでは分からない。
+D091	MSPDI の Project/StatusDate と同じ。GRS はその日に進捗線を描く。省略すると進捗線がなく、Delay Diagnostics も実行されない。	「Delay Diagnostics」が何かの説明がなく、未知の語である。
+D092	GRS 独自。UtcOffset 型（27 値、必須）で、スケジュールの日時が従う固定の UTC オフセットを表す。標準時のキー（例 UTC+09:00）で書き、夏時間は適用しない。MSPDI には書かれない。	UtcOffset の定義と 27 値の一覧がこの表にない。「standard-time key」の意味が分かりにくい。
+D093	MSPDI の Project/MinutesPerDay と同じ。省略時は 480 分。すべての稼働日の稼働分と合わせること。日によって違うと、開くたびに GRS が報告する。	「稼働分」が何を指すか、説明されていない。
+D094	MSPDI の Project/MinutesPerWeek と同じ。推測: 1週間あたりの稼働分。	GRS での使われ方の記述がなく、分からない。
+D095	MSPDI の Project/DaysPerMonth と同じ。推測: 1か月の日数。	GRS での扱いの記述がなく、使われるかどうか分からない。
+D096	MSPDI の Project/WeekStartDay と同じ。0 から 6 の整数で、省略時は月曜（1）。	0 が何曜日かが書かれておらず、値の対応が分からない。
+D097	MSPDI の Project/DefaultStartTime と同じ。GRS は開始側の日付にこの時刻を付ける。省略時は 08:00:00。	「開始側の日付」が何を指すか、説明が足りない。
+D098	MSPDI の Project/DefaultFinishTime と同じ。GRS は終了側の日付にこの時刻を付ける。省略時は 17:00:00。	「終了側の日付」が何を指すか、説明が足りない。
+D105	MSPDI の値のうち GRS が読まないものを、そのまま保持して書き戻す。なければ省略する。	「nothing kept」と「absent」の書き方が重複していて、紛らわしい。
+D106	MSPDI の要素のうち GRS が読まないものを、そのまま保持して書き戻す。なければ省略する。	空の配列を書かない規則（minItems 1）が、一文の中で分かりにくい。
+D107	MSPDI の Calendar と同じ。	-
+D108	MSPDI の Calendar/UID と同じ。必須項目。	-
+D109	MSPDI の Calendar/BaseCalendarUID と同じ。推測: 基になるカレンダーの UID。	GRS での基底カレンダーの扱いが書かれていない。
+D111	MSPDI の Calendar/Name と同じ。カレンダーの名前。	-
+D112	MSPDI の Calendar/IsBaseCalendar と同じ。省略時は false。	-
+D113	MSPDI の Calendar/WeekDays と同じ。曜日ごとの稼働の設定の一覧。	-
+D114	MSPDI の Calendar/Exceptions と同じ。例外の日の一覧。	-
+D115	MSPDI の値のうち GRS が読まないものを、そのまま保持して書き戻す。なければ省略する。	D105 と同じ内容だが、同上とは書かれていない。
+D116	MSPDI の要素のうち GRS が読まないものを、そのまま保持して書き戻す。なければ省略する。	D106 と同じ内容だが、同上とは書かれていない。
+D117	MSPDI の WeekDay と同じ。	-
+D119	MSPDI の WeekDay/DayType と同じ。ただし 0 は使わず、例外の日は Exception に持つ。1 から 7、必須。	1 から 7 がどの曜日に当たるかの対応が書かれていない。0 を使わない理由も分からない。
+D120	MSPDI の WeekDay/DayWorking と同じ。省略時は非稼働。	-
+D121	MSPDI の WeekDay/WorkingTimes と同じ。省略すると、稼働日は既定の 08:00-12:00 と 13:00-17:00 になる。	1 から 5 の件数と、省略と空配列の禁止が一文にまとまっていて読みにくい。
+D122	MSPDI の値のうち GRS が読まないものを、そのまま保持して書き戻す。なければ省略する。	D105 と同じ内容で、同上とは書かれていない。
+D123	MSPDI の要素のうち GRS が読まないものを、そのまま保持して書き戻す。なければ省略する。	D106 と同じ内容で、同上とは書かれていない。
+D124	MSPDI の Exception と同じ。	-
+D126	MSPDI の Exception/Name と同じ。例外の名前。	-
+D127	MSPDI の TimePeriod/FromDate と同じ。例外の開始日時。	TimePeriod という親要素名が説明なしに出てくる。
+D128	MSPDI の TimePeriod/ToDate と同じ。例外の終了日時。	TimePeriod の説明がない。
+D129	MSPDI の Exception/DayWorking と同じ。省略時は非稼働。	-
+D130	MSPDI の Exception/Type と同じ。GRS が数えるのは一回限りの例外だけで、9、省略、または recurrencePeriod が省略か 1 の 1 がこれに当たる。それ以外は保持するが数えない。新たに追加する例外には 1 を書く。	数字の対応（1 と 9 がそれぞれ何を表すか）が本文だけでは分からない。「数えない」の意味も曖昧。
+D131	MSPDI の Exception/Period と同じ。省略は、ファイルに Period がなかったことを表す。	「省略」と「Period がなかった」の区別が分かりにくい。
+D132	MSPDI の Exception/WorkingTimes と同じ。省略すると、稼働日は既定の 08:00-12:00 と 13:00-17:00 になる。	-
+D133	MSPDI の値のうち GRS が読まないものを、そのまま保持して書き戻す。なければ省略する。	D105 と同じ内容で、同上とは書かれていない。
+D134	MSPDI の要素のうち GRS が読まないものを、そのまま保持して書き戻す。なければ省略する。	D106 と同じ内容で、同上とは書かれていない。
+D135	MSPDI の WorkingTime と同じ。GRS は、同じ日の中で重なる時間帯や、開始が終了より後になる時間帯を拒否する。12:00 で終わる時間帯と 12:00 で始まる時間帯のように、接するだけなら可。	「1 日の時間帯」の意味と、拒否される時点（読み込み時か保存時か）が書かれていない。
+D137	MSPDI の WorkingTime/FromTime と同じ。	-
+D138	MSPDI の WorkingTime/ToTime と同じ。00:00:00 は一日の終わりを表す。	00:00:00 が開始ではなく終わりを表すのは直感に反する。
+D139	MSPDI の Task と同じ。	-
+D140	MSPDI の Task/UID と同じ。必須項目。	-
+D142	MSPDI の Task/CalendarUID と同じ。GRS は書き戻すためだけに保持し、稼働日は project.calendarUid で数える。	タスクのカレンダーが使われない理由が本文だけでは分かりにくい。
+D144	MSPDI の Task/Name と同じ。1 から 512 文字。	-
+D145	MSPDI の Task/Notes と同じ。メモの文字列。	-
+D146	MSPDI の Task/Start と同じ。タスクの開始日時。	開始側の日時として扱う際の既定時刻との関係が分からない。
+D147	MSPDI の Task/Finish と同じ。タスクの終了日時。	終了側の日時として扱う際の既定時刻との関係が分からない。
+D148	MSPDI の Task/Milestone と同じ。省略時は false。true なら TaskVisual に milestoneShape を持ち、false なら taskShape を持つ。	TaskVisual が表にない語で、別の定義を読まないと分からない。
+D149	MSPDI の Task/Deadline と同じ。期限の日時。	-
+D150	MSPDI の Task/ActualStart と同じ。実際の開始日時。	-
+D151	MSPDI の Task/Stop と同じ。推測: 中断の日時。actualFinish が設定されると GRS は省く。	「Stop」が中断を指すという説明がなく、推測に頼る。
+D152	MSPDI の Task/ActualFinish と同じ。実際の終了日時。	-
+D153	MSPDI の Task/Resume と同じ。再開の日時。	stop と resume がどう対応するか、説明がない。
+D154	MSPDI の Task/ResumeValid と同じ。false は中断として読み、再開の日はまだ決まっていないものとみなす。	「restart day decided」の意味が一般的でなく、false の扱いが分かりにくい。
+D155	MSPDI の Task/PercentComplete と同じだが、GRS は GRS JSON を読むたびに日付から再計算する。実績の長さ÷計画の長さ×100 を稼働分で丸めた値で、100 を超えることもある。マイルストーンは actualFinish があれば 100、なければ 0。	「計画の長さ」が何か書かれていない。計算式と例外の規則が一文に詰め込まれている。
+D156	開始側のバーを斜めに描く暦日数で、開始がまだ確定していないことを示す。省略は斜めなし、0 は平らな端を表す。MSPDI には Task/ExtendedAttribute として書く。	「暦日」の意味、描き方、「default depth on chevrons」の shape の記述が本文と合わない。
+D157	開始側ではなく終了側について、D156 と同じ意味の値。MSPDI には Task/ExtendedAttribute として書く。	D156 を読まないと意味が分からない。
+D158	MSPDI の Task/HyperlinkAddress と同じ。リンク先の URL。省略時はリンクなし。	-
+D159	MSPDI の Task/Hyperlink と同じ。リンクの見出しで、アドレスではない。省略時は見出しなし。	項目名 hyperlink と hyperlinkAddress の違いが紛らわしい。
+D160	MSPDI の Task/PredecessorLink と同じ。先行タスクとの関係の一覧。	「先行」の概念が説明されていない。
+D161	MSPDI の値のうち GRS が読まないものを、そのまま保持して書き戻す。なければ省略する。	D105 と同じ内容で、同上とは書かれていない。
+D162	MSPDI の要素のうち GRS が読まないものを、そのまま保持して書き戻す。なければ省略する。	D106 と同じ内容で、同上とは書かれていない。
+D163	MSPDI の PredecessorLink と同じ。	-
+D164	MSPDI の PredecessorLink/PredecessorUID と同じ。必須項目。	-
+D165	MSPDI の PredecessorLink/Type と同じ。0 から 3 の整数で、必須。	0 から 3 がそれぞれどの関係の種類か、本文に書かれていない。
+D166	MSPDI の PredecessorLink/LinkLag と同じ。project.minutesPerDay が省略されていれば、1 稼働日は 480 分とする。推測: 単位は MSPDI の既定の単位による。	遅れの単位が本文で説明されていない。
+D167	MSPDI の PredecessorLink/LagFormat と同じ。GRS が数えるのは 7（稼働日）、5（時間）、3（分）だけで、それ以外は保持するが数えない。遅れを入力した単位で書く。	7、5、3 の数字が何の単位か、本文に対応が書かれていない。
+D168	MSPDI の値のうち GRS が読まないものを、そのまま保持して書き戻す。なければ省略する。	D105 と同じ内容で、同上とは書かれていない。
+D169	MSPDI の要素のうち GRS が読まないものを、そのまま保持して書き戻す。なければ省略する。	D106 と同じ内容で、同上とは書かれていない。
+D170	MSPDI の Resource と同じ。	-
+D171	MSPDI の Resource/UID と同じ。必須項目。	-
+D172	MSPDI の Resource/CalendarUID と同じ。書き戻すためだけに保持し、稼働日は project.calendarUid で数える。	タスクの calendarUid と同じ扱いだが、そのことは本文に書かれていない。
+D173	MSPDI の Resource/Name と同じ。資源の名前。	-
+D174	MSPDI の Resource/Type と同じ。推測: 資源の種類。	MSPDI の Type の値（種類の一覧）が書かれていない。
+D175	MSPDI の Resource/IsCostResource と同じ。省略時は false。	「費用の資源」が何を指すか、直感的に分かりにくい。
+D176	MSPDI の値のうち GRS が読まないものを、そのまま保持して書き戻す。なければ省略する。	D105 と同じ内容で、同上とは書かれていない。
+D177	MSPDI の要素のうち GRS が読まないものを、そのまま保持して書き戻す。なければ省略する。	D106 と同じ内容で、同上とは書かれていない。
+D178	MSPDI の Assignment と同じ。	-
+D179	MSPDI の Assignment/UID と同じ。必須項目。	-
+D180	MSPDI の Assignment/TaskUID と同じ。推測: 割り当て先のタスクの UID。	-
+D181	MSPDI の Assignment/ResourceUID と同じ。推測: 割り当て先の資源の UID。	-
+D182	MSPDI の値のうち GRS が読まないものを、そのまま保持して書き戻す。なければ省略する。	D105 と同じ内容で、同上とは書かれていない。
+D183	MSPDI の要素のうち GRS が読まないものを、そのまま保持して書き戻す。なければ省略する。	D106 と同じ内容で、同上とは書かれていない。
+D270	文字列から文字列への対応（map）で、1 件以上を持つ。GRS が読まない MSPDI の値を、MSPDI の名前のまま保持し、そのまま書き戻す。	map の書き方と「minProperties 1」の意味が、一般的な読者には分かりにくい。
+D271	GRS が読まない MSPDI の要素 1 つで、読まずに保持し、元の位置にそのまま書き戻す。	「元の位置」が順序の意味か、ファイル内の場所の意味か分かりにくい。
+D273	MSPDI ファイルにあった要素名で、元の綴りのまま書く。必須で 1 から 512 文字。	-
+D277	「YYYY-MM-DDTHH:MM:SS」の形式の壁時計時刻で、project.scheduleDataTimeZone の時刻を、MSPDI と同じくオフセットなしで書く。取り込んだファイルのオフセットは捨てる。	「wall-clock」の語が分かりにくく、取り込み時にオフセットを捨てる意味も読み取りにくい。
+D278	「HH:MM:SS」の形式の時刻で、MSPDI と同じ書き方をする。	-
