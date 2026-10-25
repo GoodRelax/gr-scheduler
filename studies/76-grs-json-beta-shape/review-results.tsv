@@ -1,8 +1,10 @@
 table	label	tag	ok	current	comment	updated_at	row_id
 doc	D001	STAMP	yes	yes		2026-10-25T00:14:05.958Z	doc-9e3ef5a5
-doc	D002	STAMP	no	no	UTC instant CR-851 lands の意味が分からない。 スキーマを更新した日時とかそういう初見者に分かる奴で。	2026-10-25T00:15:54.511Z	doc-904a26d7
-doc	D003	STAMP	no	no	スキーマバージョンとビルドバージョンの2つがいる理由が不明。 解説せよ。	2026-10-25T00:16:35.277Z	doc-20707d6e
+doc	D002	STAMP	no	no	後半の / It is set when a change request that changes the shape lands, and stays the same while the shape stays the same. / は削除しろ / --------- / UTC instant CR-851 lands の意味が分からない。 スキーマを更新した日時とかそういう初見者に分かる奴で。	2026-10-25T02:53:06.221Z	doc-904a26d7
+doc	D003	STAMP	no	no	必要性は理解したが、スキーマにその説明を短文で入れろ。デバッグ用にいつデプロイしたか... 通常はschemaVer だけ気にすればいいとか。 /  / ----- / スキーマバージョンとビルドバージョンの2つがいる理由が不明。 解説せよ。	2026-10-25T02:54:48.747Z	doc-20707d6e
 doc	D004	BOX	no	yes	Schema自体は直さなくていいけど、タグは(MSPDI由来)で合ってる？	2026-10-25T00:31:42.215Z	doc-1e59cf9f
 doc	D005	MSPDI	yes	yes		2026-10-25T02:18:18.804Z	doc-7223170f
 doc	D006	MSPDI	no	no	任意（要素が無いときはプロパティを書かない。空の配列 [] は書かない: minItems 1） を日本語で書いたらいかんやろ。	2026-10-25T02:18:53.666Z	doc-700942f9
-doc	D009	MSPDI	no	no		2026-10-25T00:34:31.073Z	doc-212b0958
+doc	D007	MSPDI	yes	yes		2026-10-25T02:56:01.203Z	doc-00ccc7a0
+doc	D008	MSPDI	yes	yes		2026-10-25T02:56:58.961Z	doc-39787c7f
+doc	D009	MSPDI	yes	yes		2026-10-25T02:57:12.386Z	doc-212b0958

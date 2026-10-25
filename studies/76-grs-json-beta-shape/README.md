@@ -23,6 +23,7 @@ status: draft
 | [`commands-map.md`](commands-map.md) | `applyCommands` の命令（93 → 43: 名つき 34 ＋ 実体ごとの編集 9）、退く名、拒否の理由の名（行 ID → 変わらない名 66）、拒否の形 | 命令 112・理由 94 |
 | [`doc-shape-choices.md`](doc-shape-choices.md) | 文書の表を作るときに選んだこと（覆してよい）・数の測り方・裁定どうしの食い違いとその解き方 | — |
 | [`commands-choices.md`](commands-choices.md) | 命令の表を作るときに選んだこと（覆してよい）・数の測り方 | — |
+| [`property-order.md`](property-order.md) | スキーマと文書のプロパティの順（`JDG-3322`、規則は `DR-6` の案）。表の行はこの順に並ぶ | — |
 
 正は 3 つの TSV（[`doc-shape-map.tsv`](doc-shape-map.tsv)・[`commands-map.tsv`](commands-map.tsv)・[`refusal-reasons-map.tsv`](refusal-reasons-map.tsv)）で、`.md` はそれを読みやすく刷った版である。
 
