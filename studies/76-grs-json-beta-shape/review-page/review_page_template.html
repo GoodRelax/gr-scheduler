@@ -120,14 +120,18 @@ button:focus-visible, textarea:focus-visible, input:focus-visible { outline: 2px
 .tagchip { font: inherit; font-size: 14px; border: 1px solid var(--line); background: var(--sheet); color: var(--ink); border-radius: 12px; padding: 1px 10px; cursor: pointer; font-variant-numeric: tabular-nums; }
 .tagchip[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); font-weight: 700; }
 /* A section line reaches past the row sheets on both sides, so it reads as a break in the flow. */
-.divider { display: flex; align-items: center; gap: 10px; margin: 14px -14px 2px; color: var(--ink); font: 700 15px var(--font-code); }
+/* As far out as the side space allows: 64px on a wide screen, 14px on a phone (inside the 16px gutter).
+   100vw counts the scrollbar, so the side space is taken without the 16px gutter. */
+.divider { --out: clamp(14px, calc((100vw - 1180px) / 2), 64px); display: flex; align-items: center; gap: 10px; margin: 16px calc(-1 * var(--out)) 2px; color: var(--ink); font: 700 15px var(--font-code); }
 .divider::before { content: ""; flex: 0 0 14px; border-top: 2px solid var(--muted); }
 .divider::after { content: ""; flex: 1; border-top: 2px solid var(--muted); }
 .divider .n { font: 400 13px var(--font-body); color: var(--muted); }
 .toc { font-size: 15px; }
 .toc summary { cursor: pointer; color: var(--accent); font-weight: 700; width: max-content; }
-.toc ol { margin: 4px 0 2px; padding-left: 1.6em; max-height: 50vh; overflow: auto; columns: 2 18em; column-gap: 24px; }
-.toc li { break-inside: avoid; }
+/* Rows flow down a grid of columns that fits the width; only the list scrolls, and only up and down. */
+.toc ol { list-style: none; margin: 4px 0 2px; padding: 0; max-height: 55vh; overflow-y: auto; overflow-x: hidden; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 20em), 1fr)); gap: 2px 24px; }
+.toc li { min-width: 0; overflow-wrap: anywhere; }
+.toc .no { display: inline-block; min-width: 2.4em; color: var(--muted); font-variant-numeric: tabular-nums; }
 .toc a { color: var(--ink); text-decoration: none; font-family: var(--font-code); font-size: 14px; }
 .toc a:hover, .toc a:focus-visible { color: var(--accent); text-decoration: underline; }
 .toc .n { color: var(--muted); font-size: 13px; margin-left: 6px; }
@@ -403,8 +407,9 @@ function renderToc(entries) {
   list.textContent = '';
   box.hidden = entries.length < 2;
   document.getElementById('tocsum').textContent = '目次（' + entries.length + ' 段）';
-  entries.forEach(e => {
+  entries.forEach((e, i) => {
     const li = el('li');
+    li.append(el('span', { class: 'no' }, (i + 1) + '.'));
     const a = el('a', { href: '#' + e.id }, e.name);
     a.addEventListener('click', ev => {
       ev.preventDefault();
