@@ -60,7 +60,7 @@ status: draft
 | `CommentBox` | `id`・`anchor`・`bodyOffsetPx`・`text`・`fillColor`・`fillTransparencyPercent`・`strokeColor`・`strokeWidthPx`・`textColor`・`fontSizePx`・`hyperlinkAddress`・`hyperlink` |
 | `HighlightBox` | `id`・`topTaskGroupId`・`bottomTaskGroupId`・`firstDay`・`lastDay`・`cornerRadiusPx`・`fillColor`・`fillTransparencyPercent`・`strokeColor`・`strokeWidthPx` |
 | `DocumentStamp` | `scheduleUpdatedAt`・`documentUpdatedAt`・`fileSavedAt`・`lastEditedBy` |
-| `ChangeLogEntry` | `ordinal`・`changedAt`・`editedBy`・`explanation` |
+| `ChangeLogEntry` | `changedAt`・`changedBy`・`affectedArea`・`changeDescription`・`reason`・`note`（`JDG-3332`） |
 | `PassthroughElement` | `ordinal`・`name`・`fields`・`children` |
 | `ColorSide` | `value`・`source` |
 | `ColumnSort` | `column`・`direction` |
