@@ -1,0 +1,435 @@
+id	kind	name	shape	text
+D001	property	$schema	str	The address of the latest version of this schema, the same as its $id. Written as the first key of the document; any string is read.
+D002	property	schemaVersion	str const: the UTC time (YYYY-MM-DDTHH:MM:SSZ) when the shape of this schema last changed.	The UTC time (YYYY-MM-DDTHH:MM:SSZ) when the shape of this schema last changed.
+D003	property	buildVersion	UtcInstant, required, 3rd property (right after $schema and schemaVersion)	The UTC time (YYYY-MM-DDTHH:MM:SSZ) when the GRS build that wrote this file was made. It is for finding bugs: it tells which build wrote the file. To know whether you can read a document, check only schemaVersion.
+D004	property	schedule	object	The data: what is exported to MS Project, and what GRS adds to draw it.
+D005	property	schedule.project	Project	The one project of this document: its own particulars and its calendar defaults.
+D006	property	schedule.calendars	array, optional: omit the property when there are no items; never write [] (minItems 1)	The calendars of the document; working days are counted with the one calendar that project.calendarUid names.
+D007	property	schedule.tasks	array, optional: omit the property when there are no items; never write [] (minItems 1)	The tasks. Their WBS tree is given by Task.parentTaskUid and Task.siblingOrder.
+D008	property	schedule.resources	array, optional: omit the property when there are no items; never write [] (minItems 1)	The people, or other resources, that work can be assigned to.
+D009	property	schedule.assignments	array, optional: omit the property when there are no items; never write [] (minItems 1)	Which resource works on which task.
+D010	property	schedule.taskGroups	array, optional: omit the property when there are no items; never write [] (minItems 1)	The task groups: the rows of the task group panel, each task group one row (a band on the chart). A task group can sit under a parent task group (TaskGroup.parentId), and taskGroupMembers says which tasks are drawn in it.
+D011	property	schedule.taskGroupMembers	array, optional: omit the property when there are no items; never write [] (minItems 1)	Which task group each task is drawn in: one entry per task, from taskUid to taskGroupId. A task group in taskGroups can hold many tasks, but each task sits in exactly one task group.
+D012	property	schedule.taskVisuals	array, optional: omit the property when there are no items; never write [] (minItems 1)	How each task is drawn (shape, colors and outline width): exactly one entry per task.
+D013	property	schedule.taskOrigins	array, optional: omit the property when there are no items; never write [] (minItems 1)	One record per task that came from an imported MS Project file: which file and which task in it, so that a later import of the same file updates that task instead of adding a copy. A task made in GRS has no record.
+D014	property	schedule.baselineTasks	array, optional: omit the property when there are no items; never write [] (minItems 1)	The plan as it was before: a saved copy of earlier task dates, matched to the current tasks by uid and drawn as an outline over them for comparison.
+D015	property	schedule.commentBoxes	array, optional: omit the property when there are no items; never write [] (minItems 1)	Notes placed on the chart; each one points at a task, a highlight box or a free point.
+D016	property	schedule.highlightBoxes	array, optional: omit the property when there are no items; never write [] (minItems 1)	Rectangles on the chart that mark a range of days over a range of task groups, drawn with a frame, a fill or both.
+D017	property	documentSettings	object	How the document is drawn when it is opened. Keys that always have a value are always written, so that a later change of a product default does not change the picture.
+D018	property	documentSettings.displayScalePercent	enum 50,67,75,90,100,110,125,150,175,200 (required)	Display scale of the schedule drawing, in percent. At 100, every ...Px value is drawn as that many CSS pixels; at 50, it is drawn at half size. It scales the shapes and the text of the schedule together. It does not change the app header or the command palette, and it is not the browser's own zoom. The document opens at this value; a reader who changes it edits the document.
+D019	property	documentSettings.fontSizeStep	enum small|medium|large (required)	Text size step of the schedule: the reader's choice of text size. small is 7.5, medium 8.75 and large 10 CSS pixels at displayScalePercent 100, before the tool's own ratios. The document opens at this step; a reader who changes it edits the document.
+D022	property	documentSettings.dayWidthPx	num 0.075..900 default 3.75 (required)	Width of one calendar day on the time axis, in CSS pixels at displayScalePercent 100. Fit to screen sets it so that the whole schedule fits the width of the screen.
+D023	property	documentSettings.verticalZoomRatio	num 1..240 default 1 (required)	Vertical size of the task figures, as a ratio to the default size. 1 is the default size; 2 draws plan bars, actual bars and task name labels twice as tall. It is never below 1. How deep task groups open is set by taskGroupAutoExpandDepth.
+D024	property	documentSettings.taskGroupAutoExpandDepth	int 0..4 default 3 (required)	How deep task groups with treeState auto open. A top-level task group is depth 1. Task groups open down to this depth, so their children are shown down to depth taskGroupAutoExpandDepth + 1. 0 draws only the top-level task groups, closed. A task group that a person opened or closed keeps its own treeState.
+D025	property	documentSettings.scrollPosition	oneOf {kind:notDecided} | {kind:placed,leftEdgeDay,leftEdgeDayFraction,topEdgeTaskGroupId,topEdgeTaskGroupFraction}, required	Where the view starts when the document opens: notDecided lets GRS choose, placed gives the day at the left edge and the task group at the top edge.
+D026	property	documentSettings.scrollPosition/oneOf[*].kind	enum notDecided|placed, required	notDecided: no person has chosen a place yet, and GRS chooses one when it opens the document; placed: the other keys give the place.
+D027	property	documentSettings.scrollPosition/oneOf[placed].leftEdgeDay	Day, required inside placed	The day at the left edge of the view.
+D028	property	documentSettings.scrollPosition/oneOf[placed].leftEdgeDayFraction	num 0<=x<1, required inside placed	Where the left edge falls inside leftEdgeDay, as a part of that day; 0 is the start of the day.
+D029	property	documentSettings.scrollPosition/oneOf[placed].topEdgeTaskGroupId	uuid, required inside placed	The task group at the top edge of the view. When that task group is deleted, scrollPosition becomes notDecided.
+D030	property	documentSettings.scrollPosition/oneOf[placed].topEdgeTaskGroupFraction	num 0<=x<1, required inside placed	Where the top edge falls inside that task group, as a part of its step (its band height plus the gap below it), not in pixels; 0 is its top.
+D031	property	documentSettings.fitSpan	object {firstDay,lastDay,isFixed}, optional (not in required); when the property is absent: no fit span	The fit span: firstDay..lastDay (both days included) and isFixed. When isFixed is true, Fit and picture export show this span instead of the whole schedule. Opening the document does not move the view. Absent means no fit span.
+D032	property	documentSettings.fitSpan.firstDay	Day, required inside fitSpan	The first day of the fit span (included), as a day of the shown clock (viewTimeZone).
+D033	property	documentSettings.fitSpan.lastDay	Day, required inside fitSpan	The last day of the fit span; its column is included.
+D034	property	documentSettings.fitSpan.isFixed	bool, required inside fitSpan	When true, Fit and picture export show the fit span instead of the whole schedule; opening the document does not move the view.
+D035	property	documentSettings.viewTimeZone	oneOf {kind:sameAsScheduleData} | {kind:fixed,offset:UtcOffset}, required	The time zone that the time ruler and the shown date-times use: sameAsScheduleData follows project.scheduleDataTimeZone, fixed uses the offset given here.
+D036	property	documentSettings.viewTimeZone/oneOf[*].kind	enum sameAsScheduleData|fixed, required	sameAsScheduleData: show the schedule data time zone, and follow it when it changes; fixed: show the offset given here.
+D037	property	documentSettings.viewTimeZone/oneOf[fixed].offset	UtcOffset, required	The UTC offset that the chart is shown in.
+D038	property	documentSettings.displayTimeZones	{offset:UtcOffset, season:standard|daylight}[] 1..4, optional: omit the property when there are no items; never write [] (minItems 1)	Up to four extra clocks, each shown as one more row under the time ruler while the time of day is shown.
+D039	property	documentSettings.displayTimeZones[].offset	UtcOffset, required	The UTC offset of this extra clock.
+D040	property	documentSettings.displayTimeZones[].season	enum standard|daylight, required	Whether this clock is the standard-time or the daylight-time zone of its offset. It picks the zone name that is shown; the offset itself is used all year.
+D041	property	documentSettings.isTimeOfDayVisible	bool (schema default)	Whether the time of day is shown on the chart; the stored date-times keep their time either way. A new document starts with false.
+D042	property	documentSettings.isPlanVisible	bool (schema default)	Whether plan bars are shown, apart from isActualVisible. A new document starts with true.
+D043	property	documentSettings.isPlanDatesVisible	bool (schema default)	Whether the planned dates are shown to the right of each task name label. A new document starts with false.
+D044	property	documentSettings.isActualVisible	bool (schema default)	Whether actual bars are shown, apart from isPlanVisible. A new document starts with true.
+D045	property	documentSettings.isPercentCompleteVisible	bool (schema default)	Whether the percent complete label of each task is shown. A new document starts with false.
+D046	property	documentSettings.isBaselineVisible	bool (schema default)	Whether the earlier plan (baselineTasks) is drawn over the current tasks. A new document starts with false.
+D047	property	documentSettings.isProgressLineVisible	bool (schema default)	Whether the progress line is drawn: the line from the status date through the progress point of each task. A new document starts with false.
+D048	property	documentSettings.isProgressMarkerVisible	bool (schema default)	Whether progress markers and resume icons are drawn; while Delay Diagnostics is shown, markers are drawn even when this is false. A new document starts with true.
+D049	property	documentSettings.isDependencyVisible	bool (schema default)	Whether dependency lines are drawn. A new document starts with true.
+D050	property	documentSettings.isAssigneeVisible	bool (schema default)	Whether the assignee label of each task is shown. A new document starts with false.
+D051	property	documentSettings.isDateGridLinesVisible	bool (schema default)	Whether vertical date grid lines are drawn. A new document starts with false.
+D052	property	documentSettings.isGroupGridLinesVisible	bool (schema default)	Whether lines between task groups are drawn, on the chart and in the task group panel. A new document starts with true.
+D053	property	documentSettings.stackDirection	enum up|down	up stacks a task group's tasks so that the chart climbs to a goal at the upper right; down stacks them so that it descends to a goal at the lower right. A new document starts with up.
+D054	property	documentSettings.isThemeMonochrome	bool (schema default)	Whether the theme is monochrome. A new document starts with false.
+D055	property	documentSettings.taskGroupPanelWidthPx	num >=50 default 188 (required)	Width of the task group panel, in CSS pixels at displayScalePercent 100.
+D056	property	documentSettings.isTaskGroupPanelWidthFixed	bool (schema default)	Whether the task group panel width is set by the number taskGroupPanelWidthPx instead of by dragging the panel border. A new document starts with false.
+D057	property	documentSettings.levelZeroTreeState	enum auto|collapsed	The tree state of level 0, the head of the task group panel: collapsed draws no task group at all. A new document starts with auto.
+D058	property	documentSettings.pinnedTaskGroupIds	uuid[] 1..5, optional: omit the property when there are no items; never write [] (minItems 1)	The task groups pinned in a band at the top of the chart, to compare them with task groups far away. Absent means none is pinned.
+D059	property	documentSettings.tableViews	object	How the three tables are shown: the Search Panel, the Delay Diagnostics Report and the Resource List.
+D060	property	documentSettings.tableViews.searchPanel	object	How the tables of the Search Panel are shown: schedule filter, checked rows, column filters and sort.
+D061	property	documentSettings.tableViews.searchPanel.isScheduleFilterApplied	bool	Whether the schedule filter of this table is on; while it is on, the chart draws only what the checked rows of this table select. A new document starts with false.
+D062	property	documentSettings.tableViews.searchPanel.shownTaskUids	int 0..2147483647[], optional: omit the property when there are no items; never write [] (minItems 1)	The tasks whose row is checked in the show column of this table. Absent means no row is checked.
+D063	property	documentSettings.tableViews.searchPanel.columnFilters	ColumnFilter[], optional: omit the property when there are no items; never write [] (minItems 1)	The column filters of the Search Panel tables (the task table and the comment box table), one per filtered column, by the column names of those tables. Absent means no column is filtered.
+D064	property	documentSettings.tableViews.searchPanel.sort	ColumnSort, optional (not in required); when the property is absent: default order	How this table is sorted. Absent means the default order.
+D065	property	documentSettings.tableViews.delayDiagnosticsReport	object	How the Delay Diagnostics Report table is shown: schedule filter, checked rows, column filters and sort.
+D066	property	documentSettings.tableViews.delayDiagnosticsReport.isScheduleFilterApplied	bool	Whether the schedule filter of this table is on; while it is on, the chart draws only what the checked rows of this table select. A new document starts with false.
+D067	property	documentSettings.tableViews.delayDiagnosticsReport.shownTaskUids	int 0..2147483647[], optional: omit the property when there are no items; never write [] (minItems 1)	The tasks whose row is checked in the show column of this table. Absent means no row is checked.
+D068	property	documentSettings.tableViews.delayDiagnosticsReport.columnFilters	ColumnFilter[], optional: omit the property when there are no items; never write [] (minItems 1)	The column filters of the Delay Diagnostics Report table, one per filtered column, by the column names of that table. Absent means no column is filtered.
+D069	property	documentSettings.tableViews.delayDiagnosticsReport.sort	ColumnSort, optional (not in required); when the property is absent: default order	How this table is sorted. Absent means the default order.
+D070	property	documentSettings.tableViews.resourceList	object	How the Resource List table is shown: schedule filter, checked rows, column filters and sort.
+D071	property	documentSettings.tableViews.resourceList.isScheduleFilterApplied	bool	Whether the schedule filter of this table is on; while it is on, the chart draws only what the checked rows of this table select. A new document starts with false.
+D072	property	documentSettings.tableViews.resourceList.shownResourceUids	int 0..2147483647[], optional: omit the property when there are no items; never write [] (minItems 1)	The resources whose row is checked in the show column of this table. Absent means no row is checked.
+D073	property	documentSettings.tableViews.resourceList.isUnassignedShown	bool	Whether the (no assignee) row of the Resource List is checked. A new document starts with false.
+D074	property	documentSettings.tableViews.resourceList.columnFilters	ColumnFilter[], optional: omit the property when there are no items; never write [] (minItems 1)	The column filters of the Resource List table, one per filtered column, by the column names of that table. Absent means no column is filtered.
+D075	property	documentSettings.tableViews.resourceList.sort	ColumnSort, optional (not in required); when the property is absent: default order	How this table is sorted. Absent means the default order.
+D076	property	documentStamp	$ref DocumentStamp	The stamp of the document: when it last changed and was saved, and who wrote it last.
+D077	property	changeLogEntries	ChangeLogEntry[], optional: omit the property when there are no items; never write [] (minItems 1)	The reasons for changes, one entry per recorded change.
+D078	property	Project	object	The project's own particulars, and the calendar defaults that apply to the whole document.
+D079	property	Project.id	str<=16, optional	MS Project's Project/UID. Not a key: a document holds one project. Absent when the file had none.
+D080	property	Project.calendarUid	int 0..2147483647, optional	MS Project's CalendarUID: the calendar of the document; working days are counted with this one calendar.
+D081	property	Project.name	str<=255, optional	The project name of the MS Project exchange format (Project/Name). GRS reads it from that format and writes it back. GRS does not show it; the name shown on screen is title. Absent when the file had none.
+D082	property	Project.title	str<=512, optional	The document title: the name shown on screen at the top of the page, and the default name of an exported file. Read it to tell which document is open. Absent means untitled; the screen shows Untitled.
+D083	property	Project.subject	str<=512, optional	MS Project's Subject: the subject of the project.
+D084	property	Project.category	str<=512, optional	MS Project's Category: the category of the project.
+D085	property	Project.company	str<=512, optional	MS Project's Company: the company name.
+D086	property	Project.manager	str<=512, optional	MS Project's Manager: the name of the manager.
+D087	property	Project.author	str<=512, optional	MS Project's Author: who made the project, not who wrote it last.
+D088	property	Project.revision	int, optional	MS Project's Revision: how many times MS Project saved the file; it is not one of the documentStamp times.
+D089	property	Project.creationDate	DateTime "YYYY-MM-DDTHH:MM:SS", optional	MS Project's CreationDate: a local date-time, like the schedule dates. GRS writes it when it makes a new document, and keeps an imported one. Absent when the file had none.
+D090	property	Project.startDate	DateTime "YYYY-MM-DDTHH:MM:SS", optional	MS Project's StartDate: the start of the project, a date-time that is drawn on its day.
+D091	property	Project.statusDate	DateTime "YYYY-MM-DDTHH:MM:SS", optional	MS Project's StatusDate: progress is reported on this day. The status line and the progress line are drawn on its day, so its time of day does not move them. Absent means no status date: no status line is drawn and Delay Diagnostics does not run.
+D092	property	Project.scheduleDataTimeZone	$ref UtcOffset (same 27 values, required)	The fixed UTC offset whose wall clock the schedule date-times are, as a standard-time key such as UTC+09:00. Daylight saving is never applied by season. Not written to MS Project, which has no place for it.
+D093	property	Project.minutesPerDay	int, optional	The length of 1d in durations and lags, in minutes (480 when absent). Keep it equal to the working minutes of every working day, including one-off working exception days (a day with no spans of its own counts the default spans). When a day differs, GRS reports it each time the document opens, because 1d would then no longer be one working day.
+D094	property	Project.minutesPerWeek	int, optional	MS Project's MinutesPerWeek: the length of one week, in minutes.
+D095	property	Project.daysPerMonth	int, optional	MS Project's DaysPerMonth: the length of one month, in days.
+D096	property	Project.weekStartDay	int 0..6, optional	MS Project's numbering: 0 Sunday ... 6 Saturday (one less than WeekDay.dayType). Absent means Monday (1), the default of settings row S-108.
+D097	property	Project.defaultStartTime	Time "HH:MM:SS", optional	MS Project's DefaultStartTime: the time GRS writes on start-side dates; 08:00:00 when absent.
+D098	property	Project.defaultFinishTime	Time "HH:MM:SS", optional	MS Project's DefaultFinishTime: the time GRS writes on finish-side dates; 17:00:00 when absent.
+D099	property	Project.themeHueDegrees	int 0..359 (required)	The hue of the theme, used by every color written as {"kind":"theme"}; it belongs to the project, not to the reader, so it is here and not in documentSettings. A new document starts with 214.
+D100	property	Project.parentTaskProgressToleranceWorkingDays	int >=0 (required)	How many working days a parent task's progress point may lie outside the progress points of the work below it before Delay Diagnostics asks whether an update is missing. It belongs to the project, not to the reader; a new document starts with 1.
+D101	property	Project.highestIssuedUid	int 0..2147483647 (required)	One counter for the uids of tasks, resources, assignments and calendars. Uids are never reused, so a new uid is always above this value, up to 2147483647.
+D102	property	Project.lastImportNumber	int >=0 (required; 0 = never imported)	How many times a file has been imported into this document; 0 means never. TaskOrigin.lastSeenImportNumber is compared with it.
+D103	property	Project.firstOutlineLevel	int (required)	The OutlineLevel at which the tasks of an imported file start (the project summary task is not counted); export writes from this number. A new document starts with 1.
+D104	property	Project.sourceFormat	enum grs|pj12|pj15 (required)	The format the document came from: grs for a document made in GRS, pj12 or pj15 for an MS Project file (pj15 when it has any element that only pj15 has). It is not exported to MS Project.
+D105	property	Project.passthroughValues	PassthroughValues (map str->str<=65535, >=1 entry), optional (not in required); when the property is absent: nothing kept	MS Project values GRS does not interpret, kept under their own names and written back unchanged. Absent when there are none.
+D106	property	Project.passthroughElements	PassthroughElement[], optional: omit the property when there are no items; never write [] (minItems 1)	MS Project child elements GRS does not interpret, kept in their places. Absent when there are none; never an empty list.
+D107	property	Calendar	object	One calendar. Decides which days are worked and which are not.
+D108	property	Calendar.uid	int 0..2147483647 (required)	MS Project's UID: the id of the calendar.
+D109	property	Calendar.baseCalendarUid	int 0..2147483647, optional	MS Project's BaseCalendarUID: the calendar that this one inherits from.
+D110	property	Calendar.ordinal	int (required)	The order of the calendar as it came in the file, used to write the calendars back in that order.
+D111	property	Calendar.name	str<=512, optional	MS Project's Name: the calendar name.
+D112	property	Calendar.isBaseCalendar	bool, optional	MS Project's IsBaseCalendar: whether this is a base calendar; absent reads as false.
+D113	property	Calendar.weekDays	WeekDay[], optional: omit the property when there are no items; never write [] (minItems 1)	MS Project's WeekDays: whether each day of the week is worked.
+D114	property	Calendar.exceptions	Exception[], optional: omit the property when there are no items; never write [] (minItems 1)	MS Project's Exceptions: the days that differ from the normal week.
+D115	property	Calendar.passthroughValues	PassthroughValues (map str->str<=65535, >=1 entry), optional (not in required); when the property is absent: nothing kept	MS Project values GRS does not interpret, kept under their own names and written back unchanged. Absent when there are none.
+D116	property	Calendar.passthroughElements	PassthroughElement[], optional: omit the property when there are no items; never write [] (minItems 1)	MS Project child elements GRS does not interpret, kept in their places. Absent when there are none; never an empty list.
+D117	property	WeekDay	object	Whether one day of the week is worked.
+D118	property	WeekDay.ordinal	int (required)	The order of this weekday within its calendar, as it came in the file.
+D119	property	WeekDay.dayType	int 1..7, required	MS Project's numbering: 1 Sunday ... 7 Saturday (one more than Project.weekStartDay).
+D120	property	WeekDay.dayWorking	bool, optional	MS Project's DayWorking: whether this day of the week is worked; absent reads as not working.
+D121	property	WeekDay.workingTimes	WorkingTime[] 1..5, optional: omit the property when there are no items; never write [] (minItems 1)	Absent on a working day means the default spans 08:00-12:00, 13:00-17:00.
+D122	property	WeekDay.passthroughValues	PassthroughValues (map str->str<=65535, >=1 entry), optional (not in required); when the property is absent: nothing kept	MS Project values GRS does not interpret, kept under their own names and written back unchanged. Absent when there are none.
+D123	property	WeekDay.passthroughElements	PassthroughElement[], optional: omit the property when there are no items; never write [] (minItems 1)	MS Project child elements GRS does not interpret, kept in their places. Absent when there are none; never an empty list.
+D124	property	Exception	object	An exception to a calendar's week, possibly recurring.
+D125	property	Exception.ordinal	int (required)	The order of this exception within its calendar, as it came in the file.
+D126	property	Exception.name	str<=512, optional	MS Project's Name: the name of the exception.
+D127	property	Exception.fromDate	DateTime "YYYY-MM-DDTHH:MM:SS", optional	For a one-off exception (see recurrenceKind), fromDate..toDate is the real range of days, written 00:00:00 and 23:59:00, and its workingTimes replace the spans of those days. For a recurring exception, it is MS Project's start of the recurrence, not a range of real days. Absent when the file had none.
+D128	property	Exception.toDate	DateTime "YYYY-MM-DDTHH:MM:SS", optional	MS Project's ToDate: the end of the range that fromDate starts (see fromDate).
+D129	property	Exception.dayWorking	bool, optional	MS Project's DayWorking: whether the exception days are worked; absent reads as not working.
+D130	property	Exception.recurrenceKind	int 1..9, optional	MS Project's Exception/Type: 1 daily, 2 yearly by day of the month, 3 yearly by position, 4 monthly by day of the month, 5 monthly by position, 6 weekly, 7 by day count, 8 by weekday count, 9 none. A row is a one-off (non-recurring) exception when this is 9 or absent, or when it is 1 and recurrencePeriod is absent or 1. Any other row repeats and is not counted as days off. Write 1 for an exception you add.
+D131	property	Exception.recurrencePeriod	int >=1, optional (not in required); when the property is absent: the file had no Period	MS Project's Exception/Period: the interval of the recurrence. Absent when the file had none.
+D132	property	Exception.workingTimes	WorkingTime[] 1..5, optional: omit the property when there are no items; never write [] (minItems 1)	Absent on a working day means the default spans 08:00-12:00, 13:00-17:00.
+D133	property	Exception.passthroughValues	PassthroughValues (map str->str<=65535, >=1 entry), optional (not in required); when the property is absent: nothing kept	MS Project values GRS does not interpret, kept under their own names and written back unchanged. Absent when there are none.
+D134	property	Exception.passthroughElements	PassthroughElement[], optional: omit the property when there are no items; never write [] (minItems 1)	MS Project child elements GRS does not interpret, kept in their places. Absent when there are none; never an empty list.
+D135	property	WorkingTime	object	One working span of a weekday or an exception day. The spans of one day start before they end and do not overlap; a span that ends at 12:00 and one that starts at 12:00 only touch, which is fine.
+D136	property	WorkingTime.ordinal	int (required)	The order of this span within its day; GRS writes the spans in the order of their start.
+D137	property	WorkingTime.fromTime	Time "HH:MM:SS", optional	MS Project's FromTime: the start of the working span.
+D138	property	WorkingTime.toTime	Time "HH:MM:SS", optional	00:00:00 here is the end of the day (24:00), as MS Project writes it. Absent when the file had none.
+D139	property	Task	object	One task: its plan, and its actual given by dates.
+D140	property	Task.uid	int 0..2147483647 (required)	MS Project's UID: the id of the task, unique in the document and never changed; read no meaning into its value.
+D141	property	Task.parentTaskUid	int 0..2147483647, optional (not in required); when the property is absent: top of the WBS	The parent task in the WBS. Absent means a top-level task.
+D142	property	Task.calendarUid	int 0..2147483647, optional	Kept only so that it goes back to MS Project unchanged. Working days are counted with the one calendar that project.calendarUid names. Absent when the file had none.
+D143	property	Task.siblingOrder	int, required	The order of this task among the tasks under the same parent task.
+D144	property	Task.name	str 1..512, optional	MS Project's Task/Name. Absent means an unnamed task; the screen shows no name.
+D145	property	Task.notes	str 1..65535, optional	MS Project's Notes: the notes of the task.
+D146	property	Task.start	DateTime "YYYY-MM-DDTHH:MM:SS", optional	MS Project's Start: the planned start.
+D147	property	Task.finish	DateTime "YYYY-MM-DDTHH:MM:SS", optional	MS Project's Finish: the planned finish.
+D148	property	Task.milestone	bool, optional	The fact, exported to MS Project; absent means false. TaskVisual holds milestoneShape when it is true and taskShape otherwise.
+D149	property	Task.deadline	DateTime "YYYY-MM-DDTHH:MM:SS", optional	MS Project's Deadline: the deadline of the task.
+D150	property	Task.actualStart	DateTime "YYYY-MM-DDTHH:MM:SS", optional	MS Project's ActualStart: the actual start; absent means the task has not started.
+D151	property	Task.stop	DateTime "YYYY-MM-DDTHH:MM:SS", optional	MS Project's Stop. It keeps its MS Project name so that it goes back to MS Project unchanged. While the task is unfinished, it is the point in time that the actual work has reached. Absent once actualFinish is set.
+D152	property	Task.actualFinish	DateTime "YYYY-MM-DDTHH:MM:SS", optional	MS Project's ActualFinish: the actual finish; it is present only once the task is finished.
+D153	property	Task.resume	DateTime "YYYY-MM-DDTHH:MM:SS", optional	MS Project's Resume: the day the rest of an interrupted task is planned to restart. Absent means no restart is planned.
+D154	property	Task.resumeValid	bool, optional	MS Project's ResumeValid: false means interrupted with no restart day decided. Absent when the file had none.
+D155	property	Task.percentComplete	int>=0, optional	Follows from the dates: round(actual length / planned length x 100), both in working minutes of the document calendar. The actual runs from actualStart to actualFinish, or to stop while unfinished, so statusDate does not move it. With no planned length (a milestone), it is 100 once actualFinish is set and 0 before. GRS counts it again each time it reads this file and reports when the stored value was different, so write what the dates give. It has no upper limit of 100, because an overrun reports more. Absent when the file had none; GRS then counts it from the dates and writes it.
+D156	property	Task.fadeInCalendarDays	int >=0, optional (not in required); when the property is absent: no fade: default depth on chevrons; 0 = flat end	Calendar days at the start of the bar, inside start..finish. They are drawn slanted to show that the start is not yet firm. This is a fact about the task, so it is exported to MS Project and is not kept in TaskVisual. Absent means no fade (a chevron keeps its default notch); 0 is a flat end.
+D157	property	Task.fadeOutCalendarDays	int >=0, optional (not in required); when the property is absent: no fade: default depth on chevrons; 0 = flat end	As fadeInCalendarDays, for the finish.
+D158	property	Task.hyperlinkAddress	str 1..512 (URL), optional (not in required); when the property is absent: no link	MS Project's HyperlinkAddress: the URL the task links to. Absent means no link.
+D159	property	Task.hyperlink	str 1..512 (link title), optional (not in required); when the property is absent: no link title	MS Project's Hyperlink: the title of the link, not its address. Absent means no title.
+D160	property	Task.dependencies	Dependency[], optional: omit the property when there are no items; never write [] (minItems 1)	MS Project's PredecessorLink: the dependencies in which this task is the successor.
+D161	property	Task.passthroughValues	PassthroughValues (map str->str<=65535, >=1 entry), optional (not in required); when the property is absent: nothing kept	MS Project values GRS does not interpret, kept under their own names and written back unchanged. Absent when there are none.
+D162	property	Task.passthroughElements	PassthroughElement[], optional: omit the property when there are no items; never write [] (minItems 1)	MS Project child elements GRS does not interpret, kept in their places. Absent when there are none; never an empty list.
+D163	property	Dependency	object	One dependency, nested under the task that follows it, as MS Project nests it.
+D164	property	Dependency.predecessorUid	int 0..2147483647 (required)	MS Project's PredecessorUID: the task that comes first; the successor is the task that this dependency is nested in.
+D165	property	Dependency.linkType	int 0..3 (required)	MS Project's codes: 0 finish-to-finish, 1 finish-to-start, 2 start-to-finish, 3 start-to-start.
+D166	property	Dependency.linkLag	int, optional	MS Project's LinkLag, in tenths of a minute for every lagFormat. A working day (lagFormat 7) is project.minutesPerDay minutes, or 480 when that is absent. Absent means no lag.
+D167	property	Dependency.lagFormat	int, optional	MS Project's LagFormat: the unit the lag is shown in. GRS reads 7 (working days), 5 (hours) and 3 (minutes), and writes the unit the lag was typed in. Any other value is kept but not counted. Absent when the file had none.
+D168	property	Dependency.passthroughValues	PassthroughValues (map str->str<=65535, >=1 entry), optional (not in required); when the property is absent: nothing kept	MS Project values GRS does not interpret, kept under their own names and written back unchanged. Absent when there are none.
+D169	property	Dependency.passthroughElements	PassthroughElement[], optional: omit the property when there are no items; never write [] (minItems 1)	MS Project child elements GRS does not interpret, kept in their places. Absent when there are none; never an empty list.
+D170	property	Resource	object	One person to assign work to, or one resource.
+D171	property	Resource.uid	int 0..2147483647 (required)	MS Project's UID: the id of the resource.
+D172	property	Resource.calendarUid	int 0..2147483647, optional	The same as Task.calendarUid. Absent when the file had none.
+D173	property	Resource.name	str<=512, optional	MS Project's Name: the resource name.
+D174	property	Resource.resourceKind	int, optional	MS Project's Type: 0 material, 1 work, 2 cost. Absent when the file had none.
+D175	property	Resource.isCostResource	bool, optional	MS Project's IsCostResource: whether this is a cost resource; absent reads as false.
+D176	property	Resource.passthroughValues	PassthroughValues (map str->str<=65535, >=1 entry), optional (not in required); when the property is absent: nothing kept	MS Project values GRS does not interpret, kept under their own names and written back unchanged. Absent when there are none.
+D177	property	Resource.passthroughElements	PassthroughElement[], optional: omit the property when there are no items; never write [] (minItems 1)	MS Project child elements GRS does not interpret, kept in their places. Absent when there are none; never an empty list.
+D178	property	Assignment	object	Which person is on which task.
+D179	property	Assignment.uid	int 0..2147483647 (required)	MS Project's UID: the id of the assignment.
+D180	property	Assignment.taskUid	int 0..2147483647, optional	MS Project's TaskUID: the task that is worked on.
+D181	property	Assignment.resourceUid	int 0..2147483647, optional	MS Project's ResourceUID: the resource that works on the task.
+D182	property	Assignment.passthroughValues	PassthroughValues (map str->str<=65535, >=1 entry), optional (not in required); when the property is absent: nothing kept	MS Project values GRS does not interpret, kept under their own names and written back unchanged. Absent when there are none.
+D183	property	Assignment.passthroughElements	PassthroughElement[], optional: omit the property when there are no items; never write [] (minItems 1)	MS Project child elements GRS does not interpret, kept in their places. Absent when there are none; never an empty list.
+D184	property	TaskGroup	object	A task group on screen. Task groups are kept apart from the WBS (Task.parentTaskUid) so that several tasks can share one task group; task groups are not exported to MS Project.
+D185	property	TaskGroup.id	uuid (required)	The id of the task group.
+D186	property	TaskGroup.parentId	uuid, optional (not in required); when the property is absent: top-level task group, depth 1	The parent task group. Absent means a top-level task group (depth 1).
+D187	property	TaskGroup.representedTaskUid	int 0..2147483647, optional (not in required); when the property is absent: stands for no task in the WBS	The task this task group stands for in the WBS (Task.parentTaskUid). Absent means it stands for no task. It is not where the name comes from.
+D188	property	TaskGroup.siblingOrder	int (required)	The order of this task group among the task groups under the same parent.
+D189	property	TaskGroup.name	str 1..512, optional (not in required); when the property is absent: no name; the screen shows an empty title	The task group name. Absent means an unnamed task group; the screen shows an empty title. GRS never copies a task name into it after the group exists.
+D190	property	TaskGroup.treeState	enum 5 states (required)	Whether the task group is open, closed or hidden in the task group panel. It is saved, like every task group state, so that reopening shows what was saved. A task group in auto opens down to documentSettings.taskGroupAutoExpandDepth.
+D191	property	TaskGroup.editGroup	str 1..512, optional (not in required); when the property is absent: anyone may edit	The edit group this task group belongs to. Absent means anyone may edit it.
+D192	property	TaskGroup.color	$ref BandColor, optional (not in required); when the property is absent: no band colour drawn	The task group band color. Absent means no band color is drawn; {"kind":"theme"} draws the theme color.
+D193	property	TaskGroup.minHeightPx	int >=1, optional (not in required); when the property is absent: no lowest height	Lowest height of the task group's row, in CSS pixels at displayScalePercent 100; absent means no lowest height. verticalZoomRatio does not change it.
+D194	property	TaskGroup.hyperlinkAddress	str 1..512 (URL), optional (not in required); when the property is absent: no link	The URL the task group links to (MS Project's name). Absent means no link.
+D195	property	TaskGroup.hyperlink	str 1..512 (link title), optional (not in required); when the property is absent: no link title	The title of the task group link. Absent means no title.
+D196	property	TaskGroupMember	object	Which task group a task sits on; every task sits on exactly one task group. No lane is stored: GRS stacks a task group's tasks itself, in the direction documentSettings.stackDirection names.
+D197	property	TaskGroupMember.taskUid	int 0..2147483647 (required)	The task; each task is in exactly one entry.
+D198	property	TaskGroupMember.taskGroupId	uuid (required)	The task group that the task is drawn in.
+D199	property	TaskVisual	object	How a task is drawn: its shape, its colors and its outline width. Every task has exactly one, so that no other way of drawing a task is needed.
+D200	property	TaskVisual.taskUid	int 0..2147483647 (required)	The task that is drawn; each task has exactly one TaskVisual.
+D201	property	TaskVisual.taskShape	enum rectangle|chevron|arrow|endpointSpan; required when Task.milestone is not true, absent on milestones	Shape of a task that is not a milestone: rectangle, chevron, arrow or endpointSpan. Present exactly when Task.milestone is not true; a milestone holds milestoneShape instead.
+D202	property	TaskVisual.milestoneShape	enum 15 glyphs; required when Task.milestone is true, absent otherwise	Glyph of a milestone. Present exactly when Task.milestone is true.
+D203	property	TaskVisual.fillColor	$ref Color, optional (not in required); when the property is absent: not drawn	Fill of the plan bar (and the base of the actual fill). Absent means no fill is drawn. A custom color may omit one side; GRS derives it on load (HSL lightness 1 - L) and marks it source "derived". Fill and stroke may not both be absent.
+D204	property	TaskVisual.strokeColor	$ref Color, optional (not in required); when the property is absent: not drawn	Outline of the plan and actual bars. Absent means no outline is drawn. Same shape as fillColor.
+D205	property	TaskVisual.strokeWidthPx	int 1..10, required	Outline width of the task's plan and actual bars, in CSS pixels at displayScalePercent 100 (1 to 10; GRS writes 1 for a new task).
+D206	property	TaskOrigin	object	Where an imported task came from, so that importing the same file again updates the task instead of adding a copy.
+D207	property	TaskOrigin.taskUid	int 0..2147483647 (required)	The imported task in this document.
+D208	property	TaskOrigin.sourceProjectId	str 1..16, optional (not in required); when the property is absent: the source file had no Project.id	Project/UID of the file this task was imported from. Absent when that file had none.
+D209	property	TaskOrigin.sourceUid	int 0..2147483647 (required)	The UID of the task in the file that it was imported from.
+D210	property	TaskOrigin.importSessionId	uuid, required	The id of the import that brought the task in; every import makes a new one. It stands in for sourceProjectId when the file had no Project/UID.
+D211	property	TaskOrigin.lastSeenImportNumber	int >=1 (required)	The project.lastImportNumber of the last import that found this task in its file.
+D212	property	BaselineTask	object	One task of an earlier plan, matched to the current task by uid and drawn only as an outline over it.
+D213	property	BaselineTask.uid	int 0..2147483647 (required)	The uid of the task in the earlier plan; it is matched to the current task with the same uid.
+D214	property	BaselineTask.name	str 1..512, optional (not in required); when the property is absent: the task had no name	The task name in the earlier plan.
+D215	property	BaselineTask.start	DateTime "YYYY-MM-DDTHH:MM:SS", required	The planned start in the earlier plan.
+D216	property	BaselineTask.finish	DateTime "YYYY-MM-DDTHH:MM:SS", required	The planned finish in the earlier plan.
+D217	property	BaselineTask.milestone	bool, required (false when the source had none)	Whether the task was a milestone in the earlier plan, so that it is drawn as one.
+D218	property	CommentBox	object	One comment box. Its tip stands at a free point (an instant, a task group and a height within its band) or at one of eight points of the task or highlight box it snapped to.
+D219	property	CommentBox.id	uuid (required)	The id of the comment box.
+D220	property	CommentBox.anchor	$ref CommentBoxAnchor, required	Where the leader line of the comment box points. It is a free point (a point in time, a task group and a height within its band), or one of eight points of the task or highlight box it snapped to. A snapped anchor also keeps a fallback task group and height, used when its target is deleted.
+D221	property	CommentBox.bodyOffsetPx	object{dx,dy}, required	Offset from the anchor point to the lower-left corner of the comment box body, in CSS pixels at displayScalePercent 100. It follows displayScalePercent, so the box keeps its place beside what it points at; zoom does not change it.
+D222	property	CommentBox.bodyOffsetPx.dx	num (required)	The horizontal part of bodyOffsetPx. A positive value moves the box to the right.
+D223	property	CommentBox.bodyOffsetPx.dy	num (required)	The vertical part of bodyOffsetPx. A positive value moves the box down, as on the screen.
+D224	property	CommentBox.text	str 1..65535, optional (not in required); when the property is absent: empty body	The text of the comment box. Absent means an empty body.
+D225	property	CommentBox.fillColor	$ref Color, required	Fill color of the comment box body; fillTransparencyPercent 100 draws no fill.
+D226	property	CommentBox.fillTransparencyPercent	int 0..100, required (100 = invisible fill)	Transparency of the comment box fill in percent: 0 is opaque, 100 draws no fill.
+D227	property	CommentBox.strokeColor	$ref Color, required	Color of the comment box border and leader line.
+D228	property	CommentBox.strokeWidthPx	int 1..10, required	Width of the comment box's border and leader line, in CSS pixels at displayScalePercent 100 (1 to 10; GRS writes 1 when it places a box). It follows displayScalePercent; zoom does not change it.
+D229	property	CommentBox.textColor	$ref Color, required	Color of the comment box text.
+D230	property	CommentBox.fontSizePx	int 8..24, required	Text size of the comment box, in CSS pixels at displayScalePercent 100 (8 to 24; GRS writes 10 when it places a box). It follows displayScalePercent like the rest of the drawing; zoom does not change it.
+D231	property	CommentBox.hyperlinkAddress	str 1..512 (URL), optional (not in required); when the property is absent: no link	The URL the comment box links to (MS Project's name). Absent means no link.
+D232	property	CommentBox.hyperlink	str 1..512 (link title), optional (not in required); when the property is absent: no link title	The title of the comment box link. Absent means no title.
+D234	property	CommentBoxAnchor	oneOf freePoint|task|highlightBox	Where the leader line of a comment box points; kind selects a free point, a task or a highlight box.
+D235	property	CommentBoxAnchor/oneOf[*].kind	enum freePoint|task|highlightBox, required	freePoint: a place on the chart that is tied to nothing; task: one of eight points of a task figure; highlightBox: one of eight points of a highlight box.
+D236	property	CommentBoxAnchor/oneOf[freePoint].dateTime	DateTime "YYYY-MM-DDTHH:MM:SS", required in freePoint; not held while snapped	The point in time where the tip stands on the time axis.
+D237	property	CommentBoxAnchor/oneOf[freePoint].taskGroupId	uuid, required (freePoint and fallback)	The task group whose band holds the tip; in a fallback, the task group where the tip goes when its target is deleted.
+D238	property	CommentBoxAnchor/oneOf[freePoint].bandFraction	num 0..1, required	The height of the tip within that task group's band: 0 is the top edge, 1 the bottom edge.
+D239	property	CommentBoxAnchor/oneOf[task].taskUid	int 0..2147483647, required in task	The uid of the task that the tip is snapped to.
+D240	property	CommentBoxAnchor/oneOf[task].figure	enum plannedBar|actualBar|milestone, required in task	Which figure of the task the tip is snapped to: the plan bar, the actual bar or the milestone.
+D241	property	CommentBoxAnchor/oneOf[task].point	enum 8 points, required in task and highlightBox	Which of the eight points of the target the tip is snapped to: the four corners and the middles of the four sides.
+D242	property	CommentBoxAnchor/oneOf[task].fallback	$ref AnchorFallback, required	Where the tip goes when the task is deleted.
+D243	property	CommentBoxAnchor/oneOf[highlightBox].highlightBoxId	uuid, required in highlightBox	The id of the highlight box that the tip is snapped to.
+D244	property	CommentBoxAnchor/oneOf[highlightBox].fallback	$ref AnchorFallback, required	Where the tip goes when the highlight box is deleted.
+D245	property	AnchorFallback	object {taskGroupId, bandFraction}	The task group and the height in its band where the tip goes when its target is deleted.
+D246	property	HighlightBox	object	One highlight box. Encloses a range of dates and task groups.
+D247	property	HighlightBox.id	uuid (required)	The id of the highlight box.
+D248	property	HighlightBox.topTaskGroupId	uuid, required	The task group at the top edge of the box.
+D249	property	HighlightBox.bottomTaskGroupId	uuid, required	The task group at the bottom edge of the box.
+D250	property	HighlightBox.firstDay	Day, required	The first day that the box covers (included), as a day of the schedule data clock.
+D251	property	HighlightBox.lastDay	Day, required	The last day that the box covers (included).
+D252	property	HighlightBox.cornerRadiusPx	num 0..24, required (0 = square)	Corner radius of the highlight box, in CSS pixels at displayScalePercent 100 (0 to 24; 0 is a square corner; GRS writes 4 when it places a box). It follows displayScalePercent; zoom does not change it.
+D253	property	HighlightBox.fillColor	$ref Color, required	Fill color of the highlight box; fillTransparencyPercent 100 draws no fill.
+D254	property	HighlightBox.fillTransparencyPercent	int 0..100, required (100 = invisible fill)	Transparency of the highlight box fill in percent: 0 is opaque, 100 draws no fill.
+D255	property	HighlightBox.strokeColor	$ref Color, optional (not in required); when the property is absent: no frame line	Frame color of the highlight box. Absent means no frame line is drawn (the frame can still be grabbed).
+D256	property	HighlightBox.strokeWidthPx	int 1..10, required	Border width of the highlight box, in CSS pixels at displayScalePercent 100 (1 to 10; GRS writes 1 when it places a box). It follows displayScalePercent; zoom does not change it.
+D257	property	DocumentStamp	object	When the document last changed and was saved, and who wrote it last. These instants live outside schedule and documentSettings so that writing them never moves either group's clock.
+D258	property	DocumentStamp.scheduleUpdatedAt	UtcInstant "YYYY-MM-DDTHH:MM:SSZ" (required)	When the schedule data last changed. A watcher of changes looks only at this time.
+D259	property	DocumentStamp.documentUpdatedAt	UtcInstant (required)	When the document last changed, in the schedule data or in documentSettings.
+D260	property	DocumentStamp.fileSavedAt	UtcInstant, optional (not in required); when the property is absent: never written to a file	When this document was last written to its file. Absent until it has been written once. It is in documentStamp, not in schedule.project, so that a save does not change scheduleUpdatedAt. It is UTC so that each reader sees it in their own local time. MS Project's LastSaved is not stored; GRS makes it at the moment of export. So the save time is held in one place, and a save never counts as a schedule change.
+D261	property	DocumentStamp.lastEditedBy	$ref Writer (required)	Who wrote the document last: {"kind":"user"} for a person on the screen, {"kind":"template"} for the shipped start-up template, {"kind":"agent","name":...} for an Agent API caller.
+D262	property	Writer	oneOf {kind:user} | {kind:template} | {kind:agent,name}	Who wrote: a person on the screen, the shipped start-up template, or an Agent API caller.
+D263	property	Writer/oneOf[*].kind	enum user|template|agent, required	user: a person on the screen; template: the shipped start-up template; agent: an Agent API caller.
+D264	property	Writer/oneOf[agent].name	str 1..512, required	The name that the Agent API caller gave for itself.
+D265	property	ChangeLogEntry	object	Why a change was made; the conversation that led to it is not stored.
+D266	property	ChangeLogEntry.ordinal	int (required)	The order of this entry in the document.
+D267	property	ChangeLogEntry.changedAt	UtcInstant (required)	When the change was made.
+D268	property	ChangeLogEntry.editedBy	$ref Writer (required)	Who made the change.
+D269	property	ChangeLogEntry.explanation	str 1..65535 (required)	Why the change was made.
+D270	property	PassthroughValues	map str->str<=65535, minProperties 1	Values of an imported MS Project element that GRS does not interpret, kept under their own names and written back unchanged; only the MS Project export and its notices read them. GRS adds two keys of its own: xmlns (the namespace of the file) and #StopCountedFrom (the ActualDuration that stop was counted from).
+D271	property	PassthroughElement	object	One element of an imported MS Project file that GRS does not interpret, kept as it arrived so that it is written back unchanged.
+D272	property	PassthroughElement.ordinal	int (required)	The order of this element within its owner, used to write it back in its place.
+D273	property	PassthroughElement.name	str 1..512 (required)	The element name in the MS Project file, spelled exactly as it came.
+D274	property	PassthroughElement.fields	map str->str<=65535 (>=1 entry), optional (not in required); when the property is absent: no leaves	The leaf values of the element, by their names.
+D275	property	PassthroughElement.children	PassthroughElement[], optional: omit the property when there are no items; never write [] (minItems 1)	The child elements nested in this element.
+D276	property	Day	str ^\d{4}-\d{2}-\d{2}$	A date without a time of day; each key that uses it says which clock the day is on.
+D277	property	DateTime	str ^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$	A wall-clock date-time in project.scheduleDataTimeZone, written without an offset, as MS Project writes it; an offset in an imported file is dropped.
+D278	property	Time	str ^\d{2}:\d{2}:\d{2}$	A time of day, as MS Project writes it.
+D279	property	UtcInstant	str ^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$	A point in time in UTC, to the second.
+D280	property	UtcOffset	enum 27 standard offsets UTC-12:00..UTC+13:00	A fixed offset from UTC, written as a standard-time key such as UTC+09:00; daylight saving is never applied by season.
+D281	property	Color	oneOf theme|palette|custom (no none: an absent colour key is "not drawn")	A color: theme uses the color that the theme gives this place, palette names a palette color, custom gives its own values for the light and the dark theme. An absent color key means that nothing is drawn.
+D282	property	Color/oneOf[*].kind	enum theme|palette|custom, required	theme: the color that the theme gives this place; palette: a named palette color; custom: its own values for the light and the dark theme.
+D283	property	Color/oneOf[palette].name	enum paper|ink|dimGray|lightGray|red|blue|yellow|green|orange|purple, required	The palette color, by its stored name.
+D284	property	Color/oneOf[custom].light	$ref ColorSide, optional (not in required); when the property is absent: GRS derives it on load	The color for the light theme; at least one of light and dark is present.
+D285	property	Color/oneOf[custom].dark	$ref ColorSide, optional (not in required); when the property is absent: GRS derives it on load	The color for the dark theme; at least one of light and dark is present.
+D286	property	ColorSide	object {value, source}	One side of a custom color: its value, and whether a person chose it or GRS derived it.
+D287	property	ColorSide.value	str ^#[0-9a-f]{6}$, required	The color value for this theme.
+D288	property	ColorSide.source	enum chosen|derived, required	chosen: a person chose this value; derived: GRS derived it from the other side when it loaded the document (HSL lightness 1 - L).
+D289	property	BandColor	oneOf theme|palette (no ink)|custom	The color of a task group band: the same as Color, except that the palette color ink is not offered.
+D290	property	ColumnFilter	oneOf {kind:values,column,hiddenValues?,isBlankHidden} | {kind:dateRange,column,firstDay?,lastDay?}	A filter on one column of a table: values hides rows by their shown value, dateRange hides rows whose date is outside a range of days.
+D291	property	ColumnFilter/oneOf[*].kind	enum values|dateRange, required	values: hide rows by their shown value; dateRange: hide rows whose date is outside firstDay..lastDay.
+D292	property	ColumnFilter/oneOf[*].column	$ref ColumnKey (required)	The column that the filter is on, by its stable column name.
+D293	property	ColumnFilter/oneOf[values].hiddenValues	str[] (shown text, or stable status/type names) 1.., optional (not in required); when the property is absent: no value hidden	The values whose rows are hidden; a status or a type is given by its stable name, any other value by its shown text.
+D294	property	ColumnFilter/oneOf[values].isBlankHidden	bool, required	Whether the rows with an empty cell in this column are hidden.
+D295	property	ColumnFilter/oneOf[dateRange].firstDay	Day, optional (not in required); when the property is absent: no lower bound	The first day that is kept (included), as a day of the schedule data clock.
+D296	property	ColumnFilter/oneOf[dateRange].lastDay	Day, optional (not in required); when the property is absent: no upper bound	The last day that is kept (included).
+D297	property	ColumnSort	object {column, direction}	How a table is sorted: by one column, in one direction.
+D298	property	ColumnSort.column	$ref ColumnKey (required)	The column that the table is sorted by, by its stable column name.
+D299	property	ColumnSort.direction	enum ascending|descending (required)	The direction of the sort.
+D300	property	ColumnKey	enum of stable column names of T-331/T-347/T-371	The stable English name of a table column; each table takes only the names of its own columns.
+C001	command	editProject	{"kind":"editProject","set":{...},"clear":[...]} -- no id property (there is one per document)	Edits the project of the document. `set` writes the listed properties and `clear` removes the listed optional ones; a property in both is refused (`fieldSetAndCleared`). `set` takes `title`, `name`, `subject`, `category`, `company`, `manager`, `author`, `revision`, `startDate`, `statusDate`, `themeHue`, `parentTaskProgressToleranceWorkingDays` and `scheduleDataTimeZone`. `clear` takes all of them except `themeHue`, `parentTaskProgressToleranceWorkingDays` and `scheduleDataTimeZone`; without `statusDate`, no status date line is drawn. Setting `scheduleDataTimeZone` does not convert: the stored numbers stay the same and only the zone they are read in changes.
+C009	command	shiftScheduleTimes	minutes (integer)	Shifts all schedule date-times at once by `minutes` (positive moves later, negative moves earlier). It is one write; the columns it rewrites and the ones it leaves untouched are fixed by the specification.\nWhen it arrives from the Agent API, it is applied without asking the person for confirmation.
+C010	command	shiftScheduleToStartDate	newStartDay ($defs/Day "YYYY-MM-DD") -- assumes that the value name and type follow Day in findings 09/12	Moves the whole schedule to start on the day `newStartDay` (YYYY-MM-DD), shifting by working days. It is one write; which columns move, what stays, and how the move is made are fixed by the specification.\nWhen it arrives from the Agent API, it is applied as sent without asking, the same as `shiftScheduleTimes`.
+C011	command	replaceCalendarRules	the same 4 (when one is omitted, that part stays as it is)	Edits the calendar: the working weekdays, one set of working times for a working day, the exception days, and the day the week starts on.\n`workingDayTypes` lists the working weekdays (1 is Sunday; weekdays not listed are days off). `weekStartDay` is the day the week starts on. `exceptions` is the complete list of exception days after the edit. `workingTimes` is one set of working times for a working day.\nIf the document still has the default calendar, create a calendar first and then edit it.\nThe times of `fromDate` and `toDate` of an exception day are aligned by the side that writes the command into the document.\n`workingTimes` holds 1 to 5 spans: an empty list is refused. To go back to the default working times, pass the two default spans 08:00:00-12:00:00 and 13:00:00-17:00:00.
+C012	command	editTask	{"kind":"editTask","taskUid":7,"set":{...},"clear":[...]} -- the properties include set.hyperlinkAddress (URL, 1..512 characters) / set.hyperlink (title, 1..512 characters) / clear ["hyperlinkAddress","hyperlink"]	Edits the task `taskUid`. `set` writes the listed properties and `clear` removes the listed optional ones; a property in both is refused (`fieldSetAndCleared`). `set` takes `name`, `notes`, `start`, `finish`, `deadline`, `fadeInCalendarDays`, `fadeOutCalendarDays`, `parentTaskUid`, `hyperlinkAddress` and `hyperlink`; `clear` takes all of them except `start` and `finish`. The rules are checked on the task after the edit; when `start` or `finish` moves, `percentComplete` and `passthroughValues` are worked out again. `set.name` does not change the name of any task group. A `hyperlinkAddress` that starts with `javascript:`, `vbscript:` or `data:`, read as a browser reads it, is refused (`hyperlinkSchemeNotAllowed`).
+C020	command	createTask	exactly one of taskShape (rectangle|chevron|arrow|endpointSpan) or milestoneShape (diamond or another name in SH-5) (oneOf), start, finish (DateTime), taskGroupId	Creates an unnamed task with the given `taskShape` or `milestoneShape`, `start` and `finish`, placed on the task group `taskGroupId`.\nGive exactly one of `taskShape` (`rectangle`, `chevron`, `arrow` or `endpointSpan`) and `milestoneShape` (one of the 15 glyphs); `milestoneShape` makes the task a milestone.\nThe new task's uid is `project.highestIssuedUid` plus 1, and `highestIssuedUid` moves to it, so a later command of the same batch that creates something with a uid takes the next number.\nExample: when `highestIssuedUid` is 41, the batch [`createTask`, `createTask`, `editTask` with `taskUid` 42 and `set.name`, `editTask` with `taskUid` 43 and `set.name`] names both new tasks.\nA `taskGroupId` that names no task group makes a new top-level task group with that id.
+C021	command	pasteTasks	sourceUids (list), landing? (unchanged)	Duplicates the tasks listed in `sourceUids`. Descendant tasks that are not among the carried tasks are not copied.\n`landing` is sent only for a Ctrl-drag copy; it carries where the copy is placed.
+C022	command	moveTaskToTaskGroup	unchanged	Moves the task `taskUid` to another task group `taskGroupId`.
+C023	command	placeTaskPlanActual	taskUid, place (same shape)	Sets the five plan-and-actual columns of the task `taskUid` as described by `place`.
+C024	command	beginTaskActual	unchanged	Starts recording the actual of the task `taskUid` after a plan-and-actual grab handle was dragged.\n`grabbed` names the handle that was grabbed, `released` is where it was let go, and `snapMinutes` is the snap step in minutes that sets the length of the dummy actual.
+C025	command	cycleTaskPlanActualState	taskUid, remembered? (RememberedActual; omit the property when no actual is remembered), snapMinutes?	Advances the plan-and-actual state of the task `taskUid` by one step along the state cycle.\nWhen going back from interrupted to not started, the actual that was removed is remembered by the screen state and passed in as `remembered`; omit `remembered` when no actual is remembered. `snapMinutes` is the snap step in minutes; when omitted, the day step is used.
+C026	command	deleteTask	taskUid	Deletes the task `taskUid`.
+C027	command	createDependency	unchanged	Draws a dependency line from the task `predecessorUid` to the task `successorUid`.\n`predecessorEdge` and `successorEdge` name the ends (start or finish); the pair of ends decides the link type.\nIf either task is a milestone, the line is always finish-to-start, whatever `predecessorEdge` and `successorEdge` say.
+C028	command	changeDependencyLag	predecessorUid, successorUid, lag ({"kind":"workingDays","workingDays":n} | {"kind":"typed","minutes":n,"unit":"day|hour|minute"}) -- the union shape and its words are assumed	Changes the lag of the dependency from `predecessorUid` to `successorUid`. `lag` is one of {"kind":"workingDays","workingDays"} (a working-day lag) and {"kind":"typed","minutes","unit"} (a typed lag; `unit` is `day`, `hour` or `minute`).
+C029	command	deleteDependency	unchanged	Deletes the dependency lines from `predecessorUid` to `successorUid`. Every line in that direction is deleted; to delete only one, use `deleteDependencyAt`.
+C030	command	deleteDependencyAt	unchanged	Deletes one dependency line among those in the same direction, named by `successorUid`, `predecessorUid` and its position `order` (0 is the first) in the successor's list of dependencies.\nRefused if no such line exists. Lines in the same direction have no name of their own, so the position in the list is the only way to name one.
+C031	command	editResource	{"kind":"editResource","resourceUid":4,"set":{...},"clear":[...]}	Edits the resource `resourceUid`. `set` writes the listed properties and `clear` removes the listed optional ones; a property in both is refused (`fieldSetAndCleared`). The only property is `name`: `set.name` renames the resource, and clearing `name` leaves it unnamed.
+C033	command	createResource	name	Adds a resource named `name`.
+C034	command	deleteResources	unchanged	Deletes the resources listed in `resourceUids`.
+C035	command	deleteUnreferencedResources	(no values)	Deletes all resources that no assignment refers to.
+C036	command	createAssignment	unchanged	Assigns the resource `resourceUid` to the task `taskUid`.
+C037	command	deleteAssignment	unchanged	Removes the assignment of the resource `resourceUid` from the task `taskUid`.
+C038	command	editTaskGroup	{"kind":"editTaskGroup","taskGroupId":"...","set":{...},"clear":[...]} -- the properties include set.hyperlinkAddress (URL, 1..512 characters) / set.hyperlink (title, 1..512 characters) / clear ["hyperlinkAddress","hyperlink"]	Edits the task group `taskGroupId`. `set` writes the listed properties and `clear` removes the listed optional ones; a property in both is refused (`fieldSetAndCleared`). `set` takes `name`, `color`, `minHeightPx`, `treeState`, `editGroup`, `hyperlinkAddress` and `hyperlink`; `clear` takes all of them except `treeState`, and without `color` no band color is painted. `name` is plain text and does not follow the name of the represented task; a task group may have no name. `editGroup` is not implemented yet: setting or clearing it is refused (`notImplemented`). `hyperlinkAddress` follows the same rule as in `editTask`.
+C045	command	createTaskGroup	id, parentId? (when omitted: top level), name? (string 1..512), representedTaskUid?, siblingOrder	Creates a task group with the given `id`, `siblingOrder` and, when given, `parentId` (absent: top level), `name` (absent: unnamed) and `representedTaskUid`.
+C046	command	pasteTaskGroupSubtree	sourceTaskGroupId, parentId? (when omitted: top level), newTaskGroupIds (map)	Duplicates the subtree of task groups rooted at `sourceTaskGroupId`, placing the copy of the root under `parentId` (absent: top level).\n`newTaskGroupIds` maps each source `id` to the `id` of its copy.
+C047	command	reorderTaskGroupSiblings	parentId? (when omitted: top level), orderedIds (list)	Reorders the sibling task groups under `parentId` (absent means the top level) into the order given by `orderedIds`. That order becomes their `siblingOrder`.
+C048	command	moveTaskGroup	taskGroupId, parentId? (when omitted: top level), siblingOrder	Changes the parent and the place among its siblings of the task group `taskGroupId` to `parentId` (absent: top level) and `siblingOrder`.
+C049	command	resetTaskGroupTreeStates	(no values)	Returns the tree state of every task group to `auto`, except task groups that are hidden.
+C050	command	deleteTaskGroup	taskGroupId	Deletes the task group `taskGroupId`.\nWhen it deletes the last task group, a new top-level task group named `Untitled` is made, because the document always has at least one task group.
+C054	command	editTaskVisual	{"kind":"editTaskVisual","taskUid":7,"set":{...},"clear":[...]} -- clear takes only the 2 colour properties	Edits how the task `taskUid` is drawn. `set` writes the listed properties and `clear` removes the listed optional ones; a property in both is refused (`fieldSetAndCleared`). `set` takes `taskShape`, `milestoneShape`, `fillColor`, `strokeColor` and `strokeWidthPx`; `clear` takes only `fillColor` and `strokeColor`, and a color that is absent is not drawn. `taskShape` is only for a task that is not a milestone, and `milestoneShape` is only for a milestone; the wrong one is refused (`milestoneShapeMismatch`). A task left with neither `fillColor` nor `strokeColor` is refused (`fillAndStrokeBothInvisible`). To follow the theme again, set the color to {"kind":"theme"}.
+C061	command	editCommentBox	{"kind":"editCommentBox","commentBoxId":"...","set":{...},"clear":["text","hyperlinkAddress","hyperlink"]} -- the properties include set.hyperlinkAddress (URL, 1..512 characters) / set.hyperlink (title, 1..512 characters) / clear ["hyperlinkAddress","hyperlink"]	Edits the comment box `commentBoxId`. `set` writes the listed properties and `clear` removes the listed optional ones; a property in both is refused (`fieldSetAndCleared`). `set` takes `text`, `anchor`, `bodyOffsetPx`, `strokeColor`, `strokeWidthPx`, `fillColor`, `fillTransparencyPercent`, `textColor`, `fontSizePx`, `hyperlinkAddress` and `hyperlink`; `clear` takes only `text`, `hyperlinkAddress` and `hyperlink`. `anchor` has the same shape as in `createCommentBox`. The frame, the text and the fill always have a color; to hide the fill, set `fillTransparencyPercent` to 100. `hyperlinkAddress` follows the same rule as in `editTask`.
+C071	command	createCommentBox	commentBoxId, anchor ({"kind":"freePoint","dateTime","taskGroupId","bandFraction"} | {"kind":"task","taskUid","figure","point","fallback":{"taskGroupId","bandFraction"}} | {"kind":"highlightBox","highlightBoxId","point","fallback":{...}} -- every property inside is required)	Places a comment box with the given `commentBoxId`, attached as `anchor` says.\n`anchor` is one of {"kind":"freePoint","dateTime","taskGroupId","bandFraction"}, {"kind":"task","taskUid","figure","point","fallback"} and {"kind":"highlightBox","highlightBoxId","point","fallback"}; every key of the chosen kind is required.
+C072	command	bringCommentBoxToFront	unchanged	Moves the comment box `commentBoxId` to the end of the list of comment boxes, which is the front-most position.
+C073	command	deleteCommentBox	unchanged	Deletes the comment box `commentBoxId`.
+C075	command	editHighlightBox	{"kind":"editHighlightBox","highlightBoxId":"...","set":{...},"clear":["strokeColor"]} -- clear takes only strokeColor	Edits the highlight box `highlightBoxId`. `set` writes the listed properties and `clear` removes the listed optional ones; a property in both is refused (`fieldSetAndCleared`). `set` takes `firstDay`, `lastDay`, `topTaskGroupId`, `bottomTaskGroupId`, `strokeColor`, `strokeWidthPx`, `fillColor` and `fillTransparencyPercent`; `clear` takes only `strokeColor`, and without it no frame line is drawn. The rules are checked on the box after the edit. A box whose last day or bottom task group comes before its first day or top task group is refused (`highlightBoxInverted`). A box with no `strokeColor` and `fillTransparencyPercent` 100 is refused (`fillAndStrokeBothInvisible`).
+C081	command	createHighlightBox	highlightBoxId, firstDay, lastDay ($defs/Day), topTaskGroupId, bottomTaskGroupId -- the range wrapper is removed, and the property names follow the property names in the document (finding 09)	Places a highlight box with the given `highlightBoxId`, enclosing the days from `firstDay` to `lastDay` (both included) and the task groups from `topTaskGroupId` to `bottomTaskGroupId`.
+C082	command	bringHighlightBoxToFront	unchanged	Moves the highlight box `highlightBoxId` to the end of the list of highlight boxes, which is the front-most position.
+C083	command	deleteHighlightBox	unchanged	Deletes the highlight box `highlightBoxId`.
+C084	command	editDocumentSettings	{"kind":"editDocumentSettings","set":{...},"clear":[...]} -- no id property. clear takes fitSpan and displayTimeZones	Edits the document settings, which say how the schedule is shown. `set` writes the listed properties and `clear` removes the listed optional ones; a property in both is refused (`fieldSetAndCleared`). `set` takes every property of `documentSettings` except `pinnedTaskGroupIds` (use `pinTaskGroup` and `unpinTaskGroup`) and `tableViews` (use `editTableView`); `clear` takes only `fitSpan` and `displayTimeZones`. `fitSpan` is written whole, with `firstDay`, `lastDay` and `isFixed`; clearing it also removes the fixing. Setting `viewTimeZone` converts only the shown times; the stored values stay the same.
+C102	command	pinTaskGroup	unchanged	Pins the task group `taskGroupId` by adding it to the pinned task groups.
+C103	command	unpinTaskGroup	unchanged	Unpins the task group `taskGroupId` by removing it from the pinned task groups. When the last one is removed, the `pinnedTaskGroupIds` property is removed too; [] is never written.
+C104	command	fitScheduleToScreenOnPage	(no values)	Fits the whole schedule to the screen of the page, as the Fit button does: the page computes the zoom and the scroll position from its own screen size, so you need not know it.\nThe page computes them from the screen as drawn before this batch, so send it in a batch of its own after the edits that change the rows.\nIt does not unfold the task groups as the Fit button also does; to unfold them, send resetTaskGroupTreeStates in an earlier batch.\nIt is refused while the page has not drawn its screen yet.
+C111	command	editTableView	{"kind":"editTableView","table":"searchPanel","set":{...},"clear":[...]}	Edits how one table looks; `table` names it (`searchPanel`, `delayDiagnosticsReport` or `resourceList`). `set` writes the listed properties and `clear` removes the listed optional ones; a property in both is refused (`fieldSetAndCleared`). `set` takes `isScheduleFilterApplied`, `shownTaskUids`, `shownResourceUids`, `isUnassignedShown`, `columnFilters` and `sort`, but only the ones the named table has; `clear` takes `shownTaskUids`, `shownResourceUids`, `columnFilters` and `sort`. Clearing a list means it has no items, and clearing `sort` returns the table to its default order. A property that the named table does not have is refused (`malformedRequest`).
+R001	refusal reason	member (the tool or member name, for example "applyCommands") and from ("page" | "relay")	-	member: which call was refused. from: who refused it.
+R002	refusal reason	message (both)	-	A human-readable explanation in English. It contains no row ids.
+R003	refusal reason	stamp -- present only when from is "page"	-	The current stamp (the document is not included, AG-2).
+R004	refusal reason	commandRefusals (only when reason is commandRefused) / documentFaults (only for schemaViolation and documentInvalid)	-	commandRefusals: one refusal for each refused command. documentFaults: one refusal for each fault in the imported document.
+R005	refusal reason	commandIndex (the position in the batch, from 0) and kind (the command name)	-	Which command was refused.
+R006	refusal reason	reason (a name from the command rows below)	-	Why the command was refused.
+R007	refusal reason	(removed -- promoted to reason)	-	-
+R008	refusal reason	documentFaults[].at (JSON Pointer)	-	The place in the document that has the fault.
+R009	refusal reason	field (which value in the command, for example "set.start")	-	The value that was refused.
+R010	refusal reason	staleStamp	-	The stamp you passed differs from the current stamp in at least one value.
+R011	refusal reason	notOwnStep	-	The step to undo or redo was written by a different writer, not by the caller.
+R012	refusal reason	gestureInFlight	-	A person is in the middle of a drag that changes the document.
+R013	refusal reason	editingInPlace	-	A person is typing in place and has not confirmed the input yet.
+R014	refusal reason	questionAsked	-	The page is asking the person a confirmation question.
+R015	refusal reason	deliveringNotices	-	The page is in the middle of delivering change notices.
+R016	refusal reason	commandRefused	-	A command in the batch was refused, so no command in the batch was applied.
+R017	refusal reason	unknownTask	-	No task has the uid you named.
+R018	refusal reason	notDrawnYet	-	The page has not drawn the screen even once yet.
+R019	refusal reason	tooTall	-	The picture is taller than the height that can be exported.
+R020	refusal reason	rasterFailed	-	The page could not turn the picture into an image.
+R021	refusal reason	embeddedHtmlFailed	-	The page could not build the single .html file.
+R022	refusal reason	notAvailable	-	This page does not have the part that answers this member.
+R023	refusal reason	malformedRequest	-	The shape of the call or of a command does not match the schema.
+R024	refusal reason	historyEmpty	-	The history has no step to undo (or to redo).
+R025	refusal reason	nothingToIssue	-	There is no fix proposal to apply.
+R026	refusal reason	importNotLanded	-	The import did not land: the person canceled it, an open was in progress, or it did not pass validation (MM-4, OP-5, OP-8).
+R027	refusal reason	schemaViolation	-	The GRS JSON you passed does not match the schema (a uid outside 0..2147483647 also counts, JDG-3284).
+R028	refusal reason	formatTooNew	-	schemaVersion is newer than the newest version this build knows, and the document does not match the schema.
+R029	refusal reason	formatTooOld	-	schemaVersion is older than the version this build reads (an alpha document). This build has no conversion for old versions.
+R030	refusal reason	documentInvalid	-	The import validation (FR-023 and its limits) refused the document.
+R031	refusal reason	retiredName	-	A retired name was sent (a command kind, a member name, an argument name or an edit field name).
+R032	refusal reason	pageNotConnected	-	No GRS page is connected to the relay.
+R033	refusal reason	relayTimedOut	-	The page did not answer before the time limit.
+R034	refusal reason	badFileName	-	fileName is not a relative file name inside the save folder.
+R035	refusal reason	fileExists	-	The file already exists, and overwrite true was not given.
+R036	refusal reason	saveFolderUnavailable	-	The save folder cannot be made, read or written.
+R037	refusal reason	malformedRequest	-	The shape of which, defs or full for readSchema is wrong.
+R038	refusal reason	(retiredName)	-	An unknown tool name.
+R039	refusal reason	duplicateKey	-	A primary key value appears twice in the same array.
+R040	refusal reason	danglingReference	-	A foreign key points to a row that is not in the document.
+R041	refusal reason	pinnedTaskGroupMissing	-	A pinned task group does not exist.
+R042	refusal reason	taskParentCycle	-	The task parent links form a cycle.
+R043	refusal reason	taskGroupTooDeep	-	Task groups are nested deeper than the depth limit.
+R044	refusal reason	taskGroupMembershipBroken	-	A task is not in exactly one task group.
+R045	refusal reason	noCalendar	-	There is no calendar.
+R046	refusal reason	(retired)	-	TaskGroup name and derivedFromTaskUid are both null. JDG-3315 (a name is not required) retires this whole row. A task group with no name and no task it stands for is allowed.
+R047	refusal reason	fillAndStrokeBothInvisible	-	The fill and the stroke are both invisible. For TaskVisual, the fillColor and strokeColor properties are both absent. For HighlightBox, the strokeColor property is absent and the transparency is 100 (rewritten by JDG-3310).
+R048	refusal reason	endBeforeStart	-	A task's finish is before its start.
+R049	refusal reason	fadeWithoutFinish	-	A task that has a fade has no finish.
+R050	refusal reason	fadeLongerThanTask	-	The fades added together are longer than the duration (in calendar days).
+R051	refusal reason	unusableDate	-	A day or time column cannot be read, or is outside the accepted days.
+R052	refusal reason	importSequenceAhead	-	TaskOrigin.lastSeenImportSequence is greater than Project.importSequence.
+R053	refusal reason	settingOutOfBounds	-	A setting value does not meet a lower or upper limit that names another setting value.
+R054	refusal reason	calendarWithoutWorkingDay	-	The document calendar has no working weekday.
+R055	refusal reason	taskGroupParentCycle	-	The task group parent links form a cycle.
+R056	refusal reason	highlightBoxInverted	-	In a highlight box, firstDay is after lastDay, or the top task group is below the bottom task group.
+R057	refusal reason	noTaskGroup	-	There is no task group.
+R058	refusal reason	negativeActualLength	-	An actual length is below 0 (the actual work ends before it starts).
+R059	refusal reason	milestoneShapeMismatch	-	The shape properties do not match Task.milestone: a milestone has taskShape or has no milestoneShape, or the reverse (JDG-3311 rewrites the current IV-22).
+R060	refusal reason	taskVisualCountNotOne	-	A task is not pointed at by exactly one TaskVisual.
+R061	refusal reason	invalidWorkingTimes	-	The number, the order or the overlap of the time ranges in a day breaks the rules.
+R062	refusal reason	fileTooLarge	-	The file to import is larger than the size limit (S-113).
+R063	refusal reason	tooManyTasks	-	The number of tasks to import is more than the limit (S-114).
+R064	refusal reason	taskTreeTooDeep	-	The WBS depth of the tasks to import is more than the limit (S-115).
+R065	refusal reason	taskWithoutDates	-	A task to import has no start or no finish.
+R066	refusal reason	notFound	-	The named row (a task, task group, box, resource, assignment or dependency) does not exist.
+R067	refusal reason	duplicateKey	-	The id of the row to make is already in use.
+R068	refusal reason	alreadyExists	-	The dependency or assignment you tried to make already exists.
+R069	refusal reason	unusableDate	-	A day or time cannot be read, or is outside the accepted days.
+R070	refusal reason	outOfRange	-	A number is out of range, or is not an integer or not a finite number.
+R071	refusal reason	endBeforeStart	-	The end (finish or lastDay) is before the start.
+R072	refusal reason	negativeActualLength	-	The actual work ends before it starts.
+R073	refusal reason	fadeWithoutFinish	-	You tried to put a fade on a task that has no finish.
+R074	refusal reason	fadeLongerThanTask	-	The fade does not fit within the duration (in calendar days).
+R075	refusal reason	fillAndStrokeBothInvisible	-	After the write, the row has a fill and a stroke that are both invisible.
+R076	refusal reason	milestoneShapeMismatch	-	You tried to write taskShape on a milestone, or milestoneShape on a task with a duration (JDG-3311; this keeps the FR-083 ban on switching between them).
+R077	refusal reason	hyperlinkSchemeNotAllowed	-	The link address (hyperlinkAddress) starts with javascript:, vbscript: or data:. The check runs after the same normalization a browser does (JDG-3185: remove spaces and control characters at both ends, and make the scheme lower case) (JDG-3314).
+R078	refusal reason	wouldMakeCycle	-	You tried to move an item under its own subtree.
+R079	refusal reason	siblingListMismatch	-	The list to reorder does not name each sibling exactly once.
+R080	refusal reason	taskGroupTooDeep	-	The task group depth is more than the limit (S-125).
+R081	refusal reason	taskGroupMembershipBroken	-	A task is not in any task group.
+R082	refusal reason	limitReached	-	The number of pins is at the limit.
+R083	refusal reason	missingValue	-	The new id of a copy is missing from the mapping.
+R084	refusal reason	bothEndsAreOneTask	-	Both ends of the dependency are the same task.
+R085	refusal reason	taskWithoutDates	-	The task has no planned dates.
+R086	refusal reason	alreadyStarted	-	You tried to start the actual work of a task, but it has already started.
+R087	refusal reason	calendarWithoutWorkingDay	-	After the write, the calendar has no working weekday.
+R088	refusal reason	invalidWorkingTimes	-	The number, the order or the overlap of the time ranges breaks the rules.
+R089	refusal reason	highlightBoxInverted	-	After the write, the box would be upside down: its last day would come before its first day, or its bottom task group above its top task group.
+R090	refusal reason	notDrawnYet	-	The page has not drawn the screen yet, so it cannot work out "Zoom to Fit".
+R091	refusal reason	unknownCommand	-	kind is not the name of any command.
+R092	refusal reason	notImplemented	-	You tried to write a field that is not built yet (editGroup).
+R093	refusal reason	fieldSetAndCleared	-	The same field is in both set and clear.
+R094	refusal reason	(moves to malformedRequest)	-	The schema (enum, minLength, oneOf shape) refuses these, so they are not reasons for each command.
