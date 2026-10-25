@@ -5,10 +5,10 @@ doc	D002	STAMP	yes	yes		2026-10-25T10:40:07.650Z	doc-904a26d7
 doc	D003	STAMP	yes	yes		2026-10-25T10:58:42.683Z	doc-20707d6e
 doc	D004	BOX	yes	yes		2026-10-25T10:59:08.818Z	doc-1e59cf9f
 doc	D005	MSPDI	yes	yes		2026-10-25T10:59:30.332Z	doc-7223170f
-doc	D006	MSPDI	yes	no		2026-10-25T10:59:53.315Z	doc-700942f9
-doc	D007	MSPDI	yes	no		2026-10-25T02:56:01.203Z	doc-00ccc7a0
-doc	D008	MSPDI	yes	no		2026-10-25T02:56:58.961Z	doc-39787c7f
-doc	D009	MSPDI	yes	no		2026-10-25T02:57:12.386Z	doc-212b0958
+doc	D006	MSPDI	yes	yes		2026-10-25T11:39:04.235Z	doc-700942f9
+doc	D007	MSPDI	no	yes	Task groupと WBSと parent/childe の関係を簡潔に書け。 ここじゃなくてもいいから適切なところに。 こういう感じの重要な概念は冒頭の方がいいかも。	2026-10-25T11:41:21.381Z	doc-00ccc7a0
+doc	D008	MSPDI	yes	yes		2026-10-25T11:41:30.596Z	doc-39787c7f
+doc	D009	MSPDI	yes	yes		2026-10-25T11:41:38.350Z	doc-212b0958
 doc	D010	GRS	no	no	taskGroupsとtaskGroupMembersの関係の説明が必要。  シンプルに説明する1文を入れろ。	2026-10-25T04:34:00.326Z	doc-6fe4927b
 doc	D011	GRS	no	no	taskGroupsとtaskGroupMembersの関係の説明が必要。  シンプルに説明する1文を入れろ。	2026-10-25T04:34:05.704Z	doc-adbe7c95
 doc	D012	GRS	no	no	taskVisualsについてシンプルに説明する分があった方がいいか？ まぁ、名称だけでもわかる気がするが、意見くれたし。	2026-10-25T04:34:57.246Z	doc-657d8af4
@@ -16,3 +16,83 @@ doc	D013	GRS	no	no	taskOrigins ってなに？ 説明が必須。 MSPDI由来か
 doc	D014	GRS	no	no	baselineTasksに関してシンプルな説明を要する	2026-10-25T04:36:03.041Z	doc-32904a71
 doc	D015	GRS	no	no	commentBoxesは何かの説明が必要	2026-10-25T04:36:31.258Z	doc-61651b60
 doc	D016	GRS	no	no	commentBoxesは何かの説明が必要	2026-10-25T04:36:41.028Z	doc-e1623997
+doc	D078	MSPDI	yes	yes		2026-10-25T11:41:46.659Z	doc-b442729a
+doc	D079	MSPDI	no	yes	itの意味が不明。 ファイル名かプロジェクト名をここで持ち出す必要がある？	2026-10-25T11:43:14.395Z	doc-a69d53c6
+doc	D080	MSPDI	no	yes	GRS counts all working days with this one calendar. If it is absent or names no calendar, GRS uses the calendar with isBaseCalendar true and the smallest ordinal, else a built-in default. / この仕様について別途詳しく解説してくれ。  MSPDIとGRSでカレンダーをどうするのか1枚の.mdにまとめて解説を頼む。	2026-10-25T11:45:05.693Z	doc-86aca979
+doc	D081	MSPDI	no	yes	GRSで編集できないのは困るね。 ヘッダー→[三]→ プロジェクトIDとプロジェクト名をリセットの下、テーマ色の上に配置する。 意見くれたし	2026-10-25T11:48:23.527Z	doc-b7969070
+doc	D082	MSPDI	yes	yes		2026-10-25T11:48:46.664Z	doc-fbf0ba0b
+doc	D083	MSPDI	yes	yes		2026-10-25T11:48:52.165Z	doc-a675b0e9
+doc	D084	MSPDI	yes	yes		2026-10-25T11:48:56.432Z	doc-e885254f
+doc	D085	MSPDI	yes	yes		2026-10-25T11:48:59.981Z	doc-cca39192
+doc	D086	MSPDI	yes	yes		2026-10-25T11:49:14.563Z	doc-4fe257ca
+doc	D087	MSPDI	yes	yes		2026-10-25T11:49:25.847Z	doc-933f2f34
+doc	D088	MSPDI	yes	yes		2026-10-25T11:49:33.134Z	doc-7bb0683a
+doc	D089	MSPDI	yes	yes		2026-10-25T11:49:40.460Z	doc-75756c4e
+doc	D090	MSPDI	yes	yes		2026-10-25T11:49:42.961Z	doc-6f44d3a5
+doc	D091	MSPDI	yes	yes		2026-10-25T11:50:04.853Z	doc-d1e23451
+doc	D093	MSPDI	no	yes	 (S-128)  が意味不明。hen a day differs, GRS reports it each time the document opens. これ何のためにどんなユースケースでどういう警告を出すの？	2026-10-25T11:51:39.245Z	doc-89949143
+doc	D094	MSPDI	yes	yes		2026-10-25T11:51:47.278Z	doc-e7a1f18f
+doc	D095	MSPDI	yes	yes		2026-10-25T11:51:57.475Z	doc-12e11ee7
+doc	D096	MSPDI	yes	yes		2026-10-25T11:52:04.050Z	doc-93bff091
+doc	D097	MSPDI	no	yes	(S-482)が不明。	2026-10-25T11:52:34.190Z	doc-505a6109
+doc	D098	MSPDI	no	yes	念確だが、 MSPDIのデフォルトは何時開始・何時終了？ GRSと合ってる？ 時差関係も別途.mdにまとめてほしい。 そのエッセンスをGRS JSONスキーマの冒頭に入れておきたい。 意見くれたし	2026-10-25T11:54:22.415Z	doc-149ed2a2
+doc	D105	MSPDI	no	yes	 MSPDI values that GRS does not read, kept and written back unchanged.  / だとさ、 GRSが keepもしないように見えるよ？ 違うよね？ / あとこのcarryの考え方も1枚の.mdにまとめてくれ。 そしてそのエッセンスをGRS JSONの冒頭に入れる。	2026-10-25T11:56:27.330Z	doc-b4297026
+doc	D106	MSPDI	no	yes	 MSPDI values that GRS does not read, kept and written back unchanged.  / だとさ、 GRSが keepもしないように見えるよ？ 違うよね？	2026-10-25T11:55:49.398Z	doc-2a8810b7
+doc	D107	MSPDI	yes	yes		2026-10-25T11:56:36.011Z	doc-9f81547b
+doc	D108	MSPDI	yes	yes		2026-10-25T11:56:39.176Z	doc-64de6638
+doc	D109	MSPDI	no	yes	it の指すものがあいまい。 this uid とかじゃないんでしょ？ 解説を求める。	2026-10-25T11:57:49.808Z	doc-eb94f1fd
+doc	D111	MSPDI	yes	yes		2026-10-25T11:57:52.602Z	doc-a8e63091
+doc	D112	MSPDI	yes	yes		2026-10-25T11:58:09.088Z	doc-7fef56a1
+doc	D113	MSPDI	yes	yes		2026-10-25T11:58:12.952Z	doc-fbacf535
+doc	D114	MSPDI	yes	yes		2026-10-25T11:58:17.154Z	doc-1ba7a130
+doc	D115	MSPDI	no	yes	 MSPDI values that GRS does not read, kept and written back unchanged.  / だとさ、 GRSが keepもしないように見えるよ？ 違うよね？	2026-10-25T11:58:56.223Z	doc-7356c821
+doc	D116	MSPDI	no	yes	 MSPDI values that GRS does not read, kept and written back unchanged.  / だとさ、 GRSが keepもしないように見えるよ？ 違うよね？ ってこれ系多いな。  まとめて短文で書けないか？ タグ付け的な感じで。  / GRS doen't use just carry to MSPDI的に。	2026-10-25T12:00:17.212Z	doc-dc9e4690
+doc	D117	MSPDI	yes	yes		2026-10-25T12:00:23.941Z	doc-4fbaf159
+doc	D119	MSPDI	yes	yes		2026-10-25T12:00:45.105Z	doc-32a4f4ea
+doc	D120	MSPDI	yes	yes		2026-10-25T12:00:50.893Z	doc-7834f8e9
+doc	D121	MSPDI	yes	yes	(S-580).が不明。 MSPDIのデフォルトと合っているか要念確	2026-10-25T12:01:30.524Z	doc-4c6483fb
+doc	D124	MSPDI	yes	yes		2026-10-25T12:01:48.717Z	doc-2025ee22
+doc	D126	MSPDI	yes	yes		2026-10-25T12:01:57.210Z	doc-5636b238
+doc	D127	MSPDI	yes	yes		2026-10-25T12:02:02.170Z	doc-e94be9eb
+doc	D128	MSPDI	yes	yes		2026-10-25T12:02:10.170Z	doc-d8be276a
+doc	D129	MSPDI	yes	yes		2026-10-25T12:02:13.107Z	doc-ae8ce9b6
+doc	D130	MSPDI	no	yes	良く分からんな。 1～9のどれでも入力としては受け付けるの？ シンプルに書いてくれ。	2026-10-25T12:03:37.332Z	doc-356771f3
+doc	D132	MSPDI	no	yes	 (S-580).はだめ。	2026-10-25T12:03:54.280Z	doc-808f5ef0
+doc	D135	MSPDI	yes	yes		2026-10-25T12:04:23.028Z	doc-8392f4cd
+doc	D137	MSPDI	yes	yes		2026-10-25T12:04:31.058Z	doc-feb5515d
+doc	D138	MSPDI	no	yes	 00:00:00 as the end of the day (24:00). なんでこんな仕様にしたんだっけ？ 経緯を整理してくれ。 その理由が妥当なら、その旨JSONスキーマの冒頭に書く。 時差関係は誤解を生むので。	2026-10-25T12:05:54.312Z	doc-03690bbc
+doc	D139	MSPDI	no	yes	ここもわかりにくいな。 冒頭にコンセプトをまとめてほしい。	2026-10-25T12:06:34.955Z	doc-5858e020
+doc	D140	MSPDI	yes	yes		2026-10-25T12:06:41.404Z	doc-57fb1651
+doc	D144	MSPDI	yes	yes		2026-10-25T12:06:53.896Z	doc-7b13d13a
+doc	D145	MSPDI	yes	yes		2026-10-25T12:06:58.068Z	doc-af63661e
+doc	D146	MSPDI	yes	yes		2026-10-25T12:07:32.857Z	doc-505e7373
+doc	D147	MSPDI	yes	yes		2026-10-25T12:07:38.682Z	doc-d814ebee
+doc	D148	MSPDI	yes	yes		2026-10-25T12:07:53.073Z	doc-4461e1e9
+doc	D149	MSPDI	yes	yes		2026-10-25T12:08:21.002Z	doc-f35a8271
+doc	D150	MSPDI	yes	yes		2026-10-25T12:08:24.688Z	doc-8b2071c9
+doc	D151	MSPDI	yes	yes		2026-10-25T12:08:27.765Z	doc-f2f2ffc1
+doc	D152	MSPDI	yes	yes		2026-10-25T12:08:44.455Z	doc-85631914
+doc	D153	MSPDI	yes	yes		2026-10-25T12:08:50.468Z	doc-3e32a716
+doc	D154	MSPDI	no	yes	interruption  かぁ。  俺的には taskが suspended してるが再開日未定って感じだんだがな。再考を要す	2026-10-25T12:11:08.599Z	doc-b4443f58
+doc	D155	MSPDI	no	yes	it がさすものがあいまい。 レポートにまとめて。 冒頭に書く... かな。	2026-10-25T12:12:11.379Z	doc-bd72db15
+doc	D156	MSPDI	no	yes	他が直ってからまた見る	2026-10-25T12:13:25.003Z	doc-1f0d4f8f
+doc	D157	MSPDI	no	yes	他が直ってからまた見る	2026-10-25T12:13:29.220Z	doc-62d7dba6
+doc	D158	MSPDI	yes	yes		2026-10-25T12:13:37.827Z	doc-697f4f17
+doc	D159	MSPDI	yes	yes		2026-10-25T12:13:42.670Z	doc-ec00f169
+doc	D160	MSPDI	yes	yes		2026-10-25T12:13:48.529Z	doc-287b73bc
+doc	D161	MSPDI	no	yes	他同様	2026-10-25T12:14:11.357Z	doc-8e1c66b4
+doc	D162	MSPDI	no	yes	他同様	2026-10-25T12:14:23.670Z	doc-04733f1d
+doc	D163	MSPDI	yes	yes		2026-10-25T12:14:27.992Z	doc-2425a698
+doc	D164	MSPDI	yes	yes		2026-10-25T12:14:32.548Z	doc-694be098
+doc	D165	MSPDI	yes	yes		2026-10-25T12:14:36.600Z	doc-9bcf5465
+doc	D166	MSPDI	no	yes	480 (S-128)  が意味不明。	2026-10-25T12:15:05.902Z	doc-96557d43
+doc	D167	MSPDI	no	yes	他が直ってから見る。	2026-10-25T12:15:23.898Z	doc-4980d6c0
+doc	D170	MSPDI	yes	yes		2026-10-25T12:15:35.852Z	doc-68ae8b71
+doc	D171	MSPDI	yes	yes		2026-10-25T12:15:38.681Z	doc-c6ef221a
+doc	D172	MSPDI	no	yes	他が直ってから見る。	2026-10-25T12:15:53.691Z	doc-81c0b254
+doc	D173	MSPDI	yes	yes		2026-10-25T12:15:57.081Z	doc-3166867b
+doc	D174	MSPDI	yes	yes		2026-10-25T12:16:00.896Z	doc-11372ede
+doc	D175	MSPDI	yes	yes		2026-10-25T12:16:04.778Z	doc-ee514195
+doc	D178	MSPDI	yes	yes		2026-10-25T12:16:15.883Z	doc-ee76577c
+doc	D179	MSPDI	yes	yes		2026-10-25T12:16:19.951Z	doc-3e4b60f5
+doc	D181	MSPDI	yes	yes		2026-10-25T12:16:26.353Z	doc-eb167755
