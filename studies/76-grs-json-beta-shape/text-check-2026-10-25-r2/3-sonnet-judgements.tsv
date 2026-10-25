@@ -1,0 +1,4 @@
+id	verdict	failed	problem_ja	suggested_en
+D001	ok	-	-	-
+D003	ok	-	-	-
+D004	fix	E7,E1	「GRS が日程を描くために加えるもの」とあるが、schedule には描画のためではない taskOrigins（取り込んだ MSPDI のどのファイルのどのタスクか。同じファイルの再取り込みで同じタスクを更新するための記録）も入る。したがって「描くため」だけでは事実と合わない。また「MSPDI に書き出されるデータ」が schedule 全体か一部かが読み取りにくい。	The schedule: the parts that are exported to MSPDI, and what GRS adds to draw the schedule and to match tasks of a file imported again.

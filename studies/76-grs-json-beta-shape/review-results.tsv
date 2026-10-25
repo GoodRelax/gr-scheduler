@@ -1,9 +1,9 @@
 table	label	tag	ok	current	comment	updated_at	row_id
-doc	D001	STAMP	yes	no		2026-10-25T00:14:05.958Z	doc-9e3ef5a5
-doc	D002	STAMP	yes	no	OK / --- / 後半の / It is set when a change request that changes the shape lands, and stays the same while the shape stays the same. / は削除しろ / --------- / UTC instant CR-851 lands の意味が分からない。 スキーマを更新した日時とかそういう初見者に分かる奴で。	2026-10-25T04:27:21.041Z	doc-904a26d7
-doc	D003	STAMP	yes	no	 / OK / --- / 必要性は理解したが、スキーマにその説明を短文で入れろ。デバッグ用にいつデプロイしたか... 通常はschemaVer だけ気にすればいいとか。 /  / ----- / スキーマバージョンとビルドバージョンの2つがいる理由が不明。 解説せよ。	2026-10-25T04:29:05.231Z	doc-20707d6e
-doc	D004	BOX	yes	no		2026-10-25T04:29:33.272Z	doc-1e59cf9f
-doc	D005	MSPDI	yes	no		2026-10-25T02:18:18.804Z	doc-7223170f
+doc	D001	STAMP	no	no	 any string is read. って何のために書いてる？	2026-10-25T07:26:13.666Z	doc-9e3ef5a5
+doc	D002	STAMP	no	no	The UTC time (YYYY-MM-DDTHH:MM:SSZ) when the shape of this schema last changed. / を2行同じこと書く必要ないだろ？	2026-10-25T07:25:52.599Z	doc-904a26d7
+doc	D003	STAMP	no	no	 3rd property (right after $schema and schemaVersion) これは自明だよね？ 書く必要ないだろ。 / it tells which build wrote the file. To know whether you can read a document, check only schemaVersion. / って長くない？ / he UTC time (YYYY-MM-DDTHH:MM:SSZ) when the GRS build that wrote this file was made.  The purpose of this property is just for debugging, use only schemaVersion for general usage. / っ的な感じでいいのでは？	2026-10-25T07:30:03.840Z	doc-20707d6e
+doc	D004	BOX	no	no	it ってなに？ to draw the scheduleってこと？	2026-10-25T07:31:06.377Z	doc-1e59cf9f
+doc	D005	MSPDI	no	no	まぁ、いいけど、MSPDIって書かなくていいの？	2026-10-25T07:32:06.446Z	doc-7223170f
 doc	D006	MSPDI	yes	no	任意（要素が無いときはプロパティを書かない。空の配列 [] は書かない: minItems 1） を日本語で書いたらいかんやろ。	2026-10-25T04:30:02.410Z	doc-700942f9
 doc	D007	MSPDI	yes	no		2026-10-25T02:56:01.203Z	doc-00ccc7a0
 doc	D008	MSPDI	yes	no		2026-10-25T02:56:58.961Z	doc-39787c7f
