@@ -1,0 +1,2 @@
+id	final_en	seat_note
+D001	The address where the latest GRS schema is published; every document holds the same address.	Sonnet fix taken, shortened (E3): a writer writes the current S-540 address, never one per shape version (05-07-design.md), so "that this document follows" was not true of an older document. The value is shown by "examples" (a JSON Schema 2020-12 annotation; "const" is not used because a reader never refuses over the value). Sonnet's note on the root description is already met: the CR-851 root (D000) no longer mentions $id (JDG-3337).

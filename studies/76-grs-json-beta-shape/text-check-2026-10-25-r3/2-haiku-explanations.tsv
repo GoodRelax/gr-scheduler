@@ -1,0 +1,2 @@
+id	explanation_ja	hard_parts
+D001	GRS文書のルート直下にある $schema プロパティ。この文書がどの GRS スキーマ（文書の形を定めた JSON Schema ファイル）に従って書かれているかを示すため、そのスキーマの住所（URL）を入れる。書き手が入れる値は、例に示された https://goodrelax.github.io/gr-scheduler/spec/_source/grs-document.schema.json と読んだ。読み手やツールは、この URL を見て文書を照合する先を知る。値は文字列。スキーマファイル冒頭の $schema（JSON Schema の方言 2020-12 を示すキーワード）と名前は同じだが、役割は別物で、こちらはこの文書がどのスキーマに従うかを示す。	「address」が URL を指すのか、取得して読むべき場所なのか不明。値を例の URL に固定するのか、版ごとに変えるのかが書かれていない。必須かどうかの記載がなく、型欄は examples のみ。schemaVersion（形の版）との違いが本行だけでは判らない。スキーマファイル冒頭の $schema（方言指定）と取り違えやすい。

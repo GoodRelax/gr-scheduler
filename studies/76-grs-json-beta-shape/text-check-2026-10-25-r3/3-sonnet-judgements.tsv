@@ -1,0 +1,2 @@
+id	verdict	failed	problem_ja	suggested_en
+D001	fix	E1,E7	「that this document follows（この文書が従う）」は不正確。S-540 は常に最新版を返す固定の1か所で、古い形式版の文書にも同じ住所を書く（読んだ値でなく S-540 の今の値を書く）。このため「文書ごと・版ごとに変わる住所」と読め、Haiku も固定か版ごとか判らなかった。固定で最新版の所だと一言で足りる。	The address where the latest version of the GRS schema is published; it is the same for every document, so whoever holds only this document can find the schema.
