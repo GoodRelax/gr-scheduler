@@ -1,0 +1,527 @@
+word	layer	where	count	glossary_id	mark	note
+$schema	json-property	(root)	1	-	missing	schema address; no glossary row for schema / version words
+schemaVersion	json-property	(root)	1	-	missing	title says "Version of the shape": shape = shape of the schema, clashes with Shape (JDG-3348)
+buildVersion	json-property	(root)	1	-	missing	new in CR-851
+schedule	json-property	(root)	1	-	missing	"schedule data" has no row; stage-1 C lists 日程表
+project	json-property	schedule	1	N-8	match	same as MSPDI Project
+calendars	json-property	schedule	1	N-9	match	same as MSPDI Calendars
+tasks	json-property	schedule	1	N-1	match	same as MSPDI Tasks
+resources	json-property	schedule	1	N-10	match	ja 担当 is not a literal translation (stage-1 F)
+assignments	json-property	schedule	1	N-11	match	same as MSPDI Assignments
+taskGroups	json-property	schedule	1	N-2	match	U-1 Task Groups is the screen name
+taskGroupMembers	json-property	schedule	1	N-3	match	
+taskVisuals	json-property	schedule	1	N-13	match	
+taskOrigins	json-property	schedule	1	N-14	match	MSPDI has no counterpart; ja 取り込み元の記録 matches prose "record"
+baselineTasks	json-property	schedule	1	-	missing	prose says "earlier plan"; glossary has only K-84 isBaselineVisible; stage-1 C 変更前の予定
+commentBoxes	json-property	schedule	1	N-5	match	
+highlightBoxes	json-property	schedule	1	N-6	match	
+documentSettings	json-property	(root)	1	-	missing	stage-1 A: 文書の描画設定 / 文書の設定 / documentSettings
+displayScalePercent	json-property	documentSettings	1	K-125	alias	stale: glossary has displayScale; old name: displayScale
+fontSizeStep	json-property	documentSettings	1	K-85	match	values renamed S/M/L to small/medium/large; K-105 fontSizeStepSizes.S/M/L stale
+dayWidthPx	json-property	documentSettings	1	K-67	alias	stale: glossary has zoomX; K-1 pxPerDayAt1x also names the width of one day; old name: zoomX
+verticalZoomRatio	json-property	documentSettings	1	K-68	alias	stale: glossary has zoomY; old name: zoomY
+taskGroupAutoExpandDepth	json-property	documentSettings	1	-	missing	new in CR-851
+scrollPosition	json-property	documentSettings	1	-	missing	glossary rule (tbl-glossary.md line 325) keeps the names scrollDate / scrollTaskGroupId; U-51 ScreenState lists the old keys
+kind	json-property	Color, ColumnFilter, CommentBoxAnchor, Writer, scrollPosition, viewTimeZone	6	JDG-3348	match	tag of a oneOf union only (JDG-3348); 6 unions
+leftEdgeDay	json-property	scrollPosition	1	K-69	alias	stale: glossary has scrollDate and a rule that keeps that name; old name: scrollDate
+leftEdgeDayFraction	json-property	scrollPosition	1	K-121	alias	stale: glossary has scrollDateFraction; old name: scrollDateFraction
+topEdgeTaskGroupId	json-property	scrollPosition	1	K-70	alias	stale: glossary has scrollTaskGroupId and a rule that keeps that name; old name: scrollTaskGroupId
+topEdgeTaskGroupFraction	json-property	scrollPosition	1	K-120	alias	stale: glossary has scrollTaskGroupFraction; old name: scrollTaskGroupFraction
+fitSpan	json-property	documentSettings	1	K-141	alias	stale: glossary has fitSpanStart / fitSpanFinish
+firstDay	json-property	ColumnFilter, HighlightBox, fitSpan	3	K-141	alias	fitSpan.firstDay / HighlightBox.firstDay (was start) / ColumnFilter.firstDay (was fromDate); Day has no row; old name: fitSpanStart, fromDate, start
+lastDay	json-property	ColumnFilter, HighlightBox, fitSpan	3	K-141	alias	fitSpan.lastDay / HighlightBox.lastDay (was finish) / ColumnFilter.lastDay (was toDate); old name: finish, fitSpanFinish, toDate
+isFixed	json-property	fitSpan	1	K-142	alias	stale: glossary has isFitSpanFixed; old name: isFitSpanFixed
+viewTimeZone	json-property	documentSettings	1	K-144	match	now a union {kind: sameAsScheduleData|fixed}
+offset	json-property	displayTimeZones, viewTimeZone	2	-	missing	UTC offset has no row
+displayTimeZones	json-property	documentSettings	1	K-145	match	prose calls each one an "extra clock"
+season	json-property	displayTimeZones	1	-	missing	standard / daylight
+isTimeOfDayVisible	json-property	documentSettings	1	K-146	match	
+isPlanVisible	json-property	documentSettings	1	K-122	match	
+isPlanDatesVisible	json-property	documentSettings	1	K-124	match	
+isActualVisible	json-property	documentSettings	1	K-123	match	
+isPercentCompleteVisible	json-property	documentSettings	1	K-76	match	
+isBaselineVisible	json-property	documentSettings	1	K-84	match	what it shows (baselineTasks) has no row
+isProgressLineVisible	json-property	documentSettings	1	K-79	match	
+isProgressMarkerVisible	json-property	documentSettings	1	K-78	match	
+isDependencyVisible	json-property	documentSettings	1	K-77	match	stage-1 D: no "Lines" while U-16 is Dependency Lines
+isAssigneeVisible	json-property	documentSettings	1	K-75	match	
+isDateGridLinesVisible	json-property	documentSettings	1	K-82	match	
+isGroupGridLinesVisible	json-property	documentSettings	1	K-83	match	prose says "lines between task groups" for U-18
+stackDirection	json-property	documentSettings	1	K-73	match	
+isThemeMonochrome	json-property	documentSettings	1	K-61	match	
+taskGroupPanelWidthPx	json-property	documentSettings	1	K-71	match	
+isTaskGroupPanelWidthFixed	json-property	documentSettings	1	K-143	match	prose says "panel border" for U-24 Panel Divider
+levelZeroTreeState	json-property	documentSettings	1	K-138	match	prose says "head of the task group panel (level 0)"
+pinnedTaskGroupIds	json-property	documentSettings	1	K-110	match	U-46 Pinned Task Group
+tableViews	json-property	documentSettings	1	-	missing	"table" has no row; View (JDG-3348) is the chart view, not tables
+searchPanel	json-property	tableViews	1	U-64	match	
+isScheduleFilterApplied	json-property	delayDiagnosticsReport, resourceList, searchPanel	3	U-67	alias	only the bar (U-67 Schedule Filter Bar) has a row; the filter itself has none
+shownTaskUids	json-property	delayDiagnosticsReport, searchPanel	2	-	missing	"show column" / "checked rows" have no row
+columnFilters	json-property	delayDiagnosticsReport, resourceList, searchPanel	3	-	missing	column filter has no row
+sort	json-property	delayDiagnosticsReport, resourceList, searchPanel	3	-	missing	IC-123 / IC-124 are the sort icons
+delayDiagnosticsReport	json-property	tableViews	1	U-66	match	
+resourceList	json-property	tableViews	1	U-49	match	
+shownResourceUids	json-property	resourceList	1	-	missing	
+isUnassignedShown	json-property	resourceList	1	-	missing	the "(no assignee)" row
+documentStamp	json-property	(root)	1	-	missing	"stamp" has no row
+changeLogEntries	json-property	(root)	1	-	missing	was changeLog; root text still says changeLog in one place of the old text only; "change log" has no row; old name: changeLog
+id	json-property	CommentBox, HighlightBox, Project, TaskGroup	4	-	clash	Project.id = MSPDI Project/UID (str<=16) while TaskGroup / CommentBox / HighlightBox.id are uuids and every other MSPDI UID becomes uid
+calendarUid	json-property	Project, Resource, Task	3	N-9	mspdi-only	Same as MSPDI Project|Task|Resource/CalendarUID
+name	json-property	BaselineTask, Calendar, Color, Exception, PassthroughElement, Project, Resource, Task, TaskGroup, Writer	10	P-1	match	10 owners; P-1 owner not stated (stage-1 #6); Color.name = palette color, Writer.name = agent name, PassthroughElement.name = MSPDI element name
+title	json-property	Project	1	U-27	alias	Same as MSPDI Project/Title; screen name Document Title (ja 文書名); "title" is also the task group title and the link title
+subject	json-property	Project	1	-	mspdi-only	Same as MSPDI Project/Subject
+category	json-property	Project	1	-	mspdi-only	Same as MSPDI Project/Category
+company	json-property	Project	1	-	mspdi-only	Same as MSPDI Project/Company
+manager	json-property	Project	1	-	mspdi-only	Same as MSPDI Project/Manager
+author	json-property	Project	1	-	mspdi-only	Same as MSPDI Project/Author; not lastEditedBy
+revision	json-property	Project	1	-	mspdi-only	Same as MSPDI Project/Revision
+creationDate	json-property	Project	1	-	mspdi-only	Same as MSPDI Project/CreationDate
+startDate	json-property	Project	1	-	mspdi-only	Same as MSPDI Project/StartDate
+statusDate	json-property	Project	1	U-11	missing	Same as MSPDI Project/StatusDate; GRS draws U-11 Status Line from it; no P-row (stage-1 C')
+scheduleDataTimeZone	json-property	Project	1	-	missing	GRS only; "schedule data time zone" has no row (K-144 is the view side)
+minutesPerDay	json-property	Project	1	-	mspdi-only	Same as MSPDI Project/MinutesPerDay; GRS uses it (1d, lag)
+minutesPerWeek	json-property	Project	1	-	mspdi-only	Same as MSPDI Project/MinutesPerWeek
+daysPerMonth	json-property	Project	1	-	mspdi-only	Same as MSPDI Project/DaysPerMonth
+weekStartDay	json-property	Project	1	-	mspdi-only	Same as MSPDI Project/WeekStartDay
+defaultStartTime	json-property	Project	1	-	mspdi-only	Same as MSPDI Project/DefaultStartTime; GRS uses it
+defaultFinishTime	json-property	Project	1	-	mspdi-only	Same as MSPDI Project/DefaultFinishTime; GRS uses it
+themeHueDegrees	json-property	Project	1	K-60	alias	stale: glossary has themeHue (a settings key); now a Project property; old name: themeHue
+parentTaskProgressToleranceWorkingDays	json-property	Project	1	K-140	alias	stale: glossary has parentTaskProgressToleranceDays; old name: parentTaskProgressToleranceDays
+highestIssuedUid	json-property	Project	1	-	missing	was uidHighWaterMark; old name: uidHighWaterMark
+lastImportNumber	json-property	Project	1	K-86	alias	stale: glossary has importSequence (ja 取り込みの連番); old name: importSequence
+firstOutlineLevel	json-property	Project	1	-	missing	was outlineBase; carries the MSPDI word OutlineLevel; old name: outlineBase
+sourceFormat	json-property	Project	1	-	missing	values grs|pj12|pj15
+passthroughValues	json-property	Assignment, Calendar, Dependency, Exception, Project, Resource, Task, WeekDay	8	N-7	alias	stale: glossary has carry; root text and descriptions still say "Carried"; old name: carry
+passthroughElements	json-property	Assignment, Calendar, Dependency, Exception, Project, Resource, Task, WeekDay	8	N-7	alias	stale: glossary has carryElements; K-118 carryMaxDepth also stale; old name: carryElements
+uid	json-property	Assignment, BaselineTask, Calendar, Resource, Task	5	-	missing	MSPDI UID; no row for uid / id
+baseCalendarUid	json-property	Calendar	1	-	mspdi-only	Same as MSPDI Calendar/BaseCalendarUID
+ordinal	json-property	Calendar, Exception, PassthroughElement, WeekDay, WorkingTime	5	-	missing	GRS only: order as it came in the file (5 owners)
+isBaseCalendar	json-property	Calendar	1	-	mspdi-only	Same as MSPDI Calendar/IsBaseCalendar
+weekDays	json-property	Calendar	1	-	mspdi-only	Same as MSPDI Calendar/WeekDays
+exceptions	json-property	Calendar	1	-	mspdi-only	Same as MSPDI Calendar/Exceptions; stage-1 C 例外日 has no row
+dayType	json-property	WeekDay	1	-	mspdi-only	Same as MSPDI WeekDay/DayType
+dayWorking	json-property	Exception, WeekDay	2	-	mspdi-only	Same as MSPDI WeekDay|Exception/DayWorking
+workingTimes	json-property	Exception, WeekDay	2	-	mspdi-only	Same as MSPDI WeekDay|Exception/WorkingTimes
+fromDate	json-property	Exception	1	-	mspdi-only	Same as MSPDI Exception/TimePeriod/FromDate (one level flattened)
+toDate	json-property	Exception	1	-	mspdi-only	Same as MSPDI Exception/TimePeriod/ToDate (one level flattened)
+recurrenceKind	json-property	Exception	1	-	mspdi-only	Same as MSPDI Exception/Type: other name
+recurrencePeriod	json-property	Exception	1	-	mspdi-only	Same as MSPDI Exception/Period: other name
+fromTime	json-property	WorkingTime	1	-	mspdi-only	Same as MSPDI WorkingTime/FromTime
+toTime	json-property	WorkingTime	1	-	mspdi-only	Same as MSPDI WorkingTime/ToTime
+parentTaskUid	json-property	Task	1	P-22	match	MSPDI has no parent key: GRS writes OutlineLevel / OutlineNumber from it
+siblingOrder	json-property	Task, TaskGroup	2	-	missing	Task (was wbsOrder) and TaskGroup (was order); MSPDI says OutlineNumber / ID; old name: order, wbsOrder
+notes	json-property	Task	1	P-2	match	Same as MSPDI Task/Notes; ChangeLogEntry.note is another thing
+start	json-property	BaselineTask, Task	2	P-3	match	Task and BaselineTask; HighlightBox.start became firstDay
+finish	json-property	BaselineTask, Task	2	P-3	match	Task and BaselineTask; HighlightBox.finish became lastDay
+milestone	json-property	BaselineTask, Task	2	N-1	match	Task.milestone has no P-row (stage-1 C'); also a figure enum value
+deadline	json-property	Task	1	P-9	match	
+actualStart	json-property	Task	1	P-4	match	
+stop	json-property	Task	1	P-4	match	ja 実績最終日 (stage-1 F)
+actualFinish	json-property	Task	1	P-4	match	
+resume	json-property	Task	1	P-6	match	
+resumeValid	json-property	Task	1	P-7	match	
+percentComplete	json-property	Task	1	P-8	match	GRS recalculates it
+fadeInCalendarDays	json-property	Task	1	P-21	alias	stale: glossary has fadeInDays; old name: fadeInDays
+fadeOutCalendarDays	json-property	Task	1	P-21	alias	stale: glossary has fadeOutDays; old name: fadeOutDays
+hyperlinkAddress	json-property	CommentBox, Task, TaskGroup	3	-	missing	Same as MSPDI Task/HyperlinkAddress; GRS adds it to TaskGroup and CommentBox
+hyperlink	json-property	CommentBox, Task, TaskGroup	3	-	missing	Same as MSPDI Task/Hyperlink (= link title, not address)
+dependencies	json-property	Task	1	N-12	alias	Same as MSPDI Task/PredecessorLink: other name
+predecessorUid	json-property	Dependency	1	-	mspdi-only	Same as MSPDI PredecessorLink/PredecessorUID
+linkType	json-property	Dependency	1	P-23	match	Same as MSPDI PredecessorLink/Type
+linkLag	json-property	Dependency	1	-	missing	Same as MSPDI PredecessorLink/LinkLag; lag has no row (stage-1 C')
+lagFormat	json-property	Dependency	1	-	mspdi-only	Same as MSPDI PredecessorLink/LagFormat
+resourceKind	json-property	Resource	1	-	mspdi-only	Same as MSPDI Resource/Type: other name
+isCostResource	json-property	Resource	1	-	mspdi-only	Same as MSPDI Resource/IsCostResource
+taskUid	json-property	Assignment, CommentBoxAnchor, TaskGroupMember, TaskOrigin, TaskVisual	5	-	missing	5 owners; Same as MSPDI Assignment/TaskUID only on Assignment; old name: anchorTaskUid
+resourceUid	json-property	Assignment	1	-	mspdi-only	Same as MSPDI Assignment/ResourceUID
+parentId	json-property	TaskGroup	1	-	missing	task group tree; Task uses parentTaskUid
+representedTaskUid	json-property	TaskGroup	1	-	missing	was derivedFromTaskUid; old name: derivedFromTaskUid
+treeState	json-property	TaskGroup	1	N-26	match	
+editGroup	json-property	TaskGroup	1	-	clash	was editPermission; "group" = people allowed to edit, not a task group; old name: editPermission
+color	json-property	TaskGroup	1	P-19	alias	TaskGroup band color; P-19 transparent is stale (absent = not drawn); TaskGroup.color has no row (stage-1 C')
+minHeightPx	json-property	TaskGroup	1	-	missing	
+taskGroupId	json-property	AnchorFallback, CommentBoxAnchor, TaskGroupMember	3	N-2	alias	TaskGroupMember / anchor / fallback; old name: anchorTaskGroupId
+taskShape	json-property	TaskVisual	1	P-10	alias	stale: glossary has shapeKind (5 values incl. milestone); now 4 values; old name: shapeKind
+milestoneShape	json-property	TaskVisual	1	P-16	alias	stale: glossary has milestoneGlyph and lists 8 of the 15 values; description says "Glyph of a milestone"; old name: milestoneGlyph
+fillColor	json-property	CommentBox, HighlightBox, TaskVisual	3	P-18	match	glossary owner is TaskVisual only; also CommentBox and HighlightBox
+strokeColor	json-property	CommentBox, HighlightBox, TaskVisual	3	P-18	match	prose says outline / border / frame / leader line color
+strokeWidthPx	json-property	CommentBox, HighlightBox, TaskVisual	3	P-18	match	prose says outline width / border width
+sourceProjectId	json-property	TaskOrigin	1	-	missing	= MSPDI Project/UID of the source file
+sourceUid	json-property	TaskOrigin	1	-	missing	= MSPDI Task/UID in the source file
+importSessionId	json-property	TaskOrigin	1	-	missing	
+lastSeenImportNumber	json-property	TaskOrigin	1	K-86	alias	was lastSeenImportSequence; glossary importSequence stale; old name: lastSeenImportSequence
+anchor	json-property	CommentBox	1	JDG-3348	alias	ruled name Leader Anchor; JSON key is anchor
+bodyOffsetPx	json-property	CommentBox	1	-	missing	"comment box body" has no row
+dx	json-property	bodyOffsetPx	1	-	missing	
+dy	json-property	bodyOffsetPx	1	-	missing	
+text	json-property	CommentBox	1	-	missing	comment box text
+fillTransparencyPercent	json-property	CommentBox, HighlightBox	2	-	missing	replaces the old transparent color (P-19)
+textColor	json-property	CommentBox	1	-	missing	
+fontSizePx	json-property	CommentBox	1	-	missing	K-85 fontSizeStep is the document-wide step
+dateTime	json-property	CommentBoxAnchor	1	-	missing	where the tip stands on the time axis; same spelling as the def DateTime; old name: anchorDate
+bandFraction	json-property	AnchorFallback, CommentBoxAnchor	2	-	missing	"band" has no row; old name: anchorBandFraction
+figure	json-property	CommentBoxAnchor	1	JDG-3348	clash	ruling says Task Graphic; JSON says figure (values plannedBar|actualBar|milestone); old name: anchorTaskFigure
+point	json-property	CommentBoxAnchor	2	-	missing	8 snap points; "point" is also free point and progress point; old name: anchorSnapPoint
+fallback	json-property	CommentBoxAnchor	2	-	missing	
+highlightBoxId	json-property	CommentBoxAnchor	1	N-6	alias	old name: anchorHighlightBoxId
+topTaskGroupId	json-property	HighlightBox	1	-	missing	
+bottomTaskGroupId	json-property	HighlightBox	1	-	missing	
+cornerRadiusPx	json-property	HighlightBox	1	-	missing	stage-1 C'
+scheduleUpdatedAt	json-property	DocumentStamp	1	-	missing	
+documentUpdatedAt	json-property	DocumentStamp	1	-	missing	was settingsUpdatedAt; old name: settingsUpdatedAt
+fileSavedAt	json-property	DocumentStamp	1	U-59	match	File Saved At
+lastEditedBy	json-property	DocumentStamp	1	-	missing	Writer
+changedAt	json-property	ChangeLogEntry	1	-	missing	
+changedBy	json-property	ChangeLogEntry	1	-	missing	was editedBy; old name: editedBy
+affectedArea	json-property	ChangeLogEntry	1	-	missing	
+changeDescription	json-property	ChangeLogEntry	1	-	missing	was explanation; old name: explanation
+reason	json-property	ChangeLogEntry	1	-	missing	
+note	json-property	ChangeLogEntry	1	-	missing	next to Task.notes (P-2)
+fields	json-property	PassthroughElement	1	N-7	alias	leaves of a carried element
+children	json-property	PassthroughElement	1	N-7	alias	child elements of a carried element
+light	json-property	Color	1	K-59	alias	theme side; K-59 themePreference names light / dark
+dark	json-property	Color	1	K-59	alias	theme side; K-59 calls dark mode a nickname of its dark value
+value	json-property	ColorSide	1	-	missing	
+source	json-property	ColorSide	1	-	clash	chosen / derived; sourceFormat, sourceUid, sourceProjectId use source = imported file
+column	json-property	ColumnFilter, ColumnSort	2	-	missing	stable column name (ColumnKey)
+hiddenValues	json-property	ColumnFilter	1	-	missing	
+isBlankHidden	json-property	ColumnFilter	1	-	missing	
+direction	json-property	ColumnSort	1	-	missing	sort direction; stackDirection is another direction
+Project	json-def	$defs	1	N-8	match	Same as MSPDI Project
+Calendar	json-def	$defs	1	N-9	match	Same as MSPDI Calendar
+WeekDay	json-def	$defs	1	-	mspdi-only	Same as MSPDI WeekDay
+Exception	json-def	$defs	1	-	mspdi-only	Same as MSPDI Exception; stage-1 C 例外日
+WorkingTime	json-def	$defs	1	-	mspdi-only	Same as MSPDI WorkingTime; prose calls it "span"
+Task	json-def	$defs	1	N-1	match	Same as MSPDI Task
+Dependency	json-def	$defs	1	N-12	alias	Same as MSPDI PredecessorLink: other name
+Resource	json-def	$defs	1	N-10	match	Same as MSPDI Resource
+Assignment	json-def	$defs	1	N-11	match	Same as MSPDI Assignment
+TaskGroup	json-def	$defs	1	N-2	match	
+TaskGroupMember	json-def	$defs	1	N-3	match	
+TaskVisual	json-def	$defs	1	N-13	match	
+TaskOrigin	json-def	$defs	1	N-14	match	
+BaselineTask	json-def	$defs	1	-	missing	"earlier plan" in prose
+CommentBox	json-def	$defs	1	N-5	match	
+CommentBoxAnchor	json-def	$defs	1	JDG-3348	alias	ruled name Leader Anchor
+AnchorFallback	json-def	$defs	1	-	missing	
+HighlightBox	json-def	$defs	1	N-6	match	
+DocumentStamp	json-def	$defs	1	-	missing	was documentStamp (lower case); old name: documentStamp
+Writer	json-def	$defs	1	-	missing	new; title says "last writer"
+ChangeLogEntry	json-def	$defs	1	-	missing	was changeLog; old name: changeLog
+PassthroughValues	json-def	$defs	1	N-7	alias	stale: glossary has carry; was Carry; old name: Carry
+PassthroughElement	json-def	$defs	1	N-7	alias	stale: glossary has carryElements; was CarryElement; old name: CarryElement
+Day	json-def	$defs	1	-	missing	new
+DateTime	json-def	$defs	1	-	missing	wall-clock date-time
+Time	json-def	$defs	1	-	missing	
+UtcInstant	json-def	$defs	1	-	missing	new
+UtcOffset	json-def	$defs	1	-	missing	new; 27 offsets
+Color	json-def	$defs	1	-	missing	new union theme|palette|custom; P-19 transparent stale
+ColorSide	json-def	$defs	1	-	missing	new
+BandColor	json-def	$defs	1	-	missing	new; "band" has no row
+ColumnFilter	json-def	$defs	1	-	missing	
+ColumnSort	json-def	$defs	1	-	missing	
+ColumnKey	json-def	$defs	1	-	missing	values not yet listed in the beta shape (rows of T-331/T-347/T-371)
+small	json-enum	documentSettings.fontSizeStep	1	K-105	alias	stale: glossary has fontSizeStepSizes.S
+medium	json-enum	documentSettings.fontSizeStep	1	K-105	alias	stale: glossary has fontSizeStepSizes.M
+large	json-enum	documentSettings.fontSizeStep	1	K-105	alias	stale: glossary has fontSizeStepSizes.L
+notDecided	json-enum	scrollPosition.kind	1	-	missing	
+placed	json-enum	scrollPosition.kind	1	-	missing	
+sameAsScheduleData	json-enum	viewTimeZone.kind	1	-	missing	
+fixed	json-enum	viewTimeZone.kind	1	-	missing	
+standard	json-enum	displayTimeZones.season	1	-	missing	
+daylight	json-enum	displayTimeZones.season	1	-	missing	
+up	json-enum	documentSettings.stackDirection	1	K-73	match	
+down	json-enum	documentSettings.stackDirection	1	K-73	match	
+auto	json-enum	TaskGroup.treeState (values from the current schema), documentSettings.levelZeroTreeState	2	N-26	match	treeState and levelZeroTreeState
+collapsed	json-enum	TaskGroup.treeState (values from the current schema), documentSettings.levelZeroTreeState	2	N-26	match	treeState and levelZeroTreeState
+grs	json-enum	Project.sourceFormat	1	-	missing	
+pj12	json-enum	Project.sourceFormat	1	-	missing	
+pj15	json-enum	Project.sourceFormat	1	-	missing	
+expanded	json-enum	TaskGroup.treeState (values from the current schema)	1	N-26	match	
+temporarilyExpanded	json-enum	TaskGroup.treeState (values from the current schema)	1	N-26	match	
+hidden	json-enum	TaskGroup.treeState (values from the current schema)	1	N-26	match	
+rectangle	json-enum	TaskVisual.taskShape	1	P-11	match	
+chevron	json-enum	TaskVisual.taskShape	1	P-12	match	X-2 矢羽根
+arrow	json-enum	TaskVisual.taskShape	1	P-13	clash	stage-1 #7: arrow is also the dependency arrow head and the child-to-parent arrow
+endpointSpan	json-enum	TaskVisual.taskShape	1	P-14	match	"span" is also the working span and the fit span
+circle	json-enum	TaskVisual.milestoneShape (values from the current schema)	1	IC-27	match	icon row gives the Japanese name only; P-16 lists it
+hexagon	json-enum	TaskVisual.milestoneShape (values from the current schema)	1	IC-28	match	icon row gives the Japanese name only; P-16 lists it
+pentagon	json-enum	TaskVisual.milestoneShape (values from the current schema)	1	IC-29	match	icon row gives the Japanese name only; P-16 lists it
+diamond	json-enum	TaskVisual.milestoneShape (values from the current schema)	1	IC-30	match	icon row gives the Japanese name only; P-16 lists it
+square	json-enum	TaskVisual.milestoneShape (values from the current schema)	1	IC-31	match	icon row gives the Japanese name only; P-16 lists it
+star	json-enum	TaskVisual.milestoneShape (values from the current schema)	1	IC-32	match	icon row gives the Japanese name only; P-16 lists it
+triangleUp	json-enum	TaskVisual.milestoneShape (values from the current schema)	1	IC-33	match	icon row gives the Japanese name only; P-16 lists it
+triangleDown	json-enum	TaskVisual.milestoneShape (values from the current schema)	1	IC-34	match	icon row gives the Japanese name only; P-16 lists it
+file	json-enum	TaskVisual.milestoneShape (values from the current schema)	1	IC-83	alias	icon row only; P-16 (milestoneGlyph) does not list it (stale: 8 of 15)
+box	json-enum	TaskVisual.milestoneShape (values from the current schema)	1	IC-84	alias	icon row only; P-16 (milestoneGlyph) does not list it (stale: 8 of 15)
+floppyDisk	json-enum	TaskVisual.milestoneShape (values from the current schema)	1	IC-85	alias	icon row only; P-16 (milestoneGlyph) does not list it (stale: 8 of 15)
+cylinder	json-enum	TaskVisual.milestoneShape (values from the current schema)	1	IC-86	alias	icon row only; P-16 (milestoneGlyph) does not list it (stale: 8 of 15)
+person	json-enum	TaskVisual.milestoneShape (values from the current schema)	1	IC-87	alias	icon row only; P-16 (milestoneGlyph) does not list it (stale: 8 of 15)
+smile	json-enum	TaskVisual.milestoneShape (values from the current schema)	1	IC-88	alias	icon row only; P-16 (milestoneGlyph) does not list it (stale: 8 of 15)
+beerMug	json-enum	TaskVisual.milestoneShape (values from the current schema)	1	IC-89	alias	icon row only; P-16 (milestoneGlyph) does not list it (stale: 8 of 15)
+freePoint	json-enum	CommentBoxAnchor.kind	1	-	missing	
+task	json-enum	CommentBoxAnchor.kind	1	N-1	match	CommentBoxAnchor.kind
+highlightBox	json-enum	CommentBoxAnchor.kind	1	N-6	match	CommentBoxAnchor.kind
+plannedBar	json-enum	CommentBoxAnchor.figure	1	U-3	alias	glossary Plan Bar (U-3); JSON says planned
+actualBar	json-enum	CommentBoxAnchor.figure	1	U-4	match	
+milestone	json-enum	CommentBoxAnchor.figure	1	P-15	clash	figure value; ruled name Milestone Mark; P-15 milestone as a shapeKind value is stale
+topLeftCorner	json-enum	CommentBoxAnchor.point (values from the current schema)	1	-	missing	one of the 8 snap points
+topMiddle	json-enum	CommentBoxAnchor.point (values from the current schema)	1	-	missing	one of the 8 snap points
+topRightCorner	json-enum	CommentBoxAnchor.point (values from the current schema)	1	-	missing	one of the 8 snap points
+rightMiddle	json-enum	CommentBoxAnchor.point (values from the current schema)	1	-	missing	one of the 8 snap points
+bottomRightCorner	json-enum	CommentBoxAnchor.point (values from the current schema)	1	-	missing	one of the 8 snap points
+bottomMiddle	json-enum	CommentBoxAnchor.point (values from the current schema)	1	-	missing	one of the 8 snap points
+bottomLeftCorner	json-enum	CommentBoxAnchor.point (values from the current schema)	1	-	missing	one of the 8 snap points
+leftMiddle	json-enum	CommentBoxAnchor.point (values from the current schema)	1	-	missing	one of the 8 snap points
+user	json-enum	Writer.kind	1	-	missing	
+template	json-enum	Writer.kind	1	-	missing	shipped start-up template
+agent	json-enum	Writer.kind	1	U-36	alias	Agent API caller
+theme	json-enum	Color.kind	1	K-60	alias	theme color; K-59 / K-60
+palette	json-enum	Color.kind	1	U-26	clash	palette color vs Command Palette (U-26) / Palette Groups (U-34)
+custom	json-enum	Color.kind	1	-	missing	
+paper	json-enum	Color.name	1	-	missing	was white
+ink	json-enum	Color.name	1	-	missing	was black; not offered for BandColor
+dimGray	json-enum	Color.name	1	-	missing	
+lightGray	json-enum	Color.name	1	-	missing	
+red	json-enum	Color.name	1	-	missing	
+blue	json-enum	Color.name	1	-	missing	
+yellow	json-enum	Color.name	1	-	missing	
+green	json-enum	Color.name	1	-	missing	
+orange	json-enum	Color.name	1	-	missing	
+purple	json-enum	Color.name	1	-	missing	
+chosen	json-enum	ColorSide.source	1	-	missing	
+derived	json-enum	ColorSide.source	1	-	missing	
+values	json-enum	ColumnFilter.kind	1	-	missing	ColumnFilter.kind
+dateRange	json-enum	ColumnFilter.kind	1	-	missing	
+ascending	json-enum	ColumnSort.direction	1	IC-123	match	
+descending	json-enum	ColumnSort.direction	1	IC-124	match	
+Address of this schema	json-title	$schema	1	-	missing	schema has no row
+Version of the shape	json-title	schemaVersion	1	-	clash	"shape" = shape of the schema; Shape is ruled for taskShape / milestoneShape (JDG-3348)
+GRS build that wrote the file	json-title	buildVersion	1	-	missing	"build" and "file" have no row
+Schedule data	json-title	schedule	1	-	missing	stage-1 C 日程表
+How the schedule is drawn when opened	json-title	documentSettings	1	-	missing	documentSettings; stage-1 A
+Last change, last save and last writer	json-title	documentStamp	1	U-59	alias	only File Saved At (U-59) has a row
+Notes on changes	json-title	changeLogEntries	1	-	missing	"change log" in prose; note next to Task.notes
+head of the task group panel	json-prose	1 descriptions; root 0	1	K-138	alias	level 0
+lines between task groups	json-prose	1 descriptions; root 0	1	U-18	alias	glossary Group Grid Lines
+earlier plan	json-prose	8 descriptions; root 0	8	-	missing	baselineTasks; stage-1 C 変更前の予定
+Delay Diagnostics Report	json-prose	3 descriptions; root 0	3	U-66	match	
+percent complete label	json-prose	1 descriptions; root 0	1	U-41	match	
+shape of the schema	json-prose	1 descriptions; root 1	2	-	clash	Shape is ruled for task / milestone shapes
+top-level task group	json-prose	3 descriptions; root 0	4	N-2	match	depth 1
+plan bar	json-prose	6 descriptions; root 0	6	U-3	match	"plan and actual bars" counted here
+project summary task	json-prose	1 descriptions; root 0	1	-	missing	MSPDI
+MSPDI file	json-prose	4 descriptions; root 1	5	-	missing	
+edit group	json-prose	1 descriptions; root 0	1	-	clash	editGroup; group is not a task group
+Delay Diagnostics	json-prose	3 descriptions; root 0	3	VK-4	match	VK-4 and the feature name (stage-1 B)
+task group panel	json-prose	6 descriptions; root 0	6	U-22	match	
+task group band	json-prose	3 descriptions; root 0	3	N-2	missing	band has no row
+task name label	json-prose	2 descriptions; root 0	2	U-7	alias	glossary Name Label
+progress marker	json-prose	1 descriptions; root 0	1	U-5	match	
+dependency line	json-prose	1 descriptions; root 0	1	U-16	match	
+schedule filter	json-prose	6 descriptions; root 0	6	U-67	alias	only the bar has a row
+command palette	json-prose	1 descriptions; root 0	1	U-26	match	
+assignee label	json-prose	1 descriptions; root 0	1	U-8	match	
+progress point	json-prose	2 descriptions; root 0	3	-	missing	
+progress state	json-prose	1 descriptions; root 0	1	-	missing	not started / in progress / suspended / finished
+date grid line	json-prose	1 descriptions; root 0	1	U-17	match	
+picture export	json-prose	2 descriptions; root 0	2	K-87	alias	exportCanvas; Export Chooser U-54
+text size step	json-prose	1 descriptions; root 0	1	K-85	match	
+top-level task	json-prose	1 descriptions; root 0	1	-	missing	
+highlight box	json-prose	15 descriptions; root 0	15	N-6	match	
+progress line	json-prose	1 descriptions; root 0	1	U-9	match	X-1 イナズマ線
+column filter	json-prose	6 descriptions; root 0	6	-	missing	
+Resource List	json-prose	4 descriptions; root 0	4	U-49	match	
+Fit to screen	json-prose	3 descriptions; root 0	3	-	clash	same command as "Zoom to Fit" in treeState; no row
+display scale	json-prose	1 descriptions; root 0	1	K-125	match	
+vertical zoom	json-prose	1 descriptions; root 0	1	K-68	alias	stale zoomY
+palette color	json-prose	4 descriptions; root 0	4	-	clash	vs Command Palette (U-26)
+outline width	json-prose	3 descriptions; root 0	3	P-18	alias	strokeWidthPx
+schedule data	json-prose	5 descriptions; root 1	6	-	missing	
+Search Panel	json-prose	3 descriptions; root 0	3	U-64	match	
+panel border	json-prose	1 descriptions; root 0	1	U-24	alias	glossary Panel Divider
+browser zoom	json-prose	1 descriptions; root 0	1	-	missing	outside GRS
+working time	json-prose	2 descriptions; root 0	4	-	missing	
+calendar day	json-prose	2 descriptions; root 0	2	-	missing	fade unit; vs working day
+comment box	json-prose	16 descriptions; root 0	16	N-5	match	
+leader line	json-prose	4 descriptions; root 0	4	JDG-3348	match	ruled Leader Line
+task figure	json-prose	2 descriptions; root 0	2	JDG-3348	clash	ruled Task Graphic
+resume icon	json-prose	1 descriptions; root 0	1	U-6	match	
+status line	json-prose	1 descriptions; root 0	2	U-11	match	X-5 基準日線
+status date	json-prose	1 descriptions; root 0	1	-	missing	Project.statusDate (stage-1 C')
+extra clock	json-prose	2 descriptions; root 0	2	K-145	alias	displayTimeZones
+time of day	json-prose	6 descriptions; root 0	6	K-146	match	
+show column	json-prose	3 descriptions; root 0	3	-	missing	
+checked row	json-prose	6 descriptions; root 0	6	-	missing	
+Zoom to Fit	json-prose	1 descriptions; root 0	1	-	clash	same command as "Fit to screen"; no row
+browser tab	json-prose	1 descriptions; root 0	1	-	missing	outside GRS
+light theme	json-prose	3 descriptions; root 0	3	K-59	alias	
+band height	json-prose	1 descriptions; root 0	1	-	missing	
+parent task	json-prose	4 descriptions; root 0	4	P-22	alias	parentTaskUid
+working day	json-prose	9 descriptions; root 1	11	-	missing	stage-1 C 稼働日
+task group	json-prose	28 descriptions; root 2	43	N-2	match	U-1 Task Groups on screen
+free point	json-prose	4 descriptions; root 0	4	-	missing	
+actual bar	json-prose	3 descriptions; root 0	3	U-4	match	
+time ruler	json-prose	2 descriptions; root 0	2	U-19	match	
+UTC offset	json-prose	3 descriptions; root 0	3	-	missing	
+app header	json-prose	1 descriptions; root 0	1	U-31	match	
+dark theme	json-prose	1 descriptions; root 0	1	K-59	alias	
+assignment	json-prose	6 descriptions; root 1	7	N-11	match	
+change log	json-prose	1 descriptions; root 0	1	-	missing	
+time axis	json-prose	2 descriptions; root 0	2	JDG-3348	match	ruled Time Axis
+time zone	json-prose	7 descriptions; root 0	7	K-144	match	viewTimeZone / displayTimeZones / scheduleDataTimeZone
+CSS pixel	json-prose	11 descriptions; root 0	11	-	missing	
+milestone	json-prose	8 descriptions; root 0	11	N-1	match	Task.milestone, figure value, and Milestone Mark (JDG-3348)
+rectangle	json-prose	2 descriptions; root 0	2	P-11	clash	shape value and the highlight box ("rectangles on the chart")
+left edge	json-prose	3 descriptions; root 0	3	-	missing	
+exception	json-prose	11 descriptions; root 0	16	-	missing	stage-1 C 例外日
+Agent API	json-prose	4 descriptions; root 0	4	U-36	match	
+GRS build	json-prose	1 descriptions; root 1	2	-	missing	
+fit span	json-prose	4 descriptions; root 0	4	K-141	alias	stale fitSpanStart / fitSpanFinish
+fallback	json-prose	2 descriptions; root 0	2	-	missing	
+top edge	json-prose	5 descriptions; root 0	5	-	missing	
+document	json-prose	46 descriptions; root 0	48	-	missing	stage-1 #1: 文書 has no row
+schedule	json-prose	6 descriptions; root 2	8	-	missing	
+calendar	json-prose	15 descriptions; root 2	22	N-9	match	
+resource	json-prose	9 descriptions; root 1	11	N-10	match	
+import	json-prose	9 descriptions; root 0	11	K-86	alias	importSequence stale
+template	json-prose	3 descriptions; root 0	5	-	missing	
+palette	json-prose	2 descriptions; root 0	2	-	clash	vs Command Palette
+outline	json-prose	3 descriptions; root 0	4	P-18	clash	bar stroke AND baseline drawn "as an outline" AND MSPDI OutlineLevel
+chevron	json-prose	2 descriptions; root 0	3	P-12	match	
+weekday	json-prose	6 descriptions; root 0	6	-	missing	
+carried	json-prose	18 descriptions; root 1	19	N-7	alias	stale carry; JSON says passthrough
+element	json-prose	22 descriptions; root 1	24	N-7	alias	
+figure	json-prose	1 descriptions; root 0	1	JDG-3348	clash	ruled Graphic
+border	json-prose	3 descriptions; root 0	3	P-18	alias	strokeColor / strokeWidthPx
+stroke	json-prose	1 descriptions; root 0	1	P-18	match	
+anchor	json-prose	2 descriptions; root 0	2	JDG-3348	alias	ruled Leader Anchor
+target	json-prose	4 descriptions; root 0	4	-	missing	what a snapped tip points at
+column	json-prose	10 descriptions; root 0	19	-	missing	
+screen	json-prose	7 descriptions; root 0	7	-	missing	
+record	json-prose	1 descriptions; root 0	2	N-14	alias	TaskOrigin; also "record instants"
+entry	json-prose	5 descriptions; root 0	5	-	missing	
+person	json-prose	9 descriptions; root 0	9	-	missing	
+AI	json-prose	2 descriptions; root 0	2	-	missing	
+schema	json-prose	1 descriptions; root 3	4	-	missing	
+pinned	json-prose	1 descriptions; root 0	2	U-46	match	
+corner	json-prose	3 descriptions; root 0	4	-	missing	
+id	json-prose	6 descriptions; root 0	6	-	missing	
+theme	json-prose	6 descriptions; root 0	10	K-60	match	K-59 / K-60
+color	json-prose	18 descriptions; root 0	25	P-18	match	
+frame	json-prose	2 descriptions; root 0	3	P-18	alias	strokeColor on HighlightBox
+shape	json-prose	5 descriptions; root 1	6	JDG-3348	match	ruled Shape
+glyph	json-prose	1 descriptions; root 0	1	JDG-3348	clash	milestoneShape says "Glyph of a milestone"; Glyph is ruled for icon pictures only
+notch	json-prose	1 descriptions; root 0	1	K-43	match	
+chart	json-prose	15 descriptions; root 1	16	U-50	missing	nearest U-32 Schedule Canvas / U-50 Task Group Area (structure names)
+table	json-prose	20 descriptions; root 0	29	-	missing	
+copy	json-prose	4 descriptions; root 0	4	-	missing	
+stamp	json-prose	1 descriptions; root 0	1	-	missing	
+depth	json-prose	4 descriptions; root 0	7	K-102	clash	task group depth AND chevron notch depth
+title	json-prose	6 descriptions; root 0	8	U-27	clash	Project.title AND task group title AND link title
+body	json-prose	3 descriptions; root 0	3	-	missing	comment box body
+point	json-prose	8 descriptions; root 0	10	-	clash	snap point AND free point AND point in time
+fill	json-prose	8 descriptions; root 0	14	P-18	match	
+band	json-prose	6 descriptions; root 0	6	-	missing	task group band / pinned band
+view	json-prose	4 descriptions; root 0	4	JDG-3348	match	ruled View
+page	json-prose	1 descriptions; root 0	1	-	missing	
+file	json-prose	20 descriptions; root 4	29	-	missing	
+tree	json-prose	2 descriptions; root 1	4	-	missing	
+span	json-prose	5 descriptions; root 0	7	-	clash	working span AND fit span AND endpointSpan
+task	json-prose	69 descriptions; root 6	105	N-1	match	
+step	json-prose	2 descriptions; root 0	2	K-85	clash	text size step AND task group step (band height plus gap)
+link	json-prose	5 descriptions; root 0	7	-	missing	hyperlink
+zoom	json-prose	5 descriptions; root 0	5	K-67	alias	stale zoomX / zoomY
+tip	json-prose	12 descriptions; root 0	13	-	clash	end of the leader line AND chevron tip depth
+row	json-prose	13 descriptions; root 1	20	-	clash	task group row on the chart AND table row AND (no assignee) row
+WBS	json-prose	5 descriptions; root 1	6	-	clash	GRS: the parent-child tree; MSPDI Task/WBS is a code string
+lag	json-prose	2 descriptions; root 0	6	-	missing	stage-1 C'
+gap	json-prose	1 descriptions; root 0	1	K-12	match	taskGroupGap
+URL	json-prose	2 descriptions; root 0	2	-	missing	
+uid	json-prose	13 descriptions; root 0	16	-	missing	
+Project	mspdi	Project, schedule.project	6	N-8	match	GRS JSON keeps the name in lowerCamel; count = bare word, GRS def of the same name included; xsd line 225
+Calendars	mspdi	schedule.calendars	1	N-9	match	GRS JSON keeps the name in lowerCamel; xsd line 1198
+Tasks	mspdi	schedule.tasks	1	N-1	match	GRS JSON keeps the name in lowerCamel; xsd line 1598
+Resources	mspdi	schedule.resources	1	N-10	match	GRS JSON keeps the name in lowerCamel; xsd line 2486
+Assignments	mspdi	schedule.assignments	1	N-11	match	GRS JSON keeps the name in lowerCamel; xsd line 3185
+Project/UID	mspdi	Project.id	3	-	alias	GRS JSON name differs: Project.id; GRS uid elsewhere = MSPDI UID, so id vs uid clash; also sourceProjectId (TaskOrigin); xsd line 238
+Project/CalendarUID	mspdi	Project.calendarUid	1	-	mspdi-only	GRS JSON keeps the name in lowerCamel; xsd line 414
+Project/Name	mspdi	Project.name	1	-	mspdi-only	GRS JSON keeps the name in lowerCamel; xsd line 248
+Project/Title	mspdi	Project.title	1	U-27	alias	screen name Document Title (U-27, ja 文書名); xsd line 258
+Project/Subject	mspdi	Project.subject	1	-	mspdi-only	GRS JSON keeps the name in lowerCamel; xsd line 268
+Project/Category	mspdi	Project.category	1	-	mspdi-only	GRS JSON keeps the name in lowerCamel; xsd line 278
+Project/Company	mspdi	Project.company	1	-	mspdi-only	GRS JSON keeps the name in lowerCamel; xsd line 288
+Project/Manager	mspdi	Project.manager	1	-	mspdi-only	GRS JSON keeps the name in lowerCamel; xsd line 298
+Project/Author	mspdi	Project.author	1	-	mspdi-only	GRS JSON keeps the name in lowerCamel; xsd line 308
+Project/Revision	mspdi	Project.revision	1	-	mspdi-only	GRS JSON keeps the name in lowerCamel; xsd line 323
+Project/CreationDate	mspdi	Project.creationDate	1	-	mspdi-only	GRS JSON keeps the name in lowerCamel; xsd line 318
+Project/StartDate	mspdi	Project.startDate	1	-	mspdi-only	GRS JSON keeps the name in lowerCamel; xsd line 338
+Project/StatusDate	mspdi	Project.statusDate	1	U-11	missing	U-11 Status Line is drawn from it; the date itself has no row; xsd line 662
+Project/MinutesPerDay	mspdi	Project.minutesPerDay	1	-	mspdi-only	GRS JSON keeps the name in lowerCamel; xsd line 429
+Project/MinutesPerWeek	mspdi	Project.minutesPerWeek	1	-	mspdi-only	GRS JSON keeps the name in lowerCamel; xsd line 434
+Project/DaysPerMonth	mspdi	Project.daysPerMonth	1	-	mspdi-only	GRS JSON keeps the name in lowerCamel; xsd line 439
+Project/WeekStartDay	mspdi	Project.weekStartDay	1	-	mspdi-only	GRS JSON keeps the name in lowerCamel; xsd line 593
+Project/DefaultStartTime	mspdi	Project.defaultStartTime	1	-	mspdi-only	GRS JSON keeps the name in lowerCamel; xsd line 419
+Project/DefaultFinishTime	mspdi	Project.defaultFinishTime	1	-	mspdi-only	GRS JSON keeps the name in lowerCamel; xsd line 424
+Calendar	mspdi	Calendar	2	N-9	match	GRS JSON keeps the name in lowerCamel; count = bare word, GRS def of the same name included; xsd line 1204
+Calendar/UID	mspdi	Calendar.uid	1	-	mspdi-only	GRS JSON keeps the name in lowerCamel; xsd line 1210
+Calendar/BaseCalendarUID	mspdi	Calendar.baseCalendarUid	1	-	mspdi-only	GRS JSON keeps the name in lowerCamel; xsd line 1230
+Calendar/Name	mspdi	Calendar.name	1	-	mspdi-only	GRS JSON keeps the name in lowerCamel; xsd line 1215
+Calendar/IsBaseCalendar	mspdi	Calendar.isBaseCalendar	1	-	mspdi-only	GRS JSON keeps the name in lowerCamel; xsd line 1225
+Calendar/WeekDays	mspdi	Calendar.weekDays	1	-	mspdi-only	GRS JSON keeps the name in lowerCamel; xsd line 1235
+Calendar/Exceptions	mspdi	Calendar.exceptions	1	-	mspdi-only	GRS JSON keeps the name in lowerCamel; xsd line 1325
+WeekDay	mspdi	WeekDay	2	-	mspdi-only	GRS JSON keeps the name in lowerCamel; count = bare word, GRS def of the same name included; xsd line 1241
+WeekDay/DayType	mspdi	WeekDay.dayType	1	-	mspdi-only	GRS JSON keeps the name in lowerCamel; xsd line 1247
+WeekDay/DayWorking	mspdi	WeekDay.dayWorking	1	-	mspdi-only	GRS JSON keeps the name in lowerCamel; xsd line 1264
+WeekDay/WorkingTimes	mspdi	WeekDay.workingTimes	1	-	mspdi-only	GRS JSON keeps the name in lowerCamel; xsd line 1288
+Exception	mspdi	Exception	3	-	mspdi-only	GRS JSON keeps the name in lowerCamel; count = bare word, GRS def of the same name included; xsd line 1331
+Exception/Name	mspdi	Exception.name	1	-	mspdi-only	GRS JSON keeps the name in lowerCamel; xsd line 1366
+Exception/TimePeriod/FromDate	mspdi	Exception.fromDate	1	-	alias	GRS JSON name differs: Exception.fromDate; xsd line 1348
+Exception/TimePeriod/ToDate	mspdi	Exception.toDate	1	-	alias	GRS JSON name differs: Exception.toDate; xsd line 1353
+Exception/DayWorking	mspdi	Exception.dayWorking	1	-	mspdi-only	GRS JSON keeps the name in lowerCamel; xsd line 1463
+Exception/Type	mspdi	Exception.recurrenceKind	1	-	alias	GRS JSON name differs: Exception.recurrenceKind; xsd line 1376
+Exception/Period	mspdi	Exception.recurrencePeriod	1	-	alias	GRS JSON name differs: Exception.recurrencePeriod; xsd line 1394
+Exception/WorkingTimes	mspdi	Exception.workingTimes	1	-	mspdi-only	GRS JSON keeps the name in lowerCamel; xsd line 1468
+WorkingTime	mspdi	WorkingTime	3	-	mspdi-only	GRS JSON keeps the name in lowerCamel; count = bare word, GRS def of the same name included; xsd line 1295
+WorkingTime/FromTime	mspdi	WorkingTime.fromTime	1	-	mspdi-only	GRS JSON keeps the name in lowerCamel; xsd line 1301
+WorkingTime/ToTime	mspdi	WorkingTime.toTime	1	-	mspdi-only	GRS JSON keeps the name in lowerCamel; xsd line 1306
+Task	mspdi	Task	12	N-1	match	GRS JSON keeps the name in lowerCamel; count = bare word, GRS def of the same name included; xsd line 1604
+Task/UID	mspdi	Task.uid	1	-	mspdi-only	GRS JSON keeps the name in lowerCamel; xsd line 1610
+Task/CalendarUID	mspdi	Task.calendarUid	1	-	mspdi-only	GRS JSON keeps the name in lowerCamel; xsd line 2011
+Task/Name	mspdi	Task.name	1	P-1	match	GRS JSON keeps the name in lowerCamel; xsd line 1620
+Task/Notes	mspdi	Task.notes	1	P-2	match	GRS JSON keeps the name in lowerCamel; xsd line 2121
+Task/Start	mspdi	Task.start	1	P-3	match	GRS JSON keeps the name in lowerCamel; xsd line 1692
+Task/Finish	mspdi	Task.finish	1	P-3	match	GRS JSON keeps the name in lowerCamel; xsd line 1697
+Task/Milestone	mspdi	Task.milestone	1	N-1	match	GRS JSON keeps the name in lowerCamel; xsd line 1782
+Task/Deadline	mspdi	Task.deadline	1	P-9	match	GRS JSON keeps the name in lowerCamel; xsd line 2021
+Task/ActualStart	mspdi	Task.actualStart	1	P-4	match	GRS JSON keeps the name in lowerCamel; xsd line 1919
+Task/Stop	mspdi	Task.stop	1	P-4	match	GRS JSON keeps the name in lowerCamel; xsd line 1747
+Task/ActualFinish	mspdi	Task.actualFinish	1	P-4	match	GRS JSON keeps the name in lowerCamel; xsd line 1924
+Task/Resume	mspdi	Task.resume	1	P-6	match	GRS JSON keeps the name in lowerCamel; xsd line 1752
+Task/ResumeValid	mspdi	Task.resumeValid	1	P-7	match	GRS JSON keeps the name in lowerCamel; xsd line 1757
+Task/PercentComplete	mspdi	Task.percentComplete	1	P-8	match	GRS JSON keeps the name in lowerCamel; xsd line 1894
+Task/HyperlinkAddress	mspdi	Task.hyperlinkAddress	1	-	mspdi-only	GRS JSON keeps the name in lowerCamel; xsd line 2096
+Task/Hyperlink	mspdi	Task.hyperlink	1	-	mspdi-only	GRS JSON keeps the name in lowerCamel; xsd line 2086
+Task/PredecessorLink	mspdi	Task.dependencies	1	N-12	alias	GRS JSON name differs: Task.dependencies; xsd line 2162
+PredecessorLink	mspdi	Dependency	1	N-12	alias	GRS JSON name differs: Dependency; xsd line 2162
+PredecessorLink/PredecessorUID	mspdi	Dependency.predecessorUid	1	-	mspdi-only	GRS JSON keeps the name in lowerCamel; xsd line 2168
+PredecessorLink/Type	mspdi	Dependency.linkType	1	P-23	match	GRS JSON keeps the name in lowerCamel; xsd line 2173
+PredecessorLink/LinkLag	mspdi	Dependency.linkLag	1	-	mspdi-only	GRS JSON keeps the name in lowerCamel; xsd line 2196
+PredecessorLink/LagFormat	mspdi	Dependency.lagFormat	1	-	mspdi-only	GRS JSON keeps the name in lowerCamel; xsd line 2201
+Resource	mspdi	Resource	5	N-10	match	GRS JSON keeps the name in lowerCamel; count = bare word, GRS def of the same name included; xsd line 2492
+Resource/UID	mspdi	Resource.uid	1	-	mspdi-only	GRS JSON keeps the name in lowerCamel; xsd line 2498
+Resource/CalendarUID	mspdi	Resource.calendarUid	1	-	mspdi-only	GRS JSON keeps the name in lowerCamel; xsd line 2841
+Resource/Name	mspdi	Resource.name	1	-	mspdi-only	GRS JSON keeps the name in lowerCamel; xsd line 2508
+Resource/Type	mspdi	Resource.resourceKind	1	-	alias	GRS JSON name differs: Resource.resourceKind; xsd line 2518
+Resource/IsCostResource	mspdi	Resource.isCostResource	1	-	mspdi-only	GRS JSON keeps the name in lowerCamel; xsd line 3030
+Assignment	mspdi	Assignment	1	N-11	match	GRS JSON keeps the name in lowerCamel; count = bare word, GRS def of the same name included; xsd line 3191
+Assignment/UID	mspdi	Assignment.uid	1	-	mspdi-only	GRS JSON keeps the name in lowerCamel; xsd line 3197
+Assignment/TaskUID	mspdi	Assignment.taskUid	1	-	mspdi-only	GRS JSON keeps the name in lowerCamel; xsd line 3202
+Assignment/ResourceUID	mspdi	Assignment.resourceUid	1	-	mspdi-only	GRS JSON keeps the name in lowerCamel; xsd line 3207
+ID	mspdi	Task.siblingOrder (GRS makes ID from the tree)	1	-	alias	not a JSON key; GRS writes it from parentTaskUid + siblingOrder; xsd line 1615
+OutlineNumber	mspdi	Task.siblingOrder + Task.parentTaskUid	1	-	alias	two names for one tree position: JSON siblingOrder vs MSPDI OutlineNumber; xsd line 1672
+OutlineLevel	mspdi	Task.parentTaskUid (depth) ; Project.firstOutlineLevel	2	P-22	alias	P-22 says depth is derived; firstOutlineLevel keeps the MSPDI word; xsd line 1682
+Summary	mspdi	derived (task with children)	1	-	mspdi-only	GRS makes it each time it writes MSPDI; xsd line 1787
+Task/ExtendedAttribute	mspdi	Task.fadeInCalendarDays, Task.fadeOutCalendarDays	2	P-21	alias	fade written as ExtendedAttribute; P-21 still fadeInDays; xsd line 2248
+WBS	mspdi	GRS prose: the parent-child tree	8	-	clash	MSPDI Task/WBS is a code string; GRS JSON uses WBS for the tree itself; xsd line 1662
+UID	mspdi	uid (5 defs), sourceUid, *Uid keys	1	-	alias	MSPDI UID becomes uid, but Project/UID becomes id; xsd line 1610

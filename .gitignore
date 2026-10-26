@@ -91,3 +91,6 @@ tmp/
 
 # The restored shogi PoC writes its running game beside its server.
 studies/10-agent-interface/shogi/state.json
+
+# Old versions of the term ruling sheets, kept only on this machine (user 2026-10-27)
+studies/76-grs-json-beta-shape/terms/old/
