@@ -10,7 +10,7 @@ The first cell holds the ASCII branches and the English name, for example
 "+- Schedule Canvas" or "|  +- Time Ruler". "changed" is 1 for a changed row,
 empty or 0 otherwise. The note and changed cells may be left out.
 
-  python .claude/skills/grsmd-qa/scripts/tree_align.py <rows.tsv> [out.txt]
+  python <skill>/scripts/tree_align.py <rows.tsv> [out.txt]
 """
 import io
 import sys

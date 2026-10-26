@@ -3,7 +3,7 @@
 Run before every edit of the sheet. Warns when old/ is not gitignored, since
 the backups are working copies and must not be published.
 
-  python .claude/skills/grsmd-qa/scripts/backup_sheet.py <sheet.md>
+  python <skill>/scripts/backup_sheet.py <sheet.md>
 """
 import datetime
 import os

@@ -15,6 +15,17 @@ The user said this is easier for both sides than chat. Plain VS Code does not
 give the same experience, because GRSMD edits blocks in place and finds the
 change marks with a search.
 
+## Where the skill lives
+
+`<skill>` below is this skill's own folder: the base directory the skill
+loader prints when the skill starts. It is `.claude/skills/grsmd-qa` in a
+repository, or `~/.claude/skills/grsmd-qa` for every project. Run the scripts
+from the project's folder, so `old/` and the git check refer to that project.
+
+Text marked "in gr-scheduler" is that project's own practice. In another
+project, use that project's ruling ledger and asking rules instead, or ask
+the user where rulings are recorded before the first round.
+
 ## What GRSMD can and cannot show
 
 GRSMD is a one-file, in-browser Markdown viewer and editor with no backend.
@@ -77,7 +88,7 @@ When the user says they updated the sheet:
 1. **Read the whole sheet.** Find every new answer, counter-question, note in
    a tree, and edit the user made to the wording.
 2. **Back it up before any edit.** Run
-   `python .claude/skills/grsmd-qa/scripts/backup_sheet.py <sheet.md>`. It copies the
+   `python <skill>/scripts/backup_sheet.py <sheet.md>`. It copies the
    sheet to `old/<stem>_yyyymmdd_hhmm.md` beside the sheet and warns when
    `old/` is not gitignored. Add the folder to `.gitignore` if it warns.
 3. **Record each settled answer at once.** One ruling row per decision, with
@@ -126,7 +137,7 @@ because the user cannot tell what is new.
 - Draw the branches with ASCII `+-` and `|`. Box-drawing characters break the
   alignment in Japanese fonts.
 - Align the columns by display width (East Asian wide characters count as 2):
-  `python .claude/skills/grsmd-qa/scripts/tree_align.py <rows.tsv>` prints an aligned tree
+  `python <skill>/scripts/tree_align.py <rows.tsv>` prints an aligned tree
   from rows of `tree_and_english<TAB>japanese<TAB>note<TAB>changed`.
 - Names the glossary does not have yet are the session's provisional
   translations: say so once in the header lines.
