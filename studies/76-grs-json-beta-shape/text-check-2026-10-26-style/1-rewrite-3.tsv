@@ -1,0 +1,76 @@
+id	new	changed	note
+D153	Same as MSPDI Task/Resume: on a suspended task, the planned restart of the remaining work.	yes	-
+D154	Same as MSPDI Task/ResumeValid. On a task with actualStart and no actualFinish, false means suspended with no resume date, and GRS does not use a date in resume.	yes	-
+D155	Same as MSPDI Task/PercentComplete, except that GRS recalculates the value as actual working time (actualStart to actualFinish, or to stop) over planned working time (start to finish), times 100, rounded, with no cap at 100. With no planned working time, as on a milestone, the value is 100 once actualFinish is present, else 0.	yes	"rounded" kept as an adjective participle
+D156	Calendar days over which GRS fades the start of the Plan Bar, to show that the start is not firm. Rectangle: the start edge slants. Chevron: sets the start notch depth. GRS ignores the value on other shapes. Absent: no fade (a chevron keeps the default depth). 0: a flat start. GRS writes the value to MSPDI as a Task/ExtendedAttribute.	yes	"the bar" -> "the Plan Bar": the fade lies inside start..finish (doc-shape-map why); "notch", "tip" are plain words, not glossary parts
+D157	As fadeInCalendarDays, for the finish (on a chevron, the tip depth). GRS writes the value to MSPDI as a Task/ExtendedAttribute.	yes	-
+D158	Same as MSPDI Task/HyperlinkAddress.	no	-
+D159	Same as MSPDI Task/Hyperlink: the title of the link, not the address.	yes	-
+D160	Same as MSPDI Task/PredecessorLink.	no	-
+D161	Carried MSPDI values of this element, under their MSPDI names.	no	-
+D162	Carried MSPDI elements under this one; GRS writes each element back in the same place.	yes	longer than before (rules 1 and 2 force a subject)
+D163	Same as MSPDI PredecessorLink.	no	-
+D164	Same as MSPDI PredecessorLink/PredecessorUID.	no	-
+D165	Same as MSPDI PredecessorLink/Type.	no	-
+D166	Same as MSPDI PredecessorLink/LinkLag: the lag in tenths of a minute, whatever unit lagFormat names; absent means no lag. One working day of lag is project.minutesPerDay times 10 ({{S-128}} times 10 when project.minutesPerDay is absent).	no	-
+D167	Same as MSPDI PredecessorLink/LagFormat. GRS understands the lag only when the value is 7 (working days), 5 (hours) or 3 (minutes); with any other unit GRS only shows the lag and keeps the lag unchanged. GRS writes the unit that the user typed the lag in.	yes	"was typed" -> actor "the user" (the person typing the lag in GRS); longer than before
+D168	Carried MSPDI values of this element, under their MSPDI names.	no	-
+D169	Carried MSPDI elements under this one; GRS writes each element back in the same place.	yes	longer than before (rules 1 and 2 force a subject)
+D170	Same as MSPDI Resource.	no	-
+D171	Same as MSPDI Resource/UID.	no	-
+D172	Same as MSPDI Resource/CalendarUID, the calendar of this resource alone. GRS keeps the value and writes the value back, but counts working days with project.calendarUid only.	yes	-
+D173	Same as MSPDI Resource/Name.	no	-
+D174	Same as MSPDI Resource/Type.	no	-
+D175	Same as MSPDI Resource/IsCostResource. Absent reads as false.	no	-
+D176	Carried MSPDI values of this element, under their MSPDI names.	no	-
+D177	Carried MSPDI elements under this one; GRS writes each element back in the same place.	yes	longer than before (rules 1 and 2 force a subject)
+D178	Same as MSPDI Assignment.	no	-
+D179	Same as MSPDI Assignment/UID.	no	-
+D180	Same as MSPDI Assignment/TaskUID.	no	-
+D181	Same as MSPDI Assignment/ResourceUID.	no	-
+D182	Carried MSPDI values of this element, under their MSPDI names.	no	-
+D183	Carried MSPDI elements under this one; GRS writes each element back in the same place.	yes	longer than before (rules 1 and 2 force a subject)
+D184	A task group: one row of the Task Group Panel and one row in the Task Group Area. Task groups form their own tree, separate from the WBS (Task.parentTaskUid), and GRS does not write task groups to MSPDI.	yes	-
+D185	The id of the task group.	no	-
+D186	The parent task group. Absent means a top-level task group (depth 1).	no	-
+D187	The task that this task group represents in the WBS. Absent means the task group represents no task. This property does not decide the name of the task group.	yes	-
+D188	The order of this task group among the task groups under the same parent.	no	-
+D189	The task group name. Absent means an unnamed task group; GRS shows an empty title. GRS never copies a task name into this property after the task group exists.	yes	-
+D190	Whether the task group is open, closed or hidden in the Task Group Panel. auto follows documentSettings.taskGroupAutoExpandDepth; temporarilyExpanded stays open until the next Zoom to Fit or vertical zoom out, and then becomes auto.	yes	"Zoom to Fit" kept: the spec names the command so (docs/spec/_source/display-words.json)
+D191	The name of the group that may edit this task group. When present, GRS refuses edits to the tasks in this task group. Absent means anyone may edit.	yes	-
+D192	The color of the row of the task group in the Task Group Area. Absent means GRS draws no color; {"kind":"theme"} draws the theme color.	yes	longer than before (band -> row of the task group in the Task Group Area)
+D193	Lowest height of the row of the task group, in CSS pixels at displayScalePercent 100; absent means no lowest height. verticalZoomRatio does not change this height.	yes	-
+D194	The URL the task group links to. Absent means no link.	no	-
+D195	The title of the task group link. Absent means no title.	no	-
+D196	Which task group GRS draws a task in; every task is in exactly one task group. GRS stacks the tasks of a task group itself, in the direction that documentSettings.stackDirection gives.	yes	-
+D197	The task; each task is in exactly one entry.	no	-
+D198	The task group that GRS draws the task in.	yes	-
+D199	How GRS draws a task: the shape, the colors and the outline width of the task. Every task has exactly one TaskVisual.	yes	-
+D200	The task that GRS draws with this TaskVisual; each task has exactly one TaskVisual.	yes	-
+D201	Shape of a task that is not a milestone. Present exactly when Task.milestone is not true; a milestone holds milestoneShape instead.	no	-
+D202	Glyph of a milestone. Present exactly when Task.milestone is true.	no	-
+D203	The fill color of the Plan Bar. Absent means GRS draws no fill; fill and stroke may not both be absent. A custom color may give only one of light and dark: GRS works out the other when GRS loads the file.	yes	-
+D204	Outline color of the Plan Bar and the Actual Bar. Absent means GRS draws no outline.	yes	-
+D205	Outline width of the Plan Bar and the Actual Bar of the task, in CSS pixels at displayScalePercent 100. GRS writes 1 for a new task.	yes	-
+D206	Where an imported task came from, so that importing the same file again updates the task instead of adding a copy.	no	-
+D207	The imported task in this document.	no	-
+D208	Project/UID of the file that GRS imported this task from. Absent when that file had none.	yes	-
+D209	The UID of the task in the file that GRS imported the task from.	yes	-
+D210	The id of the import that brought the task in; every import makes a new one. This id stands in for sourceProjectId when the file had no Project/UID.	yes	-
+D211	The project.lastImportNumber of the last import that found this task in the imported file.	yes	-
+D212	One task of an earlier plan, which GRS matches to the current task by uid and draws only as an outline over the current task.	yes	"outline" is a plain word (no glossary part for a baseline drawing)
+D213	The uid of the task in the earlier plan; GRS matches the task to the current task with the same uid.	yes	-
+D214	The task name in the earlier plan.	no	-
+D215	The planned start in the earlier plan.	no	-
+D216	The planned finish in the earlier plan.	no	-
+D217	Whether the task was a milestone in the earlier plan, so that GRS draws the task as a milestone.	yes	-
+D218	One comment box. The tip of the comment box stands at a free point (an instant, a task group and a height within the row of the task group in the Task Group Area) or at one of eight points of the task or highlight box that the comment box snapped to.	yes	longer than before (rule 1 and band -> row); "tip" is a plain word, not a glossary part
+D219	The id of the comment box.	no	-
+D220	Where the leader line of the comment box points: a free point in the Task Group Area, or a point of a task or highlight box that the line snaps to. A snapped anchor also keeps a fallback place, which GRS uses when the target of the anchor is deleted.	yes	kept passive "is deleted" (a person, an AI or GRS itself may delete the target); "leader line" not in the glossary T-103 (the spec command texts use it)
+D221	Offset from the anchor point to the lower-left corner of the comment box body, in CSS pixels at displayScalePercent 100. GRS scales the offset with displayScalePercent but not with zoom.	yes	-
+D222	The horizontal part of bodyOffsetPx. A positive value moves the box to the right.	no	-
+D223	The vertical part of bodyOffsetPx. A positive value moves the box down, as in GRS.	yes	-
+D224	The text of the comment box. Absent means an empty body.	no	-
+D225	Fill color of the comment box body; fillTransparencyPercent 100 draws no fill.	no	-
+D226	Transparency of the comment box fill in percent: 0 is opaque, 100 draws no fill.	no	-
+D227	Color of the comment box border and leader line.	no	"leader line" not in the glossary T-103 (the spec command texts use it)

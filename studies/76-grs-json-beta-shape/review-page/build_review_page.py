@@ -117,13 +117,16 @@ def doc_tag(pointer):
         return 'VIEW'
     if ent in GRS_NEW:
         return 'GRS'
+    # CARRY: the carried MSPDI values and elements and their two types (JDG-3347)
     if ent in ('Carry', 'CarryElement'):
-        return 'MSPDI'
+        return 'CARRY'
     if ent not in EXPORT:
         return 'TYPE'
     if not EXPORT[ent]:
         return 'GRS'
-    if col is None or col in ('carry', 'carryElements', 'passthroughValues', 'passthroughElements'):
+    if col in ('carry', 'carryElements', 'passthroughValues', 'passthroughElements'):
+        return 'CARRY'
+    if col is None:
         return 'MSPDI'
     if col.startswith('hyperlink'):
         return 'MSPDI' if ent == 'Task' else 'GRS'

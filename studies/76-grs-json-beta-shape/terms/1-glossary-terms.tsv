@@ -1,0 +1,383 @@
+id	table	en	ja	parent_id	relation	stated_or_inferred	note
+N-1	T-101	Task	タスク	N-4a	kind_of	stated	Item は Task より外延が広い（N-4a）/ 部分としては (文書) の下（推）/ milestone の真偽を持つ
+N-2	T-101	TaskGroup	タスクグループ	(文書)	part_of	inferred	
+N-3	T-101	TaskGroupMember	タスクグループメンバー	N-2	part_of	inferred	名前だけ。Task との結び付きも書かれていない
+N-4a	T-101	Item	アイテム		root	stated	当たり判定と選択の対象の総称（kind の根）/ 全数は T-023c の SL-1
+N-5	T-101	CommentBox / commentBoxes	コメントボックス 1 つ分の型と、文書が持つその配列の鍵	(文書)	part_of	stated	文書が持つ配列の鍵 / UI 名は U-14 / Item の一つ（推）
+N-6	T-101	HighlightBox / highlightBoxes	ハイライトボックス 1 つ分の型と、文書が持つその配列の鍵	(文書)	part_of	stated	文書が持つ配列の鍵 / UI 名は U-15 / Item の一つ（推）
+N-7	T-101	carry / carryElements	取り込んだ交換形式の項目を、解釈せずにそのまま持ち回るための入れ物	(文書)	part_of	inferred	どの型が持つかは書かれていない
+N-8	T-101	Project	プロジェクト	(文書)	represents	stated	文書が表す 1 件
+N-9	T-101	Calendar	暦	(文書)	part_of	inferred	
+N-10	T-101	Resource	担当	(文書)	part_of	inferred	「資源」は別の意味で使われる（SO-8 / SO-9 / CN-6）
+N-11	T-101	Assignment	割当	(文書)	part_of	inferred	Resource と Task を結ぶ（述）
+N-12	T-101	Dependency	依存	(文書)	part_of	inferred	画面の線は U-16（別の語）
+N-13	T-101	TaskVisual	タスクの見せ方	N-1	part_of	inferred	TaskVisual.shapeKind（N-1）
+N-14	T-101	TaskOrigin	取り込み元の記録	N-1	part_of	inferred	誰の記録かは書かれていない
+N-26	T-101	treeState	タスクグループの木の状態	N-2	property_of	stated	タスクグループの木の状態 / 5 値
+P-1	T-102	name	名称	N-1	property_of	inferred	持ち主は書かれていない
+P-2	T-102	notes	備考	N-1	property_of	inferred	持ち主は書かれていない
+P-3	T-102	start / finish	開始日 / 終了日	N-1	property_of	inferred	
+P-4	T-102	actualStart / stop / actualFinish	実績開始日 / 実績最終日 / 実績終了日	N-1	property_of	inferred	stop の訳は 実績最終日（直訳でない）
+P-5	T-102	actualDuration	実績期間	N-1	property_of	inferred	
+P-6	T-102	resume	再開予定日	N-1	property_of	inferred	
+P-7	T-102	resumeValid	再開日確定	N-1	property_of	inferred	
+P-8	T-102	percentComplete	完了率	N-1	property_of	inferred	
+P-9	T-102	deadline	期限	N-1	property_of	stated	Task の deadline（U-63）
+P-10	T-102	shapeKind	タスク形状（5 値	N-13	property_of	stated	TaskVisual.shapeKind（N-1）/ 5 値
+P-11	T-102	'rectangle'	矩形（===）	P-10	value_of	inferred	5 値の 1 つと読める（P-10 は値を並べない）
+P-12	T-102	'chevron'	矢羽根（>===>）	P-10	value_of	inferred	T-105 の X-2
+P-13	T-102	'arrow'	矢印（--->）	P-10	value_of	inferred	
+P-14	T-102	'endpointSpan'	端点スパン（----）	P-10	value_of	inferred	
+P-15	T-102	'milestone'	マイルストーン（◇ ほか）	P-10	value_of	stated	P-10 が 'milestone' を名指す
+P-16	T-102	milestoneGlyph	マイルストーン形状（〇 六角形 五角形 ◇ □ ☆ △ ▽）	P-10	used_when	stated	shapeKind が 'milestone' のときだけ見る
+P-17	T-102	actualPlacement	実績の置き方（'inside' = 内側 / 'below' = 下 / 'atActualDate' = 実績日）	P-10	derived_from	stated	shapeKind から導出 / 値 inside below atActualDate
+P-18	T-102	strokeColor / fillColor / strokeWidthPx	線色 / 塗り色 / 線の太さ	N-13	property_of	inferred	TaskVisual の「色」（N-13）と読める
+P-19	T-102	'transparent'	透明	P-18	value_of	stated	TaskGroup.color の値でもある（TaskGroup.color は T-102 に無い）
+P-21	T-102	fadeInDays / fadeOutDays	フェードイン日数 / フェードアウト日数	N-1	property_of	inferred	
+P-22	T-102	parentTaskUid	親タスク（深さは導出する）	N-1	property_of	inferred	深さは導出
+P-23	T-102	linkType	依存の種別（4 値は表 T-018 が持つ）	N-12	property_of	stated	依存の種別
+U-1	T-103	Task Groups	タスクグループ	U-50	part_of	stated	Task Groups が並ぶ領域（U-50）
+U-2	T-103	Task Bars	タスクバー（総称）	U-1	part_of	inferred	総称（Plan Bar と Actual Bar）
+U-3	T-103	Plan Bar	予定バー	U-2	kind_of	stated	
+U-4	T-103	Actual Bar	実績バー	U-2	kind_of	stated	
+U-5	T-103	Progress Marker	進捗マーカー	U-2	part_of	inferred	
+U-6	T-103	Resume Icon	再開アイコン	U-5	part_of	inferred	K-26 などが再開アイコンを進捗マーカーの比で持つ
+U-7	T-103	Name Label	名称ラベル	U-2	part_of	inferred	ラベルをまとめる語が無い
+U-8	T-103	Assignee Label	担当ラベル	U-2	part_of	inferred	ラベルをまとめる語が無い
+U-9	T-103	Progress Line	イナズマ線	U-50	part_of	inferred	T-105 の X-1
+U-10	T-103	Cursors	カーソル	U-32	part_of	inferred	
+U-11	T-103	Status Line	基準日線	U-50	part_of	inferred	Project.statusDate の位置の縦線 / T-105 の X-5
+U-12	T-103	Dual Cursor	デュアルカーソル	U-10	kind_of	inferred	
+U-13	T-103	Guide Cursor	ガイドカーソル	U-10	kind_of	inferred	
+U-14	T-103	Comment Boxes	コメントボックス	U-15a	kind_of	stated	データは N-5
+U-15	T-103	Highlight Boxes	ハイライトボックス	U-15a	kind_of	stated	データは N-6
+U-15a	T-103	Annotations	注記	U-50	part_of	inferred	コメントボックスとハイライトボックスの上位語
+U-16	T-103	Dependency Lines	依存線	U-50	part_of	inferred	データは N-12
+U-17	T-103	Date Grid Lines	日付罫線	U-50	part_of	inferred	
+U-18	T-103	Group Grid Lines	グループ罫線	U-50	part_of	inferred	
+U-19	T-103	Time Ruler	タイムルーラー	U-32	part_of	stated	U-50 が帯として除く
+U-20	T-103	Watermark	透かし	U-32	part_of	inferred	
+U-21	T-103	Scrollbars	スクロールバー	U-32	part_of	inferred	
+U-22	T-103	Task Group Panel	タスクグループパネル	U-32	part_of	inferred	U-50 の左の縁として出る
+U-23	T-103	Task Group Title Tree	タスクグループ見出しツリー	U-22	part_of	stated	Task Group Panel の中身
+U-24	T-103	Panel Divider	パネル境界	U-32	part_of	inferred	どのパネルの境かは書かれていない
+U-25	T-103	Properties Panel	プロパティパネル	U-32	part_of	inferred	U-50 の右の縁として出る
+U-26	T-103	Command Palette	コマンドパレット	U-32	part_of	inferred	
+U-27	T-103	Document Title	文書名	U-31	part_of	inferred	MSPDI Project/Title
+U-30	T-103	Help Modal	ヘルプ	(ウィンドウ)	kind_of	stated	IC-52 が T-335 のウィンドウとして挙げる / 名は Modal
+U-31	T-103	App Header	ヘッダー	(ウィンドウ)	part_of	inferred	Schedule Canvas は App Header の下の縁から（U-32）
+U-32	T-103	Schedule Canvas	（日本語なし・画面に出ない構造名）	(ウィンドウ)	part_of	stated	App Header の下の縁からウィンドウの下の端まで / 画面に出ない構造名
+U-33	T-103	Canvas Overlays	（日本語なし・画面に出ない構造名）	U-32	part_of	inferred	（同上）だけで説明が無い / 画面に出ない構造名
+U-34	T-103	Palette Groups / Palette Commands	（日本語なし・画面に出ない構造名）	U-26	part_of	inferred	（同上）/ 画面に出ない構造名
+U-35	T-103	Header Commands / Branding	（日本語なし・画面に出ない構造名）	U-31	part_of	stated	Branding は App Header の左端（述）/ Header Commands の親は推
+U-36	T-103	Agent API	Agent API（日英とも同じ語を使い、訳語を当てない）		root	stated	日英とも Agent API / 公開識別子は grSchedulerAgentApi
+U-37	T-103	WatermarkUnlockPassword	透かし解除パスワード	U-60	used_by	inferred	値の名（PascalCase）/ U-60 が問う
+U-38	T-103	ArmedShape	構え	(操作の状態)	kind_of	inferred	パレットで選んでいる状態 / Selection と別 / T-105 の X-3
+U-39	T-103	Selection	選択	(操作の状態)	kind_of	inferred	既にある対象を選ぶこと
+U-40	T-103	Marquee	範囲選択	U-39	kind_of	inferred	矩形で選ぶ操作 / T-105 の X-4
+U-41	T-103	Percent Complete Label	完了率ラベル	U-2	part_of	inferred	ラベルをまとめる語が無い
+U-42	T-103	Pointer	ポインタ	(操作の状態)	kind_of	inferred	マウスが指す点
+U-43	T-103	Grab Region / Grab Point	掴み領域 / 掴み点	(操作の状態)	kind_of	inferred	掴み領域 / 掴み点
+U-45	T-103	GoodRelax Scheduler	本ソフトウェアの名称		root	stated	本ソフトウェアの名称（部分の根として推）
+U-46	T-103	Pinned Task Group	ピン止めしたタスクグループ	U-1	kind_of	inferred	縦にスクロールしても残る
+U-47	T-103	Task Group Expander	タスクグループの折りたたみの操作子	U-23	part_of	inferred	
+U-48	T-103	Task Group Pin	ピン止めの操作子	U-23	part_of	inferred	
+U-49	T-103	Resource List	担当リスト	(ウィンドウ)	kind_of	stated	浮くウィンドウ / 面とは別
+U-50	T-103	Task Group Area	（日本語なし・画面に出ない構造名）	U-32	part_of	stated	Schedule Canvas から Time Ruler と余白を除いた領域 / 画面に出ない構造名
+U-52	T-103	Actual Operation Dummy	実績操作のダミー	U-4	kind_of	inferred	実績と同じ規則で置く / 文書のデータには無い
+U-51	T-103	ScreenState	（日本語なし・画面に出ない構造名）		root	stated	型の名 / 画面に出ない構造名 / K-67 から K-72・K-110・K-111 の群と同じ日本語を避ける
+U-53	T-103	Tooltip	ツールチップ		none	stated	重ねて開く面ではない / 何に添えるかで場所が変わる
+U-54	T-103	Export Chooser	書き出しの形式を選ぶ面	(面)	kind_of	stated	U-56 の対
+U-55	T-103	Confirmation	続けてよいかを問う面	(面)	kind_of	stated	2 択 / Notice ではない
+U-56	T-103	Open Chooser	読んだ内容の扱い方を選ぶ面	(面)	kind_of	stated	U-54 の対 / Confirmation ではない
+U-58	T-103	Opened File Name	開いているファイル名	U-31	part_of	inferred	
+U-59	T-103	File Saved At	ファイル保存時刻	U-31	part_of	stated	App Header のファイルの状態の下段
+U-60	T-103	Watermark Unlock	透かし解除の面	(面)	kind_of	stated	S-99g の面 / 入口は IC-41
+U-61	T-103	Difference Review	差分の確認	(面)	kind_of	stated	開く道（OP-3）から立つ
+U-62	T-103	Import Report	1 回の読込（開く・開き直す・合流させる・重ねる・起動時に渡された文書を読む）の結果を、理由ごとに並べて告げる面	(面)	kind_of	stated	Confirmation でも Notification Area でもない
+U-57	T-103	Notification Area	通知が立つ場所	U-32	part_of	inferred	場所の名 / 面ではない / 値の型は Notice
+U-63	T-103	Deadline Mark	期限の印	U-50	part_of	inferred	日程表の上に示す印（日程表は未定義）
+U-64	T-103	Search Panel	検索パネル	(ウィンドウ)	kind_of	stated	浮く UI パーツ（IC-52 が T-335 のウィンドウとして挙げる）/ 面ではない
+U-65	T-103	Holiday Settings	休日の設定	(面)	kind_of	stated	
+U-66	T-103	Delay Diagnostics Report	遅延診断レポート	(ウィンドウ)	kind_of	stated	浮く窓 / 面に入らない
+U-67	T-103	Schedule Filter Bar	スケジュールフィルタの帯	(ウィンドウ)	part_of	stated	App Header と Schedule Canvas のあいだの帯（U-32）/ 面ではない
+U-68	T-103	Drop Cue	ドロップの案内	U-32	covers	stated	Schedule Canvas を薄く塗って囲む面
+K-1	T-104	pxPerDayAt1x	1 日の幅（zoomX = 1）	U-19	in_group	inferred	群=タイムルーラー / 群の名が U-19 の日本語と一致（推）
+K-2	T-104	rulerHeightPx	目盛の帯の高さ	U-19	in_group	inferred	群=タイムルーラー / 群の名が U-19 の日本語と一致（推）
+K-3	T-104	rulerFontSizePx	目盛の文字	U-19	in_group	inferred	群=タイムルーラー / 群の名が U-19 の日本語と一致（推）
+K-112	T-104	rulerLabelGap	目盛ラベルどうしの隙間（横）	U-19	in_group	inferred	群=タイムルーラー / 群の名が U-19 の日本語と一致（推）
+K-113	T-104	rulerLabelPad	罫線と目盛ラベルの余白（縦）	U-19	in_group	inferred	群=タイムルーラー / 群の名が U-19 の日本語と一致（推）
+K-114	T-104	rulerLabelBottomPad	目盛ラベルの下側の余白（縦）	U-19	in_group	inferred	群=タイムルーラー / 群の名が U-19 の日本語と一致（推）
+K-4	T-104	basePlanHeight	予定の縦幅（zoomY = 1）	群:縦の寸法	in_group	stated	群=縦の寸法
+K-5	T-104	actualOfPlan	実績 ÷ 予定	群:縦の寸法	in_group	stated	群=縦の寸法
+K-6	T-104	actualMin	実績の縦幅の下限	群:縦の寸法	in_group	stated	群=縦の寸法
+K-7	T-104	fontOfActual	フォント ÷ 実績	群:縦の寸法	in_group	stated	群=縦の寸法
+K-8	T-104	fontMin	最小フォント	群:縦の寸法	in_group	stated	群=縦の寸法
+K-9	T-104	thinFontScale	細線のフォント倍率	群:縦の寸法	in_group	stated	群=縦の寸法
+K-10	T-104	actualGap	予定から実績までの間隔（下に置くとき）	群:縦の寸法	in_group	stated	群=縦の寸法
+K-11	T-104	stackGap	積み順の段の間隔	群:縦の寸法	in_group	stated	群=縦の寸法
+K-12	T-104	taskGroupGap	タスクグループの間隔	群:縦の寸法	in_group	stated	群=縦の寸法
+K-13	T-104	shapeHeightOf.rectangle	矩形	群:形状の縦幅	in_group	stated	群=形状の縦幅 / P-10 shapeKind の値ごとの縦幅（推）
+K-14	T-104	shapeHeightOf.chevron	矢羽根	群:形状の縦幅	in_group	stated	群=形状の縦幅 / P-10 shapeKind の値ごとの縦幅（推）
+K-15	T-104	shapeHeightOf.arrow	矢印	群:形状の縦幅	in_group	stated	群=形状の縦幅 / P-10 shapeKind の値ごとの縦幅（推）
+K-16	T-104	shapeHeightOf.endpointSpan	端点スパン	群:形状の縦幅	in_group	stated	群=形状の縦幅 / P-10 shapeKind の値ごとの縦幅（推）
+K-17	T-104	shapeHeightOf.milestone	マイルストーン	群:形状の縦幅	in_group	stated	群=形状の縦幅 / P-10 shapeKind の値ごとの縦幅（推）
+K-18	T-104	dependencyWidth	依存線の太さ	U-16	in_group	inferred	群=依存線 / 群の名が U-16 の日本語と一致（推）
+K-19	T-104	dependencyArrowLength	矢印の三角形の長さ	U-16	in_group	inferred	群=依存線 / 群の名が U-16 の日本語と一致（推）
+K-126	T-104	dependencyLeadOut	出口の走り	U-16	in_group	inferred	群=依存線 / 群の名が U-16 の日本語と一致（推）
+K-127	T-104	dependencyLeadIn	入口の走り	U-16	in_group	inferred	群=依存線 / 群の名が U-16 の日本語と一致（推）
+K-128	T-104	dependencyArrowWidth	矢印の三角形の底辺	U-16	in_group	inferred	群=依存線 / 群の名が U-16 の日本語と一致（推）
+K-22	T-104	markerSize	マーカー径	U-5	in_group	inferred	群=進捗マーカー / 群の名が U-5 の日本語と一致（推）
+K-24	T-104	markerStroke	円の線の太さ	U-5	in_group	inferred	群=進捗マーカー / 群の名が U-5 の日本語と一致（推）
+K-25	T-104	resumeScaleInvalid	再開日未定のときの縮小率	U-5	in_group	inferred	群=進捗マーカー / 群の名が U-5 の日本語と一致（推）
+K-26	T-104	resumeArmOfMarker	再開アイコンの腕の長さ ÷ マーカー	U-5	in_group	inferred	群=進捗マーカー / 群の名が U-5 の日本語と一致（推）
+K-27	T-104	resumeHeadOfMarker	再開アイコンの矢じり ÷ マーカー	U-5	in_group	inferred	群=進捗マーカー / 群の名が U-5 の日本語と一致（推）
+K-28	T-104	resumeDashOn	再開アイコンへ繋ぐ破線の実部	U-5	in_group	inferred	群=進捗マーカー / 群の名が U-5 の日本語と一致（推）
+K-29	T-104	resumeDashOff	再開アイコンへ繋ぐ破線の空部	U-5	in_group	inferred	群=進捗マーカー / 群の名が U-5 の日本語と一致（推）
+K-129	T-104	resumeOpacityInvalid	再開日未定のときの濃さ	U-5	in_group	inferred	群=進捗マーカー / 群の名が U-5 の日本語と一致（推）
+K-130	T-104	resumeDashWidth	再開アイコンへ繋ぐ破線の太さ	U-5	in_group	inferred	群=進捗マーカー / 群の名が U-5 の日本語と一致（推）
+K-30	T-104	labelCoef	幅の概算係数	群:ラベル	in_group	stated	群=ラベル / ラベルをまとめる UI の行は無い（U-7 / U-8 / U-41 は個別）
+K-31	T-104	labelPad	タスク名を開始から離す隙間	群:ラベル	in_group	stated	群=ラベル / ラベルをまとめる UI の行は無い（U-7 / U-8 / U-41 は個別）
+K-32	T-104	labelGap	タスク名をマーカーから離す隙間	群:ラベル	in_group	stated	群=ラベル / ラベルをまとめる UI の行は無い（U-7 / U-8 / U-41 は個別）
+K-131	T-104	milestoneNameMarkerGap	マイルストーン名をマーカーから離す隙間	群:ラベル	in_group	stated	群=ラベル / ラベルをまとめる UI の行は無い（U-7 / U-8 / U-41 は個別）
+K-132	T-104	assigneeLabelGap	担当と進捗の札を開始から離す隙間	群:ラベル	in_group	stated	群=ラベル / ラベルをまとめる UI の行は無い（U-7 / U-8 / U-41 は個別）
+K-147	T-104	progressMarkerEdgeGap	進捗マーカーを棒の端から離す隙間	群:ラベル	in_group	stated	群=ラベル / ラベルをまとめる UI の行は無い（U-7 / U-8 / U-41 は個別）
+K-133	T-104	milestoneNameStartOfWidth	マイルストーン名の書き出し ÷ 菱形の幅	群:ラベル	in_group	stated	群=ラベル / ラベルをまとめる UI の行は無い（U-7 / U-8 / U-41 は個別）
+K-33	T-104	labelBaseline	ベースライン補正	群:ラベル	in_group	stated	群=ラベル / ラベルをまとめる UI の行は無い（U-7 / U-8 / U-41 は個別）
+K-34	T-104	labelHaloOfFont	縁取りの太さ ÷ フォント	群:ラベル	in_group	stated	群=ラベル / ラベルをまとめる UI の行は無い（U-7 / U-8 / U-41 は個別）
+K-35	T-104	truncateUnits	打ち切り幅（半角換算）	群:ラベル	in_group	stated	群=ラベル / ラベルをまとめる UI の行は無い（U-7 / U-8 / U-41 は個別）
+K-36	T-104	taskGroupTitleFont	タスクグループ名の文字	群:ラベル	in_group	stated	群=ラベル / ラベルをまとめる UI の行は無い（U-7 / U-8 / U-41 は個別）
+K-37	T-104	taskGroupTitleIndent	タスクグループ名の TaskGroup の深さ 1 段ぶんのインデント	群:ラベル	in_group	stated	群=ラベル / ラベルをまとめる UI の行は無い（U-7 / U-8 / U-41 は個別）
+K-38	T-104	taskGroupTitleTopScale	TaskGroup 深さ 1 のタスクグループ名の倍率	群:ラベル	in_group	stated	群=ラベル / ラベルをまとめる UI の行は無い（U-7 / U-8 / U-41 は個別）
+K-39	T-104	planStroke	予定の輪郭線	群:形状の細部	in_group	stated	群=形状の細部 / P-10 shapeKind の形の細部（推）
+K-43	T-104	chevronNotchOfHeight	矢羽根の切り欠き ÷ 高さ	群:形状の細部	in_group	stated	群=形状の細部 / P-10 shapeKind の形の細部（推）
+K-44	T-104	chevronNotchOfWidth	矢羽根の切り欠き ÷ 幅	群:形状の細部	in_group	stated	群=形状の細部 / P-10 shapeKind の形の細部（推）
+K-46	T-104	arrowHeadOfSpan	矢印の矢じり ÷ 全長（上限）	群:形状の細部	in_group	stated	群=形状の細部 / P-10 shapeKind の形の細部（推）
+K-134	T-104	thinStrokeWidth	細線の太さ	群:形状の細部	in_group	stated	群=形状の細部 / P-10 shapeKind の形の細部（推）
+K-135	T-104	thinArrowHeadLength	細線の矢じりの横幅	群:形状の細部	in_group	stated	群=形状の細部 / P-10 shapeKind の形の細部（推）
+K-136	T-104	thinArrowHeadHeight	細線の矢じりの縦幅	群:形状の細部	in_group	stated	群=形状の細部 / P-10 shapeKind の形の細部（推）
+K-137	T-104	spanDotSize	端点スパンの点の径	群:形状の細部	in_group	stated	群=形状の細部 / P-10 shapeKind の形の細部（推）
+K-48	T-104	starInnerOfOuter	☆ の内接半径 ÷ 外接半径	群:形状の細部	in_group	stated	群=形状の細部 / P-10 shapeKind の形の細部（推）
+K-49	T-104	minShapeWidth	ゼロ期間でも残す最小幅	群:形状の細部	in_group	stated	群=形状の細部 / P-10 shapeKind の形の細部（推）
+K-50	T-104	progressLineWidth	イナズマ線の太さ	U-9	in_group	inferred	群=イナズマ線 / 群の名が U-9 の日本語と一致（推）
+K-51	T-104	progressLineOverhang	上下へのはみ出し	U-9	in_group	inferred	群=イナズマ線 / 群の名が U-9 の日本語と一致（推）
+K-52	T-104	rulerTierPxPerDayMonth	目盛が「年」から「年 ＋ 月」に変わる px/day	群:LOD	in_group	stated	群=LOD
+K-53	T-104	rulerTierPxPerDayWeek	目盛が「年 ＋ 月」から「年 ＋ 月 ＋ 週」に変わる px/day	群:LOD	in_group	stated	群=LOD
+K-54	T-104	rulerTierPxPerDayDay	目盛が「年 ＋ 月 ＋ 週」から「年 ＋ 月 ＋ 日 ＋ 曜日」に変わる px/day	群:LOD	in_group	stated	群=LOD
+K-56	T-104	groupLevelOfDetailBase	グループ LOD の初項	群:LOD	in_group	stated	群=LOD
+K-57	T-104	groupLevelOfDetailRatio	グループ LOD の公比	群:LOD	in_group	stated	群=LOD
+K-58	T-104	stackSafetyCap	積み順の安全弁	群:LOD	in_group	stated	群=LOD
+K-59	T-104	themePreference	明暗テーマ（ダークモードはこの値の 'dark' を指す通称）	群:テーマ	in_group	stated	群=テーマ / 文書に保存しない(⛔)
+K-60	T-104	themeHue	テーマ色	群:テーマ	in_group	stated	群=テーマ
+K-61	T-104	isThemeMonochrome	モノクロにするか	群:テーマ	in_group	stated	群=テーマ
+K-62	T-104	zoomStep	1 ノッチの倍率	群:ズーム	in_group	stated	群=ズーム / 文書に保存しない(⛔)
+K-63	T-104	zoomMin	下限	群:ズーム	in_group	stated	群=ズーム / 文書に保存しない(⛔)
+K-64	T-104	zoomMax	上限	群:ズーム	in_group	stated	群=ズーム / 文書に保存しない(⛔)
+K-65	T-104	canvasPadding	キャンバスの余白	群:ズーム	in_group	stated	群=ズーム
+K-67	T-104	zoomX	横のズーム倍率	群:画面の状態	in_group	stated	群=画面の状態 / U-51 ScreenState はこの群と同じ日本語を避けている（別物）
+K-68	T-104	zoomY	縦のズーム倍率	群:画面の状態	in_group	stated	群=画面の状態 / U-51 ScreenState はこの群と同じ日本語を避けている（別物）
+K-69	T-104	scrollDate	表示の左端が指す日付	群:画面の状態	in_group	stated	群=画面の状態 / U-51 ScreenState はこの群と同じ日本語を避けている（別物）
+K-70	T-104	scrollTaskGroupId	表示の上端が指すタスクグループ	群:画面の状態	in_group	stated	群=画面の状態 / U-51 ScreenState はこの群と同じ日本語を避けている（別物）
+K-71	T-104	taskGroupPanelWidthPx	タスクグループパネルの幅	群:画面の状態	in_group	stated	群=画面の状態 / U-51 ScreenState はこの群と同じ日本語を避けている（別物）
+K-143	T-104	isTaskGroupPanelWidthFixed	タスクグループパネルの幅を固定する	群:画面の状態	in_group	stated	群=画面の状態 / U-51 ScreenState はこの群と同じ日本語を避けている（別物）
+K-72	T-104	propertyPanelWidth	Properties Panel の幅	群:画面の状態	in_group	stated	群=画面の状態 / 文書に保存しない(⛔) / U-51 ScreenState はこの群と同じ日本語を避けている（別物）
+K-110	T-104	pinnedTaskGroupIds	ピン止めの対象	群:画面の状態	in_group	stated	群=画面の状態 / U-51 ScreenState はこの群と同じ日本語を避けている（別物）
+K-111	T-104	pinnedTaskGroupMax	ピン止めの件数の上限	群:画面の状態	in_group	stated	群=画面の状態 / U-51 ScreenState はこの群と同じ日本語を避けている（別物）
+K-73	T-104	stackDirection	積む向き	群:表示の切り替え	in_group	stated	群=表示の切り替え
+K-122	T-104	isPlanVisible	予定の表示	群:表示の切り替え	in_group	stated	群=表示の切り替え
+K-123	T-104	isActualVisible	実績の表示	群:表示の切り替え	in_group	stated	群=表示の切り替え
+K-75	T-104	isAssigneeVisible	担当ラベル	群:表示の切り替え	in_group	stated	群=表示の切り替え
+K-76	T-104	isPercentCompleteVisible	完了率ラベル	群:表示の切り替え	in_group	stated	群=表示の切り替え
+K-124	T-104	isPlanDatesVisible	名称ラベルに添える予定日	群:表示の切り替え	in_group	stated	群=表示の切り替え
+K-77	T-104	isDependencyVisible	依存線	群:表示の切り替え	in_group	stated	群=表示の切り替え
+K-78	T-104	isProgressMarkerVisible	進捗マーカー	群:表示の切り替え	in_group	stated	群=表示の切り替え
+K-79	T-104	isProgressLineVisible	イナズマ線	群:表示の切り替え	in_group	stated	群=表示の切り替え
+K-80	T-104	dualCursor	デュアルカーソル	群:表示の切り替え	in_group	stated	群=表示の切り替え / 文書に保存しない(⛔)
+K-81	T-104	guideCursorMode	ガイドカーソル	群:表示の切り替え	in_group	stated	群=表示の切り替え / 文書に保存しない(⛔)
+K-82	T-104	isDateGridLinesVisible	日付罫線（日付ごとの縦線）	群:表示の切り替え	in_group	stated	群=表示の切り替え
+K-83	T-104	isGroupGridLinesVisible	グループ罫線（TaskGroup 境界の横線）	群:表示の切り替え	in_group	stated	群=表示の切り替え
+K-84	T-104	isBaselineVisible	変更前の予定を重ねるか	群:表示の切り替え	in_group	stated	群=表示の切り替え
+K-85	T-104	fontSizeStep	文字サイズ	群:表示の切り替え	in_group	stated	群=表示の切り替え
+K-125	T-104	displayScale	表示の倍率	群:表示の切り替え	in_group	stated	群=表示の切り替え
+K-86	T-104	importSequence	取り込みの連番	群:表示の切り替え	in_group	stated	群=表示の切り替え
+K-87	T-104	exportCanvas	SVG / PNG の出力サイズ	群:出力	in_group	stated	群=出力
+K-141	T-104	fitSpanStart / fitSpanFinish	全体表示時の期間（開始日 / 終了日）	群:表示の切り替え	in_group	stated	群=表示の切り替え
+K-142	T-104	isFitSpanFixed	全体表示時の期間を固定する	群:画面の状態	in_group	stated	群=画面の状態 / U-51 ScreenState はこの群と同じ日本語を避けている（別物）
+K-144	T-104	viewTimeZone	本プロジェクトの基準タイムゾーン	群:表示の切り替え	in_group	stated	群=表示の切り替え
+K-145	T-104	displayTimeZones	表示するタイムゾーン	群:表示の切り替え	in_group	stated	群=表示の切り替え
+K-146	T-104	isTimeOfDayVisible	時刻を表示する	群:表示の切り替え	in_group	stated	群=表示の切り替え
+K-91	T-104	planActualGuideWeight	補助線の太さ	群:予実の補助線	in_group	stated	群=予実の補助線
+K-92	T-104	planActualGuidePattern	補助線の破線の刻み	群:予実の補助線	in_group	stated	群=予実の補助線
+K-93	T-104	planActualGuideColor	補助線の色	群:予実の補助線	in_group	stated	群=予実の補助線
+K-94	T-104	fadeHandleHalfPx	フェード掴み点の半辺	群:フェード	in_group	stated	群=フェード / P-21 fadeInDays / fadeOutDays に近い（推）
+K-95	T-104	fadeHandleStrokePx	フェード掴み点の枠線	群:フェード	in_group	stated	群=フェード / P-21 fadeInDays / fadeOutDays に近い（推）
+K-97	T-104	importMaxBytes	取り込むファイルの上限	群:保存と上限	in_group	stated	群=保存と上限
+K-98	T-104	importMaxItems	取り込む Task の件数の上限	群:保存と上限	in_group	stated	群=保存と上限
+K-99	T-104	importMaxDepth	親タスクの入れ子の深さの上限	群:保存と上限	in_group	stated	群=保存と上限
+K-100	T-104	appHeaderMaxHeight	App Header の高さの上限	群:画面の寸法	in_group	stated	群=画面の寸法
+K-101	T-104	watermarkOpacity	透かしの濃さ	U-20	in_group	inferred	群=透かし / 群の名が U-20 の日本語と一致（推）
+K-102	T-104	maxGroupDepth	TaskGroup の深さの上限	群:構造の上限	in_group	stated	群=構造の上限
+K-103	T-104	importMinDate / importMaxDate	受け入れる日付の範囲	群:保存と上限	in_group	stated	群=保存と上限
+K-104	T-104	dependencyLagDefault	依存を作ったときに置くラグ	U-16	in_group	inferred	群=依存線 / 群の名が U-16 の日本語と一致（推）
+K-105	T-104	fontSizeStepSizes.S / fontSizeStepSizes.M / fontSizeStepSizes.L	文字サイズの段（S / M / L）の px	群:文字サイズ	in_group	stated	群=文字サイズ
+K-106	T-104	iconHintDelayMs	アイコンの説明を出すまでの待ち時間	群:画面の寸法	in_group	stated	群=画面の寸法
+K-107	T-104	actualInitialDuration	掴んだときの実績期間	群:予実	in_group	stated	群=予実
+K-108	T-104	milestoneActualDuration	マイルストーンの実績期間	群:予実	in_group	stated	群=予実
+K-109	T-104	dummyOpacity	ダミーの濃さ	群:予実	in_group	stated	群=予実
+K-115	T-104	commentBoxPad	コメントボックスの本文の箱の内側の余白	U-15a	in_group	inferred	群=注記 / 群の名が U-15a の日本語と一致（推）
+K-116	T-104	commentBoxWrapUnits	コメントボックスの本文を折り返す単位数	U-15a	in_group	inferred	群=注記 / 群の名が U-15a の日本語と一致（推）
+K-118	T-104	carryMaxDepth	解釈しない要素の入れ子の深さの上限	群:保存と上限	in_group	stated	群=保存と上限
+K-119	T-104	exportCanvasHeightCap	書き出す絵の高さの上限	群:出力	in_group	stated	群=出力
+K-120	T-104	scrollTaskGroupFraction	表示の上端が指すタスクグループのどこにあるか	群:画面の状態	in_group	stated	群=画面の状態 / U-51 ScreenState はこの群と同じ日本語を避けている（別物）
+K-121	T-104	scrollDateFraction	表示の左端が指す日のどこにあるか	群:画面の状態	in_group	stated	群=画面の状態 / U-51 ScreenState はこの群と同じ日本語を避けている（別物）
+K-138	T-104	levelZeroTreeState	段 0 の木の状態	群:画面の状態	in_group	stated	群=画面の状態 / U-51 ScreenState はこの群と同じ日本語を避けている（別物）
+K-140	T-104	parentTaskProgressToleranceDays	遅延診断時に親タスクの進捗の疑義を許す日数（稼働日）	群:遅延診断	in_group	stated	群=遅延診断 / VK-4 と同じ語（価値のことば）
+K-90	T-104	screenLanguage	画面の言語（ja / en）。 / 置き場と規則は表 T-206 の S-99	群:保存しないもの（別枠）	in_group	stated	群=保存しないもの（別枠） / 文書に保存しない(⛔)
+K-139	T-104	helpLanguage	ヘルプの言語（ja / en）。 / 置き場と規則は表 T-206 の S-434	群:保存しないもの	in_group	stated	群=保存しないもの / 文書に保存しない(⛔)
+VK-1	T-106		ぬるサク		root	stated	意味: 目標 GL-003 が述べる状態を指すことば
+VK-2	T-106		すぐわか		root	stated	意味: 目標 GL-006 が述べる状態を指すことば
+VK-3	T-106		ペライチ		root	stated	意味: 目標 GL-001 / GL-002 が述べる状態を指すことば
+VK-4	T-106		遅延診断		root	stated	意味: 目標 GL-009 が述べる状態を指すことば
+X-1	T-105	Progress Line	イナズマ線	U-9	exception_of	stated	理由: 日本の日程管理で定着した語である
+X-2	T-105	chevron	矢羽根	P-12	exception_of	stated	理由: 図形名としての直訳は「山形」だが、要望の入力が「矢羽根」を使っており、日程表の文脈で意味が通る
+X-3	T-105	ArmedShape	構え	U-38	exception_of	stated	理由: 英語は「構えている形状」というものを指し、日本語は「構えている」という状態を指す
+X-4	T-105	Marquee	範囲選択	U-40	exception_of	stated	理由: Marquee は選ぶための矩形そのものを指し、「範囲選択」は操作を指す
+X-5	T-105	Status Line	基準日線	U-11	exception_of	stated	基準線は 変更前の予定（A-9）の訳語に予約 / 理由: 直訳の「状態線」では意味が取れない
+IC-7	T-109		コマンドパレットを表示する・非表示にする（S-99e）	U-31	on_surface	stated	面=App Header / 群=パレット
+IC-98	T-109		文書を新しく始める（開いている文書を捨て、01-04-requirements.md の 表 T-342 の空の文書にする）	U-31	on_surface	stated	面=App Header / 群=文書
+IC-1	T-109		文書を開く	U-31	on_surface	stated	面=App Header / 群=文書
+IC-2	T-109		書き出す形式を選ぶ	U-31	on_surface	stated	面=App Header / 群=文書
+IC-3	T-109		画像をクリップボードへコピーする	U-31	on_surface	stated	面=App Header / 群=文書
+IC-4	T-109		変更前の予定の重ねを表示する・非表示にする	U-31	on_surface	stated	面=App Header / 群=文書 / 切替=S-69
+IC-8	T-109		予定を表示する・非表示にする（実績とは独立）	U-31	on_surface	stated	面=App Header / 群=表示 / 切替=S-227
+IC-9	T-109		実績を表示する・非表示にする（予定とは独立）	U-31	on_surface	stated	面=App Header / 群=表示 / 切替=S-228
+IC-10	T-109		全体を 1 画面に収める	U-31	on_surface	stated	面=App Header / 群=表示
+IC-104	T-109		表示の倍率を下げる（S-234）	U-31	on_surface	stated	面=App Header / 群=表示
+IC-105	T-109		表示の倍率を上げる（S-234）	U-31	on_surface	stated	面=App Header / 群=表示
+IC-11	T-109		全画面表示に入り、同じ入口で出る（S-99f）	U-31	on_surface	stated	面=App Header / 群=表示
+IC-12	T-109		時間軸を縮小する（S-75）	U-31	on_surface	stated	面=App Header / 群=表示
+IC-13	T-109		時間軸を拡大する（S-75）	U-31	on_surface	stated	面=App Header / 群=表示
+IC-14	T-109		縦軸を縮小する（S-76）	U-31	on_surface	stated	面=App Header / 群=表示
+IC-15	T-109		縦軸を拡大する（S-76）	U-31	on_surface	stated	面=App Header / 群=表示
+IC-100	T-109		モノクロで描く・色に戻す（S-74）	U-31	on_surface	stated	面=App Header / 群=表示
+IC-16	T-109		明暗テーマを選ぶ（S-72）	U-31	on_surface	stated	面=App Header / 群=表示
+IC-5	T-109		編集を取り消す	U-31	on_surface	stated	面=App Header / 群=履歴
+IC-6	T-109		取り消した編集をやり直す	U-31	on_surface	stated	面=App Header / 群=履歴
+IC-117	T-109		検索パネルを出す（S-442）	U-31	on_surface	stated	面=App Header / 群=調べる
+IC-107	T-109		遅延診断を行う・レポートの窓を閉じていれば診断をやり直して開く・開いていれば窓だけを閉じる（押されている見た目は窓が開いていること —— S...	U-31	on_surface	stated	面=App Header / 群=調べる
+IC-115	T-109		日程の画像をデータ化するプロンプトをクリップボードへコピーし、スキーマのファイルをダウンロードに渡す	U-31	on_surface	stated	面=App Header / 群=AI
+IC-20	T-109		Agent API を有効にする・無効にする	U-31	on_surface	stated	面=App Header / 群=AI
+IC-17	T-109		文書の描画設定をプロパティパネルに表示する・プロパティパネルを閉じる（S-99h）	U-31	on_surface	stated	面=App Header / 群=補助
+IC-21	T-109		画面の言語を選ぶ（S-99）	U-31	on_surface	stated	面=App Header / 群=補助
+IC-22	T-109		ヘルプを開く	U-31	on_surface	stated	面=App Header / 群=補助
+IC-23	T-109		矩形を構える（表 T-012 の SH-1）	U-26	on_surface	stated	面=Command Palette / 群=置く / 構え=AR-2
+IC-24	T-109		矢羽根を構える（SH-2）	U-26	on_surface	stated	面=Command Palette / 群=置く / 構え=AR-2
+IC-25	T-109		矢印を構える（SH-3）	U-26	on_surface	stated	面=Command Palette / 群=置く / 構え=AR-2
+IC-26	T-109		端点スパンを構える（SH-4）	U-26	on_surface	stated	面=Command Palette / 群=置く / 構え=AR-2
+IC-27	T-109		マイルストーンを 〇 で構える（表 T-012 の SH-5）	U-26	on_surface	stated	面=Command Palette / 群=置く / 構え=AR-3
+IC-28	T-109		同・六角形	U-26	on_surface	stated	面=Command Palette / 群=置く / 構え=AR-3
+IC-29	T-109		同・五角形	U-26	on_surface	stated	面=Command Palette / 群=置く / 構え=AR-3
+IC-30	T-109		同・◇	U-26	on_surface	stated	面=Command Palette / 群=置く / 構え=AR-3
+IC-31	T-109		同・□	U-26	on_surface	stated	面=Command Palette / 群=置く / 構え=AR-3
+IC-32	T-109		同・☆（内外比は S-48）	U-26	on_surface	stated	面=Command Palette / 群=置く / 構え=AR-3
+IC-33	T-109		同・△	U-26	on_surface	stated	面=Command Palette / 群=置く / 構え=AR-3
+IC-34	T-109		同・▽	U-26	on_surface	stated	面=Command Palette / 群=置く / 構え=AR-3
+IC-83	T-109		同・ファイル	U-26	on_surface	stated	面=Command Palette / 群=置く / 構え=AR-3
+IC-84	T-109		同・ボックス	U-26	on_surface	stated	面=Command Palette / 群=置く / 構え=AR-3
+IC-85	T-109		同・フロッピー	U-26	on_surface	stated	面=Command Palette / 群=置く / 構え=AR-3
+IC-86	T-109		同・円筒	U-26	on_surface	stated	面=Command Palette / 群=置く / 構え=AR-3
+IC-87	T-109		同・会議の人	U-26	on_surface	stated	面=Command Palette / 群=置く / 構え=AR-3
+IC-88	T-109		同・嬉しい顔	U-26	on_surface	stated	面=Command Palette / 群=置く / 構え=AR-3
+IC-89	T-109		同・ビールジョッキ	U-26	on_surface	stated	面=Command Palette / 群=置く / 構え=AR-3
+IC-61	T-109		依存線を構える（表 T-023b の AR-4）	U-26	on_surface	stated	面=Command Palette / 群=揃える / 構え=AR-4
+IC-35	T-109		コメントボックスを構える（表 T-023b の AR-5）	U-26	on_surface	stated	面=Command Palette / 群=揃える / 構え=AR-5
+IC-36	T-109		ハイライトボックスを構える（AR-6）	U-26	on_surface	stated	面=Command Palette / 群=揃える / 構え=AR-6
+IC-37	T-109		選んだものを開始日で揃える	U-26	on_surface	stated	面=Command Palette / 群=揃える
+IC-38	T-109		選んだものを終了日で揃える	U-26	on_surface	stated	面=Command Palette / 群=揃える
+IC-39	T-109		イナズマ線を表示する・非表示にする	U-26	on_surface	stated	面=Command Palette / 群=表示 / 切替=S-64
+IC-40	T-109		進捗マーカーを表示する・非表示にする	U-26	on_surface	stated	面=Command Palette / 群=表示 / 切替=S-63
+IC-41	T-109		透かしの表示を切り替える	U-26	on_surface	stated	面=Command Palette / 群=表示
+IC-42	T-109		日付罫線を表示する・非表示にする	U-26	on_surface	stated	面=Command Palette / 群=表示 / 切替=S-67
+IC-43	T-109		グループ罫線を表示する・非表示にする	U-26	on_surface	stated	面=Command Palette / 群=表示 / 切替=S-68
+IC-79	T-109		担当ラベルを表示する・非表示にする	U-26	on_surface	stated	面=Command Palette / 群=表示 / 切替=S-60
+IC-80	T-109		完了率ラベルを表示する・非表示にする	U-26	on_surface	stated	面=Command Palette / 群=表示 / 切替=S-61
+IC-81	T-109		依存線を表示する・非表示にする	U-26	on_surface	stated	面=Command Palette / 群=表示 / 切替=S-62
+IC-141	T-109		親タスクと子タスクを、子タスクから親タスクへの矢印で表示する・非表示にする（S-484）	U-26	on_surface	stated	面=Command Palette / 群=表示
+IC-142	T-109		親タスクを結ぶ構えに入る（表 T-023b の AR-7）	U-26	on_surface	stated	面=Command Palette / 群=表示 / 構え=AR-7
+IC-99	T-109		文字サイズの段を変える（S-70	U-26	on_surface	stated	面=Command Palette / 群=表示
+IC-101	T-109		積む向きを選ぶ（S-58	U-26	on_surface	stated	面=Command Palette / 群=表示
+IC-103	T-109		名称ラベルに予定日を添える・外す（書き方は FR-002 の 表 T-251）	U-26	on_surface	stated	面=Command Palette / 群=カーソル / 切替=S-232
+IC-44	T-109		基準日を置く・動かす・消す	U-26	on_surface	stated	面=Command Palette / 群=カーソル
+IC-47	T-109		ガイドカーソルを 'crosshair' にする（3 値排他）	U-26	on_surface	stated	面=Command Palette / 群=カーソル / 切替=S-66（'crosshair'）
+IC-48	T-109		同・'single-vertical'	U-26	on_surface	stated	面=Command Palette / 群=カーソル / 切替=S-66（'single-vertical'）
+IC-45	T-109		デュアルカーソルの 2 本を置く（S-65）	U-26	on_surface	stated	面=Command Palette / 群=カーソル
+IC-50	T-109		マイルストーンの図形の一覧を、同じ入口で展開し、折りたたむ（S-142）	U-26	on_surface	stated	面=Command Palette / 群=置く
+IC-52	T-109		開いている面とプロパティパネルとウィンドウ（FR-036 の 表 T-335 —— ヘルプ・検索パネル・遅延診断レポートの窓・担当リストのウ...	U-30	on_surface	stated	面=Help Modal / Resource List / Export Chooser / Open Chooser / Properties Panel / Search Panel / Delay Diagnostics Report / Holiday Settings / 面の行=U-30 / U-49 / U-54 / U-56 / U-25 / U-64 / U-66 / U-65 / 群=—
+IC-53	T-109		掴んで動かせることを示す	U-26	on_surface	stated	面=Command Palette / 群=—
+IC-75	T-109		掴み帯の右端で、パレットを最小化し、同じ入口で戻す（S-200）	U-26	on_surface	stated	面=Command Palette / 群=—
+IC-54	T-109		いま構えている図形を示す	U-26	on_surface	stated	面=Command Palette / 群=構え
+IC-102	T-109		マウスのホイールを示す	U-30	on_surface	stated	面=Help Modal / 群=—
+IC-128	T-109		ヘルプの言語を選ぶ（S-434）	U-30	on_surface	stated	面=Help Modal / 群=—
+IC-58	T-109		タスクグループの配下をすべて展開する	U-22	on_surface	stated	面=Task Group Panel / 群=—
+IC-59	T-109		このタスクグループを隠す	U-22	on_surface	stated	面=Task Group Panel / 群=—
+IC-77	T-109		タスクグループの配下をすべて折りたたむ	U-22	on_surface	stated	面=Task Group Panel / 群=—
+IC-90	T-109		タスクグループの配下を 1 階層だけ展開する	U-22	on_surface	stated	面=Task Group Panel / 群=—
+IC-91	T-109		タスクグループの配下にタスクグループを 1 つ足す	U-22	on_surface	stated	面=Task Group Panel / 群=—
+IC-60	T-109		タスクグループをピン止めし、同じ入口で外す	U-22	on_surface	stated	面=Task Group Panel / 群=—
+IC-82	T-109		タスクグループを削除する	U-22	on_surface	stated	面=Task Group Panel / 群=—
+IC-106	T-109		すべてのタスクグループを削除する（タスクグループパネルの頭、HF-20）	U-22	on_surface	stated	面=Task Group Panel / 群=—
+IC-118	T-109		タスクとマイルストーンの表を出す	U-64	on_surface	stated	面=Search Panel / 群=—
+IC-119	T-109		コメントボックスの表を出す	U-64	on_surface	stated	面=Search Panel / 群=—
+IC-153	T-109		その表のすべての列のフィルタをクリアし、並びを既定の並び（FR-151 の 表 T-330 の SV-8）へ戻す	U-64	on_surface	stated	面=Search Panel / Delay Diagnostics Report / Resource List / 面の行=U-64 / U-66 / U-49 / 群=—
+IC-143	T-109		その表のスケジュールフィルタを掛け、同じ入口で解除する（_assets/tbl-settings.md の 表 T-203 の S-560・...	U-64	on_surface	stated	面=Search Panel / Delay Diagnostics Report / Resource List / 面の行=U-64 / U-66 / U-49 / 群=—
+IC-129	T-109		ウィンドウ（FR-036 の 表 T-335）を最小化し、同じ入口で戻す（S-435・S-442・S-451）	U-30	on_surface	stated	面=Help Modal / Search Panel / Delay Diagnostics Report / Resource List / 面の行=U-30 / U-64 / U-66 / U-49 / 群=—
+IC-130	T-109		ウィンドウを最大化する（S-435・S-442・S-451）	U-30	on_surface	stated	面=Help Modal / Search Panel / Delay Diagnostics Report / Resource List / 面の行=U-30 / U-64 / U-66 / U-49 / 群=—
+IC-131	T-109		最大化したウィンドウを元のサイズに戻す（S-435・S-442・S-451）	U-30	on_surface	stated	面=Help Modal / Search Panel / Delay Diagnostics Report / Resource List / 面の行=U-30 / U-64 / U-66 / U-49 / 群=—
+IC-122	T-109		列のフィルタと並べ替えを開く（列の見出しごとに 1 つ）	U-64	on_surface	stated	面=Search Panel / Delay Diagnostics Report / Resource List / 面の行=U-64 / U-66 / U-49 / 群=—
+IC-123	T-109		その列で昇順に並べる	U-64	on_surface	stated	面=Search Panel / Delay Diagnostics Report / Resource List / Properties Panel / 面の行=U-64 / U-66 / U-49 / U-25 / 群=—
+IC-124	T-109		その列で降順に並べる	U-64	on_surface	stated	面=Search Panel / Delay Diagnostics Report / Resource List / Properties Panel / 面の行=U-64 / U-66 / U-49 / U-25 / 群=—
+IC-125	T-109		一覧に出ているすべての値にチェックを付ける / プロパティパネルでは、担当の欄の一覧に出ている、就いていない担当をすべて就ける（FR-008...	U-64	on_surface	stated	面=Search Panel / Delay Diagnostics Report / Resource List / Properties Panel / 面の行=U-64 / U-66 / U-49 / U-25 / 群=—
+IC-126	T-109		一覧に出ているすべての値のチェックを外す / プロパティパネルでは、担当の欄の一覧に出ている、就いている担当をすべて外す（FR-008 の ...	U-64	on_surface	stated	面=Search Panel / Delay Diagnostics Report / Resource List / Properties Panel / 面の行=U-64 / U-66 / U-49 / U-25 / 群=—
+IC-127	T-109		表・入力欄・タイトルバーの面の名の字の大きさの段（S-429、3 値排他）を変え、3 つの表のウィンドウ（検索パネル・遅延診断レポート・担当...	U-64	on_surface	stated	面=Search Panel / Delay Diagnostics Report / Resource List / 面の行=U-64 / U-66 / U-49 / 群=—
+IC-168	T-109		窓を開いたまま、いまの文書で遅延診断をやり直し、日程表の印と窓の中身を作り直す（FR-130）	U-66	on_surface	stated	面=Delay Diagnostics Report / 群=—
+IC-140	T-109		.md のファイルに書き出す（札は .md）	U-66	on_surface	stated	面=Delay Diagnostics Report / 群=—
+IC-108	T-109		まとめと表を Markdown の文字列にしてクリップボードへ置く（表 T-346 の RW-6）	U-66	on_surface	stated	面=Delay Diagnostics Report / 群=—
+IC-154	T-109		遅延診断レポートの窓に、まとめと 表 T-347 の診断結果の表を出す（FR-155）	U-66	on_surface	stated	面=Delay Diagnostics Report / 群=—
+IC-155	T-109		修正案を、チェック・修正前・修正後を並べた 表 T-374 の表で出す（FR-155）	U-66	on_surface	stated	面=Delay Diagnostics Report / 群=—
+IC-156	T-109		直した行の記録の表（表 T-374）を出す —— 記録が 1 行以上あるときだけ置く	U-66	on_surface	stated	面=Delay Diagnostics Report / 群=—
+IC-157	T-109		いまのファイルへ上書きして保存し、書けたらチェックの入った直しを 1 つの束で発行する	U-66	on_surface	stated	面=Delay Diagnostics Report / 群=—
+IC-158	T-109		修正する前の文書をバックアップとして別名で保存し、書けたら IC-157 と同じく発行する	U-66	on_surface	stated	面=Delay Diagnostics Report / 群=—
+IC-166	T-109		修正案の表の、修正のしかたが機械の行と、択が 1 つの選ぶの行に、まとめてチェックを入れる	U-66	on_surface	stated	面=Delay Diagnostics Report / 群=—
+IC-169	T-109		修正の記録の表を .tsv のファイルに書き出す	U-66	on_surface	stated	面=Delay Diagnostics Report / 群=—
+IC-159	T-109		人が修正する指摘のうち、いまの行の 1 つ前へ移って飛ぶ	U-66	on_surface	stated	面=Delay Diagnostics Report / 群=—
+IC-160	T-109		人が修正する指摘のうち、いまの行の次へ移って飛ぶ	U-66	on_surface	stated	面=Delay Diagnostics Report / 群=—
+IC-62	T-109		担当リストを表示する	U-26	on_surface	stated	面=Command Palette / 群=表示
+IC-132	T-109		休日の設定を開く（稼働する曜日・例外日・週の始まり）	U-26	on_surface	stated	面=Command Palette / 群=表示
+IC-63	T-109		一覧のすべてを選択する	U-49	on_surface	stated	面=Resource List / 群=—
+IC-64	T-109		一覧の選択をすべて解除する	U-49	on_surface	stated	面=Resource List / 群=—
+IC-65	T-109		どの割当からも参照されていない担当を選択する	U-49	on_surface	stated	面=Resource List / 群=—
+IC-66	T-109		選んだ担当を消す	U-49	on_surface	stated	面=Resource List / 群=—
+IC-67	T-109		選ばれていることを示し、同じ入口で選択を解除する	U-49	on_surface	stated	面=Resource List / 群=—
+IC-68	T-109		選ばれていないことを示し、同じ入口で選択する	U-49	on_surface	stated	面=Resource List / 群=—
+IC-133	T-109		その曜日を稼働日にするか休みにするかを、押すたびに切り替える	U-65	on_surface	stated	面=Holiday Settings / 群=—
+IC-134	T-109		週の始まりの曜日を選ぶ	U-65	on_surface	stated	面=Holiday Settings / 群=—
+IC-163	T-109		稼働日の時間帯を 1 本足す（初めの値は 表 T-344 の WC-8）	U-65	on_surface	stated	面=Holiday Settings / 群=—
+IC-164	T-109		その行の時間帯を消す	U-65	on_surface	stated	面=Holiday Settings / 群=—
+IC-165	T-109		時間帯の始まりか終わりの時刻を 1 分の単位で打つ欄	U-65	on_surface	stated	面=Holiday Settings / 群=—
+IC-135	T-109		例外日を 1 行加える	U-65	on_surface	stated	面=Holiday Settings / 群=—
+IC-136	T-109		その行の例外日を除く	U-65	on_surface	stated	面=Holiday Settings / 群=—
+IC-137	T-109		例外日が休みか稼働かを示し、同じ入口で反対にする	U-65	on_surface	stated	面=Holiday Settings / 群=—
+IC-138	T-109		下書きを文書へ当てる（表 T-108 の CM-39 を 1 回）	U-65	on_surface	stated	面=Holiday Settings / 群=—
+IC-71	T-109		読んだ内容で現在の文書を置き換える	U-56	on_surface	stated	面=Open Chooser / 群=—
+IC-72	T-109		読んだ内容を現在の文書へ合流させる	U-56	on_surface	stated	面=Open Chooser / 群=—
+IC-73	T-109		読んだ内容を変更前の予定として重ねる	U-56	on_surface	stated	面=Open Chooser / 群=—
+IC-74	T-109		すべてのタスクグループを展開する	U-22	on_surface	stated	面=Task Group Panel / 群=—
+IC-78	T-109		すべてのタスクグループを折りたたむ	U-22	on_surface	stated	面=Task Group Panel / 群=—
+IC-92	T-109		最も浅い段を 1 階層だけ展開する	U-22	on_surface	stated	面=Task Group Panel / 群=—
+IC-93	T-109		最も浅い段へタスクグループを 1 つ足す	U-22	on_surface	stated	面=Task Group Panel / 群=—
+IC-76	T-109		操作と描画の記録を始め、同じ入口で止める（S-206）	U-26	on_surface	stated	面=Command Palette / 群=表示
+IC-95	T-109		重複しているタスクを、開いたファイルの値で取り込む（表 T-032a の MM-1）	U-61	on_surface	stated	面=Difference Review / 群=—
+IC-96	T-109		重複しているタスクを、別のものとして両方とも残す（表 T-032a の MM-2）	U-61	on_surface	stated	面=Difference Review / 群=—
+IC-97	T-109		取り込みをやめ、取り込み前の状態へ戻す（表 T-032a の MM-4）	U-61	on_surface	stated	面=Difference Review / 群=—
+IC-139	T-109		GRS がこのブラウザに持つ値を消し、ページを読み直す（GRS リセット）	U-25	on_surface	stated	面=Properties Panel / 群=—
+IC-162	T-109		入れた量でタイムシフトを実行する（実行の前に問う）	U-25	on_surface	stated	面=Properties Panel / 群=—

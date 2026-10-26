@@ -1,0 +1,76 @@
+id	new	changed	note
+D078	Same as MSPDI Project.	no	-
+D079	Same as MSPDI Project/UID. Before saving over a file, GRS checks this value, project.name and the file name to tell whether the file holds the same document.	no	-
+D080	Same as MSPDI Project/CalendarUID. GRS counts all working days with this one calendar. If this value is absent or names no calendar, GRS uses the calendar with isBaseCalendar true and the smallest ordinal, else a built-in default.	yes	-
+D081	Same as MSPDI Project/Name. GRS does not show this value (GRS shows title as the Document Title). GRS uses the value only to tell whether a file GRS is about to overwrite is the same document.	yes	"on screen" replaced by Document Title (glossary U-27)
+D082	Same as MSPDI Project/Title. GRS shows the value as the Document Title in the App Header and uses the value as the default name of an exported file. When absent, the browser tab shows Untitled.	yes	"top of the page" -> Document Title in the App Header (U-27, U-31; spec FR-051); about 10 characters longer than the old text; "browser tab" kept (browser, not a GRS part)
+D083	Same as MSPDI Project/Subject.	no	-
+D084	Same as MSPDI Project/Category.	no	-
+D085	Same as MSPDI Project/Company.	no	-
+D086	Same as MSPDI Project/Manager.	no	-
+D087	Same as MSPDI Project/Author. The author is not who wrote the document last (documentStamp.lastEditedBy).	yes	-
+D088	Same as MSPDI Project/Revision. The revision is not one of the documentStamp times.	yes	-
+D089	Same as MSPDI Project/CreationDate. GRS writes the value when GRS makes a new document.	yes	-
+D090	Same as MSPDI Project/StartDate.	no	-
+D091	Same as MSPDI Project/StatusDate. GRS draws the Status Line on this day. Absent means no Status Line, and Delay Diagnostics does not run.	yes	"Delay Diagnostics" kept as the name of the function; the glossary has only Delay Diagnostics Report (U-66)
+D092	The fixed UTC offset of the clock of the schedule date-times, for example UTC+09:00. The offset is standard time, with no daylight saving. GRS does not write the offset to MSPDI.	yes	"are written in" and "is never applied" rewritten without passive; meaning kept (no daylight saving)
+D093	Same as MSPDI Project/MinutesPerDay: the length of one working day (1d) in minutes, {{S-128}} when absent. GRS warns on opening the document if the working times of any working day add up to a total other than this value.	yes	-
+D094	Same as MSPDI Project/MinutesPerWeek.	no	-
+D095	Same as MSPDI Project/DaysPerMonth.	no	-
+D096	Same as MSPDI Project/WeekStartDay, where 0 is Sunday. Absent means Monday (1).	no	-
+D097	Same as MSPDI Project/DefaultStartTime: the time of day GRS gives a start that carries only a day (the start of a Task or a BaselineTask, actualStart, resume, project.startDate); {{S-482}} when absent. A milestone's start gets defaultFinishTime instead.	yes	"is set by the day" -> "carries only a day"
+D098	Same as MSPDI Project/DefaultFinishTime: the time of day GRS gives a finish that carries only a day (the finish of a Task or a BaselineTask, actualFinish, stop, deadline, project.statusDate); {{S-483}} when absent. A milestone's start gets this time as well.	yes	"is set by the day" -> "carries only a day"
+D099	The hue of the theme, in degrees. Every color written as {"kind":"theme"} uses this hue. A new document starts with 214.	yes	-
+D100	How many working days the progress point of a parent task may lie outside the progress points of the work below the parent task, before Delay Diagnostics asks whether an update is missing. A new document starts with 1.	yes	"Delay Diagnostics" kept as the name of the function; the glossary has only Delay Diagnostics Report (U-66)
+D101	One counter for the uids of tasks, resources, assignments and calendars. GRS never reuses a uid, so a new uid is always above this value.	yes	actor GRS taken from the name highestIssuedUid (GRS issues the uids); check that a writer adding rows by hand is also bound
+D102	How many times GRS has imported a file into this document; 0 means never. GRS compares TaskOrigin.lastSeenImportNumber with this number.	yes	-
+D103	The OutlineLevel at which the tasks of an imported file start (not counting the project summary task); export writes from this number. A new document starts with 1.	yes	-
+D104	The format the document came from: grs for a document made in GRS, pj12 or pj15 for an MSPDI file (pj15 when the file has any element that only pj15 has). GRS does not write this value to MSPDI.	yes	-
+D105	Carried MSPDI values of this element, under their MSPDI names.	no	-
+D106	Carried MSPDI elements under this one; GRS writes each back in the same place.	yes	"its place" -> "the same place"; about 8 characters longer
+D107	Same as MSPDI Calendar.	no	-
+D108	Same as MSPDI Calendar/UID.	no	-
+D109	Same as MSPDI Calendar/BaseCalendarUID: the calendar this one inherits from. GRS keeps the value but does not inherit: GRS counts only the days this calendar itself lists.	yes	-
+D110	The order of the calendar as in the file; GRS writes the calendars back in that order.	yes	-
+D111	Same as MSPDI Calendar/Name.	no	-
+D112	Same as MSPDI Calendar/IsBaseCalendar. Absent reads as false.	no	-
+D113	Same as MSPDI Calendar/WeekDays.	no	-
+D114	Same as MSPDI Calendar/Exceptions.	no	-
+D115	Carried MSPDI values of this element, under their MSPDI names.	no	-
+D116	Carried MSPDI elements under this one; GRS writes each back in the same place.	yes	"its place" -> "the same place"; about 8 characters longer
+D117	Same as MSPDI WeekDay.	no	-
+D118	The order of this weekday within the calendar, as in the file.	yes	-
+D119	Same as MSPDI WeekDay/DayType, where 1 is Sunday, except that the value is never 0: Exception holds the exception days.	yes	"0 is not used" -> "the value is never 0"
+D120	Same as MSPDI WeekDay/DayWorking. Absent reads as not working.	no	-
+D121	Same as MSPDI WeekDay/WorkingTimes. Absent on a working day means the default spans {{S-580}}.	no	-
+D122	Carried MSPDI values of this element, under their MSPDI names.	no	-
+D123	Carried MSPDI elements under this one; GRS writes each back in the same place.	yes	"its place" -> "the same place"; about 8 characters longer
+D124	Same as MSPDI Exception.	no	-
+D125	The order of this exception within the calendar, as in the file.	yes	-
+D126	Same as MSPDI Exception/Name.	no	-
+D127	Same as MSPDI Exception/TimePeriod/FromDate: the first day of the exception. GRS reads only the date and writes T00:00:00.	no	-
+D128	Same as MSPDI Exception/TimePeriod/ToDate: the last day of the exception, included. GRS reads only the date and writes T23:59:00.	no	-
+D129	Same as MSPDI Exception/DayWorking. Absent reads as not working.	no	-
+D130	Same as MSPDI Exception/Type. GRS counts only a one-off exception: recurrenceKind is 9 or absent, or is 1 and recurrencePeriod is absent or 1; GRS keeps the others unchanged without counting them. Write 1 for an exception you add.	yes	-
+D131	Same as MSPDI Exception/Period.	no	-
+D132	Same as MSPDI Exception/WorkingTimes. Absent on a working day means the default spans {{S-580}}.	no	-
+D133	Carried MSPDI values of this element, under their MSPDI names.	no	-
+D134	Carried MSPDI elements under this one; GRS writes each back in the same place.	yes	"its place" -> "the same place"; about 8 characters longer
+D135	Same as MSPDI WorkingTime. GRS refuses spans of one day that overlap or do not start before they end; spans that only touch, such as one ending at 12:00 and one starting at 12:00, are fine.	no	-
+D136	The order of this span within the day; GRS writes the spans in the order of their start.	yes	-
+D137	Same as MSPDI WorkingTime/FromTime.	no	-
+D138	Same as MSPDI WorkingTime/ToTime. 00:00:00 means 24:00, the end of the day.	no	-
+D139	Same as MSPDI Task. GRS reads the progress state with these checks, first match wins: no actualStart, not started; actualFinish set, finished; resumeValid false, suspended with no resume date; resume set, suspended with a resume date; otherwise in progress.	no	-
+D140	Same as MSPDI Task/UID.	no	-
+D141	The parent task in the WBS. Absent means a top-level task.	no	-
+D142	Same as MSPDI Task/CalendarUID, the calendar of this task alone. GRS keeps the value and writes the value back, but counts working days with project.calendarUid only.	yes	-
+D143	The order of this task among the tasks under the same parent task.	no	-
+D144	Same as MSPDI Task/Name.	no	-
+D145	Same as MSPDI Task/Notes.	no	-
+D146	Same as MSPDI Task/Start. GRS does not open a file in which a task has no start.	no	-
+D147	Same as MSPDI Task/Finish. GRS does not open a file in which a task has no finish.	no	-
+D148	Same as MSPDI Task/Milestone. Absent reads as false. When true, TaskVisual holds milestoneShape; otherwise TaskVisual holds taskShape.	yes	-
+D149	Same as MSPDI Task/Deadline.	no	-
+D150	Same as MSPDI Task/ActualStart. Absent means the task is not started.	no	-
+D151	Same as MSPDI Task/Stop: the end of the actual work so far on a task that is in progress or suspended. On a finished task actualFinish holds that end; GRS empties stop when GRS finishes a task.	yes	-
+D152	Same as MSPDI Task/ActualFinish. Present only on a finished task; a percentComplete of 100 does not mean finished.	no	-

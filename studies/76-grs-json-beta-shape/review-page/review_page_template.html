@@ -114,6 +114,16 @@ button:focus-visible, textarea:focus-visible, input:focus-visible { outline: 2px
 .tag-GRS { color: var(--g-grs); background: var(--g-grs-soft); border-color: var(--g-grs); }
 .tag-VIEW { color: var(--g-view); background: var(--g-view-soft); border-color: var(--g-view); }
 .tag-STAMP { color: var(--g-stamp); background: var(--g-stamp-soft); border-color: var(--g-stamp); }
+.tag-CARRY { color: var(--g-mspdi); background: var(--sheet); border-color: var(--g-mspdi); border-style: dashed; }
+.checks { display: flex; flex-wrap: wrap; gap: 4px 14px; }
+.checkgroup { border: 0; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 2px 10px; align-items: center; min-width: 0; }
+.checkgroup legend { float: left; font-size: 14px; font-weight: 700; color: var(--muted); margin-right: 4px; padding: 0; }
+.check { font-size: 14px; display: inline-flex; align-items: center; gap: 3px; cursor: pointer; }
+.check input, .hideold input { accent-color: var(--accent); }
+.secfold { flex-basis: 100%; font-size: 14px; }
+.secfold summary { cursor: pointer; color: var(--accent); font-weight: 700; width: max-content; }
+.secfold[open] .checkgroup { max-height: 30vh; overflow-y: auto; }
+.hideold { font-size: 14px; font-weight: 700; display: inline-flex; align-items: center; gap: 4px; cursor: pointer; }
 .tag-TYPE, .tag-API, .tag-SPEC, .tag-BOX, .tag-ROOT { color: var(--g-type); background: var(--g-type-soft); border-color: var(--g-type); }
 .tagchips { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
 .tagchips .label { font-size: 14px; color: var(--muted); }
@@ -184,13 +194,8 @@ svg.focus .erd-edge.on { opacity: 1; stroke: var(--accent); stroke-width: 2; }
   <div class="wrap">
     <div class="tabs" role="tablist" id="tabs"></div>
     <div class="tools">
-      <div class="filters" id="filters">
-        <button class="filter" type="button" id="f-all" data-f="all" aria-pressed="true">すべて</button>
-        <button class="filter" type="button" id="f-todo" data-f="todo" aria-pressed="false">まだ OK でない</button>
-        <button class="filter" type="button" id="f-comment" data-f="comment" aria-pressed="false">コメントあり</button>
-        <button class="filter" type="button" id="f-changed" data-f="changed" aria-pressed="false">変わった行</button>
-      </div>
-      <div class="tagchips" id="tagchips" role="group" aria-label="分類で絞る"></div>
+      <div class="checks" id="checks"></div>
+      <label class="hideold" id="hideold-box"><input type="checkbox" id="hideold"> 現状を隠す</label>
       <input class="search" id="search" type="search" placeholder="行を絞る（名・JDG・語）" aria-label="行を絞る">
       <span class="progress" id="progress"></span>
     </div>
@@ -202,12 +207,33 @@ svg.focus .erd-edge.on { opacity: 1; stroke: var(--accent); stroke-width: 2; }
 
 <script>
 const TABLES = /*__DATA__*/[];
-const state = { scroll: {}, tab: TABLES[0].key, filter: 'all', query: '', tag: '', reviews: new Map(), db: null, writing: new Map() };
+// The view (JDG-3347): an empty set in a check group means "all". Remembered per viewer only.
+const state = { scroll: {}, tab: TABLES[0].key, query: '', status: new Set(), tags: new Set(), secs: {}, hideOld: false,
+  reviews: new Map(), db: null, writing: new Map() };
+const VIEW_KEY = 'cr851-review-view';
+function loadView() {
+  try {
+    const v = JSON.parse(localStorage.getItem(VIEW_KEY) || 'null');
+    if (!v) return;
+    state.hideOld = !!v.hideOld;
+    state.status = new Set(v.status || []);
+    state.tags = new Set(v.tags || []);
+    Object.keys(v.secs || {}).forEach(k => { state.secs[k] = new Set(v.secs[k]); });
+  } catch (e) { /* storage may be blocked: start with everything shown */ }
+}
+function saveView() {
+  try {
+    const secs = {};
+    Object.keys(state.secs).forEach(k => { secs[k] = [...state.secs[k]]; });
+    localStorage.setItem(VIEW_KEY, JSON.stringify({ hideOld: state.hideOld, status: [...state.status], tags: [...state.tags], secs }));
+  } catch (e) { /* not remembered; the page still works */ }
+}
+function secsOf(key) { if (!state.secs[key]) state.secs[key] = new Set(); return state.secs[key]; }
 const API = /*__API__*/{};
 const VIEWS = TABLES.concat([{ key: 'erd', name: '全体図（ERD）', erd: true, rows: [] },
   { key: 'api', name: '全体図（Agent API）', erd: true, api: true, rows: [] }]);
-const TAG_NAME = { MSPDI: 'MSPDI 由来', GRS: 'GRS 独自', VIEW: '画面設定', STAMP: '刻印・履歴', TYPE: '共通の型', BOX: '日程データの入れ物', API: 'Agent API', SPEC: '仕様の文', ROOT: 'スキーマの頭', 'CR-851': 'CR-851', 'CR-848': 'CR-848', 'CR-849': 'CR-849' };
-const TAG_ORDER = ['ROOT', 'MSPDI', 'GRS', 'BOX', 'VIEW', 'STAMP', 'TYPE', 'API', 'CR-851', 'CR-848', 'CR-849', 'SPEC'];
+const TAG_NAME = { MSPDI: 'MSPDI 由来', CARRY: 'Carry', GRS: 'GRS 独自', VIEW: '画面設定', STAMP: '刻印・履歴', TYPE: '共通の型', BOX: '日程データの入れ物', API: 'Agent API', SPEC: '仕様の文', ROOT: 'スキーマの頭', 'CR-851': 'CR-851', 'CR-848': 'CR-848', 'CR-849': 'CR-849' };
+const TAG_ORDER = ['ROOT', 'MSPDI', 'CARRY', 'GRS', 'BOX', 'VIEW', 'STAMP', 'TYPE', 'API', 'CR-851', 'CR-848', 'CR-849', 'SPEC'];
 const byId = new Map();
 TABLES.forEach(t => t.rows.forEach(r => { r.table = t.key; byId.set(r.id, r); }));
 
@@ -248,8 +274,8 @@ function renderProgress() {
   const t = VIEWS.find(x => x.key === state.tab);
   const p = document.getElementById('progress');
   const isErd = !!t.erd;
-  document.getElementById('filters').hidden = isErd;
-  renderTagChips(t, isErd);
+  document.getElementById('hideold-box').hidden = isErd;
+  renderChecks(t, isErd);
   if (isErd) document.getElementById('toc').hidden = true;
   document.getElementById('search').hidden = isErd;
   if (isErd) { p.textContent = ''; return; }
@@ -262,33 +288,67 @@ function renderProgress() {
   p.append(m);
 }
 
-// Category buttons (JDG-3325): only the categories this tab has, with their row counts.
-function renderTagChips(t, isErd) {
-  const box = document.getElementById('tagchips');
-  box.textContent = '';
-  const count = new Map();
-  if (!isErd) t.rows.forEach(r => count.set(r.tag, (count.get(r.tag) || 0) + 1));
-  if (state.tag && !count.has(state.tag)) state.tag = '';
-  box.hidden = count.size < 2;
-  if (box.hidden) return;
-  box.append(el('span', { class: 'label' }, '分類:'));
-  const add = (tag, text) => {
-    const b = el('button', { class: 'tagchip', type: 'button', 'aria-pressed': String(state.tag === tag) }, text);
-    b.addEventListener('click', () => { state.tag = tag; renderAll(); });
-    box.append(b);
+// Check groups (JDG-3347): state, category and section. Inside a group a row passes if any
+// checked item fits it; across groups it must pass every group. "すべて" clears the group.
+const STATUS_ITEMS = [['ok', 'OK 済み'], ['todo', 'まだ OK でない'], ['comment', 'コメントあり'], ['changed', '変わった行']];
+function statusFits(key, s) {
+  return key === 'ok' ? s.ok : key === 'todo' ? !s.ok : key === 'comment' ? !!s.comment.trim() : s.changed;
+}
+function checkGroup(title, items, set, total) {
+  const g = el('fieldset', { class: 'checkgroup' });
+  g.append(el('legend', null, title));
+  const add = (key, text, on, toggle) => {
+    const lab = el('label', { class: 'check' });
+    const box = el('input', { type: 'checkbox' });
+    box.checked = on;
+    box.addEventListener('change', toggle);
+    lab.append(box, ' ' + text);
+    g.append(lab);
   };
-  add('', 'すべて ' + t.rows.length);
-  TAG_ORDER.concat([...count.keys()].filter(k => !TAG_ORDER.includes(k))).forEach(tag => {
-    if (count.has(tag)) add(tag, (TAG_NAME[tag] || tag) + ' ' + count.get(tag));
-  });
+  add('', 'すべて' + (total === undefined ? '' : ' ' + total), set.size === 0, () => { set.clear(); saveView(); renderAll(); });
+  items.forEach(([key, text]) => add(key, text, set.has(key), () => {
+    if (set.has(key)) set.delete(key); else set.add(key);
+    if (set.size === items.length) set.clear();
+    saveView(); renderAll();
+  }));
+  return g;
+}
+function renderChecks(t, isErd) {
+  const box = document.getElementById('checks');
+  box.textContent = '';
+  box.hidden = isErd;
+  if (isErd) return;
+  const counts = { ok: 0, todo: 0, comment: 0, changed: 0 };
+  t.rows.forEach(r => { const s = statusOf(r); STATUS_ITEMS.forEach(([k]) => { if (statusFits(k, s)) counts[k]++; }); });
+  box.append(checkGroup('状態', STATUS_ITEMS.map(([k, n]) => [k, n + ' ' + counts[k]]), state.status, t.rows.length));
+  const tagCount = new Map();
+  t.rows.forEach(r => tagCount.set(r.tag, (tagCount.get(r.tag) || 0) + 1));
+  [...state.tags].forEach(k => { if (!tagCount.has(k)) state.tags.delete(k); });
+  if (tagCount.size > 1) {
+    const order = TAG_ORDER.concat([...tagCount.keys()].filter(k => !TAG_ORDER.includes(k))).filter(k => tagCount.has(k));
+    box.append(checkGroup('分類', order.map(k => [k, (TAG_NAME[k] || k) + ' ' + tagCount.get(k)]), state.tags, t.rows.length));
+  }
+  const secCount = new Map();
+  t.rows.forEach(r => { if (r.section) secCount.set(r.section, (secCount.get(r.section) || 0) + 1); });
+  const secs = secsOf(t.key);
+  [...secs].forEach(k => { if (!secCount.has(k)) secs.delete(k); });
+  if (secCount.size > 1) {
+    // Many sections: folded by default so the bar stays short; it stays open once opened.
+    const d = el('details', { class: 'secfold' });
+    d.open = !!state.secOpen;
+    d.addEventListener('toggle', () => { state.secOpen = d.open; });
+    d.append(el('summary', null, '段で絞る（' + (secs.size ? secs.size + ' 段を選択' : 'すべて') + '）'));
+    d.append(checkGroup('段', [...secCount.keys()].map(k => [k, k + ' ' + secCount.get(k)]), secs, t.rows.length));
+    box.append(d);
+  }
 }
 
 function matches(row) {
   const s = statusOf(row);
-  if (state.filter === 'todo' && s.ok) return false;
-  if (state.filter === 'comment' && !s.comment.trim()) return false;
-  if (state.filter === 'changed' && !s.changed) return false;
-  if (state.tag && row.tag !== state.tag) return false;
+  if (state.status.size && ![...state.status].some(k => statusFits(k, s))) return false;
+  if (state.tags.size && !state.tags.has(row.tag)) return false;
+  const secs = secsOf(row.table);
+  if (secs.size && !secs.has(row.section)) return false;
   if (state.query) {
     const q = state.query.toLowerCase();
     const hay = (row.label + ' ' + row.old + ' ' + row.new + ' ' + row.why + ' ' + row.extra + ' ' + row.chip).toLowerCase();
@@ -351,8 +411,10 @@ function card(row) {
   head.append(st);
   c.append(head);
   const stack = el('div', { class: 'stack' });
-  stack.append(block('old', '現状', row.old, false));
-  stack.append(block('old example', '現状の例', row.exOld || '-', true, row.exNew));
+  if (!state.hideOld) {
+    stack.append(block('old', '現状', row.old, false));
+    stack.append(block('old example', '現状の例', row.exOld || '-', true, row.exNew));
+  }
   stack.append(block('new', '提案', row.new, false));
   stack.append(block('new example', '提案の例', row.exNew || '-', true, row.exOld));
   c.append(stack);
@@ -586,8 +648,9 @@ function renderErd(list) {
 const KIND_NAME = { added: '足す', retired: '廃止', 'edit-fold': 'まとめる', 'named-kept': 'そのまま', 'named-renamed': '改名' };
 function jumpTo(tabKey, rowId) {
   state.scroll[state.tab] = window.scrollY;
-  state.tab = tabKey; state.filter = 'all'; state.query = ''; state.tag = '';
-  document.querySelectorAll('.filter').forEach(x => x.setAttribute('aria-pressed', String(x.dataset.f === 'all')));
+  // Show every row of the target tab, so the row jumped to is on the list.
+  state.tab = tabKey; state.query = ''; state.status.clear(); state.tags.clear(); secsOf(tabKey).clear();
+  saveView();
   document.getElementById('search').value = '';
   renderAll();
   // setTimeout, not requestAnimationFrame: a hidden pane never paints.
@@ -691,12 +754,10 @@ async function save(row, patch, savedEl) {
   await chain;
 }
 
-document.getElementById('filters').addEventListener('click', e => {
-  const b = e.target.closest('.filter'); if (!b) return;
-  state.filter = b.dataset.f;
-  document.querySelectorAll('.filter').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
-  renderAll();
-});
+loadView();
+const hideOld = document.getElementById('hideold');
+hideOld.checked = state.hideOld;
+hideOld.addEventListener('change', () => { state.hideOld = hideOld.checked; saveView(); renderList(); });
 let qTimer = 0;
 document.getElementById('search').addEventListener('input', e => { clearTimeout(qTimer); qTimer = setTimeout(() => { state.query = e.target.value.trim(); renderAll(); }, 200); });
 

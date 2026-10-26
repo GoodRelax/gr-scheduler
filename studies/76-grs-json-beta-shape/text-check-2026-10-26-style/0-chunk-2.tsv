@@ -1,0 +1,76 @@
+id	element	type	text
+D078	/$defs/Project	object	Same as MSPDI Project.
+D079	/$defs/Project/properties/id	str<=16, optional	Same as MSPDI Project/UID. Before saving over a file, GRS checks this value, project.name and the file name to tell whether the file holds the same document.
+D080	/$defs/Project/properties/calendarUid	int 0..2147483647, optional	Same as MSPDI Project/CalendarUID. GRS counts all working days with this one calendar. If it is absent or names no calendar, GRS uses the calendar with isBaseCalendar true and the smallest ordinal, else a built-in default.
+D081	/$defs/Project/properties/name	str<=255, optional	Same as MSPDI Project/Name. GRS does not show it (the name shown on screen is title). It is used only to tell whether a file about to be overwritten is the same document.
+D082	/$defs/Project/properties/title	str<=512, optional	Same as MSPDI Project/Title. GRS shows it at the top of the page and uses it as the default name of an exported file. When absent, the browser tab shows Untitled.
+D083	/$defs/Project/properties/subject	str<=512, optional	Same as MSPDI Project/Subject.
+D084	/$defs/Project/properties/category	str<=512, optional	Same as MSPDI Project/Category.
+D085	/$defs/Project/properties/company	str<=512, optional	Same as MSPDI Project/Company.
+D086	/$defs/Project/properties/manager	str<=512, optional	Same as MSPDI Project/Manager.
+D087	/$defs/Project/properties/author	str<=512, optional	Same as MSPDI Project/Author. It is not who wrote the document last (documentStamp.lastEditedBy).
+D088	/$defs/Project/properties/revision	int, optional	Same as MSPDI Project/Revision. It is not one of the documentStamp times.
+D089	/$defs/Project/properties/creationDate	DateTime "YYYY-MM-DDTHH:MM:SS", optional	Same as MSPDI Project/CreationDate. GRS writes it when it makes a new document.
+D090	/$defs/Project/properties/startDate	DateTime "YYYY-MM-DDTHH:MM:SS", optional	Same as MSPDI Project/StartDate.
+D091	/$defs/Project/properties/statusDate	DateTime "YYYY-MM-DDTHH:MM:SS", optional	Same as MSPDI Project/StatusDate. GRS draws the status line on its day. Absent means no status line, and Delay Diagnostics does not run.
+D092	/$defs/Project/properties/scheduleDataTimeZone	$ref UtcOffset (same 27 values, required)	The fixed UTC offset of the clock that the schedule date-times are written in, for example UTC+09:00. It is standard time: daylight saving is never applied. GRS does not write it to MSPDI.
+D093	/$defs/Project/properties/minutesPerDay	int, optional	Same as MSPDI Project/MinutesPerDay: the length of one working day (1d) in minutes, {{S-128}} when absent. GRS warns when the document is opened if the working times of any working day add up to a total other than this value.
+D094	/$defs/Project/properties/minutesPerWeek	int, optional	Same as MSPDI Project/MinutesPerWeek.
+D095	/$defs/Project/properties/daysPerMonth	int, optional	Same as MSPDI Project/DaysPerMonth.
+D096	/$defs/Project/properties/weekStartDay	int 0..6, optional	Same as MSPDI Project/WeekStartDay, where 0 is Sunday. Absent means Monday (1).
+D097	/$defs/Project/properties/defaultStartTime	Time "HH:MM:SS", optional	Same as MSPDI Project/DefaultStartTime: the time of day GRS gives a start that is set by the day (the start of a Task or a BaselineTask, actualStart, resume, project.startDate); {{S-482}} when absent. A milestone's start gets defaultFinishTime instead.
+D098	/$defs/Project/properties/defaultFinishTime	Time "HH:MM:SS", optional	Same as MSPDI Project/DefaultFinishTime: the time of day GRS gives a finish that is set by the day (the finish of a Task or a BaselineTask, actualFinish, stop, deadline, project.statusDate); {{S-483}} when absent. A milestone's start gets this time as well.
+D099	/$defs/Project/properties/themeHueDegrees	int 0..359 (required)	The hue of the theme, in degrees. Every color written as {"kind":"theme"} uses it. A new document starts with 214.
+D100	/$defs/Project/properties/parentTaskProgressToleranceWorkingDays	int >=0 (required)	How many working days the progress point of a parent task may lie outside the progress points of the work below it, before Delay Diagnostics asks whether an update is missing. A new document starts with 1.
+D101	/$defs/Project/properties/highestIssuedUid	int 0..2147483647 (required)	One counter for the uids of tasks, resources, assignments and calendars. Uids are never reused, so a new uid is always above this value.
+D102	/$defs/Project/properties/lastImportNumber	int >=0 (required; 0 = never imported)	How many times a file has been imported into this document; 0 means never. TaskOrigin.lastSeenImportNumber is compared with it.
+D103	/$defs/Project/properties/firstOutlineLevel	int (required)	The OutlineLevel at which the tasks of an imported file start (the project summary task is not counted); export writes from this number. A new document starts with 1.
+D104	/$defs/Project/properties/sourceFormat	enum grs|pj12|pj15 (required)	The format the document came from: grs for a document made in GRS, pj12 or pj15 for an MSPDI file (pj15 when it has any element that only pj15 has). It is not written to MSPDI.
+D105	/$defs/Project/properties/passthroughValues	PassthroughValues (map str->str<=65535, >=1 entry), optional; when the property is absent: nothing kept	Carried MSPDI values of this element, under their MSPDI names.
+D106	/$defs/Project/properties/passthroughElements	PassthroughElement[], optional, minItems 1	Carried MSPDI elements under this one, each written back in its place.
+D107	/$defs/Calendar	object	Same as MSPDI Calendar.
+D108	/$defs/Calendar/properties/uid	int 0..2147483647 (required)	Same as MSPDI Calendar/UID.
+D109	/$defs/Calendar/properties/baseCalendarUid	int 0..2147483647, optional	Same as MSPDI Calendar/BaseCalendarUID: the calendar this one inherits from. GRS keeps the value but does not inherit: it counts only the days this calendar itself lists.
+D110	/$defs/Calendar/properties/ordinal	int (required)	The order of the calendar as it came in the file, used to write the calendars back in that order.
+D111	/$defs/Calendar/properties/name	str<=512, optional	Same as MSPDI Calendar/Name.
+D112	/$defs/Calendar/properties/isBaseCalendar	bool, optional	Same as MSPDI Calendar/IsBaseCalendar. Absent reads as false.
+D113	/$defs/Calendar/properties/weekDays	WeekDay[], optional, minItems 1	Same as MSPDI Calendar/WeekDays.
+D114	/$defs/Calendar/properties/exceptions	Exception[], optional, minItems 1	Same as MSPDI Calendar/Exceptions.
+D115	/$defs/Calendar/properties/passthroughValues	PassthroughValues (map str->str<=65535, >=1 entry), optional; when the property is absent: nothing kept	Carried MSPDI values of this element, under their MSPDI names.
+D116	/$defs/Calendar/properties/passthroughElements	PassthroughElement[], optional, minItems 1	Carried MSPDI elements under this one, each written back in its place.
+D117	/$defs/WeekDay	object	Same as MSPDI WeekDay.
+D118	/$defs/WeekDay/properties/ordinal	int (required)	The order of this weekday within its calendar, as it came in the file.
+D119	/$defs/WeekDay/properties/dayType	int 1..7, required	Same as MSPDI WeekDay/DayType, where 1 is Sunday, except that 0 is not used: exception days are held in Exception.
+D120	/$defs/WeekDay/properties/dayWorking	bool, optional	Same as MSPDI WeekDay/DayWorking. Absent reads as not working.
+D121	/$defs/WeekDay/properties/workingTimes	WorkingTime[] 1..5, optional, minItems 1	Same as MSPDI WeekDay/WorkingTimes. Absent on a working day means the default spans {{S-580}}.
+D122	/$defs/WeekDay/properties/passthroughValues	PassthroughValues (map str->str<=65535, >=1 entry), optional; when the property is absent: nothing kept	Carried MSPDI values of this element, under their MSPDI names.
+D123	/$defs/WeekDay/properties/passthroughElements	PassthroughElement[], optional, minItems 1	Carried MSPDI elements under this one, each written back in its place.
+D124	/$defs/Exception	object	Same as MSPDI Exception.
+D125	/$defs/Exception/properties/ordinal	int (required)	The order of this exception within its calendar, as it came in the file.
+D126	/$defs/Exception/properties/name	str<=512, optional	Same as MSPDI Exception/Name.
+D127	/$defs/Exception/properties/fromDate	DateTime "YYYY-MM-DDTHH:MM:SS", optional	Same as MSPDI Exception/TimePeriod/FromDate: the first day of the exception. GRS reads only the date and writes T00:00:00.
+D128	/$defs/Exception/properties/toDate	DateTime "YYYY-MM-DDTHH:MM:SS", optional	Same as MSPDI Exception/TimePeriod/ToDate: the last day of the exception, included. GRS reads only the date and writes T23:59:00.
+D129	/$defs/Exception/properties/dayWorking	bool, optional	Same as MSPDI Exception/DayWorking. Absent reads as not working.
+D130	/$defs/Exception/properties/recurrenceKind	int 1..9, optional	Same as MSPDI Exception/Type. GRS counts only a one-off exception: recurrenceKind is 9 or absent, or is 1 and recurrencePeriod is absent or 1; it keeps the others unchanged without counting them. Write 1 for an exception you add.
+D131	/$defs/Exception/properties/recurrencePeriod	int >=1, optional; when the property is absent: the file had no Period	Same as MSPDI Exception/Period.
+D132	/$defs/Exception/properties/workingTimes	WorkingTime[] 1..5, optional, minItems 1	Same as MSPDI Exception/WorkingTimes. Absent on a working day means the default spans {{S-580}}.
+D133	/$defs/Exception/properties/passthroughValues	PassthroughValues (map str->str<=65535, >=1 entry), optional; when the property is absent: nothing kept	Carried MSPDI values of this element, under their MSPDI names.
+D134	/$defs/Exception/properties/passthroughElements	PassthroughElement[], optional, minItems 1	Carried MSPDI elements under this one, each written back in its place.
+D135	/$defs/WorkingTime	object	Same as MSPDI WorkingTime. GRS refuses spans of one day that overlap or do not start before they end; spans that only touch, such as one ending at 12:00 and one starting at 12:00, are fine.
+D136	/$defs/WorkingTime/properties/ordinal	int (required)	The order of this span within its day; GRS writes the spans in the order of their start.
+D137	/$defs/WorkingTime/properties/fromTime	Time "HH:MM:SS", optional	Same as MSPDI WorkingTime/FromTime.
+D138	/$defs/WorkingTime/properties/toTime	Time "HH:MM:SS", optional	Same as MSPDI WorkingTime/ToTime. 00:00:00 means 24:00, the end of the day.
+D139	/$defs/Task	object	Same as MSPDI Task. GRS reads the progress state with these checks, first match wins: no actualStart, not started; actualFinish set, finished; resumeValid false, suspended with no resume date; resume set, suspended with a resume date; otherwise in progress.
+D140	/$defs/Task/properties/uid	int 0..2147483647 (required)	Same as MSPDI Task/UID.
+D141	/$defs/Task/properties/parentTaskUid	int 0..2147483647, optional; when the property is absent: top of the WBS	The parent task in the WBS. Absent means a top-level task.
+D142	/$defs/Task/properties/calendarUid	int 0..2147483647, optional	Same as MSPDI Task/CalendarUID, the calendar of this task alone. GRS keeps the value and writes it back, but counts working days with project.calendarUid only.
+D143	/$defs/Task/properties/siblingOrder	int, required	The order of this task among the tasks under the same parent task.
+D144	/$defs/Task/properties/name	str 1..512, optional	Same as MSPDI Task/Name.
+D145	/$defs/Task/properties/notes	str 1..65535, optional	Same as MSPDI Task/Notes.
+D146	/$defs/Task/properties/start	DateTime "YYYY-MM-DDTHH:MM:SS", optional	Same as MSPDI Task/Start. GRS does not open a file in which a task has no start.
+D147	/$defs/Task/properties/finish	DateTime "YYYY-MM-DDTHH:MM:SS", optional	Same as MSPDI Task/Finish. GRS does not open a file in which a task has no finish.
+D148	/$defs/Task/properties/milestone	bool, optional	Same as MSPDI Task/Milestone. Absent reads as false. When true, TaskVisual holds milestoneShape; otherwise it holds taskShape.
+D149	/$defs/Task/properties/deadline	DateTime "YYYY-MM-DDTHH:MM:SS", optional	Same as MSPDI Task/Deadline.
+D150	/$defs/Task/properties/actualStart	DateTime "YYYY-MM-DDTHH:MM:SS", optional	Same as MSPDI Task/ActualStart. Absent means the task is not started.
+D151	/$defs/Task/properties/stop	DateTime "YYYY-MM-DDTHH:MM:SS", optional	Same as MSPDI Task/Stop: the end of the actual work so far on a task that is in progress or suspended. On a finished task actualFinish holds that end; GRS empties stop when it finishes a task.
+D152	/$defs/Task/properties/actualFinish	DateTime "YYYY-MM-DDTHH:MM:SS", optional	Same as MSPDI Task/ActualFinish. Present only on a finished task; a percentComplete of 100 does not mean finished.
