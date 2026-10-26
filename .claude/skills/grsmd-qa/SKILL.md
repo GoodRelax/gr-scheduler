@@ -11,9 +11,10 @@ tell the session. The session reads the file, records the rulings, rewrites
 the sheet so it converges, and marks only what changed. Each round the sheet
 gets shorter, and the decisions table gets longer.
 
-The user said this is easier for both sides than chat. Plain VS Code does not
-give the same experience, because GRSMD edits blocks in place and finds the
-change marks with a search.
+For many related rulings this is easier for both sides than chat: the user
+answers everything in one place, pushes back next to the question, and sees
+only what changed. A plain editor does not give the same experience, because
+GRSMD edits blocks in place and finds the change marks with a search.
 
 ## Where the skill lives
 
@@ -22,9 +23,10 @@ loader prints when the skill starts. It is `.claude/skills/grsmd-qa` in a
 repository, or `~/.claude/skills/grsmd-qa` for every project. Run the scripts
 from the project's folder, so `old/` and the git check refer to that project.
 
-Text marked "in gr-scheduler" is that project's own practice. In another
-project, use that project's ruling ledger and asking rules instead, or ask
-the user where rulings are recorded before the first round.
+The skill does not own a ruling ledger. Use the project's own ledger (a
+decision log, an ADR folder, a rulings table) and the project's rules for
+asking. If the project has none, ask the user where to record rulings before
+the first round.
 
 ## What GRSMD can and cannot show
 
@@ -38,7 +40,8 @@ GRSMD is a one-file, in-browser Markdown viewer and editor with no backend.
 | Search (key `f`, regex; finds the change mark) and Index (key `i`) | Inline styles and coloured text (DOMPurify strips them) |
 
 - `$...$` is math. Write `\$` for a literal dollar sign.
-- Never use coloured text, even if a renderer would keep it. Red text hurt the user's eyes.
+- Never use coloured text, even if a renderer would keep it: mark changes with
+  the emoji only. Bright red text over a whole sheet is hard on the eyes.
 - Mermaid labels may carry the change mark.
 
 ## Sheet layout
@@ -72,12 +75,11 @@ that; otherwise start a new file with the next number.
 ```
 
 Write the headings, the answer field and the decisions table in the user's
-language (in gr-scheduler: `## 決まったこと`, `## 問 N.`, `### 問 N-2.`,
+language (for Japanese: `## 決まったこと`, `## 問 N.`, `### 問 N-2.`,
 `回答:`, `## 自由欄`).
 
-Every question follows the project's rules for asking (in gr-scheduler,
-JDG-1753 and the memory "rulings: concrete names and options"): the on-screen
-or in-file names, the scene, the current words with measured counts, 2 to 4
+Every question follows the project's rules for asking, and at least: the
+on-screen or in-file names, the scene, the current words with measured counts, 2 to 4
 options with the recommendation first, and what each option changes. A count
 in a question is a claim: say how it was counted, or count again.
 
@@ -92,10 +94,9 @@ When the user says they updated the sheet:
    sheet to `old/<stem>_yyyymmdd_hhmm.md` beside the sheet and warns when
    `old/` is not gitignored. Add the folder to `.gitignore` if it warns.
 3. **Record each settled answer at once.** One ruling row per decision, with
-   the user's words verbatim (in gr-scheduler: a `JDG-` row in
-   `docs/development-records/rulings.md`, then
-   `python docs/spec/_source/row_id_prefixes_json_to_md.py`). Never hold a
-   ruling only in the sheet: a session can end or compact at any time.
+   the user's words verbatim and an id, in the project's ruling ledger (and
+   any index the project regenerates from it). Never hold a ruling only in
+   the sheet: a session can end or compact at any time.
 4. **Rewrite the sheet so it converges.**
    - Move each settled question to the decisions table (decision in one line,
      the ruling id) and delete its explanation and its dead options.
@@ -150,8 +151,8 @@ When every question is decided:
   tree, and delete the answer fields.
 - Open the next part (the next level of the tree) as the user asked: in the
   same file under a new heading, or in a new file.
-- Hand the decisions to whoever applies them (in gr-scheduler, the
-  coordinator, with the ruling ids and the counts of what must change).
+- Hand the decisions to whoever applies them, with the ruling ids and the
+  counts of what must change.
 
 ## Traps seen so far
 
