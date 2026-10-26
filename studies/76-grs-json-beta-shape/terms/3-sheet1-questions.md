@@ -2,7 +2,7 @@
 
 2026-10-26 に作り、2026-10-27 に閉じた版です。用語は上から順に決めます（`JDG-3350`）。
 
-🔄 *1 枚目の問いは、問 5-6 のほかは全部決まりました（下の表と木）。*区分の中の部品も、このファイルの後ろに続けて書きます（利用者の指示）。木の日本語の名は、利用者が直接直したものを入れました。
+🔄 *1 枚目の問いは全部決まりました（下の表と木）。*区分の中の部品も、このファイルの後ろに続けて書きます（利用者の指示）。木の日本語の名は、利用者が直接直したものを入れました。
 
 - 🔄 *が付いた所が、この版で変わった所です。* 前の版の 🔄 は消してあります。木の中は、変わった行の頭に 🔄 を付けています。
 - 前の版は `old/` にあります（ファイル名の末尾が日時）。
@@ -27,7 +27,8 @@
 | 7-3 | タスクを描く区分は `Task Group Lanes`（タスクグループレーンズ）、その 1 行は `Task Group Lane`（タスクグループレーン）。データの `TaskGroup` の名はそのまま | `JDG-3361` |
 | 7-4 | `Canvas Overlays` は用語集から消す。代わりに、マウスで操作する点と操作子の名を決める（2 枚目の最初の問い） | `JDG-3362` |
 | 木の名 | 木の日本語の名を利用者が直した —— タスクグループタイトルツリー・タスク図形・マイルストーンマーク・ファイル保存ダイアログ・ファイルオープンダイアログ・差分確認ダイアログ・読込報告ダイアログ・確認メッセージ・通知領域。英語の Schema は `GRS JSON Schema`（GRS JSON スキーマ） | `JDG-3363` |
-| 🔄 *5-5* | 🔄 *`Save As Dialog` の日本語は「別名保存ダイアログ」。確認は `Confirmation Message`（確認メッセージ）。名の途中に助詞を挟まない* | 🔄 *`JDG-3364`* |
+| 5-5 | `Save As Dialog` の日本語は「別名保存ダイアログ」。確認は `Confirmation Message`（確認メッセージ）。名の途中に助詞を挟まない | `JDG-3364` |
+| 🔄 *5-6* | 🔄 *名の途中に「の」も挟まない。1 枚目の名は★の書き換えのとおり。★の無かったブラウザーウィンドウ・プロジェクトタイトル・ファイル状態は案の欄のとおりにした。回答欄の「A」は、問 5-5（`JDG-3364` で決まり済み）でなく問 5-6 への答えと読みました。違っていたら、ここに書いてください* | 🔄 *`JDG-3365`* |
 
 ---
 
@@ -38,15 +39,15 @@
 **画面の木**
 
 ```text
-   Browser Window                            ブラウザーのウィンドウ        GRS の外。「ウィンドウ」だけでは呼ばない
+🔄 Browser Window                            ブラウザーウィンドウ          GRS の外。「ウィンドウ」だけでは呼ばない
    +- GRS                                    GRS                           ブラウザーの 1 つのタブ
       +- App Header                          アプリヘッダー                上の固定の帯
       |  +- Branding                         ブランド表示                  左端の「GRS」の字
-      |  +- Project Title                    プロジェクトのタイトル        project.title。押して直せる
-      |  +- File Status                      ファイルの状態
+🔄    |  +- Project Title                    プロジェクトタイトル          project.title。押して直せる
+🔄    |  +- File Status                      ファイル状態
       |  |  +- Opened File Name              開いているファイル名
       |  |  +- File Saved At                 ファイル保存時刻
-      |  +- Header Commands                  ヘッダーのコマンド            [三] など
+      |  +- Header Commands                  ヘッダーコマンド              [三] など
       +- Schedule Filter Bar                 スケジュールフィルタバー      絞っているあいだだけ出る帯
       +- Task Group Panel                    タスクグループパネル          Panel。左。Schedule Canvas の外
       |  +- Task Group Title Tree            タスクグループタイトルツリー  ← タスクグループ見出しツリー
@@ -68,15 +69,15 @@
       |  +- Search Window                    検索ウィンドウ                ← Search Panel
       |  +- Resource List Window             担当リストウィンドウ          ← Resource List
       |  +- Delay Diagnostics Report Window  遅延診断レポートウィンドウ    ← Delay Diagnostics Report
-      |  +- Holiday Settings Window          休日の設定ウィンドウ          ← Holiday Settings
+      |  +- Holiday Settings Window          休日設定ウィンドウ            ← Holiday Settings
       +- Dialog                              ダイアログ                    閉じるまでほかを操作できない
-🔄    |  +- Save As Dialog                   別名保存ダイアログ            ← Export Chooser
+      |  +- Save As Dialog                   別名保存ダイアログ            ← Export Chooser
       |  +- Open File Dialog                 ファイルオープンダイアログ    ← Open Chooser
       |  +- Watermark Unlock Dialog          透かし解除ダイアログ          ← Watermark Unlock
       |  +- Difference Review Dialog         差分確認ダイアログ            ← Difference Review
       |  +- Import Report Dialog             読込報告ダイアログ            ← Import Report
       |  +- Message Box                      メッセージボックス            短い問いと答えのボタンだけのダイアログ
-🔄    |     +- Confirmation Message          確認メッセージ
+      |     +- Confirmation Message          確認メッセージ
       +- Notification                        通知                          端に出て、しばらくして消える知らせ
       |  +- Notification Area                通知領域                      通知が立つ所
       +- Tooltip                             ツールチップ                  ポインターを乗せたときの説明
@@ -87,17 +88,17 @@
 ```text
    Schedule Document     スケジュール文書    GRS が開いて直す日程の文書
    +- Schedule Data      スケジュールデータ  GRS JSON の schedule
-   |  +- MSPDI part      MSPDI 由来の部分    Project・Calendar・Task・Resource・Assignment と Carried の値
-   |  +- GRS part        GRS 独自の部分      TaskGroup・TaskVisual・CommentBox・HighlightBox など
-   +- Document Settings  文書の設定          開くときの描き方（documentSettings）
-   +- Document Stamp     文書の刻印          最後の変更・保存・書いた人（documentStamp）
-   +- Change Log         変更の記録          changeLogEntries
+   |  +- MSPDI part      MSPDI 由来部分      Project・Calendar・Task・Resource・Assignment と Carried の値
+   |  +- GRS part        GRS 独自部分        TaskGroup・TaskVisual・CommentBox・HighlightBox など
+   +- Document Settings  文書設定            開くときの描き方（documentSettings）
+   +- Document Stamp     文書スタンプ        最後の変更・保存・書いた人（documentStamp）
+   +- Change Log         変更記録            changeLogEntries
 ```
 
 **ファイルの形式**
 
 ```text
-   Schedule Document Format  スケジュール文書の形式  スケジュール文書を入れるファイルの形式
+   Schedule Document Format  スケジュール文書形式    スケジュール文書を入れるファイルの形式
    +- GRS JSON               GRS JSON                全部を入れる（正の形式）
    +- GRS HTML               GRS HTML                GRS の本体 ＋ 全部（今の「単一 HTML」）
    +- MSPDI                  MSPDI                   スケジュールデータの MSPDI part だけ
@@ -109,37 +110,12 @@
 
 ---
 
-## 🔄 *問 5-6. 名の途中の「の」も無くすか*
-
-🔄 *問 5-5 の答え（`JDG-3364`）で、名の途中に助詞を挟まないと決まりました（「名前を付けて保存」としない）。「の」も助詞なので、同じ決まりがほかの名にも及ぶかを決めてください。*
-
-🔄 *今の木で「の」を挟む名（1 枚目は決まった名、2 枚目は席の案）:*
-
-| 木 | 今の名 | 「の」を抜いた案 |
-|---|---|---|
-| 🔄 *1 枚目* | 🔄 *ブラウザーのウィンドウ・プロジェクトのタイトル・ファイルの状態・ヘッダーのコマンド・休日の設定ウィンドウ* | 🔄 *ブラウザーウィンドウ・プロジェクトタイトル・ファイル状態・ヘッダーコマンド・休日設定ウィンドウ* |
-| 🔄 *1 枚目* | 🔄 *文書の設定・文書の刻印・変更の記録・スケジュール文書の形式・MSPDI 由来の部分・GRS 独自の部分* | 🔄 *文書設定・文書刻印・変更記録・スケジュール文書形式・MSPDI パート・GRS パート* |
-| 🔄 *2 枚目* | 🔄 *範囲選択の矩形・仮の依存線・依存線の端の囲み・ドラッグ中のコピー・操作の合図・ドロップの案内* | 🔄 *範囲選択矩形・仮依存線・依存線端の囲み → 依存線端マーク など・ドラッグコピー・操作キュー・ドロップキュー* |
-| 🔄 *2 枚目* | 🔄 *タスクのラベル・実績のダミー・変更前の予定の輪郭・予実の補助線・フェードの斜面・再開への破線* | 🔄 *タスクラベル・実績ダミー・ベースライン輪郭・予実補助線・フェード斜面・再開破線* |
-
-🔄 *1 枚目が 11、2 枚目が 12 で、合わせて 23 の名です。*
-
-| 案 | 中身 |
-|---|---|
-| 🔄 ***A（推奨）*** | 🔄 *「の」も挟まない。用語集の名（見出しになる名）は、どれも語を続けて書く。右の欄の案を土台に、直したい名は★で書き込む。文の中で「文書の設定を開く」のように「の」を使うのはかまわない* |
-| 🔄 *B* | 🔄 *挟まないのは「を」「に」「へ」など、動きを表す助詞だけ。「の」は残す* |
-
-🔄 *推奨の理由: 名に「の」があると、文の中で名の切れ目が読めません（「ファイルの状態の時刻」のどこまでが名か）。英語の名も語を続けて作っているので、日本語も続けたほうが直訳になります。*
-
-回答:
-
----
-
 ## 区分の中の部品（2 枚目の部）
 
 ここから下は全部が新しい部です。1 枚目と同じく、木の名を直に書き換えてかまいません（★を付けてください）。
 
 - 数と場所の下調べは `4-sheet2-survey.md` にあります（用語集・画面の語・仕様書の文・GRS JSON の案・コードの 5 層）。ここでは数の大きい所だけを書きます。
+- 🔄 *問 5-6 の答え（`JDG-3365`）に合わせて、2 枚目の案の名からも「の」を抜きました（変わった行に印を付けています）。場面を説明する文の中の「の」はそのままです。*
 - 2 つの族に分けました。**A** はマウスで操作するもの（`JDG-3362` の「操作点と操作子」）、**B** はいつも描いてある絵の部品です。
 - 回答: の後に A・B などの字か自由な文を書き、保存してから席に一声ください。
 - 木の英語・日本語は、どれも席の案です。名を変えても、ふるまいは変えません（ふるまいが変わるものは `CR-856` へ回します）。
@@ -165,17 +141,17 @@
    +- Collapse Below Button      配下折りたたみボタン
    +- Expand Below Button        配下展開ボタン
    +- Pin Button                 ピン止めボタン          ← Task Group Pin
-   Interaction Cues              操作の合図              操作のあいだだけ描き、押せない印
+🔄 Interaction Cues              操作合図                操作のあいだだけ描き、押せない印
    +- Selection Frame            選択枠                  選んだ物を囲む枠
-   +- Marquee Rectangle          範囲選択の矩形          範囲選択で引いている矩形
-   +- Tentative Dependency Line  仮の依存線              構えて引いているあいだの依存線
-   +- Dependency End Outline     依存線の端の囲み        選んだ依存線の両端のタスクの囲み
+🔄 +- Marquee Rectangle          範囲選択矩形            範囲選択で引いている矩形
+🔄 +- Tentative Dependency Line  仮依存線                構えて引いているあいだの依存線
+🔄 +- Dependency End Outline     依存線端囲み            選んだ依存線の両端のタスクの囲み
    +- Drop Line                  差し込み線              ← Task Group Drop Line
-   +- Drag Copy                  ドラッグ中のコピー      ← Task Group Grab Copy・写し
-   +- Jump Landing Ring          ジャンプ先の囲み        ← 飛んだ先の印の囲み
-   +- Jump Related Ring          関係タスクの囲み        ← Jump Landing Related Ring
+🔄 +- Drag Copy                  ドラッグ中コピー        ← Task Group Grab Copy・写し
+🔄 +- Jump Landing Ring          ジャンプ先囲み          ← 飛んだ先の印の囲み
+🔄 +- Jump Related Ring          関係タスク囲み          ← Jump Landing Related Ring
    +- Jump Ripple                波紋                    ← Jump Landing Ripple
-   +- Drop Cue                   ドロップの案内          今の U-68（「面」をやめる）
+🔄 +- Drop Cue                   ドロップ案内            今の U-68（「面」をやめる）
 ```
 
 **B. いつも描いてある絵の部品**（1 枚目の木の `Task Group Lanes` の下）
@@ -186,17 +162,17 @@
    |  +- Stack Row                     積み段                  1 つのレーンの中の横の段（← 積み順の段・コードの lane）
    |  +- Task Graphic                  タスク図形              （1 枚目で決めた）
    |     +- Plan Bar                   予定バー
-   |     |  +- Fade Ramp               フェードの斜面          ← フェードの台形
+🔄 |     |  +- Fade Ramp               フェード斜面            ← フェードの台形
    |     +- Actual Bar                 実績バー
-   |     +- Actual Dummy               実績のダミー            ← Actual Operation Dummy・実績操作のダミー
+🔄 |     +- Actual Dummy               実績ダミー              ← Actual Operation Dummy・実績操作のダミー
    |     +- Milestone Mark             マイルストーンマーク    （1 枚目で決めた）
-   |     +- Baseline Outline           変更前の予定の輪郭      ← 輪郭
-   |     +- Plan-Actual Guide Line     予実の補助線
+🔄 |     +- Baseline Outline           変更前予定輪郭          ← 輪郭
+🔄 |     +- Plan-Actual Guide Line     予実補助線
    |     +- Progress Marker            進捗マーカー
    |     +- Resume Mark                再開マーク              ← Resume Icon・再開アイコン
-   |     |  +- Resume Dash Line        再開への破線            停止日から再開マークへ
+🔄 |     |  +- Resume Dash Line        再開破線                停止日から再開マークへ
    |     +- Deadline Mark              期限マーク              ← 期限の印
-   |     +- Task Labels                タスクのラベル          ← 札・担当と進捗の札
+🔄 |     +- Task Labels                タスクラベル            ← 札・担当と進捗の札
    |        +- Name Label              名称ラベル
    |        +- Assignee Label          担当ラベル
    |        +- Percent Complete Label  完了率ラベル
@@ -313,7 +289,7 @@
 
 | 案 | 中身 |
 |---|---|
-| **A（推奨）** | 総称 `Interaction Cues`（操作の合図）を立て、上の木の 10 個を 1 つずつ用語集に載せる。`Drop Cue` も仲間に入れ、用語集の「面」の言い方をやめる（面は 1 枚目で `Dialog` に分けた）。運んでいる物は「写し」でなく「コピー」と書く |
+| **A（推奨）** | 🔄 *総称 `Interaction Cues`（操作合図）を立て、上の木の 10 個を 1 つずつ用語集に載せる。`Drop Cue` も仲間に入れ、用語集の「面」の言い方をやめる（面は 1 枚目で `Dialog` に分けた）。運んでいる物は「写し」でなく「コピー」と書く* |
 | B | 総称は立てず、行の無い 9 個を 1 つずつ用語集に足すだけにする |
 
 **推奨の理由**: 総称があると、「操作の合図は押せない・保存しない・画像に出さない」のような共通の決まりを 1 か所に書けます。今は同じ決まりが重ね順の表と各要求に散っています。
@@ -339,7 +315,7 @@
 
 | 案 | 中身 |
 |---|---|
-| **A（推奨）** | 「札」はやめ、`Label`（ラベル）だけにする。3 つの総称を `Task Labels`（タスクのラベル）とし、「担当と進捗の札」は「担当ラベルと完了率ラベル」と書く。ボタンの名の意味の札は「ボタンの名」と書く |
+| **A（推奨）** | 🔄 *「札」はやめ、`Label`（ラベル）だけにする。3 つの総称を `Task Labels`（タスクラベル）とし、「担当と進捗の札」は「担当ラベルと完了率ラベル」と書く。ボタンの名の意味の札は「ボタンの名」と書く* |
 | B | 総称だけ「札」を残し、1 つずつはラベルと呼ぶ |
 
 **推奨の理由**: 1 つの物に 2 つの名があると、読む人は別の物だと思います。札は日常の言葉では荷札や名札で、画面の字の意味が伝わりにくいです。
@@ -405,10 +381,10 @@
 | タスクグループの帯 | 74 | `Task Group Lane`（1 枚目のレーンと同じ物なので、新しい名を作らない） |
 | 積み順の段 | 段目 44 | `Stack Row`（積み段）。コードの `lane` はこれを指していて、1 枚目のレーンとぶつかる |
 | 矢じり | 92 | `Arrowhead`（矢じり） |
-| 変更前の予定の輪郭 | 輪郭 14 | `Baseline Outline`（変更前の予定の輪郭） |
-| 予実の補助線 | 17 | `Plan-Actual Guide Line`（予実の補助線） |
-| 停止日から再開アイコンへの破線 | 4 | `Resume Dash Line`（再開への破線） |
-| フェードの台形 | 3 | `Fade Ramp`（フェードの斜面） |
+| 変更前の予定の輪郭 | 輪郭 14 | 🔄 *`Baseline Outline`（変更前予定輪郭）* |
+| 予実の補助線 | 17 | 🔄 *`Plan-Actual Guide Line`（予実補助線）* |
+| 停止日から再開アイコンへの破線 | 4 | 🔄 *`Resume Dash Line`（再開破線）* |
+| フェードの台形 | 3 | 🔄 *`Fade Ramp`（フェード斜面）* |
 | 依存線の両端（アンカー） | アンカー 13 | 「依存線の端」と書き、`Anchor` は線先（`Leader Anchor`）だけに使う |
 
 | 案 | 中身 |
@@ -431,7 +407,7 @@
 | a | 長音の書き方がまざる —— 仕様書は ポインタ 261・ブラウザ 156・フィルタ 252（伸ばす形は 0）、1 枚目の木は ポインター・ブラウザー と スケジュールフィルタバー | 伸ばす形（ポインター・ブラウザー・フィルター）にそろえる | Windows と Microsoft の日本語は伸ばす形。1 枚目で窓のたぐいを Windows の言葉に合わせた（`JDG-3356`）のと同じ向き |
 | b | 用語集の名に複数形がまざる —— `Comment Boxes`・`Highlight Boxes`・`Dependency Lines`・`Annotations`・`Cursors` | 名は単数にする（`Comment Box` など）。区分の名（`Task Group Lanes`・`Scrollbars`・罫線のように元から複数の物）だけ複数 | 文の中で「a Comment Box」「two Comment Boxes」と自然に書ける |
 | c | `Dual Cursor` を重ね順の表（`ZO-8`）が「2 連カーソル」と書く（2 回） | 「デュアルカーソル」にそろえる | 用語集の名に合わせるだけ |
-| d | `Actual Operation Dummy`（実績操作のダミー）を仕様書は 0 回使い、「実績のダミー」15・「ダミー」123 | 英語を `Actual Dummy`、日本語を「実績のダミー」にする | 仕様書で使っている名に用語集を合わせる |
+| d | `Actual Operation Dummy`（実績操作のダミー）を仕様書は 0 回使い、「実績のダミー」15・「ダミー」123 | 🔄 *英語を `Actual Dummy`、日本語を「実績ダミー」にする* | 仕様書で使っている名に用語集を合わせる |
 
 回答:
 a:
