@@ -10,17 +10,19 @@ child sessions in step. Rulings JDG-3040..3042 (2026-10-22); names as in
 |---|---|---|
 | Usage bridge | `guard.py statusline` (statusLine) | Writes `context_window.used_percentage` to `<state>/usage/<session_id>.json`. |
 | Usage fallback | (inside every hook) | No usage file: reads the last assistant usage in the transcript (input + cache creation + cache read). |
-| 85% notice | `guard.py hook post-tool-use` (PostToolUse) | Over 85% used or under 60k left: "hand over now" on every tool call until the session has handed over. |
-| Hold back compaction | `guard.py hook pre-compact` (PreCompact) | `auto` and not handed over since the notice: exit 2. `manual`, unknown usage, or at/above the 95% ceiling: pass. |
+| 85% notice | `guard.py hook post-tool-use` (PostToolUse) | Over 85% used or under 60k left: "ask whether this session has more work, then hand over" on every tool call until the session has handed over (JDG-3385). |
+| Hold back compaction | `guard.py hook pre-compact` (PreCompact) | `auto` in a registered session: exit 2, handed over or not (JDG-3385). `manual`, unknown usage, no role, or at/above the 95% ceiling: pass. |
 | Save the summary | `guard.py hook post-compact` (PostCompact) | Saves `compact_summary` to `<state>/compact/`; starts a new notice cycle. |
 | Re-inject | `guard.py hook session-start` (SessionStart) | After `compact`: the handoff note's newest section, the registry, and "tell your parent and children again". On any start: unacked children / a new parent. |
 | Session registry | `guard.py registry ...` | Coordinator, children, state, ID bands, branch, next steps; acks; Session complete. |
 | Handoff check | `guard.py check-handoff [--no-registry]` | Newest dated section, the first-message heading, every live child named. Check 88 runs the structural part. |
-| Scenario test | `self_test.py [--keep DIR]` | 29 scenarios at a 5% threshold (DFC-3422..3425 included) in a temp folder. Check 88 runs it. |
+| Scenario test | `self_test.py [--keep DIR]` | 30 scenarios at a 5% threshold (DFC-3422..3425 included) in a temp folder. Check 88 runs it. |
 
 "Handed over": the coordinator's handoff note was written after the notice and
 passes `check-handoff`; a child ran `registry note` (or `registry complete`)
-after the notice.
+after the notice. Handing over ends the notice, not the hold on automatic
+compaction: a handover does not end the session, which may have more work
+(JDG-3385, after a session lost its context with 140k tokens left).
 
 ## State
 
@@ -50,8 +52,8 @@ Settings (`guard.py config <key> <value>`, or the environment): `warn_pct` 85
   under the line (DFC-3425).
 - The desktop app sets `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE=80`, so automatic
   compaction comes BEFORE the 85% notice. The PreCompact hold-back is what lets
-  the notice happen: until the session has handed over, `auto` is held back
-  (below the ceiling).
+  the notice happen: below the ceiling, `auto` is held back in a registered
+  session.
 - Each session knows its own ids: `CLAUDE_CODE_SESSION_ID` (the hook
   `session_id`) and `CLAUDE_CODE_HOST_SESSION_ID` (the `local_...` id that
   SendMessage takes; the registry key).

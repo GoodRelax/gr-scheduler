@@ -6,13 +6,15 @@
                   the session has handed over, and forget the warning once usage
                   is back under the line; remind a coordinator of children
                   that have not acked it, and a child of a parent it has not acked.
-  pre-compact     (PreCompact)  block an AUTOMATIC compaction (exit 2) while the
-                  session has not handed over since the warning. A manual
-                  /compact always passes, so does a session the registry does
-                  not know (no role), and so does any compaction once usage
-                  reaches the ceiling (95%): that one may be the recovery from a
-                  context-limit error, which a block would turn into a failed
-                  request (code.claude.com hooks page, PreCompact).
+  pre-compact     (PreCompact)  block an AUTOMATIC compaction (exit 2) of a
+                  registered session below the ceiling, handed over or not: a
+                  handover does not end the session, which may have more work
+                  (JDG-3385). A manual /compact always passes, so does a session
+                  the registry does not know (no role), and so does any
+                  compaction once usage reaches the ceiling (95%): that one may
+                  be the recovery from a context-limit error, which a block
+                  would turn into a failed request (code.claude.com hooks page,
+                  PreCompact).
   post-compact    (PostCompact)  save compact_summary under <state>/compact/ and
                   start a new warning cycle.
   session-start   (SessionStart)  after a compaction, put the handoff note's newest
@@ -22,7 +24,8 @@
 
 "Handed over" means: the coordinator has a handoff note that passes
 check-handoff and was written after the warning; a child has run `registry
-note` or `registry complete` after the warning. A session with no role is
+note` or `registry complete` after the warning. Handing over stops the warning,
+not the hold on automatic compaction. A session with no role is
 only told, in neutral words, to write down where it stands (DFC-3424).
 Every decision is logged to <state>/events.jsonl.
 """
@@ -98,6 +101,9 @@ def _warning_text(record, config, role, reason):
                        'back. Write down where you stand now: a child session reports to its parent; a '
                        'coordinator registers with `python tools/handover_guard/guard.py registry coordinator` '
                        'and keeps the handoff note.')
+    head += ('Before you hand over, ask the user (or the coordinator) whether this session still has '
+             'work of its own; a handover does not end the session, and automatic compaction stays held '
+             'back until %.0f%%. ' % config['ceiling_pct'])
     if role == 'child':
         return head + ('Hand over now (%s): record your next steps with '
                        '`python tools/handover_guard/guard.py registry note --next "..."`, '
@@ -155,8 +161,8 @@ def on_post_tool_use(state, payload):
         elif not done:
             texts.append(_warning_text(record, config, role, reason))
         elif _due(sess.get('last_notice_at'), REMIND_EVERY):
-            texts.append('[handover-guard] Handed over (%s). Finish the handover; compaction is allowed now.'
-                         % reason)
+            texts.append('[handover-guard] Handed over (%s). Automatic compaction stays held back until '
+                         '%.0f%%; only a manual /compact compacts earlier.' % (reason, config['ceiling_pct']))
     elif record and record.get('used_pct') is not None and sess.get('warned_at'):
         # Back under the line (DFC-3425): the next crossing starts a new cycle.
         append_log(state, 'warn-cleared', session_id=sid, used_pct=record['used_pct'],
@@ -189,12 +195,13 @@ def on_pre_compact(state, payload):
         verdict, reason = 'allow', 'session not in the registry (no role)'
     else:
         done, why = handed_over(state, sess, registry.load(state), payload.get('cwd') or os.getcwd())
-        verdict, reason = ('allow', why) if done else ('block', why)
+        verdict, reason = 'block', ('handed over (%s), but held back below the ceiling' % why) if done else why
     append_log(state, 'precompact-' + verdict, session_id=sid, trigger=trigger, used_pct=used, reason=reason)
     write_json(_session_path(state, sid), sess)
     if verdict == 'block':
-        print('[handover-guard] Automatic compaction held back: %s. Hand over first '
-              '(see the handoff note and `guard.py check-handoff`).' % reason, file=sys.stderr)
+        print('[handover-guard] Automatic compaction held back: %s. Hand over if you have not, and go '
+              'on working; compaction happens at the %.0f%% ceiling or when the user runs /compact.'
+              % (reason, config['ceiling_pct']), file=sys.stderr)
         return 2
     return 0
 
