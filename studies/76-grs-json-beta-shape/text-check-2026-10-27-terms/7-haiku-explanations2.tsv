@@ -1,0 +1,56 @@
+id	explanation_ja	hard_parts
+D012	各タスクの Task Graphic（形、色、輪郭線の幅）を決める配列。タスク1件につき1要素を持つ。	Task Graphic と Task Group Lane の説明がない。「exactly one entry per task」の対応付けに使う項目が書かれていない。
+D014	以前の計画の保存コピーで、uid で現在のタスクと照合し、Baseline Outline として重ねて描く配列。	Baseline Outline の描き方が不明。uid の型や、保存された時点がいつかが書かれていない。
+D015	タスクグループレーン内に置くコメントボックスの配列。各ボックスはタスク、ハイライトボックス、または自由点を指す。	Task Group Lane の意味が不明。「points at」が引出線の先端を指すのかどうか不明。
+D016	タスクグループレーン内の矩形で、日付の範囲と複数のタスクグループの範囲を囲んで示す配列。枠、塗り、またはその両方で描く。	「a frame, a fill or both」で描き方を選ぶ指定が、どの項目で決まるか書かれていない。
+D022	時間軸上の1日の幅を CSS ピクセルで示す数値。Zoom to Fit のときは GRS が全体がウィンドウに収まるよう自動で設定する。	displayScalePercent 100 の意味、CSS ピクセル、Time Axis、既定値 3.75 の根拠が不明。required なのに GRS が設定するという関係も分かりにくい。
+D023	Task Graphic の縦サイズを既定サイズに対する比率で示す数値。2 にすると Plan Bar、Actual Bar、Name Label が2倍の高さになる。	既定サイズの基準、Plan Bar、Actual Bar、Name Label の定義がない。
+D031	Fit Span（表示したい日の範囲）を示すオブジェクト。isFixed が true のとき Zoom to Fit と PNG、SVG 出力が全体の代わりにこの範囲を示す。absent なら指定なし。	Fit Span、Zoom to Fit、PNG と SVG 出力の関係が書かれていない。firstDay と lastDay の書式が不明。absent と「when the property is absent」の書き方が紛らわしい。
+D034	Fit Span の表示範囲を有効にするかを示す真偽値。true なら Zoom to Fit と出力が Fit Span を示す。	「Opening the Schedule Document does not move the View」の View が何を指すか不明。false のとき何が起きるかも明記されていない。
+D043	各 Name Label の右側に計画日付を表示するかを示す真偽値。新規文書は false。	Name Label の定義がない。「schema default」が何を意味するか分かりにくい。
+D045	各タスクの Percent Complete Label を表示するかを示す真偽値。新規文書は false。	Percent Complete Label と完了率の関係が書かれていない。
+D047	status date から各タスクの進捗点を通る Progress Line を描くかを示す真偽値。新規文書は false。	status date と progress point の定義が、この項目だけでは分からない。
+D048	Progress Marks と Resume Marks を描くかを示す真偽値。Delay Diagnostics 表示中は false でも Progress Marks を描く。新規文書は true。	Progress Marks と Resume Marks の違い、Delay Diagnostics の意味、例外の条件が入り組んでいて分かりにくい。
+D049	Dependency Lines（依存関係を示す線）を描くかを示す真偽値。新規文書は true。	Dependency Lines が何の依存関係を示すのか、どの種類の依存かが書かれていない。
+D050	各タスクの Assignee Label（担当者の表示）を出すかを示す真偽値。新規文書は false。	Assignee Label の表示位置や内容が分からない。
+D051	縦の Date Grid Lines（日付の縦線）を描くかを示す真偽値。新規文書は false。	Date Grid Lines の定義が書かれていない。
+D052	タスクグループ間の Group Grid Lines を、Task Group Lanes と Task Group Panel の両方で描くかを示す真偽値。新規文書は true。	Task Group Panel の定義がない。Lanes と Panel の違いも書かれていない。
+D063	検索ウィンドウの表（タスク表とコメントボックス表）の列フィルタを、列ごとに1つずつ並べた配列。absent ならフィルタなし。	ColumnFilter の中身が、この項目からは分からない。Search Window と表の列名の対応が不明。
+D091	状態日を示す DateTime 値（YYYY-MM-DDTHH:MM:SS）。この日に Status Line を描き、Delay Diagnostics を実行する。absent なら両方ともない。	Status Line と Delay Diagnostics の定義がない。時刻がローカル時刻かどうかも書かれていない。
+D156	Plan Bar の開始部分にフェードのランプを描く暦日数。矩形では開始辺を斜めにし、シェブロンでは切り欠きの深さを決める。absent は既定の深さ、0 は平らな開始を表す。	Fade Ramp、シェブロン、notch depth、calendar days の定義が書かれていない。absent と 0 の違いが「default depth」の言い回しで紛らわしい。MSPDI の ExtendedAttribute への書き出し内容も分からない。
+D157	終了側のフェードの暦日数。シェブロンでは先端の深さを決める。書き出し先は D156 と同じ。	「As fadeInCalendarDays」に頼っていて、終了側の描き方が独立して読めない。tip depth の意味も書かれていない。
+D199	タスクの Task Graphic の描き方（形、色、輪郭線の幅）を表すオブジェクト。タスクごとに必ず1つ持つ。	Task Graphic の形（shape）の種類が、この項目からは分からない。
+D204	Plan Bar と Actual Bar の輪郭線の色。absent なら輪郭線を描かない。	Color 型の書式が分からない。Plan Bar と Actual Bar の区別がここでは説明されていない。
+D205	Plan Bar と Actual Bar の輪郭線の幅（1〜10、CSS ピクセル、表示倍率 100% 時）。新規タスクは 1 を書く。	displayScalePercent と CSS ピクセルの説明がない。
+D212	以前の計画の1タスクを表すオブジェクト。uid で現在のタスクと照合し、現在のタスクの上に Baseline Outline としてのみ描く。	uid の型と照合の規則、Baseline Outline の描き方が分からない。
+D218	コメントボックス1件を表すオブジェクト。引出線の先端（Leader Anchor）は、自由点か、タスクまたはハイライトボックスの8点のどれかに立つ。	自由点の座標の決め方（時刻、グループ、高さ）、8点の位置、snap の意味、Leader Anchor と Leader Line の違いが分からない。
+D219	コメントボックスを識別する id（uuid、必須）。	uuid の形式以外に、この id が他の項目からどう参照されるかは書かれていない。
+D220	コメントボックスの引出線の指す先。自由点か、タスクやハイライトボックスへのスナップ点のどちらか。スナップ先が消えたときに使う予備の位置（fallback）も持つ。	snaps to の具体的な動き、fallback place の決まり方、CommentBoxAnchor の中身がこの項目だけでは分からない。
+D221	Leader Anchor からコメントボックス本体の左下隅までの位置差（dx、dy）を CSS ピクセルで示すオブジェクト。表示倍率では拡縮するがズームでは拡縮しない。	dx と dy の符号、y の向き、lower-left corner の座標系が書かれていない。zoom と displayScalePercent の違いも分かりにくい。
+D224	コメントボックスの本文（1〜65535）。absent なら空の本文。	65535 が文字数かバイト数か、改行の扱いが書かれていない。
+D225	コメントボックス本体の塗りの色（必須）。透明度が 100 のときは塗らない。	Color 型の書式が分からない。
+D226	コメントボックスの塗りの透明度（%）。0 は不透明、100 は塗らない。	名前は Transparency だが値が大きいほど見えなくなる点が直感と異なり、紛らわしい。
+D227	コメントボックスの枠線と引出線の色。	枠線と引出線が同じ色になる点は分かるが、個別に変える方法はない。
+D228	コメントボックスの枠線と引出線の幅（1〜10、CSS ピクセル）。表示倍率で拡縮しズームでは拡縮しない。配置時は 1 を書く。	zoom と displayScalePercent の違い、CSS ピクセルの意味が分からない。
+D229	コメントボックスの文字の色（必須）。	Color 型の書式が分からない。
+D230	コメントボックスの文字の大きさ（8〜24、CSS ピクセル）。表示倍率で拡縮しズームでは拡縮しない。配置時は 10 を書く。	zoom と displayScalePercent の違いが分からない。
+D231	コメントボックスのリンク先 URL（1〜512 文字）。absent ならリンクなし。	URL の形式（http や https の限定）が書かれていない。
+D232	コメントボックスのリンクのタイトル（1〜512 文字）。absent ならタイトルなし。	タイトルがどこに表示されるか、URL がないときの扱いが書かれていない。
+D234	コメントボックスの引出線の指す先を表す oneOf。自由点、タスク、ハイライトボックスのどれか1つを kind で選ぶ。	oneOf が「3つのうち1つだけ」という意味だとは書かれていない。kind の選び方も説明がない。
+D235	kind の値。freePoint は何にも結びつかないレーン内の場所、task はタスクグラフィックの8点のどれか、highlightBox はハイライトボックスの8点のどれか。	8点の具体的な位置（角、辺の中点など）が書かれていない。tied to nothing の意味も分かりにくい。
+D243	引出線がスナップするハイライトボックスの id（uuid）。kind が highlightBox のときに必須。	参照先のハイライトボックスが見つからないときの挙動は、次の fallback 項目を見ないと分からない。
+D244	ハイライトボックスが存在しなくなったとき、Leader Anchor を置く先（AnchorFallback 型、必須）。	AnchorFallback の中身がこの項目からは分からない。no longer exists の判定条件も書かれていない。
+D246	ハイライトボックス1件を表すオブジェクト。日付の範囲とタスクグループの範囲を囲む。	日付の範囲とタスクグループの範囲を、どの書式で表すかが書かれていない。
+D247	ハイライトボックスを識別する id（uuid、必須）。	uuid の形式以外に、他の項目からの参照方法は書かれていない。
+D252	ハイライトボックスの角の丸み（0〜24、CSS ピクセル）。0 は四角。表示倍率で拡縮しズームでは拡縮しない。配置時は 4 を書く。	CSS ピクセルと displayScalePercent の説明がない。
+D253	ハイライトボックスの塗りの色（必須）。透明度が 100 のときは塗らない。	Color 型の書式が分からない。
+D254	ハイライトボックスの塗りの透明度（%）。0 は不透明、100 は塗らない。	D226 と同じく、値が大きいほど見えなくなる点が紛らわしい。
+D255	ハイライトボックスの枠線の色（任意）。absent なら枠線を描かない。	枠線がないときの見た目（塗りだけになるか）が明記されていない。
+D256	ハイライトボックスの枠線の幅（1〜10、CSS ピクセル）。表示倍率で拡縮しズームでは拡縮しない。配置時は 1 を書く。	zoom と displayScalePercent の違いが分からない。
+T1	この GRS JSON Schema のアドレス（URL）。	-
+T2	この GRS JSON Schema の版（shape の版）。	shape と schema が同じものを指すのか、別のものかが分かりにくい。版番号の書式も書かれていない。
+T3	この GRS JSON ファイルを書いた GRS のビルド。	build が版番号なのかビルド識別子なのかが分からない。値の書式も書かれていない。
+T4	スケジュールの本体。MSPDI と同じ部分（プロジェクト、カレンダー、タスク、リソース、割り当て）と、GRS 独自の部分（taskGroups など）からなる。	Schedule Data の定義がない。MSPDI の部分と GRS 独自の部分の境界が、この項目だけでは分からない。
+T5	文書を開いたとき GRS が Schedule Document をどう描くかの設定。	Schedule Document と Schedule Data の違いが分からない。
+T6	最後の変更、最後の保存、最後に書いた人の記録。	stamp の意味、last writer が人名なのか端末名なのかが書かれていない。
+T7	変更についての注記の一覧。	注記の書式や、どの粒度で記録されるかが書かれていない。

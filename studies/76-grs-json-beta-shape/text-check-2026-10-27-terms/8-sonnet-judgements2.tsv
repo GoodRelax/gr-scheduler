@@ -1,0 +1,56 @@
+id	verdict	failed	problem_ja	suggested_en
+D012	fix	E6	ここでの「outline」は予定バーと実績バーの縁（AT-104 strokeWidthPx、CV-6）で、変更前予定の Baseline Outline（FR-015 BL-3。太さは S-39 で、AT-104 を継がない）とは別物。同じ語 outline が 2 つの別のものを指して読める。	How GRS draws the Task Graphic of each task (shape, colors and the outline width of the bars): exactly one entry per task.
+D014	ok	-	-	-
+D015	ok	-	-	-
+D016	ok	-	-	-
+D022	fix	E7	Zoom to Fit が収める先は「ウィンドウ」ではなく Task Group Lanes（= Task Group Area）の幅。FR-055 は測った実寸の左右に S-332 の余白を残して収め、固定した Fit Span があるときは FX-3 で期間の両端を Task Group Area の両端に合わせる。さらに FR-055 は必ず収まるとは保証しない。また測るのは描いているものだけで、隠したタスクグループは残る（HF-8）ので「the whole Schedule Data」は正確でない。	Width of one calendar day on the Time Axis, in CSS pixels at displayScalePercent 100. When GRS runs Zoom to Fit, GRS sets this value to fit everything that GRS draws (or the fixed Fit Span) into the width of the Task Group Lanes.
+D023	ok	-	-	-
+D031	ok	-	-	-
+D034	fix	E7,E1	「Opening the Schedule Document does not move the View」は言い過ぎで読み違えやすい。開いた文書の表示位置が null のときは OP-10 が全体表示の選ぶ倍率と位置にする。FX-2 が言うのは、Fit Span を画面へ当てるのは Zoom to Fit と画像の書き出しだけで、開く・期間を変える・固定に入れるでは画面を期間へ動かさない、ということ。Zoom to Fit は横を Task Group Lanes の幅に合わせる（FX-3）。	When true, Zoom to Fit and PNG and SVG export show the Fit Span instead of the whole Schedule Data. Opening the Schedule Document does not move the View to the Fit Span.
+D043	ok	-	-	-
+D045	ok	-	-	-
+D047	ok	-	-	-
+D048	ok	-	-	-
+D049	ok	-	-	-
+D050	ok	-	-	-
+D051	ok	-	-	-
+D052	ok	-	-	-
+D063	ok	-	-	-
+D091	ok	-	-	-
+D156	ok	-	-	-
+D157	ok	-	-	-
+D199	fix	E6	「outline width of the task」の outline は予定バーと実績バーの縁（AT-104、CV-6）で、Baseline Outline ではない。Task Graphic 全体の輪郭とも読め、Baseline Outline と同じ語になる。	How GRS draws the Task Graphic of a task: the shape, the colors and the bar outline width. Every task has exactly one TaskVisual.
+D204	ok	-	-	-
+D205	ok	-	-	-
+D212	ok	-	-	-
+D218	ok	-	-	-
+D219	ok	-	-	-
+D220	ok	-	-	-
+D221	ok	-	-	-
+D224	ok	-	-	-
+D225	ok	-	-	-
+D226	ok	-	-	-
+D227	ok	-	-	-
+D228	ok	-	-	-
+D229	ok	-	-	-
+D230	ok	-	-	-
+D231	ok	-	-	-
+D232	ok	-	-	-
+D234	ok	-	-	-
+D235	fix	E7	task の 8 点は Task Graphic（ラベルや印を含む 1 タスクの絵全体）の 8 点ではなく、anchorTaskFigure の図形、つまり Plan Bar・Actual Bar・Milestone Mark のどれか 1 つを囲む矩形の 8 点（AT-165、LF-15）。	freePoint: a place in the Task Group Lanes that is tied to nothing; task: one of eight points of the Plan Bar, the Actual Bar or the Milestone Mark of a task; highlightBox: one of eight points of a Highlight Box.
+D243	ok	-	-	-
+D244	ok	-	-	-
+D246	ok	-	-	-
+D247	ok	-	-	-
+D252	ok	-	-	-
+D253	ok	-	-	-
+D254	ok	-	-	-
+D255	ok	-	-	-
+D256	ok	-	-	-
+T1	ok	-	-	-
+T2	ok	-	-	-
+T3	ok	-	-	-
+T4	ok	-	-	-
+T5	ok	-	-	-
+T6	ok	-	-	-
+T7	ok	-	-	-

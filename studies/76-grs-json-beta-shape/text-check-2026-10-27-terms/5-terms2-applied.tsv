@@ -1,0 +1,49 @@
+id	new	changed	note
+D012	How GRS draws the Task Graphic of each task (shape, colors and outline width): exactly one entry per task.	no	checked: outline here is the bar outline, not a Baseline Outline
+D014	The earlier plan: a saved copy of earlier task dates. GRS matches the copy to the current tasks by uid and draws the copy as a Baseline Outline over the current tasks for comparison.	yes	Baseline Outline
+D015	Comment Boxes in the Task Group Lanes. Each Comment Box points at a task, a Highlight Box or a free point.	yes	Comment Box, Highlight Box
+D016	Highlight Boxes: rectangles in the Task Group Lanes that mark a range of days over a range of task groups. GRS draws each Highlight Box with a frame, a fill or both.	yes	Highlight Box
+D022	Width of one calendar day on the Time Axis, in CSS pixels at displayScalePercent 100. When GRS runs Zoom to Fit, GRS sets this value so that the whole Schedule Data fits the width of the window.	yes	Zoom to Fit (spec IC-10, FR-055: fits the Schedule Data, or the Fit Span when fixed, to the Task Group Area; width wording kept as "window")
+D023	Vertical size of the Task Graphics, as a ratio to the default size. 1 is the default size; 2 draws Plan Bars, Actual Bars and Name Labels twice as tall.	no	checked: Name Labels already correct
+D031	The Fit Span: the span of days, firstDay to lastDay (both included), that Zoom to Fit and PNG and SVG export show instead of the whole Schedule Data when isFixed is true. Absent means no Fit Span.	yes	Zoom to Fit, Fit Span
+D034	When true, Zoom to Fit and PNG and SVG export show the Fit Span instead of the whole Schedule Data. Opening the Schedule Document does not move the View.	yes	Zoom to Fit, Fit Span
+D043	Whether GRS shows the planned dates to the right of each Name Label. A new Schedule Document starts with false.	no	checked: Name Label already correct
+D045	Whether GRS shows the Percent Complete Label of each task. A new Schedule Document starts with false.	no	checked: Percent Complete Label already correct
+D047	Whether GRS draws the Progress Line: the line from the status date through the progress point of each task. A new Schedule Document starts with false.	no	checked: Progress Line already correct
+D048	Whether GRS draws Progress Marks and Resume Marks; while GRS shows Delay Diagnostics, GRS draws the Progress Marks even when this value is false. A new Schedule Document starts with true.	yes	Progress Mark, Resume Mark
+D049	Whether GRS draws Dependency Lines. A new Schedule Document starts with true.	no	checked: Dependency Lines already correct
+D050	Whether GRS shows the Assignee Label of each task. A new Schedule Document starts with false.	no	checked: Assignee Label already correct
+D051	Whether GRS draws vertical Date Grid Lines. A new Schedule Document starts with false.	no	checked: Date Grid Lines already correct
+D052	Whether GRS draws the Group Grid Lines between task groups, in the Task Group Lanes and in the Task Group Panel. A new Schedule Document starts with true.	no	checked: Group Grid Lines already correct
+D063	The column filters of the Search Window tables (the task table and the Comment Box table), one per filtered column, by the column names of those tables. Absent means no column has a filter.	yes	Comment Box
+D091	Same as MSPDI Project/StatusDate. GRS draws the Status Line on this day. Absent means no Status Line, and Delay Diagnostics does not run.	no	checked: Status Line already correct
+D156	Calendar days over which GRS draws the Fade Ramp at the start of the Plan Bar, to show that the start is not firm. Rectangle: the start edge slants. Chevron: sets the start notch depth. GRS ignores the value on other shapes. Absent: no fade (a chevron keeps the default depth). 0: a flat start. GRS writes the value to MSPDI as a Task/ExtendedAttribute.	yes	Fade Ramp
+D157	As fadeInCalendarDays, for the finish (on a chevron, the tip depth). GRS writes the value to MSPDI as a Task/ExtendedAttribute.	no	checked: fade only in the property name
+D199	How GRS draws the Task Graphic of a task: the shape, the colors and the outline width of the task. Every task has exactly one TaskVisual.	no	checked: outline here is the bar outline
+D204	Outline color of the Plan Bar and the Actual Bar. Absent means GRS draws no outline.	no	checked: bar outline, not a Baseline Outline
+D205	Outline width of the Plan Bar and the Actual Bar of the task, in CSS pixels at displayScalePercent 100. GRS writes 1 for a new task.	no	checked: bar outline, not a Baseline Outline
+D212	One task of an earlier plan, which GRS matches to the current task by uid and draws only as a Baseline Outline over the current task.	yes	Baseline Outline
+D218	One Comment Box. The Leader Anchor of the Comment Box stands at a free point (an instant, a task group and a height within the Task Group Lane of that task group) or at one of eight points of the task or Highlight Box that the Comment Box snapped to.	yes	Comment Box, Highlight Box
+D219	The id of the Comment Box.	yes	Comment Box
+D220	Where the Leader Line of the Comment Box points: a free point in the Task Group Lanes, or a point of a task or Highlight Box that the Leader Line snaps to. A snapped Leader Anchor also keeps a fallback place, which GRS uses when the target of the Leader Anchor no longer exists.	yes	Comment Box, Highlight Box
+D221	Offset from the Leader Anchor to the lower-left corner of the Comment Box body, in CSS pixels at displayScalePercent 100. GRS scales the offset with displayScalePercent but not with zoom.	yes	Comment Box
+D224	The text of the Comment Box. Absent means an empty body.	yes	Comment Box
+D225	Fill color of the Comment Box body; fillTransparencyPercent 100 draws no fill.	yes	Comment Box
+D226	Transparency of the Comment Box fill in percent: 0 is opaque, 100 draws no fill.	yes	Comment Box
+D227	Color of the Comment Box border and Leader Line.	yes	Comment Box
+D228	Width of the Comment Box border and Leader Line, in CSS pixels at displayScalePercent 100. GRS scales the width by displayScalePercent, not by zoom. GRS writes 1 when placing a box.	yes	Comment Box
+D229	Color of the Comment Box text.	yes	Comment Box
+D230	Size of the Comment Box text, in CSS pixels at displayScalePercent 100. GRS scales the size by displayScalePercent, not by zoom. GRS writes 10 when placing a box.	yes	Comment Box
+D231	The URL that the Comment Box links to. Absent means no link.	yes	Comment Box
+D232	The title of the Comment Box link. Absent means no title.	yes	Comment Box
+D234	Where the Leader Line of a Comment Box points; kind selects a free point, a task or a Highlight Box.	yes	Comment Box, Highlight Box
+D235	freePoint: a place in the Task Group Lanes tied to nothing; task: one of eight points of a Task Graphic; highlightBox: one of eight points of a Highlight Box.	yes	Highlight Box
+D243	The id of the Highlight Box that the Leader Anchor snaps to.	yes	Highlight Box
+D244	Where the Leader Anchor goes when the Highlight Box no longer exists.	yes	Highlight Box
+D246	One Highlight Box. Encloses a range of dates and task groups.	yes	Highlight Box
+D247	The id of the Highlight Box.	yes	Highlight Box
+D252	Corner radius of the Highlight Box, in CSS pixels at displayScalePercent 100; 0 gives square corners. GRS scales the radius by displayScalePercent, not by zoom. GRS writes 4 when placing a box.	yes	Highlight Box
+D253	Fill color of the Highlight Box; fillTransparencyPercent 100 draws no fill.	yes	Highlight Box
+D254	Transparency of the Highlight Box fill in percent: 0 is opaque, 100 draws no fill.	yes	Highlight Box
+D255	Frame color of the Highlight Box. Absent means GRS draws no frame line.	yes	Highlight Box
+D256	Border width of the Highlight Box, in CSS pixels at displayScalePercent 100. GRS scales the width by displayScalePercent, not by zoom. GRS writes 1 when placing a box.	yes	Highlight Box

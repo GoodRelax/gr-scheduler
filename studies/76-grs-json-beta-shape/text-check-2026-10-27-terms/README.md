@@ -18,4 +18,17 @@ Facts the passes corrected (E7): the same-document check (D079, D081; `DI-1`..`D
 
 Two places where the specification disagrees with itself (for the coordinator, not changed here): `fig-erd-detail.md` `AT-2` says GRS does not show `Project.name`, while `FR-074` `PF-1` shows and edits it; `FR-054` says the import resolves calendar inheritance through `FR-023`, which says nothing of it, and the code does not do it.
 
-Not done here: the 48 waiting rows (after sheet 2), the restyled root (`0-root.txt`) was not judged by Sonnet (the owner confirmed the root in JDG-3341; only names changed), and nothing is applied to `../doc-shape-map.tsv` yet.
+## Round 2 (after sheet 2 closed, JDG-3366..3379)
+
+| File | Pass | What it holds |
+|---|---|---|
+| `brief2.md` | input | the sheet-2 names |
+| `5-terms2-applied.tsv` | 0 Sonnet | the 48 waiting rows with the sheet-2 names (31 changed); the 252 rows and the root held no retired word |
+| `6-blind-sheet2.tsv` | input | the 48 rows and the 7 top-level titles (T1..T7) |
+| `7-haiku-explanations2.tsv` | 1 Haiku | blind reading of the 55 rows |
+| `8-sonnet-judgements2.tsv` | 2 Sonnet | 50 ok, 5 fix; facts: Zoom to Fit fits the Task Group Lanes, not the window (D022, `FR-055`, `FX-3`); opening does not move the View to the Fit Span (D034, `OP-10`); the eight points belong to a bar or the Milestone Mark (D235, `AT-165`) |
+| `9-seat2.tsv` | 3 the seat | the final 55 texts; D031 and D034 say "everything that GRS draws" like D022 (hidden task groups stay hidden, `HF-8`) |
+
+The final texts (`4-seat.tsv` and `9-seat2.tsv`) are written into `../doc-shape-map.tsv` (`description_new` of 299 rows, the 7 titles in `type_new`) and the root into `../spec-rows-map.tsv` (`ROOT_DESCRIPTION`); the same old English inside 74 rows of `../spec-rows-map.tsv` (erd.json `en` cells, generator constants) was replaced by the final text of the same element.
+
+Not done here: the restyled root (`0-root.txt`) was not judged by Sonnet (the owner confirmed the root in JDG-3341; only names changed), and nothing is applied to `../doc-shape-map.tsv` yet.

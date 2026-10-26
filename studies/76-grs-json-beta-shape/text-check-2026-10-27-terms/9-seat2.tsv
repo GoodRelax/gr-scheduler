@@ -1,0 +1,56 @@
+id	element	final_en	source	note
+D012	/properties/schedule/properties/taskVisuals	How GRS draws the Task Graphic of each task (shape, colors and the outline width of the bars): exactly one entry per task.	sonnet	E6
+D014	/properties/schedule/properties/baselineTasks	The earlier plan: a saved copy of earlier task dates. GRS matches the copy to the current tasks by uid and draws the copy as a Baseline Outline over the current tasks for comparison.	unchanged	-
+D015	/properties/schedule/properties/commentBoxes	Comment Boxes in the Task Group Lanes. Each Comment Box points at a task, a Highlight Box or a free point.	unchanged	-
+D016	/properties/schedule/properties/highlightBoxes	Highlight Boxes: rectangles in the Task Group Lanes that mark a range of days over a range of task groups. GRS draws each Highlight Box with a frame, a fill or both.	unchanged	-
+D022	/properties/documentSettings/properties/dayWidthPx	Width of one calendar day on the Time Axis, in CSS pixels at displayScalePercent 100. When GRS runs Zoom to Fit, GRS sets this value to fit everything that GRS draws (or the fixed Fit Span) into the width of the Task Group Lanes.	sonnet	E7
+D023	/properties/documentSettings/properties/verticalZoomRatio	Vertical size of the Task Graphics, as a ratio to the default size. 1 is the default size; 2 draws Plan Bars, Actual Bars and Name Labels twice as tall.	unchanged	-
+D031	/properties/documentSettings/properties/fitSpan	The Fit Span: the span of days, firstDay to lastDay (both included), that Zoom to Fit and PNG and SVG export show instead of everything that GRS draws when isFixed is true. Absent means no Fit Span.	seat	same wording as D022: hidden task groups stay hidden (HF-8)
+D034	/properties/documentSettings/properties/fitSpan/properties/isFixed	When true, Zoom to Fit and PNG and SVG export show the Fit Span instead of everything that GRS draws. Opening the Schedule Document does not move the View to the Fit Span.	seat	Sonnet's E7 fix (OP-10) and the D022 wording
+D043	/properties/documentSettings/properties/isPlanDatesVisible	Whether GRS shows the planned dates to the right of each Name Label. A new Schedule Document starts with false.	unchanged	-
+D045	/properties/documentSettings/properties/isPercentCompleteVisible	Whether GRS shows the Percent Complete Label of each task. A new Schedule Document starts with false.	unchanged	-
+D047	/properties/documentSettings/properties/isProgressLineVisible	Whether GRS draws the Progress Line: the line from the status date through the progress point of each task. A new Schedule Document starts with false.	unchanged	-
+D048	/properties/documentSettings/properties/isProgressMarkerVisible	Whether GRS draws Progress Marks and Resume Marks; while GRS shows Delay Diagnostics, GRS draws the Progress Marks even when this value is false. A new Schedule Document starts with true.	unchanged	-
+D049	/properties/documentSettings/properties/isDependencyVisible	Whether GRS draws Dependency Lines. A new Schedule Document starts with true.	unchanged	-
+D050	/properties/documentSettings/properties/isAssigneeVisible	Whether GRS shows the Assignee Label of each task. A new Schedule Document starts with false.	unchanged	-
+D051	/properties/documentSettings/properties/isDateGridLinesVisible	Whether GRS draws vertical Date Grid Lines. A new Schedule Document starts with false.	unchanged	-
+D052	/properties/documentSettings/properties/isGroupGridLinesVisible	Whether GRS draws the Group Grid Lines between task groups, in the Task Group Lanes and in the Task Group Panel. A new Schedule Document starts with true.	unchanged	-
+D063	/properties/documentSettings/properties/tableViews/properties/searchPanel/properties/columnFilters	The column filters of the Search Window tables (the task table and the Comment Box table), one per filtered column, by the column names of those tables. Absent means no column has a filter.	unchanged	-
+D091	/$defs/Project/properties/statusDate	Same as MSPDI Project/StatusDate. GRS draws the Status Line on this day. Absent means no Status Line, and Delay Diagnostics does not run.	unchanged	-
+D156	/$defs/Task/properties/fadeInCalendarDays	Calendar days over which GRS draws the Fade Ramp at the start of the Plan Bar, to show that the start is not firm. Rectangle: the start edge slants. Chevron: sets the start notch depth. GRS ignores the value on other shapes. Absent: no fade (a chevron keeps the default depth). 0: a flat start. GRS writes the value to MSPDI as a Task/ExtendedAttribute.	unchanged	-
+D157	/$defs/Task/properties/fadeOutCalendarDays	As fadeInCalendarDays, for the finish (on a chevron, the tip depth). GRS writes the value to MSPDI as a Task/ExtendedAttribute.	unchanged	-
+D199	/$defs/TaskVisual	How GRS draws the Task Graphic of a task: the shape, the colors and the bar outline width. Every task has exactly one TaskVisual.	sonnet	E6
+D204	/$defs/TaskVisual/properties/strokeColor	Outline color of the Plan Bar and the Actual Bar. Absent means GRS draws no outline.	unchanged	-
+D205	/$defs/TaskVisual/properties/strokeWidthPx	Outline width of the Plan Bar and the Actual Bar of the task, in CSS pixels at displayScalePercent 100. GRS writes 1 for a new task.	unchanged	-
+D212	/$defs/BaselineTask	One task of an earlier plan, which GRS matches to the current task by uid and draws only as a Baseline Outline over the current task.	unchanged	-
+D218	/$defs/CommentBox	One Comment Box. The Leader Anchor of the Comment Box stands at a free point (an instant, a task group and a height within the Task Group Lane of that task group) or at one of eight points of the task or Highlight Box that the Comment Box snapped to.	unchanged	-
+D219	/$defs/CommentBox/properties/id	The id of the Comment Box.	unchanged	-
+D220	/$defs/CommentBox/properties/anchor	Where the Leader Line of the Comment Box points: a free point in the Task Group Lanes, or a point of a task or Highlight Box that the Leader Line snaps to. A snapped Leader Anchor also keeps a fallback place, which GRS uses when the target of the Leader Anchor no longer exists.	unchanged	-
+D221	/$defs/CommentBox/properties/bodyOffsetPx	Offset from the Leader Anchor to the lower-left corner of the Comment Box body, in CSS pixels at displayScalePercent 100. GRS scales the offset with displayScalePercent but not with zoom.	unchanged	-
+D224	/$defs/CommentBox/properties/text	The text of the Comment Box. Absent means an empty body.	unchanged	-
+D225	/$defs/CommentBox/properties/fillColor	Fill color of the Comment Box body; fillTransparencyPercent 100 draws no fill.	unchanged	-
+D226	/$defs/CommentBox/properties/fillTransparencyPercent	Transparency of the Comment Box fill in percent: 0 is opaque, 100 draws no fill.	unchanged	-
+D227	/$defs/CommentBox/properties/strokeColor	Color of the Comment Box border and Leader Line.	unchanged	-
+D228	/$defs/CommentBox/properties/strokeWidthPx	Width of the Comment Box border and Leader Line, in CSS pixels at displayScalePercent 100. GRS scales the width by displayScalePercent, not by zoom. GRS writes 1 when placing a box.	unchanged	-
+D229	/$defs/CommentBox/properties/textColor	Color of the Comment Box text.	unchanged	-
+D230	/$defs/CommentBox/properties/fontSizePx	Size of the Comment Box text, in CSS pixels at displayScalePercent 100. GRS scales the size by displayScalePercent, not by zoom. GRS writes 10 when placing a box.	unchanged	-
+D231	/$defs/CommentBox/properties/hyperlinkAddress	The URL that the Comment Box links to. Absent means no link.	unchanged	-
+D232	/$defs/CommentBox/properties/hyperlink	The title of the Comment Box link. Absent means no title.	unchanged	-
+D234	/$defs/CommentBoxAnchor	Where the Leader Line of a Comment Box points; kind selects a free point, a task or a Highlight Box.	unchanged	-
+D235	/$defs/CommentBoxAnchor/oneOf[*]/properties/kind	freePoint: a place in the Task Group Lanes that is tied to nothing; task: one of eight points of the Plan Bar, the Actual Bar or the Milestone Mark of a task; highlightBox: one of eight points of a Highlight Box.	sonnet	E7
+D243	/$defs/CommentBoxAnchor/oneOf[highlightBox]/properties/highlightBoxId	The id of the Highlight Box that the Leader Anchor snaps to.	unchanged	-
+D244	/$defs/CommentBoxAnchor/oneOf[highlightBox]/properties/fallback	Where the Leader Anchor goes when the Highlight Box no longer exists.	unchanged	-
+D246	/$defs/HighlightBox	One Highlight Box. Encloses a range of dates and task groups.	unchanged	-
+D247	/$defs/HighlightBox/properties/id	The id of the Highlight Box.	unchanged	-
+D252	/$defs/HighlightBox/properties/cornerRadiusPx	Corner radius of the Highlight Box, in CSS pixels at displayScalePercent 100; 0 gives square corners. GRS scales the radius by displayScalePercent, not by zoom. GRS writes 4 when placing a box.	unchanged	-
+D253	/$defs/HighlightBox/properties/fillColor	Fill color of the Highlight Box; fillTransparencyPercent 100 draws no fill.	unchanged	-
+D254	/$defs/HighlightBox/properties/fillTransparencyPercent	Transparency of the Highlight Box fill in percent: 0 is opaque, 100 draws no fill.	unchanged	-
+D255	/$defs/HighlightBox/properties/strokeColor	Frame color of the Highlight Box. Absent means GRS draws no frame line.	unchanged	-
+D256	/$defs/HighlightBox/properties/strokeWidthPx	Border width of the Highlight Box, in CSS pixels at displayScalePercent 100. GRS scales the width by displayScalePercent, not by zoom. GRS writes 1 when placing a box.	unchanged	-
+T1	/properties/$schema	Address of this GRS JSON Schema	unchanged	-
+T2	/properties/schemaVersion	Version of this GRS JSON Schema	unchanged	-
+T3	/properties/buildVersion	GRS build that wrote this GRS JSON file	unchanged	-
+T4	/properties/schedule	Schedule Data	unchanged	-
+T5	/properties/documentSettings	How GRS draws the Schedule Document on opening	unchanged	-
+T6	/properties/documentStamp	Last change, last save and last writer	unchanged	-
+T7	/properties/changeLogEntries	Notes on changes	unchanged	-
