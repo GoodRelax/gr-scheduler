@@ -1,0 +1,64 @@
+id	verdict	failed	problem_ja	suggested_en
+D001	ok	-	-	-
+D002	ok	-	-	-
+D003	ok	-	-	-
+D004	ok	-	-	-
+D005	ok	-	-	-
+D006	ok	-	-	-
+D007	ok	-	-	-
+D008	ok	-	-	-
+D009	ok	-	-	-
+D010	ok	-	-	-
+D011	ok	-	-	-
+D013	ok	-	-	-
+D017	fix	E1	「GRS always writes the keys that always have a value」は、どのキーを指すのか一読で決まらない（Haiku も「値を持つキーが何を指すか分からない」と止まった）。仕様は設定値を既定値と一致していても省略せず常に全項目を書き出すと定める（01-04-requirements.md FR-024）ので、その事実をそのまま言えば足りる。	How GRS draws the Schedule Document on opening. GRS writes every key that has a value, even when the value is the default.
+D018	fix	E1	「every ...Px value」の「...」が省略記号に読め、Haiku は何の値か分からなかった。実際は名前が Px で終わるプロパティのこと（CR-851 JDG-3277: ...Px は表示の倍率 100 のときの CSS px）。事実（App Header と Command Palette は掛けない: 01-04-requirements.md DS-6）は正しい。	Display scale of the drawing in the Schedule Canvas, in percent: at 100 GRS draws every value whose property name ends in Px as that many CSS pixels, at 50 at half size. This value scales shapes and text together and does not change the App Header, the Command Palette or the browser zoom.
+D019	ok	-	-	-
+D024	ok	-	-	-
+D025	ok	-	-	-
+D026	ok	-	-	-
+D027	ok	-	-	-
+D028	ok	-	-	-
+D029	ok	-	-	-
+D030	ok	-	-	-
+D032	ok	-	-	-
+D033	ok	-	-	-
+D035	ok	-	-	-
+D036	ok	-	-	-
+D037	ok	-	-	-
+D038	ok	-	-	-
+D039	ok	-	-	-
+D040	ok	-	-	-
+D041	ok	-	-	-
+D042	ok	-	-	-
+D044	ok	-	-	-
+D046	ok	-	-	-
+D053	ok	-	-	-
+D054	ok	-	-	-
+D055	ok	-	-	-
+D056	ok	-	-	-
+D057	ok	-	-	-
+D058	ok	-	-	-
+D059	ok	-	-	-
+D060	ok	-	-	-
+D061	fix	E7	「GRS draws in the Task Group Lanes only what the checked rows select」は広すぎる。スケジュールフィルタが絞るのはタスク（と、それに付く予定・実績・ラベルなど）だけで、ハイライトボックス・基準日線・今日の線は消さず、コメントボックスは載るタスクグループが描かれていれば描く（01-04-requirements.md TV-1, TV-3, TV-4）。	Whether the Schedule Filter of this table is on; while the Schedule Filter is on, GRS draws only the tasks that the checked rows of this table select. A new Schedule Document starts with false.
+D062	ok	-	-	-
+D064	ok	-	-	-
+D065	ok	-	-	-
+D066	fix	E7	D061 と同じ。「only what the checked rows select」は、ハイライトボックス・基準日線・今日の線を消さないこと（01-04-requirements.md TV-4）と合わない。絞るのはタスクである（TV-1, TV-3）。	Whether the Schedule Filter of this table is on; while the Schedule Filter is on, GRS draws only the tasks that the checked rows of this table select. A new Schedule Document starts with false.
+D067	ok	-	-	-
+D068	ok	-	-	-
+D069	ok	-	-	-
+D070	ok	-	-	-
+D071	fix	E7	D061 と同じ。担当リストの表では、チェックした担当のタスク（と、（担当なし）の行ならば担当のいないタスク）だけを描く（01-04-requirements.md TV-13）。ハイライトボックス・基準日線・今日の線は消さない（TV-4）ので「only what」は広すぎる。	Whether the Schedule Filter of this table is on; while the Schedule Filter is on, GRS draws only the tasks that the checked rows of this table select. A new Schedule Document starts with false.
+D072	ok	-	-	-
+D073	ok	-	-	-
+D074	ok	-	-	-
+D075	ok	-	-	-
+D076	ok	-	-	-
+D077	ok	-	-	-
+D078	ok	-	-	-
+D079	fix	E7,E1	二重に誤りがある。(1) 「GRS JSON or MSPDI file」は仕様と合わない: 書き出す先の中身を GRS JSON として読み、読めなければ同じとみなさず問う（docs/spec/01-04-requirements.md 表 T-227 の DI-3）ので、MSPDI の先で 3 つが照合されることはない。形式の一覧は持ち出さず「既にあるファイル」と言うのが安全。(2) 「同じ文書」と言うのは、ファイル名・Project.name・Project.id の 3 つがすべて一致するときに限り（DI-1）、どちらかの側で id か name が無ければ同じとみなさない（DI-2）。さらに開いたファイルへの上書き保存では問わない（DI-5）。原文はこの 3 点が無く、Haiku も判定規則が分からないと止まった。	Same as MSPDI Project/UID. When GRS writes over an existing file other than the file that the Schedule Document was opened from, GRS reads that file as GRS JSON and treats it as the same Schedule Document only if this value, project.name and the file name all match; an absent value never matches, and otherwise GRS asks before overwriting.
+D080	ok	-	-	-
+D081	fix	E7	「GRS does not show the Project Name」は仕様と合わない。文書の基本情報の面は Project.name を「プロジェクト名」として出し、編集もできる（01-04-requirements.md FR-074 表 T-224 の PF-1、裁定 JDG-3355: プロパティパネルに Project Name）。fig-erd-detail.md の AT-2「画面には出さない」は古く、仕様内で食い違っている（利用者に仕様の直しを伝えること）。判定の使い方（DI-1〜DI-3）は D079 と同じ。ヘッダーに出るのは title（Project Title）である。	Same as MSPDI Project/Name. GRS shows the value as the Project Name in the Properties Panel; the App Header shows title as the Project Title. GRS also uses the value, with id and the file name, to tell whether an existing file that GRS is about to overwrite holds the same Schedule Document.
+D082	fix	E7	title が Save As Dialog の既定のファイル名になるのは正しい（01-04-requirements.md FR-096、fig-erd-detail.md AT-3）が、値そのままではない。表 T-352 の規則で空白と OS で使えない字を「_」に替え、ASCII でない字を落とし、拡張子を付けた名を提案する（FN-1〜FN-4）。残りが空なら schedule を使う（FN-5）。「uses the value as the default file name」は、日本語の題の文書で名が題と違うことを説明できない。ヘッダーへの表示（UF-104）と、title が無いときのタブの Untitled（FR-035）は正しい。	Same as MSPDI Project/Title. GRS shows the value as the Project Title in the App Header and builds the default file name in the Save As Dialog from the value. When absent, the browser tab shows Untitled.

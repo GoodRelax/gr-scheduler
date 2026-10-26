@@ -1,0 +1,302 @@
+id	new	changed	note
+D001	The address of the latest published GRS JSON Schema; every Schedule Document holds the same address.	yes	-
+D002	The UTC time (YYYY-MM-DDTHH:MM:SSZ) when the shape of this GRS JSON Schema last changed.	yes	-
+D003	The build time, in UTC (YYYY-MM-DDTHH:MM:SSZ), of the GRS build that wrote this GRS JSON file. This value is only for debugging; to check whether a GRS JSON file is readable, use schemaVersion.	yes	-
+D004	Schedule Data: the MSPDI part, which GRS exports to MSPDI, and the GRS part, which only GRS uses.	yes	-
+D005	Same as MSPDI Project.	no	-
+D006	Same as MSPDI Calendars.	no	-
+D007	Same as MSPDI Tasks, except that Task.parentTaskUid and Task.siblingOrder give the WBS tree. GRS makes ID, OutlineLevel, OutlineNumber and Summary from that tree each time GRS writes MSPDI.	no	-
+D008	Same as MSPDI Resources.	no	-
+D009	Same as MSPDI Assignments.	no	-
+D010	The task groups; GRS shows each one as one row in the Task Group Panel and as one Task Group Lane. taskGroupMembers says which tasks each task group holds. On reading an MSPDI file, GRS makes the task groups from the WBS.	yes	-
+D011	Which task group each task belongs to: one entry per task, from taskUid to taskGroupId.	no	-
+D012	How GRS draws the Task Graphic of each task (shape, colors and outline width): exactly one entry per task.	yes	wait-sheet2: outline
+D013	One record per task that came from an imported MSPDI file: which MSPDI file and which task in that file, so that a later import of the same MSPDI file updates that task instead of adding a copy. A task made in GRS has no record.	yes	-
+D014	The earlier plan: a saved copy of earlier task dates. GRS matches the copy to the current tasks by uid and draws the copy as an outline over the current tasks for comparison.	no	wait-sheet2: outline
+D015	Comment boxes in the Task Group Lanes. Each comment box points at a task, a highlight box or a free point.	yes	wait-sheet2: comment box, highlight box
+D016	Highlight boxes: rectangles in the Task Group Lanes that mark a range of days over a range of task groups. GRS draws each highlight box with a frame, a fill or both.	yes	wait-sheet2: highlight box
+D017	How GRS draws the Schedule Document on opening. GRS always writes the keys that always have a value.	yes	-
+D018	Display scale of the drawing in the Schedule Canvas, in percent: at 100 GRS draws every ...Px value as that many CSS pixels, at 50 at half size. This value scales shapes and text together and does not change the App Header, the Command Palette or the browser zoom.	no	-
+D019	Text size step of the Schedule Canvas: small, medium or large, which are 7.5, 8.75 and 10 CSS pixels at displayScalePercent 100. The Schedule Document opens at this step; a reader who changes the step edits the Schedule Document.	yes	-
+D022	Width of one calendar day on the Time Axis, in CSS pixels at displayScalePercent 100. When GRS fits the Schedule Data to the window, GRS sets this value so that the whole Schedule Data fits the width of the window.	yes	fit phrase: "the schedule" became "the Schedule Data" (zoom to fit has no ruled name)
+D023	Vertical size of the Task Graphics, as a ratio to the default size. 1 is the default size; 2 draws Plan Bars, Actual Bars and Name Labels twice as tall.	yes	wait-sheet2: label
+D024	How deep task groups with treeState auto open. A top-level task group is depth 1. With value N, task groups down to depth N are open, so GRS shows rows down to depth N + 1; 0 shows only the top-level task groups, closed.	no	-
+D025	Where the View starts when the Schedule Document opens: notDecided lets GRS choose, placed gives the day at the left edge and the task group at the top edge.	yes	-
+D026	notDecided: no person has chosen a place yet, and GRS chooses one when GRS opens the Schedule Document; placed: the other keys give the place.	yes	-
+D027	The day at the left edge of the View.	yes	-
+D028	Where the left edge falls inside leftEdgeDay, as a part of that day; 0 is the start of the day.	no	-
+D029	The task group at the top edge of the View. When that task group no longer exists, scrollPosition becomes notDecided.	yes	-
+D030	Where the top edge falls inside that task group, as a part of the step of the task group (the height of the Task Group Lane plus the gap below), not in pixels; 0 is the top of the Task Group Lane.	yes	-
+D031	The span of days, firstDay to lastDay (both included), that fitting the Schedule Data to the window and PNG and SVG export show instead of the whole Schedule Data when isFixed is true. Absent means no fit span.	yes	fit phrase: "the schedule" became "the Schedule Data"
+D032	The first day of the fit span (included), in the time zone that GRS shows the Schedule Canvas in (viewTimeZone).	no	-
+D033	The last day of the fit span; the fit span includes the column of that day.	no	-
+D034	When true, fitting the Schedule Data to the window and PNG and SVG export show the fit span instead of the whole Schedule Data. Opening the Schedule Document does not move the View.	yes	fit phrase: "the schedule" became "the Schedule Data"
+D035	The time zone that the Time Ruler and the shown date-times use: sameAsScheduleData follows project.scheduleDataTimeZone, fixed uses the offset given here.	no	-
+D036	sameAsScheduleData: show the Schedule Data time zone, and follow the Schedule Data time zone when that time zone changes; fixed: show the offset given here.	yes	-
+D037	The UTC offset that GRS shows the Schedule Canvas in.	no	-
+D038	Up to four extra clocks. While GRS shows the time of day, GRS shows each extra clock as one more row under the Time Ruler.	no	-
+D039	The UTC offset of this extra clock.	no	-
+D040	Whether this clock is the standard-time or the daylight-time zone of the offset of this clock. This value picks the zone name that GRS shows; GRS uses the offset itself all year.	no	-
+D041	Whether GRS shows the time of day on the Schedule Canvas; the stored date-times keep their time either way. A new Schedule Document starts with false.	yes	-
+D042	Whether GRS shows Plan Bars, apart from isActualVisible. A new Schedule Document starts with true.	yes	-
+D043	Whether GRS shows the planned dates to the right of each Name Label. A new Schedule Document starts with false.	yes	wait-sheet2: label
+D044	Whether GRS shows Actual Bars, apart from isPlanVisible. A new Schedule Document starts with true.	yes	-
+D045	Whether GRS shows the Percent Complete Label of each task. A new Schedule Document starts with false.	yes	wait-sheet2: label
+D046	Whether GRS draws the earlier plan (baselineTasks) over the current tasks. A new Schedule Document starts with false.	yes	-
+D047	Whether GRS draws the Progress Line: the line from the status date through the progress point of each task. A new Schedule Document starts with false.	yes	wait-sheet2: Progress Line
+D048	Whether GRS draws Progress Markers and Resume Icons; while GRS shows Delay Diagnostics, GRS draws the Progress Markers even when this value is false. A new Schedule Document starts with true.	yes	wait-sheet2: Progress Marker, Resume Icon
+D049	Whether GRS draws Dependency Lines. A new Schedule Document starts with true.	yes	wait-sheet2: dependency line
+D050	Whether GRS shows the Assignee Label of each task. A new Schedule Document starts with false.	yes	wait-sheet2: label
+D051	Whether GRS draws vertical Date Grid Lines. A new Schedule Document starts with false.	yes	wait-sheet2: Date Grid Lines
+D052	Whether GRS draws the Group Grid Lines between task groups, in the Task Group Lanes and in the Task Group Panel. A new Schedule Document starts with true.	yes	wait-sheet2: Group Grid Lines
+D053	up stacks the tasks of a task group so that the tasks climb to a goal at the upper right; down stacks them so that the tasks descend to a goal at the lower right. A new Schedule Document starts with up.	yes	-
+D054	Whether the theme is monochrome. A new Schedule Document starts with false.	yes	-
+D055	Width of the Task Group Panel, in CSS pixels at displayScalePercent 100.	no	-
+D056	Whether the number taskGroupPanelWidthPx, instead of a drag of the Panel Divider, sets the width of the Task Group Panel. A new Schedule Document starts with false.	yes	-
+D057	The state of the head of the Task Group Panel (level 0), above all top-level task groups. collapsed draws no task group at all. A new Schedule Document starts with auto.	yes	-
+D058	The Pinned Task Groups: task groups that stay together at the top of the Task Group Lanes, to compare them with task groups far away. Absent means no pinned task group.	yes	-
+D059	How GRS shows the three tables: the Search Window, the Delay Diagnostics Report Window and the Resource List Window.	yes	-
+D060	How GRS shows the tables of the Search Window: Schedule Filter, checked rows, column filters and sort.	yes	-
+D061	Whether the Schedule Filter of this table is on; while the Schedule Filter is on, GRS draws in the Task Group Lanes only what the checked rows of this table select. A new Schedule Document starts with false.	yes	-
+D062	The tasks whose row has a check in the show column of this table. Absent means no row has a check.	no	-
+D063	The column filters of the Search Window tables (the task table and the comment box table), one per filtered column, by the column names of those tables. Absent means no column has a filter.	yes	wait-sheet2: comment box
+D064	How GRS sorts this table. Absent means the default order.	no	-
+D065	How GRS shows the table of the Delay Diagnostics Report Window: Schedule Filter, checked rows, column filters and sort.	yes	-
+D066	Whether the Schedule Filter of this table is on; while the Schedule Filter is on, GRS draws in the Task Group Lanes only what the checked rows of this table select. A new Schedule Document starts with false.	yes	-
+D067	The tasks whose row has a check in the show column of this table. Absent means no row has a check.	no	-
+D068	The column filters of the table of the Delay Diagnostics Report Window, one per filtered column, by the column names of that table. Absent means no column has a filter.	yes	-
+D069	How GRS sorts this table. Absent means the default order.	no	-
+D070	How GRS shows the table of the Resource List Window: Schedule Filter, checked rows, column filters and sort.	yes	-
+D071	Whether the Schedule Filter of this table is on; while the Schedule Filter is on, GRS draws in the Task Group Lanes only what the checked rows of this table select. A new Schedule Document starts with false.	yes	-
+D072	The resources whose row has a check in the show column of this table. Absent means no row has a check.	no	-
+D073	Whether the (no assignee) row of the Resource List Window has a check. A new Schedule Document starts with false.	yes	-
+D074	The column filters of the table of the Resource List Window, one per filtered column, by the column names of that table. Absent means no column has a filter.	yes	-
+D075	How GRS sorts this table. Absent means the default order.	no	-
+D076	The Document Stamp: the time of the last change and of the last save, and who wrote the Schedule Document last.	yes	-
+D077	The Change Log: notes that people or an AI write about changes to the Schedule Document, oldest first. A new entry goes at the end.	yes	-
+D078	Same as MSPDI Project.	no	-
+D079	Same as MSPDI Project/UID. Before saving over a GRS JSON or MSPDI file, GRS checks this value, project.name and the file name to tell whether the file holds the same Schedule Document.	yes	format guess: "a file" named as GRS JSON or MSPDI
+D080	Same as MSPDI Project/CalendarUID. GRS counts all working days with this one calendar. If this value is absent or names no calendar, GRS uses the calendar with isBaseCalendar true and the smallest ordinal, else a built-in default.	no	-
+D081	Same as MSPDI Project/Name. GRS does not show the Project Name (GRS shows title as the Project Title). GRS uses the Project Name only to tell whether a GRS JSON or MSPDI file GRS is about to overwrite holds the same Schedule Document.	yes	format guess for "a file"; fact "GRS does not show this value" kept although JDG-3355 plans Project Name in the Properties Panel (CR-856), may go stale
+D082	Same as MSPDI Project/Title. GRS shows the value as the Project Title in the App Header and uses the value as the default file name in the Save As Dialog. When absent, the browser tab shows Untitled.	yes	"default name of an exported file" -> "default file name in the Save As Dialog" (Save As Dialog replaces Export Chooser); please confirm
+D083	Same as MSPDI Project/Subject.	no	-
+D084	Same as MSPDI Project/Category.	no	-
+D085	Same as MSPDI Project/Company.	no	-
+D086	Same as MSPDI Project/Manager.	no	-
+D087	Same as MSPDI Project/Author. The author is not who wrote the Schedule Document last (documentStamp.lastEditedBy).	yes	-
+D088	Same as MSPDI Project/Revision. The revision is not one of the documentStamp times.	no	-
+D089	Same as MSPDI Project/CreationDate. GRS writes the value when GRS makes a new Schedule Document.	yes	-
+D090	Same as MSPDI Project/StartDate.	no	-
+D091	Same as MSPDI Project/StatusDate. GRS draws the Status Line on this day. Absent means no Status Line, and Delay Diagnostics does not run.	no	wait-sheet2: Status Line
+D092	The fixed UTC offset of the clock of the Schedule Data date-times, for example UTC+09:00. The offset is standard time, with no daylight saving. GRS does not write the offset to MSPDI.	yes	-
+D093	Same as MSPDI Project/MinutesPerDay: the length of one working day (1d) in minutes, {{S-128}} when absent. GRS warns on opening the Schedule Document if the working times of any working day add up to a total other than this value.	yes	-
+D094	Same as MSPDI Project/MinutesPerWeek.	no	-
+D095	Same as MSPDI Project/DaysPerMonth.	no	-
+D096	Same as MSPDI Project/WeekStartDay, where 0 is Sunday. Absent means Monday (1).	no	-
+D097	Same as MSPDI Project/DefaultStartTime: the time of day GRS gives a start that has a date and no time (the start of a Task or a BaselineTask, actualStart, resume, project.startDate); {{S-482}} when absent. A milestone's start gets defaultFinishTime instead.	no	-
+D098	Same as MSPDI Project/DefaultFinishTime: the time of day GRS gives a finish that has a date and no time (the finish of a Task or a BaselineTask, actualFinish, stop, deadline, project.statusDate); {{S-483}} when absent. A milestone's start gets this time as well.	no	-
+D099	The hue of the theme, in degrees. Every color written as {"kind":"theme"} uses this hue. A new Schedule Document starts with 214.	yes	-
+D100	How many working days the progress point of a parent task may lie outside the progress points of the work below the parent task, before Delay Diagnostics asks whether an update is missing. A new Schedule Document starts with 1.	yes	-
+D101	One counter for the uids of tasks, resources, assignments and calendars. GRS never reuses a uid, so a new uid is always above this value.	no	-
+D102	How many times GRS has imported an MSPDI file into this Schedule Document; 0 means never. GRS compares TaskOrigin.lastSeenImportNumber with this number.	yes	-
+D103	The OutlineLevel at which the tasks of an imported MSPDI file start (not counting the project summary task); export writes from this number. A new Schedule Document starts with 1.	yes	-
+D104	The format the Schedule Document came from: grs for a Schedule Document made in GRS, pj12 or pj15 for an MSPDI file (pj15 when the file has any element that only pj15 has). GRS does not write this value to MSPDI.	yes	-
+D105	Carried MSPDI values of this element, under their MSPDI names.	no	-
+D106	Carried MSPDI elements under this one; GRS writes each element back in the same place.	no	-
+D107	Same as MSPDI Calendar.	no	-
+D108	Same as MSPDI Calendar/UID.	no	-
+D109	Same as MSPDI Calendar/BaseCalendarUID: the calendar this one inherits from. GRS keeps the value but does not inherit: GRS counts only the days this calendar itself lists.	no	-
+D110	The order of the calendar as in the MSPDI file; GRS writes the calendars back in that order.	yes	-
+D111	Same as MSPDI Calendar/Name.	no	-
+D112	Same as MSPDI Calendar/IsBaseCalendar. Absent reads as false.	no	-
+D113	Same as MSPDI Calendar/WeekDays.	no	-
+D114	Same as MSPDI Calendar/Exceptions.	no	-
+D115	Carried MSPDI values of this element, under their MSPDI names.	no	-
+D116	Carried MSPDI elements under this one; GRS writes each element back in the same place.	no	-
+D117	Same as MSPDI WeekDay.	no	-
+D118	The order of this weekday within the calendar, as in the MSPDI file.	yes	-
+D119	Same as MSPDI WeekDay/DayType, where 1 is Sunday, except that the value is never 0: Exception holds the exception days.	no	-
+D120	Same as MSPDI WeekDay/DayWorking. Absent reads as not working.	no	-
+D121	Same as MSPDI WeekDay/WorkingTimes. Absent on a working day means the default spans {{S-580}}.	no	-
+D122	Carried MSPDI values of this element, under their MSPDI names.	no	-
+D123	Carried MSPDI elements under this one; GRS writes each element back in the same place.	no	-
+D124	Same as MSPDI Exception.	no	-
+D125	The order of this exception within the calendar, as in the MSPDI file.	yes	-
+D126	Same as MSPDI Exception/Name.	no	-
+D127	Same as MSPDI Exception/TimePeriod/FromDate: the first day of the exception. GRS reads only the date and writes T00:00:00.	no	-
+D128	Same as MSPDI Exception/TimePeriod/ToDate: the last day of the exception, included. GRS reads only the date and writes T23:59:00.	no	-
+D129	Same as MSPDI Exception/DayWorking. Absent reads as not working.	no	-
+D130	Same as MSPDI Exception/Type. GRS counts only a one-off exception: recurrenceKind is 9 or absent, or is 1 and recurrencePeriod is absent or 1; GRS keeps the others unchanged without counting them. Write 1 for an exception you add.	no	-
+D131	Same as MSPDI Exception/Period.	no	-
+D132	Same as MSPDI Exception/WorkingTimes. Absent on a working day means the default spans {{S-580}}.	no	-
+D133	Carried MSPDI values of this element, under their MSPDI names.	no	-
+D134	Carried MSPDI elements under this one; GRS writes each element back in the same place.	no	-
+D135	Same as MSPDI WorkingTime. GRS refuses spans of one day that overlap or do not start before they end; spans that only touch, such as one ending at 12:00 and one starting at 12:00, are fine.	no	-
+D136	The order of this span within the day; GRS writes the spans in the order of their start.	no	-
+D137	Same as MSPDI WorkingTime/FromTime.	no	-
+D138	Same as MSPDI WorkingTime/ToTime. 00:00:00 means 24:00, the end of the day.	no	-
+D139	Same as MSPDI Task. GRS reads the progress state with these checks, first match wins: no actualStart, not started; actualFinish set, finished; resumeValid false, suspended with no resume date; resume set, suspended with a resume date; otherwise in progress.	no	-
+D140	Same as MSPDI Task/UID.	no	-
+D141	The parent task in the WBS. Absent means a top-level task.	no	-
+D142	Same as MSPDI Task/CalendarUID, the calendar of this task alone. GRS keeps the value and writes the value back, but counts working days with project.calendarUid only.	no	-
+D143	The order of this task among the tasks under the same parent task.	no	-
+D144	Same as MSPDI Task/Name.	no	-
+D145	Same as MSPDI Task/Notes.	no	-
+D146	Same as MSPDI Task/Start. GRS does not open a GRS JSON or MSPDI file in which a task has no start.	yes	format guess for "a file"
+D147	Same as MSPDI Task/Finish. GRS does not open a GRS JSON or MSPDI file in which a task has no finish.	yes	format guess for "a file"
+D148	Same as MSPDI Task/Milestone. Absent reads as false. When true, TaskVisual holds milestoneShape; otherwise TaskVisual holds taskShape.	no	-
+D149	Same as MSPDI Task/Deadline.	no	-
+D150	Same as MSPDI Task/ActualStart. Absent means the task is not started.	no	-
+D151	Same as MSPDI Task/Stop: the end of the actual work so far on a task that is in progress or suspended. On a finished task actualFinish holds that end; GRS empties stop when GRS finishes a task.	no	-
+D152	Same as MSPDI Task/ActualFinish. Present only on a finished task; a percentComplete of 100 does not mean finished.	no	-
+D153	Same as MSPDI Task/Resume: on a suspended task, the planned restart of the remaining work.	no	-
+D154	Same as MSPDI Task/ResumeValid. On a task with actualStart and no actualFinish, false means suspended with no resume date, and GRS does not use a date in resume.	no	-
+D155	Same as MSPDI Task/PercentComplete, except that GRS recalculates the value as actual working time (actualStart to actualFinish, or to stop) over planned working time (start to finish), times 100, rounded, with no cap at 100. With no planned working time, as on a milestone, the value is 100 once actualFinish is present, else 0.	no	-
+D156	Calendar days over which GRS fades the start of the Plan Bar, to show that the start is not firm. Rectangle: the start edge slants. Chevron: sets the start notch depth. GRS ignores the value on other shapes. Absent: no fade (a chevron keeps the default depth). 0: a flat start. GRS writes the value to MSPDI as a Task/ExtendedAttribute.	no	wait-sheet2: fade
+D157	As fadeInCalendarDays, for the finish (on a chevron, the tip depth). GRS writes the value to MSPDI as a Task/ExtendedAttribute.	no	wait-sheet2: fade (only in the property name fadeInCalendarDays)
+D158	Same as MSPDI Task/HyperlinkAddress.	no	-
+D159	Same as MSPDI Task/Hyperlink: the title of the link, not the address.	no	-
+D160	Same as MSPDI Task/PredecessorLink.	no	-
+D161	Carried MSPDI values of this element, under their MSPDI names.	no	-
+D162	Carried MSPDI elements under this one; GRS writes each element back in the same place.	no	-
+D163	Same as MSPDI PredecessorLink.	no	-
+D164	Same as MSPDI PredecessorLink/PredecessorUID.	no	-
+D165	Same as MSPDI PredecessorLink/Type.	no	-
+D166	Same as MSPDI PredecessorLink/LinkLag: the lag in tenths of a minute, whatever unit lagFormat names; absent means no lag. One working day of lag is project.minutesPerDay times 10 ({{S-128}} times 10 when project.minutesPerDay is absent).	no	-
+D167	Same as MSPDI PredecessorLink/LagFormat. GRS understands the lag only when the value is 7 (working days), 5 (hours) or 3 (minutes); with any other unit GRS only shows the lag and keeps the lag unchanged. GRS writes the unit that the user typed the lag in.	no	-
+D168	Carried MSPDI values of this element, under their MSPDI names.	no	-
+D169	Carried MSPDI elements under this one; GRS writes each element back in the same place.	no	-
+D170	Same as MSPDI Resource.	no	-
+D171	Same as MSPDI Resource/UID.	no	-
+D172	Same as MSPDI Resource/CalendarUID, the calendar of this resource alone. GRS keeps the value and writes the value back, but counts working days with project.calendarUid only.	no	-
+D173	Same as MSPDI Resource/Name.	no	-
+D174	Same as MSPDI Resource/Type.	no	-
+D175	Same as MSPDI Resource/IsCostResource. Absent reads as false.	no	-
+D176	Carried MSPDI values of this element, under their MSPDI names.	no	-
+D177	Carried MSPDI elements under this one; GRS writes each element back in the same place.	no	-
+D178	Same as MSPDI Assignment.	no	-
+D179	Same as MSPDI Assignment/UID.	no	-
+D180	Same as MSPDI Assignment/TaskUID.	no	-
+D181	Same as MSPDI Assignment/ResourceUID.	no	-
+D182	Carried MSPDI values of this element, under their MSPDI names.	no	-
+D183	Carried MSPDI elements under this one; GRS writes each element back in the same place.	no	-
+D184	A task group: one row of the Task Group Panel and one Task Group Lane. Task groups form their own tree, separate from the WBS (Task.parentTaskUid), and GRS does not write task groups to MSPDI.	yes	-
+D185	The id of the task group.	no	-
+D186	The parent task group. Absent means a top-level task group (depth 1).	no	-
+D187	The task that this task group represents in the WBS. Absent means the task group represents no task. This property does not decide the name of the task group.	no	-
+D188	The order of this task group among the task groups under the same parent.	no	-
+D189	The task group name. Absent means an unnamed task group; GRS shows an empty title. GRS never copies a task name into this property after the task group exists.	no	-
+D190	Whether the task group is open, closed or hidden in the Task Group Panel. auto follows documentSettings.taskGroupAutoExpandDepth; temporarilyExpanded stays open until the next Zoom to Fit or vertical zoom out, and then becomes auto.	no	-
+D191	The name of the group that may edit this task group. When present, GRS refuses edits to the tasks in this task group. Absent means anyone may edit.	no	-
+D192	The color of the Task Group Lane of the task group. Absent means GRS draws no color; {"kind":"theme"} draws the theme color.	yes	-
+D193	Lowest height of the Task Group Lane of the task group, in CSS pixels at displayScalePercent 100; absent means no lowest height. verticalZoomRatio does not change this height.	yes	-
+D194	The URL the task group links to. Absent means no link.	no	-
+D195	The title of the task group link. Absent means no title.	no	-
+D196	Which task group GRS draws a task in; every task is in exactly one task group. GRS stacks the tasks of a task group itself, in the direction that documentSettings.stackDirection gives.	no	-
+D197	The task; each task is in exactly one entry.	no	-
+D198	The task group that GRS draws the task in.	no	-
+D199	How GRS draws the Task Graphic of a task: the shape, the colors and the outline width of the task. Every task has exactly one TaskVisual.	yes	wait-sheet2: outline
+D200	The task that GRS draws with this TaskVisual; each task has exactly one TaskVisual.	no	-
+D201	Shape of the Task Graphic of a task that is not a milestone. Present exactly when Task.milestone is not true; a milestone holds milestoneShape instead.	yes	-
+D202	Shape of the Milestone Mark. Present exactly when Task.milestone is true.	yes	-
+D203	The fill color of the Plan Bar. Absent means GRS draws no fill; fill and stroke may not both be absent. A custom color may give only one of light and dark: GRS works out the other when GRS opens the Schedule Document.	yes	-
+D204	Outline color of the Plan Bar and the Actual Bar. Absent means GRS draws no outline.	no	wait-sheet2: outline
+D205	Outline width of the Plan Bar and the Actual Bar of the task, in CSS pixels at displayScalePercent 100. GRS writes 1 for a new task.	no	wait-sheet2: outline
+D206	Where an imported task came from, so that importing the same MSPDI file again updates the task instead of adding a copy.	yes	-
+D207	The imported task in this Schedule Document.	yes	-
+D208	Project/UID of the MSPDI file that GRS imported this task from. Absent when that MSPDI file had none.	yes	-
+D209	The UID of the task in the MSPDI file that GRS imported the task from.	yes	-
+D210	The id of the import that brought the task in; every import makes a new one. This id stands in for sourceProjectId when the MSPDI file had no Project/UID.	yes	-
+D211	The project.lastImportNumber of the last import that found this task in the imported MSPDI file.	yes	-
+D212	One task of an earlier plan, which GRS matches to the current task by uid and draws only as an outline over the current task.	no	wait-sheet2: outline
+D213	The uid of the task in the earlier plan; GRS matches the task to the current task with the same uid.	no	-
+D214	The task name in the earlier plan.	no	-
+D215	The planned start in the earlier plan.	no	-
+D216	The planned finish in the earlier plan.	no	-
+D217	Whether the task was a milestone in the earlier plan, so that GRS draws the task as a milestone.	no	-
+D218	One comment box. The Leader Anchor of the comment box stands at a free point (an instant, a task group and a height within the Task Group Lane of that task group) or at one of eight points of the task or highlight box that the comment box snapped to.	yes	wait-sheet2: comment box, highlight box
+D219	The id of the comment box.	no	wait-sheet2: comment box
+D220	Where the Leader Line of the comment box points: a free point in the Task Group Lanes, or a point of a task or highlight box that the Leader Line snaps to. A snapped Leader Anchor also keeps a fallback place, which GRS uses when the target of the Leader Anchor no longer exists.	yes	wait-sheet2: comment box, highlight box
+D221	Offset from the Leader Anchor to the lower-left corner of the comment box body, in CSS pixels at displayScalePercent 100. GRS scales the offset with displayScalePercent but not with zoom.	yes	wait-sheet2: comment box
+D222	The horizontal part of bodyOffsetPx. A positive value moves the box to the right.	no	-
+D223	The vertical part of bodyOffsetPx. A positive value moves the box down, as in GRS.	no	-
+D224	The text of the comment box. Absent means an empty body.	no	wait-sheet2: comment box
+D225	Fill color of the comment box body; fillTransparencyPercent 100 draws no fill.	no	wait-sheet2: comment box
+D226	Transparency of the comment box fill in percent: 0 is opaque, 100 draws no fill.	no	wait-sheet2: comment box
+D227	Color of the comment box border and Leader Line.	yes	wait-sheet2: comment box
+D228	Width of the comment box border and Leader Line, in CSS pixels at displayScalePercent 100. GRS scales the width by displayScalePercent, not by zoom. GRS writes 1 when placing a box.	yes	wait-sheet2: comment box
+D229	Color of the comment box text.	no	wait-sheet2: comment box
+D230	Size of the comment box text, in CSS pixels at displayScalePercent 100. GRS scales the size by displayScalePercent, not by zoom. GRS writes 10 when placing a box.	no	wait-sheet2: comment box
+D231	The URL that the comment box links to. Absent means no link.	no	wait-sheet2: comment box
+D232	The title of the comment box link. Absent means no title.	no	wait-sheet2: comment box
+D234	Where the Leader Line of a comment box points; kind selects a free point, a task or a highlight box.	yes	wait-sheet2: comment box, highlight box
+D235	freePoint: a place in the Task Group Lanes tied to nothing; task: one of eight points of a Task Graphic; highlightBox: one of eight points of a highlight box.	yes	wait-sheet2: highlight box
+D236	The point in time where the Leader Anchor stands on the Time Axis.	yes	-
+D237	The task group whose Task Group Lane holds the Leader Anchor; in a fallback, the task group where the Leader Anchor goes when the target of the Leader Anchor no longer exists.	yes	-
+D238	The height of the Leader Anchor within the Task Group Lane of that task group: 0 is the top edge, 1 the bottom edge.	yes	-
+D239	The uid of the task that the Leader Anchor snaps to.	yes	-
+D240	Which part of the Task Graphic the Leader Anchor snaps to: the Plan Bar, the Actual Bar or the Milestone Mark.	yes	-
+D241	Which of the eight points of the target the Leader Anchor snaps to: the four corners and the middles of the four sides.	yes	-
+D242	Where the Leader Anchor goes when the task no longer exists.	yes	-
+D243	The id of the highlight box that the Leader Anchor snaps to.	yes	wait-sheet2: highlight box
+D244	Where the Leader Anchor goes when the highlight box no longer exists.	yes	wait-sheet2: highlight box
+D245	Where the Leader Anchor goes when the target of the Leader Anchor no longer exists: the task group, and the height in the Task Group Lane of that task group.	yes	-
+D246	One highlight box. Encloses a range of dates and task groups.	no	wait-sheet2: highlight box
+D247	The id of the highlight box.	no	wait-sheet2: highlight box
+D248	The task group at the top edge of the box.	no	-
+D249	The task group at the bottom edge of the box.	no	-
+D250	The first day that the box covers (included), as a day in the Schedule Data time zone (project.scheduleDataTimeZone).	yes	-
+D251	The last day that the box covers (included).	no	-
+D252	Corner radius of the highlight box, in CSS pixels at displayScalePercent 100; 0 gives square corners. GRS scales the radius by displayScalePercent, not by zoom. GRS writes 4 when placing a box.	no	wait-sheet2: highlight box
+D253	Fill color of the highlight box; fillTransparencyPercent 100 draws no fill.	no	wait-sheet2: highlight box
+D254	Transparency of the highlight box fill in percent: 0 is opaque, 100 draws no fill.	no	wait-sheet2: highlight box
+D255	Frame color of the highlight box. Absent means GRS draws no frame line.	no	wait-sheet2: highlight box
+D256	Border width of the highlight box, in CSS pixels at displayScalePercent 100. GRS scales the width by displayScalePercent, not by zoom. GRS writes 1 when placing a box.	no	wait-sheet2: highlight box
+D257	When the Schedule Document last changed, when GRS last saved the Schedule Document, and who last wrote the Schedule Document.	yes	-
+D258	When the Schedule Data last changed. watchChanges looks only at this time.	yes	-
+D259	When the Schedule Document last changed, in the Schedule Data or in documentSettings.	yes	-
+D260	When GRS last saved the Schedule Document, in UTC. Absent until the first save.	yes	"wrote the document to the file" -> "saved the Schedule Document" (no file format to name); same fact
+D261	Who wrote the Schedule Document last: {"kind":"user"} for a person in GRS, {"kind":"template"} for the shipped start-up template, {"kind":"agent","name":...} for an Agent API caller.	yes	-
+D262	Who wrote: a person in GRS, the shipped start-up template, or an Agent API caller.	no	-
+D263	user: a person in GRS; template: the shipped start-up template; agent: an Agent API caller.	no	-
+D264	The name that the Agent API caller gave for itself.	no	-
+D265	One note about a change made to the Schedule Document: when, who, which part, what, why, and anything else. Every entry has changedAt; the other properties are optional.	yes	-
+D266	When the change happened, in UTC. GRS fills in the time of adding the entry; a person may change the time.	no	-
+D267	Who made the change: the name a person typed, or the name an AI gave for itself.	no	-
+D268	Which part of the Schedule Document the change affected.	yes	-
+D269	What changed.	no	-
+D270	The reason for the change.	no	-
+D271	Anything else about the change.	no	-
+D273	Carried MSPDI values, keyed by their MSPDI names.	no	-
+D274	One carried MSPDI element, which GRS keeps whole and writes back in place.	no	-
+D275	The order of this element within the owner, which GRS uses to write the element back in place.	no	-
+D276	The element name, spelled exactly as in the MSPDI file.	no	-
+D277	The leaf values of the element, by their names.	no	-
+D278	The child elements nested in this element.	no	-
+D279	A date without a time of day, written YYYY-MM-DD. A range of days (firstDay and lastDay) includes both days. Each property that uses Day says which time zone the day is in.	no	-
+D280	A wall-clock date-time in project.scheduleDataTimeZone, written YYYY-MM-DDTHH:MM:SS with no offset, as MSPDI writes a date-time. GRS reads the value to the minute and ignores the seconds.	no	-
+D281	A time of day, as MSPDI writes a time.	no	-
+D282	A point in time in UTC, written YYYY-MM-DDTHH:MM:SSZ.	no	-
+D283	A fixed offset from UTC, written like UTC+09:00. GRS never applies daylight saving time.	no	-
+D284	A color: theme uses the color that the theme gives this place, palette names a palette color, custom gives the color's own values for the light and the dark theme. Where a color may be absent, an absent color means GRS does not draw that fill or line.	no	-
+D285	theme: the color that the theme gives this place; palette: a named palette color; custom: the color's own values for the light and the dark theme.	no	-
+D286	The palette color, by the stored name.	no	-
+D287	The color for the light theme; at least one of light and dark is present.	no	-
+D288	The color for the dark theme; at least one of light and dark is present.	no	-
+D289	One side of a custom color: the value, and whether a person chose the value or GRS derived the value. One side may be absent; GRS derives the missing side from the other side when opening the Schedule Document.	yes	-
+D290	The color value for this theme.	no	-
+D291	chosen: a person chose this value; derived: GRS made the value from the other side when loading the Schedule Document.	yes	-
+D292	The color of a Task Group Lane: the same as Color, except that BandColor offers no palette color ink.	yes	-
+D293	A filter on one column of a table: values hides rows by their shown value, dateRange hides rows whose date is outside a range of days.	no	-
+D294	values: hide rows by their shown value; dateRange: hide rows whose date is outside firstDay..lastDay.	no	-
+D295	The column that the filter is on, by the stable column name.	no	-
+D296	The values whose rows the filter hides; write a status or a type by the stable name, any other value by the shown text.	no	-
+D297	Whether the filter hides the rows with an empty cell in this column.	no	-
+D298	The first day that the filter keeps (included), as a day in the Schedule Data time zone (project.scheduleDataTimeZone).	yes	-
+D299	The last day that the filter keeps (included).	no	-
+D300	How GRS sorts a table: by one column, in one direction.	no	-
+D301	The column that GRS sorts the table by, by the stable column name.	no	-
+D302	The direction of the sort.	no	-
+D303	The stable English name of a table column; each table takes only the names of the columns in that table.	no	-
+ROOT	Terms:\nGRS is GoodRelax Scheduler, which opens and edits a Schedule Document and reads and writes GRS JSON files, the format that this GRS JSON Schema defines.\nMSPDI (Microsoft Project XML Data Interchange) is the XML file format that Microsoft Project uses. GRS can also read and write MSPDI (.xml) files.\n"Same as MSPDI X" indicates that the property has the same meaning and values as MSPDI element X. The description of that property notes any GRS-specific difference.\nConcepts:\nWBS is the tree of parent and child tasks, as in MSPDI.\nTask groups are GRS's own objects that let GRS draw several tasks in one Task Group Lane. Each task belongs to exactly one task group.\nGRS counts working days using a single calendar: the calendar that project.calendarUid names.\n"Carried" means GRS does not use the value, but preserves the value and writes the value back to MSPDI unchanged.\nActual dates are the authoritative source of task progress. GRS decides from the actual dates of a task whether the task is not started, in progress, suspended, or finished. GRS recalculates percentComplete from those dates when GRS opens a GRS JSON file.\nThe shape of GRS JSON:\n$schema           Address of this GRS JSON Schema\nschemaVersion     Version of the shape\nbuildVersion      GRS build that wrote the GRS JSON file\nschedule          Schedule Data\n  +- MSPDI part: project, calendars, tasks, resources, assignments (same as MSPDI)\n  +- GRS part: taskGroups, taskGroupMembers, taskVisuals, taskOrigins,\n     baselineTasks, commentBoxes, highlightBoxes\ndocumentSettings  Document Settings: how GRS draws the Schedule Document on opening\ndocumentStamp     Document Stamp: last change, last save and last writer\nchangeLogEntries  Change Log: notes on changes\nA property with no value is absent: never write null or [].	yes	22 lines joined by the two characters backslash-n; "GRS is GoodRelax Scheduler" line now also defines Schedule Document use
+D017-title	How GRS draws the Schedule Document when GRS opens the Schedule Document	yes	title of D017 as given in the brief

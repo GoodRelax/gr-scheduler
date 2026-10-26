@@ -1,0 +1,64 @@
+id	verdict	failed	problem_ja	suggested_en
+D147	ok	-	確認(E7): 開始・終了のないタスクを含む入力は取り込み時の検証で拒否する(01-04-requirements.md FR-012、FR-023、通知理由 tbl-notice-reasons.md RS-81)。FR-023 の対象は GRS JSON、MSPDI、単一 .html に埋め込んだ GRS JSON、Agent API の入力で、GRS JSON と MSPDI の2形式の言及は誤りではない(HTML は GRS JSON を内包)。中身のない行(EX-5)は例外。	-
+D148	ok	-	確認: milestone が true のとき TaskVisual は milestoneShape、そうでなければ taskShape を持つ(JDG-3311、本シート D201/D202 と一致)。absent は false。	-
+D149	ok	-	-	-
+D150	ok	-	確認: actualStart が空なら未着手(01-04-requirements.md PS-1、PA-1)。	-
+D151	ok	-	確認: stop は進行中・中断中の実績の最後の日で、完了では空になり actualFinish が持つ(fig-erd-detail.md AT-141、FR-011 の RATIONALE、表 T-019 の PA-5)。	-
+D152	ok	-	確認: actualFinish は完了したときだけ入り、percentComplete が100でも完了とは限らない(AT-36、FR-012)。	-
+D153	ok	-	確認: resume は中断中に残りが始まる予定の日(AT-37)。	-
+D154	ok	-	確認: actualStart があり actualFinish がなく resumeValid が false なら「中断・再開日未定」で、resume に日付が残っていても resumeValid=false が優先する(PS-3 が PS-4 より先、PA-4)。true の意味は書かれていないが、判別は false の1か所だけ(表 T-019a 後の注記)なので誤読は生じない。	-
+D155	ok	-	確認: 式は FR-012 と一致(稼働時間の分、丸め、100で頭打ちにしない、予定の期間が0なら actualFinish の有無で100/0)。ただし MSPDI を読むときは数え直さない(FR-012)ので、この文は GRS JSON を開いたときと編集時の話。冒頭の根の説明が「GRS JSON を開くとき」と限っているため矛盾はない。	-
+D158	ok	-	-	-
+D159	ok	-	-	-
+D160	ok	-	-	-
+D161	ok	-	-	-
+D162	ok	-	-	-
+D163	ok	-	-	-
+D164	ok	-	-	-
+D165	ok	-	-	-
+D166	ok	-	確認: linkLag は 0.1 分単位で lagFormat によらない、1稼働日は minutesPerDay 分(空なら S-128 の 480)(fig-erd-detail.md AT-47、FR-009)。本文中の {{S-128}} は schema 生成時に値(480)へ置き換わる印で、出荷される文には残らない(erd_json_to_schema.py の with_calendar_rows_printed)。	-
+D167	ok	-	確認: GRS が解するのは 7・5・3 だけ、他は見せて保つだけ、書くときは打った単位(複数単位なら最も細かい単位)(FR-009、AT-48)。	-
+D168	ok	-	-	-
+D169	ok	-	-	-
+D170	ok	-	-	-
+D171	ok	-	-	-
+D172	ok	-	確認: 資源ごとの暦は保って書き戻すが稼働日の数え上げには使わない(AT-89、FR-054)。	-
+D173	ok	-	-	-
+D174	ok	-	-	-
+D175	ok	-	-	-
+D176	ok	-	-	-
+D177	ok	-	-	-
+D178	ok	-	-	-
+D179	ok	-	-	-
+D180	ok	-	-	-
+D181	ok	-	-	-
+D182	ok	-	-	-
+D183	ok	-	-	-
+D184	ok	-	確認: タスクグループは WBS(Task.parentTaskUid)と別の木で MSPDI へ書き出さない(表 G-2、G-5、CR-851 の説明行)。	-
+D185	ok	-	-	-
+D186	ok	-	確認: 親がなければ最上位で、最上位は深さ1(taskGroupAutoExpandDepth の説明、FR-004)。	-
+D187	ok	-	確認: 導出元のタスクを指す(HM-9、HM-12)。名前は決めない(JDG-3315)。	-
+D188	ok	-	-	-
+D189	ok	-	確認: 名前は強制もタスク名からのコピーもしない。MSPDI 取り込みで作る時だけ親タスク名を使う(JDG-3315)ので「グループができた後は」と限る本文は真。	-
+D190	ok	-	確認: temporarilyExpanded は全体表示(fitPressed)と縦を縮める入力(verticalZoomShrinkPressed)で auto へ戻る(tbl-state-machines.md 表 T-328)。auto は taskGroupAutoExpandDepth に従う(JDG-3293)。	-
+D191	ok	-	確認: editGroup が空でないタスクグループに載るタスクの編集は断る(FR-111 の GP-1)。単体の GRS では名乗る相手がなく全員断る。タスクグループ自体の削除は受け付ける(GP-7)が、本文は「タスクの編集」と限っているので真。	-
+D192	ok	-	-	-
+D193	ok	-	-	-
+D194	ok	-	-	-
+D195	ok	-	-	-
+D196	ok	-	確認: 積む順と向きは ST-2、ST-5(stackDirection)で自動、段は文書に持たない(ST-6)。	-
+D197	ok	-	-	-
+D198	ok	-	-	-
+D200	ok	-	-	-
+D201	ok	-	確認: taskShape は Task.milestone が true でないときだけ持つ(JDG-3311)。	-
+D202	ok	-	-	-
+D203	fix	E7,E1	fillColor は予定バーの塗りだけでなく実績バーの塗りも決める(01-04-requirements.md 表 T-017b の CV-6「fillColor は予定バーの塗りを塗りの値で、実績バーの塗りを実績の塗りの値で描く」、CV-10 の導出)。本文は Plan Bar しか言わないので、読み手は実績バーの塗りが別の値だと誤読しうる。strokeColor(D204)は「予定バーと実績バー」と言っており、並びも揃う。片側だけの任意色を GRS が開くときに導く点は CR-848 のとおりで真。	The fill color of the Plan Bar; GRS draws the fill of the Actual Bar from the same color. Absent means GRS draws no fill; fill and stroke may not both be absent. A custom color may give only one of light and dark: GRS works out the other when GRS opens the Schedule Document.
+D206	ok	-	確認: 再取り込みで対応づけに使う(MG-1、MG-3、MG-13)。ただし利用者が「別のものとして取り込む」を選べば更新せず別タスクになるので、本文の「更新する」は既定の趣旨として許容。	-
+D207	ok	-	-	-
+D208	ok	-	確認: MSPDI の Project/UID(AT-1、AT-106)。無ければ省略し importSessionId が代わりを務める。	-
+D209	ok	-	-	-
+D210	ok	-	確認: AT-1 の「省略されたときは importSessionId が代わりを務める」と一致。	-
+D211	ok	-	確認: 最後に見つけた取り込みの通し番号(MG-13、CR-851 の rename lastImportNumber)。	-
+D213	ok	-	確認: uid の一致で現在のタスクと対応づける(AT-134、FR-015)。	-
+D214	ok	-	-	-
+D215	ok	-	-	-
