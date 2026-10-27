@@ -5,7 +5,7 @@
 > - 🔄 と*斜体*は、前回から変わった所です（`f` で 🔄 を検索すると順に飛べます）。初版には付きません。
 > - 強調したい所には ★ を付けてかまいません。
 
-2026-10-28 に作った。問いは利用者の 3 つ（用語とキー名の一致の仕組み、`_source` からの生成、SSOT の JSON の形と順）と、裁定の置き場。下の「答え」は今の事実で、数と出どころは全部 `0-survey.md` にある（調べた木は `1268eea24`。39 本の生成器の `--check` を 1 本ずつ走らせ、全部通った）。
+🔄 *2026-10-28 に作った。問いは利用者の 3 つ（用語とキー名の一致の仕組み、`_source` からの生成、SSOT の JSON の形と順）と、裁定の置き場。下の「答え」は今の事実で、数と出どころは全部 `11-ssot-survey.md` にある（調べた木は `1268eea24`。39 本の生成器の `--check` を 1 本ずつ走らせ、全部通った）。*
 
 ---
 
@@ -102,6 +102,88 @@ display-words.json + 用語集
 
 回答:
 
+### 🔄 *問 1-2. 前提: SSOT はどれか、そこから何が何段で生まれるか*
+
+🔄 *ご指摘のとおり、先に SSOT と派生の段を示します。数と出どころは `11-ssot-survey.md`、各段の入力は生成器のコードで確かめました（`erd_json_to_schema.py` が `tbl-settings.md` を読む、など）。*
+
+🔄 ***SSOT（人が直す所）***
+
+| 🔄 *パス* | 🔄 *持つもの* |
+|---|---|
+| 🔄 *`docs/spec/_source/erd.json`* | 🔄 *GRS JSON のデータの形（実体 19・列 160・関係 26）と、ルートと schedule の箱* |
+| 🔄 *`docs/spec/_source/settings.json`* | 🔄 *設定の値と `documentSettings` のキー・型・既定値* |
+| 🔄 *`docs/spec/_source/agent-api-members.json`* | 🔄 *Agent API と MCP のメンバ* |
+| 🔄 *`docs/spec/_source/document-commands.json`* | 🔄 *文書を変える命令* |
+| 🔄 *`docs/spec/_source/display-words.json`* | 🔄 *画面の語の原稿* |
+| 🔄 *`docs/spec/_source/notice-reasons.json`* | 🔄 *拒否と知らせの理由* |
+| 🔄 *`docs/spec/_source/grs-json-changes.json`* | 🔄 *GRS JSON の形の変更の台帳* |
+| 🔄 *`docs/spec/_source/` のほか 8 本* | 🔄 *項目・状態機械・公開の入口・検証・行 ID の接頭辞・部品・MSPDI の独自項目・取次の図* |
+| 🔄 *`docs/spec/_assets/tbl-glossary.md`（手書きの .md）* | 🔄 *用語集。**JSON ではないが、画面の語・アイコンの生成器の入力*** |
+| 🔄 *`docs/spec/01-04-requirements.md`・`05-07-design.md` の表（手書き）* | 🔄 *時間帯・交換形式・アイコンの一覧など。**生成器が表を読む*** |
+
+🔄 *つまり SSOT は JSON 15 本だけでなく、手書きの .md もいくつか入力になっています。*
+
+🔄 ***派生の図**（GRS JSON と Agent API にかかわる所だけ。丸は手書き、四角は生成物）*
+
+```mermaid
+graph LR
+  erd([🔄 erd.json]) --> erdmd[🔄 fig-erd-detail.md]
+  erd --> types[🔄 コードの型]
+  set([🔄 settings.json]) --> setmd[🔄 tbl-settings.md]
+  set --> types
+  erd --> schema[🔄 grs-document.schema.json]
+  setmd --> schema
+  set --> schema
+  chg([🔄 grs-json-changes.json]) --> schema
+  schema --> validator[🔄 読む検証器 grs-json-schema.ts]
+  schema --> startup[🔄 起動の雛形・空の文書]
+  set --> startup
+  schema --> prompt[🔄 画像から GRS JSON のプロンプト]
+  cmd([🔄 document-commands.json]) --> cschema[🔄 grs-commands.schema.json]
+  schema --> cschema
+  cmd --> cmdcode[🔄 コードの命令の領域]
+  schema --> cmdcode
+  api([🔄 agent-api-members.json]) --> apicode[🔄 コードの Agent API の領域]
+  api --> mcp[🔄 MCP の説明 mcp-tool-descriptions.json]
+  schema --> mcp
+  cschema --> mcp
+  cmd --> mcp
+  mcp --> relay[🔄 取次 grs-relay.mcpb]
+  apicode --> relay
+  erd --> icons[🔄 アイコンの名簿]
+  glo([🔄 tbl-glossary.md]) --> icons
+  icons --> help[🔄 ヘルプの名簿]
+  set --> help
+  dw([🔄 display-words.json]) --> words[🔄 画面の語]
+  glo --> words
+  help --> words
+```
+
+🔄 ***派生の段**（「段」は SSOT から何回の生成を経て生まれるか。生成物を入力にすると 1 段増える）*
+
+| 🔄 *生成物* | 🔄 *直の入力* | 🔄 *段* |
+|---|---|---|
+| 🔄 *`fig-erd-detail.md`・`tbl-settings.md`・コードの型・`tbl-agent-api-members.md`・コードの Agent API の領域・アイコンの名簿* | 🔄 *SSOT だけ* | 🔄 *1* |
+| 🔄 *`grs-document.schema.json`（GRS JSON スキーマ）* | 🔄 *`erd.json`・`settings.json`・**生成した `tbl-settings.md`*** | 🔄 *2* |
+| 🔄 *ヘルプの名簿* | 🔄 *`settings.json`・**生成したアイコンの名簿*** | 🔄 *2* |
+| 🔄 *読む検証器・起動の雛形と空の文書・画像のプロンプト* | 🔄 ***生成したスキーマ*** | 🔄 *3* |
+| 🔄 *`grs-commands.schema.json`・コードの命令の領域* | 🔄 *`document-commands.json`・**生成したスキーマ*** | 🔄 *3* |
+| 🔄 *画面の語* | 🔄 *`display-words.json`・用語集・**生成したヘルプの名簿**・**生成した項目の表*** | 🔄 *3* |
+| 🔄 *MCP の説明* | 🔄 *`agent-api-members.json`・`document-commands.json`・**生成した 2 本のスキーマ*** | 🔄 *4* |
+| 🔄 *取次 `grs-relay.mcpb`* | 🔄 ***生成した MCP の説明** と `src`* | 🔄 *5* |
+
+🔄 ***段が深いと起きること**: 途中の生成物が古いまま次を作ると、古い値が次へ写ります。今は `npm run gen` が決まった順（39 本）で回すので防げていますが、順を間違えると 1 回では直らず、2 回回して初めて揃う所があります。もう 1 つ、**生成した .md（`tbl-settings.md`）を、スキーマの生成器が入力として読む**所があります。.md は人が読む物なので、形を変えたとき（表の列を足すなど）にスキーマが壊れやすい所です。*
+
+| 🔄 *案* | 🔄 *中身* |
+|---|---|
+| 🔄 ***a（推奨）*** | 🔄 ***段は許し、決まりを 2 つ置く** —— ① 生成器の入力は SSOT か生成した JSON だけ（生成した .md を入力にしない。スキーマは `settings.json` を直に読む）。② 各生成器の入力と段を 1 つの表（たとえば `package.json` の横の一覧）に書き、`npm run gen` の順をその表から決め、表と実際の入力が合うかを検査する* |
+| 🔄 *b* | 🔄 ***全部 1 段にする** —— どの生成器も SSOT だけを読み、生成物を入力にしない（スキーマの組み立てを、命令・MCP・雛形の生成器がそれぞれ持つ）* |
+| 🔄 *c* | 🔄 *今のまま* |
+
+🔄 ***推奨の理由**: b は同じ組み立て（スキーマを作る規則）を何か所にも持つことになり、規則が離れていきます。a なら組み立ては 1 か所のまま、段の順が表から決まるので順の間違いが起きません。.md を入力から外せば、人の読む形を変えても生成が壊れません。*
+
+回答:
+
 ---
 
 ## 問 2. GRS JSON のプロパティの順の「正」を、どこに置くか
@@ -140,4 +222,4 @@ display-words.json + 用語集
 
 答えを読んで、ほかに聞きたいこと・違うと思う所があれば、ここに書いてください。
 
-回答:
+回答: 回答の前提としてSSOTとするJSONのファイル名のPathと、そこから派生する各種ファイルの関係を示せよ。 話それからだ。 まずはSSOTをズバリ示せ。 それからMeremaidの図と表で派生関係を示せ。  1段で派生させるのか、複数段で派生させるのかでも今後の扱いや不具合未然防止に影響するだろ？ わかる？ 
