@@ -2,85 +2,85 @@
 
 2026-10-27 に作り、2026-10-28 に日本語の名を足した。β の GRS JSON の形（`CR-851` を当てた後）から、MSPDI と同じ名と意味のキーを除いた 222 個（全部で 302 個）を木にした。中に GRS 独自のキーを持つ MSPDI の型（`Project`・`Task` ほか）は、枝として残した。見るための木で、回答欄は無い。名の裁定は `9-grs-only-key-questions.md` で行う。
 
-左から、キー名・日本語の名・備考。日本語の名は席の案で、直したい所は ★ を付けて直に書き換えてよい。備考の `← 古い名` は今のスキーマから名が変わるもの、`問 N` は `9-grs-only-key-questions.md` の問。`(kind x)` は `kind` の値で形が分かれるときの、その形の中のキー。
+左から、キー名・日本語の名・備考。日本語の名は席の案で、直したい所は ★ を付けて直に書き換えてよい。備考の `← 古い名` は今のスキーマから名が変わるもの、`JDG-338x` はキー名の裁定（`9-grs-only-key-questions.md`）で決めた名。`(kind x)` は `kind` の値で形が分かれるときの、その形の中のキー。
 
 **文書の木**（スキーマのいちばん上から）
 
 ```text
-$schema                            スキーマアドレス
-schemaVersion                      スキーマ版
-buildVersion                       ビルド版
-schedule                           スケジュールデータ          問 1
-+- taskGroups                      タスクグループ
-+- taskGroupMembers                タスクグループ所属
-+- taskVisuals                     タスク図形設定              問 5
-+- taskOrigins                     タスク取込元
-+- baselineTasks                   変更前予定タスク
-+- commentBoxes                    コメントボックス
-+- highlightBoxes                  ハイライトボックス
-documentSettings                   文書設定
-+- displayScalePercent             表示倍率                    ← displayScale
-+- fontSizeStep                    文字サイズ段階
-+- dayWidthPx                      1日幅                       ← zoomX
-+- verticalZoomRatio               縦拡大率                    ← zoomY
-+- taskGroupAutoExpandDepth        自動展開深さ
-+- scrollPosition                  スクロール位置
-|  +- (every kind)                 （どの種類でも）
-|  |  +- kind                      種類
-|  +- (kind placed)                （種類が placed のとき）
-|     +- leftEdgeDay               左端日                      ← scrollDate
-|     +- leftEdgeDayFraction       左端日端数                  ← scrollDateFraction
-|     +- topEdgeTaskGroupId        上端タスクグループID        ← scrollTaskGroupId
-|     +- topEdgeTaskGroupFraction  上端タスクグループ端数      ← scrollTaskGroupFraction
-+- fitSpan                         全体表示期間
-|  +- firstDay                     初日                        ← fitSpanStart
-|  +- lastDay                      末日                        ← fitSpanFinish
-|  +- isFixed                      固定                        ← isFitSpanFixed
-+- viewTimeZone                    表示タイムゾーン
-|  +- (every kind)                 （どの種類でも）
-|  |  +- kind                      種類
-|  +- (kind fixed)                 （種類が fixed のとき）
-|     +- offset                    UTCオフセット
-+- displayTimeZones                追加タイムゾーン
-|  +- offset                       UTCオフセット
-|  +- season                       標準夏時間区分
-+- isTimeOfDayVisible              時刻表示
-+- isPlanVisible                   予定バー表示                問 3
-+- isPlanDatesVisible              予定日付表示
-+- isActualVisible                 実績バー表示                問 3
-+- isPercentCompleteVisible        完了率ラベル表示            問 3
-+- isBaselineVisible               変更前予定輪郭表示          問 3
-+- isProgressLineVisible           イナズマ線表示
-+- isProgressMarkerVisible         進捗マーク表示              問 3
-+- isDependencyVisible             依存線表示                  問 3
-+- isAssigneeVisible               担当ラベル表示              問 3
-+- isDateGridLinesVisible          日付罫線表示
-+- isGroupGridLinesVisible         グループ罫線表示
-+- stackDirection                  積み方向
-+- isThemeMonochrome               モノクロテーマ
-+- taskGroupPanelWidthPx           タスクグループパネル幅
-+- isTaskGroupPanelWidthFixed      タスクグループパネル幅固定
-+- levelZeroTreeState              レベル0木状態
-+- pinnedTaskGroupIds              ピン止めタスクグループID
-+- tableViews                      表表示設定
-   +- searchPanel                  検索ウィンドウ              問 4
-   |  +- isScheduleFilterApplied   スケジュールフィルター適用
-   |  +- shownTaskUids             表示タスクID
-   |  +- columnFilters             列フィルター
-   |  +- sort                      並べ替え
-   +- delayDiagnosticsReport       遅延診断レポートウィンドウ  問 4
-   |  +- isScheduleFilterApplied   スケジュールフィルター適用
-   |  +- shownTaskUids             表示タスクID
-   |  +- columnFilters             列フィルター
-   |  +- sort                      並べ替え
-   +- resourceList                 担当リストウィンドウ        問 4
-      +- isScheduleFilterApplied   スケジュールフィルター適用
-      +- shownResourceUids         表示担当ID
-      +- isUnassignedShown         担当なし行表示
-      +- columnFilters             列フィルター
-      +- sort                      並べ替え
-documentStamp                      文書スタンプ
-changeLogEntries                   変更記録                    ← changeLog
+$schema                             スキーマアドレス
+schemaVersion                       スキーマ版
+buildVersion                        ビルド版
+scheduleData                        スケジュールデータ          ← schedule  JDG-3380
++- taskGroups                       タスクグループ
++- taskGroupMembers                 タスクグループ所属
++- taskGraphicStyles                タスク図形設定              ← taskVisuals  JDG-3384
++- taskOrigins                      タスク取込元
++- baselineTasks                    変更前予定タスク
++- commentBoxes                     コメントボックス
++- highlightBoxes                   ハイライトボックス
+documentSettings                    文書設定
++- displayScalePercent              表示倍率                    ← displayScale
++- fontSizeStep                     文字サイズ段階
++- dayWidthPx                       1日幅                       ← zoomX
++- verticalZoomRatio                縦拡大率                    ← zoomY
++- taskGroupAutoExpandDepth         自動展開深さ
++- scrollPosition                   スクロール位置
+|  +- (every kind)                  （どの種類でも）
+|  |  +- kind                       種類
+|  +- (kind placed)                 （種類が placed のとき）
+|     +- leftEdgeDay                左端日                      ← scrollDate
+|     +- leftEdgeDayFraction        左端日端数                  ← scrollDateFraction
+|     +- topEdgeTaskGroupId         上端タスクグループID        ← scrollTaskGroupId
+|     +- topEdgeTaskGroupFraction   上端タスクグループ端数      ← scrollTaskGroupFraction
++- fitSpan                          全体表示期間
+|  +- firstDay                      初日                        ← fitSpanStart
+|  +- lastDay                       末日                        ← fitSpanFinish
+|  +- isFixed                       固定                        ← isFitSpanFixed
++- viewTimeZone                     表示タイムゾーン
+|  +- (every kind)                  （どの種類でも）
+|  |  +- kind                       種類
+|  +- (kind fixed)                  （種類が fixed のとき）
+|     +- offset                     UTCオフセット
++- displayTimeZones                 追加タイムゾーン
+|  +- offset                        UTCオフセット
+|  +- season                        標準夏時間区分
++- isTimeOfDayVisible               時刻表示
++- isPlanBarVisible                 予定バー表示                ← isPlanVisible  JDG-3382
++- isPlanDatesVisible               予定日付表示
++- isActualBarVisible               実績バー表示                ← isActualVisible  JDG-3382
++- isPercentCompleteLabelVisible    完了率ラベル表示            ← isPercentCompleteVisible  JDG-3382
++- isBaselineOutlineVisible         変更前予定輪郭表示          ← isBaselineVisible  JDG-3382
++- isProgressLineVisible            イナズマ線表示
++- isProgressMarkVisible            進捗マーク表示              ← isProgressMarkerVisible  JDG-3382
++- isDependencyLineVisible          依存線表示                  ← isDependencyVisible  JDG-3382
++- isAssigneeLabelVisible           担当ラベル表示              ← isAssigneeVisible  JDG-3382
++- isDateGridLinesVisible           日付罫線表示
++- isGroupGridLinesVisible          グループ罫線表示
++- stackDirection                   積み方向
++- isThemeMonochrome                モノクロテーマ
++- taskGroupPanelWidthPx            タスクグループパネル幅
++- isTaskGroupPanelWidthFixed       タスクグループパネル幅固定
++- levelZeroTreeState               レベル0木状態
++- pinnedTaskGroupIds               ピン止めタスクグループID
++- tableViews                       表表示設定
+   +- searchWindow                  検索ウィンドウ              ← searchPanel  JDG-3383
+   |  +- isScheduleFilterApplied    スケジュールフィルター適用
+   |  +- shownTaskUids              表示タスクID
+   |  +- columnFilters              列フィルター
+   |  +- sort                       並べ替え
+   +- delayDiagnosticsReportWindow  遅延診断レポートウィンドウ  ← delayDiagnosticsReport  JDG-3383
+   |  +- isScheduleFilterApplied    スケジュールフィルター適用
+   |  +- shownTaskUids              表示タスクID
+   |  +- columnFilters              列フィルター
+   |  +- sort                       並べ替え
+   +- resourceListWindow            担当リストウィンドウ        ← resourceList  JDG-3383
+      +- isScheduleFilterApplied    スケジュールフィルター適用
+      +- shownResourceUids          表示担当ID
+      +- isUnassignedShown          担当なし行表示
+      +- columnFilters              列フィルター
+      +- sort                       並べ替え
+documentStamp                       文書スタンプ
+changeLogEntries                    変更記録                    ← changeLog
 ```
 
 **型の木**（`$defs`）
@@ -141,7 +141,7 @@ TaskGroup                                  タスクグループ
 TaskGroupMember                            タスクグループ所属
 +- taskUid                                 タスクID
 +- taskGroupId                             タスクグループID
-TaskVisual                                 タスク図形設定                  問 5
+TaskGraphicStyle                           タスク図形設定                  ← TaskVisual  JDG-3384
 +- taskUid                                 タスクID
 +- taskShape                               タスク形状                      ← shapeKind
 +- milestoneShape                          マイルストーン形状              ← milestoneGlyph
@@ -162,7 +162,7 @@ BaselineTask                               変更前予定タスク
 +- milestone                               マイルストーン
 CommentBox                                 コメントボックス
 +- id                                      コメントボックスID
-+- anchor                                  線先                            問 2
++- leaderAnchor                            線先                            ← anchor  JDG-3381
 +- bodyOffsetPx                            本文オフセット
 |  +- dx                                   横ずれ
 |  +- dy                                   縦ずれ
@@ -175,25 +175,25 @@ CommentBox                                 コメントボックス
 +- fontSizePx                              文字サイズ
 +- hyperlinkAddress                        ハイパーリンクアドレス
 +- hyperlink                               ハイパーリンク名
-CommentBoxAnchor                           線先                            問 2
+LeaderAnchor                               線先                            ← CommentBoxAnchor  JDG-3381
 +- (every kind)                            （どの種類でも）
 |  +- kind                                 種類
 +- (kind freePoint)                        （種類が freePoint のとき）
 |  +- dateTime                             日時                            ← anchorDate
 |  +- taskGroupId                          タスクグループID                ← anchorTaskGroupId
-|  +- bandFraction                         レーン内高さ                    ← anchorBandFraction  問 2
+|  +- laneFraction                         レーン内高さ                    ← anchorBandFraction  JDG-3381
 +- (kind task)                             （種類が task のとき）
 |  +- taskUid                              タスクID                        ← anchorTaskUid
-|  +- figure                               吸着先図形                      ← anchorTaskFigure  問 2
+|  +- graphicPart                          吸着先図形                      ← anchorTaskFigure  JDG-3381
 |  +- point                                吸着点                          ← anchorSnapPoint
 |  +- fallback                             代替位置
 +- (kind highlightBox)                     （種類が highlightBox のとき）
    +- point                                吸着点                          ← anchorSnapPoint
    +- highlightBoxId                       ハイライトボックスID            ← anchorHighlightBoxId
    +- fallback                             代替位置
-AnchorFallback                             線先代替位置                    問 2
+LeaderAnchorFallback                       線先代替位置                    ← AnchorFallback  JDG-3381
 +- taskGroupId                             タスクグループID                ← anchorTaskGroupId
-+- bandFraction                            レーン内高さ                    ← anchorBandFraction  問 2
++- laneFraction                            レーン内高さ                    ← anchorBandFraction  JDG-3381
 HighlightBox                               ハイライトボックス
 +- id                                      ハイライトボックスID
 +- topTaskGroupId                          上端タスクグループID
@@ -206,7 +206,7 @@ HighlightBox                               ハイライトボックス
 +- strokeColor                             枠色
 +- strokeWidthPx                           枠太さ
 DocumentStamp                              文書スタンプ                    ← documentStamp
-+- scheduleUpdatedAt                       スケジュールデータ更新時刻      問 1
++- scheduleDataUpdatedAt                   スケジュールデータ更新時刻      ← scheduleUpdatedAt  JDG-3380
 +- documentUpdatedAt                       文書更新時刻                    ← settingsUpdatedAt
 +- fileSavedAt                             ファイル保存時刻
 +- lastEditedBy                            最終編集者
@@ -244,7 +244,7 @@ Color                                      色
 ColorSide                                  テーマ別色
 +- value                                   色値
 +- source                                  由来
-BandColor                                  レーン色                        問 2
+LaneColor                                  レーン色                        ← BandColor  JDG-3381
 ColumnFilter                               列フィルター
 +- (every kind)                            （どの種類でも）
 |  +- kind                                 種類
