@@ -1,268 +1,262 @@
 # GRS JSON の GRS 独自のキーの木
 
-2026-10-27 に作った。β の GRS JSON の形（`CR-851` を当てた後。`doc-shape-map.tsv` の `element_new`）から、MSPDI と同じ名と意味のキー（説明が「Same as MSPDI」で始まるもの）を除き、GRS 独自のキーだけを木にした。
+2026-10-27 に作り、2026-10-28 に日本語の名を足した。β の GRS JSON の形（`CR-851` を当てた後）から、MSPDI と同じ名と意味のキーを除いた 222 個（全部で 302 個）を木にした。中に GRS 独自のキーを持つ MSPDI の型（`Project`・`Task` ほか）は、枝として残した。見るための木で、回答欄は無い。名の裁定は `9-grs-only-key-questions.md` で行う。
 
-- GRS 独自のキーは 219 個（全部で 299 個）。中に GRS 独自のキーを持つ MSPDI の型（`Project`・`Task` ほか）は、枝として残し、右の欄にそう書いた。
-- 右の欄: `← 古い名`（今のスキーマから名が変わるもの）、`問 N`（`7-key-name-questions.md` の問）。
-- 名の裁定は `7-key-name-questions.md` で行う。本書は見るための木で、回答欄は無い。
+左から、キー名・日本語の名・備考。日本語の名は席の案で、直したい所は ★ を付けて直に書き換えてよい。備考の `← 古い名` は今のスキーマから名が変わるもの、`問 N` は `9-grs-only-key-questions.md` の問。`(kind x)` は `kind` の値で形が分かれるときの、その形の中のキー。
 
 **文書の木**（スキーマのいちばん上から）
 
 ```text
-   $schema
-   schemaVersion
-   buildVersion
-   schedule                           問 1
-   +- taskGroups
-   +- taskGroupMembers
-   +- taskVisuals                     問 5
-   +- taskOrigins
-   +- baselineTasks
-   +- commentBoxes
-   +- highlightBoxes
-   documentSettings
-   +- displayScalePercent             ← displayScale
-   +- fontSizeStep
-   +- dayWidthPx                      ← zoomX
-   +- verticalZoomRatio               ← zoomY
-   +- taskGroupAutoExpandDepth
-   +- scrollPosition
-   |  +- (every kind)
-   |  |  +- kind
-   |  +- (kind placed)
-   |     +- leftEdgeDay               ← scrollDate
-   |     +- leftEdgeDayFraction       ← scrollDateFraction
-   |     +- topEdgeTaskGroupId        ← scrollTaskGroupId
-   |     +- topEdgeTaskGroupFraction  ← scrollTaskGroupFraction
-   +- fitSpan
-   |  +- firstDay                     ← fitSpanStart
-   |  +- lastDay                      ← fitSpanFinish
-   |  +- isFixed                      ← isFitSpanFixed
-   +- viewTimeZone
-   |  +- (every kind)
-   |  |  +- kind
-   |  +- (kind fixed)
-   |     +- offset
-   +- displayTimeZones
-   |  +- offset
-   |  +- season
-   +- isTimeOfDayVisible
-   +- isPlanVisible                   問 3
-   +- isPlanDatesVisible
-   +- isActualVisible                 問 3
-   +- isPercentCompleteVisible        問 3
-   +- isBaselineVisible               問 3
-   +- isProgressLineVisible
-   +- isProgressMarkerVisible         問 3
-   +- isDependencyVisible             問 3
-   +- isAssigneeVisible               問 3
-   +- isDateGridLinesVisible
-   +- isGroupGridLinesVisible
-   +- stackDirection
-   +- isThemeMonochrome
-   +- taskGroupPanelWidthPx
-   +- isTaskGroupPanelWidthFixed
-   +- levelZeroTreeState
-   +- pinnedTaskGroupIds
-   +- tableViews
-      +- searchPanel                  問 4
-      |  +- isScheduleFilterApplied
-      |  +- shownTaskUids
-      |  +- columnFilters
-      |  +- sort
-      +- delayDiagnosticsReport       問 4
-      |  +- isScheduleFilterApplied
-      |  +- shownTaskUids
-      |  +- columnFilters
-      |  +- sort
-      +- resourceList                 問 4
-         +- isScheduleFilterApplied
-         +- shownResourceUids
-         +- isUnassignedShown
-         +- columnFilters
-         +- sort
-   documentStamp
-   changeLogEntries                   ← changeLog
+$schema                            スキーマアドレス
+schemaVersion                      スキーマ版
+buildVersion                       ビルド版
+schedule                           スケジュールデータ          問 1
++- taskGroups                      タスクグループ
++- taskGroupMembers                タスクグループ所属
++- taskVisuals                     タスク図形設定              問 5
++- taskOrigins                     タスク取込元
++- baselineTasks                   変更前予定タスク
++- commentBoxes                    コメントボックス
++- highlightBoxes                  ハイライトボックス
+documentSettings                   文書設定
++- displayScalePercent             表示倍率                    ← displayScale
++- fontSizeStep                    文字サイズ段階
++- dayWidthPx                      1日幅                       ← zoomX
++- verticalZoomRatio               縦拡大率                    ← zoomY
++- taskGroupAutoExpandDepth        自動展開深さ
++- scrollPosition                  スクロール位置
+|  +- (every kind)                 （どの種類でも）
+|  |  +- kind                      種類
+|  +- (kind placed)                （種類が placed のとき）
+|     +- leftEdgeDay               左端日                      ← scrollDate
+|     +- leftEdgeDayFraction       左端日端数                  ← scrollDateFraction
+|     +- topEdgeTaskGroupId        上端タスクグループID        ← scrollTaskGroupId
+|     +- topEdgeTaskGroupFraction  上端タスクグループ端数      ← scrollTaskGroupFraction
++- fitSpan                         全体表示期間
+|  +- firstDay                     初日                        ← fitSpanStart
+|  +- lastDay                      末日                        ← fitSpanFinish
+|  +- isFixed                      固定                        ← isFitSpanFixed
++- viewTimeZone                    表示タイムゾーン
+|  +- (every kind)                 （どの種類でも）
+|  |  +- kind                      種類
+|  +- (kind fixed)                 （種類が fixed のとき）
+|     +- offset                    UTCオフセット
++- displayTimeZones                追加タイムゾーン
+|  +- offset                       UTCオフセット
+|  +- season                       標準夏時間区分
++- isTimeOfDayVisible              時刻表示
++- isPlanVisible                   予定バー表示                問 3
++- isPlanDatesVisible              予定日付表示
++- isActualVisible                 実績バー表示                問 3
++- isPercentCompleteVisible        完了率ラベル表示            問 3
++- isBaselineVisible               変更前予定輪郭表示          問 3
++- isProgressLineVisible           イナズマ線表示
++- isProgressMarkerVisible         進捗マーク表示              問 3
++- isDependencyVisible             依存線表示                  問 3
++- isAssigneeVisible               担当ラベル表示              問 3
++- isDateGridLinesVisible          日付罫線表示
++- isGroupGridLinesVisible         グループ罫線表示
++- stackDirection                  積み方向
++- isThemeMonochrome               モノクロテーマ
++- taskGroupPanelWidthPx           タスクグループパネル幅
++- isTaskGroupPanelWidthFixed      タスクグループパネル幅固定
++- levelZeroTreeState              レベル0木状態
++- pinnedTaskGroupIds              ピン止めタスクグループID
++- tableViews                      表表示設定
+   +- searchPanel                  検索ウィンドウ              問 4
+   |  +- isScheduleFilterApplied   スケジュールフィルター適用
+   |  +- shownTaskUids             表示タスクID
+   |  +- columnFilters             列フィルター
+   |  +- sort                      並べ替え
+   +- delayDiagnosticsReport       遅延診断レポートウィンドウ  問 4
+   |  +- isScheduleFilterApplied   スケジュールフィルター適用
+   |  +- shownTaskUids             表示タスクID
+   |  +- columnFilters             列フィルター
+   |  +- sort                      並べ替え
+   +- resourceList                 担当リストウィンドウ        問 4
+      +- isScheduleFilterApplied   スケジュールフィルター適用
+      +- shownResourceUids         表示担当ID
+      +- isUnassignedShown         担当なし行表示
+      +- columnFilters             列フィルター
+      +- sort                      並べ替え
+documentStamp                      文書スタンプ
+changeLogEntries                   変更記録                    ← changeLog
 ```
 
 **型の木**（`$defs`）
 
 ```text
-   Project                                    （MSPDI の型。中の GRS 独自のキーだけを載せる）
-   +- scheduleDataTimeZone
-   +- themeHueDegrees                         ← themeHue
-   +- parentTaskProgressToleranceWorkingDays  ← parentTaskProgressToleranceDays
-   +- highestIssuedUid                        ← uidHighWaterMark
-   +- lastImportNumber                        ← importSequence
-   +- firstOutlineLevel                       ← outlineBase
-   +- sourceFormat
-   +- passthroughValues                       ← carry
-   +- passthroughElements                     ← carryElements
-   Calendar                                   （MSPDI の型。中の GRS 独自のキーだけを載せる）
-   +- ordinal
-   +- passthroughValues                       ← carry
-   +- passthroughElements                     ← carryElements
-   WeekDay                                    （MSPDI の型。中の GRS 独自のキーだけを載せる）
-   +- ordinal
-   +- passthroughValues                       ← carry
-   +- passthroughElements                     ← carryElements
-   Exception                                  （MSPDI の型。中の GRS 独自のキーだけを載せる）
-   +- ordinal
-   +- passthroughValues                       ← carry
-   +- passthroughElements                     ← carryElements
-   WorkingTime                                （MSPDI の型。中の GRS 独自のキーだけを載せる）
-   +- ordinal
-   Task                                       （MSPDI の型。中の GRS 独自のキーだけを載せる）
-   +- parentTaskUid
-   +- siblingOrder                            ← wbsOrder
-   +- fadeInCalendarDays                      ← fadeInDays
-   +- fadeOutCalendarDays                     ← fadeOutDays
-   +- passthroughValues                       ← carry
-   +- passthroughElements                     ← carryElements
-   Dependency                                 （MSPDI の型。中の GRS 独自のキーだけを載せる）
-   +- passthroughValues                       ← carry
-   +- passthroughElements                     ← carryElements
-   Resource                                   （MSPDI の型。中の GRS 独自のキーだけを載せる）
-   +- passthroughValues                       ← carry
-   +- passthroughElements                     ← carryElements
-   Assignment                                 （MSPDI の型。中の GRS 独自のキーだけを載せる）
-   +- passthroughValues                       ← carry
-   +- passthroughElements                     ← carryElements
-   TaskGroup
-   +- id
-   +- parentId
-   +- representedTaskUid                      ← derivedFromTaskUid
-   +- siblingOrder                            ← order
-   +- name
-   +- treeState
-   +- editGroup                               ← editPermission
-   +- color
-   +- minHeightPx
-   +- hyperlinkAddress
-   +- hyperlink
-   TaskGroupMember
-   +- taskUid
-   +- taskGroupId
-   TaskVisual                                 問 5
-   +- taskUid
-   +- taskShape                               ← shapeKind
-   +- milestoneShape                          ← milestoneGlyph
-   +- fillColor
-   +- strokeColor
-   +- strokeWidthPx
-   TaskOrigin
-   +- taskUid
-   +- sourceProjectId
-   +- sourceUid
-   +- importSessionId
-   +- lastSeenImportNumber                    ← lastSeenImportSequence
-   BaselineTask
-   +- uid
-   +- name
-   +- start
-   +- finish
-   +- milestone
-   CommentBox
-   +- id
-   +- anchor                                  問 2
-   +- bodyOffsetPx
-   |  +- dx
-   |  +- dy
-   +- text
-   +- fillColor
-   +- fillTransparencyPercent
-   +- strokeColor
-   +- strokeWidthPx
-   +- textColor
-   +- fontSizePx
-   +- hyperlinkAddress
-   +- hyperlink
-   CommentBoxAnchor                           問 2
-   +- (every kind)
-   |  +- kind
-   +- (kind freePoint)
-   |  +- dateTime                             ← anchorDate
-   |  +- taskGroupId ;
-   |  |  +- AnchorFallback
-   |  |     +- taskGroupId                    ← anchorTaskGroupId
-   |  +- bandFraction ;
-   |     +- AnchorFallback
-   |        +- bandFraction                   ← anchorBandFraction  問 2
-   +- (kind task)
-   |  +- taskUid                              ← anchorTaskUid
-   |  +- figure                               ← anchorTaskFigure  問 2
-   |  +- point ;
-   |  |  +- CommentBoxAnchor
-   |  |     +- (kind highlightBox)
-   |  |        +- point                       ← anchorSnapPoint
-   |  +- fallback
-   +- (kind highlightBox)
-      +- highlightBoxId                       ← anchorHighlightBoxId
-      +- fallback
-   AnchorFallback                             問 2
-   HighlightBox
-   +- id
-   +- topTaskGroupId
-   +- bottomTaskGroupId
-   +- firstDay                                ← start
-   +- lastDay                                 ← finish
-   +- cornerRadiusPx
-   +- fillColor
-   +- fillTransparencyPercent
-   +- strokeColor
-   +- strokeWidthPx
-   DocumentStamp                              ← documentStamp
-   +- scheduleUpdatedAt                       問 1
-   +- documentUpdatedAt                       ← settingsUpdatedAt
-   +- fileSavedAt
-   +- lastEditedBy
-   Writer
-   +- (every kind)
-   |  +- kind
-   +- (kind agent)
-      +- name
-   ChangeLogEntry                             ← changeLog
-   +- changedAt
-   +- changedBy                               ← editedBy
-   +- affectedArea
-   +- changeDescription                       ← explanation
-   +- reason
-   +- note
-   PassthroughValues                          ← Carry
-   PassthroughElement                         ← CarryElement
-   +- ordinal
-   +- name
-   +- fields
-   +- children
-   Day
-   DateTime
-   Time
-   UtcInstant
-   UtcOffset
-   Color
-   +- (every kind)
-   |  +- kind
-   +- (kind palette)
-   |  +- name
-   +- (kind custom)
-      +- light
-      +- dark
-   ColorSide
-   +- value
-   +- source
-   BandColor                                  問 2
-   ColumnFilter
-   +- (every kind)
-   |  +- kind
-   |  +- column
-   +- (kind values)
-   |  +- hiddenValues
-   |  +- isBlankHidden
-   +- (kind dateRange)
-      +- firstDay                             ← fromDate
-      +- lastDay                              ← toDate
-   ColumnSort
-   +- column
-   +- direction
-   ColumnKey
+Project                                    プロジェクト                    MSPDI の型（中の GRS 独自のキーだけを載せる）
++- scheduleDataTimeZone                    スケジュールデータタイムゾーン
++- themeHueDegrees                         テーマ色相                      ← themeHue
++- parentTaskProgressToleranceWorkingDays  親タスク進捗許容日数            ← parentTaskProgressToleranceDays
++- highestIssuedUid                        発番済み最大ID                  ← uidHighWaterMark
++- lastImportNumber                        最終取込番号                    ← importSequence
++- firstOutlineLevel                       開始アウトラインレベル          ← outlineBase
++- sourceFormat                            元形式
++- passthroughValues                       持ち越し値                      ← carry
++- passthroughElements                     持ち越し要素                    ← carryElements
+Calendar                                   カレンダー                      MSPDI の型（中の GRS 独自のキーだけを載せる）
++- ordinal                                 出現順
++- passthroughValues                       持ち越し値                      ← carry
++- passthroughElements                     持ち越し要素                    ← carryElements
+WeekDay                                    曜日別稼働                      MSPDI の型（中の GRS 独自のキーだけを載せる）
++- ordinal                                 出現順
++- passthroughValues                       持ち越し値                      ← carry
++- passthroughElements                     持ち越し要素                    ← carryElements
+Exception                                  例外日                          MSPDI の型（中の GRS 独自のキーだけを載せる）
++- ordinal                                 出現順
++- passthroughValues                       持ち越し値                      ← carry
++- passthroughElements                     持ち越し要素                    ← carryElements
+WorkingTime                                稼働時間帯                      MSPDI の型（中の GRS 独自のキーだけを載せる）
++- ordinal                                 出現順
+Task                                       タスク                          MSPDI の型（中の GRS 独自のキーだけを載せる）
++- parentTaskUid                           親タスクID
++- siblingOrder                            兄弟順                          ← wbsOrder
++- fadeInCalendarDays                      開始側フェード日数              ← fadeInDays
++- fadeOutCalendarDays                     終了側フェード日数              ← fadeOutDays
++- passthroughValues                       持ち越し値                      ← carry
++- passthroughElements                     持ち越し要素                    ← carryElements
+Dependency                                 依存関係                        MSPDI の型（中の GRS 独自のキーだけを載せる）
++- passthroughValues                       持ち越し値                      ← carry
++- passthroughElements                     持ち越し要素                    ← carryElements
+Resource                                   担当                            MSPDI の型（中の GRS 独自のキーだけを載せる）
++- passthroughValues                       持ち越し値                      ← carry
++- passthroughElements                     持ち越し要素                    ← carryElements
+Assignment                                 割当                            MSPDI の型（中の GRS 独自のキーだけを載せる）
++- passthroughValues                       持ち越し値                      ← carry
++- passthroughElements                     持ち越し要素                    ← carryElements
+TaskGroup                                  タスクグループ
++- id                                      タスクグループID
++- parentId                                親タスクグループID
++- representedTaskUid                      代表タスクID                    ← derivedFromTaskUid
++- siblingOrder                            兄弟順                          ← order
++- name                                    タスクグループ名
++- treeState                               木状態
++- editGroup                               編集グループ                    ← editPermission
++- color                                   レーン色
++- minHeightPx                             最小高さ
++- hyperlinkAddress                        ハイパーリンクアドレス
++- hyperlink                               ハイパーリンク名
+TaskGroupMember                            タスクグループ所属
++- taskUid                                 タスクID
++- taskGroupId                             タスクグループID
+TaskVisual                                 タスク図形設定                  問 5
++- taskUid                                 タスクID
++- taskShape                               タスク形状                      ← shapeKind
++- milestoneShape                          マイルストーン形状              ← milestoneGlyph
++- fillColor                               塗り色
++- strokeColor                             輪郭色
++- strokeWidthPx                           輪郭太さ
+TaskOrigin                                 タスク取込元
++- taskUid                                 タスクID
++- sourceProjectId                         取込元プロジェクトID
++- sourceUid                               取込元タスクID
++- importSessionId                         取込回ID
++- lastSeenImportNumber                    最終確認取込番号                ← lastSeenImportSequence
+BaselineTask                               変更前予定タスク
++- uid                                     タスクID
++- name                                    タスク名
++- start                                   変更前予定開始
++- finish                                  変更前予定終了
++- milestone                               マイルストーン
+CommentBox                                 コメントボックス
++- id                                      コメントボックスID
++- anchor                                  線先                            問 2
++- bodyOffsetPx                            本文オフセット
+|  +- dx                                   横ずれ
+|  +- dy                                   縦ずれ
++- text                                    本文
++- fillColor                               塗り色
++- fillTransparencyPercent                 塗り透過率
++- strokeColor                             枠色
++- strokeWidthPx                           枠太さ
++- textColor                               文字色
++- fontSizePx                              文字サイズ
++- hyperlinkAddress                        ハイパーリンクアドレス
++- hyperlink                               ハイパーリンク名
+CommentBoxAnchor                           線先                            問 2
++- (every kind)                            （どの種類でも）
+|  +- kind                                 種類
++- (kind freePoint)                        （種類が freePoint のとき）
+|  +- dateTime                             日時                            ← anchorDate
+|  +- taskGroupId                          タスクグループID                ← anchorTaskGroupId
+|  +- bandFraction                         レーン内高さ                    ← anchorBandFraction  問 2
++- (kind task)                             （種類が task のとき）
+|  +- taskUid                              タスクID                        ← anchorTaskUid
+|  +- figure                               吸着先図形                      ← anchorTaskFigure  問 2
+|  +- point                                吸着点                          ← anchorSnapPoint
+|  +- fallback                             代替位置
++- (kind highlightBox)                     （種類が highlightBox のとき）
+   +- point                                吸着点                          ← anchorSnapPoint
+   +- highlightBoxId                       ハイライトボックスID            ← anchorHighlightBoxId
+   +- fallback                             代替位置
+AnchorFallback                             線先代替位置                    問 2
++- taskGroupId                             タスクグループID                ← anchorTaskGroupId
++- bandFraction                            レーン内高さ                    ← anchorBandFraction  問 2
+HighlightBox                               ハイライトボックス
++- id                                      ハイライトボックスID
++- topTaskGroupId                          上端タスクグループID
++- bottomTaskGroupId                       下端タスクグループID
++- firstDay                                初日                            ← start
++- lastDay                                 末日                            ← finish
++- cornerRadiusPx                          角丸半径
++- fillColor                               塗り色
++- fillTransparencyPercent                 塗り透過率
++- strokeColor                             枠色
++- strokeWidthPx                           枠太さ
+DocumentStamp                              文書スタンプ                    ← documentStamp
++- scheduleUpdatedAt                       スケジュールデータ更新時刻      問 1
++- documentUpdatedAt                       文書更新時刻                    ← settingsUpdatedAt
++- fileSavedAt                             ファイル保存時刻
++- lastEditedBy                            最終編集者
+Writer                                     編集者
++- (every kind)                            （どの種類でも）
+|  +- kind                                 種類
++- (kind agent)                            （種類が agent のとき）
+   +- name                                 編集者名
+ChangeLogEntry                             変更記録項目                    ← changeLog
++- changedAt                               変更時刻
++- changedBy                               変更者                          ← editedBy
++- affectedArea                            影響範囲
++- changeDescription                       変更内容                        ← explanation
++- reason                                  理由
++- note                                    備考
+PassthroughValues                          持ち越し値                      ← Carry
+PassthroughElement                         持ち越し要素                    ← CarryElement
++- ordinal                                 出現順
++- name                                    要素名
++- fields                                  子値
++- children                                子要素
+Day                                        日付
+DateTime                                   日時
+Time                                       時刻
+UtcInstant                                 UTC時刻
+UtcOffset                                  UTCオフセット
+Color                                      色
++- (every kind)                            （どの種類でも）
+|  +- kind                                 種類
++- (kind palette)                          （種類が palette のとき）
+|  +- name                                 パレット色名
++- (kind custom)                           （種類が custom のとき）
+   +- light                                ライトテーマ色
+   +- dark                                 ダークテーマ色
+ColorSide                                  テーマ別色
++- value                                   色値
++- source                                  由来
+BandColor                                  レーン色                        問 2
+ColumnFilter                               列フィルター
++- (every kind)                            （どの種類でも）
+|  +- kind                                 種類
+|  +- column                               列名
++- (kind values)                           （種類が values のとき）
+|  +- hiddenValues                         非表示値
+|  +- isBlankHidden                        空欄非表示
++- (kind dateRange)                        （種類が dateRange のとき）
+   +- firstDay                             初日                            ← fromDate
+   +- lastDay                              末日                            ← toDate
+ColumnSort                                 列並べ替え
++- column                                  列名
++- direction                               方向
+ColumnKey                                  列名
 ```
