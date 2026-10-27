@@ -208,14 +208,15 @@ svg.focus .erd-edge.on { opacity: 1; stroke: var(--accent); stroke-width: 2; }
 <script>
 const TABLES = /*__DATA__*/[];
 // The view (JDG-3347): an empty set in a check group means "all". Remembered per viewer only.
-const state = { scroll: {}, tab: TABLES[0].key, query: '', status: new Set(), tags: new Set(), secs: {}, hideOld: false,
+const state = { scroll: {}, tab: TABLES[0].key, query: '', status: new Set(), tags: new Set(), secs: {}, hideOld: true,
   reviews: new Map(), db: null, writing: new Map() };
 const VIEW_KEY = 'cr851-review-view';
 function loadView() {
   try {
     const v = JSON.parse(localStorage.getItem(VIEW_KEY) || 'null');
     if (!v) return;
-    state.hideOld = !!v.hideOld;
+    // The old side starts hidden (owner, 2026-10-28); only a choice saved since then shows it again.
+    if (typeof v.hideOldSince1028 === 'boolean') state.hideOld = v.hideOldSince1028;
     state.status = new Set(v.status || []);
     state.tags = new Set(v.tags || []);
     Object.keys(v.secs || {}).forEach(k => { state.secs[k] = new Set(v.secs[k]); });
@@ -225,7 +226,7 @@ function saveView() {
   try {
     const secs = {};
     Object.keys(state.secs).forEach(k => { secs[k] = [...state.secs[k]]; });
-    localStorage.setItem(VIEW_KEY, JSON.stringify({ hideOld: state.hideOld, status: [...state.status], tags: [...state.tags], secs }));
+    localStorage.setItem(VIEW_KEY, JSON.stringify({ hideOldSince1028: state.hideOld, status: [...state.status], tags: [...state.tags], secs }));
   } catch (e) { /* not remembered; the page still works */ }
 }
 function secsOf(key) { if (!state.secs[key]) state.secs[key] = new Set(); return state.secs[key]; }
