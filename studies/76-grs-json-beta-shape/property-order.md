@@ -15,11 +15,11 @@ status: draft
 
 ## 1. ルート
 
-`$schema`・`schemaVersion`・`buildVersion`・`schedule`・`documentSettings`・`documentStamp`・`changeLogEntries`
+`$schema`・`schemaVersion`・`buildVersion`・`scheduleData`・`documentSettings`・`documentStamp`・`changeLogEntries`
 
-## 2. `schedule`
+## 2. `scheduleData`
 
-`project`・`calendars`・`tasks`・`resources`・`assignments`・`taskGroups`・`taskGroupMembers`・`taskVisuals`・`taskOrigins`・`baselineTasks`・`commentBoxes`・`highlightBoxes`
+`project`・`calendars`・`tasks`・`resources`・`assignments`・`taskGroups`・`taskGroupMembers`・`taskGraphicStyles`・`taskOrigins`・`baselineTasks`・`commentBoxes`・`highlightBoxes`
 
 ## 3. `documentSettings`
 
@@ -28,7 +28,7 @@ status: draft
 | 倍率 | `displayScalePercent`・`fontSizeStep`・`dayWidthPx`・`verticalZoomRatio`・`taskGroupAutoExpandDepth` |
 | 表示位置 | `scrollPosition`・`fitSpan` |
 | 時刻帯 | `viewTimeZone`・`displayTimeZones`・`isTimeOfDayVisible` |
-| 見せるもの | `isPlanVisible`・`isPlanDatesVisible`・`isActualVisible`・`isPercentCompleteVisible`・`isBaselineVisible`・`isProgressLineVisible`・`isProgressMarkerVisible`・`isDependencyVisible`・`isAssigneeVisible`・`isDateGridLinesVisible`・`isGroupGridLinesVisible` |
+| 見せるもの | `isPlanBarVisible`・`isPlanDatesVisible`・`isActualBarVisible`・`isPercentCompleteLabelVisible`・`isBaselineOutlineVisible`・`isProgressLineVisible`・`isProgressMarkVisible`・`isDependencyLineVisible`・`isAssigneeLabelVisible`・`isDateGridLinesVisible`・`isGroupGridLinesVisible` |
 | 積み方と色 | `stackDirection`・`isThemeMonochrome` |
 | タスクグループパネル | `taskGroupPanelWidthPx`・`isTaskGroupPanelWidthFixed`・`levelZeroTreeState`・`pinnedTaskGroupIds` |
 | 表の見え方 | `tableViews` |
@@ -37,7 +37,7 @@ status: draft
 
 ## 4. `$defs` の実体と型
 
-`Project`・`Calendar`・`WeekDay`・`Exception`・`WorkingTime`・`Task`・`Dependency`・`Resource`・`Assignment`・`TaskGroup`・`TaskGroupMember`・`TaskVisual`・`TaskOrigin`・`BaselineTask`・`CommentBox`・`CommentBoxAnchor`・`AnchorFallback`・`HighlightBox`・`DocumentStamp`・`Writer`・`ChangeLogEntry`・`PassthroughValues`・`PassthroughElement`・`Day`・`DateTime`・`Time`・`UtcInstant`・`UtcOffset`・`Color`・`ColorSide`・`BandColor`・`ColumnFilter`・`ColumnSort`・`ColumnKey`
+`Project`・`Calendar`・`WeekDay`・`Exception`・`WorkingTime`・`Task`・`Dependency`・`Resource`・`Assignment`・`TaskGroup`・`TaskGroupMember`・`TaskGraphicStyle`・`TaskOrigin`・`BaselineTask`・`CommentBox`・`LeaderAnchor`・`LeaderAnchorFallback`・`HighlightBox`・`DocumentStamp`・`Writer`・`ChangeLogEntry`・`PassthroughValues`・`PassthroughElement`・`Day`・`DateTime`・`Time`・`UtcInstant`・`UtcOffset`・`Color`・`ColorSide`・`LaneColor`・`ColumnFilter`・`ColumnSort`・`ColumnKey`
 
 ## 5. 実体の中
 
@@ -54,12 +54,12 @@ status: draft
 | `Assignment` | `uid`・`taskUid`・`resourceUid`・`passthroughValues`・`passthroughElements` |
 | `TaskGroup` | `id`・`parentId`・`representedTaskUid`・`siblingOrder`・`name`・`treeState`・`editGroup`・`color`・`minHeightPx`・`hyperlinkAddress`・`hyperlink` |
 | `TaskGroupMember` | `taskUid`・`taskGroupId` |
-| `TaskVisual` | `taskUid`・`taskShape`・`milestoneShape`・`fillColor`・`strokeColor`・`strokeWidthPx` |
+| `TaskGraphicStyle` | `taskUid`・`taskShape`・`milestoneShape`・`fillColor`・`strokeColor`・`strokeWidthPx` |
 | `TaskOrigin` | `taskUid`・`sourceProjectId`・`sourceUid`・`importSessionId`・`lastSeenImportNumber` |
 | `BaselineTask` | `uid`・`name`・`start`・`finish`・`milestone` |
-| `CommentBox` | `id`・`anchor`・`bodyOffsetPx`・`text`・`fillColor`・`fillTransparencyPercent`・`strokeColor`・`strokeWidthPx`・`textColor`・`fontSizePx`・`hyperlinkAddress`・`hyperlink` |
+| `CommentBox` | `id`・`leaderAnchor`・`bodyOffsetPx`・`text`・`fillColor`・`fillTransparencyPercent`・`strokeColor`・`strokeWidthPx`・`textColor`・`fontSizePx`・`hyperlinkAddress`・`hyperlink` |
 | `HighlightBox` | `id`・`topTaskGroupId`・`bottomTaskGroupId`・`firstDay`・`lastDay`・`cornerRadiusPx`・`fillColor`・`fillTransparencyPercent`・`strokeColor`・`strokeWidthPx` |
-| `DocumentStamp` | `scheduleUpdatedAt`・`documentUpdatedAt`・`fileSavedAt`・`lastEditedBy` |
+| `DocumentStamp` | `scheduleDataUpdatedAt`・`documentUpdatedAt`・`fileSavedAt`・`lastEditedBy` |
 | `ChangeLogEntry` | `changedAt`・`changedBy`・`affectedArea`・`changeDescription`・`reason`・`note`（`JDG-3332`） |
 | `PassthroughElement` | `ordinal`・`name`・`fields`・`children` |
 | `ColorSide` | `value`・`source` |
@@ -69,7 +69,7 @@ status: draft
 
 | 型 | 順 |
 |---|---|
-| `CommentBoxAnchor` | 共通: `kind` → freePoint: `dateTime`・`taskGroupId`・`bandFraction` → task: `taskUid`・`figure`・`point`・`fallback` → highlightBox: `highlightBoxId`・`point`・`fallback` |
+| `LeaderAnchor` | 共通: `kind` → freePoint: `dateTime`・`taskGroupId`・`laneFraction` → task: `taskUid`・`graphicPart`・`point`・`fallback` → highlightBox: `highlightBoxId`・`point`・`fallback` |
 | `Color` | 共通: `kind` → theme: （無し） → palette: `name` → custom: `light`・`dark` |
 | `Writer` | 共通: `kind` → person: （無し） → agent: `name` |
 | `ColumnFilter` | 共通: `kind`・`column` → values: `hiddenValues`・`isBlankHidden` → dateRange: `firstDay`・`lastDay` |
