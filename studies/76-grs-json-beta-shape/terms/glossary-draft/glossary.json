@@ -36,6 +36,22 @@
        ]
       },
       {
+       "key": "NDD",
+       "definition": {
+        "en": "Naming Driven Development: the AI-assisted software development style that puts naming first, and the way GRS is built. People put their soul into words, aimed at what they want to achieve (the purpose and the goals). In the beginning was the word; software is the spirit that lives in words.",
+        "ja": "Naming Driven Development。命名を最優先とする AI 連携の SW 開発スタイル。GRS が採用する開発方式。人間は実現したいこと（目的・目標）に向けて、言葉に魂を込める。はじめに言葉ありき。ソフトは言霊。"
+       },
+       "uses": [
+        "spec",
+        "src"
+       ],
+       "tags": [
+        {
+         "key": "Naming"
+        }
+       ]
+      },
+      {
        "key": "SSOT",
        "definition": {
         "en": "Single Source of Truth: each fact is written in exactly one place, and every other place is generated from it or points at it. When two copies disagree, nobody can tell which one is right.",
@@ -46,10 +62,26 @@
        ]
       },
       {
+       "key": "Traceability",
+       "definition": {
+        "en": "Traceability: the purpose, the upper and lower requirements, the implementation and the tests can be followed both ways by their IDs. Details: the review standards.",
+        "ja": "トレーサビリティ: 目的・上位の要求・下位の要求・実装・試験を、ID で両方向にたどれる。詳しくはレビュー基準。"
+       },
+       "uses": [
+        "spec",
+        "src"
+       ],
+       "tags": [
+        {
+         "key": "rowId"
+        }
+       ]
+      },
+      {
        "key": "OKPN",
        "definition": {
-        "en": "One Kind Per Name: one name of a data element (a JSON property, a function argument) takes values of one kind only. Two values packed into one string, such as a light and a dark color, break it.",
-        "ja": "One Kind Per Name（1 つの名前に 1 種類の値）: データ要素（JSON のプロパティや関数の引数）の 1 つの名前は、1 種類の値だけを取る。明るい色と暗い色を 1 つの文字列に詰めるような書き方はこれに反する。"
+        "en": "One Kind Per Name: one name takes values of one kind only. It covers every identifier: JSON properties, variables and arguments, components, and all other names. Details: the review standards.",
+        "ja": "One Kind Per Name（1 つの名前に 1 種類の値）: 1 つの名前は 1 種類の値だけを取る。JSON のプロパティ、変数や引数、コンポーネントなど、すべての識別子が対象。詳しくはレビュー基準。"
        },
        "uses": [
         "spec"
@@ -58,8 +90,8 @@
       {
        "key": "OMPV",
        "definition": {
-        "en": "One Meaning Per Value: one value of a data element has one meaning only. A value that also stands for \"nothing\", such as a parent id of 0 meaning \"no parent\", breaks it; leave the element out instead.",
-        "ja": "One Meaning Per Value（1 つの値に 1 つの意味）: データ要素の 1 つの値は 1 つの意味だけを持つ。親の id の 0 で「親が無い」を表すように、値に「無い」の意味まで持たせる書き方はこれに反する。その場合は要素そのものを省く。"
+        "en": "One Meaning Per Value: one value carries one meaning only. Details: the review standards.",
+        "ja": "One Meaning Per Value（1 つの値に 1 つの意味）: 1 つの値は 1 つの意味だけを持つ。詳しくはレビュー基準。"
        },
        "uses": [
         "spec"
@@ -68,8 +100,8 @@
       {
        "key": "NullTrap",
        "definition": {
-        "en": "Null Trap: the specification states what it means when a data element is left out and when its value is null. A missing value is written by leaving the element out, never as null, so that \"no value\" has only one spelling.",
-        "ja": "Null の罠: データ要素を省いたときと、値が null のときの扱いを仕様に定める。値が無いことは要素を省いて表し、null は使わない。「値が無い」の書き方を 1 つにするためである。"
+        "en": "Null Trap: absence is shown by leaving the element out, never by null. Details: the review standards.",
+        "ja": "Null の罠: 値が無いことは要素を省いて表し、null は使わない。詳しくはレビュー基準。"
        },
        "uses": [
         "spec"

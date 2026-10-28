@@ -79,7 +79,8 @@ def print_part(n):
         key = "`" + term["key"] + "`"
         if term.get("owner"):
             key += "\uff08\u6301\u3061\u4e3b `" + term["owner"] + "`\uff09"
-        key = "\u3000" * depth + ("+- " if depth else "") + key
+        # &emsp; survives the mark script, which trims whitespace in cells
+        key = "&emsp;" * depth + ("+- " if depth else "") + key
         label = term.get("label", {}).get("ja", "")
         print("| %d | %s | %s | %s |" % (i, key, cell(label), cell(term["definition"]["ja"])))
 
