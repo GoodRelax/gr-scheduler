@@ -30,6 +30,7 @@
 - タスクグループ名は `JDG-3303`（ついて行かない）→ `JDG-3313`（名が無い間だけ写す）→ `JDG-3315`（強いない、写すのは MSPDI の取り込みだけ）。
 - 任意色のもう一方は `JDG-3075`〜`JDG-3077`・`JDG-3183`（`CR-848` が当てる）。片側だけの入力は `JDG-3077` が読み込むときに導くと決め、`JDG-3309` の下でもそのまま成り立つ。
 - 拡大縮小の名は `JDG-3282` で別の席へ出し、調整役の 2026-10-25 の指示で、その席の名（`JDG-3290`〜`JDG-3297`）を本書の行に載せる。振る舞いの行は `CR-853` が持つ。
+- 名の辞書のレビュー（`studies/76-grs-json-beta-shape/terms/13-glossary.md`）で決まり、本書が当てる名と文: 遅延診断の Agent API の名（`JDG-3473`・`JDG-3476` —— `terminalPushOuts` → `endTaskDelays`、`terminalDelayMinutes` → `endTaskDelayMinutes`、`terminalsReached` → `endTasksReached`、`pushOutMinutes` → `delayContributionMinutes`、`settledPushOuts` → `finishedDelayContributions`、`walls` → `diagnosisBlockers`、`inheritedDelayMinutes` → `dependencyDelayMinutes`、`selfDelayMinutes` → `internalDelayMinutes`）、遅延診断の答えに足す終了見込み `estimatedFinish`（`JDG-3477`。レポートの表の欄は `CR-856`）、スキーマの Concepts に置く遅延診断の EARS の 3 文と、結果を保存しない理由（`JDG-3478`・`JDG-3480`）。
 
 ### ① この変更は `CH-` / `GL-` のどれを前へ進めるか
 

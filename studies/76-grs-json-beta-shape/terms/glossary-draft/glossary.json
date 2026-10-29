@@ -680,105 +680,6 @@
    },
    "terms": [
     {
-     "key": "severalTasksPerRow",
-     "rowId": "GL-001",
-     "definition": {
-      "en": "Goal: a person can put several pieces of work and milestones on one row of the chart and see the whole course of one subject on that one row.",
-      "ja": "目標: 日程表の 1 つの行に複数の作業とマイルストーンを置き、1 つの対象の全工程をその 1 行で見渡せる。"
-     },
-     "uses": [
-      "spec"
-     ]
-    },
-    {
-     "key": "wholeScheduleOnOneScreen",
-     "rowId": "GL-002",
-     "definition": {
-      "en": "Goal: a person can see the whole schedule of a project on one screen, without scrolling.",
-      "ja": "目標: プロジェクトの全体日程を、スクロールせずに 1 画面で見られる。"
-     },
-     "uses": [
-      "spec"
-     ]
-    },
-    {
-     "key": "noHitchInOperation",
-     "rowId": "GL-003",
-     "definition": {
-      "en": "Goal: every operation follows the hand without a hitch. Waiting for an outside answer and reading or writing large data do not count.",
-      "ja": "目標: どの操作も引っかからずに手に追従する。外の応答を待つ時間と、大量のデータを読み書きする時間は含めない。"
-     },
-     "uses": [
-      "spec"
-     ]
-    },
-    {
-     "key": "structuredDataOutput",
-     "rowId": "GL-004",
-     "definition": {
-      "en": "Goal: the drawn schedule goes in and out as structured data that machines read, not as a picture, and makes the round trip with an outside work-breakdown tool without losing information.",
-      "ja": "目標: 描いた日程が、絵ではなく機械が読める構造化データとして出し入れでき、外の作業分解の道具との間を情報を落とさずに往復できる。"
-     },
-     "uses": [
-      "spec"
-     ]
-    },
-    {
-     "key": "singleFileApp",
-     "rowId": "GL-005",
-     "definition": {
-      "en": "Goal: a person edits schedules by opening one .html file in a browser, with no server and no installation.",
-      "ja": "目標: 1 つの .html をブラウザーで開くだけで、サーバーもインストールも無しに日程を編集できる。"
-     },
-     "uses": [
-      "spec"
-     ]
-    },
-    {
-     "key": "usableWithoutManual",
-     "rowId": "GL-006",
-     "definition": {
-      "en": "Goal: a first-time user reaches the main operations without reading a manual.",
-      "ja": "目標: 初めて触る人が、マニュアルを読まずに主な操作へたどり着ける。"
-     },
-     "uses": [
-      "spec"
-     ]
-    },
-    {
-     "key": "screenEvidenceOfSecretSchedule",
-     "rowId": "GL-007",
-     "definition": {
-      "en": "Goal: when a person shows a secret schedule on the screen, who showed it and when stays visible on the screen.",
-      "ja": "目標: 秘密の日程を画面に出すとき、誰がいつ出していたかが画面の上に残る。"
-     },
-     "uses": [
-      "spec"
-     ]
-    },
-    {
-     "key": "directManipulation",
-     "rowId": "GL-008",
-     "definition": {
-      "en": "Goal: a person changes the schedule by grabbing and moving the drawn work items directly, and sees the result in the picture while holding them.",
-      "ja": "目標: 画面に描かれた作業を直接掴んで動かすことで日程を変えられ、握っているあいだその結果が絵に出る。"
-     },
-     "uses": [
-      "spec"
-     ]
-    },
-    {
-     "key": "delaySourceByDrillDown",
-     "rowId": "GL-009",
-     "definition": {
-      "en": "Goal: on the status date, the work to deal with first among the delays (the bottleneck) is found only by drilling down from the folded view, and numbers that cannot be trusted are shown as such. The reader may be someone who did not draw the schedule, or an AI that does not see the screen; neither follows the links by hand.",
-      "ja": "目標: 基準日の時点で、遅れのうち最優先で手を打つべき作業（ボトルネック）を、たたんだ画面から掘り下げる操作だけで特定でき、信用できない数字はそれと分かる形で示される。読み手には、日程を描いていない人や、画面を見ない AI も含まれ、どちらも依存の線を自分ではたどらない。"
-     },
-     "uses": [
-      "spec"
-     ]
-    },
-    {
      "key": "onePage",
      "rowId": "VK-3",
      "label": {
@@ -786,19 +687,11 @@
       "ja": "ペライチ"
      },
      "definition": {
-      "en": "One Page: the state the goals of several tasks per row and the whole schedule on one screen describe; the whole plan reads from one page.",
-      "ja": "ペライチ: 「1 行に複数の作業を置いて俯瞰できる」と「全体日程を 1 画面で見られる」の 2 つの目標が述べる状態。計画の全体が 1 枚で読める。"
+      "en": "One Page: the state in which the whole plan reads from one page. Several tasks sit on one row to be seen together, and the whole schedule fits one screen without scrolling.",
+      "ja": "ペライチ: 計画の全体が 1 枚で読める状態。1 つの行に複数のタスクを置いて見渡せ、全体日程をスクロールせずに 1 画面で見られる。"
      },
      "uses": [
       "spec"
-     ],
-     "tags": [
-      {
-       "key": "severalTasksPerRow"
-      },
-      {
-       "key": "wholeScheduleOnOneScreen"
-      }
      ]
     },
     {
@@ -809,16 +702,11 @@
       "ja": "ぬるサク"
      },
      "definition": {
-      "en": "Smooth: the state the goal of no hitch in operation describes; every operation follows the hand.",
-      "ja": "ぬるサク: 「操作が引っかからない」の目標が述べる状態。どの操作も手に追従する。"
+      "en": "Smooth: the state in which every operation follows the hand without a hitch. Waiting for an outside answer and reading or writing large data do not count.",
+      "ja": "ぬるサク: どの操作も引っかからずに手に追従する状態。外の応答を待つ時間と、大量のデータを読み書きする時間は含めない。"
      },
      "uses": [
       "spec"
-     ],
-     "tags": [
-      {
-       "key": "noHitchInOperation"
-      }
      ]
     },
     {
@@ -829,16 +717,53 @@
       "ja": "すぐわか"
      },
      "definition": {
-      "en": "Self-Explanatory: the state the goal of use without a manual describes; a first-time user finds the main operations alone.",
-      "ja": "すぐわか: 「マニュアルを読まずに使える」の目標が述べる状態。初めての人が一人で主な操作を見つけられる。"
+      "en": "Self-Explanatory: the state in which a first-time user finds, without a manual, where each operation is (ease of discovery).",
+      "ja": "すぐわか: 初めて触る人が、マニュアルを読まずに、どこに何の操作があるかを見つけられる状態（見つけやすさ）。"
      },
      "uses": [
       "spec"
-     ],
-     "tags": [
-      {
-       "key": "usableWithoutManual"
-      }
+     ]
+    },
+    {
+     "key": "intuitiveInteraction",
+     "label": {
+      "en": "Intuitive Interaction",
+      "ja": "直感操作"
+     },
+     "definition": {
+      "en": "Intuitive Interaction: the state in which grabbing and moving a drawn task changes the schedule on the spot, and the result shows in the picture while it is held (the operation answers at once).",
+      "ja": "直感操作: 描かれたタスクを掴んで動かすと、その場で日程が変わり、握っているあいだ結果が絵に出る状態（操作がすぐ絵に返る）。"
+     },
+     "uses": [
+      "spec"
+     ]
+    },
+    {
+     "key": "structuredData",
+     "label": {
+      "en": "Structured Data",
+      "ja": "構造化データ"
+     },
+     "definition": {
+      "en": "Structured Data: the state in which the drawn schedule goes in and out as data a machine reads, not as a picture, and makes the round trip with an external WBS master without losing information.",
+      "ja": "構造化データ: 描いた日程を、絵ではなく機械が読めるデータとして出し入れでき、外部 WBS マスタとの間を情報を落とさずに往復できる状態。"
+     },
+     "uses": [
+      "spec"
+     ]
+    },
+    {
+     "key": "singleHtml",
+     "label": {
+      "en": "Single HTML",
+      "ja": "単一 HTML"
+     },
+     "definition": {
+      "en": "Single HTML: the state in which opening one .html file in a browser is enough to edit a schedule, with no server and no installation.",
+      "ja": "単一 HTML: 1 つの .html をブラウザーで開くだけで、サーバーもインストールも無しに日程を編集できる状態。"
+     },
+     "uses": [
+      "spec"
      ]
     },
     {
@@ -849,16 +774,25 @@
       "ja": "遅延診断"
      },
      "definition": {
-      "en": "Delay diagnosed (the value word): the state the goal of finding the delay source by drilling down describes. It names the state, not the feature that reaches it.",
-      "ja": "遅延診断（価値のことば）: 「遅れの発生源を、掘り下げるだけで特定できる」の目標が述べる状態。状態の名であって、そこへ至る機能の名ではない。"
+      "en": "Delay Diagnostics (the value word): the state in which, on the status date, the delay source to deal with first is found only by drilling down from the folded view, and numbers that cannot be trusted show as such.",
+      "ja": "遅延診断（価値のことば）: 基準日の時点で、最優先で手を打つべき遅れの元を、たたんだ画面から掘り下げるだけで特定でき、信用できない数字はそれと分かる状態。"
      },
      "uses": [
       "spec"
-     ],
-     "tags": [
-      {
-       "key": "delaySourceByDrillDown"
-      }
+     ]
+    },
+    {
+     "key": "aiInteraction",
+     "label": {
+      "en": "AI Interaction",
+      "ja": "AI 連携"
+     },
+     "definition": {
+      "en": "AI Interaction: the state in which an AI reads and writes the document through the Agent API and MCP with the same operations a person uses.",
+      "ja": "AI 連携: AI が、Agent API と MCP を通して、人と同じ操作で文書を読み書きできる状態。"
+     },
+     "uses": [
+      "spec"
      ]
     }
    ]
@@ -878,11 +812,15 @@
      "key": "schedule",
      "definition": {
       "en": "A schedule: the planned and actual dates of the work of one project, drawn as a chart along time.",
-      "ja": "日程: 1 つのプロジェクトの作業の予定と実績の日付。時間に沿った図として描く。"
+      "ja": "スケジュール: 1 つのプロジェクトの作業の予定と実績の日付。時間に沿った図として描く。"
      },
      "uses": [
       "spec"
-     ]
+     ],
+     "label": {
+      "en": "Schedule",
+      "ja": "スケジュール"
+     }
     },
     {
      "key": "task",
@@ -911,8 +849,8 @@
       "ja": "マイルストーン"
      },
      "definition": {
-      "en": "A milestone: a task that marks a point in time instead of a span of work. Whether a task is a milestone is stored with the task and exchanged; how it is drawn is stored apart.",
-      "ja": "マイルストーン: 作業の期間ではなく、ある時点を示すタスク。マイルストーンかどうかはタスクが持ち、交換相手へも書き出す。どう描くかは別に持つ。"
+      "en": "A milestone: a task that marks a point in time instead of a span of work. Whether a task is a milestone is held by the task's boolean property `milestone`, which is also written to MSPDI. The shape it is drawn with is held by the task's graphic style `TaskGraphicStyle`: `taskShape` is the shape of a task that is not a milestone (rectangle, chevron, arrow or endpoint span), and `milestoneShape` is the shape of the milestone mark (diamond and 14 more). Changing the shape never changes `milestone`.",
+      "ja": "マイルストーン: 作業の期間ではなく、ある時点を示すタスク。マイルストーンかどうかは、タスクの真偽のプロパティー `milestone` が持ち、MSPDI にも書き出す。描く形は、タスクの見た目の型 `TaskGraphicStyle` が持つ —— マイルストーンでないタスクを描く形は `taskShape`（矩形・シェブロン・矢印・両端の印の 4 種）、マイルストーンの印の形は `milestoneShape`（ひし形など 15 種）。形を変えても `milestone` は変わらない。"
      },
      "uses": [
       "spec",
@@ -967,10 +905,10 @@
      ]
     },
     {
-     "key": "planActualState",
+     "key": "progressStatus",
      "definition": {
       "en": "The plan-and-actual state of a task, read from its actual dates, first match wins: not started, finished, suspended with no resume date, suspended with a resume date, otherwise in progress.",
-      "ja": "タスクの予実の状態。実績の日付から、上から順に最初に当たったものを取る: 未着手、完了、中断・再開日未定、中断・再開予定あり、どれでもなければ進行中。"
+      "ja": "進捗ステータス: タスクの進み具合。実績の日付から、上から順に最初に当たったものを取る: 未着手、完了、中断・再開日未定、中断・再開予定あり、どれでもなければ進行中。"
      },
      "uses": [
       "spec",
@@ -1062,13 +1000,17 @@
         "screen"
        ]
       }
-     ]
+     ],
+     "label": {
+      "en": "Progress Status",
+      "ja": "進捗ステータス"
+     }
     },
     {
      "key": "wbs",
      "definition": {
-      "en": "WBS (work breakdown structure): the tree of parent tasks and child tasks. It is exchanged with other tools.",
-      "ja": "WBS（作業分解構成）: 親タスクと子タスクの木。ほかの道具と交換する。"
+      "en": "WBS (work breakdown structure): the tree of parent tasks and child tasks.",
+      "ja": "WBS（作業分解構成）: 親タスクと子タスクの木。"
      },
      "uses": [
       "spec"
@@ -1103,7 +1045,11 @@
        "uses": [
         "spec",
         "screen"
-       ]
+       ],
+       "label": {
+        "en": "Child Task",
+        "ja": "子タスク"
+       }
       }
      ]
     },
@@ -1123,25 +1069,68 @@
       {
        "key": "MSPDI"
       }
-     ]
+     ],
+     "label": {
+      "en": "External WBS Master",
+      "ja": "外部 WBS マスタ"
+     }
     },
     {
-     "key": "multibar",
+     "key": "multiBarGantt",
      "definition": {
-      "en": "Multibar: several tasks on one row of the chart, the row being a task group.",
-      "ja": "マルチバー: 日程表の 1 つの行（タスクグループ）に複数のタスクが載っている状態。"
+      "en": "Multi-bar Gantt: a Gantt chart that can put several task bars and milestones on one task group lane. It is the kind of chart GRS draws; an ordinary Gantt chart puts one task on a row.",
+      "ja": "マルチバーガント: 1 本のタスクグループレーンに、複数のタスクのバーとマイルストーンを置けるガントチャート。GRS の日程表の種類の名である。普通のガントチャートは 1 行に 1 タスクを置く。"
      },
      "uses": [
       "spec"
      ],
      "tags": [
       {
-       "key": "task"
-      },
-      {
-       "key": "severalTasksPerRow"
+       "key": "onePage"
       }
-     ]
+     ],
+     "label": {
+      "en": "Multi-bar Gantt",
+      "ja": "マルチバーガント"
+     },
+     "avoid": {
+      "ja": [
+       "マルチバー"
+      ],
+      "en": [
+       "multibar"
+      ]
+     },
+     "usage": {
+      "good": [
+       {
+        "en": "GRS is a multi-bar Gantt.",
+        "ja": "GRS はマルチバーガントである。"
+       },
+       {
+        "en": "Because it is a multi-bar Gantt, the whole course of one subject reads from one row.",
+        "ja": "マルチバーガントなので、1 つの対象の全工程を 1 行で見渡せる。"
+       },
+       {
+        "en": "Three tasks sit on this row.",
+        "ja": "この行には、タスクが 3 つ載っている。"
+       }
+      ],
+      "bad": [
+       {
+        "en": "This row has become a multi-bar Gantt.",
+        "ja": "この行はマルチバーガントになっている。"
+       },
+       {
+        "en": "Draw three multibars.",
+        "ja": "マルチバーを 3 本描く。"
+       },
+       {
+        "en": "A multibar task",
+        "ja": "マルチバーのタスク"
+       }
+      ]
+     }
     },
     {
      "key": "dependency",
@@ -1208,43 +1197,63 @@
        "key": "finishToStart",
        "definition": {
         "en": "Finish-to-start: the successor starts after the predecessor finishes.",
-        "ja": "終了-開始: 先行が終わってから後続が始まる。"
+        "ja": "終了-開始（直列作業）: 先行が終わってから後続が始まる。"
        },
        "uses": [
         "spec"
-       ]
+       ],
+       "label": {
+        "en": "Finish-to-Start",
+        "ja": "終了-開始"
+       }
       },
       {
        "key": "startToStart",
        "definition": {
         "en": "Start-to-start: the successor starts after the predecessor starts.",
-        "ja": "開始-開始: 先行が始まってから後続が始まる。"
+        "ja": "開始-開始（並列開始）: 先行が始まってから後続が始まる。"
        },
        "uses": [
         "spec"
-       ]
+       ],
+       "label": {
+        "en": "Start-to-Start",
+        "ja": "開始-開始"
+       }
       },
       {
        "key": "finishToFinish",
        "definition": {
         "en": "Finish-to-finish: the successor finishes after the predecessor finishes.",
-        "ja": "終了-終了: 先行が終わってから後続が終わる。"
+        "ja": "終了-終了（後追い終了）: 先行が終わってから後続が終わる。"
        },
        "uses": [
         "spec"
-       ]
+       ],
+       "label": {
+        "en": "Finish-to-Finish",
+        "ja": "終了-終了"
+       }
       },
       {
        "key": "startToFinish",
        "definition": {
         "en": "Start-to-finish: the successor finishes after the predecessor starts.",
-        "ja": "開始-終了: 先行が始まってから後続が終わる。"
+        "ja": "開始-終了（引継必須）: 先行が始まってから後続が終わる。"
        },
        "uses": [
         "spec"
-       ]
+       ],
+       "label": {
+        "en": "Start-to-Finish",
+        "ja": "開始-終了"
+       }
       }
-     ]
+     ],
+     "label": {
+      "en": "Dependency",
+      "ja": "依存"
+     }
     },
     {
      "key": "workingDay",
@@ -1260,11 +1269,15 @@
        "key": "nonWorkingDay",
        "definition": {
         "en": "A non-working day: a day off in the calendar of the document.",
-        "ja": "非稼働日: 文書の暦で休みの日。"
+        "ja": "非稼働日: プロジェクトカレンダーで休みの日。"
        },
        "uses": [
         "spec"
-       ]
+       ],
+       "label": {
+        "en": "Non-Working Day",
+        "ja": "非稼働日"
+       }
       },
       {
        "key": "exceptionDay",
@@ -1275,15 +1288,23 @@
        "uses": [
         "spec",
         "screen"
-       ]
+       ],
+       "label": {
+        "en": "Exception Day",
+        "ja": "例外日"
+       }
       }
-     ]
+     ],
+     "label": {
+      "en": "Working Day",
+      "ja": "稼働日"
+     }
     },
     {
-     "key": "documentCalendar",
+     "key": "projectCalendar",
      "definition": {
-      "en": "The document calendar: the one calendar that GRS counts all working days with. Calendars of single tasks or resources are kept but not used.",
-      "ja": "文書の暦: GRS がすべての稼働日を数える 1 つの暦。タスクや担当ごとの暦は持ち続けるが、使わない。"
+      "en": "The project calendar: the one calendar that GRS counts all working days with. Calendars of single tasks or resources are kept but not used.",
+      "ja": "プロジェクトカレンダー: GRS がすべての稼働日を数える 1 つの暦。タスクや担当ごとの暦は持ち続けるが、使わない。"
      },
      "uses": [
       "spec"
@@ -1292,22 +1313,28 @@
       {
        "key": "workingDay"
       }
-     ]
+     ],
+     "label": {
+      "en": "Project Calendar",
+      "ja": "プロジェクトカレンダー"
+     }
     },
     {
      "key": "baseline",
      "label": {
       "en": "Baseline",
-      "ja": "変更前の予定"
+      "ja": "前回予定"
      },
      "definition": {
-      "en": "A baseline: an earlier plan kept to compare the current plan with. In Japanese it is always written as the plan before the change.",
-      "ja": "変更前の予定: 今の予定と比べるために残した、前の予定。日本語では「ベースライン」と単独で書かず、「変更前の予定」と書く。"
+      "en": "A baseline: an earlier plan kept to compare the current plan with.",
+      "ja": "前回予定: 今の予定と比べるために残した、前の予定。"
      },
      "avoid": {
       "ja": [
        "ベースライン",
-       "基準線"
+       "基準線",
+       "変更前の予定",
+       "前回の予定"
       ]
      },
      "uses": [
@@ -1328,13 +1355,17 @@
      },
      "uses": [
       "spec"
-     ]
+     ],
+     "label": {
+      "en": "Critical Path",
+      "ja": "クリティカルパス"
+     }
     },
     {
-     "key": "progressPoint",
+     "key": "taskProgressPoint",
      "definition": {
-      "en": "The progress point of a task: the point along the task that its work has reached, compared with the status date.",
-      "ja": "タスクの進捗点: 作業が達した、タスクの上の位置。基準日と比べる。"
+      "en": "The task progress point of a task: the point along the task that its work has reached, compared with the status date.",
+      "ja": "タスク進捗点: 作業が達した、タスクの上の位置。基準日と比べる。"
      },
      "uses": [
       "spec"
@@ -1343,7 +1374,11 @@
       {
        "key": "actual"
       }
-     ]
+     ],
+     "label": {
+      "en": "Task Progress Point",
+      "ja": "タスク進捗点"
+     }
     },
     {
      "key": "delay",
@@ -1362,7 +1397,7 @@
      ],
      "tags": [
       {
-       "key": "planActualState"
+       "key": "progressStatus"
       }
      ]
     },
@@ -1373,8 +1408,8 @@
       "ja": "遅延診断"
      },
      "definition": {
-      "en": "Delay Diagnostics: the feature that finds, as of the status date, the tasks whose numbers cannot be trusted and the source of the delay (the bottleneck), so that a reader does not have to follow the links by hand. It changes no document.",
-      "ja": "遅延診断: 基準日の時点で、数字が信用できないタスクと、遅れの発生源（ボトルネック）を見つける機能。読み手が依存を自分でたどらずに済む。文書は変えない。"
+      "en": "Delay Diagnostics: the feature that finds, on the status date, the tasks whose numbers cannot be trusted and the sources of delay (bottlenecks), so the reader need not follow the dependencies. Diagnosis never changes the document: its marks (?, flame, !!) are drawn on the progress markers and in the report only while it is shown and are not saved. What is saved is the view the person sets on the report table (checks and filters). Only issuing a fix proposal, which the author does, changes the document, and that is the person's edit.",
+      "ja": "遅延診断: 基準日の時点で、数字が信用できないタスクと、遅れの発生源（ボトルネック）を見つける機能。読み手が依存を自分でたどらずに済む。診断は文書を変えない。診断の印（? ・炎・!!）は、診断を出しているあいだ進捗マーカーとレポートに描くだけで、保存しても文書に残らない。保存するのは、人がレポートの表に付けたチェックとフィルタ（表の見え方）だけである。文書の中身を変えるのは、作成者が修正案を発行したときだけで、それは人の編集である。"
      },
      "uses": [
       "spec",
@@ -1392,59 +1427,99 @@
      ],
      "children": [
       {
-       "key": "projectedFinish",
+       "key": "estimatedFinish",
        "definition": {
-        "en": "The projected finish: when a task is expected to finish, from its actual finish if finished, otherwise from the status date plus the remaining work.",
-        "ja": "見込み終了: タスクが終わると見込まれる時。完了していれば実績の終了、そうでなければ基準日に残りの作業を足した時。"
+        "en": "The estimated finish: when a task is expected to finish, from its actual finish if finished, otherwise from the status date plus the remaining work.",
+        "ja": "終了見込み: タスクが終わると見込まれる時。完了していれば実績の終了、そうでなければ基準日に残りの作業を足した時。"
        },
        "uses": [
         "spec",
         "agentApi"
-       ]
+       ],
+       "label": {
+        "en": "Estimated Finish",
+        "ja": "終了見込み"
+       }
       },
       {
-       "key": "inheritedDelay",
+       "key": "dependencyDelayMinutes",
        "definition": {
-        "en": "Inherited delay: how far predecessors push the start of a task.",
-        "ja": "持ち込まれた遅れ: 先行タスクに押された、タスクの開始の遅れ。"
+        "en": "Dependency Delay, in working minutes: how far predecessors push the start of a task.",
+        "ja": "依存関係遅延（稼働の分）: 先行タスクに押された、タスクの開始の遅れ。"
        },
        "uses": [
         "spec",
         "agentApi"
-       ]
+       ],
+       "label": {
+        "en": "Dependency Delay",
+        "ja": "依存関係遅延"
+       }
       },
       {
-       "key": "selfDelay",
+       "key": "internalDelayMinutes",
        "definition": {
-        "en": "Own delay: how far the projected finish of a task runs past its start plus its planned length; this is where a delay is born. A parent task has none.",
-        "ja": "自分で生んだ遅れ: タスクの見込み終了が、開始に予定の長さを足した時より遅れる分。遅れの発生源である。親タスクは持たない。"
+        "en": "Internal Delay, in working minutes: how far the estimated finish of a task runs past its start plus its planned length. It is a source of delay; a parent task has none.",
+        "ja": "内部要因遅延（稼働の分）: タスクの終了見込みが、開始に予定の長さを足した時より遅れる分。遅れの発生源である。親タスクは持たない。"
        },
        "uses": [
         "spec",
         "agentApi"
-       ]
+       ],
+       "label": {
+        "en": "Internal Delay",
+        "ja": "内部要因遅延"
+       }
       },
       {
        "key": "endTask",
        "definition": {
-        "en": "An end task: a milestone, or a task with no successor; the delays of the schedule are measured at the end tasks.",
-        "ja": "終端: マイルストーンか、後続を持たないタスク。日程の遅れは終端で測る。"
+        "en": "End Task: where the delay of the schedule is measured; a task with no successor, or a milestone.",
+        "ja": "末端タスク: 日程の遅れを測る所。後続を持たないタスクとマイルストーン。"
        },
        "uses": [
         "spec",
         "agentApi"
+       ],
+       "label": {
+        "en": "End Task",
+        "ja": "末端タスク"
+       }
+      },
+      {
+       "key": "endTaskDelayMinutes",
+       "label": {
+        "en": "End Task Delay",
+        "ja": "末端タスクの遅れ"
+       },
+       "definition": {
+        "en": "End Task Delay, in working minutes: how far the estimated finish of an end task runs past its planned finish.",
+        "ja": "末端タスクの遅れ（稼働の分）: 末端タスクの終了見込みが、予定の終了より遅れる分。"
+       },
+       "uses": [
+        "spec",
+        "agentApi"
+       ],
+       "tags": [
+        {
+         "key": "endTask"
+        }
        ]
       },
       {
-       "key": "pushOut",
+       "key": "delayContributionMinutes",
        "definition": {
-        "en": "Push-out: the part of the delay of the end tasks that one task causes, summed over the end tasks it reaches.",
-        "ja": "押し出し: あるタスクが引き起こす、終端の遅れの分。届くすべての終端について足し合わせる。"
+        "en": "Delay Contribution, in working minutes: the part of the delay of end tasks that one task causes, summed over every end task it reaches.",
+        "ja": "遅延寄与（稼働の分）: あるタスクが生んだ、末端タスクの遅れの分。届くすべての末端タスクについて足し合わせる。"
        },
        "uses": [
         "spec",
         "agentApi"
-       ]
+       ],
+       "label": {
+        "en": "Delay Contribution",
+        "ja": "遅延寄与"
+       }
       },
       {
        "key": "bottleneck",
@@ -1455,7 +1530,7 @@
        },
        "definition": {
         "en": "A bottleneck: an unfinished task whose push-out is large enough to deal with first.",
-        "ja": "ボトルネック: 押し出しが大きく、最優先で手を打つべき未完了のタスク。"
+        "ja": "ボトルネック: 遅延寄与が大きく、最優先で手を打つべき未完了のタスク。"
        },
        "uses": [
         "spec",
@@ -1514,15 +1589,15 @@
        ]
       },
       {
-       "key": "confirmedPushOut",
+       "key": "finishedDelayContribution",
        "rowId": "DX-9",
        "label": {
-        "en": "Confirmed",
-        "ja": "確定"
+        "en": "Finished Delay Contribution",
+        "ja": "完了済みの遅延寄与"
        },
        "definition": {
-        "en": "Confirmed: a finished task whose push-out is fixed; it is listed but not marked on the chart.",
-        "ja": "確定: 押し出しが確定した完了済みのタスク。一覧には載せるが、日程表には印を付けない。"
+        "en": "Finished Delay Contribution: the delay contribution of a task that has already finished. Nothing can be done about it, so the task is not a bottleneck; it is listed in the report but gets no mark on the chart.",
+        "ja": "完了済みの遅延寄与: もう完了したタスクが生んだ遅延寄与。手を打てないので、ボトルネックにしない。一覧には載せるが、日程表には印を付けない。"
        },
        "uses": [
         "spec",
@@ -1530,15 +1605,19 @@
        ]
       },
       {
-       "key": "diagnosisWall",
+       "key": "diagnosisBlocker",
        "definition": {
-        "en": "A wall: a place where the diagnosis has to stop, such as a task whose own values contradict each other, a task whose parent cannot be inferred, or a milestone with no predecessor.",
-        "ja": "壁: 診断がそこで止まる所。値が自分で食い違うタスク、親を推せないタスク、先行の無いマイルストーンなど。"
+        "en": "Diagnosis Blocker: a place where the data contradicts itself, so Delay Diagnostics cannot compute past it. It holds the task that causes it and the range that was not diagnosed.",
+        "ja": "診断阻害: データが矛盾していて、遅延診断がそこから先を計算できない所。原因のタスクと、止まった範囲を持つ。"
        },
        "uses": [
         "spec",
         "agentApi"
-       ]
+       ],
+       "label": {
+        "en": "Diagnosis Blocker",
+        "ja": "診断阻害"
+       }
       },
       {
        "key": "fixProposal",
@@ -2796,7 +2875,7 @@
        ],
        "tags": [
         {
-         "key": "documentCalendar"
+         "key": "projectCalendar"
         }
        ]
       }
@@ -2840,7 +2919,7 @@
        ],
        "tags": [
         {
-         "key": "documentCalendar"
+         "key": "projectCalendar"
         }
        ]
       },
@@ -3123,7 +3202,7 @@
        },
        "definition": {
         "en": "How many working days the progress point of a parent task may lie outside the progress points of the work below the parent task, before Delay Diagnostics asks whether an update is missing. A new Schedule Document starts with 1.",
-        "ja": "親タスクの進捗点が、その下の作業の進捗点の外にどれだけ（稼働日で）はみ出してよいか。それを超えると、遅延診断が更新の漏れを疑う。新しいスケジュール文書は 1 で始まる。"
+        "ja": "親タスクのタスク進捗点が、その下のタスクのタスク進捗点の外にどれだけ（稼働日で）はみ出してよいか。それを超えると、遅延診断が更新の漏れを疑う。新しいスケジュール文書は 1 で始まる。"
        },
        "uses": [
         "grsJsonSchema",
@@ -3133,7 +3212,7 @@
        ],
        "tags": [
         {
-         "key": "progressPoint"
+         "key": "taskProgressPoint"
         }
        ]
       },
@@ -3567,7 +3646,7 @@
          "key": "task"
         },
         {
-         "key": "planActualState"
+         "key": "progressStatus"
         }
        ]
       }
@@ -3830,7 +3909,7 @@
        ],
        "tags": [
         {
-         "key": "multibar"
+         "key": "multiBarGantt"
         }
        ]
       },
@@ -5650,7 +5729,7 @@
        },
        "definition": {
         "en": "Whether GRS draws the Progress Line: the line from the status date through the progress point of each task. A new Schedule Document starts with false.",
-        "ja": "GRS がイナズマ線を描くかどうか。イナズマ線は、基準日から各タスクの進捗点を通る線。新しいスケジュール文書は偽で始まる。"
+        "ja": "GRS がイナズマ線を描くかどうか。イナズマ線は、基準日から各タスクのタスク進捗点を通る線。新しいスケジュール文書は偽で始まる。"
        },
        "uses": [
         "grsJsonSchema",
@@ -6696,11 +6775,6 @@
            "uses": [
             "screen",
             "spec"
-           ],
-           "tags": [
-            {
-             "key": "screenEvidenceOfSecretSchedule"
-            }
            ]
           }
          ]
@@ -6843,7 +6917,7 @@
            },
            "definition": {
             "en": "The Holiday Settings Window: edits the calendar of the document (the working weekdays and the exception days) and the start of the week.",
-            "ja": "休日設定ウィンドウ: 文書の暦（稼働する曜日と例外日）と週の始まりを直す。"
+            "ja": "休日設定ウィンドウ: プロジェクトカレンダー（稼働する曜日と例外日）と週の始まりを直す。"
            },
            "uses": [
             "screen",
@@ -7273,7 +7347,7 @@
            },
            "definition": {
             "en": "The Progress Mark: the mark outside the end of the Actual Bar that shows the plan-and-actual state by its shape and changes the state when pressed.",
-            "ja": "進捗マーク: 実績バーの端の外に出す印。形で予実の状態を示し、押すと状態を変える。"
+            "ja": "進捗マーク: 実績バーの端の外に出す印。形で進捗ステータスを示し、押すと状態を変える。"
            },
            "avoid": {
             "en": [
@@ -7289,7 +7363,7 @@
            ],
            "tags": [
             {
-             "key": "planActualState"
+             "key": "progressStatus"
             }
            ]
           },
@@ -7588,7 +7662,7 @@
          },
          "definition": {
           "en": "The Progress Line: one zigzag line from the status date through the progress point of each task, showing how the delays are spread.",
-          "ja": "イナズマ線: 基準日から各タスクの進捗点を通る 1 本の折れ線。遅れの分布を示す。"
+          "ja": "イナズマ線: 基準日から各タスクのタスク進捗点を通る 1 本の折れ線。遅れの分布を示す。"
          },
          "nonLiteral": {
           "en": "The Japanese word is the one schedule management in Japan has long used; a literal word would not reach Japanese users.",
@@ -7600,7 +7674,7 @@
          ],
          "tags": [
           {
-           "key": "progressPoint"
+           "key": "taskProgressPoint"
           }
          ]
         },
@@ -17165,8 +17239,8 @@
          "key": "calendarWithoutWorkingDay",
          "owner": "reason",
          "definition": {
-          "en": "The document calendar has no working weekday.",
-          "ja": "文書の暦に稼働する曜日が無い。"
+          "en": "The project calendar has no working weekday.",
+          "ja": "プロジェクトカレンダーに稼働する曜日が無い。"
          },
          "uses": [
           "agentApi",
@@ -18106,7 +18180,7 @@
        "key": "readDelayDiagnostics",
        "definition": {
         "en": "The delay diagnosis report as a frozen value: findings, unreliable values, bottlenecks and bottleneck paths, with the proposed fixes and the fix log. Changes neither the screen nor the document. This is the only exact delay analysis. All amounts are working minutes. inheritedDelayMinutes is how far predecessors push the task's start; selfDelayMinutes is how far its projected finish runs past its start plus its planned length (0 for a parent task); pushOutMinutes is the part of the delay of end tasks (milestones and tasks with no successor) this task causes, summed over the terminalsReached end tasks it reaches. terminalPushOuts holds, for each end task, terminalDelayMinutes (its projected finish past its planned finish) and givenTo (the tasks that caused it, with their minutes). To turn minutes into days, divide by the document's project.minutesPerDay (when it is null, the value its description in the document schema gives); the screen shows a push-out rounded up to whole days. walls lists where the diagnosis stopped, one wall per cause task: row is its kind, told by the number it ends in (1 a task whose own values contradict each other, 2 a task whose parent cannot be inferred, 3 a milestone with no predecessor); causeUid is the cause task; stoppedUids are the tasks left undiagnosed, the cause first. A milestone that heads its own task group (no task of that task group starts on an earlier day) is the schedule's origin: it needs no predecessor and is no wall. Two walls of the same kind differ by causeUid; their stoppedUids can be the same list, as for tasks whose dependencies form a loop.",
-        "ja": "遅延診断のレポートを凍結した値で返す。指摘、信用できない値、ボトルネックとボトルネック経路、修正案と修正の記録。画面も文書も変えない。正確な遅れの解析はこれだけである。量はすべて稼働の分。inheritedDelayMinutes は先行がタスクの開始をどれだけ押したか。selfDelayMinutes は見込みの終了が、開始に予定の長さを足した時をどれだけ過ぎるか（親タスクは 0）。pushOutMinutes は、このタスクが引き起こす終端（マイルストーンと後続の無いタスク）の遅れの分で、届く terminalsReached 個の終端について足す。terminalPushOuts は終端ごとに terminalDelayMinutes（見込みの終了が予定の終了を過ぎる分）と givenTo（それを引き起こしたタスクとその分）を持つ。分を日にするには、文書の project.minutesPerDay で割る（null なら、文書のスキーマの説明が与える値で割る）。画面は押し出しを日に切り上げて見せる。walls は診断が止まった所を、原因のタスクごとに 1 つの壁として並べる。row は壁の種類で、末尾の数で分かる（1 は自分の値が食い違うタスク、2 は親を推せないタスク、3 は先行の無いマイルストーン）。causeUid は原因のタスク、stoppedUids は診断せずに残ったタスクで、原因が先頭。自分のタスクグループの頭に立つマイルストーン（そのタスクグループのどのタスクもそれより前の日に始まらない）は日程の起点であり、先行が要らず、壁ではない。同じ種類の 2 つの壁は causeUid で違い、依存が輪になったタスクのように stoppedUids は同じ並びになりうる。"
+        "ja": "遅延診断のレポートを凍結した値で返す。指摘、信用できない値、ボトルネックとボトルネック経路、修正案と修正の記録。画面も文書も変えない。正確な遅れの解析はこれだけである。量はすべて稼働の分。inheritedDelayMinutes は先行がタスクの開始をどれだけ押したか。selfDelayMinutes は見込みの終了が、開始に予定の長さを足した時をどれだけ過ぎるか（親タスクは 0）。pushOutMinutes は、このタスクが引き起こす末端タスク（マイルストーンと後続の無いタスク）の遅れの分で、届く terminalsReached 個の末端タスクについて足す。terminalPushOuts は末端タスクごとに terminalDelayMinutes（見込みの終了が予定の終了を過ぎる分）と givenTo（それを引き起こしたタスクとその分）を持つ。分を日にするには、文書の project.minutesPerDay で割る（null なら、文書のスキーマの説明が与える値で割る）。画面は押し出しを日に切り上げて見せる。walls は診断が止まった所を、原因のタスクごとに 1 つの壁として並べる。row は壁の種類で、末尾の数で分かる（1 は自分の値が食い違うタスク、2 は親を推せないタスク、3 は先行の無いマイルストーン）。causeUid は原因のタスク、stoppedUids は診断せずに残ったタスクで、原因が先頭。自分のタスクグループの頭に立つマイルストーン（そのタスクグループのどのタスクもそれより前の日に始まらない）は日程の起点であり、先行が要らず、壁ではない。同じ種類の 2 つの壁は causeUid で違い、依存が輪になったタスクのように stoppedUids は同じ並びになりうる。"
        },
        "uses": [
         "agentApi",
@@ -18853,7 +18927,7 @@
        "key": "placeTaskPlanActual",
        "definition": {
         "en": "Puts the task `taskUid` into one plan-and-actual state. `place` holds the state and the actual dates that the state needs: `actualStart`, `stop`, `resume` and `actualFinish`.",
-        "ja": "タスク taskUid を 1 つの予実の状態に置く。place は、その状態と、状態が要る実績の日付（actualStart・stop・resume・actualFinish）を持つ。"
+        "ja": "タスク taskUid を 1 つの進捗ステータスに置く。place は、その状態と、状態が要る実績の日付（actualStart・stop・resume・actualFinish）を持つ。"
        },
        "uses": [
         "commandSchema",
@@ -18881,7 +18955,7 @@
          "key": "place",
          "definition": {
           "en": "The plan-and-actual state to put the task in, with the actual dates that state needs.",
-          "ja": "タスクを置く予実の状態と、その状態が要る実績の日付。"
+          "ja": "タスクを置く進捗ステータスと、その状態が要る実績の日付。"
          },
          "uses": [
           "commandSchema",
@@ -18896,7 +18970,7 @@
            "owner": "place",
            "definition": {
             "en": "Which plan-and-actual state: notStarted, inProgress, suspendedWithResumeDate, suspendedWithoutResumeDate or finished.",
-            "ja": "どの予実の状態か。notStarted・inProgress・suspendedWithResumeDate・suspendedWithoutResumeDate・finished のどれか。"
+            "ja": "どの進捗ステータスか。notStarted・inProgress・suspendedWithResumeDate・suspendedWithoutResumeDate・finished のどれか。"
            },
            "uses": [
             "commandSchema",
@@ -18907,7 +18981,7 @@
            ],
            "tags": [
             {
-             "key": "planActualState"
+             "key": "progressStatus"
             }
            ]
           }
@@ -19062,7 +19136,7 @@
        "key": "cycleTaskPlanActualState",
        "definition": {
         "en": "Moves the plan-and-actual state of the task `taskUid` one step along the cycle: not started, in progress, finished, suspended, and back to not started. A milestone alternates between not started and finished. `remembered` is the actual that an earlier step removed; pass it when the task leaves not started (to in progress, or to finished for a milestone) so that it is restored, and omit it when none is remembered. `snapMinutes` is the snap step in minutes; when omitted, the day step is used.",
-        "ja": "タスク taskUid の予実の状態を、未着手・進行中・完了・中断の輪に沿って 1 つ進め、未着手へ戻る。マイルストーンは未着手と完了を行き来する。remembered は、前の段が取り除いた実績で、タスクが未着手を出るとき（進行中へ、マイルストーンなら完了へ）に渡すと戻る。覚えたものが無ければ省く。snapMinutes は刻み（分）で、省けば日の刻み。"
+        "ja": "タスク taskUid の進捗ステータスを、未着手・進行中・完了・中断の輪に沿って 1 つ進め、未着手へ戻る。マイルストーンは未着手と完了を行き来する。remembered は、前の段が取り除いた実績で、タスクが未着手を出るとき（進行中へ、マイルストーンなら完了へ）に渡すと戻る。覚えたものが無ければ省く。snapMinutes は刻み（分）で、省けば日の刻み。"
        },
        "uses": [
         "commandSchema",
@@ -19076,7 +19150,7 @@
          "key": "taskUid"
         },
         {
-         "key": "planActualState"
+         "key": "progressStatus"
         }
        ],
        "children": [
@@ -19974,9 +20048,6 @@
      ],
      "tags": [
       {
-       "key": "singleFileApp"
-      },
-      {
        "key": "GRS"
       }
      ],
@@ -20244,7 +20315,7 @@
          "key": "DelayDiagnosticsReport",
          "definition": {
           "en": "The result of the Delay Diagnostics: the outcome, the status date, the findings, the bottlenecks, the end-task push-outs and the walls.",
-          "ja": "遅延診断の結果。結果の別、基準日、指摘、ボトルネック、終端ごとの押し出し、壁。"
+          "ja": "遅延診断の結果。結果の別、基準日、指摘、ボトルネック、末端タスクごとの遅れ、診断阻害。"
          },
          "uses": [
           "src",
@@ -20468,7 +20539,7 @@
          ],
          "tags": [
           {
-           "key": "documentCalendar"
+           "key": "projectCalendar"
           }
          ]
         },
@@ -20825,11 +20896,11 @@
          ]
         },
         {
-         "key": "planActualState",
+         "key": "progressStatus",
          "owner": "DocumentModel",
          "definition": {
           "en": "Reads the plan-and-actual state of a task from its actual dates.",
-          "ja": "タスクの実績の日付から、予実の状態を読む。"
+          "ja": "タスクの実績の日付から、進捗ステータスを読む。"
          },
          "uses": [
           "src",

@@ -152,7 +152,7 @@
      "description": "Why the Japanese label is not a literal translation of the English one. Present only for the few agreed exceptions."
     },
     "avoid": {
-     "description": "Words that must not stand in for this term.",
+     "description": "Words (not sentences) that must not stand in for this term.",
      "type": "object",
      "additionalProperties": false,
      "properties": {
@@ -171,6 +171,28 @@
         "minLength": 1
        },
        "uniqueItems": true
+      }
+     }
+    },
+    "usage": {
+     "description": "Example sentences for a term that is easy to misuse: good ones to follow and bad ones to avoid. Present only where misuse is a worry.",
+     "type": "object",
+     "additionalProperties": false,
+     "minProperties": 1,
+     "properties": {
+      "good": {
+       "type": "array",
+       "items": {
+        "$ref": "#/$defs/Text"
+       },
+       "minItems": 1
+      },
+      "bad": {
+       "type": "array",
+       "items": {
+        "$ref": "#/$defs/Text"
+       },
+       "minItems": 1
       }
      }
     },
