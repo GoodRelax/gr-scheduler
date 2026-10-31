@@ -14,7 +14,7 @@
       "creationDate": "2026-10-31T08:50:00",
       "revision": 11,
       "startDate": "2026-10-17T05:30:00",
-      "statusDate": "2026-10-31T19:06:00",
+      "statusDate": "2026-10-31T19:16:00",
       "minutesPerDay": 1440,
       "minutesPerWeek": 10080,
       "daysPerMonth": 30,
@@ -6903,7 +6903,7 @@
         "finish": "2026-10-31T19:34:00",
         "milestone": false,
         "deadline": null,
-        "notes": "オーナーの注文（2026-10-31）: CR-858（落とした GRS JSON は選択画面なしで新規に開く。ダイアログで選んだファイルは今までどおり 3 つの選択を持つ）の急ぎの出荷。SUB cr858-drop-opens（Opus 5.5・high）が 18:15 ごろに始まった。CR-850 と一緒に main へ出す（328 の答え）。段（規則 7）の見積は PMO の置き。 段 1（GQA）。オーナーの番。 19:06: 開いたまま: オーナーの Q1 の答えがまだ（合流のコミットの件名 \"rec a, Q1 pending\"）。SUB は推奨 a で実装を済ませた。オーナーが a 以外を答えると、373・374 をやり直す。事実として今から置き直した。",
+        "notes": "オーナーの注文（2026-10-31）: CR-858（落とした GRS JSON は選択画面なしで新規に開く。ダイアログで選んだファイルは今までどおり 3 つの選択を持つ）の急ぎの出荷。SUB cr858-drop-opens（Opus 5.5・high）が 18:15 ごろに始まった。CR-850 と一緒に main へ出す（328 の答え）。段（規則 7）の見積は PMO の置き。 段 1（GQA）。オーナーの番。 19:06: 開いたまま: オーナーの Q1 の答えがまだ（合流のコミットの件名 \"rec a, Q1 pending\"）。SUB は推奨 a で実装を済ませた。オーナーが a 以外を答えると、373・374 をやり直す。事実として今から置き直した。 19:16: オーナーが CR-858 の GQA の Q1 に a と答えた。着地した実装と同じなので、373・374 は有効。第 2 巡（Q2: MSPDI のドロップ）がオーナーに出た。372 は第 2 巡の答えを待って開いたまま。",
         "calendarUid": null,
         "actualStart": "2026-10-31T18:15:00",
         "stop": null,
@@ -12203,10 +12203,10 @@
     "zoomY": 1.099862517185352
   },
   "documentStamp": {
-    "scheduleUpdatedAt": "2026-10-31T10:06:00Z",
+    "scheduleUpdatedAt": "2026-10-31T10:16:00Z",
     "lastEditedBy": "PMO child session",
     "settingsUpdatedAt": "2026-10-20T20:24:42Z",
-    "fileSavedAt": "2026-10-31T10:06:00Z"
+    "fileSavedAt": "2026-10-31T10:16:00Z"
   },
   "changeLog": [
     {
@@ -12436,6 +12436,12 @@
       "editedBy": "PMO child session",
       "explanation": "Actuals to 19:06 JST: GT-2 passed on d14c315a9 at 19:02 (275 done; the 18:35 run failed on a load flake in cr-389) and develop was pushed at about 19:05 (368 done); CR-858 is implemented (373 and 374 done, f3556d61c at 18:55, with the recommended a while the owner Q1 is still pending in 372); the scenario check 375 and the rest of the chain are re-placed from now and the PR (325) ends at 22:22; the BOSS hands over to a new BOSS; N1 and the provisional beta unchanged.",
       "changedAt": "2026-10-31T10:06:00Z"
+    },
+    {
+      "ordinal": 39,
+      "editedBy": "PMO child session",
+      "explanation": "Actuals to 19:16 JST: the owner answered CR-858 GQA Q1 = a (matches what landed, so 373 and 374 stand); round 2 (Q2, the MSPDI drop) is out to the owner and 372 stays open; check 91 was fixed on develop (9acf5f630); planned dates unchanged.",
+      "changedAt": "2026-10-31T10:16:00Z"
     }
   ]
 }
