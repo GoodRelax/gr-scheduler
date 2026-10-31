@@ -14,7 +14,7 @@
       "creationDate": "2026-10-31T08:50:00",
       "revision": 11,
       "startDate": "2026-10-17T05:30:00",
-      "statusDate": "2026-10-31T16:28:00",
+      "statusDate": "2026-10-31T16:35:00",
       "minutesPerDay": 1440,
       "minutesPerWeek": 10080,
       "daysPerMonth": 30,
@@ -24,7 +24,7 @@
       "defaultFinishTime": "23:59:00",
       "themeHue": 214,
       "parentTaskProgressToleranceDays": 1,
-      "uidHighWaterMark": 328,
+      "uidHighWaterMark": 330,
       "importSequence": 0,
       "carry": {},
       "carryElements": [],
@@ -1184,10 +1184,10 @@
         "wbsOrder": 43,
         "name": "10-24〜25 の合流分の dist の組み直し・中継とデモの版の上げ・GT-2・push",
         "start": "2026-10-31T16:25:00",
-        "finish": "2026-10-31T17:30:00",
+        "finish": "2026-10-31T18:05:00",
         "milestone": false,
         "deadline": null,
-        "notes": "origin の develop は d0ae3a9c8（10-24 05:46）のまま。統合の枝と develop には CR-850 の src・規則 07・検査 90〜93・CR-851 の起草とレビューがあり、検査 85 が赤（dist と版が古い）。手順は docs/development-rules/10-versions.md。長さは合流の前の見積 3 時間。 10-31 07:45: まだ始めていない（origin の develop は d0ae3a9c8 のまま）。今から置き直した。 10-31 08:30: まだ始めたと聞いていないので、今から置き直した。 10-31 15:25: 予定の終わり 13:50 を過ぎた。調整役から始めた・済んだの知らせはまだ無い（問 7 の数え方で遅れ）。 15:34: N1（用語集の確定）と、オーナーが OneDrive を止めること（GT-2 のため）を待つ。develop に CR-850 の src があり、dist の組み直し・版の上げ・GT-2 が要る。実装は命名の後（オーナーの節目）。意図して待つので遅れに数えない。置き場は 301 の後（予定の始まり 11-21 14:30）。始めた時は調整役が知らせる。 16:10: 急ぎの出荷（CR-850）の GT-2 が要るので N1 の前へ出した（調整役 2026-10-31）。オーナーの現場の試験（324）の後。dist の組み直し・版の上げ・GT-2・push。調整役のモデルと努力: Opus 5.5・high。 16:18: 置き直し（調整役の見積 16:16）: dist の組み直しと版の上げは 19:00 ごろまで。GT-2 は 275、push は 325 の中。前は「オーナーの試験（324）の後」だった。現場の試験は GT-2 の後の 324。 16:28: 始まった（調整役の一言、約 16:25）: dist を組み直し、grsRelay と serverSyncDemo の版を上げ、check.sh が走っている。SUB の見積より約 1.5 時間早く始まったので、後の段を 1.5 時間前へ置いた。",
+        "notes": "origin の develop は d0ae3a9c8（10-24 05:46）のまま。統合の枝と develop には CR-850 の src・規則 07・検査 90〜93・CR-851 の起草とレビューがあり、検査 85 が赤（dist と版が古い）。手順は docs/development-rules/10-versions.md。長さは合流の前の見積 3 時間。 10-31 07:45: まだ始めていない（origin の develop は d0ae3a9c8 のまま）。今から置き直した。 10-31 08:30: まだ始めたと聞いていないので、今から置き直した。 10-31 15:25: 予定の終わり 13:50 を過ぎた。調整役から始めた・済んだの知らせはまだ無い（問 7 の数え方で遅れ）。 15:34: N1（用語集の確定）と、オーナーが OneDrive を止めること（GT-2 のため）を待つ。develop に CR-850 の src があり、dist の組み直し・版の上げ・GT-2 が要る。実装は命名の後（オーナーの節目）。意図して待つので遅れに数えない。置き場は 301 の後（予定の始まり 11-21 14:30）。始めた時は調整役が知らせる。 16:10: 急ぎの出荷（CR-850）の GT-2 が要るので N1 の前へ出した（調整役 2026-10-31）。オーナーの現場の試験（324）の後。dist の組み直し・版の上げ・GT-2・push。調整役のモデルと努力: Opus 5.5・high。 16:18: 置き直し（調整役の見積 16:16）: dist の組み直しと版の上げは 19:00 ごろまで。GT-2 は 275、push は 325 の中。前は「オーナーの試験（324）の後」だった。現場の試験は GT-2 の後の 324。 16:28: 始まった（調整役の一言、約 16:25）: dist を組み直し、grsRelay と serverSyncDemo の版を上げ、check.sh が走っている。SUB の見積より約 1.5 時間早く始まったので、後の段を 1.5 時間前へ置いた。 16:35: 置き直し（Hotfix from main）: dist の組み直しと版の上げは hotfix 枝の上で行う。develop の上で 16:25 に始めた分は、枝の上で組み直す。",
         "calendarUid": null,
         "actualStart": "2026-10-31T16:25:00",
         "stop": null,
@@ -1199,7 +1199,7 @@
         "fadeOutDays": null,
         "dependencies": [
           {
-            "predecessorUid": 288,
+            "predecessorUid": 330,
             "linkType": 1,
             "linkLag": 0,
             "lagFormat": 7,
@@ -1215,11 +1215,11 @@
         "parentTaskUid": null,
         "wbsOrder": 44,
         "name": "known-red の揺れる 4 行(D1)と時間切れの延ばし(D7)を外し、GT-2 が時間切れ 0 で通るのを確かめる",
-        "start": "2026-10-31T17:30:00",
-        "finish": "2026-10-31T18:30:00",
+        "start": "2026-10-31T18:05:00",
+        "finish": "2026-10-31T19:05:00",
         "milestone": false,
         "deadline": null,
-        "notes": "棚卸しの D1・D7。外す条件は「GT-2 が時間切れ 0 で通る」。d24fc728 の GT-2 は cr-820 の 1 件が時間切れ（DFC-3456）なので、その答え（272）の後。261 から分けた。 10-24: DFC-3456（cr-820 を 20 秒、JDG-3116）は実測済。ただし GT-2 で cr-822 の時間切れが出た（DFC-3493、JDG-3144）ので、外す条件はまだ満たされない —— 281 の後。 10-31 07:45: まだ始めていない（origin の develop は d0ae3a9c8 のまま）。今から置き直した。 10-31 08:30: まだ始めたと聞いていないので、今から置き直した。 10-31 15:25: 予定の終わり 13:50 を過ぎた。調整役から始めた・済んだの知らせはまだ無い（問 7 の数え方で遅れ）。 15:34: N1（用語集の確定）と、オーナーが OneDrive を止めること（GT-2 のため）を待つ。develop に CR-850 の src があり、dist の組み直し・版の上げ・GT-2 が要る。実装は命名の後（オーナーの節目）。意図して待つので遅れに数えない。置き場は 301 の後（予定の始まり 11-21 14:30）。始めた時は調整役が知らせる。 16:10: 急ぎの出荷（CR-850）の GT-2 が要るので N1 の前へ出した。OneDrive を止めた後（327）に走らせる。 16:18: GT-2 は 1 時間ほど（調整役の見積 16:16）。 16:28: 置き直し。注意（事実）: cr-586-iv-22 の 2 つの試験は develop で前から赤で、GT-2 を赤にする。Sonnet の副エージェントが調べている。GT-2 の前にオーナーが OneDrive を止める必要がある。",
+        "notes": "棚卸しの D1・D7。外す条件は「GT-2 が時間切れ 0 で通る」。d24fc728 の GT-2 は cr-820 の 1 件が時間切れ（DFC-3456）なので、その答え（272）の後。261 から分けた。 10-24: DFC-3456（cr-820 を 20 秒、JDG-3116）は実測済。ただし GT-2 で cr-822 の時間切れが出た（DFC-3493、JDG-3144）ので、外す条件はまだ満たされない —— 281 の後。 10-31 07:45: まだ始めていない（origin の develop は d0ae3a9c8 のまま）。今から置き直した。 10-31 08:30: まだ始めたと聞いていないので、今から置き直した。 10-31 15:25: 予定の終わり 13:50 を過ぎた。調整役から始めた・済んだの知らせはまだ無い（問 7 の数え方で遅れ）。 15:34: N1（用語集の確定）と、オーナーが OneDrive を止めること（GT-2 のため）を待つ。develop に CR-850 の src があり、dist の組み直し・版の上げ・GT-2 が要る。実装は命名の後（オーナーの節目）。意図して待つので遅れに数えない。置き場は 301 の後（予定の始まり 11-21 14:30）。始めた時は調整役が知らせる。 16:10: 急ぎの出荷（CR-850）の GT-2 が要るので N1 の前へ出した。OneDrive を止めた後（327）に走らせる。 16:18: GT-2 は 1 時間ほど（調整役の見積 16:16）。 16:28: 置き直し。注意（事実）: cr-586-iv-22 の 2 つの試験は develop で前から赤で、GT-2 を赤にする。Sonnet の副エージェントが調べている。GT-2 の前にオーナーが OneDrive を止める必要がある。 16:35: 置き直し: ゲート（GT-2）は hotfix 枝の上で走る。",
         "calendarUid": null,
         "actualStart": null,
         "stop": null,
@@ -5365,11 +5365,11 @@
         "parentTaskUid": null,
         "wbsOrder": 202,
         "name": "CR-850(基準日線・カーソル・掴みを 15 分に)の急ぎの出荷をオーナーが実物で触る",
-        "start": "2026-10-31T18:30:00",
-        "finish": "2026-10-31T19:30:00",
+        "start": "2026-10-31T19:35:00",
+        "finish": "2026-10-31T20:35:00",
         "milestone": false,
         "deadline": null,
-        "notes": "オーナーの注文（BOSSBOSS 経由、2026-10-31）: CR-850（基準日線・カーソル・掴みを 15 分に）の急ぎの出荷。「実装は命名の後」の例外にした。SUB baseline-15min（Opus 5.5・high）で、用語集と並行に今から動く。段（規則 7）: GQA → 仕様とテスト仕様 → 実装と自動試験 → Gherkin の確かめ（別の SUB）→ オーナーの現場の試験 → 出荷（調整役）。見積は 288 の 30 分と、305〜315 前後の同種の仕事（230・231）からの置き。 段 5（現場の試験）。オーナーの番。 16:18: 見積（調整役 16:16）: オーナーの現場の試験は 20:00〜21:00 ごろ。GT-2 の後。 16:28: 置き直し（1.5 時間前へ）。",
+        "notes": "オーナーの注文（BOSSBOSS 経由、2026-10-31）: CR-850（基準日線・カーソル・掴みを 15 分に）の急ぎの出荷。「実装は命名の後」の例外にした。SUB baseline-15min（Opus 5.5・high）で、用語集と並行に今から動く。段（規則 7）: GQA → 仕様とテスト仕様 → 実装と自動試験 → Gherkin の確かめ（別の SUB）→ オーナーの現場の試験 → 出荷（調整役）。見積は 288 の 30 分と、305〜315 前後の同種の仕事（230・231）からの置き。 段 5（現場の試験）。オーナーの番。 16:18: 見積（調整役 16:16）: オーナーの現場の試験は 20:00〜21:00 ごろ。GT-2 の後。 16:28: 置き直し（1.5 時間前へ）。 16:35: 置き直し: オーナーの現場の試験は PR を開いた後（調整役 16:32）。",
         "calendarUid": null,
         "actualStart": null,
         "stop": null,
@@ -5381,7 +5381,7 @@
         "fadeOutDays": null,
         "dependencies": [
           {
-            "predecessorUid": 275,
+            "predecessorUid": 325,
             "linkType": 1,
             "linkLag": 0,
             "lagFormat": 7,
@@ -5405,11 +5405,139 @@
         "parentTaskUid": null,
         "wbsOrder": 203,
         "name": "OneDrive を止める(CR-850 の急ぎの出荷の GT-2 の間)",
-        "start": "2026-10-31T17:15:00",
-        "finish": "2026-10-31T17:30:00",
+        "start": "2026-10-31T17:50:00",
+        "finish": "2026-10-31T18:05:00",
         "milestone": false,
         "deadline": null,
-        "notes": "オーナーの注文（BOSSBOSS 経由、2026-10-31）: CR-850（基準日線・カーソル・掴みを 15 分に）の急ぎの出荷。「実装は命名の後」の例外にした。SUB baseline-15min（Opus 5.5・high）で、用語集と並行に今から動く。段（規則 7）: GQA → 仕様とテスト仕様 → 実装と自動試験 → Gherkin の確かめ（別の SUB）→ オーナーの現場の試験 → 出荷（調整役）。見積は 288 の 30 分と、305〜315 前後の同種の仕事（230・231）からの置き。 出荷の GT-2 は OneDrive を止めて走らせる（オーナーの手）。 16:18: GT-2（275）の前に OneDrive を止める。 16:28: 置き直し（CR-850 が早く済んだので 1.5 時間前へ）。",
+        "notes": "オーナーの注文（BOSSBOSS 経由、2026-10-31）: CR-850（基準日線・カーソル・掴みを 15 分に）の急ぎの出荷。「実装は命名の後」の例外にした。SUB baseline-15min（Opus 5.5・high）で、用語集と並行に今から動く。段（規則 7）: GQA → 仕様とテスト仕様 → 実装と自動試験 → Gherkin の確かめ（別の SUB）→ オーナーの現場の試験 → 出荷（調整役）。見積は 288 の 30 分と、305〜315 前後の同種の仕事（230・231）からの置き。 出荷の GT-2 は OneDrive を止めて走らせる（オーナーの手）。 16:18: GT-2（275）の前に OneDrive を止める。 16:28: 置き直し（CR-850 が早く済んだので 1.5 時間前へ）。 16:35: 置き直し: ゲートの前にオーナーが OneDrive を止める。",
+        "calendarUid": null,
+        "actualStart": null,
+        "stop": null,
+        "actualFinish": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 330,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 325,
+        "parentTaskUid": null,
+        "wbsOrder": 204,
+        "name": "CR-850(基準日線・カーソル・掴みを 15 分に)の急ぎの出荷: develop → main の PR(調整役)",
+        "start": "2026-10-31T19:05:00",
+        "finish": "2026-10-31T19:35:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "オーナーの注文（BOSSBOSS 経由、2026-10-31）: CR-850（基準日線・カーソル・掴みを 15 分に）の急ぎの出荷。「実装は命名の後」の例外にした。SUB baseline-15min（Opus 5.5・high）で、用語集と並行に今から動く。段（規則 7）: GQA → 仕様とテスト仕様 → 実装と自動試験 → Gherkin の確かめ（別の SUB）→ オーナーの現場の試験 → 出荷（調整役）。見積は 288 の 30 分と、305〜315 前後の同種の仕事（230・231）からの置き。 段 6（出荷）の main への道。調整役のモデルと努力: Opus 5.5・high。見積は 230 の 3 時間より軽く、1 時間と置いた。 16:18: 置き直し（調整役の見積 16:16: 出荷は 21:00 の後）: 道が決まった後。見積は 1 時間から 45 分に縮めた（PR だけで、dist と GT-2 は済み）。 16:28: 置き直し（1.5 時間前へ）。 16:35: 置き直し: main への PR は hotfix 枝から。見積は 30 分に縮めた（PR だけ）。",
+        "calendarUid": null,
+        "actualStart": null,
+        "stop": null,
+        "actualFinish": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 275,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 326,
+        "parentTaskUid": null,
+        "wbsOrder": 205,
+        "name": "CR-850(基準日線・カーソル・掴みを 15 分に)の急ぎの出荷: PR を見て main へ合流する",
+        "start": "2026-10-31T20:35:00",
+        "finish": "2026-10-31T21:35:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "オーナーの注文（BOSSBOSS 経由、2026-10-31）: CR-850（基準日線・カーソル・掴みを 15 分に）の急ぎの出荷。「実装は命名の後」の例外にした。SUB baseline-15min（Opus 5.5・high）で、用語集と並行に今から動く。段（規則 7）: GQA → 仕様とテスト仕様 → 実装と自動試験 → Gherkin の確かめ（別の SUB）→ オーナーの現場の試験 → 出荷（調整役）。見積は 288 の 30 分と、305〜315 前後の同種の仕事（230・231）からの置き。 段 6（出荷）のオーナーの合流。見積は 231 と同じ 1 時間。 16:18: 置き直し: 出荷の PR を見て合流する。オーナーの時間帯は休日 23:00 まで。 16:28: 置き直し（1.5 時間前へ）。 16:35: 置き直し: PR を見て main へ合流するのは現場の試験の後。",
+        "calendarUid": null,
+        "actualStart": null,
+        "stop": null,
+        "actualFinish": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 324,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 328,
+        "parentTaskUid": null,
+        "wbsOrder": 206,
+        "name": "CR-850(基準日線・カーソル・掴みを 15 分に)の急ぎの出荷: 出荷の道(main からの hotfix か develop から main か)を決める",
+        "start": "2026-10-31T16:28:00",
+        "finish": "2026-10-31T16:32:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "オーナーの注文（BOSSBOSS 経由、2026-10-31）: CR-850（基準日線・カーソル・掴みを 15 分に）の急ぎの出荷。「実装は命名の後」の例外にした。SUB baseline-15min（Opus 5.5・high）で、用語集と並行に今から動く。段（規則 7）: GQA → 仕様とテスト仕様 → 実装と自動試験 → Gherkin の確かめ（別の SUB）→ オーナーの現場の試験 → 出荷（調整役）。見積は 288 の 30 分と、305〜315 前後の同種の仕事（230・231）からの置き。 調整役の見積（16:16）: 出荷の道はオーナーの決めを待つ。オーナーの番。見積は 15 分と置いた。 16:28: 置き直し（1.5 時間前へ）。 16:35: 済んだ。オーナーが出荷の道に「Hotfix from main」を選んだ（調整役の一言。本文は「約 16:45」、この機械の時計は 16:32 だったので、一言が届いた 16:32 を使った）: CR-850 だけを main から切った hotfix 枝 hotfix/cr-850-base-line-15-minutes で出す。",
+        "calendarUid": null,
+        "actualStart": "2026-10-31T16:28:00",
+        "stop": null,
+        "actualFinish": "2026-10-31T16:32:00",
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 100,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 324,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 329,
+        "parentTaskUid": null,
+        "wbsOrder": 207,
+        "name": "CR-850(基準日線を 15 分に)の急ぎの出荷: develop の試験の穴を埋める(SUB baseline-15min)",
+        "start": "2026-10-31T16:35:00",
+        "finish": "2026-10-31T17:05:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "オーナーが出荷の道に Hotfix from main を選んだ（328）。 SUB のモデルと努力: Opus 5.5・high。hotfix への移しの前に、develop の試験の穴を閉じる。見積は PMO の置き（30 分）。",
         "calendarUid": null,
         "actualStart": null,
         "stop": null,
@@ -5433,15 +5561,15 @@
         "carryElements": []
       },
       {
-        "uid": 325,
+        "uid": 330,
         "parentTaskUid": null,
-        "wbsOrder": 204,
-        "name": "CR-850(基準日線・カーソル・掴みを 15 分に)の急ぎの出荷: develop → main の PR(調整役)",
-        "start": "2026-10-31T19:45:00",
-        "finish": "2026-10-31T20:30:00",
+        "wbsOrder": 208,
+        "name": "CR-850(基準日線を 15 分に)の急ぎの出荷: main から切った hotfix 枝へ移す(SUB baseline-15min)",
+        "start": "2026-10-31T17:05:00",
+        "finish": "2026-10-31T17:35:00",
         "milestone": false,
         "deadline": null,
-        "notes": "オーナーの注文（BOSSBOSS 経由、2026-10-31）: CR-850（基準日線・カーソル・掴みを 15 分に）の急ぎの出荷。「実装は命名の後」の例外にした。SUB baseline-15min（Opus 5.5・high）で、用語集と並行に今から動く。段（規則 7）: GQA → 仕様とテスト仕様 → 実装と自動試験 → Gherkin の確かめ（別の SUB）→ オーナーの現場の試験 → 出荷（調整役）。見積は 288 の 30 分と、305〜315 前後の同種の仕事（230・231）からの置き。 段 6（出荷）の main への道。調整役のモデルと努力: Opus 5.5・high。見積は 230 の 3 時間より軽く、1 時間と置いた。 16:18: 置き直し（調整役の見積 16:16: 出荷は 21:00 の後）: 道が決まった後。見積は 1 時間から 45 分に縮めた（PR だけで、dist と GT-2 は済み）。 16:28: 置き直し（1.5 時間前へ）。",
+        "notes": "オーナーが出荷の道に Hotfix from main を選んだ（328）。 hotfix/cr-850-base-line-15-minutes に CR-850 を移す。SUB のモデルと努力: Opus 5.5・high。見積は PMO の置き（30 分）。",
         "calendarUid": null,
         "actualStart": null,
         "stop": null,
@@ -5453,71 +5581,7 @@
         "fadeOutDays": null,
         "dependencies": [
           {
-            "predecessorUid": 328,
-            "linkType": 1,
-            "linkLag": 0,
-            "lagFormat": 7,
-            "carry": {},
-            "carryElements": []
-          }
-        ],
-        "carry": {},
-        "carryElements": []
-      },
-      {
-        "uid": 326,
-        "parentTaskUid": null,
-        "wbsOrder": 205,
-        "name": "CR-850(基準日線・カーソル・掴みを 15 分に)の急ぎの出荷: PR を見て main へ合流する",
-        "start": "2026-10-31T20:30:00",
-        "finish": "2026-10-31T21:30:00",
-        "milestone": false,
-        "deadline": null,
-        "notes": "オーナーの注文（BOSSBOSS 経由、2026-10-31）: CR-850（基準日線・カーソル・掴みを 15 分に）の急ぎの出荷。「実装は命名の後」の例外にした。SUB baseline-15min（Opus 5.5・high）で、用語集と並行に今から動く。段（規則 7）: GQA → 仕様とテスト仕様 → 実装と自動試験 → Gherkin の確かめ（別の SUB）→ オーナーの現場の試験 → 出荷（調整役）。見積は 288 の 30 分と、305〜315 前後の同種の仕事（230・231）からの置き。 段 6（出荷）のオーナーの合流。見積は 231 と同じ 1 時間。 16:18: 置き直し: 出荷の PR を見て合流する。オーナーの時間帯は休日 23:00 まで。 16:28: 置き直し（1.5 時間前へ）。",
-        "calendarUid": null,
-        "actualStart": null,
-        "stop": null,
-        "actualFinish": null,
-        "resume": null,
-        "resumeValid": null,
-        "percentComplete": 0,
-        "fadeInDays": null,
-        "fadeOutDays": null,
-        "dependencies": [
-          {
-            "predecessorUid": 325,
-            "linkType": 1,
-            "linkLag": 0,
-            "lagFormat": 7,
-            "carry": {},
-            "carryElements": []
-          }
-        ],
-        "carry": {},
-        "carryElements": []
-      },
-      {
-        "uid": 328,
-        "parentTaskUid": null,
-        "wbsOrder": 206,
-        "name": "CR-850(基準日線・カーソル・掴みを 15 分に)の急ぎの出荷: 出荷の道(main からの hotfix か develop から main か)を決める",
-        "start": "2026-10-31T19:30:00",
-        "finish": "2026-10-31T19:45:00",
-        "milestone": false,
-        "deadline": null,
-        "notes": "オーナーの注文（BOSSBOSS 経由、2026-10-31）: CR-850（基準日線・カーソル・掴みを 15 分に）の急ぎの出荷。「実装は命名の後」の例外にした。SUB baseline-15min（Opus 5.5・high）で、用語集と並行に今から動く。段（規則 7）: GQA → 仕様とテスト仕様 → 実装と自動試験 → Gherkin の確かめ（別の SUB）→ オーナーの現場の試験 → 出荷（調整役）。見積は 288 の 30 分と、305〜315 前後の同種の仕事（230・231）からの置き。 調整役の見積（16:16）: 出荷の道はオーナーの決めを待つ。オーナーの番。見積は 15 分と置いた。 16:28: 置き直し（1.5 時間前へ）。",
-        "calendarUid": null,
-        "actualStart": null,
-        "stop": null,
-        "actualFinish": null,
-        "resume": null,
-        "resumeValid": null,
-        "percentComplete": 0,
-        "fadeInDays": null,
-        "fadeOutDays": null,
-        "dependencies": [
-          {
-            "predecessorUid": 324,
+            "predecessorUid": 329,
             "linkType": 1,
             "linkLag": 0,
             "lagFormat": 7,
@@ -6874,6 +6938,14 @@
       {
         "taskUid": 328,
         "taskGroupId": "f2b5a632-0e6d-56dd-acc2-4e8c5d72d9fc"
+      },
+      {
+        "taskUid": 329,
+        "taskGroupId": "e9591aca-8c39-5748-95b5-074b8bb6ab8a"
+      },
+      {
+        "taskUid": 330,
+        "taskGroupId": "e9591aca-8c39-5748-95b5-074b8bb6ab8a"
       }
     ],
     "taskVisuals": [
@@ -8524,6 +8596,22 @@
         "fillColor": "orange",
         "strokeColor": null,
         "strokeWidthPx": null
+      },
+      {
+        "taskUid": 329,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": "diamond",
+        "fillColor": "blue",
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 330,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": "diamond",
+        "fillColor": "blue",
+        "strokeColor": null,
+        "strokeWidthPx": null
       }
     ],
     "commentBoxes": [
@@ -10007,10 +10095,10 @@
     "zoomY": 1.099862517185352
   },
   "documentStamp": {
-    "scheduleUpdatedAt": "2026-10-31T07:28:00Z",
+    "scheduleUpdatedAt": "2026-10-31T07:35:00Z",
     "lastEditedBy": "PMO child session",
     "settingsUpdatedAt": "2026-10-20T20:24:42Z",
-    "fileSavedAt": "2026-10-31T07:28:00Z"
+    "fileSavedAt": "2026-10-31T07:35:00Z"
   },
   "changeLog": [
     {
@@ -10186,6 +10274,12 @@
       "editedBy": "PMO child session",
       "explanation": "Actuals to 16:28 JST: baseline-15min finished CR-850 including X-3a at c18d84525 (16:26), about 1.5 h ahead of the estimate, merged as d9677689d (322 and 288 done); 299 started (dist rebuilt, versions bumped, check.sh running); 323 started as a Sonnet subagent (rule 6: the owner works over Remote Control, so no session card; read-only check); two cr-586-iv-22 tests red on develop are being diagnosed; the later stages move 1.5 h earlier; N1 and the provisional beta unchanged.",
       "changedAt": "2026-10-31T07:28:00Z"
+    },
+    {
+      "ordinal": 30,
+      "editedBy": "PMO child session",
+      "explanation": "Actuals to 16:35 JST: the owner chose the release route Hotfix from main (328 done); two new SUB tasks (329 close the test gaps on develop, 330 port CR-850 onto hotfix/cr-850-base-line-15-minutes); the dist rebuild and version bump (299), the OneDrive stop (327), the gate (275) and the PR to main (325) now run on the hotfix branch, then the owner field test (324) and merge (326), re-placed from now; N1 and the provisional beta unchanged.",
+      "changedAt": "2026-10-31T07:35:00Z"
     }
   ]
 }
