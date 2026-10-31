@@ -74,7 +74,7 @@ async function openTaskPanel(page: Page, uid: number): Promise<void> {
 test.describe('CR-783: a drag-created task snaps like a grabbed end (FR-103, table T-378)', () => {
   test.use({ viewport: { width: 1454, height: 709 } })
 
-  test('CR-783 section 4: at the hour tier the press is the start and the release the end; Alt is one minute; below it is days', async ({ page }) => {
+  test('CR-783 section 4: at the hour tier the press is the start and the release the end; Alt changes nothing; below it is days', async ({ page }) => {
     await launch(page)
     await enableAgentApi(page)
     await press(page, 'IC-98')
@@ -145,12 +145,13 @@ test.describe('CR-783: a drag-created task snaps like a grabbed end (FR-103, tab
     }
 
     const tentative = await make(nine + 10, nine + 160, 200, false)
-    expect(await lastTask(), 'step 1: 9:10 to 11:40 makes 9:00 to 12:00').toBe(`${at(nine)}..${at(nine + 180)}`)
-    expect(tentative, 'step 1: the picture while pulling stands where the task is made').toEqual([[Math.round(xOf(nine)), Math.round(xOf(nine + 180))]])
+    // WHY: CR-850 snaps the hour tier and up to 15 minutes, and Alt selects no unit (SG-4 retired).
+    expect(await lastTask(), 'step 1: 9:10 to 11:40 makes 9:15 to 11:45').toBe(`${at(nine + 15)}..${at(nine + 165)}`)
+    expect(tentative, 'step 1: the picture while pulling stands where the task is made').toEqual([[Math.round(xOf(nine + 15)), Math.round(xOf(nine + 165))]])
     await make(nine + 10, nine + 160, 260, true)
-    expect(await lastTask(), 'step 2: Alt before the release snaps to one minute').toBe(`${at(nine + 10)}..${at(nine + 160)}`)
+    expect(await lastTask(), 'step 2: Alt before the release snaps to the same 15 minutes').toBe(`${at(nine + 15)}..${at(nine + 165)}`)
     await make(nine + 160, nine + 10, 320, false)
-    expect(await lastTask(), 'step 3: right to left swaps start and end and makes the same task').toBe(`${at(nine)}..${at(nine + 180)}`)
+    expect(await lastTask(), 'step 3: right to left swaps start and end and makes the same task').toBe(`${at(nine + 15)}..${at(nine + 165)}`)
 
     for (let i = 0; i < 40 && (await page.locator('[data-figure^="ruler-hour-tick-"]').count()) > 0; i += 1) await press(page, 'IC-12')
     const days = await page.evaluate(() =>
