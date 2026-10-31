@@ -49,7 +49,19 @@ GENERATED_MARKER_WITHIN_LINES = 15
 # `npx vite build` rather than by `npm run gen`.
 # ⚠️ This is an exemption from ONE trap, not from the checks: `gen:check` and
 # the unit suite still judge everything the bundle is built from.
-NOT_A_HAND_EDITED_ARTIFACT = ('dist/index.html',)
+# The two view figures are the same kind of exemption. docs/spec/_source/build.py
+# draws them with the drawio-uml skill (`draw.py --view read|write`, under
+# ~/.claude/skills, outside the repository), so their bytes follow that skill
+# and Graphviz as well as components.json. A newer skill redraws them with
+# components.json clean, and the trap then reads a correct `npm run gen` as a
+# hand edit (CR-826 a60f69ed5 restored the old bytes; CR-850 3f2f324d1 kept the
+# new ones, which `npm run gen` reproduces). The skill can never be dirty in
+# this tree, so naming it in the declaration would not quiet the trap.
+NOT_A_HAND_EDITED_ARTIFACT = (
+    'dist/index.html',
+    'docs/spec/_source/view-read.drawio',
+    'docs/spec/_source/view-write.drawio',
+)
 
 
 def say(message):
