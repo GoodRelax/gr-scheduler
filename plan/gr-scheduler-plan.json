@@ -14,7 +14,7 @@
       "creationDate": "2026-10-31T08:50:00",
       "revision": 11,
       "startDate": "2026-10-17T05:30:00",
-      "statusDate": "2026-10-31T15:34:00",
+      "statusDate": "2026-10-31T15:44:00",
       "minutesPerDay": 1440,
       "minutesPerWeek": 10080,
       "daysPerMonth": 30,
@@ -24,7 +24,7 @@
       "defaultFinishTime": "23:59:00",
       "themeHue": 214,
       "parentTaskProgressToleranceDays": 1,
-      "uidHighWaterMark": 317,
+      "uidHighWaterMark": 320,
       "importSequence": 0,
       "carry": {},
       "carryElements": [],
@@ -5159,6 +5159,102 @@
         "dependencies": [],
         "carry": {},
         "carryElements": []
+      },
+      {
+        "uid": 318,
+        "parentTaskUid": null,
+        "wbsOrder": 196,
+        "name": "GRS JSON と MSPDI の検証の道具(β 版から。優先度は最低)の仕様とテスト仕様",
+        "start": "2026-11-28T00:00:00",
+        "finish": "2026-11-28T01:00:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "オーナー 2026-10-31（BOSSBOSS 経由）「GRSのタスクにGRS JSONやMSPDIのスキーマとルールを検証するツールを作って置け、対象はβ版から、優先度は最低としろ。」作るもの: GRS JSON と MSPDI のファイルを、そのスキーマとルールで検証する道具。対象は β 版のスキーマから。優先度は最低。今は始めない: β 版（234）と CR-851（296）の後に置く（β のスキーマが要る）。きっかけ: 別の PMO の計画で、実績の終わりが実績の始まりの 1 分前になっていて、GRS がその計画を開けなかった。計画を書くたびに検証を走らせれば、この種類の誤りを捕まえられる。この計画は今でも `tools/schema-only-writer/validate.py`（スキーマの検証）と `measure.mjs`（GRS で読み込んで数え直しを見る）で守っている。新しい道具はこの 2 つを GRS JSON と MSPDI の両方に広げる。 段 1（仕様とテスト仕様）。SUB のモデルと努力: Opus 5.5・high。β 版（234）が済んだ後。",
+        "calendarUid": null,
+        "actualStart": null,
+        "stop": null,
+        "actualFinish": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 234,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 319,
+        "parentTaskUid": null,
+        "wbsOrder": 197,
+        "name": "GRS JSON と MSPDI の検証の道具(β 版から。優先度は最低)の実装と自動試験",
+        "start": "2026-11-28T01:00:00",
+        "finish": "2026-11-28T04:00:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "オーナー 2026-10-31（BOSSBOSS 経由）「GRSのタスクにGRS JSONやMSPDIのスキーマとルールを検証するツールを作って置け、対象はβ版から、優先度は最低としろ。」作るもの: GRS JSON と MSPDI のファイルを、そのスキーマとルールで検証する道具。対象は β 版のスキーマから。優先度は最低。今は始めない: β 版（234）と CR-851（296）の後に置く（β のスキーマが要る）。きっかけ: 別の PMO の計画で、実績の終わりが実績の始まりの 1 分前になっていて、GRS がその計画を開けなかった。計画を書くたびに検証を走らせれば、この種類の誤りを捕まえられる。この計画は今でも `tools/schema-only-writer/validate.py`（スキーマの検証）と `measure.mjs`（GRS で読み込んで数え直しを見る）で守っている。新しい道具はこの 2 つを GRS JSON と MSPDI の両方に広げる。 段 2（実装と自動試験）。SUB のモデルと努力: Opus 5.5・high。仕様の後。",
+        "calendarUid": null,
+        "actualStart": null,
+        "stop": null,
+        "actualFinish": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 318,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 320,
+        "parentTaskUid": null,
+        "wbsOrder": 198,
+        "name": "GRS JSON と MSPDI の検証の道具(β 版から。優先度は最低)の場面の確かめ",
+        "start": "2026-11-28T04:00:00",
+        "finish": "2026-11-28T05:00:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "オーナー 2026-10-31（BOSSBOSS 経由）「GRSのタスクにGRS JSONやMSPDIのスキーマとルールを検証するツールを作って置け、対象はβ版から、優先度は最低としろ。」作るもの: GRS JSON と MSPDI のファイルを、そのスキーマとルールで検証する道具。対象は β 版のスキーマから。優先度は最低。今は始めない: β 版（234）と CR-851（296）の後に置く（β のスキーマが要る）。きっかけ: 別の PMO の計画で、実績の終わりが実績の始まりの 1 分前になっていて、GRS がその計画を開けなかった。計画を書くたびに検証を走らせれば、この種類の誤りを捕まえられる。この計画は今でも `tools/schema-only-writer/validate.py`（スキーマの検証）と `measure.mjs`（GRS で読み込んで数え直しを見る）で守っている。新しい道具はこの 2 つを GRS JSON と MSPDI の両方に広げる。 段 3（Gherkin の場面の確かめ。別の試験の SUB）。SUB のモデルと努力: Sonnet 5.5・medium。実装の後。",
+        "calendarUid": null,
+        "actualStart": null,
+        "stop": null,
+        "actualFinish": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 319,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
       }
     ],
     "resources": [],
@@ -5665,6 +5761,17 @@
         "name": "GQA に答える(用語集・CR-851 の行のレビュー)",
         "derivedFromTaskUid": null,
         "order": 1,
+        "treeState": "auto",
+        "editPermission": null,
+        "color": null,
+        "minHeightPx": null
+      },
+      {
+        "id": "2d7c98db-756c-5442-ad87-18bd551b5683",
+        "parentId": "e353eb29-4e4b-404e-81d9-e615d5d9e8f7",
+        "name": "β の後(優先度は最低。命名・β・CR-851 の後)",
+        "derivedFromTaskUid": null,
+        "order": 11,
         "treeState": "auto",
         "editPermission": null,
         "color": null,
@@ -6451,6 +6558,18 @@
       {
         "taskUid": 317,
         "taskGroupId": "c2aab55f-aba6-5e58-942b-293e186f4e2f"
+      },
+      {
+        "taskUid": 318,
+        "taskGroupId": "2d7c98db-756c-5442-ad87-18bd551b5683"
+      },
+      {
+        "taskUid": 319,
+        "taskGroupId": "2d7c98db-756c-5442-ad87-18bd551b5683"
+      },
+      {
+        "taskUid": 320,
+        "taskGroupId": "2d7c98db-756c-5442-ad87-18bd551b5683"
       }
     ],
     "taskVisuals": [
@@ -8013,6 +8132,30 @@
         "fillColor": "dimgray",
         "strokeColor": null,
         "strokeWidthPx": null
+      },
+      {
+        "taskUid": 318,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": "diamond",
+        "fillColor": "lightgray",
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 319,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": "diamond",
+        "fillColor": "lightgray",
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 320,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": "diamond",
+        "fillColor": "lightgray",
+        "strokeColor": null,
+        "strokeWidthPx": null
       }
     ],
     "commentBoxes": [
@@ -9496,10 +9639,10 @@
     "zoomY": 1.099862517185352
   },
   "documentStamp": {
-    "scheduleUpdatedAt": "2026-10-31T06:34:00Z",
+    "scheduleUpdatedAt": "2026-10-31T06:44:00Z",
     "lastEditedBy": "PMO child session",
     "settingsUpdatedAt": "2026-10-20T20:24:42Z",
-    "fileSavedAt": "2026-10-31T06:34:00Z"
+    "fileSavedAt": "2026-10-31T06:44:00Z"
   },
   "changeLog": [
     {
@@ -9645,6 +9788,12 @@
       "editedBy": "PMO child session",
       "explanation": "Actuals to 15:34 JST: 299 (push) and 275 (GT-2) are not started and wait on purpose (CR-850 src needs a dist rebuild, a version bump and a GT-2 with OneDrive stopped by the owner; implementation follows naming); both placed after N1 behind task 301 and no longer counted as delays; other planned dates unchanged.",
       "changedAt": "2026-10-31T06:34:00Z"
+    },
+    {
+      "ordinal": 25,
+      "editedBy": "PMO child session",
+      "explanation": "Actuals to 15:44 JST: added the GRS JSON and MSPDI validator as three tasks (318 spec, 319 implementation, 320 scenario check) in a new lowest-priority group after the beta and CR-851, by the owner order; not started; no other date moved.",
+      "changedAt": "2026-10-31T06:44:00Z"
     }
   ]
 }
