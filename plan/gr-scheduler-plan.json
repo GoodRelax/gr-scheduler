@@ -14,7 +14,7 @@
       "creationDate": "2026-10-31T08:50:00",
       "revision": 11,
       "startDate": "2026-10-17T05:30:00",
-      "statusDate": "2026-10-31T21:06:00",
+      "statusDate": "2026-10-31T21:25:00",
       "minutesPerDay": 1440,
       "minutesPerWeek": 10080,
       "daysPerMonth": 30,
@@ -7214,7 +7214,7 @@
         "finish": "2026-11-01T11:30:00",
         "milestone": false,
         "deadline": null,
-        "notes": "オーナーの通達（BOSSBOSS 経由、2026-10-31）: GQA の ID は「チームの ID + GQA」。B チームの GQA は 1 つのファイル BGQA（分野ごとに章）、用語集だけ BGQA2。ファイルの 1 行目は ID だけ。BOSS が出荷の後に、BOSS の GQA と CR-858 の GQA を BGQA にまとめる。見積は PMO の置き（30 分）。326（オーナーの合流）の後に置いた。調整役のモデルと努力: Opus 5.5・high。",
+        "notes": "オーナーの通達（BOSSBOSS 経由、2026-10-31）: GQA の ID は「チームの ID + GQA」。B チームの GQA は 1 つのファイル BGQA（分野ごとに章）、用語集だけ BGQA2。ファイルの 1 行目は ID だけ。BOSS が出荷の後に、BOSS の GQA と CR-858 の GQA を BGQA にまとめる。見積は PMO の置き（30 分）。326（オーナーの合流）の後に置いた。調整役のモデルと努力: Opus 5.5・high。 21:25: 通達（BOSSBOSS 10-31 21:30）: チーム ID は B のまま。GQA のファイル名は goodrelax-qa-<小文字の ID>[<番号>]-<topic>.md。B のまとめ先は goodrelax-qa-b-gr-scheduler.md（BGQA）、用語集は goodrelax-qa-b2-glossary.md（BGQA2）。",
         "calendarUid": null,
         "actualStart": null,
         "stop": null,
@@ -12351,10 +12351,10 @@
     "zoomY": 1.099862517185352
   },
   "documentStamp": {
-    "scheduleUpdatedAt": "2026-10-31T12:06:00Z",
+    "scheduleUpdatedAt": "2026-10-31T12:25:00Z",
     "lastEditedBy": "PMO child session",
     "settingsUpdatedAt": "2026-10-20T20:24:42Z",
-    "fileSavedAt": "2026-10-31T12:06:00Z"
+    "fileSavedAt": "2026-10-31T12:25:00Z"
   },
   "changeLog": [
     {
@@ -12674,6 +12674,12 @@
       "editedBy": "PMO child session",
       "explanation": "Fact at 21:06 JST (machine clock; the BOSS line said 21:4x on its own clock): 378 done (GT-2 passed on a6d7c6df2; reds only the known DFC-922/1016/1020); 325 done (develop pushed, PR #5 develop to main opened); next is the owner field test 324 at 11-01 09:00 (owner wait as a fact). Plan commits stay on the branch/root without push until the owner merges the PR. No date moved; N1 and the provisional beta unchanged.",
       "changedAt": "2026-10-31T12:06:00Z"
+    },
+    {
+      "ordinal": 54,
+      "editedBy": "PMO child session",
+      "explanation": "Fact at 21:25 JST: the GQA file name rule is goodrelax-qa-<lowercase id>[<number>]-<topic>.md; note on 381 names goodrelax-qa-b-gr-scheduler.md and goodrelax-qa-b2-glossary.md. No date moved.",
+      "changedAt": "2026-10-31T12:25:00Z"
     }
   ]
 }
