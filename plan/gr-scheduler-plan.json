@@ -14,7 +14,7 @@
       "creationDate": "2026-10-31T08:50:00",
       "revision": 11,
       "startDate": "2026-10-17T05:30:00",
-      "statusDate": "2026-10-31T20:03:00",
+      "statusDate": "2026-10-31T20:26:00",
       "minutesPerDay": 1440,
       "minutesPerWeek": 10080,
       "daysPerMonth": 30,
@@ -24,7 +24,7 @@
       "defaultFinishTime": "23:59:00",
       "themeHue": 214,
       "parentTaskProgressToleranceDays": 1,
-      "uidHighWaterMark": 379,
+      "uidHighWaterMark": 380,
       "importSequence": 0,
       "carry": {},
       "carryElements": [],
@@ -7026,18 +7026,18 @@
         "parentTaskUid": null,
         "wbsOrder": 253,
         "name": "CR-858(落とした GRS JSON は選択なしで開く)の急ぎの出荷: dist の組み直しと版の上げ(CR-850 と一緒)",
-        "start": "2026-10-31T20:49:00",
-        "finish": "2026-10-31T21:19:00",
+        "start": "2026-10-31T20:13:00",
+        "finish": "2026-10-31T20:26:00",
         "milestone": false,
         "deadline": null,
-        "notes": "オーナーの注文（2026-10-31）: CR-858（落とした GRS JSON は選択画面なしで新規に開く。ダイアログで選んだファイルは今までどおり 3 つの選択を持つ）の急ぎの出荷。SUB cr858-drop-opens（Opus 5.5・high）が 18:15 ごろに始まった。CR-850 と一緒に main へ出す（328 の答え）。段（規則 7）の見積は PMO の置き。 段 5（調整役）。CR-850 と CR-858 を一緒に main へ出すので、dist と版の上げを 1 回にまとめる。調整役のモデルと努力: Opus 5.5・high。 19:06: 置き直し（CR-858 の実装が 18:55 に済み、GT-2 が 19:02 に通った）: 20:07〜20:37。 19:17: 置き直し（試験の穴 379 が入った）: 20:17〜20:47。 19:19: 置き直し（374 のやり直し）: 20:49〜21:19。 19:45: 調整役が 376 を CR-858 の仕上げ（374・379）と Gherkin の確認の後に回す。予定は動かさない（374・379 の後の 20:49）。 19:59: 375 の 2 回目の確かめの後に始める。予定は動かさない（20:49）。 20:03: 379 の穴埋め（〜20:33）の後に始める。予定は動かさない（20:49）。",
+        "notes": "オーナーの注文（2026-10-31）: CR-858（落とした GRS JSON は選択画面なしで新規に開く。ダイアログで選んだファイルは今までどおり 3 つの選択を持つ）の急ぎの出荷。SUB cr858-drop-opens（Opus 5.5・high）が 18:15 ごろに始まった。CR-850 と一緒に main へ出す（328 の答え）。段（規則 7）の見積は PMO の置き。 段 5（調整役）。CR-850 と CR-858 を一緒に main へ出すので、dist と版の上げを 1 回にまとめる。調整役のモデルと努力: Opus 5.5・high。 19:06: 置き直し（CR-858 の実装が 18:55 に済み、GT-2 が 19:02 に通った）: 20:07〜20:37。 19:17: 置き直し（試験の穴 379 が入った）: 20:17〜20:47。 19:19: 置き直し（374 のやり直し）: 20:49〜21:19。 19:45: 調整役が 376 を CR-858 の仕上げ（374・379）と Gherkin の確認の後に回す。予定は動かさない（374・379 の後の 20:49）。 19:59: 375 の 2 回目の確かめの後に始める。予定は動かさない（20:49）。 20:03: 379 の穴埋め（〜20:33）の後に始める。予定は動かさない（20:49）。 20:26: 済み（5d2ce46cd）。BOSS が dist を組み直し、中継とデモの版を上げた。時刻は調整役の「20:28 ごろ」から時計のずれ約 15 分を引いた推定（到着 20:26）。",
         "calendarUid": null,
-        "actualStart": null,
+        "actualStart": "2026-10-31T20:13:00",
         "stop": null,
-        "actualFinish": null,
+        "actualFinish": "2026-10-31T20:26:00",
         "resume": null,
         "resumeValid": null,
-        "percentComplete": 0,
+        "percentComplete": 100,
         "fadeInDays": null,
         "fadeOutDays": null,
         "dependencies": [
@@ -7064,13 +7064,13 @@
       {
         "uid": 377,
         "parentTaskUid": null,
-        "wbsOrder": 254,
+        "wbsOrder": 255,
         "name": "OneDrive を止める(CR-850 と CR-858 の最後の GT-2 の間)",
         "start": "2026-10-31T21:19:00",
         "finish": "2026-10-31T21:34:00",
         "milestone": false,
         "deadline": null,
-        "notes": "オーナーの注文（2026-10-31）: CR-858（落とした GRS JSON は選択画面なしで新規に開く。ダイアログで選んだファイルは今までどおり 3 つの選択を持つ）の急ぎの出荷。SUB cr858-drop-opens（Opus 5.5・high）が 18:15 ごろに始まった。CR-850 と一緒に main へ出す（328 の答え）。段（規則 7）の見積は PMO の置き。 最後の GT-2 の前にオーナーが OneDrive を止める（調整役の合図で）。 19:06: 置き直し（CR-858 の実装が 18:55 に済み、GT-2 が 19:02 に通った）: 20:37〜20:52。 19:17: 置き直し（試験の穴 379 が入った）: 20:47〜21:02。 19:19: 置き直し（374 のやり直し）: 21:19〜21:34。 19:49: オーナーが BOSSBOSS 経由で OneDrive を止めた（受けた時刻）。CR-858 の仕上げが終わっておらず GT-2 を始められないので、BOSS がオーナーに OneDrive を動かし直すよう頼んだ。1 回目の停止は早すぎたので BOSS が戻した。377 は済みにしない。もう一度お願いする時に済みにする。予定は動かさない。",
+        "notes": "オーナーの注文（2026-10-31）: CR-858（落とした GRS JSON は選択画面なしで新規に開く。ダイアログで選んだファイルは今までどおり 3 つの選択を持つ）の急ぎの出荷。SUB cr858-drop-opens（Opus 5.5・high）が 18:15 ごろに始まった。CR-850 と一緒に main へ出す（328 の答え）。段（規則 7）の見積は PMO の置き。 最後の GT-2 の前にオーナーが OneDrive を止める（調整役の合図で）。 19:06: 置き直し（CR-858 の実装が 18:55 に済み、GT-2 が 19:02 に通った）: 20:37〜20:52。 19:17: 置き直し（試験の穴 379 が入った）: 20:47〜21:02。 19:19: 置き直し（374 のやり直し）: 21:19〜21:34。 19:49: オーナーが BOSSBOSS 経由で OneDrive を止めた（受けた時刻）。CR-858 の仕上げが終わっておらず GT-2 を始められないので、BOSS がオーナーに OneDrive を動かし直すよう頼んだ。1 回目の停止は早すぎたので BOSS が戻した。377 は済みにしない。もう一度お願いする時に済みにする。予定は動かさない。 20:26: 380（版の印とリリースノート）の後に始める。予定は動かさない（21:19）。",
         "calendarUid": null,
         "actualStart": null,
         "stop": null,
@@ -7088,6 +7088,14 @@
             "lagFormat": 7,
             "carry": {},
             "carryElements": []
+          },
+          {
+            "predecessorUid": 380,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
           }
         ],
         "carry": {},
@@ -7096,7 +7104,7 @@
       {
         "uid": 378,
         "parentTaskUid": null,
-        "wbsOrder": 255,
+        "wbsOrder": 256,
         "name": "CR-858(落とした GRS JSON は選択なしで開く)の急ぎの出荷: CR-850 と CR-858 を含む最後の GT-2",
         "start": "2026-10-31T21:34:00",
         "finish": "2026-10-31T22:34:00",
@@ -7136,15 +7144,47 @@
       {
         "uid": 379,
         "parentTaskUid": null,
-        "wbsOrder": 256,
+        "wbsOrder": 257,
         "name": "CR-858(落とした GRS JSON は選択なしで開く)の急ぎの出荷: 試験の穴 3 つを埋める(SUB cr858-drop-opens)",
         "start": "2026-10-31T20:03:00",
-        "finish": "2026-10-31T20:33:00",
+        "finish": "2026-10-31T20:13:00",
         "milestone": false,
         "deadline": null,
-        "notes": "場面の確かめ（375）が見つけた穴 3 つ（2 ファイルのドロップ・.html の e2e・ファイルダイアログの e2e）を SUB cr858-drop-opens（Opus 5.5・high）が試験だけで埋める。見積は PMO の置き（30 分）。369 の前。 19:19: 374 のやり直しに一緒に入れた（調整役の一言）。374 と同じ時間に置いた。 19:34: 第 2 巡の答えが届き、SUB が実装を仕上げている。 19:59: 済み（調整役の一言の到着時刻）。SUB cr858-drop-opens が作り直しと試験の穴埋めを終えた（28109ba0f）。BOSS が develop に 38d0df9e4 で合流した。予定の終わり 20:19 より約 20 分早い。 20:03: 開き直した。SUB cr858-drop-opens が about の 2 文（問 6 = a）の後に、375 の穴 4 つを試験で埋める。見積は PMO の置き（30 分）。",
+        "notes": "場面の確かめ（375）が見つけた穴 3 つ（2 ファイルのドロップ・.html の e2e・ファイルダイアログの e2e）を SUB cr858-drop-opens（Opus 5.5・high）が試験だけで埋める。見積は PMO の置き（30 分）。369 の前。 19:19: 374 のやり直しに一緒に入れた（調整役の一言）。374 と同じ時間に置いた。 19:34: 第 2 巡の答えが届き、SUB が実装を仕上げている。 19:59: 済み（調整役の一言の到着時刻）。SUB cr858-drop-opens が作り直しと試験の穴埋めを終えた（28109ba0f）。BOSS が develop に 38d0df9e4 で合流した。予定の終わり 20:19 より約 20 分早い。 20:03: 開き直した。SUB cr858-drop-opens が about の 2 文（問 6 = a）の後に、375 の穴 4 つを試験で埋める。見積は PMO の置き（30 分）。 20:26: 済み（d1f99b612。about の 2 文と穴 4 つの試験。GQA は閉じた）。終わりの時刻は調整役の「20:28 ごろ」から時計のずれ約 15 分を引いた推定。BOSS が develop に早送りした。",
         "calendarUid": null,
         "actualStart": "2026-10-31T20:03:00",
+        "stop": null,
+        "actualFinish": "2026-10-31T20:13:00",
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 100,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 375,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 380,
+        "parentTaskUid": null,
+        "wbsOrder": 254,
+        "name": "CR-858(落とした GRS JSON は選択なしで開く)の急ぎの出荷: 版の印(release_version.mjs Alpha)とリリースノート 2 本・README の版の行(CR-850 と一緒)",
+        "start": "2026-10-31T20:26:00",
+        "finish": "2026-10-31T20:56:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "リリース手順（10-versions 2.1）に要る。BOSS が release_version.mjs Alpha を回し（版 20261031T105821Z、タグ Alpha-20261031T105821Z）、リリースノート 2 本と README の版の行をサブエージェントに書かせている。見積は PMO の置き（30 分）。調整役のモデルと努力: Opus 5.5・high、書く側は副エージェント。20:26: 開始（調整役の一言の到着時刻）。",
+        "calendarUid": null,
+        "actualStart": "2026-10-31T20:26:00",
         "stop": null,
         "actualFinish": null,
         "resume": null,
@@ -7154,7 +7194,7 @@
         "fadeOutDays": null,
         "dependencies": [
           {
-            "predecessorUid": 375,
+            "predecessorUid": 376,
             "linkType": 1,
             "linkLag": 0,
             "lagFormat": 7,
@@ -8722,6 +8762,10 @@
       {
         "taskUid": 379,
         "taskGroupId": "46ae7c7c-6afc-57bf-857f-3bc66dcebab7"
+      },
+      {
+        "taskUid": 380,
+        "taskGroupId": "360eebfe-b421-54f7-ae66-8f611ac2263d"
       }
     ],
     "taskVisuals": [
@@ -10772,6 +10816,14 @@
         "fillColor": "blue",
         "strokeColor": null,
         "strokeWidthPx": null
+      },
+      {
+        "taskUid": 380,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": "diamond",
+        "fillColor": "purple",
+        "strokeColor": null,
+        "strokeWidthPx": null
       }
     ],
     "commentBoxes": [
@@ -12255,10 +12307,10 @@
     "zoomY": 1.099862517185352
   },
   "documentStamp": {
-    "scheduleUpdatedAt": "2026-10-31T11:03:00Z",
+    "scheduleUpdatedAt": "2026-10-31T11:26:00Z",
     "lastEditedBy": "PMO child session",
     "settingsUpdatedAt": "2026-10-20T20:24:42Z",
-    "fileSavedAt": "2026-10-31T11:03:00Z"
+    "fileSavedAt": "2026-10-31T11:26:00Z"
   },
   "changeLog": [
     {
@@ -12542,6 +12594,12 @@
       "editedBy": "PMO child session",
       "explanation": "Fact at 20:03 JST (machine clock): 375 second Gherkin check done (17 scenes, 13 proofs, 4 gaps); the owner answered Q6 = a at 19:38 so 372 is done; 379 reopened to fill the 4 gaps after the about sentences (planned 20:03-20:33). 376 stays at 20:49; N1 and the provisional beta unchanged.",
       "changedAt": "2026-10-31T11:03:00Z"
+    },
+    {
+      "ordinal": 48,
+      "editedBy": "PMO child session",
+      "explanation": "Fact at 20:26 JST (machine clock): 379 done (d1f99b612; end inferred from the BOSS line time minus the ~15 min clock drift) and 376 done (5d2ce46cd); new task 380 (release_version.mjs Alpha, release notes, README version line; 30 min, started 20:26) added between 376 and 377. 377 stays at 21:19; N1 and the provisional beta unchanged.",
+      "changedAt": "2026-10-31T11:26:00Z"
     }
   ]
 }
