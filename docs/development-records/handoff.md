@@ -5,7 +5,18 @@
 ⛔ **公開なので、個人情報・絶対パス・秘密を書かないこと。**
 ⛔ **本書は状態だけを持つ** —— 着地・止めたもの・次にやること・利用者の確認待ち。**学びと規則は `docs/development-rules/` へ下ろす**（規則 05 の 1）。検査 72 が、最新の日付の節の外に残った学びを赤にする。
 
-> 🆕⭐ **2026-10-22〜24（調整役 coord-1022。セッション台帳に調整役として登録済み。使用 86% で交代）—— 本節が最新。** ⛔ 数は測り直せ（`git log -1 origin/develop`・根の `git log -1`・`python tools/handover_guard/guard.py registry show`）。
+> 🆕⭐ **2026-10-24〜31（BOSS = 調整役 coord-1024、local_f3a0caed。使用 86% で交代）—— 本節が最新。** ⛔ 数は測り直せ（根の `git log -1`・`git log -1 origin/develop`・`python tools/handover_guard/guard.py registry show`）。呼び名はオーナーの決まりで BOSS（調整役）・SUB（子）・PMO（計画の SUB）・BOSSBOSS（全プロジェクトのまとめ役 [BOSSBOSS](#local_f192664a-53dd-4663-b891-1974078eae7d)）・GQA（/grsmd-qa の回答欄つき .md）。オーナーへの文でセッション名を出すときは必ず `[名](#local_<id>)` のリンクにする。
+> - **枝**: 根の develop の先端は `d14c315a9`（10-31 18:11）。origin の develop は `d0ae3a9c8` のまま（未 push、約 300 コミット先）。統合の枝 `integ/coord-1022` は develop と同じ位置に早送りしている。main は `6b5776e62`（α、保護あり）。
+> - **出荷の段取り（今日の本筋、オーナーの裁定）**: CR-850（基準線の 15 分刻み、X-3a 込み、JDG-3570〜3573）と CR-858（GRS JSON をドロップしたら選択肢なしで開く、ファイル選択は 3 択のまま）を **一緒に develop ごと main へ PR で出す**（BOSS の GQA `temp/gqa/boss-gqa.md` 問 1 = a・問 4 = a）。前提「GRS JSON のスキーマが変わらない」は満たす（grs-document / grs-commands の schema は main と develop で同一）。手順: ① CR-858 を [cr858-drop-opens](#local_5b83e34e-3ab5-4f5f-a132-f78c4e164915) が仕上げる（GQA `.claude/worktrees/ecstatic-lederberg-41f060/studies/81-dropped-json-opens-directly/drop-opens-gqa.md` の問 1 が答え待ち）→ ② 別の Sonnet の確認（Gherkin の場面）→ ③ BOSS が dist を組み直し・`node tools/artifact_versions.mjs` で bump → ④ オーナーに OneDrive を止めてもらい GT-2 → ⑤ develop を push（`grep -q "GT-2 <sha> passed"` の後だけ）→ ⑥ main の直し（PR #2〜#4: CR-820・About・CR-823）を develop に取り込む → ⑦ develop→main の PR（gh）→ ⑧ オーナーの実地の試験（CR-850 の 5 項目は baseline-15min の報告にある）→ ⑨ オーナーがマージとタグ。
+> - **GT-2 の経緯（10-31）**: precheck の誤検知（生成の drawio、`06c0a23f0` で直した）→ vitest の時間切れ（作業者 15 本の詰め過ぎ、`2f796c02f` で maxWorkers 50%、DFC-3550）→ playwright の w3-t2 の仕様の文（`2ba58dc8f`）。`d14c315a9` で 18:11 に回し直し中（結果は scratchpad の gt2-d14c315a9.log、known red は cr-586-iv-22 の 2 件と uc-013・UC-010 の 2 件）。OneDrive はオーナーが止めている。18:35 には playwright の cr-389（F11 の全画面）が負荷で揺れて止まり（単独なら 15/15 通る）、18:36 に回し直して 19:02 に通り、`d14c315a9` を origin の develop へ push した（CR-850 まで）。その後 CR-858（`f3556d61c`、勧め a で実装、GQA 問 1〜4 と about の文 PND-979 がオーナー待ち）と PMO の計画を develop に合流した。次は手順 ②（CR-858 の Gherkin 確認）から。⚠️ GT-2 の間は、SUB に全部の試験（vitest・playwright の全体）を回させない —— 同じ CPU を取り合って揺れが出る（10-31 は CR-858 の SUB の全体試験と重なった）。playwright の同時の数も、vitest と同じく見直しの候補。
+> - **用語集（N1 = 11-21 14:30、オーナーのペース、急かさない）**: 全 1512 語を確定してから CR-851 の行レビュー（JDG-3436）。Part 1〜5（111 語）は確定（`13-glossary-settled.md`）。群 4（Part 6〜13）は 1 巡 1 問・分野ごと（JDG-3515、分割統治）。SUB は [cr851-review-apply-8](#local_78b45a95-ea78-4400-a154-824305692c76)、GQA は `.claude/worktrees/pensive-shirley-075dd6/studies/76-grs-json-beta-shape/terms/13-glossary-gqa.md`（問 7 が答え待ち）。命名の基準「100万人が使っても恥ずかしくない命名」、名は意味だけで選ぶ（JDG-3511）。機能名は delayDiagnosis（JDG-3512）。
+> - **PMO**: [pmo](#local_92963a16-e32d-4d3d-bb76-ad2496450fb2)（Sonnet・medium）。計画は `plan/gr-scheduler-plan.json`（`.md` と `-previous.json`、git に入れて公開、オーナー裁定）。BOSS は SUB の開始・終了・停止を一言で PMO に送り、PMO は計画を直して遅れを報告する（PMO の決まりの正本は GRSMD 側 `temp/qa/old/pmo-rules-ja_20261031_1113.md`）。PMO の計画だけのコミットは聞かずにしてよい（85 以外の赤なし・個人情報 0）。GT-2 の間は根の先端を動かさない。
+> - **止めて待つ SUB**: w4-first-half・answers-ahead（CR-846 のツール名が未決）。baseline-15min（[baseline-15min](#local_35c7d808-b84e-4d79-bdce-bfd67ebf6b47)）は CR-850 の仕上げと GT-2 の直しを受け持った（完了、待機）。
+> - **予約した CR**: CR-853（拡大縮小の振る舞い）・854（変更履歴のウインドウ）・855（用語の言い換え、仕様の文とコード）・856（用語の裁定から来る振る舞い: JDG-3355/3356/3477/3502/3510）・857（SSOT のまとめ直し: JDG-3411/3413〜3427/3483）・858（ドロップで開く、今日）。どれも用語集の後（858 を除く）。CR-855・857 のカードはオーナーの「用語集が決まるまで待たせろ」で取り下げた。予約の控えは共有メモ `side-session-notes/local_bffaa23f-…/coordinator-reservations-2026-10-27.md`。
+> - **次の番号（測り直せ）**: JDG は 3580〜（CR-858 に 3580〜3589）、DFC 3619〜（858 に 3619〜3623）、PND 979〜、CR 859、studies 82。
+> - **オーナーの決まり（この巡）**: 文は主語・動詞・目的語、受け身と否定は範囲がはっきりするときだけ、要求は EARS・試験は Gherkin。モデルは BOSS/SUB Opus high、PMO Sonnet medium、読むだけの SUB Sonnet low、subagent Haiku low、Fable はオーナーが名指したときだけ。GQA の一覧は「優先度｜チーム（BOSS・GQA・計画）｜補足（残数・概要・期限）」の表。GQA は結論が出たときだけコミット。
+
+> **2026-10-22〜24（調整役 coord-1022。セッション台帳に調整役として登録済み。使用 86% で交代）—— 本節が最新。** ⛔ 数は測り直せ（`git log -1 origin/develop`・根の `git log -1`・`python tools/handover_guard/guard.py registry show`）。
 > - **枝**: 統合の枝 `integ/coord-1022`（作業木 `.claude/worktrees/coord-1022`）の先端 `efed5c9a3`。origin の develop は `d0ae3a9c8` で、統合の枝が 16 コミット先（未 push）。⛔ その中に `CR-850` の src があり、dist の組み直しと中継の版の bump がまだ（検査 85 が赤）—— push の前に、根を早送り → `npm run build` → 中継とデモの版を上げる（手順は docs/development-rules/10-versions.md） → コミット → GT-2（OneDrive を止めて）。main は `6b5776e6` のまま。根のチェックアウトの枝が `develop` であることを先に確かめる。
 > - **利用者の優先の順（2026-10-24、逐語「まずは再発防止が終わって、次に色のスキーマ問題、それが解決したら他の案件。 OK?」）**: ① 再発防止の検査 3 つ（カード task_c8ba1528「Finish recurrence prevention: three checks for rule 07」、検査 91〜93）→ ② `CR-851`（GRS JSON の形を β の前に 1 回だけ直し、開けない古い文書は AI に変換させる。カード task_f535d27e。`CR-848`・`849` も同じ子が書く）→ ③ ほかの案件。⚠️ 2 つのカードはまだ起こされていない —— 次の調整役は、カードがまだあれば利用者に起こしてもらう（無ければ同じ指示書で起こし直す）。CR-851 の子へ渡すこと 3 つ: `"dark": null` は Null Trap に反する（キーを省く）・erd.schema.json の nullable の説明の例「null = 根」も直す・CR の第 0 節②に OKPN と OMPV を書き JDG-3226・3227 を引く。
 > - **着地（この巡の後半、統合の枝）**: 段 2 と CR-826〜832・GT-2 通過で push（`ee5b5afb8`・`8dacb823b`・`d0ae3a9c8`）。その後、未 push: 作業木の掃除の続き（デモ `67c291388`）・トリアージ 96 行（裁定待ち 24 行、問いは未）・試験待ち 25 行の試験・仕様待ちの CR 6 本の起草（`CR-833`〜`838`、当てるのは計画 uid 35）・W4 の計画の記録（`docs/review/w4-first-half-2026-10-24/`）・`CR-850` の途中（基準線 15 分、X-3a の 3 か所は W4 の後）・規則 07 を原本（gr-sw-maker の review-standards）の派生に作り直し・検査 90（データ要素の OKPN と null、違反 195 は CR-851 で 0 に）。
@@ -286,24 +297,13 @@
 利用者はこの節のブロックをそのまま新しいセッションに貼る。巡ごとに本節も書き換える。
 
 ```text
-あなたは gr-scheduler の新しい調整役（Coordinator）である（2026-10-24、前の調整役 coord-1022 から交代した。前の調整役は使用 86% で交代した。圧縮はしていない）。⛔ 調整だけをする —— 調べもの・試験・台帳の手直し・継ぎ目の直し・ファイルの読み込みは、子セッションかサブエージェントに出す。調整役が手を動かすのは、番号の幅と持ち場と順を決めること、合流（衝突は生成物を作り直し、台帳は行ごとに 3 方向で比べる）、関門（GT-2・PERF）、根の早送り、dist の組み直しと版の bump（子にはさせない）、push と PR だけ。説明は日本語（普段の言葉。docs/development-rules/user-wording.json）、コードとコミット文は英語 ASCII、帰属の行は付けない。呼び名は JDG-3042 の表（docs/development-rules/session-names.md）。1 つのセッションは 1 つの責務（利用者 2026-10-24）。
-唯一の引継書は docs/development-records/handoff.md である。冒頭の 🆕 の節（2026-10-22〜24）から読め。計画は plan/gr-scheduler-plan.json（読み方 plan/gr-scheduler-plan.md）。セッション台帳は `python tools/handover_guard/guard.py registry show`。最初に `python tools/handover_guard/guard.py registry coordinator --host <あなたの local_ の id>` で調整役を引き継ぎ、生きている子に新しい調整役を知らせる。次にメモリーを読め: pre-compaction-handover-plan・cards-need-use-worktree・do-not-restate-child-questions・no-push-to-main・coordinator-only-role・gt2-read-the-verdict-before-push・onedrive-stays-ask-user・rulings-in-origin-session・cr-numbers-assigned-up-front・never-report-unrun-actions・patent-findings-never-pushed。
+あなたは gr-scheduler の新しい BOSS（調整役）である（2026-10-31、前の BOSS coord-1024 = local_f3a0caed から交代。前の BOSS は使用 86% で交代した）。⛔ 調整だけをする —— 調べもの・試験・台帳の手直し・継ぎ目の直し・ファイルの読み込みは SUB かサブエージェントに出す。BOSS が手を動かすのは、番号の幅と持ち場と順を決めること、合流、関門（GT-2）、根の早送り、dist の組み直しと版の bump、push と PR だけ。説明は日本語（普段の言葉）、文は主語・動詞・目的語、コードとコミット文は英語 ASCII、帰属の行は付けない。オーナーへの文でセッション名を出すときは必ず [名](#local_<id>) のリンクにする。オーナーへの質問は GQA（回答欄つきの .md）で、用語の GQA とは分ける。
+唯一の引継書は docs/development-records/handoff.md である。冒頭の 🆕 の節（2026-10-24〜31）から読め。計画は plan/gr-scheduler-plan.json（PMO が持つ）。最初に `python tools/handover_guard/guard.py registry coordinator --host <あなたの local_ の id>` で BOSS を引き継ぎ、生きている SUB と PMO に新しい BOSS を知らせ、[BOSSBOSS](#local_f192664a-53dd-4663-b891-1974078eae7d) にも 1 行で知らせる。メモリーを読め: boss-sub-pmo-names-and-links・owner-writing-rules-2026-10-31・model-effort-defaults-2026-10-31・external-contract-user-line-review・grsmd-qa-commit-on-conclusion・no-push-to-main・gt2-read-the-verdict-before-push・onedrive-stays-ask-user・cards-need-use-worktree・never-report-unrun-actions。
 
-0. 今の姿（⛔ 信じず測れ: git -C <根> log -1・git log -1 origin/develop・git log -1 origin/main・根の枝が develop か）
-   - main = 6b5776e6（保護あり、push 禁止）。develop = d0ae3a9c8。統合の枝 integ/coord-1022 = efed5c9a3（16 コミット先、未 push。CR-850 の src を含み、dist の組み直しと bump がまだ）。
-   - GT-2: 根で node tools/gate/gate-queue.mjs enqueue GT-2 → GRS_DEV_PORT=5992 node tools/gate/gate-queue.mjs drain > ログ（リポジトリの外）。push は grep -q "GT-2 <sha> passed" を見てから git push origin <sha>:refs/heads/develop を単独で。OneDrive が止まっているか tasklist で確かめる（動いていれば利用者に頼む）。
-1. 最初にやること（利用者の優先の順）
-   1) 再発防止の検査 3 つ（カード「Finish recurrence prevention: three checks for rule 07」）。
-   2) CR-851（カード「CR-851: reshape GRS JSON once before beta, AI conversion」）と、その形に乗る CR-848・849。引継書の 🆕 の節の「CR-851 の子へ渡すこと 3 つ」を、その子が起きたら送る。
-   3) それが片付いたら、止めている子（W4・CR-850）の再開、トリアージの裁定 24 行、CR-852、計画の残り。
-2. 子セッション（SendMessage の宛先は local_ の id。一覧は引継書の 🆕 の節とセッション台帳）。⛔ 他のセッションへの送信は、利用者の書き込み 1 回につき 10 通まで。子からの知らせで始まったターンでは start_session はカードになる（own_initiative）—— カードは use_worktree: true を必ず付ける。
-3. 次の番号（⛔ 配る前に grep で測り直せ）: JDG 3259・DFC 3579・PND 956・CR 853・perf-pending 273・studies 76・検査 94。変更履歴は UTC の時刻（番号なし）。
-4. 毎回の約束
-   - 子は最小の試験だけで報告し、途中の報告は送らない。コミットの後の 1 通で「セッション完了」。
-   - src を触る子が並ぶときは、子に dist と bump をコミットさせない。合流の後に調整役が 1 回だけ組み直す。
-   - 子が利用者の答えを待っているときは、その子へのリンクの 1 行だけを書く。
-   - コミット／push は許可済み（gr-scheduler に限る、main を除く）。コミットの前に毎回 python tools/privacy_count.py --staged の数を報告。gr-scheduler の外のリポジトリは読むだけ。
-   - 使用が 85% を超えたら、計画の子に予実を更新させ、本節を書き換えて引き継ぐ。
+0. 今の姿（⛔ 信じず測れ）: 根の develop の先端（10-31 18:11 は d14c315a9）、origin の develop（d0ae3a9c8、未 push）、main（6b5776e62、push 禁止）。
+1. 最初にやること: 出荷（CR-850 + CR-858 を develop ごと main へ PR）。手順は 🆕 の節の「出荷の段取り」。GT-2 の結果を見てから push（grep -q "GT-2 <sha> passed"）。GT-2 の前にオーナーに OneDrive を止めてもらう。
+2. 並行: 用語集（N1 11-21、オーナーのペース、急かさない）。SUB は cr851-review-apply-8。
+3. 毎回の約束: SUB の開始・終了・停止を PMO に一言。SUB は Opus high、確認の SUB は Sonnet medium、Fable は使わない。使用が 85% を超えたら本節と 🆕 の節を書き直して引き継ぐ。
 ```
 
 ---
