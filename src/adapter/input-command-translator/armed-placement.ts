@@ -36,7 +36,7 @@ import {
   milestoneGlyphOf,
   nextIssuedUid,
   nothingToDo,
-  releasedSnapOf,
+  snapMinutesOfView,
   taskGroupAtY,
   taskGroupRankById,
   taskShapeKindOf,
@@ -186,7 +186,7 @@ function createdSpanOnFineSnap(
   isMilestone: boolean,
 ): { readonly start: string; readonly finish: string } | null {
   const { press, release } = drag
-  const snap = releasedSnapOf(context, release)
+  const snap = snapMinutesOfView(context)
   if (snap >= MINUTES_PER_CALENDAR_DAY) return null
   const from = snappedInstantAtX(context.layout, press.at.x, snap)
   const to = snappedInstantAtX(context.layout, release.x, snap)

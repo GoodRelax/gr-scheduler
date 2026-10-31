@@ -128,28 +128,19 @@ describe('FR-103, T-378: snapMinutesOf', () => {
   const DAY = 1440
 
   it.each([
-    ['SG-1: the time not shown, whatever the width', false, S_578 * 4, false, DAY],
-    ['SG-1: the time not shown, with Alt held (Alt selects no unit)', false, S_578 * 4, true, DAY],
-    ['SG-1: shown but the ruler has not reached the hour tier', true, S_577 - 1, false, DAY],
-    ['SG-2: shown, on the hour tier', true, S_577 + 1, false, 15],
-    ['SG-2: shown, just under the half-hour width', true, S_578 - 1, false, 15],
-    ['SG-2: shown, from the half-hour width (S-578 and above are SG-2 too)', true, S_578 + 1, false, 15],
-    ['SG-2: shown, far over the half-hour width', true, S_578 * 5, false, 15],
-    ['SG-2: shown, Alt held, on the hour tier (Alt selects no unit)', true, S_577 + 1, true, 15],
-    ['SG-2: shown, Alt held, on the half-hour width (Alt selects no unit)', true, S_578 + 1, true, 15],
-    ['SG-1: shown, Alt held, before the hour tier (Alt selects no unit)', true, S_577 - 100, true, DAY],
-  ])('%s', (_name, shows, threshold, alt, minutes) => {
-    expect(snapMinutesOf(px(threshold), withTime(shows), alt)).toBe(minutes)
+    ['SG-1: the time not shown, whatever the width', false, S_578 * 4, DAY],
+    ['SG-1: shown but the ruler has not reached the hour tier', true, S_577 - 1, DAY],
+    ['SG-1: shown, far before the hour tier', true, S_577 - 100, DAY],
+    ['SG-2: shown, on the hour tier', true, S_577 + 1, 15],
+    ['SG-2: shown, just under the half-hour width', true, S_578 - 1, 15],
+    ['SG-2: shown, from the half-hour width (S-578 and above are SG-2 too)', true, S_578 + 1, 15],
+    ['SG-2: shown, far over the half-hour width', true, S_578 * 5, 15],
+  ])('%s', (_name, shows, threshold, minutes) => {
+    expect(snapMinutesOf(px(threshold), withTime(shows))).toBe(minutes)
   })
 
-  it('Alt held gives the same unit as Alt not held at every width, shown or not (CR-850: SG-4 retired)', () => {
-    for (const shows of [false, true]) {
-      for (let threshold = 1; threshold <= S_578 * 3; threshold += 7) {
-        expect(snapMinutesOf(px(threshold), withTime(shows), true), `${shows} ${threshold}`).toBe(
-          snapMinutesOf(px(threshold), withTime(shows), false),
-        )
-      }
-    }
+  it('the snap unit reads the width and the settings only, no modifier key (CR-850: SG-4 retired)', () => {
+    expect(snapMinutesOf.length).toBe(2)
   })
 
   it('table T-378 has two live rows, day and 15 minutes, and SG-3 / SG-4 are retired', () => {

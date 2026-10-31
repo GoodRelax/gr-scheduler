@@ -1,6 +1,6 @@
 # CR-850 —— 基準日線・カーソル・掴み代の寄せを 15 分にする
 
-> 起草の状態: 仕様とコードを当てた（2026-10-24、枝 `baseline-15min`。仕様は `67c291388` の上、コードは統合の枝 `c9a390431` を取り込んだ上）。⚠️ `input-command-translator.ts` の側の 3 か所（X-3a）は、W4 の子（`CR-578`〜`CR-580`）の合流を待つ —— 振る舞いは今のままで本書どおり。
+> 起草の状態: 仕様とコードを当てた（2026-10-24、枝 `baseline-15min`。仕様は `67c291388` の上、コードは統合の枝 `c9a390431` を取り込んだ上）。2026-10-31、持ち主の頼み（ホットリリース）で X-3a を develop `964499420` の上で当てた。
 > ID の帯: 調整役から番号 `CR-850`、台帳 `DFC-3549`〜`DFC-3553`、裁定 `JDG-3201`〜`JDG-3205`、保留 `PND-950`〜`PND-951`、性能の測り待ち `272`、見本 `74` を受けた。仕様の新しい行 ID は無い（`SG-3`・`SG-4`・`MK-17` は欠番にする）。`67c291388` の木で `CR-850` を名乗る変更要求は 0 件だった（9 節）。
 > 当てるもの: `JDG-3201`〜`JDG-3205`（`DFC-3549`）。`JDG-1783` の寄せの部分を覆す。
 
@@ -109,17 +109,17 @@
 - `src/adapter/screen-renderer/tooltips.ts`: ガイドカーソルの札は `cursorInstantAtX` で読む。
 - `tools/generate_help_roster.py` の `MK-17` は、欠番として触れば分かる操作の組の後ろに名指す（`FR-036` が欠番と名指す）。`tools/generate_display_words.py` は欠番の行（`（欠番` で始まる）に語を求めない。
 
-#### X-3a —— ⛔ W4（`CR-579`、`input-command-translator.ts` を割る）の合流を待つ所
+#### X-3a —— `Alt` の引数の片付け（2026-10-31、ホットリリースで当てた）
 
-調整役の指示（2026-10-24）で、`input-command-translator.ts` とその兄弟になるファイル（同じ所の `screen-state-input.ts` を含む）と `frame-loop.ts` には触れていない。`snapMinutesOf` は第 3 引数を読まなくなった（`_isAltHeld?`）ので、今のままで振る舞いは本書どおりである。合流の後に次を当てる:
+持ち主はホットリリースに X-3a を含めると決めた（GQA `studies/74-status-line-15-minutes/status-line-15min-gqa.md` の問 3）。調整役は W4 の合流を待たずに当て、W4 が後でこの変更の上へ乗せ直すとした。
 
-| 所（`c9a390431` の行） | 当てること |
+| 所 | 当てたこと |
 |---|---|
-| `input-command-translator.ts:434-437` の `releasedSnapOf` | `release.modifiers.alt` を渡さない（`snapMinutesOf(context.layout.pxPerDay, context.document.documentSettings)`）。注の `SG-4` を消す（検査 44 が欠番を名指す参照として数える） |
-| `screen-state-input.ts:334` | `snapMinutesOf(…, false)` の `false` を消す |
-| `time-axis.ts` の `snapMinutesOf` | 上の 2 つの後に `_isAltHeld?` の引数と TRAP の注を消す |
-
-W4 が `releasedSnapOf` を別のファイルへ移したときは、移った先で同じことをする。
+| `input-command-translator.ts` の `releasedSnapOf` | 名を `snapMinutesOfView(context)` に改め、離しの入力を受けない —— 寄せの単位は倍率と文書の設定だけで決まり、修飾キーを読まない。呼ぶ側（`item-grab.ts` の 7 か所、`armed-placement.ts` の 1 か所）を合わせた |
+| `screen-state-input.ts` | `snapMinutesOf(…, false)` の `false` を消した |
+| `time-axis.ts` の `snapMinutesOf` | 第 3 引数と TRAP の注を消した（引数は 2 つ） |
+| 試験 | `snapMinutesOf` に 3 つ目の引数を渡していた 5 ファイルの呼び方を直した。`cr-710-w2` の `Alt` の 3 行と「`Alt` でも同じ単位」の掃きは、関数が修飾キーを受けないので「引数は 2 つ」の 1 件に替えた。`Alt` を押しながら引く場面は、`cr-775`・`cr-783`・`cr-850` の試験が翻訳の入口で押す |
+| 台帳 | `Alt` をどの時点で読むかを扱った `DFC-2701`・`DFC-2920` を `取下げ` にした（問い自体が消えた） |
 
 ### X-4 —— ガイドカーソル（同書の 表 T-029 の `CU-3`）
 
