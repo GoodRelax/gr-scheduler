@@ -15,10 +15,10 @@ what this reading does not see.
 | `contract` | TS-5 | VT-2 | 473 | 6256 | 8 | 4 | 11 | 6 |
 | `integration` | TS-2 | - | 3 | 76 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
-| `system` | TS-3 | - | 103 | 644 | 0 | 0 | 0 | 1 |
-| `unit` | TS-6 | - | 197 | 4105 | 1 | 1 | 2 | 0 |
+| `system` | TS-3 | - | 104 | 653 | 0 | 0 | 0 | 1 |
+| `unit` | TS-6 | - | 197 | 4108 | 1 | 1 | 2 | 0 |
 | `use-case` | TS-1 | VT-1 | 14 | 17 | 1 | 2 | 0 | 0 |
-| **all** | | | 793 | 11115 | 10 | 7 | 13 | 7 |
+| **all** | | | 794 | 11127 | 10 | 7 | 13 | 7 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -823,13 +823,14 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/system/cr-761-a-fix-proposal-value-unchecked-stays-listed.test.ts` | 1 | - | - | T-374 | SV-7 | - | - | - | - |
 | `tests/system/cr-762-sv-18-a-border-pull-follows-the-pointer-and-stops-left-of-the-scrollbar.test.ts` | 6 | - | - | T-025, T-103, T-109, T-330 | GR-25, GR-28, MC-5, MC-8, RO-9, RW-9, S-425, SV-7, SV-18 | - | - | - | - |
 | `tests/system/cr-763-the-jump-landing-ripple-is-rose-and-rounded.test.ts` | 3 | - | - | T-109, T-206, T-236, T-332 | AM-16, S-556, S-557, S-558, S-587, S-588, SJ-10 | - | - | - | - |
-| `tests/system/cr-783-to-cr-789-the-alpha-checklist-rows-on-the-shipped-build.test.ts` | 8 | FR-013, FR-019, FR-052, FR-103 | - | T-267, T-378 | AS-5, AS-13, GR-14, HF-15, IC-13, K-145, OP-10, PE-1, PM-1, PR-48, PR-49, S-53, S-171, S-602, S-603, S-604, S-620, SJ-6, SQ-9, ZO-9 | - | - | - | - |
+| `tests/system/cr-783-to-cr-789-the-alpha-checklist-rows-on-the-shipped-build.test.ts` | 8 | FR-013, FR-019, FR-052, FR-103 | - | T-267, T-378 | AS-5, AS-13, GR-14, HF-15, IC-13, K-145, OP-10, PE-1, PM-1, PR-48, PR-49, S-53, S-171, S-602, S-603, S-604, S-620, SG-4, SJ-6, SQ-9, ZO-9 | - | - | - | - |
 | `tests/system/cr-803-run-and-close-the-report-window-from-the-agent-api.test.ts` | 5 | - | - | T-109 | AM-31, AM-33, IC-107 | - | - | - | - |
 | `tests/system/cr-820-the-same-commit-builds-the-same-bytes.test.ts` | 6 | - | - | - | - | - | - | - | - |
 | `tests/system/cr-823-the-download-page-address-prompts.test.ts` | 6 | - | - | - | S-350 | - | - | - | - |
 | `tests/system/cr-827-the-image-prompt-hands-the-schema-as-a-file.test.ts` | 5 | FR-068 | - | T-109 | IC-21, IC-115, RS-65 | - | - | - | - |
 | `tests/system/cr-828-the-browser-block-says-nothing-is-sent.test.ts` | 3 | FR-036 | - | T-025, T-103, T-109, T-255 | MC-6 | - | - | - | - |
 | `tests/system/cr-832-the-license-text-stretches-the-help-down.test.ts` | 6 | FR-038, FR-069 | - | T-025, T-103, T-109, T-337 | GR-24, IC-128, MC-6, S-201, U-32, WB-3 | - | - | - | - |
+| `tests/system/cr-850-the-grabs-the-field-and-the-cursors-on-the-dev-server.test.ts` | 9 | FR-033, FR-046, FR-103 | - | T-109 | CU-3, CY-5, DC-3, FO-8, GO-2, S-577, S-578, SG-1, TC-6, TC-10 | - | - | - | - |
 | `tests/system/cr-850-the-status-line-drags-in-fifteen-minute-steps.test.ts` | 2 | FR-046 | - | T-109 | S-577, S-578 | - | - | - | - |
 | `tests/system/dfc-2178-a-plain-wheel-leaves-a-focused-number-alone.test.ts` | 3 | - | - | T-025 | MC-6, MH-4, MK-1, S-197 | - | - | - | - |
 | `tests/system/dfc-2309-a-refused-open-tells-rs-25-and-leaves-the-document.test.ts` | 3 | FR-023, FR-076 | - | T-233 | IC-1, NT-1, RS-11, RS-25 | - | - | - | - |
@@ -957,7 +958,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/unit/cr-826-no-question-mark-or-flame-on-a-task-not-due-yet.test.ts` | 13 | FR-133 | - | T-315 | DG-1, DG-2, DG-3, DG-4, DW-1, DW-3, DX-8, IP-1, MP-1, MP-3, PM-4 | - | - | - | - |
 | `tests/unit/cr-831-the-accepted-days-match-ms-project.test.ts` | 24 | FR-023, FR-054 | - | T-214, T-220 | AG-9a, IV-10, IV-14, S-119, S-120 | - | - | - | - |
 | `tests/unit/cr-832-keep-from-input.test.ts` | 6 | FR-069 | - | - | - | - | - | - | - |
-| `tests/unit/cr-850-the-grabs-the-status-line-and-the-cursors-snap-to-fifteen-minutes.test.ts` | 22 | FR-014, FR-017, FR-046, FR-103 | - | T-108, T-378 | CU-3, DC-2, DC-3, DS-1, FO-8, GO-2, IC-45, MK-12, S-8, SG-3, SG-4, TX-3, WT-4 | - | - | - | - |
+| `tests/unit/cr-850-the-grabs-the-status-line-and-the-cursors-snap-to-fifteen-minutes.test.ts` | 25 | FR-014, FR-017, FR-046, FR-103 | - | T-108, T-378 | CU-3, DC-2, DC-3, DS-1, FO-8, GO-2, IC-45, MK-12, S-8, SG-3, SG-4, TX-3, WT-4 | - | - | - | - |
 | `tests/unit/dfc-1620-an-fs-chain-that-starts-the-next-morning-carries-the-whole-delay.test.ts` | 4 | - | - | T-313, T-314 | BD-2, BD-4, S-128 | - | - | - | - |
 | `tests/unit/dfc-1991-sl-4-a-shift-drag-keeps-the-selection.test.ts` | 8 | - | - | T-206, T-270 | PE-1, S-208, SL-4, SL-7a, TC-5 | - | - | - | - |
 | `tests/unit/dfc-2980-a-marker-pulled-with-many-moves-puts-the-actual.test.ts` | 7 | FR-107 | - | T-270, T-273 | GO-9, LP-1, PE-8, PE-10, S-129, S-208 | - | - | - | - |
