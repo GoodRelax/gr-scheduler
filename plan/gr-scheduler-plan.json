@@ -14,7 +14,7 @@
       "creationDate": "2026-10-31T08:50:00",
       "revision": 11,
       "startDate": "2026-10-17T05:30:00",
-      "statusDate": "2026-10-31T20:35:00",
+      "statusDate": "2026-10-31T20:38:00",
       "minutesPerDay": 1440,
       "minutesPerWeek": 10080,
       "daysPerMonth": 30,
@@ -7066,18 +7066,18 @@
         "parentTaskUid": null,
         "wbsOrder": 255,
         "name": "OneDrive を止める(CR-850 と CR-858 の最後の GT-2 の間)",
-        "start": "2026-10-31T21:19:00",
-        "finish": "2026-10-31T21:34:00",
+        "start": "2026-10-31T20:38:00",
+        "finish": "2026-10-31T20:38:00",
         "milestone": false,
         "deadline": null,
-        "notes": "オーナーの注文（2026-10-31）: CR-858（落とした GRS JSON は選択画面なしで新規に開く。ダイアログで選んだファイルは今までどおり 3 つの選択を持つ）の急ぎの出荷。SUB cr858-drop-opens（Opus 5.5・high）が 18:15 ごろに始まった。CR-850 と一緒に main へ出す（328 の答え）。段（規則 7）の見積は PMO の置き。 最後の GT-2 の前にオーナーが OneDrive を止める（調整役の合図で）。 19:06: 置き直し（CR-858 の実装が 18:55 に済み、GT-2 が 19:02 に通った）: 20:37〜20:52。 19:17: 置き直し（試験の穴 379 が入った）: 20:47〜21:02。 19:19: 置き直し（374 のやり直し）: 21:19〜21:34。 19:49: オーナーが BOSSBOSS 経由で OneDrive を止めた（受けた時刻）。CR-858 の仕上げが終わっておらず GT-2 を始められないので、BOSS がオーナーに OneDrive を動かし直すよう頼んだ。1 回目の停止は早すぎたので BOSS が戻した。377 は済みにしない。もう一度お願いする時に済みにする。予定は動かさない。 20:26: 380（版の印とリリースノート）の後に始める。予定は動かさない（21:19）。 20:35: BOSS がオーナーに OneDrive の停止を BOSSBOSS 経由で頼んだ（2 回目）。オーナーの答えを待つ事実。この後 GT-2（378）を回す。377 はオーナーが止めた時に済みにする。",
+        "notes": "オーナーの注文（2026-10-31）: CR-858（落とした GRS JSON は選択画面なしで新規に開く。ダイアログで選んだファイルは今までどおり 3 つの選択を持つ）の急ぎの出荷。SUB cr858-drop-opens（Opus 5.5・high）が 18:15 ごろに始まった。CR-850 と一緒に main へ出す（328 の答え）。段（規則 7）の見積は PMO の置き。 最後の GT-2 の前にオーナーが OneDrive を止める（調整役の合図で）。 19:06: 置き直し（CR-858 の実装が 18:55 に済み、GT-2 が 19:02 に通った）: 20:37〜20:52。 19:17: 置き直し（試験の穴 379 が入った）: 20:47〜21:02。 19:19: 置き直し（374 のやり直し）: 21:19〜21:34。 19:49: オーナーが BOSSBOSS 経由で OneDrive を止めた（受けた時刻）。CR-858 の仕上げが終わっておらず GT-2 を始められないので、BOSS がオーナーに OneDrive を動かし直すよう頼んだ。1 回目の停止は早すぎたので BOSS が戻した。377 は済みにしない。もう一度お願いする時に済みにする。予定は動かさない。 20:26: 380（版の印とリリースノート）の後に始める。予定は動かさない（21:19）。 20:35: BOSS がオーナーに OneDrive の停止を BOSSBOSS 経由で頼んだ（2 回目）。オーナーの答えを待つ事実。この後 GT-2（378）を回す。377 はオーナーが止めた時に済みにする。 20:38: 済み。オーナーが OneDrive を止めた（BOSSBOSS 経由で受けた時刻）。2 回目の停止。",
         "calendarUid": null,
-        "actualStart": null,
+        "actualStart": "2026-10-31T20:38:00",
         "stop": null,
-        "actualFinish": null,
+        "actualFinish": "2026-10-31T20:38:00",
         "resume": null,
         "resumeValid": null,
-        "percentComplete": 0,
+        "percentComplete": 100,
         "fadeInDays": null,
         "fadeOutDays": null,
         "dependencies": [
@@ -7106,13 +7106,13 @@
         "parentTaskUid": null,
         "wbsOrder": 256,
         "name": "CR-858(落とした GRS JSON は選択なしで開く)の急ぎの出荷: CR-850 と CR-858 を含む最後の GT-2",
-        "start": "2026-10-31T21:34:00",
-        "finish": "2026-10-31T22:34:00",
+        "start": "2026-10-31T20:38:00",
+        "finish": "2026-10-31T21:38:00",
         "milestone": false,
         "deadline": null,
-        "notes": "オーナーの注文（2026-10-31）: CR-858（落とした GRS JSON は選択画面なしで新規に開く。ダイアログで選んだファイルは今までどおり 3 つの選択を持つ）の急ぎの出荷。SUB cr858-drop-opens（Opus 5.5・high）が 18:15 ごろに始まった。CR-850 と一緒に main へ出す（328 の答え）。段（規則 7）の見積は PMO の置き。 段 5（GT-2）。CR-858 を含む。調整役のモデルと努力: Opus 5.5・high。 19:06: 置き直し（CR-858 の実装が 18:55 に済み、GT-2 が 19:02 に通った）: 20:52〜21:52。 19:17: 置き直し（試験の穴 379 が入った）: 21:02〜22:02。 19:19: 置き直し（374 のやり直し）: 21:34〜22:34。",
+        "notes": "オーナーの注文（2026-10-31）: CR-858（落とした GRS JSON は選択画面なしで新規に開く。ダイアログで選んだファイルは今までどおり 3 つの選択を持つ）の急ぎの出荷。SUB cr858-drop-opens（Opus 5.5・high）が 18:15 ごろに始まった。CR-850 と一緒に main へ出す（328 の答え）。段（規則 7）の見積は PMO の置き。 段 5（GT-2）。CR-858 を含む。調整役のモデルと努力: Opus 5.5・high。 19:06: 置き直し（CR-858 の実装が 18:55 に済み、GT-2 が 19:02 に通った）: 20:52〜21:52。 19:17: 置き直し（試験の穴 379 が入った）: 21:02〜22:02。 19:19: 置き直し（374 のやり直し）: 21:34〜22:34。 20:38: 開始。BOSS が a6d7c6df2 で GT-2 を始めた（約 1 時間、PMO の置きで 21:38 まで）。GT-2 の間、PMO は check.sh も試験も回さない。",
         "calendarUid": null,
-        "actualStart": null,
+        "actualStart": "2026-10-31T20:38:00",
         "stop": null,
         "actualFinish": null,
         "resume": null,
@@ -12351,10 +12351,10 @@
     "zoomY": 1.099862517185352
   },
   "documentStamp": {
-    "scheduleUpdatedAt": "2026-10-31T11:35:00Z",
+    "scheduleUpdatedAt": "2026-10-31T11:38:00Z",
     "lastEditedBy": "PMO child session",
     "settingsUpdatedAt": "2026-10-20T20:24:42Z",
-    "fileSavedAt": "2026-10-31T11:35:00Z"
+    "fileSavedAt": "2026-10-31T11:38:00Z"
   },
   "changeLog": [
     {
@@ -12656,6 +12656,12 @@
       "editedBy": "PMO child session",
       "explanation": "Fact at 20:35 JST (machine clock): 380 done (ee2608644, version 20261031T105821Z); the BOSS asked the owner to stop OneDrive again via BOSSBOSS (377 open, owner wait as a fact); GT-2 (378) follows and the PMO runs no check.sh or tests until the BOSS says it ended. No date moved; N1 and the provisional beta unchanged.",
       "changedAt": "2026-10-31T11:35:00Z"
+    },
+    {
+      "ordinal": 51,
+      "editedBy": "PMO child session",
+      "explanation": "Fact at 20:38 JST (machine clock): the owner stopped OneDrive (377 done, second stop); the BOSS started GT-2 (378) on a6d7c6df2, about one hour. Planned dates of 378 re-placed from now.",
+      "changedAt": "2026-10-31T11:38:00Z"
     }
   ]
 }
