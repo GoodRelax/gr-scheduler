@@ -14,7 +14,7 @@
       "creationDate": "2026-10-31T08:50:00",
       "revision": 11,
       "startDate": "2026-10-17T05:30:00",
-      "statusDate": "2026-10-31T21:03:00",
+      "statusDate": "2026-10-31T21:06:00",
       "minutesPerDay": 1440,
       "minutesPerWeek": 10080,
       "daysPerMonth": 30,
@@ -6561,7 +6561,7 @@
         "finish": "2026-11-01T10:00:00",
         "milestone": false,
         "deadline": null,
-        "notes": "オーナーの注文（BOSSBOSS 経由、2026-10-31）: CR-850（基準日線・カーソル・掴みを 15 分に）の急ぎの出荷。「実装は命名の後」の例外にした。SUB baseline-15min（Opus 5.5・high）で、用語集と並行に今から動く。段（規則 7）: GQA → 仕様とテスト仕様 → 実装と自動試験 → Gherkin の確かめ（別の SUB）→ オーナーの現場の試験 → 出荷（調整役）。見積は 288 の 30 分と、305〜315 前後の同種の仕事（230・231）からの置き。 段 5（現場の試験）。オーナーの番。 16:18: 見積（調整役 16:16）: オーナーの現場の試験は 20:00〜21:00 ごろ。GT-2 の後。 16:28: 置き直し（1.5 時間前へ）。 16:35: 置き直し: オーナーの現場の試験は PR を開いた後（調整役 16:32）。 16:40: 置き直し: オーナーの現場の試験は PR を開いた後。 16:45: 置き直し（329 が 16:42 に済んだ）: 19:15〜20:15。 16:48: 置き直し（GT-2 が 16:48 に始まった）: 19:03〜20:03。 17:10: 置き直し（GT-2 が落ちた）: 20:25〜21:25。 18:06: 置き直し（GT-2 が試験 1 件で止まった）: 20:03〜21:03。 18:24: 置き直し: CR-850 と CR-858 を一緒に現場で試す。日曜 09:00 から（オーナーの休日の時間帯の頭）。",
+        "notes": "オーナーの注文（BOSSBOSS 経由、2026-10-31）: CR-850（基準日線・カーソル・掴みを 15 分に）の急ぎの出荷。「実装は命名の後」の例外にした。SUB baseline-15min（Opus 5.5・high）で、用語集と並行に今から動く。段（規則 7）: GQA → 仕様とテスト仕様 → 実装と自動試験 → Gherkin の確かめ（別の SUB）→ オーナーの現場の試験 → 出荷（調整役）。見積は 288 の 30 分と、305〜315 前後の同種の仕事（230・231）からの置き。 段 5（現場の試験）。オーナーの番。 16:18: 見積（調整役 16:16）: オーナーの現場の試験は 20:00〜21:00 ごろ。GT-2 の後。 16:28: 置き直し（1.5 時間前へ）。 16:35: 置き直し: オーナーの現場の試験は PR を開いた後（調整役 16:32）。 16:40: 置き直し: オーナーの現場の試験は PR を開いた後。 16:45: 置き直し（329 が 16:42 に済んだ）: 19:15〜20:15。 16:48: 置き直し（GT-2 が 16:48 に始まった）: 19:03〜20:03。 17:10: 置き直し（GT-2 が落ちた）: 20:25〜21:25。 18:06: 置き直し（GT-2 が試験 1 件で止まった）: 20:03〜21:03。 18:24: 置き直し: CR-850 と CR-858 を一緒に現場で試す。日曜 09:00 から（オーナーの休日の時間帯の頭）。 21:06: 次はオーナーの実地の試験（11-01 09:00）。オーナーの待ちは事実として置く。",
         "calendarUid": null,
         "actualStart": null,
         "stop": null,
@@ -6636,19 +6636,19 @@
         "uid": 325,
         "parentTaskUid": null,
         "wbsOrder": 241,
-        "name": "🌑 CR-850(基準日線・カーソル・掴みを 15 分に)の急ぎの出荷: develop → main の PR(調整役)",
-        "start": "2026-10-31T22:34:00",
-        "finish": "2026-10-31T23:04:00",
+        "name": "🌕 CR-850(基準日線・カーソル・掴みを 15 分に)の急ぎの出荷: develop → main の PR(調整役)",
+        "start": "2026-10-31T21:01:00",
+        "finish": "2026-10-31T21:06:00",
         "milestone": false,
         "deadline": null,
-        "notes": "オーナーの注文（BOSSBOSS 経由、2026-10-31）: CR-850（基準日線・カーソル・掴みを 15 分に）の急ぎの出荷。「実装は命名の後」の例外にした。SUB baseline-15min（Opus 5.5・high）で、用語集と並行に今から動く。段（規則 7）: GQA → 仕様とテスト仕様 → 実装と自動試験 → Gherkin の確かめ（別の SUB）→ オーナーの現場の試験 → 出荷（調整役）。見積は 288 の 30 分と、305〜315 前後の同種の仕事（230・231）からの置き。 段 6（出荷）の main への道。調整役のモデルと努力: Opus 5.5・high。見積は 230 の 3 時間より軽く、1 時間と置いた。 16:18: 置き直し（調整役の見積 16:16: 出荷は 21:00 の後）: 道が決まった後。見積は 1 時間から 45 分に縮めた（PR だけで、dist と GT-2 は済み）。 16:28: 置き直し（1.5 時間前へ）。 16:35: 置き直し: main への PR は hotfix 枝から。見積は 30 分に縮めた（PR だけ）。 16:40: 置き直し（経路 a）: PR は develop から main へ。hotfix 枝は使わない（保留）。 16:45: 置き直し（329 が 16:42 に済んだ）: 18:45〜19:15。 16:48: 置き直し（GT-2 が 16:48 に始まった）: 18:33〜19:03。 17:10: 置き直し（GT-2 が落ちた）: 19:55〜20:25。 17:36: 経路 a だけが要る。328（出荷の道の確かめ）を待つ。hotfix（b）に決まれば、このタスクは hotfix 枝からの PR になる。 18:06: 置き直し（GT-2 が試験 1 件で止まった）: 19:33〜20:03。 18:24: 置き直し: CR-858 を含む最後の GT-2（378）の後。PR は develop から main へ（CR-850 と CR-858 を一緒に）。 19:06: 置き直し（CR-858 の実装が 18:55 に済み、GT-2 が 19:02 に通った）: 21:52〜22:22。 19:17: 置き直し（試験の穴 379 が入った）: 22:02〜22:32。 19:19: 置き直し（374 のやり直し）: 22:34〜23:04。",
+        "notes": "オーナーの注文（BOSSBOSS 経由、2026-10-31）: CR-850（基準日線・カーソル・掴みを 15 分に）の急ぎの出荷。「実装は命名の後」の例外にした。SUB baseline-15min（Opus 5.5・high）で、用語集と並行に今から動く。段（規則 7）: GQA → 仕様とテスト仕様 → 実装と自動試験 → Gherkin の確かめ（別の SUB）→ オーナーの現場の試験 → 出荷（調整役）。見積は 288 の 30 分と、305〜315 前後の同種の仕事（230・231）からの置き。 段 6（出荷）の main への道。調整役のモデルと努力: Opus 5.5・high。見積は 230 の 3 時間より軽く、1 時間と置いた。 16:18: 置き直し（調整役の見積 16:16: 出荷は 21:00 の後）: 道が決まった後。見積は 1 時間から 45 分に縮めた（PR だけで、dist と GT-2 は済み）。 16:28: 置き直し（1.5 時間前へ）。 16:35: 置き直し: main への PR は hotfix 枝から。見積は 30 分に縮めた（PR だけ）。 16:40: 置き直し（経路 a）: PR は develop から main へ。hotfix 枝は使わない（保留）。 16:45: 置き直し（329 が 16:42 に済んだ）: 18:45〜19:15。 16:48: 置き直し（GT-2 が 16:48 に始まった）: 18:33〜19:03。 17:10: 置き直し（GT-2 が落ちた）: 19:55〜20:25。 17:36: 経路 a だけが要る。328（出荷の道の確かめ）を待つ。hotfix（b）に決まれば、このタスクは hotfix 枝からの PR になる。 18:06: 置き直し（GT-2 が試験 1 件で止まった）: 19:33〜20:03。 18:24: 置き直し: CR-858 を含む最後の GT-2（378）の後。PR は develop から main へ（CR-850 と CR-858 を一緒に）。 19:06: 置き直し（CR-858 の実装が 18:55 に済み、GT-2 が 19:02 に通った）: 21:52〜22:22。 19:17: 置き直し（試験の穴 379 が入った）: 22:02〜22:32。 19:19: 置き直し（374 のやり直し）: 22:34〜23:04。 21:06: 済み。BOSS が a6d7c6df2 を origin の develop へ push し、develop から main への PR #5 を開いた（https://github.com/GoodRelax/gr-scheduler/pull/5）。始まりは推定（到着 21:06 の 5 分前）。PR の中身を GT-2 の版に保つため、オーナーが PR を合流するまで、計画の合流は根に積むだけで push しない。",
         "calendarUid": null,
-        "actualStart": null,
+        "actualStart": "2026-10-31T21:01:00",
         "stop": null,
-        "actualFinish": null,
+        "actualFinish": "2026-10-31T21:06:00",
         "resume": null,
         "resumeValid": null,
-        "percentComplete": 0,
+        "percentComplete": 100,
         "fadeInDays": null,
         "fadeOutDays": null,
         "dependencies": [
@@ -7105,19 +7105,19 @@
         "uid": 378,
         "parentTaskUid": null,
         "wbsOrder": 256,
-        "name": "🌒 CR-858(落とした GRS JSON は選択なしで開く)の急ぎの出荷: CR-850 と CR-858 を含む最後の GT-2",
+        "name": "🌕 CR-858(落とした GRS JSON は選択なしで開く)の急ぎの出荷: CR-850 と CR-858 を含む最後の GT-2",
         "start": "2026-10-31T20:38:00",
-        "finish": "2026-10-31T21:38:00",
+        "finish": "2026-10-31T21:06:00",
         "milestone": false,
         "deadline": null,
-        "notes": "オーナーの注文（2026-10-31）: CR-858（落とした GRS JSON は選択画面なしで新規に開く。ダイアログで選んだファイルは今までどおり 3 つの選択を持つ）の急ぎの出荷。SUB cr858-drop-opens（Opus 5.5・high）が 18:15 ごろに始まった。CR-850 と一緒に main へ出す（328 の答え）。段（規則 7）の見積は PMO の置き。 段 5（GT-2）。CR-858 を含む。調整役のモデルと努力: Opus 5.5・high。 19:06: 置き直し（CR-858 の実装が 18:55 に済み、GT-2 が 19:02 に通った）: 20:52〜21:52。 19:17: 置き直し（試験の穴 379 が入った）: 21:02〜22:02。 19:19: 置き直し（374 のやり直し）: 21:34〜22:34。 20:38: 開始。BOSS が a6d7c6df2 で GT-2 を始めた（約 1 時間、PMO の置きで 21:38 まで）。GT-2 の間、PMO は check.sh も試験も回さない。",
+        "notes": "オーナーの注文（2026-10-31）: CR-858（落とした GRS JSON は選択画面なしで新規に開く。ダイアログで選んだファイルは今までどおり 3 つの選択を持つ）の急ぎの出荷。SUB cr858-drop-opens（Opus 5.5・high）が 18:15 ごろに始まった。CR-850 と一緒に main へ出す（328 の答え）。段（規則 7）の見積は PMO の置き。 段 5（GT-2）。CR-858 を含む。調整役のモデルと努力: Opus 5.5・high。 19:06: 置き直し（CR-858 の実装が 18:55 に済み、GT-2 が 19:02 に通った）: 20:52〜21:52。 19:17: 置き直し（試験の穴 379 が入った）: 21:02〜22:02。 19:19: 置き直し（374 のやり直し）: 21:34〜22:34。 20:38: 開始。BOSS が a6d7c6df2 で GT-2 を始めた（約 1 時間、PMO の置きで 21:38 まで）。GT-2 の間、PMO は check.sh も試験も回さない。 21:06: 済み（調整役の一言の到着時刻。調整役は「21:4x」と言い、機械の時計と大きくずれる）。GT-2 が a6d7c6df2 で通った。赤は既知の DFC-922・1016・1020 だけ。オーナーに OneDrive を動かしてよいと知らせた。",
         "calendarUid": null,
         "actualStart": "2026-10-31T20:38:00",
         "stop": null,
-        "actualFinish": null,
+        "actualFinish": "2026-10-31T21:06:00",
         "resume": null,
         "resumeValid": null,
-        "percentComplete": 0,
+        "percentComplete": 100,
         "fadeInDays": null,
         "fadeOutDays": null,
         "dependencies": [
@@ -12351,10 +12351,10 @@
     "zoomY": 1.099862517185352
   },
   "documentStamp": {
-    "scheduleUpdatedAt": "2026-10-31T12:03:00Z",
+    "scheduleUpdatedAt": "2026-10-31T12:06:00Z",
     "lastEditedBy": "PMO child session",
     "settingsUpdatedAt": "2026-10-20T20:24:42Z",
-    "fileSavedAt": "2026-10-31T12:03:00Z"
+    "fileSavedAt": "2026-10-31T12:06:00Z"
   },
   "changeLog": [
     {
@@ -12668,6 +12668,12 @@
       "editedBy": "PMO child session",
       "explanation": "Fact at 21:03 JST (machine clock): by the owner order of 20:57 every task name now starts with a moon mark (finished = full moon, started = waxing crescent, owner wait not started = waning gibbous, otherwise new moon); the other marks follow when the BOSS says a stage changed. No date moved; N1 and the provisional beta unchanged.",
       "changedAt": "2026-10-31T12:03:00Z"
+    },
+    {
+      "ordinal": 53,
+      "editedBy": "PMO child session",
+      "explanation": "Fact at 21:06 JST (machine clock; the BOSS line said 21:4x on its own clock): 378 done (GT-2 passed on a6d7c6df2; reds only the known DFC-922/1016/1020); 325 done (develop pushed, PR #5 develop to main opened); next is the owner field test 324 at 11-01 09:00 (owner wait as a fact). Plan commits stay on the branch/root without push until the owner merges the PR. No date moved; N1 and the provisional beta unchanged.",
+      "changedAt": "2026-10-31T12:06:00Z"
     }
   ]
 }
