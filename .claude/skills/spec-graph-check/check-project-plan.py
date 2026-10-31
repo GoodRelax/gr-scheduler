@@ -33,8 +33,8 @@ describes this JSON, and a name with no id at all (allowed).
 Usage:
     python check-project-plan.py [repo-root] [--self-test]
 
-`--self-test` feeds the three bad forms, the good forms above and a name with
-no id, and expects exactly the three bad names reported; red otherwise.
+`--self-test` feeds the three bad forms, one bad form behind a moon mark, the good forms above and a name with
+no id, and expects exactly the four bad names reported; red otherwise.
 """
 import io
 import json
@@ -45,9 +45,11 @@ import sys
 
 PLAN_JSON = 'plan/gr-scheduler-plan.json'
 PLAN_MD = 'plan/gr-scheduler-plan.md'
-STARTS_WITH_ID = re.compile(r'^\s*[A-Z][A-Z0-9]*-\d+')
+# An optional moon-phase mark (U+1F311..U+1F318) plus spaces may precede the id (owner ruling 2026-10-31).
+MOON_MARK = r'^\s*(?:[\U0001F311-\U0001F318]\s*)?'
+STARTS_WITH_ID = re.compile(MOON_MARK + r'[A-Z][A-Z0-9]*-\d+')
 # The ids at the head: one id, then more ids or bare numbers joined by ・ 、 , / 〜 ~ (CR-754〜757).
-LEADING_IDS = re.compile(r'^\s*[A-Z][A-Z0-9]*-\d+(?:\s*[・、,/〜~]\s*(?:[A-Z][A-Z0-9]*-)?\d+)*')
+LEADING_IDS = re.compile(MOON_MARK + r'[A-Z][A-Z0-9]*-\d+(?:\s*[・、,/〜~]\s*(?:[A-Z][A-Z0-9]*-)?\d+)*')
 SUBJECT = re.compile(r'[（(]([^（()）]*)[)）]')
 
 
@@ -95,10 +97,11 @@ def self_test():
         {'name': 'DFC-2482・DFC-2483（写しの日数）の試験'},
         {'name': 'CR-754〜757(設定パネル)の残りの裁定'}, {'name': 'DFC-2214・2215(AM-19 の説明)の仕様と実装'},
         {'name': 'JDG-2071 の食い違いの再検討(仕様とコードのどちらを正とするか)'},
+        {'name': '\U0001F311 CR-758 の実装'},
     ]}}
     found = bad_names(task_names(document))
-    ok = found == ['CR-758', 'CR-758 の実装', 'CR-758()の実装']
-    say('%s  self-test: %d bad name(s) of 9 (want the 3 bad forms): %s'
+    ok = found == ['CR-758', 'CR-758 の実装', 'CR-758()の実装', '\U0001F311 CR-758 の実装']
+    say('%s  self-test: %d bad name(s) of 10 (want the 3 bad forms and one marked bad form): %s'
         % ('OK' if ok else 'FAIL', len(found), ' / '.join(found)))
     return 0 if ok else 1
 
