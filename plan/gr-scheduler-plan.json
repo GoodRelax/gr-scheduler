@@ -14,7 +14,7 @@
       "creationDate": "2026-10-31T08:50:00",
       "revision": 11,
       "startDate": "2026-10-17T05:30:00",
-      "statusDate": "2026-10-31T19:32:00",
+      "statusDate": "2026-10-31T19:38:00",
       "minutesPerDay": 1440,
       "minutesPerWeek": 10080,
       "daysPerMonth": 30,
@@ -6808,9 +6808,9 @@
         "finish": "2026-10-31T20:49:00",
         "milestone": false,
         "deadline": null,
-        "notes": "経路 a。main に入っている hotfix（PR #2〜#4）を develop に合流してから、PR を開く。調整役のモデルと努力: Opus 5.5・high。見積は PMO の置き（30 分）。 16:45: 置き直し（329 が 16:42 に済んだ）: 18:15〜18:45。 16:48: 置き直し（GT-2 が 16:48 に始まった）: 18:03〜18:33。 17:10: 置き直し（GT-2 が落ちた）: 19:25〜19:55。 17:36: 経路 a だけが要る。328（出荷の道の確かめ）を待つ。 18:06: 置き直し（GT-2 が試験 1 件で止まった）: 19:03〜19:33。 18:24: 置き直し: CR-858 の場面の確かめ（375）を待つ（調整役 18:24）。最後の GT-2（378）の前に main の hotfix を合流して、GT-2 が合流後の木を試すようにした。調整役の言葉の字面（最後の GT-2 の後）と順が違うので、違えば直す。 19:06: 置き直し（CR-858 の実装が 18:55 に済み、GT-2 が 19:02 に通った）: 19:37〜20:07。 19:17: 置き直し（試験の穴 379 が入った）: 19:47〜20:17。 19:19: 置き直し（374 のやり直し）: 20:19〜20:49。",
+        "notes": "経路 a。main に入っている hotfix（PR #2〜#4）を develop に合流してから、PR を開く。調整役のモデルと努力: Opus 5.5・high。見積は PMO の置き（30 分）。 16:45: 置き直し（329 が 16:42 に済んだ）: 18:15〜18:45。 16:48: 置き直し（GT-2 が 16:48 に始まった）: 18:03〜18:33。 17:10: 置き直し（GT-2 が落ちた）: 19:25〜19:55。 17:36: 経路 a だけが要る。328（出荷の道の確かめ）を待つ。 18:06: 置き直し（GT-2 が試験 1 件で止まった）: 19:03〜19:33。 18:24: 置き直し: CR-858 の場面の確かめ（375）を待つ（調整役 18:24）。最後の GT-2（378）の前に main の hotfix を合流して、GT-2 が合流後の木を試すようにした。調整役の言葉の字面（最後の GT-2 の後）と順が違うので、違えば直す。 19:06: 置き直し（CR-858 の実装が 18:55 に済み、GT-2 が 19:02 に通った）: 19:37〜20:07。 19:17: 置き直し（試験の穴 379 が入った）: 19:47〜20:17。 19:19: 置き直し（374 のやり直し）: 20:19〜20:49。 19:36: 開始。SUB main-hotfix-merge（local_f549a4fa-0c3a-4993-8a99-d6f06f334c79、Opus 5.5・high）がmain の hotfix（PR #2〜#4）を develop へ取り込み始めた（時刻は調整役の一言のまま。調整役の時計は機械の時計より進んでいる。機械の時計は 19:38）。先行の 374・379 は終わっていないが、取り込みは先に進む。",
         "calendarUid": null,
-        "actualStart": null,
+        "actualStart": "2026-10-31T19:36:00",
         "stop": null,
         "actualFinish": null,
         "resume": null,
@@ -6908,10 +6908,10 @@
         "wbsOrder": 249,
         "name": "CR-858(落とした GRS JSON は選択なしで開く)の急ぎの出荷: オーナーと GQA で決める",
         "start": "2026-10-31T18:15:00",
-        "finish": "2026-10-31T19:34:00",
+        "finish": "2026-10-31T20:04:00",
         "milestone": false,
         "deadline": null,
-        "notes": "オーナーの注文（2026-10-31）: CR-858（落とした GRS JSON は選択画面なしで新規に開く。ダイアログで選んだファイルは今までどおり 3 つの選択を持つ）の急ぎの出荷。SUB cr858-drop-opens（Opus 5.5・high）が 18:15 ごろに始まった。CR-850 と一緒に main へ出す（328 の答え）。段（規則 7）の見積は PMO の置き。 段 1（GQA）。オーナーの番。 19:06: 開いたまま: オーナーの Q1 の答えがまだ（合流のコミットの件名 \"rec a, Q1 pending\"）。SUB は推奨 a で実装を済ませた。オーナーが a 以外を答えると、373・374 をやり直す。事実として今から置き直した。 19:16: オーナーが CR-858 の GQA の Q1 に a と答えた。着地した実装と同じなので、373・374 は有効。第 2 巡（Q2: MSPDI のドロップ）がオーナーに出た。372 は第 2 巡の答えを待って開いたまま。 19:19: 第 1 巡に全部答えが来た（JDG-3581〜3584）。第 2 巡（Q5: エラーの知らせの言葉）がオーナーに出ている。",
+        "notes": "オーナーの注文（2026-10-31）: CR-858（落とした GRS JSON は選択画面なしで新規に開く。ダイアログで選んだファイルは今までどおり 3 つの選択を持つ）の急ぎの出荷。SUB cr858-drop-opens（Opus 5.5・high）が 18:15 ごろに始まった。CR-850 と一緒に main へ出す（328 の答え）。段（規則 7）の見積は PMO の置き。 段 1（GQA）。オーナーの番。 19:06: 開いたまま: オーナーの Q1 の答えがまだ（合流のコミットの件名 \"rec a, Q1 pending\"）。SUB は推奨 a で実装を済ませた。オーナーが a 以外を答えると、373・374 をやり直す。事実として今から置き直した。 19:16: オーナーが CR-858 の GQA の Q1 に a と答えた。着地した実装と同じなので、373・374 は有効。第 2 巡（Q2: MSPDI のドロップ）がオーナーに出た。372 は第 2 巡の答えを待って開いたまま。 19:19: 第 1 巡に全部答えが来た（JDG-3581〜3584）。第 2 巡（Q5: エラーの知らせの言葉）がオーナーに出ている。 19:34: オーナーが第 2 巡（Q5）に答えた。SUB cr858-drop-opens（local_5b83e34e-3ab5-4f5f-a132-f78c4e164915）がその答えで仕上げる。 19:50 ごろ: SUB が第 3 巡（Q6: about の文 PND-979）を書き、オーナーの答えを待つ。オーナーの待ちは事実として置く。予定の終わりを 19:34 から 20:04 へ置き直した（PMO の置き、30 分）。",
         "calendarUid": null,
         "actualStart": "2026-10-31T18:15:00",
         "stop": null,
@@ -7142,7 +7142,7 @@
         "finish": "2026-10-31T20:19:00",
         "milestone": false,
         "deadline": null,
-        "notes": "場面の確かめ（375）が見つけた穴 3 つ（2 ファイルのドロップ・.html の e2e・ファイルダイアログの e2e）を SUB cr858-drop-opens（Opus 5.5・high）が試験だけで埋める。見積は PMO の置き（30 分）。369 の前。 19:19: 374 のやり直しに一緒に入れた（調整役の一言）。374 と同じ時間に置いた。",
+        "notes": "場面の確かめ（375）が見つけた穴 3 つ（2 ファイルのドロップ・.html の e2e・ファイルダイアログの e2e）を SUB cr858-drop-opens（Opus 5.5・high）が試験だけで埋める。見積は PMO の置き（30 分）。369 の前。 19:19: 374 のやり直しに一緒に入れた（調整役の一言）。374 と同じ時間に置いた。 19:34: 第 2 巡の答えが届き、SUB が実装を仕上げている。",
         "calendarUid": null,
         "actualStart": "2026-10-31T19:19:00",
         "stop": null,
@@ -12255,10 +12255,10 @@
     "zoomY": 1.099862517185352
   },
   "documentStamp": {
-    "scheduleUpdatedAt": "2026-10-31T10:32:00Z",
+    "scheduleUpdatedAt": "2026-10-31T10:38:00Z",
     "lastEditedBy": "PMO child session",
     "settingsUpdatedAt": "2026-10-20T20:24:42Z",
-    "fileSavedAt": "2026-10-31T10:32:00Z"
+    "fileSavedAt": "2026-10-31T10:38:00Z"
   },
   "changeLog": [
     {
@@ -12512,6 +12512,12 @@
       "editedBy": "PMO child session",
       "explanation": "Fact at 19:32 JST: the BOSS changed from coord-1024 to a new BOSS (boss-after-1024) at 19:30 by the machine clock; the PMO acknowledged the new parent; a successor PMO (Sonnet 5.5, medium) is started from the handover note; no planned date moved.",
       "changedAt": "2026-10-31T10:32:00Z"
+    },
+    {
+      "ordinal": 43,
+      "editedBy": "PMO child session",
+      "explanation": "Facts at 19:38 JST (machine clock; the times inside are the BOSS line times, whose clock runs ahead of the machine clock): the PMO changed from local_92963a16 to local_7e1e478e (old PMO stopped 19:33; the BOSS is local_f4562771 since 19:30). The owner answered CR-858 GQA round 2 (Q5) at 19:34 (uid 372); the SUB writes round 3 (Q6, about sentence PND-979) around 19:50 and the owner is the next step. main-hotfix-merge started at 19:36 (uid 369, PRs #2-#4 into develop). 372 planned finish moved 19:34 -> 20:04 (owner wait re-placed as a fact); no other planned date moved; N1 and the provisional beta unchanged.",
+      "changedAt": "2026-10-31T10:38:00Z"
     }
   ]
 }
