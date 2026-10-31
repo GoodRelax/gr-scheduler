@@ -2392,16 +2392,16 @@ describe('FR-076 -- a notice raised while a file is opened carries a row of tabl
     expect(uidsOf(loop.document())).toEqual([1, 2])
   })
 
-  it('RS-14: several files at once is a caution, and OP-11 (MUST NOT) keeps the first one open', async () => {
-    // 「OP-11 | **一度に 2 つ以上のファイルが渡されたとき** | **先頭の 1 つだけを
-    //   受け入れ、残りを無視したことを告げること（MUST）。** 作法は 表 T-037 の
-    //   `NT-5` …… **1 つは開いているので、受け付けなかったことにしてはならない
-    //   （MUST NOT）。**」
+  it('RS-14: several files at once open none, and OP-11 (MUST) refuses them with NT-1', async () => {
+    // 「OP-11 | **一度に 2 つ以上のファイルがドロップされたとき** | 人が 2 つ以上の
+    //   ファイルを同時にウィンドウへドロップしたとき、`GRS` は、どのファイルも開かずに
+    //   断り、現在の文書を変えないこと（MUST）」
     const words = wordsFor('RS-14')
     const pane = host()
     const screen = screenPane('ja')
     const files = fileStore()
     const loop = frameLoop(pane.surface, here(), SCREEN, screen.wiring, files.store)
+    const before = uidsOf(loop.document())
 
     loop.receiveInput(SK_10)
     pane.runAnimationFrames()
@@ -2410,19 +2410,12 @@ describe('FR-076 -- a notice raised while a file is opened carries a row of tabl
     await settle()
     pane.runAnimationFrames()
 
-    expect(screen.last().notices, 'RS-14 is not a notice while the reading is under way').toEqual([])
-    // 「受け付けなかったことにしてはならない（MUST NOT）」 -- the file that WAS
+    expect(screen.last().openModal, 'OP-11 (MUST): a chooser stood for files that open none').toBeNull()
+    expect(uidsOf(loop.document()), 'OP-11 (MUST): the current document changed').toEqual(before)
     expect(
-      screen.last().openModal?.surface,
-      'OP-11 (MUST NOT): the caution was raised and the accepted file was not opened',
-    ).toBe(OPEN_CHOOSER)
-    takeEntry(loop, screen, OPEN_CHOOSER, 'IC-72')
-    await settle()
-    pane.runAnimationFrames()
-    const report = screen.last().openModal as { readonly reportLines?: readonly { reason: string; count: number | null; text: string }[] } | null
-    const line = report?.reportLines?.find((one) => one.reason === 'RS-14')
-    expect(line?.count, 'OP-11 (MUST): two files were left behind and nobody was told').toBe(2)
-    expect(line?.text).toBe(words.text.ja)
+      screen.last().notices.map((notice) => notice.text),
+      'OP-11 (MUST): several files were refused and nobody was told',
+    ).toContain(words.text.ja)
   })
 
   it('⛔ no caution where none is owed: an ordinary open leaves the notices empty', async () => {

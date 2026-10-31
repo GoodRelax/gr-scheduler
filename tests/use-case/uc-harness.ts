@@ -9,7 +9,7 @@ export const VIEWPORT = { width: 1920, height: 1080 }
 
 // WHY: a headless browser has no file picker and no file handles; these stand in for the host
 // dialogs, record what is written (__grsSaved) and hand over the next file (__grsNextOpen).
-const HOST_STUB = `(() => {
+export const HOST_STUB = `(() => {
   const saved = []
   window.__grsSaved = saved
   window.__grsNextOpen = null
@@ -126,22 +126,15 @@ export const dropFile = async (page: Page, name: string, text: string): Promise<
     },
     { name, text },
   )
-  if (!opensWithoutChooser(name)) await page.waitForSelector('[data-role="Open Chooser"]')
+  // WHY: a dropped file opens as a replace without U-56 (OP-19), so nothing is waited for but the open itself.
   await page.waitForTimeout(200)
   await settle(page)
 }
 
-// see OP-19
-// WHY: a dropped GRS JSON or single .html opens as a replace without U-56; a dropped MSPDI .xml raises it.
-export const opensWithoutChooser = (name: string): boolean => /\.(json|html)$/i.test(name)
-
-// see OP-2, OP-3, OP-4, OP-19, IC-71, IC-72, IC-73
-// WHY: a dropped GRS JSON replaces only; to merge or overlay one, open it through IC-1 (openThroughIc1).
-export const openByDrop = async (page: Page, name: string, text: string, choice: 'IC-71' | 'IC-72' | 'IC-73' = 'IC-71'): Promise<void> => {
-  if (opensWithoutChooser(name) && choice !== 'IC-71') throw new Error(`OP-19: a dropped ${name} opens as a replace; use openThroughIc1 for ${choice}`)
+// see OP-2, OP-4, OP-19
+// WHY: a drop only replaces; to merge or overlay, open the file through IC-1 (openThroughIc1).
+export const openByDrop = async (page: Page, name: string, text: string): Promise<void> => {
   await dropFile(page, name, text)
-  if (await page.locator('[data-role="Open Chooser"]').count()) await page.click(icon(choice, '[data-role="Open Chooser"]'))
-  await page.waitForTimeout(200)
   if (await page.locator('[data-role="Confirmation"] [data-confirmation-answer="proceed"]').count()) await answerConfirmation(page, 'proceed')
   await settle(page)
 }

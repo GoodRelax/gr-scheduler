@@ -76,7 +76,8 @@ const TIMED = [
   'RS-70', 'RS-69', 'RS-77',
   'RS-84', 'RS-85', 'RS-86', 'RS-87', 'RS-88',
 ] as const
-const REPORTED = ['RS-14', 'RS-16', 'RS-50', 'RS-51', 'RS-52', 'RS-60', 'RS-71', 'RS-72', 'RS-73'] as const
+// WHY: CR-858 made RS-14 a refusal shown at once (OP-11, JDG-3584), so it left the reported rows.
+const REPORTED = ['RS-16', 'RS-50', 'RS-51', 'RS-52', 'RS-60', 'RS-71', 'RS-72', 'RS-73'] as const
 const RIDING: Readonly<Record<string, string>> = {
   'RS-7': 'RS-6',
   'RS-9': 'RS-6',
@@ -142,14 +143,14 @@ describe('FR-076: the display column is the one place that decides', () => {
 
 describe(`T-233 display column -- ${FR_076_THE_COLUMN_HOLDS_IT}`, () => {
   // WHY: CR-755 retired the MSPDI time zone notice (an autoDismiss row): 85 -> 84; CR-772 retired four hidden rows: -> 80.
-  // WHY: CR-796 slice 1 added RS-90 (show): -> 81, show 36.
-  it('the manuscript holds 81 reasons: show 36 (5 riding), autoDismiss 19, hide 17, report 9', () => {
+  // WHY: CR-796 slice 1 added RS-90 (show): -> 81, show 36. CR-858 moved RS-14 from report to show: show 37, report 8.
+  it('the manuscript holds 81 reasons: show 37 (5 riding), autoDismiss 19, hide 17, report 8', () => {
     const count = (display: ReasonDisplay): number => ROSTER.reasons.filter((one) => one.display === display).length
     expect(ROSTER.reasons).toHaveLength(81)
-    expect(count('show')).toBe(36)
+    expect(count('show')).toBe(37)
     expect(count('autoDismiss')).toBe(19)
     expect(count('hide')).toBe(17)
-    expect(count('report')).toBe(9)
+    expect(count('report')).toBe(8)
     expect(ROSTER.reasons.filter((one) => one.wordsOf !== undefined)).toHaveLength(5)
   })
 

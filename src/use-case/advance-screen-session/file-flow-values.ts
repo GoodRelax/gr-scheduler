@@ -71,15 +71,11 @@ export type FileFlowImportAnswer =
   | { readonly kind: 'openChoice'; readonly openChoice: FileFlowOpenChoice }
   | { readonly kind: 'mergeMapping'; readonly mergeMapping: FileFlowMergeMapping }
 
-// WHY: the format read decides a drop's open (OP-19); a single .html reads as its embedded GRS JSON (IO-7).
-export type FileFlowIncomingFormat = 'grsJson' | 'mspdi'
-
-// see OP-16, OP-19
+// see OP-16
 export interface FileFlowIncomingFile {
   readonly fileName: string | null
   readonly byteLength: number
   readonly documentTitle: string | null
-  readonly format: FileFlowIncomingFormat
 }
 
 export interface FileFlowValuesStateCarried {
@@ -274,12 +270,11 @@ const FILE_FLOW_VALUES_GUARDS = {
     event.isProceeding,
   isReplaceChoice: (event: Extract<FileFlowValuesEvent, { readonly type: 'openChoiceAnswered' | 'documentOpenLanded' }>): boolean =>
     event.openChoice === 'replace',
-  isReplaceWithoutChooser: (values: FileFlowValues, event: Extract<FileFlowValuesEvent, { readonly type: 'documentFileRead' }>): boolean => {
+  isReplaceWithoutChooser: (values: FileFlowValues): boolean => {
     const fileOperationOpenRoute =
       values.fileOperationState.kind === 'readingDocumentFile' ? values.fileOperationState.openRoute
       : null
-    return fileOperationOpenRoute === 'reopen'
-      || (fileOperationOpenRoute === 'drop') && (event.incomingFile?.format === 'grsJson')
+    return (fileOperationOpenRoute === 'reopen') || (fileOperationOpenRoute === 'drop')
   },
 }
 // </generated>
@@ -409,7 +404,7 @@ function fixBundleIssued(operation: FileOperationState): Effects {
 function onDocumentFileRead(values: FileFlowValues, event: EventOf<'documentFileRead'>): FileFlowStep {
   const operation = values.fileOperationState
   if (operation.kind !== 'readingDocumentFile') return unchanged(values)
-  if (FILE_FLOW_VALUES_GUARDS.isReplaceWithoutChooser(values, event)) return discardAskedWhenUnsaved(values, event.question)
+  if (FILE_FLOW_VALUES_GUARDS.isReplaceWithoutChooser(values)) return discardAskedWhenUnsaved(values, event.question)
   if (FILE_FLOW_VALUES_GUARDS.isBaselineRoute(values)) {
     const importing: FileOperationState = { kind: 'importingDocument' }
     const answer: FileFlowImportAnswer = { kind: 'openChoice', openChoice: 'baseline' }

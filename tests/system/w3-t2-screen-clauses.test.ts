@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 
 import { specTable, unbroken } from '../contract/spec-table'
-import { VIEWPORT, dropFile, elementBox, enableAgentApi, launch, openByDrop, press, readDocument, readSample, settle, type Box } from '../use-case/uc-harness'
+import { VIEWPORT, elementBox, enableAgentApi, launch, openByDrop, openThroughIc1, press, readDocument, readSample, settle, type Box } from '../use-case/uc-harness'
 
 test.use({ viewport: VIEWPORT, locale: 'en-US', colorScheme: 'light' })
 
@@ -319,10 +319,8 @@ const chooserCases: readonly { readonly name: string; readonly role: string; rea
   {
     name: 'the open face (U-56)',
     role: 'Open Chooser',
-    open: async (page) => {
-      await dropFile(page, ERP, readSample(ERP))
-      await settle(page)
-    },
+    // WHY: a dropped file skips U-56 (OP-19); the file dialog raises it.
+    open: (page) => openThroughIc1(page, ERP, readSample(ERP), null),
   },
 ]
 

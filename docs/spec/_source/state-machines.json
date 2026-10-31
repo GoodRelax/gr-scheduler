@@ -5943,7 +5943,7 @@
         "OP-16"
        ],
        "note": {
-        "ja": "読んだファイルの名前（ファイルを持たずに渡された文書では無い）と、読んだ中身のバイト数と、読んだ文書の文書名（`AT-3`。無いこともある）と、読んだ形式（`GRS JSON` か MSPDI。単一の `.html` は埋め込まれた `GRS JSON` を読むので `GRS JSON`）。`Open Chooser` が名前・大きさ・文書名を出し、`isReplaceWithoutChooser` が形式を読む（`OP-19`）。副作用の実行が詰める"
+        "ja": "読んだファイルの名前（ファイルを持たずに渡された文書では無い）と、読んだ中身のバイト数と、読んだ文書の文書名（`AT-3`。無いこともある）。`Open Chooser` が出す。副作用の実行が詰める"
        }
       }
      ]
@@ -6284,13 +6284,13 @@
     },
     {
      "name": "isReplaceWithoutChooser",
-     "condition": "fileOperationStateMachine.openRoute == 'reopen' || fileOperationStateMachine.openRoute == 'drop' && event.incomingFile.format == 'grsJson'",
+     "condition": "fileOperationStateMachine.openRoute == 'reopen' || fileOperationStateMachine.openRoute == 'drop'",
      "evidence": [
       "OP-13",
       "OP-19"
      ],
      "note": {
-      "ja": "読み直す（`OP-13`）か、`GRS JSON` か単一の `.html` をドロップした（`OP-19`）。どちらも `Open Chooser` を出さずに置き換えに定める"
+      "ja": "読み直す（`OP-13`）か、ファイルをドロップした（`OP-19`）。どちらも `Open Chooser` を出さずに置き換えに定める"
      }
     }
    ],

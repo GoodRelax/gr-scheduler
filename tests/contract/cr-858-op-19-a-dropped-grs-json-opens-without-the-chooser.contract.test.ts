@@ -25,8 +25,10 @@ import { unbroken } from './spec-table'
 const LAST_SAVED_AT = '2026-10-03T09:00:00'
 
 const OP_19_MUST =
-  '人が `GRS JSON`（表 T-024 の `IO-2`）か単一の `.html`（`IO-7`）をウィンドウへドロップしたとき、`GRS` は、`Open Chooser`（`_assets/tbl-glossary.md` の `U-56`）を出さずに、`OP-3` の 3 択を置き換えに定めて開くこと（MUST）'
+  '人がファイルを 1 つウィンドウへドロップしたとき、`GRS` は、`Open Chooser`（`_assets/tbl-glossary.md` の `U-56`）を出さずに、`OP-3` の 3 択を置き換えに定めて開くこと（MUST）'
 const OP_19_OP_4 = '`OP-4` の確認は掛かること（MUST）'
+const OP_11_MUST =
+  '人が 2 つ以上のファイルを同時にウィンドウへドロップしたとき、`GRS` は、どのファイルも開かずに断り、現在の文書を変えないこと（MUST）'
 
 const PLAIN_SHELL =
   '<!doctype html><html lang="en"><head><meta charset="utf-8">' +
@@ -70,6 +72,7 @@ describe('CR-858 the manuscript these cases are driven by', () => {
   it('Given the requirements When OP-19 is read Then its MUST sentence and its OP-4 MUST sentence stand word for word', () => {
     expect(REQUIREMENTS).toContain(unbroken(OP_19_MUST))
     expect(REQUIREMENTS).toContain(unbroken(OP_19_OP_4))
+    expect(REQUIREMENTS).toContain(unbroken(OP_11_MUST))
   })
 })
 
@@ -115,12 +118,12 @@ describe('OP-19 -- a dropped GRS JSON or single .html opens as a replace without
   })
 })
 
-describe('OP-19 -- the other routes still ask the 3 choices', () => {
-  it('Given an MSPDI XML When it is dropped Then U-56 stands', async () => {
+describe('OP-19 -- every dropped format replaces; the file dialog still asks the 3 choices', () => {
+  it('Given an MSPDI XML When it is dropped Then no U-56 and the document is the dropped one', async () => {
     const built = await shellStage()
     await built.drop(built.file('theirs.xml', UTF8.encode(mspdiFromDocument(there(), LAST_SAVED_AT).text)))
-    expect(built.last().openModal?.surface, 'OP-19: an MSPDI drop skipped U-56').toBe(OPEN_CHOOSER())
-    expect(titleOf(built)).toBe('Here')
+    expect(built.last().openModal, 'OP-19: a dropped MSPDI raised U-56').toBeNull()
+    expect(titleOf(built)).toBe('There')
   })
 
   it('Given a GRS JSON When it is opened through the file dialog Then U-56 stands', async () => {

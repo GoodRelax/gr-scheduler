@@ -1,6 +1,6 @@
 // Use-case test for UC-010 (exchange with an external WBS master), table T-334 row VT-1.
 import { expect, test, type Page } from '@playwright/test'
-import { VIEWPORT, dropFile, enableAgentApi, figureBox, icon, launch, press, readDocument, readSample, savedFiles, settle, specMismatch } from './uc-harness'
+import { VIEWPORT, enableAgentApi, figureBox, icon, launch, openThroughIc1, press, readDocument, readSample, savedFiles, settle, specMismatch } from './uc-harness'
 
 test.use({ viewport: VIEWPORT, locale: 'en-US' })
 
@@ -90,8 +90,9 @@ test('UC-010 exchange with an external WBS master (FR-087 OP-3 OP-5, FR-023, FR-
     await settle(page)
   })
 
-  await test.step('UC-010 step 1: the author opens an MSPDI file (FR-087 OP-2)', async () => {
-    await dropFile(page, ERP, original)
+  // WHY: a dropped file opens as a replace without U-56 (OP-19), so the author who wants the choice opens through IC-1.
+  await test.step('UC-010 step 1: the author opens an MSPDI file through the file dialog (FR-087 OP-2)', async () => {
+    await openThroughIc1(page, ERP, original, null)
   })
 
   await test.step('UC-010 step 3: GRS asks whether to replace or merge, and the author picks replace (OP-3, IC-71, IC-72)', async () => {
