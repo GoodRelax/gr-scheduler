@@ -14,7 +14,7 @@
       "creationDate": "2026-10-31T08:50:00",
       "revision": 11,
       "startDate": "2026-10-17T05:30:00",
-      "statusDate": "2026-10-31T19:45:00",
+      "statusDate": "2026-10-31T19:49:00",
       "minutesPerDay": 1440,
       "minutesPerWeek": 10080,
       "daysPerMonth": 30,
@@ -7070,7 +7070,7 @@
         "finish": "2026-10-31T21:34:00",
         "milestone": false,
         "deadline": null,
-        "notes": "オーナーの注文（2026-10-31）: CR-858（落とした GRS JSON は選択画面なしで新規に開く。ダイアログで選んだファイルは今までどおり 3 つの選択を持つ）の急ぎの出荷。SUB cr858-drop-opens（Opus 5.5・high）が 18:15 ごろに始まった。CR-850 と一緒に main へ出す（328 の答え）。段（規則 7）の見積は PMO の置き。 最後の GT-2 の前にオーナーが OneDrive を止める（調整役の合図で）。 19:06: 置き直し（CR-858 の実装が 18:55 に済み、GT-2 が 19:02 に通った）: 20:37〜20:52。 19:17: 置き直し（試験の穴 379 が入った）: 20:47〜21:02。 19:19: 置き直し（374 のやり直し）: 21:19〜21:34。",
+        "notes": "オーナーの注文（2026-10-31）: CR-858（落とした GRS JSON は選択画面なしで新規に開く。ダイアログで選んだファイルは今までどおり 3 つの選択を持つ）の急ぎの出荷。SUB cr858-drop-opens（Opus 5.5・high）が 18:15 ごろに始まった。CR-850 と一緒に main へ出す（328 の答え）。段（規則 7）の見積は PMO の置き。 最後の GT-2 の前にオーナーが OneDrive を止める（調整役の合図で）。 19:06: 置き直し（CR-858 の実装が 18:55 に済み、GT-2 が 19:02 に通った）: 20:37〜20:52。 19:17: 置き直し（試験の穴 379 が入った）: 20:47〜21:02。 19:19: 置き直し（374 のやり直し）: 21:19〜21:34。 19:49: オーナーが BOSSBOSS 経由で OneDrive を止めた（受けた時刻）。CR-858 の仕上げが終わっておらず GT-2 を始められないので、BOSS がオーナーに OneDrive を動かし直すよう頼んだ。1 回目の停止は早すぎたので BOSS が戻した。377 は済みにしない。もう一度お願いする時に済みにする。予定は動かさない。",
         "calendarUid": null,
         "actualStart": null,
         "stop": null,
@@ -12255,10 +12255,10 @@
     "zoomY": 1.099862517185352
   },
   "documentStamp": {
-    "scheduleUpdatedAt": "2026-10-31T10:45:00Z",
+    "scheduleUpdatedAt": "2026-10-31T10:49:00Z",
     "lastEditedBy": "PMO child session",
     "settingsUpdatedAt": "2026-10-20T20:24:42Z",
-    "fileSavedAt": "2026-10-31T10:45:00Z"
+    "fileSavedAt": "2026-10-31T10:49:00Z"
   },
   "changeLog": [
     {
@@ -12524,6 +12524,12 @@
       "editedBy": "PMO child session",
       "explanation": "Fact at 19:45 JST (machine clock; BOSS said about 20:00 on its own clock): 369 done (SUB main-hotfix-merge ended; develop already held the three fixes, so the merge was empty and only made main an ancestor of develop, merged as aea38ffd0). 376 waits for 374/379 and the Gherkin check. No other date moved; N1 and the provisional beta unchanged.",
       "changedAt": "2026-10-31T10:45:00Z"
+    },
+    {
+      "ordinal": 45,
+      "editedBy": "PMO child session",
+      "explanation": "Fact at 19:49 JST (machine clock): the owner stopped OneDrive too early (CR-858 is not finished, no GT-2 can start); the BOSS asked the owner to restart it. 377 stays open with a note; it closes when the owner is asked again. No date moved; N1 and the provisional beta unchanged.",
+      "changedAt": "2026-10-31T10:49:00Z"
     }
   ]
 }
