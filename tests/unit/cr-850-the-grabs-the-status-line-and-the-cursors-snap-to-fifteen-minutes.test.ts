@@ -299,3 +299,29 @@ describe('FR-046 / FR-103: a status line pull on the day unit writes the column 
     expect(statusDateOf(built)).toBe(`2026-10-15T${DEFAULT_FINISH_TIME}`)
   })
 })
+
+describe('DC-3: the interval row (3rd) reads the snapped 15 minutes, and the day tier reads whole days with the time shown', () => {
+  it('cursor A at 10:15, the following cursor at 11:22: row 2 reads 11:15 and the interval adds 1h', () => {
+    const cursor = cursorScene(HOUR_TIER)
+    const placed = { cursorADate: '2026-10-14T10:15:00', cursorBDate: '2026-10-14T10:15:00' }
+    const lines = cursor.readout('placingCursorB', placed, cursor.pointAt('2026-10-14T11:22:00'))
+    expect(lines?.[1]).toBe('右: 2026/10/14 (水) 11:15')
+    expect(lines?.[2]).toBe('間隔: 0年 0か月 0日 (0 days) 1h')
+  })
+
+  it('cursor A at 10/13 10:15, the following cursor at 10/14 11:52: the interval adds 1h 30m (11:45)', () => {
+    const cursor = cursorScene(HOUR_TIER)
+    const placed = { cursorADate: '2026-10-13T10:15:00', cursorBDate: '2026-10-13T10:15:00' }
+    const lines = cursor.readout('placingCursorB', placed, cursor.pointAt('2026-10-14T11:52:00'))
+    expect(lines?.[1]).toBe('右: 2026/10/14 (水) 11:45')
+    expect(lines?.[2]).toBe('間隔: 0年 0か月 1日 (1 day) 1h 30m')
+  })
+
+  it('day tier with the time shown: the following cursor at 10:08 reads the day at 0:00, and the interval adds 0h', () => {
+    const cursor = cursorScene(DAY_TIER_SHOWN)
+    const placed = { cursorADate: '2026-10-14T00:00:00', cursorBDate: '2026-10-20T00:00:00' }
+    const lines = cursor.readout('placingCursorA', placed, cursor.pointAt('2026-10-14T10:08:00'))
+    expect(lines?.[0]).toBe('左: 2026/10/14 (水) 0:00')
+    expect(lines?.[2]).toBe('間隔: 0年 0か月 6日 (6 days) 0h')
+  })
+})
