@@ -14,7 +14,7 @@
 > - **止めて待つ SUB**: w4-first-half・answers-ahead（CR-846 のツール名が未決）。baseline-15min（[baseline-15min](#local_35c7d808-b84e-4d79-bdce-bfd67ebf6b47)）は CR-850 の仕上げと GT-2 の直しを受け持った（完了、待機）。
 > - **予約した CR**: CR-853（拡大縮小の振る舞い）・854（変更履歴のウインドウ）・855（用語の言い換え、仕様の文とコード）・856（用語の裁定から来る振る舞い: JDG-3355/3356/3477/3502/3510）・857（SSOT のまとめ直し: JDG-3411/3413〜3427/3483）・858（ドロップで開く、今日）。どれも用語集の後（858 を除く）。CR-855・857 のカードはオーナーの「用語集が決まるまで待たせろ」で取り下げた。予約の控えは共有メモ `side-session-notes/local_bffaa23f-…/coordinator-reservations-2026-10-27.md`。
 > - **次の番号（測り直せ）**: JDG は 3580〜（CR-858 に 3580〜3589）、DFC 3619〜（858 に 3619〜3623）、PND 979〜、CR 859、studies 82。
-> - **オーナーの決まり（この巡）**: 文は主語・動詞・目的語、受け身と否定は範囲がはっきりするときだけ、要求は EARS・試験は Gherkin。モデルは BOSS/SUB Opus high、PMO Sonnet medium、読むだけの SUB Sonnet low、subagent Haiku low、Fable はオーナーが名指したときだけ。GQA の一覧は「優先度｜チーム（BOSS・GQA・計画）｜補足（残数・概要・期限）」の表。GQA は結論が出たときだけコミット。
+> - **オーナーの決まり（この巡）**: 文は主語・動詞・目的語、受け身と否定は範囲がはっきりするときだけ、要求は EARS・試験は Gherkin。モデルは BOSS/SUB Opus high、PMO Sonnet medium、読むだけの SUB Sonnet low、subagent Haiku low、Fable はオーナーが名指したときだけ。GQA の一覧は「優先度｜チーム（BOSS・GQA・計画）｜補足（残数・概要・期限）」の表。GQA は結論が出たときだけコミット。GQA の見出しは、答え待ちを ❓、答え済みを ✅ で始め、頭に「残 N（❓ で検索）」を書く（オーナー「提案通り、❓ と ✅ でやれ！」）。
 
 > **2026-10-22〜24（調整役 coord-1022。セッション台帳に調整役として登録済み。使用 86% で交代）—— 本節が最新。** ⛔ 数は測り直せ（`git log -1 origin/develop`・根の `git log -1`・`python tools/handover_guard/guard.py registry show`）。
 > - **枝**: 統合の枝 `integ/coord-1022`（作業木 `.claude/worktrees/coord-1022`）の先端 `efed5c9a3`。origin の develop は `d0ae3a9c8` で、統合の枝が 16 コミット先（未 push）。⛔ その中に `CR-850` の src があり、dist の組み直しと中継の版の bump がまだ（検査 85 が赤）—— push の前に、根を早送り → `npm run build` → 中継とデモの版を上げる（手順は docs/development-rules/10-versions.md） → コミット → GT-2（OneDrive を止めて）。main は `6b5776e6` のまま。根のチェックアウトの枝が `develop` であることを先に確かめる。
