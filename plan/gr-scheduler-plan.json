@@ -14,7 +14,7 @@
       "creationDate": "2026-10-31T08:50:00",
       "revision": 11,
       "startDate": "2026-10-17T05:30:00",
-      "statusDate": "2026-10-31T19:19:00",
+      "statusDate": "2026-10-31T19:32:00",
       "minutesPerDay": 1440,
       "minutesPerWeek": 10080,
       "daysPerMonth": 30,
@@ -1164,7 +1164,7 @@
         "finish": "2026-10-24T14:54:00",
         "milestone": false,
         "deadline": null,
-        "notes": "前の計画に無かった仕事。規則 07 の作り直し efed5c9a3 を統合の枝へ合流した 14:47 から、引継書の f4408f4eb 14:54 まで（使用 86% で交代）。",
+        "notes": "前の計画に無かった仕事。規則 07 の作り直し efed5c9a3 を統合の枝へ合流した 14:47 から、引継書の f4408f4eb 14:54 まで（使用 86% で交代）。 10-31 19:30（機械の時計）: 調整役が coord-1024 から新しい調整役（boss-after-1024）へ交代した。PMO は親の交代を受けた（registry ack）。",
         "calendarUid": null,
         "actualStart": "2026-10-24T14:47:00",
         "stop": null,
@@ -12255,10 +12255,10 @@
     "zoomY": 1.099862517185352
   },
   "documentStamp": {
-    "scheduleUpdatedAt": "2026-10-31T10:19:00Z",
+    "scheduleUpdatedAt": "2026-10-31T10:32:00Z",
     "lastEditedBy": "PMO child session",
     "settingsUpdatedAt": "2026-10-20T20:24:42Z",
-    "fileSavedAt": "2026-10-31T10:19:00Z"
+    "fileSavedAt": "2026-10-31T10:32:00Z"
   },
   "changeLog": [
     {
@@ -12506,6 +12506,12 @@
       "editedBy": "PMO child session",
       "explanation": "Actuals to 19:19 JST: the owner answered CR-858 round 1 in full (JDG-3581..3584); Q2 and Q4 overturn the recommendation (an MSPDI drop also opens directly; dropping several files opens nothing and shows an error), so 374 reopens with the test gaps (379) folded in and the chain after it ends at 23:04; round 2 (Q5, the error notice words) is out to the owner; N1 and the provisional beta unchanged.",
       "changedAt": "2026-10-31T10:19:00Z"
+    },
+    {
+      "ordinal": 42,
+      "editedBy": "PMO child session",
+      "explanation": "Fact at 19:32 JST: the BOSS changed from coord-1024 to a new BOSS (boss-after-1024) at 19:30 by the machine clock; the PMO acknowledged the new parent; a successor PMO (Sonnet 5.5, medium) is started from the handover note; no planned date moved.",
+      "changedAt": "2026-10-31T10:32:00Z"
     }
   ]
 }
