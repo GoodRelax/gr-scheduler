@@ -14,7 +14,7 @@
       "creationDate": "2026-10-31T08:50:00",
       "revision": 11,
       "startDate": "2026-10-17T05:30:00",
-      "statusDate": "2026-10-31T19:38:00",
+      "statusDate": "2026-10-31T19:45:00",
       "minutesPerDay": 1440,
       "minutesPerWeek": 10080,
       "daysPerMonth": 30,
@@ -6804,18 +6804,18 @@
         "parentTaskUid": null,
         "wbsOrder": 246,
         "name": "CR-850(基準日線を 15 分に)の出荷: main の hotfix(PR #2〜#4)を develop へ合流する(調整役)",
-        "start": "2026-10-31T20:19:00",
-        "finish": "2026-10-31T20:49:00",
+        "start": "2026-10-31T19:36:00",
+        "finish": "2026-10-31T19:45:00",
         "milestone": false,
         "deadline": null,
-        "notes": "経路 a。main に入っている hotfix（PR #2〜#4）を develop に合流してから、PR を開く。調整役のモデルと努力: Opus 5.5・high。見積は PMO の置き（30 分）。 16:45: 置き直し（329 が 16:42 に済んだ）: 18:15〜18:45。 16:48: 置き直し（GT-2 が 16:48 に始まった）: 18:03〜18:33。 17:10: 置き直し（GT-2 が落ちた）: 19:25〜19:55。 17:36: 経路 a だけが要る。328（出荷の道の確かめ）を待つ。 18:06: 置き直し（GT-2 が試験 1 件で止まった）: 19:03〜19:33。 18:24: 置き直し: CR-858 の場面の確かめ（375）を待つ（調整役 18:24）。最後の GT-2（378）の前に main の hotfix を合流して、GT-2 が合流後の木を試すようにした。調整役の言葉の字面（最後の GT-2 の後）と順が違うので、違えば直す。 19:06: 置き直し（CR-858 の実装が 18:55 に済み、GT-2 が 19:02 に通った）: 19:37〜20:07。 19:17: 置き直し（試験の穴 379 が入った）: 19:47〜20:17。 19:19: 置き直し（374 のやり直し）: 20:19〜20:49。 19:36: 開始。SUB main-hotfix-merge（local_f549a4fa-0c3a-4993-8a99-d6f06f334c79、Opus 5.5・high）がmain の hotfix（PR #2〜#4）を develop へ取り込み始めた（時刻は調整役の一言のまま。調整役の時計は機械の時計より進んでいる。機械の時計は 19:38）。先行の 374・379 は終わっていないが、取り込みは先に進む。",
+        "notes": "経路 a。main に入っている hotfix（PR #2〜#4）を develop に合流してから、PR を開く。調整役のモデルと努力: Opus 5.5・high。見積は PMO の置き（30 分）。 16:45: 置き直し（329 が 16:42 に済んだ）: 18:15〜18:45。 16:48: 置き直し（GT-2 が 16:48 に始まった）: 18:03〜18:33。 17:10: 置き直し（GT-2 が落ちた）: 19:25〜19:55。 17:36: 経路 a だけが要る。328（出荷の道の確かめ）を待つ。 18:06: 置き直し（GT-2 が試験 1 件で止まった）: 19:03〜19:33。 18:24: 置き直し: CR-858 の場面の確かめ（375）を待つ（調整役 18:24）。最後の GT-2（378）の前に main の hotfix を合流して、GT-2 が合流後の木を試すようにした。調整役の言葉の字面（最後の GT-2 の後）と順が違うので、違えば直す。 19:06: 置き直し（CR-858 の実装が 18:55 に済み、GT-2 が 19:02 に通った）: 19:37〜20:07。 19:17: 置き直し（試験の穴 379 が入った）: 19:47〜20:17。 19:19: 置き直し（374 のやり直し）: 20:19〜20:49。 19:36: 開始。SUB main-hotfix-merge（local_f549a4fa-0c3a-4993-8a99-d6f06f334c79、Opus 5.5・high）がmain の hotfix（PR #2〜#4）を develop へ取り込み始めた（時刻は調整役の一言のまま。調整役の時計は機械の時計より進んでいる。機械の時計は 19:38）。先行の 374・379 は終わっていないが、取り込みは先に進む。 19:45: 済み（調整役の一言の到着時刻。調整役は「20:00 ごろ」と言った。調整役の時計は機械の時計より約 15 分進んでいる）。develop は 3 つの直しを既に持っていたので、合流の中身は空で、main を develop の祖先にしただけ。develop に aea38ffd0 として合流した。",
         "calendarUid": null,
         "actualStart": "2026-10-31T19:36:00",
         "stop": null,
-        "actualFinish": null,
+        "actualFinish": "2026-10-31T19:45:00",
         "resume": null,
         "resumeValid": null,
-        "percentComplete": 0,
+        "percentComplete": 100,
         "fadeInDays": null,
         "fadeOutDays": null,
         "dependencies": [
@@ -7030,7 +7030,7 @@
         "finish": "2026-10-31T21:19:00",
         "milestone": false,
         "deadline": null,
-        "notes": "オーナーの注文（2026-10-31）: CR-858（落とした GRS JSON は選択画面なしで新規に開く。ダイアログで選んだファイルは今までどおり 3 つの選択を持つ）の急ぎの出荷。SUB cr858-drop-opens（Opus 5.5・high）が 18:15 ごろに始まった。CR-850 と一緒に main へ出す（328 の答え）。段（規則 7）の見積は PMO の置き。 段 5（調整役）。CR-850 と CR-858 を一緒に main へ出すので、dist と版の上げを 1 回にまとめる。調整役のモデルと努力: Opus 5.5・high。 19:06: 置き直し（CR-858 の実装が 18:55 に済み、GT-2 が 19:02 に通った）: 20:07〜20:37。 19:17: 置き直し（試験の穴 379 が入った）: 20:17〜20:47。 19:19: 置き直し（374 のやり直し）: 20:49〜21:19。",
+        "notes": "オーナーの注文（2026-10-31）: CR-858（落とした GRS JSON は選択画面なしで新規に開く。ダイアログで選んだファイルは今までどおり 3 つの選択を持つ）の急ぎの出荷。SUB cr858-drop-opens（Opus 5.5・high）が 18:15 ごろに始まった。CR-850 と一緒に main へ出す（328 の答え）。段（規則 7）の見積は PMO の置き。 段 5（調整役）。CR-850 と CR-858 を一緒に main へ出すので、dist と版の上げを 1 回にまとめる。調整役のモデルと努力: Opus 5.5・high。 19:06: 置き直し（CR-858 の実装が 18:55 に済み、GT-2 が 19:02 に通った）: 20:07〜20:37。 19:17: 置き直し（試験の穴 379 が入った）: 20:17〜20:47。 19:19: 置き直し（374 のやり直し）: 20:49〜21:19。 19:45: 調整役が 376 を CR-858 の仕上げ（374・379）と Gherkin の確認の後に回す。予定は動かさない（374・379 の後の 20:49）。",
         "calendarUid": null,
         "actualStart": null,
         "stop": null,
@@ -12255,10 +12255,10 @@
     "zoomY": 1.099862517185352
   },
   "documentStamp": {
-    "scheduleUpdatedAt": "2026-10-31T10:38:00Z",
+    "scheduleUpdatedAt": "2026-10-31T10:45:00Z",
     "lastEditedBy": "PMO child session",
     "settingsUpdatedAt": "2026-10-20T20:24:42Z",
-    "fileSavedAt": "2026-10-31T10:38:00Z"
+    "fileSavedAt": "2026-10-31T10:45:00Z"
   },
   "changeLog": [
     {
@@ -12518,6 +12518,12 @@
       "editedBy": "PMO child session",
       "explanation": "Facts at 19:38 JST (machine clock; the times inside are the BOSS line times, whose clock runs ahead of the machine clock): the PMO changed from local_92963a16 to local_7e1e478e (old PMO stopped 19:33; the BOSS is local_f4562771 since 19:30). The owner answered CR-858 GQA round 2 (Q5) at 19:34 (uid 372); the SUB writes round 3 (Q6, about sentence PND-979) around 19:50 and the owner is the next step. main-hotfix-merge started at 19:36 (uid 369, PRs #2-#4 into develop). 372 planned finish moved 19:34 -> 20:04 (owner wait re-placed as a fact); no other planned date moved; N1 and the provisional beta unchanged.",
       "changedAt": "2026-10-31T10:38:00Z"
+    },
+    {
+      "ordinal": 44,
+      "editedBy": "PMO child session",
+      "explanation": "Fact at 19:45 JST (machine clock; BOSS said about 20:00 on its own clock): 369 done (SUB main-hotfix-merge ended; develop already held the three fixes, so the merge was empty and only made main an ancestor of develop, merged as aea38ffd0). 376 waits for 374/379 and the Gherkin check. No other date moved; N1 and the provisional beta unchanged.",
+      "changedAt": "2026-10-31T10:45:00Z"
     }
   ]
 }
