@@ -14,7 +14,7 @@
       "creationDate": "2026-10-31T08:50:00",
       "revision": 11,
       "startDate": "2026-10-17T05:30:00",
-      "statusDate": "2026-10-31T15:44:00",
+      "statusDate": "2026-10-31T16:10:00",
       "minutesPerDay": 1440,
       "minutesPerWeek": 10080,
       "daysPerMonth": 30,
@@ -24,7 +24,7 @@
       "defaultFinishTime": "23:59:00",
       "themeHue": 214,
       "parentTaskProgressToleranceDays": 1,
-      "uidHighWaterMark": 320,
+      "uidHighWaterMark": 327,
       "importSequence": 0,
       "carry": {},
       "carryElements": [],
@@ -1183,11 +1183,11 @@
         "parentTaskUid": null,
         "wbsOrder": 43,
         "name": "10-24〜25 の合流分の dist の組み直し・中継とデモの版の上げ・GT-2・push",
-        "start": "2026-11-21T14:30:00",
-        "finish": "2026-11-21T17:30:00",
+        "start": "2026-10-31T19:15:00",
+        "finish": "2026-10-31T22:15:00",
         "milestone": false,
         "deadline": null,
-        "notes": "origin の develop は d0ae3a9c8（10-24 05:46）のまま。統合の枝と develop には CR-850 の src・規則 07・検査 90〜93・CR-851 の起草とレビューがあり、検査 85 が赤（dist と版が古い）。手順は docs/development-rules/10-versions.md。長さは合流の前の見積 3 時間。 10-31 07:45: まだ始めていない（origin の develop は d0ae3a9c8 のまま）。今から置き直した。 10-31 08:30: まだ始めたと聞いていないので、今から置き直した。 10-31 15:25: 予定の終わり 13:50 を過ぎた。調整役から始めた・済んだの知らせはまだ無い（問 7 の数え方で遅れ）。 15:34: N1（用語集の確定）と、オーナーが OneDrive を止めること（GT-2 のため）を待つ。develop に CR-850 の src があり、dist の組み直し・版の上げ・GT-2 が要る。実装は命名の後（オーナーの節目）。意図して待つので遅れに数えない。置き場は 301 の後（予定の始まり 11-21 14:30）。始めた時は調整役が知らせる。",
+        "notes": "origin の develop は d0ae3a9c8（10-24 05:46）のまま。統合の枝と develop には CR-850 の src・規則 07・検査 90〜93・CR-851 の起草とレビューがあり、検査 85 が赤（dist と版が古い）。手順は docs/development-rules/10-versions.md。長さは合流の前の見積 3 時間。 10-31 07:45: まだ始めていない（origin の develop は d0ae3a9c8 のまま）。今から置き直した。 10-31 08:30: まだ始めたと聞いていないので、今から置き直した。 10-31 15:25: 予定の終わり 13:50 を過ぎた。調整役から始めた・済んだの知らせはまだ無い（問 7 の数え方で遅れ）。 15:34: N1（用語集の確定）と、オーナーが OneDrive を止めること（GT-2 のため）を待つ。develop に CR-850 の src があり、dist の組み直し・版の上げ・GT-2 が要る。実装は命名の後（オーナーの節目）。意図して待つので遅れに数えない。置き場は 301 の後（予定の始まり 11-21 14:30）。始めた時は調整役が知らせる。 16:10: 急ぎの出荷（CR-850）の GT-2 が要るので N1 の前へ出した（調整役 2026-10-31）。オーナーの現場の試験（324）の後。dist の組み直し・版の上げ・GT-2・push。調整役のモデルと努力: Opus 5.5・high。",
         "calendarUid": null,
         "actualStart": null,
         "stop": null,
@@ -1197,7 +1197,16 @@
         "percentComplete": 0,
         "fadeInDays": null,
         "fadeOutDays": null,
-        "dependencies": [],
+        "dependencies": [
+          {
+            "predecessorUid": 324,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
         "carry": {},
         "carryElements": []
       },
@@ -1206,11 +1215,11 @@
         "parentTaskUid": null,
         "wbsOrder": 44,
         "name": "known-red の揺れる 4 行(D1)と時間切れの延ばし(D7)を外し、GT-2 が時間切れ 0 で通るのを確かめる",
-        "start": "2026-11-21T14:30:00",
-        "finish": "2026-11-21T17:30:00",
+        "start": "2026-10-31T22:30:00",
+        "finish": "2026-11-01T01:30:00",
         "milestone": false,
         "deadline": null,
-        "notes": "棚卸しの D1・D7。外す条件は「GT-2 が時間切れ 0 で通る」。d24fc728 の GT-2 は cr-820 の 1 件が時間切れ（DFC-3456）なので、その答え（272）の後。261 から分けた。 10-24: DFC-3456（cr-820 を 20 秒、JDG-3116）は実測済。ただし GT-2 で cr-822 の時間切れが出た（DFC-3493、JDG-3144）ので、外す条件はまだ満たされない —— 281 の後。 10-31 07:45: まだ始めていない（origin の develop は d0ae3a9c8 のまま）。今から置き直した。 10-31 08:30: まだ始めたと聞いていないので、今から置き直した。 10-31 15:25: 予定の終わり 13:50 を過ぎた。調整役から始めた・済んだの知らせはまだ無い（問 7 の数え方で遅れ）。 15:34: N1（用語集の確定）と、オーナーが OneDrive を止めること（GT-2 のため）を待つ。develop に CR-850 の src があり、dist の組み直し・版の上げ・GT-2 が要る。実装は命名の後（オーナーの節目）。意図して待つので遅れに数えない。置き場は 301 の後（予定の始まり 11-21 14:30）。始めた時は調整役が知らせる。",
+        "notes": "棚卸しの D1・D7。外す条件は「GT-2 が時間切れ 0 で通る」。d24fc728 の GT-2 は cr-820 の 1 件が時間切れ（DFC-3456）なので、その答え（272）の後。261 から分けた。 10-24: DFC-3456（cr-820 を 20 秒、JDG-3116）は実測済。ただし GT-2 で cr-822 の時間切れが出た（DFC-3493、JDG-3144）ので、外す条件はまだ満たされない —— 281 の後。 10-31 07:45: まだ始めていない（origin の develop は d0ae3a9c8 のまま）。今から置き直した。 10-31 08:30: まだ始めたと聞いていないので、今から置き直した。 10-31 15:25: 予定の終わり 13:50 を過ぎた。調整役から始めた・済んだの知らせはまだ無い（問 7 の数え方で遅れ）。 15:34: N1（用語集の確定）と、オーナーが OneDrive を止めること（GT-2 のため）を待つ。develop に CR-850 の src があり、dist の組み直し・版の上げ・GT-2 が要る。実装は命名の後（オーナーの節目）。意図して待つので遅れに数えない。置き場は 301 の後（予定の始まり 11-21 14:30）。始めた時は調整役が知らせる。 16:10: 急ぎの出荷（CR-850）の GT-2 が要るので N1 の前へ出した。OneDrive を止めた後（327）に走らせる。",
         "calendarUid": null,
         "actualStart": null,
         "stop": null,
@@ -1231,6 +1240,22 @@
           },
           {
             "predecessorUid": 281,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          },
+          {
+            "predecessorUid": 299,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          },
+          {
+            "predecessorUid": 327,
             "linkType": 1,
             "linkLag": 0,
             "lagFormat": 7,
@@ -2988,15 +3013,38 @@
         "carryElements": []
       },
       {
-        "uid": 288,
+        "uid": 321,
         "parentTaskUid": null,
         "wbsOrder": 110,
-        "name": "CR-850(基準日線・カーソル・掴みを 15 分に)の X-3a の 3 か所の当て —— W4 前半の後",
-        "start": "2026-11-25T23:30:00",
-        "finish": "2026-11-26T00:00:00",
+        "name": "CR-850(基準日線・カーソル・掴みを 15 分に)の急ぎの出荷: オーナーと GQA で X-3a の 3 か所を決める",
+        "start": "2026-10-31T16:15:00",
+        "finish": "2026-10-31T16:45:00",
         "milestone": false,
         "deadline": null,
-        "notes": "baseline-15min の残り。W4 前半（27）と CR-851 の当て（296）の後に再開する。見積は 30 分。",
+        "notes": "オーナーの注文（BOSSBOSS 経由、2026-10-31）: CR-850（基準日線・カーソル・掴みを 15 分に）の急ぎの出荷。「実装は命名の後」の例外にした。SUB baseline-15min（Opus 5.5・high）で、用語集と並行に今から動く。段（規則 7）: GQA → 仕様とテスト仕様 → 実装と自動試験 → Gherkin の確かめ（別の SUB）→ オーナーの現場の試験 → 出荷（調整役）。見積は 288 の 30 分と、305〜315 前後の同種の仕事（230・231）からの置き。 段 1（GQA）。オーナーの番。",
+        "calendarUid": null,
+        "actualStart": null,
+        "stop": null,
+        "actualFinish": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 322,
+        "parentTaskUid": null,
+        "wbsOrder": 111,
+        "name": "CR-850(基準日線・カーソル・掴みを 15 分に)の急ぎの出荷の仕様とテスト仕様(X-3a の 3 か所)",
+        "start": "2026-10-31T16:45:00",
+        "finish": "2026-10-31T17:45:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "オーナーの注文（BOSSBOSS 経由、2026-10-31）: CR-850（基準日線・カーソル・掴みを 15 分に）の急ぎの出荷。「実装は命名の後」の例外にした。SUB baseline-15min（Opus 5.5・high）で、用語集と並行に今から動く。段（規則 7）: GQA → 仕様とテスト仕様 → 実装と自動試験 → Gherkin の確かめ（別の SUB）→ オーナーの現場の試験 → 出荷（調整役）。見積は 288 の 30 分と、305〜315 前後の同種の仕事（230・231）からの置き。 段 2。SUB のモデルと努力: Opus 5.5・high。",
         "calendarUid": null,
         "actualStart": null,
         "stop": null,
@@ -3008,15 +3056,39 @@
         "fadeOutDays": null,
         "dependencies": [
           {
-            "predecessorUid": 27,
+            "predecessorUid": 321,
             "linkType": 1,
             "linkLag": 0,
             "lagFormat": 7,
             "carry": {},
             "carryElements": []
-          },
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 288,
+        "parentTaskUid": null,
+        "wbsOrder": 112,
+        "name": "CR-850(基準日線・カーソル・掴みを 15 分に)の X-3a の 3 か所の当て(急ぎの出荷の実装と自動試験)",
+        "start": "2026-10-31T17:45:00",
+        "finish": "2026-10-31T18:15:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "baseline-15min の残り。W4 前半（27）と CR-851 の当て（296）の後に再開する。見積は 30 分。 16:10: オーナーの注文（BOSSBOSS 経由、2026-10-31）: CR-850（基準日線・カーソル・掴みを 15 分に）の急ぎの出荷。「実装は命名の後」の例外にした。SUB baseline-15min（Opus 5.5・high）で、用語集と並行に今から動く。段（規則 7）: GQA → 仕様とテスト仕様 → 実装と自動試験 → Gherkin の確かめ（別の SUB）→ オーナーの現場の試験 → 出荷（調整役）。見積は 288 の 30 分と、305〜315 前後の同種の仕事（230・231）からの置き。 段 3（実装と自動試験）。SUB のモデルと努力: Opus 5.5・high。前は W4 前半（27）と CR-851 の当て（296）の後に再開する置き方だった。急ぎの出荷で今から再開するので、その 2 つへの依存線を外した。W4（アダプタ層の分割）との同じ場所の変更は SUB が避ける。",
+        "calendarUid": null,
+        "actualStart": null,
+        "stop": null,
+        "actualFinish": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
           {
-            "predecessorUid": 296,
+            "predecessorUid": 322,
             "linkType": 1,
             "linkLag": 0,
             "lagFormat": 7,
@@ -3030,7 +3102,7 @@
       {
         "uid": 289,
         "parentTaskUid": null,
-        "wbsOrder": 111,
+        "wbsOrder": 113,
         "name": "規則 07 を原本(gr-sw-maker の review-standards)の派生に作り直し、検査 90 と略語の正式名を足す",
         "start": "2026-10-24T07:57:00",
         "finish": "2026-10-24T16:23:00",
@@ -3053,7 +3125,7 @@
       {
         "uid": 290,
         "parentTaskUid": null,
-        "wbsOrder": 112,
+        "wbsOrder": 114,
         "name": "再発防止の検査 91〜93(07 の旧番号・07 と原本・依存と OSS)",
         "start": "2026-10-24T14:57:00",
         "finish": "2026-10-24T16:28:00",
@@ -3076,7 +3148,7 @@
       {
         "uid": 292,
         "parentTaskUid": null,
-        "wbsOrder": 113,
+        "wbsOrder": 115,
         "name": "外への約束(GRS JSON・Agent API・MCP・読み書きの形)の仕様の行の棚卸し(study 77)",
         "start": "2026-10-24T18:09:00",
         "finish": "2026-10-24T18:41:00",
@@ -3099,7 +3171,7 @@
       {
         "uid": 293,
         "parentTaskUid": null,
-        "wbsOrder": 114,
+        "wbsOrder": 116,
         "name": "CR-851(GRS JSON を β の前に 1 回だけ組み替え、α の文書は変換させる)の起草",
         "start": "2026-10-24T16:43:00",
         "finish": "2026-10-25T09:40:00",
@@ -3122,7 +3194,7 @@
       {
         "uid": 294,
         "parentTaskUid": null,
-        "wbsOrder": 115,
+        "wbsOrder": 117,
         "name": "拡大縮小の戦略の調べ(study 78)と CR-853 の起草",
         "start": "2026-10-25T03:06:00",
         "finish": "2026-10-25T08:07:00",
@@ -3145,7 +3217,7 @@
       {
         "uid": 310,
         "parentTaskUid": null,
-        "wbsOrder": 116,
+        "wbsOrder": 118,
         "name": "用語集の監査を始める(SUB 3 cr-851-successor-3-finis。文の書き方の裁定 JDG-3346〜3350)",
         "start": "2026-10-26T22:35:00",
         "finish": "2026-10-27T02:01:00",
@@ -3168,7 +3240,7 @@
       {
         "uid": 311,
         "parentTaskUid": null,
-        "wbsOrder": 117,
+        "wbsOrder": 119,
         "name": "語のシート・GRS 独自のキーの名・SSOT・名の辞書の初版(SUB 4 cr-851-successor-4-term)",
         "start": "2026-10-27T02:01:00",
         "finish": "2026-10-29T01:56:00",
@@ -3191,7 +3263,7 @@
       {
         "uid": 312,
         "parentTaskUid": null,
-        "wbsOrder": 118,
+        "wbsOrder": 120,
         "name": "名の辞書の作り方の紙と GQA 13 の問 1〜4(SUB 5 cr-851-successor-5-gloss)",
         "start": "2026-10-29T02:08:00",
         "finish": "2026-10-30T06:47:00",
@@ -3214,7 +3286,7 @@
       {
         "uid": 313,
         "parentTaskUid": null,
-        "wbsOrder": 119,
+        "wbsOrder": 121,
         "name": "GQA 13 の問 5 の巡(SUB 6 cr-851-successor-6-gloss。JDG-3481〜3507)",
         "start": "2026-10-31T03:11:00",
         "finish": "2026-10-31T10:33:00",
@@ -3237,7 +3309,7 @@
       {
         "uid": 317,
         "parentTaskUid": null,
-        "wbsOrder": 120,
+        "wbsOrder": 122,
         "name": "確定したパート 1〜5 と群 4 の問い(SUB 7 cr-851-successor-7-gloss。JDG-3511〜3513)",
         "start": "2026-10-31T11:22:00",
         "finish": "2026-10-31T12:53:00",
@@ -3260,7 +3332,7 @@
       {
         "uid": 301,
         "parentTaskUid": null,
-        "wbsOrder": 121,
+        "wbsOrder": 123,
         "name": "名の辞書(用語集)のレビューと確定の残り(SUB 8。群 4 のオーナーの答えから、残り 1397 語)",
         "start": "2026-10-31T12:55:00",
         "finish": "2026-11-21T14:30:00",
@@ -3283,7 +3355,7 @@
       {
         "uid": 316,
         "parentTaskUid": null,
-        "wbsOrder": 122,
+        "wbsOrder": 124,
         "name": "N1 用語集の確定(名の辞書の命名が終わる。1397 語)",
         "start": "2026-11-21T14:30:00",
         "finish": "2026-11-21T14:30:00",
@@ -3306,7 +3378,7 @@
       {
         "uid": 302,
         "parentTaskUid": null,
-        "wbsOrder": 123,
+        "wbsOrder": 125,
         "name": "CR-857(SSOT へ寄せる —— 名の原稿 glossary.json と生成、JDG-3411〜3427)の起草と当て",
         "start": "2026-11-25T22:00:00",
         "finish": "2026-11-26T01:30:00",
@@ -3338,7 +3410,7 @@
       {
         "uid": 303,
         "parentTaskUid": null,
-        "wbsOrder": 124,
+        "wbsOrder": 126,
         "name": "CR-855(名の辞書のとおりに仕様の文とコードの名を改める)の起草と当て",
         "start": "2026-11-26T01:30:00",
         "finish": "2026-11-26T05:45:00",
@@ -3361,7 +3433,7 @@
       {
         "uid": 304,
         "parentTaskUid": null,
-        "wbsOrder": 125,
+        "wbsOrder": 127,
         "name": "CR-856(語の裁定で変わる振る舞い —— プロパティパネルにプロジェクト名 JDG-3355・休日の設定をツールウィンドウに JDG-3356)の起草と当て",
         "start": "2026-11-26T05:45:00",
         "finish": "2026-11-26T07:45:00",
@@ -3384,7 +3456,7 @@
       {
         "uid": 297,
         "parentTaskUid": null,
-        "wbsOrder": 126,
+        "wbsOrder": 128,
         "name": "CR-853(拡大縮小の戦略)の当て",
         "start": "2026-11-25T22:00:00",
         "finish": "2026-11-25T22:30:00",
@@ -3416,7 +3488,7 @@
       {
         "uid": 298,
         "parentTaskUid": null,
-        "wbsOrder": 127,
+        "wbsOrder": 129,
         "name": "CR-854(変更履歴の窓・パレットのボタン・履歴を足す/直す/消す命令)の起草と当て",
         "start": "2026-11-25T22:00:00",
         "finish": "2026-11-26T00:30:00",
@@ -3448,7 +3520,7 @@
       {
         "uid": 314,
         "parentTaskUid": null,
-        "wbsOrder": 128,
+        "wbsOrder": 130,
         "name": "CR-851・848・849 の行のレビューの初日(SUB cr-851-successor-run-the)",
         "start": "2026-10-25T09:46:00",
         "finish": "2026-10-25T19:14:00",
@@ -3471,7 +3543,7 @@
       {
         "uid": 315,
         "parentTaskUid": null,
-        "wbsOrder": 129,
+        "wbsOrder": 131,
         "name": "CR-851・848・849 の行のレビューの続き(SUB 3 cr-851-successor-3-finis)",
         "start": "2026-10-25T19:14:00",
         "finish": "2026-10-26T22:35:00",
@@ -3494,7 +3566,7 @@
       {
         "uid": 295,
         "parentTaskUid": null,
-        "wbsOrder": 130,
+        "wbsOrder": 132,
         "name": "CR-851・848・849 の行のレビューの残り(用語集の後の SUB。445 行)",
         "start": "2026-11-21T14:30:00",
         "finish": "2026-11-23T21:45:00",
@@ -3517,7 +3589,7 @@
       {
         "uid": 296,
         "parentTaskUid": null,
-        "wbsOrder": 131,
+        "wbsOrder": 133,
         "name": "CR-851 の当て(GRS JSON の組み替えと変換の案内)",
         "start": "2026-11-25T19:00:00",
         "finish": "2026-11-25T22:00:00",
@@ -3540,7 +3612,7 @@
       {
         "uid": 15,
         "parentTaskUid": null,
-        "wbsOrder": 132,
+        "wbsOrder": 134,
         "name": "T-064(公開の名 約 479 の呼び出し形, DFC-2640)の書き起こしと再検討",
         "start": "2026-11-21T14:30:00",
         "finish": "2026-11-21T15:45:00",
@@ -3563,7 +3635,7 @@
       {
         "uid": 264,
         "parentTaskUid": null,
-        "wbsOrder": 133,
+        "wbsOrder": 135,
         "name": "src の写しの畳み込み(C14・G13・F11・F12・F17)",
         "start": "2026-11-21T15:45:00",
         "finish": "2026-11-21T17:00:00",
@@ -3586,7 +3658,7 @@
       {
         "uid": 12,
         "parentTaskUid": null,
-        "wbsOrder": 134,
+        "wbsOrder": 136,
         "name": "罠の束(DFC-544・547・548・549)の実装",
         "start": "2026-11-21T17:00:00",
         "finish": "2026-11-21T17:45:00",
@@ -3609,7 +3681,7 @@
       {
         "uid": 20,
         "parentTaskUid": null,
-        "wbsOrder": 135,
+        "wbsOrder": 137,
         "name": "実装待ちの残り(DFC-464・532〜562・582・630 ほか 35 行)の実装",
         "start": "2026-11-21T17:45:00",
         "finish": "2026-11-21T19:15:00",
@@ -3632,7 +3704,7 @@
       {
         "uid": 203,
         "parentTaskUid": null,
-        "wbsOrder": 136,
+        "wbsOrder": 138,
         "name": "予定の日が 1 日前へずれる疑い(初見 AI の試験の子セッションの報告)の再現と直し",
         "start": "2026-10-23T23:48:00",
         "finish": "2026-10-24T00:42:00",
@@ -3655,7 +3727,7 @@
       {
         "uid": 204,
         "parentTaskUid": null,
-        "wbsOrder": 137,
+        "wbsOrder": 139,
         "name": "依存線の縦の部分が重なる(O-1)の直し",
         "start": "2026-10-23T23:48:00",
         "finish": "2026-10-24T00:24:00",
@@ -3678,7 +3750,7 @@
       {
         "uid": 235,
         "parentTaskUid": null,
-        "wbsOrder": 138,
+        "wbsOrder": 140,
         "name": "DFC-3396(.html に保存して開くと表示の状態が違う)の再現と直し",
         "start": "2026-11-26T09:15:00",
         "finish": "2026-11-26T09:45:00",
@@ -3701,7 +3773,7 @@
       {
         "uid": 270,
         "parentTaskUid": null,
-        "wbsOrder": 139,
+        "wbsOrder": 141,
         "name": "食い違う写しの畳み込みと px の比べ方の揃え(F4 DFC-2646・F9 DFC-630)の CR の起草と当て",
         "start": "2026-11-26T09:45:00",
         "finish": "2026-11-26T10:30:00",
@@ -3724,7 +3796,7 @@
       {
         "uid": 211,
         "parentTaskUid": null,
-        "wbsOrder": 140,
+        "wbsOrder": 142,
         "name": "CR-813 の 2 片目(遅延診断レポートの親子関係のタブ, DFC-3358)の当て",
         "start": "2026-11-26T10:30:00",
         "finish": "2026-11-26T11:45:00",
@@ -3747,7 +3819,7 @@
       {
         "uid": 46,
         "parentTaskUid": null,
-        "wbsOrder": 141,
+        "wbsOrder": 143,
         "name": "CR-697(取次が口と鍵を覚える)の起草と当て",
         "start": "2026-11-26T11:45:00",
         "finish": "2026-11-26T12:15:00",
@@ -3770,7 +3842,7 @@
       {
         "uid": 245,
         "parentTaskUid": null,
-        "wbsOrder": 142,
+        "wbsOrder": 144,
         "name": "DFC-3410(名前付きのフィルタの条件)の仕様と実装",
         "start": "2026-11-26T12:15:00",
         "finish": "2026-11-26T13:45:00",
@@ -3802,7 +3874,7 @@
       {
         "uid": 222,
         "parentTaskUid": null,
-        "wbsOrder": 143,
+        "wbsOrder": 145,
         "name": "実測待ちの行を出荷ビルドで押す(1/3: 日程表・パネル・ドラッグ)",
         "start": "2026-11-26T17:30:00",
         "finish": "2026-11-26T18:45:00",
@@ -3825,7 +3897,7 @@
       {
         "uid": 227,
         "parentTaskUid": null,
-        "wbsOrder": 144,
+        "wbsOrder": 146,
         "name": "チェックリストで出た直し(仮置き)",
         "start": "2026-11-27T01:00:00",
         "finish": "2026-11-27T01:45:00",
@@ -3857,7 +3929,7 @@
       {
         "uid": 85,
         "parentTaskUid": null,
-        "wbsOrder": 145,
+        "wbsOrder": 147,
         "name": "CR-767(状態機械の原稿)の波 1 の実装",
         "start": "2026-10-23T12:00:00",
         "finish": "2026-10-23T13:18:00",
@@ -3880,7 +3952,7 @@
       {
         "uid": 86,
         "parentTaskUid": null,
-        "wbsOrder": 146,
+        "wbsOrder": 148,
         "name": "CR-767(状態機械の原稿)の波 2 の実装",
         "start": "2026-10-23T16:59:00",
         "finish": "2026-10-23T18:00:00",
@@ -3903,7 +3975,7 @@
       {
         "uid": 277,
         "parentTaskUid": null,
-        "wbsOrder": 147,
+        "wbsOrder": 149,
         "name": "遅い 2 件のシステム試験を、確かめる中身を変えずに速くする(DFC-3459、JDG-3118)",
         "start": "2026-10-23T18:06:00",
         "finish": "2026-10-23T19:55:00",
@@ -3926,7 +3998,7 @@
       {
         "uid": 276,
         "parentTaskUid": null,
-        "wbsOrder": 148,
+        "wbsOrder": 150,
         "name": "CR-767(状態機械の原稿)の波 3 —— ガードの式を単位の判定へ生成する",
         "start": "2026-10-23T20:31:00",
         "finish": "2026-10-23T21:18:00",
@@ -3949,7 +4021,7 @@
       {
         "uid": 104,
         "parentTaskUid": null,
-        "wbsOrder": 149,
+        "wbsOrder": 151,
         "name": "CR-768(保存の媒体の型)の C と CM-27 の注の実装",
         "start": "2026-10-23T21:55:00",
         "finish": "2026-10-23T22:20:00",
@@ -3972,7 +4044,7 @@
       {
         "uid": 286,
         "parentTaskUid": null,
-        "wbsOrder": 150,
+        "wbsOrder": 152,
         "name": "W4 前半(CR-578〜580)の分け方の計画を書いて止める",
         "start": "2026-10-24T06:09:00",
         "finish": "2026-10-24T07:53:00",
@@ -3995,7 +4067,7 @@
       {
         "uid": 27,
         "parentTaskUid": null,
-        "wbsOrder": 151,
+        "wbsOrder": 153,
         "name": "W4(アダプタ層の分割)の前半 CR-578→579→580 の実装(偶然の写し DFC-1071〜1073)",
         "start": "2026-11-25T22:00:00",
         "finish": "2026-11-25T23:30:00",
@@ -4027,7 +4099,7 @@
       {
         "uid": 28,
         "parentTaskUid": null,
-        "wbsOrder": 152,
+        "wbsOrder": 154,
         "name": "W4 の後半(CR-581 の後半と properties-panel、DFC-1074・1075)の実装",
         "start": "2026-11-25T23:30:00",
         "finish": "2026-11-26T01:00:00",
@@ -4050,7 +4122,7 @@
       {
         "uid": 29,
         "parentTaskUid": null,
-        "wbsOrder": 153,
+        "wbsOrder": 155,
         "name": "W5(異常系 DFC-586 ほか)の仕様",
         "start": "2026-11-26T01:00:00",
         "finish": "2026-11-26T01:45:00",
@@ -4073,7 +4145,7 @@
       {
         "uid": 30,
         "parentTaskUid": null,
-        "wbsOrder": 154,
+        "wbsOrder": 156,
         "name": "W5(異常系)の実装と試験 —— 既知の赤 cr-586-iv-22 の 2 件(DFC-922)を緑に",
         "start": "2026-11-26T01:45:00",
         "finish": "2026-11-26T03:15:00",
@@ -4096,7 +4168,7 @@
       {
         "uid": 217,
         "parentTaskUid": null,
-        "wbsOrder": 155,
+        "wbsOrder": 157,
         "name": "DFC-3393・3394(ハイパーリンク・ダークの任意色)の CR の起草",
         "start": "2026-10-24T16:43:00",
         "finish": "2026-10-25T09:40:00",
@@ -4128,7 +4200,7 @@
       {
         "uid": 243,
         "parentTaskUid": null,
-        "wbsOrder": 156,
+        "wbsOrder": 158,
         "name": "DFC-3410(フィルタの条件に名前を付けて GRS JSON に幾つも保存する)の CR の起草",
         "start": "2026-11-25T19:00:00",
         "finish": "2026-11-25T19:30:00",
@@ -4160,7 +4232,7 @@
       {
         "uid": 219,
         "parentTaskUid": null,
-        "wbsOrder": 157,
+        "wbsOrder": 159,
         "name": "CR-848・849(ダークの任意色・ハイパーリンク)の当て —— CR-851 の後、848 → 849 の順",
         "start": "2026-11-26T09:15:00",
         "finish": "2026-11-26T10:45:00",
@@ -4200,7 +4272,7 @@
       {
         "uid": 237,
         "parentTaskUid": null,
-        "wbsOrder": 158,
+        "wbsOrder": 160,
         "name": "DFC-3397(横に拡大して両端が外に出たタスクの名前を左端に出す)の CR の起草",
         "start": "2026-11-26T10:45:00",
         "finish": "2026-11-26T11:15:00",
@@ -4232,7 +4304,7 @@
       {
         "uid": 239,
         "parentTaskUid": null,
-        "wbsOrder": 159,
+        "wbsOrder": 161,
         "name": "DFC-3397(左端に出す名前と札)の仕様と実装",
         "start": "2026-11-26T11:15:00",
         "finish": "2026-11-26T12:00:00",
@@ -4264,7 +4336,7 @@
       {
         "uid": 225,
         "parentTaskUid": null,
-        "wbsOrder": 160,
+        "wbsOrder": 162,
         "name": "利用者のチェックリスト 1 枚(今日の 5 件・新機能・押せなかった行)",
         "start": "2026-11-26T18:45:00",
         "finish": "2026-11-26T19:15:00",
@@ -4287,7 +4359,7 @@
       {
         "uid": 17,
         "parentTaskUid": null,
-        "wbsOrder": 161,
+        "wbsOrder": 163,
         "name": "試験待ち 23 行(DFC-550・567・641 ほか)の仕様だけを読む試験",
         "start": "2026-10-24T06:09:00",
         "finish": "2026-10-24T06:48:00",
@@ -4310,7 +4382,7 @@
       {
         "uid": 265,
         "parentTaskUid": null,
-        "wbsOrder": 162,
+        "wbsOrder": 164,
         "name": "長い関数とファイルを割る(C19・F13、07 R2 の設計の判断)",
         "start": "2026-11-21T14:30:00",
         "finish": "2026-11-21T15:45:00",
@@ -4333,7 +4405,7 @@
       {
         "uid": 266,
         "parentTaskUid": null,
-        "wbsOrder": 163,
+        "wbsOrder": 165,
         "name": "試験の補助の写しの共通化(D14・D15)",
         "start": "2026-11-21T15:45:00",
         "finish": "2026-11-21T17:00:00",
@@ -4356,7 +4428,7 @@
       {
         "uid": 13,
         "parentTaskUid": null,
-        "wbsOrder": 164,
+        "wbsOrder": 166,
         "name": "用語集の JSON 化(DFC-2175、7 表 382 行)の仕様と実装",
         "start": "2026-11-21T17:00:00",
         "finish": "2026-11-21T18:15:00",
@@ -4379,7 +4451,7 @@
       {
         "uid": 201,
         "parentTaskUid": null,
-        "wbsOrder": 165,
+        "wbsOrder": 167,
         "name": "DFC-3390(基準日より後のタスクの ? と炎)の CR の起草と当て",
         "start": "2026-10-23T23:48:00",
         "finish": "2026-10-24T00:18:00",
@@ -4411,7 +4483,7 @@
       {
         "uid": 242,
         "parentTaskUid": null,
-        "wbsOrder": 166,
+        "wbsOrder": 168,
         "name": "取次から AI がページのアドレスを得る恒久の直し(DFC-3400・3401: B1〜B6 を決めてから CR)",
         "start": "2026-11-26T09:15:00",
         "finish": "2026-11-26T10:00:00",
@@ -4451,7 +4523,7 @@
       {
         "uid": 205,
         "parentTaskUid": null,
-        "wbsOrder": 167,
+        "wbsOrder": 169,
         "name": "ポインタの当たり判定(予定と依存線の優先順位)の見直し —— 見本と Playwright の掃き",
         "start": "2026-10-23T23:48:00",
         "finish": "2026-10-24T00:24:00",
@@ -4474,7 +4546,7 @@
       {
         "uid": 268,
         "parentTaskUid": null,
-        "wbsOrder": 168,
+        "wbsOrder": 170,
         "name": "既定値の選び直しと公開スキーマの $id・比率の数(A10・B5・B10・F27)の CR の起草と当て",
         "start": "2026-11-26T09:15:00",
         "finish": "2026-11-26T10:00:00",
@@ -4497,7 +4569,7 @@
       {
         "uid": 214,
         "parentTaskUid": null,
-        "wbsOrder": 169,
+        "wbsOrder": 171,
         "name": "中継の所見の残り(R5: 4・8・9・10・11・14・17・20・24)の当て",
         "start": "2026-11-26T10:00:00",
         "finish": "2026-11-26T11:15:00",
@@ -4520,7 +4592,7 @@
       {
         "uid": 215,
         "parentTaskUid": null,
-        "wbsOrder": 170,
+        "wbsOrder": 172,
         "name": "中継の所見の「低」8 件(13・16・17・18・19・20・23・25)",
         "start": "2026-11-26T11:15:00",
         "finish": "2026-11-26T12:00:00",
@@ -4543,7 +4615,7 @@
       {
         "uid": 47,
         "parentTaskUid": null,
-        "wbsOrder": 171,
+        "wbsOrder": 173,
         "name": "DFC-2214・2215(AI が読む遅延診断にイナズマ線の頂点・読み方)の仕様と実装",
         "start": "2026-11-26T12:00:00",
         "finish": "2026-11-26T12:30:00",
@@ -4566,7 +4638,7 @@
       {
         "uid": 220,
         "parentTaskUid": null,
-        "wbsOrder": 172,
+        "wbsOrder": 174,
         "name": "ハイパーリンクとダークの任意色の仕様だけを読む試験(別のサブエージェント)",
         "start": "2026-11-26T12:30:00",
         "finish": "2026-11-26T13:15:00",
@@ -4598,7 +4670,7 @@
       {
         "uid": 11,
         "parentTaskUid": null,
-        "wbsOrder": 173,
+        "wbsOrder": 175,
         "name": "未検討 72 行(DFC-611・2560〜2569・2690〜2699・2770 ほか)のトリアージ",
         "start": "2026-10-24T06:09:00",
         "finish": "2026-10-24T06:46:00",
@@ -4621,7 +4693,7 @@
       {
         "uid": 267,
         "parentTaskUid": null,
-        "wbsOrder": 174,
+        "wbsOrder": 176,
         "name": "道具の補助の写しの共通化(E20〜E22)",
         "start": "2026-11-21T14:30:00",
         "finish": "2026-11-21T15:45:00",
@@ -4644,7 +4716,7 @@
       {
         "uid": 32,
         "parentTaskUid": null,
-        "wbsOrder": 175,
+        "wbsOrder": 177,
         "name": "トリアージで出た直しの実装",
         "start": "2026-11-21T15:45:00",
         "finish": "2026-11-21T17:15:00",
@@ -4667,7 +4739,7 @@
       {
         "uid": 202,
         "parentTaskUid": null,
-        "wbsOrder": 176,
+        "wbsOrder": 178,
         "name": "DFC-3391・3392(プロンプトは本文だけ写し、スキーマは自動で保存)の CR の起草と当て",
         "start": "2026-10-23T23:48:00",
         "finish": "2026-10-24T01:40:00",
@@ -4699,7 +4771,7 @@
       {
         "uid": 206,
         "parentTaskUid": null,
-        "wbsOrder": 177,
+        "wbsOrder": 179,
         "name": "日付の範囲(S-119/S-120 と MS Project の 1984〜2149)・DFC-3003(ライセンスの窓)",
         "start": "2026-10-23T23:48:00",
         "finish": "2026-10-24T01:40:00",
@@ -4722,7 +4794,7 @@
       {
         "uid": 236,
         "parentTaskUid": null,
-        "wbsOrder": 178,
+        "wbsOrder": 180,
         "name": "DFC-3395(保存の確認がサイトの名を出し、通信するように読める)の調べと対応の案",
         "start": "2026-10-23T23:48:00",
         "finish": "2026-10-24T01:40:00",
@@ -4754,7 +4826,7 @@
       {
         "uid": 280,
         "parentTaskUid": null,
-        "wbsOrder": 179,
+        "wbsOrder": 181,
         "name": "a60f69ed5 の GT-2 の赤 7 件の試験を CR-827・828 に合わせる",
         "start": "2026-10-24T02:00:00",
         "finish": "2026-10-24T02:06:00",
@@ -4777,7 +4849,7 @@
       {
         "uid": 269,
         "parentTaskUid": null,
-        "wbsOrder": 180,
+        "wbsOrder": 182,
         "name": "uid の最高水位と「行」と「タスクグループ」(F10 DFC-1066・F25 DFC-2174)の CR の起草と当て",
         "start": "2026-11-26T09:15:00",
         "finish": "2026-11-26T10:00:00",
@@ -4800,7 +4872,7 @@
       {
         "uid": 212,
         "parentTaskUid": null,
-        "wbsOrder": 181,
+        "wbsOrder": 183,
         "name": "CR-815(絞った表を AI が選んだ列でページに分けて読む)の当て",
         "start": "2026-11-26T10:00:00",
         "finish": "2026-11-26T11:15:00",
@@ -4823,7 +4895,7 @@
       {
         "uid": 213,
         "parentTaskUid": null,
-        "wbsOrder": 182,
+        "wbsOrder": 184,
         "name": "接続が黙って切れる件(DFC-3340〜3342: ping・ページの下書き)の当て",
         "start": "2026-11-26T11:15:00",
         "finish": "2026-11-26T12:30:00",
@@ -4846,7 +4918,7 @@
       {
         "uid": 240,
         "parentTaskUid": null,
-        "wbsOrder": 183,
+        "wbsOrder": 185,
         "name": "DFC-3397(左端に出す名前と札)の仕様だけを読む試験(別のサブエージェント)",
         "start": "2026-11-26T12:30:00",
         "finish": "2026-11-26T13:00:00",
@@ -4878,7 +4950,7 @@
       {
         "uid": 223,
         "parentTaskUid": null,
-        "wbsOrder": 184,
+        "wbsOrder": 186,
         "name": "実測待ちの行を出荷ビルドで押す(2/3: 遅延診断・表・検索)",
         "start": "2026-11-26T17:30:00",
         "finish": "2026-11-26T18:45:00",
@@ -4901,7 +4973,7 @@
       {
         "uid": 197,
         "parentTaskUid": null,
-        "wbsOrder": 185,
+        "wbsOrder": 187,
         "name": "サーバー同期のデモの仕上げ(DFC-3070・3071 の状態を測り直し、配る zip で試す)",
         "start": "2026-10-24T06:09:00",
         "finish": "2026-10-24T06:29:00",
@@ -4924,7 +4996,7 @@
       {
         "uid": 18,
         "parentTaskUid": null,
-        "wbsOrder": 186,
+        "wbsOrder": 188,
         "name": "仕様待ち 31 行の残り(DFC-560・631・1063〜1073 ほか)の CR の起草",
         "start": "2026-10-24T06:09:00",
         "finish": "2026-10-24T06:55:00",
@@ -4947,7 +5019,7 @@
       {
         "uid": 35,
         "parentTaskUid": null,
-        "wbsOrder": 187,
+        "wbsOrder": 189,
         "name": "仕様待ちの残りの CR の実装",
         "start": "2026-11-21T14:30:00",
         "finish": "2026-11-21T16:00:00",
@@ -4970,7 +5042,7 @@
       {
         "uid": 19,
         "parentTaskUid": null,
-        "wbsOrder": 188,
+        "wbsOrder": 190,
         "name": "DFC-730(GP-1 編集権限の行は読み取り専用)の実装",
         "start": "2026-11-21T16:00:00",
         "finish": "2026-11-21T16:30:00",
@@ -4993,7 +5065,7 @@
       {
         "uid": 167,
         "parentTaskUid": null,
-        "wbsOrder": 189,
+        "wbsOrder": 191,
         "name": "DFC-2966・2967・2969(文書の形と実績の組み合わせの表, 束 E)の仕様と実装",
         "start": "2026-11-21T16:30:00",
         "finish": "2026-11-21T17:15:00",
@@ -5016,7 +5088,7 @@
       {
         "uid": 208,
         "parentTaskUid": null,
-        "wbsOrder": 190,
+        "wbsOrder": 192,
         "name": "性能の赤の切り分け —— 前の版との交互の比べ(JDG-726)と GR-28・MK-1 のプロファイル",
         "start": "2026-11-26T09:15:00",
         "finish": "2026-11-26T10:00:00",
@@ -5039,7 +5111,7 @@
       {
         "uid": 209,
         "parentTaskUid": null,
-        "wbsOrder": 191,
+        "wbsOrder": 193,
         "name": "重い処理の直し(最も遅い GR-28 から)",
         "start": "2026-11-26T10:00:00",
         "finish": "2026-11-26T11:30:00",
@@ -5062,7 +5134,7 @@
       {
         "uid": 246,
         "parentTaskUid": null,
-        "wbsOrder": 192,
+        "wbsOrder": 194,
         "name": "DFC-3410(名前付きのフィルタの条件)の仕様だけを読む試験(別のサブエージェント)",
         "start": "2026-11-26T13:45:00",
         "finish": "2026-11-26T14:30:00",
@@ -5094,7 +5166,7 @@
       {
         "uid": 224,
         "parentTaskUid": null,
-        "wbsOrder": 193,
+        "wbsOrder": 195,
         "name": "実測待ちの行を出荷ビルドで押す(3/3: ファイル・書き出し・AI 連携)",
         "start": "2026-11-26T17:30:00",
         "finish": "2026-11-26T18:45:00",
@@ -5117,7 +5189,7 @@
       {
         "uid": 306,
         "parentTaskUid": null,
-        "wbsOrder": 194,
+        "wbsOrder": 196,
         "name": "用語集の GQA に答える(GQA 13 の問 5 と 5-5〜5-8 から。残り 1397 語)",
         "start": "2026-10-31T09:15:00",
         "finish": "2026-11-21T14:30:00",
@@ -5140,7 +5212,7 @@
       {
         "uid": 307,
         "parentTaskUid": null,
-        "wbsOrder": 195,
+        "wbsOrder": 197,
         "name": "CR-851・848・849 の行のレビューに答える(残り 445 行)",
         "start": "2026-11-21T14:30:00",
         "finish": "2026-11-23T21:45:00",
@@ -5163,7 +5235,7 @@
       {
         "uid": 318,
         "parentTaskUid": null,
-        "wbsOrder": 196,
+        "wbsOrder": 198,
         "name": "GRS JSON と MSPDI の検証の道具(β 版から。優先度は最低)の仕様とテスト仕様",
         "start": "2026-11-28T00:00:00",
         "finish": "2026-11-28T01:00:00",
@@ -5195,7 +5267,7 @@
       {
         "uid": 319,
         "parentTaskUid": null,
-        "wbsOrder": 197,
+        "wbsOrder": 199,
         "name": "GRS JSON と MSPDI の検証の道具(β 版から。優先度は最低)の実装と自動試験",
         "start": "2026-11-28T01:00:00",
         "finish": "2026-11-28T04:00:00",
@@ -5227,7 +5299,7 @@
       {
         "uid": 320,
         "parentTaskUid": null,
-        "wbsOrder": 198,
+        "wbsOrder": 200,
         "name": "GRS JSON と MSPDI の検証の道具(β 版から。優先度は最低)の場面の確かめ",
         "start": "2026-11-28T04:00:00",
         "finish": "2026-11-28T05:00:00",
@@ -5246,6 +5318,166 @@
         "dependencies": [
           {
             "predecessorUid": 319,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 323,
+        "parentTaskUid": null,
+        "wbsOrder": 201,
+        "name": "CR-850(基準日線・カーソル・掴みを 15 分に)の急ぎの出荷の場面の確かめ(別の試験の SUB)",
+        "start": "2026-10-31T18:15:00",
+        "finish": "2026-10-31T18:45:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "オーナーの注文（BOSSBOSS 経由、2026-10-31）: CR-850（基準日線・カーソル・掴みを 15 分に）の急ぎの出荷。「実装は命名の後」の例外にした。SUB baseline-15min（Opus 5.5・high）で、用語集と並行に今から動く。段（規則 7）: GQA → 仕様とテスト仕様 → 実装と自動試験 → Gherkin の確かめ（別の SUB）→ オーナーの現場の試験 → 出荷（調整役）。見積は 288 の 30 分と、305〜315 前後の同種の仕事（230・231）からの置き。 段 4（Gherkin の確かめ）。SUB のモデルと努力: Sonnet 5.5・medium。",
+        "calendarUid": null,
+        "actualStart": null,
+        "stop": null,
+        "actualFinish": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 288,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 324,
+        "parentTaskUid": null,
+        "wbsOrder": 202,
+        "name": "CR-850(基準日線・カーソル・掴みを 15 分に)の急ぎの出荷をオーナーが実物で触る",
+        "start": "2026-10-31T18:45:00",
+        "finish": "2026-10-31T19:15:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "オーナーの注文（BOSSBOSS 経由、2026-10-31）: CR-850（基準日線・カーソル・掴みを 15 分に）の急ぎの出荷。「実装は命名の後」の例外にした。SUB baseline-15min（Opus 5.5・high）で、用語集と並行に今から動く。段（規則 7）: GQA → 仕様とテスト仕様 → 実装と自動試験 → Gherkin の確かめ（別の SUB）→ オーナーの現場の試験 → 出荷（調整役）。見積は 288 の 30 分と、305〜315 前後の同種の仕事（230・231）からの置き。 段 5（現場の試験）。オーナーの番。",
+        "calendarUid": null,
+        "actualStart": null,
+        "stop": null,
+        "actualFinish": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 323,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 327,
+        "parentTaskUid": null,
+        "wbsOrder": 203,
+        "name": "OneDrive を止める(CR-850 の急ぎの出荷の GT-2 の間)",
+        "start": "2026-10-31T22:15:00",
+        "finish": "2026-10-31T22:30:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "オーナーの注文（BOSSBOSS 経由、2026-10-31）: CR-850（基準日線・カーソル・掴みを 15 分に）の急ぎの出荷。「実装は命名の後」の例外にした。SUB baseline-15min（Opus 5.5・high）で、用語集と並行に今から動く。段（規則 7）: GQA → 仕様とテスト仕様 → 実装と自動試験 → Gherkin の確かめ（別の SUB）→ オーナーの現場の試験 → 出荷（調整役）。見積は 288 の 30 分と、305〜315 前後の同種の仕事（230・231）からの置き。 出荷の GT-2 は OneDrive を止めて走らせる（オーナーの手）。",
+        "calendarUid": null,
+        "actualStart": null,
+        "stop": null,
+        "actualFinish": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 299,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 325,
+        "parentTaskUid": null,
+        "wbsOrder": 204,
+        "name": "CR-850(基準日線・カーソル・掴みを 15 分に)の急ぎの出荷: develop → main の PR(調整役)",
+        "start": "2026-11-01T01:30:00",
+        "finish": "2026-11-01T02:30:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "オーナーの注文（BOSSBOSS 経由、2026-10-31）: CR-850（基準日線・カーソル・掴みを 15 分に）の急ぎの出荷。「実装は命名の後」の例外にした。SUB baseline-15min（Opus 5.5・high）で、用語集と並行に今から動く。段（規則 7）: GQA → 仕様とテスト仕様 → 実装と自動試験 → Gherkin の確かめ（別の SUB）→ オーナーの現場の試験 → 出荷（調整役）。見積は 288 の 30 分と、305〜315 前後の同種の仕事（230・231）からの置き。 段 6（出荷）の main への道。調整役のモデルと努力: Opus 5.5・high。見積は 230 の 3 時間より軽く、1 時間と置いた。",
+        "calendarUid": null,
+        "actualStart": null,
+        "stop": null,
+        "actualFinish": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 275,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 326,
+        "parentTaskUid": null,
+        "wbsOrder": 205,
+        "name": "CR-850(基準日線・カーソル・掴みを 15 分に)の急ぎの出荷: PR を見て main へ合流する",
+        "start": "2026-11-01T09:00:00",
+        "finish": "2026-11-01T10:00:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "オーナーの注文（BOSSBOSS 経由、2026-10-31）: CR-850（基準日線・カーソル・掴みを 15 分に）の急ぎの出荷。「実装は命名の後」の例外にした。SUB baseline-15min（Opus 5.5・high）で、用語集と並行に今から動く。段（規則 7）: GQA → 仕様とテスト仕様 → 実装と自動試験 → Gherkin の確かめ（別の SUB）→ オーナーの現場の試験 → 出荷（調整役）。見積は 288 の 30 分と、305〜315 前後の同種の仕事（230・231）からの置き。 段 6（出荷）のオーナーの合流。見積は 231 と同じ 1 時間。",
+        "calendarUid": null,
+        "actualStart": null,
+        "stop": null,
+        "actualFinish": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 325,
             "linkType": 1,
             "linkLag": 0,
             "lagFormat": 7,
@@ -6570,6 +6802,34 @@
       {
         "taskUid": 320,
         "taskGroupId": "2d7c98db-756c-5442-ad87-18bd551b5683"
+      },
+      {
+        "taskUid": 321,
+        "taskGroupId": "26faf23e-c500-5c95-bc68-3b44ebc6763d"
+      },
+      {
+        "taskUid": 322,
+        "taskGroupId": "e9591aca-8c39-5748-95b5-074b8bb6ab8a"
+      },
+      {
+        "taskUid": 323,
+        "taskGroupId": "e9591aca-8c39-5748-95b5-074b8bb6ab8a"
+      },
+      {
+        "taskUid": 324,
+        "taskGroupId": "f2b5a632-0e6d-56dd-acc2-4e8c5d72d9fc"
+      },
+      {
+        "taskUid": 327,
+        "taskGroupId": "f2b5a632-0e6d-56dd-acc2-4e8c5d72d9fc"
+      },
+      {
+        "taskUid": 325,
+        "taskGroupId": "360eebfe-b421-54f7-ae66-8f611ac2263d"
+      },
+      {
+        "taskUid": 326,
+        "taskGroupId": "f2b5a632-0e6d-56dd-acc2-4e8c5d72d9fc"
       }
     ],
     "taskVisuals": [
@@ -8156,6 +8416,62 @@
         "fillColor": "lightgray",
         "strokeColor": null,
         "strokeWidthPx": null
+      },
+      {
+        "taskUid": 321,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": "diamond",
+        "fillColor": "orange",
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 322,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": "diamond",
+        "fillColor": "blue",
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 323,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": "diamond",
+        "fillColor": "green",
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 324,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": "diamond",
+        "fillColor": "orange",
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 327,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": "diamond",
+        "fillColor": "orange",
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 325,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": "diamond",
+        "fillColor": "purple",
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 326,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": "diamond",
+        "fillColor": "orange",
+        "strokeColor": null,
+        "strokeWidthPx": null
       }
     ],
     "commentBoxes": [
@@ -9639,10 +9955,10 @@
     "zoomY": 1.099862517185352
   },
   "documentStamp": {
-    "scheduleUpdatedAt": "2026-10-31T06:44:00Z",
+    "scheduleUpdatedAt": "2026-10-31T07:10:00Z",
     "lastEditedBy": "PMO child session",
     "settingsUpdatedAt": "2026-10-20T20:24:42Z",
-    "fileSavedAt": "2026-10-31T06:44:00Z"
+    "fileSavedAt": "2026-10-31T07:10:00Z"
   },
   "changeLog": [
     {
@@ -9794,6 +10110,12 @@
       "editedBy": "PMO child session",
       "explanation": "Actuals to 15:44 JST: added the GRS JSON and MSPDI validator as three tasks (318 spec, 319 implementation, 320 scenario check) in a new lowest-priority group after the beta and CR-851, by the owner order; not started; no other date moved.",
       "changedAt": "2026-10-31T06:44:00Z"
+    },
+    {
+      "ordinal": 26,
+      "editedBy": "PMO child session",
+      "explanation": "Actuals to 16:10 JST: hot release of CR-850 by the owner exception to \"implementation after naming\": stages GQA 321, spec 322, implementation 288, scenario check 323, field test 324, release 299 / OneDrive stop 327 / 275 / main PR 325 / owner merge 326, in SUB baseline-15min parallel to the glossary; 299 and 275 moved before N1; 288 no longer waits for W4 and CR-851; N1 and the provisional beta unchanged.",
+      "changedAt": "2026-10-31T07:10:00Z"
     }
   ]
 }
