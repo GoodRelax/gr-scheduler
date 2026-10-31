@@ -3033,12 +3033,12 @@
   {
    "rowId": "RS-14",
    "text": {
-    "ja": "先頭の 1 つだけを開きました。残りは開いていません",
-    "en": "Only the first file was opened; the rest were left."
+    "ja": "一度に開けるファイルは 1 つです",
+    "en": "Only one file can be opened at a time."
    },
    "nextStep": {
-    "ja": "残りは 1 つずつ開いてください",
-    "en": "Open the rest one at a time."
+    "ja": "開くファイルを 1 つだけドロップしてください",
+    "en": "Drop one file at a time."
    }
   },
   {

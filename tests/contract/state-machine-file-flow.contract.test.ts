@@ -190,11 +190,7 @@ const EVENT_VARIANTS: Readonly<Record<string, readonly Loose[]>> = {
   newDocumentEntryPressed: [{ question: question('QN-5') }],
   grsResetEntryPressed: [{ question: question('QN-11') }],
   flowSurfaceClosed: ['U-56', 'U-61', 'U-62', 'U-30'].map((surfaceName) => ({ surfaceName })),
-  // WHY: OP-19 -- the format read decides a drop; a GRS JSON drop skips U-56, an MSPDI drop keeps it.
-  documentFileRead: (['grsJson', 'mspdi'] as const).map((format) => ({
-    question: question('QN-5'),
-    incomingFile: { fileName: format === 'grsJson' ? 'next.json' : 'next.xml', byteLength: 120, documentTitle: null, format },
-  })),
+  documentFileRead: [{ question: question('QN-5'), incomingFile: { fileName: 'next.json', byteLength: 120, documentTitle: null } }],
   documentOpenFailed: [{}],
   mergeMappingAsked: [{ mergeCandidates: CANDIDATES, unreadColumns: ['Notes'] }],
   documentOpenLanded: [

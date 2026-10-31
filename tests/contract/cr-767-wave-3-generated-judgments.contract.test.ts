@@ -318,12 +318,11 @@ const held = (kind: string, pressRow: string, pressedOn: Loose | null): Loose =>
 // see QN-1, QN-4, QN-5, NT-7, OP-16
 const question = (row: string): Loose => ({ manner: 'NT-7', question: row, items: [{ name: 'Task A', isShownOnAnotherTaskGroup: false }] })
 const OWED = { kind: 'changeDocument', writes: [[{ kind: 'CM-35' }]], created: null }
-const INCOMING = { fileName: 'next.xml', byteCount: 120, documentName: null, format: 'mspdi' }
-const INCOMING_GRS_JSON = { ...INCOMING, fileName: 'next.json', format: 'grsJson' }
+const INCOMING = { fileName: 'next.xml', byteCount: 120, documentName: null }
 const CANDIDATES = [{ currentUid: 1, currentName: 'Task A', incomingUid: 7, incomingName: 'Task A' }]
 const asked = (row: string, owedAction: unknown): Loose => ({ confirmationState: { kind: 'questionAsked', question: question(row), owedAction } })
 const reading = (openRoute: string): Loose => ({ fileOperationState: { kind: 'readingDocumentFile', openRoute } })
-const fileRead = (incomingFile: Loose = INCOMING): Loose => ({ type: 'documentFileRead', question: question('QN-5'), incomingFile })
+const fileRead = (): Loose => ({ type: 'documentFileRead', question: question('QN-5'), incomingFile: INCOMING })
 const landed = (dropped: readonly unknown[], missing: readonly unknown[], counts: readonly unknown[], openChoice = 'merge'): Loose => ({
   type: 'documentOpenLanded',
   droppedTaskNames: dropped,
@@ -562,15 +561,13 @@ const GUARD_CASES: readonly GuardCase[] = [
       sc('reopen route, edits unsaved', { ...reading('reopen'), ...UNSAVED }, fileRead()),
       sc('reopen route, nothing unsaved', { ...reading('reopen'), ...SAVED }, fileRead()),
       sc('chooser route', { ...reading('chooser'), ...UNSAVED }, fileRead()),
-      sc('chooser route, GRS JSON', { ...reading('chooser'), ...UNSAVED }, fileRead(INCOMING_GRS_JSON)),
-      sc('drop route, MSPDI', { ...reading('drop'), ...UNSAVED }, fileRead()),
-      sc('drop route, GRS JSON, edits unsaved', { ...reading('drop'), ...UNSAVED }, fileRead(INCOMING_GRS_JSON)),
-      sc('drop route, GRS JSON, nothing unsaved', { ...reading('drop'), ...SAVED }, fileRead(INCOMING_GRS_JSON)),
+      sc('drop route, edits unsaved', { ...reading('drop'), ...UNSAVED }, fileRead()),
+      sc('drop route, nothing unsaved', { ...reading('drop'), ...SAVED }, fileRead()),
     ] })),
   { region: 'fileFlow', guard: 'isReplaceWithoutChooser', machine: 'confirmationStateMachine', state: 'notAsked', scenes: [
     sc('reopen route, edits unsaved', { ...reading('reopen'), ...UNSAVED }, fileRead()),
-    sc('drop route, MSPDI, edits unsaved', { ...reading('drop'), ...UNSAVED }, fileRead()),
-    sc('drop route, GRS JSON, edits unsaved', { ...reading('drop'), ...UNSAVED }, fileRead(INCOMING_GRS_JSON)),
+    sc('drop route, edits unsaved', { ...reading('drop'), ...UNSAVED }, fileRead()),
+    sc('chooser route, edits unsaved', { ...reading('chooser'), ...UNSAVED }, fileRead()),
   ] },
   { region: 'fileFlow', guard: 'isDifferenceReviewSurface', machine: 'fileOperationStateMachine', state: 'awaitingMergeMapping', scenes: [
     sc('U-61 closed', MAPPING, { type: 'flowSurfaceClosed', surfaceName: 'U-61' }),

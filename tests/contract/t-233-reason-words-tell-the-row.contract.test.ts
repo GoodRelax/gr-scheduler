@@ -167,7 +167,8 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   'RS-11': 'c6653e5783ae7df2',
   'RS-12': '95ad8c948d6a7601',
   'RS-13': 'f321af6f75bd49bf',
-  'RS-14': '2d8c60534d77350f',
+  // WHY: re-keyed 2026-10-31 (CR-858): RS-14 became a refusal of several dropped files (OP-11, JDG-3584, words JDG-3585).
+  'RS-14': 'cf268c722d841409',
   'RS-16': '1eac0dcebc65e01a',
   // ⭐⭐ RE-READ 2026-09-05, and the pair still holds. The scene gained
   // a MUST NOT against telling it (now the display 出さない, CR-712) when the ruling of that day left

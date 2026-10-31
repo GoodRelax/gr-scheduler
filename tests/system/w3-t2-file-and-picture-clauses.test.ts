@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 
 import { specTable, unbroken } from '../contract/spec-table'
-import { VIEWPORT, elementBox, enableAgentApi, launch, openByDrop, press, readDocument, readSample, savedFiles, settle, type Box } from '../use-case/uc-harness'
+import { VIEWPORT, elementBox, enableAgentApi, launch, openByDrop, openThroughIc1, press, readDocument, readSample, savedFiles, settle, type Box } from '../use-case/uc-harness'
 
 test.use({ viewport: VIEWPORT, locale: 'en-US', colorScheme: 'light' })
 
@@ -211,7 +211,8 @@ test(`OP-9: ${OVERLAY_ONLY_MATCHING_UIDS}`, async ({ page }) => {
   const current = new Set((await readDocument(page)).schedule.tasks.map((one) => one['uid']))
   const overlayUids = [...readSample(ERP).matchAll(/<Task>\s*<UID>(\d+)<\/UID>/g)].map((m) => Number(m[1]))
   expect(overlayUids.some((uid) => !current.has(uid)), 'precondition: the overlaid file holds UIDs the current document lacks').toBe(true)
-  await openByDrop(page, ERP, readSample(ERP), 'IC-73')
+  // WHY: a dropped file opens as a replace (OP-19), so the overlay opens through IC-1.
+  await openThroughIc1(page, ERP, readSample(ERP), 'IC-73')
   const overlaid = ((await readDocument(page)).schedule['baselineTasks'] as Record<string, unknown>[]).map((one) => one['uid'])
   expect(overlaid.length, 'precondition: the overlay holds tasks').toBeGreaterThan(0)
   expect(overlaid.filter((uid) => !current.has(uid))).toEqual([])

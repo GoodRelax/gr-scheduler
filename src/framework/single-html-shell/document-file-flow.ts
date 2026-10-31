@@ -125,7 +125,7 @@ const NOTICE_REASON_OF_FORMAT_MISMATCH: Readonly<Record<FormatMismatch, NoticeRe
   both: 'RS-13',
 }
 
-const IGNORED_FILES_REASON: NoticeReason = 'RS-14'
+const SEVERAL_FILES_DROPPED_REASON: NoticeReason = 'RS-14'
 
 const SETTINGS_CLAMPED_REASON: NoticeReason = 'RS-51'
 
@@ -672,10 +672,10 @@ interface ReadInFile {
   readonly fileName: string | null
 }
 
-// see OP-16, OP-19
+// see OP-16
 /** @purity pure */
 function incomingFileOf(readIn: ReadInFile, incoming: Document): IncomingFile {
-  return { fileName: readIn.fileName, byteLength: readIn.byteLength, documentTitle: incoming.schedule.project.title, format: readIn.format }
+  return { fileName: readIn.fileName, byteLength: readIn.byteLength, documentTitle: incoming.schedule.project.title }
 }
 
 /** @purity non-pure */
@@ -845,9 +845,7 @@ export async function openDocumentIntoHold(
       hands.raiseFileFault(opening.fault)
       return false
     }
-    if (opening.ignoredFileCount > 0) {
-      hands.raiseNotice(IGNORED_FILES_REASON, opening.ignoredFileCount)
-    }
+    if (opening.ignoredFileCount > 0) return refusedWith(hands, SEVERAL_FILES_DROPPED_REASON)
     const file = opening.file
 
     const reading = formatFromFile(file.fileName, file.text)
@@ -903,10 +901,7 @@ export async function openDocumentIntoHold(
 
   // TRAP: refuse before the input becomes current; drawing such a calendar throws.
   const noWorkingWeekday = noWorkingWeekdayReason(incoming)
-  if (noWorkingWeekday !== null) {
-    hands.raiseNotice(noWorkingWeekday, null)
-    return false
-  }
+  if (noWorkingWeekday !== null) return refusedWith(hands, noWorkingWeekday)
 
   const choice = await flow.askHowToOpen(current, incomingFileOf(readIn, incoming))
   if (choice === null) return false
@@ -962,6 +957,12 @@ export async function openDocumentIntoHold(
   const request = { ...importing, choice, merge: mergeAnswers, current: importedAgainst }
   landImportedDocument(reading, request, droppedNames, { ...newer, isUnreadAsked: mergeAnswers !== null })
   return landed
+}
+
+/** @purity non-pure */
+function refusedWith(hands: Pick<DocumentFileFlowHands, 'raiseNotice'>, reason: NoticeReason): false {
+  hands.raiseNotice(reason, null)
+  return false
 }
 
 // see OP-13

@@ -1985,7 +1985,6 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `FileFlowCreatedSubject` | file only | type | `src/use-case/advance-screen-session/file-flow-values.ts#FileFlowCreatedSubject` | -- | type FileFlowCreatedSubject = \| { readonly kind: 'task'; readonly uid: number } \| { readonly kind: 'taskGroup'; readonly taskGroupId: string } \| { readonly k... |
 | `FileFlowFixBundle` | file only | type | `src/use-case/advance-screen-session/file-flow-values.ts#FileFlowFixBundle` | -- | type FileFlowFixBundle = readonly { readonly fixRow: string }[] |
 | `FileFlowIncomingFile` | file only | interface | `src/use-case/advance-screen-session/file-flow-values.ts#FileFlowIncomingFile` | -- | interface FileFlowIncomingFile |
-| `FileFlowIncomingFormat` | file only | type | `src/use-case/advance-screen-session/file-flow-values.ts#FileFlowIncomingFormat` | -- | type FileFlowIncomingFormat = 'grsJson' \| 'mspdi' |
 | `FileFlowMergeCandidate` | file only | interface | `src/use-case/advance-screen-session/file-flow-values.ts#FileFlowMergeCandidate` | -- | interface FileFlowMergeCandidate |
 | `FileFlowMergeMapping` | file only | type | `src/use-case/advance-screen-session/file-flow-values.ts#FileFlowMergeMapping` | -- | type FileFlowMergeMapping = \| { readonly kind: 'allSame' } \| { readonly kind: 'allDifferent' } \| |
 | `FileFlowOpenChoice` | file only | type | `src/use-case/advance-screen-session/file-flow-values.ts#FileFlowOpenChoice` | -- | type FileFlowOpenChoice = 'replace' \| 'merge' \| 'baseline' |
@@ -2118,4 +2117,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 1078 name(s) leave through a public entry (533 of them published by table T-064), 840 more are exported by a file and not by its entry.
+Totals: 1078 name(s) leave through a public entry (533 of them published by table T-064), 839 more are exported by a file and not by its entry.
