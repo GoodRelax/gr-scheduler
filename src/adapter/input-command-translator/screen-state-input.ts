@@ -331,7 +331,7 @@ function screenEventAfterMarkerPress(
   const task = taskByUid(context.document.schedule, uid)
   if (task === null) return null
   const remembered = rememberedActualIn(context, uid)
-  const snapAt = snapMinutesOf(context.layout.pxPerDay, context.document.documentSettings, false)
+  const snapAt = snapMinutesOf(context.layout.pxPerDay, context.document.documentSettings)
   const turned = cycleTaskPlanActualState(task, remembered, {
     startSide: task.start,
     floorDay: task.start,

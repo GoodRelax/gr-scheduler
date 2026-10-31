@@ -12,13 +12,13 @@ what this reading does not see.
 
 | place | T-218 | T-334 | files | case sites | expected-to-fail marks | known-red lines | need the MSPDI XSDs | tied to no spec row |
 | --- | --- | --- | --: | --: | --: | --: | --: | --: |
-| `contract` | TS-5 | VT-2 | 473 | 6257 | 8 | 4 | 11 | 6 |
+| `contract` | TS-5 | VT-2 | 473 | 6256 | 8 | 4 | 11 | 6 |
 | `integration` | TS-2 | - | 3 | 76 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
-| `system` | TS-3 | - | 102 | 642 | 0 | 0 | 0 | 1 |
+| `system` | TS-3 | - | 103 | 644 | 0 | 0 | 0 | 1 |
 | `unit` | TS-6 | - | 197 | 4105 | 1 | 1 | 2 | 0 |
 | `use-case` | TS-1 | VT-1 | 14 | 17 | 1 | 2 | 0 | 0 |
-| **all** | | | 792 | 11114 | 10 | 7 | 13 | 7 |
+| **all** | | | 793 | 11115 | 10 | 7 | 13 | 7 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -500,7 +500,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/cr-772-hf-15-the-grab-has-three-states.contract.test.ts` | 9 | - | VT-2 | T-289 | HF-15, S-208 | - | - | - | - |
 | `tests/contract/cr-774-hf-15-a-gap-past-the-depth-cap-is-chosen-and-drawn-dashed.contract.test.ts` | 17 | FR-004 | - | T-234 | HF-15, HM-3a, QN-16 | - | - | - | - |
 | `tests/contract/cr-774-hf-15-the-release-asks-qn-16-and-lifts-the-too-deep-groups.contract.test.ts` | 16 | - | - | - | HF-15, HM-3, HM-9, QN-16, S-125, UF-97 | - | - | - | - |
-| `tests/contract/cr-775-alt-at-release-and-shift-keeps-dates.test.ts` | 18 | FR-016, FR-017, FR-103, FR-107, NFR-007 | - | T-236, T-266, T-270, T-366, T-378 | CF-6, CY-5, CY-9, CY-11, GA-9, GA-14, GA-15, GA-18, MK-12, MK-15, MK-16, MK-17, PE-1, PE-6, S-1, S-8, S-55, S-155, S-577, S-578, S-587, SG-2, SG-3, SG-4 | - | - | - | - |
+| `tests/contract/cr-775-alt-at-release-and-shift-keeps-dates.test.ts` | 17 | FR-016, FR-017, FR-103, FR-107, NFR-007 | - | T-236, T-266, T-270, T-366, T-378 | CF-6, CY-5, CY-9, CY-11, GA-9, GA-14, GA-15, GA-18, MK-12, MK-15, MK-16, MK-17, PE-1, PE-6, S-1, S-8, S-55, S-155, S-577, S-578, S-587, SG-2, SG-3, SG-4 | - | - | - | - |
 | `tests/contract/cr-776-778-command-values-carry-their-column-names.contract.test.ts` | 10 | - | - | T-058, T-064, T-202 | AM-7, PI-39 | - | - | - | - |
 | `tests/contract/cr-777-a-released-tip-snaps-or-stands-free.contract.test.ts` | 13 | - | - | - | AR-5, CM-51, GR-14 | - | - | - | - |
 | `tests/contract/cr-777-the-anchor-value-the-deleted-target-and-the-merge.contract.test.ts` | 22 | FR-019 | - | - | CM-7, CM-46, CM-50, CM-53 | - | - | - | - |
@@ -830,6 +830,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/system/cr-827-the-image-prompt-hands-the-schema-as-a-file.test.ts` | 5 | FR-068 | - | T-109 | IC-21, IC-115, RS-65 | - | - | - | - |
 | `tests/system/cr-828-the-browser-block-says-nothing-is-sent.test.ts` | 3 | FR-036 | - | T-025, T-103, T-109, T-255 | MC-6 | - | - | - | - |
 | `tests/system/cr-832-the-license-text-stretches-the-help-down.test.ts` | 6 | FR-038, FR-069 | - | T-025, T-103, T-109, T-337 | GR-24, IC-128, MC-6, S-201, U-32, WB-3 | - | - | - | - |
+| `tests/system/cr-850-the-status-line-drags-in-fifteen-minute-steps.test.ts` | 2 | FR-046 | - | T-109 | S-577, S-578 | - | - | - | - |
 | `tests/system/dfc-2178-a-plain-wheel-leaves-a-focused-number-alone.test.ts` | 3 | - | - | T-025 | MC-6, MH-4, MK-1, S-197 | - | - | - | - |
 | `tests/system/dfc-2309-a-refused-open-tells-rs-25-and-leaves-the-document.test.ts` | 3 | FR-023, FR-076 | - | T-233 | IC-1, NT-1, RS-11, RS-25 | - | - | - | - |
 | `tests/system/dfc-2980-the-marker-pull-writes-the-actual-in-the-shipped-build.test.ts` | 1 | FR-095, FR-107 | - | T-245, T-267, T-270 | GA-5, GO-9, PE-8, QN-5 | - | - | - | - |

@@ -839,7 +839,6 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `PointerPress` | entry | interface | `src/adapter/input-command-translator/input-command-translator.ts#PointerPress` | -- | interface PointerPress |
 | `pressedRowOf` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#pressedRowOf` | PI-18 | 押下がどの行で始まったかを答える。 |
 | `PressRow` | entry | type | `src/adapter/input-command-translator/input-command-translator.ts#PressRow` | PI-18 | 型。 |
-| `releasedSnapOf` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#releasedSnapOf` | -- | function releasedSnapOf(context: InputContext, release: PointerInput): number |
 | `rememberedActualIn` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#rememberedActualIn` | -- | function rememberedActualIn(context: InputContext, taskUid: number): RememberedActual \| null |
 | `screenEventFromFieldCommit` | entry | function | `src/adapter/input-command-translator/screen-state-input.ts#screenEventFromFieldCommit` | PI-18 | 確定した欄のうち、画面の値の下書き（表 T-280 の `baseTimeZoneDraftStateMachine`・`timeShiftDraftStateMachine`・`calendarDraftStateMachine`）へ行くものの出来事 —— `FO-14`・`FO-16`・表 T-344 の `...` |
 | `screenEventFromInput` | entry | function | `src/adapter/input-command-translator/screen-state-input.ts#screenEventFromInput` | PI-18 | 入力から画面の値の出来事を 1 つ作る。 |
@@ -850,6 +849,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `scrollingTaskGroupsOf` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#scrollingTaskGroupsOf` | -- | function scrollingTaskGroupsOf(layout: ScheduleLayout): readonly TaskGroupPlacement[] |
 | `selectionFromInput` | entry | function | `src/adapter/input-command-translator/selection-input.ts#selectionFromInput` | PI-18 | 規則は 表 T-023c。 |
 | `serialOfDay` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#serialOfDay` | -- | function serialOfDay(day: CalendarDay): number |
+| `snapMinutesOfView` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#snapMinutesOfView` | -- | function snapMinutesOfView(context: InputContext): number |
 | `SpentEntranceSituation` | entry | type | `src/adapter/input-command-translator/input-command-translator.ts#SpentEntranceSituation` | PI-18 | 型。 |
 | `taskGroupAtY` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#taskGroupAtY` | -- | function taskGroupAtY(layout: ScheduleLayout, y: number): TaskGroupPlacement \| null |
 | `taskGroupBandCeilingOf` | entry | function | `src/adapter/input-command-translator/zoom-and-fit.ts#taskGroupBandCeilingOf` | PI-18 | `FR-016` の縦軸の上限のうち、いちばん高いタスクグループの帯の高さが初めて `Task Group Area` の高さ以上になった倍率を、表 T-253 の手順で探した答え。 |

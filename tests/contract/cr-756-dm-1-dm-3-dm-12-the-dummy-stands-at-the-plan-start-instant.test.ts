@@ -77,7 +77,7 @@ describe('CR-756 -- the manuscript still says what these cases press', () => {
     expect(S_585_MINUTES).toBe(60)
     const tierOf = (pxPerDay: number): number => {
       const one = stageOf({ isTimeOfDayVisible: true, pxPerDay })
-      return snapMinutesOf(pxPerDayOf(one), one.loop.document().documentSettings, false)
+      return snapMinutesOf(pxPerDayOf(one), one.loop.document().documentSettings)
     }
     expect(tierOf(DAY_TIER)).toBe(MINUTES_PER_DAY)
     expect(tierOf(HOUR_TIER)).toBe(15)

@@ -400,17 +400,8 @@ describe('premise: the scenes sit on the T-378 rows they are named after', () =>
     ['SG-2 on the half-hour grid tier', HALF_HOUR_TIER, 15],
   ])('%s', (_name, scene, minutes) => {
     const built = stage(scene)
-    expect(snapMinutesOf(pxPerDay(built.loop), settingsOf(scene), false)).toBe(minutes)
+    expect(snapMinutesOf(pxPerDay(built.loop), settingsOf(scene))).toBe(minutes)
     expect(PULL_DAYS * pxPerDay(built.loop), 'premise: the pull is past S-208').toBeGreaterThan(S_208)
-  })
-
-  // WHY: CR-850 retired SG-4 -- the case that Alt asks for 1 minute is replaced by its opposite.
-  it.each([
-    ['the hour tier', HOUR_TIER],
-    ['the half-hour grid tier', HALF_HOUR_TIER],
-  ])('Alt selects no unit: Alt held at %s is the same 15 minutes', (_name, scene) => {
-    const built = stage(scene)
-    expect(snapMinutesOf(pxPerDay(built.loop), settingsOf(scene), true)).toBe(15)
   })
 })
 

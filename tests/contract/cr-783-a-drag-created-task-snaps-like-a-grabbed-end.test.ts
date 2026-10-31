@@ -340,7 +340,7 @@ describe('premise: the scenes sit on the T-378 rows they are named after', () =>
     ['SG-1 time shown below the hour tier', BELOW_HOUR_TIER, MINUTES_PER_DAY],
   ])('%s', (_name, scene, minutes) => {
     const loop = loopOf(scene)
-    expect(snapMinutesOf(loop.current()?.layout.pxPerDay as number, settingsOf(scene), false)).toBe(minutes)
+    expect(snapMinutesOf(loop.current()?.layout.pxPerDay as number, settingsOf(scene))).toBe(minutes)
   })
 
   it('the bar shape and the milestone are armed by an entrance the spec names', () => {

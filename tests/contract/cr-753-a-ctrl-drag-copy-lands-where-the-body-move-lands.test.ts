@@ -494,7 +494,7 @@ describe('premise: each scene sits on the T-378 row it is named after', () => {
     ['SG-2 on the half-hour grid tier', HALF_HOUR_TIER, 15, hours(1 + 20 / 60)],
   ])('%s', (_name, scene, minutes, smallestDays) => {
     const built = stage(scene)
-    expect(snapMinutesOf(pxPerDay(built.loop), settingsOf(scene), false)).toBe(minutes)
+    expect(snapMinutesOf(pxPerDay(built.loop), settingsOf(scene))).toBe(minutes)
     expect(smallestDays * pxPerDay(built.loop), 'premise: the smallest travel used is past S-208').toBeGreaterThan(S_208)
   })
 })

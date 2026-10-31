@@ -48,10 +48,8 @@ const DAYS_PER_WEEK = 7
 const SNAP_MINUTES = { 'SG-2': 15 } as const
 
 // see T-378, SG-1, SG-2, FR-103
-// TRAP: Alt selects no unit since CR-850; the third argument stays only until the
-// input-command-translator split (CR-579) lands and its callers drop it.
 /** @purity pure */
-export function snapMinutesOf(pxPerDay: number, storedSettings: DocumentSettings, _isAltHeld?: boolean): number {
+export function snapMinutesOf(pxPerDay: number, storedSettings: DocumentSettings): number {
   const settings = drawnSettingsOf(storedSettings)
   if (!settings.isTimeOfDayVisible) return MINUTES_PER_CALENDAR_DAY
   const scaled = thresholdPxPerDayOf(pxPerDay, settings)
