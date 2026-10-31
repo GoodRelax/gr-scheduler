@@ -95,7 +95,7 @@ describe(`FR-087 OP-17 -- ${OP_17_SHOW.slice(-60)}`, () => {
 })
 
 describe(`FR-087 OP-17 -- ${OP_17_HIDE_ON_DROP} -- the drop`, () => {
-  it('dropping the file takes the cue down, and the drop opens the file as before (OP-2)', async () => {
+  it('dropping the file takes the cue down, and the drop opens the GRS JSON without the chooser (OP-2, OP-19)', async () => {
     const built = await shellStage({ dom: true })
     await dragIs(built, true)
     expect(cueViewed(built), 'premise: the cue is up').toBeDefined()
@@ -104,14 +104,15 @@ describe(`FR-087 OP-17 -- ${OP_17_HIDE_ON_DROP} -- the drop`, () => {
     await built.drop(built.file('theirs.json', jsonBytes(there())))
     expect(cueViewed(built)).toBeUndefined()
     expect(cueDrawn(built)).toBe(0)
-    expect(built.last().openModal?.surface, 'OP-2: the dropped file was not offered the open chooser').toBe(OPEN_CHOOSER())
+    expect(built.last().openModal, 'OP-19: a dropped GRS JSON raised the open chooser').toBeNull()
   })
 })
 
 describe(`FR-087 OP-17 -- ${OP_17_REFUSED}`, () => {
   it(`T-280 ${T_280_IS_OPEN_ACCEPTED} -- an open chooser stands (a file operation is in progress): no cue`, async () => {
     const built = await shellStage({ dom: true })
-    await built.drop(built.file('theirs.json', jsonBytes(there())))
+    // WHY: the file dialog keeps U-56; a dropped GRS JSON skips it (OP-19).
+    await built.open(built.file('theirs.json', jsonBytes(there())))
     expect(built.last().openModal?.surface, 'premise: the open chooser stands').toBe(OPEN_CHOOSER())
     await dragIs(built, true)
     expect(cueViewed(built), 'OP-17 (MUST NOT): the cue invites a drop the app would refuse (RS-27)').toBeUndefined()
@@ -120,7 +121,7 @@ describe(`FR-087 OP-17 -- ${OP_17_REFUSED}`, () => {
 
   it('the refusal is only for the entering: after the chooser is answered the next drag shows the cue', async () => {
     const built = await shellStage({ dom: true })
-    await built.drop(built.file('theirs.json', jsonBytes(there())))
+    await built.open(built.file('theirs.json', jsonBytes(there())))
     await dragIs(built, true)
     await dragIs(built, false)
     await built.press(OPEN_CHOOSER(), 'IC-71')

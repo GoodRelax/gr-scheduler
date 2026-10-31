@@ -108,20 +108,22 @@ test('FR-067 (MUST NOT): a single .html written out carries the embedded documen
   expect(written.text).not.toContain(`id="${template}"`)
 })
 
-test('FR-067 (MUST): a single .html written out opens through the open route of another GRS (OP-3 first)', async ({ page }) => {
+test('FR-067 (MUST): a single .html written out opens through the open route of another GRS (a drop replaces, OP-19)', async ({ page }) => {
   await launch(page)
+  await enableAgentApi(page)
+  const before = await readDocument(page)
   const written = await writeOut(page, 'IO-7')
   await drop(page, written.name, written.text)
-  await expect(page.locator('[data-role="Open Chooser"]'), 'FR-067: the exported .html was not offered OP-3').toHaveCount(1)
+  await expect(page.locator('[data-role="Open Chooser"]'), 'OP-19: the dropped .html raised the Open Chooser').toHaveCount(0)
+  if (await page.locator('[data-role="Confirmation"] [data-confirmation-answer="proceed"]').count()) await answerConfirmation(page, 'proceed')
+  expect((await readDocument(page)).schedule.tasks, 'FR-067: the exported .html did not open').toHaveLength(before.schedule.tasks.length)
 })
 
 test('FR-067 (MUST): the shipped index.html opened through the open route opens the template (T-226)', async ({ page }) => {
   await launch(page)
   await enableAgentApi(page)
   await drop(page, 'index.html', DIST)
-  await expect(page.locator('[data-role="Open Chooser"]'), 'FR-067: the own index.html of the app was refused').toHaveCount(1)
-  await page.click('[data-role="Open Chooser"] [data-icon="IC-71"]')
-  await settle(page)
+  await expect(page.locator('[data-role="Open Chooser"]'), 'OP-19: the dropped index.html raised the Open Chooser').toHaveCount(0)
   if (await page.locator('[data-role="Confirmation"] [data-confirmation-answer="proceed"]').count()) await answerConfirmation(page, 'proceed')
   const document = await readDocument(page)
   expect(document.schedule.tasks).toHaveLength(1000)

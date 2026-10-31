@@ -318,11 +318,12 @@ const held = (kind: string, pressRow: string, pressedOn: Loose | null): Loose =>
 // see QN-1, QN-4, QN-5, NT-7, OP-16
 const question = (row: string): Loose => ({ manner: 'NT-7', question: row, items: [{ name: 'Task A', isShownOnAnotherTaskGroup: false }] })
 const OWED = { kind: 'changeDocument', writes: [[{ kind: 'CM-35' }]], created: null }
-const INCOMING = { fileName: 'next.xml', byteCount: 120, documentName: null }
+const INCOMING = { fileName: 'next.xml', byteCount: 120, documentName: null, format: 'mspdi' }
+const INCOMING_GRS_JSON = { ...INCOMING, fileName: 'next.json', format: 'grsJson' }
 const CANDIDATES = [{ currentUid: 1, currentName: 'Task A', incomingUid: 7, incomingName: 'Task A' }]
 const asked = (row: string, owedAction: unknown): Loose => ({ confirmationState: { kind: 'questionAsked', question: question(row), owedAction } })
 const reading = (openRoute: string): Loose => ({ fileOperationState: { kind: 'readingDocumentFile', openRoute } })
-const fileRead = (): Loose => ({ type: 'documentFileRead', question: question('QN-5'), incomingFile: INCOMING })
+const fileRead = (incomingFile: Loose = INCOMING): Loose => ({ type: 'documentFileRead', question: question('QN-5'), incomingFile })
 const landed = (dropped: readonly unknown[], missing: readonly unknown[], counts: readonly unknown[], openChoice = 'merge'): Loose => ({
   type: 'documentOpenLanded',
   droppedTaskNames: dropped,
@@ -555,16 +556,21 @@ const GUARD_CASES: readonly GuardCase[] = [
     sc('back to the saved document', UNSAVED, { type: 'documentEditLanded', isBackToSavedDocument: true }),
     sc('another edit', UNSAVED, { type: 'documentEditLanded', isBackToSavedDocument: false }),
   ] },
-  ...(['isBaselineRoute', 'isReopenRoute'] as const).map((guard) => ({
+  ...(['isBaselineRoute', 'isReplaceWithoutChooser'] as const).map((guard) => ({
     region: 'fileFlow', guard, machine: 'fileOperationStateMachine', state: 'readingDocumentFile', scenes: [
       sc('baseline route', { ...reading('baseline'), ...UNSAVED }, fileRead()),
       sc('reopen route, edits unsaved', { ...reading('reopen'), ...UNSAVED }, fileRead()),
       sc('reopen route, nothing unsaved', { ...reading('reopen'), ...SAVED }, fileRead()),
       sc('chooser route', { ...reading('chooser'), ...UNSAVED }, fileRead()),
+      sc('chooser route, GRS JSON', { ...reading('chooser'), ...UNSAVED }, fileRead(INCOMING_GRS_JSON)),
+      sc('drop route, MSPDI', { ...reading('drop'), ...UNSAVED }, fileRead()),
+      sc('drop route, GRS JSON, edits unsaved', { ...reading('drop'), ...UNSAVED }, fileRead(INCOMING_GRS_JSON)),
+      sc('drop route, GRS JSON, nothing unsaved', { ...reading('drop'), ...SAVED }, fileRead(INCOMING_GRS_JSON)),
     ] })),
-  { region: 'fileFlow', guard: 'isReopenRoute', machine: 'confirmationStateMachine', state: 'notAsked', scenes: [
+  { region: 'fileFlow', guard: 'isReplaceWithoutChooser', machine: 'confirmationStateMachine', state: 'notAsked', scenes: [
     sc('reopen route, edits unsaved', { ...reading('reopen'), ...UNSAVED }, fileRead()),
-    sc('drop route, edits unsaved', { ...reading('drop'), ...UNSAVED }, fileRead()),
+    sc('drop route, MSPDI, edits unsaved', { ...reading('drop'), ...UNSAVED }, fileRead()),
+    sc('drop route, GRS JSON, edits unsaved', { ...reading('drop'), ...UNSAVED }, fileRead(INCOMING_GRS_JSON)),
   ] },
   { region: 'fileFlow', guard: 'isDifferenceReviewSurface', machine: 'fileOperationStateMachine', state: 'awaitingMergeMapping', scenes: [
     sc('U-61 closed', MAPPING, { type: 'flowSurfaceClosed', surfaceName: 'U-61' }),
@@ -695,7 +701,7 @@ const NULL_CASES: readonly (readonly [string, boolean, GuardCase])[] = [
   [
     'いまの状態がその値を運ばなければ `null`',
     false,
-    { region: 'fileFlow', guard: 'isReopenRoute', machine: 'confirmationStateMachine', state: 'notAsked', scenes: [
+    { region: 'fileFlow', guard: 'isReplaceWithoutChooser', machine: 'confirmationStateMachine', state: 'notAsked', scenes: [
       sc('fileOperationStateMachine idle: openRoute is null', UNSAVED, fileRead()),
     ] },
   ],

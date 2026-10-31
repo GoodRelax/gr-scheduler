@@ -2354,7 +2354,7 @@ const OPEN_CHOOSER_SHOWN = frameWith({
       ...SCREEN_ROOT.fileFlow,
       fileOperationState: {
         kind: 'awaitingOpenChoice',
-        incomingFile: { fileName: 'IncomingFileName.json', byteLength: 2048, documentTitle: null },
+        incomingFile: { fileName: 'IncomingFileName.json', byteLength: 2048, documentTitle: null, format: 'grsJson' },
       },
     },
   },

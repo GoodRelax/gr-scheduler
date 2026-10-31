@@ -229,7 +229,8 @@ describe('T-078 FT-1 -- a file drop wakes a frame', () => {
     expect(run.routes).toEqual([OPEN_ROUTE_FROM_DROP])
   })
 
-  it('OP-3: once the held file is handed over, the Open Chooser stands and nothing is settled', async () => {
+  // WHY: a dropped GRS JSON opens as a replace without U-56 (OP-19); nothing is unsaved, so QN-5 stays down.
+  it('OP-19: once the held GRS JSON is handed over, it replaces the document and no Open Chooser stands', async () => {
     const run = await stage()
     const before = JSON.stringify(run.loop.document())
     run.loop.fileDropped()
@@ -238,8 +239,8 @@ describe('T-078 FT-1 -- a file drop wakes a frame', () => {
     run.handOver(there(), 'there.json')
     await settle()
     run.runFrames()
-    expect(run.last().openModal?.surface, 'OP-3 (MUST): nobody is being asked').toBe(OPEN_CHOOSER)
-    expect(JSON.stringify(run.loop.document()), 'OP-3 (MUST NOT): GRS chose by itself').toBe(before)
+    expect(run.last().openModal?.surface, 'OP-19 (MUST): the dropped GRS JSON raised the Open Chooser').not.toBe(OPEN_CHOOSER)
+    expect(JSON.stringify(run.loop.document()), 'OP-19 (MUST): the dropped GRS JSON did not replace the document').not.toBe(before)
   })
 })
 
@@ -272,6 +273,6 @@ describe('T-066 CS-4 -- the wait between the drop and the answer', () => {
     await settle()
     expect(run.framesAsked() - before, 'FT-1: the continuation across the wait woke no frame').toBeGreaterThanOrEqual(1)
     run.runFrames()
-    expect(run.last().openModal?.surface).toBe(OPEN_CHOOSER)
+    expect(run.last().openModal?.surface, 'OP-19: a dropped GRS JSON skips the Open Chooser').not.toBe(OPEN_CHOOSER)
   })
 })

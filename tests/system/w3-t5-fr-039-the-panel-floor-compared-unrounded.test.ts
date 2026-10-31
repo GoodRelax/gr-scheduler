@@ -7,7 +7,7 @@ import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 
 import { bare, specTable, unbroken } from '../contract/spec-table'
-import { answerConfirmation, enableAgentApi, icon, readDocument, settle } from '../use-case/uc-harness'
+import { answerConfirmation, enableAgentApi, readDocument, settle } from '../use-case/uc-harness'
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
 const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8'))
@@ -83,8 +83,7 @@ async function openByDrop(page: Page, text: string): Promise<void> {
     const target = document.querySelector('[data-role="Schedule Canvas"]') as Element
     for (const type of ['dragenter', 'dragover', 'drop']) target.dispatchEvent(new DragEvent(type, { bubbles: true, cancelable: true, dataTransfer: transfer }))
   }, text)
-  await page.waitForSelector('[data-role="Open Chooser"]')
-  await page.click(icon('IC-71', '[data-role="Open Chooser"]'))
+  // WHY: a dropped GRS JSON opens as a replace without U-56 (OP-19).
   await page.waitForTimeout(200)
   if (await page.locator('[data-role="Confirmation"] [data-confirmation-answer="proceed"]').count()) await answerConfirmation(page, 'proceed')
   await settle(page)

@@ -190,7 +190,11 @@ const EVENT_VARIANTS: Readonly<Record<string, readonly Loose[]>> = {
   newDocumentEntryPressed: [{ question: question('QN-5') }],
   grsResetEntryPressed: [{ question: question('QN-11') }],
   flowSurfaceClosed: ['U-56', 'U-61', 'U-62', 'U-30'].map((surfaceName) => ({ surfaceName })),
-  documentFileRead: [{ question: question('QN-5') }],
+  // WHY: OP-19 -- the format read decides a drop; a GRS JSON drop skips U-56, an MSPDI drop keeps it.
+  documentFileRead: (['grsJson', 'mspdi'] as const).map((format) => ({
+    question: question('QN-5'),
+    incomingFile: { fileName: format === 'grsJson' ? 'next.json' : 'next.xml', byteLength: 120, documentTitle: null, format },
+  })),
   documentOpenFailed: [{}],
   mergeMappingAsked: [{ mergeCandidates: CANDIDATES, unreadColumns: ['Notes'] }],
   documentOpenLanded: [
@@ -265,7 +269,7 @@ function expectedEffect(branch: StateEffect, flow: Loose, event: Loose): Loose {
         return { type: 'importIncomingDocument', answer: { kind: 'openChoice', openChoice: event['openChoice'] } }
       }
       // WHY: OP-15 -- a file read on the baseline route overlays without asking the three choices of OP-3 (MUST).
-      if (event['type'] === 'documentFileRead' && (flow['fileOperationState'] as Loose)['openRoute'] !== 'reopen') {
+      if (event['type'] === 'documentFileRead' && (flow['fileOperationState'] as Loose)['openRoute'] === 'baseline') {
         return { type: 'importIncomingDocument', answer: { kind: 'openChoice', openChoice: 'baseline' } }
       }
       return { type: 'importIncomingDocument', answer: { kind: 'openChoice', openChoice: 'replace' } }

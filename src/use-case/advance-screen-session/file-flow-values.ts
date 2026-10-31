@@ -71,11 +71,15 @@ export type FileFlowImportAnswer =
   | { readonly kind: 'openChoice'; readonly openChoice: FileFlowOpenChoice }
   | { readonly kind: 'mergeMapping'; readonly mergeMapping: FileFlowMergeMapping }
 
-// see OP-16
+// WHY: the format read decides a drop's open (OP-19); a single .html reads as its embedded GRS JSON (IO-7).
+export type FileFlowIncomingFormat = 'grsJson' | 'mspdi'
+
+// see OP-16, OP-19
 export interface FileFlowIncomingFile {
   readonly fileName: string | null
   readonly byteLength: number
   readonly documentTitle: string | null
+  readonly format: FileFlowIncomingFormat
 }
 
 export interface FileFlowValuesStateCarried {
@@ -224,8 +228,8 @@ export type FileFlowValuesGuardName =
   | 'isOpenChooserSurface'
   | 'isOverwriteQuestion'
   | 'isProceeding'
-  | 'isReopenRoute'
   | 'isReplaceChoice'
+  | 'isReplaceWithoutChooser'
 
 const FILE_FLOW_VALUES_INITIAL_AXES: FileFlowValuesAxes = {
   fileOperationState: { kind: 'idle' },
@@ -268,14 +272,15 @@ const FILE_FLOW_VALUES_GUARDS = {
   },
   isProceeding: (event: Extract<FileFlowValuesEvent, { readonly type: 'confirmationAnswered' }>): boolean =>
     event.isProceeding,
-  isReopenRoute: (values: FileFlowValues): boolean => {
+  isReplaceChoice: (event: Extract<FileFlowValuesEvent, { readonly type: 'openChoiceAnswered' | 'documentOpenLanded' }>): boolean =>
+    event.openChoice === 'replace',
+  isReplaceWithoutChooser: (values: FileFlowValues, event: Extract<FileFlowValuesEvent, { readonly type: 'documentFileRead' }>): boolean => {
     const fileOperationOpenRoute =
       values.fileOperationState.kind === 'readingDocumentFile' ? values.fileOperationState.openRoute
       : null
     return fileOperationOpenRoute === 'reopen'
+      || (fileOperationOpenRoute === 'drop') && (event.incomingFile?.format === 'grsJson')
   },
-  isReplaceChoice: (event: Extract<FileFlowValuesEvent, { readonly type: 'openChoiceAnswered' | 'documentOpenLanded' }>): boolean =>
-    event.openChoice === 'replace',
 }
 // </generated>
 
@@ -399,12 +404,12 @@ function fixBundleIssued(operation: FileOperationState): Effects {
   return [{ type: 'issueDelayFixBundle', fixBundle: operation.fixBundle }]
 }
 
-// see T-290, OP-3, OP-13, OP-15
+// see T-290, OP-3, OP-13, OP-15, OP-19
 /** @purity pure */
 function onDocumentFileRead(values: FileFlowValues, event: EventOf<'documentFileRead'>): FileFlowStep {
   const operation = values.fileOperationState
   if (operation.kind !== 'readingDocumentFile') return unchanged(values)
-  if (FILE_FLOW_VALUES_GUARDS.isReopenRoute(values)) return discardAskedWhenUnsaved(values, event.question)
+  if (FILE_FLOW_VALUES_GUARDS.isReplaceWithoutChooser(values, event)) return discardAskedWhenUnsaved(values, event.question)
   if (FILE_FLOW_VALUES_GUARDS.isBaselineRoute(values)) {
     const importing: FileOperationState = { kind: 'importingDocument' }
     const answer: FileFlowImportAnswer = { kind: 'openChoice', openChoice: 'baseline' }
