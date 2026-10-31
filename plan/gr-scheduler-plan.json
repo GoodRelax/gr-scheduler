@@ -14,7 +14,7 @@
       "creationDate": "2026-10-31T08:50:00",
       "revision": 11,
       "startDate": "2026-10-17T05:30:00",
-      "statusDate": "2026-10-31T20:26:00",
+      "statusDate": "2026-10-31T20:27:00",
       "minutesPerDay": 1440,
       "minutesPerWeek": 10080,
       "daysPerMonth": 30,
@@ -24,7 +24,7 @@
       "defaultFinishTime": "23:59:00",
       "themeHue": 214,
       "parentTaskProgressToleranceDays": 1,
-      "uidHighWaterMark": 380,
+      "uidHighWaterMark": 381,
       "importSequence": 0,
       "carry": {},
       "carryElements": [],
@@ -7204,6 +7204,38 @@
         ],
         "carry": {},
         "carryElements": []
+      },
+      {
+        "uid": 381,
+        "parentTaskUid": null,
+        "wbsOrder": 258,
+        "name": "CR-858(落とした GRS JSON は選択なしで開く)の出荷の後: BOSS の GQA と CR-858 の GQA を BGQA(チーム ID B の GQA)にまとめる(調整役)",
+        "start": "2026-11-01T11:00:00",
+        "finish": "2026-11-01T11:30:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "オーナーの通達（BOSSBOSS 経由、2026-10-31）: GQA の ID は「チームの ID + GQA」。B チームの GQA は 1 つのファイル BGQA（分野ごとに章）、用語集だけ BGQA2。ファイルの 1 行目は ID だけ。BOSS が出荷の後に、BOSS の GQA と CR-858 の GQA を BGQA にまとめる。見積は PMO の置き（30 分）。326（オーナーの合流）の後に置いた。調整役のモデルと努力: Opus 5.5・high。",
+        "calendarUid": null,
+        "actualStart": null,
+        "stop": null,
+        "actualFinish": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 326,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
       }
     ],
     "resources": [],
@@ -8765,6 +8797,10 @@
       },
       {
         "taskUid": 380,
+        "taskGroupId": "360eebfe-b421-54f7-ae66-8f611ac2263d"
+      },
+      {
+        "taskUid": 381,
         "taskGroupId": "360eebfe-b421-54f7-ae66-8f611ac2263d"
       }
     ],
@@ -10824,6 +10860,14 @@
         "fillColor": "purple",
         "strokeColor": null,
         "strokeWidthPx": null
+      },
+      {
+        "taskUid": 381,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": "diamond",
+        "fillColor": "purple",
+        "strokeColor": null,
+        "strokeWidthPx": null
       }
     ],
     "commentBoxes": [
@@ -12307,10 +12351,10 @@
     "zoomY": 1.099862517185352
   },
   "documentStamp": {
-    "scheduleUpdatedAt": "2026-10-31T11:26:00Z",
+    "scheduleUpdatedAt": "2026-10-31T11:27:00Z",
     "lastEditedBy": "PMO child session",
     "settingsUpdatedAt": "2026-10-20T20:24:42Z",
-    "fileSavedAt": "2026-10-31T11:26:00Z"
+    "fileSavedAt": "2026-10-31T11:27:00Z"
   },
   "changeLog": [
     {
@@ -12600,6 +12644,12 @@
       "editedBy": "PMO child session",
       "explanation": "Fact at 20:26 JST (machine clock): 379 done (d1f99b612; end inferred from the BOSS line time minus the ~15 min clock drift) and 376 done (5d2ce46cd); new task 380 (release_version.mjs Alpha, release notes, README version line; 30 min, started 20:26) added between 376 and 377. 377 stays at 21:19; N1 and the provisional beta unchanged.",
       "changedAt": "2026-10-31T11:26:00Z"
+    },
+    {
+      "ordinal": 49,
+      "editedBy": "PMO child session",
+      "explanation": "Fact at 20:27 JST (machine clock): the owner named the GQA ID rule (team ID + GQA; B team: BGQA with chapters, glossary BGQA2); new task 381 (BOSS merges its GQA and the CR-858 GQA into BGQA after the release, 30 min) placed after 326 at 11-01 11:00-11:30. No other date moved; N1 and the provisional beta unchanged.",
+      "changedAt": "2026-10-31T11:27:00Z"
     }
   ]
 }
