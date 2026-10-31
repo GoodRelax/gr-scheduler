@@ -65,6 +65,9 @@ function writtenHtmlFixture(path: string, rows: number): string {
   return path
 }
 
+/** @purity semi-pure-b */
+const readStamp = (page: Page): Promise<unknown> => page.evaluate(() => (window as any).grSchedulerAgentApi.readStamp())
+
 /** @purity non-pure */
 async function makeAnUnsavedEdit(page: Page): Promise<void> {
   const landed = await page.evaluate(() => {
@@ -135,9 +138,51 @@ for (const order of ['GRS JSON first', 'MSPDI first'] as const) {
     await expect(page.locator(OPEN_CHOOSER)).toHaveCount(0)
     await expect(page.locator(CONFIRMATION)).toHaveCount(0)
     await expect(page.locator(NOTICES), OP_11_SEVERAL_OPEN_NONE).toContainText(RS_14_EN)
+    // WHY: the next step of RS-14 is the owner's own wording (JDG-3585), so it is held letter for letter.
+    await expect(page.locator(NOTICES), 'RS-14 next step (JDG-3585)').toContainText('Drop one file at a time.')
     expect((await readDocument(page)).schedule.tasks.length, OP_11_SEVERAL_OPEN_NONE).toBe(before.schedule.tasks.length)
   })
 }
+
+test('Given an unsaved edit, When a person drops two files at once, Then GRS opens neither, asks nothing, keeps the edit and tells RS-14', async ({ page }, info) => {
+  await openDevServer(page)
+  await makeAnUnsavedEdit(page)
+  const stamp = await readStamp(page)
+  await dropForReal(page, writtenFixture(info.outputPath('cr-858-edited-one.json'), 2), MSPDI_SAMPLE)
+  await expect(page.locator(OPEN_CHOOSER)).toHaveCount(0)
+  await expect(page.locator(CONFIRMATION), 'OP-11: QN-5 was asked for a drop that opens nothing').toHaveCount(0)
+  await expect(page.locator(NOTICES), OP_11_SEVERAL_OPEN_NONE).toContainText(RS_14_EN)
+  expect((await readDocument(page)).schedule.tasks[0]?.name, OP_11_SEVERAL_OPEN_NONE).toBe('Edited here')
+  expect(await readStamp(page), 'OP-11: the unsaved document moved').toEqual(stamp)
+})
+
+// WHY: OP-19 holds for every format, so MSPDI takes the same OP-4 question as GRS JSON.
+test('Given an unsaved edit, When a person drops an MSPDI XML, Then GRS asks QN-5 once and opens it on proceed', async ({ page }) => {
+  await openDevServer(page)
+  await makeAnUnsavedEdit(page)
+  const before = (await readDocument(page)).schedule.tasks.length
+  await dropForReal(page, MSPDI_SAMPLE)
+  await expect(page.locator(OPEN_CHOOSER), OP_19_OPENS_WITHOUT_CHOOSER).toHaveCount(0)
+  await expect(page.locator(CONFIRMATION), OP_19_KEEPS_OP_4).toHaveCount(1)
+  expect((await readDocument(page)).schedule.tasks.length, 'OP-4: the document changed before the answer').toBe(before)
+  await answerConfirmation(page, 'proceed')
+  await expect(page.locator(CONFIRMATION), 'OP-4: QN-5 was asked more than once').toHaveCount(0)
+  await expect.poll(async () => (await readDocument(page)).schedule.tasks.length, 'OP-19: the dropped MSPDI did not open').not.toBe(before)
+})
+
+test('Given an unsaved edit, When a person drops an MSPDI XML and cancels QN-5, Then GRS keeps the current document', async ({ page }) => {
+  await openDevServer(page)
+  await makeAnUnsavedEdit(page)
+  const before = await readDocument(page)
+  await dropForReal(page, MSPDI_SAMPLE)
+  await expect(page.locator(CONFIRMATION), OP_19_KEEPS_OP_4).toHaveCount(1)
+  await answerConfirmation(page, 'cancel')
+  await expect(page.locator(OPEN_CHOOSER)).toHaveCount(0)
+  await expect(page.locator(CONFIRMATION)).toHaveCount(0)
+  const after = await readDocument(page)
+  expect(after.schedule.tasks.length, 'OP-4: a cancel replaced the document').toBe(before.schedule.tasks.length)
+  expect(after.schedule.tasks[0]?.name).toBe('Edited here')
+})
 
 test('Given nothing is unsaved, When a person drops a single .html, Then GRS opens its document without the Open Chooser', async ({ page }, info) => {
   await openDevServer(page)
@@ -156,7 +201,21 @@ test('Given an unsaved edit, When a person drops a single .html, Then GRS asks Q
   await expect(page.locator(CONFIRMATION), OP_19_KEEPS_OP_4).toHaveCount(1)
   expect((await readDocument(page)).schedule.tasks.length, 'OP-4: the document changed before the answer').toBe(before)
   await answerConfirmation(page, 'proceed')
+  await expect(page.locator(CONFIRMATION), 'OP-4: QN-5 was asked more than once').toHaveCount(0)
   await expect.poll(async () => (await readDocument(page)).schedule.tasks.length).toBe(4)
+})
+
+test('Given an unsaved edit, When a person drops a single .html and cancels QN-5, Then GRS keeps the current document', async ({ page }, info) => {
+  await openDevServer(page)
+  await makeAnUnsavedEdit(page)
+  const before = await readDocument(page)
+  await dropForReal(page, writtenHtmlFixture(info.outputPath('cr-858-kept.html'), 4))
+  await expect(page.locator(CONFIRMATION), OP_19_KEEPS_OP_4).toHaveCount(1)
+  await answerConfirmation(page, 'cancel')
+  await expect(page.locator(OPEN_CHOOSER)).toHaveCount(0)
+  const after = await readDocument(page)
+  expect(after.schedule.tasks.length, 'OP-4: a cancel replaced the document').toBe(before.schedule.tasks.length)
+  expect(after.schedule.tasks[0]?.name).toBe('Edited here')
 })
 
 // WHY: a headless browser has no file picker, so the host stub hands IC-1 the next file as a person's pick would.

@@ -2,7 +2,7 @@
 
 > 起草の状態: 仕様とコードと試験を当てた（2026-10-31、枝 `claude/ecstatic-lederberg-41f060`、develop `d14c315a9` の上）。同じ日に持ち主が GQA の問 1〜問 4 に答え、問 2 と問 4 が推奨案を覆したので、develop `e9cbfcea7` の上で当て直した。持ち主の頼みのホットフィックスであり、`CR-850` と一緒に main へ出す（BOSS の GQA の問 4）。
 > ID の帯: 調整役から番号 `CR-858`、台帳 `DFC-3619`〜`DFC-3623`、裁定 `JDG-3580`〜`JDG-3589`、保留 `PND-979`〜`PND-980`、見本 `81` を受けた。仕様の新しい行 ID は 表 T-024a の `OP-19` の 1 つ。`d14c315a9` の木で `CR-858` を名乗る変更要求と `OP-19` を名乗る行は 0 件だった（9 節）。
-> 当てるもの: `JDG-3580`〜`JDG-3585`（`DFC-3619`）。GQA `studies/81-dropped-json-opens-directly/drop-opens-gqa.md` の問 6（紹介頁の 2 つの文、`PND-979`）は持ち主の答えを待つ —— 本書は紹介頁を変えない。
+> 当てるもの: `JDG-3580`〜`JDG-3586`（`DFC-3619`）。GQA `studies/81-dropped-json-opens-directly/drop-opens-gqa.md` は問 1〜問 6 のすべてに答えを得て閉じた。
 
 ---
 
@@ -19,7 +19,7 @@
 ### 0.2 裁定の鎖（`rulings.md` を「ドロップ」「D&D」「置き換え」「Open Chooser」「OP-3」で引いた）
 
 - `JDG-1890`（2026-10-10）は「GRS の JSON や MSPDI の XML を画面に D&D したら開く」を頼み、その席は既に在る `OP-2` の道（3 択の面が出る）を確かめた。本書は 3 択を問うかどうかだけを変え、`JDG-1890` の「落として開く」を保つ。
-- `JDG-2838`（2026-10-19）は紹介頁 05 の段 4 の文「AI が作った GRS JSON を、日程表へドラッグ＆ドロップして「置き換える」を選択。」を定めた。本書の後、その文は事実と合わない —— 紹介頁の語は持ち主が行ごとに見るので、GQA の次の問いで問う（`PND-979`）。`docs/about/index.html` の 450 行目（「…ドラッグ＆ドロップして「置き換える」を押すと開く」）も同じ。
+- `JDG-2838`（2026-10-19）は紹介頁 05 の段 4 の文「AI が作った GRS JSON を、日程表へドラッグ＆ドロップして「置き換える」を選択。」を定めた。本書の後、その文は事実と合わない —— 紹介頁の語は持ち主が行ごとに見るので、GQA の問 6 で問い（`PND-979`）、持ち主は a を選んだ（`JDG-3586`。450 行目の注も同じく書き直す）。`JDG-3586` が `JDG-2838` の文を覆す。
 - `JDG-3584`（問 4「エラー」）が `OP-11` の「先頭の 1 つだけを受け入れ、残りを無視したことを告げる」を覆す。`OP-3` の「どちらになるかを `GRS` が勝手に決めてはならない（MUST NOT）」は、`OP-13` と `OP-15` と同じく「人が経路を選んだ時点で扱いが決まる」例外として残す。
 
 ### ① この変更は `CH-` / `GL-` のどれを前へ進めるか
@@ -89,9 +89,9 @@
 - `src/use-case/advance-screen-session/file-flow-values.ts`: `onDocumentFileRead` は `isReplaceWithoutChooser(values)` で `discardAskedWhenUnsaved` へ。ガードの判定は生成器が書く。
 - `src/framework/single-html-shell/document-file-flow.ts`: `ignoredFileCount` が 0 より大きいとき、`RS-14`（`SEVERAL_FILES_DROPPED_REASON`）を上げて何も開かずに戻る。
 
-### X-3 —— 紹介頁（持ち主の行ごとの確認の後）
+### X-3 —— 紹介頁（`JDG-3586`）
 
-- `docs/about/index.html` の 450 行目と 793 行目。語は GQA で問う（`PND-979`）。本書では変えない。
+- `docs/about/index.html` の 450 行目（サンプルの下の注）を「日程表へドラッグ＆ドロップすると開く。」、793 行目（試す手順の段 4）を「AI が作った GRS JSON を、日程表へドラッグ＆ドロップする。」にする。英語の対訳（`EN_TEXT`）も書き直し、書き換えた台本の CSP の指紋（`script-src` の `sha256-`）を計り直す —— 指紋が合わないと閲覧環境は台本を止め、英語に切り替わらない（`tests/system/dfc-3007-dfc-3008-the-download-and-overview-pages-point-at-each-other.test.ts` の英語の 4 件で確かめた）。
 
 ---
 
@@ -99,7 +99,7 @@
 
 - 継ぎ目は `isReplaceWithoutChooser` の 1 つ。殻は `askHowToOpen` の約束を、読み直しと同じ `importIncomingDocument`（置き換え）か `discardIncomingDocument` で受ける —— 殻の流れは変えない。
 - 仕様だけを読む試験（副エージェント、`src` を読まない）: `tests/contract/cr-858-op-19-a-dropped-grs-json-opens-without-the-chooser.contract.test.ts` の 7 件 —— 逐語 1（`OP-19`・`OP-4`・`OP-11`）、`GRS JSON` のドロップ（編集なし ／ 編集あり・進む ／ 編集あり・取りやめる）、`.html` のドロップ、MSPDI のドロップ、ファイル選択は 3 択。契約の舞台は 2 つのファイルを同時に落とせないので、2 つ以上は e2e が押さえる。
-- 本物のドロップ（CDP の `Input.dispatchDragEvent`、開発サーバー）: `tests/system/cr-858-a-real-drop-opens-a-grs-json-without-the-chooser.test.ts` の 6 件 —— 逐語 1、編集なし、編集あり・進む、編集あり・取りやめる、MSPDI も面を出さない、2 つを同時に落とすとどれも開かず `RS-14` を告げる。
+- 本物のドロップ（CDP の `Input.dispatchDragEvent`、開発サーバー）: `tests/system/cr-858-a-real-drop-opens-a-grs-json-without-the-chooser.test.ts` の 15 件 —— 逐語 1、`GRS JSON`（編集なし ／ 編集あり・進む ／ 編集あり・取りやめる）、MSPDI（編集なし ／ 編集あり・進む ／ 編集あり・取りやめる）、単一の `.html`（編集なし ／ 編集あり・進む ／ 編集あり・取りやめる）、2 つを同時に落とす（`GRS JSON` が先 ／ MSPDI が先 ／ 編集あり。どれも開かず、問わず、`RS-14` の 2 行を告げる）、ファイル選択は 3 択（`GRS JSON` ／ MSPDI）。
 - 前提を直した既存の試験: 契約 9 ファイル（ドロップで 3 択を待つ所をファイル選択へ、生成判定の場面を足した、`RS-14` の表示と語の指紋）、単体 2（`h3`・`uf-47-48` の `RS-14`）、e2e 11 ファイルと `uc-harness.ts`（合流・重ね・`UC-010` の手順はファイル選択へ）。
 - e2e の残り（`dist` を開くもの）は、調整役が `dist` を組み直した後に GT-2 で回る。本席は一時的に組んだ `dist` で回し、`dist` を元へ戻した（7 節）。
 
@@ -126,8 +126,8 @@
 | 台帳 | 動かしたもの |
 |---|---|
 | `defects.md` | `DFC-3619` を起こす |
-| `rulings.md` | `JDG-3580`（持ち主の頼み）、`JDG-3581`〜`JDG-3585`（GQA の問 1〜問 5） |
-| `pending-decisions.md` | `PND-979`（紹介頁の語）、`PND-980`（問 1〜問 4、裁定済） |
+| `rulings.md` | `JDG-3580`（持ち主の頼み）、`JDG-3581`〜`JDG-3586`（GQA の問 1〜問 6） |
+| `pending-decisions.md` | `PND-979`（紹介頁の語、裁定済）、`PND-980`（問 1〜問 4、裁定済） |
 | `changelog.md` | 本書の 1 行 |
 
 ---

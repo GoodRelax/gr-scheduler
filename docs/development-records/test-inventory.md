@@ -15,10 +15,10 @@ what this reading does not see.
 | `contract` | TS-5 | VT-2 | 474 | 6263 | 8 | 4 | 11 | 6 |
 | `integration` | TS-2 | - | 3 | 76 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
-| `system` | TS-3 | - | 105 | 662 | 0 | 0 | 0 | 1 |
+| `system` | TS-3 | - | 105 | 666 | 0 | 0 | 0 | 1 |
 | `unit` | TS-6 | - | 197 | 4108 | 1 | 1 | 2 | 0 |
 | `use-case` | TS-1 | VT-1 | 14 | 17 | 1 | 2 | 0 | 0 |
-| **all** | | | 796 | 11143 | 10 | 7 | 13 | 7 |
+| **all** | | | 796 | 11147 | 10 | 7 | 13 | 7 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -833,7 +833,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/system/cr-832-the-license-text-stretches-the-help-down.test.ts` | 6 | FR-038, FR-069 | - | T-025, T-103, T-109, T-337 | GR-24, IC-128, MC-6, S-201, U-32, WB-3 | - | - | - | - |
 | `tests/system/cr-850-the-grabs-the-field-and-the-cursors-on-the-dev-server.test.ts` | 9 | FR-033, FR-046, FR-103 | - | T-109 | CU-3, CY-5, DC-3, FO-8, GO-2, S-577, S-578, SG-1, TC-6, TC-10 | - | - | - | - |
 | `tests/system/cr-850-the-status-line-drags-in-fifteen-minute-steps.test.ts` | 2 | FR-046 | - | T-109 | S-577, S-578 | - | - | - | - |
-| `tests/system/cr-858-a-real-drop-opens-a-grs-json-without-the-chooser.test.ts` | 9 | FR-067, FR-087 | - | T-024a | IC-1, OP-4, OP-11, OP-19, QN-5, RS-14 | - | - | - | - |
+| `tests/system/cr-858-a-real-drop-opens-a-grs-json-without-the-chooser.test.ts` | 13 | FR-067, FR-087 | - | T-024a | IC-1, OP-4, OP-11, OP-19, QN-5, RS-14 | - | - | - | - |
 | `tests/system/dfc-2178-a-plain-wheel-leaves-a-focused-number-alone.test.ts` | 3 | - | - | T-025 | MC-6, MH-4, MK-1, S-197 | - | - | - | - |
 | `tests/system/dfc-2309-a-refused-open-tells-rs-25-and-leaves-the-document.test.ts` | 3 | FR-023, FR-076 | - | T-233 | IC-1, NT-1, RS-11, RS-25 | - | - | - | - |
 | `tests/system/dfc-2980-the-marker-pull-writes-the-actual-in-the-shipped-build.test.ts` | 1 | FR-095, FR-107 | - | T-245, T-267, T-270 | GA-5, GO-9, PE-8, QN-5 | - | - | - | - |
