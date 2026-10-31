@@ -382,8 +382,8 @@
 #          across the four ledgers, and -- while a merge is in progress or
 #          HEAD is a merge -- a ledger id of either side the merge lost
 #          (tools/ledger_id_count.py). JDG-2122. Baseline 0
-#   79     check-project-plan.py : docs/development-records/project-plan.json
-#          and project-plan.md exist together and change in the same
+#   79     check-project-plan.py : plan/gr-scheduler-plan.json
+#          and plan/gr-scheduler-plan.md exist together and change in the same
 #          commit, and no task name is a bare id. JDG-2123. Baseline 0
 #   80     check-drafted-ruling-cited.py : a rulings row reading
 #          `指示 —— CR-n が当てる` is cited by change-request/CR-n-*.md once

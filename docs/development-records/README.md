@@ -3,7 +3,7 @@
 > **English.** This folder holds GR Scheduler's development ledgers: the user's rulings (`rulings.md`, `JDG-` rows),
 > the defect ledger (`defects.md` open, `fixed-defects.md` closed, `DFC-` rows), decisions still pending
 > (`pending-decisions.md`), the specification's changelog (`changelog.md`), the hand-over between work sessions
-> (`handoff.md`), the project plan (`project-plan.json`, a GRS document) and the test inventory. `measurements/`
+> (`handoff.md`), the test inventory. The project plan (a GRS document) lives in `plan/` (`gr-scheduler-plan.json`). `measurements/`
 > keeps raw performance runs; `history/` keeps finished plans and reports. Several checks in
 > `.claude/skills/spec-graph-check/` read these files, so their table formats are fixed. The text is in Japanese.
 
@@ -41,8 +41,7 @@ docs/development-records/
   magic-numbers.md     src/ のマジックナンバーの作業表（ファイル単位。不具合台帳とは別）
   changelog.md         仕様書の変更履歴（版の形は ../development-rules/10-versions.md。検査 38）
   handoff.md           次の巡への引継ぎ。⛔ 番号を増やさず、毎巡この 1 ファイルを書き換える
-  project-plan.json    計画（GRS JSON。GRS で開いて読む）。読み方は project-plan.md（検査 79）
-  previous-plan.json   1 つ前の計画（JDG-2307）
+  （計画は ../../plan/ へ移った（2026-10-31）: gr-scheduler-plan.json（GRS JSON。GRS で開いて読む）・gr-scheduler-plan.md（読み方。検査 79）・gr-scheduler-plan-previous.json（1 つ前の計画。JDG-2307））
   test-inventory.md    試験の目録（1 試験ファイル 1 行。生成物 —— `npm run gen:tests`、検査 71）
   measurements/        性能と被覆の測定の生の出力。索引は measurements/README.md
   history/             終わった計画・報告・波の記録（W4・W5 を含む）と evidence/。索引は history/README.md

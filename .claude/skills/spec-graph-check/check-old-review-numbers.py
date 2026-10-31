@@ -48,7 +48,7 @@ EXEMPT = (
     'dist/',
     'dist-relay/',
     'docs/reference/',
-    'docs/development-records/previous-plan.json',
+    'plan/gr-scheduler-plan-previous.json',
     'docs/development-records/history/',
     'docs/development-records/measurements/',
     '.claude/worktrees/',

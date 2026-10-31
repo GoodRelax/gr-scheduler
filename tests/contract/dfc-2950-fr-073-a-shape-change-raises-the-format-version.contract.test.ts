@@ -102,8 +102,8 @@ const CURRENT_DOCUMENTS: readonly (readonly string[])[] = [
   ['docs', 'about', 'samples', 'sample-large-erp-program.ja.json'],
   ['docs', 'guides', 'schedule-to-grs-json', 'grs-skeleton.json'],
   ['tests', 'fixtures', 'measuring-document.json'],
-  ['docs', 'development-records', 'project-plan.json'],
-  ['docs', 'development-records', 'previous-plan.json'],
+  ['plan', 'gr-scheduler-plan.json'],
+  ['plan', 'gr-scheduler-plan-previous.json'],
 ]
 
 describe('DFC-2950 the clauses these cases hold are the manuscript words', () => {

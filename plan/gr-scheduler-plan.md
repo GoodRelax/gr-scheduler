@@ -1,17 +1,17 @@
-# プロジェクト計画の読み方
+# プロジェクト計画の読み方（plan/gr-scheduler-plan.md）
 
-⭐ **計画の本体は隣の `project-plan.json`（GRS JSON）である。GRS で開いて読む。**本書はその読み方だけを持つ。
+⭐ **計画の本体は隣の `gr-scheduler-plan.json`（GRS JSON）である。GRS で開いて読む。**本書はその読み方だけを持つ。
 ⭐ **PMO はオーナーの PMO の決めごと（GQA `pmo-rules-ja.md` の「決まったこと」の表、2026-10-31 08:42 に閉じた）に従って本計画を持つ**（下の「PMO の決めごと」）。
-⭐ **1 つ前の計画は `previous-plan.json` に残す**（利用者の指示 2026-10-15）。PMO は予定を引き直す時（PMO の決めごとの問 8）だけ、今の `project-plan.json` を `previous-plan.json` へ写して上書きする。ふだんの更新（問 6）では、PMO は実績・注・`statusDate`・`changeLog` だけを書き、`previous-plan.json` と予定の日付はそのまま残す。それより前の計画は git の履歴でだけ辿る。
+⭐ **1 つ前の計画は `gr-scheduler-plan-previous.json` に残す**（利用者の指示 2026-10-15）。PMO は予定を引き直す時（PMO の決めごとの問 8）だけ、今の `gr-scheduler-plan.json` を `gr-scheduler-plan-previous.json` へ写して上書きする。ふだんの更新（問 6）では、PMO は実績・注・`statusDate`・`changeLog` だけを書き、`gr-scheduler-plan-previous.json` と予定の日付はそのまま残す。それより前の計画は git の履歴でだけ辿る。
 
 ## いつの計画か
 
 | | |
 |---|---|
-| 時点 | **2026-10-31 11:25 JST**（JSON の `statusDate`）。develop の `ba7216e05`（PMO の N1 の組み直し）の上で、PMO（`pmo`）が書いた。予定は 10:50 の引き直しのまま（308 と憲章の下書き 252 だけ置き直した）。⚠️ origin の develop は `d0ae3a9c8`（10-24 05:46）のままで、調整役はその後の仕事をまだ push していない（299） |
-| 何をしたか | **ふだんの更新**（問 6）。オーナーが SUB 7 のカードを押した（305 の終わり）。SUB 7（`cr-851-successor-7-gloss`）は 11:22 に始まった（301 の実績の開始。時刻はアプリの `createdAt`、調整役の一言は「11:30 ごろ」）。オーナーは組み直しに「OK」と答えた（309 の終わり）。308（計画を置く場所）はまだ決まっていないので、事実として今から置き直した。SUB 7 の最初の仕事は GQA のファイル名の付け替え（`13-glossary-gqa.md`）。（10:50 の引き直しは N1・仮の β・返事待ちの置き直しを入れた。git の履歴の `ba7216e05` の本書が持つ） |
-| 1 つ前の計画 | `previous-plan.json` —— `b86ba2bb1` の `project-plan.json`（10-31 10:35 の版）を 1 バイトも変えずに写した（SHA-256 `e9e1440b125e07a1…`） |
-| 範囲 | 2026-10-17 05:30 からの済んだ仕事と、β 版のリリースまで。**タスク 194**（済み 113 —— うちマイルストーン 3・動いているもの 2・まだ 79。マイルストーンは全部で 7） |
+| 時点 | **2026-10-31 11:47 JST**（JSON の `statusDate`）。develop の `4f0117ed6`（PMO の 11:25 の更新）の上で、PMO（`pmo`）が書いた。**計画のファイルを `plan/` へ移した**（下の「置き場」）。⚠️ origin の develop は `d0ae3a9c8`（10-24 05:46）のままで、調整役はその後の仕事をまだ push していない（299） |
+| 何をしたか | **オーナーが計画の置き場を決めた**（308、2026-10-31「gr-scheduler の計画を、今までどおり git に入れて公開する」）。PMO は `git mv` で 3 つのファイルを `plan/` へ移した（履歴が付いて行く）。道具と文書の参照 10 か所を直した。予定の日付は動かしていない。N1（11-21 14:30）と仮の β（11-28）はそのまま |
+| 1 つ前の計画 | `gr-scheduler-plan-previous.json` —— `b86ba2bb1` の `gr-scheduler-plan.json`（10-31 10:35 の版）を 1 バイトも変えずに写した（SHA-256 `e9e1440b125e07a1…`） |
+| 範囲 | 2026-10-17 05:30 からの済んだ仕事と、β 版のリリースまで。**タスク 194**（済み 114 —— うちマイルストーン 3・動いているもの 2・まだ 78。マイルストーンは全部で 7） |
 | β 版の決め方 | **条件で出す**（`JDG-3001`）: β に入れた仕事が全部済み、`GT-2` と PERF が通ったら。**目安は 11-09（月）09:00** —— 「β 版のリリース」の星の締め切り（`deadline`）に書いた。**最も早い形では 11-28（土）00:00 —— 目安を 18 日と 15 時間越える**（下の「β の最も早い日」）。用語集のうち外との約束の 21 パートだけを先に確定する形でも 11-15（日）12:00 で、目安には届かない |
 | β に入れるもの | 全部（`JDG-3002`）。`JDG-3043` で範囲は削らない。「あとで」の `CR-854` と `CR-855`〜`857` も β の関門の前に置いた |
 | 暦 | **セッションは 24 時間 365 日稼働**。文書の暦は毎日 00:00〜24:00 の 1 つだけ。時刻は `UTC+09:00`（JST） |
@@ -22,10 +22,10 @@
 
 | | |
 |---|---|
-| 済み | 10:50 の巡から新しく 2: 305（SUB 7 のカードを押す、11:22）と 309（組み直しの OK、11:23） |
+| 済み | 11:25 の巡から新しく 1: 308（計画の置き場、オーナーが 11:47 までに決めた） |
 | 動いている | 301（用語集の残り。SUB 7 が 11:22 から）と 306（オーナーが用語集の GQA に答える、10:26 から）。GQA 13 は問 5（答えがまだ）と 5-6（機能の名を `delayDiagnosis` に変える案。Agent API に届く）が開いている。閉じた語は 111 のまま。SUB 7 は GQA のファイル名を付け替えている（GQA 13 は `13-glossary-gqa.md` になる） |
 | 待つ | 用語集の子セッションのほかの子セッションの仕事は、まだ始めていないものが全部 301 の後（利用者 2026-10-30）: 片付けの残り・第 2 波の小物 3 つ（196・117・118）・作業木の掃除（274）・憲章の仕上げ（253）・W4 前半（27）ほか。CR-855 と CR-857 のカードは引っ込めた —— 用語集の後に出し直す。調整役の行（D1・D7 を外す 275・push の 299）と利用者の行（憲章の下書きを直す 252）は待たない |
-| 遅れ | **遅れなし。** 事実: オーナーの返事待ちは 308（計画を置く場所）だけが残る。N1（11-21 14:30）は動かない。見込み: 今の速さ（8.2 語／時）で数えると N1 は 11-21 16:00 ごろ（約 1 時間 30 分後ろ）。N1 の日付を動かすのは、語が閉じて速さを測り直した時。**β の最も早い日は仮の 11-28（土）00:00 のまま**。⚠️ 時間帯の外のオーナーの作業を数えた場合の β 12-05 の危うさも前のまま |
+| 遅れ | **遅れなし。** 事実: オーナーの返事待ちは 0 件になった。N1（11-21 14:30）は動かない。見込み: 今の速さ（8.2 語／時）で数えると N1 は 11-21 16:00 ごろ（約 1 時間 30 分後ろ）。N1 の日付を動かすのは、語が閉じて速さを測り直した時。**β の最も早い日は仮の 11-28（土）00:00 のまま**。⚠️ 時間帯の外のオーナーの作業を数えた場合の β 12-05 の危うさも前のまま |
 
 ## 段（フェーズ）
 
@@ -47,7 +47,7 @@
 
 ## 前の計画との比べ方
 
-GRS で `project-plan.json` を開くと、1 つ前の計画（10-31 08:30 の版）が**点線の輪郭**で重なる（`baselineTasks` 182 行、`isBaselineVisible` が真）。GRS は **uid が同じタスク**の上に輪郭を描く —— 前の計画の 182 タスクは全部が同じ uid で残る（同じ仕事は同じ UID、`JDG-1931`）。PMO は新しいタスク 11 個（305〜315）を足し、`uidHighWaterMark` を 315 にした。新しいタスクは輪郭を持たない。
+GRS で `gr-scheduler-plan.json` を開くと、1 つ前の計画（10-31 08:30 の版）が**点線の輪郭**で重なる（`baselineTasks` 182 行、`isBaselineVisible` が真）。GRS は **uid が同じタスク**の上に輪郭を描く —— 前の計画の 182 タスクは全部が同じ uid で残る（同じ仕事は同じ UID、`JDG-1931`）。PMO は新しいタスク 11 個（305〜315）を足し、`uidHighWaterMark` を 315 にした。新しいタスクは輪郭を持たない。
 
 前の計画から動いた主なもの:
 - 名を変えたタスクは 2 つ: 301 は「名の辞書(用語集)のレビューと確定の残り(SUB 7 …)」、295 は「CR-851・848・849 の行のレビューの残り(用語集の後の SUB。445 行)」。301 の輪郭は 10-26 から、今の棒は 10-31 09:15 から始まる。295 の輪郭は 10-25 から、今の棒は 11-21 14:30 から始まる。どちらも終わりは同じ。
@@ -61,7 +61,7 @@ GRS で `project-plan.json` を開くと、1 つ前の計画（10-31 08:30 の�
 
 | 問い | PMO が本計画でしたこと |
 |---|---|
-| 問 1・2 置き場 | PMO は計画を今の場所（`docs/development-records/`）に置く。オーナーが git を使うか・公開するかを決めたら、PMO は計画を `plan/gr-scheduler-plan.json` へ移す（308）。移す時に直すファイルは 10 個（PMO が数えた一覧は調整役が持つ） |
+| 問 1・2 置き場 | オーナーが「今までどおり git に入れて公開する」と決めた（308、2026-10-31）。PMO は計画を `plan/` へ移した: `plan/gr-scheduler-plan.json`・`plan/gr-scheduler-plan.md`・`plan/gr-scheduler-plan-previous.json`（`git mv`）。2026-10-31 まで `docs/development-records/` の `project-plan.json`・`project-plan.md`・`previous-plan.json` だった。直した道具と文書は 10 か所（検査 79、検査 91 と旧い言葉の検査の対象外の道すじ、開発の記録の検査（`check-development-record.py`）の許す一覧、`dfc-2950` の契約テスト、`09-tools.md`、`session-names.md`、`docs/development-records/README.md`、`handoff.md` の引継ぎ文） |
 | 問 3 名と題 | PMO は題を「gr-schedulerの計画」にした。時点は `statusDate` が持つ。ファイル名は移す時に `gr-scheduler-plan.json` にする |
 | 問 4 粒度 | PMO は SUB 1 つの仕事を 1 タスクにした。オーナーの返事待ちは「オーナーがすること」の組のタスクにした |
 | 問 5 実績の時刻 | PMO は調整役の一言が届いた時刻か、一言の中の時刻を使う。組み直しで分けた済んだタスクは、アプリの SUB の `createdAt` とコミットの時刻を使った（下の「実績」） |
@@ -110,9 +110,9 @@ GRS で `project-plan.json` を開くと、1 つ前の計画（10-31 08:30 の�
 
 ## 確かめ
 
-- `python -I tools/schema-only-writer/validate.py docs/spec/_source/grs-document.schema.json docs/development-records/project-plan.json` → 違反 0（`previous-plan.json` も 0）
-- `node tools/schema-only-writer/measure.mjs docs/spec/_source/grs-document.schema.json docs/development-records/project-plan.json docs/development-records/previous-plan.json`（**コミット済みの `dist/index.html`**、最後の変更は `a59082675`）→ 2 ファイルとも PASS（拒み 0・知らせ 0・エラー 0・例外 0・**数え直し 0**、読み戻し 194 と 194。`previous-plan.json` は 10:50 の巡で 193 と 193）
-- uid: 11:25 の更新はタスクを足さず、消さない（194 のまま）。新しく済んだものは 2（305・309）。予定が動いたものは 2（308・252）。`previous-plan.json` は 10:50 の引き直しの時の写し（`b86ba2bb1` の計画）のまま。問 7 の遅れは 0
+- `python -I tools/schema-only-writer/validate.py docs/spec/_source/grs-document.schema.json plan/gr-scheduler-plan.json` → 違反 0（`gr-scheduler-plan-previous.json` も 0）
+- `node tools/schema-only-writer/measure.mjs docs/spec/_source/grs-document.schema.json plan/gr-scheduler-plan.json plan/gr-scheduler-plan-previous.json`（**コミット済みの `dist/index.html`**、最後の変更は `a59082675`）→ 2 ファイルとも PASS（拒み 0・知らせ 0・エラー 0・例外 0・**数え直し 0**、読み戻し 194 と 194。`gr-scheduler-plan-previous.json` は 10:50 の巡で 193 と 193）
+- uid: 11:47 の更新はタスクを足さず、消さない（194 のまま）。新しく済んだものは 1（308）。予定は動かしていない。`gr-scheduler-plan-previous.json` は 10:50 の引き直しの時の写し（`b86ba2bb1` の計画）のまま。問 7 の遅れは 0
 - measure.mjs が書く報告（`*.measure.json`）は作業メモへ移した（追跡しない）
 
 ## スキーマで迷った点

@@ -14,7 +14,7 @@
       "creationDate": "2026-10-31T08:50:00",
       "revision": 11,
       "startDate": "2026-10-17T05:30:00",
-      "statusDate": "2026-10-31T11:25:00",
+      "statusDate": "2026-10-31T11:47:00",
       "minutesPerDay": 1440,
       "minutesPerWeek": 10080,
       "daysPerMonth": 30,
@@ -1910,18 +1910,18 @@
         "parentTaskUid": null,
         "wbsOrder": 68,
         "name": "計画の置き場(git を使うか・公開するか)を決める",
-        "start": "2026-10-31T11:25:00",
-        "finish": "2026-10-31T11:40:00",
+        "start": "2026-10-31T08:50:00",
+        "finish": "2026-10-31T11:47:00",
         "milestone": false,
         "deadline": null,
-        "notes": "10-31: PMO の決めごとの問 1・問 2（オーナー 08:39）で、計画はリポジトリの plan/ に入る。git を使うか・公開するかはプロジェクトごとに決める。調整役がオーナーに問うている。決まったら、PMO が計画を plan/gr-scheduler-plan.json へ移す。 10-31 11:25: まだ決まっていない。事実として今から置き直した。",
+        "notes": "10-31: PMO の決めごとの問 1・問 2（オーナー 08:39）で、計画はリポジトリの plan/ に入る。git を使うか・公開するかはプロジェクトごとに決める。調整役がオーナーに問うている。決まったら、PMO が計画を plan/gr-scheduler-plan.json へ移す。 10-31 11:25: まだ決まっていない。事実として今から置き直した。 10-31 11:47: オーナーが決めた（2026-10-31「gr-scheduler の計画を、今までどおり git に入れて公開する」）。計画は git に入れ、公開し、plan/ へ移す。始まりは返事待ちを置いた時刻、終わりは調整役の一言が届いた時刻。",
         "calendarUid": null,
-        "actualStart": null,
+        "actualStart": "2026-10-31T08:50:00",
         "stop": null,
-        "actualFinish": null,
+        "actualFinish": "2026-10-31T11:47:00",
         "resume": null,
         "resumeValid": null,
-        "percentComplete": 0,
+        "percentComplete": 100,
         "fadeInDays": null,
         "fadeOutDays": null,
         "dependencies": [],
@@ -3266,7 +3266,7 @@
         "finish": "2026-11-21T14:30:00",
         "milestone": true,
         "deadline": null,
-        "notes": "オーナー 2026-10-31「gr-schedulerの実装はまだあと。 今は丁寧に命名を頑張る。」命名が終わるのが N1。オーナーの速さで進み、オーナーを急かす知らせは出さない。N1 の日付は 301 の終わりと同じ（8.2 語／時）。β 版（234）の日付は仮で、命名が終わったら BOSSBOSS が組み直しをオーナーに提案する。命名に要らない実装の仕事は、N1 まで始めない。",
+        "notes": "オーナー 2026-10-31「gr-schedulerの実装はまだあと。 今は丁寧に命名を頑張る。」命名が終わるのが N1。オーナーの速さで進み、オーナーを急かす知らせは出さない。N1 の日付は 301 の終わりと同じ（8.2 語／時）。β 版（234）の日付は仮で、命名が終わったら BOSSBOSS が組み直しをオーナーに提案する。命名に要らない実装の仕事は、N1 まで始めない。 計画の置き場が決まった（308）。計画のファイルは plan/gr-scheduler-plan.json。",
         "calendarUid": null,
         "actualStart": null,
         "stop": null,
@@ -9461,10 +9461,10 @@
     "zoomY": 1.099862517185352
   },
   "documentStamp": {
-    "scheduleUpdatedAt": "2026-10-31T02:25:00Z",
+    "scheduleUpdatedAt": "2026-10-31T02:47:00Z",
     "lastEditedBy": "PMO child session",
     "settingsUpdatedAt": "2026-10-20T20:24:42Z",
-    "fileSavedAt": "2026-10-31T02:25:00Z"
+    "fileSavedAt": "2026-10-31T02:47:00Z"
   },
   "changeLog": [
     {
@@ -9568,6 +9568,12 @@
       "editedBy": "PMO child session",
       "explanation": "Actuals to 2026-10-31 11:25 JST: 305 done (owner pressed the SUB 7 card; SUB 7 created 11:22); 309 done (owner OK on the re-plan); 301 remainder started 11:22 (SUB 7); 308 placed from now; planned dates otherwise unchanged (rule 8).",
       "changedAt": "2026-10-31T02:25:00Z"
+    },
+    {
+      "ordinal": 18,
+      "editedBy": "PMO child session",
+      "explanation": "Actuals to 11:47 JST: 308 done (the owner keeps the plan in git, public, and moves it to plan/); the three plan files moved with git mv to plan/gr-scheduler-plan.json, plan/gr-scheduler-plan.md and plan/gr-scheduler-plan-previous.json; planned dates unchanged (rule 8).",
+      "changedAt": "2026-10-31T02:47:00Z"
     }
   ]
 }
