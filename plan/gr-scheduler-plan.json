@@ -14,7 +14,7 @@
       "creationDate": "2026-10-31T08:50:00",
       "revision": 11,
       "startDate": "2026-10-17T05:30:00",
-      "statusDate": "2026-10-31T16:10:00",
+      "statusDate": "2026-10-31T16:13:00",
       "minutesPerDay": 1440,
       "minutesPerWeek": 10080,
       "daysPerMonth": 30,
@@ -3017,18 +3017,18 @@
         "parentTaskUid": null,
         "wbsOrder": 110,
         "name": "CR-850(基準日線・カーソル・掴みを 15 分に)の急ぎの出荷: オーナーと GQA で X-3a の 3 か所を決める",
-        "start": "2026-10-31T16:15:00",
-        "finish": "2026-10-31T16:45:00",
+        "start": "2026-10-31T15:50:00",
+        "finish": "2026-10-31T16:11:00",
         "milestone": false,
         "deadline": null,
-        "notes": "オーナーの注文（BOSSBOSS 経由、2026-10-31）: CR-850（基準日線・カーソル・掴みを 15 分に）の急ぎの出荷。「実装は命名の後」の例外にした。SUB baseline-15min（Opus 5.5・high）で、用語集と並行に今から動く。段（規則 7）: GQA → 仕様とテスト仕様 → 実装と自動試験 → Gherkin の確かめ（別の SUB）→ オーナーの現場の試験 → 出荷（調整役）。見積は 288 の 30 分と、305〜315 前後の同種の仕事（230・231）からの置き。 段 1（GQA）。オーナーの番。",
+        "notes": "オーナーの注文（BOSSBOSS 経由、2026-10-31）: CR-850（基準日線・カーソル・掴みを 15 分に）の急ぎの出荷。「実装は命名の後」の例外にした。SUB baseline-15min（Opus 5.5・high）で、用語集と並行に今から動く。段（規則 7）: GQA → 仕様とテスト仕様 → 実装と自動試験 → Gherkin の確かめ（別の SUB）→ オーナーの現場の試験 → 出荷（調整役）。見積は 288 の 30 分と、305〜315 前後の同種の仕事（230・231）からの置き。 段 1（GQA）。オーナーの番。 16:13: 済んだ。SUB baseline-15min（Opus 5.5・high）は 15:50 ごろに再開して GQA（4 問）を出し、オーナーは 16:11 に 4 問とも a と答えた: 状態の行・15 分刻み・X-3a を含む・今日の develop の振る舞いのまま出す。始まりは SUB が GQA を出した時刻（調整役の一言）。",
         "calendarUid": null,
-        "actualStart": null,
+        "actualStart": "2026-10-31T15:50:00",
         "stop": null,
-        "actualFinish": null,
+        "actualFinish": "2026-10-31T16:11:00",
         "resume": null,
         "resumeValid": null,
-        "percentComplete": 0,
+        "percentComplete": 100,
         "fadeInDays": null,
         "fadeOutDays": null,
         "dependencies": [],
@@ -3044,7 +3044,7 @@
         "finish": "2026-10-31T17:45:00",
         "milestone": false,
         "deadline": null,
-        "notes": "オーナーの注文（BOSSBOSS 経由、2026-10-31）: CR-850（基準日線・カーソル・掴みを 15 分に）の急ぎの出荷。「実装は命名の後」の例外にした。SUB baseline-15min（Opus 5.5・high）で、用語集と並行に今から動く。段（規則 7）: GQA → 仕様とテスト仕様 → 実装と自動試験 → Gherkin の確かめ（別の SUB）→ オーナーの現場の試験 → 出荷（調整役）。見積は 288 の 30 分と、305〜315 前後の同種の仕事（230・231）からの置き。 段 2。SUB のモデルと努力: Opus 5.5・high。",
+        "notes": "オーナーの注文（BOSSBOSS 経由、2026-10-31）: CR-850（基準日線・カーソル・掴みを 15 分に）の急ぎの出荷。「実装は命名の後」の例外にした。SUB baseline-15min（Opus 5.5・high）で、用語集と並行に今から動く。段（規則 7）: GQA → 仕様とテスト仕様 → 実装と自動試験 → Gherkin の確かめ（別の SUB）→ オーナーの現場の試験 → 出荷（調整役）。見積は 288 の 30 分と、305〜315 前後の同種の仕事（230・231）からの置き。 段 2。SUB のモデルと努力: Opus 5.5・high。 16:13: GQA が予定より早く済んだ（16:11）。SUB は X-3a と自動試験の仕上げに進んでいる。SUB の見積は調整役から届く。届くまで予定の日付は置いたまま。",
         "calendarUid": null,
         "actualStart": null,
         "stop": null,
@@ -3076,7 +3076,7 @@
         "finish": "2026-10-31T18:15:00",
         "milestone": false,
         "deadline": null,
-        "notes": "baseline-15min の残り。W4 前半（27）と CR-851 の当て（296）の後に再開する。見積は 30 分。 16:10: オーナーの注文（BOSSBOSS 経由、2026-10-31）: CR-850（基準日線・カーソル・掴みを 15 分に）の急ぎの出荷。「実装は命名の後」の例外にした。SUB baseline-15min（Opus 5.5・high）で、用語集と並行に今から動く。段（規則 7）: GQA → 仕様とテスト仕様 → 実装と自動試験 → Gherkin の確かめ（別の SUB）→ オーナーの現場の試験 → 出荷（調整役）。見積は 288 の 30 分と、305〜315 前後の同種の仕事（230・231）からの置き。 段 3（実装と自動試験）。SUB のモデルと努力: Opus 5.5・high。前は W4 前半（27）と CR-851 の当て（296）の後に再開する置き方だった。急ぎの出荷で今から再開するので、その 2 つへの依存線を外した。W4（アダプタ層の分割）との同じ場所の変更は SUB が避ける。",
+        "notes": "baseline-15min の残り。W4 前半（27）と CR-851 の当て（296）の後に再開する。見積は 30 分。 16:10: オーナーの注文（BOSSBOSS 経由、2026-10-31）: CR-850（基準日線・カーソル・掴みを 15 分に）の急ぎの出荷。「実装は命名の後」の例外にした。SUB baseline-15min（Opus 5.5・high）で、用語集と並行に今から動く。段（規則 7）: GQA → 仕様とテスト仕様 → 実装と自動試験 → Gherkin の確かめ（別の SUB）→ オーナーの現場の試験 → 出荷（調整役）。見積は 288 の 30 分と、305〜315 前後の同種の仕事（230・231）からの置き。 段 3（実装と自動試験）。SUB のモデルと努力: Opus 5.5・high。前は W4 前半（27）と CR-851 の当て（296）の後に再開する置き方だった。急ぎの出荷で今から再開するので、その 2 つへの依存線を外した。W4（アダプタ層の分割）との同じ場所の変更は SUB が避ける。 16:13: SUB は X-3a と自動試験の仕上げに進んでいる（調整役の一言 16:11）。見積は SUB から届く。",
         "calendarUid": null,
         "actualStart": null,
         "stop": null,
@@ -9955,10 +9955,10 @@
     "zoomY": 1.099862517185352
   },
   "documentStamp": {
-    "scheduleUpdatedAt": "2026-10-31T07:10:00Z",
+    "scheduleUpdatedAt": "2026-10-31T07:13:00Z",
     "lastEditedBy": "PMO child session",
     "settingsUpdatedAt": "2026-10-20T20:24:42Z",
-    "fileSavedAt": "2026-10-31T07:10:00Z"
+    "fileSavedAt": "2026-10-31T07:13:00Z"
   },
   "changeLog": [
     {
@@ -10116,6 +10116,12 @@
       "editedBy": "PMO child session",
       "explanation": "Actuals to 16:10 JST: hot release of CR-850 by the owner exception to \"implementation after naming\": stages GQA 321, spec 322, implementation 288, scenario check 323, field test 324, release 299 / OneDrive stop 327 / 275 / main PR 325 / owner merge 326, in SUB baseline-15min parallel to the glossary; 299 and 275 moved before N1; 288 no longer waits for W4 and CR-851; N1 and the provisional beta unchanged.",
       "changedAt": "2026-10-31T07:10:00Z"
+    },
+    {
+      "ordinal": 27,
+      "editedBy": "PMO child session",
+      "explanation": "Actuals to 16:13 JST: baseline-15min restarted for the CR-850 hot release at about 15:50 and put out its GQA; the owner answered all four questions a at 16:11 (321 done); the SUB now finishes X-3a and the tests; the later stages keep their planned dates until the SUB estimate arrives; N1 and the provisional beta unchanged.",
+      "changedAt": "2026-10-31T07:13:00Z"
     }
   ]
 }
