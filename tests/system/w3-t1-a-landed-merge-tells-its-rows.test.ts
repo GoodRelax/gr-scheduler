@@ -5,7 +5,7 @@ import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { unbroken } from '../contract/spec-table'
 import { reasonWords } from './cr-570-tree-state-stage'
-import { VIEWPORT, dropFile, enableAgentApi, icon, launch, openByDrop, settle } from '../use-case/uc-harness'
+import { VIEWPORT, enableAgentApi, icon, launch, openByDrop, openThroughIc1, settle } from '../use-case/uc-harness'
 import { taskGroupsDocument } from './w3-t1-stage'
 
 test.use({ viewport: VIEWPORT, locale: 'en-US' })
@@ -19,11 +19,10 @@ const REVIEW = '[data-role="Difference Review"]'
 const NOTICES = '[data-role="Notification Area"]'
 const IMPORT_REPORT = '[data-role="Import Report"]'
 
+// WHY: a dropped GRS JSON opens as a replace (OP-19), so a merge opens through IC-1.
 /** @purity non-pure */
-async function mergeByDrop(page: Page, name: string, text: string): Promise<void> {
-  await dropFile(page, name, text)
-  await page.click(icon('IC-72', '[data-role="Open Chooser"]'))
-  await settle(page)
+async function mergeThroughIc1(page: Page, name: string, text: string): Promise<void> {
+  await openThroughIc1(page, name, text, 'IC-72')
 }
 
 /** @purity semi-pure-b */
@@ -57,7 +56,7 @@ test.describe(`MG-14 (MUST): ${MG_14.slice(-40)}`, () => {
       return api.applyCommands({ expectedStamp: api.readStamp(), commands: [{ kind: 'setTaskName', taskUid: 2, name: 'Changed here' }] }).ok
     })
     expect(renamed, 'premise: task 2 differs from the incoming file').toBe(true)
-    await mergeByDrop(page, 'w3-t1-incoming.json', taskGroupsDocument({ rows: 2 }))
+    await mergeThroughIc1(page, 'w3-t1-incoming.json', taskGroupsDocument({ rows: 2 }))
     await expect(page.locator(REVIEW), 'premise: the Difference Review asks about task 2').toHaveCount(1)
     await page.click(icon('IC-95', REVIEW))
     await settle(page)
@@ -70,14 +69,14 @@ test.describe(`MG-14 (MUST): ${MG_14.slice(-40)}`, () => {
     await launch(page)
     await enableAgentApi(page)
     await openByDrop(page, 'w3-t1-current.json', taskGroupsDocument({ rows: 3 }))
-    await mergeByDrop(page, 'w3-t1-first.json', taskGroupsDocument({ rows: 3 }))
+    await mergeThroughIc1(page, 'w3-t1-first.json', taskGroupsDocument({ rows: 3 }))
     if (await page.locator(REVIEW).count()) {
       await page.click(icon('IC-95', REVIEW))
       await settle(page)
     }
     await page.keyboard.press('Escape')
     await settle(page)
-    await mergeByDrop(page, 'w3-t1-second.json', taskGroupsDocument({ rows: 2 }))
+    await mergeThroughIc1(page, 'w3-t1-second.json', taskGroupsDocument({ rows: 2 }))
     if (await page.locator(REVIEW).count()) {
       await page.click(icon('IC-95', REVIEW))
       await settle(page)

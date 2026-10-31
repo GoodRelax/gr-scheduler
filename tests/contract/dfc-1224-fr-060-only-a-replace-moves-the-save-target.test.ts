@@ -452,9 +452,10 @@ describe(`FR-060 (MUST) -- ${KEEP_THE_TARGET_MUST}`, () => {
     expect(built.browser.saveQuestions()).toBe(1)
   })
 
+  // WHY: an MSPDI drop keeps U-56; a dropped GRS JSON opens as a replace without it (OP-19).
   it('⛔ after a DROP that merges, SK-11 writes the previous target', async () => {
     const { built } = await stageWithTarget()
-    const theirs = built.file('theirs.json', jsonBytes(there()))
+    const theirs = built.file('theirs.xml', UTF8.encode(mspdiFromDocument(there(), LAST_SAVED_AT).text))
     await built.drop(theirs)
     expect(built.last().openModal, `OP-2: ${ONE_ENTRANCE} -- the drop raised no U-56`).not.toBeNull()
     await built.take(OPEN_CHOOSER, 'IC-72')

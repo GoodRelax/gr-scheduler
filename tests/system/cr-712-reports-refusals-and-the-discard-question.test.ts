@@ -5,7 +5,7 @@ import { readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { unbroken } from '../contract/spec-table'
-import { VIEWPORT, enableAgentApi, icon, launch, openByDrop, press, readDocument, savedFiles, settle } from '../use-case/uc-harness'
+import { VIEWPORT, enableAgentApi, icon, launch, openByDrop, openThroughIc1, press, readDocument, savedFiles, settle } from '../use-case/uc-harness'
 import { taskGroupsDocument } from './w3-t1-stage'
 
 test.use({ viewport: VIEWPORT, locale: 'en-US' })
@@ -202,9 +202,8 @@ test.describe(`MG-10 (MUST): ${MG_10_ALWAYS_ON_U_61}`, () => {
       return api.applyCommands({ expectedStamp: api.readStamp(), commands: [{ kind: 'setTaskName', taskUid: 2, name: 'Changed here' }] }).ok
     })
     expect(renamed, 'premise: task 2 differs from the incoming file').toBe(true)
-    await dropOnly(page, 'cr-712-incoming.json', taskGroupsDocument({ rows: 3 }))
-    await page.click(icon('IC-72', OPEN_CHOOSER))
-    await settle(page)
+    // WHY: a dropped GRS JSON opens as a replace (OP-19), so the merge opens through IC-1.
+    await openThroughIc1(page, 'cr-712-incoming.json', taskGroupsDocument({ rows: 3 }), 'IC-72')
     await expect(page.locator(DIFFERENCE_REVIEW), 'premise: the Difference Review asks about task 2').toHaveCount(1)
     expect(saysAny(await textOf(page, DIFFERENCE_REVIEW), [note!.ja, note!.en]), MG_10_ALWAYS_ON_U_61).toBe(true)
   })

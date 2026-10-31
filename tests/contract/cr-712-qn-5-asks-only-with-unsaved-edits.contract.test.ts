@@ -27,7 +27,7 @@ const QN_5_OLD_SCENE = '未保存の編集の有無によらず立つ'
 
 const QUESTION = { manner: 'NT-7', question: 'QN-5', items: [] } as const
 
-const INCOMING = { fileName: 'incoming.json', byteLength: 2, documentTitle: null } as const
+const INCOMING = { fileName: 'incoming.json', byteLength: 2, documentTitle: null, format: 'grsJson' } as const
 
 const EDITED: readonly SessionEvent[] = [{ type: 'documentEditLanded', isBackToSavedDocument: false }]
 
@@ -48,8 +48,9 @@ function askedQuestion(session: ScreenSession): string | null {
 }
 
 // see T-290
+// WHY: the file dialog; a dropped GRS JSON skips U-56 (OP-19), so the chooser path opens through IC-1.
 const UP_TO_THE_REPLACE: readonly SessionEvent[] = [
-  { type: 'documentOpenAsked', openRoute: 'drop' },
+  { type: 'documentOpenAsked', openRoute: 'chooser' },
   { type: 'documentFileRead', question: QUESTION, incomingFile: INCOMING },
 ]
 

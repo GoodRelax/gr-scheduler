@@ -103,8 +103,7 @@ async function openByDrop(page: Page, name: string, text: string): Promise<void>
     },
     { name, text },
   )
-  await page.waitForSelector('[data-role="Open Chooser"]')
-  await page.click(icon('IC-71', '[data-role="Open Chooser"]'))
+  // WHY: a dropped GRS JSON opens as a replace without U-56 (OP-19).
   await page.waitForTimeout(200)
   if (await page.locator('[data-role="Confirmation"] [data-confirmation-answer="proceed"]').count()) await answerConfirmation(page, 'proceed')
   await settle(page)

@@ -358,7 +358,7 @@
    "to": "docs/spec/01-04-requirements.md",
    "family": "rows",
    "fields": {
-    "evidence": 613,
+    "evidence": 618,
     "rows": 195
    },
    "prefixes": [
@@ -409,7 +409,7 @@
     "WM",
     "ZE"
    ],
-   "count": 808
+   "count": 813
   },
   {
    "from": "docs/spec/_source/state-machines.json",
@@ -1118,7 +1118,7 @@
   {
    "from": "docs/spec/_source/state-machines.json",
    "to": "docs/spec/01-04-requirements.md",
-   "count": 84
+   "count": 87
   },
   {
    "from": "docs/spec/_source/state-machines.json",
@@ -1344,7 +1344,7 @@
    "NT": 10,
    "OC": 10,
    "OD": 7,
-   "OP": 19,
+   "OP": 20,
    "OR": 1,
    "PA": 5,
    "PE": 10,

@@ -2,7 +2,7 @@
 import { expect, test, type Page } from '@playwright/test'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
-import { VIEWPORT, launch, settle } from '../use-case/uc-harness'
+import { VIEWPORT, launch, openThroughIc1, settle } from '../use-case/uc-harness'
 
 test.use({ viewport: VIEWPORT, locale: 'en-US' })
 
@@ -125,13 +125,13 @@ test('OP-17: a drag that comes back after leaving shows the cue again', async ({
   await expect.poll(() => cueCount(page)).toBe(1)
 })
 
-test('OP-17 (MUST): dropping takes the cue down, and the drop opens the file as before (OP-2)', async ({ page }) => {
+test('OP-17 (MUST): dropping takes the cue down, and the drop opens the GRS JSON without the chooser (OP-2, OP-19)', async ({ page }) => {
   await launch(page)
   await fire(page, 'dragenter', CANVAS)
   await expect.poll(() => cueCount(page)).toBe(1)
   await fire(page, 'drop', CANVAS)
-  await expect(page.locator('[data-role="Open Chooser"]'), 'OP-2: the drop did not open the file').toHaveCount(1)
   expect(await cueCount(page), `${OP_17_OUTSIDE} -- the cue stayed after the drop`).toBe(0)
+  await expect(page.locator('[data-role="Open Chooser"]'), 'OP-19: the dropped GRS JSON raised the Open Chooser').toHaveCount(0)
 })
 
 test('OP-17: after a drop, the next drag starts counting from the window again (a drop leaves no depth behind)', async ({ page }) => {
@@ -140,8 +140,7 @@ test('OP-17: after a drop, the next drag starts counting from the window again (
   await fire(page, 'dragenter', CANVAS)
   await fire(page, 'dragenter', HEADER)
   await fire(page, 'drop', HEADER)
-  await expect(page.locator('[data-role="Open Chooser"]')).toHaveCount(1)
-  await page.click('[data-role="Open Chooser"] [data-icon="IC-71"]')
+  // WHY: a dropped GRS JSON opens without U-56 (OP-19); only a question over unsaved edits may stand.
   await settle(page)
   await page.waitForTimeout(200)
   if (await page.locator('[data-role="Confirmation"] [data-confirmation-answer="proceed"]').count()) {
@@ -157,8 +156,8 @@ test('OP-17: after a drop, the next drag starts counting from the window again (
 
 test('OP-17 (MUST NOT): while an open chooser stands the app would refuse a drop, so no cue is shown', async ({ page }) => {
   await launch(page)
-  await fire(page, 'dragenter', CANVAS)
-  await fire(page, 'drop', CANVAS)
+  // WHY: the file dialog keeps U-56; a dropped GRS JSON skips it (OP-19).
+  await openThroughIc1(page, 'dragged.json', DOCUMENT_TEXT, null)
   await expect(page.locator('[data-role="Open Chooser"]')).toHaveCount(1)
   await fire(page, 'dragleave', CANVAS)
   await fire(page, 'dragenter', CANVAS)

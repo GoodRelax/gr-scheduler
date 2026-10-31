@@ -126,12 +126,43 @@ export const dropFile = async (page: Page, name: string, text: string): Promise<
     },
     { name, text },
   )
-  await page.waitForSelector('[data-role="Open Chooser"]')
+  if (!opensWithoutChooser(name)) await page.waitForSelector('[data-role="Open Chooser"]')
+  await page.waitForTimeout(200)
+  await settle(page)
 }
 
-// see OP-3, OP-4, IC-71, IC-72, IC-73
+// see OP-19
+// WHY: a dropped GRS JSON or single .html opens as a replace without U-56; a dropped MSPDI .xml raises it.
+export const opensWithoutChooser = (name: string): boolean => /\.(json|html)$/i.test(name)
+
+// see OP-2, OP-3, OP-4, OP-19, IC-71, IC-72, IC-73
+// WHY: a dropped GRS JSON replaces only; to merge or overlay one, open it through IC-1 (openThroughIc1).
 export const openByDrop = async (page: Page, name: string, text: string, choice: 'IC-71' | 'IC-72' | 'IC-73' = 'IC-71'): Promise<void> => {
+  if (opensWithoutChooser(name) && choice !== 'IC-71') throw new Error(`OP-19: a dropped ${name} opens as a replace; use openThroughIc1 for ${choice}`)
   await dropFile(page, name, text)
+  if (await page.locator('[data-role="Open Chooser"]').count()) await page.click(icon(choice, '[data-role="Open Chooser"]'))
+  await page.waitForTimeout(200)
+  if (await page.locator('[data-role="Confirmation"] [data-confirmation-answer="proceed"]').count()) await answerConfirmation(page, 'proceed')
+  await settle(page)
+}
+
+// see OP-3, OP-4, IC-1, IC-71, IC-72, IC-73
+// WHY: the file dialog keeps the three choices of U-56 (OP-19); null leaves U-56 standing.
+export const openThroughIc1 = async (
+  page: Page,
+  name: string,
+  text: string,
+  choice: 'IC-71' | 'IC-72' | 'IC-73' | null = 'IC-71',
+): Promise<void> => {
+  await page.evaluate(
+    (given: { name: string; text: string }) => {
+      ;(window as unknown as { __grsNextOpen: unknown }).__grsNextOpen = given
+    },
+    { name, text },
+  )
+  await press(page, 'IC-1')
+  await page.waitForSelector('[data-role="Open Chooser"]')
+  if (choice === null) return
   await page.click(icon(choice, '[data-role="Open Chooser"]'))
   await page.waitForTimeout(200)
   if (await page.locator('[data-role="Confirmation"] [data-confirmation-answer="proceed"]').count()) await answerConfirmation(page, 'proceed')

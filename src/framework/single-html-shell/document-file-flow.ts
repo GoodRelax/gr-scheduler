@@ -672,10 +672,10 @@ interface ReadInFile {
   readonly fileName: string | null
 }
 
-// see OP-16
+// see OP-16, OP-19
 /** @purity pure */
 function incomingFileOf(readIn: ReadInFile, incoming: Document): IncomingFile {
-  return { fileName: readIn.fileName, byteLength: readIn.byteLength, documentTitle: incoming.schedule.project.title }
+  return { fileName: readIn.fileName, byteLength: readIn.byteLength, documentTitle: incoming.schedule.project.title, format: readIn.format }
 }
 
 /** @purity non-pure */
