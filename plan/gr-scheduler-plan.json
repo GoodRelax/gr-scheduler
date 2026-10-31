@@ -14,7 +14,7 @@
       "creationDate": "2026-10-31T08:50:00",
       "revision": 11,
       "startDate": "2026-10-17T05:30:00",
-      "statusDate": "2026-10-31T20:27:00",
+      "statusDate": "2026-10-31T20:35:00",
       "minutesPerDay": 1440,
       "minutesPerWeek": 10080,
       "daysPerMonth": 30,
@@ -7070,7 +7070,7 @@
         "finish": "2026-10-31T21:34:00",
         "milestone": false,
         "deadline": null,
-        "notes": "オーナーの注文（2026-10-31）: CR-858（落とした GRS JSON は選択画面なしで新規に開く。ダイアログで選んだファイルは今までどおり 3 つの選択を持つ）の急ぎの出荷。SUB cr858-drop-opens（Opus 5.5・high）が 18:15 ごろに始まった。CR-850 と一緒に main へ出す（328 の答え）。段（規則 7）の見積は PMO の置き。 最後の GT-2 の前にオーナーが OneDrive を止める（調整役の合図で）。 19:06: 置き直し（CR-858 の実装が 18:55 に済み、GT-2 が 19:02 に通った）: 20:37〜20:52。 19:17: 置き直し（試験の穴 379 が入った）: 20:47〜21:02。 19:19: 置き直し（374 のやり直し）: 21:19〜21:34。 19:49: オーナーが BOSSBOSS 経由で OneDrive を止めた（受けた時刻）。CR-858 の仕上げが終わっておらず GT-2 を始められないので、BOSS がオーナーに OneDrive を動かし直すよう頼んだ。1 回目の停止は早すぎたので BOSS が戻した。377 は済みにしない。もう一度お願いする時に済みにする。予定は動かさない。 20:26: 380（版の印とリリースノート）の後に始める。予定は動かさない（21:19）。",
+        "notes": "オーナーの注文（2026-10-31）: CR-858（落とした GRS JSON は選択画面なしで新規に開く。ダイアログで選んだファイルは今までどおり 3 つの選択を持つ）の急ぎの出荷。SUB cr858-drop-opens（Opus 5.5・high）が 18:15 ごろに始まった。CR-850 と一緒に main へ出す（328 の答え）。段（規則 7）の見積は PMO の置き。 最後の GT-2 の前にオーナーが OneDrive を止める（調整役の合図で）。 19:06: 置き直し（CR-858 の実装が 18:55 に済み、GT-2 が 19:02 に通った）: 20:37〜20:52。 19:17: 置き直し（試験の穴 379 が入った）: 20:47〜21:02。 19:19: 置き直し（374 のやり直し）: 21:19〜21:34。 19:49: オーナーが BOSSBOSS 経由で OneDrive を止めた（受けた時刻）。CR-858 の仕上げが終わっておらず GT-2 を始められないので、BOSS がオーナーに OneDrive を動かし直すよう頼んだ。1 回目の停止は早すぎたので BOSS が戻した。377 は済みにしない。もう一度お願いする時に済みにする。予定は動かさない。 20:26: 380（版の印とリリースノート）の後に始める。予定は動かさない（21:19）。 20:35: BOSS がオーナーに OneDrive の停止を BOSSBOSS 経由で頼んだ（2 回目）。オーナーの答えを待つ事実。この後 GT-2（378）を回す。377 はオーナーが止めた時に済みにする。",
         "calendarUid": null,
         "actualStart": null,
         "stop": null,
@@ -7179,17 +7179,17 @@
         "wbsOrder": 254,
         "name": "CR-858(落とした GRS JSON は選択なしで開く)の急ぎの出荷: 版の印(release_version.mjs Alpha)とリリースノート 2 本・README の版の行(CR-850 と一緒)",
         "start": "2026-10-31T20:26:00",
-        "finish": "2026-10-31T20:56:00",
+        "finish": "2026-10-31T20:35:00",
         "milestone": false,
         "deadline": null,
-        "notes": "リリース手順（10-versions 2.1）に要る。BOSS が release_version.mjs Alpha を回し（版 20261031T105821Z、タグ Alpha-20261031T105821Z）、リリースノート 2 本と README の版の行をサブエージェントに書かせている。見積は PMO の置き（30 分）。調整役のモデルと努力: Opus 5.5・high、書く側は副エージェント。20:26: 開始（調整役の一言の到着時刻）。",
+        "notes": "リリース手順（10-versions 2.1）に要る。BOSS が release_version.mjs Alpha を回し（版 20261031T105821Z、タグ Alpha-20261031T105821Z）、リリースノート 2 本と README の版の行をサブエージェントに書かせている。見積は PMO の置き（30 分）。調整役のモデルと努力: Opus 5.5・high、書く側は副エージェント。20:26: 開始（調整役の一言の到着時刻）。 20:35: 済み（ee2608644。版 20261031T105821Z、リリースノート 2 本と README）。終わりは調整役の一言の到着時刻（調整役は「20:45 ごろ」と言い、調整役の時計は機械の時計より約 15 分進んでいる）。",
         "calendarUid": null,
         "actualStart": "2026-10-31T20:26:00",
         "stop": null,
-        "actualFinish": null,
+        "actualFinish": "2026-10-31T20:35:00",
         "resume": null,
         "resumeValid": null,
-        "percentComplete": 0,
+        "percentComplete": 100,
         "fadeInDays": null,
         "fadeOutDays": null,
         "dependencies": [
@@ -12351,10 +12351,10 @@
     "zoomY": 1.099862517185352
   },
   "documentStamp": {
-    "scheduleUpdatedAt": "2026-10-31T11:27:00Z",
+    "scheduleUpdatedAt": "2026-10-31T11:35:00Z",
     "lastEditedBy": "PMO child session",
     "settingsUpdatedAt": "2026-10-20T20:24:42Z",
-    "fileSavedAt": "2026-10-31T11:27:00Z"
+    "fileSavedAt": "2026-10-31T11:35:00Z"
   },
   "changeLog": [
     {
@@ -12650,6 +12650,12 @@
       "editedBy": "PMO child session",
       "explanation": "Fact at 20:27 JST (machine clock): the owner named the GQA ID rule (team ID + GQA; B team: BGQA with chapters, glossary BGQA2); new task 381 (BOSS merges its GQA and the CR-858 GQA into BGQA after the release, 30 min) placed after 326 at 11-01 11:00-11:30. No other date moved; N1 and the provisional beta unchanged.",
       "changedAt": "2026-10-31T11:27:00Z"
+    },
+    {
+      "ordinal": 50,
+      "editedBy": "PMO child session",
+      "explanation": "Fact at 20:35 JST (machine clock): 380 done (ee2608644, version 20261031T105821Z); the BOSS asked the owner to stop OneDrive again via BOSSBOSS (377 open, owner wait as a fact); GT-2 (378) follows and the PMO runs no check.sh or tests until the BOSS says it ended. No date moved; N1 and the provisional beta unchanged.",
+      "changedAt": "2026-10-31T11:35:00Z"
     }
   ]
 }
