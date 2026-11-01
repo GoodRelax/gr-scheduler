@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 
 import { specTable, unbroken } from '../contract/spec-table'
-import { VIEWPORT, dropFile, elementBox, enableAgentApi, launch, openByDrop, press, readDocument, readSample, settle, type Box } from '../use-case/uc-harness'
+import { VIEWPORT, elementBox, enableAgentApi, launch, openByDrop, openThroughIc1, press, readDocument, readSample, settle, type Box } from '../use-case/uc-harness'
 
 test.use({ viewport: VIEWPORT, locale: 'en-US', colorScheme: 'light' })
 
@@ -47,7 +47,7 @@ const NO_WARNING_WORDS = '印の遷移は `_assets/tbl-state-machines.md` の �
 
 // see FR-046, DA-7
 const FIELD_SCROLLS_LIKE_THE_ENTRANCE =
-  '欄の名は `FR-038` の辞書が 表 T-109 の `IC-44` に持つ語とすること（MUST） —— 新しい語を作らない。欄で日付を確定したときも、上の「基準日線を出す操作」と同じく表示位置を横に送ること（MUST）'
+  '欄の名は `FR-038` の辞書が 表 T-109 の `IC-44` に持つ語とすること（MUST） —— 新しい語を作らない。⭐ 欄の形は `FR-158` の 表 T-375 の `TX-3` に従い、時刻を表示するときは日付と時刻の欄とし、打った分を丸めずに `statusDate` に書くこと（MUST） —— 打つのは狙った値であり、15 分の寄せはドラッグだけが持つ。時刻を表示しないときは日付の欄とし、終了の側の既定の時刻（表 T-350 の `WT-4`）を書く。欄で日付を確定したときも、上の「基準日線を出す操作」と同じく表示位置を横に送ること（MUST）'
 
 // see HF-10, T-051
 const OPEN_ALL_NOT_OUTERMOST =
@@ -319,10 +319,8 @@ const chooserCases: readonly { readonly name: string; readonly role: string; rea
   {
     name: 'the open face (U-56)',
     role: 'Open Chooser',
-    open: async (page) => {
-      await dropFile(page, ERP, readSample(ERP))
-      await settle(page)
-    },
+    // WHY: a dropped file skips U-56 (OP-19); the file dialog raises it.
+    open: (page) => openThroughIc1(page, ERP, readSample(ERP), null),
   },
 ]
 

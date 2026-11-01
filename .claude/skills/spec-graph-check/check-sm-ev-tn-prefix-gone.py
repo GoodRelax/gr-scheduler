@@ -38,7 +38,7 @@ PATTERN = re.compile(r'(?<![A-Za-z0-9_-])(?:SM|EV|TN)-[0-9]')
 
 # ---- Excluded TREES -- with the reason each one is out of scope -------------
 TREES = [
-    ('previous-project-result/',
+    ('studies/',
      u"a finished project's record, out of scope by the user's ruling of "
      u'2026-09-12'),
     ('dist/',

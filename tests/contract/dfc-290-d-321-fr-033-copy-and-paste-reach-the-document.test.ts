@@ -26,13 +26,13 @@
 //
 // ---------------------------------------------------------------------------
 // ⛔ WHY THIS FILE EXISTS BESIDE tests/unit/fr-033-the-copy-store-is-inside-the-
-//    app.test.ts, WHICH ANOTHER BODY WROTE
+//    app.test.ts, WHICH ANOTHER BODY WROTE AND CR-573 DELETED
 // ---------------------------------------------------------------------------
-// That file asks `FR-033` at the USE-CASE seam and at the TABLE: that `CM-8` /
+// That file asked `FR-033` at the USE-CASE seam and at the TABLE: that `CM-8` /
 // `CM-28` name what to copy by identifier, that `src/` reads no OS clipboard,
 // that `editTask` / `editTaskGroup` duplicate a subtree when handed the command,
 // that a vanished source is refused as a value, and that 表 T-036 assigns
-// `Ctrl+C` and `Ctrl+V`. ⛔ NOT ONE OF ITS CASES PRESSES A KEY.
+// `Ctrl+C` and `Ctrl+V`. ⛔ NOT ONE OF ITS CASES PRESSED A KEY.
 //
 // ⇒ The half nobody asks is the half the two ledger rows were actually raised
 // about -- the KEYS reaching the DOCUMENT:
@@ -77,7 +77,7 @@
 //     it, and DFC-321's record marks `RS-27` as a fill-in by the front session.
 //     The case below asks only that the document does not move.
 //  3. 表 T-223's cascade in detail. `DU-1` / `DU-2` have cases in
-//     tests/unit/edit-task.test.ts and the file named above.
+//     tests/contract/cr-714-a-copy-carries-no-parent-links.test.ts.
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -158,7 +158,7 @@ function rowOf(table: SpecTable, id: string): SpecRow {
 
 /**
  * The keystroke 表 T-036 assigns one row, read out of its 割当 column.
- * ⚠️ Copied from tests/unit/dfc-337-....test.ts, including its warning against
+ * ⚠️ Copied from tests/contract/dfc-337-fr-029-the-three-file-gates-say-why-on-a-second-press.test.ts, including its warning against
  * `bare`, which would answer `Ctrl` for an assignment spelled 「`Ctrl` ＋ `R`」.
  */
 function keyOf(id: string): KeyInput {

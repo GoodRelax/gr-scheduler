@@ -98,7 +98,7 @@ import { bare, specTable } from '../contract/spec-table'
 import { emptyScreenSession } from '../../src/use-case/advance-screen-session/advance-screen-session'
 
 // ---------------------------------------------------------------------------
-// The manuscript, read at run time rather than copied here (Chapter 1.9 :275).
+// The manuscript, read at run time rather than copied here (Chapter 1.9).
 // ---------------------------------------------------------------------------
 
 /** U-25 of table T-103 -- the settled name that reaches the DOM as `data-role`. */
@@ -829,7 +829,7 @@ const DATE_FIELD: PropertyField = {
  * declares a member for a heading is the implementation's answer, and a fixture
  * that turned either answer into a COMPILE error would take every case in this
  * file down with it. Rule 04 section 1 asks a disagreement to arrive as a test
- * that falls, and tests/unit/uf-64.test.ts is where that one falls.
+ * that falls; the uf-64 unit test, where that one fell, was deleted by CR-573.
  */
 const panelWith = (fields: readonly PropertyField[]): PropertiesPanel =>
   ({

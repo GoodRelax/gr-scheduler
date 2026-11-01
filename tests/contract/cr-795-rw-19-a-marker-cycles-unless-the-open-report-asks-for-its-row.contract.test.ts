@@ -156,6 +156,7 @@ describe('RW-19 -- the marker cycles unless the open report asks for its row (tr
 })
 
 
+// WHY: SELF starts before the status date; a task not begun that starts after it is never drawn with DG-1 or DG-2 (FR-133).
 const SELF = 40
 const PARENT = 20
 const LATE = 21
@@ -165,7 +166,7 @@ const WAITING = 31
 function shellDocument() {
   const made = documentOf(
     [
-      { uid: SELF, start: START_OF('2027-05-03'), finish: FINISH_OF('2027-05-04'), after: [[SELF, FS]], name: 'Self' },
+      { uid: SELF, start: START_OF('2027-04-19'), finish: FINISH_OF('2027-04-20'), after: [[SELF, FS]], name: 'Self' },
       { uid: PARENT, start: START_OF('2027-04-05'), finish: FINISH_OF('2027-04-09'), name: 'Parent' },
       { uid: LATE, start: START_OF('2027-04-05'), finish: FINISH_OF('2027-04-09'), parent: PARENT, name: 'Late child' },
       { uid: SLOW, start: START_OF('2027-04-05'), finish: FINISH_OF('2027-04-09'), actualStart: START_OF('2027-04-05'), percentComplete: 50, name: 'Slow' },

@@ -45,16 +45,14 @@ export function rulerTierOf(pxPerDay: number, storedSettings: DocumentSettings):
 
 const DAYS_PER_WEEK = 7
 
-const SNAP_MINUTES = { 'SG-2': 60, 'SG-3': 30, 'SG-4': 1 } as const
+const SNAP_MINUTES = { 'SG-2': 15 } as const
 
-// see T-378, SG-1, SG-2, SG-3, SG-4, MK-17, FR-103
+// see T-378, SG-1, SG-2, FR-103
 /** @purity pure */
-export function snapMinutesOf(pxPerDay: number, storedSettings: DocumentSettings, isAltHeld: boolean): number {
+export function snapMinutesOf(pxPerDay: number, storedSettings: DocumentSettings): number {
   const settings = drawnSettingsOf(storedSettings)
   if (!settings.isTimeOfDayVisible) return MINUTES_PER_CALENDAR_DAY
-  if (isAltHeld) return SNAP_MINUTES['SG-4']
   const scaled = thresholdPxPerDayOf(pxPerDay, settings)
-  if (scaled >= SETTINGS_CONSTANTS.halfHourGridPxPerDay) return SNAP_MINUTES['SG-3']
   if (scaled >= SETTINGS_CONSTANTS.rulerTierPxPerDayHour) return SNAP_MINUTES['SG-2']
   return MINUTES_PER_CALENDAR_DAY
 }

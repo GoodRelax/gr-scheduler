@@ -19,6 +19,7 @@ a new generator that forgets the banner is exactly what this catches.
 Run with PYTHONIOENCODING=utf-8.
 """
 import io
+import json
 import os
 import sys
 
@@ -166,6 +167,22 @@ ARTIFACTS = [
     ('src/adapter/document-codec/exchange-formats.json',
      'docs/spec/01-04-requirements.md'),
 ]
+
+
+
+def state_machine_figures():
+    """The UML state machine diagram of every machine (CR-767): one SVG per
+    machine of state-machines.json, drawn by state_machine_figures.py. The
+    rows are read from the manuscript rather than typed 31 times, so a machine
+    added there is held here without an edit -- the banner rides in an XML
+    comment ahead of the <svg> element, with the fingerprint --check reads."""
+    path = os.path.join(ROOT, 'docs', 'spec', '_source', 'state-machines.json')
+    doc = json.load(io.open(path, encoding='utf-8'))
+    return [('docs/spec/_assets/fig-sm-%s.svg' % machine['name'], 'state-machines.json')
+            for region in doc['regions'] for machine in region['machines']]
+
+
+ARTIFACTS += state_machine_figures()
 
 # How far into the file the banner may sit. Long enough for a StrictDoc header
 # (title, UID, Version) or a JSON Schema's $schema and $id, and no longer.

@@ -50,6 +50,8 @@ import os
 import re
 import sys
 
+from spec_md_printing import say, schema_problems
+
 HERE = os.path.dirname(os.path.abspath(__file__))
 ASSETS = os.path.join(os.path.dirname(HERE), '_assets')
 SRC = os.path.join(HERE, 'agent-api-members.json')
@@ -72,14 +74,6 @@ BUILT_IN = {'string', 'number', 'boolean', 'null', 'void', 'true', 'false',
             'readonly', 'Promise', 'Uint8Array'}
 IDENTIFIER = re.compile(r'[A-Za-z_$][A-Za-z0-9_$]*')
 QUOTED = re.compile(r"'[^']*'")
-
-
-def say(message):
-    """The Windows console is cp932 and these messages quote a manuscript
-    holding marks it cannot encode, so write them through a replacing
-    encoder rather than raise from inside the problem reporter."""
-    enc = getattr(sys.stdout, 'encoding', None) or 'utf-8'
-    sys.stdout.write(message.encode(enc, 'replace').decode(enc) + '\n')
 
 
 def prose(cell):
@@ -235,16 +229,6 @@ def every_line(doc):
             yield row['id'], prose(one['meaning'])
 
 
-def schema_problems(doc):
-    try:
-        import jsonschema
-    except ImportError:
-        return []
-    schema = json.load(io.open(SCHEMA, encoding='utf-8'))
-    return ['schema: %s at /%s' % (e.message, '/'.join(str(p) for p in e.path))
-            for e in jsonschema.Draft202012Validator(schema).iter_errors(doc)]
-
-
 def duplicate_problems(doc):
     found = []
     for part in ('members', 'values'):
@@ -299,7 +283,7 @@ def line_problems(doc):
 
 
 def problems(doc):
-    found = schema_problems(doc)
+    found = schema_problems(doc, SCHEMA)
     if found:
         return found
     return duplicate_problems(doc) + type_problems(doc) + line_problems(doc)

@@ -32,6 +32,8 @@ import json
 import os
 import sys
 
+from spec_md_printing import say, separate_tables, broken_prose, broken
+
 HERE = os.path.dirname(os.path.abspath(__file__))
 ASSETS = os.path.join(os.path.dirname(HERE), '_assets')
 SRC = os.path.join(HERE, 'verification.json')
@@ -43,138 +45,9 @@ NONE_CELL = u'——'           # the empty cell the table has always printed
 JOIN = u' ／ '               # the separator the tables join with
 
 
-def say(message):
-    """The same guard settings_json_to_md.py carries: the Windows console is
-    cp932 and these messages quote a manuscript holding ⛔ and ⭐, so writing
-    them raw raised UnicodeEncodeError from inside the problem reporter."""
-    enc = getattr(sys.stdout, 'encoding', None) or 'utf-8'
-    sys.stdout.write(message.encode(enc, 'replace').decode(enc) + '\n')
-
-
 def prose(cell):
     """One printed cell, in this document's language."""
     return cell.get(LANG, '')
-
-
-STOP = u'。'
-QUOTE_OPEN = u'「『'
-QUOTE_SHUT = u'」』'
-
-
-def separate_tables(text):
-    """A blank line between a table and whatever follows it.
-
-    A line that is not a row but sits directly under one is absorbed into the
-    table -- it renders as a row whose first cell is empty (check 48).
-    """
-    out = []
-    under_a_row = False
-    fenced = False
-    for line in text.split('\n'):
-        stripped = line.strip()
-        if stripped.startswith('```'):
-            fenced = not fenced
-        if under_a_row and stripped and not stripped.startswith('|') and not fenced:
-            out.append('')
-        under_a_row = stripped.startswith('|') and not fenced
-        out.append(line)
-    return '\n'.join(out)
-
-
-def _break_points(body):
-    """Where this line may be split.
-
-    Just past a sentence end -- and past a closing ** that follows it, because
-    a closer may not START a line. A quotation is never split.
-    """
-    out, quoted = [], 0
-    for i, ch in enumerate(body):
-        if ch in QUOTE_OPEN:
-            quoted += 1
-            continue
-        if ch in QUOTE_SHUT:
-            quoted = max(0, quoted - 1)
-            continue
-        if ch != STOP or quoted:
-            continue
-        at = i + 1
-        if body[at:].lstrip().startswith('**') and body[:at].count('**') % 2:
-            at = body.index('**', at) + 2
-        if body[at:].strip().strip('*'):
-            out.append(at)
-    return out
-
-
-def broken_prose(text):
-    """The built document with every prose sentence on its own line.
-
-    THE RULE (check 46): outside a table a sentence break is a HARD break --
-    two trailing spaces, and the line ends. A table row, a heading and a
-    fenced block are left alone; a blockquote keeps its `> ` on each piece.
-    """
-    out = []
-    fenced = False
-    under_a_row = False
-    for line in text.split('\n'):
-        stripped = line.strip()
-        if stripped.startswith('```'):
-            fenced = not fenced
-            out.append(line)
-            continue
-        if fenced or not stripped or stripped.startswith(('|', '#')):
-            under_a_row = stripped.startswith('|')
-            out.append(line)
-            continue
-        if under_a_row:
-            out.append(line)
-            continue
-        lead = ''
-        body = line
-        while body.lstrip().startswith('>'):
-            cut = body.index('>') + 1
-            if body[cut:cut + 1] == ' ':
-                cut += 1
-            lead += body[:cut]
-            body = body[cut:]
-        spots = _break_points(body)
-        if not spots:
-            out.append(line)
-            continue
-        pieces, prev = [], 0
-        for at in spots:
-            pieces.append(body[prev:at])
-            prev = at
-        pieces.append(body[prev:])
-        pieces = [p for p in pieces if p.strip()]
-        if len(pieces) < 2:
-            out.append(line)
-            continue
-        for piece in pieces[:-1]:
-            out.append(lead + piece.strip() + '  ')
-        out.append(lead + pieces[-1].strip())
-    return '\n'.join(out)
-
-
-def broken(cell):
-    """A cell with every sentence on its own line.
-
-    THE RULE (check 46): inside a table row a sentence break is written
-    `<br>`. A row is one line, so this is the only break a cell can carry, and
-    a quotation is never split.
-    """
-    out = []
-    quoted = 0
-    for i, ch in enumerate(cell):
-        out.append(ch)
-        if ch in QUOTE_OPEN:
-            quoted += 1
-        elif ch in QUOTE_SHUT:
-            quoted = max(0, quoted - 1)
-        elif ch == STOP and not quoted:
-            rest = cell[i + 1:]
-            if rest.strip() and not rest.startswith('<br>'):
-                out.append('<br>')
-    return ''.join(out)
 
 
 def code(value):

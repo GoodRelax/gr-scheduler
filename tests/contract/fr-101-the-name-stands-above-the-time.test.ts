@@ -95,7 +95,7 @@ import {
 import { bare, specTable, unbroken } from './spec-table'
 
 // ---------------------------------------------------------------------------
-// The manuscripts, read at run time rather than copied here (Chapter 1.9 :275).
+// The manuscripts, read at run time rather than copied here (Chapter 1.9).
 // ---------------------------------------------------------------------------
 
 const REQUIREMENTS = unbroken(readFileSync(

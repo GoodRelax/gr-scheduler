@@ -318,9 +318,7 @@ function watchWrappingField(field: Element, isSingleLine: boolean): void {
   })
 }
 
-// see T-016, FR-031
-// STOP: spec does not decide whether a field commits per keystroke or on change.
-// Looked in T-016, FR-006, FR-031. @provisional PND-270
+// see T-016, FR-031, SK-19, IN-6
 /** @purity non-pure */
 function controlElement(
   host: Document,

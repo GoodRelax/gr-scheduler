@@ -16,7 +16,7 @@
 //   ⛔ 「**そのタスクグループの深さが `FR-085` の上限に達しているときは、`FR-029` に従って薄く
 //    描くこと（MUST）**」 —— ⭐ 「**`HF-13` が「展開できる直下の子が 1 つも無いとき」に
 //    採るのと同じ形である。**」
-//   ⛔⛔ 「**薄いまま押されたときは、タスクグループを立てずに理由を告げること（MUST）。理由は
+//   ⛔⛔ 「**薄いまま押されたときは、そのタスクグループの配下に新しいタスクグループを立てないこと（MUST）。運ぶ理由は
 //    表 T-233 の `RS-46` とすること（MUST）**」
 //   ⛔ 「**タスクグループを立ててからパネルを開き、そこで拒んではならない（MUST NOT）**」 ——
 //    「**押した人には、名づけを求められたうえで捨てられたようにしか見えない。**」
@@ -537,7 +537,7 @@ describe('表 T-051 HF-14 (MUST): a task group at FR-085s cap has no child to ad
   })
 
   it('⛔ the refused press leaves the document exactly as it was', () => {
-    // ⭐ 「**薄いまま押されたときは、タスクグループを立てずに理由を告げること（MUST）**」. Since
+    // ⭐ 「**薄いまま押されたときは、そのタスクグループの配下に新しいタスクグループを立てないこと（MUST）**」. Since
     // CR-348 this is the WHOLE of that half, and it is readable right here: the
     // task group is what the refusal withholds, so the task group count is the assertion.
     const built = stage()

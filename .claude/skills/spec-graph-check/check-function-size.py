@@ -97,6 +97,14 @@ against, but never writes it. Only a human, after being shown the numbers,
 commits `function-size-baseline.txt` (memory: "Baseline moves need the
 user's OK").
 
+GENERATED JUDGMENTS ARE NOT COUNTED (coordinator ruling 2026-10-23, CR-767
+wave 3): a function inside a generated fence that generated_fences.py proves
+-- its generator exists, says it writes the file (`--units`) and its
+`--check` is green -- is left out of the totals and the ledger. Its size is
+the size of the manuscript condition it was compiled from, and shrinking
+that is the specification's work. A fence naming such a generator in a file
+it does not write is a PROBLEM; every other function is judged as before.
+
 WHAT THIS DOES NOT SEE: a function whose own text does not change size or
 branch count but whose BEHAVIOR does (dead code, a moved condition that
 nets to the same branch count); a change that moves a function between
@@ -127,6 +135,10 @@ import re
 import shutil
 import subprocess
 import sys
+
+sys.dont_write_bytecode = True
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from generated_fences import Provenance, inside  # noqa: E402
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(HERE)))
@@ -225,13 +237,32 @@ def measure_texts(file_text_pairs):
     return run_node(files)
 
 
-def measure_tree():
+def measure_tree(provenance=None):
+    """function-size.mjs's result for src/, with the functions of proven
+    generated fences moved from `functions` to `uncounted` and any fence
+    that proves nothing it claims listed under `fenceProblems`."""
     files = [dict(zip(('file', 'text'), read_source(p)))
              for p in source_files()]
     if not files:
         raise RuntimeError('no .ts file under src/ -- nothing was measured, '
                            'and a count of 0 would read as a clean tree')
-    return run_node(files)
+    return without_generated(run_node(files), files,
+                             provenance or Provenance(ROOT))
+
+
+def without_generated(result, files, provenance):
+    """Move the functions that start inside a proven fence out of the count."""
+    ranges, problems = {}, []
+    for one in files:
+        found, wrong = provenance.proven(one['file'], one['text'])
+        ranges[one['file']] = found
+        problems.extend(wrong)
+    kept, uncounted = [], []
+    for f in result.get('functions', []):
+        is_generated = inside(f.get('startLine', 0), ranges.get(f['file'], []))
+        (uncounted if is_generated else kept).append(f)
+    return dict(result, functions=kept, uncounted=uncounted,
+                fenceProblems=problems)
 
 
 # ---------------------------------------------------------------------------
@@ -388,7 +419,9 @@ def gate():
     for err in errors:
         say('PROBLEM  %s did not parse: %s'
             % (err.get('file'), err.get('message')))
-    if errors:
+    for problem in result.get('fenceProblems', []):
+        say('PROBLEM  %s' % problem)
+    if errors or result.get('fenceProblems'):
         return 1
 
     baseline, malformed = read_baseline()
@@ -415,9 +448,11 @@ def gate():
     summary = summarize(functions)
     say('OK       %d function(s) measured in src/**/*.ts against %s: '
         'excess-lines=%d excess-branches=%d, %d function(s) held over the '
-        'band (JDG-54 ratchet; values agreed in JDG-124)'
+        'band (JDG-54 ratchet; values agreed in JDG-124); %d function(s) of '
+        'proven generated fences not counted'
         % (len(functions), REL_BASELINE, summary['excess_lines'],
-           summary['excess_branches'], len(baseline['held'])))
+           summary['excess_branches'], len(baseline['held']),
+           len(result.get('uncounted', []))))
     return 0
 
 
@@ -444,7 +479,9 @@ def print_baseline():
     for err in errors:
         sys.stderr.write('PROBLEM  %s did not parse: %s\n'
                          % (err.get('file'), err.get('message')))
-    if errors:
+    for problem in result.get('fenceProblems', []):
+        sys.stderr.write('PROBLEM  %s\n' % problem)
+    if errors or result.get('fenceProblems'):
         return 1
     duplicates = result.get('duplicates', [])
     for dup in duplicates:
@@ -486,6 +523,54 @@ def baseline_of(functions):
     banded = banded_map(functions)
     return {'excess_lines': summary['excess_lines'],
            'excess_branches': summary['excess_branches'], 'held': banded}
+
+
+FENCE_GENERATOR = 'tools/generate_check_60_fixture.py'
+
+
+def fenced(body):
+    return ('// <generated -- do not edit by hand>\n'
+            '// From docs/spec/_source/check-60-fixture.json\n'
+            '// Rebuild: npm run gen (%s).\n%s// </generated>\n'
+            % (FENCE_GENERATOR, body))
+
+
+def fence_case(label, text, statuses, baseline, wanted):
+    """One fence scenario; `wanted` is None for green or a word a message holds."""
+    measured = measure_texts([(SELF_TEST_FILE, text)])
+    files = [{'file': SELF_TEST_FILE, 'text': text}]
+    result = without_generated(measured, files, Provenance(ROOT, statuses))
+    red, msgs = verdict(result['functions'], result.get('duplicates', []),
+                        baseline)
+    msgs = list(result['fenceProblems']) + msgs
+    red = red or bool(result['fenceProblems'])
+    say('         %s: %s' % (label, 'RED' if red else 'green'))
+    for msg in msgs:
+        say('           ' + msg)
+    if wanted is None:
+        return [] if not red else ['%s: expected green' % label]
+    if red and any(wanted in msg for msg in msgs):
+        return []
+    return ['%s: expected red holding "%s"' % (label, wanted)]
+
+
+def self_test_fences(clean_text, baseline):
+    big = pad_function('generatedJudgment', 60, 20)
+    text = clean_text + '\n' + fenced(big)
+    proven = {FENCE_GENERATOR: ({SELF_TEST_FILE}, True)}
+    out = fence_case('self-test 5 (a 60-line, 20-branch function in a proven '
+                     'generated fence)', text, proven, baseline, None)
+    out += fence_case('self-test 6 (the same fence in a file its generator '
+                      'does not write)', text,
+                      {FENCE_GENERATOR: ({'src/other.ts'}, True)}, baseline,
+                      'buys no exemption')
+    out += fence_case('self-test 7 (the same fence, its generator\'s --check '
+                      'red)', text, {FENCE_GENERATOR: ({SELF_TEST_FILE}, False)},
+                      baseline, 'excess-lines')
+    out += fence_case('self-test 8 (a hand 60-line function beside the proven '
+                      'fence)', text + '\n' + pad_function('handBig', 60, 0),
+                      proven, baseline, 'excess-lines')
+    return out
 
 
 def self_test():
@@ -564,6 +649,11 @@ def self_test():
         failures.append('the split, with its baseline updated in the same '
                         'commit, should be green: %s' % '; '.join(msgs3))
 
+    # (5)-(8) generated fences (CR-767 wave 3): a proven fence goes uncounted;
+    # a fence its generator does not write, a fence whose generator's check is
+    # red, and a hand function beside a proven fence are all still judged.
+    failures.extend(self_test_fences(clean_text, baseline))
+
     # (4) the real tree, judged against a baseline generated from itself.
     try:
         real = measure_tree()
@@ -594,9 +684,10 @@ def self_test():
         say('FAIL     check 60 self-test: %s' % failure)
     if failures:
         return 1
-    say('OK       check 60 self-test: 3 break(s) went red for the reason '
-        'expected, the split with its baseline rewritten is green, and the '
-        'real tree is green against a baseline generated from itself')
+    say('OK       check 60 self-test: 6 break(s) went red for the reason '
+        'expected (3 of them generated fences that prove nothing), the split '
+        'with its baseline rewritten and a proven generated fence are green, '
+        'and the real tree is green against a baseline generated from itself')
     return 0
 
 

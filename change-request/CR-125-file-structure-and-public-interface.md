@@ -48,7 +48,7 @@ PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/impact.py T-062
 ### 2-2. ⚠️ `R2.19` が定義の正とする用語集がリポジトリに無い
 
 **レビュー観点規約書の `R7` は「用語の定義は[用語集](glossary.md)に従う」と書いている**（`review-standards.md:338`）。
-**`find . -iname "glossary.md"` の結果は 0 件である**（自分で走らせた。`previous-project-result/21-review-standard/` にあるのは `review-standards.md` 1 ファイルだけ）。
+**`find . -iname "glossary.md"` の結果は 0 件である**（自分で走らせた。`studies/21-review-standard/` にあるのは `review-standards.md` 1 ファイルだけ）。
 **`R2.19` 自身も「公開面」を定義していない**（`:177` 〜 `:180` の 3 条は、いずれも公開面を前提に置いた検査項目である）。
 
 **したがって Chapter 5.3 が自前で定義を持つ必要がある。**

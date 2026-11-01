@@ -478,7 +478,7 @@ describe('IF-3 FileStore -- table T-227, from the gateway through to the disk', 
     },
   )
 
-  it('every row of table T-227 is walked by a case above (Chapter 1.9, :275)', () => {
+  it('every row of table T-227 is walked by a case above (Chapter 1.9)', () => {
     const walked = new Set(CASES.flatMap((one) => one.rows))
     const missing = T227.rows.map((row) => row.id).filter((id) => !walked.has(id))
     expect(missing, `table T-227 rows with no case: ${missing.join(', ')}`).toEqual([])

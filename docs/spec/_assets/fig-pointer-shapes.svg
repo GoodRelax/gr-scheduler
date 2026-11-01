@@ -1,7 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 524 1772" width="524" height="1772" role="img" aria-label="16 pointer kinds (9 glyphs) at actual size and 4x magnification">
   <title>図 F-025 -- 表 PK（ポインタの形）16 種、実寸と 4 倍</title>
   <!-- GENERATED ARTIFACT: do not hand-edit.
-     source: previous-project-result/16-grab-area-sizing/grab-area-sizing-sample.html (behavior)
+     source: studies/16-grab-area-sizing/grab-area-sizing-sample.html (behavior)
              + docs/spec/_source/settings.json (values, gated: see the probe's settings-gate)
      regenerate: node tools/probe/grab-figures.mjs
      produced this file: docs/spec/_assets/fig-pointer-shapes.svg

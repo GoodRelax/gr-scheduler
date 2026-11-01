@@ -20,7 +20,7 @@ export function dayOf(text: string | null): CalendarDay | null {
   if (hit === null) return null
   const [year, month, day] = [Number(hit[1]), Number(hit[2]), Number(hit[3])]
   if (month < 1 || month > 12 || day < 1 || day > 31) return null
-  const round = new Date(Date.UTC(year, month - 1, day))
+  const round = new Date(utcMillisecondsOf(year, month - 1, day))
   if (round.getUTCMonth() !== month - 1 || round.getUTCDate() !== day) return null
   return { year, month, day }
 }
@@ -89,6 +89,19 @@ export function finishSideDayFrom(day: CalendarDay | null, text: string | null):
   return dayFromSerial(serial(read.day) - (read.minute > 0 ? 0 : 1))
 }
 
+// see RV-1, RV-6, BL-2, FR-054, FR-158
+/** @purity pure */
+export function edgeInstantOf(text: string | null, side: 'start' | 'finish', instantAt: () => number | null,
+                              isTimeOfDayVisible: boolean, dayAt: (text: string | null) => CalendarDay | null): number | null {
+  if (isTimeOfDayVisible) return instantAt()
+  if (side === 'start') {
+    const day = dayAt(text)
+    return day === null ? null : serial(day) * MINUTES_PER_CALENDAR_DAY
+  }
+  const last = finishSideDayFrom(dayAt(text), text)
+  return last === null ? null : (serial(last) + 1) * MINUTES_PER_CALENDAR_DAY
+}
+
 /** @purity pure */
 export function textOfInstant(instant: number): string {
   const day = dayOfInstant(instant)
@@ -146,11 +159,22 @@ export function isSameDay(left: string | null, right: string | null): boolean {
   return compareDays(leftDay, rightDay) === 0
 }
 
-// TRAP: Date.UTC maps years 0 to 99 onto 1900 to 1999; dayOf's round-trip check shares
-// the mapping, so a fix must change both.
+const LAST_YEAR_DATE_UTC_SHIFTS = 99
+
+// WHY: Date.UTC reads the years 0 to 99 as 1900 to 1999, so a typed 0075 would come back as 1975
+// and pass the accepted range (T-214); setUTCFullYear takes the year as written.
+/** @purity pure */
+function utcMillisecondsOf(year: number, monthIndex: number, day: number): number {
+  const millis = Date.UTC(year, monthIndex, day)
+  if (year < 0 || year > LAST_YEAR_DATE_UTC_SHIFTS) return millis
+  const at = new Date(millis)
+  at.setUTCFullYear(year, monthIndex, day)
+  return at.getTime()
+}
+
 /** @purity pure */
 export function serial(day: CalendarDay): number {
-  return Date.UTC(day.year, day.month - 1, day.day) / 86400000
+  return utcMillisecondsOf(day.year, day.month - 1, day.day) / 86400000
 }
 
 /** @purity pure */

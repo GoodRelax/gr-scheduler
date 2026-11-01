@@ -1,0 +1,435 @@
+id	verdict	failed	problem_ja	suggested_en
+D001	ok	-	-	-
+D002	ok	-	-	-
+D003	ok	-	-	-
+D004	ok	-	-	-
+D005	ok	-	-	-
+D006	ok	-	-	-
+D007	ok	-	-	-
+D008	ok	-	-	-
+D009	ok	-	-	-
+D010	ok	-	-	-
+D011	ok	-	-	-
+D012	ok	-	-	-
+D013	ok	-	-	-
+D014	ok	-	-	-
+D015	fix	E6	注記を Notes と呼び、他の説明が使う「comment box」と語が違う。	Comment boxes on the chart. Each one points at a task, a highlight box or a free point.
+D016	fix	E6	「Rectangles」と言い、他の説明が使う「highlight box」の語を使っていない。	Highlight boxes: rectangles on the chart that mark a range of days over a range of task groups, drawn with a frame, a fill or both.
+D017	fix	E2	キーを毎回書く理由（製品の既定値が後で変わっても絵を変えないため）は設計の理由で、プロパティの中身ではない。	How the document is drawn when it is opened. Keys that always have a value are always written.
+D018	fix	E3	72語・5文で長い。ヘッダー等に効かない点と文書が開く値の点を詰められる。	Display scale of the schedule drawing, in percent: at 100 every ...Px value is drawn as that many CSS pixels, at 50 at half size. It scales shapes and text together; it does not change the app header, the command palette or the browser zoom.
+D019	fix	E4	「before the tool's own ratios」が内部の言い回しで、Haiku も何を指すか分からなかった。	Text size step of the schedule: small, medium or large, which are 7.5, 8.75 and 10 CSS pixels at displayScalePercent 100. The document opens at this step; a reader who changes it edits the document.
+D022	ok	-	-	-
+D023	fix	E2 E3	「never below 1」は範囲の言い直し、最後の文は別プロパティの案内で、4文45語と長い。	Vertical size of the task figures, as a ratio to the default size. 1 is the default size; 2 draws plan bars, actual bars and task name labels twice as tall.
+D024	fix	E3 E4	54語・多文で長く、深さの数え方が一読で追いにくい（Haiku も複雑と指摘）。	How deep task groups with treeState auto open. A top-level task group is depth 1. With value N, task groups down to depth N are open, so rows down to depth N + 1 are shown; 0 shows only the top-level task groups, closed.
+D025	ok	-	-	-
+D026	ok	-	-	-
+D027	ok	-	-	-
+D028	ok	-	-	-
+D029	ok	-	-	-
+D030	ok	-	-	-
+D031	fix	E2 E3 E6	子の説明（D032-D034）を言い直し、4文になっている。「Fit」だけで D022 の「Fit to screen」と語も揃わない。	The span of days, firstDay to lastDay (both included), that Fit to screen and picture export show instead of the whole schedule when isFixed is true. Absent means no fit span.
+D032	fix	E4	「the shown clock」は内部の言い回しで、Haiku も言い回しの硬さを指摘した。	The first day of the fit span (included), in the time zone the chart is shown in (viewTimeZone).
+D033	ok	-	-	-
+D034	fix	E6	「Fit」だけで、D022 などの「Fit to screen」と語が揃わない。	When true, Fit to screen and picture export show the fit span instead of the whole schedule. Opening the document does not move the view.
+D035	ok	-	-	-
+D036	ok	-	-	-
+D037	ok	-	-	-
+D038	ok	-	-	-
+D039	ok	-	-	-
+D040	ok	-	-	-
+D041	ok	-	-	-
+D042	ok	-	-	-
+D043	ok	-	-	-
+D044	ok	-	-	-
+D045	ok	-	-	-
+D046	ok	-	-	-
+D047	ok	-	-	-
+D048	ok	-	-	-
+D049	ok	-	-	-
+D050	ok	-	-	-
+D051	ok	-	-	-
+D052	ok	-	-	-
+D053	ok	-	-	-
+D054	ok	-	-	-
+D055	ok	-	-	-
+D056	ok	-	-	-
+D057	fix	E4	「level 0」「tree state」は内部用語で、Haiku も指す範囲を取りにくかった。	The state of the head of the task group panel (level 0), above all top-level task groups. collapsed draws no task group at all. A new document starts with auto.
+D058	ok	-	-	-
+D059	ok	-	-	-
+D060	ok	-	-	-
+D061	ok	-	-	-
+D062	ok	-	-	-
+D063	ok	-	-	-
+D064	ok	-	-	-
+D065	ok	-	-	-
+D066	ok	-	-	-
+D067	ok	-	-	-
+D068	ok	-	-	-
+D069	ok	-	-	-
+D070	ok	-	-	-
+D071	ok	-	-	-
+D072	ok	-	-	-
+D073	ok	-	-	-
+D074	ok	-	-	-
+D075	ok	-	-	-
+D076	ok	-	-	-
+D077	ok	-	-	-
+D078	ok	-	-	-
+D079	ok	-	-	-
+D080	ok	-	-	-
+D081	ok	-	-	-
+D082	ok	-	-	-
+D083	ok	-	-	-
+D084	ok	-	-	-
+D085	ok	-	-	-
+D086	ok	-	-	-
+D087	ok	-	-	-
+D088	ok	-	-	-
+D089	ok	-	-	-
+D090	fix	E1 E7	「drawn on its day」が何をどこに描くのか不明で、Haiku も同じ文をなぞっただけ。仕様に描く場所の定めも見つからない。	MS Project's StartDate: the start of the project.
+D091	fix	E7 E3	「時刻は線を動かさない」は誤り。仕様（基準日線の要求）は、時刻を表示しているとき線を statusDate の瞬間の位置に引くとする。Haiku は誤りをそのまま写した。	MS Project's StatusDate: the date that progress is reported as of; the status line is drawn here. Absent means no status date: no status line is drawn and Delay Diagnostics does not run.
+D092	fix	E4	「wall clock」「standard-time key」が硬く、Haiku も語を指摘した。	The fixed UTC offset that the schedule date-times are given in, written as a standard-time key such as UTC+09:00. Daylight saving is never applied. It is not written to MS Project.
+D093	fix	E3	63語で長く、例外日の細目まで入っている。	The length of 1d in durations and lags, in minutes (480 when absent). Keep it equal to the working minutes of every working day. When a day differs, GRS reports it each time the document opens.
+D094	ok	-	-	-
+D095	ok	-	-	-
+D096	fix	E5	設定行の ID（S-108）が入っている。スキーマだけを持つ読み手は引けない。	MS Project's numbering: 0 Sunday ... 6 Saturday (one less than WeekDay.dayType). Absent means Monday (1).
+D097	ok	-	-	-
+D098	ok	-	-	-
+D099	fix	E2	プロジェクトに属し documentSettings には無い理由は、設計の理由で中身ではない。	The hue of the theme, in degrees. Every color written as {"kind":"theme"} uses it. A new document starts with 214.
+D100	fix	E2	「プロジェクトに属し、読み手に属さない」は設計の理由で中身ではない。	How many working days the progress point of a parent task may lie outside the progress points of the work below it, before Delay Diagnostics asks whether an update is missing. A new document starts with 1.
+D101	fix	E2	「up to 2147483647」は範囲の言い直し。	One counter for the uids of tasks, resources, assignments and calendars. Uids are never reused, so a new uid is always above this value.
+D102	ok	-	-	-
+D103	ok	-	-	-
+D104	ok	-	-	-
+D105	ok	-	-	-
+D106	ok	-	-	-
+D107	ok	-	-	-
+D108	ok	-	-	-
+D109	ok	-	-	-
+D110	ok	-	-	-
+D111	ok	-	-	-
+D112	ok	-	-	-
+D113	ok	-	-	-
+D114	ok	-	-	-
+D115	ok	-	-	-
+D116	ok	-	-	-
+D117	ok	-	-	-
+D118	ok	-	-	-
+D119	ok	-	-	-
+D120	ok	-	-	-
+D121	fix	E2	何を持つかを言わず、省いたときの意味だけ書いている（Haiku は型名から補った）。	The working spans of this day of the week. Absent on a working day means the default spans 08:00-12:00, 13:00-17:00.
+D122	ok	-	-	-
+D123	ok	-	-	-
+D124	ok	-	-	-
+D125	ok	-	-	-
+D126	ok	-	-	-
+D127	fix	E2 E3	何を持つかを先に言わず、3文50語。	MS Project's FromDate. For a one-off exception (see recurrenceKind), fromDate..toDate is the range of real days, written 00:00:00 to 23:59:00. For a recurring exception, fromDate is the start of the recurrence, not a real day.
+D128	ok	-	-	-
+D129	ok	-	-	-
+D130	fix	E3	81語・5文で長い。例外の判定条件を詰めると読みやすい（Haiku も追いにくいと指摘）。	MS Project's Exception/Type: 1 daily, 2 yearly by date, 3 yearly by position, 4 monthly by date, 5 monthly by position, 6 weekly, 7 by day count, 8 by weekday count, 9 none. 9, absent, or 1 with recurrencePeriod absent or 1 means a one-off exception; any other row repeats and is not counted as days off. Write 1 for an exception you add.
+D131	ok	-	-	-
+D132	fix	E2	何を持つかを言わず、省いたときの意味だけ書いている。	The working spans of the exception days. Absent on a working day means the default spans 08:00-12:00, 13:00-17:00.
+D133	ok	-	-	-
+D134	ok	-	-	-
+D135	ok	-	-	-
+D136	ok	-	-	-
+D137	ok	-	-	-
+D138	fix	E2	何を持つかを言わず、00:00:00 の読み方から始まる。	MS Project's ToTime: the end of the working span. 00:00:00 means the end of the day (24:00), as MS Project writes it.
+D139	fix	E4	「its actual given by dates」が不自然で、Haiku も指摘した。	One task: its plan, and its actual progress, both given by dates.
+D140	ok	-	-	-
+D141	ok	-	-	-
+D142	fix	E2	何を持つかを言わず、持つ理由から始まる。	MS Project's CalendarUID for the task. It is kept only so that it goes back to MS Project unchanged; working days are counted with the one calendar that project.calendarUid names.
+D143	ok	-	-	-
+D144	ok	-	-	-
+D145	ok	-	-	-
+D146	ok	-	-	-
+D147	ok	-	-	-
+D148	fix	E2 E4	「The fact」が何を指すか不明（Haiku も指摘）。何を持つかを先に言っていない。	MS Project's Milestone: whether the task is a milestone. Absent means false. When true, TaskVisual holds milestoneShape; otherwise it holds taskShape.
+D149	ok	-	-	-
+D150	ok	-	-	-
+D151	fix	E2	名を MS Project のまま残す理由は設計の理由。	MS Project's Stop: how far the actual work has reached while the task is unfinished. Absent once actualFinish is set.
+D152	ok	-	-	-
+D153	ok	-	-	-
+D154	ok	-	-	-
+D155	fix	E3 E2	105語・7文で、Haiku も式と数え方を追えなかった。	Follows from the dates: round(actual length / planned length x 100), in working minutes of the document calendar. The actual length runs from actualStart to actualFinish, or to stop while unfinished; a milestone is 100 once actualFinish is set, otherwise 0. GRS counts it again from the dates whenever it reads a GRS JSON file, so write what the dates give; it can be above 100.
+D156	fix	E2 E3	58語。「事実なので MS Project へ出し TaskVisual に入れない」は設計の理由。	Calendar days at the start of the bar, inside start..finish, drawn slanted to show that the start is not yet firm. Absent means no fade (a chevron keeps its normal notch); 0 means a flat end.
+D157	ok	-	-	-
+D158	ok	-	-	-
+D159	ok	-	-	-
+D160	ok	-	-	-
+D161	ok	-	-	-
+D162	ok	-	-	-
+D163	ok	-	-	-
+D164	ok	-	-	-
+D165	ok	-	-	-
+D166	ok	-	-	-
+D167	ok	-	-	-
+D168	ok	-	-	-
+D169	ok	-	-	-
+D170	ok	-	-	-
+D171	ok	-	-	-
+D172	fix	E1 E2	Task.calendarUid を参照するだけで、何を持つかを自分では言っていない（Haiku も指摘）。	MS Project's CalendarUID for the resource. It is kept only so that it goes back to MS Project unchanged; working days are counted with project.calendarUid.
+D173	ok	-	-	-
+D174	ok	-	-	-
+D175	ok	-	-	-
+D176	ok	-	-	-
+D177	ok	-	-	-
+D178	ok	-	-	-
+D179	ok	-	-	-
+D180	ok	-	-	-
+D181	ok	-	-	-
+D182	ok	-	-	-
+D183	ok	-	-	-
+D184	fix	E2	タスクグループを WBS と分ける理由（複数タスクが1つを共有するため）は設計の理由。	A task group: one row of the task group panel and one band on the chart. Task groups form their own tree, separate from the WBS (Task.parentTaskUid), and are not exported to MS Project.
+D185	ok	-	-	-
+D186	ok	-	-	-
+D187	fix	E1 E2	「stands for」と末尾の「名の出どころではない」が分かりにくく、Haiku は言葉をなぞっただけ。	The task that this task group represents in the WBS. Absent means it represents no task. It does not decide the name of the task group.
+D188	ok	-	-	-
+D189	ok	-	-	-
+D190	fix	E2	基準例そのもの: 保存する理由は中身ではない。5つの値のうち auto の意味と temporarilyExpanded が分からない（Haiku も3つしか言えなかった）。	Whether the task group is open, closed or hidden in the task group panel. auto follows documentSettings.taskGroupAutoExpandDepth; temporarilyExpanded is open until the view is shrunk or fitted.
+D191	fix	E1 E7	仕様では、editGroup が付いたタスクグループのタスクは GRS が編集を断る（読み取り専用）。この効果を書いていない。Haiku は「権限の単位か」と推測した。	The name of the group that may edit this task group. When it is set, GRS refuses edits to the tasks in this task group. Absent means anyone may edit.
+D192	ok	-	-	-
+D193	ok	-	-	-
+D194	fix	E1	「(MS Project's name)」が何を指すか不明。Haiku も指摘した。	The URL the task group links to. Absent means no link.
+D195	ok	-	-	-
+D196	fix	E4 E6	「lane」が未説明。D011 などの「drawn in」と違い「sits on」と言っている。	Which task group a task is drawn in; every task is in exactly one task group. GRS stacks the tasks of a task group itself, in the direction that documentSettings.stackDirection gives.
+D197	ok	-	-	-
+D198	ok	-	-	-
+D199	fix	E2	「so that no other way ... is needed」は設計の理由。	How a task is drawn: its shape, its colors and its outline width. Every task has exactly one.
+D200	ok	-	-	-
+D201	fix	E2	最初の文が enum の値の言い直し。	Shape of a task that is not a milestone. Present exactly when Task.milestone is not true; a milestone holds milestoneShape instead.
+D202	ok	-	-	-
+D203	fix	E3 E4	48語・5文で、HSL の式が専門的（Haiku も指摘）。	The fill color of the plan bar. Absent means no fill is drawn; fill and stroke may not both be absent. A custom color may give only one of light and dark: GRS works out the other when it loads the file.
+D204	fix	E2	「Same shape as fillColor」は型の言い直し。	Outline color of the plan and actual bars. Absent means no outline is drawn.
+D205	fix	E2	「1 to 10」は範囲の言い直し。	Outline width of the task's plan and actual bars, in CSS pixels at displayScalePercent 100. GRS writes 1 for a new task.
+D206	ok	-	-	-
+D207	ok	-	-	-
+D208	ok	-	-	-
+D209	ok	-	-	-
+D210	ok	-	-	-
+D211	ok	-	-	-
+D212	ok	-	-	-
+D213	ok	-	-	-
+D214	ok	-	-	-
+D215	ok	-	-	-
+D216	ok	-	-	-
+D217	ok	-	-	-
+D218	ok	-	-	-
+D219	ok	-	-	-
+D220	fix	E2 E3	3文・約55語で、oneOf の構造の語りが D234/D235 と重なる。	Where the leader line of the comment box points: a free point on the chart, or a point of a task or highlight box that the line is snapped to. A snapped anchor also keeps a fallback place, used when its target is deleted.
+D221	fix	E2	「箱が指す先のそばに留まる」は設計理由で、持つ値の説明ではない。	Offset from the anchor point to the lower-left corner of the comment box body, in CSS pixels at displayScalePercent 100. It is scaled with displayScalePercent but not with zoom.
+D222	ok	-	-	-
+D223	ok	-	-	-
+D224	ok	-	-	-
+D225	ok	-	-	-
+D226	ok	-	-	-
+D227	ok	-	-	-
+D228	fix	E2	範囲 (1 to 10) はスキーマが言うので重複。基準の言い方も二重で読みにくい。	Width of the comment box border and leader line, in CSS pixels at displayScalePercent 100. It is scaled with displayScalePercent but not with zoom. GRS writes 1 when it places a box.
+D229	ok	-	-	-
+D230	fix	E2 E3	範囲 (8 to 24) の再掲と、倍率の二重の説明で長い。	Size of the comment box text, in CSS pixels at displayScalePercent 100. It is scaled with displayScalePercent but not with zoom. GRS writes 10 when it places a box.
+D231	fix	E2 E4	「(MS Project's name)」は名前の由来の注記で、Haiku も何の意味か迷った。	The URL that the comment box links to. Absent means no link.
+D232	ok	-	-	-
+D234	ok	-	-	-
+D235	ok	-	-	-
+D236	ok	-	-	-
+D237	ok	-	-	-
+D238	ok	-	-	-
+D239	ok	-	-	-
+D240	ok	-	-	-
+D241	ok	-	-	-
+D242	ok	-	-	-
+D243	ok	-	-	-
+D244	ok	-	-	-
+D245	ok	-	-	-
+D246	ok	-	-	-
+D247	ok	-	-	-
+D248	ok	-	-	-
+D249	ok	-	-	-
+D250	fix	E4	「schedule data clock」は内部語で、Haiku は何を指すか分からなかった。	The first day that the box covers (included), as a day in the schedule data time zone (project.scheduleDataTimeZone).
+D251	ok	-	-	-
+D252	fix	E2	範囲 (0 to 24) と「0 is a square corner」の再掲、倍率の二重説明。	Corner radius of the highlight box, in CSS pixels at displayScalePercent 100; 0 gives square corners. It is scaled with displayScalePercent but not with zoom. GRS writes 4 when it places a box.
+D253	ok	-	-	-
+D254	ok	-	-	-
+D255	fix	E2 E4	「枠は掴める」は画面操作の話で、データの意味ではなく、Haiku も描画と操作の区別で迷った。	Frame color of the highlight box. Absent means no frame line is drawn.
+D256	fix	E2	範囲 (1 to 10) の再掲と倍率の二重説明。	Border width of the highlight box, in CSS pixels at displayScalePercent 100. It is scaled with displayScalePercent but not with zoom. GRS writes 1 when it places a box.
+D257	fix	E2 E4	「時計が動かないように外に置く」は設計理由で、「group's clock」も内部語。	When the document last changed and was saved, and who wrote it last.
+D258	fix	E4	「A watcher of changes」が何か分からない (Haiku も迷った)。	When the schedule data last changed. watchChanges looks only at this time.
+D259	ok	-	-	-
+D260	fix	E2 E3	6文・約75語。置き場所の理由、UTC の理由、MS Project の LastSaved の経緯は設計の話。	When the document was last written to its file, in UTC. Absent until it has been written once.
+D261	ok	-	-	-
+D262	ok	-	-	-
+D263	ok	-	-	-
+D264	ok	-	-	-
+D265	ok	-	-	-
+D266	ok	-	-	-
+D267	ok	-	-	-
+D268	ok	-	-	-
+D269	ok	-	-	-
+D270	fix	E2 E3 E4	2文だが長く、内部キー xmlns / #StopCountedFrom の中身は利用者に不要で、Haiku も意味を取れなかった。	Values of an imported MS Project element that GRS does not use, kept under their own names and written back unchanged. Only the MS Project export reads them.
+D271	ok	-	-	-
+D272	ok	-	-	-
+D273	ok	-	-	-
+D274	ok	-	-	-
+D275	ok	-	-	-
+D276	fix	E4	「which clock」は内部語。	A date without a time of day. Each property that uses it says which time zone the day is in.
+D277	ok	-	-	-
+D278	ok	-	-	-
+D279	ok	-	-	-
+D280	fix	E4	「standard-time key」の key が分かりにくい (Haiku も迷った)。	A fixed offset from UTC, written like UTC+09:00. Daylight saving time is never applied.
+D281	ok	-	-	-
+D282	ok	-	-	-
+D283	ok	-	-	-
+D284	ok	-	-	-
+D285	ok	-	-	-
+D286	ok	-	-	-
+D287	ok	-	-	-
+D288	fix	E4	「HSL lightness 1 - L」は色の専門語で、利用者に不要。	chosen: a person chose this value; derived: GRS made it from the other side when it loaded the document.
+D289	ok	-	-	-
+D290	ok	-	-	-
+D291	ok	-	-	-
+D292	ok	-	-	-
+D293	ok	-	-	-
+D294	ok	-	-	-
+D295	fix	E4	D250 と同じ「schedule data clock」。	The first day that is kept (included), as a day in the schedule data time zone (project.scheduleDataTimeZone).
+D296	ok	-	-	-
+D297	ok	-	-	-
+D298	ok	-	-	-
+D299	ok	-	-	-
+D300	ok	-	text は ok。shape 欄に表番号 T-331/T-347/T-371 があるので shape 側で除く。	-
+C001	fix	E2 E3	5文・約100語。set/clear の項目一覧はスキーマの再掲。	Edits the project of the document. `set` writes the listed properties and `clear` removes the listed optional ones; a property in both is refused (`fieldSetAndCleared`). Without `statusDate`, no status date line is drawn. Setting `scheduleDataTimeZone` does not convert the stored times: only the time zone they are read in changes.
+C009	fix	E1 E5	「列は仕様が決める」では利用者に何が動くか分からない (Haiku も指摘)。仕様を指す書き方になっている。	Moves every schedule date-time by `minutes`: positive is later, negative is earlier. It moves the planned and actual dates of tasks and baseline tasks, deadlines, and the project's `startDate` and `statusDate`; whole-day ranges and the calendar do not move. It is one write, and it is applied without asking the person when it comes from the Agent API.
+C010	fix	E1 E5	「どの列が動くか・動き方は仕様が決める」と仕様を指す。shape 欄には作業中の注記 (findings 09/12, assumes) も残っている。	Moves the whole schedule so that its earliest task start falls on `newStartDay` (YYYY-MM-DD). Every date moves by the same number of working days, so tasks keep their working-day lengths and gaps; the calendar does not move. A `newStartDay` that is a day off is moved back to the previous working day. It is one write, and it is applied without asking when it comes from the Agent API, as for `shiftScheduleTimes`.
+C011	fix	E1 E2 E3	7文以上で長い。「default calendar なら先に calendar を作る」は誰が作るのか不明、「aligned by the side...」は意味が取れない (spec 側も曖昧)。	Edits the calendar: the working weekdays (`workingDayTypes`; 1 is Sunday, and weekdays not listed are days off), the day the week starts on (`weekStartDay`), the exception days (`exceptions`, the complete list after the edit) and one set of working times for a working day (`workingTimes`). A part you leave out stays as it is. `workingTimes` holds 1 to 5 time ranges; an empty list is refused. To go back to the default working times, pass the two ranges 08:00:00-12:00:00 and 13:00:00-17:00:00.
+C012	fix	E1 E2 E3	set/clear の項目一覧はスキーマの再掲で長い。「worked out again」の中身と passthroughValues が分からない。	Edits the task `taskUid`. `set` writes the listed properties and `clear` removes the listed optional ones; a property in both is refused (`fieldSetAndCleared`). The rules are checked on the task as it is after the edit, so you may send only one of `start` and `finish`; when either moves, GRS works out `percentComplete` again. A `hyperlinkAddress` that starts with `javascript:`, `vbscript:` or `data:` is refused (`hyperlinkSchemeNotAllowed`).
+C020	fix	E3	6文・約140語。例は役に立つが長い。	Creates an unnamed task with the given `start` and `finish` on the task group `taskGroupId`. Give exactly one of `taskShape` (`rectangle`, `chevron`, `arrow` or `endpointSpan`) and `milestoneShape` (one of the 15 glyphs); `milestoneShape` makes the task a milestone. The new task's uid is `project.highestIssuedUid` plus 1, and `highestIssuedUid` moves to it, so later commands of the same batch can name the task (for example `editTask` with `taskUid` 42 when `highestIssuedUid` was 41). A `taskGroupId` that names no task group makes a new top-level task group with that id.
+C021	fix	E4	「carried tasks」の意味が分からない (Haiku も指摘)。コピーが未着手で作られる事実も欠けている。	Duplicates the tasks listed in `sourceUids`. A child task that is not listed is not copied, and the copies start as not started. `landing` says where the copies are placed; it is sent only for a Ctrl-drag copy.
+C022	ok	-	-	-
+C023	fix	E1	「five plan-and-actual columns」の5つが何か分からない (Haiku も指摘)。	Puts the task `taskUid` into one plan-and-actual state. `place` holds the state and the actual dates that the state needs: `actualStart`, `stop`, `resume` and `actualFinish`.
+C024	fix	E4	「grab handle」「dummy actual」は画面の語で、読む側は意味を取れない (Haiku も指摘)。	Starts the actual of the task `taskUid` after the person dragged its dummy actual (the placeholder mark of an actual that has not started). `grabbed` names the mark that was dragged, `released` is where it was let go, and `snapMinutes` is the snap step in minutes that sets the length of the actual.
+C025	fix	E7 E1	`remembered` の説明が事実とずれる: 覚えた実績は suspended から not started へ戻すときに外され、後で not started から in progress へ進めるときに戻す。「state cycle」の順番も無い。	Moves the plan-and-actual state of the task `taskUid` one step along the cycle: not started, in progress, finished, suspended, and back to not started. A milestone alternates between not started and finished. `remembered` is the actual that an earlier step removed; pass it when the task goes from not started to in progress so that it is restored, and omit it when none is remembered. `snapMinutes` is the snap step in minutes; when omitted, the day step is used.
+C026	ok	-	-	-
+C027	fix	E4	「link type」が何か書かれていない (Haiku も指摘)。	Draws a dependency line from the task `predecessorUid` to the task `successorUid`. `predecessorEdge` and `successorEdge` name the ends (`start` or `finish`); the pair of ends decides the link type, for example finish-to-start. If either task is a milestone, the line is always finish-to-start, whatever the edges say.
+C028	fix	E1 E7	Haiku は typed を「単位を指定する型」と誤読した。実際は minutes が長さで、unit は表示の単位だけ。shape 欄の注記「assumed」も作業中の言葉。	Changes the lag of the dependency from `predecessorUid` to `successorUid`; every line in that direction gets the new lag. `lag` is either a count of working days, or a length in minutes together with the unit (`day`, `hour` or `minute`) in which the lag is shown.
+C029	ok	-	-	-
+C030	ok	-	-	-
+C031	ok	-	-	-
+C033	ok	-	-	-
+C034	ok	-	-	-
+C035	ok	-	-	-
+C036	ok	-	-	-
+C037	ok	-	-	-
+C038	fix	E2 E3	6文で、set/clear の項目一覧はスキーマの再掲。	Edits the task group `taskGroupId`. `set` writes the listed properties and `clear` removes the listed optional ones; a property in both is refused (`fieldSetAndCleared`). Without `color` no band color is painted, and `name` does not follow the name of the task that the group stands for. `editGroup` is not built yet, so setting or clearing it is refused (`notImplemented`). A `hyperlinkAddress` that starts with `javascript:`, `vbscript:` or `data:` is refused (`hyperlinkSchemeNotAllowed`).
+C045	ok	-	-	-
+C046	ok	-	-	-
+C047	ok	-	-	-
+C048	ok	-	-	-
+C049	ok	-	-	-
+C050	ok	-	-	-
+C054	fix	E2 E3	6文で、set/clear の項目一覧はスキーマの再掲。	Edits how the task `taskUid` is drawn. `set` writes the listed properties and `clear` removes the listed optional ones; a property in both is refused (`fieldSetAndCleared`). `taskShape` is only for a task that is not a milestone and `milestoneShape` only for a milestone; the wrong one is refused (`milestoneShapeMismatch`). A color that is absent is not drawn, and a task left with neither `fillColor` nor `strokeColor` is refused (`fillAndStrokeBothInvisible`). To follow the theme again, set the color to {"kind":"theme"}.
+C061	fix	E2 E3	6文で、set/clear の項目一覧はスキーマの再掲。	Edits the comment box `commentBoxId`. `set` writes the listed properties and `clear` removes the listed optional ones; a property in both is refused (`fieldSetAndCleared`). The frame, the text and the fill always have a color, so `clear` cannot remove them; to hide the fill, set `fillTransparencyPercent` to 100. `anchor` has the same shape as in `createCommentBox`. A `hyperlinkAddress` that starts with `javascript:`, `vbscript:` or `data:` is refused (`hyperlinkSchemeNotAllowed`).
+C071	fix	E2	anchor の三つの形はスキーマ/shape の再掲。置くときの既定値 (何が書かれるか) が欠けている。	Places a comment box with the id `commentBoxId`, attached as `anchor` says. `anchor` is a free point, a task or a highlight box, and every property of the chosen kind is required. GRS gives the other properties their default values, and the new box has no text.
+C072	ok	-	-	-
+C073	ok	-	-	-
+C075	fix	E2 E3	6文で、set/clear の項目一覧はスキーマの再掲。「inverted」の説明も弱い。	Edits the highlight box `highlightBoxId`. `set` writes the listed properties and `clear` removes the listed optional ones; a property in both is refused (`fieldSetAndCleared`). Without `strokeColor` no frame line is drawn. A box whose last day comes before its first day, or whose bottom task group comes before its top task group, is refused (`highlightBoxInverted`); so is a box with no `strokeColor` and `fillTransparencyPercent` 100 (`fillAndStrokeBothInvisible`).
+C081	ok	-	-	-
+C082	ok	-	-	-
+C083	ok	-	-	-
+C084	fix	E2 E3 E4	5文で長く、set/clear の項目一覧はスキーマの再掲。「fixing」は isFixed のことだが分かりにくい (Haiku も指摘)。	Edits the document settings, which say how the schedule is shown. `set` writes the listed properties and `clear` removes the listed optional ones; a property in both is refused (`fieldSetAndCleared`). Pins and table views have their own commands (`pinTaskGroup`, `unpinTaskGroup` and `editTableView`). `fitSpan` is written whole, with `firstDay`, `lastDay` and `isFixed`; clearing it clears `isFixed` too. Setting `viewTimeZone` converts only the shown times; the stored values stay the same.
+C102	ok	-	-	-
+C103	ok	-	-	-
+C104	fix	E6	ボタン名が「Fit button」だが、画面の語は「Zoom to Fit」 (R090 は Zoom to Fit)。	Fits the whole schedule to the screen of the page, as the Zoom to Fit button does: the page computes the zoom and the scroll position from its own screen size, so you need not know it.\nThe page computes them from the screen as drawn before this batch, so send it in a batch of its own after the edits that change the rows.\nIt does not unfold the task groups as the Zoom to Fit button also does; to unfold them, send resetTaskGroupTreeStates in an earlier batch.\nIt is refused while the page has not drawn its screen yet.
+C111	fix	E2 E3	5文・約100語で、set/clear の項目一覧はスキーマの再掲。	Edits how one table looks; `table` names it (`searchPanel`, `delayDiagnosticsReport` or `resourceList`). `set` writes the listed properties and `clear` removes the listed optional ones; a property in both is refused (`fieldSetAndCleared`). Only the properties that the named table has are accepted; any other is refused (`malformedRequest`). Clearing `sort` returns the table to its default order, and clearing a list means it has no items.
+R001	ok	-	-	-
+R002	fix	E4 E2	「row ids」は仕様の内部語で、スキーマだけを持つ読み手には意味がない。	A short explanation in English for a person.
+R003	fix	E5 E4	「AG-2」は仕様の行 ID。「stamp」が何かも書かれていない。	The current stamp of the document. The document itself is not included.
+R004	ok	-	-	-
+R005	ok	-	-	-
+R006	ok	-	-	-
+R007	ok	-	削除行で text が無い。出荷しない行。	-
+R008	ok	-	-	-
+R009	ok	-	-	-
+R010	ok	-	-	-
+R011	ok	-	-	-
+R012	ok	-	-	-
+R013	ok	-	-	-
+R014	ok	-	-	-
+R015	ok	-	-	-
+R016	ok	-	-	-
+R017	ok	-	-	-
+R018	ok	-	-	-
+R019	ok	-	-	-
+R020	ok	-	-	-
+R021	ok	-	-	-
+R022	ok	-	-	-
+R023	ok	-	-	-
+R024	ok	-	-	-
+R025	fix	E4	「fix proposal」が何の修正案か分からない (Haiku も指摘)。	issueDelayFixes was called, but the Delay Diagnostics has no fix proposal to apply.
+R026	fix	E5 E4	「(MM-4, OP-5, OP-8)」は仕様の行 ID。「did not land」は言い回しが難しい。	The import was not applied: the person canceled it, an open was in progress, or the document did not pass validation.
+R027	fix	E5	「JDG-3284」は裁定の ID。	The GRS JSON you passed does not match the schema. A uid outside 0..2147483647 also counts.
+R028	ok	-	-	-
+R029	ok	-	-	-
+R030	fix	E5	「FR-023」は仕様の行 ID。	The imported document did not pass the import checks. documentFaults lists each fault.
+R031	ok	-	-	-
+R032	ok	-	-	-
+R033	ok	-	-	-
+R034	ok	-	-	-
+R035	ok	-	-	-
+R036	ok	-	-	-
+R037	ok	-	-	-
+R038	fix	E7	実際に拒否になるのは「退いた道具名」だけで、知らない名前は JSON-RPC の誤りのまま。「unknown」は事実とずれ、Haiku も「取り消された」と混ぜて読んだ。	A retired tool name was called. replacement names the tool to use instead, when there is one.
+R039	fix	E4	「primary key」はデータベースの語。	Two rows in the same array have the same key (such as id or uid).
+R040	fix	E4	「foreign key」「dangling」はデータベースの語 (Haiku も指摘)。	A property that refers to another row (such as parentTaskUid) points to a row that is not in the document.
+R041	ok	-	-	-
+R042	ok	-	-	-
+R043	fix	E1	上限の数が無い (5)。	Task groups are nested deeper than 5 levels.
+R044	ok	-	-	-
+R045	ok	-	-	-
+R046	fix	E5 E7	「JDG-3315」の裁定 ID と作業中の注記。この理由は退いたので出荷する行ではない。	(drop the row: this reason no longer exists)
+R047	fix	E5	「(rewritten by JDG-3310)」は裁定 ID。	The fill and the stroke are both invisible. A TaskVisual has neither fillColor nor strokeColor. A HighlightBox has no strokeColor and its fillTransparencyPercent is 100.
+R048	ok	-	-	-
+R049	fix	E4	「fade」が何か書かれていない (Haiku も指摘)。	A task has a fade (fadeInCalendarDays or fadeOutCalendarDays) but no finish.
+R050	fix	E4	R049 と同じく fade が未定義。	The fades (fadeInCalendarDays plus fadeOutCalendarDays) are longer than the duration of the task in calendar days.
+R051	fix	E1	「accepted days」の範囲が書かれていない。	A day or time column cannot be read, or its day is outside 1984-01-01..2149-12-31.
+R052	ok	-	-	-
+R053	ok	-	-	-
+R054	ok	-	-	-
+R055	ok	-	-	-
+R056	ok	-	-	-
+R057	ok	-	-	-
+R058	ok	-	-	-
+R059	fix	E5	「JDG-3311」「IV-22」は裁定・仕様の ID (Haiku も指摘)。	The shape properties do not match Task.milestone: a milestone has taskShape or has no milestoneShape, or the reverse.
+R060	ok	-	-	-
+R061	fix	E1	何が規則か分からない (1..5 本、順序、重なり)。	The working times of a day break the rules: there must be 1 to 5 time ranges, in time order, with no overlap.
+R062	fix	E5 E1	「S-113」は設定行の ID。数を書く。	The file to import is larger than 32 MB.
+R063	fix	E5 E1	「S-114」は設定行の ID。数を書く。	The document to import has more than 20000 tasks.
+R064	fix	E5 E4	「S-115」は設定行の ID。「WBS depth」も分かりにくい。	The tasks to import are nested (by parentTaskUid) deeper than 64 levels.
+R065	ok	-	-	-
+R066	ok	-	-	-
+R067	ok	-	-	-
+R068	ok	-	-	-
+R069	fix	E1	R051 と同じく「accepted days」の範囲が無い。	A day or time cannot be read, or its day is outside 1984-01-01..2149-12-31.
+R070	fix	E4	「finite number」が分かりにくい (Haiku も指摘)。	A number is outside its allowed range, or is not an integer where one is needed, or is not finite (NaN or infinity).
+R071	ok	-	-	-
+R072	ok	-	-	-
+R073	fix	E4	fade が未定義。	You tried to put a fade (fadeInCalendarDays or fadeOutCalendarDays) on a task that has no finish.
+R074	fix	E4	fade が未定義。	The fades do not fit within the duration of the task in calendar days.
+R075	ok	-	-	-
+R076	fix	E5	「JDG-3311」「FR-083」は ID。	You tried to write taskShape on a milestone, or milestoneShape on a task with a duration.
+R077	fix	E5 E3	JDG ID が3つ。正規化の説明も長い。	The link address (hyperlinkAddress) starts with javascript:, vbscript: or data:. Before the check, spaces and control characters at both ends are removed and the scheme is read in lower case.
+R078	fix	E4	「its own subtree」が分かりにくい (Haiku も指摘)。	You tried to move a task or task group under itself or under one of its own descendants.
+R079	ok	-	-	-
+R080	fix	E5 E1	「S-125」は設定行の ID。数を書く。	The task group depth is more than 5.
+R081	ok	-	-	-
+R082	fix	E1	上限の数が無い (5)。	You tried to pin a task group, but the limit of 5 pinned task groups is reached.
+R083	ok	-	-	-
+R084	ok	-	-	-
+R085	fix	E7	R065 と同名。実際は命令が要る予定の開始か終了が無いとき (beginTaskActual は開始のみ必要)。「planned dates」だと食い違う。	The task lacks the planned start or finish that the command needs.
+R086	ok	-	-	-
+R087	ok	-	-	-
+R088	fix	E1	R061 と同じ。	The working times break the rules: there must be 1 to 5 time ranges, in time order, with no overlap.
+R089	fix	E4	「upside down」は言い回しで、条件も二つに割れて読みにくい。	After the write, the box would end before it starts: its last day would be before its first day, or its bottom task group above its top task group.
+R090	ok	-	-	-
+R091	ok	-	-	-
+R092	ok	-	-	-
+R093	ok	-	-	-
+R094	fix	E1	拒否理由ではなく表の注記 (malformedRequest に移る)。出荷する意味ではない。	(drop the row: it is a note, not a refusal reason)

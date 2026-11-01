@@ -19,6 +19,7 @@ import {
 import type { ScheduleLayout } from '../../entity/layout-engine/schedule-layout/schedule-layout'
 import type { ScreenRect, ScreenRegions } from '../../entity/layout-engine/screen-regions/screen-regions'
 import { editDocument } from '../../use-case/edit-document/edit-document'
+import { armedOf } from '../../use-case/advance-screen-session/advance-screen-session'
 import {
   commandFromInput,
   screenEventFromInput,
@@ -30,9 +31,7 @@ import { DEFAULT_TASK_GROUP_NAME } from '../../adapter/screen-renderer/screen-re
 import type { FrameLoopHands, FrameValues } from './frame-loop'
 import type { GrabbedArea } from './pointer-shape'
 
-// STOP: spec does not decide which T-023d rows draw while held beyond its two
-// closing rules. Looked in T-023d, FR-052, IN-1
-// @provisional PND-250
+// see T-023d, FR-052
 const PREVIEWED_GRABS: Readonly<Record<GrabbedArea, boolean>> = {
   'GA-1': true,
   'GA-2': true,
@@ -101,7 +100,7 @@ export function previewOfHeldPress(
   context: InputContext,
   frame: FrameValues,
 ): Document | null {
-  const isDependencyArmed = hands.readSession().screen.armModeState.kind === 'dependencyArmed'
+  const isDependencyArmed = armedOf(hands.readSession().screen.armModeState)?.kind === 'dependencyArmed'
   if (press === null || at === null || !isPreviewedPress(press, isDependencyArmed)) return null
   const release: PointerInput = { ...press.at, phase: 'up', x: at.x, y: at.y }
   const action = commandFromInput(release, context).action
@@ -153,7 +152,7 @@ export function tentativeDependencyOf(
   regions: ScreenRegions,
 ): ScheduleGeometry['dependencies'][number] | null {
   if (press === null || at === null || press.on !== null) return null
-  if (press.pressRow !== 'PTD-3' || hands.readSession().screen.armModeState.kind !== 'dependencyArmed') return null
+  if (press.pressRow !== 'PTD-3' || armedOf(hands.readSession().screen.armModeState)?.kind !== 'dependencyArmed') return null
   const from = dependencyStartOfHit(geometry, press.at.x, press.at.y, press.hit)
   if (from === null) return null
   const schedule = document.schedule

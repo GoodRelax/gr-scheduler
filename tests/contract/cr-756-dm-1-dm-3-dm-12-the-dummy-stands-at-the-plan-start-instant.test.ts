@@ -46,7 +46,7 @@ const DM_12_NOT_THE_HOUR_WIDTH = '大きさは `DM-9` のままとし、`DM-3` �
 
 const dmCell = (id: string): string => specTable('T-240').rows.find((one) => one.id === id)?.by['規則'] ?? ''
 
-// WHY: day, hour, half-hour and far past S-180: the four arms of DM-3 (T-378 SG-1 to SG-3).
+// WHY: day, hour, half-hour grid and far past S-180: the four arms of DM-3 (T-378 SG-1, then SG-2 from the hour tier up -- CR-850 folded SG-3 into SG-2).
 const DAY_TIER = 100
 const HOUR_TIER = 400
 const HALF_HOUR_TIER = 1200
@@ -73,15 +73,15 @@ describe('CR-756 -- the manuscript still says what these cases press', () => {
     expect(REQUIREMENTS).toContain(clause)
   })
 
-  it('table T-206 S-585 is 60 minutes, and the zooms below fall on SG-1, SG-2 and SG-3', () => {
+  it('table T-206 S-585 is 60 minutes, and the zooms below fall on SG-1 and SG-2 (the half-hour grid tier is SG-2 too)', () => {
     expect(S_585_MINUTES).toBe(60)
     const tierOf = (pxPerDay: number): number => {
       const one = stageOf({ isTimeOfDayVisible: true, pxPerDay })
-      return snapMinutesOf(pxPerDayOf(one), one.loop.document().documentSettings, false)
+      return snapMinutesOf(pxPerDayOf(one), one.loop.document().documentSettings)
     }
     expect(tierOf(DAY_TIER)).toBe(MINUTES_PER_DAY)
-    expect(tierOf(HOUR_TIER)).toBe(60)
-    expect(tierOf(HALF_HOUR_TIER)).toBe(30)
+    expect(tierOf(HOUR_TIER)).toBe(15)
+    expect(tierOf(HALF_HOUR_TIER)).toBe(15)
     expect(hourWidth(FAR_ZOOM)).toBeGreaterThan(S_180_PX)
   })
 })

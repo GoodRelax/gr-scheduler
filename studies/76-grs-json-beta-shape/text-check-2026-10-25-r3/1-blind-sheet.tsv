@@ -1,0 +1,2 @@
+row	kind	name	type	text
+D001	property of the GRS document (root)	$schema	str; examples ["https://goodrelax.github.io/gr-scheduler/spec/_source/grs-document.schema.json"]	The address of the GRS schema that this document follows.

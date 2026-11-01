@@ -43,7 +43,7 @@ the rules, the guides, ...) plus sample-schedule/ and the four GRS JSON
 documents outside them that the FR-073 test opens as current documents
 (EXTRA_FILES). Generated files are
 counted apart: they follow `npm run gen`, never an edit. History
-(change-request/, docs/development-records/, previous-project-result/) is
+(change-request/, docs/development-records/, studies/) is
 never edited.
 """
 import collections

@@ -9,7 +9,7 @@
 
 ## 1. 出どころ
 
-名簿の実体は `previous-project-result/temp/document-command-roster.md` の 71 件である。それを 1 件ずつ「**この命令が書く列に、従う行が仕様に在るか**」で掃いた。**穴は、命令が要らないという意味ではなく、命令が従う行が無いという意味である。**
+名簿の実体は `studies/temp/document-command-roster.md` の 71 件である。それを 1 件ずつ「**この命令が書く列に、従う行が仕様に在るか**」で掃いた。**穴は、命令が要らないという意味ではなく、命令が従う行が無いという意味である。**
 
 | | 数え直した実数 |
 |---|---:|
@@ -148,7 +148,7 @@ AFTER  **スクロールバーの操作でも表示位置を変えられるよ�
 | 23 | `clearDualCursor` / `fitScheduleToScreen` | `dualCursor` を `null` へ戻す規則が無い（`DC-4` はモードを出るだけ）／ 畳みを捨てる操作を取り消せるか、起動時の `OP-10` の経路でも `HF-8` を働かせるか |
 | 24 | 多値の設定 6 件 | `setStackDirection` / `setPlanActualDisplay` / `setGuideCursorMode` / `setPanelWidths` / `pinTaskGroup` / `setExportPngScale` の取り消しの区分。`UN-7` はトグルに限り、`UN-8` はズーム・スクロール・パンのみ、`UN-13` は列挙である |
 
-⛔ **31 件を一度に利用者へ出さないこと。** 波の順に、その波のぶんだけ出す。**切り分けは `previous-project-result/temp/wave-slice.md` が持つ**（W1 は 9 件。うち 7 件が `Schedule`（`CP-1`）1 つに集まる）。
+⛔ **31 件を一度に利用者へ出さないこと。** 波の順に、その波のぶんだけ出す。**切り分けは `studies/temp/wave-slice.md` が持つ**（W1 は 9 件。うち 7 件が `Schedule`（`CP-1`）1 つに集まる）。
 ⭐ **既知の 10 件（`PRE-1` 〜 `PRE-10`）も本 CR では閉じない。** 同じ裁定にかける。⚠️ うち `PRE-9`（`ラグ` の用語登記）は用語集に行を足すので、**CR-149 と席を取り合う。**
 
 ## 4. ⛔ 前の草稿から落としたもの・差し替えたもの
@@ -175,7 +175,7 @@ AFTER  **スクロールバーの操作でも表示位置を変えられるよ�
 | `CM-54` | `setHighlightBoxRange` | `FR-019` → **`FR-016`** |
 
 ⭐ **CR-149 は未適用なので、これは CR-149 の本文を直すだけで済む。**編集の数も表の行数も動かない（`FR-019` が 7 → 4、`FR-016` が 1 → 4。**種類の数は 39 のまま**）。
-⚠️ **名簿の材料（`previous-project-result/temp/document-command-roster.md`）も同じ 3 行を持つ。** git 管理外の作業メモなので当てる対象ではないが、**直さないと次に名簿から起こしたときに誤りが戻る。**
+⚠️ **名簿の材料（`studies/temp/document-command-roster.md`）も同じ 3 行を持つ。** git 管理外の作業メモなので当てる対象ではないが、**直さないと次に名簿から起こしたときに誤りが戻る。**
 
 ## 6. 席と順序
 

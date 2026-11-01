@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>任意色のもう一方の明暗 —— 見本</title>
+<style>
+  body { margin: 0; padding: 16px; font: 16px/1.7 system-ui, "Segoe UI", "Yu Gothic UI", sans-serif; }
+  body.light { background: #ffffff; color: #1a1a1a; --rule: #d5d9e0; --head: #eef1f5; --muted: #5a6170; }
+  body.dark { background: hsl(214, 12%, 9%); color: #f0f0f0; --rule: #3a3f47; --head: #1f242b; --muted: #a8afba; }
+  h1 { font-size: 22px; margin: 0 0 8px; }
+  p { margin: 4px 0 12px; max-width: 1040px; }
+  .note { font-size: 13px; color: var(--muted); }
+  .controls { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; margin: 12px 0 16px; }
+  .controls label { display: flex; gap: 8px; align-items: center; }
+  button, select { font: inherit; font-size: 14px; }
+  #theme { font-weight: 600; padding: 4px 14px; }
+  table { border-collapse: collapse; width: 100%; max-width: 1240px; }
+  th, td { border: 1px solid var(--rule); padding: 8px 10px; vertical-align: middle; }
+  th { background: var(--head); font-weight: 600; text-align: left; font-size: 14px; }
+  td.name { font-size: 14px; color: var(--muted); white-space: nowrap; }
+  .row { position: relative; height: 54px; }
+  .plan, .actual { position: absolute; left: 0; height: 18px; border-radius: 2px; box-sizing: border-box; border: 2px solid; }
+  .plan { top: 0; width: 100%; }
+  .actual { top: 22px; width: 62%; }
+  .label { position: absolute; top: 40px; left: 0; font-size: 12px; white-space: nowrap; }
+  .hex { font: 12px/1.4 ui-monospace, Consolas, monospace; color: var(--muted); margin-top: 2px; }
+  .same { font-size: 12px; color: var(--muted); }
+  .rec { color: #2e9e5b; font-weight: 600; }
+</style>
+</head>
+<body class="dark">
+<h1>任意色のもう一方の明暗 —— 見本（DFC-3394 / PND-932）</h1>
+<p>ページ全体をライトとダークで切り替えて見る。各行は 1 色、各セルはその色のタスク 1 本 —— 上が予定バー（塗りと縁が任意色）、下が実績バー（塗りは今の仕様 CV-10 で予定の色から導く）。</p>
+<p class="note">A: 明るさ L を 1−L。色相と彩度はそのまま（<span class="rec">推奨</span>）。
+B: 今の裁定 JDG-3075 の文のまま —— 明るさと彩度をパレットの明暗の対に倣って写す（L → 1 − 0.92·L、彩度 × 0.71）。
+C: 明るさだけを B と同じ写しで移す。彩度はそのまま。
+B と C の係数は、パレットの淡い 6 色（L 0.80 → 0.26、彩度 0.45 → 0.32）と白・黒・灰色の組から測った。
+人が色を選んだ側のモードでは、3 案とも選んだ色のまま（同じ絵）になる。</p>
+
+<div class="controls">
+  <button id="theme">ライトモードにする</button>
+  <label>色を選んだ側
+    <select id="side">
+      <option value="light">ライトで選んだ（ダークを導く）</option>
+      <option value="dark">ダークで選んだ（ライトを導く）</option>
+    </select>
+  </label>
+  <label>試す色を足す <input type="color" id="pick" value="#3f7fbf"></label>
+  <button id="add">足す</button>
+  <span class="note" id="mode"></span>
+</div>
+
+<table>
+  <thead><tr><th>色</th><th>案 A 明るさの反転</th><th>案 B 今の裁定のまま</th><th>案 C 明るさだけパレットに合わせる</th><th>参考: パレットの色</th></tr></thead>
+  <tbody id="rows"></tbody>
+</table>
+
+<script>
+"use strict";
+// Label colour (S-168) per theme; theme hue H = 214 (themeHue default).
+var LABEL = { light: "#000000", dark: "#ffffff" };
+// [name, light value, dark value, palette actual fills]: palette rows carry both sides
+// of table T-294; free colours carry only the side a person picked on.
+var SAMPLES = [
+  ["赤（パレット）", "#e3b9b5", "#58312d", ["#8c2c21", "#dc766a"]],
+  ["青（パレット）", "#b5c9e3", "#2d3f58", ["#21508c", "#6a9cdc"]],
+  ["黄（パレット）", "#dfd6a9", "#58502d", ["#79691c", "#dcc96a"]],
+  ["緑（パレット）", "#afe1bf", "#2d583b", ["#1f8340", "#6adc90"]],
+  ["オレンジ（パレット）", "#e3cab5", "#58412d", ["#8c5321", "#dc9f6a"]],
+  ["紫（パレット）", "#d8b5e3", "#4d2d58", ["#72218c", "#c06adc"]],
+  ["純色の赤", "#ff0000", null, null],
+  ["濃い青", "#0066cc", null, null],
+  ["山吹", "#ffcc00", null, null],
+  ["緑", "#33aa55", null, null],
+  ["桃色", "#ffc0cb", null, null],
+  ["えんじ", "#800000", null, null],
+  ["濃い灰色", "#222222", null, null],
+  ["水色", "#00ced1", null, null]
+];
+
+function hexToHsl(hex) {
+  var r = parseInt(hex.slice(1, 3), 16) / 255, g = parseInt(hex.slice(3, 5), 16) / 255, b = parseInt(hex.slice(5, 7), 16) / 255;
+  var max = Math.max(r, g, b), min = Math.min(r, g, b), l = (max + min) / 2, h = 0, s = 0, d = max - min;
+  if (d > 0) {
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+    if (max === r) h = ((g - b) / d + (g < b ? 6 : 0));
+    else if (max === g) h = (b - r) / d + 2;
+    else h = (r - g) / d + 4;
+    h *= 60;
+  }
+  return [h, s, l];
+}
+function hslToHex(h, s, l) {
+  function f(n) {
+    var k = (n + h / 30) % 12, a = s * Math.min(l, 1 - l);
+    var c = l - a * Math.max(-1, Math.min(k - 3, 9 - k, 1));
+    return ("0" + Math.round(c * 255).toString(16)).slice(-2);
+  }
+  return "#" + f(0) + f(8) + f(4);
+}
+function clamp(x, lo, hi) { return Math.max(lo, Math.min(hi, x)); }
+function luminance(hex) {
+  var c = [1, 3, 5].map(function (i) {
+    var v = parseInt(hex.slice(i, i + 2), 16) / 255;
+    return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+  });
+  return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
+}
+function contrast(a, b) {
+  var la = luminance(a), lb = luminance(b);
+  return (Math.max(la, lb) + 0.05) / (Math.min(la, lb) + 0.05);
+}
+
+// Actual-bar fill from the plan fill, as table T-017b CV-10 states it today.
+// Deltas are S-157 minus S-155 per theme: light (62-46, 34-80), dark (62-32, 64-26).
+var ACTUAL_DELTA = { light: [0.16, -0.46], dark: [0.30, 0.38] };
+var L_MIN = 0.15, L_MAX = 0.85, CT3 = 3;
+function actualOf(plan, theme) {
+  var c = hexToHsl(plan), d = ACTUAL_DELTA[theme];
+  var s = c[1] === 0 ? 0 : clamp(c[1] + d[0], 0, 1);
+  var first = hslToHex(c[0], s, clamp(c[2] + d[1], L_MIN, L_MAX));
+  if (contrast(first, plan) >= CT3) return first;
+  var second = hslToHex(c[0], s, clamp(c[2] - d[1], L_MIN, L_MAX));
+  if (contrast(second, plan) >= CT3) return second;
+  var lo = hslToHex(c[0], s, L_MIN), hi = hslToHex(c[0], s, L_MAX);
+  return contrast(lo, plan) >= contrast(hi, plan) ? lo : hi;
+}
+
+// The three derivations: chosen colour and the side it was chosen on.
+var LIGHT_TO_DARK_SLOPE = 0.92, SATURATION_RATIO = 0.71;
+var DERIVE = {
+  A: function (hex) { var c = hexToHsl(hex); return hslToHex(c[0], c[1], 1 - c[2]); },
+  B: function (hex, side) {
+    var c = hexToHsl(hex);
+    if (side === "light") return hslToHex(c[0], clamp(c[1] * SATURATION_RATIO, 0, 1), clamp(1 - LIGHT_TO_DARK_SLOPE * c[2], 0, 1));
+    return hslToHex(c[0], clamp(c[1] / SATURATION_RATIO, 0, 1), clamp((1 - c[2]) / LIGHT_TO_DARK_SLOPE, 0, 1));
+  },
+  C: function (hex, side) {
+    var c = hexToHsl(hex);
+    if (side === "light") return hslToHex(c[0], c[1], clamp(1 - LIGHT_TO_DARK_SLOPE * c[2], 0, 1));
+    return hslToHex(c[0], c[1], clamp((1 - c[2]) / LIGHT_TO_DARK_SLOPE, 0, 1));
+  }
+};
+
+function taskCell(plan, theme, paletteActual) {
+  var actual = paletteActual || actualOf(plan, theme);
+  return '<div class="row">' +
+    '<div class="plan" style="background:' + plan + ';border-color:' + plan + '"></div>' +
+    '<div class="actual" style="background:' + actual + ';border-color:' + actual + '"></div>' +
+    '<div class="label" style="color:' + LABEL[theme] + '">タスク名</div></div>' +
+    '<div class="hex">予定 ' + plan + ' ／ 実績 ' + actual + '</div>';
+}
+
+function render() {
+  var theme = document.body.className, side = document.getElementById("side").value;
+  document.getElementById("theme").textContent = theme === "dark" ? "ライトモードにする" : "ダークモードにする";
+  document.getElementById("mode").textContent = theme === side
+    ? "いまは色を選んだ側のモード —— 3 案とも選んだ色のまま"
+    : "いまは導いた側のモード —— 3 案の違いが見える";
+  var html = "";
+  SAMPLES.forEach(function (s) {
+    var chosen = side === "light" ? s[1] : (s[2] || s[1]);
+    var palette = s[3] ? (theme === "light" ? s[1] : s[2]) : null;
+    var paletteActual = s[3] ? (theme === "light" ? s[3][0] : s[3][1]) : null;
+    html += '<tr><td class="name">' + s[0] + "<br>選んだ値 " + chosen + "</td>";
+    ["A", "B", "C"].forEach(function (k) {
+      var drawn = theme === side ? chosen : DERIVE[k](chosen, side);
+      html += "<td>" + taskCell(drawn, theme) + "</td>";
+    });
+    html += "<td>" + (palette ? taskCell(palette, theme, paletteActual) : '<span class="same">—</span>') + "</td></tr>";
+  });
+  document.getElementById("rows").innerHTML = html;
+}
+
+document.getElementById("theme").addEventListener("click", function () {
+  document.body.className = document.body.className === "dark" ? "light" : "dark";
+  render();
+});
+document.getElementById("side").addEventListener("change", render);
+document.getElementById("add").addEventListener("click", function () {
+  var v = document.getElementById("pick").value;
+  SAMPLES.unshift(["足した色", v, null, null]);
+  render();
+});
+render();
+</script>
+</body>
+</html>

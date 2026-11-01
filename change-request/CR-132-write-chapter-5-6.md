@@ -68,7 +68,7 @@
 
 ### 2-6. ADR の書式
 
-**`previous-project-result/20-spec-template/spec-template.md` が `Context` / `Decision` / `Status` / `Consequences` の 4 項目を定めている。**
+**`studies/20-spec-template/spec-template.md` が `Context` / `Decision` / `Status` / `Consequences` の 4 項目を定めている。**
 
 ⚠️ **テンプレートは 4 項目を表で書いているが、本仕様書では散文にする** —— 1.9 が「表の第 1 列は行 ID とする（MUST）」と定めており、**`項目` / `内容` の 2 列表は行 ID を持てない。** 検査 8 も無番号の表を守れない。**数え上げられる中身（増やしたもの・4 点・図・代償）だけを番号付きの表にする。**
 

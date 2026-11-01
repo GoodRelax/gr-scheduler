@@ -73,8 +73,9 @@ const QUESTION = { manner: 'NT-7', question: 'QN-5', items: [] } as const
 const INCOMING = { fileName: 'incoming.json', byteLength: 2, documentTitle: null } as const
 
 // see T-290
+// WHY: the file dialog; a dropped file skips U-56 (OP-19), so a merge opens through IC-1.
 const MERGING: readonly SessionEvent[] = [
-  { type: 'documentOpenAsked', openRoute: 'drop' },
+  { type: 'documentOpenAsked', openRoute: 'chooser' },
   { type: 'documentFileRead', question: QUESTION, incomingFile: INCOMING },
   { type: 'openChoiceAnswered', openChoice: 'merge', question: QUESTION },
 ]

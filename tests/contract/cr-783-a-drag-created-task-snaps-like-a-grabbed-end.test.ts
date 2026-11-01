@@ -30,6 +30,7 @@ import { bare, specTable } from './spec-table'
 // WHY: the TC-6 clause is copied verbatim, so that the check that counts held MUST clauses finds it in this file's bytes.
 const TC_6_THE_DRAWN_SPAN_IS_READ_AS_SNAPPED_INSTANTS =
   '⭐ 引いた期間は、押した点を開始、離した点を終了とし（左へ引けば入れ替える）、`FR-103` の 表 T-378 の単位で寄せた瞬間として読むこと（MUST）'
+const TC_10_THE_MILESTONE_AT_THE_SNAPPED_PRESS = '寄せの単位が日より細かいとき（表 T-378 の `SG-2`）は、押した点をその単位で寄せた瞬間に置く'
 
 const rowOf = (table: string, id: string) => {
   const found = specTable(table).rows.find((one) => one.id === id)
@@ -155,9 +156,9 @@ function fixtureDocument(scene: Scene): Document {
   } as unknown as Document
 }
 
-// WHY: SG-2 -- judged between S-577 and S-578.
+// WHY: SG-2 on the hour tier -- judged between S-577 and S-578.
 const HOUR_TIER: Scene = { isTimeOfDayVisible: true, zoomX: zoomXFor((S_577 + S_578) / 2) }
-// WHY: SG-3 -- judged over S-578, kept under the FR-016 zoomX ceiling by staying near S-578.
+// WHY: SG-2 on the half-hour grid tier (CR-850 folded SG-3 into SG-2) -- judged over S-578, kept under the FR-016 zoomX ceiling by staying near S-578.
 const HALF_HOUR_TIER: Scene = { isTimeOfDayVisible: true, zoomX: zoomXFor(S_578 * 1.3) }
 // WHY: SG-1 by hiding the time of day.
 const TIME_HIDDEN: Scene = { isTimeOfDayVisible: false, zoomX: HOUR_TIER.zoomX }
@@ -333,19 +334,20 @@ const settingsOf = (scene: Scene): DocumentSettings =>
 
 describe('premise: the scenes sit on the T-378 rows they are named after', () => {
   it.each([
-    ['SG-2 hour tier', HOUR_TIER, 60],
-    ['SG-3 30-minute tier', HALF_HOUR_TIER, 30],
+    ['SG-2 hour tier', HOUR_TIER, 15],
+    ['SG-2 half-hour grid tier', HALF_HOUR_TIER, 15],
     ['SG-1 time hidden', TIME_HIDDEN, MINUTES_PER_DAY],
     ['SG-1 time shown below the hour tier', BELOW_HOUR_TIER, MINUTES_PER_DAY],
   ])('%s', (_name, scene, minutes) => {
     const loop = loopOf(scene)
-    expect(snapMinutesOf(loop.current()?.layout.pxPerDay as number, settingsOf(scene), false)).toBe(minutes)
+    expect(snapMinutesOf(loop.current()?.layout.pxPerDay as number, settingsOf(scene))).toBe(minutes)
   })
 
   it('the bar shape and the milestone are armed by an entrance the spec names', () => {
     expect(RECTANGLE.surface).toBe('Command Palette')
-    expect(armedBy(loopOf(HOUR_TIER), RECTANGLE).armModeState.kind).toBe('taskShapeArmed')
-    expect(armedBy(loopOf(HOUR_TIER), MILESTONE).armModeState.kind).toBe('milestoneShapeArmed')
+    // WHY: wave 2 of CR-767 (JDG-2364) holds the arm as a child of the composite `armed`.
+    expect(armedBy(loopOf(HOUR_TIER), RECTANGLE).armModeState).toMatchObject({ kind: 'armed', child: { kind: 'taskShapeArmed' } })
+    expect(armedBy(loopOf(HOUR_TIER), MILESTONE).armModeState).toMatchObject({ kind: 'armed', child: { kind: 'milestoneShapeArmed' } })
   })
 })
 
@@ -353,45 +355,46 @@ describe(`FR-001 / T-239 TC-6 -- ${TC_6_THE_DRAWN_SPAN_IS_READ_AS_SNAPPED_INSTAN
   const bar = (drag: Omit<Drag, 'entrance'>): Drag => ({ ...drag, entrance: RECTANGLE })
 
   describe('(a) time shown, hour tier (SG-2)', () => {
-    it('a drag from about 9:10 to about 11:40 creates 09:00 to 12:00', () => {
+    it('a drag from about 9:10 to about 11:40 creates 09:15 to 11:45', () => {
       const made = createdByDrag(bar({ scene: HOUR_TIER, pressMinute: at(9, 10), releaseMinute: at(11, 40) }))
-      expect(spanOf(made)).toEqual({ start: '2026-10-14T09:00:00', finish: '2026-10-14T12:00:00' })
+      expect(spanOf(made)).toEqual({ start: '2026-10-14T09:15:00', finish: '2026-10-14T11:45:00' })
       expect(theOne(made).shapeKind).toBe(shapeSpelling('SH-1'))
       expect(theOne(made).taskGroupId, 'the task group pressed in').toBe(TASK_GROUP_B)
     })
   })
 
-  describe('(b) time shown, 30-minute tier (SG-3)', () => {
-    it('the same drag creates 09:00 to 11:30', () => {
+  describe('(b) time shown, half-hour grid tier (SG-2 too since CR-850)', () => {
+    it('the same drag creates the same 09:15 to 11:45', () => {
       const made = createdByDrag(bar({ scene: HALF_HOUR_TIER, pressMinute: at(9, 10), releaseMinute: at(11, 40) }))
-      expect(spanOf(made)).toEqual({ start: '2026-10-14T09:00:00', finish: '2026-10-14T11:30:00' })
+      expect(spanOf(made)).toEqual({ start: '2026-10-14T09:15:00', finish: '2026-10-14T11:45:00' })
     })
   })
 
-  describe('(c) Alt is read at release (SG-4)', () => {
-    it('pressed without Alt and released with Alt creates 09:10 to 11:40', () => {
+  // WHY: CR-850 retired SG-4 and the TC-6 words that Alt is read at release; these cases press the opposite -- Alt selects no unit.
+  describe('(c) Alt selects no unit (SG-4 retired)', () => {
+    it('pressed without Alt and released with Alt creates the same 09:15 to 11:45', () => {
       const made = createdByDrag(bar({ scene: HOUR_TIER, pressMinute: at(9, 10), releaseMinute: at(11, 40), released: ALT }))
-      expect(spanOf(made)).toEqual({ start: '2026-10-14T09:10:00', finish: '2026-10-14T11:40:00' })
+      expect(spanOf(made)).toEqual({ start: '2026-10-14T09:15:00', finish: '2026-10-14T11:45:00' })
     })
 
-    it('pressed with Alt and released without Alt is not a 1-minute span', () => {
+    it('pressed with Alt and released without Alt creates the same 09:15 to 11:45', () => {
       const made = createdByDrag(bar({ scene: HOUR_TIER, pressMinute: at(9, 10), releaseMinute: at(11, 40), pressed: ALT }))
-      expect(spanOf(made)).toEqual({ start: '2026-10-14T09:00:00', finish: '2026-10-14T12:00:00' })
+      expect(spanOf(made)).toEqual({ start: '2026-10-14T09:15:00', finish: '2026-10-14T11:45:00' })
     })
 
-    it('pressed and released with Alt creates the 1-minute span at the 30-minute tier too', () => {
+    it('pressed and released with Alt at the half-hour grid tier creates the same 09:15 to 11:45, not a 1-minute span', () => {
       const made = createdByDrag(
         bar({ scene: HALF_HOUR_TIER, pressMinute: at(9, 10), releaseMinute: at(11, 40), pressed: ALT, released: ALT }),
       )
-      expect(spanOf(made)).toEqual({ start: '2026-10-14T09:10:00', finish: '2026-10-14T11:40:00' })
+      expect(spanOf(made)).toEqual({ start: '2026-10-14T09:15:00', finish: '2026-10-14T11:45:00' })
     })
   })
 
   describe('(d) a right-to-left drag gives the same task as a left-to-right one', () => {
     it.each([
       ['hour tier', HOUR_TIER, PLAIN],
-      ['30-minute tier', HALF_HOUR_TIER, PLAIN],
-      ['1-minute (Alt at release)', HOUR_TIER, ALT],
+      ['half-hour grid tier', HALF_HOUR_TIER, PLAIN],
+      ['Alt at release (selects no unit)', HOUR_TIER, ALT],
     ])('%s', (_name, scene, released) => {
       const rightward = createdByDrag(bar({ scene, pressMinute: at(9, 10), releaseMinute: at(11, 40), released }))
       const leftward = createdByDrag(bar({ scene, pressMinute: at(11, 40), releaseMinute: at(9, 10), released }))
@@ -400,29 +403,21 @@ describe(`FR-001 / T-239 TC-6 -- ${TC_6_THE_DRAWN_SPAN_IS_READ_AS_SNAPPED_INSTAN
   })
 
   describe('(e) two ends that snap to the same instant span one unit in the pulled direction', () => {
-    it('hour tier, rightward: start to start plus one hour', () => {
-      const made = createdByDrag(bar({ scene: HOUR_TIER, pressMinute: at(8, 35), releaseMinute: at(9, 25) }))
-      expect(spanOf(made)).toEqual({ start: '2026-10-14T09:00:00', finish: '2026-10-14T10:00:00' })
+    // WHY: 9:08 and 9:22 both snap to 9:15 in the 15-minute unit (7 minutes off it, 8 off 9:00 and 9:30).
+    // WHY: two ends inside one quarter hour are under S-208 apart at the HOUR_TIER zoom (a click, not a drag),
+    // so this SG-2 case is pressed at the half-hour grid tier, which CR-850 put on the same SG-2 unit.
+    it('half-hour grid tier, rightward: start to start plus 15 minutes', () => {
+      const made = createdByDrag(bar({ scene: HALF_HOUR_TIER, pressMinute: at(9, 8), releaseMinute: at(9, 22) }))
+      expect(spanOf(made)).toEqual({ start: '2026-10-14T09:15:00', finish: '2026-10-14T09:30:00' })
     })
 
-    it('hour tier, leftward: end minus one hour to end', () => {
-      const made = createdByDrag(bar({ scene: HOUR_TIER, pressMinute: at(9, 25), releaseMinute: at(8, 35) }))
-      expect(spanOf(made)).toEqual({ start: '2026-10-14T08:00:00', finish: '2026-10-14T09:00:00' })
-    })
-
-    it('30-minute tier, rightward: start to start plus 30 minutes', () => {
-      const made = createdByDrag(bar({ scene: HALF_HOUR_TIER, pressMinute: at(8, 50), releaseMinute: at(9, 10) }))
-      expect(spanOf(made)).toEqual({ start: '2026-10-14T09:00:00', finish: '2026-10-14T09:30:00' })
-    })
-
-    it('30-minute tier, leftward: end minus 30 minutes to end', () => {
-      const made = createdByDrag(bar({ scene: HALF_HOUR_TIER, pressMinute: at(9, 10), releaseMinute: at(8, 50) }))
-      expect(spanOf(made)).toEqual({ start: '2026-10-14T08:30:00', finish: '2026-10-14T09:00:00' })
+    it('half-hour grid tier, leftward: end minus 15 minutes to end', () => {
+      const made = createdByDrag(bar({ scene: HALF_HOUR_TIER, pressMinute: at(9, 22), releaseMinute: at(9, 8) }))
+      expect(spanOf(made)).toEqual({ start: '2026-10-14T09:00:00', finish: '2026-10-14T09:15:00' })
     })
 
     it.each([
-      ['hour tier', HOUR_TIER, at(8, 35), at(9, 25)],
-      ['30-minute tier', HALF_HOUR_TIER, at(8, 50), at(9, 10)],
+      ['half-hour grid tier', HALF_HOUR_TIER, at(9, 8), at(9, 22)],
     ])('premise: the %s pull is past S-208', (_name, scene, from, to) => {
       const loop = loopOf(scene)
       expect(Math.abs(xAt(loop, to) - xAt(loop, from))).toBeGreaterThan(S_208)
@@ -452,9 +447,14 @@ describe(`FR-001 / T-239 TC-6 -- ${TC_6_THE_DRAWN_SPAN_IS_READ_AS_SNAPPED_INSTAN
 describe('FR-001 / T-239 TC-10 -- a milestone at a finer unit is placed at the snapped press instant', () => {
   const milestone = (drag: Omit<Drag, 'entrance'>): Drag => ({ ...drag, entrance: MILESTONE })
 
+  it('TC-10 still names SG-2 as the finer unit', () => {
+    expect(rowOf('T-239', 'TC-10').cells.join(' | ').replace(/<br\s*\/?>/g, '')).toContain(TC_10_THE_MILESTONE_AT_THE_SNAPPED_PRESS)
+  })
+
+  // WHY: pressed at 9:40 (hour tier) and 9:20 (half-hour grid tier): the nearest quarter hours are 9:45 and 9:15.
   it.each([
-    ['hour tier (SG-2)', HOUR_TIER, '2026-10-14T10:00:00'],
-    ['30-minute tier (SG-3)', HALF_HOUR_TIER, '2026-10-14T09:30:00'],
+    ['hour tier (SG-2)', HOUR_TIER, '2026-10-14T09:45:00'],
+    ['half-hour grid tier (SG-2)', HALF_HOUR_TIER, '2026-10-14T09:15:00'],
   ])('(g) dragged at the %s: start and finish are that instant', (_name, scene, instant) => {
     const made = createdByDrag(milestone({ scene, pressMinute: at(9, 40) - (scene === HALF_HOUR_TIER ? 20 : 0), releaseMinute: at(13, 20) }))
     expect(spanOf(made)).toEqual({ start: instant, finish: instant })

@@ -149,7 +149,7 @@ grep -c "が無かった\|確定 20\|利用者判断\|前プロジェクト" doc
 git diff f1307e5 02d60f3 -- docs/spec
 ```
 
-**除いた件数（実測）** —— 要求側 **81 か所**（`previous-project-result/temp/inventory/X1-cr114-requirements.md` が
+**除いた件数（実測）** —— 要求側 **81 か所**（`studies/temp/inventory/X1-cr114-requirements.md` が
 判定の全数 137 件を持つ。除く 88 / 残す 43 / 要判断 6。うち 81 件が適用され、2 件は他の置換で置換元が消えて 0 一致、
 5 件は表の解析に載らなかった）／資産側 **13 か所**（同 `X2-cr114-assets.md`。除く 14 のうち 13 件が適用、1 件は 0 一致）。
 

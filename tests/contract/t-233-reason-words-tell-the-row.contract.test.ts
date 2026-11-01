@@ -167,7 +167,8 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   'RS-11': 'c6653e5783ae7df2',
   'RS-12': '95ad8c948d6a7601',
   'RS-13': 'f321af6f75bd49bf',
-  'RS-14': '2d8c60534d77350f',
+  // WHY: re-keyed 2026-10-31 (CR-858): RS-14 became a refusal of several dropped files (OP-11, JDG-3584, words JDG-3585).
+  'RS-14': 'cf268c722d841409',
   'RS-16': '1eac0dcebc65e01a',
   // ⭐⭐ RE-READ 2026-09-05, and the pair still holds. The scene gained
   // a MUST NOT against telling it (now the display 出さない, CR-712) when the ruling of that day left
@@ -508,7 +509,9 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   // WHY: read 2026-09-30; the words say the prompt is on the clipboard and to hand it to an AI (FR-068).
   // WHY: CR-713 (JDG-1737) changed only the word for copy (utsushi -> kopi-); read together, the scene and
   // the words still tell the same copy to the clipboard, so only the fingerprint is re-keyed.
-  'RS-65': 'ce737a4edd9097c6',
+  // WHY: CR-827 (JDG-3086) added the schema file to the scene; read together, the words name the prompt on the
+  // clipboard and the downloaded grs-document.schema.json, both handed to an AI (FR-068), so they tell the scene.
+  'RS-65': 'a159e9808bbc345e',
   // WHY: read 2026-09-30; too many pinned task groups to show the jump target, and unpinning is the road.
   'RS-66': '8902906e4fbc4e1f',
   'RS-67': '1271e9fd41af3746',

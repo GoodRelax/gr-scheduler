@@ -16,8 +16,8 @@ import {
   type SearchJumpTarget,
   type TableView,
 } from '../edit-document/edit-document'
-import { hasCalendarDraftRefusal, type CalendarDraft } from './calendar-draft'
-import { assertNever, NO_EFFECTS, unchanged, type Step } from './session-step'
+import { calendarDraftRefusalsOf, type CalendarDraft, type CalendarDraftRefusal } from './calendar-draft'
+import { NO_EFFECTS, unchanged, type Step } from './session-step'
 
 // see FR-072
 export interface PropertiesSubject {
@@ -25,7 +25,13 @@ export interface PropertiesSubject {
   readonly taskGroupIds: readonly string[]
 }
 
-export type ArmKind = Exclude<ArmModeState['kind'], 'notArmed'>
+export type ArmKind = ArmModeArmedState['kind']
+
+// see FR-016, T-280
+/** @purity pure */
+export function armedOf(armMode: ArmModeState): ArmModeArmedState | null {
+  return armMode.kind === 'armed' ? armMode.child : null
+}
 
 type DisplayLanguage = 'ja' | 'en'
 
@@ -225,12 +231,13 @@ export type ScreenValuesEffect = {
 export type ScreenValuesKey =
   | 'screen'
   | 'armModeStateMachine.notArmed'
-  | 'armModeStateMachine.taskShapeArmed'
-  | 'armModeStateMachine.milestoneShapeArmed'
-  | 'armModeStateMachine.dependencyArmed'
-  | 'armModeStateMachine.commentBoxArmed'
-  | 'armModeStateMachine.highlightBoxArmed'
-  | 'armModeStateMachine.parentTaskArmed'
+  | 'armModeStateMachine.armed'
+  | 'armModeStateMachine.armed.taskShapeArmed'
+  | 'armModeStateMachine.armed.milestoneShapeArmed'
+  | 'armModeStateMachine.armed.dependencyArmed'
+  | 'armModeStateMachine.armed.commentBoxArmed'
+  | 'armModeStateMachine.armed.highlightBoxArmed'
+  | 'armModeStateMachine.armed.parentTaskArmed'
   | 'paletteDisplayStateMachine.shown'
   | 'paletteDisplayStateMachine.shown.expanded'
   | 'paletteDisplayStateMachine.shown.minimized'
@@ -277,6 +284,14 @@ export type ScreenValuesKey =
   | 'calendarDraftStateMachine.untouched'
   | 'calendarDraftStateMachine.drafted'
 
+export type ArmModeArmedState =
+  | { readonly kind: 'taskShapeArmed'; readonly shapeKind: ScreenValuesStateCarried['shapeKind'] }
+  | { readonly kind: 'milestoneShapeArmed'; readonly glyph: ScreenValuesStateCarried['glyph'] }
+  | { readonly kind: 'dependencyArmed' }
+  | { readonly kind: 'commentBoxArmed' }
+  | { readonly kind: 'highlightBoxArmed' }
+  | { readonly kind: 'parentTaskArmed' }
+
 export type PaletteDisplayShownState =
   | { readonly kind: 'expanded' }
   | { readonly kind: 'minimized' }
@@ -297,12 +312,7 @@ export type HelpDisplayShownState =
 
 export type ArmModeState =
   | { readonly kind: 'notArmed' }
-  | { readonly kind: 'taskShapeArmed'; readonly shapeKind: ScreenValuesStateCarried['shapeKind'] }
-  | { readonly kind: 'milestoneShapeArmed'; readonly glyph: ScreenValuesStateCarried['glyph'] }
-  | { readonly kind: 'dependencyArmed' }
-  | { readonly kind: 'commentBoxArmed' }
-  | { readonly kind: 'highlightBoxArmed' }
-  | { readonly kind: 'parentTaskArmed' }
+  | { readonly kind: 'armed'; readonly child: ArmModeArmedState }
 
 export type PaletteDisplayState =
   | { readonly kind: 'shown'; readonly child: PaletteDisplayShownState }
@@ -487,6 +497,35 @@ export type ScreenValuesEffectName =
   | 'raiseWholeScheduleShiftQuestion'
   | 'issueCalendarCommand'
 
+export type ScreenValuesGuardName =
+  | 'hasCalendarDraftRefusal'
+  | 'hasChoice'
+  | 'hasDaysToPlace'
+  | 'hasSurfaceOrConfirmation'
+  | 'hasUnsettledEntry'
+  | 'isAnotherSurface'
+  | 'isFlowAwaitingAnswer'
+  | 'isFullScreen'
+  | 'isHelpTarget'
+  | 'isLeavingDocumentSettings'
+  | 'isLeavingHolidaySettings'
+  | 'isNewStartDateEmpty'
+  | 'isOpenAccepted'
+  | 'isOtherThanShownBase'
+  | 'isPanelTarget'
+  | 'isProceeding'
+  | 'isRungArmed'
+  | 'isRungDualCursor'
+  | 'isRungHelp'
+  | 'isRungPropertiesPanel'
+  | 'isRungSearchPanel'
+  | 'isRungSurface'
+  | 'isRungTooltip'
+  | 'isSameArm'
+  | 'isShiftZero'
+  | 'isSurfaceTarget'
+  | 'isWatermarkUnlockSurface'
+
 const SCREEN_VALUES_INITIAL_CHILDREN: {
   readonly 'paletteDisplayStateMachine.shown': PaletteDisplayShownState
   readonly 'dualCursorModeStateMachine.on': DualCursorModeOnState
@@ -519,6 +558,100 @@ const SCREEN_VALUES_INITIAL_AXES: ScreenValuesAxes = {
   wholeScheduleShiftDraftState: { kind: 'empty' },
   calendarDraftState: { kind: 'untouched' },
 }
+
+const SCREEN_VALUES_GUARDS = {
+  hasCalendarDraftRefusal: (values: ScreenValues): boolean => {
+    const calendarDraftCalendarDraft =
+      values.calendarDraftState.kind === 'drafted' ? values.calendarDraftState.calendarDraft
+      : null
+    return (calendarDraftRefusals(calendarDraftCalendarDraft)?.length ?? NaN) > 0
+  },
+  hasChoice: (event: Extract<ScreenValuesEvent, { readonly type: 'selectionMoved' }>): boolean =>
+    (event.subject?.selection?.items?.length ?? NaN) > 0
+      || (event.subject?.taskGroupIds?.length ?? NaN) > 0,
+  hasDaysToPlace: (event: Extract<ScreenValuesEvent, { readonly type: 'dualCursorEntryPressed' }>): boolean =>
+    event.hasDaysToPlace,
+  hasSurfaceOrConfirmation: (event: Extract<ScreenValuesEvent, { readonly type: 'settleKeyPressed' }>): boolean =>
+    event.hasSurfaceOrConfirmation,
+  hasUnsettledEntry: (event: Extract<ScreenValuesEvent, { readonly type: 'settleKeyPressed' }>): boolean =>
+    event.hasUnsettledEntry,
+  isAnotherSurface: (values: ScreenValues, event: Extract<ScreenValuesEvent, { readonly type: 'surfaceEntryPressed' | 'surfaceRaisedByFlow' }>): boolean => {
+    const openSurfaceSurfaceName =
+      values.openSurfaceState.kind === 'open' ? values.openSurfaceState.surfaceName
+      : null
+    return (values.openSurfaceState.kind === 'open') && (openSurfaceSurfaceName !== event.surfaceName)
+  },
+  isFlowAwaitingAnswer: (values: ScreenValues): boolean => {
+    const openSurfaceSurfaceName =
+      values.openSurfaceState.kind === 'open' ? values.openSurfaceState.surfaceName
+      : null
+    return (['U-56', 'U-61'] as readonly unknown[]).includes(openSurfaceSurfaceName)
+  },
+  isFullScreen: (event: Extract<ScreenValuesEvent, { readonly type: 'fullScreenChanged' }>): boolean =>
+    event.isFullScreen,
+  isHelpTarget: (event: Extract<ScreenValuesEvent, { readonly type: 'surfaceCloseAsked' }>): boolean =>
+    event.target === 'helpModal',
+  isLeavingDocumentSettings: (values: ScreenValues, after: ScreenValues): boolean =>
+    values.propertiesPanelContentState.kind === 'documentSettingsDisplayed'
+      && !(after.propertiesPanelContentState.kind === 'documentSettingsDisplayed'),
+  isLeavingHolidaySettings: (values: ScreenValues, after: ScreenValues): boolean => {
+    const openSurfaceSurfaceName =
+      values.openSurfaceState.kind === 'open' ? values.openSurfaceState.surfaceName
+      : null
+    const afterOpenSurfaceSurfaceName =
+      after.openSurfaceState.kind === 'open' ? after.openSurfaceState.surfaceName
+      : null
+    return (openSurfaceSurfaceName === 'U-65') && (afterOpenSurfaceSurfaceName !== 'U-65')
+  },
+  isNewStartDateEmpty: (event: Extract<ScreenValuesEvent, { readonly type: 'wholeScheduleShiftDateSettled' }>): boolean =>
+    event.newStartDate === '',
+  isOpenAccepted: (event: Extract<ScreenValuesEvent, { readonly type: 'fileDragEntered' }>): boolean =>
+    event.isOpenAccepted,
+  isOtherThanShownBase: (event: Extract<ScreenValuesEvent, { readonly type: 'baseTimeZoneChosen' }>): boolean =>
+    event.isOtherThanShownBase,
+  isPanelTarget: (event: Extract<ScreenValuesEvent, { readonly type: 'surfaceCloseAsked' }>): boolean =>
+    event.target === 'panel',
+  isProceeding: (event: Extract<ScreenValuesEvent, { readonly type: 'watermarkUnlockAnswered' }>): boolean =>
+    event.isProceeding,
+  isRungArmed: (event: Extract<ScreenValuesEvent, { readonly type: 'escapePressed' }>): boolean =>
+    event.rung === 'armed',
+  isRungDualCursor: (event: Extract<ScreenValuesEvent, { readonly type: 'escapePressed' }>): boolean =>
+    event.rung === 'dualCursorMode',
+  isRungHelp: (event: Extract<ScreenValuesEvent, { readonly type: 'escapePressed' }>): boolean =>
+    event.rung === 'helpModal',
+  isRungPropertiesPanel: (event: Extract<ScreenValuesEvent, { readonly type: 'escapePressed' }>): boolean =>
+    event.rung === 'propertiesPanel',
+  isRungSearchPanel: (event: Extract<ScreenValuesEvent, { readonly type: 'escapePressed' }>): boolean =>
+    event.rung === 'searchPanel',
+  isRungSurface: (event: Extract<ScreenValuesEvent, { readonly type: 'escapePressed' }>): boolean =>
+    event.rung === 'surface',
+  isRungTooltip: (event: Extract<ScreenValuesEvent, { readonly type: 'escapePressed' }>): boolean =>
+    event.rung === 'tooltip',
+  isSameArm: (values: ScreenValues, event: Extract<ScreenValuesEvent, { readonly type: 'armEntryPressed' }>): boolean => {
+    const armModeShapeKind =
+      values.armModeState.kind === 'armed' && values.armModeState.child.kind === 'taskShapeArmed' ? values.armModeState.child.shapeKind
+      : null
+    const armModeGlyph =
+      values.armModeState.kind === 'armed' && values.armModeState.child.kind === 'milestoneShapeArmed' ? values.armModeState.child.glyph
+      : null
+    return ((event.armKind === 'taskShapeArmed') && (values.armModeState.kind === 'armed' && values.armModeState.child.kind === 'taskShapeArmed')) && (event.shapeKind === armModeShapeKind)
+      || ((event.armKind === 'milestoneShapeArmed') && (values.armModeState.kind === 'armed' && values.armModeState.child.kind === 'milestoneShapeArmed')) && (event.glyph === armModeGlyph)
+      || (event.armKind === 'dependencyArmed') && (values.armModeState.kind === 'armed' && values.armModeState.child.kind === 'dependencyArmed')
+      || (event.armKind === 'commentBoxArmed') && (values.armModeState.kind === 'armed' && values.armModeState.child.kind === 'commentBoxArmed')
+      || (event.armKind === 'highlightBoxArmed') && (values.armModeState.kind === 'armed' && values.armModeState.child.kind === 'highlightBoxArmed')
+      || (event.armKind === 'parentTaskArmed') && (values.armModeState.kind === 'armed' && values.armModeState.child.kind === 'parentTaskArmed')
+  },
+  isShiftZero: (event: Extract<ScreenValuesEvent, { readonly type: 'timeShiftAmountSettled' }>): boolean =>
+    event.shiftMinutes === 0,
+  isSurfaceTarget: (event: Extract<ScreenValuesEvent, { readonly type: 'surfaceCloseAsked' }>): boolean =>
+    event.target === 'surface',
+  isWatermarkUnlockSurface: (values: ScreenValues): boolean => {
+    const openSurfaceSurfaceName =
+      values.openSurfaceState.kind === 'open' ? values.openSurfaceState.surfaceName
+      : null
+    return openSurfaceSurfaceName === 'U-60'
+  },
+}
 // </generated>
 
 type ScreenStep = Step<ScreenValues, ScreenValuesEffect>
@@ -526,9 +659,6 @@ type ScreenStep = Step<ScreenValues, ScreenValuesEffect>
 type EventOf<T extends ScreenValuesEvent['type']> = Extract<ScreenValuesEvent, { readonly type: T }>
 
 const WATERMARK_UNLOCK_SURFACE = 'U-60'
-
-// WHY: the two surfaces flowSurfaceAnswered answers (T-280); the open road stands still until one is answered.
-const FLOW_SURFACES_AWAITING_ANSWER: ReadonlySet<string> = new Set(['U-56', 'U-61'])
 
 const NO_REMEMBERED_ACTUALS: Readonly<Record<number, RememberedActual>> = Object.freeze({})
 
@@ -594,29 +724,19 @@ function onFullScreenEntryPressed(values: ScreenValues): ScreenStep {
 /** @purity pure */
 function onFullScreenChanged(values: ScreenValues, event: EventOf<'fullScreenChanged'>): ScreenStep {
   const isFull = values.fullScreenModeState.kind === 'full'
-  if (isFull === event.isFullScreen) return unchanged(values)
-  return moved(values, { fullScreenModeState: { kind: event.isFullScreen ? 'full' : 'normal' } })
-}
-
-/** @purity pure */
-function isAnotherSurface(values: ScreenValues, surfaceName: string): boolean {
-  return values.openSurfaceState.kind === 'open' && values.openSurfaceState.surfaceName !== surfaceName
-}
-
-/** @purity pure */
-function isFlowAwaitingAnswer(values: ScreenValues): boolean {
-  const surface = values.openSurfaceState
-  return surface.kind === 'open' && FLOW_SURFACES_AWAITING_ANSWER.has(surface.surfaceName)
+  const isFullScreen = SCREEN_VALUES_GUARDS.isFullScreen(event)
+  if (isFull === isFullScreen) return unchanged(values)
+  return moved(values, { fullScreenModeState: { kind: isFullScreen ? 'full' : 'normal' } })
 }
 
 // see T-280, S-99g, RS-27
 // WHY: an entrance pressed over a surface awaiting its answer is told; one raised by the flow is not.
 /** @purity pure */
-function surfaceOpenedOver(values: ScreenValues, surfaceName: string, isPressed: boolean): ScreenStep {
+function surfaceOpenedOver(values: ScreenValues, surfaceName: string, isPressed: boolean, isAnother: boolean): ScreenStep {
   const surface = values.openSurfaceState
   if (surface.kind === 'closed') return moved(values, { openSurfaceState: { kind: 'open', surfaceName } })
-  if (!isAnotherSurface(values, surfaceName)) return unchanged(values)
-  if (isFlowAwaitingAnswer(values)) {
+  if (!isAnother) return unchanged(values)
+  if (SCREEN_VALUES_GUARDS.isFlowAwaitingAnswer(values)) {
     return isPressed ? stayed(values, [{ type: 'raiseNotice', reason: 'RS-27' }]) : unchanged(values)
   }
   return moved(values, { openSurfaceState: { kind: 'open', surfaceName } }, [
@@ -624,13 +744,13 @@ function surfaceOpenedOver(values: ScreenValues, surfaceName: string, isPressed:
   ])
 }
 
-// see T-280
 /** @purity pure */
 function onSurfaceOpened(
   values: ScreenValues,
   event: EventOf<'surfaceEntryPressed'> | EventOf<'surfaceRaisedByFlow'>,
 ): ScreenStep {
-  return surfaceOpenedOver(values, event.surfaceName, event.type === 'surfaceEntryPressed')
+  const isAnother = SCREEN_VALUES_GUARDS.isAnotherSurface(values, event)
+  return surfaceOpenedOver(values, event.surfaceName, event.type === 'surfaceEntryPressed', isAnother)
 }
 
 // WHY: no tellFlowSurfaceClosed; the answer already reached the file-flow region (OP-3, FR-022).
@@ -659,15 +779,10 @@ function propertiesPutAway(values: ScreenValues): ScreenStep {
 
 /** @purity pure */
 function onSurfaceCloseAsked(values: ScreenValues, event: EventOf<'surfaceCloseAsked'>): ScreenStep {
-  if (event.target === 'helpModal') return helpHidden(values)
-  if (values.openSurfaceState.kind === 'closed' && values.propertiesPanelContentState.kind === 'hidden') return unchanged(values)
-  return event.target === 'surface' ? surfaceClosed(values) : propertiesPutAway(values)
-}
-
-/** @purity pure */
-function surfaceRungConsumed(values: ScreenValues): ScreenStep {
-  const isPanelTopmost = values.openSurfaceState.kind === 'closed'
-  return isPanelTopmost ? propertiesPutAway(values) : surfaceClosed(values)
+  if (SCREEN_VALUES_GUARDS.isHelpTarget(event)) return helpHidden(values)
+  if (SCREEN_VALUES_GUARDS.isSurfaceTarget(event)) return surfaceClosed(values)
+  if (SCREEN_VALUES_GUARDS.isPanelTarget(event)) return propertiesPutAway(values)
+  return unchanged(values)
 }
 
 /** @purity pure */
@@ -713,12 +828,13 @@ function windowRungConsumed(values: ScreenValues, key: ToggleableWindowKey): Scr
 // see T-280, IN-4, RG-16
 /** @purity pure */
 function onEscapePressed(values: ScreenValues, event: EventOf<'escapePressed'>): ScreenStep {
-  if (event.rung === 'searchPanel') return windowRungConsumed(values, 'searchPanelDisplayState')
-  if (event.rung === 'surface') return surfaceRungConsumed(values)
-  if (event.rung === 'helpModal') return windowRungConsumed(values, 'helpDisplayState')
-  if (event.rung === 'armed') return disarmed(values)
-  if (event.rung === 'dualCursorMode') return dualCursorCleared(values)
-  if (event.rung === 'tooltip') return tooltipDismissed(values)
+  if (SCREEN_VALUES_GUARDS.isRungSearchPanel(event)) return windowRungConsumed(values, 'searchPanelDisplayState')
+  if (SCREEN_VALUES_GUARDS.isRungSurface(event)) return surfaceClosed(values)
+  if (SCREEN_VALUES_GUARDS.isRungPropertiesPanel(event)) return propertiesPutAway(values)
+  if (SCREEN_VALUES_GUARDS.isRungHelp(event)) return windowRungConsumed(values, 'helpDisplayState')
+  if (SCREEN_VALUES_GUARDS.isRungArmed(event)) return disarmed(values)
+  if (SCREEN_VALUES_GUARDS.isRungDualCursor(event)) return dualCursorCleared(values)
+  if (SCREEN_VALUES_GUARDS.isRungTooltip(event)) return tooltipDismissed(values)
   return unchanged(values)
 }
 
@@ -729,7 +845,7 @@ function required<T>(value: T | null, name: string): T {
 }
 
 const ARMED_BY_KIND: {
-  readonly [K in ArmKind]: (event: EventOf<'armEntryPressed'>) => ArmModeState
+  readonly [K in ArmKind]: (event: EventOf<'armEntryPressed'>) => ArmModeArmedState
 } = {
   taskShapeArmed: (event) => ({ kind: 'taskShapeArmed', shapeKind: required(event.shapeKind, 'shapeKind') }),
   milestoneShapeArmed: (event) => ({ kind: 'milestoneShapeArmed', glyph: required(event.glyph, 'glyph') }),
@@ -739,60 +855,32 @@ const ARMED_BY_KIND: {
   parentTaskArmed: () => ({ kind: 'parentTaskArmed' }),
 }
 
-/** @purity pure */
-function carriedArmOf(armed: ArmModeState): string | null {
-  switch (armed.kind) {
-    case 'taskShapeArmed':
-      return armed.shapeKind
-    case 'milestoneShapeArmed':
-      return armed.glyph
-    case 'notArmed':
-    case 'dependencyArmed':
-    case 'commentBoxArmed':
-    case 'highlightBoxArmed':
-    case 'parentTaskArmed':
-      return null
-    default:
-      return assertNever(armed)
-  }
-}
-
 // see T-280, FR-016
 /** @purity pure */
 function onArmEntryPressed(values: ScreenValues, event: EventOf<'armEntryPressed'>): ScreenStep {
-  const entered = ARMED_BY_KIND[event.armKind](event)
-  const current = values.armModeState
-  const isSameArm = current.kind === entered.kind && carriedArmOf(current) === carriedArmOf(entered)
-  return moved(values, { armModeState: isSameArm ? { kind: 'notArmed' } : entered })
+  if (SCREEN_VALUES_GUARDS.isSameArm(values, event)) return moved(values, { armModeState: { kind: 'notArmed' } })
+  return moved(values, { armModeState: { kind: 'armed', child: ARMED_BY_KIND[event.armKind](event) } })
 }
 
-// see T-280
 /** @purity pure */
 function onWatermarkEntryPressed(values: ScreenValues): ScreenStep {
   if (values.watermarkDisplayState.kind === 'hidden') return moved(values, { watermarkDisplayState: { kind: 'shown' } })
-  return surfaceOpenedOver(values, WATERMARK_UNLOCK_SURFACE, true)
+  return surfaceOpenedOver(values, WATERMARK_UNLOCK_SURFACE, true, !SCREEN_VALUES_GUARDS.isWatermarkUnlockSurface(values))
 }
 
-/** @purity pure */
-function isWatermarkUnlockSurface(values: ScreenValues): boolean {
-  return values.openSurfaceState.kind === 'open' && values.openSurfaceState.surfaceName === WATERMARK_UNLOCK_SURFACE
-}
-
-// see T-280
 /** @purity pure */
 function onWatermarkUnlockAnswered(
   values: ScreenValues,
   event: EventOf<'watermarkUnlockAnswered'>,
 ): ScreenStep {
-  if (!isWatermarkUnlockSurface(values)) return unchanged(values)
-  if (event.isProceeding) return stayed(values, [{ type: 'matchWatermarkUnlock' }])
+  if (!SCREEN_VALUES_GUARDS.isWatermarkUnlockSurface(values)) return unchanged(values)
+  if (SCREEN_VALUES_GUARDS.isProceeding(event)) return stayed(values, [{ type: 'matchWatermarkUnlock' }])
   return moved(values, { openSurfaceState: { kind: 'closed' } })
 }
 
-// see T-280
 /** @purity pure */
 function onWatermarkUnlockMatched(values: ScreenValues): ScreenStep {
-  if (values.watermarkDisplayState.kind === 'hidden' || !isWatermarkUnlockSurface(values)) {
+  if (values.watermarkDisplayState.kind === 'hidden' || !SCREEN_VALUES_GUARDS.isWatermarkUnlockSurface(values)) {
     return unchanged(values)
   }
   return moved(values, { watermarkDisplayState: { kind: 'hidden' }, openSurfaceState: { kind: 'closed' } })
@@ -801,7 +889,7 @@ function onWatermarkUnlockMatched(values: ScreenValues): ScreenStep {
 // see T-280
 /** @purity pure */
 function onWatermarkUnlockMismatched(values: ScreenValues): ScreenStep {
-  if (!isWatermarkUnlockSurface(values)) return unchanged(values)
+  if (!SCREEN_VALUES_GUARDS.isWatermarkUnlockSurface(values)) return unchanged(values)
   return stayed(values, [{ type: 'raiseNotice', reason: 'RS-41' }])
 }
 
@@ -828,10 +916,8 @@ function onPropertiesOfChoiceAsked(
 /** @purity pure */
 function onSelectionMoved(values: ScreenValues, event: EventOf<'selectionMoved'>): ScreenStep {
   if (values.propertiesPanelContentState.kind === 'hidden') return unchanged(values)
-  const subject = event.subject
-  const hasChoice = subject.selection.items.length > 0 || subject.taskGroupIds.length > 0
-  if (!hasChoice) return unchanged(values)
-  return moved(values, { propertiesPanelContentState: { kind: 'selectionDisplayed', subject } })
+  if (!SCREEN_VALUES_GUARDS.hasChoice(event)) return unchanged(values)
+  return moved(values, { propertiesPanelContentState: { kind: 'selectionDisplayed', subject: event.subject } })
 }
 
 // see T-280
@@ -846,7 +932,9 @@ function onCreatedNameSettled(values: ScreenValues): ScreenStep {
 /** @purity pure */
 function onSettleKeyPressed(values: ScreenValues, event: EventOf<'settleKeyPressed'>): ScreenStep {
   if (values.propertiesPanelContentState.kind === 'hidden') return unchanged(values)
-  if (event.hasSurfaceOrConfirmation || event.hasUnsettledEntry) return unchanged(values)
+  if (SCREEN_VALUES_GUARDS.hasSurfaceOrConfirmation(event) || SCREEN_VALUES_GUARDS.hasUnsettledEntry(event)) {
+    return unchanged(values)
+  }
   return propertiesPutAway(values)
 }
 
@@ -857,7 +945,7 @@ function onDualCursorEntryPressed(
   event: EventOf<'dualCursorEntryPressed'>,
 ): ScreenStep {
   if (values.dualCursorModeState.kind === 'on') return dualCursorCleared(values)
-  if (!event.hasDaysToPlace) return unchanged(values)
+  if (!SCREEN_VALUES_GUARDS.hasDaysToPlace(event)) return unchanged(values)
   const child = SCREEN_VALUES_INITIAL_CHILDREN['dualCursorModeStateMachine.on']
   const armed = values.armModeState.kind === 'notArmed' ? values.armModeState : ({ kind: 'notArmed' } as const)
   // WHY: the event carries the one date DC-1 places; cursorADate follows the pointer until DC-2 fixes it.
@@ -1007,7 +1095,7 @@ function onLandingMarkClearAsked(values: ScreenValues): ScreenStep {
 // see T-280, OP-17
 /** @purity pure */
 function onFileDragEntered(values: ScreenValues, event: EventOf<'fileDragEntered'>): ScreenStep {
-  if (!event.isOpenAccepted || values.dropCueDisplayState.kind === 'shown') return unchanged(values)
+  if (!SCREEN_VALUES_GUARDS.isOpenAccepted(event) || values.dropCueDisplayState.kind === 'shown') return unchanged(values)
   return moved(values, { dropCueDisplayState: { kind: 'shown' } })
 }
 
@@ -1090,14 +1178,12 @@ function helpHidden(values: ScreenValues): ScreenStep {
   return moved(values, { helpDisplayState: { kind: 'hidden' } })
 }
 
-const HOLIDAY_SETTINGS_SURFACE = 'U-65'
-
 // see T-280, FR-156, FO-14
 // WHY: choosing the shown base again drops the draft -- the answers show only for another time zone (X-j).
 /** @purity pure */
 function onBaseTimeZoneChosen(values: ScreenValues, event: EventOf<'baseTimeZoneChosen'>): ScreenStep {
   const held = values.baseTimeZoneDraftState
-  if (!event.isOtherThanShownBase) {
+  if (!SCREEN_VALUES_GUARDS.isOtherThanShownBase(event)) {
     return held.kind === 'untouched' ? unchanged(values) : moved(values, { baseTimeZoneDraftState: { kind: 'untouched' } })
   }
   if (held.kind === 'drafted' && held.chosenRegion === event.chosenRegion) return unchanged(values)
@@ -1125,8 +1211,7 @@ function onBaseChangeCancelPressed(values: ScreenValues): ScreenStep {
 /** @purity pure */
 function onTimeShiftAmountSettled(values: ScreenValues, event: EventOf<'timeShiftAmountSettled'>): ScreenStep {
   const held = values.timeShiftDraftState
-  const isShiftZero = event.shiftMinutes === 0
-  if (isShiftZero) return held.kind === 'empty' ? unchanged(values) : moved(values, { timeShiftDraftState: { kind: 'empty' } })
+  if (SCREEN_VALUES_GUARDS.isShiftZero(event)) return held.kind === 'empty' ? unchanged(values) : moved(values, { timeShiftDraftState: { kind: 'empty' } })
   if (held.kind === 'amountHeld' && held.shiftMinutes === event.shiftMinutes) return unchanged(values)
   return moved(values, { timeShiftDraftState: { kind: 'amountHeld', shiftMinutes: event.shiftMinutes } })
 }
@@ -1149,8 +1234,7 @@ function onTimeShiftLanded(values: ScreenValues): ScreenStep {
 /** @purity pure */
 function onWholeScheduleShiftDateSettled(values: ScreenValues, event: EventOf<'wholeScheduleShiftDateSettled'>): ScreenStep {
   const held = values.wholeScheduleShiftDraftState
-  const isNewStartDateEmpty = event.newStartDate === ''
-  if (isNewStartDateEmpty) return held.kind === 'empty' ? unchanged(values) : moved(values, { wholeScheduleShiftDraftState: { kind: 'empty' } })
+  if (SCREEN_VALUES_GUARDS.isNewStartDateEmpty(event)) return held.kind === 'empty' ? unchanged(values) : moved(values, { wholeScheduleShiftDraftState: { kind: 'empty' } })
   if (held.kind === 'dateHeld' && held.newStartDate === event.newStartDate) return unchanged(values)
   return moved(values, { wholeScheduleShiftDraftState: { kind: 'dateHeld', newStartDate: event.newStartDate } })
 }
@@ -1181,7 +1265,7 @@ function onCalendarDraftEdited(values: ScreenValues, event: EventOf<'calendarDra
 /** @purity pure */
 function onCalendarApplyEntryPressed(values: ScreenValues): ScreenStep {
   const held = values.calendarDraftState
-  if (held.kind === 'untouched' || hasCalendarDraftRefusal(held.calendarDraft)) return unchanged(values)
+  if (held.kind === 'untouched' || SCREEN_VALUES_GUARDS.hasCalendarDraftRefusal(values)) return unchanged(values)
   return moved(values, { calendarDraftState: { kind: 'untouched' } }, [
     { type: 'issueCalendarCommand', calendarDraft: held.calendarDraft },
   ])
@@ -1203,15 +1287,10 @@ function calendarDraftDropped(values: ScreenValues): Partial<DraftAxes> {
   return values.calendarDraftState.kind === 'untouched' ? {} : { calendarDraftState: { kind: 'untouched' } }
 }
 
+// WHY: the guard language's calendarDraftRefusals (WC-10); an untouched draft carries none.
 /** @purity pure */
-function isShowingDocumentSettings(values: ScreenValues): boolean {
-  return values.propertiesPanelContentState.kind === 'documentSettingsDisplayed'
-}
-
-/** @purity pure */
-function isShowingHolidaySettings(values: ScreenValues): boolean {
-  const surface = values.openSurfaceState
-  return surface.kind === 'open' && surface.surfaceName === HOLIDAY_SETTINGS_SURFACE
+function calendarDraftRefusals(calendarDraft: CalendarDraft | null): readonly CalendarDraftRefusal[] {
+  return calendarDraft === null ? [] : calendarDraftRefusalsOf(calendarDraft)
 }
 
 // see T-280, FR-156, FR-157, FR-159, FR-088
@@ -1219,11 +1298,9 @@ function isShowingHolidaySettings(values: ScreenValues): boolean {
 /** @purity pure */
 function draftsLeftBehind(before: ScreenValues, step: ScreenStep): ScreenStep {
   const after = step.state
-  const isLeavingDocumentSettings = isShowingDocumentSettings(before) && !isShowingDocumentSettings(after)
-  const isLeavingHolidaySettings = isShowingHolidaySettings(before) && !isShowingHolidaySettings(after)
   const patch: Partial<DraftAxes> = {
-    ...(isLeavingDocumentSettings ? settingsDraftsDropped(after) : {}),
-    ...(isLeavingHolidaySettings ? calendarDraftDropped(after) : {}),
+    ...(SCREEN_VALUES_GUARDS.isLeavingDocumentSettings(before, after) ? settingsDraftsDropped(after) : {}),
+    ...(SCREEN_VALUES_GUARDS.isLeavingHolidaySettings(before, after) ? calendarDraftDropped(after) : {}),
   }
   return Object.keys(patch).length === 0 ? step : { state: { ...after, ...patch }, effects: step.effects }
 }
@@ -1311,3 +1388,4 @@ export function stepScreenValues(values: ScreenValues, event: ScreenValuesEvent)
   const handler = HANDLERS[event.type] as (values: ScreenValues, event: ScreenValuesEvent) => ScreenStep
   return handler(values, event)
 }
+

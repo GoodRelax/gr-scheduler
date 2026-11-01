@@ -80,7 +80,7 @@
 //
 // ⚠️ WHAT IS DELIBERATELY NOT ASSERTED:
 //   1. HOW MANY GROUPS THE PALETTE HAS. That is table T-109's fact and UF-65's
-//      answer, and tests/unit/uf-65.test.ts is the bench that holds it. This
+//      answer; the uf-65 unit test that held it was deleted by CR-573. This
 //      unit draws the groups it is handed, so the cases here drive it with one,
 //      two, three and four and ask for one boundary fewer than there are
 //      groups -- which is what makes the real palette's four groups three
@@ -114,7 +114,7 @@ import { bare, bareAll, specTable } from '../contract/spec-table'
 import { emptyScreenSession } from '../../src/use-case/advance-screen-session/advance-screen-session'
 
 // ---------------------------------------------------------------------------
-// The manuscript, read at run time rather than copied here (Chapter 1.9 :275).
+// The manuscript, read at run time rather than copied here (Chapter 1.9).
 // ---------------------------------------------------------------------------
 
 const T_206 = specTable('T-206')

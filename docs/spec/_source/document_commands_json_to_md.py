@@ -48,6 +48,8 @@ import os
 import re
 import sys
 
+from spec_md_printing import say
+
 HERE = os.path.dirname(os.path.abspath(__file__))
 ASSETS = os.path.join(os.path.dirname(HERE), '_assets')
 SRC = os.path.join(HERE, 'document-commands.json')
@@ -70,14 +72,6 @@ STAR = u'⭐'
 BUILT_IN = ('string', 'integer', 'number', 'boolean', 'enum', 'map')
 SETTINGS_TABLES = ('T-202', 'T-203')
 ROW_ID = re.compile(r'^CM-(\d+)$')
-
-
-def say(message):
-    """The Windows console is cp932 and these messages quote a manuscript
-    holding marks it cannot encode, so write them through a replacing
-    encoder rather than raise from inside the problem reporter."""
-    enc = getattr(sys.stdout, 'encoding', None) or 'utf-8'
-    sys.stdout.write(message.encode(enc, 'replace').decode(enc) + '\n')
 
 
 def prose(cell):

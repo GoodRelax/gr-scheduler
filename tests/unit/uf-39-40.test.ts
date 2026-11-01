@@ -470,14 +470,14 @@ const viewOf = (
   // still declares a member for one is the implementation's answer, and turning
   // either answer into a COMPILE error here would take this whole file down.
   // Rule 04 section 1 asks a disagreement to arrive as a test that falls, and
-  // tests/unit/uf-64.test.ts is where that one falls.
+  // the uf-64 unit test, where that one fell, was deleted by CR-573.
   propertiesPanel: {
     showing: 'selection',
     isSubjectGone: false,
     fields: [{ row: 'PR-1', name: 'name', text: PROPERTY_FIELD_TEXT, isEditable: true, controls: [] }],
     // ⚠️ EMPTY ON PURPOSE: this bench is about another subject, and the
     // entrance table T-109 places on the panel (IC-52) is asserted in
-    // tests/unit/fr-006-panel-close-entrance.test.ts.
+    // tests/contract/cr-754-fr-072-the-close-only-row-heads-every-panel.test.ts.
     commands: [],
   } as ScreenView['propertiesPanel'],
   commandPalette: {
@@ -488,8 +488,8 @@ const viewOf = (
     // edge and table T-206 states how far down it reaches; EP-11 of table T-076
     // drops the whole palette from the picture, so no case in this file means
     // the number. ⛔ The value that row holds is deliberately NOT copied here --
-    // rule 03 section 1 keeps it in one place, and `tests/unit/uf-65.test.ts` is
-    // the bench that holds the described band to the manuscript.
+    // rule 03 section 1 keeps it in one place, and the uf-65 unit test was
+    // the bench that held the described band to the manuscript until CR-573 deleted it.
     grabBandHeight: 7,
     minimize: {
       icon: 'IC-75',
@@ -937,7 +937,7 @@ describe('table T-041 -- which rows of the WYSIWYG judgment one unit can answer'
 })
 
 // ---------------------------------------------------------------------------
-// Table T-076 -- one case walks every row (Chapter 1.9 :275)
+// Table T-076 -- one case walks every row (Chapter 1.9)
 // ---------------------------------------------------------------------------
 
 /**
@@ -1789,7 +1789,7 @@ describe('PI-21 exportSvg -- IO-3 and IO-4 are one assembly (WY-2 of table T-041
   it('GIVEN the same scene twice WHEN exportSvg runs THEN it answers the same string both times (@purity pure)', () => {
     // WY-2's premise: the same JSON in the same environment gives the same
     // picture. A pure entry may not read a clock, a random or a counter --
-    // CS-1 of table T-066 (design :448) says in as many words that reading the
+    // CS-1 of table T-066 says in as many words that reading the
     // clock in the frame would break WY-2.
     expect(fitOrThrow(exportSvg(TALL_SCENE)).svg).toBe(fitOrThrow(exportSvg(TALL_SCENE)).svg)
     expect(exportSvg(sceneOf(viewOf([])))).toEqual(exportSvg(sceneOf(viewOf([]))))
@@ -1934,7 +1934,7 @@ describe('boundaries of the SVG route', () => {
 //
 // ⭐ FR-025 now reads 「幅は `S-81` の幅に固定すること（MUST）。高さは、絵が収ま
 // るところまで伸ばすこと（MUST）」 and 「伸ばしてよいのはその `S-217` までとするこ
-// と（MUST）」. S-81's height is the FLOOR -- 「縮めた絵の高さが `S-81` の高さに満た
+// と（MUST）」. S-81's height is the FLOOR -- 「絵の高さ（全体表示時の期間を固定していなければ縮めた絵の高さ、固定していれば `IX-15` の高さ）が `S-81` の高さに満た
 // ないときは、余りを空白のままとすること（MUST）」 -- and S-217
 // (`exportCanvasHeightCap`) is the ceiling.
 describe('FR-025 -- the height grows to fit and stops at S-217', () => {

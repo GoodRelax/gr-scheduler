@@ -1,0 +1,28 @@
+id	element	final_en
+D007	/properties/schedule/properties/tasks	Same as MSPDI Tasks, except that the WBS tree is given by Task.parentTaskUid and Task.siblingOrder. GRS makes ID, OutlineLevel, OutlineNumber and Summary from that tree each time it writes MSPDI.
+D010	/properties/schedule/properties/taskGroups	The task groups, each shown as one row of the task group panel and one row of the chart. taskGroupMembers says which tasks each task group holds. When GRS reads an MSPDI file, it makes the task groups from the WBS.
+D011	/properties/schedule/properties/taskGroupMembers	Which task group each task belongs to: one entry per task, from taskUid to taskGroupId.
+D079	/$defs/Project/properties/id	Same as MSPDI Project/UID. Before saving over a file, GRS checks this value, project.name and the file name to tell whether the file holds the same document.
+D093	/$defs/Project/properties/minutesPerDay	Same as MSPDI Project/MinutesPerDay: the length of one working day (1d) in minutes, {{S-128}} when absent. GRS warns when the document is opened if the working times of any working day add up to a total other than this value.
+D097	/$defs/Project/properties/defaultStartTime	Same as MSPDI Project/DefaultStartTime: the time of day GRS gives a start that is set by the day (the start of a Task or a BaselineTask, actualStart, resume, project.startDate); {{S-482}} when absent. A milestone's start gets defaultFinishTime instead.
+D098	/$defs/Project/properties/defaultFinishTime	Same as MSPDI Project/DefaultFinishTime: the time of day GRS gives a finish that is set by the day (the finish of a Task or a BaselineTask, actualFinish, stop, deadline, project.statusDate); {{S-483}} when absent. A milestone's start gets this time as well.
+D105+	*/properties/passthroughValues (8 rows)	Carried MSPDI values of this element, under their MSPDI names.
+D106+	*/properties/passthroughElements (8 rows)	Carried MSPDI elements under this one, each written back in its place.
+D109	/$defs/Calendar/properties/baseCalendarUid	Same as MSPDI Calendar/BaseCalendarUID: the calendar this one inherits from. GRS keeps the value but does not inherit: it counts only the days this calendar itself lists.
+D127	/$defs/Exception/properties/fromDate	Same as MSPDI Exception/TimePeriod/FromDate: the first day of the exception. GRS reads only the date and writes T00:00:00.
+D128	/$defs/Exception/properties/toDate	Same as MSPDI Exception/TimePeriod/ToDate: the last day of the exception, included. GRS reads only the date and writes T23:59:00.
+D130	/$defs/Exception/properties/recurrenceKind	Same as MSPDI Exception/Type. GRS counts only a one-off exception: recurrenceKind is 9 or absent, or is 1 and recurrencePeriod is absent or 1; it keeps the others unchanged without counting them. Write 1 for an exception you add.
+D138	/$defs/WorkingTime/properties/toTime	Same as MSPDI WorkingTime/ToTime. 00:00:00 means 24:00, the end of the day.
+D139	/$defs/Task	Same as MSPDI Task. GRS reads the progress state with these checks, first match wins: no actualStart, not started; actualFinish set, finished; resumeValid false, suspended with no resume date; resume set, suspended with a resume date; otherwise in progress.
+D142	/$defs/Task/properties/calendarUid	Same as MSPDI Task/CalendarUID, the calendar of this task alone. GRS keeps the value and writes it back, but counts working days with project.calendarUid only.
+D150	/$defs/Task/properties/actualStart	Same as MSPDI Task/ActualStart. Absent means the task is not started.
+D151	/$defs/Task/properties/stop	Same as MSPDI Task/Stop: the end of the actual work so far on a task that is in progress or suspended. On a finished task actualFinish holds that end; GRS empties stop when it finishes a task.
+D152	/$defs/Task/properties/actualFinish	Same as MSPDI Task/ActualFinish. Present only on a finished task; a percentComplete of 100 does not mean finished.
+D153	/$defs/Task/properties/resume	Same as MSPDI Task/Resume: on a suspended task, when the remaining work is planned to restart.
+D154	/$defs/Task/properties/resumeValid	Same as MSPDI Task/ResumeValid. On a task with actualStart and no actualFinish, false means suspended with no resume date, and a date in resume is not used.
+D155	/$defs/Task/properties/percentComplete	Same as MSPDI Task/PercentComplete, except that GRS recalculates the value as actual working time (actualStart to actualFinish, or to stop) over planned working time (start to finish), times 100, rounded and not capped at 100. With no planned working time, as on a milestone, the value is 100 once actualFinish is set, else 0.
+D166	/$defs/Dependency/properties/linkLag	Same as MSPDI PredecessorLink/LinkLag: the lag in tenths of a minute, whatever unit lagFormat names; absent means no lag. One working day of lag is project.minutesPerDay times 10 ({{S-128}} times 10 when project.minutesPerDay is absent).
+D167	/$defs/Dependency/properties/lagFormat	Same as MSPDI PredecessorLink/LagFormat. GRS understands the lag only when this is 7 (working days), 5 (hours) or 3 (minutes); with any other unit it only shows the lag and keeps it unchanged. GRS writes the unit the lag was typed in.
+D172	/$defs/Resource/properties/calendarUid	Same as MSPDI Resource/CalendarUID, the calendar of this resource alone. GRS keeps the value and writes it back, but counts working days with project.calendarUid only.
+D273	/$defs/PassthroughValues	Carried MSPDI values, keyed by their MSPDI names.
+D274	/$defs/PassthroughElement	One carried MSPDI element, kept whole and written back in its place.

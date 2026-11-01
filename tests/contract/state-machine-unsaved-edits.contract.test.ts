@@ -13,6 +13,7 @@ import {
 } from '../../src/use-case/advance-screen-session/advance-screen-session'
 import { emptyFileFlowValues } from '../../src/use-case/advance-screen-session/file-flow-values'
 import { NO_EFFECTS } from '../../src/use-case/advance-screen-session/session-step'
+import { branchHolds } from './guard-language'
 
 type Loose = Record<string, unknown>
 type RawGuard = { readonly name?: string; readonly not?: boolean; readonly in?: string }
@@ -146,17 +147,12 @@ function describeEvent(event: Loose): string {
   return `${String(event['type'])}${parts.length === 0 ? '' : `(${parts.join(', ')})`}`
 }
 
-function guardHolds(guard: RawGuard, event: Loose): boolean {
-  if (guard.name === 'isReplaceChoice') return event['openChoice'] === 'replace'
-  if (guard.name === 'isBackToSavedDocument') return event['isBackToSavedDocument'] === true
-  throw new Error(`guard ${JSON.stringify(guard)} is named by the manuscript but not by this file's oracle`)
-}
-
-function expectedKind(from: string, event: Loose): string | undefined {
+function expectedKind(from: string, event: Loose, fields: Loose = {}): string | undefined {
   const cell = MACHINE.transitions[String(event['type'])]?.[from]
   if (cell === undefined) return undefined
   const branches = Array.isArray(cell) ? (cell as readonly RawBranch[]) : [cell as RawBranch]
-  return branches.find((b) => (b.guard ?? []).every((g) => guardHolds(g, event) !== (g.not === true)))?.to
+  const values = { ...flowOf(emptyScreenSession), ...fields, unsavedEditsState: { kind: from } }
+  return branches.find((b) => branchHolds({ region: 'fileFlow', values, event }, b))?.to
 }
 
 function other(kind: string): string {
@@ -237,7 +233,7 @@ describe('SD-3 (T-290): every unsavedEditsStateMachine state x every fileFlow ev
     const before = { kind }
     const session = withFlow({ ...fields, unsavedEditsState: before })
     const after = unsavedOf(step(session, event).state)
-    const want = expectedKind(kind, event)
+    const want = expectedKind(kind, event, fields)
     if (want === undefined) {
       expect(after, 'SF-3 / NFR-010: a — cell keeps the same reference').toBe(before)
       return
@@ -330,7 +326,9 @@ describe('orthogonality: unsavedEditsStateMachine and the other two fileFlow mac
 
   it.each(ownCases)('%s: fileOperationState, confirmationState and root stay the same reference; no effect', (_, kind, fields, type) => {
     const session = withFlow({ ...fields, unsavedEditsState: { kind } })
-    const result = step(session, { type })
+    // WHY: documentEditLanded carries isBackToSavedDocument (T-290); false is the reading of a landing that is no undo back.
+    const event: Loose = type === 'documentEditLanded' ? { type, isBackToSavedDocument: false } : { type }
+    const result = step(session, event)
     const before = flowOf(session)
     const after = flowOf(result.state)
     // see T-290, FR-095
@@ -340,7 +338,7 @@ describe('orthogonality: unsavedEditsStateMachine and the other two fileFlow mac
       else expect(after[key], key).toBe(before[key])
     }
     expect(result.effects).toBe(NO_EFFECTS)
-    if (expectedKind(kind, { type }) === undefined && !rootMoves) expect(result.state, 'SF-3: the same session reference').toBe(session)
+    if (expectedKind(kind, event, fields) === undefined && !rootMoves) expect(result.state, 'SF-3: the same session reference').toBe(session)
   })
 
   it('a — cell of this machine on a shared event with nothing else moving returns the same session and NO_EFFECTS', () => {

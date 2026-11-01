@@ -100,7 +100,9 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `delayWorkingDays` | entry | function | `src/entity/document-model/schedule/task-delay.ts#delayWorkingDays` | PI-1 | 表 T-021b の起点と終点 |
 | `Dependency` | entry | interface | `src/entity/document-model/schedule/schedule-entities.ts#Dependency` | -- | interface Dependency |
 | `diagnoseDelay` | entry | function | `src/entity/document-model/schedule/delay-diagnostics.ts#diagnoseDelay` | PI-1 | 遅延診断のレポート（表 T-317）を作る。 |
+| `diagnosedMarkerRowsOf` | entry | function | `src/entity/document-model/schedule/delay-diagnostics.ts#diagnosedMarkerRowsOf` | PI-1 | 遅延診断を出しているあいだ日程表に描く 表 T-315 の行（`DG-1` 〜 `DG-3`）を、`Task.uid` ごとに求める（`FR-133`）。 |
 | `earliestPlanStartDayOf` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#earliestPlanStartDayOf` | PI-1 | 全体日程シフトの最初のタスクの開始日（表 T-379 の `WH-1`）—— `Task` の予定の開始を開始の側で読んだ、いちばん早い日。 |
+| `edgeInstantOf` | entry | function | `src/entity/document-model/schedule/calendar-day.ts#edgeInstantOf` | PI-1 | 日程表に描く端（予定バー・実績バーの左右の端、期限、変更前の予定の輪郭の左右の端）が時間軸に立つ瞬間（分）。 |
 | `EntityRows` | entry | interface | `src/entity/document-model/schedule/schedule-entities.ts#EntityRows` | -- | interface EntityRows |
 | `Exception` | entry | interface | `src/entity/document-model/schedule/schedule-entities.ts#Exception` | -- | interface Exception |
 | `finishSideDayFrom` | entry | function | `src/entity/document-model/schedule/calendar-day.ts#finishSideDayFrom` | PI-1 | `finishSideDayOf` と同じ日を、読み手が既に読んだその字の日（`dayOf` の答え）から数える。 |
@@ -233,7 +235,6 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `plannedStartInstantsOf` | file only | function | `src/entity/document-model/schedule/schedule-search.ts#plannedStartInstantsOf` | -- | function plannedStartInstantsOf(schedule: Schedule): ReadonlyMap<number, number \| null> |
 | `taskGroupPathOf` | file only | function | `src/entity/document-model/schedule/task-group-names.ts#taskGroupPathOf` | -- | function taskGroupPathOf(schedule: Schedule, taskGroupId: string): readonly string[] |
 | `MinuteSpan` | file only | interface | `src/entity/document-model/schedule/working-calendar.ts#MinuteSpan` | -- | interface MinuteSpan |
-| `previousWorkingDay` | file only | function | `src/entity/document-model/schedule/working-calendar.ts#previousWorkingDay` | -- | function previousWorkingDay(within: WorkingCalendar, from: CalendarDay): CalendarDay |
 
 ## DocumentSettings (PI-2, `src/entity/document-model/document-settings/document-settings.ts`)
 
@@ -326,7 +327,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `ScheduleLayout` | entry | interface | `src/entity/layout-engine/schedule-layout/schedule-layout.ts#ScheduleLayout` | PI-5 | 型 |
 | `ShapeKind` | entry | type | `src/entity/layout-engine/schedule-layout/schedule-layout.ts#ShapeKind` | -- | type ShapeKind = NonNullable<TaskVisual['shapeKind']> |
 | `shownSpanOf` | entry | function | `src/entity/layout-engine/schedule-layout/time-axis.ts#shownSpanOf` | PI-5 | `Task Group Area` の左端の位置と、右端の 1 px 手前の位置が指す 2 つの日を求める。 |
-| `snapMinutesOf` | entry | function | `src/entity/layout-engine/schedule-layout/time-axis.ts#snapMinutesOf` | PI-5 | 寄せの単位（分） —— `FR-103` の 表 T-378 の `SG-1`〜`SG-4` |
+| `snapMinutesOf` | entry | function | `src/entity/layout-engine/schedule-layout/time-axis.ts#snapMinutesOf` | PI-5 | 寄せの単位（分） —— `FR-103` の 表 T-378 の `SG-1`・`SG-2` |
 | `snappedInstantAtX` | entry | function | `src/entity/layout-engine/schedule-layout/time-axis.ts#snappedInstantAtX` | PI-5 | 横の位置を、寄せの単位で寄せた瞬間（分）として読む（`FR-103`） |
 | `StackSafetyCapStop` | entry | interface | `src/entity/layout-engine/schedule-layout/schedule-layout.ts#StackSafetyCapStop` | -- | interface StackSafetyCapStop |
 | `taskGroupAnchorIn` | entry | function | `src/entity/layout-engine/schedule-layout/task-group-scroll.ts#taskGroupAnchorIn` | PI-5 | 表示の上端の y を、`S-78` と `S-176` の組に直す —— 本コンポーネントの縦のスクロールの読み方の逆である。 |
@@ -398,7 +399,6 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `MarkerGeometry` | entry | interface | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#MarkerGeometry` | -- | interface MarkerGeometry |
 | `MilestoneLayer` | entry | interface | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#MilestoneLayer` | -- | interface MilestoneLayer |
 | `MilestoneLayerRole` | entry | type | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#MilestoneLayerRole` | -- | type MilestoneLayerRole = 'body' \| 'inner' \| 'dot' \| 'shade' |
-| `NOT_STORED_DUMMY_SIZES` | entry | const | `src/entity/layout-engine/schedule-geometry/task-figures.ts#NOT_STORED_DUMMY_SIZES` | -- | const NOT_STORED_DUMMY_SIZES: |
 | `ParentTaskFamilies` | entry | interface | `src/entity/layout-engine/schedule-geometry/parent-task-arrows.ts#ParentTaskFamilies` | PI-6 | 型。 |
 | `Path` | entry | type | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#Path` | -- | type Path = readonly Point[] |
 | `PathSegment` | entry | type | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#PathSegment` | -- | type PathSegment = \| { readonly command: 'M' \| 'L'; readonly to: Point } \| { readonly command: 'Q'; readonly control: Point; readonly to: Point } \| |
@@ -409,6 +409,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `ScheduleGeometry` | entry | interface | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#ScheduleGeometry` | PI-6 | 型 |
 | `selectedLinksOf` | entry | function | `src/entity/layout-engine/schedule-geometry/dependency-route.ts#selectedLinksOf` | PI-6 | 選んでいる依存線（表 T-023c の `SL-8`）を、先行と後続の `UID` の対の鍵の集合で答える。 |
 | `SpanDot` | entry | interface | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#SpanDot` | -- | interface SpanDot |
+| `statusLineXOf` | entry | function | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#statusLineXOf` | -- | function statusLineXOf(inputs: GeometryInputs, statusDate: CalendarDay): number |
 | `TaskGeometry` | entry | interface | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#TaskGeometry` | -- | interface TaskGeometry |
 | `AnchorSurroundings` | file only | interface | `src/entity/layout-engine/schedule-geometry/comment-box.ts#AnchorSurroundings` | -- | interface AnchorSurroundings |
 | `commentGeometry` | file only | function | `src/entity/layout-engine/schedule-geometry/comment-box.ts#commentGeometry` | -- | function commentGeometry( schedule: Schedule, settings: DrawnSettings, layout: ScheduleLayout, snaps: readonly AnchorSnap[], ): readonly CommentGeometry[] |
@@ -621,8 +622,9 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `createTask` | file only | function | `src/use-case/edit-document/task-create.ts#createTask` | -- | function createTask( document: Document, command: Extract<TaskCommand, { readonly kind: 'createTask' }>, within: WorkingCalendar, ): EditResult |
 | `resetTaskGroupTreeStates` | file only | function | `src/use-case/edit-document/task-group-folding.ts#resetTaskGroupTreeStates` | -- | function resetTaskGroupTreeStates(document: Document): EditResult |
 | `setTaskGroupTreeState` | file only | function | `src/use-case/edit-document/task-group-folding.ts#setTaskGroupTreeState` | -- | function setTaskGroupTreeState( document: Document, command: TaskGroupCommandOf<'setTaskGroupTreeState'>, byId: ReadonlyMap<string, TaskGroup>, ): EditResult |
-| `TreeStateEffectName` | file only | type | `src/use-case/edit-document/task-group-folding.ts#TreeStateEffectName` | -- | type TreeStateEffectName = \| 'writeLevelZeroCollapsed' \| 'writeLevelZeroAuto' export interface TreeStateTransition |
+| `TreeStateEffectName` | file only | type | `src/use-case/edit-document/task-group-folding.ts#TreeStateEffectName` | -- | type TreeStateEffectName = \| 'writeLevelZeroCollapsed' \| 'writeLevelZeroAuto' export type TreeStateGuardName = \| 'isBelowPressedTaskGroup' \| 'isChildOfPresse... |
 | `TreeStateEventCarried` | file only | interface | `src/use-case/edit-document/task-group-folding.ts#TreeStateEventCarried` | -- | interface TreeStateEventCarried |
+| `TreeStateGuardName` | file only | type | `src/use-case/edit-document/task-group-folding.ts#TreeStateGuardName` | -- | type TreeStateGuardName = \| 'isBelowPressedTaskGroup' \| 'isChildOfPressedTaskGroup' \| 'isLeafTaskGroup' \| 'isLevelZeroCollapsed' \| 'isPressedTaskGroup' \| 'is... |
 | `TreeStateKey` | file only | type | `src/use-case/edit-document/task-group-folding.ts#TreeStateKey` | -- | type TreeStateKey = \| 'taskGroupTree' \| 'treeStateMachine.auto' \| 'treeStateMachine.collapsed' \| 'treeStateMachine.expanded' \| 'treeStateMachine.temporarilyE... |
 | `TreeStateTransition` | file only | interface | `src/use-case/edit-document/task-group-folding.ts#TreeStateTransition` | -- | interface TreeStateTransition |
 | `resetTaskGroupColor` | file only | function | `src/use-case/edit-document/task-group-look.ts#resetTaskGroupColor` | -- | function resetTaskGroupColor( document: Document, command: TaskGroupCommandOf<'resetTaskGroupColor'>, byId: ReadonlyMap<string, TaskGroup>, ): EditResult |
@@ -769,7 +771,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | --- | --- | --- | --- | --- | --- |
 | `acted` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#acted` | -- | function acted(action: InputAction): TranslatedInput |
 | `ActualEndHold` | entry | type | `src/adapter/input-command-translator/input-command-translator.ts#ActualEndHold` | -- | type ActualEndHold = 'GA-3' \| 'GA-4' \| 'GA-12' \| 'GA-13' \| 'GA-16' |
-| `Armed` | entry | type | `src/adapter/input-command-translator/input-command-translator.ts#Armed` | -- | type Armed = Exclude<ScreenValues['armModeState'], { readonly kind: 'notArmed' }> |
+| `Armed` | entry | type | `src/adapter/input-command-translator/input-command-translator.ts#Armed` | -- | type Armed = ArmModeArmedState |
 | `armedByEntry` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#armedByEntry` | -- | function armedByEntry(entry: string): Armed \| null |
 | `boxById` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#boxById` | -- | function boxById<Box extends { readonly id: string }>(boxes: readonly Box[], id: string): Box \| undefined |
 | `changed` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#changed` | -- | function changed(commands: readonly DocumentCommand[]): TranslatedInput |
@@ -837,7 +839,6 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `PointerPress` | entry | interface | `src/adapter/input-command-translator/input-command-translator.ts#PointerPress` | -- | interface PointerPress |
 | `pressedRowOf` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#pressedRowOf` | PI-18 | 押下がどの行で始まったかを答える。 |
 | `PressRow` | entry | type | `src/adapter/input-command-translator/input-command-translator.ts#PressRow` | PI-18 | 型。 |
-| `releasedSnapOf` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#releasedSnapOf` | -- | function releasedSnapOf(context: InputContext, release: PointerInput): number |
 | `rememberedActualIn` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#rememberedActualIn` | -- | function rememberedActualIn(context: InputContext, taskUid: number): RememberedActual \| null |
 | `screenEventFromFieldCommit` | entry | function | `src/adapter/input-command-translator/screen-state-input.ts#screenEventFromFieldCommit` | PI-18 | 確定した欄のうち、画面の値の下書き（表 T-280 の `baseTimeZoneDraftStateMachine`・`timeShiftDraftStateMachine`・`calendarDraftStateMachine`）へ行くものの出来事 —— `FO-14`・`FO-16`・表 T-344 の `...` |
 | `screenEventFromInput` | entry | function | `src/adapter/input-command-translator/screen-state-input.ts#screenEventFromInput` | PI-18 | 入力から画面の値の出来事を 1 つ作る。 |
@@ -848,6 +849,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `scrollingTaskGroupsOf` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#scrollingTaskGroupsOf` | -- | function scrollingTaskGroupsOf(layout: ScheduleLayout): readonly TaskGroupPlacement[] |
 | `selectionFromInput` | entry | function | `src/adapter/input-command-translator/selection-input.ts#selectionFromInput` | PI-18 | 規則は 表 T-023c。 |
 | `serialOfDay` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#serialOfDay` | -- | function serialOfDay(day: CalendarDay): number |
+| `snapMinutesOfView` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#snapMinutesOfView` | -- | function snapMinutesOfView(context: InputContext): number |
 | `SpentEntranceSituation` | entry | type | `src/adapter/input-command-translator/input-command-translator.ts#SpentEntranceSituation` | PI-18 | 型。 |
 | `taskGroupAtY` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#taskGroupAtY` | -- | function taskGroupAtY(layout: ScheduleLayout, y: number): TaskGroupPlacement \| null |
 | `taskGroupBandCeilingOf` | entry | function | `src/adapter/input-command-translator/zoom-and-fit.ts#taskGroupBandCeilingOf` | PI-18 | `FR-016` の縦軸の上限のうち、いちばん高いタスクグループの帯の高さが初めて `Task Group Area` の高さ以上になった倍率を、表 T-253 の手順で探した答え。 |
@@ -1324,6 +1326,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `ReadableFile` | entry | interface | `src/framework/file-system-access-file-store/file-system-access-file-store.ts#ReadableFile` | -- | interface ReadableFile |
 | `SaveFilePicker` | entry | type | `src/framework/file-system-access-file-store/file-system-access-file-store.ts#SaveFilePicker` | -- | type SaveFilePicker = (options: ChooserPlace & |
 | `SaveFileType` | entry | interface | `src/framework/file-system-access-file-store/file-system-access-file-store.ts#SaveFileType` | -- | interface SaveFileType |
+| `StartDownload` | entry | type | `src/framework/file-system-access-file-store/file-system-access-file-store.ts#StartDownload` | -- | type StartDownload = (fileName: string, bytes: Uint8Array, mediaType: string) => void |
 | `WritableFileStream` | entry | interface | `src/framework/file-system-access-file-store/file-system-access-file-store.ts#WritableFileStream` | -- | interface WritableFileStream |
 
 ## BrowserClipboard (PI-30, `src/framework/browser-clipboard/browser-clipboard.ts`)
@@ -1469,6 +1472,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `horizontalWholeOf` | entry | function | `src/adapter/screen-renderer/screen-frame.ts#horizontalWholeOf` | PI-37 | function horizontalWholeOf(layout: ScheduleLayout, regions: ScreenRegions): HorizontalWhole |
 | `IconId` | entry | type | `src/adapter/screen-renderer/screen-renderer.ts#IconId` | -- | type IconId = string |
 | `imageToJsonPromptText` | entry | function | `src/adapter/screen-renderer/app-header-items.ts#imageToJsonPromptText` | PI-37 | `IC-115` がコピーする、画像から `GRS JSON` を作るプロンプトの全文を、画面の言語と版で組む。 |
+| `imageToJsonSchemaFile` | entry | function | `src/adapter/screen-renderer/app-header-items.ts#imageToJsonSchemaFile` | PI-37 | `IC-115` の同じ押下でダウンロードに渡す、`GRS JSON` のスキーマのファイル（表 T-024 の `IO-10`）の名と中身を返す。 |
 | `ImportReportLine` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#ImportReportLine` | -- | interface ImportReportLine |
 | `isFilterValueListed` | entry | function | `src/adapter/screen-renderer/table-window.ts#isFilterValueListed` | PI-37 | 列のフィルタの中の検索欄の語が、その項目の語に当たるか（`FR-151` の 表 T-330 の `SV-7`、比べ方は `SV-4`）。 |
 | `isScheduleColorRow` | entry | function | `src/adapter/svg-renderer/svg-renderer.ts#isScheduleColorRow` | PI-37 | `SvgRenderer` の `isScheduleColorRow` を、`DomScreenSurface` へ渡すためにコピーせずに公開し直したもの。 |
@@ -1801,6 +1805,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `replaceKeepingListScroll` | file only | function | `src/framework/dom-screen-surface/holiday-settings-drawing.ts#replaceKeepingListScroll` | -- | function replaceKeepingListScroll(layer: Element, drawn: readonly HTMLElement[]): void |
 | `confirmationAnswerElement` | file only | function | `src/framework/dom-screen-surface/notices-drawing.ts#confirmationAnswerElement` | -- | function confirmationAnswerElement( host: Document, answer: Confirmation['answers'][number], ): HTMLElement |
 | `confirmationElement` | file only | function | `src/framework/dom-screen-surface/notices-drawing.ts#confirmationElement` | -- | function confirmationElement(host: Document, confirmation: Confirmation): HTMLElement |
+| `keepFromInput` | file only | function | `src/framework/dom-screen-surface/notices-drawing.ts#keepFromInput` | -- | function keepFromInput(element: HTMLElement): void |
 | `LINK_RELATION` | file only | const | `src/framework/dom-screen-surface/notices-drawing.ts#LINK_RELATION` | -- | const LINK_RELATION = 'noopener noreferrer' |
 | `LINK_TARGET` | file only | const | `src/framework/dom-screen-surface/notices-drawing.ts#LINK_TARGET` | -- | const LINK_TARGET = '_blank' |
 | `linkElement` | file only | function | `src/framework/dom-screen-surface/notices-drawing.ts#linkElement` | -- | function linkElement( host: Document, address: string, words: string = address, |
@@ -1884,7 +1889,9 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | name | reach | kind | declared in | T-064 | what it is for / its declaration |
 | --- | --- | --- | --- | --- | --- |
 | `advanceScreenSession` | entry | function | `src/use-case/advance-screen-session/advance-screen-session.ts#advanceScreenSession` | PI-39 | 1 段進める。 |
+| `armedOf` | entry | function | `src/use-case/advance-screen-session/screen-values.ts#armedOf` | PI-39 | 構えている子（`armModeStateMachine.armed` の子）、構えていなければ `null`。 |
 | `ArmKind` | entry | type | `src/use-case/advance-screen-session/screen-values.ts#ArmKind` | PI-39 | 型。 |
+| `ArmModeArmedState` | entry | type | `src/use-case/advance-screen-session/screen-values.ts#ArmModeArmedState` | PI-39 | 型。 |
 | `BaseChangeWay` | entry | type | `src/use-case/advance-screen-session/screen-values.ts#BaseChangeWay` | -- | type BaseChangeWay = 'keepGlobalTime' \| 'keepLocalTime' |
 | `calendarCommandOf` | entry | function | `src/use-case/advance-screen-session/calendar-draft.ts#calendarCommandOf` | PI-39 | 下書きから 表 T-108 の `CM-39` を組む —— 文書と同じ部分は入れず、文書と同じ下書きは何も書かない（`WC-7`） |
 | `CalendarDraft` | entry | interface | `src/use-case/advance-screen-session/calendar-draft.ts#CalendarDraft` | PI-39 | 型。 |
@@ -1949,9 +1956,10 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `AgentApiValues` | file only | interface | `src/use-case/advance-screen-session/agent-api-values.ts#AgentApiValues` | -- | interface AgentApiValues |
 | `AgentApiValuesAxes` | file only | type | `src/use-case/advance-screen-session/agent-api-values.ts#AgentApiValuesAxes` | -- | type AgentApiValuesAxes = Omit<AgentApiValues, never> |
 | `AgentApiValuesEffect` | file only | type | `src/use-case/advance-screen-session/agent-api-values.ts#AgentApiValuesEffect` | -- | type AgentApiValuesEffect = \| { readonly type: Exclude<AgentApiValuesEffectName, 'raiseNotice'> } \| { readonly type: 'raiseNotice'; readonly reason: 'RS-20' ... |
-| `AgentApiValuesEffectName` | file only | type | `src/use-case/advance-screen-session/agent-api-values.ts#AgentApiValuesEffectName` | -- | type AgentApiValuesEffectName = \| 'storeAgentApiEnabling' \| 'raiseNotice' const AGENT_API_VALUES_INITIAL_AXES: AgentApiValuesAxes = |
+| `AgentApiValuesEffectName` | file only | type | `src/use-case/advance-screen-session/agent-api-values.ts#AgentApiValuesEffectName` | -- | type AgentApiValuesEffectName = \| 'storeAgentApiEnabling' \| 'raiseNotice' export type AgentApiValuesGuardName = \| 'isRememberedEnabled' const AGENT_API_VALUE... |
 | `AgentApiValuesEvent` | file only | type | `src/use-case/advance-screen-session/agent-api-values.ts#AgentApiValuesEvent` | -- | type AgentApiValuesEvent = \| { readonly type: 'agentApiEntryPressed' } \| { readonly type: 'rememberedEnablingLoaded'; readonly isRememberedEnabled: AgentApiV... |
 | `AgentApiValuesEventCarried` | file only | interface | `src/use-case/advance-screen-session/agent-api-values.ts#AgentApiValuesEventCarried` | -- | interface AgentApiValuesEventCarried |
+| `AgentApiValuesGuardName` | file only | type | `src/use-case/advance-screen-session/agent-api-values.ts#AgentApiValuesGuardName` | -- | type AgentApiValuesGuardName = \| 'isRememberedEnabled' const AGENT_API_VALUES_INITIAL_AXES: AgentApiValuesAxes = |
 | `AgentApiValuesKey` | file only | type | `src/use-case/advance-screen-session/agent-api-values.ts#AgentApiValuesKey` | -- | type AgentApiValuesKey = \| 'agentApi' \| 'agentApiEnablingStateMachine.disabled' \| 'agentApiEnablingStateMachine.enabled' export type AgentApiEnablingState = ... |
 | `emptyAgentApiValues` | file only | const | `src/use-case/advance-screen-session/agent-api-values.ts#emptyAgentApiValues` | -- | const emptyAgentApiValues: AgentApiValues = { ...AGENT_API_VALUES_INITIAL_AXES } |
 | `stepAgentApiValues` | file only | function | `src/use-case/advance-screen-session/agent-api-values.ts#stepAgentApiValues` | -- | function stepAgentApiValues(values: AgentApiValues, event: AgentApiValuesEvent): AgentApiStep |
@@ -1965,9 +1973,10 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `FieldEntryValues` | file only | interface | `src/use-case/advance-screen-session/field-entry-values.ts#FieldEntryValues` | -- | interface FieldEntryValues |
 | `FieldEntryValuesAxes` | file only | type | `src/use-case/advance-screen-session/field-entry-values.ts#FieldEntryValuesAxes` | -- | type FieldEntryValuesAxes = Omit<FieldEntryValues, never> |
 | `FieldEntryValuesEffect` | file only | type | `src/use-case/advance-screen-session/field-entry-values.ts#FieldEntryValuesEffect` | -- | type FieldEntryValuesEffect = |
-| `FieldEntryValuesEffectName` | file only | type | `src/use-case/advance-screen-session/field-entry-values.ts#FieldEntryValuesEffectName` | -- | type FieldEntryValuesEffectName = \| 'bringCreatedTaskGroupIntoSight' const FIELD_ENTRY_VALUES_INITIAL_AXES: FieldEntryValuesAxes = |
+| `FieldEntryValuesEffectName` | file only | type | `src/use-case/advance-screen-session/field-entry-values.ts#FieldEntryValuesEffectName` | -- | type FieldEntryValuesEffectName = \| 'bringCreatedTaskGroupIntoSight' export type FieldEntryValuesGuardName = \| 'isCreatedTask' \| 'isEditedField' \| 'isNameFie... |
 | `FieldEntryValuesEvent` | file only | type | `src/use-case/advance-screen-session/field-entry-values.ts#FieldEntryValuesEvent` | -- | type FieldEntryValuesEvent = \| { readonly type: 'fieldFocusAsked'; readonly fieldRow: FieldEntryValuesEventCarried['fieldRow'] } \| { readonly type: 'creation... |
 | `FieldEntryValuesEventCarried` | file only | interface | `src/use-case/advance-screen-session/field-entry-values.ts#FieldEntryValuesEventCarried` | -- | interface FieldEntryValuesEventCarried |
+| `FieldEntryValuesGuardName` | file only | type | `src/use-case/advance-screen-session/field-entry-values.ts#FieldEntryValuesGuardName` | -- | type FieldEntryValuesGuardName = \| 'isCreatedTask' \| 'isEditedField' \| 'isNameField' const FIELD_ENTRY_VALUES_INITIAL_AXES: FieldEntryValuesAxes = |
 | `FieldEntryValuesKey` | file only | type | `src/use-case/advance-screen-session/field-entry-values.ts#FieldEntryValuesKey` | -- | type FieldEntryValuesKey = \| 'fieldEntry' \| 'createdTaskNamingStateMachine.idle' \| 'createdTaskNamingStateMachine.namingCreatedTask' \| 'createdTaskNamingStat... |
 | `FieldEntryValuesStateCarried` | file only | interface | `src/use-case/advance-screen-session/field-entry-values.ts#FieldEntryValuesStateCarried` | -- | interface FieldEntryValuesStateCarried |
 | `stepFieldEntryValues` | file only | function | `src/use-case/advance-screen-session/field-entry-values.ts#stepFieldEntryValues` | -- | function stepFieldEntryValues(values: FieldEntryValues, event: FieldEntryValuesEvent): FieldEntryStep |
@@ -1985,6 +1994,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `FileFlowValuesEffectName` | file only | type | `src/use-case/advance-screen-session/file-flow-values.ts#FileFlowValuesEffectName` | -- | type FileFlowValuesEffectName = \| 'raiseFlowSurface' \| 'readDocumentFile' \| 'raiseNotice' \| 'writeDocumentFile' \| 'importIncomingDocument' \| 'discardIncoming... |
 | `FileFlowValuesEvent` | file only | type | `src/use-case/advance-screen-session/file-flow-values.ts#FileFlowValuesEvent` | -- | type FileFlowValuesEvent = \| { readonly type: 'documentOpenAsked'; readonly openRoute: FileFlowValuesEventCarried['openRoute'] } \| { readonly type: 'agentDoc... |
 | `FileFlowValuesEventCarried` | file only | interface | `src/use-case/advance-screen-session/file-flow-values.ts#FileFlowValuesEventCarried` | -- | interface FileFlowValuesEventCarried |
+| `FileFlowValuesGuardName` | file only | type | `src/use-case/advance-screen-session/file-flow-values.ts#FileFlowValuesGuardName` | -- | type FileFlowValuesGuardName = \| 'hasAnythingToReport' \| 'isBackToSavedDocument' \| 'isBaselineRoute' \| 'isDifferenceReviewSurface' \| 'isFileOperationQuestion... |
 | `FileFlowValuesKey` | file only | type | `src/use-case/advance-screen-session/file-flow-values.ts#FileFlowValuesKey` | -- | type FileFlowValuesKey = \| 'fileFlow' \| 'fileOperationStateMachine.idle' \| 'fileOperationStateMachine.readingDocumentFile' \| 'fileOperationStateMachine.await... |
 | `FileFlowValuesStateCarried` | file only | interface | `src/use-case/advance-screen-session/file-flow-values.ts#FileFlowValuesStateCarried` | -- | interface FileFlowValuesStateCarried |
 | `stepFileFlowValues` | file only | function | `src/use-case/advance-screen-session/file-flow-values.ts#stepFileFlowValues` | -- | function stepFileFlowValues(values: FileFlowValues, event: FileFlowValuesEvent): FileFlowStep |
@@ -1994,14 +2004,16 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `GestureValues` | file only | interface | `src/use-case/advance-screen-session/gesture-values.ts#GestureValues` | -- | interface GestureValues |
 | `GestureValuesAxes` | file only | type | `src/use-case/advance-screen-session/gesture-values.ts#GestureValuesAxes` | -- | type GestureValuesAxes = Omit<GestureValues, never> |
 | `GestureValuesEffect` | file only | type | `src/use-case/advance-screen-session/gesture-values.ts#GestureValuesEffect` | -- | type GestureValuesEffect = { readonly type: GestureValuesEffectName } |
-| `GestureValuesEffectName` | file only | type | `src/use-case/advance-screen-session/gesture-values.ts#GestureValuesEffectName` | -- | type GestureValuesEffectName = \| 'startEntryRepeat' \| 'restorePaletteCorner' \| 'repeatHeldEntry' const GESTURE_VALUES_INITIAL_AXES: GestureValuesAxes = |
+| `GestureValuesEffectName` | file only | type | `src/use-case/advance-screen-session/gesture-values.ts#GestureValuesEffectName` | -- | type GestureValuesEffectName = \| 'startEntryRepeat' \| 'restorePaletteCorner' \| 'repeatHeldEntry' export type GestureValuesGuardName = \| 'isDocumentChangingPr... |
 | `GestureValuesEvent` | file only | type | `src/use-case/advance-screen-session/gesture-values.ts#GestureValuesEvent` | -- | type GestureValuesEvent = \| { readonly type: 'pointerPressed'; readonly pressRow: GestureValuesEventCarried['pressRow']; readonly pressedOn: GestureValuesEve... |
 | `GestureValuesEventCarried` | file only | interface | `src/use-case/advance-screen-session/gesture-values.ts#GestureValuesEventCarried` | -- | interface GestureValuesEventCarried |
+| `GestureValuesGuardName` | file only | type | `src/use-case/advance-screen-session/gesture-values.ts#GestureValuesGuardName` | -- | type GestureValuesGuardName = \| 'isDocumentChangingPress' \| 'isHeldOnRepeatingEntry' \| 'isOnPaletteBand' \| 'isOnRepeatingEntry' \| 'isTaskGroupGrabStrip' cons... |
 | `GestureValuesKey` | file only | type | `src/use-case/advance-screen-session/gesture-values.ts#GestureValuesKey` | -- | type GestureValuesKey = \| 'gesture' \| 'pointerPressStateMachine.notPressed' \| 'pointerPressStateMachine.changingDocument' \| 'pointerPressStateMachine.viewing... |
 | `GestureValuesStateCarried` | file only | interface | `src/use-case/advance-screen-session/gesture-values.ts#GestureValuesStateCarried` | -- | interface GestureValuesStateCarried |
 | `PointerPressState` | file only | type | `src/use-case/advance-screen-session/gesture-values.ts#PointerPressState` | -- | type PointerPressState = \| { readonly kind: 'notPressed' } \| { readonly kind: 'changingDocument'; readonly pressRow: GestureValuesStateCarried['pressRow']; r... |
 | `stepGestureValues` | file only | function | `src/use-case/advance-screen-session/gesture-values.ts#stepGestureValues` | -- | function stepGestureValues(values: GestureValues, event: GestureValuesEvent): GestureStep |
-| `TaskGroupGrabState` | file only | type | `src/use-case/advance-screen-session/gesture-values.ts#TaskGroupGrabState` | -- | type TaskGroupGrabState = \| { readonly kind: 'notGrabbed' } \| { readonly kind: 'grabPressed' } \| { readonly kind: 'carrying' } export interface GestureValues |
+| `TaskGroupGrabGrabbedState` | file only | type | `src/use-case/advance-screen-session/gesture-values.ts#TaskGroupGrabGrabbedState` | -- | type TaskGroupGrabGrabbedState = \| { readonly kind: 'grabPressed' } \| { readonly kind: 'carrying' } export type PointerPressState = \| { readonly kind: 'notPr... |
+| `TaskGroupGrabState` | file only | type | `src/use-case/advance-screen-session/gesture-values.ts#TaskGroupGrabState` | -- | type TaskGroupGrabState = \| { readonly kind: 'notGrabbed' } \| { readonly kind: 'grabbed'; readonly child: TaskGroupGrabGrabbedState } export interface Gestur... |
 | `emptyInteractionRecordValues` | file only | const | `src/use-case/advance-screen-session/interaction-record-values.ts#emptyInteractionRecordValues` | -- | const emptyInteractionRecordValues: InteractionRecordValues = { ...INTERACTION_RECORD_VALUES_INITIAL_AXES } |
 | `InteractionRecordingState` | file only | type | `src/use-case/advance-screen-session/interaction-record-values.ts#InteractionRecordingState` | -- | type InteractionRecordingState = \| { readonly kind: 'notRecording' } \| { readonly kind: 'recordingInteractions' } export interface InteractionRecordValues |
 | `InteractionRecordValues` | file only | interface | `src/use-case/advance-screen-session/interaction-record-values.ts#InteractionRecordValues` | -- | interface InteractionRecordValues |
@@ -2019,16 +2031,17 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `NoticeValues` | file only | interface | `src/use-case/advance-screen-session/notice-values.ts#NoticeValues` | -- | interface NoticeValues |
 | `NoticeValuesAxes` | file only | type | `src/use-case/advance-screen-session/notice-values.ts#NoticeValuesAxes` | -- | type NoticeValuesAxes = Omit<NoticeValues, never> |
 | `NoticeValuesEffect` | file only | type | `src/use-case/advance-screen-session/notice-values.ts#NoticeValuesEffect` | -- | type NoticeValuesEffect = |
-| `NoticeValuesEffectName` | file only | type | `src/use-case/advance-screen-session/notice-values.ts#NoticeValuesEffectName` | -- | type NoticeValuesEffectName = \| 'raiseNotice' const NOTICE_VALUES_INITIAL_AXES: NoticeValuesAxes = |
+| `NoticeValuesEffectName` | file only | type | `src/use-case/advance-screen-session/notice-values.ts#NoticeValuesEffectName` | -- | type NoticeValuesEffectName = \| 'raiseNotice' export type NoticeValuesGuardName = \| 'hasSilentWatcher' \| 'isHiddenReason' \| 'isLeavingNone' \| 'isLeavingSome'... |
 | `NoticeValuesEvent` | file only | type | `src/use-case/advance-screen-session/notice-values.ts#NoticeValuesEvent` | -- | type NoticeValuesEvent = \| { readonly type: 'noticeRaised'; readonly reason: NoticeValuesEventCarried['reason']; readonly affectedCount: NoticeValuesEventCar... |
 | `NoticeValuesEventCarried` | file only | interface | `src/use-case/advance-screen-session/notice-values.ts#NoticeValuesEventCarried` | -- | interface NoticeValuesEventCarried |
+| `NoticeValuesGuardName` | file only | type | `src/use-case/advance-screen-session/notice-values.ts#NoticeValuesGuardName` | -- | type NoticeValuesGuardName = \| 'hasSilentWatcher' \| 'isHiddenReason' \| 'isLeavingNone' \| 'isLeavingSome' \| 'isOnlyOneStanding' \| 'isSameReasonStanding' \| 'is... |
 | `NoticeValuesKey` | file only | type | `src/use-case/advance-screen-session/notice-values.ts#NoticeValuesKey` | -- | type NoticeValuesKey = \| 'notices' \| 'noticeDisplayStateMachine.hidden' \| 'noticeDisplayStateMachine.shown' \| 'changeDeliveryStateMachine.idle' \| 'changeDeli... |
 | `NoticeValuesStateCarried` | file only | interface | `src/use-case/advance-screen-session/notice-values.ts#NoticeValuesStateCarried` | -- | interface NoticeValuesStateCarried |
 | `QUESTION_DISPLAY_OF_ROW` | file only | const | `src/use-case/advance-screen-session/notice-values.ts#QUESTION_DISPLAY_OF_ROW` | -- | const QUESTION_DISPLAY_OF_ROW: Readonly<Record<QuestionRow, 'ask' \| 'askOnlyWithUnsavedEdits'>> = |
 | `QuestionRow` | file only | type | `src/use-case/advance-screen-session/notice-values.ts#QuestionRow` | -- | type QuestionRow = \| 'QN-1' \| 'QN-2' \| 'QN-3' \| 'QN-4' \| 'QN-5' \| 'QN-9' \| 'QN-10' \| 'QN-11' \| 'QN-12' \| 'QN-14' \| 'QN-15' |
 | `ReasonRow` | file only | type | `src/use-case/advance-screen-session/notice-values.ts#ReasonRow` | -- | type ReasonRow = \| 'RS-1' \| 'RS-2' \| 'RS-3' \| 'RS-4' \| 'RS-5' \| 'RS-6' \| 'RS-7' \| 'RS-8' \| 'RS-9' \| 'RS-10' \| 'RS-11' |
 | `stepNoticeValues` | file only | function | `src/use-case/advance-screen-session/notice-values.ts#stepNoticeValues` | -- | function stepNoticeValues(values: NoticeValues, event: NoticeValuesEvent): NoticeStep |
-| `ArmModeState` | file only | type | `src/use-case/advance-screen-session/screen-values.ts#ArmModeState` | -- | type ArmModeState = \| { readonly kind: 'notArmed' } \| { readonly kind: 'taskShapeArmed'; readonly shapeKind: ScreenValuesStateCarried['shapeKind'] } \| { read... |
+| `ArmModeState` | file only | type | `src/use-case/advance-screen-session/screen-values.ts#ArmModeState` | -- | type ArmModeState = \| { readonly kind: 'notArmed' } \| { readonly kind: 'armed'; readonly child: ArmModeArmedState } export type PaletteDisplayState = \| { rea... |
 | `BaseTimeZoneDraftState` | file only | type | `src/use-case/advance-screen-session/screen-values.ts#BaseTimeZoneDraftState` | -- | type BaseTimeZoneDraftState = \| { readonly kind: 'untouched' } \| { readonly kind: 'drafted'; readonly chosenRegion: ScreenValuesStateCarried['chosenRegion'] ... |
 | `CalendarDraftState` | file only | type | `src/use-case/advance-screen-session/screen-values.ts#CalendarDraftState` | -- | type CalendarDraftState = \| { readonly kind: 'untouched' } \| { readonly kind: 'drafted'; readonly calendarDraft: ScreenValuesStateCarried['calendarDraft'] } ... |
 | `DropCueDisplayState` | file only | type | `src/use-case/advance-screen-session/screen-values.ts#DropCueDisplayState` | -- | type DropCueDisplayState = \| { readonly kind: 'hidden' } \| { readonly kind: 'shown' } export type BaseTimeZoneDraftState = \| { readonly kind: 'untouched' } \|... |
@@ -2049,7 +2062,8 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `ScreenValuesEffect` | file only | type | `src/use-case/advance-screen-session/screen-values.ts#ScreenValuesEffect` | -- | type ScreenValuesEffect = |
 | `ScreenValuesEffectName` | file only | type | `src/use-case/advance-screen-session/screen-values.ts#ScreenValuesEffectName` | -- | type ScreenValuesEffectName = \| 'storeScreenLanguage' \| 'writeHelpLanguage' \| 'writeProgressStep' \| 'storeThemePreference' \| 'storeGuideCursorMode' \| 'storeP... |
 | `ScreenValuesEventCarried` | file only | interface | `src/use-case/advance-screen-session/screen-values.ts#ScreenValuesEventCarried` | -- | interface ScreenValuesEventCarried |
-| `ScreenValuesKey` | file only | type | `src/use-case/advance-screen-session/screen-values.ts#ScreenValuesKey` | -- | type ScreenValuesKey = \| 'screen' \| 'armModeStateMachine.notArmed' \| 'armModeStateMachine.taskShapeArmed' \| 'armModeStateMachine.milestoneShapeArmed' \| 'armM... |
+| `ScreenValuesGuardName` | file only | type | `src/use-case/advance-screen-session/screen-values.ts#ScreenValuesGuardName` | -- | type ScreenValuesGuardName = \| 'hasCalendarDraftRefusal' \| 'hasChoice' \| 'hasDaysToPlace' \| 'hasSurfaceOrConfirmation' \| 'hasUnsettledEntry' \| 'isAnotherSurf... |
+| `ScreenValuesKey` | file only | type | `src/use-case/advance-screen-session/screen-values.ts#ScreenValuesKey` | -- | type ScreenValuesKey = \| 'screen' \| 'armModeStateMachine.notArmed' \| 'armModeStateMachine.armed' \| 'armModeStateMachine.armed.taskShapeArmed' \| 'armModeState... |
 | `ScreenValuesStateCarried` | file only | interface | `src/use-case/advance-screen-session/screen-values.ts#ScreenValuesStateCarried` | -- | interface ScreenValuesStateCarried |
 | `SearchFilters` | file only | interface | `src/use-case/advance-screen-session/screen-values.ts#SearchFilters` | -- | interface SearchFilters |
 | `SearchPanelDisplayShownState` | file only | type | `src/use-case/advance-screen-session/screen-values.ts#SearchPanelDisplayShownState` | -- | type SearchPanelDisplayShownState = \| { readonly kind: 'normal' } \| { readonly kind: 'minimized' } \| { readonly kind: 'maximized' } export type HelpDisplaySh... |
@@ -2071,6 +2085,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `SelectionValuesEffectName` | file only | type | `src/use-case/advance-screen-session/selection-values.ts#SelectionValuesEffectName` | -- | type SelectionValuesEffectName = never |
 | `SelectionValuesEvent` | file only | type | `src/use-case/advance-screen-session/selection-values.ts#SelectionValuesEvent` | -- | type SelectionValuesEvent = \| { readonly type: 'objectsPicked'; readonly pickedObjects: SelectionValuesEventCarried['pickedObjects'] } \| { readonly type: 'em... |
 | `SelectionValuesEventCarried` | file only | interface | `src/use-case/advance-screen-session/selection-values.ts#SelectionValuesEventCarried` | -- | interface SelectionValuesEventCarried |
+| `SelectionValuesGuardName` | file only | type | `src/use-case/advance-screen-session/selection-values.ts#SelectionValuesGuardName` | -- | type SelectionValuesGuardName = \| 'hasPickedObjects' \| 'hasRemainingObjects' \| 'isRungSelection' const SELECTION_VALUES_INITIAL_AXES: SelectionValuesAxes = |
 | `SelectionValuesKey` | file only | type | `src/use-case/advance-screen-session/selection-values.ts#SelectionValuesKey` | -- | type SelectionValuesKey = \| 'selection' \| 'selectionStateMachine.nothingSelected' \| 'selectionStateMachine.objectsSelected' export type SelectionState = \| { ... |
 | `SelectionValuesStateCarried` | file only | interface | `src/use-case/advance-screen-session/selection-values.ts#SelectionValuesStateCarried` | -- | interface SelectionValuesStateCarried |
 | `stepSelectionValues` | file only | function | `src/use-case/advance-screen-session/selection-values.ts#stepSelectionValues` | -- | function stepSelectionValues(values: SelectionValues, event: SelectionValuesEvent): SelectionStep |
@@ -2102,4 +2117,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 1072 name(s) leave through a public entry (528 of them published by table T-064), 830 more are exported by a file and not by its entry.
+Totals: 1078 name(s) leave through a public entry (533 of them published by table T-064), 839 more are exported by a file and not by its entry.

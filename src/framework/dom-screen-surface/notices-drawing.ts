@@ -30,6 +30,15 @@ const LINK_KEPT_FROM_INPUT: readonly string[] = ['pointerdown', 'pointerup']
 
 const LINK_OPENING_KEY = 'Enter'
 
+// WHY: a press kept from the input source is never captured to the root, so the browser's own click acts (FR-069).
+/** @purity non-pure */
+export function keepFromInput(element: HTMLElement): void {
+  for (const type of LINK_KEPT_FROM_INPUT) element.addEventListener(type, (event) => event.stopPropagation())
+  element.addEventListener('keydown', (event) => {
+    if ((event as KeyboardEvent).key === LINK_OPENING_KEY) event.stopPropagation()
+  })
+}
+
 // see FR-073, FR-069, CN-6
 // WHY: the help passes its own look (FR-036, S-503); the header branding and the notices keep STYLE.noticeLink.
 /** @purity non-pure */
@@ -44,10 +53,7 @@ export function linkElement(
   link.setAttribute('target', LINK_TARGET)
   link.setAttribute('rel', LINK_RELATION)
   link.textContent = words
-  for (const type of LINK_KEPT_FROM_INPUT) link.addEventListener(type, (event) => event.stopPropagation())
-  link.addEventListener('keydown', (event) => {
-    if ((event as KeyboardEvent).key === LINK_OPENING_KEY) event.stopPropagation()
-  })
+  keepFromInput(link)
   return link
 }
 

@@ -24,6 +24,14 @@ a machine's name without `StateMachine`, in PascalCase (JDG-286, R4.4):
                             carried values typed through <Stem>EventCarried
   <Stem>EffectName          every effect name the tables use (`never` when
                             they use none)
+  <Stem>GuardName           every guard name of the region's guard list (not
+                            printed for a region that has none)
+  <STEM>_GUARDS             one judgment per guard, compiled from its
+                            condition (CR-767 wave 3,
+                            tools/state_machine_guard_judgments.py); the
+                            transition functions call the guards through it.
+                            For a documentData region every judgment takes
+                            the one hand-written <Stem>GuardInput (below)
   <Stem>Transition          the row shape of the table below: one branch of
                             one cell (state x event); printed only with it
   <STEM>_INITIAL_CHILDREN   the kind entered below a composite state (not
@@ -45,12 +53,16 @@ A region that holds documentData (SD-5 of table T-250 -- the task group tree, wh
 unit is src/use-case/edit-document/task-group-folding.ts) is a SAVED value of
 the document, so it gets no state unions, no root type and no initial values:
 its state type is the erd.json enum column the region names. Only <Stem>Key,
-<Stem>Event, <Stem>EffectName, <Stem>Transition and <STEM>_TRANSITIONS are
-printed for it (table T-328).
+<Stem>Event, <Stem>EffectName, <Stem>GuardName, <STEM>_GUARDS, <Stem>Transition
+and <STEM>_TRANSITIONS are printed for it (table T-328). Its judgments decide
+one task group at a time, and the transition function looks a cell's guard up
+by name, so each takes the unit's <Stem>GuardInput (the task group, null in a
+root cell; the values the event carries; the named functions).
 
 Everything else in the unit -- the carried-value types, the transition
-functions, the guards and the effect payloads -- is hand written (table T-250,
-SD-3), and a contract test holds the functions against the manuscript.
+functions, the named functions a condition calls (`guardLanguage`, under the
+same names) and the effect payloads -- is hand written (table T-250, SD-3), and
+a contract test holds the functions against the manuscript.
 
 A file without the two markers is refused, never created: the hand-written
 half of the unit is not this script's to write.
@@ -58,6 +70,10 @@ half of the unit is not this script's to write.
 Usage:
     python tools/generate_state_machine_types.py           write the regions
     python tools/generate_state_machine_types.py --check   exit 1 when one differs
+    python tools/generate_state_machine_types.py --units   print the units it writes, one
+                                                           path a line (checks 60 and 69 read
+                                                           it, .claude/skills/spec-graph-check/
+                                                           generated_fences.py)
 Run with PYTHONIOENCODING=utf-8.
 """
 import io
@@ -72,6 +88,8 @@ SOURCE_DIR = os.path.join(ROOT, 'docs', 'spec', '_source')
 sys.dont_write_bytecode = True
 sys.path.insert(0, SOURCE_DIR)
 import state_machines_json_to_md as manuscript  # noqa: E402
+sys.path.insert(0, HERE)
+from state_machine_guard_judgments import judgment_lines  # noqa: E402
 
 OPEN = '// <generated -- do not edit by hand>'
 CLOSE = '// </generated>'
@@ -222,7 +240,10 @@ class Printer(object):
     def initial_children(self):
         # WHY: a region whose states nest no composite (`notices`) would get an
         # empty table nobody reads, and noUnusedLocals refuses an unread constant.
-        composites = self.composites()
+        # A composite with no initial child (`armed`, entered only by naming a
+        # child) has no initial value to print.
+        composites = [(m, p) for m, p in self.composites()
+                      if any(s['initial'] for s in m.children[p])]
         if not composites:
             return []
         name = '%s_INITIAL_CHILDREN' % self.upper
@@ -263,14 +284,23 @@ class Printer(object):
                     yield machine.state_id(key), event, branch, machine.state_id(branch['to'])
 
     def effect_names(self):
+        # WHY: entry and exit effects (SD-1) are named where the cells that run them stand.
         names = []
-        for _state, _event, branch, _to in self.rows():
-            if branch.get('effect') and branch['effect'] not in names:
-                names.append(branch['effect'])
+        for effect in self.region.effect_order():
+            if effect not in names:
+                names.append(effect)
         # A region whose tables name no effect (table T-293) has none to name.
         if not names:
             return ['export type %sEffectName = never' % self.stem, '']
         lines = ['export type %sEffectName =' % self.stem]
+        lines += ['  | %s' % quoted(n) for n in names]
+        return lines + ['']
+
+    def guard_names(self):
+        names = list(self.region.guards)
+        if not names:
+            return []
+        lines = ['export type %sGuardName =' % self.stem]
         lines += ['  | %s' % quoted(n) for n in names]
         return lines + ['']
 
@@ -328,6 +358,7 @@ class Printer(object):
             lines += self.root_type()
         lines += self.events()
         lines += self.effect_names()
+        lines += self.guard_names()
         # JDG-139: the table and its row type only where something reads it.
         mode = TRANSITIONS_READ.get(self.region.raw['unit'])
         if mode:
@@ -335,6 +366,7 @@ class Printer(object):
         if not saved:
             lines += self.initial_children()
             lines += self.initial_axes()
+        lines += judgment_lines(self, lambda text: manuscript.Condition(text).tree)
         if mode:
             lines += self.transitions(mode)
         while lines[-1] == '':
@@ -363,6 +395,10 @@ def main(argv):
         say('FAIL     state-machines.json: %d problem(s); nothing written' % len(found))
         return 1
     refuse_unknown_transition_units(regions)
+    if '--units' in argv:
+        for region in regions:
+            say(region.raw['unit'])
+        return 0
     failed = 0
     for region in regions:
         rel = region.raw['unit']

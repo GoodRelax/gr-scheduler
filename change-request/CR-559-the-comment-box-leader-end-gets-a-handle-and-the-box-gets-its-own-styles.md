@@ -780,7 +780,7 @@ done
 #   -> ebc71984:  S 359, AT 144, CM 75, PR 21, LF 16, PK 10, IV 21, JDG 440, DFC 854, PND 530
 #   -> refactor (same command with the ref): the same, but PND 532
 #   (CR-558's draft numbers S-369..373, AT-145..147, CM-77..79, PR-23..25, PK-11..15 are untracked drafts)
-git grep -nE "\bS-37[4-6]\b|\bAT-(14[89]|15[0-2])\b|\bCM-8[0-4]\b|\bPR-2[6-8]\b|\bLF-17\b|\bJDG-46[0-6]\b|\bDFC-87[01]\b" -- . ':!previous-project-result'
+git grep -nE "\bS-37[4-6]\b|\bAT-(14[89]|15[0-2])\b|\bCM-8[0-4]\b|\bPR-2[6-8]\b|\bLF-17\b|\bJDG-46[0-6]\b|\bDFC-87[01]\b" -- . ':!studies'
 #   -> nothing but this file (and the same on refactor)
 
 # graph

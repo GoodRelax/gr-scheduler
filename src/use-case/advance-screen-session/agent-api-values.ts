@@ -41,8 +41,16 @@ export type AgentApiValuesEffectName =
   | 'storeAgentApiEnabling'
   | 'raiseNotice'
 
+export type AgentApiValuesGuardName =
+  | 'isRememberedEnabled'
+
 const AGENT_API_VALUES_INITIAL_AXES: AgentApiValuesAxes = {
   agentApiEnablingState: { kind: 'disabled' },
+}
+
+const AGENT_API_VALUES_GUARDS = {
+  isRememberedEnabled: (event: Extract<AgentApiValuesEvent, { readonly type: 'rememberedEnablingLoaded' }>): boolean =>
+    event.isRememberedEnabled,
 }
 // </generated>
 
@@ -67,15 +75,12 @@ function onAgentApiEntryPressed(values: AgentApiValues): AgentApiStep {
   }
 }
 
-/** @purity pure */
-function isRememberedEnabled(event: EventOf<'rememberedEnablingLoaded'>): boolean {
-  return event.isRememberedEnabled
-}
-
 // WHY: the startup read of S-99b comes back as an event; it neither stores nor tells anything.
 /** @purity pure */
 function onRememberedEnablingLoaded(values: AgentApiValues, event: EventOf<'rememberedEnablingLoaded'>): AgentApiStep {
-  if (values.agentApiEnablingState.kind !== 'disabled' || !isRememberedEnabled(event)) return unchanged(values)
+  if (values.agentApiEnablingState.kind !== 'disabled' || !AGENT_API_VALUES_GUARDS.isRememberedEnabled(event)) {
+    return unchanged(values)
+  }
   return { state: { ...values, agentApiEnablingState: ENABLED }, effects: NO_EFFECTS }
 }
 
@@ -92,3 +97,4 @@ export function stepAgentApiValues(values: AgentApiValues, event: AgentApiValues
   const handler = HANDLERS[event.type] as (values: AgentApiValues, event: AgentApiValuesEvent) => AgentApiStep
   return handler(values, event)
 }
+

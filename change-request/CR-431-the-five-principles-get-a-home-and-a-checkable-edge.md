@@ -35,7 +35,7 @@
   `docs/spec/` にも `docs/development-records/rulings.md` にも無い（測った。  
   1 節の (a)(b)）。
   ② 語「原則」は既に仕様の中で**別の意味**を持つ —— `01-04-requirements.md:545`・`:546`・`:550` の
-  「作り方の原則」（`previous-project-result/user-order.md` の項 65 〜 68。  
+  「作り方の原則」（`studies/user-order.md` の項 65 〜 68。  
   **製品ではなく進め方**の原則）である。
   ⇒ 本書は新しい語を「**直接操作の原則**」とし、⛔ ただの「原則」とは呼ばない。
 - **`R2`（命名。  

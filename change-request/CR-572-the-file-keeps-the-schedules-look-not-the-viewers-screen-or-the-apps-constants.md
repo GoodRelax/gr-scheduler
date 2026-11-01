@@ -35,7 +35,7 @@
    - 例: 利用者が `JDG-602` で `S-124` を 150 にした。その前に保存した `.json` を同僚に渡すと、同僚の `GRS` が新しくても 1000ms で出る。値の正は 1 行なのに、ファイルの数だけ写しがある。
    - 同じことが既に起きている: 見本 `sample-schedule/No Name.json` と `Three-Year Product Plan.json` は 104 鍵、案内の骨組み `docs/guides/schedule-to-grs-json/grs-skeleton.json` は 105 鍵、起動テンプレート `startup-template.json` は 111 鍵を持つ。どれも書いた日の版の写しである。
 2. **反証 —— 「どの値も文書に保存する」と決めた記録は在った。**
-   - 前プロジェクトの Decision Record `previous-project-result/02-data-model/grs-document-settings-ja.md` の §1 が「値を変えたとき、画面の表示または出力が変わるなら `documentSettings` に入れる」という 1 つの検査を定めた。111 鍵がすべて入っているのはこの検査による。⭐ 本書はこの検査を 3.0 節の物差しに置き換える。
+   - 前プロジェクトの Decision Record `studies/02-data-model/grs-document-settings-ja.md` の §1 が「値を変えたとき、画面の表示または出力が変わるなら `documentSettings` に入れる」という 1 つの検査を定めた。111 鍵がすべて入っているのはこの検査による。⭐ 本書はこの検査を 3.0 節の物差しに置き換える。
    - 同書は「`themeHue`・`themeMonochrome` を保存する理由 —— 色のテーマはプロジェクトのテーマカラーである（ユーザー判断、確定 2026-08-01）」「`themePreference` も同じ枠」と書く。⭐ 利用者はこの記録を見たうえで（`JDG-626`）、`themePreference`（明暗）だけを覆した —— 「色はプロジェクトによって変わる。明暗は人によって変わる」。`themeMonochrome` は保存し続け、`themeHue` は `DR-5` のまま日程データの群に残る（本書は触らない）。
    - `JDG-123` は、表示の倍率 `displayScale` について推奨の「見る人ごと」を覆して「倍率は保存する。プロジェクトの規模によって適切な出力倍率が変わる」とした。`JDG-131` も行見出しパネルの幅と字下げについて同じ理由を述べた。⭐ 本書は両方を「内容」に置き、覆さない。`JDG-621` の文字サイズの理由も同じ形である。
    - `FR-039` は「保存値は初期値である。変更した結果は文書の編集として保存される」と明暗・文字サイズ・倍率の 3 つに定める。⭐ 明暗について覆す（4.3 節）。
@@ -297,7 +297,7 @@ SEAM (verbatim in every brief of waves 2a..2d and 3)
 ## 9. 仕様の外で直すもの（⛔ 本書は直さない）
 
 - `docs/review/inventory/E09-settings-blob.md`・`G3-settings-T204-T215.md` は当時の記録として残す。
-- `previous-project-result/02-data-model/grs-document-settings-ja.md` は Frozen な引継ぎであり書き換えない。§1 の検査が本書で置き換わったことは、本書と `JDG-620` が持つ。
+- `studies/02-data-model/grs-document-settings-ja.md` は Frozen な引継ぎであり書き換えない。§1 の検査が本書で置き換わったことは、本書と `JDG-620` が持つ。
 
 ## 10. ⛔ この変更でやらないこと
 

@@ -164,7 +164,7 @@ const SHAPES = [
   { row: 'SH-4', shapeKind: 'endpointSpan' },
 ] as const
 
-describe('T-240 DM-4 / DM-10: ⭐ 印は、長さ 1 稼働日の実績と同じ形で描くこと（MUST）', () => {
+describe('T-240 DM-4: ⭐ 印は、長さ 1 稼働日の実績と同じ形で描くこと（MUST）', () => {
   for (const { row, shapeKind } of SHAPES) {
     it(`T-012 ${row} (${shapeKind}): the dummy is the same figure as a 1-working-day actual`, () => {
       const actual = signatureOf(oneWorkingDayActual(shapeKind), 'task-1-actual')

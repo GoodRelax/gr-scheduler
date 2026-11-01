@@ -71,7 +71,7 @@ function armedPressAt(document: Document, loop: FrameLoop, at: { x: number; y: n
     layout: values.layout,
     geometry: values.geometry,
     regions: values.regions,
-    screen: { ...emptyScreenSession.screen, armModeState: { kind: 'commentBoxArmed' } },
+    screen: { ...emptyScreenSession.screen, armModeState: { kind: 'armed', child: { kind: 'commentBoxArmed' } } },
     selection: emptySelection(),
     zoomStep: 3,
     zoomMin: NOT_STORED_ZOOM_BOUNDS['S-97'],

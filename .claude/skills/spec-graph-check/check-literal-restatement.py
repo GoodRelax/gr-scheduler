@@ -28,9 +28,21 @@ Jaccard index |H & G| / |H | G| is at least 0.7.
 WHAT IT EXEMPTS, because the compiler already refuses the drift: a KEYS set
 whose statement keys a `Record<X, ..>` or a mapped type `[K in X]` over a
 generated union X (or a hand alias that only re-says one, such as
-`type TreeState = TaskGroup['treeState']`), and a KEYS set typed as a
-generated interface (`const DEFAULT_CALENDAR: Calendar = {`). Nothing guards
-VALUES, so a values set is never exempted.
+`type TreeState = TaskGroup['treeState']`), a KEYS set typed as a
+generated interface (`const DEFAULT_CALENDAR: Calendar = {`), and a KEYS set
+that `satisfies` a hand generic mapped type over its parameter, given a
+generated union (`} satisfies GuardJudgments<ScreenValuesGuardName>`, where
+`type GuardJudgments<N extends string> = { readonly [K in N]: ... }` -- an
+object literal under `satisfies` refuses an extra key and a missing one, as a
+Record does; CR-767 wave 2). Nothing guards VALUES, so a values set is never
+exempted.
+
+WHAT IT LEAVES OUT OF THE POOL (coordinator ruling 2026-10-23, CR-767 wave
+3): a list inside a generated judgment table (`const <STEM>_GUARDS = {`) of
+a fence generated_fences.py proves -- its generator exists, says it writes
+the file (`--units`) and its `--check` is green. Such a list is an operand
+of one guard's condition, not a set the specification publishes for reuse.
+A fence naming such a generator in a file it does not write is a PROBLEM.
 
 WHAT IT DELIBERATELY DOES NOT CATCH:
   - a per-literal vocabulary. The icon-roster surface names are 27 single
@@ -87,6 +99,10 @@ import re
 import sys
 import time
 
+sys.dont_write_bytecode = True
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from generated_fences import Provenance, inside  # noqa: E402
+
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(
     os.path.dirname(os.path.abspath(__file__)))))
@@ -112,6 +128,11 @@ GENERATED_TYPE = re.compile(
 RECORD_OVER = re.compile(r'Record<\s*(?:readonly\s+)?([A-Za-z_$][\w$.]*)\s*,')
 MAPPED_OVER = re.compile(r'\[\s*[A-Za-z_$][\w$]*\s+in\s+(?:keyof\s+(?:typeof\s+)?)?'
                          r'([A-Za-z_$][\w$.]*)')
+# `} satisfies Generic<X>` closing a literal, and a hand generic that maps
+# over its own parameter: `type G<N ...> = { readonly [K in N]: ... }`.
+SATISFIES = re.compile(r'\bsatisfies\s+([A-Za-z_$][\w$]*)<\s*([A-Za-z_$][\w$.]*)\s*>')
+MAPPED_GENERIC = re.compile(r'^(?:export\s+)?type\s+([A-Za-z_$][\w$]*)<\s*([A-Za-z_$][\w$]*)[^=]*>\s*=\s*'
+                            r'\{\s*(?:readonly\s+)?\[\s*[A-Za-z_$][\w$]*\s+in\s+\2\s*\]')
 # The annotation of `const NAME: Type = {`.
 ANNOTATION = re.compile(r'^(?:export\s+)?const\s+[A-Za-z_$][\w$]*\s*:\s*(?:Readonly<\s*)?'
                         r'(?:readonly\s+)?([A-Za-z_$][\w$.]*)\s*>?\s*=')
@@ -580,10 +601,38 @@ def json_source(data):
 # The verdict, on a tree held as {relative path: text}.
 # ---------------------------------------------------------------------------
 
-def collect(files):
-    """(hand sets, generated pool, generated type names)."""
+# The provenance of generated fences; self-tests put a stand-in here.
+PROVENANCE = []
+JUDGMENT_TABLE = re.compile(r'^const [A-Z][A-Z0-9_]*_GUARDS = \{$')
+
+
+def provenance():
+    if not PROVENANCE:
+        PROVENANCE.append(Provenance(ROOT))
+    return PROVENANCE[0]
+
+
+def judgment_lines(rel, text, problems):
+    """The lines of the generated judgment tables in the file's proven fences."""
+    ranges, wrong = provenance().proven(rel, text)
+    problems.extend(wrong)
+    out = []
+    start = None
+    for no, line in enumerate(text.split('\n'), 1):
+        if start is None and JUDGMENT_TABLE.match(line) and inside(no, ranges):
+            start = no
+        elif start is not None and line == '}':
+            out.append((start, no))
+            start = None
+    return out
+
+
+def collect(files, fence_problems=None):
+    """(hand sets, generated pool, generated type names, hand mapped generics)."""
+    fence_problems = [] if fence_problems is None else fence_problems
     hand, pool, gen_names = [], [], set()
     aliases = {}
+    mapped_generics = set()
     for rel in sorted(files):
         text = files[rel]
         if rel.endswith('.json'):
@@ -608,22 +657,29 @@ def collect(files):
             found = ALIAS.match(line)
             if found:
                 aliases[found.group(1)] = found.group(2)
+            found = MAPPED_GENERIC.match(line)
+            if found:
+                mapped_generics.add(found.group(1))
         tokens, lines = tokenize(strip_imports(htext))
         match = bracket_pairs(tokens)
-        for shape, first, _last, members, top, _at in literal_sets(tokens, lines, match):
+        for shape, first, last, members, top, _at in literal_sets(tokens, lines, match):
             if not top:
                 continue            # function-local sets: deliberately not read
             name, decl = declared_name(hlines, first)
             hand.append({'file': rel, 'line': first, 'shape': shape, 'name': name,
                          'members': frozenset(members),
-                         'head': ' '.join(hlines[decl - 1:first])})
+                         'head': ' '.join(hlines[decl - 1:first]),
+                         'tail': hlines[last - 1] if 0 < last <= len(hlines) else ''})
         if GENERATED_OPEN in text:
             glines = gtext.split('\n')
             gtokens, gtoklines = tokenize(gtext)
             gmatch = bracket_pairs(gtokens)
             genclosing = enclosing_brackets(gtokens)
             found = literal_sets(gtokens, gtoklines, gmatch) + field_bags(gtokens, gtoklines)
+            operands = judgment_lines(rel, text, fence_problems)
             for shape, first, _last, members, _top, at in found:
+                if inside(first, operands):
+                    continue        # an operand of a generated judgment
                 decl, _line = declared_name(glines, first)
                 path = key_path(gtokens, genclosing, at) if at is not None else ''
                 for suffix, members_set in variants(members):
@@ -644,7 +700,7 @@ def collect(files):
             if words and all(w in gen_names for w in words) and not re.search(r"['\"]", bare):
                 gen_names.add(alias)
                 changed = True
-    return hand, merge_repeats(pool), gen_names
+    return hand, merge_repeats(pool), gen_names, mapped_generics
 
 
 def generated_name(decl, path, shape):
@@ -687,15 +743,19 @@ def merge_repeats(pool):
     return out
 
 
-def guard_of(h, gen_names):
+def guard_of(h, gen_names, mapped_generics=frozenset()):
     """Why the compiler already holds this set to its generated one, or ''.
 
     Only a KEYS shape can be guarded this way: a Record / mapped type over a
-    generated union, or the annotation of a generated interface, makes a
-    missing or an extra key a compile error. Nothing guards the values.
+    generated union, the annotation of a generated interface, or `satisfies`
+    a hand generic mapped type given a generated union, makes a missing or an
+    extra key a compile error. Nothing guards the values.
     """
     if h['shape'] != 'keys':
         return ''
+    found = SATISFIES.search(h.get('tail', ''))
+    if found and found.group(1) in mapped_generics and found.group(2).split('.')[-1] in gen_names:
+        return 'satisfies %s over %s' % (found.group(1), found.group(2))
     for pattern, label in ((RECORD_OVER, 'Record'), (MAPPED_OVER, 'mapped type')):
         for found in pattern.finditer(h['head']):
             over = found.group(1).split('.')[-1]
@@ -729,7 +789,8 @@ def best_match(h, pool, index):
 
 def hits_of(files):
     """(hits, guarded, counts): hits and RG-exempted records, keyed by name."""
-    hand, pool, gen_names = collect(files)
+    fence_problems = []
+    hand, pool, gen_names, mapped_generics = collect(files, fence_problems)
     index = {}
     for gi, g in enumerate(pool):
         for member in g['set']:
@@ -747,9 +808,10 @@ def hits_of(files):
                   'where': '%s:%d' % (h['file'], h['line']),
                   'jaccard': jaccard, 'hand': len(h['members']), 'gen': len(g['set']),
                   'shared': shared, 'source': g['source'], 'gwhere': g['where'],
-                  'guard': guard_of(h, gen_names)}
+                  'guard': guard_of(h, gen_names, mapped_generics)}
         (guarded if record['guard'] else hits).append(record)
-    return hits, guarded, {'hand': len(hand), 'pool': len(pool)}
+    return hits, guarded, {'hand': len(hand), 'pool': len(pool),
+                           'fenceProblems': fence_problems}
 
 
 # ---------------------------------------------------------------------------
@@ -794,6 +856,7 @@ def verdict(files, baseline_text):
     hits, guarded, counts = hits_of(files)
     held, malformed = parse_baseline(baseline_text)
     problems = ['the baseline cannot be read: %s' % bad for bad in malformed]
+    problems += counts.pop('fenceProblems', [])
     found = {}
     for hit in hits:
         found.setdefault(hit['key'], []).append(hit)
@@ -895,10 +958,65 @@ SELF_TEST_UNGUARDED = u'''const PRICE_OF: Record<string, number> = {
 }
 '''
 
+SELF_TEST_SATISFIED = u'''\
+import type { FruitId } from '../gen/fruit'
+
+type PerFruit<N extends string> = { readonly [K in N]: number }
+
+const PRICE_OF = {
+  apple: 1,
+  pear: 2,
+  plum: 3,
+  fig: 4,
+} satisfies PerFruit<FruitId>
+'''
+
+SELF_TEST_SATISFIED_LOOSE = u'''\
+import type { FruitId } from '../gen/fruit'
+
+type Bag<N extends string> = Record<string, number>
+
+const PRICE_OF = {
+  apple: 1,
+  pear: 2,
+  plum: 3,
+  fig: 4,
+} satisfies Bag<FruitId>
+'''
+
 SELF_TEST_HELD = u'''\
 FRUITS | array | generated FruitId union
 why: restates FruitId (docs/spec/_source/settings.json) -- self-test record.
 '''
+
+
+FENCE_GENERATOR = 'tools/generate_check_69_fixture.py'
+
+SELF_TEST_JUDGMENTS = u'''\
+// <generated -- do not edit by hand>
+// From docs/spec/_source/check-69-fixture.json
+// Rebuild: npm run gen (tools/generate_check_69_fixture.py).
+const FRUIT_GUARDS = {
+  isCitrus: (event: { readonly fruit: string }): boolean =>
+    (['kiwi', 'lime', 'date', 'yuzu'] as readonly unknown[]).includes(event.fruit),
+}
+// </generated>
+'''
+
+SELF_TEST_CITRUS = u'''\
+export const CITRUS = ['kiwi', 'lime', 'date', 'yuzu']
+'''
+
+
+def fence_case(label, statuses, wanted):
+    """A judgment table's list against a hand list, under a stand-in provenance."""
+    files = {'src/gen/fruit.ts': SELF_TEST_GENERATED, 'src/gen/guards.ts': SELF_TEST_JUDGMENTS,
+             'src/app/pick.ts': SELF_TEST_CLEAN, 'src/app/citrus.ts': SELF_TEST_CITRUS}
+    PROVENANCE[:] = [Provenance(ROOT, statuses)]
+    try:
+        return self_test_case(label, files, '', wanted)
+    finally:
+        PROVENANCE[:] = []
 
 
 def self_test_case(label, files, baseline, wanted):
@@ -929,6 +1047,11 @@ def self_test():
         self_test_case('case 2b (the same keys under Record<string, ...>)',
                        dict(clean, **{'src/app/price.ts': SELF_TEST_UNGUARDED}), '',
                        'PRICE_OF | keys | generated FruitId union'),
+        self_test_case('case 2c (satisfies a generic mapped over the generated union)',
+                       dict(clean, **{'src/app/price.ts': SELF_TEST_SATISFIED}), '', None),
+        self_test_case('case 2d (satisfies a generic that maps over nothing)',
+                       dict(clean, **{'src/app/price.ts': SELF_TEST_SATISFIED_LOOSE}), '',
+                       'PRICE_OF | keys | generated FruitId union'),
         self_test_case('case 3 (the planted restatement, held)', planted,
                        SELF_TEST_HELD, None),
         self_test_case('case 4 (the held record moved to another file)', moved,
@@ -937,14 +1060,22 @@ def self_test():
                        SELF_TEST_HELD, 'a debt that was paid must leave the file'),
         self_test_case('case 6 (a record without a why: line)', planted,
                        SELF_TEST_HELD.split('\n')[0] + '\n', 'has no "why:" line'),
+        fence_case('case 7 (a list inside a proven generated judgment table)',
+                   {FENCE_GENERATOR: ({'src/gen/guards.ts'}, True)}, None),
+        fence_case('case 8 (the same fence in a file its generator does not write)',
+                   {FENCE_GENERATOR: ({'src/gen/other.ts'}, True)}, 'buys no exemption'),
+        fence_case('case 9 (the same fence, its generator\'s --check red)',
+                   {FENCE_GENERATOR: ({'src/gen/guards.ts'}, False)},
+                   'CITRUS | array | generated FRUIT_GUARDS'),
     ]
     failures = [r for r in results if r]
     for failure in failures:
         say('FAIL     check 69 self-test: %s' % failure)
     if failures:
         return 1
-    say('OK       check 69 self-test: 4 break(s) went red and the clean, guarded, '
-        'held and moved trees held in memory are green')
+    say('OK       check 69 self-test: 7 break(s) went red (2 of them generated fences '
+        'that prove nothing) and the clean, guarded, satisfied, held, moved and '
+        'proven-judgment trees held in memory are green')
     return 0
 
 

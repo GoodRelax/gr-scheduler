@@ -369,5 +369,5 @@ bash .claude/skills/spec-graph-check/check.sh     # on the edited COPY (with the
 #     full stop) -> reworded with an em-dash pair ; check-line-breaks.py -> 2, the baseline
 #   red 45 on the first seam (the summary in its own if-branch copied the IsNull branch): 83 -> 84
 #     -> folded into the IsNull condition as section 5 says ; check-repeated-expressions.py -> 83
-#   red 0, 43, 51, 53, 63: the COPY only (no .git, no previous-project-result/) -- green on the tree
+#   red 0, 43, 51, 53, 63: the COPY only (no .git, no studies/) -- green on the tree
 ```

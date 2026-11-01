@@ -2,7 +2,7 @@
 
 > 状態: **適用済**（2026-10-08、当てる体。基の木 `73e5ed1b`）。2026-10-08 に調整役の統合点 `a9cdba5b` の作業木で起草し、同じ日の裁定 `JDG-1669`〜`JDG-1671` と `JDG-1626` を受けて、当てる前に本文を書き直した（着地していない変更要求なので本文を直した）。
 > ⭐ 当てる前の書き直し（`73e5ed1b` で測り直した）: ① `CR-689` が先に着地し、表 T-206 の `S-530`・`S-531`（選んでいる見本の縁）を当てた。`DS-13` は縦のズームを掛けなくなった。並行の `CR-699` の起草も仮に `S-530`・`S-531` を名乗っているが、それは `CR-699` が当てる前に振り直す番号であり、本書は当てる前の木の `S-` の次の 2 つ（`S-532`・`S-533`）を取った。② `JDG-1626`（2026-10-08）: 欄で片方の日を空にして確定したら期間を丸ごと消す。`IX-17` を退役させ、その中身を `FX-1`・`FX-5` へ移した（E-03）。⚠️ 裁定の行は「コードは既に従う」と書いていたが、`73e5ed1b` の `field-commit.ts` の `commandsFromExportSpan` は `DFC-2223`（`31aef64d`）の後、片方を空にした確定でもう片方の日を写し戻していた —— 本書が直した（14 節）。③ `JDG-1669`〜`JDG-1671`: 11 節の 3 問は推奨どおりに答えが出た（`FX-3` の最後の文、`WF-4` の最後の文、英語の語）。④ `DFC-699` を測った: 赤の半分（`minHeight` の 2 件）と `FR-016` の `ZE-1` の理由の文との張りは `CR-689` の `DS-13` で解けていた —— 本書は `ZE-1` の字を変えない。⚠️ ただし `bandZoomKeyOf` の鍵の守りは失われていた（14.2 節）ので、`DFC-699` は `実装待ち` のまま。⑤ 当てる体が 6 つの決めを足した（③ の X-14〜X-19）。
-> 見本（面の正）: `previous-project-result/39-property-panel-compact/index.html` の ③（`renderSettings`・`hueChips`）。利用者は 2026-10-08 にこの見本を認め、本書を起こすよう指示した。
+> 見本（面の正）: `studies/39-property-panel-compact/index.html` の ③（`renderSettings`・`hueChips`）。利用者は 2026-10-08 にこの見本を認め、本書を起こすよう指示した。
 > ID の帯: 番号 `CR-690`、裁定 `JDG-1552`〜`JDG-1571`（前の席が書いた）・`JDG-1650`・`JDG-1655`・`JDG-1669`〜`JDG-1671`・`JDG-1626`（どれも調整役が配った。本書は引くだけ）、台帳 `DFC-2167`・`DFC-2168`・`DFC-2181`・`DFC-2185`・`DFC-2200`（既に在る）と `DFC-699`（14 節）、保留 `PND-791`〜`PND-793`（裁定済）。当てる体が受けた帯は `DFC-2275`〜`DFC-2279`（使わなかった）。
 > 仕様の新しい識別子（当てる前の木 `73e5ed1b` で測った。13 節の手）: `S-532`・`S-533`・`K-142`・`K-143`・`CM-90`・`CM-91`・表 T-367（`FX-1`〜`FX-8`）・表 T-368（`WF-1`〜`WF-4`）・表 T-369（`FO-1`〜`FO-12`）・接頭辞 `FX`・`WF`・`FO`。退役 1: `IX-17`（中身は表 T-367 へ移した）。本書が当てたので、今はどれも本書の行である。
 > 名を替えたもの: `S-518` / `S-519` の鍵（`exportSpanStart` / `exportSpanFinish` → `fitSpanStart` / `fitSpanFinish`）、`CM-88` / `CM-89`（`setExportSpan` / `clearExportSpan` → `setFitSpan` / `clearFitSpan`）、`K-141` の語（「書き出す期間」→「全体表示時の期間」）、`K-71` の語（→「タスクグループパネルの幅」）、`K-140` の語（→「遅延診断時に親子の進捗の疑義を許す日数（稼働日）」）、辞書の `exportChooser` の項（`exportSpan` → `fitSpan`）。英語は `JDG-1671` の「Fit span」。
@@ -585,7 +585,7 @@ grep -rn "fitSpan\|rowTitlePanelWidthFixed" docs src tools change-request .claud
 grep -o '"prefix": *"[A-Z]*"' docs/spec/_source/row-id-prefixes.json | grep -c '"FX"\|"WF"\|"FO"\|"XF"\|"FW"\|"OF"'   # 0
 
 # the view this CR follows
-grep -n "function renderSettings\|function hueChips\|disabled" previous-project-result/39-property-panel-compact/index.html
+grep -n "function renderSettings\|function hueChips\|disabled" studies/39-property-panel-compact/index.html
 
 # why the booleans go to table T-203 (X-1)
 grep -n "UID\*\*: FR-049" -A3 docs/spec/01-04-requirements.md

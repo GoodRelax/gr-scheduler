@@ -1383,7 +1383,7 @@ const asking = (question: string, items: readonly ConfirmationItem[] = []): Scre
 
 /**
  * Every place a requirement says a confirmation is asked for -- which is table
- * T-234, walked row by row (Chapter 1.9 :275).
+ * T-234, walked row by row (Chapter 1.9).
  *
  * ⛔ A roster of INPUTS, never of what may be shown: FR-031 forbids enumerating
  * the places that may ask (MUST NOT). They stand here only so that one case can
@@ -1456,7 +1456,7 @@ describe('the specification still says what these cases copy', () => {
   })
 
   it('GIVEN the manuscript dictionary WHEN its confirmation section is read THEN it holds one word per answer, spelled the same in every display language (NT-7 MUST)', () => {
-    // ⛔ 「どの表示言語でも `Yes` / `No` と綴ること（MUST）。訳してはならない
+    // ⛔ 「どの言語でも `Yes` / `No` と綴ること（MUST）。訳してはならない
     // （MUST NOT）—— 頭文字が下の打鍵を指さなくなる」. ⭐ The reason is the whole
     // point, so the head letter is asserted beside the word.
     // ⚠️ READ AND NEVER SPELLED HERE: this file may not settle a word (FR-038).

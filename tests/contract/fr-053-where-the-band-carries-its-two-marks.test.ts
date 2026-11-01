@@ -22,7 +22,7 @@
 //                                          IC-75 -- `arrayContaining`, so the
 //                                          two could be in either order, in
 //                                          either box, at either end.
-//   tests/unit/fr-053-minimized-shows-the-band-alone.test.ts:229
+//   the fr-053 minimised-band unit test (deleted by CR-573)
 //                                          `palette.minimize.icon` is IC-75 --
 //                                          the DESCRIPTION carries it, which
 //                                          says nothing about the page.
@@ -69,7 +69,7 @@
 //
 // What was read: docs/spec/ for every rule above, and of `src/` NOT ONE FILE.
 // The unit is reached through the declarations tests/unit/uf-71.test.ts and
-// tests/unit/fr-029-in-effect-is-filled-not-rimmed.test.ts already import, and
+// tests/contract/fr-029-in-effect-is-filled-not-rimmed.test.ts already import, and
 // the fixtures (`EMPTY_VIEW`, `EMPTY_HEADER`, `command`, `PALETTE`) are copied
 // from those two files, which drive this same unit against this same fake.
 //
@@ -97,8 +97,8 @@
 //      one, so these cases take the band to be the child of the palette that
 //      carries the marks, and say so where they do.
 //   4. THE BAND'S OWN HEIGHT IN THE PAGE. `S-135a` reaches this unit through
-//      `CommandPalette.grabBandHeight`, and tests/unit/uf-65.test.ts is the
-//      bench that holds the described band to the manuscript.
+//      `CommandPalette.grabBandHeight`; the uf-65 unit test, the
+//      bench that held the described band to the manuscript, was deleted by CR-573.
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -131,7 +131,7 @@ import {
 import { bare, specTable, unbroken } from './spec-table'
 
 // ---------------------------------------------------------------------------
-// The manuscripts, read at run time rather than copied here (Chapter 1.9 :275).
+// The manuscripts, read at run time rather than copied here (Chapter 1.9).
 // ---------------------------------------------------------------------------
 
 const REQUIREMENTS = unbroken(readFileSync(
@@ -160,7 +160,7 @@ const IC_MINIMIZE = 'IC-75'
 /**
  * What table T-109 says IC-75 is the entrance to, read rather than copied.
  *
- * ⚠️ `何の入口か` is the table's own heading (1.9 :274), checked here so that a
+ * ⚠️ `何の入口か` is the table's own heading (1.9), checked here so that a
  * renamed column hands the premise below an empty string instead of passing.
  */
 const IC_75_CELL = ((): string => {
@@ -176,7 +176,7 @@ const IC_75_CELL = ((): string => {
 
 // ---------------------------------------------------------------------------
 // Descriptions to draw. Every one is a value of `ScreenView` and nothing else.
-// Copied from tests/unit/fr-029-in-effect-is-filled-not-rimmed.test.ts.
+// Copied from tests/contract/fr-029-in-effect-is-filled-not-rimmed.test.ts.
 // ---------------------------------------------------------------------------
 
 const command = (patch: Partial<CommandItem> & { icon: string }): CommandItem => ({
@@ -219,8 +219,8 @@ const viewWith = (patch: Partial<ScreenView>): ScreenView => ({ ...EMPTY_VIEW, .
  * A palette to draw.
  *
  * ⚠️ `grabBandHeight` IS THIS FILE'S OWN NUMBER and no case here means it: 表
- * T-206 states the height at `S-135a` and tests/unit/uf-65.test.ts is the bench
- * that holds a described band to it. What THIS unit owes the band is where the
+ * T-206 states the height at `S-135a`; the uf-65 unit test, the bench
+ * that held a described band to it, was deleted by CR-573. What THIS unit owes the band is where the
  * two marks sit on it.
  */
 const paletteWith = (patch: Partial<CommandPalette> = {}): CommandPalette =>
@@ -394,8 +394,8 @@ describe('FR-053 (MUST) -- the band carries IC-53 and IC-75, and nothing else', 
     // 「帯には ... `IC-53` と、最小化の入口（同表の `IC-75`）が載ったままである」.
     // ⭐ THIS IS ALSO WHAT DFC-103 OWES: nothing anywhere asked where IC-75 is
     // DRAWN. `CommandPalette.minimize` carries it in the description
-    // (tests/unit/fr-053-minimized-shows-the-band-alone.test.ts:229) and
-    // tests/unit/uf-65.test.ts holds it OUT of `groups` -- so until this case,
+    // (the fr-053 minimised-band unit test read it there) and
+    // the uf-65 unit test held it OUT of `groups` (both deleted by CR-573) -- so until this case,
     // a unit that had described the minimize entrance and then drawn it nowhere
     // at all passed every bench in the tree.
     // GOES RED IF: either mark is missing, or the two land on different boxes.

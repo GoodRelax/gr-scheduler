@@ -35,7 +35,7 @@ const OP_17_SAME_UI = '⚠️ ドラッグがウィンドウの中の別の UI �
 const OP_2_LAST = '⭐ ファイルをドラッグしているあいだ、ドロップすれば開くことを `OP-17` の案内で示す'
 const UZ_1_MUST = '押下を受けず、下へ通すこと（MUST）'
 const UZ_1_PART = 'ドロップの案内（`_assets/tbl-glossary.md` の `U-68`、`FR-087` の 表 T-024a の `OP-17`）'
-const T_280_ENTERED = '| `screen/fileDragEntered` | → `shown` [`isOpenAccepted`]'
+const T_280_ENTERED = '| `screen/fileDragEntered` | → `shown` [`isOpenAccepted`（`event.isOpenAccepted`）]'
 const T_280_LEFT = '| `screen/fileDragLeft` | — | → `hidden` |'
 
 const entered = (isOpenAccepted: boolean) => ({ type: 'fileDragEntered', isOpenAccepted }) as const

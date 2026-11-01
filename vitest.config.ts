@@ -68,6 +68,21 @@ import { configDefaults, defineConfig } from 'vitest/config'
 // as a skipped case that names the reason and the missing paths. Where the
 // schema is present they run as usual. The gates run in the root checkout, and
 // tools/gate/run-gate.mjs stops before anything else when the schema is missing.
+//
+// ---------------------------------------------------------------------------
+// HALF THE LOGICAL CPUS RUN TEST FILES, NOT ALL OF THEM
+// ---------------------------------------------------------------------------
+//
+// Vitest's default starts one worker per logical CPU but one. On the reference
+// machine (10 physical cores, 16 logical) that oversubscribes it: GT-2 on develop
+// 28457d63a failed three runs in a row on three frame-heavy cases that take
+// 0.6-1.2 s alone (dfc-2980 "1 px steps, release past", cr-572 FR-052 "a dragged
+// width", dfc-2960 "row under the pointer hovered") and hit the 5 s timeout in the
+// full run. MEASURED 2026-10-31 on the same tree: default workers, the summed test
+// time is about 870 s and those cases reach 5.0-6.3 s; at half the logical CPUs
+// it is about 486 s, they peak at 1.9-2.2 s, and the wall time moves 110 s ->
+// 120 s. The cases themselves run as fast as on 67c291388, so no src change
+// slowed them; the run starved them.
 const here = dirname(fileURLToPath(import.meta.url))
 const mspdi = JSON.parse(readFileSync(join(here, 'tests', 'fixtures', 'mspdi-xsd.json'), 'utf8')) as {
   readonly schemas: readonly string[]
@@ -78,6 +93,7 @@ const skippedWithoutTheSchema = schemaIsAbsent ? mspdi.readers : []
 
 export default defineConfig({
   test: {
+    maxWorkers: '50%',
     environment: 'node',
     include: [
       'tests/contract/**/*.test.ts',

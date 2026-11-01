@@ -12,9 +12,11 @@ import { unbroken } from './spec-table'
 const MACHINES = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-state-machines.md'), 'utf8'))
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
-// see T-280
-const HIDDEN_HAS_NO_CHILD = /paletteDisplayStateMachine_hidden : hidden\n/
-const SHOWN_MINIMIZED_STATE = 'paletteDisplayStateMachine_shown_minimized'
+// WHY: the state list, not the diagram -- the diagram became an SVG figure, which a text match
+// cannot read.
+const HIDDEN_STATE = '- `paletteDisplayStateMachine.hidden` —— '
+const A_CHILD_OF_HIDDEN = '親 `paletteDisplayStateMachine.hidden`'
+const SHOWN_MINIMIZED_STATE = '- `paletteDisplayStateMachine.shown.minimized` —— 親 `paletteDisplayStateMachine.shown`。'
 const FR_102_SHOWN_BY_BAND = '掴み帯に載せた `IC-76` の押下状態で読ませる'
 
 const RECORD_ENTRANCE = 'IC-76'
@@ -67,7 +69,8 @@ async function recordWithPaletteStates(): Promise<{ readonly shownThenMinimized:
 
 describe('DFC-707 -- the manuscript these cases are driven by', () => {
   it('T-280: the hidden state of the palette machine holds no child; the minimized fold is a child of shown', () => {
-    expect(MACHINES).toMatch(HIDDEN_HAS_NO_CHILD)
+    expect(MACHINES).toContain(HIDDEN_STATE)
+    expect(MACHINES).not.toContain(A_CHILD_OF_HIDDEN)
     expect(MACHINES).toContain(SHOWN_MINIMIZED_STATE)
   })
 

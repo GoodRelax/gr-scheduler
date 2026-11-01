@@ -446,8 +446,8 @@ zone read at that offset all year.
 | ファイル | 数 | 今の値 → 新 |
 |---|---|---|
 | `docs/development-records/project-plan.json` | 2 | `scheduleDataTimeZone`・`viewTimeZone` の `Asia/Tokyo` → `UTC+09:00` |
-| `previous-project-result/38-project-progress/gr-scheduler-progress-2026-10-15.json` | 1 | `Asia/Tokyo` → `UTC+09:00` |
-| `previous-project-result/38-project-progress/README.md` | 1（文） | 「`scheduleDataTimeZone` = `Asia/Tokyo`」→「`UTC+09:00`」 |
+| `studies/38-project-progress/gr-scheduler-progress-2026-10-15.json` | 1 | `Asia/Tokyo` → `UTC+09:00` |
+| `studies/38-project-progress/README.md` | 1（文） | 「`scheduleDataTimeZone` = `Asia/Tokyo`」→「`UTC+09:00`」 |
 | `docs/guides/schedule-to-grs-json/grs-skeleton.json` | 1 | `UTC` → `UTC+00:00` |
 | `src/framework/single-html-shell/empty-document.json`・`startup-template.json` | 1・1 | `UTC` → `UTC+00:00`（生成物 —— X-20 の定数を直して `npm run gen`） |
 | `tests/fixtures/measuring-document.json` | 1 | `UTC` → `UTC+00:00` |

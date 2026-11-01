@@ -7,6 +7,10 @@
       "Bash(git fetch:*)"
     ]
   },
+  "statusLine": {
+    "type": "command",
+    "command": "python \"$CLAUDE_PROJECT_DIR/tools/handover_guard/guard.py\" statusline"
+  },
   "hooks": {
     "SessionStart": [
       {
@@ -15,6 +19,11 @@
             "type": "command",
             "command": "python tools/sweep_strictdoc_output.py; python tools/collect_stats.py; exit 0",
             "timeout": 180
+          },
+          {
+            "type": "command",
+            "command": "python \"$CLAUDE_PROJECT_DIR/tools/handover_guard/guard.py\" hook session-start",
+            "timeout": 20
           }
         ]
       }
@@ -39,6 +48,37 @@
             "type": "command",
             "command": "python \"$CLAUDE_PROJECT_DIR/.claude/hooks/check-after-edit.py\"",
             "timeout": 30
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"$CLAUDE_PROJECT_DIR/tools/handover_guard/guard.py\" hook post-tool-use",
+            "timeout": 15
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"$CLAUDE_PROJECT_DIR/tools/handover_guard/guard.py\" hook pre-compact",
+            "timeout": 20
+          }
+        ]
+      }
+    ],
+    "PostCompact": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"$CLAUDE_PROJECT_DIR/tools/handover_guard/guard.py\" hook post-compact",
+            "timeout": 20
           }
         ]
       }

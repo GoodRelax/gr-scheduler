@@ -157,7 +157,7 @@ describe('EditDocument (PI-9) -- the Project aggregate', () => {
     if (!result.ok) return
     const project = result.document.schedule.project
     expect([project.author, project.company, project.revision]).toEqual(['yamada', 'acme', 7])
-    // WHY: PF-9 / PF-10 and title are absent from the field type, so CM-2
+    // WHY: PF-9 and title are absent from the field type, so CM-2
     // leaves the document name where FR-035 put it.
     expect(project.title).toBe('A')
   })

@@ -1,7 +1,7 @@
 # 段 0 `5c1b915` 対 `cdca63ac`（scale-and-fold の先端）の A/B（2026-09-17）
 
 ⭐ 裁定: `JDG-50`（段 0 より悪くしない）、`JDG-166`（留守中に走らせてよい。数は測り方つきで）。
-測り方は `../frame-time-ab-2026-09-17-dfc-610/results.md` と `docs/development-records/refactor-plan-report-2026-09-13.md` の記録 17 に従う。違うのは木が 2 本であること、`dependency-drag` を外したこと、表示の倍率を分ける補助の走行を足したことの 3 つである。
+測り方は `../frame-time-ab-2026-09-17-dfc-610/results.md` と `docs/development-records/history/refactor-plan-report-2026-09-13.md` の記録 17 に従う。違うのは木が 2 本であること、`dependency-drag` を外したこと、表示の倍率を分ける補助の走行を足したことの 3 つである。
 
 ## 1. 比べたビルド
 
@@ -11,7 +11,7 @@
 | `head-cdca63ac`（B） | `cdca63ac` | ブランチ `scale-and-fold` の先端（T-253 の上限の修正 `453f3f7b` と波 2a / 2b / 3 を含む） | `016a898a…` —— コミット済みの dist と一致 |
 
 - 木: `git worktree add --detach .claude/worktrees/ab2-<sha>`、その中で `npx vite build`（サブシェルで入ったので、前に立つ者の cwd は動いていない）。node_modules はつながず、リポジトリの根の node_modules へ上って解決した。
-- 全 JSON の `conditions.buildSha256` が上の値であることを `run-log.txt`・`supplementary/*-log.txt` で確かめた。
+- 全 JSON の `conditions.buildSha256` が上の値であることを `summary.txt`・`supplementary/*-summary.txt` で確かめた。
 
 ## 2. 機械と条件
 
@@ -140,6 +140,6 @@
 
 - `run-ab.py`・`first-notch.mjs` —— 本走行の回し方と探り針（`first-notch.mjs` は前回のものと同一）
 - `run<i>-<probe>-<label>.json` —— 本走行の生の JSON 18 本（3 回 × 3 探り針 × 2 木）
-- `run-log.txt`、`summary.txt`、`run-times-utc.txt`
+- `summary.txt`、`run-times-utc.txt`（画面への出力 `run-log.txt`・`supplementary/supp-log.txt`・`supplementary/suppz-log.txt` は、それぞれ `summary.txt`・`supp-summary.txt`・`suppz-summary.txt` と 1 バイトも違わない写しだったので、2026-10-20 に消した —— `JDG-2970`）
 - `make-scaled-variants.py`・`run-supp.py` —— 補助の走行
 - `supplementary/` —— 補助の生の JSON 27 本（`supp<i>-first-notch|lm-19-*`、`suppz<i>-zoom-row-axis-*`）、ログと表、生成した `*-scaled.mjs`、`doc-check.mjs`・`element-census.mjs` と `document-and-census.txt`

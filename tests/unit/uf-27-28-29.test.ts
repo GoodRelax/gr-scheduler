@@ -1113,7 +1113,7 @@ describe('AG-9a / NT-1 -- what a refusal carries', () => {
 
     expect(refusal.refusals.length).toBeGreaterThan(0)
     for (const each of refusal.refusals) {
-      // The first column of a table is the row ID (Chapter 1.9 :274), so a
+      // The first column of a table is the row ID (Chapter 1.9), so a
       // refusal that names one can be traced back to table T-108 and to the
       // requirement that owns the rule.
       expect(each.command).toMatch(/^CM-\d+$/)
@@ -1560,10 +1560,10 @@ describe('FR-028 -- accepted or refused, always as a value', () => {
 // ---------------------------------------------------------------------------
 // AM-13 `exportSvg`, second pass -- what table T-107 says the picture IS
 //
-// ⭐ Table T-107 row AM-13 (`_assets/tbl-glossary.md` :328) gives the member one
+// ⭐ Table T-107 row AM-13 (`_assets/tbl-glossary.md`) gives the member one
 // job and two sources: "the picture of the screen, shrunk, returned as a value",
 // from "table T-024's IO-3 / FR-080". Table T-024 row IO-3
-// (01-04-requirements.md :2838) then fixes the one measurable thing about that
+// (01-04-requirements.md) then fixes the one measurable thing about that
 // picture: "SVG | write only | the screen's output | the output size is S-81 of
 // table T-204", and S-81 is `exportCanvas`, whose size table T-204 holds.
 //
@@ -1573,8 +1573,7 @@ describe('FR-028 -- accepted or refused, always as a value', () => {
 // what is dropped down the page. CR-196 opened PI-21's `exportSvg` for exactly
 // this reason -- WY-2 of table T-041 judges the SVG and the PNG of one state to
 // be one drawing, and before that entry existed "the SVG route alone went
-// through neither table T-076's assembly nor the TaskGroup cut" (A-appendix.md
-// :101).
+// through neither table T-076's assembly nor the TaskGroup cut" (A-appendix.md).
 //
 // ⚠️ These cases are driven from the settings of the document under test, so
 // they follow `docs/spec/_source/settings.json` rather than a number typed here.
@@ -1622,7 +1621,7 @@ describe('AM-13 exportSvg -- the picture is the EXPORT (IO-3 of table T-024, S-8
 
   it('GIVEN one unchanged state WHEN AM-13 answers twice THEN the same picture comes back both times (WY-2 premise)', () => {
     // WY-2 of table T-041 rests on the same state giving the same picture; CS-1
-    // of table T-066 (design :448) states the failure mode -- read the clock
+    // of table T-066 states the failure mode -- read the clock
     // inside a frame and the picture moves between two calls of one minute.
     const one = bench()
     expect(exported(one.api.exportSvg())).toBe(exported(one.api.exportSvg()))

@@ -1962,7 +1962,7 @@ test('DFC-152: settling the same value again writes nothing, so one undo puts th
 // prints): 1/`yyyy`, 2/`yyyy`, 2/`yyyy-mm`, 3/`yyyy-mm` for `TM-1`..`TM-4`.
 // Neither half alone separates all four; the pair does, and the case checks the
 // four keys are still distinct in the table before it leans on them. Both halves
-// are read out of table T-238 at read time. `tests/unit/uf-32-ruler-band.test.ts`
+// are read out of table T-238 at read time. The uf-32 ruler-band unit test (deleted by CR-573)
 // reached the same answer for the drawing helper and DFC-210 below takes it too;
 // 「月を語で書いてはならない（MUST NOT）」 keeps both shapes digits and a hyphen in
 // either language, so no display word moves them.
@@ -1993,7 +1993,7 @@ test('DFC-92: the ruler band keeps its height across stages and splits it evenly
   // named by how many of its three 行 it prints and by the shape of the first of
   // them. ⚠️ `docs/spec` states no grammar for the tokens the table writes, so
   // the reading of `yyyy` and `yyyy-mm` is written here as
-  // `tests/unit/uf-32-ruler-band.test.ts` writes it, and a token the table grows
+  // the uf-32 ruler-band unit test (deleted by CR-573) wrote it, and a token the table grows
   // that this case cannot read throws rather than being guessed at.
   const notPrinted = String.fromCharCode(0x5237, 0x3089, 0x306a, 0x3044)
   const thirdLine = 3
@@ -4002,7 +4002,7 @@ test('DFC-234: a task group added at the head, and one added under the last task
 // ---------------------------------------------------------------------------
 
 // GOES RED IF: the display language is changed and the document goes on naming
-// the language it named before. `FR-038` (MUST) reads 「⭐ **表示言語を替えた
+// the language it named before. `FR-038` (MUST) reads 「⭐ **画面の言語を替えた
 // ときは、綴じた文書自身が名乗る言語も同じものに替えること（MUST）** ——
 // **読み上げと自動翻訳がそれを見る。**⚠️ **画面には現れないので、押しても
 // 気づけない。**」, and the same requirement fixes the two languages it can be:

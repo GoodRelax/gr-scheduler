@@ -34,7 +34,7 @@ import {
   part,
 } from './dom-screen-surface'
 import { drawLanguageReading, spelledFileSize } from './app-header-drawing'
-import { confirmationAnswerElement, linkElement, nextStepElement } from './notices-drawing'
+import { confirmationAnswerElement, keepFromInput, linkElement, nextStepElement } from './notices-drawing'
 import { windowPartAt, windowPartOf, windowTitleRowElement, type PlacedWindow, type PointAsked } from './window-frame-drawing'
 import { paletteGroupRuleStyle } from './command-palette-drawing'
 import type { TextEntryControl } from './field-editing'
@@ -51,6 +51,8 @@ const MODAL_BORDER_PX = 1
 const BASICS_BLOCK = 'basics'
 
 const HELP_LINK_ATTRIBUTE = 'data-help-link'
+
+const HELP_BLOCK_NOTE_ATTRIBUTE = 'data-help-note'
 
 const DOWNLOAD_LINK_KEY = 'download'
 
@@ -107,13 +109,20 @@ function defaultHelpBox(belowAppHeader: ScreenRect): ScreenRect {
   }
 }
 
-// see FR-036, T-335, WB-1, WB-3, S-455
+// see FR-036, T-335, WB-1, WB-3, S-455, FR-069
+// WHY: only the drawn box reaches down; the place WB-8 and WB-9 grab from stays, so folding restores it.
 /** @purity pure */
-function helpPlacedOf(modal: HelpModal): PlacedWindow {
+function helpPlacedOf(modal: HelpModal, isFullTextOpen = false): PlacedWindow {
   const range = modal.area.belowAppHeader
   const place = windowNormalBoxOf(modal.place ?? DEFAULT_WINDOW_PLACE, defaultHelpBox(modal.area.belowAppHeader), range)
-  const box = windowBoxOf(modal.windowState, place, range, entranceOuterHeightPx())
+  const shown = windowBoxOf(modal.windowState, place, range, entranceOuterHeightPx())
+  const box = isFullTextOpen && modal.windowState === 'normal' ? reachingRangeBottom(shown, range) : shown
   return { window: 'helpModal', shown: modal.windowState, place, box, range }
+}
+
+/** @purity pure */
+function reachingRangeBottom(box: ScreenRect, range: ScreenRect): ScreenRect {
+  return { ...box, height: Math.max(box.height, range.y + range.height - box.y) }
 }
 
 // see FR-036, T-335
@@ -139,6 +148,7 @@ function openedHelpBodyWidthPx(modal: HelpModal, gutterPx: number): number {
 interface HelpColumnsDrawn {
   readonly body: HTMLElement
   readonly columns: HTMLElement
+  readonly fullText: HTMLElement
 }
 
 // see FR-036, S-458
@@ -281,9 +291,11 @@ function helpColumnsElement(
   entries: readonly OpenHelpEntry[],
   openedBodyWidthPx: number,
   links: HelpTopLinks,
+  notes: HelpModal['blockNotes'],
 ): HTMLElement {
   const columns = made(host, 'div', helpColumnsStyle(openedBodyWidthPx))
   const columnByRow = new Map<string, HTMLElement>()
+  const blockByName = new Map<string, HTMLElement>()
   let block: HTMLElement | null = null
   let blockName: string | null = null
   let segment: string | null = null
@@ -302,6 +314,7 @@ function helpColumnsElement(
       opened.setAttribute('data-help-block', name)
       if (name === BASICS_BLOCK) column.append(...helpTopLinkElements(host, links))
       column.append(opened)
+      blockByName.set(name, opened)
       block = opened
       blockName = name
       segment = lineSegment
@@ -320,7 +333,17 @@ function helpColumnsElement(
     const drawnItem = helpItemElement(host, line, line.glyphs)
     block.append(drawnItem.row)
   }
+  for (const note of notes) blockByName.get(note.block)?.append(helpBlockNoteElement(host, note))
   return columns
+}
+
+// see FR-036, T-255
+/** @purity non-pure */
+function helpBlockNoteElement(host: Document, note: HelpModal['blockNotes'][number]): HTMLElement {
+  const line = made(host, 'div', STYLE.helpBlockNote)
+  line.setAttribute(HELP_BLOCK_NOTE_ATTRIBUTE, note.block)
+  line.textContent = note.text
+  return line
 }
 
 interface DrawnModal {
@@ -533,7 +556,7 @@ function helpLegalLeadStyle(): string {
 
 // see FR-069, FR-036, S-459
 /** @purity non-pure */
-function helpLegalElement(host: Document, modal: HelpModal): HTMLElement {
+function helpLegalElement(host: Document, modal: HelpModal): { readonly legal: HTMLElement; readonly fullText: HTMLElement } {
   const legal = made(host, 'div', helpLegalStyle())
   const copyright = made(host, 'div', helpLegalLeadStyle())
   copyright.append(linkElement(host, NOT_STORED_HELP_SIZES['S-459'], modal.copyrightNotice, STYLE.helpLink))
@@ -542,6 +565,7 @@ function helpLegalElement(host: Document, modal: HelpModal): HTMLElement {
   const fullText = made(host, 'details', '')
   const summary = made(host, 'summary', STYLE.helpLegalSummary)
   summary.textContent = modal.helpLegal.fullText
+  keepFromInput(summary)
   fullText.append(summary)
   for (const text of [modal.licenseText, ...modal.attributions]) {
     const line = made(host, 'p', STYLE.helpLegalText)
@@ -549,16 +573,17 @@ function helpLegalElement(host: Document, modal: HelpModal): HTMLElement {
     fullText.append(line)
   }
   legal.append(copyright, licensedUnder, fullText)
-  return legal
+  return { legal, fullText }
 }
 
 // see FR-036, FR-069, T-335
 /** @purity non-pure */
 function helpBodyElement(host: Document, modal: HelpModal): HelpColumnsDrawn {
   const body = made(host, 'div', helpBodyStyle())
-  const columns = helpColumnsElement(host, modal.entries, openedHelpBodyWidthPx(modal, 0), modal)
-  body.append(columns, helpLegalElement(host, modal))
-  return { body, columns }
+  const columns = helpColumnsElement(host, modal.entries, openedHelpBodyWidthPx(modal, 0), modal, modal.blockNotes)
+  const { legal, fullText } = helpLegalElement(host, modal)
+  body.append(columns, legal)
+  return { body, columns, fullText }
 }
 
 // see FR-096, S-517, OP-16
@@ -700,18 +725,38 @@ function importReportElements(host: Document, modal: ImportReport): readonly HTM
 export function helpWindowPainter(host: Document, helpLayer: HTMLElement) {
   let placed: PlacedWindow | null = null
   let drawn: HTMLElement | null = null
+  let shownHelp: HelpModal | null = null
+  // see FR-069, WB-6
+  let isFullTextOpen = false
+
+  /** @purity non-pure */
+  function restyle(): void {
+    placed = shownHelp === null ? null : helpPlacedOf(shownHelp, isFullTextOpen)
+    if (drawn !== null && placed !== null) drawn.setAttribute('style', helpWindowStyle(placed))
+  }
+
+  // TRAP: a rebuilt body (language, restore) draws the fold shut; carry the open state across.
+  /** @purity non-pure */
+  function followFullText(fullText: HTMLElement): void {
+    if (isFullTextOpen) fullText.setAttribute('open', '')
+    fullText.addEventListener('toggle', () => {
+      isFullTextOpen = fullText.hasAttribute('open')
+      restyle()
+    })
+  }
 
   /** @purity non-pure */
   function draw(help: OpenModal | null, isContentChanged: boolean, anchors: () => Map<string, HTMLElement>): void {
-    placed = help !== null && 'entries' in help ? helpPlacedOf(help) : null
+    shownHelp = help !== null && 'entries' in help ? help : null
+    if (shownHelp === null) isFullTextOpen = false
     if (isContentChanged) {
       const built = help === null ? null : modalElement(host, help, anchors())
       drawn = built === null ? null : built.element
       helpLayer.replaceChildren(...(drawn === null ? [] : [drawn]))
-      if (built !== null && help !== null && 'entries' in help) fitHelpColumnFloor(built.helpColumns, help)
-      return
+      if (built !== null && shownHelp !== null) fitHelpColumnFloor(built.helpColumns, shownHelp)
+      if (built?.helpColumns) followFullText(built.helpColumns.fullText)
     }
-    if (drawn !== null && placed !== null) drawn.setAttribute('style', helpWindowStyle(placed))
+    restyle()
   }
 
   return {

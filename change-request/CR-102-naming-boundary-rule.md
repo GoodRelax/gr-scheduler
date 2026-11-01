@@ -106,7 +106,7 @@ grep -c "wbs_parent_uid\|link_type\|status_date" docs/spec/01-04-requirements.md
 
 1. **表 T-006a の直前の散文**（`:278`）が「`stackOrder` ↔ `stack_order` は正しく、`laneIndex` ↔ `stack_order` は禁止」と例示している。**この例は `W-2` ↔ `W-5`（i18n キー）の話であり、本変更の影響を受けない。** 変更不要
 2. **`docs/review/datamodel-findings-2026-08-16.md`** の本文が旧綴りを引いている箇所がある。**同じ塊で直す**
-3. **`previous-project-result/temp/inventory/` の在庫表 21 枚**は git 管理外の作業メモであり、**書き換えない**（履歴として旧綴りのまま残す方が、どちらが正かの判断過程を追える）
+3. **`studies/temp/inventory/` の在庫表 21 枚**は git 管理外の作業メモであり、**書き換えない**（履歴として旧綴りのまま残す方が、どちらが正かの判断過程を追える）
 
 ⚠️ **編集の罠**: 綴りの置換は**必ずリテラル置換**で行い、1 か所ずつ「1 回だけ一致する」ことを表明する。
 **正規表現の文字クラスを使わないこと（MUST NOT）** —— 全角と半角の括弧が混在しており、
@@ -118,4 +118,4 @@ grep -c "wbs_parent_uid\|link_type\|status_date" docs/spec/01-04-requirements.md
 
 ## 7. 最終判断日時
 
-**2026-08-14**（利用者回答。`previous-project-result/temp/decisions-2026-08-13.md` の `Q9`）
+**2026-08-14**（利用者回答。`studies/temp/decisions-2026-08-13.md` の `Q9`）

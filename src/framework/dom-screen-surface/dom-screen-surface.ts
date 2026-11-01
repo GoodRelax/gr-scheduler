@@ -447,6 +447,7 @@ export const STYLE = {
   helpColumn: 'min-width:0;',
   helpBlock: '',
   helpHeading: '',
+  helpBlockNote: 'margin-top:0.5em;',
   helpLegend: 'display:inline-flex;align-items:center;gap:0.5em;margin-left:auto;',
   helpLegal: '',
   helpLegalSummary: 'cursor:pointer;',

@@ -158,7 +158,7 @@ import { bare, specTable } from '../contract/spec-table'
 import { emptyScreenSession } from '../../src/use-case/advance-screen-session/advance-screen-session'
 
 // ---------------------------------------------------------------------------
-// The manuscript, read at run time rather than copied here (Chapter 1.9 :275).
+// The manuscript, read at run time rather than copied here (Chapter 1.9).
 // ---------------------------------------------------------------------------
 
 const T_206 = specTable('T-206')

@@ -1,6 +1,6 @@
 // Use-case test for UC-006 (find delays), table T-334 row VT-1.
 import { expect, test, type Page } from '@playwright/test'
-import { DROP_STEPS, VIEWPORT, drag, enableAgentApi, figureBox, launch, openByDrop, press, readDocument, readSample, type GrsDocument } from './uc-harness'
+import { DROP_STEPS, VIEWPORT, drag, enableAgentApi, figureBox, launch, openByDrop, openThroughIc1, press, readDocument, readSample, type GrsDocument } from './uc-harness'
 
 test.use({ viewport: VIEWPORT, locale: 'en-US' })
 
@@ -75,7 +75,8 @@ test('UC-006 find delays (FR-046, FR-014 T-022, FR-013 PM-4 T-021b, FR-047, FR-0
 
   await test.step('UC-006 step 5: the pre-change plan is overlaid to see how the plan moved (FR-015, OP-3 IC-73, OP-9, IC-4)', async () => {
     const before = await page.locator('[data-figure]').count()
-    await openByDrop(page, ERP, readSample(ERP), 'IC-73')
+    // WHY: a dropped file opens as a replace (OP-19), so the overlay opens through IC-1.
+    await openThroughIc1(page, ERP, readSample(ERP), 'IC-73')
     const doc = await readDocument(page)
     expect((doc.schedule['baselineTasks'] as unknown[]).length).toBeGreaterThan(0)
     if (!doc.documentSettings.isBaselineVisible) await press(page, 'IC-4')

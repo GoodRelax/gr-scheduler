@@ -213,10 +213,69 @@ export type FileFlowValuesEffectName =
   | 'issueDelayFixBundle'
   | 'carryOutOwedAction'
 
+export type FileFlowValuesGuardName =
+  | 'hasAnythingToReport'
+  | 'isBackToSavedDocument'
+  | 'isBaselineRoute'
+  | 'isDifferenceReviewSurface'
+  | 'isFileOperationQuestion'
+  | 'isImportCanceled'
+  | 'isImportReportSurface'
+  | 'isOpenChooserSurface'
+  | 'isOverwriteQuestion'
+  | 'isProceeding'
+  | 'isReplaceChoice'
+  | 'isReplaceWithoutChooser'
+
 const FILE_FLOW_VALUES_INITIAL_AXES: FileFlowValuesAxes = {
   fileOperationState: { kind: 'idle' },
   confirmationState: { kind: 'notAsked' },
   unsavedEditsState: { kind: 'nothingUnsaved' },
+}
+
+const FILE_FLOW_VALUES_GUARDS = {
+  hasAnythingToReport: (event: Extract<FileFlowValuesEvent, { readonly type: 'documentOpenLanded' }>): boolean =>
+    (event.droppedTaskNames?.length ?? NaN) > 0
+      || (event.missingTaskNames?.length ?? NaN) > 0
+      || (event.reportedCounts?.length ?? NaN) > 0,
+  isBackToSavedDocument: (event: Extract<FileFlowValuesEvent, { readonly type: 'documentEditLanded' }>): boolean =>
+    event.isBackToSavedDocument,
+  isBaselineRoute: (values: FileFlowValues): boolean => {
+    const fileOperationOpenRoute =
+      values.fileOperationState.kind === 'readingDocumentFile' ? values.fileOperationState.openRoute
+      : null
+    return fileOperationOpenRoute === 'baseline'
+  },
+  isDifferenceReviewSurface: (event: Extract<FileFlowValuesEvent, { readonly type: 'flowSurfaceClosed' }>): boolean =>
+    event.surfaceName === 'U-61',
+  isFileOperationQuestion: (values: FileFlowValues): boolean => {
+    const confirmationOwedAction =
+      values.confirmationState.kind === 'questionAsked' ? values.confirmationState.owedAction
+      : null
+    return confirmationOwedAction == null
+  },
+  isImportCanceled: (event: Extract<FileFlowValuesEvent, { readonly type: 'mergeMappingAnswered' }>): boolean =>
+    event.mergeMapping?.kind === 'cancelImport',
+  isImportReportSurface: (event: Extract<FileFlowValuesEvent, { readonly type: 'flowSurfaceClosed' }>): boolean =>
+    event.surfaceName === 'U-62',
+  isOpenChooserSurface: (event: Extract<FileFlowValuesEvent, { readonly type: 'flowSurfaceClosed' }>): boolean =>
+    event.surfaceName === 'U-56',
+  isOverwriteQuestion: (values: FileFlowValues): boolean => {
+    const confirmationQuestion =
+      values.confirmationState.kind === 'questionAsked' ? values.confirmationState.question
+      : null
+    return confirmationQuestion?.question === 'QN-4'
+  },
+  isProceeding: (event: Extract<FileFlowValuesEvent, { readonly type: 'confirmationAnswered' }>): boolean =>
+    event.isProceeding,
+  isReplaceChoice: (event: Extract<FileFlowValuesEvent, { readonly type: 'openChoiceAnswered' | 'documentOpenLanded' }>): boolean =>
+    event.openChoice === 'replace',
+  isReplaceWithoutChooser: (values: FileFlowValues): boolean => {
+    const fileOperationOpenRoute =
+      values.fileOperationState.kind === 'readingDocumentFile' ? values.fileOperationState.openRoute
+      : null
+    return (fileOperationOpenRoute === 'reopen') || (fileOperationOpenRoute === 'drop')
+  },
 }
 // </generated>
 
@@ -253,29 +312,6 @@ function isQuestionAsked(values: FileFlowValues): boolean {
 }
 
 /** @purity pure */
-function isReopenRoute(operation: FileOperationState): boolean {
-  return operation.kind === 'readingDocumentFile' && operation.openRoute === 'reopen'
-}
-
-// see OP-15
-/** @purity pure */
-function isBaselineRoute(operation: FileOperationState): boolean {
-  return operation.kind === 'readingDocumentFile' && operation.openRoute === 'baseline'
-}
-
-/** @purity pure */
-function isOverwriteQuestion(values: FileFlowValues): boolean {
-  const confirmation = values.confirmationState
-  return confirmation.kind === 'questionAsked' && confirmation.question.question === 'QN-4'
-}
-
-// see U-62, FR-023, FR-076, MG-14
-/** @purity pure */
-function hasAnythingToReport(lines: EventOf<'documentOpenLanded'>): boolean {
-  return lines.droppedTaskNames.length > 0 || lines.missingTaskNames.length > 0 || lines.reportedCounts.length > 0
-}
-
-/** @purity pure */
 function emptied(names: readonly (string | null)[]): readonly (string | null)[] {
   return names.length === 0 ? names : NO_TASK_NAMES
 }
@@ -293,11 +329,6 @@ function discardAskedWhenUnsaved(values: FileFlowValues, question: FileFlowQuest
   const importing: FileOperationState = { kind: 'importingDocument' }
   const answer: FileFlowImportAnswer = { kind: 'openChoice', openChoice: 'replace' }
   return combined(values, { fileOperationState: importing }, [{ type: 'importIncomingDocument', answer }])
-}
-
-/** @purity pure */
-function isReplaceChoice(openChoice: FileFlowOpenChoice): boolean {
-  return openChoice === 'replace'
 }
 
 // WHY: a machine already in the wanted kind keeps its reference (SF-3).
@@ -368,13 +399,13 @@ function fixBundleIssued(operation: FileOperationState): Effects {
   return [{ type: 'issueDelayFixBundle', fixBundle: operation.fixBundle }]
 }
 
-// see T-290, OP-3, OP-13, OP-15
+// see T-290, OP-3, OP-13, OP-15, OP-19
 /** @purity pure */
 function onDocumentFileRead(values: FileFlowValues, event: EventOf<'documentFileRead'>): FileFlowStep {
   const operation = values.fileOperationState
   if (operation.kind !== 'readingDocumentFile') return unchanged(values)
-  if (isReopenRoute(operation)) return discardAskedWhenUnsaved(values, event.question)
-  if (isBaselineRoute(operation)) {
+  if (FILE_FLOW_VALUES_GUARDS.isReplaceWithoutChooser(values)) return discardAskedWhenUnsaved(values, event.question)
+  if (FILE_FLOW_VALUES_GUARDS.isBaselineRoute(values)) {
     const importing: FileOperationState = { kind: 'importingDocument' }
     const answer: FileFlowImportAnswer = { kind: 'openChoice', openChoice: 'baseline' }
     return combined(values, { fileOperationState: importing }, [{ type: 'importIncomingDocument', answer }])
@@ -394,7 +425,7 @@ function onDocumentOpenFailed(values: FileFlowValues): FileFlowStep {
 /** @purity pure */
 function onOpenChoiceAnswered(values: FileFlowValues, event: EventOf<'openChoiceAnswered'>): FileFlowStep {
   if (values.fileOperationState.kind !== 'awaitingOpenChoice') return unchanged(values)
-  if (event.openChoice === 'replace') return discardAskedWhenUnsaved(values, event.question)
+  if (FILE_FLOW_VALUES_GUARDS.isReplaceChoice(event)) return discardAskedWhenUnsaved(values, event.question)
   const importing: FileOperationState = { kind: 'importingDocument' }
   const answer: FileFlowImportAnswer = { kind: 'openChoice', openChoice: event.openChoice }
   return combined(values, { fileOperationState: importing }, [{ type: 'importIncomingDocument', answer }])
@@ -408,24 +439,33 @@ function answeredOperation(values: FileFlowValues, isProceeding: boolean): Step<
     const answer: FileFlowImportAnswer = { kind: 'openChoice', openChoice: 'replace' }
     return { state: { kind: 'importingDocument' }, effects: [{ type: 'importIncomingDocument', answer }] }
   }
-  if (operation.kind === 'writingDocumentFile' && isOverwriteQuestion(values)) {
+  if (operation.kind === 'writingDocumentFile' && FILE_FLOW_VALUES_GUARDS.isOverwriteQuestion(values)) {
     return { state: operation, effects: [{ type: 'answerOverwriteQuestion', isProceeding }] }
   }
   return unchanged(operation)
 }
 
 /** @purity pure */
-function answeredQuestion(confirmation: ConfirmationState, isProceeding: boolean): Step<ConfirmationState, FileFlowValuesEffect> {
+function answeredQuestion(values: FileFlowValues, isProceeding: boolean): Step<ConfirmationState, FileFlowValuesEffect> {
+  const confirmation = values.confirmationState
   if (confirmation.kind === 'notAsked') return unchanged(confirmation)
-  if (!isProceeding || confirmation.owedAction === null) return { state: NOT_ASKED, effects: NO_EFFECTS }
-  return { state: NOT_ASKED, effects: [{ type: 'carryOutOwedAction', owedAction: confirmation.owedAction }] }
+  if (!isProceeding || FILE_FLOW_VALUES_GUARDS.isFileOperationQuestion(values)) {
+    return { state: NOT_ASKED, effects: NO_EFFECTS }
+  }
+  return { state: NOT_ASKED, effects: owedActionCarriedOut(confirmation.owedAction) }
+}
+
+/** @purity pure */
+function owedActionCarriedOut(owedAction: FileFlowOwedAction | null): Effects {
+  return owedAction === null ? NO_EFFECTS : [{ type: 'carryOutOwedAction', owedAction }]
 }
 
 // WHY: both machines read the state before the answer, so the file machine still sees QN-4.
 /** @purity pure */
 function onConfirmationAnswered(values: FileFlowValues, event: EventOf<'confirmationAnswered'>): FileFlowStep {
-  const operation = answeredOperation(values, event.isProceeding)
-  const confirmation = answeredQuestion(values.confirmationState, event.isProceeding)
+  const isProceeding = FILE_FLOW_VALUES_GUARDS.isProceeding(event)
+  const operation = answeredOperation(values, isProceeding)
+  const confirmation = answeredQuestion(values, isProceeding)
   const moves = { fileOperationState: operation.state, confirmationState: confirmation.state }
   return combined(values, moves, [...operation.effects, ...confirmation.effects])
 }
@@ -445,7 +485,7 @@ function onMergeMappingAsked(values: FileFlowValues, event: EventOf<'mergeMappin
 /** @purity pure */
 function onMergeMappingAnswered(values: FileFlowValues, event: EventOf<'mergeMappingAnswered'>): FileFlowStep {
   if (values.fileOperationState.kind !== 'awaitingMergeMapping') return unchanged(values)
-  if (event.mergeMapping.kind === 'cancelImport') {
+  if (FILE_FLOW_VALUES_GUARDS.isImportCanceled(event)) {
     return combined(values, { fileOperationState: IDLE }, [{ type: 'discardIncomingDocument' }])
   }
   const importing: FileOperationState = { kind: 'importingDocument' }
@@ -457,9 +497,9 @@ function onMergeMappingAnswered(values: FileFlowValues, event: EventOf<'mergeMap
 /** @purity pure */
 function onFlowSurfaceClosed(values: FileFlowValues, event: EventOf<'flowSurfaceClosed'>): FileFlowStep {
   const kind = values.fileOperationState.kind
-  const isChooser = kind === 'awaitingOpenChoice' && event.surfaceName === 'U-56'
-  const isReview = kind === 'awaitingMergeMapping' && event.surfaceName === 'U-61'
-  const isReport = event.surfaceName === 'U-62'
+  const isChooser = kind === 'awaitingOpenChoice' && FILE_FLOW_VALUES_GUARDS.isOpenChooserSurface(event)
+  const isReview = kind === 'awaitingMergeMapping' && FILE_FLOW_VALUES_GUARDS.isDifferenceReviewSurface(event)
+  const isReport = FILE_FLOW_VALUES_GUARDS.isImportReportSurface(event)
   const droppedTaskNames = isReport ? emptied(values.droppedTaskNames) : values.droppedTaskNames
   const missingTaskNames = isReport ? emptied(values.missingTaskNames) : values.missingTaskNames
   const reportedCounts = isReport && values.reportedCounts.length > 0 ? NO_REPORTED_COUNTS : values.reportedCounts
@@ -473,9 +513,9 @@ function onFlowSurfaceClosed(values: FileFlowValues, event: EventOf<'flowSurface
 function onDocumentOpenLanded(values: FileFlowValues, event: EventOf<'documentOpenLanded'>): FileFlowStep {
   const openedFileName = event.openedFileName ?? values.openedFileName
   const fileOperationState = values.fileOperationState.kind === 'importingDocument' ? IDLE : values.fileOperationState
-  const landed = isReplaceChoice(event.openChoice) ? NOTHING_UNSAVED : EDITS_UNSAVED
+  const landed = FILE_FLOW_VALUES_GUARDS.isReplaceChoice(event) ? NOTHING_UNSAVED : EDITS_UNSAVED
   const unsavedEditsState = unsavedEditsMoved(values.unsavedEditsState, landed)
-  if (!hasAnythingToReport(event)) {
+  if (!FILE_FLOW_VALUES_GUARDS.hasAnythingToReport(event)) {
     return combined(values, { openedFileName, fileOperationState, unsavedEditsState }, NO_EFFECTS)
   }
   const names = {
@@ -506,7 +546,7 @@ function onDiagnosticFixBackupSaved(values: FileFlowValues): FileFlowStep {
 /** @purity pure */
 function onDocumentEditLanded(values: FileFlowValues, event: EventOf<'documentEditLanded'>): FileFlowStep {
   if (values.unsavedEditsState.kind === 'editsUnsaved') {
-    if (!event.isBackToSavedDocument) return unchanged(values)
+    if (!FILE_FLOW_VALUES_GUARDS.isBackToSavedDocument(event)) return unchanged(values)
     return combined(values, { unsavedEditsState: NOTHING_UNSAVED }, NO_EFFECTS)
   }
   return combined(values, { unsavedEditsState: EDITS_UNSAVED }, NO_EFFECTS)
@@ -591,3 +631,4 @@ export function stepFileFlowValues(values: FileFlowValues, event: FileFlowValues
   const handler = HANDLERS[event.type] as (values: FileFlowValues, event: FileFlowValuesEvent) => FileFlowStep
   return handler(values, event)
 }
+

@@ -1881,7 +1881,7 @@ test('NFR-002 / NFR-003 / FR-025 / FR-067 / FR-021 / FR-029 -- the gates and the
   // -------------------------------------------------------------------------
   //
   // `FR-029`, verbatim:
-  // **押されたときに限り、行えない理由を通知すること（MUST）。作法は `FR-076` の 表 T-037 の `NT-1` に従い、運ぶ理由は、押された入口の場面に当たる同要求の 表 T-233 の行とすること（MUST）。**
+  // **押されたときに限り、行えない理由を通知の仕組みへ運ぶこと（MUST）。作法は `FR-076` の 表 T-037 の `NT-1` に従い、運ぶ理由は、押された入口の場面に当たる同要求の 表 T-233 の行とすること（MUST）。**
   // ⛔ **当たる行があるのに落ち先を運んではならない（MUST NOT）**
   //
   // and the row that is the matching one for this scene -- 表 T-233 の `RS-40`:
@@ -1891,7 +1891,7 @@ test('NFR-002 / NFR-003 / FR-025 / FR-067 / FR-021 / FR-029 -- the gates and the
   if (m.unwritable.length === 0) {
     // ⭐⭐ NOTHING TO PRESS, AND THAT IS NOT A BROKEN CLAUSE. `FR-029`'s MUST is
     // conditional in its first three words -- 「押されたときに限り、**行えない
-    // 理由**を通知すること（MUST）」 -- and `RS-40` is 「この形式は、この
+    // 理由**を通知の仕組みへ運ぶこと（MUST）」 -- and `RS-40` is 「この形式は、この
     // ビルドではまだ書けない」. When every format of table T-024 writes, there
     // is no 行えない理由 for this entrance to carry and the row has no occasion.
     // ⛔ RAISING IT ANYWAY IS WHAT WOULD BREAK THE REQUIREMENT: `DFC-334`, verbatim:
@@ -1941,7 +1941,7 @@ test('NFR-002 / NFR-003 / FR-025 / FR-067 / FR-021 / FR-029 -- the gates and the
           'matching row for this scene',
       )
     }
-    // ⭐ 押されたときに限り、行えない理由を通知すること（MUST） -- the half that
+    // ⭐ 押されたときに限り、行えない理由を通知の仕組みへ運ぶこと（MUST） -- the half that
     // is about not going quiet: a surface that simply closed said nothing.
     if (!told && !m.chooserStoodAfterPress) {
       unmet.push(

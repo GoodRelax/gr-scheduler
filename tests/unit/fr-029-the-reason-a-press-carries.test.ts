@@ -12,7 +12,7 @@
 // tests/unit/.
 //
 // ---------------------------------------------------------------------------
-// ⛔ THIS FILE REPLACES tests/unit/fr-029-rs-27-the-reason-a-press-is-told.ts,
+// ⛔ THIS FILE REPLACES tests/unit/fr-029-rs-27-the-reason-a-press-is-told.test.ts,
 // AND THE RULE IT ASSERTED WAS REVERSED
 // ---------------------------------------------------------------------------
 //
@@ -35,7 +35,7 @@
 //
 //   `FR-029`   「その入口を押しても、いま文書にも画面にも何も変えられないときは、
 //              その入口を薄く描くこと（MUST）」／「押されたときに限り、行えない理由を
-//              通知すること（MUST）。作法は `FR-076` の 表 T-037 の `NT-1` に従い、
+//              通知の仕組みへ運ぶこと（MUST）。作法は `FR-076` の 表 T-037 の `NT-1` に従い、
 //              運ぶ理由は、押された入口の場面に当たる同要求の 表 T-233 の行とすること
 //              （MUST）」／⛔ 「当たる行があるのに落ち先を運んではならない（MUST
 //              NOT）」／⛔ 「ポインタが乗っただけで理由を出してはならない（MUST
@@ -48,7 +48,7 @@
 //                    同じ動作にしろ」）: its 正 was `HF-3` and its 場面 was 「その
 //                    行は既に折りたたまれている」, which stopped being reachable when
 //                    `HF-3` became `HR-6`. ⭐ It is now `HF-13`'s spent 場面,
-//                    which that row states itself 「開ける直下の子が 1 つも無い
+//                    which that row states itself 「展開できる直下の子が 1 つも無い
 //                    ときは、`FR-029` に従って薄く描くこと（MUST）」 -- and the
 //                    roster below carries it again, on `IC-90`.
 //              RS-31 「描かれていないタスクグループが 1 つも無い」（`HF-10`）
@@ -567,7 +567,7 @@ const SPENT: readonly Spent[] = [
     // 画面へ戻せる子が 1 つも無い」 -- what `HR-7` would put back: 「**選択した
     // `TaskGroup` の折りたたみだけを解くこと（MUST）**」 and 「⭐ **直下の子が `HR-6`
     // で隠されているときは、その隠しも解くこと（MUST）**」. `HF-13` states the
-    // spent side itself: 「⛔ **開ける直下の子が 1 つも無いときは、`FR-029` に
+    // spent side itself: 「⛔ **展開できる直下の子が 1 つも無いときは、`FR-029` に
     // 従って薄く描くこと（MUST）**」.
     // ⇒ an untouched document, where every direct child of ALPHA is drawn, is
     // that 場面 exactly.
@@ -906,7 +906,7 @@ describe('FR-029 -- the telling belongs to an entrance that is spent, and to no 
 // ⭐ THE WALK, AND WHY IT IS ONE CASE AND NOT MANY. FR-029 states the drawing
 // and the telling of ONE condition -- 「その入口を押しても、いま文書にも画面にも
 // 何も変えられないときは、その入口を薄く描くこと（MUST）…押されたときに限り、
-// 行えない理由を通知すること（MUST）」 -- so the set of entrances drawn faint and
+// 行えない理由を通知の仕組みへ運ぶこと（MUST）」 -- so the set of entrances drawn faint and
 // the set that answer a press with a reason are the SAME set. ⛔ A case per
 // entrance would need this file to decide, for each row of 表 T-109, when it is
 // spent; the screen already decided that, and the faintness is where it said so.

@@ -42,7 +42,7 @@
 
 **部分書き込みという逃げ道が塞がれている。** スクロールを止めるたびに文書の全体を直列化して `localStorage` へ書くことになる。
 
-**前プロジェクトの記録**（`previous-project-result/02-data-model/grs-document-settings-ja.md` §8-1。原文に当たった）——
+**前プロジェクトの記録**（`studies/02-data-model/grs-document-settings-ja.md` §8-1。原文に当たった）——
 
 > **変更のたびに書いてはならない。** 段階 7 の PoC で **10000 タスクを 1 回描くのに 147〜202ms**
 > かかった（`../08-poc/POC-RESULTS-ja.md` §D-2）。文書を JSON 化して `localStorage` に書くコストは

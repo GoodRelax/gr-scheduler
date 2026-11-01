@@ -1,6 +1,6 @@
 // Contract test: the ONE coordinate system every shape of 図 F-019 is drawn in.
 //
-// FR-029 (docs/spec/01-04-requirements.md:3744) closes its STATEMENT with two
+// FR-029 (docs/spec/01-04-requirements.md) closes its STATEMENT with two
 // rules about that coordinate system, and this file is about those two alone:
 //
 //   MUST      「図 F-019 の座標系は、図形の外接する枠へ詰めること（MUST）」
@@ -598,10 +598,10 @@ const MEASURED =
 
 // ---------------------------------------------------------------------------
 // The sentences these cases are driven by, copied from the manuscript so that a
-// failure names one line of it (Chapter 1.9 :274).
+// failure names one line of it (Chapter 1.9).
 // ---------------------------------------------------------------------------
 
-/** FR-029, docs/spec/01-04-requirements.md:3744. */
+/** FR-029, docs/spec/01-04-requirements.md. */
 const FR_029_PACKED = '図 F-019 の座標系は、図形の外接する枠へ詰めること（MUST）'
 const FR_029_ONE_SYSTEM = '図形ごとに別々の座標系を与えてはならない（MUST NOT）'
 const FR_029_SLACK_COSTS = '座標系に余白があると、箱を大きくしても見える図形は大きくならない'

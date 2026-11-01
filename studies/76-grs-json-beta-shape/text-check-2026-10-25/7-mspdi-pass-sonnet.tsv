@@ -1,0 +1,107 @@
+id	verdict	failed	problem_ja	suggested_en
+ROOT	fix	E2 E3	語彙の後に歴史や設計の理由(zone を持たない理由、日付だけの読み、時刻を作る理由など)があり、435語と長い。ファイル全体に要る事実だけにする。	Terms used in these descriptions. MSPDI: The Microsoft Project XML Data Interchange format used by Microsoft Project. GRS: GoodRelax Scheduler, the tool that generates this file. "Same as MSPDI X": The property has the same meaning and values as MSPDI element X. Any GRS-specific differences follow in the same description. Properties without this mark are defined by GRS. A GRS schedule document. `$schema` is the address of the latest version of this schema (its $id), written first; a reader never refuses a document over its value. `schedule` is the data, `documentSettings` is how it is drawn when opened, and `documentStamp` and `changeLogEntries` record when, by whom and why it changed. A property with no value is omitted; null and an empty array [] are never written. Schedule date-times (start, finish, deadline, statusDate, calendar exceptions, comment boxes) are wall-clock times with no zone, as in MSPDI; project.scheduleDataTimeZone says whose clock. Seconds are cut when read. Always write the time of day. A finish time is the instant the work ends. A milestone's start and finish are the same instant. A calendar exception runs from 00:00:00 to 23:59:00. Record times (schemaVersion, buildVersion, documentStamp, changeLogEntries) are UTC (YYYY-MM-DDTHH:MM:SSZ). A range of whole days (a highlight box, the fit span) is firstDay and lastDay (YYYY-MM-DD), both included. A color is {"kind":"theme"} (follows the theme), {"kind":"palette","name":...} (a named palette color) or {"kind":"custom","light":...,"dark":...}. Each side of a custom color is {"value":"#rrggbb","source":...}: "chosen" by a person or "derived" by GRS from the other side. One side may be omitted; GRS derives it on opening. Where a color may be omitted, absent means that part is not drawn.
+D004	ok	-	-	-
+D005	ok	-	-	-
+D006	ok	-	-	-
+D007	ok	-	-	-
+D008	ok	-	-	-
+D009	ok	-	-	-
+D078	ok	-	-	-
+D079	fix	E1 E7	「キーとして使わない」だけでは誤解する: 実際は上書き前の同一文書の判定にファイル名・Project.name と併せて使う。	Same as MSPDI Project/UID. GRS uses it only, together with the file name and Project.name, to tell whether a file it is about to overwrite is the same document.
+D080	fix	E1	Project.calendarUid が無い・指す先が無いときの GRS の読み方(最初の基準カレンダー、無ければ既定)が抜けている。	Same as MSPDI Project/CalendarUID. GRS counts all working days with this one calendar. If it is absent or names no calendar, GRS uses the first calendar whose isBaseCalendar is true, else a built-in default.
+D081	fix	E1 E7	「画面に出さない」だけでは足りない: 上書き前の同一文書の判定に使う。	Same as MSPDI Project/Name. GRS does not show it (the name shown on screen is title). It is used only to tell whether a file about to be overwritten is the same document.
+D082	fix	E7	Untitled はブラウザのタブの見出しの話で、ページ上端ではない。読み違える。	Same as MSPDI Project/Title. GRS shows it at the top of the page and uses it as the default name of an exported file. When absent, the browser tab shows Untitled.
+D083	ok	-	-	-
+D084	ok	-	-	-
+D085	ok	-	-	-
+D086	ok	-	-	-
+D087	ok	-	-	-
+D088	ok	-	-	-
+D089	ok	-	-	-
+D090	ok	-	-	-
+D091	ok	-	-	-
+D092	fix	E4 E1	「standard-time key」は読み手が調べないと分からない語。	The fixed UTC offset of the clock that the schedule date-times are written in, for example UTC+09:00. It is standard time: daylight saving is never applied. GRS does not write it to MSPDI.
+D093	ok	-	-	-
+D094	ok	-	-	-
+D095	ok	-	-	-
+D096	fix	E1	dayType とは番号が 1 ずれる罠(仕様が警告)があり、Monday (1) だけだと dayType と取り違える。	Same as MSPDI Project/WeekStartDay, where 0 is Sunday. Absent means Monday (1).
+D097	fix	E1 E4	「start-side dates」が新しいルート説明に無く、どの日付か分からない。マイルストーンの開始は終了の時刻を使う違いも抜けている。	Same as MSPDI Project/DefaultStartTime. When GRS writes a start, actualStart, resume or Project.startDate, it gives it this time of day; {{S-482}} when absent. A milestone's start gets defaultFinishTime.
+D098	fix	E1 E4	「finish-side dates」が不明確。マイルストーンの開始にも使う違いが抜けている。	Same as MSPDI Project/DefaultFinishTime. When GRS writes a finish, actualFinish, stop, deadline or Project.statusDate, or a milestone's start, it gives it this time of day; {{S-483}} when absent.
+D105	ok	-	-	-
+D106	ok	-	-	-
+D107	ok	-	-	-
+D108	ok	-	-	-
+D109	fix	E1	GRS は baseCalendarUid をたどって稼働日を数えない(仕様)。MSPDI の継承を期待すると誤解する。	Same as MSPDI Calendar/BaseCalendarUID. GRS does not follow it when it counts working days.
+D111	ok	-	-	-
+D112	ok	-	-	-
+D113	ok	-	-	-
+D114	ok	-	-	-
+D115	ok	-	-	-
+D116	ok	-	-	-
+D117	ok	-	-	-
+D119	fix	E1	weekStartDay と番号が 1 ずれる罠を一言添える。	Same as MSPDI WeekDay/DayType, where 1 is Sunday, except that 0 is not used: exception days are held in Exception.
+D120	ok	-	-	-
+D121	ok	-	-	-
+D122	ok	-	-	-
+D123	ok	-	-	-
+D124	ok	-	-	-
+D126	ok	-	-	-
+D127	fix	E1	MSPDI の要素名の道筋が Exception/TimePeriod/FromDate で、Exception が抜けている。	Same as MSPDI Exception/TimePeriod/FromDate.
+D128	fix	E1	道筋の Exception が抜けている。	Same as MSPDI Exception/TimePeriod/ToDate.
+D129	ok	-	-	-
+D130	ok	-	-	-
+D131	ok	-	-	-
+D132	ok	-	-	-
+D133	ok	-	-	-
+D134	ok	-	-	-
+D135	ok	-	-	-
+D137	ok	-	-	-
+D138	fix	E1	「: 00:00:00 は一日の終わり」は MSPDI の定めに読めるが、GRS の読み方である。	Same as MSPDI WorkingTime/ToTime, except that GRS reads 00:00:00 as the end of the day (24:00).
+D139	fix	E1	予実の状態を 4 つのプロパティの組で読む GRS 独自の規則が、どこにも書かれていない。	Same as MSPDI Task. GRS reads the progress state from actualStart, actualFinish, resumeValid and resume, in this order: no actualStart is not started; actualFinish present is complete; resumeValid false is interrupted with no restart day; a resume date is interrupted with a restart day; anything else is in progress.
+D140	ok	-	-	-
+D142	ok	-	-	-
+D144	ok	-	-	-
+D145	ok	-	-	-
+D146	fix	E1	MSPDI は start 無しを許すが、GRS は start の無いタスクを受け付けない。	Same as MSPDI Task/Start. GRS does not accept a task that has no start.
+D147	fix	E1	MSPDI は finish 無しを許すが、GRS は finish の無いタスクを受け付けない。	Same as MSPDI Task/Finish. GRS does not accept a task that has no finish.
+D148	ok	-	-	-
+D149	ok	-	-	-
+D150	ok	-	-	-
+D151	ok	-	-	-
+D152	ok	-	-	-
+D153	ok	-	-	-
+D154	fix	E7	actualFinish がある完了タスクも false を持つ(完了が先に判定される)ので、「false は中断」は誤り。	Same as MSPDI Task/ResumeValid. On an unfinished task, GRS reads false as an interruption with no restart day decided.
+D155	fix	E3 E1	長く、計画の長さが何か書かれていない。	Same as MSPDI Task/PercentComplete, except that GRS recomputes it from the dates whenever it reads a GRS JSON file: actual working minutes (actualStart to actualFinish, or to stop) divided by planned working minutes (start to finish), times 100, rounded. It can exceed 100. A milestone is 100 once actualFinish is set, else 0.
+D156	fix	E7 E1	矩形と矢羽根だけに効く。矢羽根では未設定は既定の深さで 0 は平ら。「斜めに描く」だけでは矢羽根で誤る。	Calendar days the start of the bar is faded over, to show that the start is not firm. Rectangle: the start edge slants. Chevron: sets the start notch depth. Other shapes ignore it. Absent: no fade (a chevron keeps its default depth). 0: a flat start. Written to MSPDI as a Task/ExtendedAttribute.
+D157	fix	E7	矢羽根では終了側は先端の深さ。	As fadeInCalendarDays, for the finish (on a chevron, the tip depth). Written to MSPDI as a Task/ExtendedAttribute.
+D158	ok	-	-	-
+D159	ok	-	-	-
+D160	ok	-	-	-
+D161	ok	-	-	-
+D162	ok	-	-	-
+D163	ok	-	-	-
+D164	ok	-	-	-
+D165	ok	-	-	-
+D166	fix	E1	後半の文が何の話か分からない断片(稼働日単位のラグの換算だと言っていない)。ラグ無しの読みも抜けている。	Same as MSPDI PredecessorLink/LinkLag. Absent means no lag. A working-day lag counts one day as project.minutesPerDay minutes, or {{S-128}} minutes when that is absent.
+D167	ok	-	-	-
+D168	ok	-	-	-
+D169	ok	-	-	-
+D170	ok	-	-	-
+D171	ok	-	-	-
+D172	ok	-	-	-
+D173	ok	-	-	-
+D174	ok	-	-	-
+D175	ok	-	-	-
+D176	ok	-	-	-
+D177	ok	-	-	-
+D178	ok	-	-	-
+D179	ok	-	-	-
+D180	ok	-	-	-
+D181	ok	-	-	-
+D182	ok	-	-	-
+D183	ok	-	-	-
+D270	ok	-	-	-
+D271	ok	-	-	-
+D273	ok	-	-	-
+D277	ok	-	-	-
+D278	ok	-	-	-

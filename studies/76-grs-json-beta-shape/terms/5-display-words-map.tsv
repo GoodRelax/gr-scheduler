@@ -1,0 +1,750 @@
+word	layer	where	count	glossary_id	mark	note
+GoodRelax Scheduler	screen-hint-en	IC-115	1	U-45	alias	JDG-3351: 文の中は GRS とだけ呼ぶ。正式名は定めの所だけ
+GoodRelax Scheduler	screen-hint-ja	IC-115	1	U-45	alias	JDG-3351: 文の中は GRS とだけ呼ぶ。正式名は定めの所だけ
+GRS	screen-label-en	IC-139	1	U-45	match	JDG-3351
+GRS	screen-label-ja	IC-139	1	U-45	match	JDG-3351
+GRS	screen-hint-en	IC-139	1	U-45	match	JDG-3351
+GRS	screen-hint-ja	IC-139	1	U-45	match	JDG-3351
+GRS	screen-text-en	helpHeadings[1], helpBlockNotes[0], helpLinks[1]	9	U-45	match	JDG-3351
+GRS	screen-text-ja	helpHeadings[1], helpBlockNotes[0], helpLinks[1]	8	U-45	match	JDG-3351
+GRS	screen-nextStep-en	RS-67	1	U-45	match	JDG-3351
+GRS	screen-nextStep-ja	RS-67	1	U-45	match	JDG-3351
+アプリヘッダー	(none)	-	0	S1:App Header	match	画面に 0 回。JDG-3363
+App Header	screen-label-en-identifier	K-100	1	U-31	match	識別子（camelCase）を分けて数えた。用語集 U-31 の英語
+App Header	screen-label-ja	K-100	1	U-31	match	用語集 U-31 の英語
+App Header	screen-text-en	helpHeadings[2]	1	U-31	match	用語集 U-31 の英語
+App Header	screen-help-block-en	helpHeadings[2]	1	U-31	match	用語集 U-31 の英語
+ヘッダー	screen-text-ja	helpHeadings[2]	1	U-31	alias	用語集 U-31 の日本語は「ヘッダー」、1 枚目の木は「アプリヘッダー」
+ヘッダー	screen-nextStep-ja	RS-67	1	U-31	alias	用語集 U-31 の日本語は「ヘッダー」、1 枚目の木は「アプリヘッダー」
+header	screen-nextStep-en	RS-67	1	U-31	alias	ruled は App Header。単独の header
+プロジェクト名 / Project Name	screen-text-en	openChooser[1]	1	S1:Project Name	match	JDG-3355: プロパティパネルの欄
+プロジェクト名 / Project Name	screen-text-ja	openChooser[1]	1	S1:Project Name	match	JDG-3355: プロパティパネルの欄
+文書名 / document name	screen-text-en	SK-9, delayReportMarkdown[0]	2	U-27	alias	JDG-3355: ruled は Project Title（プロジェクトのタイトル）。用語集 U-27 は Document Title
+文書名 / document name	screen-text-ja	SK-9, delayReportMarkdown[0]	2	U-27	alias	JDG-3355: ruled は Project Title（プロジェクトのタイトル）。用語集 U-27 は Document Title
+スケジュールフィルタ	screen-label-ja	IC-143	1	S1:Schedule Filter Bar	missing	行は「帯」（Bar）だけ。掛ける機能そのものの名の行が無い
+スケジュールフィルタ	screen-hint-ja	IC-143	1	S1:Schedule Filter Bar	missing	行は「帯」（Bar）だけ。掛ける機能そのものの名の行が無い
+スケジュールフィルタ	screen-text-ja	readOnlySettings[7], searchPanel[7], searchPanel[8]	4	S1:Schedule Filter Bar	missing	行は「帯」（Bar）だけ。掛ける機能そのものの名の行が無い
+Schedule Filter	screen-label-en	IC-143	1	S1:Schedule Filter Bar	missing	行は Bar だけ。機能そのものの名の行が無い
+Schedule Filter	screen-hint-en	IC-143	1	S1:Schedule Filter Bar	missing	行は Bar だけ。機能そのものの名の行が無い
+Schedule Filter	screen-text-en	readOnlySettings[7], searchPanel[7], searchPanel[8]	4	S1:Schedule Filter Bar	missing	行は Bar だけ。機能そのものの名の行が無い
+タスクグループパネル	screen-label-ja	K-71, K-143	2	U-22	match	
+タスクグループパネル	screen-text-ja	helpHeadings[3], taskGroupPanelWidthField[1]	2	U-22	match	
+Task Group Panel	screen-label-en	K-71, K-143	2	U-22	match	
+Task Group Panel	screen-text-en	helpHeadings[3]	1	U-22	match	
+Task Group Panel	screen-help-block-en	helpHeadings[3]	1	U-22	match	
+タスクグループ見出し	screen-text-ja	MK-13	1	U-23	alias	JDG-3363: 見出し → タイトル（タスクグループタイトルツリー）
+task group title	screen-label-en-identifier	K-36, K-37, K-38	3	U-23	missing	識別子（camelCase）を分けて数えた。行は Tree だけ。1 つのタスクグループのタイトルの行が無い（settings K-36〜K-38 は名の字・インデントだけ）
+task group title	screen-text-en	MK-13	1	U-23	missing	行は Tree だけ。1 つのタスクグループのタイトルの行が無い（settings K-36〜K-38 は名の字・インデントだけ）
+パネル境界 / Panel Divider	(none)	-	0	U-24	match	画面に 0 回。
+Canvas Overlays	(none)	-	0	U-33	alias	画面に 0 回。JDG-3362: 用語集から消す
+キャンバスオーバーレイ	(none)	-	0	U-33	alias	画面に 0 回。JDG-3362: 用語集から消す
+日程表	screen-hint-ja	IC-1, IC-104, IC-105	5	U-32	alias	JDG-3357: 「日程表」は使わない。Schedule Canvas（スケジュールキャンバス）
+日程表	screen-text-ja	readOnlySettings[27], readOnlySettings[28], searchPanel[7]	3	U-32	alias	JDG-3357: 「日程表」は使わない。Schedule Canvas（スケジュールキャンバス）
+日程表	screen-nextStep-ja	RS-73	1	U-32	alias	JDG-3357: 「日程表」は使わない。Schedule Canvas（スケジュールキャンバス）
+chart	screen-hint-en	IC-104, IC-105	2	U-32	alias	JDG-3357: chart は使わない。Schedule Canvas
+キャンバス	screen-label-ja	K-65	1	U-32	alias	ruled は スケジュールキャンバス。単独の語（T-006b A-8 は 3 つの意味を分ける）
+canvas	screen-label-en-identifier	K-65, K-87, K-119	3	U-32	alias	識別子（camelCase）を分けて数えた。ruled は Schedule Canvas。単独の語
+目盛ラベル	screen-label-ja	K-112, K-113, K-114	3	U-19	clash	目盛の字（Time Ruler の中）に Label を使う。タスクのラベル（U-7・U-8・U-41）と同じ語
+タイムルーラー	(none)	-	0	U-19	match	画面に 0 回。
+Time Ruler	(none)	-	0	U-19	match	画面に 0 回。
+目盛 (の帯)	screen-label-ja	K-2, K-3, K-52	5	U-19	alias	用語集 U-19 は タイムルーラー。画面は「目盛の帯」「目盛」
+目盛 (の帯)	screen-hint-ja	IC-134	1	U-19	alias	用語集 U-19 は タイムルーラー。画面は「目盛の帯」「目盛」
+目盛 (の帯)	screen-text-ja	readOnlySettings[5]	1	U-19	alias	用語集 U-19 は タイムルーラー。画面は「目盛の帯」「目盛」
+Ruler	screen-label-en	K-2, K-3	2	U-19	alias	ruled は Time Ruler。単独の Ruler
+Ruler	screen-label-en-identifier	K-112, K-113, K-114	6	U-19	alias	識別子（camelCase）を分けて数えた。ruled は Time Ruler。単独の Ruler
+Ruler	screen-text-en	readOnlySettings[5]	1	U-19	alias	ruled は Time Ruler。単独の Ruler
+Task Group Area	(none)	-	0	U-50	alias	画面に 0 回。JDG-3361: Task Group Lanes に改名（旧 U-50）
+タスクグループ領域	(none)	-	0	U-50	alias	画面に 0 回。JDG-3361: タスクグループレーンズに改名（旧 U-50）
+タスクグループレーン / Task Group Lane	(none)	-	0	S1:Task Group Lane	match	画面に 0 回。JDG-3361
+タスクグループの帯	(none)	-	0	S1:Task Group Lane	alias	画面に 0 回。JDG-3361: 旧 帯（本文 74）
+タスク図形 / Task Graphic	(none)	-	0	S1:Task Graphic	match	画面に 0 回。JDG-3363
+図形	screen-label-ja	IC-54	1	S1:Task Graphic	clash	日程表の図形（描いた物）と、構えている図形（選んだ種類）の 2 つに使う。JDG-3348: Shape / Graphic / Glyph の使い分け
+図形	screen-hint-ja	IC-104, IC-105, IC-54	3	S1:Task Graphic	clash	日程表の図形（描いた物）と、構えている図形（選んだ種類）の 2 つに使う。JDG-3348: Shape / Graphic / Glyph の使い分け
+バー (単独)	screen-hint-ja	IC-101	1	U-2	alias	用語集 U-2 は タスクバー（総称）。T-006b A-14 は単独で使わないと決めた語
+棒	screen-label-ja	K-147	1	U-2	alias	「バー」の別の言い方（K-147「棒の端」）
+bars (単独)	screen-hint-en	IC-101, IC-127	2	U-2	alias	用語集 U-2 は Task Bars（総称）。単独の bar
+マイルストーン形状 / Milestone Shape	screen-label-en	PR-17	1	P-16	match	P-16（旧 milestoneGlyph）。JDG-3348: Shape は選ぶ形の種類
+マイルストーン形状 / Milestone Shape	screen-label-ja	PR-17	1	P-16	match	P-16（旧 milestoneGlyph）。JDG-3348: Shape は選ぶ形の種類
+マイルストーン形状 / Milestone Shape	screen-hint-en	IC-50	1	P-16	match	P-16（旧 milestoneGlyph）。JDG-3348: Shape は選ぶ形の種類
+マイルストーン形状 / Milestone Shape	screen-hint-ja	IC-50	1	P-16	match	P-16（旧 milestoneGlyph）。JDG-3348: Shape は選ぶ形の種類
+マイルストーン形状 / Milestone Shape	screen-text-en	AR-3	1	P-16	match	P-16（旧 milestoneGlyph）。JDG-3348: Shape は選ぶ形の種類
+マイルストーン形状 / Milestone Shape	screen-text-ja	AR-3	1	P-16	match	P-16（旧 milestoneGlyph）。JDG-3348: Shape は選ぶ形の種類
+タスク形状 / Task Shape	screen-text-en	AR-2	1	P-10	match	P-10。JDG-3348: Shape は選ぶ形の種類
+タスク形状 / Task Shape	screen-text-ja	AR-2	1	P-10	match	P-10。JDG-3348: Shape は選ぶ形の種類
+形状 (単独)	screen-text-ja	RS-54	1	P-10	match	JDG-3348: Shape = 選ぶ形の種類。「構えている形状」など
+矩形 / Rectangle	screen-label-en	IC-23	1	P-11	match	P-11
+矩形 / Rectangle	screen-label-en-identifier	K-13	1	P-11	match	識別子（camelCase）を分けて数えた。P-11
+矩形 / Rectangle	screen-label-ja	IC-23, K-13	2	P-11	match	P-11
+矩形 / Rectangle	screen-hint-en	IC-23	2	P-11	match	P-11
+矩形 / Rectangle	screen-hint-ja	IC-23	2	P-11	match	P-11
+矢羽根 / Chevron	screen-label-en	IC-24	1	P-12	match	P-12
+矢羽根 / Chevron	screen-label-en-identifier	K-14, K-43, K-44	3	P-12	match	識別子（camelCase）を分けて数えた。P-12
+矢羽根 / Chevron	screen-label-ja	IC-24, K-14, K-43	4	P-12	match	P-12
+矢羽根 / Chevron	screen-hint-en	IC-24	2	P-12	match	P-12
+矢羽根 / Chevron	screen-hint-ja	IC-24	2	P-12	match	P-12
+端点スパン / Endpoint Span	screen-label-en	IC-26	1	P-14	match	P-14
+端点スパン / Endpoint Span	screen-label-en-identifier	K-16	1	P-14	match	識別子（camelCase）を分けて数えた。P-14
+端点スパン / Endpoint Span	screen-label-ja	IC-26, K-16, K-137	3	P-14	match	P-14
+端点スパン / Endpoint Span	screen-hint-en	IC-26	2	P-14	match	P-14
+端点スパン / Endpoint Span	screen-hint-ja	IC-26	2	P-14	match	P-14
+Plan Bar	screen-label-en	IC-8	1	U-3	match	
+予定バー	(none)	-	0	U-3	match	画面に 0 回。
+予定の表示	screen-label-ja	IC-8, K-122	2	U-3	alias	ruled は 予定バー。画面の日本語は切替の名（「予定の表示」）
+予定の表示	screen-hint-ja	IC-4, IC-8	2	U-3	alias	ruled は 予定バー。画面の日本語は切替の名（「予定の表示」）
+Plan / the plan (単独)	screen-label-en	K-122	1	U-3	alias	ruled は Plan Bar。単独の plan
+Plan / the plan (単独)	screen-hint-en	IC-8	1	U-3	alias	ruled は Plan Bar。単独の plan
+Plan / the plan (単独)	screen-text-en	RS-33, TL-5	2	U-3	alias	ruled は Plan Bar。単独の plan
+予定 (単独の題)	screen-text-ja	TL-5	1	U-3	alias	ruled は 予定バー。単独の「予定」
+Actual Bar	screen-label-en	IC-9	1	U-4	match	
+実績バー	(none)	-	0	U-4	match	画面に 0 回。
+実績の表示	screen-label-ja	IC-9, K-123	2	U-4	alias	ruled は 実績バー。画面の日本語は切替の名（「実績の表示」）
+実績の表示	screen-hint-ja	IC-9	1	U-4	alias	ruled は 実績バー。画面の日本語は切替の名（「実績の表示」）
+Actual / the actual (単独)	screen-label-en	K-123	1	U-4	alias	ruled は Actual Bar。単独の actual
+Actual / the actual (単独)	screen-hint-en	IC-9	1	U-4	alias	ruled は Actual Bar。単独の actual
+Actual / the actual (単独)	screen-text-en	RS-33, RS-88, TL-6	6	U-4	alias	ruled は Actual Bar。単独の actual
+Actual / the actual (単独)	screen-nextStep-en	RS-88, IV-21	3	U-4	alias	ruled は Actual Bar。単独の actual
+実績 (単独の題)	screen-text-ja	TL-6	1	U-4	alias	ruled は 実績バー。単独の「実績」
+マイルストーンマーク / Milestone Mark	(none)	-	0	S1:Milestone Mark	match	画面に 0 回。JDG-3363
+マイルストーン (単独)	screen-label-ja	IC-27, IC-28, IC-29	20	S1:Milestone Mark	clash	タスクの種類（taskTypes・PR-1・列の名）と、描いた印（IC-27〜IC-34・Milestone (Circle) など）の 2 つに使う。ruled の印は Milestone Mark
+マイルストーン (単独)	screen-hint-ja	IC-27, IC-28, IC-29	17	S1:Milestone Mark	clash	タスクの種類（taskTypes・PR-1・列の名）と、描いた印（IC-27〜IC-34・Milestone (Circle) など）の 2 つに使う。ruled の印は Milestone Mark
+マイルストーン (単独)	screen-text-ja	RS-69, IV-22, SQ-1	12	S1:Milestone Mark	clash	タスクの種類（taskTypes・PR-1・列の名）と、描いた印（IC-27〜IC-34・Milestone (Circle) など）の 2 つに使う。ruled の印は Milestone Mark
+マイルストーン (単独)	screen-nextStep-ja	RS-53, IV-22	2	S1:Milestone Mark	clash	タスクの種類（taskTypes・PR-1・列の名）と、描いた印（IC-27〜IC-34・Milestone (Circle) など）の 2 つに使う。ruled の印は Milestone Mark
+マイルストーン (単独)	screen-milestoneLabel-ja	PR-1	1	S1:Milestone Mark	clash	タスクの種類（taskTypes・PR-1・列の名）と、描いた印（IC-27〜IC-34・Milestone (Circle) など）の 2 つに使う。ruled の印は Milestone Mark
+milestone (単独)	screen-label-en	IC-27, IC-28, IC-29	16	S1:Milestone Mark	clash	タスクの種類と、描いた印の 2 つに使う。ruled の印は Milestone Mark
+milestone (単独)	screen-label-en-identifier	K-17, K-131, K-133	4	S1:Milestone Mark	clash	識別子（camelCase）を分けて数えた。タスクの種類と、描いた印の 2 つに使う。ruled の印は Milestone Mark
+milestone (単独)	screen-hint-en	IC-27, IC-28, IC-29	17	S1:Milestone Mark	clash	タスクの種類と、描いた印の 2 つに使う。ruled の印は Milestone Mark
+milestone (単独)	screen-text-en	RS-69, IV-22, SQ-1	12	S1:Milestone Mark	clash	タスクの種類と、描いた印の 2 つに使う。ruled の印は Milestone Mark
+milestone (単独)	screen-nextStep-en	RS-53, IV-22	2	S1:Milestone Mark	clash	タスクの種類と、描いた印の 2 つに使う。ruled の印は Milestone Mark
+milestone (単独)	screen-milestoneLabel-en	PR-1	1	S1:Milestone Mark	clash	タスクの種類と、描いた印の 2 つに使う。ruled の印は Milestone Mark
+菱形	screen-label-ja	K-133	1	S1:Milestone Mark	alias	マイルストーンの印の形（K-133）。ruled の印は Milestone Mark
+スクロールバー / Scrollbars	(none)	-	0	U-21	match	画面に 0 回。
+透かし解除パスワード / unlock password	screen-hint-en	IC-41	1	U-37	match	U-37
+透かし解除パスワード / unlock password	screen-hint-ja	IC-41	1	U-37	match	U-37
+透かし解除パスワード / unlock password	screen-text-en	RS-41, QN-9	2	U-37	match	U-37
+透かし解除パスワード / unlock password	screen-text-ja	RS-41, QN-9	2	U-37	match	U-37
+透かし	screen-label-ja	IC-41, K-101	2	U-20	match	
+透かし	screen-hint-ja	IC-41	1	U-20	match	
+透かし	screen-text-ja	RS-19, QN-9	3	U-20	match	
+透かし	screen-nextStep-ja	RS-19	1	U-20	match	
+Watermark	screen-label-en	IC-41	1	U-20	match	
+Watermark	screen-label-en-identifier	K-101	1	U-20	match	識別子（camelCase）を分けて数えた。
+Watermark	screen-hint-en	IC-41	1	U-20	match	
+Watermark	screen-text-en	RS-19, QN-9	3	U-20	match	
+Watermark	screen-nextStep-en	RS-19	1	U-20	match	
+プロパティパネル	screen-hint-ja	IC-17	1	U-25	match	
+プロパティパネル	screen-text-ja	MK-13, delayReportReasons[10], delayReportReasons[11]	6	U-25	match	
+プロパティパネル	screen-nextStep-ja	RS-62	1	U-25	match	
+Properties Panel	screen-label-ja	K-72	1	U-25	match	
+Properties Panel	screen-hint-en	IC-17	1	U-25	match	
+Properties Panel	screen-text-en	MK-13, delayReportReasons[10], delayReportReasons[11]	6	U-25	match	
+Properties Panel	screen-nextStep-en	RS-62	1	U-25	match	
+パネル (単独)	screen-hint-ja	IC-17	1	U-25	alias	2 つの Panel（Task Group Panel / Properties Panel）のどちらかを単独の「パネル」で呼ぶ
+panel (単独)	screen-label-en-identifier	K-72	1	U-25	alias	識別子（camelCase）を分けて数えた。2 つの Panel のどちらかを単独の panel で呼ぶ
+コマンドパレット	screen-label-ja	IC-7	1	U-26	match	
+コマンドパレット	screen-hint-ja	IC-7, IC-53, IC-75	3	U-26	match	
+コマンドパレット	screen-text-ja	helpHeadings[4], helpHeadings[5]	2	U-26	match	
+Command Palette	screen-label-en	IC-7	1	U-26	match	
+Command Palette	screen-hint-en	IC-7, IC-53, IC-75	3	U-26	match	
+Command Palette	screen-text-en	helpHeadings[4], helpHeadings[5]	2	U-26	match	
+Command Palette	screen-help-block-en	helpHeadings[4], helpHeadings[5]	2	U-26	match	
+ツールウィンドウ / Tool Window	(none)	-	0	S1:Tool Window	match	画面に 0 回。JDG-3356
+ウィンドウ (単独)	screen-hint-ja	IC-129, IC-130, IC-131	3	S1:Tool Window	alias	ruled は ツールウィンドウ。単独の「ウィンドウ」はブラウザーにも使う語（1 枚目の木の注）
+window (単独)	screen-hint-en	IC-52, IC-129, IC-130	5	S1:Tool Window	alias	ruled は Tool Window。単独の window
+window (単独)	screen-text-en	QN-17	1	S1:Tool Window	alias	ruled は Tool Window。単独の window
+窓	screen-text-ja	QN-17	1	S1:Tool Window	alias	日常語。ruled はウィンドウ / ダイアログ
+面	screen-hint-ja	IC-52, IC-132	2	S1:Tool Window	alias	JDG-3356: 面をやめてウィンドウ / ダイアログに分けた（旧 U-54〜U-65 の「面」）
+Help Modal	screen-surface-name-en	surfaces[0]	1	U-30	alias	JDG-3356: Help Window に改名
+ヘルプウィンドウ / Help Window	(none)	-	0	S1:Help Window	match	画面に 0 回。JDG-3356
+ヘルプ (単独)	screen-label-ja	IC-22, IC-128, K-139	3	U-30	alias	JDG-3356: ヘルプウィンドウ。画面の題・参照は「ヘルプ」
+ヘルプ (単独)	screen-hint-ja	IC-20, IC-128	2	U-30	alias	JDG-3356: ヘルプウィンドウ。画面の題・参照は「ヘルプ」
+ヘルプ (単独)	screen-heading-ja	surfaces[0]	1	U-30	alias	JDG-3356: ヘルプウィンドウ。画面の題・参照は「ヘルプ」
+Help (単独)	screen-label-en	IC-22, IC-128	2	U-30	alias	JDG-3356: Help Window。画面の題・参照は Help
+Help (単独)	screen-label-en-identifier	K-139	1	U-30	alias	識別子（camelCase）を分けて数えた。JDG-3356: Help Window。画面の題・参照は Help
+Help (単独)	screen-hint-en	IC-20, IC-128	2	U-30	alias	JDG-3356: Help Window。画面の題・参照は Help
+Help (単独)	screen-heading-en	surfaces[0]	1	U-30	alias	JDG-3356: Help Window。画面の題・参照は Help
+検索パネル	screen-hint-ja	IC-117	1	U-64	alias	JDG-3356: Search Window / 検索ウィンドウに改名
+検索パネル	screen-heading-ja	surfaces[4]	1	U-64	alias	JDG-3356: Search Window / 検索ウィンドウに改名
+Search Panel	screen-hint-en	IC-117	1	U-64	alias	JDG-3356: Search Window に改名
+Search Panel	screen-heading-en	surfaces[4]	1	U-64	alias	JDG-3356: Search Window に改名
+Search Panel	screen-surface-name-en	surfaces[4]	1	U-64	alias	JDG-3356: Search Window に改名
+担当リスト	screen-label-ja	IC-62	1	U-49	alias	JDG-3356: 担当リストウィンドウに改名（Window が付かない）
+担当リスト	screen-heading-ja	surfaces[1]	1	U-49	alias	JDG-3356: 担当リストウィンドウに改名（Window が付かない）
+Resource List	screen-label-en	IC-62	1	U-49	alias	JDG-3356: Resource List Window に改名（Window が付かない）
+Resource List	screen-hint-en	IC-63, IC-64	2	U-49	alias	JDG-3356: Resource List Window に改名（Window が付かない）
+Resource List	screen-heading-en	surfaces[1]	1	U-49	alias	JDG-3356: Resource List Window に改名（Window が付かない）
+Resource List	screen-surface-name-en	surfaces[1]	1	U-49	alias	JDG-3356: Resource List Window に改名（Window が付かない）
+遅延診断レポート	screen-hint-ja	IC-108	1	U-66	alias	JDG-3356: 遅延診断レポートウィンドウに改名
+遅延診断レポート	screen-heading-ja	surfaces[5]	1	U-66	alias	JDG-3356: 遅延診断レポートウィンドウに改名
+Delay Diagnostics Report	screen-heading-en	surfaces[5]	1	U-66	alias	JDG-3356: Delay Diagnostics Report Window に改名
+Delay Diagnostics Report	screen-surface-name-en	surfaces[5]	1	U-66	alias	JDG-3356: Delay Diagnostics Report Window に改名
+遅延診断	screen-label-ja	IC-107, K-140	2	VK-4	match	T-106 VK-4（日本語だけの行）
+遅延診断	screen-hint-ja	IC-107, IC-168	2	VK-4	match	T-106 VK-4（日本語だけの行）
+Delay Diagnostics	screen-label-en	IC-107	1	VK-4	missing	VK-4 は英語の欄が空。機能の英語名の行が無い
+Delay Diagnostics	screen-hint-en	IC-107, IC-168	2	VK-4	missing	VK-4 は英語の欄が空。機能の英語名の行が無い
+休日の設定	screen-label-ja	IC-132	1	U-65	alias	JDG-3356: 休日の設定ウィンドウに改名
+休日の設定	screen-heading-ja	surfaces[6]	1	U-65	alias	JDG-3356: 休日の設定ウィンドウに改名
+休日の設定	screen-nextStep-ja	RS-89	1	U-65	alias	JDG-3356: 休日の設定ウィンドウに改名
+Holiday Settings	screen-surface-name-en	surfaces[6]	1	U-65	alias	JDG-3356: Holiday Settings Window に改名
+Working Time	screen-label-en	IC-132	1	U-65	alias	同じ窓を画面の英語は Working Time と呼び、surfaces の名は Holiday Settings（2 つの英語名）
+Working Time	screen-heading-en	surfaces[6]	1	U-65	alias	同じ窓を画面の英語は Working Time と呼び、surfaces の名は Holiday Settings（2 つの英語名）
+Working Time	screen-text-en	timeZoneField[14]	1	U-65	alias	同じ窓を画面の英語は Working Time と呼び、surfaces の名は Holiday Settings（2 つの英語名）
+Working Time	screen-nextStep-en	RS-89	1	U-65	alias	同じ窓を画面の英語は Working Time と呼び、surfaces の名は Holiday Settings（2 つの英語名）
+ダイアログ / Dialog	(none)	-	0	S1:Dialog	match	画面に 0 回。JDG-3356
+Export Chooser	screen-surface-name-en	surfaces[2]	1	U-54	alias	JDG-3356: Save As Dialog に改名
+ファイルに保存	screen-heading-ja	surfaces[2]	1	U-54	alias	窓の題。ruled ja は ファイル保存ダイアログ（問 5-5 が英語名を問う）
+Save As	screen-label-en	IC-2, IC-169	2	U-54	alias	窓の題と書き出しの名前。ruled en は Save As Dialog（問 5-5 は Save File Dialog を提案）
+Save As	screen-heading-en	surfaces[2]	1	U-54	alias	窓の題と書き出しの名前。ruled en は Save As Dialog（問 5-5 は Save File Dialog を提案）
+Open Chooser	screen-surface-name-en	surfaces[3]	1	U-56	alias	JDG-3356: Open File Dialog に改名
+ファイルを開く (題)	screen-heading-ja	surfaces[3]	1	U-56	alias	窓の題。ruled ja は ファイルオープンダイアログ
+Open File (題)	screen-heading-en	surfaces[3]	1	U-56	alias	窓の題。ruled en は Open File Dialog
+Watermark Unlock	(none)	-	0	U-60	alias	画面に 0 回。JDG-3356: Watermark Unlock Dialog に改名
+透かし解除 (面)	(none)	-	0	U-60	alias	画面に 0 回。JDG-3356: 透かし解除ダイアログに改名
+Difference Review	(none)	-	0	U-61	alias	画面に 0 回。JDG-3356: Difference Review Dialog に改名
+差分の確認	(none)	-	0	U-61	alias	画面に 0 回。JDG-3356: 差分確認ダイアログに改名
+Import Report	(none)	-	0	U-62	alias	画面に 0 回。JDG-3356: Import Report Dialog に改名
+読込報告	(none)	-	0	U-62	alias	画面に 0 回。JDG-3356: 読込報告ダイアログに改名
+Message Box	(none)	-	0	S1:Message Box	match	画面に 0 回。JDG-3356
+メッセージボックス	(none)	-	0	S1:Message Box	match	画面に 0 回。JDG-3363
+確認メッセージ / Confirmation Message	(none)	-	0	S1:Confirmation	match	画面に 0 回。JDG-3363（英語名は問 5-5）
+確認の問い	screen-text-ja	RS-74	1	U-55	alias	ruled は確認メッセージ。画面は「確認の問い」
+問い (単独)	screen-hint-ja	IC-66	1	U-55	alias	ruled は確認メッセージ（Message Box の一種）。画面は「問い」
+問い (単独)	screen-nextStep-ja	RS-74	1	U-55	alias	ruled は確認メッセージ（Message Box の一種）。画面は「問い」
+question	screen-hint-en	IC-66	1	U-55	alias	ruled は Confirmation / Confirmation Message。画面は question
+question	screen-text-en	RS-74	1	U-55	alias	ruled は Confirmation / Confirmation Message。画面は question
+question	screen-nextStep-en	RS-74	1	U-55	alias	ruled は Confirmation / Confirmation Message。画面は question
+変更の通知 / change notice	screen-text-en	RS-23	1	S1:Notification	clash	Agent API の見張りへ送る知らせ（RS-23）。画面の Notification（端に出る知らせ）と同じ語
+変更の通知 / change notice	screen-text-ja	RS-23	1	S1:Notification	clash	Agent API の見張りへ送る知らせ（RS-23）。画面の Notification（端に出る知らせ）と同じ語
+通知 / notification	screen-manner-en	NT-2, NT-3a, NT-8	4	S1:Notification	match	JDG-3356
+通知 / notification	screen-manner-ja	NT-2, NT-3a, NT-8	4	S1:Notification	match	JDG-3356
+通知領域 / Notification Area	(none)	-	0	U-57	match	画面に 0 回。JDG-3363
+ツールチップ / Tooltip	(none)	-	0	U-53	match	画面に 0 回。
+アイコンの説明 / icon hint	screen-label-en-identifier	K-106	1	U-53	alias	識別子（camelCase）を分けて数えた。ruled は ツールチップ。K-106 は「アイコンの説明」
+アイコンの説明 / icon hint	screen-label-ja	K-106	1	U-53	alias	ruled は ツールチップ。K-106 は「アイコンの説明」
+スケジュール文書 / Schedule Document	(none)	-	0	S1:Schedule Document	match	画面に 0 回。JDG-3353
+スケジュール (単独)	screen-label-ja	IC-158	1	S1:Schedule Data	clash	JDG-3358: 単独の schedule は書かない。画面ではデータ・キャンバス・文書のどれにも使う
+スケジュール (単独)	screen-hint-ja	IC-158	1	S1:Schedule Data	clash	JDG-3358: 単独の schedule は書かない。画面ではデータ・キャンバス・文書のどれにも使う
+スケジュール (単独)	screen-text-ja	RS-68, timeZoneField[2], timeZoneField[4]	3	S1:Schedule Data	clash	JDG-3358: 単独の schedule は書かない。画面ではデータ・キャンバス・文書のどれにも使う
+日程 (単独)	screen-label-ja	IC-115, IC-101	2	S1:Schedule Data	clash	JDG-3358: 単独の schedule は書かない。「日程」もデータ・キャンバス・予定の幅に使う
+日程 (単独)	screen-hint-ja	IC-10, IC-115, IC-162	3	S1:Schedule Data	clash	JDG-3358: 単独の schedule は書かない。「日程」もデータ・キャンバス・予定の幅に使う
+日程 (単独)	screen-text-ja	QN-14, QN-15, wholeScheduleShiftField[0]	8	S1:Schedule Data	clash	JDG-3358: 単独の schedule は書かない。「日程」もデータ・キャンバス・予定の幅に使う
+schedule (単独)	screen-label-en	IC-115, IC-158	2	S1:Schedule Data	clash	JDG-3358: 単独の schedule は書かない。データ・キャンバス・文書のどれにも使う
+schedule (単独)	screen-hint-en	IC-1, IC-10, IC-115	5	S1:Schedule Data	clash	JDG-3358: 単独の schedule は書かない。データ・キャンバス・文書のどれにも使う
+schedule (単独)	screen-text-en	RS-68, QN-14, QN-15	12	S1:Schedule Data	clash	JDG-3358: 単独の schedule は書かない。データ・キャンバス・文書のどれにも使う
+schedule (単独)	screen-nextStep-en	RS-73	1	S1:Schedule Data	clash	JDG-3358: 単独の schedule は書かない。データ・キャンバス・文書のどれにも使う
+文書 / document (単独)	screen-hint-en	IC-98, IC-168, IC-62	10	S1:Schedule Document	alias	JDG-3353: ruled は スケジュール文書 / Schedule Document。単独の「文書」
+文書 / document (単独)	screen-hint-ja	IC-98, IC-168, IC-62	10	S1:Schedule Document	alias	JDG-3353: ruled は スケジュール文書 / Schedule Document。単独の「文書」
+文書 / document (単独)	screen-text-en	RS-16, RS-21, RS-48	10	S1:Schedule Document	alias	JDG-3353: ruled は スケジュール文書 / Schedule Document。単独の「文書」
+文書 / document (単独)	screen-text-ja	RS-16, RS-21, RS-48	9	S1:Schedule Document	alias	JDG-3353: ruled は スケジュール文書 / Schedule Document。単独の「文書」
+文書 / document (単独)	screen-nextStep-en	RS-16, RS-48, RS-64	4	S1:Schedule Document	alias	JDG-3353: ruled は スケジュール文書 / Schedule Document。単独の「文書」
+文書 / document (単独)	screen-nextStep-ja	RS-16, RS-89	2	S1:Schedule Document	alias	JDG-3353: ruled は スケジュール文書 / Schedule Document。単独の「文書」
+ファイル / file (形式の名なし)	screen-label-en	IC-83, IC-95	2	S1:Schedule Document	alias	JDG-3353: ファイルはいつも形式の名を付けて言う。画面は形式の名なしの「ファイル」
+ファイル / file (形式の名なし)	screen-label-ja	IC-83, IC-95, K-97	3	S1:Schedule Document	alias	JDG-3353: ファイルはいつも形式の名を付けて言う。画面は形式の名なしの「ファイル」
+ファイル / file (形式の名なし)	screen-hint-en	IC-1, IC-4, IC-115	11	S1:Schedule Document	alias	JDG-3353: ファイルはいつも形式の名を付けて言う。画面は形式の名なしの「ファイル」
+ファイル / file (形式の名なし)	screen-hint-ja	IC-1, IC-4, IC-115	11	S1:Schedule Document	alias	JDG-3353: ファイルはいつも形式の名を付けて言う。画面は形式の名なしの「ファイル」
+ファイル / file (形式の名なし)	screen-text-en	SK-21, helpBlockNotes[0], RS-1	50	S1:Schedule Document	alias	JDG-3353: ファイルはいつも形式の名を付けて言う。画面は形式の名なしの「ファイル」
+ファイル / file (形式の名なし)	screen-text-ja	SK-21, helpBlockNotes[0], RS-1	48	S1:Schedule Document	alias	JDG-3353: ファイルはいつも形式の名を付けて言う。画面は形式の名なしの「ファイル」
+ファイル / file (形式の名なし)	screen-nextStep-en	RS-1, RS-11, RS-78	33	S1:Schedule Document	alias	JDG-3353: ファイルはいつも形式の名を付けて言う。画面は形式の名なしの「ファイル」
+ファイル / file (形式の名なし)	screen-nextStep-ja	RS-1, RS-11, RS-78	34	S1:Schedule Document	alias	JDG-3353: ファイルはいつも形式の名を付けて言う。画面は形式の名なしの「ファイル」
+スケジュールデータ / Schedule Data	screen-text-en	timeZoneField[0]	1	S1:Schedule Data	match	JDG-3358: 日程データ → スケジュールデータ
+スケジュールデータ / Schedule Data	screen-text-ja	timeZoneField[0]	1	S1:Schedule Data	match	JDG-3358: 日程データ → スケジュールデータ
+日程データ	(none)	-	0	S1:Schedule Data	alias	画面に 0 回。JDG-3358: スケジュールデータに直す
+文書の設定 / Document Settings	screen-label-en	IC-17	1	S1:Document Settings	match	JDG-3353 の木。画面の IC-17 の名と同じ
+文書の設定 / Document Settings	screen-label-ja	IC-17	1	S1:Document Settings	match	JDG-3353 の木。画面の IC-17 の名と同じ
+文書の設定 / Document Settings	screen-text-en	delayReportReasons[10], delayReportReasons[11]	2	S1:Document Settings	match	JDG-3353 の木。画面の IC-17 の名と同じ
+文書の設定 / Document Settings	screen-text-ja	delayReportReasons[10], delayReportReasons[11]	2	S1:Document Settings	match	JDG-3353 の木。画面の IC-17 の名と同じ
+文書の描画設定 / document's drawing settings	screen-hint-en	IC-17	1	S1:Document Settings	alias	ruled は 文書の設定 / Document Settings
+文書の描画設定 / document's drawing settings	screen-hint-ja	IC-17	1	S1:Document Settings	alias	ruled は 文書の設定 / Document Settings
+Document Stamp / 文書の刻印	(none)	-	0	S1:Document Stamp	match	画面に 0 回。JDG-3353
+Change Log / 変更の記録	(none)	-	0	S1:Change Log	match	画面に 0 回。JDG-3353
+GRS JSON	screen-name-en	IO-2	1	S1:GRS JSON	match	JDG-3353 正の形式
+GRS JSON	screen-name-ja	IO-2	1	S1:GRS JSON	match	JDG-3353 正の形式
+GRS JSON	screen-text-en	RS-11	1	S1:GRS JSON	match	JDG-3353 正の形式
+GRS JSON	screen-text-ja	RS-11	1	S1:GRS JSON	match	JDG-3353 正の形式
+JSON (形式の名なし)	screen-label-en	IC-115	1	S1:GRS JSON	alias	JDG-3353: ファイルはいつも形式の名を付けて言う
+JSON (形式の名なし)	screen-hint-en	IC-115	1	S1:GRS JSON	alias	JDG-3353: ファイルはいつも形式の名を付けて言う
+JSON (形式の名なし)	screen-hint-ja	IC-115	1	S1:GRS JSON	alias	JDG-3353: ファイルはいつも形式の名を付けて言う
+GRS HTML	(none)	-	0	S1:GRS HTML	match	画面に 0 回。JDG-3353
+単一 HTML	screen-name-ja	IO-7	1	S1:GRS HTML	alias	JDG-3353: 単一 HTML は GRS HTML に直す
+Single HTML	screen-name-en	IO-7	1	S1:GRS HTML	alias	JDG-3353: Single HTML は GRS HTML に直す
+.html (GRS の .html / GRS.html)	screen-text-en	RS-11, RS-67	2	S1:GRS HTML	alias	形式の名を付けず .html と書く（JDG-3353: ファイルはいつも形式の名を付けて言う）
+.html (GRS の .html / GRS.html)	screen-text-ja	helpLinks[0], RS-11, RS-67	3	S1:GRS HTML	alias	形式の名を付けず .html と書く（JDG-3353: ファイルはいつも形式の名を付けて言う）
+MSPDI XML	screen-name-en	IO-1	1	S1:MSPDI	alias	1 枚目の木の名は MSPDI（形式の名）。XML を付けた呼び方
+MSPDI XML	screen-name-ja	IO-1	1	S1:MSPDI	alias	1 枚目の木の名は MSPDI（形式の名）。XML を付けた呼び方
+MSPDI XML	screen-text-en	RS-11	1	S1:MSPDI	alias	1 枚目の木の名は MSPDI（形式の名）。XML を付けた呼び方
+MSPDI XML	screen-text-ja	RS-11	1	S1:MSPDI	alias	1 枚目の木の名は MSPDI（形式の名）。XML を付けた呼び方
+MSPDI	(none)	-	0	S1:MSPDI	match	画面に 0 回。JDG-3353
+SVG画像 / PNG画像	screen-name-ja	IO-3, IO-4	2	S1:Picture	match	JDG-3353: Picture の日本語は「画像」
+SVG Image / PNG Image	screen-name-en	IO-3, IO-4	2	S1:Picture	alias	ruled en は Picture。画面は Image
+画像	screen-label-ja	IC-3, IC-115	2	S1:Picture	match	JDG-3353
+画像	screen-hint-ja	IC-3	1	S1:Picture	match	JDG-3353
+Image	screen-label-en	IC-3, IC-115	2	S1:Picture	alias	ruled en は Picture。画面は Image
+picture	screen-hint-en	IC-3	1	S1:Picture	match	ruled en は Picture
+picture	screen-text-en	RS-30	1	S1:Picture	match	ruled en は Picture
+Markdown	screen-label-en	IC-140	1	S1:Report	match	1 枚目の木: Report = Markdown・TSV
+Markdown	screen-hint-en	IC-140, IC-108	2	S1:Report	match	1 枚目の木: Report = Markdown・TSV
+Markdown	screen-hint-ja	IC-140, IC-108	2	S1:Report	match	1 枚目の木: Report = Markdown・TSV
+.md	screen-label-ja	IC-140	1	S1:Report	match	Report の Markdown の拡張子
+.tsv	screen-label-en	IC-169	1	S1:Report	match	Report の TSV の拡張子
+.tsv	screen-label-ja	IC-169	1	S1:Report	match	Report の TSV の拡張子
+.tsv	screen-hint-en	IC-169	1	S1:Report	match	Report の TSV の拡張子
+.tsv	screen-hint-ja	IC-169	1	S1:Report	match	Report の TSV の拡張子
+修正の記録 / Fix Log	screen-label-en	IC-156	1	S1:Report	match	1 枚目の木: Report = TSV（修正の記録）。Change Log（変更の記録）とは別物
+修正の記録 / Fix Log	screen-label-ja	IC-156	1	S1:Report	match	1 枚目の木: Report = TSV（修正の記録）。Change Log（変更の記録）とは別物
+修正の記録 / Fix Log	screen-hint-en	IC-169	1	S1:Report	match	1 枚目の木: Report = TSV（修正の記録）。Change Log（変更の記録）とは別物
+修正の記録 / Fix Log	screen-hint-ja	IC-156, IC-169	2	S1:Report	match	1 枚目の木: Report = TSV（修正の記録）。Change Log（変更の記録）とは別物
+レポート (単独)	screen-hint-ja	IC-107, IC-168, IC-140	4	S1:Report	clash	ruled の Report は Markdown / TSV の出力。画面の「レポート」は遅延診断レポートの窓も指す
+report (単独)	screen-hint-en	IC-107, IC-168, IC-140	5	S1:Report	clash	ruled の Report は Markdown / TSV の出力。画面の report は遅延診断レポートの窓も指す
+GRS JSON Schema	(none)	-	0	S1:GRS JSON Schema	match	画面に 0 回。JDG-3363
+スキーマ / schema (単独)	screen-hint-en	IC-115	1	S1:GRS JSON Schema	alias	JDG-3363: 英語は GRS JSON Schema、日本語は GRS JSON スキーマ。単独の語は名前になっていない
+スキーマ / schema (単独)	screen-hint-ja	IC-115	1	S1:GRS JSON Schema	alias	JDG-3363: 英語は GRS JSON Schema、日本語は GRS JSON スキーマ。単独の語は名前になっていない
+スキーマ / schema (単独)	screen-text-en	RS-65	1	S1:GRS JSON Schema	alias	JDG-3363: 英語は GRS JSON Schema、日本語は GRS JSON スキーマ。単独の語は名前になっていない
+スキーマ / schema (単独)	screen-text-ja	RS-65	1	S1:GRS JSON Schema	alias	JDG-3363: 英語は GRS JSON Schema、日本語は GRS JSON スキーマ。単独の語は名前になっていない
+掴み領域 / Grab Region	(none)	-	0	U-43	match	画面に 0 回。問 10 A の正
+掴み代	(none)	-	0	U-43	alias	画面に 0 回。問 10: 掴み代 → 掴み領域（本文 238）
+掴み点	(none)	-	0	U-43	match	画面に 0 回。問 10 A でも掴み点は残る
+ハンドル / Handle	(none)	-	0	S2:問 11 Handle	pending	画面に 0 回。問 11: 描いた印の名
+フェード掴み点	screen-label-ja	K-94, K-95	2	U-43	pending	問 11: 選んでいるあいだだけ描く印は Handle（Fade Handle）。問 10: 掴み点は掴む所そのもの
+handle (識別子の中)	screen-label-en-identifier	K-94, K-95	2	S2:問 11 Handle	pending	識別子（camelCase）を分けて数えた。問 11: 設定の名 fadeHandle* の中の handle
+handle (識別子の中)	screen-text-en	RS-87, IV-14	2	S2:問 11 Handle	pending	問 11: 設定の名 fadeHandle* の中の handle
+掴み帯 / Grip / グリップ	(none)	-	0	S2:問 12 Grip	pending	画面に 0 回。問 12: 掴むと物ごと動く帯は Grip
+つまみ / Scroll Thumb	(none)	-	0	S2:問 12 Scroll Thumb	pending	画面に 0 回。問 12
+操作子	(none)	-	0	S2:問 13 Task Group Buttons	pending	画面に 0 回。問 13: 操作子をやめて Button にする
+control	screen-text-en	RS-27, QN-9	2	S2:問 13 Task Group Buttons	pending	問 13: 画面の英語は control（用語集 U-47 は Expander）
+ボタン / button	screen-text-en	MK-9	1	S2:問 13 Task Group Buttons	pending	問 13: 押すものは Button。マウスのボタン（中ボタン）にも使う（clash 気味）
+ボタン / button	screen-text-ja	MK-9	1	S2:問 13 Task Group Buttons	pending	問 13: 押すものは Button。マウスのボタン（中ボタン）にも使う（clash 気味）
+ボタン / button	screen-press-en	MK-7	1	S2:問 13 Task Group Buttons	pending	問 13: 押すものは Button。マウスのボタン（中ボタン）にも使う（clash 気味）
+ボタン / button	screen-press-ja	MK-7	1	S2:問 13 Task Group Buttons	pending	問 13: 押すものは Button。マウスのボタン（中ボタン）にも使う（clash 気味）
+折りたたむ	screen-label-ja	IC-59	1	U-47	pending	問 13: Collapse Button（折りたたむボタン）の画面の名。U-47 は Task Group Expander
+Collapse	screen-label-en	IC-59	1	U-47	pending	問 13: Collapse Button
+1 階層だけ展開する	screen-label-ja	IC-90	1	U-47	pending	問 13: Expand One Level Button
+Expand One Level	screen-label-en	IC-90	1	U-47	pending	問 13: Expand One Level Button
+配下をすべて折りたたむ	screen-label-ja	IC-77	1	U-47	pending	問 13: Collapse Below Button
+Collapse Below	screen-label-en	IC-77	1	U-47	pending	問 13: Collapse Below Button
+配下をすべて展開する	screen-label-ja	IC-58	1	U-47	pending	問 13: Expand Below Button
+Expand Below	screen-label-en	IC-58	1	U-47	pending	問 13: Expand Below Button
+ピン止め (ボタンの名)	screen-label-ja	IC-60	1	U-48	pending	問 13: Pin Button。U-48 は Task Group Pin
+Pin (ボタンの名)	screen-label-en	IC-60	1	U-48	pending	問 13: Pin Button
+Task Group Expander / Task Group Pin	(none)	-	0	U-47	match	画面に 0 回。
+操作の合図 / Interaction Cues	(none)	-	0	S2:問 14 Interaction Cues	pending	画面に 0 回。問 14
+ドロップの案内 / Drop Cue	(none)	-	0	U-68	match	画面に 0 回。U-68（問 14 で面の言い方をやめる）
+選択枠 / Selection Frame	(none)	-	0	S2:問 14 Selection Frame	pending	画面に 0 回。問 14
+ドラッグ中のコピー / 写し	(none)	-	0	S2:問 14 Drag Copy	pending	画面に 0 回。問 14
+積み順の段 / 積み順	screen-label-ja	K-11, K-58	2	S2:問 18 Stack Row	pending	問 18: Stack Row（積み段）。T-006b A-1 は「段」を単独で使わない
+ダミー	screen-label-ja	K-109	1	U-52	pending	問 19d: 実績のダミー（Actual Dummy）。U-52 は 実績操作のダミー
+dummy (識別子の中)	screen-label-en-identifier	K-109	1	U-52	pending	識別子（camelCase）を分けて数えた。問 19d: Actual Dummy
+輪郭	screen-label-ja	K-39	1	S2:問 18 Baseline Outline	clash	予定バー自身の輪郭（K-39「予定の輪郭線」）と、変更前の予定の輪郭（Baseline Outline）の 2 つ
+補助線	screen-label-ja	K-91, K-92, K-93	3	S2:問 18 Plan-Actual Guide Line	pending	問 18: Plan-Actual Guide Line（予実の補助線）。K-91〜K-93 の説明だけ
+plan actual guide	screen-label-en-identifier	K-91, K-92, K-93	3	S2:問 18 Plan-Actual Guide Line	pending	識別子（camelCase）を分けて数えた。問 18
+進捗マーカー	screen-label-ja	IC-40, K-147, K-78	3	U-5	match	
+進捗マーカー	screen-hint-ja	IC-40	1	U-5	match	
+Progress Marker	screen-label-en	IC-40, K-78	2	U-5	match	
+Progress Marker	screen-label-en-identifier	K-147	1	U-5	match	識別子（camelCase）を分けて数えた。
+Progress Marker	screen-hint-en	IC-40	1	U-5	match	
+マーカー (単独)	screen-label-ja	K-22, K-26, K-27	5	U-5	match	T-006b A-5: 単独で書いたら Progress Marker を指す
+marker (単独)	screen-label-en-identifier	K-22, K-24, K-26	5	U-5	match	識別子（camelCase）を分けて数えた。T-006b A-5 の英語側
+再開アイコンへ繋ぐ破線	screen-label-ja	K-28, K-29, K-130	3	S2:問 18 Resume Dash Line	pending	問 18: Resume Dash Line（再開への破線）。問 17: 再開アイコン → 再開マーク
+再開アイコン	screen-label-ja	K-26, K-27	2	U-6	match	[問 17 で変わる] 案は Resume Mark（再開マーク）。用語集 U-6 は今 Resume Icon
+再開アイコン	screen-hint-ja	IC-40	1	U-6	match	[問 17 で変わる] 案は Resume Mark（再開マーク）。用語集 U-6 は今 Resume Icon
+Resume Icon	screen-hint-en	IC-40	1	U-6	match	[問 17 で変わる] 案は Resume Mark
+再開マーク / Resume Mark	(none)	-	0	S2:問 17 Resume Mark	pending	画面に 0 回。問 17 の案の名
+期限の印 / Deadline Mark / 期限マーク	(none)	-	0	U-63	pending	画面に 0 回。問 17: Deadline Mark（期限マーク）。U-63 は期限の印
+続きの印 / Continuation Mark / 続きマーク	(none)	-	0	S2:問 17 Continuation Mark	pending	画面に 0 回。問 17: 名なしだった物に Continuation Mark
+札	screen-label-ja	K-132	1	S2:問 15 Task Labels	pending	問 15: 札をやめて Label にする（K-132「担当と進捗の札」）
+ラベル (単独)	screen-text-ja	readOnlySettings[2]	1	S2:問 15 Task Labels	pending	問 15: 総称 Task Labels（タスクのラベル）
+labels (単独)	screen-label-en-identifier	K-112, K-113, K-114	8	S2:問 15 Task Labels	pending	識別子（camelCase）を分けて数えた。問 15: 総称 Task Labels
+labels (単独)	screen-text-en	readOnlySettings[2]	1	S2:問 15 Task Labels	pending	問 15: 総称 Task Labels
+名称ラベル	screen-label-ja	K-124	1	U-7	match	
+名称ラベル	screen-text-ja	MK-13	1	U-7	match	
+Name Label	screen-text-en	MK-13	1	U-7	match	
+担当ラベル	screen-label-ja	IC-79, K-75	2	U-8	match	
+担当ラベル	screen-hint-ja	IC-79	1	U-8	match	
+担当ラベル	screen-text-ja	MK-13	1	U-8	match	
+Assignee Label	screen-label-en	IC-79, K-75	2	U-8	match	
+Assignee Label	screen-label-en-identifier	K-132	1	U-8	match	識別子（camelCase）を分けて数えた。
+Assignee Label	screen-hint-en	IC-79	1	U-8	match	
+Assignee Label	screen-text-en	MK-13	1	U-8	match	
+完了率ラベル	screen-label-ja	IC-80, K-76	2	U-41	match	
+完了率ラベル	screen-hint-ja	IC-80	1	U-41	match	
+Percent Complete Label	screen-label-en	IC-80, K-76	2	U-41	match	
+Percent Complete Label	screen-hint-en	IC-80	1	U-41	match	
+依存線	screen-label-ja	IC-61, IC-81, K-18	4	U-16	match	
+依存線	screen-hint-ja	IC-61, IC-81	2	U-16	match	
+依存線	screen-text-ja	AR-4, delayFixes[14], delayFixes[22]	4	U-16	match	
+Dependency Lines	screen-label-en	IC-81, K-77	2	U-16	match	用語集は複数形
+Dependency Lines	screen-hint-en	IC-81	1	U-16	match	用語集は複数形
+Dependency Line (単数)	screen-hint-en	IC-61	1	U-16	pending	問 19b: 用語集の名を単数にするか（Dependency Lines → Dependency Line）
+Dependency Line (単数)	screen-text-en	AR-4, delayFixes[14], delayFixes[22]	4	U-16	pending	問 19b: 用語集の名を単数にするか（Dependency Lines → Dependency Line）
+矢じり / arrowhead	screen-label-en-identifier	K-46, K-135, K-136	3	S2:問 18 Arrowhead	pending	識別子（camelCase）を分けて数えた。問 18: Arrowhead（矢じり）を行に立てる。今は設定 K-27・K-46・K-135・K-136 の説明だけ
+矢じり / arrowhead	screen-label-ja	K-27, K-46, K-135	4	S2:問 18 Arrowhead	pending	問 18: Arrowhead（矢じり）を行に立てる。今は設定 K-27・K-46・K-135・K-136 の説明だけ
+矢印 / arrow	screen-label-en	IC-25	1	P-13	clash	タスクの形（P-13）・依存線の矢じり（K-19）・親タスクの矢印（IC-141）の 3 つに使う
+矢印 / arrow	screen-label-en-identifier	K-15, K-19, K-128	3	P-13	clash	識別子（camelCase）を分けて数えた。タスクの形（P-13）・依存線の矢じり（K-19）・親タスクの矢印（IC-141）の 3 つに使う
+矢印 / arrow	screen-label-ja	IC-25, K-15, K-19	5	P-13	clash	タスクの形（P-13）・依存線の矢じり（K-19）・親タスクの矢印（IC-141）の 3 つに使う
+矢印 / arrow	screen-hint-en	IC-25, IC-141	3	P-13	clash	タスクの形（P-13）・依存線の矢じり（K-19）・親タスクの矢印（IC-141）の 3 つに使う
+矢印 / arrow	screen-hint-ja	IC-25, IC-141	3	P-13	clash	タスクの形（P-13）・依存線の矢じり（K-19）・親タスクの矢印（IC-141）の 3 つに使う
+矢印 / arrow	screen-text-en	QN-12, parentTaskChoice[2]	2	P-13	clash	タスクの形（P-13）・依存線の矢じり（K-19）・親タスクの矢印（IC-141）の 3 つに使う
+矢印 / arrow	screen-text-ja	QN-12, parentTaskChoice[2]	2	P-13	clash	タスクの形（P-13）・依存線の矢じり（K-19）・親タスクの矢印（IC-141）の 3 つに使う
+注記 / annotation	screen-text-en	RS-44	1	U-15a	match	用語集 U-15a は複数形 Annotations（問 19b）
+注記 / annotation	screen-text-ja	RS-44	1	U-15a	match	用語集 U-15a は複数形 Annotations（問 19b）
+コメントボックス	screen-label-ja	IC-35, IC-119, K-115	4	U-14	match	
+コメントボックス	screen-hint-ja	IC-35, IC-119	2	U-14	match	
+コメントボックス	screen-text-ja	MK-13, AR-5	2	U-14	match	
+Callout(s)	screen-label-en	IC-35, IC-119	2	U-14	alias	問 16: 英語はどこでも Comment Box。画面の英語だけ Callout
+Callout(s)	screen-hint-en	IC-35, IC-119	2	U-14	alias	問 16: 英語はどこでも Comment Box。画面の英語だけ Callout
+Callout(s)	screen-text-en	MK-13, AR-5	2	U-14	alias	問 16: 英語はどこでも Comment Box。画面の英語だけ Callout
+Comment Box	screen-label-en-identifier	K-115, K-116	2	U-14	match	識別子（camelCase）を分けて数えた。問 16 A の英語名。用語集も Comment Boxes
+Leader Line / 引出し線	(none)	-	0	JDG-3348	match	画面に 0 回。JDG-3348
+Leader Anchor / 線先	(none)	-	0	JDG-3348	match	画面に 0 回。JDG-3348
+ハイライトボックス	screen-label-ja	IC-36	1	U-15	match	
+ハイライトボックス	screen-hint-ja	IC-36	1	U-15	match	
+ハイライトボックス	screen-text-ja	IV-19, MK-13, AR-6	3	U-15	match	
+ハイライトボックス	screen-nextStep-ja	IV-19	1	U-15	match	
+Highlight Box (単数)	screen-label-en	IC-36	1	U-15	pending	問 19b: 用語集は複数形 Highlight Boxes。単数にそろえるか
+Highlight Box (単数)	screen-hint-en	IC-36	1	U-15	pending	問 19b: 用語集は複数形 Highlight Boxes。単数にそろえるか
+Highlight Box (単数)	screen-text-en	IV-19, MK-13, AR-6	3	U-15	pending	問 19b: 用語集は複数形 Highlight Boxes。単数にそろえるか
+Highlight Box (単数)	screen-nextStep-en	IV-19	1	U-15	pending	問 19b: 用語集は複数形 Highlight Boxes。単数にそろえるか
+イナズマ線	screen-label-ja	IC-39, K-50, K-79	3	U-9	match	
+イナズマ線	screen-hint-ja	IC-39	1	U-9	match	
+Progress Line	screen-label-en	IC-39, K-79	2	U-9	match	
+Progress Line	screen-label-en-identifier	K-50, K-51	2	U-9	match	識別子（camelCase）を分けて数えた。
+Progress Line	screen-hint-en	IC-39	1	U-9	match	
+基準日線	screen-hint-ja	IC-44	1	U-11	match	
+Status Line	screen-hint-en	IC-44	1	U-11	match	
+日付罫線	screen-label-ja	IC-42, K-82	2	U-17	match	
+日付罫線	screen-hint-ja	IC-42	1	U-17	match	
+Date Grid Lines	screen-label-en	IC-42, K-82	2	U-17	match	
+Date Grid Lines	screen-hint-en	IC-42	1	U-17	match	
+グループ罫線	screen-label-ja	IC-43, K-83	2	U-18	match	
+グループ罫線	screen-hint-ja	IC-43	1	U-18	match	
+Group Grid Lines	screen-label-en	IC-43, K-83	2	U-18	match	
+Group Grid Lines	screen-hint-en	IC-43	1	U-18	match	
+時間軸 / Time Axis	screen-hint-en	IC-12, IC-13	2	JDG-3348	match	JDG-3348: Time Ruler の目盛の帯とは別
+時間軸 / Time Axis	screen-hint-ja	IC-12, IC-13	2	JDG-3348	match	JDG-3348: Time Ruler の目盛の帯とは別
+時間軸 / Time Axis	screen-text-en	MK-3	1	JDG-3348	match	JDG-3348: Time Ruler の目盛の帯とは別
+時間軸 / Time Axis	screen-text-ja	MK-3	1	JDG-3348	match	JDG-3348: Time Ruler の目盛の帯とは別
+見えている範囲 / View	screen-text-en	MK-7, readOnlySettings[3]	2	JDG-3348	match	JDG-3348
+見えている範囲 / View	screen-text-ja	readOnlySettings[3]	1	JDG-3348	match	JDG-3348
+選択	screen-label-ja	IC-63, IC-64, IC-65	5	U-39	match	名詞の「選択」と動詞の「選択する」が混ざる（部分一致で数えた）
+選択	screen-hint-ja	IC-16, IC-21, IC-63	7	U-39	match	名詞の「選択」と動詞の「選択する」が混ざる（部分一致で数えた）
+選択	screen-text-ja	SK-3, RS-70, MK-6	11	U-39	match	名詞の「選択」と動詞の「選択する」が混ざる（部分一致で数えた）
+選択	screen-nextStep-ja	RS-54	1	U-39	match	名詞の「選択」と動詞の「選択する」が混ざる（部分一致で数えた）
+selection / select	screen-label-en	IC-63, IC-65, IC-67	4	U-39	match	selection / select / selected が混ざる
+selection / select	screen-hint-en	IC-37, IC-38, IC-142	10	U-39	match	selection / select / selected が混ざる
+selection / select	screen-text-en	SK-2, SK-3, IC-54	19	U-39	match	selection / select / selected が混ざる
+selection / select	screen-nextStep-en	RS-54, RS-70, RS-72	5	U-39	match	selection / select / selected が混ざる
+selection / select	screen-press-en	MK-15	1	U-39	match	selection / select / selected が混ざる
+範囲選択	screen-text-ja	MK-6	1	U-40	match	
+Marquee	screen-text-en	MK-6	1	U-40	match	
+構え	screen-label-ja	IC-54	1	U-38	match	用語集 U-38 ArmedShape。「構える」を含む
+構え	screen-hint-ja	IC-23, IC-24, IC-25	24	U-38	match	用語集 U-38 ArmedShape。「構える」を含む
+構え	screen-name-ja	paletteGroups[4]	1	U-38	match	用語集 U-38 ArmedShape。「構える」を含む
+構え	screen-text-ja	IC-54, RS-54	2	U-38	match	用語集 U-38 ArmedShape。「構える」を含む
+構え	screen-nextStep-ja	RS-54, RS-70	2	U-38	match	用語集 U-38 ArmedShape。「構える」を含む
+tool (構え)	screen-label-en	IC-54	1	U-38	alias	用語集 U-38 は ArmedShape（構え）。画面の英語は tool / Current Tool
+tool (構え)	screen-hint-en	IC-54	1	U-38	alias	用語集 U-38 は ArmedShape（構え）。画面の英語は tool / Current Tool
+tool (構え)	screen-name-en	paletteGroups[4]	1	U-38	alias	用語集 U-38 は ArmedShape（構え）。画面の英語は tool / Current Tool
+tool (構え)	screen-text-en	IC-54, RS-54	2	U-38	alias	用語集 U-38 は ArmedShape（構え）。画面の英語は tool / Current Tool
+tool (構え)	screen-nextStep-en	RS-54	1	U-38	alias	用語集 U-38 は ArmedShape（構え）。画面の英語は tool / Current Tool
+ポインタ	screen-text-ja	MK-2	1	U-42	match	長音の綴りは別の行（問 19a）
+pointer	screen-hint-en	IC-76	1	U-42	match	
+pointer	screen-text-en	MK-2	1	U-42	match	
+マウス	screen-hint-ja	IC-76	1	U-42	alias	T-006b A-15: マウスが指す点は「ポインタ」と書く。IC-76 の英語は pointer
+mouse	screen-hint-en	IC-102	1	U-42	alias	マウスの語。ruled は pointer（ホイール・ボタンはマウスの物）
+ガイドカーソル	screen-label-ja	K-81	1	U-13	match	
+ガイドカーソル	screen-hint-ja	IC-47, IC-48	2	U-13	match	
+Guide Cursor	screen-label-en-identifier	K-81	1	U-13	match	識別子（camelCase）を分けて数えた。
+Guide Cursor	screen-hint-en	IC-47, IC-48	2	U-13	match	
+デュアルカーソル	screen-label-ja	IC-45, K-80	2	U-12	match	
+デュアルカーソル	screen-hint-ja	IC-45	1	U-12	match	
+Dual Cursor	screen-label-en	IC-45	1	U-12	match	
+Dual Cursor	screen-label-en-identifier	K-80	1	U-12	match	識別子（camelCase）を分けて数えた。
+Dual Cursor	screen-hint-en	IC-45	1	U-12	match	
+カーソル	screen-name-ja	paletteGroups[3]	1	U-10	match	用語集は複数形 Cursors（問 19b）
+Cursors	screen-name-en	paletteGroups[3]	1	U-10	match	
+アイテム / item	screen-label-en-identifier	K-98	1	N-4a	match	識別子（camelCase）を分けて数えた。
+アイテム / item	screen-hint-en	IC-37, IC-38	2	N-4a	match	
+アイテム / item	screen-text-en	RS-48, IV-1, MK-8	3	N-4a	match	
+アイテム / item	screen-press-en	MK-8	1	N-4a	match	
+アイテム / item	screen-press-ja	MK-8	1	N-4a	match	
+ピン止めしたタスクグループ / pinned task group	screen-label-en	K-110	1	U-46	match	
+ピン止めしたタスクグループ / pinned task group	screen-label-en-identifier	K-111	1	U-46	match	識別子（camelCase）を分けて数えた。
+ピン止めしたタスクグループ / pinned task group	screen-text-en	RS-66	1	U-46	match	
+ピン止めしたタスクグループ / pinned task group	screen-text-ja	RS-66	1	U-46	match	
+アイコン / icon	screen-hint-en	IC-22	1	T-109	match	IC 行の表の名。JDG-3348: Glyph はアイコンの絵だけ
+アイコン / icon	screen-hint-ja	IC-22	1	T-109	match	IC 行の表の名。JDG-3348: Glyph はアイコンの絵だけ
+Task (日本語の文の中)	screen-label-ja	K-98	1	N-1	alias	日本語の文の中に型の名（Task）をそのまま書く（K-98）
+タスク名 / Task Name	screen-label-en	PR-1	1	P-1	alias	P-1 の日本語は「名称」
+タスク名 / Task Name	screen-label-ja	PR-1, K-31, K-32	3	P-1	alias	P-1 の日本語は「名称」
+親タスク / Parent Task	screen-label-en	IC-141, IC-142, PR-15	4	P-22	match	
+親タスク / Parent Task	screen-label-ja	IC-141, IC-142, PR-15	5	P-22	match	
+親タスク / Parent Task	screen-hint-en	IC-141, IC-142	2	P-22	match	
+親タスク / Parent Task	screen-hint-ja	IC-141, IC-142	4	P-22	match	
+親タスク / Parent Task	screen-text-en	RS-69, AR-7, delayFixes[18]	5	P-22	match	
+親タスク / Parent Task	screen-text-ja	RS-80, RS-69, RS-70	10	P-22	match	
+親タスク / Parent Task	screen-nextStep-en	RS-70	1	P-22	match	
+親タスク / Parent Task	screen-nextStep-ja	RS-70, IV-4	3	P-22	match	
+上位タスク / summary task	screen-text-en	VS-2	1	P-22	alias	親タスクの別の言い方（VS-2）。summary は MSPDI の語
+上位タスク / summary task	screen-text-ja	VS-2	1	P-22	alias	親タスクの別の言い方（VS-2）。summary は MSPDI の語
+タスク	screen-label-ja	IC-101, IC-118, PR-37	4	N-1	match	
+タスク	screen-hint-ja	IC-23, IC-24, IC-25	14	N-1	match	
+タスク	screen-text-ja	RS-79, RS-81, RS-16	49	N-1	match	
+タスク	screen-nextStep-ja	RS-79, RS-81, RS-16	10	N-1	match	
+タスク	screen-press-ja	MK-16	1	N-1	match	
+task	screen-label-en	IC-61, IC-118, PR-37	4	N-1	match	
+task	screen-hint-en	IC-23, IC-24, IC-25	14	N-1	match	
+task	screen-text-en	RS-79, RS-80, RS-81	51	N-1	match	
+task	screen-nextStep-en	RS-79, RS-81, RS-16	10	N-1	match	
+task	screen-press-en	MK-16	1	N-1	match	
+親 (単独) / parent (単独)	screen-hint-en	IC-141, IC-142	2	P-22	alias	単独の「親」（親タスク / タスクグループの親の両方に使う）
+親 (単独) / parent (単独)	screen-text-en	RS-70, IV-4, IV-18	16	P-22	alias	単独の「親」（親タスク / タスクグループの親の両方に使う）
+親 (単独) / parent (単独)	screen-text-ja	IV-18, delayReportReasons[10], delayReportReasons[11]	12	P-22	alias	単独の「親」（親タスク / タスクグループの親の両方に使う）
+親 (単独) / parent (単独)	screen-nextStep-en	RS-55, RS-70	2	P-22	alias	単独の「親」（親タスク / タスクグループの親の両方に使う）
+親 (単独) / parent (単独)	screen-nextStep-ja	RS-55	1	P-22	alias	単独の「親」（親タスク / タスクグループの親の両方に使う）
+タスクグループ	screen-label-ja	IC-82, IC-106, PR-18	9	N-2	match	
+タスクグループ	screen-hint-ja	IC-58, IC-59, IC-77	14	N-2	match	
+タスクグループ	screen-text-ja	RS-24, RS-28, RS-29	30	N-2	match	
+タスクグループ	screen-nextStep-ja	RS-22, RS-24, RS-29	11	N-2	match	
+TaskGroup (日本語の文の中)	screen-label-ja	K-37, K-38, K-83	4	N-2	alias	日本語の文の中に型の名（TaskGroup）をそのまま書く（K-37・K-38・K-102）
+Task Group	screen-label-en	IC-82, IC-106, IC-93	6	N-2	match	
+Task Group	screen-label-en-identifier	K-12	1	N-2	match	識別子（camelCase）を分けて数えた。
+Task Group	screen-hint-en	IC-58, IC-59, IC-77	14	N-2	match	
+Task Group	screen-text-en	RS-24, RS-28, RS-29	29	N-2	match	
+Task Group	screen-nextStep-en	RS-22, RS-24, RS-28	13	N-2	match	
+assignee	screen-label-en	PR-16	1	N-10	alias	ja の「担当」は N-10 Resource。画面の英語は assignee（P-16 のプロパティの名）と resource の両方
+assignee	screen-text-en	RS-49, RS-82, MK-13	5	N-10	alias	ja の「担当」は N-10 Resource。画面の英語は assignee（P-16 のプロパティの名）と resource の両方
+Resource	screen-hint-en	IC-62, IC-63, IC-64	7	N-10	match	
+Resource	screen-text-en	QN-3, readOnlySettings[9], RQ-2	3	N-10	match	
+担当	screen-label-ja	PR-16, K-132	2	N-10	match	
+担当	screen-hint-ja	IC-62, IC-63, IC-65	6	N-10	match	
+担当	screen-text-ja	RS-49, RS-82, QN-3	13	N-10	match	
+割当	screen-hint-ja	IC-65, IC-66	2	N-11	match	
+割当	screen-press-ja	MK-10, MK-12	2	N-11	match	
+割り当て	screen-text-ja	QN-3	1	N-11	alias	送り仮名の揺れ（用語集は「割当」）
+Assignment	screen-hint-en	IC-65, IC-66	2	N-11	match	
+依存 / dependency	screen-label-en-identifier	K-18, K-19, K-126	6	N-12	match	識別子（camelCase）を分けて数えた。
+依存 / dependency	screen-label-ja	K-104	1	N-12	match	
+依存 / dependency	screen-text-en	RS-56, VC-1, VC-2	7	N-12	match	
+依存 / dependency	screen-text-ja	RS-56, VC-1, VC-2	10	N-12	match	
+プロジェクト / Project	screen-label-en	K-144	1	N-8	match	
+プロジェクト / Project	screen-label-ja	K-144	1	N-8	match	
+プロジェクト / Project	screen-text-en	colorField[1]	1	N-8	match	
+プロジェクト / Project	screen-text-ja	colorField[1]	1	N-8	match	
+暦 / calendar	screen-text-en	RS-21, IV-7	3	N-9	match	
+暦 / calendar	screen-text-ja	RS-21, IV-7	3	N-9	match	
+暦 / calendar	screen-nextStep-en	RS-52	1	N-9	match	
+暦 / calendar	screen-nextStep-ja	RS-52	2	N-9	match	
+Agent API	screen-label-en	IC-20	1	U-36	match	訳語を当てない
+Agent API	screen-label-ja	IC-20	1	U-36	match	訳語を当てない
+Agent API	screen-hint-en	IC-20	1	U-36	match	訳語を当てない
+Agent API	screen-hint-ja	IC-20	1	U-36	match	訳語を当てない
+Agent API	screen-nextStep-en	RS-90	1	U-36	match	訳語を当てない
+Agent API	screen-nextStep-ja	RS-90	1	U-36	match	訳語を当てない
+ブラウザ	screen-hint-ja	IC-139	1	S1:Browser Window	match	長音の綴りは別の行（問 19a）。ruled は「ブラウザーのウィンドウ」
+ブラウザ	screen-text-ja	helpHeadings[1], helpBlockNotes[0], BF-1	8	S1:Browser Window	match	長音の綴りは別の行（問 19a）。ruled は「ブラウザーのウィンドウ」
+ブラウザ	screen-nextStep-ja	RS-59	1	S1:Browser Window	match	長音の綴りは別の行（問 19a）。ruled は「ブラウザーのウィンドウ」
+browser	screen-hint-en	IC-139	1	S1:Browser Window	match	Browser Window の stem
+browser	screen-text-en	helpHeadings[1], helpBlockNotes[0], BF-1	8	S1:Browser Window	match	Browser Window の stem
+browser	screen-nextStep-en	RS-59	1	S1:Browser Window	match	Browser Window の stem
+browser	screen-help-block-en	helpHeadings[1]	1	S1:Browser Window	match	Browser Window の stem
+ポインタ (長音なし)	screen-text-ja	MK-2	1	U-42	pending	問 19a: 長音を伸ばす形（ポインター）にそろえるか。用語集 U-42 は「ポインタ」
+ブラウザ (長音なし)	screen-hint-ja	IC-139	1	S1:Browser Window	pending	問 19a: 長音を伸ばす形（ブラウザー）にそろえるか。1 枚目の木は「ブラウザーのウィンドウ」
+ブラウザ (長音なし)	screen-text-ja	helpHeadings[1], helpBlockNotes[0], BF-1	8	S1:Browser Window	pending	問 19a: 長音を伸ばす形（ブラウザー）にそろえるか。1 枚目の木は「ブラウザーのウィンドウ」
+ブラウザ (長音なし)	screen-nextStep-ja	RS-59	1	S1:Browser Window	pending	問 19a: 長音を伸ばす形（ブラウザー）にそろえるか。1 枚目の木は「ブラウザーのウィンドウ」
+フィルタ (長音なし)	screen-label-ja	IC-153, IC-143, IC-122	3	S1:Schedule Filter Bar	pending	問 19a: 長音を伸ばす形（フィルター）にそろえるか。1 枚目の木は「スケジュールフィルタバー」で長音なし
+フィルタ (長音なし)	screen-hint-ja	IC-153, IC-143, IC-122	3	S1:Schedule Filter Bar	pending	問 19a: 長音を伸ばす形（フィルター）にそろえるか。1 枚目の木は「スケジュールフィルタバー」で長音なし
+フィルタ (長音なし)	screen-text-ja	readOnlySettings[7], readOnlySettings[11], searchPanel[7]	6	S1:Schedule Filter Bar	pending	問 19a: 長音を伸ばす形（フィルター）にそろえるか。1 枚目の木は「スケジュールフィルタバー」で長音なし
+ポインター / ブラウザー / フィルター (長音あり)	(none)	-	0	-	pending	画面に 0 回。問 19a: 伸ばす形（案の正）
+GRS Relay	screen-text-en	RS-90	1	-	missing	行が無い（用語集にも 1 枚目の木にも）
+GRS Relay	screen-text-ja	RS-90	1	-	missing	行が無い（用語集にも 1 枚目の木にも）
+縦軸 / vertical axis	screen-hint-en	IC-14, IC-15	2	-	missing	時間軸（Time Axis）の対になる縦の軸の名の行が無い
+縦軸 / vertical axis	screen-hint-ja	IC-14, IC-15	2	-	missing	時間軸（Time Axis）の対になる縦の軸の名の行が無い
+縦軸 / vertical axis	screen-text-en	MK-4	1	-	missing	時間軸（Time Axis）の対になる縦の軸の名の行が無い
+縦軸 / vertical axis	screen-text-ja	MK-4	1	-	missing	時間軸（Time Axis）の対になる縦の軸の名の行が無い
+全体を収める / Zoom to Fit	screen-label-en	IC-10	1	-	missing	行が無い。仕様書は「Fit to screen」とも書く（2 段目の 14 番）。画面の英語は Zoom to Fit
+全体を収める / Zoom to Fit	screen-label-ja	IC-10	1	-	missing	行が無い。仕様書は「Fit to screen」とも書く（2 段目の 14 番）。画面の英語は Zoom to Fit
+画面 / screen	screen-label-en	IC-21	1	-	missing	行が無い（Screen Language などの設定の名にも使う）
+画面 / screen	screen-label-en-identifier	K-90	1	-	missing	識別子（camelCase）を分けて数えた。行が無い（Screen Language などの設定の名にも使う）
+画面 / screen	screen-label-ja	IC-21, K-90	2	-	missing	行が無い（Screen Language などの設定の名にも使う）
+画面 / screen	screen-hint-en	IC-21, IC-60	2	-	missing	行が無い（Screen Language などの設定の名にも使う）
+画面 / screen	screen-hint-ja	IC-21, IC-60, IC-76	3	-	missing	行が無い（Screen Language などの設定の名にも使う）
+画面 / screen	screen-text-en	QN-9, MK-9	2	-	missing	行が無い（Screen Language などの設定の名にも使う）
+画面 / screen	screen-text-ja	RS-30, QN-9, QN-11	5	-	missing	行が無い（Screen Language などの設定の名にも使う）
+画面 / screen	screen-nextStep-en	RS-20, RS-82, RS-83	4	-	missing	行が無い（Screen Language などの設定の名にも使う）
+画面 / screen	screen-nextStep-ja	RS-20, RS-82, RS-83	4	-	missing	行が無い（Screen Language などの設定の名にも使う）
+先行 / predecessor	screen-label-en	PR-37, PR-43	2	-	missing	依存の前の端の名の行が無い（P-23 は種別の 4 値だけ）
+先行 / predecessor	screen-label-ja	PR-37, PR-43	2	-	missing	依存の前の端の名の行が無い（P-23 は種別の 4 値だけ）
+先行 / predecessor	screen-text-en	delayReportReasons[9], VC-3, VC-13	7	-	missing	依存の前の端の名の行が無い（P-23 は種別の 4 値だけ）
+先行 / predecessor	screen-text-ja	delayReportReasons[9], VC-2, VC-3	8	-	missing	依存の前の端の名の行が無い（P-23 は種別の 4 値だけ）
+後続 / successor	screen-label-en	PR-38, PR-44	2	-	missing	依存の後ろの端の名の行が無い
+後続 / successor	screen-label-ja	PR-38, PR-44	2	-	missing	依存の後ろの端の名の行が無い
+後続 / successor	screen-text-en	VC-3, VC-13, VS-3	4	-	missing	依存の後ろの端の名の行が無い
+後続 / successor	screen-text-ja	VC-2, VC-3, VC-13	5	-	missing	依存の後ろの端の名の行が無い
+ラグ / lag	screen-label-en	PR-42	1	-	missing	行が無い（K-104 dependencyLagDefault の中だけ）
+ラグ / lag	screen-label-en-identifier	K-104	1	-	missing	識別子（camelCase）を分けて数えた。行が無い（K-104 dependencyLagDefault の中だけ）
+ラグ / lag	screen-label-ja	PR-42, K-104	2	-	missing	行が無い（K-104 dependencyLagDefault の中だけ）
+基準日 / Status Date	screen-label-en	IC-44	1	U-11	missing	線の行（U-11）はあるが、基準日そのものの名の行が無い（Project.statusDate）
+基準日 / Status Date	screen-label-ja	IC-44	1	U-11	missing	線の行（U-11）はあるが、基準日そのものの名の行が無い（Project.statusDate）
+基準日 / Status Date	screen-hint-en	IC-44	1	U-11	missing	線の行（U-11）はあるが、基準日そのものの名の行が無い（Project.statusDate）
+基準日 / Status Date	screen-hint-ja	IC-44	1	U-11	missing	線の行（U-11）はあるが、基準日そのものの名の行が無い（Project.statusDate）
+基準日 / Status Date	screen-text-en	delayReportSummary[0], VS-5, delayFixes[24]	3	U-11	missing	線の行（U-11）はあるが、基準日そのものの名の行が無い（Project.statusDate）
+基準日 / Status Date	screen-text-ja	delayReportSummary[0], VS-5, delayFixes[24]	3	U-11	missing	線の行（U-11）はあるが、基準日そのものの名の行が無い（Project.statusDate）
+フェード / fade	screen-label-en	PR-14	1	-	missing	P-21（日数）だけ。フェードそのもの・斜面（問 18 Fade Ramp）の行が無い
+フェード / fade	screen-label-en-identifier	K-94, K-95	2	-	missing	識別子（camelCase）を分けて数えた。P-21（日数）だけ。フェードそのもの・斜面（問 18 Fade Ramp）の行が無い
+フェード / fade	screen-label-ja	PR-14	1	-	missing	P-21（日数）だけ。フェードそのもの・斜面（問 18 Fade Ramp）の行が無い
+フェード / fade	screen-text-en	RS-85, RS-86, IV-11	4	-	missing	P-21（日数）だけ。フェードそのもの・斜面（問 18 Fade Ramp）の行が無い
+フェード / fade	screen-text-ja	RS-85, RS-86, IV-11	4	-	missing	P-21（日数）だけ。フェードそのもの・斜面（問 18 Fade Ramp）の行が無い
+フェード / fade	screen-nextStep-en	RS-85, RS-86, IV-11	4	-	missing	P-21（日数）だけ。フェードそのもの・斜面（問 18 Fade Ramp）の行が無い
+フェード / fade	screen-nextStep-ja	RS-85, RS-86, IV-11	4	-	missing	P-21（日数）だけ。フェードそのもの・斜面（問 18 Fade Ramp）の行が無い
+変更前の予定	screen-label-ja	IC-4, K-84	2	K-84	missing	設定 K-84・アイコン IC-4 の中にだけ出る。名としての行が無い
+変更前の予定	screen-hint-ja	IC-4, IC-73	2	K-84	missing	設定 K-84・アイコン IC-4 の中にだけ出る。名としての行が無い
+ベースライン	screen-label-ja	K-33	1	K-33	clash	T-006b A-7: 文字のベースライン（K-33）と、変更前の予定の 2 つ
+baseline	screen-label-en	IC-4, IC-73, K-84	3	K-84	clash	IC-4・K-84 は変更前の予定、K-33 labelBaseline は文字のベースライン
+baseline	screen-label-en-identifier	K-33	1	K-84	clash	識別子（camelCase）を分けて数えた。IC-4・K-84 は変更前の予定、K-33 labelBaseline は文字のベースライン
+baseline	screen-hint-en	IC-4, IC-73	3	K-84	clash	IC-4・K-84 は変更前の予定、K-33 labelBaseline は文字のベースライン
+タスク種別 / Task Type	screen-text-en	SQ-14, DT-9, FM-9	3	-	missing	行が無い（taskTypes・列の名）
+タスク種別 / Task Type	screen-text-ja	SQ-14, DT-9, FM-9	3	-	missing	行が無い（taskTypes・列の名）
+子タスク / child task	screen-hint-ja	IC-141, IC-142	3	-	missing	行が無い（P-22 は親だけ）
+子タスク / child task	screen-text-en	parentTaskChoice[0], delayReportReasons[10], delayReportReasons[11]	3	-	missing	行が無い（P-22 は親だけ）
+子タスク / child task	screen-text-ja	RS-80, RS-70, IV-4	10	-	missing	行が無い（P-22 は親だけ）
+子タスク / child task	screen-nextStep-ja	RS-70, IV-4	2	-	missing	行が無い（P-22 は親だけ）
+子 (単独) / child (単独)	screen-hint-en	IC-141, IC-142, IC-90	4	-	missing	行が無い
+子 (単独) / child (単独)	screen-hint-ja	IC-142, IC-90	2	-	missing	行が無い
+子 (単独) / child (単独)	screen-text-en	RS-29, RS-30, IV-4	10	-	missing	行が無い
+子 (単独) / child (単独)	screen-text-ja	RS-29, RS-30, IV-18	8	-	missing	行が無い
+子 (単独) / child (単独)	screen-nextStep-en	RS-30, RS-70	2	-	missing	行が無い
+稼働 / working	screen-hint-en	IC-132, IC-133, IC-163	5	-	missing	行が無い（working day・working time・working weekday）
+稼働 / working	screen-hint-ja	IC-132, IC-133, IC-137	3	-	missing	行が無い（working day・working time・working weekday）
+稼働 / working	screen-text-en	RS-21, RS-89, IV-24	18	-	missing	行が無い（working day・working time・working weekday）
+稼働 / working	screen-text-ja	RS-21, RS-89, propertyField[13]	14	-	missing	行が無い（working day・working time・working weekday）
+稼働 / working	screen-nextStep-en	RS-21, IV-24	2	-	missing	行が無い（working day・working time・working weekday）
+稼働 / working	screen-nextStep-ja	RS-21	1	-	missing	行が無い（working day・working time・working weekday）
+例外日 / exception day	screen-hint-en	IC-132, IC-135, IC-136	4	-	missing	行が無い（MSPDI の Exception）
+例外日 / exception day	screen-hint-ja	IC-135, IC-136, IC-137	3	-	missing	行が無い（MSPDI の Exception）
+例外日 / exception day	screen-text-en	IV-24, holidaySettings[5], holidaySettings[19]	3	-	missing	行が無い（MSPDI の Exception）
+例外日 / exception day	screen-text-ja	IV-24, holidaySettings[5], holidaySettings[19]	3	-	missing	行が無い（MSPDI の Exception）
+表 / table	screen-hint-en	IC-118, IC-119, IC-153	7	-	missing	行が無い（表・列・行の 3 つとも）
+表 / table	screen-hint-ja	IC-118, IC-119, IC-153	9	-	missing	行が無い（表・列・行の 3 つとも）
+表 / table	screen-text-en	readOnlySettings[6], searchPanel[7]	2	-	missing	行が無い（表・列・行の 3 つとも）
+表 / table	screen-text-ja	readOnlySettings[6], searchPanel[7]	2	-	missing	行が無い（表・列・行の 3 つとも）
+列 / column	screen-hint-en	IC-153, IC-122, IC-123	4	-	missing	行が無い
+列 / column	screen-hint-ja	IC-153, IC-122, IC-123	4	-	missing	行が無い
+列 / column	screen-text-en	readOnlySettings[11], readOnlySettings[32], readOnlySettings[33]	3	-	missing	行が無い
+列 / column	screen-text-ja	readOnlySettings[11], readOnlySettings[32], readOnlySettings[33]	3	-	missing	行が無い
+行 (表の行・レーンの行)	screen-hint-ja	IC-143, IC-157, IC-158	7	-	clash	表の 1 行と、タスクグループの 1 行（delayFixes「行「{taskGroup}」」）の 2 つ
+行 (表の行・レーンの行)	screen-text-ja	readOnlySettings[10], searchPanel[7], delayFixes[27]	3	-	clash	表の 1 行と、タスクグループの 1 行（delayFixes「行「{taskGroup}」」）の 2 つ
+row	screen-hint-en	IC-153, IC-157, IC-158	7	-	clash	表の 1 行と、タスクグループの 1 行の 2 つ
+row	screen-text-en	readOnlySettings[10], searchPanel[7], delayFixes[27]	3	-	clash	表の 1 行と、タスクグループの 1 行の 2 つ
+フィルタ (列のフィルタ)	screen-label-ja	IC-153, IC-122	2	-	missing	列のフィルタの行が無い（スケジュールフィルタとは別に使う）
+フィルタ (列のフィルタ)	screen-hint-ja	IC-153, IC-122	2	-	missing	列のフィルタの行が無い（スケジュールフィルタとは別に使う）
+フィルタ (列のフィルタ)	screen-text-ja	readOnlySettings[11], delayReportMarkdown[2]	2	-	missing	列のフィルタの行が無い（スケジュールフィルタとは別に使う）
+filter (列のフィルタ)	screen-label-en	IC-153, IC-122	2	-	missing	列のフィルタの行が無い
+filter (列のフィルタ)	screen-hint-en	IC-153, IC-122	2	-	missing	列のフィルタの行が無い
+filter (列のフィルタ)	screen-text-en	readOnlySettings[11], delayReportMarkdown[2]	2	-	missing	列のフィルタの行が無い
+WBS	screen-text-en	differenceReview[0]	1	-	clash	GRS JSON の説明は WBS = 親子の木。画面（differenceReview）は WBS = 相手側の台帳。MSPDI の Task/WBS は符号の欄
+WBS	screen-text-ja	differenceReview[0]	1	-	clash	GRS JSON の説明は WBS = 親子の木。画面（differenceReview）は WBS = 相手側の台帳。MSPDI の Task/WBS は符号の欄
+タイトルバー / title bar	screen-hint-ja	IC-127	1	-	missing	行が無い（ツールウィンドウの上の帯）
+進捗 / progress (単独)	screen-label-en	K-140	1	P-8	clash	T-006b A-6: 進捗は 3 つが別物（Progress Marker・Progress Line・完了率）。画面は単独でも使う
+進捗 / progress (単独)	screen-label-ja	K-132, K-140	2	P-8	clash	T-006b A-6: 進捗は 3 つが別物（Progress Marker・Progress Line・完了率）。画面は単独でも使う
+進捗 / progress (単独)	screen-text-en	SQ-11, PS-5, DT-3	9	P-8	clash	T-006b A-6: 進捗は 3 つが別物（Progress Marker・Progress Line・完了率）。画面は単独でも使う
+進捗 / progress (単独)	screen-text-ja	SQ-11, DT-3, delayReportReasons[10]	4	P-8	clash	T-006b A-6: 進捗は 3 つが別物（Progress Marker・Progress Line・完了率）。画面は単独でも使う
+期間 / span / duration	screen-label-en	PR-5, K-141, K-142	3	-	clash	T-006b A-12: 予定の期間・実績期間（P-5）・表示期間を区別する。端点スパン（P-14）の span とも同じ語
+期間 / span / duration	screen-label-en-identifier	K-46, K-137, K-107	4	-	clash	識別子（camelCase）を分けて数えた。T-006b A-12: 予定の期間・実績期間（P-5）・表示期間を区別する。端点スパン（P-14）の span とも同じ語
+期間 / span / duration	screen-label-ja	PR-5, K-49, K-141	6	-	clash	T-006b A-12: 予定の期間・実績期間（P-5）・表示期間を区別する。端点スパン（P-14）の span とも同じ語
+期間 / span / duration	screen-text-en	RS-53, RS-86, RS-69	8	-	clash	T-006b A-12: 予定の期間・実績期間（P-5）・表示期間を区別する。端点スパン（P-14）の span とも同じ語
+期間 / span / duration	screen-text-ja	RS-53, RS-86, RS-69	10	-	clash	T-006b A-12: 予定の期間・実績期間（P-5）・表示期間を区別する。端点スパン（P-14）の span とも同じ語
+期間 / span / duration	screen-nextStep-en	RS-86, RS-69, IV-12	3	-	clash	T-006b A-12: 予定の期間・実績期間（P-5）・表示期間を区別する。端点スパン（P-14）の span とも同じ語
+期間 / span / duration	screen-nextStep-ja	RS-22, RS-43, RS-86	5	-	clash	T-006b A-12: 予定の期間・実績期間（P-5）・表示期間を区別する。端点スパン（P-14）の span とも同じ語
+曜日 / weekday	screen-label-en	IC-133	1	-	missing	行が無い（稼働する曜日・週の始まり）
+曜日 / weekday	screen-label-ja	IC-133, K-54	2	-	missing	行が無い（稼働する曜日・週の始まり）
+曜日 / weekday	screen-hint-en	IC-132, IC-133, IC-134	3	-	missing	行が無い（稼働する曜日・週の始まり）
+曜日 / weekday	screen-hint-ja	IC-132, IC-133, IC-134	3	-	missing	行が無い（稼働する曜日・週の始まり）
+曜日 / weekday	screen-text-en	RS-21, IV-24, holidaySettings[0]	4	-	missing	行が無い（稼働する曜日・週の始まり）
+曜日 / weekday	screen-text-ja	RS-21, IV-24, holidaySettings[0]	4	-	missing	行が無い（稼働する曜日・週の始まり）
+曜日 / weekday	screen-nextStep-en	RS-21	1	-	missing	行が無い（稼働する曜日・週の始まり）
+曜日 / weekday	screen-nextStep-ja	RS-21	1	-	missing	行が無い（稼働する曜日・週の始まり）
+時間帯 / time range	screen-hint-en	IC-163, IC-164	2	-	missing	行が無い（稼働日の時間帯。WorkingTime）
+時間帯 / time range	screen-hint-ja	IC-163, IC-164	2	-	missing	行が無い（稼働日の時間帯。WorkingTime）
+時間帯 / time range	screen-text-en	RS-89, IV-24, holidaySettings[16]	4	-	missing	行が無い（稼働日の時間帯。WorkingTime）
+時間帯 / time range	screen-text-ja	RS-89, IV-24, holidaySettings[2]	5	-	missing	行が無い（稼働日の時間帯。WorkingTime）
+時間帯 / time range	screen-nextStep-en	RS-89, IV-24	3	-	missing	行が無い（稼働日の時間帯。WorkingTime）
+時間帯 / time range	screen-nextStep-ja	RS-89, IV-24	3	-	missing	行が無い（稼働日の時間帯。WorkingTime）
+(K) en label is an English display name	screen-label-en	K-2, K-3, K-60	34	K-*	alias	画面の英語は表示名（Ruler Height など）、T-104 の英語の欄は鍵（rulerHeightPx）。同じ設定を 2 つの名で呼ぶ
+(K) en label is the settings identifier	screen-label-en-identifier	K-1, K-112, K-113	98	K-*	missing	画面の英語が識別子（pxPerDayAt1x など）のまま。T-104 の英語の欄も識別子なので、英語の名がどこにも無い（表 T-109 の注と同じ事情）
+(K) ja label equal to the T-104 日本語	screen-label-ja	K-1, K-2, K-3	132	K-*	match	設定の日本語の名は用語集 T-104 の日本語と同じ（生成元が同じ）。K-90・K-139・K-140・K-141 は、用語集の行が名のあとに注記（稼働日・開始日 / 終了日など）を足すだけの違いなので同じとした
+(icon hint)	screen-hint-en	IC-7, IC-98, IC-1	138	T-109	missing	T-109 の IC 行は日本語の説明だけで、名の欄（英語の欄）が無い。画面は IC 行ごとに名を持つ（設計: 表 T-109 は英語の欄を拒む）
+(icon hint)	screen-hint-ja	IC-7, IC-98, IC-1	138	T-109	missing	T-109 の IC 行は日本語の説明だけで、名の欄（英語の欄）が無い。画面は IC 行ごとに名を持つ（設計: 表 T-109 は英語の欄を拒む）
+(icon label)	screen-label-en	IC-7, IC-98, IC-1	138	T-109	missing	T-109 の IC 行は日本語の説明だけで、名の欄（英語の欄）が無い。画面は IC 行ごとに名を持つ（設計: 表 T-109 は英語の欄を拒む）
+(icon label)	screen-label-ja	IC-7, IC-98, IC-1	138	T-109	missing	T-109 の IC 行は日本語の説明だけで、名の欄（英語の欄）が無い。画面は IC 行ごとに名を持つ（設計: 表 T-109 は英語の欄を拒む）
+(PR) % Complete	screen-label-en	PR-9	1	P-8	match	プロパティの名。英語側。T-102 の英語の欄は JSON の鍵（name・start・percentComplete ...）で、画面の英語の名とは別。
+(PR) Actual Date	screen-label-en	PR-36	1	-	missing	プロパティの名。英語側。T-102 の英語の欄は JSON の鍵（name・start・percentComplete ...）で、画面の英語の名とは別。マイルストーンの実績の日の名の行が無い
+(PR) Actual Duration	screen-label-en	PR-5	1	P-5	match	プロパティの名。英語側。T-102 の英語の欄は JSON の鍵（name・start・percentComplete ...）で、画面の英語の名とは別。
+(PR) Actual Finish	screen-label-en	PR-6	1	P-4	match	プロパティの名。英語側。T-102 の英語の欄は JSON の鍵（name・start・percentComplete ...）で、画面の英語の名とは別。
+(PR) Actual Start	screen-label-en	PR-4	1	P-4	match	プロパティの名。英語側。T-102 の英語の欄は JSON の鍵（name・start・percentComplete ...）で、画面の英語の名とは別。
+(PR) Assignee	screen-label-en	PR-16	1	N-10	match	プロパティの名。英語側。T-102 の英語の欄は JSON の鍵（name・start・percentComplete ...）で、画面の英語の名とは別。ja は N-10 Resource の日本語。英語は Assignee（Resource と別の語）
+(PR) Bring to Front	screen-label-en	PR-48, PR-49	2	-	missing	プロパティの名。英語側。T-102 の英語の欄は JSON の鍵（name・start・percentComplete ...）で、画面の英語の名とは別。行が無い
+(PR) Color	screen-label-en	PR-19	1	-	missing	プロパティの名。英語側。T-102 の英語の欄は JSON の鍵（name・start・percentComplete ...）で、画面の英語の名とは別。Color の行が無い
+(PR) Deadline	screen-label-en	PR-10	1	P-9	match	プロパティの名。英語側。T-102 の英語の欄は JSON の鍵（name・start・percentComplete ...）で、画面の英語の名とは別。
+(PR) Edit Permission	screen-label-en	PR-33	1	-	missing	プロパティの名。英語側。T-102 の英語の欄は JSON の鍵（name・start・percentComplete ...）で、画面の英語の名とは別。行が無い（editGroup）
+(PR) Fade In/Out Days	screen-label-en	PR-14	1	P-21	alias	プロパティの名。英語側。T-102 の英語の欄は JSON の鍵（name・start・percentComplete ...）で、画面の英語の名とは別。P-21 は「フェードイン日数 / フェードアウト日数」
+(PR) Fill Color	screen-label-en	PR-12, PR-45, PR-25	3	P-18	alias	プロパティの名。英語側。T-102 の英語の欄は JSON の鍵（name・start・percentComplete ...）で、画面の英語の名とは別。P-18 の日本語は「塗り色」（塗潰し / 塗りの綴りの揺れもある）
+(PR) Fill Transparency (%)	screen-label-en	PR-27, PR-24	2	-	missing	プロパティの名。英語側。T-102 の英語の欄は JSON の鍵（name・start・percentComplete ...）で、画面の英語の名とは別。fillTransparencyPercent の行が無い
+(PR) Font Size	screen-label-en	PR-50	1	K-85	alias	プロパティの名。英語側。T-102 の英語の欄は JSON の鍵（name・start・percentComplete ...）で、画面の英語の名とは別。K-85 の日本語は「文字サイズ」。同じものを 2 つの名で呼ぶ
+(PR) Lag	screen-label-en	PR-42	1	-	missing	プロパティの名。英語側。T-102 の英語の欄は JSON の鍵（name・start・percentComplete ...）で、画面の英語の名とは別。行が無い
+(PR) Milestone Name	screen-label-en	PR-1	1	P-1	alias	プロパティの名。英語側。T-102 の英語の欄は JSON の鍵（name・start・percentComplete ...）で、画面の英語の名とは別。P-1 の日本語は「名称」。マイルストーン用の別ラベル
+(PR) Milestone Shape	screen-label-en	PR-17	1	P-16	match	プロパティの名。英語側。T-102 の英語の欄は JSON の鍵（name・start・percentComplete ...）で、画面の英語の名とは別。
+(PR) Min Height	screen-label-en	PR-20	1	-	missing	プロパティの名。英語側。T-102 の英語の欄は JSON の鍵（name・start・percentComplete ...）で、画面の英語の名とは別。行が無い
+(PR) Notes	screen-label-en	PR-2	1	P-2	match	プロパティの名。英語側。T-102 の英語の欄は JSON の鍵（name・start・percentComplete ...）で、画面の英語の名とは別。
+(PR) Outline Color	screen-label-en	PR-39, PR-28, PR-22	3	P-18	alias	プロパティの名。英語側。T-102 の英語の欄は JSON の鍵（name・start・percentComplete ...）で、画面の英語の名とは別。P-18 の日本語は「線色」
+(PR) Outline Width	screen-label-en	PR-40, PR-26, PR-23	3	P-18	alias	プロパティの名。英語側。T-102 の英語の欄は JSON の鍵（name・start・percentComplete ...）で、画面の英語の名とは別。P-18 の日本語は「線の太さ」
+(PR) Parent Task	screen-label-en	PR-15	1	P-22	match	プロパティの名。英語側。T-102 の英語の欄は JSON の鍵（name・start・percentComplete ...）で、画面の英語の名とは別。
+(PR) Planned Date	screen-label-en	PR-35	1	-	missing	プロパティの名。英語側。T-102 の英語の欄は JSON の鍵（name・start・percentComplete ...）で、画面の英語の名とは別。マイルストーンの日の名の行が無い
+(PR) Planned Finish	screen-label-en	PR-47	1	P-3	alias	プロパティの名。英語側。T-102 の英語の欄は JSON の鍵（name・start・percentComplete ...）で、画面の英語の名とは別。P-3 の日本語は「終了日」。画面は「予定」を付ける
+(PR) Planned Start	screen-label-en	PR-3	1	P-3	alias	プロパティの名。英語側。T-102 の英語の欄は JSON の鍵（name・start・percentComplete ...）で、画面の英語の名とは別。P-3 の日本語は「開始日」。画面は「予定」を付ける
+(PR) Predecessor	screen-label-en	PR-43	1	-	missing	プロパティの名。英語側。T-102 の英語の欄は JSON の鍵（name・start・percentComplete ...）で、画面の英語の名とは別。行が無い
+(PR) Predecessor Tasks	screen-label-en	PR-37	1	-	missing	プロパティの名。英語側。T-102 の英語の欄は JSON の鍵（name・start・percentComplete ...）で、画面の英語の名とは別。行が無い
+(PR) Resume	screen-label-en	PR-7	1	P-6	match	プロパティの名。英語側。T-102 の英語の欄は JSON の鍵（name・start・percentComplete ...）で、画面の英語の名とは別。
+(PR) Resume Date Confirmed	screen-label-en	PR-8	1	P-7	match	プロパティの名。英語側。T-102 の英語の欄は JSON の鍵（name・start・percentComplete ...）で、画面の英語の名とは別。
+(PR) Successor	screen-label-en	PR-44	1	-	missing	プロパティの名。英語側。T-102 の英語の欄は JSON の鍵（name・start・percentComplete ...）で、画面の英語の名とは別。行が無い
+(PR) Successor Tasks	screen-label-en	PR-38	1	-	missing	プロパティの名。英語側。T-102 の英語の欄は JSON の鍵（name・start・percentComplete ...）で、画面の英語の名とは別。行が無い
+(PR) Task Group Name	screen-label-en	PR-18	1	-	missing	プロパティの名。英語側。T-102 の英語の欄は JSON の鍵（name・start・percentComplete ...）で、画面の英語の名とは別。TaskGroup の name の行が無い
+(PR) Task Name	screen-label-en	PR-1	1	P-1	alias	プロパティの名。英語側。T-102 の英語の欄は JSON の鍵（name・start・percentComplete ...）で、画面の英語の名とは別。P-1 の日本語は「名称」
+(PR) Text	screen-label-en	PR-21	1	-	missing	プロパティの名。英語側。T-102 の英語の欄は JSON の鍵（name・start・percentComplete ...）で、画面の英語の名とは別。コメントボックスの本文。行が無い
+(PR) Text Color	screen-label-en	PR-46	1	-	missing	プロパティの名。英語側。T-102 の英語の欄は JSON の鍵（name・start・percentComplete ...）で、画面の英語の名とは別。行が無い
+(PR) Type	screen-label-en	PR-41	1	P-23	alias	プロパティの名。英語側。T-102 の英語の欄は JSON の鍵（name・start・percentComplete ...）で、画面の英語の名とは別。P-23 は「依存の種別」
+(PR) UID	screen-label-en	PR-34	1	-	missing	プロパティの名。英語側。T-102 の英語の欄は JSON の鍵（name・start・percentComplete ...）で、画面の英語の名とは別。uid に行が無い（2 段目）
+(PR) UID	screen-label-ja	PR-34	1	-	missing	プロパティの名。uid に行が無い（2 段目）
+(PR) タスクグループ名	screen-label-ja	PR-18	1	-	missing	プロパティの名。TaskGroup の name の行が無い
+(PR) タスク名	screen-label-ja	PR-1	1	P-1	alias	プロパティの名。P-1 の日本語は「名称」
+(PR) フェード日数 前/後	screen-label-ja	PR-14	1	P-21	alias	プロパティの名。P-21 は「フェードイン日数 / フェードアウト日数」
+(PR) フォントサイズ	screen-label-ja	PR-50	1	K-85	alias	プロパティの名。K-85 の日本語は「文字サイズ」。同じものを 2 つの名で呼ぶ
+(PR) マイルストーン名	screen-label-ja	PR-1	1	P-1	alias	プロパティの名。P-1 の日本語は「名称」。マイルストーン用の別ラベル
+(PR) マイルストーン形状	screen-label-ja	PR-17	1	P-16	match	プロパティの名。
+(PR) ラグ	screen-label-ja	PR-42	1	-	missing	プロパティの名。行が無い
+(PR) 予定日	screen-label-ja	PR-35	1	-	missing	プロパティの名。マイルストーンの日の名の行が無い
+(PR) 予定終了日	screen-label-ja	PR-47	1	P-3	alias	プロパティの名。P-3 の日本語は「終了日」。画面は「予定」を付ける
+(PR) 予定開始日	screen-label-ja	PR-3	1	P-3	alias	プロパティの名。P-3 の日本語は「開始日」。画面は「予定」を付ける
+(PR) 備考	screen-label-ja	PR-2	1	P-2	match	プロパティの名。
+(PR) 先行	screen-label-ja	PR-43	1	-	missing	プロパティの名。行が無い
+(PR) 先行タスク	screen-label-ja	PR-37	1	-	missing	プロパティの名。行が無い
+(PR) 再開予定日	screen-label-ja	PR-7	1	P-6	match	プロパティの名。
+(PR) 再開日確定	screen-label-ja	PR-8	1	P-7	match	プロパティの名。
+(PR) 塗りの透過率（%）	screen-label-ja	PR-27, PR-24	2	-	missing	プロパティの名。fillTransparencyPercent の行が無い
+(PR) 塗潰し色	screen-label-ja	PR-12, PR-45, PR-25	3	P-18	alias	プロパティの名。P-18 の日本語は「塗り色」（塗潰し / 塗りの綴りの揺れもある）
+(PR) 完了率	screen-label-ja	PR-9	1	P-8	match	プロパティの名。
+(PR) 実績日	screen-label-ja	PR-36	1	-	missing	プロパティの名。マイルストーンの実績の日の名の行が無い
+(PR) 実績期間	screen-label-ja	PR-5	1	P-5	match	プロパティの名。
+(PR) 実績終了日	screen-label-ja	PR-6	1	P-4	match	プロパティの名。
+(PR) 実績開始日	screen-label-ja	PR-4	1	P-4	match	プロパティの名。
+(PR) 後続	screen-label-ja	PR-44	1	-	missing	プロパティの名。行が無い
+(PR) 後続タスク	screen-label-ja	PR-38	1	-	missing	プロパティの名。行が無い
+(PR) 担当	screen-label-ja	PR-16	1	N-10	match	プロパティの名。ja は N-10 Resource の日本語。英語は Assignee（Resource と別の語）
+(PR) 文字色	screen-label-ja	PR-46	1	-	missing	プロパティの名。行が無い
+(PR) 最前面に配置	screen-label-ja	PR-48, PR-49	2	-	missing	プロパティの名。行が無い
+(PR) 最小高さ	screen-label-ja	PR-20	1	-	missing	プロパティの名。行が無い
+(PR) 期限	screen-label-ja	PR-10	1	P-9	match	プロパティの名。
+(PR) 本文	screen-label-ja	PR-21	1	-	missing	プロパティの名。コメントボックスの本文。行が無い
+(PR) 枠線幅	screen-label-ja	PR-40, PR-26, PR-23	3	P-18	alias	プロパティの名。P-18 の日本語は「線の太さ」
+(PR) 枠線色	screen-label-ja	PR-39, PR-28, PR-22	3	P-18	alias	プロパティの名。P-18 の日本語は「線色」
+(PR) 種別	screen-label-ja	PR-41	1	P-23	alias	プロパティの名。P-23 は「依存の種別」
+(PR) 編集権限	screen-label-ja	PR-33	1	-	missing	プロパティの名。行が無い（editGroup）
+(PR) 色	screen-label-ja	PR-19	1	-	missing	プロパティの名。Color の行が無い
+(PR) 親タスク	screen-label-ja	PR-15	1	P-22	match	プロパティの名。

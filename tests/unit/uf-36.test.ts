@@ -902,7 +902,7 @@ describe('FR-028 -- a failure is a VALUE, never a throw', () => {
     // but the official schema declares every one of those UIDs minOccurs="0"
     // (mspdi_pj12.xsd:1615 and its neighbors), so a file without one is still
     // an MSPDI document and FR-023 leaves the value checks to CP-13.
-    // FR-021 (docs/spec/01-04-requirements.md:2811) asks for every item this
+    // FR-021 (docs/spec/01-04-requirements.md) asks for every item this
     // software does not use to be carried and written back, and DF-3 of table
     // T-053 (:2844) puts what did not become a row on the carryElements of
     // the parent that bundles it.
@@ -1519,7 +1519,7 @@ describe('table T-033 -- writing', () => {
   })
 
   it('EX-1: writes the schema`s mandatory Project children for a GRS-born document -- DELIBERATELY LEFT FAILING', () => {
-    // FR-057 EX-1 (docs/spec/01-04-requirements.md:2938) makes it a MUST that a
+    // FR-057 EX-1 (docs/spec/01-04-requirements.md) makes it a MUST that a
     // document created without importing any MSPDI still comes out in a form
     // the partner's tool can open. Both of the children named below are
     // declared without minOccurs in mspdi_pj12.xsd (:232, :390), so a
@@ -1863,9 +1863,9 @@ describe('PI-20 -- the published pair', () => {
 // What was read for these cases:
 //   FR-023   a LEADING byte order mark is accepted and dropped (MUST), and is
 //            not a reason to refuse (MUST NOT)
-//            (docs/spec/01-04-requirements.md:3037). The same paragraph names
+//            (docs/spec/01-04-requirements.md). The same paragraph names
 //            the writing side as the OPPOSITE rule and hands it to CN-5.
-//   CN-5     what GRS writes is UTF-8 with no BOM (MUST) (table T-003, :157).
+//   CN-5     what GRS writes is UTF-8 with no BOM (MUST) (table T-003).
 //   EX-6     the roster of frames is `_source/mspdi-custom-fields.json` and a
 //            free one is looked for IN THAT ORDER (MUST); a frame the import
 //            source uses is not overwritten (MUST NOT); GRS moves to a free one
@@ -1874,21 +1874,21 @@ describe('PI-20 -- the published pair', () => {
 //            DEFINITION's `Alias` against the roster's (MUST) -- the value side
 //            carries only a number -- and the same test is used on the way in,
 //            a frame that does not match being left uninterpreted in
-//            `carryElements` (MUST). (table T-033, :2951)
+//            `carryElements` (MUST). (table T-033)
 //   EX-8     the definition goes into `Project/ExtendedAttributes` ONCE (MUST),
 //            its children follow the official schema's `xsd:sequence` (MUST),
 //            and when no task has a fade the collection is not written at all
 //            (MUST NOT -- the schema states each `ExtendedAttributes` needs at
-//            least one child, mspdi_pj12.xsd:988). (table T-033, :2953)
+//            least one child, mspdi_pj12.xsd:988). (table T-033)
 //   EX-1     what goes out is valid against the official schema, whose `Alias`
-//            is `maxLength` 50 (mspdi_pj12.xsd:1055). (table T-033, :2946)
+//            is `maxLength` 50 (mspdi_pj12.xsd:1055). (table T-033)
 //   DF-2     an element GRS does not interpret stays in its OWNER's
-//            `carryElements`, in its original form. (table T-053, :2851)
+//            `carryElements`, in its original form. (table T-053)
 //   AT-40 /  `Task.fadeInDays` / `Task.fadeOutDays`: whole days, nullable,
 //   AT-41    `Consume`, exchanged through `Task/ExtendedAttribute`, and `null`
-//            is told apart from `0` (_assets/fig-erd-detail.md:342).
+//            is told apart from `0` (_assets/fig-erd-detail.md).
 //   NT-1 /   a notice says WHICH item and WHY in words; a notice that comes
-//   NT-5     with accepted work does not stop the work. (table T-037, :3703)
+//   NT-5     with accepted work does not stop the work. (table T-037)
 //
 // No number below is typed. Every one is read out of the MANUSCRIPT
 // `docs/spec/_source/mspdi-custom-fields.json`, and the one bound the official
@@ -2891,7 +2891,7 @@ describe('DF-2 -- an extension element the tool does not recognize', () => {
 // days.
 //
 // Written from the specification alone (rule 04, section 1). The STATEMENT of
-// FR-054 (docs/spec/01-04-requirements.md:2518) carries the whole rule, and
+// FR-054 (docs/spec/01-04-requirements.md) carries the whole rule, and
 // every number below is read out of it:
 //
 //   * the same minutes-per-day serves BOTH directions -- the file's

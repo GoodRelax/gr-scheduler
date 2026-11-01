@@ -68,8 +68,8 @@
 //     is GONE: CR-381 (JDG-88, JDG-99, JDG-115) overturned it and wrote the
 //     opposite -- the ceiling is the smaller of the band ceiling and the zoom
 //     at which a rectangle name reaches the depth-1 task group name. That clause is
-//     held and pressed through `commandFromInput` by
-//     tests/unit/cr-380-381-384-name-beside-the-shape-and-vertical-zoom.test.ts, so
+//     was held and pressed through `commandFromInput` by
+//     the cr-380-381-384 unit test (deleted by CR-573), so
 //     this file no longer carries a copy of the retired one.
 //
 //   FR-016 「上限に達したことを、押しても何も起きない入口で示してはならない
@@ -408,8 +408,8 @@ const dayAfter = (from: string, days: number): string =>
 const TASK_FROM = '2026-01-05'
 
 // Every nullable column has to be spelled `null`; leaving one `undefined`
-// reads as "set" (the same idiom tests/unit/fr-055-fit-reaches-deep-tiers.test.ts
-// uses).
+// reads as "set" (the same idiom the fr-055 deep-tiers unit test
+// used before CR-573 deleted it).
 const taskOf = (uid: number): Task =>
   ({
     uid,

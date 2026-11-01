@@ -6,7 +6,7 @@
 
 ## 1. 出どころ
 
-**W2 の 4 ユニット**（`UF-5` `ScheduleLayout` ／ `UF-58` `ScreenRegions` ／ `UF-6` `ScheduleGeometry` ／ `UF-7` `ItemHitArea`）を書く準備で、`previous-project-result/temp/wave-slice.md` が挙げていた 5 件を調べた。**5 件とも、仕様書に本当に穴があった。** 1 件ずつ実物を開いて確かめている。
+**W2 の 4 ユニット**（`UF-5` `ScheduleLayout` ／ `UF-58` `ScreenRegions` ／ `UF-6` `ScheduleGeometry` ／ `UF-7` `ItemHitArea`）を書く準備で、`studies/temp/wave-slice.md` が挙げていた 5 件を調べた。**5 件とも、仕様書に本当に穴があった。** 1 件ずつ実物を開いて確かめている。
 
 | | 穴 | 止まる者 |
 |---|---|---|

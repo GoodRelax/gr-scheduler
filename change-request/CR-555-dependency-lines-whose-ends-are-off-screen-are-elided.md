@@ -670,7 +670,7 @@ PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/md-checks.py | gre
 #   ebc71984 -> tables=186  figures=27  rows=2282  uids=162   (before CR-551 landed)
 
 # free identifiers, in both trees, and in the untracked sibling drafts CR-556..CR-563
-git grep -nE "\bS-36[0-3]\b|\bEL-[0-9]+|\bT-303\b|\bGA-24\b|\bJDG-44[1-5]\b|\bDFC-860\b" <tree> -- . ':!previous-project-result' ':!change-request/CR-555-*'
+git grep -nE "\bS-36[0-3]\b|\bEL-[0-9]+|\bT-303\b|\bGA-24\b|\bJDG-44[1-5]\b|\bDFC-860\b" <tree> -- . ':!studies' ':!change-request/CR-555-*'
 grep -lE "\bS-36[0-3]\b|\bEL-[0-9]|\bT-303\b|\bGA-24\b|\bJDG-44[1-5]\b|\bDFC-860\b" change-request/CR-55[6-9]*.md change-request/CR-56*.md
 #   -> nothing, in ebc71984, in 61bbd572 and in the drafts; again nothing on b7a3b76f after the front session compacted the IDs (2026-09-24)
 git grep -ohE "\bGA-[0-9]+\b" -- docs src tests tools change-request | sort -u | sort -t- -k2n | tail -1

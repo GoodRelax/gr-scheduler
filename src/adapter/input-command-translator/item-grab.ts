@@ -70,7 +70,7 @@ import {
   grabTaskGroupOf,
   hasDraggedPastThreshold,
   isDateKeepingDrag,
-  releasedSnapOf,
+  snapMinutesOfView,
   isScrollPositionInForce,
   isSwallowedSecondPress,
   nothingToDo,
@@ -94,6 +94,15 @@ const MK_13_GRAB_TASK_GROUPS: ReadonlySet<string> = new Set([
   'GA-15', 'GA-16', 'GA-17', 'GA-21', 'GA-22', 'GR-14',
 ])
 
+const PRESS_ONLY_GRAB_TASK_GROUPS: ReadonlySet<string> = new Set(['GA-1', 'GA-2', 'GA-7', 'GA-8', 'GA-10', 'GA-11'])
+
+// WHY: T-270 parts a press from a pull by S-208; an end or fade grab reaches past its day column (PE-3, PE-11).
+/** @purity pure */
+function isPressInPlace(grab: string, press: PointerPress, release: PointerInput): boolean {
+  const isPressOnly = MK_13_GRAB_TASK_GROUPS.has(grab) || PRESS_ONLY_GRAB_TASK_GROUPS.has(grab)
+  return isPressOnly && !hasDraggedPastThreshold(press, release)
+}
+
 // see T-023d, MK-13
 /** @purity pure */
 export function commandFromGrab(
@@ -114,11 +123,10 @@ export function commandFromGrab(
   if (opened !== null) return opened
 
   if (item.kind === 'statusLine' && hit.grab === 'GR-16') {
-    const day = dayAtX(context.layout, release.x)
-    const project = context.document.schedule.project
-    return day === null
+    const statusDate = releasedStatusDate(context, release)
+    return statusDate === null
       ? CONSUMED_ELSEWHERE
-      : changed([{ kind: 'setStatusDate', statusDate: textOfFinishSide(day, project) }])
+      : changed([{ kind: 'setStatusDate', statusDate }])
   }
 
   // TRAP: must stay above GR-14's moves below, or a double click and a drag on one place are one press.
@@ -127,9 +135,7 @@ export function commandFromGrab(
 
   // TRAP: the first release of a double click has `clickCount` 1; without this arm it falls to the
   // switch and reaches a second destination (for GA-6, a 0px actual).
-  if (MK_13_GRAB_TASK_GROUPS.has(hit.grab) && !hasDraggedPastThreshold(press, release)) {
-    return CONSUMED_ELSEWHERE
-  }
+  if (isPressInPlace(hit.grab, press, release)) return CONSUMED_ELSEWHERE
 
   // see GR-14, CM-54
   if (item.kind === 'highlightBox' && hit.grab === 'GR-14') {
@@ -414,7 +420,7 @@ function dummyReleaseWrite(
   const released = releasedPairOf(context, release, task)
   if (released === null) return CONSUMED_ELSEWHERE
   return changed([
-    { kind: 'beginTaskActual', taskUid: uid, grabbed: grab, released, snapMinutes: releasedSnapOf(context, release) },
+    { kind: 'beginTaskActual', taskUid: uid, grabbed: grab, released, snapMinutes: snapMinutesOfView(context) },
   ])
 }
 
@@ -448,7 +454,7 @@ function markerPullWrite(
   if (task === null || task.start === null || dayOf(task.start) === null) return CONSUMED_ELSEWHERE
   const finish = releasedPairOf(context, release, task)?.finish ?? null
   if (finish === null) return CONSUMED_ELSEWHERE
-  const snapMinutes = releasedSnapOf(context, release)
+  const snapMinutes = snapMinutesOfView(context)
   // WHY: released left of the plan start, GO-9 asks for the dummy's own actual (DM-2) on the plan start, not a refusal.
   if (isLeftOfPlanStart(context, task, finish)) {
     return changed([
@@ -514,12 +520,24 @@ function releasedDay(context: InputContext, release: PointerInput, side: Release
   return boundary === null ? null : dayOfBoundary(boundary, side, isMilestone)
 }
 
-// see FR-103, T-378, MK-17, T-350
+// see FR-046, T-378, SG-1, SG-2, WT-4
+/** @purity pure */
+function releasedStatusDate(context: InputContext, release: PointerInput): string | null {
+  const snap = snapMinutesOfView(context)
+  if (snap === MINUTES_PER_CALENDAR_DAY) {
+    const day = dayAtX(context.layout, release.x)
+    return day === null ? null : textOfFinishSide(day, context.document.schedule.project)
+  }
+  const instant = snappedInstantAtX(context.layout, release.x, snap)
+  return instant === null ? null : textOfInstant(instant)
+}
+
+// see FR-103, T-378, T-350
 // WHY: the released place as the text written; a whole-day unit keeps the day's default time of T-350.
 /** @purity pure */
 function releasedText(context: InputContext, release: PointerInput, side: ReleasedSide, isMilestone: boolean): string | null {
   const layout = context.layout
-  const snap = releasedSnapOf(context, release)
+  const snap = snapMinutesOfView(context)
   if (snap === MINUTES_PER_CALENDAR_DAY) {
     const day = releasedDay(context, release, side, isMilestone)
     const project = context.document.schedule.project
@@ -541,7 +559,7 @@ interface DragSpan {
 /** @purity pure */
 function planMoveWrite(context: InputContext, task: Task, drag: DragSpan): DocumentCommand | null {
   const project = context.document.schedule.project
-  const snap = releasedSnapOf(context, drag.release)
+  const snap = snapMinutesOfView(context)
   if (snap === MINUTES_PER_CALENDAR_DAY) {
     const start = dayOf(task.start)
     const finish = dayOf(task.finish)
@@ -572,7 +590,7 @@ function pulledMinutesOf(context: InputContext, press: PointerPress, release: Po
 /** @purity pure */
 function bodyDayCount(context: InputContext, press: PointerPress, release: PointerInput, uid: number): number {
   const dragged = draggedDayCount(context, press, release)
-  const snap = releasedSnapOf(context, release)
+  const snap = snapMinutesOfView(context)
   const task = taskByUid(context.document.schedule, uid)
   if (isDateKeepingDrag(press)) return 0
   if (snap !== MINUTES_PER_CALENDAR_DAY || !context.document.documentSettings.isTimeOfDayVisible || task === null) return dragged
@@ -745,7 +763,7 @@ function copyShiftMinutes(context: InputContext, press: PointerPress, release: P
   const item = press.hit?.item
   const task = item?.kind === 'task' ? taskByUid(context.document.schedule, item.taskUid) : null
   if (task === null) return draggedDayCount(context, press, release) * MINUTES_PER_CALENDAR_DAY
-  const snap = releasedSnapOf(context, release)
+  const snap = snapMinutesOfView(context)
   if (snap === MINUTES_PER_CALENDAR_DAY) return bodyDayCount(context, press, release, task.uid) * MINUTES_PER_CALENDAR_DAY
   const plan = plannedInstantsOf(workingCalendarOf(context.document.schedule), task)
   if (isDateKeepingDrag(press) || plan === null) return 0

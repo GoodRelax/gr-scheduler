@@ -18,7 +18,7 @@
 // FR-023 in 01-04-requirements.md. The harness (`stage`, `descendants`,
 // `pointerOf`, the `InputContext` fixture) is copied from
 // tests/unit/fr-020-the-surface-that-asks-for-the-watermark-password.test.ts
-// and tests/unit/fr-034-align-to-the-last-picked.test.ts, the way rule 03
+// and the fr-034 align-to-the-last-picked unit test (deleted by CR-573), the way rule 03
 // section 1 already lets a harness travel between sibling files; every expected
 // value below is this file's own, read out of a table at run time.
 //

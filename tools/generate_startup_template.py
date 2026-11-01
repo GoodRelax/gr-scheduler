@@ -929,16 +929,12 @@ CALENDAR_EXCEPTIONS = (
 )
 
 # The people the work is assigned to. ⛔ Neutral by construction: a craft and a
-# letter, so no real person and no company is named (FR-027).
-# ⚠️ Two of them are called `Developer C`, and that is DELIBERATE. ⛔ DO NOT
-# "FIX" IT. Table T-225's AS-8 rules that a name shared by several resources
-# resolves to the SMALLER `uid` and MUST NOT be merged (merging belongs to the
-# join path alone, table T-032's MG-5). A document with no such pair gives that
-# rule nothing to be read against, so the template carries exactly one pair:
-# uid 1008 and uid 1010 are both `Developer C`, and AS-8 says the first wins.
+# letter, so no real person and no company is named (FR-027). Every name is
+# distinct: the template is what a user sees first, so a test's need stays out
+# of it, and AS-8 of table T-225 is held by the tests' own data (JDG-3114).
 RESOURCE_NAMES = (
     'Analyst A', 'Analyst B', 'Architect A', 'Designer A', 'Designer B',
-    'Developer A', 'Developer B', 'Developer C', 'Developer D', 'Developer C',
+    'Developer A', 'Developer B', 'Developer C', 'Developer D', 'Developer E',
     'Tester A', 'Tester B', 'Writer A', 'Release Engineer A',
 )
 # Which of them a phase draws from, by index into RESOURCE_NAMES.
@@ -3172,12 +3168,6 @@ def check_dead_data(built, status_at):
     insist(len(built.resources) >= 8 and len(built.assignments) >= 500,
            'A12: %d resource(s) and %d assignment(s) is not a plan anybody owns'
            % (len(built.resources), len(built.assignments)))
-    named = {}
-    for one in built.resources:
-        named.setdefault(one['name'], []).append(one['uid'])
-    insist(any(len(uids) > 1 for uids in named.values()),
-           'A12: no two resources share a name, so AS-8 of table T-225 has no '
-           'representative in the document')
     links = sum(len(one['dependencies']) for one in built.tasks)
     insist(links >= 200,
            'A12: %d dependencies is not a web' % links)

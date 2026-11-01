@@ -10,7 +10,7 @@ import {
   type DocumentCommand,
   type SettingsLimits,
 } from '../../src/use-case/edit-document/edit-document'
-import { pointAnswering, scanGrabAreas } from './cr-430-bench'
+import { pointAnswering, scanGrabAreas, sizePx } from './cr-430-bench'
 import { frameOf, planBox, xOfDay } from './cr-430-stage'
 import {
   DAY_END,
@@ -86,6 +86,15 @@ function grabAndRelease(built: Stage, uid: number, grabArea: string, toDay: numb
   const frame = frameOf(built.loop)
   const from = pointAnswering(scanGrabAreas(frame.geometry, uid, frame.taskGroupArea), grabArea)
   built.drag(from.x, from.y, xOfDay(built.loop, april(toDay)), from.y)
+}
+
+// see T-270
+// WHY: within S-208 of the press point is a press (T-270), so release past S-208 upward; PE-3 reads only x.
+/** @purity non-pure */
+function pullAndRelease(built: Stage, uid: number, grabArea: string, toDay: number): void {
+  const frame = frameOf(built.loop)
+  const from = pointAnswering(scanGrabAreas(frame.geometry, uid, frame.taskGroupArea), grabArea)
+  built.drag(from.x, from.y, xOfDay(built.loop, april(toDay)), from.y - (sizePx('S-208') + 1))
 }
 
 /** @purity pure */
@@ -322,7 +331,7 @@ describe('X-2 WT-6..WT-8: the whole-day columns an annotation or a scroll writes
 describe('X-3 WT-10 / EX-4: an imported value the command did not move keeps its spelling', () => {
   it('GO-1 / WT-10: moving only the start of an imported task leaves its finish at T16:30:00', () => {
     const built = stage(importedDocument())
-    grabAndRelease(built, IMPORTED, 'GA-1', 6)
+    pullAndRelease(built, IMPORTED, 'GA-1', 6)
     const task = taskOf(built.loop.document(), IMPORTED)
     expect(task.start?.slice(0, 10), 'premise: the start moved').toBe('2026-04-06')
     expect(task.finish).toBe(april(10, '16:30:00'))
@@ -330,7 +339,7 @@ describe('X-3 WT-10 / EX-4: an imported value the command did not move keeps its
 
   it('GO-1 / WT-1: the start that was moved is written at S-482, not at the imported 09:00:00', () => {
     const built = stage(importedDocument())
-    grabAndRelease(built, IMPORTED, 'GA-1', 6)
+    pullAndRelease(built, IMPORTED, 'GA-1', 6)
     const task = taskOf(built.loop.document(), IMPORTED)
     expect(task.start).toBe(april(6, S_482))
   })

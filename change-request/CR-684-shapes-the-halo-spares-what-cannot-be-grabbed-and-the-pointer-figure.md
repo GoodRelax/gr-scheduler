@@ -1,6 +1,6 @@
 # CR-684 —— 依存線の縁を敷かない形・掴めないものの表・押しと引きの距離・ポインタの図
 
-> 起草の状態: 当てた（2026-10-04 夜、調整役の統合点 `16ca854f` から早送りした作業木）。起草と当てを同じ作業木で行った。持ち場は `docs/development-records/backlog-plan-2026-10-04.md` の 2 節の W0-S5。
+> 起草の状態: 当てた（2026-10-04 夜、調整役の統合点 `16ca854f` から早送りした作業木）。起草と当てを同じ作業木で行った。持ち場は `docs/development-records/history/backlog-plan-2026-10-04.md` の 2 節の W0-S5。
 > ID の帯: 番号 `CR-684`、裁定 `JDG-1508`〜`JDG-1509`、台帳 `DFC-2119`〜`DFC-2120`、裁定待ち `PND-765` を調整役から受けた（13 節で、木のどこにも無いことを測った）。使ったのは `PND-765` だけ。利用者の言葉を受けていないので `JDG` は使わない。
 > 仕様の新しい識別子（当てる直前に測り直した）: 表 `T-355`（最大は `T-354`）、接頭辞 `NG`（未登録）と行 `NG-1`〜`NG-10`。⚠️ 並行する W0 の持ち場が同じ表の番号を取れば、調整役が合流の順に振り直す。
 > 閉じるもの: `DFC-635`・`DFC-1068`（仕様の側。コードは W2-D3）、`DFC-671`・`DFC-1656`・`DFC-873`・`DFC-636`・`DFC-1650`・`DFC-1851`。
@@ -147,7 +147,7 @@ RATIONALE の後に 表 T-355 を立てる:
 
 **E-08** 図 F-025:
 
-- 見本 `previous-project-result/16-grab-area-sizing/grab-area-sizing-sample.html` に `parentLinkGlyph`（`PK-17`）を足した。道は出荷のコード（`src/framework/single-html-shell/pointer-shape.ts` の `PARENT_LINK_PATH`）と同じ、白の中身に黒の縁（見本のほかの矢印と同じ `rimmed`）、角は丸め、一辺は見本の `S.cur`（`S-249`）。
+- 見本 `studies/16-grab-area-sizing/grab-area-sizing-sample.html` に `parentLinkGlyph`（`PK-17`）を足した。道は出荷のコード（`src/framework/single-html-shell/pointer-shape.ts` の `PARENT_LINK_PATH`）と同じ、白の中身に黒の縁（見本のほかの矢印と同じ `rimmed`）、角は丸め、一辺は見本の `S.cur`（`S-249`）。
 - 探針 `tools/probe/grab-figures.mjs` の描く形の一覧に `PK-17` を、環境の形の一覧に `PK-18`（`not-allowed`）を足した。
 - `node tools/probe/grab-figures.mjs` で刷り直した。設定の門は 46 件一致で通り、書き換わったのは `fig-pointer-shapes.svg` だけ（ほかの 5 枚は 1 字も変わらない）。図の題は「14 種」→「16 種」、描いた形は 8 → 9、環境の形は 9 → 10。
 

@@ -1,0 +1,4 @@
+row	kind	name	type	text
+D001	property	$schema	str	The address of the latest version of this schema, the same as its $id.
+D003	property	buildVersion	UtcInstant (YYYY-MM-DDTHH:MM:SSZ), required	The UTC time (YYYY-MM-DDTHH:MM:SSZ) when the GRS build that wrote this file was made. It is only for debugging; to check whether a file can be read, use schemaVersion.
+D004	property	schedule	object	The data exported to MSPDI, and what GRS adds to draw the schedule.

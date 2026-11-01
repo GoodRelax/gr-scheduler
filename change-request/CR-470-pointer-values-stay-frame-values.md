@@ -8,7 +8,7 @@
 > **結論（先に書く）: この領域に状態機械は作らない。** 残る覚えはすべて、座標・時刻・測った寸法（`SF-5`）か、それらとほかの領域の今の状態から毎回導ける値か、シェルの副作用の把手か、DOM へ書いた値の覚えである。要求が名指す離散の状態は「説明を消したこと」（`IN-3`）の 1 つだけで、それは既に画面の値の `tooltipDisplayStateMachine`（`CR-436` の決定 8、原稿 `docs/spec/_source/state-machines.json:1907`〜`:1954`）が持つ。
 >
 > **閉じるもの**:
-> - 計画の記録 4 の移す順の 5 番目「ポインタとツールチップ。毎秒の出来事が最も多いので、移すたびに性能を測る」（`docs/development-records/refactor-plan-report-2026-09-13.md:252`、領域の例 `pointerAt` `isTooltipStanding` `pointerRestingSince` は `:238`）を、「移すものが無い」で閉じる。
+> - 計画の記録 4 の移す順の 5 番目「ポインタとツールチップ。毎秒の出来事が最も多いので、移すたびに性能を測る」（`docs/development-records/history/refactor-plan-report-2026-09-13.md:252`、領域の例 `pointerAt` `isTooltipStanding` `pointerRestingSince` は `:238`）を、「移すものが無い」で閉じる。
 > - `CR-450:114` が「ポインタとツールチップの領域が来るまでシェルの関数のまま」と先送りした `pointerShapeAt` ・ `pointerShapeUnder` の置き場を決める（決定 4）。
 >
 > **識別子**（規則 02 の 2.5。2026-09-21 に `545eae96` で測った）:
@@ -204,7 +204,7 @@
 | `CR-436` の波 B2 | 2.2 の申し送り 1 ・ 2 ・ 4、第 7 節の候補 1 を入口で読む | 波 B2 の入口 |
 | `CR-450` の波 B | 2.2 の申し送り 3 ・ 4 | 波 B の入口 |
 | `docs/development-records/handoff-state-machine.md:103` | 次の領域の並びから「ポインタ」を外す | 前に立つ者 |
-| `docs/development-records/refactor-stage1-state-inventory-2026-09-13.md:203` | 領域の数に `pointerShapeOfPress` が無い（第 1 節） | 前に立つ者が判じる |
+| `docs/development-records/history/refactor-stage1-state-inventory-2026-09-13.md:203` | 領域の数に `pointerShapeOfPress` が無い（第 1 節） | 前に立つ者が判じる |
 | `docs/development-records/defects.md` ・ `pending-decisions.md` | 第 7 節の候補 1 〜 3 | 台帳の体 |
 | 依頼の番号の帯 | `T-291` ・ `F-037` ・ `UF-120` を返す | 本書を受けた時 |
 

@@ -267,7 +267,7 @@
 ## 13. 測り方の再現
 
 ```
-git grep -c "CR-765" 4a907919 -- change-request docs src tests previous-project-result tools   # 0 件
+git grep -c "CR-765" 4a907919 -- change-request docs src tests studies tools   # 0 件
 grep -n "^| AM-" docs/spec/_assets/tbl-glossary.md | wc -l                                       # 22
 grep -rn "引数・戻り値\|src/. の公開エントリ" docs/spec --include=*.md
 grep -rln "WRITTEN_PROPERTIES\|MEMBER_PARAMETERS\|RelayedParams\|PARAM_KEYS" src tests

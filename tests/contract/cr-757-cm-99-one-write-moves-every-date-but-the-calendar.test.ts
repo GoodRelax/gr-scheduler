@@ -216,9 +216,9 @@ describe(`WH-9 -- the same rank-0 day: ${WH_9_NOTHING}`, () => {
 
 describe(`WH-10 -- out of table T-214: ${WH_10_IV_14}`, () => {
   it.each([
-    ['a later date leaves 2200-12-31', '2200-12-25'],
-    ['an earlier date leaves 1970-01-01 (the comment box sits two working days before the start)', '1970-01-01'],
-    ['the new start itself is after 2200-12-31', '2201-01-05'],
+    ['a later date leaves 2149-12-31', '2149-12-25'],
+    ['an earlier date leaves 1984-01-01 (the comment box sits two working days before the start)', '1984-01-03'],
+    ['the new start itself is after 2149-12-31', '2150-01-05'],
   ])('%s (%s): refused with IV-14, nothing written', (_what, typed) => {
     const before = WORKED()
     const plan = planned(heldOf(before), [shiftTo(typed)])

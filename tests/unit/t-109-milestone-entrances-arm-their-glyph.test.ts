@@ -83,8 +83,8 @@
 // WHAT IS DELIBERATELY NOT ASSERTED
 // ---------------------------------------------------------------------------
 //   - WHICH `DocumentCommand` carried the placement, and how many steps of undo
-//     it cost. 表 T-108 owns the commands and tests/unit/edit-task.test.ts owns
-//     them; these cases read the document, which is where FR-001's MUST lands.
+//     it cost. 表 T-108 owns the commands, and the edit-task unit test that drove
+//     them is gone (CR-573); these cases read the document, which is where FR-001's MUST lands.
 //   - WHERE the milestone landed -- the day, the task group, the UID. FR-001 states all
 //     three and tests elsewhere drive them; the census is about the FIGURE.
 //   - What a palette looks like while the list is folded away and a glyph is
@@ -131,7 +131,7 @@ import {
 import { bare, bareAll, paragraphsOf, specTable, unbroken } from '../contract/spec-table'
 
 // ===========================================================================
-// The manuscripts, read at run time rather than copied (Chapter 1.9 :275)
+// The manuscripts, read at run time rather than copied (Chapter 1.9)
 // ===========================================================================
 
 const T_012 = specTable('T-012')

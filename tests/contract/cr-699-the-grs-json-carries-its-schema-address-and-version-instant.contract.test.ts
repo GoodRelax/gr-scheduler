@@ -15,7 +15,8 @@ const FR_073_FORM = '書式は RFC 3339 の UTC の `YYYY-MM-DDTHH:MM:SSZ` と�
 const FR_073_NO_FRACTION = '小数秒と、`Z` 以外の帯を書いてはならない（MUST NOT）'
 const FR_073_STRING_ORDER = '辞書順がそのまま時刻の順になる。⭐ **判別は文字列の大小で行うこと（MUST）'
 const FR_073_NEWER_UNREADABLE = 'この `GRS` が知っている最大の版より新しい版を読めない版とすること（MUST）'
-const FR_073_RAISE_TO_INSTANT = '変える変更は、形式の版を、その変更を当てる時刻へ上げること（MUST）'
+// WHY: CR-822 (JDG-2985) keeps the promise in FR-073; when the version is raised is docs/development-rules/10-versions.md.
+const FR_073_RAISE_TO_INSTANT = '変われば、形式の版は、それまでのどの版よりも新しい時刻になること（MUST）'
 const FR_073_NO_LEDGER_ROW_BEFORE_USE = '⛔ 公式運用の前は、台帳に行を足してはならない（MUST NOT）'
 const CH_6_2_ID = '刊行するスキーマの `$id` は、`_assets/tbl-settings.md` の 表 T-206 の `S-540` の所とすること（MUST）'
 const CH_6_2_WRITTEN_FIRST =

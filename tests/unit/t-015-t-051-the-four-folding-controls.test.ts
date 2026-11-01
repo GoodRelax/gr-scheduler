@@ -21,8 +21,8 @@
 // The closing paragraph under 表 T-051 records what the shipping build did:
 //
 //   ⭐⭐ 「**折りたたみの 4 つの操作子は、どれも押したタスクグループそのものの状態を書き換える**
-//   （利用者の指示 2026-08-31「サンプルと同じ動作にしろ」）… ⛔ **押したタスクグループではなく、
-//   その配下の状態を書き換えてはならない（MUST NOT）** —— ⚠️ **実測で、`HF-11` は
+//   （見本と同じ動作に揃える）… ⛔ **押したタスクグループの状態を書き換えずに、
+//   その配下の状態だけを書き換えてはならない（MUST NOT）** —— ⚠️ **実測で、`HF-11` は
 //   直下の子を残し、`HF-13` は孫を開いた。どちらも 1 階層ずれており、頭に置いた同じ
 //   入口とは別の絵になっていた。**」
 //
@@ -526,7 +526,7 @@ const noticeTexts = (built: Stage): readonly string[] =>
  * The press acted rather than being answered with a reason.
  *
  * ⭐ `FR-029` (MUST) makes the two exclusive: 「**押されたときに限り、行えない理由を
- * 通知すること（MUST）**」 is the answer of an entrance that 「いま文書にも画面にも
+ * 通知の仕組みへ運ぶこと（MUST）**」 is the answer of an entrance that 「いま文書にも画面にも
  * 何も変えられない」. ⇒ a case that means 「this entrance was armed」 can say so by
  * the absence of a telling, without naming which row of 表 T-233 would have come.
  */
@@ -767,8 +767,8 @@ describe('表 T-051 の結び -- the press writes the pressed task group, not it
 
   it('⛔ MUST: HF-3 folds every task group under the task group it hid (HR-6)', () => {
     // `HR-6` since 2026-08-31: 「**あわせて、そのタスクグループと、その配下を折りたたんだ状態にすること
-    // （MUST）**」（利用者の指示「サンプルと同じ動作にしろ」）—— ⛔ 「**配下をその
-    // ままにして隠してはならない（MUST NOT）**」.
+    // （MUST）**」（利用者の指示「サンプルと同じ動作にしろ」）—— ⛔ 「**何も折りたたまずに
+    // 隠してもならない（MUST NOT）**」.
     //
     // ⭐⭐ THE REASON IS THE WAY BACK, and it is measurable on the sample. `HR-6`
     // has the task group return through the parent's 「配下を 1 階層展開する」, and `HR-7`
@@ -1265,7 +1265,7 @@ describe('FR-029 -- the arming of every entrance the panel carries', () => {
   })
 
   it('⛔ MUST: HF-13 is faint when there is no direct child to open, and armed when there is', () => {
-    // 「⛔ **開ける直下の子が 1 つも無いときは、`FR-029` に従って薄く描くこと
+    // 「⛔ **展開できる直下の子が 1 つも無いときは、`FR-029` に従って薄く描くこと
     // （MUST）**」, whose two ways of having one are `HR-7`'s own: this task group's fold,
     // and a direct child that `HR-6` hid.
     const open = stage()

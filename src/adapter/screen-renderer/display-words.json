@@ -250,8 +250,8 @@
     "en": "Schedule Image-to-JSON Prompt"
    },
    "hint": {
-    "ja": "AIにPPTやExcelなどで作った日程をGoodRelax Schedulerで処理できるJSONデータに変換させるプロンプトをクリップボードに出力する",
-    "en": "Copy to the clipboard a prompt that has an AI convert a schedule made in PowerPoint, Excel, etc. into JSON data GoodRelax Scheduler can process"
+    "ja": "AIにPPTやExcelなどで作った日程をGoodRelax Schedulerで処理できるJSONデータに変換させるプロンプトをクリップボードに出力し、そのスキーマのファイルをダウンロードする",
+    "en": "Copy to the clipboard a prompt that has an AI convert a schedule made in PowerPoint, Excel, etc. into JSON data GoodRelax Scheduler can process, and download its schema file"
    }
   },
   {
@@ -3621,6 +3621,15 @@
    }
   }
  ],
+ "helpBlockNotes": [
+  {
+   "block": "browser",
+   "text": {
+    "ja": "保存の前にブラウザが出す確認にサイトの名が出ても、GRS は手元のファイルを書き換えるだけで、どこへも送りません。",
+    "en": "Even if the browser's confirmation before saving names a site, GRS only rewrites the file on your computer and sends it nowhere."
+   }
+  }
+ ],
  "helpLinks": [
   {
    "link": "download",
@@ -3764,12 +3773,12 @@
   {
    "rowId": "RS-14",
    "text": {
-    "ja": "先頭の 1 つだけを開きました。残りは開いていません",
-    "en": "Only the first file was opened; the rest were left."
+    "ja": "一度に開けるファイルは 1 つです",
+    "en": "Only one file can be opened at a time."
    },
    "nextStep": {
-    "ja": "残りは 1 つずつ開いてください",
-    "en": "Open the rest one at a time."
+    "ja": "開くファイルを 1 つだけドロップしてください",
+    "en": "Drop one file at a time."
    }
   },
   {
@@ -4358,8 +4367,8 @@
   {
    "rowId": "RS-65",
    "text": {
-    "ja": "クリップボードに貼り付けたプロンプトをAIに渡してください。",
-    "en": "Paste the prompt from the clipboard into an AI."
+    "ja": "クリップボードのプロンプトを、ダウンロードしたスキーマのファイル grs-document.schema.json と一緒にAIに渡してください。",
+    "en": "Paste the prompt from the clipboard into an AI, together with the downloaded schema file grs-document.schema.json."
    },
    "nextStep": {
     "ja": "冒頭部分は適宜編集してください。",
@@ -5151,17 +5160,6 @@
    "press": {
     "ja": "素の左クリック",
     "en": "Plain left click"
-   }
-  },
-  {
-   "rowId": "MK-17",
-   "text": {
-    "ja": "1 分の単位で寄せて、離した所に置く",
-    "en": "Snap to the minute where you release"
-   },
-   "press": {
-    "ja": "掴み代の上で Alt+ドラッグ（時刻を表示しているとき）",
-    "en": "Alt+drag on a grab handle (while time of day is shown)"
    }
   },
   {

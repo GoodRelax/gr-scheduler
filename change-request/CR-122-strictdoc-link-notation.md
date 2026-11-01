@@ -16,7 +16,7 @@
 
 ### 2-1. `[LINK: UID]` が StrictDoc の記法である（**自分の書き出しで実証した**）
 
-**出典** —— `C:\StrictDocStarter\samples\md-basic-ja` の `00-ai-guide.md` と `02-guide-for-human.md`。
+**出典** —— `StrictDocStarter\samples\md-basic-ja` の `00-ai-guide.md` と `02-guide-for-human.md`。
 
 | 用途 | 記法 |
 |---|---|
@@ -36,7 +36,7 @@
 | 記法 | 書き出し HTML | GitHub で `.md` を読むとき |
 |---|---|---|
 | `[LINK: UID]` | ✅ リンクになる | ⛔ **`[LINK: DOC-…]` の文字がそのまま出る** —— 定義の無い shortcut reference link なので CommonMark はリテラルに落とす |
-| `[説明](path.md)` | ⛔ **404** —— **StrictDoc は href をそのまま写す**（実測。`href="../../previous-project-result/user-order.md"` のまま出た） | ✅ リンクになる |
+| `[説明](path.md)` | ⛔ **404** —— **StrictDoc は href をそのまま写す**（実測。`href="../../studies/user-order.md"` のまま出た） | ✅ リンクになる |
 
 **サンプルはこの両立不能を、両方並べることで解いている**（`02-guide-for-human.md:284`）——
 
@@ -89,12 +89,12 @@
 > | 参照先のファイルが無い | `<img>` や `<a>` は出る。開くと 404 |
 > | **`_assets/` 以外に置いた** | **ファイルは実在するのに複製されない。開くと 404** |
 
-**`previous-project-result/user-order.md` は `docs/spec` の外にあり、StrictDoc は走査すらしない。**
+**`studies/user-order.md` は `docs/spec` の外にあり、StrictDoc は走査すらしない。**
 
 ⚠️ **`docs/spec/_assets/` へ取り込む案は採らなかった**（利用者判断・2026-08-15）——
 **`_assets/` に置いた `.md` は「添付」ではなく「文書」として解析される**（`note.md` 自身が「StrictDoc は 1 個の文書として扱う」と書いている）。
 **637 行・見出し 26 個の前プロジェクトの成果物が仕様書の文書一覧に並び、検査の対象ファイルも 9 → 10 になる。**
-**`previous-project-result/` は仕様書ではなく参照資料であるという本プロジェクトの位置づけを崩す。**
+**`studies/` は仕様書ではなく参照資料であるという本プロジェクトの位置づけを崩す。**
 
 ## 3. 変更箇所
 
@@ -115,7 +115,7 @@ C の 16 本のリンクそのもの ／ 図の `[![…](x.svg)](x.svg)` 5 本�
 **部品を 表 T-062 に、全体を 図 F-013 に、経路ごとの詳細を 図 F-014 〜 図 F-017 に示す**（`_assets/fig-components.md`）。層の定義と依存の規則は 5.1 が持つ。
 **文書の全体像を 図 F-010 に、エンティティを 表 T-056 に示す**（`_assets/fig-erd-overview.md`）。
 **列と関係の全数を 図 F-011・表 T-057・表 T-058 に示す**（`_assets/fig-erd-detail.md`）。
-**項番はすべて要望の入力（[`user-order.md`](../../previous-project-result/user-order.md)）の該当節へのリンクである。**
+**項番はすべて要望の入力（[`user-order.md`](../../studies/user-order.md)）の該当節へのリンクである。**
 ```
 
 
@@ -146,13 +146,13 @@ C の 16 本のリンクそのもの ／ 図の `[![…](x.svg)](x.svg)` 5 本�
 **置換前（全文・1 行）**
 
 ```
-**項番はすべて要望の入力（[`user-order.md`](../../previous-project-result/user-order.md)）の該当節へのリンクである。**
+**項番はすべて要望の入力（[`user-order.md`](../../studies/user-order.md)）の該当節へのリンクである。**
 ```
 
 **置換後（全文・1 行）**
 
 ```
-**項番はすべて要望の入力（[`user-order.md`](../../previous-project-result/user-order.md)）の該当節へのリンクである。** ⚠️ **このリンクが解決するのは `.md` を直に読むときだけである** —— 宛先は `docs/spec` の外にあり、StrictDoc は `_assets/` の外を出力へ複製しないので、書き出した HTML では開けない。
+**項番はすべて要望の入力（[`user-order.md`](../../studies/user-order.md)）の該当節へのリンクである。** ⚠️ **このリンクが解決するのは `.md` を直に読むときだけである** —— 宛先は `docs/spec` の外にあり、StrictDoc は `_assets/` の外を出力へ複製しないので、書き出した HTML では開けない。
 ```
 
 **この 1 文が C の 16 本すべてを引き受ける。** 16 か所に断りを繰り返さない（1.9 の「同じことを 2 度書かない」）。

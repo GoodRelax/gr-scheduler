@@ -1,0 +1,4 @@
+id	final_en	seat_note
+D001	The address of the latest version of this schema, the same as its $id.	Sonnet ok; true by S-540. The rule that a reader never refuses a document over this value stays in 05-07-design.md and is not repeated in the schema (JDG-3334).
+D003	The UTC time (YYYY-MM-DDTHH:MM:SSZ) when the GRS build that wrote this file was made. It is only for debugging; to check whether a file can be read, use schemaVersion.	Sonnet ok; same meaning as the user's suggestion. "file" kept: the root title says "GRS build that wrote the file" (JDG-3335).
+D004	The data exported to MSPDI, and the data that only GRS uses.	Sonnet fix taken in part: "to draw the schedule" was not true of taskOrigins and baselineTasks, so the second half names no purpose; Sonnet's longer replacement was not taken (E3). The root tree already lists which properties are which (JDG-3336).

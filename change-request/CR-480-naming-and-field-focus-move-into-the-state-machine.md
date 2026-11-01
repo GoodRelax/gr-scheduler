@@ -8,7 +8,7 @@
 > **結論（先に書く）: 小さな領域を 1 つ立てる —— 状態機械 2 つ・状態 4・出来事 5。** 要求が名指す離散の状態は 2 つだけ残る:「作った直後の名前付けの場面」（`FR-091`）と「欄に焦点を置く求め」（`IN-5a` の後の段・`IN-5b`）。棚卸しが数えた 23（いまは 24）の覚えのうち、残りの 22 は、宿主が答える値（`IF-9` の「まだ確定していない文字入力があるか」）、入力ごとの値、副作用の持ち越し、DOM の焦点と書いた値の覚えであり、状態機械に入れない（第 2 節）。⭐ **`dom-screen-surface.ts` の 16 は 1 つも移らない。**
 >
 > **閉じるもの**:
-> - 計画の記録 4 の移す順の 6 番目の先頭「名前付けと入力欄」（`docs/development-records/refactor-plan-report-2026-09-13.md:253`。領域の例 `namingCreatedTaskUid` ・ `isSettlingFieldCommit` は `:242`）。
+> - 計画の記録 4 の移す順の 6 番目の先頭「名前付けと入力欄」（`docs/development-records/history/refactor-plan-report-2026-09-13.md:253`。領域の例 `namingCreatedTaskUid` ・ `isSettlingFieldCommit` は `:242`）。
 > - 棚卸しの記録 3 の「名前付けと入力欄の流れ 5 ／ 5 ／ 23 —— 16 行は画面の面の入力欄の持ち方」（`refactor-stage1-state-inventory-2026-09-13.md:207`）の行き先を、1 行ずつ決めること。
 > - 棚卸しの記録 4 の領域をまたぐ読み 3 つ（同 `:221` ・ `:229` ・ `:235`）と画面の面の `Esc` ・ `Enter` のリスナー（`:241`）を、出来事の運ぶ値・呼び手の詰め方・面に残るものへ割ること。
 >
@@ -248,7 +248,7 @@
 | `CR-436` の波 B2 | 2.2 の申し送り 1 ・ 2 を入口で読む。⛔ 本書は `CR-436` の原稿も本文も書き換えない | 波 B2 の入口 |
 | 段 5 ・ 段 6 | 2.2 の申し送り 3 ・ 4 | それぞれの割り方を決める時 |
 | `docs/development-records/handoff-state-machine.md:104` | 次の領域の並びの先頭「名前付けと入力欄」を済みにする | 前に立つ者 |
-| `docs/development-records/refactor-stage1-state-inventory-2026-09-13.md:207` | 領域の数（23）に `nameFieldWantedUnder` が無い（第 1 節） | 前に立つ者が判じる |
+| `docs/development-records/history/refactor-stage1-state-inventory-2026-09-13.md:207` | 領域の数（23）に `nameFieldWantedUnder` が無い（第 1 節） | 前に立つ者が判じる |
 | `docs/development-records/defects.md` | 第 8 節の候補 1、`DFC-651` の状態の確かめ | 台帳の体 |
 | `docs/review/components/components.md` と図 F-013 〜 F-017 | 見込み 0（`field-entry-values.ts` が読むのは `session-step.ts` だけの見込み）。当てる体は `EG-2` ・ `EG-3` で数える | 波 A |
 | 本線のセッション | `CR-480` の番号の宣言（冒頭の識別子） | 波 A の前 |

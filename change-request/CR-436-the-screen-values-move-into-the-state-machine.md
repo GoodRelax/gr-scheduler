@@ -63,7 +63,7 @@
 
 | # | 決めたこと | 導き |
 |---|---|---|
-| 決定 1 | **3 つの波に割る**（第 3 節）: 波 A はいま当てる（`src/adapter` ・ `src/framework` に触らない）。波 B1（`JDG-283`）と波 B2（シェルへの結線）は段 5・段 6 の完了を待つ | 計画の状態表の段 7 の入口「段 2b・5・6」（`docs/development-records/refactor-plan-report-2026-09-13.md:98`）と `docs/development-records/handoff-state-machine.md` の §3（「①②③ は段 5・6 と並行してよい」「④ は並行できない」）。`CR-379` の決定 3（表 T-075 / T-064 の行はコードと同じ波。検査 18・26b） |
+| 決定 1 | **3 つの波に割る**（第 3 節）: 波 A はいま当てる（`src/adapter` ・ `src/framework` に触らない）。波 B1（`JDG-283`）と波 B2（シェルへの結線）は段 5・段 6 の完了を待つ | 計画の状態表の段 7 の入口「段 2b・5・6」（`docs/development-records/history/refactor-plan-report-2026-09-13.md:98`）と `docs/development-records/handoff-state-machine.md` の §3（「①②③ は段 5・6 と並行してよい」「④ は並行できない」）。`CR-379` の決定 3（表 T-075 / T-064 の行はコードと同じ波。検査 18・26b） |
 | 決定 2 | **`ScreenSession` は改名ではなく移行で片づける。** 名は `UseCase` の集約が持つ（`CR-379` の決定 4 を保つ）。`Adapter` の袋の型は波 B2 で消え、描き手は集約（読むだけ）と、シェルが並べて渡すフレームの値の入力を読む。どの欄がどちらへ行くかは第 4 節 | 計画の記録 12 の置き場の表「描き手はセッションを読む」（`refactor-plan-report-2026-09-13.md:474`）を `JDG-60` が了承している（`rulings.md:137`）。袋の 34 欄のうち 10 欄は第 1 領域の状態そのものである（第 4 節）。⇒ 同じ状態を 2 つの型が持つ形を残すほうが `R1.3`（唯一の正）に反する |
 | 決定 3 | **波 A では、領域の状態の型を `UseCase` の新しいユニットに置き、`ScreenState`（`CP-36`）の欄を変えない。** 波 B2 で、`CR-379` の決定 8 のとおり `ScreenState` へ移す（生成器の出力先を 1 か所変えるだけにする） | `ScreenState` の欄を変えると、`screen-state.ts` を import する `src/` の 8 ファイル（うち `src/adapter` 6、`src/framework` 1。`grep -rlE "from .*screen-state/screen-state" src`）が動く。波 A は他セッションの持ち場に触らない |
 | 決定 4 | **原稿の軸の読み方**: `SM` の行のキーから親のキーを除いた残りが 2 語（`armed.none`）なら「軸.種類」で、同じ親の下の別の軸は直交する（`SF-8` の合成）。1 語（`expanded`）なら親の単一の共用体の種類である | 表 T-250 の `SD-1` は「親（入れ子）」を持つが直交の親を持たない。第 1 領域は独立な軸を 12 持つ（付録）ので、1 つの共用体にすると組が掛け算で増える。キーだけで決まるので、生成器が機械で読める |
@@ -218,7 +218,7 @@
 | 行き先 | 欄 | 数 | 根拠 |
 |---|---|--:|---|
 | **集約・画面の値の領域（本書の波 B2）** | `language` ・ `isDialogueFieldVisible` ・ `isMilestoneListOpen` ・ `isPaletteMinimised` ・ `isLevelZeroFolded` ・ `dualCursorFollowing` ・ `propertiesShowing` ・ `propertiesSubject` ・ `scaleMessage` ・ `isTooltipDismissed` | 10 | 付録の `SM` の行。描き手は種類から導く（例: `isPaletteMinimised` は `screen.palette.shown.minimised` か） |
-| **集約・ほかの領域（その領域の変更要求が移す）** | `openedFileName` ・ `fileSavedAt` ・ `mergeCandidates` ・ `unreadColumns` ・ `droppedTaskNames`（ファイル操作と問いの待ち）／ `isAgentApiEnabled`（Agent API）／ `isRecordingInteractions`（操作の記録）／ `selectedGroupIds` ・ `selectedResourceUids`（選択。`PND-142` ・ `PND-143`）／ `notices` ・ `confirmation`（通知・問いの待ち）／ `rowGrabbedAt`（身振り。掴んでいるかは状態、`resistedPx` ・ `atY` はフレームの値） | 12 | 棚卸し（`docs/development-records/refactor-stage1-state-inventory-2026-09-13.md`）の領域の欄。⭐ 波 B2 のあいだはフレームの値の入力に置き、移す領域の変更要求が 1 つずつ集約へ移す。段 7 の出口に「フレームの値の入力はフレームの値と文書から導く値だけ」を足す |
+| **集約・ほかの領域（その領域の変更要求が移す）** | `openedFileName` ・ `fileSavedAt` ・ `mergeCandidates` ・ `unreadColumns` ・ `droppedTaskNames`（ファイル操作と問いの待ち）／ `isAgentApiEnabled`（Agent API）／ `isRecordingInteractions`（操作の記録）／ `selectedGroupIds` ・ `selectedResourceUids`（選択。`PND-142` ・ `PND-143`）／ `notices` ・ `confirmation`（通知・問いの待ち）／ `rowGrabbedAt`（身振り。掴んでいるかは状態、`resistedPx` ・ `atY` はフレームの値） | 12 | 棚卸し（`docs/development-records/history/refactor-stage1-state-inventory-2026-09-13.md`）の領域の欄。⭐ 波 B2 のあいだはフレームの値の入力に置き、移す領域の変更要求が 1 つずつ集約へ移す。段 7 の出口に「フレームの値の入力はフレームの値と文書から導く値だけ」を足す |
 | **フレームの値（ずっと入力に残る。`SF-5`）** | `pointer` ・ `pointerRestedMs` ・ `iconUnderPointer`（`PND-141`）・ `taskUnderPointer` ・ `commandPaletteAt` ・ `rowBoxes` ・ `scrollExtent` | 7 | 座標・時刻・寸法。`commandPaletteAt` は掴んでいるあいだポインタに追従する座標である（`FR-053`、`01-04-requirements.md:4085`〜`:4088`） |
 | **文書から導く値（ずっと入力に残る。`SF-10`）** | `themePreference` ・ `themeHue` ・ `canUndo` ・ `canRedo` ・ `aiExportDocument` | 5 | `frame-loop.ts:1249` ・ `:1250` ・ `:2262` ・ `:2263` ・ `:1240` が持っている文書から毎フレーム導く。`aiExportDocument` を出すかどうかは集約の `surface`（`U-30` 系の面が開いているか）が決め、中身は文書から導く |
 
@@ -332,7 +332,7 @@
 |---|---|---|
 | `docs/development-records/rulings.md` | `JDG-45` ・ `JDG-59` ・ `JDG-60` の着地先に `CR-436`（表 T-280 〜 T-282、`CP-39`）、`JDG-283` の着地の欄 | 波 A ／ 波 B1 |
 | `docs/development-records/pending-decisions.md` | `PND-451` を閉じる（B1）。`PND-338` ・ `PND-144` ・ `PND-419` を閉じる候補（B2） | B1 ／ B2 |
-| `docs/development-records/refactor-plan-report-2026-09-13.md` | 段 2b の出口と段 7 の最初の領域。記録 5 の「56 本」を 77 に | 波 A |
+| `docs/development-records/history/refactor-plan-report-2026-09-13.md` | 段 2b の出口と段 7 の最初の領域。記録 5 の「56 本」を 77 に | 波 A |
 | `docs/development-records/handoff-state-machine.md` | §3 の ①②③ が済んだこと、④ の入口 | 波 A |
 | `docs/development-records/changelog.md` | A-appendix の 1 行。⭐ 波 A は版 0.29 の「2 つより多いユニットを持つのは」の文に `AdvanceScreenSession`（3）を足した —— 前例 `e33e4f3c`（同じ文を直した）に倣う | 各波 |
 | `.claude/skills/spec-graph-check/audit-ch5.py` | 表 T-063 の行数 7 → 8、`NOT_YET_CALLED`（`JDG-285`。項は前に立つ者が書いた） | 波 A ／ 波 B2（項を消す） |
@@ -1279,7 +1279,7 @@ B2 は今日を写す（`JDG-57`）。機械の升と今日のコードが違う
 | `.claude/skills/spec-graph-check/audit-ch5.py` | ⚠️ `NOT_YET_CALLED` の項を**この段で**消した —— 検査 33 は `components.json` の辺から呼び手を数えるので、辺を足した時点で項が残っていると赤になる（辞書は空で残した） |
 | `tests/contract/units.contract.test.ts` | ユニットの数 101 → 102 |
 | `docs/development-records/changelog.md` | 版 2.67 の行と、版 0.29 の「2 つより多いユニットを持つのは」の文に `SingleHtmlShell`（3） |
-| `docs/development-records/W5-framework.md` | `UF-123` の行（⬜ 未着手） |
+| `docs/development-records/history/W5-framework.md` | `UF-123` の行（⬜ 未着手） |
 | ⚙ 生成物 | `npm run gen`（`tbl-state-machines.md` ・ `tbl-row-id-prefixes.md` ・ `screen-values.ts` の生成の区画）と `build.py`（`components.md` ・ `overview.json` ・ 図 `view-read` ・ `view-write`）。`npm run tree` が `src/framework/single-html-shell/session-effects.ts` の空のユニットを作った |
 
 **起草と変えたところ**（どれも 1 行の判断。覆してよい）:

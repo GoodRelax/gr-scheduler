@@ -1,7 +1,7 @@
 # DFC-610 の A/B —— 段 0 `5c1b915` 対 `d13dd257` 対 `5c723c6d`（2026-09-17）
 
 ⭐ 裁定: `JDG-135`（段 0 と交互に A/B し、悪くなければ閉じる）、`JDG-50`（段 0 より悪くしない）、`JDG-166`（留守中に走らせてよい。数は測り方つきで）。
-測り方は `docs/development-records/refactor-plan-report-2026-09-13.md` の記録 17 とその追補に従う。
+測り方は `docs/development-records/history/refactor-plan-report-2026-09-13.md` の記録 17 とその追補に従う。
 
 ## 1. 比べたビルド
 
@@ -12,7 +12,7 @@
 | `cand-5c723c6d` | `5c723c6d` | 候補（`rowBandCeilingOf` を唯一の解き手にした） | `8e75f056…` —— コミット済みの dist と一致 |
 
 - 木: 各コミットを `git worktree add --detach .claude/worktrees/ab-<sha>` で出し、その中で `npx vite build`。node_modules はつながず、解決はリポジトリの根の node_modules へ上る（記録 17 の「git archive の写し＋node_modules をつなぐ」からの変更点。段 0 の sha256 が一致したので同じビルドである）。
-- 全 36 本の JSON の `conditions.buildSha256` が上の値であることを `run-log.txt` で確かめた。
+- 全 36 本の JSON の `conditions.buildSha256` が上の値であることを `summary.txt` で確かめた。
 
 ## 2. 機械と条件
 
@@ -104,4 +104,4 @@
 
 - `run-ab.py`・`first-notch.mjs` —— 回し方と新しい探り針
 - `run<i>-<probe>-<label>.json` —— 36 本の生の JSON（3 回 × 4 探り針 × 3 木）
-- `run-log.txt`（走行ごとの ok・sha・notMeasured・上限）、`summary.txt`（全区間・全指標の表）
+- `summary.txt`（走行ごとの ok・sha・notMeasured・上限と、全区間・全指標の表。走らせたときの画面への出力 `run-log.txt` は 1 バイトも違わない写しだったので、2026-10-20 に消した —— `JDG-2970`）

@@ -13,7 +13,7 @@ on purpose, and every one of them is NAMED below with its reason, printed on
 every green run:
 
   * the papers of the rename, which quote the spelling they remove;
-  * `previous-project-result/` and `dist/`, out of scope and generated;
+  * `studies/` and `dist/`, out of scope and generated;
   * ⭐ the documents that number THEIR OWN rows from 1 under a column headed
     `#` or `ID`, or as `### D-n.` headings, or as 「**規則表 R-n**」 captions.
     Those rows are left alone: they are read inside one document and collide
@@ -45,7 +45,7 @@ import sys
 PATTERN = re.compile(r'(?<![A-Za-z0-9_-])([DdRr])-([0-9]+)')
 
 TREES = [
-    ('previous-project-result/',
+    ('studies/',
      u"a finished project's record, out of scope by the user's ruling of "
      u'2026-09-12 -- the CR renames what is being built, not what is over'),
     ('dist/',
@@ -128,7 +128,7 @@ SITES = [
   u"the same shape: it names the document whose row it means"),
  ('change-request/CR-117-autosave-idle-and-presentation-changes.md',
   u'POC-RESULTS-ja.md',
-  u"a heading of previous-project-result/, which is out of scope"),
+  u"a heading of studies/, which is out of scope"),
  ('docs/review/inventory/A01-agent-api-spec.md',
   u'A07-security-a11y.md',
   u"a citation of A07's own numbering, with the document named beside it"),

@@ -7,7 +7,7 @@
 > 名前の規則は `docs/development-rules/07-review-standards.md` の「状態機械（State Machine）」の節（`:296`〜`:343`）と R4.4（`:605`）に従う。原稿の形は `docs/spec/_source/state-machines.schema.json` と、生成器 `docs/spec/_source/state_machines_json_to_md.py` の `load()` が拒むもの（`:26`〜`:52`）に従う。
 >
 > **閉じるもの**:
-> - 計画の記録 4 の移す順の 4 番目「ファイル操作と問いの待ち」（`docs/development-records/refactor-plan-report-2026-09-13.md:251`。領域の例 `asking` `openChoosing` `mergeChoosing` `isFileOperationWaiting` は `:236`）。
+> - 計画の記録 4 の移す順の 4 番目「ファイル操作と問いの待ち」（`docs/development-records/history/refactor-plan-report-2026-09-13.md:251`。領域の例 `asking` `openChoosing` `mergeChoosing` `isFileOperationWaiting` は `:236`）。
 > - 棚卸しの記録 4 の「同じ 3 項のガードが 5 か所に写してある（`OP-8`）」（`refactor-stage1-state-inventory-2026-09-13.md:228` ・ `:259`）を、表の 1 つの列へ畳むこと。
 > - 棚卸しの記録 4 の「ファイル側の関数が `screenState` を書く（領域をまたぐ書き込み）」（同 `:227`）を、副作用と出来事へ置き換えること。
 >
@@ -275,7 +275,7 @@
 | 所 | 何が動くか | いつ |
 |---|---|---|
 | `CR-436` | 画面の値の原稿に `flowSurfaceAnswered` と 1 升が足される（決定 7）。波 B2 の `T-283` に 2.2 の 3 行を申し送る。⛔ 本書は `CR-436` を書き換えない | 波 A ・ 波 A の後 |
-| `docs/development-records/refactor-stage1-state-inventory-2026-09-13.md` | 領域の数（`:201`）にファイル置き場の閉包 3 が無い（第 1 節） | 前に立つ者が判じる |
+| `docs/development-records/history/refactor-stage1-state-inventory-2026-09-13.md` | 領域の数（`:201`）にファイル置き場の閉包 3 が無い（第 1 節） | 前に立つ者が判じる |
 | `docs/development-records/handoff-state-machine.md` | §3 の「次の領域」（`:100`）に第 4 領域 | 前に立つ者 |
 | `docs/development-records/defects.md` ・ `pending-decisions.md` | 第 8 節の候補 5 〜 7（と 2 の範囲の確認） | 台帳の体 |
 | `docs/review/components/components.md` と図 F-013 〜 F-017 | 見込み 0（`file-flow-values.ts` が読むのは `session-step.ts` だけの見込み）。当てる体は `EG-2` ・ `EG-3` で数える | 波 A |

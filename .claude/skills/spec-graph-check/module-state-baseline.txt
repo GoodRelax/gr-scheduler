@@ -1,5 +1,5 @@
 # Check 61 -- module-scope mutable state held by the inner three layers
-# (gate 4, docs/development-records/refactor-stage3-gates-proposal-2026-09-15.md;
+# (gate 4, docs/development-records/history/refactor-stage3-gates-proposal-2026-09-15.md;
 # initial value approved by rulings.md JDG-124).
 #
 # 0 finding(s), measured by check-module-state.py: a column-0 let/var

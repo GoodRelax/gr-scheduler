@@ -234,6 +234,8 @@ describe('FR-036 -- the help title row stands outside what scrolls', () => {
       copyrightNotice: 'Copyright notice',
       attributions: ['An attribution'],
       helpLegal: { licensedUnder: 'LicensedUnderHere', fullText: 'FullTextHere' },
+      // WHY: CR-828 made blockNotes a required member of the Help Modal view; these cases do not read the notes.
+      blockNotes: [],
       area: { belowAppHeader: { x: 0, y: 37, width: 1280, height: 763 } },
       downloadLink: { words: '', address: '' },
       aboutLink: { words: '', address: '' },

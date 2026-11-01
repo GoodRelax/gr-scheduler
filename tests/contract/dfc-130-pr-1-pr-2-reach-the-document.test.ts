@@ -120,7 +120,7 @@ import {
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 // ---------------------------------------------------------------------------
-// The manuscript, read at read time rather than copied (Chapter 1.9, :275)
+// The manuscript, read at read time rather than copied (Chapter 1.9)
 // ---------------------------------------------------------------------------
 
 const T_016: SpecTable = specTable('T-016')

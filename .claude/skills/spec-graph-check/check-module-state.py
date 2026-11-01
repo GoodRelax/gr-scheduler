@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """Check 61 -- gate 4 of stage 3: module-scope mutable state in the inner
-three layers (docs/development-records/refactor-stage3-gates-proposal-2026-09-15.md,
+three layers (docs/development-records/history/refactor-stage3-gates-proposal-2026-09-15.md,
 gate 4; rulings.md JDG-124 approved this baseline's initial value).
 
 Table T-249's SF-7 (docs/spec/05-07-design.md) requires that the current

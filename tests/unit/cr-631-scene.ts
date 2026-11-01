@@ -196,7 +196,11 @@ export const sceneOf = (
     layout,
     geometry,
     regions,
-    screen: { ...emptyScreenSession.screen, armModeState: armed ? { kind: 'parentTaskArmed' } : { kind: 'notArmed' } },
+    // WHY: wave 2 of CR-767 (JDG-2364) holds every arm as a child of the composite `armed`.
+    screen: {
+      ...emptyScreenSession.screen,
+      armModeState: armed ? { kind: 'armed', child: { kind: 'parentTaskArmed' } } : { kind: 'notArmed' },
+    },
     selection,
     zoomStep: 1.1,
     zoomMin: 0.01,

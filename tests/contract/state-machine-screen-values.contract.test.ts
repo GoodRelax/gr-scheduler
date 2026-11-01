@@ -12,14 +12,18 @@ import {
   type SessionEvent,
 } from '../../src/use-case/advance-screen-session/advance-screen-session'
 import { NO_EFFECTS } from '../../src/use-case/advance-screen-session/session-step'
+import { type GuardScope, termHolds } from './guard-language'
 
 type Carried = { readonly name: string }
+type StateEffect = { readonly effect: string }
 type SmRow = {
   readonly id: string
   readonly key: string
   readonly parent: string | null
   readonly initial: boolean
   readonly carries: readonly Carried[]
+  readonly entry?: StateEffect
+  readonly exit?: StateEffect
 }
 type EvRow = { readonly id: string; readonly key: string; readonly carries: readonly Carried[] }
 type Guard = { readonly name: string; readonly not?: boolean }
@@ -52,7 +56,14 @@ type RawRegion = {
   readonly events: readonly { readonly key: string; readonly carries: readonly Carried[] }[]
   readonly machines: readonly {
     readonly name: string
-    readonly states: readonly { readonly key: string; readonly parent: string | null; readonly initial: boolean; readonly carries: readonly Carried[] }[]
+    readonly states: readonly {
+      readonly key: string
+      readonly parent: string | null
+      readonly initial: boolean
+      readonly carries: readonly Carried[]
+      readonly entry?: StateEffect
+      readonly exit?: StateEffect
+    }[]
     readonly transitions: Readonly<Record<string, Readonly<Record<string, RawCell>>>>
   }[]
 }
@@ -84,7 +95,16 @@ function regionOf(raw: RawRegion): Region {
   for (const m of raw.machines) {
     for (const s of m.states) {
       const key = `${m.name}.${s.key}`
-      states.push({ id: key, key, parent: s.parent === null ? raw.region : `${m.name}.${s.parent}`, initial: s.initial, carries: s.carries })
+      const parent = s.parent === null ? raw.region : `${m.name}.${s.parent}`
+      states.push({
+        id: key,
+        key,
+        parent,
+        initial: s.initial,
+        carries: s.carries,
+        ...(s.entry === undefined ? {} : { entry: s.entry }),
+        ...(s.exit === undefined ? {} : { exit: s.exit }),
+      })
     }
   }
   const rootRows = Object.entries(raw.root.transitions).flatMap(([event, cell]) =>
@@ -271,8 +291,10 @@ const EVENT_CARRIED_VARIANTS: Record<string, readonly unknown[]> = {
   calendarDraft: [CLEAN_CALENDAR_DRAFT],
 }
 
-const ARM_KINDS = STATES.filter((s) => s.parent === ROOT && s.key.startsWith('armModeStateMachine.') && !s.initial).map(
-  (s) => axisAndPath(s.key).path[0] as string,
+// WHY: the arms are the children of the composite `armed`, which has no initial child; the
+// event's armKind names the child the cell `armed.{armKind}` enters (JDG-2364).
+const ARM_KINDS = STATES.filter((s) => s.parent === 'armModeStateMachine.armed').map(
+  (s) => axisAndPath(s.key).path[1] as string,
 )
 
 // see T-280, FR-016
@@ -316,103 +338,54 @@ function holds(session: ScreenSession, key: string): boolean {
   return path.every((segment, i) => now[i] === segment)
 }
 
-function hasChoice(subject: unknown): boolean {
-  const s = subject as { selection: { items: readonly unknown[] }; taskGroupIds: readonly unknown[] }
-  return s.selection.items.length > 0 || s.taskGroupIds.length > 0
+function scopeOf(session: ScreenSession, event: Loose): GuardScope {
+  return { region: 'screen', values: screenOf(session), event, after: (machine) => valueAfter(session, event, machine) }
 }
 
-// see IN-4, FR-016, FR-070, WM-6, WM-8, FR-072
-function guardHolds(name: string, session: ScreenSession, event: Loose): boolean {
-  const screen = screenOf(session)
-  switch (name) {
-    case 'isFullScreen':
-    case 'isProceeding':
-    case 'hasSurfaceOrConfirmation':
-    case 'hasUnsettledEntry':
-    case 'isAgentApiEnabled':
-    case 'hasDaysToPlace':
-    case 'isOpenAccepted':
-    case 'isOtherThanShownBase':
-      return event[name] === true
-    case 'isSameArm': {
-      const armed = screen['armModeState'] as Loose
-      if (armed['kind'] !== event['armKind']) return false
-      if (armed['kind'] === 'taskShapeArmed') return armed['shapeKind'] === event['shapeKind']
-      if (armed['kind'] === 'milestoneShapeArmed') return armed['glyph'] === event['glyph']
-      return true
-    }
-    // WHY: entering the mode is dualCursorModeStateMachine.off with hasDaysToPlace; FR-016 disarms
-    // on entering, so leaving the mode (from dualCursorModeStateMachine.on) keeps the arm.
-    case 'canEnterDualCursor':
-      return holds(session, 'dualCursorModeStateMachine.off') && event['hasDaysToPlace'] === true
-    case 'isWatermarkUnlockSurface': {
-      const surface = screen['openSurfaceState'] as Loose
-      return surface['kind'] === 'open' && surface['surfaceName'] === UNLOCK_SURFACE
-    }
-    case 'isAnotherSurface': {
-      const surface = screen['openSurfaceState'] as Loose
-      const opening = event['type'] === 'watermarkEntryPressed' ? UNLOCK_SURFACE : event['surfaceName']
-      return surface['kind'] === 'open' && surface['surfaceName'] !== opening
-    }
-    case 'isFlowAwaitingAnswer': {
-      const surface = screen['openSurfaceState'] as Loose
-      return surface['kind'] === 'open' && ['U-56', 'U-61'].includes(String(surface['surfaceName']))
-    }
-    case 'isRungSurface':
-      return event['rung'] === 'surface'
-    case 'isRungArmed':
-      return event['rung'] === 'armed'
-    case 'isRungDualCursor':
-      return event['rung'] === 'dualCursorMode'
-    case 'isRungTooltip':
-      return event['rung'] === 'tooltip'
-    // see RG-16
-    case 'isRungHelp':
-      return event['rung'] === 'helpModal'
-    case 'isRungSearchPanel':
-      return event['rung'] === 'searchPanel'
-    case 'isSurfaceTarget':
-      return event['target'] === 'surface'
-    case 'isPanelTarget':
-      return event['target'] === 'panel'
-    case 'isHelpTarget':
-      return event['target'] === 'helpModal'
-    // WHY: req:4194 sends the closing hand to a standing surface, not the panel
-    // behind it, so the panel is topmost only while no surface is open.
-    case 'isPanelTopmost':
-      return holds(session, 'openSurfaceStateMachine.closed')
-    case 'hasChoice':
-      return hasChoice(event['subject'])
-    // see FR-157, FO-16
-    case 'isShiftZero':
-      return event['shiftMinutes'] === 0
-    // see FR-159, FO-17
-    case 'isNewStartDateEmpty':
-      return event['newStartDate'] === ''
-    // see WC-10
-    case 'hasCalendarDraftRefusal':
-      return (screen['calendarDraftState'] as Loose)['calendarDraft'] === REFUSED_CALENDAR_DRAFT
-    // see FR-156, FR-157
-    case 'isLeavingDocumentSettings':
-      return holds(session, 'propertiesPanelContentStateMachine.documentSettingsDisplayed')
-        && landingsOn(session, event, 'propertiesPanelContentStateMachine').some((to) => to !== 'self')
-    // see FR-088, S-99g
-    case 'isLeavingHolidaySettings': {
-      const surface = screen['openSurfaceState'] as Loose
-      return surface['kind'] === 'open' && surface['surfaceName'] === HOLIDAY_SURFACE
-        && landingsOn(session, event, 'openSurfaceStateMachine').some((to) => to !== 'self')
-    }
-    default:
-      throw new Error(`guard ${name} is named by the manuscript but not by this file's oracle`)
+function termTrue(session: ScreenSession, event: Loose, g: Guard): boolean {
+  return termHolds(scopeOf(session, event), g)
+}
+
+function nested(path: readonly string[]): Loose | undefined {
+  const [kind, ...rest] = path
+  if (kind === undefined) return undefined
+  const child = nested(rest)
+  return child === undefined ? { kind } : { kind, child }
+}
+
+// see FR-088, S-99g, FR-156, FR-157
+// WHY: inAfter / after read a machine after the same event's step; the step is predicted from the
+// machine's own cells, and only the surface name is carried over, as the T-280 notes write it.
+function valueAfter(session: ScreenSession, event: Loose, machine: string): unknown {
+  const now = screenOf(session)[axisAndPath(`${machine}.x`).axis]
+  if (machine === 'openSurfaceStateMachine') {
+    const name = surfaceNameAfter(session, event)
+    return name === null ? { kind: 'closed' } : { kind: 'open', surfaceName: name }
   }
+  const row = landingsOn(session, event, machine)[0]
+  if (row === undefined || row.to === 'self') return now
+  return nested(targetPath(row.to[0] as string, event))
 }
 
 // WHY: the rows of one machine only, so a guard reading another machine's step cannot call itself.
-function landingsOn(session: ScreenSession, event: Loose, machine: string): TnRow['to'][] {
+function landingsOn(session: ScreenSession, event: Loose, machine: string): TnRow[] {
   return TRANSITIONS.filter((row) => row.event === event['type']
     && row.from.some((conj) => conj.some((key) => key.startsWith(`${machine}.`)) && conj.every((key) => holds(session, key)))
-    && (row.guard ?? []).every((g) => guardHolds(g.name, session, event) !== (g.not === true)))
-    .map((row) => row.to)
+    && (row.guard ?? []).every((g) => termTrue(session, event, g)))
+}
+
+function openingSurfaceName(event: Loose): unknown {
+  return event['type'] === 'watermarkEntryPressed' ? UNLOCK_SURFACE : event['surfaceName']
+}
+
+// WHY: an open -> open cell rewrites surfaceName only when it replaces the surface, and those
+// cells are the ones that tell the replaced surface it closed.
+function surfaceNameAfter(session: ScreenSession, event: Loose): unknown {
+  const surface = screenOf(session)['openSurfaceState'] as Loose
+  const row = landingsOn(session, event, 'openSurfaceStateMachine')[0]
+  if (row === undefined) return surface['kind'] === 'open' ? surface['surfaceName'] : null
+  if (row.to !== 'self') return row.to[0] === 'openSurfaceStateMachine.open' ? openingSurfaceName(event) : null
+  return row.effect?.name === 'tellFlowSurfaceClosed' ? openingSurfaceName(event) : surface['surfaceName']
 }
 
 type Firing = { row: TnRow; axes: string[] }
@@ -422,7 +395,7 @@ function firingRows(session: ScreenSession, event: Loose): Firing[] {
   for (const row of TRANSITIONS) {
     if (row.event !== event['type']) continue
     if (!row.from.some((conj) => conj.every((key) => holds(session, key)))) continue
-    if (!(row.guard ?? []).every((g) => guardHolds(g.name, session, event) !== (g.not === true))) continue
+    if (!(row.guard ?? []).every((g) => termTrue(session, event, g))) continue
     fired.push({ row, axes: row.to === 'self' ? [] : row.to.map((k) => axisAndPath(k).axis) })
   }
   return fired
@@ -430,6 +403,33 @@ function firingRows(session: ScreenSession, event: Loose): Firing[] {
 
 function targetPath(key: string, event: Loose): string[] {
   return completePath(key.replace(/\{(\w+)\}/g, (_, name: string) => String(event[name])))
+}
+
+function stateRow(key: string): SmRow | undefined {
+  return STATES.find((s) => s.key === key)
+}
+
+// see SD-1, SD-3
+function cellEffects(session: ScreenSession, row: TnRow, event: Loose): string[] {
+  const own = row.effect === null ? [] : [row.effect.name]
+  if (row.to === 'self') return own
+  const crossing: { exits: string[]; entries: string[] } = { exits: [], entries: [] }
+  for (const to of row.to) {
+    const machine = to.split('.')[0] ?? ''
+    const now = kindPath(screenOf(session)[axisAndPath(to).axis])
+    const next = targetPath(to, event)
+    let common = 0
+    while (common < now.length && common < next.length && now[common] === next[common]) common += 1
+    for (let depth = now.length; depth > common; depth -= 1) {
+      const exit = stateRow(`${machine}.${now.slice(0, depth).join('.')}`)?.exit
+      if (exit !== undefined) crossing.exits.push(exit.effect)
+    }
+    for (let depth = common + 1; depth <= next.length; depth += 1) {
+      const entry = stateRow(`${machine}.${next.slice(0, depth).join('.')}`)?.entry
+      if (entry !== undefined) crossing.entries.push(entry.effect)
+    }
+  }
+  return [...crossing.exits, ...own, ...crossing.entries]
 }
 
 function isAxis(value: unknown): boolean {
@@ -468,7 +468,7 @@ function expectStepMatchesManuscript(session: ScreenSession, event: Loose): void
     }
   }
 
-  const expected = rows.flatMap((f) => (f.row.effect === null ? [] : [f.row.effect])).map((e) => e.name).sort()
+  const expected = rows.flatMap((f) => cellEffects(session, f.row, event)).sort()
   const effects = result.effects.map((e) => e as unknown as Loose)
   expect(effects.map((e) => String(e['type'])).sort(), `effects of ${rows.map((f) => f.row.id).join(', ')}`).toEqual(
     expected,
@@ -554,7 +554,7 @@ describe('SD-3 guards across two machines: openSurfaceState and propertiesPanelC
   ] as const
 
   it.each(surfaceAndPanel.flatMap(([p, s]) => RUNGS.map((rung) => [`surface.open & properties.${p} x rung=${rung}`, s, rung] as const)))(
-    'escapePressed (isPanelTopmost): %s',
+    'escapePressed (isRungPropertiesPanel, DFC-2720): %s',
     (_, session, rung) => {
       expectStepMatchesManuscript(session, { type: 'escapePressed', rung })
     },
@@ -568,17 +568,43 @@ describe('SD-3 guards across two machines: openSurfaceState and propertiesPanelC
   )
 })
 
+describe('DFC-3458 guard isLeavingHolidaySettings: the U-65 surface closed or replaced drops the calendar draft', () => {
+  const holidayOpen = (...more: string[]): ScreenSession =>
+    withAxes(sessionIn('calendarDraftStateMachine.drafted', ...more), {
+      openSurfaceState: { kind: 'open', surfaceName: HOLIDAY_SURFACE },
+    })
+  const cases: readonly (readonly [string, readonly string[], Loose, boolean])[] = [
+    ['replaced by surfaceEntryPressed(U-30)', [], { type: 'surfaceEntryPressed', surfaceName: 'U-30' }, true],
+    ['surfaceEntryPressed(U-65) on itself', [], { type: 'surfaceEntryPressed', surfaceName: HOLIDAY_SURFACE }, false],
+    ['replaced by surfaceRaisedByFlow(U-56)', [], { type: 'surfaceRaisedByFlow', surfaceName: 'U-56' }, true],
+    ['replaced by watermarkEntryPressed', ['watermarkDisplayStateMachine.shown'], { type: 'watermarkEntryPressed' }, true],
+    ['watermarkEntryPressed with no watermark', ['watermarkDisplayStateMachine.hidden'], { type: 'watermarkEntryPressed' }, false],
+    ['closed by escapePressed(rung=surface)', [], { type: 'escapePressed', rung: 'surface' }, true],
+    ['escapePressed(rung=propertiesPanel)', [], { type: 'escapePressed', rung: 'propertiesPanel' }, false],
+    ['closed by surfaceCloseAsked(target=surface)', [], { type: 'surfaceCloseAsked', target: 'surface' }, true],
+    ['surfaceCloseAsked(target=panel)', [], { type: 'surfaceCloseAsked', target: 'panel' }, false],
+  ]
+
+  it.each(cases)('open(U-65) & calendarDraftStateMachine.drafted: %s', (_, more, event, leaves) => {
+    const session = holidayOpen(...more)
+    expectStepMatchesManuscript(session, event)
+    expect(kindPath(screenOf(step(session, event).state)['calendarDraftState'])).toEqual([leaves ? 'untouched' : 'drafted'])
+  })
+})
+
 describe('SD-3 guard isSameArm (armModeState x armEntryPressed): same kind and same carried value', () => {
-  it('not isSameArm: armModeStateMachine.taskShapeArmed(SH-1) x armEntryPressed(taskShapeArmed, SH-2) stays armed on SH-2', () => {
-    const session = sessionIn('armModeStateMachine.taskShapeArmed')
+  const armedChild = (session: ScreenSession): Loose => (screenOf(session)['armModeState'] as Loose)['child'] as Loose
+
+  it('not isSameArm: armModeStateMachine.armed.taskShapeArmed(SH-1) x armEntryPressed(taskShapeArmed, SH-2) stays armed on SH-2', () => {
+    const session = sessionIn('armModeStateMachine.armed.taskShapeArmed')
     expectStepMatchesManuscript(session, armEvent('taskShapeArmed', 'SH-2'))
-    expect((screenOf(step(session, armEvent('taskShapeArmed', 'SH-2')).state)['armModeState'] as Loose)['shapeKind']).toBe('SH-2')
+    expect(armedChild(step(session, armEvent('taskShapeArmed', 'SH-2')).state)['shapeKind']).toBe('SH-2')
   })
 
-  it('not isSameArm: armModeStateMachine.milestoneShapeArmed(SH-5) x armEntryPressed(milestoneShapeArmed, other glyph) stays armed on it', () => {
-    const session = sessionIn('armModeStateMachine.milestoneShapeArmed')
+  it('not isSameArm: armModeStateMachine.armed.milestoneShapeArmed(SH-5) x armEntryPressed(milestoneShapeArmed, other glyph) stays armed on it', () => {
+    const session = sessionIn('armModeStateMachine.armed.milestoneShapeArmed')
     expectStepMatchesManuscript(session, armEvent('milestoneShapeArmed', 'SH-5b'))
-    expect((screenOf(step(session, armEvent('milestoneShapeArmed', 'SH-5b')).state)['armModeState'] as Loose)['glyph']).toBe('SH-5b')
+    expect(armedChild(step(session, armEvent('milestoneShapeArmed', 'SH-5b')).state)['glyph']).toBe('SH-5b')
   })
 })
 

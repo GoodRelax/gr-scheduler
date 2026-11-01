@@ -415,7 +415,7 @@ describe('Schedule (PI-1) -- dates are days (FR-054, EX-7)', () => {
     // Backwards is the same span, and the accepted range itself is inside it.
     expect(() => workingDaysBetween(plain, day(2026, 8, 17), day(1500, 1, 1)))
       .toThrow(DaySpanTooWide)
-    expect(() => workingDaysBetween(plain, day(1970, 1, 1), day(2200, 12, 31)))
+    expect(() => workingDaysBetween(plain, day(1984, 1, 1), day(2149, 12, 31)))
       .not.toThrow()
   })
 
@@ -738,7 +738,8 @@ describe('ScreenState (PI-36) -- Esc over a standing question (IN-4, IN-4a)', ()
     expect(rungOf(armedOnly, context)).toBe('confirmation')
     expect(rungOf(armedOnly, context)).toBe('confirmation')
     expect(context.isConfirmationStanding).toBe(true)
-    expect(armedOnly.armModeState.kind).toBe('dependencyArmed')
+    // WHY: wave 2 of CR-767 (JDG-2364) holds the arm as a child of the composite `armed`.
+    expect(armedOnly.armModeState).toEqual({ kind: 'armed', child: { kind: 'dependencyArmed' } })
   })
 })
 

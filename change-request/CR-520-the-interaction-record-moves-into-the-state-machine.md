@@ -10,8 +10,8 @@
 > ⭐ **升はどこも今日のコードを写す**（`JDG-57`）。仕様とコードが食い違う所（最小化・非表示のあいだ記録しているかが読めない、クリップボードへ渡せなかったことを告げない）は原稿に入れず、台帳の候補とする（第 8 節）。
 >
 > **閉じるもの**:
-> - 計画の記録 4 の移す順の 6 番目の 3 つ目「操作の記録」（`docs/development-records/refactor-plan-report-2026-09-13.md:253`、領域の例は `:244`）。
-> - 棚卸しの「操作の記録 4 ／ 4 ／ 5」（`docs/development-records/refactor-stage1-state-inventory-2026-09-13.md:209`、行 `:56`〜`:59` ・ `:106`）の行き先。
+> - 計画の記録 4 の移す順の 6 番目の 3 つ目「操作の記録」（`docs/development-records/history/refactor-plan-report-2026-09-13.md:253`、領域の例は `:244`）。
+> - 棚卸しの「操作の記録 4 ／ 4 ／ 5」（`docs/development-records/history/refactor-stage1-state-inventory-2026-09-13.md:209`、行 `:56`〜`:59` ・ `:106`）の行き先。
 > - `CR-490` の 11.1 の 3 行目 ・ 4 行目（`change-request/CR-490-selection-moves-into-the-state-machine.md:271` ・ `:272`）、11.3 の「記録している」（`:303`）、11.7 の 2 行目（`:416`）。
 > - `docs/development-records/handoff-state-machine.md:122` の「次の領域」のうち操作の記録（起草時は `:115`。書き換えは前に立つ者 —— 第 9 節）。
 >

@@ -1,13 +1,13 @@
 {
  "$comment": [
   "GENERATED -- do not edit by hand. Your change is overwritten by the next rebuild, and npm run gen:check fails on it even where the XSD is absent (bodySha256).",
-  "Generated from docs/reference/mspdi/pj15/mspdi_pj15.xsd (the order, EX-10 of table T-033) and docs/reference/mspdi/pj12/mspdi_pj12.xsd (the pj15Only marks) by tools/generate_mspdi_child_order.py. Both copies are git-ignored; how to fetch them is in previous-project-result/01-mspdi/mspdi/README.md.",
+  "Generated from docs/reference/mspdi/pj15/mspdi_pj15.xsd (the order, EX-10 of table T-033) and docs/reference/mspdi/pj12/mspdi_pj12.xsd (the pj15Only marks) by tools/generate_mspdi_child_order.py. Both copies are git-ignored; how to fetch them is in studies/01-mspdi/mspdi/README.md.",
   "Rebuild: npm run gen   |   npm run gen:check fails on drift.",
   "Only the names and the order of children are copied (CN-7 of table T-003): no type, description or enumeration. A leaf has no row; \"all\" marks an xsd:all parent, whose order is free."
  ],
  "sourceXsdSha256": "1c208a9732d6ba16f677a9f2fb9d5a629f0c200346b1851998a44765c502eb85",
  "pj12XsdSha256": "a3e9138f0f02df06d7b1254be6190c2dd48fdcf6a2445ab79a6abab765a8c7b4",
- "bodySha256": "bb52dce0b72bd5f92fa28419061b5abddc1676c72180fb1ffa917fdc4c9a558a",
+ "bodySha256": "b58057e02616451d391fbb9a7f542b40c6e339116de86d345ebaa4a7a8d1e2ab",
  "parents": {
   "Project": {
    "all": false,

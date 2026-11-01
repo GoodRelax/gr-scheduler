@@ -1,9 +1,8 @@
 // The closing rule of 表 T-023d that makes a HELD grab follow the pointer --
 // its ten rows, and the rows the paragraph after it exempts.
 //
-// ⭐ NINE OF THE TEN ARE DRIVEN HERE. The tenth, GR-21, is the `Scrollbars`
-// thumb, and it is measured rather than driven -- see the block at the foot of
-// this file, which presses it and states what was measured.
+// All ten are driven here: nine through `FOLLOWERS`, and the tenth, GR-21, the
+// `Scrollbars` grip, through its own surface in block (e) at the foot of the file.
 //
 // The unit these arrive on is UF-48 `single-html-shell` (CP-25 of table T-062),
 // whose `frame-loop.ts` takes FT-1 of table T-078 -- 人の入力（ポインタとキー）
@@ -35,8 +34,7 @@
 //                        thumb is drawn in the view and not in `FrameValues`
 //   item-hit-area.ts     `Item`, `GrabArea`, `Hit` and the head comment
 //                        ⭐ `GrabArea` -- 「Which row of table T-023d claimed
-//                        the point」 -- spells GA-7 .. GA-17 and no more, which
-//                        is one half of why GR-21 is measured and not driven.
+//                        the point」.
 //   schedule-entities.ts          the entity types this fixture writes out
 //   edit-task.ts /       the `kind` spellings of table T-108, to learn WHICH
 //   edit-document.ts     command could carry each release
@@ -102,15 +100,14 @@
 //   T-023d GR-21         `Scrollbars` のつまみ, standing at the END of the
 //           priority order (2026-09-07). 場所:「帯の中の、いま見えている範囲を
 //           表す区間」, 操作:「掴めば表示位置を変える（規則は `FR-051`）」.
-//           ⭐ NAMED BY THE CLOSING RULE AND NOT DRIVEN HERE -- the block at the
-//           foot of this file presses it and reports what was measured.
-//   T-023d  ⛔「掴んだ端点を置いた日を、稼働日へ寄せてはならない（MUST NOT）」
+//           Driven through its own surface in block (e) at the foot of this file.
+//   T-023d  ⛔「掴んだ端点を置いた所を、稼働日・稼働時間へ寄せてはならない（MUST NOT）」
 //   T-028 IN-1   「ポインタ操作は押した時点で実行せず、離した時点で確定すること」
 //   FR-031  「文書を変えるドラッグ 1 回を 1 段にまとめること（MUST）」
 //   FR-011  「タスクの本体をドラッグしたとき、予定の日付だけをずらし、実績の
 //           日付を変えてはならない（MUST NOT）。タスクグループをまたぐ移動では予定も実績も
 //           新しいタスクグループへ移るが、どちらの日付も変わらない（MUST NOT）」
-//   T-015a HM-3  「タスクバーを別のタスクグループへ移す操作では WBS を変えてはならない
+//   T-015a HM-3  「タスクバーを別のタスクグループへ移す操作では親タスクを変えてはならない
 //           （MUST NOT）—— タスクグループの移動と階層の移動は別の操作である」
 //   FR-044  「`Task` が中断しているあいだ、`GRS` は、作成者が再開予定日を画面上で
 //           置き、置いた後に動かせるようにすること」
@@ -130,29 +127,6 @@
 //     fade pair. ⛔ Nothing here repeats a case of that file.
 //   - `GR-19`, the palette's grab band: `FR-053` has its own following rule and
 //     its own owner.
-//   - `GR-21`'s FOLLOWING. ⛔ NOT A READING OF THE SPECIFICATION -- the closing
-//     rule names GR-21 among the ten, so the duty is exactly as strong as the
-//     other nine. What is missing is a road to drive it on, and it was measured
-//     rather than assumed (2026-09-07, this fixture, `scrollbarThickness: 14`):
-//       · the drawn thumb is the WHOLE lane -- vertical `track` and `thumb` both
-//         came out `{x:1176, y:48, width:14, height:628}` -- so there is no grip
-//         to carry, only a lane;
-//       · a press on the middle of that thumb followed by a 120px move changed
-//         nothing at all: `current()` was byte-identical before, during and
-//         after the drag, and so was `document()`;
-//       · `GrabArea` -- the type that answers 「Which row of table T-023d
-//         claimed the point」 -- runs GA-7 .. GA-17, so no unit can even report
-//         a press as GR-21's.
-//     ⭐ The block at the foot of this file pins those measurements, so the day
-//     the thumb starts to follow they fail and this exemption has to go.
-//     ⚠️ THE FIRST OF THE THREE IS SPENT (DFC-298, 2026-09-08): GR-21's LENGTH
-//     landed, so the thumb is no longer the whole lane -- on `wideFixtureDocument`
-//     it now measures 216.7px of a 976px horizontal lane and 153.6px of a 628px
-//     vertical one. ⛔ THE EXEMPTION STILL STANDS, because what it is about is
-//     the FOLLOWING and not the length: the grip is still laid at its lane's
-//     START, so a held drag moves nothing on the picture, and the two cases below
-//     go on pinning that. ⭐ The grip's start is the STOP note `screen-frame.ts`
-//     now carries; the day it travels, those two fail and this whole block goes.
 //   - WHICH `DocumentCommand` a release plans. The release is read where it
 //     lands -- on `document()` -- because table T-108 is not this file's
 //     subject.
@@ -774,7 +748,7 @@ function statusLineOf(loop: FrameLoop) {
 // ===========================================================================
 // The nine rows of the ten that are driven, each with the point it is grabbed
 // at and the coordinate the closing rule makes follow the pointer.
-// (The tenth, GR-21, is measured at the foot of this file.)
+// (The tenth, GR-21, is driven in block (e) at the foot of this file.)
 // ===========================================================================
 
 interface Follower {
@@ -871,16 +845,8 @@ const FOLLOWERS: readonly Follower[] = [
   },
 ]
 
-/**
- * The one row of the closing rule this file MEASURES instead of driving.
- *
- * ⛔ NOT AN EXEMPTION FROM THE RULE. The closing rule names GR-21 among the ten
- * and the paragraph after the table exempts it nowhere, so the duty is as
- * strong as the other nine's; what is missing is a road to drive it on. The
- * block at the foot of this file states what was measured, and fails the day
- * the road appears.
- */
-const MEASURED_NOT_DRIVEN = 'GR-21'
+/** The one row of the closing rule driven outside `FOLLOWERS`, in block (e). */
+const GRIP_ROW = 'GR-21'
 
 /** How far every following case carries the pointer. */
 const TRAVEL_DAYS = 4
@@ -1310,7 +1276,7 @@ describe('table T-028 IN-1: the release settles what the picture was showing', (
   it('GA-9 settles the task group on a downward release, and moves no date and no parent task', () => {
     // FR-011: 「タスクグループをまたぐ移動では予定も実績も新しいタスクグループへ移るが、どちらの日付も
     // 変わらない（MUST NOT）」, and HM-3 of table T-015a: 「タスクバーを別のタスクグループへ
-    // 移す操作では WBS を変えてはならない（MUST NOT）—— タスクグループの移動と階層の移動は
+    // 移す操作では親タスクを変えてはならない（MUST NOT）—— タスクグループの移動と階層の移動は
     // 別の操作である」.
     const built = stage()
     const before = structuredClone(taskOf(built.loop, PLAIN_UID))
@@ -1680,7 +1646,7 @@ describe('table T-023d GR-21: the schedule follows the pointer while its grip is
   // above are judged on.
   //
   // ⛔⛔ NOT THE DRAWN THUMB'S OWN SHAPE OR POSITION -- those are UF-61's, and
-  // `tests/unit/dfc-298-d-420-gr-21-the-grip-starts-and-follows.test.ts` holds
+  // `tests/contract/dfc-298-d-420-gr-21-the-grip-starts-and-follows.test.ts` holds
   // them. ⚠️ WHAT STOOD HERE IS OUT OF DATE AND IS CORRECTED RATHER THAN LEFT
   // (2026-09-08): it said `scrollbarIn` (`screen-frame.ts`) draws
   // `thumb: track`, which stopped being true when DFC-298's length landed on
@@ -1703,15 +1669,15 @@ describe('table T-023d GR-21: the schedule follows the pointer while its grip is
   it('is one of the ten the closing rule names, and no sentence exempts it', () => {
     // ⭐ THE PREMISE OF THE WHOLE BLOCK, read from the manuscript.
     expect(FOLLOWING_ROWS, 'table T-023d: the closing rule names GR-21').toContain(
-      MEASURED_NOT_DRIVEN,
+      GRIP_ROW,
     )
     expect(exemptRows(), 'GR-21 is not among the rows the paragraph exempts').not.toContain(
-      MEASURED_NOT_DRIVEN,
+      GRIP_ROW,
     )
     expect(
       coveredElsewhereRows(),
       'and not among the rows the other two closing rules cover',
-    ).not.toContain(MEASURED_NOT_DRIVEN)
+    ).not.toContain(GRIP_ROW)
   })
 
   it('is drawn on both axes, over a document that genuinely overflows the Task Group Area', () => {

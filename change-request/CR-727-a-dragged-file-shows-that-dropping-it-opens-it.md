@@ -121,7 +121,7 @@
 
 | 行 | 名 | 値 | 備考 |
 |---|---|---|---|
-| `S-553` | ドロップの案内（`Drop Cue`）の縁の線の太さ（`FR-087` の 表 T-024a の `OP-17`） | 3px 🔎 | 見せ方の値であり保存しない。⛔ 測って決めた値ではない（🔎） —— 見本 49（`previous-project-result/49-jump-placement-and-highlight/index.html`）の飛んだ先の囲みと同じ太さを当てた（見本の `stroke-width` 3 を読んだ）。⚠️ 地の濃さは本行ではなく `S-214` が持ち、色は 表 T-236 の `S-151` が持つ |
+| `S-553` | ドロップの案内（`Drop Cue`）の縁の線の太さ（`FR-087` の 表 T-024a の `OP-17`） | 3px 🔎 | 見せ方の値であり保存しない。⛔ 測って決めた値ではない（🔎） —— 見本 49（`studies/49-jump-placement-and-highlight/index.html`）の飛んだ先の囲みと同じ太さを当てた（見本の `stroke-width` 3 を読んだ）。⚠️ 地の濃さは本行ではなく `S-214` が持ち、色は 表 T-236 の `S-151` が持つ |
 
 `S-553` は `S-552` の後に置いた。`S-214` の備考の「両方が読む」を「3 つが読む」にし、読み手に「表 T-024a の `OP-17` がドロップの案内に敷く地」を足した。生成器 `tools/generate_entity_types.py` に群 `NOT_STORED_DROP_CUE_SIZES`（`S-553`、`dom-screen-surface.ts` が描く）を足した。
 

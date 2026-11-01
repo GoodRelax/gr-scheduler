@@ -93,7 +93,7 @@ function relayEntry(): Plugin {
   }
 }
 
-// CR-799: the version is the source's commit time in UTC, in semver form (tools/relay_version.mjs);
+// CR-820: the version is the UTC time the relay's inputs last changed, in semver form (tools/relay_version.mjs);
 // tools/build_relay_bundle.mjs writes the same into manifest.json, so the AI app and serverInfo agree.
 const relayVersion = buildVersion().semver
 

@@ -80,9 +80,9 @@ describe('CR-753 -- the spec sentences these cases are driven by', () => {
     expect(text).toContain('同じ引きは、移しても写しても同じ日に着く')
   })
 
-  it('CY-5: hour, 30 minutes and 1 minute shift by the snapped minutes; the copy keeps its time and length', () => {
+  it('CY-5: the 15-minute snap shifts by the snapped minutes; the copy keeps its time and length', () => {
     const text = rowText('T-308', 'CY-5')
-    expect(text).toContain('時・30 分・1 分で寄せるとき（`SG-2` 〜 `SG-4`）は、寄せた分だけずらすこと（MUST）')
+    expect(text).toContain('15 分で寄せるとき（`SG-2`）は、寄せた分だけずらすこと（MUST）')
     expect(text).toContain('同じ日の中にも写せる')
     expect(text).toContain('コピーはコピー元の時刻と長さを保つ')
     expect(text).toContain('着いた日に既定の時刻（表 T-350）を書かない')
@@ -112,7 +112,8 @@ describe('CR-753 -- the spec sentences these cases are driven by', () => {
     expect(REQUIREMENTS).toContain('時刻を表示しないときは、離した位置が落ちる日の列の日とする')
     expect(rowText('T-378', 'SG-1')).toContain('目盛が時の段（`FR-017` の 表 T-238 の `TM-5`）に達していない')
     expect(rowText('T-378', 'SG-2')).toContain('時刻を表示し、目盛が時の段にある')
-    expect(rowText('T-378', 'SG-3')).toContain('1 日の幅が `_assets/tbl-settings.md` の 表 T-205 の `S-578` 以上')
+    expect(rowText('T-378', 'SG-2')).toContain('30 分の点線が出る段、`_assets/tbl-settings.md` の 表 T-205 の `S-578` 以上も含む')
+    expect(rowText('T-378', 'SG-3')).toContain('（欠番')
   })
 
   it('T-350 / T-209: the default times are read from S-482 and S-483', () => {
@@ -246,8 +247,8 @@ const DAY_SNAP_TIME_HIDDEN: Scene = {
   scrollDateFraction: 0,
 }
 
-// WHY: SG-2 -- judged between S-577 and S-578.
-const HOUR_SNAP: Scene = {
+// WHY: SG-2 on the hour tier -- judged between S-577 and S-578.
+const HOUR_TIER: Scene = {
   start: '2026-10-14T09:00:00',
   finish: '2026-10-14T12:00:00',
   isTimeOfDayVisible: true,
@@ -256,9 +257,9 @@ const HOUR_SNAP: Scene = {
   scrollDateFraction: 0.25,
 }
 
-// WHY: SG-3 -- judged over S-578, kept under the FR-016 zoomX ceiling S-55 by staying near S-578.
-const HALF_HOUR_SNAP: Scene = {
-  ...HOUR_SNAP,
+// WHY: SG-2 on the half-hour grid tier (CR-850 folded SG-3 into SG-2) -- judged over S-578, kept under the FR-016 zoomX ceiling S-55 by staying near S-578.
+const HALF_HOUR_TIER: Scene = {
+  ...HOUR_TIER,
   zoomX: zoomXFor(S_578 * 1.3),
 }
 
@@ -489,11 +490,11 @@ describe('premise: each scene sits on the T-378 row it is named after', () => {
   it.each([
     ['SG-1 with the time shown', DAY_SNAP_TIME_SHOWN, MINUTES_PER_DAY, 0.2],
     ['SG-1 with the time hidden', DAY_SNAP_TIME_HIDDEN, MINUTES_PER_DAY, 3],
-    ['SG-2', HOUR_SNAP, 60, hours(3)],
-    ['SG-3', HALF_HOUR_SNAP, 30, hours(1 + 20 / 60)],
+    ['SG-2 on the hour tier', HOUR_TIER, 15, hours(3)],
+    ['SG-2 on the half-hour grid tier', HALF_HOUR_TIER, 15, hours(1 + 20 / 60)],
   ])('%s', (_name, scene, minutes, smallestDays) => {
     const built = stage(scene)
-    expect(snapMinutesOf(pxPerDay(built.loop), settingsOf(scene), false)).toBe(minutes)
+    expect(snapMinutesOf(pxPerDay(built.loop), settingsOf(scene))).toBe(minutes)
     expect(smallestDays * pxPerDay(built.loop), 'premise: the smallest travel used is past S-208').toBeGreaterThan(S_208)
   })
 })
@@ -607,7 +608,7 @@ describe('case 5 -- CY-5: Ctrl + Shift copies with an amount of 0 whatever the p
   })
 
   it('S5: the same with the hour tier and 3 hours of pull -- still the source date and time', () => {
-    const { before, after } = copyThroughShell(HOUR_SNAP, hours(3), CTRL_SHIFT, TASK_GROUP_B)
+    const { before, after } = copyThroughShell(HOUR_TIER, hours(3), CTRL_SHIFT, TASK_GROUP_B)
     expect(planOf(theCopy(before, after))).toEqual({ start: '2026-10-14T09:00:00', finish: '2026-10-14T12:00:00' })
   })
 
@@ -639,40 +640,40 @@ describe('case 6 -- JDG-2068 / CY-5: a day snap with the time shown keeps the so
   })
 })
 
-describe('case 7 -- JDG-2069 / CY-5: the hour and 30-minute snaps shift by the snapped minutes, inside one day', () => {
+describe('case 7 -- JDG-2069 / CY-5: the 15-minute snap (SG-2) shifts by the snapped minutes, inside one day', () => {
   it('S5, SG-2: 09:00-12:00 pulled 3 hours right is copied to 12:00-15:00 on the same day', () => {
-    const { built, before, after } = copyThroughShell(HOUR_SNAP, hours(3), CTRL)
+    const { built, before, after } = copyThroughShell(HOUR_TIER, hours(3), CTRL)
     expect(planOf(theCopy(before, after))).toEqual({ start: '2026-10-14T12:00:00', finish: '2026-10-14T15:00:00' })
-    expect(planOf(taskOf(built, SOURCE)), 'the source stays').toEqual({ start: HOUR_SNAP.start, finish: HOUR_SNAP.finish })
+    expect(planOf(taskOf(built, SOURCE)), 'the source stays').toEqual({ start: HOUR_TIER.start, finish: HOUR_TIER.finish })
   })
 
   it('S5, SG-2 contrast: the plain move of the same pull starts at 12:00 too', () => {
-    const built = stage(HOUR_SNAP)
+    const built = stage(HOUR_TIER)
     selectSource(built)
     drag(built, bodyOf(built.loop, SOURCE), travel(built.loop, hours(3)), PLAIN)
     expect(taskOf(built, SOURCE).start).toBe('2026-10-14T12:00:00')
   })
 
   it('S1, SG-2: shiftMinutes is 180', () => {
-    expect(landingOf(writesOfRelease(HOUR_SNAP, hours(3), CTRL)).shiftMinutes).toBe(180)
+    expect(landingOf(writesOfRelease(HOUR_TIER, hours(3), CTRL)).shiftMinutes).toBe(180)
   })
 
-  it('S5, SG-3: a pull of 1 h 20 lands on the nearest 30 minutes -- 09:00 + 1:30 = 10:30-13:30', () => {
-    const { before, after } = copyThroughShell(HALF_HOUR_SNAP, hours(1 + 20 / 60), CTRL)
-    expect(planOf(theCopy(before, after))).toEqual({ start: '2026-10-14T10:30:00', finish: '2026-10-14T13:30:00' })
+  it('S5, SG-2 at the half-hour grid tier: a pull of 1 h 20 lands on the nearest 15 minutes -- 09:00 + 1:15 = 10:15-13:15', () => {
+    const { before, after } = copyThroughShell(HALF_HOUR_TIER, hours(1 + 20 / 60), CTRL)
+    expect(planOf(theCopy(before, after))).toEqual({ start: '2026-10-14T10:15:00', finish: '2026-10-14T13:15:00' })
   })
 
-  it('S5, SG-3 contrast: the plain move of the same pull starts where the copy starts', () => {
-    const copied = copyThroughShell(HALF_HOUR_SNAP, hours(1 + 20 / 60), CTRL)
+  it('S5, SG-2 at the half-hour grid tier contrast: the plain move of the same pull starts where the copy starts', () => {
+    const copied = copyThroughShell(HALF_HOUR_TIER, hours(1 + 20 / 60), CTRL)
     const copyStart = theCopy(copied.before, copied.after).start
-    const built = stage(HALF_HOUR_SNAP)
+    const built = stage(HALF_HOUR_TIER)
     selectSource(built)
     drag(built, bodyOf(built.loop, SOURCE), travel(built.loop, hours(1 + 20 / 60)), PLAIN)
     expect(taskOf(built, SOURCE).start).toBe(copyStart)
-    expect(taskOf(built, SOURCE).start).toBe('2026-10-14T10:30:00')
+    expect(taskOf(built, SOURCE).start).toBe('2026-10-14T10:15:00')
   })
 
-  it('S1, SG-3: shiftMinutes is 90', () => {
-    expect(landingOf(writesOfRelease(HALF_HOUR_SNAP, hours(1 + 20 / 60), CTRL)).shiftMinutes).toBe(90)
+  it('S1, SG-2 at the half-hour grid tier: shiftMinutes is 75', () => {
+    expect(landingOf(writesOfRelease(HALF_HOUR_TIER, hours(1 + 20 / 60), CTRL)).shiftMinutes).toBe(75)
   })
 })

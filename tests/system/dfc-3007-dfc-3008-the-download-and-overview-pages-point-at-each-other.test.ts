@@ -1,4 +1,4 @@
-// DFC-3007, DFC-3008: the download page (S-350) and the overview page (S-583) point at each other, read from the committed pages.
+// DFC-3007, DFC-3008: the download page (S-350) and the overview page (S-583) point at each other, read from the committed pages. Step 5 follows the CR-823 wording (new conversation in Claude Code or Claude (chat)).
 
 import { resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
@@ -10,7 +10,7 @@ const ABOUT = pathToFileURL(resolve('docs/about/index.html')).href
 const OVERVIEW_ADDRESS = /^https:\/\/goodrelax\.github\.io\/gr-scheduler\/about\//
 const DOWNLOAD_ADDRESS = 'https://goodrelax.github.io/gr-scheduler/download/'
 
-test.describe('DFC-3007: the download page wording and the install steps (JDG-2507..2510, JDG-2513, JDG-2517)', () => {
+test.describe('DFC-3007: the download page wording and the install steps (JDG-2507..2510, JDG-2513, JDG-2517, CR-823)', () => {
   test('the overview button replaces GitHub, Chat or Claude Code, drag and drop only, no coming soon', async ({ page }) => {
     await page.goto(DOWNLOAD)
     const text = await page.evaluate(() => document.body.textContent ?? '')
@@ -25,7 +25,8 @@ test.describe('DFC-3007: the download page wording and the install steps (JDG-25
     expect(text, '③ en (JDG-2782)').toContain('Use Claude (chat) or Claude Code in the Claude desktop app.')
     expect(text, '④ drag and drop is the only way to install').not.toContain('Install Extension')
     expect(text, '⑤ ja (JDG-2781) names Claude（チャット）').toContain('Claude（チャット）')
-    expect(text, '⑤ ja (JDG-2781) starts a new chat in Claude Code').toContain('Claude Code で新しい会話を始め')
+    expect(text, '⑤ ja (JDG-2781, CR-823) starts a new conversation in Claude Code or Claude（チャット）').toContain('Claude Code（または Claude（チャット））で新しい会話を始め')
+    expect(text, '⑤ en (JDG-2781, CR-823) starts a new conversation in Claude Code or Claude (chat)').toContain('start a new conversation in Claude Code (or Claude (chat))')
     expect(text, '③ ja (JDG-2780) no wording about not dragging and dropping').not.toContain('落とさない')
     expect(text, '⑥ ja').not.toContain('となる予定')
     expect(text.toLowerCase(), '⑥ en').not.toContain('coming soon')

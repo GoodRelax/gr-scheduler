@@ -1,7 +1,7 @@
 # CR-758 —— 依存線の矢じりと張り出しを札とマーカーの下から出し、送った先の印を付けた線は描いた所で応える
 
 > 起草の状態: 起草だけ（2026-10-15、`601aeec7` の上で起草し、`0262b17a` を取り込んだ）。当てていない —— `docs/spec`・`src`・`tests` に触れていない。11 節の 3 つの問いには利用者が答えた（`JDG-2110`〜`JDG-2112`）。仕様の差し替え・`npm run gen`・コード・試験は調整役が体に手配する。
-> ID の帯: 番号 `CR-758`、裁定 `JDG-2110`〜`JDG-2119`、台帳 `DFC-2580`〜`DFC-2589`、`PND-910`〜`PND-914`、見本の置き場 `53` を調整役から受けた。本書が使うのは `CR-758`・見本 `53`・裁定 `JDG-2110`〜`JDG-2112`（11 節の答え）だけ（台帳と `PND` の番号は使わない）。変更履歴と `perf-pending` の番号は当てる体が調整役から受ける。`601aeec7` の木で `CR-758` を名乗るものは 0 件、`JDG-2110`〜`JDG-2119`・`DFC-2580`〜`DFC-2589`・`PND-910`〜`PND-914` を行に持つ台帳は 0 件、`previous-project-result/53-*` は 0 件だった（13 節）。
+> ID の帯: 番号 `CR-758`、裁定 `JDG-2110`〜`JDG-2119`、台帳 `DFC-2580`〜`DFC-2589`、`PND-910`〜`PND-914`、見本の置き場 `53` を調整役から受けた。本書が使うのは `CR-758`・見本 `53`・裁定 `JDG-2110`〜`JDG-2112`（11 節の答え）だけ（台帳と `PND` の番号は使わない）。変更履歴と `perf-pending` の番号は当てる体が調整役から受ける。`601aeec7` の木で `CR-758` を名乗るものは 0 件、`JDG-2110`〜`JDG-2119`・`DFC-2580`〜`DFC-2589`・`PND-910`〜`PND-914` を行に持つ台帳は 0 件、`studies/53-*` は 0 件だった（13 節）。
 > 当てるもの: 裁定 `JDG-1900`〜`JDG-1903`（依存線の張り出し・矢じり・札とマーカーの隙間・通路、2026-10-10〜11）と、11 節の答え `JDG-2110`（通路は先行の隣の段間）・`JDG-2111`（印を付けた線は描いた所で応える）・`JDG-2112`（親タスクの矢じりも縮める）。閉じるもの: 台帳 `DFC-2380`（A 部）と `DFC-2303`（B 部）。
 > 2 つの不具合は別の件だが、仕様の要素を 1 つ共有する —— `FR-009` の 表 T-303（A 部は `EL-7` の注、B 部は `EL-16` と `EL-19`）。だから 1 つの変更要求の 1 つの波で当てる（6 節）。節は A 部と B 部に分けて書く。
 
@@ -290,8 +290,8 @@ EL-7:    ⚠️ 折れる所は走りの長さの所であり、経路の最初�
 
 ## 9. 仕様の外で直すもの
 
-- 見本 `previous-project-result/50-dependency-lead-clearance/` は変えない（決めたときの記録）。
-- 見本 `previous-project-result/53-dependency-corridor-and-landed-hit/` は Q1・Q2 のために本書と一緒に作った。答え（`JDG-2110`・`JDG-2111`）をその README の「決まったこと」に書いた。
+- 見本 `studies/50-dependency-lead-clearance/` は変えない（決めたときの記録）。
+- 見本 `studies/53-dependency-corridor-and-landed-hit/` は Q1・Q2 のために本書と一緒に作った。答え（`JDG-2110`・`JDG-2111`）をその README の「決まったこと」に書いた。
 
 ---
 
@@ -310,7 +310,7 @@ EL-7:    ⚠️ 折れる所は走りの長さの所であり、経路の最初�
 
 - 場面: 日程表（`Task Group Area`）で、FS の依存線（`IC-81` を入）が、上の行のタスク「要件を固める」から 1 行飛ばして下の行の「CR を起草する」へ入る。間の行に「画面の下書き」の棒と札と名前がある。`JDG-1901` で段を斜めにまたぐ線も通路を通すと決まったが、通路の高さは見本 50 の形（後続のすぐ上の段間）と仕様の `LF-5`（先行と後続の中点）で違う。
 - 画面の名前（辞書 `display-words.json`）: 依存線（`Dependency Line`）、入口 依存線の表示（`Show Dependency Lines`、`IC-81`）・進捗マーカー（`Progress Marker`、`IC-40`）・担当ラベル（`Assignee Label`、`IC-79`）・完了率ラベル（`Percent Complete Label`、`IC-80`）、名称ラベル（`Name Label`）。担当ラベルと完了率ラベルは 1 枚の札「担当 : 進捗」に並ぶ。
-- 触れる見本: `previous-project-result/53-dependency-corridor-and-landed-hit/dependency-corridor-and-landed-hit-sample.html` の「問い 1」（案のボタンで切り替わり、潜る所を数える）。
+- 触れる見本: `studies/53-dependency-corridor-and-landed-hit/dependency-corridor-and-landed-hit-sample.html` の「問い 1」（案のボタンで切り替わり、潜る所を数える）。
 
 | 択 | 形 | 見本 53 の 3 本で横に潜る所 ／ 縦に横切る所 | 代償 |
 |---|---|---|---|
@@ -367,7 +367,7 @@ EL-7:    ⚠️ 折れる所は走りの長さの所であり、経路の最初�
 ## 13. 測り方の再現
 
 ```
-git grep -c "CR-758" 601aeec7 -- change-request docs src tests previous-project-result          # 0 件
+git grep -c "CR-758" 601aeec7 -- change-request docs src tests studies          # 0 件
 git grep -n "JDG-211[0-9]\|DFC-258[0-9]\|PND-91[0-4]" 601aeec7 -- docs change-request          # 0 件
 python -c "import json,re;s=open('docs/spec/_source/settings.json',encoding='utf-8').read();print(max(int(x) for x in re.findall(r'\"S-(\d+)\"',s)))"     # 583
 python -c "import json;d=json.load(open('docs/spec/_source/display-words.json',encoding='utf-8'));print(max(int(x['rowId'][2:]) for x in d['settings']))"  # 146

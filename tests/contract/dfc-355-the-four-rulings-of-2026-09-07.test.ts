@@ -46,41 +46,18 @@
 // break. Each constant was cut mechanically from the manuscript, never retyped.
 //
 // ---------------------------------------------------------------------------
-// ⛔⛔ THREE OF THE RULINGS HAVE NO BUILD TO PRESS, AND THIS FILE SAYS SO
-// RATHER THAN WRITING A CASE THAT PASSES FOR NOTHING
+// THREE OF THE RULINGS ARE PRESSED IN OTHER FILES, AND ONLY QUOTED HERE
 // ---------------------------------------------------------------------------
-//  1. FR-012 / RS-52 -- editing the calendar re-counting the stored percent
-//     complete. `editCalendar` (`src/use-case/edit-document/edit-calendar.ts`,
-//     the exported entry at line 96) writes `Calendar.weekDays` and
-//     `Project.weekStartDay` and touches no `Task`; its own head comment says
-//     the count 「is the CALLER's business」 and `EditResult` 「has no room for
-//     a count either」. ⇒ Nothing recomputes, nothing tells, and there is no
-//     second write to forbid. A case pressing it would be red, and a green one
-//     could only assert that nothing happens -- which is the defect, not the
-//     rule. Measured 2026-09-07 against ce63d66.
-//     ⭐⭐ OVERTAKEN, AND THE MEASUREMENT ABOVE IS KEPT AS THE DATED RECORD IT
-//     IS: the build landed between ce63d66 and 49aa78f. `editCalendar` now
-//     re-counts inside the same write, `EditReport.recountedTaskUids` carries
-//     the set, and `writeDocument` raises `RS-52` with its length. ⇒ The cases
-//     that press all four clauses live in `tests/unit/edit-calendar.test.ts`
-//     -- the FR-012 describe block there and the controls beside it;
-//     nothing about FR-012 is un-pressed here any longer. Re-measured
-//     2026-09-08 against 49aa78f, on the shipped build as well.
-//  2. GR-21 -- the grip's length. `screenFrameFromRegions`
-//     (`src/adapter/screen-renderer/screen-frame.ts`) builds every bar through
-//     `scrollbarIn` at line 137, which returns `{ axis, track, thumb: track }`:
-//     the grip IS the whole lane, at every document size, so there is no
-//     fraction to read and no floor to reach. ⛔ The STOP note above it (lines
-//     118-133) refuses to size it because 「table T-023d ... has NO ROW for
-//     either lane」 -- that premise died on 2026-09-07, when GR-21 was written
-//     into table T-023d. The note is stale, not the requirement.
-//  3. FR-051's 「スクロールバーの操作でも表示位置を変えられるようにすること」 --
-//     the same absence one step out: with the grip filling its lane there is
-//     nothing to grab that means a position.
+//  1. FR-012 / RS-52 -- editing the calendar re-counts the stored percent
+//     complete: the FR-012 describe block of `tests/unit/edit-calendar.test.ts`.
+//  2. GR-21 -- the grip's length and its S-205 floor:
+//     `tests/contract/dfc-405-gr-21-the-grip-is-a-fraction-of-its-lane.test.ts`.
+//  3. FR-051's 「スクロールバーの操作でも表示位置を変えられるようにすること」:
+//     `tests/contract/dfc-298-d-420-gr-21-the-grip-starts-and-follows.test.ts`
+//     and block (e) of `tests/unit/t-023d-follows-the-pointer.test.ts`.
 //
-// ⭐ The three ARE held here, verbatim, so that check 39 stops calling them
-// bare and so that a later edit to their wording cannot pass unseen. What is
-// NOT here is an assertion pretending they are built.
+// The three are held here verbatim so that check 39 counts them and a later
+// edit to their wording cannot pass unseen.
 //
 // ⛔ WRITTEN FROM docs/spec, PLUS ONLY PUBLISHED SIGNATURES AND TYPES
 // (docs/development-rules/04-verification.md §1). No function body was read to

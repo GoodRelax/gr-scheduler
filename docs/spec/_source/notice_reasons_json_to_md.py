@@ -46,6 +46,8 @@ import os
 import re
 import sys
 
+from spec_md_printing import say, schema_problems
+
 HERE = os.path.dirname(os.path.abspath(__file__))
 SPEC = os.path.dirname(HERE)
 ROOT = os.path.dirname(os.path.dirname(SPEC))
@@ -62,14 +64,6 @@ CAPTION = u'**表 '
 LANG = 'ja'
 REASON_ID = re.compile(r'^RS-\d+$')
 QUESTION_ID = re.compile(r'^QN-\d+$')
-
-
-def say(message):
-    """The Windows console is cp932 and these messages quote a manuscript
-    holding marks it cannot encode, so write them through a replacing
-    encoder rather than raise from inside the problem reporter."""
-    enc = getattr(sys.stdout, 'encoding', None) or 'utf-8'
-    sys.stdout.write(message.encode(enc, 'replace').decode(enc) + '\n')
 
 
 def invariant_rows():
@@ -89,16 +83,6 @@ def invariant_rows():
             if hit:
                 found.append(hit.group(1))
     return found
-
-
-def schema_problems(doc):
-    try:
-        import jsonschema
-    except ImportError:
-        return []
-    schema = json.load(io.open(SCHEMA, encoding='utf-8'))
-    return ['schema: %s at /%s' % (e.message, '/'.join(str(p) for p in e.path))
-            for e in jsonschema.Draft202012Validator(schema).iter_errors(doc)]
 
 
 def cell_problems(where, cell):
@@ -155,7 +139,7 @@ def label_problems(doc):
 
 
 def problems(doc, invariants):
-    found = schema_problems(doc)
+    found = schema_problems(doc, SCHEMA)
     if found:
         return found
     found = label_problems(doc)

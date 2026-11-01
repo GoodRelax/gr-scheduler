@@ -2,10 +2,12 @@
 u"""Check 79 -- the project plan is two files that change together, and no task is a bare id.
 
 THE RULE (JDG-2123, from the user's 2026-10-15 words on the plan). The plan
-lives in docs/development-records/ as TWO files, both overwritten every round:
-the plan as GRS JSON (project-plan.json) and a short Markdown that says how to
-read it (project-plan.md). Old plans are found in git history, not kept as
-dated copies. A task name is never a bare id: it is the id, a very short
+lives in plan/ as TWO files, both overwritten every round: the plan as GRS
+JSON (gr-scheduler-plan.json) and a short Markdown that says how to read it
+(gr-scheduler-plan.md). The plan one round back stays beside them as
+gr-scheduler-plan-previous.json (frozen, not checked here). Older plans are
+found in git history. The files lived in docs/development-records/ as
+project-plan.json and project-plan.md until 2026-10-31. A task name is never a bare id: it is the id, a very short
 subject in brackets and the kind of work, e.g.
 `CR-758(依存線とマーカーの干渉解消)の実装`.
 
@@ -41,8 +43,8 @@ import re
 import subprocess
 import sys
 
-PLAN_JSON = 'docs/development-records/project-plan.json'
-PLAN_MD = 'docs/development-records/project-plan.md'
+PLAN_JSON = 'plan/gr-scheduler-plan.json'
+PLAN_MD = 'plan/gr-scheduler-plan.md'
 STARTS_WITH_ID = re.compile(r'^\s*[A-Z][A-Z0-9]*-\d+')
 # The ids at the head: one id, then more ids or bare numbers joined by ・ 、 , / 〜 ~ (CR-754〜757).
 LEADING_IDS = re.compile(r'^\s*[A-Z][A-Z0-9]*-\d+(?:\s*[・、,/〜~]\s*(?:[A-Z][A-Z0-9]*-)?\d+)*')

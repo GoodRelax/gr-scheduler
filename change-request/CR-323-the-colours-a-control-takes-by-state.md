@@ -2,7 +2,7 @@
 
 ⭐ **利用者の指示（2026-08-31、逐語）**「**状況に応じてアイコンの色を変える点も合わせろよ。**」
 
-⛔ **見本は `previous-project-result/11-row-controls/row-controls-sample.html` である。**
+⛔ **見本は `studies/11-row-controls/row-controls-sample.html` である。**
 
 ---
 

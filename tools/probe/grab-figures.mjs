@@ -2,13 +2,13 @@
 //
 // Draws the 6 CR-430 figures (change-request/CR-430-grab-margins-hit-order-pointers-and-labels.md
 // section 4.4, steps 1-6) from the touchable sample
-// previous-project-result/16-grab-area-sizing/grab-area-sizing-sample.html, and writes them as
+// studies/16-grab-area-sizing/grab-area-sizing-sample.html, and writes them as
 // standalone SVG files under docs/spec/_assets/.
 //
 // ⛔ DO NOT DRAW THESE BY HAND. This probe is the only way they are produced.
 //
 // ⭐ SAFETY GATE (CR-430 4.4 step 3): the sample's own sliders already carry the NEW values this CR
-// proposes (its "behavioral ground truth" role -- see previous-project-result/16-grab-area-sizing/
+// proposes (its "behavioral ground truth" role -- see studies/16-grab-area-sizing/
 // README.md). Whether those values are safe to draw INTO THE SPEC's assets depends on whether
 // docs/spec/_source/settings.json already carries them too. This probe reads a curated set of
 // settings.json rows (chosen from CR-430 section 4.3 and the spec draft's section 5) and refuses to
@@ -32,7 +32,7 @@ import fs from 'node:fs'
 const HERE = path.dirname(fileURLToPath(import.meta.url))
 const REPO_ROOT = path.resolve(HERE, '../..')
 const SAMPLE_PATH = path.resolve(
-  REPO_ROOT, 'previous-project-result/16-grab-area-sizing/grab-area-sizing-sample.html')
+  REPO_ROOT, 'studies/16-grab-area-sizing/grab-area-sizing-sample.html')
 const SAMPLE_URL = 'file://' + SAMPLE_PATH.split(path.sep).join('/')
 const SETTINGS_PATH = path.resolve(REPO_ROOT, 'docs/spec/_source/settings.json')
 const OUT_DIR = path.resolve(REPO_ROOT, 'docs/spec/_assets')
@@ -276,7 +276,7 @@ function provenanceComment(figureFile) {
   // NOTE: XML/SVG comments may not contain "--" anywhere in their content, so this text avoids the
   // double-hyphen dash style used elsewhere in this file's own (non-XML) comments.
   return `<!-- GENERATED ARTIFACT: do not hand-edit.
-     source: previous-project-result/16-grab-area-sizing/grab-area-sizing-sample.html (behavior)
+     source: studies/16-grab-area-sizing/grab-area-sizing-sample.html (behavior)
              + docs/spec/_source/settings.json (values, gated: see the probe's settings-gate)
      regenerate: node tools/probe/grab-figures.mjs
      produced this file: docs/spec/_assets/${figureFile}

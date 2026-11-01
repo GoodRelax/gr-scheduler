@@ -7,7 +7,7 @@
 > 型板は `CR-436`（波の分け方・付録の形・継ぎ目・改訂の記録の教訓）。
 >
 > **閉じるもの**:
-> - 計画の記録 4 の移す順の 2 番目「通知。UseCase の配布中の旗を、ここで状態へ移す（DFC-562 と重なる）」（`docs/development-records/refactor-plan-report-2026-09-13.md:249`）。
+> - 計画の記録 4 の移す順の 2 番目「通知。UseCase の配布中の旗を、ここで状態へ移す（DFC-562 と重なる）」（`docs/development-records/history/refactor-plan-report-2026-09-13.md:249`）。
 > - `CR-379` の決定 7 のうち通知の側（`deliveringNotices` を通知の領域へ。`change-request/CR-379-unsaved-state-is-held-by-one-state-machine.md:54`）と、同書 2b-B の表の「5.5 の散文（通知の配布中の窓）と `WS-2`」の行（同 `:178`）。
 > - 第 2 領域「通知」の原稿の行（`SM` / `EV` / `TN`）と、その領域のユニット・契約試験・根への合成。
 >
@@ -264,7 +264,7 @@
 
 | 所 | 何が動くか | いつ |
 |---|---|---|
-| `docs/development-records/refactor-plan-report-2026-09-13.md` | 記録 4 の移す順の 2 番目に着地先 | 波 A ／ B2 |
+| `docs/development-records/history/refactor-plan-report-2026-09-13.md` | 記録 4 の移す順の 2 番目に着地先 | 波 A ／ B2 |
 | `docs/development-records/handoff-state-machine.md` | §2 の表に第 2 領域、§3 の「次の領域」 | 波 A |
 | `docs/development-records/changelog.md` | A-appendix の 1 行と、版 0.29 の「`AdvanceScreenSession`（3）」→（4） | 波 A |
 | `CR-436` | 波 B2 の `T-283` に 2.2 の申し送り（`Enter` と `y` ／ `n` の順）。⛔ 本書は `CR-436` を書き換えない —— 前に立つ者が申し送る | 波 A の後 |

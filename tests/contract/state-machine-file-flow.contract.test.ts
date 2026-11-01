@@ -12,6 +12,7 @@ import {
   type SessionEvent,
 } from '../../src/use-case/advance-screen-session/advance-screen-session'
 import { NO_EFFECTS } from '../../src/use-case/advance-screen-session/session-step'
+import { branchHolds } from './guard-language'
 
 type Loose = Record<string, unknown>
 type RawGuard = { readonly name?: string; readonly not?: boolean; readonly in?: string }
@@ -22,7 +23,14 @@ type RawBranch = {
   readonly effectArgument?: string
 }
 type RawCell = RawBranch | readonly RawBranch[]
-type RawState = { readonly key: string; readonly initial: boolean }
+type StateEffect = { readonly effect: string; readonly effectArgument?: string }
+type RawState = {
+  readonly key: string
+  readonly parent: string | null
+  readonly initial: boolean
+  readonly entry?: StateEffect
+  readonly exit?: StateEffect
+}
 type RawMachine = {
   readonly name: string
   readonly states: readonly RawState[]
@@ -179,10 +187,10 @@ const EVENT_VARIANTS: Readonly<Record<string, readonly Loose[]>> = {
   mergeMappingAnswered: [{ mergeMapping: { kind: 'allSame' } }, { mergeMapping: { kind: 'cancelImport' } }],
   confirmationAnswered: [{ isProceeding: true }, { isProceeding: false }],
   changeQuestionRaised: [{ question: question('QN-1'), owedAction: CHANGE_WRITES }],
-  newDocumentEntryPressed: [true, false].map((hasStartupTemplate) => ({ hasStartupTemplate, question: question('QN-5') })),
+  newDocumentEntryPressed: [{ question: question('QN-5') }],
   grsResetEntryPressed: [{ question: question('QN-11') }],
   flowSurfaceClosed: ['U-56', 'U-61', 'U-62', 'U-30'].map((surfaceName) => ({ surfaceName })),
-  documentFileRead: [{ question: question('QN-5') }],
+  documentFileRead: [{ question: question('QN-5'), incomingFile: { fileName: 'next.json', byteLength: 120, documentTitle: null } }],
   documentOpenFailed: [{}],
   mergeMappingAsked: [{ mergeCandidates: CANDIDATES, unreadColumns: ['Notes'] }],
   documentOpenLanded: [
@@ -221,53 +229,8 @@ function describeEvent(event: Loose): string {
   return `${String(event['type'])}${parts.length === 0 ? '' : `(${parts.join(', ')})`}`
 }
 
-// see OP-4, DI-4, QN-4, MM-4, MG-6, MG-14, U-56, U-61, U-62, RS-50, RS-73, FR-095, OP-13
-function guardHolds(guard: RawGuard, flow: Loose, event: Loose): boolean {
-  if (guard.in !== undefined) {
-    const [machineName, state] = guard.in.split('.')
-    return kindOf(flow[fieldOf(machineName ?? '')]) === state
-  }
-  const operation = flow['fileOperationState'] as Loose
-  const confirmation = flow['confirmationState'] as Loose
-  switch (guard.name) {
-    case 'isReopenRoute':
-      return operation['openRoute'] === 'reopen'
-    // WHY: OP-15 -- the route IC-4 opened with overlays without asking the three choices of OP-3 (MUST).
-    case 'isBaselineRoute':
-      return operation['openRoute'] === 'baseline'
-    case 'isReplaceChoice':
-      return event['openChoice'] === 'replace'
-    case 'isProceeding':
-      return event['isProceeding'] === true
-    case 'hasStartupTemplate':
-      return event['hasStartupTemplate'] === true
-    case 'isOverwriteQuestion':
-      return (confirmation['question'] as Loose | undefined)?.['question'] === 'QN-4'
-    // WHY: the questions the file machine raises itself (OP-4, DI-4) owe no write; a change
-    // question (FR-032, FR-099) or the new-document one (FR-095) owes the action it carries.
-    case 'isFileOperationQuestion':
-      return confirmation['owedAction'] === null
-    case 'isImportCanceled':
-      return (event['mergeMapping'] as Loose)['kind'] === 'cancelImport'
-    case 'isOpenChooserSurface':
-      return event['surfaceName'] === 'U-56'
-    case 'isDifferenceReviewSurface':
-      return event['surfaceName'] === 'U-61'
-    case 'isImportReportSurface':
-      return event['surfaceName'] === 'U-62'
-    case 'hasAnythingToReport':
-      return (
-        (event['droppedTaskNames'] as readonly unknown[]).length > 0 ||
-        (event['missingTaskNames'] as readonly unknown[]).length > 0 ||
-        (event['reportedCounts'] as readonly unknown[]).length > 0
-      )
-    default:
-      throw new Error(`guard ${String(guard.name)} is named by the manuscript but not by this file's oracle`)
-  }
-}
-
 function pick(cell: RawCell | undefined, flow: Loose, event: Loose): RawBranch | undefined {
-  return branchesOf(cell).find((b) => (b.guard ?? []).every((g) => guardHolds(g, flow, event) !== (g.not === true)))
+  return branchesOf(cell).find((b) => branchHolds({ region: 'fileFlow', values: flow, event }, b))
 }
 
 type Fired = { machine: RawMachine; branch: RawBranch }
@@ -283,7 +246,7 @@ function firing(flow: Loose, event: Loose): { machines: Fired[]; root: RawBranch
 }
 
 // see T-290, OP-3, FR-022, NT-7
-function expectedEffect(branch: RawBranch, flow: Loose, event: Loose): Loose {
+function expectedEffect(branch: StateEffect, flow: Loose, event: Loose): Loose {
   const confirmation = flow['confirmationState'] as Loose
   switch (branch.effect) {
     case 'raiseFlowSurface':
@@ -302,7 +265,7 @@ function expectedEffect(branch: RawBranch, flow: Loose, event: Loose): Loose {
         return { type: 'importIncomingDocument', answer: { kind: 'openChoice', openChoice: event['openChoice'] } }
       }
       // WHY: OP-15 -- a file read on the baseline route overlays without asking the three choices of OP-3 (MUST).
-      if (event['type'] === 'documentFileRead' && (flow['fileOperationState'] as Loose)['openRoute'] !== 'reopen') {
+      if (event['type'] === 'documentFileRead' && (flow['fileOperationState'] as Loose)['openRoute'] === 'baseline') {
         return { type: 'importIncomingDocument', answer: { kind: 'openChoice', openChoice: 'baseline' } }
       }
       return { type: 'importIncomingDocument', answer: { kind: 'openChoice', openChoice: 'replace' } }
@@ -344,6 +307,33 @@ function expectedCarried(target: string, before: Loose, event: Loose): Loose {
   }
   if (type === 'grsResetEntryPressed') return { question: before['question'], owedAction: before['owedAction'] }
   return { question: event['question'], owedAction: null }
+}
+
+function ancestry(m: RawMachine, key: string): RawState[] {
+  const chain: RawState[] = []
+  for (let at = m.states.find((s) => s.key === key); at !== undefined; ) {
+    chain.unshift(at)
+    const parent = at.parent
+    at = parent === null ? undefined : m.states.find((s) => s.key === parent)
+  }
+  return chain
+}
+
+// see SD-1, SD-3
+function cellEffects(f: Fired, flow: Loose): StateEffect[] {
+  const own: StateEffect[] = f.branch.effect === undefined
+    ? []
+    : [{ effect: f.branch.effect, ...(f.branch.effectArgument === undefined ? {} : { effectArgument: f.branch.effectArgument }) }]
+  const now = kindOf(flow[fieldOf(f.machine.name)])
+  const to = f.branch.to
+  if (to === undefined || to === now) return own
+  const left = ancestry(f.machine, now)
+  const entered = ancestry(f.machine, to)
+  let common = 0
+  while (common < left.length && common < entered.length && left[common] === entered[common]) common += 1
+  const exits = left.slice(common).reverse().flatMap((s) => (s.exit === undefined ? [] : [s.exit]))
+  const entries = entered.slice(common).flatMap((s) => (s.entry === undefined ? [] : [s.entry]))
+  return [...exits, ...own, ...entries]
 }
 
 function expectedRoot(root: RawBranch | undefined, flow: Loose, event: Loose): Loose {
@@ -388,7 +378,7 @@ function expectFlowStep(session: ScreenSession, event: Loose): void {
     JSON.stringify(rootAfter['droppedTaskNames']) !== JSON.stringify(before['droppedTaskNames']) ||
     JSON.stringify(rootAfter['missingTaskNames']) !== JSON.stringify(before['missingTaskNames']) ||
     JSON.stringify(rootAfter['reportedCounts']) !== JSON.stringify(before['reportedCounts'])
-  const effectful = machines.some((f) => f.branch.effect !== undefined) || root?.effect !== undefined
+  const effectful = machines.some((f) => cellEffects(f, before).length > 0) || root?.effect !== undefined
   const moves = machines.some((f) => f.branch.to !== kindOf(before[fieldOf(f.machine.name)]) || f.branch.to === undefined)
   const carriesNew = machines.some((f) => {
     const now = before[fieldOf(f.machine.name)] as Loose
@@ -420,8 +410,11 @@ function expectFlowStep(session: ScreenSession, event: Loose): void {
   expect(after['missingTaskNames'], 'missingTaskNames').toEqual(rootAfter['missingTaskNames'])
   expect(after['reportedCounts'], 'reportedCounts').toEqual(rootAfter['reportedCounts'])
 
-  const cells = [...machines.map((f) => f.branch), ...(root === undefined ? [] : [root])]
-  const expected = cells.filter((b) => b.effect !== undefined).map((b) => expectedEffect(b, before, event))
+  const rootEffects: StateEffect[] = root?.effect === undefined
+    ? []
+    : [{ effect: root.effect, ...(root.effectArgument === undefined ? {} : { effectArgument: root.effectArgument }) }]
+  const cells = [...machines.flatMap((f) => cellEffects(f, before)), ...rootEffects]
+  const expected = cells.map((b) => expectedEffect(b, before, event))
   const byType = (a: Loose, b: Loose): number => String(a['type']).localeCompare(String(b['type']))
   expect([...result.effects].map((e) => e as unknown as Loose).sort(byType), 'effects').toEqual(expected.sort(byType))
 }

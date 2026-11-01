@@ -58,6 +58,17 @@ CHALLENGE = re.compile(r'`?(CH-[1-7]|GL-00[1-9])`?')
 # so without it a change request that held only R1 clauses against itself is
 # told it held none. Ledger row DFC-323.
 STANDARD = re.compile(r'review-standards|`?R[1-7](\.\d+)?`?')
+# Rule ② for data elements (JDG-3226): a change request that touches a
+# manuscript holding data elements must hold OKPN and OMPV against itself, in
+# its ② section. ⚠️ From CR_DATA_FROM on only: the rule was written on
+# 2026-10-24 while CR-851 was being drafted, and a landed change request takes
+# no addendum (check 62).
+CR_DATA_FROM = 851
+DATA_SOURCES = re.compile(r'erd\.json|settings\.json|document-commands\.json|'
+                          r'agent-api-members\.json|grs-document\.schema\.json|'
+                          r'grs-commands\.schema\.json')
+DATA_RULES = ('OKPN', 'OMPV')
+SECTION_TWO = re.compile(r'^#{2,4} *②.*?(?=^#{2,4} |\Z)', re.M | re.S)
 # Rule ⑧: what did the author settle without asking?
 # A fixed phrase, so the section can be found rather than guessed at.
 DECIDED = '問わずに決めた'
@@ -90,6 +101,18 @@ def main():
             if not found:
                 problems.append('%s: %s (rule %s)\n      -> %s'
                                 % (name, missing, rule, remedy))
+        if int(m.group(1)) >= CR_DATA_FROM and DATA_SOURCES.search(body):
+            section = SECTION_TWO.search(body)
+            held = section.group(0) if section else ''
+            absent = [rule for rule in DATA_RULES if rule not in held]
+            if absent:
+                problems.append('%s: changes a data-element manuscript but its ② '
+                                'section names no %s (rule ②, JDG-3226)\n      -> '
+                                'hold OKPN and OMPV (R2) of '
+                                'docs/development-rules/07-review-standards.md '
+                                'against every data element it adds or changes, '
+                                'and say what they found.'
+                                % (name, ' / '.join(absent)))
 
     for p in problems:
         sys.stdout.write('  %s\n' % p)

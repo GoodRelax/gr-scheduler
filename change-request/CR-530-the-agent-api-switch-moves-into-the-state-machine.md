@@ -14,8 +14,8 @@
 > - ⭐ 升は、どこも今日のコードを写す（`JDG-57`）。仕様とコードの食い違いは第 8 節の候補に置き、どちらが正かを選ばない。
 >
 > **閉じるもの**:
-> - 計画の記録 4 の移す順の 6 番目の最後「Agent API」（`docs/development-records/refactor-plan-report-2026-09-13.md:253`、領域の例 `isAgentApiEnabled` は `:245`）。
-> - 棚卸しの「Agent API 2 ／ 3 ／ 6」（`docs/development-records/refactor-stage1-state-inventory-2026-09-13.md:210`、行 `:70` ・ `:71` ・ `:94` ・ `:137` ・ `:138` ・ `:160`）の行き先。
+> - 計画の記録 4 の移す順の 6 番目の最後「Agent API」（`docs/development-records/history/refactor-plan-report-2026-09-13.md:253`、領域の例 `isAgentApiEnabled` は `:245`）。
+> - 棚卸しの「Agent API 2 ／ 3 ／ 6」（`docs/development-records/history/refactor-stage1-state-inventory-2026-09-13.md:210`、行 `:70` ・ `:71` ・ `:94` ・ `:137` ・ `:138` ・ `:160`）の行き先。
 > - `CR-490` の 11.7 の 3（「`Agent API` の領域（有効の機械 ＋ `dialogueLog`、対話欄の写し 2 つの判定）」—— `change-request/CR-490-selection-moves-into-the-state-machine.md:417`）。
 > - `CR-440` の決定 10（`REGISTRATIONS` は `Agent API` の領域へ —— `change-request/CR-440-notices-move-into-the-state-machine.md:63`）と `CR-379` の決定 7（`:54`）が本書に預けた「置き場と公開の署名」の問い（決定 6）。
 > - `docs/development-records/handoff-state-machine.md:127` の「⬜ Agent API」（書き換えは前に立つ者 —— 第 9 節）。

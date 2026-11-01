@@ -228,7 +228,11 @@ describe('CR-778 -- table T-064 PI-39 drops GrabbedVerticalAxis; the grab state 
       for (const one of region.machines ?? []) if (one.name === 'taskGroupGrabStateMachine') machine = one
     }
     expect(machine, 'taskGroupGrabStateMachine is in state-machines.json').not.toBeNull()
-    expect(machine.states.map((s: any) => s.key)).toEqual(['notGrabbed', 'grabPressed', 'carrying'])
+    // WHY: wave 2 of CR-767 (JDG-2364) puts grabPressed and carrying under the composite grabbed;
+    // the three states are the leaves.
+    expect(machine.states.map((s: any) => s.key)).toEqual(['notGrabbed', 'grabbed', 'grabbed.grabPressed', 'grabbed.carrying'])
+    const leaves = machine.states.filter((s: any) => !machine.states.some((t: any) => t.parent === s.key))
+    expect(leaves.map((s: any) => s.key)).toEqual(['notGrabbed', 'grabbed.grabPressed', 'grabbed.carrying'])
     for (const state of machine.states) expect(state.carries, state.key).toEqual([])
     expect(JSON.stringify(machine).toLowerCase()).not.toContain('axis')
   })

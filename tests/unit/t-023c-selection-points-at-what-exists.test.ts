@@ -28,7 +28,7 @@
 // and the template-based document are tests/unit/in-4-escape-closes-the-panel.
 // test.ts's and tests/unit/uf-48-input.test.ts's, which drive this same unit
 // through the same seams; the schedule that carries one of every SL-1 kind is
-// tests/unit/uf-30-31.test.ts's `RICH_SCHEDULE`, written out here against the
+// the uf-30-31 unit test's `RICH_SCHEDULE` (deleted by CR-573), written out here against the
 // generated schema so that the loop is given a lawful document.
 //
 // ---------------------------------------------------------------------------

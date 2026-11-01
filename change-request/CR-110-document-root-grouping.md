@@ -47,7 +47,7 @@
 
 ### 2-2. ② 文書ルートに「群」が無く、判定不能が積み上がっている
 
-在庫調査 `previous-project-result/temp/inventory/` の `G1` 〜 `G5` は、
+在庫調査 `studies/temp/inventory/` の `G1` 〜 `G5` は、
 **設定値の全行とエンティティの全列**を 2 群へ振り分けた。**結果は次のとおり**（各書が自分で数えた値）。
 
 | 調査 | 担当 | schedule | documentSettings | 判定不能 | 群の外 |

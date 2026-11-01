@@ -422,7 +422,20 @@ function fileSystemAccessEnvironment(): FileSystemAccessEnvironment {
     saveFilePicker:
       typeof saver === 'function' ? (saver as SaveFilePicker).bind(window) : undefined,
     dropSurface: DROP_SURFACE,
+    startDownload: downloadThroughAnchor,
   }
+}
+
+// see FR-068, IO-10, CHN-2
+// TRAP: the address is revoked a turn later; revoked at once, some browsers drop the download unstarted.
+/** @purity non-pure */
+function downloadThroughAnchor(fileName: string, bytes: Uint8Array, mediaType: string): void {
+  const address = URL.createObjectURL(new Blob([new Uint8Array(bytes)], { type: mediaType }))
+  const anchor = document.createElement('a')
+  anchor.href = address
+  anchor.download = fileName
+  anchor.click()
+  setTimeout(() => URL.revokeObjectURL(address), 0)
 }
 
 /** @purity semi-pure-b */

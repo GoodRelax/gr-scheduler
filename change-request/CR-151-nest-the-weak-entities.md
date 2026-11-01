@@ -19,7 +19,7 @@
 | `docs/review/mspdi-vs-grs-erd-comparison-ja.md:58` / `:61` | `WEEKDAY`（`Calendar/WeekDays/WeekDay`）も `EXCEPTION`（`Calendar/Exceptions/Exception`）も **「同じ形で持つ」** |
 | 公式 XSD（ローカル複製 `docs/reference/mspdi/mspdi_pj12.xsd:1235` / `:1325`） | 包み要素 `WeekDays` / `Exceptions` の下に繰り返す |
 
-⭐ **前プロジェクトの ERD は鍵名まで書いていた** —— `previous-project-result/02-data-model/grs-native-erd-ja.md:236` の `Calendar ||--o{ WeekDay : "weekDays"`。識別は「親＋位置（弱エンティティ）」（`:709` / `:1486`）。
+⭐ **前プロジェクトの ERD は鍵名まで書いていた** —— `studies/02-data-model/grs-native-erd-ja.md:236` の `Calendar ||--o{ WeekDay : "weekDays"`。識別は「親＋位置（弱エンティティ）」（`:709` / `:1486`）。
 
 ### 不揃いの実体
 

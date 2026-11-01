@@ -1,0 +1,32 @@
+# path-renames.txt -- the table of top-level path renames, one row per rename.
+#
+# ROLE (JDG-2945). This file is READ BY check 62 (check-identifier-reservation.py).
+# A tracked change request that git reports as modified is normally IN FLIGHT:
+# check 62 re-measures its "free" claims against today's tree. A rename of a
+# path rewrites a landed change request on purpose, and that rewrite says
+# nothing new -- so a modified change request whose whole diff against HEAD is
+# explained by the rows below is NOT in flight. "Explained" means: every
+# removed line, after every row here is applied to it (in file order), equals
+# the added line that replaces it. Any other change (an added word, an added or
+# removed line) keeps the change request in flight, as before.
+#
+# FORMAT. `old -> new | date | JDG id`. `old` and `new` are the text the rename
+# replaces and the text it writes (a leading `# ` makes the whole line a
+# comment). Rows apply top to bottom, so put the longer form first. A row is
+# appended when a rename is ruled and is never edited or removed afterwards:
+# the table is the record of what the landed change requests used to say.
+#
+# NOT COVERED, on purpose: the bold 「...」 cells of rulings.md (the user's own
+# words), past changelog rows and docs/review/ -- those keep the old name and no
+# check reads them through this table.
+previous-project-result/ -> studies/ | 2026-10-20 | JDG-2941
+previous-project-result -> studies | 2026-10-20 | JDG-2941
+development-records/W4-adapter.md -> development-records/history/W4-adapter.md | 2026-10-20 | JDG-2972
+development-records/W5-framework.md -> development-records/history/W5-framework.md | 2026-10-20 | JDG-2972
+development-records/refactor-plan-report-2026-09-13.md -> development-records/history/refactor-plan-report-2026-09-13.md | 2026-10-20 | JDG-2972
+development-records/refactor-stage1-state-inventory-2026-09-13.md -> development-records/history/refactor-stage1-state-inventory-2026-09-13.md | 2026-10-20 | JDG-2972
+development-records/refactor-stage3-gates-proposal-2026-09-15.md -> development-records/history/refactor-stage3-gates-proposal-2026-09-15.md | 2026-10-20 | JDG-2972
+development-records/src-comment-cleanup-report-2026-09-13.md -> development-records/history/src-comment-cleanup-report-2026-09-13.md | 2026-10-20 | JDG-2972
+development-records/cr-plan-2026-09-26.md -> development-records/history/cr-plan-2026-09-26.md | 2026-10-20 | JDG-2972
+development-records/backlog-plan-2026-10-04.md -> development-records/history/backlog-plan-2026-10-04.md | 2026-10-20 | JDG-2972
+development-records/evidence -> development-records/history/evidence | 2026-10-20 | JDG-2972

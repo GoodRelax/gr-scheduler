@@ -1,4 +1,4 @@
-// FR-039 (01-04-requirements.md:7675) and S-72 (tbl-settings.md:396): startupThemePreference follows prefers-color-scheme, light when unreadable.
+// FR-039 (01-04-requirements.md) and S-72 (tbl-settings.md): startupThemePreference follows prefers-color-scheme, light when unreadable.
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 

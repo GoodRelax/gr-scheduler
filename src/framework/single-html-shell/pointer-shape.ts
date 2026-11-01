@@ -5,6 +5,7 @@
 
 import type { itemAtPointer } from '../../entity/layout-engine/item-hit-area/item-hit-area'
 import { regionAtPointer } from '../../entity/layout-engine/screen-regions/screen-regions'
+import { armedOf } from '../../use-case/advance-screen-session/advance-screen-session'
 import type { PointerPress } from '../../adapter/input-command-translator/input-command-translator'
 import type { ScreenPart } from '../../adapter/screen-renderer/screen-renderer'
 import { dualCursorFollowingIn, type FrameLoopHands, type FrameValues } from './frame-loop'
@@ -394,9 +395,9 @@ function pointerShapeUnder(
   if (on !== null) return null
   if (regionAtPointer(frame.regions, point.x, point.y) !== 'taskGroupArea') return null
   if (dualCursorFollowingIn(session) !== null) return null
-  const armed = session.screen.armModeState
-  if (armed.kind === 'parentTaskArmed') return pointerImageOf('PK-17')
-  const isArmedDependency = armed.kind === 'dependencyArmed'
+  const armed = armedOf(session.screen.armModeState)
+  if (armed?.kind === 'parentTaskArmed') return pointerImageOf('PK-17')
+  const isArmedDependency = armed?.kind === 'dependencyArmed'
   const row = pointerRowOf(hit, isArmedDependency)
   if (row !== null && hit !== null) return pointerImageOf(row, pointerFacingOf(hit), pointerInkOf(hit))
   if (isArmedDependency) {
@@ -406,7 +407,7 @@ function pointerShapeUnder(
     return 'crosshair'
   }
   if (hit !== null) return null
-  if (armed.kind === 'notArmed') return 'default'
+  if (armed === null) return 'default'
   return 'crosshair'
 }
 

@@ -20,7 +20,7 @@
 ### 0.2 調べた結果（`0ad572f6`）
 
 1. **写しを止めていたのは、公開に変更要求が要ることだった。** 重複の調査（`docs/review/duplicate-survey-2026-09-26.md`）の親の群 136 のうち、偶然の写しが 128、すでに答えが食い違うものが 49。偶然の写し 128 のうち **78 は、元が公開されていないことだけが写しの理由だった**（調査の正本 `duplicated-responsibility-groups-d65097b9.json` の `blocked_by` が `t064`）。
-2. **公開 1 つの費用。** 試作 D（`previous-project-result/temp/cr-581-guard-prototypes-2026-09-26/d-publish/publish-cost.md`、手元だけ）が `taskGroupRankById` で歩いた: 9 手・5 ファイル、うちコードは 5 行ほどで、残りは変更要求の儀式（影響の測定・第 0 節・予約・変更履歴）。辺（`components.json`）も層の規則（表 T-061）も妨げになっていなかった。
+2. **公開 1 つの費用。** 試作 D（`studies/temp/cr-581-guard-prototypes-2026-09-26/d-publish/publish-cost.md`、手元だけ）が `taskGroupRankById` で歩いた: 9 手・5 ファイル、うちコードは 5 行ほどで、残りは変更要求の儀式（影響の測定・第 0 節・予約・変更履歴）。辺（`components.json`）も層の規則（表 T-061）も妨げになっていなかった。
 3. **表 T-064 は手書きで、37 行・メンバ 197・名を公開しない片 3。** 検査 26b の読みと一致した（`check-published-members.py`: 197 member(s)、スキップ 9 のうち 5 が表の片、4 が `src/` 側）。スキップの片 5 のうち 2 は、注記の括弧の中の `／` で割れた注記の続きである（`PI-6` の `` `FR-097`）） ``、`PI-37` の `` `FR-038`） ``）。
 4. **表 T-064 を読む道具は 7 つ、ファイルを名指して読むのは 2 つ。** `audit-ch5.py`（検査 33）と `tools/generate_unit_tree.py`（検査 18）が `05-07-design.md` を名指して読む。原稿の一覧を持つ 5 つ（検査 46・47・39・37 と `tools/follow_the_manuscript.py`）と試験の補助 `tests/contract/spec-table.ts` は、一覧に無い文書の表を読まない。
 5. **公開の入口だけを探しても、元の多くは見つからない。** 試作 E（`d-publish/results.md`）が既知の写し 8 組で測った: 公開の入口だけを探すと 2/8、`src/` のすべての関数を探すと 6/8。8 組の元のうち 6 つが非公開か、兄弟のファイルが出すだけで入口が出し直していなかった。

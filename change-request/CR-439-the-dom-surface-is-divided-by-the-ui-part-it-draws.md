@@ -16,7 +16,7 @@
 > **⛔ 本書が絶対にしないこと**: `.claude/skills/spec-graph-check/function-size-baseline.txt` の編集と、`docs/spec/` の編集。
 > 基準線と表の行は、分割そのもののコミットが書き換える（7 節・8 節）。
 >
-> **正本**: `docs/development-records/refactor-plan-report-2026-09-13.md` の状態表の段 6 の行（`:97`）、同書の「段 6 画面に描く係」（`:299`）、試験の計画の段 6 の行（`:326`）、欠陥の置き場の表（`:344`）。
+> **正本**: `docs/development-records/history/refactor-plan-report-2026-09-13.md` の状態表の段 6 の行（`:97`）、同書の「段 6 画面に描く係」（`:299`）、試験の計画の段 6 の行（`:326`）、欠陥の置き場の表（`:344`）。
 > **型**: `CR-438`（節の立て方と 15 節の教訓）と `CR-432`（とくに 4.1 の S1〜S5 と共変の数え方）。
 
 ---
@@ -653,7 +653,7 @@ S3 には当たらない —— 動かす塊はどれも閉包の中で閉じた
 ### 11.2 記録（⛔ 本書は書かない）
 
 - `docs/development-records/changelog.md` に 1 行。
-- `docs/development-records/refactor-plan-report-2026-09-13.md` の段 6 の行 —— 入口の条件が満たされたこと、`DFC-566` を条件から外したこと（0 節 ③ の 1）。
+- `docs/development-records/history/refactor-plan-report-2026-09-13.md` の段 6 の行 —— 入口の条件が満たされたこと、`DFC-566` を条件から外したこと（0 節 ③ の 1）。
 - 8.4 の「直す」行。  
 とくに `DFC-566` の所在（0 節 ③ の 1 の MUST）。
 - ⚠️ 前に立つ者が相手のセッションへ渡すもの: `CR-500`・`CR-480`・`CR-440`・`CR-490`・`CR-470` の行番号、4.6 の波 B の置き場、`JDG-283` の帯の直しの置き場（8.5）。

@@ -12,6 +12,7 @@ import {
   type SessionEvent,
 } from '../../src/use-case/advance-screen-session/advance-screen-session'
 import { NO_EFFECTS } from '../../src/use-case/advance-screen-session/session-step'
+import { branchHolds } from './guard-language'
 
 type Loose = Record<string, unknown>
 type RawGuard = { readonly name: string; readonly not?: boolean }
@@ -60,6 +61,52 @@ function gestureOf(session: ScreenSession): Loose {
 
 function kindOf(value: unknown): string {
   return String((value as Loose)['kind'])
+}
+
+// WHY: a composite state's value holds its child (JDG-2364); the dotted key is the state id
+// below the machine (grabbed.carrying), the form the manuscript keys its states and cells by.
+function stateKeyOf(value: unknown): string {
+  const path: string[] = []
+  let at = value as Loose | undefined
+  while (at !== undefined && at !== null && typeof at === 'object') {
+    path.push(String(at['kind']))
+    at = at['child'] as Loose | undefined
+  }
+  return path.join('.')
+}
+
+function childrenOf(machine: RawMachine, key: string | null): readonly RawState[] {
+  return machine.states.filter((s) => s.parent === key)
+}
+
+// WHY: a target that names a composite enters its initial child (T-289).
+function enteredKey(machine: RawMachine, to: string): string {
+  let at = to
+  for (;;) {
+    const child = childrenOf(machine, at).find((s) => s.initial)
+    if (child === undefined) return at
+    at = child.key
+  }
+}
+
+function leavesOf(machine: RawMachine): readonly RawState[] {
+  return machine.states.filter((s) => childrenOf(machine, s.key).length === 0)
+}
+
+function valueOf(key: string): Loose {
+  const [kind, ...rest] = key.split('.')
+  return rest.length === 0 ? { kind } : { kind, child: valueOf(rest.join('.')) }
+}
+
+// WHY: a cell on a composite answers for every state below it; the innermost cell is read first.
+function cellFor(machine: RawMachine, event: string, key: string): RawCell | undefined {
+  const row = machine.transitions[event]
+  const parts = key.split('.')
+  for (let depth = parts.length; depth >= 1; depth -= 1) {
+    const cell = row?.[parts.slice(0, depth).join('.')]
+    if (cell !== undefined) return cell
+  }
+  return undefined
 }
 
 function step(session: ScreenSession, event: Loose): ReturnType<typeof advanceScreenSession> {
@@ -123,40 +170,14 @@ function pressLabel(pressRow: unknown, pressedOn: unknown): string {
   return found.label
 }
 
-function isOnEntry(pressedOn: unknown, entry: string): boolean {
-  const on = pressedOn as Loose | null
-  return on !== null && on['kind'] === 'entry' && on['entry'] === entry
-}
-
-function isOnRepeatingEntry(pressedOn: unknown): boolean {
-  return REPEATING_ENTRIES.some((entry) => isOnEntry(pressedOn, entry))
-}
-
-// see AG-9, FR-018, FR-053, GR-19, HF-15
-function guardHolds(name: string, gesture: Loose, event: Loose): boolean {
-  const pressedOnNow = (gesture['pointerPressState'] as Loose)['pressedOn']
-  switch (name) {
-    case 'isDocumentChangingPress':
-      return DOCUMENT_CHANGING[pressLabel(event['pressRow'], event['pressedOn'])] === true
-    case 'isTaskGroupGrabStrip':
-      return (event['pressedOn'] as Loose | null)?.['kind'] === 'taskGroupGrabStrip'
-    case 'isOnRepeatingEntry':
-      return isOnRepeatingEntry(event['type'] === 'pointerPressed' ? event['pressedOn'] : pressedOnNow)
-    case 'isOnPaletteBand':
-      return (pressedOnNow as Loose | null | undefined)?.['kind'] === 'paletteBand'
-    default:
-      throw new Error(`guard ${name} is named by the manuscript but not by this file's oracle`)
-  }
-}
-
 type Fired = { machine: RawMachine; branch: RawBranch }
 
 function firing(gesture: Loose, event: Loose): Fired[] {
   const fired: Fired[] = []
   for (const machine of GESTURE.machines) {
-    const now = kindOf(gesture[fieldOf(machine)])
-    const branch = branchesOf(machine.transitions[String(event['type'])]?.[now]).find((b) =>
-      (b.guard ?? []).every((g) => guardHolds(g.name, gesture, event) !== (g.not === true)),
+    const now = stateKeyOf(gesture[fieldOf(machine)])
+    const branch = branchesOf(cellFor(machine, String(event['type']), now)).find((b) =>
+      branchHolds({ region: 'gesture', values: gesture, event }, b),
     )
     if (branch !== undefined) fired.push({ machine, branch })
   }
@@ -188,7 +209,7 @@ function expectGestureStep(session: ScreenSession, event: Loose): void {
       expect(after[field], `no cell for ${machine.name}: its value is kept`).toBe(before[field])
       continue
     }
-    expect(kindOf(after[field]), `${machine.name} lands on ${f.branch.to}`).toBe(f.branch.to)
+    expect(stateKeyOf(after[field]), `${machine.name} lands on ${f.branch.to}`).toBe(enteredKey(machine, f.branch.to))
   }
 
   const pointer = after['pointerPressState'] as Loose
@@ -215,9 +236,9 @@ function crossedSessions(): { name: string; session: ScreenSession }[] {
   if (pointer === undefined || taskGroupGrab === undefined) throw new Error('T-289 lost a machine this file reads')
   return pointer.states.flatMap((p) =>
     pointerValues(p.key).flatMap((pv) =>
-      taskGroupGrab.states.map((r) => ({
+      leavesOf(taskGroupGrab).map((r) => ({
         name: `${pv.label} & ${r.key}`,
-        session: withGesture({ pointerPressState: pv.value, taskGroupGrabState: { kind: r.key } }),
+        session: withGesture({ pointerPressState: pv.value, taskGroupGrabState: valueOf(r.key) }),
       })),
     ),
   )
@@ -239,8 +260,8 @@ function describeEvent(event: Loose): string {
 
 describe('T-289 initial kinds: emptyScreenSession holds each gesture machine in its initial state', () => {
   it.each(GESTURE.machines.map((m) => [m.name, m] as const))('%s', (_, m) => {
-    const initial = m.states.find((s) => s.initial)
-    expect(kindOf(gestureOf(emptyScreenSession)[fieldOf(m)])).toBe(initial?.key)
+    const initial = childrenOf(m, null).find((s) => s.initial)
+    expect(stateKeyOf(gestureOf(emptyScreenSession)[fieldOf(m)])).toBe(initial === undefined ? undefined : enteredKey(m, initial.key))
   })
 })
 
@@ -256,14 +277,23 @@ describe('SD-3 (T-289): every gesture state (both machines crossed) x every gest
   const cases = crossedSessions().flatMap((s) =>
     gestureEvents().map((event) => [`${s.name} x ${describeEvent(event)}`, s.session, event] as const),
   )
-  it.each(cases.filter(([, session, event]) => !isPinnedByDfc687(session, event)))('%s', (_, session, event) => {
+  it.each(cases)('%s', (_, session, event) => {
     expectGestureStep(session, event)
   })
+})
 
-  // DEVIATION: AG-9 keeps these presses out of changingDocument; the region copies today's
-  // shell until the move is shown equal (DFC-687, JDG-57).
-  it.fails.each(cases.filter(([, session, event]) => isPinnedByDfc687(session, event)))('%s (DFC-687)', (_, session, event) => {
-    expectGestureStep(session, event)
+describe('AG-9 (DFC-687): a press that changes no document stays out of changingDocument', () => {
+  const pinned = crossedSessions().flatMap((s) =>
+    gestureEvents()
+      .filter((event) => isPinnedByDfc687(s.session, event))
+      .map((event) => [`${s.name} x ${describeEvent(event)}`, s.session, event] as const),
+  )
+
+  // DEVIATION: the manuscript condition of isDocumentChangingPress writes today's judgment, which
+  // reads these presses as changing the document (its note leaves AG-9 undecided; DFC-687, JDG-57).
+  it.fails.each(pinned)('%s (DFC-687)', (_, session, event) => {
+    expect(DOCUMENT_CHANGING[pressLabel(event['pressRow'], event['pressedOn'])]).toBe(false)
+    expect(kindOf(gestureOf(step(session, event).state)['pointerPressState'])).toBe('viewingDocument')
   })
 })
 
@@ -288,7 +318,7 @@ describe('SS-5: screen and notice events leave the gesture region at the same re
   }
   const held = withGesture({
     pointerPressState: { kind: 'changingDocument', pressRow: 'PTD-3', pressedOn: PRESSED_ON['taskGroupGrabStrip'] },
-    taskGroupGrabState: { kind: 'grabPressed' },
+    taskGroupGrabState: { kind: 'grabbed', child: { kind: 'grabPressed' } },
   })
   const cases = ['screen', 'notices'].flatMap((name) =>
     regionNamed(name).events.map((ev) => {

@@ -68,9 +68,58 @@ export type NoticeValuesEvent =
 export type NoticeValuesEffectName =
   | 'raiseNotice'
 
+export type NoticeValuesGuardName =
+  | 'hasSilentWatcher'
+  | 'isHiddenReason'
+  | 'isLeavingNone'
+  | 'isLeavingSome'
+  | 'isOnlyOneStanding'
+  | 'isSameReasonStanding'
+  | 'isTimedCard'
+
 const NOTICE_VALUES_INITIAL_AXES: NoticeValuesAxes = {
   noticeDisplayState: { kind: 'hidden' },
   changeDeliveryState: { kind: 'idle' },
+}
+
+const NOTICE_VALUES_GUARDS = {
+  hasSilentWatcher: (event: Extract<NoticeValuesEvent, { readonly type: 'changeDelivered' }>): boolean =>
+    (event.silentWatchers ?? NaN) > 0,
+  isHiddenReason: (event: Extract<NoticeValuesEvent, { readonly type: 'noticeRaised' }>): boolean =>
+    noticeDisplay(event.reason) === 'hide',
+  isLeavingNone: (values: NoticeValues, event: Extract<NoticeValuesEvent, { readonly type: 'noticeDismissPressed' }>): boolean => {
+    const noticeDisplayStanding =
+      values.noticeDisplayState.kind === 'shown' ? values.noticeDisplayState.standing
+      : null
+    return (reasonsOf(noticeDisplayStanding) as readonly unknown[]).includes(event.reason)
+      && noticeDisplayStanding?.length === 1
+  },
+  isLeavingSome: (values: NoticeValues, event: Extract<NoticeValuesEvent, { readonly type: 'noticeDismissPressed' }>): boolean => {
+    const noticeDisplayStanding =
+      values.noticeDisplayState.kind === 'shown' ? values.noticeDisplayState.standing
+      : null
+    return (reasonsOf(noticeDisplayStanding) as readonly unknown[]).includes(event.reason)
+      && (noticeDisplayStanding?.length ?? NaN) > 1
+  },
+  isOnlyOneStanding: (values: NoticeValues): boolean => {
+    const noticeDisplayStanding =
+      values.noticeDisplayState.kind === 'shown' ? values.noticeDisplayState.standing
+      : null
+    return noticeDisplayStanding?.length === 1
+  },
+  isSameReasonStanding: (values: NoticeValues, event: Extract<NoticeValuesEvent, { readonly type: 'noticeRaised' }>): boolean => {
+    const noticeDisplayStanding =
+      values.noticeDisplayState.kind === 'shown' ? values.noticeDisplayState.standing
+      : null
+    return (wordsRowsOf(noticeDisplayStanding) as readonly unknown[]).includes(wordsRow(event.reason))
+  },
+  isTimedCard: (values: NoticeValues, event: Extract<NoticeValuesEvent, { readonly type: 'noticeTimeElapsed' }>): boolean => {
+    const noticeDisplayStanding =
+      values.noticeDisplayState.kind === 'shown' ? values.noticeDisplayState.standing
+      : null
+    return noticeDisplay(event.reason) === 'autoDismiss'
+      && (reasonsOf(noticeDisplayStanding) as readonly unknown[]).includes(event.reason)
+  },
 }
 // </generated>
 
@@ -232,7 +281,7 @@ export const NOTICE_MANNER_OF_REASON: Readonly<Record<NoticeReason, NoticeManner
   'RS-11': 'NT-1',
   'RS-12': 'NT-1',
   'RS-13': 'NT-1',
-  'RS-14': 'NT-5',
+  'RS-14': 'NT-1',
   'RS-78': 'NT-6',
   'RS-79': 'NT-6',
   'RS-80': 'NT-6',
@@ -340,7 +389,7 @@ export const NOTICE_DISPLAY_OF_REASON: Readonly<Record<NoticeReason, 'show' | 'h
   'RS-11': 'show',
   'RS-12': 'show',
   'RS-13': 'show',
-  'RS-14': 'report',
+  'RS-14': 'show',
   'RS-78': 'show',
   'RS-79': 'show',
   'RS-80': 'show',
@@ -575,40 +624,61 @@ function withStanding(values: NoticeValues, standing: readonly StandingNotice[])
 }
 
 /** @purity pure */
-function withDelivery(
-  values: NoticeValues,
-  delivery: ChangeDeliveryState,
-  effects: readonly NoticeValuesEffect[],
-): NoticeStep {
+function withDelivery(values: NoticeValues, delivery: ChangeDeliveryState, effects: readonly NoticeValuesEffect[]): NoticeStep {
   return { state: { ...values, changeDeliveryState: delivery }, effects }
 }
 
+// see FR-076, NT-2, T-233
+// WHY: the guard language's noticeDisplay; the generated judgments call it by this name (SD-3).
 /** @purity pure */
-function displayOf(reason: string): (typeof NOTICE_DISPLAY_OF_REASON)[NoticeReason] | null {
+function noticeDisplay(reason: string): (typeof NOTICE_DISPLAY_OF_REASON)[NoticeReason] | null {
   return Object.hasOwn(NOTICE_DISPLAY_OF_REASON, reason) ? NOTICE_DISPLAY_OF_REASON[reason as NoticeReason] : null
 }
 
-// see FR-076, T-233
+// see FR-076, NT-3, T-233
 /** @purity pure */
-function wordsRowOf(reason: string): string {
+function wordsRow(reason: string): string {
   return Object.hasOwn(NOTICE_WORDS_ROW_OF_REASON, reason) ? NOTICE_WORDS_ROW_OF_REASON[reason as NoticeReason] : reason
+}
+
+// see NT-8, NT-2
+// WHY: the guard language's reasonsOf; no standing notices (the machine hidden) read as none.
+/** @purity pure */
+function reasonsOf(standing: readonly StandingNotice[] | null): readonly string[] {
+  return standing === null ? [] : standing.map((one) => one.reason)
+}
+
+// see NT-3
+/** @purity pure */
+function wordsRowsOf(standing: readonly StandingNotice[] | null): readonly string[] {
+  return reasonsOf(standing).map(wordsRow)
 }
 
 // see NT-3, T-233
 // WHY: reasons that share one row's words are one reason to the person reading them (CR-712 X-2).
 /** @purity pure */
 function isSameReason(a: string, b: string): boolean {
-  return wordsRowOf(a) === wordsRowOf(b)
+  return wordsRow(a) === wordsRow(b)
+}
+
+/** @purity pure */
+function standingOf(values: NoticeValues): readonly StandingNotice[] {
+  return values.noticeDisplayState.kind === 'shown' ? values.noticeDisplayState.standing : []
+}
+
+/** @purity pure */
+function withoutReason(values: NoticeValues, reason: string): NoticeStep {
+  return withStanding(values, standingOf(values).filter((one) => one.reason !== reason))
 }
 
 // see T-286, NT-3, FR-076
 /** @purity pure */
 function onNoticeRaised(values: NoticeValues, event: EventOf<'noticeRaised'>): NoticeStep {
-  if (displayOf(event.reason) === 'hide') return unchanged(values)
+  if (NOTICE_VALUES_GUARDS.isHiddenReason(event)) return unchanged(values)
   const raised = { reason: event.reason, affectedCount: event.affectedCount }
-  const standing = values.noticeDisplayState.kind === 'shown' ? values.noticeDisplayState.standing : []
+  const standing = standingOf(values)
   const same = standing.find((one) => isSameReason(one.reason, event.reason))
-  if (same === undefined) return withStanding(values, [...standing, raised])
+  if (!NOTICE_VALUES_GUARDS.isSameReasonStanding(values, event) || same === undefined) return withStanding(values, [...standing, raised])
   // WHY: the gathered notice moves to the end, so newest-first dismissal (NT-8) meets it first.
   const gathered = { reason: same.reason, affectedCount: (same.affectedCount ?? 1) + (event.affectedCount ?? 1) }
   return withStanding(values, [...standing.filter((one) => one !== same), gathered])
@@ -618,27 +688,21 @@ function onNoticeRaised(values: NoticeValues, event: EventOf<'noticeRaised'>): N
 /** @purity pure */
 function onNewestNoticeDismissAsked(values: NoticeValues): NoticeStep {
   if (values.noticeDisplayState.kind === 'hidden') return unchanged(values)
-  return withStanding(values, values.noticeDisplayState.standing.slice(0, -1))
+  return withStanding(values, NOTICE_VALUES_GUARDS.isOnlyOneStanding(values) ? [] : values.noticeDisplayState.standing.slice(0, -1))
 }
 
 // see T-286, NT-8
 /** @purity pure */
 function onNoticeDismissPressed(values: NoticeValues, event: EventOf<'noticeDismissPressed'>): NoticeStep {
-  if (values.noticeDisplayState.kind === 'hidden') return unchanged(values)
-  const standing = values.noticeDisplayState.standing
-  const kept = standing.filter((one) => one.reason !== event.reason)
-  if (kept.length === standing.length) return unchanged(values)
-  return withStanding(values, kept)
+  if (NOTICE_VALUES_GUARDS.isLeavingNone(values, event)) return withStanding(values, [])
+  return NOTICE_VALUES_GUARDS.isLeavingSome(values, event) ? withoutReason(values, event.reason) : unchanged(values)
 }
 
 // see T-286, NT-2
 /** @purity pure */
 function onNoticeTimeElapsed(values: NoticeValues, event: EventOf<'noticeTimeElapsed'>): NoticeStep {
-  if (values.noticeDisplayState.kind === 'hidden' || displayOf(event.reason) !== 'autoDismiss') return unchanged(values)
-  const standing = values.noticeDisplayState.standing
-  const kept = standing.filter((one) => one.reason !== event.reason)
-  if (kept.length === standing.length) return unchanged(values)
-  return withStanding(values, kept)
+  if (!NOTICE_VALUES_GUARDS.isTimedCard(values, event)) return unchanged(values)
+  return NOTICE_VALUES_GUARDS.isOnlyOneStanding(values) ? withStanding(values, []) : withoutReason(values, event.reason)
 }
 
 // see T-286, WS-2
@@ -652,15 +716,12 @@ function onDocumentReplaced(values: NoticeValues): NoticeStep {
 /** @purity pure */
 function onChangeDelivered(values: NoticeValues, event: EventOf<'changeDelivered'>): NoticeStep {
   if (values.changeDeliveryState.kind === 'idle') return unchanged(values)
-  const effects: readonly NoticeValuesEffect[] =
-    event.silentWatchers > 0 ? [{ type: 'raiseNotice', reason: 'RS-23' }] : NO_EFFECTS
+  const effects: readonly NoticeValuesEffect[] = NOTICE_VALUES_GUARDS.hasSilentWatcher(event) ? [{ type: 'raiseNotice', reason: 'RS-23' }] : NO_EFFECTS
   return withDelivery(values, { kind: 'idle' }, effects)
 }
 
 // WHY: the same table form as the screen-values region, so a missing event fails to compile.
-const HANDLERS: {
-  readonly [T in NoticeValuesEvent['type']]: (values: NoticeValues, event: EventOf<T>) => NoticeStep
-} = {
+const HANDLERS: { readonly [T in NoticeValuesEvent['type']]: (values: NoticeValues, event: EventOf<T>) => NoticeStep } = {
   noticeRaised: onNoticeRaised,
   noticeTimeElapsed: onNoticeTimeElapsed,
   newestNoticeDismissAsked: onNewestNoticeDismissAsked,
@@ -675,3 +736,4 @@ export function stepNoticeValues(values: NoticeValues, event: NoticeValuesEvent)
   const handler = HANDLERS[event.type] as (values: NoticeValues, event: NoticeValuesEvent) => NoticeStep
   return handler(values, event)
 }
+

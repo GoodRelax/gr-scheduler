@@ -1232,6 +1232,31 @@ function markerStatesOf(facts: Facts, unreliable: ReadonlySet<number>, bottlenec
   })
 }
 
+// see FR-133, VO-1
+/** @purity pure */
+function isNotDueYet(task: Task, statusDayOnSide: CalendarDay): boolean {
+  return !isStarted(task) && isBefore(statusDayOnSide, plannedEnds(task).start)
+}
+
+// see FR-133, T-315
+// WHY: only the drawn mark drops, so markerStates (DX-8) stays; DG-4 is left out, the geometry draws it as PM-4.
+/** @purity pure */
+export function diagnosedMarkerRowsOf(report: DelayDiagnosticsReport, schedule: Schedule): ReadonlyMap<number, 'DG-1' | 'DG-2' | 'DG-3'> {
+  const rows = new Map<number, 'DG-1' | 'DG-2' | 'DG-3'>()
+  const statusDay = dayOf(report.statusDate)
+  const statusDayOnSide = dayOnSide(report.statusDate, 'finish') ?? statusDay
+  const pink = new Set(report.bottlenecks.flatMap((one) => one.path))
+  const byUid = new Map(schedule.tasks.map((task) => [task.uid, task]))
+  for (const { uid, row } of report.markerStates) {
+    if (row === 'DG-4') continue
+    const task = byUid.get(uid)
+    const isHeldBack = row !== 'DG-3' && statusDayOnSide !== null && task !== undefined && isNotDueYet(task, statusDayOnSide)
+    if (!isHeldBack) rows.set(uid, row)
+    else if (pink.has(uid)) rows.set(uid, 'DG-3')
+  }
+  return rows
+}
+
 // see VO-3, VO-5, VS-6, DG-1
 // WHY: the tasks these rows name are DG-1 but no wall; the doubt reaches only one recorded date, so the flow goes on.
 /** @purity pure */

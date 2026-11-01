@@ -2,7 +2,7 @@
 // go, and before they go the question names the TASKS an unassignment reaches.
 //
 // ---------------------------------------------------------------------------
-// THE TWO CLAUSES, QUOTED VERBATIM (docs/spec/01-04-requirements.md:1730, :1738)
+// THE TWO CLAUSES, QUOTED VERBATIM (docs/spec/01-04-requirements.md)
 // ---------------------------------------------------------------------------
 //
 //   消し方は、**どの割当からも参照されていない担当をまとめて消すこと**と、

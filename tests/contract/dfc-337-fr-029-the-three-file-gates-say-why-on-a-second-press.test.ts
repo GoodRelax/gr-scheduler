@@ -2,14 +2,14 @@
 // nothing, instead of returning in silence.
 //
 // ---------------------------------------------------------------------------
-// THE CLAUSE, QUOTED VERBATIM (docs/spec/01-04-requirements.md:3833)
+// THE CLAUSE, QUOTED VERBATIM (docs/spec/01-04-requirements.md)
 // ---------------------------------------------------------------------------
 //
 //   **押されたときに限り、行えない理由を通知の仕組みへ運ぶこと（MUST）。作法は `FR-076` の
 //   表 T-037 の `NT-1` に従い、運ぶ理由は、押された入口の場面に当たる同要求の
 //   表 T-233 の行とすること（MUST）。**
 //
-// and the closing rule of 表 T-233 (docs/spec/01-04-requirements.md:3896):
+// and the closing rule of 表 T-233 (docs/spec/01-04-requirements.md):
 //
 //   ⭐ **通知が運ぶ理由は 表 T-233 の行とすること（MUST）。同表に無い理由を運んでは
 //   ならない（MUST NOT）** —— 理由の語は `FR-038` の辞書が持ち、辞書は行 ID で引く。

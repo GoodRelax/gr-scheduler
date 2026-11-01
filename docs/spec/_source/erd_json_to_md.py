@@ -26,6 +26,8 @@ import json
 import os
 import sys
 
+from spec_md_printing import say
+
 HERE = os.path.dirname(os.path.abspath(__file__))
 # This file sits in docs/spec/_source/ -- the manuscripts belong to no language,
 # so they stay out of the _assets folder that the ja/en split will divide
@@ -34,9 +36,6 @@ ASSETS = os.path.abspath(os.path.join(HERE, '..', '_assets'))
 
 KEYS = ('', 'PK', 'FK', 'PK/FK')
 ORIGINS = ('Own', 'Consume', 'GRS', 'Carry')
-
-PK_COLOR = '#C00000'
-FK_COLOR = '#008000'
 
 # multiplicity written as "parent side ─ child side"
 CROWS_FOOT = {
@@ -458,17 +457,6 @@ def problems(doc):
             found.append('%s: figure is %d characters, over mermaid '
                          'maxTextSize 50000' % (kind, len(body)))
     return found
-
-
-def say(message):
-    """The Windows console is cp932; an em dash must not kill the run.
-
-    ⚠️ Do not name the parameter `text`: that would shadow the prose reader
-    above, and a later line inside this function would reach the string
-    instead of the function.
-    """
-    enc = getattr(sys.stdout, 'encoding', None) or 'utf-8'
-    sys.stdout.write(message.encode(enc, 'replace').decode(enc) + '\n')
 
 
 def compare(target, built):

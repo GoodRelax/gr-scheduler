@@ -5,18 +5,22 @@
     python tools/generate_image_to_grs_json_prompt.py --check
 
 FR-068 (MUST) has the header entrance IC-115 copy ONE string to the clipboard:
-the prompt manuscript in the display language, a version line, the GRS JSON
-schema and the base document, in that order. Section 6.2 of 05-07-design.md
-keeps the manuscripts in docs/spec/_source/ (one per language) and forbids
-(MUST NOT) copying the schema or the base document into them: this generator
-appends both. The shell joins the pieces at the press (CR-562 section 5):
+the prompt manuscript in the display language, a version line and the base
+document, in that order -- and, at the same press, hand the GRS JSON schema to
+the browser's download as the file IO-10 of table T-024 (CR-827, JDG-3086).
+Section 6.2 of 05-07-design.md keeps the manuscripts in docs/spec/_source/ (one
+per language) and forbids (MUST NOT) copying the schema or the base document
+into them: this generator carries both. The shell joins the pieces at the press
+(CR-562 section 5):
 
     <prompt[lang]> "\\n\\n" "schemaVersion: " <schemaVersion>
-    "\\n\\n```json\\n" <schema> "\\n```\\n\\n```json\\n" <emptyDocument> "\\n```\\n"
+    "\\n\\n```json\\n" <emptyDocument> "\\n```\\n"
 
-THE JOINED STRING IS NOT STORED. Each language would carry the schema and the
-base document a second time (CR-562 section 5), so the artifact holds the parts
-and the join is the shell's one line.
+and downloads <schema> as grs-document.schema.json.
+
+THE JOINED STRING IS NOT STORED. Each language would carry the base document a
+second time (CR-562 section 5), so the artifact holds the parts and the join is
+the shell's one line.
 
 THE PIECES ARE READ, NEVER RETYPED.
   prompt         docs/spec/_source/image-to-grs-json-prompt.<lang>.md, from its
@@ -26,7 +30,8 @@ THE PIECES ARE READ, NEVER RETYPED.
                  settings.json (CR-644)
   schemaVersion  the startup template's version (FR-027), taken from
                  tools/generate_startup_template.py, which prints that template
-  schema         docs/spec/_source/grs-document.schema.json, whitespace removed
+  schema         docs/spec/_source/grs-document.schema.json, whitespace removed;
+                 the content of the downloaded file, never copied (CR-827)
   emptyDocument  a GRS JSON with no task, built from the same pieces the
                  startup template is built from (version, documentSettings,
                  calendar, project defaults) and refused unless the startup
@@ -87,8 +92,8 @@ BANNER = (
     'tools/generate_startup_template.py (schemaVersion, and the pieces of the '
     'base document). FR-068: the copied string is prompt[lang] + blank line + '
     '"schemaVersion: " + schemaVersion + blank line + a json fence holding '
-    'schema + blank line + a json fence holding emptyDocument; the join is '
-    'not stored (CR-562 section 5).' % REL_SELF
+    'emptyDocument; the join is not stored (CR-562 section 5). schema is the '
+    'content of the file IO-10 the same press downloads (CR-827).' % REL_SELF
 )
 
 
@@ -212,6 +217,8 @@ def build():
         built[language] = prompt_of(language)
     built['schemaVersion'] = startup.SCHEMA_VERSION
     built['schema'] = minified(schema)
+    # FR-068 fixes the downloaded file's name as the schema manuscript's own (IO-10).
+    built['schemaFileName'] = os.path.basename(SCHEMA)
     built['emptyDocument'] = minified(empty_document())
     return built
 
@@ -219,10 +226,10 @@ def build():
 def joined(built, language):
     """The string IC-115 copies, joined as CR-562 section 5 states.
 
-    Used here only to report its size; the shell does the same join.
+    Used here only to report its size; the shell does the same join. The
+    schema is not in it: it goes out as the downloaded file (CR-827).
     """
     return (built[language] + '\n\nschemaVersion: ' + built['schemaVersion']
-            + '\n\n' + FENCE + 'json\n' + built['schema'] + '\n' + FENCE
             + '\n\n' + FENCE + 'json\n' + built['emptyDocument'] + '\n'
             + FENCE + '\n')
 

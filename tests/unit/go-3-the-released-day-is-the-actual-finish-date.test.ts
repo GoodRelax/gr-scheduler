@@ -356,7 +356,7 @@ function actualEndReleasedOn(uid: number, target: string): Released {
 }
 
 describe('GO-3 -- the manuscript this file is driven by', () => {
-  it('GO-3 still says: 離した日は実績の最後の日として置き、実績バーの右端の位置として数えないこと（MUST）', () => {
+  it('GO-3 still says: 離した所は実績の終わりとして置き、時刻を表示しないときは、実績バーの右端の位置として数えないこと（MUST）', () => {
     const go3 = cellOf('GO-3', PUTS)
     expect(go3).toContain(GO_3_LAST_DAY_NOT_RIGHT_EDGE)
     expect(go3).toContain(GO_3_SAME_GESTURE_AS_GO_2)
@@ -390,7 +390,7 @@ describe('the fixture these cases stand on', () => {
   })
 })
 
-describe('GO-3: 離した日は実績の最後の日として置き、実績バーの右端の位置として数えないこと（MUST）', () => {
+describe('GO-3: 離した所は実績の終わりとして置き、時刻を表示しないときは、実績バーの右端の位置として数えないこと（MUST）', () => {
   const cases: readonly {
     readonly uid: number
     readonly what: string

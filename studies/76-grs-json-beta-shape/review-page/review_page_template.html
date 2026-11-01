@@ -1,0 +1,780 @@
+<title>CR-851 行レビュー</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=BIZ+UDGothic:wght@400;700&family=BIZ+UDPGothic:wght@400;700&display=swap">
+<style>
+/* Layout: one review sheet - a sticky bar (table tabs, filters, progress) over a single column of row sheets, old | new side by side, stacked on a phone. */
+:root {
+  --bg: #f4f6f9;
+  --sheet: #ffffff;
+  --ink: #1b2331;
+  --muted: #586376;
+  --line: #d6dce6;
+  --accent: #2f4d87;
+  --accent-soft: #e5ebf6;
+  --ok: #1d7448;
+  --ok-soft: #e1f2e8;
+  --warn: #9a5a06;
+  --warn-soft: #fbefd9;
+  --old-soft: #f7f1f1;
+  --new-soft: #eef4fb;
+  --g-mspdi: #2f5fa8; --g-mspdi-soft: #e3ecf8;
+  --g-grs: #1f7a6a; --g-grs-soft: #def2ec;
+  --g-view: #9a5a06; --g-view-soft: #faefdc;
+  --g-stamp: #6b4aa0; --g-stamp-soft: #eee7f8;
+  --g-type: #5b6474; --g-type-soft: #eceff3;
+  --diff-soft: #fff1b8;
+  --j-key: #7a2e8e;
+  --j-str: #1e6b3a;
+  --j-num: #a8480c;
+  --j-lit: #b0263a;
+  --font-body: "BIZ UDPGothic", "Hiragino Sans", "Yu Gothic UI", "Meiryo", system-ui, sans-serif;
+  --font-code: "BIZ UDGothic", "Cascadia Mono", "Consolas", "Menlo", monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #12161d; --sheet: #1a2029; --ink: #e5e9f0; --muted: #9aa4b5; --line: #2c3441;
+    --accent: #93acdf; --accent-soft: #24304a; --ok: #62c493; --ok-soft: #173326;
+    --warn: #e3a54d; --warn-soft: #3a2a12; --old-soft: #2a2023; --new-soft: #1c2738;
+    --j-key: #d6a0e6; --j-str: #8fd3a5; --j-num: #f0a868; --j-lit: #ff8e9e; --diff-soft: #4a3f12;
+    --g-mspdi: #8fb2ee; --g-mspdi-soft: #1d2a40; --g-grs: #6fd0bc; --g-grs-soft: #15302b;
+    --g-view: #e8b264; --g-view-soft: #3a2b14; --g-stamp: #c3a6ef; --g-stamp-soft: #2c2340;
+    --g-type: #aab3c2; --g-type-soft: #252b35;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #12161d; --sheet: #1a2029; --ink: #e5e9f0; --muted: #9aa4b5; --line: #2c3441;
+  --accent: #93acdf; --accent-soft: #24304a; --ok: #62c493; --ok-soft: #173326;
+  --warn: #e3a54d; --warn-soft: #3a2a12; --old-soft: #2a2023; --new-soft: #1c2738;
+  --j-key: #d6a0e6; --j-str: #8fd3a5; --j-num: #f0a868; --j-lit: #ff8e9e; --diff-soft: #4a3f12;
+  --g-mspdi: #8fb2ee; --g-mspdi-soft: #1d2a40; --g-grs: #6fd0bc; --g-grs-soft: #15302b;
+  --g-view: #e8b264; --g-view-soft: #3a2b14; --g-stamp: #c3a6ef; --g-stamp-soft: #2c2340;
+  --g-type: #aab3c2; --g-type-soft: #252b35;
+  color-scheme: dark;
+}
+body { background: var(--bg); color: var(--ink); font: 16px/1.45 var(--font-body); }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--sheet); }
+.wrap { max-width: 1180px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+header.intro { padding-block: 12px 4px; }
+h1 { font-size: 1.5rem; line-height: 1.3; margin: 0 0 6px; text-wrap: balance; }
+.lead { color: var(--muted); margin: 0; max-width: 70ch; }
+.lead code { font: 14px var(--font-code); }
+.bar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--sheet); border-bottom: 1px solid var(--line); }
+.bar .wrap { display: flex; flex-direction: column; gap: 6px; padding-block: 6px; }
+.tabs, .filters { display: flex; flex-wrap: wrap; gap: 8px; }
+.tab, .filter { font: inherit; font-size: 15px; border: 1px solid var(--line); background: var(--sheet); color: var(--ink); border-radius: 6px; padding: 3px 10px; cursor: pointer; display: inline-flex; gap: 8px; align-items: baseline; }
+.tab[aria-selected="true"] { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); font-weight: 700; }
+.filter[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); font-weight: 700; }
+.tab .count { font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.tab[aria-selected="true"] .count { color: var(--accent); }
+.tools { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; }
+.search { flex: 1 1 240px; min-width: 0; font: inherit; font-size: 15px; padding: 6px 10px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); color: var(--ink); }
+.progress { font-size: 14px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.meter { height: 6px; background: var(--line); border-radius: 3px; overflow: hidden; width: 160px; display: inline-block; vertical-align: middle; margin-left: 8px; }
+.meter > i { display: block; height: 100%; background: var(--ok); width: 0; }
+.notice { margin: 12px 0 0; padding: 10px 14px; border-radius: 6px; background: var(--warn-soft); color: var(--ink); font-size: 15px; }
+main.wrap { display: flex; flex-direction: column; gap: 7px; padding-block: 8px 32px; }
+.empty { color: var(--muted); padding: 24px 0; }
+.row { background: var(--sheet); border: 1px solid var(--line); border-radius: 8px; padding: 7px 10px; display: flex; flex-direction: column; gap: 5px; }
+.row.is-ok { border-color: var(--ok); }
+.row.is-changed { border-color: var(--warn); }
+.head { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.rid { font: 700 14px var(--font-code); color: var(--muted); }
+.chip { font-size: 13px; padding: 1px 8px; border-radius: 10px; border: 1px solid var(--line); color: var(--muted); }
+.chip.jdg { border-color: var(--accent); color: var(--accent); }
+.chip.state-ok { background: var(--ok-soft); border-color: var(--ok); color: var(--ok); font-weight: 700; }
+.chip.state-changed { background: var(--warn-soft); border-color: var(--warn); color: var(--warn); font-weight: 700; }
+.stack { display: flex; flex-direction: column; gap: 3px; }
+.side { min-width: 0; border-radius: 5px; padding: 3px 8px; display: grid; grid-template-columns: 7.5em 1fr; gap: 2px 10px; align-items: start; }
+.side.old { background: var(--old-soft); }
+.side.new { background: var(--new-soft); }
+.side.example { border: 1px dashed var(--line); }
+.side h3 { margin: 0; font-size: 13px; letter-spacing: 0.06em; color: var(--muted); font-weight: 700; line-height: 1.6; }
+.side pre { margin: 0; min-width: 0; font: 14px/1.4 var(--font-code); white-space: pre-wrap; overflow-wrap: anywhere; }
+.j-diff { font-weight: 700; text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 2px; background: var(--diff-soft); border-radius: 2px; }
+.j-key { color: var(--j-key); }
+.j-str { color: var(--j-str); }
+.j-num { color: var(--j-num); }
+.j-lit { color: var(--j-lit); font-weight: 700; }
+.j-punc { color: var(--muted); }
+.j-note { color: var(--muted); font-family: var(--font-body); }
+.why { margin: 0; font-size: 15px; overflow-wrap: anywhere; }
+.extra { margin: 0; font-size: 15px; color: var(--muted); white-space: pre-wrap; overflow-wrap: anywhere; }
+.act { display: flex; flex-wrap: wrap; gap: 6px; align-items: flex-start; }
+.okbtn { font: inherit; font-weight: 700; font-size: 15px; padding: 3px 14px; border-radius: 6px; border: 1px solid var(--ok); background: var(--sheet); color: var(--ok); cursor: pointer; min-width: 7em; }
+.okbtn[aria-pressed="true"] { background: var(--ok); color: var(--sheet); }
+.okbtn:disabled, textarea:disabled { opacity: 0.55; cursor: not-allowed; }
+textarea { flex: 1 1 320px; min-width: 0; min-height: 2.2em; font: inherit; font-size: 15px; padding: 3px 8px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); color: var(--ink); resize: vertical; }
+.saved { font-size: 13px; color: var(--muted); align-self: center; }
+button:focus-visible, textarea:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.tag { font-size: 13px; font-weight: 700; padding: 0 8px; border-radius: 10px; border: 1px solid; }
+.tag-MSPDI { color: var(--g-mspdi); background: var(--g-mspdi-soft); border-color: var(--g-mspdi); }
+.tag-GRS { color: var(--g-grs); background: var(--g-grs-soft); border-color: var(--g-grs); }
+.tag-VIEW { color: var(--g-view); background: var(--g-view-soft); border-color: var(--g-view); }
+.tag-STAMP { color: var(--g-stamp); background: var(--g-stamp-soft); border-color: var(--g-stamp); }
+.tag-CARRY { color: var(--g-mspdi); background: var(--sheet); border-color: var(--g-mspdi); border-style: dashed; }
+.checks { display: flex; flex-wrap: wrap; gap: 4px 14px; }
+.checkgroup { border: 0; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 2px 10px; align-items: center; min-width: 0; }
+.checkgroup legend { float: left; font-size: 14px; font-weight: 700; color: var(--muted); margin-right: 4px; padding: 0; }
+.check { font-size: 14px; display: inline-flex; align-items: center; gap: 3px; cursor: pointer; }
+.check input, .hideold input { accent-color: var(--accent); }
+.secfold { flex-basis: 100%; font-size: 14px; }
+.secfold summary { cursor: pointer; color: var(--accent); font-weight: 700; width: max-content; }
+.secfold[open] .checkgroup { max-height: 30vh; overflow-y: auto; }
+.hideold { font-size: 14px; font-weight: 700; display: inline-flex; align-items: center; gap: 4px; cursor: pointer; }
+.tag-TYPE, .tag-API, .tag-SPEC, .tag-BOX, .tag-ROOT { color: var(--g-type); background: var(--g-type-soft); border-color: var(--g-type); }
+.tagchips { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.tagchips .label { font-size: 14px; color: var(--muted); }
+.tagchip { font: inherit; font-size: 14px; border: 1px solid var(--line); background: var(--sheet); color: var(--ink); border-radius: 12px; padding: 1px 10px; cursor: pointer; font-variant-numeric: tabular-nums; }
+.tagchip[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); font-weight: 700; }
+/* A section line reaches past the row sheets on both sides, so it reads as a break in the flow. */
+/* As far out as the side space allows: 64px on a wide screen, 14px on a phone (inside the 16px gutter).
+   100vw counts the scrollbar, so the side space is taken without the 16px gutter. */
+.divider { --out: clamp(14px, calc((100vw - 1180px) / 2), 64px); display: flex; align-items: center; gap: 10px; margin: 16px calc(-1 * var(--out)) 2px; color: var(--ink); font: 700 15px var(--font-code); }
+.divider::before { content: ""; flex: 0 0 14px; border-top: 2px solid var(--muted); }
+.divider::after { content: ""; flex: 1; border-top: 2px solid var(--muted); }
+.divider .n { font: 400 13px var(--font-body); color: var(--muted); }
+.toc { font-size: 15px; }
+.toc summary { cursor: pointer; color: var(--accent); font-weight: 700; width: max-content; }
+/* Rows flow down a grid of columns that fits the width; only the list scrolls, and only up and down. */
+.toc ol { list-style: none; margin: 4px 0 2px; padding: 0; max-height: 55vh; overflow-y: auto; overflow-x: hidden; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 20em), 1fr)); gap: 2px 24px; }
+.toc li { min-width: 0; overflow-wrap: anywhere; }
+.toc .no { display: inline-block; min-width: 2.4em; color: var(--muted); font-variant-numeric: tabular-nums; }
+.toc a { color: var(--ink); text-decoration: none; font-family: var(--font-code); font-size: 14px; }
+.toc a:hover, .toc a:focus-visible { color: var(--accent); text-decoration: underline; }
+.toc .n { color: var(--muted); font-size: 13px; margin-left: 6px; }
+.erd-intro { margin: 0; max-width: 75ch; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: center; font-size: 15px; }
+.legend span.tag { margin-right: 4px; }
+.erd-scroll { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; background: var(--sheet); }
+.erd-scroll svg { display: block; }
+.erd-box rect.body { stroke-width: 1.5; }
+.erd-box text { font-family: var(--font-code); font-size: 13px; fill: var(--ink); }
+.erd-box text.title { font-family: var(--font-body); font-size: 15px; font-weight: 700; }
+.erd-box text.path { fill: var(--muted); font-size: 12px; }
+.erd-edge { fill: none; stroke: var(--muted); stroke-width: 1.3; opacity: 0.55; }
+.erd-edge.nest { stroke-dasharray: 2 4; }
+.erd-edge.match { stroke-dasharray: 7 4; }
+.erd-band text { font-family: var(--font-body); font-size: 15px; font-weight: 700; }
+svg.focus .erd-box:not(.on) { opacity: 0.25; }
+svg.focus .erd-edge:not(.on) { opacity: 0.08; }
+svg.focus .erd-edge.on { opacity: 1; stroke: var(--accent); stroke-width: 2; }
+.erd-list { font-size: 15px; margin: 0; padding-left: 1.2em; columns: 2 22em; column-gap: 24px; }
+.erd-list li { break-inside: avoid; }
+.api-flow { list-style: none; margin: 4px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px 28px; }
+.api-flow li { position: relative; flex: 1 1 200px; min-width: 0; border: 1px solid var(--accent); border-radius: 8px; background: var(--accent-soft); padding: 6px 10px; display: flex; flex-direction: column; gap: 2px; font-size: 14px; }
+.api-flow li b { font-size: 15px; color: var(--accent); }
+.api-flow li + li::before { content: "→"; position: absolute; left: -22px; top: 50%; transform: translateY(-50%); color: var(--muted); font-weight: 700; }
+.api-h { margin: 14px 0 0; font-size: 17px; }
+.api-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 17em), 1fr)); gap: 8px; }
+.api-box { border: 1px solid var(--line); border-radius: 8px; background: var(--sheet); padding: 6px 10px; min-width: 0; }
+.api-box h3 { margin: 0 0 4px; font-size: 15px; }
+.api-member { display: flex; flex-wrap: wrap; gap: 4px 8px; align-items: center; padding: 2px 0; }
+.api-member code { font: 14px var(--font-code); overflow-wrap: anywhere; }
+.api-wrap { gap: 8px; }
+.api-chip { font: inherit; font-size: 14px; border: 1px solid var(--accent); background: var(--sheet); color: var(--accent); border-radius: 12px; padding: 0 9px; cursor: pointer; font-family: var(--font-code); }
+.api-chip:disabled { opacity: 0.55; cursor: default; }
+.api-kinds { font-size: 13px; color: var(--muted); }
+.api-steps { margin: 4px 0 0; padding-left: 1.4em; font-size: 15px; display: flex; flex-direction: column; gap: 2px; }
+.row.flash { outline: 3px solid var(--accent); outline-offset: 2px; }
+@media (max-width: 720px) { .api-flow { flex-direction: column; gap: 22px; } .api-flow li { flex: none; } .api-flow li + li::before { content: "↓"; left: 50%; top: -18px; transform: translateX(-50%); } }
+@media (max-width: 720px) { .side { grid-template-columns: 1fr; } .meter { width: 100px; } }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<header class="intro wrap">
+  <h1>CR-851 行レビュー</h1>
+  <p class="lead">GRS JSON を β の前に 1 回だけ組み替える <code>CR-851</code>（と、同じ形に乗る <code>CR-848</code>・<code>CR-849</code>）の、変わる行の全部です。行ごとに読み、良ければ <b>OK</b>、直してほしい所はコメントに書いてください。OK とコメントはこのページのデータベースに残り、席が読んで下書きに当てます。行が変わると、その行は「変わった」に戻ります。表の正は <code>studies/76-grs-json-beta-shape/</code>。</p>
+  <p class="notice" id="notice" hidden></p>
+</header>
+
+<div class="bar">
+  <div class="wrap">
+    <div class="tabs" role="tablist" id="tabs"></div>
+    <div class="tools">
+      <div class="checks" id="checks"></div>
+      <label class="hideold" id="hideold-box"><input type="checkbox" id="hideold"> 現状を隠す</label>
+      <input class="search" id="search" type="search" placeholder="行を絞る（名・JDG・語）" aria-label="行を絞る">
+      <span class="progress" id="progress"></span>
+    </div>
+    <details class="toc" id="toc" hidden><summary id="tocsum">目次</summary><ol id="toclist"></ol></details>
+  </div>
+</div>
+
+<main class="wrap" id="list" aria-live="polite"></main>
+
+<script>
+const TABLES = /*__DATA__*/[];
+// The view (JDG-3347): an empty set in a check group means "all". Remembered per viewer only.
+const state = { scroll: {}, tab: TABLES[0].key, query: '', status: new Set(), tags: new Set(), secs: {}, hideOld: true,
+  reviews: new Map(), db: null, writing: new Map() };
+const VIEW_KEY = 'cr851-review-view';
+function loadView() {
+  try {
+    const v = JSON.parse(localStorage.getItem(VIEW_KEY) || 'null');
+    if (!v) return;
+    // The old side starts hidden (owner, 2026-10-28); only a choice saved since then shows it again.
+    if (typeof v.hideOldSince1028 === 'boolean') state.hideOld = v.hideOldSince1028;
+    state.status = new Set(v.status || []);
+    state.tags = new Set(v.tags || []);
+    Object.keys(v.secs || {}).forEach(k => { state.secs[k] = new Set(v.secs[k]); });
+  } catch (e) { /* storage may be blocked: start with everything shown */ }
+}
+function saveView() {
+  try {
+    const secs = {};
+    Object.keys(state.secs).forEach(k => { secs[k] = [...state.secs[k]]; });
+    localStorage.setItem(VIEW_KEY, JSON.stringify({ hideOldSince1028: state.hideOld, status: [...state.status], tags: [...state.tags], secs }));
+  } catch (e) { /* not remembered; the page still works */ }
+}
+function secsOf(key) { if (!state.secs[key]) state.secs[key] = new Set(); return state.secs[key]; }
+const API = /*__API__*/{};
+const VIEWS = TABLES.concat([{ key: 'erd', name: '全体図（ERD）', erd: true, rows: [] },
+  { key: 'api', name: '全体図（Agent API）', erd: true, api: true, rows: [] }]);
+const TAG_NAME = { MSPDI: 'MSPDI 由来', CARRY: 'Carry', GRS: 'GRS 独自', VIEW: '画面設定', STAMP: '刻印・履歴', TYPE: '共通の型', BOX: '日程データの入れ物', API: 'Agent API', SPEC: '仕様の文', ROOT: 'スキーマの頭', 'CR-851': 'CR-851', 'CR-848': 'CR-848', 'CR-849': 'CR-849' };
+const TAG_ORDER = ['ROOT', 'MSPDI', 'CARRY', 'GRS', 'BOX', 'VIEW', 'STAMP', 'TYPE', 'API', 'CR-851', 'CR-848', 'CR-849', 'SPEC'];
+const byId = new Map();
+TABLES.forEach(t => t.rows.forEach(r => { r.table = t.key; byId.set(r.id, r); }));
+
+function el(tag, attrs, text) {
+  const e = document.createElement(tag);
+  if (attrs) for (const k in attrs) { if (k === 'class') e.className = attrs[k]; else e.setAttribute(k, attrs[k]); }
+  if (text !== undefined) e.textContent = text;
+  return e;
+}
+
+function statusOf(row) {
+  const s = state.reviews.get(row.id);
+  if (!s) return { ok: false, changed: false, comment: '' };
+  const fresh = s.rowHash === row.hash;
+  return { ok: !!s.ok && fresh, changed: !fresh && (!!s.ok || !!(s.comment || '').trim()), comment: s.comment || '' };
+}
+
+function tabCounts(t) {
+  let ok = 0, comment = 0;
+  t.rows.forEach(r => { const s = statusOf(r); if (s.ok) ok++; if (s.comment.trim()) comment++; });
+  return { ok, comment, total: t.rows.length };
+}
+
+function renderTabs() {
+  const box = document.getElementById('tabs');
+  box.textContent = '';
+  VIEWS.forEach(t => {
+    const c = tabCounts(t);
+    const b = el('button', { class: 'tab', type: 'button', role: 'tab', id: 'tab-' + t.key, 'aria-selected': String(state.tab === t.key) });
+    b.append(el('span', null, t.name));
+    if (!t.erd) b.append(el('span', { class: 'count' }, t.pending ? '起草中' : c.ok + ' / ' + c.total));
+    b.addEventListener('click', () => { state.scroll[state.tab] = window.scrollY; state.tab = t.key; renderAll(); window.scrollTo(0, state.scroll[t.key] || 0); });
+    box.append(b);
+  });
+}
+
+function renderProgress() {
+  const t = VIEWS.find(x => x.key === state.tab);
+  const p = document.getElementById('progress');
+  const isErd = !!t.erd;
+  document.getElementById('hideold-box').hidden = isErd;
+  renderChecks(t, isErd);
+  if (isErd) document.getElementById('toc').hidden = true;
+  document.getElementById('search').hidden = isErd;
+  if (isErd) { p.textContent = ''; return; }
+  const c = tabCounts(t);
+  p.textContent = 'OK ' + c.ok + ' / ' + c.total + '　コメント ' + c.comment;
+  const m = el('span', { class: 'meter', 'aria-hidden': 'true' });
+  const bar = el('i');
+  bar.style.width = (c.total ? Math.round(100 * c.ok / c.total) : 0) + '%';
+  m.append(bar);
+  p.append(m);
+}
+
+// Check groups (JDG-3347): state, category and section. Inside a group a row passes if any
+// checked item fits it; across groups it must pass every group. "すべて" clears the group.
+const STATUS_ITEMS = [['ok', 'OK 済み'], ['todo', 'まだ OK でない'], ['comment', 'コメントあり'], ['changed', '変わった行']];
+function statusFits(key, s) {
+  return key === 'ok' ? s.ok : key === 'todo' ? !s.ok : key === 'comment' ? !!s.comment.trim() : s.changed;
+}
+function checkGroup(title, items, set, total) {
+  const g = el('fieldset', { class: 'checkgroup' });
+  g.append(el('legend', null, title));
+  const add = (key, text, on, toggle) => {
+    const lab = el('label', { class: 'check' });
+    const box = el('input', { type: 'checkbox' });
+    box.checked = on;
+    box.addEventListener('change', toggle);
+    lab.append(box, ' ' + text);
+    g.append(lab);
+  };
+  add('', 'すべて' + (total === undefined ? '' : ' ' + total), set.size === 0, () => { set.clear(); saveView(); renderAll(); });
+  items.forEach(([key, text]) => add(key, text, set.has(key), () => {
+    if (set.has(key)) set.delete(key); else set.add(key);
+    if (set.size === items.length) set.clear();
+    saveView(); renderAll();
+  }));
+  return g;
+}
+function renderChecks(t, isErd) {
+  const box = document.getElementById('checks');
+  box.textContent = '';
+  box.hidden = isErd;
+  if (isErd) return;
+  const counts = { ok: 0, todo: 0, comment: 0, changed: 0 };
+  t.rows.forEach(r => { const s = statusOf(r); STATUS_ITEMS.forEach(([k]) => { if (statusFits(k, s)) counts[k]++; }); });
+  box.append(checkGroup('状態', STATUS_ITEMS.map(([k, n]) => [k, n + ' ' + counts[k]]), state.status, t.rows.length));
+  const tagCount = new Map();
+  t.rows.forEach(r => tagCount.set(r.tag, (tagCount.get(r.tag) || 0) + 1));
+  [...state.tags].forEach(k => { if (!tagCount.has(k)) state.tags.delete(k); });
+  if (tagCount.size > 1) {
+    const order = TAG_ORDER.concat([...tagCount.keys()].filter(k => !TAG_ORDER.includes(k))).filter(k => tagCount.has(k));
+    box.append(checkGroup('分類', order.map(k => [k, (TAG_NAME[k] || k) + ' ' + tagCount.get(k)]), state.tags, t.rows.length));
+  }
+  const secCount = new Map();
+  t.rows.forEach(r => { if (r.section) secCount.set(r.section, (secCount.get(r.section) || 0) + 1); });
+  const secs = secsOf(t.key);
+  [...secs].forEach(k => { if (!secCount.has(k)) secs.delete(k); });
+  if (secCount.size > 1) {
+    // Many sections: folded by default so the bar stays short; it stays open once opened.
+    const d = el('details', { class: 'secfold' });
+    d.open = !!state.secOpen;
+    d.addEventListener('toggle', () => { state.secOpen = d.open; });
+    d.append(el('summary', null, '段で絞る（' + (secs.size ? secs.size + ' 段を選択' : 'すべて') + '）'));
+    d.append(checkGroup('段', [...secCount.keys()].map(k => [k, k + ' ' + secCount.get(k)]), secs, t.rows.length));
+    box.append(d);
+  }
+}
+
+function matches(row) {
+  const s = statusOf(row);
+  if (state.status.size && ![...state.status].some(k => statusFits(k, s))) return false;
+  if (state.tags.size && !state.tags.has(row.tag)) return false;
+  const secs = secsOf(row.table);
+  if (secs.size && !secs.has(row.section)) return false;
+  if (state.query) {
+    const q = state.query.toLowerCase();
+    const hay = (row.label + ' ' + row.old + ' ' + row.new + ' ' + row.why + ' ' + row.extra + ' ' + row.chip).toLowerCase();
+    if (!hay.includes(q)) return false;
+  }
+  return true;
+}
+
+// JSON highlighting: strings (a string followed by ':' is a key), numbers, literals, punctuation.
+// A line that is not JSON (for example "(プロパティを書かない)") is shown as a plain note.
+const TOKEN = /("(?:[^"\\]|\\.)*")(\s*:)?|(-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?)|\b(true|false|null)\b|([{}\[\],:])/g;
+// The tokens (keys and values) of the other example; a token missing there is marked j-diff.
+function tokensOf(text) {
+  const out = new Set();
+  if (!text || text === '-') return out;
+  let m;
+  TOKEN.lastIndex = 0;
+  while ((m = TOKEN.exec(text))) { const v = m[1] || m[3] || m[4]; if (v) out.add(v); }
+  return out;
+}
+function mark(cls, text, other) {
+  return el('span', { class: cls + (other && other.size && !other.has(text) ? ' j-diff' : '') }, text);
+}
+function highlight(pre, text, other) {
+  text.split('\n').forEach((line, i) => {
+    if (i) pre.append('\n');
+    const t = line.trim();
+    if (!t || !/^[\[{"\-0-9tfn]/.test(t)) { pre.append(el('span', { class: 'j-note' }, line)); return; }
+    let last = 0, m;
+    TOKEN.lastIndex = 0;
+    while ((m = TOKEN.exec(line))) {
+      if (m.index > last) pre.append(line.slice(last, m.index));
+      if (m[1]) { pre.append(mark(m[2] ? 'j-key' : 'j-str', m[1], other)); if (m[2]) pre.append(el('span', { class: 'j-punc' }, m[2])); }
+      else if (m[3]) pre.append(mark('j-num', m[3], other));
+      else if (m[4]) pre.append(mark('j-lit', m[4], other));
+      else pre.append(el('span', { class: 'j-punc' }, m[5]));
+      last = TOKEN.lastIndex;
+    }
+    if (last < line.length) pre.append(line.slice(last));
+  });
+}
+function block(kind, title, text, isExample, otherText) {
+  const b = el('div', { class: 'side ' + kind });
+  b.append(el('h3', null, title));
+  const pre = el('pre');
+  if (isExample) highlight(pre, text, tokensOf(otherText)); else pre.textContent = text;
+  b.append(pre);
+  return b;
+}
+
+function card(row) {
+  const s = statusOf(row);
+  const c = el('article', { class: 'row', id: 'row-' + row.id });
+  const head = el('div', { class: 'head' });
+  head.append(el('span', { class: 'rid' }, row.label));
+  if (row.tag) head.append(el('span', { class: 'tag tag-' + row.tag }, TAG_NAME[row.tag] || row.tag));
+  if (row.chip) head.append(el('span', { class: 'chip' }, row.chip));
+  row.jdg.forEach(j => head.append(el('span', { class: 'chip jdg' }, j)));
+  const st = el('span', { class: 'chip', 'data-role': 'state', hidden: '' });
+  head.append(st);
+  c.append(head);
+  const stack = el('div', { class: 'stack' });
+  if (!state.hideOld) {
+    stack.append(block('old', '現状', row.old, false));
+    stack.append(block('old example', '現状の例', row.exOld || '-', true, row.exNew));
+  }
+  stack.append(block('new', '提案', row.new, false));
+  stack.append(block('new example', '提案の例', row.exNew || '-', true, row.exOld));
+  c.append(stack);
+  if (row.why) c.append(el('p', { class: 'why' }, '理由: ' + row.why));
+  if (row.extra) c.append(el('p', { class: 'extra' }, row.extra));
+  const act = el('div', { class: 'act' });
+  const ok = el('button', { class: 'okbtn', type: 'button', id: 'ok-' + row.id, 'aria-pressed': String(s.ok) }, s.ok ? 'OK 済み' : 'OK にする');
+  const ta = el('textarea', { id: 'c-' + row.id, rows: '1', placeholder: 'コメント（直してほしい所・問い）', 'aria-label': row.label + ' のコメント' });
+  ta.value = s.comment;
+  const saved = el('span', { class: 'saved', 'data-role': 'saved' });
+  ok.addEventListener('click', () => save(row, { ok: ok.getAttribute('aria-pressed') !== 'true' }, saved));
+  let timer = 0;
+  ta.addEventListener('input', () => { clearTimeout(timer); timer = setTimeout(() => save(row, { comment: ta.value }, saved), 1200); });
+  ta.addEventListener('blur', () => { clearTimeout(timer); save(row, { comment: ta.value }, saved); });
+  act.append(ok, ta, saved);
+  c.append(act);
+  applyState(c, row);
+  return c;
+}
+
+function applyState(c, row) {
+  const s = statusOf(row);
+  c.classList.toggle('is-ok', s.ok);
+  c.classList.toggle('is-changed', s.changed);
+  const st = c.querySelector('[data-role="state"]');
+  if (s.ok) { st.hidden = false; st.className = 'chip state-ok'; st.textContent = 'OK'; }
+  else if (s.changed) { st.hidden = false; st.className = 'chip state-changed'; st.textContent = '変わった（読み直し）'; }
+  else { st.hidden = true; }
+  const ok = c.querySelector('.okbtn');
+  ok.setAttribute('aria-pressed', String(s.ok));
+  ok.textContent = s.ok ? 'OK 済み' : 'OK にする';
+  const ta = c.querySelector('textarea');
+  if (document.activeElement !== ta && ta.value !== s.comment) ta.value = s.comment;
+  const can = !!state.db;
+  ok.disabled = !can; ta.disabled = !can;
+}
+
+function renderList() {
+  const list = document.getElementById('list');
+  list.textContent = '';
+  const t = VIEWS.find(x => x.key === state.tab);
+  if (t.api) { renderApi(list); return; }
+  if (t.erd) { renderErd(list); return; }
+  if (t.pending) { list.append(el('p', { class: 'empty' }, 'この表は起草中です。出来たらこのページに足して出し直します。')); return; }
+  const shown = t.rows.filter(matches);
+  if (!shown.length) { list.append(el('p', { class: 'empty' }, 'この絞り込みに当たる行はありません。')); return; }
+  const frag = document.createDocumentFragment();
+  const per = new Map();
+  shown.forEach(r => per.set(r.section, (per.get(r.section) || 0) + 1));
+  const toc = [];
+  let section = null;
+  shown.forEach(r => {
+    // A divider where the section changes, as the rows stand in the file (JDG-3325).
+    if (r.section && r.section !== section) {
+      const id = 'sec-' + toc.length;
+      const d = el('div', { class: 'divider', role: 'separator', id });
+      d.append(el('span', null, r.section), el('span', { class: 'n' }, per.get(r.section) + ' 行'));
+      frag.append(d);
+      toc.push({ id, name: r.section, rowsShown: per.get(r.section) });
+    }
+    section = r.section;
+    frag.append(card(r));
+  });
+  renderToc(toc);
+  list.append(frag);
+}
+
+// Contents (JDG-3326): one link per divider of the rows now shown; a click jumps below the sticky bar.
+function renderToc(entries) {
+  const box = document.getElementById('toc');
+  const list = document.getElementById('toclist');
+  list.textContent = '';
+  box.hidden = entries.length < 2;
+  document.getElementById('tocsum').textContent = '目次（' + entries.length + ' 段）';
+  entries.forEach((e, i) => {
+    const li = el('li');
+    li.append(el('span', { class: 'no' }, (i + 1) + '.'));
+    const a = el('a', { href: '#' + e.id }, e.name);
+    a.addEventListener('click', ev => {
+      ev.preventDefault();
+      // Close first: the open list makes the sticky bar taller.
+      box.open = false;
+      const bar = document.querySelector('.bar').getBoundingClientRect().height;
+      const top = document.getElementById(e.id).getBoundingClientRect().top + window.scrollY - bar - 8;
+      const smooth = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      window.scrollTo({ top: Math.max(0, top), behavior: smooth ? 'smooth' : 'auto' });
+    });
+    li.append(a, el('span', { class: 'n' }, e.rowsShown + ' 行'));
+    list.append(li);
+  });
+}
+
+function refreshStates() {
+  byId.forEach((row, id) => { const c = document.getElementById('row-' + id); if (c) applyState(c, row); });
+  renderTabs(); renderProgress();
+}
+
+// ---- ERD (beta shape) -------------------------------------------------
+const ERD_COLS = [20, 290, 590, 890];
+const ERD_W = 250, ERD_LINE = 18, ERD_HEAD = 44;
+const ERD = [
+  { k: 'Project', g: 'MSPDI', col: 0, path: 'schedule.project', lines: [['calendarUid', 'Calendar']] },
+  { k: 'Calendar', g: 'MSPDI', col: 0, path: 'schedule.calendars[]', lines: [['uid (PK)'], ['baseCalendarUid', 'Calendar'], ['weekDays[]', 'WeekDay', 'nest'], ['exceptions[]', 'Exception', 'nest']] },
+  { k: 'WeekDay', g: 'MSPDI', col: 0, path: 'Calendar.weekDays[]', lines: [['workingTimes[]', 'WorkingTime', 'nest']] },
+  { k: 'Exception', g: 'MSPDI', col: 0, path: 'Calendar.exceptions[]', lines: [['workingTimes[]', 'WorkingTime', 'nest']] },
+  { k: 'WorkingTime', g: 'MSPDI', col: 0, path: '….workingTimes[]', lines: [['fromTime / toTime']] },
+  { k: 'Task', g: 'MSPDI', col: 1, path: 'schedule.tasks[]', lines: [['uid (PK)'], ['parentTaskUid', 'Task'], ['calendarUid', 'Calendar'], ['dependencies[]', 'Dependency', 'nest']] },
+  { k: 'Dependency', g: 'MSPDI', col: 1, path: 'Task.dependencies[]', lines: [['predecessorUid', 'Task']] },
+  { k: 'Resource', g: 'MSPDI', col: 1, path: 'schedule.resources[]', lines: [['uid (PK)'], ['calendarUid', 'Calendar']] },
+  { k: 'Assignment', g: 'MSPDI', col: 1, path: 'schedule.assignments[]', lines: [['uid (PK)'], ['taskUid', 'Task'], ['resourceUid', 'Resource']] },
+  { k: 'PassthroughElement', g: 'MSPDI', col: 1, path: '….passthroughElements[]', lines: [['MS Project の要素の素通し']] },
+  { k: 'TaskGroup', g: 'GRS', col: 2, path: 'schedule.taskGroups[]', lines: [['id (PK)'], ['parentId', 'TaskGroup'], ['representedTaskUid', 'Task']] },
+  { k: 'TaskGroupMember', g: 'GRS', col: 2, path: 'schedule.taskGroupMembers[]', lines: [['taskUid (PK)', 'Task'], ['taskGroupId', 'TaskGroup']] },
+  { k: 'TaskVisual', g: 'GRS', col: 2, path: 'schedule.taskVisuals[]', lines: [['taskUid (PK)', 'Task']] },
+  { k: 'TaskOrigin', g: 'GRS', col: 2, path: 'schedule.taskOrigins[]', lines: [['taskUid (PK)', 'Task']] },
+  { k: 'CommentBox', g: 'GRS', col: 2, path: 'schedule.commentBoxes[]', lines: [['id (PK)'], ['anchor.taskUid', 'Task'], ['anchor.highlightBoxId', 'HighlightBox'], ['anchor.taskGroupId', 'TaskGroup']] },
+  { k: 'HighlightBox', g: 'GRS', col: 2, path: 'schedule.highlightBoxes[]', lines: [['id (PK)'], ['topTaskGroupId', 'TaskGroup'], ['bottomTaskGroupId', 'TaskGroup']] },
+  { k: 'BaselineTask', g: 'GRS', col: 2, path: 'schedule.baselineTasks[]', lines: [['uid（Task.uid と一致）', 'Task', 'match']] },
+  { k: '文書の頭', g: 'STAMP', col: 3, path: '最上段のプロパティ', lines: [['$schema'], ['schemaVersion'], ['buildVersion']] },
+  { k: 'DocumentStamp', g: 'STAMP', col: 3, path: 'documentStamp', lines: [['scheduleUpdatedAt'], ['documentUpdatedAt'], ['lastEditedBy']] },
+  { k: 'ChangeLogEntry', g: 'STAMP', col: 3, path: 'changeLogEntries[]', lines: [['ordinal (PK)'], ['editedBy']] },
+  { k: 'documentSettings', g: 'VIEW', col: 3, path: 'documentSettings', lines: [['pinnedTaskGroupIds[]', 'TaskGroup'], ['scrollPosition.taskGroupId', 'TaskGroup'], ['tableViews.*.columnFilters[]', 'ColumnFilter', 'nest'], ['tableViews.*.sort', 'ColumnSort', 'nest']] },
+  { k: 'ColumnFilter', g: 'VIEW', col: 3, path: '….columnFilters[]', lines: [['column（列のプロパティ）']] },
+  { k: 'ColumnSort', g: 'VIEW', col: 3, path: '….sort', lines: [['column / direction']] }
+];
+const ERD_BANDS = [
+  { g: 'MSPDI', x: ERD_COLS[0], w: ERD_COLS[1] + ERD_W - ERD_COLS[0], text: 'MSPDI 由来（MS Project と往復する）' },
+  { g: 'GRS', x: ERD_COLS[2], w: ERD_W, text: 'GRS 独自（日程の見せ方と注記）' },
+  { g: 'STAMP', x: ERD_COLS[3], w: ERD_W, text: '刻印・履歴 ／ 画面設定' }
+];
+const GROUP_NOTE = [
+  ['MSPDI', 'MS Project の XML（MSPDI）と往復する実体。名と符号は MSPDI のまま（JDG-3280）。実体の中に MSPDI に無い GRS の欄もある（例 Task.parentTaskUid、フェード）—— 行のタグは欄ごとに付けた。'],
+  ['GRS', 'MS Project に無い、GRS だけの日程データ（タスクグループ・見せ方・注記・取り込みの記録・変更前の予定）。MSPDI へは書き出さない。'],
+  ['VIEW', '文書を開いたときの画面の状態（表示の倍率・ズーム・スクロール位置・表の絞り込みと並べ替え）。'],
+  ['STAMP', '形式の版・書いた造りの版・いつ誰が書いたか・変更の記録。'],
+  ['TYPE', 'ほかの欄が使う共通の型（色・日時・日付・UTC の差・書き手など）。図には描かず、行のタグで示す。']
+];
+function svgEl(tag, attrs, text) {
+  const e = document.createElementNS('http://www.w3.org/2000/svg', tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  if (text !== undefined) e.textContent = text;
+  return e;
+}
+function renderErd(list) {
+  list.append(el('p', { class: 'erd-intro' }, 'β の GRS JSON の実体と、そのあいだの参照です。箱の色が群です。箱にポインタを乗せる（触れる）と、その箱とつながる線と箱だけが濃くなります。実線は ID による参照、点線は入れ子（配列の中）、破線は値の一致（参照ではない）。'));
+  const legend = el('div', { class: 'legend' });
+  GROUP_NOTE.forEach(([g, note]) => { const s = el('span'); s.append(el('span', { class: 'tag tag-' + g }, TAG_NAME[g]), note); legend.append(s); });
+  list.append(legend);
+  const pos = {};
+  const colY = [56, 56, 56, 56];
+  ERD.forEach(b => {
+    const h = ERD_HEAD + b.lines.length * ERD_LINE + 8;
+    pos[b.k] = { x: ERD_COLS[b.col], y: colY[b.col], h, b };
+    colY[b.col] += h + 16;
+  });
+  const W = ERD_COLS[3] + ERD_W + 20, H = Math.max(...colY) + 8;
+  const svg = svgEl('svg', { viewBox: '0 0 ' + W + ' ' + H, width: W, height: H, role: 'img', 'aria-label': 'β の GRS JSON の実体関連図' });
+  ERD_BANDS.forEach(band => {
+    const g = svgEl('g', { class: 'erd-band' });
+    g.append(svgEl('rect', { x: band.x - 8, y: 8, width: band.w + 16, height: H - 16, rx: 10, fill: 'var(--g-' + band.g.toLowerCase() + '-soft)', opacity: '0.45' }));
+    g.append(svgEl('text', { x: band.x, y: 36, fill: 'var(--g-' + band.g.toLowerCase() + ')' }, band.text));
+    svg.append(g);
+  });
+  const edges = [];
+  const edgeLayer = svgEl('g');
+  svg.append(edgeLayer);
+  ERD.forEach(b => b.lines.forEach((ln, i) => {
+    if (!ln[1] || !pos[ln[1]]) return;
+    const s = pos[b.k], t = pos[ln[1]];
+    const sy = s.y + ERD_HEAD + i * ERD_LINE + 4;
+    const ty = t.y + 22;
+    let d;
+    if (b.k === ln[1]) {
+      const x = s.x + ERD_W;
+      d = 'M' + x + ' ' + sy + ' C' + (x + 46) + ' ' + sy + ',' + (x + 46) + ' ' + ty + ',' + x + ' ' + ty;
+    } else if (s.x === t.x) {
+      const x = s.x + ERD_W;
+      d = 'M' + x + ' ' + sy + ' C' + (x + 34) + ' ' + sy + ',' + (x + 34) + ' ' + ty + ',' + x + ' ' + ty;
+    } else {
+      const right = t.x > s.x;
+      const sx = right ? s.x + ERD_W : s.x, tx = right ? t.x : t.x + ERD_W;
+      const dx = Math.max(40, Math.abs(tx - sx) / 2) * (right ? 1 : -1);
+      d = 'M' + sx + ' ' + sy + ' C' + (sx + dx) + ' ' + sy + ',' + (tx - dx) + ' ' + ty + ',' + tx + ' ' + ty;
+    }
+    const kind = ln[2] || 'ref';
+    const p = svgEl('path', { d, class: 'erd-edge' + (kind === 'ref' ? '' : ' ' + kind) });
+    p.dataset.a = b.k; p.dataset.b = ln[1];
+    edgeLayer.append(p);
+    edges.push({ from: b.k, col: ln[0], to: ln[1], kind });
+  }));
+  ERD.forEach(b => {
+    const p = pos[b.k];
+    const g = svgEl('g', { class: 'erd-box', tabindex: '0' });
+    g.dataset.k = b.k;
+    const gc = b.g.toLowerCase();
+    g.append(svgEl('rect', { class: 'body', x: p.x, y: p.y, width: ERD_W, height: p.h, rx: 7, fill: 'var(--sheet)', stroke: 'var(--g-' + gc + ')' }));
+    g.append(svgEl('rect', { x: p.x, y: p.y, width: ERD_W, height: ERD_HEAD - 6, rx: 7, fill: 'var(--g-' + gc + '-soft)' }));
+    g.append(svgEl('text', { class: 'title', x: p.x + 10, y: p.y + 19 }, b.k));
+    g.append(svgEl('text', { class: 'path', x: p.x + 10, y: p.y + 33 }, b.path));
+    b.lines.forEach((ln, i) => g.append(svgEl('text', { x: p.x + 10, y: p.y + ERD_HEAD + 8 + i * ERD_LINE }, (ln[1] && ln[2] !== 'nest' ? '→ ' : ln[2] === 'nest' ? '▸ ' : '  ') + ln[0])));
+    const focus = on => {
+      svg.classList.toggle('focus', on);
+      svg.querySelectorAll('.on').forEach(x => x.classList.remove('on'));
+      if (!on) return;
+      g.classList.add('on');
+      edgeLayer.querySelectorAll('path').forEach(e => {
+        if (e.dataset.a === b.k || e.dataset.b === b.k) {
+          e.classList.add('on');
+          const other = e.dataset.a === b.k ? e.dataset.b : e.dataset.a;
+          const ob = svg.querySelector('.erd-box[data-k="' + other + '"]'); if (ob) ob.classList.add('on');
+        }
+      });
+    };
+    g.addEventListener('mouseenter', () => focus(true));
+    g.addEventListener('mouseleave', () => focus(false));
+    g.addEventListener('focus', () => focus(true));
+    g.addEventListener('blur', () => focus(false));
+    svg.append(g);
+  });
+  const sc = el('div', { class: 'erd-scroll' }); sc.append(svg); list.append(sc);
+  list.append(el('h2', { class: 'why' }, '参照の一覧'));
+  const ul = el('ul', { class: 'erd-list' });
+  const kindName = { ref: '参照', nest: '入れ子', match: '値の一致' };
+  edges.forEach(e => ul.append(el('li', null, e.from + '.' + e.col + ' → ' + e.to + '（' + kindName[e.kind] + '）')));
+  list.append(ul);
+}
+
+// ---- Agent API overview (JDG-3345) ---------------------------------------
+// The data is generated from agent-api-members.json and the tables of this study; a chip
+// opens the row it stands for in its own tab.
+const KIND_NAME = { added: '足す', retired: '廃止', 'edit-fold': 'まとめる', 'named-kept': 'そのまま', 'named-renamed': '改名' };
+function jumpTo(tabKey, rowId) {
+  state.scroll[state.tab] = window.scrollY;
+  // Show every row of the target tab, so the row jumped to is on the list.
+  state.tab = tabKey; state.query = ''; state.status.clear(); state.tags.clear(); secsOf(tabKey).clear();
+  saveView();
+  document.getElementById('search').value = '';
+  renderAll();
+  // setTimeout, not requestAnimationFrame: a hidden pane never paints.
+  setTimeout(() => {
+    const c = document.getElementById('row-' + rowId); if (!c) return;
+    const bar = document.querySelector('.bar').getBoundingClientRect().height;
+    window.scrollTo(0, Math.max(0, c.getBoundingClientRect().top + window.scrollY - bar - 8));
+    c.classList.add('flash'); setTimeout(() => c.classList.remove('flash'), 1600);
+  }, 0);
+}
+function apiChip(text, rowId, tabKey, title) {
+  const b = el('button', { class: 'api-chip', type: 'button' }, text);
+  if (title) b.title = title;
+  if (rowId) b.addEventListener('click', () => jumpTo(tabKey, rowId)); else b.disabled = true;
+  return b;
+}
+function renderApi(list) {
+  list.append(el('p', { class: 'erd-intro' }, 'AI が GRS の文書を読み書きする道筋です。AI は取次（GRS Relay、MCP のサーバー）の道具を呼び、取次は開いているページの Agent API のメンバーへ渡します。印の付いた札を押すと、その行のタブへ飛びます。'));
+  const flow = el('ol', { class: 'api-flow' });
+  [['AI', 'MCP のクライアント（Claude など）'],
+   ['GRS Relay', '取次。MCP の道具 ' + API.members.length + '。道具の名はメンバーの名と同じ（CR-846 で変わりうる）'],
+   ['Agent API', '開いているページの入口。メンバー ' + API.members.length],
+   ['文書', 'ページだけが持つ GRS JSON。取次は写しを持たない']].forEach(([h, p]) => {
+    const li = el('li'); li.append(el('b', null, h), el('span', null, p)); flow.append(li);
+  });
+  list.append(flow);
+
+  list.append(el('h2', { class: 'api-h' }, 'Agent API のメンバー'));
+  list.append(el('p', { class: 'extra' }, 'メンバーの名と引数は今の仕様書のもの。「CR-851」の札は、CR-851 で名・引数・答えが変わるメンバー（押すと仕様の文のタブのその行へ）。「MCP だけの鍵」は、取次の道具にだけある引数を持つメンバー。'));
+  const grid = el('div', { class: 'api-grid' });
+  API.groups.forEach(g => {
+    const box = el('section', { class: 'api-box' });
+    const ms = API.members.filter(m => m.group === g);
+    box.append(el('h3', null, g + '（' + ms.length + '）'));
+    ms.forEach(m => {
+      const line = el('div', { class: 'api-member' });
+      line.append(el('code', null, m.name + (m.kind === 'method' ? '(' + m.args.join(', ') + ')' : '')));
+      if (m.rows.length) line.append(apiChip('CR-851 ' + m.rows.length, m.rows[0], 'spec', m.id + ' の変わる行 ' + m.rows.length));
+      if (m.mcpOnly) line.append(el('span', { class: 'chip' }, 'MCP だけの鍵'));
+      box.append(line);
+    });
+    grid.append(box);
+  });
+  list.append(grid);
+
+  list.append(el('h2', { class: 'api-h' }, 'applyCommands の命令（相手ごと）'));
+  list.append(el('p', { class: 'extra' }, 'applyCommands は命令をまとめて受け、全部を当てるか、全部を断る。札は β の命令の名と、それに当たる行の数（押すとコマンドのタブのその行へ）。「まとめる」は、今の小さな命令をいくつか 1 つの命令にまとめた行。'));
+  const cg = el('div', { class: 'api-grid' });
+  API.entities.forEach(e => {
+    const box = el('section', { class: 'api-box' });
+    const n = e.commands.reduce((s, c) => s + c.rows.length, 0);
+    box.append(el('h3', null, e.entity + '（' + n + ' 行）'));
+    e.commands.forEach(c => {
+      const line = el('div', { class: 'api-member' });
+      line.append(apiChip(c.name + ' ' + c.rows.length, c.rows[0], 'cmd'));
+      line.append(el('span', { class: 'api-kinds' }, c.kinds.map(k => KIND_NAME[k] || k).join('・')));
+      box.append(line);
+    });
+    cg.append(box);
+  });
+  list.append(cg);
+
+  list.append(el('h2', { class: 'api-h' }, '書くときの印（stamp）'));
+  const steps = el('ol', { class: 'api-steps' });
+  ['readStamp で、今の文書の印を読む。',
+   'applyCommands に、読んだ印を expectedStamp として添えて渡す。',
+   '印が今の文書と同じなら、命令を全部当てる。違えば（人や別の AI が先に書いた）、何も当てずに staleStamp で断り、今の印を返す。',
+   '断られたら、要るものを読み直して、新しい印で出し直す。'].forEach(s => steps.append(el('li', null, s)));
+  list.append(steps);
+
+  list.append(el('h2', { class: 'api-h' }, '拒否の理由（段ごと）'));
+  const rg = el('div', { class: 'api-member api-wrap' });
+  API.refusals.forEach(s => rg.append(apiChip(s.section + ' ' + s.rows.length, s.rows[0], 'ref')));
+  list.append(rg);
+}
+
+function renderAll() { renderTabs(); renderProgress(); renderList(); }
+
+function notice(text) { const n = document.getElementById('notice'); n.textContent = text; n.hidden = !text; }
+
+async function save(row, patch, savedEl) {
+  if (!state.db) return;
+  const prev = state.reviews.get(row.id) || {};
+  const fresh = prev.rowHash === row.hash;
+  const next = {
+    table: row.table, label: row.label,
+    ok: 'ok' in patch ? patch.ok : (fresh ? !!prev.ok : false),
+    comment: 'comment' in patch ? patch.comment : (prev.comment || ''),
+    rowHash: row.hash, updatedAt: new Date().toISOString()
+  };
+  if (fresh && next.ok === !!prev.ok && next.comment === (prev.comment || '')) return;
+  const chain = (state.writing.get(row.id) || Promise.resolve()).then(async () => {
+    savedEl.textContent = '保存中…';
+    try { await state.db.collection('reviews').doc(row.id).set(next); savedEl.textContent = '保存しました'; }
+    catch (e) { savedEl.textContent = '保存できませんでした（' + ((e && e.code) || '不明') + '）。もう一度押してください'; }
+  });
+  state.writing.set(row.id, chain);
+  state.reviews.set(row.id, next);
+  const c = document.getElementById('row-' + row.id); if (c) applyState(c, row);
+  renderTabs(); renderProgress();
+  await chain;
+}
+
+loadView();
+const hideOld = document.getElementById('hideold');
+hideOld.checked = state.hideOld;
+hideOld.addEventListener('change', () => { state.hideOld = hideOld.checked; saveView(); renderList(); });
+let qTimer = 0;
+document.getElementById('search').addEventListener('input', e => { clearTimeout(qTimer); qTimer = setTimeout(() => { state.query = e.target.value.trim(); renderAll(); }, 200); });
+
+renderAll();
+notice('保存の準備をしています。OK とコメントは、つながってから押せます。');
+
+(async () => {
+  let db = null;
+  try { db = await window.claude?.use?.('db'); } catch (e) { db = null; }
+  if (!db) { notice('この開き方では OK とコメントを保存できません。claude.ai にサインインした状態で、このページを開いてください。'); refreshStates(); return; }
+  state.db = db;
+  notice('');
+  db.collection('reviews').onSnapshot(snap => {
+    state.reviews = new Map(snap.docs.map(d => [d.id, d.data()]));
+    refreshStates();
+  }, err => { notice('保存した OK とコメントを読めなくなりました（' + ((err && err.code) || '不明') + '）。ページを開き直してください。'); });
+  refreshStates();
+})();
+</script>

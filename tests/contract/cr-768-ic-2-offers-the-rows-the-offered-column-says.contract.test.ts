@@ -122,8 +122,9 @@ describe(`SX-2 "${SX_2_KEEPS_THE_TARGET}" -- every offered row but IO-2 is an ex
     expect(built.browser.saveQuestions(), `${row}: SK-11 asked again`).toBe(questionsBefore + 1)
   })
 
-  it('every row of the table is either offered or one of IO-8, IO-9, IO-5 and IO-6, so no row falls between SX-1/SX-2 and the rest', () => {
+  // WHY: CR-827 added IO-10 (the schema, written through IC-115), which T-024 marks as not offered.
+  it('every row of the table is either offered or one of IO-8, IO-9, IO-10, IO-5 and IO-6, so no row falls between SX-1/SX-2 and the rest', () => {
     const others = formatRows().filter((one) => one.offered !== '出す').map((one) => one.id)
-    expect([...others].sort()).toEqual(['IO-5', 'IO-6', 'IO-8', 'IO-9'])
+    expect([...others].sort()).toEqual(['IO-10', 'IO-5', 'IO-6', 'IO-8', 'IO-9'])
   })
 })

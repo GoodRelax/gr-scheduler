@@ -10,7 +10,7 @@ import type { SettingsLimits } from '../../src/use-case/edit-document/edit-docum
 import { REQUIREMENTS, commandsOf, documentOf, fieldOf, panelOf, recordOf, taskItem, taskOf } from './cr-606-stage'
 
 // see FR-158, TX-3
-const TX_3_ROW = '| TX-3 | プロパティパネルの日時の欄（`FR-006` の 表 T-016 の `PR-3` ほか） | 日付の欄 | 日付と時刻の欄 |'
+const TX_3_ROW = '| TX-3 | プロパティパネルの日時の欄（`FR-006` の 表 T-016 の `PR-3` ほか）と、文書の設定の面の基準日の欄（`FR-072` の 表 T-369 の `FO-8`、`FR-046`） | 日付の欄 | 日付と時刻の欄 |'
 const FR_158_STATEMENT =
   '作成者が文書の設定の面で「時刻を表示する」（`_assets/tbl-settings.md` の 表 T-202 の `S-576`）を切り替えたとき、`GRS` は、日時を見せるすべての所を 表 T-375 の形で見せること。'
 

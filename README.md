@@ -14,8 +14,8 @@ Single-HTML-file Gantt chart scheduler with plan vs. actual, delay diagnostics, 
 
 ## Status: alpha
 
-- Version `2026.1019.22508`, tag `Alpha-20261019T022508Z` (2026-10-19).
-- What this version holds, its known limits and how to install it: see [the release notes](docs/release-notes/Alpha-20261019T022508Z.md) and [GitHub Releases](https://github.com/GoodRelax/gr-scheduler/releases).
+- Version `20261031T105821Z`, tag `Alpha-20261031T105821Z` (2026-10-31).
+- What this version holds, its known limits and how to install it: see [the release notes](docs/release-notes/Alpha-20261031T105821Z.md) and [GitHub Releases](https://github.com/GoodRelax/gr-scheduler/releases).
 - The open items are listed in [the handoff](docs/development-records/handoff.md) and the [change requests](change-request/).
 - During the alpha, the GRS JSON format can change from one version to the next, and a newer version may not open a file saved by an older one. Keep the `GRS.html` you used together with your files.
 

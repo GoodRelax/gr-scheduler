@@ -92,6 +92,7 @@ async function settle(): Promise<void> {
 export interface ExportStage {
   readonly loop: FrameLoop
   readonly written: ChosenFileWrite[]
+  readonly downloaded: { readonly fileName: string; readonly bytes: Uint8Array }[]
   readonly clipped: ClipboardContent[]
   press(input: HumanInput): Promise<void>
   take(entry: string): Promise<void>
@@ -139,6 +140,7 @@ export function exportStage(
     readScreenPartAt: () => drawnPart,
   } as unknown as ScreenSurface
   const written: ChosenFileWrite[] = []
+  const downloaded: { readonly fileName: string; readonly bytes: Uint8Array }[] = []
   const store = {
     readFileToOpen: () => new Promise<FileReading>(() => undefined),
     readOpenedFileState: async () => ({ kind: 'none' }),
@@ -147,6 +149,10 @@ export function exportStage(
     writeChosenFile: async (write: ChosenFileWrite) => {
       written.push(write)
       return { ok: true, openedFile: { kind: 'writable', fileName: write.suggestedFileName } }
+    },
+    // WHY: CR-827 -- IF-3 also hands a file to the browser's download without a chooser (IO-10, FR-068).
+    downloadFile: (fileName: string, bytes: Uint8Array) => {
+      downloaded.push({ fileName, bytes })
     },
   } as unknown as FileStore
   const clipped: ClipboardContent[] = []
@@ -189,6 +195,7 @@ export function exportStage(
   return {
     loop,
     written,
+    downloaded,
     clipped,
     press,
     take: (entry) => pressAt(partOf(surfaceOfEntry(entry), entry, null)),

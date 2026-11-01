@@ -5,7 +5,7 @@
 > 読んだ木: `b4af9080`。行番号・数は、すべてこの木で測った（13 節）。
 > ID の帯: 調整役から `CR-616` を受けた。台帳の行は `JDG-994` ・ `JDG-995` ・ `JDG-997` ・ `JDG-1008`（本書と同じ枝で書いた）。⭐ 本書は仕様の新しい識別子を 1 つも取らない —— `S-385` 〜 `S-390` の値と注を書き換える。
 > 当てる順: どの変更要求とも同じセルを書き換えない（6.3 節）。⭐ `CR-617`（レポート）より先でも後でもよい —— `CR-617` の凡例は本書の色を描くが、色の値を持たない（表 T-315 の行を指すだけ）。
-> 閉じるもの: `JDG-994` の前半（色）、`JDG-995`、`JDG-997` の問い 1、`JDG-1008`、`DFC-1480`。見本: `previous-project-result/28-delay-diagnostics/`。
+> 閉じるもの: `JDG-994` の前半（色）、`JDG-995`、`JDG-997` の問い 1、`JDG-1008`、`DFC-1480`。見本: `studies/28-delay-diagnostics/`。
 > ⛔ **覆すもの**: `JDG-474` の「桃色」（色を設定値の行に置くことは残る。台帳の状態は「覆された（一部）」にした）、`JDG-490` の色の部分（桃 `#f09199` ／ `#f4a7b9`、赤 `#d32f2f` ／ `#ff5c5c`、紫 `#7e57c2` ／ `#b39ddb`）。
 
 ---
@@ -160,7 +160,7 @@
       "ja": "—"
      },
      "note": {
-      "ja": "⭐ **黄の系統である** —— 遅れ（`S-326`）の仲間として黄に寄せ、見分けは記号の形（`!!` と `!`）に頼る（`JDG-1008`）。⚠️ `S-326` との色差は明 ΔE 33 ／ 暗 ΔE 13 —— 色では分けない（`FR-133` の「色だけに頼ってはならない」）。⛔ **テーマ色に追随させない。** ⭐ **利用者が触れる見本で選んだ値である**（`JDG-997`、`previous-project-result/28-delay-diagnostics/`）"
+      "ja": "⭐ **黄の系統である** —— 遅れ（`S-326`）の仲間として黄に寄せ、見分けは記号の形（`!!` と `!`）に頼る（`JDG-1008`）。⚠️ `S-326` との色差は明 ΔE 33 ／ 暗 ΔE 13 —— 色では分けない（`FR-133` の「色だけに頼ってはならない」）。⛔ **テーマ色に追随させない。** ⭐ **利用者が触れる見本で選んだ値である**（`JDG-997`、`studies/28-delay-diagnostics/`）"
      }
 ```
 
@@ -537,7 +537,7 @@
 # mono: FR-041 / CV-7 achromatic() = HSL lightness (max + min) / 2 / 255
 # dE: CIE76 in CIELAB (D65); CVD: Machado 2009 severity 1.0 matrices in linear RGB, then dE
 # bar dE: min over the 10 hues of dE(ground, S-157)
-# the same arithmetic runs live in previous-project-result/28-delay-diagnostics/delay-diagnostics-colour-sample.html
+# the same arithmetic runs live in studies/28-delay-diagnostics/delay-diagnostics-colour-sample.html
 #   (tables "いまの案の測った数"), and its numbers matched the Python run digit for digit
 grep -n "桃色" docs/spec/01-04-requirements.md            # 7 lines before (1068, 1070, 3517, 3536, 3538, 3546, 3547)
 grep -n "stroke=\"\${ink}\"" src/adapter/svg-renderer/schedule-task-figures.ts   # the edge is the symbol colour today

@@ -1,0 +1,75 @@
+id	element	type	text
+D228	/$defs/CommentBox/properties/strokeWidthPx	int 1..10, required	Width of the comment box border and leader line, in CSS pixels at displayScalePercent 100. It is scaled with displayScalePercent but not with zoom. GRS writes 1 when it places a box.
+D229	/$defs/CommentBox/properties/textColor	$ref Color, required	Color of the comment box text.
+D230	/$defs/CommentBox/properties/fontSizePx	int 8..24, required	Size of the comment box text, in CSS pixels at displayScalePercent 100. It is scaled with displayScalePercent but not with zoom. GRS writes 10 when it places a box.
+D231	/$defs/CommentBox/properties/hyperlinkAddress	str 1..512 (URL), optional; when the property is absent: no link	The URL that the comment box links to. Absent means no link.
+D232	/$defs/CommentBox/properties/hyperlink	str 1..512 (link title), optional; when the property is absent: no link title	The title of the comment box link. Absent means no title.
+D234	/$defs/CommentBoxAnchor	oneOf freePoint|task|highlightBox	Where the leader line of a comment box points; kind selects a free point, a task or a highlight box.
+D235	/$defs/CommentBoxAnchor/oneOf[*]/properties/kind	enum freePoint|task|highlightBox, required	freePoint: a place on the chart that is tied to nothing; task: one of eight points of a task figure; highlightBox: one of eight points of a highlight box.
+D236	/$defs/CommentBoxAnchor/oneOf[freePoint]/properties/dateTime	DateTime "YYYY-MM-DDTHH:MM:SS", required in freePoint; not held while snapped	The point in time where the tip stands on the time axis.
+D237	/$defs/CommentBoxAnchor/oneOf[freePoint]/properties/taskGroupId ; /$defs/AnchorFallback/properties/taskGroupId	uuid, required (freePoint and fallback)	The task group whose band holds the tip; in a fallback, the task group where the tip goes when its target is deleted.
+D238	/$defs/CommentBoxAnchor/oneOf[freePoint]/properties/bandFraction ; /$defs/AnchorFallback/properties/bandFraction	num 0..1, required	The height of the tip within that task group's band: 0 is the top edge, 1 the bottom edge.
+D239	/$defs/CommentBoxAnchor/oneOf[task]/properties/taskUid	int 0..2147483647, required in task	The uid of the task that the tip is snapped to.
+D240	/$defs/CommentBoxAnchor/oneOf[task]/properties/figure	enum plannedBar|actualBar|milestone, required in task	Which figure of the task the tip is snapped to: the plan bar, the actual bar or the milestone.
+D241	/$defs/CommentBoxAnchor/oneOf[task]/properties/point ; /$defs/CommentBoxAnchor/oneOf[highlightBox]/properties/point	enum 8 points, required in task and highlightBox	Which of the eight points of the target the tip is snapped to: the four corners and the middles of the four sides.
+D242	/$defs/CommentBoxAnchor/oneOf[task]/properties/fallback	$ref AnchorFallback, required	Where the tip goes when the task is deleted.
+D243	/$defs/CommentBoxAnchor/oneOf[highlightBox]/properties/highlightBoxId	uuid, required in highlightBox	The id of the highlight box that the tip is snapped to.
+D244	/$defs/CommentBoxAnchor/oneOf[highlightBox]/properties/fallback	$ref AnchorFallback, required	Where the tip goes when the highlight box is deleted.
+D245	/$defs/AnchorFallback	object {taskGroupId, bandFraction}	The task group and the height in its band where the tip goes when its target is deleted.
+D246	/$defs/HighlightBox	object	One highlight box. Encloses a range of dates and task groups.
+D247	/$defs/HighlightBox/properties/id	uuid (required)	The id of the highlight box.
+D248	/$defs/HighlightBox/properties/topTaskGroupId	uuid, required	The task group at the top edge of the box.
+D249	/$defs/HighlightBox/properties/bottomTaskGroupId	uuid, required	The task group at the bottom edge of the box.
+D250	/$defs/HighlightBox/properties/firstDay	Day, required	The first day that the box covers (included), as a day in the schedule data time zone (project.scheduleDataTimeZone).
+D251	/$defs/HighlightBox/properties/lastDay	Day, required	The last day that the box covers (included).
+D252	/$defs/HighlightBox/properties/cornerRadiusPx	num 0..24, required (0 = square)	Corner radius of the highlight box, in CSS pixels at displayScalePercent 100; 0 gives square corners. It is scaled with displayScalePercent but not with zoom. GRS writes 4 when it places a box.
+D253	/$defs/HighlightBox/properties/fillColor	$ref Color, required	Fill color of the highlight box; fillTransparencyPercent 100 draws no fill.
+D254	/$defs/HighlightBox/properties/fillTransparencyPercent	int 0..100, required (100 = invisible fill)	Transparency of the highlight box fill in percent: 0 is opaque, 100 draws no fill.
+D255	/$defs/HighlightBox/properties/strokeColor	$ref Color, optional; when the property is absent: no frame line	Frame color of the highlight box. Absent means no frame line is drawn.
+D256	/$defs/HighlightBox/properties/strokeWidthPx	int 1..10, required	Border width of the highlight box, in CSS pixels at displayScalePercent 100. It is scaled with displayScalePercent but not with zoom. GRS writes 1 when it places a box.
+D257	/$defs/DocumentStamp	object	When the document last changed and was saved, and who wrote it last.
+D258	/$defs/DocumentStamp/properties/scheduleUpdatedAt	UtcInstant "YYYY-MM-DDTHH:MM:SSZ" (required)	When the schedule data last changed. watchChanges looks only at this time.
+D259	/$defs/DocumentStamp/properties/documentUpdatedAt	UtcInstant (required)	When the document last changed, in the schedule data or in documentSettings.
+D260	/$defs/DocumentStamp/properties/fileSavedAt	UtcInstant, optional; when the property is absent: never written to a file	When the document was last written to its file, in UTC. Absent until it has been written once.
+D261	/$defs/DocumentStamp/properties/lastEditedBy	$ref Writer (required)	Who wrote the document last: {"kind":"user"} for a person on the screen, {"kind":"template"} for the shipped start-up template, {"kind":"agent","name":...} for an Agent API caller.
+D262	/$defs/Writer	oneOf {kind:user} | {kind:template} | {kind:agent,name}	Who wrote: a person on the screen, the shipped start-up template, or an Agent API caller.
+D263	/$defs/Writer/oneOf[*]/properties/kind	enum user|template|agent, required	user: a person on the screen; template: the shipped start-up template; agent: an Agent API caller.
+D264	/$defs/Writer/oneOf[agent]/properties/name	str 1..512, required	The name that the Agent API caller gave for itself.
+D265	/$defs/ChangeLogEntry	object	One note about a change made to the document: when, who, which part, what, why, and anything else. Only changedAt is required.
+D266	/$defs/ChangeLogEntry/properties/changedAt	UtcInstant (required)	When the change was made, in UTC. GRS fills in the time the entry is added; a person may change it.
+D267	/$defs/ChangeLogEntry/properties/changedBy	str 1..512, optional	Who made the change: the name a person typed, or the name an AI gave for itself.
+D268	/$defs/ChangeLogEntry/properties/affectedArea	str 1..512, optional	Which part of the document the change affected.
+D269	/$defs/ChangeLogEntry/properties/changeDescription	str 1..65535, optional	What was changed.
+D270	/$defs/ChangeLogEntry/properties/reason	str 1..65535, optional	Why the change was made.
+D271	/$defs/ChangeLogEntry/properties/note	str 1..65535, optional	Anything else about the change.
+D273	/$defs/PassthroughValues	map str->str<=65535, minProperties 1	Carried MSPDI values, keyed by their MSPDI names.
+D274	/$defs/PassthroughElement	object	One carried MSPDI element, kept whole and written back in its place.
+D275	/$defs/PassthroughElement/properties/ordinal	int (required)	The order of this element within its owner, used to write it back in its place.
+D276	/$defs/PassthroughElement/properties/name	str 1..512 (required)	The element name in the MSPDI file, spelled exactly as it came.
+D277	/$defs/PassthroughElement/properties/fields	map str->str<=65535 (>=1 entry), optional; when the property is absent: no leaves	The leaf values of the element, by their names.
+D278	/$defs/PassthroughElement/properties/children	PassthroughElement[], optional, minItems 1	The child elements nested in this element.
+D279	/$defs/Day	str ^\d{4}-\d{2}-\d{2}$	A date without a time of day, written YYYY-MM-DD. A range of days (firstDay and lastDay) includes both days. Each property that uses it says which time zone the day is in.
+D280	/$defs/DateTime	str ^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$	A wall-clock date-time in project.scheduleDataTimeZone, written YYYY-MM-DDTHH:MM:SS with no offset, as MSPDI writes it. GRS reads it to the minute: it ignores the seconds.
+D281	/$defs/Time	str ^\d{2}:\d{2}:\d{2}$	A time of day, as MSPDI writes it.
+D282	/$defs/UtcInstant	str ^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$	A point in time in UTC, written YYYY-MM-DDTHH:MM:SSZ.
+D283	/$defs/UtcOffset	enum 27 standard offsets UTC-12:00..UTC+13:00	A fixed offset from UTC, written like UTC+09:00. Daylight saving time is never applied.
+D284	/$defs/Color	oneOf theme|palette|custom (an absent color property means not drawn)	A color: theme uses the color that the theme gives this place, palette names a palette color, custom gives its own values for the light and the dark theme. Where a color may be omitted, an absent color means that fill or line is not drawn.
+D285	/$defs/Color/oneOf[*]/properties/kind	enum theme|palette|custom, required	theme: the color that the theme gives this place; palette: a named palette color; custom: its own values for the light and the dark theme.
+D286	/$defs/Color/oneOf[palette]/properties/name	enum paper|ink|dimGray|lightGray|red|blue|yellow|green|orange|purple, required	The palette color, by its stored name.
+D287	/$defs/Color/oneOf[custom]/properties/light	$ref ColorSide, optional; when the property is absent: GRS derives it on load	The color for the light theme; at least one of light and dark is present.
+D288	/$defs/Color/oneOf[custom]/properties/dark	$ref ColorSide, optional; when the property is absent: GRS derives it on load	The color for the dark theme; at least one of light and dark is present.
+D289	/$defs/ColorSide	object {value, source}	One side of a custom color: its value, and whether a person chose it or GRS derived it. One side may be omitted; GRS derives it from the other side when it opens the file.
+D290	/$defs/ColorSide/properties/value	str ^#[0-9a-f]{6}$, required	The color value for this theme.
+D291	/$defs/ColorSide/properties/source	enum chosen|derived, required	chosen: a person chose this value; derived: GRS made it from the other side when it loaded the document.
+D292	/$defs/BandColor	oneOf theme|palette (no ink)|custom	The color of a task group band: the same as Color, except that the palette color ink is not offered.
+D293	/$defs/ColumnFilter	oneOf {kind:values,column,hiddenValues?,isBlankHidden} | {kind:dateRange,column,firstDay?,lastDay?}	A filter on one column of a table: values hides rows by their shown value, dateRange hides rows whose date is outside a range of days.
+D294	/$defs/ColumnFilter/oneOf[*]/properties/kind	enum values|dateRange, required	values: hide rows by their shown value; dateRange: hide rows whose date is outside firstDay..lastDay.
+D295	/$defs/ColumnFilter/oneOf[*]/properties/column	$ref ColumnKey (required)	The column that the filter is on, by its stable column name.
+D296	/$defs/ColumnFilter/oneOf[values]/properties/hiddenValues	str[] (shown text, or stable status/type names) 1.., optional; when the property is absent: no value hidden	The values whose rows are hidden; a status or a type is given by its stable name, any other value by its shown text.
+D297	/$defs/ColumnFilter/oneOf[values]/properties/isBlankHidden	bool, required	Whether the rows with an empty cell in this column are hidden.
+D298	/$defs/ColumnFilter/oneOf[dateRange]/properties/firstDay	Day, optional; when the property is absent: no lower bound	The first day that is kept (included), as a day in the schedule data time zone (project.scheduleDataTimeZone).
+D299	/$defs/ColumnFilter/oneOf[dateRange]/properties/lastDay	Day, optional; when the property is absent: no upper bound	The last day that is kept (included).
+D300	/$defs/ColumnSort	object {column, direction}	How a table is sorted: by one column, in one direction.
+D301	/$defs/ColumnSort/properties/column	$ref ColumnKey (required)	The column that the table is sorted by, by its stable column name.
+D302	/$defs/ColumnSort/properties/direction	enum ascending|descending (required)	The direction of the sort.
+D303	/$defs/ColumnKey	enum of stable column names of T-331/T-347/T-371	The stable English name of a table column; each table takes only the names of its own columns.

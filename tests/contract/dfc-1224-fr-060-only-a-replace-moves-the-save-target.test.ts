@@ -452,17 +452,18 @@ describe(`FR-060 (MUST) -- ${KEEP_THE_TARGET_MUST}`, () => {
     expect(built.browser.saveQuestions()).toBe(1)
   })
 
-  it('⛔ after a DROP that merges, SK-11 writes the previous target', async () => {
+  // WHY: a dropped file opens as a replace without U-56 (OP-19), so the merge opens through the file dialog.
+  it('⛔ after a merge through the file dialog, SK-11 writes the previous target', async () => {
     const { built } = await stageWithTarget()
-    const theirs = built.file('theirs.json', jsonBytes(there()))
-    await built.drop(theirs)
-    expect(built.last().openModal, `OP-2: ${ONE_ENTRANCE} -- the drop raised no U-56`).not.toBeNull()
+    const theirs = built.file('theirs.xml', UTF8.encode(mspdiFromDocument(there(), LAST_SAVED_AT).text))
+    await built.open(theirs)
+    expect(built.last().openModal, `OP-2: ${ONE_ENTRANCE} -- the file dialog raised no U-56`).not.toBeNull()
     await built.take(OPEN_CHOOSER, 'IC-72')
     expect(built.last().openModal).toBeNull()
     expect(built.loop.hasUnsavedEdits(), `T-290: ${MERGE_MAKES_NO_FILE}`).toBe(true)
 
     await built.save()
-    expect(built.written, `FR-060: ${KEEP_THE_TARGET_MUST} (the drop route, OP-2)`).toEqual([
+    expect(built.written, `FR-060: ${KEEP_THE_TARGET_MUST} (an MSPDI merge, OP-2)`).toEqual([
       'mine.json',
     ])
     expect(built.browser.saveQuestions()).toBe(1)

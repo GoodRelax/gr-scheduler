@@ -20,6 +20,7 @@
 | **07** | [レビュー観点の規約](07-review-standards.md) —— `R1` 〜 `R7`。**設計と実装の合否はここで決まる** | ⭐ **下の索引を毎回。条項は当てるときに引く** | 52KB |
 | **08** | [仕様書の書き方](08-spec-template/) —— 章立て・記法・雛形・AI への問い方 | **仕様を書くとき** | 233KB |
 | **09** | [道具の目録と呼び出し口](09-tools.md) —— **104 本が何を赤にし、何が見えないか。用途ごとの 6 つの束** | ⭐ **第 1 節だけ毎回。残りは赤が出たときに引く** | 109KB |
+| **10** | [版の規則](10-versions.md) —— **版を持つもの 1 つに 1 行。書き方・決め方・上げ方・止める機械・リリースの手順。版の規則はここだけ** | **版を上げる・仕様の変更履歴に行を足す・リリースするとき** | 10KB |
 
 ⛔ **`01` 〜 `06` は毎回、全部読む**（合計およそ 44KB）。
 ⭐ **`08` だけは、仕様書そのものを書く・直すときに開く** —— 233KB あり、実装の回に通読する理由が無い。
@@ -34,20 +35,21 @@
 | 群 | 何を見るか | いつ引くか |
 |---|---|---|
 | `R1` | 要求の品質（曖昧さ・矛盾・網羅） | 仕様を書く・直すとき |
-| `R2` | **命名**と SW 設計原則（SOLID / DRY / KISS / CA / 境界） | ⛔ **名前を足すとき、必ず** |
-| `R3` | コーディング品質（エラー・境界・資源・時刻） | 実装を書くとき |
+| `R2` | **命名**と SW 設計原則（SOLID / DRY / KISS / CA / 境界 / OKPN / OMPV） | ⛔ **名前を足すとき、必ず**。⛔ **データ要素（JSON のプロパティ・関数の引数など）を足す・変えるときも** |
+| `R3` | コーディング品質（エラー・ログ・境界・資源・時刻・Null Trap） | 実装を書くとき |
 | `R4` | 並行性と状態遷移（原子性・競合・グリッチ） | 状態を持つものを書くとき |
 | `R5` | 性能（計算量・毎フレームの経路） | 毎フレーム走る経路を書くとき |
 | `R6` | 試験の品質（独立・境界値・意図の読める名） | 試験を書くとき |
 | `R7` | **純粋性**（`@purity` の 4 値）と収集と処理の分離 | ⛔ **関数を足すとき、必ず** |
+| `R8` | セキュリティ（秘密情報・注入・認証と認可・依存と OSS） | 外部の値・秘密・依存を扱うとき |
 
-⛔ **全条項の一覧（`R1.1` 〜 `R7.10`）は 07 の末尾の表が持つ。** ⭐ **変更要求の第 0 節はそこを引いて書く。**
+⛔ **全観点の一覧は 07 の総合レビューチェックリスト（章と観点の名）が持つ。** ⭐ **変更要求の第 0 節はそこを引いて書く。** ⚠️ 項目の番号（`R2.18` など）は 2026-10-24 にやめた —— 旧番号の参照は 07 の末尾の「旧番号の対応表」で引く。07 は gr-sw-maker の `process-rules/review-standards-ja.md` の派生であり、観点を直すときは原本を先に直す。
 
 ### ⭐ 規則ではないが、毎回開くもの
 
 | | 何を答えるか | いつ |
 |---|---|---|
-| [`W4-adapter.md`](../development-records/W4-adapter.md) ／ [`W5-framework.md`](../development-records/W5-framework.md) | **いまどのユニットのどの段にいるか。次の一手は何か** | **毎回、最初に** |
+| [`W4-adapter.md`](../development-records/history/W4-adapter.md) ／ [`W5-framework.md`](../development-records/history/W5-framework.md) | **いまどのユニットのどの段にいるか。次の一手は何か** | **毎回、最初に** |
 | [`pending-decisions.md`](../development-records/pending-decisions.md) | 推奨値で進めた暫定と、その印（検査 25 が突き合わせる）| **毎回** |
 | [`docs/development-records/README.md`](../development-records/README.md) | 記録の書式と、再開の 4 段 | 着手時 |
 
@@ -57,9 +59,9 @@
 
 | | 何を答えるか | いつ | なぜ |
 |---|---|---|---|
-| [`previous-project-result/README.md`](../../previous-project-result/README.md) | 引継 35 本の入口。**§00 が全ファイルの `type:` の読み方**を定める | 着手時 | ⛔ **`Decision Record`（従う）と `Frozen Record`（追随させない）を取り違えると、当時の検討を決定として採る** |
-| [`previous-project-result/user-order.md`](../../previous-project-result/user-order.md) | **要望の入力そのもの。仕様書の冒頭が「正」と名指す**（17 か所） | 参照時のみ | ⭐ **仕様書が自分自身と食い違ったとき、意図の側を裁ける唯一の上位文書。** CR-186 はこれで解いた |
-| [`previous-project-result/04-performance/performance-notes-ja.md`](../../previous-project-result/04-performance/performance-notes-ja.md) | 「ぬるサク」の引継ぎ。効いた手・効かなかった手・実測基準線 | 仕様を書くとき | ⭐ **仕様書が「これを読んだうえで決める」と条件付けている唯一の引継ぎ文書** |
+| [`studies/README.md`](../../studies/README.md) | 引継 35 本の入口。**§00 が全ファイルの `type:` の読み方**を定める | 着手時 | ⛔ **`Decision Record`（従う）と `Frozen Record`（追随させない）を取り違えると、当時の検討を決定として採る** |
+| [`studies/user-order.md`](../../studies/user-order.md) | **要望の入力そのもの。仕様書の冒頭が「正」と名指す**（17 か所） | 参照時のみ | ⭐ **仕様書が自分自身と食い違ったとき、意図の側を裁ける唯一の上位文書。** CR-186 はこれで解いた |
+| [`studies/04-performance/performance-notes-ja.md`](../../studies/04-performance/performance-notes-ja.md) | 「ぬるサク」の引継ぎ。効いた手・効かなかった手・実測基準線 | 仕様を書くとき | ⭐ **仕様書が「これを読んだうえで決める」と条件付けている唯一の引継ぎ文書** |
 | [`.claude/skills/spec-graph-check/SKILL.md`](../../.claude/skills/spec-graph-check/SKILL.md) | 機械検査と**グラフ道具の使い方**（`impact.py` / `induced.py` / `graph.py`）と過去の罠 | 着手時 | ⛔ **規則 02 が「影響をグラフで測ってから書く」と言う、その道具の使い方がここにしかない** |
 
 ⭐ **小さくて元が取れるもの**: [`docs/spec/strictdoc-quirks.tsv`](../spec/strictdoc-quirks.tsv)（986 バイト。⚠️ **行番号を出さない 3 つのエラーの原因**）と
@@ -77,6 +79,7 @@
 |---|---|---|
 | [`parallel-agents-ja.md`](parallel-agents-ja.md) ／ [`parallel-agents-en.md`](parallel-agents-en.md) | AI のセッションを 2 つ以上同時に動かすとき、開発する人がすること。巻き込む git コマンドはフック `.claude/hooks/block-sweeping-git.py` が止める。⭐ セッションどうしの作法（調整役・番号・push の口）は 05 の 13 が持つ | セッションを 2 つ以上開くとき |
 | [`usability-principles-ja.md`](usability-principles-ja.md) | 使い勝手の原則と、その出典 | UI の振る舞いを提案・審査するとき |
+| [`session-names.md`](session-names.md) | セッションの呼び名の日英の表（調整役・親セッション・子セッション・引継書・セッション台帳 ほか）と、止める旧い語（検査 87）。`JDG-3042` | 子セッションを起こす・引継書や報告を書くとき |
 | [`user-wording.md`](user-wording.md)（正は [`user-wording.json`](user-wording.json)、`npm run wording` が作る） | 利用者が画面の外で読む文の語の日英の表（副）。使う語と避ける語（ダウンロード・インストール など）。画面の語は用語集が正 | README・リリースノート・配るページの文を書くとき |
 
 ⭐ **規則ではなく、開発する人のための手引きである。** だから番号を振らず、上の「毎回読む」本数にも数えない。

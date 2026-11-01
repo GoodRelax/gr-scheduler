@@ -52,6 +52,7 @@ const cellOf = (table: string, id: string, heading: string): string =>
 // WHY: SELF depends on itself (DG-1), LATE is not started after its start (DG-2), PARENT is its ancestor (DG-3),
 // WHY: WAITING waits on the late SLOW (DG-4) and PLAIN has no state; the premise case checks each.
 // WHY: BEHIND follows AHEAD; begun first, it makes AHEAD a predecessor still open (VO-3, DG-1) until undone.
+// WHY: SELF starts before the status date and AHEAD is begun; a task not begun that starts after it is never drawn with DG-1 or DG-2 (FR-133).
 const SELF = 40
 const PARENT = 20
 const LATE = 21
@@ -72,13 +73,13 @@ const span = (uid: number, from: string, to: string, extra: Partial<TaskSpec> = 
 function seeded(): Document {
   const made = documentOf(
     [
-      span(SELF, '05-03', '05-04', { after: [[SELF, FS]], name: 'Self' }),
+      span(SELF, '04-19', '04-20', { after: [[SELF, FS]], name: 'Self' }),
       span(PARENT, '04-05', '04-09', { name: 'Parent' }),
       span(LATE, '04-05', '04-09', { parent: PARENT, name: 'Late child' }),
       span(SLOW, '04-05', '04-09', { actualStart: START_OF('2027-04-05'), percentComplete: 50, name: 'Slow' }),
       span(WAITING, '04-12', '04-16', { after: [[SLOW, FS]], name: 'Waiting' }),
       span(PLAIN, '06-07', '06-11', { name: 'Plain' }),
-      span(AHEAD, '06-07', '06-11', { name: 'Ahead' }),
+      span(AHEAD, '06-07', '06-11', { actualStart: START_OF('2027-04-19'), name: 'Ahead' }),
       span(BEHIND, '06-14', '06-18', { after: [[AHEAD, FS]], name: 'Behind' }),
     ],
     { statusDate: '2027-04-21T00:00:00' },
@@ -307,7 +308,7 @@ describe(`RW-19 / PE-8 / PE-10 -- ${RW_19_STEPS_IN_ORDER}`, () => {
     const stage = await diagnosed()
     expect(reportUids(stage), 'premise: AHEAD has no row').not.toContain(AHEAD)
     await pressMarker(stage, BEHIND)
-    expect(markerOf(stage, AHEAD).symbol, 'the press alone does not make the diagnosis again (FR-130)').toBe('PM-1a')
+    expect(markerOf(stage, AHEAD).symbol, 'the press alone does not make the diagnosis again (FR-130)').toBe('PM-1')
     expect(reportUids(stage), 'and the table is as it was').not.toContain(AHEAD)
     await stage.press('IC-168')
     expect(markerOf(stage, AHEAD).symbol, 'premise: BEHIND begun makes AHEAD an open predecessor').toBe('DG-1')

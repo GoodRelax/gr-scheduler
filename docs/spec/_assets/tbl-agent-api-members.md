@@ -15,7 +15,8 @@
 **`Agent API` は 1 つの面に 27 のメンバをフラットに並べる。**  
 用途別に分けない理由は Chapter 5.2 が持つ（`R2.5`）。  
 いまの版は `2026-10-19T01:15:00Z` である（`AM-1` が返す値）。  
-版は、文書の形式の版（`FR-073`）と同じ書式の日時である —— 呼び方を変える変更は、版をその変更を当てる時刻へ上げる（表 T-035 の `AG-1`）。  
+版は、文書の形式の版（`FR-073`）と同じ書式の日時である —— 呼び方が変われば、版はそれまでのどの版よりも新しい時刻になる（表 T-035 の `AG-1`）。  
+版の決め方と上げ方は `docs/development-rules/10-versions.md` の表が持つ。  
 ⭐ **呼び方（引数の名・型・意味と戻り値）は本表と 表 T-400 が持つ** —— コードの `AgentApi` の型と、MCP の道具の入力の形は本表の原稿から生成し、手で書かない。  
 境界値は Chapter 6.1 が持つ。
 
@@ -114,7 +115,7 @@ The descriptions here use no row ids of the GRS specification; the specification
 GRS JSON notes: the points that are easy to get wrong. The schema descriptions say the same at more length; when they differ, the schema wins.
 Times. Every date-time is a wall clock in project.scheduleDataTimeZone (for example UTC+09:00), written YYYY-MM-DDTHH:MM:SS to the minute, with no Z and no offset; GRS never converts one.
 A date alone (YYYY-MM-DD) is not a date-time: always write the time of day too, for example the start of the working day for a start and its end for a finish.
-project.statusDate is read as a day: its time of day moves neither the status line nor the progress line.
+project.statusDate is an instant like the other date-times: when the document shows time of day the status line and the progress line stand at its time of day, otherwise at its day.
 Lengths. Durations and lags count working minutes of the document calendar; one working day is project.minutesPerDay minutes, 480 when it is null.
 Dependencies. A dependency sits in the dependencies list of the later task and names the earlier task by predecessorUid.
 linkType is a number: 0 finish-to-finish, 1 finish-to-start, 2 start-to-finish, 3 start-to-start.

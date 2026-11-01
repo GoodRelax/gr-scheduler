@@ -1,0 +1,28 @@
+id	verdict	failed	problem_ja	suggested_en
+D007	ok	-	-	-
+D010	ok	-	-	-
+D011	ok	-	-	-
+D079	fix	E1,E7	DI-1 は「ファイル名・Project.name・Project.id の 3 つがすべて一致」で同じ文書とみなし、どちらかの id が無ければ同じとはみなさない(DI-2)。今の文は id だけで決まるように読め、不完全である。	Same as MSPDI Project/UID. When GRS saves over an existing file, the file counts as the same document only if this value, project.name and the file name all match; an absent value never matches.
+D093	fix	E1	「違う合計」が何と違うのかが書かれていない(minutesPerDay との比較)。	Same as MSPDI Project/MinutesPerDay: the length of one working day (1d) in minutes, 480 when absent. GRS warns when the document is opened if the working times of any working day add up to a total other than this value.
+D097	ok	-	-	-
+D098	fix	E1	「and a milestone's start」が括弧の中の終了の一覧に入るのか、別の項目なのか二通りに読める(WT-5: マイルストーンの開始は終了の時刻を使う)。	Same as MSPDI Project/DefaultFinishTime: the time of day GRS gives a finish that is set by the day (the finish of a Task or a BaselineTask, actualFinish, stop, deadline, project.statusDate); 17:00:00 when absent. A milestone's start gets this time as well.
+D105	ok	-	-	-
+D106	ok	-	-	-
+D109	fix	E1	「Same as」(継承元の暦)と「Carried」が矛盾して読める。1 文目は意味、2 文目は GRS の扱い(値は保つが親をたどらない、FR-054)と分けて書く。	Same as MSPDI Calendar/BaseCalendarUID: the calendar this one inherits from. GRS keeps the value but does not inherit: it counts only the days this calendar itself lists.
+D127	ok	-	-	-
+D128	ok	-	-	-
+D130	fix	E1,E2	括弧の「absent」が recurrenceKind と recurrencePeriod のどちらの欠落か読み分けにくい。「Any value is accepted」は範囲(1..9)の言い直しで要らない。	Same as MSPDI Exception/Type. GRS counts only a one-off exception: recurrenceKind is 9 or absent, or is 1 and recurrencePeriod is absent or 1; it keeps the others unchanged without counting them. Write 1 for an exception you add.
+D138	ok	-	-	-
+D139	ok	-	-	-
+D142	fix	E1	「Same as」(タスク個別の暦)と「Carried」が矛盾して読める。1 文目に意味、2 文目に GRS の扱いを分けて書く。	Same as MSPDI Task/CalendarUID, the calendar of this task alone. GRS keeps the value and writes it back, but counts working days with project.calendarUid only.
+D150	ok	-	-	-
+D151	fix	E7	「GRS omits stop once actualFinish is set」は、途中で中断して完了した MSPDI のタスクが Stop を持ち、未編集なら往復でそのまま書き戻す(表 T-019 の注、FR-021)ことと食い違う。GRS が空にするのは GRS 内で完了にしたとき(PV-2、AT-141)である。	Same as MSPDI Task/Stop: the end of the actual work so far on a task that is in progress or suspended. On a finished task actualFinish holds that end; GRS empties stop when it finishes a task.
+D152	ok	-	-	-
+D153	ok	-	-	-
+D154	fix	E1	「再開日未定なのに resume に日付がある」が矛盾して読める。判定で resumeValid false が先に当たるため resume の日付は使わない(PS-3 が PS-4 より先)と言えばよい。	Same as MSPDI Task/ResumeValid. On a task with actualStart and no actualFinish, false means suspended with no resume date, and a date in resume is not used.
+D155	fix	E1,E3	「it can exceed 100」の it が曖昧。約 60 語で 40 語を超える(根が再計算と日付を既に言っている)。	Same as MSPDI Task/PercentComplete, except that GRS recalculates the value as actual working time (actualStart to actualFinish, or to stop) over planned working time (start to finish), times 100, rounded and not capped at 100. With no planned working time, as on a milestone, the value is 100 once actualFinish is set, else 0.
+D166	fix	E1	「1/10 分」と「作業日では 1 日 = minutesPerDay 分」が並び、数値がどちらの単位か分からない。保存は常に 0.1 分で、作業日 1 日分のラグは minutesPerDay x 10(AT-47)と式で言う。	Same as MSPDI PredecessorLink/LinkLag: the lag in tenths of a minute, whatever unit lagFormat names; absent means no lag. One working day of lag is project.minutesPerDay x 10 (480 x 10 when project.minutesPerDay is absent).
+D167	fix	E1	「counts」と「only shown and carried」の差(計算に使うか)が読み取れない。仕様書(AT-48、FR-009)の語は「解する」である。	Same as MSPDI PredecessorLink/LagFormat. GRS understands the lag only when this is 7 (working days), 5 (hours) or 3 (minutes); with any other unit it only shows the lag and keeps it unchanged. GRS writes the unit the lag was typed in.
+D172	fix	E1	「Same as」(資源の暦)と「Carried」が矛盾して読める。D142 と同じ直し。	Same as MSPDI Resource/CalendarUID, the calendar of this resource alone. GRS keeps the value and writes it back, but counts working days with project.calendarUid only.
+D273	ok	-	-	-
+D274	ok	-	-	-

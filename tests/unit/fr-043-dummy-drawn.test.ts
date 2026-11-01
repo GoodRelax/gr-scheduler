@@ -84,7 +84,7 @@
 //     the two wins where they meet is undecided. No case below states one.
 //   * FR-013's hover half. It is measured in tests/unit/fr-013-pointer-on-the-
 //     figure.test.ts, which is handed a pointer; the pictures here are not.
-//   * Table T-023d's 「`GA-5` / `GA-6` / `GA-17` を掴んでいるあいだ、置くこと
+//   * Table T-023d's 「ダミー（`FR-104` の 表 T-266 の `GA-5` / `GA-6` / `GA-17` / `GA-21` / `GA-22`）を掴んでいるあいだは、置くこと
 //     になる実績を描いて示すこと（MUST）」. The picture is handed no gesture
 //     either, so the drag preview has no surface to be asked about.
 
@@ -119,7 +119,7 @@ import startupTemplate from '../../src/framework/single-html-shell/startup-templ
 import { DEFAULT_DISPLAY_RATIO, DEFAULT_DISPLAY_SCALE } from '../fixtures/display-scale'
 
 // ---------------------------------------------------------------------------
-// The rows, read out of the manuscript at run time (Chapter 1.9, :275)
+// The rows, read out of the manuscript at run time (Chapter 1.9)
 // ---------------------------------------------------------------------------
 
 const rowOf = (tableId: string, rowId: string): Readonly<Record<string, string>> => {
@@ -1213,7 +1213,7 @@ describe('FR-043 / table T-206 S-180 -- the Actual Operation Dummy is drawn', ()
 
     it(`GA-17 (MUST): a milestone not started draws one dummy, the same square as its own actual figure at ${days}`, () => {
       // FR-043: 「⚠️ **マイルストーンには例外がある** —— 実績バーを持たない
-      // ので（表 T-023d の `GA-16`）、**ダミーは点として 1 つだけ出すこと（MUST）。
+      // ので（`FR-104` の 表 T-266 の `GA-16`）、**ダミーは点として 1 つだけ出すこと（MUST）。
       // 実績期間は `S-130` とすること（MUST）**」.
       // ⛔⛔ THE WIDTH MUST WAS READ, UNTIL 2026-09-10, AS REACHING GA-17 TOO:
       // 「⚠️ **大きさは例外ではない** —— **描く幅は 1 日ぶんと `S-180` の小さい方の

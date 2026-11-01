@@ -6,7 +6,11 @@ import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
+
+// WHY: each test runs git and the tools in a copy outside the tree; under the GT-2 load one took over 5 s (JDG-3116).
+const TOOL_RUN_TIMEOUT_MS = 20_000
+vi.setConfig({ testTimeout: TOOL_RUN_TIMEOUT_MS })
 
 interface Version {
   readonly builtAt: string

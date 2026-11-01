@@ -143,14 +143,13 @@ export interface DiagnosisRows {
   readonly every: readonly { readonly uid: number; readonly row: string }[]
 }
 
-// WHY: which task the diagnosis names DG-1 .. DG-3 is FR-133's business; the published diagnoseDelay (PI-1) is read
-// for it, and the smallest priority of T-315 a task holds is the one it shows.
+// WHY: byUid is the mark drawn on the chart that SQ-5 follows (FR-133 drops DG-1 / DG-2 from a task not begun after
+// the status date), read from the published diagnosedMarkerRowsOf (PI-1); every stays the report's DX-8.
 export function diagnosisRowsOf(document: Document): DiagnosisRows {
   const report = diagnosed(document) as { markerStates: { uid: number; row: string }[]; bottlenecks: { uid: number }[] }
+  const drawn = scheduleEntry.diagnosedMarkerRowsOf(report as never, document.schedule)
   const byUid = new Map<number, Diagnosed>()
-  for (const row of DIAGNOSED) {
-    for (const one of report.markerStates) if (one.row === row && !byUid.has(one.uid)) byUid.set(one.uid, row)
-  }
+  for (const [uid, row] of drawn) byUid.set(uid, row)
   return { byUid, bottlenecks: report.bottlenecks.map((one) => one.uid), every: report.markerStates }
 }
 

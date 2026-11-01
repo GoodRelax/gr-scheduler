@@ -1,8 +1,35 @@
 # CR-767 —— 状態機械は 1 つの原稿が唯一の正であり、状態遷移表はガードの条件まで、状態遷移図は UML で、どちらもそこから刷る
 
-> 起草の状態: 起草だけ（2026-10-15、`4a907919` の上で起草した）。当てていない —— `docs/spec`・`src`・`tests`・生成器に触れていない。11 節に利用者へ問う 3 つ（Q1 ガードの条件の書き方、Q2 図を描く道具、Q3 兄弟の囲みの代わり）を残した。利用者は 2026-10-15 に戻り、3 つとも答えた（`JDG-2362`〜`JDG-2364`）。見本は `previous-project-result/57-uml-state-machine-style/`。
-> ID の帯: 番号 `CR-765`〜`CR-768`、裁定 `JDG-2220`〜`JDG-2229`、台帳 `DFC-2720`〜`DFC-2729`、`PND-948`〜`PND-951`、見本の置き場 `57` を調整役から受けた（4 つの変更要求で共有）。本書が使うのは `CR-767`・見本 `57`・台帳 `DFC-2720`〜`DFC-2722`（0.1 で見つけた食い違い 3 つ）。`4a907919` の木で `CR-767` を名乗るもの、`previous-project-result/57-*` は 0 件だった（13 節）。
+> 起草の状態: 波 1 を当てた（2026-10-23、枝 `cr767-wave1`、起点 develop `5f905886a`）。波 2（コードのガードの名の判定と Q3 の 2 つの複合状態）を当てた（2026-10-23、枝 `cr767-wave2`、起点 develop `1b9b9d7f0`）。波 3（式の評価と判定の本体の生成）を、文書のデータを持たない 7 つの領域に当てた（2026-10-23、枝 `cr767-wave3`、起点 develop `cf0617d76`）—— タスクグループの木の判定は、`CR-768` の C 部の後に生成へ替えた（2026-10-23、枝 `cr768c-tree-guards`、起点 develop `c4334ee9e`。`DFC-3460`）。起草は 2026-10-15、`4a907919` の上。11 節に利用者へ問う 3 つ（Q1 ガードの条件の書き方、Q2 図を描く道具、Q3 兄弟の囲みの代わり）を残した。利用者は 2026-10-15 に戻り、3 つとも答えた（`JDG-2362`〜`JDG-2364`）。見本は `studies/57-uml-state-machine-style/`。
+> ID の帯: 番号 `CR-765`〜`CR-768`、裁定 `JDG-2220`〜`JDG-2229`、台帳 `DFC-2720`〜`DFC-2729`、`PND-948`〜`PND-951`、見本の置き場 `57` を調整役から受けた（4 つの変更要求で共有）。本書が使うのは `CR-767`・見本 `57`・台帳 `DFC-2720`〜`DFC-2722`（0.1 で見つけた食い違い 3 つ）。`4a907919` の木で `CR-767` を名乗るもの、`studies/57-*` は 0 件だった（13 節）。
 > 当てるもの: 裁定 `JDG-2161`（状態機械は `_source/state-machines.json` を唯一の正とし、表と図はそこから刷る。ガードの条件も JSON が持つ。表は列 ＝ 今の状態・行 ＝ 出来事・交点 ＝ 遷移先とガード条件、要るなら Entry ／ Exit も書く。図は UML に準拠する）。閉じるもの: 台帳 `DFC-2643`・`DFC-2644`。`DFC-2645` の `TASK_GROUP_GUARDS` は本書の後に `CR-768` の C 部が消す。
+
+> ⭐ 波 1 の着地（2026-10-23、子セッションが `5f905886a` で測り直した）:
+> - 今の木の数: 9 の領域・31 の機械・90 の状態・308 の升。ガードの名は 64（起草の 65 から、`CR-796` が対話の機能を消して `isAgentApiEnabled`・`isRungDialogueField` が、ほかの CR で `isPositionAxis` が消え、`isNewStartDateEmpty`・`isOtherThanShownBase` が足され、3 つが `not` 付きの名へ改まった）。付録 A は 10-15 の下書きのまま残す —— 決まった式は原稿の領域ごとの `guards` が持つ。
+> - 当てたもの: 原稿の頭の `guardLanguage`（語 8・演算子 8・関数 9）と領域ごとの `guards`（64 の定義、63 の名 —— `isProceeding` は 2 つの領域に在る）、読み手 `load()` の式の構文と名の解決、4 つの状態の entry ／ exit（X-f）、X-j の 2 つ（`isPanelTopmost`・`canEnterDualCursor` を `in` の項へ）、刷り手（升の「名（条件）」、ガードの一覧、entry ／ exit の行）、31 の `fig-sm-<機械>.svg`（drawio-uml、指紋で `--check`）、5.5 節・表 T-250 の `SD-1`・`SD-3`・表 T-285 の `RA-1`・規則 07 の R4.4。生成する `src` の領域は 1 バイトも変わらない。
+> - 書き起こしで分けたもの: 押し続けると繰り返す入口の時間の升は、出来事が押下を運ばないので、同じ名 `isOnRepeatingEntry` で別の値を読まないよう新しい名 `isHeldOnRepeatingEntry`（押している最中の押下を読む）に分けた（`JDG-820` の「名はそれが指すものを言う」）。透かしの入口の 2 升は `isAnotherSurface` の代わりに `not isWatermarkUnlockSurface` とした（面が開いているときは同じ判定）。
+> - 食い違い: `isDocumentChangingPress` の式は今のコードの判定を書いた —— `AG-9` と表 T-027 との食い違いは `DFC-687` が持ち、利用者は 2026-09-13 に「どちらが正かは決めない」とした（重複して立てた `DFC-3457` は取下げ）。`DFC-3458`（契約試験の `isLeavingHolidaySettings` —— 試験を原稿の式に合わせ、コードは通った）。`DFC-2721` は取下げ（今の原稿は 2 つの副作用を根の升と `on` の升に既に持つ）。`DFC-2720`・`DFC-2722` は残る。
+> - ⚠️ Q3 の複合状態（`armed`・`grabbed`）は波 2 へ移した —— 原稿に親を足すと生成する判別共用体が入れ子（`{kind: 'armed', child: …}`）になり、手で書いた `src` の 90 行ほどと試験が動く。波 1 は `src` に触れないので、構えの図は ◇ を通して今の状態のまま描く。
+
+> ⭐ 波 2 の着地（2026-10-23、子セッションが `1b9b9d7f0` で測った）:
+> - Q3（`JDG-2364`）: `armModeStateMachine.armed` と `taskGroupGrabStateMachine.grabbed` を足した。子の名は今の葉の名のまま（`armed.taskShapeArmed` ほか —— 表の列は変わらない）。`armed` は始まりの子を持たない —— どの入り方も子を名指す（行き先 `armed.{armKind}`。見本 57 の 5 節も内側に始まりを描かない）。読み手 `load()` は「升がどれも行き先に名指さず、それ自身が始まりでない複合状態」に限り始まりの子 0 を許し、`parent.{name}` の行き先を読む。契約の `targetKey` を同じ形に広げた。`grabbed` は始まりの子 `grabPressed` を持ち、押下は `grabbed` へ入る。6 つの升に繰り返していた構えの 3 つの出来事と、掴みの 2 つの出来事は複合状態の升 1 つになった。表 T-283 の `RG-5` は `armModeStateMachine.armed` にいる、と書けるようになった。
+> - 図: 構えの図の横幅は 4002 px → 1893 px（SVG の `width`、`git show 1b9b9d7f0:docs/spec/_assets/fig-sm-armModeStateMachine.svg` と今の図で測った。覚え書きの 3991 px は波 1 の途中の値）。掴みの図は 486 px → 503 px。
+> - X-k（`DFC-2644`）: 生成器が領域ごとに `<Stem>GuardName` を刷り、7 つの領域の単位が判定の表 `<STEM>_GUARDS` を `satisfies GuardJudgements<…GuardName>`（`session-step.ts`）で持ち、遷移の関数はその表を通して呼ぶ。名を 1 つ足すと `tsc` が TS2353 で止める。タスクグループの木は名の判定を既に持ち、型で引くのは `CR-768` の C 部。5.5 節と表 T-285 の `RA-2` に「ガードの名の型を生成する」を足した。
+> - `DFC-2720`: 表 T-283 が `RG-3` と `RG-14` を別の段とするので、仕様に合わせた（付録 A の ① —— 新しいガード `isRungPropertiesPanel`、シェルは `propertiesPanel` の語を送る）。ガードは 65 の定義・64 の名。届かない組（面が閉じているのに語 `surface`）だけが変わる。
+> - `DFC-687`（`isDocumentChangingPress`）は触らない（利用者 2026-09-13）。式はそのまま、判定を表へ移しただけ。
+
+> ⭐ 波 3 の着地（2026-10-23、子セッションが `cf0617d76` で測った）:
+> - 生成器 `tools/generate_state_machine_types.py` が、文書のデータを持たない 7 つの領域（画面の値・通知・身振り・ファイル操作と問い・名前付けと入力欄・選択・`Agent API`）の生成の領域に、判定の表 `<STEM>_GUARDS` を刷る —— ガード 58 の 1 つずつを原稿の条件の式から組む（式の組み手は `tools/state_machine_guard_judgments.py`）。判定は式が読むものだけを受ける（領域の値・升の出来事に絞った出来事・1 段の後の値）。7 つのユニットは手の判定の表を消し、式が呼ぶ名の付いた関数だけを原稿と同じ名で手で持つ（`calendarDraftRefusals`・`noticeDisplay`・`reasonsOf`・`wordsRow`・`wordsRowsOf`）。`GuardJudgments` は消えた。
+> - 振る舞いは変えない: 付け替える前に、生成した判定と手の判定を、ガードの名を持つ升の使い所 153 のすべてで、境目の値の組 12163 場面について比べ、違いは 0（手の `isSameArm` が形の無い構えの出来事で投げる 96 場面では、生成の判定は偽を返し、1 段は構えを組む所で同じく投げる）。`DFC-687` の `isDocumentChangingPress` は今のコードの判定のまま式になっている（上の比べに含む）。
+> - 書き起こしで決めたこと（③ に足す）: ① 透かしの入口の升は、波 1 が `not isWatermarkUnlockSurface` と書いたとおりに呼ぶ（手のコードは `isAnotherSurface` に `U-60` を渡していた —— 面が開いているときは同じ判定）。② 式の言葉に null の扱いを足した —— 大小の比べは片方が `null` なら偽、`null` の長さは `null`、`calendarDraftRefusals`・`reasonsOf`・`wordsRowsOf` は `null` を空と読み、`noticeDisplay` は表に無い理由で `null`（どれも、升の外の状態でだけ起きる値）。③ 木の領域は刷らない —— 判定はタスクグループ 1 つごとに評価し、名の型で引くのは `CR-768` の C 部（8.2 節の順）。
+> - 仕様: 5.5 節・表 T-250 の `SD-3`・表 T-285 の `RA-2`・`RA-3` に「判定は式から生成し、手で書くのは名の付いた関数だけ」を足した。
+> - 毎フレームの経路（規則 04 の 5 節の表）のファイルには触れていない —— 5 節の「`perf-pending` の行が要る」は、同じ変更要求の行 265（波 2）が持つ。
+
+> ⭐ 木の判定の着地（2026-10-23、子セッション `cr768c-tree-guards` が `c4334ee9e` で測った）:
+> - `CR-768` の C 部: 手の 2 つの表（`TASK_GROUP_GUARDS`・`ROOT_GUARDS`、鍵は `string`）を、生成した名の型 `TreeStateGuardName` を鍵とする 1 つの表にまとめた。判定はどれも 1 つの入力（升が決めるタスクグループ —— 根の升では無い ——、出来事が運ぶ値、名の付いた関数 `ancestors`・`childTaskGroups`・`setting`）を受け、升のガードの名で引く。
+> - 続けて、式の組み手が文書のデータを持つ領域も刷るようにし、木の生成の領域に `TREE_STATE_GUARDS` を刷った（手の表は消えた）。名の付いた関数 3 つと入力の型 `TreeStateGuardInput` は手で書く。
+> - 振る舞いは変えない: `c4334ee9e` の手の判定と比べ、ガード 7・升の使い所 41 を、閉路・親の無い親・自分が親の木を含む境目の値で判定 114136 場面・書き込み全体 13662 場面について比べて違い 0（探りに誤りを 1 つ植えると 2057 の違いを拾った）。
+> - 仕様: 表 T-250 の `SD-5` に、木の領域もガードの名の型と判定を刷り、判定は 1 つの入力を受けることを足した。式の言葉の `taskGroup.<列>` に「根の升では `null`」を足した。
 
 ---
 
@@ -196,7 +223,7 @@
 | 波 | 触る `src` のファイル | 進行中の変更要求と共有するファイル |
 |---|---|---|
 | 1 仕様と図 | 無い（原稿・契約・刷り手・生成器・図、規則 07 の R4.4） | `CR-755`・`CR-757`・`CR-759` が原稿に触れる |
-| 2 ガードの名の判定 | `screen-values.ts`・`notice-values.ts`・`gesture-values.ts`・`file-flow-values.ts`・`field-entry-values.ts`・`selection-values.ts`・`interaction-record-values.ts`・`agent-api-values.ts`・`task-group-folding.ts`（と `frame-loop.ts` —— `DFC-2720`） | `screen-values.ts`（`CR-755`・`CR-757`）、`frame-loop.ts`（`CR-740`・`CR-754`・`CR-757`・`CR-760`・`CR-762`） |
+| 2 ガードの名の判定と Q3 の 2 つの複合状態（波 1 から移した） | `screen-values.ts`・`notice-values.ts`・`gesture-values.ts`・`file-flow-values.ts`・`field-entry-values.ts`・`selection-values.ts`・`interaction-record-values.ts`・`agent-api-values.ts`・`task-group-folding.ts`（と `frame-loop.ts` —— `DFC-2720`） | `screen-values.ts`（`CR-755`・`CR-757`）、`frame-loop.ts`（`CR-740`・`CR-754`・`CR-757`・`CR-760`・`CR-762`） |
 | 3（Q1 が択 B のとき） | 同じ 9 ファイル（判定の本体を生成へ） | 同じ |
 
 ⇒ 波 1 は前に立つ者か体 1 つ（ガードの条件の書き起こしは 1 体、図の刷り手は 1 体 —— 原稿のファイルが同じなので順に）。波 2 は領域ごとにファイルが分かれるので 3 体まで並べられる（画面の値 1 ／ 通知・身振り・ファイル操作 1 ／ 残り 5 と木 1）。試験の体は領域ごとに 1 つ。
@@ -212,7 +239,7 @@
 ## 9. 仕様の外で直すもの
 
 - 規則 `docs/development-rules/07-review-standards.md` の R4.4 の「ガードと処理は、表には名前だけを書き、中身（条件式・処理の本体）はコードが持つ。」—— `JDG-2161` は「`JDG-2071` の ② を持つ席が直す」と言うが、その席の着地（`JDG-2127`）はこの文に触れていない。⭐ 調整役の答え（2026-10-15）: **本書を当てる波 1 が規則 07 も直す**（5 節の表の行）。文の案: 「ガードは、表には条件を、図には名を書き、条件は原稿のガードの一覧が持つ。処理の中身はコードが持つ。」
-- 見本 `previous-project-result/57-uml-state-machine-style/`（本書と一緒に作った）。答えが出たら README の「決まったこと」に書く。
+- 見本 `studies/57-uml-state-machine-style/`（本書と一緒に作った）。答えが出たら README の「決まったこと」に書く。
 - `docs/spec/_source/build.py` の `--check` が図を作り直さない弱さ（部品の図）—— 本書の X-m と同じ指紋の手を当てられる。別の件として調整役へ。
 
 ---
@@ -227,7 +254,7 @@
 
 ## 11. 利用者に問うこと
 
-3 つとも答えが出た（2026-10-15、利用者が戻ってから本席が問うた —— `JDG-2362`〜`JDG-2364`。3 つとも推奨の択）。触れる見本: `previous-project-result/57-uml-state-machine-style/uml-state-machine-style-sample.html`（上の「名」「言葉」「式」のボタンで、図と表が一緒に替わる）。
+3 つとも答えが出た（2026-10-15、利用者が戻ってから本席が問うた —— `JDG-2362`〜`JDG-2364`。3 つとも推奨の択）。触れる見本: `studies/57-uml-state-machine-style/uml-state-machine-style-sample.html`（上の「名」「言葉」「式」のボタンで、図と表が一緒に替わる）。
 
 ### Q1 —— 状態遷移のガードの条件を、原稿にどう書きますか？（`DFC-2643`、`JDG-2161` の残り）
 
@@ -295,8 +322,8 @@
 ## 13. 測り方の再現
 
 ```
-git grep -c "CR-767" 4a907919 -- change-request docs src tests previous-project-result tools   # 0 件
-ls -d previous-project-result/57-* 2>/dev/null                                                  # 無い（4a907919）
+git grep -c "CR-767" 4a907919 -- change-request docs src tests studies tools   # 0 件
+ls -d studies/57-* 2>/dev/null                                                  # 無い（4a907919）
 grep -c '```mermaid' docs/spec/_assets/tbl-state-machines.md                                   # 31
 PYTHONIOENCODING=utf-8 python <作業場>/sm_scan.py docs/spec/_source/state-machines.json         # 升 283、Entry ／ Exit の候補 4
 PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/impact.py T-250 SD-3 T-283 RG-3 RG-14

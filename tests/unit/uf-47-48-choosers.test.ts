@@ -13,7 +13,7 @@
 // -- `FrameEnvironment`, `FrameLoop`, `ScreenWiring`, `frameLoop` -- and
 // nothing else. Every value asserted below comes from a numbered table, read
 // out of the manuscript at read time by `tests/contract/spec-table.ts`
-// (Chapter 1.9, :275).
+// (Chapter 1.9).
 // ⚠️ THE BODY WAS SEARCHED AFTERWARDS, ONCE, and only to name in the handover
 // why the red cases are red. Not one expectation was moved onto what was found
 // there: section 1 forbids it in as many words, and a case that disagrees with
@@ -99,7 +99,7 @@ import { validateDocument } from '../fixtures/grs-document'
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 // ---------------------------------------------------------------------------
-// The tables, read out of the manuscript rather than copied (Chapter 1.9, :275)
+// The tables, read out of the manuscript rather than copied (Chapter 1.9)
 // ---------------------------------------------------------------------------
 
 const T_024: SpecTable = specTable('T-024')
@@ -1098,7 +1098,7 @@ describe('OP-3 answered -- table T-230 says where each of the three lands', () =
   })
 
   it('IC-73 (OP-9): only a task the current document has by `UID` goes into the frame', async () => {
-    // 「その枠へ入れるのは、現在の文書のタスクと `UID` が一致するものだけとする
+    // 「その枠へ入れるのは、現在の文書のタスクと `UID` が一致するものだけとすること
     //   （MUST）—— 本行の「入れる」が指すのは重ねて描く対象であって、読んだ
     //   ファイルの全体ではない」, and FR-015 states the same as a MUST NOT:
     // 「片側にしか存在しない `Task` は描いてはならない（MUST NOT）」.
@@ -1649,7 +1649,7 @@ describe('CS-4 -- what the screen does while the person is being waited on', () 
 //   から選ばせ、選ばれた形式の規約に従って書き出すこと。**入口を 1 つとすること
 //   （MUST）。形式ごとに別の入口を設けてはならない（MUST NOT）。**」
 //
-// 「**選択面が提案する名は、文書名（`FR-035`）に 表 T-024 が定める拡張子を付けた
+// 「**選択面が提案する名は、文書名（`FR-035`）を 表 T-352 で整えた名に 表 T-024 が定める拡張子を付けた
 //   ものとすること（MUST）。文書名が空のときは拡張子だけを提案すること。**」
 
 describe('FR-096 -- the Export Chooser', () => {
@@ -1891,7 +1891,7 @@ describe('FR-096 -- the name the chooser proposes', () => {
   })
 
   it('FR-096 (MUST): the name proposed for a chosen format is the one that format is given', async () => {
-    // 「選択面が提案する名は、文書名（`FR-035`）に 表 T-024 が定める拡張子を付け
+    // 「選択面が提案する名は、文書名（`FR-035`）を 表 T-352 で整えた名に 表 T-024 が定める拡張子を付け
     //   たものとすること（MUST）」 -- 表 T-024 が定める, which is per ROW, so the
     // name follows whichever format was chosen and not whichever one SK-11
     // writes.
@@ -1978,8 +1978,8 @@ describe('FR-096 -- the name the chooser proposes', () => {
     //   が、選んだ行の拡張子で終わることを保証すること（MUST）** —— ⚠️ **提案を渡
     //   しただけでは守られない**（実測 2026-09-01: 提案は `文書名.json` と正しく渡
     //   っているのに、拡張子の付かない名前で保存でき、利用者が手で付け直した）。
-    //   ⭐ **宿主に「その拡張子の形式である」ことを伝える手立てがあるなら、それを
-    //   使うこと（MUST）。**」（`FR-096`。DFC-172）
+    //   ⭐ **宿主に「その拡張子の形式である」ことを伝える手立てがあるなら、表 T-024 の「保存の選択面に渡す媒体の型」の欄の値で
+    //   伝えること（MUST）。**」（`FR-096`。DFC-172）
     //
     // ⭐ WHY THE PROPOSED NAME IS NOT ENOUGH, AND WHY THIS CASE IS SEPARATE FROM
     // THE TWO ABOVE. Those two read `suggestedFileName` and were green through
@@ -2035,7 +2035,7 @@ describe('FR-096 -- the name the chooser proposes', () => {
 // FR-029 / DFC-173 -- a format that cannot be written says so
 // ===========================================================================
 //
-// 「**押されたときに限り、行えない理由を通知すること（MUST）。作法は `FR-076` の
+// 「**押されたときに限り、行えない理由を通知の仕組みへ運ぶこと（MUST）。作法は `FR-076` の
 //   表 T-037 の `NT-1` に従い、運ぶ理由は、押された入口の場面に当たる同要求の 表
 //   T-233 の行とすること（MUST）。**」（`FR-029`）—— and its RATIONALE's first
 // sentence, 「**無反応だと故障に見える。**」
@@ -2392,16 +2392,16 @@ describe('FR-076 -- a notice raised while a file is opened carries a row of tabl
     expect(uidsOf(loop.document())).toEqual([1, 2])
   })
 
-  it('RS-14: several files at once is a caution, and OP-11 (MUST NOT) keeps the first one open', async () => {
-    // 「OP-11 | **一度に 2 つ以上のファイルが渡されたとき** | **先頭の 1 つだけを
-    //   受け入れ、残りを無視したことを告げること（MUST）。** 作法は 表 T-037 の
-    //   `NT-5` …… **1 つは開いているので、受け付けなかったことにしてはならない
-    //   （MUST NOT）。**」
+  it('RS-14: several files at once open none, and OP-11 (MUST) refuses them with NT-1', async () => {
+    // 「OP-11 | **一度に 2 つ以上のファイルがドロップされたとき** | 人が 2 つ以上の
+    //   ファイルを同時にウィンドウへドロップしたとき、`GRS` は、どのファイルも開かずに
+    //   断り、現在の文書を変えないこと（MUST）」
     const words = wordsFor('RS-14')
     const pane = host()
     const screen = screenPane('ja')
     const files = fileStore()
     const loop = frameLoop(pane.surface, here(), SCREEN, screen.wiring, files.store)
+    const before = uidsOf(loop.document())
 
     loop.receiveInput(SK_10)
     pane.runAnimationFrames()
@@ -2410,19 +2410,12 @@ describe('FR-076 -- a notice raised while a file is opened carries a row of tabl
     await settle()
     pane.runAnimationFrames()
 
-    expect(screen.last().notices, 'RS-14 is not a notice while the reading is under way').toEqual([])
-    // 「受け付けなかったことにしてはならない（MUST NOT）」 -- the file that WAS
+    expect(screen.last().openModal, 'OP-11 (MUST): a chooser stood for files that open none').toBeNull()
+    expect(uidsOf(loop.document()), 'OP-11 (MUST): the current document changed').toEqual(before)
     expect(
-      screen.last().openModal?.surface,
-      'OP-11 (MUST NOT): the caution was raised and the accepted file was not opened',
-    ).toBe(OPEN_CHOOSER)
-    takeEntry(loop, screen, OPEN_CHOOSER, 'IC-72')
-    await settle()
-    pane.runAnimationFrames()
-    const report = screen.last().openModal as { readonly reportLines?: readonly { reason: string; count: number | null; text: string }[] } | null
-    const line = report?.reportLines?.find((one) => one.reason === 'RS-14')
-    expect(line?.count, 'OP-11 (MUST): two files were left behind and nobody was told').toBe(2)
-    expect(line?.text).toBe(words.text.ja)
+      screen.last().notices.map((notice) => notice.text),
+      'OP-11 (MUST): several files were refused and nobody was told',
+    ).toContain(words.text.ja)
   })
 
   it('⛔ no caution where none is owed: an ordinary open leaves the notices empty', async () => {
@@ -2575,7 +2568,7 @@ describe('the tables are read by position, so the positions are pinned', () => {
     expect(T_024.headings.length).toBe(9)
     // ⭐⭐ THE ROW ORDER IS PINNED BECAUSE IT IS NOW A REQUIREMENT, and this is
     // the one file that may pin it. 「⭐ **選択面が形式を並べる順は、表 T-024 の
-    //   行の並びとすること（MUST）**（利用者の指示 2026-09-01）—— ⛔ **順を本要求
+    //   行の並びとすること（MUST）**—— ⛔ **順を本要求
     //   に書き写してはならない（MUST NOT）** …… ⚠️ **行 ID の順ではない** ——
     //   **同表の行は行 ID の順に並んでいない。**」
     // ⛔ SO A REORDER OF THE MANUSCRIPT HAS TO FAIL HERE, LOUDLY. The order is
@@ -2584,7 +2577,8 @@ describe('the tables are read by position, so the positions are pinned', () => {
     // that moves a row moves the save list with it, and the two cases in
     // `FR-096 -- the name the chooser proposes` that drive the surface would go
     // on passing, because they read the same table. This is where it is caught.
-    expect(outDirectionRows()).toEqual(['IO-2', 'IO-1', 'IO-7', 'IO-3', 'IO-4', 'IO-8', 'IO-9', 'IO-6'])
+    // WHY: CR-827 added IO-10 (out only) after IO-9 and before IO-5, so it goes out between IO-9 and IO-6.
+    expect(outDirectionRows()).toEqual(['IO-2', 'IO-1', 'IO-7', 'IO-3', 'IO-4', 'IO-8', 'IO-9', 'IO-10', 'IO-6'])
     expect(offeredOnIc2Rows()).toEqual(['IO-2', 'IO-1', 'IO-7', 'IO-3', 'IO-4'])
     // ⭐ And the same order said in extensions, which is how the person stated
     // it -- read out of the table rather than typed beside the row IDs above.

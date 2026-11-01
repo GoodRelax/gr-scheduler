@@ -1,0 +1,64 @@
+id	verdict	failed	problem_ja	suggested_en
+D216	ok	-	-	-
+D217	ok	-	-	-
+D222	ok	-	親の D221 が「Leader Anchor から本文の左下隅へのずれ」と基準を述べているので、dx は基準が分かる。正は右(tbl-settings.md S-600 は dx=+右)。	-
+D223	ok	-	親の D221 が基準を述べている。正は下(S-600 は dy が負で上、つまり正は下)で正しい。	-
+D236	ok	-	-	-
+D237	ok	-	fig-erd-detail.md AT-114 と一致。fallback の意味は同じ行の後半と D245 が述べている。	-
+D238	ok	-	fig-erd-detail.md AT-163: 帯の上端 0、下端 1 で正しい。	-
+D239	ok	-	-	-
+D240	ok	-	fig-erd-detail.md AT-165: 予定バー・実績バー・マイルストーンの 3 値で正しい。	-
+D241	ok	-	fig-erd-detail.md AT-167: 四隅と 4 辺の中点の 8 点で正しい。	-
+D242	ok	-	-	-
+D245	ok	-	-	-
+D248	ok	-	fig-erd-detail.md AT-119 と一致。	-
+D249	ok	-	fig-erd-detail.md AT-120 と一致。	-
+D250	ok	-	doc-shape-map.tsv の F09/F12(日付の範囲、両端を含む、日程データの時計)と一致。	-
+D251	ok	-	-	-
+D257	ok	-	fig-erd-detail.md の documentStamp(AT-127/128/129/140)の 3 つの刻と書き手に一致。	-
+D258	ok	-	01-04-requirements.md AG-6 と fig-erd-detail.md AT-127: 監視(watchChanges, tbl-agent-api-members.md AM-17)が見るのは日程データの群の刻だけ。	-
+D259	ok	-	fig-erd-detail.md AT-129: どちらの群であれ動いた刻。	-
+D260	ok	-	確認済み(要確認だった行)。保存とは GRS JSON をファイルへ書くこと(01-04-requirements.md の SX-1)。MSPDI など他形式の書き出しは時刻を変えない(SX-2)。1 度も書いていないときは空(FR-101 の HS-5、fig-erd-detail.md AT-140)。「GRS が最後に保存した時刻」「最初の保存まで無い」は正しい。	-
+D261	ok	-	01-04-requirements.md 表 T-229 の ED-1/ED-2/ED-3(user / 呼び手の名 / template)と一致。Agent API の語はルートの Terms に無いが、この書き手の種類を読む相手は Agent API の呼び手自身なので許容。	-
+D262	ok	-	ED-1..ED-3 と一致。	-
+D263	ok	-	-	-
+D264	ok	-	ED-2: 呼び手が申告した名。	-
+D265	fix	E2	「changedAt は必ずあり、ほかは省ける」は required の一覧が既に述べている(E2: 型・必須の言い直し)。	One note about a change made to the Schedule Document: when, who, which part, what, why, and anything else.
+D266	ok	-	doc-shape-map.tsv の JDG-3332: 追加時に GRS が時刻を入れ、人が直せる。	-
+D267	ok	-	doc-shape-map.tsv の JDG-3332 と一致。	-
+D268	ok	-	-	-
+D269	ok	-	-	-
+D270	ok	-	-	-
+D271	ok	-	-	-
+D273	ok	-	ルートの Concepts の「Carried」の定義と一致。	-
+D274	ok	-	-	-
+D275	ok	-	fig-erd-detail.md AT-123(所有者の中での出現順、元の位置へ戻す)と一致。Haiku は正しく読めている。	-
+D276	ok	-	fig-erd-detail.md AT-124(綴りを変えない)と一致。	-
+D277	fix	E4,E1	「leaf(葉)」が定義されていないので、読む人は何を指すか調べる必要がある。Haiku も「葉」の語が本文に無いと指摘。fig-erd-detail.md AT-125 の「葉」は、中に別の要素を持たず文字だけを持つ子要素のこと(入れ子の子は children に入る、AT-126)。	The values of the child elements of this element that hold only text, by element name; child elements that contain other elements go in children.
+D278	ok	-	D277 の修正で fields と children の分担が分かる。	-
+D279	ok	-	-	-
+D280	ok	-	doc-shape-map.tsv 行 281 と 01-04-requirements.md の「分まで」(AT-113 ほか)に一致。	-
+D281	ok	-	-	-
+D282	ok	-	-	-
+D283	ok	-	01-04-requirements.md の夏時間の規則(季節で自動に切り替えない、offset は 1 年中同じ)と一致。D040 とも矛盾しない。	-
+D284	fix	E1,E2,E3	「this place」が何を指すか読めない(Haiku も場所の意味が分からないと指摘)。3 種の説明は D285 とほぼ同じで二重になり、約 55 語と長い。種類の中身は kind の行に任せ、ここは「色」と「無いときの意味」だけにする。	A color of one of three kinds, chosen by kind. Where a color may be absent, an absent color means GRS does not draw that fill or line.
+D285	fix	E1	「this place」は色が使われる場所の意だが、読む人には何の場所か分からない。実際は色を持つプロパティごとに theme が決める色(tbl-settings.md の S-146 地、S-147 文字、S-312 注記の色など)。「its」も外す。	theme: the color that the theme sets for this property; palette: a named palette color; custom: own values for the light and the dark theme.
+D286	ok	-	doc-shape-map.tsv 行 287 と一致(10 色、transparent は無い)。	-
+D287	ok	-	CR-848 と doc-shape-map.tsv 行 288: 片側は省略でき、読み込み時に GRS が導く。	-
+D288	ok	-	-	-
+D289	ok	-	CR-848 と一致。	-
+D290	ok	-	-	-
+D291	ok	-	-	-
+D292	ok	-	doc-shape-map.tsv 行 293: タスクグループの帯の色は ink を出さない(S-315)。	-
+D293	ok	-	tbl-settings.md S-562/S-566/S-571 の列のフィルタと一致。	-
+D294	ok	-	-	-
+D295	ok	-	-	-
+D296	ok	-	doc-shape-map.tsv 行 297(JDG-3285)と一致。安定名の一覧は ColumnKey や各列の値の定義にあり、ここで重ねない。	-
+D297	ok	-	-	-
+D298	ok	-	-	-
+D299	ok	-	-	-
+D300	ok	-	-	-
+D301	ok	-	-	-
+D302	ok	-	-	-
+D303	ok	-	本文に T-331 などの表番号は無い(型の欄にあるだけ)ので E5 は問題なし。tbl-agent-api-members.md AM-25/AM-28: 列のフィルタと並べ替えを持つ表は検索パネルの 2 表・遅延診断レポートの表・担当リストの表で、本文と合う。	-
+D017-title	ok	-	ルートの documentSettings 行と合う。	-

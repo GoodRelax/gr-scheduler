@@ -544,7 +544,7 @@ done
 #   -> S 359 (999 is a test sentinel), ZO 12, U 62, JDG 440, DFC 854, PND 530, T 319 (T-301/T-306/T-319 are
 #      old change-request words; the spec's own maximum is T-296, T-297 in CR-551's draft)
 git grep -lE "\bS-36[4-7]\b|\bT-304\b|\bDA-[0-9]+|\bZO-13\b|\bU-63\b|\bJDG-44[6-9]\b|\bDFC-861\b" \
-  -- . ':!previous-project-result'
+  -- . ':!studies'
 #   -> nothing but this file (61bbd572)
 
 # nothing draws the deadline today

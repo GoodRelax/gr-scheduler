@@ -1,0 +1,1458 @@
+# CR-851（と CR-849 のリンク）が当てる仕様の行の対応表 —— 第 3 の行レビュー
+
+2026-10-25 作成。同じ行を TSV で `spec-rows-map.tsv` に置く（列 `file | row_id | cr | old | new | why | kind`）。本書は同じ行を、ファイルごと・話題ごとに分けて並べる。
+
+> ⚠️ 本書は 2026-10-25 の最初の版の刷りである。その後 TSV に、`CR-849` の 4 行（`CHN-9`・`FR-033` のクリップボードの注・リンクの印の `IC-` の行・`S-503`）、例の 2 列（`example_old`・`example_new`、646 行）、`CR-848` の印（`CV-3`・`CV-4`・`CV-8` の 1 行）、`MK-13` の待ちと後ろのタブ（`JDG-3319`・`JDG-3320`）が入った。今の行は TSV とレビューのページを読むこと。
+
+## 数（測り方つき）
+
+数は、行を書いた Python の行リスト（作業用の scratchpad の `part_*.py`）を組み立てる `build.py` が数えた値である。TSV の見出しを除く行数と一致する。
+
+| 区分 | 行数 |
+| --- | --- |
+| 全体 | 883 |
+| CR-851 | 863 |
+| CR-849（リンクのデータの形） | 20 |
+| rewrite（書き換え） | 787 |
+| add（足す） | 64 |
+| remove（消す） | 32 |
+
+| ファイル | 行数 |
+| --- | --- |
+| `docs/spec/01-04-requirements.md` | 316 |
+| `docs/spec/05-07-design.md` | 46 |
+| `docs/spec/_assets/design-mcp-relay.md` | 7 |
+| `docs/spec/_assets/tbl-glossary.md`（手書きの部分） | 31 |
+| `docs/development-rules/10-versions.md` | 6 |
+| `docs/spec/_source/erd.json` | 198 |
+| `docs/spec/_source/erd.schema.json` | 10 |
+| `docs/spec/_source/settings.json` | 69 |
+| `docs/spec/_source/agent-api-members.json` | 58 |
+| `docs/spec/_source/notice-reasons.json` | 6 |
+| `docs/spec/_source/display-words.json` | 22 |
+| `docs/spec/_source/document-commands.json` | 24 |
+| `docs/spec/_source/image-to-grs-json-prompt.ja.md` | 40 |
+| `docs/spec/_source/image-to-grs-json-prompt.en.md` | 1 |
+| `docs/spec/_source/grs-json-changes.json` | 8 |
+| `docs/spec/_source/grs-json-changes.schema.json` | 5 |
+| `docs/spec/_source/property-items.json` | 25 |
+| `docs/spec/_source/published-entries.json` | 8 |
+| `docs/spec/_source/state-machines.json` | 3 |
+
+## 古い文の確かめ方
+
+- rewrite と remove の行の「古い」は、今の原稿から写した。`…` は途中を縮めた所である（頭と尻は縮めない）。
+- `build.py` が、古い文を `…` で切った片がすべて、名指したファイルの **1 行の中**（JSON の原稿では **1 つの文字列の中**、または生の 1 行の中）に順に現れることを確かめた。改行を含む古い文はファイル全体で確かめた。外れは **0 行**。
+- 確かめを外した行は **226 行** —— `erd.json` の列の行（原稿の欄から組み立てた `AT-n` の行）、JSON の欄を縮めて並べた行、`settings.json` の定数をまとめた行である。これらの古い文は原稿の値から組んだもので、原稿の 1 文字列とは限らない。
+- 行 ID と、それを含む FR・UC の対応は `checkuid.py` で確かめた（行の名札の FR 番号の取り違え 5 件を直した）。
+- 表の記法: `⏎` は改行。新しい ID（`S-625`〜`S-627`・`IV-25`・`RS-91`〜`RS-94`・`AT-169`〜`AT-175`・`PR-51`〜`PR-56`・`AG-13`・`HF-21`・`MR-5`・`MR-6`・`EX-17`）は **仮** であり、当てるときに最大値＋1 へ付け直す。
+
+## 探し方（grep の型）
+
+仕様の Markdown と `_source` の JSON・プロンプトを、次の正規表現で走査し（490 行が当たった）、当たった行を 1 行ずつ表へ入れるか、表の外（下の節）と決めた。走査の後、表に入っていない当たりを `coverage.py` で拾い直した。
+
+- 無い値: `null`、`空の配列`、`帯を持たず`、`名の無い`、`名前の無い`、`無題`、`Untitled`、`導出元`
+- 名を変えるプロパティ: `` `carry` ``、`carryElements`、`CarryElement`、`derivedFromTaskUid`、`editPermission`、`shapeKind`、`milestoneGlyph`、`leaderShapeKind`、`uidHighWaterMark`、`importSequence`、`lastSeenImportSequence`、`wbsOrder`、`outlineBase`、`themeHue`、`parentTaskProgressToleranceDays`、`settingsUpdatedAt`、`fadeInDays`、`fadeOutDays`、`changeLog`、`hiddenValues`、`sourceFormat`、`lastEditedBy`
+- 表示位置と倍率の名（CR-853 と分けるため）: `anchorDate`・`anchorTaskGroupId`・`anchorBandFraction`・`anchorTaskUid`・`anchorTaskFigure`・`anchorHighlightBoxId`・`anchorSnapPoint`・`scrollDate`・`scrollTaskGroup`・`fitSpanStart`・`fitSpanFinish`・`isFitSpanFixed`・`zoomX`・`zoomY`・`displayScale`・`rulerFontSizePx`・`rulerHeightPx`・`fontSizeStep`・`S-236`
+- 色: `#rrggbb`、`明るいテーマの値`、`` `white` ``、`` `black` ``、`` `transparent` ``、`透明`、`S-370`・`S-371`・`S-375`・`S-540`・`S-541`
+- 版と台帳: `schemaVersion`、`agentApiVersion`、`buildVersion`、`ビルド版`、`造りの版`、`deprecated`、`x-grsChanges`、`台帳`、`変換`、`RS-\d+`
+- 名指しの行: `FR-073`、`FR-024`、`FR-058`、`FR-032`、`HM-9`、`HM-12`、`CN-5`、`IV-8`・`IV-9`・`IV-22`・`IV-23`、`OKPN`、`OMPV`、`Null Trap`
+- 形と長さ: `DateTime`、`2147483647`、`文字数`、`NFKC`、`BOM`、`fix-log`
+- リンク（CR-849）: `Hyperlink`、`リンク`、`javascript`、`linkType`
+- 退く命令の名指し: `` `CM-\d+` ``（commands-map.tsv で edit の命令へ畳む命令だけを、`part_n_cmrefs.py` が自動で拾った 64 行。手で書いた行に含まれる所は除いた）
+
+## 表に入れなかった所（どこが持つか）
+
+- **CR-853（表示位置と倍率のふるまい）**: `FR-016` の横と縦の倍率の段落（01-04-requirements.md の 4283〜4358 行のあたり）、表 T-262 の `ZE-1`〜`ZE-6` と 表 T-253、`FR-018`、`FR-055` の全体表示のふるまい、箱の px が表示の倍率に従うこと（`FR-097`・`FR-019`・表 T-252）。⭐ ただし、プロパティの名と意味が変わる所（JDG-3290〜3297 —— `dayWidthPx`・`verticalZoomRatio`・`taskGroupAutoExpandDepth`・`displayScalePercent`・`scrollPosition`・`fitSpan`・CSS px の言い方）は本表に入れた。ふるまいの段落の中の `zoomX`・`zoomY` の名は、CR-853 がその段落を書き直すときに一緒に直す（本表に入れると同じ文を 2 つの CR が書く）。
+- **命令 1 つずつの表 T-108 の行**: 58 の命令を 9 つの `edit<実体>` へ畳む行と、残す命令の名の変更は `commands-map.tsv` が 1 行ずつ持つ。本表は `document-commands.json` の散文と、ほかの所が退く `CM-n` を名指す所だけを持つ。
+- **要素ごとのスキーマの形**: プロパティごとの必須・省ける・型・範囲は `doc-shape-map.tsv` が持つ。本表の `erd.json` の行は、列の説明の文（省けるか、省いたら何を表すか）と名の変更である。
+- **断る理由の名**: 1 つずつの名の対応は `refusal-reasons-map.tsv` が持つ。本表は `notice-reasons.json` と `agent-api-members.json` の文を持つ。
+- **仕様の外**: `docs/guides/schedule-to-grs-json/prompt-ja.md`（プロンプトの手の写し）、`src` と `tools`（`erd_json_to_schema.py` などの生成器、`grs-json-changes.json` の行を作る道具）。生成される表（`tbl-*.md` の生成部分、`fig-erd-detail.md`）は原稿を直せば作り直されるので行を持たない。
+
+## 裁定が文を決めきっていない所
+
+各行の「理由」の列に ⚠️ を付けた。主なもの:
+
+1. **IV-22 と IV-23**: refusal-reasons-map は `IV-22` を `milestoneShapeMismatch` へ書き換える。doc-shape-choices §9 は `IV-23` へ畳む。本表は前者に従った —— どちらかに揃える裁定が要る。
+2. **表 T-297 を残すか消すか**: 古い版は `formatTooOld` で拒むので読み替えの表は役を失う。本表は「消す」と「後書きの書き換え」の両方を置いた。
+3. **コメントボックスがタスクグループを作らない理由**: 今の文の理由が `null` の帯の話に寄っており、書き換えると理由が無くなる。
+4. **新しい倍率のプロパティの画面の出し方**（`RN-3`）と、`MG-8` の代わりの形（菱形・長方形）の名。
+5. **MSPDI の日時の小数秒**: JDG-3261 は `YYYY-MM-DDTHH:MM:SS` と決めたが、小数秒を切るか拒むかは決めていない。`DX-12` の時刻の形も同じ。
+6. **答えの値の `null`**: 断りの形は決まったが、`AV-8`・`AV-16`・`AV-18`・`AV-21` の答えに残る `null` をどうするか。
+7. **行 ID の代わりの安定した名**（JDG-3285）: 表 T-310・311・312・315・316・021b・373 と、列のプロパティの一覧（O5）の名は未定。
+8. **uid が尽きたとき**: 範囲 0〜2147483647（JDG-3284）を超える採番の扱い。本表は `RS-94` を仮に足した。
+9. **造りの版のプロパティの名**: PNG の `tEXt` のプロパティ、SVG の `<metadata>` の要素と名前空間、`.html` の `meta` の名は私の案（裁定は「行のレビューで決める」）。人が読む書き出しに版を載せないことも私の読み。`AG-2` のスタンプの比べ方に造りの版を入れるか（CHOICE 15）。
+10. **変換の HTML**: ファイル名 `grs-json-alpha-to-beta.html`、置き場 `docs/download/`、ダウンロードのページの錨 `#alpha-to-beta`（`S-625`）と「変わったプロパティの一覧」の載せ方は私の案。
+11. **台帳の行**（約 240 行）: `CR-851` から `grs-json-changes.json` へ行を足すこと（JDG-3262）は決まったが、行の作り方と、タスクグループの `null` の名を変換でどう写すかは未定。
+12. **settings.json**: `S-79` の注記の番号、まとめる 38 の定数の行ごとの値、`S-541` の `null`、`S-371` の役替え後のプロパティの名。
+13. **リンク（CR-849）**: クリックしてから開くまでの待ちと、背景のタブで開くかの測り（JDG-3084）。`editGroup` を持つタスクグループで、リンクの書き換えも断るか（表 T-275 の `GP-1`）。
+14. **英語のプロンプト**: `image-to-grs-json-prompt.en.md` は 1 行（日本語の行に合わせる）だけ置いた —— 行ごとの英文は日本語の行が決まってから。
+
+## `docs/spec/01-04-requirements.md`（316 行）
+
+
+| 行 | CR | 古い | 新しい | 理由 | 種別 |
+| --- | --- | --- | --- | --- | --- |
+| CN-5 | CR-851 | **書き出すものは UTF-8・BOM なしとする（MUST）。<br>** JSON は RFC 8259 が BOM の付加を禁じており、MSPDI XML も同じ扱いとする。 | **書き出すものは UTF-8・BOM なしとする（MUST）。<br>** JSON は RFC 8259 が BOM の付加を禁じており、MSPDI XML も同じ扱いとする。<br>⭐ 例外は 1 つだけ —— 遅延診断の修正の記録の `fix-log.tsv`（表 T-346 の `RW-20`）は、Excel で開く書類なので BOM を付け、行末を CRLF とする（MUST）。<br>⛔ ほかのファイルへこの例外を広げてはならない（MUST NOT） —— 同じ表の `IO-9` のほかの書き出しと、`GRS JSON`・MSPDI・`.svg`・`.html`・`.md` は BOM なしのままである | JDG-3305（JDG-2907 の BOM 付き・CRLF を名指しの例外にする）、studies/77 §3 文字の符号化 ① | rewrite |
+| G-1 | CR-851 | どう描くかは `TaskVisual.shapeKind` が持ち、書き出さない。 | どう描くかは `TaskVisual.taskShape`（マイルストーンでない `Task`）と `TaskVisual.milestoneShape`（マイルストーン）が持ち、書き出さない。<br>どちらを持つかは `Task.milestone` が決める | JDG-3311（shapeKind を taskShape／milestoneShape に分ける） | rewrite |
+| L-1 | CR-851 | \| 横（`zoomX`） \| | \| 横（`dayWidthPx` —— 1 日の幅） \| | JDG-3292（zoomX → dayWidthPx）。名だけ。LOD の振る舞いは CR-853 | rewrite |
+| L-3 | CR-851 | \| 縦（`zoomY`）＝ 高さ \| | \| 縦（`taskGroupAutoExpandDepth` —— `treeState` が `auto` のタスクグループが開く深さ） \| | JDG-3293・JDG-3296（zoomY の 1 未満の働きは taskGroupAutoExpandDepth が持つ）。名と意味だけ。LOD の振る舞いは CR-853 | rewrite |
+| W-9 | CR-851 | \| W-9 \| `carry` / `carryElements` の中身 \| | \| W-9 \| `passthroughValues` / `passthroughElements` の中身 \| | 所見 F44（carry → passthrough…、CHOICE N1）、JDG-3279 | rewrite |
+| prose 1.9 表記規約 | CR-851 | > 交換相手の綴りが現れてよいのは `carry` と `carryElements` の内側だけである（MUST）。 | > 交換相手の綴りが現れてよいのは `passthroughValues` と `passthroughElements` の内側だけである（MUST）。 | 所見 F44（CHOICE N1） | rewrite |
+| A-1 | CR-851 | ⑤目盛の帯の中の段（`rulerHeightPx` の内訳）⑥取り消しの 1 段（`FR-031`）**⑦文字サイズの段（`fontSizeStep` の S / M / L）**。 | ⑤目盛の帯の中の段（目盛の帯の高さの内訳 —— 帯の高さは `fontSizeStep` から導く値であり、文書に持たない）⑥取り消しの 1 段（`FR-031`）**⑦文字サイズの段（`fontSizeStep` の `small` / `medium` / `large`）**。 | JDG-3294（rulerHeightPx を消し道具が導く）、JDG-3295（S/M/L → small/medium/large） | rewrite |
+| A-5 | CR-851 | マイルストーンの図形は「マイルストーン形状（`milestoneGlyph`）」と書く。 | マイルストーンの図形は「マイルストーン形状（`milestoneShape`）」と書く。 | JDG-3311（milestoneGlyph → milestoneShape、画面の語と同じ名） | rewrite |
+| prose FR-001 | CR-851 | 作った `Task` は新しいタスクグループの導出元になれるが、注記はなれないからである（`_assets/fig-erd-detail.md` の `AT-54` と `FR-058`）。 | 作った `Task` は新しいタスクグループが表すタスク（`_assets/fig-erd-detail.md` の `AT-54` の `representedTaskUid`）になれるが、注記はタスクを表さないからである。 | JDG-3315（名の写しをやめる。AT-54 は名の導出元でなく表すタスク）、所見 F27 | rewrite |
+| TC-2 | CR-851 | 新しい `Task` の `UID` は `Project.uidHighWaterMark` に従って採ること（MUST）。 | 新しい `Task` の `UID` は `Project.highestIssuedUid` に従って採ること（MUST）。<br>⭐ 採れる `UID` は 0 〜 2147483647 である（`_assets/fig-erd-detail.md` の `AT-24`） —— `highestIssuedUid` が 2147483647 に達した文書では作るのを断り、表 T-233 の理由で告げる | 所見 F23（uidHighWaterMark → highestIssuedUid、CHOICE N7）、JDG-3284（uid は 0〜2147483647） | rewrite |
+| TC-11 | CR-851 | `parentTaskUid` の `null` は根を表す（`AT-25`）。 | `parentTaskUid` を書かない `Task` は根である（`AT-25`）。 | JDG-3309（無い ＝ プロパティを書かない）、R3 Null Trap | rewrite |
+| TC-12 | CR-851 | \| TC-12 \| その場で作ったタスクグループ名 \| その場で作ったタスクグループは名前の指定を持たないので、載せたタスクをそのタスクグループ名の導出元とすること（MUST） —— 名前も導出元も無いタスクグループの禁止は `FR-058` が持つ。<br> \| | \| TC-12 \| その場で作ったタスクグループ名 \| その場で作ったタスクグループには名を書かないこと（MUST） —— 画面では題が空のタスクグループになる。<br>載せたタスクを、そのタスクグループが表すタスク（`AT-54` の `representedTaskUid`）とすること（MUST）。<br>⛔ 載せたタスクの名をタスクグループ名へ写してはならない（MUST NOT） —— タスクとタスクグループは別物であり、作った後でタスクに名を付けても変えても、タスクグループ名は変わらない（`FR-085`）。<br> \| | JDG-3315（GRS の中でタスクからグループを作るときも名を写さない、名を強いない）、JDG-3303（ついて行かない） | rewrite |
+| prose FR-001 表 T-012 の題 | CR-851 | **表 T-012 — タスク形状（`shapeKind`）** | **表 T-012 — タスク形状（`taskShape` と `milestoneShape`）** | JDG-3311 | rewrite |
+| prose FR-001 SH-5 の綴り | CR-851 | ⛔ `SH-5` が並べる 15 の印と `TaskVisual.milestoneGlyph` の綴りの対応は次のとおりとすること（MUST） | ⛔ `SH-5` が並べる 15 の印と `TaskVisual.milestoneShape` の綴りの対応は次のとおりとすること（MUST） | JDG-3311（綴りの値は変えない） | rewrite |
+| prose FR-094 | CR-851 | ⚠️ 名前の字は `zoomY` に従うので、 | ⚠️ 名前の字は縦のズーム（`verticalZoomRatio`）に従うので、 | JDG-3293（zoomY の大きさの部分 → verticalZoomRatio）。名だけ | rewrite |
+| VG-2 | CR-851 | ⭐ `zoomX` / `zoomY` と表示の倍率（`FR-039`）の、どの組でもこの式で求める | ⭐ 1 日の幅（`dayWidthPx`）・縦のズーム（`verticalZoomRatio`）と表示の倍率（`FR-039`）の、どの組でもこの式で求める | JDG-3292・JDG-3293。名だけ | rewrite |
+| VG-3 | CR-851 | ⛔ 表示の倍率の描く比も `zoomY` も掛けてはならない（MUST NOT） | ⛔ 表示の倍率も縦のズーム（`verticalZoomRatio`）も掛けてはならない（MUST NOT） | JDG-3293、JDG-3277（描く比 0.625 が無くなるので「表示の倍率」と言う）。名だけ | rewrite |
+| VG-5 | CR-851 | 枠線（その形の枠線の太さの列 `AT-104` の値、`null` のときは `S-39` に、描く比を掛けた太さ）は形の端を中心に引くので、 | 枠線（その形の枠線の太さの列 `AT-104` の値 —— 表示の倍率 100 のときの CSS px —— に、`S-234` を 100 で割った値を掛けた太さ）は形の端を中心に引くので、 | JDG-3278・JDG-3308（AT-104 は必須の 1〜10、既定 1、倍率 100 の px）、JDG-3277（0.625 を畳む）、JDG-3291 | rewrite |
+| FD-5 | CR-851 | フェード長が未設定（`null`）の端は、フェードの無い矢羽根と同じ深さ | フェード長を持たない（`fadeInCalendarDays` ／ `fadeOutCalendarDays` のプロパティが無い）端は、フェードの無い矢羽根と同じ深さ | JDG-3309（無い ＝ プロパティを書かない）、JDG-3312（名 fadeInCalendarDays／fadeOutCalendarDays） | rewrite |
+| FD-5 | CR-851 | 矢羽根では、開始側の切り込みの深さを `fadeIn` に、終了側の先端の深さを `fadeOut` に、端ごとに置き換えること（MUST）。 | 矢羽根では、開始側の切り込みの深さを `fadeInCalendarDays` に、終了側の先端の深さを `fadeOutCalendarDays` に、端ごとに置き換えること（MUST）。 | JDG-3312 | rewrite |
+| prose FR-075 | CR-851 | **既定値は `null` とし、`0` と区別すること（MUST）** —— `null` は「元のファイルに無い」を表し、書き出しで拡張領域を出さない。 | **フェードを置いていない端はプロパティを書かず、`0` と区別すること（MUST）** —— プロパティが無いことは「フェードを持たない」を表し、書き出しで拡張領域を出さない。<br>`0` は端を平らにする明示のゼロである | JDG-3309、R3 Null Trap、所見 F21 | rewrite |
+| prose FR-075 | CR-851 | ⭐ 矢羽根では、`null` と `0` の区別が形に出る（`FD-5`）。 | ⭐ 矢羽根では、プロパティが無いことと `0` の区別が形に出る（`FD-5`）。 | JDG-3309 | rewrite |
+| prose FR-075 | CR-851 | ⭐ 端を未設定へ戻す道は、プロパティパネルのその欄（表 T-016 の `PR-14`）を空にして確定することとする（MUST） —— 空は `null` を書く。0 を書いてはならない（MUST NOT）。 | ⭐ 端を未設定へ戻す道は、プロパティパネルのその欄（表 T-016 の `PR-14`）を空にして確定することとする（MUST） —— 空はそのプロパティを文書から除く。0 を書いてはならない（MUST NOT）。 | JDG-3309、JDG-3268（clear はプロパティを除く） | rewrite |
+| prose FR-091 RATIONALE | CR-851 | **RATIONALE**: **名前の無いタスクは日程表として読めない。** | **RATIONALE**: **名前は日程表を読む手がかりなので、作った直後に打てる道を用意する。**   ⏎ ⛔ 名前を強いてはならない（MUST NOT） —— 「このあたりに何かある」としか言えない段では、名前をまだ付けられない。名の無いタスクは `name` を書かない（`_assets/fig-erd-detail.md` の `AT-27`）。 | JDG-3315（タスク名を強いない） | rewrite |
+| prose FR-002 ND | CR-851 | 描いた形（`TaskVisual.shapeKind`）で決めてはならない（MUST NOT）。 | 描いた形（`TaskVisual.taskShape` ／ `milestoneShape`）で決めてはならない（MUST NOT）。 | JDG-3311 | rewrite |
+| prose FR-002 ND | CR-851 | ⚠️ 2 つが食い違う文書は作らせない —— `GRS JSON` から来た食い違いは `05-07-design.md` の 表 T-220 の `IV-22` が取り込みで拒み、MSPDI の上書きで生まれる食い違いは 表 T-032 の `MG-8` が形を揃えて消す。 | ⚠️ 2 つが食い違う文書は作らせない —— `GRS JSON` から来た食い違い（マイルストーンが `taskShape` を持つ、またはマイルストーンでないタスクが `milestoneShape` を持つ）は `05-07-design.md` の 表 T-220 の `IV-22`（書き直した行）が取り込みで拒み、MSPDI の上書きで `Task.milestone` が変わったときは 表 T-032 の `MG-8` が形のプロパティを付け替える。 | JDG-3311（マイルストーンかどうかは Task.milestone だけが言う。IV-22 は「形のプロパティの有無が Task.milestone に従う」に書き直す —— refusal-reasons-map の milestoneShapeMismatch。doc-shape-choices §9 は IV-23 へ畳む案で、食い違う） | rewrite |
+| RW-6 | CR-851 | 修正の記録が 0 行なら修正の記録の節を書かない \| | 修正の記録が 0 行なら修正の記録の節を書かない。<br>⚠️ **この `.md` は人が読む書類であり、外へ約束する形（外部契約）に数えない** —— 語と見出しは画面の言語のまま書く。機械が診断を読む道は `Agent API` の `readDelayDiagnostics`（言語によらない変わらない名）である \| | JDG-3288（遅延診断レポートの .md は人向け、外部契約に数えない） | rewrite |
+
+### タスクグループの名と表すタスク（FR-005・FR-032・FR-033・FR-058 の側）
+
+
+| 行 | CR | 古い | 新しい | 理由 | 種別 |
+| --- | --- | --- | --- | --- | --- |
+| HM-9 | CR-851 | ⛔ 導出元を持たないタスクグループは何も伝えない、と読んではならない（MUST NOT） —— 起動時の文書には `derivedFromTaskUid` を持つタスクグループが無いことがあり、そう読むとどのタスクグループも何も伝えず、本行の見出しの MUST が空になる。 | ⛔ 表すタスクを持たないタスクグループは何も伝えない、と読んではならない（MUST NOT） —— 起動時の文書には `representedTaskUid` を持つタスクグループが無いことがあり、そう読むとどのタスクグループも何も伝えず、本行の見出しの MUST が空になる。 | 所見 F27（derivedFromTaskUid → representedTaskUid）、JDG-3315（名の導出元ではなくなる） | rewrite |
+| HM-9 | CR-851 | **⭐ 順位を決めるのは「その `Task` を**描いている**タスクグループ」であって、その `Task` から導出されたタスクグループではない。<br>**⚠️ **移した後のタスクグループのバーは、もともとそのタスクグループに在ったバーと区別しない** —— ⛔ **導出元で区別してはならない。<br>** | **⭐ 順位を決めるのは「その `Task` を**描いている**タスクグループ」であって、その `Task` を表すタスクグループではない。<br>**⚠️ **移した後のタスクグループのバーは、もともとそのタスクグループに在ったバーと区別しない** —— ⛔ **表すタスクで区別してはならない。<br>** | 所見 F27、JDG-3315 | rewrite |
+| HM-11 | CR-851 | 別の `editPermission` のタスクグループへタスクバーを移す操作を受け付けてはならない（MUST NOT）。 | 別の `editGroup` のタスクグループへタスクバーを移す操作を受け付けてはならない（MUST NOT）。 | commands-choices G（editPermission → editGroup）、JDG-3279 | rewrite |
+| HM-12 | CR-851 | \| HM-12 \| 導出元を持つタスクグループ（`derivedFromTaskUid` が文書の `Task` を指すタスクグループ）を、…移した先の親のタスクグループからタスクグループの木を根の側へたどり、最初に出会う導出元を持つタスクグループの `Task` を親とする —— 移した先の親のタスクグループが導出元を持てば、そのタスクグループの `Task` である。<br>たどっても導出元を持つタスクグループが無いとき（いちばん上の段へ移したときを含む）は、根（親なし）とする。<br>⭐ **移した後のタスクグループのバーは、移した後のタスクグループのバーである** —— 親タスクを、タスクグループの木の上で最も近い導出元に合わせる。 | \| HM-12 \| 表すタスクを持つタスクグループ（`representedTaskUid` が文書の `Task` を指すタスクグループ）を、別の親のタスクグループの下か、いちばん上の段へ移したときは、そのタスクグループの `Task` の親タスクを次のとおりとすること（MUST）。<br>移した先の親のタスクグループからタスクグループの木を根の側へたどり、最初に出会う表すタスクを持つタスクグループの `Task` を親とする —— 移した先の親のタスクグループが表すタスクを持てば、そのタスクグループの `Task` である。<br>たどっても表すタスクを持つタスクグループが無いとき（いちばん上の段へ移したときを含む）は、根（親なし —— `parentTaskUid` を書かない）とする。<br>⭐ **移した後のタスクグループのバーは、移した後のタスクグループのバーである** —— 親タスクを、タスクグループの木の上で最も近い表すタスクに合わせる。 | 所見 F27、JDG-3315、JDG-3309（根 ＝ parentTaskUid を書かない） | rewrite |
+| prose FR-111 STATEMENT | CR-851 | 名乗りを持つのは `TaskGroup` の `editPermission` であり、`null` は「誰でも編集できる」と読むこと（MUST）。 | 名乗りを持つのは `TaskGroup` の `editGroup` であり、`editGroup` を書かないタスクグループは「誰でも編集できる」と読むこと（MUST）。 | JDG-3309（null に意味を持たせない、studies/77 null ①）、commands-choices G（editGroup） | rewrite |
+| GP-1 | CR-851 | **`editPermission` が `null` でないタスクグループに載るタスクの編集を受け付けてはならない（MUST NOT）。<br>** | **`editGroup` を持つタスクグループに載るタスクの編集を受け付けてはならない（MUST NOT）。<br>** | JDG-3309、commands-choices G | rewrite |
+| GP-1 | CR-851 | ⭐ **`editPermission` そのもの（表 T-016 の `PR-33`）は、人がプロパティパネルで入れ・消せること（MUST）。<br>** `null` でないタスクグループでも入れ・消せる —— 消せなければ、名乗ったタスクグループを人が戻す道が無い。<br>⛔ **`editPermission` を `Agent API` から書き換えさせてはならない（MUST NOT）** —— `null` のタスクグループでも同じである。 | ⭐ **`editGroup` そのもの（表 T-016 の `PR-33`）は、人がプロパティパネルで入れ・消せること（MUST）** —— 消すとプロパティが文書から除かれる。<br>`editGroup` を持つタスクグループでも入れ・消せる —— 消せなければ、名乗ったタスクグループを人が戻す道が無い。<br>⛔ **`editGroup` を `Agent API` から書き換えさせてはならない（MUST NOT）** —— `editGroup` を持たないタスクグループでも同じである（`editTaskGroup` の `set`・`clear` に載せても断る）。 | JDG-3309、JDG-3268（clear はプロパティを除く）、commands-choices B.4・F.8 | rewrite |
+| GP-2 | CR-851 | ⛔ **親のタスクグループの `editPermission` を子のタスクグループへ継承してはならない（MUST NOT）。<br>** | ⛔ **親のタスクグループの `editGroup` を子のタスクグループへ継承してはならない（MUST NOT）。<br>** | commands-choices G | rewrite |
+| GP-4 | CR-851 | \| GP-4 \| タスクグループをまたぐ移動の可否は `editPermission` が決める。 | \| GP-4 \| タスクグループをまたぐ移動の可否は `editGroup` が決める。 | commands-choices G | rewrite |
+| GP-5 | CR-851 | **別の `editPermission` のタスクグループに載るタスクが、消そうとしているタスクを先行としているとき、その旨を挙げること（MUST）** | **別の `editGroup` のタスクグループに載るタスクが、消そうとしているタスクを先行としているとき、その旨を挙げること（MUST）** | commands-choices G | rewrite |
+| GP-7 | CR-851 | \| GP-7 \| ⭐ **タスクグループ（`TaskGroup`）そのものの削除は、`editPermission` が `null` でないタスクグループでも受け付けること（MUST）。<br>** | \| GP-7 \| ⭐ **タスクグループ（`TaskGroup`）そのものの削除は、`editGroup` を持つタスクグループでも受け付けること（MUST）。<br>** | JDG-3309、commands-choices G | rewrite |
+| GP-7 | CR-851 | 配下のタスクグループが別の `editPermission` を名乗っていても消える（名乗りはタスクグループごとである —— `GP-2`）。<br>⭐ 消す連鎖（同表の `CD-1` の子孫タスク）が、`editPermission` が `null` でない別のタスクグループに載る `Task` に届くときも、消すこと（MUST） | 配下のタスクグループが別の `editGroup` を名乗っていても消える（名乗りはタスクグループごとである —— `GP-2`）。<br>⭐ 消す連鎖（同表の `CD-1` の子孫タスク）が、`editGroup` を持つ別のタスクグループに載る `Task` に届くときも、消すこと（MUST） | JDG-3309、commands-choices G | rewrite |
+| GP-7 | CR-851 | ⛔ **`Agent API` からの削除は、消すものが `editPermission` が `null` でないタスクグループか、そのタスクグループに載る `Task` に届くとき、受け付けてはならない（MUST NOT）** | ⛔ **`Agent API` からの削除は、消すものが `editGroup` を持つタスクグループか、そのタスクグループに載る `Task` に届くとき、受け付けてはならない（MUST NOT）** | JDG-3309、commands-choices G | rewrite |
+
+### プロパティパネルと読むだけの設定（FR-006・FR-072）
+
+
+| 行 | CR | 古い | 新しい | 理由 | 種別 |
+| --- | --- | --- | --- | --- | --- |
+| prose FR-006 | CR-851 | 空のまま確定したときは、`start` ／ `finish` の欄なら何も書かずに欄を元の値へ戻し、それ以外の日付の欄なら `null` を書くこと（MUST） | 空のまま確定したときは、`start` ／ `finish` の欄なら何も書かずに欄を元の値へ戻し、それ以外の日付の欄ならそのプロパティを文書から除くこと（MUST） | JDG-3309、JDG-3268（clear はプロパティを除く）、commands-choices F.27（start・finish は clear を取らない） | rewrite |
+| prose FR-006 | CR-851 | `fadeInDays` / `fadeOutDays` のように1 行に入らないものが出る。 | `fadeInCalendarDays` / `fadeOutCalendarDays` のように1 行に入らないものが出る。 | JDG-3312（名） | rewrite |
+| prose FR-006（パネルの字） | CR-851 | ⭐ **`fontSizeStep` が決めるのは日程表そのものの文字であり**（`S-3` の `rulerFontSizePx` と表 T-201 のラベル群）、**パネルは日程表ではなく外枠である。** | ⭐ **`fontSizeStep` が決めるのは日程表そのものの文字であり**（目盛の字 `S-3` —— 文書に持たず `fontSizeStep` から導く —— と表 T-201 のラベル群）、**パネルは日程表ではなく外枠である。** | JDG-3294（rulerFontSizePx は道具が導く） | rewrite |
+| prose FR-006（パネルの字） | CR-851 | ⛔ `fontSizeStepSizes` に掛けると、いちばん大きい `L` でも 11.2px にしかならず、`S` では 8.4px になる。 | ⛔ `fontSizeStepSizes` に掛けると、いちばん大きい `large` でも 7px にしかならず、`small` では 5.25px になる。 | JDG-3295（値の名）、JDG-3277（T-215 が 7.5／8.75／10 に畳まれるので数も直す。11.2 ÷ 16 × 10 ＝ 7、8.4 ÷ 12 × 7.5 ＝ 5.25 —— 掛ける比 0.7 は同じ文の前段のまま） | rewrite |
+| RN-3 | CR-851 | \| RN-3 \| 見えている範囲（`groupView`） \| `zoomX`・`zoomY`・`scrollDate` と `scrollDateFraction`（1 行）・`scrollTaskGroupId` と `scrollTaskGroupFraction`（1 行）・`pinnedTaskGroupIds`・`levelZeroTreeState` \| | \| RN-3 \| 見えている範囲（`groupView`） \| `dayWidthPx`・`verticalZoomRatio`・`taskGroupAutoExpandDepth`・`scrollPosition` の `leftEdgeDay` と `leftEdgeDayFraction`（1 行）・`scrollPosition` の `topEdgeTaskGroupId` と `topEdgeTaskGroupFraction`（1 行）・`pinnedTaskGroupIds`・`levelZeroTreeState` \| | JDG-3292・JDG-3293・JDG-3296（名）、所見 F12・CHOICE N4（scrollPosition） | rewrite |
+| RN-3 | CR-851 | \| 倍率 → `percent`（1 は 100）。<br>左端 → `yyyy/mm/dd hh:mm`（`scrollDate` の日付と、`scrollDateFraction` の日の中の比を 0:00 からの時刻にした字で、時は 2 桁）、日付が `null` は `notSet`。<br>上端 → `groupFromTop`（`scrollTaskGroupId` のタスクグループの名と、`scrollTaskGroupFraction` の `percent`）、id が `null` か文書に無いときは `notSetFromTop`。 | \| 1 日の幅 → `pixels`。<br>縦のズーム → `percent`（1 は 100）。<br>開く深さ → 数。<br>左端 → `yyyy/mm/dd hh:mm`（`leftEdgeDay` の日付と、`leftEdgeDayFraction` の日の中の比を 0:00 からの時刻にした字で、時は 2 桁）、`scrollPosition` が `notDecided` のときは `notSet`。<br>上端 → `groupFromTop`（`topEdgeTaskGroupId` のタスクグループの名と、`topEdgeTaskGroupFraction` の `percent`）、`notDecided` か id が文書に無いときは `notSetFromTop`。 | JDG-3292（1 日の幅は px で持つので percent でなく pixels）、JDG-3293・JDG-3296、JDG-3309（notDecided は kind）。⚠️ 開く深さの見せ方（数）と語のプロパティは私の案 —— 辞書に語を足す | rewrite |
+| RN-5 | CR-851 | \| RN-5 \| 目盛と積む向き（`groupRulerAndStack`） \| `rulerFontSizePx`・`rulerHeightPx`・`stackDirection` \| 表 T-104 の `K-3`・`K-2`・`K-73` \| 数 → `pixels`。<br>`up` → `stackUp`、`down` → `stackDown` \| | \| RN-5 \| 積む向き（`groupRulerAndStack`） \| `stackDirection` \| 表 T-104 の `K-73` \| `up` → `stackUp`、`down` → `stackDown` \| | JDG-3294（RN-5 の rulerFontSizePx の読むだけの行を消す。帯の高さも同じく文書から消える）、doc-shape-choices §9 | rewrite |
+| RN-6 | CR-851 | `null` → `defaultOrder`、ほかは `sortAscending` ／ `sortDescending`（列の名はその表の見出しの語） | `sort` が無い → `defaultOrder`、ほかは `sortAscending` ／ `sortDescending`（列の名はその表の見出しの語） | JDG-3309（sort は省ける組 {column,direction}） | rewrite |
+
+### 色（FR-007 と 表 T-017・T-017b）
+
+
+| 行 | CR | 古い | 新しい | 理由 | 種別 |
+| --- | --- | --- | --- | --- | --- |
+| prose FR-007 STATEMENT | CR-851 | **塗りと輪郭を同時に透明にすることを許してはならない（MUST NOT）。** | **塗りと輪郭の両方を描かない（両方の色のプロパティを除く）ことを許してはならない（MUST NOT）。** | JDG-3310（色のプロパティを書かない ＝ 描かない、透明は無くなる）、IV-9 の書き直し | rewrite |
+| prose FR-007 | CR-851 | **色を指定しなければテーマ色に追随する。** | **色を指定しなければテーマ色に追随する** —— 作るときは色のプロパティに `{"kind":"theme"}` を書く。 | JDG-3310・JDG-3302（theme は kind）、doc-shape-map AT-102（GRS writes theme at creation） | rewrite |
+| prose FR-007 | CR-851 | パレットから選べば上書きになり、`themeHue` を変えても動かなくなる。 | パレットから選べば上書きになり、`themeHueDegrees` を変えても動かなくなる。 | CHOICE N6（themeHue → themeHueDegrees） | rewrite |
+| prose FR-007 | CR-851 | テーマ色の解き方は `themeHue` からの算出とし、表 T-017a の条件をすべて満たすこと（MUST）。 | テーマ色の解き方は `themeHueDegrees` からの算出とし、表 T-017a の条件をすべて満たすこと（MUST）。 | CHOICE N6 | rewrite |
+| CL-1 | CR-851 | \| CL-1 \| パレット色 \| 白 / 黒 / 濃い灰色 / 薄い灰色 / 赤 / 青 / 黄 / 緑 / オレンジ / 紫 / **透明**。<br>保存する綴りと、明暗それぞれで描く値は `_assets/tbl-settings.md` の 表 T-294 が持つ \| | \| CL-1 \| パレット色 \| 白 / 黒 / 濃い灰色 / 薄い灰色 / 赤 / 青 / 黄 / 緑 / オレンジ / 紫。<br>保存する名と、明暗それぞれで描く値は `_assets/tbl-settings.md` の 表 T-294 が持つ。<br>⭐ 色の欄はこのほかに **透明** の入口を持つ —— 透明は保存する名ではなく、その色のプロパティを除く（描かない）操作である。コメントボックスとハイライトボックスの塗りの欄では、色を残して透過率を 100 にする（`FR-019`） \| | JDG-3310（透明 ＝ プロパティを書かない）、JDG-3276（箱の塗りは透過率 100）、所見 F05 | rewrite |
+| CL-2 | CR-851 | \| CL-2 \| 線の太さ \| 整数の px。<br>受ける下限と上限は列の定義（`AT-104`）に書く。<br>`null` のときは `_assets/tbl-settings.md` の 表 T-201 の `S-39` の太さで描く \| | \| CL-2 \| 線の太さ \| 1 〜 10 の整数で、表示の倍率 100 のときの CSS px とする。<br>受ける下限と上限は列の定義（`AT-104`）に書く。<br>⭐ 列はいつも値を持つ —— タスクを作るときは `_assets/tbl-settings.md` の 表 T-201 の `S-39` の 1 を書く \| | JDG-3278（1〜10 を画面の px に）、JDG-3308（既定 1、いつも書く）、JDG-3291 | rewrite |
+| CV-1 | CR-851 | パレット色を選んだら、`_assets/tbl-settings.md` の 表 T-294 の「保存する綴り」の欄の名（例: `red`）を保存すること（MUST）。 | パレット色を選んだら、`{"kind":"palette","name":"red"}` の形で、名を `_assets/tbl-settings.md` の 表 T-294 の「保存する名」の欄の名として保存すること（MUST）。 | JDG-3260・JDG-3310（kind の入れ物）、所見 F01〜F03 | rewrite |
+| CV-1 | CR-851 | ⚠️ 綴りは CSS の色の名と同じ字であるが、CSS の色ではない —— 描く値は 表 T-294 だけが持つ。 | ⚠️ 名の多くは CSS の色の名と同じ字であるが、CSS の色ではない（`paper`・`ink`・`dimGray`・`lightGray` は CSS の名とも違う） —— 描く値は 表 T-294 だけが持つ。 | 所見 F05（white → paper、black → ink、CHOICE N18 dimGray・lightGray） | rewrite |
+| CV-2 | CR-851 | \| CV-2 \| カスタムカラーの持ち方 \| カスタムカラーは、明るいテーマの値と暗いテーマの値の 2 つを持つこと（MUST）。<br>どちらも `#rrggbb`（16 進 6 桁）か未定義とする。<br>2 つとも未定義にしてはならない（MUST NOT） —— 描く値が無くなる。<br>綴りは `_assets/fig-erd-detail.md` の `AT-102` が持つ \| | \| CV-2 \| カスタムカラーの持ち方 \| カスタムカラーは `{"kind":"custom","light":…,"dark":…}` とし、明るいテーマの側（`light`）と暗いテーマの側（`dark`）を、それぞれ `{"value":"#rrggbb","source":…}` で持つこと（MUST）。<br>`value` は小文字の 16 進 6 桁とする。<br>`source` は、人が選んだ側が `chosen`、`GRS` が `CV-3` で導いた側が `derived` である。<br>⭐ 片側を省いてよい —— AI や手で書いた文書のためであり、開くときに `CV-3` が導く。<br>⛔ 両側とも省いてはならない（MUST NOT） —— 描く値が無くなる。<br>形は `_assets/fig-erd-detail.md` の `AT-102` が持つ \| | JDG-3260（custom の形）、JDG-3077（片側を省いてよい、印を付けて書く）、JDG-3265、CHOICE T3（小文字） | rewrite |
+| CV-3 | CR-851 | \| CV-3 \| 未定義の側 \| 未定義の側の明暗で描くときは、もう一方の側の値で描くこと（MUST）。<br>例: 明るいテーマの値だけを持つ色は、暗いテーマでも明るいテーマの値で描く \| | \| CV-3 \| もう一方の側を導く \| 片側だけが `chosen` のカスタムカラーの、もう一方の側は、`chosen` の側の値を HSL で読み、明度 L を 1 − L にし、色相と彩度は動かさずに導くこと（MUST）。<br>両向き（明るい側から暗い側、暗い側から明るい側）とも同じ式である。<br>導いた側は `source` を `derived` として持つこと（MUST）。<br>⭐ 片側が無いカスタムカラーを持つ文書を開いたときは、読み込むときにその側を導いて `derived` でメモリに持ち、次に保存するときにそのまま書くこと（MUST） —— 描くたびには導かない。<br>⛔ 開いたときに導いたことを、未保存の編集（`FR-100`）にしてはならず、取り消しの履歴に入れてもならない（MUST NOT） —— 人は何も変えていない。<br>⭐ `chosen` の側が変わったときは、`derived` の側を同じ式で導き直すこと（MUST）。<br>⛔ 両側とも `chosen` の色を導き直してはならない（MUST NOT） \| | JDG-3183（HSL の L を 1−L、両向き同じ式、JDG-3075 を覆す）、JDG-3077（読み込むときに導き印を付ける、未保存にしない）、JDG-3184（印の持ち方） | rewrite |
+| CV-4 | CR-851 | \| CV-4 \| カスタムカラーを選んだとき \| いま描いている明暗（`FR-041`）の側の値だけを、選んだ値にすること（MUST）。<br>もう一方の側は、選ぶ前の色がカスタムカラーならその値を保ち、そうでなければ未定義とすること（MUST）。<br>⭐ 明るいテーマで決めた色に暗いテーマの値を足すには、暗いテーマに切り替えてから選び直す \| | \| CV-4 \| カスタムカラーを選んだとき \| いま描いている明暗（`FR-041`）の側に、選んだ値を `chosen` で書くこと（MUST）。<br>もう一方の側は、選ぶ前の色がカスタムカラーでその側が `chosen` ならそのまま保ち、そうでなければ `CV-3` で導いて `derived` で書くこと（MUST）。<br>⭐ 明るいテーマで決めた色の暗いテーマの値を自分で決めるには、暗いテーマに切り替えてから選び直す —— その側が `chosen` になり、以後は導き直さない \| | JDG-3077・JDG-3183（選んだ側が変われば導き直す） | rewrite |
+| CV-5 | CR-851 | \| CV-5 \| パレット色へ戻す \| カスタムカラーを持つ欄でパレット色（透明を含む）を選んだら、2 つの値を両方捨てること（MUST）。<br>テーマ追随へ戻したとき（本要求の「戻す入口」）も同じである \| | \| CV-5 \| パレット色へ戻す \| カスタムカラーを持つ欄でパレット色を選んだら、2 つの側を両方捨て、`{"kind":"palette","name":…}` を書くこと（MUST）。<br>透明を選んだとき（色のプロパティを除く —— 箱の塗りでは色を残して透過率を 100 にする、`FR-019`）と、テーマ追随へ戻したとき（本要求の「戻す入口」 —— `{"kind":"theme"}` を書く）も、2 つの側を捨てる \| | JDG-3310、JDG-3276 | rewrite |
+| CV-6 | CR-851 | ⭐ 白と黒は暗いテーマで入れ替わる（表 T-294 の `S-314` ・ `S-315`）。 | ⭐ `paper`（白）と `ink`（黒）は暗いテーマで入れ替わる（表 T-294 の `S-314` ・ `S-315`） —— 名は明暗によらない役（地の色と字の色）を言う。 | 所見 F05（white/black の名が暗いテーマで嘘になる） | rewrite |
+| CV-8 | CR-851 | \| CV-8 \| 満たす条件 \| 表 T-294 の値は、白（`S-314`）と透明（`S-324`）を除き、 | \| CV-8 \| 満たす条件 \| 表 T-294 の値は、`paper`（`S-314`）を除き、 | JDG-3310（透明 S-324 は保存する名でなくなり表から退く）、所見 F05 | rewrite |
+| CV-8 | CR-851 | ⛔ カスタムカラーの値を、明暗のどちらの側でも自動で補正してはならない（MUST NOT）。<br>未定義の側を `CV-3` で描いたことを通知してはならない（MUST NOT） —— 選んだのは作成者である \| | ⛔ `chosen` の側の値を自動で補正してはならない（MUST NOT） —— `CV-3` が導くのは `derived` の側だけである。<br>`CV-3` で導いたことを通知してはならない（MUST NOT） —— 導き方は両向きとも同じ式であり、作成者が選び直せばその側は `chosen` になる \| | JDG-3077・JDG-3183 | rewrite |
+| CV-9 | CR-851 | テーマに戻す入口は、その欄の `null` が描く色の 表 T-236 の行の色相の欄が ○ ならテーマの色に従うことを言う語、— なら既定の色に従うことを言う語、 | テーマに戻す入口は、その欄の `{"kind":"theme"}` が描く色の 表 T-236 の行の色相の欄が ○ ならテーマの色に従うことを言う語、— なら既定の色に従うことを言う語、 | JDG-3310・JDG-3302（theme は kind） | rewrite |
+| CV-9 | CR-851 | ⭐ 同じ「透明」でも、塗りの欄では塗らないこと（後ろが見える）、線の欄では線を引かないことを選んでいる。 | ⭐ 同じ「透明」でも、塗りの欄では塗らないこと（後ろが見える）、線の欄では線を引かないことを選んでいる —— どちらも色のプロパティを除く（`JDG-3310`）。<br>⚠️ コメントボックスとハイライトボックスの塗りの欄の透明は、色を残して透過率を 100 にする（`FR-019`）。 | JDG-3310、JDG-3276 | rewrite |
+| CV-9 | CR-851 | ⭐ 欄の値を示す見本を、太い縁で囲むこと（MUST） —— 値が `null` ならテーマに戻す入口、透明なら透明の入口、パレット色ならその名の見本、カスタムカラーならカスタムカラーの入口である。 | ⭐ 欄の値を示す見本を、太い縁で囲むこと（MUST） —— 値が `{"kind":"theme"}` ならテーマに戻す入口、色のプロパティが無い（描かない）か箱の塗りの透過率が 100 なら透明の入口、パレット色ならその名の見本、カスタムカラーならカスタムカラーの入口である。 | JDG-3310、JDG-3276 | rewrite |
+| CV-9 | CR-851 | テーマに戻す入口の見本は、その欄の `null` がいま描いている色（テーマの色か既定の色）で塗る。 | テーマに戻す入口の見本は、その欄の `{"kind":"theme"}` がいま描いている色（テーマの色か既定の色）で塗る。 | JDG-3310 | rewrite |
+| CV-9 | CR-851 | ⭐ テーマに戻す入口は `CV-5` の「戻す入口」（`FR-007`）であり、押したらその欄の色をテーマ追随（`null`）へ戻すこと（MUST） | ⭐ テーマに戻す入口は `CV-5` の「戻す入口」（`FR-007`）であり、押したらその欄に `{"kind":"theme"}` を書いてテーマ追随へ戻すこと（MUST） | JDG-3310 | rewrite |
+| CV-9 | CR-851 | 一覧は、表 T-294 の名のうち、タスクグループの帯の欄が「—」でないものとする（透明は「描かない」を持つので一覧に入る）。<br>⛔ 一覧の外の名（黒）は、 | 一覧は、表 T-294 の名のうち、タスクグループの帯の欄が「—」でないものとする（透明は名でなく、帯の色のプロパティを除く入口として欄に並ぶ）。<br>⛔ 一覧の外の名（黒 —— 保存する名は `ink`）は、 | JDG-3310、所見 F04・F05（BandColor は ink を除く） | rewrite |
+| CV-9 | CR-851 | も、`GRS JSON` の取り込み（`05-07-design.md` の 表 T-220 の前文のスキーマ、拒んだときの理由は 表 T-233 の `RS-25`）も受けてはならない（MUST NOT） | も、`GRS JSON` の取り込み（`05-07-design.md` の 表 T-220 の前文のスキーマ、拒んだときの理由は 表 T-233 の `RS-25` —— 外へ出す名は `schemaViolation`）も受けてはならない（MUST NOT） | JDG-3285（外へ出す理由は変わらない名）、refusal-reasons-map.tsv | rewrite |
+| prose FR-007 結び | CR-851 | 「透明」は選んだ値であって「指定していない」とは別物なので、**透明を選ぶことは戻すことにならない。** | 「透明」は色のプロパティを除くこと（描かない）であって、テーマに従う `{"kind":"theme"}` とは別物なので、**透明を選ぶことは戻すことにならない。** | JDG-3310 | rewrite |
+
+### テーマ色の名（FR-041）
+
+
+| 行 | CR | 古い | 新しい | 理由 | 種別 |
+| --- | --- | --- | --- | --- | --- |
+| prose FR-041 | CR-851 | 保存するのは `themeHue` / `isThemeMonochrome` の 2 つだけとし、 | 保存するのは `themeHueDegrees` / `isThemeMonochrome` の 2 つだけとし、 | CHOICE N6 | rewrite |
+| prose FR-041 | CR-851 | ⭐ 文書の `themeHue` と等しい行の見本を、 | ⭐ 文書の `themeHueDegrees` と等しい行の見本を、 | CHOICE N6 | rewrite |
+| CF-1 | CR-851 | \| CF-1 \| 解くとき \| テーマ色（`themeHue`）・ | \| CF-1 \| 解くとき \| テーマ色（`themeHueDegrees`）・ | CHOICE N6 | rewrite |
+
+### タスクグループの最小の高さ（FR-042）
+
+
+| 行 | CR | 古い | 新しい | 理由 | 種別 |
+| --- | --- | --- | --- | --- | --- |
+| MH-2 | CR-851 | チェックが外れていることを `null`（下限なし）とすること（MUST）。<br>外したら `null` を書き、値の入力を空にして打てなくすること（MUST）。 | チェックが外れていることを、`minHeightPx` のプロパティが無いこと（下限なし）とすること（MUST）。<br>外したらそのプロパティを除き、値の入力を空にして打てなくすること（MUST）。 | JDG-3309、CHOICE N20（minHeightPx は省ける、値は 1 以上） | rewrite |
+| MH-2 | CR-851 | チェックが入ったまま値を空にして確定したら、チェックを外したのと同じく `null` を書き、チェックを外すこと（MUST） \| | チェックが入ったまま値を空にして確定したら、チェックを外したのと同じくプロパティを除き、チェックを外すこと（MUST） \| | JDG-3309、CHOICE N20 | rewrite |
+
+### 担当（FR-008）
+
+
+| 行 | CR | 古い | 新しい | 理由 | 種別 |
+| --- | --- | --- | --- | --- | --- |
+| prose FR-008 | CR-851 | 新しい `Resource` と `Assignment` の `uid` も `Project.uidHighWaterMark` に従って採ること（MUST） —— 理由は `FR-001` が持つ。 | 新しい `Resource` と `Assignment` の `uid` も `Project.highestIssuedUid` に従って採ること（MUST） —— 理由と範囲（0 〜 2147483647）は `FR-001` が持つ。 | CHOICE N7、JDG-3284 | rewrite |
+
+### 選択と削除（FR-110・FR-032）
+
+
+| 行 | CR | 古い | 新しい | 理由 | 種別 |
+| --- | --- | --- | --- | --- | --- |
+| SL-1 | CR-851 | 矢印の削除は、その子の `parentTaskUid` を `null` にすることである（`FR-135` の 表 T-351 の `PTL-11`）。 | 矢印の削除は、その子の `parentTaskUid` のプロパティを除くことである（`FR-135` の 表 T-351 の `PTL-11`）。 | JDG-3309 | rewrite |
+| prose FR-032 | CR-851 | `Task` を消す前に、その `Task` を名前の導出元にしているタスクグループ名を確定させ、`derivedFromTaskUid` を空にすること（MUST）。 | `Task` を消すときは、その `Task` を表すタスクとしているタスクグループの `representedTaskUid` を除くこと（MUST） —— タスクグループ名には触れない（名はタスクグループ自身の値であり、タスクから写していない）。 | JDG-3315（名を写さない・強いない）、所見 F27 | rewrite |
+| prose FR-032 | CR-851 | 名前も導出元も無いタスクグループを残してはならない（MUST NOT） —— `AT-54` が両方を同時に空にできないと定めており、確定させずに消すと成立しないタスクグループがその場でできる。 | - | JDG-3315（名も表すタスクも無いタスクグループを許す。IV-8 が消える） | remove |
+| prose FR-032 | CR-851 | ⛔ 導出元の `Task` が名前を持たないときは、タスクグループ名を既定の名前に確定させること（MUST）。 | - | JDG-3315（名を確定させる段が無くなる。既定の語 Untitled はタスクグループが 0 になったときの 1 つにだけ使う） | remove |
+| prose FR-032 | CR-851 | 名前が無いことを理由に削除を拒んではならない（MUST NOT） —— ⭐ **語は `FR-038` の辞書が持ち、ここに綴らない。** | 名前が無いことを理由に削除を拒んではならない（MUST NOT）。 | JDG-3315（語を使わなくなるので後半を除く） | rewrite |
+| prose FR-032 | CR-851 | ⚠️ **この場合は例外ではなく、最も普通に起きる** —— `FR-001` は、どのアイテムにも当たらない場所へのドラッグで、名前を持たないタスクと、そのタスクを名前の導出元とするタスクグループを同時に作ると定めている。 | ⚠️ **名の無いタスクと名の無いタスクグループは、例外ではなく最も普通に起きる** —— `FR-001` は、どのアイテムにも当たらない場所へのドラッグで、名前を持たないタスクと、そのタスクを表すタスクとする名の無いタスクグループを同時に作ると定めている。 | JDG-3315 | rewrite |
+| CD-2 | CR-851 | ⚠️ **そのタスクグループを指す表示位置（同 `S-78`）は消さず `null` へ戻す** —— `null` は「人がまだ場所を決めていない」を表す値であり、その扱いは表 T-024a の `OP-10` が持つ \| | ⚠️ **そのタスクグループを指す表示位置（同 `S-77` の `scrollPosition`）は消さず `{"kind":"notDecided"}` へ戻す** —— 「人がまだ場所を決めていない」を表す値であり、その扱いは表 T-024a の `OP-10` が持つ \| | JDG-3309・JDG-3302（notDecided は kind）、CHOICE N4 | rewrite |
+| CD-6 | CR-851 | ⭐ `editPermission` が `null` でないタスクグループも含めて消す | ⭐ `editGroup` を持つタスクグループも含めて消す | JDG-3309、commands-choices G | rewrite |
+| prose 表 T-050 の後の段 | CR-851 | 名前は `FR-038` の辞書の `defaultNames` の `taskGroup` の語とすること（MUST） —— ⛔ **2 つ目の語を作ってはならない（MUST NOT）。** | 名前は `FR-038` の辞書の `defaultNames` の `taskGroup` の語（`Untitled`）とし、`TaskGroup.name` に書くこと（MUST） —— ⛔ **2 つ目の語を作ってはならない（MUST NOT）。**<br>⭐ これが、`GRS` がタスクグループに名を自ら書くただ 1 つの場面である（ほかは MSPDI の取り込みが親タスクの名を写すだけ —— `FR-058`） | JDG-3315（全部消した後の最初のタスクグループは Untitled、ほかで名を強いない） | rewrite |
+
+### コピー（FR-033）
+
+
+| 行 | CR | 古い | 新しい | 理由 | 種別 |
+| --- | --- | --- | --- | --- | --- |
+| prose FR-033 | CR-851 | **ただ 1 つの例外は、複製元のタスクグループが `editPermission` を名乗っているときである** | **ただ 1 つの例外は、複製元のタスクグループが `editGroup` を名乗っているときである** | commands-choices G | rewrite |
+| DU-1 | CR-851 | そのタスクグループからタスクグループの木を根の側へたどり、最初に出会う導出元を持つタスクグループの `Task` を親とし、無ければ根（親なし）とする（表 T-015a の `HM-12` と同じたどり）。<br>⚠️ コピーを載せたタスクグループの導出元がコピー自身かコピー元であるときは、そのタスクグループの親のタスクグループからたどる —— そのタスクグループはコピー元自身が載るタスクグループであり（`FR-058`）、親を指さない。<br>たどりで出会ったタスクグループの導出元がコピーの子孫タスクであるときは、そのタスクグループを飛ばす —— 輪を作らない。 | そのタスクグループからタスクグループの木を根の側へたどり、最初に出会う表すタスクを持つタスクグループの `Task` を親とし、無ければ根（親なし）とする（表 T-015a の `HM-12` と同じたどり）。<br>⚠️ コピーを載せたタスクグループの表すタスクがコピー自身かコピー元であるときは、そのタスクグループの親のタスクグループからたどる —— そのタスクグループはコピー元自身が載るタスクグループであり（`FR-058`）、親を指さない。<br>たどりで出会ったタスクグループの表すタスクがコピーの子孫タスクであるときは、そのタスクグループを飛ばす —— 輪を作らない。 | 所見 F27、JDG-3315 | rewrite |
+| DU-1 | CR-851 | コピーの `actualStart` ・ `stop` ・ `actualFinish` ・ `resume` は空、`resumeValid` は `false` とし | コピーの `actualStart` ・ `stop` ・ `actualFinish` ・ `resume` はプロパティを書かず、`resumeValid` は `false` とし | JDG-3309（空 ＝ プロパティを書かない） | rewrite |
+| DU-2 | CR-851 | ⭐ **導出元を持つタスクグループをコピーしたとき、導出元の `Task` も一緒にコピーするならコピーのタスクグループの導出元をそのコピーとし、コピーしないならコピーのタスクグループ名を確定させて導出元を空にすること（MUST）** —— 名前の確定は 表 T-050 の後の段の、導出元の `Task` を消すときと同じ作法である。<br>⇒ コピーのタスクグループは元の `Task` を名乗らず、 | ⭐ **表すタスクを持つタスクグループをコピーしたとき、表すタスクも一緒にコピーするならコピーのタスクグループの `representedTaskUid` をそのコピーとし、コピーしないならコピーのタスクグループに `representedTaskUid` を書かないこと（MUST）** —— タスクグループ名はコピー元の名をそのまま写す（名の無いタスクグループのコピーは名を持たない）。<br>⇒ コピーのタスクグループは元の `Task` を表さず、 | 所見 F27、JDG-3315（名を確定させる作法が無くなる） | rewrite |
+| prose FR-033（DU の後） | CR-851 | コピーは元の `Task` の親タスクも元のタスクグループの導出元も変えず（`DU-1`・`DU-2`）、 | コピーは元の `Task` の親タスクも元のタスクグループの表すタスクも変えず（`DU-1`・`DU-2`）、 | 所見 F27 | rewrite |
+| CY-8 | CR-851 | プロパティパネルは出さず、名称の欄に焦点を置かない —— コピーは名前を持っており、`FR-001` の 表 T-239 の `TC-9` の名付けの流れは、名前の無い作ったタスクのためのものである \| | プロパティパネルは出さず、名称の欄に焦点を置かない —— コピーはコピー元の名（名の無いコピー元なら名の無いこと）を引き継いでおり、`FR-001` の 表 T-239 の `TC-9` の名付けの流れは、作ったばかりのタスクのためのものである \| | JDG-3315（タスク名は強いないので、コピーが名を持つとは限らない） | rewrite |
+| CY-10 | CR-851 | \| CY-10 \| 断るとき \| 載せるタスクグループが別の `editPermission` のタスクグループであるとき | \| CY-10 \| 断るとき \| 載せるタスクグループが別の `editGroup` のタスクグループであるとき | commands-choices G | rewrite |
+| CY-10 | CR-851 | ⭐ 別の `editPermission` のタスクグループから自分のタスクグループへコピーすることは断らない | ⭐ 別の `editGroup` のタスクグループから自分のタスクグループへコピーすることは断らない | commands-choices G | rewrite |
+| prose FR-033 | CR-851 | とその `editPermission` の例外は、貼り付けの置き場である | とその `editGroup` の例外は、貼り付けの置き場である | commands-choices G | rewrite |
+
+### コメントボックスとハイライトボックス（UC-008・FR-019）
+
+
+| 行 | CR | 古い | 新しい | 理由 | 種別 |
+| --- | --- | --- | --- | --- | --- |
+| prose UC-008 拡張 2b | CR-851 | - 2b. 指す日付が無い（留める日が `null`）。 | - | JDG-3309（線先の自由点の dateTime は必須。吸着しているあいだは日時を持たず、吸着先から求める —— doc-shape-map AT-113）。2b の場面が起きなくなる | remove |
+| prose UC-008 拡張 2b | CR-851 |   - `GRS` はコメントボックスを決まった 1 か所に描き、掴めるようにする（位置は `FR-019`）。 | - | 同上（2b の応答の行） | remove |
+| prose FR-019 | CR-851 | ⭐ ずれが `null` の箱（まだ一度も引かれていない箱）は、ずれを `{ dx: 0, dy: 0 }` として置くこと（MUST） —— 本文の箱の左下隅が留めた点に一致する。 | - | JDG-3302・JDG-3309（bodyOffsetPx は必須。置くとき CM-46 が S-600 のずれを書くので、ずれの無い箱が無くなる） | remove |
+| prose FR-019 | CR-851 | ⭐ 留める日（`_assets/fig-erd-detail.md` の `AT-113`）が `null` の箱も描き、掴めるようにすること（MUST） —— 描かなければ、その箱は選べず、消すこともできない。 | - | JDG-3309（自由点の日時は必須。日時の無い箱は形の上で書けない） | remove |
+| prose FR-019 | CR-851 | ⭐ そのときは、留めるタスクグループの、文書の開始日（同書の `AT-12`、`Project.startDate`）の位置を留めた点とすること（MUST）。 | - | 同上（日時の無い箱の置き場の行） | remove |
+| prose FR-019 | CR-851 | ① 自由点 —— 日時（`_assets/fig-erd-detail.md` の `AT-113`、分まで）、タスクグループ（`AT-114`）、その帯の中の高さ（`AT-163`）。 | ① 自由点（`anchor` の `kind` が `freePoint`） —— 日時（`_assets/fig-erd-detail.md` の `AT-113` の `dateTime`、分まで）、タスクグループ（`AT-114` の `taskGroupId`）、その帯の中の高さ（`AT-163` の `bandFraction`）。 | 所見 F28・F31（線先を kind の和にする）、doc-shape-map CommentBoxAnchor | rewrite |
+| prose FR-019 | CR-851 | ② 吸着した対象の点 —— タスク（`AT-164` の `UID` と `AT-165` の図形）かハイライトボックス（`AT-166`）と、その 8 点のどれか（`AT-167`）。 | ② 吸着した対象の点（`kind` が `task` か `highlightBox`） —— タスク（`AT-164` の `taskUid` と `AT-165` の `figure`）かハイライトボックス（`AT-166` の `highlightBoxId`）と、その 8 点のどれか（`AT-167` の `point`）。 | 所見 F28・F31 | rewrite |
+| prose FR-019 | CR-851 | ② のあいだも ① の 3 列を持ち、吸着した点の位置を書いておく —— 対象を消したときに戻る所である。 | ② のあいだは日時を持たず、戻る所としてタスクグループと帯の中の高さ（`fallback`）を持つ —— 対象を消したときの横の位置は、そのときの対象の点から求める（下の段）。 | doc-shape-map AT-113（not held while snapped）・AT-114（fallback）、JDG-3309 | rewrite |
+| prose FR-019 | CR-851 | ⭐ 対象の列の組が揃わない箱（対象を 2 つ持つ、図形か点が欠ける）は ① の自由点に描き、文書を書き換えないこと（MUST） —— 1 つの見せ方の値のために文書を拒めば、ほかの値まで読めなくなる。 | - | 所見 F28（kind の和にしたので、揃わない組はスキーマが拒み、文書に現れない） | remove |
+| prose FR-019 | CR-851 | ⭐ 吸着した対象を消す命令（表 T-108 の `CM-7` ・ `CM-53`、タスクグループを消して共に消える対象）は、同じ命令の中で、その対象に吸着した線先を ① の自由点に書き換えること（MUST） —— 横は対象のその点の日時（文書の日付から求める）、タスクグループは対象のもの、帯の中の高さは吸着したときの値を保つ。 | ⭐ 吸着した対象を消す命令（表 T-108 の `deleteTask` ・ `deleteHighlightBox`、タスクグループを消して共に消える対象）は、同じ命令の中で、その対象に吸着した線先を ① の自由点に書き換えること（MUST） —— 横は対象のその点の日時（文書の日付から求める）、タスクグループと帯の中の高さは `fallback` の値とする。 | doc-shape-map AT-114（fallback）、commands-map（CM-7・CM-53 は名で指す —— JDG-3285 の外へ出す名と同じ確定名） | rewrite |
+| prose FR-019 | CR-851 | ⭐ 取り込んだ文書を今の文書に合流するときは、`AT-164` を、合流で振り直したタスクの `UID` へ写すこと（MUST） —— 写せないときは ① の自由点とする。 | ⭐ 取り込んだ文書を今の文書に合流するときは、`anchor` の `taskUid`（`AT-164`）を、合流で振り直したタスクの `UID` へ写すこと（MUST） —— 写せないときは `fallback` から ① の自由点とする。 | 所見 F28 | rewrite |
+| prose FR-019 | CR-851 | ⭐ 線先が立つ日時は、吸着していれば吸着先のその点の日時（対象を消したときに ① へ書く日時と同じ求め方）、そうでなければ ① の日時（`AT-113`）とする | ⭐ 線先が立つ日時は、吸着していれば吸着先のその点の日時（対象を消したときに ① へ書く日時と同じ求め方）、そうでなければ ① の `dateTime`（`AT-113`）とする | 所見 F28 | rewrite |
+| prose FR-019 | CR-851 | ⭐ **引いた向きは、離した時点で正規化すること（MUST）** —— `start` が `finish` より後のとき、および `topTaskGroupId` が `bottomTaskGroupId` より下のときは、入れ替えて持つこと（MUST）。 | ⭐ **引いた向きは、離した時点で正規化すること（MUST）** —— `firstDay` が `lastDay` より後のとき、および `topTaskGroupId` が `bottomTaskGroupId` より下のときは、入れ替えて持つこと（MUST）。 | JDG-3275・所見 F30（HighlightBox の範囲は firstDay/lastDay の日付） | rewrite |
+| prose FR-019 | CR-851 | ⭐ **横は日の列で囲む** —— 箱の左端は `start` の日の列の左端、右端は `finish` の日の列の右端とし、`start` ＝ `finish` の箱は 1 日の幅で描くこと（MUST）。 | ⭐ **横は日の列で囲む** —— 箱の左端は `firstDay` の日の列の左端、右端は `lastDay` の日の列の右端とし、`firstDay` ＝ `lastDay` の箱は 1 日の幅で描くこと（MUST）。 | JDG-3275・所見 F30 | rewrite |
+| prose FR-019 | CR-851 | `_assets/fig-erd-detail.md` の `AT-118` の「右端」は `finish` の日の列の右端を指す。 | `_assets/fig-erd-detail.md` の `AT-118` の `lastDay` は、その日を含む（日の列の右端まで囲む）。 | JDG-3281（firstDay/lastDay は両端を含む） | rewrite |
+| prose FR-019（コメントボックスにタスクグループを作らない理由） | CR-851 | ⚠️ 同要求は作った `Task` を新しいタスクグループの導出元にすると続けており、注記のために作ったタスクグループは名前も導出元も持たない —— `_assets/fig-erd-detail.md` の `AT-54`（`name` と同時に `null` にできない）と `FR-058` がそれを禁じている。 | ⚠️ 同要求は作った `Task` を新しいタスクグループが表すタスクにすると続けるが、注記はタスクを表さない —— 注記のためだけのタスクグループは、日程を 1 つも載せない器になる。 | JDG-3315（AT-54 と FR-058 の禁止が無くなるので理由を差し替える）。⚠️ 決まっていない —— 理由を失った振る舞い（注記はタスクグループを作らない）を残すかは裁定が無い。私の案は「残し、理由を差し替える」 | rewrite |
+| prose FR-019 | CR-851 | ⭐ **`Task` と注記で扱いが分かれるのは意図どおりである** —— **`Task` は自分が新しいタスクグループの導出元になれるが、注記はなれない。** | ⭐ **`Task` と注記で扱いが分かれるのは意図どおりである** —— **`Task` は自分が新しいタスクグループの表すタスクになれるが、注記はなれない。** | 所見 F27、JDG-3315 | rewrite |
+| prose FR-019 RATIONALE | CR-851 | ⭐ 線の太さと透過率の列が `null` のときは、表 T-217 の同じ列の既定で描くこと（MUST） —— 既定の 1 行を替えれば、値を置いていない箱がすべて追随する。 | ⭐ 線の太さ・塗りの色・透過率の列はいつも値を持つ —— 置くとき（表 T-108 の `createHighlightBox`）に、表 T-217 の同じ列の既定を書く（MUST）。<br>⚠️ 既定の 1 行を後で替えても、既に置いた箱は動かない —— 置いた時点の値を持つ（`FR-024` の RATIONALE と同じ凍結）。 | JDG-3302（既定の数を書く欄は製品の既定が後で変わっても届かない）、JDG-3309 | rewrite |
+| prose FR-019 RATIONALE | CR-851 | ⭐ 塗りの色の列が `null` のときは、テーマの色（`_assets/tbl-settings.md` の 表 T-236 の `S-155`）で塗ること（MUST） —— `null` は色の欄のテーマに戻す入口（表 T-017b の `CV-9`）が選ぶ値であり、透明（塗潰しなし）とは別の値である。 | ⭐ 塗りの色の列が `{"kind":"theme"}` のときは、テーマの色（`_assets/tbl-settings.md` の 表 T-236 の `S-155`）で塗ること（MUST） —— 色の欄のテーマに戻す入口（表 T-017b の `CV-9`）が書く値である。<br>⛔ ハイライトボックスの塗りの色のプロパティを除いてはならない（MUST NOT） —— 箱の塗りはいつも色を持ち、見えなくするのは透過率 100 だけである。 | JDG-3276（箱の塗りはいつも色、透過率 100 だけ）、JDG-3310 | rewrite |
+| prose FR-019 RATIONALE | CR-851 | ⭐ 置くとき（表 T-108 の `CM-52`）は、塗りの色の列に 表 T-217 の `S-370`（透明）をコピーすること（MUST） —— 新しい箱は今までどおり塗らずに置く。 | ⭐ 置くとき（表 T-108 の `createHighlightBox`）は、塗りの色に `{"kind":"theme"}` を、透過率に 表 T-217 に足す `S-627`（仮）の 100 を書くこと（MUST） —— 新しい箱は今までどおり塗らずに見え、色を選べば塗りが現れる（`FR-007` の透過率 100 の箱で色を選んだときの 50、下の段）。 | JDG-3304（ハイライトボックスの既定はテーマの色で透過率 100）、S-370 退役・S-371 の役替え（doc-shape-choices §9 —— S-371 は「色を選んだときの 50」になるので、置くときの 100 は新しい行に置く。私の案） | rewrite |
+| prose FR-019 RATIONALE（足す） | CR-851 | - | ⭐ 透過率が 100 のコメントボックスかハイライトボックスで、塗りの色を人が選んだときは、同じ書き込みで透過率を 50 にすること（MUST） —— 選んだ色が見えないままでは、選んだことが画面に出ない。<br>透過率が 100 でない箱は、色を選んでも透過率を変えない。<br>⭐ 50 は 表 T-217 の `S-371` の注が持つ。<br>⭐ パレットの「透明」を箱の塗りで押したときは、色を残して透過率を 100 にすること（MUST） | JDG-3304（透過率 100 の箱で色を選んだら 50）、JDG-3276（透明は透過率 100、色は残す） | add |
+| prose FR-019 RATIONALE | CR-851 | 塗りの色が透明の箱は塗らない —— 後ろが見える。 | 透過率が 100 の箱は塗らない —— 後ろが見える。 | JDG-3276（透明の名が無くなり、見えない塗りは透過率 100 だけ） | rewrite |
+| prose FR-019 RATIONALE | CR-851 | ハイライトボックスの枠の線にも、タスクと同じく透明（線なし）を選ばせること（MUST） —— 線が透明でも、枠を掴む所（表 T-246 の `HB-12`）は同じ所に残る。 | ハイライトボックスの枠の線にも、タスクと同じく透明（線なし —— 枠の色のプロパティを除く）を選ばせること（MUST） —— 線を描かなくても、枠を掴む所（表 T-246 の `HB-12`）は同じ所に残る。 | JDG-3310 | rewrite |
+| prose FR-019 RATIONALE | CR-851 | ⛔ ただし、塗りと枠の線を同時に透明にすることを許してはならない（MUST NOT） —— `FR-007` の同じ禁止であり、箱が見えなくなる（`05-07-design.md` の 表 T-220 の `IV-9`）。 | ⛔ ただし、枠の色のプロパティを除いたまま塗りの透過率を 100 にすることを許してはならない（MUST NOT） —— `FR-007` の同じ禁止であり、箱が見えなくなる（`05-07-design.md` の 表 T-220 の `IV-9`）。 | JDG-3310・JDG-3276、IV-9 の書き直し（doc-shape-choices §9） | rewrite |
+| prose FR-019 RATIONALE | CR-851 | ⭐ 塗りには透明を選ばせてよい —— 塗りの欄は 表 T-017b の `CV-9` のとおり透明を並べる。 | ⭐ 塗りには透明を選ばせてよい —— 塗りの欄は 表 T-017b の `CV-9` のとおり透明を並べ、押すと色を残して透過率を 100 にする。 | JDG-3276 | rewrite |
+| prose FR-019 RATIONALE | CR-851 | 色の欄のテーマに戻す入口（表 T-017b の `CV-9`）は、塗りを `null`（テーマの色 `S-155` で塗る）へ、枠の線を `null`（注記の色 `S-312` で描く —— ツールチップの語は既定の色）へ戻す。 | 色の欄のテーマに戻す入口（表 T-017b の `CV-9`）は、塗りと枠の線に `{"kind":"theme"}` を書く —— 塗りはテーマの色 `S-155` で、枠の線は注記の色 `S-312` で描く（ツールチップの語は既定の色）。 | JDG-3310・JDG-3302 | rewrite |
+| prose FR-019 RATIONALE | CR-851 | ⭐ 太さと透過率の列が `null` のときは 表 T-217 の同じ列の既定で、色の 3 列が `null` のときは、線を注記の色（`_assets/tbl-settings.md` の 表 T-236 の `S-312`）、塗りを地の色（同表の `S-146`）、字を文字の色（同表の `S-147`）で描き、字の大きさの列（`AT-168`）が `null` のときは 表 T-217 の `S-624` の既定で描くこと（MUST） —— 線・塗り・字の色の 5 列がすべて `null` の箱は、列を足す前と同じ線と色になる。 | ⭐ コメントボックスの太さ・透過率・字の大きさと色の 3 列はいつも値を持つ。<br>色の 3 列が `{"kind":"theme"}` のときは、線を注記の色（`_assets/tbl-settings.md` の 表 T-236 の `S-312`）、塗りを地の色（同表の `S-146`）、字を文字の色（同表の `S-147`）で描くこと（MUST） —— 置いたままの箱は、列を足す前と同じ線と色になる。 | JDG-3302・JDG-3309（いつも値を持つ欄は必須）、JDG-3310 | rewrite |
+| prose FR-019 RATIONALE | CR-851 | ⚠️ 字の大きさの既定は文書の文字サイズ（表 T-215）に従わない —— 利用者が既定を 1 つの px に定めたので、`null` の箱は列を足す前より小さく描かれる。 | ⚠️ 字の大きさの既定は文書の文字サイズ（表 T-215）に従わない —— 利用者が既定を 1 つの px（`S-624` の 10）に定めた。 | JDG-3309（null の箱が無くなる） | rewrite |
+| prose FR-019 RATIONALE | CR-851 | ⭐ 置くとき（`_assets/tbl-document-commands.md` の 表 T-108 の `CM-46`）は 6 列を `null` とすること（MUST） —— 既定の 1 行を替えれば、値を置いていない箱がすべて追随する。 | ⭐ 置くとき（`_assets/tbl-document-commands.md` の 表 T-108 の `createCommentBox`）は、色の 3 列に `{"kind":"theme"}` を、太さ・透過率・字の大きさに 表 T-217 の `S-374` ・ `S-375` ・ `S-624` の既定を書くこと（MUST） —— 置いた時点の値を持ち、既定の 1 行を後で替えても既に置いた箱は動かない。 | JDG-3302（既定の数を書く欄は後の既定の変更が届かない）、JDG-3304（コメントボックスの塗りはテーマの色で透過率 0） | rewrite |
+| prose FR-019 RATIONALE | CR-851 | ⛔ コメントボックスの線の色と字の色に透明を選ばせてはならない（MUST NOT） —— 引出し線が消えると、どのタスクやマイルストーンについてのコメントかが読めず、字が消えると本文が消える。 | ⛔ コメントボックスの線の色と字の色に透明を選ばせてはならない（MUST NOT） —— 2 つは必須のプロパティであり、除けない。引出し線が消えると、どのタスクやマイルストーンについてのコメントかが読めず、字が消えると本文が消える。 | commands-choices F.28（CommentBox の strokeColor・textColor は必須）、JDG-3310 | rewrite |
+| prose FR-019 RATIONALE | CR-851 | ⚠️ `leaderShapeKind` の列と列挙を退役させることは、本段では行わない —— `src/`・`tests/`・`docs/spec` の多くのファイルが同じ名を持つので、1 度に動かす別の段が要る。 | ⭐ 引出しの形を選ぶ列は持たない —— `CR-851` が `leaderShapeKind` の列と列挙を文書から除いた（`_assets/fig-erd-detail.md` の `AT-111` は退役）。 | doc-shape-map AT-111（remove）、studies/77 §3 版と退役 ⑦ | rewrite |
+| prose FR-019 RATIONALE | CR-851 | ⛔ **直前の員数は数えた日の数であって、いまの数ではない** —— **仕様書の外（`src` ・ `tests` ・ `docs/spec`）を数えたものなので、この席は原本ではない。** | - | 同上（退役を済ませたので、員数の断りが要らなくなる） | remove |
+| prose FR-019 RATIONALE | CR-851 | ⭐ **動かす段は、その日に `leaderShapeKind` という名を引いて数え直す** —— **引き直した数と食い違ったら、引き直した側が正しい。** | - | 同上 | remove |
+| prose FR-019 RATIONALE | CR-851 | ⭐ **描き方だけ先に置くのは、描く側が止まっているのがこの 1 行だからである。** | - | 同上 | remove |
+
+### 期限・基準日・遅延診断（FR-045・FR-046・FR-130〜FR-135）
+
+
+| 行 | CR | 古い | 新しい | 理由 | 種別 |
+| --- | --- | --- | --- | --- | --- |
+| DA-1 | CR-851 | \| DA-1 \| 描く条件 \| `deadline` が `null` でない `Task` の印を、その `Task` を置いたタスクグループを描くときに描くこと（MUST）。<br>マイルストーンも同じである。<br>`deadline` が `null` の `Task` には描かないこと（MUST）。 | \| DA-1 \| 描く条件 \| `deadline` を持つ `Task` の印を、その `Task` を置いたタスクグループを描くときに描くこと（MUST）。<br>マイルストーンも同じである。<br>`deadline` を持たない `Task` には描かないこと（MUST）。 | JDG-3309（C3 —— プロパティが無い ＝ 期限なし） | rewrite |
+| prose FR-046 | CR-851 | 基準日線を消す操作は `statusDate` を `null` にすることとすること（MUST）。 | 基準日線を消す操作は `statusDate` のプロパティを除くこととすること（MUST）。 | JDG-3309、JDG-3268 | rewrite |
+| prose FR-046 | CR-851 | ⚠️ **表示状態を別に持ってはならない（MUST NOT）** —— 描くかどうかは `statusDate` が `null` かどうかで決まる。 | ⚠️ **表示状態を別に持ってはならない（MUST NOT）** —— 描くかどうかは `statusDate` のプロパティが在るかどうかで決まる。 | JDG-3309 | rewrite |
+| prose FR-130 | CR-851 | 基準日（`Project.statusDate`）が `null` のときは診断を行わず、そのことを告げること（MUST）。 | 基準日（`Project.statusDate`）を持たない文書では診断を行わず、そのことを告げること（MUST）。 | JDG-3309 | rewrite |
+| prose FR-131 | CR-851 | ⛔ `carry` ／ `carryElements` の中の値を解釈して判定してはならない（MUST NOT）。 | ⛔ `passthroughValues` ／ `passthroughElements` の中の値を解釈して判定してはならない（MUST NOT）。 | 所見 F44（CHOICE N1） | rewrite |
+| prose FR-131 | CR-851 | ⭐ 表 T-311 の `VS-6` が許す日数は、文書の `Project.parentTaskProgressToleranceDays`（`_assets/tbl-settings.md` の 表 T-216 の `S-487`）とすること（MUST）。 | ⭐ 表 T-311 の `VS-6` が許す日数は、文書の `Project.parentTaskProgressToleranceWorkingDays`（`_assets/tbl-settings.md` の 表 T-216 の `S-487`）とすること（MUST）。 | 所見 F16（単位を名に）、JDG-3281 | rewrite |
+| VO-4 | CR-851 | \| VO-4 \| `parentTaskUid` が `null` で、表 T-318 の規則で親が 1 つに決まらない | \| VO-4 \| `parentTaskUid` を持たず、表 T-318 の規則で親が 1 つに決まらない | JDG-3309 | rewrite |
+| FA-25 | CR-851 | そのタスクグループで `parentTaskUid` が `null` の `Task` の中で `uid` が最も小さいものの行である | そのタスクグループで `parentTaskUid` を持たない `Task` の中で `uid` が最も小さいものの行である | JDG-3309 | rewrite |
+| FA-25 | CR-851 | 選ぶ: 行「{taskGroup}」から親タスクを作る —— {taskGroup} はその `Task` を描くタスクグループの名。<br>採ると、① そのタスクグループで `parentTaskUid` が `null` の `Task` をすべて包む期間 | 選ぶ: 行「{taskGroup}」から親タスクを作る —— {taskGroup} はその `Task` を描くタスクグループの名（名の無いタスクグループは `VO-4` と同じく `id`）。<br>採ると、① そのタスクグループで `parentTaskUid` を持たない `Task` をすべて包む期間 | JDG-3309、JDG-3315（名の無いタスクグループが普通に在る） | rewrite |
+| FA-25 | CR-851 | ② その名をタスクグループの名とし、③ ① の `Task` それぞれの `parentTaskUid` を作った `Task` にする。 | ② タスクグループが名を持てばその名を作った `Task` の名とし（名が無ければ `Task` も名を書かない）、③ ① の `Task` それぞれの `parentTaskUid` を作った `Task` にする。 | JDG-3315（名は強いない —— 名の無いタスクグループから名の無い親タスクができる） | rewrite |
+| prose FR-135 STATEMENT | CR-851 | **STATEMENT**: `Task.parentTaskUid` が `null` の `Task` について、`GRS` は、表 T-318 の規則で親を導き、診断の中でだけ使うこと。 | **STATEMENT**: `Task.parentTaskUid` を持たない `Task` について、`GRS` は、表 T-318 の規則で親を導き、診断の中でだけ使うこと。 | JDG-3309 | rewrite |
+| prose FR-135 | CR-851 | 診断は、マイルストーンを指す `parentTaskUid` を親として読まず、その子を `parentTaskUid` が `null` の `Task` として 表 T-318 で親を導くこと（MUST） | 診断は、マイルストーンを指す `parentTaskUid` を親として読まず、その子を `parentTaskUid` を持たない `Task` として 表 T-318 で親を導くこと（MUST） | JDG-3309 | rewrite |
+| IP-5 | CR-851 | `parentTaskUid` が `null` なら親なし（根）とする。 | `parentTaskUid` を持たなければ親なし（根）とする。 | JDG-3309 | rewrite |
+| PTL-11 | CR-851 | 選んだ矢印の子の `parentTaskUid` を `null` にする（`FR-135` のまとめて外す）。 | 選んだ矢印の子の `parentTaskUid` のプロパティを除く（`FR-135` のまとめて外す）。 | JDG-3309、JDG-3268 | rewrite |
+| PTL-17 | CR-851 | 子の `parentTaskUid` を `null` にする（表 T-108 の `CM-18`、取り消しの 1 段、未保存の編集を立てる）。 | 子の `parentTaskUid` のプロパティを除く（表 T-108 の `editTask` の `clear`、取り消しの 1 段、未保存の編集を立てる）。 | JDG-3309、commands-choices F.2（setTaskParentTask は editTask の parentTaskUid に畳む） | rewrite |
+| RW-20 | CR-851 | 行の区切りは CRLF、文字コードは UTF-8 とし、頭に BOM を付ける。<br>⭐ BOM を付けるのは、表計算ソフトが UTF-8 と読んで字を化かさないためである（利用者が定めた）。 | 行の区切りは CRLF、文字コードは UTF-8 とし、頭に BOM を付ける。<br>⭐ BOM を付けるのは、表計算ソフトが UTF-8 と読んで字を化かさないためである（利用者が定めた）。<br>⭐ 表 T-003 の `CN-5` の名指しの例外である。<br>⚠️ **このファイルは人が読む書類であり、外へ約束する形（外部契約）に数えない** —— 見出しと値は画面の言語の語のまま書き、言語を替えれば見出しも替わる。機械が修正の記録を読む道は `Agent API` の `readDelayDiagnostics` の `fixLog`（言語によらない変わらない名）である。 | JDG-3305（CN-5 の例外を名指す）、JDG-3288（人向けの出力は画面の言語、外部契約に数えない） | rewrite |
+
+### MSPDI の読み書き（FR-021・FR-057・表 T-265・T-053・T-033・T-350）
+
+
+| 行 | CR | 古い | 新しい | 理由 | 種別 |
+| --- | --- | --- | --- | --- | --- |
+| prose FR-021 | CR-851 | ⭐ 起点は 表 T-058 の `Project.outlineBase` が持ち、既定は 1 とする | ⭐ 起点は 表 T-058 の `Project.firstOutlineLevel` が持ち、既定は 1 とする | 所見 F25（outlineBase → firstOutlineLevel、CHOICE N9） | rewrite |
+| MR-4 | CR-851 | 割当は `DF-3` の置き場へ、依存はその後続の `Task` の `carryElements` へ置き、書き出しで元の形のまま戻す（`EX-5`）。 | 割当は `DF-3` の置き場へ、依存はその後続の `Task` の `passthroughElements` へ置き、書き出しで元の形のまま戻す（`EX-5`）。 | 所見 F44（CHOICE N1） | rewrite |
+| MR-5（足す） | CR-851 | - | \| MR-5 \| 決まった値の集合の外の値 \| 日程の計算に効く要素（依存の種別 `PredecessorLink/Type`、ラグの単位 `LagFormat` のうち `GRS` が数える 7・5・3 と表示の単位、曜日 `DayType`・`WeekStartDay`、例外日の繰り返し `Exception/Type`）が、公式スキーマの決まった値の集合の外の値を持つときは、取り込みを拒み、要素の所と値を並べて告げること（MUST） —— 黙って既定値で読めば、日程が違う形で計算される。<br>⭐ 日程の計算に効かない要素が集合の外の値を持つときは、拒まずに解釈しない値として持ち（`passthroughValues`）、書き出しでそのまま戻すこと（MUST）（`FR-021`）。<br>⚠️ 拒んだときの理由は 表 T-233 に足す行（外へ出す名は `mspdiValueOutOfSet`）とする \| | JDG-3289（日程に効く値は拒む、効かない値は素通しで持ち書き戻す）。⚠️ 理由の行 ID と名 mspdiValueOutOfSet は私の案（refusal-reasons-map にまだ無い） | add |
+| MR-6（足す） | CR-851 | - | \| MR-6 \| 帯の付いた日時 \| `xsd:dateTime` の値が時差の帯（`Z`・`+hh:mm`・`-hh:mm`）を持つときは、帯を落とした `YYYY-MM-DDTHH:MM:SS` の字として取り込むこと（MUST） —— 換算しない。日程の日時は帯を持たない壁時計であり（`FR-156`）、MS Project が書くのは帯の無い秒までの形である。<br>⚠️ 帯を落とした値は「取り込んだまま編集していない値」（表 T-033 の `EX-4`・表 T-350 の `WT-10`）としても帯の無い字で書き戻す —— 帯は持ち回らない \| | JDG-3261（MSPDI から帯の付いた日時が来たら帯を落として取り込む）、studies/77 §3 日時 ⑥。⚠️ 小数秒の付いた MSPDI の日時の扱いは裁定に無い（私の案: 秒へ切り捨てる —— 下の「決まっていない所」） | add |
+| DF-2 | CR-851 | \| DF-2 \| 解釈しない要素 \| その親の `carryElements` に、原形のまま置くこと（MUST）。 | \| DF-2 \| 解釈しない要素 \| その親の `passthroughElements` に、原形のまま置くこと（MUST）。 | 所見 F44 | rewrite |
+| DF-3 | CR-851 | \| DF-3 \| `carryElements` の置き場 \| **所有者の兄弟のプロパティとすること（MUST）。<br>** 行にならなかったもの（値を持たない空の要素や、表 T-265 の `MR-4` が定めるプロジェクトの要約タスクなど）は、**その要素を束ねている親の `carryElements` に付く** —— 交換相手の木では `Tasks` と `Resources` を束ねているのが `Project` なので、`schedule.project.carryElements` に付く \| | \| DF-3 \| `passthroughElements` の置き場 \| **所有者の兄弟のプロパティとすること（MUST）。<br>** 行にならなかったもの（値を持たない空の要素や、表 T-265 の `MR-4` が定めるプロジェクトの要約タスクなど）は、**その要素を束ねている親の `passthroughElements` に付く** —— 交換相手の木では `Tasks` と `Resources` を束ねているのが `Project` なので、`schedule.project.passthroughElements` に付く。<br>⭐ 持ち回るものが無い所はプロパティを書かない —— 空の配列 `[]` も空の写しの表 `{}` も書かない（`FR-024`） \| | 所見 F44、JDG-3309（空の配列は書かない）、CHOICE L2 | rewrite |
+| EX-6 | CR-851 | ⭐ 名簿の `Alias` は、その枠が運ぶ列の名（`_assets/fig-erd-detail.md` の `AT-40` ／ `AT-41`）とすること（MUST） | ⭐ 名簿の `Alias` は、その枠が運ぶ列の名（`_assets/fig-erd-detail.md` の `AT-40` ／ `AT-41` の `fadeInCalendarDays` ／ `fadeOutCalendarDays`）とすること（MUST） | JDG-3312（Alias も新しい名に揃える） | rewrite |
+| EX-6 | CR-851 | 取り込むときも同じ見分け方を用い、**合わなければ解釈せずに `carryElements` へ残すこと（MUST）**（表 T-053 の `DF-2`） \| | 取り込むときも同じ見分け方を用い、**合わなければ解釈せずに `passthroughElements` へ残すこと（MUST）**（表 T-053 の `DF-2`）。<br>⚠️ `CR-851` より前の `GRS` が書き出したフェードの枠（`Alias` が `fadeInDays` ／ `fadeOutDays`）は合わないので、解釈せずに残り、書き出しでそのまま戻る \| | JDG-3312（α の GRS が書き出した MSPDI のフェードの列は β では素通しの値として残る）、所見 F44 | rewrite |
+| EX-10 | CR-851 | ⚠️ 例外 —— `GRS` が自分の列として持つ要素（表 T-058 の `carry` を持つ `Project`・`Task` など）の直下では、 | ⚠️ 例外 —— `GRS` が自分の列として持つ要素（表 T-058 の `passthroughValues` を持つ `Project`・`Task` など）の直下では、 | 所見 F44 | rewrite |
+| EX-11 | CR-851 | MSPDI から読んだ文書では書き出しで足さず、日付を編集したとき・タスクを足したときに、そのタスクの持ち回りの `ConstraintType` ／ `ConstraintDate` ／ `Duration` を置き換える \| | MSPDI から読んだ文書では書き出しで足さず、日付を編集したとき・タスクを足したときに、そのタスクの持ち回り（`passthroughValues`）の `ConstraintType` ／ `ConstraintDate` ／ `Duration` を置き換える \| | 所見 F44（持ち回りの器の名を明示） | rewrite |
+| EX-13 | CR-851 | `Occurrences` と `EnteredByOccurrences` は、行の `carry` に無いときだけ足すこと（MUST） | `Occurrences` と `EnteredByOccurrences` は、行の `passthroughValues` に無いときだけ足すこと（MUST） | 所見 F44 | rewrite |
+| EX-13 | CR-851 | \| EX-13 \| `recurrenceKind` が `1` の繰り返しの無い例外日 | \| EX-13 \| `recurrenceKind` が `1` の繰り返しの無い例外日（`recurrencePeriod` が無いか `1`） | doc-shape-map AT-82（Exception/Period を列 recurrencePeriod へ移す、doc-shape-choices §9） | rewrite |
+| EX-14 | CR-851 | \| EX-14 \| 割り当て（`Assignment`）の `carry` に `Units` が無いときは、`Units` に `1` を書くこと（MUST）—— `Units` はスキーマでは任意だが、無いと止まる読み手がある。<br>`carry` に `Units` があれば、 | \| EX-14 \| 割り当て（`Assignment`）の `passthroughValues` に `Units` が無いときは、`Units` に `1` を書くこと（MUST）—— `Units` はスキーマでは任意だが、無いと止まる読み手がある。<br>`passthroughValues` に `Units` があれば、 | 所見 F44 | rewrite |
+| EX-15 | CR-851 | 取り込み元の URI は `Project.carry` のプロパティ `xmlns` に持ち回る（表 T-005 の `G-13`）。 | 取り込み元の URI は `Project.passthroughValues` のプロパティ `xmlns` に持ち回る（表 T-005 の `G-13`）。 | 所見 F44 | rewrite |
+| EX-16 | CR-851 | ⭐ 位置は、値を解釈した要素の代わりに、値（`Value`）を持たない同じ名前の印をその `Task` の `carryElements` に残して持つこと（MUST） | ⭐ 位置は、値を解釈した要素の代わりに、値（`Value`）を持たない同じ名前の印をその `Task` の `passthroughElements` に残して持つこと（MUST） | 所見 F44 | rewrite |
+| EX-16 | CR-851 | ⛔ 列が `null` のときは、印を書いてはならない（MUST NOT） —— 印は位置であって値ではない。 | ⛔ 列のプロパティが無い（フェードを持たない）ときは、印の所に何も書いてはならない（MUST NOT） —— 印は位置であって値ではない。 | JDG-3309 | rewrite |
+| EX-17（足す） | CR-849 | - | \| EX-17 \| タスクのリンク \| `Task.hyperlinkAddress`（`_assets/fig-erd-detail.md` に足す `AT-` の行）を MSPDI の `Task/HyperlinkAddress` に、`Task.hyperlink` を `Task/Hyperlink` に書き、読むときもそこから取ること（MUST） —— 名も字数の上限（512）も交換相手と同じである。<br>`Task/HyperlinkSubAddress` は解釈せず、今のまま `passthroughValues` で持ち回る。<br>⭐ プロパティが無いタスクは要素を書かない。<br>⛔ コメントボックスとタスクグループのリンク（`CommentBox`・`TaskGroup` の同じ名の列）は書き出さない —— 交換相手に置き場が無い（`GRS JSON` だけの列）。<br>⚠️ `CR-849` より前に取り込んで `passthroughValues` に持っていた `HyperlinkAddress`／`Hyperlink` は、α の文書の変換が列へ移す \| | JDG-3081（MSPDI の HyperlinkAddress／Hyperlink に写す、SubAddress は今のまま運ぶ、CommentBox と TaskGroup は GRS JSON だけ）、JDG-3314（3 つとも MSPDI の名）、CR-849 | add |
+| WT-6 | CR-851 | \| WT-6 \| 丸 1 日の範囲の始まり: `Exception.fromDate`・`HighlightBox.start`・`_assets/tbl-settings.md` の `S-518`（`fitSpanStart`） \| `00:00:00` \| | \| WT-6 \| 丸 1 日の範囲の始まり: `Exception.fromDate` \| `00:00:00` \| | JDG-3275・所見 F30・F52（HighlightBox.firstDay と fitSpan.firstDay は時刻を持たない日付 Day になる） | rewrite |
+| WT-7 | CR-851 | \| WT-7 \| 丸 1 日の範囲の終わり: `Exception.toDate`・`HighlightBox.finish`・`_assets/tbl-settings.md` の `S-519`（`fitSpanFinish`） \| `23:59:00` \| | \| WT-7 \| 丸 1 日の範囲の終わり: `Exception.toDate` \| `23:59:00` \| | 同上 | rewrite |
+| WT-8 | CR-851 | \| WT-8 \| 1 つの日: `_assets/tbl-settings.md` の `S-77`（`scrollDate`） \| `00:00:00` \| `GRS` の選択 —— 範囲ではなく 1 点なので、範囲の始まり（`WT-6`）と同じにする。<br>⚠️ `CommentBox.anchorDate` は本行に入らない —— 線先の自由点の日時であり、時刻（分まで）が日の列の中の横の位置を持つ（`FR-019`、`05-07-design.md` の 表 T-221 の `LF-15`） \| | - | 所見 F12・CHOICE N4（scrollDate は scrollPosition の leftEdgeDay ＝ 日付だけになり、時刻を書かない。日の中の位置は leftEdgeDayFraction が持つ）。CommentBox の自由点の dateTime の注は FR-019 が持つ。⚠️ 行 ID WT-8 は退役（番号を振り直さない） | remove |
+| prose 表 T-350 の前 | CR-851 | 既定の開始時刻は `Project.defaultStartTime`、既定の終了時刻は `Project.defaultFinishTime` とし、空なら `_assets/tbl-settings.md` の 表 T-209 の `S-482` ／ `S-483` を使うこと（MUST）。 | 既定の開始時刻は `Project.defaultStartTime`、既定の終了時刻は `Project.defaultFinishTime` とし、そのプロパティが無ければ `_assets/tbl-settings.md` の 表 T-209 の `S-482` ／ `S-483` を使うこと（MUST）。 | JDG-3309（C3 —— 空 ＝ プロパティが無い） | rewrite |
+
+### 合流（FR-022・表 T-032）
+
+
+| 行 | CR | 古い | 新しい | 理由 | 種別 |
+| --- | --- | --- | --- | --- | --- |
+| MG-8 | CR-851 | ⭐ ただし、上書きで `Task.milestone` が変わり、保った形（`TaskVisual.shapeKind`）が `05-07-design.md` の 表 T-220 の `IV-22` に外れるときは、その形を `null` へ戻すこと（MUST） —— 形は `Task.milestone` から解かれる（`_assets/fig-erd-detail.md` の `AT-100`）。 | ⭐ ただし、上書きで `Task.milestone` が変わったときは、保った形のプロパティを付け替えること（MUST） —— マイルストーンになったら `taskShape` を除いて `milestoneShape` を `diamond` で書き、マイルストーンでなくなったら `milestoneShape` を除いて `taskShape` を `rectangle` で書く（`_assets/fig-erd-detail.md` の `AT-100` ／ `AT-101`、`05-07-design.md` の 表 T-220 の `IV-22`）。 | JDG-3311（形のプロパティの有無は Task.milestone に従う、null で解く道は無くなる）。⚠️ 付け替えるときの形（diamond・rectangle）は私の案 —— 表 T-239 の TC-1 の既定に揃えるかを確かめる | rewrite |
+| MG-13 | CR-851 | \| MG-13 \| 取り込みごとの通し番号 \| 取り込み 1 回につき `importSequence`（`_assets/tbl-settings.md` の `S-71`）を 1 つ進め、 | \| MG-13 \| 取り込みごとの通し番号 \| 取り込み 1 回につき `lastImportNumber`（`_assets/tbl-settings.md` の `S-71`）を 1 つ進め、 | 所見 F24（importSequence → lastImportNumber、CHOICE N8） | rewrite |
+
+### 読む検証と書く再現（FR-023・FR-024・表 T-052）
+
+
+| 行 | CR | 古い | 新しい | 理由 | 種別 |
+| --- | --- | --- | --- | --- | --- |
+| prose FR-023 | CR-851 | ⚠️ **空文字を特例にしない** —— 列が空を許すときの空は `null` であり（`FR-024` の契約）、空文字はその契約の外にある。 | ⚠️ **空文字を特例にしない** —— 値の無い列はプロパティを書かない（`FR-024` の契約）ので、空文字はその契約の外にある。 | JDG-3309、R3 Null Trap | rewrite |
+| prose FR-023（足す） | CR-851 | - | ⭐ `uid`（`Task`・`Resource`・`Assignment`・`Calendar`・`BaselineTask` の識別子と、それを指す列）は 0 〜 2147483647 の整数とし、範囲の外の値を持つ入力は文書ごと拒むこと（MUST） —— MS Project が中で持てる 32 ビットの正の範囲であり、超えた値は書き出した先で壊れる。<br>⭐ 自由な文字列の長さは、交換相手が決める列はその上限（タスク名 512、プロジェクト名 255）、`GRS` 独自の短い名は 512、長い文（備考・コメントボックスの本文・変更の理由）は 65535 とし、Unicode の文字の数で数えること（MUST）。<br>超える入力は文書ごと拒む（スキーマの `maxLength`）。<br>⭐ 文字は打ったまま保存し、正規化して書き換えてはならない（MUST NOT） —— 揃えるのは比べるときだけである（検索の NFKC と大文字小文字の畳み込みは今どおり、`FR-086`）。 | JDG-3284（uid 0〜2147483647、範囲の外は読むときに拒む）、JDG-3287（長さの上限と数え方、打ったまま保存）、CHOICE A2・L1 | add |
+| prose FR-024 STATEMENT | CR-851 | 設定値は既定値と一致していても省略せず、常に全項目を書き出すこと（MUST） —— この規約が掛かるのは見せ方の群である。   ⏎ 日程データの群では、値が `null` の列もプロパティごと書き出すこと（MUST）。   ⏎ プロパティごと省いてはならない（MUST NOT） —— 省くと「元のファイルにその項目が無かった」と「値が `0` である」が読み分けられなくなり、往復で情報が落ちる（`FR-021`）。 | ⭐ いつも値を持つプロパティ（スキーマの必須のプロパティ）は、既定値と一致していても省略せず、必ず書き出すこと（MUST） —— 日程データの群と見せ方の群の両方に掛かる。   ⏎ ⭐ 値を持たないプロパティ（スキーマの任意のプロパティ）は書かないこと（MUST）。値が無いことはプロパティが無いことだけで言い、`null` を書いてはならない（MUST NOT） —— 「無い」の書き方が 2 つあると、往復と合流のたびにどちらへ寄せるかの規則が要る（`07-review-standards.md` の R3 の Null Trap）。   ⏎ ⭐ 人や命令が値を消したときは、そのプロパティを文書から除くこと（MUST）。   ⏎ ⭐ 空の配列 `[]` と空の写しの表 `{}` も書かないこと（MUST） —— 中身の無い並びはプロパティが無いことと同じ意味であり、2 つ目の「無い」になる。   ⏎ ⭐ 「省いたら何を見せるか」は、刊行するスキーマがそのプロパティの説明に 1 行で言う。   ⏎ ⚠️ `0` は値である —— 「元のファイルにその項目が無かった」と「値が `0` である」は、プロパティの有無と値で読み分けられ、往復で情報が落ちない（`FR-021`）。 | JDG-3309（思想 1: 書かない ＝ 無い、必須は書き忘れを拒む、空の配列は書かない、省けるプロパティはスキーマの説明に見え方を 1 行）、JDG-3268（clear した欄は何も持たない）、JDG-3286 の一部を覆す | rewrite |
+| prose FR-024 STATEMENT | CR-851 | ⭐ **日時の列は、日付だけで書かず、いつも日時の形で書くこと（MUST）** —— 日時の列とは、`_assets/fig-erd-detail.md` の 表 T-058 が型を日時とする列と、`_assets/tbl-settings.md` の `S-77`・`S-518`・`S-519` である。   ⏎ 刊行するスキーマがその形を `pattern` で言う。   ⏎ `GRS` が値を作るときは、帯を持たず秒までの形（`YYYY-MM-DDTHH:MM:SS`）とし、時刻は 表 T-350 に従う —— 取り込んだまま編集していない値は元の綴りを保つ（表 T-033 の `EX-4`）。 | ⭐ **日時の列は、日付だけで書かず、いつも `YYYY-MM-DDTHH:MM:SS`（年は 4 桁、時差の帯と小数秒を持たない）で書くこと（MUST）** —— 日時の列とは、`_assets/fig-erd-detail.md` の 表 T-058 が型を日時とする列である。   ⏎ ⭐ 日付だけの列（ハイライトボックスの `firstDay`／`lastDay`、表示位置の `leftEdgeDay`、全体表示時の期間 `fitSpan` と列のフィルタの日付の範囲の `firstDay`／`lastDay`）は `YYYY-MM-DD` で書き、両端の日を含む。   ⏎ ⭐ 時刻の列は `HH:MM:SS` で書く。   ⏎ ⭐ 記録の刻（文書の刻印・変更の理由・造りの版）は UTC の `YYYY-MM-DDTHH:MM:SSZ` で書く。   ⏎ 刊行するスキーマがそれぞれの形を `pattern` で言い、読む路はこの形の外の日時を `FR-023` のとおり扱う。   ⏎ `GRS` が日時を作るときの時刻は 表 T-350 に従う —— 取り込んだまま編集していない値は元の綴りを保つ（表 T-033 の `EX-4`。帯は `MR-6` が落とす）。 | JDG-3261（MS Project が書く形だけ、帯・小数秒を断る、時刻は HH:MM:SS）、JDG-3281（日付だけは …Day、firstDay/lastDay は両端を含む、刻は …At）、CHOICE T1・T2、studies/77 §3 日時 ①③ | rewrite |
+| prose FR-024 STATEMENT（足す） | CR-851 | - | ⭐ **書き出す `GRS JSON` は、ルートの 2 つ目のプロパティ `buildVersion` に、その文書を書いた `GRS` の造りの版（UTC の `YYYY-MM-DDTHH:MM:SSZ`）を載せること（MUST）** —— どの造りが書いた文書かを、文書だけから読めるようにする。   ⏎ ⚠️ 形式の版（`schemaVersion`）とは別物である —— 形式の版は形が変わったときだけ動き、造りの版は組み立てのたびに動く。   ⏎ ⛔ 読む路は `buildVersion` の値を理由に文書を拒んではならない（MUST NOT）。 | JDG-3300（造りの版を GRS JSON の最上段に載せる）、CHOICE B1（プロパティの名 buildVersion）、studies/77 §3 版と退役 ③ | add |
+| DR-4 | CR-851 | \| DR-4 \| 文書の刻印 \| どちらの群にも入れず、ルート直下に `$schema` / `schemaVersion` / `documentStamp` / `changeLog` の 4 つを置き、`$schema` を文書の先頭のプロパティとすること（MUST） —— 順に、最新のスキーマの所（`_assets/tbl-settings.md` の 表 T-206 の `S-540`。<br>文字列とすること。<br>読む路はその値で文書を拒まない —— 互換は `FR-073` の版が判じる）、文書の形式の版（`FR-024`。<br>文字列とすること）、3 つの刻と最後に書いた者（`FR-063` が動かす 2 つの刻と、`FR-101` のファイルへ書けた刻）、変更の理由（`UC-013`）である。 | \| DR-4 \| 文書の刻印 \| どちらの群にも入れず、ルート直下に `$schema` / `schemaVersion` / `buildVersion` / `documentStamp` / `changeLogEntries` の 5 つを置き、`$schema` を文書の先頭のプロパティ、`buildVersion` を 3 つ目のプロパティとすること（MUST） —— 順に、最新のスキーマの所（`_assets/tbl-settings.md` の 表 T-206 の `S-540`。<br>文字列とすること。<br>読む路はその値で文書を拒まない —— 互換は `FR-073` の版が判じる）、文書の形式の版（`FR-024`。<br>文字列とすること）、書いた造りの版（`FR-024`）、3 つの刻と最後に書いた者（`FR-063` が動かす 2 つの刻と、`FR-101` のファイルへ書けた刻）、変更の理由の並び（`UC-013`。<br>1 つも無ければプロパティを書かない）である。 | JDG-3300・CHOICE B1（buildVersion）、所見 F48・CHOICE N2（changeLog → changeLogEntries）、JDG-3309（空の配列は書かない） | rewrite |
+| DR-4 | CR-851 | 見せ方の群に混ぜてはならない（MUST NOT） —— 絵に影響しないものを混ぜると、`FR-024` の「常に全項目を書き出す」が何に掛かるのかが濁る。 | 見せ方の群に混ぜてはならない（MUST NOT） —— 絵に影響しないものを混ぜると、群ごとに刻を動かす規則（`FR-063`）が何に掛かるのかが濁る。 | JDG-3309（FR-024 の「常に全項目」が無くなるので、理由の指し先を差し替える） | rewrite |
+
+### 書き出す絵が要る値（FR-080）
+
+
+| 行 | CR | 古い | 新しい | 理由 | 種別 |
+| --- | --- | --- | --- | --- | --- |
+| prose FR-080 | CR-851 | ⚠️ **`WY-1` は JSON が縦横の倍率と縦横の表示位置を持つことを要する** —— `zoomX` / `zoomY`（`S-75` / `S-76`）と `scrollDate` / `scrollTaskGroupId`（`S-77` / `S-78`）がそれに当たり、`FR-024` が全項目を書き出すと定めているので満たされる。 | ⚠️ **`WY-1` は JSON が縦横の倍率と縦横の表示位置を持つことを要する** —— 1 日の幅 `dayWidthPx`・縦のズーム `verticalZoomRatio`・開く深さ `taskGroupAutoExpandDepth`（`S-75` / `S-76`）と表示位置 `scrollPosition`（`S-77`）がそれに当たり、どれもいつも値を持つプロパティなので `FR-024` が必ず書き出す。 | JDG-3292・JDG-3293・JDG-3296（名）、所見 F12（scrollPosition）、JDG-3309 | rewrite |
+
+### 開く（FR-087・表 T-024a）
+
+
+| 行 | CR | 古い | 新しい | 理由 | 種別 |
+| --- | --- | --- | --- | --- | --- |
+| OP-16 | CR-851 | ⚠️ 文書名が `null` の文書では、③ に `FR-035` がブラウザのタブに出すのと同じ `Untitled` を出すこと（MUST） | ⚠️ 文書名（`title`）を持たない文書では、③ に `FR-035` がブラウザのタブに出すのと同じ `Untitled` を出すこと（MUST） | JDG-3309（C3 —— title は省ける） | rewrite |
+| OP-6 | CR-851 | **`documentSettings` は、この造りのスキーマ（`05-07-design.md` の Chapter 6.1）が解釈できるものだけを読むこと（MUST）** —— 欠けているプロパティは既定値で補い、知らないプロパティ（退役したプロパティを含む）は捨て、型か列挙が合わない値はそのプロパティだけ既定値とする。 | **`documentSettings` は、この造りのスキーマ（`05-07-design.md` の Chapter 6.1）が解釈できるものだけを読むこと（MUST）** —— 欠けているいつも値を持つプロパティは既定値で補い（省けるプロパティが無いのは値が無いことであり、補わない）、知らないプロパティ（退役したプロパティを含む）は捨て、型か列挙が合わない値はそのプロパティだけ既定値とする。 | JDG-3309（省けるプロパティの不在は値が無いこと） | rewrite |
+| OP-10 | CR-851 | \| OP-10 \| **表示位置が `null`、または指すタスクグループが存在しないとき**<br>⭐ 表示位置は `scrollDate`（`S-77`）と `scrollTaskGroupId`（`S-78`）の組であり、どちらか一方でも `null` なら、表示位置が `null` であるとすること（MUST） —— 片方だけでは場所を指せない（日だけでは上端のタスクグループが、タスクグループだけでは左端の日が決まらない） \| | \| OP-10 \| **表示位置（`scrollPosition`、`S-77`）が `{"kind":"notDecided"}`、または指すタスクグループが存在しないとき**<br>⭐ 表示位置は 1 つの値であり、`placed` のときは左端の日・その日の中の比・上端のタスクグループ・その中の比の 4 つを必ず揃えて持つ —— 片方だけの表示位置は形の上で書けない（日だけでは上端のタスクグループが、タスクグループだけでは左端の日が決まらない） \| | 所見 F12（4 つのプロパティを 1 つの和に）、JDG-3309・JDG-3302（notDecided は kind） | rewrite |
+| OP-10 | CR-851 | —— `null` は「人がまだ場所を決めていない」を表す値であって、欠けているのではない（`OP-6` の補完に当たらない）。 | —— `notDecided` は「人がまだ場所を決めていない」を表す値であって、欠けているのではない（`OP-6` の補完に当たらない）。 | JDG-3302 | rewrite |
+
+### 形式の版・α の文書・変更の台帳（FR-073）
+
+
+| 行 | CR | 古い | 新しい | 理由 | 種別 |
+| --- | --- | --- | --- | --- | --- |
+| prose FR-073 STATEMENT（足す） | CR-851 | - | ⭐ **この造りが読む最も古い版より古い形式の版の文書（`CR-851` より前の造りが書いた α の文書）は、文書ごと拒み、表 T-233 に足す行（外へ出す名は `formatTooOld`）で告げること（MUST）。**   ⏎ ⭐ そのときは、α の文書を β の文書へ変える変換の HTML をダウンロードする所（`_assets/tbl-settings.md` の 表 T-206 に足す `S-625`（仮））を、押せるリンクとして案内すること（MUST） —— 字は所の値そのものとし、開き方と渡さないものは下の段の `{downloadUrl}` と同じとする。   ⏎ ⛔ 古い形の文書を `GRS` の中で読み替えてはならない（MUST NOT） —— 読み替えは変換の HTML（`grs-json-alpha-to-beta.html`。置き場と作りは `_assets/design-mcp-relay.md` の 6 節）だけが行う。   ⏎ ⛔ AI に変換させる道（指示のファイルをダウンロードさせる道）を作ってはならない（MUST NOT）。 | JDG-3306（変換スクリプトだけを案内、ORDER_TO_AI.md は作らない、JDG-3207 を一部覆す）、JDG-3279（AI に直させず変換スクリプトをダウンロードさせる）、JDG-3307（1 つの HTML）、refusal-reasons-map formatTooOld。⚠️ S-625 は仮の行 ID | add |
+| prose FR-073 STATEMENT | CR-851 | ⭐ **どの理由（`RS-48` ・ `RS-63` ・ `RS-64`）を告げるときも、最新版を入手する所を案内すること（MUST）** —— 所は `_assets/tbl-settings.md` の 表 T-206 の `S-350` が持つ。 | ⭐ **版が新しい文書の理由（`RS-48` ・ `RS-63` ・ `RS-64`）を告げるときは、最新版を入手する所を案内すること（MUST）** —— 所は `_assets/tbl-settings.md` の 表 T-206 の `S-350` が持つ。   ⏎ ⚠️ 版が古い文書（上の `formatTooOld`）は最新版でも開けないので、入手の所でなく変換の HTML の所を案内する。 | JDG-3306 | rewrite |
+| prose FR-073 RATIONALE | CR-851 | ⚠️ 公式運用の前（`_assets/tbl-settings.md` の 表 T-206 の `S-541` が `null`）は、版を上げても古い形の文書を読み替えない —— 日程データの群が合わない文書は、版によらず文書ごと拒む（本要求の上の段、`05-07-design.md` の 表 T-297 に行を足さない）。 | ⚠️ 公式運用の前（`_assets/tbl-settings.md` の 表 T-206 の `S-541` に版が入っていない間）は、版を上げても古い形の文書を読み替えない —— この造りの読む版より古い文書は `formatTooOld` で拒んで変換の HTML へ案内し、日程データの群が合わない文書は版によらず文書ごと拒む（本要求の上の段）。 | JDG-3306、JDG-3309（S-541 の null を状態の言い方にしない） | rewrite |
+| prose FR-073 RATIONALE | CR-851 | ⭐ **公式運用の後（`S-541` が `null` でない）に版を上げる変更は、変えた列ごとに、刊行するスキーマの変更の台帳（`05-07-design.md` の Chapter 6.2）へ 1 行を足すこと（MUST）。** | ⭐ **版を上げる変更は、変えた列ごとに、刊行するスキーマの変更の台帳（`05-07-design.md` の Chapter 6.2）へ 1 行を足すこと（MUST）** —— `CR-851` から書き始める。版の付け方は変えず、互換の有無は行の種別が持つ。 | JDG-3262（台帳は CR-851 から書く、JDG-1677 を一部覆す）、JDG-3263（版の付け方は今のまま） | rewrite |
+| prose FR-073 RATIONALE | CR-851 | その版より古い版の文書は、台帳のうち文書の版より新しい行を古い順に当てて読むこと（MUST） —— 運用の後は、形を変えても、利用者の保存した文書を開けなくしないためである。 | 公式運用の後（`S-541` に版が入った後）は、その版より古い版の文書を、台帳のうち文書の版より新しい行を古い順に当てて読むこと（MUST） —— 運用の後は、形を変えても、利用者の保存した文書を開けなくしないためである。 | JDG-3306（公式運用の後に台帳で読む FR-073 の道はそのまま） | rewrite |
+| prose FR-073 RATIONALE | CR-851 | ⛔ 公式運用の前は、台帳に行を足してはならない（MUST NOT） —— 運用の前に形を変えた文書は、上の段のとおり読み替えずに拒む。 | ⛔ 公式運用の前は、`GRS` が台帳を読んで古い文書を読み替えてはならない（MUST NOT） —— 運用の前に形を変えた文書は、上の段のとおり読み替えずに拒み、変換の HTML へ案内する。台帳の行は、変換の HTML の作り手と、スキーマを読む AI と人のために書く。 | JDG-3262（台帳は今から書くが GRS は正式な利用の前には読まない）、JDG-3306 | rewrite |
+
+### 文書の基本情報の面（FR-074）
+
+
+| 行 | CR | 古い | 新しい | 理由 | 種別 |
+| --- | --- | --- | --- | --- | --- |
+| prose FR-074 | CR-851 | `statusDate` は基準日（`FR-046`）、`minutesPerDay` と `minutesPerWeek` と `daysPerMonth` と `weekStartDay` と `calendarUid` は暦（`FR-054` / `FR-088`）、`themeHue` はテーマ色（`FR-041`）である。 | `statusDate` は基準日（`FR-046`）、`minutesPerDay` と `minutesPerWeek` と `daysPerMonth` と `weekStartDay` と `calendarUid` は暦（`FR-054` / `FR-088`）、`themeHueDegrees` はテーマ色（`FR-041`）である。 | CHOICE N6 | rewrite |
+| prose FR-074 | CR-851 | `id` と `uidHighWaterMark` と `importSequence` は `GRS` が持つ値であり、`carry` と `carryElements` は解釈しない器である（表 T-053）。 | `id` と `highestIssuedUid` と `lastImportNumber` は `GRS` が持つ値であり、`passthroughValues` と `passthroughElements` は解釈しない器である（表 T-053）。 | CHOICE N7・N8・N1 | rewrite |
+| prose FR-074 | CR-851 | `outlineBase`（`AT-139`）は取り込んだファイルの段の起点であり、`FR-021` の往復無損失が持つ。 | `firstOutlineLevel`（`AT-139`）は取り込んだファイルの段の起点であり、`FR-021` の往復無損失が持つ。 | CHOICE N9 | rewrite |
+
+### コメントボックスの本文（FR-097）
+
+
+| 行 | CR | 古い | 新しい | 理由 | 種別 |
+| --- | --- | --- | --- | --- | --- |
+| prose FR-097 | CR-851 | ⛔ 本文が空、または `null` のときも、幅と高さのどちらも その箱の文字の大きさ（本要求の末尾の段）を下回ってはならない（MUST NOT） | ⛔ 本文を持たない（`text` のプロパティが無い）ときも、幅と高さのどちらも その箱の文字の大きさ（本要求の末尾の段）を下回ってはならない（MUST NOT） | CHOICE N21（CommentBox.text は省ける、空の字は書かない）、JDG-3309 | rewrite |
+| prose FR-097 | CR-851 | ⚠️ `null` を含めるのは、`CM-46` が作る箱がすべてその状態だからである —— 含めないと、最も普通の場合に大きさを述べた行が 1 つも無いことになる。 | ⚠️ 本文を持たない箱を含めるのは、`createCommentBox` が作る箱がすべてその状態だからである —— 含めないと、最も普通の場合に大きさを述べた行が 1 つも無いことになる。 | CHOICE N21 | rewrite |
+| prose FR-097 | CR-851 | 文字の大きさは、その箱の `CommentBox.fontSizePx`（`_assets/fig-erd-detail.md` の `AT-168`）が `null` でなければその値（px）、`null` なら `_assets/tbl-settings.md` の 表 T-217 の `S-624` の既定とし、 | 文字の大きさは、その箱の `CommentBox.fontSizePx`（`_assets/fig-erd-detail.md` の `AT-168`、いつも値を持つ —— 置くときに `_assets/tbl-settings.md` の 表 T-217 の `S-624` を書く）とし、 | JDG-3302・JDG-3309（必須）。⚠️ 表示の倍率に従うことは CR-853 の振る舞いの行 | rewrite |
+
+### 書き出す先の見分け・新しく始める・刻印（FR-061・FR-095・FR-063）
+
+
+| 行 | CR | 古い | 新しい | 理由 | 種別 |
+| --- | --- | --- | --- | --- | --- |
+| DI-2 | CR-851 | \| DI-2 \| `null` の扱い \| `Project.name` または `Project.id` がどちらかの側で `null` のときは、同じとみなしてはならない（MUST NOT） | \| DI-2 \| 値が無いときの扱い \| `Project.name` または `Project.id` がどちらかの側で無い（プロパティを持たない）ときは、同じとみなしてはならない（MUST NOT） | JDG-3309（C3） | rewrite |
+| BK-4 | CR-851 | \| BK-4 \| `project` \| `null` を取れる列（`_assets/fig-erd-detail.md` の 表 T-058）は `null` とし、`calendarUid` と `weekStartDay` と `creationDate` の 3 つだけはそうしない | \| BK-4 \| `project` \| 省ける列（`_assets/fig-erd-detail.md` の 表 T-058 の「省けるか」が可）は書かず、`calendarUid` と `weekStartDay` と `creationDate` の 3 つだけは書く | JDG-3309 | rewrite |
+| BK-4 | CR-851 | ⚠️ `defaultStartTime` ／ `defaultFinishTime` は `null` のままとする | ⚠️ `defaultStartTime` ／ `defaultFinishTime` は書かない | JDG-3309 | rewrite |
+| BK-4 | CR-851 | `null` を取れない列は、`themeHue` を `_assets/tbl-settings.md` の 表 T-216 の `S-73`、`importSequence` を同表の `S-71`、`uidHighWaterMark` を `0`、`outlineBase` を `1`（`FR-021`）、`sourceFormat` を `grs`、 | いつも値を持つ列は、`themeHueDegrees` を `_assets/tbl-settings.md` の 表 T-216 の `S-73`、`lastImportNumber` を同表の `S-71`、`highestIssuedUid` を `0`、`firstOutlineLevel` を `1`（`FR-021`）、`parentTaskProgressToleranceWorkingDays` を同表の `S-487`、`sourceFormat` を `grs`、 | JDG-3309、CHOICE N6・N7・N8・N9、所見 F16 | rewrite |
+| BK-4 | CR-851 | とし、`carry` と `carryElements` は空とする。<br>⚠️ `title` も `null` である —— タブの見出しは `FR-035` の `Untitled` になる \| | とし、`passthroughValues` と `passthroughElements` は書かない。<br>⚠️ `title` も書かない —— タブの見出しは `FR-035` の `Untitled` になる \| | JDG-3309（空の配列・空の表は書かない）、所見 F44 | rewrite |
+| BK-5 | CR-851 | 表示位置が `null` なので、倍率と表示位置は 表 T-024a の `OP-10` の冒頭（`FR-055` の全体表示）が決める。 | 表示位置が `{"kind":"notDecided"}` なので、倍率と表示位置は 表 T-024a の `OP-10` の冒頭（`FR-055` の全体表示）が決める。 | JDG-3302・JDG-3309 | rewrite |
+| BK-6 | CR-851 | \| BK-6 \| 文書の刻印（`DR-4`） \| `schemaVersion` は `FR-027` のテンプレートと同じ版、`changeLog` は空、`documentStamp.fileSavedAt` は空とする（まだファイルへ書いていない）。 | \| BK-6 \| 文書の刻印（`DR-4`） \| `schemaVersion` は `FR-027` のテンプレートと同じ版、`buildVersion` はこの造りの版とし、`changeLogEntries` と `documentStamp.fileSavedAt` は書かない（まだ変更の理由も無く、ファイルへ書いていない）。 | JDG-3300・CHOICE B1、所見 F48、JDG-3309 | rewrite |
+| prose FR-063 表 T-229 の題 | CR-851 | **表 T-229 — `lastEditedBy` に書く語** | **表 T-229 — `lastEditedBy` に書く値** | 所見 F49（書き手を {"kind":…} の入れ物にする） | rewrite |
+| ED-1 | CR-851 | \| ED-1 \| 画面を操作する人 \| `user` \| | \| ED-1 \| 画面を操作する人 \| `{"kind":"user"}` \| | 所見 F49（決まった語と自由な名を 1 つの文字列に混ぜない —— OKPN）、JDG-3275 | rewrite |
+| ED-2 | CR-851 | \| ED-2 \| `Agent API` の呼び手 \| 呼び手が申告した名。<br>**`AG-6` の監視で名乗る名と同じ語とすること（MUST）** \| | \| ED-2 \| `Agent API` の呼び手 \| `{"kind":"agent","name":<呼び手が申告した名>}`。<br>名は 1 〜 512 字。<br>**名は `AG-6` の監視で名乗る名と同じ語とすること（MUST）** \| | 所見 F49、JDG-3287（短い名は 512） | rewrite |
+| ED-3 | CR-851 | \| ED-3 \| 出荷する起動テンプレート（表 T-034 の `BT-4`） \| `template` \| | \| ED-3 \| 出荷する起動テンプレート（表 T-034 の `BT-4`） \| `{"kind":"template"}` \| | 所見 F49 | rewrite |
+
+### Agent API の規約（表 T-035）
+
+
+| 行 | CR | 古い | 新しい | 理由 | 種別 |
+| --- | --- | --- | --- | --- | --- |
+| AG-1 | CR-851 | \| AG-1 \| 版を持ち、呼び方が変われば、版はそれまでのどの版よりも新しい時刻になること。<br>版の決め方と上げ方は `docs/development-rules/10-versions.md` の表が持つ（CR-822）。<br>版の書式は、文書の形式の版（`FR-073`）と同じ RFC 3339 の UTC の `YYYY-MM-DDTHH:MM:SSZ` とし、版どうしは文字列の一致で比べる。<br>**呼び出す側は最初に版を読む** \| | \| AG-1 \| 版（`agentApiVersion`）を 1 つ持ち、呼び方が少しでも変われば、版はそれまでのどの版よりも新しい時刻になること。<br>⭐ 呼び方とは、メンバの名・引数・戻り値の型（表 T-107・表 T-400）、`applyCommands` が受ける命令の形（刊行する `grs-commands.schema.json`）、拒否の形と理由の名の一覧、退いた名の一覧である —— 命令の形は版の外に置かない。<br>版の決め方と上げ方は `docs/development-rules/10-versions.md` の表が持つ（CR-822）。<br>版の書式は、文書の形式の版（`FR-073`）と同じ RFC 3339 の UTC の `YYYY-MM-DDTHH:MM:SSZ` とし、版どうしは文字列の一致で比べる。<br>⛔ 古い版の振る舞いを残してはならない（MUST NOT） —— 呼べるのはいまの版の呼び方だけである。<br>**呼び出す側は最初に版を読む** \| | JDG-3301（版は agentApiVersion 1 つでコマンドも含む、呼び方が少しでも変われば上げる、古い版の振る舞いは残さない）、studies/77 §3 版と退役 ① | rewrite |
+| AG-13（足す） | CR-851 | - | \| AG-13 \| ⭐ **メンバ・引数・命令・命令の欄をやめるときは、次に従うこと（MUST）。**<br>① やめる名は、刊行するスキーマ（`grs-commands.schema.json`）と道具の入力の形の中で、JSON Schema の `"deprecated": true` と代わりの名で示し、変更点はリリースノートに書く。<br>⛔ 機械が読む変更の台帳は作らない。<br>② やめた名で呼ばれたら、専用の理由（`retiredName`）で断り、代わりの名があればそれを返すこと（MUST） —— 知らない名として `malformedRequest` で断ると、呼ぶ側は何に直せばよいかを読めない。<br>③ やめた名を受け続ける猶予は、公式運用の後にだけ置く —— 長さは公式運用を宣言するときに決める。公式運用の前は、やめた名をすぐ ② で断る。<br>④ 呼ぶ側は、知らない拒否の理由を失敗として扱うこと（MUST） —— 理由は後から足されうる。<br>⑤ `Agent API` が手渡す刻印（`readStamp`・答えの `stamp`・`watchChanges` の知らせ）に、答えたページの造りの版（`grsBuildVersion`）を載せること（MUST） \| | JDG-3301（deprecated と代わりの名・リリースノート・台帳は作らない・やめた名は専用の理由で断り代わりを返す・猶予は公式運用の後だけ・知らない理由は失敗・答えの刻印に造りの版）、JDG-3300、commands-choices D.2〜D.4。⚠️ 行 ID AG-13 は仮 | add |
+| AG-2 | CR-851 | 照合は刻印の 3 つすべての等値で行うこと（MUST）。 | 照合は刻印のすべてのプロパティ（2 つの刻・最後に書いた者・ファイルへ書けた刻・造りの版）の等値で行うこと（MUST）。 | JDG-3300・commands-choices D.4（grsBuildVersion を手渡す刻印に入れ、照合に含める —— CHOICE 15。照合から外す案もある） | rewrite |
+| AG-9a | CR-851 | ⭐ 取り込みの検証（`FR-023`）が拒んだときの理由の区分は、拒んだ `05-07-design.md` の 表 T-220 の行の行 ID とすること（MUST） —— 人向けの通知と同じプロパティである（規則は `FR-076` の 表 T-233 の結びが持つ）。<br>⭐ 同表に行を持たない拒否（資源の上限と、`start` か `finish` を持たない `Task`）では、理由の区分は `FR-076` が運ばせる 表 T-233 の行の行 ID である —— これも人向けの通知と同じプロパティである。 | ⭐ 理由の区分と、命令ごと・欠陥ごとの理由は、仕様書の行 ID でなく、意味の英語の変わらない名とすること（MUST） —— 仕様書の行がその名を持ち、行 ID は外へ出さない。行 ID は仕様を書く都合で振り直すものであり、外への約束にすると呼ぶ側の読み分けが黙って壊れる。<br>⭐ 取り込みの検証（`FR-023`）が拒んだときの理由の区分は `documentInvalid` とし、拒んだ不変条件（`05-07-design.md` の 表 T-220 の行）を、その行が持つ名で `documentFaults` に並べること（MUST）。<br>⭐ 同表に行を持たない拒否（資源の上限と、`start` か `finish` を持たない `Task`）も、表 T-233 の行が持つ名（例 `fileTooLarge`・`taskWithoutDates`）で並べる。<br>⭐ 人向けの通知（`FR-076`）は今どおり行 ID で語を引く —— 外へ出す名と画面の語のプロパティは別のものである。 | JDG-3285（外へ出す値は変わらない名、行 ID は外に出さない）、refusal-reasons-map.tsv、commands-choices C | rewrite |
+| AG-12 | CR-851 | ⛔ 道具の入力の形に `oneOf`・`anyOf`・型の並びを刷ってはならない（MUST NOT） —— MCP の受け手によっては落とし、AI に命令の種類も `null` も届かない。 | ⛔ 道具の入力の形に `oneOf`・`anyOf`・型の並びを刷ってはならない（MUST NOT） —— MCP の受け手によっては落とし、AI に命令の種類が届かない。<br>⭐ 道具の入力も答えも `null` を使わない —— 値が無いときはプロパティを書かない（`FR-024` と同じ作法）。 | JDG-3309（答えにも当てる —— commands-choices C）、R3 Null Trap | rewrite |
+
+### 名前の上の段（FR-091 以外の名の強制・FR-035）
+
+
+| 行 | CR | 古い | 新しい | 理由 | 種別 |
+| --- | --- | --- | --- | --- | --- |
+| prose FR-035 | CR-851 |  **`title` に空文字を受け付けてはならない（MUST NOT）** —— 空文字と `null` の 2 つの「無い」を持つと、往復と合流のたびにどちらへ寄せるかの規則が要る。 |  **`title` に空文字を受け付けてはならない（MUST NOT）** —— 空文字とプロパティの無いことの 2 つの「無い」を持つと、往復と合流のたびにどちらへ寄せるかの規則が要る。欄を空にして確定したら `title` のプロパティを除く。 | JDG-3309 | rewrite |
+| prose FR-035 | CR-851 | `title` が `null` のときは、タブの見出しを `Untitled` とすること（MUST） —— 見出しが空のタブは掴めない。 | `title` を持たないときは、タブの見出しを `Untitled` とすること（MUST） —— 見出しが空のタブは掴めない。 | JDG-3309 | rewrite |
+
+### 文字サイズと目盛（FR-039・FR-017）—— 名と意味だけ（振る舞いは CR-853）
+
+
+| 行 | CR | 古い | 新しい | 理由 | 種別 |
+| --- | --- | --- | --- | --- | --- |
+| prose FR-039 | CR-851 | **文字サイズの変更は目盛にも及ぶこと（MUST）** —— 目盛の文字と目盛の帯の高さがこれに追随し、**その保存値が書き換わる**（値は `_assets/tbl-settings.md` の `S-3` / `S-2`）。 | **文字サイズの変更は目盛にも及ぶこと（MUST）** —— 目盛の文字と目盛の帯の高さは `fontSizeStep` から導く値であり（`_assets/tbl-settings.md` の `S-3` / `S-2`）、文書に保存しない。 | JDG-3294（rulerFontSizePx・rulerHeightPx を消し道具が導く。所見 55 の「今のまま」を覆す） | rewrite |
+| prose FR-039 | CR-851 | ⚠️ 保存値は初期値であり、`fontSizeStep` を変えたときに追随して書き換わることが「文書の編集」になる —— 既定値の欄にだけ書くと、一度書き出した文書は実値を持つので追随せず、上の MUST NOT を破る。 | ⚠️ `fontSizeStep` の保存値は初期値であり、変えたことが「文書の編集」になる —— 目盛の文字と帯の高さは保存しないので、変えた段に必ず追随する。 | JDG-3294 | rewrite |
+| prose FR-039 | CR-851 | **目盛の文字と帯の高さは、それぞれ独立したキーとして保つこと（MUST）** —— UI を試したうえで固定の定数へ戻す道を残すためである。 | - | JDG-3294（独立したキーとして保つことをやめる —— 書き手を 1 人にする） | remove |
+| prose FR-039 | CR-851 | 描く比は、`S-234` を 100 で割り、同書の 表 T-206 の `S-236` を掛けた値とすること（MUST） —— 既定の 100 で 2026-09-16 の出荷ビルドの 5/8（100 ÷ 100 × 0.625）、200 で出荷ビルドの 5/4（200 ÷ 100 × 0.625 ＝ 1.25）に立つ。 | 描く比は、`S-234` を 100 で割った値とすること（MUST） —— ⭐ 製品の寸法の定数と保存する値は、表示の倍率 100 のときの CSS px で持つ（2026-09-16 の出荷ビルドの 5/8 の大きさを、定数と値そのものに畳んである）ので、100 で 5/8、200 で 5/4 に立つ。 | JDG-3277（S-236 の 0.625 を無くし、定数 38 個と保存する値に畳む）、JDG-3291（…Px は倍率 100 の CSS px） | rewrite |
+| prose FR-039 | CR-851 | ⚠️ `App Header` と `Command Palette` の大きさは描く比を読まないので、`S-236` を変えても動かない —— 表 T-252 の `DS-6` が掛けないと定め、大きさは `S-235` だけから導く | ⚠️ `App Header` と `Command Palette` の大きさは描く比を読まない —— 表 T-252 の `DS-6` が掛けないと定め、大きさは `S-235` だけから導く | JDG-3277（S-236 が無くなる） | rewrite |
+| prose FR-039 | CR-851 | 書き換えると、倍率を戻したときに元の値へ戻らず、`FR-024` が凍結した値が倍率を触るたびに動く。 | 書き換えると、倍率を戻したときに元の値へ戻らず、`FR-024` が書いた値が倍率を触るたびに動く。 | JDG-3309（FR-024 の「凍結」の言い方を外す —— 小さな文の直し） | rewrite |
+| DS-4 | CR-851 | \| DS-4 \| 同書の 表 T-201 の `S-1`（1 日の幅） \| 掛ける \| 適切な大きさはプロジェクトの規模で変わるので、日付の間隔も図形と字と一緒に縮める。<br>`zoomX`（同書の 表 T-203 の `S-75`）とは掛け算で重ねる。 | \| DS-4 \| 同書の 表 T-203 の `S-75`（`dayWidthPx` —— 1 日の幅、倍率 100 のときの CSS px） \| 掛ける \| 適切な大きさはプロジェクトの規模で変わるので、日付の間隔も図形と字と一緒に縮める。<br>⭐ 1 日の幅は文書が px で持つ —— 隠れた基準の値（今の `S-1` と `zoomX` の掛け算）は持たない。 | JDG-3292（zoomX → dayWidthPx ＝ 3.75 × zoomX、S-1 × 0.625 の基準が消える） | rewrite |
+| DS-13 | CR-851 | ⛔ 縦のズーム（同書の 表 T-203 の `S-76`）と、同書の 表 T-206 の `S-236` を掛けてはならない（MUST NOT） \| 値は、表示の倍率 100 のときの画面の px として人が打つ（`FR-042` の 表 T-338 の `MH-1`）—— 欄の横の現在の高さ（同表の `MH-3`）と同じ単位で読み書きするためである。<br>本表のほかの行の寸法は `S-236` を含む描く比で画面の px へ直すが、本行の値は既に画面の px なので、`S-236` を掛けると、倍率がどちらも 100 のときに打った数と描かれる帯高が食い違う（60 を打つと、帯高は 60 × `S-236` になる）。 | ⛔ 縦のズーム（同書の 表 T-203 の `S-76` の `verticalZoomRatio`）を掛けてはならない（MUST NOT） \| 値は、表示の倍率 100 のときの CSS px として人が打つ（`FR-042` の 表 T-338 の `MH-1`）—— 欄の横の現在の高さ（同表の `MH-3`）と同じ単位で読み書きするためである。<br>⭐ 本表のほかの行の寸法も同じ単位で持つ（`JDG-3277` が 0.625 を定数へ畳んだ）ので、本行だけを特別に扱う理由は無くなった。 | JDG-3277（S-236 が無くなる）、JDG-3291（…Px の 1 つの意味）、JDG-3293 | rewrite |
+| prose FR-077（可読の下限） | CR-851 | ⭐ 可読の下限は、`_assets/tbl-settings.md` の 表 T-201 の `S-8` に、`FR-039` の表示の倍率の描く比を掛けた値とすること（MUST） —— 表示の倍率は読む人が選ぶ大きさであり、既定の倍率で字を 2026-09-16 の出荷ビルドの 5/8 まで縮めることを利用者が定めた（既定の 100 の描く比は `_assets/tbl-settings.md` の 表 T-206 の `S-236` の 0.625）。 | ⭐ 可読の下限は、`_assets/tbl-settings.md` の 表 T-201 の `S-8` に、`FR-039` の表示の倍率の描く比を掛けた値とすること（MUST） —— 表示の倍率は読む人が選ぶ大きさであり、既定の倍率で字を 2026-09-16 の出荷ビルドの 5/8 まで縮めることを利用者が定めた（`S-8` は 5/8 を畳んだ 7.5 である）。 | JDG-3277（S-236 を無くし S-8 へ畳む 12 → 7.5） | rewrite |
+| prose FR-017 | CR-851 | 1 日あたりの表示幅は、表 T-201（`_assets/tbl-settings.md`）の `S-1` に `zoomX` を掛けた値とすること（MUST）。 | 1 日あたりの表示幅は、文書の `dayWidthPx`（`_assets/tbl-settings.md` の 表 T-203 の `S-75`）に表示の倍率の描く比（`FR-039`）を掛けた値とすること（MUST）。 | JDG-3292（1 日の幅を px で持つ）。名と意味だけ | rewrite |
+| prose FR-017 | CR-851 | 実効フォントサイズとは、そのとき目盛を描いている `rulerFontSizePx` の px である。 | 実効フォントサイズとは、そのとき目盛を描いている字の px（`fontSizeStep` から導く目盛の字 `S-3` に描く比を掛けた値）である。 | JDG-3294 | rewrite |
+| prose FR-017 | CR-851 | 高さが段階で変わると `zoomX` → 目盛の段階 → 帯の高さ → `Task Group Area` の高さ → `zoomY` という循環がもう 1 本増える。 | 高さが段階で変わると 1 日の幅（`dayWidthPx`）→ 目盛の段階 → 帯の高さ → `Task Group Area` の高さ → 縦のズーム（`verticalZoomRatio`）という循環がもう 1 本増える。 | JDG-3292・JDG-3293。名だけ | rewrite |
+
+### 検索の表・ショートカット・タイムゾーン・全体表示・日程の移動ほか
+
+
+| 行 | CR | 古い | 新しい | 理由 | 種別 |
+| --- | --- | --- | --- | --- | --- |
+| SQ-14 | CR-851 | —— 真ならマイルストーン、偽か空ならタスク。<br>描く形（`TaskVisual.shapeKind`）では決めない \| | —— 真ならマイルストーン、偽かプロパティが無ければタスク。<br>描く形（`TaskVisual.taskShape` ／ `milestoneShape`）では決めない \| | JDG-3309（Task.milestone は C3、省けば false）、JDG-3311 | rewrite |
+| SQ-9 | CR-851 | 吸着していれば吸着先のその点の日時、そうでなければ `CommentBox.anchorDate`（`AT-113`） | 吸着していれば吸着先のその点の日時、そうでなければ `CommentBox.anchor` の `dateTime`（`AT-113`） | 所見 F28 | rewrite |
+| SK-20 | CR-851 | 出すと本日が `statusDate` に入り、消すと `null` になる） | 出すと本日が `statusDate` に入り、消すと `statusDate` のプロパティが除かれる） | JDG-3309 | rewrite |
+| prose FR-156 | CR-851 | 日程データのタイムゾーン（`AT-157`）を選んだタイムゾーンに付け替え、見せる基準を `null`（日程データのタイムゾーンと同じ）に戻す | 日程データのタイムゾーン（`AT-157`）を選んだタイムゾーンに付け替え、見せる基準を `{"kind":"sameAsScheduleData"}`（日程データのタイムゾーンと同じ）に戻す | JDG-3302・JDG-3309（sameAsScheduleData は kind） | rewrite |
+| WH-7 | CR-851 | \| WH-7 \| 動かす列 \| 表 T-350 の `WT-1`〜`WT-8` が名指す列のうち値を持つもの（`Task` の予定・実績・中断・再開・期限、`BaselineTask` の開始と終了、`Project.startDate`・`statusDate`、`HighlightBox` の始まりと終わり、`CommentBox.anchorDate`、`_assets/tbl-settings.md` の `S-518`・`S-519`・`S-77`）。<br>⛔ ただし `Exception.fromDate`・`toDate`（暦）を除く。<br>丸 1 日の範囲（`WT-6`・`WT-7`）と 1 つの日（`WT-8`）は日として読む（終わりの `23:59` はその日の終わり）。 | \| WH-7 \| 動かす列 \| 表 T-350 の `WT-1`〜`WT-5` が名指す列と、日付だけの列のうち値を持つもの（`Task` の予定・実績・中断・再開・期限、`BaselineTask` の開始と終了、`Project.startDate`・`statusDate`、`HighlightBox` の `firstDay`／`lastDay`、`CommentBox.anchor` の自由点の `dateTime`、`_assets/tbl-settings.md` の `S-518`（`fitSpan`）・`S-77`（`scrollPosition` の `leftEdgeDay`））。<br>⛔ ただし `Exception.fromDate`・`toDate`（暦）を除く。<br>日付だけの列は日として動かす。 | JDG-3275・所見 F30・F12・F52（範囲と表示位置は Day）、WT-8 の退役 | rewrite |
+| prose FR-055 | CR-851 | 描くものが 1 つも無い文書では、倍率を等倍に戻し、表示位置を `scrollDate` に合わせること（MUST）。 | 描くものが 1 つも無い文書では、倍率を既定（`dayWidthPx` は `S-75` の既定、`verticalZoomRatio` は 1）に戻し、表示位置を `scrollPosition` の `leftEdgeDay` に合わせること（MUST）。 | JDG-3292（「等倍」は 1 日の幅を px で持つと読めない）、所見 F12。⚠️ 全体表示の振る舞いそのものは CR-853 | rewrite |
+| prose FR-055 | CR-851 | `scrollDate` が `null` のときは実行日に合わせてよい（MAY） —— 実寸が 0 だと収める倍率が決まらない。 | `scrollPosition` が `notDecided` のときは実行日に合わせてよい（MAY） —— 実寸が 0 だと収める倍率が決まらない。 | JDG-3302 | rewrite |
+| prose FR-055 | CR-851 | ⭐ 左端の表示位置は、日付（`scrollDate`）と日の中の位置（`_assets/tbl-settings.md` の `S-177` の `scrollDateFraction`）の組で持つこと（MUST）。 | ⭐ 左端の表示位置は、日付（`scrollPosition` の `leftEdgeDay`）と日の中の位置（`_assets/tbl-settings.md` の `S-177` の `leftEdgeDayFraction`）の組で持つこと（MUST）。 | CHOICE N4 | rewrite |
+| FX-1 | CR-851 | ⭐ `S-518` と `S-519` は、ともに `null` か、ともに日付を持つこと（MUST）。<br>読んだ文書と、片方だけが日付を持つ 表 T-108 の `CM-88` は、もう片方に同じ日をコピーする。 | ⭐ 期間は `fitSpan` の 1 つの値（`firstDay`・`lastDay`・`isFixed` を必ず揃えて持つ）とし、期間が無いときは `fitSpan` のプロパティを書かないこと（MUST） —— 片方だけの期間は形の上で書けない。 | 所見 F52（fitSpanStart・fitSpanFinish・isFitSpanFixed を 1 つの組 fitSpan に）、JDG-3309 | rewrite |
+| FX-1 | CR-851 | ⭐ 欄で片方を空にして確定したら、期間を消すこと（MUST） —— 同表の `CM-89` を 1 回発行し、固定していれば `FX-5` のとおり固定も外す。 | ⭐ 欄で片方を空にして確定したら、期間を消すこと（MUST） —— `editDocumentSettings` の `clear` に `fitSpan` を載せて 1 回発行し、固定も一緒に消える（`FX-5`）。 | 所見 F52、commands-choices B.8（fitSpan は set・clear できる） | rewrite |
+| FX-1 | CR-851 | ⭐ 欄と命令は、`S-519` が `S-518` より前の値を拒み、表 T-233 の `RS-58` を告げること（MUST）。<br>⚠️ 読んだ文書の前後逆は拒まず、`S-519` を `S-518` の日へ寄せる | ⭐ 欄と命令は、`lastDay` が `firstDay` より前の値を拒み、表 T-233 の `RS-58`（外へ出す名は `endBeforeStart`）を告げること（MUST）。<br>⚠️ 読んだ文書の前後逆は拒まず、`lastDay` を `firstDay` の日へ寄せる | 所見 F52、JDG-3285 | rewrite |
+| FX-1 | CR-851 | ⭐ `S-532` が真のときは、期間が日付を持つこと（MUST）。<br>読んだ文書が `S-532` を真とし期間を `null` とするときは、`S-532` を偽として読む（同じ前文）。<br>⚠️ `S-532` が偽なら、期間が日付を持っていても、全体表示にも書き出しにも当たらない \| | ⭐ 固定（`fitSpan` の `isFixed`）は期間の中にあるので、期間の無い固定は書けない。<br>⚠️ `isFixed` が偽なら、期間が日付を持っていても、全体表示にも書き出しにも当たらない \| | 所見 F52（isFitSpanFixed → fitSpan.isFixed） | rewrite |
+| FX-4 | CR-851 | ⭐ 期間が `null` のまま固定へ入れたときは、同じ 1 回の命令で、期間に `FX-6` の 2 つの日をコピーすること（MUST） —— 期間の無い固定を `FX-1` が持たない。 | ⭐ 期間が無いまま固定へ入れたときは、同じ 1 回の命令で、`fitSpan` を `FX-6` の 2 つの日と `isFixed` 真で書くこと（MUST） —— 期間の無い固定は書けない（`FX-1`）。 | 所見 F52、JDG-3309 | rewrite |
+| CU-1 | CR-851 | **`statusDate` が `null` のときは描かない。<br>** | **`statusDate` を持たないときは描かない。<br>** | JDG-3309 | rewrite |
+| TL-9 | CR-851 | `deadline` が `null` のときは、期限の行を出さないこと（MUST）。 | `deadline` を持たないときは、期限の行を出さないこと（MUST）。 | JDG-3309 | rewrite |
+| TL-14 | CR-851 | `notes` が `null`、空、または空白と改行だけのときは行を出さない \| | `notes` を持たないとき、または空白と改行だけのときは行を出さない \| | JDG-3309（notes は 1 字以上、空の字を書かない） | rewrite |
+| EN-7 | CR-851 | \| EN-7 \| その入口が出す線を、いま描いている（基準日線で、`statusDate` が `null` でない） \| | \| EN-7 \| その入口が出す線を、いま描いている（基準日線で、`statusDate` を持つ） \| | JDG-3309 | rewrite |
+| prose FR-029 | CR-851 | ⚠️ **`shapeKind` を本注記の例に挙げてはならない（MUST NOT）** —— 表 T-016 から形状の項目を落としたので、値として編集する面が残っていない。 | ⚠️ **`taskShape` ／ `milestoneShape` を本注記の例に挙げてはならない（MUST NOT）** —— 表 T-016 から形状の項目を落としたので、値として編集する面が残っていない。 | JDG-3311 | rewrite |
+| prose FR-068 | CR-851 | ⭐ コピーするプロンプトは、(1) 画面の言語の原稿、(2) 版の 1 行（`schemaVersion:` と 1 字の空白に、初期テンプレート（`FR-027`）の `schemaVersion` の値を続けたもの）、(3) 土台の文書、の 3 つをこの順に空行で区切って連ねた 1 つの文字列とすること（MUST）。 | ⭐ コピーするプロンプトは、(1) 画面の言語の原稿、(2) 版の 1 行（`schemaVersion:` と 1 字の空白に、初期テンプレート（`FR-027`）の `schemaVersion` の値を続けたもの）、(3) 土台の文書、の 3 つをこの順に空行で区切って連ねた 1 つの文字列とすること（MUST）。<br>⭐ 原稿は β の形（値の無いプロパティを書かない・色は `kind` の入れ物・形は `taskShape` ／ `milestoneShape`）で書かせる —— 原稿の書き直しは `_source/image-to-grs-json-prompt.ja.md` ／ `.en.md` の行に置く。 | JDG-3309・JDG-3310・JDG-3311、studies/77 §3 null ②（プロンプトの「値が無ければ null」） | rewrite |
+
+### リンク（CR-849）
+
+
+| 行 | CR | 古い | 新しい | 理由 | 種別 |
+| --- | --- | --- | --- | --- | --- |
+| prose FR-109（足す） | CR-849 | - | ⭐ `hyperlinkAddress` を持つタスクとマイルストーンは、名称ラベルの右肩の上（名前の右上に小さく添える位置）にリンクの印を描くこと（MUST） —— 名前の横に並べると、名前の幅と札の置き方（表 T-273）が変わる。<br>⭐ 印を押したら、閲覧環境の新しいタブで `hyperlinkAddress` の所を開くこと（MUST） —— 開き方と、移った先へ参照と参照元を知らせないことは 表 T-349 の `BR-4` と同じである。<br>⚠️ 印の図形は 表 T-109 に足す行が持つ —— 新しい図形を決めるのは利用者である（表 T-026 の `RC-13`）。<br>⚠️ 印を押して開くのは閲覧環境であり、表 T-003 の `CN-6` の通信に当たらない（`FR-073`） | JDG-3082（タスクとマイルストーンの印は名前の右肩の上、押すと新しいタブ）、JDG-3084（BR-4 と同じ開き方）、CR-849 | add |
+| prose FR-097（足す） | CR-849 | - | ⭐ `hyperlinkAddress` を持つコメントボックスは、本文の箱の右肩の上にリンクの印を描き、押したら閲覧環境の新しいタブでその所を開くこと（MUST） —— 印と開き方は `FR-109` のタスクの印と同じである | JDG-3082（コメントのリンクの印は箱の右肩の上）、CR-849 | add |
+| HF-21（足す） | CR-849 | - | \| HF-21 \| `hyperlinkAddress` を持つタスクグループは、タスクグループパネルの名前を青い字に下線で描き、リンクの印を描かないこと（MUST） —— 名前そのものがリンクであることを、印を足さずに見せる。<br>⚠️ 青と下線の値は `_assets/tbl-settings.md` に足す行が持つ（暗いテーマの値と `NFR-007` の比を含む）。<br>名前を押したときと 2 度押したときは 表 T-023 の `MK-13` が持つ \| | JDG-3083（タスクグループ名を青文字下線にし、アイコンを出さない）、CR-849。⚠️ 行 ID HF-21 と色の行は仮 | add |
+| MK-13 | CR-849 | ／タスクグループ見出し（タスクグループ名） ＝ プロパティパネルを出し、名前の欄（`_assets/fig-erd-detail.md` の `AT-53`）を編集できる状態にして焦点を置き、**既にある文字をすべて選んだ状態にすること（MUST）** —— ⭐ タスクの項と同じ振舞いであり、違うのは欄が `PR-1` ではなく `AT-53` であることだけである。 | ／タスクグループ見出し（タスクグループ名） ＝ プロパティパネルを出し、名前の欄（`_assets/fig-erd-detail.md` の `AT-53`）を編集できる状態にして焦点を置き、**既にある文字をすべて選んだ状態にすること（MUST）** —— ⭐ タスクの項と同じ振舞いであり、違うのは欄が `PR-1` ではなく `AT-53` であることだけである。<br>⭐ `hyperlinkAddress` を持つタスクグループの名前（表 T-051 の `HF-21`）は、1 回の押下でリンク先を閲覧環境の新しいタブに開き、2 度の押下で上のとおり名前の欄を開くこと（MUST） —— 1 回目の押下は、2 度目が来ないことが分かるまで（ダブルクリックの間隔）待ってから開く。<br>⭐ 新しいタブは、ページから選べるなら後ろのタブに開く。<br>⚠️ 待ちの長さと、後ろのタブを選べるかは、見本を作って Edge と Chrome で測ってから決める —— 選べなければ新しいタブは前に出る。<br>⚠️ 開き方と渡さないものは 表 T-349 の `BR-4` と同じであり、同じタブでは開かない。 | JDG-3084（クリックでリンクを開きダブルクリックで名前とプロパティの編集、後ろのタブは測ってから決める、BR-4 と同じく同じタブで開かず参照元を送らない）、CR-849。⚠️ 待ちの長さと後ろのタブは未決（裁定が「測ってから決める」） | rewrite |
+| prose FR-023（足す） | CR-849 | - | ⭐ リンクの所（`Task`・`CommentBox`・`TaskGroup` の `hyperlinkAddress`）は、閲覧環境と同じ読み方 —— 前後の空白と制御文字を除き、途中のタブと改行を除き、大文字と小文字を区別しない —— で読んでから、`javascript:`・`vbscript:`・`data:` のどれかで始まる値を拒むこと（MUST） —— 押すとページの中で動く形であり、文書を渡された人が押すだけで何かが起きる。<br>`GRS JSON` の取り込みでは文書ごと拒み（`05-07-design.md` の 表 T-220 に足す行）、命令とプロパティパネルの欄ではその書き込みを拒む（外へ出す名は `hyperlinkSchemeNotAllowed`）。<br>⭐ ほかの形（`http`・`https`・`mailto:`・`file:` ほか）は書けて押せる。<br>⚠️ 公開の `GRS` からは閲覧環境が `file:` を開かせず、押しても何も起きないことがある —— 書けることは変えない。<br>⭐ 所と題（`hyperlink`）はどちらも 1 〜 512 字とする（交換相手の `Task/HyperlinkAddress`・`Task/Hyperlink` と同じ上限） | JDG-3185（ブラウザと同じ読み方で javascript:・vbscript:・data: を断る、JDG-3085 を一部覆す、PND-933 を閉じる）、JDG-3085（ほかの形は書けて押せる、file: の代償）、JDG-3314（URL は 512 字まで）、refusal-reasons-map hyperlinkSchemeNotAllowed、CR-849 | add |
+
+### 造りの版を書き出すものに載せる（JDG-3300）
+
+
+| 行 | CR | 古い | 新しい | 理由 | 種別 |
+| --- | --- | --- | --- | --- | --- |
+| prose FR-025（足す） | CR-851 | - | ⭐ 書き出す PNG は、PNG の文字の欄（`tEXt`、プロパティ `GRS-Build-Version`）に、書き出した `GRS` の造りの版（UTC の `YYYY-MM-DDTHH:MM:SSZ`）を載せること（MUST） —— どの造りが描いた絵かを、絵だけから読めるようにする。⚠️ 絵の見た目は変えない | JDG-3300（PNG の画像の文字の欄に造りの版）。⚠️ プロパティの名は私の案（裁定は「プロパティの名は行のレビューで決める」） | add |
+| prose FR-080（足す） | CR-851 | - | ⭐ 書き出す SVG は、`<metadata>` に書き出した `GRS` の造りの版を載せること（MUST）（要素 `<grs:buildVersion>`、名前空間は `S-540` と同じサイトの所）。⚠️ 絵の見た目は変えない | JDG-3300（SVG のメタデータに造りの版）。⚠️ 要素の名と名前空間は私の案 | add |
+| prose FR-067（足す） | CR-851 | - | ⭐ 書き出す単一 `.html` は、`<meta name="grs-build-version" content="…">` に、本体の造りの版を載せること（MUST）。埋めた文書の `buildVersion` は、その文書を書いた造りの版である（`FR-024`） —— 本体と埋めた文書が別の造りでありうる | JDG-3300（単一 .html に造りの版）。⚠️ meta の名は私の案 | add |
+| prose FR-024（足す —— 人が読む出力） | CR-851 | - | ⚠️ 人が読む書き出し（遅延診断レポートの `.md`、修正の記録の `fix-log.tsv`）は外へ約束する形に数えない（表 T-346 の `RW-6`・`RW-20`） —— 造りの版も載せない。 | JDG-3288（人向けは画面の言語、外部契約に数えない）、JDG-3300（機械が読む出力に全部載せる —— 人向けは機械が読む出力でない）。⚠️ 人向けの出力に版を載せないことは私の読み | add |
+
+### 網の目の見直しで足した行
+
+
+| 行 | CR | 古い | 新しい | 理由 | 種別 |
+| --- | --- | --- | --- | --- | --- |
+| prose UC-003 拡張 3a | CR-851 | - 3a. 作成者が塗りと輪郭を同時に透明にしようとした。 | - 3a. 作成者が塗りと輪郭の両方を描かないようにしようとした。 | JDG-3310（透明 ＝ 色のプロパティを書かない） | rewrite |
+| prose FR-011 | CR-851 | ⭐ 以前の版の `GRS JSON` が `actualDuration` を持ち `stop` を持たないときも、同じ読みで `stop` を置いて開くこと（MUST） —— `FR-073` により、この造りが知る最大の版より古い版は読める版である。 | - | JDG-3306・JDG-3307（古い版の文書は formatTooOld で拒み、actualDuration から stop への読み替えは変換の HTML が行う）、05-07-design.md 6.1 の「宣言の前の 5 つの補い」 | remove |
+| prose FR-011 | CR-851 | `Stop` を持たなかったことは、`ActualDuration` の原値と同じく Carry（表 T-005 の `G-13`）として持ち回る（表 T-019 の注記）。 | `Stop` を持たなかったことは、`ActualDuration` の原値と同じく持ち回りの値（`passthroughValues`、表 T-005 の `G-13`）として持ち回る（表 T-019 の注記）。 | 所見 F44 | rewrite |
+| prose FR-016（フェードの掴み点） | CR-851 | 未設定（`null`）の端の掴み点は 0 日の位置に立つので、 | フェードを持たない（プロパティの無い）端の掴み点は 0 日の位置に立つので、 | JDG-3309 | rewrite |
+| prose FR-088 | CR-851 | 作る暦の `uid` は `Project.uidHighWaterMark`（`AT-20`）に従って採り、`isBaseCalendar` を真とする。 | 作る暦の `uid` は `Project.highestIssuedUid`（`AT-20`）に従って採り、`isBaseCalendar` を真とする。 | CHOICE N7 | rewrite |
+| prose FR-019 RATIONALE | CR-851 | 既定と範囲は `_assets/tbl-settings.md` の 表 T-217 の `S-369` 〜 `S-371`、入口は | 置くときに書く値と範囲は `_assets/tbl-settings.md` の 表 T-217 の `S-369`・`S-627`（透過率 100）・`S-132`、色を選んだときの透過率は `S-371`（50）、入口は | JDG-3302・JDG-3304、S-370 の退役と S-371 の役替え | rewrite |
+| prose FR-019 RATIONALE | CR-851 | 太さと透過率と字の大きさの既定と範囲は `_assets/tbl-settings.md` の 表 T-217 の `S-374` ・ `S-375` ・ `S-624`、 | 太さと透過率と字の大きさの、置くときに書く値と範囲は `_assets/tbl-settings.md` の 表 T-217 の `S-374` ・ `S-375` ・ `S-624`、 | JDG-3302 | rewrite |
+| prose FR-019 RATIONALE（コメントボックスの塗り） | CR-851 | 塗りには透明を選ばせてよい。   | 塗りには透明を選ばせてよい —— 押すと色を残して透過率を 100 にする。   | JDG-3276 | rewrite |
+| prose FR-058 | CR-851 | 器の名前を指定しなかったタスクグループは、そのタスクグループの導出元となったタスクの名前を表示すること（MUST）。 | 取り込みで作るタスクグループには、元にした親タスク（そのタスクグループが表すタスク、`representedTaskUid`）の名を、タスクグループ名として写すこと（MUST） —— 親タスクが名を持たなければ、名を書かない（名の無いタスクグループ）。⭐ 写すのは取り込みのこの 1 度だけであり、後で親タスクの名が変わってもタスクグループ名はついて行かない。 | JDG-3315（MSPDI を取り込むときは親タスクの名から付けるのが自然、名が無ければ名の無いグループ）、JDG-3303（ついて行かない） | rewrite |
+| prose FR-058 | CR-851 | 指定も導出元も無いタスクグループを作ってはならない（MUST NOT） —— 名前の決まらないタスクグループができる。 | - | JDG-3315（名も表すタスクも無いタスクグループを許す。今のタスクグループ名を必須とする検めは無くす） | remove |
+| prose FR-065 | CR-851 | `AT-1`（`Project.id`）は `null` を許し、主キーでもない。 | `AT-1`（`Project.id`）は省けるプロパティであり、主キーでもない。 | JDG-3309 | rewrite |
+| prose NFR-007 | CR-851 | 白（`S-314`）と透明（`S-324`）を除く 9 色の縁 ÷ 地は、 | `paper`（`S-314`）を除く 9 色の縁 ÷ 地は、 | 所見 F05、JDG-3310（S-324 が退く） | rewrite |
+
+### 遅延診断のレポートの欄（01-04 の表 T-317）—— 答えの値の行 ID
+
+
+| 行 | CR | 古い | 新しい | 理由 | 種別 |
+| --- | --- | --- | --- | --- | --- |
+| DX-3 | CR-851 | \| DX-3 \| 指摘 \| 1 件ごとに: 観点の行 ID（表 T-310 ・ 表 T-311 ・ 表 T-312 の行）、 | \| DX-3 \| 指摘 \| 1 件ごとに: 観点の変わらない名（表 T-310 ・ 表 T-311 ・ 表 T-312 の行が持つ名）、 | JDG-3285（記録と答えに出る値は変わらない名、行 ID は外に出さない）。⚠️ 3 つの表の名の欄はまだ無い —— 決まっていない | rewrite |
+| DX-6 | CR-851 | \| DX-6 \| 壁 \| 壁ごとに: 表 T-316 の行、 | \| DX-6 \| 壁 \| 壁ごとに: 表 T-316 の行が持つ変わらない名、 | JDG-3285 | rewrite |
+| DX-8 | CR-851 | \| DX-8 \| マーカーの状態 \| `Task` の `uid` ごとの 表 T-315 の行（どれにも当たらなければ空）。 | \| DX-8 \| マーカーの状態 \| `Task` の `uid` ごとの 表 T-315 の行が持つ変わらない名（どれにも当たらなければプロパティを省く）。 | JDG-3285、JDG-3309 | rewrite |
+| DX-10 | CR-851 | `uid` と、表 T-021b の行と日数（稼働日） | `uid` と、表 T-021b の行が持つ変わらない名と日数（稼働日） | JDG-3285 | rewrite |
+| DX-11 | CR-851 | \| DX-11 \| 修正案 \| 行ごとに: 表 T-373 の行 ID と修正のしかた、観点の行 ID、 | \| DX-11 \| 修正案 \| 行ごとに: 表 T-373 の行が持つ変わらない名と修正のしかた、観点の変わらない名、 | JDG-3285 | rewrite |
+| DX-12 | CR-851 | \| DX-12 \| 修正の記録 \| 行ごとに: 日時、表 T-373 の行 ID、観点の行 ID、 | \| DX-12 \| 修正の記録 \| 行ごとに: 日時（UTC の `YYYY-MM-DDTHH:MM:SSZ`）、表 T-373 の行が持つ変わらない名、観点の変わらない名、 | JDG-3285、studies/77 §3 日時 ⑤（DX-12 が帯の無い地方時刻）。⚠️ 日時を UTC にするのは私の案 —— JDG-3288 は .tsv を画面の言語のままと決めたが、答えの時刻の形は決めていない | rewrite |
+
+### 畳む命令の行 ID を名指す所（自動で拾った —— 表 T-108 の行が退くので、名指しを edit の命令と欄へ書き換える）
+
+
+| 行 | CR | 古い | 新しい | 理由 | 種別 |
+| --- | --- | --- | --- | --- | --- |
+| ref CM-20 | CR-851 | **形状の変更が拒まれたときも、構えは立てること（MUST）** —— `CM-20` は期間を持つタスクとマイルストーンを入れ替えら | **形状の変更が拒まれたときも、構えは立てること（MUST）** —— `editTaskVisual` の `set.taskShape` は期間を持つタスクとマイルストーンを入れ替えら | JDG-3267・JDG-3268（CM-20 は edit の命令へ畳まれ、表 T-108 の行が退く —— commands-map.tsv） | rewrite |
+| ref CM-56 | CR-851 | ⭐ **積む向きを書き換えるのは 表 T-108 の `CM-56` である。** | ⭐ **積む向きを書き換えるのは 表 T-108 の `editDocumentSettings` の `set.stackDirection` である。** | JDG-3267・JDG-3268（CM-56 は edit の命令へ畳まれ、表 T-108 の行が退く —— commands-map.tsv） | rewrite |
+| ref CM-30 | CR-851 | は「描かない」を持つので一覧に入る）。<br>⛔ 一覧の外の名（黒）は、`CM-30`（`FR-042`）も、`GRS JSON` の | は「描かない」を持つので一覧に入る）。<br>⛔ 一覧の外の名（黒）は、`editTaskGroup` の `set.color`（`FR-042`）も、`GRS JSON` の | JDG-3267・JDG-3268（CM-30 は edit の命令へ畳まれ、表 T-108 の行が退く —— commands-map.tsv） | rewrite |
+| ref CM-64 | CR-851 | ⭐ **モノクロを書き換えるのは 表 T-108 の `CM-64` である。**   | ⭐ **モノクロを書き換えるのは 表 T-108 の `editDocumentSettings` の `set.isThemeMonochrome` である。**   | JDG-3267・JDG-3268（CM-64 は edit の命令へ畳まれ、表 T-108 の行が退く —— commands-map.tsv） | rewrite |
+| ref CM-5 | CR-851 | の `S-368` 個ずつ並べ、押された行の色相で 表 T-108 の `CM-5` を 1 回発行すること（MUST）。   | の `S-368` 個ずつ並べ、押された行の色相で 表 T-108 の `editProject` の `set.themeHueDegrees` を 1 回発行すること（MUST）。   | JDG-3267・JDG-3268（CM-5 は edit の命令へ畳まれ、表 T-108 の行が退く —— commands-map.tsv） | rewrite |
+| ref CM-71 | CR-851 | MUST NOT） —— ① 倍率と表示位置を置く（表 T-108 の `CM-71`。   | MUST NOT） —— ① 倍率と表示位置を置く（表 T-108 の `editDocumentSettings`（全体表示の倍率と表示位置の `set`）。   | JDG-3267・JDG-3268（CM-71 は edit の命令へ畳まれ、表 T-108 の行が退く —— commands-map.tsv） | rewrite |
+| ref CM-86 | CR-851 | 態を `auto` へ戻し、段 0 を展開する（同 `CM-72` と `CM-86`。   | 態を `auto` へ戻し、段 0 を展開する（同 `CM-72` と `editDocumentSettings` の `set.levelZeroTreeState`。   | JDG-3267・JDG-3268（CM-86 は edit の命令へ畳まれ、表 T-108 の行が退く —— commands-map.tsv） | rewrite |
+| ref CM-65 | CR-851 | 込みに分けること（MUST） —— ① 倍率を置く（表 T-108 の `CM-65`、表 T-027 の `UN-8` により段を積 | 込みに分けること（MUST） —— ① 倍率を置く（表 T-108 の `editDocumentSettings` の `set.dayWidthPx`・`set.verticalZoomRatio`・`set.taskGroupAutoExpandDepth`、表 T-027 の `UN-8` により段を積 | JDG-3267・JDG-3268（CM-65 は edit の命令へ畳まれ、表 T-108 の行が退く —— commands-map.tsv） | rewrite |
+| ref CM-85 | CR-851 | Expanded` のタスクグループをすべて `auto` へ戻す（同 `CM-85`、表 T-027 の `UN-14` により段を | Expanded` のタスクグループをすべて `auto` へ戻す（同 `editTaskGroup` の `set.treeState`、表 T-027 の `UN-14` により段を | JDG-3267・JDG-3268（CM-85 は edit の命令へ畳まれ、表 T-108 の行が退く —— commands-map.tsv） | rewrite |
+| ref CM-3 | CR-851 |  の `FO-8` の場所に置き、日付を確定したら 表 T-108 の `CM-3` を、空にして確定したら同表の `CM-4` を |  の `FO-8` の場所に置き、日付を確定したら 表 T-108 の `editProject` の `set.statusDate` を、空にして確定したら同表の `CM-4` を | JDG-3267・JDG-3268（CM-3 は edit の命令へ畳まれ、表 T-108 の行が退く —— commands-map.tsv） | rewrite |
+| ref CM-4 | CR-851 | したら 表 T-108 の `CM-3` を、空にして確定したら同表の `CM-4` を 1 回発行すること（MUST）。   | したら 表 T-108 の `CM-3` を、空にして確定したら同表の `editProject` の `clear` の `statusDate` を 1 回発行すること（MUST）。   | JDG-3267・JDG-3268（CM-4 は edit の命令へ畳まれ、表 T-108 の行が退く —— commands-map.tsv） | rewrite |
+| ref CM-87 | CR-851 | き、0 以上の整数（稼働日）を打たせ、確定した値で 表 T-108 の `CM-87` を 1 回発行すること（MUST）。   | き、0 以上の整数（稼働日）を打たせ、確定した値で 表 T-108 の `editProject` の `set.parentTaskProgressToleranceWorkingDays` を 1 回発行すること（MUST）。   | JDG-3267・JDG-3268（CM-87 は edit の命令へ畳まれ、表 T-108 の行が退く —— commands-map.tsv） | rewrite |
+| ref CM-87 | CR-851 | ⭐ 0 未満の値と整数でない値を置く `CM-87` は拒むこと（MUST） —— 範囲へ寄せずに拒 | ⭐ 0 未満の値と整数でない値を置く `editProject` の `set.parentTaskProgressToleranceWorkingDays` は拒むこと（MUST） —— 範囲へ寄せずに拒 | JDG-3267・JDG-3268（CM-87 は edit の命令へ畳まれ、表 T-108 の行が退く —— commands-map.tsv） | rewrite |
+| ref CM-11 | CR-851 | t` と `finish` をその日にそろえる（利用者が定めた語） \| `CM-11` \| `PR-35` \| | t` と `finish` をその日にそろえる（利用者が定めた語） \| `editTask` の `set.start`・`set.finish` \| `PR-35` \| | JDG-3267・JDG-3268（CM-11 は edit の命令へ畳まれ、表 T-108 の行が退く —— commands-map.tsv） | rewrite |
+| ref CM-11 | CR-851 | ` に、`finish` を子の最も遅い `finish` にする \| `CM-11` \| — \| | ` に、`finish` を子の最も遅い `finish` にする \| `editTask` の `set.start`・`set.finish` \| — \| | JDG-3267・JDG-3268（CM-11 は edit の命令へ畳まれ、表 T-108 の行が退く —— commands-map.tsv） | rewrite |
+| ref CM-11 | CR-851 | ）を保って送る（式は `VC-15` のもの）／ その依存線を消す \| `CM-11` ／ `CM-37` \| `PR-3`（後続）  | ）を保って送る（式は `VC-15` のもの）／ その依存線を消す \| `editTask` の `set.start`・`set.finish` ／ `CM-37` \| `PR-3`（後続）  | JDG-3267・JDG-3268（CM-11 は edit の命令へ畳まれ、表 T-108 の行が退く —— commands-map.tsv） | rewrite |
+| ref CM-3 | CR-851 | 5` \| 選ぶ \| 択は 1 つ: 基準日を、その実績の日へ進める \| `CM-3` \| — \| | 5` \| 選ぶ \| 択は 1 つ: 基準日を、その実績の日へ進める \| `editProject` の `set.statusDate` \| — \| | JDG-3267・JDG-3268（CM-3 は edit の命令へ畳まれ、表 T-108 の行が退く —— commands-map.tsv） | rewrite |
+| ref CM-9 | CR-851 | の行が `Task` を作れば、その次の値になる \| `CM-6` ／ `CM-9` ／ `CM-18` \| `PR-15` \| | の行が `Task` を作れば、その次の値になる \| `CM-6` ／ `editTask` の `set.name` ／ `CM-18` \| `PR-15` \| | JDG-3267・JDG-3268（CM-9 は edit の命令へ畳まれ、表 T-108 の行が退く —— commands-map.tsv） | rewrite |
+| ref CM-18 | CR-851 | ` を作れば、その次の値になる \| `CM-6` ／ `CM-9` ／ `CM-18` \| `PR-15` \| | ` を作れば、その次の値になる \| `CM-6` ／ `CM-9` ／ `editTask` の `set.parentTaskUid`（外すときは `clear`） \| `PR-15` \| | JDG-3267・JDG-3268（CM-18 は edit の命令へ畳まれ、表 T-108 の行が退く —— commands-map.tsv） | rewrite |
+| ref CM-11 | CR-851 | rmat` が `pj12` ／ `pj15`）で日を置く直しは、命令（`CM-11` ・ `CM-13`）がその文書の日と時刻を扱う | rmat` が `pj12` ／ `pj15`）で日を置く直しは、命令（`editTask` の `set.start`・`set.finish` ・ `CM-13`）がその文書の日と時刻を扱う | JDG-3267・JDG-3268（CM-11 は edit の命令へ畳まれ、表 T-108 の行が退く —— commands-map.tsv） | rewrite |
+| ref CM-18 | CR-851 | 書き込みは 表 T-108 の `CM-18`（`setTaskParentTask`）で行い | 書き込みは 表 T-108 の `editTask` の `set.parentTaskUid`（外すときは `clear`）（`setTaskParentTask`）で行い | JDG-3267・JDG-3268（CM-18 は edit の命令へ畳まれ、表 T-108 の行が退く —— commands-map.tsv） | rewrite |
+| ref CM-18 | CR-851 | 選んだ子をまとめて結ぶときと、選んだ矢印をまとめて外すときは、子ごとの `CM-18` を 1 回の呼び出しで走らせ、取り消しの 1  | 選んだ子をまとめて結ぶときと、選んだ矢印をまとめて外すときは、子ごとの `editTask` の `set.parentTaskUid`（外すときは `clear`） を 1 回の呼び出しで走らせ、取り消しの 1  | JDG-3267・JDG-3268（CM-18 は edit の命令へ畳まれ、表 T-108 の行が退く —— commands-map.tsv） | rewrite |
+| ref CM-54 | CR-851 | l-document-commands.md` の 表 T-108 の `CM-54` で書くこと（MUST） —— 掴み点を掴めば囲 | l-document-commands.md` の 表 T-108 の `editHighlightBox` の `set.firstDay`・`set.lastDay`・`set.topTaskGroupId`・`set.bottomTaskGroupId` で書くこと（MUST） —— 掴み点を掴めば囲 | JDG-3267・JDG-3268（CM-54 は edit の命令へ畳まれ、表 T-108 の行が退く —— commands-map.tsv） | rewrite |
+| ref CM-54 | CR-851 | T-117` 〜 `AT-120`）だけであり、それを書く命令は同表に `CM-54` 1 つしか無い。   | T-117` 〜 `AT-120`）だけであり、それを書く命令は同表に `editHighlightBox` の `set.firstDay`・`set.lastDay`・`set.topTaskGroupId`・`set.bottomTaskGroupId` 1 つしか無い。   | JDG-3267・JDG-3268（CM-54 は edit の命令へ畳まれ、表 T-108 の行が退く —— commands-map.tsv） | rewrite |
+| ref CM-51 | CR-851 | l-document-commands.md` の 表 T-108 の `CM-51`（ずれ）だけを書くこと（MUST） —— `CM | l-document-commands.md` の 表 T-108 の `editCommentBox` の `set.bodyOffsetPx`（ずれ）だけを書くこと（MUST） —— `CM | JDG-3267・JDG-3268（CM-51 は edit の命令へ畳まれ、表 T-108 の行が退く —— commands-map.tsv） | rewrite |
+| ref CM-50 | CR-851 | T-108 の `CM-51`（ずれ）だけを書くこと（MUST） —— `CM-50`（線先）は書かない。   | T-108 の `CM-51`（ずれ）だけを書くこと（MUST） —— `editCommentBox` の `set.anchor`（線先）は書かない。   | JDG-3267・JDG-3268（CM-50 は edit の命令へ畳まれ、表 T-108 の行が退く —— commands-map.tsv） | rewrite |
+| ref CM-50 | CR-851 | 線先だけを動かし、本文の箱を画面の上で動かさないこと（MUST） —— `CM-50` で線先を、`CM-51` で、置き直した線先を | 線先だけを動かし、本文の箱を画面の上で動かさないこと（MUST） —— `editCommentBox` の `set.anchor` で線先を、`CM-51` で、置き直した線先を | JDG-3267・JDG-3268（CM-50 は edit の命令へ畳まれ、表 T-108 の行が退く —— commands-map.tsv） | rewrite |
+| ref CM-51 | CR-851 | を画面の上で動かさないこと（MUST） —— `CM-50` で線先を、`CM-51` で、置き直した線先を描く点から押したときの本文 | を画面の上で動かさないこと（MUST） —— `CM-50` で線先を、`editCommentBox` の `set.bodyOffsetPx` で、置き直した線先を描く点から押したときの本文 | JDG-3267・JDG-3268（CM-51 は edit の命令へ畳まれ、表 T-108 の行が退く —— commands-map.tsv） | rewrite |
+| ref CM-50 | CR-851 | ⚠️ 本文の箱は線先からのずれで置く（`FR-019`）ので、`CM-50` だけを書くと箱が線先と一緒に動く —— `CM | ⚠️ 本文の箱は線先からのずれで置く（`FR-019`）ので、`editCommentBox` の `set.anchor` だけを書くと箱が線先と一緒に動く —— `CM | JDG-3267・JDG-3268（CM-50 は edit の命令へ畳まれ、表 T-108 の行が退く —— commands-map.tsv） | rewrite |
+| ref CM-51 | CR-851 | 019`）ので、`CM-50` だけを書くと箱が線先と一緒に動く —— `CM-51` を同じ束に入れるのは、それを打ち消すためである | 019`）ので、`CM-50` だけを書くと箱が線先と一緒に動く —— `editCommentBox` の `set.bodyOffsetPx` を同じ束に入れるのは、それを打ち消すためである | JDG-3267・JDG-3268（CM-51 は edit の命令へ畳まれ、表 T-108 の行が退く —— commands-map.tsv） | rewrite |
+| ref CM-54 | CR-851 | ⭐ 取り消しは、離した 1 回（`CM-54` 1 つ）を 1 単位とする（表 T-027 の | ⭐ 取り消しは、離した 1 回（`editHighlightBox` の `set.firstDay`・`set.lastDay`・`set.topTaskGroupId`・`set.bottomTaskGroupId` 1 つ）を 1 単位とする（表 T-027 の | JDG-3267・JDG-3268（CM-54 は edit の命令へ畳まれ、表 T-108 の行が退く —— commands-map.tsv） | rewrite |
+| ref CM-91 | CR-851 | 表 T-104 の `K-143`、発行する命令は 表 T-108 の `CM-91` とすること（MUST）。<br>⚠️ 取り消し | 表 T-104 の `K-143`、発行する命令は 表 T-108 の `editDocumentSettings` の `set.isTaskGroupPanelWidthFixed` とすること（MUST）。<br>⚠️ 取り消し | JDG-3267・JDG-3268（CM-91 は edit の命令へ畳まれ、表 T-108 の行が退く —— commands-map.tsv） | rewrite |
+| ref CM-67 | CR-851 | 数へ四捨五入した値とし、整数を打たせ、確定した値で 表 T-108 の `CM-67` を 1 回発行すること（MUST）。<br>⭐ | 数へ四捨五入した値とし、整数を打たせ、確定した値で 表 T-108 の `editDocumentSettings` の `set.taskGroupPanelWidthPx` を 1 回発行すること（MUST）。<br>⭐ | JDG-3267・JDG-3268（CM-67 は edit の命令へ畳まれ、表 T-108 の行が退く —— commands-map.tsv） | rewrite |
+| ref CM-67 | CR-851 | <br>`Task Group Area` の幅を 0 以下にする値は、`CM-67` が本要求の判定で拒む \| | <br>`Task Group Area` の幅を 0 以下にする値は、`editDocumentSettings` の `set.taskGroupPanelWidthPx` が本要求の判定で拒む \| | JDG-3267・JDG-3268（CM-67 は edit の命令へ畳まれ、表 T-108 の行が退く —— commands-map.tsv） | rewrite |
+| ref CM-90 | CR-851 | 04 の `K-142` に持つ語とし、押されたら 表 T-108 の `CM-90` を 1 回発行すること（MUST）。<br>⭐ | 04 の `K-142` に持つ語とし、押されたら 表 T-108 の `editDocumentSettings` の `set.fitSpan`（`isFixed`） を 1 回発行すること（MUST）。<br>⭐ | JDG-3267・JDG-3268（CM-90 は edit の命令へ畳まれ、表 T-108 の行が退く —— commands-map.tsv） | rewrite |
+| ref CM-88 | CR-851 |  つの入力は 1 つの欄として確定し、確定した値で 表 T-108 の `CM-88` を、片方か 2 つともを空にして確定したら同表 |  つの入力は 1 つの欄として確定し、確定した値で 表 T-108 の `editDocumentSettings` の `set.fitSpan` を、片方か 2 つともを空にして確定したら同表 | JDG-3267・JDG-3268（CM-88 は edit の命令へ畳まれ、表 T-108 の行が退く —— commands-map.tsv） | rewrite |
+| ref CM-89 | CR-851 |  の `CM-88` を、片方か 2 つともを空にして確定したら同表の `CM-89` を、1 回発行すること（MUST）（`FX-1 |  の `CM-88` を、片方か 2 つともを空にして確定したら同表の `editDocumentSettings` の `clear` の `fitSpan` を、1 回発行すること（MUST）（`FX-1 | JDG-3267・JDG-3268（CM-89 は edit の命令へ畳まれ、表 T-108 の行が退く —— commands-map.tsv） | rewrite |
+| ref CM-89 | CR-851 | ）。<br>⭐ 固定しているあいだに期間を消したときは、同じ 1 回の `CM-89` で固定も外すこと（MUST） —— 期間の無い | ）。<br>⭐ 固定しているあいだに期間を消したときは、同じ 1 回の `editDocumentSettings` の `clear` の `fitSpan` で固定も外すこと（MUST） —— 期間の無い | JDG-3267・JDG-3268（CM-89 は edit の命令へ畳まれ、表 T-108 の行が退く —— commands-map.tsv） | rewrite |
+| ref CM-88 | CR-851 | を置き、押されたら `FX-6` の 2 つの日で 表 T-108 の `CM-88` を 1 回発行すること（MUST）。<br>⭐ | を置き、押されたら `FX-6` の 2 つの日で 表 T-108 の `editDocumentSettings` の `set.fitSpan` を 1 回発行すること（MUST）。<br>⭐ | JDG-3267・JDG-3268（CM-88 は edit の命令へ畳まれ、表 T-108 の行が退く —— commands-map.tsv） | rewrite |
+| ref CM-77 | CR-851 | ⭐ 同じ範囲の外の値を置く命令（表 T-108 の `CM-77` ・ `CM-79` ・ `CM-81` ・ ` | ⭐ 同じ範囲の外の値を置く命令（表 T-108 の `editHighlightBox` の `set.strokeWidthPx` ・ `CM-79` ・ `CM-81` ・ ` | JDG-3267・JDG-3268（CM-77 は edit の命令へ畳まれ、表 T-108 の行が退く —— commands-map.tsv） | rewrite |
+| ref CM-79 | CR-851 | ⭐ 同じ範囲の外の値を置く命令（表 T-108 の `CM-77` ・ `CM-79` ・ `CM-81` ・ `CM-83`）は拒む | ⭐ 同じ範囲の外の値を置く命令（表 T-108 の `CM-77` ・ `editHighlightBox` の `set.fillTransparencyPercent` ・ `CM-81` ・ `CM-83`）は拒む | JDG-3267・JDG-3268（CM-79 は edit の命令へ畳まれ、表 T-108 の行が退く —— commands-map.tsv） | rewrite |
+| ref CM-81 | CR-851 | を置く命令（表 T-108 の `CM-77` ・ `CM-79` ・ `CM-81` ・ `CM-83`）は拒むこと（MUST） — | を置く命令（表 T-108 の `CM-77` ・ `CM-79` ・ `editCommentBox` の `set.strokeWidthPx` ・ `CM-83`）は拒むこと（MUST） — | JDG-3267・JDG-3268（CM-81 は edit の命令へ畳まれ、表 T-108 の行が退く —— commands-map.tsv） | rewrite |
+| ref CM-83 | CR-851 | 108 の `CM-77` ・ `CM-79` ・ `CM-81` ・ `CM-83`）は拒むこと（MUST） —— 範囲へ寄せて書く | 108 の `CM-77` ・ `CM-79` ・ `CM-81` ・ `editCommentBox` の `set.fillTransparencyPercent`）は拒むこと（MUST） —— 範囲へ寄せて書く | JDG-3267・JDG-3268（CM-83 は edit の命令へ畳まれ、表 T-108 の行が退く —— commands-map.tsv） | rewrite |
+| ref CM-103 | CR-851 | l-document-commands.md` の 表 T-108 の `CM-103`）は拒み、読んだ値は範囲へ寄せて描く（`FR-0 | l-document-commands.md` の 表 T-108 の `editCommentBox` の `set.fontSizePx`）は拒み、読んだ値は範囲へ寄せて描く（`FR-0 | JDG-3267・JDG-3268（CM-103 は edit の命令へ畳まれ、表 T-108 の行が退く —— commands-map.tsv） | rewrite |
+| ref CM-62 | CR-851 | l-document-commands.md` の 表 T-108 の `CM-62` である。   | l-document-commands.md` の 表 T-108 の `editDocumentSettings` の `set.fontSizeStep` である。   | JDG-3267・JDG-3268（CM-62 は edit の命令へ畳まれ、表 T-108 の行が退く —— commands-map.tsv） | rewrite |
+| ref CM-74 | CR-851 | IC-104` / `IC-105`、動かす命令は 表 T-108 の `CM-74` である。   | IC-104` / `IC-105`、動かす命令は 表 T-108 の `editDocumentSettings` の `set.displayScalePercent` である。   | JDG-3267・JDG-3268（CM-74 は edit の命令へ畳まれ、表 T-108 の行が退く —— commands-map.tsv） | rewrite |
+| ref CM-74 | CR-851 |  の型の欄の段を同じ順に並べて選ばせ、選ばれた段で 表 T-108 の `CM-74` を 1 回発行すること（MUST）。   |  の型の欄の段を同じ順に並べて選ばせ、選ばれた段で 表 T-108 の `editDocumentSettings` の `set.displayScalePercent` を 1 回発行すること（MUST）。   | JDG-3267・JDG-3268（CM-74 は edit の命令へ畳まれ、表 T-108 の行が退く —— commands-map.tsv） | rewrite |
+| ref CM-62 | CR-851 |  T-202 の `S-70` の 3 段を選ばせ、選ばれた段で同表の `CM-62` を 1 回発行すること（MUST）。   |  T-202 の `S-70` の 3 段を選ばせ、選ばれた段で同表の `editDocumentSettings` の `set.fontSizeStep` を 1 回発行すること（MUST）。   | JDG-3267・JDG-3268（CM-62 は edit の命令へ畳まれ、表 T-108 の行が退く —— commands-map.tsv） | rewrite |
+
+## `docs/spec/05-07-design.md`（46 行）
+
+
+### 網の目の見直しで足した行
+
+
+| 行 | CR | 古い | 新しい | 理由 | 種別 |
+| --- | --- | --- | --- | --- | --- |
+| UF-77 | CR-851 | \| UF-77 \| `EditDocument` \| `task-group-naming.ts` \| `pure` \| タスクグループを、名か由来を持つものとして立て、名を付け替える \| | \| UF-77 \| `EditDocument` \| `task-group-naming.ts` \| `pure` \| タスクグループの名を付け替え、空にしたら名を除く —— タスクの名を写さない（写すのは MSPDI の取り込みの `mspdi-imported-task-groups.ts` だけ） \| | JDG-3315（名を強いない、写すのは MSPDI の取り込みだけ）。⚠️ ユニットの名 task-group-naming が役に合うかは名と SRP の見直しで問う | rewrite |
+| prose 6.1（表 T-297 の後） | CR-851 | ⚠️ 運用の前に形を変えて消した列は、本表に足さない —— その列を持つ文書は読み替えず、日程データの群が合わない文書として拒む（`01-04-requirements.md` の `FR-073`）。 | ⚠️ 運用の前に形を変えた列を持つ古い版の文書は、読み替えずに `formatTooOld` で拒み、変換の HTML へ案内する（`01-04-requirements.md` の `FR-073`）。 | JDG-3306 | rewrite |
+| prose 6.1（表 T-297 の後） | CR-851 | ⭐ 公式運用の後に消す列は、本表ではなく、刊行するスキーマの変更の台帳（Chapter 6.2）に「削除」の行として足す —— 同じ意味の表を 2 つ持たない。 | ⭐ 消す列は、刊行するスキーマの変更の台帳（Chapter 6.2）に `removed` の行として足す（`CR-851` から） —— 同じ意味の表を 2 つ持たない。 | JDG-3262、表 T-297 を消す案（上の行） | rewrite |
+
+### 5.4 ドメインモデル・5.2 / 5.3 の名乗り
+
+
+| 行 | CR | 古い | 新しい | 理由 | 種別 |
+| --- | --- | --- | --- | --- | --- |
+| prose 5.4（足す） | CR-851 | - | ⭐ **列は、`docs/development-rules/07-review-standards.md` の R2 の `OKPN`（1 つの名前に 1 種類の値）と `OMPV`（1 つの値に 1 つの意味）、R3 の Null Trap に従うこと（MUST）** —— 値の無い列はプロパティを書かず、`null` を使わない。2 つ以上の値や状態を 1 つの文字列に詰めず、値の中に別の意味（「`0` は親が無い」など）を混ぜない。 | JDG-3227（CR-851 が 5.4 に 1 文を足す、R3 の Null Trap も同じ 1 文に並べてよい）、JDG-3223・JDG-3224・JDG-3230 | add |
+| CS-3 | CR-851 | \| CS-3 \| **1 回の書き込み**（確定する） \| 照合する刻印 3 つと、変更の全体 \| | \| CS-3 \| **1 回の書き込み**（確定する） \| 照合する刻印（すべてのプロパティ）と、変更の全体 \| | JDG-3300・commands-choices D.4（刻印に造りの版が入る —— AG-2 と同じ） | rewrite |
+| UT-17 | CR-851 | `GRS JSON` の文字列と文書の変換（形式の版の判じ・古い版の補い）は `FR-024` と `FR-073` が、 | `GRS JSON` の文字列と文書の変換（形式の版の判じ・古い版の拒み）は `FR-024` と `FR-073` が、 | JDG-3279・JDG-3306（古い版は変換の HTML が変え、GRS は補わない） | rewrite |
+| UF-35 | CR-851 | 形式の版を判じて新しい版の知らないプロパティを並べて捨て（`OP-7`・`FR-073`）、退いた列を外し（表 T-297）、古い版の欠けた列を埋め（`AT-141`〜`AT-143`・`GP-1`）、`documentSettings` の解釈できないプロパティを捨てるか既定値に戻し（`OP-6`）、スキーマの外れで拒み（`RS-25`・`RS-64`）、 | 形式の版を判じて新しい版の知らないプロパティを並べて捨て（`OP-7`・`FR-073`）、古い版の文書を拒み（`FR-073` の `formatTooOld`）、片側だけのカスタムカラーのもう一方の側を導き（表 T-017b の `CV-3`）、`documentSettings` の解釈できないプロパティを捨てるか既定値に戻し（`OP-6`）、スキーマの外れで拒み（`RS-25`・`RS-64`）、 | JDG-3306（古い版の補いを持たない）、JDG-3077（読み込むときに導く）、doc-shape-choices §9 | rewrite |
+| UF-36 | CR-851 | 読まない子を `carry` に控えて書くとき元の位置へ戻し（`DF-3`・`MR-3`・`RS-60`）、 | 読まない子を `passthroughValues` ／ `passthroughElements` に控えて書くとき元の位置へ戻し（`DF-3`・`MR-3`・`RS-60`）、日程に効く要素の集合の外の値で拒み（`MR-5`）、日時の帯を落とし（`MR-6`）、 | 所見 F44、JDG-3289、JDG-3261 | rewrite |
+| UF-36 | CR-851 | 実績の長さを停止日に直し（`FR-011`・`AT-141`）、制約の 2 列を写す（`EX-11`・`EX-12`）。 | 実績の長さを停止日に直し（`FR-011`・`AT-141`）、制約の 2 列を写し（`EX-11`・`EX-12`）、タスクのリンクの 2 列を写す（`EX-17`）。 | JDG-3081・CR-849（Task.hyperlinkAddress／hyperlink を MSPDI の HyperlinkAddress／Hyperlink に写す） | rewrite |
+
+### 6.1 読む路とスキーマ
+
+
+| 行 | CR | 古い | 新しい | 理由 | 種別 |
+| --- | --- | --- | --- | --- | --- |
+| prose 6.1 | CR-851 | ⚠️ **本表は、生成したスキーマが持てない条件だけを持つ** —— `_source/grs-document.schema.json` は、列ごとの型と、`null` を許すかと、文字列の長さと、数値の範囲と、原稿が値を綴った列挙を既に強制する。 | ⚠️ **本表は、生成したスキーマが持てない条件だけを持つ** —— `_source/grs-document.schema.json` は、列ごとの型と、省けるプロパティか必須のプロパティかと、文字列の長さと、数値の範囲（`uid` の 0 〜 2147483647 を含む）と、原稿が値を綴った列挙と、`kind` で分ける形（色・線先・表示位置ほか）を既に強制する。 | JDG-3309、JDG-3284、所見 F01・F28・F12 | rewrite |
+| prose 6.1 | CR-851 | ⭐ スキーマを走らせる前に、表 T-297 の列を捨てて読むこと（MUST） —— 仕様が落とした列を、保存済みの文書はまだ持っている。   ⏎ 捨てた列を通知してはならず、書き戻してもならない（MUST NOT） —— 読む人の側に直せることが何も無い。   ⏎ ⭐ 同じくスキーマを走らせる前に、`_assets/fig-erd-detail.md` の `AT-145` ・ `AT-146` ・ `AT-147` の列を持たない `HighlightBox` の項と、`AT-148` 〜 `AT-152` と `AT-168` の列を持たない `CommentBox` の項には、その列を `null` として足して読むこと（MUST） —— 列を足す前に保存した文書は、そのプロパティを持たない。   ⏎ ⭐ 形式の版（`FR-073`）によらずに足す —— `null` は `_assets/tbl-settings.md` の 表 T-217 の既定か、`01-04-requirements.md` の `FR-019` が名指す色で描く値なので、どの版の文書でも絵が変わらない。   ⏎ ⚠️ `AT-168` だけは、列を足す前の造りが文書の文字サイズで描いていた大きさと違う既定（同表の `S-624`）で描く —— 利用者が既定を 1 つの px に定めた（`FR-019`）。   ⏎ 足したことを通知してはならない（MUST NOT） —— 読む人の側に直すことが何も無い。 | ⭐ スキーマを走らせる前に、古い形の文書を補い・読み替えてはならない（MUST NOT） —— `CR-851` の形より古い版の文書は `01-04-requirements.md` の `FR-073` のとおり `formatTooOld` で拒み、変換の HTML へ案内する。   ⏎ ⭐ スキーマを走らせた後に、片側だけのカスタムカラーのもう一方の側を `CV-3` で導いて持つ（表 T-017b） —— これは古い形の読み替えではなく、今の形が許す省略の読み方である（`JDG-3077`）。 | JDG-3279・JDG-3306（α は変換の HTML で変え、GRS は補わない）、利用者 2026-09-26（公開前は古い形の読み替えを持たない）、JDG-3077。⚠️ 公式運用を宣言するまで台帳で読まない（FR-073） | rewrite |
+| prose 6.1 表 T-297 | CR-851 | \| RK-1 \| `TaskVisual` \| `nameAnchor` \| 名称ラベルの位置を人が指定する手段を持たない（`FR-002`） \| | - | JDG-3306（退役した列を読むときに捨てる補いを持たない。変換の HTML が落とす）。⚠️ 表 T-297 そのものを残すか（空の表）、本節から消すかは決まっていない —— 私の案は表ごと消し、公式運用の後は台帳の removed の行が同じ役をする | remove |
+| prose 6.1 表 T-297 | CR-851 | \| RK-2 \| `TaskVisual` \| `nameAlign` \| 同上 \| | - | 同上 | remove |
+| prose 6.1 | CR-851 | ⭐ **公式運用を宣言する変更は、宣言の前に置いた補いと読み替えを消し、本表を台帳へ畳んで、台帳を空から始めること（MUST）。**   ⏎ 消すのは 5 つ —— 本表の行（`RK-1`・`RK-2`）、`TaskGroup.editPermission` を `null` で補うこと（`01-04-requirements.md` の `GP-1`）、注記の見た目 9 列（`_assets/fig-erd-detail.md` の `AT-145` 〜 `AT-152` と `AT-168`）を `null` で補うこと、`Project.sourceFormat`（`AT-143`）を補うこと、`actualDuration` から `stop`（`AT-141`）へ読み替えること（`01-04-requirements.md` の `FR-011`）。   ⏎ 宣言の前に運用中の文書は無い —— 残せば、台帳に載らない読み替えが残り、「台帳は最新の `GRS` が古い文書にすることの全件」が偽になる。 | ⭐ **宣言の前に置いていた補いと読み替えは、`CR-851` が消した** —— 表 T-297 の行（`RK-1`・`RK-2`）、`TaskGroup.editPermission` を補うこと、注記の見た目 9 列を補うこと、`Project.sourceFormat` を補うこと、`actualDuration` から `stop` へ読み替えること（`01-04-requirements.md` の `FR-011`）。   ⏎ ⭐ それらは α の文書の変換の HTML が行う（`01-04-requirements.md` の `FR-073`）。   ⏎ ⭐ 変更の台帳は `CR-851` から行を持つ（Chapter 6.2） —— 公式運用を宣言する変更は、台帳を読んで古い文書を読み替える道を開ける（`FR-073`）。 | JDG-3262（台帳は CR-851 から）、JDG-3306・JDG-3307（変換の HTML）、PND-806 の扱いが変わる | rewrite |
+| prose 6.1 | CR-851 | ⚠️ **ただし日時の形（刊行するスキーマが日時の列に言う `pattern`）は、読む路の照合に載せない** —— 日時の列が使えない値を持つ行は、`01-04-requirements.md` の `FR-023` が行ごと落として告げる（`IV-14`）。 | ⚠️ **ただし日時の形（刊行するスキーマが日時の列に言う `YYYY-MM-DDTHH:MM:SS` の `pattern`）は、読む路の照合に載せない** —— 日時の列が使えない値（形の外の値を含む）を持つ行は、`01-04-requirements.md` の `FR-023` が行ごと落として告げる（`IV-14`）。 | JDG-3261（日時の形を MS Project の書く形に絞る） | rewrite |
+| IV-2 | CR-851 | \| IV-2 \| 外部キーが非 `null` のとき、それが指す先の行が同じ文書にあること \| | \| IV-2 \| 外部キーのプロパティを持つとき、それが指す先の行が同じ文書にあること \| | JDG-3309 | rewrite |
+| IV-23 | CR-851 | \| IV-23 \| どの `Task` も、ちょうど 1 つの `TaskVisual` から指されること。<br>⭐ 色も形も決めていない `Task` は、`taskUid` のほかがすべて `null` の 1 つを持つ —— 無いときの描き方を別に定めずに済む \| | \| IV-23 \| どの `Task` も、ちょうど 1 つの `TaskVisual` から指されること。<br>⭐ 作った `Task` の `TaskVisual` は、形（`taskShape` か `milestoneShape`）・テーマの色（`{"kind":"theme"}`）・太さ 1 を持つ —— 無いときの描き方を別に定めずに済む \| | JDG-3309・JDG-3310・JDG-3308（null の TaskVisual が無くなる） | rewrite |
+| IV-8 | CR-851 | \| IV-8 \| `TaskGroup` の `name` と `derivedFromTaskUid` が同時に `null` でないこと \| その 2 列 \| 組合せ \| | - | JDG-3315（名を強いない、名も表すタスクも無いタスクグループを許す。IV-8 と名を必須にする検査を無くす）。行 ID IV-8 は退役（振り直さない） | remove |
+| IV-9 | CR-851 | \| IV-9 \| `TaskVisual` と `HighlightBox` のそれぞれで、`fillColor` と `strokeColor` が同時に透明でないこと \| 実体ごとのその 2 列と、透明を表す値（`_assets/tbl-glossary.md` の `P-19`） \| 組合せ \| | \| IV-9 \| `TaskVisual` は `fillColor` と `strokeColor` のプロパティを両方とも省かないこと。<br>`HighlightBox` は `strokeColor` のプロパティを省いたまま `fillTransparencyPercent` を 100 にしないこと —— どちらも、描くものが無い形を作らない \| 実体ごとのその 3 列 \| 組合せ \| | JDG-3310（色のプロパティを書かない ＝ 描かない、透明は無くなる）、JDG-3276（箱の塗りは透過率 100 だけ）、doc-shape-choices §9 | rewrite |
+| IV-10 | CR-851 | \| IV-10 \| `start` と `finish` がともに非 `null` の `Task` で、`finish` が `start` より前でないこと \| | \| IV-10 \| `start` と `finish` をともに持つ `Task` で、`finish` が `start` より前でないこと \| | JDG-3309 | rewrite |
+| IV-11 | CR-851 | \| IV-11 \| `fadeInDays` または `fadeOutDays` を持つ `Task` が、`finish` を持つこと \| | \| IV-11 \| `fadeInCalendarDays` または `fadeOutCalendarDays` を持つ `Task` が、`finish` を持つこと \| | JDG-3312 | rewrite |
+| IV-12 | CR-851 | \| IV-12 \| `fadeInDays` と `fadeOutDays` の和が、その `Task` の期間を超えないこと。 | \| IV-12 \| `fadeInCalendarDays` と `fadeOutCalendarDays` の和が、その `Task` の期間を超えないこと。 | JDG-3312 | rewrite |
+| IV-14 | CR-851 | ⚠️ **空文字は「読めない」側である** —— 空を許す列の空は `null` である \| | ⚠️ **空文字は「読めない」側である** —— 値の無い列はプロパティを書かない \| | JDG-3309 | rewrite |
+| IV-15 | CR-851 | \| IV-15 \| `TaskOrigin.lastSeenImportSequence` が `Project.importSequence` を超えないこと \| | \| IV-15 \| `TaskOrigin.lastSeenImportNumber` が `Project.lastImportNumber` を超えないこと \| | 所見 F24（CHOICE N8） | rewrite |
+| IV-19 | CR-851 | \| IV-19 \| ハイライトボックスの `start` が `finish` より後でないこと、 | \| IV-19 \| ハイライトボックスの `firstDay` が `lastDay` より後でないこと、 | JDG-3275・所見 F30 | rewrite |
+| IV-21 | CR-851 | \| IV-21 \| `actualStart` と実績の最後の日（完了なら `actualFinish`、それ以外は `stop`）がともに非 `null` の `Task` で、 | \| IV-21 \| `actualStart` と実績の最後の日（完了なら `actualFinish`、それ以外は `stop`）をともに持つ `Task` で、 | JDG-3309 | rewrite |
+| IV-22 | CR-851 | \| IV-22 \| `TaskVisual.shapeKind` が非 `null` のとき、それが `'milestone'` であることと、その `TaskVisual` が指す `Task` の `milestone` が真であることが一致すること。 | \| IV-22 \| `TaskVisual` が `milestoneShape` を持つことと、その `TaskVisual` が指す `Task` の `milestone` が真であることが一致し、`taskShape` を持つことと偽（プロパティが無いを含む）であることが一致すること —— 2 つの形のプロパティのどちらか 1 つだけを持つ。 | JDG-3311（shapeKind を taskShape／milestoneShape に分け、マイルストーンかどうかは Task.milestone だけが言う）、refusal-reasons-map（IV-22 → milestoneShapeMismatch）。⚠️ doc-shape-choices §9 は「IV-22 を消し IV-23 に足す」と書く —— 2 つの研究の表が食い違う | rewrite |
+| IV-22 | CR-851 | ⚠️ **`shapeKind` が `null` の `TaskVisual` は対象外** —— 形を `Task.milestone` から解く（`_assets/fig-erd-detail.md` の `AT-100`）。<br> | - | JDG-3311・JDG-3309（形を null で解く道が無くなる） | remove |
+| IV-25（足す） | CR-849 | - | \| IV-25 \| `hyperlinkAddress` が、閲覧環境と同じ読み方（前後の空白と制御文字を除き、途中のタブと改行を除き、大文字と小文字を区別しない）で `javascript:`・`vbscript:`・`data:` のどれかで始まらないこと \| `Task`・`CommentBox`・`TaskGroup` の `hyperlinkAddress` \| 範囲 \| | JDG-3185、CR-849（スキーマの pattern では閲覧環境の読み方を言えないので不変条件に置く）。⚠️ 行 ID IV-25 は仮 | add |
+| LF-15 | CR-851 | 横は `anchorDate` の日時（分まで）を時間軸に置いた位置、縦は `anchorTaskGroupId` のタスクグループが描かれた帯（`LF-2` / `LF-3`、ピン止めしたタスクグループは `LF-14`）の上端から、帯の高さに `anchorBandFraction` を掛けた所とする（`null` は 0.5、帯の縦の中央）。 | 横は `anchor` の `dateTime`（分まで）を時間軸に置いた位置、縦は `anchor` の `taskGroupId` のタスクグループが描かれた帯（`LF-2` / `LF-3`、ピン止めしたタスクグループは `LF-14`）の上端から、帯の高さに `anchor` の `bandFraction` を掛けた所とする（`bandFraction` はいつも値を持ち、置くときは 0.5 —— 帯の縦の中央）。 | 所見 F28（線先を kind の和に）、JDG-3309 | rewrite |
+| LF-15 | CR-851 | 並びは左上・上・右上・右・右下・下・左下・左（`anchorSnapPoint` の値の順）。<br>タスクは、`anchorTaskFigure` の図形（予定バー・実績バー・マイルストーンの図形）のうち `anchorTaskGroupId` の帯に描いたもの（その帯に無ければ、最初に描いたもの）を、 | 並びは左上・上・右上・右・右下・下・左下・左（`anchor` の `point` の値の順）。<br>タスクは、`anchor` の `figure` の図形（予定バー・実績バー・マイルストーンの図形）のうち `fallback` の `taskGroupId` の帯に描いたもの（その帯に無ければ、最初に描いたもの）を、 | 所見 F28 | rewrite |
+| prose 6.1 表 T-221 の後 | CR-851 | 描くときに指定へ掛ける比は `01-04-requirements.md` の `FR-039` の 表 T-252 の `DS-13` が持つ（表示の倍率の段だけで、縦のズームと `S-236` は掛けない）。 | 描くときに指定へ掛ける比は `01-04-requirements.md` の `FR-039` の 表 T-252 の `DS-13` が持つ（表示の倍率の段だけで、縦のズームは掛けない）。 | JDG-3277（S-236 が無くなる） | rewrite |
+
+### 6.2 データスキーマ
+
+
+| 行 | CR | 古い | 新しい | 理由 | 種別 |
+| --- | --- | --- | --- | --- | --- |
+| prose 6.2 | CR-851 | ⚠️ ただしルート直下の `schemaVersion` は、どのエンティティの列でもない（1 つのスカラーである）。 | ⚠️ ただしルート直下の `schemaVersion` と `buildVersion` は、どのエンティティの列でもない（1 つずつのスカラーである）。 | JDG-3300・CHOICE B1 | rewrite |
+| prose 6.2 | CR-851 | ⚠️ `carry` の器を持たないものは、交換相手に対応が無いか、対応があっても解釈しない要素を持たない。 | ⚠️ `passthroughValues` ／ `passthroughElements` の器を持たないものは、交換相手に対応が無いか、対応があっても解釈しない要素を持たない。 | 所見 F44 | rewrite |
+| prose 6.2 | CR-851 | ⚠️ **`carry` の中身を表にコピーしてはならない（MUST NOT）**（表 T-003 の `CN-7`）。 | ⚠️ **`passthroughValues` の中身を表にコピーしてはならない（MUST NOT）**（表 T-003 の `CN-7`）。 | 所見 F44 | rewrite |
+| prose 6.2 | CR-851 | **出自の 4 区分** —— `Own` は交換相手から取り込んでそのまま書き戻すもの、`Consume` は取り込んで解釈し、書き出すときに作り直すもの、`GRS` は本ソフトウェアが新たに持つもの、`Carry` は解釈せずに持ち回る器である。 | **出自の 4 区分** —— `Own` は交換相手から取り込んでそのまま書き戻すもの、`Consume` は取り込んで解釈し、書き出すときに作り直すもの、`GRS` は本ソフトウェアが新たに持つもの、`Passthrough` は解釈せずに持ち回る器である。 | 所見 F44（出自の語も揃える —— 私の案。erd.json の origin の値 Carry も変える） | rewrite |
+| prose 6.2 | CR-851 | ⛔ **分類を述べる欄を辞書にしてはならない（MUST NOT）** —— 表 T-058 の型の欄と `null` の欄がそれである。 | ⛔ **分類を述べる欄を辞書にしてはならない（MUST NOT）** —— 表 T-058 の型の欄と「省けるか」の欄がそれである。 | JDG-3309（列の欄を「省けるか」に改める —— erd.json の nullable を omittable へ） | rewrite |
+| prose 6.2 | CR-851 | 日程データの群の原稿は、生成に要る型と、値の範囲と、空を許すかどうかを、機械が読める形で持つこと（MUST） | 日程データの群の原稿は、生成に要る型と、値の範囲と、プロパティを省けるかどうか（省いたときの見え方を含む）を、機械が読める形で持つこと（MUST） | JDG-3309（省けるプロパティはスキーマの説明に見え方を 1 行で書く） | rewrite |
+| prose 6.2（足す） | CR-851 | - | ⭐ **省けるプロパティの説明は、「省いたら何を見せるか」を 1 行で言うこと（MUST）** —— 例 `parentTaskUid`「absent = top of the WBS」、色のプロパティ「absent = not drawn」。読み手はスキーマだけを見て、プロパティの無い文書を書けるようにする。   ⏎ ⭐ **スキーマの冒頭と `documentSettings` の説明は、「いつも値のあるプロパティは必ず書く。値の無いプロパティは書かない。`null` は書かない。空の配列は書かない」と言うこと（MUST）。**   ⏎ ⭐ 単位の接尾辞（`…Px` は表示の倍率 100 のときの CSS px、`…Percent` は百分率、`…Ratio` は既定に掛ける倍率、`…Fraction` は 1 つの物の中の位置で 0 以上 1 未満）は、原稿の注記（`schemaNotes` の「Sizes」の段）が 1 か所で言う。 | JDG-3309、JDG-3297（接尾辞の決まり、E-22）、doc-shape-choices §6・§9、CHOICE N23（bandFraction は 0〜1 のまま） | add |
+| prose 6.2 | CR-851 | ⚠️ 保存するプロパティを名指す上下限（`rulerHeightPx` を名指す `rulerFontSizePx` の上限など）は数に解かない —— 文書ごとに動く値であり、既定値で解いた数は既定値のときにしか正しくない。 | ⚠️ 保存するプロパティを名指す上下限（`taskGroupPanelWidthPx` の上限が名指す `Task Group Area` の幅など）は数に解かない —— 文書ごとに動く値であり、既定値で解いた数は既定値のときにしか正しくない。 | JDG-3294（例に使った 2 つのプロパティが消える）。⚠️ 代わりの例は私の選択 | rewrite |
+| prose 6.2 | CR-851 | `Project.themeHue` の既定値も同じ形で、原稿の列が名指す設定の行（`S-73`）から読む。 | `Project.themeHueDegrees` の既定値も同じ形で、原稿の列が名指す設定の行（`S-73`）から読む。 | CHOICE N6 | rewrite |
+| prose 6.2 | CR-851 | ⭐ 持ち回りの器（`carry`）は、どのエンティティの器も 1 つの定義を指す —— 器を空にしてよい理由を 1 か所で言うためである。 | ⭐ 持ち回りの器（`passthroughValues`）は、どのエンティティの器も 1 つの定義（`PassthroughValues`）を指す —— 持ち回るものが無ければプロパティを書かないことを 1 か所で言うためである。 | 所見 F44、JDG-3309（空の表 {} を書かない、CHOICE L2） | rewrite |
+| prose 6.2 | CR-851 | ⭐ 日時の列は 1 つの日時の定義を指し、その定義が形を `xsd:dateTime` の字面の `pattern` で言うこと（MUST） —— 書き手に日付だけで書かせないためである。   ⏎ 小数秒と帯を許すのは、交換相手から取り込んだ値が綴りのまま往復するからである（`01-04-requirements.md` の 表 T-033 の `EX-4`）。   ⏎ `_assets/tbl-settings.md` の `S-77`（`scrollDate`）も同じ `pattern` を持つ。 | ⭐ 日時の列は 1 つの日時の定義（`DateTime`）を指し、その定義が形を `^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$` の `pattern` で言うこと（MUST） —— 書き手に日付だけで書かせず、帯と小数秒を書かせないためである（MS Project が書く形 —— 帯は取り込みで落とす、`01-04-requirements.md` の 表 T-265 の `MR-6`）。   ⏎ ⭐ 日付だけの列は 1 つの日付の定義（`Day`、`^\d{4}-\d{2}-\d{2}$`）を、記録の刻と造りの版は 1 つの刻の定義（`UtcInstant`、`^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$`）を指す。   ⏎ `_assets/tbl-settings.md` の `S-77`（`scrollPosition` の `leftEdgeDay`）と `S-518`（`fitSpan`）は `Day` を指す。 | JDG-3261（帯・小数秒を断る）、CHOICE T1・T2、JDG-3281（…Day・…At）、studies/77 §3 日時 ①② | rewrite |
+| prose 6.2 | CR-851 | ⭐ `schemaVersion` は、その造りの版を `const` で言うこと（MUST） —— 値の正は 1 つである（表 T-052 の `DR-4`）。 | ⭐ `schemaVersion` は、その造りの版を `const` で言うこと（MUST） —— 値の正は 1 つである（表 T-052 の `DR-4`）。   ⏎ ⭐ `buildVersion` は `UtcInstant` の形だけを言い、値を縛らない —— 組み立てのたびに変わる。 | JDG-3300・CHOICE B1 | rewrite |
+| prose 6.2 | CR-851 | ⚠️ 公式運用の前（`S-541` が `null`）は、台帳は空の配列である（`01-04-requirements.md` の `FR-073`）。 | ⭐ 台帳は `CR-851` から行を持つ —— 公式運用の前は、行を足しても `GRS` は読まない（`01-04-requirements.md` の `FR-073`）。読み手は変換の HTML の作り手と、スキーマを読む人と AI である。 | JDG-3262（台帳は今から書くが GRS は正式な利用の前には読まない） | rewrite |
+| prose 6.2 | CR-851 | `refused` は文書ごと拒む（`01-04-requirements.md` の 表 T-233 の `RS-25`）。 | `refused` は文書ごと拒む（`01-04-requirements.md` の 表 T-233 の `RS-25` —— 古い版の文書は `formatTooOld`）。 | JDG-3306、refusal-reasons-map | rewrite |
+
+## `docs/spec/_assets/design-mcp-relay.md`（7 行）
+
+
+### 取次の道具・拒否・版（3.1・5 節）
+
+
+| 行 | CR | 古い | 新しい | 理由 | 種別 |
+| --- | --- | --- | --- | --- | --- |
+| prose 3.1 道具の入力 | CR-851 |   `null` を受ける引数を作らない —— 解除は空の並びで言う（`showOnlyTasks`）。 |   `null` を受ける引数を作らない —— 解除は空の並びで言う（`showOnlyTasks`）。答えの値も `null` を使わず、値の無い欄はプロパティを省く（`AG-12` の ⑧）。 | JDG-3309（答えにも当てる）、R3 Null Trap | rewrite |
+| prose 3.1 道具の答え | CR-851 |   拒否も値のまま返し、MCP の誤りにしない（表 T-035 の `AG-9a`）。 |   拒否も値のまま返し、MCP の誤りにしない（表 T-035 の `AG-9a`）。   ⏎   ⭐ 拒否の形は誰が拒んだか（`from` が `page` か `relay`）で分ける 1 つの形とし、どちらも `member`（道具の名）・`reason`（変わらない名）・`message`（英語、行 ID を含めない）を持つ —— ページの拒否だけが `stamp` を持ち、命令ごとの拒否（`commandRefusals`）と文書の欠陥（`documentFaults`）は、その理由のときだけ持つ（`tbl-agent-api-members.md` の 表 T-400 の `AV-3`）。 | JDG-3285、JDG-3309、commands-choices C（from で分ける和、target → member、refusals → commandRefusals・documentFaults）、studies/77 §3 拒否の理由 ④⑤ | rewrite |
+| prose 3.1 道具の答え（足す） | CR-851 | - | - **退いた道具の名** —— 取次は、`tbl-agent-api-members.md` の退いた名の一覧にある道具の名で呼ばれたら、`from` が `relay`、理由の区分が `retiredName` の拒否を値で返し、代わりの名があれば添える（表 T-035 の `AG-13`）。   ⏎   知らない名（一覧にも無い名）は今どおり MCP の「道具が無い」の誤りとする。 | JDG-3301（やめた名は専用の理由で断り代わりを返す）、commands-choices D.3（取次が道具の名を照らす。今は JSON-RPC の Unknown tool） | add |
+| prose 3.1 初期化の答え（足す） | CR-851 | - |   ⭐ 案内は、呼ぶ側が知らない拒否の理由を失敗として扱うことを言う（表 T-035 の `AG-13` の ④）。 | JDG-3301（呼ぶ側は知らない拒否の理由を失敗と扱う） | add |
+| prose 5 節 ページが繋がっていない | CR-851 |   理由の区分は `pageNotConnected` とし、開く URL を添える —— AI が人に開き方を伝えられるようにするためである。 |   理由の区分は `pageNotConnected` とし、開く URL を `pageUrl` の欄で添える —— AI が人に開き方を伝えられるようにするためである。⭐ 取次の拒否は `stamp` を持たない（プロパティを省く。今の `null` は書かない）。 | commands-choices C（取次の拒否は stamp を持たない、pageUrl は名のある欄）、JDG-3309 | rewrite |
+
+### 配り方 —— α を β に変える変換の HTML（6 節）
+
+
+| 行 | CR | 古い | 新しい | 理由 | 種別 |
+| --- | --- | --- | --- | --- | --- |
+| prose 6 節（足す） | CR-851 | - | ⭐ **入手する所の頁は、α の `GRS JSON` を β の `GRS JSON` へ変える変換の HTML（`grs-json-alpha-to-beta.html`）もダウンロードさせる**（`01-04-requirements.md` の `FR-073`）。   ⏎ 変換の HTML の原稿は `docs/download/grs-json-alpha-to-beta.html` であり、手で書いた 1 つの自己完結した `.html` である —— 公開の組み立てが `/download/grs-json-alpha-to-beta.html` に置き、頁の節（所は `_assets/tbl-settings.md` の 表 T-206 に足す `S-625`（仮））にボタンを置く。   ⏎ ⭐ 変換の HTML は、ダウンロードしてダブルクリックで開き、α の `.json` をドロップ（または選ぶ）と β の `.json` を保存する —— インストールは要らず、通信もせず、外の資源も読まない（頁と同じく Content Security Policy に SHA-256 を書いた書式とスクリプトだけが動く）。   ⏎ ⭐ 変換の規則の正は、刊行するスキーマの変更の台帳（`05-07-design.md` の Chapter 6.2 の `x-grsChanges`、原稿は `_source/grs-json-changes.json`）であり、変換の HTML はその行を 1 つずつ当てる —— 規則を 2 か所に持たない。   ⏎ ⭐ 変換した文書は、変えたプロパティと落とした値の一覧を画面に出し、β の `schemaVersion` と変換した HTML の版を書く。   ⏎ ⭐ 変換の HTML も版を持つ（UTC の秒までの時刻、`docs/development-rules/10-versions.md`）。   ⏎ ⛔ `GRS` の中に変換を持たない —— `GRS` は α の文書を拒み、この頁へ案内するだけである。 | JDG-3307（1 つの HTML ファイル、ダウンロードしてダブルクリック、α の .json を落とすと β の .json を保存、インストール不要・通信しない、ダウンロードページに置く）、JDG-3279（GitHub からダウンロード）、JDG-3306。⚠️ ファイル名・原稿の所・節の所・「変えたプロパティの一覧を出す」は私の案（裁定は形だけを決めた） | add |
+| prose 6 節 | CR-851 | ⛔ バッチファイル・シェルのスクリプト・実行ファイルでは配らない —— インターネットからダウンロードした署名の無いこれらを OS の保護が止め、止まらない機械でも利用者に警告を越えさせる。 | ⛔ バッチファイル・シェルのスクリプト・実行ファイルでは配らない —— インターネットからダウンロードした署名の無いこれらを OS の保護が止め、止まらない機械でも利用者に警告を越えさせる。変換の HTML を `.html` にするのも同じ理由である。 | JDG-3307（Node.js のスクリプトでなく HTML） | rewrite |
+
+## `docs/spec/_assets/tbl-glossary.md`（31 行）
+
+
+### 用語辞書のデータの語・プロパティ（表 T-101・T-102）
+
+
+| 行 | CR | 古い | 新しい | 理由 | 種別 |
+| --- | --- | --- | --- | --- | --- |
+| N-1 | CR-851 | ⚠️ 描画の形は `TaskVisual.shapeKind` が別に持つ。 | ⚠️ 描画の形は `TaskVisual.taskShape`（マイルストーンでないとき）と `TaskVisual.milestoneShape`（マイルストーンのとき）が別に持つ。 | JDG-3311 | rewrite |
+| N-7 | CR-851 | \| N-7 \| `carry` / `carryElements` \| 取り込んだ交換形式の項目を、解釈せずにそのまま持ち回るための入れ物 \| | \| N-7 \| `passthroughValues` / `passthroughElements` \| 取り込んだ交換形式の項目を、解釈せずにそのまま持ち回るための入れ物（値の写しと、要素の写し）。持ち回るものが無ければプロパティを書かない \| | 所見 F44（CHOICE N1）、JDG-3309 | rewrite |
+| P-10 | CR-851 | \| P-10 \| `shapeKind` \| タスク形状（5 値。<br>`'milestone'` のときだけ `milestoneGlyph` を見る） \| | \| P-10 \| `taskShape` \| タスク形状（4 値 —— `rectangle` ／ `chevron` ／ `arrow` ／ `endpointSpan`）。<br>`Task.milestone` が真でないタスクだけが持つ \| | JDG-3311（画面の語「タスク形状」と同じ名） | rewrite |
+| P-16 | CR-851 | \| P-16 \| `milestoneGlyph` \| マイルストーン形状（〇 六角形 五角形 ◇ □ ☆ △ ▽） \| | \| P-16 \| `milestoneShape` \| マイルストーン形状（〇 六角形 五角形 ◇ □ ☆ △ ▽ ほか 15 の印）。<br>`Task.milestone` が真のタスクだけが持つ \| | JDG-3311（画面の語「マイルストーン形状」と同じ名） | rewrite |
+| P-17 | CR-851 | `shapeKind` から導出する \| | `taskShape` から導出する \| | JDG-3311 | rewrite |
+| P-19 | CR-851 | \| P-19 \| `'transparent'` \| 透明。<br>`strokeColor` / `fillColor` / `TaskGroup.color` が取りうる値であり、`tbl-settings.md` の 表 T-294 の保存する綴りの 1 つである（`S-324`）。<br>`null`（選んでいない）とは別物である \| | \| P-19 \| 透明（入口） \| 色の欄の透明の入口。<br>保存する値ではない —— 押すとその色のプロパティを除き（`strokeColor` / `fillColor` / `TaskGroup.color` を描かない）、コメントボックスとハイライトボックスの塗りでは色を残して透過率を 100 にする。<br>`{"kind":"theme"}`（テーマに従う）とは別物である \| | JDG-3310（透明 ＝ プロパティを書かない、色の kind は palette・custom・theme）、JDG-3276 | rewrite |
+| P-21 | CR-851 | \| P-21 \| `fadeInDays` / `fadeOutDays` \| フェードイン日数 / フェードアウト日数 \| | \| P-21 \| `fadeInCalendarDays` / `fadeOutCalendarDays` \| フェードイン日数 / フェードアウト日数（暦日） \| | JDG-3312（単位を名に） | rewrite |
+| P-（足す） | CR-849 | - | \| P-（仮） \| `hyperlinkAddress` / `hyperlink` \| リンクの所（URL）/ リンクの題。<br>`Task`・`CommentBox`・`TaskGroup` が持ち、名は MSPDI の `Task/HyperlinkAddress`・`Task/Hyperlink` と同じである（`hyperlink` は所ではなく題） \| | JDG-3314（3 つとも MSPDI の名、hyperlink が題であることを説明で言う）、CR-849。⚠️ 行 ID は仮 | add |
+
+### 用語辞書の設定値のキー（表 T-104）
+
+
+| 行 | CR | 古い | 新しい | 理由 | 種別 |
+| --- | --- | --- | --- | --- | --- |
+| K-1 | CR-851 | \| K-1 \| タイムルーラー \| `pxPerDayAt1x` \| 1 日の幅（`zoomX` = 1） \| | - | JDG-3292（S-1 × 0.625 の隠れた基準が消え、1 日の幅は文書の dayWidthPx が持つ —— K-67 へ）。⚠️ 行 ID K-1 は退役 | remove |
+| K-2 | CR-851 | \| K-2 \| タイムルーラー \| `rulerHeightPx` \| 目盛の帯の高さ \| | \| K-2 \| タイムルーラー \| `rulerHeightPx` \| 目盛の帯の高さ（`fontSizeStep` から導く値。文書に保存しない） \| | JDG-3294（プロパティごと文書から消え、道具が導く） | rewrite |
+| K-3 | CR-851 | \| K-3 \| タイムルーラー \| `rulerFontSizePx` \| 目盛の文字 \| | \| K-3 \| タイムルーラー \| `rulerFontSizePx` \| 目盛の文字（`fontSizeStep` から導く値。文書に保存しない） \| | JDG-3294 | rewrite |
+| K-4 | CR-851 | \| K-4 \| 縦の寸法 \| `basePlanHeight` \| 予定の縦幅（`zoomY` = 1） \| | \| K-4 \| 縦の寸法 \| `basePlanHeight` \| 予定の縦幅（`verticalZoomRatio` = 1） \| | JDG-3293。名だけ | rewrite |
+| K-60 | CR-851 | \| K-60 \| テーマ \| `themeHue` \| テーマ色 \| | \| K-60 \| テーマ \| `themeHueDegrees` \| テーマ色 \| | CHOICE N6 | rewrite |
+| K-67 | CR-851 | \| K-67 \| 画面の状態 \| `zoomX` \| 横のズーム倍率 \| | \| K-67 \| 画面の状態 \| `dayWidthPx` \| 1 日の幅（横のズーム） \| | JDG-3292 | rewrite |
+| K-68 | CR-851 | \| K-68 \| 画面の状態 \| `zoomY` \| 縦のズーム倍率 \| | \| K-68 \| 画面の状態 \| `verticalZoomRatio` \| 縦のズーム倍率 \| | JDG-3293 | rewrite |
+| K-（足す） | CR-851 | - | \| K-（仮） \| 画面の状態 \| `taskGroupAutoExpandDepth` \| 自動で開くタスクグループの深さ \| | JDG-3293・JDG-3296（zoomY の 1 未満の働きを 1 つのプロパティに、名は利用者が選んだ）。⚠️ 行 ID と語は仮 | add |
+| K-69 | CR-851 | \| K-69 \| 画面の状態 \| `scrollDate` \| 表示の左端が指す日付 \| | \| K-69 \| 画面の状態 \| `scrollPosition` の `leftEdgeDay` \| 表示の左端が指す日付 \| | 所見 F12・CHOICE N4 | rewrite |
+| K-70 | CR-851 | \| K-70 \| 画面の状態 \| `scrollTaskGroupId` \| 表示の上端が指すタスクグループ \| | \| K-70 \| 画面の状態 \| `scrollPosition` の `topEdgeTaskGroupId` \| 表示の上端が指すタスクグループ \| | 所見 F12・CHOICE N4 | rewrite |
+| K-125 | CR-851 | \| K-125 \| 表示の切り替え \| `displayScale` \| 表示の倍率 \| | \| K-125 \| 表示の切り替え \| `displayScalePercent` \| 表示の倍率 \| | JDG-3292（100 が百分率であることを名で言う） | rewrite |
+| K-86 | CR-851 | \| K-86 \| 表示の切り替え \| `importSequence` \| 取り込みの連番 \| | \| K-86 \| 表示の切り替え \| `lastImportNumber` \| 最後の取り込みの番号 \| | 所見 F24・CHOICE N8 | rewrite |
+| K-141 | CR-851 | \| K-141 \| 表示の切り替え \| `fitSpanStart` / `fitSpanFinish` \| 全体表示時の期間（開始日 / 終了日） \| | \| K-141 \| 表示の切り替え \| `fitSpan` の `firstDay` / `lastDay` \| 全体表示時の期間（開始日 / 終了日、両端を含む） \| | 所見 F52、JDG-3281 | rewrite |
+| K-142 | CR-851 | \| K-142 \| 画面の状態 \| `isFitSpanFixed` \| 全体表示時の期間を固定する \| | \| K-142 \| 画面の状態 \| `fitSpan` の `isFixed` \| 全体表示時の期間を固定する \| | 所見 F52 | rewrite |
+| K-105 | CR-851 | \| K-105 \| 文字サイズ \| `fontSizeStepSizes.S` / `fontSizeStepSizes.M` / `fontSizeStepSizes.L` \| 文字サイズの段（S / M / L）の px \| | \| K-105 \| 文字サイズ \| `fontSizeStepSizes.small` / `fontSizeStepSizes.medium` / `fontSizeStepSizes.large` \| 文字サイズの段（small / medium / large）の px \| | JDG-3295（fontSizeStep の値を英単語に。定数の名も揃える —— 定数の名は私の案） | rewrite |
+| K-120 | CR-851 | \| K-120 \| 画面の状態 \| `scrollTaskGroupFraction` \| 表示の上端が指すタスクグループのどこにあるか \| | \| K-120 \| 画面の状態 \| `scrollPosition` の `topEdgeTaskGroupFraction` \| 表示の上端が指すタスクグループのどこにあるか \| | CHOICE N4、JDG-3297（Fraction は 0 以上 1 未満） | rewrite |
+| K-121 | CR-851 | \| K-121 \| 画面の状態 \| `scrollDateFraction` \| 表示の左端が指す日のどこにあるか \| | \| K-121 \| 画面の状態 \| `scrollPosition` の `leftEdgeDayFraction` \| 表示の左端が指す日のどこにあるか \| | CHOICE N4、JDG-3297 | rewrite |
+| K-140 | CR-851 | \| K-140 \| 遅延診断 \| `parentTaskProgressToleranceDays` \| 遅延診断時に親タスクの進捗の疑義を許す日数（稼働日） \| | \| K-140 \| 遅延診断 \| `parentTaskProgressToleranceWorkingDays` \| 遅延診断時に親タスクの進捗の疑義を許す日数（稼働日） \| | 所見 F16 | rewrite |
+| prose 4 節 | CR-851 | - スクロール位置の名前は `scrollDate` と `scrollTaskGroupId` とし、`scrollX` / `scrollY` にしない。 | - スクロール位置は `scrollPosition` の 1 つの値とし、中の名前は `leftEdgeDay`・`leftEdgeDayFraction`・`topEdgeTaskGroupId`・`topEdgeTaskGroupFraction` とする —— `scrollX` / `scrollY` にしない。 | 所見 F12・CHOICE N4 | rewrite |
+| prose 8 節 | CR-851 | ⭐ `milestoneGlyph` の綴りは `_source/erd.json` が持つ—— 本表にコピーしない。 | ⭐ `milestoneShape` の綴りは `_source/erd.json` が持つ—— 本表にコピーしない。 | JDG-3311 | rewrite |
+
+### 畳む命令の行 ID を名指す所（自動で拾った —— 表 T-108 の行が退くので、名指しを edit の命令と欄へ書き換える）
+
+
+| 行 | CR | 古い | 新しい | 理由 | 種別 |
+| --- | --- | --- | --- | --- | --- |
+| ref CM-64 | CR-851 | に並べる（`FR-041`） \| `FR-041`（表 T-108 の `CM-64`）\| — \| — \| | に並べる（`FR-041`） \| `FR-041`（表 T-108 の `editDocumentSettings` の `set.isThemeMonochrome`）\| — \| — \| | JDG-3267・JDG-3268（CM-64 は edit の命令へ畳まれ、表 T-108 の行が退く —— commands-map.tsv） | rewrite |
+| ref CM-62 | CR-851 | 本行が定めるものではない** \| `FR-039`（表 T-108 の `CM-62`）\| — \| — \| | 本行が定めるものではない** \| `FR-039`（表 T-108 の `editDocumentSettings` の `set.fontSizeStep`）\| — \| — \| | JDG-3267・JDG-3268（CM-62 は edit の命令へ畳まれ、表 T-108 の行が退く —— commands-map.tsv） | rewrite |
+| ref CM-56 | CR-851 | しか無いので巡りは往復になる \| `FR-003`（表 T-108 の `CM-56`）\| — \| — \| | しか無いので巡りは往復になる \| `FR-003`（表 T-108 の `editDocumentSettings` の `set.stackDirection`）\| — \| — \| | JDG-3267・JDG-3268（CM-56 は edit の命令へ畳まれ、表 T-108 の行が退く —— commands-map.tsv） | rewrite |
+
+## `docs/development-rules/10-versions.md`（6 行）
+
+
+### 版の規則（10-versions.md）
+
+
+| 行 | CR | 古い | 新しい | 理由 | 種別 |
+| --- | --- | --- | --- | --- | --- |
+| prose 1 節の表（区切りのある形） | CR-851 | \| JSON の中 —— `schemaVersion`・`agentApiVersion`・`tools/artifact-versions.json`。 | \| JSON の中 —— `schemaVersion`・`agentApiVersion`・`buildVersion`（`GRS JSON` の最上段）・`grsBuildVersion`（`Agent API` の刻印）・`tools/artifact-versions.json`。 | JDG-3300（造りの版を機械が読む出力に載せる） | rewrite |
+| 2 節 GRS JSON の形式の版 | CR-851 | \| 文書の形（表 T-058 の列と 表 T-052 のプロパティ）を変える変更を当てる時刻 \| 形を変える CR の子セッションが値を書き、 | \| 文書の形（表 T-058 の列と 表 T-052 のプロパティ）を変える変更を当てる時刻。⭐ 組み立てでは変わらない —— 互換あり／なしは版でなく、変更の台帳（`_source/grs-json-changes.json`）の行の種別が持つ \| 形を変える CR の子セッションが値を書き、変えた列ごとに台帳へ行を足し（`CR-851` から —— 公式運用の前も）、 | JDG-3263（今のまま形を変えた時刻、ビルドでは変わらない、互換は台帳の行）、JDG-3262（台帳は CR-851 から） | rewrite |
+| 2 節 Agent API の版 | CR-851 | \| 呼び方（メンバーの名・引数・戻り値の型。表 T-107 と 表 T-400）を変える変更を当てる時刻。⭐ 互換かどうかを人が判じない —— 呼び方が少しでも変われば上げる（`JDG-2986`） \| | \| 呼び方（メンバーの名・引数・戻り値の型。表 T-107 と 表 T-400。`applyCommands` が受ける命令の形 —— 生成した `grs-commands.schema.json` の説明を除いた形。拒否の理由の名の一覧。退いた名の一覧と `deprecated` の印）を変える変更を当てる時刻。⭐ 互換かどうかを人が判じない —— 呼び方が少しでも変われば上げる（`JDG-2986`・`JDG-3301`） \| | JDG-3301（版は agentApiVersion 1 つでコマンドも含む）、commands-choices D.1（指紋を命令・外の型・理由・退いた名・deprecated へ広げる）、studies/77 §3 版と退役 ① | rewrite |
+| 2 節 Agent API の版 | CR-851 | \| 呼び方を変える CR の子セッションが値を書き、`tests/contract/cr-822-a-call-shape-change-raises-the-agent-api-version.contract.test.ts` の版と指紋の対を 1 つ足す \| | \| 呼び方を変える CR の子セッションが値を書き、`tests/contract/cr-822-a-call-shape-change-raises-the-agent-api-version.contract.test.ts` の版と指紋の対を 1 つ足す（指紋は上の欄のすべてを覆う） \| | commands-choices D.1 | rewrite |
+| 2 節（足す） | CR-851 | - | \| `GRS` の造りの版（`buildVersion`・`grsBuildVersion`）。`GRS JSON` の最上段、単一 `.html`、PNG（画像の文字の欄）、SVG（メタデータ）、`Agent API` の刻印に載る \| 区切りのある形。値は組み立てが、出す成果物の版（`tools/artifact-versions.json` の `grsRelayBuiltAt` と同じ決め方 —— 中身を最後に変えたコミットの時刻）から書き入れる \| 単一 `.html` の中身を最後に変えたコミットの時刻 \| 組み立てが書き入れる。⛔ 手で打たない \| 組み立てのたび（中身が同じなら同じ版） \| GT-2 の再現の確かめ（2 度作って同じバイト列） \| `2026-11-01T09:12:30Z` \| | JDG-3300（GRS JSON・単一 .html・PNG・SVG・Agent API の刻印に造りの版）、CHOICE B1・T2。⚠️ 決め方（どのコミットの時刻か・どのファイルに持つか）は私の案 —— 10-versions の表は利用者の規則なので、行のレビューで決める | add |
+| 2 節 変換の HTML（足す） | CR-851 | - | \| α を β に変える変換の HTML（`grs-json-alpha-to-beta.html`）。入手の頁の変換の節に出る \| 区切りのある形を `tools/artifact-versions.json` に書く \| 中身を最後に変えたコミットの時刻 \| 中身を変えた子セッションが `node tools/artifact_versions.mjs bump` を回す \| 中身を変えるコミットと同じコミット \| 検査 85 \| — \| | JDG-3307（変換の HTML を配る）、10-versions の「版を持つもの 1 行に 1 つ」。⚠️ 置き場のプロパティの名は私の案 | add |
+
+## `docs/spec/_source/erd.json`（198 行）
+
+
+### 表の頭と刷る語（printed・documents）
+
+
+| 行 | CR | 古い | 新しい | 理由 | 種別 |
+| --- | --- | --- | --- | --- | --- |
+| documents T-058 の頭 | CR-851 | "header": {"ja": ["行 ID", "エンティティ", "列", "型", "`null`", "プロパティ", "出自", "交換相手の要素", "意味"]} | "header": {"ja": ["行 ID", "エンティティ", "列", "型", "省けるか", "プロパティ", "出自", "交換相手の要素", "意味"]} | JDG-3309（「無い」はプロパティを書かないこと 1 つ —— 欄は null を許すかでなくプロパティを省けるかを言う） | rewrite |
+| documents T-056 の頭 | CR-851 | `carry` の器 | 持ち回りの器 | 所見 F44（carry の名をやめる） | rewrite |
+| printed.carry | CR-851 | carryElements の中身 | passthroughElements の中身 | 所見 F44 | rewrite |
+| printed.carry | CR-851 | 解釈しない要素の退避先（`carryElements`） | 解釈しない要素の退避先（`passthroughElements`） | 所見 F44 | rewrite |
+
+### 文書の全体像の図（container）
+
+
+| 行 | CR | 古い | 新しい | 理由 | 種別 |
+| --- | --- | --- | --- | --- | --- |
+| container Document の箱 | CR-851 | ["配列", "changeLog", {"ja": "文書の刻印"}] | ["文字列", "buildVersion", {"ja": "書いた造りの版"}]、["配列", "changeLogEntries", {"ja": "変更の理由の並び（無ければプロパティを書かない）"}] | JDG-3300・CHOICE B1、所見 F48・CHOICE N2、JDG-3309 | rewrite |
+| container documentSettings の箱 | CR-851 | ["文字列", "scrollTaskGroupId", "S-78"] | ["オブジェクト", "scrollPosition", "S-77"] | 所見 F12・CHOICE N4（表示位置を 1 つの和に） | rewrite |
+| container の節（CarryElement） | CR-851 | {"id": "CarryElement", "entity": "CarryElement"} | {"id": "PassthroughElement", "entity": "PassthroughElement"} | 所見 F44、CHOICE N14（$defs の名は PascalCase） | rewrite |
+| container の辺（Document → changeLog） | CR-851 | {"from": "Document", "to": "changeLog", "multiplicity": "1 ─ 0..n", "label": {"ja": "文書の刻印"}} | {"from": "Document", "to": "changeLogEntries", "multiplicity": "1 ─ 0..n", "label": {"ja": "変更の理由の並び"}} | 所見 F48 | rewrite |
+| container の辺（schedule → CarryElement） | CR-851 | carryElements を持つ 8 型の兄弟のプロパティ | passthroughElements を持つ 8 型の兄弟のプロパティ（持ち回るものが無ければプロパティを書かない） | 所見 F44、JDG-3309 | rewrite |
+| container の辺（documentSettings → schedule） | CR-851 | 表示位置が指すタスクグループ。弱い参照 | 表示位置（`scrollPosition` の `placed`）が指すタスクグループ。弱い参照 | 所見 F12 | rewrite |
+
+### エンティティ（表 T-056）
+
+
+| 行 | CR | 古い | 新しい | 理由 | 種別 |
+| --- | --- | --- | --- | --- | --- |
+| ET-15 | CR-851 | "name": "CarryElement" | "name": "PassthroughElement" | 所見 F44、CHOICE N14 | rewrite |
+| ET-16 | CR-851 | "name": "documentStamp" | "name": "DocumentStamp"（文書のプロパティは今のまま `documentStamp`） | CHOICE N14（$defs の名を PascalCase に） | rewrite |
+| ET-17 | CR-851 | "name": "changeLog" | "name": "ChangeLogEntry"（文書のプロパティは `changeLogEntries`） | 所見 F48・CHOICE N2・N14 | rewrite |
+| ET-11 | CR-851 | タスクの見せ方。形と色。どのタスクもちょうど 1 つ持つ | タスクの見せ方。形と色と輪郭の太さ。どのタスクもちょうど 1 つ持ち、作ったときに形・テーマの色・太さを書く | JDG-3309・JDG-3310・JDG-3308（null だけの行が無くなる） | rewrite |
+| ET-11 の en | CR-851 | How a task is drawn: its shape and its colors; every task has exactly one, so that no other way of drawing a task is needed. | How a task is drawn: its shape, its colors and its outline width; every task has exactly one, so that no other way of drawing a task is needed. A milestone holds milestoneShape, any other task taskShape. | JDG-3311 | rewrite |
+| ET-4 の en | CR-851 | A task group on screen. Task groups are kept apart from the WBS (Task.parentTaskUid) so that several tasks can share one task group; task groups are not exported to MS Project. | A task group on screen. Task groups are kept apart from the WBS (Task.parentTaskUid) so that several tasks can share one task group; task groups are not exported to MS Project. A task group need not have a name. | JDG-3315（名を強いない） | rewrite |
+| ET-15 の en | CR-851 | One element of an imported MS Project file that GRS does not interpret, kept as it arrived so that it is written back unchanged. | One element of an imported MS Project file that GRS does not interpret, kept as it arrived so that it is written back unchanged (passthroughElements). | 所見 F44 | rewrite |
+
+### 関係（表 T-057）
+
+
+| 行 | CR | 古い | 新しい | 理由 | 種別 |
+| --- | --- | --- | --- | --- | --- |
+| RL-7 | CR-851 | タスクグループ名の導出元（`derivedFromTaskUid`） | タスクグループが WBS の上で表すタスク（`representedTaskUid`）。名の出どころではない | 所見 F27、JDG-3315 | rewrite |
+| RL-7 の列 | CR-851 | "fromColumn": "derivedFromTaskUid" | "fromColumn": "representedTaskUid" | 所見 F27 | rewrite |
+| RL-18 | CR-851 | 留めるタスクグループ（`anchorTaskGroupId`） | 線先のタスクグループ（`anchor` の `taskGroupId` —— 自由点と `fallback`） | 所見 F28 | rewrite |
+| RL-33 | CR-851 | 線先が吸着したタスク（`anchorTaskUid`） | 線先が吸着したタスク（`anchor` の `taskUid`） | 所見 F28 | rewrite |
+| RL-34 | CR-851 | 線先が吸着したハイライトボックス（`anchorHighlightBoxId`） | 線先が吸着したハイライトボックス（`anchor` の `highlightBoxId`） | 所見 F28 | rewrite |
+| RL-21 | CR-851 | 入れ子の子（`children`） | 入れ子の子（`children`、無ければプロパティを書かない） | JDG-3309 | rewrite |
+| RL-23〜RL-30 | CR-851 | 解釈しない要素の退避先（`carryElements`） | 解釈しない要素の退避先（`passthroughElements`） | 所見 F44（8 行とも同じ語。生成器は printed.carry から刷る） | rewrite |
+
+### 書き出すときに作る値（表 T-059）
+
+
+| 行 | CR | 古い | 新しい | 理由 | 種別 |
+| --- | --- | --- | --- | --- | --- |
+| DV-3 | CR-851 | `carry` に控えた原値 | `passthroughValues` に控えた原値 | 所見 F44 | rewrite |
+| DV-13 | CR-851 | `carry` に控えた原値。無く、行が `01-04-requirements.md` の 表 T-033 の `EX-13` に当たるときは `1` | `passthroughValues` に控えた原値。無く、行が `01-04-requirements.md` の 表 T-033 の `EX-13` に当たるときは `1` | 所見 F44 | rewrite |
+| DV-14 | CR-851 | `carry` に控えた原値。無く、行が `EX-13` に当たるときは `0`（範囲を終わりの日で決める） | `passthroughValues` に控えた原値。無く、行が `EX-13` に当たるときは `0`（範囲を終わりの日で決める） | 所見 F44 | rewrite |
+| DV-15 | CR-851 | `carry` に控えた原値。無いときは `1` | `passthroughValues` に控えた原値。無いときは `1` | 所見 F44 | rewrite |
+
+### 原稿の列の型（json の中の null と出自 Carry）—— 列ごとの形は doc-shape-map.tsv が 1 要素 1 行で持つ
+
+
+| 行 | CR | 古い | 新しい | 理由 | 種別 |
+| --- | --- | --- | --- | --- | --- |
+| 各列の json.null | CR-851 | "null": true | （プロパティを除く。代わりに "optional": true ／ 必須の列は何も書かない —— 生成器は optional でない列を required に刷る。省けるときの見え方は schemaNote の en が言う） | JDG-3309・R3 Null Trap。⚠️ 列ごとの値の写しは doc-shape-map.tsv の type_new の optional／required が持つので、本表では 1 行に畳む。erd_json_to_schema.py の書き直しは src でなく道具の仕事 | rewrite |
+| 各列の origin | CR-851 | "origin": "Carry" | "origin": "Passthrough" | 所見 F44（05-07-design.md 6.2 の出自の 4 区分の語と揃える —— 私の案） | rewrite |
+| $comment | CR-851 | Every data element here obeys OKPN and OMPV (R2) and Null Trap (R3) of docs/development-rules/07-review-standards.md. Check 90 (check-data-element-kinds.py) reds a new violation in the generated schema; the ones older than the rule sit on its baseline, which only goes down. | Every data element here obeys OKPN and OMPV (R2) and Null Trap (R3) of docs/development-rules/07-review-standards.md: a column that may hold no value is optional (its key is omitted), never null, and its schemaNote says what an absent key shows. Check 90 (check-data-element-kinds.py) reds any violation in the generated schema; CR-851 emptied its baseline. | JDG-3226（スキーマの違反は CR-851 が β の前に必ず 0 にする）、JDG-3309 | rewrite |
+
+### 表 T-058 の列（1 列 1 行。「古い」「新しい」は 名 ｜ 型 ｜ `null` の欄（新しい名は「省けるか」）｜ 意味 ｜ スキーマの説明の英文）
+
+
+| 行 | CR | 古い | 新しい | 理由 | 種別 |
+| --- | --- | --- | --- | --- | --- |
+| AT-1 | CR-851 | `Project.id` ｜ 文字列（16 字以下） ｜ 可 ｜ 意味: ⚠️ **主キーにしない**（理由は Chapter 5.4）。省略されたときは `TaskOrigin.importSessionId` が代わりを務める | `Project.id` ｜ 文字列（16 字以下） ｜ 可（省けば、交換相手の文書にその要素が無かった。`TaskOrigin.importSessionId` が代わりを務める） ｜ 意味: （変えない） ｜ en: MS Project's Project/UID. Not a key: a document holds one project. Absent when the file had none. | JDG-3309（無い ＝ プロパティを書かない） | rewrite |
+| AT-2 | CR-851 | `Project.name` ｜ 文字列 ｜ 可 ｜ 意味: プロジェクト名 —— 画面には出さない（交換形式の `Project/Name` を持ち運ぶ値であり、画面の文書名は `title`） ｜ en: The project name of the MS Project exchange format (Project/Name), carried to and from it. GRS does not show it; the name shown on screen is title. | `Project.name` ｜ 文字列（1〜255 字） ｜ 可（省けば、交換相手の文書にその要素が無かった） ｜ 意味: （変えない） ｜ en: The project name of the MS Project exchange format (Project/Name), carried to and from it. GRS does not show it; the name shown on screen is title. Absent when the file had none. | JDG-3309（無い ＝ プロパティを書かない）、JDG-3287（MSPDI の上限 255） | rewrite |
+| AT-3 | CR-851 | `Project.title` ｜ 文字列 ｜ 可 ｜ 意味: 文書名（`U-27`） —— 画面の上端に出す文書の名であり、書き出すファイルの既定の名にもなる ｜ en: The document title: the name shown on screen at the top of the page, and the default name of an exported file. Read it to tell which document is open. | `Project.title` ｜ 文字列（1〜512 字） ｜ 可（省けば文書名が無い —— 画面とタブは `Untitled` を出す） ｜ 意味: （変えない） ｜ en: The document title: the name shown on screen at the top of the page, and the default name of an exported file. Read it to tell which document is open. Absent means untitled; the screen shows Untitled. | JDG-3309（無い ＝ プロパティを書かない）、JDG-3287、studies/77 §3 null ①（title の null は無題） | rewrite |
+| AT-4 | CR-851 | `Project.subject` ｜ 文字列 ｜ 可 ｜ 意味: 件名 | `Project.subject` ｜ 文字列（1〜512 字） ｜ 可（省けば、交換相手の文書にその要素が無かった） ｜ 意味: （変えない） | JDG-3309（無い ＝ プロパティを書かない）、JDG-3287（512 は XSD が言わないときの仮定 —— commands-choices B.1） | rewrite |
+| AT-5 | CR-851 | `Project.category` ｜ 文字列 ｜ 可 ｜ 意味: 分類 | `Project.category` ｜ 文字列（1〜512 字） ｜ 可（省けば、交換相手の文書にその要素が無かった） ｜ 意味: （変えない） | JDG-3309（無い ＝ プロパティを書かない）、JDG-3287 | rewrite |
+| AT-6 | CR-851 | `Project.company` ｜ 文字列 ｜ 可 ｜ 意味: 会社名 | `Project.company` ｜ 文字列（1〜512 字） ｜ 可（省けば、交換相手の文書にその要素が無かった） ｜ 意味: （変えない） | JDG-3309（無い ＝ プロパティを書かない）、JDG-3287 | rewrite |
+| AT-7 | CR-851 | `Project.manager` ｜ 文字列 ｜ 可 ｜ 意味: 管理者名 | `Project.manager` ｜ 文字列（1〜512 字） ｜ 可（省けば、交換相手の文書にその要素が無かった） ｜ 意味: （変えない） | JDG-3309（無い ＝ プロパティを書かない）、JDG-3287 | rewrite |
+| AT-8 | CR-851 | `Project.author` ｜ 文字列 ｜ 可 ｜ 意味: 作成者。最後に書いた者ではない | `Project.author` ｜ 文字列（1〜512 字） ｜ 可（省けば、交換相手の文書にその要素が無かった） ｜ 意味: （変えない） | JDG-3309（無い ＝ プロパティを書かない）、JDG-3287 | rewrite |
+| AT-9 | CR-851 | `Project.creationDate` ｜ 日時 ｜ 可 ｜ 意味: 作成日時。`GRS` が新しく作る文書（`01-04-requirements.md` の 表 T-342 の `BK-4`）には、作ったその瞬間を、その場所の時刻で帯を持たず秒まで書く（`01-04…50 の `WT-9`）。取り込んだ値は保つ（表 T-033 の `EX-4`） | `Project.creationDate` ｜ 日時（`YYYY-MM-DDTHH:MM:SS`） ｜ 可（省けば、交換相手の文書にその要素が無かった） ｜ 意味: （変えない） | JDG-3309（無い ＝ プロパティを書かない）、JDG-3261 | rewrite |
+| AT-10 | CR-851 | `Project.revision` ｜ 整数 ｜ 可 ｜ 意味: ⚠️ 交換相手の保存回数。`documentStamp` の 2 つの刻とは別物 | `Project.revision` ｜ 整数（0 以上） ｜ 可（省けば、交換相手の文書にその要素が無かった） ｜ 意味: （変えない） | JDG-3309（無い ＝ プロパティを書かない）、studies/77 §3 整数 ① | rewrite |
+| AT-12 | CR-851 | `Project.startDate` ｜ 日付 ｜ 可 ｜ 意味: プロジェクトの開始日 | `Project.startDate` ｜ 日時（`YYYY-MM-DDTHH:MM:SS`） ｜ 可（省けば、交換相手の文書にその要素が無かった） ｜ 意味: （変えない） | JDG-3309（無い ＝ プロパティを書かない）、JDG-3261。⚠️ 今の型の欄は「日付」だが値は日時（studies/77 §3 日時 ③）—— 日時に揃える | rewrite |
+| AT-13 | CR-851 | `Project.statusDate` ｜ 日付 ｜ 可 ｜ 意味: 基準日線が立つ日 ｜ en: MS Project's StatusDate: progress is reported as of this day, and the status line and the progress line are drawn on its day, so its time of day does not move them. | `Project.statusDate` ｜ 日時（`YYYY-MM-DDTHH:MM:SS`） ｜ 可（省けば基準日が無い —— 基準日線を描かず、遅延診断を行わない） ｜ 意味: （変えない） ｜ en: MS Project's StatusDate: progress is reported as of this day, and the status line and the progress line are drawn on its day, so its time of day does not move them. Absent means no status date: no status line is drawn and Delay Diagnostics does not run. | JDG-3309（無い ＝ プロパティを書かない）、JDG-3261、studies/77 §3 日時 ③ | rewrite |
+| AT-14 | CR-851 | `Project.minutesPerDay` ｜ 整数 ｜ 可 ｜ 意味: 1 日あたりの分数。期間の換算に使う。空のときの既定は 表 T-209 の `S-128` ｜ en: The length of 1d in durations and lags, in minutes ({{S-128}} when null). Keep it equal to the working minutes of every working day, one-off working exception days included (a day with no spans of its own counts the default spans): when one differs, GRS tells so each time the document opens, because 1d would no longer be a working day. | `Project.minutesPerDay` ｜ 整数（1 以上） ｜ 可（省けば `tbl-settings.md` の `S-128`） ｜ 意味: 1 日あたりの分数。期間の換算に使う。プロパティが無いときは 表 T-209 の `S-128` ｜ en: The length of 1d in durations and lags, in minutes ({{S-128}} when absent). Keep it equal to the working minutes of every working day, one-off working exception days included (a day with no spans of its own counts the default spans): when one differs, GRS tells so each time the document opens, because 1d would no longer be a working day. | JDG-3309（無い ＝ プロパティを書かない） | rewrite |
+| AT-15 | CR-851 | `Project.minutesPerWeek` ｜ 整数 ｜ 可 ｜ 意味: 1 週あたりの分数 | `Project.minutesPerWeek` ｜ 整数（1 以上） ｜ 可（省けば、交換相手の文書にその要素が無かった） ｜ 意味: （変えない） | JDG-3309（無い ＝ プロパティを書かない） | rewrite |
+| AT-16 | CR-851 | `Project.daysPerMonth` ｜ 整数 ｜ 可 ｜ 意味: 1 か月あたりの日数 | `Project.daysPerMonth` ｜ 整数（1 以上） ｜ 可（省けば、交換相手の文書にその要素が無かった） ｜ 意味: （変えない） | JDG-3309（無い ＝ プロパティを書かない） | rewrite |
+| AT-17 | CR-851 | `Project.weekStartDay` ｜ 整数（0〜6） ｜ 可 ｜ 意味: 週の始まりの曜日。暦ではなくここが置き場である（`FR-088`）。**`0` が日曜で、土曜の `6` まで 1 ずつ増える**（正は Chapter 6.2 が指す公式 XSD）。⛔ **`WeekDay.dayType` とは番号が 1 ずれる** —— 同じ曜日が別の数で書かれる。 ｜ en: MS Project's numbering: 0 Sunday ... 6 Saturday (one less than WeekDay.dayType). | `Project.weekStartDay` ｜ 整数（0〜6） ｜ 可（省けば `tbl-settings.md` の `S-108`） ｜ 意味: （変えない） ｜ en: MS Project's numbering: 0 Sunday ... 6 Saturday (one less than WeekDay.dayType). Absent means {{S-108}}. | JDG-3309（無い ＝ プロパティを書かない） | rewrite |
+| AT-18 | CR-851 | `Project.calendarUid` ｜ 整数 ｜ 可 ｜ 意味: 既定の暦。文書の暦を指す（`FR-054`） | `Project.calendarUid` ｜ 整数（0〜2147483647） ｜ 可（省けば文書の既定の暦を `FR-054` が解く） ｜ 意味: （変えない） | JDG-3309（無い ＝ プロパティを書かない）、JDG-3284 | rewrite |
+| AT-154 | CR-851 | `Project.defaultStartTime` ｜ 時刻 ｜ 可 ｜ 意味: 既定の開始時刻（`xsd:time` の字面）。`GRS` が開始の側の日時に書く時刻である（`01-04-requirements.md` の 表 T-350）。空なら `tbl-settings.md` の `S-482`。MSPDI から取り込むときは `Project/DefaultStartTime` を `carry` に残さず本列へ移し、書き出しでは公式スキーマの並びの位置に書く（`FR-021`、表 T-033 の `EX-10`）。⚠️ 取り込んだ字面が `xsd:time` に合わないときは本列へ移さず `carry` に残し（`EX-4`）、本列は空とする。`GRS JSON` で合わない値は文書ごと拒む（`05-07-design.md` の Chapter 6.1） ｜ en: MS Project's DefaultStartTime: the time GRS writes on start-side dates; {{S-482}} when the file has none. | `Project.defaultStartTime` ｜ 時刻（`HH:MM:SS`） ｜ 可（省けば `tbl-settings.md` の `S-482`） ｜ 意味: 既定の開始時刻（`HH:MM:SS`）。`GRS` が開始の側の日時に書く時刻である（`01-04-requirements.md` の 表 T-350）。プロパティが無ければ `tbl-settings.md` の `S-482`。MSPDI から取り込むときは `Project/DefaultStartTime` を `passthroughValues` に残さず本列へ移し、書き出しでは公式スキーマの並びの位置に書く（`FR-021`、表 T-033 の `EX-10`）。⚠️ 取り込んだ字面が `HH:MM:SS` に合わないときは本列へ移さず `passthroughValues` に残し（`EX-4`）、本列のプロパティは書かない。`GRS JSON` で合わない値は文書ごと拒む（`05-07-design.md` の Chapter 6.1） ｜ en: MS Project's DefaultStartTime: the time GRS writes on start-side dates; {{S-482}} when absent. | JDG-3309（無い ＝ プロパティを書かない）、JDG-3261（時刻は HH:MM:SS）、所見 F44 | rewrite |
+| AT-155 | CR-851 | `Project.defaultFinishTime` ｜ 時刻 ｜ 可 ｜ 意味: 既定の終了時刻。`AT-154` と同じ扱いで、終了の側の日時に書く時刻である（`01-04-requirements.md` の 表 T-350）。空なら `tbl-settings.md` の `S-483` ｜ en: MS Project's DefaultFinishTime: the time GRS writes on finish-side dates; {{S-483}} when the file has none. | `Project.defaultFinishTime` ｜ 時刻（`HH:MM:SS`） ｜ 可（省けば `tbl-settings.md` の `S-483`） ｜ 意味: 既定の終了時刻。`AT-154` と同じ扱いで、終了の側の日時に書く時刻である（`01-04-requirements.md` の 表 T-350）。プロパティが無ければ `tbl-settings.md` の `S-483` ｜ en: MS Project's DefaultFinishTime: the time GRS writes on finish-side dates; {{S-483}} when absent. | JDG-3309（無い ＝ プロパティを書かない）、JDG-3261 | rewrite |
+| AT-19 | CR-851 | `Project.themeHue` ｜ 整数（0〜359） ｜ 否 ｜ 意味: テーマ色の色相。置き場は表 T-052 の `DR-5`、値は `tbl-settings.md` の `S-73` | `Project.themeHueDegrees` ｜ 整数（0〜359） ｜ 否 ｜ 意味: （変えない） | CHOICE N6（単位を名に）、JDG-3281 | rewrite |
+| AT-156 | CR-851 | `Project.parentTaskProgressToleranceDays` ｜ 整数 ｜ 否 ｜ 意味: 親タスクの進捗の疑義（`01-04-requirements.md` の 表 T-311 の `VS-6`）が許す日数。置き場はテーマ色と同じく `Project`（表 T-052 の `DR-5` と同じ理由）、値は `tbl-settings.md` の `S-487`。MSPDI へは書き出さない | `Project.parentTaskProgressToleranceWorkingDays` ｜ 整数（0 以上） ｜ 否 ｜ 意味: 親タスクの進捗の疑義（`01-04-requirements.md` の 表 T-311 の `VS-6`）が許す稼働日の数。置き場はテーマ色と同じく `Project`（表 T-052 の `DR-5` と同じ理由）、値は `tbl-settings.md` の `S-487`。MSPDI へは書き出さない | 所見 F16（単位を名に）、JDG-3281 | rewrite |
+| AT-20 | CR-851 | `Project.uidHighWaterMark` ｜ 整数 ｜ 否 ｜ 意味: 発番済みの `uid` の最大値。**複製（`FR-033`）の採番はここに従う** ｜ en: One counter for the uids of tasks, resources, assignments and calendars; uids are never reused, so new ones are taken above it. | `Project.highestIssuedUid` ｜ 整数（0〜2147483647） ｜ 否 ｜ 意味: 発番済みの `uid` の最大値（0 〜 2147483647）。**複製（`FR-033`）の採番はここに従う** ｜ en: One counter for the uids of tasks, resources, assignments and calendars; uids are never reused, so new ones are taken above it, up to 2147483647. | 所見 F23・CHOICE N7、JDG-3284 | rewrite |
+| AT-21 | CR-851 | `Project.importSequence` ｜ 整数 ｜ 否 ｜ 意味: 取り込みごとの通し番号。値は `tbl-settings.md` の `S-71`、進め方と照合は表 T-032 の `MG-13` | `Project.lastImportNumber` ｜ 整数（0 以上） ｜ 否 ｜ 意味: 最後の取り込みの通し番号（0 は 1 度も取り込んでいない）。値は `tbl-settings.md` の `S-71`、進め方と照合は表 T-032 の `MG-13` | 所見 F24・CHOICE N8 | rewrite |
+| AT-22 | CR-851 | `Project.carry` ｜ 連想（文字列→文字列） ｜ 否（空可） ｜ 意味: 解釈しない `Project` 直下のスカラー | `Project.passthroughValues` ｜ 連想（文字列 → 65535 字以下の文字列、1 件以上） ｜ 可（省けば、解釈しない値は無い） ｜ 意味: 解釈しない `Project` 直下のスカラー ｜ en: MS Project values GRS does not interpret, kept under their own names and written back unchanged. Absent when there are none. | JDG-3309、所見 F44（carry → passthroughValues、carryElements → passthroughElements、CHOICE N1・L2） | rewrite |
+| AT-23 | CR-851 | `Project.carryElements` ｜ `CarryElement[]` ｜ 否（空可） ｜ 意味: 行にならなかった子要素（表 T-053 の `DF-3`） | `Project.passthroughElements` ｜ `PassthroughElement[]`（1 件以上） ｜ 可（省けば、解釈しない子要素は無い。`[]` を書かない） ｜ 意味: （変えない） ｜ en: MS Project child elements GRS does not interpret, kept in their places. Absent when there are none; never an empty list. | JDG-3309、所見 F44（carry → passthroughValues、carryElements → passthroughElements、CHOICE N1・L2） | rewrite |
+| AT-139 | CR-851 | `Project.outlineBase` ｜ 整数 ｜ 否 ｜ 意味: 取り込んだファイルのタスクが`OutlineLevel` を数え始める数（`FR-021`。プロジェクトの要約タスクは数えない —— 表 T-265 の `MR-4`）。書き出しはこの数から書く | `Project.firstOutlineLevel` ｜ 整数 ｜ 否 ｜ 意味: 取り込んだファイルのタスクが `OutlineLevel` を数え始める数（`FR-021`。プロジェクトの要約タスクは数えない —— 表 T-265 の `MR-4`）。書き出しはこの数から書く | 所見 F25・CHOICE N9 | rewrite |
+| AT-143 | CR-851 | `Project.sourceFormat` ｜ 列挙（3 値） ｜ 否 ｜ 意味: 文書の元の形式。`grs` ／ `pj12` ／ `pj15`。MSPDI を開いたときに決め（pj15 だけの要素が 1 つでもあれば `pj15`、無ければ `pj12`）、合流では今の文書の値を保つ。MSPDI へは書き出さない。この列を持たない `GRS JSON` は、`carry` に `SaveVersion` があれば同じ見分け方で `pj12` ／ `pj15`、無ければ `grs` として読む | `Project.sourceFormat` ｜ 列挙（3 値） ｜ 否 ｜ 意味: 文書の元の形式。`grs` ／ `pj12` ／ `pj15`。MSPDI を開いたときに決め（pj15 だけの要素が 1 つでもあれば `pj15`、無ければ `pj12`）、合流では今の文書の値を保つ。MSPDI へは書き出さない | 所見 F45（この列を持たない文書の補いを消す —— α の文書は変換の HTML が補う、JDG-3306） | rewrite |
+| AT-157 | CR-851 | `Project.scheduleDataTimeZone` ｜ 文字列（表 T-376 の標準時のプロパティ） ｜ 否 ｜ 意味: 日程データのタイムゾーン —— 保存する日時の数字を、どの固定の UTC の差の時刻として読むか（`01-04-requirements.md` の `FR-156`）。値は同要求の 表 T-376 …とする（同要求）。⛔ MSPDI へは書き出さない —— 交換相手に置き場が無い | `Project.scheduleDataTimeZone` ｜ 文字列（表 T-376 の標準時のプロパティ） ｜ 否 ｜ 意味: （変えない） | （変えない —— プロパティの名と型の言い方は doc-shape-map の UtcOffset） | rewrite |
+| AT-24 | CR-851 | `Task.uid` ｜ 整数 ｜ 否 ｜ 意味: 文書内で一意・不変。**値から意味を読まない** | `Task.uid` ｜ 整数（0〜2147483647） ｜ 否 ｜ 意味: （変えない） | JDG-3284 | rewrite |
+| AT-25 | CR-851 | `Task.parentTaskUid` ｜ 整数 ｜ 可（`null` = 根） ｜ 意味: 親タスク。交換相手には対応要素が無く、深さと出現順から起こす | `Task.parentTaskUid` ｜ 整数（0〜2147483647） ｜ 可（省けば根のタスク —— WBS のいちばん上） ｜ 意味: 親タスク。交換相手には対応要素が無く、深さと出現順から起こす。プロパティが無いタスクが根である ｜ en: The parent task in the WBS. Absent means a top-level task. | JDG-3309（無い ＝ プロパティを書かない）、JDG-3284、所見 F21 | rewrite |
+| AT-26 | CR-851 | `Task.wbsOrder` ｜ 整数 ｜ 可 ｜ 意味: 同じ親の下での並び | `Task.siblingOrder` ｜ 整数 ｜ 否 ｜ 意味: （変えない） | 所見 F26・CHOICE N11（wbsOrder の名を意味に揃える。TaskGroup.siblingOrder と同じ名） | rewrite |
+| AT-27 | CR-851 | `Task.name` ｜ 文字列 ｜ 可 ｜ 意味: タスク名 | `Task.name` ｜ 文字列（1〜512 字） ｜ 可（省けば名の無いタスク —— 画面の名称は空） ｜ 意味: （変えない） ｜ en: MS Project's Task/Name. Absent means an unnamed task; the screen shows no name. | JDG-3309（無い ＝ プロパティを書かない）、JDG-3315（名を強いない）、JDG-3287 | rewrite |
+| AT-28 | CR-851 | `Task.start` ｜ 日時 ｜ 可 ｜ 意味: 予定の開始 | `Task.start` ｜ 日時（`YYYY-MM-DDTHH:MM:SS`） ｜ 可（省けば予定の開始が無い —— 取り込みは `RS-81` で拒むので、GRS の中では消さない） ｜ 意味: （変えない） | JDG-3309（無い ＝ プロパティを書かない）、JDG-3261、commands-choices F.27 | rewrite |
+| AT-29 | CR-851 | `Task.finish` ｜ 日時 ｜ 可 ｜ 意味: 予定の終了 | `Task.finish` ｜ 日時（`YYYY-MM-DDTHH:MM:SS`） ｜ 可（省けば予定の終了が無い —— 同上） ｜ 意味: （変えない） | JDG-3309（無い ＝ プロパティを書かない）、JDG-3261 | rewrite |
+| AT-30 | CR-851 | `Task.milestone` ｜ 真偽 ｜ 可 ｜ 意味: **マイルストーンかどうかの正。** 描画の形（`TaskVisual.shapeKind`）とは別である。⛔ **形を変えても本列は変わらない。**⚠️ **プロパティパネルの項目ではない** —— 表 T-016 に行を持たない ｜ en: The fact, exported to MS Project; TaskVisual.shapeKind only draws it and must agree with it. | `Task.milestone` ｜ 真偽 ｜ 可（省けば偽 —— マイルストーンでない） ｜ 意味: **マイルストーンかどうかの正。** 描画の形（`TaskVisual.taskShape` ／ `milestoneShape`）は、本列が真なら `milestoneShape` を、そうでなければ `taskShape` を持つ（`05-07-design.md` の 表 T-220 の `IV-22`）。⚠️ **プロパティパネルの項目ではない** —— 表 T-016 に行を持たない ｜ en: The fact, exported to MS Project; absent means false. TaskVisual holds milestoneShape when it is true and taskShape otherwise. | JDG-3309（無い ＝ プロパティを書かない）、JDG-3311、CHOICE N24 | rewrite |
+| AT-31 | CR-851 | `Task.deadline` ｜ 日時 ｜ 可 ｜ 意味: 期限 | `Task.deadline` ｜ 日時（`YYYY-MM-DDTHH:MM:SS`） ｜ 可（省けば期限が無い —— 期限の印を描かない） ｜ 意味: （変えない） | JDG-3309（無い ＝ プロパティを書かない）、JDG-3261 | rewrite |
+| AT-32 | CR-851 | `Task.notes` ｜ 文字列 ｜ 可 ｜ 意味: 備考 | `Task.notes` ｜ 文字列（1〜65535 字） ｜ 可（省けば備考が無い） ｜ 意味: （変えない） | JDG-3309（無い ＝ プロパティを書かない）、JDG-3287 | rewrite |
+| AT-33 | CR-851 | `Task.calendarUid` ｜ 整数 ｜ 可 ｜ 意味: 交換相手のタスクごとの暦。稼働日の数え上げには使わない（`FR-054`） | `Task.calendarUid` ｜ 整数（0〜2147483647） ｜ 可（省けば、交換相手の文書にその要素が無かった） ｜ 意味: （変えない） | JDG-3309（無い ＝ プロパティを書かない）、JDG-3284 | rewrite |
+| AT-34 | CR-851 | `Task.actualStart` ｜ 日時 ｜ 可 ｜ 意味: 実績の開始。空 = 未着手 | `Task.actualStart` ｜ 日時（`YYYY-MM-DDTHH:MM:SS`） ｜ 可（省けば未着手） ｜ 意味: 実績の開始。プロパティが無ければ未着手 | JDG-3309（無い ＝ プロパティを書かない）、JDG-3261 | rewrite |
+| AT-141 | CR-851 | `Task.stop` ｜ 日時 ｜ 可 ｜ 意味: 進行中と中断のあいだの実績の最後の日（`FR-011`）。**完了したときは空** —— 完了したタスクの最後の日は `actualFinish` が持つ。⚠️ 実績の長さは列に持たない —— `FR-011` が日付から数え、書き出すときは 表 T-059 が作る ｜ en: MS Project's Stop, kept under its name for the round trip: the instant the actual has reached while the task is unfinished; null once actualFinish is set. | `Task.stop` ｜ 日時（`YYYY-MM-DDTHH:MM:SS`） ｜ 可（省けば、完了したか未着手 —— 完了したタスクの最後の日は `actualFinish`） ｜ 意味: 進行中と中断のあいだの実績の最後の日（`FR-011`）。**完了したときは書かない** —— 完了したタスクの最後の日は `actualFinish` が持つ。⚠️ 実績の長さは列に持たない —— `FR-011` が日付から数え、書き出すときは 表 T-059 が作る ｜ en: MS Project's Stop, kept under its name for the round trip: the instant the actual has reached while the task is unfinished; absent once actualFinish is set. | JDG-3309（無い ＝ プロパティを書かない）、JDG-3261 | rewrite |
+| AT-36 | CR-851 | `Task.actualFinish` ｜ 日時 ｜ 可 ｜ 意味: **完了したときだけ入る** | `Task.actualFinish` ｜ 日時（`YYYY-MM-DDTHH:MM:SS`） ｜ 可（省けばまだ完了していない） ｜ 意味: （変えない） | JDG-3309（無い ＝ プロパティを書かない）、JDG-3261 | rewrite |
+| AT-37 | CR-851 | `Task.resume` ｜ 日時 ｜ 可 ｜ 意味: 中断中に、残りが始まる予定の日 | `Task.resume` ｜ 日時（`YYYY-MM-DDTHH:MM:SS`） ｜ 可（省けば再開の予定が無い） ｜ 意味: （変えない） | JDG-3309（無い ＝ プロパティを書かない）、JDG-3261 | rewrite |
+| AT-38 | CR-851 | `Task.resumeValid` ｜ 真偽 ｜ 可 ｜ 意味: 偽 = 再開日が未定の中断 ｜ en: MS Project's ResumeValid: false means interrupted with no restart day decided. | `Task.resumeValid` ｜ 真偽 ｜ 可（省けば、交換相手の文書にその要素が無かった） ｜ 意味: （変えない） ｜ en: MS Project's ResumeValid: false means interrupted with no restart day decided. Absent when the file had none. | JDG-3309（無い ＝ プロパティを書かない）、studies/77 §3 null ⑤（未着手の resumeValid） | rewrite |
+| AT-39 | CR-851 | `Task.percentComplete` ｜ 整数（0 以上） ｜ 可 ｜ 意味: 完了率。**上限を型に持たせない**（`FR-012`）。`GRS JSON` を読むときは日付から数え直し、`MSPDI` から取り込んだ値は保つ（`FR-012`・`FR-021`） | `Task.percentComplete` ｜ 整数（0 以上） ｜ 可（省けば、交換相手の文書にその要素が無かった。`GRS` は日付から数え直して書く） ｜ 意味: （変えない） | JDG-3309（無い ＝ プロパティを書かない） | rewrite |
+| AT-40 | CR-851 | `Task.fadeInDays` ｜ 整数（日数） ｜ 可 ｜ 意味: 左のぼかしの日数。`null` と `0` を区別する ｜ en: Days at the start of the bar, inside start..finish, drawn slanted to say the start is not yet firm; a fact about the task, so it travels to MS Project rather than living in TaskVisual. | `Task.fadeInCalendarDays` ｜ 整数（0 以上、暦日） ｜ 可（省けばフェードを持たない —— 矢羽根の端は既定の深さ。`0` は平らな端） ｜ 意味: 左のぼかしの暦日の数。プロパティが無いことと `0` を区別する ｜ en: Calendar days at the start of the bar, inside start..finish, drawn slanted to say the start is not yet firm; a fact about the task, so it travels to MS Project rather than living in TaskVisual. Absent means no fade (a chevron keeps its default notch); 0 is a flat end. | JDG-3312（名と MSPDI の Alias）、JDG-3309、所見 F21 | rewrite |
+| AT-41 | CR-851 | `Task.fadeOutDays` ｜ 整数（日数） ｜ 可 ｜ 意味: 右のぼかしの日数。同上 ｜ en: As fadeInDays, for the finish. | `Task.fadeOutCalendarDays` ｜ 整数（0 以上、暦日） ｜ 可（同上） ｜ 意味: 右のぼかしの暦日の数。同上 ｜ en: As fadeInCalendarDays, for the finish. | JDG-3312、JDG-3309 | rewrite |
+| AT-42 | CR-851 | `Task.dependencies` ｜ `Dependency[]` ｜ 否（空可） ｜ 意味: **このタスクを後続とする依存**（表 T-053 の `DF-4`） | `Task.dependencies` ｜ `Dependency[]`（1 件以上） ｜ 可（省けば先行が無い。`[]` を書かない） ｜ 意味: （変えない） | JDG-3309（無い ＝ プロパティを書かない） | rewrite |
+| AT-43 | CR-851 | `Task.carry` ｜ 連想（文字列→文字列） ｜ 否（空可） ｜ 意味: 解釈しない `Task` 直下のスカラー | `Task.passthroughValues` ｜ 連想（文字列 → 65535 字以下の文字列、1 件以上） ｜ 可（省けば、解釈しない値は無い） ｜ 意味: 解釈しない `Task` 直下のスカラー ｜ en: MS Project values GRS does not interpret, kept under their own names and written back unchanged. Absent when there are none. | JDG-3309、所見 F44（carry → passthroughValues、carryElements → passthroughElements、CHOICE N1・L2） | rewrite |
+| AT-44 | CR-851 | `Task.carryElements` ｜ `CarryElement[]` ｜ 否（空可） ｜ 意味: 行にならなかった子要素 | `Task.passthroughElements` ｜ `PassthroughElement[]`（1 件以上） ｜ 可（省けば、解釈しない子要素は無い。`[]` を書かない） ｜ 意味: （変えない） ｜ en: MS Project child elements GRS does not interpret, kept in their places. Absent when there are none; never an empty list. | JDG-3309、所見 F44（carry → passthroughValues、carryElements → passthroughElements、CHOICE N1・L2） | rewrite |
+| AT-45 | CR-851 | `Dependency.predecessorUid` ｜ 整数 ｜ 否 ｜ 意味: 先行タスク。**後続は入れ子の位置が表す** | `Dependency.predecessorUid` ｜ 整数（0〜2147483647） ｜ 否 ｜ 意味: （変えない） | JDG-3284 | rewrite |
+| AT-46 | CR-851 | `Dependency.linkType` ｜ 整数（0〜3） ｜ 否 ｜ 意味: 依存の種別。`0` = FF / `1` = FS / `2` = SF / `3` = SS | `Dependency.linkType` ｜ 整数（0〜3） ｜ 否 ｜ 意味: （変えない） | （変えない —— JDG-3289 の集合の外の値は取り込みで拒む） | rewrite |
+| AT-47 | CR-851 | `Dependency.linkLag` ｜ 整数 ｜ 可 ｜ 意味: ラグ。**単位は `lagFormat` が何であっても 0.1 分である**（`mspdi_pj12.xsd:2196`〜`2198` の `LinkLag`） —— `lagFormat` は表示… `_assets/tbl-settings.md` の `S-128`）である ｜ en: MS Project's LinkLag: tenths of a minute whatever lagFormat says; a working day (lagFormat 7) is project.minutesPerDay minutes, or {{S-128}} when that is null. | `Dependency.linkLag` ｜ 整数 ｜ 可（省けばラグが無い ＝ 0） ｜ 意味: （変えない） ｜ en: MS Project's LinkLag: tenths of a minute whatever lagFormat says; a working day (lagFormat 7) is project.minutesPerDay minutes, or {{S-128}} when that is absent. Absent means no lag. | JDG-3309（無い ＝ プロパティを書かない） | rewrite |
+| AT-48 | CR-851 | `Dependency.lagFormat` ｜ 整数 ｜ 可 ｜ 意味: ラグを見せる単位。値と記号は交換相手の XSD の列挙（`mspdi_pj12.xsd:2203`）が持つ。⭐ `GRS` が解するのは `7`（稼働日）・`5`（時）・`3`（分）である —— ほかの値は読んで保ち、見せるだけにする（`FR-009`） | `Dependency.lagFormat` ｜ 整数 ｜ 可（省けば、交換相手の文書にその要素が無かった） ｜ 意味: （変えない） | JDG-3309（無い ＝ プロパティを書かない） | rewrite |
+| AT-49 | CR-851 | `Dependency.carry` ｜ 連想（文字列→文字列） ｜ 否（空可） ｜ 意味: `CrossProject` ほか、解釈しないスカラー | `Dependency.passthroughValues` ｜ 連想（文字列 → 65535 字以下の文字列、1 件以上） ｜ 可（省けば、解釈しない値は無い） ｜ 意味: `CrossProject` ほか、解釈しないスカラー ｜ en: MS Project values GRS does not interpret, kept under their own names and written back unchanged. Absent when there are none. | JDG-3309、所見 F44（carry → passthroughValues、carryElements → passthroughElements、CHOICE N1・L2） | rewrite |
+| AT-50 | CR-851 | `Dependency.carryElements` ｜ `CarryElement[]` ｜ 否（空可） ｜ 意味: 行にならなかった子要素 | `Dependency.passthroughElements` ｜ `PassthroughElement[]`（1 件以上） ｜ 可（省けば、解釈しない子要素は無い。`[]` を書かない） ｜ 意味: （変えない） ｜ en: MS Project child elements GRS does not interpret, kept in their places. Absent when there are none; never an empty list. | JDG-3309、所見 F44（carry → passthroughValues、carryElements → passthroughElements、CHOICE N1・L2） | rewrite |
+| AT-51 | CR-851 | `TaskGroup.id` ｜ 文字列（UUID） ｜ 否 ｜ 意味: タスクグループの識別子 | `TaskGroup.id` ｜ 文字列（UUID） ｜ 否 ｜ 意味: （変えない） | （変えない） | rewrite |
+| AT-52 | CR-851 | `TaskGroup.parentId` ｜ 文字列（UUID） ｜ 可（`null` = 根） ｜ 意味: 親のタスクグループ。深さの上限は `FR-004` | `TaskGroup.parentId` ｜ 文字列（UUID） ｜ 可（省けば最上位のタスクグループ —— 深さ 1） ｜ 意味: 親のタスクグループ。深さの上限は `FR-004`。プロパティが無いタスクグループが最上位である ｜ en: The parent task group. Absent means a top-level task group (depth 1). | JDG-3309（無い ＝ プロパティを書かない）、CHOICE N19 | rewrite |
+| AT-53 | CR-851 | `TaskGroup.name` ｜ 文字列 ｜ 可（`null` = 導出） ｜ 意味: タスクグループ名 | `TaskGroup.name` ｜ 文字列（1〜512 字） ｜ 可（省けば名の無いタスクグループ —— 画面の題は空） ｜ 意味: タスクグループ名。⭐ 名を強いない —— `GRS` が名を書くのは、MSPDI を取り込むときに親タスクの名を写すときと、タスクグループが 0 になったときに作る 1 つに `Untitled` を書くときだけである（`01-04-requirements.md` の `FR-058` と 表 T-050 の後の段）。表すタスク（`representedTaskUid`）の名は写さない ｜ en: The task group name. Absent means an unnamed task group; the screen shows an empty title. GRS never copies a task name into it after the group exists. | JDG-3315（名を強いない、写すのは MSPDI の取り込みの親タスク名だけ、全部消した後の最初は Untitled）、JDG-3303、JDG-3287 | rewrite |
+| AT-54 | CR-851 | `TaskGroup.derivedFromTaskUid` ｜ 整数 ｜ 可 ｜ 意味: 名前の導出元。`name` と同時に `null` にできない | `TaskGroup.representedTaskUid` ｜ 整数（0〜2147483647） ｜ 可（省けば WBS のどのタスクも表さない —— 手で作ったタスクグループ） ｜ 意味: このタスクグループが WBS の上で表すタスク。階層の移動（表 T-015a の `HM-9` ／ `HM-12`）とコピー（`DU-1` ／ `DU-2`）が読む。⛔ 名の出どころではない —— 名は `name` だけが持つ ｜ en: The task this task group stands for in the WBS (Task.parentTaskUid). Absent means it stands for no task. It is not where the name comes from. | 所見 F27、JDG-3315、JDG-3284 | rewrite |
+| AT-55 | CR-851 | `TaskGroup.order` ｜ 整数 ｜ 否 ｜ 意味: 同じ親の下での並び | `TaskGroup.siblingOrder` ｜ 整数 ｜ 否 ｜ 意味: （変えない） | 所見 F26・CHOICE N11（Task.siblingOrder と同じ名） | rewrite |
+| AT-153 | CR-851 | `TaskGroup.treeState` ｜ 列挙（5 値） ｜ 否 ｜ 意味: タスクグループの木の状態。`auto` ／ `collapsed` ／ `expanded` ／ `temporarilyExpanded` ／ `hidden`。値が描かせるタスクグループは `FR-018` の 表 T-329、値を書き換える入口と先の値は `_assets/tbl-state-machines.md` の 表 T-328 が持つ。`createTaskGroup`（`_assets/tbl-document-commands.md` の 表 T-108 の `CM-26`）で作るタスクグループと、タスクグループが 0 になったときに `01-04-requirements.md` の 表 T-050 の後の段が作るタスクグループは `temporarilyExpanded`（同書の 表 T-051 の `HF-14` —— 足したタスクグループを倍率によらず見せ、縦を縮めたら `auto` へ戻す）。既定の `auto` は、この値を持たずに読んだタスクグループと、`CM-26` を通らずにできるタスクグループ（MSPDI から取り込んだタスクグループ、`createTask` がタスクグループとともに作るタスクグループ）が取る。貼り付けたコピーは `01-04-requirements.md` の 表 T-223 の `DU-2` に従う ｜ en: Saved, like every task group state, so that reopening shows what was saved. | `TaskGroup.treeState` ｜ 列挙（5 値） ｜ 否 ｜ 意味: タスクグループの木の状態。`auto` ／ `collapsed` ／ `expanded` ／ `temporarilyExpanded` ／ `hidden`。値が描かせるタスクグループは `FR-018` の 表 T-329、値を書き換える入口と先の値は `_assets/tbl-state-machines.md` の 表 T-328 が持つ。`auto` のタスクグループは見せ方の群の `taskGroupAutoExpandDepth` の深さまで開く。`createTaskGroup`（`_assets/tbl-document-commands.md` の 表 T-108）で作るタスクグループと、タスクグループが 0 になったときに `01-04-requirements.md` の 表 T-050 の後の段が作るタスクグループは `temporarilyExpanded`（同書の 表 T-051 の `HF-14`）。⭐ いつも値を持つ —— MSPDI から取り込んだタスクグループと、`createTask` がタスクグループとともに作るタスクグループは `auto` を書く。貼り付けたコピーは `01-04-requirements.md` の 表 T-223 の `DU-2` に従う ｜ en: Saved, like every task group state, so that reopening shows what was saved. A task group in auto opens down to documentSettings.taskGroupAutoExpandDepth. | JDG-3302 5.2（既定を書く —— 値を持たずに読む道が無くなる）、JDG-3293（auto が開く深さ）、所見 F29、commands-map（CM-26 → createTaskGroup） | rewrite |
+| AT-144 | CR-851 | `TaskGroup.editPermission` ｜ 文字列 ｜ 可（`null` ＝ 誰でも編集できる） ｜ 意味: このタスクグループを編集できるグループ。`null` は誰でも編集できる。規則は `FR-111` | `TaskGroup.editGroup` ｜ 文字列（1〜512 字） ｜ 可（省けば誰でも編集できる） ｜ 意味: このタスクグループを編集できるグループの名乗り。プロパティが無いタスクグループは誰でも編集できる。規則は `FR-111` ｜ en: The edit group this task group belongs to. Absent means anyone may edit it. | commands-choices G（editPermission → editGroup）、JDG-3309、studies/77 §3 null ① | rewrite |
+| AT-58 | CR-851 | `TaskGroup.color` ｜ 文字列 ｜ 可（`null` = テーマから解く） ｜ 意味: タスクグループの帯の色。形は `AT-102` と同じ。ただしタスクグループの帯を持たない名（`_assets/tbl-settings.md` の表 T-294 の行の帯の欄が「—」の名 —— 黒 `S-315`）は取らない（表 T-017b の `CV-9`）。規則は表 T-017b | `TaskGroup.color` ｜ 色（`theme` ／ `palette`（`ink` を除く）／ `custom` の和） ｜ 可（省けば帯を塗らない） ｜ 意味: タスクグループの帯の色。形は `AT-102` と同じ和で、`palette` の名はタスクグループの帯を持つ名だけ（`_assets/tbl-settings.md` の表 T-294 の帯の欄が「—」の `ink`（`S-315`）は取らない —— 表 T-017b の `CV-9`）。作るときは `{"kind":"theme"}` を書く。規則は表 T-017b ｜ en: The task group band color. Absent means no band color is drawn; {"kind":"theme"} draws the theme color. | JDG-3260・JDG-3310（kind の和、プロパティを書かない ＝ 描かない）、所見 F01〜F05 | rewrite |
+| AT-59 | CR-851 | `TaskGroup.minHeightPx` ｜ 整数 ｜ 可（`null` = 下限なし） ｜ 意味: タスクグループの最小の高さ。表示の倍率 100 のときの画面の px（縦のズームでは伸び縮みしない）。描くときに掛ける比は `FR-039` の 表 T-252 の `DS-13`、欄の出し方は `FR-042` の 表 T-338 が持つ | `TaskGroup.minHeightPx` ｜ 整数（1 以上） ｜ 可（省けば下限なし） ｜ 意味: タスクグループの最小の高さ。表示の倍率 100 のときの CSS px（縦のズームでは伸び縮みしない）。描くときに掛ける比は `FR-039` の 表 T-252 の `DS-13`、欄の出し方は `FR-042` の 表 T-338 が持つ ｜ en: Lowest height of the task group's row, in CSS pixels at displayScalePercent 100; absent means no lowest height. verticalZoomRatio does not change it. | JDG-3291（E-9）、CHOICE N20 | rewrite |
+| AT-60 | CR-851 | `TaskGroupMember.taskUid` ｜ 整数 ｜ 否 ｜ 意味: 載るタスク。**1 つのタスクは 1 つのタスクグループにしか載らない**ので、これだけで一意である | `TaskGroupMember.taskUid` ｜ 整数（0〜2147483647） ｜ 否 ｜ 意味: （変えない） | JDG-3284 | rewrite |
+| AT-61 | CR-851 | `TaskGroupMember.taskGroupId` ｜ 文字列（UUID） ｜ 否 ｜ 意味: 載せるタスクグループ | `TaskGroupMember.taskGroupId` ｜ 文字列（UUID） ｜ 否 ｜ 意味: （変えない） | （変えない） | rewrite |
+| AT-63 | CR-851 | `Calendar.uid` ｜ 整数 ｜ 否 ｜ 意味: 暦の識別子 | `Calendar.uid` ｜ 整数（0〜2147483647） ｜ 否 ｜ 意味: （変えない） | JDG-3284 | rewrite |
+| AT-64 | CR-851 | `Calendar.name` ｜ 文字列 ｜ 可 ｜ 意味: 暦の名前 | `Calendar.name` ｜ 文字列（1〜512 字） ｜ 可（省けば、交換相手の文書にその要素が無かった） ｜ 意味: （変えない） | JDG-3309（無い ＝ プロパティを書かない）、JDG-3287 | rewrite |
+| AT-65 | CR-851 | `Calendar.isBaseCalendar` ｜ 真偽 ｜ 可 ｜ 意味: 基準の暦か | `Calendar.isBaseCalendar` ｜ 真偽 ｜ 可（省けば、交換相手の文書にその要素が無かった） ｜ 意味: （変えない） | JDG-3309（無い ＝ プロパティを書かない） | rewrite |
+| AT-66 | CR-851 | `Calendar.baseCalendarUid` ｜ 整数 ｜ 可 ｜ 意味: 継承元の暦 | `Calendar.baseCalendarUid` ｜ 整数（0〜2147483647） ｜ 可（省けば、交換相手の文書にその要素が無かった。継承しない） ｜ 意味: （変えない） | JDG-3309（無い ＝ プロパティを書かない）、JDG-3284 | rewrite |
+| AT-67 | CR-851 | `Calendar.ordinal` ｜ 整数 ｜ 否 ｜ 意味: 出現順。書き出しで元の並びに戻す。`GRS` が足す暦（合流の `MG-5` ほか）は、既にある暦の最大の次を取る | `Calendar.ordinal` ｜ 整数 ｜ 否 ｜ 意味: （変えない） | （変えない） | rewrite |
+| AT-68 | CR-851 | `Calendar.carry` ｜ 連想（文字列→文字列） ｜ 否（空可） ｜ 意味: 解釈しないスカラー | `Calendar.passthroughValues` ｜ 連想（文字列 → 65535 字以下の文字列、1 件以上） ｜ 可（省けば、解釈しない値は無い） ｜ 意味: （変えない） ｜ en: MS Project values GRS does not interpret, kept under their own names and written back unchanged. Absent when there are none. | JDG-3309、所見 F44（carry → passthroughValues、carryElements → passthroughElements、CHOICE N1・L2） | rewrite |
+| AT-69 | CR-851 | `Calendar.carryElements` ｜ `CarryElement[]` ｜ 否（空可） ｜ 意味: `WorkWeeks` ほか、行にならなかった子要素 | `Calendar.passthroughElements` ｜ `PassthroughElement[]`（1 件以上） ｜ 可（省けば、解釈しない子要素は無い。`[]` を書かない） ｜ 意味: （変えない） ｜ en: MS Project child elements GRS does not interpret, kept in their places. Absent when there are none; never an empty list. | JDG-3309、所見 F44（carry → passthroughValues、carryElements → passthroughElements、CHOICE N1・L2） | rewrite |
+| AT-70 | CR-851 | `Calendar.weekDays` ｜ `WeekDay[]` ｜ 否（空可） ｜ 意味: **曜日ごとの稼働**（表 T-053 の `DF-1`） | `Calendar.weekDays` ｜ `WeekDay[]`（1 件以上） ｜ 可（省けば曜日の定めが無い。`[]` を書かない） ｜ 意味: （変えない） | JDG-3309（無い ＝ プロパティを書かない） | rewrite |
+| AT-71 | CR-851 | `Calendar.exceptions` ｜ `Exception[]` ｜ 否（空可） ｜ 意味: **例外日**（表 T-053 の `DF-1`） | `Calendar.exceptions` ｜ `Exception[]`（1 件以上） ｜ 可（省けば例外日が無い。`[]` を書かない） ｜ 意味: （変えない） | JDG-3309（無い ＝ プロパティを書かない） | rewrite |
+| AT-72 | CR-851 | `WeekDay.ordinal` ｜ 整数 ｜ 否 ｜ 意味: 親の中での出現順。`GRS` が足す曜日の行（表 T-108 の `CM-39` ほか）は、同じ親の中の最大の次を取る | `WeekDay.ordinal` ｜ 整数 ｜ 否 ｜ 意味: （変えない） | （変えない） | rewrite |
+| AT-73 | CR-851 | `WeekDay.dayType` ｜ 整数（1〜7） ｜ 可 ｜ 意味: 曜日。**`1` が日曜で、土曜の `7` まで 1 ずつ増える**（正は Chapter 6.2 が指す公式 XSD）。⚠️ **`0` は例外日を表すので本列は採らない** —— 例外日は `Ex…y` とは番号が 1 ずれる** —— 交換相手が列ごとに別の体系を使っている。 | `WeekDay.dayType` ｜ 整数（1〜7） ｜ 否 ｜ 意味: （変えない） | doc-shape-map AT-73（required —— 今の「可」は原稿の書き損じ。WeekDay は曜日を必ず持つ） | rewrite |
+| AT-74 | CR-851 | `WeekDay.dayWorking` ｜ 真偽 ｜ 可 ｜ 意味: 稼働日か | `WeekDay.dayWorking` ｜ 真偽 ｜ 可（省けば、交換相手の文書にその要素が無かった） ｜ 意味: （変えない） | JDG-3309（無い ＝ プロパティを書かない） | rewrite |
+| AT-158 | CR-851 | `WeekDay.workingTimes` ｜ `WorkingTime[]` ｜ 否（空可） ｜ 意味: 時間帯（`WorkingTime` の並び、始まりの順）。空は「時間帯を持たない」であり、稼働日なら `tbl-settings.md` の `S-580` の時間帯で読む（`01-04-requirements.md` の `FR-054`）。⚠️ 公式 XSD は 1 つに 5 つまでとする（`maxOccurs`）—— 上限と並びの不変条件は `05-07-design.md` の 表 T-220 の `IV-24` ｜ en: Empty on a working day means the default spans {{S-580}}. | `WeekDay.workingTimes` ｜ `WorkingTime[]`（1〜5 件） ｜ 可（省けば時間帯を持たない —— 稼働日なら `S-580` の時間帯で読む。`[]` を書かない） ｜ 意味: 時間帯（`WorkingTime` の並び、始まりの順）。プロパティが無いことは「時間帯を持たない」であり、稼働日なら `tbl-settings.md` の `S-580` の時間帯で読む（`01-04-requirements.md` の `FR-054`）。⚠️ 公式 XSD は 1 つに 5 つまでとする（`maxOccurs`）—— 上限と並びの不変条件は `05-07-design.md` の 表 T-220 の `IV-24` ｜ en: Absent on a working day means the default spans {{S-580}}. | JDG-3309（無い ＝ プロパティを書かない） | rewrite |
+| AT-75 | CR-851 | `WeekDay.carry` ｜ 連想（文字列→文字列） ｜ 否（空可） ｜ 意味: 解釈しないスカラー | `WeekDay.passthroughValues` ｜ 連想（文字列 → 65535 字以下の文字列、1 件以上） ｜ 可（省けば、解釈しない値は無い） ｜ 意味: （変えない） ｜ en: MS Project values GRS does not interpret, kept under their own names and written back unchanged. Absent when there are none. | JDG-3309、所見 F44（carry → passthroughValues、carryElements → passthroughElements、CHOICE N1・L2） | rewrite |
+| AT-76 | CR-851 | `WeekDay.carryElements` ｜ `CarryElement[]` ｜ 否（空可） ｜ 意味: 行にならなかった子要素 | `WeekDay.passthroughElements` ｜ `PassthroughElement[]`（1 件以上） ｜ 可（省けば、解釈しない子要素は無い。`[]` を書かない） ｜ 意味: （変えない） ｜ en: MS Project child elements GRS does not interpret, kept in their places. Absent when there are none; never an empty list. | JDG-3309、所見 F44（carry → passthroughValues、carryElements → passthroughElements、CHOICE N1・L2） | rewrite |
+| AT-77 | CR-851 | `Exception.ordinal` ｜ 整数 ｜ 否 ｜ 意味: 親の中での出現順 | `Exception.ordinal` ｜ 整数 ｜ 否 ｜ 意味: （変えない） | （変えない） | rewrite |
+| AT-78 | CR-851 | `Exception.name` ｜ 文字列 ｜ 可 ｜ 意味: 例外の名前 | `Exception.name` ｜ 文字列（1〜512 字） ｜ 可（省けば、交換相手の文書にその要素が無かった） ｜ 意味: （変えない） | JDG-3309（無い ＝ プロパティを書かない）、JDG-3287 | rewrite |
+| AT-79 | CR-851 | `Exception.fromDate` ｜ 日時 ｜ 可 ｜ 意味: 繰り返しの無い例外日（`AT-82`）では、`toDate` までが実日付の範囲（`00:00:00` 〜 `23:59:00`）であり、その日の時間帯を `workingTimes` で置き換える（…C-4`）。⚠️ 繰り返しの例外日では繰り返しの起点であって実日付の範囲ではない | `Exception.fromDate` ｜ 日時（`YYYY-MM-DDTHH:MM:SS`） ｜ 可（省けば、交換相手の文書にその要素が無かった） ｜ 意味: （変えない） | JDG-3309（無い ＝ プロパティを書かない）、JDG-3261 | rewrite |
+| AT-80 | CR-851 | `Exception.toDate` ｜ 日時 ｜ 可 ｜ 意味: 同上（範囲の終わり） | `Exception.toDate` ｜ 日時（`YYYY-MM-DDTHH:MM:SS`） ｜ 可（省けば、交換相手の文書にその要素が無かった） ｜ 意味: （変えない） | JDG-3309（無い ＝ プロパティを書かない）、JDG-3261 | rewrite |
+| AT-81 | CR-851 | `Exception.dayWorking` ｜ 真偽 ｜ 可 ｜ 意味: 稼働日か | `Exception.dayWorking` ｜ 真偽 ｜ 可（省けば、交換相手の文書にその要素が無かった） ｜ 意味: （変えない） | JDG-3309（無い ＝ プロパティを書かない） | rewrite |
+| AT-82 | CR-851 | `Exception.recurrenceKind` ｜ 整数（1〜9） ｜ 可 ｜ 意味: 繰り返しの種別。`1` 日次 / `2` 年次（日付指定）/ `3` 年次（位置指定）/ `4` 月次（日付指定）/ `5` 月次（位置指定）/ `6` 週次 / `7` 日数指定 / `8` 稼働日数指定 / `9` 繰り返しなし（正は Chapter 6.2 が指す公式 XSD）。⭐ 繰り返しの無い例外日とは、本列が `9` か空の行と、`1` で `carry` の `Period`（繰り返しの間隔）が無いか `1` の行である —— 交換相手の公式の例は、1 回きりの休日を `Type` 1・`Occurrences` 1・`EnteredByOccurrences` 0 と書く（Microsoft Learn の Project XML の `Occurrences` の要素の例）。間隔 1 の日次は範囲の毎日であり、範囲そのものである。それ以外の行は繰り返しの例外日であり、稼働日の数えにも塗りにも使わない（`01-04-requirements.md` の `FR-054`） —— 範囲の全日の休みとして数えると、毎年 1 日の祝日が何年ぶんも非稼働になる。`GRS` が足す例外日は `1` とする（`FR-088` の 表 T-344 の `WC-6`）。書き出す形は 表 T-033 の `EX-13` ｜ en: MS Project's Exception/Type: 1 daily, 2 yearly by day of the month, 3 yearly by position, 4 monthly by day of the month, 5 monthly by position, 6 weekly, 7 by day count, 8 by weekday count, 9 none. A row is a one-off (non-recurring) exception when this is 9 or null, or 1 with no carry.Period or a Period of 1; any other row repeats and is not counted as days off. Write 1 for an exception you add. | `Exception.recurrenceKind` ｜ 整数（1〜9） ｜ 可（省けば、交換相手の文書にその要素が無かった。繰り返しの無い例外日として読む） ｜ 意味: 繰り返しの種別。`1` 日次 / `2` 年次（日付指定）/ `3` 年次（位置指定）/ `4` 月次（日付指定）/ `5` 月次（位置指定）/ `6` 週次 / `7` 日数指定 / `8` 稼働日数指定 / `9` 繰り返しなし（正は Chapter 6.2 が指す公式 XSD）。⭐ 繰り返しの無い例外日とは、本列が `9` かプロパティが無い行と、`1` で `recurrencePeriod`（繰り返しの間隔、`Exception/Period`）が無いか `1` の行である —— 交換相手の公式の例は、1 回きりの休日を `Type` 1・`Occurrences` 1・`EnteredByOccurrences` 0 と書く（Microsoft Learn の Project XML の `Occurrences` の要素の例）。間隔 1 の日次は範囲の毎日であり、範囲そのものである。それ以外の行は繰り返しの例外日であり、稼働日の数えにも塗りにも使わない（`01-04-requirements.md` の `FR-054`）。`GRS` が足す例外日は `1` とする（`FR-088` の 表 T-344 の `WC-6`）。書き出す形は 表 T-033 の `EX-13`。⚠️ 集合の外の値は取り込みで拒む（表 T-265 の `MR-5`） ｜ en: MS Project's Exception/Type: 1 daily, 2 yearly by day of the month, 3 yearly by position, 4 monthly by day of the month, 5 monthly by position, 6 weekly, 7 by day count, 8 by weekday count, 9 none. A row is a one-off (non-recurring) exception when this is 9 or absent, or 1 with no recurrencePeriod or a recurrencePeriod of 1; any other row repeats and is not counted as days off. Write 1 for an exception you add. | JDG-3309（無い ＝ プロパティを書かない）、doc-shape-map（Exception/Period を列 recurrencePeriod へ）、JDG-3289 | rewrite |
+| AT-159 | CR-851 | `Exception.workingTimes` ｜ `WorkingTime[]` ｜ 否（空可） ｜ 意味: 時間帯（`WorkingTime` の並び、始まりの順）。空は「時間帯を持たない」であり、稼働日なら `tbl-settings.md` の `S-580` の時間帯で読む（`01-04-requirements.md` の `FR-054`）。⚠️ 公式 XSD は 1 つに 5 つまでとする（`maxOccurs`）—— 上限と並びの不変条件は `05-07-design.md` の 表 T-220 の `IV-24` | `Exception.workingTimes` ｜ `WorkingTime[]`（1〜5 件） ｜ 可（省けば時間帯を持たない —— 稼働日なら `S-580` の時間帯で読む。`[]` を書かない） ｜ 意味: 時間帯（`WorkingTime` の並び、始まりの順）。プロパティが無いことは「時間帯を持たない」であり、稼働日なら `tbl-settings.md` の `S-580` の時間帯で読む（`01-04-requirements.md` の `FR-054`）。⚠️ 公式 XSD は 1 つに 5 つまでとする（`maxOccurs`）—— 上限と並びの不変条件は `05-07-design.md` の 表 T-220 の `IV-24` ｜ en: Absent on a working day means the default spans {{S-580}}. | JDG-3309（無い ＝ プロパティを書かない） | rewrite |
+| AT-83 | CR-851 | `Exception.carry` ｜ 連想（文字列→文字列） ｜ 否（空可） ｜ 意味: 解釈しないスカラー | `Exception.passthroughValues` ｜ 連想（文字列 → 65535 字以下の文字列、1 件以上） ｜ 可（省けば、解釈しない値は無い） ｜ 意味: （変えない） ｜ en: MS Project values GRS does not interpret, kept under their own names and written back unchanged. Absent when there are none. | JDG-3309、所見 F44（carry → passthroughValues、carryElements → passthroughElements、CHOICE N1・L2） | rewrite |
+| AT-84 | CR-851 | `Exception.carryElements` ｜ `CarryElement[]` ｜ 否（空可） ｜ 意味: 行にならなかった子要素 | `Exception.passthroughElements` ｜ `PassthroughElement[]`（1 件以上） ｜ 可（省けば、解釈しない子要素は無い。`[]` を書かない） ｜ 意味: （変えない） ｜ en: MS Project child elements GRS does not interpret, kept in their places. Absent when there are none; never an empty list. | JDG-3309、所見 F44（carry → passthroughValues、carryElements → passthroughElements、CHOICE N1・L2） | rewrite |
+| AT-160 | CR-851 | `WorkingTime.ordinal` ｜ 整数 ｜ 否 ｜ 意味: 親の中での出現順。`GRS` が書く時間帯は始まりの順に並べる | `WorkingTime.ordinal` ｜ 整数 ｜ 否 ｜ 意味: （変えない） | （変えない） | rewrite |
+| AT-161 | CR-851 | `WorkingTime.fromTime` ｜ 時刻 ｜ 可 ｜ 意味: 時間帯の始まり（`xsd:time` の字面、1 分の単位） | `WorkingTime.fromTime` ｜ 時刻（`HH:MM:SS`） ｜ 可（省けば、交換相手の文書にその要素が無かった） ｜ 意味: 時間帯の始まり（`HH:MM:SS`、1 分の単位） | JDG-3309（無い ＝ プロパティを書かない）、JDG-3261 | rewrite |
+| AT-162 | CR-851 | `WorkingTime.toTime` ｜ 時刻 ｜ 可 ｜ 意味: 時間帯の終わり（`xsd:time` の字面、1 分の単位）。⭐ `00:00:00` は 24:00（その日の終わり）と読む（`05-07-design.md` の 表 T-220 の `IV-24`） | `WorkingTime.toTime` ｜ 時刻（`HH:MM:SS`） ｜ 可（省けば、交換相手の文書にその要素が無かった） ｜ 意味: 時間帯の終わり（`HH:MM:SS`、1 分の単位）。⭐ `00:00:00` は 24:00（その日の終わり）と読む（`05-07-design.md` の 表 T-220 の `IV-24`） | JDG-3309（無い ＝ プロパティを書かない）、JDG-3261 | rewrite |
+| AT-85 | CR-851 | `Resource.uid` ｜ 整数 ｜ 否 ｜ 意味: 担当の識別子 | `Resource.uid` ｜ 整数（0〜2147483647） ｜ 否 ｜ 意味: （変えない） | JDG-3284 | rewrite |
+| AT-86 | CR-851 | `Resource.name` ｜ 文字列 ｜ 可 ｜ 意味: 担当名 | `Resource.name` ｜ 文字列（1〜512 字） ｜ 可（省けば名の無い担当 —— MSPDI へ書かない） ｜ 意味: （変えない） | JDG-3309（無い ＝ プロパティを書かない）、JDG-3287 | rewrite |
+| AT-87 | CR-851 | `Resource.resourceKind` ｜ 整数 ｜ 可 ｜ 意味: `0` = 材料 / `1` = 作業 / `2` = 費用 | `Resource.resourceKind` ｜ 整数 ｜ 可（省けば、交換相手の文書にその要素が無かった） ｜ 意味: （変えない） | JDG-3309（無い ＝ プロパティを書かない） | rewrite |
+| AT-88 | CR-851 | `Resource.isCostResource` ｜ 真偽 ｜ 可 ｜ 意味: 費用資源か | `Resource.isCostResource` ｜ 真偽 ｜ 可（省けば、交換相手の文書にその要素が無かった） ｜ 意味: （変えない） | JDG-3309（無い ＝ プロパティを書かない） | rewrite |
+| AT-89 | CR-851 | `Resource.calendarUid` ｜ 整数 ｜ 可 ｜ 意味: 交換相手の担当ごとの暦。稼働日の数え上げには使わない（`FR-054`） | `Resource.calendarUid` ｜ 整数（0〜2147483647） ｜ 可（省けば、交換相手の文書にその要素が無かった） ｜ 意味: （変えない） | JDG-3309（無い ＝ プロパティを書かない）、JDG-3284 | rewrite |
+| AT-90 | CR-851 | `Resource.carry` ｜ 連想（文字列→文字列） ｜ 否（空可） ｜ 意味: 解釈しないスカラー 59 | `Resource.passthroughValues` ｜ 連想（文字列 → 65535 字以下の文字列、1 件以上） ｜ 可（省けば、解釈しない値は無い） ｜ 意味: 解釈しないスカラー ｜ en: MS Project values GRS does not interpret, kept under their own names and written back unchanged. Absent when there are none. | JDG-3309、所見 F44（carry → passthroughValues、carryElements → passthroughElements、CHOICE N1・L2）（今の意味の末尾の「59」は書き損じ —— 消す） | rewrite |
+| AT-91 | CR-851 | `Resource.carryElements` ｜ `CarryElement[]` ｜ 否（空可） ｜ 意味: 行にならなかった子要素 6 | `Resource.passthroughElements` ｜ `PassthroughElement[]`（1 件以上） ｜ 可（省けば、解釈しない子要素は無い。`[]` を書かない） ｜ 意味: 行にならなかった子要素 ｜ en: MS Project child elements GRS does not interpret, kept in their places. Absent when there are none; never an empty list. | JDG-3309、所見 F44（carry → passthroughValues、carryElements → passthroughElements、CHOICE N1・L2）（今の意味の末尾の「6」は書き損じ —— 消す） | rewrite |
+| AT-92 | CR-851 | `Assignment.uid` ｜ 整数 ｜ 否 ｜ 意味: 割当の識別子 | `Assignment.uid` ｜ 整数（0〜2147483647） ｜ 否 ｜ 意味: （変えない） | JDG-3284 | rewrite |
+| AT-93 | CR-851 | `Assignment.taskUid` ｜ 整数 ｜ 可 ｜ 意味: 就くタスク | `Assignment.taskUid` ｜ 整数（0〜2147483647） ｜ 可（省けば、交換相手の文書にその要素が無かった） ｜ 意味: （変えない） | JDG-3309（無い ＝ プロパティを書かない）、JDG-3284 | rewrite |
+| AT-94 | CR-851 | `Assignment.resourceUid` ｜ 整数 ｜ 可 ｜ 意味: 就く担当 | `Assignment.resourceUid` ｜ 整数（0〜2147483647） ｜ 可（省けば、交換相手の文書にその要素が無かった） ｜ 意味: （変えない） | JDG-3309（無い ＝ プロパティを書かない）、JDG-3284 | rewrite |
+| AT-95 | CR-851 | `Assignment.carry` ｜ 連想（文字列→文字列） ｜ 否（空可） ｜ 意味: 解釈しないスカラー 58 | `Assignment.passthroughValues` ｜ 連想（文字列 → 65535 字以下の文字列、1 件以上） ｜ 可（省けば、解釈しない値は無い） ｜ 意味: 解釈しないスカラー ｜ en: MS Project values GRS does not interpret, kept under their own names and written back unchanged. Absent when there are none. | JDG-3309、所見 F44（carry → passthroughValues、carryElements → passthroughElements、CHOICE N1・L2）（今の意味の末尾の「58」は書き損じ —— 消す） | rewrite |
+| AT-96 | CR-851 | `Assignment.carryElements` ｜ `CarryElement[]` ｜ 否（空可） ｜ 意味: 行にならなかった子要素 3 | `Assignment.passthroughElements` ｜ `PassthroughElement[]`（1 件以上） ｜ 可（省けば、解釈しない子要素は無い。`[]` を書かない） ｜ 意味: 行にならなかった子要素 ｜ en: MS Project child elements GRS does not interpret, kept in their places. Absent when there are none; never an empty list. | JDG-3309、所見 F44（carry → passthroughValues、carryElements → passthroughElements、CHOICE N1・L2）（今の意味の末尾の「3」は書き損じ —— 消す） | rewrite |
+| AT-97 | CR-851 | `TaskVisual.taskUid` ｜ 整数 ｜ 否 ｜ 意味: 対象のタスク。**どの `Task` も、ちょうど 1 つの `TaskVisual` から指される**（`05-07-design.md` の 表 T-220 の `IV-23`）。色も形も決めていないタスクは、本列のほかがすべて `null` の 1 つを持つ | `TaskVisual.taskUid` ｜ 整数（0〜2147483647） ｜ 否 ｜ 意味: 対象のタスク。**どの `Task` も、ちょうど 1 つの `TaskVisual` から指される**（`05-07-design.md` の 表 T-220 の `IV-23`）。作った `Task` の `TaskVisual` は、形・テーマの色・太さ 1 を持つ | JDG-3284、JDG-3309・JDG-3310・JDG-3308（null だけの TaskVisual が無くなる） | rewrite |
+| AT-100 | CR-851 | `TaskVisual.shapeKind` ｜ 列挙（5 値） ｜ 可（`null` = `Task.milestone` から解く） ｜ 意味: 描画の形だけを決める。`Task.milestone` を変えない（表 T-012）。`'milestone'` であるかどうかは `Task.milestone` が真であるかどうかと食い違えない（`05-07-design.md` の表 T-220 の `IV-22`） | `TaskVisual.taskShape` ｜ 列挙（4 値: `rectangle` ／ `chevron` ／ `arrow` ／ `endpointSpan`） ｜ `Task.milestone` が真でないタスクは否（必ず持つ）、マイルストーンは持たない ｜ 意味: 描画の形だけを決める（表 T-012 の `SH-1` 〜 `SH-4`）。`Task.milestone` を変えない。持つかどうかは `Task.milestone` が決める（`05-07-design.md` の 表 T-220 の `IV-22`） ｜ en: Shape of a task that is not a milestone: rectangle, chevron, arrow or endpointSpan. Present exactly when Task.milestone is not true; a milestone holds milestoneShape instead. | JDG-3311（shapeKind を分ける、画面の語「タスク形状」）、JDG-3309（null で解く道が無くなる） | rewrite |
+| AT-101 | CR-851 | `TaskVisual.milestoneGlyph` ｜ 列挙（15 値） ｜ 可 ｜ 意味: `shapeKind` が `'milestone'` のときだけ見る | `TaskVisual.milestoneShape` ｜ 列挙（15 値） ｜ `Task.milestone` が真のタスクは否（必ず持つ）、ほかは持たない ｜ 意味: マイルストーンの印（表 T-012 の `SH-5`）。持つかどうかは `Task.milestone` が決める（`IV-22`） ｜ en: Glyph of a milestone. Present exactly when Task.milestone is true. | JDG-3311（画面の語「マイルストーン形状」） | rewrite |
+| AT-102 | CR-851 | `TaskVisual.fillColor` ｜ 文字列 ｜ 可（`null` = テーマから解く） ｜ 意味: 塗り。`_assets/tbl-settings.md` の表 T-294 の保存する綴り（例: `red`）か、カスタムカラーの `明るいテーマの値/暗いテーマの値`（それぞれ `#rrggbb` か空、両方空は無い。例: `#c0504d/`）。規則は表 T-017b。輪郭と同時に透明にできない（`FR-007`、`05-07-design.md` の表 T-220 の `IV-9`） | `TaskVisual.fillColor` ｜ 色（`theme` ／ `palette` ／ `custom` の和） ｜ 可（省けば塗らない） ｜ 意味: 塗り。`{"kind":"theme"}`（テーマの色）、`{"kind":"palette","name":…}`（`_assets/tbl-settings.md` の表 T-294 の保存する名。例: `red`）、`{"kind":"custom","light":{"value":"#rrggbb","source":"chosen"\|"derived"},"dark":{…}}`（カスタムカラー。片側は省いてよく、開くときに `GRS` が導いて `derived` で持つ）のどれか。規則は表 T-017b。輪郭と同時に省けない（`FR-007`、`05-07-design.md` の表 T-220 の `IV-9`）。作るときは `{"kind":"theme"}` を書く ｜ en: Fill of the plan bar (and the base of the actual fill). Absent means no fill is drawn. A custom color may omit one side; GRS derives it on load (HSL lightness 1 - L) and marks it source "derived". Fill and stroke may not both be absent. | JDG-3260・JDG-3310（kind の和、プロパティを書かない ＝ 描かない）、JDG-3077・JDG-3183（片側を省ける、導いて derived）、所見 F01〜F07 | rewrite |
+| AT-103 | CR-851 | `TaskVisual.strokeColor` ｜ 文字列 ｜ 可（同上） ｜ 意味: 輪郭。同上 | `TaskVisual.strokeColor` ｜ 色（`theme` ／ `palette` ／ `custom` の和） ｜ 可（省けば輪郭を描かない） ｜ 意味: 輪郭。形は `AT-102` と同じ。塗りと同時に省けない（`IV-9`） ｜ en: Outline of the plan and actual bars. Absent means no outline is drawn. Same shape as fillColor. | JDG-3310 | rewrite |
+| AT-104 | CR-851 | `TaskVisual.strokeWidthPx` ｜ 整数（px） ｜ 可（`null` = 表 T-201 の `S-39`） ｜ 意味: 輪郭（枠線）の太さ。予定バーと実績バーの縁の両方をこの太さで描く。`null` は `_assets/tbl-settings.md` の表 T-201 の `S-39` の太さで描く。範囲はハイライトボックスとコメントボックスの枠の太さ（表 T-217 の `S-369` ・ `S-374`）と揃える（`FR-007` の 表 T-017 の `CL-2`） | `TaskVisual.strokeWidthPx` ｜ 整数（1〜10、CSS px） ｜ 否 ｜ 意味: 輪郭（枠線）の太さ。予定バーと実績バーの縁の両方をこの太さで描く。表示の倍率 100 のときの CSS px であり、描くときは × `S-234` ÷ 100（ズームは掛けない）。作るときは `_assets/tbl-settings.md` の表 T-201 の `S-39` の 1 を書く。範囲はハイライトボックスとコメントボックスの枠の太さ（表 T-217 の `S-369` ・ `S-374`）と揃える（`FR-007` の 表 T-017 の `CL-2`） ｜ en: Outline width of the task's plan and actual bars, in CSS pixels at displayScalePercent 100 (1 to 10; GRS writes 1 for a new task). | JDG-3278・JDG-3308（1〜10 を px で、既定 1 を書く）、JDG-3291（E-10）、JDG-3277 | rewrite |
+| AT-105 | CR-851 | `TaskOrigin.taskUid` ｜ 整数 ｜ 否 ｜ 意味: 対象のタスク。**行が無い = 本ソフトウェア生まれ** | `TaskOrigin.taskUid` ｜ 整数（0〜2147483647） ｜ 否 ｜ 意味: （変えない） | JDG-3284 | rewrite |
+| AT-106 | CR-851 | `TaskOrigin.sourceProjectId` ｜ 文字列 ｜ 可 ｜ 意味: 取り込み元のプロジェクト | `TaskOrigin.sourceProjectId` ｜ 文字列（1〜16 字） ｜ 可（省けば取り込み元のファイルに `Project/UID` が無かった） ｜ 意味: （変えない） ｜ en: Project/UID of the file this task was imported from. Absent when that file had none. | JDG-3309（無い ＝ プロパティを書かない）、CHOICE N19 | rewrite |
+| AT-107 | CR-851 | `TaskOrigin.sourceUid` ｜ 整数 ｜ 否 ｜ 意味: 取り込み元でのタスクの識別子 | `TaskOrigin.sourceUid` ｜ 整数（0〜2147483647） ｜ 否 ｜ 意味: （変えない） | JDG-3284 | rewrite |
+| AT-108 | CR-851 | `TaskOrigin.lastSeenImportSequence` ｜ 整数 ｜ 否 ｜ 意味: 最後に見た取り込みの通し番号（`MG-13`） | `TaskOrigin.lastSeenImportNumber` ｜ 整数（1 以上） ｜ 否 ｜ 意味: 最後に見た取り込みの番号（`MG-13`） | 所見 F24・CHOICE N8 | rewrite |
+| AT-109 | CR-851 | `TaskOrigin.importSessionId` ｜ 文字列 ｜ 可 ｜ 意味: 取り込み 1 回の識別子 | `TaskOrigin.importSessionId` ｜ 文字列（UUID） ｜ 否 ｜ 意味: （変えない） | doc-shape-map AT-109（required、uuid の形 —— CHOICE A3。今の「可」は取り込みが必ず書く値と食い違う） | rewrite |
+| AT-110 | CR-851 | `CommentBox.id` ｜ 文字列（UUID） ｜ 否 ｜ 意味: 注記の識別子 | `CommentBox.id` ｜ 文字列（UUID） ｜ 否 ｜ 意味: （変えない） | （変えない） | rewrite |
+| AT-111 | CR-851 | `leaderShapeKind` ｜ 列挙（2 値） ｜ 可 ｜ 意味: 引き出し線の形 | - | doc-shape-map AT-111（remove —— 引出しは折れ線 1 種、FR-019）、studies/77 §3 版と退役 ⑦。席 AT-111 は退役（振り直さない） | remove |
+| AT-112 | CR-851 | `CommentBox.text` ｜ 文字列 ｜ 可 ｜ 意味: 本文。「コメント」と略さない（`U-14`） | `CommentBox.text` ｜ 文字列（1〜65535 字） ｜ 可（省けば本文が無い —— 空の箱） ｜ 意味: （変えない） ｜ en: The text of the comment box. Absent means an empty body. | JDG-3309（無い ＝ プロパティを書かない）、CHOICE N21、JDG-3287 | rewrite |
+| AT-113 | CR-851 | `CommentBox.anchorDate` ｜ 日時 ｜ 可 ｜ 意味: 線先の自由点の日時。横は、この日時（分まで）を時間軸に置いた位置（`05-07-design.md` の 表 T-221 の `LF-15`）。吸着しているあいだも、吸着した点の日時を持つ（対象を消したときに戻る所） | `CommentBox.anchor` ｜ 線先（`kind` で分ける和: `freePoint`（`dateTime`・`taskGroupId`・`bandFraction`）／ `task`（`taskUid`・`figure`・`point`・`fallback`）／ `highlightBox`（`highlightBoxId`・`point`・`fallback`）） ｜ 否 ｜ 意味: 線先。⭐ `freePoint` は自由点 —— 横は `dateTime`（`YYYY-MM-DDTHH:MM:SS`、分まで）を時間軸に置いた位置（`05-07-design.md` の 表 T-221 の `LF-15`）。⭐ `task` と `highlightBox` は吸着した対象の点であり、日時を持たず、対象を消したときに戻る所として `fallback`（`taskGroupId`・`bandFraction`）を持つ（`FR-019`） ｜ en: Where the leader line of the comment box points: a free point (an instant, a task group and a height within its band), or one of eight points of the task or highlight box it snapped to; a snapped anchor keeps a fallback task group and height to return to when its target is deleted. | 所見 F28・F31（7 列の組を kind の和へ）、doc-shape-map CommentBoxAnchor・AnchorFallback | rewrite |
+| AT-114 | CR-851 | `CommentBox.anchorTaskGroupId` ｜ 文字列（UUID） ｜ 可 ｜ 意味: 線先の自由点のタスクグループ。吸着しているあいだも、吸着した点が描かれた帯のタスクグループを持つ | `CommentBox.anchor の taskGroupId` ｜ 文字列（UUID） ｜ 否（`freePoint` と `fallback` の中） ｜ 意味: 線先の自由点のタスクグループ。吸着しているあいだは `fallback` の中に、吸着した点が描かれた帯のタスクグループを持つ | 所見 F28 | rewrite |
+| AT-115 | CR-851 | `CommentBox.bodyOffsetPx` ｜ `{ dx, dy }` ｜ 可 ｜ 意味: 留めた点から本文の左下隅までのずれ（`FR-019`） | `CommentBox.bodyOffsetPx` ｜ `{ dx, dy }`（有限の数、CSS px） ｜ 否 ｜ 意味: 留めた点から本文の左下隅までのずれ（`FR-019`）。表示の倍率 100 のときの CSS px。置くときに `S-600` のずれを書く ｜ en: Offset from the anchor point to the lower-left corner of the comment box body, in CSS pixels at displayScalePercent 100. It follows displayScalePercent, so the box keeps its place beside what it points at; zoom does not change it. | JDG-3302（必須）、JDG-3291（E-13、表示の倍率に従う —— 振る舞いの行は CR-853） | rewrite |
+| AT-163 | CR-851 | `CommentBox.anchorBandFraction` ｜ 数値（0〜1） ｜ 可（`null` = 0.5、帯の縦の中央） ｜ 意味: 線先の自由点の、帯の中の高さ。帯の上端を 0、下端を 1 とする割合（`05-07-design.md` の 表 T-221 の `LF-15`） | `CommentBox.anchor の bandFraction` ｜ 数値（0〜1） ｜ 否（`freePoint` と `fallback` の中。置くときは 0.5） ｜ 意味: 線先の自由点の、帯の中の高さ。帯の上端を 0、下端を 1 とする割合（`05-07-design.md` の 表 T-221 の `LF-15`） | 所見 F28、JDG-3309（null ＝ 0.5 をやめ値を書く）、CHOICE N23（0〜1 のまま） | rewrite |
+| AT-164 | CR-851 | `CommentBox.anchorTaskUid` ｜ 整数 ｜ 可（`null` = タスクに吸着していない） ｜ 意味: 線先が吸着したタスクの `UID`。`anchorHighlightBoxId` と同時には持たない（`FR-019`） | `CommentBox.anchor の taskUid` ｜ 整数（0〜2147483647） ｜ 否（`task` の中） ｜ 意味: 線先が吸着したタスクの `UID`（`FR-019`） | 所見 F28、JDG-3284 | rewrite |
+| AT-165 | CR-851 | `CommentBox.anchorTaskFigure` ｜ 列挙（3 値） ｜ 可（`anchorTaskUid` と同時に `null`） ｜ 意味: 線先が吸着したタスクの図形 —— 予定バー・実績バー・マイルストーンの図形（`FR-019`） | `CommentBox.anchor の figure` ｜ 列挙（3 値） ｜ 否（`task` の中） ｜ 意味: 線先が吸着したタスクの図形 —— 予定バー・実績バー・マイルストーンの図形（`FR-019`） | 所見 F28 | rewrite |
+| AT-166 | CR-851 | `CommentBox.anchorHighlightBoxId` ｜ 文字列（UUID） ｜ 可（`null` = ハイライトボックスに吸着していない） ｜ 意味: 線先が吸着したハイライトボックスの識別子。`anchorTaskUid` と同時には持たない（`FR-019`） | `CommentBox.anchor の highlightBoxId` ｜ 文字列（UUID） ｜ 否（`highlightBox` の中） ｜ 意味: 線先が吸着したハイライトボックスの識別子（`FR-019`） | 所見 F28 | rewrite |
+| AT-167 | CR-851 | `CommentBox.anchorSnapPoint` ｜ 列挙（8 値） ｜ 可（吸着していなければ `null`） ｜ 意味: 線先が吸着した、対象の 8 点のどれか —— 四隅と 4 辺の中点（`LF-15`）。対象を持つときだけ持つ（`FR-019`） | `CommentBox.anchor の point` ｜ 列挙（8 値） ｜ 否（`task` と `highlightBox` の中） ｜ 意味: 線先が吸着した、対象の 8 点のどれか —— 四隅と 4 辺の中点（`LF-15`） | 所見 F28 | rewrite |
+| AT-148 | CR-851 | `CommentBox.strokeColor` ｜ 文字列 ｜ 可（`null` = 注記の色 `S-312`） ｜ 意味: 本文の箱の枠と引出し線の色。形は `AT-102` と同じ。ただし透明は取らない（`FR-019`） | `CommentBox.strokeColor` ｜ 色（`theme` ／ `palette` ／ `custom` の和） ｜ 否 ｜ 意味: 本文の箱の枠と引出し線の色。形は `AT-102` と同じ。`{"kind":"theme"}` は注記の色 `S-312` で描く。プロパティを省けない —— 透明を取らない（`FR-019`）。置くときは `{"kind":"theme"}` を書く | JDG-3302・JDG-3309（必須）、JDG-3310、commands-choices F.28 | rewrite |
+| AT-149 | CR-851 | `CommentBox.strokeWidthPx` ｜ 整数（px） ｜ 可（`null` = 表 T-217 の既定） ｜ 意味: 枠と引出し線の太さ。`null` と範囲は `_assets/tbl-settings.md` の表 T-217 の `S-374`。ズームによらず一定に描く（`FR-019`） | `CommentBox.strokeWidthPx` ｜ 整数（1〜10、CSS px） ｜ 否 ｜ 意味: 枠と引出し線の太さ。表示の倍率 100 のときの CSS px。範囲と置くときに書く値は `_assets/tbl-settings.md` の表 T-217 の `S-374`（`FR-019`） ｜ en: Width of the comment box's border and leader line, in CSS pixels at displayScalePercent 100 (1 to 10; GRS writes 1 when it places a box). It follows displayScalePercent; zoom does not change it. | JDG-3302、JDG-3291（E-12）、CHOICE A1 | rewrite |
+| AT-150 | CR-851 | `CommentBox.fillColor` ｜ 文字列 ｜ 可（`null` = 地の色 `S-146`） ｜ 意味: 本文の箱の塗りの色。形は `AT-102` と同じ。透明も取る（`FR-019`） | `CommentBox.fillColor` ｜ 色（`theme` ／ `palette` ／ `custom` の和） ｜ 否 ｜ 意味: 本文の箱の塗りの色。形は `AT-102` と同じ。`{"kind":"theme"}` は地の色 `S-146` で塗る。いつも色を持ち、見えなくするのは透過率（`AT-151`）の 100 だけ（`FR-019`）。置くときは `{"kind":"theme"}` を書く | JDG-3276・JDG-3304・JDG-3310 | rewrite |
+| AT-151 | CR-851 | `CommentBox.fillTransparencyPercent` ｜ 整数（0〜100） ｜ 可（`null` = 表 T-217 の既定） ｜ 意味: 本文の箱の塗りの透過率。**0 は不透明、100 は透明**。`null` と範囲は `_assets/tbl-settings.md` の表 T-217 の `S-375`（`FR-019`） | `CommentBox.fillTransparencyPercent` ｜ 整数（0〜100） ｜ 否 ｜ 意味: 本文の箱の塗りの透過率。**0 は不透明、100 は透明**。範囲と置くときに書く値は `_assets/tbl-settings.md` の表 T-217 の `S-375`（`FR-019`） ｜ en: Transparency of the comment box fill in percent: 0 is opaque, 100 draws no fill. | JDG-3302、JDG-3276 | rewrite |
+| AT-152 | CR-851 | `CommentBox.textColor` ｜ 文字列 ｜ 可（`null` = 文字の色 `S-147`） ｜ 意味: 本文の字の色。形は `AT-102` と同じ。ただし透明は取らない（`FR-019`） | `CommentBox.textColor` ｜ 色（`theme` ／ `palette` ／ `custom` の和） ｜ 否 ｜ 意味: 本文の字の色。形は `AT-102` と同じ。`{"kind":"theme"}` は文字の色 `S-147` で描く。プロパティを省けない —— 透明を取らない（`FR-019`） | JDG-3302、JDG-3310、commands-choices F.28 | rewrite |
+| AT-168 | CR-851 | `CommentBox.fontSizePx` ｜ 整数（px） ｜ 可（`null` = 表 T-217 の既定） ｜ 意味: 本文の字の大きさ（フォントサイズ）。`null` と範囲は `_assets/tbl-settings.md` の表 T-217 の `S-624`。ズームによらず一定に描く（`FR-097`） | `CommentBox.fontSizePx` ｜ 整数（8〜24、CSS px） ｜ 否 ｜ 意味: 本文の字の大きさ（フォントサイズ）。表示の倍率 100 のときの CSS px。範囲と置くときに書く値は `_assets/tbl-settings.md` の表 T-217 の `S-624`（`FR-097`） ｜ en: Text size of the comment box, in CSS pixels at displayScalePercent 100 (8 to 24; GRS writes 10 when it places a box). It follows displayScalePercent like the rest of the drawing; zoom does not change it. | JDG-3302、JDG-3291（E-11 —— 表示の倍率に従うことは CR-853 の振る舞い） | rewrite |
+| AT-116 | CR-851 | `HighlightBox.id` ｜ 文字列（UUID） ｜ 否 ｜ 意味: 注記の識別子 | `HighlightBox.id` ｜ 文字列（UUID） ｜ 否 ｜ 意味: （変えない） | （変えない） | rewrite |
+| AT-117 | CR-851 | `HighlightBox.start` ｜ 日時 ｜ 可 ｜ 意味: 囲む範囲の左端 | `HighlightBox.firstDay` ｜ 日付（`YYYY-MM-DD`） ｜ 否 ｜ 意味: 囲む範囲の左端の日（その日を含む） | JDG-3275・所見 F30（日付だけ、両端を含む —— JDG-3281） | rewrite |
+| AT-118 | CR-851 | `HighlightBox.finish` ｜ 日時 ｜ 可 ｜ 意味: 囲む範囲の右端 | `HighlightBox.lastDay` ｜ 日付（`YYYY-MM-DD`） ｜ 否 ｜ 意味: 囲む範囲の右端の日（その日を含む） | JDG-3275・所見 F30 | rewrite |
+| AT-119 | CR-851 | `HighlightBox.topTaskGroupId` ｜ 文字列（UUID） ｜ 可 ｜ 意味: 囲む範囲の上端のタスクグループ | `HighlightBox.topTaskGroupId` ｜ 文字列（UUID） ｜ 否 ｜ 意味: （変えない） | doc-shape-map AT-119（required） | rewrite |
+| AT-120 | CR-851 | `HighlightBox.bottomTaskGroupId` ｜ 文字列（UUID） ｜ 可 ｜ 意味: 囲む範囲の下端のタスクグループ | `HighlightBox.bottomTaskGroupId` ｜ 文字列（UUID） ｜ 否 ｜ 意味: （変えない） | doc-shape-map AT-120（required） | rewrite |
+| AT-121 | CR-851 | `HighlightBox.strokeColor` ｜ 文字列 ｜ 可 ｜ 意味: 枠の色。形は `AT-102` と同じ。透明（線なし）も取るが、塗り（`AT-146`）と同時には取らない（`FR-019`）。`null` は注記の色 `S-312` で描く | `HighlightBox.strokeColor` ｜ 色（`theme` ／ `palette` ／ `custom` の和） ｜ 可（省けば枠を描かない） ｜ 意味: 枠の色。形は `AT-102` と同じ。`{"kind":"theme"}` は注記の色 `S-312` で描く。プロパティを省いたまま塗りの透過率（`AT-147`）を 100 にしない（`FR-019`、`05-07-design.md` の 表 T-220 の `IV-9`）。置くときは `{"kind":"theme"}` を書く ｜ en: Frame color of the highlight box. Absent means no frame line is drawn (the frame can still be grabbed). | JDG-3310、JDG-3276 | rewrite |
+| AT-122 | CR-851 | `HighlightBox.cornerRadiusPx` ｜ 数値 ｜ 可 ｜ 意味: 角の丸み | `HighlightBox.cornerRadiusPx` ｜ 数値（0〜24、CSS px） ｜ 否 ｜ 意味: 角の丸み。表示の倍率 100 のときの CSS px。0 は直角。置くときに `S-132` を書く ｜ en: Corner radius of the highlight box, in CSS pixels at displayScalePercent 100 (0 to 24; 0 is a square corner; GRS writes 4 when it places a box). It follows displayScalePercent; zoom does not change it. | JDG-3302、JDG-3291（E-15） | rewrite |
+| AT-145 | CR-851 | `HighlightBox.strokeWidthPx` ｜ 整数（px） ｜ 可（`null` = 表 T-217 の既定） ｜ 意味: 枠の線の太さ。`null` と範囲は `_assets/tbl-settings.md` の表 T-217 の `S-369`。ズームによらず一定に描く（`FR-019`） | `HighlightBox.strokeWidthPx` ｜ 整数（1〜10、CSS px） ｜ 否 ｜ 意味: 枠の線の太さ。表示の倍率 100 のときの CSS px。範囲と置くときに書く値は `_assets/tbl-settings.md` の表 T-217 の `S-369`（`FR-019`） ｜ en: Border width of the highlight box, in CSS pixels at displayScalePercent 100 (1 to 10; GRS writes 1 when it places a box). It follows displayScalePercent; zoom does not change it. | JDG-3302、JDG-3291（E-14） | rewrite |
+| AT-146 | CR-851 | `HighlightBox.fillColor` ｜ 文字列 ｜ 可（`null` = 表 T-217 の既定） ｜ 意味: 塗りの色。形は `AT-102` と同じ。透明も取る。`null` はテーマの色（`_assets/tbl-settings.md` の表 T-236 の `S-155`）で塗る。置くときは表 T-217 の `S-370`（透明）をコピーする（`FR-019`） | `HighlightBox.fillColor` ｜ 色（`theme` ／ `palette` ／ `custom` の和） ｜ 否 ｜ 意味: 塗りの色。形は `AT-102` と同じ。`{"kind":"theme"}` はテーマの色（`_assets/tbl-settings.md` の表 T-236 の `S-155`）で塗る。いつも色を持ち、見えなくするのは透過率（`AT-147`）の 100 だけ。置くときは `{"kind":"theme"}` を書く（`FR-019`） | JDG-3276・JDG-3304・JDG-3310（S-370 の透明をコピーする道は退く） | rewrite |
+| AT-147 | CR-851 | `HighlightBox.fillTransparencyPercent` ｜ 整数（0〜100） ｜ 可（`null` = 表 T-217 の既定） ｜ 意味: 塗りの透過率。**0 は不透明、100 は透明**。`null` と範囲は `_assets/tbl-settings.md` の表 T-217 の `S-371`（`FR-019`） | `HighlightBox.fillTransparencyPercent` ｜ 整数（0〜100） ｜ 否 ｜ 意味: 塗りの透過率。**0 は不透明、100 は透明**。範囲と置くときに書く値は `_assets/tbl-settings.md` の表 T-217 の `S-371`（置くときは 100、`FR-019`） ｜ en: Transparency of the highlight box fill in percent: 0 is opaque, 100 draws no fill. | JDG-3302、JDG-3304（ハイライトボックスの既定は透過率 100） | rewrite |
+| AT-123 | CR-851 | `CarryElement.ordinal` ｜ 整数 ｜ 否 ｜ 意味: 所有者の中での出現順。所有者とこれで一意になる。これで元の位置に戻す | `PassthroughElement.ordinal` ｜ 整数 ｜ 否 ｜ 意味: （変えない） | （変えない） | rewrite |
+| AT-124 | CR-851 | `CarryElement.name` ｜ 文字列 ｜ 否 ｜ 意味: 交換相手での要素名。**綴りを変えない**（`W-9`） | `PassthroughElement.name` ｜ 文字列（1〜512 字） ｜ 否 ｜ 意味: （変えない） | JDG-3287（写しの名は 512 —— CHOICE L1） | rewrite |
+| AT-125 | CR-851 | `CarryElement.fields` ｜ 連想（文字列→文字列） ｜ 否（空可） ｜ 意味: その要素が持つ葉 | `PassthroughElement.fields` ｜ 連想（文字列 → 65535 字以下の文字列、1 件以上） ｜ 可（省けば葉を持たない。`{}` を書かない） ｜ 意味: （変えない） | JDG-3309（無い ＝ プロパティを書かない）、CHOICE L1・L2 | rewrite |
+| AT-126 | CR-851 | `CarryElement.children` ｜ `CarryElement[]` ｜ 否（空可） ｜ 意味: 入れ子の子。深さの上限は `_assets/tbl-settings.md` の `S-133` が持つ（`FR-023`）—— ⚠️ 信頼できない入力が運んでくる木であり、WBS の上限（`S-115`）とは別物である | `PassthroughElement.children` ｜ `PassthroughElement[]`（1 件以上） ｜ 可（省けば子を持たない。`[]` を書かない） ｜ 意味: （変えない） | JDG-3309（無い ＝ プロパティを書かない） | rewrite |
+| AT-127 | CR-851 | `documentStamp.scheduleUpdatedAt` ｜ 文字列（`ISO 8601`・UTC・秒） ｜ 否 ｜ 意味: 日程データの群が動いた刻。動かす条件は `FR-063`。**監視（`AG-6`）が見るのはこれだけである** | `DocumentStamp.scheduleUpdatedAt` ｜ 刻（UTC の `YYYY-MM-DDTHH:MM:SSZ`） ｜ 否 ｜ 意味: （変えない） | CHOICE T2（UtcInstant） | rewrite |
+| AT-128 | CR-851 | `documentStamp.lastEditedBy` ｜ 文字列 ｜ 否 ｜ 意味: 最後に書いた者。書く語の全数は 表 T-229 が持つ。取り消しの対象外（表 T-027）だけから成る書き込みでは動かない（`FR-063`） | `DocumentStamp.lastEditedBy` ｜ 書き手（`kind` で分ける和: `user` ／ `template` ／ `agent`（`name`）） ｜ 否 ｜ 意味: 最後に書いた者。書く値の全数は 表 T-229 が持つ。取り消しの対象外（表 T-027）だけから成る書き込みでは動かない（`FR-063`） ｜ en: Who wrote the document last: {"kind":"user"} for a person on the screen, {"kind":"template"} for the shipped start-up template, {"kind":"agent","name":…} for an Agent API caller. | 所見 F49（固定の語と自由な名を 1 つの文字列に混ぜない） | rewrite |
+| AT-129 | CR-851 | `documentStamp.settingsUpdatedAt` ｜ 文字列（`ISO 8601`・UTC・秒） ｜ 否 ｜ 意味: どちらの群であれ動いた刻。取り消しの対象外（表 T-027）だけから成る書き込みでは動かない（`FR-063`）。**秒までとする**（透かしと精度を揃える） | `DocumentStamp.documentUpdatedAt` ｜ 刻（UTC の `YYYY-MM-DDTHH:MM:SSZ`） ｜ 否 ｜ 意味: （変えない） | 所見 F47（settingsUpdatedAt → documentUpdatedAt —— どちらの群でも動く刻）、CHOICE T2 | rewrite |
+| AT-140 | CR-851 | `documentStamp.fileSavedAt` ｜ 文字列（`ISO 8601`・UTC・秒） ｜ 可 ｜ 意味: 開いているファイルへ最後に書いた時刻（`FR-101`）。**秒までとする**（`AT-127` / `AT-129` と揃える）。⛔ **日程データの群が動いた刻（`AT-127`）とは別物である** —— **あちらは文書の中身が動いた刻であり、本列はファイルへ書けた刻である。**⚠️ **まだ 1 度もファイルへ書いていないあいだは空とする** —— `FR-101` がその旨を画面に示す。⛔ **往復無損失の突き合わせから本列を外すこと** —— 保存のたびに変わるので、書き出して読み直した文書と元の文書は本列だけが必ず食い違う。⭐ **ファイルへ書けた時刻を持つのは本列だけである** —— MSPDI の `LastSaved` は列に持たず、書き出すその瞬間から作る（表 T-059 の `DV-12`）。保存の時刻を 1 か所に持ち、保存を日程の変更に数えないためである。⚠️ **文書を開いているあいだは本列を書き換えない** —— 書けた時刻の正は `FR-101` の 表 T-341 の下段であり、文書を運ぶバイト列の本列はそこから作る（同表の `HS-11`）。`Agent API` が手渡す文書と刻印の本列も、そこから作る（同表の `HS-12`） ｜ en: When this document was last written to its file. It lives in documentStamp, not in schedule.project, so that a save does not move scheduleUpdatedAt; it is UTC so that each reader sees it in their own local time. MS Project's LastSaved is not stored but made from the moment of export, so that the save time is held once and a save never counts as a schedule change. | `DocumentStamp.fileSavedAt` ｜ 刻（UTC の `YYYY-MM-DDTHH:MM:SSZ`） ｜ 可（省けばまだ 1 度もファイルへ書いていない） ｜ 意味: 開いているファイルへ最後に書いた時刻（`FR-101`）。**秒までとする**（`AT-127` / `AT-129` と揃える）。⛔ **日程データの群が動いた刻（`AT-127`）とは別物である** —— **あちらは文書の中身が動いた刻であり、本列はファイルへ書けた刻である。**⚠️ **まだ 1 度もファイルへ書いていないあいだはプロパティを書かない** —— `FR-101` がその旨を画面に示す。⛔ **往復無損失の突き合わせから本列を外すこと** —— 保存のたびに変わるので、書き出して読み直した文書と元の文書は本列だけが必ず食い違う。⭐ **ファイルへ書けた時刻を持つのは本列だけである** —— MSPDI の `LastSaved` は列に持たず、書き出すその瞬間から作る（表 T-059 の `DV-12`）。保存の時刻を 1 か所に持ち、保存を日程の変更に数えないためである。⚠️ **文書を開いているあいだは本列を書き換えない** —— 書けた時刻の正は `FR-101` の 表 T-341 の下段であり、文書を運ぶバイト列の本列はそこから作る（同表の `HS-11`）。`Agent API` が手渡す文書と刻印の本列も、そこから作る（同表の `HS-12`） ｜ en: When this document was last written to its file; absent until it has been written once. It lives in documentStamp, not in schedule.project, so that a save does not move scheduleUpdatedAt; it is UTC so that each reader sees it in their own local time. MS Project's LastSaved is not stored but made from the moment of export, so that the save time is held once and a save never counts as a schedule change. | JDG-3309（無い ＝ プロパティを書かない）、CHOICE N19・T2、studies/77 §3 null ③ | rewrite |
+| AT-130 | CR-851 | `changeLog.ordinal` ｜ 整数 ｜ 否 ｜ 意味: 文書の中での出現順。`WeekDay` / `Exception` / `CarryElement` と同じ作法である | `ChangeLogEntry.ordinal` ｜ 整数 ｜ 否 ｜ 意味: 文書の中での出現順。`WeekDay` / `Exception` / `PassthroughElement` と同じ作法である | 所見 F44（名の揃え） | rewrite |
+| AT-131 | CR-851 | `changeLog.editedBy` ｜ 文字列 ｜ 否 ｜ 意味: その版を書いた者 | `ChangeLogEntry.editedBy` ｜ 書き手（`AT-128` と同じ和） ｜ 否 ｜ 意味: その版を書いた者（形は `AT-128` と同じ） | 所見 F49 | rewrite |
+| AT-132 | CR-851 | `changeLog.explanation` ｜ 文字列 ｜ 否 ｜ 意味: なぜそう変えたか（`UC-013`） | `ChangeLogEntry.explanation` ｜ 文字列（1〜65535 字） ｜ 否 ｜ 意味: （変えない） | JDG-3287 | rewrite |
+| AT-133 | CR-851 | `changeLog.changedAt` ｜ 文字列（`ISO 8601`・UTC・秒） ｜ 否 ｜ 意味: その版の時刻 | `ChangeLogEntry.changedAt` ｜ 刻（UTC の `YYYY-MM-DDTHH:MM:SSZ`） ｜ 否 ｜ 意味: （変えない） | CHOICE T2 | rewrite |
+| AT-134 | CR-851 | `BaselineTask.uid` ｜ 整数 ｜ 否 ｜ 意味: 重ねる相手での識別子。**現在の文書のタスクとはこの一致で対応づける**（`FR-015`） | `BaselineTask.uid` ｜ 整数（0〜2147483647） ｜ 否 ｜ 意味: （変えない） | JDG-3284 | rewrite |
+| AT-135 | CR-851 | `BaselineTask.name` ｜ 文字列 ｜ 可 ｜ 意味: タスク名 | `BaselineTask.name` ｜ 文字列（1〜512 字） ｜ 可（省けば、変更前のタスクが名を持たなかった） ｜ 意味: （変えない） | JDG-3309（無い ＝ プロパティを書かない）、CHOICE N21、JDG-3287 | rewrite |
+| AT-136 | CR-851 | `BaselineTask.start` ｜ 日時 ｜ 可 ｜ 意味: 変更前の予定の開始 | `BaselineTask.start` ｜ 日時（`YYYY-MM-DDTHH:MM:SS`） ｜ 否 ｜ 意味: （変えない） | doc-shape-map AT-136（required —— 輪郭を描くには日付が要る）、JDG-3261 | rewrite |
+| AT-137 | CR-851 | `BaselineTask.finish` ｜ 日時 ｜ 可 ｜ 意味: 変更前の予定の終了 | `BaselineTask.finish` ｜ 日時（`YYYY-MM-DDTHH:MM:SS`） ｜ 否 ｜ 意味: （変えない） | doc-shape-map AT-137（required）、JDG-3261 | rewrite |
+| AT-138 | CR-851 | `BaselineTask.milestone` ｜ 真偽 ｜ 可 ｜ 意味: マイルストーンとして描くか | `BaselineTask.milestone` ｜ 真偽 ｜ 否 ｜ 意味: マイルストーンとして描くか。写し元に無ければ偽を書く | CHOICE N24（いつも値がある事実なので必須） | rewrite |
+
+### 表 T-058 に足す列
+
+
+| 行 | CR | 古い | 新しい | 理由 | 種別 |
+| --- | --- | --- | --- | --- | --- |
+| AT-169（足す） | CR-849 | - | `Task.hyperlinkAddress` ｜ 文字列（1〜512 字、URL） ｜ 可（省けばリンクが無い） ｜ 出自 Own、交換相手の要素 `Task/HyperlinkAddress` ｜ 意味: タスクのリンクの所。`javascript:`・`vbscript:`・`data:` で始まる所を拒む（`05-07-design.md` の 表 T-220 の `IV-25`） ｜ en: MS Project's HyperlinkAddress: the URL the task links to. Absent means no link. | JDG-3081・JDG-3314・JDG-3185、CR-849。⚠️ 席番号は仮 | add |
+| AT-170（足す） | CR-849 | - | `Task.hyperlink` ｜ 文字列（1〜512 字） ｜ 可（省けばリンクの題が無い） ｜ 出自 Own、交換相手の要素 `Task/Hyperlink` ｜ 意味: タスクのリンクの題（所ではない） ｜ en: MS Project's Hyperlink: the title of the link, not its address. Absent means no title. | JDG-3314（hyperlink が題であることを説明で言う）、CR-849 | add |
+| AT-171（足す） | CR-849 | - | `CommentBox.hyperlinkAddress` ｜ 文字列（1〜512 字、URL） ｜ 可（省けばリンクが無い） ｜ 出自 GRS（書き出さない） ｜ 意味: コメントボックスのリンクの所（`IV-25`） ｜ en: The URL the comment box links to (MS Project's name). Absent means no link. | JDG-3081（GRS JSON だけの列）・JDG-3314、CR-849 | add |
+| AT-172（足す） | CR-849 | - | `CommentBox.hyperlink` ｜ 文字列（1〜512 字） ｜ 可（省けばリンクの題が無い） ｜ 出自 GRS ｜ 意味: コメントボックスのリンクの題 ｜ en: The title of the comment box link. Absent means no title. | JDG-3314、CR-849 | add |
+| AT-173（足す） | CR-849 | - | `TaskGroup.hyperlinkAddress` ｜ 文字列（1〜512 字、URL） ｜ 可（省けばリンクが無い） ｜ 出自 GRS（書き出さない） ｜ 意味: タスクグループのリンクの所（`IV-25`）。持つタスクグループの名は青い字に下線で描く（`01-04-requirements.md` の 表 T-051 の `HF-21`） ｜ en: The URL the task group links to (MS Project's name). Absent means no link. | JDG-3081・JDG-3083・JDG-3314、CR-849 | add |
+| AT-174（足す） | CR-849 | - | `TaskGroup.hyperlink` ｜ 文字列（1〜512 字） ｜ 可（省けばリンクの題が無い） ｜ 出自 GRS ｜ 意味: タスクグループのリンクの題 ｜ en: The title of the task group link. Absent means no title. | JDG-3314、CR-849 | add |
+| AT-175（足す） | CR-851 | - | `Exception.recurrencePeriod` ｜ 整数（1 以上） ｜ 可（省けば、交換相手の文書に `Period` が無かった） ｜ 出自 Consume、交換相手の要素 `…/Exception/Period` ｜ 意味: 繰り返しの間隔。`AT-82` の繰り返しの無い例外日の見分けが読む ｜ en: MS Project's Exception/Period: the interval of the recurrence. Absent when the file had none. | doc-shape-map（AT-82 の carry.Period を列へ移す、doc-shape-choices §9）。⚠️ 席番号は仮 | add |
+
+## `docs/spec/_source/erd.schema.json`（10 行）
+
+
+### 原稿のスキーマ（erd.schema.json）
+
+
+| 行 | CR | 古い | 新しい | 理由 | 種別 |
+| --- | --- | --- | --- | --- | --- |
+| $comment | CR-851 | A column added or changed here obeys OKPN and OMPV (R2) and Null Trap (R3) of docs/development-rules/07-review-standards.md: one kind of value per name, one meaning per value, and an absent value is an omitted key, not null. The nullable field below predates the rule; check 90 holds the columns that still take null on its baseline. | A column obeys OKPN and OMPV (R2) and Null Trap (R3) of docs/development-rules/07-review-standards.md: one kind of value per name, one meaning per value, and an absent value is an omitted key, not null. The omittable field below says whether the key may be omitted and what an omitted key shows. | JDG-3309、JDG-3226（基準線を 0 に） | rewrite |
+| columns の required | CR-851 | "nullable", | "omittable", | JDG-3309（OKPN —— プロパティの名が中身と食い違う nullable をやめる。私の案） | rewrite |
+| properties.nullable | CR-851 | Whether the column may be absent, and what absence means: '可（`null` = 根）'. | Whether the key of the column may be omitted, and what an omitted key shows: '否' for a column that always holds a value, '可（省けば根のタスク）' for one that may be omitted. Never null. | 調整役の指示（例「可（`null` = 根）」を必ず直す）、JDG-3309。⚠️ プロパティの名を omittable に改める（上の行） | rewrite |
+| properties.nullable の pattern | CR-851 | "pattern": "^(可\|否)(（.+）)?$" | "pattern": "^否$\|^可（省けば.+）$"（省ける列はいつも「省けば …」を言う —— 1 列 1 行の見え方を必ず書かせる） | JDG-3309（省けるプロパティは見え方を 1 行で書く） | rewrite |
+| jsonType.null | CR-851 | Must agree with the "nullable" prose: 可 is true, 否 is false. | （"null" を除き "optional" に替える）Must agree with the "omittable" prose: 可 is true, 否 is false. A column is never null; an optional column is omitted when it holds no value. | JDG-3309 | rewrite |
+| jsonTypeElement の説明 | CR-851 | The element type of a map, an array or an object field. It has no "null" of its own: only a column can be null. | The element type of a map, an array or an object field. It is never optional on its own: only a column can be omitted. | JDG-3309 | rewrite |
+| proseDict の説明 | CR-851 | ⛔ NOT every Japanese string: \"type\" and \"nullable\" hold Japanese too and are NOT prose. | ⛔ NOT every Japanese string: "type" and "omittable" hold Japanese too and are NOT prose. | JDG-3309（プロパティの名を揃える） | rewrite |
+| jsonType.default の説明 | CR-851 | The value the specification uses when the column is absent. | The value GRS writes into the column when it makes the row (a required column) — never a value read in for an absent key: an absent optional key holds no value. | JDG-3309・JDG-3302（既定の数は作るときに書く。省いたプロパティを既定で読まない） | rewrite |
+| jsonType.transparent | CR-851 | "transparent": { | （プロパティを除く —— 透明は保存する名でなくなる。代わりに "omittable color" を言う必要は無い: 省ける色の列は optional で言う） | JDG-3310（透明 ＝ プロパティを書かない） | rewrite |
+| jsonType.band | CR-851 | Black (S-315) holds a dash there, and CV-9 leaves it off the task group color field. | Ink (S-315, the name black became) holds a dash there, and CV-9 leaves it off the task group color field. | 所見 F05（black → ink） | rewrite |
+
+## `docs/spec/_source/settings.json`（69 行）
+
+
+### 見せ方の群のプロパティ（表 T-202・T-203 —— 文書に保存する）
+
+
+| 行 | CR | 古い | 新しい | 理由 | 種別 |
+| --- | --- | --- | --- | --- | --- |
+| S-234 | CR-851 | `displayScale` ｜ 50〜200 の 10 段 ｜ `100` | `displayScalePercent` ｜ 50〜200 の 10 段 ｜ `100` ｜ schemaNote(en): E-1 の文（Display scale of the schedule drawing in percent: 100 draws every ...Px value as that many CSS pixels; …） | JDG-3292（名で百分率を言う）、JDG-3297、E-1 | rewrite |
+| S-234 | CR-851 | ⭐ 既定の 100 は 2026-09-16 の出荷ビルドの 5/8 の大きさ、200 は出荷ビルドの 5/4 の大きさである（描く比は `S-236` の注）。 | ⭐ 既定の 100 は 2026-09-16 の出荷ビルドの 5/8 の大きさ、200 は出荷ビルドの 5/4 の大きさである —— 5/8 は製品の寸法の定数と保存する値に畳んである（`FR-039`）。 | JDG-3277（S-236 が無くなる） | rewrite |
+| S-70 | CR-851 | `fontSizeStep` ｜ `'S'` / `'M'` / `'L'` ｜ `'M'` | `fontSizeStep` ｜ `'small'` / `'medium'` / `'large'` ｜ `'medium'` ｜ schemaNote(en): E-5 の文を畳んだ値で（Text size step of the schedule: the reader's choice of text size (small 7.5, medium 8.75, large 10 CSS pixels at displayScalePercent 100, before the tool's own ratios). …） | JDG-3295（略号をやめ英単語に、プロパティの名は残す）、JDG-3277（T-215 の値を畳む）、E-5 | rewrite |
+| S-2 | CR-851 | `rulerHeightPx` ｜ px ｜ `rulerFontSizePx` × 3 + `rulerLabelPad` × 3（S = 60 / M = 69 / L = 78）🔎 ｜ `rulerFontSizePx` × 3 + `rulerLabelPad` × 3 ｜ 150 ｜ …追随の規則と、キーを独立に保つことは `FR-039` が持つ | `rulerHeightPx`（保存しない —— 導く値）｜ px ｜ `rulerFontSizePx` × 3 + `rulerLabelPad` × 3（small = 37.5 / medium = 43.125 / large = 48.75）｜ — ｜ — ｜ 段階 4 は 3 段（年 ＋ 月 / 日 / 曜日）。3 段ぶんの文字と余白が入る高さで、余白は `S-136` が持つ。⭐ 文書に保存せず、描く側が `fontSizeStep` から導く（`FR-039`） —— 書き手を 1 人にする。⚠️ 表 T-202（保存する値）から 表 T-201（成果物に埋め込む定数・導く値）へ移す | JDG-3294（プロパティごと無くし道具が導く）、JDG-3277・T4（0.625 を畳み丸めない）、doc-shape-choices §4 | rewrite |
+| S-3 | CR-851 | `rulerFontSizePx` ｜ px ｜ `fontSizeStepSizes[fontSizeStep]` × 1.5（S = 18 / M = 21 / L = 24）🔎 ｜ `fontMin` ｜ (`rulerHeightPx` − `rulerLabelPad` × 3) ÷ 3 ｜ …`fontSizeStep`（表 T-215）に追随する。追随の規則と、キーを独立に保つことは `FR-039` が持つ。… | `rulerFontSizePx`（保存しない —— 導く値）｜ px ｜ `fontSizeStepSizes[fontSizeStep]` × 1.5（small = 11.25 / medium = 13.125 / large = 15）🔎 ｜ — ｜ — ｜ 和文の可読下限を割らない。帯の 3 段に収まる。⭐ 文書に保存せず、描く側が `fontSizeStep`（表 T-215）から導く（`FR-039`）。⭐ 文字サイズの段に掛ける 1.5 は、利用者が日付の字を 1.5 倍に大きくするよう指定した試す値である —— 描いた絵を見て選び直す。⚠️ 目盛の帯の高さ（`S-2`）は本行から導くので、1.5 倍の字の 3 段ぶんの高さに立つ。⚠️ 表 T-201 へ移す | JDG-3294、JDG-3277・T4 | rewrite |
+| S-518 | CR-851 | `fitSpanStart` ｜ 日付 / `null` ｜ `null` ｜ 全体表示時の期間の始めの日。`null` は「期間を持たない」を表す。…⚠️ `S-519` と対で持つ —— 片方だけの値と前後逆の値の扱いは `FX-1` が持つ | `fitSpan` ｜ `{ firstDay, lastDay, isFixed }`（`firstDay`・`lastDay` は日付 `YYYY-MM-DD`、両端を含む。`isFixed` は真偽）｜ プロパティを書かない（期間を持たない）｜ 全体表示時の期間と、それを全体表示と画像の書き出しに当てるか。プロパティが無いことは「期間を持たない」を表す。⭐ 期間が当たるのは `isFixed` が真のときの全体表示と画像の書き出しだけである —— 規則は `FR-055` の 表 T-367 が持つ（書き出しの絵は `FR-025` の 表 T-241 の `IX-12` 〜 `IX-16`）。⭐ 文書に保存する —— 作成者が見せる範囲と渡す絵の範囲であり、同じ文書から同じ絵を出すための値である。⚠️ 3 つはいつも揃えて持つ —— 前後逆の値の扱いは `FX-1` が持つ ｜ schemaNote(en): The fit span: firstDay..lastDay (both days included), and isFixed — when true, Fit and picture export show this span instead of the whole schedule; opening the document does not move the view. Absent means no fit span. | 所見 F52（3 つのプロパティを 1 つの組に）、JDG-3309、JDG-3281（firstDay/lastDay、両端を含む） | rewrite |
+| S-519 | CR-851 | `fitSpanFinish` ｜ 日付 / `null` ｜ `null` ｜ 全体表示時の期間の終わりの日。その日の列を含めて見せ、描く（`FX-3`・`IX-13`）。⭐ `S-518` の注に同じ | - | 所見 F52（S-518 の fitSpan の lastDay へ畳む）。行 ID S-519 は退役 | remove |
+| S-532 | CR-851 | `isFitSpanFixed` ｜ 真偽 ｜ `false` ｜ 全体表示時の期間（表 T-202 の `S-518` / `S-519`）を、全体表示と画像の書き出しに当てるか。… | - | 所見 F52（S-518 の fitSpan の isFixed へ畳む）。行 ID S-532 は退役 | remove |
+| S-574 | CR-851 | `viewTimeZone` ｜ 表 T-376 の種が標準時の行のプロパティ（`FR-156`）/ `null` ｜ `null` ｜ …`null` は「日程データのタイムゾーン（`Project.scheduleDataTimeZone`）と同じ」を表す —— … | `viewTimeZone` ｜ `{"kind":"sameAsScheduleData"}` か `{"kind":"fixed","offset":<表 T-376 の種が標準時の行のプロパティ>}` ｜ `{"kind":"sameAsScheduleData"}` ｜ 見せる基準 —— 画面の目盛と日時を見せるタイムゾーン（`FR-156`）。`sameAsScheduleData` は「日程データのタイムゾーン（`Project.scheduleDataTimeZone`）と同じ」を表す —— 日程データのタイムゾーンを付け替えると、見せる基準もついて行く。既定は今の文書の見た目を変えない | JDG-3302・JDG-3309（ほかに従う状態だけを kind で書く）、所見 F38 | rewrite |
+| S-575 | CR-851 | `displayTimeZones` ｜ 表 T-376 のプロパティ（`FR-156`。標準時と夏時間のどちらの行でもよい）の配列（0 〜 4 個）｜ `[]` | `displayTimeZones` ｜ `{ offset, season }` の配列（1 〜 4 個。`offset` は表 T-376 のプロパティの UTC の差、`season` は `standard` ／ `daylight`）｜ プロパティを書かない（0 個）｜ schemaNote(en): Up to four extra clocks shown under the time ruler, each a fixed UTC offset and whether it is standard or daylight time. Absent means none; never an empty list. | JDG-3309（空の配列は書かない）、doc-shape-map S-575（offset と season を分ける —— 「 DST」を名に詰めない、OKPN） | rewrite |
+| S-75 | CR-851 | `zoomX` ｜ 数値 ｜ `1` ｜ `zoomMin` ｜ `zoomMax` ｜ 横のズーム倍率 | `dayWidthPx` ｜ px ｜ `3.75` ｜ `0.075` ｜ `900` ｜ 1 日の幅（横のズーム）。表示の倍率 100 のときの CSS px。全体表示がこの値を決める ｜ schemaNote(en): E-2 の文（Width of one calendar day on the time axis, in CSS pixels at displayScalePercent 100. …） | JDG-3292（1 日の幅を px で持つ ＝ 3.75 × 今の zoomX。範囲も × 3.75）、E-2。⚠️ 下限・上限を S-54・S-55 の名指しでなく数で書く —— 私の案（下の S-54・S-55） | rewrite |
+| S-76 | CR-851 | `zoomY` ｜ 数値 ｜ `1` ｜ `zoomMin` ｜ `zoomMax` ｜ 縦のズーム倍率。`basePlanHeight` が「予定の縦幅（`zoomY` = 1）」と定義されているので等倍がその基準 | `verticalZoomRatio` ｜ 数値 ｜ `1` ｜ `1` ｜ `zoomMax` ｜ 縦のズーム倍率（大きさだけ）。`basePlanHeight` が「予定の縦幅（`verticalZoomRatio` = 1）」と定義されているので等倍がその基準。⭐ 1 未満を取らない —— どこまで開くかは `taskGroupAutoExpandDepth`（本表に足す行）が持つ ｜ schemaNote(en): E-3 の文 | JDG-3293・JDG-3296（大きさだけ、1 未満を取らない）、E-3 | rewrite |
+| S-626（足す） | CR-851 | - | `taskGroupAutoExpandDepth` ｜ 整数 ｜ `3` ｜ `0` ｜ `maxGroupDepth` − 1 ｜ `treeState` が `auto` のタスクグループが開く深さ。最上位のタスクグループを深さ 1 と数え、その子は深さ `taskGroupAutoExpandDepth` ＋ 1 まで見える。0 は最上位のタスクグループだけを閉じて描く。人が開いた・閉じたタスクグループは自分の `treeState` を保つ。名は利用者が選んだ ｜ schemaNote(en): E-4 の文 | JDG-3293・JDG-3296（zoomY の 1 未満の働きを 1 つのプロパティに、既定 3、0〜4）、E-4。⚠️ 行 ID は仮。振る舞い（FR-018 の LOD をこの値で決める）は CR-853 | add |
+| S-77 | CR-851 | `scrollDate` ｜ 日付 / `null` ｜ `null` ｜ 表示の左端が指す日付。`null` は「人がまだ場所を決めていない」を表す。読み込む側の規則は表 T-024a の `OP-10` | `scrollPosition` ｜ `{"kind":"notDecided"}` か `{"kind":"placed","leftEdgeDay","leftEdgeDayFraction","topEdgeTaskGroupId","topEdgeTaskGroupFraction"}` ｜ `{"kind":"notDecided"}` ｜ 表示位置。`notDecided` は「人がまだ場所を決めていない」を表す。`placed` は左端が指す日付（`YYYY-MM-DD`）と日の中の位置、上端が指すタスクグループとその中の位置の 4 つを必ず揃えて持つ。読み込む側の規則は表 T-024a の `OP-10` | 所見 F12（4 つのプロパティを 1 つの和に、片方だけを書けなくする）、JDG-3302（notDecided）、CHOICE N4 | rewrite |
+| S-78 | CR-851 | `scrollTaskGroupId` ｜ `TaskGroup.id`（UUID 文字列）/ `null` ｜ `null` ｜ 表示の上端が指すタスクグループ。⚠️ **整数ではない。** 存在しない id を指していたときの規則は表 T-024a の `OP-10` | - | 所見 F12（S-77 の scrollPosition の topEdgeTaskGroupId へ畳む）。行 ID S-78 は退役 | remove |
+| S-176 | CR-851 | `scrollTaskGroupFraction` ｜ 数値 ｜ `0` ｜ 0 ｜ 1 ｜ 表示の上端が、`scrollTaskGroupId` が指すタスクグループのどこにあるか。 | `scrollPosition` の `topEdgeTaskGroupFraction` ｜ 数値 ｜ `0` ｜ 0 ｜ 1 未満 ｜ 表示の上端が、`topEdgeTaskGroupId` が指すタスクグループのどこにあるか。 | CHOICE N4・N23（Fraction は 0 以上 1 未満、JDG-3297） | rewrite |
+| S-177 | CR-851 | `scrollDateFraction` ｜ 数値 ｜ `0` ｜ 0 ｜ 1 ｜ 表示の左端が、`scrollDate` が指す日のどこにあるか。 | `scrollPosition` の `leftEdgeDayFraction` ｜ 数値 ｜ `0` ｜ 0 ｜ 1 未満 ｜ 表示の左端が、`leftEdgeDay` が指す日のどこにあるか。 | CHOICE N4・N23 | rewrite |
+| S-79 | CR-851 | `taskGroupPanelWidthPx` ｜ px ｜ `300` 🔎 ｜ `taskGroupTitleIndent` × `maxGroupDepth` | `taskGroupPanelWidthPx` ｜ px ｜ `188` 🔎 ｜ `taskGroupTitleIndent` × `maxGroupDepth`（10 × 5 ＝ 50）｜ schemaNote(en): Width of the task group panel, in CSS pixels at displayScalePercent 100. | JDG-3277（300 × 0.625 ＝ 187.5 を丸めて 188、下限の式は畳んだ S-37 で 50）、JDG-3291（E-8） | rewrite |
+| S-79 | CR-851 | ⭐ 本値 300 は、利用者がタスクグループ名の字（`S-36`）とともにパネルの幅も 1.5 倍にするよう指定した試す値である（200 × 1.5）—— 描いた絵を見て選び直す。 | ⭐ 本値 188 は、利用者がタスクグループ名の字（`S-36`）とともにパネルの幅も 1.5 倍にするよう指定した試す値（200 × 1.5 ＝ 300）に、表示の倍率 100 の 5/8 を畳んで丸めた値である（`FR-039`） —— 描いた絵を見て選び直す。 | JDG-3277（保存する値は丸める） | rewrite |
+| S-79 | CR-851 | ⚠️ 上の数は表示の倍率を掛ける前の数である —— 描く幅に掛ける比と、描く幅の床は `FR-039` の 表 T-252 の `DS-9` とその後の段が持つ。 | ⚠️ 上の 200・176 などの数は 5/8 を畳む前の数である（畳むと × 0.625） —— 描く幅に掛ける比と、描く幅の床は `FR-039` の 表 T-252 の `DS-9` とその後の段が持つ。 | JDG-3277（注の中の数の読み方を言う。数そのものを直すかは決まっていない —— 下の「決まっていない所」） | rewrite |
+| S-126 | CR-851 | `pinnedTaskGroupIds` ｜ `TaskGroup.id` の配列 ｜ `[]` ｜ 0 件 ｜ `pinnedTaskGroupMax` | `pinnedTaskGroupIds` ｜ `TaskGroup.id` の配列（1 件以上）｜ プロパティを書かない（ピン止めが無い）｜ 1 件 ｜ `pinnedTaskGroupMax` ｜ （注の末尾に足す）最後の 1 つを外したらプロパティを除く | JDG-3309（空の配列を書かない）、commands-choices A.4 | rewrite |
+| S-561 | CR-851 | チェックの入った行だけを持つ —— 既定の `[]` は、どの行にもチェックが入っていないことである。 | チェックの入った行だけを持つ —— プロパティが無いことは、どの行にもチェックが入っていないことである（`[]` を書かない）。 | JDG-3309 | rewrite |
+| S-561 | CR-851 | `tableViews.searchPanel.shownTaskUids` ｜ `Task.uid` の配列 ｜ `[]` | `tableViews.searchPanel.shownTaskUids` ｜ `Task.uid` の配列（1 件以上、uid は 0〜2147483647）｜ プロパティを書かない | JDG-3309、JDG-3284 | rewrite |
+| S-565・S-569 | CR-851 | `Task.uid` の配列 ｜ `[]`（S-565）／ `Resource.uid` の配列 ｜ `[]`（S-569） | `Task.uid` の配列（1 件以上）｜ プロパティを書かない（S-565）／ `Resource.uid` の配列（1 件以上）｜ プロパティを書かない（S-569） | JDG-3309、JDG-3284 | rewrite |
+| S-562・S-566・S-571 | CR-851 | `ColumnFilter` の配列（表 T-372）｜ `[]` | `ColumnFilter` の配列（表 T-372、1 件以上）｜ プロパティを書かない（フィルタが無い） | JDG-3309 | rewrite |
+| S-562 | CR-851 | 表に無い列の行 ID は開くときに捨てる（表 T-024a の `OP-18`）。 | 表に無い列のプロパティ（表 T-331・T-347・T-371 の変わらない列の名）は開くときに捨てる（表 T-024a の `OP-18`）。 | JDG-3285（列は行 ID でなく変わらない名 —— 所見 F50、CHOICE N5 ColumnKey）。⚠️ 列の名の一覧は OPEN O5（決まっていない） | rewrite |
+| S-563 | CR-851 | `tableViews.searchPanel.sort` ｜ `ColumnSort` / `null`（表 T-372）｜ `null` | `tableViews.searchPanel.sort` ｜ `ColumnSort`（表 T-372）｜ プロパティを書かない（既定の並び） | JDG-3309 | rewrite |
+| S-563 | CR-851 | `null` は既定の並びである。 | プロパティが無いことは既定の並びである。 | JDG-3309 | rewrite |
+| S-567・S-572 | CR-851 | `ColumnSort` / `null`（表 T-372）｜ `null` | `ColumnSort`（表 T-372）｜ プロパティを書かない | JDG-3309 | rewrite |
+
+### 日程データに属する値（表 T-216）
+
+
+| 行 | CR | 古い | 新しい | 理由 | 種別 |
+| --- | --- | --- | --- | --- | --- |
+| S-73 | CR-851 | `themeHue` | `themeHueDegrees` | CHOICE N6 | rewrite |
+| S-487 | CR-851 | `parentTaskProgressToleranceDays` | `parentTaskProgressToleranceWorkingDays` | 所見 F16 | rewrite |
+| S-487 | CR-851 | 置き場は `Project.parentTaskProgressToleranceDays`（表 T-058 の `AT-156`）。 | 置き場は `Project.parentTaskProgressToleranceWorkingDays`（表 T-058 の `AT-156`）。 | 所見 F16 | rewrite |
+| S-487 | CR-851 | 当てるときは × `Project.minutesPerDay`（空なら `S-128`）分とする | 当てるときは × `Project.minutesPerDay`（プロパティが無ければ `S-128`）分とする | JDG-3309 | rewrite |
+| S-71 | CR-851 | `importSequence` | `lastImportNumber` | 所見 F24・CHOICE N8 | rewrite |
+| S-71 | CR-851 | 置き場は `Project.importSequence`（表 T-058）。 | 置き場は `Project.lastImportNumber`（表 T-058）。 | 所見 F24 | rewrite |
+
+### 描く定数（表 T-201・T-215）—— 0.625 を畳む・名
+
+
+| 行 | CR | 古い | 新しい | 理由 | 種別 |
+| --- | --- | --- | --- | --- | --- |
+| S-1 | CR-851 | `pxPerDayAt1x` ｜ px ｜ 6 🔎 ｜ 0.5 ｜ 60 ｜ 基準の環境で 1 年がおよそ 2200px になる値だが、そう選んだ記録は無い | - | JDG-3292（隠れた基準 S-1 × 0.625 が消え、1 日の幅は文書の dayWidthPx が持つ。既定 3.75 ＝ 6 × 0.625 は S-75 へ）。行 ID S-1 は退役 | remove |
+| S-54 | CR-851 | `zoomMin` ⛔ ｜ × ｜ 0.02 🔎 ｜ 0.001 ｜ `zoomMax` ｜ 上限を超えない。0.02 の由来は無い | `zoomMin` ⛔ ｜ × ｜ 0.02 🔎 ｜ 0.001 ｜ `zoomMax` ｜ 上限を超えない。0.02 の由来は無い。⭐ `dayWidthPx`（`S-75`）の下限 0.075 は 0.02 × 3.75 である。⚠️ `verticalZoomRatio`（`S-76`）の下限は 1 であり、本行を読まない | JDG-3292・JDG-3293。⚠️ ズームの範囲の定数を dayWidthPx の px に書き直すかは CR-853（振る舞い）—— 本行は名と意味の注だけ | rewrite |
+| S-55 | CR-851 | ⭐ 240 ＝ 24 × `S-579` 60 ÷ `S-1` 6 —— 時刻を表示するときの `zoomX` の上限（`FR-016`）が範囲に収まる値 | ⭐ 240 ＝ 24 × `S-579` 60 ÷ 6 —— 時刻を表示するときの縦横のズームの上限（`FR-016`）が範囲に収まる値。`dayWidthPx`（`S-75`）の上限 900 は 240 × 3.75 である | JDG-3292（S-1 が無くなる） | rewrite |
+| S-8 | CR-851 | `fontMin` ｜ px ｜ 12 ｜ 12 ｜ 40 ｜ 和文がこれを割ると読めない | `fontMin` ｜ px ｜ 7.5 ｜ 7.5 ｜ 25 ｜ 和文がこれを割ると読めない（表示の倍率 100 のときの CSS px —— 5/8 を畳んだ値） | JDG-3277（fontMin を含むすべての定数に畳む、T4 で丸めない）、doc-shape-choices §4 | rewrite |
+| S-39 | CR-851 | `planStroke` ｜ px ｜ 1 🔎 ｜ 0 ｜ 4 ｜ — | `planStroke` ｜ px ｜ 1 🔎 ｜ 1 ｜ 10 ｜ タスクを作るときに `TaskVisual.strokeWidthPx`（`AT-104`）へ書く太さ（表示の倍率 100 のときの 1 CSS px）。⚠️ 5/8 を畳まない —— 既定の輪郭は 0.625px から 1px になる（利用者が定めた）。範囲は `AT-104` と同じ | JDG-3308（既定を 1 px に、JDG-3278 の「既定の細い線は変わらない」を覆す）、JDG-3278 | rewrite |
+| S-136 | CR-851 | `rulerLabelPad` ｜ px ｜ 2 🔎 ｜ 0 ｜ 20 | `rulerLabelPad` ｜ px ｜ 1.25 🔎 ｜ 0 ｜ 12.5 | JDG-3277・T4 | rewrite |
+| S-136 | CR-851 | 上限は、`rulerFontSizePx` が下限（`S-8`）のときでも 3 段ぶんが `S-2` の上限に収まる値 | 上限は、目盛の字（`S-3`、導く値）が下限（`S-8`）のときでも 3 段ぶんが帯に収まる値 | JDG-3294（S-2 は上限を持たない導く値になる） | rewrite |
+| S-121 | CR-851 | `fontSizeStepSizes.S` ｜ `12` px 🔎 ｜ `fontMin` ｜ `fontSizeStepSizes.M` ｜ **PoC の `fontMin` = 12 をそのまま S に据えた。** 下限を割らない | `fontSizeStepSizes.small` ｜ `7.5` px 🔎 ｜ `fontMin` ｜ `fontSizeStepSizes.medium` ｜ **PoC の `fontMin` = 12 をそのまま small に据え、5/8 を畳んだ（12 × 0.625）。** 下限を割らない | JDG-3277・T4、JDG-3295（段の名） | rewrite |
+| S-122 | CR-851 | `fontSizeStepSizes.M` ｜ `14` px 🔎 ｜ `fontSizeStepSizes.S` ｜ `fontSizeStepSizes.L` | `fontSizeStepSizes.medium` ｜ `8.75` px 🔎 ｜ `fontSizeStepSizes.small` ｜ `fontSizeStepSizes.large` | JDG-3277・T4、JDG-3295 | rewrite |
+| S-123 | CR-851 | `fontSizeStepSizes.L` ｜ `16` px 🔎 ｜ `fontSizeStepSizes.M` ｜ 40 | `fontSizeStepSizes.large` ｜ `10` px 🔎 ｜ `fontSizeStepSizes.medium` ｜ 25 | JDG-3277・T4、JDG-3295 | rewrite |
+| 表 T-201・T-206 の残りの定数（38 個の畳み込み） | CR-851 | 表示の倍率の描く比を掛けていた定数（`FR-039` の 表 T-252 の `DS-1`・`DS-3`・`DS-9` が名指す行 —— 群「タイムルーラー」「縦の寸法」「依存線」「進捗マーカー」「ラベル」「形状の細部」「イナズマ線」「注記」の px の行、`S-196`・`S-360`〜`S-362`）の既定・下限・上限 | 同じ行の既定・下限・上限を × 0.625 した値（丸めない —— 例 `S-4` 28 → 17.5、`S-18` 2.4 → 1.5、`S-37` 16 → 10、`S-36` 19.5 → 12.1875）。注の中の「表示の倍率 100 で描くと N px」の言い方は「N px（表示の倍率 100 のときの CSS px）」へ直す。⚠️ `S-39`（上の行）と `S-11`（`DS-10`、画面の px）は畳まない | JDG-3277（38 個の定数と保存する値に畳む）、doc-shape-choices T4（定数は丸めない —— 絵は今と同じ）。⚠️ 1 行ずつの値の写しは本表に載せていない —— 外部契約ではない定数であり、絵が変わらない。行ごとの表が要るかは決まっていない | rewrite |
+| S-236 | CR-851 | 表示の倍率が 100 のときの描く比（`FR-039` の 表 T-252）｜ 0.625 ｜ ⭐ **利用者が、2026-09-16 の出荷ビルドの 2/3 × 3/4 の見た目をさらに 1.25 倍した見た目を表示の倍率 100 と定めた値である** —— … | - | JDG-3277（無くし、値に畳む）。行 ID S-236 は退役（振り直さない）。⚠️ 「2/3 × 3/4 × 5/4 ＝ 5/8」の由来の文は FR-039 の RATIONALE へ移すかを決める | remove |
+
+### 注記の既定値（表 T-217）
+
+
+| 行 | CR | 古い | 新しい | 理由 | 種別 |
+| --- | --- | --- | --- | --- | --- |
+| S-132 | CR-851 | ハイライトボックスの角の丸み（`AT-122`）。 | ハイライトボックスの角の丸み（`AT-122`、表示の倍率 100 のときの CSS px）。箱を置くときに列へ書く値である。 | JDG-3302（置くときに書く）、JDG-3291 | rewrite |
+| S-369 | CR-851 | 列が `null` のときに描く値である。ズームによらず一定に描く規則は `FR-019` が持つ。 | 箱を置くときに列へ書く値である（表示の倍率 100 のときの CSS px）。ズームを掛けない規則は `FR-019` が持つ。 | JDG-3302・JDG-3309、JDG-3291 | rewrite |
+| S-370 | CR-851 | `HighlightBox.fillColor` ｜ 色 ｜ `'transparent'` ｜ ハイライトボックスの塗りの色（`AT-146`。綴りは表 T-294 の保存する綴り）。箱を置くときに列へコピーする値である（`null` はテーマの色 `S-155` で塗る —— `FR-019`）。… | - | JDG-3304（置いたときの塗りはテーマの色で透過率 100）、JDG-3310（透明の名が無くなる）。行 ID S-370 は退役 | remove |
+| S-371 | CR-851 | `HighlightBox.fillTransparencyPercent` ｜ 整数 ｜ `50` 🔎 ｜ 0 ｜ 100 ｜ ハイライトボックスの塗りの透過率（`AT-147`）。列が `null` のときに描く値である。0 は不透明、100 は透明（`FR-019`）。塗りが透明の箱では効かない。⛔ **測って決めた値ではない** （🔎） | `fillTransparencyPercentWhenColorPicked` ｜ 整数 ｜ `50` 🔎 ｜ 1 ｜ 99 ｜ 透過率が 100 のコメントボックスかハイライトボックスで、人が塗りの色を選んだときに、同じ書き込みで透過率に書く値（`FR-019`）。0 は不透明、100 は透明。⛔ **測って決めた値ではない** （🔎） | JDG-3304（透過率 100 の箱で色を選んだら 50）、doc-shape-choices §9（S-371 の役が変わる）。⚠️ プロパティの名は私の案 | rewrite |
+| S-627（足す） | CR-851 | - | `HighlightBox.fillTransparencyPercent` ｜ 整数 ｜ `100` ｜ 0 ｜ 100 ｜ ハイライトボックスを置くときに塗りの透過率（`AT-147`）へ書く値。⭐ 100 は、置いた箱を今までどおり塗らずに見せる（塗りの色はテーマの色 —— `JDG-3304`） | JDG-3304（ハイライトボックスの既定は透過率 100）。⚠️ 行 ID は仮 | add |
+| S-374 | CR-851 | 列が `null` のときに描く値である。ズームによらず一定に描く規則は `FR-019` が持つ。 | 箱を置くときに列へ書く値である（表示の倍率 100 のときの CSS px）。ズームを掛けない規則は `FR-019` が持つ。 | JDG-3302・JDG-3309、JDG-3291 | rewrite |
+| S-375 | CR-851 | 列が `null` のときに描く値である。0 は不透明、100 は透明（`FR-019`）。 | 箱を置くときに列へ書く値である。0 は不透明、100 は透明（`FR-019`）。 | JDG-3302・JDG-3304（コメントボックスの既定は透過率 0） | rewrite |
+| S-600 | CR-851 | ⭐ 列が `null` の箱を描く値ではない（`null` は `{ 0, 0 }`）。 | ⭐ ずれ（`AT-115`）はいつも値を持つ —— 本行は置くときに書く値である。 | JDG-3302・JDG-3309（bodyOffsetPx は必須） | rewrite |
+| S-624 | CR-851 | 列が `null` のときに描く値であり、プロパティパネルの欄（`PR-50`）にもこの値を出す。 | 箱を置くときに列へ書く値である（表示の倍率 100 のときの CSS px）。 | JDG-3302・JDG-3309、JDG-3291 | rewrite |
+| S-624 | CR-851 | ⚠️ 既定は文書の文字サイズ（表 T-215）に従わない —— 列を足す前の造りは段の大きさで描いていたので、`null` の箱は小さくなる。 | ⚠️ 既定は文書の文字サイズ（表 T-215）に従わない。 | JDG-3309（null の箱が無くなる） | rewrite |
+
+### パレット色（表 T-294）
+
+
+| 行 | CR | 古い | 新しい | 理由 | 種別 |
+| --- | --- | --- | --- | --- | --- |
+| 表 T-294 の欄の頭 | CR-851 | 保存する綴り | 保存する名 | 所見 F05、JDG-3260（{"kind":"palette","name":…} の name） | rewrite |
+| S-314 | CR-851 | `white` | `paper` | 所見 F05（白は暗いテーマで暗く描かれる —— 名は役を言う） | rewrite |
+| S-314 | CR-851 | 暗いテーマでは黒と入れ替わる（`CV-6`）。 | 暗いテーマでは `ink` と入れ替わる（`CV-6`） —— 名の `paper` は地の色の役を言う。 | 所見 F05 | rewrite |
+| S-315 | CR-851 | `black` | `ink` | 所見 F05 | rewrite |
+| S-315 | CR-851 | 暗いテーマでは白と入れ替わる（`CV-6`）。 | 暗いテーマでは `paper` と入れ替わる（`CV-6`） —— 名の `ink` は字の色の役を言う。 | 所見 F05 | rewrite |
+| S-316 | CR-851 | `dimgray` | `dimGray` | CHOICE N18（lowerCamelCase） | rewrite |
+| S-317 | CR-851 | `lightgray` | `lightGray` | CHOICE N18 | rewrite |
+| S-324 | CR-851 | 透明 ｜ `transparent` ｜ 描かない（8 欄）｜ 塗りも線も描かない。`null`（選んでいない）とは別物である（`_assets/tbl-glossary.md` の `P-19`） | - | JDG-3310（色の kind は palette・custom・theme の 3 つ、描かないはプロパティを書かない）、JDG-3276。透明は色の欄の入口（表 T-017b の CV-9）として残り、名ではなくなる。行 ID S-324 は退役 | remove |
+
+### 製品の所と運用（表 T-206）
+
+
+| 行 | CR | 古い | 新しい | 理由 | 種別 |
+| --- | --- | --- | --- | --- | --- |
+| S-350 | CR-851 | ⭐ 版が新しい文書を読んだときの案内（表 T-233 の `RS-48` ・ `RS-63` ・ `RS-64`）が、語の `{downloadUrl}` の場所へ本行を差し込む（`FR-073`）。 | ⭐ 版が新しい文書を読んだときの案内（表 T-233 の `RS-48` ・ `RS-63` ・ `RS-64`）が、語の `{downloadUrl}` の場所へ本行を差し込む（`FR-073`）。⭐ この頁は、α の文書を β へ変える変換の HTML の節も持つ —— その節の所は `S-625`（`_assets/design-mcp-relay.md` の 6 節）。 | JDG-3306・JDG-3307 | rewrite |
+| S-625（足す） | CR-851 | - | 変換の HTML をダウンロードする所の URL（`FR-073`）｜ `https://goodrelax.github.io/gr-scheduler/download/#alpha-to-beta` ｜ ⭐ 版が古い文書（α の文書）を拒んだときの案内（表 T-233 に足す `formatTooOld` の行）が、語の `{converterUrl}` の場所へ本行を差し込む（`FR-073`）。⭐ 入手の頁（`S-350`）の中の、変換の HTML（`grs-json-alpha-to-beta.html`）をダウンロードさせる節を指す（`_assets/design-mcp-relay.md` の 6 節）。⛔ 語・コード・試験にこの URL を書き写さない（`S-350` と同じ理由）。保存しない理由は `S-350` と同じである | JDG-3306（変換スクリプトをダウンロードする所へのリンク）、JDG-3307（ダウンロードページに置く）。⚠️ 行 ID・所の綴り（#alpha-to-beta）は私の案 | add |
+| S-541 | CR-851 | ⭐ `null` のあいだは、変更の台帳（`05-07-design.md` の Chapter 6.2）は空のままとし、形を変えた版は古い形の文書を読み替えずに拒む（`FR-073`）。⭐ 値が入った後に版を上げる変更は、台帳に行を足す（`FR-073`）。検査 76 が、足していない版を赤にする。 | ⭐ 値が入っていないあいだも、形を変える変更は変更の台帳（`05-07-design.md` の Chapter 6.2）に行を足す（`CR-851` から）が、`GRS` は台帳を読まず、古い形の文書を `formatTooOld` で拒んで変換の HTML へ案内する（`FR-073`）。⭐ 値が入った後は、`GRS` が台帳を読んで古い文書を読み替える（`FR-073`）。検査 76 が、版を上げたのに台帳に行を足していない変更を赤にする。 | JDG-3262（台帳は CR-851 から書くが正式な利用の前には読まない）、JDG-3306。⚠️ 値の null（未宣言）は製品の定数であり文書の列ではないので残す —— Null Trap を当てるかは決まっていない | rewrite |
+
+### 畳む命令の行 ID を名指す所（自動で拾った —— 表 T-108 の行が退くので、名指しを edit の命令と欄へ書き換える）
+
+
+| 行 | CR | 古い | 新しい | 理由 | 種別 |
+| --- | --- | --- | --- | --- | --- |
+| ref CM-51 | CR-851 | 同上。⭐ 引けば本文の箱だけが動き、線先は動かない（`CM-51` だけ。表 T-023d の結び）。⭐ 3px  | 同上。⭐ 引けば本文の箱だけが動き、線先は動かない（`editCommentBox` の `set.bodyOffsetPx` だけ。表 T-023d の結び）。⭐ 3px  | JDG-3267・JDG-3268（CM-51 は edit の命令へ畳まれ、表 T-108 の行が退く —— commands-map.tsv） | rewrite |
+
+## `docs/spec/_source/agent-api-members.json`（58 行）
+
+
+### 版と前書き（T-107 の前）
+
+
+| 行 | CR | 古い | 新しい | 理由 | 種別 |
+| --- | --- | --- | --- | --- | --- |
+| version | CR-851 | 2026-10-19T01:15:00Z | （`CR-851` を当てる時刻 —— `YYYY-MM-DDTHH:MM:SSZ`） | JDG-3301（呼び方が少しでも変われば上げる。命令の形・拒否の形・理由の名・名の改め —— JDG-3292〜3295 を含む —— を 1 度で上げる）、commands-choices D.1 | rewrite |
+| members.before | CR-851 | 版は、文書の形式の版（`FR-073`）と同じ書式の日時である —— 呼び方が変われば、版はそれまでのどの版よりも新しい時刻になる（表 T-035 の `AG-1`）。 | 版は、文書の形式の版（`FR-073`）と同じ書式の日時である —— 呼び方（本表と 表 T-400 のほか、`applyCommands` の命令の形・拒否の理由の名・退いた名）が少しでも変われば、版はそれまでのどの版よりも新しい時刻になる（表 T-035 の `AG-1`）。⭐ やめる名の示し方と、やめた名で呼ばれたときの断り方は 表 T-035 の `AG-13` が持つ。 | JDG-3301 | rewrite |
+| members.before（足す） | CR-851 | - | ⭐ 答えの値は `null` を使わない —— 値の無い欄はプロパティを省く（`AG-12` の ⑧）。⭐ 答えに出す決まった値（理由・列・状態・問いの種類）は、仕様書の行 ID でなく変わらない名とする（`AG-9a`）。 | JDG-3309（答えにも当てる）、JDG-3285 | add |
+| retired（足す） | CR-851 | - | "retired": [{"name": <退いたメンバ・引数の名>, "replacement": <代わりの名 —— あるときだけ>, "since": <退いた agentApiVersion>}] —— 取次と生成器が読む退いた名の一覧（表 T-035 の `AG-13`）。`CR-851` は `includeCarry`（→ `includePassthrough`）を載せる | JDG-3301、commands-choices D.3（agent-api-members.json にも retired を足す） | add |
+
+### メンバ（表 T-107）
+
+
+| 行 | CR | 古い | 新しい | 理由 | 種別 |
+| --- | --- | --- | --- | --- | --- |
+| AM-1 | CR-851 | The Agent API version, a UTC date-time string in the form YYYY-MM-DDTHH:MM:SSZ. | The Agent API version, a UTC date-time string in the form YYYY-MM-DDTHH:MM:SSZ. It covers every member, the commands applyCommands takes and the refusal reasons; any change to them raises it. | JDG-3301 | rewrite |
+| AM-1 | CR-851 | `Agent API` の版 —— `schemaVersion` と同じ書式の日時の文字列（`YYYY-MM-DDTHH:MM:SSZ`）。 | `Agent API` の版 —— `schemaVersion` と同じ書式の日時の文字列（`YYYY-MM-DDTHH:MM:SSZ`）。メンバ・`applyCommands` の命令・拒否の理由のどれが変わっても上がる。 | JDG-3301 | rewrite |
+| AM-3 の引数 | CR-851 | "name": "includeCarry" | "name": "includePassthrough"（`deprecated` の印は付けず、`includeCarry` は退いた名の一覧へ） | 所見 F44（CHOICE N1）、JDG-3301（公式運用の前は猶予なしで退いた名へ） | rewrite |
+| AM-3 の引数 | CR-851 | MSPDI の持ち越しの欄（`carry`・`carryElements`）を含めるか —— 省けば `false` | MSPDI の持ち越しの欄（`passthroughValues`・`passthroughElements`）を含めるか —— 省けば `false` | 所見 F44 | rewrite |
+| AM-3 の引数 | CR-851 | Whether to keep the MSPDI pass-through fields carry and carryElements; false when omitted | Whether to keep the MSPDI pass-through fields passthroughValues and passthroughElements; false when omitted | 所見 F44 | rewrite |
+| AM-3 の引数 parts | CR-851 | と `documentSettings`・`changeLog` —— | と `documentSettings`・`changeLogEntries` —— | 所見 F48 | rewrite |
+| AM-3 | CR-851 | ⭐ 既定では MSPDI の持ち越しの欄（`carry`・`carryElements`）を除き、`includeCarry` が `true` のときだけ含める | ⭐ 既定では MSPDI の持ち越しの欄（`passthroughValues`・`passthroughElements`）を除き、`includePassthrough` が `true` のときだけ含める | 所見 F44 | rewrite |
+| AM-3 | CR-851 | By default the MSPDI pass-through fields (carry, carryElements) are left out; pass includeCarry true to keep them. | By default the MSPDI pass-through fields (passthroughValues, passthroughElements) are left out; pass includePassthrough true to keep them. | 所見 F44 | rewrite |
+| AM-3 | CR-851 | To get only the task group list (id, name, parent, order), pass parts ['taskGroups']: no task, calendar or resource comes with it. | To get only the task group list (id, name, parentId, siblingOrder), pass parts ['taskGroups']: no task, calendar or resource comes with it. A task group may have no name. | CHOICE N11（order → siblingOrder）、JDG-3315 | rewrite |
+| AM-25 | CR-851 | AI が列のフィルタと並べ替えを変えるのは `applyCommands` の `setTableView`（表 T-108 の `CM-92`）であり、人の画面の表も同じに変わる。 | AI が列のフィルタと並べ替えを変えるのは `applyCommands` の `editTableView` であり、人の画面の表も同じに変わる。 | JDG-3267（実体ごとの edit に畳む）、commands-map（setTableView → editTableView） | rewrite |
+| AM-25 | CR-851 | 答えはタスクの表の列の一覧（列の行 ID・画面の名・値の種類）と全部の行数と次の `offset` を持つ（`AV-16`）。 | 答えはタスクの表の列の一覧（列の変わらない名・画面の名・値の種類）と全部の行数と次の `offset` を持つ（`AV-16`）。 | JDG-3285（列は行 ID でなく変わらない名、所見 F50） | rewrite |
+| AM-25 | CR-851 | To change them as the person would, send setTableView through applyCommands; the person's table changes too. | To change them as the person would, send editTableView through applyCommands; the person's table changes too. | commands-map | rewrite |
+| AM-28 | CR-851 | AI が列のフィルタと並べ替えを変えるのは `applyCommands` の `setTableView`（表 T-108 の `CM-92`）であり、人の画面の表も同じに変わる。 | AI が列のフィルタと並べ替えを変えるのは `applyCommands` の `editTableView` であり、人の画面の表も同じに変わる。 | commands-map | rewrite |
+| AM-28 | CR-851 | To change a table's column filters or sort as the person would, send setTableView through applyCommands. | To change a table's column filters or sort as the person would, send editTableView through applyCommands. | commands-map | rewrite |
+| AM-28 の引数 word | CR-851 | 状態の列（信頼できない など）で絞るには、その列のフィルタを `setTableView` で掛けて `filters` を `asShown` で読む（CR-803） | 状態の列（信頼できない など）で絞るには、その列のフィルタを `editTableView` で掛けて `filters` を `asShown` で読む（CR-803） | commands-map | rewrite |
+| AM-26 | CR-851 | スケジュールフィルタを掛けた表が 1 つも無ければ `null`）と、 | スケジュールフィルタを掛けた表が 1 つも無ければプロパティを省く）と、 | JDG-3309（答えにも当てる） | rewrite |
+| AM-26 | CR-851 | The uids of the tasks the schedule draws now, or null when no table filters the schedule, and the names of the tables that do. | The uids of the tasks the schedule draws now (absent when no table filters the schedule), and the names of the tables that do. | JDG-3309 | rewrite |
+| AM-19 | CR-851 | 日に直すには文書の `Project.minutesPerDay`（空なら既定の値 —— 文書のスキーマの説明が持つ）で割る | 日に直すには文書の `Project.minutesPerDay`（プロパティが無ければ既定の値 —— 文書のスキーマの説明が持つ）で割る | JDG-3309 | rewrite |
+| AM-19 | CR-851 | `walls` は診断が止まった所の並びであり、原因のタスク 1 つに 1 つ置く —— `row` は種類（`DW-1` 値が矛盾するタスク、`DW-2` 親を導けないタスク、`DW-3` 依存線の無いマイルストーン）、 | `walls` は診断が止まった所の並びであり、原因のタスク 1 つに 1 つ置く —— `kind` は種類の変わらない名（`contradictoryValues` 値が矛盾するタスク、`parentNotInferable` 親を導けないタスク、`milestoneWithoutPredecessor` 依存線の無いマイルストーン —— 表 T-316 の `DW-1` 〜 `DW-3`）、 | JDG-3285（答えの値に行 ID を使わない）。⚠️ 3 つの名と欄の名 kind は私の案（表 T-316 に名の欄を足す） | rewrite |
+| AM-19 | CR-851 | To turn minutes into days, divide by the document's project.minutesPerDay (when it is null, the value its description in the document schema gives); | To turn minutes into days, divide by the document's project.minutesPerDay (when it is absent, the value its description in the document schema gives); | JDG-3309 | rewrite |
+| AM-19 | CR-851 | walls lists where the diagnosis stopped, one wall per cause task: row is its kind, told by the number it ends in (1 a task whose own values contradict each other, 2 a task whose parent cannot be inferred, 3 a milestone with no predecessor); | walls lists where the diagnosis stopped, one wall per cause task: kind is contradictoryValues (a task whose own values contradict each other), parentNotInferable (a task whose parent cannot be inferred) or milestoneWithoutPredecessor (a milestone with no predecessor); | JDG-3285 | rewrite |
+| AM-27 | CR-851 | 出す命令は `setTableView`（表 T-108 の `CM-92`）1 つであり、 | 出す命令は `editTableView` 1 つであり、 | commands-map | rewrite |
+| AM-13 | CR-851 | Returns the exported picture as SVG text; when the document fixes the span of the fit view, the picture uses that span. | Returns the exported picture as SVG text. When the document fixes the fit span (fitSpan.isFixed), the picture depends only on the document. Otherwise it is the person's screen as shown, scaled to 1920 pixels wide: it follows their browser zoom, their operating system's display scale and their window size, which the page cannot read. The picture carries the GRS build version in its metadata. | JDG-3290（E-20）、所見 F52（isFitSpanFixed → fitSpan.isFixed）、JDG-3300（SVG のメタデータに造りの版） | rewrite |
+| AM-14 | CR-851 | Returns the exported picture as a PNG image; a failure is a value too. | Returns the exported picture as a PNG image 1920 pixels wide; a failure is a value too. What the picture shows follows the same rule as exportSvg: the document alone when the fit span is fixed, otherwise the person's screen as shown. The image carries the GRS build version in a text chunk. | JDG-3290（E-21）、JDG-3300（PNG の文字の欄に造りの版） | rewrite |
+| AM-11 | CR-851 | Returns the document as GRS JSON text. | Returns the document as GRS JSON text, with buildVersion set to the version of the GRS that wrote it. | JDG-3300 | rewrite |
+| AM-15 | CR-851 | Returns one .html file that holds GRS and the document together. | Returns one .html file that holds GRS and the document together; it names the GRS build version it carries. | JDG-3300（単一 .html に造りの版） | rewrite |
+| AM-4 | CR-851 | The document stamp, for optimistic locking. | The document stamp, for optimistic locking, with the build version of the page that answered (grsBuildVersion). | JDG-3300・JDG-3301（答えの刻印に造りの版）、commands-choices D.4 | rewrite |
+| AM-4 | CR-851 | 文書の刻印。 楽観ロックの照合に用いる | 文書の刻印と、答えたページの造りの版（`grsBuildVersion`）。 楽観ロックの照合に用いる（照合は全部のプロパティの等値 —— `AG-2`） | JDG-3300、CHOICE 15 | rewrite |
+
+### 値の型（表 T-400）
+
+
+| 行 | CR | 古い | 新しい | 理由 | 種別 |
+| --- | --- | --- | --- | --- | --- |
+| AV-2 | CR-851 | この書き込みで作ったものの `uid`（タスク・担当・割り当て・暦が分け合う 1 つの数え —— `uidHighWaterMark` が進んだ分）を小さい順に —— 作らなければ空（CR-803） | この書き込みで作ったものの `uid`（タスク・担当・割り当て・暦が分け合う 1 つの数え —— `highestIssuedUid` が進んだ分）を小さい順に —— 作らなければプロパティを省く（CR-803） | CHOICE N7、JDG-3309（空の配列を書かない） | rewrite |
+| AV-3 | CR-851 | 拒まれた対象（メンバの行 ID か、拒んだ規則の在りか） | （`target` を `member` に改める）拒まれた呼び出しのメンバの名（例 `applyCommands`）。⭐ 欄 `from` を足す —— 拒んだのがページなら `page`、取次なら `relay` | JDG-3285（行 ID を外へ出さない）、commands-choices C（target → member、from で分ける和） | rewrite |
+| AV-3 | CR-851 | 今の刻印 —— 刻印が食い違って拒んだとき（`staleStamp`）も文書は返さず、呼ぶ側が要るものを読み直す（`AG-2`） | 今の刻印 —— `from` が `page` のときだけ持つ（取次の拒否はプロパティを省く）。刻印が食い違って拒んだとき（`staleStamp`）も文書は返さず、呼ぶ側が要るものを読み直す（`AG-2`） | commands-choices C、JDG-3309 | rewrite |
+| AV-3 | CR-851 | 拒まれた命令ごとの拒否（`AG-3`） | （`refusals` を 2 つに分ける）`commandRefusals` —— 理由が `commandRefused` のときだけ持つ、拒まれた命令ごとの拒否（束の中の位置 `commandIndex`・命令の名 `kind`・値の所 `field`・理由 `reason`・`message`）。`documentFaults` —— 理由が `schemaViolation`・`documentInvalid`・`formatTooNew` のときだけ持つ、文書の欠陥ごとの所（`at`、JSON Pointer）・理由・`message`（`AG-3`・`AG-9a`） | commands-choices C（refusals → commandRefusals・documentFaults、空の配列を書かない）、JDG-3285 | rewrite |
+| AV-3 | CR-851 | 人が読む説明 | 人と AI が読む英語の説明 —— 仕様書の行 ID を含めない。⭐ 理由ごとの名のある欄（`pageUrl`・`seconds`・`fileName`・`name`・`replacement`・`converterUrl`・`knownSchemaVersion`・`taskUids` ほか）を、文の中に埋めずに欄として持つ | JDG-3285、commands-choices C（extras）、JDG-3306（formatTooOld の converterUrl） | rewrite |
+| AV-4 | CR-851 | 次のどれか 1 つ —— ⛔ 1 つの値へ潰さない（`AG-9a`） | 次のどれか 1 つの変わらない名 —— ⛔ 1 つの値へ潰さない（`AG-9a`）。⭐ 呼ぶ側は、知らない名を失敗として扱う（`AG-13` の ④） —— 理由は後から足されうる | JDG-3301、JDG-3285 | rewrite |
+| AV-4 | CR-851 | 取り込みの読みが拒んだ理由（表 T-233 の行 ID） | （`CodecRefusalReason` を名に替える）取り込みの読みが拒んだ理由 —— `schemaViolation`（スキーマに合わない、`RS-25`）・`formatTooNew`（版が新しくスキーマにも合わない、`RS-64`）・`formatTooOld`（α の文書、`converterUrl` を添える） | JDG-3285、JDG-3306、refusal-reasons-map | rewrite |
+| AV-4 | CR-851 | 取り込みの検証（`FR-023`）が拒んだ不変条件（Chapter 6.1 の 表 T-220 の行 ID） | （`InvariantRow` を `documentInvalid` に替える）取り込みの検証（`FR-023`）が文書を拒んだ —— 拒んだ不変条件は `documentFaults` に、その行が持つ変わらない名（例 `duplicateKey`・`danglingReference`）で並べる | JDG-3285、refusal-reasons-map（IV-n → 名、上は documentInvalid 1 つ —— commands-choices F.10） | rewrite |
+| AV-4（足す） | CR-851 | - | `'retiredName'` —— 退いた名（メンバ・引数・命令の名・`edit` の欄の名）で呼ばれた（`AG-13`）。`name` と、代わりがあれば `replacement` を添える ／ `'historyEmpty'` —— 戻す・進める段が履歴に無い ／ `'nothingToIssue'` —— 当てる修正案が無い ／ `'importNotLanded'` —— 取り込みが着かなかった ／ 取次の 5 つ（`pageNotConnected`・`relayTimedOut`・`badFileName`・`fileExists`・`saveFolderUnavailable`）も本表に並べる | JDG-3301（retiredName）、commands-choices F.12（commandRefused の別の使い方に名）、studies/77 §3 拒否の理由 ③（取次だけの理由が AV-4 に無い） | add |
+| AV-8 | CR-851 | いま日程表に描いているタスクの `uid` の並び —— スケジュールフィルタを掛けた表が 1 つも無ければ `null`（`TV-1`） | いま日程表に描いているタスクの `uid` の並び —— スケジュールフィルタを掛けた表が 1 つも無ければプロパティを省く（`TV-1`）。型は `readonly number[]`（省ける） | JDG-3309（答えにも当てる）。⚠️ 答えの null をプロパティの不在に改めることは、拒否の形のほかは裁定が明示していない —— 私の案（commands-choices C の「答えにも当てる」を広げた） | rewrite |
+| AV-15 | CR-851 | 人に出した問いの在りか（`U-61` か `QN-17`） | 人に出した問いの種類の変わらない名（`mergeChoice` か `openFile`） | JDG-3285、commands-choices E（AgentImportOutcome.asked が U-61・QN-17）。⚠️ 2 つの名は私の案 | rewrite |
+| AV-16 | CR-851 | 続きの最初の位置 —— 続きが無ければ `null` | 続きの最初の位置 —— 続きが無ければプロパティを省く | JDG-3309（答えにも当てる —— 私の案、AV-8 と同じ） | rewrite |
+| AV-17 | CR-851 | 列の行 ID（表 T-331 の `SQ-1` など） | 列の変わらない名（表 T-331 の列の名 —— `columnFilters` の列のプロパティと同じ名） | JDG-3285、所見 F50、commands-choices E。⚠️ 名の一覧は OPEN O5 | rewrite |
+| AV-18 | CR-851 | 続きの最初の位置 —— 続きが無ければ `null` | 続きの最初の位置 —— 続きが無ければプロパティを省く | JDG-3309（私の案） | rewrite |
+| AV-20 | CR-851 | 列の行 ID（表 T-347 の `DT-1` など、表 T-371 の `RQ-1` など） | 列の変わらない名（表 T-347・表 T-371 の列の名） | JDG-3285、commands-choices E。⚠️ 名の一覧は OPEN O5 | rewrite |
+| AV-21 | CR-851 | 上書きの前の中身を移した `.bak` の絶対の所（保存先のフォルダの下） —— 上書きでなければ `null` | 上書きの前の中身を移した `.bak` の絶対の所（保存先のフォルダの下） —— 上書きでなければプロパティを省く | JDG-3309（私の案） | rewrite |
+| 表 T-400 に足す型 AgentStamp | CR-851 | - | `AgentStamp` —— `Agent API` が手渡す刻印。文書の刻印（表 T-064 の `PI-3`）の欄のすべてに、`grsBuildVersion`（答えたページの造りの版、UTC の `YYYY-MM-DDTHH:MM:SSZ`）を足す。`readStamp`・答えの `stamp`・`watchChanges` の知らせが持つ | JDG-3300・JDG-3301（答えの刻印に造りの版）、commands-choices D.4（AgentStamp を T-400 の新しい行に、文書の buildVersion と名を分ける） | add |
+
+### 書く前の注意（schemaNotes）と初期化の案内（mcpInstructions）
+
+
+| 行 | CR | 古い | 新しい | 理由 | 種別 |
+| --- | --- | --- | --- | --- | --- |
+| schemaNotes.text | CR-851 | Times. Every date-time is a wall clock in project.scheduleDataTimeZone (for example UTC+09:00), written YYYY-MM-DDTHH:MM:SS to the minute, with no Z and no offset; GRS never converts one. | Times. Every date-time is a wall clock in project.scheduleDataTimeZone (for example UTC+09:00), written YYYY-MM-DDTHH:MM:SS with a four-digit year, no fraction of a second, no Z and no offset; GRS reads it to the minute and never converts one. A day alone (firstDay, lastDay, leftEdgeDay) is YYYY-MM-DD and includes the whole day; record instants (documentStamp, buildVersion) are UTC YYYY-MM-DDTHH:MM:SSZ. | JDG-3261、JDG-3281、CHOICE T1・T2 | rewrite |
+| schemaNotes.text | CR-851 | Lengths. Durations and lags count working minutes of the document calendar; one working day is project.minutesPerDay minutes, 480 when it is null. | Lengths. Durations and lags count working minutes of the document calendar; one working day is project.minutesPerDay minutes, 480 when it is absent. | JDG-3309 | rewrite |
+| schemaNotes.text | CR-851 | New uids. Tasks, resources, assignments and calendars share one counter: a new uid is project.uidHighWaterMark plus 1, and uids are never reused. | New uids. Tasks, resources, assignments and calendars share one counter: a new uid is project.highestIssuedUid plus 1, uids are never reused, and every uid lies in 0..2147483647. | CHOICE N7、JDG-3284 | rewrite |
+| schemaNotes.text | CR-851 | Milestones. Task.milestone is the fact; TaskVisual.shapeKind only draws it and must agree with it. | Milestones. Task.milestone is the fact (absent means false). Its TaskVisual holds milestoneShape when it is true and taskShape otherwise, never both. | JDG-3311 | rewrite |
+| schemaNotes.text | CR-851 | Comment boxes. CommentBox.fontSizePx is the text size of one comment box, 8 to 24 px; null draws 10 px. Change it with setCommentBoxFontSizePx. | Comment boxes. CommentBox.fontSizePx is the text size of one comment box, 8 to 24 CSS pixels at displayScalePercent 100; GRS writes 10 when it places a box. Change it with editCommentBox set.fontSizePx. | JDG-3302（必須）、JDG-3291、commands-map（setCommentBoxFontSizePx → editCommentBox）、commands-choices D.5 | rewrite |
+| schemaNotes.text（足す） | CR-851 | - | Absent keys. A key that always holds a value is required. A key with no value is omitted: never write null, an empty string, an empty list or an empty object. Each optional key's description says what an absent key shows. To clear a value with applyCommands, put its name in clear. ⏎ Colors. A color is {"kind":"theme"}, {"kind":"palette","name":…} or {"kind":"custom","light":{"value":"#rrggbb","source":"chosen"},"dark":…}; an absent color key draws nothing. A custom color may omit one side: GRS derives it on load (HSL lightness 1 - L) and writes it with source "derived". Box fills always hold a color; hide one with fillTransparencyPercent 100. ⏎ Sizes. A key ending in Px is a length in CSS pixels at displayScalePercent 100; the drawing multiplies it by displayScalePercent / 100 and never by the zoom. Percent is a percentage (100 is the whole or the same size). Ratio multiplies a default (1 is the default). Fraction is a position inside one thing, from 0 up to but not including 1. dayWidthPx is the width of one day; verticalZoomRatio and taskGroupAutoExpandDepth are the vertical zoom. ⏎ Names. A task and a task group need no name; an unnamed one omits name. | JDG-3309、JDG-3310、JDG-3077・JDG-3183、JDG-3276、JDG-3297（E-22 の Sizes の段）、JDG-3315。⚠️ 4 行を足す（⏎ は原稿の 1 行の区切り） | add |
+| mcpInstructions.text | CR-851 | A refusal is a value, not an error: it names the reason and carries the current stamp, never the document. Read again what you need, then retry. | A refusal is a value, not an error: it says who refused (from page or relay), names the reason as a fixed English word, and a page refusal carries the current stamp, never the document. Treat a reason you do not know as a failure. A retired name is refused with retiredName and its replacement. Read again what you need, then retry. | JDG-3301（知らない理由は失敗、やめた名は専用の理由と代わり）、commands-choices C | rewrite |
+| mcpInstructions.text（足す） | CR-851 | - | If importDocument answers formatTooOld, the file was written by an alpha GRS: ask the person to convert it with the converter at converterUrl, then open the converted file. Do not rewrite the file yourself. | JDG-3306（AI に変換させない、変換の HTML へ案内）、JDG-3279 | add |
+| relayRefusalTexts.lead | CR-851 | 取次が自分で拒むときの答えの `what` の文である（表 T-035 の `AG-12`、`_assets/design-mcp-relay.md` の 5）。 | 取次が自分で拒むときの答えの `message` の文である（表 T-035 の `AG-12`、`_assets/design-mcp-relay.md` の 5）。 | commands-choices C（取次の what をページと同じ message に）、studies/77 §3 拒否の理由 ④ | rewrite |
+
+## `docs/spec/_source/notice-reasons.json`（6 行）
+
+
+### 通知が運ぶ理由（表 T-233）
+
+
+| 行 | CR | 古い | 新しい | 理由 | 種別 |
+| --- | --- | --- | --- | --- | --- |
+| RS-84 | CR-851 | 塗りと線の両方を透明にしようとした | 塗りと線の両方を描かないようにしようとした（ハイライトボックスは、枠の線を描かないまま塗りの透過率を 100 にしようとした） | JDG-3310・JDG-3276、IV-9 の書き直し | rewrite |
+| RS-25 | CR-851 | 読んだ `GRS JSON` の列が、決められた形に合わない | 読んだ `GRS JSON` の列が、決められた形に合わない（`uid` の範囲・字数の上限・`null` を書いたプロパティを含む） | JDG-3284・JDG-3287・JDG-3309（スキーマが拒むものの例を場面に足す） | rewrite |
+| RS-91（足す） | CR-851 | - | \| RS-91 \| 文書の形式の版がこの造りの読む最も古い版より古い（`CR-851` より前の造りが書いた α の文書）ので開けない —— ⭐ 変換の HTML をダウンロードする所（`S-625`）を語の `{converterUrl}` に差し込んで案内する \| `NT-1` \| 出す \| — \| `FR-073` \| | JDG-3306（変換スクリプトへのリンクを出す）、refusal-reasons-map formatTooOld。⚠️ 行 ID は仮 | add |
+| RS-92（足す） | CR-851 | - | \| RS-92 \| 取り込む MSPDI の、日程の計算に効く要素（依存の種別・ラグの単位・曜日・繰り返し）が、決まった値の集合の外の値を持つので取り込まなかった —— ⭐ 要素の所と値を並べる \| `NT-1` \| 出す \| — \| 表 T-265 の `MR-5` \| | JDG-3289（日程に効く値は拒み、要素と値を並べて告げる）。⚠️ 行 ID と外へ出す名 mspdiValueOutOfSet は私の案 | add |
+| RS-93（足す） | CR-849 | - | \| RS-93 \| リンクの所が、押すとページの中で動く形（`javascript:`・`vbscript:`・`data:`）なので書けない \| `NT-1` \| 時間で消す \| — \| `FR-023` \| | JDG-3185、CR-849、refusal-reasons-map hyperlinkSchemeNotAllowed。⚠️ 行 ID は仮 | add |
+| RS-94（足す） | CR-851 | - | \| RS-94 \| 新しい `uid` を採れない —— 文書が採れる最大の `uid`（2147483647）を使い切った \| `NT-1` \| 出す \| — \| `FR-001` の 表 T-239 の `TC-2` \| | JDG-3284（uid は 0〜2147483647）。⚠️ 行 ID は仮。⚠️ 使い切った文書の扱いは裁定に無い —— 私の案 | add |
+
+## `docs/spec/_source/display-words.json`（22 行）
+
+
+### 画面の語（display-words.json）—— 保存する値を名指す語
+
+
+| 行 | CR | 古い | 新しい | 理由 | 種別 |
+| --- | --- | --- | --- | --- | --- |
+| colorNames | CR-851 | {"spelling": "white", "text": {"ja": "白", "en": "White"}} | {"name": "paper", "text": {"ja": "白", "en": "White"}} | 所見 F05（保存する名 white → paper。画面の語は白のまま）、プロパティ spelling → name（JDG-3260 の palette の name） | rewrite |
+| colorNames | CR-851 | {"spelling": "black", "text": {"ja": "黒", "en": "Black"}} | {"name": "ink", "text": {"ja": "黒", "en": "Black"}} | 所見 F05 | rewrite |
+| colorNames | CR-851 | {"spelling": "dimgray", …} ／ {"spelling": "lightgray", …} | {"name": "dimGray", …} ／ {"name": "lightGray", …}（語は変えない） | CHOICE N18 | rewrite |
+| colorNames | CR-851 | {"spelling": "transparent", "text": {"ja": "透明", "en": "Transparent"}} | （colorNames から外し、色の欄の入口の語 colorField へ移す: {"entry": "transparent", "text": {"ja": "透明", "en": "Transparent"}}） | JDG-3310（透明は保存する名でなく入口になる） | rewrite |
+| invariants IV-8 | CR-851 | 名前の無いタスクグループがあるので、このファイルは開けません | - | JDG-3315（IV-8 が退く）。語の行（ja・en・nextStep）を除く | remove |
+| invariants IV-9 | CR-851 | 塗りと線の両方が透明なものがあるので、このファイルは開けません | 塗りも線も描かないもの（またはハイライトボックスの枠の線が無く塗りが透明のもの）があるので、このファイルは開けません | JDG-3310・JDG-3276 | rewrite |
+| invariants IV-9 | CR-851 | Something has both its fill and its line transparent, so this file cannot be opened. | Something draws neither its fill nor its line (or a highlight box has no frame line and a fully transparent fill), so this file cannot be opened. | JDG-3310・JDG-3276 | rewrite |
+| invariants IV-22 | CR-851 | マイルストーンの形なのにマイルストーンでない（またはその逆の）タスクがあるので、このファイルは開けません | マイルストーンの形（`milestoneShape`）とタスクの形（`taskShape`）が、マイルストーンかどうかに合わないタスクがあるので、このファイルは開けません | JDG-3311 | rewrite |
+| invariants IV-22 | CR-851 | In the original file, make that task's shape and its milestone flag agree, then open it. | In the original file, give a milestone a milestoneShape and any other task a taskShape, then open it. | JDG-3311 | rewrite |
+| invariants IV-25（足す） | CR-849 | - | {"rowId": "IV-25", "text": {"ja": "押すとページの中で動くリンクがあるので、このファイルは開けません", "en": "A link would run code in the page when clicked, so this file cannot be opened."}, "nextStep": {"ja": "元のファイルでそのリンクを直してから開いてください", "en": "Fix that link in the original file, then open it."}} | JDG-3185、CR-849 | add |
+| reasons RS-84 | CR-851 | 塗りと線の両方を透明にはできません | 塗りと線の両方を描かないようにはできません | JDG-3310 | rewrite |
+| reasons RS-84 | CR-851 | The fill and the line cannot both be transparent. | The fill and the line cannot both be left undrawn. | JDG-3310 | rewrite |
+| reasons RS-91（足す） | CR-851 | - | {"rowId": "RS-91", "text": {"ja": "この文書は古い形式（α 版）で書かれており、この版では開けません", "en": "This document is in an older (alpha) format, and this version cannot open it."}, "nextStep": {"ja": "変換の HTML を {converterUrl} からダウンロードし、文書を変換してから開いてください", "en": "Download the converter from {converterUrl}, convert the document, then open the converted file."}} | JDG-3306・JDG-3307 | add |
+| reasons RS-92〜RS-94（足す） | CR-851 | - | RS-92: 「MS Project のファイルに、日程の計算に使えない値があるので、取り込みませんでした」／ next「並べた要素を MS Project で直してから取り込んでください」。RS-93（CR-849）: 「このリンクは、押すとページの中で動く形なので書けません」／ next「http や https のリンクにしてください」。RS-94: 「新しい ID を採れません —— この文書は ID を使い切りました」／ next「—」（英語も同じ意味で足す） | JDG-3289・JDG-3185・JDG-3284。⚠️ 語は私の案 | add |
+| settings K-1 | CR-851 | 1 日の幅（zoomX = 1） | - | JDG-3292（S-1・K-1 が退く） | remove |
+| settings K-4 | CR-851 | 予定の縦幅（zoomY = 1） | 予定の縦幅（縦のズーム = 1） | JDG-3293（名 zoomY が無くなる） | rewrite |
+| settings K-86 | CR-851 | "en": "importSequence" | "en": "lastImportNumber"（ja は「最後の取り込みの番号」） | 所見 F24（en の語がプロパティの名を出している） | rewrite |
+| settings K-105 | CR-851 | 文字サイズの段（S / M / L）の px | 文字サイズの段（small / medium / large）の px | JDG-3295 | rewrite |
+| settings K-105 | CR-851 | fontSizeStepSizes.S / fontSizeStepSizes.M / fontSizeStepSizes.L | fontSizeStepSizes.small / fontSizeStepSizes.medium / fontSizeStepSizes.large | JDG-3295 | rewrite |
+| settings K-67 | CR-851 | "ja": "横の\|ズーム\|倍率", "en": "Horizontal Zoom" | "ja": "1 日の\|幅", "en": "Day Width" | JDG-3292（倍率でなく px の幅になる） | rewrite |
+| settings（足す） | CR-851 | - | {"rowId": "K-（仮）", "label": {"ja": "自動で\|開く\|深さ", "en": "Auto Expand Depth"}} | JDG-3293・JDG-3296（RN-3 に出す新しいプロパティの語） | add |
+| readOnlySettings（足す） | CR-851 | - | {"part": "depth", "text": …}（RN-3 の「開く深さ → 数」の語。1 日の幅は既にある pixels を使う） | JDG-3293、RN-3 の書き直し。⚠️ 語のプロパティは私の案 | add |
+
+## `docs/spec/_source/document-commands.json`（24 行）
+
+
+### 表 T-108 の前書き・語・退いた番号
+
+
+| 行 | CR | 古い | 新しい | 理由 | 種別 |
+| --- | --- | --- | --- | --- | --- |
+| $comment | CR-851 | and the type, the null and the bounds are that row's (CR-766 X-d). | and the type, whether the key may be omitted and the bounds are that row's (CR-766 X-d). | JDG-3309（null が型から外れる） | rewrite |
+| $comment | CR-851 | `null`, `list` and `optional` narrow or widen what the column gives. | `list` and `optional` narrow or widen what the column gives; no value takes null. | JDG-3309 | rewrite |
+| $comment | CR-851 | Every data element here obeys OKPN and OMPV (R2) and Null Trap (R3) of docs/development-rules/07-review-standards.md. Check 90 (check-data-element-kinds.py) reds a new violation in the generated schema; the ones older than the rule sit on its baseline, which only goes down. | Every data element here obeys OKPN and OMPV (R2) and Null Trap (R3) of docs/development-rules/07-review-standards.md. Check 90 (check-data-element-kinds.py) reds any violation in the generated schema; CR-851 emptied its baseline. | JDG-3226（スキーマの違反は CR-851 が 0 にする） | rewrite |
+| before（足す） | CR-851 | - | ⭐ **1 つの実体の欄を書く命令は、実体ごとに 1 つの `edit<実体>` に畳む**（`editProject`・`editTask`・`editTaskVisual`・`editTaskGroup`・`editResource`・`editCommentBox`・`editHighlightBox`・`editDocumentSettings`・`editTableView`）。⭐ 中の `set` は書く欄と値、`clear` は値を除く欄の名の並びであり、`clear` に載せた欄はプロパティごと文書から除く —— 空の配列も書かない。⭐ `set` と `clear` のどちらか 1 つ以上を持ち、空の `set`・空の `clear` を書かない。同じ欄を両方に書けば拒む（`fieldSetAndCleared`）。必須の欄は `clear` に載らない。文字の欄に空の字を書かず、空にするのは `clear` である。⭐ 判定は書いた後の行で行い、名指した欄だけを書く（例外は `editTask` の `start`・`finish` が動いたときの完了率と持ち回りの作り直しだけ）。⭐ 作る・消す・動かす・計算を伴う命令は名前つきのまま残す。⭐ 欄ごとの set ／ clear の可否と規則は、生成するスキーマ（`grs-commands.schema.json`）が持つ | JDG-3267（実体ごとの edit に畳む）、JDG-3268（edit／set／clear、clear した欄は何も持たない）、JDG-3309、commands-choices A | add |
+| words.orNull | CR-851 | か `null` | - | JDG-3309（値に null を取らない） | remove |
+| words.notNull | CR-851 | `null` は受けない | - | JDG-3309 | remove |
+| words（足す） | CR-851 | - | "set": {"ja": "に書ける"}, "clear": {"ja": "を除ける"}（edit の欄の印） | JDG-3268 | add |
+| retired | CR-851 | "retired": ["CM-25", "CM-33", "CM-34", "CM-57", "CM-59", "CM-60", "CM-61", "CM-63", "CM-70", "CM-75"] | "retired": [{"id": "CM-25", "name": "setTaskVisualNamePlacement"}, {"id": "CM-33", "name": "setTaskGroupCollapsed", "replacement": "editTaskGroup set.treeState"}, …] —— 今の 10 に、edit へ畳む 58・`setCommentBoxLeaderShapeKind`・改名の旧名 3 を足した 72 の名（一覧は `studies/76-grs-json-beta-shape/commands-map.tsv`）。取次と命令の検査はこの一覧で `retiredName` を返す | JDG-3301（やめた名は専用の理由で断り代わりの名を返す）、commands-choices D.3 | rewrite |
+| shapes AnnotationAnchor | CR-851 | {"name": "AnnotationAnchor", "fields": [{"name": "date", "column": "AT-113", …}, …7 欄]} | （退く —— `createCommentBox` の `anchor` は文書の `CommentBoxAnchor` の形（`kind` の和）をそのまま指す） | 所見 F28、commands-map CM-46 | rewrite |
+| shapes HighlightRange | CR-851 | {"name": "HighlightRange", "fields": [{"name": "start", "column": "AT-117", …}, {"name": "finish", "column": "AT-118", …}, …]} | （退く —— `createHighlightBox` は `firstDay`・`lastDay`・`topTaskGroupId`・`bottomTaskGroupId` を包まずに持つ） | commands-choices F.17、所見 F30 | rewrite |
+| rows（畳む 58 行・退く 1 行・改名 3 行・足す 9 行） | CR-851 | 表 T-108 の 93 行のうち、`set…`／`clear…` で 1 つの実体の欄を書く 58 行（`CM-1`〜`CM-5`・`CM-9`〜`CM-12`・`CM-16`〜`CM-18`・`CM-20`〜`CM-24`・`CM-29`〜`CM-32`・`CM-41`・`CM-48`・`CM-50`・`CM-51`・`CM-54`〜`CM-56`・`CM-58`・`CM-62`・`CM-64`〜`CM-67`・`CM-71`・`CM-74`・`CM-76`〜`CM-92`・`CM-94`〜`CM-97`・`CM-103` —— commands-map.tsv の kind が edit-fold の行を数えた） | 1 行ずつの行き先は `studies/76-grs-json-beta-shape/commands-map.tsv` の行に従う（本表は命令の行を書き写さない） —— 畳む 58 行は退いた名の一覧へ移り、`edit<実体>` の 9 行を足す。名前つきで残る 34 行の「運ぶ値」の書き直しも同じ表の values_new に従う | JDG-3267・JDG-3268、commands-map.tsv（第 2 の行のレビューの表）。⚠️ 同じ変更を 2 つの表に書き写さない | rewrite |
+
+### 名前つきで残る命令の「何を担うか」（carries）
+
+
+| 行 | CR | 古い | 新しい | 理由 | 種別 |
+| --- | --- | --- | --- | --- | --- |
+| CM-6 createTask | CR-851 | `shapeKind` は `rectangle`・`chevron`・`arrow`・`endpointSpan`・`milestone` のどれか（`AT-100`） —— `milestone` ならタスクをマイルストーンにする。 | `taskShape`（`rectangle`・`chevron`・`arrow`・`endpointSpan`、`AT-100`）か `milestoneShape`（`SH-5` の 15 の名、`AT-101`）のどちらか 1 つを渡す —— `milestoneShape` ならタスクをマイルストーンにする。名は渡さず、名の無いタスクを作る（名は `editTask` の `set.name`）。 | JDG-3311、JDG-3315 | rewrite |
+| CM-6 createTask | CR-851 | 新しいタスクの `uid` は `project.uidHighWaterMark` に 1 を足した値で、最高水位もその値へ進む | 新しいタスクの `uid` は `project.highestIssuedUid` に 1 を足した値で、`highestIssuedUid` もその値へ進む | CHOICE N7 | rewrite |
+| CM-6 createTask | CR-851 | 例：`uidHighWaterMark` が 41 なら、束 [`createTask`, `createTask`, `taskUid` 42 の `setTaskName`, `taskUid` 43 の `setTaskName`] は作った 2 つのタスクに名を付ける。 | 例：`highestIssuedUid` が 41 なら、束 [`createTask`, `createTask`, `taskUid` 42 の `editTask`（`set.name`）, `taskUid` 43 の `editTask`（`set.name`）] は作った 2 つのタスクに名を付ける。 | CHOICE N7、JDG-3267（setTaskName → editTask） | rewrite |
+| CM-6 createTask | CR-851 | Creates a task with the given `shapeKind`, `start` and `finish`, placed on the task group `taskGroupId`. | Creates an unnamed task with the given `taskShape` or `milestoneShape`, `start` and `finish`, placed on the task group `taskGroupId`. | JDG-3311、JDG-3315 | rewrite |
+| CM-6 createTask | CR-851 | `shapeKind` is one of `rectangle`, `chevron`, `arrow`, `endpointSpan` and `milestone`; `milestone` makes the task a milestone. | Give exactly one of `taskShape` (`rectangle`, `chevron`, `arrow` or `endpointSpan`) and `milestoneShape` (one of the 15 glyphs); `milestoneShape` makes the task a milestone. | JDG-3311 | rewrite |
+| CM-6 createTask | CR-851 | The new task's uid is `project.uidHighWaterMark` plus 1, and the high-water mark moves to it, | The new task's uid is `project.highestIssuedUid` plus 1, and `highestIssuedUid` moves to it, | CHOICE N7 | rewrite |
+| CM-6 createTask | CR-851 | Example: when `uidHighWaterMark` is 41, the batch [`createTask`, `createTask`, `setTaskName` with `taskUid` 42, `setTaskName` with `taskUid` 43] names both new tasks. | Example: when `highestIssuedUid` is 41, the batch [`createTask`, `createTask`, `editTask` with `taskUid` 42 and `set.name`, `editTask` with `taskUid` 43 and `set.name`] names both new tasks. | CHOICE N7、JDG-3267 | rewrite |
+| CM-26 createTaskGroup | CR-851 | Creates a task group with the given `id`, `parentId`, `name`, `derivedFromTaskUid` and `order`. | Creates a task group with the given `id`, `siblingOrder` and, when given, `parentId` (absent: top level), `name` (absent: unnamed) and `representedTaskUid`. | 所見 F27、CHOICE N11、JDG-3315・JDG-3309（省いたプロパティは書かない） | rewrite |
+| CM-35 reorderTaskGroupSiblings | CR-851 | Reorders the sibling task groups under `parentId` (null means the top level) into the order given by `orderedIds`. That order becomes their `order`. | Reorders the sibling task groups under `parentId` (absent means the top level) into the order given by `orderedIds`. That order becomes their `siblingOrder`. | JDG-3309、CHOICE N11 | rewrite |
+| CM-35 の値 parentId | CR-851 | 並べ直す兄弟の親（`null` は根の段） | 並べ直す兄弟の親（省けば根の段） | JDG-3309 | rewrite |
+| CM-46 createCommentBox | CR-851 | In `anchor`, leave out a key to write it as null. The snapped target (a `taskUid` with `taskFigure`, or a `highlightBoxId`) and `snapPoint` are given together, and only when the box snaps. | `anchor` is one of {"kind":"freePoint","dateTime","taskGroupId","bandFraction"}, {"kind":"task","taskUid","figure","point","fallback"} and {"kind":"highlightBox","highlightBoxId","point","fallback"}; every key of the chosen kind is required. | 所見 F28（kind の和）、JDG-3309 | rewrite |
+| CM-46 の値 anchor | CR-851 | 留め先 —— 省いたプロパティは `null` として書き、吸着した対象（`taskUid` と `taskFigure` の組か `highlightBoxId`）と `snapPoint` は、吸着したときだけ揃えて持つ（`FR-019`） | 線先 —— `CommentBoxAnchor`（`AT-113`）の 3 つの形のどれか。選んだ形のプロパティはすべて持つ（`FR-019`） | 所見 F28 | rewrite |
+| CM-90 setFitSpanFixed の文（editDocumentSettings へ畳む） | CR-851 | If the fit span is empty, the period currently shown is copied into it: `shownStart` and `shownFinish` give that period (null when none). | （`editDocumentSettings` の `set.fitSpan` へ畳む —— 期間の無い固定は書けないので、画面が今の期間を `firstDay`・`lastDay` に入れて `isFixed` 真で送る。null は使わない） | commands-choices F.4・B.8、所見 F52、JDG-3309 | rewrite |
+
+## `docs/spec/_source/image-to-grs-json-prompt.ja.md`（40 行）
+
+
+### 日程の画像をデータ化するプロンプト（日本語の原稿。行番号は今の原稿の行）
+
+
+| 行 | CR | 古い | 新しい | 理由 | 種別 |
+| --- | --- | --- | --- | --- | --- |
+| 14 行 | CR-851 |   - パレット: 色は "white" "black" "dimgray"（濃い灰色）"lightgray"（薄い灰色）"red" "blue" "yellow" "green" "orange" "purple" "transparent"（透明）の 11 語から、原本に最も近いものを選ぶ。GRS の中で後から色を選び直せる |   - パレット: 色は {"kind":"palette","name":名} の形で、名は "paper"（白）"ink"（黒）"dimGray"（濃い灰色）"lightGray"（薄い灰色）"red" "blue" "yellow" "green" "orange" "purple" の 10 語から、原本に最も近いものを選ぶ。描かない所（塗りの無いバー、輪郭の無いバー）はその色のプロパティを書かない。GRS の中で後から色を選び直せる | JDG-3260・JDG-3310（kind の入れ物、透明はプロパティを書かない）、所見 F05 | rewrite |
+| 15 行 | CR-851 |   - 自由: 上の 11 語に加えて "#rrggbb/" の形の色も使ってよい（明るいテーマの色だけを書き、/ の後ろは空ける）。原本に近くなるが、GRS の色の選び肢には無い色になる |   - 自由: 上の 10 語に加えて {"kind":"custom","light":{"value":"#rrggbb","source":"chosen"}} の形の色も使ってよい（明るいテーマの側だけを書き、"dark" は書かない —— GRS が開くときに導く）。値は小文字の 16 進。原本に近くなるが、GRS の色の選び肢には無い色になる | JDG-3260・JDG-3265・JDG-3077（片側を省いてよい、GRS が導く）、CHOICE T3 | rewrite |
+| 19 行 | CR-851 |    - schedule.project の name / title / startDate / statusDate / themeHue / uidHighWaterMark |    - schedule.project の name / title / startDate / statusDate / themeHueDegrees / highestIssuedUid | CHOICE N6・N7 | rewrite |
+| 22 行 | CR-851 |    - documentStamp の lastEditedBy（"ai-conversion" のままでよい） |    - documentStamp の lastEditedBy（土台の {"kind":"agent","name":"ai-conversion"} のままでよい） | 所見 F49 | rewrite |
+| 24 行 | CR-851 |    - どのオブジェクトも、スキーマの required のプロパティをすべて持ち、スキーマに無いプロパティを持たない（additionalProperties は false）。値が無いときは null にする（型が null を許すプロパティだけ）。 |    - どのオブジェクトも、スキーマの required のプロパティをすべて持ち、スキーマに無いプロパティを持たない（additionalProperties は false）。値が無いプロパティは書かない —— null・空の文字・空の配列・空のオブジェクトを書かない。 | JDG-3309（書かない ＝ 無い、null を書かない、空の配列を書かない）、studies/77 §3 null ② | rewrite |
+| 25 行 | CR-851 |    - carry は {}、carryElements は [] にする（tasks・dependencies・resources・assignments・calendars・project すべて）。 |    - passthroughValues と passthroughElements は書かない（原本の日程に MS Project の持ち回りは無い）。 | JDG-3309（書かない ＝ 無い、null を書かない、空の配列を書かない）、studies/77 §3 null ②、所見 F44 | rewrite |
+| 26 行 | CR-851 | 開始の側（start・actualStart・resume・project.startDate）は project.defaultStartTime（null なら {{S-482}}）、終了の側（finish・actualFinish・stop・deadline・project.statusDate）は project.defaultFinishTime（null なら {{S-483}}）。 | 開始の側（start・actualStart・resume・project.startDate）は project.defaultStartTime（無ければ {{S-482}}）、終了の側（finish・actualFinish・stop・deadline・project.statusDate）は project.defaultFinishTime（無ければ {{S-483}}）。 | JDG-3309（書かない ＝ 無い、null を書かない、空の配列を書かない）、studies/77 §3 null ② | rewrite |
+| 26 行 | CR-851 | documentStamp だけは "YYYY-MM-DDTHH:MM:SSZ"。 | documentStamp と buildVersion だけは "YYYY-MM-DDTHH:MM:SSZ"（buildVersion は土台のまま）。ハイライトボックスの firstDay・lastDay のような日付だけのプロパティは "YYYY-MM-DD"。 | JDG-3300、JDG-3281 | rewrite |
+| 30 行 | CR-851 |    - name に見出しの文字を入れる。derivedFromTaskUid は null。 |    - name に見出しの文字を入れる（見出しが読めなければ name を書かない）。representedTaskUid は書かない。 | JDG-3315（名を強いない）、所見 F27、JDG-3309（書かない ＝ 無い、null を書かない、空の配列を書かない）、studies/77 §3 null ② | rewrite |
+| 32 行 | CR-851 |    - order は同じ親の下での上からの並び（0 から）。 |    - siblingOrder は同じ親の下での上からの並び（0 から）。 | CHOICE N11 | rewrite |
+| 32 行 | CR-851 | editPermission は null（誰でも編集できるタスクグループ）、minHeightPx は null。 | editGroup と minHeightPx は書かない（誰でも編集できる、高さの下限なし）。 | JDG-3309（書かない ＝ 無い、null を書かない、空の配列を書かない）、studies/77 §3 null ②、commands-choices G | rewrite |
+| 33 行 | CR-851 |    - color は原本のタスクグループの帯（背景）の色。「色の合わせ方」に従って選ぶ。ただしタスクグループの色に "black" は使えない。帯に色が無ければ null。 |    - color は原本のタスクグループの帯（背景）の色。「色の合わせ方」に従って選ぶ。ただしタスクグループの色に "ink" は使えない。帯がテーマの色なら {"kind":"theme"}、帯に色が無ければ color を書かない。 | JDG-3310、所見 F04・F05 | rewrite |
+| 31 行 | CR-851 |    - 入れ子の見出しは parentId に親の id を入れる。 |    - 入れ子の見出しは parentId に親の id を入れる。最上段の見出しは parentId を書かない。 | JDG-3309（書かない ＝ 無い、null を書かない、空の配列を書かない）、studies/77 §3 null ② | rewrite |
+| 40 行 | CR-851 | 英語なら 3 語まで（例 "Approvals"、"Design reviews"）。derivedFromTaskUid は null。 | 英語なら 3 語まで（例 "Approvals"、"Design reviews"）。representedTaskUid は書かない。 | 所見 F27、JDG-3309（書かない ＝ 無い、null を書かない、空の配列を書かない）、studies/77 §3 null ② | rewrite |
+| 42 行 | CR-851 | 深さ 4 以上のタスクグループは、既定の縦の倍率では GRS に描かれない。 | 深さ 4 以上のタスクグループは、既定の開く深さ（documentSettings.taskGroupAutoExpandDepth の 3）では GRS に描かれない。 | JDG-3293・JDG-3296（名と意味だけ） | rewrite |
+| 45 行 | CR-851 |    - name は原本のバーや記号に付いた名前。読めないときは近い語を推定し、「推定したこと」に書く。 |    - name は原本のバーや記号に付いた名前。読めないときは近い語を推定し、「推定したこと」に書く。名の無いバーは name を書かない。 | JDG-3315 | rewrite |
+| 47 行 | CR-851 |    - マイルストーン（◇ ▼ ★ など 1 日の印）は milestone を true にし、start と finish を同じ日にする。それ以外は false。 |    - マイルストーン（◇ ▼ ★ など 1 日の印）は milestone を true にし、start と finish を同じ日にする。それ以外は milestone を書かない（false と同じ）。 | CHOICE N24（Task.milestone は省ければ false） | rewrite |
+| 48 行 | CR-851 | 無ければ null。wbsOrder は同じ親の下での並び（0 から）。 | 無ければ書かない。siblingOrder は同じ親の下での並び（0 から）。 | JDG-3309（書かない ＝ 無い、null を書かない、空の配列を書かない）、studies/77 §3 null ②、CHOICE N11 | rewrite |
+| 50 行 | CR-851 |      - 完了: actualStart と actualFinish に日付、stop は null、percentComplete は 100。 |      - 完了: actualStart と actualFinish に日付、stop は書かない、percentComplete は 100。 | JDG-3309（書かない ＝ 無い、null を書かない、空の配列を書かない）、studies/77 §3 null ② | rewrite |
+| 51 行 | CR-851 |      - 進行中: actualStart と stop（いま実績が届いている最後の日）に日付、actualFinish は null、percentComplete は読み取れた値（読めなければ null）。 |      - 進行中: actualStart と stop（いま実績が届いている最後の日）に日付、actualFinish は書かない、percentComplete は読み取れた値（読めなければ書かない）。 | JDG-3309（書かない ＝ 無い、null を書かない、空の配列を書かない）、studies/77 §3 null ② | rewrite |
+| 52 行 | CR-851 |      - 未着手・実績が描かれていない: actualStart・stop・actualFinish は null、percentComplete は null。 |      - 未着手・実績が描かれていない: actualStart・stop・actualFinish・percentComplete は書かない。 | JDG-3309（書かない ＝ 無い、null を書かない、空の配列を書かない）、studies/77 §3 null ② | rewrite |
+| 54 行 | CR-851 |    - resume は null、resumeValid は null。deadline・notes・calendarUid は null。 |    - resume・resumeValid・deadline・notes・calendarUid は書かない。 | JDG-3309（書かない ＝ 無い、null を書かない、空の配列を書かない）、studies/77 §3 null ② | rewrite |
+| 55 行 | CR-851 | {"predecessorUid": 前のタスクの uid, "linkType": 1, "linkLag": 0, "lagFormat": 7, "carry": {}, "carryElements": []} を入れる。 | {"predecessorUid": 前のタスクの uid, "linkType": 1, "lagFormat": 7} を入れる（ラグがあれば "linkLag" を足す）。 | JDG-3309（書かない ＝ 無い、null を書かない、空の配列を書かない）、studies/77 §3 null ②、所見 F44 | rewrite |
+| 55 行 | CR-851 | 1 日は project.minutesPerDay 分で、null なら {{S-128}} 分 —— ラグが無ければ 0、2 日のラグは 2 × 1 日の分数 × 10（project.minutesPerDay が null なら 2 × {{S-128}} × 10）。矢印が無ければ []。 | 1 日は project.minutesPerDay 分で、無ければ {{S-128}} 分 —— ラグが無ければ linkLag を書かない、2 日のラグは 2 × 1 日の分数 × 10（project.minutesPerDay が無ければ 2 × {{S-128}} × 10）。矢印が無ければ dependencies を書かない。 | JDG-3309（書かない ＝ 無い、null を書かない、空の配列を書かない）、studies/77 §3 null ② | rewrite |
+| 56 行 | CR-851 | 6. フェードと、薄れていくグラデーション（fadeInDays / fadeOutDays） | 6. フェードと、薄れていくグラデーション（fadeInCalendarDays / fadeOutCalendarDays） | JDG-3312 | rewrite |
+| 58 行 | CR-851 | 開始側の斜め（薄れ）の横の長さを暦日で fadeInDays に、終了側を fadeOutDays に入れる。無い側は null。 | 開始側の斜め（薄れ）の横の長さを暦日で fadeInCalendarDays に、終了側を fadeOutCalendarDays に入れる。無い側は書かない。 | JDG-3312、JDG-3309（書かない ＝ 無い、null を書かない、空の配列を書かない）、studies/77 §3 null ② | rewrite |
+| 59 行 | CR-851 | 矢印・両端に点がある線・マイルストーンには付けない（null）。 | 矢印・両端に点がある線・マイルストーンには付けない（書かない）。 | JDG-3309（書かない ＝ 無い、null を書かない、空の配列を書かない）、studies/77 §3 null ② | rewrite |
+| 60 行 | CR-851 |    - fadeInDays と fadeOutDays は 0 以上、 |    - fadeInCalendarDays と fadeOutCalendarDays は 0 以上、 | JDG-3312 | rewrite |
+| 66〜71 行 | CR-851 |    - shapeKind: |    - マイルストーンでないタスクは taskShape を、マイルストーンは milestoneShape を、どちらか 1 つだけ書く: | JDG-3311 | rewrite |
+| 71 行 | CR-851 |      - 記号（マイルストーン）: "milestone"。milestoneGlyph を "circle" / "hexagon" / "pentagon" / "diamond" / "square" / "star" / "triangleUp" / "triangleDown" / "file" / "box" / "floppyDisk" / "cylinder" / "person" / "smile" / "beerMug" から最も近いものにする。記号以外の形状では milestoneGlyph は null。 |      - 記号（マイルストーン）: taskShape を書かず、milestoneShape を "circle" / "hexagon" / "pentagon" / "diamond" / "square" / "star" / "triangleUp" / "triangleDown" / "file" / "box" / "floppyDisk" / "cylinder" / "person" / "smile" / "beerMug" から最も近いものにする。記号以外の形状では milestoneShape を書かない。 | JDG-3311 | rewrite |
+| 72 行 | CR-851 | 塗りが無い（輪郭だけの）バーは fillColor を "transparent"、輪郭が無いバーは strokeColor を "transparent" にする。fillColor と strokeColor を両方 "transparent" にしない。 | 塗りが無い（輪郭だけの）バーは fillColor を書かず、輪郭が無いバーは strokeColor を書かない。fillColor と strokeColor を両方とも省かない。 | JDG-3310 | rewrite |
+| 76 行 | CR-851 |    - 原本で最も多く使われているバーの色は null にし、代わりに project.themeHue をその色の色相（0〜359 の整数。赤 0、黄 60、緑 120、青 210 前後、紫 280 前後）にする。null の色は themeHue から作られる色になり、実績のバーや印の色もそれに揃う。原本がほぼ無彩色なら themeHue は 214 のままにする。 |    - 原本で最も多く使われているバーの色は {"kind":"theme"} にし、代わりに project.themeHueDegrees をその色の色相（0〜359 の整数。赤 0、黄 60、緑 120、青 210 前後、紫 280 前後）にする。{"kind":"theme"} の色は themeHueDegrees から作られる色になり、実績のバーや印の色もそれに揃う。原本がほぼ無彩色なら themeHueDegrees は 214 のままにする。 | JDG-3310・JDG-3302（theme は kind）、CHOICE N6 | rewrite |
+| 77 行 | CR-851 | 細い・中くらい・太いの 3 つに見えるなら 1 ・ 2 ・ 3。違いが見えなければ null。 | 細い・中くらい・太いの 3 つに見えるなら 1 ・ 2 ・ 3。違いが見えなければ 1。 | JDG-3308（strokeWidthPx は必須、既定 1） | rewrite |
+| 78 行 | CR-851 |    - 1 件の形: {"taskUid": uid, "shapeKind": 上の値, "milestoneGlyph": 上の値か null, "fillColor": 色か null, "strokeColor": 色か null, "strokeWidthPx": 太さか null} |    - 1 件の形: {"taskUid": uid, "taskShape" か "milestoneShape": 上の値, "fillColor": 色（描かなければ書かない）, "strokeColor": 色（描かなければ書かない）, "strokeWidthPx": 太さ} | JDG-3311・JDG-3310・JDG-3308 | rewrite |
+| 80 行 | CR-851 |    - resources に {"uid": 整数, "name": 担当名, "resourceKind": 1, "isCostResource": false, "calendarUid": null, "carry": {}, "carryElements": []}、assignments に {"uid": 整数, "taskUid": uid, "resourceUid": 担当の uid, "carry": {}, "carryElements": []}。 |    - resources に {"uid": 整数, "name": 担当名, "resourceKind": 1, "isCostResource": false}、assignments に {"uid": 整数, "taskUid": uid, "resourceUid": 担当の uid}。 | JDG-3309（書かない ＝ 無い、null を書かない、空の配列を書かない）、studies/77 §3 null ②、所見 F44 | rewrite |
+| 82 行 | CR-851 |    - name と title に日程表の題名、startDate に最も早い予定の開始日、statusDate に原本の「今日」の線の日（無ければ null）を入れる。themeHue は 8. のとおり。uidHighWaterMark は tasks・resources・assignments で使った uid の最大値。 |    - name と title に日程表の題名、startDate に最も早い予定の開始日、statusDate に原本の「今日」の線の日（無ければ statusDate を書かない）を入れる。themeHueDegrees は 8. のとおり。highestIssuedUid は tasks・resources・assignments で使った uid の最大値（2147483647 まで）。 | JDG-3309（書かない ＝ 無い、null を書かない、空の配列を書かない）、studies/77 §3 null ②、CHOICE N6・N7、JDG-3284 | rewrite |
+| 92 行 | CR-851 | themeHue の値と、子のタスクグループを作った所（その label）は必ず書く。 | themeHueDegrees の値と、子のタスクグループを作った所（その label）は必ず書く。 | CHOICE N6 | rewrite |
+| 99 行 | CR-851 |    - どの TaskGroup も name を持つ |    - どのオブジェクトにも null・空の文字・空の配列・空のオブジェクトが無い | JDG-3315（名を強いないので「name を持つ」の確かめを外す）、JDG-3309 | rewrite |
+| 101 行 | CR-851 | fadeInDays と fadeOutDays の和が期間の暦日を超えない | fadeInCalendarDays と fadeOutCalendarDays の和が期間の暦日を超えない | JDG-3312 | rewrite |
+| 103 行 | CR-851 |    - 色は「色の合わせ方」で許した値だけで、fillColor と strokeColor が両方 "transparent" のものが無い |    - 色は「色の合わせ方」で許した形だけで、fillColor と strokeColor を両方とも省いた taskVisual が無い。マイルストーンは milestoneShape を、ほかは taskShape を、どちらか 1 つだけ持つ | JDG-3310・JDG-3311 | rewrite |
+
+## `docs/spec/_source/image-to-grs-json-prompt.en.md`（1 行）
+
+
+### 日程の画像をデータ化するプロンプト（日本語の原稿。行番号は今の原稿の行）
+
+
+| 行 | CR | 古い | 新しい | 理由 | 種別 |
+| --- | --- | --- | --- | --- | --- |
+| 同じ行（英語の原稿） | CR-851 | （英語の原稿の 14・15・19・22・24〜26・30〜33・40・42・45・47・48・50〜52・54〜56・58〜60・66〜72・76〜78・80・82・92・99・101・103 行 —— 日本語の原稿と同じ行） | 日本語の原稿の上の行と同じ中身を英語で書く（行の対応は今のまま）。⚠️ 英語の文は日本語の行が良しとされた後に起こす | 上の日本語の行と同じ。⚠️ 英語の 1 行ずつの写しは本表に載せていない —— 決まっていない所 | rewrite |
+
+## `docs/spec/_source/grs-json-changes.json`（8 行）
+
+
+### 台帳の原稿（grs-json-changes.json）
+
+
+| 行 | CR | 古い | 新しい | 理由 | 種別 |
+| --- | --- | --- | --- | --- | --- |
+| $comment | CR-851 | EMPTY UNTIL OFFICIAL USE IS DECLARED: while S-541 of table T-206 is null, nothing may be added here; a format change before then refuses an older document instead (FR-073). Check 76 holds both directions. | WRITTEN FROM CR-851 ON (JDG-3262): every format change appends its rows here, before official use too. GRS does not read these rows until official use is declared (S-541 of table T-206); before that an older document is refused (formatTooOld) and the alpha-to-beta converter applies these rows instead (FR-073). Check 76 reds a version raised without rows. | JDG-3262（台帳は CR-851 から書くが GRS は正式な利用の前には読まない）、JDG-3306・JDG-3307 | rewrite |
+| changes（足す —— 最初の行の作り方） | CR-851 | "changes": [] | "changes": [ … ] —— `CR-851` の行は、`studies/76-grs-json-beta-shape/doc-shape-map.tsv` の 300 行のうち change が none・description-only でない行から 1 行ずつ起こす（台帳の 1 行 ＝ 変えた要素 1 つ）。種別の当て方: rename → `renamed`（`to` に新しい名）、add → `added`（`default` に α の文書を読むときの値。省けるプロパティは `default` を持たず「書かない」）、remove → `removed`、type・union・value-meaning を含む行 → `converted`（`rule` に変換の規則の名）。⚠️ 行の数は約 240 —— 起こすのは道具の仕事で、本表は形と規則の名だけを決める | JDG-3262（CR-851 が x-grsChanges の最初の行を書く）、doc-shape-choices §9。⚠️ 1 行ずつの写しは載せない —— doc-shape-map.tsv がその表であり、2 か所に書き写さない | rewrite |
+| changes の例 1（足す） | CR-851 | - | {"version": "<CR-851 の版>", "kind": "renamed", "entity": "Task", "column": "fadeInDays", "to": "fadeInCalendarDays"} | JDG-3312、doc-shape-map AT-40 | add |
+| changes の例 2（足す） | CR-851 | - | {"version": "<CR-851 の版>", "kind": "converted", "entity": "TaskVisual", "column": "fillColor", "rule": "colorStringToKind"} —— 規則: null → {"kind":"theme"}、"transparent" → プロパティを除く、パレットの名 → {"kind":"palette","name"}（white → paper、black → ink、dimgray → dimGray、lightgray → lightGray）、"#明/#暗" → {"kind":"custom"} の決めた側を chosen で、空の側は省く | JDG-3260・JDG-3265・JDG-3310・JDG-3077、所見 F01〜F05 | add |
+| changes の例 3（足す） | CR-851 | - | {"version": "<CR-851 の版>", "kind": "converted", "entity": "documentSettings", "column": "zoomY", "rule": "zoomYToVerticalZoomRatioAndAutoExpandDepth"} —— 規則: verticalZoomRatio ＝ max(1, zoomY)、taskGroupAutoExpandDepth ＝ zoomY で描かれる深さの限り（しきい値 0.32 / 0.48 / 0.72 / 1.08 で深さ 2〜5）− 1 | JDG-3293・JDG-3296、scaling-names §6 | add |
+| changes の例 4（足す） | CR-851 | - | {"version": "<CR-851 の版>", "kind": "converted", "entity": "TaskVisual", "column": "strokeWidthPx", "rule": "strokeWidthTimes0625"} —— 規則: 値があれば × 0.625 して丸め（最小 1）、null なら 1 | JDG-3278・JDG-3308 | add |
+| changes の例 5（足す） | CR-851 | - | {"version": "<CR-851 の版>", "kind": "removed", "entity": "documentSettings", "column": "rulerFontSizePx"}（`rulerHeightPx` も同じ形で 1 行） | JDG-3294 | add |
+| changes の例 6（足す） | CR-851 | - | {"version": "<CR-851 の版>", "kind": "converted", "entity": "TaskGroup", "column": "name", "rule": "nullNameToAbsentOrTaskName"} —— 規則: null の名は、表すタスクがあればその名を写し（α の画面が見せていた名を残す）、無ければプロパティを除く | JDG-3315（β では写さないが、α の文書で画面に出ていた名を変換で失わない —— 私の案）。⚠️ 写すか除くかは裁定に無い | add |
+
+## `docs/spec/_source/grs-json-changes.schema.json`（5 行）
+
+
+### 台帳のスキーマ（grs-json-changes.schema.json）
+
+
+| 行 | CR | 古い | 新しい | 理由 | 種別 |
+| --- | --- | --- | --- | --- | --- |
+| changes.description | CR-851 | Oldest first; an element is appended, never rewritten. Empty while S-541 of table T-206 is null. | Oldest first; an element is appended, never rewritten. Written from CR-851 on; GRS reads it only after official use is declared (S-541 of table T-206). | JDG-3262 | rewrite |
+| change.kind の説明 | CR-851 | refused -> refuse the whole document (RS-25). | refused -> refuse the whole document (RS-25, formatTooOld for a document older than the oldest version this GRS reads). | JDG-3306 | rewrite |
+| change.column の説明（入れ子） | CR-851 | The changed column, under its name before that version. | The changed column, under its name before that version. A key nested inside a column (for example scrollPosition.leftEdgeDay or a color's kind) is named by `path` instead. | studies/77 §3 版と退役 ⑤（台帳の形が入れ子のプロパティを名指せない） | rewrite |
+| change.path（足す） | CR-851 | - | "path": {"type": "string", "pattern": "^/", "description": "A JSON Pointer to the changed element inside the document schema, before that version, for a key nested inside a column. Used instead of column."} | studies/77 §3 版と退役 ⑤。⚠️ 欄の名 path は私の案 | add |
+| change.to の pattern | CR-851 | "description": "renamed only: the new name." | "description": "renamed only: the new name; a JSON Pointer when the element moved inside another (fitSpanStart -> /fitSpan/firstDay)."（pattern を名か JSON Pointer に広げる） | 所見 F52・F12（プロパティが入れ物の中へ動く改名） | rewrite |
+
+## `docs/spec/_source/property-items.json`（25 行）
+
+
+### プロパティパネルの項目（表 T-016）
+
+
+| 行 | CR | 古い | 新しい | 理由 | 種別 |
+| --- | --- | --- | --- | --- | --- |
+| PR-17 | CR-851 | "columns": ["milestoneGlyph"] | "columns": ["milestoneShape"] | JDG-3311 | rewrite |
+| PR-14 | CR-851 | "columns": ["fadeInDays", "fadeOutDays"] | "columns": ["fadeInCalendarDays", "fadeOutCalendarDays"] | JDG-3312 | rewrite |
+| PR-14（足す注） | CR-851 | 日付の曖昧さを端のぼかしで表す。**適用する形状は表 T-012a の `FD-5` が限る** | 日付の曖昧さを端のぼかしで表す。**適用する形状は表 T-012a の `FD-5` が限る**。欄を空にして確定すると、そのプロパティを文書から除く（`0` は書かない —— `FR-075`） | JDG-3309、JDG-3268 | rewrite |
+| PR-36 | CR-851 | 空にしたときは両方を空にして `PA-1`（未着手）に置く（どちらも 表 T-108 の `CM-13`） | 空にしたときは両方のプロパティを除いて `PA-1`（未着手）に置く（どちらも 表 T-108 の `placeTaskPlanActual`） | JDG-3309、commands-map（CM-13 → placeTaskPlanActual） | rewrite |
+| PR-1（足す注） | CR-851 | バーに描くラベル | バーに描くラベル。欄を空にして確定すると `name` のプロパティを除く（名の無いタスク —— 名を強いない） | JDG-3315 | rewrite |
+| PR-40 | CR-851 | 空の欄は `null` ＝ `_assets/tbl-settings.md` の 表 T-201 の `S-39` の太さで描く。 | 欄はいつも値を出す（1 〜 10、表示の倍率 100 のときの CSS px）—— 空にして確定したら元の値へ戻す。作るときの値は `_assets/tbl-settings.md` の 表 T-201 の `S-39` の 1。 | JDG-3308・JDG-3309（必須） | rewrite |
+| PR-18（足す注） | CR-851 | タスクグループ名。⚠️ **実体は `fig-erd-detail.md` の `AT-53` である** | タスクグループ名。⭐ 欄を空にして確定すると、タスクグループ名が無くなる（`name` のプロパティを除く）。⚠️ **実体は `fig-erd-detail.md` の `AT-53` である** | JDG-3315（プロパティパネルでタスクグループ名を空にして Enter したら名が無くなる） | rewrite |
+| PR-20 | CR-851 | `null` ＝ 下限なし（欄ではチェックを外した状態 —— `FR-042` の 表 T-338 の `MH-2`）。 | プロパティが無いことが下限なし（欄ではチェックを外した状態 —— `FR-042` の 表 T-338 の `MH-2`）。 | JDG-3309、CHOICE N20 | rewrite |
+| PR-20 | CR-851 | 表示の倍率 100 のときの画面の px。 | 表示の倍率 100 のときの CSS px。 | JDG-3291 | rewrite |
+| PR-33 | CR-851 | "columns": ["editPermission"] | "columns": ["editGroup"] | commands-choices G | rewrite |
+| PR-33 | CR-851 | 空の欄は `null` ＝ 誰でも編集できる。⭐ **人だけが入れ・消せる項目である** —— `editPermission` が `null` でないタスクグループでも編集でき、 | 空の欄はプロパティを書かない ＝ 誰でも編集できる。⭐ **人だけが入れ・消せる項目である** —— `editGroup` を持つタスクグループでも編集でき、 | JDG-3309 | rewrite |
+| PR-19 | CR-851 | タスクグループの帯の色。`null` ＝ テーマから解く | タスクグループの帯の色。`{"kind":"theme"}` ＝ テーマの色、プロパティが無い ＝ 帯を塗らない（色の欄の透明） | JDG-3310 | rewrite |
+| PR-50 | CR-851 | ⭐ 列が `null` の箱は、既定の値（`_assets/tbl-settings.md` の表 T-217 の `S-624`）を欄に出す —— 作成者は、何も置いていない箱が何 px で描かれているかを欄で読める。欄を空にして確定すると `null` に戻る。 | ⭐ 列はいつも値を持ち、欄はその値を出す（置くときの値は `_assets/tbl-settings.md` の表 T-217 の `S-624`）。欄を空にして確定したら元の値へ戻す。 | JDG-3302・JDG-3309（必須） | rewrite |
+| PR-28 | CR-851 | `null` ＝ `FR-019` が名指す注記の色 | `{"kind":"theme"}` ＝ `FR-019` が名指す注記の色 | JDG-3310 | rewrite |
+| PR-45 | CR-851 | `null` ＝ `FR-019` が名指す地の色 | `{"kind":"theme"}` ＝ `FR-019` が名指す地の色。⭐ 透明を押すと色を残して透過率を 100 にし、透過率 100 の箱で色を選ぶと透過率を 50 にする（`FR-019`） | JDG-3310・JDG-3276・JDG-3304 | rewrite |
+| PR-27 | CR-851 | 既定と範囲は `_assets/tbl-settings.md` の表 T-217 の `S-375` | 置くときの値と範囲は `_assets/tbl-settings.md` の表 T-217 の `S-375` | JDG-3302 | rewrite |
+| PR-46 | CR-851 | `null` ＝ `FR-019` が名指す文字の色 | `{"kind":"theme"}` ＝ `FR-019` が名指す文字の色 | JDG-3310 | rewrite |
+| PR-22 | CR-851 | ハイライトボックスの枠の色（`CM-55`）。`null` ＝ 注記の色 `S-312`（テーマ色に従わない —— 色の欄の語は既定の色）。透明（線なし）も取るが、塗りと同時には取らない（`FR-019`、表 T-017b の `CV-9`） | ハイライトボックスの枠の色（`editHighlightBox` の `strokeColor`）。`{"kind":"theme"}` ＝ 注記の色 `S-312`（テーマ色に従わない —— 色の欄の語は既定の色）。透明（線なし ＝ プロパティを除く）も取るが、塗りの透過率 100 と同時には取らない（`FR-019`、表 T-017b の `CV-9`） | JDG-3310・JDG-3276、commands-map（CM-55 → editHighlightBox） | rewrite |
+| PR-25 | CR-851 | 塗りの色。`null` ＝ テーマの色（`_assets/tbl-settings.md` の 表 T-236 の `S-155`）。置くときは同書の `S-370`（透明 ＝ 塗らない）をコピーする。規則は `FR-019` | 塗りの色。`{"kind":"theme"}` ＝ テーマの色（`_assets/tbl-settings.md` の 表 T-236 の `S-155`）。置くときは `{"kind":"theme"}` を書き、透過率を 100 にする。⭐ 透明を押すと色を残して透過率を 100 にし、透過率 100 の箱で色を選ぶと透過率を 50 にする。規則は `FR-019` | JDG-3304・JDG-3276・JDG-3310（S-370 が退く） | rewrite |
+| PR-24 | CR-851 | 既定と範囲は `_assets/tbl-settings.md` の表 T-217 の `S-371` | 置くときの値は同書の `S-627`（100）、色を選んだときに書く値は `S-371`（50）、範囲は 0 〜 100 | JDG-3304、S-371 の役替え | rewrite |
+
+### リンクの欄（CR-849）
+
+
+| 行 | CR | 古い | 新しい | 理由 | 種別 |
+| --- | --- | --- | --- | --- | --- |
+| PR-51（足す） | CR-849 | - | {"id": "PR-51", "columns": ["hyperlinkAddress"], 型: 文字, 実体: `Task`（マイルストーンを含む）, 交換相手: `Task/HyperlinkAddress`, 注: リンクの所（URL、1 〜 512 字）。`javascript:`・`vbscript:`・`data:` で始まる所は確定を拒み、表 T-233 の `RS-93` を告げる（`FR-023`）。空にして確定するとプロパティを除く。持つタスクは名前の右肩の上にリンクの印を描く（`FR-109`）} | JDG-3081・JDG-3314・JDG-3185・JDG-3082、CR-849。⚠️ 行 ID と欄の並ぶ位置は仮（FR-006 の並びに足す） | add |
+| PR-52（足す） | CR-849 | - | {"id": "PR-52", "columns": ["hyperlink"], 型: 文字, 実体: `Task`, 交換相手: `Task/Hyperlink`, 注: リンクの題（1 〜 512 字）。所でないことを欄の名で言う。空にして確定するとプロパティを除く} | JDG-3314（hyperlink は題）、CR-849 | add |
+| PR-53・PR-54（足す） | CR-849 | - | `CommentBox` の `hyperlinkAddress`・`hyperlink`（`PR-51`・`PR-52` と同じ欄、交換相手は無い —— `GRS JSON` のみ）。持つ箱は右肩の上にリンクの印を描く（`FR-097`） | JDG-3081・JDG-3082・JDG-3314、CR-849 | add |
+| PR-55・PR-56（足す） | CR-849 | - | `TaskGroup` の `hyperlinkAddress`・`hyperlink`（同じ欄、交換相手は無い）。持つタスクグループの名は青い字に下線で描く（表 T-051 の `HF-21`）。⚠️ `editGroup` を持つタスクグループでは、名前と色と同じく書き換えを断る（表 T-275 の `GP-1`） | JDG-3081・JDG-3083・JDG-3314、CR-849。⚠️ GP-1 の断りに入れるかは私の案 | add |
+
+### 畳む命令の行 ID を名指す所（自動で拾った —— 表 T-108 の行が退くので、名指しを edit の命令と欄へ書き換える）
+
+
+| 行 | CR | 古い | 新しい | 理由 | 種別 |
+| --- | --- | --- | --- | --- | --- |
+| ref CM-11 | CR-851 | start` と `finish` へ同じ日を書く（表 T-108 の `CM-11`） —— MSPDI のマイルストーンは開始と終 | start` と `finish` へ同じ日を書く（表 T-108 の `editTask` の `set.start`・`set.finish`） —— MSPDI のマイルストーンは開始と終 | JDG-3267・JDG-3268（CM-11 は edit の命令へ畳まれ、表 T-108 の行が退く —— commands-map.tsv） | rewrite |
+
+## `docs/spec/_source/published-entries.json`（8 行）
+
+
+### 畳む命令の行 ID を名指す所（自動で拾った —— 表 T-108 の行が退くので、名指しを edit の命令と欄へ書き換える）
+
+
+| 行 | CR | 古い | 新しい | 理由 | 種別 |
+| --- | --- | --- | --- | --- | --- |
+| ref CM-3 | CR-851 | 直しの束に入る命令（表 T-108 の `CM-3` ・ `CM-11` ・ `CM-13` ・ ` | 直しの束に入る命令（表 T-108 の `editProject` の `set.statusDate` ・ `CM-11` ・ `CM-13` ・ ` | JDG-3267・JDG-3268（CM-3 は edit の命令へ畳まれ、表 T-108 の行が退く —— commands-map.tsv） | rewrite |
+| ref CM-11 | CR-851 | 直しの束に入る命令（表 T-108 の `CM-3` ・ `CM-11` ・ `CM-13` ・ `CM-37` ・ ` | 直しの束に入る命令（表 T-108 の `CM-3` ・ `editTask` の `set.start`・`set.finish` ・ `CM-13` ・ `CM-37` ・ ` | JDG-3267・JDG-3268（CM-11 は edit の命令へ畳まれ、表 T-108 の行が退く —— commands-map.tsv） | rewrite |
+| ref CM-92 | CR-851 | ocument` が `setTableView`（表 T-108 の `CM-92`）の値を文書の形へ移すために読む | ocument` が `setTableView`（表 T-108 の `editTableView`）の値を文書の形へ移すために読む | JDG-3267・JDG-3268（CM-92 は edit の命令へ畳まれ、表 T-108 の行が退く —— commands-map.tsv） | rewrite |
+| ref CM-50 | CR-851 | `CM-46`・`CM-50` の値の形 `AnnotationAnchor` | `CM-46`・`editCommentBox` の `set.anchor` の値の形 `AnnotationAnchor` | JDG-3267・JDG-3268（CM-50 は edit の命令へ畳まれ、表 T-108 の行が退く —— commands-map.tsv） | rewrite |
+| ref CM-92 | CR-851 | `setTableView`（表 T-108 の `CM-92`）が運ぶ値であり、文書の形（`PI-2` の ` | `setTableView`（表 T-108 の `editTableView`）が運ぶ値であり、文書の形（`PI-2` の ` | JDG-3267・JDG-3268（CM-92 は edit の命令へ畳まれ、表 T-108 の行が退く —— commands-map.tsv） | rewrite |
+| ref CM-95 | CR-851 | 算して適用する ／ 換算しない）で基準を変える命令（表 T-108 の `CM-95`、または `CM-94` と `CM-95` の | 算して適用する ／ 換算しない）で基準を変える命令（表 T-108 の `editDocumentSettings` の `set.viewTimeZone`、または `CM-94` と `editDocumentSettings` の `set.viewTimeZone` の | JDG-3267・JDG-3268（CM-95 は edit の命令へ畳まれ、表 T-108 の行が退く —— commands-map.tsv） | rewrite |
+| ref CM-94 | CR-851 | しない）で基準を変える命令（表 T-108 の `CM-95`、または `CM-94` と `CM-95` の 2 つを 1 回の書き | しない）で基準を変える命令（表 T-108 の `CM-95`、または `editProject` の `set.scheduleDataTimeZone` と `CM-95` の 2 つを 1 回の書き | JDG-3267・JDG-3268（CM-94 は edit の命令へ畳まれ、表 T-108 の行が退く —— commands-map.tsv） | rewrite |
+| ref CM-95 | CR-851 | る命令（表 T-108 の `CM-95`、または `CM-94` と `CM-95` の 2 つを 1 回の書き込みで） —— 当て | る命令（表 T-108 の `editDocumentSettings` の `set.viewTimeZone`、または `CM-94` と `editDocumentSettings` の `set.viewTimeZone` の 2 つを 1 回の書き込みで） —— 当て | JDG-3267・JDG-3268（CM-95 は edit の命令へ畳まれ、表 T-108 の行が退く —— commands-map.tsv） | rewrite |
+
+## `docs/spec/_source/state-machines.json`（3 行）
+
+
+### 畳む命令の行 ID を名指す所（自動で拾った —— 表 T-108 の行が退くので、名指しを edit の命令と欄へ書き換える）
+
+
+| 行 | CR | 古い | 新しい | 理由 | 種別 |
+| --- | --- | --- | --- | --- | --- |
+| ref CM-95 | CR-851 | `keepGlobalTime` は `CM-95` を、`keepLocalTime` は `CM | `keepGlobalTime` は `editDocumentSettings` の `set.viewTimeZone` を、`keepLocalTime` は `CM | JDG-3267・JDG-3268（CM-95 は edit の命令へ畳まれ、表 T-108 の行が退く —— commands-map.tsv） | rewrite |
+| ref CM-94 | CR-851 | Time` は `CM-95` を、`keepLocalTime` は `CM-94` と `CM-95`（`null`）を、1 回の | Time` は `CM-95` を、`keepLocalTime` は `editProject` の `set.scheduleDataTimeZone` と `CM-95`（`null`）を、1 回の | JDG-3267・JDG-3268（CM-94 は edit の命令へ畳まれ、表 T-108 の行が退く —— commands-map.tsv） | rewrite |
+| ref CM-95 | CR-851 | M-95` を、`keepLocalTime` は `CM-94` と `CM-95`（`null`）を、1 回の書き込みで出す。確認 | M-95` を、`keepLocalTime` は `CM-94` と `editDocumentSettings` の `set.viewTimeZone`（`null`）を、1 回の書き込みで出す。確認 | JDG-3267・JDG-3268（CM-95 は edit の命令へ畳まれ、表 T-108 の行が退く —— commands-map.tsv） | rewrite |

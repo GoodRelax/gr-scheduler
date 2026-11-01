@@ -941,7 +941,7 @@ grep -c "^| CM-" docs/spec/_assets/tbl-glossary.md         # 71
 
 # TaskGroup-shaped `height` keys: a `height` key within 6 lines of treeState /
 # editGroup / derivedFromTaskUid / parentId, over `git ls-files` (ts json md py mjs js xml),
-# excluding dist/ node_modules/ scratch/ previous-project-result/
+# excluding dist/ node_modules/ scratch/ studies/
 #   -> 91 files, 298 lines; tests/: 77 files, 83 lines
 #   (script kept in the drafting session's scratchpad as scan_height.py; a window
 #    count, so re-count to 0 with the same window AND with git grep after the rename)

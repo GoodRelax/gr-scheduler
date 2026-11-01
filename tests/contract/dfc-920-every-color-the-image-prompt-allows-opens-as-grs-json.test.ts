@@ -39,7 +39,7 @@ async function copiedPrompt(language: DisplayLanguage): Promise<string> {
   return last.text
 }
 
-// WHY: the prompt ends its manuscript where the version line begins; the schema after it holds patterns, not advice.
+// WHY: the prompt ends its manuscript where the version line begins; only the base document follows it (CR-827).
 const manuscriptOf = (prompt: string): string => prompt.slice(0, prompt.indexOf('schemaVersion:'))
 
 // WHY: the prompt writes the digits as r, g, b letters; a real digit string stands in for them.

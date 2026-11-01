@@ -1,0 +1,127 @@
+id	explanation_ja	hard_parts
+D001	GRS JSON の $schema には、このスキーマの最新版の公開アドレスを入れる。どの予定文書も同じアドレスを持つ。	-
+D002	schemaVersion は形式（shape）の版を表す値で、この形式が最後に変わった UTC 時刻を入れる。ファイルがこの形式で読めるかの判定に使う。	shape（形式）の意味が文中で説明されていない。const（固定値）と書かれているが、どの値を入れれば一致するのか分からない。
+D003	buildVersion は、この GRS JSON を書いた GRS のビルド時刻（UTC）を入れる。デバッグ用で、読めるかどうかの判定には使わない。	GRS build（ビルド）が何を指すか説明がない。型 UtcInstant の定義は別の行にあり、ここからは分からない。
+D004	schedule は予定データ（Schedule Data）の入れ物で、MSPDI に書き出す部分と、GRS だけが使う GRS 部分の二つからなる。	Schedule Data の中身や範囲が説明されていない。MSPDI 部分と GRS 部分の境目（どの項目がどちらか）が分からない。
+D005	schedule の project には、プロジェクトの基本情報を入れる。MSPDI の Project と同じ意味である。	MSPDI の Project が何を含むかを、このスキーマ内では説明していない。
+D006	calendars には稼働日を決めるカレンダーの一覧を入れる。MSPDI の Calendars と同じ意味である。	カレンダーで稼働日をどう数えるかは、この行では分からない。minItems 1（1 件以上）の書式表現も読み手には分かりにくい。
+D007	tasks には作業（タスク）の一覧を入れる。親子関係は parentTaskUid と siblingOrder で持ち、ID、OutlineLevel、OutlineNumber、Summary は書き出しのたびに GRS が作る。	ID、OutlineLevel、OutlineNumber、Summary が何を表す番号かは説明されていない。WBS は文頭の用語説明で親子の木と分かるが、その木の作り方は書かれていない。
+D008	resources には資源の一覧を入れる。MSPDI の Resources と同じ意味である。	resource（資源）が人か設備かなどの説明がない。
+D009	assignments には、資源を作業に割り当てた対応の一覧を入れる。MSPDI の Assignments と同じ意味である。	Assignment の説明がない。資源と作業をどう対応させるかは分からない。
+D010	taskGroups にはタスクグループの一覧を入れる。GRS では一つのタスクグループが Task Group Panel の 1 行と Task Group Lane の 1 本になり、MSPDI から読むときは WBS からグループを作る。	Task Group Panel は説明がなく、どの画面の部分か分からない。Task Group Lane は文頭に、タスクをまとめて描く場所と書かれているが、見た目は分からない。WBS からどうグループを作るかも書かれていない。
+D011	taskGroupMembers には、どのタスクがどのタスクグループに属するかを入れる。タスクごとに一件で、taskUid から taskGroupId へ対応させる。	taskGroupId と taskGroups の対応は読み取れるが、一件のみという規則は文頭の説明に頼っている。
+D013	taskOrigins には、MSPDI から取り込んだタスクごとに、どの MSPDI ファイルのどのタスクかを入れる。同じ MSPDI を再び取り込んだとき、コピーを作らず既存のタスクを更新するためのもの。GRS で作ったタスクには記録がない。	取り込み（import）の手順と、再取り込み時にどの項目を照合するのかは、この行では分からない。TaskOrigin の中身も別の行にある。
+D017	documentSettings には、Schedule Document を開いたときにどう描くかの設定を入れる。値を持つキーは GRS が常に書く。	Schedule Document と GRS JSON ファイルの関係がはっきりしない。Schedule Canvas（描画領域）も説明がない。値を持つキーが何を指すか、ここでは分からない。
+D018	displayScalePercent は描画の表示倍率（%）を入れる。100 では ...Px の値をそのまま CSS ピクセルで描き、50 なら半分の大きさになる。図形と文字を一緒に拡大縮小し、App Header、Command Palette、ブラウザの拡大率は変えない。	「...Px」の省略部分が何の値か分からない。CSS pixel、App Header、Command Palette の説明がない。ブラウザの拡大率との違いも、画面を見ないと分からない。
+D019	fontSizeStep は描画領域の文字サイズの段階（small、medium、large）を入れる。表示倍率 100% でそれぞれ 7.5、8.75、10 CSS ピクセル。開くときはこの段階で開き、変えると予定文書が変わる。	Schedule Canvas の説明がない。reader（読み手）が文書の閲覧者なのか GRS の利用者なのか分からない。段階名が何を基準にした名前かも曖昧。
+D024	taskGroupAutoExpandDepth は、treeState が auto のタスクグループが自動で開く深さ（0 から 4、既定 3）を入れる。最上位を深さ 1 とし、N なら深さ N まで開く。0 なら最上位だけを閉じて表示する。	treeState の auto の意味は別の行にあり、この行だけでは読み切れない。深さ N まで開くと N+1 段目の行まで見えるという説明が、一読では掴みにくい。
+D025	scrollPosition は、予定文書を開いたとき表示が最初どこから始まるかを入れる。notDecided なら GRS が決め、placed なら左端の日と上端のタスクグループを指定する。	View（表示領域）の説明がない。left edge、top edge が何の端か、図を見ないと分からない。oneOf（どれか一つ）の書式表現も読み手には分かりにくい。
+D026	scrollPosition の kind は、位置の種類（notDecided か placed）を入れる。notDecided は、まだ誰も位置を選んでおらず GRS が開くときに決める状態。placed は他のキーが位置を与える。	no person has chosen a place yet の意味は分かるが、誰も選んでいないことと GRS が選ぶことの違いの説明が少ない。
+D027	placed のとき、表示の左端にある日（Day 型）を入れる。	Day 型の時間帯が書かれていない（別の行の Day の説明頼り）。required inside placed の表記が書式用語で、読み手には分かりにくい。
+D028	placed のとき、左端が leftEdgeDay の中のどこに当たるかを、0 以上 1 未満の割合で入れる。0 が日の始まり。	1 日が暦の日か作業時間の日か書かれていない。割合の基準が分からない。
+D029	placed のとき、表示の上端にあるタスクグループの ID（uuid）を入れる。そのタスクグループが無くなると、scrollPosition は notDecided に変わる。	top edge（上端）の位置の定義がない。uuid の形式は書式として分かるが、タスクグループの削除がどう扱われるかは、ここだけでは分からない。
+D030	placed のとき、上端が topEdgeTaskGroupId のタスクグループの中のどこに当たるかを、0 以上 1 未満の割合で入れる。ピクセルではなく、タスクグループの 1 段の高さ（Lane の高さと下の隙間の和）を 1 とする。	step（1 段）の説明は括弧にあるが、下の隙間の大きさが分からない。Task Group Lane の高さが何で決まるかも分からない。
+D032	fitSpan の firstDay は、全体表示の範囲の最初の日（その日を含む）を入れる。viewTimeZone で決まる時間帯の日付。	fitSpan という名前の説明がない（全体表示のことらしいが、この行では分からない）。親の fitSpan の定義は別の行にあり、読み手には見えない。
+D033	fitSpan の lastDay は、全体表示の範囲の最後の日を入れる。その日の列も範囲に入る。	fit span が何を基準に決まるかが分からない。列（column）が 1 日 1 列なのか、列の定義もない。
+D035	viewTimeZone は、Time Ruler（時刻の目盛り）と表示する日時で使う時間帯を入れる。sameAsScheduleData なら予定データの時間帯に従い、fixed なら指定したオフセットを使う。	Time Ruler の説明がない。Schedule Data の時間帯（project.scheduleDataTimeZone）の定義も別の行頼りで、ここでは分からない。oneOf の書式表現も読み手には負担。
+D036	viewTimeZone の kind は、sameAsScheduleData か fixed のどちらかを入れる。sameAsScheduleData は予定データの時間帯を表示し、その時間帯が変われば表示も変わる。fixed は指定したオフセットを表示する。	sameAsScheduleData が変わったときに画面の表示がすぐ変わるかどうかは書かれていない。
+D037	viewTimeZone の fixed 時に、描画領域を表示する UTC オフセット（UtcOffset 型）を入れる。	UtcOffset の値の範囲は別の行にあり、ここでは分からない。オフセットが UTC からのずれだという理解は前提知識になる。
+D038	displayTimeZones には、時刻を表示する間、Time Ruler の下に 1 行ずつ追加で表示する時計（最大 4 つ）を入れる。	Time Ruler の下の表示の見た目が分からない。時刻を表示する（shows the time of day）ことが D041 の isTimeOfDayVisible とどう関係するかは、この行だけでは分からない。
+D039	追加の時計の UTC オフセット（UtcOffset 型）を入れる。	UtcOffset の具体的な値は別の行にあり、この行だけでは分からない。
+D040	追加の時計が標準時か夏時間かを season で入れる。この値は表示する時間帯の名前を決めるだけで、GRS は一年中そのオフセットを使う。	season が標準時と夏時間を指すことは分かるが、時間帯の名前が何を指すかは分からない。GRS が夏時間を適用しないと書かれていて、ここでの夏時間の意味が曖昧。
+D041	isTimeOfDayVisible は、描画領域に時刻（時間帯の時刻）を表示するかどうかの真偽値を入れる。保存された日時は表示のオンオフに関係なく時刻を保つ。新規の文書は false。	time of day を表示するという意味が分かりにくい。stored date-times keep their time の意味が読み取りにくい。schema default が何のことか説明がない。
+D042	isPlanVisible は、計画バー（Plan Bar）を表示するかどうかの真偽値を入れる。実績バーの表示（isActualVisible）とは別に切り替える。新規の文書は true。	Plan Bar の説明がない。apart from の意味が分かりにくく、計画バーが何の図形か分からない。
+D044	isActualVisible は、実績バー（Actual Bar）を表示するかどうかの真偽値を入れる。計画バーとは別に切り替える。新規の文書は true。	Actual Bar の説明がない。actual（実績）が文頭の、実際の日付が進捗の決め手という説明と結びつくことは推測できるが、スキーマ内では説明されていない。
+D046	isBaselineVisible は、以前の計画（baselineTasks）を今のタスクの上に描くかどうかの真偽値を入れる。新規の文書は false。	earlier plan（以前の計画）が baselineTasks と同じものか、この行だけでは確かめられない。上に重ねて描く見た目も分からない。
+D053	stackDirection は、タスクグループの中でタスクを積む向きを入れる。up は右上のゴールへ登るように、down は右下のゴールへ降りるように積む。新規の文書は up。	goal（ゴール）が何を指すか説明がない。積む向きを図なしで想像できない。
+D054	isThemeMonochrome は、テーマを単色（モノクロ）にするかどうかの真偽値を入れる。新規の文書は false。	テーマ（theme）の説明がない。monochrome の意味は分かるが、テーマに何が含まれるかは分からない。
+D055	taskGroupPanelWidthPx は、Task Group Panel の幅（表示倍率 100% のときの CSS ピクセル）を入れる。50 以上で、既定は 188。	Task Group Panel の説明がない。CSS pixels at displayScalePercent 100 は D018 の説明から推測できる。
+D056	isTaskGroupPanelWidthFixed は、パネルの幅を、区切りのドラッグではなく taskGroupPanelWidthPx の値で決めるかどうかの真偽値を入れる。新規の文書は false。	Panel Divider（区切り）の説明がない。ドラッグで幅を変えると書かれているが、どこをどうドラッグするのかは分からない。
+D057	levelZeroTreeState は、パネルの最上段（レベル 0、最上位のタスクグループすべての上にある見出し行）の状態を入れる。auto は自動、collapsed はタスクグループを 1 つも描かない。新規の文書は auto。	level 0（レベル 0）や head of the Task Group Panel の場所が分からない。tree state の各状態の意味が、ここでは分からない。
+D058	pinnedTaskGroupIds は、固定表示するタスクグループの ID の並び（1 から 5 個）を入れる。固定されたグループは Task Group Lane の上部に並び、遠くにあるグループとの比較に使う。無い場合は固定なし。	Pinned Task Groups の見た目や動きの説明がない。stay together at the top の意味が分かりにくい。上限 5 の理由は書かれていない。
+D059	tableViews は、三つの表（Search Window、Delay Diagnostics Report Window、Resource List Window）の見せ方を入れる。	三つのウィンドウの役割が名前からしか分からない。Delay Diagnostics（遅延診断）が何をするのかの説明がない。
+D060	tableViews の searchPanel は、検索ウィンドウの表の見せ方（Schedule Filter、チェックした行、列フィルター、並べ替え）をまとめる。	Schedule Filter の説明がない。検索ウィンドウが何を検索するかの説明がない。
+D061	searchPanel の isScheduleFilterApplied は、この表の Schedule Filter を有効にしているかどうかの真偽値を入れる。有効なら、タスクグループ・レーンには、この表でチェックした行が選ぶものだけを描く。新規の文書は false。	Schedule Filter の意味（何を絞るか）が書かれていない。checked rows（チェックした行）が show 列のチェックを指すのか、行の選択を指すのか曖昧。
+D062	searchPanel の shownTaskUids は、この表の show 列にチェックが付いたタスクの UID（整数の並び）を入れる。無い場合はチェックなし。	show 列の位置や意味が書かれていない。UID という識別番号の説明がない。
+D064	searchPanel の sort は、この表の並べ替え（ColumnSort 型）を入れる。無い場合は既定の順序で並べる。	ColumnSort の中身（列名と向き）は別の行にあり、この行だけでは分からない。既定の順序が何かも分からない。
+D065	tableViews の delayDiagnosticsReport は、遅延診断報告ウィンドウの表の見せ方（Schedule Filter、チェックした行、列フィルター、並べ替え）をまとめる。	遅延診断（Delay Diagnostics）の内容が説明されていない。報告の対象が何か分からない。
+D066	delayDiagnosticsReport の isScheduleFilterApplied は、この表の Schedule Filter を有効にしているかの真偽値を入れる。有効なら、チェックした行が選ぶものだけをタスクグループ・レーンに描く。新規の文書は false。	Schedule Filter の意味が書かれていない。遅延診断の行を選ぶと何が描かれるのか、ここでは分からない。
+D067	delayDiagnosticsReport の shownTaskUids は、遅延診断報告の表で show 列にチェックが付いたタスクの UID を入れる。無い場合はチェックなし。	show 列の位置が書かれていない。UID の説明がない。
+D068	delayDiagnosticsReport の columnFilters は、遅延診断報告の表の列フィルターの並びを入れる。フィルターを付けた列ごとに一件、列名で指定する。無い場合は列のフィルターなし。	列フィルターの動作の説明が、この行にはない（中身は別の行）。by the column names of that table の列名が何かが分からない。
+D069	delayDiagnosticsReport の sort は、遅延診断報告の表の並べ替えを入れる。無い場合は既定の順序。	既定の順序の内容が分からない。ColumnSort の中身は別の行。
+D070	tableViews の resourceList は、資源一覧ウィンドウの表の見せ方（Schedule Filter、チェックした行、列フィルター、並べ替え）をまとめる。	Resource List Window が何の一覧で、どの画面かの説明がない。
+D071	resourceList の isScheduleFilterApplied は、資源一覧の表の Schedule Filter を有効にしているかの真偽値を入れる。有効なら、チェックした行が選ぶものだけをタスクグループ・レーンに描く。新規の文書は false。	資源の行を選ぶと、どのタスクが Lane に描かれるのかが分からない。Schedule Filter の意味も説明されていない。
+D072	resourceList の shownResourceUids は、資源一覧の表で show 列にチェックが付いた資源の UID を入れる。無い場合はチェックなし。	show 列の位置が書かれていない。UID の説明がない。
+D073	resourceList の isUnassignedShown は、資源一覧の「no assignee（担当者なし）」の行にチェックがあるかどうかの真偽値を入れる。新規の文書は false。	no assignee の行が何を表すか、この行では説明されていない。割り当てとどう関係するかも分からない。
+D074	resourceList の columnFilters は、資源一覧の表の列フィルターの並びを入れる。フィルターを付けた列ごとに一件、列名で指定する。無い場合はなし。	列名の具体例がない（別の行の ColumnKey にある）。フィルターの動作の説明が少ない。
+D075	resourceList の sort は、資源一覧の表の並べ替えを入れる。無い場合は既定の順序。	既定の順序の内容が分からない。ColumnSort の中身は別の行。
+D076	documentStamp は、予定文書（Schedule Document）の印を入れる。最後の変更時刻、最後の保存時刻、最後に書いた者を含む。	documentStamp が何に使われるか（ファイルの新旧比較など）が書かれていない。Document Stamp の役割が分からない。
+D077	changeLogEntries は、変更の記録（Change Log）の一覧を入れる。人や AI が書いた、予定文書の変更についてのメモで、古い順に並べ、新しいものは末尾に追加する。	Change Log をいつ誰がどのように書くかの運用が分からない。AI が書くという記述は、AI が何者か（Agent API など）の文脈がないと分からない。
+D078	$defs の Project は、MSPDI の Project と同じプロジェクト情報の定義である。以下の行で各項目を説明する。	$defs（定義の置き場）という書式の仕組みが読み手には分からない。中身は後続の行に分散している。
+D079	Project の id は、MSPDI の Project/UID と同じ識別子（16 字以下）を入れる。上書き保存の前に、この値と project.name とファイル名を照らして、同じ予定文書かどうかを GRS が確かめる。	同じ予定文書かどうかの判定規則（三つの値のどれか一致か全部一致か）が書かれていない。UID の説明もない。
+D080	Project の calendarUid は、稼働日を数えるためのカレンダーの UID を入れる。無い場合や存在しない場合は、isBaseCalendar が true で ordinal が最小のカレンダー、それも無ければ組み込みの既定カレンダーを使う。	稼働日（working days）の定義がない。isBaseCalendar、ordinal、組み込みの既定カレンダーの中身が分からない。
+D081	Project の name は、MSPDI の Project/Name と同じプロジェクト名を入れる。GRS は画面にはこれを出さず、上書きしようとするファイルが同じ予定文書かを判定するためだけに使う。	Project Name と Project Title（title）の違いが分かりにくい。上書き判定の詳しい中身も分からない。
+D082	Project の title は、MSPDI の Project/Title と同じタイトルを入れる。アプリのヘッダーにプロジェクトタイトルとして表示し、名前を付けて保存の既定ファイル名になる。無い場合はブラウザのタブに Untitled と出る。	App Header、Save As Dialog（名前を付けて保存）の説明がない。タイトルが無いときの表示が Untitled だという点は分かる。
+D083	Project の subject は、MSPDI の Project/Subject と同じ値を入れる。GRS での使い道は書かれていない。	subject が何を表すか、GRS でどう使われるかが分からない。
+D084	Project の category は、MSPDI の Project/Category と同じ値を入れる。GRS での使い道は書かれていない。	category が何の分類かが分からない。GRS でどう使われるかも分からない。
+D085	Project の company は、MSPDI の Project/Company と同じ値を入れる。GRS での使い道は書かれていない。	company が会社名だという理解は推測でしかない。GRS での使い道が分からない。
+D086	Project の manager は、MSPDI の Project/Manager と同じ値を入れる。GRS での使い道は書かれていない。	manager が誰を指すか、GRS でどう使われるかが分からない。
+D087	Project の author は、MSPDI の Project/Author と同じ値を入れる。最後に書いた者（documentStamp.lastEditedBy）とは別のものである。	author が GRS で何に使われるかは書かれていない。最後に書いた者との違いは書かれているが、author の意味自体は推測になる。
+D088	Project の revision は、MSPDI の Project/Revision と同じ改訂番号を入れる。文書の時刻（documentStamp の時刻）とは関係ない。	改訂番号がいつ、誰によって上がるのかが分からない。GRS がこの値を使うかどうかも書かれていない。
+D089	Project の creationDate は、MSPDI の Project/CreationDate と同じ作成日時（YYYY-MM-DDTHH:MM:SS）を入れる。GRS は新しい予定文書を作るとき、この値を書く。	日時の形式（末尾に時間帯の記号がない）の意味が分かりにくい。wall-clock（壁の時計）の時間帯は別の行の説明頼り。
+D090	Project の startDate は、MSPDI の Project/StartDate と同じ開始日時（YYYY-MM-DDTHH:MM:SS）を入れる。	プロジェクトの開始日時が、タスクの開始や予定の計算にどう関わるかが分からない。GRS がこの値をどう使うかも書かれていない。
+D092	Project の scheduleDataTimeZone は、予定データ（Schedule Data）の日時を読む時計の、固定の UTC オフセット（例えば UTC+09:00）を入れる。標準時のみで夏時間は含まず、MSPDI へは書き出さない。	Schedule Data の範囲の説明がない。標準時と夏時間の違いが読み取りにくい。UtcOffset の 27 種の範囲は別の行頼り。MSPDI に書かない理由が書かれていない。
+D093	Project の minutesPerDay は、1 稼働日（1d）の長さを分で入れる。無い場合は {{S-128}} とする。どの稼働日の稼働時間の合計もこの値と違えば、開くときに GRS が警告する。	{{S-128}} は未展開のプレースホルダで、実際の値が分からない。稼働時間の合計が何を指すかも分かりにくい。
+D094	Project の minutesPerWeek は、MSPDI の Project/MinutesPerWeek と同じ、1 週間の分数を入れる。	GRS がこの値を使うかどうかが書かれていない。1 週間の稼働時間という意味は推測のみ。
+D095	Project の daysPerMonth は、MSPDI の Project/DaysPerMonth と同じ、1 か月の日数を入れる。	GRS がこの値を使うかどうかが書かれていない。
+D096	Project の weekStartDay は、MSPDI の Project/WeekStartDay と同じ、週の始まりの曜日（0 が日曜）を入れる。無い場合は月曜（1）とする。	後の dayType（1 が日曜）と数字の付け方が違って見え、混乱しやすい。0 が日曜で、無い場合は 1 が月曜という書き方が二つの規則に見えて分かりにくい。
+D097	Project の defaultStartTime は、MSPDI の Project/DefaultStartTime と同じ、日付だけで時刻のない開始に与える時刻（HH:MM:SS）を入れる。無い場合は {{S-482}} とする。マイルストーンの開始には defaultFinishTime を使う。	{{S-482}} は未展開のプレースホルダで、実際の値が分からない。milestone（マイルストーン）の意味が文中で説明されていない。
+D098	Project の defaultFinishTime は、MSPDI の Project/DefaultFinishTime と同じ、日付だけで時刻のない終わり（タスクの終了、実績終了、停止、期限、ステータス日など）に与える時刻を入れる。無い場合は {{S-483}}。マイルストーンの開始にもこの時刻を使う。	{{S-483}} は未展開のプレースホルダ。stop、deadline、statusDate の意味が説明されていない。マイルストーンの開始に終了時刻を使う理由が書かれていない。
+D099	Project の themeHueDegrees は、テーマの色相（0 から 359 度）を入れる。kind が theme の色はすべてこの色相を使う。新規の文書は 214。	色相（hue）の意味が前提知識頼り。kind が theme の色の範囲や使われ方が、この行だけでは分からない。
+D100	Project の parentTaskProgressToleranceWorkingDays は、親タスクの進捗の点が、その下の作業の進捗の点から何稼働日はずれてよいかを入れる。超えると遅延診断が更新漏れかどうかを尋ねる。新規の文書は 1。	progress point（進捗の点）の意味が書かれていない。遅延診断（Delay Diagnostics）が何かの説明もない。outside が前後どちら向きのずれかも分からない。
+D101	Project の highestIssuedUid は、タスク、資源、割り当て、カレンダーの UID に共通の番号の、これまでの最大値を入れる。GRS は UID を再利用しないので、新しい UID はこの値より大きくなる。	one counter（共通の番号の仕組み）が想像しにくい。UID という語自体の説明がない。
+D102	Project の lastImportNumber は、この予定文書に MSPDI を取り込んだ回数を入れる。0 は一度も取り込んでいないこと。TaskOrigin の lastSeenImportNumber と比べるために使う。	import（取り込み）の動作や、比べたときに何が起きるかは TaskOrigin の行を見ないと分からない。
+D103	Project の firstOutlineLevel は、取り込んだ MSPDI のタスクが始まる OutlineLevel（要約タスクは数えない）を入れる。書き出しもこの番号から始める。新規の文書は 1。	OutlineLevel（階層の番号）の意味が説明されていない。project summary task（プロジェクトの要約タスク）が何か、ここでは分からない。
+D104	Project の sourceFormat は、予定データの元の形式（grs、pj12、pj15）を入れる。grs は GRS で作った文書、pj12 と pj15 は MSPDI ファイル（pj15 は pj15 にしかない要素を含むとき）。MSPDI へは書き出さない。	pj12 と pj15 が MSPDI の版を指すことは推測できるが、説明がない。pj15 has an element that only pj15 has は言い換えの繰り返しで意味が取りにくい。
+D105	Project の passthroughValues は、この要素の MSPDI の値のうち GRS が使わず、そのまま保持して書き戻すものを、MSPDI の名前をキーにして入れる。無い場合は何も保持しない。	Carried（そのまま保持）の意味は文頭にあるが、どの値が保持されるかの例がない。PassthroughValues の型（D273）は別の行。
+D106	Project の passthroughElements は、この要素の下にある、GRS が使わず保持する MSPDI の要素の並びを入れる。書き出すとき、元の場所へ同じ順序で書き戻す。	元の場所が、入れ子のどこを指すかが分からない。PassthroughElement（D274）は別の行。
+D107	$defs の Calendar は、MSPDI の Calendar と同じカレンダーの定義である。以下の行で各項目を説明する。	Calendar の中身（稼働日の表）が、この行では分からない。
+D108	Calendar の uid は、MSPDI の Calendar/UID と同じカレンダーの番号（必須）を入れる。	-
+D109	Calendar の baseCalendarUid は、MSPDI の BaseCalendarUID と同じ、このカレンダーが継承する元のカレンダーの番号を入れる。GRS は値を保持するが継承はせず、このカレンダー自身に並んでいる日だけを数える。	継承（inherit）の意味が書かれていない。継承しないとどんな休日の扱いになるのかが分からない。
+D110	Calendar の ordinal は、MSPDI ファイルでのカレンダーの順番を入れる。GRS はこの順番でカレンダーを書き戻す。	ordinal という語の説明がない（順番の番号だとは読める）。
+D111	Calendar の name は、MSPDI の Calendar/Name と同じカレンダーの名前を入れる。	-
+D112	Calendar の isBaseCalendar は、MSPDI の IsBaseCalendar と同じ、基本カレンダーかどうかの真偽値を入れる。無い場合は false とする。	基本カレンダー（base calendar）が何の役割か、この行では分からない。D080 の基本カレンダーの規則との関係も、読み手には推測が必要。
+D113	Calendar の weekDays は、MSPDI の WeekDays と同じ、曜日ごとの稼働の設定の並びを入れる。	WeekDay の中身は別の行にある。
+D114	Calendar の exceptions は、MSPDI の Exceptions と同じ、例外の日の並びを入れる。	例外の日（exception）の例（休日、臨時の稼働日など）は、この行では分からない。
+D115	Calendar の passthroughValues は、このカレンダーの MSPDI の値のうち GRS が使わず保持して書き戻すものを入れる。	保持の仕組みは D105 と同じ。どの値が保持されるかの例はない。
+D116	Calendar の passthroughElements は、このカレンダーの下の、GRS が使わず保持する MSPDI の要素を入れる。	D106 と同じ。PassthroughElement の中身は別の行。
+D117	$defs の WeekDay は、MSPDI の WeekDay と同じ、曜日ごとの稼働の定義である。	-
+D118	WeekDay の ordinal は、カレンダー内でのこの曜日の順番（MSPDI ファイルの順）を入れる。	-
+D119	WeekDay の dayType は、曜日の種類（1 から 7、1 が日曜）を入れる。0 は使わず、例外の日は Exception に入る。	never 0 の意味が分かりにくい。MSPDI の 0 が何を指すかの説明がない。例外の日が Exception に入るという関係も、ここだけでは分かりにくい。
+D120	WeekDay の dayWorking は、その曜日が稼働日かどうかの真偽値を入れる。無い場合は非稼働とみなす。	稼働日（working day）の意味が、ここでは説明されていない。
+D121	WeekDay の workingTimes は、その日の稼働時間帯（1 から 5 件）を入れる。稼働日なのに無い場合は既定の時間帯 {{S-580}} を使う。	{{S-580}} は未展開のプレースホルダで、実際の時間帯が分からない。span（時間帯）の意味も説明がない。
+D122	WeekDay の passthroughValues は、この曜日の MSPDI の値のうち、保持して書き戻すものを入れる。	D105 と同じ。
+D123	WeekDay の passthroughElements は、この曜日の下の、保持する MSPDI の要素を入れる。	D106 と同じ。
+D124	$defs の Exception は、MSPDI の Exception と同じ、カレンダーの例外の日の定義である。	-
+D125	Exception の ordinal は、カレンダー内でのこの例外の順番（MSPDI ファイルの順）を入れる。	-
+D126	Exception の name は、MSPDI の Exception/Name と同じ例外の名前を入れる。	-
+D127	Exception の fromDate は、MSPDI の TimePeriod/FromDate と同じ、例外の最初の日（日付だけ）を入れる。GRS は日付だけを読み、書き出すときは T00:00:00 を付ける。	TimePeriod という MSPDI の構造を知らないと、この親子が分からない。時刻を捨てて書くことの影響も分からない。
+D128	Exception の toDate は、MSPDI の TimePeriod/ToDate と同じ、例外の最後の日（その日を含む）を入れる。GRS は日付だけを読み、書き出すときは T23:59:00 を付ける。	T23:59:00 を付ける理由（その日の終わりまでを指す）は推測のみ。
+D129	Exception の dayWorking は、MSPDI の DayWorking と同じ、例外の期間が稼働日かどうかの真偽値を入れる。無い場合は非稼働とみなす。	例外が稼働日を追加するのか休日を作るのか、稼働日の扱いの説明が無い。
+D130	Exception の recurrenceKind は、MSPDI の Exception/Type と同じ、例外の繰り返しの種類（1 から 9）を入れる。GRS は単発の例外だけを数え、他は変えずに残す。新しく追加する例外には 1 を書く。	1 から 9 の各種類の意味が書かれていない。one-off（単発）の定義がない。数える条件（9 か無し、または 1 かつ期間が無いか 1）が複雑で読み取りにくい。
+D131	Exception の recurrencePeriod は、MSPDI の Exception/Period と同じ、繰り返しの間隔（1 以上）を入れる。無い場合はファイルに Period が無かったことを示す。	Period の単位（何日ごとか、何週ごとか）が書かれていない。absent が「ファイルに無かった」を意味する点が分かりにくい。
+D132	Exception の workingTimes は、例外日の稼働時間帯（1 から 5 件）を入れる。稼働日なのに無い場合は {{S-580}} を使う。	{{S-580}} は未展開のプレースホルダ。D121 と同じ問題。
+D133	Exception の passthroughValues は、この例外の MSPDI の値のうち、保持して書き戻すものを入れる。	D105 と同じ。
+D134	Exception の passthroughElements は、この例外の下の、保持する MSPDI の要素を入れる。	D106 と同じ。
+D135	$defs の WorkingTime は、MSPDI の WorkingTime と同じ、1 日の中の稼働時間帯 1 つの定義である。同じ日の時間帯が重なるか、開始が終了より後だと GRS は受け付けない。端が接するだけなら良い。	span of one day（1 日の中の時間帯）の範囲が分かりにくい。do not start before they end の読み方が一読では分かりにくい。
+D136	WorkingTime の ordinal は、1 日の中でのこの時間帯の順番を入れる。GRS は開始時刻の順に書き出す。	ordinal の番号の付け方（1 から始まるか）の説明がない。
+D137	WorkingTime の fromTime は、MSPDI の FromTime と同じ、この時間帯の開始時刻（HH:MM:SS）を入れる。	-
+D138	WorkingTime の toTime は、MSPDI の ToTime と同じ、この時間帯の終了時刻（HH:MM:SS）を入れる。00:00:00 は 24:00、その日の終わりを表す。	00:00:00 を 24:00 と読む特別な扱いが、書式として理解しにくい。
+D139	$defs の Task は、MSPDI の Task と同じ作業の定義である。進捗の状態は次の順で判定する。実績開始が無ければ未着手、実績終了があれば完了、resumeValid が false なら再開日の無い中断、resume があれば再開日付きの中断、それ以外は作業中。	first match wins（上から順に最初に当たったもの）の読み方が要る。resumeValid や suspended（中断）の意味が説明されていない。
+D140	Task の uid は、MSPDI の Task/UID と同じタスクの番号（必須）を入れる。	-
+D141	Task の parentTaskUid は、WBS（作業分解の木）での親タスクの UID を入れる。無い場合は最上位のタスクとする。	-
+D142	Task の calendarUid は、MSPDI の Task/CalendarUID と同じ、このタスク単独のカレンダーの UID を入れる。GRS は値を保持して書き戻すが、稼働日は project.calendarUid のカレンダーだけで数える。	タスク単独のカレンダーが無視されることの影響（何が困るか）が分からない。keeps the value と counts only の関係が、一読では分かりにくい。
+D143	Task の siblingOrder は、同じ親タスクの下にあるタスク同士の並び順を入れる。	sibling（同じ階層のきょうだい）の用語説明がない。
+D144	Task の name は、MSPDI の Task/Name と同じタスク名（1 から 512 字）を入れる。	-
+D145	Task の notes は、MSPDI の Task/Notes と同じタスクのメモ（1 から 65535 字）を入れる。	-
+D146	Task の start は、MSPDI の Task/Start と同じ開始日時（YYYY-MM-DDTHH:MM:SS）を入れる。開始が無いタスクがある GRS JSON や MSPDI は GRS が開かない。	schema 上は optional（省略可）なのに、開始が無いと開けないと書かれていて矛盾して見える。計画上の開始なのか実績の開始なのかも、この行では分からない。

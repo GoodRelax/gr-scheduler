@@ -28,6 +28,8 @@ import {
   visualOf,
 } from './cr-646-stage'
 
+const VERSION_TABLE = readFileSync(join(process.cwd(), 'docs', 'development-rules', '10-versions.md'), 'utf8')
+
 afterEach(() => {
   vi.useRealTimers()
   restoreAnimationFrames()
@@ -55,8 +57,9 @@ function twoTasks(project: Record<string, unknown> = {}): Record<string, any> {
 describe('CR-646 the manuscript as these cases read it', () => {
   // WHY: CR-699 (JDG-1677) raises the version to the instant a change lands, not the day.
   it('FR-073: a shape change raises the version once, to the instant it is applied, and is not read across', () => {
-    expect(REQUIREMENTS).toContain('形式の版を、その変更を当てる時刻へ上げること（MUST）')
-    expect(REQUIREMENTS).toContain('1 つの変更要求の中で版を上げるのは 1 度だけとする')
+    // WHY: CR-822 (JDG-2985) moved when and how often the version is raised to docs/development-rules/10-versions.md.
+    expect(REQUIREMENTS).toContain('形式の版は、それまでのどの版よりも新しい時刻になること（MUST）')
+    expect(VERSION_TABLE).toContain('1 つの変更要求の中で版を上げるのは 1 度だけとする')
     expect(REQUIREMENTS).toContain('は、版を上げても古い形の文書を読み替えない')
   })
 

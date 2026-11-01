@@ -82,7 +82,7 @@
 ```text
 "default": { "num": "0.3" },
 ...
-"note": { "ja": "0 = 縁取りなし。縁取りの太さは字の大きさ × 本値である —— 12px の字で 3.6px（12 × 0.3）、表示の倍率が既定の 100 のときの字の床 7.5px（`S-8` の 12 × 描く比 0.625）で 2.25px。縁は字の下に描く（`paint-order=stroke`）ので、字の外に見えるのは太さの半分である。バーの上の文字が色に依存せず読める。⭐ 0.3 は範囲の上限であり、出荷ビルドを見て詰め直す試す値である。明るいテーマでは字（`S-168`）と実績の塗り（`S-157`）の比が 2.59 : 1 しかない（WCAG 2.1 の式）ので、実績の上の名称ラベルは縁で読ませる —— 縁取りの割合は字の芯と塗りの比を動かさず、字の周りの白い面だけを広げる（見本 `previous-project-result/34-actual-bar-label-legibility/README.md` の掃引。撮った画素の暗い側 2% と明るい側 2% を実績の塗りと同じ式で比べた）。⚠️ 縮めた表示の倍率 50・75 では、ラベルの面の 87% が白くなる（同じ掃引で、塗りより 2 : 1 以上明るい画素の割合。明るいテーマ、画素の倍率 1）。⚠️ 同じ値を、担当と進捗の札の縁取りと、期限の印の縁（表 T-304 の `DA-3`）も読む —— 3 つの縁は一緒に太さが変わる" }
+"note": { "ja": "0 = 縁取りなし。縁取りの太さは字の大きさ × 本値である —— 12px の字で 3.6px（12 × 0.3）、表示の倍率が既定の 100 のときの字の床 7.5px（`S-8` の 12 × 描く比 0.625）で 2.25px。縁は字の下に描く（`paint-order=stroke`）ので、字の外に見えるのは太さの半分である。バーの上の文字が色に依存せず読める。⭐ 0.3 は範囲の上限であり、出荷ビルドを見て詰め直す試す値である。明るいテーマでは字（`S-168`）と実績の塗り（`S-157`）の比が 2.59 : 1 しかない（WCAG 2.1 の式）ので、実績の上の名称ラベルは縁で読ませる —— 縁取りの割合は字の芯と塗りの比を動かさず、字の周りの白い面だけを広げる（見本 `studies/34-actual-bar-label-legibility/README.md` の掃引。撮った画素の暗い側 2% と明るい側 2% を実績の塗りと同じ式で比べた）。⚠️ 縮めた表示の倍率 50・75 では、ラベルの面の 87% が白くなる（同じ掃引で、塗りより 2 : 1 以上明るい画素の割合。明るいテーマ、画素の倍率 1）。⚠️ 同じ値を、担当と進捗の札の縁取りと、期限の印の縁（表 T-304 の `DA-3`）も読む —— 3 つの縁は一緒に太さが変わる" }
 ```
 
 当てた後に打つもの: `npm run gen`（`docs/spec/_source/settings_json_to_md.py` が `_assets/tbl-settings.md` を、`tools/generate_entity_types.py` が `src/entity/document-model/document-settings/document-settings.ts` の `SETTINGS_CONSTANTS.labelHaloOfFont` を刷る）→ `npm run gen:check` → `rm -rf output` → `bash .claude/skills/spec-graph-check/check.sh` → `rm -rf output`。`docs/development-records/changelog.md` に 1 行足す。
@@ -205,6 +205,6 @@ node ../../../node_modules/vitest/vitest.mjs run --reporter=json --outputFile=<f
 
 # the numbers in the note (2.59 : 1, 87%) are the sample README's own
 # measurements -- section 「1. 色どうしの比」 and 「2. 画面に届いた画素（掃引）」
-# of previous-project-result/34-actual-bar-label-legibility/README.md --
+# of studies/34-actual-bar-label-legibility/README.md --
 # read directly, not re-measured here.
 ```

@@ -1,0 +1,234 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "https://github.com/GoodRelax/gr-scheduler/docs/development-rules/manuscript-schemas/glossary.schema.json",
+ "$comment": "DRAFT FOR CR-857 -- lives in studies/ until CR-857 lands it under docs/development-rules/ (JDG-3414, JDG-3420). Validates docs/spec/_source/glossary.json, the names dictionary and the single source of truth for every name (JDG-3411, JDG-3419). English is the primary text and Japanese its translation (JDG-3422). Order is array position only (JDG-3423).",
+ "title": "The names dictionary manuscript",
+ "description": "Every name GRS uses: data entities, properties, screen parts, setting keys, Agent API members, document commands and the value words. Each term is keyed by the name itself; a key whose meaning changes with its owner gets one term per owner, with the owner in its own field (JDG-3415; OMPV keeps the key and the owner apart). The glossary table, the schema descriptions and the MCP descriptions are generated from this file in one step (JDG-3416).",
+ "type": "object",
+ "required": [
+  "$schema",
+  "groups"
+ ],
+ "additionalProperties": false,
+ "properties": {
+  "$schema": {
+   "type": "string"
+  },
+  "$comment": {
+   "type": "array",
+   "items": {
+    "type": "string"
+   }
+  },
+  "groups": {
+   "description": "The top of the taxonomy. The order of the groups is the order of the generated glossary and of the parts of the review sheet.",
+   "type": "array",
+   "minItems": 1,
+   "items": {
+    "$ref": "#/$defs/Group"
+   }
+  }
+ },
+ "$defs": {
+  "Text": {
+   "description": "One text per language, one language per property (OKPN/OMPV: never two languages in one string). en is the primary text; ja translates it; more languages may be added as further language tags.",
+   "type": "object",
+   "required": [
+    "en",
+    "ja"
+   ],
+   "additionalProperties": false,
+   "patternProperties": {
+    "^[a-z]{2,3}(-[A-Z][a-z]{3})?(-[A-Z]{2})?$": {
+     "type": "string",
+     "minLength": 1
+    }
+   }
+  },
+  "Key": {
+   "description": "A name as code writes it: start, Task, taskGroupLane.",
+   "type": "string",
+   "pattern": "^[A-Za-z][A-Za-z0-9]*$"
+  },
+  "TermRef": {
+   "description": "Points at one term: its key, and its owner when the term has one.",
+   "type": "object",
+   "required": [
+    "key"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "key": {
+     "$ref": "#/$defs/Key"
+    },
+    "owner": {
+     "$ref": "#/$defs/Key"
+    }
+   }
+  },
+  "Group": {
+   "type": "object",
+   "required": [
+    "key",
+    "title"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "key": {
+     "$ref": "#/$defs/Key"
+    },
+    "title": {
+     "$ref": "#/$defs/Text"
+    },
+    "description": {
+     "$ref": "#/$defs/Text"
+    },
+    "terms": {
+     "type": "array",
+     "minItems": 1,
+     "items": {
+      "$ref": "#/$defs/Term"
+     }
+    },
+    "groups": {
+     "description": "Sub-groups in reading order (1-1, 1-2 ...).",
+     "type": "array",
+     "minItems": 1,
+     "items": {
+      "$ref": "#/$defs/Group"
+     }
+    }
+   },
+   "anyOf": [
+    {
+     "required": [
+      "terms"
+     ]
+    },
+    {
+     "required": [
+      "groups"
+     ]
+    }
+   ]
+  },
+  "Term": {
+   "type": "object",
+   "required": [
+    "key",
+    "definition",
+    "uses"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "key": {
+     "$ref": "#/$defs/Key",
+     "description": "The name itself. The pair (key, owner) is unique across the whole dictionary, children included."
+    },
+    "owner": {
+     "$ref": "#/$defs/Key",
+     "description": "The entity or part that owns the key, given only when the key means different things under different owners (kind under Color)."
+    },
+    "rowId": {
+     "description": "The specification row that cites this term today (N-1, PR-1, IC-7), kept so that existing references still resolve.",
+     "type": "string",
+     "pattern": "^[A-Z]+-[0-9]+[a-z]?$"
+    },
+    "since": {
+     "description": "For a term of a contract group (GRS JSON, Agent API, document commands): the schemaVersion or agentApiVersion that first published it. A published term never changes its name or meaning.",
+     "type": "string",
+     "minLength": 1
+    },
+    "label": {
+     "$ref": "#/$defs/Text",
+     "description": "The name a person sees. Omit it when the person sees the key itself (a JSON key, an API member)."
+    },
+    "definition": {
+     "$ref": "#/$defs/Text",
+     "description": "What the term means. The schema and MCP descriptions take the English text."
+    },
+    "nonLiteral": {
+     "$ref": "#/$defs/Text",
+     "description": "Why the Japanese label is not a literal translation of the English one. Present only for the few agreed exceptions."
+    },
+    "avoid": {
+     "description": "Words (not sentences) that must not stand in for this term.",
+     "type": "object",
+     "additionalProperties": false,
+     "properties": {
+      "en": {
+       "type": "array",
+       "items": {
+        "type": "string",
+        "minLength": 1
+       },
+       "uniqueItems": true
+      },
+      "ja": {
+       "type": "array",
+       "items": {
+        "type": "string",
+        "minLength": 1
+       },
+       "uniqueItems": true
+      }
+     }
+    },
+    "usage": {
+     "description": "Example sentences for a term that is easy to misuse: good ones to follow and bad ones to avoid. Present only where misuse is a worry.",
+     "type": "object",
+     "additionalProperties": false,
+     "minProperties": 1,
+     "properties": {
+      "good": {
+       "type": "array",
+       "items": {
+        "$ref": "#/$defs/Text"
+       },
+       "minItems": 1
+      },
+      "bad": {
+       "type": "array",
+       "items": {
+        "$ref": "#/$defs/Text"
+       },
+       "minItems": 1
+      }
+     }
+    },
+    "uses": {
+     "description": "Where the generators print this term. Whether each place really uses it is checked, not trusted.",
+     "type": "array",
+     "minItems": 1,
+     "uniqueItems": true,
+     "items": {
+      "enum": [
+       "grsJsonSchema",
+       "commandSchema",
+       "agentApi",
+       "mcpText",
+       "screen",
+       "spec",
+       "src"
+      ]
+     }
+    },
+    "tags": {
+     "description": "Related terms. Every one must exist in the dictionary.",
+     "type": "array",
+     "uniqueItems": true,
+     "items": {
+      "$ref": "#/$defs/TermRef"
+     }
+    },
+    "children": {
+     "description": "Terms derived from this one, in reading order.",
+     "type": "array",
+     "items": {
+      "$ref": "#/$defs/Term"
+     }
+    }
+   }
+  }
+ }
+}

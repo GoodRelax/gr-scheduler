@@ -1,0 +1,22 @@
+Terms:
+GRS is GoodRelax Scheduler, which reads and writes the JSON files defined by this schema.
+MSPDI (Microsoft Project XML Data Interchange) is the XML file format used by Microsoft Project. GRS can also read and write MSPDI (.xml) files.
+"Same as MSPDI X" indicates that the property has the same meaning and values as MSPDI element X. Any GRS-specific differences are noted with that property.
+Concepts:
+WBS is the tree of parent and child tasks, as in MSPDI.
+Task groups are GRS's own objects that let several tasks be drawn in one row of the chart. Each task belongs to exactly one task group.
+GRS counts working days using a single calendar: the one referenced by project.calendarUid.
+"Carried" means GRS does not use the value, but preserves it and writes it back to MSPDI unchanged.
+Actual dates are the authoritative source of task progress. Whether a task is not started, in progress, suspended, or finished is determined from its actual dates. GRS recalculates percentComplete from those dates when opening a GRS JSON file.
+The shape of GRS JSON:
+$schema           Address of this schema
+schemaVersion     Version of the shape
+buildVersion      GRS build that wrote the file
+schedule          Schedule data
+  +- project, calendars, tasks, resources, assignments (same as MSPDI)
+  +- taskGroups, taskGroupMembers, taskVisuals, taskOrigins,
+     baselineTasks, commentBoxes, highlightBoxes
+documentSettings  How the schedule is drawn when opened
+documentStamp     Last change, last save and last writer
+changeLogEntries  Notes on changes
+A property with no value is omitted: null and [] are never written.

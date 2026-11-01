@@ -1,7 +1,7 @@
 # CR-320 — サンプルに合わせる
 
 ⭐ **利用者が実物と見本を見比べて下した裁定（2026-08-30、逐語）**「**サンプルに合わせろ。**」
-⛔ **見本は `previous-project-result/11-row-controls/row-controls-sample.html` である。**
+⛔ **見本は `studies/11-row-controls/row-controls-sample.html` である。**
 
 ⚠️ **本書は 11 の変更を 1 本にまとめている。**⭐ **すべて同じ裁定の帰結だからである。**
 

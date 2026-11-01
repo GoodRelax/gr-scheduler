@@ -157,8 +157,8 @@ describe(`WH-2 -- ${WH_2_LINE}`, () => {
 
 describe(`WH-2 -- ${WH_2_RANGE}`, () => {
   it.each([
-    ['a day after 2200-12-31', '2201-01-01'],
-    ['a day before 1970-01-01', '1969-12-31'],
+    ['a day after 2149-12-31', '2150-01-01'],
+    ['a day before 1984-01-01', '1983-12-31'],
     ['a text that is not a date', 'next spring'],
   ])('%s (%s): RS-87 is told and the field holds nothing', async (_what, typed) => {
     const stage = await settledStage(WORKED(), typed)

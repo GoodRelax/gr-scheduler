@@ -41,8 +41,13 @@ export type GestureValuesKey =
   | 'pointerPressStateMachine.changingDocument'
   | 'pointerPressStateMachine.viewingDocument'
   | 'taskGroupGrabStateMachine.notGrabbed'
-  | 'taskGroupGrabStateMachine.grabPressed'
-  | 'taskGroupGrabStateMachine.carrying'
+  | 'taskGroupGrabStateMachine.grabbed'
+  | 'taskGroupGrabStateMachine.grabbed.grabPressed'
+  | 'taskGroupGrabStateMachine.grabbed.carrying'
+
+export type TaskGroupGrabGrabbedState =
+  | { readonly kind: 'grabPressed' }
+  | { readonly kind: 'carrying' }
 
 export type PointerPressState =
   | { readonly kind: 'notPressed' }
@@ -51,8 +56,7 @@ export type PointerPressState =
 
 export type TaskGroupGrabState =
   | { readonly kind: 'notGrabbed' }
-  | { readonly kind: 'grabPressed' }
-  | { readonly kind: 'carrying' }
+  | { readonly kind: 'grabbed'; readonly child: TaskGroupGrabGrabbedState }
 
 export interface GestureValues {
   readonly pointerPressState: PointerPressState
@@ -73,9 +77,48 @@ export type GestureValuesEffectName =
   | 'restorePaletteCorner'
   | 'repeatHeldEntry'
 
+export type GestureValuesGuardName =
+  | 'isDocumentChangingPress'
+  | 'isHeldOnRepeatingEntry'
+  | 'isOnPaletteBand'
+  | 'isOnRepeatingEntry'
+  | 'isTaskGroupGrabStrip'
+
+const GESTURE_VALUES_INITIAL_CHILDREN: {
+  readonly 'taskGroupGrabStateMachine.grabbed': TaskGroupGrabGrabbedState
+} = {
+  'taskGroupGrabStateMachine.grabbed': { kind: 'grabPressed' },
+}
+
 const GESTURE_VALUES_INITIAL_AXES: GestureValuesAxes = {
   pointerPressState: { kind: 'notPressed' },
   taskGroupGrabState: { kind: 'notGrabbed' },
+}
+
+const GESTURE_VALUES_GUARDS = {
+  isDocumentChangingPress: (event: Extract<GestureValuesEvent, { readonly type: 'pointerPressed' }>): boolean =>
+    ((event.pressedOn == null) || (event.pressedOn?.kind === 'grab')) && !((['PTD-1', 'PTD-5'] as readonly unknown[]).includes(event.pressRow))
+      || ((event.pressedOn != null) && !((['grab', 'scrollbarThumb'] as readonly unknown[]).includes(event.pressedOn?.kind))) && !((event.pressedOn?.kind === 'entry') && (['IC-12', 'IC-13', 'IC-14', 'IC-15'] as readonly unknown[]).includes(event.pressedOn?.entry)),
+  isHeldOnRepeatingEntry: (values: GestureValues): boolean => {
+    const pointerPressPressedOn =
+      values.pointerPressState.kind === 'changingDocument' ? values.pointerPressState.pressedOn
+      : values.pointerPressState.kind === 'viewingDocument' ? values.pointerPressState.pressedOn
+      : null
+    return pointerPressPressedOn?.kind === 'entry'
+      && (['IC-12', 'IC-13', 'IC-14', 'IC-15'] as readonly unknown[]).includes(pointerPressPressedOn?.entry)
+  },
+  isOnPaletteBand: (values: GestureValues): boolean => {
+    const pointerPressPressedOn =
+      values.pointerPressState.kind === 'changingDocument' ? values.pointerPressState.pressedOn
+      : values.pointerPressState.kind === 'viewingDocument' ? values.pointerPressState.pressedOn
+      : null
+    return pointerPressPressedOn?.kind === 'paletteBand'
+  },
+  isOnRepeatingEntry: (event: Extract<GestureValuesEvent, { readonly type: 'pointerPressed' }>): boolean =>
+    event.pressedOn?.kind === 'entry'
+      && (['IC-12', 'IC-13', 'IC-14', 'IC-15'] as readonly unknown[]).includes(event.pressedOn?.entry),
+  isTaskGroupGrabStrip: (event: Extract<GestureValuesEvent, { readonly type: 'pointerPressed' }>): boolean =>
+    event.pressedOn?.kind === 'taskGroupGrabStrip',
 }
 // </generated>
 
@@ -85,38 +128,6 @@ type EventOf<T extends GestureValuesEvent['type']> = Extract<GestureValuesEvent,
 
 // see T-289
 export const emptyGestureValues: GestureValues = { ...GESTURE_VALUES_INITIAL_AXES }
-
-// TRAP: copies of the shell's REPEATING_ENTRIES and PRESS_CHANGES_DOCUMENT until wave B of CR-450
-// has the shell read these; the two must not drift before then.
-const REPEATING_ENTRIES: readonly string[] = ['IC-12', 'IC-13', 'IC-14', 'IC-15']
-
-const VIEWING_PRESS_ROWS: readonly GesturePressRow[] = ['PTD-1', 'PTD-5']
-
-// see FR-018
-/** @purity pure */
-function isOnRepeatingEntry(pressedOn: PressedOn | null): boolean {
-  return pressedOn?.kind === 'entry' && REPEATING_ENTRIES.includes(pressedOn.entry)
-}
-
-// TRAP: ask the place before the row; a press on a drawn entry lands on PTD-5, so the row first
-// would take AG-9 off every palette press. A scrollbar drag writes only the display (UN-8).
-// see AG-9, WS-2
-/** @purity pure */
-function isDocumentChangingPress(pressRow: GesturePressRow, pressedOn: PressedOn | null): boolean {
-  if (pressedOn === null || pressedOn.kind === 'grab') return !VIEWING_PRESS_ROWS.includes(pressRow)
-  if (pressedOn.kind === 'scrollbarThumb') return false
-  return pressedOn.kind !== 'entry' || !isOnRepeatingEntry(pressedOn)
-}
-
-/** @purity pure */
-function isOnPaletteBand(pressedOn: PressedOn | null): boolean {
-  return pressedOn?.kind === 'paletteBand'
-}
-
-/** @purity pure */
-function isTaskGroupGrabStrip(pressedOn: PressedOn | null): boolean {
-  return pressedOn?.kind === 'taskGroupGrabStrip'
-}
 
 // WHY: a machine the event leaves alone keeps its reference, and so does the region (SD-3, SF-3).
 /** @purity pure */
@@ -136,13 +147,14 @@ function combined(
 function onPointerPressed(values: GestureValues, event: EventOf<'pointerPressed'>): GestureStep {
   const { pointerPressState: press, taskGroupGrabState: taskGroupGrab } = values
   const carried = { pressRow: event.pressRow, pressedOn: event.pressedOn }
-  const isChanging = isDocumentChangingPress(event.pressRow, event.pressedOn)
+  const isChanging = GESTURE_VALUES_GUARDS.isDocumentChangingPress(event)
   const pressed: PointerPressState =
     press.kind !== 'notPressed' ? press : { kind: isChanging ? 'changingDocument' : 'viewingDocument', ...carried }
-  const repeats = press.kind === 'notPressed' && !isChanging && isOnRepeatingEntry(event.pressedOn)
+  const repeats = press.kind === 'notPressed' && !isChanging && GESTURE_VALUES_GUARDS.isOnRepeatingEntry(event)
   const effects: readonly GestureValuesEffect[] = repeats ? [{ type: 'startEntryRepeat' }] : NO_EFFECTS
-  const grabbed: TaskGroupGrabState =
-    taskGroupGrab.kind === 'notGrabbed' && isTaskGroupGrabStrip(event.pressedOn) ? { kind: 'grabPressed' } : taskGroupGrab
+  const isGrabbing = taskGroupGrab.kind === 'notGrabbed' && GESTURE_VALUES_GUARDS.isTaskGroupGrabStrip(event)
+  const child = GESTURE_VALUES_INITIAL_CHILDREN['taskGroupGrabStateMachine.grabbed']
+  const grabbed: TaskGroupGrabState = isGrabbing ? { kind: 'grabbed', child } : taskGroupGrab
   return combined(values, pressed, grabbed, effects)
 }
 
@@ -151,7 +163,7 @@ function onPointerPressed(values: GestureValues, event: EventOf<'pointerPressed'
 /** @purity pure */
 function ended(values: GestureValues, isInterrupted: boolean): GestureStep {
   const { pointerPressState: press, taskGroupGrabState: taskGroupGrab } = values
-  const restores = isInterrupted && press.kind !== 'notPressed' && isOnPaletteBand(press.pressedOn)
+  const restores = isInterrupted && GESTURE_VALUES_GUARDS.isOnPaletteBand(values)
   const effects: readonly GestureValuesEffect[] = restores ? [{ type: 'restorePaletteCorner' }] : NO_EFFECTS
   const released = press.kind === 'notPressed' ? press : GESTURE_VALUES_INITIAL_AXES.pointerPressState
   const ungrabbed = taskGroupGrab.kind === 'notGrabbed' ? taskGroupGrab : GESTURE_VALUES_INITIAL_AXES.taskGroupGrabState
@@ -161,8 +173,8 @@ function ended(values: GestureValues, isInterrupted: boolean): GestureStep {
 // WHY: a carried grab finds no cell and keeps its reference until release (HF-15, S-208).
 /** @purity pure */
 function onTaskGroupGrabTravelPassed(values: GestureValues): GestureStep {
-  if (values.taskGroupGrabState.kind !== 'grabPressed') return unchanged(values)
-  const carrying: TaskGroupGrabState = { kind: 'carrying' }
+  if (values.taskGroupGrabState.kind !== 'grabbed' || values.taskGroupGrabState.child.kind !== 'grabPressed') return unchanged(values)
+  const carrying: TaskGroupGrabState = { kind: 'grabbed', child: { kind: 'carrying' } }
   return combined(values, values.pointerPressState, carrying, NO_EFFECTS)
 }
 
@@ -170,7 +182,7 @@ function onTaskGroupGrabTravelPassed(values: GestureValues): GestureStep {
 /** @purity pure */
 function onEntryRepeatTimeElapsed(values: GestureValues): GestureStep {
   const press = values.pointerPressState
-  if (press.kind !== 'viewingDocument' || !isOnRepeatingEntry(press.pressedOn)) return unchanged(values)
+  if (press.kind !== 'viewingDocument' || !GESTURE_VALUES_GUARDS.isHeldOnRepeatingEntry(values)) return unchanged(values)
   return { state: values, effects: [{ type: 'repeatHeldEntry' }] }
 }
 
@@ -190,3 +202,4 @@ export function stepGestureValues(values: GestureValues, event: GestureValuesEve
   const handler = HANDLERS[event.type] as (values: GestureValues, event: GestureValuesEvent) => GestureStep
   return handler(values, event)
 }
+

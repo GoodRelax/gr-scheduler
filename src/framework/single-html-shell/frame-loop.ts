@@ -23,6 +23,7 @@ import {
 import {
   delayDiagnosticsReportRows,
   diagnoseDelay,
+  diagnosedMarkerRowsOf,
   scheduleViolations,
   standardTimeZoneKeyForSystem,
   textOfDay,
@@ -206,6 +207,7 @@ import {
   type SearchFilterChange,
   type VerticalWhole,
   imageToJsonPromptText,
+  imageToJsonSchemaFile,
 } from '../../adapter/screen-renderer/screen-renderer'
 import { jumpLandingRingOf, marqueeOverlaySvg, svgFromSchedule, type SvgSurface } from '../../adapter/svg-renderer/svg-renderer'
 import {
@@ -526,12 +528,11 @@ interface HeldDelayDiagnostics {
 const NO_MARKED_TASKS: ReadonlySet<number> = new Set()
 
 // see FR-130, FR-133, PE-8, T-315, S-3, JDG-2803, JDG-2804, JDG-2806
-// WHY: DG-4 is left out; the geometry already draws it as PM-4. Made only on a run (IC-107, IC-168), never on an edit.
+// WHY: made only on a run (IC-107, IC-168), never on an edit.
 /** @purity pure */
 function delayDiagnosticsOf(document: Document, fixLogAtRun: ReadonlySet<DelayFixLogRow>): HeldDelayDiagnostics {
   const report = diagnoseDelay(document, workingCalendarOf(document.schedule))
-  const symbolByUid = new Map<number, 'DG-1' | 'DG-2' | 'DG-3'>()
-  for (const one of report.markerStates) if (one.row !== 'DG-4') symbolByUid.set(one.uid, one.row)
+  const symbolByUid = new Map(diagnosedMarkerRowsOf(report, document.schedule))
   const reportTaskUids = new Set(delayDiagnosticsReportRows(report, document.schedule).map((row) => row.taskUid))
   return { of: document, report, drawing: { shown: true, symbolByUid }, reportTaskUids, markedTaskUids: new Set(symbolByUid.keys()), fixLogAtRun }
 }
@@ -729,6 +730,7 @@ export const EXPORT_CHOOSER_ROW = 'U-54'
 export const WATERMARK_UNLOCK_ROW = 'U-60'
 
 const ESCAPE_SURFACE: ScreenValuesEvent = { type: 'escapePressed', rung: 'surface' }
+const ESCAPE_PROPERTIES_PANEL: ScreenValuesEvent = { type: 'escapePressed', rung: 'propertiesPanel' }
 const ESCAPE_ARMED: ScreenValuesEvent = { type: 'escapePressed', rung: 'armed' }
 const ESCAPE_HELP: ScreenValuesEvent = { type: 'escapePressed', rung: 'helpModal' }
 const ESCAPE_SEARCH_PANEL: ScreenValuesEvent = { type: 'escapePressed', rung: 'searchPanel' }
@@ -814,7 +816,7 @@ const ESCAPE_RUNG_EVENTS: { readonly [R in EscapeTarget]: ScreenValuesEvent | nu
   helpModal: ESCAPE_HELP,
   delayDiagnosticsReport: null,
   resourceList: null,
-  propertiesPanel: ESCAPE_SURFACE,
+  propertiesPanel: ESCAPE_PROPERTIES_PANEL,
   armed: ESCAPE_ARMED,
   selection: null,
   dualCursorMode: ESCAPE_DUAL_CURSOR,
@@ -1093,9 +1095,7 @@ interface ScreenViewReadingsTaken {
   readonly jumpRipple?: ScreenViewReadings['jumpRipple']
 }
 
-// see PI-37, SF-5, SF-10
-// STOP: spec does not decide where the chosen assignees are held. Looked in FR-099, SL-1
-// @provisional PND-143
+// see PI-37, SF-5, SF-10, FR-099
 /** @purity pure */
 function screenViewReadingsOf(
   held: Document,
@@ -2117,7 +2117,8 @@ function taskGroupGrabCarryOf(hands: FrameLoopHands) {
   /** @purity non-pure */
   function readingAt(frame: FrameValues | null, pointer: { readonly x: number; readonly y: number } | null): ScreenViewReadingsTaken['taskGroupGrabbedAt'] {
     const press = hands.readPressed()
-    const isCarrying = hands.readSession().gesture.taskGroupGrabState.kind === 'carrying'
+    const grab = hands.readSession().gesture.taskGroupGrabState
+    const isCarrying = grab.kind === 'grabbed' && grab.child.kind === 'carrying'
     if (!isCarrying || frame === null || press === null || pointer === null) return (tickedAtMs = null)
     const context = hands.collectInputContext(frame)
     const follow = commandFromInput({ ...press.at, phase: 'move', x: pointer.x, y: pointer.y }, context).action
@@ -2864,6 +2865,17 @@ function creationLandingOf(
   }
 }
 
+// see FR-068, IC-115, IO-10
+// WHY: the clipboard goes first: it needs the page focused, and the download's own display can take it.
+/** @purity non-pure */
+function copyPromptAndHandSchema(seam: Clipboard, files: FileStore | undefined, language: DisplayLanguage): Promise<boolean> {
+  const text = imageToJsonPromptText(language, GREATEST_KNOWN_SCHEMA_VERSION)
+  const copying = writeClipboard(seam, { kind: 'document', text })
+  const schemaFile = imageToJsonSchemaFile()
+  files?.downloadFile?.(schemaFile.fileName, new TextEncoder().encode(schemaFile.text))
+  return copying.then((writing) => writing.ok)
+}
+
 /** @purity non-pure */
 export function frameLoop(
   surface: SvgSurface,
@@ -2916,8 +2928,6 @@ export function frameLoop(
   let delayDiagnosticsShown = false
   let delayDiagnosticsHeld: HeldDelayDiagnostics | null = null
   const parentTasks = parentTaskHoldOf()
-  // STOP: spec does not decide where chosen resources are held. Looked in FR-099, AS-6, SL-1
-  // @provisional PND-143
   let agentApiEnablingWatch: ((isEnabled: boolean) => void) | null = null
   // WHY: a frame value, not a region state (CR-440 decision 8): the cap is the frame's layout result.
   let stackSafetyCapToldFor: string | null = null
@@ -3973,13 +3983,11 @@ export function frameLoop(
         return
       }
       case 'chooseResources':
-        // STOP: spec does not decide where the chosen resources are held. Looked in FR-099, SL-1
-        // @provisional PND-143
+        // see FR-099, T-293
         sendToSession({ type: 'resourcesPicked', chosenResources: action.uids }, frame)
         return
       case 'toggleChosenResource': {
-        // STOP: spec does not decide where the chosen resources are held. Looked in FR-099, SL-1
-        // @provisional PND-143
+        // see FR-099, T-293
         const chosen = session.selection.chosenResources
         const chosenResources = chosen.includes(action.uid)
           ? chosen.filter((one) => one !== action.uid)
@@ -4016,7 +4024,7 @@ export function frameLoop(
     if (subject !== null) sendToSession({ type: 'selectionMoved', subject }, frame)
   }
 
-  // see FR-068, IC-115, RS-65, UF-48
+  // see FR-068, IC-115, RS-65, UF-48, IO-10
   /** @purity non-pure */
   function copyImageToJsonPrompt(): void {
     const seam = clipboard
@@ -4024,10 +4032,9 @@ export function frameLoop(
       raiseNotice(PROMPT_NOT_COPIED_REASON, null)
       return
     }
-    // TRAP: started inside the input's own call; deferred, the browser can refuse the write.
-    const text = imageToJsonPromptText(screenLanguageIn(session), GREATEST_KNOWN_SCHEMA_VERSION)
-    void writeClipboard(seam, { kind: 'document', text }).then((writing) => {
-      raiseNotice(writing.ok ? PROMPT_COPIED_REASON : PROMPT_NOT_COPIED_REASON, null)
+    // TRAP: started inside the input's own call; deferred, the browser can refuse the write and the download.
+    void copyPromptAndHandSchema(seam, files, screenLanguageIn(session)).then((isCopied) => {
+      raiseNotice(isCopied ? PROMPT_COPIED_REASON : PROMPT_NOT_COPIED_REASON, null)
     })
   }
 
@@ -4051,8 +4058,7 @@ export function frameLoop(
   function showPropertiesOfChoice(pick: PanelSubjectPick): void {
     const subject = subjectOfChoice(selectedObjectsIn(session), session.selection.chosenTaskGroups, session, pick)
     if (subject === null) return
-    // STOP: spec does not decide what the panel keeps when the selection empties. Looked in FR-072, SL-1
-    // @provisional PND-144
+    // see FR-072, T-280
     sendToSession({ type: 'propertiesOfChoiceAsked', subject }, values)
   }
 

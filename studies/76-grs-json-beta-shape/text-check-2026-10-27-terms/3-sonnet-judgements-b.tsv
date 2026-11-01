@@ -1,0 +1,64 @@
+id	verdict	failed	problem_ja	suggested_en
+D083	ok	-	-	-
+D084	ok	-	-	-
+D085	ok	-	-	-
+D086	ok	-	-	-
+D087	ok	-	-	-
+D088	fix	E1	revision が何の数かが読み取れず、Haiku は「改訂番号がいつ誰によって上がるか分からない」と迷った。仕様は fig-erd-detail.md の AT-10 で「交換相手の保存回数。documentStamp の 2 つの刻とは別物」と定めており、事実は合っているが「何の数か」が文中に無い。	Same as MSPDI Project/Revision: how many times the tool that made the MSPDI file saved the project. The revision is not one of the documentStamp times.
+D089	ok	-	-	-
+D090	ok	-	-	-
+D092	ok	-	-	-
+D093	ok	-	-	-
+D094	ok	-	-	-
+D095	ok	-	-	-
+D096	fix	E1	weekStartDay は 0 が日曜、WeekDay.dayType は 1 が日曜で、番号が 1 ずれる。Haiku もこのずれで混乱した。仕様は fig-erd-detail.md の AT-17 が「WeekDay.dayType とは番号が 1 ずれる」と禁止形で警告しており、書き手の取り違えを防ぐ第 3 文相当の一言が要る（E3 の例外）。事実（0 が日曜、無ければ月曜 = tbl-settings.md の S-108）は合っている。	Same as MSPDI Project/WeekStartDay, where 0 is Sunday; WeekDay.dayType counts from 1 instead. Absent means Monday (1).
+D097	ok	-	-	-
+D098	ok	-	-	-
+D099	ok	-	-	-
+D100	ok	-	-	-
+D101	ok	-	-	-
+D102	ok	-	-	-
+D103	ok	-	-	-
+D104	ok	-	-	-
+D105	ok	-	-	-
+D106	ok	-	-	-
+D107	ok	-	-	-
+D108	ok	-	-	-
+D109	ok	-	-	-
+D110	ok	-	-	-
+D111	ok	-	-	-
+D112	ok	-	-	-
+D113	ok	-	-	-
+D114	ok	-	-	-
+D115	ok	-	-	-
+D116	ok	-	-	-
+D117	ok	-	-	-
+D118	ok	-	-	-
+D119	ok	-	-	-
+D120	ok	-	-	-
+D121	ok	-	-	-
+D122	ok	-	-	-
+D123	ok	-	-	-
+D124	ok	-	-	-
+D125	ok	-	-	-
+D126	ok	-	-	-
+D127	fix	E7	「GRS は T00:00:00 を書く」は言い過ぎ。01-04-requirements.md の WT-6 と本文（約 7132 行）は、GRS が T00:00:00 で書くのは足した行と日が動いた列だけとし、取り込んだまま編集していない値は元の字面のまま戻す（WT-10 と EX-4）と定める。読むのが日付だけ（working-calendar.ts の dayOf）は正しい。	Same as MSPDI Exception/TimePeriod/FromDate: the first day of the exception. GRS reads only the date; when GRS adds or changes the date, GRS writes T00:00:00.
+D128	fix	E7	D127 と同じ。T23:59:00 を書くのは GRS が足した行と日が動いた列だけで、取り込んだまま編集していない値は元の字面のまま戻す（01-04-requirements.md の WT-7、WT-10、EX-4）。	Same as MSPDI Exception/TimePeriod/ToDate: the last day of the exception, included. GRS reads only the date; when GRS adds or changes the date, GRS writes T23:59:00.
+D129	ok	-	-	-
+D130	ok	-	-	-
+D131	ok	-	-	-
+D132	ok	-	-	-
+D133	ok	-	-	-
+D134	ok	-	-	-
+D135	ok	-	-	-
+D136	ok	-	-	-
+D137	ok	-	-	-
+D138	ok	-	-	-
+D139	fix	E7	PS-3（01-04-requirements.md の表 T-019a）の状態名は「中断・再開日未定」で、resumeValid が false なら resume に日付が残っていてもこの状態になる（PS-3 が PS-4 より先）。「with no resume date」だと日付が残る場合と食い違う。他の判定の順と条件は PS-1 から PS-5 と一致する。	Same as MSPDI Task. GRS reads the progress state with these checks, first match wins: no actualStart, not started; actualFinish set, finished; resumeValid false, suspended with the resume date undecided; resume set, suspended with a resume date; otherwise in progress.
+D140	ok	-	-	-
+D141	ok	-	-	-
+D142	ok	-	-	-
+D143	ok	-	-	-
+D144	ok	-	-	-
+D145	ok	-	-	-
+D146	fix	E7	開けない形式が GRS JSON と MSPDI の 2 つに読め、GRS HTML は開けるように見える。実際は tbl-notice-reasons.md の RS-81（取り込む Task に start か finish が無い）が、開く経路 document-file-flow.ts の validateImportedDocument を通る 3 形式（GRS JSON、MSPDI、GRS HTML に埋め込んだ GRS JSON）すべてに掛かる。EX-5 の中身の無い行と要約タスクは除く。	Same as MSPDI Task/Start. GRS does not open a GRS JSON, GRS HTML or MSPDI file in which a task has no start.

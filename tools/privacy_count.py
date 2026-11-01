@@ -38,8 +38,8 @@ ROOT = os.path.dirname(HERE)
 
 MUST_BE_IGNORED = [
     'docs/reference/mspdi/pj12/probe.xsd',
-    'previous-project-result/01-mspdi/mspdi/probe.xsd',
-    'previous-project-result/temp/probe.md',
+    'studies/01-mspdi/mspdi/probe.xsd',
+    'studies/temp/probe.md',
     'scratch/probe.mjs',
     '.claude/settings.local.json',
     '.claude/worktrees/probe/probe.md',
@@ -49,7 +49,7 @@ MUST_BE_IGNORED = [
 # Tracked files allowed under MUST_NOT_BE_TRACKED: the READMEs that say what
 # belongs there and where to get it.
 MUST_NOT_BE_TRACKED = ['docs/reference/mspdi/',
-                       'previous-project-result/01-mspdi/mspdi/']
+                       'studies/01-mspdi/mspdi/']
 ALLOWED_TRACKED = ('README.md',)
 
 

@@ -248,7 +248,7 @@ const underTheNewKeys = (value: unknown): unknown => {
 }
 
 describe('DFC-2410 -- the real progress table, which stores no view position', () => {
-  const PATH = join(process.cwd(), 'previous-project-result', '38-project-progress', 'gr-scheduler-progress-2026-10-10c.json')
+  const PATH = join(process.cwd(), 'studies', '38-project-progress', 'gr-scheduler-progress-2026-10-10c.json')
   const real = (): Record<string, any> => underTheNewKeys(JSON.parse(readFileSync(PATH, 'utf8'))) as Record<string, any>
 
   it('premise: the file stores no scrollDate (OP-10)', () => {

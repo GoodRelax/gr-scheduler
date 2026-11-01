@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """PostToolUse hook: check the one file Claude just wrote, and tell, not stop.
 
-Ruling JDG-59 (docs/development-records/refactor-plan-report-2026-09-13.md,
+Ruling JDG-59 (docs/development-records/history/refactor-plan-report-2026-09-13.md,
 record 11) puts a layer right after writing: the file just edited is checked
 alone and what is wrong is handed back to the model, which fixes it. The gate
 that stops is still `guard:commit` (check.sh); this hook never replaces it.
@@ -95,6 +95,7 @@ GENERATORS = {
     'property_items_json_to_md.py': [ITEMS_MD],
     'row_id_prefixes_json_to_md.py': [PREFIXES_MD],
     'state_machines_json_to_md.py': [MACHINES_MD, MACHINES_TYPES],
+    'state_machine_figures.py': [MACHINES_MD],
     'verification_json_to_md.py': [VERIFICATION_MD],
     'build.py': [COMPONENTS],
 }

@@ -86,7 +86,7 @@ export {
 } from './search-panel'
 export { DEFAULT_WINDOW_PLACE, windowBoxAfterGrab, windowBoxOf, windowEdgeAt, windowNormalBoxOf, windowPlaceOf } from './window-box'
 export type { WindowPlace, WindowShown } from './window-box'
-export { imageToJsonPromptText } from './app-header-items'
+export { imageToJsonPromptText, imageToJsonSchemaFile } from './app-header-items'
 export { delayFixBackupFileNameOf, delayFixLogFileNameOf, exportFileNameOf, UNTITLED_DOCUMENT_TITLE } from './open-modals'
 export type { SearchFilterChange, SearchPanelShown, SearchPanelView } from './search-panel'
 export { filteredSearchRows, taskSearchColumnHeadings } from './search-table-filters'
@@ -497,6 +497,8 @@ export interface HelpModal extends OpenSurface {
   readonly downloadLink: HelpLink
   readonly aboutLink: HelpLink
   readonly helpLegal: { readonly licensedUnder: string; readonly fullText: string }
+  // see FR-036, T-255
+  readonly blockNotes: readonly { readonly block: string; readonly text: string }[]
   readonly area: HelpWindowArea
   readonly place?: WindowPlace
 }
@@ -754,8 +756,7 @@ export interface ScreenViewReadings {
   readonly pointer: { readonly x: number; readonly y: number } | null
   readonly pointerRestedMs: number
   readonly hintTargetDwellMs: number
-  // STOP: spec does not decide what answers which icon is under the pointer. Looked in EZ-2, FR-092, FR-029, T-109, T-206
-  // @provisional PND-141
+  // see IF-9, EZ-2
   readonly iconUnderPointer: IconId | null
   readonly isPointerOnHelp?: boolean
   readonly isPointerOnSearchPanel?: boolean
@@ -777,8 +778,7 @@ export interface ScreenViewReadings {
   } | null
   // see FR-085, T-293
   readonly selectedTaskGroupIds: readonly string[]
-  // STOP: spec does not decide where the chosen resources are held. Looked in FR-099, SL-1, T-203, T-206
-  // @provisional PND-143
+  // see FR-099, T-293
   readonly selectedResourceUids: readonly number[]
   readonly mergeCandidates?: readonly MergeCandidateLine[]
   readonly unreadColumns?: readonly string[]

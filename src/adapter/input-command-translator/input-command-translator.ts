@@ -69,7 +69,9 @@ import type {
   TaskShapeKind,
 } from '../../use-case/edit-document/edit-document'
 import {
+  armedOf,
   isWindowStandingIn,
+  type ArmModeArmedState,
   type ScreenValues,
 } from '../../use-case/advance-screen-session/advance-screen-session'
 import type {
@@ -303,14 +305,11 @@ export type InputAction =
       readonly taskGroupId: string
       readonly isExtending: boolean
     }
-  // STOP: spec does not decide where the chosen resources are held. Looked in FR-099, SL-1
-  // @provisional PND-143
+  // see FR-099, T-293
   | { readonly kind: 'chooseResources'; readonly uids: readonly number[] }
-  // STOP: spec does not decide where the chosen resources are held. Looked in FR-099, SL-1
-  // @provisional PND-143
+  // see FR-099, T-293
   | { readonly kind: 'toggleChosenResource'; readonly uid: number }
-  // STOP: spec does not decide what the properties panel keeps when the selection goes.
-  // Looked in FR-072, SL-1 @provisional PND-144
+  // see FR-072, T-280
   | { readonly kind: 'toggleDocumentSettingsProperties' }
   | { readonly kind: 'toggleAgentApi' }
   | { readonly kind: 'copyImageToJsonPrompt' }
@@ -432,10 +431,10 @@ function isCtrlDragCombo(modifiers: InputModifiers): boolean {
   return isCombo(modifiers, true, false, false) || isCombo(modifiers, true, true, false)
 }
 
-// see FR-103, T-378, SG-4
+// see FR-103, T-378
 /** @purity pure */
-export function releasedSnapOf(context: InputContext, release: PointerInput): number {
-  return snapMinutesOf(context.layout.pxPerDay, context.document.documentSettings, release.modifiers.alt)
+export function snapMinutesOfView(context: InputContext): number {
+  return snapMinutesOf(context.layout.pxPerDay, context.document.documentSettings)
 }
 
 // see MK-16, CY-5, CY-11, T-270
@@ -519,7 +518,7 @@ export function isParentPickingCtrlClick(
   if (press.at.button !== 'left' || !isCombo(press.at.modifiers, true, false, false)) return false
   if (press.hit === null || hasDraggedPastThreshold(press, release)) return false
   const kind = press.hit.item.kind
-  return kind === 'parentTaskLink' || (kind === 'task' && context.screen.armModeState.kind === 'parentTaskArmed')
+  return kind === 'parentTaskLink' || (kind === 'task' && armedOf(context.screen.armModeState)?.kind === 'parentTaskArmed')
 }
 
 /** @purity pure */
@@ -714,10 +713,10 @@ export function pressedRowOf(
   if (press.at.button === 'left' && isCtrlDragCombo(modifiers)) return 'PTD-1'
   if (context.dualCursorFollowing !== null) return 'PTD-2'
   if (press.hit !== null) return 'PTD-3'
-  const armed = context.screen.armModeState
-  if (armed.kind === 'dependencyArmed') return 'PTD-4a'
-  if (armed.kind === 'parentTaskArmed') return 'PTD-5'
-  if (armed.kind !== 'notArmed') return 'PTD-4'
+  const armed = armedOf(context.screen.armModeState)
+  if (armed?.kind === 'dependencyArmed') return 'PTD-4a'
+  if (armed?.kind === 'parentTaskArmed') return 'PTD-5'
+  if (armed !== null) return 'PTD-4'
   return 'PTD-5'
 }
 
@@ -862,7 +861,7 @@ function nextFontSizeStep(current: FontSizeStep): FontSizeStep {
   return FONT_SIZE_STEPS[(at + 1) % FONT_SIZE_STEPS.length] as FontSizeStep
 }
 
-export type Armed = Exclude<ScreenValues['armModeState'], { readonly kind: 'notArmed' }>
+export type Armed = ArmModeArmedState
 
 // TRAP: the arm types shapeKind and glyph as bare strings; a misspelling here compiles and arms nothing.
 const ARMED_BY_ENTRY: Readonly<Record<string, Armed>> = {
@@ -1016,7 +1015,7 @@ function panOnRelease(release: PointerInput, press: PointerPress, context: Input
 /** @purity pure */
 function commandFromItemPress(release: PointerInput, press: PointerPress, context: InputContext): TranslatedInput {
   if (press.hit?.item.kind === 'parentTaskLink') return commandFromParentTaskLinkRelease(release, press)
-  const armed = context.screen.armModeState.kind
+  const armed = armedOf(context.screen.armModeState)?.kind
   if (armed === 'parentTaskArmed') return commandFromParentTaskDrag(release, press, context)
   if (armed === 'dependencyArmed') return commandFromDependencyDrag(release, press, context)
   return commandFromGrab(release, press, context)

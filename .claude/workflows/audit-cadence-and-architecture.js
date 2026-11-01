@@ -63,7 +63,7 @@ name the bottlenecks with numbers.
    \`restart\`. How many commits, over what span, what is the median gap between
    them? Which commits are specification-only, which are code, which are both
    (\`git show --stat\`)?
-2. **What each round actually cost.** \`docs/development-records/W4-adapter.md\`
+2. **What each round actually cost.** \`docs/development-records/history/W4-adapter.md\`
    and \`W5-framework.md\` hold a 「現在地」 block per round with measured numbers
    (test counts, red counts, build size, check results). Extract the series:
    how did the red count move round over round? How many rounds ended green?
@@ -126,7 +126,7 @@ inventory).
    browser global, \`window\`, \`document\`, \`localStorage\`, \`fetch\`, \`Date.now\`,
    \`Math.random\`, or \`crypto\`? Quote every hit with its line.
 4. **The seams that are declared but not honored.** Search \`src/\` for STOP
-   notes (\`grep -rn "STOP --" src/\`). Group them: which are "the specification
+   notes (\`grep -rn "// STOP:" src/\`). Group them: which are "the specification
    has not settled this", and which are "this seam is declared but nothing
    implements it"? Count each group. ⭐ The second group is architecture debt.
 5. **Entry-point discipline.** Table T-064 says a component publishes names

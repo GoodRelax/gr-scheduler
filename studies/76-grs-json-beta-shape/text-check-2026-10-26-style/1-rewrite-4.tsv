@@ -1,0 +1,75 @@
+id	new	changed	note
+D228	Width of the comment box border and leader line, in CSS pixels at displayScalePercent 100. GRS scales the width by displayScalePercent, not by zoom. GRS writes 1 when placing a box.	yes	flag: "leader line" is not in T-103 (kept)
+D229	Color of the comment box text.	no	-
+D230	Size of the comment box text, in CSS pixels at displayScalePercent 100. GRS scales the size by displayScalePercent, not by zoom. GRS writes 10 when placing a box.	yes	-
+D231	The URL that the comment box links to. Absent means no link.	no	-
+D232	The title of the comment box link. Absent means no title.	no	-
+D234	Where the leader line of a comment box points; kind selects a free point, a task or a highlight box.	no	flag: "leader line" is not in T-103 (kept)
+D235	freePoint: a place in the Task Group Area tied to nothing; task: one of eight points of a task figure; highlightBox: one of eight points of a highlight box.	yes	"chart" -> Task Group Area; flag: "task figure" (Plan Bar, Actual Bar or milestone) is not in T-103 (kept)
+D236	The point in time where the tip stands on the time axis.	no	flag: "tip" and "time axis" are not in T-103 (kept as plain words)
+D237	The task group whose row in the Task Group Area holds the tip; in a fallback, the task group where the tip goes when the target of the tip is deleted.	yes	kept passive: "is deleted" (a person or an Agent API caller deletes; no single actor); longer than before (band rule)
+D238	The height of the tip within the row of that task group in the Task Group Area: 0 is the top edge, 1 the bottom edge.	yes	longer than before (band rule)
+D239	The uid of the task that the tip snaps to.	yes	-
+D240	Which figure of the task the tip snaps to: the Plan Bar, the Actual Bar or the milestone.	yes	plan bar / actual bar -> glossary capitals
+D241	Which of the eight points of the target the tip snaps to: the four corners and the middles of the four sides.	yes	-
+D242	Where the tip goes when the task is deleted.	no	kept passive: "is deleted" (no single actor)
+D243	The id of the highlight box that the tip snaps to.	yes	-
+D244	Where the tip goes when the highlight box is deleted.	no	kept passive: "is deleted" (no single actor)
+D245	Where the tip goes when the target of the tip is deleted: the task group, and the height in the row of that task group in the Task Group Area.	yes	kept passive: "is deleted" (no single actor); longer than before (band rule)
+D246	One highlight box. Encloses a range of dates and task groups.	no	-
+D247	The id of the highlight box.	no	-
+D248	The task group at the top edge of the box.	no	-
+D249	The task group at the bottom edge of the box.	no	-
+D250	The first day that the box covers (included), as a day in the schedule data time zone (project.scheduleDataTimeZone).	no	-
+D251	The last day that the box covers (included).	no	-
+D252	Corner radius of the highlight box, in CSS pixels at displayScalePercent 100; 0 gives square corners. GRS scales the radius by displayScalePercent, not by zoom. GRS writes 4 when placing a box.	yes	-
+D253	Fill color of the highlight box; fillTransparencyPercent 100 draws no fill.	no	-
+D254	Transparency of the highlight box fill in percent: 0 is opaque, 100 draws no fill.	no	-
+D255	Frame color of the highlight box. Absent means GRS draws no frame line.	yes	-
+D256	Border width of the highlight box, in CSS pixels at displayScalePercent 100. GRS scales the width by displayScalePercent, not by zoom. GRS writes 1 when placing a box.	yes	-
+D257	When the document last changed, when GRS last saved the document, and who last wrote the document.	yes	actor "GRS" for saving taken from fileSavedAt (D260)
+D258	When the schedule data last changed. watchChanges looks only at this time.	no	-
+D259	When the document last changed, in the schedule data or in documentSettings.	no	-
+D260	When GRS last wrote the document to the file, in UTC. Absent until the first write.	yes	-
+D261	Who wrote the document last: {"kind":"user"} for a person in GRS, {"kind":"template"} for the shipped start-up template, {"kind":"agent","name":...} for an Agent API caller.	yes	"on the screen" -> "in GRS"
+D262	Who wrote: a person in GRS, the shipped start-up template, or an Agent API caller.	yes	"on the screen" -> "in GRS"
+D263	user: a person in GRS; template: the shipped start-up template; agent: an Agent API caller.	yes	"on the screen" -> "in GRS"
+D264	The name that the Agent API caller gave for itself.	no	-
+D265	One note about a change made to the document: when, who, which part, what, why, and anything else. Only changedAt is required.	no	"is required" kept as the schema term (adjective)
+D266	When the change happened, in UTC. GRS fills in the time of adding the entry; a person may change the time.	yes	-
+D267	Who made the change: the name a person typed, or the name an AI gave for itself.	no	-
+D268	Which part of the document the change affected.	no	-
+D269	What changed.	yes	-
+D270	The reason for the change.	yes	-
+D271	Anything else about the change.	no	-
+D273	Carried MSPDI values, keyed by their MSPDI names.	no	-
+D274	One carried MSPDI element, which GRS keeps whole and writes back in place.	yes	-
+D275	The order of this element within the owner, which GRS uses to write the element back in place.	yes	-
+D276	The element name, spelled exactly as in the MSPDI file.	yes	-
+D277	The leaf values of the element, by their names.	no	-
+D278	The child elements nested in this element.	no	-
+D279	A date without a time of day, written YYYY-MM-DD. A range of days (firstDay and lastDay) includes both days. Each property that uses Day says which time zone the day is in.	yes	-
+D280	A wall-clock date-time in project.scheduleDataTimeZone, written YYYY-MM-DDTHH:MM:SS with no offset, as MSPDI writes a date-time. GRS reads the value to the minute and ignores the seconds.	yes	-
+D281	A time of day, as MSPDI writes a time.	yes	-
+D282	A point in time in UTC, written YYYY-MM-DDTHH:MM:SSZ.	no	-
+D283	A fixed offset from UTC, written like UTC+09:00. GRS never applies daylight saving time.	yes	-
+D284	A color: theme uses the color that the theme gives this place, palette names a palette color, custom gives the color's own values for the light and the dark theme. Where a color may be absent, an absent color means GRS does not draw that fill or line.	yes	-
+D285	theme: the color that the theme gives this place; palette: a named palette color; custom: the color's own values for the light and the dark theme.	yes	-
+D286	The palette color, by the stored name.	yes	-
+D287	The color for the light theme; at least one of light and dark is present.	no	-
+D288	The color for the dark theme; at least one of light and dark is present.	no	-
+D289	One side of a custom color: the value, and whether a person chose the value or GRS derived the value. One side may be absent; GRS derives the missing side from the other side when opening the file.	yes	-
+D290	The color value for this theme.	no	-
+D291	chosen: a person chose this value; derived: GRS made the value from the other side when loading the document.	yes	-
+D292	The color of the row of a task group in the Task Group Area: the same as Color, except that the palette color ink is not available.	yes	longer than before (band rule)
+D293	A filter on one column of a table: values hides rows by their shown value, dateRange hides rows whose date is outside a range of days.	no	-
+D294	values: hide rows by their shown value; dateRange: hide rows whose date is outside firstDay..lastDay.	no	-
+D295	The column that the filter is on, by the stable column name.	yes	-
+D296	The values whose rows the filter hides; write a status or a type by the stable name, any other value by the shown text.	yes	-
+D297	Whether the filter hides the rows with an empty cell in this column.	yes	-
+D298	The first day that the filter keeps (included), as a day in the schedule data time zone (project.scheduleDataTimeZone).	yes	-
+D299	The last day that the filter keeps (included).	yes	-
+D300	How GRS sorts a table: by one column, in one direction.	yes	-
+D301	The column that GRS sorts the table by, by the stable column name.	yes	-
+D302	The direction of the sort.	no	-
+D303	The stable English name of a table column; each table takes only the names of the columns in that table.	yes	-

@@ -334,7 +334,7 @@ git grep -n "returnSubject" -- docs/spec src tests tools
 git grep -n "propertiesPanelKept\|settingsEntryEventsOf" -- src      # frame-loop.ts only; one reader :2621
 
 # who says "back to the previous selection"
-git grep -n "直前の選択物\|もう一度同じ入口\|同じ入口をもう一度" -- . ':!docs/development-records' ':!change-request' ':!previous-project-result'
+git grep -n "直前の選択物\|もう一度同じ入口\|同じ入口をもう一度" -- . ':!docs/development-records' ':!change-request' ':!studies'
 #   01-04-requirements.md :1954 :1955 :1956 ; state-machines.json :1954 ; tbl-state-machines.md :317 ; tests/unit/cr-424 :33 :35 :38 :354
 grep -n "| IC-17 |" docs/spec/_assets/tbl-glossary.md                # :549 (hand-written; no manuscript in _source)
 grep -n '"IC-17"' docs/spec/_source/display-words.json               # :256, hint :262-263

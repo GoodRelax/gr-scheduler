@@ -62,7 +62,14 @@ import {
 } from './selection-values'
 import { unchanged, type Step } from './session-step'
 
-export type { ArmKind, BaseChangeWay, PropertiesSubject, ScreenValues, ScreenValuesEvent } from './screen-values'
+export type {
+  ArmKind,
+  ArmModeArmedState,
+  BaseChangeWay,
+  PropertiesSubject,
+  ScreenValues,
+  ScreenValuesEvent,
+} from './screen-values'
 export type {
   SearchColumn,
   SearchPanelSession,
@@ -100,6 +107,7 @@ export {
   NO_ROW_CHECKED,
   SEARCH_PANEL_TEXT_SIZE_ROWS,
   VISIBILITY_TABLES,
+  armedOf,
   emptySearchPanelSession,
   isHelpStandingIn,
   isWindowStandingIn,

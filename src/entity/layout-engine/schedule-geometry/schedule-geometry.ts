@@ -7,7 +7,8 @@
 import type { DocumentSettings, DrawnSettings } from '../../document-model/document-settings/document-settings'
 import {
   dayOf,
-  finishSideDayFrom,
+  edgeInstantOf,
+  instantOf,
   instantOnSideReader,
   startSideOf,
   workingCalendarOf,
@@ -54,7 +55,6 @@ import { parentTaskGeometryOf, type ParentTaskFamilies, type ParentTaskGeometry 
 export { anchorSnapsOf, commentAnchorPointOf, freeAnchorPointOf, leaderOf } from './comment-box'
 export type { AnchorSnap, AnchorSnapPoint, AnchorTarget, AnchorTaskFigure } from './comment-box'
 export { arrowHeadOf, selectedLinksOf } from './dependency-route'
-export { NOT_STORED_DUMMY_SIZES } from './task-figures'
 export type { ParentTaskFamilies } from './parent-task-arrows'
 
 export interface Point {
@@ -162,8 +162,7 @@ export interface TaskGeometry {
   readonly fadeHandles: readonly Point[]
   readonly label: ScreenRect | null
   readonly assigneeLabel: ScreenRect | null
-  // see FR-009, RT-4a
-  // WHY: optional, read as true when absent: a hand-built geometry may not say.
+  // WHY: FR-009 / RT-4a; optional, read as true when absent: a hand-built geometry may not say.
   readonly hasPlanDates?: boolean
   // WHY: FR-045 / T-304; optional, read as null when absent: a hand-built geometry may not say.
   readonly deadline?: DeadlineGeometry | null
@@ -284,6 +283,7 @@ export interface GeometryInputs {
   readonly within: WorkingCalendar
   readonly taskByUid: ReadonlyMap<number, Task>
   readonly statusDate: CalendarDay | null
+  readonly statusInstant?: number | null
   readonly isPlanVisible: boolean
   readonly isActualVisible: boolean
   readonly selectedTaskUids: ReadonlySet<number>
@@ -513,21 +513,12 @@ function planExtentOf(placed: TaskPlacement, settings: DrawnSettings): { readonl
   return { top: thinTierMiddle(placed, settings, false) - half, height: half * 2 }
 }
 
-// see BL-2, RV-6, FR-054, FR-158
-// WHY: as the plan bar: the instant with time of day; whole columns without, a 00:00 end closing the day before.
+// see BL-2
 /** @purity pure */
 function baselineEdgeXOf(text: string | null, side: DateTimeSide, reading: DateTimeSide,
                          inputs: GeometryInputs, onSide: InstantOnSide): number | null {
-  if (inputs.settings.isTimeOfDayVisible) {
-    const instant = onSide(text, reading)
-    return instant === null ? null : xOfInstant(inputs.layout, instant)
-  }
-  if (side === 'start') {
-    const day = dayOf(text)
-    return day === null ? null : xFromDay(inputs.layout, day)
-  }
-  const last = finishSideDayFrom(dayOf(text), text)
-  return last === null ? null : xFromDay(inputs.layout, last) + inputs.layout.pxPerDay
+  const edge = edgeInstantOf(text, side, () => onSide(text, reading), inputs.settings.isTimeOfDayVisible, dayOf)
+  return edge === null ? null : xOfInstant(inputs.layout, edge)
 }
 
 // see BL-1, BL-2
@@ -571,11 +562,18 @@ function baselineOutlinesOf(schedule: Schedule, inputs: GeometryInputs): Baselin
   return out
 }
 
+// see FR-046, FR-014, CU-1, FR-158
+/** @purity pure */
+export function statusLineXOf(inputs: GeometryInputs, statusDate: CalendarDay): number {
+  const instant = inputs.settings.isTimeOfDayVisible ? inputs.statusInstant ?? null : null
+  return instant === null ? xFromDay(inputs.layout, statusDate) : xOfInstant(inputs.layout, instant)
+}
+
 /** @purity pure */
 function statusLineOf(inputs: GeometryInputs, regions: ScreenRegions): ScheduleGeometry['statusLine'] {
   if (inputs.statusDate === null) return null
   const area = regions.taskGroupArea
-  return { x: xFromDay(inputs.layout, inputs.statusDate), top: area.y, bottom: area.y + area.height }
+  return { x: statusLineXOf(inputs, inputs.statusDate), top: area.y, bottom: area.y + area.height }
 }
 
 // see CP-6, LC-10, LC-11, RV-5
@@ -598,6 +596,7 @@ export function geometryFromLayout(
     within: workingCalendarOf(schedule),
     taskByUid: new Map(schedule.tasks.map((one) => [one.uid, one])),
     statusDate: dayOf(schedule.project.statusDate),
+    statusInstant: instantOf(schedule.project.statusDate),
     isPlanVisible: settings.isPlanVisible,
     isActualVisible: settings.isActualVisible,
     selectedTaskUids: new Set(taskUidsIn(selection)),

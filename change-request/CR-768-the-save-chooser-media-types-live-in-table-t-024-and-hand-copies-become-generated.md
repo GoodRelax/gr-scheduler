@@ -306,7 +306,7 @@ STATEMENT の 1 文:
 ## 13. 測り方の再現
 
 ```
-git grep -c "CR-768" 4a907919 -- change-request docs src tests previous-project-result tools   # 0 件
+git grep -c "CR-768" 4a907919 -- change-request docs src tests studies tools   # 0 件
 git grep -n "JDG-222[0-9]\|DFC-272[0-9]\|PND-9\(4[89]\|5[01]\)" 4a907919 -- docs change-request # 0 件
 grep -n "^| IO-" docs/spec/01-04-requirements.md                                               # IO-1〜IO-7
 grep -n "媒体" docs/spec/*.md docs/spec/_assets/*.md                                            # FR-096 の 1 文だけ

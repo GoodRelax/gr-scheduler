@@ -1,0 +1,106 @@
+id	kind	name	shape	text
+D004	property	schedule	object	The data: what is exported to MSPDI, and what GRS adds to draw it.
+D005	property	schedule.project	Project	Same as MSPDI Project.
+D006	property	schedule.calendars	array, optional: omit the property when there are no items; never write [] (minItems 1)	Same as MSPDI Calendars.
+D007	property	schedule.tasks	array, optional: omit the property when there are no items; never write [] (minItems 1)	Same as MSPDI Tasks, except that the WBS tree is given by Task.parentTaskUid and Task.siblingOrder.
+D008	property	schedule.resources	array, optional: omit the property when there are no items; never write [] (minItems 1)	Same as MSPDI Resources.
+D009	property	schedule.assignments	array, optional: omit the property when there are no items; never write [] (minItems 1)	Same as MSPDI Assignments.
+D078	property	Project	object	Same as MSPDI Project.
+D079	property	Project.id	str<=16, optional	Same as MSPDI Project/UID. GRS does not use it as a key.
+D080	property	Project.calendarUid	int 0..2147483647, optional	Same as MSPDI Project/CalendarUID. GRS counts all working days with this one calendar.
+D081	property	Project.name	str<=255, optional	Same as MSPDI Project/Name. GRS does not show it; the name shown on screen is title.
+D082	property	Project.title	str<=512, optional	Same as MSPDI Project/Title. GRS shows it at the top of the page and uses it as the default name of an exported file. Absent shows Untitled.
+D083	property	Project.subject	str<=512, optional	Same as MSPDI Project/Subject.
+D084	property	Project.category	str<=512, optional	Same as MSPDI Project/Category.
+D085	property	Project.company	str<=512, optional	Same as MSPDI Project/Company.
+D086	property	Project.manager	str<=512, optional	Same as MSPDI Project/Manager.
+D087	property	Project.author	str<=512, optional	Same as MSPDI Project/Author. It is not who wrote the document last (documentStamp.lastEditedBy).
+D088	property	Project.revision	int, optional	Same as MSPDI Project/Revision. It is not one of the documentStamp times.
+D089	property	Project.creationDate	DateTime "YYYY-MM-DDTHH:MM:SS", optional	Same as MSPDI Project/CreationDate. GRS writes it when it makes a new document.
+D090	property	Project.startDate	DateTime "YYYY-MM-DDTHH:MM:SS", optional	Same as MSPDI Project/StartDate.
+D091	property	Project.statusDate	DateTime "YYYY-MM-DDTHH:MM:SS", optional	Same as MSPDI Project/StatusDate. GRS draws the status line on its day. Absent means no status line, and Delay Diagnostics does not run.
+D092	property	Project.scheduleDataTimeZone	$ref UtcOffset (same 27 values, required)	The fixed UTC offset that the schedule date-times are given in, written as a standard-time key such as UTC+09:00. Daylight saving is never applied. It is not written to MSPDI.
+D093	property	Project.minutesPerDay	int, optional	Same as MSPDI Project/MinutesPerDay. 480 when absent. Keep it equal to the working minutes of every working day; when a day differs, GRS reports it each time the document opens.
+D094	property	Project.minutesPerWeek	int, optional	Same as MSPDI Project/MinutesPerWeek.
+D095	property	Project.daysPerMonth	int, optional	Same as MSPDI Project/DaysPerMonth.
+D096	property	Project.weekStartDay	int 0..6, optional	Same as MSPDI Project/WeekStartDay. Absent means Monday (1).
+D097	property	Project.defaultStartTime	Time "HH:MM:SS", optional	Same as MSPDI Project/DefaultStartTime. GRS writes this time on start-side dates; 08:00:00 when absent.
+D098	property	Project.defaultFinishTime	Time "HH:MM:SS", optional	Same as MSPDI Project/DefaultFinishTime. GRS writes this time on finish-side dates; 17:00:00 when absent.
+D105	property	Project.passthroughValues	PassthroughValues (map str->str<=65535, >=1 entry), optional (not in required); when the property is absent: nothing kept	MSPDI values that GRS does not read, kept and written back unchanged. Absent when there are none.
+D106	property	Project.passthroughElements	PassthroughElement[], optional: omit the property when there are no items; never write [] (minItems 1)	MSPDI elements that GRS does not read, kept and written back unchanged. Absent when there are none.
+D107	property	Calendar	object	Same as MSPDI Calendar.
+D108	property	Calendar.uid	int 0..2147483647 (required)	Same as MSPDI Calendar/UID.
+D109	property	Calendar.baseCalendarUid	int 0..2147483647, optional	Same as MSPDI Calendar/BaseCalendarUID.
+D111	property	Calendar.name	str<=512, optional	Same as MSPDI Calendar/Name.
+D112	property	Calendar.isBaseCalendar	bool, optional	Same as MSPDI Calendar/IsBaseCalendar. Absent reads as false.
+D113	property	Calendar.weekDays	WeekDay[], optional: omit the property when there are no items; never write [] (minItems 1)	Same as MSPDI Calendar/WeekDays.
+D114	property	Calendar.exceptions	Exception[], optional: omit the property when there are no items; never write [] (minItems 1)	Same as MSPDI Calendar/Exceptions.
+D115	property	Calendar.passthroughValues	PassthroughValues (map str->str<=65535, >=1 entry), optional (not in required); when the property is absent: nothing kept	MSPDI values that GRS does not read, kept and written back unchanged. Absent when there are none.
+D116	property	Calendar.passthroughElements	PassthroughElement[], optional: omit the property when there are no items; never write [] (minItems 1)	MSPDI elements that GRS does not read, kept and written back unchanged. Absent when there are none.
+D117	property	WeekDay	object	Same as MSPDI WeekDay.
+D119	property	WeekDay.dayType	int 1..7, required	Same as MSPDI WeekDay/DayType, except that 0 is not used: exception days are held in Exception.
+D120	property	WeekDay.dayWorking	bool, optional	Same as MSPDI WeekDay/DayWorking. Absent reads as not working.
+D121	property	WeekDay.workingTimes	WorkingTime[] 1..5, optional: omit the property when there are no items; never write [] (minItems 1)	Same as MSPDI WeekDay/WorkingTimes. Absent on a working day means the default spans 08:00-12:00, 13:00-17:00.
+D122	property	WeekDay.passthroughValues	PassthroughValues (map str->str<=65535, >=1 entry), optional (not in required); when the property is absent: nothing kept	MSPDI values that GRS does not read, kept and written back unchanged. Absent when there are none.
+D123	property	WeekDay.passthroughElements	PassthroughElement[], optional: omit the property when there are no items; never write [] (minItems 1)	MSPDI elements that GRS does not read, kept and written back unchanged. Absent when there are none.
+D124	property	Exception	object	Same as MSPDI Exception.
+D126	property	Exception.name	str<=512, optional	Same as MSPDI Exception/Name.
+D127	property	Exception.fromDate	DateTime "YYYY-MM-DDTHH:MM:SS", optional	Same as MSPDI TimePeriod/FromDate.
+D128	property	Exception.toDate	DateTime "YYYY-MM-DDTHH:MM:SS", optional	Same as MSPDI TimePeriod/ToDate.
+D129	property	Exception.dayWorking	bool, optional	Same as MSPDI Exception/DayWorking. Absent reads as not working.
+D130	property	Exception.recurrenceKind	int 1..9, optional	Same as MSPDI Exception/Type. GRS counts only a one-off exception: 9, absent, or 1 with recurrencePeriod absent or 1. It keeps any other exception but does not count it. Write 1 for an exception you add.
+D131	property	Exception.recurrencePeriod	int >=1, optional (not in required); when the property is absent: the file had no Period	Same as MSPDI Exception/Period.
+D132	property	Exception.workingTimes	WorkingTime[] 1..5, optional: omit the property when there are no items; never write [] (minItems 1)	Same as MSPDI Exception/WorkingTimes. Absent on a working day means the default spans 08:00-12:00, 13:00-17:00.
+D133	property	Exception.passthroughValues	PassthroughValues (map str->str<=65535, >=1 entry), optional (not in required); when the property is absent: nothing kept	MSPDI values that GRS does not read, kept and written back unchanged. Absent when there are none.
+D134	property	Exception.passthroughElements	PassthroughElement[], optional: omit the property when there are no items; never write [] (minItems 1)	MSPDI elements that GRS does not read, kept and written back unchanged. Absent when there are none.
+D135	property	WorkingTime	object	Same as MSPDI WorkingTime. GRS refuses spans of one day that overlap or do not start before they end; spans that only touch, such as one ending at 12:00 and one starting at 12:00, are fine.
+D137	property	WorkingTime.fromTime	Time "HH:MM:SS", optional	Same as MSPDI WorkingTime/FromTime.
+D138	property	WorkingTime.toTime	Time "HH:MM:SS", optional	Same as MSPDI WorkingTime/ToTime: 00:00:00 is the end of the day.
+D139	property	Task	object	Same as MSPDI Task.
+D140	property	Task.uid	int 0..2147483647 (required)	Same as MSPDI Task/UID.
+D142	property	Task.calendarUid	int 0..2147483647, optional	Same as MSPDI Task/CalendarUID. GRS keeps it only to write it back; working days are counted with project.calendarUid.
+D144	property	Task.name	str 1..512, optional	Same as MSPDI Task/Name.
+D145	property	Task.notes	str 1..65535, optional	Same as MSPDI Task/Notes.
+D146	property	Task.start	DateTime "YYYY-MM-DDTHH:MM:SS", optional	Same as MSPDI Task/Start.
+D147	property	Task.finish	DateTime "YYYY-MM-DDTHH:MM:SS", optional	Same as MSPDI Task/Finish.
+D148	property	Task.milestone	bool, optional	Same as MSPDI Task/Milestone. Absent reads as false. When true, TaskVisual holds milestoneShape; otherwise it holds taskShape.
+D149	property	Task.deadline	DateTime "YYYY-MM-DDTHH:MM:SS", optional	Same as MSPDI Task/Deadline.
+D150	property	Task.actualStart	DateTime "YYYY-MM-DDTHH:MM:SS", optional	Same as MSPDI Task/ActualStart.
+D151	property	Task.stop	DateTime "YYYY-MM-DDTHH:MM:SS", optional	Same as MSPDI Task/Stop. GRS omits it once actualFinish is set.
+D152	property	Task.actualFinish	DateTime "YYYY-MM-DDTHH:MM:SS", optional	Same as MSPDI Task/ActualFinish.
+D153	property	Task.resume	DateTime "YYYY-MM-DDTHH:MM:SS", optional	Same as MSPDI Task/Resume.
+D154	property	Task.resumeValid	bool, optional	Same as MSPDI Task/ResumeValid. GRS reads false as an interruption with no restart day decided.
+D155	property	Task.percentComplete	int>=0, optional	Same as MSPDI Task/PercentComplete, but GRS works it out again from the dates each time it reads a GRS JSON file: round(actual length / planned length x 100) in working minutes, the actual length running from actualStart to actualFinish, or to stop. It can be above 100; a milestone is 100 once actualFinish is set, otherwise 0.
+D156	property	Task.fadeInCalendarDays	int >=0, optional (not in required); when the property is absent: no fade: default depth on chevrons; 0 = flat end	Calendar days at the start of the bar drawn slanted, to show that the start is not yet firm; absent means no fade, and 0 means a flat end. Written to MSPDI as a Task/ExtendedAttribute.
+D157	property	Task.fadeOutCalendarDays	int >=0, optional (not in required); when the property is absent: no fade: default depth on chevrons; 0 = flat end	As fadeInCalendarDays, for the finish. Written to MSPDI as a Task/ExtendedAttribute.
+D158	property	Task.hyperlinkAddress	str 1..512 (URL), optional (not in required); when the property is absent: no link	Same as MSPDI Task/HyperlinkAddress.
+D159	property	Task.hyperlink	str 1..512 (link title), optional (not in required); when the property is absent: no link title	Same as MSPDI Task/Hyperlink: the title of the link, not its address.
+D160	property	Task.dependencies	Dependency[], optional: omit the property when there are no items; never write [] (minItems 1)	Same as MSPDI Task/PredecessorLink.
+D161	property	Task.passthroughValues	PassthroughValues (map str->str<=65535, >=1 entry), optional (not in required); when the property is absent: nothing kept	MSPDI values that GRS does not read, kept and written back unchanged. Absent when there are none.
+D162	property	Task.passthroughElements	PassthroughElement[], optional: omit the property when there are no items; never write [] (minItems 1)	MSPDI elements that GRS does not read, kept and written back unchanged. Absent when there are none.
+D163	property	Dependency	object	Same as MSPDI PredecessorLink.
+D164	property	Dependency.predecessorUid	int 0..2147483647 (required)	Same as MSPDI PredecessorLink/PredecessorUID.
+D165	property	Dependency.linkType	int 0..3 (required)	Same as MSPDI PredecessorLink/Type.
+D166	property	Dependency.linkLag	int, optional	Same as MSPDI PredecessorLink/LinkLag. When project.minutesPerDay is absent, a working day is 480 minutes.
+D167	property	Dependency.lagFormat	int, optional	Same as MSPDI PredecessorLink/LagFormat. GRS counts only 7 (working days), 5 (hours) and 3 (minutes); it keeps any other value but does not count the lag. GRS writes the unit that the lag was typed in.
+D168	property	Dependency.passthroughValues	PassthroughValues (map str->str<=65535, >=1 entry), optional (not in required); when the property is absent: nothing kept	MSPDI values that GRS does not read, kept and written back unchanged. Absent when there are none.
+D169	property	Dependency.passthroughElements	PassthroughElement[], optional: omit the property when there are no items; never write [] (minItems 1)	MSPDI elements that GRS does not read, kept and written back unchanged. Absent when there are none.
+D170	property	Resource	object	Same as MSPDI Resource.
+D171	property	Resource.uid	int 0..2147483647 (required)	Same as MSPDI Resource/UID.
+D172	property	Resource.calendarUid	int 0..2147483647, optional	Same as MSPDI Resource/CalendarUID. GRS keeps it only to write it back; working days are counted with project.calendarUid.
+D173	property	Resource.name	str<=512, optional	Same as MSPDI Resource/Name.
+D174	property	Resource.resourceKind	int, optional	Same as MSPDI Resource/Type.
+D175	property	Resource.isCostResource	bool, optional	Same as MSPDI Resource/IsCostResource. Absent reads as false.
+D176	property	Resource.passthroughValues	PassthroughValues (map str->str<=65535, >=1 entry), optional (not in required); when the property is absent: nothing kept	MSPDI values that GRS does not read, kept and written back unchanged. Absent when there are none.
+D177	property	Resource.passthroughElements	PassthroughElement[], optional: omit the property when there are no items; never write [] (minItems 1)	MSPDI elements that GRS does not read, kept and written back unchanged. Absent when there are none.
+D178	property	Assignment	object	Same as MSPDI Assignment.
+D179	property	Assignment.uid	int 0..2147483647 (required)	Same as MSPDI Assignment/UID.
+D180	property	Assignment.taskUid	int 0..2147483647, optional	Same as MSPDI Assignment/TaskUID.
+D181	property	Assignment.resourceUid	int 0..2147483647, optional	Same as MSPDI Assignment/ResourceUID.
+D182	property	Assignment.passthroughValues	PassthroughValues (map str->str<=65535, >=1 entry), optional (not in required); when the property is absent: nothing kept	MSPDI values that GRS does not read, kept and written back unchanged. Absent when there are none.
+D183	property	Assignment.passthroughElements	PassthroughElement[], optional: omit the property when there are no items; never write [] (minItems 1)	MSPDI elements that GRS does not read, kept and written back unchanged. Absent when there are none.
+D270	property	PassthroughValues	map str->str<=65535, minProperties 1	MSPDI values that GRS does not read, kept under their MSPDI names and written back unchanged.
+D271	property	PassthroughElement	object	One MSPDI element that GRS does not read, kept and written back unchanged in its place.
+D273	property	PassthroughElement.name	str 1..512 (required)	The element name in the MSPDI file, spelled exactly as it came.
+D277	property	DateTime	str ^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$	A wall-clock date-time in project.scheduleDataTimeZone, written without an offset, as MSPDI writes it; an offset in an imported file is dropped.
+D278	property	Time	str ^\d{2}:\d{2}:\d{2}$	A time of day, as MSPDI writes it.

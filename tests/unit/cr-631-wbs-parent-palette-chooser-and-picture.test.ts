@@ -106,7 +106,8 @@ const sessionWith = (selection: Selection | null, armed = false, language: 'ja' 
     ...emptyScreenSession.screen,
     screenLanguage: language,
     helpLanguage: language,
-    armModeState: armed ? { kind: 'parentTaskArmed' } : { kind: 'notArmed' },
+    // WHY: wave 2 of CR-767 (JDG-2364) holds every arm as a child of the composite `armed`.
+    armModeState: armed ? { kind: 'armed', child: { kind: 'parentTaskArmed' } } : { kind: 'notArmed' },
   } as unknown as ScreenSession['screen'],
   selection: {
     ...emptyScreenSession.selection,

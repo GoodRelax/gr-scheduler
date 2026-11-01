@@ -12,6 +12,12 @@ AND THE OTHER HALF. Rows can also run in descending order after an ascending
 run (DFC-246), so this check holds both properties at zero: every version
 appears once, and each one is greater than the one above it.
 
+THE FORM (CR-822, JDG-2983). Rows up to 5.36 name a number; from CR-822 on a
+row names the UTC instant it was written, compact (20261020T130000Z). Every
+number sorts below every instant, so "greater than the row above" holds
+across the boundary. A first cell that is neither is red. The rule itself is
+docs/development-rules/10-versions.md section 2.
+
 WHAT THIS DOES NOT CHECK: the DATE column. After the sort one pair remains
 out of order by date -- 1.53 is dated 2026-08-30 and 1.54 is dated
 2026-08-29 -- which is a fact about those two rows, not about the ordering.
@@ -42,16 +48,21 @@ ANY_HEADING = re.compile(r'^## ')
 # The first cell of a revision-history row: "| 1.79 | ...". Matched at the
 # start of the line only, so later cells (free text, often containing bold
 # markers and Japanese prose) can never be mistaken for a version number.
-ROW = re.compile(r'^\|\s*([0-9]+(?:\.[0-9]+)+)\s*\|')
+ROW = re.compile(r'^\|\s*([0-9]+(?:\.[0-9]+)+|[0-9]{8}T[0-9]{6}Z)\s*\|')
+INSTANT = re.compile(r'^[0-9]{8}T[0-9]{6}Z$')
+# The header row and the separator row of the table, which name no version.
+NOT_A_ROW = re.compile(r'^\|\s*(版|-+)\s*\|')
 
 
 def ordinal(version):
-    """A version as a tuple, so 1.9 sorts below 1.10 rather than above it."""
-    return tuple(int(part) for part in version.split('.'))
+    """A version as a sortable key: numbers first (1.9 below 1.10), then instants."""
+    if INSTANT.match(version):
+        return (1, version)
+    return (0, tuple(int(part) for part in version.split('.')))
 
 
-def versions_in_changelog(path):
-    """Every version number in the A.3 Changelog table, in file order."""
+def versions_in_changelog(path, unreadable=None):
+    """Every version in the A.3 Changelog table, in file order."""
     found = []
     in_section = False
     with io.open(path, encoding='utf-8') as handle:
@@ -67,6 +78,8 @@ def versions_in_changelog(path):
             m = ROW.match(line)
             if m:
                 found.append(m.group(1))
+            elif unreadable is not None and line.startswith('|') and not NOT_A_ROW.match(line):
+                unreadable.append(line[:40])
     return found
 
 
@@ -75,7 +88,13 @@ def main():
         print('PROBLEM  %s is missing' % REL)
         return 1
 
-    versions = versions_in_changelog(APPENDIX)
+    unreadable = []
+    versions = versions_in_changelog(APPENDIX, unreadable)
+    if unreadable:
+        for line in unreadable:
+            print('FAIL     a row of the %s revision history names neither a '
+                  'number nor a compact UTC instant: %s' % (REL, line))
+        return 1
     if not versions:
         print('PROBLEM  no revision-history rows found under A.3 Changelog '
               'in %s' % REL)

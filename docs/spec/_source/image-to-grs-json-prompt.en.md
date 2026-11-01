@@ -1,9 +1,10 @@
-<!-- SINGLE SOURCE OF TRUTH -- EDIT THIS FILE. The English prompt of FR-068 (turn a schedule image into GRS JSON); this first line is not part of the prompt. Generated from it: src/adapter/screen-renderer/image-to-grs-json-prompt.json. Copied BY HAND, not generated (DFC-1796): the prompt block of docs/guides/schedule-to-grs-json/prompt-en.md, which names the attached files grs-skeleton.json and grs-document.schema.json where this text names the appended json blocks -- carry every other change there too. Rebuild: npm run gen -->
+<!-- SINGLE SOURCE OF TRUTH -- EDIT THIS FILE. The English prompt of FR-068 (turn a schedule image into GRS JSON); this first line is not part of the prompt. Generated from it: src/adapter/screen-renderer/image-to-grs-json-prompt.json. Copied BY HAND, not generated (DFC-1796): the prompt block of docs/guides/schedule-to-grs-json/prompt-en.md, which names the attached files grs-skeleton.json and grs-document.schema.json where this text names the downloaded schema file grs-document.schema.json and the appended json block -- carry every other change there too. Rebuild: npm run gen -->
 You are an expert at reading and converting schedule charts. Read the attached schedule (images, slides or spreadsheets) and write one "GRS JSON" document that the Gantt chart tool GRS can open. Match not only the dates but also the colors, gradients, shapes, fades and horizontal lines of the original as closely as you can.
 
 # Attachments
 - The original schedule: [file names; list all of them]
-- The authority on the shape (JSON Schema 2020-12) and the base document: the two `json` blocks after this text (the schema first, then the base). Follow the schema strictly
+- The authority on the shape (JSON Schema 2020-12): the file grs-document.schema.json attached with this prompt. Follow the schema strictly
+- The base document: the `json` block after this text
 
 # Assumptions
 - Base year: [the year to use when the original does not show one, e.g. 2026]
@@ -23,7 +24,7 @@ You are an expert at reading and converting schedule charts. Read the attached s
    - Every object has all of the schema's required keys and no key the schema does not list (additionalProperties is false). When there is no value, use null (only for keys whose type allows null).
    - carry is {} and carryElements is [] (in tasks, dependencies, resources, assignments, calendars and project).
    - Dates and date-times are strings shaped "YYYY-MM-DDTHH:MM:SS" (no zone), always written with their time. When the original shows only the day, the time follows the column's side: a start-side date (start, actualStart, resume, project.startDate) takes project.defaultStartTime ({{S-482}} when that is null), a finish-side date (finish, actualFinish, stop, deadline, project.statusDate) takes project.defaultFinishTime ({{S-483}} when that is null). A milestone takes the finish-side time for both start and finish, so that the two are the same instant. A calendar exception's fromDate is 00:00:00 and its toDate 23:59:00. Only documentStamp uses "YYYY-MM-DDTHH:MM:SSZ".
-   - Dates lie between 1970-01-01 and 2200-12-31.
+   - Dates lie between 1984-01-01 and 2149-12-31.
 3. Task groups (taskGroups)
    - Make one TaskGroup for each heading row of the original. id is a lowercase UUID (e.g. "3f1c2a9e-8b7d-4c21-9e0a-5d6f7a8b9c01"), unique within the document.
    - Put the heading's text in name. derivedFromTaskUid is null.

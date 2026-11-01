@@ -365,7 +365,7 @@ PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/induced.py DC-3 DC
 #   -> seeds 3 of 3, edges 1, cycles 0
 
 # who says the readout's words, keys or format
-git grep -ln "カーソルA\|Cursor A\|dualCursorReadout" -- . ':!previous-project-result' ':!change-request' ':!docs/development-records'
+git grep -ln "カーソルA\|Cursor A\|dualCursorReadout" -- . ':!studies' ':!change-request' ':!docs/development-records'
 #   docs/spec/01-04-requirements.md, docs/spec/_source/display-words.json (and its generated copy),
 #   src/adapter/screen-renderer/{tooltips.ts,screen-renderer.ts}, src/framework/dom-screen-surface/*,
 #   tests/contract/display-words.contract.test.ts, tests/unit/cr-550-dual-cursor-readout.test.ts,

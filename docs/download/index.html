@@ -271,7 +271,7 @@ footer { margin-top: 48px; padding-top: 12px; border-top: 1px solid var(--line);
     <li><b>The Claude desktop app (Claude Desktop)</b> &mdash; for Windows or macOS, signed in. It is the app you install, not claude.ai in a browser. If you do not have it yet, get it from <a href="https://claude.com/download" rel="noreferrer noopener" target="_blank">claude.com/download</a>.</li>
     <li>A Chromium-based browser (Google Chrome or Microsoft Edge).</li>
   </ul>
-  <p>You do <b>not</b> need to install Node.js or anything else: Claude Desktop runs the relay by itself.</p>
+  <p>You do <b>not</b> need to install Node.js or anything else: Claude Desktop runs GRS Relay automatically.</p>
   <p><a class="get" href="grs-relay.mcpb" download="grs-relay.mcpb"><svg aria-hidden="true"><use href="#ic-download"/></svg>Download grs-relay.mcpb</a></p>
   <p class="small">Version <span data-relay-version>(written when the page is published)</span>, built <span data-built-at>(written when the page is published)</span> (UTC). Claude Desktop shows the same version in <span class="menu">Settings › Extensions</span>.</p>
   <p class="small">GRS Relay: the small program that lets Claude Desktop reach the GRS page in your browser. It already contains the same GRS as GRS.html above.</p>
@@ -299,7 +299,7 @@ footer { margin-top: 48px; padding-top: 12px; border-top: 1px solid var(--line);
   <li><b>Ask Claude what you want.</b> For example:
     <span class="say">Read the schedule open in GRS and list the tasks that are late.</span>
     Changes Claude makes appear on your screen at once. You can undo them like your own edits.</li>
-  <li><b>Save as usual</b> with <span class="menu">Save As…</span> <svg class="ic" aria-hidden="true"><use href="#ic-save"/></svg> in that tab. You can also ask Claude to save, for example <span class="say">Save it as plan.json.</span> Claude then saves into the relay&rsquo;s save folder and tells you where the file is.</li>
+  <li><b>Save as usual</b> with <span class="menu">Save As…</span> <svg class="ic" aria-hidden="true"><use href="#ic-save"/></svg> in that tab. You can also ask Claude to save, for example <span class="say">Save it as plan.json.</span> Claude then saves into the GRS Relay&rsquo;s save folder and tells you where the file is.</li>
 </ol>
 
 <div class="card" id="save-folder">
@@ -308,13 +308,13 @@ footer { margin-top: 48px; padding-top: 12px; border-top: 1px solid var(--line);
   <div class="note"><b>If your Documents folder is moved to OneDrive,</b> the default is <code>C:\Users\&lt;name&gt;\Documents\GRS</code>. That is <b>not</b> the Documents folder Explorer shows (<code>C:\Users\&lt;name&gt;\OneDrive\Documents</code>). If you want the files somewhere else, pick the folder with <span class="menu">Browse</span>.</div>
   <p><span class="menu">Confirm before overwrite</span> (on by default) decides what happens when you ask Claude to save and a file with the same name is already in the save folder:</p>
   <ul>
-    <li><b>On:</b> the relay first refuses to replace the file, and Claude asks you whether it may. The file is replaced only after you say yes.</li>
+    <li><b>On:</b> GRS Relay first refuses to replace the file, and Claude asks you whether it may. The file is replaced only after you say yes.</li>
     <li><b>Off:</b> the file is replaced without asking.</li>
   </ul>
   <p>Either way, the file as it was before is kept in the same folder as the original name plus <code>.bak</code> (for example <code>plan.json.bak</code>). Only one is kept: the next replacement turns the newer old file into the <code>.bak</code>.</p>
 </div>
 
-<div class="note"><b>Each time Claude Desktop starts the relay again (for example when the app restarts), the address changes and the tab disconnects.</b> Ask Claude for the address again (step 5), open it, open your file, and press <span class="menu">Agent API</span> again (steps 6 to 8). Save your work before you quit Claude Desktop.</div>
+<div class="note"><b>Each time Claude Desktop starts GRS Relay again (for example when the app restarts), the address changes and the tab disconnects.</b> Ask Claude for the address again (step 5), open it, open your file, and press <span class="menu">Agent API</span> again (steps 6 to 8). Save your work before you quit Claude Desktop.</div>
 
 <h2>What Claude can and cannot do</h2>
 <div class="two">
@@ -341,21 +341,21 @@ footer { margin-top: 48px; padding-top: 12px; border-top: 1px solid var(--line);
 
 <h3>What stays on your PC</h3>
 <ul>
-  <li>The relay runs on your PC and listens only on <code>127.0.0.1</code> (this computer). Other computers cannot connect to it.</li>
-  <li>Your schedule stays in the browser tab. The relay keeps no copy and saves nothing. GRS itself sends nothing to the internet.</li>
-  <li>Only the tab that the relay itself served, with the secret key of this start in its address, can connect. Other web pages cannot.</li>
+  <li>GRS Relay runs on your PC and listens only on <code>127.0.0.1</code> (this computer). Other computers cannot connect to it.</li>
+  <li>Your schedule stays in the browser tab. GRS Relay keeps no copy and saves nothing. GRS itself sends nothing to the internet.</li>
+  <li>Only the tab that GRS Relay served, with the secret key of this start in its address, can connect. Other web pages cannot.</li>
   <li><b>But what Claude reads becomes part of your chat</b> and goes to the AI service (Claude) like anything you type. Let Claude read only a schedule you would also paste into the chat.</li>
 </ul>
 
 <h2>Turn it off or remove it</h2>
 <ul>
   <li>To stop for now, press <span class="menu">Agent API</span> again in the GRS tab. What Claude has already read cannot be taken back.</li>
-  <li>To turn the relay off, open <b>GRS Relay</b> in <span class="menu">Settings › Extensions</span> of Claude Desktop and switch <span class="menu">Enabled</span> off. To remove it, click <span class="menu">Uninstall</span> there.</li>
+  <li>To turn GRS Relay off, open <b>GRS Relay</b> in <span class="menu">Settings › Extensions</span> of Claude Desktop and switch <span class="menu">Enabled</span> off. To remove it, click <span class="menu">Uninstall</span> there.</li>
 </ul>
 
 <h2>If something does not work</h2>
 <ul>
-  <li id="no-address-en"><b>Claude gives no address, or does not know GRS Relay.</b> Copy the text below and send it in a new conversation in Claude Code (or Claude (chat)). Claude looks for the cause by itself.
+  <li id="no-address-en"><b>Claude gives no address, or does not know GRS Relay.</b> Copy the text below and send it in a new conversation in Claude Code (or Claude (chat)). Claude looks for the cause automatically.
     <div class="prompt-box"><pre class="prompt" id="prompt-fix-en">[Goal]
 I want you (Claude) to read and edit my schedule in GoodRelax Scheduler (GRS).
 For that, I want to open the GRS page in my browser and connect it to you.
@@ -396,14 +396,14 @@ Please tell me the address of the page to open.
 
 <details>
   <summary>Other ways and checks (for advanced users)</summary>
-  <h3>Run the relay with Node.js yourself</h3>
+  <h3>Run GRS Relay with Node.js yourself</h3>
   <p>It may also work with AI apps other than Claude, but this has not been checked. For an AI app that starts MCP servers as a command, with Node.js 18 or later installed on your PC: download <a href="grs-relay.mjs" download="grs-relay.mjs">grs-relay.mjs</a> (the same relay as one file) and register the command <code>node</code> with the saved file as its argument, for example:</p>
   <pre>{
   "mcpServers": {
     "grs-relay": { "command": "node", "args": ["FOLDER/grs-relay.mjs"] }
   }
 }</pre>
-  <p>Replace <code>FOLDER</code> with the folder where you saved the file. The relay also writes the address to open to its error output.</p>
+  <p>Replace <code>FOLDER</code> with the folder where you saved the file. GRS Relay also writes the address to open to its error output.</p>
   <h3>Use it from Claude Code on the command line</h3>
   <p>With Node.js 18 or later, save grs-relay.mjs as above and run, in a terminal:</p>
   <pre>claude mcp add --transport stdio grs-relay -- node FOLDER/grs-relay.mjs</pre>
@@ -439,7 +439,7 @@ Please tell me the address of the page to open.
 <div class="card">
   <h3>必要なもの</h3>
   <ul>
-    <li><b>Claude のデスクトップアプリ（Claude Desktop）</b> —— Windows または macOS 用で、サインイン済みのもの。ブラウザで開く claude.ai ではありません。まだお持ちでなければ <a href="https://claude.com/download" rel="noreferrer noopener" target="_blank">claude.com/download</a> から入手してください。</li>
+    <li><b>Claude のデスクトップアプリ（Claude Desktop）</b> —— Windows または macOS 用で、サインイン済みのもの。ブラウザで開く claude.ai ではありません。まだお持ちでなければ <a href="https://claude.com/download" rel="noreferrer noopener" target="_blank">claude.com/download</a> からダウンロードしてください。</li>
     <li>Chromium 系のブラウザ（Google Chrome または Microsoft Edge）。</li>
   </ul>
   <p>Node.js などのインストールは<b>不要</b>です。中継（GRS Relay）は Claude Desktop が自動で動かします。</p>
@@ -464,13 +464,13 @@ Please tell me the address of the page to open.
     <p class="small">アドレスを尋ねる手順は、β 版で簡単にする予定です。</p></li>
   <li><b>そのアドレスをブラウザで開きます。</b><code>#</code> の後ろまで含めて、アドレスを<b>まるごと</b>コピーし、新しいタブで開いてください。GRS が開きます。</li>
   <li><b>そのタブで日程を開きます。</b>ヘッダーの <span class="menu">開く</span> ボタン <svg class="ic" aria-hidden="true"><use href="#ic-open"/></svg> を使います。表示されている見本で試すこともできます。
-    <div class="note">Claude と作業するときは、このタブを使ってください。PC のファイルから開いた GRS.html は Claude とつながりません。</div>
+    <div class="note">Claude と作業するときは、このタブを使ってください。PC のファイルから開いた GRS.html は Claude に接続できません。</div>
   </li>
-  <li>ヘッダーの <b><span class="menu">Agent API</span> ボタン</b> <svg class="ic" aria-hidden="true"><use href="#ic-agent"/></svg> を押して、押された見た目にします。これでタブがつながりました。</li>
+  <li>ヘッダーの <b><span class="menu">Agent API</span> ボタン</b> <svg class="ic" aria-hidden="true"><use href="#ic-agent"/></svg> を押して、押された見た目にします。これでタブが接続されました。</li>
   <li><b>Claude に頼みたいことを伝えます。</b>たとえば:
     <span class="say">GRS で開いている日程を読んで、遅れているタスクを挙げて。</span>
     Claude が加えた変更は、すぐ画面に出ます。自分の編集と同じように取り消せます。</li>
-  <li><b>いつもどおり保存します。</b>そのタブの <span class="menu">書き出して保存</span> <svg class="ic" aria-hidden="true"><use href="#ic-save"/></svg> を使ってください。<span class="say">plan.json で保存して。</span> のように Claude に保存を頼むこともできます。Claude は中継の保存先のフォルダへ保存し、ファイルの場所を答えます。</li>
+  <li><b>いつもどおり保存します。</b>そのタブの <span class="menu">書き出して保存</span> <svg class="ic" aria-hidden="true"><use href="#ic-save"/></svg> を使ってください。<span class="say">plan.json で保存して。</span> のように Claude に保存を頼むこともできます。Claude は GRS Relay の保存先のフォルダへ保存し、ファイルの場所を答えます。</li>
 </ol>
 
 <div class="card" id="save-folder-ja">
@@ -479,13 +479,13 @@ Please tell me the address of the page to open.
   <div class="note"><b>ドキュメントフォルダを OneDrive へ移している PC では、</b>既定は <code>C:\Users\&lt;name&gt;\Documents\GRS</code> です。これはエクスプローラーの「ドキュメント」（<code>C:\Users\&lt;name&gt;\OneDrive\Documents</code>）<b>ではありません</b>。別の場所に置きたいときは、<span class="menu">参照</span> でフォルダを選んでください。</div>
   <p><span class="menu">Confirm before overwrite</span>（上書きの前に確認する。既定はオン）は、Claude に保存を頼んだとき、保存先のフォルダに同じ名前のファイルが既にある場合の動きを決めます。</p>
   <ul>
-    <li><b>オン:</b> 中継はいったん置き換えを断り、Claude が「置き換えてよいか」をあなたに尋ねます。あなたが許したときだけ置き換えます。</li>
+    <li><b>オン:</b> GRS Relay はいったん置き換えを断り、Claude が「置き換えてよいか」をあなたに尋ねます。あなたが許したときだけ置き換えます。</li>
     <li><b>オフ:</b> 尋ねずに置き換えます。</li>
   </ul>
   <p>どちらでも、置き換える前のファイルは、同じフォルダに「元の名前＋<code>.bak</code>」（例: <code>plan.json.bak</code>）として残ります。残るのは 1 つだけで、次に置き換えると、その直前のファイルが新しい <code>.bak</code> になります。</p>
 </div>
 
-<div class="note"><b>Claude Desktop が中継を再起動するたびに（アプリを再起動したときなど）、アドレスが変わり、タブとの接続が切れます。</b>もう一度 Claude にアドレスを尋ね（手順 5）、開き、ファイルを開き、<span class="menu">Agent API</span> を押し直してください（手順 6〜8）。Claude Desktop を終える前に、作業を保存してください。</div>
+<div class="note"><b>Claude Desktop が GRS Relay を再起動するたびに（アプリを再起動したときなど）、アドレスが変わり、タブとの接続が切れます。</b>もう一度 Claude にアドレスを尋ね（手順 5）、開き、ファイルを開き、<span class="menu">Agent API</span> を押し直してください（手順 6〜8）。Claude Desktop を終える前に、作業を保存してください。</div>
 
 <h2>Claude にできること・できないこと</h2>
 <div class="two">
@@ -502,43 +502,43 @@ Please tell me the address of the page to open.
     <h3>できないこと</h3>
     <ul>
       <li>PC のファイルを開く・保存する。開くのも保存するのも、GRS のタブで行います。</li>
-      <li>タブが閉じているとき、<span class="menu">Agent API</span> がオフのときに作業する。そのときは、GRS のページがつながっていないと答えます。</li>
-      <li>2 つの GRS のタブに同時につながる。つながるのは最初の 1 つだけです。</li>
+      <li>タブが閉じているとき、<span class="menu">Agent API</span> がオフのときに作業する。そのときは、GRS のページが接続されていないと答えます。</li>
+      <li>2 つの GRS のタブに同時に接続する。接続できるのは最初の 1 つだけです。</li>
       <li>読み取り専用のタスクグループを直す。あなたがドラッグしている間や、欄に入力している途中に書き込む。</li>
-      <li>ほかのコンピューターからつながる。</li>
+      <li>ほかのコンピューターから接続する。</li>
     </ul>
   </div>
 </div>
 
 <h3>PC の外へ出ないもの</h3>
 <ul>
-  <li>中継はあなたの PC で動き、<code>127.0.0.1</code>（このコンピューター）でだけ待ち受けます。ほかのコンピューターからはつながりません。</li>
-  <li>日程はブラウザのタブの中にあります。中継はコピーを持たず、何も保存しません。GRS 自身はインターネットへ何も送りません。</li>
-  <li>つながれるのは、中継が自分で提供したタブのうち、起動ごとの秘密の鍵をアドレスに含むものだけです。ほかの Web ページからはつながりません。</li>
+  <li>GRS Relay はあなたの PC で動き、<code>127.0.0.1</code>（このコンピューター）でだけ待ち受けます。ほかのコンピューターからは接続できません。</li>
+  <li>日程はブラウザのタブの中にあります。GRS Relay はコピーを持たず、何も保存しません。GRS 自身はインターネットへ何も送りません。</li>
+  <li>接続できるのは、GRS Relay が提供したタブのうち、起動ごとの秘密の鍵をアドレスに含むものだけです。ほかの Web ページからは接続できません。</li>
   <li><b>ただし、Claude が読んだ内容はチャットの一部になり</b>、あなたが打った文と同じように AI のサービス（Claude）へ送られます。チャットに貼ってもよい日程だけを Claude に読ませてください。</li>
 </ul>
 
 <h2>止める・取り除く</h2>
 <ul>
   <li>いったん止めるときは、GRS のタブで <span class="menu">Agent API</span> をもう一度押します。Claude が既に読んだものは取り戻せません。</li>
-  <li>中継を無効にするときは、Claude Desktop の <span class="menu">設定 › 拡張機能</span> で <b>GRS Relay</b> の <span class="menu">設定</span> を押し、<span class="menu">有効</span> のスイッチをオフにします。削除するときは、同じ画面の <span class="menu">アンインストール</span> を押します。</li>
+  <li>GRS Relay を無効にするときは、Claude Desktop の <span class="menu">設定 › 拡張機能</span> で <b>GRS Relay</b> の <span class="menu">設定</span> を押し、<span class="menu">有効</span> のスイッチをオフにします。削除するときは、同じ画面の <span class="menu">アンインストール</span> を押します。</li>
 </ul>
 
 <h2>うまくいかないとき</h2>
 <ul>
-  <li id="no-address-ja"><b>Claude がアドレスを答えない・GRS Relay を知らない。</b>下の文をコピーして、Claude Code（または Claude（チャット））の新しい会話に貼って送ってください。Claude が自分で原因を調べます。
+  <li id="no-address-ja"><b>Claude がアドレスを答えない・GRS Relay を知らない。</b>下の文をコピーして、Claude Code（または Claude（チャット））の新しい会話に貼って送ってください。Claude が自動で原因を調べます。
     <div class="prompt-box"><pre class="prompt" id="prompt-fix-ja">【目的】
 私は GoodRelax Scheduler（GRS）の日程を、あなた（Claude）に読み書きしてもらいたい。
-そのために、GRS のページをブラウザで開いて、あなたとつなぎたい。
+そのために、GRS のページをブラウザで開いて、あなたと接続したい。
 開くべきページのアドレスを、私に教えてほしい。
 
 【手がかり】
-- GRS Relay は、Claude Desktop に拡張機能として入れた MCP サーバーです。
+- GRS Relay は、Claude Desktop に拡張機能としてインストールした MCP サーバーです。
   GRS のページを http://127.0.0.1:&lt;口の番号&gt;/#&lt;鍵&gt; というアドレスで出しています。
-- アドレスは、ページがつながっていないときに GRS Relay のツールが返す断り
+- アドレスは、ページが接続されていないときに GRS Relay のツールが返す断り
   （reason が pageNotConnected）の pageUrl の欄に入っています。
   agentApiVersion がいちばん軽いツールです。
-  答えが普通の値（日時）なら、ページはもうつながっていて、アドレスは要りません。
+  答えが普通の値（日時）なら、ページはもう接続されていて、アドレスは要りません。
 - Claude Code では、ツールの説明が最初は読み込まれていないことがあります。
   ツールを「agentApiVersion」や「GRS_Relay」で検索してください
   （名前は mcp__GRS_Relay__agentApiVersion のような形です）。
@@ -546,9 +546,9 @@ Please tell me the address of the page to open.
   Claude Code の会話どうしは同じアドレスで、チャットのアドレスとは違います。
 - この会話に GRS Relay のツールが一つも無いなら、拡張機能がこの会話に渡っていません。
   考えられる理由は、拡張機能が無効になっている（設定 › 拡張機能）、
-  入れた後に Claude Desktop を完全に終了して起動し直していない
+  インストールした後に Claude Desktop を完全に終了して起動し直していない
   （通知領域のアイコンから終了し、タスクマネージャーで Claude が残っていないか確かめる）、
-  この会話を入れる前に始めた、などです。
+  拡張機能をインストールする前にこの会話を始めた、などです。
 
 【お願い】
 - 自分で調べて、アドレスを # の後ろまでまるごと教えてください。
@@ -560,25 +560,25 @@ Please tell me the address of the page to open.
       <li>macOS: メニューの <span class="menu">Claude › Claude を終了</span>（<kbd>⌘</kbd><kbd>Q</kbd>）を選びます。</li>
     </ul>
     それから、新しい会話でもう一度送ってください。それでも駄目なときは、一度 Claude（チャット）で送って試し、そのあと Claude Code で試してください。</li>
-  <li><b>GRS のページがつながっていないと Claude が言う。</b>Claude が示すアドレスを（<code>#</code> の後ろまでまるごと）開き、そのタブで <span class="menu">Agent API</span> を押してください。</li>
+  <li><b>GRS のページが接続されていないと Claude が言う。</b>Claude が示すアドレスを（<code>#</code> の後ろまでまるごと）開き、そのタブで <span class="menu">Agent API</span> を押してください。</li>
   <li><b>アドレスが開かない。</b>Claude Desktop が再起動したため、アドレスが変わっています。もう一度 Claude にアドレスを聞いてください。</li>
-  <li><b><span class="menu">Agent API</span> を押したのにつながらない。</b>ファイルから開いた GRS.html ではなく、アドレスから開いたタブを使っているか確かめてください。同じアドレスのタブがほかにあれば閉じてください —— つながるのは 1 つのタブだけです。</li>
+  <li><b><span class="menu">Agent API</span> を押したのに接続できない。</b>ファイルから開いた GRS.html ではなく、アドレスから開いたタブを使っているか確かめてください。同じアドレスのタブがほかにあれば閉じてください —— 接続できるのは 1 つのタブだけです。</li>
 </ul>
 
 <details>
   <summary>ほかの使い方と確かめ方（詳しい人向け）</summary>
-  <h3>Node.js で中継を自分で動かす</h3>
-  <p>Claude 以外の AI アプリでも使える可能性がありますが、動作は確認していません。MCP サーバーをコマンドとして起動する AI アプリで、PC に Node.js 18 以降が入っているときは、<a href="grs-relay.mjs" download="grs-relay.mjs">grs-relay.mjs</a>（同じ中継を 1 つのファイルにしたもの）をダウンロードし、コマンド <code>node</code> と、引数に保存したファイルを登録します。例:</p>
+  <h3>Node.js で GRS Relay を自分で動かす</h3>
+  <p>Claude 以外の AI アプリでも使える可能性がありますが、動作は確認していません。MCP サーバーをコマンドとして起動する AI アプリで、PC に Node.js 18 以降が入っているときは、<a href="grs-relay.mjs" download="grs-relay.mjs">grs-relay.mjs</a>（同じ GRS Relay を 1 つのファイルにしたもの）をダウンロードし、コマンド <code>node</code> と、引数に保存したファイルを登録します。例:</p>
   <pre>{
   "mcpServers": {
     "grs-relay": { "command": "node", "args": ["FOLDER/grs-relay.mjs"] }
   }
 }</pre>
-  <p><code>FOLDER</code> は、ファイルを保存したフォルダに置き換えてください。中継は、開くアドレスをエラー出力にも書きます。</p>
+  <p><code>FOLDER</code> は、ファイルを保存したフォルダに置き換えてください。GRS Relay は、開くアドレスをエラー出力にも書きます。</p>
   <h3>コマンドラインの Claude Code から使う</h3>
   <p>Node.js 18 以降があれば、上のとおり grs-relay.mjs を保存し、ターミナルで次を実行します。</p>
   <pre>claude mcp add --transport stdio grs-relay -- node FOLDER/grs-relay.mjs</pre>
-  <p><code>FOLDER</code> は、ファイルを保存したフォルダに置き換えてください。Claude Code で <code>/mcp</code> を打ち、grs-relay がつながっていることを確かめます。手順 5 からは、Claude（チャット）の代わりにコマンドライン版の Claude Code に頼みます。</p>
+  <p><code>FOLDER</code> は、ファイルを保存したフォルダに置き換えてください。Claude Code で <code>/mcp</code> を打ち、grs-relay が接続されていることを確かめます。手順 5 からは、Claude（チャット）の代わりにコマンドライン版の Claude Code に頼みます。</p>
   <h3>ダウンロードしたものを確かめる</h3>
   <p><a href="grs-relay.mcpb.sha256" download="grs-relay.mcpb.sha256">grs-relay.mcpb.sha256</a> には grs-relay.mcpb の SHA-256 が書かれています。パッケージに署名はありません。どのソースからビルドしたかは、ビルドの来歴の証明に記録されています。</p>
 </details>

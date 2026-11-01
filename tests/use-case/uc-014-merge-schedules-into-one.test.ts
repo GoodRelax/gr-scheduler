@@ -1,6 +1,6 @@
 // Use-case test for UC-014 (merge several schedules into one), table T-334 row VT-1.
 import { expect, test, type Page } from '@playwright/test'
-import { VIEWPORT, dropFile, enableAgentApi, figureBox, icon, launch, openByDrop, press, readDocument, readSample, settle } from './uc-harness'
+import { VIEWPORT, enableAgentApi, figureBox, icon, launch, openByDrop, openThroughIc1, press, readDocument, readSample, settle } from './uc-harness'
 
 test.use({ viewport: VIEWPORT, locale: 'en-US' })
 
@@ -22,9 +22,8 @@ const clearNotices = async (page: Page): Promise<void> => {
 
 const mergeByDrop = async (page: Page): Promise<void> => {
   await clearNotices(page)
-  await dropFile(page, ERP, readSample(ERP))
-  await page.click(icon('IC-72', '[data-role="Open Chooser"]'))
-  await settle(page)
+  // WHY: a dropped file opens as a replace (OP-19), so the merge opens through IC-1.
+  await openThroughIc1(page, ERP, readSample(ERP), 'IC-72')
 }
 
 const answerReview = async (page: Page, id: 'IC-95' | 'IC-96' | 'IC-97'): Promise<void> => {

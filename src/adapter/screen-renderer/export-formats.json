@@ -50,6 +50,10 @@
   {
    "rowId": "IO-9",
    "extension": ".tsv"
+  },
+  {
+   "rowId": "IO-10",
+   "extension": ".json"
   }
  ]
 }

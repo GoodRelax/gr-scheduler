@@ -1,12 +1,12 @@
 # CR-731 —— 遅延診断の後の直しを楽にする —— 機械で直せる指摘は案を見せて 1 回の了承で保存してから直し、人が判断する指摘には候補・日付の候補・直す欄・前へ／次へを添える
 
 > 起草の状態: **波 1（仕様・辞書・設定値・状態機械・図形・生成物）を当てた**（2026-10-11、作業木 `70af1cb2` の上）。下書きは 2026-10-10 に `2ace9f5e` の上で書いた。当てる前に、`CR-728`（飛んだ先の印、4.32）・`DFC-2410`〜`DFC-2415`・`CR-730`（アメリカ式の綴り、4.33）・`CR-723`（表の見え方を `GRS JSON` に保存、4.34）・`CR-732`（4.35）が当たった木で、数・行・ID・引いた旧文をすべて測り直し、本書を直した（0.3 節に直したものの一覧）。波 2（実装）・波 3（仕様だけを読む試験）はまだである（8 節）。
-> ID の帯: 番号 `CR-731`（`CR-732` は使わない）、裁定 `JDG-1940`〜`JDG-1949`（本書は `JDG-1940`〜`JDG-1948` を使う）、台帳 `DFC-2420`〜`DFC-2429`（本書は使わない —— 欠陥ではなく新しい機能である）、問い `PND-890`〜`PND-894`（本書は使わない）、変更履歴 `4.36`、見本 `previous-project-result/51-delay-diagnostics-fixes/` を調整役から受けた。`2ace9f5e` の木で `CR-731` を名乗る所は 0 件だった（13 節）。
+> ID の帯: 番号 `CR-731`（`CR-732` は使わない）、裁定 `JDG-1940`〜`JDG-1949`（本書は `JDG-1940`〜`JDG-1948` を使う）、台帳 `DFC-2420`〜`DFC-2429`（本書は使わない —— 欠陥ではなく新しい機能である）、問い `PND-890`〜`PND-894`（本書は使わない）、変更履歴 `4.36`、見本 `studies/51-delay-diagnostics-fixes/` を調整役から受けた。`2ace9f5e` の木で `CR-731` を名乗る所は 0 件だった（13 節）。
 > 仕様の新しい番号は、当てる直前（`70af1cb2`）に `docs/spec` で測った最大の次を採った（13 節）—— 要求は `FR-153` の次の `FR-154` が退役の席（`.claude/skills/spec-graph-check/retired.py`、`CR-701`）なので `FR-155`、表は `T-372` の次、アイコンは `IC-153` の次、設定値は `S-572` の次、`UN-20`・`DX-10`・`SX-2`・`RW-10` の次。下の表のとおり。
 > 新しい行 ID の接頭辞 2 つ（`FA` 直し方、`FM` 直す案と直した記録の表の欄）を `docs/spec/_source/row-id-prefixes.json` に登録した（210 → 212 個）。`70af1cb2` の登録簿に `FA`・`FM` は無く、逆さの `AF`・`MF` も無い（似た形の接頭辞を作らない —— `id-slices-compact-before-commit`）。
 > 当てる裁定: `JDG-1940`（要望）・`JDG-1941`（一覧で 1 回の了承）・`JDG-1942`（保存の先はその場で選ぶ、直す中身をレポートで許諾、機械的なレポート）・`JDG-1943`（窓の中に切替の表）・`JDG-1944`（7 種類とも機械、子から直す）・`JDG-1945`（人の 4 つの手助け）・`JDG-1946`（取り消し 1 回で全部戻る）・`JDG-1947`（直した記録はレポートに残す）・`JDG-1948`（画面の語）。
 > 覆すもの: 2026-09-20 の要望「修正は1つ1つ行う」（`docs/review/user-raised-items-audit-2026-10-04.md` の `B1-25`。裁定の行は無い）—— `JDG-1941` が機械の直しについて置き換える。`docs/review/inspection-viewpoints-2026-09-20.md` の 9 節 3「実績を書き換える修正には印を付ける」—— `JDG-1947` が、文書の印ではなくレポートの記録に置き換える。
-> 閉じるもの: 裁定待ち `PND-581`（遅延診断の修正候補の仕組み）—— 本書の起草で `裁定済` にした（12 節）。見本: `previous-project-result/51-delay-diagnostics-fixes/index.html`。
+> 閉じるもの: 裁定待ち `PND-581`（遅延診断の修正候補の仕組み）—— 本書の起草で `裁定済` にした（12 節）。見本: `studies/51-delay-diagnostics-fixes/index.html`。
 
 ### 仮の名 → 当てた番号
 
@@ -655,5 +655,5 @@ X-11 の表を日英で並べて示した。択: 表のとおり（推奨）／�
 # contrast: WCAG ratio over hues 0..359 against S-146, S-150, S-155 (light) and their dark values
 # code: src/entity/document-model/schedule/delay-diagnostics.ts (1262 lines, diagnoseDelay :1119)
 # graph: PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/impact.py FR-155 T-373 T-374 RW-13 SX-3 UN-21 SJ-4 RW-2
-# sample: previous-project-result/51-delay-diagnostics-fixes/index.html, swept by a Playwright probe in the OS temp dir
+# sample: studies/51-delay-diagnostics-fixes/index.html, swept by a Playwright probe in the OS temp dir
 ```

@@ -13,7 +13,7 @@
 
 **継承した設計は、行を消してもタスクを残す。**
 
-`previous-project-result/02-data-model/grs-native-erd-ja.md:667-678`（§5.5c 削除時の連鎖・確定）——
+`studies/02-data-model/grs-native-erd-ja.md:667-678`（§5.5c 削除時の連鎖・確定）——
 
 > | `TaskGroup` | 配下の `TaskGroupMember`（**Task 自体は削除しない＝器から出るだけ**） | — |
 

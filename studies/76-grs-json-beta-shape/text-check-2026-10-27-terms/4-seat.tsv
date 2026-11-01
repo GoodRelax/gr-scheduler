@@ -1,0 +1,253 @@
+id	element	final_en	source	note
+D001	/properties/$schema	The address of the latest published GRS JSON Schema; every Schedule Document holds the same address.	unchanged	-
+D002	/properties/schemaVersion	The UTC time (YYYY-MM-DDTHH:MM:SSZ) when the shape of this GRS JSON Schema last changed.	unchanged	-
+D003	/properties/buildVersion	The build time, in UTC (YYYY-MM-DDTHH:MM:SSZ), of the GRS build that wrote this GRS JSON file. This value is only for debugging; to check whether a GRS JSON file is readable, use schemaVersion.	unchanged	-
+D004	/properties/schedule	Schedule Data: the MSPDI part, which GRS exports to MSPDI, and the GRS part, which only GRS uses.	unchanged	-
+D005	/properties/schedule/properties/project	Same as MSPDI Project.	unchanged	-
+D006	/properties/schedule/properties/calendars	Same as MSPDI Calendars.	unchanged	-
+D007	/properties/schedule/properties/tasks	Same as MSPDI Tasks, except that Task.parentTaskUid and Task.siblingOrder give the WBS tree. GRS makes ID, OutlineLevel, OutlineNumber and Summary from that tree each time GRS writes MSPDI.	unchanged	-
+D008	/properties/schedule/properties/resources	Same as MSPDI Resources.	unchanged	-
+D009	/properties/schedule/properties/assignments	Same as MSPDI Assignments.	unchanged	-
+D010	/properties/schedule/properties/taskGroups	The task groups; GRS shows each one as one row in the Task Group Panel and as one Task Group Lane. taskGroupMembers says which tasks each task group holds. On reading an MSPDI file, GRS makes the task groups from the WBS.	unchanged	-
+D011	/properties/schedule/properties/taskGroupMembers	Which task group each task belongs to: one entry per task, from taskUid to taskGroupId.	unchanged	-
+D013	/properties/schedule/properties/taskOrigins	One record per task that came from an imported MSPDI file: which MSPDI file and which task in that file, so that a later import of the same MSPDI file updates that task instead of adding a copy. A task made in GRS has no record.	unchanged	-
+D017	/properties/documentSettings	How GRS draws the Schedule Document on opening. GRS writes every key that has a value, even when the value is the default.	sonnet	E1
+D018	/properties/documentSettings/properties/displayScalePercent	Display scale of the drawing in the Schedule Canvas, in percent: at 100 GRS draws every value whose property name ends in Px as that many CSS pixels, at 50 at half size. This value scales shapes and text together and does not change the App Header, the Command Palette or the browser zoom.	sonnet	E1
+D019	/properties/documentSettings/properties/fontSizeStep	Text size step of the Schedule Canvas: small, medium or large, which are 7.5, 8.75 and 10 CSS pixels at displayScalePercent 100. The Schedule Document opens at this step; a reader who changes the step edits the Schedule Document.	unchanged	-
+D024	/properties/documentSettings/properties/taskGroupAutoExpandDepth	How deep task groups with treeState auto open. A top-level task group is depth 1. With value N, task groups down to depth N are open, so GRS shows rows down to depth N + 1; 0 shows only the top-level task groups, closed.	unchanged	-
+D025	/properties/documentSettings/properties/scrollPosition	Where the View starts when the Schedule Document opens: notDecided lets GRS choose, placed gives the day at the left edge and the task group at the top edge.	unchanged	-
+D026	/properties/documentSettings/properties/scrollPosition/oneOf[*]/properties/kind	notDecided: no person has chosen a place yet, and GRS chooses one when GRS opens the Schedule Document; placed: the other keys give the place.	unchanged	-
+D027	/properties/documentSettings/properties/scrollPosition/oneOf[placed]/properties/leftEdgeDay	The day at the left edge of the View.	unchanged	-
+D028	/properties/documentSettings/properties/scrollPosition/oneOf[placed]/properties/leftEdgeDayFraction	Where the left edge falls inside leftEdgeDay, as a part of that day; 0 is the start of the day.	unchanged	-
+D029	/properties/documentSettings/properties/scrollPosition/oneOf[placed]/properties/topEdgeTaskGroupId	The task group at the top edge of the View. When that task group no longer exists, scrollPosition becomes notDecided.	unchanged	-
+D030	/properties/documentSettings/properties/scrollPosition/oneOf[placed]/properties/topEdgeTaskGroupFraction	Where the top edge falls inside that task group, as a part of the step of the task group (the height of the Task Group Lane plus the gap below), not in pixels; 0 is the top of the Task Group Lane.	unchanged	-
+D032	/properties/documentSettings/properties/fitSpan/properties/firstDay	The first day of the fit span (included), in the time zone that GRS shows the Schedule Canvas in (viewTimeZone).	unchanged	-
+D033	/properties/documentSettings/properties/fitSpan/properties/lastDay	The last day of the fit span; the fit span includes the column of that day.	unchanged	-
+D035	/properties/documentSettings/properties/viewTimeZone	The time zone that the Time Ruler and the shown date-times use: sameAsScheduleData follows project.scheduleDataTimeZone, fixed uses the offset given here.	unchanged	-
+D036	/properties/documentSettings/properties/viewTimeZone/oneOf[*]/properties/kind	sameAsScheduleData: show the Schedule Data time zone, and follow the Schedule Data time zone when that time zone changes; fixed: show the offset given here.	unchanged	-
+D037	/properties/documentSettings/properties/viewTimeZone/oneOf[fixed]/properties/offset	The UTC offset that GRS shows the Schedule Canvas in.	unchanged	-
+D038	/properties/documentSettings/properties/displayTimeZones	Up to four extra clocks. While GRS shows the time of day, GRS shows each extra clock as one more row under the Time Ruler.	unchanged	-
+D039	/properties/documentSettings/properties/displayTimeZones/items/properties/offset	The UTC offset of this extra clock.	unchanged	-
+D040	/properties/documentSettings/properties/displayTimeZones/items/properties/season	Whether this clock is the standard-time or the daylight-time zone of the offset of this clock. This value picks the zone name that GRS shows; GRS uses the offset itself all year.	unchanged	-
+D041	/properties/documentSettings/properties/isTimeOfDayVisible	Whether GRS shows the time of day on the Schedule Canvas; the stored date-times keep their time either way. A new Schedule Document starts with false.	unchanged	-
+D042	/properties/documentSettings/properties/isPlanVisible	Whether GRS shows Plan Bars, apart from isActualVisible. A new Schedule Document starts with true.	unchanged	-
+D044	/properties/documentSettings/properties/isActualVisible	Whether GRS shows Actual Bars, apart from isPlanVisible. A new Schedule Document starts with true.	unchanged	-
+D046	/properties/documentSettings/properties/isBaselineVisible	Whether GRS draws the earlier plan (baselineTasks) over the current tasks. A new Schedule Document starts with false.	unchanged	-
+D053	/properties/documentSettings/properties/stackDirection	up stacks the tasks of a task group so that the tasks climb to a goal at the upper right; down stacks them so that the tasks descend to a goal at the lower right. A new Schedule Document starts with up.	unchanged	-
+D054	/properties/documentSettings/properties/isThemeMonochrome	Whether the theme is monochrome. A new Schedule Document starts with false.	unchanged	-
+D055	/properties/documentSettings/properties/taskGroupPanelWidthPx	Width of the Task Group Panel, in CSS pixels at displayScalePercent 100.	unchanged	-
+D056	/properties/documentSettings/properties/isTaskGroupPanelWidthFixed	Whether the number taskGroupPanelWidthPx, instead of a drag of the Panel Divider, sets the width of the Task Group Panel. A new Schedule Document starts with false.	unchanged	-
+D057	/properties/documentSettings/properties/levelZeroTreeState	The state of the head of the Task Group Panel (level 0), above all top-level task groups. collapsed draws no task group at all. A new Schedule Document starts with auto.	unchanged	-
+D058	/properties/documentSettings/properties/pinnedTaskGroupIds	The Pinned Task Groups: task groups that stay together at the top of the Task Group Lanes, to compare them with task groups far away. Absent means no pinned task group.	unchanged	-
+D059	/properties/documentSettings/properties/tableViews	How GRS shows the three tables: the Search Window, the Delay Diagnostics Report Window and the Resource List Window.	unchanged	-
+D060	/properties/documentSettings/properties/tableViews/properties/searchPanel	How GRS shows the tables of the Search Window: Schedule Filter, checked rows, column filters and sort.	unchanged	-
+D061	/properties/documentSettings/properties/tableViews/properties/searchPanel/properties/isScheduleFilterApplied	Whether the Schedule Filter of this table is on; while the Schedule Filter is on, GRS draws only the tasks that the checked rows of this table select. A new Schedule Document starts with false.	sonnet	E7
+D062	/properties/documentSettings/properties/tableViews/properties/searchPanel/properties/shownTaskUids	The tasks whose row has a check in the show column of this table. Absent means no row has a check.	unchanged	-
+D064	/properties/documentSettings/properties/tableViews/properties/searchPanel/properties/sort	How GRS sorts this table. Absent means the default order.	unchanged	-
+D065	/properties/documentSettings/properties/tableViews/properties/delayDiagnosticsReport	How GRS shows the table of the Delay Diagnostics Report Window: Schedule Filter, checked rows, column filters and sort.	unchanged	-
+D066	/properties/documentSettings/properties/tableViews/properties/delayDiagnosticsReport/properties/isScheduleFilterApplied	Whether the Schedule Filter of this table is on; while the Schedule Filter is on, GRS draws only the tasks that the checked rows of this table select. A new Schedule Document starts with false.	sonnet	E7
+D067	/properties/documentSettings/properties/tableViews/properties/delayDiagnosticsReport/properties/shownTaskUids	The tasks whose row has a check in the show column of this table. Absent means no row has a check.	unchanged	-
+D068	/properties/documentSettings/properties/tableViews/properties/delayDiagnosticsReport/properties/columnFilters	The column filters of the table of the Delay Diagnostics Report Window, one per filtered column, by the column names of that table. Absent means no column has a filter.	unchanged	-
+D069	/properties/documentSettings/properties/tableViews/properties/delayDiagnosticsReport/properties/sort	How GRS sorts this table. Absent means the default order.	unchanged	-
+D070	/properties/documentSettings/properties/tableViews/properties/resourceList	How GRS shows the table of the Resource List Window: Schedule Filter, checked rows, column filters and sort.	unchanged	-
+D071	/properties/documentSettings/properties/tableViews/properties/resourceList/properties/isScheduleFilterApplied	Whether the Schedule Filter of this table is on; while the Schedule Filter is on, GRS draws only the tasks that the checked rows of this table select. A new Schedule Document starts with false.	sonnet	E7
+D072	/properties/documentSettings/properties/tableViews/properties/resourceList/properties/shownResourceUids	The resources whose row has a check in the show column of this table. Absent means no row has a check.	unchanged	-
+D073	/properties/documentSettings/properties/tableViews/properties/resourceList/properties/isUnassignedShown	Whether the (no assignee) row of the Resource List Window has a check. A new Schedule Document starts with false.	unchanged	-
+D074	/properties/documentSettings/properties/tableViews/properties/resourceList/properties/columnFilters	The column filters of the table of the Resource List Window, one per filtered column, by the column names of that table. Absent means no column has a filter.	unchanged	-
+D075	/properties/documentSettings/properties/tableViews/properties/resourceList/properties/sort	How GRS sorts this table. Absent means the default order.	unchanged	-
+D076	/properties/documentStamp	The Document Stamp: the time of the last change and of the last save, and who wrote the Schedule Document last.	unchanged	-
+D077	/properties/changeLogEntries	The Change Log: notes that people or an AI write about changes to the Schedule Document, oldest first. A new entry goes at the end.	unchanged	-
+D078	/$defs/Project	Same as MSPDI Project.	unchanged	-
+D079	/$defs/Project/properties/id	Same as MSPDI Project/UID. Before GRS writes over an existing file that the Schedule Document was not opened from, GRS treats that file as the same Schedule Document only when this value, project.name and the file name all match; an absent value never matches, and otherwise GRS asks first.	seat	Sonnet's facts (DI-1, DI-2, DI-3, DI-5) kept; shortened
+D080	/$defs/Project/properties/calendarUid	Same as MSPDI Project/CalendarUID. GRS counts all working days with this one calendar. If this value is absent or names no calendar, GRS uses the calendar with isBaseCalendar true and the smallest ordinal, else a built-in default.	unchanged	-
+D081	/$defs/Project/properties/name	Same as MSPDI Project/Name. GRS shows and edits the value as the Project Name; the App Header shows title as the Project Title. GRS also uses the value, with id and the file name, to tell whether an existing file that GRS is about to overwrite holds the same Schedule Document.	seat	PF-1 already shows and edits Project.name; the place (Properties Panel) follows JDG-3355 in CR-856, so no place named
+D082	/$defs/Project/properties/title	Same as MSPDI Project/Title. GRS shows the value as the Project Title in the App Header and builds the default file name in the Save As Dialog from the value. When absent, the browser tab shows Untitled.	sonnet	E7
+D083	/$defs/Project/properties/subject	Same as MSPDI Project/Subject.	unchanged	-
+D084	/$defs/Project/properties/category	Same as MSPDI Project/Category.	unchanged	-
+D085	/$defs/Project/properties/company	Same as MSPDI Project/Company.	unchanged	-
+D086	/$defs/Project/properties/manager	Same as MSPDI Project/Manager.	unchanged	-
+D087	/$defs/Project/properties/author	Same as MSPDI Project/Author. The author is not who wrote the Schedule Document last (documentStamp.lastEditedBy).	unchanged	-
+D088	/$defs/Project/properties/revision	Same as MSPDI Project/Revision: how many times the tool that made the MSPDI file saved the project. The revision is not one of the documentStamp times.	sonnet	E1
+D089	/$defs/Project/properties/creationDate	Same as MSPDI Project/CreationDate. GRS writes the value when GRS makes a new Schedule Document.	unchanged	-
+D090	/$defs/Project/properties/startDate	Same as MSPDI Project/StartDate.	unchanged	-
+D092	/$defs/Project/properties/scheduleDataTimeZone	The fixed UTC offset of the clock of the Schedule Data date-times, for example UTC+09:00. The offset is standard time, with no daylight saving. GRS does not write the offset to MSPDI.	unchanged	-
+D093	/$defs/Project/properties/minutesPerDay	Same as MSPDI Project/MinutesPerDay: the length of one working day (1d) in minutes, {{S-128}} when absent. GRS warns on opening the Schedule Document if the working times of any working day add up to a total other than this value.	unchanged	-
+D094	/$defs/Project/properties/minutesPerWeek	Same as MSPDI Project/MinutesPerWeek.	unchanged	-
+D095	/$defs/Project/properties/daysPerMonth	Same as MSPDI Project/DaysPerMonth.	unchanged	-
+D096	/$defs/Project/properties/weekStartDay	Same as MSPDI Project/WeekStartDay, where 0 is Sunday; WeekDay.dayType counts from 1 instead. Absent means Monday (1).	sonnet	E1
+D097	/$defs/Project/properties/defaultStartTime	Same as MSPDI Project/DefaultStartTime: the time of day GRS gives a start that has a date and no time (the start of a Task or a BaselineTask, actualStart, resume, project.startDate); {{S-482}} when absent. A milestone's start gets defaultFinishTime instead.	unchanged	-
+D098	/$defs/Project/properties/defaultFinishTime	Same as MSPDI Project/DefaultFinishTime: the time of day GRS gives a finish that has a date and no time (the finish of a Task or a BaselineTask, actualFinish, stop, deadline, project.statusDate); {{S-483}} when absent. A milestone's start gets this time as well.	unchanged	-
+D099	/$defs/Project/properties/themeHueDegrees	The hue of the theme, in degrees. Every color written as {"kind":"theme"} uses this hue. A new Schedule Document starts with 214.	unchanged	-
+D100	/$defs/Project/properties/parentTaskProgressToleranceWorkingDays	How many working days the progress point of a parent task may lie outside the progress points of the work below the parent task, before Delay Diagnostics asks whether an update is missing. A new Schedule Document starts with 1.	unchanged	-
+D101	/$defs/Project/properties/highestIssuedUid	One counter for the uids of tasks, resources, assignments and calendars. GRS never reuses a uid, so a new uid is always above this value.	unchanged	-
+D102	/$defs/Project/properties/lastImportNumber	How many times GRS has imported an MSPDI file into this Schedule Document; 0 means never. GRS compares TaskOrigin.lastSeenImportNumber with this number.	unchanged	-
+D103	/$defs/Project/properties/firstOutlineLevel	The OutlineLevel at which the tasks of an imported MSPDI file start (not counting the project summary task); export writes from this number. A new Schedule Document starts with 1.	unchanged	-
+D104	/$defs/Project/properties/sourceFormat	The format the Schedule Document came from: grs for a Schedule Document made in GRS, pj12 or pj15 for an MSPDI file (pj15 when the file has any element that only pj15 has). GRS does not write this value to MSPDI.	unchanged	-
+D105	/$defs/Project/properties/passthroughValues	Carried MSPDI values of this element, under their MSPDI names.	unchanged	-
+D106	/$defs/Project/properties/passthroughElements	Carried MSPDI elements under this one; GRS writes each element back in the same place.	unchanged	-
+D107	/$defs/Calendar	Same as MSPDI Calendar.	unchanged	-
+D108	/$defs/Calendar/properties/uid	Same as MSPDI Calendar/UID.	unchanged	-
+D109	/$defs/Calendar/properties/baseCalendarUid	Same as MSPDI Calendar/BaseCalendarUID: the calendar this one inherits from. GRS keeps the value but does not inherit: GRS counts only the days this calendar itself lists.	unchanged	-
+D110	/$defs/Calendar/properties/ordinal	The order of the calendar as in the MSPDI file; GRS writes the calendars back in that order.	unchanged	-
+D111	/$defs/Calendar/properties/name	Same as MSPDI Calendar/Name.	unchanged	-
+D112	/$defs/Calendar/properties/isBaseCalendar	Same as MSPDI Calendar/IsBaseCalendar. Absent reads as false.	unchanged	-
+D113	/$defs/Calendar/properties/weekDays	Same as MSPDI Calendar/WeekDays.	unchanged	-
+D114	/$defs/Calendar/properties/exceptions	Same as MSPDI Calendar/Exceptions.	unchanged	-
+D115	/$defs/Calendar/properties/passthroughValues	Carried MSPDI values of this element, under their MSPDI names.	unchanged	-
+D116	/$defs/Calendar/properties/passthroughElements	Carried MSPDI elements under this one; GRS writes each element back in the same place.	unchanged	-
+D117	/$defs/WeekDay	Same as MSPDI WeekDay.	unchanged	-
+D118	/$defs/WeekDay/properties/ordinal	The order of this weekday within the calendar, as in the MSPDI file.	unchanged	-
+D119	/$defs/WeekDay/properties/dayType	Same as MSPDI WeekDay/DayType, where 1 is Sunday, except that the value is never 0: Exception holds the exception days.	unchanged	-
+D120	/$defs/WeekDay/properties/dayWorking	Same as MSPDI WeekDay/DayWorking. Absent reads as not working.	unchanged	-
+D121	/$defs/WeekDay/properties/workingTimes	Same as MSPDI WeekDay/WorkingTimes. Absent on a working day means the default spans {{S-580}}.	unchanged	-
+D122	/$defs/WeekDay/properties/passthroughValues	Carried MSPDI values of this element, under their MSPDI names.	unchanged	-
+D123	/$defs/WeekDay/properties/passthroughElements	Carried MSPDI elements under this one; GRS writes each element back in the same place.	unchanged	-
+D124	/$defs/Exception	Same as MSPDI Exception.	unchanged	-
+D125	/$defs/Exception/properties/ordinal	The order of this exception within the calendar, as in the MSPDI file.	unchanged	-
+D126	/$defs/Exception/properties/name	Same as MSPDI Exception/Name.	unchanged	-
+D127	/$defs/Exception/properties/fromDate	Same as MSPDI Exception/TimePeriod/FromDate: the first day of the exception. GRS reads only the date; when GRS adds or changes the date, GRS writes T00:00:00.	sonnet	E7
+D128	/$defs/Exception/properties/toDate	Same as MSPDI Exception/TimePeriod/ToDate: the last day of the exception, included. GRS reads only the date; when GRS adds or changes the date, GRS writes T23:59:00.	sonnet	E7
+D129	/$defs/Exception/properties/dayWorking	Same as MSPDI Exception/DayWorking. Absent reads as not working.	unchanged	-
+D130	/$defs/Exception/properties/recurrenceKind	Same as MSPDI Exception/Type. GRS counts only a one-off exception: recurrenceKind is 9 or absent, or is 1 and recurrencePeriod is absent or 1; GRS keeps the others unchanged without counting them. Write 1 for an exception you add.	unchanged	-
+D131	/$defs/Exception/properties/recurrencePeriod	Same as MSPDI Exception/Period.	unchanged	-
+D132	/$defs/Exception/properties/workingTimes	Same as MSPDI Exception/WorkingTimes. Absent on a working day means the default spans {{S-580}}.	unchanged	-
+D133	/$defs/Exception/properties/passthroughValues	Carried MSPDI values of this element, under their MSPDI names.	unchanged	-
+D134	/$defs/Exception/properties/passthroughElements	Carried MSPDI elements under this one; GRS writes each element back in the same place.	unchanged	-
+D135	/$defs/WorkingTime	Same as MSPDI WorkingTime. GRS refuses spans of one day that overlap or do not start before they end; spans that only touch, such as one ending at 12:00 and one starting at 12:00, are fine.	unchanged	-
+D136	/$defs/WorkingTime/properties/ordinal	The order of this span within the day; GRS writes the spans in the order of their start.	unchanged	-
+D137	/$defs/WorkingTime/properties/fromTime	Same as MSPDI WorkingTime/FromTime.	unchanged	-
+D138	/$defs/WorkingTime/properties/toTime	Same as MSPDI WorkingTime/ToTime. 00:00:00 means 24:00, the end of the day.	unchanged	-
+D139	/$defs/Task	Same as MSPDI Task. GRS reads the progress state with these checks, first match wins: no actualStart, not started; actualFinish set, finished; resumeValid false, suspended with the resume date undecided; resume set, suspended with a resume date; otherwise in progress.	sonnet	E7
+D140	/$defs/Task/properties/uid	Same as MSPDI Task/UID.	unchanged	-
+D141	/$defs/Task/properties/parentTaskUid	The parent task in the WBS. Absent means a top-level task.	unchanged	-
+D142	/$defs/Task/properties/calendarUid	Same as MSPDI Task/CalendarUID, the calendar of this task alone. GRS keeps the value and writes the value back, but counts working days with project.calendarUid only.	unchanged	-
+D143	/$defs/Task/properties/siblingOrder	The order of this task among the tasks under the same parent task.	unchanged	-
+D144	/$defs/Task/properties/name	Same as MSPDI Task/Name.	unchanged	-
+D145	/$defs/Task/properties/notes	Same as MSPDI Task/Notes.	unchanged	-
+D146	/$defs/Task/properties/start	Same as MSPDI Task/Start. GRS does not open a Schedule Document in which a task has no start.	seat	RS-81 holds for every format GRS opens; naming no format keeps D146 and D147 alike
+D147	/$defs/Task/properties/finish	Same as MSPDI Task/Finish. GRS does not open a Schedule Document in which a task has no finish.	seat	same as D146 (Sonnet part c said ok; changed for the pair)
+D148	/$defs/Task/properties/milestone	Same as MSPDI Task/Milestone. Absent reads as false. When true, TaskVisual holds milestoneShape; otherwise TaskVisual holds taskShape.	unchanged	-
+D149	/$defs/Task/properties/deadline	Same as MSPDI Task/Deadline.	unchanged	-
+D150	/$defs/Task/properties/actualStart	Same as MSPDI Task/ActualStart. Absent means the task is not started.	unchanged	-
+D151	/$defs/Task/properties/stop	Same as MSPDI Task/Stop: the end of the actual work so far on a task that is in progress or suspended. On a finished task actualFinish holds that end; GRS empties stop when GRS finishes a task.	unchanged	-
+D152	/$defs/Task/properties/actualFinish	Same as MSPDI Task/ActualFinish. Present only on a finished task; a percentComplete of 100 does not mean finished.	unchanged	-
+D153	/$defs/Task/properties/resume	Same as MSPDI Task/Resume: on a suspended task, the planned restart of the remaining work.	unchanged	-
+D154	/$defs/Task/properties/resumeValid	Same as MSPDI Task/ResumeValid. On a task with actualStart and no actualFinish, false means suspended with no resume date, and GRS does not use a date in resume.	unchanged	-
+D155	/$defs/Task/properties/percentComplete	Same as MSPDI Task/PercentComplete, except that GRS recalculates the value as actual working time (actualStart to actualFinish, or to stop) over planned working time (start to finish), times 100, rounded, with no cap at 100. With no planned working time, as on a milestone, the value is 100 once actualFinish is present, else 0.	unchanged	-
+D158	/$defs/Task/properties/hyperlinkAddress	Same as MSPDI Task/HyperlinkAddress.	unchanged	-
+D159	/$defs/Task/properties/hyperlink	Same as MSPDI Task/Hyperlink: the title of the link, not the address.	unchanged	-
+D160	/$defs/Task/properties/dependencies	Same as MSPDI Task/PredecessorLink.	unchanged	-
+D161	/$defs/Task/properties/passthroughValues	Carried MSPDI values of this element, under their MSPDI names.	unchanged	-
+D162	/$defs/Task/properties/passthroughElements	Carried MSPDI elements under this one; GRS writes each element back in the same place.	unchanged	-
+D163	/$defs/Dependency	Same as MSPDI PredecessorLink.	unchanged	-
+D164	/$defs/Dependency/properties/predecessorUid	Same as MSPDI PredecessorLink/PredecessorUID.	unchanged	-
+D165	/$defs/Dependency/properties/linkType	Same as MSPDI PredecessorLink/Type.	unchanged	-
+D166	/$defs/Dependency/properties/linkLag	Same as MSPDI PredecessorLink/LinkLag: the lag in tenths of a minute, whatever unit lagFormat names; absent means no lag. One working day of lag is project.minutesPerDay times 10 ({{S-128}} times 10 when project.minutesPerDay is absent).	unchanged	-
+D167	/$defs/Dependency/properties/lagFormat	Same as MSPDI PredecessorLink/LagFormat. GRS understands the lag only when the value is 7 (working days), 5 (hours) or 3 (minutes); with any other unit GRS only shows the lag and keeps the lag unchanged. GRS writes the unit that the user typed the lag in.	unchanged	-
+D168	/$defs/Dependency/properties/passthroughValues	Carried MSPDI values of this element, under their MSPDI names.	unchanged	-
+D169	/$defs/Dependency/properties/passthroughElements	Carried MSPDI elements under this one; GRS writes each element back in the same place.	unchanged	-
+D170	/$defs/Resource	Same as MSPDI Resource.	unchanged	-
+D171	/$defs/Resource/properties/uid	Same as MSPDI Resource/UID.	unchanged	-
+D172	/$defs/Resource/properties/calendarUid	Same as MSPDI Resource/CalendarUID, the calendar of this resource alone. GRS keeps the value and writes the value back, but counts working days with project.calendarUid only.	unchanged	-
+D173	/$defs/Resource/properties/name	Same as MSPDI Resource/Name.	unchanged	-
+D174	/$defs/Resource/properties/resourceKind	Same as MSPDI Resource/Type.	unchanged	-
+D175	/$defs/Resource/properties/isCostResource	Same as MSPDI Resource/IsCostResource. Absent reads as false.	unchanged	-
+D176	/$defs/Resource/properties/passthroughValues	Carried MSPDI values of this element, under their MSPDI names.	unchanged	-
+D177	/$defs/Resource/properties/passthroughElements	Carried MSPDI elements under this one; GRS writes each element back in the same place.	unchanged	-
+D178	/$defs/Assignment	Same as MSPDI Assignment.	unchanged	-
+D179	/$defs/Assignment/properties/uid	Same as MSPDI Assignment/UID.	unchanged	-
+D180	/$defs/Assignment/properties/taskUid	Same as MSPDI Assignment/TaskUID.	unchanged	-
+D181	/$defs/Assignment/properties/resourceUid	Same as MSPDI Assignment/ResourceUID.	unchanged	-
+D182	/$defs/Assignment/properties/passthroughValues	Carried MSPDI values of this element, under their MSPDI names.	unchanged	-
+D183	/$defs/Assignment/properties/passthroughElements	Carried MSPDI elements under this one; GRS writes each element back in the same place.	unchanged	-
+D184	/$defs/TaskGroup	A task group: one row of the Task Group Panel and one Task Group Lane. Task groups form their own tree, separate from the WBS (Task.parentTaskUid), and GRS does not write task groups to MSPDI.	unchanged	-
+D185	/$defs/TaskGroup/properties/id	The id of the task group.	unchanged	-
+D186	/$defs/TaskGroup/properties/parentId	The parent task group. Absent means a top-level task group (depth 1).	unchanged	-
+D187	/$defs/TaskGroup/properties/representedTaskUid	The task that this task group represents in the WBS. Absent means the task group represents no task. This property does not decide the name of the task group.	unchanged	-
+D188	/$defs/TaskGroup/properties/siblingOrder	The order of this task group among the task groups under the same parent.	unchanged	-
+D189	/$defs/TaskGroup/properties/name	The task group name. Absent means an unnamed task group; GRS shows an empty title. GRS never copies a task name into this property after the task group exists.	unchanged	-
+D190	/$defs/TaskGroup/properties/treeState	Whether the task group is open, closed or hidden in the Task Group Panel. auto follows documentSettings.taskGroupAutoExpandDepth; temporarilyExpanded stays open until the next Zoom to Fit or vertical zoom out, and then becomes auto.	unchanged	-
+D191	/$defs/TaskGroup/properties/editGroup	The name of the group that may edit this task group. When present, GRS refuses edits to the tasks in this task group. Absent means anyone may edit.	unchanged	-
+D192	/$defs/TaskGroup/properties/color	The color of the Task Group Lane of the task group. Absent means GRS draws no color; {"kind":"theme"} draws the theme color.	unchanged	-
+D193	/$defs/TaskGroup/properties/minHeightPx	Lowest height of the Task Group Lane of the task group, in CSS pixels at displayScalePercent 100; absent means no lowest height. verticalZoomRatio does not change this height.	unchanged	-
+D194	/$defs/TaskGroup/properties/hyperlinkAddress	The URL the task group links to. Absent means no link.	unchanged	-
+D195	/$defs/TaskGroup/properties/hyperlink	The title of the task group link. Absent means no title.	unchanged	-
+D196	/$defs/TaskGroupMember	Which task group GRS draws a task in; every task is in exactly one task group. GRS stacks the tasks of a task group itself, in the direction that documentSettings.stackDirection gives.	unchanged	-
+D197	/$defs/TaskGroupMember/properties/taskUid	The task; each task is in exactly one entry.	unchanged	-
+D198	/$defs/TaskGroupMember/properties/taskGroupId	The task group that GRS draws the task in.	unchanged	-
+D200	/$defs/TaskVisual/properties/taskUid	The task that GRS draws with this TaskVisual; each task has exactly one TaskVisual.	unchanged	-
+D201	/$defs/TaskVisual/properties/taskShape	Shape of the Task Graphic of a task that is not a milestone. Present exactly when Task.milestone is not true; a milestone holds milestoneShape instead.	unchanged	-
+D202	/$defs/TaskVisual/properties/milestoneShape	Shape of the Milestone Mark. Present exactly when Task.milestone is true.	unchanged	-
+D203	/$defs/TaskVisual/properties/fillColor	The fill color of the Plan Bar; GRS draws the fill of the Actual Bar from the same color. Absent means GRS draws no fill; fill and stroke may not both be absent. A custom color may give only one of light and dark: GRS works out the other when GRS opens the Schedule Document.	sonnet	E7,E1
+D206	/$defs/TaskOrigin	Where an imported task came from, so that importing the same MSPDI file again updates the task instead of adding a copy.	unchanged	-
+D207	/$defs/TaskOrigin/properties/taskUid	The imported task in this Schedule Document.	unchanged	-
+D208	/$defs/TaskOrigin/properties/sourceProjectId	Project/UID of the MSPDI file that GRS imported this task from. Absent when that MSPDI file had none.	unchanged	-
+D209	/$defs/TaskOrigin/properties/sourceUid	The UID of the task in the MSPDI file that GRS imported the task from.	unchanged	-
+D210	/$defs/TaskOrigin/properties/importSessionId	The id of the import that brought the task in; every import makes a new one. This id stands in for sourceProjectId when the MSPDI file had no Project/UID.	unchanged	-
+D211	/$defs/TaskOrigin/properties/lastSeenImportNumber	The project.lastImportNumber of the last import that found this task in the imported MSPDI file.	unchanged	-
+D213	/$defs/BaselineTask/properties/uid	The uid of the task in the earlier plan; GRS matches the task to the current task with the same uid.	unchanged	-
+D214	/$defs/BaselineTask/properties/name	The task name in the earlier plan.	unchanged	-
+D215	/$defs/BaselineTask/properties/start	The planned start in the earlier plan.	unchanged	-
+D216	/$defs/BaselineTask/properties/finish	The planned finish in the earlier plan.	unchanged	-
+D217	/$defs/BaselineTask/properties/milestone	Whether the task was a milestone in the earlier plan, so that GRS draws the task as a milestone.	unchanged	-
+D222	/$defs/CommentBox/properties/bodyOffsetPx/properties/dx	The horizontal part of bodyOffsetPx. A positive value moves the box to the right.	unchanged	-
+D223	/$defs/CommentBox/properties/bodyOffsetPx/properties/dy	The vertical part of bodyOffsetPx. A positive value moves the box down, as in GRS.	unchanged	-
+D236	/$defs/CommentBoxAnchor/oneOf[freePoint]/properties/dateTime	The point in time where the Leader Anchor stands on the Time Axis.	unchanged	-
+D237	/$defs/CommentBoxAnchor/oneOf[freePoint]/properties/taskGroupId ; /$defs/AnchorFallback/properties/taskGroupId	The task group whose Task Group Lane holds the Leader Anchor; in a fallback, the task group where the Leader Anchor goes when the target of the Leader Anchor no longer exists.	unchanged	-
+D238	/$defs/CommentBoxAnchor/oneOf[freePoint]/properties/bandFraction ; /$defs/AnchorFallback/properties/bandFraction	The height of the Leader Anchor within the Task Group Lane of that task group: 0 is the top edge, 1 the bottom edge.	unchanged	-
+D239	/$defs/CommentBoxAnchor/oneOf[task]/properties/taskUid	The uid of the task that the Leader Anchor snaps to.	unchanged	-
+D240	/$defs/CommentBoxAnchor/oneOf[task]/properties/figure	Which part of the Task Graphic the Leader Anchor snaps to: the Plan Bar, the Actual Bar or the Milestone Mark.	unchanged	-
+D241	/$defs/CommentBoxAnchor/oneOf[task]/properties/point ; /$defs/CommentBoxAnchor/oneOf[highlightBox]/properties/point	Which of the eight points of the target the Leader Anchor snaps to: the four corners and the middles of the four sides.	unchanged	-
+D242	/$defs/CommentBoxAnchor/oneOf[task]/properties/fallback	Where the Leader Anchor goes when the task no longer exists.	unchanged	-
+D245	/$defs/AnchorFallback	Where the Leader Anchor goes when the target of the Leader Anchor no longer exists: the task group, and the height in the Task Group Lane of that task group.	unchanged	-
+D248	/$defs/HighlightBox/properties/topTaskGroupId	The task group at the top edge of the box.	unchanged	-
+D249	/$defs/HighlightBox/properties/bottomTaskGroupId	The task group at the bottom edge of the box.	unchanged	-
+D250	/$defs/HighlightBox/properties/firstDay	The first day that the box covers (included), as a day in the Schedule Data time zone (project.scheduleDataTimeZone).	unchanged	-
+D251	/$defs/HighlightBox/properties/lastDay	The last day that the box covers (included).	unchanged	-
+D257	/$defs/DocumentStamp	When the Schedule Document last changed, when GRS last saved the Schedule Document, and who last wrote the Schedule Document.	unchanged	-
+D258	/$defs/DocumentStamp/properties/scheduleUpdatedAt	When the Schedule Data last changed. watchChanges looks only at this time.	unchanged	-
+D259	/$defs/DocumentStamp/properties/documentUpdatedAt	When the Schedule Document last changed, in the Schedule Data or in documentSettings.	unchanged	-
+D260	/$defs/DocumentStamp/properties/fileSavedAt	When GRS last saved the Schedule Document, in UTC. Absent until the first save.	unchanged	-
+D261	/$defs/DocumentStamp/properties/lastEditedBy	Who wrote the Schedule Document last: {"kind":"user"} for a person in GRS, {"kind":"template"} for the shipped start-up template, {"kind":"agent","name":...} for an Agent API caller.	unchanged	-
+D262	/$defs/Writer	Who wrote: a person in GRS, the shipped start-up template, or an Agent API caller.	unchanged	-
+D263	/$defs/Writer/oneOf[*]/properties/kind	user: a person in GRS; template: the shipped start-up template; agent: an Agent API caller.	unchanged	-
+D264	/$defs/Writer/oneOf[agent]/properties/name	The name that the Agent API caller gave for itself.	unchanged	-
+D265	/$defs/ChangeLogEntry	One note about a change made to the Schedule Document: when, who, which part, what, why, and anything else.	sonnet	E2
+D266	/$defs/ChangeLogEntry/properties/changedAt	When the change happened, in UTC. GRS fills in the time of adding the entry; a person may change the time.	unchanged	-
+D267	/$defs/ChangeLogEntry/properties/changedBy	Who made the change: the name a person typed, or the name an AI gave for itself.	unchanged	-
+D268	/$defs/ChangeLogEntry/properties/affectedArea	Which part of the Schedule Document the change affected.	unchanged	-
+D269	/$defs/ChangeLogEntry/properties/changeDescription	What changed.	unchanged	-
+D270	/$defs/ChangeLogEntry/properties/reason	The reason for the change.	unchanged	-
+D271	/$defs/ChangeLogEntry/properties/note	Anything else about the change.	unchanged	-
+D273	/$defs/PassthroughValues	Carried MSPDI values, keyed by their MSPDI names.	unchanged	-
+D274	/$defs/PassthroughElement	One carried MSPDI element, which GRS keeps whole and writes back in place.	unchanged	-
+D275	/$defs/PassthroughElement/properties/ordinal	The order of this element within the owner, which GRS uses to write the element back in place.	unchanged	-
+D276	/$defs/PassthroughElement/properties/name	The element name, spelled exactly as in the MSPDI file.	unchanged	-
+D277	/$defs/PassthroughElement/properties/fields	The values of the child elements of this element that hold only text, by element name; child elements that contain other elements go in children.	sonnet	E4,E1
+D278	/$defs/PassthroughElement/properties/children	The child elements nested in this element.	unchanged	-
+D279	/$defs/Day	A date without a time of day, written YYYY-MM-DD. A range of days (firstDay and lastDay) includes both days. Each property that uses Day says which time zone the day is in.	unchanged	-
+D280	/$defs/DateTime	A wall-clock date-time in project.scheduleDataTimeZone, written YYYY-MM-DDTHH:MM:SS with no offset, as MSPDI writes a date-time. GRS reads the value to the minute and ignores the seconds.	unchanged	-
+D281	/$defs/Time	A time of day, as MSPDI writes a time.	unchanged	-
+D282	/$defs/UtcInstant	A point in time in UTC, written YYYY-MM-DDTHH:MM:SSZ.	unchanged	-
+D283	/$defs/UtcOffset	A fixed offset from UTC, written like UTC+09:00. GRS never applies daylight saving time.	unchanged	-
+D284	/$defs/Color	A color of one of three kinds, chosen by kind. Where a color may be absent, an absent color means GRS does not draw that fill or line.	sonnet	E1,E2,E3
+D285	/$defs/Color/oneOf[*]/properties/kind	theme: the color that the theme sets for this property; palette: a named palette color; custom: own values for the light and the dark theme.	sonnet	E1
+D286	/$defs/Color/oneOf[palette]/properties/name	The palette color, by the stored name.	unchanged	-
+D287	/$defs/Color/oneOf[custom]/properties/light	The color for the light theme; at least one of light and dark is present.	unchanged	-
+D288	/$defs/Color/oneOf[custom]/properties/dark	The color for the dark theme; at least one of light and dark is present.	unchanged	-
+D289	/$defs/ColorSide	One side of a custom color: the value, and whether a person chose the value or GRS derived the value. One side may be absent; GRS derives the missing side from the other side when opening the Schedule Document.	unchanged	-
+D290	/$defs/ColorSide/properties/value	The color value for this theme.	unchanged	-
+D291	/$defs/ColorSide/properties/source	chosen: a person chose this value; derived: GRS made the value from the other side when loading the Schedule Document.	unchanged	-
+D292	/$defs/BandColor	The color of a Task Group Lane: the same as Color, except that BandColor offers no palette color ink.	unchanged	-
+D293	/$defs/ColumnFilter	A filter on one column of a table: values hides rows by their shown value, dateRange hides rows whose date is outside a range of days.	unchanged	-
+D294	/$defs/ColumnFilter/oneOf[*]/properties/kind	values: hide rows by their shown value; dateRange: hide rows whose date is outside firstDay..lastDay.	unchanged	-
+D295	/$defs/ColumnFilter/oneOf[*]/properties/column	The column that the filter is on, by the stable column name.	unchanged	-
+D296	/$defs/ColumnFilter/oneOf[values]/properties/hiddenValues	The values whose rows the filter hides; write a status or a type by the stable name, any other value by the shown text.	unchanged	-
+D297	/$defs/ColumnFilter/oneOf[values]/properties/isBlankHidden	Whether the filter hides the rows with an empty cell in this column.	unchanged	-
+D298	/$defs/ColumnFilter/oneOf[dateRange]/properties/firstDay	The first day that the filter keeps (included), as a day in the Schedule Data time zone (project.scheduleDataTimeZone).	unchanged	-
+D299	/$defs/ColumnFilter/oneOf[dateRange]/properties/lastDay	The last day that the filter keeps (included).	unchanged	-
+D300	/$defs/ColumnSort	How GRS sorts a table: by one column, in one direction.	unchanged	-
+D301	/$defs/ColumnSort/properties/column	The column that GRS sorts the table by, by the stable column name.	unchanged	-
+D302	/$defs/ColumnSort/properties/direction	The direction of the sort.	unchanged	-
+D303	/$defs/ColumnKey	The stable English name of a table column; each table takes only the names of the columns in that table.	unchanged	-
+D017-title	/$defs/... title of D017	How GRS draws the Schedule Document when GRS opens the Schedule Document	unchanged	-

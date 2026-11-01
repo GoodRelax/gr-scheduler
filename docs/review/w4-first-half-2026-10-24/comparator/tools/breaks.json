@@ -1,0 +1,47 @@
+{
+  "frame-loop": {
+    "file": "src/framework/single-html-shell/frame-loop.ts",
+    "breaks": [
+      { "id": "FL-1", "kind": "off-by-one", "what": "palette corner clamps at x 1, not 0", "find": "    x: Math.min(Math.max(corner.x, 0), maxX),", "replace": "    x: Math.min(Math.max(corner.x, 1), maxX)," },
+      { "id": "FL-2", "kind": "swapped host calls", "what": "the schema download goes before the clipboard write (IC-115)", "find": "  const copying = writeClipboard(seam, { kind: 'document', text })\n  const schemaFile = imageToJsonSchemaFile()\n  files?.downloadFile?.(schemaFile.fileName, new TextEncoder().encode(schemaFile.text))", "replace": "  const schemaFile = imageToJsonSchemaFile()\n  files?.downloadFile?.(schemaFile.fileName, new TextEncoder().encode(schemaFile.text))\n  const copying = writeClipboard(seam, { kind: 'document', text })" },
+      { "id": "FL-3", "kind": "dropped event", "what": "fullScreenChanged sends nothing to the session", "find": "      sendToSession({ type: 'fullScreenChanged', isFullScreen }, values)", "replace": "      void isFullScreen" },
+      { "id": "FL-4", "kind": "changed constant", "what": "MS_PER_SECOND 1000 -> 1001 (edge scroll speed)", "find": "const MS_PER_SECOND = 1000", "replace": "const MS_PER_SECOND = 1001" },
+      { "id": "FL-5", "kind": "swapped branch", "what": "resize runs the frame at once when it was settled, asks when it was not", "find": "      if (!wasSettled) runFrame()", "replace": "      if (wasSettled) runFrame()" },
+      { "id": "FL-6", "kind": "dropped comparison", "what": "isSameEnvironment ignores taskGroupControlsHeightPx", "find": "    one.taskGroupControlsHeightPx === other.taskGroupControlsHeightPx &&\n", "replace": "" },
+      { "id": "FL-7", "kind": "wrong phase", "what": "a notice is dismissed on the press, not the release", "find": "      if (input.phase === 'up' && partUnderPointer?.noticeDismissKey != null) {", "replace": "      if (input.phase === 'down' && partUnderPointer?.noticeDismissKey != null) {" },
+      { "id": "FL-8", "kind": "negated answer", "what": "hasUnsavedEdits answers the opposite", "find": "    hasUnsavedEdits(): boolean {\n      return session.fileFlow.unsavedEditsState.kind === 'editsUnsaved'", "replace": "    hasUnsavedEdits(): boolean {\n      return session.fileFlow.unsavedEditsState.kind !== 'editsUnsaved'" },
+      { "id": "FL-9", "kind": "changed value", "what": "the starting help language is always English", "find": "    helpLanguage: language,", "replace": "    helpLanguage: 'en'," },
+      { "id": "FL-10", "kind": "swapped arguments", "what": "resize clamps the dragged palette with band and window sizes swapped", "find": "          bandSizeOf(next),\n          windowSizeOf(next),", "replace": "          windowSizeOf(next),\n          bandSizeOf(next)," }
+    ]
+  },
+  "input-command-translator": {
+    "file": "src/adapter/input-command-translator/input-command-translator.ts",
+    "breaks": [
+      { "id": "TR-1", "kind": "off-by-one", "what": "the drag threshold counts equal travel on x as a drag", "find": "  return Math.abs(at.x - press.at.x) > threshold || Math.abs(at.y - press.at.y) > threshold", "replace": "  return Math.abs(at.x - press.at.x) >= threshold || Math.abs(at.y - press.at.y) > threshold" },
+      { "id": "TR-2", "kind": "dropped condition", "what": "Meta no longer counts as Ctrl", "find": "  return modifiers.ctrl || modifiers.meta", "replace": "  return modifiers.ctrl" },
+      { "id": "TR-3", "kind": "dropped condition", "what": "a Shift+Alt drag keeps dates too", "find": "  return press.at.modifiers.shift && !press.at.modifiers.alt", "replace": "  return press.at.modifiers.shift" },
+      { "id": "TR-4", "kind": "off-by-one", "what": "taskGroupAtY takes the bottom edge into the task group", "find": "    if (y >= taskGroup.y && y < taskGroup.y + taskGroup.height) return taskGroup", "replace": "    if (y >= taskGroup.y && y <= taskGroup.y + taskGroup.height) return taskGroup" },
+      { "id": "TR-5", "kind": "dropped value", "what": "followingTravel measures from the press, ignoring followedTo", "find": "  const from = press.followedTo ?? press.at", "replace": "  const from = press.at" },
+      { "id": "TR-6", "kind": "off-by-one", "what": "a double click is no second press", "find": "  return press.at.clickCount >= 2 && mark.kind === 'shown' && mark.landedBy === 'continuationMark'", "replace": "  return press.at.clickCount > 2 && mark.kind === 'shown' && mark.landedBy === 'continuationMark'" },
+      { "id": "TR-7", "kind": "swapped source", "what": "escape context reads the report's front flag for the resource list", "find": "    isResourceListInFront: resourceList?.isInFront === true,", "replace": "    isResourceListInFront: report?.isInFront === true," },
+      { "id": "TR-8", "kind": "changed constant", "what": "nextIssuedUid adds 2", "find": "  return schedule.project.uidHighWaterMark + 1", "replace": "  return schedule.project.uidHighWaterMark + 2" },
+      { "id": "TR-9", "kind": "swapped order", "what": "dayShift subtracts the wrong way", "find": "  return serialOfDay(to) - serialOfDay(from)", "replace": "  return serialOfDay(from) - serialOfDay(to)" },
+      { "id": "TR-10", "kind": "sign", "what": "a pan follows the pointer upside down", "find": "  return panTo(context, -by.dx, -by.dy)", "replace": "  return panTo(context, -by.dx, by.dy)" }
+    ]
+  },
+  "mspdi-codec": {
+    "file": "src/adapter/document-codec/mspdi-codec.ts",
+    "breaks": [
+      { "id": "MC-1", "kind": "narrowed pattern", "what": "wholeNumberOf refuses a leading +", "find": "  if (!/^[+-]?\\d+$/.test(trimmed)) return null", "replace": "  if (!/^[-]?\\d+$/.test(trimmed)) return null" },
+      { "id": "MC-2", "kind": "dropped branch", "what": "booleanColumn no longer reads 'true'", "find": "  if (trimmed === '1' || trimmed === 'true') return true", "replace": "  if (trimmed === '1') return true" },
+      { "id": "MC-3", "kind": "rounding", "what": "durationOfMinutes rounds hours up", "find": "  return `PT${Math.floor(whole / 60)}H${whole % 60}M0S`", "replace": "  return `PT${Math.ceil(whole / 60)}H${whole % 60}M0S`" },
+      { "id": "MC-4", "kind": "changed constant", "what": "seconds count as hundredths of a minute", "find": "  const total = days * 24 * 60 + hours * 60 + minutes + seconds / 60", "replace": "  const total = days * 24 * 60 + hours * 60 + minutes + seconds / 100" },
+      { "id": "MC-5", "kind": "dropped step", "what": "the byte order mark is kept", "find": "  return text.startsWith(BYTE_ORDER_MARK) ? text.slice(BYTE_ORDER_MARK.length) : text", "replace": "  return text" },
+      { "id": "MC-6", "kind": "off-by-one", "what": "each duplicate leaf counts twice", "find": "      else if (seen.has(child.name)) count += 1", "replace": "      else if (seen.has(child.name)) count += 2" },
+      { "id": "MC-7", "kind": "changed constant", "what": "the project summary row is looked for at outline level 1", "find": "const PROJECT_SUMMARY_OUTLINE_LEVEL = 0", "replace": "const PROJECT_SUMMARY_OUTLINE_LEVEL = 1" },
+      { "id": "MC-8", "kind": "changed constant", "what": "the written SaveVersion is 14", "find": "const GRS_SAVE_VERSION = '12'", "replace": "const GRS_SAVE_VERSION = '14'" },
+      { "id": "MC-9", "kind": "swapped rule", "what": "the last duplicate leaf wins instead of the first", "find": "  if (!Object.hasOwn(leaves, leaf.name)) leaves[leaf.name] = leaf.text", "replace": "  leaves[leaf.name] = leaf.text" },
+      { "id": "MC-10", "kind": "widened condition", "what": "an empty string value writes no leaf", "find": "  if (value === null) return []", "replace": "  if (value === null || value === '') return []" }
+    ]
+  }
+}

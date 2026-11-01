@@ -85,8 +85,22 @@ export type SelectionValuesEvent =
 
 export type SelectionValuesEffectName = never
 
+export type SelectionValuesGuardName =
+  | 'hasPickedObjects'
+  | 'hasRemainingObjects'
+  | 'isRungSelection'
+
 const SELECTION_VALUES_INITIAL_AXES: SelectionValuesAxes = {
   selectionState: { kind: 'nothingSelected' },
+}
+
+const SELECTION_VALUES_GUARDS = {
+  hasPickedObjects: (event: Extract<SelectionValuesEvent, { readonly type: 'objectsPicked' }>): boolean =>
+    (event.pickedObjects?.items?.length ?? NaN) > 0,
+  hasRemainingObjects: (event: Extract<SelectionValuesEvent, { readonly type: 'selectionPruned' }>): boolean =>
+    (event.remainingObjects?.items?.length ?? NaN) > 0,
+  isRungSelection: (event: Extract<SelectionValuesEvent, { readonly type: 'selectionEscapePressed' }>): boolean =>
+    event.rung === 'selection',
 }
 // </generated>
 
@@ -154,29 +168,13 @@ function deselected(values: SelectionValues): SelectionStep {
   return { state: { ...values, selectionState: NOTHING_SELECTED }, effects: NO_EFFECTS }
 }
 
-/** @purity pure */
-function hasPickedObjects(event: EventOf<'objectsPicked'>): boolean {
-  return event.pickedObjects.items.length > 0
-}
-
-/** @purity pure */
-function hasRemainingObjects(event: EventOf<'selectionPruned'>): boolean {
-  return event.remainingObjects.items.length > 0
-}
-
-/** @purity pure */
-function isRungSelection(event: EventOf<'selectionEscapePressed'>): boolean {
-  return event.rung === 'selection'
-}
-
 // WHY: an empty pick clears; with nothing selected it changes nothing (the fall-through of T-293).
 /** @purity pure */
 function onObjectsPicked(values: SelectionValues, event: EventOf<'objectsPicked'>): SelectionStep {
-  return hasPickedObjects(event) ? selected(values, event.pickedObjects) : deselected(values)
+  return SELECTION_VALUES_GUARDS.hasPickedObjects(event) ? selected(values, event.pickedObjects) : deselected(values)
 }
 
-// see FR-085, T-293
-// WHY: the root's chosenTaskGroups moves in the same step as the machine; neither moving keeps the reference (SF-3).
+// WHY: the root's chosenTaskGroups moves in the same step as the machine; neither moving keeps the reference (SF-3, FR-085).
 /** @purity pure */
 function withTaskGroupsAlso(step: SelectionStep, chosenTaskGroups: readonly string[]): SelectionStep {
   if (isSameList(step.state.chosenTaskGroups, chosenTaskGroups)) return step
@@ -187,7 +185,7 @@ function withTaskGroupsAlso(step: SelectionStep, chosenTaskGroups: readonly stri
 /** @purity pure */
 function objectsPruned(values: SelectionValues, event: EventOf<'selectionPruned'>): SelectionStep {
   if (values.selectionState.kind === 'nothingSelected') return unchanged(values)
-  return hasRemainingObjects(event) ? selected(values, event.remainingObjects) : deselected(values)
+  return SELECTION_VALUES_GUARDS.hasRemainingObjects(event) ? selected(values, event.remainingObjects) : deselected(values)
 }
 
 /** @purity pure */
@@ -198,7 +196,8 @@ function onSelectionPruned(values: SelectionValues, event: EventOf<'selectionPru
 // see IN-4, FR-085
 /** @purity pure */
 function onSelectionEscapePressed(values: SelectionValues, event: EventOf<'selectionEscapePressed'>): SelectionStep {
-  return isRungSelection(event) ? withTaskGroupsAlso(deselected(values), NO_CHOSEN_TASK_GROUPS) : unchanged(values)
+  if (!SELECTION_VALUES_GUARDS.isRungSelection(event)) return unchanged(values)
+  return withTaskGroupsAlso(deselected(values), NO_CHOSEN_TASK_GROUPS)
 }
 
 // see SK-19, FR-085
@@ -273,3 +272,4 @@ export function stepSelectionValues(values: SelectionValues, event: SelectionVal
   const handler = HANDLERS[event.type] as (values: SelectionValues, event: SelectionValuesEvent) => SelectionStep
   return handler(values, event)
 }
+

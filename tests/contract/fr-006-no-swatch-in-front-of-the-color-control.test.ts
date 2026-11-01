@@ -84,7 +84,7 @@ import {
 import { bare, specTable } from './spec-table'
 
 // ---------------------------------------------------------------------------
-// The manuscript, read at run time rather than copied here (Chapter 1.9 :275).
+// The manuscript, read at run time rather than copied here (Chapter 1.9).
 // ---------------------------------------------------------------------------
 
 const T_016 = specTable('T-016')

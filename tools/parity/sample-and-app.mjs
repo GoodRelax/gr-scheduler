@@ -26,7 +26,7 @@ import { fileURLToPath } from 'node:url'
 const HERE = path.dirname(fileURLToPath(import.meta.url))
 const asUrl = (relative) =>
   'file://' + path.resolve(HERE, relative).split(path.sep).join('/')
-const SAMPLE = asUrl('../../previous-project-result/11-row-controls/row-controls-sample.html')
+const SAMPLE = asUrl('../../studies/11-row-controls/row-controls-sample.html')
 const APP = asUrl('../../dist/index.html')
 
 const WINDOW = { width: 1400, height: 2000 }

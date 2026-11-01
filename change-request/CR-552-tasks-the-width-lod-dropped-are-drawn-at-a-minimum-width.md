@@ -21,7 +21,7 @@
 
 前に立つ者の読み（`rulings.md` の `JDG-399` の読みの欄）: 縮めて LOD が消していたタスクとマイルストーンは、最小 4px の幅で描く。重なりは今の段割当で下へ積む。名前のラベルも占有幅に数える。掴み代は既存の規則に従い、特別な規則を足さない。覆すもの: 表 T-005a の `L-2`。
 
-**見本の実測**（`previous-project-result/16-grab-area-sizing/README.md` の「追補: 縮小で消えるタスクを最小幅で描く（2026-09-23）」、`min-width-lod-sample.html`。3 行に 1 年ぶんのタスク 85 件とマイルストーン 3 件。1 段 ＝ 18.125px ＋ 隙間 3.5px、行の床 24px）:
+**見本の実測**（`studies/16-grab-area-sizing/README.md` の「追補: 縮小で消えるタスクを最小幅で描く（2026-09-23）」、`min-width-lod-sample.html`。3 行に 1 年ぶんのタスク 85 件とマイルストーン 3 件。1 段 ＝ 18.125px ＋ 隙間 3.5px、行の床 24px）:
 
 | 段の数 ／ 3 行の縦幅（名前を占有幅に数える） | 0.25px/日 | 0.5 | 1 | 2 | 4 | 8 |
 |---|---|---|---|---|---|---|
@@ -100,7 +100,7 @@
 
 ⚠️ 本書は新しい識別子を 1 つも作らない（行 ID ・ 表 ・ 接頭辞 ・ 設定値の行、どれも 0）。
 - 依頼文が配った帯（設定値 `S-350` 〜 `S-354`、台帳 `JDG-430` 〜 `JDG-434` ・ `DFC-850` 〜 `DFC-854`）は、どれも使わない（`S-350` は退けた案 B のためのものだった。決定 1）。
-- 2026-09-23、`a912f4ea` で測った: `S-350` 〜 `S-354` ・ `JDG-430` 〜 `JDG-434` ・ `DFC-850` 〜 `DFC-854` を名乗る所は木に 0 件（`previous-project-result` を除く。13 節）。**当てる直前に測り直すこと**（規則 02 の 2.5 節）。
+- 2026-09-23、`a912f4ea` で測った: `S-350` 〜 `S-354` ・ `JDG-430` 〜 `JDG-434` ・ `DFC-850` 〜 `DFC-854` を名乗る所は木に 0 件（`studies` を除く。13 節）。**当てる直前に測り直すこと**（規則 02 の 2.5 節）。
 
 ---
 
@@ -306,7 +306,7 @@ LOD は 2 つある。
       "num": "20"
      },
      "note": {
-      "ja": "`Task` の形状を描く最小の幅（`FR-001` ・ `FR-018`）。期間がゼロの `Task` も、期間の短い `Task` も、本値に描く比（`FR-039` の 表 T-252 の `DS-1`）を掛けた幅より細く描かない。⭐ 既定の 6.4 は、表示の倍率 100（描く比 0.625、`S-236`）で 4px（6.4 × 0.625）に描く値である —— 利用者が、縮めても描くタスクの最小の幅を 4px と定めた。見本（`previous-project-result/16-grab-area-sizing/min-width-lod-sample.html`）は 8px を推したが、利用者は 4px を採った。 ⭐ 本値は予定の端の掴み代に縛られない —— 予定の端の掴み代（表 T-266 の `GA-1` / `GA-2`）は端の外側だけに届き、内側の既定は 0 なので、胴は幅によらず必ず残る。"
+      "ja": "`Task` の形状を描く最小の幅（`FR-001` ・ `FR-018`）。期間がゼロの `Task` も、期間の短い `Task` も、本値に描く比（`FR-039` の 表 T-252 の `DS-1`）を掛けた幅より細く描かない。⭐ 既定の 6.4 は、表示の倍率 100（描く比 0.625、`S-236`）で 4px（6.4 × 0.625）に描く値である —— 利用者が、縮めても描くタスクの最小の幅を 4px と定めた。見本（`studies/16-grab-area-sizing/min-width-lod-sample.html`）は 8px を推したが、利用者は 4px を採った。 ⭐ 本値は予定の端の掴み代に縛られない —— 予定の端の掴み代（表 T-266 の `GA-1` / `GA-2`）は端の外側だけに届き、内側の既定は 0 なので、胴は幅によらず必ず残る。"
 ```
 
 <!-- EDIT id=J-02 file=docs/spec/_source/settings.json -->
@@ -507,7 +507,7 @@ PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/md-checks.py | gre
 #   -> tables=186  figures=27  rows=2282  uids=162
 
 # the new-identifier bands are unused (2026-09-23, a912f4ea)
-git grep -nE "\bRK-3\b|\bS-35[0-4]\b|\bJDG-43[0-4]\b|\bDFC-85[0-4]\b" -- . ':!previous-project-result'
+git grep -nE "\bRK-3\b|\bS-35[0-4]\b|\bJDG-43[0-4]\b|\bDFC-85[0-4]\b" -- . ':!studies'
 #   -> nothing
 for p in S RK JDG DFC; do
   git grep -ohE "\b$p-[0-9]+[a-z]?\b" -- docs src tests tools change-request | sed "s/$p-//;s/[a-z]$//" | sort -n | uniq | tail -1

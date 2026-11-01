@@ -11,8 +11,8 @@
 > ⭐ 第 11 節「他に状態として持つべきもの」で、編集器全体を変数と編集の使い方の両方から洗った（利用者の追加の指示）。
 >
 > **閉じるもの**:
-> - 計画の記録 4 の移す順の 6 番目の 2 つ目「選択」（`docs/development-records/refactor-plan-report-2026-09-13.md:253`、領域の例は `:243`）。
-> - 棚卸しの「選択 4 ／ 4 ／ 4」（`docs/development-records/refactor-stage1-state-inventory-2026-09-13.md:208`、行 `:43` ・ `:64` ・ `:65` ・ `:66`）と、記録 4 の領域をまたぐ読み（同 `:223` ・ `:224` ・ `:231` ・ `:233` ・ `:234` ・ `:235` ・ `:240`）の行き先。
+> - 計画の記録 4 の移す順の 6 番目の 2 つ目「選択」（`docs/development-records/history/refactor-plan-report-2026-09-13.md:253`、領域の例は `:243`）。
+> - 棚卸しの「選択 4 ／ 4 ／ 4」（`docs/development-records/history/refactor-stage1-state-inventory-2026-09-13.md:208`、行 `:43` ・ `:64` ・ `:65` ・ `:66`）と、記録 4 の領域をまたぐ読み（同 `:223` ・ `:224` ・ `:231` ・ `:233` ・ `:234` ・ `:235` ・ `:240`）の行き先。
 > - `CR-436` が先送りした袋の 2 欄 `selectedGroupIds` ・ `selectedResourceUids`（`change-request/CR-436-the-screen-values-move-into-the-state-machine.md:221`「移す領域の変更要求が 1 つずつ集約へ移す」）。
 > - `PND-142` ・ `PND-143`（`docs/development-records/pending-decisions.md:74` ・ `:75`、`未裁定`）の「置き場」の問いに、集約の根の運ぶ値として答える（行の状態は前に立つ者が判じる）。
 >

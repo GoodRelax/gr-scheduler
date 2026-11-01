@@ -1,0 +1,76 @@
+id	element	type	text
+D153	/$defs/Task/properties/resume	DateTime "YYYY-MM-DDTHH:MM:SS", optional	Same as MSPDI Task/Resume: on a suspended task, when the remaining work is planned to restart.
+D154	/$defs/Task/properties/resumeValid	bool, optional	Same as MSPDI Task/ResumeValid. On a task with actualStart and no actualFinish, false means suspended with no resume date, and a date in resume is not used.
+D155	/$defs/Task/properties/percentComplete	int>=0, optional	Same as MSPDI Task/PercentComplete, except that GRS recalculates the value as actual working time (actualStart to actualFinish, or to stop) over planned working time (start to finish), times 100, rounded and not capped at 100. With no planned working time, as on a milestone, the value is 100 once actualFinish is set, else 0.
+D156	/$defs/Task/properties/fadeInCalendarDays	int >=0, optional; when the property is absent: no fade: default depth on chevrons; 0 = flat end	Calendar days the start of the bar is faded over, to show that the start is not firm. Rectangle: the start edge slants. Chevron: sets the start notch depth. Other shapes ignore it. Absent: no fade (a chevron keeps its default depth). 0: a flat start. Written to MSPDI as a Task/ExtendedAttribute.
+D157	/$defs/Task/properties/fadeOutCalendarDays	int >=0, optional; when the property is absent: no fade: default depth on chevrons; 0 = flat end	As fadeInCalendarDays, for the finish (on a chevron, the tip depth). Written to MSPDI as a Task/ExtendedAttribute.
+D158	/$defs/Task/properties/hyperlinkAddress	str 1..512 (URL), optional; when the property is absent: no link	Same as MSPDI Task/HyperlinkAddress.
+D159	/$defs/Task/properties/hyperlink	str 1..512 (link title), optional; when the property is absent: no link title	Same as MSPDI Task/Hyperlink: the title of the link, not its address.
+D160	/$defs/Task/properties/dependencies	Dependency[], optional, minItems 1	Same as MSPDI Task/PredecessorLink.
+D161	/$defs/Task/properties/passthroughValues	PassthroughValues (map str->str<=65535, >=1 entry), optional; when the property is absent: nothing kept	Carried MSPDI values of this element, under their MSPDI names.
+D162	/$defs/Task/properties/passthroughElements	PassthroughElement[], optional, minItems 1	Carried MSPDI elements under this one, each written back in its place.
+D163	/$defs/Dependency	object	Same as MSPDI PredecessorLink.
+D164	/$defs/Dependency/properties/predecessorUid	int 0..2147483647 (required)	Same as MSPDI PredecessorLink/PredecessorUID.
+D165	/$defs/Dependency/properties/linkType	int 0..3 (required)	Same as MSPDI PredecessorLink/Type.
+D166	/$defs/Dependency/properties/linkLag	int, optional	Same as MSPDI PredecessorLink/LinkLag: the lag in tenths of a minute, whatever unit lagFormat names; absent means no lag. One working day of lag is project.minutesPerDay times 10 ({{S-128}} times 10 when project.minutesPerDay is absent).
+D167	/$defs/Dependency/properties/lagFormat	int, optional	Same as MSPDI PredecessorLink/LagFormat. GRS understands the lag only when this is 7 (working days), 5 (hours) or 3 (minutes); with any other unit it only shows the lag and keeps it unchanged. GRS writes the unit the lag was typed in.
+D168	/$defs/Dependency/properties/passthroughValues	PassthroughValues (map str->str<=65535, >=1 entry), optional; when the property is absent: nothing kept	Carried MSPDI values of this element, under their MSPDI names.
+D169	/$defs/Dependency/properties/passthroughElements	PassthroughElement[], optional, minItems 1	Carried MSPDI elements under this one, each written back in its place.
+D170	/$defs/Resource	object	Same as MSPDI Resource.
+D171	/$defs/Resource/properties/uid	int 0..2147483647 (required)	Same as MSPDI Resource/UID.
+D172	/$defs/Resource/properties/calendarUid	int 0..2147483647, optional	Same as MSPDI Resource/CalendarUID, the calendar of this resource alone. GRS keeps the value and writes it back, but counts working days with project.calendarUid only.
+D173	/$defs/Resource/properties/name	str<=512, optional	Same as MSPDI Resource/Name.
+D174	/$defs/Resource/properties/resourceKind	int, optional	Same as MSPDI Resource/Type.
+D175	/$defs/Resource/properties/isCostResource	bool, optional	Same as MSPDI Resource/IsCostResource. Absent reads as false.
+D176	/$defs/Resource/properties/passthroughValues	PassthroughValues (map str->str<=65535, >=1 entry), optional; when the property is absent: nothing kept	Carried MSPDI values of this element, under their MSPDI names.
+D177	/$defs/Resource/properties/passthroughElements	PassthroughElement[], optional, minItems 1	Carried MSPDI elements under this one, each written back in its place.
+D178	/$defs/Assignment	object	Same as MSPDI Assignment.
+D179	/$defs/Assignment/properties/uid	int 0..2147483647 (required)	Same as MSPDI Assignment/UID.
+D180	/$defs/Assignment/properties/taskUid	int 0..2147483647, optional	Same as MSPDI Assignment/TaskUID.
+D181	/$defs/Assignment/properties/resourceUid	int 0..2147483647, optional	Same as MSPDI Assignment/ResourceUID.
+D182	/$defs/Assignment/properties/passthroughValues	PassthroughValues (map str->str<=65535, >=1 entry), optional; when the property is absent: nothing kept	Carried MSPDI values of this element, under their MSPDI names.
+D183	/$defs/Assignment/properties/passthroughElements	PassthroughElement[], optional, minItems 1	Carried MSPDI elements under this one, each written back in its place.
+D184	/$defs/TaskGroup	object	A task group: one row of the task group panel and one band on the chart. Task groups form their own tree, separate from the WBS (Task.parentTaskUid), and are not written to MSPDI.
+D185	/$defs/TaskGroup/properties/id	uuid (required)	The id of the task group.
+D186	/$defs/TaskGroup/properties/parentId	uuid, optional; when the property is absent: top-level task group, depth 1	The parent task group. Absent means a top-level task group (depth 1).
+D187	/$defs/TaskGroup/properties/representedTaskUid	int 0..2147483647, optional; when the property is absent: stands for no task in the WBS	The task that this task group represents in the WBS. Absent means it represents no task. It does not decide the name of the task group.
+D188	/$defs/TaskGroup/properties/siblingOrder	int (required)	The order of this task group among the task groups under the same parent.
+D189	/$defs/TaskGroup/properties/name	str 1..512, optional; when the property is absent: no name; the screen shows an empty title	The task group name. Absent means an unnamed task group; the screen shows an empty title. GRS never copies a task name into it after the group exists.
+D190	/$defs/TaskGroup/properties/treeState	enum 5 states (required)	Whether the task group is open, closed or hidden in the task group panel. auto follows documentSettings.taskGroupAutoExpandDepth; temporarilyExpanded stays open until the next Zoom to Fit or vertical zoom out, and then becomes auto.
+D191	/$defs/TaskGroup/properties/editGroup	str 1..512, optional; when the property is absent: anyone may edit	The name of the group that may edit this task group. When it is set, GRS refuses edits to the tasks in this task group. Absent means anyone may edit.
+D192	/$defs/TaskGroup/properties/color	$ref BandColor, optional; when the property is absent: no band color drawn	The task group band color. Absent means no band color is drawn; {"kind":"theme"} draws the theme color.
+D193	/$defs/TaskGroup/properties/minHeightPx	int >=1, optional; when the property is absent: no lowest height	Lowest height of the task group's row, in CSS pixels at displayScalePercent 100; absent means no lowest height. verticalZoomRatio does not change it.
+D194	/$defs/TaskGroup/properties/hyperlinkAddress	str 1..512 (URL), optional; when the property is absent: no link	The URL the task group links to. Absent means no link.
+D195	/$defs/TaskGroup/properties/hyperlink	str 1..512 (link title), optional; when the property is absent: no link title	The title of the task group link. Absent means no title.
+D196	/$defs/TaskGroupMember	object	Which task group a task is drawn in; every task is in exactly one task group. GRS stacks the tasks of a task group itself, in the direction that documentSettings.stackDirection gives.
+D197	/$defs/TaskGroupMember/properties/taskUid	int 0..2147483647 (required)	The task; each task is in exactly one entry.
+D198	/$defs/TaskGroupMember/properties/taskGroupId	uuid (required)	The task group that the task is drawn in.
+D199	/$defs/TaskVisual	object	How a task is drawn: its shape, its colors and its outline width. Every task has exactly one.
+D200	/$defs/TaskVisual/properties/taskUid	int 0..2147483647 (required)	The task that is drawn; each task has exactly one TaskVisual.
+D201	/$defs/TaskVisual/properties/taskShape	enum rectangle|chevron|arrow|endpointSpan; required when Task.milestone is not true, absent on milestones	Shape of a task that is not a milestone. Present exactly when Task.milestone is not true; a milestone holds milestoneShape instead.
+D202	/$defs/TaskVisual/properties/milestoneShape	enum 15 glyphs; required when Task.milestone is true, absent otherwise	Glyph of a milestone. Present exactly when Task.milestone is true.
+D203	/$defs/TaskVisual/properties/fillColor	$ref Color, optional; when the property is absent: not drawn	The fill color of the plan bar. Absent means no fill is drawn; fill and stroke may not both be absent. A custom color may give only one of light and dark: GRS works out the other when it loads the file.
+D204	/$defs/TaskVisual/properties/strokeColor	$ref Color, optional; when the property is absent: not drawn	Outline color of the plan and actual bars. Absent means no outline is drawn.
+D205	/$defs/TaskVisual/properties/strokeWidthPx	int 1..10, required	Outline width of the task's plan and actual bars, in CSS pixels at displayScalePercent 100. GRS writes 1 for a new task.
+D206	/$defs/TaskOrigin	object	Where an imported task came from, so that importing the same file again updates the task instead of adding a copy.
+D207	/$defs/TaskOrigin/properties/taskUid	int 0..2147483647 (required)	The imported task in this document.
+D208	/$defs/TaskOrigin/properties/sourceProjectId	str 1..16, optional; when the property is absent: the source file had no Project.id	Project/UID of the file this task was imported from. Absent when that file had none.
+D209	/$defs/TaskOrigin/properties/sourceUid	int 0..2147483647 (required)	The UID of the task in the file that it was imported from.
+D210	/$defs/TaskOrigin/properties/importSessionId	uuid, required	The id of the import that brought the task in; every import makes a new one. It stands in for sourceProjectId when the file had no Project/UID.
+D211	/$defs/TaskOrigin/properties/lastSeenImportNumber	int >=1 (required)	The project.lastImportNumber of the last import that found this task in its file.
+D212	/$defs/BaselineTask	object	One task of an earlier plan, matched to the current task by uid and drawn only as an outline over it.
+D213	/$defs/BaselineTask/properties/uid	int 0..2147483647 (required)	The uid of the task in the earlier plan; it is matched to the current task with the same uid.
+D214	/$defs/BaselineTask/properties/name	str 1..512, optional; when the property is absent: the task had no name	The task name in the earlier plan.
+D215	/$defs/BaselineTask/properties/start	DateTime "YYYY-MM-DDTHH:MM:SS", required	The planned start in the earlier plan.
+D216	/$defs/BaselineTask/properties/finish	DateTime "YYYY-MM-DDTHH:MM:SS", required	The planned finish in the earlier plan.
+D217	/$defs/BaselineTask/properties/milestone	bool, required (false when the source had none)	Whether the task was a milestone in the earlier plan, so that it is drawn as one.
+D218	/$defs/CommentBox	object	One comment box. Its tip stands at a free point (an instant, a task group and a height within its band) or at one of eight points of the task or highlight box it snapped to.
+D219	/$defs/CommentBox/properties/id	uuid (required)	The id of the comment box.
+D220	/$defs/CommentBox/properties/anchor	$ref CommentBoxAnchor, required	Where the leader line of the comment box points: a free point on the chart, or a point of a task or highlight box that the line is snapped to. A snapped anchor also keeps a fallback place, used when its target is deleted.
+D221	/$defs/CommentBox/properties/bodyOffsetPx	object{dx,dy}, required	Offset from the anchor point to the lower-left corner of the comment box body, in CSS pixels at displayScalePercent 100. It is scaled with displayScalePercent but not with zoom.
+D222	/$defs/CommentBox/properties/bodyOffsetPx/properties/dx	num (required)	The horizontal part of bodyOffsetPx. A positive value moves the box to the right.
+D223	/$defs/CommentBox/properties/bodyOffsetPx/properties/dy	num (required)	The vertical part of bodyOffsetPx. A positive value moves the box down, as on the screen.
+D224	/$defs/CommentBox/properties/text	str 1..65535, optional; when the property is absent: empty body	The text of the comment box. Absent means an empty body.
+D225	/$defs/CommentBox/properties/fillColor	$ref Color, required	Fill color of the comment box body; fillTransparencyPercent 100 draws no fill.
+D226	/$defs/CommentBox/properties/fillTransparencyPercent	int 0..100, required (100 = invisible fill)	Transparency of the comment box fill in percent: 0 is opaque, 100 draws no fill.
+D227	/$defs/CommentBox/properties/strokeColor	$ref Color, required	Color of the comment box border and leader line.

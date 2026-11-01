@@ -564,7 +564,7 @@ const whyKnown = (what) =>
  * pinned there; it was true when it was written and rotted when they closed.
  *
  * ⭐ WHAT REMAINS TRUE IS THE REASON THIS BOARD EXCUSES NOTHING.
- * `previous-project-result/11-row-controls/row-controls-sample.html` is a ROW
+ * `studies/11-row-controls/row-controls-sample.html` is a ROW
  * CONTROLS sample: it has rows, and nothing else -- no task bars, no schedule
  * canvas to place a box on, no watermark. An open defect about any of those is
  * not a question this harness can ask, whoever is holding it.

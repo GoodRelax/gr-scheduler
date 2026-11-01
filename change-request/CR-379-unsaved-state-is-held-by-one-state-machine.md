@@ -6,7 +6,7 @@
 > - `JDG-60`: 「OK。 ただし、計画したらブランチを分けよう。」（置き場 —— UseCase に専用コンポーネント 1 つ、`ScreenState` を広げる、現在値と副作用の実行はシェル）
 >
 > ⛔ **起草だけである。仕様書・コード・試験・台帳は 1 文字も動かしていない。** 読んだ木は `3cf64a4`。
-> ⭐ 置く位置はリファクタ計画（`docs/development-records/refactor-plan-report-2026-09-13.md`）の状態表の **段 2b**。入口の段 1（棚卸し）は済んでいる。
+> ⭐ 置く位置はリファクタ計画（`docs/development-records/history/refactor-plan-report-2026-09-13.md`）の状態表の **段 2b**。入口の段 1（棚卸し）は済んでいる。
 > ⛔ **段 2a（`CR-378`。辺の定義を 5.2 へ、JSON の置き場）は本書の外である。** 境目は第 8 節。
 
 ---
@@ -221,7 +221,7 @@
 | 所 | 何が動くか |
 |---|---|
 | `docs/development-records/rulings.md` | `JDG-45` / `JDG-59` / `JDG-60` の着地先に「`CR-379`（ADR-002、表 T-247 / T-248）」を適用した日に足す |
-| `docs/development-records/refactor-plan-report-2026-09-13.md` | 状態表の段 2b の出口を「2b-A が当たり検査が緑。2b-B は段 7 の最初の領域が当てる」と書き直す。段 7 の入口にも 2b-B を足す。記録 5 の「51 本」を 56 に、記録 12 の「8 領域をまたぐ」を直す（第 7 節） |
+| `docs/development-records/history/refactor-plan-report-2026-09-13.md` | 状態表の段 2b の出口を「2b-A が当たり検査が緑。2b-B は段 7 の最初の領域が当てる」と書き直す。段 7 の入口にも 2b-B を足す。記録 5 の「51 本」を 56 に、記録 12 の「8 領域をまたぐ」を直す（第 7 節） |
 | `docs/development-records/defects.md` | ⚠️ 5.3 の「内側の 3 層には漏らせる可変状態がそもそも無い」（`05-07-design.md:243`）にいまのコードの 2 つが反している。台帳に行が無い（`grep "REGISTRATIONS" defects.md` 0 件、`deliveringNotices` は `DFC-562` の症状としてだけ）⇒ 裁定 2026-09-13（仕様とコードの食い違いは台帳へ）に従って行を立てるのは台帳の体。直すのは段 7 |
 | `docs/development-records/pending-decisions.md` の `PND-141`〜`PND-144` | 語 `ScreenSession` が本書で正式の名になる（決定 4）。置き場の裁定は未決のまま（それぞれの領域の変更要求で閉じる） |
 | 登録簿の生成（`npm run gen:prefixes`） | `SF` `SD` `SM` `EV` `TN` の 5 行。`pending` の 3 行は「登録のみ」と印字される |

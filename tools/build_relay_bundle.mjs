@@ -114,7 +114,7 @@ function zipOf(entries) {
 }
 
 function manifestOf() {
-  // CR-799: the source's commit time in UTC -- semver in `version` (the same string vite.relay.config.ts
+  // CR-820: the UTC time the relay's inputs last changed -- semver in `version` (the same string vite.relay.config.ts
   // gives the relay's serverInfo), the date-time at the head of the description (tools/relay_version.mjs).
   const { builtAt, semver: version } = buildVersion()
   const { tools } = JSON.parse(readFileSync(TOOL_DESCRIPTIONS, 'utf8'))

@@ -63,13 +63,29 @@ def units_of(folder):
     return out, []
 
 
+def record_files():
+    """(name, path) of every Markdown file in the records folder and in its
+    history/ folder, where the finished records live (JDG-2972). The wave
+    records W4 and W5 moved there with the rest, and this check still holds
+    their state tables against the tree."""
+    out = []
+    for folder in (RECORDS, os.path.join(RECORDS, 'history')):
+        if not os.path.isdir(folder):
+            continue
+        for name in sorted(os.listdir(folder)):
+            path = os.path.join(folder, name)
+            if os.path.isfile(path):
+                out.append((name, path))
+    return out
+
+
 def main():
     if not os.path.isdir(RECORDS):
         sys.stdout.write('OK       no development record yet\n')
         return 0
 
     problems, checked = [], 0
-    for name in sorted(os.listdir(RECORDS)):
+    for name, path in record_files():
         # ⚠️ Not every file here is a wave record. The index, the
         # pending-decision list and the defect ledger live beside them: the
         # first answers to nothing, the second to check 25, the third is
@@ -116,9 +132,17 @@ def main():
         # change request rather than by a folder of units.
         # backlog-plan-2026-10-04.md is the sixteenth: the plan that orders the
         # open defect rows into waves and lanes, keyed by row id.
-        # project-plan.md is the seventeenth: how to read project-plan.json,
-        # the plan as a GRS JSON schedule, both overwritten every round
-        # (JDG-2123); check 79 holds the pair, not this check.
+        # project-plan.md was the seventeenth: how to read project-plan.json,
+        # the plan as a GRS JSON schedule (JDG-2123). Both files moved on
+        # 2026-10-31 to plan/ as gr-scheduler-plan.json and .md; check 79
+        # holds the pair there, not this check.
+        # relay-address-incident-report-2026-10-22.md is the eighteenth: the
+        # report on the first-time AI that could not give the relay's page
+        # address (JDG-3024, CR-823), keyed by root cause rather than by a
+        # folder of units.
+        # ⭐ Since JDG-2972 the finished records -- the report, the three
+        # refactor files and the two plans above, and the wave records W4 and
+        # W5 -- sit in history/, whose README.md is that folder's index.
         if not name.endswith('.md') or name in (
             'README.md', 'pending-decisions.md', 'defects.md', 'handoff.md',
             'fixed-defects.md', 'rulings.md', 'changelog.md', 'magic-numbers.md',
@@ -130,10 +154,9 @@ def main():
             'test-inventory.md',
             'cr-plan-2026-09-26.md',
             'backlog-plan-2026-10-04.md',
-            'project-plan.md'
+            'relay-address-incident-report-2026-10-22.md'
         ):
             continue
-        path = os.path.join(RECORDS, name)
         body = io.open(path, encoding='utf-8').read()
         found = TARGET.search(body)
         if not found:

@@ -16,7 +16,7 @@
 
 ### PoC も解いていなかった
 
-`previous-project-result/08-poc/poc-integrated.html` の逐語:
+`studies/08-poc/poc-integrated.html` の逐語:
 
 ```js
 var MEDIAN_DURATION = { 1: 240, 2: 80, 3: 27, 4: 13, 5: 6 };                        // :1201

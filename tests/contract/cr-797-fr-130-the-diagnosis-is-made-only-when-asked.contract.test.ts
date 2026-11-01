@@ -71,6 +71,7 @@ describe('CR-797 -- the clauses this file is driven by', () => {
 
 // see T-315
 // WHY: SELF depends on itself (DG-1); LATE is not started after its start (DG-2); PARENT is its ancestor (DG-3); PLAIN and OTHER have no state.
+// WHY: SELF starts before the status date; a task not begun that starts after it is never drawn with DG-1 or DG-2 (FR-133).
 const SELF = 40
 const PARENT = 20
 const LATE = 21
@@ -88,7 +89,7 @@ const span = (uid: number, from: string, to: string, extra: Partial<TaskSpec> = 
 function seeded(): Document {
   const made = documentOf(
     [
-      span(SELF, '05-03', '05-04', { after: [[SELF, FS]], name: 'Self' }),
+      span(SELF, '04-19', '04-20', { after: [[SELF, FS]], name: 'Self' }),
       span(PARENT, '04-05', '04-09', { name: 'Parent' }),
       span(LATE, '04-05', '04-09', { parent: PARENT, name: 'Late child' }),
       span(PLAIN, '06-07', '06-11', { name: 'Plain' }),
