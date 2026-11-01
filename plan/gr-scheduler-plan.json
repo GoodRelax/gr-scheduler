@@ -14,7 +14,7 @@
       "creationDate": "2026-10-31T08:50:00",
       "revision": 11,
       "startDate": "2026-10-17T05:30:00",
-      "statusDate": "2026-10-31T23:10:00",
+      "statusDate": "2026-11-01T15:49:00",
       "minutesPerDay": 1440,
       "minutesPerWeek": 10080,
       "daysPerMonth": 30,
@@ -24,7 +24,7 @@
       "defaultFinishTime": "23:59:00",
       "themeHue": 214,
       "parentTaskProgressToleranceDays": 1,
-      "uidHighWaterMark": 381,
+      "uidHighWaterMark": 382,
       "importSequence": 0,
       "carry": {},
       "carryElements": [],
@@ -6556,19 +6556,19 @@
         "uid": 324,
         "parentTaskUid": null,
         "wbsOrder": 239,
-        "name": "🌖 CR-850(基準日線を 15 分に)と CR-858(落とした GRS JSON は選択なしで開く)の急ぎの出荷をオーナーが実物で触る",
+        "name": "🌕 CR-850(基準日線を 15 分に)と CR-858(落とした GRS JSON は選択なしで開く)の急ぎの出荷をオーナーが実物で触る",
         "start": "2026-11-01T10:00:00",
-        "finish": "2026-11-01T11:00:00",
+        "finish": "2026-11-01T12:00:00",
         "milestone": false,
         "deadline": null,
-        "notes": "オーナーの注文（BOSSBOSS 経由、2026-10-31）: CR-850（基準日線・カーソル・掴みを 15 分に）の急ぎの出荷。「実装は命名の後」の例外にした。SUB baseline-15min（Opus 5.5・high）で、用語集と並行に今から動く。段（規則 7）: GQA → 仕様とテスト仕様 → 実装と自動試験 → Gherkin の確かめ（別の SUB）→ オーナーの現場の試験 → 出荷（調整役）。見積は 288 の 30 分と、305〜315 前後の同種の仕事（230・231）からの置き。 段 5（現場の試験）。オーナーの番。 16:18: 見積（調整役 16:16）: オーナーの現場の試験は 20:00〜21:00 ごろ。GT-2 の後。 16:28: 置き直し（1.5 時間前へ）。 16:35: 置き直し: オーナーの現場の試験は PR を開いた後（調整役 16:32）。 16:40: 置き直し: オーナーの現場の試験は PR を開いた後。 16:45: 置き直し（329 が 16:42 に済んだ）: 19:15〜20:15。 16:48: 置き直し（GT-2 が 16:48 に始まった）: 19:03〜20:03。 17:10: 置き直し（GT-2 が落ちた）: 20:25〜21:25。 18:06: 置き直し（GT-2 が試験 1 件で止まった）: 20:03〜21:03。 18:24: 置き直し: CR-850 と CR-858 を一緒に現場で試す。日曜 09:00 から（オーナーの休日の時間帯の頭）。 21:06: 次はオーナーの実地の試験（11-01 09:00）。オーナーの待ちは事実として置く。 23:10: オーナーの裁定（HGQA2、23:09、BOSSBOSS 経由）: 11-01（日）の朝にオーナーが B を見る時間は 10:00〜12:00。オーナーの時間の都合なので、遅れでなく事実として 10:00〜11:00 に置き直した。",
+        "notes": "オーナーの注文（BOSSBOSS 経由、2026-10-31）: CR-850（基準日線・カーソル・掴みを 15 分に）の急ぎの出荷。「実装は命名の後」の例外にした。SUB baseline-15min（Opus 5.5・high）で、用語集と並行に今から動く。段（規則 7）: GQA → 仕様とテスト仕様 → 実装と自動試験 → Gherkin の確かめ（別の SUB）→ オーナーの現場の試験 → 出荷（調整役）。見積は 288 の 30 分と、305〜315 前後の同種の仕事（230・231）からの置き。 段 5（現場の試験）。オーナーの番。 16:18: 見積（調整役 16:16）: オーナーの現場の試験は 20:00〜21:00 ごろ。GT-2 の後。 16:28: 置き直し（1.5 時間前へ）。 16:35: 置き直し: オーナーの現場の試験は PR を開いた後（調整役 16:32）。 16:40: 置き直し: オーナーの現場の試験は PR を開いた後。 16:45: 置き直し（329 が 16:42 に済んだ）: 19:15〜20:15。 16:48: 置き直し（GT-2 が 16:48 に始まった）: 19:03〜20:03。 17:10: 置き直し（GT-2 が落ちた）: 20:25〜21:25。 18:06: 置き直し（GT-2 が試験 1 件で止まった）: 20:03〜21:03。 18:24: 置き直し: CR-850 と CR-858 を一緒に現場で試す。日曜 09:00 から（オーナーの休日の時間帯の頭）。 21:06: 次はオーナーの実地の試験（11-01 09:00）。オーナーの待ちは事実として置く。 23:10: オーナーの裁定（HGQA2、23:09、BOSSBOSS 経由）: 11-01（日）の朝にオーナーが B を見る時間は 10:00〜12:00。オーナーの時間の都合なので、遅れでなく事実として 10:00〜11:00 に置き直した。 11-01 15:49: 済み。オーナーが実物で触った。始まりはオーナーの時間（10:00）、終わりは合流（12:07）の前の推定。結果の細目の一言は無い。",
         "calendarUid": null,
-        "actualStart": null,
+        "actualStart": "2026-11-01T10:00:00",
         "stop": null,
-        "actualFinish": null,
+        "actualFinish": "2026-11-01T12:00:00",
         "resume": null,
         "resumeValid": null,
-        "percentComplete": 0,
+        "percentComplete": 100,
         "fadeInDays": null,
         "fadeOutDays": null,
         "dependencies": [
@@ -6684,19 +6684,19 @@
         "uid": 326,
         "parentTaskUid": null,
         "wbsOrder": 242,
-        "name": "🌖 CR-850(基準日線・カーソル・掴みを 15 分に)の急ぎの出荷: PR を見て main へ合流する",
-        "start": "2026-11-01T11:00:00",
-        "finish": "2026-11-01T12:00:00",
+        "name": "🌕 CR-850(基準日線・カーソル・掴みを 15 分に)の急ぎの出荷: PR を見て main へ合流する",
+        "start": "2026-11-01T12:00:00",
+        "finish": "2026-11-01T12:07:00",
         "milestone": false,
         "deadline": null,
-        "notes": "オーナーの注文（BOSSBOSS 経由、2026-10-31）: CR-850（基準日線・カーソル・掴みを 15 分に）の急ぎの出荷。「実装は命名の後」の例外にした。SUB baseline-15min（Opus 5.5・high）で、用語集と並行に今から動く。段（規則 7）: GQA → 仕様とテスト仕様 → 実装と自動試験 → Gherkin の確かめ（別の SUB）→ オーナーの現場の試験 → 出荷（調整役）。見積は 288 の 30 分と、305〜315 前後の同種の仕事（230・231）からの置き。 段 6（出荷）のオーナーの合流。見積は 231 と同じ 1 時間。 16:18: 置き直し: 出荷の PR を見て合流する。オーナーの時間帯は休日 23:00 まで。 16:28: 置き直し（1.5 時間前へ）。 16:35: 置き直し: PR を見て main へ合流するのは現場の試験の後。 16:40: 置き直し: オーナーが PR を見て main へ合流する。オーナーの休日の時間帯は 23:00 まで。 16:45: 置き直し（329 が 16:42 に済んだ）: 20:15〜21:15。 16:48: 置き直し（GT-2 が 16:48 に始まった）: 20:03〜21:03。 17:10: 置き直し（GT-2 が落ちた）: 21:25〜22:25。 18:06: 置き直し（GT-2 が試験 1 件で止まった）: 21:03〜22:03。 18:24: 置き直し: オーナーが PR を見て main へ合流する（CR-850 と CR-858 を一緒に）。 23:10: オーナーの裁定（HGQA2、23:09、BOSSBOSS 経由）: 11-01（日）の朝にオーナーが B を見る時間は 10:00〜12:00。オーナーの時間の都合なので、遅れでなく事実として 11:00〜12:00 に置き直した。",
+        "notes": "オーナーの注文（BOSSBOSS 経由、2026-10-31）: CR-850（基準日線・カーソル・掴みを 15 分に）の急ぎの出荷。「実装は命名の後」の例外にした。SUB baseline-15min（Opus 5.5・high）で、用語集と並行に今から動く。段（規則 7）: GQA → 仕様とテスト仕様 → 実装と自動試験 → Gherkin の確かめ（別の SUB）→ オーナーの現場の試験 → 出荷（調整役）。見積は 288 の 30 分と、305〜315 前後の同種の仕事（230・231）からの置き。 段 6（出荷）のオーナーの合流。見積は 231 と同じ 1 時間。 16:18: 置き直し: 出荷の PR を見て合流する。オーナーの時間帯は休日 23:00 まで。 16:28: 置き直し（1.5 時間前へ）。 16:35: 置き直し: PR を見て main へ合流するのは現場の試験の後。 16:40: 置き直し: オーナーが PR を見て main へ合流する。オーナーの休日の時間帯は 23:00 まで。 16:45: 置き直し（329 が 16:42 に済んだ）: 20:15〜21:15。 16:48: 置き直し（GT-2 が 16:48 に始まった）: 20:03〜21:03。 17:10: 置き直し（GT-2 が落ちた）: 21:25〜22:25。 18:06: 置き直し（GT-2 が試験 1 件で止まった）: 21:03〜22:03。 18:24: 置き直し: オーナーが PR を見て main へ合流する（CR-850 と CR-858 を一緒に）。 23:10: オーナーの裁定（HGQA2、23:09、BOSSBOSS 経由）: 11-01（日）の朝にオーナーが B を見る時間は 10:00〜12:00。オーナーの時間の都合なので、遅れでなく事実として 11:00〜12:00 に置き直した。 11-01 15:49: 済み。オーナーが PR #5 を 12:07 に合流した（origin/main = 17ce34e9e）。始まりは推定。",
         "calendarUid": null,
-        "actualStart": null,
+        "actualStart": "2026-11-01T12:00:00",
         "stop": null,
-        "actualFinish": null,
+        "actualFinish": "2026-11-01T12:07:00",
         "resume": null,
         "resumeValid": null,
-        "percentComplete": 0,
+        "percentComplete": 100,
         "fadeInDays": null,
         "fadeOutDays": null,
         "dependencies": [
@@ -7209,12 +7209,44 @@
         "uid": 381,
         "parentTaskUid": null,
         "wbsOrder": 258,
-        "name": "🌑 CR-858(落とした GRS JSON は選択なしで開く)の出荷の後: BOSS の GQA と CR-858 の GQA を BGQA(チーム ID B の GQA)にまとめる(調整役)",
-        "start": "2026-11-01T12:00:00",
-        "finish": "2026-11-01T12:30:00",
+        "name": "🌒 CR-858(落とした GRS JSON は選択なしで開く)の出荷の後: BOSS の GQA と CR-858 の GQA を BGQA(チーム ID B の GQA)にまとめる(調整役)",
+        "start": "2026-11-01T15:49:00",
+        "finish": "2026-11-01T16:19:00",
         "milestone": false,
         "deadline": null,
-        "notes": "オーナーの通達（BOSSBOSS 経由、2026-10-31）: GQA の ID は「チームの ID + GQA」。B チームの GQA は 1 つのファイル BGQA（分野ごとに章）、用語集だけ BGQA2。ファイルの 1 行目は ID だけ。BOSS が出荷の後に、BOSS の GQA と CR-858 の GQA を BGQA にまとめる。見積は PMO の置き（30 分）。326（オーナーの合流）の後に置いた。調整役のモデルと努力: Opus 5.5・high。 21:25: 通達（BOSSBOSS 10-31 21:30）: チーム ID は B のまま。GQA のファイル名は goodrelax-qa-<小文字の ID>[<番号>]-<topic>.md。B のまとめ先は goodrelax-qa-b-gr-scheduler.md（BGQA）、用語集は goodrelax-qa-b2-glossary.md（BGQA2）。 23:10: オーナーの裁定（HGQA2、23:09、BOSSBOSS 経由）: 11-01（日）の朝にオーナーが B を見る時間は 10:00〜12:00。オーナーの時間の都合なので、遅れでなく事実として 12:00〜12:30 に置き直した。",
+        "notes": "オーナーの通達（BOSSBOSS 経由、2026-10-31）: GQA の ID は「チームの ID + GQA」。B チームの GQA は 1 つのファイル BGQA（分野ごとに章）、用語集だけ BGQA2。ファイルの 1 行目は ID だけ。BOSS が出荷の後に、BOSS の GQA と CR-858 の GQA を BGQA にまとめる。見積は PMO の置き（30 分）。326（オーナーの合流）の後に置いた。調整役のモデルと努力: Opus 5.5・high。 21:25: 通達（BOSSBOSS 10-31 21:30）: チーム ID は B のまま。GQA のファイル名は goodrelax-qa-<小文字の ID>[<番号>]-<topic>.md。B のまとめ先は goodrelax-qa-b-gr-scheduler.md（BGQA）、用語集は goodrelax-qa-b2-glossary.md（BGQA2）。 23:10: オーナーの裁定（HGQA2、23:09、BOSSBOSS 経由）: 11-01（日）の朝にオーナーが B を見る時間は 10:00〜12:00。オーナーの時間の都合なので、遅れでなく事実として 12:00〜12:30 に置き直した。 11-01 15:49: 開始。オーナーの PR 合流が 12:07 に済み、[gr-scheduler の BOSS](#local_f4562771-ab1c-49f4-93e6-c6434ba15c36) がこれから始める。オーナーの時間の都合の 12:00 は過ぎたので、15:49〜16:19 に置き直した（PMO の置き）。",
+        "calendarUid": null,
+        "actualStart": "2026-11-01T15:49:00",
+        "stop": null,
+        "actualFinish": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 326,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 382,
+        "parentTaskUid": null,
+        "wbsOrder": 259,
+        "name": "🌖 CR-850・CR-858 の出荷: オーナーがタグ Alpha-20261031T105821Z を打つ",
+        "start": "2026-11-01T15:49:00",
+        "finish": "2026-11-01T16:04:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "11-01 15:49: タグ Alpha-20261031T105821Z はまだ無い。オーナーが打つ（BOSS の一言）。オーナー待ちの事実として置く。見積は PMO の置き（15 分）。",
         "calendarUid": null,
         "actualStart": null,
         "stop": null,
@@ -8802,6 +8834,10 @@
       {
         "taskUid": 381,
         "taskGroupId": "360eebfe-b421-54f7-ae66-8f611ac2263d"
+      },
+      {
+        "taskUid": 382,
+        "taskGroupId": "f2b5a632-0e6d-56dd-acc2-4e8c5d72d9fc"
       }
     ],
     "taskVisuals": [
@@ -10868,6 +10904,14 @@
         "fillColor": "purple",
         "strokeColor": null,
         "strokeWidthPx": null
+      },
+      {
+        "taskUid": 382,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": "diamond",
+        "fillColor": "orange",
+        "strokeColor": null,
+        "strokeWidthPx": null
       }
     ],
     "commentBoxes": [
@@ -12351,10 +12395,10 @@
     "zoomY": 1.099862517185352
   },
   "documentStamp": {
-    "scheduleUpdatedAt": "2026-10-31T14:10:00Z",
+    "scheduleUpdatedAt": "2026-11-01T06:49:00Z",
     "lastEditedBy": "PMO child session",
     "settingsUpdatedAt": "2026-10-20T20:24:42Z",
-    "fileSavedAt": "2026-10-31T14:10:00Z"
+    "fileSavedAt": "2026-11-01T06:49:00Z"
   },
   "changeLog": [
     {
@@ -12686,6 +12730,12 @@
       "editedBy": "PMO child session",
       "explanation": "Fact at 23:10 JST: by the owner ruling (HGQA2, 23:09) the owner looks at B on Sunday 11-01 from 10:00 to 12:00, so 324 moves 09:00 -> 10:00 (10:00-11:00), 326 to 11:00-12:00 and 381 to 12:00-12:30. An owner time constraint, not a delay. N1 and the provisional beta unchanged.",
       "changedAt": "2026-10-31T14:10:00Z"
+    },
+    {
+      "ordinal": 56,
+      "editedBy": "PMO child session",
+      "explanation": "Fact at 11-01 15:49 JST (machine clock): the owner merged PR #5 at 12:07 (origin/main 17ce34e9e); 324 and 326 done (start/end are estimates around the owner window and the merge time); 381 started 15:49 by the BOSS and re-placed to 15:49-16:19; new owner-wait task 382 (the owner makes the tag Alpha-20261031T105821Z, not yet made). N1 and the provisional beta unchanged.",
+      "changedAt": "2026-11-01T06:49:00Z"
     }
   ]
 }
