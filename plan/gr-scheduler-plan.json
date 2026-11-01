@@ -7246,7 +7246,7 @@
         "finish": "2026-11-01T16:04:00",
         "milestone": false,
         "deadline": null,
-        "notes": "11-01 15:49: タグ Alpha-20261031T105821Z はまだ無い。オーナーが打つ（BOSS の一言）。オーナー待ちの事実として置く。見積は PMO の置き（15 分）。",
+        "notes": "11-01 15:49: タグ Alpha-20261031T105821Z はまだ無い。オーナーが打つ（BOSS の一言）。オーナー待ちの事実として置く。見積は PMO の置き（15 分）。 名に括弧つきの題を足した（検査 79）。",
         "calendarUid": null,
         "actualStart": null,
         "stop": null,
