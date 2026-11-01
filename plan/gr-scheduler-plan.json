@@ -7241,7 +7241,7 @@
         "uid": 382,
         "parentTaskUid": null,
         "wbsOrder": 259,
-        "name": "🌖 CR-850・CR-858 の出荷: オーナーがタグ Alpha-20261031T105821Z を打つ",
+        "name": "🌖 CR-850(基準日線を 15 分に)と CR-858(落とした GRS JSON は選択なしで開く)の出荷: オーナーがタグ Alpha-20261031T105821Z を打つ",
         "start": "2026-11-01T15:49:00",
         "finish": "2026-11-01T16:04:00",
         "milestone": false,
