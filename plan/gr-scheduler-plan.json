@@ -14,7 +14,7 @@
       "creationDate": "2026-10-31T08:50:00",
       "revision": 11,
       "startDate": "2026-10-17T05:30:00",
-      "statusDate": "2026-11-01T15:49:00",
+      "statusDate": "2026-11-01T15:52:00",
       "minutesPerDay": 1440,
       "minutesPerWeek": 10080,
       "daysPerMonth": 30,
@@ -7209,19 +7209,19 @@
         "uid": 381,
         "parentTaskUid": null,
         "wbsOrder": 258,
-        "name": "🌒 CR-858(落とした GRS JSON は選択なしで開く)の出荷の後: BOSS の GQA と CR-858 の GQA を BGQA(チーム ID B の GQA)にまとめる(調整役)",
+        "name": "🌕 CR-858(落とした GRS JSON は選択なしで開く)の出荷の後: BOSS の GQA と CR-858 の GQA を BGQA(チーム ID B の GQA)にまとめる(調整役)",
         "start": "2026-11-01T15:49:00",
-        "finish": "2026-11-01T16:19:00",
+        "finish": "2026-11-01T15:52:00",
         "milestone": false,
         "deadline": null,
-        "notes": "オーナーの通達（BOSSBOSS 経由、2026-10-31）: GQA の ID は「チームの ID + GQA」。B チームの GQA は 1 つのファイル BGQA（分野ごとに章）、用語集だけ BGQA2。ファイルの 1 行目は ID だけ。BOSS が出荷の後に、BOSS の GQA と CR-858 の GQA を BGQA にまとめる。見積は PMO の置き（30 分）。326（オーナーの合流）の後に置いた。調整役のモデルと努力: Opus 5.5・high。 21:25: 通達（BOSSBOSS 10-31 21:30）: チーム ID は B のまま。GQA のファイル名は goodrelax-qa-<小文字の ID>[<番号>]-<topic>.md。B のまとめ先は goodrelax-qa-b-gr-scheduler.md（BGQA）、用語集は goodrelax-qa-b2-glossary.md（BGQA2）。 23:10: オーナーの裁定（HGQA2、23:09、BOSSBOSS 経由）: 11-01（日）の朝にオーナーが B を見る時間は 10:00〜12:00。オーナーの時間の都合なので、遅れでなく事実として 12:00〜12:30 に置き直した。 11-01 15:49: 開始。オーナーの PR 合流が 12:07 に済み、[gr-scheduler の BOSS](#local_f4562771-ab1c-49f4-93e6-c6434ba15c36) がこれから始める。オーナーの時間の都合の 12:00 は過ぎたので、15:49〜16:19 に置き直した（PMO の置き）。",
+        "notes": "オーナーの通達（BOSSBOSS 経由、2026-10-31）: GQA の ID は「チームの ID + GQA」。B チームの GQA は 1 つのファイル BGQA（分野ごとに章）、用語集だけ BGQA2。ファイルの 1 行目は ID だけ。BOSS が出荷の後に、BOSS の GQA と CR-858 の GQA を BGQA にまとめる。見積は PMO の置き（30 分）。326（オーナーの合流）の後に置いた。調整役のモデルと努力: Opus 5.5・high。 21:25: 通達（BOSSBOSS 10-31 21:30）: チーム ID は B のまま。GQA のファイル名は goodrelax-qa-<小文字の ID>[<番号>]-<topic>.md。B のまとめ先は goodrelax-qa-b-gr-scheduler.md（BGQA）、用語集は goodrelax-qa-b2-glossary.md（BGQA2）。 23:10: オーナーの裁定（HGQA2、23:09、BOSSBOSS 経由）: 11-01（日）の朝にオーナーが B を見る時間は 10:00〜12:00。オーナーの時間の都合なので、遅れでなく事実として 12:00〜12:30 に置き直した。 11-01 15:49: 開始。オーナーの PR 合流が 12:07 に済み、[gr-scheduler の BOSS](#local_f4562771-ab1c-49f4-93e6-c6434ba15c36) がこれから始める。オーナーの時間の都合の 12:00 は過ぎたので、15:49〜16:19 に置き直した（PMO の置き）。 11-01 15:52: 済み（調整役の一言の到着時刻）。新しい GQA は temp/gqa/goodrelax-qa-b-gr-scheduler.md（git に入らない）。道は BOSSBOSS に送った。",
         "calendarUid": null,
         "actualStart": "2026-11-01T15:49:00",
         "stop": null,
-        "actualFinish": null,
+        "actualFinish": "2026-11-01T15:52:00",
         "resume": null,
         "resumeValid": null,
-        "percentComplete": 0,
+        "percentComplete": 100,
         "fadeInDays": null,
         "fadeOutDays": null,
         "dependencies": [
@@ -7246,7 +7246,7 @@
         "finish": "2026-11-01T16:04:00",
         "milestone": false,
         "deadline": null,
-        "notes": "11-01 15:49: タグ Alpha-20261031T105821Z はまだ無い。オーナーが打つ（BOSS の一言）。オーナー待ちの事実として置く。見積は PMO の置き（15 分）。 名に括弧つきの題を足した（検査 79）。",
+        "notes": "11-01 15:49: タグ Alpha-20261031T105821Z はまだ無い。オーナーが打つ（BOSS の一言）。オーナー待ちの事実として置く。見積は PMO の置き（15 分）。 名に括弧つきの題を足した（検査 79）。 15:52: オーナー待ちのまま。",
         "calendarUid": null,
         "actualStart": null,
         "stop": null,
@@ -12395,10 +12395,10 @@
     "zoomY": 1.099862517185352
   },
   "documentStamp": {
-    "scheduleUpdatedAt": "2026-11-01T06:49:00Z",
+    "scheduleUpdatedAt": "2026-11-01T06:52:00Z",
     "lastEditedBy": "PMO child session",
     "settingsUpdatedAt": "2026-10-20T20:24:42Z",
-    "fileSavedAt": "2026-11-01T06:49:00Z"
+    "fileSavedAt": "2026-11-01T06:52:00Z"
   },
   "changeLog": [
     {
@@ -12736,6 +12736,12 @@
       "editedBy": "PMO child session",
       "explanation": "Fact at 11-01 15:49 JST (machine clock): the owner merged PR #5 at 12:07 (origin/main 17ce34e9e); 324 and 326 done (start/end are estimates around the owner window and the merge time); 381 started 15:49 by the BOSS and re-placed to 15:49-16:19; new owner-wait task 382 (the owner makes the tag Alpha-20261031T105821Z, not yet made). N1 and the provisional beta unchanged.",
       "changedAt": "2026-11-01T06:49:00Z"
+    },
+    {
+      "ordinal": 57,
+      "editedBy": "PMO child session",
+      "explanation": "Fact at 11-01 15:52 JST: 381 done (the BGQA is temp/gqa/goodrelax-qa-b-gr-scheduler.md, not in git); 382 (owner makes the tag) stays an owner wait. No date moved; N1 and the provisional beta unchanged.",
+      "changedAt": "2026-11-01T06:52:00Z"
     }
   ]
 }
