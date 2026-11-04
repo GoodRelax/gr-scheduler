@@ -2,7 +2,7 @@
 
 使い方: 下のコードブロックをそのまま貼り、その後ろに 2 つのファイルの中身を貼る（または添付する）。
 
-1. `studies/76-grs-json-beta-shape/terms/13-glossary-gqa.md`（決まったことと問 1 の案）
+1. `studies/76-grs-json-beta-shape/terms/goodrelax-qa-b2-glossary.md`（決まったことと問 1 の案）
 2. `studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.schema.json`（辞書のスキーマの案）
 
 ```text
