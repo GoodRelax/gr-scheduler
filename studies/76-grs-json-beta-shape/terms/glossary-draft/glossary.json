@@ -1,7 +1,7 @@
 {
  "$schema": "./glossary.schema.json",
  "$comment": [
-  "FIRST DRAFT (2026-10-28) of the names dictionary, built from the sources named in 13-glossary-gqa.md.",
+  "FIRST DRAFT (2026-10-28) of the names dictionary, built from the sources named in goodrelax-qa-b2-glossary.md (named 13-glossary-gqa.md until 2026-11-01).",
   "Groups follow the construction order: a definition may use only names defined earlier.",
   "English (definition.en) is primary; Japanese (definition.ja) is its translation.",
   "Check it with: python check_glossary.py"
