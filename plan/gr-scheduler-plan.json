@@ -14,7 +14,7 @@
       "creationDate": "2026-10-31T08:50:00",
       "revision": 11,
       "startDate": "2026-10-17T05:30:00",
-      "statusDate": "2026-11-05T07:23:00",
+      "statusDate": "2026-11-08T07:42:00",
       "minutesPerDay": 1440,
       "minutesPerWeek": 10080,
       "daysPerMonth": 30,
@@ -24,7 +24,7 @@
       "defaultFinishTime": "23:59:00",
       "themeHue": 214,
       "parentTaskProgressToleranceDays": 1,
-      "uidHighWaterMark": 386,
+      "uidHighWaterMark": 396,
       "importSequence": 0,
       "carry": {},
       "carryElements": [],
@@ -7459,6 +7459,341 @@
         "dependencies": [],
         "carry": {},
         "carryElements": []
+      },
+      {
+        "uid": 387,
+        "parentTaskUid": null,
+        "wbsOrder": 264,
+        "name": "🌕 新レビュー基準(原本 0db4e95)の適用 段 1: 窓を開き、全 SUB を止める(調整役)",
+        "start": "2026-11-08T07:27:00",
+        "finish": "2026-11-08T07:42:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "共有メモ new-review-standard-plan-b-2026-11-08.md の「順序」 の段 1。[gr-scheduler の BOSS](#local_f4562771-ab1c-49f4-93e6-c6434ba15c36) が窓を開いた（11-08）。窓の間、PMO は計画のコミットを枝だけにし、予定の引き直しは窓の後の 1 回にする。",
+        "calendarUid": null,
+        "actualStart": "2026-11-08T07:27:00",
+        "stop": null,
+        "actualFinish": "2026-11-08T07:42:00",
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 100,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 388,
+        "parentTaskUid": null,
+        "wbsOrder": 265,
+        "name": "🌒 CR-859(純粋性の値の改名とチェッカー)の実装(新レビュー基準 段 2)",
+        "start": "2026-11-08T07:42:00",
+        "finish": "2026-11-08T10:42:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "共有メモ new-review-standard-plan-b-2026-11-08.md の「順序」 の段 2。SUB [CR-859: rename the purity values with their checkers](#local_03b311ba-cfd0-4aa7-a0e5-8cb86f5bca5d)（Opus 5.5・high）が 11-08 に始まった。1 コミットで区分「直す」の全部・読み手 6 か所・検査 94・仕様の変更履歴の 1 行を入れる。見積は共有メモの 2〜4 時間の中央。",
+        "calendarUid": null,
+        "actualStart": "2026-11-08T07:42:00",
+        "stop": null,
+        "actualFinish": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 387,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 389,
+        "parentTaskUid": null,
+        "wbsOrder": 266,
+        "name": "🌖 オーナーが OneDrive を止める(新レビュー基準 段 3 の GT-2 の間)",
+        "start": "2026-11-08T10:42:00",
+        "finish": "2026-11-08T11:12:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "オーナー待ちの事実として置く。見積は PMO の置き（30 分）。",
+        "calendarUid": null,
+        "actualStart": null,
+        "stop": null,
+        "actualFinish": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 388,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 390,
+        "parentTaskUid": null,
+        "wbsOrder": 267,
+        "name": "🌑 新レビュー基準 段 3: GT-2 を回して合格の行を読み、develop へ push する(調整役)",
+        "start": "2026-11-08T11:12:00",
+        "finish": "2026-11-08T12:42:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "共有メモ new-review-standard-plan-b-2026-11-08.md の「順序」 の段 3。見積は共有メモの 0.5〜1.5 時間の上限。",
+        "calendarUid": null,
+        "actualStart": null,
+        "stop": null,
+        "actualFinish": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 388,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          },
+          {
+            "predecessorUid": 389,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 391,
+        "parentTaskUid": null,
+        "wbsOrder": 268,
+        "name": "🌑 新レビュー基準 段 4: 窓を閉じ、止めた仕事を再開する(調整役)",
+        "start": "2026-11-08T12:42:00",
+        "finish": "2026-11-08T13:12:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "共有メモ new-review-standard-plan-b-2026-11-08.md の「順序」 の段 4。PMO は再開を記録し、窓の後の 1 回で予定を引き直す。",
+        "calendarUid": null,
+        "actualStart": null,
+        "stop": null,
+        "actualFinish": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 390,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 392,
+        "parentTaskUid": null,
+        "wbsOrder": 269,
+        "name": "🌑 新レビュー基準 段 5: 規則 07 を原本に追いつかせ、検査 92 を直す(SUB)",
+        "start": "2026-11-08T13:12:00",
+        "finish": "2026-11-08T16:12:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "共有メモ new-review-standard-plan-b-2026-11-08.md の「順序」 の段 5。Opus 5.5・high。見積は 2〜4 時間の中央。GT-2 は要らず privacy の数だけ確かめて push する。",
+        "calendarUid": null,
+        "actualStart": null,
+        "stop": null,
+        "actualFinish": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 391,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 393,
+        "parentTaskUid": null,
+        "wbsOrder": 270,
+        "name": "🌑 新レビュー基準 段 6: コメントの規則の lint(検査 55 の形の表と新しい 3 項目)を作る(SUB)",
+        "start": "2026-11-08T13:12:00",
+        "finish": "2026-11-08T21:12:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "共有メモ new-review-standard-plan-b-2026-11-08.md の「順序」 の段 6。Opus 5.5・high。見積は 4〜8 時間の上限。",
+        "calendarUid": null,
+        "actualStart": null,
+        "stop": null,
+        "actualFinish": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 391,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 394,
+        "parentTaskUid": null,
+        "wbsOrder": 271,
+        "name": "🌑 新レビュー基準 段 6: see と WHY のコメントを字句解析で機械的に移す(SUB)",
+        "start": "2026-11-08T13:12:00",
+        "finish": "2026-11-08T16:12:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "共有メモ new-review-standard-plan-b-2026-11-08.md の「順序」 の段 6。Sonnet 5.5・medium。見積は 2〜4 時間の中央。",
+        "calendarUid": null,
+        "actualStart": null,
+        "stop": null,
+        "actualFinish": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 391,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 395,
+        "parentTaskUid": null,
+        "wbsOrder": 272,
+        "name": "🌑 新レビュー基準 段 6: src のコメントを判定して移す(SUB 2〜3 人)",
+        "start": "2026-11-08T21:12:00",
+        "finish": "2026-11-10T21:12:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "共有メモ new-review-standard-plan-b-2026-11-08.md の「順序」 の段 6。Opus 5.5・high。見積は共有メモの 1〜3.5 日の 2 日。対象 1,777 件。",
+        "calendarUid": null,
+        "actualStart": null,
+        "stop": null,
+        "actualFinish": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 393,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          },
+          {
+            "predecessorUid": 394,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 396,
+        "parentTaskUid": null,
+        "wbsOrder": 273,
+        "name": "🌑 新レビュー基準 段 7: ステートマシンのレビューと語の直し(SUB 2 人。用語集の後)",
+        "start": "2026-11-24T21:12:00",
+        "finish": "2026-11-25T03:12:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "共有メモ new-review-standard-plan-b-2026-11-08.md の「順序」 の段 7。Opus 5.5・high と Sonnet 5.5・medium。見積は 4〜8 時間の中央。用語集の後に置く。",
+        "calendarUid": null,
+        "actualStart": null,
+        "stop": null,
+        "actualFinish": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 395,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          },
+          {
+            "predecessorUid": 316,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
       }
     ],
     "resources": [],
@@ -9044,6 +9379,46 @@
       },
       {
         "taskUid": 386,
+        "taskGroupId": "46ae7c7c-6afc-57bf-857f-3bc66dcebab7"
+      },
+      {
+        "taskUid": 387,
+        "taskGroupId": "46ae7c7c-6afc-57bf-857f-3bc66dcebab7"
+      },
+      {
+        "taskUid": 388,
+        "taskGroupId": "46ae7c7c-6afc-57bf-857f-3bc66dcebab7"
+      },
+      {
+        "taskUid": 389,
+        "taskGroupId": "f2b5a632-0e6d-56dd-acc2-4e8c5d72d9fc"
+      },
+      {
+        "taskUid": 390,
+        "taskGroupId": "46ae7c7c-6afc-57bf-857f-3bc66dcebab7"
+      },
+      {
+        "taskUid": 391,
+        "taskGroupId": "46ae7c7c-6afc-57bf-857f-3bc66dcebab7"
+      },
+      {
+        "taskUid": 392,
+        "taskGroupId": "46ae7c7c-6afc-57bf-857f-3bc66dcebab7"
+      },
+      {
+        "taskUid": 393,
+        "taskGroupId": "46ae7c7c-6afc-57bf-857f-3bc66dcebab7"
+      },
+      {
+        "taskUid": 394,
+        "taskGroupId": "46ae7c7c-6afc-57bf-857f-3bc66dcebab7"
+      },
+      {
+        "taskUid": 395,
+        "taskGroupId": "46ae7c7c-6afc-57bf-857f-3bc66dcebab7"
+      },
+      {
+        "taskUid": 396,
         "taskGroupId": "46ae7c7c-6afc-57bf-857f-3bc66dcebab7"
       }
     ],
@@ -11151,6 +11526,86 @@
         "fillColor": "blue",
         "strokeColor": null,
         "strokeWidthPx": null
+      },
+      {
+        "taskUid": 387,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": "diamond",
+        "fillColor": "blue",
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 388,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": "diamond",
+        "fillColor": "blue",
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 389,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": "diamond",
+        "fillColor": "orange",
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 390,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": "diamond",
+        "fillColor": "blue",
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 391,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": "diamond",
+        "fillColor": "blue",
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 392,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": "diamond",
+        "fillColor": "blue",
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 393,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": "diamond",
+        "fillColor": "blue",
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 394,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": "diamond",
+        "fillColor": "blue",
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 395,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": "diamond",
+        "fillColor": "blue",
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 396,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": "diamond",
+        "fillColor": "blue",
+        "strokeColor": null,
+        "strokeWidthPx": null
       }
     ],
     "commentBoxes": [
@@ -12634,10 +13089,10 @@
     "zoomY": 1.099862517185352
   },
   "documentStamp": {
-    "scheduleUpdatedAt": "2026-11-04T22:23:00Z",
+    "scheduleUpdatedAt": "2026-11-07T22:42:00Z",
     "lastEditedBy": "PMO child session",
     "settingsUpdatedAt": "2026-10-20T20:24:42Z",
-    "fileSavedAt": "2026-11-04T22:23:00Z"
+    "fileSavedAt": "2026-11-07T22:42:00Z"
   },
   "changeLog": [
     {
@@ -13029,6 +13484,12 @@
       "editedBy": "PMO child session",
       "explanation": "Fact at 11-05 07:23 JST: the owner said \"start both\"; SUB cr851-successor-10 (glossary, local_9dd165c3) and SUB review-std-neim-ndd (local_1965d53a, gr-sw-maker, GQA BGQA3) started; owner waits 384 and 385 done; new task 386 for the review-standards work (PMO estimate 2 h). No other date moved.",
       "changedAt": "2026-11-04T22:23:00Z"
+    },
+    {
+      "ordinal": 66,
+      "editedBy": "PMO child session",
+      "explanation": "Fact at 11-08 07:42 JST: the owner answered BGQA Q7 = c (nothing before the beta changes now; the owner speed is watched for a week) and Q8-16 (new review standard, applied); rule 06 got the debt-reducing rule (526d819f1, JDG-3590), T1 (weekly debt report) becomes a PMO task (form next round). The BOSS opened the application window and started SUB CR-859 (local_03b311ba). Added tasks 387-396 for stages 1-7 of the shared memo (estimates from its table; stage 7 after the glossary). Per the memo the existing plan is re-placed once after the window; commits stay on the branch during the window.",
+      "changedAt": "2026-11-07T22:42:00Z"
     }
   ]
 }
