@@ -14,7 +14,7 @@
       "creationDate": "2026-10-31T08:50:00",
       "revision": 11,
       "startDate": "2026-10-17T05:30:00",
-      "statusDate": "2026-11-08T07:42:00",
+      "statusDate": "2026-11-08T07:59:00",
       "minutesPerDay": 1440,
       "minutesPerWeek": 10080,
       "daysPerMonth": 30,
@@ -7488,13 +7488,13 @@
         "parentTaskUid": null,
         "wbsOrder": 265,
         "name": "🌒 CR-859(純粋性の値の改名とチェッカー)の実装(新レビュー基準 段 2)",
-        "start": "2026-11-08T07:42:00",
-        "finish": "2026-11-08T10:42:00",
+        "start": "2026-11-08T07:59:00",
+        "finish": "2026-11-08T10:59:00",
         "milestone": false,
         "deadline": null,
-        "notes": "共有メモ new-review-standard-plan-b-2026-11-08.md の「順序」 の段 2。SUB [CR-859: rename the purity values with their checkers](#local_03b311ba-cfd0-4aa7-a0e5-8cb86f5bca5d)（Opus 5.5・high）が 11-08 に始まった。1 コミットで区分「直す」の全部・読み手 6 か所・検査 94・仕様の変更履歴の 1 行を入れる。見積は共有メモの 2〜4 時間の中央。",
+        "notes": "共有メモ new-review-standard-plan-b-2026-11-08.md の「順序」 の段 2。SUB [CR-859: rename the purity values with their checkers](#local_03b311ba-cfd0-4aa7-a0e5-8cb86f5bca5d)（Opus 5.5・high）が 11-08 に始まった。1 コミットで区分「直す」の全部・読み手 6 か所・検査 94・仕様の変更履歴の 1 行を入れる。見積は共有メモの 2〜4 時間の中央。 07:59: 最初の SUB は作業木を作れずに失敗した。[CR-859: rename the purity values with their checkers](#local_2f3a71be-eeed-434f-ad89-5aa047a2aba1)（Opus 5.5・high）として起こし直した（段 2）。始まりを 07:59 に置き直した。root の古いファイル 53 パスは共有メモの stale-root-2026-11-08 へ移した（消していない）。",
         "calendarUid": null,
-        "actualStart": "2026-11-08T07:42:00",
+        "actualStart": "2026-11-08T07:59:00",
         "stop": null,
         "actualFinish": null,
         "resume": null,
@@ -7520,11 +7520,11 @@
         "parentTaskUid": null,
         "wbsOrder": 266,
         "name": "🌖 オーナーが OneDrive を止める(新レビュー基準 段 3 の GT-2 の間)",
-        "start": "2026-11-08T10:42:00",
-        "finish": "2026-11-08T11:12:00",
+        "start": "2026-11-08T07:59:00",
+        "finish": "2026-11-08T11:29:00",
         "milestone": false,
         "deadline": null,
-        "notes": "オーナー待ちの事実として置く。見積は PMO の置き（30 分）。",
+        "notes": "オーナー待ちの事実として置く。見積は PMO の置き（30 分）。 07:59: オーナーの指示で BOSS が OneDrive を起動した。389 は GT-2 の直前にもう一度止める形に戻した（オーナー待ちの事実）。GT-2 と重なる他チームの試験の予定は無い（BOSSBOSS の返事）。",
         "calendarUid": null,
         "actualStart": null,
         "stop": null,
@@ -7552,8 +7552,8 @@
         "parentTaskUid": null,
         "wbsOrder": 267,
         "name": "🌑 新レビュー基準 段 3: GT-2 を回して合格の行を読み、develop へ push する(調整役)",
-        "start": "2026-11-08T11:12:00",
-        "finish": "2026-11-08T12:42:00",
+        "start": "2026-11-08T11:29:00",
+        "finish": "2026-11-08T12:59:00",
         "milestone": false,
         "deadline": null,
         "notes": "共有メモ new-review-standard-plan-b-2026-11-08.md の「順序」 の段 3。見積は共有メモの 0.5〜1.5 時間の上限。",
@@ -13089,10 +13089,10 @@
     "zoomY": 1.099862517185352
   },
   "documentStamp": {
-    "scheduleUpdatedAt": "2026-11-07T22:42:00Z",
+    "scheduleUpdatedAt": "2026-11-07T22:59:00Z",
     "lastEditedBy": "PMO child session",
     "settingsUpdatedAt": "2026-10-20T20:24:42Z",
-    "fileSavedAt": "2026-11-07T22:42:00Z"
+    "fileSavedAt": "2026-11-07T22:59:00Z"
   },
   "changeLog": [
     {
@@ -13490,6 +13490,12 @@
       "editedBy": "PMO child session",
       "explanation": "Fact at 11-08 07:42 JST: the owner answered BGQA Q7 = c (nothing before the beta changes now; the owner speed is watched for a week) and Q8-16 (new review standard, applied); rule 06 got the debt-reducing rule (526d819f1, JDG-3590), T1 (weekly debt report) becomes a PMO task (form next round). The BOSS opened the application window and started SUB CR-859 (local_03b311ba). Added tasks 387-396 for stages 1-7 of the shared memo (estimates from its table; stage 7 after the glossary). Per the memo the existing plan is re-placed once after the window; commits stay on the branch during the window.",
       "changedAt": "2026-11-07T22:42:00Z"
+    },
+    {
+      "ordinal": 67,
+      "editedBy": "PMO child session",
+      "explanation": "Fact at 11-08 07:59 JST: the first CR-859 SUB failed to make a worktree; restarted as local_2f3a71be (stage 2 start re-placed to 07:59); the owner had OneDrive started again, so 389 (stop OneDrive) is an open owner wait right before GT-2; 53 stale root files moved to the shared memo, not deleted. Stages 3 onward shifted with 388/389 only; the full re-plan waits until after the window.",
+      "changedAt": "2026-11-07T22:59:00Z"
     }
   ]
 }
