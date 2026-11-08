@@ -165,7 +165,7 @@ interface Box {
   readonly height: number
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function readEntranceBoxes(page: Page, wanted: readonly string[]): Promise<Box[]> {
   return page.evaluate((asked: readonly string[]) => {
     const out = []
@@ -277,7 +277,7 @@ test('DFC-34: no word the screen can print, and none it does print, carries the 
     const rested = await readScreenTexts(app.page)
 
     const faint = await app.page.evaluate(
-      /** @purity semi-pure-b */
+      /** @purity semi-pure-mutable */
       () =>
         document.querySelector('[data-icon][data-enabled="false"]')?.getAttribute('data-icon') ??
         null,
@@ -445,7 +445,7 @@ const GUIDE_NONE = guideMode('none')
 const GUIDE_CROSSHAIR = guideMode('crosshair')
 const GUIDE_SINGLE_VERTICAL = guideMode('single-vertical')
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function readLinesThroughPointer(
   page: Page,
   at: { x: number; y: number },
@@ -662,7 +662,7 @@ async function openTheAgentApi(page: Page): Promise<void> {
   ).toBe(true)
   expect(
     await page.evaluate(
-      /** @purity semi-pure-b */
+      /** @purity semi-pure-mutable */
       () => typeof (window as unknown as Record<string, unknown>).grSchedulerAgentApi,
     ),
     `pressing ${AGENT_API_ENTRANCE} published the Agent API`,
@@ -684,7 +684,7 @@ interface DividerReading {
   readonly unmatched: readonly string[]
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function dividerColorsOnBothSides(
   page: Page,
   names: { readonly read: string; readonly picture: string; readonly divider: string; readonly canvas: string },
@@ -838,7 +838,7 @@ interface VersionReading {
   readonly ahead: string
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function versionReadings(
   page: Page,
   names: { readonly greatest: string; readonly json: string; readonly module: string },
@@ -947,7 +947,7 @@ interface RulerReading {
   readonly band: { readonly x: number; readonly width: number }
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function readRuler(page: Page, canvas: string): Promise<RulerReading> {
   return page.evaluate((selector: string) => {
     const svg = window.document.querySelector(selector)
@@ -1083,7 +1083,7 @@ test('DFC-297: a zoom holds the date under the pointer, and the middle date when
 
 const VISIBLE_DAY_FLOOR = numberIn(cellOf(T206, 'S-229', 1, 3), 'table T-206 row S-229')
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function visibleDaysNow(page: Page, canvas: string, what: string): Promise<number> {
   const reading = await readRuler(page, canvas)
   return reading.band.width / timeAxisOf(reading, what).pxPerDay
@@ -1168,7 +1168,7 @@ test('DFC-375: magnifying the date axis stops with S-229 days still on the scree
   }
 })
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function taskGroupBandsNow(page: Page): Promise<
   readonly { readonly id: string; readonly y: number; readonly height: number;
              readonly isCut: boolean }[]
@@ -1187,7 +1187,7 @@ async function taskGroupBandsNow(page: Page): Promise<
       .sort((first, second) => first.y - second.y))
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function canvasBoxNow(page: Page): Promise<
   { readonly x: number; readonly y: number; readonly width: number;
     readonly height: number } | null
@@ -1258,7 +1258,7 @@ const NAME_PX_TOLERANCE = 0.02
 // WHY: 15.84px, the text ceiling), and the band ceiling is the smaller one from about 360px down.
 const LOW_WINDOW_HEIGHT = 340
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function nameLabelFontsNow(page: Page): Promise<Readonly<Record<string, number>>> {
   return page.evaluate((selector: string) => {
     const fonts: Record<string, number> = {}

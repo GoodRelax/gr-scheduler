@@ -1,7 +1,7 @@
 // Puts the application and one document into a single .html file, and reads the document back out.
 // @unit      UF-37   (docs/spec/05-07-design.md, table T-075)
 // @component DocumentCodec, layer Adapter (table T-062)
-// @purity    semi-pure-b
+// @purity    semi-pure-mutable
 
 import type { Document } from '../../entity/document-model/document/document'
 import type { AppShellSource } from './app-shell-source'
@@ -159,7 +159,7 @@ export function documentFromEmbeddedHtml(
 }
 
 // see IO-7, FR-067
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 export async function exportEmbeddedHtml(
   source: AppShellSource,
   document: Document,

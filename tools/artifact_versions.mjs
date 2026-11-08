@@ -82,7 +82,7 @@ function hasPendingInputChange(inputs, root) {
   return !isLockVersionOnly(committed, readFileSync(join(root, LOCK), 'utf8'))
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 function inputsOf(key, root) {
   const inputs = JSON.parse(readFileSync(join(root, FILE), 'utf8'))[`${key}Inputs`]
   if (!Array.isArray(inputs) || inputs.length === 0) throw new Error(`${FILE} holds no ${key}Inputs`)

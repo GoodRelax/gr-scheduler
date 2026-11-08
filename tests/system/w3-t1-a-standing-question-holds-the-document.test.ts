@@ -97,7 +97,7 @@ interface Held {
   readonly stamp: unknown
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function readHeld(page: Page): Promise<Held> {
   return page.evaluate(() => {
     const api = (window as unknown as { grSchedulerAgentApi: { readDocument(): any; readStamp(): unknown } }).grSchedulerAgentApi
@@ -115,7 +115,7 @@ async function rename(page: Page, name: string): Promise<{ ok: boolean }> {
   }, name)
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function textOf(page: Page, selector: string): Promise<string | null> {
   return page.evaluate((wanted: string) => {
     const found = document.querySelector(wanted)

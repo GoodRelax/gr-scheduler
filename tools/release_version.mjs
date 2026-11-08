@@ -32,7 +32,7 @@ export function releaseNoteOf(fileName) {
   return { stage: found[1], compact: found[2], isJapanese: found[3] !== undefined, tag: `${found[1]}-${found[2]}` }
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 export function releaseNotesIn(root = ROOT) {
   return readdirSync(join(root, RELEASE_NOTES)).map((name) => ({ name, note: releaseNoteOf(name) }))
 }

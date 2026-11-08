@@ -78,7 +78,7 @@ async function openAtHourTier(): Promise<Opened> {
   return { page, close: async () => context.close() }
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function readStatusDate(page: Page): Promise<string> {
   return page.evaluate(() => {
     const api = (window as unknown as { grSchedulerAgentApi: { readDocument(): any } }).grSchedulerAgentApi
@@ -106,7 +106,7 @@ async function pxPerMinute(page: Page): Promise<number> {
   return (right.x - left.x) / 60
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function lineCentre(page: Page): Promise<{ x: number; y: number }> {
   const line = page.locator(STATUS_LINE)
   await expect(line).toHaveCount(1)

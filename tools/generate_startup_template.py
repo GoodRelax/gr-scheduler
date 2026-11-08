@@ -1009,7 +1009,7 @@ def insist(condition, reason):
     an `assert` silently, which is exactly the way the old artifact drifted
     into a shape nobody could read.
 
-    @purity semi-pure-b
+    @purity semi-pure-mutable
     """
     if not condition:
         sys.exit('generate_startup_template: %s' % reason)
@@ -1027,7 +1027,7 @@ def generated_object(path, name):
     parsing its sources again here would put a second interpretation of one
     source in the tree, which is the failure R4 is about.
 
-    @purity semi-pure-b
+    @purity semi-pure-mutable
     """
     text = io.open(path, encoding='utf-8').read()
     found = re.search(r'^export const %s\b' % name, text, re.M)
@@ -1074,7 +1074,7 @@ def generated_object(path, name):
 def settings_defaults():
     """The presentation values, read from what the manuscript generated.
 
-    @purity semi-pure-b
+    @purity semi-pure-mutable
     """
     flat = generated_object(SETTINGS_TS, 'SETTINGS_DEFAULTS')
     # ⚠️ SETTINGS_DEFAULTS is flat and spells a nested value with a dot
@@ -1102,7 +1102,7 @@ def settings_constants():
     ⛔ Never merged into the document's settings: a key read from here and
     written into the file is the frozen copy CR-572 removed.
 
-    @purity semi-pure-b
+    @purity semi-pure-mutable
     """
     return generated_object(SETTINGS_TS, 'SETTINGS_CONSTANTS')
 
@@ -1116,7 +1116,7 @@ def constant(name):
     The block is read once per run; the depth check asks for its cap once per
     task group.
 
-    @purity semi-pure-b
+    @purity semi-pure-mutable
     """
     if not CONSTANTS_READ:
         CONSTANTS_READ.append(settings_constants())
@@ -1138,13 +1138,13 @@ def manuscript_number(row_id):
     second copy of a decided value in the tree (rule 03 of
     docs/development-rules, and the reason CR-175 and CR-178 exist).
 
-    @purity semi-pure-b
+    @purity semi-pure-mutable
     """
     manuscript = json.load(io.open(SETTINGS_JSON, encoding='utf-8'))
     found = []
 
     def walk(node):
-        """@purity semi-pure-a"""
+        """@purity semi-pure-immutable"""
         if isinstance(node, dict):
             if node.get('id') == row_id:
                 found.append(node)
@@ -1247,7 +1247,7 @@ def calendar_day_time(name):
     ⭐ WT-6 / WT-7 of table T-350 are read where the app holds them, so this
     file keeps no second copy of either time.
 
-    @purity semi-pure-b
+    @purity semi-pure-mutable
     """
     text = io.open(CALENDAR_DAY_TS, encoding='utf-8').read()
     found = re.search(r"^export const %s = '([0-9:]+)'$" % name, text, re.M)
@@ -1747,7 +1747,7 @@ class Builder(object):
         Placing first and clipping afterwards is what put sixteen unrelated
         tasks on one day in the artifact this rewrite replaces.
 
-        @purity semi-pure-a
+        @purity semi-pure-immutable
         """
         live = [phase for phase, count in enumerate(split) if count]
         insist(live, 'the task group %s was given no work at all' % row['label'])
@@ -1766,7 +1766,7 @@ class Builder(object):
     def blocks_of(self, row, split, live, planted, scale):
         """One block per phase: the lengths and the gaps between them.
 
-        @purity semi-pure-a
+        @purity semi-pure-immutable
         """
         blocks = []
         for phase in live:
@@ -1806,7 +1806,7 @@ class Builder(object):
         left, which is the signal to measure the band again at shorter
         lengths.
 
-        @purity semi-pure-a
+        @purity semi-pure-immutable
         """
         pull = BAND_PULL[row['height']]
         placed = []
@@ -2104,7 +2104,7 @@ class Builder(object):
         ⭐ A gate is not a band: it is a point with a date of its own, and it
         is read as a task everywhere below.
 
-        @purity semi-pure-a
+        @purity semi-pure-immutable
         """
         return (task['uid'] in self.overview_task_uids
                 and task['uid'] not in set(self.gates.values()))
@@ -2585,7 +2585,7 @@ class Builder(object):
         join. ⛔ Roll-ups are not in it: a roll-up is derived from what hangs
         under it, and holding one up would hold up everything twice.
 
-        @purity semi-pure-a
+        @purity semi-pure-immutable
         """
         held = []
         stack = [row]
@@ -2599,7 +2599,7 @@ class Builder(object):
         return held
 
     def last_of(self, uids):
-        """@purity semi-pure-a"""
+        """@purity semi-pure-immutable"""
         held = [self.by_uid[uid] for uid in uids if uid not in self.rollups]
         if not held:
             return None
@@ -2662,7 +2662,7 @@ class Builder(object):
     def top_task_groups(self):
         """The product trees, in the order the forest lists them.
 
-        @purity semi-pure-a
+        @purity semi-pure-immutable
         """
         return [row for row in self.rows
                 if row['parent'] is None and row['label'] not in OVERVIEW_TASK_GROUPS]
@@ -2691,7 +2691,7 @@ class Builder(object):
     # -- assembly ----------------------------------------------------------
 
     def project(self, status_at, hue):
-        """@purity semi-pure-a"""
+        """@purity semi-pure-immutable"""
         # ⭐ Every row of table T-224 (PF-1 .. PF-9) carries a value: that
         # table is the whole list of what the document information panel
         # shows, and a template that leaves all nine empty ships a panel with
@@ -2735,7 +2735,7 @@ class Builder(object):
         }
 
     def task_groups(self):
-        """@purity semi-pure-a"""
+        """@purity semi-pure-immutable"""
         out = []
         for row in self.rows:
             # ⭐ A couple of task groups carry a color of their own (TASK_GROUP_PAINT), so
@@ -2767,7 +2767,7 @@ class Builder(object):
         return out
 
     def calendar(self):
-        """@purity semi-pure-a"""
+        """@purity semi-pure-immutable"""
         return {
             'uid': 1,
             'name': CALENDAR_NAME,
@@ -2808,7 +2808,7 @@ class Builder(object):
     def stripped_tasks(self):
         """The tasks, without the working-day indices used to build them.
 
-        @purity semi-pure-a
+        @purity semi-pure-immutable
         """
         out = []
         for task in self.tasks:
@@ -2847,7 +2847,7 @@ def descendants_of(built):
 def check_rollup(built, under):
     """A1 -- a parent task contains every task under it. A2 -- and is not a point.
 
-    @purity semi-pure-b
+    @purity semi-pure-mutable
     """
     for task in built.tasks:
         held = under[task['uid']]
@@ -2887,7 +2887,7 @@ def window_of(built, row, with_children=True):
 def check_nesting(built):
     """A3 -- the indentation does not lie.
 
-    @purity semi-pure-b
+    @purity semi-pure-mutable
     """
     for row in built.rows:
         if row['parent'] is None:
@@ -2911,7 +2911,7 @@ def check_phase_order(built, under):
     so it has no single phase to be in order by. A7 covers them instead, by
     the LAST phase they reach.
 
-    @purity semi-pure-b
+    @purity semi-pure-mutable
     """
     for row in built.rows:
         held = [built.by_uid[uid] for uid in row['tasks'] if not under[uid]]
@@ -2931,7 +2931,7 @@ COUNTED = re.compile(r'^(.*?)(\d+)$')
 def check_counters(built):
     """A5 -- where a name carries a counter, it agrees with the dates.
 
-    @purity semi-pure-b
+    @purity semi-pure-mutable
     """
     stems = {}
     for task in built.tasks:
@@ -2950,7 +2950,7 @@ def check_counters(built):
 def check_twins(built):
     """A6 -- no two task groups hold the same dates.
 
-    @purity semi-pure-b
+    @purity semi-pure-mutable
     """
     seen = {}
     for row in built.rows:
@@ -2966,7 +2966,7 @@ def check_twins(built):
 def check_gates(built):
     """A7 -- work belonging to a phase is done by that phase's gate.
 
-    @purity semi-pure-b
+    @purity semi-pure-mutable
     """
     last = index_of(PROJECT_FINISH)
     for task in built.tasks:
@@ -2984,7 +2984,7 @@ def check_gates(built):
 def check_durations(built):
     """A8 -- lengths spread, with a real tail.
 
-    @purity semi-pure-b
+    @purity semi-pure-mutable
     """
     spread = {}
     leaves = {}
@@ -3029,7 +3029,7 @@ def months_of(first, last):
 def check_effort(built):
     """A9 -- the effort curve is a curve, not a wall at the end.
 
-    @purity semi-pure-b
+    @purity semi-pure-mutable
     """
     months = months_of(PROJECT_START, PROJECT_FINISH)
     started = dict((month, 0) for month in months)
@@ -3052,7 +3052,7 @@ def check_effort(built):
 def check_names(built):
     """A10 -- a name reads as work, is said once, and does not stutter.
 
-    @purity semi-pure-b
+    @purity semi-pure-mutable
     """
     verbs = set(['Deliver'])
     for vocabulary in WORK_BY_KIND.values():
@@ -3100,7 +3100,7 @@ def check_names(built):
 def check_overview(built):
     """A11 -- the first tree overviews the whole.
 
-    @purity semi-pure-b
+    @purity semi-pure-mutable
     """
     bar = built.by_uid[built.overview_uid]
     insist(bar['start'] == text_of_start_side(PROJECT_START, False),
@@ -3143,7 +3143,7 @@ def plan_actual_state(task):
 def check_dead_data(built, status_at):
     """A12 -- nothing that should be drawn is left empty.
 
-    @purity semi-pure-b
+    @purity semi-pure-mutable
     """
     insist(0 < status_at < len(WORKDAYS) - 1,
            'A12: the status date is outside the project window')
@@ -3222,7 +3222,7 @@ def check_vocabulary(built):
     the 100 task groups; and 62 task groups carried a task-name SET identical to another
     task group's, which is the duplicate-bar-set defect wearing new clothes.
 
-    @purity semi-pure-b
+    @purity semi-pure-mutable
     """
     rows = dict((row['id'], row) for row in built.rows)
     where = {}
@@ -3301,7 +3301,7 @@ def check_clustering(built):
     has a bar on divided by the days between its first start and its last
     finish.
 
-    @purity semi-pure-b
+    @purity semi-pure-mutable
     """
     spans, densities = [], []
     for row in built.rows:
@@ -3339,7 +3339,7 @@ def check_progress(built, status_at):
     tasks of which 327 began on their planned day, 311 finished tasks of which
     311 ended on their planned day, and 308 tasks at exactly 100%.
 
-    @purity semi-pure-b
+    @purity semi-pure-mutable
     """
     late, early, quick, over, running_late, unstarted_late, resume_late = (
         0, 0, 0, 0, 0, 0, 0)
@@ -3440,7 +3440,7 @@ def check_progress(built, status_at):
 def check_links(built):
     """A17 -- every dependency constrains something.
 
-    @purity semi-pure-b
+    @purity semi-pure-mutable
     """
     held = 0
     for task in built.tasks:
@@ -3492,7 +3492,7 @@ def check_reach(built):
     the 30 that did not touching the overview lane. Mobile Client never waited
     on Web Service.
 
-    @purity semi-pure-b
+    @purity semi-pure-mutable
     """
     where = {}
     rows = dict((row['id'], row) for row in built.rows)
@@ -3546,7 +3546,7 @@ def check_rollup_reading(built):
     too -- the two lists have to agree, or the roll-up is reading something
     other than the task groups indented under it.
 
-    @purity semi-pure-b
+    @purity semi-pure-mutable
     """
     under = descendants_of(built)
     for task in built.tasks:
@@ -3576,7 +3576,7 @@ def check_rollup_reading(built):
 def check_counts(built):
     """A13 -- the counts table T-226 fixes.
 
-    @purity semi-pure-b
+    @purity semi-pure-mutable
     """
     insist(len(built.rows) == WANTED_TASK_GROUPS,
            'TP-5: the tree holds %d task groups, and table T-226 asks for %d'
@@ -3593,7 +3593,7 @@ def check_counts(built):
     wbs = {}
 
     def deep(uid):
-        """@purity semi-pure-a"""
+        """@purity semi-pure-immutable"""
         if uid not in wbs:
             parent = built.by_uid[uid]['parentTaskUid']
             wbs[uid] = 1 if parent is None else deep(parent) + 1
@@ -3690,7 +3690,7 @@ def points_at(entity, column):
     the only place the manuscript joins the two. `insist` catches the day that
     stops being unique.
 
-    @purity semi-pure-b
+    @purity semi-pure-mutable
     """
     found = [one['child'] for one in ERD['relations']
              if one['parent'] == entity
@@ -3708,12 +3708,12 @@ def entity_places(document):
     which array holds which entity, and then followed down through the columns
     that hold rows of another entity (the weak ones).
 
-    @purity semi-pure-b
+    @purity semi-pure-mutable
     """
     places = []
 
     def descend(entity, value, path):
-        """@purity semi-pure-a"""
+        """@purity semi-pure-immutable"""
         rows = value if isinstance(value, list) else [value]
         places.append((entity, path, rows))
         for row in rows:
@@ -3738,7 +3738,7 @@ def calendar_entities():
     ⚠️ Read out of erd.json rather than named here, so the day another entity
     is nested under `Calendar` this reader already knows about it.
 
-    @purity semi-pure-b
+    @purity semi-pure-mutable
     """
     held = set()
     stack = ['Calendar']
@@ -3764,7 +3764,7 @@ def document_calendar(document):
     and `toDate` real inclusive days. FR-054 does not expand a REPEATING
     exception, so one of those closes nothing this reader can count.
 
-    @purity semi-pure-b
+    @purity semi-pure-mutable
     """
     schedule = document['schedule']
     resolved = [one for one in schedule['calendars']
@@ -3799,7 +3799,7 @@ def document_calendar(document):
 def check_keys_and_references(document):
     """IV-1, IV-2 and IV-14, over every column the manuscript marks.
 
-    @purity semi-pure-b
+    @purity semi-pure-mutable
     """
     places = entity_places(document)
     works = document_calendar(document)
@@ -3910,7 +3910,7 @@ def check_day(entity, column, value, works):
     the plan sits on, and a plan that dates work on a day its own calendar
     closes cannot be counted in working days at all.
 
-    @purity semi-pure-b
+    @purity semi-pure-mutable
     """
     if value is None:
         return
@@ -3928,13 +3928,13 @@ def check_day(entity, column, value, works):
 def settings_rows():
     """Every row of `_assets/tbl-settings.md`, read from its own source.
 
-    @purity semi-pure-b
+    @purity semi-pure-mutable
     """
     manuscript = json.load(io.open(SETTINGS_JSON, encoding='utf-8'))
     found = []
 
     def walk(node):
-        """@purity semi-pure-a"""
+        """@purity semi-pure-immutable"""
         if isinstance(node, dict):
             if str(node.get('id', '')).startswith('S-'):
                 found.append(node)
@@ -3963,7 +3963,7 @@ def settings_key(row):
 def settings_numbers(rows):
     """What every settings row states its value to be, where it states one.
 
-    @purity semi-pure-b
+    @purity semi-pure-mutable
     """
     out = {}
     for row in rows:
@@ -3993,7 +3993,7 @@ def bound_from(text, values):
     single-column condition, and the preamble of table T-220 says those belong
     to the generated schema and MUST NOT be repeated here.
 
-    @purity semi-pure-b
+    @purity semi-pure-mutable
     """
     if not isinstance(text, str):
         return None
@@ -4025,7 +4025,7 @@ def check_settings_bounds(settings):
     ceiling of `actualMin` = 16, and `rulerFontSizePx` = 5 with a floor of `fontMin`
     = 12, both wrote the file happily.
 
-    @purity semi-pure-b
+    @purity semi-pure-mutable
     """
     rows = settings_rows()
     stated = settings_numbers(rows)
@@ -4078,7 +4078,7 @@ def check_invariants(document, settings):
     put through that schema by the tests (`validateDocument` in
     tests/fixtures/grs-document.ts), which is where those belong.
 
-    @purity semi-pure-b
+    @purity semi-pure-mutable
     """
     schedule = document['schedule']
     tasks = schedule['tasks']
@@ -4201,7 +4201,7 @@ def strings_in(node, path, out):
     ⚠️ Values only. A key is a column name settled by the schema, not
     something anybody reads off the screen.
 
-    @purity semi-pure-b
+    @purity semi-pure-mutable
     """
     if isinstance(node, str):
         out.append((path, node))
@@ -4228,7 +4228,7 @@ def declared_strings(settings):
     it can say which words it knows how to write. Anything else is a word it
     did not draw from its own vocabulary, and that is the refusal.
 
-    @purity semi-pure-b
+    @purity semi-pure-mutable
     """
     said = set()
     for kind in WORK_BY_KIND:
@@ -4285,7 +4285,7 @@ def check_neutrality(document, settings):
     ⚠️ A uuid and a day are exempt, and only those two: a uuid is a machine
     identifier nobody reads and a day has already been through IV-14.
 
-    @purity semi-pure-b
+    @purity semi-pure-mutable
     """
     said = declared_strings(settings)
     strange = []
@@ -4349,7 +4349,7 @@ SPELLED_UUID = re.compile(
 def schema_types_of(shape):
     """The types one subschema admits, as the manuscript spells them.
 
-    @purity semi-pure-b
+    @purity semi-pure-mutable
     """
     named = shape.get('type')
     if named is None:
@@ -4365,7 +4365,7 @@ def schema_types_of(shape):
 def schema_faults(value, shape, defs, path):
     """Every way one value breaks one subschema, as sentences.
 
-    @purity semi-pure-b
+    @purity semi-pure-mutable
     """
     for word in shape:
         insist(word in SCHEMA_READ or word in SCHEMA_PROSE,
@@ -4444,7 +4444,7 @@ def schema_faults(value, shape, defs, path):
 def check_schema(document):
     """FR-027 -- the template goes through the validator FR-023 uses.
 
-    @purity semi-pure-b
+    @purity semi-pure-mutable
     """
     schema = json.load(io.open(SCHEMA, encoding='utf-8'))
     defs = schema.get('$defs', {})
@@ -4481,7 +4481,7 @@ def assert_settings_complete(settings):
     generator's reach so docs/spec/_source/settings.json states the value
     machine readably, and it arrives here on its own.
 
-    @purity semi-pure-b
+    @purity semi-pure-mutable
     """
     schema = json.load(io.open(SCHEMA, encoding='utf-8'))
     wanted = schema['properties']['documentSettings']['required']
@@ -4503,7 +4503,7 @@ def assert_settings_complete(settings):
 def build():
     """The whole document, checked before it is handed back.
 
-    @purity semi-pure-b
+    @purity semi-pure-mutable
     """
     settings = settings_defaults()
     assert_settings_complete(settings)
@@ -4603,7 +4603,7 @@ def build():
 def nullable_project_columns():
     """The `Project` columns table T-058 lets be null, read from erd.json.
 
-    @purity semi-pure-b
+    @purity semi-pure-mutable
     """
     erd = json.load(io.open(ERD_JSON, encoding='utf-8'))
     project = [one for one in erd['entities'] if one.get('name') == 'Project']
@@ -4619,7 +4619,7 @@ def empty_document():
     ⛔ No task group: BK-2's one task group is the one the rule under table T-050 makes on
     landing, with an id taken afresh each time (document-change-plan.ts).
 
-    @purity semi-pure-b
+    @purity semi-pure-mutable
     """
     settings = settings_defaults()
     assert_settings_complete(settings)
@@ -4676,7 +4676,7 @@ def empty_document():
 def sample_document(document):
     """The shipped sample: the template under the title its file name says.
 
-    @purity semi-pure-b
+    @purity semi-pure-mutable
     """
     sample = copy.deepcopy(document)
     sample['schedule']['project']['title'] = SAMPLE_TITLE

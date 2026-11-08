@@ -116,7 +116,7 @@ function parentTaskViewOf() {
       isShown = !isShown
       return true
     },
-    /** @purity semi-pure-b */
+    /** @purity semi-pure-mutable */
     isShown(): boolean {
       return isShown
     },
@@ -147,7 +147,7 @@ function parentTaskViewOf() {
 function parentTaskChooserOf() {
   let choice: HeldChoice | null = null
   return {
-    /** @purity semi-pure-b */
+    /** @purity semi-pure-mutable */
     choiceReading(session: ScreenSession): ParentTaskReadings['parentTaskChoice'] {
       return choice === null ? null : { at: choice.at, isArmed: isParentTaskArmed(session) }
     },
@@ -164,7 +164,7 @@ function parentTaskChooserOf() {
       if (step !== null && step.kind !== 'kept') choice = null
       return step
     },
-    /** @purity semi-pure-b */
+    /** @purity semi-pure-mutable */
     isChoiceStanding(): boolean {
       return choice !== null
     },
@@ -179,7 +179,7 @@ export function parentTaskHoldOf() {
   return {
     ...view,
     ...chooser,
-    /** @purity semi-pure-b */
+    /** @purity semi-pure-mutable */
     readings(session: ScreenSession, isDelayDiagnosticsShown: boolean): ParentTaskReadings {
       return {
         isDelayDiagnosticsShown,

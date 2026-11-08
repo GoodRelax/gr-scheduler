@@ -67,7 +67,7 @@ async function openWithClipboard(page: Page, refuse: boolean): Promise<void> {
   await launch(page)
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function told(page: Page, rowId: string): Promise<boolean> {
   const said = await page.evaluate(
     (area: string) => Array.from(document.querySelectorAll(area)).map((one) => one.textContent ?? '').join(' | '),
@@ -76,7 +76,7 @@ async function told(page: Page, rowId: string): Promise<boolean> {
   return wordsOf(rowId).some((words) => said.includes(words))
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function noticeBox(page: Page, rowId: string): Promise<{ x: number; y: number; w: number; h: number } | null> {
   return page.evaluate(
     ({ area, words }: { area: string; words: readonly string[] }) => {

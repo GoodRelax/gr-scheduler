@@ -128,7 +128,7 @@ async function openTheApp(keyboard: 'grants' | 'refuses' | 'absent'): Promise<{ 
   }
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function look(page: Page): Promise<Seen> {
   return page.evaluate((help: string) => {
     const state = (window as unknown as { __grsCr666: Record<string, unknown> }).__grsCr666

@@ -25,7 +25,7 @@ async function mergeThroughIc1(page: Page, name: string, text: string): Promise<
   await openThroughIc1(page, name, text, 'IC-72')
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function toldText(page: Page): Promise<string> {
   return page.evaluate(
     (selectors: readonly string[]) => selectors.map((one) => document.querySelector(one)?.textContent ?? '').join(' | '),

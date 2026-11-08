@@ -52,7 +52,7 @@ test.afterAll(async () => {
 })
 
 // see EP-9, U-24, U-18
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function readDivider(page: Page, theme: Theme): Promise<DividerReading> {
   return page.evaluate(
     (asked: { divider: string; s149: string; s165: string }) => {

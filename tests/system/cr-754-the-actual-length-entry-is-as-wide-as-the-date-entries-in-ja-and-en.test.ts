@@ -105,7 +105,7 @@ interface EntryBox {
 }
 
 // WHY: the rendered box is read, not the style written: DFC-2870 drew PR-5 at 308 px against 122 px dates under a model that said the two were equal.
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function readBoxes(page: Page, rows: readonly string[]): Promise<readonly EntryBox[]> {
   return page.evaluate(
     ({ panel, wanted }: { panel: string; wanted: readonly string[] }) => {

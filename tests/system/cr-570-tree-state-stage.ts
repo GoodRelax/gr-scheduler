@@ -186,7 +186,7 @@ export interface TreeReading {
 }
 
 // see AM-3
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 export async function readTree(page: Page): Promise<TreeReading> {
   return page.evaluate(() => {
     const api = (window as unknown as { grSchedulerAgentApi?: { readDocument(): unknown } }).grSchedulerAgentApi
@@ -243,7 +243,7 @@ export function descendantsOf(reading: TreeReading, id: string): readonly TreeTa
 
 // WHY: the panel marks the task groups it draws; FR-055 fits the whole picture on one screen, so after a
 // fit this list is every drawn task group, and elsewhere it is the drawn task groups the window shows.
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 export async function drawnRowIds(page: Page): Promise<string[]> {
   return page.evaluate(
     (row: string) => Array.from(document.querySelectorAll(row)).map((one) => one.getAttribute('data-group-id') ?? ''),
@@ -252,7 +252,7 @@ export async function drawnRowIds(page: Page): Promise<string[]> {
 }
 
 // see FR-029, EN-2
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 export async function isArmed(page: Page, icon: string): Promise<boolean> {
   const said = await page.evaluate((wanted: string) => {
     const entry = document.querySelector(`[data-icon="${wanted}"]`)
@@ -330,7 +330,7 @@ export async function pressKey(page: Page, id: string): Promise<void> {
 }
 
 // see FR-100
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 export async function wouldWarn(page: Page): Promise<boolean> {
   return page.evaluate(() => {
     const asking = new Event('beforeunload', { cancelable: true })
@@ -354,7 +354,7 @@ export async function saveDocument(page: Page): Promise<string> {
 }
 
 // see FR-029, T-233
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 export async function toldReason(page: Page, rowId: string): Promise<boolean> {
   const said = await page.evaluate(
     (area: string) => Array.from(document.querySelectorAll(area)).map((one) => one.textContent ?? '').join(' | '),

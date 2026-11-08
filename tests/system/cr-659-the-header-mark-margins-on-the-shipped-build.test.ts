@@ -81,7 +81,7 @@ test.afterAll(async () => {
 
 // see BR-2, BR-3, BR-7
 // WHY: the ink of GRS is the advance box moved by canvas measureText's bounding box, widened by the rim S-461 on each side.
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function readHeader(page: Page): Promise<Header> {
   return page.evaluate((rim: number) => {
     const one = (role: string): HTMLElement => {

@@ -54,7 +54,7 @@ NAMED_ROW = re.compile(r'^`(S-\d+[a-z]?)`')
 
 def settings_row(row_id):
     """One row of _source/settings.json by id, or a refusal naming it."""
-    # @purity semi-pure-b
+    # @purity semi-pure-mutable
     doc = json.load(io.open(SETTINGS, encoding='utf-8'))
     for block in doc['blocks']:
         for row in block.get('rows') or []:
@@ -97,7 +97,7 @@ def hue_of(row_id, cell, setting):
 
 def build():
     """The roster, as it is written out."""
-    # @purity semi-pure-b
+    # @purity semi-pure-mutable
     table = spec_tables.read(REL_REQUIREMENTS, HUE_TABLE)
     if len(table.headings) != 2:
         sys.exit('generate_theme_hue_roster: table %s must have 2 columns '

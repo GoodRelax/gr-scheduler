@@ -1,7 +1,7 @@
 // Paints a finished SVG picture into PNG bytes through a browser canvas.
 // @unit      UF-54   (docs/spec/05-07-design.md, table T-075)
 // @component CanvasRasterizer, layer Framework (table T-062)
-// @purity    semi-pure-b
+// @purity    semi-pure-mutable
 // @publishes table T-064 row PI-31
 
 import type {
@@ -131,7 +131,7 @@ function errorName(error: unknown): string {
 }
 
 // WHY: probes a 1px canvas instead of a largest-canvas number, which differs per machine.
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 function canPaintAtAll(host: Document): boolean {
   const probe = host.createElement('canvas')
   probe.width = SMALLEST_SIDE_PX
@@ -139,12 +139,12 @@ function canPaintAtAll(host: Document): boolean {
   return probe.getContext('2d') !== null
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 function pngBlob(canvas: HTMLCanvasElement): Promise<Blob | null> {
   return new Promise((resolve) => canvas.toBlob((blob) => resolve(blob), PNG_MIME))
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function paintPng(host: Document, svg: string, sizePx: RasterSizePx): Promise<Rastering> {
   if (!isPaintableSize(sizePx)) {
     return failedRastering(
@@ -197,7 +197,7 @@ async function paintPng(host: Document, svg: string, sizePx: RasterSizePx): Prom
 /** @purity pure */
 export function canvasRasterizer(host: Document): Rasterizer {
   return {
-    /** @purity semi-pure-b */
+    /** @purity semi-pure-mutable */
     async rasterizePng(svg: string, sizePx: RasterSizePx): Promise<Rastering> {
       try {
         return await paintPng(host, svg, sizePx)

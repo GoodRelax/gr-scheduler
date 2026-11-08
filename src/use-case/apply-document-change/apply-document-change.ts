@@ -36,7 +36,7 @@ export type {
 } from './document-change-plan'
 
 export interface DocumentHolder {
-  /** @purity semi-pure-b */
+  /** @purity semi-pure-mutable */
   read(): HeldDocument
   /** @purity non-pure */
   replace(next: HeldDocument): void

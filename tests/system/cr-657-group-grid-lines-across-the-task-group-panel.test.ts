@@ -52,7 +52,7 @@ test.afterAll(async () => {
 })
 
 // see FR-042, U-18, U-22
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function measure(page: Page): Promise<Measured> {
   return page.evaluate((drawn: string) => {
     const rows = Array.from(document.querySelectorAll('[data-role="Task Group Title Tree"] [data-group-id]'))

@@ -118,7 +118,7 @@ function reasonRow(id: string): ReasonEntry {
 
 const INVARIANT_ROW = /^\| (IV-\d+) \|/
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 function invariantRows(): readonly string[] {
   const lines = readFileSync(join(SPEC, '05-07-design.md'), 'utf8').replace(/\r\n/g, '\n').split('\n')
   const at = lines.findIndex((line) => line.startsWith('**表 T-220 —'))

@@ -10,7 +10,8 @@
 #
 # then add up the ranges in the headings (1-4 is four, 5-10 is six, and so
 # on). A heading may carry several numbers because one script answers them.
-# The ranges today are 1 + 4 + 8 + 4 + 73. (Recounted 2026-10-24 at checks 91-93
+# The ranges today are 1 + 4 + 8 + 4 + 74. (Recounted 2026-11-08 at check 94
+# (the retired purity values, CR-859): 73 + 1. Recounted 2026-10-24 at checks 91-93
 # (old rule-07 numbers, rule 07 against its master, the lockfile and OSS;
 # JDG-3251..3253): 70 + 3. Recounted 2026-10-24 at check 90
 # (data elements, JDG-3226): 69 + 1 -- 89 is held by another branch. Recounted 2026-10-22 at checks 87-88
@@ -306,7 +307,7 @@
 #          keep the old numbers as history and are excluded BY NAME, with
 #          their reasons printed on every run
 #   64     check-purity-honesty.py (+ purity-calls.mjs) : a function tagged
-#          `@purity pure` / `semi-pure-a` that calls a `semi-pure-b` /
+#          `@purity pure` / `semi-pure-immutable` that calls a `semi-pure-mutable` /
 #          `non-pure` function, touches `document` / `window` / `Date.now` /
 #          `Math.random`, or awaits (CR-573 section 5). The tag is what
 #          excuses it from a unit test (rule 04 table UO, UO-1), so a lying
@@ -451,6 +452,13 @@
 #          package.json declares, a locked package is not build-only, or src/
 #          imports a package (it would be bundled, and FR-069's empty attribution
 #          list would be false). R8 of 07. JDG-3253. Baseline 0
+#   94     check-retired-purity-values.py : a tracked file outside the named
+#          records holds one of the two purity values CR-859 retired. The
+#          tags are read by purity-calls.mjs only in the new spelling, so an
+#          old tag would hide its function from check 64. The records keep the
+#          old values as history (BGQA question 8 = a, JDG-3593) and are
+#          excluded BY NAME, printed on every run -- the check 63 form.
+#          Baseline 0
 #
 # Green does NOT prove the specification is sound: defects of meaning have
 # appeared while all of these were green. They stop broken references, not
@@ -951,7 +959,7 @@ section "63  the SM- / EV- / TN- prefixes, followed by a number, are gone"
 PYTHONIOENCODING=utf-8 python "$HERE/check-sm-ev-tn-prefix-gone.py" "$REPO" || failed
 
 echo ""
-section "64  a function tagged pure / semi-pure-a does what its tag says"
+section "64  a function tagged pure / semi-pure-immutable does what its tag says"
 # ⛔ CR-573 section 5 (JDG-635 / JDG-636): table UO's row UO-1 excuses a pure
 # function from a unit test, so the tag has to be true. MEASURED 2026-09-26 on
 # the CR-573 working tree: 1392 tagged functions, 1 lies -- builtMerge
@@ -1269,6 +1277,15 @@ section "93  the lockfile pins package.json, and no installed package ships"
 # are not looked at -- npm audit needs the network.
 PYTHONIOENCODING=utf-8 python "$HERE/check-dependencies-and-oss.py" --self-test || failed
 PYTHONIOENCODING=utf-8 python "$HERE/check-dependencies-and-oss.py" || failed
+
+echo ""
+section "94  the two retired purity values stay out of the living tree"
+# CR-859 renamed them to semi-pure-immutable / semi-pure-mutable with the
+# readers in the same change (BGQA3 question 23, JDG-3591). MEASURED
+# 2026-11-08 on the CR-859 working tree: 0 sites; before the rename the
+# same pattern found 758 lines in 163 files of the scanned area.
+# MEASURED by breaking it: one old tag put back into a src file reports 1.
+PYTHONIOENCODING=utf-8 python "$HERE/check-retired-purity-values.py" "$REPO" || failed
 
 echo ""
 section "NOT COVERED  what this run did not look at"

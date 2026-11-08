@@ -61,7 +61,7 @@ async function stageWith(rows: number, settings: Readonly<Record<string, unknown
   return opened
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function pictureOf(page: Page): Promise<string> {
   const answer = await exportSvgOf(page)
   expect(answer.ok, 'AM-13 answers a picture').toBe(true)
@@ -103,7 +103,7 @@ function heightOf(svg: string): number {
   return Number(/^<svg\b[^>]*\sheight="([\d.]+)"/.exec(svg)?.[1] ?? NaN)
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function screenTaskGroupPitch(page: Page): Promise<number> {
   return page.evaluate(() => {
     const tops = [...document.querySelectorAll('[data-depth]')]
@@ -243,7 +243,7 @@ test.describe('FR-025 the export span picture on the shipped build', () => {
 test.describe('FR-096 the Export Chooser on the shipped build', () => {
   test.setTimeout(180_000)
 
-  /** @purity semi-pure-b */
+  /** @purity semi-pure-mutable */
   async function chooserOf(page: Page): Promise<{ line: string | null; buttons: { x: number; y: number; w: number; h: number }[]; em: number }> {
     return page.evaluate((selector: string) => {
       const found = document.querySelector(selector)
@@ -355,7 +355,7 @@ test.describe(`FR-077 (MUST NOT): ${FR_077_NO_FLOOR.slice(-30)}`, () => {
 test.describe(`WB-10 (MUST): ${WB_10_MOVE.slice(-40)}`, () => {
   test.setTimeout(120_000)
 
-  /** @purity semi-pure-b */
+  /** @purity semi-pure-mutable */
   async function boxOf(page: Page, selector: string): Promise<{ x: number; y: number; w: number; h: number } | null> {
     return page.evaluate((wanted: string) => {
       const r = document.querySelector(wanted)?.getBoundingClientRect()

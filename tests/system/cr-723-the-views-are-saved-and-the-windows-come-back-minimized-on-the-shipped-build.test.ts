@@ -43,12 +43,12 @@ type Api = {
   showOnlyTasks(taskUids: readonly number[]): unknown
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function viewsOf(page: Page): Promise<Record<string, Record<string, unknown>>> {
   return page.evaluate(() => (window as unknown as { grSchedulerAgentApi: Api }).grSchedulerAgentApi.readDocument().documentSettings.tableViews)
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function shownOf(page: Page): Promise<{ drawn: number[] | null; filteringTables: string[] }> {
   const shown = await page.evaluate(() => (window as unknown as { grSchedulerAgentApi: Api }).grSchedulerAgentApi.readShownTasks())
   return { drawn: shown.drawnTaskUids === null ? null : [...shown.drawnTaskUids].sort((a, b) => a - b), filteringTables: [...shown.filteringTables].sort() }
@@ -65,7 +65,7 @@ async function applyView(page: Page, table: string, view: unknown): Promise<bool
   )
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function boxOf(page: Page, selector: string): Promise<{ x: number; y: number; width: number; height: number } | null> {
   return page.evaluate((wanted: string) => {
     const r = document.querySelector(wanted)?.getBoundingClientRect()
@@ -110,7 +110,7 @@ async function dragAside(page: Page, window: string): Promise<void> {
 
 // see WB-2
 // WHY: a minimized window draws its title bar only, so it holds neither the word field nor a table.
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function isMinimized(page: Page, window: string): Promise<boolean> {
   return page.evaluate((wanted: string) => {
     const one = document.querySelector(wanted)
@@ -118,7 +118,7 @@ async function isMinimized(page: Page, window: string): Promise<boolean> {
   }, window)
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function paintsRed(page: Page, selector: string): Promise<boolean> {
   return page.evaluate(
     (asked: { selector: string; red: string }) => {

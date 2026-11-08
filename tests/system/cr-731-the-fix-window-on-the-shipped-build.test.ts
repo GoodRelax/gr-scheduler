@@ -117,7 +117,7 @@ async function proposalsOver(text: string): Promise<Stage> {
   return opened
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function checkedCount(page: Page): Promise<{ checked: boolean; disabled: boolean }[]> {
   return page.evaluate((selector: string) => {
     const boxes = Array.from(document.querySelectorAll(`${selector} input[type="checkbox"]:not([data-search-shown-all])`)) as HTMLInputElement[]
@@ -125,7 +125,7 @@ async function checkedCount(page: Page): Promise<{ checked: boolean; disabled: b
   }, PROPOSALS)
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function footerText(page: Page): Promise<string> {
   return page.evaluate((selector: string) => document.querySelector(selector)?.textContent ?? '', FOOTER)
 }
@@ -135,7 +135,7 @@ async function writtenCount(page: Page): Promise<number> {
   return page.evaluate(() => ((window as unknown as Record<string, { written: string[] }>)['grsCr570'] as { written: string[] }).written.length)
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function dependencyCount(page: Page): Promise<number> {
   const document = await readDocumentOf(page)
   return (document.schedule.tasks as { dependencies: unknown[] }[]).reduce((sum, one) => sum + one.dependencies.length, 0)

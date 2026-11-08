@@ -96,19 +96,19 @@ export interface ScreenSurface {
   showScreenView(view: ScreenView): void
 
   // TRAP: reading takes the commit; a commit answered twice is written twice.
-  /** @purity semi-pure-b */
+  /** @purity semi-pure-mutable */
   readFieldCommit(): FieldCommit | null
 
-  /** @purity semi-pure-b */
+  /** @purity semi-pure-mutable */
   readScreenPartAt(x: number, y: number): ScreenPart | null
 
   // TRAP: reading takes the notices, in the order the host raised them; a surface without this
   // seam reports no edit, so the shell reads no field as being edited.
-  /** @purity semi-pure-b */
+  /** @purity semi-pure-mutable */
   readFieldEditNotices?(): readonly FieldEditNotice[]
 
   // see IF-9, SV-2, SV-5
   // TRAP: reading takes the change; null when the word has not changed since the last read.
-  /** @purity semi-pure-b */
+  /** @purity semi-pure-mutable */
   readSearchWord?(): string | null
 }

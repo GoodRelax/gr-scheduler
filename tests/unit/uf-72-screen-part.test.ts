@@ -2297,7 +2297,7 @@ describe('⛔ R6.3 -- what the unit actually did to the fake', () => {
     ask(built, AT.entryIc7.x, AT.entryIc7.y)
     ask(built, 5000, 5000)
 
-    // ⚠️ The member is `semi-pure-b`: it reads the page as it stands and may not
+    // ⚠️ The member is `semi-pure-mutable`: it reads the page as it stands and may not
     // change it. NFR-010 also forbids waking a frame on a trigger 表 T-078 does
     // not list, and a listener registered here would be one.
     expect(serialize(built.root())).toBe(drawnBefore)

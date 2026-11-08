@@ -95,7 +95,7 @@ async function openTheApp(standIn: boolean): Promise<{ page: Page; close(): Prom
 }
 
 // see FR-071, IC-11
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function look(page: Page): Promise<Seen> {
   return page.evaluate((selector: string) => {
     const state = (window as unknown as { __grsFullScreen?: { requests: number; exits: number } }).__grsFullScreen

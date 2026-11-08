@@ -1,7 +1,7 @@
 // FileStore over the browser's File System Access API.
 // @unit      UF-51   (docs/spec/05-07-design.md, table T-075)
 // @component FileSystemAccessFileStore, layer Framework (table T-062)
-// @purity    semi-pure-b
+// @purity    semi-pure-mutable
 // @publishes table T-064 row PI-28
 
 import type {
@@ -173,7 +173,7 @@ function firstDroppedFile(items: DroppedItems): DroppedItem | null {
   return null
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function readWritePermission(handle: FileHandle): Promise<FilePermissionState> {
   if (handle.queryPermission === undefined) return 'granted'
   try {
@@ -183,14 +183,14 @@ async function readWritePermission(handle: FileHandle): Promise<FilePermissionSt
   }
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function readOpenedState(handle: FileHandle | null): Promise<OpenedFileState> {
   if (handle === null) return { kind: 'none' }
   return openedStateOf(handle.name, await readWritePermission(handle))
 }
 
 // see CS-4, T-227
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function readWriteDestination(handle: FileHandle): Promise<ChosenWriteDestination> {
   const file = await handle.getFile()
   const bytes = new Uint8Array(await file.arrayBuffer())
@@ -428,7 +428,7 @@ export function fileSystemAccessFileStore(
   }
 
   return {
-    // WHY: non-pure, stricter than IF-3's semi-pure-b, because this also remembers the handle.
+    // WHY: non-pure, stricter than IF-3's semi-pure-mutable, because this also remembers the handle.
     /** @purity non-pure */
     async readFileToOpen(route: OpenRoute): Promise<FileReading> {
       if (isBusy) return { ok: false, fault: busyFault() }
@@ -458,7 +458,7 @@ export function fileSystemAccessFileStore(
       handleReadToOpen = null
     },
 
-    /** @purity semi-pure-b */
+    /** @purity semi-pure-mutable */
     async readOpenedFileState(): Promise<OpenedFileState> {
       return await readOpenedState(openedHandle)
     },

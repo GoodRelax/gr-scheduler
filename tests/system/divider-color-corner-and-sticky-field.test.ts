@@ -176,7 +176,7 @@ const AM_3 = 'readDocument'
 
 // WHY: only the generated block is read, between the markers the generator
 // and check-generated-constants.py use -- nothing a person wrote is read.
-/** @purity semi-pure-a */
+/** @purity semi-pure-immutable */
 function generatedNumber(file: string, constant: string, rowId: string): number {
   const said = readFileSync(join(process.cwd(), file), 'utf8')
   const blocks = [...said.matchAll(/\/\/ <generated[^\n]*\n([\s\S]*?)\/\/ <\/generated>/g)].map(
@@ -264,7 +264,7 @@ async function pressEntrance(page: Page, icon: string): Promise<boolean> {
 }
 
 // see FR-029
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function armingOf(page: Page, icon: string): Promise<string | null> {
   return page.evaluate(
     (wanted: string) =>
@@ -332,7 +332,7 @@ interface Drawn {
 
 // WHY: the corner radius is read from the resolved geometry (rx of an SVG
 // rectangle), not the attribute text, so a style-based value is still seen.
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function drawnElements(page: Page): Promise<Drawn[]> {
   return page.evaluate((canvas: string) => {
     const svg = document.querySelector(canvas)
@@ -455,7 +455,7 @@ interface Painted {
 
 // WHY: found by geometry, not a name -- the line inside the band carries no
 // mark of its own, so it is looked for where S-134 says the band sits.
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function dividerLines(page: Page): Promise<Painted[]> {
   return page.evaluate((divider: string) => {
     const out: { background: string; html: string }[] = []
@@ -564,7 +564,7 @@ interface Field {
 
 // WHY: a control is [data-field-kind] inside [data-field-row]; multiline is
 // asked of the element (textarea or editable box), not the tree's own word.
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function panelFields(page: Page): Promise<Field[]> {
   return page.evaluate((panel: string) => {
     const shown = document.querySelector(panel)

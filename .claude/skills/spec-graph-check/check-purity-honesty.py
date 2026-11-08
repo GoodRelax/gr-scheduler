@@ -1,19 +1,19 @@
 # -*- coding: utf-8 -*-
-"""Check 64 -- a function tagged `pure` or `semi-pure-a` does what its tag says.
+"""Check 64 -- a function tagged `pure` or `semi-pure-immutable` does what its tag says.
 
 WHY THIS EXISTS (CR-573 section 5, JDG-635 / JDG-636). Rule 04 section 3.5,
-table UO, row UO-1: a function tagged `@purity pure` or `semi-pure-a` needs no
+table UO, row UO-1: a function tagged `@purity pure` or `semi-pure-immutable` needs no
 unit test of its own; the tag check and the tests above it hold it. That
 bargain is only as good as the tag. A tag is a comment, and a comment nothing
 reads is a comment that drifts: a `pure` function that starts reading the
 clock keeps its tag, keeps its exemption, and is tested by nobody.
 
-WHAT IS RED. A function tagged `pure` or `semi-pure-a` (rule 07, R7.6) whose
+WHAT IS RED. A function tagged `pure` or `semi-pure-immutable` (rule 07, R7.6) whose
 body -- nested functions included, except a nested function with a tag of its
 own, which answers for itself --
 
   1. calls or constructs a function whose declaration is tagged
-     `semi-pure-b` or `non-pure`. The callee is resolved by the TypeScript
+     `semi-pure-mutable` or `non-pure`. The callee is resolved by the TypeScript
      checker through imports and re-exports, and ITS tag is read;
   2. touches `document`, `window`, `Date.now` or `Math.random` as the
      browser's or the language's own. A local variable named `document` (the
@@ -102,8 +102,8 @@ def write_baseline(count):
         return 1
     with io.open(BASELINE, 'w', encoding='utf-8', newline='\n') as handle:
         handle.write('%d\n' % count)
-        handle.write('# Check 64 -- functions tagged pure / semi-pure-a whose body '
-                     'calls a semi-pure-b / non-pure function,\n'
+        handle.write('# Check 64 -- functions tagged pure / semi-pure-immutable whose body '
+                     'calls a semi-pure-mutable / non-pure function,\n'
                      '# touches document / window / Date.now / Math.random, or '
                      'awaits. Line 1 is the count.\n'
                      '# Seeded by check-purity-honesty.py --write-baseline from '
@@ -141,7 +141,7 @@ def main(argv):
     shown = lies[:8]
     if held is None:
         say('PROBLEM  %s has not been written yet -- %d of %d function(s) '
-            'tagged pure / semi-pure-a lie. Seed it with --write-baseline.'
+            'tagged pure / semi-pure-immutable lie. Seed it with --write-baseline.'
             % (REL_BASELINE, count, examined))
         for lie in shown:
             say('         %s:%d %s: %s' % (lie['file'], lie['line'], lie['name'],
@@ -150,7 +150,7 @@ def main(argv):
         return 1
     if count > held:
         say('FAIL     functions whose @purity tag lies went %d -> %d (%d '
-            'examined). A pure / semi-pure-a function is excused from a '
+            'examined). A pure / semi-pure-immutable function is excused from a '
             'unit test (table UO, UO-1) only because it is what it says: fix '
             'the tag or the body, never the baseline.' % (held, count, examined))
         for lie in shown:
@@ -164,7 +164,7 @@ def main(argv):
         say('OK       %d of %d tagged function(s) lie (was %d) -- lower %s '
             'to hold the ground' % (count, examined, held, REL_BASELINE))
     else:
-        say('OK       %d of %d function(s) tagged pure / semi-pure-a lie, which '
+        say('OK       %d of %d function(s) tagged pure / semi-pure-immutable lie, which '
             'is the baseline' % (count, examined))
     say('   ' + NOT_COVERED)
     return 0

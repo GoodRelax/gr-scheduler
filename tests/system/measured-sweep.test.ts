@@ -354,7 +354,7 @@ interface ReasonWords {
  * the dictionary and (MUST NOT) lets a requirement or a table spell one, so a
  * literal here would be a second copy of a word that has exactly one home.
  *
- * @purity semi-pure-b
+ * @purity semi-pure-mutable
  */
 function reasonWordsOfDictionary(): ReasonWords[] {
   const held = JSON.parse(readFileSync(DICTIONARY, 'utf8')) as {
@@ -374,7 +374,7 @@ function reasonWordsOfDictionary(): ReasonWords[] {
  * languages: 「まだ 1 度もファイルへ書いていないときは、時刻の代わりにその旨を
  * 示すこと（MUST）」.
  *
- * @purity semi-pure-b
+ * @purity semi-pure-mutable
  */
 function neverSavedWords(): readonly string[] {
   const held = JSON.parse(readFileSync(DICTIONARY, 'utf8')) as {
@@ -396,7 +396,7 @@ function neverSavedWords(): readonly string[] {
  * that spelled one language's seven would report a build running in the other
  * as broken. Both spellings are accepted and neither is in this file.
  *
- * @purity semi-pure-b
+ * @purity semi-pure-mutable
  */
 function weekdayWords(): readonly string[] {
   const held = JSON.parse(readFileSync(DICTIONARY, 'utf8')) as {
@@ -415,7 +415,7 @@ function weekdayWords(): readonly string[] {
 const WHEEL_GLYPH_TOKEN = '{IC-102}'
 
 // see FR-036, JDG-76
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 function assignmentPressWordsByRow(): Map<string, string> {
   const held = JSON.parse(readFileSync(DICTIONARY, 'utf8')) as {
     assignments?: Array<{ rowId?: string; press?: { ja?: string; en?: string } }>
@@ -428,7 +428,7 @@ function assignmentPressWordsByRow(): Map<string, string> {
 // see FR-036
 // WHY: table T-023's own entrance column is the one place carrying an icon
 // WHY: row's wheel operation (`MK-3` -> IC-12/IC-13; `MK-4` -> IC-14/IC-15).
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 function wheelOperationByIcon(): Map<string, string> {
   const out = new Map<string, string>()
   for (const row of T023.rows) {
@@ -524,7 +524,7 @@ function surfacesOf(cell: string): readonly string[] {
 // see FR-036
 // WHY: read out of the sentence, found by its opening in code points (rule 03 section 5),
 // WHY: so a surface it gains is swept unedited; ASCII names drop the quoted column heading.
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 function helpBarred(): { readonly surfaces: ReadonlySet<string>; readonly rows: ReadonlySet<string> } {
   const opening = `${String.fromCharCode(0x26d4)} ${String.fromCharCode(0x8868)} T-109 ` +
     String.fromCharCode(0x306e, 0x3046, 0x3061)
@@ -544,7 +544,7 @@ function helpBarred(): { readonly surfaces: ReadonlySet<string>; readonly rows: 
 }
 
 // see FR-036
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 function helpListedEntrances(): ReadonlySet<string> {
   const barred = helpBarred()
   return new Set(
@@ -739,7 +739,7 @@ test.afterAll(async () => {
   await browser?.close()
 })
 
-/** The page every case of the first block shares. @purity semi-pure-b */
+/** The page every case of the first block shares. @purity semi-pure-mutable */
 function shared(): Page {
   if (plainPage === null) throw new Error('the shipped build was not opened')
   return plainPage
@@ -860,7 +860,7 @@ interface Wrote {
   readonly bodies: readonly string[]
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function readWrites(page: Page): Promise<Wrote> {
   return page.evaluate(() => {
     const held = (window as unknown as { grsSweepPicker?: { asked(): number; written(): string[] } })
@@ -903,7 +903,7 @@ async function until<T>(
   throw new Error(`${what} was still not true after ${timeoutMs}ms; last reading ${JSON.stringify(seen)}`)
 }
 
-/** Where an entrance stands right now, or null while it is not on the screen. @purity semi-pure-b */
+/** Where an entrance stands right now, or null while it is not on the screen. @purity semi-pure-mutable */
 async function entranceBox(
   page: Page,
   entrance: string,
@@ -961,7 +961,7 @@ async function armEntrance(page: Page, entrance: string): Promise<boolean> {
   return armed()
 }
 
-/** Whatever the notices are saying right now (table T-037). @purity semi-pure-b */
+/** Whatever the notices are saying right now (table T-037). @purity semi-pure-mutable */
 async function readNotices(page: Page): Promise<string[]> {
   return page.evaluate(() =>
     // ⛔ THE ROLE IS `Notification Area`, and asking for a role called `Notice`
@@ -984,7 +984,7 @@ async function readNotices(page: Page): Promise<string[]> {
  * application puts on `body` cannot quietly become the baseline this file
  * compares against.
  *
- * @purity semi-pure-b
+ * @purity semi-pure-mutable
  */
 async function groundTextPx(page: Page): Promise<number> {
   return page.evaluate(() =>
@@ -992,7 +992,7 @@ async function groundTextPx(page: Page): Promise<number> {
   )
 }
 
-/** The text sizes every leaf under a selector is drawn at. @purity semi-pure-b */
+/** The text sizes every leaf under a selector is drawn at. @purity semi-pure-mutable */
 async function leafTextSizes(page: Page, selector: string): Promise<Array<{ text: string; px: number }>> {
   return page.evaluate((wanted: string) => {
     const host = document.querySelector(wanted)
@@ -1006,7 +1006,7 @@ async function leafTextSizes(page: Page, selector: string): Promise<Array<{ text
   }, selector)
 }
 
-/** How many `<text>` of the drawing read exactly this. @purity semi-pure-b */
+/** How many `<text>` of the drawing read exactly this. @purity semi-pure-mutable */
 async function drawnTextsReading(page: Page, reading: string): Promise<number> {
   return page.evaluate(
     (asked: { canvas: string; wanted: string }) =>
@@ -1017,7 +1017,7 @@ async function drawnTextsReading(page: Page, reading: string): Promise<number> {
   )
 }
 
-/** A task bar whose middle is on the screen, or null when none is. @purity semi-pure-b */
+/** A task bar whose middle is on the screen, or null when none is. @purity semi-pure-mutable */
 async function firstBarOnScreen(page: Page): Promise<{ x: number; y: number } | null> {
   return page.evaluate(
     (asked: { canvas: string; width: number; floor: number }) => {
@@ -1081,7 +1081,7 @@ interface RulerTier {
  * the top is the grouping key. The zero-height lines the drawing also carries at
  * those heights are left out -- they divide nothing.
  *
- * @purity semi-pure-b
+ * @purity semi-pure-mutable
  */
 async function rulerTiers(page: Page): Promise<RulerTier[]> {
   return page.evaluate((canvas: string) => {
@@ -1144,7 +1144,7 @@ async function rulerTiers(page: Page): Promise<RulerTier[]> {
  * ⭐ Table T-016 holds the planned start in `PR-3` and the planned finish in
  * `PR-47` since CR-689, one date control each.
  *
- * @purity semi-pure-b
+ * @purity semi-pure-mutable
  */
 async function panelDates(page: Page): Promise<{ start: string; finish: string; name: string } | null> {
   return page.evaluate(() => {
@@ -1160,7 +1160,7 @@ async function panelDates(page: Page): Promise<{ start: string; finish: string; 
   })
 }
 
-/** Every task shape on the drawing right now, as a string apiece. @purity semi-pure-b */
+/** Every task shape on the drawing right now, as a string apiece. @purity semi-pure-mutable */
 async function drawnShapes(page: Page): Promise<string[]> {
   return page.evaluate(
     (canvas: string) =>
@@ -3053,7 +3053,7 @@ interface DrawnTaskGroupTitle {
  * never moves; what `S-37` pushes is the word inside it, which is what a reader
  * sees as the indent and what `FR-085` measures the room against.
  *
- * @purity semi-pure-b
+ * @purity semi-pure-mutable
  */
 async function drawnTaskGroupTitles(page: Page): Promise<DrawnTaskGroupTitle[]> {
   return page.evaluate(() =>
@@ -3280,7 +3280,7 @@ interface PanelLine {
  * being compared. Both sides are ranked by where the word starts instead --
  * `tiered` below.
  *
- * @purity semi-pure-b
+ * @purity semi-pure-mutable
  */
 async function panelLinesOnScreen(page: Page): Promise<PanelLine[]> {
   const lines = await page.evaluate(() =>
@@ -3554,7 +3554,7 @@ test('DFC-229: the written picture draws the task groups the screen draws after 
  * the screen is whether the dictionary holds it -- not which heading of the
  * manuscript it was filed under. A section added or renamed moves with this.
  *
- * @purity semi-pure-b
+ * @purity semi-pure-mutable
  */
 function dictionaryWords(): ReadonlySet<string> {
   const held = new Set<string>()
@@ -3594,7 +3594,7 @@ function dictionaryWords(): ReadonlySet<string> {
  * languages would witness nothing, and a case leaning on it would pass whatever
  * the application did.
  *
- * @purity semi-pure-b
+ * @purity semi-pure-mutable
  */
 function neverSavedByLanguage(): ReadonlyMap<string, string> {
   const held = JSON.parse(readFileSync(DICTIONARY, 'utf8')) as {
@@ -3633,7 +3633,7 @@ interface TypedInto {
  * and even "an input holds the focus" can both be true of a page that offers
  * nobody anything. What is asked for is a field that is focused AND drawn.
  *
- * @purity semi-pure-b
+ * @purity semi-pure-mutable
  */
 async function focusedTypableField(page: Page): Promise<TypedInto | null> {
   return page.evaluate(() => {
@@ -3675,7 +3675,7 @@ interface PanelPrinting {
  * `[data-field-row="PR-1"]` -- and a change to it breaks these cases, as it
  * should.
  *
- * @purity semi-pure-b
+ * @purity semi-pure-mutable
  */
 async function panelPrinting(page: Page): Promise<PanelPrinting> {
   return page.evaluate((panel: string) => {
@@ -3707,7 +3707,7 @@ interface Standing {
  * counted what `readNotices` answers would have read 1 and called `NT-3`
  * honored). The sheets are that area's own element children.
  *
- * @purity semi-pure-b
+ * @purity semi-pure-mutable
  */
 async function standingNotices(page: Page): Promise<Standing> {
   return page.evaluate(() => {
@@ -3726,7 +3726,7 @@ async function standingNotices(page: Page): Promise<Standing> {
   })
 }
 
-/** How many of the dictionary's reasons a piece of screen text is carrying. @purity semi-pure-b */
+/** How many of the dictionary's reasons a piece of screen text is carrying. @purity semi-pure-mutable */
 function reasonsCarriedBy(said: string): readonly string[] {
   return reasonWordsOfDictionary()
     .filter((one) => (one.ja !== '' && said.includes(one.ja)) || (one.en !== '' && said.includes(one.en)))
@@ -3754,7 +3754,7 @@ interface DrawnTaskGroup {
  * that is missing from this answer is a task group a person cannot see -- which is
  * exactly what `HF-17` (MUST) is about.
  *
- * @purity semi-pure-b
+ * @purity semi-pure-mutable
  */
 async function drawnTaskGroupsAndPanel(
   page: Page,

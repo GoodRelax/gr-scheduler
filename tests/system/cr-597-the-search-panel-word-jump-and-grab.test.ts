@@ -152,7 +152,7 @@ async function openErpSampleWithCommentBox(page: Page): Promise<number> {
   return uid
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function firstTaskUid(page: Page, word: string): Promise<number> {
   const rows = await searchRows(page, word)
   const first = rows.tasks[0]
@@ -160,7 +160,7 @@ async function firstTaskUid(page: Page, word: string): Promise<number> {
   return first
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function searchRows(page: Page, word: string): Promise<{ readonly tasks: number[]; readonly boxes: string[] }> {
   return page.evaluate((asked: string) => {
     const api = (window as unknown as { grSchedulerAgentApi: { readSearchRows(word: string): unknown } }).grSchedulerAgentApi
@@ -172,7 +172,7 @@ async function searchRows(page: Page, word: string): Promise<{ readonly tasks: n
   }, word)
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function groupOfTask(page: Page, uid: number): Promise<string> {
   const found = await page.evaluate((asked: number) => {
     const api = (window as unknown as { grSchedulerAgentApi: { readDocument(): unknown } }).grSchedulerAgentApi
@@ -200,7 +200,7 @@ function statesOf(reading: TreeReading): string {
   return JSON.stringify({ levelZero: reading.levelZero, rows: reading.rows.map((row) => [row.id, row.treeState]) })
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function selection(page: Page): Promise<string> {
   return page.evaluate(() => {
     const api = (window as unknown as { grSchedulerAgentApi: { readSelection(): unknown } }).grSchedulerAgentApi
@@ -208,7 +208,7 @@ async function selection(page: Page): Promise<string> {
   })
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function boxOf(page: Page, selector: string): Promise<Box | null> {
   return page.evaluate((wanted: string) => {
     const box = document.querySelector(wanted)?.getBoundingClientRect()
@@ -220,7 +220,7 @@ async function boxOf(page: Page, selector: string): Promise<Box | null> {
 
 // WHY: the range starts at the App Header's lower edge; the element with the role spans the window.
 // see U-32
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function scheduleCanvasRange(page: Page): Promise<Box> {
   const header = await boxOf(page, APP_HEADER)
   const view = page.viewportSize()
@@ -229,14 +229,14 @@ async function scheduleCanvasRange(page: Page): Promise<Box> {
   return { x: 0, y: header.bottom, right: view.width, bottom: view.height, width: view.width, height }
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function panelBox(page: Page): Promise<Box> {
   const box = await boxOf(page, SEARCH_PANEL)
   if (box === null) throw new Error('the Search Panel is not on the screen')
   return box
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function drawnTaskUids(page: Page): Promise<number[]> {
   return page.evaluate(
     (panel: string) =>
@@ -249,7 +249,7 @@ async function drawnTaskUids(page: Page): Promise<number[]> {
 }
 
 // WHY: the column a cell stands in is read from the heading above it, which the view marks per SQ row.
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function cellCenter(page: Page, column: string, rowIndex: number): Promise<Spot> {
   const found = await page.evaluate(
     (asked: { panel: string; column: string; row: number }) => {
@@ -268,7 +268,7 @@ async function cellCenter(page: Page, column: string, rowIndex: number): Promise
 }
 
 // WHY: the heading row is the band above the SV-2 field; a point on no entrance is GR-24's.
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function headingBandSpot(page: Page): Promise<Spot> {
   const found = await page.evaluate(
     (asked: { panel: string; field: string }) => {

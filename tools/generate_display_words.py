@@ -628,7 +628,7 @@ def table_rows(rel, row_pattern, table):
     T-023a carries a second block with no row ids at all -- and the pattern
     is what each caller uses to say which rows it means.
 
-    @purity semi-pure-b
+    @purity semi-pure-mutable
     """
     found = [row.cells for row in spec_tables.read(rel, table)
              if row_pattern.match('| %s |' % row.id)]
@@ -648,7 +648,7 @@ def notice_roster(key):
     entry: the screen prints the row it names, and an entry of its own would
     be a word nothing prints (FR-076).
 
-    @purity semi-pure-b
+    @purity semi-pure-mutable
     """
     with io.open(path_of(REL_NOTICE_REASONS), encoding='utf-8') as handle:
         found = [one['id'] for one in json.load(handle)[key]
@@ -661,7 +661,7 @@ def notice_roster(key):
 def invariants_sharing_words():
     """The rows of table T-220 whose words are a reason's (CR-712).
 
-    @purity semi-pure-b
+    @purity semi-pure-mutable
     """
     with io.open(path_of(REL_NOTICE_REASONS), encoding='utf-8') as handle:
         found = json.load(handle)['invariantRefusals'].get('wordsOf', {})
@@ -682,7 +682,7 @@ def settings_keys():
     ⚠️ A row may name several keys (`K-103`, `K-105`), and the order is the
     table's own -- rule 03 section 4, the same reason `roster` gives.
 
-    @purity semi-pure-b
+    @purity semi-pure-mutable
     """
     return dict((row[0], CODE_SPAN.findall(row[2]))
                 for row in table_rows(REL_GLOSSARY, SETTINGS_ROW,
@@ -692,7 +692,7 @@ def settings_keys():
 def color_spellings():
     """The stored spellings of table T-294, in the table's order.
 
-    @purity semi-pure-b
+    @purity semi-pure-mutable
     """
     doc = json.load(io.open(path_of(REL_SETTINGS), encoding='utf-8'))
     for block in doc['blocks']:
@@ -707,7 +707,7 @@ def listed_shortcuts():
     Those are the rows with no entrance and an assignment, and (CR-637) the
     rows the help roster lists because their entrance item is left off.
 
-    @purity semi-pure-b
+    @purity semi-pure-mutable
     """
     roster = json.load(io.open(path_of(REL_HELP_ROSTER), encoding='utf-8'))
     on_help = set(entry['row'] for entry in roster['entries']
@@ -729,7 +729,7 @@ def listed_shortcuts():
 def hint_lines():
     """The rows of table T-348 that own a word, after checking they exist.
 
-    @purity semi-pure-b
+    @purity semi-pure-mutable
     """
     rows = [row[0] for row in
             table_rows(REL_REQUIREMENTS, HINT_LINE_ROW, HINT_LINE_TABLE)]
@@ -744,7 +744,7 @@ def hint_lines():
 def delay_report_statuses():
     """DT-1's statuses, after checking their rows still stand.
 
-    @purity semi-pure-b
+    @purity semi-pure-mutable
     """
     rows = ([row[0] for row in table_rows(REL_REQUIREMENTS, DELAY_MARKER_ROW,
                                           DELAY_MARKER_TABLE)]
@@ -1171,7 +1171,7 @@ def unmarked(entry, section):
 def build_dependency_kinds():
     """Table T-018's rows for src/, outside FR-038's dictionary (FR-009 note).
 
-    @purity semi-pure-b
+    @purity semi-pure-mutable
     """
     out = {'$comment': DEPENDENCY_KINDS_BANNER,
            'dependencyKinds': dependency_kinds()}
@@ -1182,7 +1182,7 @@ def dependency_kinds():
     """Table T-018's rows as the screen needs them: row id, stored number and
     the abbreviation its name column starts with (CR-541).
 
-    @purity semi-pure-b
+    @purity semi-pure-mutable
     """
     kinds = []
     for cells in table_rows(REL_REQUIREMENTS, DEPENDENCY_KIND_ROW,
@@ -1267,7 +1267,7 @@ def main():
 def written_text(rel):
     """The file as it stands, line ends folded, or None when it is absent.
 
-    @purity semi-pure-b
+    @purity semi-pure-mutable
     """
     if not os.path.exists(path_of(rel)):
         return None

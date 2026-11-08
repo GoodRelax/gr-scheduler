@@ -47,6 +47,6 @@ export interface AgentSnapshot {
 
 // see IF-7
 export interface SnapshotSource {
-  /** @purity semi-pure-b */
+  /** @purity semi-pure-mutable */
   readSnapshot(): AgentSnapshot
 }

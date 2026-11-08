@@ -108,7 +108,7 @@ async function openApp(size: { width: number; height: number }): Promise<{ page:
   }
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function boxOf(page: Page, selector: string): Promise<Box | null> {
   return page.evaluate((wanted: string) => {
     const found = document.querySelector(wanted)
@@ -119,7 +119,7 @@ async function boxOf(page: Page, selector: string): Promise<Box | null> {
   }, selector)
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function helpBox(page: Page): Promise<Box> {
   const box = await boxOf(page, HELP)
   if (box === null) throw new Error(`${HELP} is not on the screen`)
@@ -127,7 +127,7 @@ async function helpBox(page: Page): Promise<Box> {
 }
 
 // see U-32
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function scheduleCanvasBox(page: Page): Promise<Box> {
   const header = await boxOf(page, HEADER)
   if (header === null) throw new Error(`${HEADER} is not on the screen`)
@@ -137,7 +137,7 @@ async function scheduleCanvasBox(page: Page): Promise<Box> {
 }
 
 // see T-337
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function frontPointOf(page: Page, selector: string): Promise<Point | null> {
   return page.evaluate((wanted: string) => {
     const one = document.querySelector(wanted)
@@ -175,7 +175,7 @@ async function openHelp(page: Page): Promise<Box> {
 }
 
 // see GR-24
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function titleBandPoint(page: Page): Promise<Point> {
   const at = await page.evaluate(
     (asked: { help: string; close: string }) => {
@@ -345,7 +345,7 @@ test.describe('CR-669 T-335 WB-8 / WB-9 -- moving and resizing stop at the Sched
 })
 
 // see FR-036
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function readItemsAndScroll(page: Page): Promise<{
   language: string
   items: Readonly<Record<string, string>>

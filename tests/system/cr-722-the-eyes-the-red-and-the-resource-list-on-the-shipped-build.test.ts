@@ -162,7 +162,7 @@ interface Shown {
 }
 
 // see AM-26
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function readShown(page: Page): Promise<Shown> {
   const shown = await page.evaluate(() => {
     const api = (window as unknown as { grSchedulerAgentApi: { readShownTasks(): Shown } }).grSchedulerAgentApi
@@ -181,7 +181,7 @@ async function showOnly(page: Page, taskUids: readonly number[] | null): Promise
   await settle(page)
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function drawnTaskUids(page: Page): Promise<number[]> {
   const keys = await page.evaluate(() => Array.from(document.querySelectorAll('[data-figure^="task-"]')).map((one) => one.getAttribute('data-figure') ?? ''))
   return [...new Set(keys.map((key) => Number(/^task-(\d+)-/.exec(key)?.[1] ?? NaN)).filter((uid) => Number.isInteger(uid)))].sort((a, b) => a - b)
@@ -200,13 +200,13 @@ async function press(page: Page, selector: string): Promise<void> {
   await settle(page)
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function textOf(page: Page, selector: string): Promise<string | null> {
   return page.evaluate((wanted: string) => document.querySelector(wanted)?.textContent ?? null, selector)
 }
 
 // WHY: the spec says the box is filled and the glyph drawn, not which element carries which; every color in the entrance is read.
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function paintsOf(page: Page, selector: string): Promise<{ readonly fills: readonly string[]; readonly inks: readonly string[] }> {
   return page.evaluate((wanted: string) => {
     const top = document.querySelector(wanted)
@@ -260,7 +260,7 @@ async function openResourceList(page: Page): Promise<void> {
   await expect(page.locator(RESOURCE_LIST)).toBeVisible()
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function columnTexts(page: Page, window: string, column: string): Promise<string[]> {
   return page.evaluate(
     (asked: { window: string; column: string }) => {

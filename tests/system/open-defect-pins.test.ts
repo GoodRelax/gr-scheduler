@@ -89,7 +89,7 @@ test.afterAll(async () => {
   await browser?.close()
 })
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 function openedBrowser(): Browser {
   if (browser === null) throw new Error('the reference browser was not opened')
   return browser
@@ -140,10 +140,10 @@ interface Box {
   readonly height: number
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function censusOf(page: Page): Promise<{ shapes: string; notice: string }> {
   return page.evaluate(
-    /** @purity semi-pure-b */
+    /** @purity semi-pure-mutable */
     (asked: { canvas: string; notices: string }) => {
       const svg = document.querySelector(asked.canvas)
       const counted = new Map<string, number>()
@@ -167,10 +167,10 @@ async function censusOf(page: Page): Promise<{ shapes: string; notice: string }>
 
 // WHY: wider than censusOf on purpose -- a surface opened over the canvas
 // (S-99g) leaves every shape there untouched, so only the whole screen answers.
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function screenCensusOf(page: Page): Promise<{ parts: string; notice: string }> {
   return page.evaluate(
-    /** @purity semi-pure-b */
+    /** @purity semi-pure-mutable */
     (notices: string) => {
       const named = Array.from(document.querySelectorAll('[data-role]'))
         .map((one) => one.getAttribute('data-role') ?? '')
@@ -189,7 +189,7 @@ async function screenCensusOf(page: Page): Promise<{ parts: string; notice: stri
 /** @purity non-pure */
 async function pressEntrance(page: Page, icon: string): Promise<boolean> {
   const at = await page.evaluate(
-    /** @purity semi-pure-b */
+    /** @purity semi-pure-mutable */
     (wanted: string) => {
       const entry = document.querySelector(`[data-icon="${wanted}"]`)
       if (entry === null) return null
@@ -211,10 +211,10 @@ async function pressEntrance(page: Page, icon: string): Promise<boolean> {
   return true
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function armingOf(page: Page, icon: string): Promise<string | null> {
   return page.evaluate(
-    /** @purity semi-pure-b */
+    /** @purity semi-pure-mutable */
     (wanted: string) =>
       document.querySelector(`[data-icon="${wanted}"]`)?.getAttribute('data-armed') ?? null,
     icon,
@@ -232,10 +232,10 @@ async function scrollToTheGround(page: Page): Promise<void> {
 
 // WHY: found by asking the page, not a coordinate written here --
 // elementFromPoint re-measures itself when the screen or document moves.
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function emptyCanvasPoint(page: Page): Promise<{ x: number; y: number } | null> {
   return page.evaluate(
-    /** @purity semi-pure-b */
+    /** @purity semi-pure-mutable */
     (asked: { canvas: string; panel: string }) => {
       const svg = document.querySelector(asked.canvas)
       const panel = document.querySelector(asked.panel)?.getBoundingClientRect()
@@ -263,7 +263,7 @@ const REACH_PX = 160
 async function cursorAt(page: Page, x: number, y: number): Promise<string> {
   await page.mouse.move(x, y)
   return page.evaluate(
-    /** @purity semi-pure-b */
+    /** @purity semi-pure-mutable */
     (canvas: string) => {
       const surface = document.querySelector(canvas)
       return surface instanceof HTMLElement ? surface.style.cursor : ''
@@ -279,7 +279,7 @@ async function cursorAt(page: Page, x: number, y: number): Promise<string> {
 /** @purity non-pure */
 async function emptyPointOnADrawnTaskGroup(page: Page): Promise<{ x: number; y: number } | null> {
   const ground = await page.evaluate(
-    /** @purity semi-pure-b */
+    /** @purity semi-pure-mutable */
     (asked: { panel: string; reach: number }) => {
       const panel = document.querySelector(asked.panel)?.getBoundingClientRect()
       if (panel === undefined) return null
@@ -319,10 +319,10 @@ interface FaintHold extends Box {
 // that a browser can measure, since everything else on the canvas is solid.
 // TRAP: the PM-1a marker group is faint too, so the key tells the two apart.
 // A width floor cannot: DM-3 draws the mark 2.0001px wide at the default scale.
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function faintHolds(page: Page): Promise<FaintHold[]> {
   return page.evaluate(
-    /** @purity semi-pure-b */
+    /** @purity semi-pure-mutable */
     (asked: { canvas: string; suffix: string }) => {
       const svg = document.querySelector(asked.canvas)
       if (svg === null) return []
@@ -353,10 +353,10 @@ async function faintHolds(page: Page): Promise<FaintHold[]> {
 
 // TRAP: the floor is half a drawn day and must stay under one, or the S-129 actual a
 // dropped dummy writes is filtered out and the drop reads as having written nothing.
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function barsAround(page: Page, y: number): Promise<Array<{ x: number; width: number; height: number }>> {
   return page.evaluate(
-    /** @purity semi-pure-b */
+    /** @purity semi-pure-mutable */
     (asked: { canvas: string; y: number; floor: number }) => {
       const svg = document.querySelector(asked.canvas)
       if (svg === null) return []
@@ -649,10 +649,10 @@ interface TypedInto {
 
 // WHY: a box of its own is part of the answer -- the shipped build keeps a
 // 0x0 input in the page always, so focus alone does not mean anyone sees it.
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function focusedTypableField(page: Page): Promise<TypedInto | null> {
   return page.evaluate(
-    /** @purity semi-pure-b */
+    /** @purity semi-pure-mutable */
     () => {
       const active = document.activeElement
       if (active === null) return null

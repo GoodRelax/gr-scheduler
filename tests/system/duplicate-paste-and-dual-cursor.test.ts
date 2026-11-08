@@ -358,7 +358,7 @@ async function pressEntrance(page: Page, icon: string): Promise<void> {
 }
 
 // see AM-3
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function readShot(page: Page): Promise<DocShot> {
   return page.evaluate(
     () => {
@@ -430,7 +430,7 @@ async function readCursors(page: Page): Promise<CursorShot> {
 }
 
 // see AM-5
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function readSelection(page: Page): Promise<{ kind: string; uid?: number }[]> {
   return page.evaluate(() => {
     const api = (window as unknown as { grSchedulerAgentApi: { readSelection(): unknown } })
@@ -439,7 +439,7 @@ async function readSelection(page: Page): Promise<{ kind: string; uid?: number }
   })
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function drawnRowIds(page: Page): Promise<string[]> {
   return page.evaluate(() =>
     Array.from(document.querySelectorAll('[data-depth]')).map(
@@ -448,7 +448,7 @@ async function drawnRowIds(page: Page): Promise<string[]> {
   )
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function chosenRowIds(page: Page): Promise<string[]> {
   return page.evaluate(() =>
     Array.from(document.querySelectorAll('[data-depth][data-selected="true"]')).map(

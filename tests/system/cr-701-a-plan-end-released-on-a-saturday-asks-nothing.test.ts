@@ -95,7 +95,7 @@ interface Held {
   readonly stamp: unknown
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function readHeld(page: Page): Promise<Held> {
   return page.evaluate(() => {
     const api = (window as unknown as { grSchedulerAgentApi: { readDocument(): any } }).grSchedulerAgentApi
@@ -115,7 +115,7 @@ interface Box {
   readonly height: number
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function planBox(page: Page): Promise<Box> {
   const box = await page.evaluate(() => {
     const r = document.querySelector('[data-figure="task-1-plan"]')?.getBoundingClientRect()
@@ -126,7 +126,7 @@ async function planBox(page: Page): Promise<Box> {
 }
 
 // WHY: the shade is one path of runs "M x0 top H x1 V bottom H x0 Z", read here in page coordinates.
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function shadeRuns(page: Page): Promise<readonly (readonly [number, number])[]> {
   return page.evaluate(() => {
     const left = document.querySelector('[data-role="Schedule Canvas"] svg')?.getBoundingClientRect().x ?? 0
@@ -135,7 +135,7 @@ async function shadeRuns(page: Page): Promise<readonly (readonly [number, number
   })
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function isShadedAt(page: Page, x: number): Promise<boolean> {
   return (await shadeRuns(page)).some(([from, to]) => from <= x && x <= to)
 }
@@ -147,7 +147,7 @@ interface Days {
 }
 
 // WHY: the run of shade that ends where the Monday bar starts is Saturday 3 and Sunday 4, two day columns wide.
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function daysFrom(page: Page, bar: Box): Promise<Days> {
   const runs = await shadeRuns(page)
   const weekend = runs.find(([, to]) => Math.abs(to - bar.x) < 1)
@@ -170,7 +170,7 @@ async function dragPlanEndBy(page: Page, days: Days, count: number): Promise<voi
   await settle(page)
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function questionText(page: Page): Promise<string | null> {
   return page.evaluate((selector: string) => {
     const found = document.querySelector(selector)

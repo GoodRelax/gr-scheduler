@@ -2437,7 +2437,7 @@ def finding_layers_block():
     as the delayReportAspects dictionary keys; a row added to either table now
     reaches the finding without an edit in src/.
 
-    @purity semi-pure-b
+    @purity semi-pure-mutable
     """
     got = []
     for table in FINDING_LAYER_TABLES:
@@ -2492,7 +2492,7 @@ def media_types_block():
     FileSystemAccessFileStore held these six pairs by hand (MEDIA_TYPE_OF_
     EXTENSION, check 69); JDG-2163 put them in the table.
 
-    @purity semi-pure-b
+    @purity semi-pure-mutable
     """
     out = ['// see T-024, FR-096, RW-7',
            '// TRAP: .svg, .html and .md carry x- types: a well-known type makes Chromium list every',
@@ -2522,7 +2522,7 @@ def save_file_form_block():
     publishes two functions of FileGateway and no value, so the list the
     shell walks is printed into the shell (save_file_forms_block).
 
-    @purity semi-pure-b
+    @purity semi-pure-mutable
     """
     return NEWLINE.join([
         '// see T-024, FR-096',
@@ -2533,7 +2533,7 @@ def save_file_form_block():
 def save_file_forms_block():
     """The same rows as a list, in the shell that turns a chosen row into a form.
 
-    @purity semi-pure-b
+    @purity semi-pure-mutable
     """
     rows = generate_exchange_formats.offered_rows()
     return NEWLINE.join([
@@ -2552,7 +2552,7 @@ def property_item_unions_block():
     tools/generate_property_items.py), so only the keys are printed: the hand
     map is keyed over the union and a row added to the table fails to compile.
 
-    @purity semi-pure-b
+    @purity semi-pure-mutable
     """
     items = generate_property_items.build()['items']
     applies_to = []
@@ -2580,7 +2580,7 @@ def root_keys_block():
     document.ts held them by hand (ROOT_KEYS, check 69); the schema's root
     properties are the manuscript.
 
-    @purity semi-pure-b
+    @purity semi-pure-mutable
     """
     schema = json.load(io.open(SCHEMA, encoding='utf-8'),
                        object_pairs_hook=collections.OrderedDict)
@@ -2600,7 +2600,7 @@ def edited_by_screen_block():
 
     frame-loop.ts held it by hand with a TRAP saying so (check 70, spec-copy).
 
-    @purity semi-pure-b
+    @purity semi-pure-mutable
     """
     cell = spec_tables.read(REL_REQUIREMENTS, EDITED_BY_TABLE).by_id(
         EDITED_BY_SCREEN_ROW).cell(EDITED_BY_WORD_COLUMN).strip()
@@ -2888,7 +2888,7 @@ CONSTANTS_NOTE = [
 def constant_rows():
     """Every (row id, key, cell) the not-stored tables state by an English name.
 
-    @purity semi-pure-b
+    @purity semi-pure-mutable
     """
     doc = json.load(io.open(SETTINGS, encoding='utf-8'))
     out, tables = [], []

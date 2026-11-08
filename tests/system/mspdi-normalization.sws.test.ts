@@ -206,10 +206,10 @@ function watchDownloads(page: Page): void {
 
 // WHY: the two surfaces are read in a fixed order, not interleaved by
 // time, since no clock is shared between them.
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function writtenFilesOf(page: Page): Promise<readonly WrittenFile[]> {
   const inPage = await page.evaluate(
-    /** @purity semi-pure-b */
+    /** @purity semi-pure-mutable */
     (key: string) => (Reflect.get(globalThis, key) as WrittenFile[] | undefined) ?? [],
     WRITTEN_FILES,
   )
@@ -261,7 +261,7 @@ async function writeOutOnce(page: Page): Promise<WrittenFile> {
 
 // WHY: run inside the page, not here -- Node has no XML parser and the
 // browser being judged does.
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function sameAfterNormalization(
   page: Page,
   first: string,
@@ -345,7 +345,7 @@ async function sameAfterNormalization(
 
 // WHY: cut from the written document: one copy moves only the value made at the write (NR-7), the other
 // the first other leaf of Project, so the step drops that one value and nothing beside it.
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function projectLeafCopies(
   page: Page,
   markup: string,
@@ -397,7 +397,7 @@ interface ReorderedCopies {
 
 // WHY: the copies are cut from the document the application wrote, not from
 // markup made up here, so what is put in another order is the format's own.
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function reorderedCopies(page: Page, markup: string): Promise<ReorderedCopies> {
   return page.evaluate(
     /** @purity pure */
@@ -482,7 +482,7 @@ test.afterAll(async () => {
   await browser?.close()
 })
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 function openedBrowser(): Browser {
   if (browser === null) throw new Error('the reference browser was not opened')
   return browser

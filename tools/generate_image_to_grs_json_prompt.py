@@ -106,7 +106,7 @@ def say(message):
 def prompt_of(language):
     """One manuscript from its second line, with LF line ends.
 
-    @purity semi-pure-b
+    @purity semi-pure-mutable
     """
     name = MANUSCRIPT_NAME % language
     text = io.open(os.path.join(SOURCE, name), encoding='utf-8').read()
@@ -136,7 +136,7 @@ def minified(value):
 def empty_project():
     """The startup template's project with the plan's own values blanked.
 
-    @purity semi-pure-b
+    @purity semi-pure-mutable
     """
     built = startup.Builder(startup.settings_defaults())
     project = built.project(0, startup.manuscript_number('S-73'))
@@ -152,7 +152,7 @@ def empty_calendar():
     S-107 keeps the default calendar free of exceptions, since holding them
     would presume a region; the template's shutdowns belong to its own plan.
 
-    @purity semi-pure-b
+    @purity semi-pure-mutable
     """
     calendar = startup.Builder(startup.settings_defaults()).calendar()
     calendar['exceptions'] = []
@@ -162,7 +162,7 @@ def empty_calendar():
 def empty_document():
     """A GRS JSON with no task, at the startup template's version (FR-068).
 
-    @purity semi-pure-b
+    @purity semi-pure-mutable
     """
     settings = startup.settings_defaults()
     startup.assert_settings_complete(settings)
@@ -209,7 +209,7 @@ def empty_document():
 def build():
     """The artifact: the parts of the copied string, each once.
 
-    @purity semi-pure-b
+    @purity semi-pure-mutable
     """
     schema = json.load(io.open(SCHEMA, encoding='utf-8'))
     built = {'$comment': BANNER}

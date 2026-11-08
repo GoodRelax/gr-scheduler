@@ -404,7 +404,7 @@ test.afterAll(async () => {
   await browser?.close()
 })
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 function taken(): Measured {
   if (sweepFailed !== null) throw sweepFailed
   if (measured === null) throw new Error('the sweep brought nothing back')

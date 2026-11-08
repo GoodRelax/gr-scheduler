@@ -97,7 +97,7 @@ interface Column {
   readonly fontPx: number
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function columnsOf(page: Page, window: string): Promise<readonly Column[]> {
   return page.evaluate(
     (asked: { window: string; filter: string }) => {
@@ -151,12 +151,12 @@ async function shapeHere(page: Page, x: number, y: number): Promise<string> {
   )
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function shapeMarked(page: Page): Promise<boolean> {
   return page.evaluate(() => document.querySelector('[data-pointer-shape-shown]') !== null)
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function underMark(page: Page, x: number, y: number): Promise<boolean> {
   return page.evaluate((at: { x: number; y: number }) => document.elementFromPoint(at.x, at.y)?.closest('[data-icon="IC-122"]') != null, { x, y })
 }

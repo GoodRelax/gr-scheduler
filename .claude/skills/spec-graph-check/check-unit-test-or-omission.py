@@ -13,7 +13,7 @@ WHAT IS RED. Two kinds of exported function of src/ (`export function`,
 
   A. one that no omission row covers and that no file of tests/unit names
      through an import. The rows read by machine, the rest by their tag:
-       UO-1  tagged `@purity pure` / `semi-pure-a` and carrying no
+       UO-1  tagged `@purity pure` / `semi-pure-immutable` and carrying no
              `@external-contract` (check 64 holds the tag honest)
        UO-2  inside a generated block of src/
        UO-3  no branch (function-size.mjs's definition of a branch, check 60)
@@ -60,7 +60,7 @@ BASELINE = os.path.join(HERE, 'unit-test-or-omission-baseline.txt')
 REL_BASELINE = '.claude/skills/spec-graph-check/unit-test-or-omission-baseline.txt'
 COVERAGE_REL = 'coverage/coverage-final.json'
 
-EXCUSED_BY_TAG = ('pure', 'semi-pure-a')
+EXCUSED_BY_TAG = ('pure', 'semi-pure-immutable')
 UO_ROW = re.compile(r'^\|\s*(UO-\d+)\s*\|', re.M)
 
 NOT_COVERED = (

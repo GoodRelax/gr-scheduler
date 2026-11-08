@@ -102,7 +102,7 @@ interface Mark {
   readonly checked: boolean
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function marksOf(page: Page): Promise<readonly Mark[]> {
   return page.evaluate((menu: string) => {
     return Array.from(document.querySelectorAll<HTMLInputElement>(`${menu} input[type="checkbox"]`)).map((mark) => ({
@@ -113,7 +113,7 @@ async function marksOf(page: Page): Promise<readonly Mark[]> {
   }, `${REPORT} ${MENU}`)
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function proposalRows(page: Page): Promise<number> {
   return page.evaluate((selector: string) => document.querySelectorAll(`${selector} tbody tr`).length, PROPOSALS)
 }

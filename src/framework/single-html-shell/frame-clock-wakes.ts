@@ -108,12 +108,12 @@ export function frameClockWakesOf(hands: FrameClockWakesHands) {
     callOffEntryRepeat = null
   }
 
-  /** @purity semi-pure-b */
+  /** @purity semi-pure-mutable */
   function readPointerRestedMs(): number {
     return pointerRestingSince === null ? 0 : readMonotonicMs() - pointerRestingSince
   }
 
-  /** @purity semi-pure-b */
+  /** @purity semi-pure-mutable */
   function readHintTargetDwellMs(): number {
     return hintTargetEnteredAt === null ? 0 : readMonotonicMs() - hintTargetEnteredAt
   }

@@ -109,7 +109,7 @@ export function driftProblems(files) {
   return out
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 function trackedTextFiles(root) {
   const names = execFileSync('git', ['ls-files', '-z'], { cwd: root, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 })
     .split('\0')
@@ -125,7 +125,7 @@ function trackedTextFiles(root) {
   return files
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 function versionsIn(root) {
   const pkg = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'))
   const lock = JSON.parse(readFileSync(join(root, 'package-lock.json'), 'utf8'))

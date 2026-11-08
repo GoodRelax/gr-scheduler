@@ -82,7 +82,7 @@ async function openAgentApi(page: Page): Promise<void> {
 }
 
 // see T-107
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function readTaskGroupNameSettings(page: Page): Promise<TaskGroupNameSettings> {
   return page.evaluate(() => {
     const api = (window as unknown as { grSchedulerAgentApi?: { readDocument(): unknown } }).grSchedulerAgentApi
@@ -98,7 +98,7 @@ async function readTaskGroupNameSettings(page: Page): Promise<TaskGroupNameSetti
 }
 
 // see FR-085, T-051
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function measureTaskGroups(page: Page): Promise<MeasuredTaskGroup[]> {
   return page.evaluate(() => {
     const px = (element: Element): number => Number.parseFloat(getComputedStyle(element).fontSize)

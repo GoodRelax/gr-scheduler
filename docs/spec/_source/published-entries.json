@@ -3029,7 +3029,7 @@
      "name": "exportEmbeddedHtml",
      "note": {
       "ja": [
-       "`semi-pure-b`。",
+       "`semi-pure-mutable`。",
        "表 T-024 の `IO-7`"
       ]
      }
@@ -3100,7 +3100,7 @@
      "name": "exportPng",
      "note": {
       "ja": [
-       "`semi-pure-b`。",
+       "`semi-pure-mutable`。",
        "失敗も値で返す。",
        "表 T-035 の `AG-8`"
       ]
@@ -3125,7 +3125,7 @@
      "name": "openDocumentFile",
      "note": {
       "ja": [
-       "`semi-pure-b`"
+       "`semi-pure-mutable`"
       ]
      }
     },
