@@ -410,7 +410,7 @@ async function pressEntrance(page: Page, icon: string): Promise<boolean> {
   return true
 }
 
-/** Whether an entrance stands armed -- `FR-029` writes it beside the entry. @purity semi-pure-b */
+/** Whether an entrance stands armed -- `FR-029` writes it beside the entry. @purity semi-pure-mutable */
 async function armingOf(page: Page, icon: string): Promise<string | null> {
   return page.evaluate(
     (wanted: string) =>
@@ -487,7 +487,7 @@ interface Drawn {
  * `rx` of an SVG rectangle -- and not from the attribute text, so a value that
  * arrives through a style or a presentation attribute is still seen.
  *
- * @purity semi-pure-b
+ * @purity semi-pure-mutable
  */
 async function drawnElements(page: Page): Promise<Drawn[]> {
   return page.evaluate((canvas: string) => {
@@ -557,7 +557,7 @@ function describe(some: readonly Drawn[]): string {
  * itself, and `_assets/tbl-glossary.md` calls what it gives back a frozen copy
  * of the whole of it.
  *
- * @purity semi-pure-b
+ * @purity semi-pure-mutable
  */
 async function readDocumentTaskGroupIds(page: Page): Promise<string[]> {
   return page.evaluate(() => {
@@ -580,7 +580,7 @@ async function readDocumentTaskGroupIds(page: Page): Promise<string[]> {
  * ellipsis, and that is the requirement working. Nothing here compares a name
  * against one it typed.
  *
- * @purity semi-pure-b
+ * @purity semi-pure-mutable
  */
 async function readDrawnTaskGroupNames(page: Page): Promise<string[]> {
   return page.evaluate(() =>
@@ -597,7 +597,7 @@ async function readDrawnTaskGroupNames(page: Page): Promise<string[]> {
  * offered to delete. `U-55` (`_assets/tbl-glossary.md`) is the part's settled
  * name, and the shell marks the part with it.
  *
- * @purity semi-pure-b
+ * @purity semi-pure-mutable
  */
 async function readConfirmation(page: Page): Promise<string[]> {
   return page.evaluate(() =>
@@ -608,7 +608,7 @@ async function readConfirmation(page: Page): Promise<string[]> {
   )
 }
 
-/** Whatever the notices are saying right now (table T-037). @purity semi-pure-b */
+/** Whatever the notices are saying right now (table T-037). @purity semi-pure-mutable */
 async function readNotices(page: Page): Promise<string[]> {
   return page.evaluate(() =>
     // ⛔ THE ROLE IS `Notification Area`, and asking for a role called `Notice`
@@ -621,7 +621,7 @@ async function readNotices(page: Page): Promise<string[]> {
   )
 }
 
-/** Whether one of `S-99g`'s faces is standing. @purity semi-pure-b */
+/** Whether one of `S-99g`'s faces is standing. @purity semi-pure-mutable */
 async function faceIsUp(page: Page): Promise<boolean> {
   return page.evaluate((wanted: string) => {
     const face = document.querySelector(wanted)

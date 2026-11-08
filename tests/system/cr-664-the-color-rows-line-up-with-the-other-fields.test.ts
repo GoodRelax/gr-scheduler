@@ -57,7 +57,7 @@ test.afterAll(async () => {
   await browser?.close()
 })
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function fieldsOf(page: Page): Promise<Field[]> {
   return page.evaluate((panel: string) => {
     const out: Field[] = []
@@ -104,7 +104,7 @@ async function openOnATask(page: Page): Promise<void> {
   await page.waitForTimeout(SETTLE_MS)
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function panelWidthOf(page: Page): Promise<number> {
   return page.evaluate((panel: string) => document.querySelector(panel)?.getBoundingClientRect().width ?? 0, PROPERTIES_PANEL)
 }
@@ -167,7 +167,7 @@ interface SwatchRows {
 }
 
 // WHY: the grid is the element holding the transparent entry (CV-9, CR-689); its cells' tops count its rows.
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function swatchRowsOf(page: Page): Promise<SwatchRows[]> {
   return page.evaluate(
     ({ panel, rows }: { panel: string; rows: readonly string[] }) => {

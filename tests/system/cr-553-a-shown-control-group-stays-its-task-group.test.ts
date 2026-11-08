@@ -49,7 +49,7 @@ test.afterAll(async () => {
   await browser?.close()
 })
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 function openedBrowser(): Browser {
   if (browser === null) throw new Error('the reference browser was not opened')
   return browser
@@ -176,7 +176,7 @@ interface DrawnTaskGroup {
   readonly entranceShown: boolean
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function drawnTaskGroups(page: Page): Promise<DrawnTaskGroup[]> {
   return page.evaluate(
     (asked: { row: string; grid: string; icon: string }) =>
@@ -199,7 +199,7 @@ async function drawnTaskGroups(page: Page): Promise<DrawnTaskGroup[]> {
   )
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function taskGroupById(page: Page, id: string): Promise<DrawnTaskGroup> {
   const found = (await drawnTaskGroups(page)).find((row) => row.id === id)
   if (found === undefined) throw new Error(`task group ${id} is not drawn`)
@@ -208,7 +208,7 @@ async function taskGroupById(page: Page, id: string): Promise<DrawnTaskGroup> {
 
 // WHY: the left end of the name, where the page itself says the name is on top: the ground of the
 // group runs from the leftmost control to the right edge (HF-6), so it never covers this spot.
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function nameSpotOf(page: Page, id: string): Promise<{ x: number; y: number }> {
   const spot = await page.evaluate(
     (asked: { id: string; row: string }) => {
@@ -232,7 +232,7 @@ async function nameSpotOf(page: Page, id: string): Promise<{ x: number; y: numbe
   return spot
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function ownerAt(page: Page, at: { x: number; y: number }): Promise<string | null> {
   return page.evaluate(
     (asked: { x: number; y: number; row: string }) =>
@@ -318,7 +318,7 @@ interface TaskGroupArea {
 // see FR-051, GR-21
 // WHY: Scrollbars take their room from the Task Group Area (FR-051), so the vertical one spans exactly the
 // Task Group Area's height, and the horizontal one starts where nothing of the schedule may be drawn.
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function taskGroupAreaOf(page: Page): Promise<TaskGroupArea> {
   return page.evaluate((selector: string) => {
     const bars = Array.from(document.querySelectorAll(selector)).map((one) => one.getBoundingClientRect())

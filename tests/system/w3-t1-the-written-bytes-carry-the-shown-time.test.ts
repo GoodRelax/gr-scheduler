@@ -18,7 +18,7 @@ const HS_11 =
 const FILE_SAVED_AT = '[data-role="File Saved At"]'
 
 // see HS-2
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function shownTimeAsUtc(page: Page): Promise<string | null> {
   const said = (await page.locator(FILE_SAVED_AT).textContent()) ?? ''
   const found = /(\d{4})\/(\d{2})\/(\d{2}) (\d{2}):(\d{2}):(\d{2})/.exec(said)

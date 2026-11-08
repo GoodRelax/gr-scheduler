@@ -29,11 +29,11 @@
 // `// @purity    <value>` line is a line comment and is never read as a
 // function's tag.
 //
-// HONESTY (check 64). A function tagged `pure` or `semi-pure-a` lies when its
+// HONESTY (check 64). A function tagged `pure` or `semi-pure-immutable` lies when its
 // body -- nested functions included, except a nested function carrying a tag
 // of its own, which answers for itself --
 //   1. calls or constructs something whose declaration is tagged
-//      `semi-pure-b` or `non-pure` (the callee is resolved through imports
+//      `semi-pure-mutable` or `non-pure` (the callee is resolved through imports
 //      and re-exports by the checker, and its own tag is read);
 //   2. touches `document`, `window`, `Date.now` or `Math.random` as the
 //      browser's or the language's own (a local named `document` -- the GRS
@@ -93,8 +93,8 @@ const FUNCTION_KINDS = new Set([
   K.FunctionDeclaration, K.FunctionExpression, K.ArrowFunction,
   K.MethodDeclaration, K.GetAccessor, K.SetAccessor, K.Constructor,
 ])
-const IMPURE_TAGS = new Set(['semi-pure-b', 'non-pure'])
-const HONEST_TAGS = new Set(['pure', 'semi-pure-a'])
+const IMPURE_TAGS = new Set(['semi-pure-mutable', 'non-pure'])
+const HONEST_TAGS = new Set(['pure', 'semi-pure-immutable'])
 const BRANCH_KINDS = new Set([
   K.IfStatement, K.ConditionalExpression, K.ForStatement, K.ForInStatement,
   K.ForOfStatement, K.WhileStatement, K.DoStatement, K.CatchClause, K.CaseClause,
@@ -102,7 +102,7 @@ const BRANCH_KINDS = new Set([
 const LOGICAL_OPERATORS = new Set([
   K.AmpersandAmpersandToken, K.BarBarToken, K.QuestionQuestionToken,
 ])
-const TAG_RE = /\/\*\*?[\s*]*@purity\s+(pure|semi-pure-a|semi-pure-b|non-pure|n\/a)\b/g
+const TAG_RE = /\/\*\*?[\s*]*@purity\s+(pure|semi-pure-immutable|semi-pure-mutable|non-pure|n\/a)\b/g
 const CONTRACT_RE = /@external-contract\s+([A-Za-z0-9-]+)/
 const OMITTED_RE = /@unit-test-omitted\s+(UO-\d+)([^\n*]*)/
 const GENERATED_OPEN = '// <generated -- do not edit by hand>'

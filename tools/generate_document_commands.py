@@ -172,7 +172,7 @@ def stop(message):
 def load():
     """(doc, columns) of the manuscript, or stop when the printer refuses it.
 
-    @purity semi-pure-b
+    @purity semi-pure-mutable
     """
     doc, columns = manuscript.load_valid()
     if doc is None:
@@ -549,7 +549,7 @@ def rewritten(rel, text, what, lines):
 # ---------------------------------------------------------------- MCP input shape
 
 def document_schema():
-    """@purity semi-pure-b"""
+    """@purity semi-pure-mutable"""
     return json.load(io.open(path_of(REL_DOCUMENT_SCHEMA), encoding='utf-8'))
 
 
@@ -768,7 +768,7 @@ def with_command_shapes(input_schema, member, agent_doc):
     The member's own description of the argument is kept; each field is
     described by its meaning in table T-400.
 
-    @purity semi-pure-b
+    @purity semi-pure-mutable
     """
     written = [one for one in member['arguments'] if one['type'] == WRITE_REQUEST_TYPE]
     if not written:

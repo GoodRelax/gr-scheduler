@@ -33,13 +33,13 @@ const TASK_DAYS: readonly (readonly [number, string, string])[] = [
 ]
 const NAMES: Readonly<Record<number, string>> = { [ALPHA]: 'Alpha', [BRAVO]: 'Bravo', [CHARLIE]: 'Charlie', [DELTA]: 'Delta', [ECHO]: 'Echo' }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 export function templateCopy(): Loose {
   return JSON.parse(readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8')) as Loose
 }
 
 // WHY: Sato carries Alpha and Charlie, Tanaka Bravo and Delta, Echo nobody, and Idle carries no task; every field the schema asks for is present.
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 export function scheduleFixture(): Loose {
   const schedule = templateCopy()['schedule'] as Loose
   const group = (schedule['taskGroups'] as Loose[])[0] as Loose
@@ -89,7 +89,7 @@ export function scheduleFixture(): Loose {
   }
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 export function documentText(settingsPart: Loose = {}, schedule: unknown = scheduleFixture()): string {
   const base = templateCopy()
   const settings = base['documentSettings'] as Loose

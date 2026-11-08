@@ -147,7 +147,7 @@ export function tryWantedFieldBeforeInput(
 }
 
 // see IN-5a
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 export function isFieldFocusWanted(hands: FieldEntryHands): boolean {
   return fieldFocusWantedIn(hands.readSession()) !== null && hands.screen?.focusPropertyField !== undefined
 }

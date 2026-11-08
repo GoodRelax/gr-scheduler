@@ -189,7 +189,7 @@ def box_of(element, where):
 
 def read_shapes():
     """Figure F-044: every shape by its spelling, in the figure's order."""
-    # @purity semi-pure-b
+    # @purity semi-pure-mutable
     figure = io.open(FIGURE, encoding='utf-8').read()
     found = SHAPE.findall(figure)
     if len(found) != len(GROUP_OPEN.findall(figure)):
@@ -229,7 +229,7 @@ def check_frame(glyph, elements):
 
 def glyph_elements():
     """Figure F-019: the elements of every milestone glyph, by spelling."""
-    # @purity semi-pure-b
+    # @purity semi-pure-mutable
     icons = generate_icon_roster.build()['icons']
     row_of = {}
     for icon in icons:
@@ -381,7 +381,7 @@ def path_data(element):
 
 def build():
     """The chart's shape table, as it is written out."""
-    # @purity semi-pure-b
+    # @purity semi-pure-mutable
     shapes = read_shapes()
     settled = generate_icon_roster.settled_spellings(
         generate_icon_roster.SHAPE_ENTITY, generate_icon_roster.GLYPH_COLUMN)
@@ -431,7 +431,7 @@ def role_region():
 
 def unit_with_roles():
     """(on disk, wanted) for the unit whose region holds the role union."""
-    # @purity semi-pure-b
+    # @purity semi-pure-mutable
     body = io.open(UNIT, encoding='utf-8', newline='').read()
     ending = '\r\n' if body.count('\r\n') * 2 > body.count('\n') else '\n'
     text = body.replace('\r\n', '\n')

@@ -260,7 +260,7 @@ def entrances_of(row):
 
 
 def settings_number(row_id):
-    """@purity semi-pure-b"""
+    """@purity semi-pure-mutable"""
     doc = json.load(io.open(SETTINGS, encoding='utf-8'))
     found = []
 
@@ -280,7 +280,7 @@ def settings_number(row_id):
 
 
 def always_shown_glyph_count():
-    """@purity semi-pure-b"""
+    """@purity semi-pure-mutable"""
     return settings_number(ALWAYS_SHOWN_GLYPHS)
 
 
@@ -368,7 +368,7 @@ def item(block, segment, table, row, keys=None, press=None, glyphs=None,
 def build():
     """The roster, as it is written out.
 
-    @purity semi-pure-b
+    @purity semi-pure-mutable
     """
     icons = json.load(io.open(ROSTER, encoding='utf-8'))['icons']
     by_id = dict((icon['rowId'], icon) for icon in icons)

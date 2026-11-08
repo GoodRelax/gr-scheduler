@@ -85,7 +85,7 @@ test.afterAll(async () => {
   await browser?.close()
 })
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 function openedBrowser(): Browser {
   if (browser === null) throw new Error('the reference browser was not opened')
   return browser
@@ -121,7 +121,7 @@ test(
     // WHY: judged inside the page, only offenders returned -- shipping every
     // WHY: number across the wire would be tens of thousands of strings.
     const scan = await page.evaluate(
-      /** @purity semi-pure-b */
+      /** @purity semi-pure-mutable */
       (asked: { selector: string; attributes: readonly string[]; spelling: string }) => {
         const root = document.querySelector(asked.selector)
         if (root === null) return { elements: 0, numbers: 0, offenders: [] as string[] }

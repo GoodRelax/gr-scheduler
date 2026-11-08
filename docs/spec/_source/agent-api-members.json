@@ -172,7 +172,7 @@
     },
     "name": "agentApiVersion",
     "kind": "property",
-    "purity": "semi-pure-a",
+    "purity": "semi-pure-immutable",
     "arguments": [],
     "returns": "string",
     "carries": {
@@ -196,7 +196,7 @@
     },
     "name": "schemaVersion",
     "kind": "property",
-    "purity": "semi-pure-a",
+    "purity": "semi-pure-immutable",
     "arguments": [],
     "returns": "string",
     "carries": {
@@ -220,7 +220,7 @@
     },
     "name": "readSchema",
     "kind": "method",
-    "purity": "semi-pure-a",
+    "purity": "semi-pure-immutable",
     "arguments": [
      {
       "name": "which",
@@ -276,7 +276,7 @@
     },
     "name": "readDocument",
     "kind": "method",
-    "purity": "semi-pure-b",
+    "purity": "semi-pure-mutable",
     "arguments": [
      {
       "name": "includeCarry",
@@ -331,7 +331,7 @@
     },
     "name": "readStamp",
     "kind": "method",
-    "purity": "semi-pure-b",
+    "purity": "semi-pure-mutable",
     "arguments": [],
     "returns": "DocumentStamp",
     "carries": {
@@ -355,7 +355,7 @@
     },
     "name": "readSelection",
     "kind": "method",
-    "purity": "semi-pure-b",
+    "purity": "semi-pure-mutable",
     "arguments": [],
     "returns": "Selection",
     "carries": {
@@ -378,7 +378,7 @@
     },
     "name": "readSearchRows",
     "kind": "method",
-    "purity": "semi-pure-b",
+    "purity": "semi-pure-mutable",
     "arguments": [
      {
       "name": "word",
@@ -448,7 +448,7 @@
     },
     "name": "readTableRows",
     "kind": "method",
-    "purity": "semi-pure-b",
+    "purity": "semi-pure-mutable",
     "arguments": [
      {
       "name": "table",
@@ -523,7 +523,7 @@
     },
     "name": "readShownTasks",
     "kind": "method",
-    "purity": "semi-pure-b",
+    "purity": "semi-pure-mutable",
     "arguments": [],
     "returns": "AgentShownTasks",
     "carries": {
@@ -547,7 +547,7 @@
     },
     "name": "readDelayDiagnostics",
     "kind": "method",
-    "purity": "semi-pure-b",
+    "purity": "semi-pure-mutable",
     "arguments": [
      {
       "name": "parts",
@@ -817,7 +817,7 @@
     },
     "name": "exportJson",
     "kind": "method",
-    "purity": "semi-pure-b",
+    "purity": "semi-pure-mutable",
     "arguments": [],
     "returns": "AgentExport<string>",
     "carries": {
@@ -859,7 +859,7 @@
     },
     "name": "exportMspdi",
     "kind": "method",
-    "purity": "semi-pure-b",
+    "purity": "semi-pure-mutable",
     "arguments": [],
     "returns": "AgentExport<string>",
     "carries": {
@@ -901,7 +901,7 @@
     },
     "name": "exportSvg",
     "kind": "method",
-    "purity": "semi-pure-b",
+    "purity": "semi-pure-mutable",
     "arguments": [],
     "returns": "AgentExport<string>",
     "carries": {
@@ -943,7 +943,7 @@
     },
     "name": "exportPng",
     "kind": "method",
-    "purity": "semi-pure-b",
+    "purity": "semi-pure-mutable",
     "arguments": [],
     "returns": "Promise<AgentExport<Uint8Array>>",
     "carries": {
@@ -986,7 +986,7 @@
     },
     "name": "exportEmbeddedHtml",
     "kind": "method",
-    "purity": "semi-pure-b",
+    "purity": "semi-pure-mutable",
     "arguments": [],
     "returns": "Promise<AgentExport<string>>",
     "carries": {
@@ -1028,7 +1028,7 @@
     },
     "name": "exportFixLogTsv",
     "kind": "method",
-    "purity": "semi-pure-b",
+    "purity": "semi-pure-mutable",
     "arguments": [],
     "returns": "AgentExport<string>",
     "carries": {

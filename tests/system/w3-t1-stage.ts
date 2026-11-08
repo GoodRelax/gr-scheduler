@@ -99,7 +99,7 @@ export function taskGroupsDocument(asked: TaskGroupsDocument): string {
   return JSON.stringify(built)
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 export async function readDocumentOf(page: Page): Promise<any> {
   return page.evaluate(() => (window as unknown as { grSchedulerAgentApi: { readDocument(): unknown } }).grSchedulerAgentApi.readDocument())
 }
@@ -113,7 +113,7 @@ export async function applyCommandsOf(page: Page, commands: readonly unknown[]):
   }, commands)
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 export async function exportSvgOf(page: Page): Promise<any> {
   return page.evaluate(async () => {
     const api = (window as unknown as { grSchedulerAgentApi: { exportSvg(): unknown } }).grSchedulerAgentApi

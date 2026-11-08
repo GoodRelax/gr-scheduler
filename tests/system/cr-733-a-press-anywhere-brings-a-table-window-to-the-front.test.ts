@@ -81,7 +81,7 @@ async function openWindow(page: Page, which: Which): Promise<void> {
   await settle(page)
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function boxOf(page: Page, selector: string): Promise<Box> {
   const box = await page.evaluate((wanted: string) => {
     const found = document.querySelector(wanted)?.getBoundingClientRect()
@@ -92,7 +92,7 @@ async function boxOf(page: Page, selector: string): Promise<Box> {
 }
 
 // WHY: WB-11 and UZ-6 speak of what is in front at a point; the element the browser finds there is what the author sees.
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function windowAt(page: Page, x: number, y: number): Promise<Which | null> {
   const role = await page.evaluate(
     ({ px, py, windows }: { px: number; py: number; windows: string }) =>
@@ -103,7 +103,7 @@ async function windowAt(page: Page, x: number, y: number): Promise<Which | null>
   return found ?? null
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function titleBarY(page: Page, which: Which): Promise<number> {
   const close = await boxOf(page, `${ROLE_OF[which]} [data-icon="${IC_52_CLOSE}"]`)
   return close.y + close.height / 2
@@ -148,7 +148,7 @@ async function overlapped(page: Page, back: Which, front: Which): Promise<Overla
   return { back, front, backBox, frontBox }
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 function overlapPoint(one: Overlap): { x: number; y: number } {
   return { x: (one.frontBox.x + one.backBox.right) / 2, y: one.backBox.y + one.backBox.height * 0.6 }
 }
@@ -159,7 +159,7 @@ async function expectFrontAtOverlap(page: Page, one: Overlap, wanted: Which, why
   expect(await windowAt(page, at.x, at.y), why).toBe(wanted)
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 function backVisibleX(one: Overlap): number {
   return (one.backBox.x + one.frontBox.x) / 2
 }
@@ -413,7 +413,7 @@ test.describe('SV-2 / IC-117 / SK-24 -- a shown search panel comes to the front 
     return { one, o: { back: 'search', front: 'report', backBox, frontBox } }
   }
 
-  /** @purity semi-pure-b */
+  /** @purity semi-pure-mutable */
   async function field(page: Page): Promise<{ readonly inPanel: boolean; readonly value: string; readonly selected: string }> {
     return page.evaluate((panel: string) => {
       const active = document.activeElement as HTMLInputElement | null

@@ -148,7 +148,7 @@ describe('T-107 arguments and return values, row by row', () => {
 
   it('every row has one of the three purities the table names and a source', () => {
     for (const one of members) {
-      expect(['semi-pure-a', 'semi-pure-b', 'non-pure'], one.id).toContain(one.purity)
+      expect(['semi-pure-immutable', 'semi-pure-mutable', 'non-pure'], one.id).toContain(one.purity)
       expect(one.sourceCell.length, one.id).toBeGreaterThan(0)
       expect(one.carries.length, one.id).toBeGreaterThan(0)
     }

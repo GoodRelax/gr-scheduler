@@ -78,7 +78,7 @@ async function pressMenuEntry(page: Page, window: string, icon: string): Promise
   await pressSelector(page, `${window} [data-search-filter-menu] [data-icon="${icon}"]`)
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function isEntryIdle(page: Page, window: string, icon: string): Promise<boolean> {
   return page.evaluate(
     (asked: { window: string; icon: string }) => {
@@ -90,12 +90,12 @@ async function isEntryIdle(page: Page, window: string, icon: string): Promise<bo
   )
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function wordFieldValue(page: Page): Promise<string> {
   return page.evaluate((window: string) => (document.querySelector(`${window} input[data-search-word]`) as HTMLInputElement | null)?.value ?? '', PANEL)
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function rowCount(page: Page, window: string): Promise<number> {
   return page.evaluate((asked: string) => document.querySelectorAll(`${asked} tbody tr`).length, window)
 }

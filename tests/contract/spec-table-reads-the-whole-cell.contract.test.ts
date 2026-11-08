@@ -99,10 +99,10 @@ describe('bareAll -- every value a cell states', () => {
   it('gives both purities 表 T-075 UF-41 states', () => {
     // ⭐ The manuscript settles what two values in that column mean, under the
     // table: 「本欄はそのユニットが持つ関数の純粋性を重複なく並べたものであり」,
-    // and 「`semi-pure-b` と `non-pure` が同じユニットに載ることは `R7.9` に反し
+    // and 「`semi-pure-mutable` と `non-pure` が同じユニットに載ることは `R7.9` に反し
     // ない」. So the column enumerates by design and is not a defect to close.
     expect(bareAll(rowOf('T-075', 'UF-41')['純粋性'] ?? '')).toEqual([
-      'semi-pure-b',
+      'semi-pure-mutable',
       'non-pure',
     ])
   })

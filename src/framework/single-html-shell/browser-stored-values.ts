@@ -26,7 +26,7 @@ function isDisplayLanguage(value: string): value is DisplayLanguage {
   return Object.prototype.hasOwnProperty.call(DISPLAY_LANGUAGES, value)
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 export function readBrowserStored(row: BrowserStoredRow): string | null {
   try {
     // TRAP: a refusing host throws on the property itself; keep the access inside the try.
@@ -64,7 +64,7 @@ export function clearBrowserStoredForReset(): void {
 }
 
 // see FR-038, S-99
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 export function startupDisplayLanguage(): DisplayLanguage {
   const stored = readBrowserStored('S-99')
   if (stored !== null && isDisplayLanguage(stored)) return stored
@@ -73,7 +73,7 @@ export function startupDisplayLanguage(): DisplayLanguage {
 
 // see FR-039, S-72
 // WHY: read once per start and never written back; the page follows the browser on the next start.
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 export function startupThemePreference(): 'light' | 'dark' {
   try {
     return globalThis.matchMedia?.(PREFERS_DARK_QUERY)?.matches === true ? 'dark' : 'light'
@@ -83,7 +83,7 @@ export function startupThemePreference(): 'light' | 'dark' {
 }
 
 // see FR-065, S-99b
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 export function isStartupAgentApiEnabled(): boolean {
   return readBrowserStored('S-99b') === String(true)
 }

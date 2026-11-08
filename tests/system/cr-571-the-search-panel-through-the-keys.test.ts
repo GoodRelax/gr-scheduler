@@ -44,13 +44,13 @@ async function stage(): Promise<Stage> {
   return openStage(browser)
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function isPanelShown(page: Page): Promise<boolean> {
   return (await page.$(SEARCH_PANEL)) !== null
 }
 
 // WHY: SV-2's field is the one text entry inside the panel that holds focus after SK-24.
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function focusedField(page: Page): Promise<{ readonly inPanel: boolean; readonly value: string; readonly selected: string }> {
   return page.evaluate((panel: string) => {
     const active = document.activeElement as HTMLInputElement | null
@@ -64,7 +64,7 @@ async function focusedField(page: Page): Promise<{ readonly inPanel: boolean; re
   }, SEARCH_PANEL)
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function exportedSvg(page: Page): Promise<string> {
   return page.evaluate(async () => {
     const api = (window as unknown as { grSchedulerAgentApi?: { exportSvg(): unknown } }).grSchedulerAgentApi

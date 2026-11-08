@@ -110,7 +110,7 @@ async function openApp(size: { width: number; height: number }): Promise<{ page:
   }
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function boxOf(page: Page, selector: string): Promise<Box | null> {
   return page.evaluate((wanted: string) => {
     const found = document.querySelector(wanted)
@@ -121,7 +121,7 @@ async function boxOf(page: Page, selector: string): Promise<Box | null> {
   }, selector)
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function helpBox(page: Page): Promise<Box> {
   const box = await boxOf(page, HELP)
   if (box === null) throw new Error(`${HELP} is not on the screen`)
@@ -129,7 +129,7 @@ async function helpBox(page: Page): Promise<Box> {
 }
 
 // see WB-3, U-32
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function rangeBox(page: Page): Promise<Box> {
   const header = await boxOf(page, HEADER)
   if (header === null) throw new Error(`${HEADER} is not on the screen`)
@@ -138,7 +138,7 @@ async function rangeBox(page: Page): Promise<Box> {
 }
 
 // see T-337
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function frontPointOf(page: Page, selector: string): Promise<Point | null> {
   return page.evaluate((wanted: string) => {
     const one = document.querySelector(wanted)
@@ -178,7 +178,7 @@ async function openHelp(page: Page): Promise<Box> {
 const SUMMARY = `${HELP} details > summary`
 
 // see FR-069
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function readLegal(page: Page): Promise<{ language: string; summaryText: string; isOpen: boolean } | null> {
   return page.evaluate((help: string) => {
     const modal = document.querySelector(help)
@@ -189,13 +189,13 @@ async function readLegal(page: Page): Promise<{ language: string; summaryText: s
   }, HELP)
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function isFullTextOpen(page: Page): Promise<boolean> {
   return (await readLegal(page))?.isOpen ?? false
 }
 
 // see FR-069
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function readBodyScroll(page: Page): Promise<BodyScroll> {
   const read = await page.evaluate((help: string) => {
     const modal = document.querySelector(help)
@@ -216,7 +216,7 @@ async function readBodyScroll(page: Page): Promise<BodyScroll> {
 }
 
 // see GR-24
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function titleBandPoint(page: Page): Promise<Point> {
   const at = await page.evaluate(
     (asked: { help: string; close: string }) => {

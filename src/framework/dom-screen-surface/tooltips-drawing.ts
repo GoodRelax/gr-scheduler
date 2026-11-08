@@ -224,7 +224,7 @@ export function tooltipAnchorTable(root: HTMLElement) {
     return held
   }
 
-  /** @purity semi-pure-b */
+  /** @purity semi-pure-mutable */
   function anchorFor(key: string, anchor: TooltipAnchor): HTMLElement | undefined {
     for (const held of anchorsByPart.values()) {
       const found = held.get(key)

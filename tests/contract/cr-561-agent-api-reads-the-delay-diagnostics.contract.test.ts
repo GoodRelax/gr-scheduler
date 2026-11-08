@@ -169,7 +169,7 @@ afterEach(() => {
   WRITERS.length = 0
 })
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 function readDelayDiagnosticsOf(api: AgentApi): unknown {
   const member = (api as unknown as { readDelayDiagnostics?: () => unknown }).readDelayDiagnostics
   if (typeof member !== 'function') throw new Error('AM-19: the Agent API has no member readDelayDiagnostics')

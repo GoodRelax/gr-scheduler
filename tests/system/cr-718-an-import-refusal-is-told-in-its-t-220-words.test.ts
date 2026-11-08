@@ -53,7 +53,7 @@ function saysAny(said: string, words: readonly string[]): boolean {
   return words.some((one) => one !== '' && said.includes(one))
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function textOf(page: Page, selector: string): Promise<string> {
   return page.evaluate(
     (wanted: string) => Array.from(document.querySelectorAll(wanted)).map((one) => one.textContent ?? '').join(' | '),

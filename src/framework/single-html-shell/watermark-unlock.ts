@@ -18,7 +18,7 @@ function hexOfByte(value: number): string {
 }
 
 // see FR-020, S-101
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function sha256HexOf(text: string): Promise<string | null> {
   const digester = globalThis.crypto?.subtle
   if (digester === undefined) return null
@@ -33,7 +33,7 @@ async function sha256HexOf(text: string): Promise<string | null> {
 }
 
 // see FR-020, FR-086, S-99c, S-101
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 function watermarkUnlockDigest(): string {
   const set = readBrowserStored('S-99c')
   // TRAP: an empty stored digest must count as unset, or the empty password opens the gate.

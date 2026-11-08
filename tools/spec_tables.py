@@ -124,7 +124,7 @@ def read(rel, table_id):
     not stop at the first blank line. It stops at the next caption, at a
     chapter or requirement line, or at the end of the file.
 
-    @purity semi-pure-b
+    @purity semi-pure-mutable
     """
     path = os.path.join(ROOT, rel)
     lines = io.open(path, encoding='utf-8').read().split('\n')
@@ -194,6 +194,6 @@ def row_ids(rel, table_id, shape=ROW_ID):
     id; those are skipped here rather than reported, which is what the eleven
     parsers did by matching a row-id pattern.
 
-    @purity semi-pure-b
+    @purity semi-pure-mutable
     """
     return [r.id for r in read(rel, table_id) if shape.match(r.id)]

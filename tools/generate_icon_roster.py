@@ -166,7 +166,7 @@ def read_lines(path):
     sentence stating a table height sits in the PROSE above the caption,
     which is not part of any table.
 
-    @purity semi-pure-b
+    @purity semi-pure-mutable
     """
     return io.open(path, encoding='utf-8').read().splitlines()
 
@@ -226,7 +226,7 @@ def icon_of(row, surfaces):
 
 def settled_spellings(entity, column):
     """The spellings _source/erd.json settles for one column, in its order."""
-    # @purity semi-pure-b
+    # @purity semi-pure-mutable
     erd = json.load(io.open(ERD, encoding='utf-8'))
     for entry in erd.get('entities', []):
         if entry.get('name') != entity:
@@ -251,7 +251,7 @@ def shape_rows(lines):
     trusted: the manuscript states the five in two places, and a roster built
     on the half that had drifted would arm a shape the model cannot hold.
     """
-    # @purity semi-pure-b
+    # @purity semi-pure-mutable
     rows = [row.cells
             for row in spec_tables.read(REL_REQUIREMENTS, SHAPE_TABLE)]
     settled = settled_spellings(SHAPE_ENTITY, SHAPE_COLUMN)
@@ -288,7 +288,7 @@ def glyph_by_mark(shapes):
     marks are matched against table T-109 one by one below rather than being
     assumed to stand in the table's own order too.
     """
-    # @purity semi-pure-b
+    # @purity semi-pure-mutable
     if MILESTONE_SHAPE_ROW not in shapes:
         sys.exit('generate_icon_roster: table %s has no row %s, so the marks of '
                  'the milestone shapes cannot be read'
@@ -321,7 +321,7 @@ def fill_arms_shape(icons, lines):
     a mark reaches a `milestoneGlyph` spelling. ⛔ Nothing is minted here: both
     ends of both joins stand in the manuscript.
     """
-    # @purity semi-pure-b
+    # @purity semi-pure-mutable
     shapes = shape_rows(lines)
     glyphs = glyph_by_mark(shapes)
     armed = []
@@ -362,7 +362,7 @@ def fill_arms_shape(icons, lines):
 
 def build():
     """The roster, as it is written out."""
-    # @purity semi-pure-b
+    # @purity semi-pure-mutable
     lines = read_lines(GLOSSARY)
     surfaces = settled_surfaces(lines)
     table = spec_tables.read(REL_GLOSSARY, ICON_TABLE)
@@ -413,7 +413,7 @@ def without(cells, index):
 
 def settings_rows():
     """Every row of _source/settings.json by id, with the table it stands in."""
-    # @purity semi-pure-b
+    # @purity semi-pure-mutable
     doc = json.load(io.open(SETTINGS, encoding='utf-8'))
     found = {}
     for block in doc['blocks']:
@@ -434,7 +434,7 @@ def entry_switches():
     rewrite the same row (or write the same value) -- FR-029 (MUST NOT) keeps
     one entrance per function.
     """
-    # @purity semi-pure-b
+    # @purity semi-pure-mutable
     table = spec_tables.read(REL_GLOSSARY, ICON_TABLE)
     switch = switch_column(table)
     rows = settings_rows()

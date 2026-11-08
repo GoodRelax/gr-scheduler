@@ -58,7 +58,7 @@ SPEC_TOOLS_REL = '.claude/skills/spec-graph-check'
 REQUIREMENT_PREFIXES = ('FR', 'NFR', 'UC', 'SWS')
 GATE_TABLE = 'T-043'
 GATE_WORD = u'\u30b2\u30fc\u30c8'        # the word table T-043 writes for a gate
-EXCUSED_BY_TAG = ('pure', 'semi-pure-a')  # rule 04 table UO, row UO-1
+EXCUSED_BY_TAG = ('pure', 'semi-pure-immutable')  # rule 04 table UO, row UO-1
 
 ID = re.compile(r'(?<![A-Za-z0-9_-])([A-Z]{1,4}-[0-9]+[a-z]?)(?![A-Za-z0-9_])')
 DFC = re.compile(r'\bDFC-[0-9]+\b')
@@ -636,7 +636,7 @@ def build():
     w('Re-sorting them waits for the change-request organization (handoff 2026-09-26). "Imports"')
     w('are the callables the file imports by name from `src/`, each with the `@purity` tag above')
     w('its declaration. "UO-1 would omit" marks a file whose every such import is tagged `pure` /')
-    w('`semi-pure-a` (rule 04 table UO, row UO-1): %d of %d.' % (len(candidates), len(unit)))
+    w('`semi-pure-immutable` (rule 04 table UO, row UO-1): %d of %d.' % (len(candidates), len(unit)))
     w('')
     w('| file | imports from src/ (tag) | UO-1 would omit | ties |')
     w('| --- | --- | --- | --- |')

@@ -141,7 +141,7 @@ test.afterAll(async () => {
   await browser?.close()
 })
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 function openedBrowser(): Browser {
   if (browser === null) throw new Error('the reference browser was not opened')
   return browser
@@ -190,7 +190,7 @@ interface DrawnTaskGroup {
   readonly isCut: boolean
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function drawnTaskGroups(page: Page): Promise<DrawnTaskGroup[]> {
   return page.evaluate(() =>
     Array.from(document.querySelectorAll('[data-depth]')).map((row) => ({
@@ -208,7 +208,7 @@ const SHORT_NAME = 'Row Zed'
 
 // WHY: not the middle of the name's box -- the task group's folding controls draw
 // over that end, so the page is asked which element is actually on top.
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function nameSpotOf(page: Page, index: number): Promise<{ x: number; y: number } | null> {
   return page.evaluate((wanted: number) => {
     const row = Array.from(document.querySelectorAll('[data-depth]'))[wanted]
@@ -270,7 +270,7 @@ async function pressEntranceInRow(page: Page, index: number, icon: string): Prom
   return true
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function armingOf(page: Page, icon: string): Promise<string | null> {
   return page.evaluate(
     (wanted: string) =>
@@ -279,7 +279,7 @@ async function armingOf(page: Page, icon: string): Promise<string | null> {
   )
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function drawnElementCount(page: Page): Promise<number> {
   return page.evaluate(
     (canvas: string) => document.querySelector(canvas)?.querySelectorAll('*').length ?? -1,
@@ -331,7 +331,7 @@ async function groundOnADrawnTaskGroup(page: Page): Promise<{ x: number; y: numb
   return null
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function panelFields(page: Page): Promise<Record<string, string>> {
   return page.evaluate((panel: string) => {
     const out: Record<string, string> = {}
@@ -343,7 +343,7 @@ async function panelFields(page: Page): Promise<Record<string, string>> {
   }, PROPERTIES)
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function taskGroupPanelBoxWidth(page: Page): Promise<number> {
   return page.evaluate(
     (panel: string) =>
@@ -375,7 +375,7 @@ interface DrawnBar {
   readonly thumb: { readonly width: number; readonly height: number } | null
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function drawnScrollbars(page: Page): Promise<DrawnBar[]> {
   return page.evaluate(
     (selector: string) =>
@@ -396,7 +396,7 @@ async function drawnScrollbars(page: Page): Promise<DrawnBar[]> {
   )
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function hostScrollbarThickness(page: Page): Promise<number> {
   return page.evaluate(() => {
     const probe = document.createElement('div')

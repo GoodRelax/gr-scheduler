@@ -380,7 +380,7 @@ export function pressedPointerShapeOf(hands: PointerShapeHands) {
 export type PressedPointerShape = ReturnType<typeof pressedPointerShapeOf>
 
 // see IN-2
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 function pointerShapeUnder(
   hands: PointerShapeHands,
   frame: FrameValues,

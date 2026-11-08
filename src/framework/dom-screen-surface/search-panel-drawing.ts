@@ -377,7 +377,7 @@ function searchPanelPlaceOf(view: TableWindowView, defaultRatio: SizeRatio): Scr
 }
 
 // see SJ-1
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 function searchJumpFrom(start: Element, layer: Element): SearchJumpCell | null {
   for (let node: Element | null = start; node !== null && node !== layer; node = node.parentElement) {
     const task = node.getAttribute(SEARCH_JUMP_TASK_ATTRIBUTE)
@@ -388,7 +388,7 @@ function searchJumpFrom(start: Element, layer: Element): SearchJumpCell | null {
   return null
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 function fixLandingFrom(node: Element): { readonly relatedTaskUids?: readonly number[]; readonly openField?: string } {
   const related = node.getAttribute(SEARCH_JUMP_RELATED_ATTRIBUTE)
   const field = node.getAttribute(SEARCH_JUMP_OPEN_FIELD_ATTRIBUTE)
@@ -579,7 +579,7 @@ function narrowFilterList(layer: Element, typed: string): void {
 }
 
 // see SV-7, IF-9, IC-125, IC-126
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 function listedFilterValues(layer: Element): readonly string[] | null {
   const field = layer.querySelector<HTMLInputElement>(`[${SEARCH_FILTER_SEARCH_ATTRIBUTE}]`)
   if (field === null || field.value === '') return null
@@ -588,7 +588,7 @@ function listedFilterValues(layer: Element): readonly string[] | null {
 }
 
 // see SV-7, IF-9
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 function withListedValues(answer: ScreenPart, layer: Element): ScreenPart {
   if (answer.entry === null || !LISTED_ENTRIES.includes(answer.entry)) return answer
   return { ...answer, searchFilterListed: listedFilterValues(layer) }
@@ -880,7 +880,7 @@ export function pinFixedColumns(tableBox: Element): void {
 }
 
 // see RW-12
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 function tableBoxIn(window: Element): Element | null {
   return window.querySelector(`[${TABLE_BOX_ATTRIBUTE}]`) ?? window.lastElementChild
 }
@@ -934,7 +934,7 @@ function panelPlacedOf(panel: TableWindowView, window: WindowName): PlacedWindow
 }
 
 // see SV-18
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 function shownRightOf(tableBox: Element): number {
   const shown = tableBox.getBoundingClientRect()
   const inner = tableBox as Partial<HTMLElement>
@@ -944,7 +944,7 @@ function shownRightOf(tableBox: Element): number {
 
 // see GR-28, SV-18, RW-9
 // WHY: on the heading row only, within S-465 of a column's right border; an entrance and GR-24 / GR-25 answer first.
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 function columnBorderAt(window: Element, placed: PlacedWindow, asked: PointAsked, widthFloor: number): NonNullable<ScreenPart['windowGrab']> | null {
   const head = window.querySelector('thead')
   const tableBox = tableBoxIn(window)
@@ -966,7 +966,7 @@ function columnBorderAt(window: Element, placed: PlacedWindow, asked: PointAsked
 }
 
 // see SV-7, IF-9
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 function headingColumnOf(start: Element, window: Element): string | null {
   for (let node: Element | null = start; node !== null && node !== window; node = node.parentElement) {
     if (node.tagName === 'TH') return node.getAttribute(COLUMN_ATTRIBUTE)
@@ -976,7 +976,7 @@ function headingColumnOf(start: Element, window: Element): string | null {
 
 // see IF-9, GR-24, GR-25, GR-28, SJ-1, SV-7, T-023d
 // WHY: the heading word of a column answers as that column's IC-122 (SV-7), below the border band.
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 function tableWindowPartAt(
   window: Element | null,
   placed: PlacedWindow | null,
@@ -1036,7 +1036,7 @@ function columnWidthsRewrittenInPlace(tableBox: Element, widths: readonly number
 }
 
 // WHY: the heading's IC-122 and the drawn filter both name their column; wantsEntry tells them apart (SV-7).
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 function filterColumnAbove(start: Element | null, layer: Element, wantsEntry: boolean): string | null {
   for (let node: Element | null = start; node !== null && node !== layer; node = node.parentElement) {
     const column = node.getAttribute(SEARCH_FILTER_COLUMN_ATTRIBUTE)
@@ -1047,7 +1047,7 @@ function filterColumnAbove(start: Element | null, layer: Element, wantsEntry: bo
 }
 
 // see IF-9, SV-7, IC-122, IC-125, IC-126
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 function withPressedWindowFilter(answer: ScreenPart | null, first: Element | null, layer: Element): ScreenPart | null {
   if (answer === null || first === null || !layer.contains(first)) return answer
   const column = filterColumnAbove(first, layer, true)
@@ -1057,7 +1057,7 @@ function withPressedWindowFilter(answer: ScreenPart | null, first: Element | nul
 }
 
 // see SV-7, IF-9
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 function filterChangeOf(control: HTMLInputElement | null, layer: Element, visibilityColumn: string): SearchFilterChange | null {
   if (control === null || typeof control.getAttribute !== 'function') return null
   const pick = fixPickOf(control)
@@ -1074,7 +1074,7 @@ function filterChangeOf(control: HTMLInputElement | null, layer: Element, visibi
 }
 
 // see RW-16, FM-1, FM-8
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 function fixPickOf(control: HTMLInputElement): SearchFilterChange | null {
   const key = control.getAttribute(DELAY_FIX_KEY_ATTRIBUTE)
   const fixPart = control.getAttribute(DELAY_FIX_PART_ATTRIBUTE)
@@ -1102,7 +1102,7 @@ function isUnchosenTickRefused(control: HTMLInputElement | null, layer: Element)
   return true
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 function isChoiceMade(list: HTMLSelectElement): boolean {
   if (typeof list.value === 'string' && list.value !== '') return true
   return [...list.querySelectorAll('option')].some((one) => one.getAttribute('selected') !== null && one.getAttribute('value') !== '')
@@ -1115,7 +1115,7 @@ function visibilityKeyFrom(written: string): VisibilityKey {
 
 // see SQ-10, DT-8, RQ-1, TV-2
 // WHY: the heading's box names every listed row, so a check leaves the rows not listed; its clear takes every row (SQ-10).
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 function shownChangeOf(control: HTMLInputElement, layer: Element, column: string): SearchFilterChange | null {
   const one = control.getAttribute(VISIBILITY_KEY_ATTRIBUTE)
   if (one !== null) return { kind: 'shown', column, keys: [visibilityKeyFrom(one)], isShown: control.checked }
@@ -1136,7 +1136,7 @@ export function filterChangeWatch(layer: HTMLElement, onChanged: () => void, vis
     changes = [...changes, change]
     onChanged()
   })
-  /** @purity semi-pure-b */
+  /** @purity semi-pure-mutable */
   const read = (): readonly SearchFilterChange[] => {
     const taken = changes
     changes = []
@@ -1159,7 +1159,7 @@ const FOCUS_MARKS: readonly string[] = [
 type FocusMark = readonly (readonly [string, string | null])[]
 
 // see IN-4, SV-14
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 function focusMarkIn(host: Document, layer: Element): FocusMark | null {
   const active = (host as Partial<Document>).activeElement ?? null
   if (active === null || !isInside(layer, active)) return null
@@ -1235,7 +1235,7 @@ export function typedWordWatch(layer: HTMLElement, onWordTyped: () => void): { r
     typed = field.value
     onWordTyped()
   })
-  /** @purity semi-pure-b */
+  /** @purity semi-pure-mutable */
   const read = (): string | null => {
     const word = typed
     typed = null
@@ -1284,7 +1284,7 @@ function tableSizingKeeper(host: Document, layer: Element) {
       floorDrawn = measuredWidthFloor(fontPx)
       return { floor: floorDrawn, measured: measured ?? new Map() }
     },
-    /** @purity semi-pure-b */
+    /** @purity semi-pure-mutable */
     floorDrawn: (): number => floorDrawn,
     /** @purity non-pure */
     forget(): void {
@@ -1346,7 +1346,7 @@ export function searchPanelPainter(host: Document, layer: HTMLElement, onWordTyp
   }
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 function isInside(layer: Element, node: Element | null): boolean {
   return node !== null && layer.contains(node)
 }

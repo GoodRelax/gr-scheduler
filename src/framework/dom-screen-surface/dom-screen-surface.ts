@@ -120,7 +120,7 @@ export const NOTICE_BOX_REASON_SEPARATOR = ' '
 
 const SURFACE_FIELD_SELECTOR = '[data-field-row]'
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 function surfaceFieldPlaceOf(layer: Element, focused: Element | null): number {
   return focused === null ? -1 : [...layer.querySelectorAll(SURFACE_FIELD_SELECTOR)].indexOf(focused)
 }
@@ -133,14 +133,14 @@ function focusSurfaceFieldAt(layer: Element, place: number): void {
 }
 
 // see IF-9, WC-2, WC-4, WC-8
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 function holidaySettingsTargetOf(first: Element | null): Pick<ScreenPart, 'holidaySettingsTarget'> {
   const target = first?.closest(`[${HOLIDAY_SETTINGS_TARGET_ATTRIBUTE}]`)?.getAttribute(HOLIDAY_SETTINGS_TARGET_ATTRIBUTE)
   return target === undefined || target === null ? {} : { holidaySettingsTarget: target }
 }
 
 // see NT-2, IF-9
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 function noticeBoxOf(first: Element | null): Pick<ScreenPart, 'noticeBoxReasons'> {
   const box = first?.closest(`[${NOTICE_BOX_ATTRIBUTE}]`)?.getAttribute(NOTICE_BOX_ATTRIBUTE)
   return box === undefined || box === null ? {} : { noticeBoxReasons: box.split(NOTICE_BOX_REASON_SEPARATOR) }
@@ -697,7 +697,7 @@ export function anchorKey(anchor: TooltipAnchor): string {
 
 // see GR-24, WB-10, IF-9
 // WHY: the range keeps the band inside the browser window; the body may hang below it (WB-10).
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 function closeOnlyTitledGrabOf(modalLayer: Element, first: Element | null, walked: ScreenPart | null): ScreenPart | null {
   const band = first?.closest(`[${WINDOW_GRAB_ATTRIBUTE}]`) ?? null
   const modal = modalLayer.firstElementChild
@@ -896,22 +896,22 @@ function windowReadersOf(
   propertiesPanel: Element,
   painters: { readonly search: TableWindowInput; readonly report: TableWindowInput; readonly resourceList: TableWindowInput },
 ): WindowReaders {
-  /** @purity semi-pure-b */
+  /** @purity semi-pure-mutable */
   const focused = (): Element | null => (host as Partial<Document>).activeElement ?? null
-  /** @purity semi-pure-b */
+  /** @purity semi-pure-mutable */
   const readFocusedWindow = (): WindowName | null => {
     const at = focused()
     const held = Object.entries(windows).find(([, layer]) => at !== null && layer.contains(at))
     return held === undefined ? null : (held[0] as WindowName)
   }
-  /** @purity semi-pure-b */
+  /** @purity semi-pure-mutable */
   const isFocusInPropertiesPanel = (): boolean => {
     const at = focused()
     return at !== null && propertiesPanel.contains(at)
   }
-  /** @purity semi-pure-b */
+  /** @purity semi-pure-mutable */
   const readReportInput = (): TableWindowTyped => ({ word: painters.report.readWord(), changes: painters.report.readFilterChanges() })
-  /** @purity semi-pure-b */
+  /** @purity semi-pure-mutable */
   const readResourceListInput = (): TableWindowTyped => ({ word: painters.resourceList.readWord(), changes: painters.resourceList.readFilterChanges() })
   return { readFocusedWindow, isFocusInPropertiesPanel, readFilterChanges: painters.search.readFilterChanges, readReportInput, readResourceListInput }
 }
@@ -1020,7 +1020,7 @@ function tableWindowsInOrder(...windows: readonly (readonly [HTMLElement, TableW
       order.slice(order.indexOf(wanted) + 1).forEach(([layer]) => layer.parentNode?.insertBefore(layer, wanted[0]))
       order = [...order.filter((one) => one !== wanted), wanted]
     },
-    /** @purity semi-pure-b */
+    /** @purity semi-pure-mutable */
     answerAt: (asked: PointAsked): ScreenPart | null =>
       order.reduce<ScreenPart | null>((walked, [, painter]) => painter.answerAt({ ...asked, walked }), asked.walked),
   }
@@ -1306,7 +1306,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
   const fieldEditing = fieldEditingOf(host, propertiesPanel)
 
   // see IF-9, GR-20, GR-21
-  /** @purity semi-pure-b */
+  /** @purity semi-pure-mutable */
   function readScreenPartAt(x: number, y: number): ScreenPart | null {
     const ask = (host as Partial<Document>).elementFromPoint
     if (typeof ask !== 'function') return null
@@ -1367,7 +1367,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
     }) })
   }
 
-  /** @purity semi-pure-b */
+  /** @purity semi-pure-mutable */
   const windowsAnswerAt = (asked: PointAsked): ScreenPart | null => {
     const answered = tableWindows.answerAt(asked)
     return withPropertyLinkJump(help.answerAt({ ...asked, walked: answered }), asked.first)

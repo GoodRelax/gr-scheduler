@@ -82,7 +82,7 @@ async function visit(): Promise<Visit> {
   return { context, page, downloads }
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function copied(page: Page): Promise<readonly string[]> {
   return page.evaluate(() => ((window as unknown as Record<string, string[]>)['cr827Copied'] ?? []).slice())
 }

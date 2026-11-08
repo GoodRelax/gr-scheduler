@@ -188,7 +188,7 @@ if unreached:
 
 print()
 print("== table T-075: the unit inventory ==")
-PURITY = {"pure", "semi-pure-a", "semi-pure-b", "non-pure"}
+PURITY = {"pure", "semi-pure-immutable", "semi-pure-mutable", "non-pure"}
 
 
 def kebab(name):

@@ -408,7 +408,7 @@ function scrollInsteadOfStepping(field: HTMLElement): void {
 
 const SCROLLING_OVERFLOWS: ReadonlySet<string> = new Set(['auto', 'scroll'])
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 function scrollingAncestorOf(field: Element): HTMLElement | null {
   const view = field.ownerDocument.defaultView
   for (let at = field.parentElement; at !== null; at = at.parentElement) {
@@ -418,7 +418,7 @@ function scrollingAncestorOf(field: Element): HTMLElement | null {
   return null
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 function wheelLinePx(wheel: WheelEvent, scroller: HTMLElement): number {
   if (wheel.deltaMode === wheel.DOM_DELTA_PAGE) return scroller.clientHeight
   if (wheel.deltaMode === wheel.DOM_DELTA_LINE) return NOT_STORED_WHEEL_UNITS['S-514']
@@ -1143,7 +1143,7 @@ function linkFieldElements(host: Document, row: string, control: PropertyControl
 }
 
 // see PTL-16, SJ-1, T-332
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 export function withPropertyLinkJump(answer: ScreenPart | null, first: Element | null): ScreenPart | null {
   if (answer === null || first === null || typeof first.getAttribute !== 'function') return answer
   const uid = first.getAttribute(LINK_TASK_ATTRIBUTE)

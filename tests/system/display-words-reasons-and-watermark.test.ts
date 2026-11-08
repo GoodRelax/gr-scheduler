@@ -57,7 +57,7 @@ function dictionaryWordings(): readonly Wording[] {
   return wordingsIn(JSON.parse(readFileSync(DICTIONARY, 'utf8')), 'display-words')
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 function dictionaryTextOf(section: string, rowId: string, language: string): string {
   const shape = JSON.parse(readFileSync(DICTIONARY, 'utf8')) as Record<string, unknown>
   const rows = shape[section]
@@ -145,7 +145,7 @@ interface QuotedReason {
   readonly file: string
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 function quotedReasons(): QuotedReason[] {
   const out: QuotedReason[] = []
   for (const file of typescriptFilesUnder(join(process.cwd(), 'src'))) {

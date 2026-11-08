@@ -1003,7 +1003,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `EmbeddedHtmlFaultReason` | entry | type | `src/adapter/document-codec/embedded-html-codec.ts#EmbeddedHtmlFaultReason` | -- | type EmbeddedHtmlFaultReason = \| 'appShellUnavailable' \| 'unusableElementId' \| 'moreThanOneEntry' export interface EmbeddedHtmlFault |
 | `EmbeddedHtmlReading` | entry | type | `src/adapter/document-codec/embedded-html-codec.ts#EmbeddedHtmlReading` | -- | type EmbeddedHtmlReading = \| JsonDecoding \| { readonly ok: false; readonly reason: 'entryCountNotOne'; readonly entryCount: number } const CONTAINER_TYPE = '... |
 | `ExchangeFormat` | entry | type | `src/adapter/document-codec/document-codec.ts#ExchangeFormat` | -- | type ExchangeFormat = 'grsJson' \| 'mspdi' \| 'singleHtml' |
-| `exportEmbeddedHtml` | entry | function | `src/adapter/document-codec/embedded-html-codec.ts#exportEmbeddedHtml` | PI-20 | `semi-pure-b`。 |
+| `exportEmbeddedHtml` | entry | function | `src/adapter/document-codec/embedded-html-codec.ts#exportEmbeddedHtml` | PI-20 | `semi-pure-mutable`。 |
 | `extensionOfFormat` | entry | function | `src/adapter/document-codec/document-codec.ts#extensionOfFormat` | PI-20 | 表 T-024 の行 ID から、その形式の拡張子を答える。 |
 | `formatFromFile` | entry | function | `src/adapter/document-codec/document-codec.ts#formatFromFile` | PI-20 | どちらの形式として読むかを答える。 |
 | `FormatMismatch` | entry | type | `src/adapter/document-codec/document-codec.ts#FormatMismatch` | -- | type FormatMismatch = 'extension' \| 'firstCharacter' \| 'both' |
@@ -1060,7 +1060,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 
 | name | reach | kind | declared in | T-064 | what it is for / its declaration |
 | --- | --- | --- | --- | --- | --- |
-| `exportPng` | entry | function | `src/adapter/image-exporter/image-exporter.ts#exportPng` | PI-21 | `semi-pure-b`。 |
+| `exportPng` | entry | function | `src/adapter/image-exporter/image-exporter.ts#exportPng` | PI-21 | `semi-pure-mutable`。 |
 | `ExportScene` | entry | interface | `src/adapter/image-exporter/image-exporter.ts#ExportScene` | -- | interface ExportScene |
 | `exportSvg` | entry | function | `src/adapter/image-exporter/image-exporter.ts#exportSvg` | PI-21 | 表 T-076 が「描く」とした UI パーツを組み立てて返す。 |
 | `ImageExport` | entry | type | `src/adapter/image-exporter/image-exporter.ts#ImageExport` | -- | type ImageExport = \| ({ readonly ok: true } & SvgPicture & { readonly png: Rastering }) \| { readonly ok: false; readonly fault: ImageExportFault } /** @purit... |
@@ -1090,7 +1090,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `FileStoreFault` | entry | interface | `src/adapter/file-gateway/file-store.ts#FileStoreFault` | -- | interface FileStoreFault |
 | `FileStoreFaultReason` | entry | type | `src/adapter/file-gateway/file-store.ts#FileStoreFaultReason` | -- | type FileStoreFaultReason = \| 'canceled' \| 'permissionLost' \| 'noOpenedFile' \| 'unavailable' export interface FileStoreFault |
 | `FileWriting` | entry | type | `src/adapter/file-gateway/file-store.ts#FileWriting` | -- | type FileWriting = \| { readonly ok: true; readonly openedFile: OpenedFileState } \| { readonly ok: false; readonly fault: FileStoreFault } export type ChosenW... |
-| `openDocumentFile` | entry | function | `src/adapter/file-gateway/file-gateway.ts#openDocumentFile` | PI-22 | `semi-pure-b` |
+| `openDocumentFile` | entry | function | `src/adapter/file-gateway/file-gateway.ts#openDocumentFile` | PI-22 | `semi-pure-mutable` |
 | `OpenedDocumentFile` | entry | interface | `src/adapter/file-gateway/file-gateway.ts#OpenedDocumentFile` | -- | interface OpenedDocumentFile |
 | `OpenedFileContent` | entry | interface | `src/adapter/file-gateway/file-store.ts#OpenedFileContent` | -- | interface OpenedFileContent |
 | `OpenedFileState` | entry | type | `src/adapter/file-gateway/file-store.ts#OpenedFileState` | -- | type OpenedFileState = \| { readonly kind: 'none' } \| { readonly kind: 'writable'; readonly fileName: string } \| { readonly kind: 'permissionLost'; readonly f... |

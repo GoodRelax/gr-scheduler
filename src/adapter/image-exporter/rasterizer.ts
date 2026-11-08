@@ -24,6 +24,6 @@ export type Rastering =
   | { readonly ok: false; readonly fault: RasterFault }
 
 export interface Rasterizer {
-  /** @purity semi-pure-b */
+  /** @purity semi-pure-mutable */
   rasterizePng(svg: string, sizePx: RasterSizePx): Promise<Rastering>
 }

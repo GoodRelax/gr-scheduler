@@ -258,7 +258,7 @@ async function pressEntranceInRow(page: Page, index: number, icon: string): Prom
   return true
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function drawnTaskGroups(page: Page): Promise<DrawnTaskGroup[]> {
   return page.evaluate(() =>
     Array.from(document.querySelectorAll('[data-depth]')).map((row) => {
@@ -276,7 +276,7 @@ async function drawnTaskGroups(page: Page): Promise<DrawnTaskGroup[]> {
 }
 
 // see T-107, AM-3, AG-4, FR-065
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function readDocumentShot(page: Page): Promise<DocShot | null> {
   return page.evaluate(() => {
     const api = (window as unknown as { grSchedulerAgentApi?: { readDocument(): unknown } })
@@ -348,7 +348,7 @@ async function dragBetween(
   await page.waitForTimeout(900)
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function drawnOutlines(
   page: Page,
 ): Promise<Array<{ y: number; height: number; x: number; width: number }>> {
@@ -406,7 +406,7 @@ async function barBodyOn(page: Page, row: DrawnTaskGroup): Promise<{ x: number; 
  * NOT): 「ピン止めしているタスクグループは掴めないこと」, and the drawing side keeps that by
  * laying no strip at all on a pinned task group -- so a pinned task group answers `null` here.
  *
- * @purity semi-pure-b
+ * @purity semi-pure-mutable
  */
 async function grabStripCenterOn(
   page: Page,

@@ -127,7 +127,7 @@ async function openStubbed(baseURL: string | undefined): Promise<{ page: Page; c
   return { page, close: async () => context.close() }
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function headerHeight(page: Page): Promise<number> {
   return page.evaluate(
     () => document.querySelector('[data-role="App Header"]')?.getBoundingClientRect().height ?? -1,
@@ -159,7 +159,7 @@ async function openLongNamed(page: Page): Promise<void> {
   await page.waitForTimeout(500)
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function measure(page: Page): Promise<Measured> {
   return page.evaluate(() => {
     const one = (role: string): Element => {

@@ -113,7 +113,7 @@ const FIELD_ROW_SELECTOR = '[data-field-row]'
 export const SETTLED_AS_ONE_ATTRIBUTE = 'data-settled-as-one'
 
 // see FX-5
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 function rowEntrancesOf(target: unknown): readonly TextEntryControl[] {
   const control = textEntryControlOf(target)
   const named = control === null ? undefined : CONTROL_KEYS.get(target as Element)
@@ -125,7 +125,7 @@ function rowEntrancesOf(target: unknown): readonly TextEntryControl[] {
   return entrances.length > 1 ? entrances : []
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 function isDateEntry(control: unknown): boolean {
   const type = (control as Partial<HTMLInputElement> | null)?.type
   return type === HOST_DATE_INPUT_TYPE || type === HOST_DATE_TIME_INPUT_TYPE
@@ -183,7 +183,7 @@ function jointRowOf() {
   }
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 function activeElementOf(host: Document): unknown {
   return (host as { readonly activeElement?: unknown }).activeElement
 }
@@ -263,7 +263,7 @@ export function fieldEditingOf(host: Document, propertiesPanel: HTMLElement) {
   }
 
   // WHY: a host with no activeElement cannot say where the focus is, so it is read as in.
-  /** @purity semi-pure-b */
+  /** @purity semi-pure-mutable */
   function isFocusOn(control: TextEntryControl): boolean {
     const active = activeElementOf(host)
     return active === undefined || active === control
@@ -272,7 +272,7 @@ export function fieldEditingOf(host: Document, propertiesPanel: HTMLElement) {
   let isFieldHeld = false
   let isNoticeShowing = false
   // see NT-8
-  /** @purity semi-pure-b */
+  /** @purity semi-pure-mutable */
   function isPressTakenByStandingNotice(key: unknown): boolean {
     if (!isNoticeShowing) return false
     return key === HOST_ENTER || key === HOST_ESCAPE_KEY
@@ -547,7 +547,7 @@ export function fieldEditingOf(host: Document, propertiesPanel: HTMLElement) {
   }
 
   // see FR-020
-  /** @purity semi-pure-b */
+  /** @purity semi-pure-mutable */
   function readWatermarkUnlockAnswer(): string {
     return watermarkUnlockEntry === null ? '' : watermarkUnlockEntry.value
   }
@@ -619,7 +619,7 @@ export function fieldEditingOf(host: Document, propertiesPanel: HTMLElement) {
     isWatermarkUnlockTakenBack = false
   }
 
-  /** @purity semi-pure-b */
+  /** @purity semi-pure-mutable */
   function readFieldCommit(): FieldCommit | null {
     const held = fieldCommit
     fieldCommit = null
@@ -628,7 +628,7 @@ export function fieldEditingOf(host: Document, propertiesPanel: HTMLElement) {
   }
 
   // see IF-9
-  /** @purity semi-pure-b */
+  /** @purity semi-pure-mutable */
   function readFieldEditNotices(): readonly FieldEditNotice[] {
     return fieldEditNotices.splice(0)
   }

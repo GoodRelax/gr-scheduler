@@ -80,7 +80,7 @@ async function openSearch(page: Page, word: string): Promise<void> {
   await settle(page)
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function centerOf(page: Page, selector: string): Promise<Spot> {
   const found = await page.evaluate((wanted: string) => {
     const box = document.querySelector(wanted)?.getBoundingClientRect()
@@ -90,7 +90,7 @@ async function centerOf(page: Page, selector: string): Promise<Spot> {
   return found
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function barCenter(page: Page, uid: number): Promise<Spot> {
   const at = await page.evaluate((wanted: number) => {
     const r = document.querySelector(`[data-figure="task-${String(wanted)}-plan"]`)?.getBoundingClientRect()
@@ -125,7 +125,7 @@ interface Reading {
 
 // WHY: the Task Group Area is read off the drawing -- the ruler ground spans its width and ends at its top, and the
 // ground clip spans its height.
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function readingOf(page: Page, uid: number): Promise<Reading> {
   return page.evaluate(
     (asked: { uid: number; ring: string }) => {
@@ -200,12 +200,12 @@ async function expectLandedOnTheChosen(page: Page): Promise<void> {
   })
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function ringCount(page: Page): Promise<number> {
   return page.locator(RING).count()
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function selectionText(page: Page): Promise<string> {
   return page.evaluate(() => JSON.stringify((window as unknown as { grSchedulerAgentApi: { readSelection(): unknown } }).grSchedulerAgentApi.readSelection()))
 }

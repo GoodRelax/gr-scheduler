@@ -40,7 +40,7 @@ async function frames(page: Page, count = 2): Promise<void> {
 }
 
 // WHY: a drag starts on empty ground and stays on ground, so nothing under the pointer changes the picture beneath (IF-1).
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function emptyGround(page: Page): Promise<Point> {
   const found = await page.evaluate(
     (asked: { canvas: string; ground: string; span: { width: number; height: number } }) => {
@@ -100,7 +100,7 @@ interface CanvasReading {
   readonly canvasZoRows: readonly string[]
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function readCanvas(page: Page): Promise<CanvasReading> {
   return page.evaluate((selector: string) => {
     const canvas = document.querySelector(selector)

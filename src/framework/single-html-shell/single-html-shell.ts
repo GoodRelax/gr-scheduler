@@ -67,7 +67,7 @@ const SCROLLBAR_PROBE_PX = 100
 // WHY: taken once at boot: fetch(location.href) fails on file:// (LM-14), and the live DOM carries the drawn screen.
 let deliveredAppShellHtml: string | null = null
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 function readDeliveredHtml(): string {
   const prologue = document.doctype === null ? '' : `<!DOCTYPE ${document.doctype.name}>\n`
   return `${prologue}${document.documentElement.outerHTML}\n`
@@ -84,20 +84,20 @@ type WindowReaders = Parameters<NonNullable<Parameters<typeof domScreenSurface>[
 /** @purity pure */
 function windowReadersOf(read: () => WindowReaders | null) {
   return {
-    /** @purity semi-pure-b */
+    /** @purity semi-pure-mutable */
     readFocusedWindow: (): WindowName | null => read()?.readFocusedWindow() ?? null,
-    /** @purity semi-pure-b */
+    /** @purity semi-pure-mutable */
     isFocusInPropertiesPanel: (): boolean => read()?.isFocusInPropertiesPanel() === true,
-    /** @purity semi-pure-b */
+    /** @purity semi-pure-mutable */
     readSearchFilterChanges: (): readonly SearchFilterChange[] => read()?.readFilterChanges() ?? [],
-    /** @purity semi-pure-b */
+    /** @purity semi-pure-mutable */
     readDelayDiagnosticsReportInput: () => read()?.readReportInput() ?? { word: null, changes: [] },
-    /** @purity semi-pure-b */
+    /** @purity semi-pure-mutable */
     readResourceListInput: () => read()?.readResourceListInput() ?? { word: null, changes: [] },
   }
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 function focusPositionOfPage(): string {
   const focused = document.activeElement
   if (focused === null) return FOCUS_ON_DOCUMENT_BODY
@@ -109,7 +109,7 @@ function focusPositionOfPage(): string {
 }
 
 // see FR-071
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 function isPageFullScreen(): boolean {
   // TRAP: undefined, not null, where the Fullscreen API is absent; that must read as not full screen.
   return (document.fullscreenElement ?? null) !== null
@@ -179,7 +179,7 @@ function askFullScreenOf(call: (() => Promise<void> | undefined) | undefined): P
   }
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 function pageEscapeKeyLock(): EscapeKeyLock {
   return escapeKeyLockOf((navigator as { readonly keyboard?: unknown }).keyboard)
 }
@@ -206,10 +206,10 @@ function pageFullScreenHost(): FullScreenHost {
 }
 
 // see IF-8
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 function appShellSource(): AppShellSource {
   return {
-    /** @purity semi-pure-b */
+    /** @purity semi-pure-mutable */
     async readAppShell() {
       const delivered = deliveredAppShellHtml
       if (delivered === null || delivered === '') {
@@ -244,7 +244,7 @@ function shippedDocumentOf(read: ReturnType<typeof documentFromJson>, what: stri
 
 // see BT-4, FR-027, FR-023
 // WHY: null where the page carries no template container, as an exported .html does.
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 function startupTemplateDocument(): Document | null {
   // TRAP: pass the version although it always answers known; omitting it reports notCompared.
   const read = documentFromEmbeddedHtml(
@@ -258,7 +258,7 @@ function startupTemplateDocument(): Document | null {
 }
 
 // see FR-095, T-342, BK-4
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 function emptyDocument(): Document {
   const read = shippedDocumentOf(
     documentFromJson(JSON.stringify(emptyDocumentRoot), GREATEST_KNOWN_SCHEMA_VERSION),
@@ -280,7 +280,7 @@ function isStartedFromTemplate(row: StartupRow, shipped: ShippedDocuments): bool
 
 // see BT-4, FR-067
 // WHY: an exported .html carries no template container, so its last startup choice is the empty document.
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 function shippedDocuments(): ShippedDocuments {
   const startingAfresh = emptyDocument()
   const shipped = startupTemplateDocument()
@@ -348,7 +348,7 @@ function startupNoticeReasonOf(code: StartupNoticeCode, isRefusedAsNewer: boolea
 
 // see BT-1, FR-088, FR-067
 // STOP: spec does not decide running FR-023's validation over BT-1. Looked in FR-023, FR-067, OP-5, T-008 (PND-452)
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 function embeddedStartupDocument(): StartupReadings & {
   readonly candidate: EmbeddedCandidate
   readonly refusal: StartupNoticeReason | null
@@ -395,7 +395,7 @@ function measuredScrollbarThickness(): number {
 }
 
 // see FR-038
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 function screenLanguage(): DisplayLanguage {
   return startupDisplayLanguage()
 }
@@ -408,7 +408,7 @@ const DROP_SURFACE: DropSurface = {
 }
 
 // TRAP: bind(window): both pickers are window methods that lose their receiver when passed.
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 function fileSystemAccessEnvironment(): FileSystemAccessEnvironment {
   const host = window as unknown as {
     readonly showOpenFilePicker?: unknown
@@ -438,7 +438,7 @@ function downloadThroughAnchor(fileName: string, bytes: Uint8Array, mediaType: s
   setTimeout(() => URL.revokeObjectURL(address), 0)
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 function environmentOf(
   appHeaderHeight: number,
   scrollbarThickness: number,
@@ -513,7 +513,7 @@ function boot(): void {
 
   const startupTheme = startupThemePreference()
 
-  /** @purity semi-pure-b */
+  /** @purity semi-pure-mutable */
   function heldTheme(): ScreenTheme {
     const held = loop === null ? themeDocument : loop.document()
     return {
@@ -638,9 +638,9 @@ function boot(): void {
       // TRAP: both members are optional on both sides, so a dropped line fails silently (FR-020's watermark never hides).
       /** @purity non-pure */
       focusPropertyField: (row) => focusPropertyFieldHeld?.(row),
-      /** @purity semi-pure-b */
+      /** @purity semi-pure-mutable */
       readWatermarkUnlockAnswer: () => readWatermarkUnlockAnswerHeld?.() ?? '',
-      /** @purity semi-pure-b */
+      /** @purity semi-pure-mutable */
       readFocusPosition: focusPositionOfPage,
       ...windowReadersOf(() => windowReadersHeld),
     },

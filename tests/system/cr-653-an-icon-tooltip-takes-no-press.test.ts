@@ -139,7 +139,7 @@ test.afterAll(async () => {
   await browser?.close()
 })
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function shownNow(page: Page): Promise<{ text: string; rect: Rect | null }> {
   return page.evaluate((tooltip: string) => {
     const layer = document.querySelector(tooltip)
@@ -179,7 +179,7 @@ async function installRecorder(page: Page): Promise<void> {
   }, TOOLTIP)
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function changesSince(page: Page, since: number): Promise<readonly { at: number; text: string }[]> {
   return page.evaluate((from: number) => {
     const log = (window as unknown as Record<string, { at: number; text: string }[]>)['grsCr653']
@@ -189,7 +189,7 @@ async function changesSince(page: Page, since: number): Promise<readonly { at: n
 }
 
 // see T-337, GR-19
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function frontAt(page: Page, at: Point): Promise<Front> {
   return page.evaluate(
     ({ point, tooltip }: { point: { x: number; y: number }; tooltip: string }) => {
@@ -208,7 +208,7 @@ async function frontAt(page: Page, at: Point): Promise<Front> {
   )
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function rectIn(page: Page, scope: string, icon: string): Promise<Rect> {
   const found = await page.evaluate(
     ({ within, wanted }: { within: string; wanted: string }) => {
@@ -221,7 +221,7 @@ async function rectIn(page: Page, scope: string, icon: string): Promise<Rect> {
   return found
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function isArmed(page: Page, icon: string): Promise<boolean> {
   return page.evaluate((wanted: string) => document.querySelector(`[data-icon="${wanted}"]`)?.getAttribute('data-armed') === 'true', icon)
 }

@@ -70,21 +70,21 @@ export function windowTitleRowElement(
   return row
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 function zCarrierOf(node: Element): Element | null {
   let carrier: Element | null = node
   while (carrier !== null && carrier.getAttribute(SCREEN_Z_ORDER_ATTRIBUTE) === null) carrier = carrier.parentElement
   return carrier
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 function zOrderAt(node: Element): number {
   return SCREEN_Z_ORDER.indexOf(zCarrierOf(node)?.getAttribute(SCREEN_Z_ORDER_ATTRIBUTE) ?? '')
 }
 
 // see T-337, UZ-6, WB-11
 // WHY: windows sharing one row of T-337 stand in tree order, so the later layer is the one in front.
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 function isInFrontOf(node: Element, window: Element): boolean {
   const front = zOrderAt(node)
   const own = zOrderAt(window)
@@ -95,7 +95,7 @@ function isInFrontOf(node: Element, window: Element): boolean {
   return (ownCarrier.compareDocumentPosition(carrier) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 function isOnTitleBand(start: Element, window: Element): boolean {
   for (let node: Element | null = start; node !== null && node !== window; node = node.parentElement) {
     if (node.getAttribute(WINDOW_GRAB_ATTRIBUTE) !== null) return true
@@ -105,7 +105,7 @@ function isOnTitleBand(start: Element, window: Element): boolean {
 
 // see IF-9, GR-24, GR-25, WB-8, WB-9
 // WHY: only a normal window has an edge (GR-25), and it answers before the title band (GR-24).
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 function windowGrabAt(window: Element, placed: PlacedWindow, asked: PointAsked): WindowGrab | null {
   const { x, y, first } = asked
   if (placed.shown === 'maximized') return null
@@ -119,7 +119,7 @@ function windowGrabAt(window: Element, placed: PlacedWindow, asked: PointAsked):
 
 // see IF-9, GR-24, GR-25, T-023d
 // WHY: an entrance, and anything drawn in front of the window, answers alone; GR-24 is where no entrance sits.
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 export function windowPartAt(
   window: Element | null,
   placed: PlacedWindow | null,

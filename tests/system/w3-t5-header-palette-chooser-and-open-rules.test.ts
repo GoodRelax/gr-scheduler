@@ -118,7 +118,7 @@ interface Rect {
   readonly height: number
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function rectOf(page: Page, selector: string): Promise<Rect | null> {
   return page.evaluate((selector) => {
     const element = document.querySelector(selector)
@@ -158,7 +158,7 @@ function expectedOrderOn(surface: string): readonly string[] {
   return blocks.flatMap((group) => rows.filter((row) => row.group === group).map((row) => row.id))
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function drawnOrderOn(page: Page, role: string): Promise<readonly string[]> {
   return page.evaluate((role) => {
     const root = document.querySelector(`[data-role="${role}"]`)

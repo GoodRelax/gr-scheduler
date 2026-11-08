@@ -81,7 +81,7 @@ def say(message):
 def invariant_rows():
     """The row ids of table T-220 in its printed order.
 
-    @purity semi-pure-b
+    @purity semi-pure-mutable
     """
     lines = io.open(path_of(REL_DESIGN), encoding='utf-8', newline='').read() \
         .replace('\r\n', '\n').split('\n')

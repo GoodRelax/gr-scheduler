@@ -56,7 +56,7 @@ function brandingElement(host: Document, text: string, seatPx: number): HTMLElem
 }
 
 // see HS-2, FR-101
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 function readableStamp(utc: string): string {
   const foundAt = new Date(utc)
   if (Number.isNaN(foundAt.getTime())) return utc
@@ -83,7 +83,7 @@ export function spelledFileSize(byteLength: number): string {
 }
 
 // see HS-1, HS-5
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 function fileSavedLine(items: AppHeaderItems): string {
   if (items.fileSavedAt === null) return items.fileNeverSavedText
   const stamp = readableStamp(items.fileSavedAt)

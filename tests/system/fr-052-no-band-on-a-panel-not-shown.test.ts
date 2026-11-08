@@ -89,7 +89,7 @@ interface Box {
   readonly height: number
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function verticalBar(page: Page): Promise<Box | null> {
   return page.evaluate((selector: string) => {
     const bar = Array.from(document.querySelectorAll(selector)).find(
@@ -101,7 +101,7 @@ async function verticalBar(page: Page): Promise<Box | null> {
   }, SCROLLBARS)
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function partAt(page: Page, x: number, y: number): Promise<string | null> {
   return page.evaluate(
     (at: { x: number; y: number; roles: string }) => {
@@ -113,7 +113,7 @@ async function partAt(page: Page, x: number, y: number): Promise<string | null> 
   )
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function propertiesWidth(page: Page): Promise<number> {
   return page.evaluate((selector: string) => {
     const panel = document.querySelector(selector)

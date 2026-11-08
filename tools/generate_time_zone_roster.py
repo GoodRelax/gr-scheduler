@@ -123,7 +123,7 @@ def abbreviation_of(row_id, cell):
 
 def build():
     """The roster, as it is written out."""
-    # @purity semi-pure-b
+    # @purity semi-pure-mutable
     table = spec_tables.read(REL_REQUIREMENTS, ZONE_TABLE)
     roster = []
     for row in table:

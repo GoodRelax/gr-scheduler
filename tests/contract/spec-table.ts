@@ -231,7 +231,7 @@ const WELDS: readonly string[] = ['', '＋', '+', '＝', '=', '→', 'が']
  * What sits between two code spans when the cell ENUMERATES values -- several
  * answers, not one answer spelled across two spans.
  *
- * ⭐ 「`semi-pure-b` ／ `non-pure`」 (表 T-075, UF-41) is two purities;
+ * ⭐ 「`semi-pure-mutable` ／ `non-pure`」 (表 T-075, UF-41) is two purities;
  * 「`Delete` / `Backspace`」 (表 T-036, SK-3) is two spellings of one key;
  * 「`Help Modal` / `AI Export Modal` / …」 (表 T-109, IC-52) is six surfaces.
  * A caller that wants the whole answer calls `bareAll`; `bare` REFUSES such a

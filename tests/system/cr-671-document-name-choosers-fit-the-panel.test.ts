@@ -156,7 +156,7 @@ interface Reading {
   readonly choosers: readonly Chooser[]
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function readPanel(page: Page, rows: readonly string[]): Promise<Reading> {
   return page.evaluate(
     ({ panel, rows }: { panel: string; rows: readonly string[] }) => {

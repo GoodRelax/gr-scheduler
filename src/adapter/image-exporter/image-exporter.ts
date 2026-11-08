@@ -1,7 +1,7 @@
 // Assembles the exported picture of the screen and declares the Rasterizer seam.
 // @unit      UF-39   (docs/spec/05-07-design.md, table T-075)
 // @component ImageExporter, layer Adapter (table T-062)
-// @purity    semi-pure-b
+// @purity    semi-pure-mutable
 // @publishes table T-064 row PI-21
 
 import {
@@ -240,7 +240,7 @@ export function exportSvg(scene: ExportScene): SvgExport {
 }
 
 // see FR-025, FR-028
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 export async function exportPng(
   rasterizer: Rasterizer,
   scene: ExportScene,

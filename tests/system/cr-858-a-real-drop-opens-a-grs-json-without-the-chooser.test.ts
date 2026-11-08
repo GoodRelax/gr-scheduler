@@ -65,7 +65,7 @@ function writtenHtmlFixture(path: string, rows: number): string {
   return path
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 const readStamp = (page: Page): Promise<unknown> => page.evaluate(() => (window as any).grSchedulerAgentApi.readStamp())
 
 /** @purity non-pure */
