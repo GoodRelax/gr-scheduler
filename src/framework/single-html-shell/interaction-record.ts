@@ -65,7 +65,7 @@ export function interactionRecorderOf(hands: InteractionRecordHands): Interactio
     }
   }
 
-  /** @purity semi-pure-b */
+  /** @purity semi-pure-mutable */
   function interactionRecordText(): string {
     const head = [
       'GRS interaction record (FR-102) -- no document contents are recorded',
@@ -197,7 +197,7 @@ export function recordFrame(
 }
 
 // see IR-3
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 function recordedNoticeReasons(hands: InteractionRecordHands): string {
   const standing = standingNoticesIn(hands.readSession())
   if (standing.length === 0) return UNREAD_IN_RECORD

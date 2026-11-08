@@ -838,7 +838,7 @@ function deepFreeze<T>(value: T): T {
   return Object.freeze(value)
 }
 
-describe('@purity semi-pure-b -- one external read, then pure assembly', () => {
+describe('@purity semi-pure-mutable -- one external read, then pure assembly', () => {
   it('reads the seam exactly once, whatever the answer is (R7.3, R7.4)', async () => {
     const good = shellSource(PLAIN_SHELL, ID)
     await exportEmbeddedHtml(good.source, SMALL)

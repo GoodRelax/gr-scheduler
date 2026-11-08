@@ -252,7 +252,7 @@ function createdTasksKeeper() {
   let created: ReadonlySet<number> = new Set()
   let preview: { readonly held: Schedule; readonly drawn: Schedule; readonly created: ReadonlySet<number>; readonly with: ReadonlySet<number> } | null = null
   return {
-    /** @purity semi-pure-b */
+    /** @purity semi-pure-mutable */
     read: (): ReadonlySet<number> => created,
     // see TV-7
     // WHY: a task only a preview holds (a copy being dragged) counts as made, so it is drawn while it is dragged.

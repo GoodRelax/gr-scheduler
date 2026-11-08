@@ -130,7 +130,7 @@ def check_notes_names(notes, doc):
     say must still be in the generated document schema, or the gen stops, so a
     renamed key cannot leave the notes behind.
 
-    @purity semi-pure-b
+    @purity semi-pure-mutable
     """
     schema = json.load(io.open(DOCUMENT_SCHEMA, encoding='utf-8'))
     names = known_names(schema, set())
@@ -150,7 +150,7 @@ def check_notes_names(notes, doc):
 
 
 def build():
-    """@purity semi-pure-b"""
+    """@purity semi-pure-mutable"""
     doc = generate_agent_api.load()
     tools = []
     for member in doc['members']['rows']:

@@ -61,7 +61,7 @@ export function unwatchChanges(watchers: ChangeWatchers, watcher: string): boole
 }
 
 // see WS-2, RS-9
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 export function isDeliveringNotices(watchers: ChangeWatchers): boolean {
   return watchers.isDelivering
 }

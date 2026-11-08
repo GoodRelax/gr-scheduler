@@ -119,7 +119,7 @@ interface Fit {
   readonly groundFont: number
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function readFit(page: Page): Promise<Fit> {
   return page.evaluate(
     ({ panel, close }: { panel: string; close: string }) => {

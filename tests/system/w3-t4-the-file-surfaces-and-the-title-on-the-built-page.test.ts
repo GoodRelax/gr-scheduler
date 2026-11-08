@@ -70,7 +70,7 @@ function wordsOfPart(part: string): readonly string[] {
   return found
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function rectOf(page: Page, selector: string): Promise<Rect | null> {
   return page.evaluate((wanted: string) => {
     const box = document.querySelector(wanted)?.getBoundingClientRect()
@@ -78,13 +78,13 @@ async function rectOf(page: Page, selector: string): Promise<Rect | null> {
   }, selector)
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function isShown(page: Page, selector: string): Promise<boolean> {
   const box = await rectOf(page, selector)
   return box !== null && box.right - box.left > 0 && box.bottom - box.top > 0
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function isTitleBeingEdited(page: Page): Promise<boolean> {
   return page.evaluate(() => {
     const active = document.activeElement as HTMLElement | null
@@ -100,7 +100,7 @@ async function openExportChooser(page: Page): Promise<void> {
   await expect.poll(() => isShown(page, EXPORT_CHOOSER), { message: 'IC-2 opens the Export Chooser' }).toBe(true)
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function formatBoxes(page: Page): Promise<readonly { left: number; right: number; top: number; bottom: number }[]> {
   return page.evaluate(
     (chooser: string) =>

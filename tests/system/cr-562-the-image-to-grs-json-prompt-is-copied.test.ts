@@ -193,7 +193,7 @@ async function visit(refuseCopy = false): Promise<Visit> {
   return { context, page }
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function copies(page: Page): Promise<readonly (string | null)[]> {
   return page.evaluate(() => ((window as unknown as Record<string, (string | null)[]>)['cr562Copied'] ?? []).slice())
 }
@@ -212,7 +212,7 @@ async function pressAndWaitForCopy(page: Page): Promise<string | null> {
 }
 
 // WHY: the host clipboard is read back as well when the browser allows it; null when it does not.
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function hostClipboard(page: Page): Promise<string | null> {
   return page.evaluate(async () => {
     try {
@@ -223,7 +223,7 @@ async function hostClipboard(page: Page): Promise<string | null> {
   })
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function screenLanguage(page: Page): Promise<Language> {
   const said = await page.evaluate(() => document.documentElement.getAttribute('lang') ?? '')
   const code = said.slice(0, 2)
@@ -231,7 +231,7 @@ async function screenLanguage(page: Page): Promise<Language> {
   return code
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function roles(page: Page): Promise<readonly string[]> {
   return page.evaluate(() =>
     [...new Set(Array.from(document.querySelectorAll('[data-role]')).map((one) => one.getAttribute('data-role') ?? ''))].sort(),

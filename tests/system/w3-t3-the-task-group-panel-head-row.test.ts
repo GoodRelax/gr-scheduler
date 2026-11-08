@@ -50,7 +50,7 @@ interface HeadBox {
   readonly right: number
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function measure(page: Page, icons: readonly string[]): Promise<{ heads: HeadBox[]; panelRight: number }> {
   return page.evaluate((wanted: readonly string[]) => {
     const heads = wanted.flatMap((icon) => {

@@ -1,7 +1,7 @@
 // SingleHtmlShell frame loop -- while a grab is held, builds the document and dependency line a release would give.
 // @unit      UF-158  (docs/spec/05-07-design.md, table T-075)
 // @component SingleHtmlShell, layer Framework (table T-062)
-// @purity    semi-pure-b
+// @purity    semi-pure-mutable
 
 import type { Document } from '../../entity/document-model/document/document'
 import type { DocumentSettings } from '../../entity/document-model/document-settings/document-settings'
@@ -92,7 +92,7 @@ function isPreviewedPress(press: PointerPress | null, isDependencyArmed: boolean
 
 export type HeldPressPreviewHands = Pick<FrameLoopHands, 'readSession' | 'readHeld' | 'readValues' | 'settingsLimitsOf'>
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 export function previewOfHeldPress(
   hands: HeldPressPreviewHands,
   press: PointerPress | null,
@@ -141,7 +141,7 @@ export function heldPropertyPanelWidthOf(
 }
 
 // see FR-009, PTD-3, T-018, T-018a
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 export function tentativeDependencyOf(
   hands: HeldPressPreviewHands, press: PointerPress | null,
   at: Point | null,

@@ -1,7 +1,7 @@
 // Reads and writes document files through the FileStore seam.
 // @unit      UF-41   (docs/spec/05-07-design.md, table T-075)
 // @component FileGateway, layer Adapter (table T-062)
-// @purity    semi-pure-b
+// @purity    semi-pure-mutable
 // @publishes table T-064 row PI-22
 
 import type {
@@ -184,7 +184,7 @@ function destinationIdentity(
 }
 
 // see OP-2, OP-11
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 export async function openDocumentFile(
   store: FileStore,
   route: OpenRoute,

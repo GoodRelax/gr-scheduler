@@ -21,7 +21,7 @@ const ARTIFACTS = [
   { name: 'grs-server-sync-demo.zip', path: join(ROOT, 'dist-server-sync-demo', 'grs-server-sync-demo.zip'), build: buildDemo },
 ]
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 function viteCli() {
   for (let at = ROOT; ; at = dirname(at)) {
     const cli = join(at, 'node_modules', 'vite', 'bin', 'vite.js')
@@ -46,7 +46,7 @@ function buildDemo() {
   node([join('demo', 'server-sync', 'build-demo.mjs')])
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 function sha256Of(path) {
   return createHash('sha256').update(readFileSync(path)).digest('hex')
 }

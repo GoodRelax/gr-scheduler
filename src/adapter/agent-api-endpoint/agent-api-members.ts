@@ -75,12 +75,12 @@ type SearchTableView = Document['documentSettings']['tableViews']['searchPanel']
 // see AM-26, AM-16, SJ-0
 // WHY: the table views are the document's (FR-151, S-560); AM-27 writes them with setTableView (CM-92).
 export interface ShownTasksHolder {
-  /** @purity semi-pure-b */
+  /** @purity semi-pure-mutable */
   readShownTasks(): AgentShownTasks
   // see SJ-0, UN-20
   // WHY: AM-16 touches no panel (SJ-9) but does SJ-0, which puts the target among the drawn tasks;
   // its view writes ride in the SJ-2 write, so the jump is one undo step.
-  /** @purity semi-pure-b */
+  /** @purity semi-pure-mutable */
   jumpViewWrites(taskUid: number): readonly DocumentCommand[]
   // see SJ-5
   /** @purity non-pure */
@@ -89,7 +89,7 @@ export interface ShownTasksHolder {
 
 // see DX-12, RW-16
 export interface DelayFixLogSource {
-  /** @purity semi-pure-b */
+  /** @purity semi-pure-mutable */
   readDelayFixLog(): readonly DelayFixLogRow[]
   /** @purity non-pure */
   landDelayFixes?(rows: readonly DelayFixRow[], before: Document, after: Document): void
@@ -260,19 +260,19 @@ export interface AgentApi {
   readonly agentApiVersion: string
   readonly schemaVersion: string
 
-  /** @purity semi-pure-b */
+  /** @purity semi-pure-mutable */
   readDocument(includeCarry: boolean, taskUids: readonly number[], parts: readonly string[]): Document
-  /** @purity semi-pure-b */
+  /** @purity semi-pure-mutable */
   readStamp(): DocumentStamp
-  /** @purity semi-pure-b */
+  /** @purity semi-pure-mutable */
   readSelection(): Selection
-  /** @purity semi-pure-b */
+  /** @purity semi-pure-mutable */
   readSearchRows(word: string, filters: 'asShown' | 'none', offset: number, limit: number): AgentSearchPage
-  /** @purity semi-pure-b */
+  /** @purity semi-pure-mutable */
   readTableRows(table: 'delayDiagnosticsReport' | 'resourceList' | 'delayFixProposals' | 'delayFixLog', word: string, filters: 'asShown' | 'none', offset: number, limit: number): AgentTableRows
-  /** @purity semi-pure-b */
+  /** @purity semi-pure-mutable */
   readShownTasks(): AgentShownTasks
-  /** @purity semi-pure-b */
+  /** @purity semi-pure-mutable */
   readDelayDiagnostics(parts: readonly string[], limit: number): AgentDelayDiagnostics
 
   /** @purity non-pure */
@@ -289,17 +289,17 @@ export interface AgentApi {
   /** @purity non-pure */
   redoEdit(expectedStamp: DocumentStamp): AgentWriteOutcome
 
-  /** @purity semi-pure-b */
+  /** @purity semi-pure-mutable */
   exportJson(): AgentExport<string>
-  /** @purity semi-pure-b */
+  /** @purity semi-pure-mutable */
   exportMspdi(): AgentExport<string>
-  /** @purity semi-pure-b */
+  /** @purity semi-pure-mutable */
   exportSvg(): AgentExport<string>
-  /** @purity semi-pure-b */
+  /** @purity semi-pure-mutable */
   exportPng(): Promise<AgentExport<Uint8Array>>
-  /** @purity semi-pure-b */
+  /** @purity semi-pure-mutable */
   exportEmbeddedHtml(): Promise<AgentExport<string>>
-  /** @purity semi-pure-b */
+  /** @purity semi-pure-mutable */
   exportFixLogTsv(): AgentExport<string>
 
   /** @purity non-pure */
@@ -499,7 +499,7 @@ function isAgentTable(table: unknown): table is AgentTable {
 }
 
 // see AM-28, AM-19, FR-134, FR-099, S-566, S-567, S-571, S-572
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 function tableRowsListedOf(document: Document, table: AgentTable, word: string, isAsShown: boolean, log: DelayFixLogSource | undefined): readonly AgentTableRow[] {
   const look = { word, isAsShown, language: TABLE_CELL_LANGUAGE } as const
   const { schedule, documentSettings } = document
@@ -512,7 +512,7 @@ function tableRowsListedOf(document: Document, table: AgentTable, word: string, 
 }
 
 // see AM-28, AV-18, T-347, T-371
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 function tableRowsPageOf(document: Document, table: AgentTable, look: { readonly word: unknown; readonly filters: unknown; readonly log: DelayFixLogSource | undefined }, offset: unknown, limit: unknown): AgentTableRows {
   const rows = tableRowsListedOf(document, table, typeof look.word === 'string' ? look.word : '', look.filters !== 'none', look.log)
   const { start, end } = pageBoundsOf(offset, limit)
@@ -601,7 +601,7 @@ const NO_SHOWN_TASKS: AgentShownTasks = { drawnTaskUids: null, filteringTables: 
 
 // see AM-19, DX-11, DX-12, FR-155
 // WHY: the proposals with no row checked or chosen by a person: AM-19 reads no screen value but the log.
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 function delayDiagnosticsWithFixes(document: Document, log: DelayFixLogSource | undefined): AgentDelayDiagnostics {
   const report = diagnoseDelay(document, workingCalendarOf(document.schedule))
   const fixProposals = delayFixProposalRows(proposeDelayFixes(document, report, []), document.schedule)
@@ -785,7 +785,7 @@ function malformedWriteRequestWhat(request: AgentWriteRequest): string | null {
 }
 
 // see CM-102, CM-71, FR-055
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 function withPageFit(wiring: AgentApiWiring, commands: readonly DocumentCommand[]): readonly DocumentCommand[] {
   if (!commands.some((command) => command.kind === 'fitScheduleToScreenOnPage')) return commands
   const fit = wiring.pageFitWrites?.() ?? null
@@ -924,7 +924,7 @@ function mspdiOfSnapshot(snapshot: AgentSnapshot): string {
   return mspdiFromDocument(snapshot.document, snapshot.localReadAt).text
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 function importLandingOutcome(landing: ImportLanding, after: AgentSnapshot): AgentWriteOutcome {
   // TRAP: `!landing` compiles but takes a refusal object for a landed import.
   if (landing === true) {
@@ -1078,16 +1078,16 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
     agentApiVersion: AGENT_API_VERSION,
     schemaVersion: wiring.schemaVersion,
 
-    /** @purity semi-pure-b */
+    /** @purity semi-pure-mutable */
     readDocument: (includeCarry: boolean, taskUids: readonly number[], parts: readonly string[]): Document =>
       documentPartsOf(documentAsRead(source.readSnapshot().documentAsWritten, includeCarry, taskUids), parts),
 
-    /** @purity semi-pure-b */
+    /** @purity semi-pure-mutable */
     readStamp(): DocumentStamp {
       return frozenCopy(source.readSnapshot().documentAsWritten.documentStamp)
     },
 
-    /** @purity semi-pure-b */
+    /** @purity semi-pure-mutable */
     readSelection(): Selection {
       return frozenCopy(source.readSnapshot().selection)
     },
@@ -1095,12 +1095,12 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
     // see AM-25, AM-19
     // WHY: no delay diagnosis here, so late is only a planned day past the status date (T-021b) and
     // (?), the bottleneck and (!!) never show; the precise analysis is readDelayDiagnostics'.
-    /** @purity semi-pure-b */
+    /** @purity semi-pure-mutable */
     readSearchRows: (word: string, filters: 'asShown' | 'none', offset: number, limit: number): AgentSearchPage =>
       frozenCopy(searchPageOf(source.readSnapshot().document, word, filters, offset, limit)),
 
     // see AM-28, AG-9a
-    /** @purity semi-pure-b */
+    /** @purity semi-pure-mutable */
     readTableRows(table: AgentTable, word: string, filters: 'asShown' | 'none', offset: number, limit: number): AgentTableRows {
       const snapshot = source.readSnapshot()
       if (!isAgentTable(table)) {
@@ -1110,13 +1110,13 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
       return frozenCopy(tableRowsPageOf(snapshot.document, table, { word, filters, log: wiring.delayFixLog }, offset, limit))
     },
 
-    /** @purity semi-pure-b */
+    /** @purity semi-pure-mutable */
     readShownTasks: (): AgentShownTasks => frozenCopy(wiring.shownTasks?.readShownTasks() ?? NO_SHOWN_TASKS),
 
     // see AM-19, FR-134, AG-4
     // WHY: diagnosed afresh, never the shell's held report: AM-19 writes no screen value, so it
     // answers whether or not S-445 is on.
-    /** @purity semi-pure-b */
+    /** @purity semi-pure-mutable */
     readDelayDiagnostics(parts: readonly string[], limit: number): AgentDelayDiagnostics {
       const document = source.readSnapshot().document
       return frozenCopy(diagnosticsPartsOf(delayDiagnosticsWithFixes(document, wiring.delayFixLog), parts, limit))
@@ -1157,17 +1157,17 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
     redoEdit: (expectedStamp: DocumentStamp): AgentWriteOutcome =>
       historyStepThrough(wiring, source.readSnapshot(), 'RD-2', expectedStamp),
 
-    /** @purity semi-pure-b */
+    /** @purity semi-pure-mutable */
     exportJson(): AgentExport<string> {
       return { ok: true, value: jsonFromDocument(source.readSnapshot().documentAsWritten) }
     },
 
-    /** @purity semi-pure-b */
+    /** @purity semi-pure-mutable */
     exportMspdi(): AgentExport<string> {
       return { ok: true, value: mspdiOfSnapshot(source.readSnapshot()) }
     },
 
-    /** @purity semi-pure-b */
+    /** @purity semi-pure-mutable */
     exportSvg(): AgentExport<string> {
       const snapshot = source.readSnapshot()
 
@@ -1210,7 +1210,7 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
       return { ok: true, value: picture.svg }
     },
 
-    /** @purity semi-pure-b */
+    /** @purity semi-pure-mutable */
     async exportPng(): Promise<AgentExport<Uint8Array>> {
       const snapshot = source.readSnapshot()
 
@@ -1274,7 +1274,7 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
       return { ok: true, value: painted.png.pngBytes }
     },
 
-    /** @purity semi-pure-b */
+    /** @purity semi-pure-mutable */
     async exportEmbeddedHtml(): Promise<AgentExport<string>> {
       const snapshot = source.readSnapshot()
       const seam = wiring.appShell
@@ -1301,7 +1301,7 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
     },
 
     // see AM-34, RW-20, IO-9
-    /** @purity semi-pure-b */
+    /** @purity semi-pure-mutable */
     exportFixLogTsv(): AgentExport<string> {
       const document = source.readSnapshot().document
       const { fixProposals, fixLog } = delayDiagnosticsWithFixes(document, wiring.delayFixLog)

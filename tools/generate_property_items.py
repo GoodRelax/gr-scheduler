@@ -65,7 +65,7 @@ BANNER = (
 
 
 def build():
-    """The items, as they are written out. @purity semi-pure-b"""
+    """The items, as they are written out. @purity semi-pure-mutable"""
     doc = json.load(io.open(SRC, encoding='utf-8'))
     items = []
     for item in doc['items']:

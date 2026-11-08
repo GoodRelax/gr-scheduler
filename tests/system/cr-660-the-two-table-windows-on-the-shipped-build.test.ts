@@ -172,7 +172,7 @@ async function withReport(scheme: 'light' | 'dark' = 'light'): Promise<Stage> {
   return stage
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function boxOf(page: Page, selector: string): Promise<Box | null> {
   return page.evaluate((wanted: string) => {
     const box = document.querySelector(wanted)?.getBoundingClientRect()
@@ -182,7 +182,7 @@ async function boxOf(page: Page, selector: string): Promise<Box | null> {
 
 // WHY: the range starts at the App Header's lower edge; the element with the role spans the window.
 // see U-32
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function scheduleCanvasRange(page: Page): Promise<Box> {
   const header = await boxOf(page, APP_HEADER)
   const view = page.viewportSize()
@@ -206,7 +206,7 @@ async function pressSelector(page: Page, selector: string): Promise<void> {
   if (box !== null) await pressAt(page, box.x + box.width / 2, box.y + box.height / 2)
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function headingColumns(page: Page, window: string): Promise<{ readonly column: string; readonly box: Box }[]> {
   return page.evaluate((asked: string) => {
     return Array.from(document.querySelectorAll(`${asked} thead th`)).map((cell) => {
@@ -247,7 +247,7 @@ async function openFilter(page: Page, window: string, column: string): Promise<v
   await pressSelector(page, `${window} thead th[data-column="${column}"] [data-icon="IC-122"]`)
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function menuCount(page: Page, window: string): Promise<number> {
   return page.evaluate((asked: string) => {
     const window = document.querySelector(asked)
@@ -255,7 +255,7 @@ async function menuCount(page: Page, window: string): Promise<number> {
   }, window)
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function marksOf(page: Page, window: string): Promise<readonly Mark[]> {
   return page.evaluate((asked: string) => {
     // WHY: the open filter's marks only, not the SQ-10 boxes of the table rows.
@@ -271,7 +271,7 @@ async function marksOf(page: Page, window: string): Promise<readonly Mark[]> {
 // WHY: the search field is the one text input of the open filter (the check boxes and dates are not text).
 const FILTER_FIELD = 'input:not([type="checkbox"]):not([type="date"])'
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function filterFieldOf(page: Page, window: string): Promise<Box | null> {
   return page.evaluate(
     (asked: { window: string; field: string }) => {
@@ -314,7 +314,7 @@ async function narrowedByWord(page: Page): Promise<readonly Mark[]> {
   return before
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function glyphCells(page: Page, window: string, column: string): Promise<{ readonly word: string; readonly glyph: string | null; readonly glyphPx: number; readonly fontPx: number; readonly textLeft: number }[]> {
   return page.evaluate(
     (asked: { window: string; column: string }) => {
@@ -339,7 +339,7 @@ async function glyphCells(page: Page, window: string, column: string): Promise<{
   )
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function linkCells(page: Page, window: string, column: string): Promise<{ readonly color: string; readonly line: string }[]> {
   return page.evaluate(
     (asked: { window: string; column: string }) => {
@@ -354,7 +354,7 @@ async function linkCells(page: Page, window: string, column: string): Promise<{ 
   )
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function clippedCells(page: Page, window: string, columns: readonly string[]): Promise<readonly string[]> {
   return page.evaluate(
     (asked: { window: string; columns: readonly string[] }) => {

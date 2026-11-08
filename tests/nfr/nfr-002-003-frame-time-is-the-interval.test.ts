@@ -206,7 +206,7 @@ const REASON_FALLBACK = rowOf(T233, 'RS-27').id
  * The words a reason is told in, read out of the manuscript's own source of
  * truth (`docs/spec/_source/display-words.json`).
  *
- * @purity semi-pure-b
+ * @purity semi-pure-mutable
  */
 function reasonWords(rowId: string): readonly string[] {
   const shape = JSON.parse(
@@ -492,7 +492,7 @@ test.afterAll(async () => {
   await browser?.close()
 })
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 function taken(): Measured {
   if (sweepFailed !== null) throw sweepFailed
   if (measured === null) throw new Error('the sweep brought nothing back')
@@ -608,7 +608,7 @@ const BARE_SPOT_STEP_PX = 12
 const BARE_SPOT_CLEARANCE_PX = 8
 
 // WHY: a task group's own ground on every side, read just before the press, wherever the palette stands.
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function bareCanvasPoint(
   page: Page,
   near: { readonly x: number; readonly y: number },
@@ -663,7 +663,7 @@ function chordOf(row: SpecRow): string {
     .join('+')
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function framesSince(page: Page, name: string): Promise<number> {
   return page.evaluate((which: string) => {
     const probe = (window as unknown as { __grsFrameProbe?: { samples: [number, number, number][]; marks: [string, string, number][] } })
@@ -674,7 +674,7 @@ async function framesSince(page: Page, name: string): Promise<number> {
   }, name)
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function headingWidth(page: Page, column: string): Promise<number> {
   return page.evaluate(
     (asked: { panel: string; column: string }) =>

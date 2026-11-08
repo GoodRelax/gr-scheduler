@@ -51,7 +51,7 @@ interface Held {
   readonly scrollRoom: number
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function heldOf(page: Page, selector: string): Promise<Held> {
   return page.evaluate(
     ({ field, panel }: { field: string; panel: string }) => {

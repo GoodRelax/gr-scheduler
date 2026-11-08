@@ -165,7 +165,7 @@ interface Shown {
 }
 
 // see AM-26
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function readShown(page: Page): Promise<Shown> {
   const shown = await page.evaluate(() => {
     const api = (window as unknown as { grSchedulerAgentApi: { readShownTasks(): { drawnTaskUids: number[] | null; filteringTables: string[] } } }).grSchedulerAgentApi
@@ -178,13 +178,13 @@ const NARROWED = { drawnTaskUids: [ALPHA, CHARLIE], filteringTables: ['searchPan
 const NOT_NARROWED = { drawnTaskUids: null, filteringTables: [] }
 
 // WHY: every task figure is keyed task-<uid>-... (the drawing's own keys), so the drawn tasks are read off the keys.
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function drawnTaskUids(page: Page): Promise<number[]> {
   const keys = await page.evaluate(() => Array.from(document.querySelectorAll('[data-figure^="task-"]')).map((one) => one.getAttribute('data-figure') ?? ''))
   return [...new Set(keys.map((key) => Number(/^task-(\d+)-/.exec(key)?.[1] ?? NaN)).filter((uid) => Number.isInteger(uid)))].sort((a, b) => a - b)
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function drawnTexts(page: Page): Promise<string> {
   return page.evaluate((canvas: string) => document.querySelector(`${canvas} svg`)?.textContent ?? '', CANVAS)
 }
@@ -196,7 +196,7 @@ interface Box {
   readonly height: number
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function boxOf(page: Page, selector: string): Promise<Box | null> {
   return page.evaluate((wanted: string) => {
     const r = document.querySelector(wanted)?.getBoundingClientRect()
@@ -214,7 +214,7 @@ async function press(page: Page, selector: string): Promise<void> {
   await settle(page)
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function bandText(page: Page): Promise<string | null> {
   return page.evaluate((band: string) => document.querySelector(band)?.textContent ?? null, BAND)
 }

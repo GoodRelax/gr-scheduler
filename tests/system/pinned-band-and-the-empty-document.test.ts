@@ -177,7 +177,7 @@ interface DrawnTaskGroup {
 
 // WHY: names come back cut -- FR-085 ends one that does not fit with an
 // ellipsis; see namesTheSameTaskGroup.
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function drawnTaskGroups(page: Page): Promise<DrawnTaskGroup[]> {
   return page.evaluate(() =>
     Array.from(document.querySelectorAll('[data-depth]')).map((row) => ({
@@ -200,7 +200,7 @@ function namesTheSameTaskGroup(drawn: string, whole: string): boolean {
   return drawn.endsWith(ELLIPSIS) && whole.startsWith(drawn.slice(0, -1))
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function panelState(
   page: Page,
   column: string,
@@ -234,7 +234,7 @@ async function takeThePanelToTheTop(page: Page): Promise<void> {
   await page.waitForTimeout(900)
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function unlockFaceIsUp(page: Page): Promise<boolean> {
   return page.evaluate(
     (part: string) =>
@@ -245,7 +245,7 @@ async function unlockFaceIsUp(page: Page): Promise<boolean> {
   )
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function unlockFieldValue(page: Page): Promise<string | null> {
   return page.evaluate((part: string) => {
     const field = document.querySelector(`[data-role*="${part}"] input`)

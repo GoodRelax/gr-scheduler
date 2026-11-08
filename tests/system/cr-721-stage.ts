@@ -61,7 +61,7 @@ export async function withReport(browser: Browser): Promise<Stage> {
   return stage
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 export async function boxOf(page: Page, selector: string): Promise<Box | null> {
   return page.evaluate((wanted: string) => {
     const box = document.querySelector(wanted)?.getBoundingClientRect()
@@ -84,7 +84,7 @@ export async function pressSelector(page: Page, selector: string): Promise<void>
   if (box !== null) await pressAt(page, box.x + box.width / 2, box.y + box.height / 2)
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 export async function headingColumns(page: Page, window: string): Promise<{ readonly column: string; readonly box: Box }[]> {
   return page.evaluate((asked: string) => {
     return Array.from(document.querySelectorAll(`${asked} thead th`)).map((cell) => {
@@ -94,7 +94,7 @@ export async function headingColumns(page: Page, window: string): Promise<{ read
   }, window)
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 export async function widthsOf(page: Page, window: string): Promise<Readonly<Record<string, number>>> {
   const columns = await headingColumns(page, window)
   return Object.fromEntries(columns.map((one) => [one.column, Math.round(one.box.width * 10) / 10]))
@@ -105,7 +105,7 @@ export async function openFilter(page: Page, window: string, column: string): Pr
   await pressSelector(page, `${window} thead th[data-column="${column}"] [data-icon="IC-122"]`)
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 export async function menuCount(page: Page, window: string): Promise<number> {
   return page.evaluate((asked: string) => {
     const found = document.querySelector(asked)
@@ -113,13 +113,13 @@ export async function menuCount(page: Page, window: string): Promise<number> {
   }, window)
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 export async function menuLeft(page: Page, window: string): Promise<number | null> {
   const box = await boxOf(page, `${window} [data-search-filter-menu]`)
   return box === null ? null : box.x
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 export async function selectedTaskUids(page: Page): Promise<readonly number[]> {
   return page.evaluate(() => {
     const api = (window as unknown as { grSchedulerAgentApi: { readSelection(): unknown } }).grSchedulerAgentApi
@@ -128,7 +128,7 @@ export async function selectedTaskUids(page: Page): Promise<readonly number[]> {
   })
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 export async function colorOfHeading(page: Page, window: string, column: string): Promise<{ readonly fill: string; readonly word: string; readonly icon: string }> {
   return page.evaluate(
     (asked: { window: string; column: string }) => {

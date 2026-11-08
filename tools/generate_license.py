@@ -88,7 +88,7 @@ def attributions():
 def build():
     """The three FR-069 members, as they are written out.
 
-    @purity semi-pure-b
+    @purity semi-pure-mutable
     """
     return {
         '$comment': BANNER,

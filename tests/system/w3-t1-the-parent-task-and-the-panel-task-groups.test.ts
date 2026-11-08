@@ -65,7 +65,7 @@ async function stage(): Promise<Stage> {
   return opened
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function barCenter(page: Page, uid: number): Promise<{ x: number; y: number }> {
   const at = await page.evaluate((wanted: number) => {
     const r = document.querySelector(`[data-figure="task-${wanted}-plan"]`)?.getBoundingClientRect()
@@ -82,7 +82,7 @@ async function openPanelOf(page: Page, uid: number): Promise<void> {
   await settle(page)
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function parentOf(page: Page, uid: number): Promise<number | null> {
   const held = await readDocumentOf(page)
   return (held.schedule.tasks as { uid: number; parentTaskUid: number | null }[]).find((one) => one.uid === uid)?.parentTaskUid ?? null
@@ -99,7 +99,7 @@ async function dragBar(page: Page, from: number, to: number): Promise<void> {
   await settle(page)
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function panelTaskGroups(page: Page): Promise<string[]> {
   return page.evaluate(
     (selector: string) => [...(document.querySelector(selector)?.children ?? [])].map((one) => one.getAttribute('data-field-row') ?? '?'),
@@ -107,7 +107,7 @@ async function panelTaskGroups(page: Page): Promise<string[]> {
   )
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function inkOf(page: Page, color: string): Promise<string> {
   return page.evaluate((wanted: string) => {
     const probe = document.createElement('span')
@@ -235,7 +235,7 @@ test.describe(`FR-075 (MUST): ${FR_075_COLORS.slice(-40)}`, () => {
   test('the grab points of the chosen task take S-527 / S-528, and follow a dark theme and a new hue', async () => {
     const opened = await stage()
     try {
-      /** @purity semi-pure-b */
+      /** @purity semi-pure-mutable */
       const handles = async (): Promise<{ fill: string; stroke: string }[]> =>
         opened.page.evaluate(() =>
           [...document.querySelectorAll('[data-role="Schedule Canvas"] svg [data-figure="task-2-fade-handle"]')].map((one) => ({

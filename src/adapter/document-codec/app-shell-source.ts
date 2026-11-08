@@ -16,6 +16,6 @@ export type AppShellReading =
   | { readonly ok: false; readonly what: string }
 
 export interface AppShellSource {
-  /** @purity semi-pure-b */
+  /** @purity semi-pure-mutable */
   readAppShell(): Promise<AppShellReading>
 }

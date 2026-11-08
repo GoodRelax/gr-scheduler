@@ -34,7 +34,7 @@ export function versionOfInstant(epochSeconds) {
   return { builtAt, semver }
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 export function artifactBuiltAt(key, root = ROOT) {
   const held = JSON.parse(readFileSync(join(root, 'tools', 'artifact-versions.json'), 'utf8'))[key]
   if (typeof held !== 'string' || !INSTANT.test(held)) {
@@ -43,7 +43,7 @@ export function artifactBuiltAt(key, root = ROOT) {
   return held
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 export function buildVersion(root = ROOT) {
   return versionOfInstant(Date.parse(artifactBuiltAt('grsRelayBuiltAt', root)) / MS_PER_SECOND)
 }

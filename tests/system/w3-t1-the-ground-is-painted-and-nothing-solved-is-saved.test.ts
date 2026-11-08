@@ -51,7 +51,7 @@ async function openUnder(scheme: 'light' | 'dark'): Promise<Opened> {
 
 // WHY: what shows behind the Schedule Canvas is the nearest ancestor that paints an opaque background;
 // when none does, the browser's own canvas color (the system color) shows through.
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function groundBehind(page: Page, want: string): Promise<{ want: string; behind: string; painter: string }> {
   return page.evaluate(
     ({ color, canvas }: { color: string; canvas: string }) => {
@@ -70,7 +70,7 @@ async function groundBehind(page: Page, want: string): Promise<{ want: string; b
   )
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function exportedJson(page: Page): Promise<any> {
   const text = await page.evaluate(async () => {
     const answer = (await (window as unknown as { grSchedulerAgentApi: { exportJson(): unknown } }).grSchedulerAgentApi.exportJson()) as unknown

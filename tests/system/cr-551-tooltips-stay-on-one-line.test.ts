@@ -72,7 +72,7 @@ test.afterAll(async () => {
   await browser?.close()
 })
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function visibleHintedIcons(page: Page): Promise<string[]> {
   return page.evaluate((hinted: readonly string[]) => {
     const found: string[] = []
@@ -92,7 +92,7 @@ async function visibleHintedIcons(page: Page): Promise<string[]> {
   }, HINTED)
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function readTooltip(page: Page, icon: string): Promise<Measured | null> {
   return page.evaluate(
     ({ layerSelector, icon }: { layerSelector: string; icon: string }) => {

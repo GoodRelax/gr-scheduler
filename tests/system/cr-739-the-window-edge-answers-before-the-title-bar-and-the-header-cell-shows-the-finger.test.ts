@@ -120,12 +120,12 @@ async function shapeAt(page: Page, x: number, y: number): Promise<string> {
   return shapeHere(page, x, y)
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function shapeMarked(page: Page): Promise<boolean> {
   return page.evaluate(() => document.querySelector('[data-pointer-shape-shown]') !== null)
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function windowBox(page: Page, win: Win): Promise<Box> {
   const box = await boxOf(page, win.selector)
   if (box === null) throw new Error(`premise: ${win.name} is on the screen`)
@@ -139,7 +139,7 @@ interface TitleRow {
 }
 
 // WHY: the title row is the row that carries IC-52 and holds no table row (SV-1); read it from the page the way a person sees it.
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function titleRowOf(page: Page, win: Win): Promise<TitleRow> {
   const row = await page.evaluate(
     (asked: { window: string; close: string }) => {
@@ -160,7 +160,7 @@ async function titleRowOf(page: Page, win: Win): Promise<TitleRow> {
 }
 
 // WHY: x positions along the top where neither the edge rows nor the title row's middle lie under an entrance (IF-9: an entrance answers first), nearest the middle first.
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function freeColumns(page: Page, win: Win, title: TitleRow): Promise<readonly number[]> {
   const box = await windowBox(page, win)
   return page.evaluate(
@@ -192,7 +192,7 @@ async function dragFrom(page: Page, from: Point, by: Point): Promise<void> {
   await settle(page)
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function roomAbove(page: Page, win: Win): Promise<number> {
   const header = await boxOf(page, APP_HEADER)
   const box = await windowBox(page, win)
@@ -425,7 +425,7 @@ interface Cell {
 // WHY: SQ-10, DT-8 and RQ-1 hold a fixed width and have no right border (SV-18, RW-9, RO-9)
 const NO_BORDER = new Set(['SQ-10', 'DT-8', 'RQ-1'])
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function anatomyOf(page: Page, window: string): Promise<readonly Cell[]> {
   const raw = await page.evaluate(
     (asked: { window: string; filter: string }) => {

@@ -173,12 +173,12 @@ async function installRecorder(page: Page): Promise<void> {
   }, TOOLTIP)
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function nowOf(page: Page): Promise<number> {
   return page.evaluate(() => performance.now())
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function logSince(page: Page, since: number): Promise<Log> {
   return page.evaluate((from: number) => {
     const log = (window as unknown as Record<string, { moves: number[]; seen: { at: number; text: string; rect: unknown }[] }>)['grsCr576']
@@ -187,7 +187,7 @@ async function logSince(page: Page, since: number): Promise<Log> {
   }, since) as Promise<Log>
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function shownNow(page: Page): Promise<{ text: string; rect: Rect | null }> {
   return page.evaluate((tooltip: string) => {
     const layer = document.querySelector(tooltip)
@@ -203,7 +203,7 @@ async function shownNow(page: Page): Promise<{ text: string; rect: Rect | null }
 
 // WHY: two entrances of the App Header that carry a description, are wholly on the screen and are the front at
 // their center, wide enough to move a few pixels inside.
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function twoHintedEntrances(page: Page): Promise<readonly { icon: string; rect: Rect }[]> {
   const found = await page.evaluate(
     ({ header, hinted, skip, room }: { header: string; hinted: readonly string[]; skip: string; room: number }) => {
@@ -237,7 +237,7 @@ function pointOfTheBoxOutside(box: Rect, icon: Rect, center: Point): Point | nul
 }
 
 // see IN-3, UZ-2
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function frontIsTheTooltip(page: Page, at: Point): Promise<boolean> {
   return page.evaluate(
     ({ point, tooltip }: { point: Point; tooltip: string }) => {
@@ -487,7 +487,7 @@ test.describe('CR-576 claim 5 -- a description put away with Esc stays away on t
 })
 
 // see EZ-6, T-023d
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function barsOnScreen(page: Page): Promise<readonly Rect[]> {
   return page.evaluate((canvas: string) => {
     const svg = document.querySelector(canvas)

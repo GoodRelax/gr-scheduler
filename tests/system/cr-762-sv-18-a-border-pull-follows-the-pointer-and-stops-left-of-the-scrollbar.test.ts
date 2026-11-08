@@ -122,7 +122,7 @@ interface Reading {
 }
 
 // WHY: read inside a requestAnimationFrame callback -- the first frame after the input was delivered (SV-18 follow).
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function readFrame(page: Page, window: string, nextFrame: boolean): Promise<Reading> {
   return page.evaluate(
     (asked: { window: string; filter: string; nextFrame: boolean }) => {
@@ -230,7 +230,7 @@ async function pull(page: Page, window: string, column: string, step: number): P
 }
 
 // WHY: the first bordered column whose border lies inside the area, clear of the window edge (GR-25 answers there).
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function firstBorderedColumn(page: Page, window: string): Promise<string> {
   const reading = await readFrame(page, window, false)
   const found = reading.headings.find(

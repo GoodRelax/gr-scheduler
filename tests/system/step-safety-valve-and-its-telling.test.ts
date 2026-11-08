@@ -133,7 +133,7 @@ let overTheCap: Visit | null = null
 let atTheCap: Visit | null = null
 let sweepFailed: Error | null = null
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function readTellings(page: Page): Promise<string[]> {
   return page.evaluate(
     (part: string) =>

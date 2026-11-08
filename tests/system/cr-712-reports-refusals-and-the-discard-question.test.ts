@@ -62,7 +62,7 @@ function nextStepWords(rowId: string): readonly string[] {
   return found === undefined ? [] : [found.ja, found.en]
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function textOf(page: Page, selector: string): Promise<string> {
   return page.evaluate(
     (wanted: string) => Array.from(document.querySelectorAll(wanted)).map((one) => one.textContent ?? '').join(' | '),

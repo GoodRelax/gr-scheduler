@@ -94,8 +94,8 @@
   "purity": {
    "enum": [
     "pure",
-    "semi-pure-a",
-    "semi-pure-b",
+    "semi-pure-immutable",
+    "semi-pure-mutable",
     "non-pure"
    ]
   },

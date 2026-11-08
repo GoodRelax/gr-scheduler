@@ -231,7 +231,7 @@ export function holidaySettingsBodyElements(
 
 const WHEEL_MAY_STOP_DEFAULT: AddEventListenerOptions = { passive: false }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 function wheelPxOf(wheel: WheelEvent, list: HTMLElement): number {
   const turned = wheel.deltaX !== 0 ? wheel.deltaX : wheel.deltaY
   if (wheel.deltaMode === wheel.DOM_DELTA_PAGE) return turned * list.clientWidth
@@ -259,12 +259,12 @@ function scrollSidewaysOnTheList(list: HTMLElement): void {
 
 type ListScroll = { readonly top: number; readonly left: number } | null
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 function listOf(drawn: Element | null): Element | null {
   return drawn?.querySelector?.(`[${HOLIDAY_LIST_ATTRIBUTE}]`) ?? null
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 function listScrollOf(drawn: Element | null): ListScroll {
   const list = listOf(drawn)
   return list === null ? null : { top: list.scrollTop, left: list.scrollLeft }

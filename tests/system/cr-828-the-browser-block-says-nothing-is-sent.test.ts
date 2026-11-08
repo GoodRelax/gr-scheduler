@@ -64,7 +64,7 @@ test.afterAll(async () => {
 })
 
 // see FR-036, T-255
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function readNote(page: Page, sentence: Readonly<Record<string, string>>): Promise<NoteReading> {
   return page.evaluate(
     ({ help, rows, words }) => {
@@ -98,7 +98,7 @@ async function readNote(page: Page, sentence: Readonly<Record<string, string>>):
   )
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function isShown(page: Page): Promise<boolean> {
   return page.evaluate((wanted: string) => {
     const box = document.querySelector(wanted)?.getBoundingClientRect()

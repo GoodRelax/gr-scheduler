@@ -72,7 +72,7 @@ export function pasteWhatWasCopied(hands: CopyAndPasteHands, frame: FrameValues)
 
 // see FR-033, ST-7, CY-10
 // WHY: one test for both roads that copy -- a cap that held the paste but not the drag would work in one place only.
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 function isStackSafetyCapReachedBy(
   hands: CopyAndPasteHands,
   bundle: readonly DocumentCommand[],

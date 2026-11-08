@@ -366,9 +366,9 @@ export interface FrameLoop {
   document(): Document
   // see FR-039, S-72
   themePreference(): ScreenValues['themePreference']
-  /** @purity semi-pure-b */
+  /** @purity semi-pure-mutable */
   exportScene(): ExportScene | null
-  /** @purity semi-pure-b */
+  /** @purity semi-pure-mutable */
   agentApiSeams(): AgentApiSeams
   /** @purity non-pure */
   watchAgentApiEnabling(watch: (isEnabled: boolean) => void): void
@@ -1373,7 +1373,7 @@ function historyStepsOf(
 /** @purity pure */
 function agentHolderOf(holder: DocumentHolder, landed: () => void): DocumentHolder {
   return {
-    /** @purity semi-pure-b */
+    /** @purity semi-pure-mutable */
     read(): HeldDocument {
       return holder.read()
     },
@@ -1642,7 +1642,7 @@ function searchPanelAfterEntry(
 }
 
 // see GR-24, GR-25, GR-28, SV-15
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 function isWindowGrabPress(input: HumanInput, surface: ScreenSurface | undefined): boolean {
   if (input.kind !== 'pointer' || input.phase !== 'down' || surface === undefined) return false
   return surface.readScreenPartAt(input.x, input.y)?.windowGrab !== undefined
@@ -1878,7 +1878,7 @@ function resourceListWithInput(window: ResourceListWindow | null, view: TableVie
 
 // see SV-2, SV-7, RW-3, IF-9, UN-20
 // WHY: the words stay on the screen; the Visibility and filter changes come back as views for setTableView (CM-92).
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 function windowPlacesAfterTyping(
   held: WindowPlaces,
   session: ScreenSession,
@@ -2215,7 +2215,7 @@ interface FixLogSource {
 }
 
 // see EL-21, SJ-0, SJ-2, UN-20
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 function actionWithJumpViews(
   translated: ReturnType<typeof commandFromInput>,
   jumpViewWrites: (taskUid: number) => readonly DocumentCommand[],
@@ -2359,7 +2359,7 @@ function landingAgentHolder(
 }
 
 // see SV-7, IF-9
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 function searchViewWithFilterChanges(
   panel: SearchPanelSession,
   view: TableView,
@@ -2385,14 +2385,14 @@ function filterListedOf(input: HumanInput, context: InputContext): readonly stri
 }
 
 // see SV-2, SV-5
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 function searchPanelWithTypedWord(held: SearchPanelSession, surface: ScreenSurface | undefined): SearchPanelSession {
   const typed = surface?.readSearchWord?.() ?? null
   return typed === null ? held : { ...held, word: typed }
 }
 
 // see SV-15, MK-10, T-023, RW-4
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 function isOnTableWindowBody(input: HumanInput, surface: ScreenSurface | undefined): boolean {
   if (input.kind === 'key' || surface === undefined) return false
   const on = surface.readScreenPartAt(input.x, input.y)
@@ -2401,7 +2401,7 @@ function isOnTableWindowBody(input: HumanInput, surface: ScreenSurface | undefin
 }
 
 // see T-023, SV-15, MK-1, U-25
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 function isLeftToTheHost(input: HumanInput, surface: ScreenSurface | undefined): boolean {
   if (isOnTableWindowBody(input, surface)) return true
   if (input.kind !== 'wheel' || surface === undefined || !isCombo(input.modifiers, false, false, false)) return false
@@ -2410,7 +2410,7 @@ function isLeftToTheHost(input: HumanInput, surface: ScreenSurface | undefined):
 
 // see U-65, WC-3, WC-4, WC-8, IN-6
 // TRAP: taskGroupArea also covers these floating fields; stopped, their press takes no native focus (DFC-578).
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 function isFloatingFieldPress(input: HumanInput, surface: ScreenSurface | undefined): boolean {
   if (input.kind !== 'pointer' || input.phase !== 'down' || surface === undefined) return false
   const on = surface.readScreenPartAt(input.x, input.y)
@@ -2469,7 +2469,7 @@ function escapeLevelOf(
 }
 
 // see RG-16, IF-9
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 function windowFocusContextOf(
   screen: ScreenWiring | undefined,
   session: ScreenSession,
@@ -2770,7 +2770,7 @@ function formatSettledOnRelease(
 
 
 // TRAP: toISOString here would move the zoneless statusDate by the UTC offset.
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 export function readToday(): string {
   const now = new Date()
   const day: CalendarDay = {
@@ -2782,7 +2782,7 @@ export function readToday(): string {
 }
 
 // see FR-095, RD-7
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 function startingAfreshCall(emptyDocument: Document): ReplacementCall {
   const document = startedDocumentOf(emptyDocument, readLocalMoment(), readSystemStandardTimeZone())
   return { row: 'RD-7', document, editedBy: EDITED_BY_SCREEN, updatedAt: readInstantOfWrite() }
@@ -2803,7 +2803,7 @@ const JANUARY = 0
 const JULY = 6
 
 // see FR-156, BK-4, T-376
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 export function readSystemStandardTimeZone(): StandardTimeZoneKey {
   const year = new Date().getFullYear()
   const offsetOn = (month: number): number => -new Date(year, month, 1, PC_OFFSET_HOUR).getTimezoneOffset()
@@ -2811,13 +2811,13 @@ export function readSystemStandardTimeZone(): StandardTimeZoneKey {
 }
 
 // see FR-063
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 export function readInstantOfWrite(): string {
   return new Date().toISOString().replace(/\.\d+Z$/, 'Z')
 }
 
 // see WT-9, DV-12
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 export function readLocalMoment(): string {
   const now = new Date()
   const parts = [now.getFullYear(), now.getMonth() + 1, now.getDate(), now.getHours(), now.getMinutes(), now.getSeconds()]
@@ -2825,7 +2825,7 @@ export function readLocalMoment(): string {
   return `${year}-${month}-${date}T${hours}:${minutes}:${seconds}`
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 export function readMonotonicMs(): number {
   return performance.now()
 }
@@ -2907,7 +2907,7 @@ export function frameLoop(
       ? NOT_STORED_WATERMARK_NAME['S-99a']
       : watermarkStoredName
   // see FR-020, S-144
-  /** @purity semi-pure-b */
+  /** @purity semi-pure-mutable */
   function watermarkNow(): { readonly openedBy: string; readonly stampedAt: string } | null {
     return session.screen.watermarkDisplayState.kind === 'shown'
       ? { openedBy: watermarkOpenedBy, stampedAt: watermarkStampedAt }
@@ -2944,7 +2944,7 @@ export function frameLoop(
   const changeWatchers = emptyChangeWatchers()
 
   const holder: DocumentHolder = {
-    /** @purity semi-pure-b */
+    /** @purity semi-pure-mutable */
     read(): HeldDocument {
       return held
     },
@@ -3091,7 +3091,7 @@ export function frameLoop(
   })
   sendToSession({ type: 'rememberedEnablingLoaded', isRememberedEnabled: isStartupAgentApiEnabled() }, null)
 
-  /** @purity semi-pure-b */
+  /** @purity semi-pure-mutable */
   function isPropertiesPanelOnScreen(): boolean {
     return screen !== undefined && panelShowingIn(session) !== null
   }
@@ -3437,7 +3437,7 @@ export function frameLoop(
 
   // see FR-080, IX-12, EP-11, EP-12, ST-7
   // WHY: the cap stop rides on the scene (CR-440 decision 9), so an export owes its telling by value.
-  /** @purity semi-pure-b */
+  /** @purity semi-pure-mutable */
   function exportScene(): ExportSceneWithCapStop | null {
     if (!isSizeSettled(environment)) return null
     const document = held.document
@@ -3508,7 +3508,7 @@ export function frameLoop(
   }
 
   // see FR-052, S-97, S-98
-  /** @purity semi-pure-b */
+  /** @purity semi-pure-mutable */
   function settingsLimitsOf(frame: FrameValues | null): SettingsLimits {
     // TRAP: the frame's widths; stored ones drift the sum by a held divider's travel.
     return {
@@ -3536,7 +3536,7 @@ export function frameLoop(
   }
 
   const snapshotSource: AgentApiSeams['source'] = {
-    /** @purity semi-pure-b */
+    /** @purity semi-pure-mutable */
     readSnapshot() {
       const frame = values
       return {
@@ -3558,7 +3558,7 @@ export function frameLoop(
   }
 
   // see CS-2
-  /** @purity semi-pure-b */
+  /** @purity semi-pure-mutable */
   function collectPress(at: PointerInput, frame: FrameValues, on: ScreenPart | null): PointerPress {
     const resolving = at.clickCount >= 2 ? 'doubleClick' : 'press'
     // TRAP: without the Task Group Area test a bar clipped under the Task Group Panel still takes the press.
@@ -3581,7 +3581,7 @@ export function frameLoop(
   // see PE-0
   // WHY: the whole Schedule Canvas, ruler band included, and whatever modifier is held: a press or
   // WHY: a drag there must not hand the browser its own text selection.
-  /** @purity semi-pure-b */
+  /** @purity semi-pure-mutable */
   function startsNoTextSelection(input: HumanInput, frame: FrameValues): boolean {
     if (input.kind !== 'pointer') return false
     const down = input.phase === 'down' && input.button === 'left'
@@ -3616,7 +3616,7 @@ export function frameLoop(
 
   let addedTaskGroupOwedSight: string | null = null
 
-  /** @purity semi-pure-b */
+  /** @purity semi-pure-mutable */
   function collectInputContext(
     frame: FrameValues,
     isNoticeStanding: boolean = standingNoticesIn(session).length > 0,
@@ -3665,7 +3665,7 @@ export function frameLoop(
   }
 
   // see WS-2, AG-9
-  /** @purity semi-pure-b */
+  /** @purity semi-pure-mutable */
   function collectWriteMoment(isSettlingFieldCommit = false): WriteMoment {
     return {
       gestureInFlight: isChangingDocumentIn(session),
@@ -4075,7 +4075,7 @@ export function frameLoop(
   }
 
   // see FR-048, NFR-010
-  /** @purity semi-pure-b */
+  /** @purity semi-pure-mutable */
   function owesFrame(
     input: HumanInput,
     before: InputContext,
@@ -4278,7 +4278,7 @@ export function frameLoop(
 
   return {
     // see FR-100
-    /** @purity semi-pure-b */
+    /** @purity semi-pure-mutable */
     hasUnsavedEdits(): boolean {
       return session.fileFlow.unsavedEditsState.kind === 'editsUnsaved'
     },
@@ -4336,14 +4336,14 @@ export function frameLoop(
       if (!isSizeSettled(next)) return
       runFrame()
     },
-    /** @purity semi-pure-b */
+    /** @purity semi-pure-mutable */
     current: () => values,
-    /** @purity semi-pure-b */
+    /** @purity semi-pure-mutable */
     document: () => held.document,
-    /** @purity semi-pure-b */
+    /** @purity semi-pure-mutable */
     themePreference: () => session.screen.themePreference,
     exportScene,
-    /** @purity semi-pure-b */
+    /** @purity semi-pure-mutable */
     agentApiSeams: () => ({
       source: snapshotSource,
       holder: agentHolderOf(holder, () => sendToSession(DOCUMENT_EDIT_LANDED, null)),

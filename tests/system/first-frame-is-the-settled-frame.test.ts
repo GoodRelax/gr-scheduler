@@ -46,10 +46,10 @@ const QUIET_MS = 1_500
 const LEAST_WATCHED_MS = 5_000
 const WATCH_DEADLINE_MS = 60_000
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function readRecorded(page: Page): Promise<Recorded> {
   return page.evaluate(
-    /** @purity semi-pure-b */
+    /** @purity semi-pure-mutable */
     (name: string) => {
       const held = (window as unknown as Record<string, Recorded | undefined>)[name]
       if (held === undefined) return { ticks: -1, frames: [] }

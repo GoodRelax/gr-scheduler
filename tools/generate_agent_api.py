@@ -94,7 +94,7 @@ def stop(message):
 def load():
     """The manuscript, as JSON.
 
-    @purity semi-pure-b
+    @purity semi-pure-mutable
     """
     return json.load(io.open(path_of(REL_SOURCE), encoding='utf-8'))
 

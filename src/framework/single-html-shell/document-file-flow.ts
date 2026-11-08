@@ -454,9 +454,9 @@ function fileSavedReadingOf(hands: Pick<DocumentFileFlowHands, 'files'>) {
   let fileSaved: FileSavedReading = NO_FILE_SAVED
   let hasSavedOpenedFile = false
   return {
-    /** @purity semi-pure-b */
+    /** @purity semi-pure-mutable */
     readFileSaved: (): FileSavedReading => fileSaved,
-    /** @purity semi-pure-b */
+    /** @purity semi-pure-mutable */
     hasSavedOpenedFile: (): boolean => hasSavedOpenedFile,
     /** @purity non-pure */
     noteFileSaved(byteLength: number, savedAt: string): void {
@@ -537,12 +537,12 @@ function delayFixBundleHoldOf(hands: DocumentFileFlowHands) {
       landed = [...landed, { logRows: delayFixLogRowsOf(fixBundle, readLocalMoment()), before, after }]
       telling = { kind: 'fixed', count: fixBundle.length }
     },
-    /** @purity semi-pure-b */
+    /** @purity semi-pure-mutable */
     readDelayFixLog(): readonly DelayFixLogRow[] {
       const held = hands.readHeld()
       return landed.filter((one) => isFixBundleStanding(held, one)).flatMap((one) => one.logRows)
     },
-    /** @purity semi-pure-b */
+    /** @purity semi-pure-mutable */
     readDelayFixTelling: (): DelayFixTelling | null => telling,
     /** @purity non-pure */
     forgetDelayFixLog(): void {
@@ -982,7 +982,7 @@ export const WORKING_TIMES_UNLIKE_DAY_REASON: NoticeReason = 'RS-89'
 
 // see FR-156, BK-4
 // WHY: MSPDI holds no zone, so a read MSPDI is the PC's standard time, told to nobody (FR-156).
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 function withSystemTimeZone(document: Document): Document {
   const project = document.schedule.project
   return { ...document, schedule: { ...document.schedule, project: { ...project, scheduleDataTimeZone: readSystemStandardTimeZone() } } }

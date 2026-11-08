@@ -92,7 +92,7 @@ function buildDeliverable(): void {
   }
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 function filesUnder(dir: string): string[] {
   const out: string[] = []
   for (const entry of readdirSync(dir, { withFileTypes: true })) {
@@ -140,7 +140,7 @@ test.afterAll(async () => {
   await browser?.close()
 })
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 function openedBrowser(): Browser {
   if (browser === null) throw new Error('the reference browser was not opened')
   return browser

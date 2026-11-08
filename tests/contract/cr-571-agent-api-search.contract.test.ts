@@ -221,7 +221,7 @@ afterEach(() => {
 const treeStateOf = (document: Document, id: string): string =>
   String((document.schedule.taskGroups as unknown as readonly Loose[]).find((row) => row['id'] === id)?.['treeState'])
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 function readSearchRowsOf(api: AgentApi, word: string): SearchRows {
   // WHY: the page's rows only; the table has no column filter here, so 'asShown' changes nothing (see AM-25, AV-16)
   const page = api.readSearchRows(word, 'asShown', 0, 100)

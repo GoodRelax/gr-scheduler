@@ -95,7 +95,7 @@ test.afterAll(async () => {
   await browser?.close()
 })
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function isShown(page: Page, selector: string): Promise<boolean> {
   return page.evaluate((wanted: string) => {
     const found = document.querySelector(wanted)
@@ -105,7 +105,7 @@ async function isShown(page: Page, selector: string): Promise<boolean> {
 }
 
 // see FR-036, FR-069
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function readLayout(page: Page): Promise<HelpLayout> {
   const read = await page.evaluate((help: string) => {
     const boxOf = (one: Element | DOMRect | null | undefined): Box | null => {

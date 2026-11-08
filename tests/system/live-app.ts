@@ -42,10 +42,10 @@ export async function launchReferenceBrowser(): Promise<Browser> {
   }
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 export async function readDrawnSvg(page: Page): Promise<string | null> {
   return page.evaluate(
-    /** @purity semi-pure-b */
+    /** @purity semi-pure-mutable */
     (selector: string) => document.querySelector(selector)?.outerHTML ?? null,
     DRAWN_SVG,
   )
@@ -58,11 +58,11 @@ const CANVAS_PADDING_PX = Number(/\d+/.exec(bare(specTable('T-201').rows.find((o
 // see MK-13, T-266, RV-6, FR-051
 // WHY: MK-13 opens the panel only from a Task's own body, label or actual; a marker, resume icon, dependency
 // or status line over the bar answers first in T-266 (RV-6 moved one bar middle onto a resume icon).
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 export async function taskBodyPoint(page: Page): Promise<{ uid: string; x: number; y: number } | null> {
   if (!Number.isFinite(CANVAS_PADDING_PX)) throw new Error('table T-201 row S-56 states no number')
   return page.evaluate(
-    /** @purity semi-pure-b */
+    /** @purity semi-pure-mutable */
     ({ selector, padding }: { selector: string; padding: number }) => {
       const bars = Array.from(document.querySelectorAll('[data-role="Scrollbars"]'))
         .map((one) => one.getBoundingClientRect())
@@ -101,7 +101,7 @@ export async function taskBodyPoint(page: Page): Promise<{ uid: string; x: numbe
 
 // WHY: the shell may legitimately draw twice while the screen size
 // settles, so this waits for two identical readings, not a fixed delay.
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 export async function readSettledDrawnSvg(page: Page): Promise<string> {
   const quietMs = 250
   const deadline = Date.now() + 30_000

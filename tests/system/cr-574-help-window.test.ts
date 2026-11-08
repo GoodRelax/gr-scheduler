@@ -252,7 +252,7 @@ async function openTheSample(size: { width: number; height: number }): Promise<S
 }
 
 // see T-337
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function frontPointOf(page: Page, selector: string): Promise<Point | null> {
   return page.evaluate((wanted: string) => {
     const shown = Array.from(document.querySelectorAll(wanted))
@@ -286,7 +286,7 @@ async function press(page: Page, selector: string): Promise<void> {
 
 const inHelp = (icon: string): string => `${HELP} [data-icon="${icon}"]`
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function isShown(page: Page, selector: string): Promise<boolean> {
   return page.evaluate((wanted: string) => {
     const found = document.querySelector(wanted)
@@ -305,7 +305,7 @@ async function openHelp(page: Page): Promise<HelpReading> {
 }
 
 // see FR-036, FR-038, T-335
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function readHelp(page: Page): Promise<HelpReading> {
   const read = await page.evaluate(
     (asked: { help: string; anchor: string; legend: Words; heading: Words; keys: readonly string[] }) => {
@@ -506,17 +506,17 @@ async function readHelp(page: Page): Promise<HelpReading> {
   return read.reading as HelpReading
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function textOf(page: Page, selector: string): Promise<string> {
   return page.evaluate((wanted: string) => document.querySelector(wanted)?.textContent ?? '', selector)
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function screenCode(page: Page): Promise<string> {
   return page.evaluate(() => document.documentElement.getAttribute('lang') ?? '')
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function storedValues(page: Page): Promise<string> {
   return page.evaluate(() => {
     const out: Record<string, string | null> = {}
@@ -528,7 +528,7 @@ async function storedValues(page: Page): Promise<string> {
   })
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function layerOf(page: Page, selector: string): Promise<string | null> {
   return page.evaluate((wanted: string) => document.querySelector(wanted)?.closest('[data-uz]')?.getAttribute('data-uz') ?? null, selector)
 }
@@ -938,7 +938,7 @@ test.describe('CR-574 item 11 -- nothing of the help reaches the saved document 
   })
 })
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function readLicenseLines(page: Page) {
   return page.evaluate((help: string) => {
     // WHY: the last link outside the fold; the S-350 note link stands earlier, inside the columns.
@@ -1005,7 +1005,7 @@ test.describe('CR-622 -- where the help opens, and the license line (FR-036, FR-
   })
 })
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function readHelpColumns(page: Page) {
   return page.evaluate((help: string) => {
     const columns = [...document.querySelectorAll(`${help} [data-help-column]`)]

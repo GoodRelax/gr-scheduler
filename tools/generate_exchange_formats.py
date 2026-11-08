@@ -284,7 +284,7 @@ def read_formats():
     The one parse of the table: build() below, and the regions
     tools/generate_entity_types.py prints, both start from here.
     """
-    # @purity semi-pure-b
+    # @purity semi-pure-mutable
     table = spec_tables.read(REL_SOURCE, TABLE)
     for heading in (HEAD_ROW, HEAD_DIRECTION, HEAD_EXTENSION, HEAD_MEDIA_TYPE,
                     HEAD_OFFERED, HEAD_FIRST):
@@ -344,7 +344,7 @@ def read_formats():
 
 def build():
     """DocumentCodec's roster: the formats, as they are written out."""
-    # @purity semi-pure-b
+    # @purity semi-pure-mutable
     headings, formats = read_formats()
     # ⭐ THE HEADINGS ARE THE TABLE'S OWN, carried so the artifact says which
     # column each key came from.
@@ -360,7 +360,7 @@ def build():
 
 def file_rows():
     """Every row that comes out as a FILE: (row id, extension, media type, offered)."""
-    # @purity semi-pure-b
+    # @purity semi-pure-mutable
     _headings, formats = read_formats()
     return [(f['rowId'], f['extension'], f['mediaType'], f['offered'])
             for f in formats if f['extension'] is not None]
@@ -368,7 +368,7 @@ def file_rows():
 
 def offered_rows():
     """The row ids FR-096 offers on IC-2, in the table's order."""
-    # @purity semi-pure-b
+    # @purity semi-pure-mutable
     return [row_id for row_id, _e, _m, offered in file_rows() if offered]
 
 
@@ -381,7 +381,7 @@ def chooser_roster():
     on IC-3 instead. ⛔ IO-8 is a file and is NOT offered: the offered column
     says so (CR-768), and RW-7 reads its extension from `files`.
     """
-    # @purity semi-pure-b
+    # @purity semi-pure-mutable
     rows = file_rows()
     offered = [{'rowId': row_id, 'extension': extension}
                for row_id, extension, _m, is_offered in rows if is_offered]

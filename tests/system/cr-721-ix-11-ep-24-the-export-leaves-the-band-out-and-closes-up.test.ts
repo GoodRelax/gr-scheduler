@@ -48,7 +48,7 @@ test.describe('CR-721 the manuscript these cases are driven by', () => {
   })
 })
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function exportedSvg(page: Page): Promise<string> {
   return page.evaluate(() => {
     const api = (window as unknown as { grSchedulerAgentApi: { exportSvg(): { ok: boolean; value?: string; svg?: string } } }).grSchedulerAgentApi

@@ -148,7 +148,7 @@ BANNER = (
 
 def read_text(path):
     """One file, whole."""
-    # @purity semi-pure-b
+    # @purity semi-pure-mutable
     return io.open(path, encoding='utf-8').read()
 
 
@@ -168,7 +168,7 @@ def stated_row_count(lines, caption):
 
 def roster_rows():
     """Every row id of table T-109, in that table's own order."""
-    # @purity semi-pure-b
+    # @purity semi-pure-mutable
     lines = read_text(GLOSSARY).split('\n')
     table = spec_tables.read(REL_GLOSSARY, ICON_TABLE)
     rows = table.ids()
@@ -614,7 +614,7 @@ def carried_box(ink):
 
 def figure_glyphs():
     """Every shape of figure F-019, by its row id, and the box they share."""
-    # @purity semi-pure-b
+    # @purity semi-pure-mutable
     figure = read_text(FIGURE)
     rules = paint_rules(figure)
     found = GLYPH.findall(figure)
@@ -667,7 +667,7 @@ def figure_glyphs():
 
 def build():
     """The shapes, as they are written out."""
-    # @purity semi-pure-b
+    # @purity semi-pure-mutable
     rows = roster_rows()
     glyphs, view_box = figure_glyphs()
 

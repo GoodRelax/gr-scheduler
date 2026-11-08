@@ -85,7 +85,7 @@ interface Axis {
 }
 
 // WHY: the hour ticks carry their minute in the figure key, so x and time come from one drawing.
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function axisOf(page: Page): Promise<Axis> {
   const ticks = await page.evaluate((selector: string) =>
     [...document.querySelectorAll(selector)]
@@ -102,12 +102,12 @@ async function axisOf(page: Page): Promise<Axis> {
   return { xOf: (minute: number) => first.x + (minute - first.minute) * perMinute }
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function readSchedule(page: Page): Promise<any> {
   return page.evaluate(() => (window as unknown as { grSchedulerAgentApi: { readDocument(): any } }).grSchedulerAgentApi.readDocument().schedule)
 }
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function boxOf(page: Page, selector: string): Promise<{ x: number; y: number; w: number; h: number }> {
   const box = await page.locator(selector).first().boundingBox()
   if (box === null) throw new Error(`${selector} has no box`)
@@ -132,7 +132,7 @@ async function arm(page: Page, icon: string): Promise<void> {
 }
 
 // WHY: the point tip (CU-3 label, DC-3 readout) carries no role; its lines are the leaf divs that hold a dated text.
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function pointTipLines(page: Page): Promise<string[]> {
   return page.evaluate(() =>
     [...document.querySelectorAll('div')]

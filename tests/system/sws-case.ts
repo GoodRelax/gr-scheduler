@@ -28,7 +28,7 @@ export function swsRegistry(): SwsRegistry {
       cases.push(one)
       return `${one.sws} [${one.covers.join(' ')}] GIVEN ${one.given} WHEN ${one.when} THEN ${one.then}`
     },
-    /** @purity semi-pure-b */
+    /** @purity semi-pure-mutable */
     declared(): readonly SwsCase[] {
       return [...cases]
     },

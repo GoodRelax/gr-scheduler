@@ -70,7 +70,7 @@ test.describe('CR-721 the manuscript these cases are driven by', () => {
   })
 })
 
-/** @purity semi-pure-b */
+/** @purity semi-pure-mutable */
 async function fontPxOf(page: Page, window: string): Promise<number> {
   return page.evaluate((asked: string) => Number.parseFloat(getComputedStyle(document.querySelector(`${asked} thead th`) as Element).fontSize), window)
 }
