@@ -308,20 +308,20 @@
          ]
         },
         {
-         "key": "semiPureA",
+         "key": "semiPureImmutable",
          "definition": {
-          "en": "Semi-pure A: no side effects, but reads outside state that does not change, such as constants or settings fixed at start-up; still deterministic.",
-          "ja": "準純粋 A: 副作用は無いが、定数や起動時に決まる設定のように変わらない外部の状態を読む。結果は決まっている。"
+          "en": "Semi-pure-immutable: no side effects, but reads outside state that does not change, such as constants or settings fixed at start-up; still deterministic.",
+          "ja": "準純粋-不変: 副作用は無いが、定数や起動時に決まる設定のように変わらない外部の状態を読む。結果は決まっている。"
          },
          "uses": [
           "spec"
          ]
         },
         {
-         "key": "semiPureB",
+         "key": "semiPureMutable",
          "definition": {
-          "en": "Semi-pure B: no side effects, but reads outside state that changes or is not deterministic, such as the clock, random numbers, files or the network. Such a function is named with a verb.",
-          "ja": "準純粋 B: 副作用は無いが、時計・乱数・ファイル・ネットワークのように変わる、または決まらない外部の状態を読む。このような関数は動詞で名づける。"
+          "en": "Semi-pure-mutable: no side effects, but reads outside state that changes or is not deterministic, such as the clock, random numbers, files or the network. Such a function is named with a verb.",
+          "ja": "準純粋-可変: 副作用は無いが、時計・乱数・ファイル・ネットワークのように変わる、または決まらない外部の状態を読む。このような関数は動詞で名づける。"
          },
          "uses": [
           "spec"

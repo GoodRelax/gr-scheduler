@@ -1,17 +1,17 @@
-BGQA2
+
 
 # 名の辞書（用語集）
 
 > 「回答:」の後ろに答えを書いて保存し、1 行目の BGQA2 を切り取ってください。
 > 凡例: ❓回答待 ✅回答済 🔄変化点 ★強調(ユーザー専用)
 
-🔄 *2026-10-28 に作り、2026-11-05 に書き直した。② の辞書の初版ができ、③ のレビューを始めた。この紙で、名の辞書のスキーマ → 辞書 → 辞書のレビューまでを進める（`JDG-3424` の ①〜③）。スキーマの案は `glossary-draft/glossary.schema.json`（`CR-857` が `docs/development-rules/` へ移すまでの下書き）。*
+2026-10-28 に作り、2026-11-05 に書き直した。② の辞書の初版ができ、③ のレビューを始めた。この紙で、名の辞書のスキーマ → 辞書 → 辞書のレビューまでを進める（`JDG-3424` の ①〜③）。スキーマの案は `glossary-draft/glossary.schema.json`（`CR-857` が `docs/development-rules/` へ移すまでの下書き）。
 
-🔄 *残 16（❓ で検索）*
+🔄 *残 11（❓ で検索）*
 
-🔄 *ホワイトボードで 2026-11-05 に決まった名（`JDG-3527`〜`JDG-3529`・`JDG-3540`〜`JDG-3545`）は、まだこの紙の問いに当てていません（次の巡で当てます）。ボードで残った問いを問 10 に移しました。略語（問 9）はチャットで NEIM に決まりました（`JDG-3546`）。*
+🔄 *2026-11-08、あなたの指示で、この紙を今回の答えで止めました（`JDG-3555`）。ホワイトボード（GRWB）での議論を先にします。残りの問いは、GRWB の議論の後で続きを出します。決まった答えは `JDG-3547`〜`JDG-3555` に書き、決定事項へ移しました。*
 
-🔄 *問いは分野ごとにまとめて並べます（`JDG-3517`）。外との約束に出る語を先に確定します（`JDG-3525`）。今回は 7 つの分野です: 全体の書き方（MSPDI の Type の呼び方）→ 色（色の形を決め直す。透け具合は `JDG-3526` で決まった）→ カレンダー → プロジェクト → タスクと依存 → 担当と割当 → タスクグループ。色が決まると Part 6 が閉じます。案の比べ方には 07 の設計原則の観点と、W3C や業界の慣例の名を使います。易しい語は分野ごとに推奨の表でまとめ、争点のある語だけを 1 問ずつ立てます。*
+問いは分野ごとにまとめて並べます（`JDG-3517`）。外との約束に出る語を先に確定します（`JDG-3525`）。今回は 7 つの分野です: 全体の書き方（MSPDI の Type の呼び方）→ 色（色の形を決め直す。透け具合は `JDG-3526` で決まった）→ カレンダー → プロジェクト → タスクと依存 → 担当と割当 → タスクグループ。色が決まると Part 6 が閉じます。案の比べ方には 07 の設計原則の観点と、W3C や業界の慣例の名を使います。易しい語は分野ごとに推奨の表でまとめ、争点のある語だけを 1 問ずつ立てます。
 
 ***
 
@@ -65,7 +65,7 @@ BGQA2
 | マルチバーガントの意味 | あなたの文のまま | `JDG-3485` |
 | 終了-終了の別名 | 後追終了（画面のヒントも同じ） | `JDG-3486` |
 | 文書の意味 | 短く、肯定形で書き直す（画面の値の保存の話は外す） | `JDG-3487` |
-| 準純粋 B の「このような関数」 | 準純粋 B の関数そのもの。主語を書いてはっきりさせる | `JDG-3488` |
+| 🔄 *準純粋-可変の「このような関数」* | 🔄 *準純粋-可変の関数そのもの。主語を書いてはっきりさせる* | 🔄 *`JDG-3488`・`JDG-3596`* |
 | `JSON` と `JSONSchema` | 一般の語は標準そのものだけを書き、GRS のものは必ず GRS の付く名で呼ぶ（`grsJsonFormat`・`grsDocumentSchema`・`grsCommandsSchema`） | `JDG-3489` |
 | 新しい決まりの語のキー | `AffirmativeActiveWording`（否定形・受動態の排除） | `JDG-3490` |
 | `rowId` の名 | `specTableRowId`（仕様書の表の行 ID）。StrictDoc の要求 ID とは別の、表の 1 行の番号を指す。src へは `CR-857` | `JDG-3491` |
@@ -82,7 +82,7 @@ BGQA2
 | 紙の出し方 | 問いを分野ごとにまとめて並べる。同じ分野の問いを続けて置き、分野を行き来しない（日程・色・日程の順は不可、日程・日程・色の順は可）。分野の順は席が優先度で決める | `JDG-3515`・`JDG-3517` |
 | 分割統治 | Part 1 の `SoC` の前に `DivideAndConquer`（分割統治: 大きな問題を、互いに独立に解ける小さな問題に分け、1 つずつ解き、その答えを組み合わせて全体を解く）を足す。キーは綴った語（「D&C」は略語だけで通じる語でなく、「&」は識別子に入らない）。07 の設計原則の索引にも足す（`CR-857`） | `JDG-3516` |
 | 略語の正式名の欄 | 辞書のスキーマに欄 `expansion { en, ja }` を足す（略語のキーだけが持つ。例: `SRP` は Single Responsibility Principle・単一責任の原則）。決まりの群の略語の形のキー 25 語の正式名を、意味の文の頭からこの欄へ移す。生成の道具は、正式名を意味の前に出す | `JDG-3524` |
-| 🔄 *「名は体を表す」の略語（問 9）* | 🔄 ***NEIM**（Name Explaining Its Meaning、ねいむ）。07 の設計原則の索引と辞書の Part 1 に足す。gr-sw-maker のレビュー基準には NEIM と NDD を足す（BOSS が立てる SUB が当てる）* | 🔄 *`JDG-3546`* |
+| 「名は体を表す」の略語（問 9） | **NEIM**（Name Explaining Its Meaning、ねいむ）。07 の設計原則の索引と辞書の Part 1 に足す。gr-sw-maker のレビュー基準には NEIM と NDD を足す（BOSS が立てる SUB が当てる） | `JDG-3546` |
 
 #### 決まった形 —— 遅延診断の語
 
@@ -172,6 +172,9 @@ BGQA2
 |:---|:---|:---|
 | GRS JSON のキーの日本語の名 | 画面か裁定で日本語の名が決まった語だけに付ける（設定の欄の名を写した 33 語と、`name`（持ち主 `Project`）プロジェクト名・`title` プロジェクトタイトル・`scheduleData` スケジュールデータ・`ScheduleDocument` スケジュール文書）。ほかは空 | `JDG-3518` |
 | 日本語の名の中の縦線 | 辞書の名からは、折り返しの印の縦線を除く。折り返す所は `display-words.json` だけが持つ | `JDG-3519` |
+| 🔄 *線の先が消えた時（問 10）* | 🔄 *線の先は `fallback` を持たない。タスクやハイライトボックスを消す命令の中で、GRS が線の先を自由な点に書き換える。開いたファイルで先が無ければ、GRS は線の先を描かずに知らせる。どの参照も「先が消えたら」を 1 つの決まりで扱う* | 🔄 *`JDG-3547`* |
+| 🔄 *MSPDI の Type を写すキー（問 6-7-3）* | 🔄 *`recurrenceType`・`linkType`・`resourceType` の 3 つを `…Type` にそろえ、意味の欄に MSPDI の名と違う理由を 1 文で書く* | 🔄 *`JDG-3548`* |
+| 🔄 *この紙の進め方（2026-11-08）* | 🔄 *今回の答えでこの紙を止め、GRWB の議論を先にする。色の 4 問は GRWB で決める* | 🔄 *`JDG-3555`* |
 | 意味が「MSPDI の X と同じ。」だけの語 | 型と配列の 12 語（`WeekDay`・`Exception`・`weekDays`・`exceptions`・`Calendar`・`linkType`・`Dependency`・`dependencies`・`calendars`・`resources`・`assignments`・`project`）に、何の入れ物か・何を表す語かの 1 文を足す（英語にも）。ほかの 14 語は今のまま | `JDG-3520` |
 
 ### [time] 日時の型
@@ -189,7 +192,7 @@ BGQA2
 | `dimGray`・`lightGray`（持ち主 `Color`） | パレット色の暗い灰色・明るい灰色（lowerCamelCase） | `JDG-3514` |
 | `hexColor`（持ち主 `ColorSide`。前の名 `value`） | このテーマで使う色を、# と小文字の 16 進の 6 桁（#rrggbb）で書いた値。CSS が #rrggbb の形を呼ぶ名（`<hex-color>`） | `JDG-3523` |
 | 色の残りの 21 語 | 問 6-6-4 の表のとおり | `JDG-3523` |
-| 🔄 *塗りと線の透け具合（問 6-6-4-9）* | 🔄 *キーは `opacityPercent`（0〜100。100 が透けない。省くと 100。0 のとき GRS はその塗りや線を描かない）。W3C の CSS `opacity`・SVG `fill-opacity` と同じ向き。画面の語も「塗りの透過率（%）」から「不透明度」の向きにそろえる* | 🔄 *`JDG-3526`* |
+| 塗りと線の透け具合（問 6-6-4-9） | キーは `opacityPercent`（0〜100。100 が透けない。省くと 100。0 のとき GRS はその塗りや線を描かない）。W3C の CSS `opacity`・SVG `fill-opacity` と同じ向き。画面の語も「塗りの透過率（%）」から「不透明度」の向きにそろえる | `JDG-3526` |
 
 ### [col] 表の列
 
@@ -204,32 +207,42 @@ BGQA2
 | 何 | 決め | 裁定 |
 |:---|:---|:---|
 | 意味を足した 5 語 | `WeekDay`・`Exception`・`weekDays`・`exceptions`・`Calendar` に、何を表す語かの 1 文を足す | `JDG-3520` |
+| 🔄 *「暦」（問 6-7-1）* | 🔄 *辞書の「暦」をすべて「カレンダー」にする。「暦日」はそのまま。仕様書と画面の語も `CR-857` でそろえる* | 🔄 *`JDG-3549`* |
+| 🔄 *カレンダーの 17 語（問 6-7-5）* | 🔄 *問 6-7-5 の表のとおり* | 🔄 *`JDG-3550`* |
 
-### [proj] 🔄 *プロジェクト*
+### [proj] プロジェクト
+
+| 何 | 決め | 裁定 |
+|:---|:---|:---|
+| `name`・`title`（持ち主 `Project`） | 日本語の名はプロジェクト名・プロジェクトタイトル | `JDG-3355`・`JDG-3518` |
+| 🔄 *前の席が付けた 5 つ（問 6-8-1）* | 🔄 *`parentTaskProgressToleranceWorkingDays`・`firstOutlineLevel` を採る。ほかの 3 つは後の裁定に従う: `themeHue`（名の列挙。`JDG-3541`）、数え手は `JDG-3542` の名、取り込みの番号は問 11 の C を待つ* | 🔄 *`JDG-3551`* |
+
+### [task] タスクと依存
+
+| 何 | 決め | 裁定 |
+|:---|:---|:---|
+| 依存の種類 | 終了-開始（直列作業）・開始-開始（並列開始）・終了-終了（後追終了）・開始-終了（引継必須）。英語は Finish-to-Start などのまま | `JDG-3463`・`JDG-3468`・`JDG-3486` |
+| 🔄 *兄弟の中での順（問 6-7-4）* | 🔄 *タスクとタスクグループの順を、1 つの名 `siblingOrder`（同じ親の下での行の順番。0 が先頭）で呼ぶ* | 🔄 *`JDG-3552`* |
+| 🔄 *MSPDI と同じ名の 17 語（問 6-9-5）* | 🔄 *問 6-9-5 の表のとおり（MSPDI の名と違う 3 語は問 6-9-5 に残した）* | 🔄 *`JDG-3553`* |
+
+### [res] 担当と割当
 
 | 🔄 *何* | 🔄 *決め* | 🔄 *裁定* |
 |:---|:---|:---|
-| 🔄 *`name`・`title`（持ち主 `Project`）* | 🔄 *日本語の名はプロジェクト名・プロジェクトタイトル* | 🔄 *`JDG-3355`・`JDG-3518`* |
+| 🔄 *担当と割当の 4 語（問 6-9-6）* | 🔄 *`isCostResource`・`Resource`・`resourceUid`・`Assignment`。どれも MSPDI と同じ名* | 🔄 *`JDG-3553`* |
 
-### [task] 🔄 *タスクと依存*
+### [tg] タスクグループ
 
-| 🔄 *何* | 🔄 *決め* | 🔄 *裁定* |
+| 何 | 決め | 裁定 |
 |:---|:---|:---|
-| 🔄 *依存の種類* | 🔄 *終了-開始（直列作業）・開始-開始（並列開始）・終了-終了（後追終了）・開始-終了（引継必須）。英語は Finish-to-Start などのまま* | 🔄 *`JDG-3463`・`JDG-3468`・`JDG-3486`* |
-
-### [res] 🔄 *担当と割当*
-
-🔄 *まだ決まった語はありません。*
-
-### [tg] 🔄 *タスクグループ*
-
-| 🔄 *何* | 🔄 *決め* | 🔄 *裁定* |
-|:---|:---|:---|
-| 🔄 *`TaskGroup`* | 🔄 *タスクグループ。WBS とは別の、自分の木を作る* | 🔄 *`JDG-3361`* |
+| `TaskGroup` | タスクグループ。WBS とは別の、自分の木を作る | `JDG-3361` |
+| 🔄 *タスクグループの 11 語（問 6-9-7）* | 🔄 *問 6-9-7 の表のとおり（`hidden` は問 6-9-7 に残した）* | 🔄 *`JDG-3554`* |
 
 ***
 
 ## QA
+
+🔄 *残りの問いは、すべて保留です（`JDG-3555`）。GRWB の議論の後で、続きを出します。下の「回答:」には、あなたの今回の答えを残しました。*
 
 表の読み方:
 
@@ -238,56 +251,38 @@ BGQA2
 - MSPDI の名の欄の「無し」は、GRS が自分で付けた名です（MSPDI に同じ要素が無い）。
 - 表を見る問いでは、直す所が無ければ ok と書き、直す所は表のセルに ★ で書いてください。
 
-### [rule] 進め方と形（❓ 0）
+### [rule] 進め方と形 ✅
 
 ### [whole] 🔄 *全体の書き方（❓ 2）*
 
-#### 🔄 *❓ 問 10. 線の先が消えた時の決まり —— `fallback` を持つか*
+#### ❓ 問 11. ボードの提案 A〜E —— 提案通りでよいか
 
-🔄 *場面: コメントボックスの吹き出し線の先（`leaderTarget`。種類は task・highlightBox・freePoint）のうち、task と highlightBox は `fallback { taskGroupId, laneFraction }` を持ちます。先のタスクやハイライトボックスが無くなった時に、線の先を置く場所です。あなたはボードで「fallbackはそのフォールが起こった時にどうするのかを示す名称にすべきでは？」「対称性の指摘回答の提案通り調査しろ」と書きました。*
+場面: 2026-11-05、ホワイトボードであなたが GRS JSON の例に付けたコメントに、前の席が A〜E の 5 つの提案で答えました（ボードの答え `HNI6iNyEQHqsLJQyr7umZ`。今は左の古い話の列にあります）。前の席は骨組みの図と形の図に A〜E を当てて描きましたが、あなたが A〜E を採るとは、まだどこにも書いてありません。あなたの後の「あとは、お前の提案通りにやってくれ」は、チャットの提案（骨組みを先に描く・推奨の表を分ける。`JDG-3543`）に答えたものと前の席は読みました。
 
-- 🔄 *調べた所（仕様書と src。参照する欄 28 か所）:*
-  - 🔄 *タスクが別のタスクグループへ移っても、GRS は `fallback.taskGroupId` を書き直しません。覚えた場所が古くなります。*
-  - 🔄 *その古いタスクグループを消すと、線の先のタスクは生きているのに、コメントボックスごと消えます（`src/use-case/edit-document/edit-task-group.ts` の 364〜368 行、仕様書の `CD-2`）。不具合として台帳に書きます。*
-  - 🔄 *ハイライトボックスを消すと、GRS は線の先をその場で自由な点に変えます。開いたファイルで線の先が無い時の決まりは、仕様書にありません。*
-  - 🔄 *freePoint やハイライトボックスの範囲が指すタスクグループが消えた時の決まりも、参照ごとに違います。*
-
-| 🔄 *案* | 🔄 *中身* |
-|:---|:---|
-| 🔄 ***a（推奨）*** | 🔄 ***`fallback` を持たない。** タスクやハイライトボックスを消す時に、GRS がその場で線の先を自由な点に変える。開いた時に先が無ければ、線を描かずに知らせる。どの参照も「先が消えたら」を同じ 1 つの決まりで扱う（`SSOT`: 覚えた場所という、古くなる写しを持たない）。振る舞いの変更なので CR に回す* |
-| 🔄 *b* | 🔄 *`fallback` を残し、落ちた時に何をするかを言う名に改める（例: `pointIfTargetMissing`）。タスクを動かすたびに GRS が書き直す決まりを足す* |
-| 🔄 *c* | 🔄 *直す所を書く* |
-
-回答:
-
-#### ❓ 問 6-7-3. MSPDI の Type を、GRS は 2 つの言い方で呼んでいる
-
-場面: MSPDI の名と GRS JSON のキーが違う語を、この表に並べました。
-
-| # | キー | MSPDI の名 | 中身 |
+| # | 提案 | 中身 | 07 の原則 |
 |:---|:---|:---|:---|
-| 7-38 | `recurrenceKind` | Exception/Type | 例外の繰り返し方の数（1〜9） |
-| 7-39 | `recurrencePeriod` | Exception/Period | 繰り返しの間隔 |
-| 8-37 | `linkType` | PredecessorLink/Type | 依存の種類の数（0〜3） |
-| 9-14 | `resourceKind` | Resource/Type | 担当の種類の数 |
-| 8-40・9-12 | `Dependency`・`dependencies` | PredecessorLink | 依存 |
-
-- 同じ MSPDI の名 `Type` を、GRS は `…Type`（1 つ）と `…Kind`（2 つ）の 2 つの語尾で呼びます。GRS は 1 つの考えに 2 つの名を付けています（`OKPN`）。
-- GRS JSON の `kind` は「形の組の印」だけに使う決まりです（`JDG-3348`・`JDG-3309`）。`recurrenceKind` と `resourceKind` は数の符号なので、`kind` と紛れます。
-- `Type` を残すと、3 つの要素の意味の違いが名から読めないので、GRS は名を変える（`OMPV`）。`Dependency` は、日程の考えの語「依存」（`dependency`。`JDG-3435` で確定）に合わせた名です。
-- 意味の欄には、MSPDI の名と違う理由が書いてありません。
+| A | 見た目を入れ子の `style` に | 見た目を、どの物でも入れ子の `style` にまとめる。例: `commentBox { id, text, style { fill, stroke, textColor, fontSizePx }, … }`。`Task` は MSPDI の形のまま保つので、タスクの見た目だけは別の配列 `taskStyles[] { taskUid, style { … } }` に置く（今の名は `taskGraphicStyles`）。`taskGroups`・`commentBoxes`・`highlightBoxes` は本体そのもので、見た目だけの物ではない | `OKPN`（`style` は、どの物でも「見た目だけ」の 1 つの意味）・`SoC` |
+| B | 順 | `documentSettings` をルートの一番上に置く。その物を決める値を `id` の次に置く（例: ハイライトボックスの範囲 `firstTaskGroupId`〜`lastDay`）。同じ群の中では 1 行の値を先、入れ子を後に置く（例: `bodyOffsetPx` を `leaderTarget` の前に）。`JDG-3540` の「大事な順」に足す決まり | `JDG-3540` の細かい決まり |
+| C | 名 3 つ | ① `lastImportNumber` → `lastMspdiImportNumber`（`TaskOrigin` は `lastSeenMspdiImportNumber`）。取り込んだ物は MSPDI のファイル ② `leaderAnchor` → `leaderTarget`（吹き出し線の先が何に付くか。`kind` は `task`・`highlightBox`・`freePoint` のまま）③ `lanePositionPercent` → `laneTopOffsetPercent`（レーンの上端からの距離を、レーンの高さに対する % で持つ。CSS の `top` と同じ向き）。③ は `JDG-3529` の `lanePositionPercent` を一部改める | `NEIM`（`JDG-3546`）・`OMPV` |
+| D | 説明 3 つ | ① `parentTaskProgressToleranceWorkingDays`: 遅延診断が「親タスクの進捗点が子の進捗点の外へはみ出した」と疑うまでの許し幅（稼働日。仕様の `VS-6`・`S-487`）② `siblingOrder`: 同じ親の下での並び順（0 が先頭。ファイルは木を平らに持つので、順を数で持つ）③ `scheduleData` は予定そのもの（人が作った中身）、`documentSettings` は開いた時の見え方。`taskGroupAutoExpandDepth` は「開いた時に何段まで開くか」なので `documentSettings` に置く | `SoC` |
+| E | 不透明度を色の外に | `opacityPercent`（`JDG-3526`）を `Color` の中へ入れず、今のまま外に置く。`Color` は文字の色（`textColor`）と帯の色（`LaneColor`）にも使い、そこに不透明度は要らない。W3C のデザイントークン（DTCG）は中に置き、SVG は外（`fill-opacity`）に置く。GRS は SVG で描くので、外ならそのまま渡せる | `ISP` |
 
 | 案 | 中身 |
 |:---|:---|
-| **a（推奨）** | `recurrenceKind` → `recurrenceType`、`resourceKind` → `resourceType` にして、3 つを `…Type` にそろえる。意味の欄に、MSPDI の名と違う理由を 1 文で書く |
-| b | 名は今のまま。意味の欄に、MSPDI の名と違う理由を 1 文で書く |
-| c | 名も意味の欄も今のまま |
+| **a（推奨）** | A〜E を提案通り採る。私は裁定を記録し、GRS JSON の例と BGQA2 の色・タスクグループ・注記の問いに当てる |
+| b | 直す行に ★ を書き、その行だけを改める |
+
+回答:a  でいいと思うが、確定するために、変更するセクション毎に変化点のbefore/after一覧が欲しい。  afterが変化する部分には
+
+#### 🔄 *❓ 問 6-7-3-2. `kind` が残る所と、`type` にそろえるか*
+
+🔄 *場面: 問 6-7-3 で、あなたは a（MSPDI の Type を写す 3 つのキーを `…Type` にそろえる。`JDG-3548`）を選び、「色はkindが残るの？ 他にkindが残る部分は？ typeに統一しないの？ しないならその理由は？」と問いました。GRS JSON の `kind` は、今の決まりでは「形の組の印」（1 つの欄が、いくつかの形のどれかを持つとき、どの形かを示す欄）にだけ使います（`JDG-3348`・`JDG-3309`）。席は GRS JSON の `kind` をすべて数え、GRWB で形の図と並べて見せます（`JDG-3555`）。案は、その後でこの問いに書きます。*
 
 回答:
 
-### [time] 日時の型（❓ 0）
+### [time] 日時の型 ✅
 
-### [color] 🔄 *色（❓ 4）*
+### [color] 色（❓ 4）
 
 #### ✅ 問 6-6-4-6. 塗りの型 `Paint` —— スキーマと実例
 
@@ -463,7 +458,7 @@ GRS の色の要素を、仕様書と β の形から 12 に数えました（�
 | 6 | カスタムの色 | 明るい側と暗い側。各側は `hexColor` と `source`（chosen・derived）を持つ。片側を省くと、GRS は文書を開くときに、もう一方の側から作る（色相を保って明度を反転する） | する | `CV-2`〜`CV-4`・`JDG-3523` |
 | 7 | 置き場ごとに導く値 | 1 つの色から、置き場に応じて描く値を導く。予定バーの塗りは塗りの値、実績バーの塗りは実績の塗りの値（カスタムの色は、選んだ値から HSL で導く）、縁は縁の値 | しない（描くときに導く） | `CV-6`・`CV-10` |
 | 8 | 色を塗る 8 つの置き場 | タスクグループの帯（`LaneColor`。ink を取らない）・タスクの塗りと縁・コメントボックスの塗りと枠（引出し線を含む）と文字・ハイライトボックスの塗りと枠 | する | `doc-shape-map.tsv` |
-| 9 | 透明 | 🔄 *塗りと線の不透明度（`opacityPercent`。100 が透けない）と、色を省く道（タスクの塗りと縁、ハイライトボックスの枠）* | する | 🔄 *`JDG-3310`・`JDG-3526`* |
+| 9 | 透明 | 塗りと線の不透明度（`opacityPercent`。100 が透けない）と、色を省く道（タスクの塗りと縁、ハイライトボックスの枠） | する | `JDG-3310`・`JDG-3526` |
 | 10 | 透明の制約 | 塗りと線の両方を透明にはできない（画面の通知「塗りと線の両方を透明にはできません」） | しない（GRS が入力を断る） | `FR-007` |
 | 11 | コントラストの条件 | パレットの値は、白を除き、地に対して決まったコントラスト比を満たす | しない（アプリの値の条件） | `CV-8` |
 | 12 | 文書の外の色 | 非稼働日の塗り・基準日線・マーカーなど、アプリが決める描画と画面の色。色の値を持つ設定の行が 42 行 | しない | `_assets/tbl-settings.md` |
@@ -475,15 +470,14 @@ Copilot の案と、上の一覧を比べました。
 | テーマの色の役割（task・milestone・criticalTask・summaryTask・comment・highlight）を、値に書く | 置き場が役割を決める。値には `{"kind": "theme"}` だけを書く | `OMPV`: 値に書いた役割と置き場が食い違える（タスクの塗りに highlight）。criticalTask は GRS の範囲の外（`JDG-3510`）→ 問 6-6-4-8 |
 | カスタムの色は、1 つの #hex | 明るい側と暗い側の 2 つ（要素 6） | 暗いテーマでも同じ値で描き、コントラストの条件（要素 11）を割りうる |
 | パレットが無い | 名の付いた 10 色（要素 5） | 名でテーマに追う道が無くなる |
-| `opacityPercent`（100 が不透明。既定 100） | 🔄 *前は `fillTransparencyPercent`（0 が不透明）* | 🔄 *`JDG-3526` で `opacityPercent` に決まった（W3C と同じ向き）* |
+| `opacityPercent`（100 が不透明。既定 100） | 前は `fillTransparencyPercent`（0 が不透明） | `JDG-3526` で `opacityPercent` に決まった（W3C と同じ向き） |
 | `Stroke { paint, widthPx }` | `strokeColor` と `strokeWidthPx` を平らに持つ | → 問 6-6-4-10 |
 | `ShapeStyle` を 3 つの型で共にする | 型ごとに、必ず持つ欄が違う（コメントボックスは塗り・枠・文字を必ず持つ。タスクは塗りも縁も省ける） | → 問 6-6-4-11 |
 | テーマの色の値（#3B82F6 など）を文書に書く | テーマとパレットの値は、アプリの設定だけが持つ。文書は名だけを持つ | `SSOT`: 文書がアプリの値を写すと、2 か所が食い違う |
 | 書いていない要素 | モノクロ・色相・タスクグループの帯・文字の色・実績の塗りの導き方・明暗の片側の導き方・透明の制約（要素 2・3・6〜8・10） | 網羅の抜け |
 
-🔄 *問 6-6-4-8・6-6-4-10・6-6-4-11 の推奨と `JDG-3526` をすべて採ると、色の形は次のとおりです（β の案）。同じ形を、ホワイトボードの UML のクラス図（x 10300・y 9720）にも描きました。*
+問 6-6-4-8・6-6-4-10・6-6-4-11 の推奨と `JDG-3526` をすべて採ると、色の形は次のとおりです（β の案）。同じ形を、ホワイトボードの UML のクラス図（x 10300・y 9720）にも描きました。
 
-🔄 *下のコードブロックの 27・34 行目が変わった。*
 ```json
 {
   "$defs": {
@@ -538,7 +532,6 @@ Copilot の案と、上の一覧を比べました。
 
 実例（同じ形で書いた 3 つ）:
 
-🔄 *下のコードブロックの 3・7・8 行目が変わった。*
 ```json
 "fill": { "color": { "kind": "palette", "name": "red" } }
 
@@ -550,12 +543,12 @@ Copilot の案と、上の一覧を比べました。
 "stroke": { "color": { "kind": "palette", "name": "purple" }, "opacityPercent": 70, "widthPx": 2 }
 ```
 
-- 🔄 *上から、タスクのバー（赤で塗り、縁を描かない）・コメントボックス（塗りを見せず、テーマの色の枠と、ink の文字）・タスクのバー（自前の赤を不透明度 50% で塗り、紫の縁を不透明度 70% で描く）です。*
+- 上から、タスクのバー（赤で塗り、縁を描かない）・コメントボックス（塗りを見せず、テーマの色の枠と、ink の文字）・タスクのバー（自前の赤を不透明度 50% で塗り、紫の縁を不透明度 70% で描く）です。
 - 文書の外のもの（要素 1・7・11・12）と、透明の制約（要素 10）は、スキーマに書きません。GRS が描くときと入力を受けるときに守ります。
 
 直す所が無ければ ok、直す所は表のセルに ★ で書いてください。
 
-回答:
+回答:一旦保留。 GRWBで決めたい。
 
 ##### ❓ 問 6-6-4-8. テーマの色の役割 —— 置き場で決めるか、値に書くか
 
@@ -566,7 +559,7 @@ Copilot の案と、上の一覧を比べました。
 | **a（推奨）** | 置き場が役割を決める（今の形）。値には `{"kind": "theme"}` だけを書く。1 つの値が 1 つの意味を持つ（`OMPV`）。置き場と役割が食い違う文書を書けない |
 | b | 値に役割を書く（`{"kind": "theme", "role": "milestone"}`）。どの置き場でも、ほかの役割のテーマの色を使える。役割の名の一覧を、外との約束として持つ |
 
-回答:
+回答::一旦保留。 GRWBで決めたい。
 
 ##### ❓ 問 6-6-4-10. 線の形 —— 線の太さを線の中に入れるか
 
@@ -574,11 +567,11 @@ Copilot の案と、上の一覧を比べました。
 
 | 案 | 中身 |
 |:---|:---|
-| **a（推奨）** | 🔄 *線の型 `Stroke { color, opacityPercent, widthPx }` を作る（平ら、2 段）。線を描かないときは、太さも書かない（`NullTrap`・`OMPV`: 描かない線の太さという、意味の無い値を持たない）。塗りは `Paint { color, opacityPercent }`。W3C のデザイントークンの border 型も、色と太さを 1 つの型に入れる（`{ color, width, style }`）* |
+| **a（推奨）** | 線の型 `Stroke { color, opacityPercent, widthPx }` を作る（平ら、2 段）。線を描かないときは、太さも書かない（`NullTrap`・`OMPV`: 描かない線の太さという、意味の無い値を持たない）。塗りは `Paint { color, opacityPercent }`。W3C のデザイントークンの border 型も、色と太さを 1 つの型に入れる（`{ color, width, style }`） |
 | b | 塗りも線も `Paint` を取り、太さは今のまま外に置く（`strokeWidthPx`。SVG の `stroke-width` と同じ置き方） |
 | c | Copilot の形 `Stroke { paint, widthPx }`（`stroke.paint.color` と 3 段になる） |
 
-回答:
+回答::一旦保留。 GRWBで決めたい。
 
 ##### ❓ 問 6-6-4-11. 3 つの型で、塗りと線の形を共にするか
 
@@ -589,227 +582,92 @@ Copilot の案と、上の一覧を比べました。
 | **a（推奨）** | 型 `Paint`・`Stroke` だけを共にし、どの欄を必ず持つかは型ごとに書く（`ISP`: 型ごとに要る欄だけを持つ） |
 | b | Copilot の案のように `ShapeStyle { fill, stroke }` を 3 つの型で共にし、必ず持つ欄の違いは型ごとの足しの決まり（`allOf`）で書く（`DRY`） |
 
-回答:
+回答::一旦保留。 GRWBで決めたい。
 
+### [col] 表の列 ✅
 
-### [col] 表の列（❓ 0）
+### [cal] 🔄 *カレンダー ✅*
 
-### [cal] カレンダー（❓ 2）
+### [proj] 🔄 *プロジェクト（❓ 1）*
 
-#### ❓ 問 6-7-1. 「暦」を「カレンダー」にそろえるか
+#### ❓ 問 6-8-5. プロジェクトの 24 語 —— 推奨の表のとおりでよいか
 
-場面: 意味の文と群の見出しに、「暦」の字があります。
+易しい語をまとめた推奨の表です。「暦」の字は、問 6-7-1 の答えに従って直します。直す所が無ければ ok、直す所は表のセルに ★ で書いてください。
 
-- `JDG-3464` で、GRS がすべての稼働日を数える 1 つの暦の名を `projectCalendar`（プロジェクトカレンダー）にしました。そのとき、型 `Calendar` の日本語も「カレンダー」にそろえる案を、この群で出すことにしました。
-- 今の辞書で「暦」を使う語:
-  - GRS JSON の群: `calendarUid`・`baseCalendarUid`・`calendarUid`（持ち主 `Project`）・`highestIssuedUid` と、見出し「暦」。
-  - 辞書のほかの群: 文書の命令の見出し「暦」と、日程の考えの `projectCalendar` の意味の「1 つの暦」。
-  - 「暦」は calendar、「暦日」は calendar day を指す。別の語なので、「暦日」は対象外。
-- 仕様書と画面の語（`display-words.json`）にも、「暦」の字があります。
+| # | キー | 日本語の名 | 意味（日本語） | MSPDI の名 |
+| :-------- | :----------------------------------------------------------------------------------------- | :------------------------------------------------------------ | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :--------------------- |
+| 8-6 | `id`（持ち主 `Project`） MSPDIと同じくuidにしないのか？ またその理由は？ |  | MSPDI の Project/UID と同じ。スケジュール文書を開いた元とは別の既存のファイルへ上書きする前に、GRS はこの値と project.name とファイル名がすべて一致するときだけ、そのファイルを同じスケジュール文書と見なす。値を省くと不一致になる。不一致なら、GRS は上書きの前に人へ確かめる。 | UID |
+| 8-8 | `name`（持ち主 `Project`） | <span style="color: #0550AE">プロジェクト名</span> | MSPDI の Project/Name と同じ。GRS はこの値をプロジェクト名として表示し編集する。アプリヘッダーは title をプロジェクトタイトルとして出す。上書きしようとしている既存のファイルが同じスケジュール文書かを見分けるときにも、GRS は id とファイル名に合わせてこの値を使う。（`JDG-3355`） | Name |
+| 8-9 | `title ★ Project.titleって形になるのか？他も同様。projectTitleにする必要はないよね？` | <span style="color: #0550AE">プロジェクトタイトル</span> | MSPDI の Project/Title と同じ。GRS はこの値をプロジェクトタイトルとしてアプリヘッダーに出し、別名保存ダイアログの既定のファイル名もこの値から作る。この値を省くと、GRS はブラウザーのタブに Untitled と出す。（`JDG-3355`・`JDG-3365`） | Title |
+| 8-10 | `subject` |  | MSPDI の Project/Subject と同じ。 | Subject |
+| 8-11 | `category` |  | MSPDI の Project/Category と同じ。 | Category |
+| 8-12 | `company` |  | MSPDI の Project/Company と同じ。 | Company |
+| 8-13 | `manager` |  | MSPDI の Project/Manager と同じ。 | Manager |
+| 8-14 | `author` |  | MSPDI の Project/Author と同じ。作成者を指し、スケジュール文書を最後に書いた者（documentStamp.lastEditedBy）とは役目が違う。 | Author |
+| 8-15 | `revision` |  | MSPDI の Project/Revision と同じ。MSPDI のファイルを作った道具がプロジェクトを保存した回数。documentStamp のどの時刻とも別の値である。 | Revision |
+| 8-16 | `creationDate` |  | MSPDI の Project/CreationDate と同じ。GRS は新しいスケジュール文書を作るときにこの値を書く。 | CreationDate |
+| 8-17 | `startDate` |  | MSPDI の Project/StartDate と同じ。 | StartDate |
+| 8-18 | `statusDate` |  | MSPDI の Project/StatusDate と同じ。GRS はこの日に基準日線を引く。この値を省くと、GRS は基準日線の描画と遅延診断の実行を省く。 | StatusDate |
+| 8-19 | `scheduleDataTimeZone` |  | スケジュールデータの日時の時計の、固定の UTC オフセット。例えば UTC+09:00。標準時であり、GRS は 1 年中このオフセットをそのまま使う。GRS は MSPDI の書き出しからこのオフセットを除く。 | 無し |
+| 8-20 | `minutesPerDay` |  | MSPDI の Project/MinutesPerDay と同じ。稼働日 1 日（1d）の長さを分で表し、この値を省くと 480（8 時間）。どれかの稼働日の時間帯の合計がこの値と違えば、スケジュール文書を開くときに GRS は注意を出す。 | MinutesPerDay |
+| 8-21 | `minutesPerWeek` |  | MSPDI の Project/MinutesPerWeek と同じ。 | MinutesPerWeek |
+| 8-22 | `daysPerMonth` |  | MSPDI の Project/DaysPerMonth と同じ。 | DaysPerMonth |
+| 8-23 | `weekStartDay` |  | MSPDI の Project/WeekStartDay と同じで、0 が日曜日。WeekDay.dayType は曜日を 1 から数える点が違う。この値を省くと月曜日（1）。 | WeekStartDay |
+| 8-24 | `defaultStartTime` |  | MSPDI の Project/DefaultStartTime と同じ。日付だけで時刻を省いた開始（Task や BaselineTask の start、actualStart、resume、project.startDate）に GRS が与える時刻で、この値を省くと 08:00:00。マイルストーンの開始には defaultFinishTime を与える。 | DefaultStartTime |
+| 8-25 | `defaultFinishTime` |  | MSPDI の Project/DefaultFinishTime と同じ。日付だけで時刻を省いた終了（Task や BaselineTask の finish、actualFinish、stop、deadline、project.statusDate）に GRS が与える時刻で、この値を省くと 17:00:00。マイルストーンの開始にもこの時刻を与える。 | DefaultFinishTime |
+| 8-31 | `sourceFormat` |  | スケジュール文書の元の形式。GRS で作った文書は grs、MSPDI のファイルから読んだ文書は pj12 か pj15（pj15 だけの要素を 1 つでも持てば pj15）。GRS は MSPDI の書き出しからこの値を除く。 | 無し |
+| 8-32 | &emsp;+- `grs`（持ち主 `sourceFormat`） |  | GRS で作ったスケジュール文書。 | 無し |
+| 8-33 | &emsp;+- `pj12`（持ち主 `sourceFormat`） |  | 2012 年版のスキーマの MSPDI のファイルから読んだスケジュール文書。 | 無し |
+| 8-34 | &emsp;+- `pj15`（持ち主 `sourceFormat`） |  | 2015 年版のスキーマだけが持つ要素を含む MSPDI のファイルから読んだスケジュール文書。 | 無し |
+| 8-35 | `Project` |  | MSPDI の Project と同じ。文書が表す 1 件のプロジェクト。 | Project |
 
-| 案 | 中身 |
-|:---|:---|
-| **a（推奨）** | 辞書の「暦」をすべて「カレンダー」にする。「暦日」はそのまま。仕様書と画面の語も、`CR-857` で「カレンダー」にそろえる |
-| b | GRS JSON の群だけ「カレンダー」にする |
-| c | 「暦」のまま。暦は日本語として定着し、暦日とも対になる（プロジェクトカレンダーだけが片仮名になる） |
+回答:上記コメント参照
 
-🔄 *型 `Calendar`（Part 8 の #5）の意味は、次の問 6-7-5 の表にあります。*
+### [task] 🔄 *タスクと依存（❓ 1）*
 
-回答:
+#### 🔄 *❓ 問 6-9-5. タスクと依存の、MSPDI の名と違う 3 語*
 
-#### ❓ 問 6-7-5. カレンダーの 17 語 —— 推奨の表のとおりでよいか
-
-易しい語をまとめた推奨の表です。「暦」の字は、問 6-7-1 の答えに従って直します。繰り返しの 2 語（`recurrenceKind`・`recurrencePeriod`）は、問 6-7-3 で聞きます。
-直す所が無ければ ok、直す所は表のセルに ★ で書いてください。
+🔄 *あなたの答え「MSPDI同じならOK。 違うならそこだけ抽出して、裁定に回せ。」に従い、MSPDI の名と同じ 17 語を確定しました（`JDG-3553`）。キーが MSPDI の名と違う 3 語を、ここに残しました。案は GRWB の議論の後でこの問いに書きます。*
 
 | # | キー | 日本語の名 | 意味（日本語） | MSPDI の名 |
 |:---|:---|:---|:---|:---|
-| 7-16 | `calendarUid` |  | このタスクや担当だけの暦。MSPDI の CalendarUID と同じ。GRS は値を持ち続けて書き戻す。GRS は稼働日を project.calendarUid だけで数える。（→ 問 6-7-1） | CalendarUID |
-| 7-29 | `fromTime` |  | MSPDI の WorkingTime/FromTime と同じ。 | FromTime |
-| 7-30 | `toTime` |  | MSPDI の WorkingTime/ToTime と同じ。00:00:00 は 24:00、つまりその日の終わりを表す。 | ToTime |
-| 7-31 | `WorkingTime` |  | MSPDI の WorkingTime と同じ。GRS は、1 日の中で重なる時間帯と、開始が終了以降の時間帯を断る。12:00 に終わる時間帯と 12:00 に始まる時間帯のように接するだけの組は受け入れる。 | WorkingTime |
-| 7-32 | `workingTimes` |  | この日の稼働の時間帯（MSPDI の WorkingTimes）。稼働日でこの値を省くと、GRS は既定の 08:00:00-12:00:00 と 13:00:00-17:00:00 の時間帯を使う。 | WorkingTimes |
-| 7-33 | `dayWorking` |  | この日が稼働日かどうか（MSPDI の DayWorking）。この値を省くと GRS は非稼働日と読む。 | DayWorking |
-| 7-34 | `dayType` |  | MSPDI の WeekDay/DayType と同じで、1 が日曜日。ただし値は 1〜7 で、例外の日は Exception が持つ。 | DayType |
-| 7-36 | `fromDate` |  | MSPDI の Exception/TimePeriod/FromDate と同じ。例外の最初の日。GRS は日付だけを読み、日時を足したり変えたりするときは T00:00:00 を書く。 | FromDate |
-| 7-37 | `toDate` |  | MSPDI の Exception/TimePeriod/ToDate と同じ。例外の最後の日（その日を含む）。GRS は日付だけを読み、日時を足したり変えたりするときは T23:59:00 を書く。 | ToDate |
-| 8-3 | `baseCalendarUid` |  | MSPDI の Calendar/BaseCalendarUID と同じ。この暦が受け継ぐ元の暦。GRS は値を持つだけで、数えるのはこの暦が自分で並べる日だけである。（→ 問 6-7-1） | BaseCalendarUID |
-| 8-4 | `isBaseCalendar` |  | MSPDI の Calendar/IsBaseCalendar と同じ。この値を省くと GRS は偽と読む。 | IsBaseCalendar |
-| 8-7 | `calendarUid`（持ち主 `Project`） |  | MSPDI の Project/CalendarUID と同じ。GRS はすべての稼働日をこの 1 つの暦（プロジェクトカレンダー）で数える。値を省くか、指す先の暦が欠けているときは、GRS は isBaseCalendar が真で ordinal が最小の暦を使い、それも欠けていれば組み込みの既定を使う。（→ 問 6-7-1） | CalendarUID |
-| 7-35 | `WeekDay` |  | MSPDI の WeekDay と同じ。1 つの曜日が稼働日かどうかと、その日の時間帯。（`JDG-3520`） | WeekDay |
-| 7-40 | `Exception` |  | MSPDI の Exception と同じ。カレンダーの曜日の決まりに対する、例外の日。繰り返すこともある。（`JDG-3520`） | Exception |
-| 8-1 | `weekDays` |  | MSPDI の WeekDays と同じ。このカレンダーの、曜日ごとの決まり。（`JDG-3520`） | WeekDays |
-| 8-2 | `exceptions` |  | MSPDI の Exceptions と同じ。このカレンダーの例外の日。（`JDG-3520`） | Exceptions |
-| 8-5 | `Calendar` |  | MSPDI の Calendar と同じ。どの日が稼働日かを決める、1 つのカレンダー。（`JDG-3520`） | Calendar |
+| 9-1 | `parentTaskUid` |  | WBS での親タスク。この値を省くと最上位のタスク。 | 無し |
+| 9-10 | <span style="color: #0550AE">`fadeInCalendarDays`</span> |  | 開始が未確定であることを示すために、予定バーの始まりにフェード斜面を描く暦日の数。矩形では始まりの辺が斜めになる。矢羽根では始まりの切り欠きの深さになる。ほかの形ではこの値を無視する。この値を省くとフェードの描画を省く（矢羽根は既定の深さを保つ）。0 は平らな始まり。GRS はこの値を MSPDI に Task/ExtendedAttribute として書く。（`JDG-3312`） | ExtendedAttribute |
+| 9-11 | <span style="color: #0550AE">`fadeOutCalendarDays`</span> |  | fadeInCalendarDays と同じことを終わりの側に対して行う（矢羽根では先の深さ）。GRS はこの値を MSPDI に Task/ExtendedAttribute として書く。（`JDG-3312`） | ExtendedAttribute |
 
 回答:
 
-### [proj] 🔄 *プロジェクト（❓ 2）*
+### [res] 🔄 *担当と割当 ✅*
 
-#### 🔄 *❓ 問 6-8-1. 前の席が付けた名 —— プロジェクトの 5 つ*
+### [tg] タスクグループ（❓ 2）
 
-🔄 *場面: プロジェクトが、GRS だけの値を持ちます。*
+#### ❓ 問 6-9-2. 前の席が付けた名 —— `representedTaskUid`
 
-- 🔄 *5 つとも α の名を改めた名です。名を言った裁定の行は 0 です（数え方: `rulings.md` で、キーの前後が英数字でない行を数えた）。*
-- 🔄 *前の席が、名付けの決まり（`JDG-3281`: 単位を末尾に、意味の名で。07 の `Naming`）に合わせて選びました（`doc-shape-choices.md` の CHOICE N6〜N9、所見 F16）。*
-- 🔄 *`themeHueDegrees` の単位の度は、W3C の CSS Color の色相（hue）の単位 `deg` と同じです。*
+場面: タスクグループが、WBS のどのタスクを表すかを持ちます。
 
-| 🔄 *#* | 🔄 *キー* | 🔄 *前の名* | 🔄 *日本語の名（画面）* | 🔄 *意味（日本語）* | 🔄 *決めた所* | 🔄 *MSPDI の名* |
-|:---|:---|:---|:---|:---|:---|:---|
-| 🔄 *8-26* | 🔄 *`themeHueDegrees`* | 🔄 *`themeHue`* | 🔄 *テーマ色* | 🔄 *テーマの色相（度）。{"kind":"theme"} と書いた色はすべてこの色相を使う。新しいスケジュール文書は 214 で始まる。* | 🔄 *CHOICE N6* | 🔄 *無し* |
-| 🔄 *8-27* | 🔄 *`parentTaskProgressToleranceWorkingDays`* | 🔄 *`parentTaskProgressToleranceDays`* | 🔄 *遅延診断時に親タスクの進捗の疑義を許す日数* | 🔄 *親タスクのタスク進捗点が、その下のタスクのタスク進捗点の外にどれだけ（稼働日で）はみ出してよいか。それを超えると、遅延診断が更新の漏れを疑う。新しいスケジュール文書は 1 で始まる。* | 🔄 *所見 F16（Days が暦日か稼働日か分からなかった）* | 🔄 *無し* |
-| 🔄 *8-28* | 🔄 *`highestIssuedUid`* | 🔄 *`uidHighWaterMark`* | 🔄 *（無し）* | 🔄 *タスク・担当・割当・暦の uid のための 1 つの数え手。GRS は各 uid を 1 度だけ発行するので、新しい uid はいつもこの値より大きい。（→ 問 6-7-1）* | 🔄 *CHOICE N7* | 🔄 *無し* |
-| 🔄 *8-29* | 🔄 *`lastImportNumber`* | 🔄 *`importSequence`* | 🔄 *取り込みの連番* | 🔄 *GRS がこのスケジュール文書へ MSPDI のファイルを取り込んだ回数。0 は取り込む前を表す。GRS は TaskOrigin.lastSeenImportNumber とこの数を比べる。（日本語の名は、後の問 6-12-1 で直す）* | 🔄 *CHOICE N8* | 🔄 *無し* |
-| 🔄 *8-30* | 🔄 *`firstOutlineLevel`* | 🔄 *`outlineBase`* | 🔄 *（無し）* | 🔄 *取り込んだ MSPDI のファイルのタスクが始まる OutlineLevel（プロジェクトのまとめのタスクを除いて数える）。GRS は書き出しをこの数から始める。新しいスケジュール文書は 1 で始まる。* | 🔄 *CHOICE N9* | 🔄 *無し* |
+- 前の名は `derivedFromTaskUid` です。所見 F27（残る役目は「このタスクグループが WBS でどのタスクを表すか」だけ。仕様書の `HM-9`・`HM-12`）から、前の席が名を付けました。
+- 名を言った裁定の行は 0 です。`erd.json`・src・仕様書にもありません（数え方は問 6-8-1 と同じ）。
+- タスクグループの名前は、このタスクの名前と別に、タスクグループ自身の `name` が持ちます。
 
-| 🔄 *案* | 🔄 *中身* |
+| # | キー | 前の名 | 意味（日本語） | MSPDI の名 |
+|:---|:---|:---|:---|:---|
+| 9-20 | `representedTaskUid` | `derivedFromTaskUid` | このタスクグループが WBS で表すタスク。値を書いたタスクグループだけが、タスクを表す。タスクグループの名前は name が持ち、このプロパティが指すタスクの名前から独立している。 | 無し |
+
+| 案 | 中身 |
 |:---|:---|
-| 🔄 ***a（推奨）*** | 🔄 *5 つを表の意味のとおり採る。`parentTaskProgressToleranceWorkingDays` は、`parentTaskUid` と同じ `parentTask…` で始まる（`OKPN`: 親タスクという 1 つの考えを 1 つの語で呼ぶ）。`parentProgress…` だけでは、タスクグループの `parentId` の親とも読める* |
-| 🔄 *b* | 🔄 *`parentTaskProgressToleranceWorkingDays` の代わりに `parentProgressToleranceWorkingDays`（短い名で、親の進捗の許す日数という意味を保つ）を使い、ほかの 4 つは a と同じにする* |
-| 🔄 *c* | 🔄 *直す所を、キーと意味で書く* |
+| **a（推奨）** | `representedTaskUid`（このタスクグループが WBS で表すタスクの uid）を採る。名が今の役目「表す」を言う（`JDG-820`）。前の名の「derived from（〜から作った）」は、作った後に名前が離れても続く今の関係を言い当てない（`OMPV`） |
+| b | `wbsTaskUid`。WBS の側のタスクを指すと読めるが、「表す」という関係を名が言わない |
+| c | 直す名を書く |
 
-回答:
+回答:微妙。 他の案を出せ。 MSPDI由来ならその旨が分かるようにしろ。
 
-#### 🔄 *❓ 問 6-8-5. プロジェクトの 24 語 —— 推奨の表のとおりでよいか*
+#### 🔄 *❓ 問 6-9-7. `hidden` とピン止め*
 
-🔄 *易しい語をまとめた推奨の表です。「暦」の字は、問 6-7-1 の答えに従って直します。直す所が無ければ ok、直す所は表のセルに ★ で書いてください。*
+🔄 *ほかの 11 語は、あなたの答えで確定しました（`JDG-3554`）。表のあなたの問い（★）に答えます: ピン止めは `treeState` と別の値で、文書の設定がピン止めしたタスクグループの id の並びとして持ちます（仕様書の設定の表の `S-126`）。タスクグループを消すと、GRS はそのピン止めも消します（`CD-2`）。`hidden` とピン止めを両方持つタスクグループをどう見せるかは、GRWB の議論の後でこの問いに案を書きます。*
 
-| 🔄 *#* | 🔄 *キー* | 🔄 *日本語の名* | 🔄 *意味（日本語）* | 🔄 *MSPDI の名* |
-|:---|:---|:---|:---|:---|
-| 🔄 *8-6* | 🔄 *`id`（持ち主 `Project`）* |  | 🔄 *MSPDI の Project/UID と同じ。スケジュール文書を開いた元とは別の既存のファイルへ上書きする前に、GRS はこの値と project.name とファイル名がすべて一致するときだけ、そのファイルを同じスケジュール文書と見なす。値を省くと不一致になる。不一致なら、GRS は上書きの前に人へ確かめる。* | 🔄 *UID* |
-| 🔄 *8-8* | 🔄 *`name`（持ち主 `Project`）* | 🔄 *<span style="color: #0550AE">プロジェクト名</span>* | 🔄 *MSPDI の Project/Name と同じ。GRS はこの値をプロジェクト名として表示し編集する。アプリヘッダーは title をプロジェクトタイトルとして出す。上書きしようとしている既存のファイルが同じスケジュール文書かを見分けるときにも、GRS は id とファイル名に合わせてこの値を使う。（`JDG-3355`）* | 🔄 *Name* |
-| 🔄 *8-9* | 🔄 *`title`* | 🔄 *<span style="color: #0550AE">プロジェクトタイトル</span>* | 🔄 *MSPDI の Project/Title と同じ。GRS はこの値をプロジェクトタイトルとしてアプリヘッダーに出し、別名保存ダイアログの既定のファイル名もこの値から作る。この値を省くと、GRS はブラウザーのタブに Untitled と出す。（`JDG-3355`・`JDG-3365`）* | 🔄 *Title* |
-| 🔄 *8-10* | 🔄 *`subject`* |  | 🔄 *MSPDI の Project/Subject と同じ。* | 🔄 *Subject* |
-| 🔄 *8-11* | 🔄 *`category`* |  | 🔄 *MSPDI の Project/Category と同じ。* | 🔄 *Category* |
-| 🔄 *8-12* | 🔄 *`company`* |  | 🔄 *MSPDI の Project/Company と同じ。* | 🔄 *Company* |
-| 🔄 *8-13* | 🔄 *`manager`* |  | 🔄 *MSPDI の Project/Manager と同じ。* | 🔄 *Manager* |
-| 🔄 *8-14* | 🔄 *`author`* |  | 🔄 *MSPDI の Project/Author と同じ。作成者を指し、スケジュール文書を最後に書いた者（documentStamp.lastEditedBy）とは役目が違う。* | 🔄 *Author* |
-| 🔄 *8-15* | 🔄 *`revision`* |  | 🔄 *MSPDI の Project/Revision と同じ。MSPDI のファイルを作った道具がプロジェクトを保存した回数。documentStamp のどの時刻とも別の値である。* | 🔄 *Revision* |
-| 🔄 *8-16* | 🔄 *`creationDate`* |  | 🔄 *MSPDI の Project/CreationDate と同じ。GRS は新しいスケジュール文書を作るときにこの値を書く。* | 🔄 *CreationDate* |
-| 🔄 *8-17* | 🔄 *`startDate`* |  | 🔄 *MSPDI の Project/StartDate と同じ。* | 🔄 *StartDate* |
-| 🔄 *8-18* | 🔄 *`statusDate`* |  | 🔄 *MSPDI の Project/StatusDate と同じ。GRS はこの日に基準日線を引く。この値を省くと、GRS は基準日線の描画と遅延診断の実行を省く。* | 🔄 *StatusDate* |
-| 🔄 *8-19* | 🔄 *`scheduleDataTimeZone`* |  | 🔄 *スケジュールデータの日時の時計の、固定の UTC オフセット。例えば UTC+09:00。標準時であり、GRS は 1 年中このオフセットをそのまま使う。GRS は MSPDI の書き出しからこのオフセットを除く。* | 🔄 *無し* |
-| 🔄 *8-20* | 🔄 *`minutesPerDay`* |  | 🔄 *MSPDI の Project/MinutesPerDay と同じ。稼働日 1 日（1d）の長さを分で表し、この値を省くと 480（8 時間）。どれかの稼働日の時間帯の合計がこの値と違えば、スケジュール文書を開くときに GRS は注意を出す。* | 🔄 *MinutesPerDay* |
-| 🔄 *8-21* | 🔄 *`minutesPerWeek`* |  | 🔄 *MSPDI の Project/MinutesPerWeek と同じ。* | 🔄 *MinutesPerWeek* |
-| 🔄 *8-22* | 🔄 *`daysPerMonth`* |  | 🔄 *MSPDI の Project/DaysPerMonth と同じ。* | 🔄 *DaysPerMonth* |
-| 🔄 *8-23* | 🔄 *`weekStartDay`* |  | 🔄 *MSPDI の Project/WeekStartDay と同じで、0 が日曜日。WeekDay.dayType は曜日を 1 から数える点が違う。この値を省くと月曜日（1）。* | 🔄 *WeekStartDay* |
-| 🔄 *8-24* | 🔄 *`defaultStartTime`* |  | 🔄 *MSPDI の Project/DefaultStartTime と同じ。日付だけで時刻を省いた開始（Task や BaselineTask の start、actualStart、resume、project.startDate）に GRS が与える時刻で、この値を省くと 08:00:00。マイルストーンの開始には defaultFinishTime を与える。* | 🔄 *DefaultStartTime* |
-| 🔄 *8-25* | 🔄 *`defaultFinishTime`* |  | 🔄 *MSPDI の Project/DefaultFinishTime と同じ。日付だけで時刻を省いた終了（Task や BaselineTask の finish、actualFinish、stop、deadline、project.statusDate）に GRS が与える時刻で、この値を省くと 17:00:00。マイルストーンの開始にもこの時刻を与える。* | 🔄 *DefaultFinishTime* |
-| 🔄 *8-31* | 🔄 *`sourceFormat`* |  | 🔄 *スケジュール文書の元の形式。GRS で作った文書は grs、MSPDI のファイルから読んだ文書は pj12 か pj15（pj15 だけの要素を 1 つでも持てば pj15）。GRS は MSPDI の書き出しからこの値を除く。* | 🔄 *無し* |
-| 🔄 *8-32* | 🔄 *&emsp;+- `grs`（持ち主 `sourceFormat`）* |  | 🔄 *GRS で作ったスケジュール文書。* | 🔄 *無し* |
-| 🔄 *8-33* | 🔄 *&emsp;+- `pj12`（持ち主 `sourceFormat`）* |  | 🔄 *2012 年版のスキーマの MSPDI のファイルから読んだスケジュール文書。* | 🔄 *無し* |
-| 🔄 *8-34* | 🔄 *&emsp;+- `pj15`（持ち主 `sourceFormat`）* |  | 🔄 *2015 年版のスキーマだけが持つ要素を含む MSPDI のファイルから読んだスケジュール文書。* | 🔄 *無し* |
-| 🔄 *8-35* | 🔄 *`Project`* |  | 🔄 *MSPDI の Project と同じ。文書が表す 1 件のプロジェクト。* | 🔄 *Project* |
-
-回答:
-
-### [task] 🔄 *タスクと依存（❓ 2）*
-
-#### 🔄 *❓ 問 6-7-4. 前の席が付けた名 —— `siblingOrder`*
-
-🔄 *場面: タスクとタスクグループが、兄弟の中での順を持ちます。*
-
-- 🔄 *前の名は `Task.wbsOrder` と `TaskGroup.order` です。前の席が、略語 wbs を使わず、2 つを 1 つの名にそろえました（`doc-shape-choices.md` の CHOICE N11）。*
-- 🔄 *名を言った裁定の行は 0 です。`erd.json`・src・仕様書にも、この名はありません（数え方は問 6-8-1 と同じ）。*
-- 🔄 *木の語では、同じ親を持つ節を sibling（兄弟）と呼びます（W3C の DOM の `nextSibling`・`previousSibling` と同じ語）。*
-- 🔄 *`ordinal`（Part 7 の #6）は、MSPDI のファイルでの行の順を指す、別の語です。*
-
-| 🔄 *#* | 🔄 *キー* | 🔄 *前の名* | 🔄 *意味（日本語）* | 🔄 *MSPDI の名* |
-|:---|:---|:---|:---|:---|
-| 🔄 *7-17* | 🔄 *`siblingOrder`* | 🔄 *`wbsOrder`・`order`* | 🔄 *同じ親の下にある行のあいだでの、この行の順番。* | 🔄 *無し* |
-
-| 🔄 *案* | 🔄 *中身* |
-|:---|:---|
-| 🔄 ***a（推奨）*** | 🔄 *`siblingOrder`（同じ親の下での行の順番）を採る。タスクとタスクグループの 2 つの順を 1 つの名で呼び（`OKPN`）、名が「兄弟の中での」順を指すと言う（`JDG-820`: 名は何を指すかを言う）* |
-| 🔄 *b* | 🔄 *`order`。短いが、何の中での順かを名が言わず、`ordinal` とも紛れる* |
-| 🔄 *c* | 🔄 *直す名を書く* |
-
-回答:
-
-#### 🔄 *❓ 問 6-9-5. タスクと依存の 20 語 —— 推奨の表のとおりでよいか*
-
-🔄 *易しい語をまとめた推奨の表です。依存の種類 `linkType` と `Dependency`・`dependencies` は、問 6-7-3 で聞きます。直す所が無ければ ok、直す所は表のセルに ★ で書いてください。*
-
-| 🔄 *#* | 🔄 *キー* | 🔄 *日本語の名* | 🔄 *意味（日本語）* | 🔄 *MSPDI の名* |
-|:---|:---|:---|:---|:---|
-| 🔄 *7-20* | 🔄 *`start`* |  | 🔄 *タスクの予定の開始（MSPDI の Start）。GRS は、すべてのタスクが開始を持つスケジュール文書だけを開く。* | 🔄 *Start* |
-| 🔄 *7-21* | 🔄 *`finish`* |  | 🔄 *タスクの予定の終了（MSPDI の Finish）。GRS は、すべてのタスクが終了を持つスケジュール文書だけを開く。* | 🔄 *Finish* |
-| 🔄 *7-22* | 🔄 *`milestone`* |  | 🔄 *MSPDI の Task/Milestone と同じ。この値を省くと GRS は偽と読む。真のとき TaskGraphicStyle は milestoneShape を持ち、偽のとき taskShape を持つ。* | 🔄 *Milestone* |
-| 🔄 *7-23* | 🔄 *<span style="color: #0550AE">`hyperlinkAddress`</span>* |  | 🔄 *この行のリンク先の URL（タスクでは MSPDI の HyperlinkAddress）。リンクを持つのは、URL を書いた行だけである。（`JDG-3314`）* | 🔄 *HyperlinkAddress（タスクだけ）* |
-| 🔄 *7-24* | 🔄 *<span style="color: #0550AE">`hyperlink`</span>* |  | 🔄 *この行のリンクのタイトル。リンク先の URL とは役目が違う（タスクでは MSPDI の Hyperlink）。タイトルを持つのは、タイトルを書いた行だけである。（`JDG-3314`）* | 🔄 *Hyperlink（タスクだけ）* |
-| 🔄 *9-1* | 🔄 *`parentTaskUid`* |  | 🔄 *WBS での親タスク。この値を省くと最上位のタスク。* | 🔄 *無し* |
-| 🔄 *9-2* | 🔄 *`notes`* |  | 🔄 *MSPDI の Task/Notes と同じ。* | 🔄 *Notes* |
-| 🔄 *9-3* | 🔄 *`deadline`* |  | 🔄 *MSPDI の Task/Deadline と同じ。* | 🔄 *Deadline* |
-| 🔄 *9-4* | 🔄 *`actualStart`* |  | 🔄 *MSPDI の Task/ActualStart と同じ。この値を省くとタスクは未着手である。* | 🔄 *ActualStart* |
-| 🔄 *9-5* | 🔄 *`stop`* |  | 🔄 *MSPDI の Task/Stop と同じ。進行中か中断のタスクで、ここまでの実際の作業の終わり。完了したタスクでは actualFinish がその終わりを持ち、GRS はタスクを完了させるときに stop を空にする。* | 🔄 *Stop* |
-| 🔄 *9-6* | 🔄 *`actualFinish`* |  | 🔄 *MSPDI の Task/ActualFinish と同じ。この値を持つのは、完了したタスクだけである。percentComplete が 100 でも、完了を決めるのは actualFinish である。* | 🔄 *ActualFinish* |
-| 🔄 *9-7* | 🔄 *`resume`* |  | 🔄 *MSPDI の Task/Resume と同じ。中断したタスクで、残りの作業を再開する予定の時。* | 🔄 *Resume* |
-| 🔄 *9-8* | 🔄 *`resumeValid`* |  | 🔄 *MSPDI の Task/ResumeValid と同じ。actualStart を持ち actualFinish を省いたタスクで、偽は再開日未定の中断を表し、GRS は resume の日時を無視する。* | 🔄 *ResumeValid* |
-| 🔄 *9-9* | 🔄 *`percentComplete`* |  | 🔄 *MSPDI の Task/PercentComplete と同じ。ただし GRS はこの値を、実績の稼働時間（actualStart から actualFinish まで、または stop まで）を予定の稼働時間（start から finish まで）で割り、100 を掛けて丸めた数として計算し直す。100 を超える計算結果も、そのまま値にする。予定の稼働時間が 0 のとき（マイルストーンなど）は、actualFinish を持つタスクが 100、それ以外が 0。* | 🔄 *PercentComplete* |
-| 🔄 *9-10* | 🔄 *<span style="color: #0550AE">`fadeInCalendarDays`</span>* |  | 🔄 *開始が未確定であることを示すために、予定バーの始まりにフェード斜面を描く暦日の数。矩形では始まりの辺が斜めになる。矢羽根では始まりの切り欠きの深さになる。ほかの形ではこの値を無視する。この値を省くとフェードの描画を省く（矢羽根は既定の深さを保つ）。0 は平らな始まり。GRS はこの値を MSPDI に Task/ExtendedAttribute として書く。（`JDG-3312`）* | 🔄 *ExtendedAttribute* |
-| 🔄 *9-11* | 🔄 *<span style="color: #0550AE">`fadeOutCalendarDays`</span>* |  | 🔄 *fadeInCalendarDays と同じことを終わりの側に対して行う（矢羽根では先の深さ）。GRS はこの値を MSPDI に Task/ExtendedAttribute として書く。（`JDG-3312`）* | 🔄 *ExtendedAttribute* |
-| 🔄 *9-13* | 🔄 *`Task`* |  | 🔄 *MSPDI の Task と同じ。GRS は進捗ステータスを次の順に調べ、最初に当たったものを取る: actualStart を省いていれば未着手、actualFinish があれば完了、resumeValid が偽なら中断・再開日未定、resume があれば中断・再開予定あり、それ以外は進行中。* | 🔄 *Task* |
-| 🔄 *8-36* | 🔄 *`predecessorUid`* |  | 🔄 *MSPDI の PredecessorLink/PredecessorUID と同じ。* | 🔄 *PredecessorUID* |
-| 🔄 *8-38* | 🔄 *`linkLag`* |  | 🔄 *MSPDI の PredecessorLink/LinkLag と同じ。lagFormat がどの単位でも、ラグを 0.1 分単位で持つ。この値を省くとラグは 0。1 稼働日のラグは project.minutesPerDay の 10 倍（project.minutesPerDay を省いたときは 480（8 時間）の 10 倍）。* | 🔄 *LinkLag* |
-| 🔄 *8-39* | 🔄 *`lagFormat`* |  | 🔄 *MSPDI の PredecessorLink/LagFormat と同じ。GRS がラグを解するのは値が 7（稼働日）、5（時間）、3（分）のときだけで、ほかの単位ではラグを表示するだけで値はそのまま持つ。GRS は、利用者がラグを打ち込んだ単位を書く。* | 🔄 *LagFormat* |
-
-回答:
-
-### [res] 🔄 *担当と割当（❓ 1）*
-
-#### 🔄 *❓ 問 6-9-6. 担当と割当の 4 語 —— 推奨の表のとおりでよいか*
-
-🔄 *易しい語をまとめた推奨の表です。担当の種類 `resourceKind` は、問 6-7-3 で聞きます。直す所が無ければ ok、直す所は表のセルに ★ で書いてください。*
-
-| 🔄 *#* | 🔄 *キー* | 🔄 *日本語の名* | 🔄 *意味（日本語）* | 🔄 *MSPDI の名* |
-|:---|:---|:---|:---|:---|
-| 🔄 *9-15* | 🔄 *`isCostResource`* |  | 🔄 *MSPDI の Resource/IsCostResource と同じ。この値を省くと GRS は偽と読む。* | 🔄 *IsCostResource* |
-| 🔄 *9-16* | 🔄 *`Resource`* |  | 🔄 *MSPDI の Resource と同じ。タスクに就く担当。* | 🔄 *Resource* |
-| 🔄 *9-17* | 🔄 *`resourceUid`* |  | 🔄 *MSPDI の Assignment/ResourceUID と同じ。* | 🔄 *ResourceUID* |
-| 🔄 *9-18* | 🔄 *`Assignment`* |  | 🔄 *MSPDI の Assignment と同じ。どの担当がどのタスクに就くか。* | 🔄 *Assignment* |
-
-回答:
-
-### [tg] 🔄 *タスクグループ（❓ 2）*
-
-#### 🔄 *❓ 問 6-9-2. 前の席が付けた名 —— `representedTaskUid`*
-
-🔄 *場面: タスクグループが、WBS のどのタスクを表すかを持ちます。*
-
-- 🔄 *前の名は `derivedFromTaskUid` です。所見 F27（残る役目は「このタスクグループが WBS でどのタスクを表すか」だけ。仕様書の `HM-9`・`HM-12`）から、前の席が名を付けました。*
-- 🔄 *名を言った裁定の行は 0 です。`erd.json`・src・仕様書にもありません（数え方は問 6-8-1 と同じ）。*
-- 🔄 *タスクグループの名前は、このタスクの名前と別に、タスクグループ自身の `name` が持ちます。*
-
-| 🔄 *#* | 🔄 *キー* | 🔄 *前の名* | 🔄 *意味（日本語）* | 🔄 *MSPDI の名* |
-|:---|:---|:---|:---|:---|
-| 🔄 *9-20* | 🔄 *`representedTaskUid`* | 🔄 *`derivedFromTaskUid`* | 🔄 *このタスクグループが WBS で表すタスク。値を書いたタスクグループだけが、タスクを表す。タスクグループの名前は name が持ち、このプロパティが指すタスクの名前から独立している。* | 🔄 *無し* |
-
-| 🔄 *案* | 🔄 *中身* |
-|:---|:---|
-| 🔄 ***a（推奨）*** | 🔄 *`representedTaskUid`（このタスクグループが WBS で表すタスクの uid）を採る。名が今の役目「表す」を言う（`JDG-820`）。前の名の「derived from（〜から作った）」は、作った後に名前が離れても続く今の関係を言い当てない（`OMPV`）* |
-| 🔄 *b* | 🔄 *`wbsTaskUid`。WBS の側のタスクを指すと読めるが、「表す」という関係を名が言わない* |
-| 🔄 *c* | 🔄 *直す名を書く* |
-
-回答:
-
-#### 🔄 *❓ 問 6-9-7. タスクグループの 12 語 —— 推奨の表のとおりでよいか*
-
-🔄 *易しい語をまとめた推奨の表です。兄弟の中での順 `siblingOrder` は、問 6-7-4 で聞きます。直す所が無ければ ok、直す所は表のセルに ★ で書いてください。*
-
-| 🔄 *#* | 🔄 *キー* | 🔄 *日本語の名* | 🔄 *意味（日本語）* | 🔄 *MSPDI の名* |
-|:---|:---|:---|:---|:---|
-| 🔄 *9-19* | 🔄 *`parentId`* |  | 🔄 *親のタスクグループ。この値を省くと最上位のタスクグループ（深さ 1）。* | 🔄 *無し* |
-| 🔄 *9-21* | 🔄 *`treeState`* |  | 🔄 *タスクグループパネルで、タスクグループが開いているか、閉じているか、隠れているか。auto は documentSettings.taskGroupAutoExpandDepth に従う。temporarilyExpanded は次の全体表示か縦の縮小まで開いたままで、そのあと auto になる。* | 🔄 *無し* |
-| 🔄 *9-22* | 🔄 *&emsp;+- `auto`（持ち主 `treeState`）* |  | 🔄 *人が決める前の値。開くかどうかは documentSettings.taskGroupAutoExpandDepth に従う。* | 🔄 *無し* |
-| 🔄 *9-23* | 🔄 *&emsp;+- `collapsed`（持ち主 `treeState`）* |  | 🔄 *閉じている。GRS は配下のタスクグループの描画を省く。* | 🔄 *無し* |
-| 🔄 *9-24* | 🔄 *&emsp;+- `expanded`（持ち主 `treeState`）* |  | 🔄 *人が選んで開いている。* | 🔄 *無し* |
-| 🔄 *9-25* | 🔄 *&emsp;+- `temporarilyExpanded`（持ち主 `treeState`）* |  | 🔄 *次の全体表示か縦の縮小まで開いていて、そのあと auto になる。* | 🔄 *無し* |
-| 🔄 *9-26* | 🔄 *&emsp;+- `hidden`（持ち主 `treeState`）* |  | 🔄 *GRS はこのタスクグループをタスクグループパネルから隠す。* | 🔄 *無し* |
-| 🔄 *9-27* | 🔄 *`editGroup`* |  | 🔄 *このタスクグループを編集してよいグループの名前。書いてあれば、GRS はこのタスクグループのタスクへの編集を断る。この値を省くと誰でも編集してよい。* | 🔄 *無し* |
-| 🔄 *9-28* | 🔄 *`color`* |  | 🔄 *このタスクグループのタスクグループレーンの色。この値を省くと、GRS はレーンの塗りの描画を省く。{"kind":"theme"} はテーマの色を塗る。* | 🔄 *無し* |
-| 🔄 *9-29* | 🔄 *`minHeightPx`* |  | 🔄 *このタスクグループのタスクグループレーンの最も低い高さ。値は displayScalePercent が 100 のときの CSS ピクセルで表す。この値を省くと最も低い高さは未指定になる。verticalZoomRatio を変えても、この高さは同じ値を保つ。* | 🔄 *無し* |
-| 🔄 *9-30* | 🔄 *<span style="color: #0550AE">`TaskGroup`</span>* |  | 🔄 *タスクグループ。タスクグループパネルの 1 行と、1 つのタスクグループレーン。タスクグループは WBS（Task.parentTaskUid）とは別の自分の木を作る。GRS は MSPDI の書き出しからタスクグループを除く。（`JDG-3361`）* | 🔄 *無し* |
-| 🔄 *9-31* | 🔄 *`TaskGroupMember`* |  | 🔄 *GRS がタスクをどのタスクグループに描くか。どのタスクもちょうど 1 つのタスクグループに入る。GRS は、documentSettings.stackDirection の向きに、タスクグループのタスクを自分で積む。* | 🔄 *無し* |
+| # | キー | 日本語の名 | 意味（日本語） | MSPDI の名 |
+| :-------- | :-------------------------------------------------------- | :-------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | :-------------- |
+| 9-26 | &emsp;+- `hidden`（持ち主 `treeState`） |  | GRS はこのタスクグループをタスクグループパネルから隠す。 ★ピン止めはどう管理するの？ | 無し |
 
 回答:
 
