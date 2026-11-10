@@ -2401,8 +2401,8 @@
        "key": "uid",
        "since": "2026-11-01T00:00:00Z",
        "definition": {
-        "en": "The unique number of this row within its array, the same as the MSPDI UID. GRS never reuses a uid.",
-        "ja": "この行の、配列の中で一意な番号。MSPDI の UID と同じ。GRS は uid を使い回さない。"
+        "en": "The identifier of a row that comes from MSPDI (Project, Calendar, Task, Resource, Assignment, BaselineTask), the same value as its MSPDI UID. A row that only GRS has uses id instead. GRS never reuses a uid within its array.",
+        "ja": "MSPDI から来た行（Project・Calendar・Task・Resource・Assignment・BaselineTask）の識別子で、MSPDI の UID と同じ値。GRS だけが持つ行は、uid でなく id を使う。GRS は配列の中で uid を使い回さない。"
        },
        "uses": [
         "grsJsonSchema",
@@ -2415,8 +2415,8 @@
        "key": "id",
        "since": "2026-11-01T00:00:00Z",
        "definition": {
-        "en": "The id of this row, a UUID.",
-        "ja": "この行の id。UUID である。"
+        "en": "The identifier of a row that only GRS has (TaskGroup, CommentBox, HighlightBox), a UUID that GRS makes. A row that comes from MSPDI uses uid instead.",
+        "ja": "GRS だけが持つ行（TaskGroup・CommentBox・HighlightBox）の識別子で、GRS が作る UUID。MSPDI から来た行は、id でなく uid を使う。"
        },
        "uses": [
         "grsJsonSchema",
@@ -2889,7 +2889,7 @@
      },
      "terms": [
       {
-       "key": "id",
+       "key": "uid",
        "owner": "Project",
        "since": "2026-11-01T00:00:00Z",
        "definition": {
