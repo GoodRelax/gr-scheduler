@@ -2304,8 +2304,8 @@
        "key": "ordinal",
        "since": "2026-11-01T00:00:00Z",
        "definition": {
-        "en": "The order of this row within its owner as in the MSPDI file; GRS writes the rows back in that order.",
-        "ja": "MSPDI のファイルでの、持ち主の中でのこの行の順番。GRS はその順に書き戻す。"
+        "en": "The order of this entity within its owner as in the MSPDI file; GRS writes the entities back in that order.",
+        "ja": "MSPDI のファイルでの、持ち主の中でのこの実体の順番。GRS はその順に書き戻す。"
        },
        "uses": [
         "grsJsonSchema",
@@ -2401,8 +2401,8 @@
        "key": "uid",
        "since": "2026-11-01T00:00:00Z",
        "definition": {
-        "en": "The identifier of a row that comes from MSPDI (Project, Calendar, Task, Resource, Assignment, BaselineTask), the same value as its MSPDI UID. A row that only GRS has uses id instead. GRS never reuses a uid within its array.",
-        "ja": "MSPDI から来た行（Project・Calendar・Task・Resource・Assignment・BaselineTask）の識別子で、MSPDI の UID と同じ値。GRS だけが持つ行は、uid でなく id を使う。GRS は配列の中で uid を使い回さない。"
+        "en": "The unique identifier of an MSPDI-derived entity. Unique among entities of the same kind.",
+        "ja": "MSPDI 由来の実体の一意な識別子。同じ種類の実体の中で一意。"
        },
        "uses": [
         "grsJsonSchema",
@@ -2415,8 +2415,8 @@
        "key": "id",
        "since": "2026-11-01T00:00:00Z",
        "definition": {
-        "en": "The identifier of a row that only GRS has (TaskGroup, CommentBox, HighlightBox), a UUID that GRS makes. A row that comes from MSPDI uses uid instead.",
-        "ja": "GRS だけが持つ行（TaskGroup・CommentBox・HighlightBox）の識別子で、GRS が作る UUID。MSPDI から来た行は、id でなく uid を使う。"
+        "en": "The unique identifier of a GRS-specific entity.",
+        "ja": "GRS 固有の実体の一意な識別子。"
        },
        "uses": [
         "grsJsonSchema",
@@ -2431,8 +2431,8 @@
        "rowId": "P-1",
        "since": "2026-11-01T00:00:00Z",
        "definition": {
-        "en": "The name of this row, the same as the MSPDI Name where MSPDI has one.",
-        "ja": "この行の名前。MSPDI に Name があるものは、それと同じ。"
+        "en": "The name of this entity, the same as the MSPDI Name where MSPDI has one.",
+        "ja": "この実体の名前。MSPDI に Name があるものは、それと同じ。"
        },
        "uses": [
         "grsJsonSchema",
@@ -2459,8 +2459,8 @@
        "key": "siblingOrder",
        "since": "2026-11-01T00:00:00Z",
        "definition": {
-        "en": "The order of this row among the rows under the same parent.",
-        "ja": "同じ親の下にある行のあいだでの、この行の順番。"
+        "en": "The order of this entity among the entities under the same parent.",
+        "ja": "同じ親の下にある実体のあいだでの、この実体の順番。"
        },
        "uses": [
         "grsJsonSchema",
@@ -2473,8 +2473,8 @@
        "key": "taskUid",
        "since": "2026-11-01T00:00:00Z",
        "definition": {
-        "en": "The uid of the task that this row is about.",
-        "ja": "この行が扱うタスクの uid。"
+        "en": "The uid of the task that this entity is about.",
+        "ja": "この実体が扱うタスクの uid。"
        },
        "uses": [
         "grsJsonSchema",
@@ -2487,8 +2487,8 @@
        "key": "taskGroupId",
        "since": "2026-11-01T00:00:00Z",
        "definition": {
-        "en": "The id of the task group that this row is about.",
-        "ja": "この行が扱うタスクグループの id。"
+        "en": "The id of the task group that this entity is about.",
+        "ja": "この実体が扱うタスクグループの id。"
        },
        "uses": [
         "grsJsonSchema",
@@ -2553,8 +2553,8 @@
        "key": "hyperlinkAddress",
        "since": "2026-11-01T00:00:00Z",
        "definition": {
-        "en": "The URL this row links to (MSPDI HyperlinkAddress for a task). Absent means no link.",
-        "ja": "この行のリンク先の URL（タスクでは MSPDI の HyperlinkAddress）。無ければリンクも無い。"
+        "en": "The URL this entity links to (MSPDI HyperlinkAddress for a task). Absent means no link.",
+        "ja": "この実体のリンク先の URL（タスクでは MSPDI の HyperlinkAddress）。無ければリンクも無い。"
        },
        "uses": [
         "grsJsonSchema",
@@ -2567,8 +2567,8 @@
        "key": "hyperlink",
        "since": "2026-11-01T00:00:00Z",
        "definition": {
-        "en": "The title of the link of this row, not the address (MSPDI Hyperlink for a task). Absent means no title.",
-        "ja": "この行のリンクのタイトル。アドレスではない（タスクでは MSPDI の Hyperlink）。無ければタイトルも無い。"
+        "en": "The title of the link of this entity, not the address (MSPDI Hyperlink for a task). Absent means no title.",
+        "ja": "この実体のリンクのタイトル。アドレスではない（タスクでは MSPDI の Hyperlink）。無ければタイトルも無い。"
        },
        "uses": [
         "grsJsonSchema",
@@ -2582,8 +2582,8 @@
        "rowId": "P-18",
        "since": "2026-11-01T00:00:00Z",
        "definition": {
-        "en": "The fill color of what this row draws: the Plan Bar of a task (the Actual Bar takes its fill from it), the body of a Comment Box, or a Highlight Box. Where it may be absent, absent means no fill.",
-        "ja": "この行が描くものの塗りの色。タスクでは予定バー（実績バーの塗りもこれから作る）、コメントボックスでは本文の箱、ハイライトボックスではその箱。無くてよい所では、無ければ塗らない。"
+        "en": "The fill color of what this entity draws: the Plan Bar of a task (the Actual Bar takes its fill from it), the body of a Comment Box, or a Highlight Box. Where it may be absent, absent means no fill.",
+        "ja": "この実体が描くものの塗りの色。タスクでは予定バー（実績バーの塗りもこれから作る）、コメントボックスでは本文の箱、ハイライトボックスではその箱。無くてよい所では、無ければ塗らない。"
        },
        "uses": [
         "grsJsonSchema",
@@ -2611,8 +2611,8 @@
        "rowId": "P-18",
        "since": "2026-11-01T00:00:00Z",
        "definition": {
-        "en": "The outline color of what this row draws: the bars of a task, the border and Leader Line of a Comment Box, or the frame of a Highlight Box. Where it may be absent, absent means no outline.",
-        "ja": "この行が描くものの線の色。タスクではバーの輪郭、コメントボックスでは枠と引出し線、ハイライトボックスでは枠。無くてよい所では、無ければ線を描かない。"
+        "en": "The outline color of what this entity draws: the bars of a task, the border and Leader Line of a Comment Box, or the frame of a Highlight Box. Where it may be absent, absent means no outline.",
+        "ja": "この実体が描くものの線の色。タスクではバーの輪郭、コメントボックスでは枠と引出し線、ハイライトボックスでは枠。無くてよい所では、無ければ線を描かない。"
        },
        "uses": [
         "grsJsonSchema",
@@ -2626,8 +2626,8 @@
        "rowId": "P-18",
        "since": "2026-11-01T00:00:00Z",
        "definition": {
-        "en": "The outline width of what this row draws, in CSS pixels at displayScalePercent 100; it scales with displayScalePercent, not with zoom. GRS writes 1 for a new row.",
-        "ja": "この行が描くものの線の太さ。displayScalePercent が 100 のときの CSS ピクセルで表す。displayScalePercent で拡大縮小し、ズームでは変わらない。新しい行には 1 を書く。"
+        "en": "The outline width of what this entity draws, in CSS pixels at displayScalePercent 100; it scales with displayScalePercent, not with zoom. GRS writes 1 for a new entity.",
+        "ja": "この実体が描くものの線の太さ。displayScalePercent が 100 のときの CSS ピクセルで表す。displayScalePercent で拡大縮小し、ズームでは変わらない。新しい実体には 1 を書く。"
        },
        "uses": [
         "grsJsonSchema",
@@ -17043,8 +17043,8 @@
          "key": "duplicateKey",
          "owner": "reason",
          "definition": {
-          "en": "Two rows in the same array would have the same key (such as id or uid), for example a new row whose id is already in use.",
-          "ja": "同じ配列の 2 つの行が同じ鍵（id や uid など）を持つことになる。例えば、新しい行の id が既に使われている。"
+          "en": "Two entities in the same array would have the same key (such as id or uid), for example a new entity whose id is already in use.",
+          "ja": "同じ配列の 2 つの実体が同じ鍵（id や uid など）を持つことになる。例えば、新しい実体の id が既に使われている。"
          },
          "uses": [
           "agentApi",
@@ -17057,8 +17057,8 @@
          "key": "danglingReference",
          "owner": "reason",
          "definition": {
-          "en": "A property that refers to another row (such as parentTaskUid) points to a row that is not in the document.",
-          "ja": "ほかの行を指すプロパティ（parentTaskUid など）が、文書に無い行を指している。"
+          "en": "A property that refers to another entity (such as parentTaskUid) points to an entity that is not in the document.",
+          "ja": "ほかの実体を指すプロパティ（parentTaskUid など）が、文書に無い実体を指している。"
          },
          "uses": [
           "agentApi",
@@ -17407,8 +17407,8 @@
          "key": "notFound",
          "owner": "reason",
          "definition": {
-          "en": "The named row (a task, task group, box, resource, assignment or dependency) does not exist.",
-          "ja": "名指した行（タスク、タスクグループ、ボックス、担当、割当、依存）が無い。"
+          "en": "The named entity (a task, task group, box, resource, assignment or dependency) does not exist.",
+          "ja": "名指した実体（タスク、タスクグループ、ボックス、担当、割当、依存）が無い。"
          },
          "uses": [
           "agentApi",

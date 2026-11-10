@@ -1,5 +1,3 @@
-
-
 # 名の辞書（用語集）
 
 > 「回答:」の後ろに答えを書いて保存し、1 行目の BGQA2 を切り取ってください。
@@ -7,9 +5,11 @@
 
 2026-10-28 に作り、2026-11-05 に書き直した。② の辞書の初版ができ、③ のレビューを始めた。この紙で、名の辞書のスキーマ → 辞書 → 辞書のレビューまでを進める（`JDG-3424` の ①〜③）。スキーマの案は `glossary-draft/glossary.schema.json`（`CR-857` が `docs/development-rules/` へ移すまでの下書き）。
 
-🔄 *残 11（❓ で検索）*
+🔄 *残 10（❓ で検索）*
 
-🔄 *2026-11-08、あなたの指示で、この紙を今回の答えで止めました（`JDG-3555`）。ホワイトボード（GRWB）での議論を先にします。残りの問いは、GRWB の議論の後で続きを出します。決まった答えは `JDG-3547`〜`JDG-3555` に書き、決定事項へ移しました。*
+2026-11-08、あなたの指示で、この紙を今回の答えで止めました（`JDG-3555`）。ホワイトボード（GRWB）での議論を先にします。残りの問いは、GRWB の議論の後で続きを出します。決まった答えは `JDG-3547`〜`JDG-3555` に書き、決定事項へ移しました。
+
+🔄 *2026-11-11、あなたの指示で、問 12（「行」を「実体」に直す語の before / after）と問 13（`uid` の「一意」の範囲）だけを出します（`JDG-3560`）。ほかの問いは保留のままです。ボードで決まった答え（`JDG-3556`〜`JDG-3560`）を決定事項へ移し、問 11 を回答済みにしました。同じ日、あなたは問 12 と問 13 に a と答えました（`JDG-3561`・`JDG-3562`）。私は 2 つの答えを辞書の下書きに当て、決定事項へ移しました。ほかの問いは、GRWB の議論の後で続きを出します。*
 
 問いは分野ごとにまとめて並べます（`JDG-3517`）。外との約束に出る語を先に確定します（`JDG-3525`）。今回は 7 つの分野です: 全体の書き方（MSPDI の Type の呼び方）→ 色（色の形を決め直す。透け具合は `JDG-3526` で決まった）→ カレンダー → プロジェクト → タスクと依存 → 担当と割当 → タスクグループ。色が決まると Part 6 が閉じます。案の比べ方には 07 の設計原則の観点と、W3C や業界の慣例の名を使います。易しい語は分野ごとに推奨の表でまとめ、争点のある語だけを 1 問ずつ立てます。
 
@@ -65,7 +65,7 @@
 | マルチバーガントの意味 | あなたの文のまま | `JDG-3485` |
 | 終了-終了の別名 | 後追終了（画面のヒントも同じ） | `JDG-3486` |
 | 文書の意味 | 短く、肯定形で書き直す（画面の値の保存の話は外す） | `JDG-3487` |
-| 🔄 *準純粋-可変の「このような関数」* | 🔄 *準純粋-可変の関数そのもの。主語を書いてはっきりさせる* | 🔄 *`JDG-3488`・`JDG-3596`* |
+| 準純粋-可変の「このような関数」 | 準純粋-可変の関数そのもの。主語を書いてはっきりさせる | `JDG-3488`・`JDG-3596` |
 | `JSON` と `JSONSchema` | 一般の語は標準そのものだけを書き、GRS のものは必ず GRS の付く名で呼ぶ（`grsJsonFormat`・`grsDocumentSchema`・`grsCommandsSchema`） | `JDG-3489` |
 | 新しい決まりの語のキー | `AffirmativeActiveWording`（否定形・受動態の排除） | `JDG-3490` |
 | `rowId` の名 | `specTableRowId`（仕様書の表の行 ID）。StrictDoc の要求 ID とは別の、表の 1 行の番号を指す。src へは `CR-857` | `JDG-3491` |
@@ -172,9 +172,16 @@
 |:---|:---|:---|
 | GRS JSON のキーの日本語の名 | 画面か裁定で日本語の名が決まった語だけに付ける（設定の欄の名を写した 33 語と、`name`（持ち主 `Project`）プロジェクト名・`title` プロジェクトタイトル・`scheduleData` スケジュールデータ・`ScheduleDocument` スケジュール文書）。ほかは空 | `JDG-3518` |
 | 日本語の名の中の縦線 | 辞書の名からは、折り返しの印の縦線を除く。折り返す所は `display-words.json` だけが持つ | `JDG-3519` |
-| 🔄 *線の先が消えた時（問 10）* | 🔄 *線の先は `fallback` を持たない。タスクやハイライトボックスを消す命令の中で、GRS が線の先を自由な点に書き換える。開いたファイルで先が無ければ、GRS は線の先を描かずに知らせる。どの参照も「先が消えたら」を 1 つの決まりで扱う* | 🔄 *`JDG-3547`* |
-| 🔄 *MSPDI の Type を写すキー（問 6-7-3）* | 🔄 *`recurrenceType`・`linkType`・`resourceType` の 3 つを `…Type` にそろえ、意味の欄に MSPDI の名と違う理由を 1 文で書く* | 🔄 *`JDG-3548`* |
-| 🔄 *この紙の進め方（2026-11-08）* | 🔄 *今回の答えでこの紙を止め、GRWB の議論を先にする。色の 4 問は GRWB で決める* | 🔄 *`JDG-3555`* |
+| 線の先が消えた時（問 10） | 線の先は `fallback` を持たない。タスクやハイライトボックスを消す命令の中で、GRS が線の先を自由な点に書き換える。開いたファイルで先が無ければ、GRS は線の先を描かずに知らせる。どの参照も「先が消えたら」を 1 つの決まりで扱う | `JDG-3547` |
+| MSPDI の Type を写すキー（問 6-7-3） | `recurrenceType`・`linkType`・`resourceType` の 3 つを `…Type` にそろえ、意味の欄に MSPDI の名と違う理由を 1 文で書く | `JDG-3548` |
+| この紙の進め方（2026-11-08） | 今回の答えでこの紙を止め、GRWB の議論を先にする。色の 4 問は GRWB で決める | `JDG-3555` |
+| ボードの提案 A〜E（問 11） | A〜E を採る。見た目は、どの物でも入れ子の `style` にまとめ、タスクの見た目だけは `scheduleData.taskStyles[]`（`{ taskUid, style }`）に置く。fade は日程のデータなので `Task` に残す。B の順、C の名 3 つ、D の説明 3 つ、E（不透明度を色の外に）も採る | `JDG-3556` |
+| `uid` と `id` の使い分け | MSPDI 由来の実体は `uid`（MSPDI の UID と同じ値）、GRS 固有の実体は `id`（GRS が作る UUID）。Project の `id` を `uid` に改める | `JDG-3557` |
+| 使い分けを書く所 | 名の辞書の `uid` と `id` の意味の文が持つ。仕様の 5.4 節は辞書の 2 語を引く | `JDG-3558` |
+| 実体の呼び方 | 辞書の意味の文では、`uid` や `id` が見分ける物を「実体」（entity）と呼び、「行」（row）と呼ばない | `JDG-3559` |
+| `uid` と `id` の定義文 | `uid`: The unique identifier of an MSPDI-derived entity. ／ MSPDI 由来の実体の一意な識別子。`id`: The unique identifier of a GRS-specific entity. ／ GRS 固有の実体の一意な識別子。 | `JDG-3560` |
+| 🔄 *「行」を「実体」に直す 13 語（問 12）* | 🔄 *辞書の意味の文で実体を「行」（row）と呼んでいた 13 語を「実体」（entity）に直す: `ordinal`・`name`・`siblingOrder`・`taskUid`・`taskGroupId`・`hyperlinkAddress`・`hyperlink`・`fillColor`・`strokeColor`・`strokeWidthPx`・`duplicateKey`・`danglingReference`・`notFound`。画面や仕様書の表の行を指す「行」は今のまま* | 🔄 *`JDG-3561`* |
+| 🔄 *`uid` の「一意」の範囲（問 13）* | 🔄 *`uid` の定義文に「Unique among entities of the same kind.」／「同じ種類の実体の中で一意。」を足す。どの実体が `uid` / `id` を持つかと値の出どころは、仕様の 5.4 節の表が持ち、5.4 節は辞書の 2 語を引く。仕様の `AT-24` を「同じ種類の実体の中で一意」に直す* | 🔄 *`JDG-3562`* |
 | 意味が「MSPDI の X と同じ。」だけの語 | 型と配列の 12 語（`WeekDay`・`Exception`・`weekDays`・`exceptions`・`Calendar`・`linkType`・`Dependency`・`dependencies`・`calendars`・`resources`・`assignments`・`project`）に、何の入れ物か・何を表す語かの 1 文を足す（英語にも）。ほかの 14 語は今のまま | `JDG-3520` |
 
 ### [time] 日時の型
@@ -207,42 +214,42 @@
 | 何 | 決め | 裁定 |
 |:---|:---|:---|
 | 意味を足した 5 語 | `WeekDay`・`Exception`・`weekDays`・`exceptions`・`Calendar` に、何を表す語かの 1 文を足す | `JDG-3520` |
-| 🔄 *「暦」（問 6-7-1）* | 🔄 *辞書の「暦」をすべて「カレンダー」にする。「暦日」はそのまま。仕様書と画面の語も `CR-857` でそろえる* | 🔄 *`JDG-3549`* |
-| 🔄 *カレンダーの 17 語（問 6-7-5）* | 🔄 *問 6-7-5 の表のとおり* | 🔄 *`JDG-3550`* |
+| 「暦」（問 6-7-1） | 辞書の「暦」をすべて「カレンダー」にする。「暦日」はそのまま。仕様書と画面の語も `CR-857` でそろえる | `JDG-3549` |
+| カレンダーの 17 語（問 6-7-5） | 問 6-7-5 の表のとおり | `JDG-3550` |
 
 ### [proj] プロジェクト
 
 | 何 | 決め | 裁定 |
 |:---|:---|:---|
 | `name`・`title`（持ち主 `Project`） | 日本語の名はプロジェクト名・プロジェクトタイトル | `JDG-3355`・`JDG-3518` |
-| 🔄 *前の席が付けた 5 つ（問 6-8-1）* | 🔄 *`parentTaskProgressToleranceWorkingDays`・`firstOutlineLevel` を採る。ほかの 3 つは後の裁定に従う: `themeHue`（名の列挙。`JDG-3541`）、数え手は `JDG-3542` の名、取り込みの番号は問 11 の C を待つ* | 🔄 *`JDG-3551`* |
+| 前の席が付けた 5 つ（問 6-8-1） | `parentTaskProgressToleranceWorkingDays`・`firstOutlineLevel` を採る。ほかの 3 つは後の裁定に従う: `themeHue`（名の列挙。`JDG-3541`）、数え手は `JDG-3542` の名、取り込みの番号は問 11 の C を待つ | `JDG-3551` |
 
 ### [task] タスクと依存
 
 | 何 | 決め | 裁定 |
 |:---|:---|:---|
 | 依存の種類 | 終了-開始（直列作業）・開始-開始（並列開始）・終了-終了（後追終了）・開始-終了（引継必須）。英語は Finish-to-Start などのまま | `JDG-3463`・`JDG-3468`・`JDG-3486` |
-| 🔄 *兄弟の中での順（問 6-7-4）* | 🔄 *タスクとタスクグループの順を、1 つの名 `siblingOrder`（同じ親の下での行の順番。0 が先頭）で呼ぶ* | 🔄 *`JDG-3552`* |
-| 🔄 *MSPDI と同じ名の 17 語（問 6-9-5）* | 🔄 *問 6-9-5 の表のとおり（MSPDI の名と違う 3 語は問 6-9-5 に残した）* | 🔄 *`JDG-3553`* |
+| 兄弟の中での順（問 6-7-4） | タスクとタスクグループの順を、1 つの名 `siblingOrder`（同じ親の下での行の順番。0 が先頭）で呼ぶ | `JDG-3552` |
+| MSPDI と同じ名の 17 語（問 6-9-5） | 問 6-9-5 の表のとおり（MSPDI の名と違う 3 語は問 6-9-5 に残した） | `JDG-3553` |
 
 ### [res] 担当と割当
 
-| 🔄 *何* | 🔄 *決め* | 🔄 *裁定* |
+| 何 | 決め | 裁定 |
 |:---|:---|:---|
-| 🔄 *担当と割当の 4 語（問 6-9-6）* | 🔄 *`isCostResource`・`Resource`・`resourceUid`・`Assignment`。どれも MSPDI と同じ名* | 🔄 *`JDG-3553`* |
+| 担当と割当の 4 語（問 6-9-6） | `isCostResource`・`Resource`・`resourceUid`・`Assignment`。どれも MSPDI と同じ名 | `JDG-3553` |
 
 ### [tg] タスクグループ
 
 | 何 | 決め | 裁定 |
 |:---|:---|:---|
 | `TaskGroup` | タスクグループ。WBS とは別の、自分の木を作る | `JDG-3361` |
-| 🔄 *タスクグループの 11 語（問 6-9-7）* | 🔄 *問 6-9-7 の表のとおり（`hidden` は問 6-9-7 に残した）* | 🔄 *`JDG-3554`* |
+| タスクグループの 11 語（問 6-9-7） | 問 6-9-7 の表のとおり（`hidden` は問 6-9-7 に残した） | `JDG-3554` |
 
 ***
 
 ## QA
 
-🔄 *残りの問いは、すべて保留です（`JDG-3555`）。GRWB の議論の後で、続きを出します。下の「回答:」には、あなたの今回の答えを残しました。*
+🔄 *残りの問いは、すべて保留です（`JDG-3555`）。GRWB の議論の後で、続きを出します。下の「回答:」には、あなたの答えを残しました。*
 
 表の読み方:
 
@@ -253,9 +260,9 @@
 
 ### [rule] 進め方と形 ✅
 
-### [whole] 🔄 *全体の書き方（❓ 2）*
+### [whole] 🔄 *全体の書き方（❓ 1）*
 
-#### ❓ 問 11. ボードの提案 A〜E —— 提案通りでよいか
+#### ✅ 問 11. ボードの提案 A〜E —— 提案通りでよいか
 
 場面: 2026-11-05、ホワイトボードであなたが GRS JSON の例に付けたコメントに、前の席が A〜E の 5 つの提案で答えました（ボードの答え `HNI6iNyEQHqsLJQyr7umZ`。今は左の古い話の列にあります）。前の席は骨組みの図と形の図に A〜E を当てて描きましたが、あなたが A〜E を採るとは、まだどこにも書いてありません。あなたの後の「あとは、お前の提案通りにやってくれ」は、チャットの提案（骨組みを先に描く・推奨の表を分ける。`JDG-3543`）に答えたものと前の席は読みました。
 
@@ -274,11 +281,84 @@
 
 回答:a  でいいと思うが、確定するために、変更するセクション毎に変化点のbefore/after一覧が欲しい。  afterが変化する部分には
 
-#### 🔄 *❓ 問 6-7-3-2. `kind` が残る所と、`type` にそろえるか*
+2026-11-11、あなたはボードで節ごとの before / after の表と、提案のスキーマと具体例を見て、A〜E を採りました（`JDG-3556`）。
 
-🔄 *場面: 問 6-7-3 で、あなたは a（MSPDI の Type を写す 3 つのキーを `…Type` にそろえる。`JDG-3548`）を選び、「色はkindが残るの？ 他にkindが残る部分は？ typeに統一しないの？ しないならその理由は？」と問いました。GRS JSON の `kind` は、今の決まりでは「形の組の印」（1 つの欄が、いくつかの形のどれかを持つとき、どの形かを示す欄）にだけ使います（`JDG-3348`・`JDG-3309`）。席は GRS JSON の `kind` をすべて数え、GRWB で形の図と並べて見せます（`JDG-3555`）。案は、その後でこの問いに書きます。*
+#### ❓ 問 6-7-3-2. `kind` が残る所と、`type` にそろえるか
+
+場面: 問 6-7-3 で、あなたは a（MSPDI の Type を写す 3 つのキーを `…Type` にそろえる。`JDG-3548`）を選び、「色はkindが残るの？ 他にkindが残る部分は？ typeに統一しないの？ しないならその理由は？」と問いました。GRS JSON の `kind` は、今の決まりでは「形の組の印」（1 つの欄が、いくつかの形のどれかを持つとき、どの形かを示す欄）にだけ使います（`JDG-3348`・`JDG-3309`）。席は GRS JSON の `kind` をすべて数え、GRWB で形の図と並べて見せます（`JDG-3555`）。案は、その後でこの問いに書きます。
 
 回答:
+
+#### 🔄 *✅ 問 12. 「行」を「実体」に直す 13 語 —— before / after のとおりでよいか*
+
+場面: あなたは `uid` と `id` の定義文を決め、辞書の意味の文で実体を「行」と呼ぶ残りを before / after で見せるよう指示しました（`JDG-3560`）。`JDG-3559` は、`uid` や `id` が見分ける物を「実体」（entity）と呼ぶと決めています。私は辞書の全 190 欄で「row」と「行」を探し、実体を指す 15 語（30 欄）を選びました。下の表の after の太字が、変わる所です。
+
+- 1・2 の `uid` と `id` は、あなたの文を辞書の下書きへもう当てました（`JDG-3560`）。表は確かめのために載せます。
+- 3〜12 は GRS JSON の共有の型、13〜15 は Agent API の断りの理由（`reason` の値）です。
+- 残りの 160 欄は、画面や仕様書の表の行（検索ウィンドウの行、Agent API の `AgentTableRow`、仕様書の行 ID、ガントチャートの段など）か、「先行」「実行」「進行中」のように「行」の字を含む別の語です。私はこれらを今のままにします。
+
+| # | キー | 言語 | before | after |
+|:---|:---|:---|:---|:---|
+| 1 | `uid`（決定） | en | The identifier of a row that comes from MSPDI (Project, Calendar, Task, Resource, Assignment, BaselineTask), the same value as its MSPDI UID. A row that only GRS has uses id instead. GRS never reuses a uid within its array. | The unique identifier of an MSPDI-derived **entity**. |
+|  |  | ja | MSPDI から来た行（Project・Calendar・Task・Resource・Assignment・BaselineTask）の識別子で、MSPDI の UID と同じ値。GRS だけが持つ行は、uid でなく id を使う。GRS は配列の中で uid を使い回さない。 | MSPDI 由来の**実体**の一意な識別子。 |
+| 2 | `id`（決定） | en | The identifier of a row that only GRS has (TaskGroup, CommentBox, HighlightBox), a UUID that GRS makes. A row that comes from MSPDI uses uid instead. | The unique identifier of a GRS-specific **entity**. |
+|  |  | ja | GRS だけが持つ行（TaskGroup・CommentBox・HighlightBox）の識別子で、GRS が作る UUID。MSPDI から来た行は、id でなく uid を使う。 | GRS 固有の**実体**の一意な識別子。 |
+| 3 | `ordinal` | en | The order of this row within its owner as in the MSPDI file; GRS writes the rows back in that order. | The order of this **entity** within its owner as in the MSPDI file; GRS writes the **entities** back in that order. |
+|  |  | ja | MSPDI のファイルでの、持ち主の中でのこの行の順番。GRS はその順に書き戻す。 | MSPDI のファイルでの、持ち主の中でのこの**実体**の順番。GRS はその順に書き戻す。 |
+| 4 | `name` | en | The name of this row, the same as the MSPDI Name where MSPDI has one. | The name of this **entity**, the same as the MSPDI Name where MSPDI has one. |
+|  |  | ja | この行の名前。MSPDI に Name があるものは、それと同じ。 | この**実体**の名前。MSPDI に Name があるものは、それと同じ。 |
+| 5 | `siblingOrder` | en | The order of this row among the rows under the same parent. | The order of this **entity** among the **entities** under the same parent. |
+|  |  | ja | 同じ親の下にある行のあいだでの、この行の順番。 | 同じ親の下にある**実体**のあいだでの、この**実体**の順番。 |
+| 6 | `taskUid` | en | The uid of the task that this row is about. | The uid of the task that this **entity** is about. |
+|  |  | ja | この行が扱うタスクの uid。 | この**実体**が扱うタスクの uid。 |
+| 7 | `taskGroupId` | en | The id of the task group that this row is about. | The id of the task group that this **entity** is about. |
+|  |  | ja | この行が扱うタスクグループの id。 | この**実体**が扱うタスクグループの id。 |
+| 8 | `hyperlinkAddress` | en | The URL this row links to (MSPDI HyperlinkAddress for a task). Absent means no link. | The URL this **entity** links to (MSPDI HyperlinkAddress for a task). Absent means no link. |
+|  |  | ja | この行のリンク先の URL（タスクでは MSPDI の HyperlinkAddress）。無ければリンクも無い。 | この**実体**のリンク先の URL（タスクでは MSPDI の HyperlinkAddress）。無ければリンクも無い。 |
+| 9 | `hyperlink` | en | The title of the link of this row, not the address (MSPDI Hyperlink for a task). Absent means no title. | The title of the link of this **entity**, not the address (MSPDI Hyperlink for a task). Absent means no title. |
+|  |  | ja | この行のリンクのタイトル。アドレスではない（タスクでは MSPDI の Hyperlink）。無ければタイトルも無い。 | この**実体**のリンクのタイトル。アドレスではない（タスクでは MSPDI の Hyperlink）。無ければタイトルも無い。 |
+| 10 | `fillColor` | en | The fill color of what this row draws: the Plan Bar of a task (the Actual Bar takes its fill from it), the body of a Comment Box, or a Highlight Box. Where it may be absent, absent means no fill. | The fill color of what this **entity** draws: the Plan Bar of a task (the Actual Bar takes its fill from it), the body of a Comment Box, or a Highlight Box. Where it may be absent, absent means no fill. |
+|  |  | ja | この行が描くものの塗りの色。タスクでは予定バー（実績バーの塗りもこれから作る）、コメントボックスでは本文の箱、ハイライトボックスではその箱。無くてよい所では、無ければ塗らない。 | この**実体**が描くものの塗りの色。タスクでは予定バー（実績バーの塗りもこれから作る）、コメントボックスでは本文の箱、ハイライトボックスではその箱。無くてよい所では、無ければ塗らない。 |
+| 11 | `strokeColor` | en | The outline color of what this row draws: the bars of a task, the border and Leader Line of a Comment Box, or the frame of a Highlight Box. Where it may be absent, absent means no outline. | The outline color of what this **entity** draws: the bars of a task, the border and Leader Line of a Comment Box, or the frame of a Highlight Box. Where it may be absent, absent means no outline. |
+|  |  | ja | この行が描くものの線の色。タスクではバーの輪郭、コメントボックスでは枠と引出し線、ハイライトボックスでは枠。無くてよい所では、無ければ線を描かない。 | この**実体**が描くものの線の色。タスクではバーの輪郭、コメントボックスでは枠と引出し線、ハイライトボックスでは枠。無くてよい所では、無ければ線を描かない。 |
+| 12 | `strokeWidthPx` | en | The outline width of what this row draws, in CSS pixels at displayScalePercent 100; it scales with displayScalePercent, not with zoom. GRS writes 1 for a new row. | The outline width of what this **entity** draws, in CSS pixels at displayScalePercent 100; it scales with displayScalePercent, not with zoom. GRS writes 1 for a new **entity**. |
+|  |  | ja | この行が描くものの線の太さ。displayScalePercent が 100 のときの CSS ピクセルで表す。displayScalePercent で拡大縮小し、ズームでは変わらない。新しい行には 1 を書く。 | この**実体**が描くものの線の太さ。displayScalePercent が 100 のときの CSS ピクセルで表す。displayScalePercent で拡大縮小し、ズームでは変わらない。新しい**実体**には 1 を書く。 |
+| 13 | `duplicateKey` | en | Two rows in the same array would have the same key (such as id or uid), for example a new row whose id is already in use. | Two **entities** in the same array would have the same key (such as id or uid), for example a new **entity** whose id is already in use. |
+|  |  | ja | 同じ配列の 2 つの行が同じ鍵（id や uid など）を持つことになる。例えば、新しい行の id が既に使われている。 | 同じ配列の 2 つの**実体**が同じ鍵（id や uid など）を持つことになる。例えば、新しい**実体**の id が既に使われている。 |
+| 14 | `danglingReference` | en | A property that refers to another row (such as parentTaskUid) points to a row that is not in the document. | A property that refers to another **entity** (such as parentTaskUid) points to an **entity** that is not in the document. |
+|  |  | ja | ほかの行を指すプロパティ（parentTaskUid など）が、文書に無い行を指している。 | ほかの**実体**を指すプロパティ（parentTaskUid など）が、文書に無い**実体**を指している。 |
+| 15 | `notFound` | en | The named row (a task, task group, box, resource, assignment or dependency) does not exist. | The named **entity** (a task, task group, box, resource, assignment or dependency) does not exist. |
+|  |  | ja | 名指した行（タスク、タスクグループ、ボックス、担当、割当、依存）が無い。 | 名指した**実体**（タスク、タスクグループ、ボックス、担当、割当、依存）が無い。 |
+
+注: 10〜12 の 3 語は、`JDG-3556` の A で入れ子の `style` の中へ移ります。そのとき「この実体」は、その `style` を持つ実体を指します。私は `style` の形を辞書に入れる時に、この 3 語の文をもう一度見せます。
+
+| 案 | 中身 |
+|:---|:---|
+| **a（推奨）** | 3〜15 を表の after のとおりに直す。私は辞書の下書きに当て、裁定を記録する |
+| b | 直す行に ★ を書き、その行だけを改める |
+
+回答:a
+
+#### 🔄 *✅ 問 13. `uid` の「一意」の範囲を、どこに書くか*
+
+場面: あなたの定義文（`JDG-3560`）は「一意」と言い、どの範囲で一意かを言いません。私は仕様を読み、次のことを確かめました。
+
+- GRS は MSPDI のファイルを開く時、`uid` を振り直しません。振り直すのは、取り込んだ文書を今の文書へ合流する時のタスクだけです（`docs/spec/01-04-requirements.md` の 6570 行）。
+- MSPDI は種類ごとに UID を数えます。このため 1 つの文書に、Task の `uid` 1 と Resource の `uid` 1 が共に入ります。
+- GRS が新しく作る `uid` は、1 つの数え口 `Project.uidHighWaterMark` から採るので、種類をまたいでもぶつかりません（`TC-2`）。けれども、開いたファイルの `uid` はぶつかり得ます。
+- `id` は GRS が作る UUID なので、文書全体で一意です。
+- 仕様の `AT-24` は「文書内で一意」とだけ書き、範囲を読み分けられません。
+
+つまり `uid` は「同じ種類の実体の中で一意」です。外の道具の作り手がこれを知らないと、`uid` を文書全体の鍵として使い、Task と Resource を取り違えます。
+
+前の定義文が言っていた次の 2 つも、あなたの定義文から外れました: ① どの実体が `uid` を持ち、どの実体が `id` を持つか、② 値の出どころ（`uid` は MSPDI の UID と同じ値、`id` は GRS が作る UUID）。`JDG-3558` は、この考え方を辞書の 2 語の意味の文が持つと決めています。
+
+| 案 | 中身 |
+|:---|:---|
+| **a（推奨）** | `uid` の定義文に、範囲を 1 文足す。英語「Unique among entities of the same kind.」、日本語「同じ種類の実体の中で一意。」。`id` は今のまま。① と ② は仕様の 5.4 節に表で書き、5.4 節は辞書の 2 語を引く（`JDG-3558` の置き場を、意味の文は辞書、一覧は 5.4 節に分ける）。`AT-24` も「同じ種類の実体の中で一意」に直す。理由: 外の人は辞書の文をスキーマの説明として読むので、範囲は意味の文が持つのがいちばん確か |
+| b | 定義文はあなたの文のまま。範囲と ① ② は、仕様の 5.4 節とスキーマの説明の頭に書く。`AT-24` も a と同じく直す |
+
+回答:a
 
 ### [time] 日時の型 ✅
 
@@ -586,9 +666,9 @@ Copilot の案と、上の一覧を比べました。
 
 ### [col] 表の列 ✅
 
-### [cal] 🔄 *カレンダー ✅*
+### [cal] カレンダー ✅
 
-### [proj] 🔄 *プロジェクト（❓ 1）*
+### [proj] プロジェクト（❓ 1）
 
 #### ❓ 問 6-8-5. プロジェクトの 24 語 —— 推奨の表のとおりでよいか
 
@@ -623,11 +703,11 @@ Copilot の案と、上の一覧を比べました。
 
 回答:上記コメント参照
 
-### [task] 🔄 *タスクと依存（❓ 1）*
+### [task] タスクと依存（❓ 1）
 
-#### 🔄 *❓ 問 6-9-5. タスクと依存の、MSPDI の名と違う 3 語*
+#### ❓ 問 6-9-5. タスクと依存の、MSPDI の名と違う 3 語
 
-🔄 *あなたの答え「MSPDI同じならOK。 違うならそこだけ抽出して、裁定に回せ。」に従い、MSPDI の名と同じ 17 語を確定しました（`JDG-3553`）。キーが MSPDI の名と違う 3 語を、ここに残しました。案は GRWB の議論の後でこの問いに書きます。*
+あなたの答え「MSPDI同じならOK。 違うならそこだけ抽出して、裁定に回せ。」に従い、MSPDI の名と同じ 17 語を確定しました（`JDG-3553`）。キーが MSPDI の名と違う 3 語を、ここに残しました。案は GRWB の議論の後でこの問いに書きます。
 
 | # | キー | 日本語の名 | 意味（日本語） | MSPDI の名 |
 |:---|:---|:---|:---|:---|
@@ -637,7 +717,7 @@ Copilot の案と、上の一覧を比べました。
 
 回答:
 
-### [res] 🔄 *担当と割当 ✅*
+### [res] 担当と割当 ✅
 
 ### [tg] タスクグループ（❓ 2）
 
@@ -661,9 +741,9 @@ Copilot の案と、上の一覧を比べました。
 
 回答:微妙。 他の案を出せ。 MSPDI由来ならその旨が分かるようにしろ。
 
-#### 🔄 *❓ 問 6-9-7. `hidden` とピン止め*
+#### ❓ 問 6-9-7. `hidden` とピン止め
 
-🔄 *ほかの 11 語は、あなたの答えで確定しました（`JDG-3554`）。表のあなたの問い（★）に答えます: ピン止めは `treeState` と別の値で、文書の設定がピン止めしたタスクグループの id の並びとして持ちます（仕様書の設定の表の `S-126`）。タスクグループを消すと、GRS はそのピン止めも消します（`CD-2`）。`hidden` とピン止めを両方持つタスクグループをどう見せるかは、GRWB の議論の後でこの問いに案を書きます。*
+ほかの 11 語は、あなたの答えで確定しました（`JDG-3554`）。表のあなたの問い（★）に答えます: ピン止めは `treeState` と別の値で、文書の設定がピン止めしたタスクグループの id の並びとして持ちます（仕様書の設定の表の `S-126`）。タスクグループを消すと、GRS はそのピン止めも消します（`CD-2`）。`hidden` とピン止めを両方持つタスクグループをどう見せるかは、GRWB の議論の後でこの問いに案を書きます。
 
 | # | キー | 日本語の名 | 意味（日本語） | MSPDI の名 |
 | :-------- | :-------------------------------------------------------- | :-------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | :-------------- |
