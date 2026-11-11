@@ -2415,8 +2415,8 @@
        "key": "id",
        "since": "2026-11-01T00:00:00Z",
        "definition": {
-        "en": "The unique identifier of a GRS-specific entity.",
-        "ja": "GRS 固有の実体の一意な識別子。"
+        "en": "The unique identifier of a GRS-specific entity. A random UUID, so that entities made apart do not share it.",
+        "ja": "GRS 固有の実体の一意な識別子。ランダムな UUID で、別々に作った実体どうしが同じ値を持たないようにする。"
        },
        "uses": [
         "grsJsonSchema",
