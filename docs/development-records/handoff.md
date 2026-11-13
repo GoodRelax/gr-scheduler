@@ -5,6 +5,14 @@
 ⛔ **公開なので、個人情報・絶対パス・秘密を書かないこと。**
 ⛔ **本書は状態だけを持つ** —— 着地・止めたもの・次にやること・利用者の確認待ち。**学びと規則は `docs/development-rules/` へ下ろす**（規則 05 の 1）。検査 72 が、最新の日付の節の外に残った学びを赤にする。
 
+> 🆕⭐ **2026-10-31〜11-13（BOSS = local_f4562771。文脈 75% で交代、後任は local_f4735a3f）—— 本節が最新。** ⛔ 数は測り直せ。チームの ID は B。
+> - **オーナーの不在（11-14 昼から約 5 日）**: gr-scheduler は用語集（BGQA2、GQA だけ、GRWB は使えない）だけを続け、ほかの仕事は始めない（オーナーの命令、BOSSBOSS 3 代目が伝えた）。
+> - **状態の全文**: 共有メモの `boss-f4562771-handover-2026-11-13.md`（BOSS local_f4562771 のメモのフォルダー）。席の一覧、枝、オーナー待ちをここに書いた。
+> - **枝**: develop = origin = `e52fcbba2`。用語集の SUB の枝に `bb0c8a816`（JDG-3566）が未合流。main = `17ce34e9e`（PR #5、11-01）。タグ `Alpha-20261031T105821Z` はまだ（オーナーが打つ）。
+> - **この巡で入れたもの**: CR-850・CR-858 の出荷（PR #5）。CR-859（純粋性の値の改名とチェッカー、検査 94、GT-2 通過 11-09）。規則 06 の節 0（裁定を減らす規則、JDG-3590）。main への PR の元を調べる `pr-source-branch.yml`（HR-62・66・75、main へは次のリリースで入る）。用語の裁定 JDG-3516〜3566。
+> - **オーナー待ち**: BGQA2 の 70 問。新基準の段 5（規則 07）・段 6（コメント R3）を `7015aa4` で始めるか。タグ。N1 はオーナーの 11-22、PMO の見込みは 12-03、問 17 = a で 11-15 に速さを測り直してから決める。
+> - **決まり（メモリにある）**: GT-2 の前に OneDrive を同期のサービスまで止める。GT-2 の始めと終わりは BOSSBOSS へ。main へは試験・Hyper-V のインストール試験・オーナーの動作確認なしに入れない。Claude は main への PR を合流しない。引き継ぎは 70 万トークン。
+
 > 🆕⭐ **2026-10-24〜31（BOSS = 調整役 coord-1024、local_f3a0caed。使用 86% で交代）—— 本節が最新。** ⛔ 数は測り直せ（根の `git log -1`・`git log -1 origin/develop`・`python tools/handover_guard/guard.py registry show`）。呼び名はオーナーの決まりで BOSS（調整役）・SUB（子）・PMO（計画の SUB）・BOSSBOSS（全プロジェクトのまとめ役 [BOSSBOSS](#local_f192664a-53dd-4663-b891-1974078eae7d)）・GQA（/grsmd-qa の回答欄つき .md）。オーナーへの文でセッション名を出すときは必ず `[名](#local_<id>)` のリンクにする。
 > - **枝**: 根の develop の先端は `d14c315a9`（10-31 18:11）。origin の develop は `d0ae3a9c8` のまま（未 push、約 300 コミット先）。統合の枝 `integ/coord-1022` は develop と同じ位置に早送りしている。main は `6b5776e62`（α、保護あり）。
 > - **出荷の段取り（今日の本筋、オーナーの裁定）**: CR-850（基準線の 15 分刻み、X-3a 込み、JDG-3570〜3573）と CR-858（GRS JSON をドロップしたら選択肢なしで開く、ファイル選択は 3 択のまま）を **一緒に develop ごと main へ PR で出す**（BOSS の GQA `temp/gqa/boss-gqa.md` 問 1 = a・問 4 = a）。前提「GRS JSON のスキーマが変わらない」は満たす（grs-document / grs-commands の schema は main と develop で同一）。手順: ① CR-858 を [cr858-drop-opens](#local_5b83e34e-3ab5-4f5f-a132-f78c4e164915) が仕上げる（GQA `.claude/worktrees/ecstatic-lederberg-41f060/studies/81-dropped-json-opens-directly/drop-opens-gqa.md` の問 1 が答え待ち）→ ② 別の Sonnet の確認（Gherkin の場面）→ ③ BOSS が dist を組み直し・`node tools/artifact_versions.mjs` で bump → ④ オーナーに OneDrive を止めてもらい GT-2 → ⑤ develop を push（`grep -q "GT-2 <sha> passed"` の後だけ）→ ⑥ main の直し（PR #2〜#4: CR-820・About・CR-823）を develop に取り込む → ⑦ develop→main の PR（gh）→ ⑧ オーナーの実地の試験（CR-850 の 5 項目は baseline-15min の報告にある）→ ⑨ オーナーがマージとタグ。
