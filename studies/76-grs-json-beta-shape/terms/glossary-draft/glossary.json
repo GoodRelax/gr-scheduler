@@ -1819,7 +1819,7 @@
        ]
       },
       {
-       "key": "kind",
+       "key": "type",
        "owner": "Color",
        "since": "2026-11-01T00:00:00Z",
        "definition": {
@@ -2067,8 +2067,8 @@
        "key": "Color",
        "since": "2026-11-01T00:00:00Z",
        "definition": {
-        "en": "A color of one of three kinds, chosen by kind. Where a color may be absent, an absent color means GRS does not draw that fill or line.",
-        "ja": "kind で選ぶ 3 種のうちの 1 つの色。色が無くてもよい所では、色が無いことは、GRS がその塗りや線を描かないことを表す。"
+        "en": "A color of one of three kinds, chosen by type. Where a color may be absent, an absent color means GRS does not draw that fill or line.",
+        "ja": "type で選ぶ 3 種のうちの 1 つの色。色が無くてもよい所では、色が無いことは、GRS がその塗りや線を描かないことを表す。"
        },
        "uses": [
         "grsJsonSchema",
@@ -2145,7 +2145,7 @@
        ]
       },
       {
-       "key": "kind",
+       "key": "type",
        "owner": "ColumnFilter",
        "since": "2026-11-01T00:00:00Z",
        "definition": {
@@ -2304,8 +2304,8 @@
        "key": "ordinal",
        "since": "2026-11-01T00:00:00Z",
        "definition": {
-        "en": "The order of this row within its owner as in the MSPDI file; GRS writes the rows back in that order.",
-        "ja": "MSPDI のファイルでの、持ち主の中でのこの行の順番。GRS はその順に書き戻す。"
+        "en": "The order of this entity within its owner as in the MSPDI file; GRS writes the entities back in that order.",
+        "ja": "MSPDI のファイルでの、持ち主の中でのこの実体の順番。GRS はその順に書き戻す。"
        },
        "uses": [
         "grsJsonSchema",
@@ -2401,8 +2401,8 @@
        "key": "uid",
        "since": "2026-11-01T00:00:00Z",
        "definition": {
-        "en": "The unique number of this row within its array, the same as the MSPDI UID. GRS never reuses a uid.",
-        "ja": "この行の、配列の中で一意な番号。MSPDI の UID と同じ。GRS は uid を使い回さない。"
+        "en": "The unique identifier of an MSPDI-derived entity. Unique among entities of the same kind.",
+        "ja": "MSPDI 由来の実体の一意な識別子。同じ種類の実体の中で一意。"
        },
        "uses": [
         "grsJsonSchema",
@@ -2415,8 +2415,8 @@
        "key": "id",
        "since": "2026-11-01T00:00:00Z",
        "definition": {
-        "en": "The id of this row, a UUID.",
-        "ja": "この行の id。UUID である。"
+        "en": "The unique identifier of a GRS-specific entity. A random UUID, so that entities made apart do not share it.",
+        "ja": "GRS 固有の実体の一意な識別子。ランダムな UUID で、別々に作った実体どうしが同じ値を持たないようにする。"
        },
        "uses": [
         "grsJsonSchema",
@@ -2431,8 +2431,8 @@
        "rowId": "P-1",
        "since": "2026-11-01T00:00:00Z",
        "definition": {
-        "en": "The name of this row, the same as the MSPDI Name where MSPDI has one.",
-        "ja": "この行の名前。MSPDI に Name があるものは、それと同じ。"
+        "en": "The name of this entity, the same as the MSPDI Name where MSPDI has one.",
+        "ja": "この実体の名前。MSPDI に Name があるものは、それと同じ。"
        },
        "uses": [
         "grsJsonSchema",
@@ -2459,8 +2459,8 @@
        "key": "siblingOrder",
        "since": "2026-11-01T00:00:00Z",
        "definition": {
-        "en": "The order of this row among the rows under the same parent.",
-        "ja": "同じ親の下にある行のあいだでの、この行の順番。"
+        "en": "The order of this entity among the entities under the same parent.",
+        "ja": "同じ親の下にある実体のあいだでの、この実体の順番。"
        },
        "uses": [
         "grsJsonSchema",
@@ -2473,8 +2473,8 @@
        "key": "taskUid",
        "since": "2026-11-01T00:00:00Z",
        "definition": {
-        "en": "The uid of the task that this row is about.",
-        "ja": "この行が扱うタスクの uid。"
+        "en": "The uid of the task that this entity is about.",
+        "ja": "この実体が扱うタスクの uid。"
        },
        "uses": [
         "grsJsonSchema",
@@ -2487,8 +2487,8 @@
        "key": "taskGroupId",
        "since": "2026-11-01T00:00:00Z",
        "definition": {
-        "en": "The id of the task group that this row is about.",
-        "ja": "この行が扱うタスクグループの id。"
+        "en": "The id of the task group that this entity is about.",
+        "ja": "この実体が扱うタスクグループの id。"
        },
        "uses": [
         "grsJsonSchema",
@@ -2553,8 +2553,8 @@
        "key": "hyperlinkAddress",
        "since": "2026-11-01T00:00:00Z",
        "definition": {
-        "en": "The URL this row links to (MSPDI HyperlinkAddress for a task). Absent means no link.",
-        "ja": "この行のリンク先の URL（タスクでは MSPDI の HyperlinkAddress）。無ければリンクも無い。"
+        "en": "The URL this entity links to (MSPDI HyperlinkAddress for a task). Absent means no link.",
+        "ja": "この実体のリンク先の URL（タスクでは MSPDI の HyperlinkAddress）。無ければリンクも無い。"
        },
        "uses": [
         "grsJsonSchema",
@@ -2567,8 +2567,8 @@
        "key": "hyperlink",
        "since": "2026-11-01T00:00:00Z",
        "definition": {
-        "en": "The title of the link of this row, not the address (MSPDI Hyperlink for a task). Absent means no title.",
-        "ja": "この行のリンクのタイトル。アドレスではない（タスクでは MSPDI の Hyperlink）。無ければタイトルも無い。"
+        "en": "The title of the link of this entity, not the address (MSPDI Hyperlink for a task). Absent means no title.",
+        "ja": "この実体のリンクのタイトル。アドレスではない（タスクでは MSPDI の Hyperlink）。無ければタイトルも無い。"
        },
        "uses": [
         "grsJsonSchema",
@@ -2582,8 +2582,8 @@
        "rowId": "P-18",
        "since": "2026-11-01T00:00:00Z",
        "definition": {
-        "en": "The fill color of what this row draws: the Plan Bar of a task (the Actual Bar takes its fill from it), the body of a Comment Box, or a Highlight Box. Where it may be absent, absent means no fill.",
-        "ja": "この行が描くものの塗りの色。タスクでは予定バー（実績バーの塗りもこれから作る）、コメントボックスでは本文の箱、ハイライトボックスではその箱。無くてよい所では、無ければ塗らない。"
+        "en": "The fill color of what this entity draws: the Plan Bar of a task (the Actual Bar takes its fill from it), the body of a Comment Box, or a Highlight Box. Where it may be absent, absent means no fill.",
+        "ja": "この実体が描くものの塗りの色。タスクでは予定バー（実績バーの塗りもこれから作る）、コメントボックスでは本文の箱、ハイライトボックスではその箱。無くてよい所では、無ければ塗らない。"
        },
        "uses": [
         "grsJsonSchema",
@@ -2611,8 +2611,8 @@
        "rowId": "P-18",
        "since": "2026-11-01T00:00:00Z",
        "definition": {
-        "en": "The outline color of what this row draws: the bars of a task, the border and Leader Line of a Comment Box, or the frame of a Highlight Box. Where it may be absent, absent means no outline.",
-        "ja": "この行が描くものの線の色。タスクではバーの輪郭、コメントボックスでは枠と引出し線、ハイライトボックスでは枠。無くてよい所では、無ければ線を描かない。"
+        "en": "The outline color of what this entity draws: the bars of a task, the border and Leader Line of a Comment Box, or the frame of a Highlight Box. Where it may be absent, absent means no outline.",
+        "ja": "この実体が描くものの線の色。タスクではバーの輪郭、コメントボックスでは枠と引出し線、ハイライトボックスでは枠。無くてよい所では、無ければ線を描かない。"
        },
        "uses": [
         "grsJsonSchema",
@@ -2626,8 +2626,8 @@
        "rowId": "P-18",
        "since": "2026-11-01T00:00:00Z",
        "definition": {
-        "en": "The outline width of what this row draws, in CSS pixels at displayScalePercent 100; it scales with displayScalePercent, not with zoom. GRS writes 1 for a new row.",
-        "ja": "この行が描くものの線の太さ。displayScalePercent が 100 のときの CSS ピクセルで表す。displayScalePercent で拡大縮小し、ズームでは変わらない。新しい行には 1 を書く。"
+        "en": "The outline width of what this entity draws, in CSS pixels at displayScalePercent 100; it scales with displayScalePercent, not with zoom. GRS writes 1 for a new entity.",
+        "ja": "この実体が描くものの線の太さ。displayScalePercent が 100 のときの CSS ピクセルで表す。displayScalePercent で拡大縮小し、ズームでは変わらない。新しい実体には 1 を書く。"
        },
        "uses": [
         "grsJsonSchema",
@@ -2764,11 +2764,11 @@
        ]
       },
       {
-       "key": "recurrenceKind",
+       "key": "recurrenceType",
        "since": "2026-11-01T00:00:00Z",
        "definition": {
-        "en": "Same as MSPDI Exception/Type. GRS counts only a one-off exception: recurrenceKind is 9 or absent, or is 1 and recurrencePeriod is absent or 1; GRS keeps the others unchanged without counting them. Write 1 for an exception you add.",
-        "ja": "MSPDI の Exception/Type と同じ。GRS が数えるのは 1 回きりの例外だけである: recurrenceKind が 9 か無い、または 1 で recurrencePeriod が無いか 1。ほかは数えずにそのまま持つ。足す例外には 1 を書く。"
+        "en": "Same as MSPDI Exception/Type. GRS counts only a one-off exception: recurrenceType is 9 or absent, or is 1 and recurrencePeriod is absent or 1; GRS keeps the others unchanged without counting them. Write 1 for an exception you add.",
+        "ja": "MSPDI の Exception/Type と同じ。GRS が数えるのは 1 回きりの例外だけである: recurrenceType が 9 か無い、または 1 で recurrencePeriod が無いか 1。ほかは数えずにそのまま持つ。足す例外には 1 を書く。"
        },
        "uses": [
         "grsJsonSchema",
@@ -2889,7 +2889,7 @@
      },
      "terms": [
       {
-       "key": "id",
+       "key": "uid",
        "owner": "Project",
        "since": "2026-11-01T00:00:00Z",
        "definition": {
@@ -3182,8 +3182,8 @@
         "ja": "テーマ色"
        },
        "definition": {
-        "en": "The hue of the theme, in degrees. Every color written as {\"kind\":\"theme\"} uses this hue. A new Schedule Document starts with 214.",
-        "ja": "テーマの色相（度）。{\"kind\":\"theme\"} と書いた色はすべてこの色相を使う。新しいスケジュール文書は 214 で始まる。"
+        "en": "The hue of the theme, in degrees. Every color written as {\"type\":\"theme\"} uses this hue. A new Schedule Document starts with 214.",
+        "ja": "テーマの色相（度）。{\"type\":\"theme\"} と書いた色はすべてこの色相を使う。新しいスケジュール文書は 214 で始まる。"
        },
        "uses": [
         "grsJsonSchema",
@@ -3660,7 +3660,7 @@
      },
      "terms": [
       {
-       "key": "resourceKind",
+       "key": "resourceType",
        "since": "2026-11-01T00:00:00Z",
        "definition": {
         "en": "Same as MSPDI Resource/Type.",
@@ -3870,8 +3870,8 @@
        "key": "color",
        "since": "2026-11-01T00:00:00Z",
        "definition": {
-        "en": "The color of the Task Group Lane of the task group. Absent means GRS draws no color; {\"kind\":\"theme\"} draws the theme color.",
-        "ja": "このタスクグループのタスクグループレーンの色。無ければ GRS は色を塗らない。{\"kind\":\"theme\"} はテーマの色を塗る。"
+        "en": "The color of the Task Group Lane of the task group. Absent means GRS draws no color; {\"type\":\"theme\"} draws the theme color.",
+        "ja": "このタスクグループのタスクグループレーンの色。無ければ GRS は色を塗らない。{\"type\":\"theme\"} はテーマの色を塗る。"
        },
        "uses": [
         "grsJsonSchema",
@@ -4627,7 +4627,7 @@
        ]
       },
       {
-       "key": "kind",
+       "key": "type",
        "owner": "LeaderAnchor",
        "since": "2026-11-01T00:00:00Z",
        "definition": {
@@ -4690,8 +4690,8 @@
        "key": "LeaderAnchor",
        "since": "2026-11-01T00:00:00Z",
        "definition": {
-        "en": "Where the Leader Line of a Comment Box points; kind selects a free point, a task or a Highlight Box.",
-        "ja": "コメントボックスの引出し線が指す所。kind で、何にも結び付かない点、タスク、ハイライトボックスのどれかを選ぶ。"
+        "en": "Where the Leader Line of a Comment Box points; type selects a free point, a task or a Highlight Box.",
+        "ja": "コメントボックスの引出し線が指す所。type で、何にも結び付かない点、タスク、ハイライトボックスのどれかを選ぶ。"
        },
        "uses": [
         "grsJsonSchema",
@@ -4917,7 +4917,7 @@
        ]
       },
       {
-       "key": "kind",
+       "key": "type",
        "owner": "Writer",
        "since": "2026-11-01T00:00:00Z",
        "definition": {
@@ -5009,8 +5009,8 @@
        "key": "lastEditedBy",
        "since": "2026-11-01T00:00:00Z",
        "definition": {
-        "en": "Who wrote the Schedule Document last: {\"kind\":\"user\"} for a person in GRS, {\"kind\":\"template\"} for the shipped start-up template, {\"kind\":\"agent\",\"name\":...} for an Agent API caller.",
-        "ja": "スケジュール文書を最後に書いた者。GRS の中の人は {\"kind\":\"user\"}、同梱の起動時のテンプレートは {\"kind\":\"template\"}、Agent API の呼び手は {\"kind\":\"agent\",\"name\":...}。"
+        "en": "Who wrote the Schedule Document last: {\"type\":\"user\"} for a person in GRS, {\"type\":\"template\"} for the shipped start-up template, {\"type\":\"agent\",\"name\":...} for an Agent API caller.",
+        "ja": "スケジュール文書を最後に書いた者。GRS の中の人は {\"type\":\"user\"}、同梱の起動時のテンプレートは {\"type\":\"template\"}、Agent API の呼び手は {\"type\":\"agent\",\"name\":...}。"
        },
        "uses": [
         "grsJsonSchema",
@@ -5272,7 +5272,7 @@
        ]
       },
       {
-       "key": "kind",
+       "key": "type",
        "owner": "scrollPosition",
        "since": "2026-11-01T00:00:00Z",
        "definition": {
@@ -5446,7 +5446,7 @@
        ]
       },
       {
-       "key": "kind",
+       "key": "type",
        "owner": "viewTimeZone",
        "since": "2026-11-01T00:00:00Z",
        "definition": {
@@ -16256,7 +16256,7 @@
       {
        "key": "columns",
        "definition": {
-        "en": "The list of the columns of the table: id, on-screen names and value kind.",
+        "en": "The list of the columns of the table: id, on-screen names and valueType.",
         "ja": "その表の列の一覧。id、画面の名前、値の種類。"
        },
        "uses": [
@@ -16360,10 +16360,10 @@
        ]
       },
       {
-       "key": "kind",
+       "key": "valueType",
        "owner": "AgentTableColumn",
        "definition": {
-        "en": "The kind of value of the column, text or date; the column filters differ by kind.",
+        "en": "The type of value of the column, text or date; the column filters differ by valueType.",
         "ja": "列の値の種類。語か日付か。種類で列のフィルタの形が違う。"
        },
        "uses": [
@@ -16959,7 +16959,7 @@
          "key": "retiredName",
          "owner": "reason",
          "definition": {
-          "en": "A retired name was sent (a command kind, a member name, an argument name or an edit field name).",
+          "en": "A retired name was sent (a command type, a member name, an argument name or an edit field name).",
           "ja": "退けた名前を送った（命令の種類、メンバの名、引数の名、編集の欄の名）。"
          },
          "uses": [
@@ -17043,8 +17043,8 @@
          "key": "duplicateKey",
          "owner": "reason",
          "definition": {
-          "en": "Two rows in the same array would have the same key (such as id or uid), for example a new row whose id is already in use.",
-          "ja": "同じ配列の 2 つの行が同じ鍵（id や uid など）を持つことになる。例えば、新しい行の id が既に使われている。"
+          "en": "Two entities in the same array would have the same key (such as id or uid), for example a new entity whose id is already in use.",
+          "ja": "同じ配列の 2 つの実体が同じ鍵（id や uid など）を持つことになる。例えば、新しい実体の id が既に使われている。"
          },
          "uses": [
           "agentApi",
@@ -17057,8 +17057,8 @@
          "key": "danglingReference",
          "owner": "reason",
          "definition": {
-          "en": "A property that refers to another row (such as parentTaskUid) points to a row that is not in the document.",
-          "ja": "ほかの行を指すプロパティ（parentTaskUid など）が、文書に無い行を指している。"
+          "en": "A property that refers to another entity (such as parentTaskUid) points to an entity that is not in the document.",
+          "ja": "ほかの実体を指すプロパティ（parentTaskUid など）が、文書に無い実体を指している。"
          },
          "uses": [
           "agentApi",
@@ -17407,8 +17407,8 @@
          "key": "notFound",
          "owner": "reason",
          "definition": {
-          "en": "The named row (a task, task group, box, resource, assignment or dependency) does not exist.",
-          "ja": "名指した行（タスク、タスクグループ、ボックス、担当、割当、依存）が無い。"
+          "en": "The named entity (a task, task group, box, resource, assignment or dependency) does not exist.",
+          "ja": "名指した実体（タスク、タスクグループ、ボックス、担当、割当、依存）が無い。"
          },
          "uses": [
           "agentApi",
@@ -17547,8 +17547,8 @@
          "key": "unknownCommand",
          "owner": "reason",
          "definition": {
-          "en": "kind is not the name of any command.",
-          "ja": "kind がどの命令の名でもない。"
+          "en": "type is not the name of any command.",
+          "ja": "type がどの命令の名でもない。"
          },
          "uses": [
           "agentApi",
@@ -17601,10 +17601,10 @@
        ]
       },
       {
-       "key": "kind",
+       "key": "commandType",
        "owner": "Refusal",
        "definition": {
-        "en": "The kind (the name) of the refused command.",
+        "en": "The type (the name) of the refused command.",
         "ja": "断られた命令の種類（名前）。"
        },
        "uses": [
@@ -17630,7 +17630,7 @@
       {
        "key": "Refusal",
        "definition": {
-        "en": "The refusal of one command in a batch: its position, its kind, the reason and the field.",
+        "en": "The refusal of one command in a batch: its position, its commandType, the reason and the field.",
         "ja": "束の中の 1 つの命令の断り。位置、種類、理由、欄。"
        },
        "uses": [
@@ -18099,7 +18099,7 @@
       {
        "key": "readSearchRows",
        "definition": {
-        "en": "Takes one word and returns the rows of the Search Window: the task table, one page at a time, and the comment-box table. The panel's own search field is neither read nor changed. An empty word narrows nothing, so the task rows are the whole outline. With filters 'asShown' (the default) the column filters and sort the person has set on the task table are applied, so you get the same rows in the same order as on screen. To change them as the person would, send editTableView through applyCommands; the person's table changes too. Up to limit task rows (at most 100) are returned from offset. The answer lists the task table's columns (id, on-screen names, value kind), the total task row count (taskTotal) and the next offset. taskTotal counts every task row the word and the filters keep, milestones and parent tasks included; a milestone row has milestone true. Plan and actual: in a task row, plannedStart and plannedFinish are the plan (the columns Planned Start and Planned Finish; a milestone's plannedFinish is its start), and percentComplete, actualStart and actualFinish are the actual (the columns Progress, Actual Start and Actual Finish). The status column only compares dates with the status date; for the exact delay analysis call readDelayDiagnostics.",
+        "en": "Takes one word and returns the rows of the Search Window: the task table, one page at a time, and the comment-box table. The panel's own search field is neither read nor changed. An empty word narrows nothing, so the task rows are the whole outline. With filters 'asShown' (the default) the column filters and sort the person has set on the task table are applied, so you get the same rows in the same order as on screen. To change them as the person would, send editTableView through applyCommands; the person's table changes too. Up to limit task rows (at most 100) are returned from offset. The answer lists the task table's columns (id, on-screen names, valueType), the total task row count (taskTotal) and the next offset. taskTotal counts every task row the word and the filters keep, milestones and parent tasks included; a milestone row has milestone true. Plan and actual: in a task row, plannedStart and plannedFinish are the plan (the columns Planned Start and Planned Finish; a milestone's plannedFinish is its start), and percentComplete, actualStart and actualFinish are the actual (the columns Progress, Actual Start and Actual Finish). The status column only compares dates with the status date; for the exact delay analysis call readDelayDiagnostics.",
         "ja": "語を 1 つ受け取り、検索ウィンドウの行を返す。タスクの表を 1 ページずつと、コメントボックスの表。ウィンドウ自身の入力欄は読みも変えもしない。空の語は何も絞らないので、タスクの行は全体の目次になる。filters が 'asShown'（既定）なら、人がタスクの表に掛けた列のフィルタと並べ替えを当てるので、画面と同じ行が同じ順に返る。人と同じようにそれを変えるには、applyCommands で editTableView を送る。人の表も変わる。offset から limit 個まで（多くても 100）のタスクの行を返す。答えは、タスクの表の列（id、画面の名前、値の種類）、タスクの行の総数（taskTotal）、次の offset を並べる。taskTotal は、語とフィルタが残すタスクの行をすべて数え、マイルストーンと親タスクも含める。マイルストーンの行は milestone が真。予定と実績: タスクの行で、plannedStart と plannedFinish は予定（列の予定開始と予定終了。マイルストーンの plannedFinish はその開始）、percentComplete、actualStart、actualFinish は実績（列の進捗、実績開始、実績終了）。状態の列は日付を基準日と比べるだけである。正確な遅れの解析には readDelayDiagnostics を呼ぶ。"
        },
        "uses": [
@@ -18222,8 +18222,8 @@
       {
        "key": "applyCommands",
        "definition": {
-        "en": "Writes a batch of commands atomically: every command is applied or the whole batch is refused. Hand over the stamp you last read as expectedStamp. The kind and the fields of every command are in the resource grs-commands.schema.json.",
-        "ja": "命令の束をまとめて書く。すべての命令を当てるか、束全体を断るかのどちらか。最後に読んだ刻印を expectedStamp として渡す。各命令の kind と欄は、資源 grs-commands.schema.json にある。"
+        "en": "Writes a batch of commands atomically: every command is applied or the whole batch is refused. Hand over the stamp you last read as expectedStamp. The type and the fields of every command are in the resource grs-commands.schema.json.",
+        "ja": "命令の束をまとめて書く。すべての命令を当てるか、束全体を断るかのどちらか。最後に読んだ刻印を expectedStamp として渡す。各命令の type と欄は、資源 grs-commands.schema.json にある。"
        },
        "uses": [
         "agentApi",
@@ -18562,7 +18562,7 @@
      },
      "terms": [
       {
-       "key": "kind",
+       "key": "type",
        "owner": "DocumentCommand",
        "definition": {
         "en": "The name of the command; it says which command this is.",
@@ -18607,7 +18607,7 @@
       {
        "key": "DocumentCommand",
        "definition": {
-        "en": "One document command as a value: its kind and its fields. A batch of them is written atomically through applyCommands.",
+        "en": "One document command as a value: its type and its fields. A batch of them is written atomically through applyCommands.",
         "ja": "値として書いた 1 つの文書の命令。種類と欄を持つ。束にして applyCommands でまとめて書く。"
        },
        "uses": [
@@ -19295,7 +19295,7 @@
        ],
        "children": [
         {
-         "key": "kind",
+         "key": "type",
          "owner": "lag",
          "definition": {
           "en": "Which form the lag takes: workingDays or typed.",
@@ -19755,8 +19755,8 @@
       {
        "key": "editTaskVisual",
        "definition": {
-        "en": "Edits how the task `taskUid` is drawn. `set` writes the listed properties and `clear` removes the listed optional ones; a property in both is refused (`fieldSetAndCleared`). `taskShape` is only for a task that is not a milestone and `milestoneShape` only for a milestone; the wrong one is refused (`milestoneShapeMismatch`). A color that is absent is not drawn, and a task left with neither `fillColor` nor `strokeColor` is refused (`fillAndStrokeBothInvisible`). To follow the theme again, set the color to {\"kind\":\"theme\"}.",
-        "ja": "タスク taskUid の描き方を編集する。set は並べたプロパティを書き、clear は並べた省けるプロパティを取り除く。両方にあるプロパティは断る（fieldSetAndCleared）。taskShape はマイルストーンでないタスクだけ、milestoneShape はマイルストーンだけのもので、違うほうは断る（milestoneShapeMismatch）。色が無ければ描かず、fillColor も strokeColor も無いタスクは断る（fillAndStrokeBothInvisible）。またテーマに従わせるには、色を {\"kind\":\"theme\"} にする。"
+        "en": "Edits how the task `taskUid` is drawn. `set` writes the listed properties and `clear` removes the listed optional ones; a property in both is refused (`fieldSetAndCleared`). `taskShape` is only for a task that is not a milestone and `milestoneShape` only for a milestone; the wrong one is refused (`milestoneShapeMismatch`). A color that is absent is not drawn, and a task left with neither `fillColor` nor `strokeColor` is refused (`fillAndStrokeBothInvisible`). To follow the theme again, set the color to {\"type\":\"theme\"}.",
+        "ja": "タスク taskUid の描き方を編集する。set は並べたプロパティを書き、clear は並べた省けるプロパティを取り除く。両方にあるプロパティは断る（fieldSetAndCleared）。taskShape はマイルストーンでないタスクだけ、milestoneShape はマイルストーンだけのもので、違うほうは断る（milestoneShapeMismatch）。色が無ければ描かず、fillColor も strokeColor も無いタスクは断る（fillAndStrokeBothInvisible）。またテーマに従わせるには、色を {\"type\":\"theme\"} にする。"
        },
        "uses": [
         "commandSchema",
@@ -19774,7 +19774,7 @@
       {
        "key": "createCommentBox",
        "definition": {
-        "en": "Places a comment box with the id `commentBoxId`, attached as `leaderAnchor` says. `leaderAnchor` is a free point, a task or a highlight box, and every property of the chosen kind is required. GRS gives the other properties their default values, and the new box has no text.",
+        "en": "Places a comment box with the id `commentBoxId`, attached as `leaderAnchor` says. `leaderAnchor` is a free point, a task or a highlight box, and every property of the chosen type is required. GRS gives the other properties their default values, and the new box has no text.",
         "ja": "id が commentBoxId のコメントボックスを、leaderAnchor が言うとおりに付けて置く。leaderAnchor は何にも結び付かない点、タスク、ハイライトボックスのどれかで、選んだ種類のプロパティはすべて要る。ほかのプロパティは既定の値になり、新しい箱は文を持たない。"
        },
        "uses": [
