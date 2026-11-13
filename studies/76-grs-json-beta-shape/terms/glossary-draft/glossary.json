@@ -2928,8 +2928,8 @@
        "owner": "Project",
        "since": "2026-11-01T00:00:00Z",
        "definition": {
-        "en": "Same as MSPDI Project/Name. GRS shows and edits the value as the Project Name; the App Header shows title as the Project Title. GRS also uses the value, with id and the file name, to tell whether an existing file that GRS is about to overwrite holds the same Schedule Document.",
-        "ja": "MSPDI の Project/Name と同じ。GRS はこの値をプロジェクト名として表示し編集する。アプリヘッダーは title をプロジェクトタイトルとして出す。上書きしようとしている既存のファイルが同じスケジュール文書かを、id とファイル名と合わせて見分けるのにも使う。"
+        "en": "Same as MSPDI Project/Name. GRS shows and edits the value as the Project Name; the App Header shows title as the Project Title. GRS also uses the value, with uid and the file name, to tell whether an existing file that GRS is about to overwrite holds the same Schedule Document.",
+        "ja": "MSPDI の Project/Name と同じ。GRS はこの値をプロジェクト名として表示し編集する。アプリヘッダーは title をプロジェクトタイトルとして出す。上書きしようとしている既存のファイルが同じスケジュール文書かを、uid とファイル名と合わせて見分けるのにも使う。"
        },
        "uses": [
         "grsJsonSchema",
