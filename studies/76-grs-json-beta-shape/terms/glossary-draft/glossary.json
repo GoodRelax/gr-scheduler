@@ -3412,7 +3412,7 @@
        ]
       },
       {
-       "key": "Dependency",
+       "key": "PredecessorLink",
        "rowId": "N-12",
        "since": "2026-11-01T00:00:00Z",
        "definition": {
@@ -3614,7 +3614,7 @@
        ]
       },
       {
-       "key": "dependencies",
+       "key": "predecessorLinks",
        "since": "2026-11-01T00:00:00Z",
        "definition": {
         "en": "Same as MSPDI Task/PredecessorLink.",
@@ -4874,7 +4874,7 @@
      "key": "stampAndLog",
      "title": {
       "en": "Document stamp and change log",
-      "ja": "文書の刻印と変更ログ"
+      "ja": "文書刻印と変更履歴"
      },
      "terms": [
       {
@@ -5103,7 +5103,7 @@
        ]
       },
       {
-       "key": "note",
+       "key": "remarks",
        "since": "2026-11-01T00:00:00Z",
        "definition": {
         "en": "Anything else about the change.",
@@ -5134,7 +5134,7 @@
      "key": "documentSettings",
      "title": {
       "en": "Document settings",
-      "ja": "文書の設定"
+      "ja": "文書設定"
      },
      "terms": [
       {
@@ -5940,7 +5940,7 @@
        ]
       },
       {
-       "key": "levelZeroTreeState",
+       "key": "rootTreeState",
        "rowId": "K-138",
        "since": "2026-11-01T00:00:00Z",
        "label": {
@@ -5948,8 +5948,8 @@
         "ja": "段 0 の|木の|状態"
        },
        "definition": {
-        "en": "The state of the head of the Task Group Panel (level 0), above all top-level task groups. collapsed draws no task group at all. A new Schedule Document starts with auto.",
-        "ja": "タスクグループパネルの頭（段 0）、つまり最上位のすべてのタスクグループの上の状態。collapsed はタスクグループを 1 つも描かない。新しいスケジュール文書は auto で始まる。"
+        "en": "The state of the root of the task group tree (depth 0), above all top-level task groups. collapsed draws no task group at all. A new Schedule Document starts with auto.",
+        "ja": "タスクグループの木の根（深さ 0）、つまり最上位のすべてのタスクグループの上の状態。collapsed はタスクグループを 1 つも描かない。新しいスケジュール文書は auto で始まる。"
        },
        "uses": [
         "grsJsonSchema",
@@ -5960,7 +5960,7 @@
        "children": [
         {
          "key": "auto",
-         "owner": "levelZeroTreeState",
+         "owner": "rootTreeState",
          "since": "2026-11-01T00:00:00Z",
          "definition": {
           "en": "The top-level task groups are drawn.",
@@ -5974,7 +5974,7 @@
         },
         {
          "key": "collapsed",
-         "owner": "levelZeroTreeState",
+         "owner": "rootTreeState",
          "since": "2026-11-01T00:00:00Z",
          "definition": {
           "en": "No task group is drawn at all.",
@@ -6391,7 +6391,7 @@
        "since": "2026-11-01T00:00:00Z",
        "definition": {
         "en": "The Document Stamp: the time of the last change and of the last save, and who wrote the Schedule Document last.",
-        "ja": "文書の刻印。最後に変わった時刻と最後に保存した時刻、スケジュール文書を最後に書いた者。"
+        "ja": "文書刻印。最後に変わった時刻と最後に保存した時刻、スケジュール文書を最後に書いた者。"
        },
        "uses": [
         "grsJsonSchema",
@@ -6409,7 +6409,7 @@
        "since": "2026-11-01T00:00:00Z",
        "definition": {
         "en": "The Change Log: notes that people or an AI write about changes to the Schedule Document, oldest first. A new entry goes at the end.",
-        "ja": "変更ログ。人や AI がスケジュール文書への変更について書いた記録で、古いものが先。新しい記録は末尾に足す。"
+        "ja": "変更履歴。人や AI がスケジュール文書への変更について書いた記録で、古いものが先。新しい記録は末尾に足す。"
        },
        "uses": [
         "grsJsonSchema",
@@ -6422,7 +6422,7 @@
        "since": "2026-11-01T00:00:00Z",
        "definition": {
         "en": "A Schedule Document: one GRS JSON file. Its root holds the address of the schema, the schema version, the build version, the Schedule Data, the document settings, the document stamp and the change log.",
-        "ja": "スケジュール文書: 1 つの GRS JSON のファイル。根に、スキーマの所、スキーマの版、ビルドの版、スケジュールデータ、文書の設定、文書の刻印、変更ログを持つ。"
+        "ja": "スケジュール文書: 1 つの GRS JSON のファイル。根に、スキーマの所、スキーマの版、ビルドの版、スケジュールデータ、文書設定、文書刻印、変更履歴を持つ。"
        },
        "uses": [
         "grsJsonSchema",
@@ -17989,8 +17989,8 @@
         {
          "key": "defs",
          "definition": {
-          "en": "Names of definitions to return, as named in the schema's $defs (for example Task, Dependency); only those are returned",
-          "ja": "返す定義の名前。スキーマの $defs の名前で書く（例えば Task、Dependency）。それらだけを返す。"
+          "en": "Names of definitions to return, as named in the schema's $defs (for example Task, PredecessorLink); only those are returned",
+          "ja": "返す定義の名前。スキーマの $defs の名前で書く（例えば Task、PredecessorLink）。それらだけを返す。"
          },
          "uses": [
           "agentApi",
@@ -18074,7 +18074,7 @@
        "key": "readStamp",
        "definition": {
         "en": "The document stamp, for optimistic locking. Hand it back as expectedStamp when you write.",
-        "ja": "楽観ロックのための文書の刻印。書くときに expectedStamp として返す。"
+        "ja": "楽観ロックのための文書刻印。書くときに expectedStamp として返す。"
        },
        "uses": [
         "agentApi",
@@ -19921,14 +19921,14 @@
      "key": "settingsCommands",
      "title": {
       "en": "Document settings and table views",
-      "ja": "文書の設定と表の見え方"
+      "ja": "文書設定と表の見え方"
      },
      "terms": [
       {
        "key": "editDocumentSettings",
        "definition": {
         "en": "Edits the document settings, which say how the schedule is shown. `set` writes the listed properties and `clear` removes the listed optional ones; a property in both is refused (`fieldSetAndCleared`). Pins and table views have their own commands (`pinTaskGroup`, `unpinTaskGroup` and `editTableView`). `fitSpan` is written whole, with `firstDay`, `lastDay` and `isFixed`; clearing it clears `isFixed` too. Setting `viewTimeZone` converts only the shown times; the stored values stay the same.",
-        "ja": "日程の見せ方を言う文書の設定を編集する。set は並べたプロパティを書き、clear は並べた省けるプロパティを取り除く。両方にあるプロパティは断る（fieldSetAndCleared）。ピン止めと表の見え方には自分の命令がある（pinTaskGroup・unpinTaskGroup・editTableView）。fitSpan は firstDay・lastDay・isFixed と一緒にまるごと書き、clear すると isFixed も消える。viewTimeZone を設定しても換算するのは見せる時刻だけで、保存した値は変わらない。"
+        "ja": "日程の見せ方を言う文書設定を編集する。set は並べたプロパティを書き、clear は並べた省けるプロパティを取り除く。両方にあるプロパティは断る（fieldSetAndCleared）。ピン止めと表の見え方には自分の命令がある（pinTaskGroup・unpinTaskGroup・editTableView）。fitSpan は firstDay・lastDay・isFixed と一緒にまるごと書き、clear すると isFixed も消える。viewTimeZone を設定しても換算するのは見せる時刻だけで、保存した値は変わらない。"
        },
        "uses": [
         "commandSchema",
