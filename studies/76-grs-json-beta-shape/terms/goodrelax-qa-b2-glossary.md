@@ -1,3 +1,4 @@
+
 # 名の辞書（用語集）
 
 > 「回答:」の後ろに答えを書いて保存し、1 行目の BGQA2 を切り取ってください。
@@ -5,9 +6,13 @@
 
 2026-10-28 に作り、2026-11-05 に書き直した。② の辞書の初版ができ、③ のレビューを始めた。この紙で、名の辞書のスキーマ → 辞書 → 辞書のレビューまでを進める（`JDG-3424` の ①〜③）。スキーマの案は `glossary-draft/glossary.schema.json`（`CR-857` が `docs/development-rules/` へ移すまでの下書き）。
 
-残 10（❓ で検索）
+残 0 ✅
+
+2026-11-15、あなたの指示で、この紙を閉じて約束の面ごとの冊に分けました（`JDG-3568`）: GRS JSON は BGQA3（`goodrelax-qa-b3-grs-json.md`）、文書の命令は BGQA4、Agent API は BGQA5。この紙は、決まりと決定事項の記録として残します。
 
 2026-11-08、あなたの指示で、この紙を今回の答えで止めました（`JDG-3555`）。ホワイトボード（GRWB）での議論を先にします。残りの問いは、GRWB の議論の後で続きを出します。決まった答えは `JDG-3547`〜`JDG-3555` に書き、決定事項へ移しました。
+
+2026-11-13、あなたの答え「a まだ延ばさない。 優先度を上げる。 どんどん持ってこい。 ただし整理して濃い。」（`JDG-3566`）を受けて、次の巡を出します。前回までの残りに、外との約束に出る語の次の分を足しました: GRS JSON の Part 7・9〜13 の 168 語と、Agent API・文書の命令の Part 30〜37 の 287 語です。易しい語は分野ごとの推奨の表にまとめ、争点のある語だけを 1 問ずつ立てました。あなたの命令「GRWB が使えないので、GQA ベース」（`JDG-3567`）に従い、どの問いもこの紙だけで答えられる形にしました。
 
 2026-11-11、あなたの指示で、問 12（「行」を「実体」に直す語の before / after）と問 13（`uid` の「一意」の範囲）だけを出します（`JDG-3560`）。ほかの問いは保留のままです。ボードで決まった答え（`JDG-3556`〜`JDG-3560`）を決定事項へ移し、問 11 を回答済みにしました。同じ日、あなたは問 12 と問 13 に a と答えました（`JDG-3561`・`JDG-3562`）。私は 2 つの答えを辞書の下書きに当て、決定事項へ移しました。ほかの問いは、GRWB の議論の後で続きを出します。
 
@@ -181,6 +186,10 @@
 | 実体の呼び方 | 辞書の意味の文では、`uid` や `id` が見分ける物を「実体」（entity）と呼び、「行」（row）と呼ばない | `JDG-3559` |
 | `uid` と `id` の定義文 | `uid`: The unique identifier of an MSPDI-derived entity. ／ MSPDI 由来の実体の一意な識別子。`id`: The unique identifier of a GRS-specific entity. ／ GRS 固有の実体の一意な識別子。 | `JDG-3560` |
 | 「行」を「実体」に直す 13 語（問 12） | 辞書の意味の文で実体を「行」（row）と呼んでいた 13 語を「実体」（entity）に直す: `ordinal`・`name`・`siblingOrder`・`taskUid`・`taskGroupId`・`hyperlinkAddress`・`hyperlink`・`fillColor`・`strokeColor`・`strokeWidthPx`・`duplicateKey`・`danglingReference`・`notFound`。画面や仕様書の表の行を指す「行」は今のまま | `JDG-3561` |
+| `kind` と `type`（問 6-7-3-2） | キーに `kind` は使わない。値で自分の欄の組が変わる判別子は `type`（GRS JSON・文書の命令・Agent API のすべて）。形を変えない分類（MSPDI の Type を写す `dayType`・`recurrenceType`・`linkType`・`resourceType`）や別の物の型（`Refusal.commandType`・`AgentTableColumn.valueType`）は `xxxType`。`uid` の値は 1〜2^31−1 | `JDG-3563`・`JDG-3564` |
+| GRS 固有の実体の `id` | 名は `id` のまま。値は版 4 のランダムな UUID で、テンプレートから始めるときも毎回作り直す。読むときは版を問わない。定義文の 2 文目「A random UUID, so that entities made apart do not share it.」／「ランダムな UUID で、別々に作った実体どうしが同じ値を持たないようにする。」 | `JDG-3565` |
+| この紙の進め方（2026-11-13） | GRWB を待たず、GQA だけで進める。どの問いも、この紙だけで答えられる形にする | `JDG-3567` |
+| 名の辞書の進め方（2026-11-13） | 日程はまだ延ばさない。名の辞書の優先度を上げ、問いを多く出す。ただし分野ごとに束ね、中身を濃くする | `JDG-3566` |
 | `uid` の「一意」の範囲（問 13） | `uid` の定義文に「Unique among entities of the same kind.」／「同じ種類の実体の中で一意。」を足す。どの実体が `uid` / `id` を持つかと値の出どころは、仕様の 5.4 節の表が持ち、5.4 節は辞書の 2 語を引く。仕様の `AT-24` を「同じ種類の実体の中で一意」に直す | `JDG-3562` |
 | 意味が「MSPDI の X と同じ。」だけの語 | 型と配列の 12 語（`WeekDay`・`Exception`・`weekDays`・`exceptions`・`Calendar`・`linkType`・`Dependency`・`dependencies`・`calendars`・`resources`・`assignments`・`project`）に、何の入れ物か・何を表す語かの 1 文を足す（英語にも）。ほかの 14 語は今のまま | `JDG-3520` |
 
@@ -245,520 +254,38 @@
 | `TaskGroup` | タスクグループ。WBS とは別の、自分の木を作る | `JDG-3361` |
 | タスクグループの 11 語（問 6-9-7） | 問 6-9-7 の表のとおり（`hidden` は問 6-9-7 に残した） | `JDG-3554` |
 
+
 ***
+
 
 ## QA
 
-残りの問いは、すべて保留です（`JDG-3555`）。GRWB の議論の後で、続きを出します。下の「回答:」には、あなたの答えを残しました。
-
-🔄 *後で問うメモ（2026-11-12、あなたの指示「そこは問題だな。 GQAにメモしておけ。 あとで直す。 今はJSONに集中したい。」）:*
-
-- 🔄 *Agent API の値の型 `AgentTableRows`・`AgentTableRow`・`AgentTableColumn`・`AgentTableCell` の名。頭の `Agent` は受け取る者（Agent API の呼び手）を言い、それが何か（画面の表）を言わない（`JDG-820`）。Agent API の分野（Part 30〜34）の問いで出す。*
-- 🔄 *同じく `AgentTableColumn.id`。値は列を定める仕様書の行 ID（`SQ-1` など）。席は `rowId` に改める案を出したが、外の人には「データの表の行の識別子」に読めるので取り下げた。今のまま `id` でよいかを、上の名と一緒に問う。*
-
-表の読み方:
-
-- 青い字は、前に裁定した名です。キーの欄が青ければキーの名を、日本語の名の欄が青ければ日本語の名を、裁定が決めました。裁定の番号は意味の欄の最後にあります。
-- 表の # は「パート - パートの中の番号」です。番号が飛んでいる所の語は、ほかの問いで聞くか、もう決まっています。
-- MSPDI の名の欄の「無し」は、GRS が自分で付けた名です（MSPDI に同じ要素が無い）。
-- 表を見る問いでは、直す所が無ければ ok と書き、直す所は表のセルに ★ で書いてください。
+この紙の問いは、すべて閉じるか移しました（2026-11-15、`JDG-3568`）。答えた問いの言葉は `docs/development-records/rulings.md` の JDG の行に、結果は上の決定事項にあります。
+開いていた問いは、GRS JSON を BGQA3（`goodrelax-qa-b3-grs-json.md`）へ、残りを出す前の置き場（`13-glossary-queue.md`）へ移しました。文書の命令は BGQA4、Agent API は BGQA5 として、GRS JSON の後に出します。
 
 ### [rule] 進め方と形 ✅
 
-### [whole] 全体の書き方（❓ 1）
-
-#### ✅ 問 11. ボードの提案 A〜E —— 提案通りでよいか
-
-場面: 2026-11-05、ホワイトボードであなたが GRS JSON の例に付けたコメントに、前の席が A〜E の 5 つの提案で答えました（ボードの答え `HNI6iNyEQHqsLJQyr7umZ`。今は左の古い話の列にあります）。前の席は骨組みの図と形の図に A〜E を当てて描きましたが、あなたが A〜E を採るとは、まだどこにも書いてありません。あなたの後の「あとは、お前の提案通りにやってくれ」は、チャットの提案（骨組みを先に描く・推奨の表を分ける。`JDG-3543`）に答えたものと前の席は読みました。
-
-| # | 提案 | 中身 | 07 の原則 |
-|:---|:---|:---|:---|
-| A | 見た目を入れ子の `style` に | 見た目を、どの物でも入れ子の `style` にまとめる。例: `commentBox { id, text, style { fill, stroke, textColor, fontSizePx }, … }`。`Task` は MSPDI の形のまま保つので、タスクの見た目だけは別の配列 `taskStyles[] { taskUid, style { … } }` に置く（今の名は `taskGraphicStyles`）。`taskGroups`・`commentBoxes`・`highlightBoxes` は本体そのもので、見た目だけの物ではない | `OKPN`（`style` は、どの物でも「見た目だけ」の 1 つの意味）・`SoC` |
-| B | 順 | `documentSettings` をルートの一番上に置く。その物を決める値を `id` の次に置く（例: ハイライトボックスの範囲 `firstTaskGroupId`〜`lastDay`）。同じ群の中では 1 行の値を先、入れ子を後に置く（例: `bodyOffsetPx` を `leaderTarget` の前に）。`JDG-3540` の「大事な順」に足す決まり | `JDG-3540` の細かい決まり |
-| C | 名 3 つ | ① `lastImportNumber` → `lastMspdiImportNumber`（`TaskOrigin` は `lastSeenMspdiImportNumber`）。取り込んだ物は MSPDI のファイル ② `leaderAnchor` → `leaderTarget`（吹き出し線の先が何に付くか。`kind` は `task`・`highlightBox`・`freePoint` のまま）③ `lanePositionPercent` → `laneTopOffsetPercent`（レーンの上端からの距離を、レーンの高さに対する % で持つ。CSS の `top` と同じ向き）。③ は `JDG-3529` の `lanePositionPercent` を一部改める | `NEIM`（`JDG-3546`）・`OMPV` |
-| D | 説明 3 つ | ① `parentTaskProgressToleranceWorkingDays`: 遅延診断が「親タスクの進捗点が子の進捗点の外へはみ出した」と疑うまでの許し幅（稼働日。仕様の `VS-6`・`S-487`）② `siblingOrder`: 同じ親の下での並び順（0 が先頭。ファイルは木を平らに持つので、順を数で持つ）③ `scheduleData` は予定そのもの（人が作った中身）、`documentSettings` は開いた時の見え方。`taskGroupAutoExpandDepth` は「開いた時に何段まで開くか」なので `documentSettings` に置く | `SoC` |
-| E | 不透明度を色の外に | `opacityPercent`（`JDG-3526`）を `Color` の中へ入れず、今のまま外に置く。`Color` は文字の色（`textColor`）と帯の色（`LaneColor`）にも使い、そこに不透明度は要らない。W3C のデザイントークン（DTCG）は中に置き、SVG は外（`fill-opacity`）に置く。GRS は SVG で描くので、外ならそのまま渡せる | `ISP` |
-
-| 案 | 中身 |
-|:---|:---|
-| **a（推奨）** | A〜E を提案通り採る。私は裁定を記録し、GRS JSON の例と BGQA2 の色・タスクグループ・注記の問いに当てる |
-| b | 直す行に ★ を書き、その行だけを改める |
-
-回答:a  でいいと思うが、確定するために、変更するセクション毎に変化点のbefore/after一覧が欲しい。  afterが変化する部分には
-
-2026-11-11、あなたはボードで節ごとの before / after の表と、提案のスキーマと具体例を見て、A〜E を採りました（`JDG-3556`）。
-
-#### ❓ 問 6-7-3-2. `kind` が残る所と、`type` にそろえるか
-
-場面: 問 6-7-3 で、あなたは a（MSPDI の Type を写す 3 つのキーを `…Type` にそろえる。`JDG-3548`）を選び、「色はkindが残るの？ 他にkindが残る部分は？ typeに統一しないの？ しないならその理由は？」と問いました。GRS JSON の `kind` は、今の決まりでは「形の組の印」（1 つの欄が、いくつかの形のどれかを持つとき、どの形かを示す欄）にだけ使います（`JDG-3348`・`JDG-3309`）。席は GRS JSON の `kind` をすべて数え、GRWB で形の図と並べて見せます（`JDG-3555`）。案は、その後でこの問いに書きます。
-
-回答:
-
-#### ✅ 問 12. 「行」を「実体」に直す 13 語 —— before / after のとおりでよいか
-
-場面: あなたは `uid` と `id` の定義文を決め、辞書の意味の文で実体を「行」と呼ぶ残りを before / after で見せるよう指示しました（`JDG-3560`）。`JDG-3559` は、`uid` や `id` が見分ける物を「実体」（entity）と呼ぶと決めています。私は辞書の全 190 欄で「row」と「行」を探し、実体を指す 15 語（30 欄）を選びました。下の表の after の太字が、変わる所です。
-
-- 1・2 の `uid` と `id` は、あなたの文を辞書の下書きへもう当てました（`JDG-3560`）。表は確かめのために載せます。
-- 3〜12 は GRS JSON の共有の型、13〜15 は Agent API の断りの理由（`reason` の値）です。
-- 残りの 160 欄は、画面や仕様書の表の行（検索ウィンドウの行、Agent API の `AgentTableRow`、仕様書の行 ID、ガントチャートの段など）か、「先行」「実行」「進行中」のように「行」の字を含む別の語です。私はこれらを今のままにします。
-
-| # | キー | 言語 | before | after |
-|:---|:---|:---|:---|:---|
-| 1 | `uid`（決定） | en | The identifier of a row that comes from MSPDI (Project, Calendar, Task, Resource, Assignment, BaselineTask), the same value as its MSPDI UID. A row that only GRS has uses id instead. GRS never reuses a uid within its array. | The unique identifier of an MSPDI-derived **entity**. |
-|  |  | ja | MSPDI から来た行（Project・Calendar・Task・Resource・Assignment・BaselineTask）の識別子で、MSPDI の UID と同じ値。GRS だけが持つ行は、uid でなく id を使う。GRS は配列の中で uid を使い回さない。 | MSPDI 由来の**実体**の一意な識別子。 |
-| 2 | `id`（決定） | en | The identifier of a row that only GRS has (TaskGroup, CommentBox, HighlightBox), a UUID that GRS makes. A row that comes from MSPDI uses uid instead. | The unique identifier of a GRS-specific **entity**. |
-|  |  | ja | GRS だけが持つ行（TaskGroup・CommentBox・HighlightBox）の識別子で、GRS が作る UUID。MSPDI から来た行は、id でなく uid を使う。 | GRS 固有の**実体**の一意な識別子。 |
-| 3 | `ordinal` | en | The order of this row within its owner as in the MSPDI file; GRS writes the rows back in that order. | The order of this **entity** within its owner as in the MSPDI file; GRS writes the **entities** back in that order. |
-|  |  | ja | MSPDI のファイルでの、持ち主の中でのこの行の順番。GRS はその順に書き戻す。 | MSPDI のファイルでの、持ち主の中でのこの**実体**の順番。GRS はその順に書き戻す。 |
-| 4 | `name` | en | The name of this row, the same as the MSPDI Name where MSPDI has one. | The name of this **entity**, the same as the MSPDI Name where MSPDI has one. |
-|  |  | ja | この行の名前。MSPDI に Name があるものは、それと同じ。 | この**実体**の名前。MSPDI に Name があるものは、それと同じ。 |
-| 5 | `siblingOrder` | en | The order of this row among the rows under the same parent. | The order of this **entity** among the **entities** under the same parent. |
-|  |  | ja | 同じ親の下にある行のあいだでの、この行の順番。 | 同じ親の下にある**実体**のあいだでの、この**実体**の順番。 |
-| 6 | `taskUid` | en | The uid of the task that this row is about. | The uid of the task that this **entity** is about. |
-|  |  | ja | この行が扱うタスクの uid。 | この**実体**が扱うタスクの uid。 |
-| 7 | `taskGroupId` | en | The id of the task group that this row is about. | The id of the task group that this **entity** is about. |
-|  |  | ja | この行が扱うタスクグループの id。 | この**実体**が扱うタスクグループの id。 |
-| 8 | `hyperlinkAddress` | en | The URL this row links to (MSPDI HyperlinkAddress for a task). Absent means no link. | The URL this **entity** links to (MSPDI HyperlinkAddress for a task). Absent means no link. |
-|  |  | ja | この行のリンク先の URL（タスクでは MSPDI の HyperlinkAddress）。無ければリンクも無い。 | この**実体**のリンク先の URL（タスクでは MSPDI の HyperlinkAddress）。無ければリンクも無い。 |
-| 9 | `hyperlink` | en | The title of the link of this row, not the address (MSPDI Hyperlink for a task). Absent means no title. | The title of the link of this **entity**, not the address (MSPDI Hyperlink for a task). Absent means no title. |
-|  |  | ja | この行のリンクのタイトル。アドレスではない（タスクでは MSPDI の Hyperlink）。無ければタイトルも無い。 | この**実体**のリンクのタイトル。アドレスではない（タスクでは MSPDI の Hyperlink）。無ければタイトルも無い。 |
-| 10 | `fillColor` | en | The fill color of what this row draws: the Plan Bar of a task (the Actual Bar takes its fill from it), the body of a Comment Box, or a Highlight Box. Where it may be absent, absent means no fill. | The fill color of what this **entity** draws: the Plan Bar of a task (the Actual Bar takes its fill from it), the body of a Comment Box, or a Highlight Box. Where it may be absent, absent means no fill. |
-|  |  | ja | この行が描くものの塗りの色。タスクでは予定バー（実績バーの塗りもこれから作る）、コメントボックスでは本文の箱、ハイライトボックスではその箱。無くてよい所では、無ければ塗らない。 | この**実体**が描くものの塗りの色。タスクでは予定バー（実績バーの塗りもこれから作る）、コメントボックスでは本文の箱、ハイライトボックスではその箱。無くてよい所では、無ければ塗らない。 |
-| 11 | `strokeColor` | en | The outline color of what this row draws: the bars of a task, the border and Leader Line of a Comment Box, or the frame of a Highlight Box. Where it may be absent, absent means no outline. | The outline color of what this **entity** draws: the bars of a task, the border and Leader Line of a Comment Box, or the frame of a Highlight Box. Where it may be absent, absent means no outline. |
-|  |  | ja | この行が描くものの線の色。タスクではバーの輪郭、コメントボックスでは枠と引出し線、ハイライトボックスでは枠。無くてよい所では、無ければ線を描かない。 | この**実体**が描くものの線の色。タスクではバーの輪郭、コメントボックスでは枠と引出し線、ハイライトボックスでは枠。無くてよい所では、無ければ線を描かない。 |
-| 12 | `strokeWidthPx` | en | The outline width of what this row draws, in CSS pixels at displayScalePercent 100; it scales with displayScalePercent, not with zoom. GRS writes 1 for a new row. | The outline width of what this **entity** draws, in CSS pixels at displayScalePercent 100; it scales with displayScalePercent, not with zoom. GRS writes 1 for a new **entity**. |
-|  |  | ja | この行が描くものの線の太さ。displayScalePercent が 100 のときの CSS ピクセルで表す。displayScalePercent で拡大縮小し、ズームでは変わらない。新しい行には 1 を書く。 | この**実体**が描くものの線の太さ。displayScalePercent が 100 のときの CSS ピクセルで表す。displayScalePercent で拡大縮小し、ズームでは変わらない。新しい**実体**には 1 を書く。 |
-| 13 | `duplicateKey` | en | Two rows in the same array would have the same key (such as id or uid), for example a new row whose id is already in use. | Two **entities** in the same array would have the same key (such as id or uid), for example a new **entity** whose id is already in use. |
-|  |  | ja | 同じ配列の 2 つの行が同じ鍵（id や uid など）を持つことになる。例えば、新しい行の id が既に使われている。 | 同じ配列の 2 つの**実体**が同じ鍵（id や uid など）を持つことになる。例えば、新しい**実体**の id が既に使われている。 |
-| 14 | `danglingReference` | en | A property that refers to another row (such as parentTaskUid) points to a row that is not in the document. | A property that refers to another **entity** (such as parentTaskUid) points to an **entity** that is not in the document. |
-|  |  | ja | ほかの行を指すプロパティ（parentTaskUid など）が、文書に無い行を指している。 | ほかの**実体**を指すプロパティ（parentTaskUid など）が、文書に無い**実体**を指している。 |
-| 15 | `notFound` | en | The named row (a task, task group, box, resource, assignment or dependency) does not exist. | The named **entity** (a task, task group, box, resource, assignment or dependency) does not exist. |
-|  |  | ja | 名指した行（タスク、タスクグループ、ボックス、担当、割当、依存）が無い。 | 名指した**実体**（タスク、タスクグループ、ボックス、担当、割当、依存）が無い。 |
-
-注: 10〜12 の 3 語は、`JDG-3556` の A で入れ子の `style` の中へ移ります。そのとき「この実体」は、その `style` を持つ実体を指します。私は `style` の形を辞書に入れる時に、この 3 語の文をもう一度見せます。
-
-| 案 | 中身 |
-|:---|:---|
-| **a（推奨）** | 3〜15 を表の after のとおりに直す。私は辞書の下書きに当て、裁定を記録する |
-| b | 直す行に ★ を書き、その行だけを改める |
-
-回答:a
-
-#### ✅ 問 13. `uid` の「一意」の範囲を、どこに書くか
-
-場面: あなたの定義文（`JDG-3560`）は「一意」と言い、どの範囲で一意かを言いません。私は仕様を読み、次のことを確かめました。
-
-- GRS は MSPDI のファイルを開く時、`uid` を振り直しません。振り直すのは、取り込んだ文書を今の文書へ合流する時のタスクだけです（`docs/spec/01-04-requirements.md` の 6570 行）。
-- MSPDI は種類ごとに UID を数えます。このため 1 つの文書に、Task の `uid` 1 と Resource の `uid` 1 が共に入ります。
-- GRS が新しく作る `uid` は、1 つの数え口 `Project.uidHighWaterMark` から採るので、種類をまたいでもぶつかりません（`TC-2`）。けれども、開いたファイルの `uid` はぶつかり得ます。
-- `id` は GRS が作る UUID なので、文書全体で一意です。
-- 仕様の `AT-24` は「文書内で一意」とだけ書き、範囲を読み分けられません。
-
-つまり `uid` は「同じ種類の実体の中で一意」です。外の道具の作り手がこれを知らないと、`uid` を文書全体の鍵として使い、Task と Resource を取り違えます。
-
-前の定義文が言っていた次の 2 つも、あなたの定義文から外れました: ① どの実体が `uid` を持ち、どの実体が `id` を持つか、② 値の出どころ（`uid` は MSPDI の UID と同じ値、`id` は GRS が作る UUID）。`JDG-3558` は、この考え方を辞書の 2 語の意味の文が持つと決めています。
-
-| 案 | 中身 |
-|:---|:---|
-| **a（推奨）** | `uid` の定義文に、範囲を 1 文足す。英語「Unique among entities of the same kind.」、日本語「同じ種類の実体の中で一意。」。`id` は今のまま。① と ② は仕様の 5.4 節に表で書き、5.4 節は辞書の 2 語を引く（`JDG-3558` の置き場を、意味の文は辞書、一覧は 5.4 節に分ける）。`AT-24` も「同じ種類の実体の中で一意」に直す。理由: 外の人は辞書の文をスキーマの説明として読むので、範囲は意味の文が持つのがいちばん確か |
-| b | 定義文はあなたの文のまま。範囲と ① ② は、仕様の 5.4 節とスキーマの説明の頭に書く。`AT-24` も a と同じく直す |
-
-回答:a
+### [whole] 全体の書き方 ✅
 
 ### [time] 日時の型 ✅
 
-### [color] 色（❓ 4）
-
-#### ✅ 問 6-6-4-6. 塗りの型 `Paint` —— スキーマと実例
-
-場面: 前の回で、塗りの型 `Paint` のスキーマと実例を出しました。あなたの答え（下）を受けて、色の要素を網羅し、形を決め直します。
-
-回答: ここ、大事なところだから、丁寧に考えよう。 そもそも色について必要な要素を網羅的に列挙しろ。テーマとかあるやろ？ ダーク・ライトも.... ちなみにCopilotに聞いたらこっちも中途半端な回答が来た。 まぁ、参考にしろ。
-
-```json
-{
-  "$defs": {
-    "ColorRef": {
-      "description": "Either a theme-managed color or a custom color.",
-      "type": "object",
-      "oneOf": [
-        {
-          "required": ["themeRole"],
-          "properties": {
-            "themeRole": {
-              "type": "string",
-              "enum": [
-                "task",
-                "milestone",
-                "criticalTask",
-                "summaryTask",
-                "comment",
-                "highlight"
-              ]
-            }
-          },
-          "additionalProperties": false
-        },
-        {
-          "required": ["customColor"],
-          "properties": {
-            "customColor": {
-              "$ref": "#/$defs/Color"
-            }
-          },
-          "additionalProperties": false
-        }
-      ]
-    },
-
-    "Paint": {
-      "type": "object",
-      "required": ["color"],
-      "additionalProperties": false,
-      "properties": {
-        "color": {
-          "$ref": "#/$defs/ColorRef"
-        },
-        "opacityPercent": {
-          "type": "integer",
-          "minimum": 0,
-          "maximum": 100,
-          "default": 100
-        }
-      }
-    },
-
-    "Stroke": {
-      "type": "object",
-      "required": ["paint", "widthPx"],
-      "additionalProperties": false,
-      "properties": {
-        "paint": {
-          "$ref": "#/$defs/Paint"
-        },
-        "widthPx": {
-          "type": "integer",
-          "minimum": 1,
-          "maximum": 10
-        }
-      }
-    },
-
-    "ShapeStyle": {
-      "type": "object",
-      "additionalProperties": false,
-      "properties": {
-        "fill": {
-          "$ref": "#/$defs/Paint"
-        },
-        "stroke": {
-          "$ref": "#/$defs/Stroke"
-        }
-      }
-    },
-
-    "TaskGraphicStyle": {
-      "$ref": "#/$defs/ShapeStyle"
-    },
-
-    "CommentBoxStyle": {
-      "$ref": "#/$defs/ShapeStyle"
-    },
-
-    "HighlightBoxStyle": {
-      "$ref": "#/$defs/ShapeStyle"
-    }
-  },
-
-  "theme": {
-    "light": {
-      "task": "#3B82F6",
-      "milestone": "#7C3AED",
-      "criticalTask": "#EF4444",
-      "summaryTask": "#0EA5E9",
-      "comment": "#3B82F6",
-      "highlight": "#FACC15"
-    },
-
-    "dark": {
-      "task": "#60A5FA",
-      "milestone": "#A78BFA",
-      "criticalTask": "#F87171",
-      "summaryTask": "#38BDF8",
-      "comment": "#60A5FA",
-      "highlight": "#FDE047"
-    }
-  },
-
-  "examples": {
-    "normalTask": {
-      "fill": {
-        "color": {
-          "themeRole": "task"
-        }
-      }
-    },
-
-    "importantTask": {
-      "fill": {
-        "color": {
-          "customColor": "#FF8800"
-        }
-      }
-    },
-
-    "commentBox": {
-      "fill": {
-        "color": {
-          "themeRole": "comment"
-        },
-        "opacityPercent": 30
-      },
-      "stroke": {
-        "paint": {
-          "color": {
-            "themeRole": "comment"
-          }
-        },
-        "widthPx": 1
-      }
-    }
-  }
-}
-```
-
-##### ❓ 問 6-6-4-7. 色の要素の一覧 —— 抜けと誤りは無いか
-
-場面: あなたは「ここ、大事なところだから、丁寧に考えよう。 そもそも色について必要な要素を網羅的に列挙しろ。テーマとかあるやろ？ ダーク・ライトも.... ちなみにCopilotに聞いたらこっちも中途半端な回答が来た。 まぁ、参考にしろ。」と書きました。
-
-GRS の色の要素を、仕様書と β の形から 12 に数えました（数え方: `doc-shape-map.tsv` で `Color`・`LaneColor` を取るプロパティと、テーマ・色相・モノクロのプロパティ。仕様書の表 T-017b の `CV-1`〜`CV-10`、表 T-294、`FR-039`、`FR-007`。文書の外の色は `_assets/tbl-settings.md` の `S-` の行のうち、`#rrggbb` か `rgba(` の値を持つ行）。
-
-| # | 要素 | 中身 | 文書に保存するか | 決めた所 |
-|:---|:---|:---|:---|:---|
-| 1 | 明暗（表示のテーマ） | light と dark。GRS は、起動したときにブラウザーが伝える明暗で描き、読めないときは light で描く。画面の切り替えは、そのページを閉じるまで効く | しない（読む人ごとに違う） | `FR-039` |
-| 2 | モノクロ | 決まった色を無彩色にして描く | する（`documentSettings.isThemeMonochrome`） | `CV-7` |
-| 3 | テーマの色相 | テーマの色を、この色相で描く。新しい文書は 214 | する（`project.themeHueDegrees`） | `doc-shape-map.tsv`（問 6-8-1 で名を問う） |
-| 4 | 色の 3 つの源 | theme（テーマが、その置き場に決める色）・palette（名の付いた 10 色）・custom（人が決めた色） | する（`Color.kind`） | `JDG-3260`・`JDG-3310` |
-| 5 | パレットの 10 色 | paper・ink・dimGray・lightGray・red・blue・yellow・green・orange・purple。1 つの名が、明暗ごとに 4 つの値を持つ: 塗り・縁・実績の塗り・タスクグループの帯（10 × 4 × 2 = 80 の値） | 名だけ保存する。値はアプリが持つ（表 T-294） | `CV-1`・`CV-6` |
-| 6 | カスタムの色 | 明るい側と暗い側。各側は `hexColor` と `source`（chosen・derived）を持つ。片側を省くと、GRS は文書を開くときに、もう一方の側から作る（色相を保って明度を反転する） | する | `CV-2`〜`CV-4`・`JDG-3523` |
-| 7 | 置き場ごとに導く値 | 1 つの色から、置き場に応じて描く値を導く。予定バーの塗りは塗りの値、実績バーの塗りは実績の塗りの値（カスタムの色は、選んだ値から HSL で導く）、縁は縁の値 | しない（描くときに導く） | `CV-6`・`CV-10` |
-| 8 | 色を塗る 8 つの置き場 | タスクグループの帯（`LaneColor`。ink を取らない）・タスクの塗りと縁・コメントボックスの塗りと枠（引出し線を含む）と文字・ハイライトボックスの塗りと枠 | する | `doc-shape-map.tsv` |
-| 9 | 透明 | 塗りと線の不透明度（`opacityPercent`。100 が透けない）と、色を省く道（タスクの塗りと縁、ハイライトボックスの枠） | する | `JDG-3310`・`JDG-3526` |
-| 10 | 透明の制約 | 塗りと線の両方を透明にはできない（画面の通知「塗りと線の両方を透明にはできません」） | しない（GRS が入力を断る） | `FR-007` |
-| 11 | コントラストの条件 | パレットの値は、白を除き、地に対して決まったコントラスト比を満たす | しない（アプリの値の条件） | `CV-8` |
-| 12 | 文書の外の色 | 非稼働日の塗り・基準日線・マーカーなど、アプリが決める描画と画面の色。色の値を持つ設定の行が 42 行 | しない | `_assets/tbl-settings.md` |
-
-Copilot の案と、上の一覧を比べました。
-
-| Copilot の案 | GRS の今の形と決まり | 07 の観点 |
-|:---|:---|:---|
-| テーマの色の役割（task・milestone・criticalTask・summaryTask・comment・highlight）を、値に書く | 置き場が役割を決める。値には `{"kind": "theme"}` だけを書く | `OMPV`: 値に書いた役割と置き場が食い違える（タスクの塗りに highlight）。criticalTask は GRS の範囲の外（`JDG-3510`）→ 問 6-6-4-8 |
-| カスタムの色は、1 つの #hex | 明るい側と暗い側の 2 つ（要素 6） | 暗いテーマでも同じ値で描き、コントラストの条件（要素 11）を割りうる |
-| パレットが無い | 名の付いた 10 色（要素 5） | 名でテーマに追う道が無くなる |
-| `opacityPercent`（100 が不透明。既定 100） | 前は `fillTransparencyPercent`（0 が不透明） | `JDG-3526` で `opacityPercent` に決まった（W3C と同じ向き） |
-| `Stroke { paint, widthPx }` | `strokeColor` と `strokeWidthPx` を平らに持つ | → 問 6-6-4-10 |
-| `ShapeStyle` を 3 つの型で共にする | 型ごとに、必ず持つ欄が違う（コメントボックスは塗り・枠・文字を必ず持つ。タスクは塗りも縁も省ける） | → 問 6-6-4-11 |
-| テーマの色の値（#3B82F6 など）を文書に書く | テーマとパレットの値は、アプリの設定だけが持つ。文書は名だけを持つ | `SSOT`: 文書がアプリの値を写すと、2 か所が食い違う |
-| 書いていない要素 | モノクロ・色相・タスクグループの帯・文字の色・実績の塗りの導き方・明暗の片側の導き方・透明の制約（要素 2・3・6〜8・10） | 網羅の抜け |
-
-問 6-6-4-8・6-6-4-10・6-6-4-11 の推奨と `JDG-3526` をすべて採ると、色の形は次のとおりです（β の案）。同じ形を、ホワイトボードの UML のクラス図（x 10300・y 9720）にも描きました。
-
-```json
-{
-  "$defs": {
-    "Color": {
-      "oneOf": [
-        { "properties": { "kind": { "const": "theme" } } },
-        { "properties": {
-            "kind": { "const": "palette" },
-            "name": { "enum": ["paper", "ink", "dimGray", "lightGray", "red", "blue", "yellow", "green", "orange", "purple"] } } },
-        { "properties": {
-            "kind":  { "const": "custom" },
-            "light": { "$ref": "#/$defs/ColorSide" },
-            "dark":  { "$ref": "#/$defs/ColorSide" } } }
-      ]
-    },
-    "ColorSide": {
-      "required": ["hexColor", "source"],
-      "properties": {
-        "hexColor": { "type": "string", "pattern": "^#[0-9a-f]{6}$" },
-        "source":   { "enum": ["chosen", "derived"] }
-      }
-    },
-    "LaneColor": { "description": "The same as Color, except that LaneColor offers no palette color ink." },
-    "Paint": {
-      "required": ["color"],
-      "properties": {
-        "color": { "$ref": "#/$defs/Color" },
-        "opacityPercent": { "type": "integer", "minimum": 0, "maximum": 100, "default": 100 }
-      }
-    },
-    "Stroke": {
-      "required": ["color", "widthPx"],
-      "properties": {
-        "color": { "$ref": "#/$defs/Color" },
-        "opacityPercent": { "type": "integer", "minimum": 0, "maximum": 100, "default": 100 },
-        "widthPx": { "type": "integer", "minimum": 1, "maximum": 10 }
-      }
-    },
-    "TaskGraphicStyle": { "properties": { "fill": { "$ref": "#/$defs/Paint" }, "stroke": { "$ref": "#/$defs/Stroke" } } },
-    "CommentBox": {
-      "required": ["fill", "stroke", "textColor"],
-      "properties": { "fill": { "$ref": "#/$defs/Paint" }, "stroke": { "$ref": "#/$defs/Stroke" }, "textColor": { "$ref": "#/$defs/Color" } }
-    },
-    "HighlightBox": {
-      "required": ["fill"],
-      "properties": { "fill": { "$ref": "#/$defs/Paint" }, "stroke": { "$ref": "#/$defs/Stroke" } }
-    },
-    "TaskGroup": { "properties": { "color": { "$ref": "#/$defs/LaneColor" } } }
-  }
-}
-```
-
-実例（同じ形で書いた 3 つ）:
-
-```json
-"fill": { "color": { "kind": "palette", "name": "red" } }
-
-"fill":   { "color": { "kind": "theme" }, "opacityPercent": 0 },
-"stroke": { "color": { "kind": "theme" }, "widthPx": 1 },
-"textColor": { "kind": "palette", "name": "ink" }
-
-"fill":   { "color": { "kind": "custom", "light": { "hexColor": "#c0504d", "source": "chosen" } }, "opacityPercent": 50 },
-"stroke": { "color": { "kind": "palette", "name": "purple" }, "opacityPercent": 70, "widthPx": 2 }
-```
-
-- 上から、タスクのバー（赤で塗り、縁を描かない）・コメントボックス（塗りを見せず、テーマの色の枠と、ink の文字）・タスクのバー（自前の赤を不透明度 50% で塗り、紫の縁を不透明度 70% で描く）です。
-- 文書の外のもの（要素 1・7・11・12）と、透明の制約（要素 10）は、スキーマに書きません。GRS が描くときと入力を受けるときに守ります。
-
-直す所が無ければ ok、直す所は表のセルに ★ で書いてください。
-
-回答:一旦保留。 GRWBで決めたい。
-
-##### ❓ 問 6-6-4-8. テーマの色の役割 —— 置き場で決めるか、値に書くか
-
-場面: `{"kind": "theme"}` の色は、テーマがその置き場に決める色です（要素 4）。Copilot の案は、役割（task・milestone など）を値に書きます。
-
-| 案 | 中身 |
-|:---|:---|
-| **a（推奨）** | 置き場が役割を決める（今の形）。値には `{"kind": "theme"}` だけを書く。1 つの値が 1 つの意味を持つ（`OMPV`）。置き場と役割が食い違う文書を書けない |
-| b | 値に役割を書く（`{"kind": "theme", "role": "milestone"}`）。どの置き場でも、ほかの役割のテーマの色を使える。役割の名の一覧を、外との約束として持つ |
-
-回答::一旦保留。 GRWBで決めたい。
-
-##### ❓ 問 6-6-4-10. 線の形 —— 線の太さを線の中に入れるか
-
-場面: 今の形は、線の色 `strokeColor` と太さ `strokeWidthPx` を平らに持ちます。線を描かないタスクにも、太さを必ず書きます。
-
-| 案 | 中身 |
-|:---|:---|
-| **a（推奨）** | 線の型 `Stroke { color, opacityPercent, widthPx }` を作る（平ら、2 段）。線を描かないときは、太さも書かない（`NullTrap`・`OMPV`: 描かない線の太さという、意味の無い値を持たない）。塗りは `Paint { color, opacityPercent }`。W3C のデザイントークンの border 型も、色と太さを 1 つの型に入れる（`{ color, width, style }`） |
-| b | 塗りも線も `Paint` を取り、太さは今のまま外に置く（`strokeWidthPx`。SVG の `stroke-width` と同じ置き方） |
-| c | Copilot の形 `Stroke { paint, widthPx }`（`stroke.paint.color` と 3 段になる） |
-
-回答::一旦保留。 GRWBで決めたい。
-
-##### ❓ 問 6-6-4-11. 3 つの型で、塗りと線の形を共にするか
-
-場面: タスクの描き方・コメントボックス・ハイライトボックスの 3 つの型が、塗りと線を持ちます。必ず持つ欄は型ごとに違います（コメントボックスは塗り・枠・文字を必ず持ち、タスクは塗りも縁も省ける）。
-
-| 案 | 中身 |
-|:---|:---|
-| **a（推奨）** | 型 `Paint`・`Stroke` だけを共にし、どの欄を必ず持つかは型ごとに書く（`ISP`: 型ごとに要る欄だけを持つ） |
-| b | Copilot の案のように `ShapeStyle { fill, stroke }` を 3 つの型で共にし、必ず持つ欄の違いは型ごとの足しの決まり（`allOf`）で書く（`DRY`） |
-
-回答::一旦保留。 GRWBで決めたい。
+### [color] 色 ✅
 
 ### [col] 表の列 ✅
 
 ### [cal] カレンダー ✅
 
-### [proj] プロジェクト（❓ 1）
+### [proj] プロジェクト ✅
 
-#### ❓ 問 6-8-5. プロジェクトの 24 語 —— 推奨の表のとおりでよいか
-
-易しい語をまとめた推奨の表です。「暦」の字は、問 6-7-1 の答えに従って直します。直す所が無ければ ok、直す所は表のセルに ★ で書いてください。
-
-| # | キー | 日本語の名 | 意味（日本語） | MSPDI の名 |
-| :-------- | :----------------------------------------------------------------------------------------- | :------------------------------------------------------------ | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :--------------------- |
-| 8-6 | `id`（持ち主 `Project`） MSPDIと同じくuidにしないのか？ またその理由は？ |  | MSPDI の Project/UID と同じ。スケジュール文書を開いた元とは別の既存のファイルへ上書きする前に、GRS はこの値と project.name とファイル名がすべて一致するときだけ、そのファイルを同じスケジュール文書と見なす。値を省くと不一致になる。不一致なら、GRS は上書きの前に人へ確かめる。 | UID |
-| 8-8 | `name`（持ち主 `Project`） | <span style="color: #0550AE">プロジェクト名</span> | MSPDI の Project/Name と同じ。GRS はこの値をプロジェクト名として表示し編集する。アプリヘッダーは title をプロジェクトタイトルとして出す。上書きしようとしている既存のファイルが同じスケジュール文書かを見分けるときにも、GRS は id とファイル名に合わせてこの値を使う。（`JDG-3355`） | Name |
-| 8-9 | `title ★ Project.titleって形になるのか？他も同様。projectTitleにする必要はないよね？` | <span style="color: #0550AE">プロジェクトタイトル</span> | MSPDI の Project/Title と同じ。GRS はこの値をプロジェクトタイトルとしてアプリヘッダーに出し、別名保存ダイアログの既定のファイル名もこの値から作る。この値を省くと、GRS はブラウザーのタブに Untitled と出す。（`JDG-3355`・`JDG-3365`） | Title |
-| 8-10 | `subject` |  | MSPDI の Project/Subject と同じ。 | Subject |
-| 8-11 | `category` |  | MSPDI の Project/Category と同じ。 | Category |
-| 8-12 | `company` |  | MSPDI の Project/Company と同じ。 | Company |
-| 8-13 | `manager` |  | MSPDI の Project/Manager と同じ。 | Manager |
-| 8-14 | `author` |  | MSPDI の Project/Author と同じ。作成者を指し、スケジュール文書を最後に書いた者（documentStamp.lastEditedBy）とは役目が違う。 | Author |
-| 8-15 | `revision` |  | MSPDI の Project/Revision と同じ。MSPDI のファイルを作った道具がプロジェクトを保存した回数。documentStamp のどの時刻とも別の値である。 | Revision |
-| 8-16 | `creationDate` |  | MSPDI の Project/CreationDate と同じ。GRS は新しいスケジュール文書を作るときにこの値を書く。 | CreationDate |
-| 8-17 | `startDate` |  | MSPDI の Project/StartDate と同じ。 | StartDate |
-| 8-18 | `statusDate` |  | MSPDI の Project/StatusDate と同じ。GRS はこの日に基準日線を引く。この値を省くと、GRS は基準日線の描画と遅延診断の実行を省く。 | StatusDate |
-| 8-19 | `scheduleDataTimeZone` |  | スケジュールデータの日時の時計の、固定の UTC オフセット。例えば UTC+09:00。標準時であり、GRS は 1 年中このオフセットをそのまま使う。GRS は MSPDI の書き出しからこのオフセットを除く。 | 無し |
-| 8-20 | `minutesPerDay` |  | MSPDI の Project/MinutesPerDay と同じ。稼働日 1 日（1d）の長さを分で表し、この値を省くと 480（8 時間）。どれかの稼働日の時間帯の合計がこの値と違えば、スケジュール文書を開くときに GRS は注意を出す。 | MinutesPerDay |
-| 8-21 | `minutesPerWeek` |  | MSPDI の Project/MinutesPerWeek と同じ。 | MinutesPerWeek |
-| 8-22 | `daysPerMonth` |  | MSPDI の Project/DaysPerMonth と同じ。 | DaysPerMonth |
-| 8-23 | `weekStartDay` |  | MSPDI の Project/WeekStartDay と同じで、0 が日曜日。WeekDay.dayType は曜日を 1 から数える点が違う。この値を省くと月曜日（1）。 | WeekStartDay |
-| 8-24 | `defaultStartTime` |  | MSPDI の Project/DefaultStartTime と同じ。日付だけで時刻を省いた開始（Task や BaselineTask の start、actualStart、resume、project.startDate）に GRS が与える時刻で、この値を省くと 08:00:00。マイルストーンの開始には defaultFinishTime を与える。 | DefaultStartTime |
-| 8-25 | `defaultFinishTime` |  | MSPDI の Project/DefaultFinishTime と同じ。日付だけで時刻を省いた終了（Task や BaselineTask の finish、actualFinish、stop、deadline、project.statusDate）に GRS が与える時刻で、この値を省くと 17:00:00。マイルストーンの開始にもこの時刻を与える。 | DefaultFinishTime |
-| 8-31 | `sourceFormat` |  | スケジュール文書の元の形式。GRS で作った文書は grs、MSPDI のファイルから読んだ文書は pj12 か pj15（pj15 だけの要素を 1 つでも持てば pj15）。GRS は MSPDI の書き出しからこの値を除く。 | 無し |
-| 8-32 | &emsp;+- `grs`（持ち主 `sourceFormat`） |  | GRS で作ったスケジュール文書。 | 無し |
-| 8-33 | &emsp;+- `pj12`（持ち主 `sourceFormat`） |  | 2012 年版のスキーマの MSPDI のファイルから読んだスケジュール文書。 | 無し |
-| 8-34 | &emsp;+- `pj15`（持ち主 `sourceFormat`） |  | 2015 年版のスキーマだけが持つ要素を含む MSPDI のファイルから読んだスケジュール文書。 | 無し |
-| 8-35 | `Project` |  | MSPDI の Project と同じ。文書が表す 1 件のプロジェクト。 | Project |
-
-回答:上記コメント参照
-
-### [task] タスクと依存（❓ 1）
-
-#### ❓ 問 6-9-5. タスクと依存の、MSPDI の名と違う 3 語
-
-あなたの答え「MSPDI同じならOK。 違うならそこだけ抽出して、裁定に回せ。」に従い、MSPDI の名と同じ 17 語を確定しました（`JDG-3553`）。キーが MSPDI の名と違う 3 語を、ここに残しました。案は GRWB の議論の後でこの問いに書きます。
-
-| # | キー | 日本語の名 | 意味（日本語） | MSPDI の名 |
-|:---|:---|:---|:---|:---|
-| 9-1 | `parentTaskUid` |  | WBS での親タスク。この値を省くと最上位のタスク。 | 無し |
-| 9-10 | <span style="color: #0550AE">`fadeInCalendarDays`</span> |  | 開始が未確定であることを示すために、予定バーの始まりにフェード斜面を描く暦日の数。矩形では始まりの辺が斜めになる。矢羽根では始まりの切り欠きの深さになる。ほかの形ではこの値を無視する。この値を省くとフェードの描画を省く（矢羽根は既定の深さを保つ）。0 は平らな始まり。GRS はこの値を MSPDI に Task/ExtendedAttribute として書く。（`JDG-3312`） | ExtendedAttribute |
-| 9-11 | <span style="color: #0550AE">`fadeOutCalendarDays`</span> |  | fadeInCalendarDays と同じことを終わりの側に対して行う（矢羽根では先の深さ）。GRS はこの値を MSPDI に Task/ExtendedAttribute として書く。（`JDG-3312`） | ExtendedAttribute |
-
-回答:
+### [task] タスクと依存 ✅
 
 ### [res] 担当と割当 ✅
 
-### [tg] タスクグループ（❓ 2）
-
-#### ❓ 問 6-9-2. 前の席が付けた名 —— `representedTaskUid`
-
-場面: タスクグループが、WBS のどのタスクを表すかを持ちます。
-
-- 前の名は `derivedFromTaskUid` です。所見 F27（残る役目は「このタスクグループが WBS でどのタスクを表すか」だけ。仕様書の `HM-9`・`HM-12`）から、前の席が名を付けました。
-- 名を言った裁定の行は 0 です。`erd.json`・src・仕様書にもありません（数え方は問 6-8-1 と同じ）。
-- タスクグループの名前は、このタスクの名前と別に、タスクグループ自身の `name` が持ちます。
-
-| # | キー | 前の名 | 意味（日本語） | MSPDI の名 |
-|:---|:---|:---|:---|:---|
-| 9-20 | `representedTaskUid` | `derivedFromTaskUid` | このタスクグループが WBS で表すタスク。値を書いたタスクグループだけが、タスクを表す。タスクグループの名前は name が持ち、このプロパティが指すタスクの名前から独立している。 | 無し |
-
-| 案 | 中身 |
-|:---|:---|
-| **a（推奨）** | `representedTaskUid`（このタスクグループが WBS で表すタスクの uid）を採る。名が今の役目「表す」を言う（`JDG-820`）。前の名の「derived from（〜から作った）」は、作った後に名前が離れても続く今の関係を言い当てない（`OMPV`） |
-| b | `wbsTaskUid`。WBS の側のタスクを指すと読めるが、「表す」という関係を名が言わない |
-| c | 直す名を書く |
-
-回答:微妙。 他の案を出せ。 MSPDI由来ならその旨が分かるようにしろ。
-
-#### ❓ 問 6-9-7. `hidden` とピン止め
-
-ほかの 11 語は、あなたの答えで確定しました（`JDG-3554`）。表のあなたの問い（★）に答えます: ピン止めは `treeState` と別の値で、文書の設定がピン止めしたタスクグループの id の並びとして持ちます（仕様書の設定の表の `S-126`）。タスクグループを消すと、GRS はそのピン止めも消します（`CD-2`）。`hidden` とピン止めを両方持つタスクグループをどう見せるかは、GRWB の議論の後でこの問いに案を書きます。
-
-| # | キー | 日本語の名 | 意味（日本語） | MSPDI の名 |
-| :-------- | :-------------------------------------------------------- | :-------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | :-------------- |
-| 9-26 | &emsp;+- `hidden`（持ち主 `treeState`） |  | GRS はこのタスクグループをタスクグループパネルから隠す。 ★ピン止めはどう管理するの？ | 無し |
-
-回答:
+### [tg] タスクグループ ✅
 
 ***
 
-## ❓ 自由
+## ✅ 自由
 
 答えを読んで、ほかに聞きたいこと・違うと思う所があれば、ここに書いてください。
 
