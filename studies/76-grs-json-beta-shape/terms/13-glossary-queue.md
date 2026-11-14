@@ -3,21 +3,10 @@
 BGQA2 を約束の面ごとに分けたとき（`JDG-3568`）、まだ出していない問いをここに置いた。利用者はこのファイルを直接は読まない。席は、出す冊（BGQA3〜5）へ 10 問前後ずつ移し、移した問いをここから消す。
 2026-10-31 版の古い下書き（Part 7〜13）は、2026-11-13 の巡で作り直して BGQA2 に載せ、その後ここへ移したので、もう残っていない。
 
-## BGQA3 GRS JSON（2 回目以降）（21 問）
+## BGQA3 GRS JSON（3 回目以降）（19 問）
 
 ### [task] タスクと依存
 
-#### ❓ 問 6-9-5. タスクと依存の、MSPDI の名と違う 3 語
-
-あなたの答え「MSPDI同じならOK。 違うならそこだけ抽出して、裁定に回せ。」に従い、MSPDI の名と同じ 17 語を確定しました（`JDG-3553`）。キーが MSPDI の名と違う 3 語を、ここに残しました。案は GRWB の議論の後でこの問いに書きます。
-
-| # | キー | 日本語の名 | 意味（日本語） | MSPDI の名 |
-|:---|:---|:---|:---|:---|
-| 9-1 | `parentTaskUid` |  | WBS での親タスク。この値を省くと最上位のタスク。 | 無し |
-| 9-10 | <span style="color: #0550AE">`fadeInCalendarDays`</span> |  | 開始が未確定であることを示すために、予定バーの始まりにフェード斜面を描く暦日の数。矩形では始まりの辺が斜めになる。矢羽根では始まりの切り欠きの深さになる。ほかの形ではこの値を無視する。この値を省くとフェードの描画を省く（矢羽根は既定の深さを保つ）。0 は平らな始まり。GRS はこの値を MSPDI に Task/ExtendedAttribute として書く。（`JDG-3312`） | ExtendedAttribute |
-| 9-11 | <span style="color: #0550AE">`fadeOutCalendarDays`</span> |  | fadeInCalendarDays と同じことを終わりの側に対して行う（矢羽根では先の深さ）。GRS はこの値を MSPDI に Task/ExtendedAttribute として書く。（`JDG-3312`） | ExtendedAttribute |
-
-回答:
 
 ### [tg] タスクグループ
 
@@ -33,20 +22,6 @@ BGQA2 を約束の面ごとに分けたとき（`JDG-3568`）、まだ出して�
 
 ### [key] 共通のキー
 
-#### ❓ 問 6-7-7. `recurrencePeriod` —— MSPDI の名 Period と違う名を保つか
-
-場面: このキーは、MSPDI の Exception/Period（例外の繰り返しの間隔）を写します。MSPDI の名は Period です。同じ Exception の Type は、`JDG-3548` で `recurrenceType` に決まりました。あなたは問 6-9-5 で、MSPDI の名と違う語を裁定に回すよう指示しました。
-
-| # | キー | 日本語の名 | 意味（日本語） | MSPDI の名 |
-|:---|:---|:---|:---|:---|
-| 7-39 | `recurrencePeriod` |  | MSPDI の Exception/Period と同じ。 | Period |
-
-| 案 | 中身 |
-|:---|:---|
-| **a（推奨）** | `recurrencePeriod` を保つ。名は「例外の繰り返しの間隔」を言い、兄弟の `recurrenceType`（`JDG-3548`）と頭がそろう。意味の欄に、MSPDI の名と違う理由を 1 文で書く（`JDG-3548` と同じ書き方） |
-| b | `period` にする。MSPDI の名を写す決まり（`JDG-3563`）にそのまま合う。兄弟の `recurrenceType` とは頭がそろわない |
-
-回答:
 
 #### ❓ 問 6-7-0. 共通のキーの 10 語 —— 推奨の表のとおりでよいか
 
