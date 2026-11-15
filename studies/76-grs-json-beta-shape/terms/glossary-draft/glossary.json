@@ -6094,7 +6094,7 @@
       },
       {
        "key": "searchWindow",
-       "owner": "tableViews",
+       "owner": "tableWindows",
        "since": "2026-11-01T00:00:00Z",
        "definition": {
         "en": "How GRS shows the tables of the Search Window: Schedule Filter, checked rows, column filters and sort.",
@@ -6109,7 +6109,7 @@
       },
       {
        "key": "delayDiagnosticsReportWindow",
-       "owner": "tableViews",
+       "owner": "tableWindows",
        "since": "2026-11-01T00:00:00Z",
        "definition": {
         "en": "How GRS shows the table of the Delay Diagnostics Report Window: Schedule Filter, checked rows, column filters and sort.",
@@ -6124,7 +6124,7 @@
       },
       {
        "key": "resourceListWindow",
-       "owner": "tableViews",
+       "owner": "tableWindows",
        "since": "2026-11-01T00:00:00Z",
        "definition": {
         "en": "How GRS shows the table of the Resource List Window: Schedule Filter, checked rows, column filters and sort.",
@@ -6138,7 +6138,7 @@
        ]
       },
       {
-       "key": "tableViews",
+       "key": "tableWindows",
        "since": "2026-11-01T00:00:00Z",
        "definition": {
         "en": "How GRS shows the three tables: the Search Window, the Delay Diagnostics Report Window and the Resource List Window.",
@@ -20005,7 +20005,7 @@
        ],
        "tags": [
         {
-         "key": "tableViews"
+         "key": "tableWindows"
         }
        ],
        "children": [
