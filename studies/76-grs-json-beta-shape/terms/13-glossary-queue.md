@@ -1249,3 +1249,351 @@ BGQA2 を約束の面ごとに分けたとき（`JDG-3568`）、まだ出して�
 | 33-24 | `max` | 上限 | 範囲の外にあった値の上限、または達した上限。 | 無し |
 
 回答:
+
+## BGQA3 GRS JSON（後回し。2026-11-15、影響の小さい問い 7）
+
+#### ❓ 問 6-6-4-7. 色の要素の一覧 —— 抜けと誤りは無いか
+
+`JDG-3563`・`JDG-3564` で、判別子のキーは `type` に決まりました。下の表と形と例は `type` で書きます。`JDG-3556` の A で、見た目はどの物でも入れ子の `style` に入ります。タスクの見た目は `scheduleData.taskStyles[]` の `{ taskUid, style }` に入ります。不透明度 `opacityPercent` は色の値の外に置きます（`JDG-3526`・`JDG-3556` の E）。カスタムの色の片側は、GRS が作った側だけが `derivedFrom` を持ちます（`JDG-3527`）。
+
+GRS の色の要素を、仕様書と β の形から 12 に数えました（数え方: `doc-shape-map.tsv` で `Color`・`LaneColor` を取るプロパティと、テーマ・色相・モノクロのプロパティ。仕様書の表 T-017b の `CV-1`〜`CV-10`、表 T-294、`FR-039`、`FR-007`。文書の外の色は `_assets/tbl-settings.md` の `S-` の行のうち、`#rrggbb` か `rgba(` の値を持つ行）。
+
+| #   | 要素           | 中身                                                                                                                              | 文書に保存するか                                 | 決めた所                               |
+| :-- | :----------- | :------------------------------------------------------------------------------------------------------------------------------ | :--------------------------------------- | :--------------------------------- |
+| 1   | 明暗（表示のテーマ）   | light と dark。GRS は、起動したときにブラウザーが伝える明暗で描き、読めないときは light で描く。画面の切り替えは、そのページを閉じるまで効く                                               | しない（読む人ごとに違う）                            | `FR-039`                           |
+| 2   | モノクロ         | 決まった色を無彩色にして描く                                                                                                                  | する（`documentSettings.isThemeMonochrome`） | `CV-7`                             |
+| 3   | テーマの色相       | テーマの色を、この色相で描く。新しい文書は 214                                                                                                       | する（`project.themeHueDegrees`）            | `doc-shape-map.tsv`（問 6-8-1 で名を問う） |
+| 4 | 色の 3 つの源 | theme（テーマが、その置き場に決める色）・palette（名の付いた 10 色）・custom（人が決めた色） | する（`Color.type`） | `JDG-3260`・`JDG-3310`・`JDG-3563` |
+| 5 | パレットの 10 色 | paper・ink・dimGray・lightGray・red・blue・yellow・green・orange・purple（paper と ink の名は問 6-6-4-12 で問う）。1 つの名が、明暗ごとに 4 つの値を持つ: 塗り・縁・実績の塗り・タスクグループの帯（10 × 4 × 2 = 80 の値） | 名だけ保存する。値はアプリが持つ（表 T-294） | `CV-1`・`CV-6` |
+| 6 | カスタムの色 | 明るい側と暗い側。各側は `hexColor` を持ち、GRS が作った側だけが `derivedFrom`（light・dark）を持つ。片側を省くと、GRS は文書を開くときに、もう一方の側から作る（色相を保って明度を反転する） | する | `CV-2`〜`CV-4`・`JDG-3523`・`JDG-3527` |
+| 7   | 置き場ごとに導く値    | 1 つの色から、置き場に応じて描く値を導く。予定バーの塗りは塗りの値、実績バーの塗りは実績の塗りの値（カスタムの色は、選んだ値から HSL で導く）、縁は縁の値                                                | しない（描くときに導く）                             | `CV-6`・`CV-10`                     |
+| 8 | 色を塗る 8 つの置き場 | タスクグループの帯（`LaneColor`。ink を取らない）・タスクの塗りと縁・コメントボックスの塗りと枠（引出し線を含む）と文字・ハイライトボックスの塗りと枠 | する（各物の `style` の中） | `doc-shape-map.tsv`・`JDG-3556` |
+| 9 | 透明 | 塗りと線の不透明度（`opacityPercent`。100 が透けない。0 なら描かない）と、色を省く道（タスクの塗りと縁、ハイライトボックスの枠） | する | `JDG-3310`・`JDG-3526` |
+| 10 | 透明の制約 | 1 つのタスクの描き方と 1 つのハイライトボックスで、塗りと線の両方を透明にはできない（画面の通知「塗りと線の両方を透明にはできません」） | しない（GRS が入力を断る） | `FR-007`・`FR-019`・`IV-9` |
+| 11  | コントラストの条件    | パレットの値は、白を除き、地に対して決まったコントラスト比を満たす                                                                                               | しない（アプリの値の条件）                            | `CV-8`                             |
+| 12  | 文書の外の色       | 非稼働日の塗り・基準日線・マーカーなど、アプリが決める描画と画面の色。色の値を持つ設定の行が 42 行                                                                             | しない                                      | `_assets/tbl-settings.md`          |
+
+要素 10 の ★「念確。 予定も実績も非表示にしてタスク名と進捗マークだけの表示もあるよね？ それと透明は無関係だろ？」に答えます。はい、その表示はあります。そして 2 つは別の決まりです。
+
+- 表示の切り替え: 文書の設定 `isPlanBarVisible`・`isActualBarVisible`（仕様書の `S-227`・`S-228`）が、すべてのタスクの予定バーと実績バーをまとめて隠します。`FR-049` は 2 つを独立の真偽とし、両方を隠す形も認めます。タスク名のラベルと進捗マーク（`isProgressMarkVisible`、`S-63`）は残ります。隠したバーは場所を保ち、当たり判定から外れます。ボタンを押せば、バーは戻ります。
+- 透明の制約: `FR-007` は、1 つのタスクで塗りと縁を同時に透明にする入力を断ります。`FR-019` は、ハイライトボックスの塗りと枠に同じ制約を掛けます。仕様書の理由は `FR-019` の 1 文「箱が見えなくなる」です。`FR-007` の RATIONALE は、色弱と線の太さの理由だけを述べます。
+- 違い: 表示の切り替えは文書全体の見せ方で、いつでも戻せます。透明は 1 つの物の色で、`style` に残ります。`FR-049` は、隠したバーの見た目を「透明に描いたときと同じ」と書きます。けれども、両方を透明にしたタスクは、どの表示の切り替えでも見えません。だから GRS は、透明の側だけを断ります。
+
+形の ★「paper, inkは色名じゃないよね？ OKPN違反だろ？ 何したいの？」に答えます。paper と ink は、仕様書の白（`white`、`S-314`）と黒（`black`、`S-315`）です。`JDG-3275`（所見 F05）が名を改めました。暗いテーマで、GRS は白を地と同じ暗い色（`#14161a`）で、黒を白（`#ffffff`）で描きます（`CV-6`）。所見は、名 `white` が暗いテーマで見え方と食い違う、と見ました。そこで所見は、明暗によらない役の名を選びました: paper は地の色、ink はラベルの字の色（`S-168`）です。1 つの列に色の名と役の名が並ぶので、あなたの指摘は当たります。直し方は、次の問 6-6-4-12 で問います。
+
+別の AI の案と、上の一覧を比べました。
+
+| 別の AI の案 | GRS の今の形と決まり | 07 の観点 |
+|:---|:---|:---|
+| テーマの色の役割（task・milestone・criticalTask・summaryTask・comment・highlight）を、値に書く | 置き場が役割を決める。値には `{"type": "theme"}` だけを書く | `OMPV`: 値に書いた役割と置き場が食い違える。criticalTask は GRS の範囲の外（`JDG-3510`）→ 問 6-6-4-8 |
+| カスタムの色は、1 つの #hex | 明るい側と暗い側の 2 つ（要素 6） | 暗いテーマでも同じ値で描き、コントラストの条件（要素 11）を割りうる |
+| パレットが無い | 名の付いた 10 色（要素 5） | 名でテーマに追う道が消える |
+| `opacityPercent`（100 が不透明。既定 100） | 前は `fillTransparencyPercent`（0 が不透明） | `JDG-3526` で `opacityPercent` に決まった（W3C と同じ向き） |
+| `Stroke { paint, widthPx }` | `strokeColor` と `strokeWidthPx` を平らに持つ | → 問 6-6-4-10 |
+| `ShapeStyle` を 3 つの型で共にする | 型ごとに、必ず持つ欄が違う（コメントボックスは塗り・枠・文字を必ず持つ。タスクは塗りも縁も省ける） | → 問 6-6-4-11 |
+| テーマの色の値（#3B82F6 など）を文書に書く | テーマとパレットの値は、アプリの設定だけが持つ。文書は名だけを持つ | `SSOT`: 文書がアプリの値を写すと、2 か所が食い違う |
+| 書いていない要素 | モノクロ・色相・タスクグループの帯・文字の色・実績の塗りの導き方・明暗の片側の導き方・透明の制約（要素 2・3・6〜8・10） | 網羅の抜け |
+
+問 6-6-4-8・6-6-4-10・6-6-4-11 の推奨と `JDG-3526`・`JDG-3527`・`JDG-3556` をすべて採ると、色の形は次のとおりです（β の案）。型の名 `TaskStyle` などは仮の名です。
+
+```json
+{
+  "$defs": {
+    "Color": {
+      "oneOf": [
+        { "properties": { "type": { "const": "theme" } } },
+        { "properties": {
+            "type": { "const": "palette" },
+            "name": { "enum": ["paper", "ink", "dimGray", "lightGray", "red", "blue", "yellow", "green", "orange", "purple"] } } },
+        { "properties": {
+            "type":  { "const": "custom" },
+            "light": { "$ref": "#/$defs/ColorSide" },
+            "dark":  { "$ref": "#/$defs/ColorSide" } } }
+      ]
+    },
+    "ColorSide": {
+      "required": ["hexColor"],
+      "properties": {
+        "hexColor":    { "type": "string", "pattern": "^#[0-9a-f]{6}$" },
+        "derivedFrom": { "enum": ["light", "dark"] }
+      }
+    },
+    "LaneColor": { "description": "The same as Color, except that LaneColor offers no palette color ink." },
+    "Paint": {
+      "required": ["color"],
+      "properties": {
+        "color": { "$ref": "#/$defs/Color" },
+        "opacityPercent": { "type": "integer", "minimum": 0, "maximum": 100, "default": 100 }
+      }
+    },
+    "Stroke": {
+      "required": ["color", "widthPx"],
+      "properties": {
+        "color": { "$ref": "#/$defs/Color" },
+        "opacityPercent": { "type": "integer", "minimum": 0, "maximum": 100, "default": 100 },
+        "widthPx": { "type": "integer", "minimum": 1, "maximum": 10 }
+      }
+    },
+    "TaskStyleEntry": {
+      "required": ["taskUid", "style"],
+      "properties": { "taskUid": { "type": "integer" }, "style": { "$ref": "#/$defs/TaskStyle" } }
+    },
+    "TaskStyle": {
+      "properties": { "fill": { "$ref": "#/$defs/Paint" }, "stroke": { "$ref": "#/$defs/Stroke" } }
+    },
+    "CommentBoxStyle": {
+      "required": ["fill", "stroke", "textColor"],
+      "properties": { "fill": { "$ref": "#/$defs/Paint" }, "stroke": { "$ref": "#/$defs/Stroke" }, "textColor": { "$ref": "#/$defs/Color" } }
+    },
+    "HighlightBoxStyle": {
+      "required": ["fill"],
+      "properties": { "fill": { "$ref": "#/$defs/Paint" }, "stroke": { "$ref": "#/$defs/Stroke" } }
+    },
+    "TaskGroupStyle": { "properties": { "color": { "$ref": "#/$defs/LaneColor" } } }
+  }
+}
+```
+
+置き場: `scheduleData.taskStyles[]` の各 `style` が `TaskStyle` を、`CommentBox.style` が `CommentBoxStyle` を、`HighlightBox.style` が `HighlightBoxStyle` を、`TaskGroup.style` が `TaskGroupStyle` を取ります。`TaskStyle` は形のキー（`taskShape`・`milestoneShape`）も持ちます。上の形では、色に関わるキーだけを書きました。
+
+実例（同じ形で書いた 3 つ）:
+
+```json
+"taskStyles": [
+  { "taskUid": 7,
+    "style": {
+      "taskShape": "rectangle",
+      "fill": { "color": { "type": "palette", "name": "red" } }
+    } },
+  { "taskUid": 8,
+    "style": {
+      "taskShape": "rectangle",
+      "fill": {
+        "color": { "type": "custom",
+                   "light": { "hexColor": "#c0504d" },
+                   "dark":  { "hexColor": "#b2423f", "derivedFrom": "light" } },
+        "opacityPercent": 50 },
+      "stroke": { "color": { "type": "palette", "name": "purple" }, "opacityPercent": 70, "widthPx": 2 }
+    } }
+],
+"commentBoxes": [
+  { "id": "3f2b8c1e-7a4d-4e9b-9c61-2d5a8e0f4b17",
+    "text": "Confirm the date",
+    "style": {
+      "fill":   { "color": { "type": "theme" }, "opacityPercent": 0 },
+      "stroke": { "color": { "type": "theme" }, "widthPx": 1 },
+      "textColor": { "type": "palette", "name": "ink" }
+    } }
+]
+```
+
+- 上から、タスク 7 のバー（赤で塗り、縁を描かない）・タスク 8 のバー（自前の赤を不透明度 50% で塗り、紫の縁を不透明度 70% で描く。暗い側は GRS が明るい側から作った）・コメントボックス（塗りを見せず、テーマの色の枠と、ink の文字）です。
+- 文書の外のもの（要素 1・7・11・12）と、透明の制約（要素 10）は、スキーマに書きません。GRS が描くときと入力を受けるときに守ります。
+
+直す所が無ければ ok、直す所は表のセルに ★ で書いてください。
+
+回答:
+
+#### ❓ 問 6-6-4-12. パレットの paper と ink —— 白と黒を、見え方の名で呼ぶか、役の名で呼ぶか
+
+場面: パレットの 10 の名のうち、paper と ink の 2 つは役の名です。`JDG-3275`（所見 F05）が、仕様書の `white`・`black` をこの名に改めました。理由は「暗いテーマで、名 `white` が見え方と食い違う」でした。画面の語は今も「白」「黒」です。
+
+表 T-294 の塗りの値を、明暗で並べました。
+
+| 名 | 画面の語 | 明るいテーマの塗り | 暗いテーマの塗り |
+|:---|:---|:---|:---|
+| `paper` | 白 | `#ffffff` | `#14161a`（地と同じ） |
+| `ink` | 黒 | `#000000` | `#ffffff` |
+| `dimGray` | 濃い灰色 | `#575757` | `#a3a3a3` |
+| `lightGray` | 薄い灰色 | `#cccccc` | `#424242` |
+| `red` | 赤 | `#e3b9b5` | `#58312d` |
+
+暗いテーマで、GRS はどの名も、色相を保って明度を反転します（`CV-6`）。カスタムの色の片側も、同じ決まりで作ります（`JDG-3523`）。だから、暗いテーマで名と見え方が食い違う形は、灰色の 2 つにも起きます。暗いテーマでは、濃い灰色が薄い灰色より明るくなります。
+
+| 案 | 中身 |
+|:---|:---|
+| **a（推奨）** | `white`・`black` に戻す。10 の名はすべて「明るいテーマでの見え方」を言う、と決め、`name` の意味にそう書く。暗いテーマでは GRS がどの名も明度を反転して描く（`CV-6`）。1 つの欄の名が 1 つの物差しを持つ（`OKPN`・`OMPV`）。画面の語「白」「黒」とも合う（`NEIM`）。`LaneColor` は black を取らない、と書く。`JDG-3275` の F05 を一部覆す |
+| b | `paper`・`ink` を保ち、意味に「地の色」「ラベルの字の色」と書く。暗いテーマでも、名と役が合う。1 つの列に、見え方の名 8 つと役の名 2 つが並ぶ。灰色 2 つの食い違いは残る |
+| c | 役の名を、たとえの語から部品の語に改める（`background`・`text`）。名が役を直に言う。b と同じく、1 つの列に 2 種の名が並ぶ |
+
+回答:
+
+#### ❓ 問 6-13-4. Project から移す 7 つの値の入れ物 —— 名を何にするか
+
+場面: 問 6-13-3 で、あなたは a を選びました（`JDG-3605`）。Project の中の GRS だけの値 7 つを、スケジュールデータの GRS だけの群の 1 つの物へ移します。その物の名を決めます。
+
+| # | 移す値 | 何を言うか |
+|:---|:---|:---|
+| 1 | `scheduleDataTimeZone` | スケジュールデータの日時の読み方 |
+| 2 | `themeHueDegrees` | テーマの色相 |
+| 3 | `parentTaskProgressToleranceWorkingDays` | 遅延診断の許し幅 |
+| 4 | `highestIssuedUid` | uid の数え手 |
+| 5 | `lastMspdiImportNumber` | MSPDI を取り込んだ回数 |
+| 6 | `sourceFormat` | 文書の元の形式 |
+| 7 | `firstOutlineLevel` | 取り込んだファイルのタスクが始まる OutlineLevel |
+
+7 つに共通するのは「この日程について、GRS だけが持つ、文書に 1 つの値」です。決まり（設定）と帳簿（数え手・回数・元の形式）が混ざります。
+
+```json
+"scheduleData": {
+  "project": { "uid": "1", "name": "新製品の開発", "startDate": "2026-12-01" },
+  "tasks": [],
+  "grsProject": {
+    "scheduleDataTimeZone": "+09:00",
+    "themeHueDegrees": 214,
+    "parentTaskProgressToleranceWorkingDays": 1,
+    "highestIssuedUid": 42,
+    "lastMspdiImportNumber": 0,
+    "sourceFormat": "grs",
+    "firstOutlineLevel": 1
+  }
+}
+```
+
+（上の例は案 a の名で書きました。）
+
+| 案 | 中身 |
+|:---|:---|
+| **a（推奨）** | `grsProject`（GRS の側のプロジェクトの値）。MSPDI の `project` と対になり、名が「GRS だけが持つ、プロジェクト 1 つ分の値」を言う。あなたの求め「MSPDI 由来ならその旨が分かるようにしろ」の裏返しで、GRS 由来が名で分かる |
+| b | `scheduleSettings`（日程の設定）。決まりの 3 つ（1〜3）には合うが、帳簿の 4 つ（4〜7）は設定でない（`OMPV`） |
+| c | 2 つに分ける: `scheduleRules`（1〜3）と `scheduleLedger`（4〜7）。中身の種類ごとに名が合う。物が 1 つ増える |
+| d | 直す名を書く |
+
+前回の答えの最後の文「MSPDIの領域にGRS特有のパラメータを入れる場合はその」は、途中で切れていました。私は「その旨を書け（印を付けろ）」と読み、構造図で ◆ の印を付けました。違えば ★ で書いてください。
+
+回答:
+
+#### ❓ 問 6-13-2. 画面の欄の名「段 0 の木の状態」 —— 「根」の語にそろえるか
+
+場面: 問 6-13-1 の a で、`levelZeroTreeState` を `rootTreeState` に改め、タスクグループの階層を「深さ」で数えると決めました（`JDG-3602`）。辞書の日本語の名は、設定の欄の名（画面の語）を写します（`JDG-3518`）。画面の欄の名は、今も「段 0 の木の状態」（英語 Top-Level Tree State）です。
+
+| 案 | 中身 |
+|:---|:---|
+| **a（推奨）** | 「木の根の状態」（英語 Root Tree State）にする。キー `rootTreeState` と同じ語になる。深さ 0 が木の根で、最上位のタスクグループの上にある |
+| b | 「最上位の木の状態」（英語 Top-Level Tree State のまま）にする。「段 0」だけを外す |
+| c | 今のまま |
+
+回答:
+
+#### ❓ 問 6-9-2. タスクグループが表すタスク —— MSPDI の木の語との関係を確かめ、`derivedFromTaskUid` の新しい名を決める
+
+あなたの問い: 「MSPDIの各語とこの関係は？ そこを整理の上、JSONの実例を見たい。」
+
+場面: MSPDI はタスクの木を、Task の並びと OutlineLevel などの語で書きます。GRS JSON はタスクの木（WBS）を Task の中に持ち、別に、描く行の木（タスクグループ）を GRS の群に持ちます。このキーが 2 つの木を結びます。XSD（pj15）と仕様（`DV-4`〜`DV-7`・`MR-4`・`FR-058`・`HM-9`・`HM-12`）と実装で確かめました。
+
+**1. MSPDI の語と GRS JSON の置き場**:
+
+| MSPDI の語 | 意味 | GRS JSON の置き場 |
+|:---|:---|:---|
+| Tasks の中の Task の並び | 木を上からたどる順 | 開くとき、GRS は並びと OutlineLevel から `Task.parentTaskUid` と `Task.siblingOrder` を作る。書くとき、GRS は木を上からたどって Task を並べる |
+| UID | タスクの一意な番号 | `Task.uid` |
+| ID | 並びの中の位置の番号（XSD: position identifier） | GRS は持たず、書き出すたびに並びから作る（`DV-4`） |
+| OutlineLevel | 木の深さ。最上位が 1 | GRS は持たず、`parentTaskUid` の深さから作る（`DV-5`）。数え始めは `project.firstOutlineLevel` |
+| OutlineNumber | 木の道すじ（1・1.1・1.2） | GRS は持たず、木から作る（`DV-6`） |
+| Summary | 子を持つか（要約タスク） | GRS は持たず、子の有無から作る（`DV-7`） |
+| WBS | タスクの WBS コード（XSD の説明） | `Task.passthroughValues` の `WBS`。GRS は読まず、字のまま書き戻す |
+| WBSLevel | WBS コードの右端の段 | `Task.passthroughValues` の `WBSLevel`。同上 |
+| DisplayAsSummary | 要約タスクとして見せるか | `Task.passthroughValues`。同上 |
+| UID 0・OutlineLevel 0 の Task | プロジェクトの要約タスク（`MR-4`） | GRS はタスクにせず、`project.passthroughElements` に持ち、元の位置へ書き戻す（`EX-5`） |
+| Project/WBSMasks | WBS コードの書き方 | `project.passthroughElements` |
+| Project/OutlineCodes | アウトラインコードの定義。木とは別の、人が付ける分類 | `project.passthroughElements` |
+| 無し | タスクグループの木（描く行の木） | `taskGroups`（`id`・`parentId`・`siblingOrder`）と `taskGroupMembers`（`taskUid` → `taskGroupId`） |
+| 無し | タスクグループが表す WBS のタスク | `TaskGroup` のこのキー（今の名 `derivedFromTaskUid`） |
+
+**2. GRS がタスクグループを作る決まり（`FR-058`）**: GRS は MSPDI を開くとき、子を持つタスクごとに 1 つ、親を持たないタスクごとに 1 つ（子が無くても）、タスクグループを作ります。GRS はそのタスクの uid をこのキーに書き、タスクの名前を `name` へ写します（`JDG-3315`）。子を持たないタスクは、親のタスクグループに載ります。
+
+**3. 実例**: 要約タスク 1 つと子 2 つの MSPDI です。
+
+```xml
+<Tasks>
+  <Task>
+    <UID>1</UID><ID>1</ID><Name>設計</Name>
+    <WBS>1</WBS><OutlineNumber>1</OutlineNumber><OutlineLevel>1</OutlineLevel>
+    <Start>2026-12-01T08:00:00</Start><Finish>2026-12-10T17:00:00</Finish>
+    <Summary>1</Summary>
+  </Task>
+  <Task>
+    <UID>2</UID><ID>2</ID><Name>基本設計</Name>
+    <WBS>1.1</WBS><OutlineNumber>1.1</OutlineNumber><OutlineLevel>2</OutlineLevel>
+    <Start>2026-12-01T08:00:00</Start><Finish>2026-12-04T17:00:00</Finish>
+    <Summary>0</Summary>
+  </Task>
+  <Task>
+    <UID>3</UID><ID>3</ID><Name>詳細設計</Name>
+    <WBS>1.2</WBS><OutlineNumber>1.2</OutlineNumber><OutlineLevel>2</OutlineLevel>
+    <Start>2026-12-07T08:00:00</Start><Finish>2026-12-10T17:00:00</Finish>
+    <Summary>0</Summary>
+  </Task>
+</Tasks>
+```
+
+GRS はこれを次の GRS JSON にします（キーは案 a の名で書き、ほかのキーを省きます）。
+
+```json
+"scheduleData": {
+  "project": { "uid": "1", "firstOutlineLevel": 1 },
+  "tasks": [
+    { "uid": 1, "siblingOrder": 0, "name": "設計",
+      "start": "2026-12-01T08:00:00", "finish": "2026-12-10T17:00:00",
+      "passthroughValues": { "WBS": "1" } },
+    { "uid": 2, "parentTaskUid": 1, "siblingOrder": 0, "name": "基本設計",
+      "start": "2026-12-01T08:00:00", "finish": "2026-12-04T17:00:00",
+      "passthroughValues": { "WBS": "1.1" } },
+    { "uid": 3, "parentTaskUid": 1, "siblingOrder": 1, "name": "詳細設計",
+      "start": "2026-12-07T08:00:00", "finish": "2026-12-10T17:00:00",
+      "passthroughValues": { "WBS": "1.2" } }
+  ],
+  "taskGroups": [
+    { "id": "b7e3c2a0-5d41-4c8e-9f6a-1d2e3f4a5b6c", "siblingOrder": 0, "name": "設計",
+      "wbsTaskUid": 1, "treeState": "auto" }
+  ],
+  "taskGroupMembers": [
+    { "taskUid": 1, "taskGroupId": "b7e3c2a0-5d41-4c8e-9f6a-1d2e3f4a5b6c" },
+    { "taskUid": 2, "taskGroupId": "b7e3c2a0-5d41-4c8e-9f6a-1d2e3f4a5b6c" },
+    { "taskUid": 3, "taskGroupId": "b7e3c2a0-5d41-4c8e-9f6a-1d2e3f4a5b6c" }
+  ]
+}
+```
+
+- `parentTaskUid` と `siblingOrder` が WBS を持ちます。ID・OutlineLevel・OutlineNumber・Summary は JSON に入らず、GRS は書き出すたびに木から作ります。
+- タスクグループ「設計」は 1 つで、`wbsTaskUid` がタスク 1 を指します。3 つのタスクはこのグループに載り、GRS は 3 つを段に積みます。
+- このキーは 2 つの木を結びます。人がタスクグループを並べ替えると、GRS は WBS の兄弟の順も変えます（`HM-9`）。人がキーを持つタスクグループを別の親の下へ移すと、GRS は木を根の側へたどり、最初に出会うキーを持つタスクグループのタスクを、新しい親タスクにします（`HM-12`）。人が手で作ったキーの無いタスクグループを移しても、WBS は変わりません（`HM-7`）。
+- WBS コードは `passthroughValues` に入ります。人がタスクを別の親の下へ移しても、GRS は WBS の字を直さず、取り込んだ字を書き戻します。
+
+**4. 案を見直した点**: `FR-058` は、親を持たないタスクに、子が無くてもタスクグループを作ります。このときキーは Summary が 0 のタスクを指します。案 b の弱みは、子を消した後だけでなく、取り込んだ直後にも現れます。
+
+| 案 | 中身 |
+|:---|:---|
+| **a（推奨）** | `wbsTaskUid`（このタスクグループが表す、WBS の中のタスク）。辞書の語 `wbs` は「親タスクと子タスクの木」（`JDG-3431`）で、MSPDI が OutlineLevel と Task の並びで書く木と同じ物を指す。末尾の `Uid` は、指す先が MSPDI 由来の実体であることを言う（`JDG-3557`）。名が「MSPDI の木のタスクを指す」ことを言い、`HM-9`・`HM-12` が WBS を動かす関係とも合う |
+| b | `summaryTaskUid`（WBS の要約タスク）。MSPDI の語 Summary に合う。けれども、親を持たないタスクのタスクグループは、取り込んだ直後から Summary が 0 のタスクを指す（`FR-058`）。子を消した後も同じく、名と中身が食い違う |
+| c | `outlineTaskUid`。MSPDI の語 OutlineLevel・OutlineNumber に合う。けれども、GRS は Outline の値を持たず、書き出しで作るだけである。MSPDI の OutlineCodes は木と別の分類なので、名がそれと紛れる |
+| d | `representedTaskUid`（前の案。辞書の下書きの今の名）。「表す」関係を言うが、どの木のタスクかを言わない |
+
+回答:
+
+#### ❓ 問 6-9-5. タスクと依存の、MSPDI の名と違う 3 語
+
+あなたの答え「MSPDI同じならOK。 違うならそこだけ抽出して、裁定に回せ。」に従い、MSPDI の名と同じ 17 語を確定しました（`JDG-3553`）。キーが MSPDI の名と違う 3 語を、ここに残しました。案は GRWB の議論の後でこの問いに書きます。
+
+| # | キー | 日本語の名 | 意味（日本語） | MSPDI の名 |
+|:---|:---|:---|:---|:---|
+| 9-1 | `parentTaskUid` |  | WBS での親タスク。この値を省くと最上位のタスク。 | 無し |
+| 9-10 | <span style="color: #0550AE">`fadeInCalendarDays`</span> |  | 開始が未確定であることを示すために、予定バーの始まりにフェード斜面を描く暦日の数。矩形では始まりの辺が斜めになる。矢羽根では始まりの切り欠きの深さになる。ほかの形ではこの値を無視する。この値を省くとフェードの描画を省く（矢羽根は既定の深さを保つ）。0 は平らな始まり。GRS はこの値を MSPDI に Task/ExtendedAttribute として書く。（`JDG-3312`） | ExtendedAttribute |
+| 9-11 | <span style="color: #0550AE">`fadeOutCalendarDays`</span> |  | fadeInCalendarDays と同じことを終わりの側に対して行う（矢羽根では先の深さ）。GRS はこの値を MSPDI に Task/ExtendedAttribute として書く。（`JDG-3312`） | ExtendedAttribute |
+
+回答:
+
+#### ❓ 問 6-7-7. `recurrencePeriod` —— MSPDI の名 Period と違う名を保つか
+
+場面: このキーは、MSPDI の Exception/Period（例外の繰り返しの間隔）を写します。MSPDI の名は Period です。同じ Exception の Type は、`JDG-3548` で `recurrenceType` に決まりました。あなたは問 6-9-5 で、MSPDI の名と違う語を裁定に回すよう指示しました。
+
+| # | キー | 日本語の名 | 意味（日本語） | MSPDI の名 |
+|:---|:---|:---|:---|:---|
+| 7-39 | `recurrencePeriod` |  | MSPDI の Exception/Period と同じ。 | Period |
+
+| 案 | 中身 |
+|:---|:---|
+| **a（推奨）** | `recurrencePeriod` を保つ。名は「例外の繰り返しの間隔」を言い、兄弟の `recurrenceType`（`JDG-3548`）と頭がそろう。意味の欄に、MSPDI の名と違う理由を 1 文で書く（`JDG-3548` と同じ書き方） |
+| b | `period` にする。MSPDI の名を写す決まり（`JDG-3563`）にそのまま合う。兄弟の `recurrenceType` とは頭がそろわない |
+
+回答:
