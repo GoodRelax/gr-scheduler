@@ -26,7 +26,7 @@ BGQA3
 
 2026-11-17 の 9 回目: 文字の見た目が決まりました（`JDG-3612`）。問 6-7-9 は他の AI への質問状の答えを待ちます。MSPDI の `Type` を写す 3 つは、MSPDI の名を最大限に尊重する案を足して問い直します（問 6-8-8）。
 
-🔄 *2026-11-17 の 9 回目（追記）: 問 6-7-9 に、他の AI 3 つの答えと、それを受けた私の案を足しました。*
+🔄 *2026-11-17 の 9 回目（追記）: 問 6-7-9 に、他の AI 3 つの答えと、それを受けた私の案を足しました。あなたの確認（違う種類の実体を指さないか、OKPN）を受けて、一覧ごとに配列とキーを分ける形を推奨にしました。*
 
 ***
 
@@ -108,6 +108,8 @@ BGQA3
 | 🔄 *指す先は同じ一覧の中に限ると書け。uid の型（数か文字か）をそろえよ* | 🔄 *Gemini 1・Copilot* |
 | 🔄 *UID 0 の要約タスクを先頭に置くのは、MSPDI 全体の決まりでなく GRS の決まりとして書け* | 🔄 *Copilot* |
 
+🔄 ***一覧ごとに分ける理由（あなたの確認「precedingEntityUidの対象は違う種類の実体を指さないよね？ … そうしないとOKPN 違反だろ？」を受けて）:** 1 つの配列に `collection` を添える形では、同じ名 `precedingEntityUid` が、`collection` の値によってタスクの uid にも担当の uid にもなります（`OKPN` に触れる）。一覧ごとに配列とキーを分ければ、キーが指す種類を名で言えます（N-5）。MSPDI の一覧は種類ごとに分かれているので、タスクの前に担当が並ぶこともありません。*
+
 🔄 ***私の見立て:** 指摘の大半は、指す先を「直前の要素（預かる要素も含む）」と決めたことから生まれます。指す先を「GRS が自分の配列に持つ実体」に限れば、鎖も輪も自分を指すことも起きません。*
 
 🔄 *例（MSPDI の `<Tasks>` の並び）:*
@@ -119,16 +121,16 @@ BGQA3
 🔄 *下のコードブロックの 1・2・3・4・5・6 行目が変わった。*
 ```json
 "tasks": [ { "uid": 12, "name": "設計" }, { "uid": 14, "name": "実装" } ],
-"passthroughEntities": [
-  { "collection": "Tasks", "precedingEntityUid": 12, "mspdiElement": { "UID": "13", "IsNull": "1" } },
-  { "collection": "Tasks", "precedingEntityUid": 12, "mspdiElement": { "UID": "15", "IsNull": "1" } },
-  { "collection": "Tasks", "precedingEntityUid": 14, "mspdiElement": { "Name": "…" } }
+"passthroughTasks": [
+  { "precedingTaskUid": 12, "mspdiElement": { "UID": "13", "IsNull": "1" } },
+  { "precedingTaskUid": 12, "mspdiElement": { "UID": "15", "IsNull": "1" } },
+  { "precedingTaskUid": 14, "mspdiElement": { "Name": "…" } }
 ]
 ```
 
 - 🔄 *空タスク 13 と 15 は、どちらもタスク 12 を指します。同じ先を指す要素どうしは、配列の順（13 → 15）で戻します。鎖が無いので、輪も自分を指すことも起きません。*
 - 🔄 *UID の無い要素も、前のタスク 14 を指せます（直前の要素を指す形では、UID の無い要素を指せません）。*
-- 🔄 *`precedingEntityUid` は GRS の数の uid（N-6）で、`tasks[].uid` と同じ型です。`mspdiElement` の中は MSPDI の文字のまま（`JDG-3606`）で、比べる相手になりません。*
+- 🔄 *`precedingTaskUid` は GRS の数の uid（N-6）で、`tasks[].uid` と同じ型です。`mspdiElement` の中は MSPDI の文字のまま（`JDG-3606`）で、比べる相手になりません。*
 
 🔄 ***動かしたとき:** 預かる要素は、指す先のタスクに付いて行きます。MS Project の空タスクは、見た目の区切りとして、前のタスクと組で置かれることが多いからです。WBS の枝ごと動かしても、中の要素は枝の中のタスクを指したまま、一緒に動きます（Gemini 1 の指摘が自然に解ける）。席に残す形（Copilot の解釈 A）は、動かすたびに書き換えが要り、枝ごと動かすときにはじき出しが起きます。*
 
@@ -136,18 +138,19 @@ BGQA3
 
 | 🔄 *#* | 🔄 *場面* | 🔄 *決まり* |
 |:---|:---|:---|
-| 🔄 *1* | 🔄 *指す先* | 🔄 *同じ `collection` の中で、この要素より前にある、GRS が自分の配列に持つ実体のうち、いちばん近いものの uid。先頭より前に何も無ければ、キーを書かない（先頭に戻す）* |
+| 🔄 *1* | 🔄 *指す先* | 🔄 *同じ一覧の中で、この要素より前にある、GRS が自分の配列に持つ実体のうち、いちばん近いものの uid（タスクの一覧ならタスクの uid だけ）。前に何も無ければ、キーを書かない（先頭に戻す）* |
 | 🔄 *2* | 🔄 *同じ先を指す要素が 2 つ以上* | 🔄 *配列の順で戻す* |
 | 🔄 *3* | 🔄 *GRS でタスクを動かす* | 🔄 *書き換えない。指す先に付いて行く* |
-| 🔄 *4* | 🔄 *GRS でタスクを消す* | 🔄 *同じ命令の中で、そのタスクを指す要素の `precedingEntityUid` を、消したタスクの指す先（さらに前の、GRS が持つ実体）に書き換える。無ければキーを消す。1 回の取り消しで戻る* |
+| 🔄 *4* | 🔄 *GRS でタスクを消す* | 🔄 *同じ命令の中で、そのタスクを指す要素の `precedingTaskUid` を、消したタスクの指す先（さらに前の、GRS が持つ実体）に書き換える。無ければキーを消す。1 回の取り消しで戻る* |
 | 🔄 *5* | 🔄 *開いたファイルで指す先が無い* | 🔄 *文書は開く。その要素を一覧の末尾に置き、知らせる* |
 | 🔄 *6* | 🔄 *Tasks の UID 0 の要約タスク* | 🔄 *GRS の決まりとして、いつも一覧の先頭に戻す（`MR-4`）。MSPDI 全体の決まりとは書かない* |
 
 | 🔄 *案* | 🔄 *中身* |
 |:---|:---|
-| 🔄 ***a（推奨）*** | 🔄 *位置のキーは `precedingEntityUid`（前にある、GRS が持つ実体のうち、いちばん近いものの uid。XPath の preceding の「前にあるもの」の意味に合う）。包みは `passthroughEntities[] { collection, precedingEntityUid, mspdiElement }`。決まりは上の表 1〜6* |
-| 🔄 *b* | 🔄 *位置のキーは `previousEntityUid`（直前の 1 つ。預かる要素も含む）。鎖・同じ先・輪・自分を指す、の決まりを足す。UID の無い要素は指せないので、その後ろの要素の置き場を別に決める* |
-| 🔄 *c* | 🔄 *a の名と指す先のまま、動かしたときは元の席に残す（動かすたびに、前のタスクを指すよう書き換える）* |
+| 🔄 ***a（推奨）*** | 🔄 *一覧ごとに配列とキーを分ける: `passthroughTasks[] { precedingTaskUid, mspdiElement }`・`passthroughResources[] { precedingResourceUid, … }`・`passthroughAssignments[] { precedingAssignmentUid, … }`・`passthroughCalendars[] { precedingCalendarUid, … }`。置き場はスケジュールデータの GRS だけの群。決まりは上の表 1〜6。キーが指す種類を名で言い（N-5・`OKPN`）、`collection` の欄が要らない。各実体の `passthrough`（`JDG-3606`）とは名で分かれる* |
+| 🔄 *b* | 🔄 *1 つの配列 `passthroughEntities[] { collection, precedingEntityUid, mspdiElement }`。決まりは同じ。配列は 1 つで済むが、`precedingEntityUid` が `collection` の値によって違う種類の uid になる* |
+| 🔄 *c* | 🔄 *位置のキーを `previousEntityUid`（直前の 1 つ。預かる要素も含む）にする。鎖・同じ先・輪・自分を指す、の決まりを足す。UID の無い要素は指せない* |
+| 🔄 *d* | 🔄 *a の形のまま、動かしたときは元の席に残す（動かすたびに、前のタスクを指すよう書き換える）* |
 
 回答:
 
