@@ -151,6 +151,7 @@
 | `rulings.md`（名の辞書の席、2026-11-11） | `JDG-3556`（ボードの提案 A〜E を採る。タスクの見た目は `taskStyles[]`）・`JDG-3557`（MSPDI から来た実体は `uid`、GRS だけの実体は `id`。Project も `uid`）を足した。本書の行のレビューの前に当てる |
 | `rulings.md`（名の辞書の席、2026-11-11〜17） | `JDG-3563`・`JDG-3564`（判別子は `type`、`kind` は使わない。`uid` は 1〜2^31−1）・`JDG-3565`（GRS 固有の実体は `id` のまま、ランダムな UUID 版 4）・`JDG-3569`（プロジェクトの 23 語）・`JDG-3602`（根の並び、`remarks`・`rootTreeState`）・`JDG-3604`（`predecessorLinks`・`PredecessorLink`）・`JDG-3605`（MSPDI の群の実体には往復する値だけ。Project の GRS だけの値 7 つを移す）・`JDG-3606`（`passthrough` 1 つに MSPDI の構造のまま、`ordinal` を持たない）・`JDG-3607`（`fill`・`stroke` の型）・`JDG-3608`（テーマの色の役割は置き場が決める）を足した。本書の行のレビューの前に当てる |
 | `rulings.md`（名の辞書の席、2026-11-17 の 2） | `JDG-3609`（GRS JSON の命名の決まり N-1〜N-12 と例外の決まり）・`JDG-3610`（`ShapeStyle` を 3 つの見た目で共にする）・`JDG-3611`（JSON から `ordinal` を無くす方向）を足した。本書の行のレビューの前に当てる |
+| `rulings.md`（名の辞書の席、2026-11-17 の 3） | `JDG-3612`（コメントボックスの文字の見た目は `style.font { color, sizePx }`）を足した。本書の行のレビューの前に当てる |
 | `defects.md` | `DFC-3579`（本書）—— 行のレビューの後に起こす |
 | `changelog.md` | 当てるときに 1 行 |
 
