@@ -2288,11 +2288,11 @@
        ]
       },
       {
-       "key": "PassthroughValues",
+       "key": "Passthrough",
        "since": "2026-11-01T00:00:00Z",
        "definition": {
-        "en": "Carried MSPDI values, keyed by their MSPDI names.",
-        "ja": "持ち越した MSPDI の値。MSPDI の名前を鍵にして持つ。"
+        "en": "The MSPDI values of one element that GRS does not interpret, kept in the MSPDI structure under the MSPDI element names. An element that MSPDI lets repeat is always an array. GRS writes them back in the order of the MSPDI schema, repeats in array order. (JDG-3606)",
+        "ja": "GRS が意味を読まない、1 つの要素の MSPDI の値。MSPDI の構造と要素の名のまま持つ。MSPDI が繰り返しを許す要素は、いつも配列にする。GRS は MSPDI のスキーマの順に、繰り返しは配列の順に書き戻す。（JDG-3606）"
        },
        "uses": [
         "grsJsonSchema",
@@ -2314,82 +2314,12 @@
        ]
       },
       {
-       "key": "name",
-       "owner": "PassthroughElement",
-       "since": "2026-11-01T00:00:00Z",
-       "definition": {
-        "en": "The element name, spelled exactly as in the MSPDI file.",
-        "ja": "MSPDI のファイルのとおりに綴った要素の名前。"
-       },
-       "uses": [
-        "grsJsonSchema",
-        "spec",
-        "src",
-        "commandSchema",
-        "mcpText"
-       ]
-      },
-      {
-       "key": "fields",
-       "since": "2026-11-01T00:00:00Z",
-       "definition": {
-        "en": "The values of the child elements of this element that hold only text, by element name; child elements that contain other elements go in children.",
-        "ja": "この要素の子のうち、文字だけを持つ子要素の値を、要素の名前ごとに持つ。ほかの要素を含む子要素は children に入る。"
-       },
-       "uses": [
-        "grsJsonSchema",
-        "spec",
-        "src",
-        "mcpText"
-       ]
-      },
-      {
-       "key": "children",
-       "since": "2026-11-01T00:00:00Z",
-       "definition": {
-        "en": "The child elements nested in this element.",
-        "ja": "この要素の中に入れ子になった子要素。"
-       },
-       "uses": [
-        "grsJsonSchema",
-        "spec",
-        "src"
-       ]
-      },
-      {
-       "key": "PassthroughElement",
-       "since": "2026-11-01T00:00:00Z",
-       "definition": {
-        "en": "One carried MSPDI element, which GRS keeps whole and writes back in place.",
-        "ja": "持ち越した 1 つの MSPDI の要素。GRS はまるごと持ち、同じ所へ書き戻す。"
-       },
-       "uses": [
-        "grsJsonSchema",
-        "spec",
-        "src"
-       ]
-      },
-      {
-       "key": "passthroughValues",
+       "key": "passthrough",
        "rowId": "N-7",
        "since": "2026-11-01T00:00:00Z",
        "definition": {
-        "en": "Carried MSPDI values of this element, under their MSPDI names.",
-        "ja": "この要素の、持ち越した MSPDI の値。MSPDI の名前のまま持つ。"
-       },
-       "uses": [
-        "grsJsonSchema",
-        "spec",
-        "src"
-       ]
-      },
-      {
-       "key": "passthroughElements",
-       "rowId": "N-7",
-       "since": "2026-11-01T00:00:00Z",
-       "definition": {
-        "en": "Carried MSPDI elements under this one; GRS writes each element back in the same place.",
-        "ja": "この要素の下にある、持ち越した MSPDI の要素。GRS はそれぞれを同じ所へ書き戻す。"
+        "en": "The MSPDI values of this element that GRS does not interpret, in the MSPDI structure and names. (JDG-3606)",
+        "ja": "この要素の、GRS が意味を読まない MSPDI の値。MSPDI の構造と名のまま持つ。（JDG-3606）"
        },
        "uses": [
         "grsJsonSchema",
@@ -18017,8 +17947,8 @@
       {
        "key": "readDocument",
        "definition": {
-        "en": "A frozen copy of the document with its three root groups. By default the MSPDI pass-through fields (passthroughValues, passthroughElements) are left out; pass includeCarry true to keep them. A non-empty taskUids keeps only those tasks in the six task-owned groups: tasks, assignments, taskGraphicStyles, taskGroupMembers, taskOrigins and baselineTasks. To get only the task group list (id, name, parent, order), pass parts ['taskGroups']: no task, calendar or resource comes with it.",
-        "ja": "文書の凍結した写しで、根の 3 つの群を持つ。既定では MSPDI の持ち越しの欄（passthroughValues、passthroughElements）を除き、includeCarry に真を渡せば含める。空でない taskUids は、タスクに属する 6 つの群（tasks、assignments、taskGraphicStyles、taskGroupMembers、taskOrigins、baselineTasks）にそのタスクだけを残す。タスクグループの一覧（id、名前、親、順番）だけが欲しければ parts に ['taskGroups'] を渡す。そのときタスク・暦・担当は付いてこない。"
+        "en": "A frozen copy of the document with its three root groups. By default the MSPDI pass-through fields (passthrough) are left out; pass includeCarry true to keep them. A non-empty taskUids keeps only those tasks in the six task-owned groups: tasks, assignments, taskGraphicStyles, taskGroupMembers, taskOrigins and baselineTasks. To get only the task group list (id, name, parent, order), pass parts ['taskGroups']: no task, calendar or resource comes with it.",
+        "ja": "文書の凍結した写しで、根の 3 つの群を持つ。既定では MSPDI の持ち越しの欄（passthrough）を除き、includeCarry に真を渡せば含める。空でない taskUids は、タスクに属する 6 つの群（tasks、assignments、taskGraphicStyles、taskGroupMembers、taskOrigins、baselineTasks）にそのタスクだけを残す。タスクグループの一覧（id、名前、親、順番）だけが欲しければ parts に ['taskGroups'] を渡す。そのときタスク・暦・担当は付いてこない。"
        },
        "uses": [
         "agentApi",
@@ -18030,8 +17960,8 @@
         {
          "key": "includeCarry",
          "definition": {
-          "en": "Whether to keep the MSPDI pass-through fields passthroughValues and passthroughElements; false when omitted",
-          "ja": "MSPDI の持ち越しの欄 passthroughValues と passthroughElements を含めるか。省けば偽。"
+          "en": "Whether to keep the MSPDI pass-through field passthrough; false when omitted",
+          "ja": "MSPDI の持ち越しの欄 passthrough を含めるか。省けば偽。"
          },
          "uses": [
           "agentApi",

@@ -6,7 +6,7 @@ BGQA3
 
 2026-11-15 に作った。BGQA2（名の辞書）が大きくなりすぎたので、あなたの指示で約束の面ごとに分けた（`JDG-3568`）。この紙は GRS JSON の名を受け持つ。文書の命令は BGQA4、Agent API は BGQA5 が受け持ち、GRS JSON の名が決まった後に出す。決まりと、これまでの決定事項は BGQA2（`goodrelax-qa-b2-glossary.md`）にある。
 
-🔄 *残 7（❓ で検索）*
+🔄 *残 4（❓ で検索）*
 
 1 回目は、ほかの名に効く 10 問です: キーの付け方の決まり、根の並びと呼び名、順番の数、色の形、MSPDI と違う名を保つかの 2 問。残りの GRS JSON の問い（21）は、答えの後で 10 問前後ずつ出します。
 
@@ -18,7 +18,9 @@ BGQA3
 
 2026-11-15 の 5 回目: 問 6-13-3 が決まり（`JDG-3605`）、プロパティの名を併記した構造図に描き直しました。新しく、Project から移す 7 つの値の入れ物の名（問 6-13-4）を問います。
 
-🔄 *2026-11-15 の 6 回目: あなたの指示「影響が大きいものだけ最初に問え」に従い、ほかの名や形に広く効く 6 問だけを、影響の大きい順に出します: 持ち越しの形（問 6-7-8）、`ordinal` の 4 つの役目（問 6-7-6）、キーに持ち主の名を繰り返さない決まり（問 6-8-6）、色の形の 3 問（問 6-6-4-10・6-6-4-11・6-6-4-8）。1 つの名だけに効く 7 問は、出す前の置き場へ戻しました。*
+2026-11-15 の 6 回目: あなたの指示「影響が大きいものだけ最初に問え」に従い、ほかの名や形に広く効く 6 問だけを、影響の大きい順に出します: 持ち越しの形（問 6-7-8）、`ordinal` の 4 つの役目（問 6-7-6）、キーに持ち主の名を繰り返さない決まり（問 6-8-6）、色の形の 3 問（問 6-6-4-10・6-6-4-11・6-6-4-8）。1 つの名だけに効く 7 問は、出す前の置き場へ戻しました。
+
+🔄 *2026-11-17 の 7 回目: 3 問が決まりました（`JDG-3606`〜`JDG-3608`）。続きを求めた 3 問に答えました: `ordinal` は JSON から無くせること（問 6-7-6）、命名の決まりと例外（問 6-8-6）、`allOf` の意味と JSON のデータ（問 6-6-4-11。推奨を b に改めた）。構造図は、残りの 3 問が決まった後に、まとめて描き直します。*
 
 ***
 
@@ -40,11 +42,16 @@ BGQA3
 
 ### [key] 共通のキー
 
-この分野で決まった語は、答えの後でここに書きます。
+| 🔄 *何* | 🔄 *決め* | 🔄 *裁定* |
+|:---|:---|:---|
+| 🔄 *持ち越しの形（問 6-7-8）* | 🔄 *各実体の `passthrough` 1 つに、MSPDI の構造と要素の名のまま持つ。繰り返せる要素はいつも配列。`ordinal` は持たず、書き出しは XSD の順と配列の順* | 🔄 *`JDG-3606`* |
 
 ### [color] 色
 
-この分野で決まった語は、答えの後でここに書きます。
+| 🔄 *何* | 🔄 *決め* | 🔄 *裁定* |
+|:---|:---|:---|
+| 🔄 *線と塗りの形（問 6-6-4-10）* | 🔄 *塗りは `fill`（`Paint { color, opacityPercent }`）、線は `stroke`（`Stroke { color, opacityPercent, widthPx }`）。線を描かないときは太さも書かない* | 🔄 *`JDG-3607`* |
+| 🔄 *テーマの色の役割（問 6-6-4-8）* | 🔄 *置き場が役割を決め、値には `{"type": "theme"}` だけを書く* | 🔄 *`JDG-3608`* |
 
 ### [task] タスクと依存
 
@@ -67,352 +74,168 @@ BGQA3
 - MSPDI の名の欄の「無し」は、GRS が自分で付けた名です（MSPDI に同じ要素が無い）。
 - 表を見る問いでは、直す所が無ければ ok と書き、直す所は表のセルに ★ で書いてください。
 
-### [key] 🔄 *共通のキー（❓ 2）*
+### [key] 🔄 *共通のキー（❓ 1）*
 
-#### 🔄 *❓ 問 6-7-8. 持ち越しの形 —— MSPDI の構造とキーのまま持つか*
+#### 🔄 *✅ 問 6-7-8. 持ち越しの形 —— MSPDI の構造とキーのまま持つか*
 
-🔄 *場面: GRS が意味を読まない MSPDI の値を、GRS は今、2 つに分けて持ちます。`passthroughValues` は文字だけの子を「名 → 文字」の対で持ち、順を持ちません。同じ名の 2 つ目以降は消えます。`passthroughElements` は子を持つ子を `{ ordinal, name, fields, children }` で持ちます。あなたは「構造とキーは MSPDI のまま、そこに ordinal を付けるのはありか」と問いました。調べた結果は `studies/76-grs-json-beta-shape/terms/ordinal-survey-2026-11-15.md` にあります。*
+🔄 *決まりました（`JDG-3606`）。答えは決定事項にあります。*
 
-🔄 *元の MSPDI（タスク 1 つ）:*
+#### 🔄 *❓ 問 6-7-6. `ordinal` —— JSON から無くしてよいか*
 
-🔄 *下のコードブロックの 1・2・3・4・5・6・7 行目が変わった。*
-```xml
-<Task>
-  <UID>5</UID>
-  <Name>設計</Name>
-  <Priority>500</Priority>
-  <ExtendedAttribute><FieldID>188743731</FieldID><Value>A 案</Value></ExtendedAttribute>
-  <ExtendedAttribute><FieldID>188743732</FieldID><Value>B 案</Value></ExtendedAttribute>
-</Task>
-```
+🔄 *場面: 前回、あなたは「ordinal 自体をなくせないか？ JSONの配列は順序をもつが、それで足りないものは何か？」と問いました。*
 
-🔄 *今の形:*
+🔄 *答え: 無くせます。推奨の a を採れば、GRS JSON に `ordinal` は 1 つも残りません。配列の順で足りないのは、次の 2 つだけです。*
 
-🔄 *下のコードブロックの 1・2・3・4・5 行目が変わった。*
-```json
-{ "uid": 5, "name": "設計",
-  "passthroughValues": { "Priority": "500" },
-  "passthroughElements": [
-    { "ordinal": 3, "name": "ExtendedAttribute", "fields": { "FieldID": "188743731", "Value": "A 案" }, "children": [] },
-    { "ordinal": 4, "name": "ExtendedAttribute", "fields": { "FieldID": "188743732", "Value": "B 案" }, "children": [] } ] }
-```
-
-🔄 *案 a の形:*
-
-🔄 *下のコードブロックの 1・2・3・4・5・6 行目が変わった。*
-```json
-{ "uid": 5, "name": "設計",
-  "passthrough": {
-    "Priority": "500",
-    "ExtendedAttribute": [
-      { "FieldID": "188743731", "Value": "A 案" },
-      { "FieldID": "188743732", "Value": "B 案" } ] } }
-```
-
-🔄 *案 b の形:*
-
-🔄 *下のコードブロックの 1・2・3・4・5・6・7 行目が変わった。*
-```json
-{ "uid": 5, "name": "設計",
-  "passthrough": [
-    { "ordinal": 2, "name": "Priority", "text": "500" },
-    { "ordinal": 3, "name": "ExtendedAttribute", "children": [
-        { "ordinal": 0, "name": "FieldID", "text": "188743731" }, { "ordinal": 1, "name": "Value", "text": "A 案" } ] },
-    { "ordinal": 4, "name": "ExtendedAttribute", "children": [
-        { "ordinal": 0, "name": "FieldID", "text": "188743732" }, { "ordinal": 1, "name": "Value", "text": "B 案" } ] } ] }
-```
-
-🔄 *調べて分かった事実:*
-
-- 🔄 *MSPDI の XSD は、子の並びを決めます（`xsd:sequence` が 47 か所）。並びを決めない `xsd:all` は、アウトラインコードの値の一覧とカスタム欄の値の一覧の 2 か所だけです。*
-- 🔄 *GRS は今も、書き出しで子を XSD の順に並べます。`ordinal` は、同じ名の子どうしの順にしか効きません。*
-
-| 🔄 *案* | 🔄 *中身* |
-|:---|:---|
-| 🔄 ***a（推奨）*** | 🔄 *`passthrough` 1 つに、MSPDI の構造とキーのまま持つ。XSD で繰り返せる要素（`maxOccurs` が 2 以上）は、1 つでもいつも配列にする（1 つの名が 1 つの形を保つ。`OKPN`）。`ordinal` は持たない。書き出しは XSD の順、繰り返しは配列の順。例外の決め: `xsd:all` の 2 か所と、どちらの XSD にも無い要素は配列の順で書く。GRS が書く要素と持ち越した要素が同じ名で混ざる所（`ExtendedAttribute` など）は、GRS の物を先に書く。前の決め `passthroughValues`・`passthroughElements`（`JDG-3343`）を改める* |
-| 🔄 *b* | 🔄 *`passthrough` 1 つの配列に、`{ ordinal, name, text }` か `{ ordinal, name, children }` の同じ形で持つ。順と数を落とさないが、MSPDI のキーは値の中に入り、引くには名で探す* |
-| 🔄 *c* | 🔄 *今のまま 2 つに分けて持つ* |
-
-回答:
-
-#### 🔄 *❓ 問 6-7-6. `ordinal` —— 4 つの役目を、それぞれ何で持つか*
-
-🔄 *場面: 前回、あなたは「ordinalを使った理由は？ 順序が飛ぶケースや逆転するケースは？」と問いました。調べると、1 つの名 `ordinal` が 4 つの役目を持っていました（`NEIM`・`OMPV` に外れる）。書き出しが `ordinal` を読むのは 3 か所だけで、暦・曜日・例外の `ordinal` は読みません（`DFC-3585`）。持ち越した一覧の行は、前の行を足し引きするとずれます（`DFC-3586`）。*
-
-| 🔄 *#* | 🔄 *役目* | 🔄 *今* | 🔄 *推奨* |
+| 🔄 *#* | 🔄 *配列の順で足りない物* | 🔄 *理由* | 🔄 *代わりの持ち方* |
 |:---|:---|:---|:---|
-| 🔄 *1* | 🔄 *持ち越した子の位置* | 🔄 *`passthroughElements[].ordinal`* | 🔄 *外す。問 6-7-8 の a で、XSD の順と配列の順が位置を決める* |
-| 🔄 *2* | 🔄 *暦・曜日・例外・稼働時間の、ファイルでの順* | 🔄 *各行の `ordinal`* | 🔄 *外す。配列の順で持ち、書き出しも配列の順にする（`DFC-3585` も消える）* |
-| 🔄 *3* | 🔄 *例外の行の鍵（暦を編集する前と後で、同じ行を見分ける）* | 🔄 *`Exception.ordinal`* | 🔄 *JSON から外し、GRS の中だけの鍵にする。文書には書かない* |
-| 🔄 *4* | 🔄 *持ち越した一覧の行の位置（GRS が行にしない `Task` など。UID 0 の要約タスクを含む）* | 🔄 *一覧の中の添字* | 🔄 *GRS の群の 1 つの配列に移し、各行を「GRS の包み ＋ MSPDI の中身」で持つ: `{ "collection": "Tasks", "afterUid": 12, "element": { MSPDI のキーのまま } }`。`afterUid` は直前の、GRS が行にした要素の uid。UID 0 の要約タスクは一覧の先頭と決める（`MR-4`）。`DFC-3586` も消える* |
+| 🔄 *1* | 🔄 *別の配列にある物との前後* | 🔄 *GRS が行にしない `Task`（UID 0 の要約タスクなど）は `tasks[]` に入らない。`tasks[]` の順だけでは、その行をどのタスクの後へ戻すか分からない* | 🔄 *`afterUid`（直前のタスクの uid）。順番の数ではなく、隣の行を指す参照* |
+| 🔄 *2* | 🔄 *編集の前と後で、同じ行を見分ける鍵* | 🔄 *暦の例外は MSPDI で UID を持たない。編集で行を足し引きすると、配列の位置がずれる* | 🔄 *GRS の中だけの鍵。文書には書かない* |
 
-🔄 *推奨の形で、あなたの 3 つの例がどうなるか（暦の例外の行で）:*
+🔄 *推奨の形（暦の例外と、持ち越した一覧の行）:*
 
-| 🔄 *例* | 🔄 *書き出しの順* | 🔄 *失う物* |
+🔄 *下のコードブロックの 1・2・3・4・5・6・7・8 行目が変わった。*
+```json
+"calendars": [
+  { "uid": 1, "name": "標準",
+    "exceptions": [
+      { "fromDate": "2026-12-29", "toDate": "2027-01-03", "name": "年末年始" },
+      { "fromDate": "2027-05-03", "toDate": "2027-05-05", "name": "大型連休" } ] } ],
+"passthroughRows": [
+  { "collection": "Tasks", "afterUid": 0, "element": { "UID": "0", "Name": "新製品の開発", "OutlineLevel": "0" } }
+]
+```
+
+- 🔄 *例外の順は、配列の順そのものです。消せば配列から消えるだけで、番号の飛びも食い違いも生まれません。*
+- 🔄 *`passthroughRows` の 1 行は、GRS の包み（`collection`・`afterUid`）と、MSPDI のままの中身（`element`）でできています。`afterUid` が 0 の行は一覧の先頭に戻します（`MR-4` の要約タスク）。包みの配列の名 `passthroughRows` は仮の名です。*
+
+| 案 | 中身 |
+|:---|:---|
+| **a（推奨）** | 🔄 *JSON から `ordinal` を無くす。順は配列で持ち、別の配列との前後は `afterUid`、編集の前後の鍵は GRS の中だけで持つ* |
+| b | 🔄 *持ち越した一覧の行を、`tasks[]` などの同じ配列に混ぜて置き、配列の順だけで位置を持つ。`afterUid` は要らないが、1 つの配列に 2 種の物が並ぶ（`OKPN` に外れる）* |
+| c | 🔄 *今のまま `ordinal` を持つ* |
+
+回答:
+
+### [proj] プロジェクト（❓ 1）
+
+#### ✅ 問 6-8-5. プロジェクトの 24 語 —— 推奨の表のとおりでよいか
+
+決まりました（`JDG-3569`）。答えは決定事項にあります。
+
+#### ✅ 問 6-8-19. スケジュールデータのタイムゾーンの置き場 —— MSPDI に無い値を、MSPDI の実体の中に置くか、GRS の群へ移すか
+
+問 6-13-3 にまとめました（15 か所の根拠の表と、移す範囲の案 a〜c）。
+
+#### 🔄 *❓ 問 6-8-6. GRS JSON の命名の決まり —— この決まりと例外でよいか*
+
+🔄 *場面: 前回、あなたは「a が良さそうな気がするが、 JSONの命名ルールを明文化しろ。 その上で例外があれば列挙せよ。 例外を認めないといけない場合も列挙し、例外ルールも明文化しろ。 特にtype, kind, id uidの議論を踏まえてどうするべきか？」と書きました。今の GRS JSON のキーを数えて、決まりと例外を書きました。*
+
+🔄 ***命名の決まり（N-1〜N-12）:***
+
+| 🔄 *#* | 🔄 *決まり* | 🔄 *例* | 🔄 *根拠* |
+|:---|:---|:---|:---|
+| 🔄 *N-1* | 🔄 *キーは小文字で始まる camelCase、型の名は大文字で始まる PascalCase* | 🔄 *`startDate`・`Task`* | 🔄 *JSON と JavaScript の慣例* |
+| 🔄 *N-2* | 🔄 *名は、指すものを言う。略さない* | 🔄 *`parentTaskProgressToleranceWorkingDays`* | 🔄 *`JDG-820`・`NEIM`* |
+| 🔄 *N-3* | 🔄 *MSPDI から来た値は、MSPDI の名を camelCase にした名を使う* | 🔄 *`UID` → `uid`、`StartDate` → `startDate`* | 🔄 *`JDG-3563` の 1)・往復* |
+| 🔄 *N-4* | 🔄 *キーに持ち主の名を繰り返さない* | 🔄 *`project.title`（`projectTitle` にしない）* | 🔄 *問 6-8-6 の a* |
+| 🔄 *N-5* | 🔄 *別の実体を指す参照は「相手の名 ＋ `Uid` か `Id`」* | 🔄 *`taskUid`・`taskGroupId`・`parentTaskUid`* | 🔄 *指す先と、指す先の識別子の種類が名で分かる* |
+| 🔄 *N-6* | 🔄 *識別子は 2 つだけ: MSPDI から来た実体は `uid`（整数 1〜2^31−1）、GRS 固有の実体は `id`（ランダムな UUID 版 4）* | 🔄 *`Task.uid`・`TaskGroup.id`* | 🔄 *`JDG-3557`・`JDG-3564`・`JDG-3565`* |
+| 🔄 *N-7* | 🔄 *自分の欄の組を選ぶ判別子は `type`。形を変えない分類や、別の物の型は `xxxType`。`kind` は使わない* | 🔄 *`Color.type`・`linkType`・`Refusal.commandType`* | 🔄 *`JDG-3563`・`JDG-3564`* |
+| 🔄 *N-8* | 🔄 *配列は複数形。参照の配列は `…Uids` か `…Ids`* | 🔄 *`tasks`・`predecessorLinks`・`shownTaskUids`* | 🔄 *1 つと多数を名で見分ける* |
+| 🔄 *N-9* | 🔄 *真偽の値は `is…`（または `has…`）で始める* | 🔄 *`isFixed`・`isPlanBarVisible`* | 🔄 *値が真偽だと名で分かる* |
+| 🔄 *N-10* | 🔄 *量は単位で終える* | 🔄 *`…Px`・`…Percent`・`…Degrees`・`…WorkingDays`・`…CalendarDays`* | 🔄 *単位の取り違えを防ぐ* |
+| 🔄 *N-11* | 🔄 *GRS が決める時刻は `…At`（UTC の瞬間）で終える* | 🔄 *`changedAt`・`fileSavedAt`* | 🔄 *MSPDI の日付の名（N-3）と分ける* |
+| 🔄 *N-12* | 🔄 *「無い」は、キーを書かないこと 1 つで言う。`null` は使わない* | 🔄 *—* | 🔄 *`NullTrap`・`JDG-3309`* |
+
+🔄 ***決まりに外れるキー（今ある例外）:***
+
+| 🔄 *#* | 🔄 *キー* | 🔄 *外れる決まり* | 🔄 *例外にする理由* |
+|:---|:---|:---|:---|
+| 🔄 *E-1* | 🔄 *`passthrough` の中のキー（`Priority`・`ExtendedAttribute` など）* | 🔄 *N-1・N-3* | 🔄 *MSPDI の要素の名を、そのまま預かる所だから（`JDG-3606`）* |
+| 🔄 *E-2* | 🔄 *`$schema`* | 🔄 *N-1* | 🔄 *JSON Schema の決まった名だから* |
+| 🔄 *E-3* | 🔄 *`resourceType`* | 🔄 *N-4* | 🔄 *`xxxType` の前の語は「何を分ける型か」を言い（N-7）、担当の所でだけ持ち主の名と重なる* |
+| 🔄 *E-4* | 🔄 *`Project.uid` が文字列* | 🔄 *N-6* | 🔄 *MSPDI の Project/UID が文字列（16 字まで）だから* |
+| 🔄 *E-5* | 🔄 *`startDate`・`statusDate`・`creationDate` が時刻も持つ* | 🔄 *N-11* | 🔄 *MSPDI の名だから（N-3 が N-11 より強い）* |
+| 🔄 *E-6* | 🔄 *MSPDI と名が違う、MSPDI 由来のキー（`predecessorLinks`・`dayType`・`recurrenceType`・`linkType`・`resourceType`・`parentTaskUid`）* | 🔄 *N-3* | 🔄 *意味の文に、MSPDI の名と違う理由を 1 文で書く（`JDG-3548`）* |
+
+🔄 ***例外の決まり（例外を認める場合を、この 4 つに限る）:***
+
+| 🔄 *#* | 🔄 *例外を認める場合* | 🔄 *書き方* |
 |:---|:---|:---|
-| 🔄 *1,2,3,4（そのまま往復）* | 🔄 *配列の順 = 元の順* | 🔄 *無い* |
-| 🔄 *1,2,4,5（真ん中を消した）* | 🔄 *配列から消えるだけ。番号を持たないので、飛びも生まれない* | 🔄 *無い* |
-| 🔄 *1,2,5,4（順が食い違う）* | 🔄 *配列の順。番号を持たないので、食い違いが生まれない* | 🔄 *無い* |
+| 🔄 *X-1* | 🔄 *外の決まりが名を決めている（MSPDI の要素の名、JSON Schema の名）* | 🔄 *外の名をそのまま使う。外の決まりが GRS の決まりより強い* |
+| 🔄 *X-2* | 🔄 *MSPDI の名が、GRS の決まりと食い違う* | 🔄 *MSPDI の名を使い（N-3 が勝つ）、食い違いを意味の文に書く* |
+| 🔄 *X-3* | 🔄 *2 つの GRS の決まりが同じキーでぶつかる* | 🔄 *何を言うかを優先する（N-2 が勝つ）。どちらを選んだかを裁定に書く* |
+| 🔄 *X-4* | 🔄 *MSPDI の名では意味が分からない、または向きを言わない* | 🔄 *意味の名を使い、MSPDI の名を意味の文に書く（E-6）* |
 
-🔄 *持ち越した一覧の行は、`afterUid` が指す行の後に戻ります。その行が消えたときは、さらに前の行の後に戻します（その決めは仕様に書きます）。*
+- 🔄 *例外のキーは、辞書の意味の文に「どの例外か（E-n）と理由」を書きます。*
+- 🔄 *この表に無い例外は、作りません。新しい例外が要るときは、裁定を取ってから表に足します。*
 
-| 🔄 *案* | 🔄 *中身* |
+🔄 ***今の名で、決まりに照らして見直したい所（この答えの後で問います）:** `sourceProjectId`（MSPDI の Project を指すので N-5・N-6 では `…Uid`）、`importSessionId`（実体でなく取り込み 1 回の印）、`laneFraction` などの `…Fraction`（N-10 の単位で終わらない。`JDG-3529` で `…Percent` に直す予定）。*
+
+| 案 | 中身 |
 |:---|:---|
-| 🔄 ***a（推奨）*** | 🔄 *上の表のとおり、1 と 2 は外し、3 は GRS の中だけの鍵にし、4 は `afterUid` の包みに替える* |
-| 🔄 *b* | 🔄 *4 つとも `ordinal` を残し、役目ごとに名を分ける（例: `mspdiPosition`・`exceptionKey`・`collectionIndex`）。順を 2 か所に書く所は残る（`SSOT`）* |
-| 🔄 *c* | 🔄 *今のまま* |
+| **a（推奨）** | 🔄 *上の決まり N-1〜N-12、例外 E-1〜E-6、例外の決まり X-1〜X-4 を採る。名の辞書の「決まり」の群に入れ、スキーマの頭からも引く* |
+| b | 🔄 *直す所に ★ を書く* |
 
 回答:
 
-### [proj] 🔄 *プロジェクト（❓ 1）*
+### [color] 🔄 *色（❓ 1）*
 
-#### 🔄 *✅ 問 6-8-5. プロジェクトの 24 語 —— 推奨の表のとおりでよいか*
+#### 🔄 *✅ 問 6-6-4-10. 線の形 —— 線の太さを線の中に入れるか*
 
-🔄 *決まりました（`JDG-3569`）。答えは決定事項にあります。*
+🔄 *決まりました（`JDG-3607`）。答えは決定事項にあります。*
 
-#### 🔄 *✅ 問 6-8-19. スケジュールデータのタイムゾーンの置き場 —— MSPDI に無い値を、MSPDI の実体の中に置くか、GRS の群へ移すか*
+#### 🔄 *❓ 問 6-6-4-11. 3 つの型で、塗りと線の形を共にするか —— `allOf` の意味と、JSON のデータ*
 
-🔄 *問 6-13-3 にまとめました（15 か所の根拠の表と、移す範囲の案 a〜c）。*
+🔄 *場面: 前回、あなたは「allOf ってなに？ スキーマ専用？ JSONデータ自体は変わるの？ 色関係は1つに束ねた方が、処理を共通化しやすいのでは？」と問いました。*
 
-#### 🔄 *❓ 問 6-8-6. キーに持ち主の名を繰り返さない決まり —— すべての物に当てるか*
+🔄 ***`allOf` とは:** JSON Schema の言葉で、「並べたスキーマを、すべて満たせ」という意味です。スキーマの書き方だけに使い、JSON のデータには出てきません。*
 
-🔄 *場面: 問 6-8-5 で、あなたは b を選び、8-19 だけに ★ を書きました。表の 23 語は確定しました（`JDG-3569`）。前回の案 a に入れた決まり「キーに持ち主の名を繰り返さない」は、まだ決まっていません。前々回、あなたは「Project.titleって形になるのか？ 他も同様。projectTitleにする必要はないよね？」と書きました。*
+🔄 ***JSON のデータは、案 a でも案 b でも同じです**（線と塗りは問 6-6-4-10 の a で決まった形）:*
 
-🔄 *下のコードブロックの 1・2 行目が変わった。*
+🔄 *下のコードブロックの 1・2・4・5・6・7 行目が変わった。*
 ```json
-{ "project": { "title": "新製品の開発" } }
-{ "project": { "projectTitle": "新製品の開発" } }
-```
-
-- 🔄 *上が決まりに従う形、下が持ち主の名を繰り返す形です。*
-- 🔄 *参照のキーは、指す相手の名を持ちます（`taskUid`・`resourceUid`）。*
-- 🔄 *今の GRS JSON で決まりから外れて見えるのは `resourceType` だけです。`xxxType` の前の語は「何を分ける型か」を言い（`JDG-3564`）、担当の所でだけ持ち主の名と重なります。*
-
-| 🔄 *案* | 🔄 *中身* |
-|:---|:---|
-| 🔄 ***a（推奨）*** | 🔄 *すべての物に当てる。キーは持ち主の名を繰り返さず、参照のキーだけが相手の名を持つ。`xxxType` の前の語は「何を分けるか」を言うので、`resourceType` はこの決まりの外とする* |
-| 🔄 *b* | 🔄 *当てない。物ごとに決める* |
-
-回答:
-
-### [color] 🔄 *色（❓ 3）*
-
-#### 🔄 *❓ 問 6-6-4-10. 線の形 —— 線の太さを線の中に入れるか*
-
-🔄 *場面: 今の形は、線の色 `strokeColor` と太さ `strokeWidthPx` を平らに持ち、太さを必ず書きます。線を描かないタスクにも、太さが残ります。問いは、太さを線の型の中に入れるかです。*
-
-🔄 *前回、あなたは「jsonの具体例をコードブロックに出せ。」と答えました。下の例は、どれも 2 本のバーを描きます: タスク 7（赤で塗り、縁を描かない）と、タスク 8（赤で塗り、紫の縁を太さ 2 と不透明度 70% で描く）。*
-
-🔄 *案 a（線の型が色・不透明度・太さを持つ）:*
-
-🔄 *下のコードブロックの 1・2・3・4・5・6・7・8・9・10・11・12・13 行目が変わった。*
-```json
-"taskStyles": [
-  { "taskUid": 7,
-    "style": {
-      "taskShape": "rectangle",
-      "fill": { "color": { "type": "palette", "name": "red" } }
-    } },
-  { "taskUid": 8,
-    "style": {
-      "taskShape": "rectangle",
-      "fill":   { "color": { "type": "palette", "name": "red" } },
-      "stroke": { "color": { "type": "palette", "name": "purple" }, "opacityPercent": 70, "widthPx": 2 }
-    } }
-]
-```
-
-🔄 *案 b（塗りも線も同じ型を取り、太さを外に置く）:*
-
-🔄 *下のコードブロックの 1・2・3・4・5・6・7・8・9・10・11・12・13・14・15 行目が変わった。*
-```json
-"taskStyles": [
-  { "taskUid": 7,
-    "style": {
-      "taskShape": "rectangle",
-      "fill": { "color": { "type": "palette", "name": "red" } },
-      "strokeWidthPx": 1
-    } },
-  { "taskUid": 8,
-    "style": {
-      "taskShape": "rectangle",
-      "fill":   { "color": { "type": "palette", "name": "red" } },
-      "stroke": { "color": { "type": "palette", "name": "purple" }, "opacityPercent": 70 },
-      "strokeWidthPx": 2
-    } }
-]
-```
-
-🔄 *案 c（線の中に塗りの型を入れ子にする）:*
-
-🔄 *下のコードブロックの 1・2・3・4・5・6・7・8・9・10・11・12・13 行目が変わった。*
-```json
-"taskStyles": [
-  { "taskUid": 7,
-    "style": {
-      "taskShape": "rectangle",
-      "fill": { "color": { "type": "palette", "name": "red" } }
-    } },
-  { "taskUid": 8,
-    "style": {
-      "taskShape": "rectangle",
-      "fill":   { "color": { "type": "palette", "name": "red" } },
-      "stroke": { "paint": { "color": { "type": "palette", "name": "purple" }, "opacityPercent": 70 }, "widthPx": 2 }
-    } }
-]
-```
-
-| 🔄 *案* | 🔄 *中身* |
-|:---|:---|
-| 🔄 ***a（推奨）*** | 🔄 *線の型 `Stroke { color, opacityPercent, widthPx }` を作る（2 段）。線を描かないタスクは `stroke` ごと省き、太さも書かずに済む（`NullTrap`・`OMPV`: 描かない線の太さという、意味を持たない値が消える）。塗りは `Paint { color, opacityPercent }`。W3C のデザイントークンの border 型も、色と太さを 1 つの型に入れる（`{ color, width, style }`）* |
-| 🔄 *b* | 🔄 *塗りも線も `Paint` を取り、太さは外の `strokeWidthPx` に置く（今の置き方。SVG の `stroke-width` と同じ）。線を描かないタスク 7 も、太さ 1 を書く* |
-| 🔄 *c* | 🔄 *`Stroke { paint, widthPx }`。色は `stroke.paint.color` と 3 段になる* |
-
-回答:
-
-#### 🔄 *❓ 問 6-6-4-11. 3 つの型で、塗りと線の形を共にするか*
-
-🔄 *場面: タスク・コメントボックス・ハイライトボックスの `style` が、塗りと線を持ちます。必ず持つ欄は物ごとに違います: コメントボックスは塗り・枠・文字を必ず持ち、ハイライトボックスは塗りを必ず持ち、タスクは塗りも縁も省けます。案 a と案 b で、ファイルの中身は同じです。違いは、スキーマ（形の決まり）の書き方だけです。*
-
-🔄 *前回、あなたは「jsonの具体例をコードブロックに出せ」と答えました。まず、どちらの案でも同じファイルの中身です（ほかのキーは省きました）。*
-
-🔄 *下のコードブロックの 1・2・3・4・5・6・7・8・9・10・11・12・13・14・15・16・17 行目が変わった。*
-```json
-"taskStyles": [
-  { "taskUid": 7,
-    "style": { "taskShape": "rectangle", "fill": { "color": { "type": "theme" } } } }
-],
 "commentBoxes": [
-  { "id": "3f2b8c1e-7a4d-4e9b-9c61-2d5a8e0f4b17",
-    "text": "Confirm the date",
+  { "id": "6f1c…", "text": "要確認",
     "style": {
-      "fill":   { "color": { "type": "palette", "name": "yellow" } },
+      "fill":   { "color": { "type": "theme" }, "opacityPercent": 0 },
       "stroke": { "color": { "type": "theme" }, "widthPx": 1 },
-      "textColor": { "type": "palette", "name": "dimGray" }
-    } }
-],
-"highlightBoxes": [
-  { "id": "b81d0e52-6c3a-4f17-a2e9-5c04d7f13a68",
-    "style": { "fill": { "color": { "type": "palette", "name": "yellow" }, "opacityPercent": 30 } } }
-]
+      "textColor": { "type": "palette", "name": "ink" },
+      "fontSizePx": 12 } } ]
 ```
 
-🔄 *案 a のスキーマ（`Paint`・`Stroke` だけを共にし、3 つの型が自分の欄を全部書く）:*
+🔄 *違うのは、スキーマの書き方だけです。*
 
-🔄 *下のコードブロックの 1・2・3・4・5・6・7・8・9・10・11・12・13・14・15・16・17・18 行目が変わった。*
+🔄 *下のコードブロックの 1・2・3・4・5・6・7・8・9・10・11・12 行目が変わった。*
 ```json
-"$defs": {
-  "TaskStyle": {
-    "properties": {
-      "taskShape": { "enum": ["rectangle", "chevron", "arrow", "endpointSpan"] },
-      "fill":   { "$ref": "#/$defs/Paint" },
-      "stroke": { "$ref": "#/$defs/Stroke" } } },
-  "CommentBoxStyle": {
-    "required": ["fill", "stroke", "textColor"],
-    "properties": {
-      "fill":   { "$ref": "#/$defs/Paint" },
-      "stroke": { "$ref": "#/$defs/Stroke" },
-      "textColor": { "$ref": "#/$defs/Color" } } },
-  "HighlightBoxStyle": {
-    "required": ["fill"],
-    "properties": {
-      "fill":   { "$ref": "#/$defs/Paint" },
-      "stroke": { "$ref": "#/$defs/Stroke" } } }
+"案 a（型ごとに書く。部品の Paint と Stroke だけを共にする）": {
+  "CommentBoxStyle": { "required": ["fill", "stroke", "textColor"],
+    "properties": { "fill": { "$ref": "#/$defs/Paint" }, "stroke": { "$ref": "#/$defs/Stroke" },
+                    "textColor": { "$ref": "#/$defs/Color" }, "fontSizePx": { "type": "integer" } } }
+},
+"案 b（形の型 ShapeStyle を共にし、型ごとの足しを allOf で書く）": {
+  "ShapeStyle": { "properties": { "fill": { "$ref": "#/$defs/Paint" }, "stroke": { "$ref": "#/$defs/Stroke" } } },
+  "CommentBoxStyle": { "allOf": [
+    { "$ref": "#/$defs/ShapeStyle" },
+    { "required": ["fill", "stroke", "textColor"],
+      "properties": { "textColor": { "$ref": "#/$defs/Color" }, "fontSizePx": { "type": "integer" } } } ] }
 }
 ```
 
-🔄 *案 b のスキーマ（`ShapeStyle` を 3 つの型で共にし、違いを各型に足す）:*
+🔄 ***色を 1 つに束ねる件:** どちらの案でも、色の値はもう束ねてあります。塗りはいつも `Paint`、線はいつも `Stroke`、色はいつも `Color` です。ですから、塗りと線を描く処理は、どちらの案でも 1 つの関数で共にできます。案 b は、その一段上の「形の見た目（塗り ＋ 線）」も 1 つの型 `ShapeStyle` にまとめます。処理の入口も 1 つになり、あなたの言う「処理を共通化しやすい」形にいちばん近くなります。*
 
-🔄 *下のコードブロックの 1・2・3・4・5・6・7・8・9・10・11・12・13・14・15・16・17・18・19 行目が変わった。*
-```json
-"$defs": {
-  "ShapeStyle": {
-    "properties": {
-      "fill":   { "$ref": "#/$defs/Paint" },
-      "stroke": { "$ref": "#/$defs/Stroke" } } },
-  "TaskStyle": {
-    "allOf": [ { "$ref": "#/$defs/ShapeStyle" } ],
-    "properties": { "taskShape": { "enum": ["rectangle", "chevron", "arrow", "endpointSpan"] } },
-    "unevaluatedProperties": false },
-  "CommentBoxStyle": {
-    "allOf": [ { "$ref": "#/$defs/ShapeStyle" } ],
-    "required": ["fill", "stroke", "textColor"],
-    "properties": { "textColor": { "$ref": "#/$defs/Color" } },
-    "unevaluatedProperties": false },
-  "HighlightBoxStyle": {
-    "allOf": [ { "$ref": "#/$defs/ShapeStyle" } ],
-    "required": ["fill"],
-    "unevaluatedProperties": false }
-}
-```
-
-| 🔄 *案* | 🔄 *中身* |
+| 案 | 中身 |
 |:---|:---|
-| 🔄 ***a（推奨）*** | 🔄 *型 `Paint`・`Stroke` だけを共にし、どの欄を必ず持つかは型ごとに書く（`ISP`: 型ごとに要る欄だけを持つ）。1 つの型を読めば、その物の欄が全部わかる* |
-| 🔄 *b* | 🔄 *`ShapeStyle { fill, stroke }` を 3 つの型で共にし、必ず持つ欄の違いは各型の足しの決まり（`allOf`）で書く（`DRY`）。型を読む人は `ShapeStyle` も読む。余分なキーを断るには `unevaluatedProperties` が要る* |
+| 🔄 ***b（推奨）*** | 🔄 *前回の推奨 a から、b に改めます。`ShapeStyle { fill, stroke }` を 3 つの型（タスク・コメントボックス・ハイライトボックス）で共にし、型ごとの足し（タスクの形、コメントボックスの文字の色と大きさ、ハイライトボックスの角の丸み）と、必ず持つ欄を `allOf` で書く。JSON のデータは a と同じ* |
+| 🔄 *a* | 🔄 *部品の `Paint`・`Stroke`・`Color` だけを共にし、3 つの見た目の型を別々に書く（`ISP`: 型ごとに要る欄だけを持つ）。JSON のデータは b と同じ* |
 
 回答:
 
-#### 🔄 *❓ 問 6-6-4-8. テーマの色の役割 —— 置き場で決めるか、値に書くか*
+#### 🔄 *✅ 問 6-6-4-8. テーマの色の役割 —— 置き場で決めるか、値に書くか*
 
-🔄 *場面: `{"type": "theme"}` の色は、テーマが置き場ごとに決める色です（要素 4）。例えば、テーマはタスクの塗りに予定バーの塗りの色（`S-155`）を、ハイライトボックスの枠に注記の色（`S-312`、橙）を決めます。別の AI の案は、どの役の色かを値に書きます。問いは、この「役」を GRS が置き場から読むか、ファイルの値に書くかです。*
+🔄 *決まりました（`JDG-3608`）。答えは決定事項にあります。*
 
-🔄 *前回、あなたは「質問の意味がわからない。 具体例を求む。」と答えました。下の例は、どれもタスク 7 のバーとハイライトボックス 1 つを、テーマの色で描きます。*
-
-🔄 *案 a（置き場が役を決める）:*
-
-🔄 *下のコードブロックの 1・2・3・4・5・6・7・8・9・10・11・12・13・14・15 行目が変わった。*
-```json
-"taskStyles": [
-  { "taskUid": 7,
-    "style": {
-      "taskShape": "rectangle",
-      "fill":   { "color": { "type": "theme" } },
-      "stroke": { "color": { "type": "theme" }, "widthPx": 1 }
-    } }
-],
-"highlightBoxes": [
-  { "id": "b81d0e52-6c3a-4f17-a2e9-5c04d7f13a68",
-    "style": {
-      "fill":   { "color": { "type": "theme" }, "opacityPercent": 30 },
-      "stroke": { "color": { "type": "theme" }, "widthPx": 1 }
-    } }
-]
-```
-
-🔄 *GRS は置き場を見ます。タスクの塗りは予定バーの塗りの色で、ハイライトボックスの枠は注記の色で描きます。ファイルは同じ `{"type": "theme"}` を書きます。*
-
-🔄 *案 b（値に役を書く）:*
-
-🔄 *下のコードブロックの 1・2・3・4・5・6・7・8・9・10・11・12・13・14・15 行目が変わった。*
-```json
-"taskStyles": [
-  { "taskUid": 7,
-    "style": {
-      "taskShape": "rectangle",
-      "fill":   { "color": { "type": "theme", "role": "planBar" } },
-      "stroke": { "color": { "type": "theme", "role": "annotation" }, "widthPx": 1 }
-    } }
-],
-"highlightBoxes": [
-  { "id": "b81d0e52-6c3a-4f17-a2e9-5c04d7f13a68",
-    "style": {
-      "fill":   { "color": { "type": "theme", "role": "planBar" }, "opacityPercent": 30 },
-      "stroke": { "color": { "type": "theme", "role": "annotation" }, "widthPx": 1 }
-    } }
-]
-```
-
-🔄 *GRS は値の `role` を見ます。この例では、タスク 7 の縁を注記の橙で描きます。b は、置き場と別の役の色を選ぶ道を開きます。役の名 `planBar`・`annotation` は仮の名です。*
-
-| 🔄 *案* | 🔄 *中身* |
-|:---|:---|
-| 🔄 ***a（推奨）*** | 🔄 *置き場が役を決める（今の形）。値には `{"type": "theme"}` だけを書く。1 つの値が 1 つの意味を持つ（`OMPV`）。ファイルは、置き場と役の食い違いを書けない* |
-| 🔄 *b* | 🔄 *値に役を書く（`{"type": "theme", "role": "annotation"}`）。どの置き場でも、ほかの役のテーマの色を使える。役の名の一覧を、外との約束として持つ* |
-
-回答:
-
-### [root] 🔄 *スケジュールデータと文書の根 ✅*
+### [root] スケジュールデータと文書の根 ✅
 
 #### ✅ 問 6-13-3. GRS JSON の構造と、データの分け方 —— この考えでよいか
 
@@ -701,13 +524,13 @@ ScheduleDocument                                    GRS JSON の 1 ファイル
 
 決まりました（`JDG-3603`）。答えは決定事項にあります。
 
-### [task] 🔄 *タスクと依存 ✅*
+### [task] タスクと依存 ✅
 
 #### ✅ 問 6-9-8. `dependencies` —— MSPDI の名 PredecessorLink と違う名を保つか
 
 決まりました（`JDG-3604`）。答えは決定事項にあります。
 
-### [tg] 🔄 *タスクグループ ✅*
+### [tg] タスクグループ ✅
 
 ***
 
