@@ -6,7 +6,7 @@ BGQA3
 
 2026-11-15 に作った。BGQA2（名の辞書）が大きくなりすぎたので、あなたの指示で約束の面ごとに分けた（`JDG-3568`）。この紙は GRS JSON の名を受け持つ。文書の命令は BGQA4、Agent API は BGQA5 が受け持ち、GRS JSON の名が決まった後に出す。決まりと、これまでの決定事項は BGQA2（`goodrelax-qa-b2-glossary.md`）にある。
 
-🔄 *残 3（❓ で検索）*
+残 3（❓ で検索）
 
 1 回目は、ほかの名に効く 10 問です: キーの付け方の決まり、根の並びと呼び名、順番の数、色の形、MSPDI と違う名を保つかの 2 問。残りの GRS JSON の問い（21）は、答えの後で 10 問前後ずつ出します。
 
@@ -24,7 +24,9 @@ BGQA3
 
 2026-11-17 の 8 回目: 3 問の方向が決まりました（`JDG-3609`〜`JDG-3611`）。あなたの求めに合わせて、続きの 3 問を出します: 持ち越した一覧の要素の置き場（問 6-7-9）、MSPDI の `Type` を写す 3 つの名（問 6-8-7。前回の E-6 の一覧の誤りも直した）、コメントボックスの文字の見た目の名（問 6-6-4-13）。
 
-🔄 *2026-11-17 の 9 回目: 文字の見た目が決まりました（`JDG-3612`）。問 6-7-9 は他の AI への質問状の答えを待ちます。MSPDI の `Type` を写す 3 つは、MSPDI の名を最大限に尊重する案を足して問い直します（問 6-8-8）。*
+2026-11-17 の 9 回目: 文字の見た目が決まりました（`JDG-3612`）。問 6-7-9 は他の AI への質問状の答えを待ちます。MSPDI の `Type` を写す 3 つは、MSPDI の名を最大限に尊重する案を足して問い直します（問 6-8-8）。
+
+🔄 *2026-11-17 の 9 回目（追記）: 問 6-7-9 に、他の AI 3 つの答えと、それを受けた私の案を足しました。*
 
 ***
 
@@ -59,7 +61,7 @@ BGQA3
 | 線と塗りの形（問 6-6-4-10） | 塗りは `fill`（`Paint { color, opacityPercent }`）、線は `stroke`（`Stroke { color, opacityPercent, widthPx }`）。線を描かないときは太さも書かない | `JDG-3607` |
 | テーマの色の役割（問 6-6-4-8） | 置き場が役割を決め、値には `{"type": "theme"}` だけを書く | `JDG-3608` |
 | 見た目の型（問 6-6-4-11） | `ShapeStyle { fill, stroke }` を 3 つの見た目で共にし、型ごとの足しを `allOf` で書く。文字の見た目は `style` の中の 1 つの物にまとめる（名は問 6-6-4-13） | `JDG-3610` |
-| 🔄 *文字の見た目（問 6-6-4-13）* | 🔄 *コメントボックスの文字の見た目は `style.font { color, sizePx }`。書体が要るときは `family` を足す* | 🔄 *`JDG-3612`* |
+| 文字の見た目（問 6-6-4-13） | コメントボックスの文字の見た目は `style.font { color, sizePx }`。書体が要るときは `family` を足す | `JDG-3612` |
 
 ### [task] タスクと依存
 
@@ -92,9 +94,60 @@ BGQA3
 
 決まりました（`JDG-3611`）。JSON から `ordinal` を無くす方向が決まりました。位置を言うキーの名と、指す先が消えたときの決まりは、すぐ下の問 6-7-9 で問います。
 
-#### 🔄 *❓ 問 6-7-9. 持ち越した一覧の要素の置き場 —— 他の AI への質問状の答え待ち*
+#### 🔄 *❓ 問 6-7-9. 持ち越した一覧の要素の置き場 —— 位置のキーの名と意味、消えたときと動かしたときの決まり*
 
-🔄 *場面: 前回、あなたは「他のAIへの質問状を書け。 結果は1つのコードブロックで返すように指示しろ」と答えました。質問状を `studies/76-grs-json-beta-shape/terms/carried-element-position-question.md` に書きました（チャットにも同じものを出します）。答えが集まったら、この問いの案を書き直します。*
+🔄 *場面: 他の AI 3 つ（Gemini 2 つ・Copilot）の答えが集まりました。名と決まりの穴を、次のように指摘しています。*
+
+| 🔄 *指摘* | 🔄 *出した AI* |
+|:---|:---|
+| 🔄 *名は `precedingEntityUid`（「実体」を名に入れる）。`element` は `mspdiElement` か `rawElement` がよい* | 🔄 *Gemini 2・Copilot* |
+| 🔄 *`preceding` は XPath で「前にあるもの全部」の意味で、「直前の 1 つ」なら `previousEntityUid` が正確* | 🔄 *Copilot* |
+| 🔄 *預かる要素が続くと、参照の鎖になる。同じ先を指す要素が 2 つ、自分を指す、輪になる、の決まりが要る* | 🔄 *Copilot・Gemini 2* |
+| 🔄 *タスクを動かしたとき、預かる要素が元の席に残るのか、指す先に付いて行くのかを先に決めよ* | 🔄 *Copilot* |
+| 🔄 *WBS の枝ごと動かしたとき、中の預かる要素が枝の外へはじき出されないようにせよ* | 🔄 *Gemini 1* |
+| 🔄 *指す先は同じ一覧の中に限ると書け。uid の型（数か文字か）をそろえよ* | 🔄 *Gemini 1・Copilot* |
+| 🔄 *UID 0 の要約タスクを先頭に置くのは、MSPDI 全体の決まりでなく GRS の決まりとして書け* | 🔄 *Copilot* |
+
+🔄 ***私の見立て:** 指摘の大半は、指す先を「直前の要素（預かる要素も含む）」と決めたことから生まれます。指す先を「GRS が自分の配列に持つ実体」に限れば、鎖も輪も自分を指すことも起きません。*
+
+🔄 *例（MSPDI の `<Tasks>` の並び）:*
+
+```text
+🔄 タスク 12 → 空タスク 13 → 空タスク 15 → タスク 14 → UID の無い要素
+```
+
+🔄 *下のコードブロックの 1・2・3・4・5・6 行目が変わった。*
+```json
+"tasks": [ { "uid": 12, "name": "設計" }, { "uid": 14, "name": "実装" } ],
+"passthroughEntities": [
+  { "collection": "Tasks", "precedingEntityUid": 12, "mspdiElement": { "UID": "13", "IsNull": "1" } },
+  { "collection": "Tasks", "precedingEntityUid": 12, "mspdiElement": { "UID": "15", "IsNull": "1" } },
+  { "collection": "Tasks", "precedingEntityUid": 14, "mspdiElement": { "Name": "…" } }
+]
+```
+
+- 🔄 *空タスク 13 と 15 は、どちらもタスク 12 を指します。同じ先を指す要素どうしは、配列の順（13 → 15）で戻します。鎖が無いので、輪も自分を指すことも起きません。*
+- 🔄 *UID の無い要素も、前のタスク 14 を指せます（直前の要素を指す形では、UID の無い要素を指せません）。*
+- 🔄 *`precedingEntityUid` は GRS の数の uid（N-6）で、`tasks[].uid` と同じ型です。`mspdiElement` の中は MSPDI の文字のまま（`JDG-3606`）で、比べる相手になりません。*
+
+🔄 ***動かしたとき:** 預かる要素は、指す先のタスクに付いて行きます。MS Project の空タスクは、見た目の区切りとして、前のタスクと組で置かれることが多いからです。WBS の枝ごと動かしても、中の要素は枝の中のタスクを指したまま、一緒に動きます（Gemini 1 の指摘が自然に解ける）。席に残す形（Copilot の解釈 A）は、動かすたびに書き換えが要り、枝ごと動かすときにはじき出しが起きます。*
+
+🔄 ***決まりの案:***
+
+| 🔄 *#* | 🔄 *場面* | 🔄 *決まり* |
+|:---|:---|:---|
+| 🔄 *1* | 🔄 *指す先* | 🔄 *同じ `collection` の中で、この要素より前にある、GRS が自分の配列に持つ実体のうち、いちばん近いものの uid。先頭より前に何も無ければ、キーを書かない（先頭に戻す）* |
+| 🔄 *2* | 🔄 *同じ先を指す要素が 2 つ以上* | 🔄 *配列の順で戻す* |
+| 🔄 *3* | 🔄 *GRS でタスクを動かす* | 🔄 *書き換えない。指す先に付いて行く* |
+| 🔄 *4* | 🔄 *GRS でタスクを消す* | 🔄 *同じ命令の中で、そのタスクを指す要素の `precedingEntityUid` を、消したタスクの指す先（さらに前の、GRS が持つ実体）に書き換える。無ければキーを消す。1 回の取り消しで戻る* |
+| 🔄 *5* | 🔄 *開いたファイルで指す先が無い* | 🔄 *文書は開く。その要素を一覧の末尾に置き、知らせる* |
+| 🔄 *6* | 🔄 *Tasks の UID 0 の要約タスク* | 🔄 *GRS の決まりとして、いつも一覧の先頭に戻す（`MR-4`）。MSPDI 全体の決まりとは書かない* |
+
+| 🔄 *案* | 🔄 *中身* |
+|:---|:---|
+| 🔄 ***a（推奨）*** | 🔄 *位置のキーは `precedingEntityUid`（前にある、GRS が持つ実体のうち、いちばん近いものの uid。XPath の preceding の「前にあるもの」の意味に合う）。包みは `passthroughEntities[] { collection, precedingEntityUid, mspdiElement }`。決まりは上の表 1〜6* |
+| 🔄 *b* | 🔄 *位置のキーは `previousEntityUid`（直前の 1 つ。預かる要素も含む）。鎖・同じ先・輪・自分を指す、の決まりを足す。UID の無い要素は指せないので、その後ろの要素の置き場を別に決める* |
+| 🔄 *c* | 🔄 *a の名と指す先のまま、動かしたときは元の席に残す（動かすたびに、前のタスクを指すよう書き換える）* |
 
 回答:
 
@@ -112,44 +165,44 @@ BGQA3
 
 決まりました（`JDG-3609`）。決まり N-1〜N-12 と例外の決まり X-1〜X-4 を採りました。E-3 と E-6 は、すぐ下の問 6-8-7 で問い直します。
 
-#### 🔄 *✅ 問 6-8-7. MSPDI と名が違う、MSPDI 由来のキー —— 1 つずつ比べて選ぶ*
+#### ✅ 問 6-8-7. MSPDI と名が違う、MSPDI 由来のキー —— 1 つずつ比べて選ぶ
 
-🔄 *あなたの問い「MSPDIの名称を最大限に尊重したらどうなる？」に、すぐ下の問 6-8-8 で答えます。*
+あなたの問い「MSPDIの名称を最大限に尊重したらどうなる？」に、すぐ下の問 6-8-8 で答えます。
 
-#### 🔄 *❓ 問 6-8-8. MSPDI の `Type` を写す 3 つ —— MSPDI の名を最大限に尊重したらどうなるか*
+#### ❓ 問 6-8-8. MSPDI の `Type` を写す 3 つ —— MSPDI の名を最大限に尊重したらどうなるか
 
-🔄 *場面: 前回、あなたは「全体構造がわからんが、 xxx.exception.type やxxx.exceptionType のようにMSPDIの名称を最大限に尊重したらどうなる？ linkType より PredecessorLink Type の方が分かりやすいぞ。」と書きました。*
+場面: 前回、あなたは「全体構造がわからんが、 xxx.exception.type やxxx.exceptionType のようにMSPDIの名称を最大限に尊重したらどうなる？ linkType より PredecessorLink Type の方が分かりやすいぞ。」と書きました。
 
-🔄 ***3 つのキーの居場所**（GRS JSON と MSPDI を並べた構造図。`→` の右が MSPDI の元の場所）:*
+**3 つのキーの居場所**（GRS JSON と MSPDI を並べた構造図。`→` の右が MSPDI の元の場所）:
 
 ```text
-🔄 scheduleData
-🔄 ├─ tasks[]                    Task                  → Project/Tasks/Task
-🔄 │   └─ predecessorLinks[]     PredecessorLink       → Task/PredecessorLink
-🔄 │       ├─ predecessorUid                           → PredecessorLink/PredecessorUID
-🔄 │       ├─ ？Type                依存の種類（FF・FS・SF・SS） → PredecessorLink/Type
-🔄 │       ├─ linkLag                                  → PredecessorLink/LinkLag
-🔄 │       └─ lagFormat                                → PredecessorLink/LagFormat
-🔄 ├─ calendars[]                Calendar              → Project/Calendars/Calendar
-🔄 │   ├─ weekDays[]             WeekDay               → Calendar/WeekDays/WeekDay
-🔄 │   │   └─ dayType                                  → WeekDay/DayType（MSPDI と同じ名）
-🔄 │   └─ exceptions[]           Exception             → Calendar/Exceptions/Exception
-🔄 │       └─ ？Type                繰り返し方（毎日・毎週など） → Exception/Type
-🔄 └─ resources[]                Resource              → Project/Resources/Resource
-🔄     └─ ？Type                    資材か作業か            → Resource/Type
+scheduleData
+├─ tasks[]                    Task                  → Project/Tasks/Task
+│   └─ predecessorLinks[]     PredecessorLink       → Task/PredecessorLink
+│       ├─ predecessorUid                           → PredecessorLink/PredecessorUID
+│       ├─ ？Type                依存の種類（FF・FS・SF・SS） → PredecessorLink/Type
+│       ├─ linkLag                                  → PredecessorLink/LinkLag
+│       └─ lagFormat                                → PredecessorLink/LagFormat
+├─ calendars[]                Calendar              → Project/Calendars/Calendar
+│   ├─ weekDays[]             WeekDay               → Calendar/WeekDays/WeekDay
+│   │   └─ dayType                                  → WeekDay/DayType（MSPDI と同じ名）
+│   └─ exceptions[]           Exception             → Calendar/Exceptions/Exception
+│       └─ ？Type                繰り返し方（毎日・毎週など） → Exception/Type
+└─ resources[]                Resource              → Project/Resources/Resource
+    └─ ？Type                    資材か作業か            → Resource/Type
 ```
 
-🔄 ***あなたの案を広げた決まり:** 「MSPDI の `Type` を写すキーは、MSPDI の親要素の名 ＋ `Type` とする」。MSPDI の XSD の説明も、それぞれを "The exception type"・"The link type"・"The type of resource" と、親の名で呼びます。*
+**あなたの案を広げた決まり:** 「MSPDI の `Type` を写すキーは、MSPDI の親要素の名 ＋ `Type` とする」。MSPDI の XSD の説明も、それぞれを "The exception type"・"The link type"・"The type of resource" と、親の名で呼びます。
 
 | 案 | 3 つの名 | 中身 |
 |:---|:---|:---|
-| **a（推奨）** | 🔄 *`exceptionType`・`predecessorLinkType`・`resourceType`* | 🔄 *親要素の名 ＋ `Type`。MSPDI を知る人は、名から `Exception/Type` などの元の場所がすぐ分かる。3 つが 1 つの決まりで名付けられ、`resourceType` だけの例外（E-3）が消える。素の `type` は判別子だけに残る（N-7）。代わりに、キーが持ち主の名を繰り返す（N-4）。これを例外の決まり X-5「MSPDI の `Type` を写すキーは、親要素の名 ＋ `Type`（N-4 より強い）」として書く* |
-| b | 🔄 *3 つとも `type`（`exception.type` のように、置き場で読む）* | 🔄 *MSPDI の名そのもの。ただし `Color.type`（どの形かを選ぶ判別子）と `Exception.type`（繰り返し方）が、同じ名で別の役目を持つ（`OKPN`・`OMPV`）。判別子の決まり N-7 を崩す* |
-| c | 🔄 *`recurrenceType`・`linkType`・`resourceType`（今のまま）* | 🔄 *何を分けるかを言う名。MSPDI の名からは離れ、`resourceType` だけが例外になる* |
+| **a（推奨）** | `exceptionType`・`predecessorLinkType`・`resourceType` | 親要素の名 ＋ `Type`。MSPDI を知る人は、名から `Exception/Type` などの元の場所がすぐ分かる。3 つが 1 つの決まりで名付けられ、`resourceType` だけの例外（E-3）が消える。素の `type` は判別子だけに残る（N-7）。代わりに、キーが持ち主の名を繰り返す（N-4）。これを例外の決まり X-5「MSPDI の `Type` を写すキーは、親要素の名 ＋ `Type`（N-4 より強い）」として書く |
+| b | 3 つとも `type`（`exception.type` のように、置き場で読む） | MSPDI の名そのもの。ただし `Color.type`（どの形かを選ぶ判別子）と `Exception.type`（繰り返し方）が、同じ名で別の役目を持つ（`OKPN`・`OMPV`）。判別子の決まり N-7 を崩す |
+| c | `recurrenceType`・`linkType`・`resourceType`（今のまま） | 何を分けるかを言う名。MSPDI の名からは離れ、`resourceType` だけが例外になる |
 
 回答:
 
-### [color] 🔄 *色 ✅*
+### [color] 色 ✅
 
 #### ✅ 問 6-6-4-10. 線の形 —— 線の太さを線の中に入れるか
 
@@ -159,9 +212,9 @@ BGQA3
 
 決まりました（`JDG-3610`）。`ShapeStyle { fill, stroke }` を 3 つの見た目で共にします。文字の見た目の名は、すぐ下の問 6-6-4-13 で問います。
 
-#### 🔄 *✅ 問 6-6-4-13. コメントボックスの文字の見た目 —— `style` の中の 1 つの物の名*
+#### ✅ 問 6-6-4-13. コメントボックスの文字の見た目 —— `style` の中の 1 つの物の名
 
-🔄 *決まりました（`JDG-3612`）。答えは決定事項にあります。*
+決まりました（`JDG-3612`）。答えは決定事項にあります。
 
 #### ✅ 問 6-6-4-8. テーマの色の役割 —— 置き場で決めるか、値に書くか
 
