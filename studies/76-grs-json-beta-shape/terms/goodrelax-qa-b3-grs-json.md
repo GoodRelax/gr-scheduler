@@ -1,4 +1,5 @@
 BGQA3
+BGQA3U
 # GRS JSON の名（名の辞書 3）
 
 > 「回答:」の後ろに答えを書いて保存し、1 行目の BGQA3 を切り取ってください。
@@ -6,7 +7,7 @@ BGQA3
 
 2026-11-15 に作った。BGQA2（名の辞書）が大きくなりすぎたので、あなたの指示で約束の面ごとに分けた（`JDG-3568`）。この紙は GRS JSON の名を受け持つ。文書の命令は BGQA4、Agent API は BGQA5 が受け持ち、GRS JSON の名が決まった後に出す。決まりと、これまでの決定事項は BGQA2（`goodrelax-qa-b2-glossary.md`）にある。
 
-🔄 *残 6（❓ で検索）*
+🔄 *残 2（❓ で検索）*
 
 1 回目は、ほかの名に効く 10 問です: キーの付け方の決まり、根の並びと呼び名、順番の数、色の形、MSPDI と違う名を保つかの 2 問。残りの GRS JSON の問い（21）は、答えの後で 10 問前後ずつ出します。
 
@@ -32,7 +33,9 @@ BGQA3
 
 2026-11-17 の 11 回目: 他の AI 3 つに構造図のレビューを頼み、採る価値が高い指摘を、影響の大きい順に 4 問にしました: タスクに付く GRS の値の置き場（問 6-13-6）、Project から移す 7 つの値（問 6-13-4）、命名の決まりの足し（問 6-8-9）、個々の名（問 6-8-10）。構造図（問 6-13-5）と MSPDI の `Type` の名（問 6-8-8）は、この答えで形が変わるので、出す前の置き場へ下げました。答えの後で、構造図を描き直して出し直します。
 
-🔄 *2026-11-17 の 11 回目（追記）: あなたの問い「各タスクにgrsをつけたら taskGroupはどうなる？」に、問 6-13-7 で答えました。*
+2026-11-17 の 11 回目（追記）: あなたの問い「各タスクにgrsをつけたら taskGroupはどうなる？」に、問 6-13-7 で答えました。
+
+🔄 *2026-11-17 の 12 回目: 4 問が決まりました（`JDG-3614`〜`JDG-3617`。問 6-8-10 は仮）。あなたの問い「data の中か、並べて置くか」に問 6-13-8 で答えました。決まったことを当てた β の GRS JSON を作り、他の AI への 2 通目の質問状にしています。*
 
 ***
 
@@ -44,6 +47,8 @@ BGQA3
 |:---|:---|:---|
 | プロジェクトの 23 語（問 6-8-5） | 表のとおり確定（8-6 `uid`・8-8 `name`・8-9 `title`・8-10〜8-18・8-20〜8-25・8-31〜8-35）。8-19 `scheduleDataTimeZone` は名だけ確定し、置き場を問 6-8-19 で問う | `JDG-3569` |
 | GRS JSON の命名の決まり（問 6-8-6） | 決まり N-1〜N-12 と例外の決まり X-1〜X-4 を採る。例外 E-1・E-2・E-4・E-5 を採る。E-3・E-6 は問 6-8-7 | `JDG-3609` |
+| 🔄 *命名の決まりの足し（問 6-8-9）* | 🔄 *N-13〜N-17 を足し、X-2 を明記する。MSPDI の真偽の値も MSPDI の名のまま* | 🔄 *`JDG-3616`* |
+| 🔄 *個々の名 10 個（問 6-8-10）* | 🔄 *仮に採る。最終は全体の JSON を見てから* | 🔄 *`JDG-3617`* |
 
 ### [root] スケジュールデータと文書の根
 
@@ -52,6 +57,8 @@ BGQA3
 | 似た字と根の並び（問 6-13-1） | `note` → `remarks`、`levelZeroTreeState` → `rootTreeState`（階層は「深さ」で数える）。根の並びは `$schema`・`schemaVersion`・`buildVersion`・`documentSettings`・`scheduleData`・`documentStamp`・`changeLogEntries` | `JDG-3602` |
 | 根の 3 つの部分の呼び名（問 6-11-1） | 「文書刻印」「文書設定」「変更履歴」 | `JDG-3603` |
 | GRS JSON の構造と分け方（問 6-13-3） | 1 文書 1 JSON。根を形の版・見せ方・中身・帳簿に分け、中身を MSPDI と往復する群と GRS だけの群に分ける。往復する群の実体に置くのは、その実体のことを言い、かつ MSPDI と往復する値だけ。Project の GRS だけの値 7 つを GRS の群の 1 つの物へ移す（名は問 6-13-4） | `JDG-3605` |
+| 🔄 *タスクに付く GRS の値（問 6-13-6）* | 🔄 *タスクの中の `grs` にまとめる（`taskGroupId`・`style`・`origin`・フェードの 2 つ）。`taskGroupMembers`・`taskStyles`・`taskOrigins` は無くなる。前回予定は別の配列のまま* | 🔄 *`JDG-3614`* |
+| 🔄 *タスクとタスクグループ（問 6-13-7）* | 🔄 *タスクが `grs.taskGroupId` で持つ* | 🔄 *`JDG-3615`* |
 
 ### [key] 共通のキー
 
@@ -91,107 +98,52 @@ BGQA3
 - MSPDI の名の欄の「無し」は、GRS が自分で付けた名です（MSPDI に同じ要素が無い）。
 - 表を見る問いでは、直す所が無ければ ok と書き、直す所は表のセルに ★ で書いてください。
 
-### [root] 🔄 *スケジュールデータと文書の根（❓ 3）*
+### [root] 🔄 *スケジュールデータと文書の根（❓ 1）*
 
-#### ❓ 問 6-13-6. タスクに付く GRS の値の置き場 —— タスクの中の `grs` にまとめるか
+#### 🔄 *✅ 問 6-13-6. タスクに付く GRS の値の置き場 —— タスクの中の `grs` にまとめるか*
 
-場面: 他の AI 3 つのうち 2 つが、「一番直すべき 1 点」に、タスクに付く GRS の値が別々の配列に散らばっていることを挙げました。今は、タスク 1 件を足す・消す・写すたびに、`tasks[]`・`taskGroupMembers[]`・`taskStyles[]`・`taskOrigins[]` の 4 か所を合わせて直す必要があります。AI や外の道具は、片方だけを直して、どこも指さない切れ端を残しやすくなります。
+🔄 *決まりました（`JDG-3614`）。答えは決定事項にあります。*
 
-今の形で、タスクに付く GRS の値（辞書の定義より）:
+#### 🔄 *✅ 問 6-13-7. タスクとタスクグループの結び付き —— どちらが相手を持つか*
 
-| 値 | 今の置き場 | 1 タスクに |
+🔄 *決まりました（`JDG-3615`）。答えは決定事項にあります。*
+
+#### 🔄 *✅ 問 6-13-4. Project から移す 7 つの値 —— 性質で分けて、置き場と名を決める*
+
+🔄 *あなたの問い「dataの中にmetadataを入れるのと、dataと並列にmatadataを入れるのはどちらが良いか」に、すぐ下の問 6-13-8 で答えます。2 つ（色相・遅延診断の許し幅）を文書設定へ移す形は、仮のまま構造図に描きます。*
+
+#### 🔄 *❓ 問 6-13-8. 5 つの値の置き場 —— スケジュールデータの中か、並べて置くか*
+
+🔄 *場面: 問 6-13-4 に、あなたは「dataの中にmetadataを入れるのと、dataと並列にmatadataを入れるのはどちらが良いか根拠と共に答えろ」と書きました。対象は、文書設定へ移す 2 つ（色相・遅延診断の許し幅）を除いた 5 つです: `scheduleDataTimeZone`・`highestIssuedUid`・`lastMspdiImportNumber`・`sourceFormat`・`topTaskOutlineLevel`。*
+
+| 値 | 🔄 *何を言うか* | 🔄 *何と一緒に変わるか* |
 |:---|:---|:---|
-| どのタスクグループに入るか | `taskGroupMembers[] { taskUid, taskGroupId }` | ちょうど 1 つ |
-| 見た目 | `taskStyles[] { taskUid, style }` | ちょうど 1 つ |
-| 取り込み元 | `taskOrigins[] { taskUid, … }` | 取り込んだタスクだけ 1 つ |
-| フェード | `tasks[]` の中の `fadeInCalendarDays`・`fadeOutCalendarDays` | 0 か 1 つずつ |
+| 🔄 *`scheduleDataTimeZone`* | 🔄 *スケジュールデータの日時をどう読むか* | 🔄 *スケジュールデータの日時* |
+| 🔄 *`highestIssuedUid`* | 🔄 *スケジュールデータの実体に振った uid の数え手* | 🔄 *タスク・担当・割当・暦を足すとき* |
+| 🔄 *`lastMspdiImportNumber`* | 🔄 *MSPDI を取り込んだ回数。タスクの `grs.origin` と比べる* | 🔄 *取り込みで、タスクと一緒に* |
+| 🔄 *`sourceFormat`* | 🔄 *スケジュールデータの元の形式* | 🔄 *取り込みで* |
+| 🔄 *`topTaskOutlineLevel`* | 🔄 *取り込んだファイルの、最上位のタスクの OutlineLevel* | 🔄 *取り込みで、タスクと一緒に* |
 
-案 a の形:
+🔄 *5 つとも、スケジュールデータのことを言い、スケジュールデータと一緒に変わります。*
 
+🔄 *下のコードブロックの 1・2・3・4・5・6・7・8・9 行目が変わった。*
 ```json
-"tasks": [
-  { "uid": 12, "name": "設計", "start": "2026-12-01T08:00:00", "finish": "2026-12-10T17:00:00",
-    "parentTaskUid": 3, "siblingOrder": 0,
-    "passthrough": { "Priority": "500" },
-    "grs": {
-      "taskGroupId": "6f1c…",
-      "style": { "taskShape": "rectangle", "fill": { "color": { "type": "theme" } } },
-      "origin": { "sourceProjectUid": "…", "sourceUid": 12, "lastSeenMspdiImportNumber": 2 },
-      "fadeInCalendarDays": 3 } } ]
-```
-
-今の形（案 b）:
-
-```json
-"tasks":            [ { "uid": 12, "name": "設計", "fadeInCalendarDays": 3, … } ],
-"taskGroupMembers": [ { "taskUid": 12, "taskGroupId": "6f1c…" } ],
-"taskStyles":       [ { "taskUid": 12, "style": { … } } ],
-"taskOrigins":      [ { "taskUid": 12, "sourceUid": 12, … } ]
+"案 a（中に置く）": {
+  "documentSettings": { … },
+  "scheduleData": {
+    "project": { … }, "tasks": [ … ],
+    "metadata": { "scheduleDataTimeZone": "+09:00", "highestIssuedUid": 42, … } } },
+"案 b（並べて置く）": {
+  "documentSettings": { … },
+  "scheduleData": { "project": { … }, "tasks": [ … ] },
+  "scheduleMetadata": { "scheduleDataTimeZone": "+09:00", "highestIssuedUid": 42, … } }
 ```
 
 | 案 | 中身 |
 |:---|:---|
-| **a（推奨）** | タスクに 1 つずつ付く GRS の値を、タスクの中の `grs` にまとめる（所属の `taskGroupId`・見た目の `style`・取り込み元の `origin`・フェードの 2 つ）。MSPDI のキーはタスクの直下、GRS の値は `grs` の下と、名で分かれたまま 1 か所にまとまる（`JDG-3605` の「MSPDI の実体には MSPDI の物だけ」を、名前空間で守る）。タスクを足す・消す・写すときは 1 件だけを直せばよく、切れ端が生まれない。`taskGroupMembers[]`・`taskStyles[]`・`taskOrigins[]` は無くなる。`parentTaskUid`・`siblingOrder` は MSPDI の木の事実なので直下に残す。前回予定 `baselineTasks[]` は、前の予定の写し（今は無いタスクも含みうる）なので、別の配列のまま残す。ほかの MSPDI の実体（担当・割当・暦）に GRS の値が付くときも、同じく `grs` に置く |
-| b | 今のまま、別々の配列に置く（`JDG-3556` の `taskStyles[]`）。タスクの直下は MSPDI の物だけで、一番平ら。代わりに、タスク 1 件の値が 4 か所に散らばる |
-| c | GRS の値を、`grs` を挟まずにタスクの直下に置く。一番短いが、MSPDI のキーと GRS のキーが混ざり、どれが MSPDI の物か名で分からない |
-
-回答:
-
-#### 🔄 *❓ 問 6-13-7. タスクとタスクグループの結び付き —— どちらが相手を持つか*
-
-🔄 *場面: あなたは「仮に各タスクにgrsをつけたとしよう。 taskGroupはどうなる？ a) taskがtaskGroupIdを持つ b) taskGroupがtaskのuidを持つ c) その他。 複数案を挙げて根拠と共に最適案を示せ。」と問いました。*
-
-🔄 *事実（辞書の定義より）:*
-- 🔄 *どのタスクも、ちょうど 1 つのタスクグループに入ります。1 つのタスクグループには、いくつものタスクが入ります（マルチバー）。*
-- 🔄 *タスクグループの中でのタスクの並びは、GRS が `taskStackDirection` の向きに自分で積みます。並びを文書に持つ必要はありません。*
-- 🔄 *タスクグループは別に、WBS のどのタスクを表すかを `derivedFromTaskUid`（名は問 6-9-2）で持ちます。これは「表す」という別の結び付きで、この問いの外です。*
-
-| 🔄 *案* | 🔄 *形* | 🔄 *良い点* | 🔄 *弱い点* |
-|:---|:---|:---|:---|
-| 🔄 ***a（推奨）*** | 🔄 *タスクが持つ: `task.grs.taskGroupId`* | 🔄 *「ちょうど 1 つ」が形で守られる（値は 1 つしか書けない）。タスクを別の帯へ移すとき、直すのは 1 か所。タスクを足す・消す・写すときも、タスクの中だけで済む。参照は N-5（相手の名 ＋ `Id`）のとおり* | 🔄 *1 つの帯に入るタスクを全部知るには、全タスクを見て集める（GRS は読むときに 1 度集めれば足りる）* |
-| 🔄 *b* | 🔄 *タスクグループが持つ: `taskGroup.taskUids[]`* | 🔄 *帯ごとの中身が 1 か所で見える* | 🔄 *1 つのタスクを 2 つの帯に入れたり、どの帯にも入れなかったりできてしまう（「ちょうど 1 つ」を形で守れない）。移すときは 2 つの配列を直す。配列の順に意味が無い（GRS が自分で積む）のに順を持つ（`OMPV`）* |
-| 🔄 *c1* | 🔄 *両方が持つ* | 🔄 *どちらからも引ける* | 🔄 *同じ事実を 2 か所に書く（`SSOT` に外れる）。片方だけ直すと食い違う* |
-| 🔄 *c2* | 🔄 *今のまま、間の配列 `taskGroupMembers[]` に持つ* | 🔄 *1 つのタスクを 2 つの帯に入れる形にも広げられる* | 🔄 *「ちょうど 1 つ」の結び付きに、間の配列は要らない。問 6-13-6 の a（タスクに付く値をタスクにまとめる）と合わない* |
-| 🔄 *c3* | 🔄 *タスクを、タスクグループの中に入れ子で置く* | 🔄 *帯ごとの中身がそのまま木になる* | 🔄 *タスクは MSPDI と往復する実体で、MSPDI の群と GRS の群の分け方（`JDG-3545`）を崩す。MSPDI の並びも別に要る* |
-
-🔄 *推奨の理由: 結び付きの数（タスクから見て 1 つ、帯から見て多数）に、形を合わせるのが最も確かです。多数の側（タスク）が 1 つの値で相手を指す形は、データベースの外部キーと同じ置き方で、「ちょうど 1 つ」を形そのものが守ります。*
-
-🔄 *下のコードブロックの 1・2・3・4・5・6・7 行目が変わった。*
-```json
-"tasks": [
-  { "uid": 12, "name": "設計", "grs": { "taskGroupId": "6f1c…" } },
-  { "uid": 14, "name": "実装", "grs": { "taskGroupId": "6f1c…" } }
-],
-"taskGroups": [
-  { "id": "6f1c…", "name": "開発", "derivedFromTaskUid": 3 }
-]
-```
-
-回答:
-
-#### ❓ 問 6-13-4. Project から移す 7 つの値 —— 性質で分けて、置き場と名を決める
-
-場面: 他の AI 3 つとも、7 つの値は性質が違いすぎるので、1 つの物にまとめず分けるべきだと答えました。2 つの AI が、残る物の名に `scheduleMetadata` を推し、`grsProject` は `project` と紛らわしいと指摘しました。
-
-| # | 値 | 性質 | 案 a の置き場 |
-|:---|:---|:---|:---|
-| 1 | `themeHueDegrees` | 見た目（テーマの色相） | `documentSettings`（見せ方） |
-| 2 | `parentTaskProgressToleranceWorkingDays` | 遅延診断の決まり | `documentSettings`（見せ方と診断の決まり） |
-| 3 | `scheduleDataTimeZone` | スケジュールデータの日時の読み方 | `scheduleData.scheduleMetadata` |
-| 4 | `highestIssuedUid` | uid の数え手（帳簿） | `scheduleData.scheduleMetadata` |
-| 5 | `lastMspdiImportNumber` | MSPDI を取り込んだ回数（帳簿） | `scheduleData.scheduleMetadata` |
-| 6 | `sourceFormat` | 文書の元の形式 | `scheduleData.scheduleMetadata` |
-| 7 | `firstOutlineLevel` | 取り込んだファイルの、最上位のタスクの OutlineLevel | `scheduleData.scheduleMetadata` |
-
-- 1 と 2 を文書設定に置くと、変えたときは「見せ方を変えた」扱いになり、スケジュールデータの更新時刻は動きません。
-- 3〜7 は、データを読むための前提と帳簿で、スケジュールデータと共に変わります。
-
-| 案 | 中身 |
-|:---|:---|
-| **a（推奨）** | 上の表のとおり、1・2 を `documentSettings`、3〜7 を `scheduleData.scheduleMetadata` に置く |
-| b | 7 つとも `scheduleData.scheduleMetadata` にまとめる |
-| c | 3 つに分ける: 1・2 を `documentSettings`、3・7 を `scheduleMetadata`（データの前提）、4〜6 を `importState`（取り込みと数え手の帳簿） |
-| d | 直す名を書く |
+| **a（推奨）** | 🔄 *スケジュールデータの中に `metadata` として置く。根拠: 値は、その値が言う物の中に置く（値の持ち主）。スケジュールデータだけを写したり、合流したり、取り消したりしても、日時の読み方や uid の数え手が一緒に動き、スケジュールデータが単独で読める。名は `metadata` とし、`scheduleMetadata` にしない（N-4: 持ち主の名を繰り返さない）* |
+| b | 🔄 *根に、スケジュールデータと並べて `scheduleMetadata` として置く。根を見ただけで帳簿の値が見える。代わりに、スケジュールデータを単独で読むには、根の別の場所も読む必要がある（日時の読み方が外に出る）* |
+| c | 🔄 *分ける: 日時の読み方と形の 3 つ（`scheduleDataTimeZone`・`sourceFormat`・`topTaskOutlineLevel`）は中の `metadata`、数え手と回数の 2 つ（`highestIssuedUid`・`lastMspdiImportNumber`）は帳簿として `documentStamp` に置く* |
 
 回答:
 
@@ -222,57 +174,15 @@ BGQA3
 
 決まりました（`JDG-3613`）。答えは決定事項にあります。
 
-### [proj] プロジェクト（❓ 2）
+### [proj] 🔄 *プロジェクト ✅*
 
-#### ❓ 問 6-8-9. 命名の決まりの足し —— 他の AI が挙げた抜けを埋める
+#### 🔄 *✅ 問 6-8-9. 命名の決まりの足し —— 他の AI が挙げた抜けを埋める*
 
-場面: 他の AI 3 つが、命名の決まり（N-1〜N-12、`JDG-3609`）の抜けを、ほぼ同じ所に挙げました。足す決まりの案です。
+🔄 *決まりました（`JDG-3616`）。答えは決定事項にあります。*
 
-| # | 足す決まり | 例 |
-|:---|:---|:---|
-| N-13 | GRS が名を付ける日時のキーは、値の型で終える: 日だけは `…Day`（型 Day）、時刻だけは `…Time`（型 Time）、日と時刻は `…DateTime`（型 DateTime）、UTC の瞬間は `…At`（型 UtcInstant） | `leftEdgeDay`・`fromTime`・`changedAt` |
-| N-14 | 列挙の値は camelCase の英語の語にする。MSPDI の数の符号（依存の種類の 0〜3 など）は、数のまま写す | `notDecided`・`freePoint` |
-| N-15 | 空の配列も、キーを書かないことで言う（N-12 を配列に広げる）。`[]` は書かない | 依存が無いタスクは `predecessorLinks` を持たない |
-| N-16 | 割合は `…Percent`（全体に対する %。0〜100）、倍率は `…Ratio`（既定に対する倍。1 が既定） | `displayScalePercent`・`verticalZoomRatio` |
-| N-17 | 判別子 `type` を持つ物は、その値が持つ欄だけを書く。ほかの値の欄は書かない | `leaderTarget.type` が `task` なら `dateTime` を書かない |
-| X-2 の明記 | MSPDI の名を写すキーは、N-9（`is…`）・N-10（単位）・N-11・N-13 より強い | `milestone`・`startDate`・`stop`・`resume`・`hyperlink` は MSPDI の名のまま |
+#### 🔄 *✅ 問 6-8-10. 他の AI が挙げた個々の名 —— 推奨の表のとおりでよいか*
 
-- 他の AI 3 つとも、`milestone`・`resumeValid`・`dayWorking` を `isMilestone` などに直すよう推しました。MSPDI の名のまま（X-2）だと、読む人は真偽の値かどうかを名から読めない、という理由です。案 c は、その考えを採る形です。
-
-| 案 | 中身 |
-|:---|:---|
-| **a（推奨）** | N-13〜N-17 を足し、X-2 を上の表のとおり明記する。MSPDI の名を写すキーは、真偽の値でも MSPDI の名のまま（`milestone`） |
-| b | 直す所に ★ を書く |
-| c | a に加えて、MSPDI の真偽の値だけは `is…` を付ける（`isMilestone`・`isResumeValid`・`isDayWorking`）。MSPDI の名との違いは、意味の文に書く（X-4） |
-
-回答:
-
-#### ❓ 問 6-8-10. 他の AI が挙げた個々の名 —— 推奨の表のとおりでよいか
-
-場面: 他の AI が、2 つ以上そろって挙げた名と、席が確かめて直す方がよいと考えた名です。
-
-直す所が無ければ ok、直す所は表のセルに ★ で書いてください。
-
-| # | 今の名（場所） | 案 | 理由 |
-|:---|:---|:---|:---|
-| 1 | `shownTaskUids`（表の窓） | `checkedTaskUids` | 中身は「表でチェックしたタスク」。`shown` だと「描いた結果」に読める |
-| 2 | `shownResourceUids`（担当リスト） | `checkedResourceUids` | 同上 |
-| 3 | `isUnassignedShown`（担当リスト） | `isUnassignedChecked` | 同上 |
-| 4 | `point`（`leaderTarget`） | `snapPoint` | 中身は「線先が吸着する 8 つの点の 1 つ」。`point` だけでは座標 `{x, y}` に読める。画面の語「吸着」は snap |
-| 5 | `graphicPart`（`leaderTarget`） | `snapPart` | 中身は「線先が吸着する、予定バー・実績バー・マイルストーンマークのどれか」。4 と同じ語でそろえる |
-| 6 | `sourceProjectId`（取り込み元） | `sourceProjectUid` | 中身は MSPDI の Project/UID。N-5・N-6 では `…Uid` |
-| 7 | `editGroup`（タスクグループ） | `editorGroupName` | 中身は「このタスクグループを編集してよいグループの名前」。名から用途が読めない |
-| 8 | `firstOutlineLevel`（7 つの値） | `topTaskOutlineLevel` | 中身は「取り込んだファイルの、最上位のタスクの OutlineLevel」。first は何の最初か分からない |
-| 9 | `fontSizeStep`（文書設定） | `fontSize` | 値は small・medium・large。CSS の `font-size` の語と同じで、段の番号ではない |
-| 10 | `fitSpan`（文書設定） | `fitDayRange` | 中身は「全体表示に使う日の範囲」（firstDay〜lastDay）。span は何の幅か分からない |
-
-AI が挙げたが、席は今のままでよいと考える名:
-- `baselineTasks[].uid`: 前の予定での、同じタスクの uid です。前回予定という実体自身の識別子で、別の物を指す参照ではありません（N-5 の外）。
-- `lastEditedBy.name`: 判別子 `type` が `agent` のときだけ持つ欄で、Agent API の呼び手が自分に付けた名です（N-17 で、ほかの値のときは書かない）。
-- `stop`・`resume`・`hyperlink`・`milestone`: MSPDI の名です（X-2。問 6-8-9 の案 c なら `milestone` は変わる）。
-- `verticalZoomRatio`: 倍率なので N-16 のとおりです。
-
-回答:
+🔄 *決まりました（`JDG-3617`）。仮に採りました。最終は、全体の JSON を見てから決めます。*
 
 #### ✅ 問 6-8-5. プロジェクトの 24 語 —— 推奨の表のとおりでよいか
 
