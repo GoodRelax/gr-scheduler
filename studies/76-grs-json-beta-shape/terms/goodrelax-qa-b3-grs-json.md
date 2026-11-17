@@ -6,7 +6,7 @@ BGQA3
 
 2026-11-15 に作った。BGQA2（名の辞書）が大きくなりすぎたので、あなたの指示で約束の面ごとに分けた（`JDG-3568`）。この紙は GRS JSON の名を受け持つ。文書の命令は BGQA4、Agent API は BGQA5 が受け持ち、GRS JSON の名が決まった後に出す。決まりと、これまでの決定事項は BGQA2（`goodrelax-qa-b2-glossary.md`）にある。
 
-残 3（❓ で検索）
+🔄 *残 5（❓ で検索）*
 
 1 回目は、ほかの名に効く 10 問です: キーの付け方の決まり、根の並びと呼び名、順番の数、色の形、MSPDI と違う名を保つかの 2 問。残りの GRS JSON の問い（21）は、答えの後で 10 問前後ずつ出します。
 
@@ -28,7 +28,9 @@ BGQA3
 
 2026-11-17 の 9 回目（追記）: 問 6-7-9 に、他の AI 3 つの答えと、それを受けた私の案を足しました。あなたの確認（違う種類の実体を指さないか、OKPN）を受けて、一覧ごとに配列とキーを分ける形を推奨にしました。
 
-🔄 *2026-11-17 の 10 回目: 問 6-7-9 が決まりました（`JDG-3613`）。構造図の ★ を直し、決まったことを当てて描き直しました（問 6-13-5。直した行は説明の末尾に 🔄）。問 6-8-8 は、その構造図を見て決めてください。*
+2026-11-17 の 10 回目: 問 6-7-9 が決まりました（`JDG-3613`）。構造図の ★ を直し、決まったことを当てて描き直しました（問 6-13-5。直した行は説明の末尾に 🔄）。問 6-8-8 は、その構造図を見て決めてください。
+
+🔄 *2026-11-17 の 11 回目: 他の AI 3 つに構造図のレビューを頼み、採る価値が高い指摘を、影響の大きい順に 4 問にしました: タスクに付く GRS の値の置き場（問 6-13-6）、Project から移す 7 つの値（問 6-13-4）、命名の決まりの足し（問 6-8-9）、個々の名（問 6-8-10）。構造図（問 6-13-5）と MSPDI の `Type` の名（問 6-8-8）は、この答えで形が変わるので、出す前の置き場へ下げました。答えの後で、構造図を描き直して出し直します。*
 
 ***
 
@@ -55,7 +57,7 @@ BGQA3
 |:---|:---|:---|
 | 持ち越しの形（問 6-7-8） | 各実体の `passthrough` 1 つに、MSPDI の構造と要素の名のまま持つ。繰り返せる要素はいつも配列。`ordinal` は持たず、書き出しは XSD の順と配列の順 | `JDG-3606` |
 | `ordinal`（問 6-7-6） | JSON から `ordinal` を無くす方向。順は配列で持ち、例外の行の鍵は GRS の中だけで持つ。持ち越した一覧の要素の位置のキーは問 6-7-9 | `JDG-3611` |
-| 🔄 *持ち越した一覧の要素（問 6-7-9）* | 🔄 *一覧ごとの配列 `passthroughTasks[] { precedingTaskUid, mspdiElement }` など 4 つ。位置は前にある、GRS が持つ実体のうち、いちばん近いものの uid。動かしても付いて行き、消すとさらに前へ書き換える* | 🔄 *`JDG-3613`* |
+| 持ち越した一覧の要素（問 6-7-9） | 一覧ごとの配列 `passthroughTasks[] { precedingTaskUid, mspdiElement }` など 4 つ。位置は前にある、GRS が持つ実体のうち、いちばん近いものの uid。動かしても付いて行き、消すとさらに前へ書き換える | `JDG-3613` |
 
 ### [color] 色
 
@@ -87,349 +89,94 @@ BGQA3
 - MSPDI の名の欄の「無し」は、GRS が自分で付けた名です（MSPDI に同じ要素が無い）。
 - 表を見る問いでは、直す所が無ければ ok と書き、直す所は表のセルに ★ で書いてください。
 
-### [root] 🔄 *スケジュールデータと文書の根（❓ 1）*
+### [root] 🔄 *スケジュールデータと文書の根（❓ 2）*
 
-#### 🔄 *❓ 問 6-13-5. 構造図（2026-11-17 版） —— このとおりでよいか*
+#### 🔄 *❓ 問 6-13-6. タスクに付く GRS の値の置き場 —— タスクの中の `grs` にまとめるか*
 
-🔄 *場面: あなたは「途中まで見た。 直せ。 そのあとまたツリーを見る。 ツリーで直したところは説明のところに更新マークをつけろ。 そうしないとツリーが壊れる」と書きました。構造図の ★ を直し、その後に決まったこと（`JDG-3606`・`JDG-3607`・`JDG-3610`〜`JDG-3613`）と問 6-8-8 の a（仮）を当てて描き直しました。直した行は、説明の欄の末尾に 🔄 があります。*
+🔄 *場面: 他の AI 3 つのうち 2 つが、「一番直すべき 1 点」に、タスクに付く GRS の値が別々の配列に散らばっていることを挙げました。今は、タスク 1 件を足す・消す・写すたびに、`tasks[]`・`taskGroupMembers[]`・`taskStyles[]`・`taskOrigins[]` の 4 か所を合わせて直す必要があります。AI や外の道具は、片方だけを直して、どこも指さない切れ端を残しやすくなります。*
 
-🔄 ***あなたの ★ と直し:***
+🔄 *今の形で、タスクに付く GRS の値（辞書の定義より）:*
 
-| 🔄 *#* | 🔄 *あなたの ★* | 🔄 *直し* |
+| 🔄 *値* | 🔄 *今の置き場* | 🔄 *1 タスクに* |
 |:---|:---|:---|
-| 🔄 *1* | 🔄 *`scrollPosition.type` の `placed`「なぜplaced?、decidedじゃないの？」* | 🔄 *`notDecided`・`decided` にした。対になる 2 つの語で「場所が決まっているか」を言う* |
-| 🔄 *2* | 🔄 *`leftEdgeDayFraction`「これなん？」* | 🔄 *開いたとき、左の端がその日のどこにあるか（日の始まりから何 %）。`JDG-3529` の決まりで `…Percent` にし、`leftEdgeDayOffsetPercent` とした* |
-| 🔄 *3* | 🔄 *`topEdgeTaskGroupFraction`「これなん？」* | 🔄 *開いたとき、上の端がその帯のどこにあるか（帯の上から何 %）。`topEdgeTaskGroupOffsetPercent` とした（`laneTopOffsetPercent` と同じ考え）* |
-| 🔄 *4・5* | 🔄 *`offset`「NEIM違反では？ 最低単位必須」* | 🔄 *`utcOffsetMinutes`（UTC との差を分で。例 540）とした。N-10（量は単位で終える）に合う。`scheduleDataTimeZone`（名は `JDG-3569` で確定）の値の形も分の数にそろえるかは、下の案で問う* |
-| 🔄 *6* | 🔄 *`season`「 isSummerTime とかは？」* | 🔄 *値が標準時と夏時間の 2 つだけなので、真偽の値にした。名は `isDaylightSavingTime`（夏時間の国際的な呼び名。N-9）* |
-| 🔄 *7* | 🔄 *`stackDirection`「taskStackDirectionか？」* | 🔄 *`taskStackDirection` とした。帯の中でタスクを積む向き（up・down）を言う* |
-| 🔄 *8* | 🔄 *`taskGroupPanelWidthPx`「Hightか？」* | 🔄 *横幅のまま。左にある帯の名の欄の横幅で、境目を左右にドラッグして変える* |
-| 🔄 *9* | 🔄 *`pinnedTaskGroupIds`「配列か？ isTaskGroupPinnedか？」* | 🔄 *配列のまま。ピン止めは見せ方なので、タスクグループ（中身）でなく文書設定に置く（`S-126`）。ピン止めした帯の並びも配列の順で持てる* |
-| 🔄 *10* | 🔄 *`isScheduleFilterApplied`「isTaskFilterApoliedか？」* | 🔄 *`isTaskFilterApplied` とした。表でチェックしたタスクだけを描くか、を言う。画面の語「スケジュールフィルター」も合わせて直すかは、画面の名の問い（後の巡）で問う* |
-| 🔄 *11* | 🔄 *`sort`「NEIM違反。」* | 🔄 *`columnSort` とした。型 `ColumnSort`（並べ替えの列と向き）と同じ名* |
+| 🔄 *どのタスクグループに入るか* | 🔄 *`taskGroupMembers[] { taskUid, taskGroupId }`* | 🔄 *ちょうど 1 つ* |
+| 🔄 *見た目* | 🔄 *`taskStyles[] { taskUid, style }`* | 🔄 *ちょうど 1 つ* |
+| 🔄 *取り込み元* | 🔄 *`taskOrigins[] { taskUid, … }`* | 🔄 *取り込んだタスクだけ 1 つ* |
+| 🔄 *フェード* | 🔄 *`tasks[]` の中の `fadeInCalendarDays`・`fadeOutCalendarDays`* | 🔄 *0 か 1 つずつ* |
 
-🔄 *構造図（β の形。プロパティの名を併記）:*
+🔄 *案 a の形:*
 
-🔄 *印: `[M]` は MSPDI の要素を写すキー（括弧の中は、MSPDI の名が違う時の MSPDI の名）。`◆` は、MSPDI と往復する実体の中にある GRS 特有の値。GRS だけの群と根の部分のキーは印を持たない。`[]` は配列、`→` は下の共通の型を指す。行の末尾の 🔄 は、前の図から変わった所。*
-
-```text
-🔄 ScheduleDocument                                    GRS JSON の 1 ファイル
-🔄 ├─ $schema                                          スキーマの所
-🔄 ├─ schemaVersion                                    スキーマの版
-🔄 ├─ buildVersion                                     書いたビルドの版
-🔄 ├─ documentSettings                                 文書設定
-🔄 │   ├─ displayScalePercent                          表示の倍率（%）
-🔄 │   ├─ fontSizeStep                                 文字の大きさの段
-🔄 │   ├─ dayWidthPx                                   1 日の幅
-🔄 │   ├─ verticalZoomRatio                            縦の大きさの比
-🔄 │   ├─ taskGroupAutoExpandDepth                     自動で開く深さ
-🔄 │   ├─ scrollPosition                               開いたときの位置
-🔄 │   │   ├─ type                                     notDecided・decided 🔄
-🔄 │   │   ├─ leftEdgeDay                              左の端の日
-🔄 │   │   ├─ leftEdgeDayOffsetPercent                 左の端が、その日の始まりから何 % の所か 🔄
-🔄 │   │   ├─ topEdgeTaskGroupId                       上の端の帯
-🔄 │   │   └─ topEdgeTaskGroupOffsetPercent            上の端が、その帯の上から何 % の所か 🔄
-🔄 │   ├─ fitSpan                                      全体表示の期間
-🔄 │   │   ├─ firstDay                                 最初の日
-🔄 │   │   ├─ lastDay                                  最後の日
-🔄 │   │   └─ isFixed                                  期間を固定するか
-🔄 │   ├─ viewTimeZone                                 見せるタイムゾーン
-🔄 │   │   ├─ type                                     sameAsScheduleData・fixed
-🔄 │   │   └─ utcOffsetMinutes                         UTC との差（分） 🔄
-🔄 │   ├─ displayTimeZones[]                           追加の時計（4 つまで）
-🔄 │   │   ├─ utcOffsetMinutes                         UTC との差（分） 🔄
-🔄 │   │   └─ isDaylightSavingTime                     夏時間のゾーンか 🔄
-🔄 │   ├─ is…Visible ×12                               見せるかの切り替え 12 個
-🔄 │   ├─ taskStackDirection                           帯の中でタスクを積む向き（up・down） 🔄
-🔄 │   ├─ isThemeMonochrome                            モノクロか
-🔄 │   ├─ taskGroupPanelWidthPx                        左の帯の名の欄の横幅（高さではない） 🔄
-🔄 │   ├─ isTaskGroupPanelWidthFixed                   幅を固定するか
-🔄 │   ├─ rootTreeState                                木の根の状態
-🔄 │   ├─ pinnedTaskGroupIds                           ピン止めした帯の id の配列（見せ方なので文書設定に置く） 🔄
-🔄 │   └─ tableWindows                                 3 つの表の見せ方
-🔄 │       ├─ searchWindow                             検索ウィンドウ
-🔄 │       ├─ delayDiagnosticsReportWindow             遅延診断レポート
-🔄 │       ├─ resourceListWindow                       担当リスト
-🔄 │       └─ （3 つの表は、どれも次の欄を持つ）
-🔄 │           ├─ isTaskFilterApplied                  表でチェックしたタスクだけを描くか 🔄
-🔄 │           ├─ shownTaskUids                        チェックしたタスク
-🔄 │           ├─ shownResourceUids                    チェックした担当（担当リスト）
-🔄 │           ├─ isUnassignedShown                    （担当なし）の行（担当リスト）
-🔄 │           ├─ columnFilters[]                      列のフィルタ → ColumnFilter
-🔄 │           └─ columnSort                           並べ替えの列と向き → ColumnSort 🔄
-🔄 ├─ scheduleData                                     スケジュールデータ
-🔄 │   ├─ ［MSPDI と往復する群］
-🔄 │   │   ├─ project [M]                              プロジェクト（1 件）
-🔄 │   │   │   ├─ uid [M]                              一意な番号
-🔄 │   │   │   ├─ name [M]                             プロジェクト名
-🔄 │   │   │   ├─ title [M]                            タイトル
-🔄 │   │   │   ├─ subject [M]                          件名
-🔄 │   │   │   ├─ category [M]                         分類
-🔄 │   │   │   ├─ company [M]                          会社
-🔄 │   │   │   ├─ manager [M]                          管理者
-🔄 │   │   │   ├─ author [M]                           作成者
-🔄 │   │   │   ├─ revision [M]                         保存した回数
-🔄 │   │   │   ├─ creationDate [M]                     作った日時
-🔄 │   │   │   ├─ startDate [M]                        開始の日時
-🔄 │   │   │   ├─ statusDate [M]                       基準日
-🔄 │   │   │   ├─ minutesPerDay [M]                    1 日の稼働の分
-🔄 │   │   │   ├─ minutesPerWeek [M]                   1 週の稼働の分
-🔄 │   │   │   ├─ daysPerMonth [M]                     1 か月の稼働日
-🔄 │   │   │   ├─ weekStartDay [M]                     週の始まりの曜日
-🔄 │   │   │   ├─ defaultStartTime [M]                 既定の開始時刻
-🔄 │   │   │   ├─ defaultFinishTime [M]                既定の終了時刻
-🔄 │   │   │   ├─ calendarUid [M]                      稼働日を数える暦
-🔄 │   │   │   └─ ◆passthrough                         持ち越した MSPDI の値（MSPDI の構造と名のまま） 🔄
-🔄 │   │   ├─ tasks[] [M]                              タスク
-🔄 │   │   │   ├─ uid [M]                              一意な番号
-🔄 │   │   │   ├─ name [M]                             タスク名
-🔄 │   │   │   ├─ notes [M]                            メモ
-🔄 │   │   │   ├─ start [M]                            予定の開始
-🔄 │   │   │   ├─ finish [M]                           予定の終了
-🔄 │   │   │   ├─ milestone [M]                        マイルストーンか
-🔄 │   │   │   ├─ deadline [M]                         期限
-🔄 │   │   │   ├─ actualStart [M]                      実績の開始
-🔄 │   │   │   ├─ stop [M]                             作業が止まった時
-🔄 │   │   │   ├─ actualFinish [M]                     実績の終了
-🔄 │   │   │   ├─ resume [M]                           再開の予定
-🔄 │   │   │   ├─ resumeValid [M]                      再開日が有効か
-🔄 │   │   │   ├─ percentComplete [M]                  完了率
-🔄 │   │   │   ├─ ◆fadeInCalendarDays                  始まりのフェード暦日
-🔄 │   │   │   ├─ ◆fadeOutCalendarDays                 終わりのフェード暦日
-🔄 │   │   │   ├─ ◆parentTaskUid                       WBS の親タスク
-🔄 │   │   │   ├─ ◆siblingOrder                        兄弟の中の順
-🔄 │   │   │   ├─ calendarUid [M]                      タスクの暦
-🔄 │   │   │   ├─ hyperlinkAddress [M]                 リンク先の URL
-🔄 │   │   │   ├─ hyperlink [M]                        リンクのタイトル
-🔄 │   │   │   ├─ predecessorLinks[] [M] (PredecessorLink)  先行への結び付き
-🔄 │   │   │   │   ├─ predecessorUid [M]               先行タスク
-🔄 │   │   │   │   ├─ predecessorLinkType [M] (Type)   依存の種類（FF・FS・SF・SS）（仮） 🔄
-🔄 │   │   │   │   ├─ linkLag [M]                      ラグ
-🔄 │   │   │   │   ├─ lagFormat [M]                    ラグの単位
-🔄 │   │   │   │   └─ ◆passthrough                     持ち越した MSPDI の値（MSPDI の構造と名のまま） 🔄
-🔄 │   │   │   └─ ◆passthrough                         持ち越した MSPDI の値（MSPDI の構造と名のまま） 🔄
-🔄 │   │   ├─ calendars[] [M]                          暦
-🔄 │   │   │   ├─ uid [M]                              一意な番号
-🔄 │   │   │   ├─ name [M]                             暦の名
-🔄 │   │   │   ├─ isBaseCalendar [M]                   基本の暦か
-🔄 │   │   │   ├─ baseCalendarUid [M]                  受け継ぐ元の暦
-🔄 │   │   │   ├─ weekDays[] [M]                       曜日ごとの稼働
-🔄 │   │   │   │   ├─ dayType [M]                      曜日（1 が日曜）
-🔄 │   │   │   │   ├─ dayWorking [M]                   稼働日か
-🔄 │   │   │   │   ├─ workingTimes[] [M]               稼働の時間帯
-🔄 │   │   │   │   │   ├─ fromTime [M]                 始まりの時刻
-🔄 │   │   │   │   │   └─ toTime [M]                   終わりの時刻 🔄
-🔄 │   │   │   │   └─ ◆passthrough                     持ち越した MSPDI の値（MSPDI の構造と名のまま） 🔄
-🔄 │   │   │   ├─ exceptions[] [M]                     例外の日
-🔄 │   │   │   │   ├─ name [M]                         例外の名
-🔄 │   │   │   │   ├─ fromDate [M] (TimePeriod/FromDate)  最初の日
-🔄 │   │   │   │   ├─ toDate [M] (TimePeriod/ToDate)   最後の日
-🔄 │   │   │   │   ├─ dayWorking [M]                   稼働日か
-🔄 │   │   │   │   ├─ exceptionType [M] (Type)         例外の繰り返し方（仮） 🔄
-🔄 │   │   │   │   ├─ recurrencePeriod [M] (Period) （問 6-7-7）  繰り返しの間隔
-🔄 │   │   │   │   ├─ workingTimes[] [M]               稼働の時間帯（形は上と同じ）
-🔄 │   │   │   │   └─ ◆passthrough                     持ち越した MSPDI の値（MSPDI の構造と名のまま） 🔄
-🔄 │   │   │   └─ ◆passthrough                         持ち越した MSPDI の値（MSPDI の構造と名のまま） 🔄
-🔄 │   │   ├─ resources[] [M]                          担当
-🔄 │   │   │   ├─ uid [M]                              一意な番号
-🔄 │   │   │   ├─ name [M]                             担当の名
-🔄 │   │   │   ├─ resourceType [M] (Type)              資材か作業か（仮） 🔄
-🔄 │   │   │   ├─ isCostResource [M]                   コストの担当か
-🔄 │   │   │   ├─ calendarUid [M]                      担当の暦
-🔄 │   │   │   └─ ◆passthrough                         持ち越した MSPDI の値（MSPDI の構造と名のまま） 🔄
-🔄 │   │   └─ assignments[] [M]                        割当
-🔄 │   │       ├─ uid [M]                              一意な番号
-🔄 │   │       ├─ taskUid [M]                          就くタスク
-🔄 │   │       ├─ resourceUid [M]                      就く担当
-🔄 │   │       └─ ◆passthrough                         持ち越した MSPDI の値（MSPDI の構造と名のまま） 🔄
-🔄 │   └─ ［GRS だけが持つ群］
-🔄 │       ├─ （名は次の問いで決める）                 文書全体の GRS の値（名は後の問い 6-13-4） 🔄
-🔄 │       │   ├─ scheduleDataTimeZone                 データの日時の時差
-🔄 │       │   ├─ sourceFormat                         元の形式
-🔄 │       │   ├─ firstOutlineLevel                    最初の OutlineLevel
-🔄 │       │   ├─ themeHueDegrees                      テーマの色相（度）
-🔄 │       │   ├─ parentTaskProgressToleranceWorkingDays  遅延診断の許し幅
-🔄 │       │   ├─ highestIssuedUid                     uid の数え手
-🔄 │       │   └─ lastMspdiImportNumber                MSPDI の取り込み回数
-🔄 │       ├─ taskGroups[]                             タスクグループ
-🔄 │       │   ├─ id                                   一意な UUID
-🔄 │       │   ├─ name                                 タスクグループ名
-🔄 │       │   ├─ style                                見た目 🔄
-🔄 │       │   │   └─ color                            帯の色 → LaneColor 🔄
-🔄 │       │   ├─ minHeightPx                          帯の最も低い高さ
-🔄 │       │   ├─ parentId                             親のタスクグループ
-🔄 │       │   ├─ siblingOrder                         兄弟の中の順
-🔄 │       │   ├─ derivedFromTaskUid （問 6-9-2）      表す WBS のタスク
-🔄 │       │   ├─ hyperlinkAddress                     リンク先の URL
-🔄 │       │   ├─ hyperlink                            リンクのタイトル
-🔄 │       │   ├─ treeState                            開閉の状態
-🔄 │       │   └─ editGroup                            編集してよい組
-🔄 │       ├─ taskGroupMembers[]                       どの帯に載るか
-🔄 │       │   ├─ taskUid                              タスク
-🔄 │       │   └─ taskGroupId                          載せるタスクグループ
-🔄 │       ├─ taskStyles[]                             タスクの見た目
-🔄 │       │   ├─ taskUid                              タスク
-🔄 │       │   └─ style                                見た目 🔄
-🔄 │       │       ├─ taskShape                        バーの形
-🔄 │       │       ├─ milestoneShape                   マイルストーンの形
-🔄 │       │       ├─ fill                             塗り → Paint 🔄
-🔄 │       │       └─ stroke                           縁 → Stroke 🔄
-🔄 │       ├─ commentBoxes[]                           コメントボックス
-🔄 │       │   ├─ id                                   一意な UUID
-🔄 │       │   ├─ text                                 文
-🔄 │       │   ├─ style                                見た目 🔄
-🔄 │       │   │   ├─ fill                             箱の塗り → Paint 🔄
-🔄 │       │   │   ├─ stroke                           枠と引出し線 → Stroke 🔄
-🔄 │       │   │   └─ font                             文字の見た目 🔄
-🔄 │       │   │       ├─ color                        文字の色 → Color 🔄
-🔄 │       │   │       └─ sizePx                       文字の大きさ 🔄
-🔄 │       │   ├─ leaderTarget                         引出し線の先
-🔄 │       │   │   ├─ type                             freePoint・task・highlightBox
-🔄 │       │   │   ├─ dateTime                         時点（freePoint）
-🔄 │       │   │   ├─ taskGroupId                      帯（freePoint）
-🔄 │       │   │   ├─ laneTopOffsetPercent             帯の中の高さ（freePoint）
-🔄 │       │   │   ├─ taskUid                          タスク（task）
-🔄 │       │   │   ├─ graphicPart                      図形の部分（task）
-🔄 │       │   │   ├─ highlightBoxId                   箱（highlightBox）
-🔄 │       │   │   └─ point                            吸着する 8 点の 1 つ
-🔄 │       │   ├─ bodyOffsetPx                         線先から箱へのずれ
-🔄 │       │   │   ├─ dx                               横のずれ
-🔄 │       │   │   └─ dy                               縦のずれ
-🔄 │       │   ├─ hyperlinkAddress                     リンク先の URL
-🔄 │       │   └─ hyperlink                            リンクのタイトル
-🔄 │       ├─ highlightBoxes[]                         ハイライトボックス
-🔄 │       │   ├─ id                                   一意な UUID
-🔄 │       │   ├─ style                                見た目 🔄
-🔄 │       │   │   ├─ cornerRadiusPx                   角の丸みの半径
-🔄 │       │   │   ├─ fill                             塗り → Paint 🔄
-🔄 │       │   │   └─ stroke                           枠 → Stroke 🔄
-🔄 │       │   ├─ firstDay                             最初の日
-🔄 │       │   ├─ lastDay                              最後の日
-🔄 │       │   ├─ topTaskGroupId                       上の縁の帯
-🔄 │       │   └─ bottomTaskGroupId                    下の縁の帯
-🔄 │       ├─ baselineTasks[]                          前回予定
-🔄 │       │   ├─ uid                                  今のタスクの uid
-🔄 │       │   ├─ name                                 タスク名
-🔄 │       │   ├─ start                                前の予定の開始
-🔄 │       │   ├─ finish                               前の予定の終了
-🔄 │       │   └─ milestone                            マイルストーンか
-🔄 │       ├─ taskOrigins[]                            取り込み元の控え 🔄
-🔄 │       │   ├─ taskUid                              タスク 🔄
-🔄 │       │   ├─ sourceProjectId                      元のファイルの UID 🔄
-🔄 │       │   ├─ sourceUid                            元のタスクの UID 🔄
-🔄 │       │   ├─ importSessionId                      取り込みの id 🔄
-🔄 │       │   └─ lastSeenMspdiImportNumber            最後に見た取り込み 🔄
-🔄 │       ├─ passthroughTasks[]                       GRS がタスクにしない MSPDI の要素 🔄
-🔄 │       │   ├─ precedingTaskUid                     前にある、いちばん近いタスクの uid 🔄
-🔄 │       │   └─ mspdiElement                         MSPDI の要素（構造と名のまま） 🔄
-🔄 │       ├─ passthroughResources[]                   GRS が担当にしない MSPDI の要素 🔄
-🔄 │       │   ├─ precedingResourceUid                 前にある、いちばん近い担当の uid 🔄
-🔄 │       │   └─ mspdiElement                         MSPDI の要素（構造と名のまま） 🔄
-🔄 │       ├─ passthroughAssignments[]                 GRS が割当にしない MSPDI の要素 🔄
-🔄 │       │   ├─ precedingAssignmentUid               前にある、いちばん近い割当の uid 🔄
-🔄 │       │   └─ mspdiElement                         MSPDI の要素（構造と名のまま） 🔄
-🔄 │       └─ passthroughCalendars[]                   GRS が暦にしない MSPDI の要素 🔄
-🔄 │           ├─ precedingCalendarUid                 前にある、いちばん近い暦の uid 🔄
-🔄 │           └─ mspdiElement                         MSPDI の要素（構造と名のまま） 🔄
-🔄 ├─ documentStamp                                    文書刻印
-🔄 │   ├─ scheduleDataUpdatedAt                        データが変わった時
-🔄 │   ├─ documentUpdatedAt                            文書が変わった時
-🔄 │   ├─ fileSavedAt                                  保存した時
-🔄 │   └─ lastEditedBy                                 最後に書いた者
-🔄 │       ├─ type                                     user・template・agent
-🔄 │       └─ name                                     AI が付けた名
-🔄 └─ changeLogEntries[]                               変更履歴
-🔄     ├─ changedAt                                    変更の時
-🔄     ├─ changedBy                                    変更した者
-🔄     ├─ affectedArea                                 及んだ部分
-🔄     ├─ changeDescription                            何が変わったか
-🔄     ├─ reason                                       理由
-🔄     └─ remarks                                      そのほか
-
-🔄 共通の型（→ で指す物）
-🔄 ├─ Color （問 6-6-4-7）                             色
-🔄 │   ├─ type                                         theme・palette・custom
-🔄 │   ├─ name                                         パレットの色の名
-🔄 │   ├─ light                                        明るいテーマの側
-🔄 │   │   ├─ hexColor                                 色の値（#rrggbb）
-🔄 │   │   └─ derivedFrom                              GRS が作った元の側
-🔄 │   └─ dark                                         暗いテーマの側（形は light）
-🔄 ├─ LaneColor                                        Color から ink を除く
-🔄 ├─ ColumnFilter                                     列のフィルタ
-🔄 │   ├─ type                                         values・dateRange
-🔄 │   ├─ column                                       列
-🔄 │   ├─ hiddenValues                                 隠す値
-🔄 │   ├─ isBlankHidden                                空の行を隠すか
-🔄 │   ├─ firstDay                                     最初の日
-🔄 │   └─ lastDay                                      最後の日
-🔄 ├─ ColumnSort                                       並べ替え
-🔄 │   ├─ column                                       列
-🔄 │   └─ direction                                    向き
-🔄 ├─ Paint                                            塗り 🔄
-🔄 │   ├─ color                                        色 → Color 🔄
-🔄 │   └─ opacityPercent                               不透明度（%） 🔄
-🔄 ├─ Stroke                                           線 🔄
-🔄 │   ├─ color                                        色 → Color 🔄
-🔄 │   ├─ opacityPercent                               不透明度（%） 🔄
-🔄 │   └─ widthPx                                      太さ 🔄
-🔄 └─ ShapeStyle                                       形の見た目（タスク・コメントボックス・ハイライトボックスで共にする） 🔄
-🔄     ├─ fill                                         塗り → Paint 🔄
-🔄     └─ stroke                                       線 → Stroke 🔄
+🔄 *下のコードブロックの 1・2・3・4・5・6・7・8・9 行目が変わった。*
+```json
+"tasks": [
+  { "uid": 12, "name": "設計", "start": "2026-12-01T08:00:00", "finish": "2026-12-10T17:00:00",
+    "parentTaskUid": 3, "siblingOrder": 0,
+    "passthrough": { "Priority": "500" },
+    "grs": {
+      "taskGroupId": "6f1c…",
+      "style": { "taskShape": "rectangle", "fill": { "color": { "type": "theme" } } },
+      "origin": { "sourceProjectUid": "…", "sourceUid": 12, "lastSeenMspdiImportNumber": 2 },
+      "fadeInCalendarDays": 3 } } ]
 ```
 
-🔄 *消した行:*
+🔄 *今の形（案 b）:*
 
-- 🔄 *project の `◆passthroughValues`・`◆passthroughElements`（2 行を `◆passthrough` の 1 行にした）*
-- 🔄 *tasks[].predecessorLinks[] の `◆passthroughValues`・`◆passthroughElements`（2 行を `◆passthrough` の 1 行にした）*
-- 🔄 *tasks[] の `◆passthroughValues`・`◆passthroughElements`（2 行を `◆passthrough` の 1 行にした）*
-- 🔄 *calendars[] の `◆ordinal`*
-- 🔄 *calendars[].weekDays[] の `◆ordinal`*
-- 🔄 *calendars[].weekDays[].workingTimes[] の `◆ordinal`*
-- 🔄 *calendars[].weekDays[] の `◆passthroughValues`・`◆passthroughElements`（2 行を `◆passthrough` の 1 行にした）*
-- 🔄 *calendars[].exceptions[] の `◆ordinal`*
-- 🔄 *calendars[].exceptions[] の `◆passthroughValues`・`◆passthroughElements`（2 行を `◆passthrough` の 1 行にした）*
-- 🔄 *calendars[] の `◆passthroughValues`・`◆passthroughElements`（2 行を `◆passthrough` の 1 行にした）*
-- 🔄 *resources[] の `◆passthroughValues`・`◆passthroughElements`（2 行を `◆passthrough` の 1 行にした）*
-- 🔄 *assignments[] の `◆passthroughValues`・`◆passthroughElements`（2 行を `◆passthrough` の 1 行にした）*
-- 🔄 *taskStyles[].style の `strokeWidthPx`（`stroke` の `widthPx` へ）*
-- 🔄 *commentBoxes[].style の `opacityPercent`（`fill`・`stroke` の `opacityPercent` へ）*
-- 🔄 *commentBoxes[].style の `strokeWidthPx`（`stroke` の `widthPx` へ）*
-- 🔄 *commentBoxes[].style の `textColor`（`font` の `color` へ）*
-- 🔄 *commentBoxes[].style の `fontSizePx`（`font` の `sizePx` へ）*
-- 🔄 *highlightBoxes[].style の `opacityPercent`（`fill`・`stroke` の `opacityPercent` へ）*
-- 🔄 *highlightBoxes[].style の `strokeWidthPx`（`stroke` の `widthPx` へ）*
-- 🔄 *共通の型の `PassthroughElement` と、その子 `ordinal`・`name`・`fields`・`children[]`（5 行）*
+🔄 *下のコードブロックの 1・2・3・4 行目が変わった。*
+```json
+"tasks":            [ { "uid": 12, "name": "設計", "fadeInCalendarDays": 3, … } ],
+"taskGroupMembers": [ { "taskUid": 12, "taskGroupId": "6f1c…" } ],
+"taskStyles":       [ { "taskUid": 12, "style": { … } } ],
+"taskOrigins":      [ { "taskUid": 12, "sourceUid": 12, … } ]
+```
 
-🔄 *注:*
-
-- 🔄 *`taskOrigins[]` の 6 行と `workingTimes[].toTime` の 1 行は、木の線（`└─` と `├─`）だけが変わった。中身は変わっていない。*
-- 🔄 *`Color` は、ほかに変わる所がないので、「（問 6-6-4-7）」を外した。*
-- 🔄 *3 つの `style` は、`ShapeStyle` を開いた形で描いた。`taskStyles[].style` は形のキーを足し、`commentBoxes[].style` は `font` を足し、`highlightBoxes[].style` は `cornerRadiusPx` を足す。*
-- 🔄 *`Paint`・`Stroke`・`ShapeStyle` は、共通の型の末尾に置いた。*
-- 🔄 *`passthroughResources[]`・`passthroughAssignments[]`・`passthroughCalendars[]` の説明は、`passthroughTasks[]` に倣って席が書いた。*
-
-| 🔄 *案* | 🔄 *中身* |
+| 案 | 中身 |
 |:---|:---|
-| 🔄 ***a（推奨）*** | 🔄 *この構造図のとおりにする。`scheduleDataTimeZone` の値も、分の数（例 540）にそろえる（`utcOffsetMinutes` と同じ形。名は `JDG-3569` のまま）* |
-| 🔄 *b* | 🔄 *この構造図のとおりにする。`scheduleDataTimeZone` の値は今の文字の形（`"+09:00"`）のまま* |
-| 🔄 *c* | 🔄 *直す行に ★ を書く* |
+| **a（推奨）** | 🔄 *タスクに 1 つずつ付く GRS の値を、タスクの中の `grs` にまとめる（所属の `taskGroupId`・見た目の `style`・取り込み元の `origin`・フェードの 2 つ）。MSPDI のキーはタスクの直下、GRS の値は `grs` の下と、名で分かれたまま 1 か所にまとまる（`JDG-3605` の「MSPDI の実体には MSPDI の物だけ」を、名前空間で守る）。タスクを足す・消す・写すときは 1 件だけを直せばよく、切れ端が生まれない。`taskGroupMembers[]`・`taskStyles[]`・`taskOrigins[]` は無くなる。`parentTaskUid`・`siblingOrder` は MSPDI の木の事実なので直下に残す。前回予定 `baselineTasks[]` は、前の予定の写し（今は無いタスクも含みうる）なので、別の配列のまま残す。ほかの MSPDI の実体（担当・割当・暦）に GRS の値が付くときも、同じく `grs` に置く* |
+| b | 🔄 *今のまま、別々の配列に置く（`JDG-3556` の `taskStyles[]`）。タスクの直下は MSPDI の物だけで、一番平ら。代わりに、タスク 1 件の値が 4 か所に散らばる* |
+| c | 🔄 *GRS の値を、`grs` を挟まずにタスクの直下に置く。一番短いが、MSPDI のキーと GRS のキーが混ざり、どれが MSPDI の物か名で分からない* |
 
 回答:
 
-#### 🔄 *✅ 問 6-13-3. GRS JSON の構造と、データの分け方 —— この考えでよいか*
+#### 🔄 *❓ 問 6-13-4. Project から移す 7 つの値 —— 性質で分けて、置き場と名を決める*
 
-🔄 *決まりました（`JDG-3605`）。構造図の今の版は、問 6-13-5 にあります。*
+🔄 *場面: 他の AI 3 つとも、7 つの値は性質が違いすぎるので、1 つの物にまとめず分けるべきだと答えました。2 つの AI が、残る物の名に `scheduleMetadata` を推し、`grsProject` は `project` と紛らわしいと指摘しました。*
+
+| 🔄 *#* | 🔄 *値* | 🔄 *性質* | 🔄 *案 a の置き場* |
+|:---|:---|:---|:---|
+| 🔄 *1* | 🔄 *`themeHueDegrees`* | 🔄 *見た目（テーマの色相）* | 🔄 *`documentSettings`（見せ方）* |
+| 🔄 *2* | 🔄 *`parentTaskProgressToleranceWorkingDays`* | 🔄 *遅延診断の決まり* | 🔄 *`documentSettings`（見せ方と診断の決まり）* |
+| 🔄 *3* | 🔄 *`scheduleDataTimeZone`* | 🔄 *スケジュールデータの日時の読み方* | 🔄 *`scheduleData.scheduleMetadata`* |
+| 🔄 *4* | 🔄 *`highestIssuedUid`* | 🔄 *uid の数え手（帳簿）* | 🔄 *`scheduleData.scheduleMetadata`* |
+| 🔄 *5* | 🔄 *`lastMspdiImportNumber`* | 🔄 *MSPDI を取り込んだ回数（帳簿）* | 🔄 *`scheduleData.scheduleMetadata`* |
+| 🔄 *6* | 🔄 *`sourceFormat`* | 🔄 *文書の元の形式* | 🔄 *`scheduleData.scheduleMetadata`* |
+| 🔄 *7* | 🔄 *`firstOutlineLevel`* | 🔄 *取り込んだファイルの、最上位のタスクの OutlineLevel* | 🔄 *`scheduleData.scheduleMetadata`* |
+
+- 🔄 *1 と 2 を文書設定に置くと、変えたときは「見せ方を変えた」扱いになり、スケジュールデータの更新時刻は動きません。*
+- 🔄 *3〜7 は、データを読むための前提と帳簿で、スケジュールデータと共に変わります。*
+
+| 🔄 *案* | 🔄 *中身* |
+|:---|:---|
+| **a（推奨）** | 🔄 *上の表のとおり、1・2 を `documentSettings`、3〜7 を `scheduleData.scheduleMetadata` に置く* |
+| b | 🔄 *7 つとも `scheduleData.scheduleMetadata` にまとめる* |
+| c | 🔄 *3 つに分ける: 1・2 を `documentSettings`、3・7 を `scheduleMetadata`（データの前提）、4〜6 を `importState`（取り込みと数え手の帳簿）* |
+| 🔄 *d* | 🔄 *直す名を書く* |
+
+回答:
+
+#### ✅ 問 6-13-3. GRS JSON の構造と、データの分け方 —— この考えでよいか
+
+決まりました（`JDG-3605`）。構造図の今の版は、問 6-13-5 にあります。
 
 
-#### 🔄 *✅ 問 6-13-1. 似た字の 2 組と根の並び —— 名を分けるか、並びを確かめるか*
+#### ✅ 問 6-13-1. 似た字の 2 組と根の並び —— 名を分けるか、並びを確かめるか
 
-🔄 *決まりました（`JDG-3602`）。答えは決定事項にあります。*
+決まりました（`JDG-3602`）。答えは決定事項にあります。
 
-#### 🔄 *✅ 問 6-11-1. 根の 3 つの部分の呼び名 —— 「刻印」「設定」「変更ログ」の字をどうそろえるか*
+#### ✅ 問 6-11-1. 根の 3 つの部分の呼び名 —— 「刻印」「設定」「変更ログ」の字をどうそろえるか
 
-🔄 *決まりました（`JDG-3603`）。答えは決定事項にあります。*
+決まりました（`JDG-3603`）。答えは決定事項にあります。
 
-### [key] 🔄 *共通のキー ✅*
+### [key] 共通のキー ✅
 
 #### ✅ 問 6-7-8. 持ち越しの形 —— MSPDI の構造とキーのまま持つか
 
@@ -439,11 +186,61 @@ BGQA3
 
 決まりました（`JDG-3611`）。JSON から `ordinal` を無くす方向が決まりました。位置を言うキーの名と、指す先が消えたときの決まりは、すぐ下の問 6-7-9 で問います。
 
-#### 🔄 *✅ 問 6-7-9. 持ち越した一覧の要素の置き場 —— 位置のキーの名と意味、消えたときと動かしたときの決まり*
+#### ✅ 問 6-7-9. 持ち越した一覧の要素の置き場 —— 位置のキーの名と意味、消えたときと動かしたときの決まり
 
-🔄 *決まりました（`JDG-3613`）。答えは決定事項にあります。*
+決まりました（`JDG-3613`）。答えは決定事項にあります。
 
-### [proj] プロジェクト（❓ 1）
+### [proj] 🔄 *プロジェクト（❓ 2）*
+
+#### 🔄 *❓ 問 6-8-9. 命名の決まりの足し —— 他の AI が挙げた抜けを埋める*
+
+🔄 *場面: 他の AI 3 つが、命名の決まり（N-1〜N-12、`JDG-3609`）の抜けを、ほぼ同じ所に挙げました。足す決まりの案です。*
+
+| 🔄 *#* | 🔄 *足す決まり* | 🔄 *例* |
+|:---|:---|:---|
+| 🔄 *N-13* | 🔄 *GRS が名を付ける日時のキーは、値の型で終える: 日だけは `…Day`（型 Day）、時刻だけは `…Time`（型 Time）、日と時刻は `…DateTime`（型 DateTime）、UTC の瞬間は `…At`（型 UtcInstant）* | 🔄 *`leftEdgeDay`・`fromTime`・`changedAt`* |
+| 🔄 *N-14* | 🔄 *列挙の値は camelCase の英語の語にする。MSPDI の数の符号（依存の種類の 0〜3 など）は、数のまま写す* | 🔄 *`notDecided`・`freePoint`* |
+| 🔄 *N-15* | 🔄 *空の配列も、キーを書かないことで言う（N-12 を配列に広げる）。`[]` は書かない* | 🔄 *依存が無いタスクは `predecessorLinks` を持たない* |
+| 🔄 *N-16* | 🔄 *割合は `…Percent`（全体に対する %。0〜100）、倍率は `…Ratio`（既定に対する倍。1 が既定）* | 🔄 *`displayScalePercent`・`verticalZoomRatio`* |
+| 🔄 *N-17* | 🔄 *判別子 `type` を持つ物は、その値が持つ欄だけを書く。ほかの値の欄は書かない* | 🔄 *`leaderTarget.type` が `task` なら `dateTime` を書かない* |
+| 🔄 *X-2 の明記* | 🔄 *MSPDI の名を写すキーは、N-9（`is…`）・N-10（単位）・N-11・N-13 より強い* | 🔄 *`milestone`・`startDate`・`stop`・`resume`・`hyperlink` は MSPDI の名のまま* |
+
+- 🔄 *他の AI 3 つとも、`milestone`・`resumeValid`・`dayWorking` を `isMilestone` などに直すよう推しました。MSPDI の名のまま（X-2）だと、読む人は真偽の値かどうかを名から読めない、という理由です。案 c は、その考えを採る形です。*
+
+| 🔄 *案* | 🔄 *中身* |
+|:---|:---|
+| 🔄 ***a（推奨）*** | 🔄 *N-13〜N-17 を足し、X-2 を上の表のとおり明記する。MSPDI の名を写すキーは、真偽の値でも MSPDI の名のまま（`milestone`）* |
+| 🔄 *b* | 🔄 *直す所に ★ を書く* |
+| 🔄 *c* | 🔄 *a に加えて、MSPDI の真偽の値だけは `is…` を付ける（`isMilestone`・`isResumeValid`・`isDayWorking`）。MSPDI の名との違いは、意味の文に書く（X-4）* |
+
+回答:
+
+#### 🔄 *❓ 問 6-8-10. 他の AI が挙げた個々の名 —— 推奨の表のとおりでよいか*
+
+🔄 *場面: 他の AI が、2 つ以上そろって挙げた名と、席が確かめて直す方がよいと考えた名です。*
+
+🔄 *直す所が無ければ ok、直す所は表のセルに ★ で書いてください。*
+
+| 🔄 *#* | 🔄 *今の名（場所）* | 🔄 *案* | 🔄 *理由* |
+|:---|:---|:---|:---|
+| 🔄 *1* | 🔄 *`shownTaskUids`（表の窓）* | 🔄 *`checkedTaskUids`* | 🔄 *中身は「表でチェックしたタスク」。`shown` だと「描いた結果」に読める* |
+| 🔄 *2* | 🔄 *`shownResourceUids`（担当リスト）* | 🔄 *`checkedResourceUids`* | 🔄 *同上* |
+| 🔄 *3* | 🔄 *`isUnassignedShown`（担当リスト）* | 🔄 *`isUnassignedChecked`* | 🔄 *同上* |
+| 🔄 *4* | 🔄 *`point`（`leaderTarget`）* | 🔄 *`snapPoint`* | 🔄 *中身は「線先が吸着する 8 つの点の 1 つ」。`point` だけでは座標 `{x, y}` に読める。画面の語「吸着」は snap* |
+| 🔄 *5* | 🔄 *`graphicPart`（`leaderTarget`）* | 🔄 *`snapPart`* | 🔄 *中身は「線先が吸着する、予定バー・実績バー・マイルストーンマークのどれか」。4 と同じ語でそろえる* |
+| 🔄 *6* | 🔄 *`sourceProjectId`（取り込み元）* | 🔄 *`sourceProjectUid`* | 🔄 *中身は MSPDI の Project/UID。N-5・N-6 では `…Uid`* |
+| 🔄 *7* | 🔄 *`editGroup`（タスクグループ）* | 🔄 *`editorGroupName`* | 🔄 *中身は「このタスクグループを編集してよいグループの名前」。名から用途が読めない* |
+| 🔄 *8* | 🔄 *`firstOutlineLevel`（7 つの値）* | 🔄 *`topTaskOutlineLevel`* | 🔄 *中身は「取り込んだファイルの、最上位のタスクの OutlineLevel」。first は何の最初か分からない* |
+| 🔄 *9* | 🔄 *`fontSizeStep`（文書設定）* | 🔄 *`fontSize`* | 🔄 *値は small・medium・large。CSS の `font-size` の語と同じで、段の番号ではない* |
+| 🔄 *10* | 🔄 *`fitSpan`（文書設定）* | 🔄 *`fitDayRange`* | 🔄 *中身は「全体表示に使う日の範囲」（firstDay〜lastDay）。span は何の幅か分からない* |
+
+🔄 *AI が挙げたが、席は今のままでよいと考える名:*
+- 🔄 *`baselineTasks[].uid`: 前の予定での、同じタスクの uid です。前回予定という実体自身の識別子で、別の物を指す参照ではありません（N-5 の外）。*
+- 🔄 *`lastEditedBy.name`: 判別子 `type` が `agent` のときだけ持つ欄で、Agent API の呼び手が自分に付けた名です（N-17 で、ほかの値のときは書かない）。*
+- 🔄 *`stop`・`resume`・`hyperlink`・`milestone`: MSPDI の名です（X-2。問 6-8-9 の案 c なら `milestone` は変わる）。*
+- 🔄 *`verticalZoomRatio`: 倍率なので N-16 のとおりです。*
+
+回答:
 
 #### ✅ 問 6-8-5. プロジェクトの 24 語 —— 推奨の表のとおりでよいか
 
@@ -461,40 +258,6 @@ BGQA3
 
 あなたの問い「MSPDIの名称を最大限に尊重したらどうなる？」に、すぐ下の問 6-8-8 で答えます。
 
-#### ❓ 問 6-8-8. MSPDI の `Type` を写す 3 つ —— MSPDI の名を最大限に尊重したらどうなるか
-
-場面: 前回、あなたは「全体構造がわからんが、 xxx.exception.type やxxx.exceptionType のようにMSPDIの名称を最大限に尊重したらどうなる？ linkType より PredecessorLink Type の方が分かりやすいぞ。」と書きました。
-
-**3 つのキーの居場所**（GRS JSON と MSPDI を並べた構造図。`→` の右が MSPDI の元の場所）:
-
-```text
-scheduleData
-├─ tasks[]                    Task                  → Project/Tasks/Task
-│   └─ predecessorLinks[]     PredecessorLink       → Task/PredecessorLink
-│       ├─ predecessorUid                           → PredecessorLink/PredecessorUID
-│       ├─ ？Type                依存の種類（FF・FS・SF・SS） → PredecessorLink/Type
-│       ├─ linkLag                                  → PredecessorLink/LinkLag
-│       └─ lagFormat                                → PredecessorLink/LagFormat
-├─ calendars[]                Calendar              → Project/Calendars/Calendar
-│   ├─ weekDays[]             WeekDay               → Calendar/WeekDays/WeekDay
-│   │   └─ dayType                                  → WeekDay/DayType（MSPDI と同じ名）
-│   └─ exceptions[]           Exception             → Calendar/Exceptions/Exception
-│       └─ ？Type                繰り返し方（毎日・毎週など） → Exception/Type
-└─ resources[]                Resource              → Project/Resources/Resource
-    └─ ？Type                    資材か作業か            → Resource/Type
-```
-
-**あなたの案を広げた決まり:** 「MSPDI の `Type` を写すキーは、MSPDI の親要素の名 ＋ `Type` とする」。MSPDI の XSD の説明も、それぞれを "The exception type"・"The link type"・"The type of resource" と、親の名で呼びます。
-
-| 案 | 3 つの名 | 中身 |
-|:---|:---|:---|
-| **a（推奨）** | `exceptionType`・`predecessorLinkType`・`resourceType` | 親要素の名 ＋ `Type`。MSPDI を知る人は、名から `Exception/Type` などの元の場所がすぐ分かる。3 つが 1 つの決まりで名付けられ、`resourceType` だけの例外（E-3）が消える。素の `type` は判別子だけに残る（N-7）。代わりに、キーが持ち主の名を繰り返す（N-4）。これを例外の決まり X-5「MSPDI の `Type` を写すキーは、親要素の名 ＋ `Type`（N-4 より強い）」として書く |
-| b | 3 つとも `type`（`exception.type` のように、置き場で読む） | MSPDI の名そのもの。ただし `Color.type`（どの形かを選ぶ判別子）と `Exception.type`（繰り返し方）が、同じ名で別の役目を持つ（`OKPN`・`OMPV`）。判別子の決まり N-7 を崩す |
-| c | `recurrenceType`・`linkType`・`resourceType`（今のまま） | 何を分けるかを言う名。MSPDI の名からは離れ、`resourceType` だけが例外になる |
-
-🔄 *前回の答え「a (仮)  JSONツリーを見て最終決定する」に合わせ、問 6-13-5 の構造図に a の名を（仮）として描きました。*
-
-回答:
 
 ### [color] 色 ✅
 
