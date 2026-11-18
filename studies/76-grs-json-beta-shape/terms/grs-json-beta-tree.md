@@ -3,21 +3,21 @@
 ```text
 ScheduleDocument                                    GRS JSON の 1 ファイル
 ├─ $schema                                          スキーマの所（URL）
-├─ schemaVersion                                    スキーマの形が最後に変わった時（UTC）
-├─ buildVersion                                     書いた GRS のビルドの時（UTC）
+├─ schemaVersionUtc                                 スキーマの版（形が最後に変わった UTC の時刻）
+├─ buildVersionUtc                                  書いた GRS のビルドの版（UTC の時刻）
 ├─ documentSettings                                 文書設定
-│   ├─ displayScalePercent                          表示の倍率（%）
-│   ├─ fontSize （仮）                              文字の大きさ（small・medium・large）
+│   ├─ displayScaleRatio                            表示の倍率（1 が等倍）
+│   ├─ fontSizePreset                               文字の大きさの段（small・medium・large）
 │   ├─ dayWidthPx                                   暦日 1 日の幅
 │   ├─ verticalZoomRatio                            縦の大きさの比（1 が既定）
 │   ├─ taskGroupAutoExpandDepth                     自動で開く深さ
 │   ├─ scrollPosition                               開いたときの位置
-│   │   ├─ type                                     notDecided・decided
-│   │   ├─ leftEdgeDay                              左の端の日（decided）
-│   │   ├─ leftEdgeDayOffsetPercent                 左の端が、その日の始まりから何 % の所か（decided）
-│   │   ├─ topEdgeTaskGroupId                       上の端の帯（decided）
-│   │   └─ topEdgeTaskGroupOffsetPercent            上の端が、その帯の上から何 % の所か（decided）
-│   ├─ fitDayRange （仮）                           全体表示の期間
+│   │   ├─ type                                     automatic・fixed
+│   │   ├─ leftEdgeDay                              左の端の日（fixed）
+│   │   ├─ leftEdgeDayOffsetPercent                 左の端が、その日の始まりから何 % の所か（fixed）
+│   │   ├─ topEdgeTaskGroupId                       上の端の帯（fixed）
+│   │   └─ topEdgeTaskGroupOffsetPercent            上の端が、その帯の上から何 % の所か（fixed）
+│   ├─ fitDayRange                                  全体表示の期間
 │   │   ├─ firstDay                                 最初の日
 │   │   ├─ lastDay                                  最後の日
 │   │   └─ isFixed                                  期間を固定するか
@@ -26,7 +26,7 @@ ScheduleDocument                                    GRS JSON の 1 ファイル
 │   │   └─ utcOffsetMinutes                         UTC との差（分）（fixed）
 │   ├─ displayTimeZones[]                           追加の時計（4 つまで）
 │   │   ├─ utcOffsetMinutes                         UTC との差（分）
-│   │   └─ isDaylightSavingTime                     夏時間のゾーンか
+│   │   └─ zoneNameType                             出すゾーンの名の種類（standard・daylight）。差は utcOffsetMinutes がもう含む
 │   ├─ isTimeOfDayVisible                           時刻を見せるか
 │   ├─ isPlanBarVisible                             予定バーを見せるか
 │   ├─ isPlanDatesVisible                           予定の日付を見せるか
@@ -39,25 +39,18 @@ ScheduleDocument                                    GRS JSON の 1 ファイル
 │   ├─ isAssigneeLabelVisible                       担当のラベルを見せるか
 │   ├─ isDateGridLinesVisible                       日の罫線を見せるか
 │   ├─ isGroupGridLinesVisible                      帯の罫線を見せるか
-│   ├─ taskStackDirection                           帯の中でタスクを積む向き（up・down）
+│   ├─ taskStackDirection                           帯の中でタスクを積む向き（bottomToTop・topToBottom）
 │   ├─ isThemeMonochrome                            モノクロか
-│   ├─ themeHueDegrees （仮）                       テーマの色相（度）（Project から移す。問 6-13-4）
+│   ├─ themeHue （仮）                              テーマの色相の名（blue・blueGreen・green・yellowGreen・yellow・orange・red・redPurple・purple・indigo）（Project から移す。置き場は問 6-13-4）
 │   ├─ taskGroupPanelWidthPx                        左の帯の名の欄の横幅
 │   ├─ isTaskGroupPanelWidthFixed                   幅を固定するか
-│   ├─ rootTreeState                                木の根の状態（auto・collapsed）
+│   ├─ taskGroupRootTreeState                       タスクグループの木の根の状態（auto・collapsed）
 │   ├─ pinnedTaskGroupIds[]                         ピン止めした帯の id
-│   ├─ parentTaskProgressToleranceWorkingDays （仮）  遅延診断の許し幅（稼働日）（Project から移す。問 6-13-4）
+│   ├─ delayDiagnosticsToleranceWorkingDays （仮）  遅延診断が親タスクの進み具合に許す幅（稼働日）（Project から移す。置き場は問 6-13-4）
 │   └─ tableWindows                                 3 つの表の見せ方
-│       ├─ searchWindow                             検索ウィンドウ
-│       ├─ delayDiagnosticsReportWindow             遅延診断レポート
-│       ├─ resourceListWindow                       担当リスト
-│       └─ （3 つの表は、どれも次の欄を持つ）
-│           ├─ isTaskFilterApplied                  表でチェックしたタスクだけを描くか
-│           ├─ checkedTaskUids[] （仮）             チェックしたタスク（検索・遅延診断）
-│           ├─ checkedResourceUids[] （仮）         チェックした担当（担当リスト）
-│           ├─ isUnassignedChecked （仮）           （担当なし）の行をチェックしたか（担当リスト）
-│           ├─ columnFilters[]                      列のフィルタ → ColumnFilter
-│           └─ columnSort                           並べ替えの列と向き → ColumnSort
+│       ├─ searchWindow                             検索ウィンドウ → TaskTableWindow
+│       ├─ delayDiagnosticsReportWindow             遅延診断レポート → TaskTableWindow
+│       └─ resourceListWindow                       担当リスト → ResourceTableWindow
 ├─ scheduleData                                     スケジュールデータ
 │   ├─ ［MSPDI と往復する群］
 │   │   ├─ project [M]                              プロジェクト（1 件）
@@ -109,14 +102,14 @@ ScheduleDocument                                    GRS JSON の 1 ファイル
 │   │   │   │   │   ├─ fill                         塗り → Paint
 │   │   │   │   │   └─ stroke                       縁 → Stroke
 │   │   │   │   ├─ taskGroupId                      載せるタスクグループ
-│   │   │   │   └─ origin                           取り込み元の控え（取り込んだタスクだけ）
+│   │   │   │   └─ importOrigin                     取り込み元の控え（取り込んだタスクだけ）
 │   │   │   │       ├─ sourceProjectUid （仮）      元のファイルの Project の UID
 │   │   │   │       ├─ sourceUid                    元のタスクの UID
 │   │   │   │       ├─ importSessionId              取り込みの id
-│   │   │   │       └─ lastSeenMspdiImportNumber    最後に見た取り込み
+│   │   │   │       └─ lastSeenMspdiImportNumber    このタスクを最後に含んでいた取り込みが何回目か
 │   │   │   ├─ predecessorLinks[] [M] (PredecessorLink)  先行への結び付き
 │   │   │   │   ├─ predecessorUid [M]               先行タスク
-│   │   │   │   ├─ predecessorLinkType [M] (Type) （仮）  依存の種類（0 FF・1 FS・2 SF・3 SS）
+│   │   │   │   ├─ type [M] (Type)                  依存の種類（0 FF・1 FS・2 SF・3 SS）。判別子ではない
 │   │   │   │   ├─ linkLag [M]                      ラグ（0.1 分単位）
 │   │   │   │   ├─ lagFormat [M]                    ラグの単位
 │   │   │   │   └─ ◆passthrough                     持ち越した MSPDI の値（MSPDI の構造と名のまま）
@@ -138,8 +131,8 @@ ScheduleDocument                                    GRS JSON の 1 ファイル
 │   │   │   │   ├─ fromDate [M] (TimePeriod/FromDate)  最初の日
 │   │   │   │   ├─ toDate [M] (TimePeriod/ToDate)   最後の日
 │   │   │   │   ├─ dayWorking [M]                   稼働日か
-│   │   │   │   ├─ exceptionType [M] (Type) （仮）  例外の繰り返し方
-│   │   │   │   ├─ recurrencePeriod [M] (Period) （問 6-7-7）  繰り返しの間隔
+│   │   │   │   ├─ type [M] (Type)                  例外の繰り返し方（1 毎日〜9 繰り返さない）。判別子ではない
+│   │   │   │   ├─ period [M]                       繰り返しの間隔（N-3 により MSPDI の名 Period のまま）
 │   │   │   │   ├─ workingTimes[] [M]               稼働の時間帯
 │   │   │   │   │   ├─ fromTime [M]                 始まりの時刻
 │   │   │   │   │   └─ toTime [M]                   終わりの時刻
@@ -148,7 +141,7 @@ ScheduleDocument                                    GRS JSON の 1 ファイル
 │   │   ├─ resources[] [M]                          担当
 │   │   │   ├─ uid [M]                              一意な識別子
 │   │   │   ├─ name [M]                             担当の名
-│   │   │   ├─ resourceType [M] (Type) （仮）       資材か作業か
+│   │   │   ├─ type [M] (Type)                      資材か作業か（0 資材・1 作業）。判別子ではない
 │   │   │   ├─ isCostResource [M]                   コストの担当か
 │   │   │   ├─ calendarUid [M]                      担当の暦
 │   │   │   └─ ◆passthrough                         持ち越した MSPDI の値（MSPDI の構造と名のまま）
@@ -158,25 +151,25 @@ ScheduleDocument                                    GRS JSON の 1 ファイル
 │   │       ├─ resourceUid [M]                      就く担当
 │   │       └─ ◆passthrough                         持ち越した MSPDI の値（MSPDI の構造と名のまま）
 │   └─ ［GRS だけが持つ群］
-│       ├─ metadata （仮）                          スケジュールデータの GRS の値（Project から移す。問 6-13-4・6-13-8）
-│       │   ├─ scheduleDataTimeZone                 データの日時の時差（UTC+09:00 の形）
-│       │   ├─ sourceFormat                         元の形式（grs・pj12・pj15）
-│       │   ├─ topTaskOutlineLevel （仮）           最上位のタスクの OutlineLevel
-│       │   ├─ highestIssuedUid                     uid の数え手
-│       │   └─ lastMspdiImportNumber                MSPDI の取り込み回数
+│       ├─ scheduleDataTimeZone                     データの日時の時差
+│       │   └─ utcOffsetMinutes                     UTC との差（分）
+│       ├─ sourceFormat                             元の形式（grs・mspdi12・mspdi15）
+│       ├─ topTaskOutlineLevel                      取り込んだファイルの、最上位のタスクの OutlineLevel
+│       ├─ highestIssuedUid                         uid の数え手
+│       ├─ mspdiImportCount                         MSPDI を取り込んだ回数
 │       ├─ taskGroups[]                             タスクグループ
 │       │   ├─ id                                   一意な UUID
 │       │   ├─ name                                 タスクグループ名
 │       │   ├─ style                                見た目
 │       │   │   └─ color                            帯の色 → LaneColor
 │       │   ├─ minHeightPx                          帯の最も低い高さ
-│       │   ├─ parentId                             親のタスクグループ（最上位では書かない）
+│       │   ├─ parentTaskGroupId                    親のタスクグループ（最上位では書かない）
 │       │   ├─ siblingOrder                         兄弟の中の順
-│       │   ├─ derivedFromTaskUid （問 6-9-2）      表す WBS のタスク
+│       │   ├─ representativeTaskUid                この帯を代表する WBS のタスク
 │       │   ├─ hyperlinkAddress                     リンク先の URL
 │       │   ├─ hyperlink                            リンクのタイトル
 │       │   ├─ treeState                            開閉の状態（auto・collapsed・expanded・temporarilyExpanded・hidden）
-│       │   └─ editorGroupName （仮）               編集してよい組の名
+│       │   └─ editableByGroupName                  編集してよい組の名
 │       ├─ commentBoxes[]                           コメントボックス
 │       │   ├─ id                                   一意な UUID
 │       │   ├─ text                                 文
@@ -192,9 +185,9 @@ ScheduleDocument                                    GRS JSON の 1 ファイル
 │       │   │   ├─ taskGroupId                      帯（freePoint）
 │       │   │   ├─ laneTopOffsetPercent             帯の中の高さ（上の縁から %）（freePoint）
 │       │   │   ├─ taskUid                          タスク（task）
-│       │   │   ├─ snapPart （仮）                  吸着する図形の部分（plannedBar・actualBar・milestone）（task）
+│       │   │   ├─ snapPart                         吸着する図形の部分（plannedBar・actualBar・milestone）（task）
 │       │   │   ├─ highlightBoxId                   箱（highlightBox）
-│       │   │   └─ snapPoint （仮）                 吸着する 8 点の 1 つ（task・highlightBox）
+│       │   │   └─ snapPoint                        吸着する 8 点の 1 つ（topLeftCorner・topMiddle・topRightCorner・rightMiddle・bottomRightCorner・bottomMiddle・bottomLeftCorner・leftMiddle）（task・highlightBox）
 │       │   ├─ bodyOffsetPx                         線先から箱へのずれ
 │       │   │   ├─ dx                               横のずれ
 │       │   │   └─ dy                               縦のずれ
@@ -234,10 +227,12 @@ ScheduleDocument                                    GRS JSON の 1 ファイル
 │   ├─ fileSavedAt                                  保存した時（UTC）
 │   └─ lastEditedBy                                 最後に書いた者
 │       ├─ type                                     user・template・agent
-│       └─ name                                     AI が自分に付けた名（agent）
+│       └─ name                                     AI が名乗った名（agent のときだけ。user・template では書かない）
 └─ changeLogEntries[]                               変更履歴
     ├─ changedAt                                    変更の時（UTC）
     ├─ changedBy                                    変更した者
+    │   ├─ type                                     user・agent（GRS が自動で書く）
+    │   └─ name                                     人が打った名か、AI が名乗った名
     ├─ affectedArea                                 及んだ部分
     ├─ changeDescription                            何が変わったか
     ├─ reason                                       理由
@@ -249,9 +244,20 @@ ScheduleDocument                                    GRS JSON の 1 ファイル
 │   ├─ name                                         パレットの色の名（palette）。paper・ink・dimGray・lightGray・red・blue・yellow・green・orange・purple（paper・ink の名は 問 6-6-4-12）
 │   ├─ light                                        明るいテーマの側（custom）
 │   │   ├─ hexColor                                 色の値（#rrggbb）
-│   │   └─ derivedFrom                              GRS が作った元の側（人が選んだ値なら書かない）
+│   │   └─ isCalculatedFromOppositeColor            GRS が反対の側の色から計算して作った側だけ true（人が選んだ側は書かない）
 │   └─ dark                                         暗いテーマの側（custom。形は light）
 ├─ LaneColor                                        Color から ink を除く
+├─ TaskTableWindow                                  タスクの表の見せ方（検索ウィンドウ・遅延診断レポート）
+│   ├─ isScheduleFilterApplied                      表でチェックしたタスクだけを描くか
+│   ├─ checkedTaskUids[] （仮）                     チェックしたタスク
+│   ├─ columnFilters[]                              列のフィルタ → ColumnFilter
+│   └─ columnSort                                   並べ替えの列と向き → ColumnSort
+├─ ResourceTableWindow                              担当の表の見せ方（担当リスト）
+│   ├─ isScheduleFilterApplied                      表のチェックでチャートを絞るか
+│   ├─ checkedResourceUids[] （仮）                 チェックした担当
+│   ├─ isUnassignedChecked （仮）                   （担当なし）の行をチェックしたか
+│   ├─ columnFilters[]                              列のフィルタ → ColumnFilter
+│   └─ columnSort                                   並べ替えの列と向き → ColumnSort
 ├─ ColumnFilter                                     列のフィルタ
 │   ├─ type                                         values・dateRange
 │   ├─ column                                       列（列の変わらない英語の名）
