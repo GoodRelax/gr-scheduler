@@ -1250,7 +1250,7 @@ BGQA2 を約束の面ごとに分けたとき（`JDG-3568`）、まだ出して�
 
 回答:
 
-## BGQA3 GRS JSON（後回し。2026-11-15、影響の小さい問い 7）
+## BGQA3 GRS JSON（後回し。2026-11-15、影響の小さい問い 6。問 6-9-2 は 2026-11-18 に BGQA3 の 13 回目へ出して決まった（`JDG-3624`））
 
 #### ❓ 問 6-6-4-7. 色の要素の一覧 —— 抜けと誤りは無いか
 
@@ -1431,102 +1431,6 @@ GRS の色の要素を、仕様書と β の形から 12 に数えました（�
 
 回答:
 
-#### ❓ 問 6-9-2. タスクグループが表すタスク —— MSPDI の木の語との関係を確かめ、`derivedFromTaskUid` の新しい名を決める
-
-あなたの問い: 「MSPDIの各語とこの関係は？ そこを整理の上、JSONの実例を見たい。」
-
-場面: MSPDI はタスクの木を、Task の並びと OutlineLevel などの語で書きます。GRS JSON はタスクの木（WBS）を Task の中に持ち、別に、描く行の木（タスクグループ）を GRS の群に持ちます。このキーが 2 つの木を結びます。XSD（pj15）と仕様（`DV-4`〜`DV-7`・`MR-4`・`FR-058`・`HM-9`・`HM-12`）と実装で確かめました。
-
-**1. MSPDI の語と GRS JSON の置き場**:
-
-| MSPDI の語 | 意味 | GRS JSON の置き場 |
-|:---|:---|:---|
-| Tasks の中の Task の並び | 木を上からたどる順 | 開くとき、GRS は並びと OutlineLevel から `Task.parentTaskUid` と `Task.siblingOrder` を作る。書くとき、GRS は木を上からたどって Task を並べる |
-| UID | タスクの一意な番号 | `Task.uid` |
-| ID | 並びの中の位置の番号（XSD: position identifier） | GRS は持たず、書き出すたびに並びから作る（`DV-4`） |
-| OutlineLevel | 木の深さ。最上位が 1 | GRS は持たず、`parentTaskUid` の深さから作る（`DV-5`）。数え始めは `project.firstOutlineLevel` |
-| OutlineNumber | 木の道すじ（1・1.1・1.2） | GRS は持たず、木から作る（`DV-6`） |
-| Summary | 子を持つか（要約タスク） | GRS は持たず、子の有無から作る（`DV-7`） |
-| WBS | タスクの WBS コード（XSD の説明） | `Task.passthroughValues` の `WBS`。GRS は読まず、字のまま書き戻す |
-| WBSLevel | WBS コードの右端の段 | `Task.passthroughValues` の `WBSLevel`。同上 |
-| DisplayAsSummary | 要約タスクとして見せるか | `Task.passthroughValues`。同上 |
-| UID 0・OutlineLevel 0 の Task | プロジェクトの要約タスク（`MR-4`） | GRS はタスクにせず、`project.passthroughElements` に持ち、元の位置へ書き戻す（`EX-5`） |
-| Project/WBSMasks | WBS コードの書き方 | `project.passthroughElements` |
-| Project/OutlineCodes | アウトラインコードの定義。木とは別の、人が付ける分類 | `project.passthroughElements` |
-| 無し | タスクグループの木（描く行の木） | `taskGroups`（`id`・`parentId`・`siblingOrder`）と `taskGroupMembers`（`taskUid` → `taskGroupId`） |
-| 無し | タスクグループが表す WBS のタスク | `TaskGroup` のこのキー（今の名 `derivedFromTaskUid`） |
-
-**2. GRS がタスクグループを作る決まり（`FR-058`）**: GRS は MSPDI を開くとき、子を持つタスクごとに 1 つ、親を持たないタスクごとに 1 つ（子が無くても）、タスクグループを作ります。GRS はそのタスクの uid をこのキーに書き、タスクの名前を `name` へ写します（`JDG-3315`）。子を持たないタスクは、親のタスクグループに載ります。
-
-**3. 実例**: 要約タスク 1 つと子 2 つの MSPDI です。
-
-```xml
-<Tasks>
-  <Task>
-    <UID>1</UID><ID>1</ID><Name>設計</Name>
-    <WBS>1</WBS><OutlineNumber>1</OutlineNumber><OutlineLevel>1</OutlineLevel>
-    <Start>2026-12-01T08:00:00</Start><Finish>2026-12-10T17:00:00</Finish>
-    <Summary>1</Summary>
-  </Task>
-  <Task>
-    <UID>2</UID><ID>2</ID><Name>基本設計</Name>
-    <WBS>1.1</WBS><OutlineNumber>1.1</OutlineNumber><OutlineLevel>2</OutlineLevel>
-    <Start>2026-12-01T08:00:00</Start><Finish>2026-12-04T17:00:00</Finish>
-    <Summary>0</Summary>
-  </Task>
-  <Task>
-    <UID>3</UID><ID>3</ID><Name>詳細設計</Name>
-    <WBS>1.2</WBS><OutlineNumber>1.2</OutlineNumber><OutlineLevel>2</OutlineLevel>
-    <Start>2026-12-07T08:00:00</Start><Finish>2026-12-10T17:00:00</Finish>
-    <Summary>0</Summary>
-  </Task>
-</Tasks>
-```
-
-GRS はこれを次の GRS JSON にします（キーは案 a の名で書き、ほかのキーを省きます）。
-
-```json
-"scheduleData": {
-  "project": { "uid": "1", "firstOutlineLevel": 1 },
-  "tasks": [
-    { "uid": 1, "siblingOrder": 0, "name": "設計",
-      "start": "2026-12-01T08:00:00", "finish": "2026-12-10T17:00:00",
-      "passthroughValues": { "WBS": "1" } },
-    { "uid": 2, "parentTaskUid": 1, "siblingOrder": 0, "name": "基本設計",
-      "start": "2026-12-01T08:00:00", "finish": "2026-12-04T17:00:00",
-      "passthroughValues": { "WBS": "1.1" } },
-    { "uid": 3, "parentTaskUid": 1, "siblingOrder": 1, "name": "詳細設計",
-      "start": "2026-12-07T08:00:00", "finish": "2026-12-10T17:00:00",
-      "passthroughValues": { "WBS": "1.2" } }
-  ],
-  "taskGroups": [
-    { "id": "b7e3c2a0-5d41-4c8e-9f6a-1d2e3f4a5b6c", "siblingOrder": 0, "name": "設計",
-      "wbsTaskUid": 1, "treeState": "auto" }
-  ],
-  "taskGroupMembers": [
-    { "taskUid": 1, "taskGroupId": "b7e3c2a0-5d41-4c8e-9f6a-1d2e3f4a5b6c" },
-    { "taskUid": 2, "taskGroupId": "b7e3c2a0-5d41-4c8e-9f6a-1d2e3f4a5b6c" },
-    { "taskUid": 3, "taskGroupId": "b7e3c2a0-5d41-4c8e-9f6a-1d2e3f4a5b6c" }
-  ]
-}
-```
-
-- `parentTaskUid` と `siblingOrder` が WBS を持ちます。ID・OutlineLevel・OutlineNumber・Summary は JSON に入らず、GRS は書き出すたびに木から作ります。
-- タスクグループ「設計」は 1 つで、`wbsTaskUid` がタスク 1 を指します。3 つのタスクはこのグループに載り、GRS は 3 つを段に積みます。
-- このキーは 2 つの木を結びます。人がタスクグループを並べ替えると、GRS は WBS の兄弟の順も変えます（`HM-9`）。人がキーを持つタスクグループを別の親の下へ移すと、GRS は木を根の側へたどり、最初に出会うキーを持つタスクグループのタスクを、新しい親タスクにします（`HM-12`）。人が手で作ったキーの無いタスクグループを移しても、WBS は変わりません（`HM-7`）。
-- WBS コードは `passthroughValues` に入ります。人がタスクを別の親の下へ移しても、GRS は WBS の字を直さず、取り込んだ字を書き戻します。
-
-**4. 案を見直した点**: `FR-058` は、親を持たないタスクに、子が無くてもタスクグループを作ります。このときキーは Summary が 0 のタスクを指します。案 b の弱みは、子を消した後だけでなく、取り込んだ直後にも現れます。
-
-| 案 | 中身 |
-|:---|:---|
-| **a（推奨）** | `wbsTaskUid`（このタスクグループが表す、WBS の中のタスク）。辞書の語 `wbs` は「親タスクと子タスクの木」（`JDG-3431`）で、MSPDI が OutlineLevel と Task の並びで書く木と同じ物を指す。末尾の `Uid` は、指す先が MSPDI 由来の実体であることを言う（`JDG-3557`）。名が「MSPDI の木のタスクを指す」ことを言い、`HM-9`・`HM-12` が WBS を動かす関係とも合う |
-| b | `summaryTaskUid`（WBS の要約タスク）。MSPDI の語 Summary に合う。けれども、親を持たないタスクのタスクグループは、取り込んだ直後から Summary が 0 のタスクを指す（`FR-058`）。子を消した後も同じく、名と中身が食い違う |
-| c | `outlineTaskUid`。MSPDI の語 OutlineLevel・OutlineNumber に合う。けれども、GRS は Outline の値を持たず、書き出しで作るだけである。MSPDI の OutlineCodes は木と別の分類なので、名がそれと紛れる |
-| d | `representedTaskUid`（前の案。辞書の下書きの今の名）。「表す」関係を言うが、どの木のタスクかを言わない |
-
-回答:
-
 #### ❓ 問 6-9-5. タスクと依存の、MSPDI の名と違う 3 語
 
 あなたの答え「MSPDI同じならOK。 違うならそこだけ抽出して、裁定に回せ。」に従い、MSPDI の名と同じ 17 語を確定しました（`JDG-3553`）。キーが MSPDI の名と違う 3 語を、ここに残しました。案は GRWB の議論の後でこの問いに書きます。
@@ -1554,7 +1458,7 @@ GRS はこれを次の GRS JSON にします（キーは案 a の名で書き、
 
 回答:
 
-## BGQA3 GRS JSON（11 回目の答えの後に出し直す。2026-11-17）
+## BGQA3 GRS JSON（11 回目の答えの後に出し直す。2026-11-17）（問 6-8-8 は 2026-11-18 に BGQA3 の 13 回目の表で問い直して決まった（`JDG-3628`）。問 6-13-5 の構造図は、JDG-3618〜3629 を当てて描き直してから出す）
 
 #### ❓ 問 6-13-5. 構造図（2026-11-17 版） —— このとおりでよいか
 
@@ -1883,37 +1787,3 @@ ScheduleDocument                                    GRS JSON の 1 ファイル
 
 回答:
 
-#### ❓ 問 6-8-8. MSPDI の `Type` を写す 3 つ —— MSPDI の名を最大限に尊重したらどうなるか
-
-場面: 前回、あなたは「全体構造がわからんが、 xxx.exception.type やxxx.exceptionType のようにMSPDIの名称を最大限に尊重したらどうなる？ linkType より PredecessorLink Type の方が分かりやすいぞ。」と書きました。
-
-**3 つのキーの居場所**（GRS JSON と MSPDI を並べた構造図。`→` の右が MSPDI の元の場所）:
-
-```text
-scheduleData
-├─ tasks[]                    Task                  → Project/Tasks/Task
-│   └─ predecessorLinks[]     PredecessorLink       → Task/PredecessorLink
-│       ├─ predecessorUid                           → PredecessorLink/PredecessorUID
-│       ├─ ？Type                依存の種類（FF・FS・SF・SS） → PredecessorLink/Type
-│       ├─ linkLag                                  → PredecessorLink/LinkLag
-│       └─ lagFormat                                → PredecessorLink/LagFormat
-├─ calendars[]                Calendar              → Project/Calendars/Calendar
-│   ├─ weekDays[]             WeekDay               → Calendar/WeekDays/WeekDay
-│   │   └─ dayType                                  → WeekDay/DayType（MSPDI と同じ名）
-│   └─ exceptions[]           Exception             → Calendar/Exceptions/Exception
-│       └─ ？Type                繰り返し方（毎日・毎週など） → Exception/Type
-└─ resources[]                Resource              → Project/Resources/Resource
-    └─ ？Type                    資材か作業か            → Resource/Type
-```
-
-**あなたの案を広げた決まり:** 「MSPDI の `Type` を写すキーは、MSPDI の親要素の名 ＋ `Type` とする」。MSPDI の XSD の説明も、それぞれを "The exception type"・"The link type"・"The type of resource" と、親の名で呼びます。
-
-| 案 | 3 つの名 | 中身 |
-|:---|:---|:---|
-| **a（推奨）** | `exceptionType`・`predecessorLinkType`・`resourceType` | 親要素の名 ＋ `Type`。MSPDI を知る人は、名から `Exception/Type` などの元の場所がすぐ分かる。3 つが 1 つの決まりで名付けられ、`resourceType` だけの例外（E-3）が消える。素の `type` は判別子だけに残る（N-7）。代わりに、キーが持ち主の名を繰り返す（N-4）。これを例外の決まり X-5「MSPDI の `Type` を写すキーは、親要素の名 ＋ `Type`（N-4 より強い）」として書く |
-| b | 3 つとも `type`（`exception.type` のように、置き場で読む） | MSPDI の名そのもの。ただし `Color.type`（どの形かを選ぶ判別子）と `Exception.type`（繰り返し方）が、同じ名で別の役目を持つ（`OKPN`・`OMPV`）。判別子の決まり N-7 を崩す |
-| c | `recurrenceType`・`linkType`・`resourceType`（今のまま） | 何を分けるかを言う名。MSPDI の名からは離れ、`resourceType` だけが例外になる |
-
-前回の答え「a (仮)  JSONツリーを見て最終決定する」に合わせ、問 6-13-5 の構造図に a の名を（仮）として描きました。
-
-回答:
