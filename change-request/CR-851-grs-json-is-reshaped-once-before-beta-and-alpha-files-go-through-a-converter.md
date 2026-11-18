@@ -154,6 +154,8 @@
 | `rulings.md`（名の辞書の席、2026-11-17 の 3） | `JDG-3612`（コメントボックスの文字の見た目は `style.font { color, sizePx }`）を足した。本書の行のレビューの前に当てる |
 | `rulings.md`（名の辞書の席、2026-11-17 の 4） | `JDG-3613`（持ち越した一覧の要素は一覧ごとの配列 `passthroughTasks` など、位置は `precedingTaskUid` など）を足した。本書の行のレビューの前に当てる |
 | `rulings.md`（名の辞書の席、2026-11-17 の 5） | `JDG-3614`（タスクに付く GRS の値はタスクの中の `grs`）・`JDG-3615`（`task.grs.taskGroupId`）・`JDG-3616`（命名の決まり N-13〜N-17 と X-2 の明記）・`JDG-3617`（個々の名 10 個を仮に採る）を足した。本書の行のレビューの前に当てる |
+| `rulings.md`（名の辞書の席、2026-11-18 の 1） | `JDG-3618`（5 つの値を `scheduleData` の直下に置く）・`JDG-3619`（タイムゾーンは 3 か所とも `utcOffsetMinutes`）・`JDG-3620`（表の見せ方の型を 2 つに）・`JDG-3621`（`displayScaleRatio`）・`JDG-3622`（命名と順の決まりの足し 7 つ）・`JDG-3623`（仮の名を確定、`scrollPosition.type` は `fixed`・`automatic`）・`JDG-3624`（`representedTaskUid`）を足した。本書の行のレビューの前に当てる |
+| `rulings.md`（名の辞書の席、2026-11-18 の 2） | `JDG-3625`（`schemaVersionUtc`・`buildVersionUtc`）・`JDG-3626`（`changedBy` は `{ type, name }`）・`JDG-3627`（`mspdiImportCount`）・`JDG-3628`（MSPDI の `Type` を写す 3 つは `type`）・`JDG-3629`（リンクの欄は 3 つとも MSPDI の名）を足した。本書の行のレビューの前に当てる |
 | `defects.md` | `DFC-3579`（本書）—— 行のレビューの後に起こす |
 | `changelog.md` | 当てるときに 1 行 |
 
