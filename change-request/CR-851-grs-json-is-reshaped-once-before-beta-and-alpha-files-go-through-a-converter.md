@@ -157,6 +157,7 @@
 | `rulings.md`（名の辞書の席、2026-11-18 の 1） | `JDG-3618`（5 つの値を `scheduleData` の直下に置く）・`JDG-3619`（タイムゾーンは 3 か所とも `utcOffsetMinutes`）・`JDG-3620`（表の見せ方の型を 2 つに）・`JDG-3621`（`displayScaleRatio`）・`JDG-3622`（命名と順の決まりの足し 7 つ）・`JDG-3623`（仮の名を確定、`scrollPosition.type` は `fixed`・`automatic`）・`JDG-3624`（`representedTaskUid`）を足した。本書の行のレビューの前に当てる |
 | `rulings.md`（名の辞書の席、2026-11-18 の 2） | `JDG-3625`（`schemaVersionUtc`・`buildVersionUtc`）・`JDG-3626`（`changedBy` は `{ type, name }`）・`JDG-3627`（`mspdiImportCount`）・`JDG-3628`（MSPDI の `Type` を写す 3 つは `type`）・`JDG-3629`（リンクの欄は 3 つとも MSPDI の名）を足した。本書の行のレビューの前に当てる |
 | `rulings.md`（名の辞書の席、2026-11-19 の 1） | `JDG-3630`（`isScheduleFilterApplied`）・`JDG-3631`（`zoneNameType`）・`JDG-3632`（積む向きの値 `bottomToTop`・`topToBottom`）・`JDG-3633`（`sourceFormat` の値 `mspdi12`・`mspdi15`）・`JDG-3634`（決まりの足し 6 つ）・`JDG-3635`（`delayDiagnosticsToleranceWorkingDays`・`taskGroupRootTreeState`）・`JDG-3636`（`isCalculatedFromOppositeColor`）・`JDG-3637`（外の AI のレビューをやめる線）・`JDG-3638`（命名の決まりの優先の順と N-2 の書き直し）・`JDG-3639`（`representativeTaskUid`）・`JDG-3640`（`highestIssuedUid` のまま）・`JDG-3641`（`importOrigin`）を足した。本書の行のレビューの前に当てる |
+| `rulings.md`（名の辞書の席、2026-11-19 の 2） | `JDG-3642`（`changedBy.writerType`）・`JDG-3643`（許す略に `dx`・`dy`・`min`・`max`・`hex`）・`JDG-3644`（タイムゾーンの差は ISO 8601 の `utcOffset`）・`JDG-3645`（`zoneNameType` は追加の時計だけ、読むときの形の検査）を足した。本書の行のレビューの前に当てる |
 | `defects.md` | `DFC-3579`（本書）—— 行のレビューの後に起こす |
 | `changelog.md` | 当てるときに 1 行 |
 

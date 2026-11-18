@@ -22,15 +22,15 @@
     },
     "viewTimeZone": {
       "type": "fixed",
-      "utcOffsetMinutes": 540
+      "utcOffset": "+09:00"
     },
     "displayTimeZones": [
       {
-        "utcOffsetMinutes": 0,
+        "utcOffset": "+00:00",
         "zoneNameType": "standard"
       },
       {
-        "utcOffsetMinutes": -240,
+        "utcOffset": "-04:00",
         "zoneNameType": "daylight"
       }
     ],
@@ -358,7 +358,7 @@
       }
     ],
     "scheduleDataTimeZone": {
-      "utcOffsetMinutes": 540
+      "utcOffset": "+09:00"
     },
     "sourceFormat": "mspdi15",
     "topTaskOutlineLevel": 1,
@@ -533,7 +533,7 @@
   "changeLogEntries": [
     {
       "changedAt": "2026-12-02T03:00:00Z",
-      "changedBy": { "type": "user", "name": "Manager A" },
+      "changedBy": { "writerType": "user", "name": "Manager A" },
       "affectedArea": "tasks",
       "changeDescription": "Imported the plan from the MSPDI file.",
       "reason": "Start tracking the work package.",
@@ -541,7 +541,7 @@
     },
     {
       "changedAt": "2026-12-03T05:10:00Z",
-      "changedBy": { "type": "agent", "name": "planning-assistant" },
+      "changedBy": { "writerType": "agent", "name": "planning-assistant" },
       "affectedArea": "Prepare draft",
       "changeDescription": "Recorded a stop on Dec 2 and a resume on Dec 3.",
       "reason": "Work paused for half a day."

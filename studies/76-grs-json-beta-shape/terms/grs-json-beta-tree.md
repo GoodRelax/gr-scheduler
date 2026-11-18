@@ -23,10 +23,10 @@ ScheduleDocument                                    GRS JSON の 1 ファイル
 │   │   └─ isFixed                                  期間を固定するか
 │   ├─ viewTimeZone                                 見せるタイムゾーン
 │   │   ├─ type                                     sameAsScheduleData・fixed
-│   │   └─ utcOffsetMinutes                         UTC との差（分）（fixed）
+│   │   └─ utcOffset                                UTC との差（"+09:00" の形。標準時の行だけ）（fixed）
 │   ├─ displayTimeZones[]                           追加の時計（4 つまで）
-│   │   ├─ utcOffsetMinutes                         UTC との差（分）
-│   │   └─ zoneNameType                             出すゾーンの名の種類（standard・daylight）。差は utcOffsetMinutes がもう含む
+│   │   ├─ utcOffset                                UTC との差（"+09:00" の形）
+│   │   └─ zoneNameType                             出すゾーンの名の種類（standard・daylight）。差 utcOffset はもう夏時間の分を含む
 │   ├─ isTimeOfDayVisible                           時刻を見せるか
 │   ├─ isPlanBarVisible                             予定バーを見せるか
 │   ├─ isPlanDatesVisible                           予定の日付を見せるか
@@ -152,7 +152,7 @@ ScheduleDocument                                    GRS JSON の 1 ファイル
 │   │       └─ ◆passthrough                         持ち越した MSPDI の値（MSPDI の構造と名のまま）
 │   └─ ［GRS だけが持つ群］
 │       ├─ scheduleDataTimeZone                     データの日時の時差
-│       │   └─ utcOffsetMinutes                     UTC との差（分）
+│       │   └─ utcOffset                            UTC との差（"+09:00" の形。標準時の行だけ）
 │       ├─ sourceFormat                             元の形式（grs・mspdi12・mspdi15）
 │       ├─ topTaskOutlineLevel                      取り込んだファイルの、最上位のタスクの OutlineLevel
 │       ├─ highestIssuedUid                         uid の数え手
@@ -231,7 +231,7 @@ ScheduleDocument                                    GRS JSON の 1 ファイル
 └─ changeLogEntries[]                               変更履歴
     ├─ changedAt                                    変更の時（UTC）
     ├─ changedBy                                    変更した者
-    │   ├─ type                                     user・agent（GRS が自動で書く）
+    │   ├─ writerType                               user・agent（GRS が自動で書く。判別子ではない）
     │   └─ name                                     人が打った名か、AI が名乗った名
     ├─ affectedArea                                 及んだ部分
     ├─ changeDescription                            何が変わったか
