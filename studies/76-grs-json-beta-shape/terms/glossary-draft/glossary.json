@@ -1076,6 +1076,236 @@
      }
     },
     {
+     "key": "root",
+     "label": {
+      "en": "Root",
+      "ja": "根"
+     },
+     "definition": {
+      "en": "The root: the head of the task group tree, at depth 0. It is not a task group and is not drawn as a row. It holds no values and has no Retract and no pin. Never call the root the top level. In MSPDI the root sits where the project summary task is (OutlineLevel 0, which only MS Project writes); GRS does not make it a task and carries it through. (JDG-3660)",
+      "ja": "根: タスクグループの木の頭。深さ 0。タスクグループではなく、行として描かない。値を持たず、Retract もピンもない。根を「最上位」・「top level」と呼んではならない。MSPDI では、根はプロジェクトの要約タスク（OutlineLevel 0、MS Project だけが書く）と同じ位置にあり、GRS はタスクにせず持ち回る。（JDG-3660）"
+     },
+     "avoid": {
+      "en": [
+       "top level",
+       "level 0",
+       "Lv0"
+      ],
+      "ja": [
+       "最上位",
+       "段 0",
+       "Lv0"
+      ]
+     },
+     "usage": {
+      "good": [
+       {
+        "en": "The parent of a top-level task group is the root.",
+        "ja": "最上位のタスクグループの親は根である。"
+       }
+      ],
+      "bad": [
+       {
+        "en": "The root is the top level.",
+        "ja": "根は最上位である。"
+       },
+       {
+        "en": "Close the top level, and no task group is drawn.",
+        "ja": "最上位を閉じると、タスクグループを 1 つも描かない。"
+       }
+      ]
+     },
+     "uses": [
+      "spec"
+     ],
+     "tags": [
+      {
+       "key": "TaskGroup"
+      },
+      {
+       "key": "MSPDI"
+      }
+     ]
+    },
+    {
+     "key": "depth",
+     "label": {
+      "en": "Depth",
+      "ja": "深さ"
+     },
+     "definition": {
+      "en": "Depth: the number of steps counted from the root. The root is depth 0; a task group right under the root is depth 1. In MSPDI, which counts from 1, depth N is OutlineLevel N. Do not use level as a second name for depth, nor Lv0 or Lv1, nor WBS in the sense of depth: an MSPDI WBS is a code a person gives. (JDG-3660)",
+      "ja": "深さ: 根から数えた段の数。根が 0、根の直下が 1。起点 1 で数える MSPDI では、深さ N は OutlineLevel N。深さの別名に「段」（段 0・最も浅い段）を使わない。Lv0・Lv1 も使わない。深さの意味で WBS とも言わない —— MSPDI の WBS は人が与える符号である。（JDG-3660）"
+     },
+     "avoid": {
+      "en": [
+       "level",
+       "level 0",
+       "Lv0",
+       "Lv1",
+       "WBS"
+      ],
+      "ja": [
+       "段",
+       "段 0",
+       "最も浅い段",
+       "Lv0",
+       "Lv1",
+       "WBS"
+      ]
+     },
+     "uses": [
+      "spec"
+     ],
+     "tags": [
+      {
+       "key": "root"
+      },
+      {
+       "key": "MSPDI"
+      }
+     ]
+    },
+    {
+     "key": "topLevel",
+     "label": {
+      "en": "Top Level",
+      "ja": "最上位"
+     },
+     "definition": {
+      "en": "The top level: depth 1, the step right under the root. It never means the root. In MSPDI the top level is OutlineLevel 1. The bare words top level may be written; task group need not follow them every time. (JDG-3660)",
+      "ja": "最上位: 深さ 1。根の直下の段。根を指してはならない。MSPDI では OutlineLevel 1。「最上位」だけで書いてよく、毎回「のタスクグループ」を付けなくてよい。（JDG-3660）"
+     },
+     "avoid": {
+      "en": [
+       "root",
+       "Lv1"
+      ],
+      "ja": [
+       "根",
+       "Lv1"
+      ]
+     },
+     "uses": [
+      "spec"
+     ],
+     "tags": [
+      {
+       "key": "depth"
+      },
+      {
+       "key": "root"
+      }
+     ]
+    },
+    {
+     "key": "topLevelTaskGroup",
+     "label": {
+      "en": "Top-level Task Group",
+      "ja": "最上位のタスクグループ"
+     },
+     "definition": {
+      "en": "A top-level task group: a task group at depth 1. Its parent is the root. (JDG-3660)",
+      "ja": "最上位のタスクグループ: 深さ 1 のタスクグループ。親は根。（JDG-3660）"
+     },
+     "uses": [
+      "spec"
+     ],
+     "tags": [
+      {
+       "key": "topLevel"
+      },
+      {
+       "key": "TaskGroup"
+      }
+     ]
+    },
+    {
+     "key": "parent",
+     "label": {
+      "en": "Parent",
+      "ja": "親"
+     },
+     "definition": {
+      "en": "Parent: one step up in the task group tree. The parent of a top-level task group is the root. (JDG-3660)",
+      "ja": "親: 1 段上。最上位のタスクグループの親は根。（JDG-3660）"
+     },
+     "uses": [
+      "spec"
+     ],
+     "tags": [
+      {
+       "key": "root"
+      },
+      {
+       "key": "parentTask"
+      }
+     ]
+    },
+    {
+     "key": "child",
+     "label": {
+      "en": "Child",
+      "ja": "子"
+     },
+     "definition": {
+      "en": "Child: one step down in the task group tree. (JDG-3660)",
+      "ja": "子: 1 段下。（JDG-3660）"
+     },
+     "uses": [
+      "spec"
+     ],
+     "tags": [
+      {
+       "key": "parent"
+      },
+      {
+       "key": "childTask"
+      }
+     ]
+    },
+    {
+     "key": "below",
+     "label": {
+      "en": "Below",
+      "ja": "配下"
+     },
+     "definition": {
+      "en": "Below (descendants): everything under a task group in the task group tree. The task group itself is not included. (JDG-3660)",
+      "ja": "配下: その帯より下のすべて。帯自身は含まない。（JDG-3660）"
+     },
+     "uses": [
+      "spec"
+     ],
+     "tags": [
+      {
+       "key": "child"
+      }
+     ]
+    },
+    {
+     "key": "ancestor",
+     "label": {
+      "en": "Ancestor",
+      "ja": "祖先"
+     },
+     "definition": {
+      "en": "Ancestor: everything above a task group in the task group tree, the root included. (JDG-3660)",
+      "ja": "祖先: その帯より上のすべて。根を含む。（JDG-3660）"
+     },
+     "uses": [
+      "spec"
+     ],
+     "tags": [
+      {
+       "key": "parent"
+      },
+      {
+       "key": "root"
+      }
+     ]
+    },
+    {
      "key": "multiBarGantt",
      "definition": {
       "en": "Multi-bar Gantt: a Gantt chart that can put several task bars and milestones on one task group lane. It is the kind of chart GRS draws; an ordinary Gantt chart puts one task on a row.",
