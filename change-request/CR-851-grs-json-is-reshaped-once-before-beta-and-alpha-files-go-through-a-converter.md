@@ -160,6 +160,7 @@
 | `rulings.md`（名の辞書の席、2026-11-19 の 2） | `JDG-3642`（`changedBy.writerType`）・`JDG-3643`（許す略に `dx`・`dy`・`min`・`max`・`hex`）・`JDG-3644`（タイムゾーンの差は ISO 8601 の `utcOffset`）・`JDG-3645`（`zoneNameType` は追加の時計だけ、読むときの形の検査）を足した。本書の行のレビューの前に当てる |
 | `rulings.md`（名の辞書の席、2026-11-20 の 1） | `JDG-3646`（`delayDiagnosticsSettings.toleranceWorkingDays`）・`JDG-3647`（`snapPart` の値 `planBar`・`actualBar`・`milestoneMark`）・`JDG-3648`（`importedTopTaskOutlineLevel`）・`JDG-3649`（`lastSeenMspdiImportCount`）・`JDG-3650`（決まりの足し 4 つ）・`JDG-3651`（帯の木の見え方を 1 つの物に）・`JDG-3652`（決まりは仕様書の JSON だけ、値の書き方はスキーマの各プロパティだけ）・`JDG-3653`（`expandedUntilZoomOut`）・`JDG-3654`（`automaticallyExpandedWithinDepth`）・`JDG-3655`（`isCollapsedIntoParent`）・`JDG-3656`（`childrenExpansionState`。BGQA3 の問 6-12-12〜6-12-14 で形と名を問い直し中）を足した。本書の行のレビューの前に当てる |
 | `rulings.md`（名の辞書の席、2026-11-20 の 2） | `JDG-3657`（帯の表示状態 `visible`・`invisible` は導く結果で、GRS JSON に保存しない。GRS JSON は帯自身の意図 3 つ（画面に出せ・画面から消せ・自動で決めろ）を持つ。キーと値の名は BGQA3T の問 6-12-28〜6-12-30 で問い中。`JDG-3653`・`JDG-3654`・`JDG-3656` は後で取り下げる見込み）を足した。本書の行のレビューの前に当てる |
+| `rulings.md`（名の辞書の席、2026-11-20 の 3） | `JDG-3658`（帯のボタン ∧（`IC-59`）の名: 英語の札 Retract、日本語の札「親へしまう」、出来事 `retractPressed`（今の `hidePressed`）。∨・∨∨・∧∧ の名と説明の文は BGQA3T の 6 回目で問い中）を足した。本書の行のレビューの前に当てる |
 | `defects.md` | `DFC-3579`（本書）—— 行のレビューの後に起こす |
 | `changelog.md` | 当てるときに 1 行 |
 
