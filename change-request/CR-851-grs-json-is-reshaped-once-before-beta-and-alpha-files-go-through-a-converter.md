@@ -218,6 +218,8 @@
 | `rulings.md`（名の辞書の席、2026-11-22 の 39） | `JDG-3713`（構造の木 `grs-json-beta-tree.md` をこのとおりと確かめ、仮の 4 つ（`documentSettings.themeHue` の置き場、`checkedTaskUids[]`・`checkedResourceUids[]`・`isUnassignedChecked`）を確定する。GRS JSON の語の問いはこれで閉じる）を足した。本書の行のレビューの前に当てる |
 | `rulings.md`（名の辞書の席、2026-11-22 の 40） | `JDG-3714`（GRS が GRS JSON を書くときの並び: 毎回スキーマの順・根は小さい頭を先・`scheduleData` は MSPDI の群を MSPDI の順で先、GRS の群は指される物を先・物の中は `type` → `uid`/`id` → 名 → MSPDI の値 → GRS の値 → 子の配列 → `passthrough`・配列の要素は木の深さ優先か `uid`/`id` の順）を足した。本書の行のレビューの前に当てる |
 | `rulings.md`（名の辞書の席、2026-11-22 の 41） | `JDG-3715`（`documentSettings` の中は効く範囲の広い順: 画面全体 → 時間の軸 → 帯の軸 → 開いたときの位置 → 描く物 → 道具）を足した。本書の行のレビューの前に当てる |
+| `rulings.md`（名の辞書の席、2026-11-22 の 42） | `JDG-3716`（文書の命令と Agent API の名の方針のうち P-1〜P-6・P-9 を推しのとおり採り、P-12 は方針として採って結果をレビューする。P-7・P-8・P-10・P-11 は説明と比較を求められ未決）を足した。本書の行のレビューの前に当てる |
+| `rulings.md`（名の辞書の席、2026-11-22 の 43） | `JDG-3717`（GRS JSON の最終レビューの専用の SUB を立て、終わるまで Agent API を止める。Agent API は別の席。レビューの後に GRS JSON のスキーマを作る席を起こし、Agent API と並行してよい）を足した。本書の行のレビューの前に当てる |
 | `defects.md` | `DFC-3579`（本書）—— 行のレビューの後に起こす |
 | `changelog.md` | 当てるときに 1 行 |
 
