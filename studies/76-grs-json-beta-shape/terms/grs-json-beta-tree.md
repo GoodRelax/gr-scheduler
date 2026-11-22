@@ -35,7 +35,7 @@ ScheduleDocument                                    GRS JSON の 1 ファイル
 │   ├─ taskGroupPanelWidthPx                        タスクグループパネルの幅（表示の倍率 1 のときの CSS ピクセル）
 │   ├─ isTaskGroupPanelWidthFixed                   幅を固定するか
 │   ├─ pinnedTaskGroupIds[]                         ピン止めしたタスクグループの id
-│   ├─ taskStackDirection                           帯の中でタスクを積む向き（bottomToTop・topToBottom）
+│   ├─ taskPlacementDirection                       帯の中で、重なるタスクを日付の早い順に置く向き（bottomToTop・topToBottom）
 │   ├─ scrollPosition                               開いたときの位置
 │   │   ├─ type                                     automatic・fixed
 │   │   ├─ leftEdgeDay                              左の端の日（fixed）
@@ -45,7 +45,7 @@ ScheduleDocument                                    GRS JSON の 1 ファイル
 │   ├─ scheduleCanvasElements                       Schedule Canvas に描く物（JDG-3724）
 │   │   ├─ isDateGridLinesVisible                   日の罫線を見せるか
 │   │   ├─ isGroupGridLinesVisible                  グループ罫線（タスクグループの境の横線）を見せるか
-│   │   ├─ isProgressLineVisible                    進捗線を見せるか
+│   │   ├─ isProgressLineVisible                    イナズマ線を見せるか
 │   │   ├─ isDependencyLineVisible                  依存線を見せるか
 │   │   ├─ isPlanBarVisible                         予定バーを見せるか
 │   │   ├─ isPlanDatesVisible                       予定の日付を見せるか
@@ -133,8 +133,8 @@ ScheduleDocument                                    GRS JSON の 1 ファイル
 │   │   │   ├─ ◆parentTaskUid                       WBS の親タスク（最上位では書かない）
 │   │   │   ├─ ◆siblingOrder                        兄弟の中の順
 │   │   │   ├─ ◆grs                                 タスクに付く GRS の値
-│   │   │   │   ├─ fadeInCalendarDays               始まりのフェード暦日
-│   │   │   │   ├─ fadeOutCalendarDays              終わりのフェード暦日
+│   │   │   │   ├─ startSlopeCalendarDays           開始の傾き（開始の端を斜めに落とす暦日。確定していない日付）
+│   │   │   │   ├─ finishSlopeCalendarDays          終了の傾き（終了の端を斜めに落とす暦日。確定していない日付）
 │   │   │   │   ├─ style                            見た目（型 TaskStyle。ShapeStyle に形のキーを足す）
 │   │   │   │   │   ├─ taskShape                    バーの形（マイルストーンでないときだけ）。rectangle 矩形・chevron 矢羽根・arrow 矢印・dumbbell ダンベル
 │   │   │   │   │   ├─ milestoneShape               マイルストーンマークの形（マイルストーンのときだけ）。circle・hexagon・pentagon・diamond・square・star・triangleUp・triangleDown・file・box・floppyDisk・cylinder・meetingPeople・smilingFace・beerMug
@@ -172,7 +172,7 @@ ScheduleDocument                                    GRS JSON の 1 ファイル
 │       │   ├─ parentTaskGroupId                    親のタスクグループ（最上位では書かない）
 │       │   ├─ siblingOrder                         兄弟の中の順
 │       │   ├─ style                                見た目（型 TaskGroupStyle）
-│       │   │   └─ color                            帯の色 → LaneColor
+│       │   │   └─ color                            帯の色 → TaskGroupColor
 │       │   ├─ minHeightPx                          帯の最も低い高さ
 │       │   ├─ representativeTaskUid                この帯を代表する WBS のタスク
 │       │   ├─ hyperlinkAddress                     リンク先の URL
@@ -208,7 +208,7 @@ ScheduleDocument                                    GRS JSON の 1 ファイル
 │       │   │   ├─ type                             freePoint・task・highlightBox
 │       │   │   ├─ dateTime                         時点（freePoint）
 │       │   │   ├─ taskGroupId                      帯（freePoint）
-│       │   │   ├─ laneTopOffsetPercent             帯の中の高さ（上の縁から %）（freePoint）
+│       │   │   ├─ taskGroupTopOffsetPercent        帯の中の高さ（上の縁から %）（freePoint）
 │       │   │   ├─ taskUid                          タスク（task）
 │       │   │   ├─ snapPart                         吸着する図形の部分（planBar・actualBar・milestoneMark）（task）
 │       │   │   ├─ highlightBoxId                   箱（highlightBox）
@@ -248,7 +248,7 @@ ScheduleDocument                                    GRS JSON の 1 ファイル
 │   │   ├─ hexColor                                 色の値（#rrggbb）
 │   │   └─ isCalculatedFromOppositeColorScheme      GRS が反対の側の色から計算して作った側だけ true（人が選んだ側は書かない）
 │   └─ dark                                         暗いテーマの側（custom。形は light）
-├─ LaneColor                                        Color から black を除く
+├─ TaskGroupColor                                   Color から black を除く
 ├─ TaskTableWindow                                  タスクの表の見せ方（検索ウィンドウ・遅延診断レポート）
 │   ├─ isScheduleFilteredByChecks                   チェックで日程表を絞るか（チェックしたタスクだけを描く）
 │   ├─ checkedTaskUids[]                            チェックしたタスク
