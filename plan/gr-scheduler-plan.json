@@ -14,7 +14,7 @@
       "creationDate": "2026-10-31T08:50:00",
       "revision": 11,
       "startDate": "2026-10-17T05:30:00",
-      "statusDate": "2026-11-22T17:30:00",
+      "statusDate": "2026-11-22T18:11:00",
       "minutesPerDay": 1440,
       "minutesPerWeek": 10080,
       "daysPerMonth": 30,
@@ -24,7 +24,7 @@
       "defaultFinishTime": "23:59:00",
       "themeHue": 214,
       "parentTaskProgressToleranceDays": 1,
-      "uidHighWaterMark": 474,
+      "uidHighWaterMark": 475,
       "importSequence": 0,
       "carry": {},
       "carryElements": [],
@@ -8024,16 +8024,16 @@
         "wbsOrder": 322,
         "name": "🌘 オーナー: ② Agent API の見直しの方針を決める",
         "start": "2026-11-22T16:39:00",
-        "finish": "2026-11-22T21:12:00",
+        "finish": "2026-11-22T21:53:00",
         "milestone": false,
         "deadline": null,
         "calendarUid": null,
         "actualStart": "2026-11-22T16:39:00",
         "stop": "2026-11-22T16:57:00",
         "actualFinish": null,
-        "resume": "2026-11-22T20:30:00",
+        "resume": "2026-11-22T21:11:00",
         "resumeValid": true,
-        "percentComplete": 7,
+        "percentComplete": 6,
         "fadeInDays": null,
         "fadeOutDays": null,
         "notes": "pmo-5 2026-11-22T11:53: owner answer on group 2 (a: get it out, naming first; BOSS line 11-22). Replaces the per-part tasks 354..361 and 419..434 (3.60 terms/h). Length 1.0 h is a BOSS placeholder (provisional). Owner hours. pmo-5 2026-11-22T16:39: started at the BOSS line (policy draft P-1..P-12 put to the owner). 1 h is a BOSS placeholder (provisional). pmo-5 2026-11-22T16:57: stopped at the BOSS line (JDG-3716: P-1..P-6 and P-9 taken, P-12 taken with review, P-7, P-8, P-10, P-11 need explanation and comparison; JDG-3717: group 2 waits until the group 1 review ends). Resumes after 473; the rest of the 1 h placeholder follows the resume.",
@@ -8055,8 +8055,8 @@
         "parentTaskUid": null,
         "wbsOrder": 323,
         "name": "🌑 ② 後任 14 が Agent API・文書の命令の名をまとめてそろえる(SUB。BGQA4・BGQA5 の 45 問は 1 つずつ問わない)",
-        "start": "2026-11-22T21:12:00",
-        "finish": "2026-11-23T01:12:00",
+        "start": "2026-11-22T21:53:00",
+        "finish": "2026-11-23T01:53:00",
         "milestone": false,
         "deadline": null,
         "calendarUid": null,
@@ -8182,8 +8182,8 @@
         "parentTaskUid": null,
         "wbsOrder": 327,
         "name": "🌑 オーナー: ② 方針で決まらない残り 3 問に答える",
-        "start": "2026-11-22T21:12:00",
-        "finish": "2026-11-22T21:32:55",
+        "start": "2026-11-22T21:53:00",
+        "finish": "2026-11-22T22:13:55",
         "milestone": false,
         "deadline": null,
         "calendarUid": null,
@@ -8278,12 +8278,12 @@
         "parentTaskUid": null,
         "wbsOrder": 330,
         "name": "🌒 オーナー: ① 列挙値まで出したツリーを目視でレビューする",
-        "start": "2026-11-22T17:30:00",
-        "finish": "2026-11-22T18:30:00",
+        "start": "2026-11-22T18:11:00",
+        "finish": "2026-11-22T19:11:00",
         "milestone": false,
         "deadline": null,
         "calendarUid": null,
-        "actualStart": "2026-11-22T17:30:00",
+        "actualStart": "2026-11-22T18:11:00",
         "stop": null,
         "actualFinish": null,
         "resume": null,
@@ -8291,10 +8291,10 @@
         "percentComplete": 0,
         "fadeInDays": null,
         "fadeOutDays": null,
-        "notes": "pmo-5 2026-11-22T16:57: BOSS line 11-22 (JDG-3717). 1 h. Length is a PMO placeholder (provisional). pmo-5 2026-11-22T17:30: started at the BOSS line: visual check of the tree (GQA BGQA6, 5 parts). 1 h is a PMO placeholder (provisional); 471 and 472 run side by side.",
+        "notes": "pmo-5 2026-11-22T16:57: BOSS line 11-22 (JDG-3717). 1 h. Length is a PMO placeholder (provisional). pmo-5 2026-11-22T17:30: started at the BOSS line: visual check of the tree (GQA BGQA6, 5 parts). 1 h is a PMO placeholder (provisional); 471 and 472 run side by side. pmo-5 2026-11-22T18:11: the real start is now (BOSS line): the items sent before the rebuild are not used.",
         "dependencies": [
           {
-            "predecessorUid": 470,
+            "predecessorUid": 475,
             "linkType": 1,
             "linkLag": 0,
             "lagFormat": 7,
@@ -8310,12 +8310,12 @@
         "parentTaskUid": null,
         "wbsOrder": 331,
         "name": "🌒 オーナー: ① ほかの AI のレビューの答えを集める",
-        "start": "2026-11-22T17:30:00",
-        "finish": "2026-11-22T18:30:00",
+        "start": "2026-11-22T18:11:00",
+        "finish": "2026-11-22T19:11:00",
         "milestone": false,
         "deadline": null,
         "calendarUid": null,
-        "actualStart": "2026-11-22T17:30:00",
+        "actualStart": "2026-11-22T18:11:00",
         "stop": null,
         "actualFinish": null,
         "resume": null,
@@ -8323,10 +8323,10 @@
         "percentComplete": 0,
         "fadeInDays": null,
         "fadeOutDays": null,
-        "notes": "pmo-5 2026-11-22T16:57: BOSS line 11-22 (JDG-3717). 1 h. Length is a PMO placeholder (provisional). pmo-5 2026-11-22T17:30: started at the BOSS line: collects the outside AI answers (two-stage letters). 1 h is a PMO placeholder (provisional); 471 and 472 run side by side.",
+        "notes": "pmo-5 2026-11-22T16:57: BOSS line 11-22 (JDG-3717). 1 h. Length is a PMO placeholder (provisional). pmo-5 2026-11-22T17:30: started at the BOSS line: collects the outside AI answers (two-stage letters). 1 h is a PMO placeholder (provisional); 471 and 472 run side by side. pmo-5 2026-11-22T18:11: the real start is now (BOSS line): the items sent before the rebuild are not used.",
         "dependencies": [
           {
-            "predecessorUid": 470,
+            "predecessorUid": 475,
             "linkType": 1,
             "linkLag": 0,
             "lagFormat": 7,
@@ -8342,8 +8342,8 @@
         "parentTaskUid": null,
         "wbsOrder": 332,
         "name": "🌑 ① 最終レビューの席がレビューを反映する(SUB)",
-        "start": "2026-11-22T18:30:00",
-        "finish": "2026-11-22T20:30:00",
+        "start": "2026-11-22T19:11:00",
+        "finish": "2026-11-22T21:11:00",
         "milestone": false,
         "deadline": null,
         "calendarUid": null,
@@ -8382,8 +8382,8 @@
         "parentTaskUid": null,
         "wbsOrder": 333,
         "name": "🌑 ③ GRS JSON のスキーマの席がスキーマを作る(SUB)",
-        "start": "2026-11-22T20:30:00",
-        "finish": "2026-11-23T00:30:00",
+        "start": "2026-11-22T21:11:00",
+        "finish": "2026-11-23T01:11:00",
         "milestone": false,
         "deadline": null,
         "calendarUid": null,
@@ -8399,6 +8399,38 @@
         "dependencies": [
           {
             "predecessorUid": 473,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 475,
+        "parentTaskUid": null,
+        "wbsOrder": 334,
+        "name": "🌕 ① 最終レビューの席が GRS JSON の未決 3 つを決める(SUB。オーナーの指示)",
+        "start": "2026-11-22T17:30:00",
+        "finish": "2026-11-22T18:10:00",
+        "milestone": false,
+        "deadline": null,
+        "calendarUid": null,
+        "actualStart": "2026-11-22T17:30:00",
+        "stop": null,
+        "actualFinish": "2026-11-22T18:10:00",
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 100,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "notes": "pmo-5 2026-11-22T18:11: BOSS line 11-22: owner order, before the review the seat settled three open points (JDG-3720..3726: placement of five scalars, eleven drawn elements bundled in documentSettings.scheduleCanvasElements, names of the 25 table columns) and rebuilt the tree, sample, GQA and letters (8bd9ba602 at 18:10, develop 1bff65fda).",
+        "dependencies": [
+          {
+            "predecessorUid": 470,
             "linkType": 1,
             "linkLag": 0,
             "lagFormat": 7,
@@ -9826,6 +9858,10 @@
       {
         "taskUid": 474,
         "taskGroupId": "25d59281-1ef0-5d73-86da-c3c8ee9f9de5"
+      },
+      {
+        "taskUid": 475,
+        "taskGroupId": "8e7eda3c-3814-5706-b12e-2439e88a206b"
       }
     ],
     "taskVisuals": [
@@ -12124,6 +12160,14 @@
         "fillColor": "blue",
         "strokeColor": null,
         "strokeWidthPx": null
+      },
+      {
+        "taskUid": 475,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": "diamond",
+        "fillColor": "blue",
+        "strokeColor": null,
+        "strokeWidthPx": null
       }
     ],
     "commentBoxes": [
@@ -14132,10 +14176,10 @@
     "zoomY": 1.099862517185352
   },
   "documentStamp": {
-    "scheduleUpdatedAt": "2026-11-22T08:30:00Z",
+    "scheduleUpdatedAt": "2026-11-22T09:11:00Z",
     "lastEditedBy": "PMO child session",
     "settingsUpdatedAt": "2026-10-20T20:24:42Z",
-    "fileSavedAt": "2026-11-22T08:30:00Z"
+    "fileSavedAt": "2026-11-22T09:11:00Z"
   },
   "changeLog": [
     {
@@ -14707,6 +14751,12 @@
       "editedBy": "PMO child session",
       "explanation": "Fact at 11-22 17:30 JST: BOSS line, the final review seat set viewpoints V-1..V-9 (JDG-3718), built the tree with enum values (277 keys, 129 values) and sent the visual GQA BGQA6 (JDG-3719) and the outside AI letters (develop 1fe06c6bb). 469 and 470 are done; the owner tasks 471 and 472 started now; 473, 474, the resume of 463, group 2, the N1 forecast and the diff re-placed. N1 (316) and the beta (234) stay.",
       "changedAt": "2026-11-22T08:30:00Z"
+    },
+    {
+      "ordinal": 96,
+      "editedBy": "PMO child session",
+      "explanation": "Fact at 11-22 18:11 JST: BOSS line, owner order: the final review seat settled three open GRS JSON points first (JDG-3720..3726) and rebuilt the tree, sample, GQA and letters (develop 1bff65fda). Added the done task for it (17:30..18:10); the owner tasks 471 and 472 really start now. 473, 474, the resume of 463, group 2, the N1 forecast and the diff re-placed. N1 (316) and the beta (234) stay.",
+      "changedAt": "2026-11-22T09:11:00Z"
     }
   ]
 }
