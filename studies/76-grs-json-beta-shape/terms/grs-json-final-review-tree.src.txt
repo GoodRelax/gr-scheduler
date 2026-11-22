@@ -89,7 +89,7 @@ documentSettings	文書設定（効く範囲の広い順）
     isPlanDatesVisible	予定の日付を見せるか
     isActualBarVisible	実績バーを見せるか
     isPercentCompleteLabelVisible	完了率のラベルを見せるか
-    isProgressMarkVisible	進捗マークを見せるか
+    isProgressStatusMarkVisible	進捗ステータスマークと再開マークを見せるか
     isBaselineOutlineVisible	前回予定を重ねるか（前回予定輪郭）
     isAssigneeLabelVisible	担当のラベルを見せるか
   delayDiagnosisSettings	遅延診断の設定
@@ -391,7 +391,7 @@ ColumnFilter	列のフィルタ
     "values"	値で絞る
     "dateRange"	日の範囲で絞る
   column	列（列が見せる値の名）
-    "progressMarkStatus"	検索・タスク: ステータス（進捗マークが表す状態）
+    "progressStatus"	検索・タスク: ステータス（進捗ステータス）
     "percentComplete"	検索・タスク、遅延診断: 進捗
     "taskType"	検索・タスク、遅延診断: タスク種別（タスクかマイルストーンか）
     "taskName"	検索・タスク、遅延診断: タスク（マイルストーン）

@@ -52,7 +52,7 @@
 | F-4 | `taskPlacementDirection`（画面の英語 Placement Direction、日本語は「積む向き」のまま） | `JDG-3731` |
 | F-5 | `startSlopeCalendarDays`・`finishSlopeCalendarDays`（画面 開始の傾き・終了の傾き） | `JDG-3732` |
 | F-6 | JSON から Lane を無くし、`TaskGroupColor`・`taskGroupTopOffsetPercent` にした | `JDG-3733` |
-| F-7 | 列を `progressMarkStatus` にした。状態の列の隠す値は用語集の英語の名で書く | `JDG-3734`・`JDG-3735` |
+| F-7 | 列を `progressMarkStatus` にした（その後 `JDG-3742` で `progressStatus` に改めた）。状態の列の隠す値は用語集の英語の名で書く | `JDG-3734`・`JDG-3735`・`JDG-3742` |
 | F-8 | `selfShowMode` を `showMode` にした。値は今のまま | `JDG-3736` |
 | F-9 | タスクの `lastSeenMspdiImportCount` を `mspdiImportCountWhenLastIncluded` にした。値は番号のまま | `JDG-3737` |
 | F-10 | `delayDiagnosisSettings.toleranceWorkingDays` を `parentTaskProgressToleranceWorkingDays` にした | `JDG-3738` |
@@ -107,3 +107,30 @@
 |:---|:---|:---|
 | G-1 | `"template"` は今のまま。`lastEditedBy` は必ず書き、まだ誰も編集していない文書でも削らない（3 節の R012） | `JDG-3740` |
 | G-2 | `displayTimeZones[]` を `additionalTimeZones[]` にし、画面の名を「Additional Time Zones / 追加のタイムゾーン」にそろえた | `JDG-3741` |
+
+## 7. 3 回目の答え（AI-A の 3 回目、2026-11-23）
+
+別の会社の AI に出すつもりだった 3 回目も、持ち主が使える別の会社の AI が無く、AI-A と同じ会社の AI が新しい会話で答えた。問 1 に `R051` が無いので、貼られたのは 2 回目の質問状と見られる（`additionalTimeZones[]` は前知識なしに試せていない）。写しは `ai-answers/grs-json-final-review-answers-round3.md`。
+
+### 7.1 数
+
+- 問 1 の指定の 20 行: 確信 5 が 6 行、4 が 10 行、3 が 2 行、2 が 2 行（表の確信の欄を行ごとに数えた）。読みが意図とずれた新しい名は 0 行。確信 2 の `R197 startSlopeCalendarDays` は、迷った 2 つの読み（斜めに描く幅／確定していない日付の幅）がどちらも意図に当たる。
+- 問 2 の確信 3 以下の行: 17 行（表の行を数えた）。そのうち MSPDI の名（`[M]`）が 7 行。
+- 問 3 の誤読の罠: 5 行。`milestone`・`dayWorking`・`stop` は MSPDI の名（`[M]`）を写す決まりなので変えない。`taskGroups[]` → `swimlanes[]` は、2 軸のモデルで決めた中心の語なので採らない。`firstDay` → `firstCalendarDate` は、日付の型 `Day` を用語集が定義済みなので採らない。
+
+### 7.2 名の指摘
+
+| # | 行 | 名 | 外の AI の読み | 決まったこと | 裁定 |
+|:---|:---|:---|:---|:---|:---|
+| G-3 | R090・R389 | `isProgressMarkVisible`・列 `"progressMarkStatus"` | 2 回目・3 回目とも確信 3 以下。すぐ上の `isProgressLineVisible`（イナズマ線）の折れ点の印かと迷った | 進捗ステータスマークと呼ぶ。`isProgressStatusMarkVisible`、列 `"progressStatus"`、画面「Progress Status Mark / 進捗ステータスマーク」 | `JDG-3742` |
+
+### 7.3 席が説明の文で補う物（名は変えない。持ち主には問わない）
+
+| 行 | 名 | 補う事 |
+|:---|:---|:---|
+| R090 | `isProgressStatusMarkVisible` | 実績バーの端の外に出す印。形で進捗ステータスを示す。イナズマ線の点ではない。再開マークの表示も、この値が決める |
+| R136 | `passthrough` | 1 つの物が持つ、GRS が読まない MSPDI の要素の控え（形は物）。配列 `passthroughTasks[]` は、タスクごと控えた物の並び |
+| R183・R160・R186 | `milestone`・`dayWorking`・`stop` | MSPDI の名を写したキー。真偽値・中断の日時であることを説明に書く |
+| R270 | `taskGroups[]` | 帯（行の群）。タスクの親子（WBS）とは別の軸 |
+| R341 | `precedingTaskUid` | MSPDI の中の並びで、すぐ前にあるタスク（依存の先行ではない） |
+| R062・R063 | `firstDay`・`lastDay` | 時刻を持たない日付（`Day`、`YYYY-MM-DD`）。範囲は両端を含む |

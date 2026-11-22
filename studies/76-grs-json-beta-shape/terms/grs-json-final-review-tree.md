@@ -106,7 +106,7 @@ R086  |  +- isPlanBarVisible                        予定バーを見せるか
 R087  |  +- isPlanDatesVisible                      予定の日付を見せるか
 R088  |  +- isActualBarVisible                      実績バーを見せるか
 R089  |  +- isPercentCompleteLabelVisible           完了率のラベルを見せるか
-R090  |  +- isProgressMarkVisible                   進捗マークを見せるか
+R090  |  +- isProgressStatusMarkVisible             進捗ステータスマークと再開マークを見せるか
 R091  |  +- isBaselineOutlineVisible                前回予定を重ねるか（前回予定輪郭）
 R092  |  +- isAssigneeLabelVisible                  担当のラベルを見せるか
 R093  +- delayDiagnosisSettings                     遅延診断の設定
@@ -420,7 +420,7 @@ R385  +- type                                    判別子
 R386  |  +- "values"                             値で絞る
 R387  |  +- "dateRange"                          日の範囲で絞る
 R388  +- column                                  列（列が見せる値の名）
-R389  |  +- "progressMarkStatus"                 検索・タスク: ステータス（進捗マークが表す状態）
+R389  |  +- "progressStatus"                     検索・タスク: ステータス（進捗ステータス）
 R390  |  +- "percentComplete"                    検索・タスク、遅延診断: 進捗
 R391  |  +- "taskType"                           検索・タスク、遅延診断: タスク種別（タスクかマイルストーンか）
 R392  |  +- "taskName"                           検索・タスク、遅延診断: タスク（マイルストーン）

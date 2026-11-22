@@ -51,7 +51,7 @@ ScheduleDocument                                    GRS JSON の 1 ファイル
 │   │   ├─ isPlanDatesVisible                       予定の日付を見せるか
 │   │   ├─ isActualBarVisible                       実績バーを見せるか
 │   │   ├─ isPercentCompleteLabelVisible            完了率のラベルを見せるか
-│   │   ├─ isProgressMarkVisible                    進捗マークを見せるか
+│   │   ├─ isProgressStatusMarkVisible              進捗ステータスマークと再開マークを見せるか
 │   │   ├─ isBaselineOutlineVisible                 前回予定を重ねるか（前回予定輪郭）
 │   │   └─ isAssigneeLabelVisible                   担当のラベルを見せるか
 │   ├─ delayDiagnosisSettings                       遅延診断の設定

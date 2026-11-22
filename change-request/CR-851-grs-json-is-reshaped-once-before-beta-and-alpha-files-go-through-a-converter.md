@@ -244,6 +244,7 @@
 | `rulings.md`（GRS JSON の最終レビュー 2 の席、2026-11-22 の 22） | `JDG-3739`（`verticalZoom.automaticallyShownDepth` は名を変えず、スキーマの説明で補う）を足した。本書の行のレビューの前に当てる |
 | `rulings.md`（GRS JSON の最終レビュー 2 の席、2026-11-23 の 1） | `JDG-3740`（`lastEditedBy.type` の値 `"template"` は今のままとし、項目は必ず書く）を足した。本書の行のレビューの前に当てる |
 | `rulings.md`（GRS JSON の最終レビュー 2 の席、2026-11-23 の 2） | `JDG-3741`（`displayTimeZones[]` を `additionalTimeZones[]` に改め、画面の名を「Additional Time Zones / 追加のタイムゾーン」にそろえる）を足した。本書の行のレビューの前に当てる |
+| `rulings.md`（GRS JSON の最終レビュー 2 の席、2026-11-23 の 3） | `JDG-3742`（進捗マークを進捗ステータスマークと呼び、`isProgressStatusMarkVisible`・列 `progressStatus` に改める）を足した。本書の行のレビューの前に当てる |
 | `defects.md` | `DFC-3579`（本書）—— 行のレビューの後に起こす |
 | `changelog.md` | 当てるときに 1 行 |
 
