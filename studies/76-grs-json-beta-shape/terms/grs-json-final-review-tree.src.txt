@@ -1,0 +1,411 @@
+# part root	根と帳簿
+ScheduleDocument	GRS JSON の 1 ファイル
+  $schema	スキーマの所（URL）
+  schemaVersionUtc	スキーマの版（形が最後に変わった UTC の時刻）
+  buildVersionUtc	書いた GRS のビルドの版（UTC の時刻）
+  documentStamp	文書刻印
+    scheduleDataUpdatedAt	データが変わった時（UTC）
+    documentUpdatedAt	文書が変わった時（UTC）
+    fileSavedAt	保存した時（UTC。初めて保存するまでは無い）
+    lastEditedBy	最後に編集した者（型 Editor）
+      type	判別子
+        "user"	人が画面で編集した
+        "template"	まだ誰も編集していない（ひな形のまま）
+        "agent"	AI が Agent API で編集した
+      name	AI が名乗った名（agent のときだけ）
+  documentSettings	文書設定（下の「文書設定」）
+  scheduleData	スケジュールデータ（下の 2 つの群）
+  changeLogEntries[]	変更履歴
+    changedAt	変更の時（UTC）
+    changedBy	変更した者
+      editorType	書き手の種類（GRS が自動で書く。判別子ではない）
+        "user"	人が画面で書いた行
+        "agent"	AI が Agent API で書いた行
+      name	人が打った名か、AI が名乗った名
+    affectedArea	及んだ部分
+    changeDescription	何が変わったか
+    reason	理由
+    remarks	そのほか
+# part settings	文書設定
+documentSettings	文書設定（効く範囲の広い順）
+  displayScaleRatio	表示の倍率（1 が等倍）
+  fontSizePreset	文字の大きさの段
+    "small"	小
+    "medium"	中
+    "large"	大
+  isThemeMonochrome	モノクロか
+  themeHue	テーマの色相の名
+    "blue"	青
+    "blueGreen"	青緑
+    "green"	緑
+    "yellowGreen"	黄緑
+    "yellow"	黄
+    "orange"	橙
+    "red"	赤
+    "redPurple"	赤紫
+    "purple"	紫
+    "indigo"	藍
+  viewTimeZone	表示の基準タイムゾーン
+    type	判別子
+      "sameAsScheduleData"	データの時差と同じ
+      "fixed"	決まった差を使う
+    utcOffset	UTC との差（"+09:00" の形。標準時の行だけ）（fixed）
+  displayTimeZones[]	追加の時計（4 つまで）
+    utcOffset	UTC との差（"+09:00" の形）
+    zoneNameType	出すゾーンの名の種類（差 utcOffset はもう夏時間の分を含む）
+      "standard"	標準時の名
+      "daylight"	夏時間の名
+  dayWidthPx	暦日 1 日の幅
+  fitDayRange	全体表示期間
+    type	判別子
+      "fixed"	決まった期間
+      "automatic"	描ける物すべての範囲（期間を持たない）
+    firstDay	最初の日（fixed）
+    lastDay	最後の日（fixed）
+  verticalZoom	縦のズーム
+    ratio	縦の倍率（1 が既定）
+    automaticallyShownDepth	automatic の帯を、この深さまで出す（1〜maxGroupDepth）
+  taskGroupPanelWidthPx	タスクグループパネルの幅（倍率 1 のときの CSS ピクセル）
+  isTaskGroupPanelWidthFixed	幅を固定するか
+  pinnedTaskGroupIds[]	ピン止めしたタスクグループの id
+  taskStackDirection	帯の中でタスクを積む向き
+    "bottomToTop"	下から上へ
+    "topToBottom"	上から下へ
+  scrollPosition	開いたときの位置
+    type	判別子
+      "automatic"	位置を決めていない（GRS が決める）
+      "fixed"	下の 4 つの値で決める
+    leftEdgeDay	左の端の日（fixed）
+    leftEdgeDayOffsetPercent	左の端が、その日の始まりから何 % の所か（fixed）
+    topEdgeTaskGroupId	上の端の帯（fixed）
+    topEdgeTaskGroupOffsetPercent	上の端が、その帯の上から何 % の所か（fixed）
+  isTimeOfDayVisible	時刻を見せるか
+  isPlanBarVisible	予定バーを見せるか
+  isPlanDatesVisible	予定の日付を見せるか
+  isActualBarVisible	実績バーを見せるか
+  isPercentCompleteLabelVisible	完了率のラベルを見せるか
+  isBaselineOutlineVisible	前回予定を重ねるか（前回予定輪郭）
+  isProgressLineVisible	進捗線を見せるか
+  isProgressMarkVisible	進捗マークを見せるか
+  isDependencyLineVisible	依存線を見せるか
+  isAssigneeLabelVisible	担当のラベルを見せるか
+  isDateGridLinesVisible	日の罫線を見せるか
+  isGroupGridLinesVisible	グループ罫線（タスクグループの境の横線）を見せるか
+  delayDiagnosisSettings	遅延診断の設定
+    toleranceWorkingDays	遅延診断が親タスクの進み具合に許す幅（稼働日）
+  tableWindows	3 つの表の見せ方
+    searchWindow	検索ウィンドウ -> TaskTableWindow
+    delayDiagnosisReportWindow	遅延診断レポート -> TaskTableWindow
+    resourceListWindow	担当リスト -> ResourceTableWindow
+# part mspdi	スケジュールデータ（MSPDI と往復する群）
+scheduleData	スケジュールデータ（MSPDI と往復する群）
+  project [M]	プロジェクト（1 件）
+    uid [M]	一意な識別子（文字列）
+    name [M]	プロジェクト名
+    title [M]	タイトル
+    subject [M]	件名
+    category [M]	分類
+    company [M]	会社
+    manager [M]	管理者
+    author [M]	作成者
+    revision [M]	保存した回数
+    creationDate [M]	作った日時
+    startDate [M]	開始の日時
+    statusDate [M]	基準日
+    minutesPerDay [M]	1 日の稼働の分
+    minutesPerWeek [M]	1 週の稼働の分
+    daysPerMonth [M]	1 か月の稼働日
+    weekStartDay [M]	週の始まりの曜日
+      0	日曜
+      1	月曜
+      2	火曜
+      3	水曜
+      4	木曜
+      5	金曜
+      6	土曜
+    defaultStartTime [M]	既定の開始時刻
+    defaultFinishTime [M]	既定の終了時刻
+    calendarUid [M]	稼働日を数える暦
+    passthrough [G]	持ち越した MSPDI の値（MSPDI の構造と名のまま）
+  calendars[] [M]	暦
+    uid [M]	一意な識別子
+    name [M]	暦の名
+    isBaseCalendar [M]	基本の暦か
+    baseCalendarUid [M]	受け継ぐ元の暦
+    weekDays[] [M]	曜日ごとの稼働
+      dayType [M]	曜日（MSPDI の 0 例外は GRS では使わない）
+        1	日曜
+        2	月曜
+        3	火曜
+        4	水曜
+        5	木曜
+        6	金曜
+        7	土曜
+      dayWorking [M]	稼働日か
+      workingTimes[] [M]	稼働の時間帯
+        fromTime [M]	始まりの時刻
+        toTime [M]	終わりの時刻
+      passthrough [G]	持ち越した MSPDI の値
+    exceptions[] [M]	例外の日
+      name [M]	例外の名
+      fromDate [M] (TimePeriod/FromDate)	最初の日
+      toDate [M] (TimePeriod/ToDate)	最後の日
+      dayWorking [M]	稼働日か
+      type [M]	例外の繰り返し方（判別子ではない）
+        1	毎日
+        2	毎年、月の何日
+        3	毎年、月の第何何曜日
+        4	毎月、何日
+        5	毎月、第何何曜日
+        6	毎週
+        7	何日ごと
+        8	何稼働日ごと
+        9	繰り返さない
+      period [M]	繰り返しの間隔
+      workingTimes[] [M]	稼働の時間帯
+        fromTime [M]	始まりの時刻
+        toTime [M]	終わりの時刻
+      passthrough [G]	持ち越した MSPDI の値
+    passthrough [G]	持ち越した MSPDI の値
+  tasks[] [M]	タスク
+    uid [M]	一意な識別子
+    name [M]	タスク名
+    notes [M]	メモ
+    start [M]	予定の開始
+    finish [M]	予定の終了
+    milestone [M]	マイルストーンか
+    deadline [M]	期限
+    actualStart [M]	実績の開始
+    stop [M]	作業が止まった時
+    actualFinish [M]	実績の終了
+    resume [M]	再開の予定
+    resumeValid [M]	再開日が有効か
+    percentComplete [M]	完了率
+    calendarUid [M]	タスクの暦
+    hyperlinkAddress [M]	リンク先の URL
+    hyperlink [M]	リンクのタイトル
+    parentTaskUid [G]	WBS の親タスク（最上位では書かない）
+    siblingOrder [G]	兄弟の中の順
+    grs [G]	タスクに付く GRS の値
+      fadeInCalendarDays	始まりのフェード暦日
+      fadeOutCalendarDays	終わりのフェード暦日
+      style	見た目（型 TaskStyle）
+        taskShape	バーの形（マイルストーンでないときだけ）
+          "rectangle"	矩形
+          "chevron"	矢羽根
+          "arrow"	矢印
+          "dumbbell"	ダンベル（両端に点のある細い線）
+        milestoneShape	マイルストーンマークの形（マイルストーンのときだけ）
+          "circle"	円
+          "hexagon"	六角形
+          "pentagon"	五角形
+          "diamond"	ひし形
+          "square"	正方形
+          "star"	星
+          "triangleUp"	上向きの三角
+          "triangleDown"	下向きの三角
+          "file"	書類
+          "box"	箱
+          "floppyDisk"	フロッピーディスク
+          "cylinder"	円柱
+          "meetingPeople"	会議の人々
+          "smilingFace"	笑顔
+          "beerMug"	ビールジョッキ
+        fill	塗り -> Paint
+        stroke	縁 -> Stroke
+      taskGroupId	載せるタスクグループ
+      importOrigin	取り込み元の控え（型 ImportOrigin。取り込んだタスクだけ）
+        sourceProjectUid	元のファイルの Project の UID
+        sourceTaskUid	元のファイルでの、このタスクの UID
+        importSessionId	取り込みの id（取り込みのたびに GRS が作る）
+        lastSeenMspdiImportCount	このタスクを最後に含んでいた取り込みが何回目か
+    predecessorLinks[] [M] (PredecessorLink)	先行への結び付き
+      predecessorUid [M]	先行タスク
+      type [M]	依存の種類（判別子ではない）
+        0	FF 終了から終了
+        1	FS 終了から開始
+        2	SF 開始から終了
+        3	SS 開始から開始
+      linkLag [M]	ラグ（0.1 分単位）
+      lagFormat [M]	ラグを見せる単位（e は経過時間、? は見積り）
+        3	m 分
+        4	em
+        5	h 時間
+        6	eh
+        7	d 日
+        8	ed
+        9	w 週
+        10	ew
+        11	mo 月
+        12	emo
+        19	% 割合
+        20	e%
+        35..44	m? .. emo?（見積り）
+        51	%?
+        52	e%?
+      passthrough [G]	持ち越した MSPDI の値
+    passthrough [G]	持ち越した MSPDI の値
+  resources[] [M]	担当
+    uid [M]	一意な識別子
+    name [M]	担当の名
+    type [M]	資材か作業か（判別子ではない）
+      0	資材
+      1	作業
+    isCostResource [M]	コストの担当か
+    calendarUid [M]	担当の暦
+    passthrough [G]	持ち越した MSPDI の値
+  assignments[] [M]	割当
+    uid [M]	一意な識別子
+    taskUid [M]	就くタスク
+    resourceUid [M]	就く担当
+    passthrough [G]	持ち越した MSPDI の値
+# part grs	スケジュールデータ（GRS だけが持つ群）
+scheduleData	スケジュールデータ（GRS だけが持つ群。MSPDI の群の後に続く）
+  taskGroups[]	タスクグループ
+    id	一意な UUID
+    name	タスクグループ名
+    parentTaskGroupId	親のタスクグループ（最上位では書かない）
+    siblingOrder	兄弟の中の順
+    style	見た目（型 TaskGroupStyle）
+      color	帯の色 -> LaneColor
+    minHeightPx	帯の最も低い高さ
+    representativeTaskUid	この帯を代表する WBS のタスク
+    hyperlinkAddress	リンク先の URL
+    hyperlink	リンクのタイトル
+    selfShowMode	帯自身の表示の意図（書かなければ automatic）
+      "shown"	出す（人が出すと選んだ。深さに依らず描く）
+      "hidden"	しまう（人がしまうと選んだ。配下も隠れ、ズームでも全体表示でも隠れたまま）
+      "automatic"	規則に任せる（深さ・ピン・出ている配下への道で決まる）
+      "hiddenUntilZoomIn"	拡大まで隠す（次の縦のズームインで automatic に変わる）
+    editableByGroupName	編集してよい組の名
+  baselineTasks[]	前回予定
+    uid	今のタスクの uid
+    name	タスク名
+    start	前回予定の開始
+    finish	前回予定の終了
+    milestone	マイルストーンか
+  highlightBoxes[]	ハイライトボックス
+    id	一意な UUID
+    style	見た目（型 HighlightBoxStyle）
+      cornerRadiusPx	角の丸みの半径
+      fill	塗り -> Paint
+      stroke	枠 -> Stroke
+    firstDay	最初の日
+    lastDay	最後の日
+    firstTaskGroupId	覆う最初の帯（両端を含む）
+    lastTaskGroupId	覆う最後の帯（両端を含む）
+  commentBoxes[]	コメントボックス
+    id	一意な UUID
+    text	文
+    style	見た目（型 CommentBoxStyle）
+      fill	箱の塗り -> Paint
+      stroke	枠と引出し線 -> Stroke
+      font	文字の見た目
+        color	文字の色 -> Color
+        sizePx	文字の大きさ
+    leaderTarget	引出し線の先
+      type	判別子
+        "freePoint"	何にも付かない点
+        "task"	タスクの図形
+        "highlightBox"	ハイライトボックス
+      dateTime	時点（freePoint）
+      taskGroupId	帯（freePoint）
+      laneTopOffsetPercent	帯の中の高さ（上の縁から %）（freePoint）
+      taskUid	タスク（task）
+      snapPart	吸着する図形の部分（task）
+        "planBar"	予定バー
+        "actualBar"	実績バー
+        "milestoneMark"	マイルストーンマーク
+      highlightBoxId	箱（highlightBox）
+      snapPoint	吸着する 8 点の 1 つ（task・highlightBox）
+        "topLeftCorner"	左上の角
+        "topMiddle"	上の辺の中点
+        "topRightCorner"	右上の角
+        "rightMiddle"	右の辺の中点
+        "bottomRightCorner"	右下の角
+        "bottomMiddle"	下の辺の中点
+        "bottomLeftCorner"	左下の角
+        "leftMiddle"	左の辺の中点
+    bodyOffsetPx	線先から箱へのずれ
+      dx	横のずれ
+      dy	縦のずれ
+    hyperlinkAddress	リンク先の URL
+    hyperlink	リンクのタイトル
+  scheduleDataTimeZone	データの日時の時差
+    utcOffset	UTC との差（"+09:00" の形。標準時の行だけ）
+  sourceFormat	元の形式
+    "grs"	GRS JSON
+    "mspdi12"	MSPDI（Project の版 12 の形）
+    "mspdi15"	MSPDI（Project の版 15 の形）
+  importedTopTaskOutlineLevel	取り込んだファイルの、最上位のタスクの OutlineLevel
+  highestIssuedUid	uid の数え手（GRS が出した最も大きい uid）
+  mspdiImportCount	MSPDI を取り込んだ回数
+  passthroughTasks[]	GRS がタスクにしない MSPDI の要素
+    precedingTaskUid	前にある、いちばん近いタスクの uid（先頭では書かない）
+    mspdiElement	MSPDI の要素（構造と名のまま）
+  passthroughResources[]	GRS が担当にしない MSPDI の要素
+    precedingResourceUid	前にある、いちばん近い担当の uid（先頭では書かない）
+    mspdiElement	MSPDI の要素（構造と名のまま）
+  passthroughAssignments[]	GRS が割当にしない MSPDI の要素
+    precedingAssignmentUid	前にある、いちばん近い割当の uid（先頭では書かない）
+    mspdiElement	MSPDI の要素（構造と名のまま）
+  passthroughCalendars[]	GRS が暦にしない MSPDI の要素
+    precedingCalendarUid	前にある、いちばん近い暦の uid（先頭では書かない）
+    mspdiElement	MSPDI の要素（構造と名のまま）
+# part types	共通の型（-> で指す物）
+Color	色
+  type	判別子
+    "theme"	テーマの色に従う
+    "palette"	パレットの 10 色の 1 つ
+    "custom"	人が選んだ色
+  name	パレットの色の名（palette。明るいテーマでの見え方の名）
+    "white"	白
+    "black"	黒
+    "dimGray"	濃い灰色
+    "lightGray"	薄い灰色
+    "red"	赤
+    "blue"	青
+    "yellow"	黄
+    "green"	緑
+    "orange"	橙
+    "purple"	紫
+  light	明るいテーマの側（custom）
+    hexColor	色の値（#rrggbb）
+    isCalculatedFromOppositeColor	GRS が反対の側の色から計算した側だけ true
+  dark	暗いテーマの側（custom。形は light）
+LaneColor	帯の色（Color から black を除く）
+TaskTableWindow	タスクの表の見せ方（検索ウィンドウ・遅延診断レポート）
+  isScheduleFilterApplied	表でチェックしたタスクだけを描くか
+  checkedTaskUids[]	チェックしたタスク
+  columnFilters[]	列のフィルタ（掛けた列ごとに 1 つ）-> ColumnFilter
+  columnSort	表の並べ方（列と向き）-> ColumnSort
+ResourceTableWindow	担当の表の見せ方（担当リスト）
+  isScheduleFilterApplied	表のチェックでチャートを絞るか
+  checkedResourceUids[]	チェックした担当
+  isUnassignedChecked	（担当なし）の行をチェックしたか
+  columnFilters[]	列のフィルタ（掛けた列ごとに 1 つ）-> ColumnFilter
+  columnSort	表の並べ方（列と向き）-> ColumnSort
+ColumnFilter	列のフィルタ
+  type	判別子
+    "values"	値で絞る
+    "dateRange"	日の範囲で絞る
+  column	列（列の英語の名。値の一覧は未決）
+  hiddenValues[]	隠す値（values）
+  isBlankHidden	空の行を隠すか（values）
+  firstDay	最初の日（dateRange）
+  lastDay	最後の日（dateRange）
+ColumnSort	並べ替え
+  column	列（ColumnFilter.column と同じ値）
+  direction	向き
+    "ascending"	小さい順
+    "descending"	大きい順
+Paint	塗り
+  color	色 -> Color
+  opacityPercent	不透明度（%）
+Stroke	線（描かないときは書かない）
+  color	色 -> Color
+  opacityPercent	不透明度（%）
+  widthPx	太さ
+ShapeStyle	形の見た目（TaskStyle・CommentBoxStyle・HighlightBoxStyle が共にする）
+  fill	塗り -> Paint
+  stroke	線 -> Stroke
