@@ -12,6 +12,8 @@ BGQA2 を約束の面ごとに分けたとき（`JDG-3568`）、まだ出して�
 
 #### ❓ 問 6-9-7. `hidden` とピン止め
 
+状態: CLOSED-BY JDG-3662（キー `hidden` は帯の `selfShowMode` の値 `hidden` になり、`JDG-3663` で値は 4 つになった。ピン止めとの組み合わせは振る舞いなので、方針で決める（`JDG-3686`））
+
 ほかの 11 語は、あなたの答えで確定しました（`JDG-3554`）。表のあなたの問い（★）に答えます: ピン止めは `treeState` と別の値で、文書の設定がピン止めしたタスクグループの id の並びとして持ちます（仕様書の設定の表の `S-126`）。タスクグループを消すと、GRS はそのピン止めも消します（`CD-2`）。`hidden` とピン止めを両方持つタスクグループをどう見せるかは、GRWB の議論の後でこの問いに案を書きます。
 
 | # | キー | 日本語の名 | 意味（日本語） | MSPDI の名 |
@@ -24,6 +26,8 @@ BGQA2 を約束の面ごとに分けたとき（`JDG-3568`）、まだ出して�
 
 
 #### ❓ 問 6-7-0. 共通のキーの 10 語 —— 推奨の表のとおりでよいか
+
+状態: STALE-NAMES（持ち越しの 7 行は `JDG-3606` で `passthrough` 1 つになった。`taskUid`・`taskGroupId` の持ち主 `taskStyles`・TaskGroupMember は `JDG-3614`・`JDG-3615` で無くなった）
 
 直す所が無ければ ok、直す所は表のセルに ★ で書いてください。
 
@@ -46,6 +50,8 @@ BGQA2 を約束の面ごとに分けたとき（`JDG-3568`）、まだ出して�
 
 #### ❓ 問 6-9-1. 両端に点のある細い線の名 —— `endpointSpan` を形の名にするか
 
+状態: OPEN
+
 場面: マイルストーンでないタスクは、4 つの形（`taskShape` の値）から 1 つを選びます。兄弟の 3 つ（`rectangle`・`chevron`・`arrow`）は形の名で、`endpointSpan` だけが形の説明です。画面の絵は `*----*` です。
 
 | # | キー | 日本語の名 | 意味（日本語） | MSPDI の名 |
@@ -61,6 +67,8 @@ BGQA2 を約束の面ごとに分けたとき（`JDG-3568`）、まだ出して�
 回答:
 
 #### ❓ 問 6-10-2. マイルストーンの 15 の形の名 —— 値・アイコン・日本語の名を 1 つにそろえるか
+
+状態: OPEN
 
 場面: マイルストーンは 15 の形（`milestoneShape` の値）から 1 つを選びます。1 つの形が 3 つの名を持ちます: GRS JSON の値、パレットのアイコンの名、仕様書の日本語の名。2 つの値（`person`・`smile`）は、アイコンの名と違う物を言います。6 つの日本語の名は記号（〇・◇ など）です。
 
@@ -92,6 +100,8 @@ BGQA2 を約束の面ごとに分けたとき（`JDG-3568`）、まだ出して�
 
 #### ❓ 問 6-9-0. タスクの形の 5 語 —— 推奨の表のとおりでよいか
 
+状態: OPEN（意味の文の「taskStyles の style」は、`JDG-3614` の `grs.style` に直して出す）
+
 直す所が無ければ ok、直す所は表のセルに ★ で書いてください。
 
 | # | キー | 日本語の名 | 意味（日本語） | MSPDI の名 |
@@ -107,6 +117,8 @@ BGQA2 を約束の面ごとに分けたとき（`JDG-3568`）、まだ出して�
 ### [style] タスクの描き方
 
 #### ❓ 問 6-10-5. タスクの見た目の型の名 —— 配列の 1 つと `style` の型を何と呼ぶか
+
+状態: STALE-NAMES（`taskStyles[]` と配列の 1 つは `JDG-3614` で無くなり、見た目はタスクの `grs.style` に入った。`style` の型の名だけを、`JDG-3610` の `ShapeStyle` と合わせて問い直す）
 
 場面: `JDG-3556` は、タスクの見た目を `scheduleData.taskStyles[]`（`{ taskUid, style }`）に置くと決めました。配列の名 `taskStyles` は決まりました。配列の 1 つ（1 つのタスクとその見た目の組）の型の名と、`style` の値の型の名が残ります。辞書は前の形の 2 語を持ちます。
 
@@ -127,6 +139,8 @@ BGQA2 を約束の面ごとに分けたとき（`JDG-3568`）、まだ出して�
 
 #### ❓ 問 6-10-6. 取り込み元の 2 つの番号 —— 何の uid かを名に書くか
 
+状態: OPEN（`sourceProjectUid` は `JDG-3617` で仮に採った。持ち主は `JDG-3641` で `grs.importOrigin`。`sourceUid` の名が残る）
+
 場面: TaskOrigin は、取り込んだタスクの出どころを持ちます。`sourceProjectId` は元の MSPDI のファイルの Project/UID を持ちます。`JDG-3557` は Project の `id` を `uid` に改めました。`sourceUid` は元のファイルでのタスクの UID を持ちますが、名は何の uid かを言いません（`JDG-820`: 名は指す先を言う）。
 
 | # | キー | 日本語の名 | 意味（日本語） | MSPDI の名 |
@@ -144,6 +158,8 @@ BGQA2 を約束の面ごとに分けたとき（`JDG-3568`）、まだ出して�
 
 #### ❓ 問 6-10-0. 取り込み元の 4 語 —— 推奨の表のとおりでよいか
 
+状態: STALE-NAMES（`taskOrigins`・TaskOrigin は `JDG-3614`・`JDG-3641` で `grs.importOrigin` に、`lastSeenMspdiImportNumber` は `JDG-3649` で `lastSeenMspdiImportCount` になった）
+
 直す所が無ければ ok、直す所は表のセルに ★ で書いてください。
 
 | # | キー | 日本語の名 | 意味（日本語） | MSPDI の名 |
@@ -158,6 +174,8 @@ BGQA2 を約束の面ごとに分けたとき（`JDG-3568`）、まだ出して�
 ### [base] 前回予定
 
 #### ❓ 問 6-10-3. 前回予定の 4 語 —— 「前の予定」「変更前予定輪郭」を「前回予定」にそろえるか
+
+状態: OPEN
 
 場面: `JDG-3434` は `baseline` を「前回予定」と呼ぶと決めました。この 4 語の意味と日本語の名は、まだ「前の予定」「変更前予定輪郭」「変更前の予定」と書きます。「変更前予定輪郭」は画面の語 `baselineOutline` の名です（`JDG-3373`。`JDG-3434` より前の裁定）。輪郭は、前回予定の位置を予定バーに重ねて示す線です。
 
@@ -180,6 +198,8 @@ BGQA2 を約束の面ごとに分けたとき（`JDG-3568`）、まだ出して�
 
 #### ❓ 問 6-10-1. 線先が吸着する部分の値 —— 画面の名にそろえるか
 
+状態: CLOSED-BY JDG-3647（値は `planBar`・`actualBar`・`milestoneMark`。持ち主のキーは `JDG-3623` で `snapPart`）
+
 場面: コメントボックスの線先をタスクに吸着させたとき、`graphicPart` がタスク図形のどの部分かを言います。画面の語は Plan Bar・Actual Bar・Milestone Mark（`JDG-3348`・`JDG-3372`）で、表示のキーも `isPlanBarVisible` です（`JDG-3382`）。値 `plannedBar` だけが planned と綴ります。値 `milestone` は、タスクの真偽のキー `milestone`（7-22）と同じ綴りで別の物を指します（`OMPV`）。
 
 | # | キー | 日本語の名 | 意味（日本語） | MSPDI の名 |
@@ -198,6 +218,8 @@ BGQA2 を約束の面ごとに分けたとき（`JDG-3568`）、まだ出して�
 
 #### ❓ 問 6-10-4. 線先の時点と点の名 —— `dateTime` と `point`
 
+状態: CLOSED-BY JDG-3623（`point` は `snapPoint` に決まった。`dateTime` は裁定の行を持たないまま構造図に残る）
+
 場面: 自由な点の線先は、時点 `dateTime` に立ちます。吸着した線先は、対象の 8 つの点のどれか `point` に付きます。`dateTime` は型 `DateTime` と同じ綴りです。`point` だけでは、何の点かを名が言いません。2 つとも前の席が付けた名で、裁定の行は 0 です。
 
 | # | キー | 日本語の名 | 意味（日本語） | MSPDI の名 |
@@ -214,6 +236,8 @@ BGQA2 を約束の面ごとに分けたとき（`JDG-3568`）、まだ出して�
 回答:
 
 #### ❓ 問 6-11-0. 注記の 29 語 —— 推奨の表のとおりでよいか
+
+状態: STALE-NAMES（`textColor`・`fontSizePx` は `JDG-3612` で `style.font { color, sizePx }` に、`point` は `JDG-3623` で `snapPoint` になった）
 
 直す所が無ければ ok、直す所は表のセルに ★ で書いてください。`fallback` と `LeaderAnchorFallback` は、`JDG-3547` で消えるので表に載せません。
 
@@ -255,6 +279,8 @@ BGQA2 を約束の面ごとに分けたとき（`JDG-3568`）、まだ出して�
 
 #### ❓ 問 6-11-5. 最後に書いた者 —— `lastEditedBy` と型 `Writer` の動詞をそろえるか
 
+状態: OPEN
+
 場面: 文書の刻印は、スケジュール文書を最後に書いた者を `lastEditedBy` に持ちます。その値の型は `Writer` で、GRS の画面で操作する人・同梱の起動時のテンプレート・Agent API の呼び手のどれかです。キーは「編集した」と言い、型は「書いた」と言います。テンプレートは文書を編集せず、文書の中身を初めに書きます。辞書の意味の文は「最後に書いた者」と言います。
 
 | # | キー | 日本語の名 | 意味（日本語） | MSPDI の名 |
@@ -271,6 +297,8 @@ BGQA2 を約束の面ごとに分けたとき（`JDG-3568`）、まだ出して�
 回答:
 
 #### ❓ 問 6-11-4. 文書の刻印と変更ログの 15 語 —— 推奨の表のとおりでよいか
+
+状態: OPEN（`changedBy` は `JDG-3626`・`JDG-3642` で `{ writerType, name }` の物になった。意味の文を直して出す）
 
 直す所が無ければ ok、直す所は表のセルに ★ で書いてください。「刻印」「変更ログ」の字は、問 6-11-1 の答えに従って直します。
 
@@ -298,6 +326,8 @@ BGQA2 を約束の面ごとに分けたとき（`JDG-3568`）、まだ出して�
 
 #### ❓ 問 6-12-1. 設定の欄の名が、後の裁定に追いついていない 9 語 —— 案の名に直すか
 
+状態: STALE-NAMES（`fitSpan` は `JDG-3623` で `fitDayRange` になった。直す行は 12-17・12-16 の 2 行）
+
 場面: 辞書の日本語の名は、設定の欄の名（画面の語）を写します（`JDG-3518`）。下の 9 つの名は、その後の裁定と食い違います。
 
 | # | キー | 今の名（日本語 / 英語） | 案 | 根拠 |
@@ -322,6 +352,8 @@ BGQA2 を約束の面ごとに分けたとき（`JDG-3568`）、まだ出して�
 
 #### ❓ 問 6-12-2. 開いた時の位置の 5 語 —— `…Fraction` の 2 つを何という `…Percent` にするか
 
+状態: OPEN（`scrollPosition.type` の値は `JDG-3623` で `fixed`・`automatic` になった。意味の文を直して出す）
+
 場面: `scrollPosition` は、スケジュール文書を開いたときにビューがどこから始まるかを持ちます。`JDG-3529` は、割合の値を `…Percent`（0〜100）で書くと決め、ここの 2 つの `…Fraction` も直すと決めました。新しい名は未定です。`JDG-3556` は、レーンの中の位置を `laneTopOffsetPercent`（上の縁からの距離を % で）と呼びました。
 
 | # | キー | 日本語の名 | 意味（日本語） | MSPDI の名 |
@@ -341,6 +373,8 @@ BGQA2 を約束の面ごとに分けたとき（`JDG-3568`）、まだ出して�
 回答:
 
 #### ❓ 問 6-12-0. 文書の設定の 42 語 —— 推奨の表のとおりでよいか
+
+状態: STALE-NAMES（`displayScalePercent`・`fontSizeStep`・`offset`・`season`・`stackDirection`・根の木の状態・`shownTaskUids` ほかを、`JDG-3617`〜`JDG-3664` が改めた）
 
 直す所が無ければ ok、直す所は表のセルに ★ で書いてください。日本語の名は設定の欄の名から、折り返しの縦線を除いて写しました（`JDG-3518`・`JDG-3519`）。
 
@@ -395,6 +429,8 @@ BGQA2 を約束の面ごとに分けたとき（`JDG-3568`）、まだ出して�
 
 #### ❓ 問 6-13-0. スケジュールデータと文書の根の 7 語 —— 推奨の表のとおりでよいか
 
+状態: STALE-NAMES（`schemaVersion`・`buildVersion` は `JDG-3625` で `…VersionUtc` に、`taskGroupMembers` は `JDG-3614`・`JDG-3615` で無くなった）
+
 直す所が無ければ ok、直す所は表のセルに ★ で書いてください。
 
 | # | キー | 日本語の名 | 意味（日本語） | MSPDI の名 |
@@ -409,98 +445,121 @@ BGQA2 を約束の面ごとに分けたとき（`JDG-3568`）、まだ出して�
 
 回答:
 
-## BGQA4 文書の命令（15 問）
+## BGQA4 文書の命令（16 問）
 
 ### [cmd] 文書の命令
 
-#### ❓ 問 35-1. 日程をずらす 2 つの命令 —— 名の対と、`Date` と `Day`
+#### ❓ 問 35-1. 日程全体をずらす 2 つの命令の名
 
-場面: 2 つの命令が日程全体を動かします。`shiftScheduleTimes` は量（分）でずらし、`shiftScheduleToStartDate` は日（YYYY-MM-DD）へ動かします。後者の名は `Date` と言い、引数は `newStartDay` と言います。GRS JSON は日付だけの値を `…Day`（`firstDay`・`lastDay`）と呼びます。前者の `Times` は「時刻たち」とも「倍」とも読めます。
+状態: OPEN
 
-| # | 今の名 | 意味（日本語） | 案 a の名 |
+場面: 人か AI が、日程のすべてのタスクを前か後へ動かします。命令は 2 つあります。`shiftScheduleTimes` は量（分）で動かし、`shiftScheduleToStartDate` は、いちばん早いタスクの開始を決めた日へ動かします。名付けるのは 2 つの**命令**です。
+
+```json
+{ "type": "shiftScheduleTimes", "minutes": 1440 }
+{ "type": "shiftScheduleToStartDate", "newStartDay": "2026-12-01" }
+```
+
+今の名には 2 つの癖があります。`Times` は「時刻たち」とも「倍」とも読めます。後の命令は `Date` と言い、その引数は `newStartDay` と言います。GRS JSON は日付だけの値を `…Day` と呼びます（`firstDay`・`lastDay`。決まり N-13、`JDG-3616`）。
+
+| 案 | 名 | 良い点 | 弱い点 |
 |:---|:---|:---|:---|
-| 35-6 | `shiftScheduleTimes` | 日程のすべての日時を minutes だけずらす。正は後へ、負は前へ。 | `shiftScheduleByMinutes` |
-| 35-7 | &emsp;+- `minutes`（持ち主 `shiftScheduleTimes`） | 日程の日時をずらす量（分）。 | `minutes` |
-| 35-8 | `shiftScheduleToStartDate` | 日程全体を、いちばん早いタスクの開始が newStartDay に来るように動かす。 | `shiftScheduleToStartDay` |
-| 35-9 | &emsp;+- `newStartDay` | いちばん早いタスクの開始を置く日（YYYY-MM-DD）。 | `newStartDay` |
+| a（推し） | `shiftScheduleByMinutes`・`shiftScheduleToStartDay` | 2 つの名が「分だけずらす」と「日へ動かす」の対になる。`Day` が引数 `newStartDay` とそろう | 名が少し長くなる |
+| b | `shiftScheduleTimes`・`shiftScheduleToStartDay` | `Date` だけを直す。変える名が 1 つで済む | `Times` の 2 通りの読みが残る |
+| c | 今のまま | 名を変えない | `Times` の読みと、`Date` と `Day` の食い違いが残る |
 
-| 案 | 中身 |
-|:---|:---|
-| **a（推奨）** | 「量だけずらす」と「日へ動かす」の対にする（表の「案 a の名」の列）。引数 `minutes`・`newStartDay` は今のまま |
-| b | `shiftScheduleToStartDate` だけを `shiftScheduleToStartDay` にする |
-| c | 今のまま |
+推し a: ① 名が中身（分で動かす・日へ動かす）をそのまま言う（`NEIM`）。② 日付だけの値を `…Day` で言う決まり（N-13、`JDG-3616`）に命令の名もそろう（`JDG-3410`: 同じ物に GRS JSON と Agent API で 1 つの名）。③ 引数 `minutes`・`newStartDay` は今のままでよい。
 
 回答:
 
-#### ❓ 問 35-2. 命令の形・プロジェクト・カレンダーの 7 語 —— 推奨の表のとおりでよいか
+#### ❓ 問 35-2. 命令の形・プロジェクト・カレンダーの 6 語 —— 推奨の表のとおりでよいか
 
-易しい語をまとめた推奨の表です。直す所が無ければ ok、直す所は表のセルに ★ で書いてください。
+状態: OPEN
+
+易しい語をまとめた推奨の表です。命令の判別子 `type`（持ち主 `DocumentCommand`）は `JDG-3563`・`JDG-3564` で決まったので、表から外しました。直す所が無ければ ok、直す所は表のセルに ★ で書いてください。
 
 | # | キー | 日本語の名 | 意味（日本語） | 既存の名との関係 |
 |:---|:---|:---|:---|:---|
-| 35-1 | <span style="color: #0550AE">`type`</span>（持ち主 `DocumentCommand`） | 命令の種類 | 命令の名前。どの命令かを言う。（`JDG-3563`） | 無し |
-| 35-2 | <span style="color: #0550AE">`set`</span> | 書く値 | 編集の命令が書くプロパティと、その新しい値。（`JDG-3268`） | 無し |
-| 35-3 | <span style="color: #0550AE">`clear`</span> | 消す欄 | 編集の命令が取り除く、省けるプロパティ。set と clear の両方にあるプロパティは断られる。（`JDG-3268`） | 無し |
-| 35-4 | `DocumentCommand` | <span style="color: #0550AE">文書の命令</span> | 値として書いた 1 つの文書の命令。種類と欄を持つ。束にして applyCommands でまとめて書く。（`JDG-3426`） | 無し |
-| 35-5 | `editProject` | プロジェクトを編集する | プロジェクトを編集する。set は並べたプロパティを書き、clear は並べた省けるプロパティを取り除く。両方にあるプロパティは断る（fieldSetAndCleared）。statusDate が無ければ基準日線は描かない。scheduleDataTimeZone を設定しても保存した時刻は換算しない。変わるのは時刻を読むタイムゾーンだけである。 | 形は `edit<実体>`（`JDG-3268`） |
-| 35-10 | `replaceCalendarRules` | カレンダーの決まりを置き換える | 暦を編集する。稼働する曜日（workingDayTypes。1 が日曜日で、並べない曜日は休み）、週の始まりの曜日（weekStartDay）、例外日（exceptions。編集の後の全部の並び）、稼働日の 1 組の時間帯（workingTimes）。省いた部分はそのまま残る。workingTimes は 1 から 5 つの時間帯を持ち、空の並びは断る。既定の時間帯に戻すには、08:00:00-12:00:00 と 13:00:00-17:00:00 の 2 つを渡す。 | 無し |
+| 35-2 | `set` | 書く値 | 編集の命令が書くプロパティと、その新しい値。（`JDG-3268`） | 無し |
+| 35-3 | `clear` | 消す欄 | 編集の命令が取り除く、省けるプロパティ。set と clear の両方にあるプロパティを、GRS は断る。（`JDG-3268`） | 無し |
+| 35-4 | `DocumentCommand` | 文書の命令 | 値として書いた 1 つの文書の命令。種類と欄を持つ。束にして applyCommands でまとめて書く。（`JDG-3426`） | 無し |
+| 35-5 | `editProject` | プロジェクトを編集する | プロジェクトを編集する。set は並べたプロパティを書き、clear は並べた省けるプロパティを取り除く。両方にあるプロパティは断る（fieldSetAndCleared）。statusDate が無ければ、GRS は基準日線を描かない。（`scheduleDataTimeZone` は `JDG-3618` で `scheduleData` の直下へ移った。どの命令が書くかは方針で決める） | 形は `edit<実体>`（`JDG-3268`） |
+| 35-10 | `replaceCalendarRules` | カレンダーの決まりを置き換える | カレンダーを編集する。稼働する曜日（workingDayTypes。1 が日曜日で、並べない曜日は休み）、週の始まりの曜日（weekStartDay）、例外日（exceptions。編集の後の全部の並び）、稼働日の 1 組の時間帯（workingTimes）。省いた部分はそのまま残る。workingTimes は 1 から 5 つの時間帯を持ち、空の並びは断る。既定の時間帯に戻すには、08:00:00-12:00:00 と 13:00:00-17:00:00 の 2 つを渡す。 | 無し |
 | 35-11 | &emsp;+- `workingDayTypes` | 稼働する曜日 | 稼働する曜日を dayType の数で並べたもの（1 が日曜日）。並べない曜日は休み。 | MSPDI の WeekDay/DayType の数（GRS JSON の `dayType`） |
 
 回答:
 
 **タスク**
 
-#### ❓ 問 35-3. 進捗ステータスの命令 —— `PlanActual` を `progressStatus` の語にするか
+#### ❓ 問 35-3. 進捗ステータスの 2 つの命令と引数の名
 
-場面: `JDG-3461` は、タスクの予実の状態の名を `progressStatus`（進捗ステータス）とし、「予実の状態」と `planActualState` を使わないと決めました。2 つの命令は、今も `PlanActual` の語を使います。`JDG-2684`（2026-10-17）は命令の名を今のままにし、その後の `JDG-3461`（2026-10-29）が語を決めました。引数 `place` は「場所」とも読め、中身（進捗ステータスと、それが要る実績の日時）を言いません。`remembered`（覚えた）は過去分詞で、何を覚えたかを言いません。
+状態: OPEN
 
-| # | 今の名 | 意味（日本語） | 案 a の名 |
+場面: 人がタスクの進捗ステータスを選ぶと、GRS は命令を 1 つ書きます。人が進捗のボタンを押して状態を 1 つ進めるときも、GRS は別の命令を 1 つ書きます。名付けるのは 2 つの**命令**と、その 2 つの**引数**です。
+
+```json
+{ "type": "placeTaskPlanActual", "taskUid": 7, "place": { "state": "inProgress", … } }
+{ "type": "cycleTaskPlanActualState", "taskUid": 7, "remembered": { … } }
+```
+
+`JDG-3461` は、この状態を `progressStatus`（進捗ステータス）と呼ぶと決め、「予実の状態」と `planActualState` を退けました。2 つの命令は、まだ `PlanActual` の語を使います。引数 `place` は「場所」とも読めます。`remembered`（覚えた）は、何を覚えたかを言いません。`JDG-3672` は、値を 1 つ置く命令を set 系と呼ぶ方針を記録しました。
+
+| 案 | 名 | 良い点 | 弱い点 |
 |:---|:---|:---|:---|
-| 35-20 | `placeTaskPlanActual` | タスク taskUid を 1 つの進捗ステータスに置く。 | `changeTaskProgressStatus` |
-| 35-21 | &emsp;+- `place` | タスクを置く進捗ステータスと、その状態が要る実績の日付。 | `progressStatus` |
-| 35-32 | `cycleTaskPlanActualState` | タスク taskUid の進捗ステータスを、未着手・進行中・完了・中断の輪に沿って 1 つ進める。 | `cycleTaskProgressStatus` |
-| 35-33 | &emsp;+- `remembered` | 前の段が取り除いた実績。タスクが未着手を出るときに戻すために渡す。 | `removedActual` |
+| a（推し） | `setTaskProgressStatus`（引数 `progressStatus`）・`cycleTaskProgressStatus`（引数 `removedActual`） | 4 つの名がどれも決まった語 `progressStatus` を使う。値を 1 つ置く命令を `set` で始める方針（`JDG-3672`）に合う | 名が少し長い |
+| b | `changeTaskProgressStatus`（引数 `progressStatus`）・`cycleTaskProgressStatus`（引数 `removedActual`） | 前の席の推し。「変える」が動作を言う | 動詞 `change` を使う命令はほかに無く、`edit`・`set` と並ばない |
+| c | 今のまま | 名を変えない | 退けた語 `PlanActual` が残る |
 
-| 案 | 中身 |
-|:---|:---|
-| **a（推奨）** | 表の「案 a の名」の列にする。`place` の中の `state` は `JDG-2684` のまま。`beginTaskActual`（実績を始める）は今のまま |
-| b | 命令の名だけを改める: `placeTaskInProgressStatus`・`cycleTaskProgressStatus`。`place`・`remembered` は今のまま |
-| c | 今のまま |
+推し a: ① 決まった語 `progressStatus`（`JDG-3461`）を、命令と引数の両方に使う（`OKPN`）。② `removedActual` は中身（前の段が取り除いた実績）を言う（`NEIM`）。③ `place` の中の `state` は `JDG-2684` のまま残し、`beginTaskActual` も今のままでよい。
 
 回答:
 
-#### ❓ 問 35-4. 写しと並べ替えの値 —— 指す物の名を書くか
+#### ❓ 問 35-4. 写しと並べ替えの 5 つの引数の名
 
-場面: `JDG-2685` は、命令が運ぶ値に指す物の名を付けると決めました（`taskUid`・`commentBoxId` など）。写しと並べ替えの 5 つの値は、まだ指す物の名を欠きます。`sourceUids`・`orderedIds` は、何の uid・id かを言いません。`newTaskGroupIds`・`taskGroupIdOf` は対応表（元の uid か id から値へ）ですが、名は並びにも読めます。`landing`（着地）は比喩で、写しの置き方を言いません。タスクとタスクグループの命令にまたがるので、ここでまとめて問います。
+状態: OPEN
+
+場面: 人がタスクやタスクグループを写して貼ると、GRS は命令に「どれを写すか」と「どこへ置くか」を書きます。人が兄弟のタスクグループを並べ直すと、GRS は新しい順を書きます。名付けるのは 5 つの**引数**です。
+
+```json
+{ "type": "pasteTasks", "sourceUids": [7, 8], "landing": { "shiftMinutes": 1440, "taskGroupIdOf": { "7": "…", "8": "…" } } }
+{ "type": "pasteTaskGroupSubtree", "sourceTaskGroupId": "…", "newTaskGroupIds": { "…": "…" } }
+{ "type": "reorderTaskGroupSiblings", "orderedIds": ["…", "…"] }
+```
+
+`JDG-2685` は、命令が運ぶ値に指す物の名を付けると決めました（`taskUid`・`commentBoxId` など）。下の 5 つは、まだ指す物を言いません。`taskGroupIdOf`・`newTaskGroupIds` は対応表（元の uid か id から値へ）ですが、名は並びにも読めます。`landing`（着地）はたとえの語で、写しの置き方を言いません。
 
 | # | 今の名 | 意味（日本語） | 案 a の名 |
 |:---|:---|:---|:---|
-| 35-15 | &emsp;+- `sourceUids`（持ち主 `pasteTasks`） | 写すタスクの uid（1 つ以上）。 | `sourceTaskUids` |
-| 35-16 | &emsp;+- `landing`（持ち主 `pasteTasks`） | 写しの置き方。Ctrl を押したドラッグのコピーだけが送る。 | `placement` |
-| 35-18 | &emsp;&emsp;+- `taskGroupIdOf`（持ち主 `landing`） | 写す元のタスクの uid ごとに、写しを載せるタスクグループの id。 | `taskGroupIdBySourceTaskUid` |
-| 36-24 | &emsp;+- `newTaskGroupIds`（持ち主 `pasteTaskGroupSubtree`） | 元のタスクグループの id ごとに、写しの id。 | `newTaskGroupIdBySourceId` |
-| 36-26 | &emsp;+- `orderedIds`（持ち主 `reorderTaskGroupSiblings`） | 兄弟のタスクグループの id を新しい順に並べたもの。 | `orderedTaskGroupIds` |
+| 35-15 | `sourceUids`（持ち主 `pasteTasks`） | 写すタスクの uid（1 つ以上）。 | `sourceTaskUids` |
+| 35-16 | `landing`（持ち主 `pasteTasks`） | 写しの置き方。Ctrl を押したドラッグのコピーだけが送る。 | `placement` |
+| 35-18 | `taskGroupIdOf`（持ち主 `landing`） | 写す元のタスクの uid ごとに、写しを載せるタスクグループの id。 | `taskGroupIdBySourceTaskUid` |
+| 36-24 | `newTaskGroupIds`（持ち主 `pasteTaskGroupSubtree`） | 元のタスクグループの id ごとに、写しの id。 | `newTaskGroupIdBySourceId` |
+| 36-26 | `orderedIds`（持ち主 `reorderTaskGroupSiblings`） | 兄弟のタスクグループの id を新しい順に並べたもの。 | `orderedTaskGroupIds` |
 
-| 案 | 中身 |
-|:---|:---|
-| **a（推奨）** | 表の「案 a の名」の列にする。対応表は「値 + `By` + 鍵」の形で、何から何への対応かを言う。`shiftMinutes`・`sourceTaskGroupId` は今のまま |
-| b | 指す物の名だけを足す（`sourceTaskUids`・`orderedTaskGroupIds`）。対応表と `landing` は今のまま |
-| c | 今のまま |
+| 案 | 名 | 良い点 | 弱い点 |
+|:---|:---|:---|:---|
+| a（推し） | 表の「案 a の名」の 5 つ | どの名も指す物を言う。対応表は「値 + `By` + 鍵」の形で、何から何への対応かを言う | 対応表の名が長くなる |
+| b | `sourceTaskUids`・`orderedTaskGroupIds` だけを直す | 指す物の名を足す 2 つだけを変える | 対応表と `landing` の読みにくさが残る |
+| c | 今のまま | 名を変えない | 5 つとも指す物を言わない |
+
+推し a: ① `JDG-2685` の決まり（命令の値に指す物の名を付ける）を 5 つすべてに当てる（`NEIM`）。② 対応表の名が鍵と値を言うので、並びと読み違えない（`OMPV`）。③ `shiftMinutes`・`sourceTaskGroupId` は今のままでよい。
 
 回答:
 
 #### ❓ 問 35-5. タスクの 16 語 —— 推奨の表のとおりでよいか
 
-易しい語をまとめた推奨の表です。実績ダミーの部分の名（`barDummyStart` など）は、あなたの語「実績ダミー」を写します。直す所が無ければ ok、直す所は表のセルに ★ で書いてください。
+状態: OPEN
+
+易しい語をまとめた推奨の表です。実績ダミーの部分の名（`barDummyStart` など）は、あなたの語「実績ダミー」を写します。`taskShape` の値の名は問 6-9-1 の答えに従います。直す所が無ければ ok、直す所は表のセルに ★ で書いてください。
 
 | # | キー | 日本語の名 | 意味（日本語） | 既存の名との関係 |
 |:---|:---|:---|:---|:---|
-| 35-12 | `createTask` | タスクを作る | 名前の無いタスクを、与えた start と finish で、タスクグループ taskGroupId の上に作る。taskShape（rectangle・chevron・arrow・endpointSpan）と milestoneShape（15 の印のどれか）のちょうど 1 つを与え、milestoneShape はタスクをマイルストーンにする。新しいタスクの uid は project.highestIssuedUid に 1 を足した数で、highestIssuedUid もそこへ進むので、同じ束の後の命令がそのタスクを名指せる（例えば highestIssuedUid が 41 なら、taskUid 42 の editTask）。どのタスクグループも指さない taskGroupId は、その id の最上位のタスクグループを新しく作る。 | 無し |
-| 35-13 | `editTask` | タスクを編集する | タスク taskUid を編集する。set は並べたプロパティを書き、clear は並べた省けるプロパティを取り除く。両方にあるプロパティは断る（fieldSetAndCleared）。規則は編集した後のタスクで調べるので、start と finish の片方だけを送ってよい。どちらかが動けば、GRS は percentComplete を計算し直す。javascript:・vbscript:・data: で始まる hyperlinkAddress は断る（hyperlinkSchemeNotAllowed）。 | 形は `edit<実体>`（`JDG-3268`） |
-| 35-14 | <span style="color: #0550AE">`pasteTasks`</span> | タスクを貼り付ける | sourceUids に並べたタスクを複製する。並べていない子タスクは写さず、写しは未着手で始まる。landing は写しの置き場所を言い、Ctrl を押したドラッグのコピーだけが送る。（`JDG-1727`） | 無し |
+| 35-12 | `createTask` | タスクを作る | 名前の無いタスクを、与えた start と finish で、タスクグループ taskGroupId の上に作る。taskShape（rectangle・chevron・arrow・endpointSpan）と milestoneShape（15 の印のどれか）のちょうど 1 つを与え、milestoneShape はタスクをマイルストーンにする。新しいタスクの uid は highestIssuedUid に 1 を足した数で、highestIssuedUid もそこへ進むので、同じ束の後の命令がそのタスクを名指せる（例えば highestIssuedUid が 41 なら、taskUid 42 の editTask）。どのタスクグループも指さない taskGroupId は、その id の最上位のタスクグループを新しく作る。 | 無し |
+| 35-13 | `editTask` | タスクを編集する | タスク taskUid を編集する。set は並べたプロパティを書き、clear は並べた省けるプロパティを取り除く。両方にあるプロパティは断る（fieldSetAndCleared）。GRS は規則を編集した後のタスクで調べるので、start と finish の片方だけを送ってよい。どちらかが動けば、GRS は percentComplete を計算し直す。javascript:・vbscript:・data: で始まる hyperlinkAddress は断る（hyperlinkSchemeNotAllowed）。 | 形は `edit<実体>`（`JDG-3268`） |
+| 35-14 | `pasteTasks` | タスクを貼り付ける | sourceUids に並べたタスクを複製する。並べていない子タスクは写さず、写しは未着手で始まる。landing は写しの置き場所を言い、Ctrl を押したドラッグのコピーだけが送る。（`JDG-1727`。引数の名は問 35-4） | 無し |
 | 35-17 | &emsp;&emsp;+- `shiftMinutes` | ずらす量 | 写しをずらす量（分、符号付き）。ドラッグと同じ刻み。 | 無し |
-| 35-19 | `moveTaskToTaskGroup` | タスクを別のタスクグループへ動かす | タスク taskUid を、別のタスクグループ taskGroupId へ動かす。 | 無し |
-| 35-22 | &emsp;&emsp;+- <span style="color: #0550AE">`state`</span>（持ち主 `place`） | どの進捗ステータスか | どの進捗ステータスか。notStarted・inProgress・suspendedWithResumeDate・suspendedWithoutResumeDate・finished のどれか。（`JDG-2684`） | 無し |
+| 35-19 | `moveTaskToTaskGroup` | タスクを別のタスクグループへ動かす | タスク taskUid を、別のタスクグループ taskGroupId へ動かす。 | GRS JSON の `grs.taskGroupId` を書く（`JDG-3615`） |
+| 35-22 | &emsp;&emsp;+- `state`（持ち主 `place`） | どの進捗ステータスか | どの進捗ステータスか。notStarted・inProgress・suspendedWithResumeDate・suspendedWithoutResumeDate・finished のどれか。（`JDG-2684`） | 無し |
 | 35-23 | `beginTaskActual` | 実績を始める | 人がタスク taskUid の実績ダミー（まだ始まっていない実績の代わりの印）をドラッグした後に、その実績を始める。grabbed はドラッグした印を、released は離した所を、snapMinutes は実績の長さを決める刻み（分）を言う。 | 画面の実績ダミーのドラッグ |
 | 35-24 | &emsp;+- `grabbed` | つかんだ所 | 実績ダミーのどの部分をドラッグしたか。 | 無し |
 | 35-25 | &emsp;&emsp;+- `barDummyStart`（持ち主 `grabbed`） | バーのダミーの開始の端 | バーのダミーの開始の端。 | 画面の実績ダミー |
@@ -516,69 +575,86 @@ BGQA2 を約束の面ごとに分けたとき（`JDG-3568`）、まだ出して�
 
 **依存**
 
-#### ❓ 問 35-6. 依存の端 —— `predecessorEdge`・`successorEdge` の `Edge` を改めるか
+#### ❓ 問 35-6. 依存線の端を言う 2 つの引数の名
 
-場面: `createDependency` の 2 つの引数は、依存線がタスクのどちらの端（`start` か `finish`）から出て、どちらに入るかを言います。グラフの語で `edge`（辺）は、依存線そのものを指します。そのため `predecessorEdge` は「先行の依存線」とも読めます。
+状態: OPEN
 
-| # | 今の名 | 意味（日本語） |
-|:---|:---|:---|
-| 35-37 | &emsp;+- `predecessorEdge` | 線が出る、先行の端。start か finish。 |
-| 35-38 | &emsp;+- `successorEdge` | 線が入る、後続の端。start か finish。 |
+場面: 人がタスク A の終わりからタスク B の始まりへ依存線を引くと、GRS は命令に、線が出る端と入る端を書きます。名付けるのは 2 つの**引数**です。
 
-| 案 | 中身 |
-|:---|:---|
-| **a（推奨）** | `predecessorSide`・`successorSide`（バーの開始の側か終了の側か） |
-| b | `predecessorEnd`・`successorEnd`（2 つの端の 1 つ。`end` は「終了」とも読める） |
-| c | 今のまま |
+```json
+{ "type": "createDependency", "predecessorUid": 7, "predecessorEdge": "finish", "successorUid": 8, "successorEdge": "start" }
+```
 
-回答:
+グラフの語で `edge`（辺）は、線そのものを指します。だから人は `predecessorEdge` を「先行の依存線」とも読みます。
 
-#### ❓ 問 36-1. ラグの形の値 —— `typed` を中身の名にするか
+| 案 | 名 | 良い点 | 弱い点 |
+|:---|:---|:---|:---|
+| a（推し） | `predecessorSide`・`successorSide` | 「バーの開始の側か終了の側か」を 1 通りに言う | `side` は左右の側とも読める |
+| b | `predecessorEnd`・`successorEnd` | 「2 つの端の 1 つ」を言う | `end` は「終了」とも読め、値 `finish` と紛れる |
+| c | 今のまま | 名を変えない | `edge` が線そのものと紛れる |
 
-場面: `changeDependencyLag` の `lag` は 2 つの形を持ち、`type` が形を選びます（`JDG-3563`）。値 `workingDays` は「稼働日の数で与える」を言います。値 `typed` は「分と見せる単位で与える」を言いますが、英語の `typed` は「型を持つ」か「打ち込んだ」と読めます。MSPDI は長さを Duration の形で書き、ラグの見せる単位を LagFormat で持ちます。
-
-| # | 今の名 | 意味（日本語） |
-|:---|:---|:---|
-| 36-4 | &emsp;&emsp;+- `typed`（持ち主 `lag`） | 分と、見せる単位で与えるラグ。 |
-
-| 案 | 中身 |
-|:---|:---|
-| **a（推奨）** | `duration`（長さを分で与え、見せる単位を添える） |
-| b | `minutesWithUnit` |
-| c | 今のまま |
+推し a: ① 名が中身（バーのどちらの側か）を言う（`NEIM`）。② `edge` は線と、`end` は終了と紛れる。1 つの名に 1 つの意味を持たせる（`OMPV`）。
 
 回答:
 
-#### ❓ 問 36-2. 同じ向きの線の 1 本 —— 引数 `order` を `index` にするか
+#### ❓ 問 36-1. ラグの形の値 `typed` の名
 
-場面: `deleteDependencyAt` は、同じ 2 つのタスクの間の同じ向きの線のうち 1 本を、並びの中の位置で名指します。引数 `order`（0 から）が位置を持ちます。断りの `commandIndex` は、同じ「0 から数える位置」を `Index` と呼びます。GRS JSON の `siblingOrder` は、兄弟の中の並び順を言います。
+状態: OPEN
 
-| # | 今の名 | 意味（日本語） |
-|:---|:---|:---|
-| 36-11 | `deleteDependencyAt` | 同じ向きの線のうちの 1 本を削除する。successorUid、predecessorUid と、後続の依存の並びの中の位置 order（0 が最初）で名指す。 |
-| 36-12 | &emsp;+- `order` | 後続の依存の並びの中での、同じ向きの線の位置。0 が最初。 |
+場面: 人が依存のラグに「2 稼働日」か「3 時間」を打つと、GRS は `changeDependencyLag` の `lag` に 2 つの形のどちらかを書きます。判別子 `type` が形を選びます（`JDG-3563`）。名付けるのは `type` の 1 つの**値**です。
 
-| 案 | 中身 |
-|:---|:---|
-| **a（推奨）** | 引数を `index`（0 から数える位置）にする。命令の名 `deleteDependencyAt`（その位置の依存を消す）は今のまま |
-| b | 命令の名も `deleteDependencyAtIndex` にする |
-| c | 今のまま |
+```json
+{ "type": "changeDependencyLag", "predecessorUid": 7, "successorUid": 8, "lag": { "type": "workingDays", … } }
+{ "type": "changeDependencyLag", "predecessorUid": 7, "successorUid": 8, "lag": { "type": "typed", "minutes": 180, "unit": "hour" } }
+```
+
+値 `workingDays` は「稼働日の数で与える」を言います。値 `typed` は「分と見せる単位で与える」を言いますが、英語の `typed` は「型を持つ」か「打ち込んだ」と読めます。
+
+| 案 | 名 | 良い点 | 弱い点 |
+|:---|:---|:---|:---|
+| a（推し） | `duration` | 値が中身（長さ）を言う。MSPDI も長さの形を Duration と呼ぶ | タスクの長さとも読める |
+| b | `minutesWithUnit` | 値が持つ欄（分と単位）を直に言う | 名が長く、欄の名を写すだけで中身を言わない |
+| c | 今のまま | 名を変えない | 「型を持つ」「打ち込んだ」と読み違える |
+
+推し a: ① 値が「長さで与えるラグ」を言い、兄弟の `workingDays`（稼働日の数で与える）と対になる（`NEIM`・`MECE`）。② MSPDI の長さの形の名 Duration と同じ語で、初めて読む人にも通じる。
 
 回答:
 
-#### ❓ 問 36-3. 依存の 11 語 —— 推奨の表のとおりでよいか
+#### ❓ 問 36-2. 同じ向きの線の 1 本を名指す引数 `order` の名
 
-易しい語をまとめた推奨の表です。直す所が無ければ ok、直す所は表のセルに ★ で書いてください。
+状態: OPEN
+
+場面: 同じ 2 つのタスクの間に同じ向きの線が 2 本あるとき、人が 1 本だけを消すと、GRS は並びの中の位置でその線を名指します。名付けるのは**引数**です。
+
+```json
+{ "type": "deleteDependencyAt", "predecessorUid": 7, "successorUid": 8, "order": 1 }
+```
+
+`order` は 0 から数える位置を持ちます。断りの `commandIndex` は、同じ「0 から数える位置」を `Index` と呼びます。GRS JSON の `siblingOrder` は、兄弟の中の順を 1 から振ります（`JDG-3622` ⑥）。`JDG-3650` は、並びの順を `…Order` で言うと決めました。
+
+| 案 | 名 | 良い点 | 弱い点 |
+|:---|:---|:---|:---|
+| a（推し） | 引数 `index`。命令 `deleteDependencyAt` は今のまま | 0 から数える位置を `commandIndex` と同じ語で言う | 命令の名の `At` と引数の名が別の語になる |
+| b | 引数 `index`、命令 `deleteDependencyAtIndex` | 命令の名も位置で名指すことを言う | 命令の名が長くなる |
+| c | 今のまま | 名を変えない | 1 から振る `siblingOrder` と同じ語が、0 から数える位置を指す |
+
+推し a: ① 0 から数える位置を、Agent API の中で 1 つの語 `Index` で言う（`OKPN`）。② `…Order` は 1 から振る順に取っておく（`JDG-3622`・`JDG-3650`、`OMPV`）。
+
+回答:
+
+#### ❓ 問 36-3. 依存の 9 語 —— 推奨の表のとおりでよいか
+
+状態: OPEN
+
+易しい語をまとめた推奨の表です。ラグの長さと単位の引数（`minutes`・`unit`）は MSPDI の名と違うので、問 36-3-2 に分けました。直す所が無ければ ok、直す所は表のセルに ★ で書いてください。
 
 | # | キー | 日本語の名 | 意味（日本語） | 既存の名との関係 |
 |:---|:---|:---|:---|:---|
-| 35-35 | `createDependency` | 依存を作る | タスク predecessorUid からタスク successorUid へ依存線を引く。predecessorEdge と successorEdge は端（start か finish）を名指し、端の組が結び方の種類（例えば終了-開始）を決める。どちらかのタスクがマイルストーンなら、端が何と言っても線はいつも終了-開始である。 | 無し |
+| 35-35 | `createDependency` | 依存を作る | タスク predecessorUid からタスク successorUid へ依存線を引く。predecessorEdge と successorEdge は端（start か finish）を名指し、端の組が結び方の種類（例えば終了-開始）を決める。どちらかのタスクがマイルストーンなら、端が何と言っても線はいつも終了-開始である。（端の引数の名は問 35-6） | 無し |
 | 35-36 | &emsp;+- `successorUid` | 後続のタスク | 後続のタスク（依存を持つタスク）の uid。 | MSPDI では後続のタスクが PredecessorLink を持つ（GRS JSON に同じキーは無し） |
 | 36-1 | `changeDependencyLag` | 依存のラグを変える | predecessorUid から successorUid への依存のラグを変える。その向きのすべての線が新しいラグになる。lag は稼働日の数か、分の長さとラグを見せる単位（day・hour・minute）の組のどちらか。 | 無し |
-| 36-2 | &emsp;+- <span style="color: #0550AE">`type`</span>（持ち主 `lag`） | ラグの形 | ラグの形。workingDays か typed。（`JDG-3563`） | 無し |
+| 36-2 | &emsp;+- `type`（持ち主 `lag`） | ラグの形 | ラグの形。workingDays か typed（値の名は問 36-1）。（`JDG-3563`） | 無し |
 | 36-3 | &emsp;&emsp;+- `workingDays`（持ち主 `lag`） | 稼働日のラグ | 稼働日の数で与えるラグ。 | 無し |
-| 36-5 | &emsp;+- `minutes`（持ち主 `lag`） | ラグの長さ | ラグの長さ（分）。 | MSPDI の LinkLag（単位は違う） |
-| 36-6 | &emsp;+- `unit` | ラグの単位 | ラグを見せ、打ち込む単位。day・hour・minute のどれか。 | GRS JSON の `lagFormat`（7・5・3）に当たる |
 | 36-7 | &emsp;&emsp;+- `day`（持ち主 `unit`） | 日 | 日。 | 無し |
 | 36-8 | &emsp;&emsp;+- `hour`（持ち主 `unit`） | 時間 | 時間。 | 無し |
 | 36-9 | &emsp;&emsp;+- `minute`（持ち主 `unit`） | 分 | 分。 | 無し |
@@ -586,9 +662,41 @@ BGQA2 を約束の面ごとに分けたとき（`JDG-3568`）、まだ出して�
 
 回答:
 
+#### ❓ 問 36-3-2. ラグの長さと単位の引数 —— MSPDI の `linkLag`・`lagFormat` と違う名を保つか
+
+状態: OPEN
+
+場面: 人がラグに「3 時間」を打つと、GRS は命令に分の数と見せる単位を書きます。GRS JSON は同じラグを、MSPDI の名と数で持ちます。名付けるのは 2 つの**引数**です。
+
+命令（今の名）:
+
+```json
+"lag": { "type": "typed", "minutes": 180, "unit": "hour" }
+```
+
+GRS JSON（`predecessorLinks[]` の 1 つ）:
+
+```json
+{ "predecessorUid": 7, "type": 1, "linkLag": 1800, "lagFormat": 5 }
+```
+
+MSPDI の LinkLag は 10 分の 1 分で数え、LagFormat は単位を数の符号（5 は時間）で持ちます。命令の 2 つの引数は、値の単位も形も違います。`JDG-3410` は「同じ物に GRS JSON と Agent API で 1 つの名」と決めました。`JDG-3553` は、MSPDI の名と違う名を裁定に回すと決めました。
+
+| 案 | 名 | 良い点 | 弱い点 |
+|:---|:---|:---|:---|
+| a（推し） | `minutes` のまま、`unit` を `displayUnit` にする | 値の単位が違うので、名も GRS JSON と分ける。`displayUnit` は「見せて打ち込む単位」を言う | 読む人は、GRS JSON の 2 つのキーとの対応を覚える |
+| b | `minutes`・`unit` のまま | 名を変えない。短い | `unit` は「minutes の単位」とも読める |
+| c | `linkLag`・`lagFormat` にし、値も MSPDI の数（10 分の 1 分と符号）にする | GRS JSON・MSPDI と名も値も同じになる | AI と人が 10 分の 1 分と数の符号を打つことになる |
+
+推し a: ① 値の単位と形が違うので、別の物として別の名で呼ぶ（`OKPN`・`OMPV`）。② `displayUnit` は見せる単位を言い、分の数の単位と取り違えない（`NEIM`）。③ 命令は人の打ち方（分と単位）を写し、MSPDI の数への換算は GRS が受け持つ（`SoC`）。
+
+回答:
+
 **担当と割当**
 
 #### ❓ 問 36-4. 担当と割当の 7 語 —— 推奨の表のとおりでよいか
+
+状態: OPEN
 
 易しい語をまとめた推奨の表です。直す所が無ければ ok、直す所は表のセルに ★ で書いてください。
 
@@ -596,8 +704,8 @@ BGQA2 を約束の面ごとに分けたとき（`JDG-3568`）、まだ出して�
 |:---|:---|:---|:---|:---|
 | 36-13 | `editResource` | 担当を編集する | 担当 resourceUid を編集する。set は並べたプロパティを書き、clear は並べた省けるプロパティを取り除く。両方にあるプロパティは断る（fieldSetAndCleared）。プロパティは name だけで、set.name は担当の名前を変え、name を clear すると名前の無い担当になる。 | 形は `edit<実体>`（`JDG-3268`） |
 | 36-14 | `createResource` | 担当を作る | 名前 name の担当を足す。 | 無し |
-| 36-15 | <span style="color: #0550AE">`deleteResources`</span> | 担当を削除する | resourceUids に並べた担当を削除する。（`JDG-2690`） | 無し |
-| 36-16 | &emsp;+- <span style="color: #0550AE">`resourceUids`</span> | 削除する担当 | 削除する担当の uid。（`JDG-2685`） | 無し |
+| 36-15 | `deleteResources` | 担当を削除する | resourceUids に並べた担当を削除する。（`JDG-2690`） | 無し |
+| 36-16 | &emsp;+- `resourceUids` | 削除する担当 | 削除する担当の uid。（`JDG-2685`） | 無し |
 | 36-17 | `deleteUnreferencedResources` | 使われていない担当を削除する | どの割当からも指されていない担当をすべて削除する。 | 無し |
 | 36-18 | `createAssignment` | 割当を作る | 担当 resourceUid をタスク taskUid に就ける。 | 無し |
 | 36-19 | `deleteAssignment` | 割当を外す | 担当 resourceUid の割当をタスク taskUid から外す。 | 無し |
@@ -606,19 +714,20 @@ BGQA2 を約束の面ごとに分けたとき（`JDG-3568`）、まだ出して�
 
 **タスクグループ**
 
-#### ❓ 問 36-5. タスクグループの 10 語 —— 推奨の表のとおりでよいか
+#### ❓ 問 36-5. タスクグループの 9 語 —— 推奨の表のとおりでよいか
 
-易しい語をまとめた推奨の表です。写しと並べ替えの値は問 35-4 で問います。直す所が無ければ ok、直す所は表のセルに ★ で書いてください。
+状態: OPEN
+
+易しい語をまとめた推奨の表です。帯の値を戻す命令（今の `resetTaskGroupTreeStates`）は、`JDG-3690` で `setTaskGroupSelfShowModesToAutomaticExceptHidden` に決まり、`JDG-3691` で全体表示の部品になったので、表から外しました。引数の `parentId` は、`JDG-3410`（GRS JSON と同じ名）と `JDG-3622`（`parentTaskGroupId`）に従って `parentTaskGroupId` と書きました。写しと並べ替えの値は問 35-4 で問います。直す所が無ければ ok、直す所は表のセルに ★ で書いてください。
 
 | # | キー | 日本語の名 | 意味（日本語） | 既存の名との関係 |
 |:---|:---|:---|:---|:---|
-| 36-20 | `editTaskGroup` | タスクグループを編集する | タスクグループ taskGroupId を編集する。set は並べたプロパティを書き、clear は並べた省けるプロパティを取り除く。両方にあるプロパティは断る（fieldSetAndCleared）。color が無ければ帯の色は塗らず、name はそのグループが表すタスクの名前に従わない。editGroup はまだ作っていないので、設定も clear も断る（notImplemented）。javascript:・vbscript:・data: で始まる hyperlinkAddress は断る（hyperlinkSchemeNotAllowed）。 | 形は `edit<実体>`（`JDG-3268`） |
-| 36-21 | `createTaskGroup` | タスクグループを作る | 与えた id と siblingOrder で、与えれば parentId（無ければ最上位）、name（無ければ名前なし）、representedTaskUid も付けて、タスクグループを作る。（`representedTaskUid` の名は BGQA2 の問 6-9-2 で決める） | 無し |
-| 36-22 | `pasteTaskGroupSubtree` | タスクグループの部分木を貼り付ける | sourceTaskGroupId を根とするタスクグループの部分木を複製し、根の写しを parentId（無ければ最上位）の下に置く。newTaskGroupIds は、元の id それぞれから写しの id への対応である。 | 無し |
+| 36-20 | `editTaskGroup` | タスクグループを編集する | タスクグループ taskGroupId を編集する。set は並べたプロパティを書き、clear は並べた省けるプロパティを取り除く。両方にあるプロパティは断る（fieldSetAndCleared）。style.color が無ければ、GRS は帯の色を塗らない。name は、そのグループが代表するタスクの名前に従わない。editableByGroupName はまだ作っていないので、設定も clear も断る（notImplemented）。javascript:・vbscript:・data: で始まる hyperlinkAddress は断る（hyperlinkSchemeNotAllowed）。 | 形は `edit<実体>`（`JDG-3268`） |
+| 36-21 | `createTaskGroup` | タスクグループを作る | 与えた id と siblingOrder で、タスクグループを作る。parentTaskGroupId（無ければ最上位）、name（無ければ名前なし）、representativeTaskUid、selfShowMode（無ければ automatic）も与えてよい。（`JDG-3639`・`JDG-3684`） | 無し |
+| 36-22 | `pasteTaskGroupSubtree` | タスクグループの部分木を貼り付ける | sourceTaskGroupId を根とするタスクグループの部分木を複製し、根の写しを parentTaskGroupId（無ければ最上位）の下に置く。newTaskGroupIds は、元の id それぞれから写しの id への対応である。写しの根は selfShowMode（無ければ automatic）を得て、写しの配下は元の値を写す。（`JDG-3684`） | 無し |
 | 36-23 | &emsp;+- `sourceTaskGroupId` | 写す元の根 | 写す部分木の根のタスクグループの id。 | 無し |
-| 36-25 | `reorderTaskGroupSiblings` | 兄弟を並べ直す | parentId（無ければ最上位）の下の兄弟のタスクグループを、orderedIds の順に並べ直す。その順が siblingOrder になる。 | 無し |
-| 36-27 | `moveTaskGroup` | タスクグループを動かす | タスクグループ taskGroupId の親と兄弟の中の位置を、parentId（無ければ最上位）と siblingOrder に変える。 | 無し |
-| 36-28 | `resetTaskGroupTreeStates` | 木の状態を戻す | 隠れているタスクグループを除き、すべてのタスクグループの木の状態を auto に戻す。 | GRS JSON の `treeState` |
+| 36-25 | `reorderTaskGroupSiblings` | 兄弟を並べ直す | parentTaskGroupId（無ければ最上位）の下の兄弟のタスクグループを、orderedIds の順に並べ直す。その順が siblingOrder になる。 | 無し |
+| 36-27 | `moveTaskGroup` | タスクグループを動かす | タスクグループ taskGroupId の親と兄弟の中の位置を、parentTaskGroupId（無ければ最上位）と siblingOrder に変える。selfShowMode を与えれば、その値も書く。省けば値を保つ。（`JDG-3684`） | 無し |
 | 36-29 | `deleteTaskGroup` | タスクグループを削除する | タスクグループ taskGroupId を削除する。最後のタスクグループを削除するときは、名前が Untitled の最上位のタスクグループを新しく作る。文書はいつも少なくとも 1 つのタスクグループを持つからである。 | 無し |
 | 37-1 | `pinTaskGroup` | ピン止めする | タスクグループ taskGroupId をピン止めしたタスクグループに足して、ピン止めする。 | GRS JSON の `pinnedTaskGroupIds` を書く |
 | 37-2 | `unpinTaskGroup` | ピン止めを外す | タスクグループ taskGroupId をピン止めしたタスクグループから外す。最後の 1 つを外すと pinnedTaskGroupIds のプロパティも取り除き、[] は書かない。 | GRS JSON の `pinnedTaskGroupIds` を書く |
@@ -627,79 +736,114 @@ BGQA2 を約束の面ごとに分けたとき（`JDG-3568`）、まだ出して�
 
 **描き方・注記・文書の設定と表**
 
-#### ❓ 問 36-6. タスクの見た目の命令 —— `editTaskVisual` を `taskStyles` にそろえるか
+#### ❓ 問 36-6. タスクの見た目を編集する命令 `editTaskVisual` の名
 
-場面: `JDG-3556` は、タスクの見た目を `scheduleData.taskStyles[]`（`{ taskUid, style }`）に置くと決めました。その前の名は `taskGraphicStyles`（`JDG-3384`）、さらに前は `taskVisuals` です。命令の名は、まだいちばん古い語 `Visual` を使います。ほかの編集の命令は `edit<実体>` の形で、実体の名をそのまま使います（`JDG-3268`）。
+状態: OPEN
 
-| # | 今の名 | 意味（日本語） |
-|:---|:---|:---|
-| 36-30 | `editTaskVisual` | タスク taskUid の描き方を編集する。set は並べたプロパティを書き、clear は並べた省けるプロパティを取り除く。 |
+場面: 人がタスクのバーの形や色を変えると、GRS はタスクの見た目を書き換える命令を書きます。名付けるのは**命令**です。
 
-| 案 | 中身 |
-|:---|:---|
-| **a（推奨）** | `editTaskStyle`（`taskStyles` の 1 つの実体を編集する）。断りの `taskVisualCountNotOne` は問 32-9 の `taskStyleCountNotOne` にする |
-| b | 今のまま |
+```json
+// GRS JSON（JDG-3614 の後）
+{ "uid": 7, "name": "設計", "grs": { "taskGroupId": "…", "style": { "taskShape": "rectangle", "fill": { "color": { "type": "palette", "name": "red" } } } } }
+// 命令（今の名）
+{ "type": "editTaskVisual", "taskUid": 7, "set": { "taskShape": "chevron" } }
+```
 
-回答:
+`JDG-3614` は、タスクの見た目をタスクの中の `grs.style` に置くと決めました。`taskStyles[]` は無くなりました。命令の名は、まだ 2 代前の語 `Visual`（`taskVisuals` の名残）を使います。ほかの編集の命令は `edit<実体>` の形で、実体の名をそのまま使います（`JDG-3268`）。断りの `taskVisualCountNotOne` は問 32-9 で扱います。
 
-#### ❓ 問 37-1. 表の窓の見え方の命令 —— `editTableView` を `tableWindows` にそろえるか
+| 案 | 名 | 良い点 | 弱い点 |
+|:---|:---|:---|:---|
+| a（推し） | `editTaskStyle` | GRS JSON のキー `style` と同じ語で、「タスクの style を編集する」と読める | `style` は独立の実体でなく、`edit<実体>` の形から少し外れる |
+| b | 今のまま | 名を変えない | `Visual` は今の GRS JSON に無い語で、書き換える所を言わない |
 
-場面: `JDG-3544` は、GRS JSON の `documentSettings.tableViews` を `tableWindows` に改めました。命令 `editTableView` は前の語 `View` を使い、引数 `table` は窓の名（`searchWindow`・`delayDiagnosisReportWindow`・`resourceListWindow`。`JDG-3410`・`JDG-3512`）を持ちます。
-
-| # | 今の名 | 意味（日本語） |
-|:---|:---|:---|
-| 37-4 | `editTableView` | 1 つの表の見え方を編集する。table が表を名指す。名指した表が持つプロパティだけを受け付ける。 |
-| 37-5 | &emsp;+- `table`（持ち主 `editTableView`） | 編集する表の見え方。searchWindow・delayDiagnosticsReportWindow・resourceListWindow のどれか。 |
-
-| 案 | 中身 |
-|:---|:---|
-| **a（推奨）** | `editTableWindow`、引数を `tableWindow` にする（GRS JSON の `tableWindows` の 1 つを編集する） |
-| b | `editTableWindow` にし、引数 `table` は今のまま |
-| c | 今のまま |
+推し a: ① 名が書き換える所（GRS JSON の `style`）を言う（`NEIM`・`JDG-3410`）。② 1 つの物（タスクの見た目）を 1 つの語 `style` で呼ぶ（`OKPN`）。
 
 回答:
 
-#### ❓ 問 37-2. 全体表示の命令 —— `fitScheduleToScreenOnPage` の `OnPage` を外すか
+#### ❓ 問 37-1. 表の窓の見え方を編集する命令と、表を名指す引数の名
 
-場面: 前は 2 つの命令がありました。`fitScheduleToScreen` は、呼ぶ側が数えた倍率と位置を運び、`JDG-3267` で `editDocumentSettings` に畳まれました。`fitScheduleToScreenOnPage` は、ページが自分で倍率と位置を決めます。`OnPage` は 2 つを分けるための語で、今は 1 つだけが残ります。
+状態: OPEN
 
-| # | 今の名 | 意味（日本語） |
-|:---|:---|:---|
-| 37-3 | `fitScheduleToScreenOnPage` | 全体表示のボタンと同じく、日程全体をページの画面に収める。ズームとスクロールの位置はページが自分で決める。 |
+場面: 人が検索ウィンドウの表で、列のフィルタや並びを変えます。GRS は表の見え方を書き換える命令を書きます。名付けるのは**命令**と、表を名指す**引数**です。
 
-| 案 | 中身 |
-|:---|:---|
-| **a（推奨）** | `fitScheduleToScreen`（全体表示のボタンと同じことをする）。前の同じ名は α の名で、「意味を変えない」決まりは β から効く。α の形で送った呼び手は、形の誤り（`malformedRequest`）を受け取る |
-| b | 今のまま |
+```json
+// GRS JSON
+"documentSettings": { "tableWindows": { "searchWindow": { "isScheduleFilterApplied": true, "checkedTaskUids": [7, 8] } } }
+// 命令（今の名）
+{ "type": "editTableView", "table": "searchWindow", "set": { "isScheduleFilterApplied": true } }
+```
+
+`JDG-3544` は GRS JSON の `tableViews` を `tableWindows` に改めました。`JDG-3620` は窓の型を 2 つ（タスクの表・担当の表）に分けました。命令はまだ前の語 `View` を使います。引数 `table` は窓の名（`searchWindow`・`delayDiagnosticsReportWindow`・`resourceListWindow`）を持ちます（遅延診断の窓の名は問 6-12-0 の 13-18 の答えに従う）。
+
+| 案 | 名 | 良い点 | 弱い点 |
+|:---|:---|:---|:---|
+| a（推し） | 命令 `editTableWindow`、引数 `tableWindow` | 命令と引数が GRS JSON の `tableWindows` の 1 つを言う | 引数の名が少し長くなる |
+| b | 命令 `editTableWindow`、引数 `table` のまま | 命令の名だけを直す | 引数 `table` は窓の名を持つのに「表」と言う |
+| c | 今のまま | 名を変えない | GRS JSON に無い語 `View` が残る |
+
+推し a: ① 命令と引数が GRS JSON の `tableWindows` と同じ語を使う（`JDG-3410`・`OKPN`）。② 引数の値は窓の名なので、`tableWindow` が値の中身と合う（`NEIM`）。
+
+回答:
+
+#### ❓ 問 37-2. 全体表示の命令 `fitScheduleToScreenOnPage` の名
+
+状態: OPEN
+
+場面: 人が「全体を収める」（英語の札 Zoom to Fit、`IC-10`）を押すと、GRS は日程全体を画面に収め、帯の値も戻します（`JDG-3677`）。AI は同じことを 1 つの命令で行います（`JDG-3691`）。名付けるのは**命令**です。
+
+```json
+{ "type": "fitScheduleToScreenOnPage" }
+```
+
+`OnPage` は、呼ぶ側が倍率を運ぶ前の命令 `fitScheduleToScreen` と分けるための語でした。前の命令は `JDG-3267` で `editDocumentSettings` に畳まれ、今は 1 つだけが残ります。`JDG-3661` は、出来事の名を「英語の札を camelCase にして `Pressed` を付ける」と決めました。`JDG-3672`・`JDG-3674` は、命令の名を「出来事の名から `Pressed` を除いたもの」にそろえる方針を記録しました。今の出来事の名は `fitPressed` です。
+
+| 案 | 名 | 良い点 | 弱い点 |
+|:---|:---|:---|:---|
+| a（推し） | `zoomToFit`（出来事の名も `zoomToFitPressed` にする） | 画面の札 Zoom to Fit と同じ名になる。人と AI が 1 つの名で同じ操作を指す | 出来事の名 `fitPressed` も直す |
+| b | `fitScheduleToScreen` | 何を何に収めるかを名が言う。前の席の推し | 画面の札と違う名になる。前の α の命令と同じ綴りで、中身が変わる |
+| c | 今のまま | 名を変えない | `OnPage` は、もう無い命令との区別だけを言う |
+
+推し a: ① 画面の札・出来事・命令の名をそろえる規則（`JDG-3661`・`JDG-3672`・`JDG-3674`）に合う。② 人と AI が同じ結果を作る（`JDG-3671`・`JDG-3691`）ので、名も 1 つにする（`OKPN`）。③ `OnPage` は区別の相手が消えた語で、中身を言わない（`NEIM`）。
 
 回答:
 
 #### ❓ 問 36-7. 描き方・注記・文書の設定の 10 語 —— 推奨の表のとおりでよいか
 
-易しい語をまとめた推奨の表です。色と線の欄の形は、BGQA2 の色の問い（6-6-4-7〜11）で決めます。直す所が無ければ ok、直す所は表のセルに ★ で書いてください。
+状態: OPEN
+
+易しい語をまとめた推奨の表です。色と線の形は `JDG-3607`・`JDG-3610`・`JDG-3612` で決まり、意味の文をその形で書き直しました。引数の名は `JDG-3410` に従い、GRS JSON の新しいキー（`leaderTarget`・`firstTaskGroupId`・`lastTaskGroupId`・`fitDayRange`）で書きました。直す所が無ければ ok、直す所は表のセルに ★ で書いてください。
 
 | # | キー | 日本語の名 | 意味（日本語） | 既存の名との関係 |
 |:---|:---|:---|:---|:---|
-| 36-31 | `createCommentBox` | コメントボックスを置く | id が commentBoxId のコメントボックスを、leaderAnchor が言うとおりに付けて置く。leaderAnchor は何にも結び付かない点、タスク、ハイライトボックスのどれかで、選んだ種類のプロパティはすべて要る。ほかのプロパティは既定の値になり、新しい箱は文を持たない。（`leaderAnchor` は `JDG-3556` の `leaderTarget` に直す） | 無し |
-| 36-32 | &emsp;+- <span style="color: #0550AE">`commentBoxId`</span> | 扱うコメントボックス | 命令が扱うコメントボックスの id。（`JDG-2685`） | GRS JSON の `CommentBox.id` を指す |
-| 36-33 | `editCommentBox` | コメントボックスを編集する | コメントボックス commentBoxId を編集する。set は並べたプロパティを書き、clear は並べた省けるプロパティを取り除く。両方にあるプロパティは断る（fieldSetAndCleared）。枠・文字・塗りはいつも色を持つので、clear では取り除けない。塗りを隠すには fillTransparencyPercent を 100 にする。leaderAnchor は createCommentBox と同じ形である。javascript:・vbscript:・data: で始まる hyperlinkAddress は断る（hyperlinkSchemeNotAllowed）。（`leaderAnchor` は `JDG-3556` の `leaderTarget` に直す） | 形は `edit<実体>`（`JDG-3268`） |
+| 36-31 | `createCommentBox` | コメントボックスを置く | id が commentBoxId のコメントボックスを、leaderTarget が言うとおりに付けて置く。leaderTarget は何にも吸着しない点、タスク、ハイライトボックスのどれかで、選んだ種類のプロパティはすべて要る。ほかのプロパティは既定の値になり、新しい箱は文を持たない。 | 無し |
+| 36-32 | &emsp;+- `commentBoxId` | 扱うコメントボックス | 命令が扱うコメントボックスの id。（`JDG-2685`） | GRS JSON の `CommentBox.id` を指す |
+| 36-33 | `editCommentBox` | コメントボックスを編集する | コメントボックス commentBoxId を編集する。set は並べたプロパティを書き、clear は並べた省けるプロパティを取り除く。両方にあるプロパティは断る（fieldSetAndCleared）。塗り・枠・文字はいつも色を持つので、clear では取り除けない。塗りを見せないときは、style.fill.opacityPercent を 0 にする。leaderTarget は createCommentBox と同じ形である。javascript:・vbscript:・data: で始まる hyperlinkAddress は断る（hyperlinkSchemeNotAllowed）。 | 形は `edit<実体>`（`JDG-3268`） |
 | 36-34 | `bringCommentBoxToFront` | コメントボックスをいちばん前へ | コメントボックス commentBoxId を、コメントボックスの並びの末尾、つまりいちばん前へ動かす。 | 無し |
 | 36-35 | `deleteCommentBox` | コメントボックスを削除する | コメントボックス commentBoxId を削除する。 | 無し |
-| 36-36 | `createHighlightBox` | ハイライトボックスを置く | 与えた highlightBoxId で、firstDay から lastDay までの日（両端を含む）と、topTaskGroupId から bottomTaskGroupId までのタスクグループを囲むハイライトボックスを置く。 | 無し |
-| 36-37 | `editHighlightBox` | ハイライトボックスを編集する | ハイライトボックス highlightBoxId を編集する。set は並べたプロパティを書き、clear は並べた省けるプロパティを取り除く。両方にあるプロパティは断る（fieldSetAndCleared）。strokeColor が無ければ枠の線は描かない。最後の日が最初の日より前の箱、下のタスクグループが上のタスクグループより前の箱は断る（highlightBoxInverted）。strokeColor が無く fillTransparencyPercent が 100 の箱も断る（fillAndStrokeBothInvisible）。 | 形は `edit<実体>`（`JDG-3268`） |
+| 36-36 | `createHighlightBox` | ハイライトボックスを置く | 与えた highlightBoxId で、firstDay から lastDay までの日（両端を含む）と、firstTaskGroupId から lastTaskGroupId までのタスクグループを囲むハイライトボックスを置く。 | 無し |
+| 36-37 | `editHighlightBox` | ハイライトボックスを編集する | ハイライトボックス highlightBoxId を編集する。set は並べたプロパティを書き、clear は並べた省けるプロパティを取り除く。両方にあるプロパティは断る（fieldSetAndCleared）。style.stroke が無ければ、GRS は枠の線を描かない。最後の日が最初の日より前の箱と、最後のタスクグループが最初のタスクグループより前の箱は断る（highlightBoxInverted）。style.stroke が無く style.fill.opacityPercent が 0 の箱も断る（fillAndStrokeBothInvisible）。 | 形は `edit<実体>`（`JDG-3268`） |
 | 36-38 | `bringHighlightBoxToFront` | ハイライトボックスをいちばん前へ | ハイライトボックス highlightBoxId を、ハイライトボックスの並びの末尾、つまりいちばん前へ動かす。 | 無し |
 | 36-39 | `deleteHighlightBox` | ハイライトボックスを削除する | ハイライトボックス highlightBoxId を削除する。 | 無し |
-| 36-40 | `editDocumentSettings` | 文書の設定を編集する | 日程の見せ方を言う文書の設定を編集する。set は並べたプロパティを書き、clear は並べた省けるプロパティを取り除く。両方にあるプロパティは断る（fieldSetAndCleared）。ピン止めと表の見え方には自分の命令がある（pinTaskGroup・unpinTaskGroup・editTableView）。fitSpan は firstDay・lastDay・isFixed と一緒にまるごと書き、clear すると isFixed も消える。viewTimeZone を設定しても換算するのは見せる時刻だけで、保存した値は変わらない。 | GRS JSON の `documentSettings` |
+| 36-40 | `editDocumentSettings` | 文書の設定を編集する | 日程の見せ方を言う文書の設定を編集する。set は並べたプロパティを書き、clear は並べた省けるプロパティを取り除く。両方にあるプロパティは断る（fieldSetAndCleared）。ピン止めと表の見え方には自分の命令がある（pinTaskGroup・unpinTaskGroup・editTableView。名は問 37-1）。fitDayRange は firstDay・lastDay・isFixed と一緒にまるごと書き、clear すると isFixed も消える。viewTimeZone を設定しても、GRS は見せる時刻だけを換算し、保存した値を変えない。 | GRS JSON の `documentSettings` |
 
 回答:
 
-## BGQA5 Agent API（23 問）
+## BGQA5 Agent API（29 問）
 
 ### [api] Agent API
 
-#### ❓ 問 34-1. 修正案を当てる道具 —— `issueDelayFixes` の一族を、決まった語 `fixProposal`・`fixLog` にそろえるか
+#### ❓ 問 34-1. 修正案を当てる道具の一族の名
 
-場面: 修正案（`fixProposal`、`JDG-2141`）と修正の記録（`fixLog`、`JDG-3466`）の名は決まっています。道具と型は、別の語 `issue`・`DelayFix` を使います。`issue` は「出す・発行する」を言い、文書に修正案を当てることを言いません。同じ Agent API の中で、遅延診断の答えは欄 `fixProposals`・`fixLog` を持ち、`readTableRows` は同じ表を `delayFixProposals`・`delayFixLog` と呼びます。
+状態: OPEN
+
+場面: 人が遅延診断レポートで行にチェックを入れ、「上書きして修正」（`IC-157`）を押すと、GRS はチェックした修正案を 1 つの束で文書に当てます。AI は同じことを道具 `issueDelayFixes` で行います。名付けるのは、同じ一族の**道具**・**引数**・2 つの**型**・断りの**値**・表の名の**値**です。
+
+```json
+issueDelayFixes({ "fixKeys": [] })
+readTableRows({ "table": "delayFixProposals" })
+```
+
+修正案（`fixProposal`、`JDG-2141`）と修正の記録（`fixLog`、`JDG-3466`）の名は決まっています。道具と型は、別の語 `issue`・`DelayFix` を使います。`issue` は「出す・発行する」を言い、修正案を文書に当てることを言いません。`readDelayDiagnostics` の答えは、同じ 2 つを欄 `fixProposals`・`fixLog` で返します。
 
 | # | 今の名 | 意味（日本語） | 案 a の名 |
 |:---|:---|:---|:---|
@@ -710,80 +854,116 @@ BGQA2 を約束の面ごとに分けたとき（`JDG-3568`）、まだ出して�
 | 32-17 | &emsp;+- `nothingToIssue`（持ち主 `reason`） | issueDelayFixes を呼んだが、当てる修正案が無い。 | `noFixProposalToApply` |
 | （値） | `readTableRows` の `table` の値 `delayFixProposals`・`delayFixLog` | 修正案の表と修正の記録の表。 | `fixProposals`・`fixLog` |
 
-| 案 | 中身 |
-|:---|:---|
-| **a（推奨）** | 動詞を `apply`（当てる。`applyCommands` と同じ動詞）にし、名詞を決まった語にそろえる（表の「案 a の名」の列）。`exportFixLogTsv` は今のまま（もう `fixLog` の語を使う） |
-| b | 動詞を `accept`（受け入れる。画面の「推奨案をすべて採用する」の「採用」）にする: `acceptFixProposals`・`noFixProposalToAccept`。ほかは a と同じ |
-| c | 今のまま |
+| 案 | 名 | 良い点 | 弱い点 |
+|:---|:---|:---|:---|
+| a（推し） | `applyFixProposals` ほか、表の「案 a の名」の 6 つ | 名詞が決まった語にそろう。動詞 `apply` は `applyCommands` と同じく「文書に当てる」を言う | 画面のボタンの動詞「修正 / Fix」とは別の語になる |
+| b | `adoptFixProposals`・`noFixProposalToAdopt`（ほかは a と同じ） | 画面の「推奨案をすべて採用する / Adopt All Recommended」（`IC-166`）の動詞にそろう | 画面の Adopt はチェックを入れるだけで、文書を書き換えるのは「…して修正」の 2 つのボタン（`IC-157`・`IC-158`）である |
+| c | 今のまま | 名を変えない | 決まった語と違う語 `issue`・`DelayFix` が残る |
+
+推し a: ① 名詞を決まった語 `fixProposal`・`fixLog` にそろえる（`OKPN`、`JDG-2141`・`JDG-3466`）。② `apply` は、Agent API がすでに「文書に当てる」に使う動詞である（`applyCommands`、`NEIM`）。③ `exportFixLogTsv` はもう `fixLog` を使い、一族の名がそろう。
 
 回答:
 
-#### ❓ 問 33-1. 持ち越しの欄を含める引数 —— `includeCarry` を `passthrough` の語にそろえるか
+#### ❓ 問 33-1. 持ち越しの値を含める引数 `includeCarry` の名
 
-場面: `readDocument` の引数 `includeCarry` は、MSPDI の持ち越しの欄を答えに含めるかを決めます。GRS JSON はこの欄を `passthroughValues`・`passthroughElements` と呼び、引数は `carry` と呼びます。1 つの物が 2 つの名を持ちます（「顔をまたいでも 1 つの意味」の決まり）。
+状態: OPEN
 
-| # | 今の名 | 意味（日本語） |
-|:---|:---|:---|
-| 33-33 | &emsp;+- `includeCarry`（持ち主 `readDocument`） | MSPDI の持ち越しの欄 passthroughValues と passthroughElements を含めるか。省けば偽。 |
+場面: AI が `readDocument` で文書を読むとき、MSPDI から持ち越した値を答えに含めるかを、真偽の引数で選びます。名付けるのは**引数**です。
 
-| 案 | 中身 |
-|:---|:---|
-| **a（推奨）** | `includePassthrough`。GRS JSON の欄と同じ語で、含める物を言う |
-| b | `includeMspdiPassthrough`。MSPDI から来た欄であることも名に書く |
-| c | 今のまま |
+```json
+readDocument({ "includeCarry": true })
+// 答えのタスク（JDG-3606 の後）
+{ "uid": 7, "name": "設計", "passthrough": { "Priority": "500" } }
+```
 
-回答:
+GRS JSON は、持ち越した値を各実体の `passthrough` 1 つに持ちます（`JDG-3606`）。引数は同じ物を `carry` と呼びます。`JDG-3410` は「同じ物に GRS JSON と Agent API で 1 つの名」と決めました。
 
-#### ❓ 問 33-2. 引数 `which` と道具 `closeWindow` —— 代名詞のキーを、指す物の名にするか
+| 案 | 名 | 良い点 | 弱い点 |
+|:---|:---|:---|:---|
+| a（推し） | `includePassthrough` | GRS JSON のキー `passthrough` と同じ語で、含める物を言う | 今の名より少し長い |
+| b | `includeMspdiPassthrough` | MSPDI から来た値であることも言う | `passthrough` はいつも MSPDI の値なので、同じことを 2 度言う |
+| c | 今のまま | 名を変えない | 1 つの物が `passthrough` と `carry` の 2 つの名を持つ |
 
-場面: 2 つの道具が引数 `which`（どれ）を持ちます。`which` は、何を選ぶかを言いません。`readSchema` の `which` は、文書のスキーマ・命令のスキーマ・書く前の注意から 1 つを選びます。`closeWindow` の `which` は、遅延診断レポートウィンドウとプロパティパネルから 1 つを選びます。プロパティパネルはパネルで、ウィンドウとは別の種類です（`JDG-3356`）。道具の名 `closeWindow` も、閉じる物の片方だけを言います。
-
-| # | 今の名 | 意味（日本語） |
-|:---|:---|:---|
-| 33-29 | &emsp;+- `which`（持ち主 `readSchema`） | 読むもの。document は GRS JSON の文書の JSON Schema、commands は applyCommands が受け取る命令のスキーマ、notes は書く前に読む短い注意。 |
-| 34-29 | `closeWindow` | 遅延診断レポートのウィンドウかプロパティパネルを、その閉じるボタンと同じく閉じる。文書は変えない。 |
-| 34-30 | &emsp;+- `which`（持ち主 `closeWindow`） | 閉じるもの。遅延診断レポートのウィンドウか、プロパティパネル。 |
-
-| 案 | 中身 |
-|:---|:---|
-| **a（推奨）** | `readSchema` の `which` を `part`（スキーマのどの部分を読むか。`readDocument` の `parts` と同じ語）にする。`closeWindow` は窓だけを閉じ、引数を `window`（値 `delayDiagnosisReportWindow`）にする。プロパティパネルは新しい道具 `closePropertiesPanel` で閉じる。どの名も、閉じる物をそのまま言う |
-| b | `which` を `part` にする。`closeWindow` は 1 つのまま、引数を `target`（値 `delayDiagnosisReportWindow`・`propertiesPanel`）にする |
-| c | 今のまま |
+推し a: ① GRS JSON のキー `passthrough`（`JDG-3606`）と同じ語を使う（`JDG-3410`・`OKPN`）。② 名が含める物を言う（`NEIM`）。
 
 回答:
 
-#### ❓ 問 34-2. 道具（メンバ）の 41 語 —— 推奨の表のとおりでよいか
+#### ❓ 問 33-2. スキーマのどれを読むかを選ぶ引数 `which` の名
 
-易しい語をまとめた推奨の表です。読む道具は `read…`、画面と同じことをする道具は画面の動詞、書き出す道具は `export…` で始まります。直す所が無ければ ok、直す所は表のセルに ★ で書いてください。
+状態: OPEN
+
+場面: AI は、書く前に `readSchema` でスキーマを読みます。引数 `which` が、読む物を 3 つから選びます。名付けるのは**引数**です。
+
+```json
+readSchema({ "which": "notes" })
+readSchema({ "which": "document", "defs": ["Task", "PredecessorLink"] })
+```
+
+値は `document`（GRS JSON の文書の JSON Schema）・`commands`（命令のスキーマ）・`notes`（書く前に読む短い注意）です。`which`（どれ）は代名詞で、何を選ぶかを言いません（`JDG-820`）。
+
+| 案 | 名 | 良い点 | 弱い点 |
+|:---|:---|:---|:---|
+| a（推し） | `part` | 取次が持つ物のどの部分を読むかを言う。`readDocument` の引数 `parts` と同じ語 | `notes` はスキーマの部分でなく、注意の文である |
+| b | `schemaName` | 値の 2 つ（`document`・`commands`）がスキーマの名であることを言う | `notes` はスキーマでないので、名と値が合わない |
+| c | 今のまま | 名を変えない | 代名詞の名で、何を選ぶかを言わない |
+
+推し a: ① 名が「どの部分を読むか」を言い、3 つの値のどれにも当たる（`NEIM`・`MECE`）。② `readDocument` の `parts` と同じ語で、「読む物の部分を選ぶ」を 1 つの語で言う（`OKPN`）。
+
+回答:
+
+#### ❓ 問 33-2-2. 窓かパネルを閉じる道具 `closeWindow` と、その引数 `which` の名
+
+状態: OPEN
+
+場面: AI が `closeWindow` を呼ぶと、ページは遅延診断レポートウィンドウかプロパティパネルを、その閉じるボタンと同じく閉じます。引数 `which` が、閉じる物を選びます。名付けるのは**道具**と、その**引数**です。
+
+```json
+closeWindow({ "which": "…" })
+```
+
+プロパティパネルはパネルで、ウィンドウとは別の種類です（`JDG-3356`）。道具の名は、閉じる物の片方だけを言います。`which` は、何を選ぶかを言いません。
+
+| 案 | 名 | 良い点 | 弱い点 |
+|:---|:---|:---|:---|
+| a（推し） | `closeWindow` は窓だけを閉じ、引数を `window` にする。プロパティパネルは新しい道具 `closePropertiesPanel` で閉じる | どの道具の名も、閉じる物をそのまま言う | 道具が 1 つ増える |
+| b | `closeWindow` は 1 つのまま、引数を `target`（値は窓とパネルの名）にする | 道具の数を変えない | 道具の名が「窓」と言い、パネルも閉じる |
+| c | 今のまま | 名を変えない | 道具の名と閉じる物が食い違い、引数は代名詞のまま |
+
+推し a: ① 1 つの名が 1 つの物（窓・パネル）を言う（`OKPN`・`NEIM`）。② 窓とパネルを別の種類とした決め（`JDG-3356`）と合う。
+
+回答:
+
+#### ❓ 問 34-2. 道具（メンバ）の 37 語 —— 推奨の表のとおりでよいか
+
+状態: OPEN
+
+易しい語をまとめた推奨の表です。読む道具は `read…`、画面と同じことをする道具は画面の動詞、書き出す道具は `export…` で始まります。`readDelayDiagnosis`・`runDelayDiagnosis`（今は `…Diagnostics`）は `JDG-3512` で決まったので、表から外しました。版を返す 2 つの道具は問 34-2-2 に分けました。読む部分の引数 `which` は問 33-2 で問います。直す所が無ければ ok、直す所は表のセルに ★ で書いてください。
 
 | # | キー | 日本語の名 | 意味（日本語） | 既存の名との関係 |
 |:---|:---|:---|:---|:---|
 | 30-1 | `agentApi` | Agent API | Agent API: AI エージェントが、人と同じやり方と同じ検査で、開いている文書を読み書きするための接点。AI を提供する API ではなく、呼ぶ側がエージェントである。名前は訳さない。 | 画面の Agent API のボタンと同じ名 |
 | 30-2 | &emsp;+- `grSchedulerAgentApi` | Agent API の識別子 | ページが Agent API をスクリプトに出すときの識別子。ほかの道具の同じような API とぶつからないよう、製品の接頭辞を残す。 | 無し |
-| 33-26 | `agentApiVersion` | Agent API の版 | Agent API の版。YYYY-MM-DDTHH:MM:SSZ の形の UTC の日時の文字列。最初に読む。 | 無し |
-| 33-27 | `schemaVersion`（持ち主 `AgentApi`） | スキーマの版 | この GRS が読み書きする GRS JSON の形式の版。開いている文書は自分の値を持ち、それは readDocument が返す。 | GRS JSON の `schemaVersion` と同じ名 |
-| 33-28 | `readSchema` | スキーマを読む | 取次が持つ JSON Schema を部分ごとに返す。defs も full も無ければ目次を返す。目次は、いちばん上のキーと、すべての定義の名前とその 1 行の説明、文書のスキーマの版（schemaVersion）。defs を渡せばその定義だけを、それが指すほかの定義の名前と一緒に返す。full が真なら本文の全部を返し、資源 grs-document.schema.json か grs-commands.schema.json と同じになる。which が notes なら、書く前に読む短い注意を返す。ページがつながる前でも動き、スキーマは取次が配るページのものである。 | 無し |
-| 33-30 | &emsp;+- `defs` | 定義の名 | 返す定義の名前。スキーマの $defs の名前で書く（例えば Task、Dependency）。それらだけを返す。 | JSON Schema の `$defs` の名 |
+| 33-28 | `readSchema` | スキーマを読む | 取次が持つ JSON Schema を部分ごとに返す。defs も full も無ければ目次を返す。目次は、いちばん上のキーと、すべての定義の名前とその 1 行の説明、文書のスキーマの版。defs を渡せばその定義だけを、それが指すほかの定義の名前と一緒に返す。full が真なら本文の全部を返し、資源 grs-document.schema.json か grs-commands.schema.json と同じになる。which が notes なら、書く前に読む短い注意を返す。ページがつながる前でも動き、スキーマは取次が配るページのものである。 | 無し |
+| 33-30 | &emsp;+- `defs` | 定義の名 | 返す定義の名前。スキーマの $defs の名前で書く（例えば Task、PredecessorLink）。それらだけを返す。 | JSON Schema の `$defs` の名 |
 | 33-31 | &emsp;+- `full` | 全部 | 真ならスキーマの本文の全部を返し、資源と同じになる。defs より勝つ。 | 無し |
-| 33-32 | `readDocument` | 文書を読む | 文書の凍結した写しで、根の 3 つの群を持つ。既定では MSPDI の持ち越しの欄（passthroughValues、passthroughElements）を除き、includeCarry に真を渡せば含める。空でない taskUids は、タスクに属する 6 つの群（tasks、assignments、taskGraphicStyles、taskGroupMembers、taskOrigins、baselineTasks）にそのタスクだけを残す。タスクグループの一覧（id、名前、親、順番）だけが欲しければ parts に ['taskGroups'] を渡す。そのときタスク・暦・担当は付いてこない。（`taskGraphicStyles` は `JDG-3556` の `taskStyles` に直す） | 無し |
+| 33-32 | `readDocument` | 文書を読む | 文書の凍結した写しで、根の 3 つの群を持つ。既定では MSPDI の持ち越しの値（passthrough）を除き、includeCarry に真を渡せば含める（名は問 33-1）。空でない taskUids は、タスクに属する群（tasks、assignments、baselineTasks）にそのタスクだけを残す。タスクグループの一覧（id、名前、親、順番）だけが欲しければ parts に ['taskGroups'] を渡す。そのときタスク・カレンダー・担当は付いてこない。 | 無し |
 | 33-34 | &emsp;+- `taskUids`（持ち主 `readDocument`） | 読むタスク | 読むタスクの uid。空か省けば、すべてのタスクを読む。 | 無し |
-| 33-35 | &emsp;+- `parts`（持ち主 `readDocument`） | 残す部分 | 残す部分の名前。scheduleData のキー（tasks、calendars、resources、assignments、taskGroups、taskGroupMembers、taskGraphicStyles など）と documentSettings、changeLogEntries。空ならすべて残す。project と documentStamp はいつも残し、外した部分は答えに無い。 | GRS JSON の `scheduleData` のキーの名 |
-| 33-36 | `readStamp` | 刻印を読む | 楽観ロックのための文書の刻印。書くときに expectedStamp として返す。 | GRS JSON の `documentStamp` |
+| 33-35 | &emsp;+- `parts`（持ち主 `readDocument`） | 残す部分 | 残す部分の名前。scheduleData のキー（tasks、calendars、resources、assignments、taskGroups など）と documentSettings、changeLogEntries。空ならすべて残す。documentStamp はいつも残し、外した部分は答えに無い。 | GRS JSON の `scheduleData` のキーの名 |
+| 33-36 | `readStamp` | 刻印を読む | 楽観ロックのための文書刻印。書くときに expectedStamp として返す。 | GRS JSON の `documentStamp` |
 | 33-37 | `readSelection` | 選んだものを読む | 人がいま選んでいるもの。選んだ順に並ぶ。 | 無し |
-| 34-1 | `readSearchRows` | 検索の行を読む | 語を 1 つ受け取り、検索ウィンドウの行を返す。タスクの表を 1 ページずつと、コメントボックスの表。ウィンドウ自身の入力欄は読みも変えもしない。空の語は何も絞らないので、タスクの行は全体の目次になる。filters が 'asShown'（既定）なら、人がタスクの表に掛けた列のフィルタと並べ替えを当てるので、画面と同じ行が同じ順に返る。人と同じようにそれを変えるには、applyCommands で editTableView を送る。人の表も変わる。offset から limit 個まで（多くても 100）のタスクの行を返す。答えは、タスクの表の列（id、画面の名前、値の種類）、タスクの行の総数（taskTotal）、次の offset を並べる。taskTotal は、語とフィルタが残すタスクの行をすべて数え、マイルストーンと親タスクも含める。マイルストーンの行は milestone が真。予定と実績: タスクの行で、plannedStart と plannedFinish は予定（列の予定開始と予定終了。マイルストーンの plannedFinish はその開始）、percentComplete、actualStart、actualFinish は実績（列の進捗、実績開始、実績終了）。状態の列は日付を基準日と比べるだけである。正確な遅れの解析には readDelayDiagnostics を呼ぶ。 | 画面の検索ウィンドウ |
+| 34-1 | `readSearchRows` | 検索の行を読む | 語を 1 つ受け取り、検索ウィンドウの行を返す。タスクの表を 1 ページずつと、コメントボックスの表。ウィンドウ自身の入力欄は読みも変えもしない。空の語は何も絞らないので、タスクの行は全体の目次になる。filters が 'asShown'（既定）なら、人がタスクの表に掛けた列のフィルタと並べ替えを当てるので、画面と同じ行が同じ順に返る。人と同じようにそれを変えるには、applyCommands で editTableView を送る（名は問 37-1）。人の表も変わる。offset から limit 個まで（多くても 100）のタスクの行を返す。答えは、タスクの表の列、タスクの行の総数（taskTotal）、次の offset を並べる。状態の列は日付を基準日と比べるだけである。正確な遅れの解析には readDelayDiagnostics を呼ぶ。 | 画面の検索ウィンドウ |
 | 34-2 | &emsp;+- `word` | 探す語 | 探す語。タスクの行はタスク名か担当の名前がこの語を含めば、コメントボックスの行は本文が含めば残す。大文字と小文字、全角と半角は区別しない。空の語は何も絞らないので、答えは全体の目次になる。 | 検索ウィンドウの入力欄の語 |
 | 34-3 | &emsp;+- `filters` | フィルタの当て方 | 'asShown'（既定）は、人が検索ウィンドウのタスクの表に掛けている列のフィルタと並べ替えを当てる。'none' はどちらも当てない。 | 無し |
 | 34-4 | &emsp;+- `limit` | 行の数の上限 | 返す行の数。省けば 100、多くても 100。 | 無し |
-| 34-5 | `readTableRows` | 表の行を読む | 遅延診断レポートの表か担当リストの表の行を、1 ページずつ、人が見るとおりのセルで返す。filters が 'asShown'（既定）なら、人がその表に掛けた列のフィルタと並べ替えを当てるので、画面と同じ行が同じ順に返る。表自身の入力欄は読みも変えもしない。遅延診断レポートの表は、readDelayDiagnostics と同じく新しい診断から作り、画面も文書も変えない。offset から limit 個まで（多くても 100）の行を返し、答えは列、行の総数、次の offset を並べる。人と同じように表の列のフィルタや並べ替えを変えるには、applyCommands で editTableView を送る。検索ウィンドウは readSearchRows で読む。修正案の表と修正の記録の表は、readDelayDiagnostics が fixProposals と fixLog で返すのと同じ行を、レポートのウィンドウが見せるとおりに 1 ページずつ並べる。 | 画面の遅延診断レポートウィンドウ・担当リスト |
+| 34-5 | `readTableRows` | 表の行を読む | 遅延診断レポートの表か担当リストの表の行を、1 ページずつ、人が見るとおりのセルで返す。filters が 'asShown'（既定）なら、人がその表に掛けた列のフィルタと並べ替えを当てるので、画面と同じ行が同じ順に返る。表自身の入力欄は読みも変えもしない。遅延診断レポートの表は、readDelayDiagnostics と同じく新しい診断から作り、画面も文書も変えない。offset から limit 個まで（多くても 100）の行を返す。検索ウィンドウは readSearchRows で読む。修正案の表と修正の記録の表は、readDelayDiagnostics が fixProposals と fixLog で返すのと同じ行を並べる。 | 画面の遅延診断レポートウィンドウ・担当リスト |
 | 34-6 | `readShownTasks` | 描いているタスクを読む | 日程表がいま描いているタスクの uid（どの表も日程表を絞っていなければ null）と、絞っている表の名前。読むだけで、画面も文書も変えない。 | 無し |
-| 34-7 | <span style="color: #0550AE">`readDelayDiagnosis`</span>（今は `readDelayDiagnostics`） | 遅延診断を読む | 遅延診断のレポートを凍結した値で返す。指摘、信用できない値、ボトルネックとボトルネック経路、修正案と修正の記録。画面も文書も変えない。正確な遅れの解析はこれだけである。量はすべて稼働の分。inheritedDelayMinutes は先行がタスクの開始をどれだけ押したか。selfDelayMinutes は見込みの終了が、開始に予定の長さを足した時をどれだけ過ぎるか（親タスクは 0）。pushOutMinutes は、このタスクが引き起こす末端タスク（マイルストーンと後続の無いタスク）の遅れの分で、届く terminalsReached 個の末端タスクについて足す。terminalPushOuts は末端タスクごとに terminalDelayMinutes（見込みの終了が予定の終了を過ぎる分）と givenTo（それを引き起こしたタスクとその分）を持つ。分を日にするには、文書の project.minutesPerDay で割る（null なら、文書のスキーマの説明が与える値で割る）。画面は押し出しを日に切り上げて見せる。walls は診断が止まった所を、原因のタスクごとに 1 つの壁として並べる。row は壁の種類で、末尾の数で分かる（1 は自分の値が食い違うタスク、2 は親を推せないタスク、3 は先行の無いマイルストーン）。causeUid は原因のタスク、stoppedUids は診断せずに残ったタスクで、原因が先頭。自分のタスクグループの頭に立つマイルストーン（そのタスクグループのどのタスクもそれより前の日に始まらない）は日程の起点であり、先行が要らず、壁ではない。同じ種類の 2 つの壁は causeUid で違い、依存が輪になったタスクのように stoppedUids は同じ並びになりうる。（中の量の名は `JDG-3476` の名に直す: `dependencyDelayMinutes`・`internalDelayMinutes`・`delayContributionMinutes`・`endTaskDelayMinutes`・`endTasksReached`）（`JDG-3512`） | 無し |
-| 34-8 | &emsp;+- `parts`（持ち主 `readDelayDiagnostics`） | 残す部分 | 残す部分の名前（findings、bottlenecks、terminalPushOuts、walls、markerStates、settledPushOuts、derivedParentTasks、lateDays、fixProposals、fixLog）。空ならすべて残す。outcome、statusDate、unreliableCount はいつも残す。（`terminalPushOuts`・`settledPushOuts` は `JDG-3473` の `endTaskDelays`・`finishedDelayContributions` に直す） | 無し |
+| 34-8 | &emsp;+- `parts`（持ち主 `readDelayDiagnostics`） | 残す部分 | 残す部分の名前（findings、bottlenecks、endTaskDelays、walls、markerStates、finishedDelayContributions、derivedParentTasks、lateDays、fixProposals、fixLog）。空ならすべて残す。outcome、statusDate、unreliableCount はいつも残す。（中の名は `JDG-3473`） | 無し |
 | 34-9 | &emsp;+- `limit`（持ち主 `readDelayDiagnostics`） | 並びの上限 | 各並びで返す要素の上限。0 は上限なし。 | 無し |
 | 34-10 | `applyCommands` | 命令を当てる | 命令の束をまとめて書く。すべての命令を当てるか、束全体を断るかのどちらか。最後に読んだ刻印を expectedStamp として渡す。各命令の type と欄は、資源 grs-commands.schema.json にある。 | 無し |
-| 34-11 | `importDocument` | 文書を取り込む | 開いている文書へ文書を取り込む。人が取り込み方（置き換える、足す、変更前の予定として重ねる）を選ぶ必要があるときは、問うたという答えをすぐに返す。人の選んだ結果は人自身の編集として書かれるので、watchChanges が知らせる。 | 画面の「取り込む」と同じ操作 |
+| 34-11 | `importDocument` | 文書を取り込む | 開いている文書へ文書を取り込む。人が取り込み方（置き換える、足す、前回予定として重ねる）を選ぶ必要があるときは、問うたという答えをすぐに返す。人の選んだ結果は人自身の編集になるので、watchChanges が知らせる。 | 画面の「取り込む」と同じ操作 |
 | 34-12 | &emsp;+- `source`（持ち主 `importDocument`） | 取り込む文書 | 取り込む文書。文書そのもの、{ document }、または GRS JSON を持つ { text }。 | 無し |
-| 34-13 | `requestOpenFile` | ファイルを開くよう頼む | 人にファイルを開いてもらうよう頼む。ページが問いを出し、呼び出しはすぐに戻る。人が続ければ、人のファイルの窓が開いて人がファイルを選ぶ。人が開いた文書は、人の編集として watchChanges で届く。人がファイルを選ぶと、ページは開き方を「置き換える」「合流させる」「重ねる」のボタンで人に問う。その問いが出ることを人に伝えておく。ファイルが入ったかを知るには watchChanges を呼ぶ（または刻印が変わるまで readStamp を呼ぶ）。そのあと readDocument で project.title を読めば、どの文書が開いているか分かる。 | 画面のファイルを開く操作 |
-| 34-16 | `undoEdit` | 編集を取り消す | 編集の履歴のいちばん新しい段を取り消す。ただし呼んだ側が自分で書いた段だけで、人が書いた段は notOwnStep で断る。最後に読んだ刻印を expectedStamp として渡し、違う刻印は staleStamp で断る。タスクグループを展開した focusTask は自分の段を書く。タスクを作ってから focusTask を呼んだあとは、1 回目の undoEdit が展開を、2 回目が作成を取り消す。 | 画面の取り消し（呼んだ側の段だけ） |
+| 34-13 | `requestOpenFile` | ファイルを開くよう頼む | 人にファイルを開いてもらうよう頼む。ページが問いを出し、呼び出しはすぐに戻る。人が続ければ、人のファイルの窓が開いて人がファイルを選ぶ。人が開いた文書は、人の編集として watchChanges で届く。人がファイルを選ぶと、ページは開き方を「置き換える」「合流させる」「重ねる」のボタンで人に問う。その問いが出ることを人に伝えておく。ファイルが入ったかを知るには watchChanges を呼ぶ（または刻印が変わるまで readStamp を呼ぶ）。 | 画面のファイルを開く操作 |
+| 34-16 | `undoEdit` | 編集を取り消す | 編集の履歴のいちばん新しい段を取り消す。ただし呼んだ側が自分で書いた段だけで、人が書いた段は notOwnStep で断る。最後に読んだ刻印を expectedStamp として渡し、違う刻印は staleStamp で断る。 | 画面の取り消し（呼んだ側の段だけ） |
 | 34-17 | `redoEdit` | 編集をやり直す | いちばん最後に取り消した段をやり直す。ただし呼んだ側が自分で書いた段だけで、人が書いた段は notOwnStep で断る。最後に読んだ刻印を expectedStamp として渡し、違う刻印は staleStamp で断る。 | 画面のやり直し（呼んだ側の段だけ） |
 | 34-18 | `exportJson` | GRS JSON を書き出す | 文書を GRS JSON の文字列で返す。fileName（.json で終わる）を渡すと、代わりに取次が人の保存先のフォルダに保存する。 | 無し |
 | 34-19 | `exportMspdi` | MSPDI を書き出す | 文書を Microsoft Project XML（MSPDI）で返す。fileName（.xml で終わる）を渡すと、代わりに取次が人の保存先のフォルダに保存する。 | MSPDI（書き出す形式） |
@@ -791,22 +971,58 @@ BGQA2 を約束の面ごとに分けたとき（`JDG-3568`）、まだ出して�
 | 34-21 | `exportPng` | PNG を書き出す | 書き出す絵を PNG の画像で返す。失敗も値で返す。fileName（.png で終わる）を渡すと、代わりに取次が人の保存先のフォルダに保存する。 | 無し |
 | 34-22 | `exportEmbeddedHtml` | 文書入りの HTML を書き出す | GRS と文書を合わせた 1 つの .html ファイルを返す。fileName（.html で終わる）を渡すと、代わりに取次が人の保存先のフォルダに保存する。 | 価値のことば「単一 HTML」（`JDG-3467`） |
 | 34-23 | `exportFixLogTsv` | 修正の記録を TSV で書き出す | 遅延診断の修正の記録を、タブで区切った文字列で返す。人の「.tsv で保存」と同じ列と書き方で、記録のすべての行を表の順に並べる。fileName（.tsv で終わる）を渡すと、代わりに取次が人の保存先のフォルダに保存する。 | 画面の「.tsv で保存」 |
-| 34-24 | `focusTask` | タスクへ寄せる | タスクが載るタスクグループと祖先を展開し、タスクが見える所まで表示を寄せる。これは書き込みである。見せるものを変えなければタスクを見せられない（たたんだタスクグループを開く、表のスケジュールフィルターが隠すタスクを表示にする）ときは、その変更が呼んだ側の書いた編集の履歴の 1 段になる。寄せるだけなら段を足さない。 | 無し |
-| 34-25 | &emsp;+- <span style="color: #0550AE">`taskUid`</span>（持ち主 `focusTask`） | 見せるタスク | 見せるタスクの uid。（`JDG-2685`） | GRS JSON の `taskUid` と同じ名 |
+| 34-24 | `focusTask` | タスクへ寄せる | タスクが載るタスクグループと祖先を見せ、タスクが見える所まで表示を寄せる。これは書き込みである。見せるものを変えなければタスクを見せられないときは、その変更が呼んだ側の書いた編集の履歴の 1 段になる。寄せるだけなら段を足さない。（帯の値の書き方は `JDG-3679`・`JDG-3680`） | 無し |
+| 34-25 | &emsp;+- `taskUid`（持ち主 `focusTask`） | 見せるタスク | 見せるタスクの uid。（`JDG-2685`） | GRS JSON の `taskUid` と同じ名 |
 | 34-26 | `showOnlyTasks` | タスクだけを見せる | 並べたタスクだけを見せる。人ができるのと同じく、検索ウィンドウのタスクの表の表示の列を書き換え、その表のスケジュールフィルターを掛ける。空の並びはフィルターを解き、表示の値は残す。検索ウィンドウが出ていなければ最小化して出し、ページは帯を出すので、人は何が起きたかが分かる。遅延診断レポートと担当リストのフィルターには触れない。 | 画面のスケジュールフィルター |
 | 34-27 | &emsp;+- `taskUids`（持ち主 `showOnlyTasks`） | 見せるタスク | 表示にするタスクの uid。空の並びはフィルターを解く。 | 無し |
-| 34-28 | <span style="color: #0550AE">`runDelayDiagnosis`</span>（今は `runDelayDiagnostics`） | 遅延診断を行う | 人が炎のボタンを押したのと同じく、画面で遅延診断を行う。診断し、遅延診断レポートのウィンドウを開き、進捗マークに診断の印を出す。ウィンドウが既に開いていれば、その再診断のボタンと同じく診断をやり直す。文書は変えないので、刻印はそのままで、取り消しの段も足さない。値を読むのは readDelayDiagnostics で、この道具は画面に出すだけである。（`JDG-3512`） | 画面の炎のボタン |
 | 34-31 | `watchChanges` | 変更を待つ | 呼んだ側以外の書き手が確定した変更を待つ。 | 無し |
 | 33-10 | `fileName` | 保存するファイル名 | 書き出しを保存するファイル名。人が取次で選んだ保存先のフォルダからの相対の名。 | 無し |
 | 33-11 | `overwrite` | 上書きの許し | 既にあるファイルを置き換えてよいか。先に人に問う。古いファイルは .bak として残る。 | 無し |
 
 回答:
 
+#### ❓ 問 34-2-2. 版を言う 3 つの名 —— `…VersionUtc` にそろえるか
+
+状態: OPEN
+
+場面: AI は最初に `agentApiVersion` を呼び、Agent API の版を知ります。`schemaVersion` は、この GRS が読み書きする GRS JSON の形式の版を返します。取り込みを断るとき（`formatTooNew`）、ページは欄 `knownSchemaVersion` に、このビルドが知るいちばん新しい形式の版を書きます。名付けるのは 2 つの**道具**と 1 つの**欄**です。
+
+```json
+agentApiVersion()   // → "2026-11-20T00:00:00Z"
+schemaVersion()     // → "2026-11-18T00:00:00Z"
+// GRS JSON の根（JDG-3625 の後）
+{ "schemaVersionUtc": "2026-11-18T00:00:00Z", "buildVersionUtc": "2026-11-21T09:30:00Z", … }
+```
+
+`JDG-3625` は GRS JSON の版のキーを `schemaVersionUtc`・`buildVersionUtc` に改め、「版を言うキーは `…VersionUtc` で終える」と決めました。`JDG-3410` は「同じ物に GRS JSON と Agent API で 1 つの名」と決めました。3 つの値はどれも UTC の時刻です。
+
+| 案 | 名 | 良い点 | 弱い点 |
+|:---|:---|:---|:---|
+| a（推し） | `agentApiVersionUtc`・`schemaVersionUtc`・`knownSchemaVersionUtc` | 版の名が 1 つの形にそろう。GRS JSON と同じ物を同じ名で呼ぶ | 道具の名が長くなる |
+| b | `schemaVersionUtc`・`knownSchemaVersionUtc` にし、`agentApiVersion` は今のまま | GRS JSON と同じ物を言う 2 つだけを直す | 同じ形の値（UTC の版）が 2 つの形の名を持つ |
+| c | 今のまま | 名を変えない | GRS JSON の `schemaVersionUtc` と同じ物が別の名を持ち、`JDG-3410` と食い違う |
+
+推し a: ① 3 つとも値は UTC の時刻の版で、`JDG-3625` の決まりが同じに当たる（`OKPN`）。② `schemaVersion` と `knownSchemaVersion` は、GRS JSON の `schemaVersionUtc` と同じ物を言う（`JDG-3410`）。③ 版の名が 1 つの形にそろい、AI が迷わない（`NEIM`）。
+
+回答:
+
 **受け渡す値の型**
 
-#### ❓ 問 31-1. 画面の表を運ぶ型の一族 —— 頭の `Agent` と、列の `id`
+#### ❓ 問 31-1. 画面の表を運ぶ 5 つの型の名
 
-場面: 4 つの型 `AgentTableRows`・`AgentTableRow`・`AgentTableColumn`・`AgentTableCell` と `AgentSearchPage` は、画面の表の 1 ページ・行・列・セルを運びます。頭の `Agent` は受け取る者を言い、物（画面の表）を言いません（`JDG-820`）。列の `id` の値は、今は仕様書の行 ID（`SQ-1` など）です。`JDG-3285` は行 ID を外へ出すのをやめ、値を変わらない英語の名（`plannedStart` など）にしました。GRS JSON は同じ値を型 `ColumnKey` とキー `column`（`ColumnFilter.column`・`ColumnSort.column`）で持ちます。また GRS JSON の `id` は、GRS 固有の実体のランダムな UUID を持ちます（`JDG-3565`）。
+状態: OPEN
+
+場面: AI が `readTableRows` か `readSearchRows` を呼ぶと、ページは画面の表の 1 ページを返します。その答えは 5 つの型でできています。名付けるのは 5 つの**型**です。
+
+```json
+// readTableRows の答え（型 AgentTableRows）
+{ "table": "…",
+  "columns": [ { "id": "…", "ja": "担当", "en": "Resource", "valueType": "text" } ],
+  "rows": [ { "key": "12", "cells": [ { "column": "…", "text": "Sato" } ] } ],
+  "total": 1, "offset": 0, "nextOffset": null }
+```
+
+頭の `Agent` は受け取る者を言い、物（画面の表）を言いません（`JDG-820`）。型はもう Agent API（`grSchedulerAgentApi`）の中にあります。ほかの型の頭の `Agent` は問 30-1 で問います。
 
 | # | 今の名 | 意味（日本語） | 案 a の名 |
 |:---|:---|:---|:---|
@@ -815,21 +1031,55 @@ BGQA2 を約束の面ごとに分けたとき（`JDG-3568`）、まだ出して�
 | 31-9 | `AgentTableColumn` | Agent API が並べる、表の 1 つの列。 | `ScreenTableColumn` |
 | 31-19 | `AgentTableCell` | 表の行の 1 つのセル。 | `ScreenTableCell` |
 | 31-4 | `AgentSearchPage` | 検索ウィンドウの 1 ページ分。タスクの行、コメントボックスの行、列、総数、続きの位置。 | `SearchWindowPage` |
-| 31-5 | `id`（持ち主 `AgentTableColumn`） | 列の行 ID。 | `key`（値は `ColumnKey`） |
-| 31-17 | `column`（持ち主 `AgentTableCell`） | このセルの列の行 ID。 | `column`（GRS JSON の `column` と 1 語にまとめる） |
 
-| 案 | 中身 |
-|:---|:---|
-| **a（推奨）** | 頭を物の名にする（表の「案 a の名」の列）。列の `id` を `key`（表の中でその列を見分ける変わらない名。行の `key` と同じ役目）にし、値を `ColumnKey` にする。セルの `column` は GRS JSON の `column` と同じ意味になるので、辞書では GRS JSON の 1 語にまとめる。道具 `readSearchRows`・`readTableRows` は今のまま（動詞と目的語が物を言う） |
-| b | 型の名は a と同じにする。列は `id` のまま、値だけを `ColumnKey` にする |
-| c | 型の名は今のまま。列の `id` だけを `key` にする |
-| d | 今のまま（値は `JDG-3285` のとおり変わらない英語の名になる） |
+| 案 | 名 | 良い点 | 弱い点 |
+|:---|:---|:---|:---|
+| a（推し） | 表の「案 a の名」の 5 つ | 頭が物（画面の表・検索ウィンドウ）を言う | 名が少し長い |
+| b | `TablePage`・`TableRow`・`TableColumn`・`TableCell`・`SearchPage` | 短い | `Table` だけでは、GRS JSON の表の窓の型（`TaskTableWindow` など）と紛れる |
+| c | 今のまま | 名を変えない | 頭の `Agent` が物を言わない |
+
+推し a: ① 頭が型の中身（画面の表）を言う（`NEIM`・`JDG-820`）。② `Screen` が付くので、GRS JSON の表の窓の型（`JDG-3620`）と取り違えない（`OKPN`）。③ 道具 `readSearchRows`・`readTableRows` は今のままでよい（動詞と目的語が物を言う）。
 
 回答:
 
-#### ❓ 問 30-1. 値の型の頭 `Agent` と末尾 —— 型の名を、中身と役目で言うか
+#### ❓ 問 31-1-2. 表の列を見分けるキー `id` の名
 
-場面: 11 の型が頭に `Agent` を持ちます。`Agent` は呼ぶ者を言い、型の中身を言いません（`JDG-820`）。型はもう Agent API（`grSchedulerAgentApi`）の中にあるので、頭の `Agent` は同じことを 2 度言います。末尾もばらばらです。答えの型の 4 つは `Outcome` で終わり、`AgentExport`・`AgentWatch` は名詞だけで終わります。
+状態: OPEN
+
+場面: 同じ答えの各列は、キー `id` を持ちます。今の値は仕様書の行 ID（`SQ-1` など）です。`JDG-3285` は行 ID を外へ出すのをやめ、値を変わらない英語の名（`plannedStart` など）にしました。名付けるのは列の**キー**です。
+
+```json
+// 今
+{ "id": "SQ-1", "ja": "予定開始", "en": "Planned Start", "valueType": "date" }
+// 案 a
+{ "key": "plannedStart", "ja": "予定開始", "en": "Planned Start", "valueType": "date" }
+```
+
+GRS JSON は同じ値を型 `ColumnKey`（`JDG-3514`）とキー `column`（`ColumnFilter.column`・`ColumnSort.column`）で持ちます。GRS JSON の `id` は、GRS 固有の実体のランダムな UUID です（`JDG-3565`）。行はキー `key` で、表の中のどの行かを見分けます。
+
+| 案 | 名 | 良い点 | 弱い点 |
+|:---|:---|:---|:---|
+| a（推し） | `key`（値は `ColumnKey`） | 行の `key` と同じく「表の中で見分ける名」を言う。値の型 `ColumnKey` と語がそろう | 行の `key`（タスクの uid など）と値の種類が違う |
+| b | `column`（値は `ColumnKey`） | セルの `column`・GRS JSON の `column` と同じ語 | 持ち主 `…Column` の名を繰り返す（決まり N-4、`JDG-3609`） |
+| c | `id` のまま、値だけを `ColumnKey` にする | キーの名を変えない | GRS JSON の `id`（UUID）と同じ綴りで別の物を指す |
+
+推し a: ① 行と列が同じ語 `key` で「表の中で見分ける名」を持つ（`OKPN`）。② `id` は GRS JSON で UUID を言う（`JDG-3565`）ので、別の物に使わない（`OMPV`）。③ セルの `column` は今のままでよく、GRS JSON の `column` と 1 語にまとまる。
+
+回答:
+
+#### ❓ 問 30-1. 値の型の頭 `Agent` と、答えの型の末尾の名
+
+状態: OPEN
+
+場面: Agent API の道具は、引数と答えに型を持ちます。11 の型が頭に `Agent` を持ちます。名付けるのは 11 の**型**です。
+
+```text
+applyCommands(request: AgentWriteRequest): AgentWriteOutcome
+exportSvg(…): AgentExport
+watchChanges(…): AgentWatch
+```
+
+`Agent` は呼ぶ者を言い、型の中身を言いません（`JDG-820`）。型はもう Agent API の中にあるので、頭の `Agent` は同じことを 2 度言います。末尾もばらばらです。答えの型の 4 つは `Outcome` で終わり、`AgentExport`・`AgentWatch` は名詞だけで終わります。
 
 | # | 今の名 | 意味（日本語） | 案 a の名 |
 |:---|:---|:---|:---|
@@ -845,367 +1095,530 @@ BGQA2 を約束の面ごとに分けたとき（`JDG-3568`）、まだ出して�
 | 30-34 | `AgentWatch` | watchChanges の答え。 | `WatchOutcome` |
 | 31-23 | `AgentSavedFile` | 取次が呼ぶ側のためにファイルを保存したときの答え。 | `SavedFile` |
 
-| 案 | 中身 |
-|:---|:---|
-| **a（推奨）** | 頭の `Agent` を外し、答えの型の末尾を `Outcome` にそろえる（表の「案 a の名」の列）。断りの型は問 33-3、画面の表の型は問 31-1 で決める |
-| b | 頭の `Agent` を Agent API の型の印として全部に残し、末尾だけをそろえる（`AgentExportOutcome`・`AgentWatchOutcome`・`AgentDelayDiagnosisReport`） |
-| c | 今のまま |
+| 案 | 名 | 良い点 | 弱い点 |
+|:---|:---|:---|:---|
+| a（推し） | 頭の `Agent` を外し、答えの型の末尾を `Outcome` にそろえる（表の「案 a の名」） | 型の名が中身と役目を言う。答えの型が 1 つの形にそろう | 11 の名がすべて変わる |
+| b | 頭の `Agent` を全部に残し、末尾だけをそろえる（`AgentExportOutcome`・`AgentWatchOutcome`・`AgentDelayDiagnosisReport`） | Agent API の型であることが、名だけで分かる | 頭が同じことを 2 度言い、名が長い |
+| c | 今のまま | 名を変えない | 頭が物を言わず、末尾がばらばら |
+
+推し a: ① 型の名が中身（書き込みの依頼・答え）を言う（`NEIM`・`JDG-820`）。② 答えの型を 1 つの末尾 `Outcome` で言う（`OKPN`）。③ 断りの型は問 33-3、画面の表の型は問 31-1 で同じ考えに当てる。
 
 回答:
 
-#### ❓ 問 30-2. 日程表を絞る表の型 —— `VisibilityTable` を `tableWindows` の語にするか
+#### ❓ 問 30-2. 日程表を絞る表の名の型 `VisibilityTable` の名
 
-場面: `VisibilityTable` の値は、日程表を絞れる 3 つの表の窓の名です（`searchWindow`・`delayDiagnosisReportWindow`・`resourceListWindow`。`JDG-3410`・`JDG-3512`）。`Visibility`（見えること）は、表が何かを言いません。GRS JSON は同じ 3 つを `documentSettings.tableWindows` に並べます（`JDG-3544`）。欄 `filteringTables`（`JDG-2687`）が、この型の値を並べます。
+状態: OPEN
 
-| # | 今の名 | 意味（日本語） |
-|:---|:---|:---|
-| 30-7 | `VisibilityTable` | 日程表を絞れる表の名前。検索ウィンドウ、遅延診断レポート、担当リストのどれか。 |
+場面: AI が `readShownTasks` を呼ぶと、答えの欄 `filteringTables` が、日程表を絞っている表の名を並べます。その値の型が `VisibilityTable` です。名付けるのは**型**です。
 
-| 案 | 中身 |
-|:---|:---|
-| **a（推奨）** | `TableWindow`（表を持つ窓の 1 つ）。GRS JSON の `tableWindows` と同じ語で、値（窓の名）とも合う |
-| b | `ScheduleFilteringTable`。日程表を絞る役目を言い、`filteringTables` と同じ語になる |
-| c | 今のまま |
+```json
+{ "drawnTaskUids": [7, 8], "filteringTables": ["searchWindow"] }
+```
 
-回答:
+値は `documentSettings.tableWindows` のキーの名（`searchWindow`・`delayDiagnosticsReportWindow`・`resourceListWindow`）です（`JDG-3410`・`JDG-3544`）。`JDG-3620` は窓の物の型を 2 つ（`TaskTableWindow`・`ResourceTableWindow`）に分けました。`Visibility`（見えること）は、表が何かを言いません。
 
-#### ❓ 問 30-3. 取り込みで人に出した問い —— `asked` を、何を持つかを言う名にするか
+| 案 | 名 | 良い点 | 弱い点 |
+|:---|:---|:---|:---|
+| a（推し） | `TableWindowName` | 値が窓の物でなく、`tableWindows` のキーの名であることを言う | 名が少し長い |
+| b | `TableWindow` | GRS JSON の `tableWindows` と同じ語で短い。前の席の推し | `JDG-3620` の 2 つの窓の型の親の型と読め、窓の物と紛れる |
+| c | `ScheduleFilteringTable` | 日程表を絞る役目を言い、欄 `filteringTables` と語がそろう | GRS JSON の `tableWindows` と別の語になる |
 
-場面: `importDocument` は、人に問いを出してまだ何も書いていないとき、欄 `asked` を返します。今の値は仕様書の行 ID（`U-61`・`QN-17`）です。`JDG-3285` により、値は変わらない英語の名（席の案 `mergeChoice`・`openFile`）になります。名 `asked`（問うた）は過去分詞で、真偽の値にも読めます。
-
-| # | 今の名 | 意味（日本語） |
-|:---|:---|:---|
-| 30-23 | `asked` | 人に出した問いの在りか。差分確認ダイアログか、ファイルを開くことの問い。 |
-
-| 案 | 中身 |
-|:---|:---|
-| **a（推奨）** | `pendingQuestion`（人の答えを待つ問い）。値は `mergeChoice`・`openFile` |
-| b | `askedQuestion`（出した問い）。値は a と同じ |
-| c | `asked` のまま。値だけを英語の名にする |
+推し a: ① 値の中身（窓のキーの名）を名が言う（`NEIM`）。② 窓の物の型（`TaskTableWindow`・`ResourceTableWindow`）と取り違えない（`OKPN`・`JDG-3620`）。③ GRS JSON の `tableWindows` と同じ語を使う（`JDG-3410`）。
 
 回答:
 
-#### ❓ 問 30-4. 変更の知らせの印 —— `mark` と `WatcherMark` を、中身の名にするか
+#### ❓ 問 30-3. 取り込みで人に出した問いを言う欄 `asked` の名
 
-場面: 変更の知らせ `ChangeNotice` は欄 `mark`（型 `WatcherMark`）を持ちます。中身は 1 つの値で、書き手が受け取った所までのスケジュールデータの更新の時刻です（src は `seenScheduleUpdatedAt` と呼ぶ）。`mark`（印）は、何の印かを言いません。`watchChanges` の引数 `receive`（受け取る）は、知らせを受け取る関数です。
+状態: OPEN
 
-| # | 今の名 | 意味（日本語） |
-|:---|:---|:---|
-| 30-8 | `WatcherMark` | 購読者が変更の知らせをどこまで受け取ったかの印。 |
-| 30-36 | `mark` | どこまで受け取ったかの印。スケジュールデータの更新の時刻。 |
-| 34-32 | &emsp;+- `receive`（持ち主 `watchChanges`） | 知らせを受け取る手。MCP の道具は代わりに waitMs を受け取る。 |
+場面: AI が `importDocument` を呼び、ページが人に問いを出したとき、ページはまだ何も書かずに答えを返します。答えの欄 `asked` が、出した問いを言います。名付けるのは**欄**です。
 
-| 案 | 中身 |
-|:---|:---|
-| **a（推奨）** | `mark` を `seenScheduleDataUpdatedAt`（受け取った所までのスケジュールデータの更新の時刻。刻印の `scheduleDataUpdatedAt` と同じ語）にし、型 `WatcherMark` をなくす。`receive` は今のまま |
-| b | a に加えて、`receive` を `onChangeNotice` にする（呼ばれる関数を `on…` で呼ぶ、よくある書き方） |
-| c | 今のまま |
+```json
+// 今
+{ …, "asked": "U-61" }
+// 案 a（値は JDG-3285 のとおり変わらない英語の名。席の案）
+{ …, "pendingQuestion": "mergeChoice" }
+```
+
+今の値は仕様書の行 ID（`U-61`・`QN-17`）です。`JDG-3285` により、値は変わらない英語の名になります。名 `asked`（問うた）は過去分詞で、真偽の値とも読めます。
+
+| 案 | 名 | 良い点 | 弱い点 |
+|:---|:---|:---|:---|
+| a（推し） | `pendingQuestion` | 人の答えを待つ問いを言い、今どうなっているかが分かる | 名が長い |
+| b | `askedQuestion` | 「出した問い」を言い、今の名に近い | 問いが答えを待っていることを言わない |
+| c | `asked` のまま（値だけを英語の名にする） | 名を変えない | 過去分詞で、真偽の値と読み違える |
+
+推し a: ① 名が中身（人の答えを待つ問い）を言う（`NEIM`）。② 真偽の値は `is…` で言う決まり（N-9）があり、`asked` はそれと紛れる（`OMPV`）。
 
 回答:
 
-#### ❓ 問 30-5. 受け渡す値の型の 37 語 —— 推奨の表のとおりでよいか
+#### ❓ 問 30-4. 変更の知らせの欄 `mark` と、その型 `WatcherMark` の名
 
-易しい語をまとめた推奨の表です。1 ページの答えは、2 つの並びを持つ検索ウィンドウだけが `task…`・`commentBox…` の頭を付け（`taskRows`・`taskTotal`）、1 つの並びの表は頭を付けません（`rows`・`total`）。直す所が無ければ ok、直す所は表のセルに ★ で書いてください。
+状態: OPEN
+
+場面: AI が `watchChanges` で変更を待つと、ページは変更の知らせ `ChangeNotice` を渡します。知らせは欄 `mark`（型 `WatcherMark`）を持ちます。中身は 1 つの時刻で、書き手が受け取った所までのスケジュールデータの更新の時刻です（src は `seenScheduleUpdatedAt` と呼ぶ）。名付けるのは**欄**と、その**型**です。
+
+```text
+今:   ChangeNotice { mark: WatcherMark, … }      WatcherMark = スケジュールデータの更新の時刻
+案 a: ChangeNotice { seenScheduleDataUpdatedAt: UtcInstant, … }
+```
+
+`mark`（印）は、何の印かを言いません。刻印は同じ時刻を `scheduleDataUpdatedAt` と呼びます。
+
+| 案 | 名 | 良い点 | 弱い点 |
+|:---|:---|:---|:---|
+| a（推し） | 欄 `seenScheduleDataUpdatedAt`。型 `WatcherMark` を無くし、値の型を `UtcInstant` にする | 刻印の `scheduleDataUpdatedAt` と同じ語で、何の時刻かを言う | 名が長い |
+| b | 欄 `receivedUpTo`。型は `UtcInstant` | 「どこまで受け取ったか」を短く言う | 何の時刻かを言わない |
+| c | 今のまま | 名を変えない | `mark` が何の印かを言わない |
+
+推し a: ① 刻印の `scheduleDataUpdatedAt`（`JDG-3380`）と同じ語で、同じ時刻を 1 つの語で呼ぶ（`OKPN`・`JDG-3410`）。② 中身が 1 つの時刻なので、包む型は要らない。時刻の型 `UtcInstant`（`JDG-3521`）で言う（`NEIM`）。
+
+回答:
+
+#### ❓ 問 30-4-2. 知らせを受け取る関数の引数 `receive` の名
+
+状態: OPEN
+
+場面: AI が `watchChanges` を呼ぶとき、引数 `receive` に、知らせを受け取る関数を渡します。MCP の道具は代わりに `waitMs` を受け取ります。名付けるのは**引数**です。
+
+```js
+api.watchChanges({ watcher: "agent-1", receive: (notice) => { … } })
+```
+
+| 案 | 名 | 良い点 | 弱い点 |
+|:---|:---|:---|:---|
+| a（推し） | `receive` のまま | 動詞 1 語で「受け取る」を言い、短い | 関数を渡す引数であることを、名だけでは言わない |
+| b | `onChangeNotice` | 呼ばれる関数を `on…` で呼ぶ、よくある書き方 | 出来事の名の決まり（過去形、`JDG-3674`）と形が違う |
+
+推し a: ① 名が関数の働き（知らせを受け取る）を言う（`NEIM`）。② 出来事の名（過去形の `…Requested`・`…ed`、`JDG-3674`）と別の形に保ち、出来事と取り違えない（`OMPV`）。
+
+回答:
+
+#### ❓ 問 30-5. 受け渡す値の 36 語 —— 推奨の表のとおりでよいか
+
+状態: OPEN
+
+易しい語をまとめた推奨の表です。1 ページの答えは、2 つの並びを持つ検索ウィンドウだけが `task…`・`commentBox…` の頭を付け（`taskRows`・`taskTotal`）、1 つの並びの表は頭を付けません（`rows`・`total`）。列の値の種類 `valueType` は `JDG-3564` で決まったので、表から外しました。直す所が無ければ ok、直す所は表のセルに ★ で書いてください。
 
 | # | キー | 日本語の名 | 意味（日本語） | 既存の名との関係 |
 |:---|:---|:---|:---|:---|
 | 30-3 | `Selection` | 選んだもの | readSelection が返す、選んだ順に並んだ選んだもの。 | 画面の選択 |
 | 30-4 | `SearchRows` | 検索ウィンドウの行 | 画面が作る、検索ウィンドウの表の行。 | 画面の検索ウィンドウ |
 | 30-9 | `ok` | 受け入れたか | 呼び出しを受け入れた（真）か断った（偽）か。断った答えは refusal を持つ。 | 無し |
-| 30-10 | `expectedStamp` | 照らす刻印 | 呼ぶ側が最後に読んだ刻印。今の刻印と 1 つでも違えば、書き込みはまるごと断られる。 | GRS JSON の `documentStamp` |
+| 30-10 | `expectedStamp` | 照らす刻印 | 呼ぶ側が最後に読んだ刻印。今の刻印と 1 つでも違えば、ページは書き込みをまるごと断る。 | GRS JSON の `documentStamp` |
 | 30-11 | `commands` | 命令の束 | 文書の命令の束。束の単位でまとめて当てる。 | 無し |
-| 30-13 | <span style="color: #0550AE">`hasUpdatedSchedule`</span> | スケジュールデータを変えたか | 書き込みがスケジュールデータを変えたか。変えればその更新の時刻が進む。（`JDG-2680`） | 無し |
-| 30-14 | `createdUids` | 作ったものの uid | この書き込みで作ったものの uid（タスク・担当・割当・暦が 1 つの数え手を分け合う）を小さい順に並べたもの。何も作らなければ空。 | 無し |
+| 30-13 | `hasUpdatedSchedule` | スケジュールデータを変えたか | 書き込みがスケジュールデータを変えたか。変えればその更新の時刻が進む。（`JDG-2680`） | 無し |
+| 30-14 | `createdUids` | 作ったものの uid | この書き込みで作ったものの uid（タスク・担当・割当・カレンダーが 1 つの数え手を分け合う）を小さい順に並べたもの。何も作らなければ空。 | 無し |
 | 30-15 | `refusal` | 断り | 断った呼び出しの、断りの値。 | 無し |
 | 30-17 | `value`（持ち主 `AgentExport`） | 書き出した値 | 書き出した値。 | 無し |
-| 30-19 | <span style="color: #0550AE">`isScrolled`</span> | 寄せたか | タスクが見えるように表示を寄せたか。ピン止めしたタスクグループに阻まれたら偽。（`JDG-2245`） | 無し |
+| 30-19 | `isScrolled` | 寄せたか | タスクが見えるように表示を寄せたか。ピン止めしたタスクグループに阻まれたら偽。（`JDG-2245`） | 無し |
 | 30-21 | `text`（持ち主 `AgentImportSource`） | GRS JSON の文字列 | 1 つの文字列で渡す GRS JSON。 | 無し |
 | 30-25 | `drawnTaskUids` | 描いているタスク | いま日程表に描いているタスクの uid の並び。スケジュールフィルターを掛けた表が無ければ null。 | 無し |
-| 30-26 | <span style="color: #0550AE">`filteringTables`</span> | 絞っている表 | スケジュールフィルターを掛けている表の名の並び。（`JDG-2687`） | 無し |
-| 30-28 | `fixProposals` | <span style="color: #0550AE">修正案</span> | 遅延診断の修正案の行。（`JDG-2141`） | 画面の修正案の表 |
+| 30-26 | `filteringTables` | 絞っている表 | スケジュールフィルターを掛けている表の名の並び。（`JDG-2687`） | 無し |
+| 30-28 | `fixProposals` | 修正案 | 遅延診断の修正案の行。（`JDG-2141`） | 画面の修正案の表 |
 | 30-30 | `notice` | 変更の知らせ | 届いた変更の知らせ。 | 無し |
-| 30-32 | <span style="color: #0550AE">`hasReplacedEarlierWatch`</span> | 先の購読を置き換えたか | この購読が、呼ぶ側が先にしていた購読を置き換えたか。（`JDG-2245`） | 無し |
+| 30-32 | `hasReplacedEarlierWatch` | 先の購読を置き換えたか | この購読が、呼ぶ側が先にしていた購読を置き換えたか。（`JDG-2245`） | 無し |
 | 30-33 | `stopWatching` | 購読をやめる | 購読をやめ、やめた購読があったかを返す。 | 無し |
 | 30-35 | `watcher` | 購読する書き手 | 知らせを受け取る書き手の名。 | GRS JSON の刻印の書き手の名 |
 | 30-37 | `ChangeNotice` | 変更の知らせ（型） | 呼ぶ側以外の書き手が変更を確定したことの知らせ。今の刻印を持ち、文書は持たない。呼ぶ側は要るものを読み直す。 | 無し |
 | 30-38 | `taskRows` | タスクの行 | 検索ウィンドウのタスクの行のうち、offset から limit までのもの。 | 検索ウィンドウのタスクの表 |
 | 30-39 | `commentBoxRows` | コメントボックスの行 | 検索ウィンドウのコメントボックスの行。ページに分けない。 | 検索ウィンドウのコメントボックスの表 |
-| 30-40 | `columns` | 列の一覧 | その表の列の一覧。id、画面の名前、値の種類。（「id」は問 31-1 で決める） | 無し |
+| 30-40 | `columns` | 列の一覧 | その表の列の一覧。列を見分ける名、画面の名前、値の種類。（列を見分けるキーの名は問 31-1-2） | 無し |
 | 31-1 | `taskTotal` | タスクの行の総数 | 絞った後のタスクの行の数。マイルストーンと親タスクも 1 行に数える。 | 無し |
 | 31-2 | `offset`（持ち主 `AgentApi`） | 始めの位置 | 返した最初の行の位置。0 から数える。 | 無し |
 | 31-3 | `nextOffset` | 続きの位置 | 続きの最初の位置。続きが無ければ null。 | 無し |
 | 31-6 | `ja` | 日本語の列の名 | 日本語の画面での列の名。 | 画面の日本語の列見出し |
 | 31-7 | `en` | 英語の列の名 | 英語の画面での列の名。 | 画面の英語の列見出し |
-| 31-8 | <span style="color: #0550AE">`valueType`</span>（持ち主 `AgentTableColumn`） | 値の種類 | 列の値の種類。語か日付か。種類で列のフィルタの形が違う。（`JDG-3564`） | 無し |
-| 31-10 | `table` | 表の名 | 読む表、または読んだ表。遅延診断レポートの表、担当リストの表、修正案の表、修正の記録の表のどれか。（値の窓の名は `JDG-3410`・`JDG-3512` に、修正案と修正の記録の表の名は問 34-1 に従う） | 無し |
+| 31-10 | `table` | 表の名 | 読む表、または読んだ表。遅延診断レポートの表、担当リストの表、修正案の表、修正の記録の表のどれか。（修正案と修正の記録の表の名は問 34-1） | 無し |
 | 31-11 | `rows` | 行 | 表の行のうち、offset から limit までのもの。 | 無し |
 | 31-12 | `total` | 行の総数 | 絞った後の行の数。 | 無し |
 | 31-14 | `key` | 行の対象 | 行が何についての行か。遅延診断レポートではタスクの uid、担当リストでは担当の uid（担当の無い行は unassigned）。 | 無し |
 | 31-15 | `cells` | セル | 列ごとの、画面に出す値。 | 無し |
 | 31-18 | `text`（持ち主 `AgentTableCell`） | セルの文字 | 英語の画面に出す値の文字。 | 画面の英語のセルの文字 |
-| 31-20 | <span style="color: #0550AE">`savedTo`</span> | 保存した所 | 書いたファイルの、保存先のフォルダの下の絶対の所。（`JDG-2814`） | 無し |
+| 31-20 | `savedTo` | 保存した所 | 書いたファイルの、保存先のフォルダの下の絶対の所。（`JDG-2814`） | 無し |
 | 31-21 | `bytes` | バイト数 | 書いたバイト数。 | 無し |
-| 31-22 | <span style="color: #0550AE">`backedUpTo`</span> | 控えの所 | 上書きの前の中身を移した .bak の絶対の所。上書きでなければ null。（`JDG-2814`） | 無し |
+| 31-22 | `backedUpTo` | 控えの所 | 上書きの前の中身を移した .bak の絶対の所。上書きでなければ null。（`JDG-2814`） | 無し |
 
 回答:
 
 **断り**
 
-#### ❓ 問 33-3. 断りの 2 つの型 —— `Refusal` と `AgentRefusal`
+#### ❓ 問 33-3. 呼び出しの断りと命令の断りの、2 つの型の名
 
-場面: 断りの型が 2 つあります。`AgentRefusal` は呼び出し全体の断りで、答えの欄 `refusal` がそれを持ちます。`Refusal` は束の中の 1 つの命令の断りで、`AgentRefusal` の欄 `commandRefusals` がそれを並べます。短い名 `Refusal` が狭い物を指し、長い名が広い物を指します。入れ子の図で、2 つの形と添え物の欄を並べて見せます。
+状態: OPEN
 
-| # | 今の名 | 意味（日本語） |
-|:---|:---|:---|
-| 33-25 | `AgentRefusal` | 断り。誰が断ったか（from）、どの呼び出しか（member）、理由、説明、ページが断ったときは今の刻印を持ち、文書は持たない。断りはエラーではなく値である。 |
-| 33-4 | `Refusal` | 束の中の 1 つの命令の断り。位置、種類、理由、欄。 |
-| 33-5 | `commandRefusals` | 断られた命令ごとの断り。理由が commandRefused のときだけある。 |
+場面: AI の呼び出しをページが断ると、答えは欄 `refusal` に断りを持ちます。束の中の命令が断られたときは、その断りが欄 `commandRefusals` に、命令ごとの断りを並べます。名付けるのは 2 つの**型**です。
 
-| 案 | 中身 |
-|:---|:---|
-| **a（推奨）** | `AgentRefusal` を `Refusal`（呼び出しの断り。欄 `refusal` と同じ語）にする。`Refusal` を `CommandRefusal`（1 つの命令の断り。欄 `commandRefusals`・`commandIndex`・`commandType` と同じ語）にする。`commandRefusals` は今のまま |
-| b | `AgentRefusal` を `CallRefusal`、`Refusal` を `CommandRefusal` にする |
-| c | 今のまま |
+```json
+{ "ok": false,
+  "refusal": { "from": "page", "member": "applyCommands", "reason": "commandRefused", "message": "…",
+               "commandRefusals": [ { "commandIndex": 2, "commandType": "editTask", "reason": "endBeforeStart", "field": "set.finish" } ] } }
+```
 
-回答:
+今の名では、外側の型が `AgentRefusal`（呼び出しの断り）で、内側の型が `Refusal`（1 つの命令の断り）です。短い名が狭い物を指し、長い名が広い物を指します。
 
-#### ❓ 問 31-2. 前置詞のキー —— `from` と `at` を、指す物の名にするか
+| 案 | 名 | 良い点 | 弱い点 |
+|:---|:---|:---|:---|
+| a（推し） | 外側 `Refusal`、内側 `CommandRefusal` | 型の名が欄の名とそろう（`refusal` と `Refusal`、`commandRefusals` と `CommandRefusal`） | 今の `Refusal` と同じ綴りが別の物を指すようになり、移る間に読み違えやすい |
+| b | 外側 `CallRefusal`、内側 `CommandRefusal` | 2 つとも何の断りかを名が言う | 欄 `refusal` と型の名がずれる |
+| c | 今のまま | 名を変えない | 短い名が狭い物を指し、頭の `Agent` は物を言わない |
 
-場面: 断りの欄 `from`（から）は、断ったのがページか取次かを持ちます。文書の誤りの欄 `at`（で）は、誤りの所を JSON Pointer で持ちます。2 つとも前置詞で、何の値かを言いません（`JDG-820`）。
-
-| # | 今の名 | 意味（日本語） |
-|:---|:---|:---|
-| 31-24 | `from` | 呼び出しを断ったのが誰か。ページか取次か。 |
-| 33-6 | `at` | 誤りのある、文書か呼び出しの中の所。JSON Pointer で表す。 |
-
-| 案 | 中身 |
-|:---|:---|
-| **a（推奨）** | `from` を `refusedBy`（断った者）、`at` を `pointer`（誤りの所を指す JSON Pointer）にする |
-| b | `from` だけを `refusedBy` にする。`at` は `{ at, message }` の短い組として読めるので残す |
-| c | 今のまま |
+推し a: ① 型の名と欄の名を 1 つの語でそろえる（`OKPN`）。② 頭の `Agent` は物を言わない（`JDG-820`。問 30-1 と同じ考え）。③ 内側の名が `commandIndex`・`commandType` と同じ語 `command` を持つ。
 
 回答:
 
-#### ❓ 問 32-1. 人かページが手を離せない 4 つの理由 —— 名の形をそろえるか
+#### ❓ 問 31-2. 断った者を言う欄 `from` の名
 
-場面: 4 つの理由は、どれも「いま書けない。少し後で試す」を言います。名の形はばらばらです（名詞＋`InFlight`・動名詞・名詞＋過去分詞・動名詞）。取り込みの `cause` の値 `openInProgress` は、名詞＋`InProgress` の形です。`gesture` は、画面の語「ドラッグ」と違う語です。
+状態: OPEN
+
+場面: ページか取次が呼び出しを断ると、断りは欄 `from` に、断ったのがページか取次かを書きます（値 `page`・`relay`）。名付けるのは**欄**です。
+
+```json
+{ "ok": false, "refusal": { "from": "relay", "member": "readDocument", "reason": "pageNotConnected", "pageUrl": "…" } }
+```
+
+`from`（から）は前置詞で、何の値かを言いません（`JDG-820`）。
+
+| 案 | 名 | 良い点 | 弱い点 |
+|:---|:---|:---|:---|
+| a（推し） | `refusedBy` | 名が中身（断った者）を言う。刻印の `lastEditedBy`、変更履歴の `changedBy` と同じ「…By」の形 | 今の名より長い |
+| b | `source` | 出どころを言い、短い | `importDocument` の引数 `source`（取り込む文書）と同じ綴りで別の物を指す |
+| c | 今のまま | 名を変えない | 前置詞のキーで、何の値かを言わない |
+
+推し a: ① 名が中身（断った者）を言う（`NEIM`・`JDG-820`）。② 「…した者」を `…By` で言う形が、GRS JSON の `lastEditedBy`・`changedBy` とそろう（`OKPN`）。
+
+回答:
+
+#### ❓ 問 31-2-2. 文書の誤りの所を言う欄 `at` の名
+
+状態: OPEN
+
+場面: 取り込んだ文書に誤りがあると、ページは断りの欄 `documentFaults` に誤りを 1 つずつ並べます。各誤りは欄 `at` に、誤りの所を JSON Pointer で書きます。名付けるのは**欄**です。
+
+```json
+{ "reason": "documentInvalid", "documentFaults": [ { "at": "/scheduleData/tasks/3/finish", "message": "…" } ] }
+```
+
+`at`（で）は前置詞で、何の値かを言いません（`JDG-820`）。
+
+| 案 | 名 | 良い点 | 弱い点 |
+|:---|:---|:---|:---|
+| a（推し） | `pointer` | 値の形（JSON Pointer、RFC 6901）を名が言う | 何を指すか（誤りの所）は持ち主 `documentFaults` に頼る |
+| b | `jsonPointer` | 値の形をはっきり言う | 名が長い |
+| c | 今のまま | 名を変えない。`{ at, message }` の組として短く読める | 前置詞のキーで、何の値かを言わない |
+
+推し a: ① 名が値の形（JSON Pointer）を言う（`NEIM`・`JDG-820`）。② 持ち主 `documentFaults` が「誤り」を言うので、`pointer` だけで「誤りの所」と読める（決まり N-4: 持ち主の名を繰り返さない）。
+
+回答:
+
+#### ❓ 問 32-1. 人かページが手を離せない 4 つの理由の名
+
+状態: OPEN
+
+場面: 人がドラッグしている間や、ページが人に問いを出している間に AI が書くと、ページは書き込みを断ります。AI は少し後でもう一度試します。名付けるのは断りの理由の 4 つの**値**です。
+
+```json
+{ "ok": false, "refusal": { "from": "page", "member": "applyCommands", "reason": "gestureInFlight", "message": "…" } }
+```
+
+4 つの理由は、どれも「いま書けない。少し後で試す」を言います。名の形はばらばらです（名詞＋`InFlight`・動名詞・名詞＋過去分詞・動名詞）。取り込みの `cause` の値 `openInProgress` は、名詞＋`InProgress` の形です。`gesture` は、画面の語「ドラッグ」と違う語です。
 
 | # | 今の名 | 意味（日本語） | 案 a の名 |
 |:---|:---|:---|:---|
-| 32-4 | &emsp;+- `gestureInFlight`（持ち主 `reason`） | 人が文書を変えるドラッグの途中である。 | `dragInProgress` |
-| 32-5 | &emsp;+- `editingInPlace`（持ち主 `reason`） | 人がその場で打ち込んでいて、まだ確定していない。 | `inPlaceEditInProgress` |
-| 32-6 | &emsp;+- `questionAsked`（持ち主 `reason`） | ページが人に確認の問いを出している。 | `confirmationInProgress` |
-| 32-7 | &emsp;+- `deliveringNotices`（持ち主 `reason`） | ページが変更の知らせを配っている途中である。 | `noticeDeliveryInProgress` |
+| 32-4 | `gestureInFlight` | 人が文書を変えるドラッグの途中である。 | `dragInProgress` |
+| 32-5 | `editingInPlace` | 人がその場で打ち込んでいて、まだ確定していない。 | `inPlaceEditInProgress` |
+| 32-6 | `questionAsked` | ページが人に確認の問いを出している。 | `confirmationInProgress` |
+| 32-7 | `deliveringNotices` | ページが変更の知らせを配っている途中である。 | `noticeDeliveryInProgress` |
 
-| 案 | 中身 |
-|:---|:---|
-| **a（推奨）** | 名詞＋`InProgress` にそろえる（表の「案 a の名」の列）。`openInProgress` と同じ形で、どれも「進んでいる最中の物」を言う |
-| b | `gestureInFlight` だけを `dragInProgress` にする（画面の語に合わせる） |
-| c | 今のまま |
+| 案 | 名 | 良い点 | 弱い点 |
+|:---|:---|:---|:---|
+| a（推し） | 名詞＋`InProgress` にそろえる（表の「案 a の名」） | 4 つが 1 つの形で「進んでいる最中の物」を言う。`openInProgress` とそろう | 名が少し長くなる |
+| b | `gestureInFlight` だけを `dragInProgress` にする | 画面の語「ドラッグ」に合わせる 1 つだけを直す | 4 つの形はばらばらのまま |
+| c | 今のまま | 名を変えない | 形がばらばらで、AI が「待てばよい理由」の組と読み取りにくい |
 
-回答:
-
-#### ❓ 問 32-2. 無いタスクを名指した —— `unknownTask` と `notFound` を 1 つの名にするか
-
-場面: 道具 `focusTask`・`showOnlyTasks` は、無いタスクの uid を受けると `unknownTask` で断ります。命令は、無い実体（タスクなど）を名指すと `notFound` で断ります。2 つの名が 1 つのことを言います。`unknownTask` のとき、断りは欄 `taskUids` に見つからない uid を並べます。
-
-| # | 今の名 | 意味（日本語） |
-|:---|:---|:---|
-| 32-9 | &emsp;+- `unknownTask`（持ち主 `reason`） | 名指した uid のタスクが無い。 |
-| 32-55 | &emsp;+- `notFound`（持ち主 `reason`） | 名指した実体（タスク、タスクグループ、ボックス、担当、割当、依存）が無い。（意味の文は `JDG-3561`） |
-| 33-8 | `taskUids`（持ち主 `AgentRefusal`） | 名指したが見つからなかった uid の並び。 |
-
-| 案 | 中身 |
-|:---|:---|
-| **a（推奨）** | 道具も命令も `notFound` で断る。欄 `taskUids` を `missingTaskUids`（見つからないタスクの uid）にする |
-| b | 2 つを残し、`unknownTask` を `taskNotFound` にする（`notFound` と同じ語を使う） |
-| c | 今のまま |
+推し a: ① 同じ種類の理由を 1 つの形で言う（`MECE`・`OKPN`）。② `dragInProgress` は画面の語「ドラッグ」を使う（`NEIM`）。
 
 回答:
 
-#### ❓ 問 32-3. このページの造りが持たない部分 —— `notAvailable` と `notImplemented` を 1 つの名にするか
+#### ❓ 問 32-2. 無いタスクを名指したときの 2 つの理由 `unknownTask` と `notFound` を 1 つにするか
 
-場面: `notAvailable` は「このページは、このメンバに答える部分を持たない」を言います。src は説明に「not built yet」と書きます。`notImplemented` は「まだ作っていない欄（`editGroup`）を書こうとした」を言います。2 つは同じこと（このビルドが、その部分をまだ持たない）を言います。また `notAvailable` は「今だけ使えない」とも読めるので、AI が同じ呼び出しを繰り返すおそれがあります。`unknownCommand`（どの命令の名でもない）は別のことを言います。
+状態: OPEN
 
-| # | 今の名 | 意味（日本語） |
-|:---|:---|:---|
-| 32-14 | &emsp;+- `notAvailable`（持ち主 `reason`） | このページは、このメンバに答える部分を持たない。 |
-| 32-66 | &emsp;+- `notImplemented`（持ち主 `reason`） | まだ作っていない欄（editGroup）を書こうとした。 |
-| 32-65 | &emsp;+- `unknownCommand`（持ち主 `reason`） | type がどの命令の名でもない。 |
+場面: AI が `focusTask` に無いタスクの uid を渡すと、ページは `unknownTask` で断ります。命令が無い実体を名指すと、ページは命令の断りに `notFound` を書きます。名付けるのは断りの理由の**値**です。
 
-| 案 | 中身 |
-|:---|:---|
-| **a（推奨）** | メンバも欄も `notImplemented` で断る（HTTP の 501 Not Implemented と同じ意味）。`unknownCommand` は今のまま |
-| b | 2 つを残し、`notAvailable` を `memberNotSupported` にする |
-| c | 今のまま |
+```json
+focusTask({ "taskUid": 999 })
+// → { "reason": "unknownTask", … }
+applyCommands({ …, "commands": [ { "type": "editTask", "taskUid": 999, "set": { "name": "x" } } ] })
+// → { "reason": "commandRefused", "commandRefusals": [ { "reason": "notFound", … } ] }
+```
 
-回答:
+2 つの名が、1 つのこと（名指した物が無い）を言います。
 
-#### ❓ 問 32-4. 範囲の外の値 —— `outOfRange` と `settingOutOfBounds` を 1 つの名にするか
+| 案 | 名 | 良い点 | 弱い点 |
+|:---|:---|:---|:---|
+| a（推し） | 道具も命令も `notFound` で断る | 1 つのことに 1 つの名 | 道具の断りが、何が無いかを名だけでは言わない（欄が言う。問 32-2-2） |
+| b | 2 つを残し、`unknownTask` を `taskNotFound` にする | `notFound` と同じ語を使い、タスクであることも言う | 同じことに 2 つの名が残る |
+| c | 今のまま | 名を変えない | 2 つの語（`unknown`・`notFound`）が 1 つのことを言う |
 
-場面: `outOfRange` は「数が許す範囲の外にある」を言います。`settingOutOfBounds` は「設定の値が、ほかの設定の値を名指す下限か上限を満たさない」を言います。どちらも「値が範囲の外」を言い、違いは下限と上限の出どころだけです。断りは欄 `min`・`max` に範囲を書きます。
-
-| # | 今の名 | 意味（日本語） |
-|:---|:---|:---|
-| 32-57 | &emsp;+- `outOfRange`（持ち主 `reason`） | 数が許される範囲の外にある。整数が要る所で整数でないか、有限でない（NaN や無限大）ものも当たる。 |
-| 32-42 | &emsp;+- `settingOutOfBounds`（持ち主 `reason`） | 設定の値が、ほかの設定の値を名指す下限か上限を満たさない。 |
-
-| 案 | 中身 |
-|:---|:---|
-| **a（推奨）** | どちらも `outOfRange` で断り、`min`・`max` に範囲を書く（1 つの名に 1 つの意味。`OMPV`） |
-| b | 2 つを残し、語をそろえる: `settingOutOfRange` |
-| c | 今のまま |
+推し a: ① 1 つのことに 1 つの名（`OKPN`）。② 何が無いかは欄（問 32-2-2）と `message` が言う（`SoC`）。
 
 回答:
 
-#### ❓ 問 32-5. 終わりが始まりより前 —— 3 つの名の受け持ちを分け直すか
+#### ❓ 問 32-2-2. 見つからない uid を並べる欄 `taskUids` の名
 
-場面: 3 つの理由が「終わりが始まりより前」を言います。`endBeforeStart` は、予定の終了と開始、ハイライトボックスの `lastDay` と `firstDay` を受け持ちます。`highlightBoxInverted` も `lastDay` と `firstDay` を受け持ち、加えて上下のタスクグループの逆さを受け持ちます。`negativeActualLength` は、実績の終わりと始まりを受け持ちます。仕様書は後の 2 つを「予定の 2 列について定めるものを、注記と実績について定める」と書きます（`IV-19`・`IV-21`）。
+状態: OPEN
 
-| # | 今の名 | 意味（日本語） |
-|:---|:---|:---|
-| 32-37 | &emsp;+- `endBeforeStart`（持ち主 `reason`） | 終わりが始まりより前にある（開始より前の終了、firstDay より前の lastDay）。 |
-| 32-45 | &emsp;+- `highlightBoxInverted`（持ち主 `reason`） | ハイライトボックスの終わりが始まりより前にある。lastDay が firstDay より前か、下のタスクグループが上のタスクグループより上にある。 |
-| 32-47 | &emsp;+- `negativeActualLength`（持ち主 `reason`） | 実際の作業が、始まるより前に終わっている。 |
+場面: 無いタスクの uid を受けると、ページは断りの欄 `taskUids` に、見つからない uid を並べます。道具 `showOnlyTasks` の引数も `taskUids`（見せるタスク）です。断りの値は平らな形なので、名だけを読むと引数と同じに見えます。名付けるのは**欄**です。
 
-| 案 | 中身 |
-|:---|:---|
-| **a（推奨）** | 日時の前後は、予定・実績・注記のどれも `endBeforeStart` で断る。`highlightBoxInverted` は上下の逆さだけを受け持ち、名を `bottomTaskGroupAboveTop`（下のタスクグループが上のタスクグループより上）にする。`negativeActualLength` はなくす |
-| b | 3 つを残し、受け持ちを分ける: 予定は `endBeforeStart`、実績は `actualEndBeforeStart`、注記は `highlightBoxInverted`（日と上下の両方） |
-| c | 今のまま |
+```json
+showOnlyTasks({ "taskUids": [7, 999] })
+// → { "reason": "unknownTask", "taskUids": [999] }
+```
 
-回答:
+| 案 | 名 | 良い点 | 弱い点 |
+|:---|:---|:---|:---|
+| a（推し） | `missingTaskUids` | 名が中身（見つからないタスク）を言う | 今の名より長い |
+| b | `notFoundTaskUids` | 理由 `notFound` と同じ語を使う | 語の並びが英語として読みにくい |
+| c | 今のまま | 名を変えない | 渡した全部と、見つからない分を取り違える |
 
-#### ❓ 問 32-6. 親の輪 —— 命令の `wouldMakeCycle` を、文書の理由の名にそろえるか
-
-場面: 文書の検査は、親の結び付きの輪を `taskParentCycle`・`taskGroupParentCycle` で断ります。命令は、タスクかタスクグループを自分の配下へ動かすと `wouldMakeCycle` で断ります。2 つは同じ輪を言い、命令の側は「輪になる」と先のことを言います。ほかの理由（`duplicateKey`・`endBeforeStart` など）は、文書と命令で同じ名を使います。
-
-| # | 今の名 | 意味（日本語） |
-|:---|:---|:---|
-| 32-59 | &emsp;+- `wouldMakeCycle`（持ち主 `reason`） | タスクかタスクグループを、自分の下か自分の子孫の下へ動かそうとした。 |
-| 32-32 | &emsp;+- `taskParentCycle`（持ち主 `reason`） | タスクの親の結び付きが輪になっている。 |
-| 32-44 | &emsp;+- `taskGroupParentCycle`（持ち主 `reason`） | タスクグループの親の結び付きが輪になっている。 |
-
-| 案 | 中身 |
-|:---|:---|
-| **a（推奨）** | 命令も `taskParentCycle`・`taskGroupParentCycle` で断る。文書と命令で同じ名を使う、ほかの理由と同じ形にする |
-| b | 3 つを 1 つの `parentCycle` にまとめる。どの実体の輪かは `field` と `message` が言う |
-| c | 今のまま |
+推し a: ① 名が中身（見つからないタスクの uid）を言う（`NEIM`）。② 呼んだときの引数 `taskUids` と別の名になり、2 つの並びを取り違えない（`OKPN`）。
 
 回答:
 
-#### ❓ 問 32-7. 無いタスクグループのピン止め —— `pinnedTaskGroupMissing` を `danglingReference` にまとめるか
+#### ❓ 問 32-3. このページの造りが持たない部分の 2 つの理由 `notAvailable` と `notImplemented` を 1 つにするか
 
-場面: `danglingReference` は「ほかの実体を指すプロパティが、文書に無い実体を指す」を言います。`pinnedTaskGroupMissing` は「ピン止めしたタスクグループが無い」を言います。ピン止めの並び `pinnedTaskGroupIds` もタスクグループを指すプロパティなので、後者は前者の 1 つです。仕様書は 2 つを別の行に置きます（`IV-2` は外部キーの列、`IV-3` は文書の設定の値を受け持つ）。
+状態: OPEN
 
-| # | 今の名 | 意味（日本語） |
-|:---|:---|:---|
-| 32-30 | &emsp;+- `danglingReference`（持ち主 `reason`） | ほかの実体を指すプロパティ（parentTaskUid など）が、文書に無い実体を指している。（意味の文は `JDG-3561`） |
-| 32-31 | &emsp;+- `pinnedTaskGroupMissing`（持ち主 `reason`） | ピン止めしたタスクグループが無い。 |
+場面: AI がこのページの造りが持たないメンバを呼ぶと、ページは `notAvailable` で断ります。AI がまだ作っていない欄（`editableByGroupName`）を書こうとすると、ページは `notImplemented` で断ります。名付けるのは断りの理由の**値**です。
 
-| 案 | 中身 |
-|:---|:---|
-| **a（推奨）** | `danglingReference` にまとめる。どのプロパティかは、文書の誤りの所（`at`、問 31-2 の案 a なら `pointer`）が言う |
-| b | 2 つを残し、`pinnedTaskGroupMissing` を `danglingPinnedTaskGroup` にする（`dangling` の語をそろえる） |
-| c | 今のまま |
+```json
+{ "reason": "notAvailable", "member": "exportPng" }
+{ "type": "editTaskGroup", "taskGroupId": "…", "set": { "editableByGroupName": "…" } }
+// → 命令の断り notImplemented
+```
+
+src は `notAvailable` の説明に「not built yet」と書きます。2 つは同じこと（このビルドが、その部分をまだ持たない）を言います。`notAvailable` は「今だけ使えない」とも読め、AI が同じ呼び出しを繰り返すおそれがあります。`unknownCommand`（どの命令の名でもない）は別のことを言います。
+
+| 案 | 名 | 良い点 | 弱い点 |
+|:---|:---|:---|:---|
+| a（推し） | メンバも欄も `notImplemented` で断る | HTTP の 501 Not Implemented と同じ意味で、繰り返しても無駄だと分かる | 「造りが持たない」と「まだ作っていない」の違いを名で言わない |
+| b | 2 つを残し、`notAvailable` を `memberNotSupported` にする | メンバの断りであることを言う | 同じことに 2 つの名が残る |
+| c | 今のまま | 名を変えない | `notAvailable` が「今だけ」と読める |
+
+推し a: ① 1 つのことに 1 つの名（`OKPN`）。② 広く知られた語（HTTP の Not Implemented）で、初めて読む AI にも意味が通じる（`NEIM`）。③ `unknownCommand` は今のままでよい。
 
 回答:
 
-#### ❓ 問 32-8. 取り込みを当てなかった —— `importNotLanded` と `cause` の値
+#### ❓ 問 32-4. 範囲の外の値の 2 つの理由 `outOfRange` と `settingOutOfBounds` を 1 つにするか
 
-場面: `importNotLanded` は「取り込みを当てなかった」を言い、欄 `cause` が 3 つの値で訳を言います。「着地（land）」は席の中の比喩で、外の読み手には何が起きたかが見えにくい語です。値 `notValidated` は「文書が検査を通らなかった」を言い、上の理由 `documentInvalid` と同じことを言います。値 `importCanceled` は、持ち主の `import…` と語を重ねます。取り込みの流れ（人への問い・取りやめ・検査）の図で、どの道でどの断りが出るかを見せます。
+状態: OPEN
+
+場面: AI が許す範囲の外の数を書くと、ページは `outOfRange` で断ります。AI が設定の値に、ほかの設定の値が決める上限を超える数を書くと、ページは `settingOutOfBounds` で断ります。どちらの断りも、欄 `min`・`max` に範囲を書きます。名付けるのは断りの理由の**値**です。
+
+2 つは「値が範囲の外」を言い、違いは下限と上限の出どころだけです。
+
+| 案 | 名 | 良い点 | 弱い点 |
+|:---|:---|:---|:---|
+| a（推し） | どちらも `outOfRange` で断り、`min`・`max` に範囲を書く | 1 つのことに 1 つの名 | 上限がほかの設定から来たことを、名で言わない |
+| b | 2 つを残し、語をそろえる: `settingOutOfRange` | 設定の値であることを言い、語 `Range` がそろう | 同じことに 2 つの名が残る |
+| c | 今のまま | 名を変えない | `Range` と `Bounds` の 2 つの語が 1 つのことを言う |
+
+推し a: ① 1 つの名に 1 つの意味（`OMPV`・`OKPN`）。② 範囲そのものは `min`・`max` が言うので、名で出どころを分けなくてよい（`SoC`）。
+
+回答:
+
+#### ❓ 問 32-5. 「終わりが始まりより前」を言う 3 つの理由の名と受け持ち
+
+状態: OPEN
+
+場面: AI がハイライトボックスの `lastDay` を `firstDay` より前に書くと、ページは書き込みを断ります。今は 3 つの理由が「終わりが始まりより前」を言います。名付けるのは断りの理由の**値**です。
+
+```json
+{ "type": "editHighlightBox", "highlightBoxId": "…", "set": { "firstDay": "2026-12-10", "lastDay": "2026-12-01" } }
+// → 命令の断り highlightBoxInverted
+```
+
+`endBeforeStart` は、予定の終了と開始、ハイライトボックスの `lastDay` と `firstDay` を受け持ちます。`highlightBoxInverted` も `lastDay` と `firstDay` を受け持ち、加えて最初と最後のタスクグループの逆さを受け持ちます。`negativeActualLength` は、実績の終わりと始まりを受け持ちます。仕様書は後の 2 つを「予定の 2 列について定めるものを、注記と実績について定める」と書きます（`IV-19`・`IV-21`）。`JDG-3528` は箱の上下のキーを `firstTaskGroupId`・`lastTaskGroupId` に改めました。
+
+| 案 | 名 | 良い点 | 弱い点 |
+|:---|:---|:---|:---|
+| a（推し） | 日時の前後は、予定・実績・注記のどれも `endBeforeStart`。`highlightBoxInverted` はタスクグループの逆さだけを受け持ち、名を `lastTaskGroupBeforeFirst` にする。`negativeActualLength` は無くす | 1 つのこと（日時の前後）に 1 つの名。タスクグループの逆さの名が `JDG-3528` の語とそろう | 実績の断りか予定の断りかを、名だけでは言わない（`field` が言う） |
+| b | 3 つを残し、受け持ちを分ける: 予定は `endBeforeStart`、実績は `actualEndBeforeStart`、注記は `highlightBoxInverted`（日とタスクグループの両方） | 名だけで、どの物の断りかが分かる | 同じこと（日時の前後）に 3 つの名が残る |
+| c | 今のまま | 名を変えない | 2 つの名が同じ日の前後を受け持ち、受け持ちが重なる |
+
+推し a: ① 1 つのことに 1 つの名を当て、受け持ちを重ねない（`OKPN`・`MECE`）。② タスクグループの逆さを、`JDG-3528` の first・last の語で言う（`NEIM`）。
+
+回答:
+
+#### ❓ 問 32-6. 親の輪を言う命令の理由 `wouldMakeCycle` を、文書の理由の名にそろえるか
+
+状態: OPEN
+
+場面: AI がタスクグループ A を、A の子 A1 の下へ動かそうとすると、ページは命令を `wouldMakeCycle` で断ります。読んだ文書の中で親の結び付きが輪になっていると、ページは文書を `taskParentCycle`・`taskGroupParentCycle` で断ります。名付けるのは断りの理由の**値**です。
+
+```json
+{ "type": "moveTaskGroup", "taskGroupId": "A", "parentTaskGroupId": "A1" }
+// → 命令の断り wouldMakeCycle
+```
+
+2 つは同じ輪を言い、命令の側は「輪になる」と先のことを言います。ほかの理由（`duplicateKey`・`endBeforeStart` など）は、文書と命令で同じ名を使います。
+
+| 案 | 名 | 良い点 | 弱い点 |
+|:---|:---|:---|:---|
+| a（推し） | 命令も `taskParentCycle`・`taskGroupParentCycle` で断る | 文書と命令で同じ名を使う、ほかの理由と同じ形になる | 命令の断りが「まだ輪になっていない」ことを名で言わない |
+| b | 3 つを 1 つの `parentCycle` にまとめる。どの実体の輪かは `field` と `message` が言う | 名が 1 つで済む | タスクの輪かタスクグループの輪かを、名で言わない |
+| c | 今のまま | 名を変えない | 1 つの輪が 2 通りの名を持つ |
+
+推し a: ① 1 つのこと（親の輪）に、文書と命令で 1 つの名を使う（`OKPN`）。② ほかの理由の決まり（文書と命令で同じ名）とそろう。
+
+回答:
+
+#### ❓ 問 32-7. 無いタスクグループのピン止めの理由 `pinnedTaskGroupMissing` を `danglingReference` にまとめるか
+
+状態: OPEN
+
+場面: 読んだ文書の `pinnedTaskGroupIds` が、文書に無いタスクグループの id を持つと、ページは文書を `pinnedTaskGroupMissing` で断ります。ほかのプロパティが無い実体を指すと、ページは `danglingReference` で断ります。名付けるのは断りの理由の**値**です。
+
+```json
+"documentSettings": { "pinnedTaskGroupIds": ["9f…"] }
+// "9f…" のタスクグループが文書に無い → pinnedTaskGroupMissing
+```
+
+`pinnedTaskGroupIds` もタスクグループを指すプロパティなので、後者は前者の 1 つです。仕様書は 2 つを別の行に置きます（`IV-2` は外部キーの列、`IV-3` は文書の設定の値を受け持つ）。
+
+| 案 | 名 | 良い点 | 弱い点 |
+|:---|:---|:---|:---|
+| a（推し） | `danglingReference` にまとめる。どのプロパティかは、誤りの所（`at`。問 31-2-2）が言う | 1 つのこと（指す先が無い）に 1 つの名 | ピン止めの誤りであることを、名だけでは言わない |
+| b | 2 つを残し、`pinnedTaskGroupMissing` を `danglingPinnedTaskGroup` にする | 語 `dangling` がそろい、ピン止めであることも言う | 同じことに 2 つの名が残る |
+| c | 今のまま | 名を変えない | 同じことを 2 つの語（`dangling`・`Missing`）で言う |
+
+推し a: ① 1 つのことに 1 つの名（`OKPN`）。② どのプロパティかは誤りの所が言う（`SoC`）。
+
+回答:
+
+#### ❓ 問 32-8. 取り込みを当てなかった理由 `importNotLanded` と、その訳 `cause` の値の名
+
+状態: OPEN
+
+場面: AI が `importDocument` を呼んでも、人が取りやめたときや、文書が検査を通らないとき、ページは取り込みを当てずに断ります。理由 `importNotLanded` の欄 `cause` が、3 つの値で訳を言います。名付けるのは理由の**値**と、`cause` の 3 つの**値**です。
+
+```json
+{ "ok": false, "refusal": { "member": "importDocument", "reason": "importNotLanded", "cause": "importCanceled", … } }
+```
+
+「着地（land）」は席の中のたとえで、外の読み手には何が起きたかが見えにくい語です。値 `notValidated` は「文書が検査を通らなかった」を言い、理由 `documentInvalid` と同じことを言います。値 `importCanceled` は、持ち主の `import…` と語を重ねます。
 
 | # | 今の名 | 意味（日本語） | 案 a の名 |
 |:---|:---|:---|:---|
-| 32-18 | &emsp;+- `importNotLanded`（持ち主 `reason`） | 取り込みを当てなかった。人が取りやめたか、開く操作の途中だったか、文書が検査を通らなかった。 | `importNotApplied` |
-| 33-15 | `cause` | 取り込みが着地しなかった理由。 | `cause` |
+| 32-18 | `importNotLanded`（持ち主 `reason`） | 取り込みを当てなかった。人が取りやめたか、開く操作の途中だったか、文書が検査を通らなかった。 | `importNotApplied` |
+| 33-15 | `cause` | 取り込みを当てなかった訳。 | `cause` |
 | 33-16 | &emsp;+- `openInProgress`（持ち主 `cause`） | 開く操作の途中だった。 | `openInProgress` |
 | 33-17 | &emsp;+- `notValidated`（持ち主 `cause`） | 文書が検査を通らなかった。 | `documentInvalid` |
 | 33-18 | &emsp;+- `importCanceled`（持ち主 `cause`） | 人が取り込みを取りやめた。 | `canceled` |
-| 32-22 | &emsp;+- `documentInvalid`（持ち主 `reason`） | 取り込んだ文書が取り込みの検査を通らなかった。documentFaults が誤りを 1 つずつ並べる。 | `documentInvalid` |
+| 32-22 | `documentInvalid`（持ち主 `reason`） | 取り込んだ文書が取り込みの検査を通らなかった。documentFaults が誤りを 1 つずつ並べる。 | `documentInvalid` |
 
-| 案 | 中身 |
-|:---|:---|
-| **a（推奨）** | 表の「案 a の名」の列にする。`importNotApplied`（取り込みを当てなかった）が何が起きたかを言い、検査の失敗は上の理由と同じ語 `documentInvalid` で言う |
-| b | `importNotLanded` は残し、`notValidated` だけを `documentInvalid` にする |
-| c | 今のまま |
+| 案 | 名 | 良い点 | 弱い点 |
+|:---|:---|:---|:---|
+| a（推し） | 表の「案 a の名」 | `importNotApplied` が何が起きたかを言う。検査の失敗を理由と同じ語 `documentInvalid` で言う | `cause` の値 `documentInvalid` と理由 `documentInvalid` が同じ綴りで、置き場が 2 つある |
+| b | `importNotLanded` を残し、`notValidated` だけを `documentInvalid` にする | 変える名が 1 つで済む | たとえの語「着地」が残る |
+| c | 今のまま | 名を変えない | たとえの語と、同じことを言う 2 つの名が残る |
+
+推し a: ① 名が起きたこと（取り込みを当てなかった）を言う（`NEIM`）。② 検査の失敗を 1 つの語 `documentInvalid` で言う（`OKPN`）。③ `apply` は `applyCommands`・問 34-1 と同じ「文書に当てる」の動詞である。
 
 回答:
 
 #### ❓ 問 32-9. 何についての断りかを言わない 9 つの理由 —— before / after のとおりでよいか
 
-場面: 9 つの理由の名は、何についての断りかを言わないか、兄弟の名と形が違います。下の表の after は、意味から選んだ名です。
+状態: OPEN
+
+場面: 9 つの理由の名は、何についての断りかを言わないか、兄弟の名と形が違います。下の表の after は、意味から選んだ名です。名付けるのは断りの理由の 9 つの**値**です。2 つの行（32-34・32-49）は、`JDG-3614`・`JDG-3615` の後に理由そのものが残るかを方針で決めます（`JDG-3686`）。残るなら after の名を使います。
 
 | # | before | 意味（日本語） | after | after を選んだ訳 |
 |:---|:---|:---|:---|:---|
 | 32-3 | `notOwnStep` | 取り消すかやり直す段を書いたのが、呼んだ書き手ではなく別の書き手である。 | `notOwnEdit` | 道具 `undoEdit`・`redoEdit` と同じ語。「段」は中の語 |
 | 32-11 | `tooTall` | 絵が、書き出せる高さより高い。 | `imageTooTall` | 何が高いかを言う。`fileTooLarge`・`taskTreeTooDeep` と同じ形 |
-| 32-33 | `taskGroupTooDeep` | タスクグループの入れ子が 5 段より深くなる。 | `taskGroupTreeTooDeep` | `taskTreeTooDeep` と対にする |
-| 32-34 | `taskGroupMembershipBroken` | あるタスクが、ちょうど 1 つのタスクグループに入っていない。 | `taskGroupMembershipCountNotOne` | 何が壊れたかを言う。`taskStyleCountNotOne` と同じ形 |
-| 32-41 | `importSequenceAhead` | TaskOrigin.lastSeenImportNumber が project.lastImportNumber より大きい。 | `mspdiImportNumberAhead` | `JDG-3556` のキー `lastMspdiImportNumber`・`lastSeenMspdiImportNumber` と同じ語（キーの語は Number） |
-| 32-49 | `taskVisualCountNotOne` | あるタスクを指す TaskGraphicStyle が、ちょうど 1 つでない。 | `taskStyleCountNotOne` | `JDG-3556` の `taskStyles` と同じ語（問 36-6） |
+| 32-33 | `taskGroupTooDeep` | タスクグループの深さが 5 より深くなる。 | `taskGroupTreeTooDeep` | `taskTreeTooDeep` と対にする |
+| 32-34 | `taskGroupMembershipBroken` | あるタスクが、ちょうど 1 つのタスクグループに入っていない。（`JDG-3615` でタスクが `grs.taskGroupId` を 1 つ持つ形になった） | `taskGroupMembershipCountNotOne` | 何が壊れたかを言う。`taskStyleCountNotOne` と同じ形 |
+| 32-41 | `importSequenceAhead` | タスクの `grs.importOrigin.lastSeenMspdiImportCount` が `scheduleData.mspdiImportCount` より大きい。 | `mspdiImportCountAhead` | `JDG-3627`・`JDG-3649` のキー `mspdiImportCount`・`lastSeenMspdiImportCount` と同じ語 |
+| 32-49 | `taskVisualCountNotOne` | あるタスクの見た目が、ちょうど 1 つでない。（`JDG-3614` で見た目はタスクの `grs.style` に入った） | `taskStyleCountNotOne` | GRS JSON の `style` と同じ語（問 36-6） |
 | 32-61 | `limitReached` | タスクグループをピン止めしようとしたが、ピン止めの上限の 5 に達している。 | `pinLimitReached` | どの上限かを言う。この理由はピン止めだけが使う |
-| 32-62 | `missingValue` | 写しの新しい id が対応表に無い。 | `newTaskGroupIdMissing` | 何の値かを言う（`pasteTaskGroupSubtree` の対応表の値） |
+| 32-62 | `missingValue` | 写しの新しい id が対応表に無い。 | `newTaskGroupIdMissing` | 何の値かを言う（`pasteTaskGroupSubtree` の対応表の値。対応表の名は問 35-4） |
 | 32-63 | `bothEndsAreOneTask` | 依存の両端が同じタスクである。 | `selfDependency` | 文の形をやめ、兄弟と同じ名詞の形にする。自分への依存の通り名 |
 
-| 案 | 中身 |
-|:---|:---|
-| **a（推奨）** | 表の after を全部採る |
-| b | 直す行に書き込み、その行だけを改める |
-| c | 今のまま |
+| 案 | 名 | 良い点 | 弱い点 |
+|:---|:---|:---|:---|
+| a（推し） | 表の after を全部採る | どの名も何についての断りかを言い、兄弟と形がそろう | 9 つの名が変わる |
+| b | 直す行に ★ を書き、その行だけを改める | 行ごとに選べる | 形のそろわない名が残りうる |
+| c | 今のまま | 名を変えない | 何についての断りかを言わない名が残る |
+
+推し a: ① 名が何についての断りかを言う（`NEIM`）。② 兄弟の名と同じ形にそろう（`OKPN`）。③ GRS JSON の新しいキーの語（`JDG-3410`・`JDG-3627`・`JDG-3649`）とそろう。
 
 回答:
 
-#### ❓ 問 33-4. 断りの添え物の 5 語 —— 何の値かを名に書くか
+#### ❓ 問 33-4. 断りに添える 5 つの欄 —— 何の値かを名に書くか
 
-場面: 断りは、理由ごとに添え物の欄を持ちます。下の 5 つの名は一般の語で、何の値かを理由の側に頼ります。断りの値は平らな形なので、名だけを読むと別の理由の値と混ざります（例: `path` はファイルの所、`at` は文書の中の所）。
+状態: OPEN
+
+場面: ページの断りは、理由ごとに添える欄を持ちます。例えば `fileExists` の断りは、既にあるファイルを欄 `path` に書きます。名付けるのは 5 つの**欄**です。
+
+```json
+{ "reason": "fileExists", "path": "plan.json", … }
+{ "reason": "retiredName", "name": "kind", "replacement": "type", … }
+```
+
+5 つの名は一般の語で、何の値かを理由の側に頼ります。断りの値は平らな形なので、名だけを読むと別の理由の値と混ざります（例: `path` はファイルの所、`at` は文書の中の所）。前の席の案 `retiredName` は、理由の値 `retiredName`（32-23）と同じ綴りになるので、`sentName` に改めました。
 
 | # | 今の名 | 意味（日本語） | 案 a の名 |
 |:---|:---|:---|:---|
 | 33-9 | `seconds` | 取次があきらめるまでに待った秒数。 | `waitedSeconds` |
 | 33-12 | `path` | 既にあるファイル。 | `existingFilePath` |
 | 33-13 | `folder` | 使えない保存先のフォルダ。 | `saveFolder` |
-| 33-21 | `name`（持ち主 `AgentRefusal`） | 送った、退けた名前。 | `retiredName` |
+| 33-21 | `name`（持ち主 `AgentRefusal`） | 送った、退けた名前。 | `sentName` |
 | 33-22 | `replacement` | 退けた名前の代わりに使う名前。無ければ書かない。 | `replacementName` |
 
-| 案 | 中身 |
-|:---|:---|
-| **a（推奨）** | 表の「案 a の名」の列にする。`min`・`max` は範囲の通り名なので今のまま |
-| b | ほかの意味と混ざる 3 つ（`path`・`folder`・`name`）だけを改める |
-| c | 今のまま |
+| 案 | 名 | 良い点 | 弱い点 |
+|:---|:---|:---|:---|
+| a（推し） | 表の「案 a の名」の 5 つ | どの名も何の値かを言い、平らな断りの中で混ざらない | 名が長くなる |
+| b | ほかの意味と混ざる 3 つ（`path`・`folder`・`name`）だけを改める | 変える名が 3 つで済む | `seconds`・`replacement` は何の値かを言わないまま |
+| c | 今のまま | 名を変えない | 名だけを読むと、別の理由の値と混ざる |
+
+推し a: ① 名が何の値かを言う（`NEIM`）。② 理由の値 `retiredName` と欄の名を別の綴りにし、1 つの綴りに 1 つの意味を持たせる（`OMPV`）。③ `min`・`max` は範囲の通り名（`JDG-3643` の許す略）なので今のままでよい。
 
 回答:
 
-#### ❓ 問 32-10. 断りの 49 語 —— 推奨の表のとおりでよいか
+#### ❓ 問 32-10. 断りの 47 語 —— 推奨の表のとおりでよいか
 
-易しい語をまとめた推奨の表です。理由の名は「何が・どうなった」を言う変わらない英語の名で、仕様書の行 ID の代わりです（`JDG-3285`）。直す所が無ければ ok、直す所は表のセルに ★ で書いてください。
+状態: OPEN
+
+易しい語をまとめた推奨の表です。理由の名は「何が・どうなった」を言う変わらない英語の名で、仕様書の行 ID の代わりです（`JDG-3285`）。`commandType` は `JDG-3564` で決まったので、表から外しました。`knownSchemaVersion` は問 34-2-2 に移しました。直す所が無ければ ok、直す所は表のセルに ★ で書いてください。
 
 | # | キー | 日本語の名 | 意味（日本語） | 既存の名との関係 |
 |:---|:---|:---|:---|:---|
-| 31-25 | &emsp;+- `page`（持ち主 `from`） | ページ | GRS のページが断った。 | 無し |
+| 31-25 | &emsp;+- `page`（持ち主 `from`） | ページ | GRS のページが断った。（欄の名は問 31-2） | 無し |
 | 31-26 | &emsp;+- `relay`（持ち主 `from`） | 取次 | 取次が自分で断った。 | 無し |
-| 31-27 | `member` | 断られた呼び出し | どの呼び出しが断られたか。道具かメンバの名前。例えば applyCommands。 | 無し |
+| 31-27 | `member` | 断られた呼び出し | どの呼び出しを断ったか。道具かメンバの名前。例えば applyCommands。 | 無し |
 | 31-28 | `message` | 説明 | 人が読む、英語の短い説明。 | 無し |
-| 32-1 | `reason`（持ち主 `AgentApi`） | 断りの理由 | 呼び出し、命令、または取り込んだ文書が断られた理由。下の断りの理由のどれか。 | 無し |
+| 32-1 | `reason`（持ち主 `AgentApi`） | 断りの理由 | 呼び出し、命令、または取り込んだ文書を断った理由。下の断りの理由のどれか。 | 無し |
 | 32-2 | &emsp;+- `staleStamp`（持ち主 `reason`） | 古い刻印 | 渡した刻印が、今の刻印と少なくとも 1 つの値で違う。 | 無し |
-| 32-8 | &emsp;+- `commandRefused`（持ち主 `reason`） | 命令の断り | 束の中の命令が断られたので、束のどの命令も当てていない。 | 無し |
+| 32-8 | &emsp;+- `commandRefused`（持ち主 `reason`） | 命令の断り | 束の中の命令を断ったので、ページは束のどの命令も当てていない。 | 無し |
 | 32-10 | &emsp;+- `notDrawnYet`（持ち主 `reason`） | まだ描いていない | ページがまだ画面を描いていないので、全体表示のように画面の大きさが要ることができない。 | 無し |
 | 32-12 | &emsp;+- `rasterFailed`（持ち主 `reason`） | 画像にできない | ページが絵を画像にできなかった。 | 無し |
 | 32-13 | &emsp;+- `embeddedHtmlFailed`（持ち主 `reason`） | HTML を組めない | ページが 1 つの .html のファイルを組めなかった。 | 無し |
 | 32-15 | &emsp;+- `malformedRequest`（持ち主 `reason`） | 呼び方の形の誤り | 呼び方の形がスキーマに合わない。命令か、readSchema の which・defs・full のような引数。 | 無し |
 | 32-16 | &emsp;+- `historyEmpty`（持ち主 `reason`） | 履歴が空 | 履歴に、取り消す（またはやり直す）段が無い。 | 無し |
-| 32-19 | &emsp;+- `schemaViolation`（持ち主 `reason`） | スキーマ違反 | 渡した GRS JSON がスキーマに合わない。0..2147483647 の外の uid もこれに当たる。 | 無し |
-| 32-20 | &emsp;+- `formatTooNew`（持ち主 `reason`） | 形式が新しすぎる | schemaVersion がこのビルドの知るいちばん新しい版より新しく、文書がスキーマに合わない。 | 無し |
-| 32-21 | &emsp;+- `formatTooOld`（持ち主 `reason`） | 形式が古すぎる | schemaVersion がこのビルドの読む版より古い（α の文書）。このビルドは古い版の変換を持たない。 | 無し |
+| 32-19 | &emsp;+- `schemaViolation`（持ち主 `reason`） | スキーマ違反 | 渡した GRS JSON がスキーマに合わない。1..2147483647 の外の uid もこれに当たる（`JDG-3564`）。 | 無し |
+| 32-20 | &emsp;+- `formatTooNew`（持ち主 `reason`） | 形式が新しすぎる | 文書のスキーマの版が、このビルドの知るいちばん新しい版より新しく、文書がスキーマに合わない。 | 無し |
+| 32-21 | &emsp;+- `formatTooOld`（持ち主 `reason`） | 形式が古すぎる | 文書のスキーマの版が、このビルドの読む版より古い（α の文書）。このビルドは古い版の変換を持たない。 | 無し |
 | 32-23 | &emsp;+- `retiredName`（持ち主 `reason`） | 退けた名 | 退けた名前を送った（命令の種類、メンバの名、引数の名、編集の欄の名）。 | 無し |
 | 32-24 | &emsp;+- `pageNotConnected`（持ち主 `reason`） | ページが未接続 | 取次に GRS のページがつながっていない。 | 無し |
 | 32-25 | &emsp;+- `relayTimedOut`（持ち主 `reason`） | 取次の時間切れ | ページが期限までに答えなかった。 | 無し |
 | 32-26 | &emsp;+- `badFileName`（持ち主 `reason`） | ファイル名の誤り | fileName が、保存先のフォルダの中の相対のファイル名でない。 | 無し |
-| 32-27 | &emsp;+- `fileExists`（持ち主 `reason`） | ファイルが既にある | ファイルが既にあり、overwrite が真で渡されていない。 | 無し |
-| 32-28 | &emsp;+- `saveFolderUnavailable`（持ち主 `reason`） | 保存先が使えない | 保存先のフォルダを作れない、読めない、または書けない。 | 無し |
-| 32-29 | &emsp;+- `duplicateKey`（持ち主 `reason`） | 鍵の重複 | 同じ配列の 2 つの実体が同じ鍵（id や uid など）を持つことになる。例えば、新しい実体の id が既に使われている。（意味の文は `JDG-3561`） | 無し |
-| 32-35 | &emsp;+- `noCalendar`（持ち主 `reason`） | カレンダーが無い | 暦が無い。 | 無し |
-| 32-36 | &emsp;+- `fillAndStrokeBothInvisible`（持ち主 `reason`） | 塗りも線も見えない | 塗りと線の両方が見えなくなる。fillColor も strokeColor も無いタスクの描き方か、strokeColor が無く fillTransparencyPercent が 100 のハイライトボックス。 | 無し |
+| 32-27 | &emsp;+- `fileExists`（持ち主 `reason`） | ファイルが既にある | ファイルが既にあり、呼ぶ側が overwrite に真を渡していない。 | 無し |
+| 32-28 | &emsp;+- `saveFolderUnavailable`（持ち主 `reason`） | 保存先が使えない | 取次が保存先のフォルダを作れない、読めない、または書けない。 | 無し |
+| 32-29 | &emsp;+- `duplicateKey`（持ち主 `reason`） | 鍵の重複 | 同じ配列の 2 つの実体が同じ鍵（id や uid など）を持つことになる。例えば、新しい実体の id がもう使われている。（意味の文は `JDG-3561`） | 無し |
+| 32-35 | &emsp;+- `noCalendar`（持ち主 `reason`） | カレンダーが無い | カレンダーが無い。 | 無し |
+| 32-36 | &emsp;+- `fillAndStrokeBothInvisible`（持ち主 `reason`） | 塗りも線も見えない | 塗りと線の両方が見えなくなる。fill も stroke も無いタスクの見た目か、stroke が無く fill.opacityPercent が 0 のハイライトボックス。（`JDG-3526`・`JDG-3607`） | 無し |
 | 32-38 | &emsp;+- `fadeWithoutFinish`（持ち主 `reason`） | 終了の無いフェード | タスクがフェード（fadeInCalendarDays か fadeOutCalendarDays）を持つのに、終了を持たない。 | 無し |
 | 32-39 | &emsp;+- `fadeLongerThanTask`（持ち主 `reason`） | タスクより長いフェード | フェード（fadeInCalendarDays と fadeOutCalendarDays の和）が、暦日で数えてタスクより長い。 | 無し |
 | 32-40 | &emsp;+- `unusableDate`（持ち主 `reason`） | 使えない日時 | 日や時刻が読めないか、日が 1984-01-01..2149-12-31 の外にある。 | 無し |
@@ -1222,12 +1635,10 @@ BGQA2 を約束の面ごとに分けたとき（`JDG-3568`）、まだ出して�
 | 32-60 | &emsp;+- `siblingListMismatch`（持ち主 `reason`） | 兄弟の並びの食い違い | 並べ替える並びが、兄弟のそれぞれをちょうど 1 回ずつ名指していない。 | 無し |
 | 32-64 | &emsp;+- `alreadyStarted`（持ち主 `reason`） | 既に始まっている | タスクの実際の作業を始めようとしたが、既に始まっている。 | 無し |
 | 32-67 | &emsp;+- `fieldSetAndCleared`（持ち主 `reason`） | 書くと消すの両方 | 同じ欄が set と clear の両方にある。 | 無し |
-| 33-1 | `commandIndex` | 命令の位置 | 断られた命令の、束の中の位置。0 から数える。 | 無し |
-| 33-2 | <span style="color: #0550AE">`commandType`</span>（持ち主 `Refusal`） | 命令の種類 | 断られた命令の種類（名前）。（`JDG-3564`） | 無し |
-| 33-3 | `field` | 断られた欄 | 命令の中の、断られた値。例えば set.start。 | 無し |
+| 33-1 | `commandIndex` | 命令の位置 | 断った命令の、束の中の位置。0 から数える。 | 無し |
+| 33-3 | `field` | 断られた欄 | 命令の中の、断った値。例えば set.start。 | 無し |
 | 33-7 | `documentFaults` | 文書の誤り | 取り込んだ文書で見つかった問題ごとの誤り。所と説明を持つ。 | 無し |
 | 33-14 | `pageUrl` | ページのアドレス | 取次に GRS のページをつなぐために人が開く、アドレスの全部。取次が起動するたびに変わる。 | 無し |
-| 33-19 | `knownSchemaVersion` | 知っているスキーマの版 | このビルドが知る、いちばん新しい schemaVersion。 | GRS JSON の `schemaVersion` |
 | 33-20 | `converterUrl` | 変換のページの所 | 古い文書を変換する HTML のページを入手する所。 | 無し |
 | 33-23 | `min` | 下限 | 範囲の外にあった値の下限。 | 無し |
 | 33-24 | `max` | 上限 | 範囲の外にあった値の上限、または達した上限。 | 無し |
@@ -1237,6 +1648,8 @@ BGQA2 を約束の面ごとに分けたとき（`JDG-3568`）、まだ出して�
 ## BGQA3 GRS JSON（後回し。2026-11-15、影響の小さい問い 6。問 6-9-2 は 2026-11-18 に BGQA3 の 13 回目へ出して決まった（`JDG-3624`））
 
 #### ❓ 問 6-6-4-7. 色の要素の一覧 —— 抜けと誤りは無いか
+
+状態: STALE-NAMES（`derivedFrom` は `JDG-3636` で `isCalculatedFromOppositeColor` に、`themeHueDegrees` は `JDG-3541` で `themeHue` になり、`TaskStyleEntry`・`taskStyles` は `JDG-3614` で無くなった。塗りと線と文字の形は `JDG-3607`・`JDG-3610`・`JDG-3612` で決まった）
 
 `JDG-3563`・`JDG-3564` で、判別子のキーは `type` に決まりました。下の表と形と例は `type` で書きます。`JDG-3556` の A で、見た目はどの物でも入れ子の `style` に入ります。タスクの見た目は `scheduleData.taskStyles[]` の `{ taskUid, style }` に入ります。不透明度 `opacityPercent` は色の値の外に置きます（`JDG-3526`・`JDG-3556` の E）。カスタムの色の片側は、GRS が作った側だけが `derivedFrom` を持ちます（`JDG-3527`）。
 
@@ -1380,6 +1793,8 @@ GRS の色の要素を、仕様書と β の形から 12 に数えました（�
 
 #### ❓ 問 6-6-4-12. パレットの paper と ink —— 白と黒を、見え方の名で呼ぶか、役の名で呼ぶか
 
+状態: OPEN
+
 場面: パレットの 10 の名のうち、paper と ink の 2 つは役の名です。`JDG-3275`（所見 F05）が、仕様書の `white`・`black` をこの名に改めました。理由は「暗いテーマで、名 `white` が見え方と食い違う」でした。画面の語は今も「白」「黒」です。
 
 表 T-294 の塗りの値を、明暗で並べました。
@@ -1405,6 +1820,8 @@ GRS の色の要素を、仕様書と β の形から 12 に数えました（�
 
 #### ❓ 問 6-13-2. 画面の欄の名「段 0 の木の状態」 —— 「根」の語にそろえるか
 
+状態: CLOSED-BY JDG-3664（根は表示の値を持たない。値 `levelZeroTreeState` も画面の欄も除く）
+
 場面: 問 6-13-1 の a で、`levelZeroTreeState` を `rootTreeState` に改め、タスクグループの階層を「深さ」で数えると決めました（`JDG-3602`）。辞書の日本語の名は、設定の欄の名（画面の語）を写します（`JDG-3518`）。画面の欄の名は、今も「段 0 の木の状態」（英語 Top-Level Tree State）です。
 
 | 案 | 中身 |
@@ -1417,6 +1834,8 @@ GRS の色の要素を、仕様書と β の形から 12 に数えました（�
 
 #### ❓ 問 6-9-5. タスクと依存の、MSPDI の名と違う 3 語
 
+状態: OPEN（`fadeInCalendarDays`・`fadeOutCalendarDays` は `JDG-3635` で今のまま。`parentTaskUid` の名だけが残る）
+
 あなたの答え「MSPDI同じならOK。 違うならそこだけ抽出して、裁定に回せ。」に従い、MSPDI の名と同じ 17 語を確定しました（`JDG-3553`）。キーが MSPDI の名と違う 3 語を、ここに残しました。案は GRWB の議論の後でこの問いに書きます。
 
 | # | キー | 日本語の名 | 意味（日本語） | MSPDI の名 |
@@ -1428,6 +1847,8 @@ GRS の色の要素を、仕様書と β の形から 12 に数えました（�
 回答:
 
 #### ❓ 問 6-7-7. `recurrencePeriod` —— MSPDI の名 Period と違う名を保つか
+
+状態: STALE-NAMES（兄弟の `recurrenceType` は `JDG-3628` で MSPDI の名 `type` になり、推しの理由が崩れた。`JDG-3638` の優先 ③ と照らして組み直す）
 
 場面: このキーは、MSPDI の Exception/Period（例外の繰り返しの間隔）を写します。MSPDI の名は Period です。同じ Exception の Type は、`JDG-3548` で `recurrenceType` に決まりました。あなたは問 6-9-5 で、MSPDI の名と違う語を裁定に回すよう指示しました。
 
@@ -1445,6 +1866,8 @@ GRS の色の要素を、仕様書と β の形から 12 に数えました（�
 ## BGQA3 GRS JSON（11 回目の答えの後に出し直す。2026-11-17）（問 6-8-8 は 2026-11-18 に BGQA3 の 13 回目の表で問い直して決まった（`JDG-3628`）。問 6-13-5 の構造図は、JDG-3618〜3629 を当てて描き直してから出す）
 
 #### ❓ 問 6-13-5. 構造図（2026-11-17 版） —— このとおりでよいか
+
+状態: STALE-NAMES（構造図は `JDG-3618`〜`JDG-3691` より前の版。`utcOffsetMinutes`・`rootTreeState`・`taskStyles[]`・`topTaskGroupId` ほかが変わった）
 
 場面: あなたは「途中まで見た。 直せ。 そのあとまたツリーを見る。 ツリーで直したところは説明のところに更新マークをつけろ。 そうしないとツリーが壊れる」と書きました。構造図の ★ を直し、その後に決まったこと（`JDG-3606`・`JDG-3607`・`JDG-3610`〜`JDG-3613`）と問 6-8-8 の a（仮）を当てて描き直しました。直した行は、説明の欄の末尾に 🔄 があります。
 
