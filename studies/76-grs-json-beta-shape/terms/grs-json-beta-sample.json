@@ -68,7 +68,7 @@
       "isAssigneeLabelVisible": true
     },
     "delayDiagnosisSettings": {
-      "toleranceWorkingDays": 1
+      "parentTaskProgressToleranceWorkingDays": 1
     },
     "tableWindows": {
       "searchWindow": {
@@ -263,7 +263,7 @@
             "sourceProjectUid": "b7ee990a-21f3-47aa-b1b3-2c388a58a9f5",
             "sourceTaskUid": 11,
             "importSessionId": "618c67bd-8974-481d-848b-eb68aa1fb8ca",
-            "lastSeenMspdiImportCount": 1
+            "mspdiImportCountWhenLastIncluded": 1
           }
         }
       },
@@ -302,7 +302,7 @@
             "sourceProjectUid": "b7ee990a-21f3-47aa-b1b3-2c388a58a9f5",
             "sourceTaskUid": 12,
             "importSessionId": "618c67bd-8974-481d-848b-eb68aa1fb8ca",
-            "lastSeenMspdiImportCount": 1
+            "mspdiImportCountWhenLastIncluded": 1
           }
         },
         "passthrough": {
@@ -338,7 +338,7 @@
             "sourceProjectUid": "b7ee990a-21f3-47aa-b1b3-2c388a58a9f5",
             "sourceTaskUid": 13,
             "importSessionId": "618c67bd-8974-481d-848b-eb68aa1fb8ca",
-            "lastSeenMspdiImportCount": 1
+            "mspdiImportCountWhenLastIncluded": 1
           }
         },
         "predecessorLinks": [

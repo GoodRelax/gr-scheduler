@@ -44,77 +44,77 @@ R027     +- remarks                そのほか
 ### 文書設定
 
 ```text
-R028  documentSettings                     文書設定（効く範囲の広い順）
-R029  +- displayScaleRatio                 表示の倍率（1 が等倍）
-R030  +- fontSizePreset                    文字の大きさの段
-R031  |  +- "small"                        小
-R032  |  +- "medium"                       中
-R033  |  +- "large"                        大
-R034  +- isThemeMonochrome                 モノクロか
-R035  +- themeHue                          テーマの色相の名
-R036  |  +- "blue"                         青
-R037  |  +- "blueGreen"                    青緑
-R038  |  +- "green"                        緑
-R039  |  +- "yellowGreen"                  黄緑
-R040  |  +- "yellow"                       黄
-R041  |  +- "orange"                       橙
-R042  |  +- "red"                          赤
-R043  |  +- "redPurple"                    赤紫
-R044  |  +- "purple"                       紫
-R045  |  +- "indigo"                       藍
-R046  +- viewTimeZone                      表示の基準タイムゾーン
-R047  |  +- type                           判別子
-R048  |  |  +- "sameAsScheduleData"        データの時差と同じ
-R049  |  |  +- "fixed"                     決まった差を使う
-R050  |  +- utcOffset                      UTC との差（"+09:00" の形。標準時の行だけ）（fixed）
-R051  +- displayTimeZones[]                追加の時計（4 つまで）
-R052  |  +- utcOffset                      UTC との差（"+09:00" の形）
-R053  |  +- zoneNameType                   出すゾーンの名の種類（差 utcOffset はもう夏時間の分を含む）
-R054  |     +- "standard"                  標準時の名
-R055  |     +- "daylight"                  夏時間の名
-R056  +- isTimeOfDayVisible                時刻を見せるか（文書の全体の時刻の見せ方）
-R057  +- dayWidthPx                        暦日 1 日の幅
-R058  +- fitDayRange                       全体表示期間
-R059  |  +- type                           判別子
-R060  |  |  +- "fixed"                     決まった期間
-R061  |  |  +- "automatic"                 描ける物すべての範囲（期間を持たない）
-R062  |  +- firstDay                       最初の日（fixed）
-R063  |  +- lastDay                        最後の日（fixed）
-R064  +- verticalZoom                      縦のズーム
-R065  |  +- ratio                          縦の倍率（1 が既定）
-R066  |  +- automaticallyShownDepth        automatic の帯を、この深さまで出す（1〜maxGroupDepth）
-R067  +- taskGroupPanelWidthPx             タスクグループパネルの幅（倍率 1 のときの CSS ピクセル）
-R068  +- isTaskGroupPanelWidthFixed        幅を固定するか
-R069  +- pinnedTaskGroupIds[]              ピン止めしたタスクグループの id
-R070  +- taskPlacementDirection            帯の中で、重なるタスクを日付の早い順に置く向き
-R071  |  +- "bottomToTop"                  下から上へ
-R072  |  +- "topToBottom"                  上から下へ
-R073  +- scrollPosition                    開いたときの位置
-R074  |  +- type                           判別子
-R075  |  |  +- "automatic"                 位置を決めていない（GRS が決める）
-R076  |  |  +- "fixed"                     下の 4 つの値で決める
-R077  |  +- leftEdgeDay                    左の端の日（fixed）
-R078  |  +- leftEdgeDayOffsetPercent       左の端が、その日の始まりから何 % の所か（fixed）
-R079  |  +- topEdgeTaskGroupId             上の端の帯（fixed）
-R080  |  +- topEdgeTaskGroupOffsetPercent  上の端が、その帯の上から何 % の所か（fixed）
-R081  +- scheduleCanvasElements            Schedule Canvas に描く物
-R082  |  +- isDateGridLinesVisible         日の罫線を見せるか
-R083  |  +- isGroupGridLinesVisible        グループ罫線（タスクグループの境の横線）を見せるか
-R084  |  +- isProgressLineVisible          イナズマ線を見せるか
-R085  |  +- isDependencyLineVisible        依存線を見せるか
-R086  |  +- isPlanBarVisible               予定バーを見せるか
-R087  |  +- isPlanDatesVisible             予定の日付を見せるか
-R088  |  +- isActualBarVisible             実績バーを見せるか
-R089  |  +- isPercentCompleteLabelVisible  完了率のラベルを見せるか
-R090  |  +- isProgressMarkVisible          進捗マークを見せるか
-R091  |  +- isBaselineOutlineVisible       前回予定を重ねるか（前回予定輪郭）
-R092  |  +- isAssigneeLabelVisible         担当のラベルを見せるか
-R093  +- delayDiagnosisSettings            遅延診断の設定
-R094  |  +- toleranceWorkingDays           遅延診断が親タスクの進み具合に許す幅（稼働日）
-R095  +- tableWindows                      3 つの表の見せ方
-R096     +- searchWindow                   検索ウィンドウ -> TaskTableWindow
-R097     +- delayDiagnosisReportWindow     遅延診断レポート -> TaskTableWindow
-R098     +- resourceListWindow             担当リスト -> ResourceTableWindow
+R028  documentSettings                              文書設定（効く範囲の広い順）
+R029  +- displayScaleRatio                          表示の倍率（1 が等倍）
+R030  +- fontSizePreset                             文字の大きさの段
+R031  |  +- "small"                                 小
+R032  |  +- "medium"                                中
+R033  |  +- "large"                                 大
+R034  +- isThemeMonochrome                          モノクロか
+R035  +- themeHue                                   テーマの色相の名
+R036  |  +- "blue"                                  青
+R037  |  +- "blueGreen"                             青緑
+R038  |  +- "green"                                 緑
+R039  |  +- "yellowGreen"                           黄緑
+R040  |  +- "yellow"                                黄
+R041  |  +- "orange"                                橙
+R042  |  +- "red"                                   赤
+R043  |  +- "redPurple"                             赤紫
+R044  |  +- "purple"                                紫
+R045  |  +- "indigo"                                藍
+R046  +- viewTimeZone                               表示の基準タイムゾーン
+R047  |  +- type                                    判別子
+R048  |  |  +- "sameAsScheduleData"                 データの時差と同じ
+R049  |  |  +- "fixed"                              決まった差を使う
+R050  |  +- utcOffset                               UTC との差（"+09:00" の形。標準時の行だけ）（fixed）
+R051  +- displayTimeZones[]                         追加の時計（4 つまで）
+R052  |  +- utcOffset                               UTC との差（"+09:00" の形）
+R053  |  +- zoneNameType                            出すゾーンの名の種類（差 utcOffset はもう夏時間の分を含む）
+R054  |     +- "standard"                           標準時の名
+R055  |     +- "daylight"                           夏時間の名
+R056  +- isTimeOfDayVisible                         時刻を見せるか（文書の全体の時刻の見せ方）
+R057  +- dayWidthPx                                 暦日 1 日の幅
+R058  +- fitDayRange                                全体表示期間
+R059  |  +- type                                    判別子
+R060  |  |  +- "fixed"                              決まった期間
+R061  |  |  +- "automatic"                          描ける物すべての範囲（期間を持たない）
+R062  |  +- firstDay                                最初の日（fixed）
+R063  |  +- lastDay                                 最後の日（fixed）
+R064  +- verticalZoom                               縦のズーム
+R065  |  +- ratio                                   縦の倍率（1 が既定）
+R066  |  +- automaticallyShownDepth                 automatic の帯を、この深さまで出す（1〜maxGroupDepth）
+R067  +- taskGroupPanelWidthPx                      タスクグループパネルの幅（倍率 1 のときの CSS ピクセル）
+R068  +- isTaskGroupPanelWidthFixed                 幅を固定するか
+R069  +- pinnedTaskGroupIds[]                       ピン止めしたタスクグループの id
+R070  +- taskPlacementDirection                     帯の中で、重なるタスクを日付の早い順に置く向き
+R071  |  +- "bottomToTop"                           下から上へ
+R072  |  +- "topToBottom"                           上から下へ
+R073  +- scrollPosition                             開いたときの位置
+R074  |  +- type                                    判別子
+R075  |  |  +- "automatic"                          位置を決めていない（GRS が決める）
+R076  |  |  +- "fixed"                              下の 4 つの値で決める
+R077  |  +- leftEdgeDay                             左の端の日（fixed）
+R078  |  +- leftEdgeDayOffsetPercent                左の端が、その日の始まりから何 % の所か（fixed）
+R079  |  +- topEdgeTaskGroupId                      上の端の帯（fixed）
+R080  |  +- topEdgeTaskGroupOffsetPercent           上の端が、その帯の上から何 % の所か（fixed）
+R081  +- scheduleCanvasElements                     Schedule Canvas に描く物
+R082  |  +- isDateGridLinesVisible                  日の罫線を見せるか
+R083  |  +- isGroupGridLinesVisible                 グループ罫線（タスクグループの境の横線）を見せるか
+R084  |  +- isProgressLineVisible                   イナズマ線を見せるか
+R085  |  +- isDependencyLineVisible                 依存線を見せるか
+R086  |  +- isPlanBarVisible                        予定バーを見せるか
+R087  |  +- isPlanDatesVisible                      予定の日付を見せるか
+R088  |  +- isActualBarVisible                      実績バーを見せるか
+R089  |  +- isPercentCompleteLabelVisible           完了率のラベルを見せるか
+R090  |  +- isProgressMarkVisible                   進捗マークを見せるか
+R091  |  +- isBaselineOutlineVisible                前回予定を重ねるか（前回予定輪郭）
+R092  |  +- isAssigneeLabelVisible                  担当のラベルを見せるか
+R093  +- delayDiagnosisSettings                     遅延診断の設定
+R094  |  +- parentTaskProgressToleranceWorkingDays  遅延診断が親タスクの進み具合に許す幅（稼働日）
+R095  +- tableWindows                               3 つの表の見せ方
+R096     +- searchWindow                            検索ウィンドウ -> TaskTableWindow
+R097     +- delayDiagnosisReportWindow              遅延診断レポート -> TaskTableWindow
+R098     +- resourceListWindow                      担当リスト -> ResourceTableWindow
 ```
 
 ### スケジュールデータ（頭の値と、MSPDI と往復する群）
@@ -249,7 +249,7 @@ R224  |  |  +- importOrigin                           取り込み元の控え�
 R225  |  |     +- sourceProjectUid                    元のファイルの Project の UID
 R226  |  |     +- sourceTaskUid                       元のファイルでの、このタスクの UID
 R227  |  |     +- importSessionId                     取り込みの id（取り込みのたびに GRS が作る）
-R228  |  |     +- lastSeenMspdiImportCount            このタスクを最後に含んでいた取り込みが何回目か
+R228  |  |     +- mspdiImportCountWhenLastIncluded    このタスクを最後に含んでいた取り込みが何回目か
 R229  |  +- predecessorLinks[] [M] (PredecessorLink)  先行への結び付き
 R230  |  |  +- predecessorUid [M]                     先行タスク
 R231  |  |  +- type [M]                               依存の種類（判別子ではない）
