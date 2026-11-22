@@ -287,7 +287,7 @@ scheduleData	スケジュールデータ（GRS だけが持つ配列。MSPDI の
       "hidden"	しまう（人がしまうと選んだ。配下も隠れ、ズームでも全体表示でも隠れたまま）
       "automatic"	規則に任せる（深さ・ピン・出ている配下への道で決まる）
       "hiddenUntilZoomIn"	拡大まで隠す（次の縦のズームインで automatic に変わる）
-    editableByGroupName	編集してよい組の名
+    allowedEditorGroupName	編集してよい組の名
   baselineTasks[]	前回予定
     uid	今のタスクの uid
     name	タスク名
@@ -372,16 +372,16 @@ Color	色
     "purple"	紫
   light	明るいテーマの側（custom）
     hexColor	色の値（#rrggbb）
-    isCalculatedFromOppositeColor	GRS が反対の側の色から計算した側だけ true
+    isCalculatedFromOppositeColorScheme	GRS が反対の側の色から計算した側だけ true
   dark	暗いテーマの側（custom。形は light）
 LaneColor	帯の色（Color から black を除く）
 TaskTableWindow	タスクの表の見せ方（検索ウィンドウ・遅延診断レポート）
-  isScheduleFilterApplied	表でチェックしたタスクだけを描くか
+  isScheduleFilteredByChecks	チェックで日程表を絞るか（チェックしたタスクだけを描く）
   checkedTaskUids[]	チェックしたタスク
   columnFilters[]	列のフィルタ（掛けた列ごとに 1 つ）-> ColumnFilter
   columnSort	表の並べ方（列と向き）-> ColumnSort
 ResourceTableWindow	担当の表の見せ方（担当リスト）
-  isScheduleFilterApplied	表のチェックでチャートを絞るか
+  isScheduleFilteredByChecks	チェックで日程表を絞るか（チェックした担当のタスクだけを描く）
   checkedResourceUids[]	チェックした担当
   isUnassignedChecked	（担当なし）の行をチェックしたか
   columnFilters[]	列のフィルタ（掛けた列ごとに 1 つ）-> ColumnFilter
