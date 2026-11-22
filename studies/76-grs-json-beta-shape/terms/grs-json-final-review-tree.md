@@ -5,9 +5,9 @@
 - 印: `[M]` は MSPDI の要素を写すキー（括弧の中は、MSPDI の名が違う時の MSPDI の名）。`[G]` は、MSPDI と往復する実体の中にある GRS 特有の値。`[]` は配列、`->` は「共通の型」を指す。
 - 値: `"…"` は文字列の値、数だけの行は MSPDI の数の符号（数のまま書く）。
 - 判別子: 「判別子」と書いた `type` は、その値が持つ欄の組を選ぶ。判別子の値の行の右の括弧（例「（fixed）」）は、その欄がどの値のときだけあるかを言う。
-- 数: キー 287、値 150（`python grs-json-final-review-tree.py count` で数えた。部分の頭の `documentSettings`・`scheduleData` の再掲を含む）。
+- 数: キー 287、値 150（`python schema_to_review_tree.py count` で数えた。部分の頭の `documentSettings`・`scheduleData` の再掲を含む）。
 - 行番号: 各行の頭の `R001`〜`R437` は、持ち主の GQA と外の AI の質問状で同じ行を指す番号。
-- 正: このツリーは `grs-json-final-review-tree.src.txt` から `grs-json-final-review-tree.py ja-num` で作る。直すときは src を直して作り直す。
+- 正: このツリーは生成物である（`JDG-3756`）。キー・順・列挙の値は β のスキーマ `grs-json-beta.schema.json` から、日本語の欄は `grs-json-beta-tree-labels-ja.tsv` から、`python schema_to_review_tree.py write` で作る。直すときはスキーマか TSV を直して作り直し、`python schema_to_review_tree.py check` で差を見る。2026-11-23 までの正だった `grs-json-final-review-tree.src.txt` と `grs-json-final-review-tree.py` は退けた（コミット b1a515deb までの履歴にある）。
 
 ### 根と帳簿
 
