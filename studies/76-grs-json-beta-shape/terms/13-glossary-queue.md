@@ -776,16 +776,16 @@ MSPDI の LinkLag は 10 分の 1 分で数え、LagFormat は単位を数の符
 
 状態: OPEN
 
-易しい語をまとめた推奨の表です。帯の値を戻す命令（今の `resetTaskGroupTreeStates`）は、`JDG-3690` で `setTaskGroupSelfShowModesToAutomaticExceptHidden` に決まり、`JDG-3691` で全体表示の部品になったので、表から外しました。引数の `parentId` は、`JDG-3410`（GRS JSON と同じ名）と `JDG-3622`（`parentTaskGroupId`）に従って `parentTaskGroupId` と書きました。写しと並べ替えの値は問 35-4 で問います。直す所が無ければ ok、直す所は表のセルに ★ で書いてください。
+易しい語をまとめた推奨の表です。帯の値を戻す命令（今の `resetTaskGroupTreeStates`）は、`JDG-3690` で `setTaskGroupShowModesToAutomaticExceptHidden` に決まり、`JDG-3691` で全体表示の部品になったので、表から外しました。引数の `parentId` は、`JDG-3410`（GRS JSON と同じ名）と `JDG-3622`（`parentTaskGroupId`）に従って `parentTaskGroupId` と書きました。写しと並べ替えの値は問 35-4 で問います。直す所が無ければ ok、直す所は表のセルに ★ で書いてください。
 
 | # | キー | 日本語の名 | 意味（日本語） | 既存の名との関係 |
 |:---|:---|:---|:---|:---|
 | 36-20 | `editTaskGroup` | タスクグループを編集する | タスクグループ taskGroupId を編集する。set は並べたプロパティを書き、clear は並べた省けるプロパティを取り除く。両方にあるプロパティは断る（fieldSetAndCleared）。style.color が無ければ、GRS は帯の色を塗らない。name は、そのグループが代表するタスクの名前に従わない。editableByGroupName はまだ作っていないので、設定も clear も断る（notImplemented）。javascript:・vbscript:・data: で始まる hyperlinkAddress は断る（hyperlinkSchemeNotAllowed）。 | 形は `edit<実体>`（`JDG-3268`） |
-| 36-21 | `createTaskGroup` | タスクグループを作る | 与えた id と siblingOrder で、タスクグループを作る。parentTaskGroupId（無ければ最上位）、name（無ければ名前なし）、representativeTaskUid、selfShowMode（無ければ automatic）も与えてよい。（`JDG-3639`・`JDG-3684`） | 無し |
-| 36-22 | `pasteTaskGroupSubtree` | タスクグループの部分木を貼り付ける | sourceTaskGroupId を根とするタスクグループの部分木を複製し、根の写しを parentTaskGroupId（無ければ最上位）の下に置く。newTaskGroupIds は、元の id それぞれから写しの id への対応である。写しの根は selfShowMode（無ければ automatic）を得て、写しの配下は元の値を写す。（`JDG-3684`） | 無し |
+| 36-21 | `createTaskGroup` | タスクグループを作る | 与えた id と siblingOrder で、タスクグループを作る。parentTaskGroupId（無ければ最上位）、name（無ければ名前なし）、representativeTaskUid、showMode（無ければ automatic）も与えてよい。（`JDG-3639`・`JDG-3684`） | 無し |
+| 36-22 | `pasteTaskGroupSubtree` | タスクグループの部分木を貼り付ける | sourceTaskGroupId を根とするタスクグループの部分木を複製し、根の写しを parentTaskGroupId（無ければ最上位）の下に置く。newTaskGroupIds は、元の id それぞれから写しの id への対応である。写しの根は showMode（無ければ automatic）を得て、写しの配下は元の値を写す。（`JDG-3684`） | 無し |
 | 36-23 | &emsp;+- `sourceTaskGroupId` | 写す元の根 | 写す部分木の根のタスクグループの id。 | 無し |
 | 36-25 | `reorderTaskGroupSiblings` | 兄弟を並べ直す | parentTaskGroupId（無ければ最上位）の下の兄弟のタスクグループを、orderedIds の順に並べ直す。その順が siblingOrder になる。 | 無し |
-| 36-27 | `moveTaskGroup` | タスクグループを動かす | タスクグループ taskGroupId の親と兄弟の中の位置を、parentTaskGroupId（無ければ最上位）と siblingOrder に変える。selfShowMode を与えれば、その値も書く。省けば値を保つ。（`JDG-3684`） | 無し |
+| 36-27 | `moveTaskGroup` | タスクグループを動かす | タスクグループ taskGroupId の親と兄弟の中の位置を、parentTaskGroupId（無ければ最上位）と siblingOrder に変える。showMode を与えれば、その値も書く。省けば値を保つ。（`JDG-3684`） | 無し |
 | 36-29 | `deleteTaskGroup` | タスクグループを削除する | タスクグループ taskGroupId を削除する。最後のタスクグループを削除するときは、名前が Untitled の最上位のタスクグループを新しく作る。文書はいつも少なくとも 1 つのタスクグループを持つからである。 | 無し |
 | 37-1 | `pinTaskGroup` | ピン止めする | タスクグループ taskGroupId をピン止めしたタスクグループに足して、ピン止めする。 | GRS JSON の `pinnedTaskGroupIds` を書く |
 | 37-2 | `unpinTaskGroup` | ピン止めを外す | タスクグループ taskGroupId をピン止めしたタスクグループから外す。最後の 1 つを外すと pinnedTaskGroupIds のプロパティも取り除き、[] は書かない。 | GRS JSON の `pinnedTaskGroupIds` を書く |

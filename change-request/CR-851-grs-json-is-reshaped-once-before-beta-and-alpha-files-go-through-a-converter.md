@@ -237,6 +237,8 @@
 | `rulings.md`（GRS JSON の最終レビューの席、2026-11-22 の 15） | `JDG-3732`（フェードの 2 つを `startSlopeCalendarDays`・`finishSlopeCalendarDays`、画面を開始の傾き・終了の傾きに改める）を足した。本書の行のレビューの前に当てる |
 | `rulings.md`（GRS JSON の最終レビューの席、2026-11-22 の 16） | `JDG-3733`（JSON の名から Lane を無くす: `LaneColor` → `TaskGroupColor`、`laneTopOffsetPercent` → `taskGroupTopOffsetPercent`）を足した。本書の行のレビューの前に当てる |
 | `rulings.md`（GRS JSON の最終レビューの席、2026-11-22 の 17） | `JDG-3734`（検索の「ステータス」の列の名を `progressMarkStatus` に改める。Progress と Mark の名に矛盾が無いとエージェントが点検した）を足した。本書の行のレビューの前に当てる |
+| `rulings.md`（GRS JSON の最終レビューの席、2026-11-22 の 18） | `JDG-3735`（状態の列の隠す値は用語集の英語の名で書く。担当リストの選択は `selected`・`notSelected`）を足した。本書の行のレビューの前に当てる |
+| `rulings.md`（GRS JSON の最終レビューの席、2026-11-22 の 19） | `JDG-3736`（タスクグループの `selfShowMode` を `showMode` に改める）を足した。本書の行のレビューの前に当てる |
 | `defects.md` | `DFC-3579`（本書）—— 行のレビューの後に起こす |
 | `changelog.md` | 当てるときに 1 行 |
 

@@ -390,7 +390,7 @@
         "representativeTaskUid": 1,
         "hyperlinkAddress": "https://example.com/task-groups/work-package-a",
         "hyperlink": "Task group notes",
-        "selfShowMode": "shown",
+        "showMode": "shown",
         "allowedEditorGroupName": "Team A"
       },
       {
@@ -401,7 +401,7 @@
         "style": {
           "color": { "type": "palette", "name": "lightGray" }
         },
-        "selfShowMode": "automatic"
+        "showMode": "automatic"
       }
     ],
     "baselineTasks": [

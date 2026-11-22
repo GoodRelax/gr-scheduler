@@ -307,11 +307,11 @@ R277  |  +- minHeightPx                   帯の最も低い高さ
 R278  |  +- representativeTaskUid         この帯を代表する WBS のタスク
 R279  |  +- hyperlinkAddress              リンク先の URL
 R280  |  +- hyperlink                     リンクのタイトル
-R281  |  +- selfShowMode                  帯自身の表示の意図（書かなければ automatic）
-R282  |  |  +- "shown"                    出す（人が出すと選んだ。深さに依らず描く）
+R281  |  +- showMode                      この帯を出すかの意図（書かなければ automatic。hidden と hiddenUntilZoomIn は配下も隠す）
+R282  |  |  +- "shown"                    出す（人が出すと選んだ。深さに依らず描く。祖先が隠していれば隠れる）
 R283  |  |  +- "hidden"                   しまう（人がしまうと選んだ。配下も隠れ、ズームでも全体表示でも隠れたまま）
 R284  |  |  +- "automatic"                規則に任せる（深さ・ピン・出ている配下への道で決まる）
-R285  |  |  +- "hiddenUntilZoomIn"        拡大まで隠す（次の縦のズームインで automatic に変わる）
+R285  |  |  +- "hiddenUntilZoomIn"        拡大まで隠す（配下も隠れる。次の縦のズームインで automatic に変わる）
 R286  |  +- allowedEditorGroupName        編集してよい組の名
 R287  +- baselineTasks[]                  前回予定
 R288  |  +- uid                           今のタスクの uid
@@ -441,7 +441,7 @@ R406  |  +- "resourceName"                       担当リスト: 担当名
 R407  |  +- "isSelected"                         担当リスト: 選択（その担当を選んでいるか）
 R408  |  +- "assignedTaskCount"                  担当リスト: 担当タスク数
 R409  |  +- "assignedTaskNames"                  担当リスト: 担当タスク
-R410  +- hiddenValues[]                          隠す値（values）
+R410  +- hiddenValues[]                          隠す値（values）。状態の列は用語集の英語の名（例 finished・delay・task・selected、JDG-3735）、ほかの列はセルの値
 R411  +- isBlankHidden                           空の行を隠すか（values）
 R412  +- firstDay                                最初の日（dateRange）
 R413  +- lastDay                                 最後の日（dateRange）
