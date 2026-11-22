@@ -2,26 +2,20 @@
   "$schema": "https://goodrelax.github.io/gr-scheduler/spec/_source/grs-document.schema.json",
   "schemaVersionUtc": "2026-11-17T00:00:00Z",
   "buildVersionUtc": "2026-11-17T03:00:00Z",
+  "documentStamp": {
+    "scheduleDataUpdatedAt": "2026-12-03T05:10:00Z",
+    "documentUpdatedAt": "2026-12-03T05:12:00Z",
+    "fileSavedAt": "2026-12-03T05:15:00Z",
+    "lastEditedBy": {
+      "type": "agent",
+      "name": "planning-assistant"
+    }
+  },
   "documentSettings": {
     "displayScaleRatio": 1,
     "fontSizePreset": "medium",
-    "dayWidthPx": 24,
-    "verticalZoom": {
-      "ratio": 1,
-      "automaticallyShownDepth": 2
-    },
-    "scrollPosition": {
-      "type": "fixed",
-      "leftEdgeDay": "2026-11-30",
-      "leftEdgeDayOffsetPercent": 0,
-      "topEdgeTaskGroupId": "db19099a-0302-418d-82e1-e95c7a6a093c",
-      "topEdgeTaskGroupOffsetPercent": 0
-    },
-    "fitDayRange": {
-      "type": "fixed",
-      "firstDay": "2026-11-30",
-      "lastDay": "2026-12-11"
-    },
+    "isThemeMonochrome": false,
+    "themeHue": "blue",
     "viewTimeZone": {
       "type": "fixed",
       "utcOffset": "+09:00"
@@ -36,6 +30,29 @@
         "zoneNameType": "daylight"
       }
     ],
+    "dayWidthPx": 24,
+    "fitDayRange": {
+      "type": "fixed",
+      "firstDay": "2026-11-30",
+      "lastDay": "2026-12-11"
+    },
+    "verticalZoom": {
+      "ratio": 1,
+      "automaticallyShownDepth": 2
+    },
+    "taskGroupPanelWidthPx": 160,
+    "isTaskGroupPanelWidthFixed": false,
+    "pinnedTaskGroupIds": [
+      "db19099a-0302-418d-82e1-e95c7a6a093c"
+    ],
+    "taskStackDirection": "bottomToTop",
+    "scrollPosition": {
+      "type": "fixed",
+      "leftEdgeDay": "2026-11-30",
+      "leftEdgeDayOffsetPercent": 0,
+      "topEdgeTaskGroupId": "db19099a-0302-418d-82e1-e95c7a6a093c",
+      "topEdgeTaskGroupOffsetPercent": 0
+    },
     "isTimeOfDayVisible": false,
     "isPlanBarVisible": true,
     "isPlanDatesVisible": true,
@@ -48,14 +65,6 @@
     "isAssigneeLabelVisible": true,
     "isDateGridLinesVisible": true,
     "isGroupGridLinesVisible": false,
-    "taskStackDirection": "bottomToTop",
-    "isThemeMonochrome": false,
-    "themeHue": "blue",
-    "taskGroupPanelWidthPx": 160,
-    "isTaskGroupPanelWidthFixed": false,
-    "pinnedTaskGroupIds": [
-      "db19099a-0302-418d-82e1-e95c7a6a093c"
-    ],
     "delayDiagnosisSettings": {
       "toleranceWorkingDays": 1
     },
@@ -129,123 +138,6 @@
         "CurrencyCode": "USD"
       }
     },
-    "tasks": [
-      {
-        "uid": 1,
-        "name": "Work package A",
-        "notes": "Parent of the two steps below.",
-        "start": "2026-12-01T08:00:00",
-        "finish": "2026-12-04T17:00:00",
-        "milestone": false,
-        "percentComplete": 0,
-        "siblingOrder": 1,
-        "calendarUid": 1,
-        "hyperlinkAddress": "https://example.com/work-package-a",
-        "hyperlink": "Work package A page",
-        "grs": {
-          "style": {
-            "taskShape": "dumbbell",
-            "fill": {
-              "color": { "type": "theme" },
-              "opacityPercent": 100
-            }
-          },
-          "taskGroupId": "db19099a-0302-418d-82e1-e95c7a6a093c",
-          "importOrigin": {
-            "sourceProjectUid": "b7ee990a-21f3-47aa-b1b3-2c388a58a9f5",
-            "sourceTaskUid": 11,
-            "importSessionId": "618c67bd-8974-481d-848b-eb68aa1fb8ca",
-            "lastSeenMspdiImportCount": 1
-          }
-        }
-      },
-      {
-        "uid": 2,
-        "name": "Prepare draft",
-        "start": "2026-12-01T08:00:00",
-        "finish": "2026-12-03T17:00:00",
-        "milestone": false,
-        "deadline": "2026-12-03T17:00:00",
-        "actualStart": "2026-12-01T08:00:00",
-        "stop": "2026-12-02T12:00:00",
-        "resume": "2026-12-03T08:00:00",
-        "resumeValid": true,
-        "percentComplete": 50,
-        "parentTaskUid": 1,
-        "siblingOrder": 1,
-        "calendarUid": 1,
-        "grs": {
-          "fadeInCalendarDays": 2,
-          "fadeOutCalendarDays": 1,
-          "style": {
-            "taskShape": "chevron",
-            "fill": {
-              "color": { "type": "palette", "name": "blue" },
-              "opacityPercent": 80
-            },
-            "stroke": {
-              "color": { "type": "palette", "name": "black" },
-              "opacityPercent": 100,
-              "widthPx": 1
-            }
-          },
-          "taskGroupId": "15e4d36c-dc58-4088-b28d-3530c76a6da5",
-          "importOrigin": {
-            "sourceProjectUid": "b7ee990a-21f3-47aa-b1b3-2c388a58a9f5",
-            "sourceTaskUid": 12,
-            "importSessionId": "618c67bd-8974-481d-848b-eb68aa1fb8ca",
-            "lastSeenMspdiImportCount": 1
-          }
-        },
-        "passthrough": {
-          "Priority": 500,
-          "ExtendedAttribute": [
-            { "FieldID": "188743731", "Value": "Alpha" },
-            { "FieldID": "188743734", "Value": "Beta" }
-          ]
-        }
-      },
-      {
-        "uid": 3,
-        "name": "Draft approved",
-        "start": "2026-12-04T17:00:00",
-        "finish": "2026-12-04T17:00:00",
-        "milestone": true,
-        "deadline": "2026-12-04T17:00:00",
-        "actualStart": "2026-12-04T17:00:00",
-        "actualFinish": "2026-12-04T17:00:00",
-        "percentComplete": 100,
-        "parentTaskUid": 1,
-        "siblingOrder": 2,
-        "grs": {
-          "style": {
-            "milestoneShape": "diamond",
-            "fill": {
-              "color": { "type": "theme" },
-              "opacityPercent": 100
-            }
-          },
-          "taskGroupId": "15e4d36c-dc58-4088-b28d-3530c76a6da5",
-          "importOrigin": {
-            "sourceProjectUid": "b7ee990a-21f3-47aa-b1b3-2c388a58a9f5",
-            "sourceTaskUid": 13,
-            "importSessionId": "618c67bd-8974-481d-848b-eb68aa1fb8ca",
-            "lastSeenMspdiImportCount": 1
-          }
-        },
-        "predecessorLinks": [
-          {
-            "predecessorUid": 2,
-            "type": 1,
-            "linkLag": 4800,
-            "lagFormat": 7,
-            "passthrough": {
-              "CrossProject": 0
-            }
-          }
-        ]
-      }
-    ],
     "calendars": [
       {
         "uid": 1,
@@ -336,6 +228,123 @@
         "baseCalendarUid": 1
       }
     ],
+    "tasks": [
+      {
+        "uid": 1,
+        "name": "Work package A",
+        "notes": "Parent of the two steps below.",
+        "start": "2026-12-01T08:00:00",
+        "finish": "2026-12-04T17:00:00",
+        "milestone": false,
+        "percentComplete": 0,
+        "calendarUid": 1,
+        "hyperlinkAddress": "https://example.com/work-package-a",
+        "hyperlink": "Work package A page",
+        "siblingOrder": 1,
+        "grs": {
+          "style": {
+            "taskShape": "dumbbell",
+            "fill": {
+              "color": { "type": "theme" },
+              "opacityPercent": 100
+            }
+          },
+          "taskGroupId": "db19099a-0302-418d-82e1-e95c7a6a093c",
+          "importOrigin": {
+            "sourceProjectUid": "b7ee990a-21f3-47aa-b1b3-2c388a58a9f5",
+            "sourceTaskUid": 11,
+            "importSessionId": "618c67bd-8974-481d-848b-eb68aa1fb8ca",
+            "lastSeenMspdiImportCount": 1
+          }
+        }
+      },
+      {
+        "uid": 2,
+        "name": "Prepare draft",
+        "start": "2026-12-01T08:00:00",
+        "finish": "2026-12-03T17:00:00",
+        "milestone": false,
+        "deadline": "2026-12-03T17:00:00",
+        "actualStart": "2026-12-01T08:00:00",
+        "stop": "2026-12-02T12:00:00",
+        "resume": "2026-12-03T08:00:00",
+        "resumeValid": true,
+        "percentComplete": 50,
+        "calendarUid": 1,
+        "parentTaskUid": 1,
+        "siblingOrder": 1,
+        "grs": {
+          "fadeInCalendarDays": 2,
+          "fadeOutCalendarDays": 1,
+          "style": {
+            "taskShape": "chevron",
+            "fill": {
+              "color": { "type": "palette", "name": "blue" },
+              "opacityPercent": 80
+            },
+            "stroke": {
+              "color": { "type": "palette", "name": "black" },
+              "opacityPercent": 100,
+              "widthPx": 1
+            }
+          },
+          "taskGroupId": "15e4d36c-dc58-4088-b28d-3530c76a6da5",
+          "importOrigin": {
+            "sourceProjectUid": "b7ee990a-21f3-47aa-b1b3-2c388a58a9f5",
+            "sourceTaskUid": 12,
+            "importSessionId": "618c67bd-8974-481d-848b-eb68aa1fb8ca",
+            "lastSeenMspdiImportCount": 1
+          }
+        },
+        "passthrough": {
+          "Priority": 500,
+          "ExtendedAttribute": [
+            { "FieldID": "188743731", "Value": "Alpha" },
+            { "FieldID": "188743734", "Value": "Beta" }
+          ]
+        }
+      },
+      {
+        "uid": 3,
+        "name": "Draft approved",
+        "start": "2026-12-04T17:00:00",
+        "finish": "2026-12-04T17:00:00",
+        "milestone": true,
+        "deadline": "2026-12-04T17:00:00",
+        "actualStart": "2026-12-04T17:00:00",
+        "actualFinish": "2026-12-04T17:00:00",
+        "percentComplete": 100,
+        "parentTaskUid": 1,
+        "siblingOrder": 2,
+        "grs": {
+          "style": {
+            "milestoneShape": "diamond",
+            "fill": {
+              "color": { "type": "theme" },
+              "opacityPercent": 100
+            }
+          },
+          "taskGroupId": "15e4d36c-dc58-4088-b28d-3530c76a6da5",
+          "importOrigin": {
+            "sourceProjectUid": "b7ee990a-21f3-47aa-b1b3-2c388a58a9f5",
+            "sourceTaskUid": 13,
+            "importSessionId": "618c67bd-8974-481d-848b-eb68aa1fb8ca",
+            "lastSeenMspdiImportCount": 1
+          }
+        },
+        "predecessorLinks": [
+          {
+            "predecessorUid": 2,
+            "type": 1,
+            "linkLag": 4800,
+            "lagFormat": 7,
+            "passthrough": {
+              "CrossProject": 0
+            }
+          }
+        ]
+      }
+    ],
     "resources": [
       {
         "uid": 1,
@@ -360,22 +369,15 @@
         }
       }
     ],
-    "scheduleDataTimeZone": {
-      "utcOffset": "+09:00"
-    },
-    "sourceFormat": "mspdi15",
-    "importedTopTaskOutlineLevel": 1,
-    "highestIssuedUid": 4,
-    "mspdiImportCount": 1,
     "taskGroups": [
       {
         "id": "db19099a-0302-418d-82e1-e95c7a6a093c",
         "name": "Work package A",
+        "siblingOrder": 1,
         "style": {
           "color": { "type": "theme" }
         },
         "minHeightPx": 40,
-        "siblingOrder": 1,
         "representativeTaskUid": 1,
         "hyperlinkAddress": "https://example.com/lanes/work-package-a",
         "hyperlink": "Lane notes",
@@ -385,12 +387,42 @@
       {
         "id": "15e4d36c-dc58-4088-b28d-3530c76a6da5",
         "name": "Steps",
+        "parentTaskGroupId": "db19099a-0302-418d-82e1-e95c7a6a093c",
+        "siblingOrder": 1,
         "style": {
           "color": { "type": "palette", "name": "lightGray" }
         },
-        "parentTaskGroupId": "db19099a-0302-418d-82e1-e95c7a6a093c",
-        "siblingOrder": 1,
         "selfShowMode": "automatic"
+      }
+    ],
+    "baselineTasks": [
+      {
+        "uid": 2,
+        "name": "Prepare draft",
+        "start": "2026-12-01T08:00:00",
+        "finish": "2026-12-02T17:00:00",
+        "milestone": false
+      }
+    ],
+    "highlightBoxes": [
+      {
+        "id": "8bc08829-d2ac-4cc5-87f8-c2fd9591a23a",
+        "style": {
+          "cornerRadiusPx": 4,
+          "fill": {
+            "color": { "type": "palette", "name": "yellow" },
+            "opacityPercent": 30
+          },
+          "stroke": {
+            "color": { "type": "palette", "name": "yellow" },
+            "opacityPercent": 100,
+            "widthPx": 2
+          }
+        },
+        "firstDay": "2026-12-03",
+        "lastDay": "2026-12-04",
+        "firstTaskGroupId": "15e4d36c-dc58-4088-b28d-3530c76a6da5",
+        "lastTaskGroupId": "15e4d36c-dc58-4088-b28d-3530c76a6da5"
       }
     ],
     "commentBoxes": [
@@ -430,36 +462,13 @@
         "hyperlink": "Draft notes"
       }
     ],
-    "highlightBoxes": [
-      {
-        "id": "8bc08829-d2ac-4cc5-87f8-c2fd9591a23a",
-        "style": {
-          "cornerRadiusPx": 4,
-          "fill": {
-            "color": { "type": "palette", "name": "yellow" },
-            "opacityPercent": 30
-          },
-          "stroke": {
-            "color": { "type": "palette", "name": "yellow" },
-            "opacityPercent": 100,
-            "widthPx": 2
-          }
-        },
-        "firstDay": "2026-12-03",
-        "lastDay": "2026-12-04",
-        "firstTaskGroupId": "15e4d36c-dc58-4088-b28d-3530c76a6da5",
-        "lastTaskGroupId": "15e4d36c-dc58-4088-b28d-3530c76a6da5"
-      }
-    ],
-    "baselineTasks": [
-      {
-        "uid": 2,
-        "name": "Prepare draft",
-        "start": "2026-12-01T08:00:00",
-        "finish": "2026-12-02T17:00:00",
-        "milestone": false
-      }
-    ],
+    "scheduleDataTimeZone": {
+      "utcOffset": "+09:00"
+    },
+    "sourceFormat": "mspdi15",
+    "importedTopTaskOutlineLevel": 1,
+    "highestIssuedUid": 4,
+    "mspdiImportCount": 1,
     "passthroughTasks": [
       {
         "mspdiElement": {
@@ -523,15 +532,6 @@
         }
       }
     ]
-  },
-  "documentStamp": {
-    "scheduleDataUpdatedAt": "2026-12-03T05:10:00Z",
-    "documentUpdatedAt": "2026-12-03T05:12:00Z",
-    "fileSavedAt": "2026-12-03T05:15:00Z",
-    "lastEditedBy": {
-      "type": "agent",
-      "name": "planning-assistant"
-    }
   },
   "changeLogEntries": [
     {
