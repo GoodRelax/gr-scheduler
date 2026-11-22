@@ -14,7 +14,7 @@
       "creationDate": "2026-10-31T08:50:00",
       "revision": 11,
       "startDate": "2026-10-17T05:30:00",
-      "statusDate": "2026-11-23T04:16:00",
+      "statusDate": "2026-11-23T04:38:00",
       "minutesPerDay": 1440,
       "minutesPerWeek": 10080,
       "daysPerMonth": 30,
@@ -24,7 +24,7 @@
       "defaultFinishTime": "23:59:00",
       "themeHue": 214,
       "parentTaskProgressToleranceDays": 1,
-      "uidHighWaterMark": 476,
+      "uidHighWaterMark": 477,
       "importSequence": 0,
       "carry": {},
       "carryElements": [],
@@ -1616,6 +1616,14 @@
           },
           {
             "predecessorUid": 476,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          },
+          {
+            "predecessorUid": 477,
             "linkType": 1,
             "linkLag": 0,
             "lagFormat": 7,
@@ -8480,6 +8488,38 @@
         ],
         "carry": {},
         "carryElements": []
+      },
+      {
+        "uid": 477,
+        "parentTaskUid": null,
+        "wbsOrder": 336,
+        "name": "🌑 CR-861(担当リストの列の順を変える)の起草と当て(SUB)",
+        "start": "2026-11-24T15:12:00",
+        "finish": "2026-11-24T17:12:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "pmo-5 2026-11-23T04:38: BOSS line 11-23: JDG-3754 from BGQA6 (assignee list columns in the order show, select, assignee name, assigned task count, assigned tasks; FR-151 RQ-2, RQ-3) assigned to CR-861 (the JSON column value order goes with CR-851). Beside CR-860, after the diff extraction, before the final merge. 2 h is a BOSS placeholder (provisional). SUB: Opus 5.5 high.",
+        "calendarUid": null,
+        "actualStart": null,
+        "stop": null,
+        "actualFinish": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 455,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
       }
     ],
     "resources": [],
@@ -9905,6 +9945,10 @@
       },
       {
         "taskUid": 476,
+        "taskGroupId": "5321b390-7f24-598b-8fb6-6de6c53cf32f"
+      },
+      {
+        "taskUid": 477,
         "taskGroupId": "5321b390-7f24-598b-8fb6-6de6c53cf32f"
       }
     ],
@@ -12220,6 +12264,14 @@
         "fillColor": "blue",
         "strokeColor": null,
         "strokeWidthPx": null
+      },
+      {
+        "taskUid": 477,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": "diamond",
+        "fillColor": "blue",
+        "strokeColor": null,
+        "strokeWidthPx": null
       }
     ],
     "commentBoxes": [
@@ -14228,10 +14280,10 @@
     "zoomY": 1.099862517185352
   },
   "documentStamp": {
-    "scheduleUpdatedAt": "2026-11-22T19:16:00Z",
+    "scheduleUpdatedAt": "2026-11-22T19:38:00Z",
     "lastEditedBy": "PMO child session",
     "settingsUpdatedAt": "2026-10-20T20:24:42Z",
-    "fileSavedAt": "2026-11-22T19:16:00Z"
+    "fileSavedAt": "2026-11-22T19:38:00Z"
   },
   "changeLog": [
     {
@@ -14857,6 +14909,12 @@
       "editedBy": "PMO child session",
       "explanation": "Fact at 11-23 04:16 JST: BOSS line, the final review seat ruled and applied BGQA6 items B-1..B-8 (JDG-3743..3750, develop 4e81b6c07). 471 finish corrected to that commit (04:16); 473 keeps B-9..B-13. Later steps re-placed. N1 (316) and the beta (234) stay.",
       "changedAt": "2026-11-22T19:16:00Z"
+    },
+    {
+      "ordinal": 105,
+      "editedBy": "PMO child session",
+      "explanation": "Fact at 11-23 04:38 JST: BOSS line, JDG-3754 from BGQA6 (assignee list column order) goes to the new CR-861; added task 477, its drafting and apply (2 h placeholder), beside CR-860 after the diff 455 and before the final merge 228. No other date moved. N1 (316) and the beta (234) stay.",
+      "changedAt": "2026-11-22T19:38:00Z"
     }
   ]
 }
