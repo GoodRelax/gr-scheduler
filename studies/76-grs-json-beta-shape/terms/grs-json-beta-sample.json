@@ -6,8 +6,10 @@
     "displayScaleRatio": 1,
     "fontSizePreset": "medium",
     "dayWidthPx": 24,
-    "verticalZoomRatio": 1,
-    "taskGroupAutoExpandDepth": 2,
+    "verticalZoom": {
+      "ratio": 1,
+      "automaticallyShownDepth": 2
+    },
     "scrollPosition": {
       "type": "fixed",
       "leftEdgeDay": "2026-11-30",
@@ -16,9 +18,9 @@
       "topEdgeTaskGroupOffsetPercent": 0
     },
     "fitDayRange": {
+      "type": "fixed",
       "firstDay": "2026-11-30",
-      "lastDay": "2026-12-11",
-      "isFixed": false
+      "lastDay": "2026-12-11"
     },
     "viewTimeZone": {
       "type": "fixed",
@@ -51,11 +53,12 @@
     "themeHue": "blue",
     "taskGroupPanelWidthPx": 160,
     "isTaskGroupPanelWidthFixed": false,
-    "taskGroupRootTreeState": "auto",
     "pinnedTaskGroupIds": [
       "db19099a-0302-418d-82e1-e95c7a6a093c"
     ],
-    "delayDiagnosticsToleranceWorkingDays": 1,
+    "delayDiagnosisSettings": {
+      "toleranceWorkingDays": 1
+    },
     "tableWindows": {
       "searchWindow": {
         "isScheduleFilterApplied": true,
@@ -73,7 +76,7 @@
           "direction": "ascending"
         }
       },
-      "delayDiagnosticsReportWindow": {
+      "delayDiagnosisReportWindow": {
         "isScheduleFilterApplied": false,
         "checkedTaskUids": [2],
         "columnFilters": [
@@ -141,7 +144,7 @@
         "hyperlink": "Work package A page",
         "grs": {
           "style": {
-            "taskShape": "rectangle",
+            "taskShape": "dumbbell",
             "fill": {
               "color": { "type": "theme" },
               "opacityPercent": 100
@@ -150,9 +153,9 @@
           "taskGroupId": "db19099a-0302-418d-82e1-e95c7a6a093c",
           "importOrigin": {
             "sourceProjectUid": "b7ee990a-21f3-47aa-b1b3-2c388a58a9f5",
-            "sourceUid": 11,
+            "sourceTaskUid": 11,
             "importSessionId": "618c67bd-8974-481d-848b-eb68aa1fb8ca",
-            "lastSeenMspdiImportNumber": 1
+            "lastSeenMspdiImportCount": 1
           }
         }
       },
@@ -181,7 +184,7 @@
               "opacityPercent": 80
             },
             "stroke": {
-              "color": { "type": "palette", "name": "ink" },
+              "color": { "type": "palette", "name": "black" },
               "opacityPercent": 100,
               "widthPx": 1
             }
@@ -189,9 +192,9 @@
           "taskGroupId": "15e4d36c-dc58-4088-b28d-3530c76a6da5",
           "importOrigin": {
             "sourceProjectUid": "b7ee990a-21f3-47aa-b1b3-2c388a58a9f5",
-            "sourceUid": 12,
+            "sourceTaskUid": 12,
             "importSessionId": "618c67bd-8974-481d-848b-eb68aa1fb8ca",
-            "lastSeenMspdiImportNumber": 1
+            "lastSeenMspdiImportCount": 1
           }
         },
         "passthrough": {
@@ -225,9 +228,9 @@
           "taskGroupId": "15e4d36c-dc58-4088-b28d-3530c76a6da5",
           "importOrigin": {
             "sourceProjectUid": "b7ee990a-21f3-47aa-b1b3-2c388a58a9f5",
-            "sourceUid": 13,
+            "sourceTaskUid": 13,
             "importSessionId": "618c67bd-8974-481d-848b-eb68aa1fb8ca",
-            "lastSeenMspdiImportNumber": 1
+            "lastSeenMspdiImportCount": 1
           }
         },
         "predecessorLinks": [
@@ -361,7 +364,7 @@
       "utcOffset": "+09:00"
     },
     "sourceFormat": "mspdi15",
-    "topTaskOutlineLevel": 1,
+    "importedTopTaskOutlineLevel": 1,
     "highestIssuedUid": 4,
     "mspdiImportCount": 1,
     "taskGroups": [
@@ -376,7 +379,7 @@
         "representativeTaskUid": 1,
         "hyperlinkAddress": "https://example.com/lanes/work-package-a",
         "hyperlink": "Lane notes",
-        "treeState": "expanded",
+        "selfShowMode": "shown",
         "editableByGroupName": "Team A"
       },
       {
@@ -387,7 +390,7 @@
         },
         "parentTaskGroupId": "db19099a-0302-418d-82e1-e95c7a6a093c",
         "siblingOrder": 1,
-        "treeState": "auto"
+        "selfShowMode": "automatic"
       }
     ],
     "commentBoxes": [
@@ -396,7 +399,7 @@
         "text": "Paused for half a day; resumes on Dec 3.",
         "style": {
           "fill": {
-            "color": { "type": "palette", "name": "paper" },
+            "color": { "type": "palette", "name": "white" },
             "opacityPercent": 90
           },
           "stroke": {
@@ -416,7 +419,7 @@
         "leaderTarget": {
           "type": "task",
           "taskUid": 2,
-          "snapPart": "plannedBar",
+          "snapPart": "planBar",
           "snapPoint": "topRightCorner"
         },
         "bodyOffsetPx": {
@@ -444,8 +447,8 @@
         },
         "firstDay": "2026-12-03",
         "lastDay": "2026-12-04",
-        "topTaskGroupId": "15e4d36c-dc58-4088-b28d-3530c76a6da5",
-        "bottomTaskGroupId": "15e4d36c-dc58-4088-b28d-3530c76a6da5"
+        "firstTaskGroupId": "15e4d36c-dc58-4088-b28d-3530c76a6da5",
+        "lastTaskGroupId": "15e4d36c-dc58-4088-b28d-3530c76a6da5"
       }
     ],
     "baselineTasks": [
@@ -533,7 +536,7 @@
   "changeLogEntries": [
     {
       "changedAt": "2026-12-02T03:00:00Z",
-      "changedBy": { "writerType": "user", "name": "Manager A" },
+      "changedBy": { "editorType": "user", "name": "Manager A" },
       "affectedArea": "tasks",
       "changeDescription": "Imported the plan from the MSPDI file.",
       "reason": "Start tracking the work package.",
@@ -541,7 +544,7 @@
     },
     {
       "changedAt": "2026-12-03T05:10:00Z",
-      "changedBy": { "writerType": "agent", "name": "planning-assistant" },
+      "changedBy": { "editorType": "agent", "name": "planning-assistant" },
       "affectedArea": "Prepare draft",
       "changeDescription": "Recorded a stop on Dec 2 and a resume on Dec 3.",
       "reason": "Work paused for half a day."
