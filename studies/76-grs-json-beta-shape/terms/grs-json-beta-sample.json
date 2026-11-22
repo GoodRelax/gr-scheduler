@@ -123,7 +123,7 @@
     "mspdiImportCount": 1,
     "highestIssuedUid": 4,
     "project": {
-      "uid": "c335b2c9-5721-419b-8203-6ea85ce2dc98",
+      "uid": "1",
       "name": "Sample Schedule",
       "title": "Sample Schedule",
       "subject": "A two-level WBS example",
@@ -280,7 +280,7 @@
           },
           "taskGroupId": "db19099a-0302-418d-82e1-e95c7a6a093c",
           "importOrigin": {
-            "sourceProjectUid": "b7ee990a-21f3-47aa-b1b3-2c388a58a9f5",
+            "sourceProjectUid": "7",
             "sourceTaskUid": 11,
             "importSessionId": "618c67bd-8974-481d-848b-eb68aa1fb8ca",
             "mspdiImportCountWhenLastIncluded": 1
@@ -319,7 +319,7 @@
           },
           "taskGroupId": "15e4d36c-dc58-4088-b28d-3530c76a6da5",
           "importOrigin": {
-            "sourceProjectUid": "b7ee990a-21f3-47aa-b1b3-2c388a58a9f5",
+            "sourceProjectUid": "7",
             "sourceTaskUid": 12,
             "importSessionId": "618c67bd-8974-481d-848b-eb68aa1fb8ca",
             "mspdiImportCountWhenLastIncluded": 1
@@ -355,7 +355,7 @@
           },
           "taskGroupId": "15e4d36c-dc58-4088-b28d-3530c76a6da5",
           "importOrigin": {
-            "sourceProjectUid": "b7ee990a-21f3-47aa-b1b3-2c388a58a9f5",
+            "sourceProjectUid": "7",
             "sourceTaskUid": 13,
             "importSessionId": "618c67bd-8974-481d-848b-eb68aa1fb8ca",
             "mspdiImportCountWhenLastIncluded": 1

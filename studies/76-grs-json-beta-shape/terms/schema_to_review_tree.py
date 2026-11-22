@@ -33,7 +33,9 @@ Rules that the tool derives from the schema:
     otherwise as a leaf without children (enumeration values are listed once, where they live).
   - "allOf" whose first member is a shared-type "$ref" prints like that "$ref" (the later
     members only narrow values and do not show in the tree).
-  - "enum" values become child lines. A label path "key=A..B" folds the numbers A..B into one line.
+  - "enum" values become child lines. The values of a named value type (a $defs entry with an
+    enum, used through "$ref", such as StandardUtcOffset) are not listed, nor the allowed amounts
+    of a "number" key (an enum of numbers is a bound, not a set of names). A label path "key=A..B" folds the numbers A..B into one line.
   - [M] marks a key whose description starts "Same as MSPDI X". "(X)" follows when X differs
     from the key, ignoring case. [G] marks a key that is not [M] directly under an [M] key.
 """
@@ -109,6 +111,8 @@ class Walker:
                 if kind == 'shared' or 'properties' in payload:
                     return kind, payload
                 return 'leaf', target
+            if 'enum' in target and 'properties' not in target:
+                return 'leaf', target
             merged = dict(target)
             merged.update({k: v for k, v in node.items() if k != '$ref'})
             return self.classify(merged)
@@ -158,7 +162,7 @@ class Walker:
                 out.append((depth, key, self.label(child_path)))
                 continue
             self.lines_for_key(key, props[key], child_path, depth, is_mspdi, out)
-        if 'enum' in node:
+        if 'enum' in node and node.get('type') != 'number':
             self.values(node['enum'], path, depth, out)
 
     def values(self, values, path, depth, out):
