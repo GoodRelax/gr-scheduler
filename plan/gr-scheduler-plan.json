@@ -14,7 +14,7 @@
       "creationDate": "2026-10-31T08:50:00",
       "revision": 11,
       "startDate": "2026-10-17T05:30:00",
-      "statusDate": "2026-11-22T21:47:00",
+      "statusDate": "2026-11-22T22:37:00",
       "minutesPerDay": 1440,
       "minutesPerWeek": 10080,
       "daysPerMonth": 30,
@@ -8291,7 +8291,7 @@
         "percentComplete": 0,
         "fadeInDays": null,
         "fadeOutDays": null,
-        "notes": "pmo-5 2026-11-22T16:57: BOSS line 11-22 (JDG-3717). 1 h. Length is a PMO placeholder (provisional). pmo-5 2026-11-22T17:30: started at the BOSS line: visual check of the tree (GQA BGQA6, 5 parts). 1 h is a PMO placeholder (provisional); 471 and 472 run side by side. pmo-5 2026-11-22T18:11: the real start is now (BOSS line): the items sent before the rebuild are not used. pmo-5 2026-11-22T21:47: no answer yet (BOSS line); finish moved to now + 1 h of owner time (provisional).",
+        "notes": "pmo-5 2026-11-22T16:57: BOSS line 11-22 (JDG-3717). 1 h. Length is a PMO placeholder (provisional). pmo-5 2026-11-22T17:30: started at the BOSS line: visual check of the tree (GQA BGQA6, 5 parts). 1 h is a PMO placeholder (provisional); 471 and 472 run side by side. pmo-5 2026-11-22T18:11: the real start is now (BOSS line): the items sent before the rebuild are not used. pmo-5 2026-11-22T21:47: no answer yet (BOSS line); finish moved to now + 1 h of owner time (provisional). pmo-5 2026-11-22T22:37: no answer yet (BOSS line); finish unchanged.",
         "dependencies": [
           {
             "predecessorUid": 475,
@@ -8355,7 +8355,7 @@
         "percentComplete": 0,
         "fadeInDays": null,
         "fadeOutDays": null,
-        "notes": "pmo-5 2026-11-22T16:57: BOSS line 11-22 (JDG-3717). 2 h. Length is a PMO placeholder (provisional). pmo-5 2026-11-22T21:47: started at the BOSS line (F-1..F-3 applied; F-4 onward going on). The visual check 471 is still open. 2 h is a PMO placeholder (provisional).",
+        "notes": "pmo-5 2026-11-22T16:57: BOSS line 11-22 (JDG-3717). 2 h. Length is a PMO placeholder (provisional). pmo-5 2026-11-22T21:47: started at the BOSS line (F-1..F-3 applied; F-4 onward going on). The visual check 471 is still open. 2 h is a PMO placeholder (provisional). pmo-5 2026-11-22T22:37: F-4..F-7 applied with the owner rulings JDG-3731..3734 (402c7b640 at 22:37, develop b7c63b89b). Left: one new open point (the name of the hide value of progressMarkStatus), F-8..F-11, and the visual check 471. Finish unchanged (the 5 rulings at 8.6 rows/h fit in the placeholder).",
         "dependencies": [
           {
             "predecessorUid": 471,
@@ -14176,10 +14176,10 @@
     "zoomY": 1.099862517185352
   },
   "documentStamp": {
-    "scheduleUpdatedAt": "2026-11-22T12:47:00Z",
+    "scheduleUpdatedAt": "2026-11-22T13:37:00Z",
     "lastEditedBy": "PMO child session",
     "settingsUpdatedAt": "2026-10-20T20:24:42Z",
-    "fileSavedAt": "2026-11-22T12:47:00Z"
+    "fileSavedAt": "2026-11-22T13:37:00Z"
   },
   "changeLog": [
     {
@@ -14763,6 +14763,12 @@
       "editedBy": "PMO child session",
       "explanation": "Fact at 11-22 21:47 JST: BOSS line, one outside AI answered (the other was dropped); the seat sorted 11 findings and the owner ruled F-1..F-3 (JDG-3727..3730, develop 6a79061f9). 472 is done; the apply step 473 started now; the visual check 471 has no answer yet. 474, the resume of 463, group 2, the N1 forecast and the diff re-placed. N1 (316) and the beta (234) stay.",
       "changedAt": "2026-11-22T12:47:00Z"
+    },
+    {
+      "ordinal": 98,
+      "editedBy": "PMO child session",
+      "explanation": "Fact at 11-22 22:37 JST: BOSS line, the final review seat applied F-4..F-7 with the owner rulings JDG-3731..3734 (develop b7c63b89b). 473 goes on; left are one new open point, F-8..F-11 and the visual check 471. No date moved. N1 (316) and the beta (234) stay.",
+      "changedAt": "2026-11-22T13:37:00Z"
     }
   ]
 }
