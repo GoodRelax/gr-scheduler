@@ -63,7 +63,7 @@
       "isPlanDatesVisible": true,
       "isActualBarVisible": true,
       "isPercentCompleteLabelVisible": true,
-      "isProgressMarkVisible": true,
+      "isProgressStatusMarkVisible": true,
       "isBaselineOutlineVisible": true,
       "isAssigneeLabelVisible": true
     },
