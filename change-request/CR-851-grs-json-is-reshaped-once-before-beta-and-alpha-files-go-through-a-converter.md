@@ -216,6 +216,8 @@
 | `rulings.md`（名の辞書の席、2026-11-22 の 37） | `JDG-3711`（タスクの形の語を表のとおりに採り、`dumbbell` の日本語の名を「ダンベル」とする）を足した。本書の行のレビューの前に当てる |
 | `rulings.md`（名の辞書の席、2026-11-22 の 38） | `JDG-3712`（文書の刻印と変更ログの語を表のとおりに採り、`changedBy.writerType` を `editorType` に改める）を足した。本書の行のレビューの前に当てる |
 | `rulings.md`（名の辞書の席、2026-11-22 の 39） | `JDG-3713`（構造の木 `grs-json-beta-tree.md` をこのとおりと確かめ、仮の 4 つ（`documentSettings.themeHue` の置き場、`checkedTaskUids[]`・`checkedResourceUids[]`・`isUnassignedChecked`）を確定する。GRS JSON の語の問いはこれで閉じる）を足した。本書の行のレビューの前に当てる |
+| `rulings.md`（名の辞書の席、2026-11-22 の 40） | `JDG-3714`（GRS が GRS JSON を書くときの並び: 毎回スキーマの順・根は小さい頭を先・`scheduleData` は MSPDI の群を MSPDI の順で先、GRS の群は指される物を先・物の中は `type` → `uid`/`id` → 名 → MSPDI の値 → GRS の値 → 子の配列 → `passthrough`・配列の要素は木の深さ優先か `uid`/`id` の順）を足した。本書の行のレビューの前に当てる |
+| `rulings.md`（名の辞書の席、2026-11-22 の 41） | `JDG-3715`（`documentSettings` の中は効く範囲の広い順: 画面全体 → 時間の軸 → 帯の軸 → 開いたときの位置 → 描く物 → 道具）を足した。本書の行のレビューの前に当てる |
 | `defects.md` | `DFC-3579`（本書）—— 行のレビューの後に起こす |
 | `changelog.md` | 当てるときに 1 行 |
 
