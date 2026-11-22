@@ -33,9 +33,9 @@
 | 行 | 名 | 補う事（AI-A の説明の文の案は答えの写しの問 3） |
 |:---|:---|:---|
 | R003・R004 | `schemaVersionUtc`・`buildVersionUtc` | 値は版を識別する UTC の時刻（秒まで） |
-| R012 | `lastEditedBy.type` の `"template"` | まだ誰も編集していないひな形のまま |
+| R012 | `lastEditedBy.type` の `"template"` | 同梱のテンプレートのまま。人も AI もまだ編集していない。`lastEditedBy` は必ず書く（`JDG-3740`） |
 | R014 | `lastEditedBy.name` | `type` が `agent` のときだけ書く |
-| R051・R053 | `displayTimeZones[]`・`zoneNameType` | 追加の時計。`utcOffset` は夏時間の分を含み、`zoneNameType` は名の種類だけを選ぶ |
+| R051・R053 | `additionalTimeZones[]`（`JDG-3741` で `displayTimeZones[]` から改めた）・`zoneNameType` | 基準（`viewTimeZone`）に足して見せる時計。`utcOffset` は夏時間の分を含み、`zoneNameType` は名の種類だけを選ぶ |
 | R075 | `scrollPosition.type` の `"automatic"` | 位置を決めていない（GRS が決める）。今日や基準日へ合わせる意味ではない |
 | R066 | `verticalZoom.automaticallyShownDepth` | `showMode` が `automatic` の帯を出す深さ（1〜`maxGroupDepth`）。縦のズームの 1 刻みは、まずこの深さを変え、最も深いところに着いた後は `ratio` を変える。倍率から計算する値ではない（`JDG-3739`） |
 | R106 | `importedTopTaskOutlineLevel` | 取り込んだ元のファイルの最上位のタスクの OutlineLevel の記録 |
@@ -63,3 +63,47 @@
 | 出どころ | 宿題 |
 |:---|:---|
 | `JDG-3737` の持ち主の問い「日時とか、バージョンとか、ファイル名とか、そういう方が重要では？」 | 人に見せる取り込みの記録（いつ、どのファイルから取り込んだか）を、GRS JSON が持つかを決める。席の例: 文書の側に `lastMspdiImport: { importedAtUtc, fileName }` を 1 つ置く（タスクごとには持たない）。ファイル名はフォルダーを除いた名だけを書く（個人の道筋を JSON に残さない） |
+
+## 6. 2 回目の答え（AI-A の 2 回目、2026-11-23）
+
+1 通だけの質問状 `grs-json-final-review-ai-round2.md`（木は英語の名だけ、名は F-11 まで当てた後の版）への答え。写しは `ai-answers/grs-json-final-review-answers-round2.md`。答えたのは AI-A と同じ会社の AI（前の質問状を見ていない新しい会話）なので、別の読み手としての重みは 1 回目より軽い。
+
+### 6.1 数
+
+- 問 1 の指定の 20 行（この席までの裁定で変えた名と、比べるための前からの名を混ぜた）: 確信 5 が 7 行、4 が 9 行、3 が 4 行（表の確信の欄を行ごとに数えた）。
+- 新しい名のうち、読みが意図とずれた行: 0 行。`R228 mspdiImportCountWhenLastIncluded` は確信 4 で意図のとおりに読めた（1 回目の旧名は確信 3）。`R197 startSlopeCalendarDays` は確信 3（1 回目の旧名 `fadeInCalendarDays` は確信 1）。
+- 問 2 の確信 3 以下の行: 23 行（表の行を数えた）。そのうち MSPDI の名（`[M]`）が 6 行で、3 節の `[M]` の行が既に扱う。
+- 問 3 の誤読の罠: 5 行。
+
+### 6.2 名の指摘（持ち主に 1 つずつ問う）
+
+| # | 行 | 名 | AI-A（2 回目）の読みと罠 | AI-A（2 回目）の案 | 経緯 |
+|:---|:---|:---|:---|:---|:---|
+| G-1 | R012 | `lastEditedBy.type` の値 `"template"` | 罠の 1 位。「template という名のシステムの利用者か自動の処理が最後に編集した」と読まれる | キーを `lastUpdatedSource`、値を `"createdFromTemplate"` | 1 回目は 3 節（説明で補う）に入れた |
+| G-2 | R051 | `displayTimeZones[]` | 罠の 2 位。「画面で選べる時差の候補の一覧」と読まれる（意図は、追加の時計 4 つまで） | `secondaryTimeZones[]` か `headerTimeZones[]` | 1 回目は 3 節（説明で補う）に入れた |
+
+### 6.3 席が説明の文で補う物（名は変えない。持ち主には問わない）
+
+読みは意図に近く、迷いは振る舞いか範囲の話なので、3 節と同じくスキーマの席へ渡す。
+
+| 行 | 名 | 補う事 |
+|:---|:---|:---|
+| R024 | `affectedArea` | 何の部分か（文書のどの群に変更が及んだか） |
+| R048 | `"sameAsScheduleData"` | データの時差が変わると、表示の時差も追って変わる（写した値ではない） |
+| R058 | `fitDayRange` | 全体表示の期間。画面の全体表示が使う（書き出しの期間ではない） |
+| R069 | `pinnedTaskGroupIds[]` | 上の端に留める帯。`automatic` の帯は、留めている間は深さに関わらず出る（`hidden` には勝たない） |
+| R070 | `taskPlacementDirection` | 1 つの帯の中で、重なるタスクを置く向き（帯どうしの並びではない） |
+| R080 | `topEdgeTaskGroupOffsetPercent` | 上の端が、その帯の上の縁から何 % の所か（画面の上からの距離ではない）。`leftEdgeDayOffsetPercent` と同じ形 |
+| R090 | `isProgressMarkVisible` | 進捗マーク（タスクの進み・遅れの印）。イナズマ線の折れ点ではない |
+| R094 | `parentTaskProgressToleranceWorkingDays` | 親タスクの進捗の点が、子孫の点の範囲からはみ出してよい稼働日の数（期限の遅れの許し幅ではない） |
+| R095 | `tableWindows` | 3 つの表の窓の見せ方 |
+| R197・R198 | `startSlopeCalendarDays`・`finishSlopeCalendarDays` | タスクの棒の端を斜めに描く幅（暦日）。日程の緩衝の日数ではない |
+| R370 | `isCalculatedFromOppositeColorScheme` | GRS が反対の側から計算して作った側だけ `true`（人に選ばせる旗ではなく、出どころの記録） |
+| R371・R372 | `Color.dark`・`TaskGroupColor` | 英語だけの木では子が見えなかった。`dark` は `light` と同じ形、`TaskGroupColor` は `Color` から `black` を除いた物と書く |
+
+### 6.4 決まったこと
+
+| # | 決まったこと | 裁定 |
+|:---|:---|:---|
+| G-1 | `"template"` は今のまま。`lastEditedBy` は必ず書き、まだ誰も編集していない文書でも削らない（3 節の R012） | `JDG-3740` |
+| G-2 | `displayTimeZones[]` を `additionalTimeZones[]` にし、画面の名を「Additional Time Zones / 追加のタイムゾーン」にそろえた | `JDG-3741` |

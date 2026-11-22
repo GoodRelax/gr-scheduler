@@ -67,7 +67,7 @@ R047  |  +- type                                    判別子
 R048  |  |  +- "sameAsScheduleData"                 データの時差と同じ
 R049  |  |  +- "fixed"                              決まった差を使う
 R050  |  +- utcOffset                               UTC との差（"+09:00" の形。標準時の行だけ）（fixed）
-R051  +- displayTimeZones[]                         追加の時計（4 つまで）
+R051  +- additionalTimeZones[]                      追加の時計（4 つまで）
 R052  |  +- utcOffset                               UTC との差（"+09:00" の形）
 R053  |  +- zoneNameType                            出すゾーンの名の種類（差 utcOffset はもう夏時間の分を含む）
 R054  |     +- "standard"                           標準時の名

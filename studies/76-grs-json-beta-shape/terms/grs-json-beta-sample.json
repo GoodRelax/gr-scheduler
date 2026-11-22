@@ -20,7 +20,7 @@
       "type": "fixed",
       "utcOffset": "+09:00"
     },
-    "displayTimeZones": [
+    "additionalTimeZones": [
       {
         "utcOffset": "+00:00",
         "zoneNameType": "standard"
