@@ -37,6 +37,29 @@
 | R014 | `lastEditedBy.name` | `type` が `agent` のときだけ書く |
 | R051・R053 | `displayTimeZones[]`・`zoneNameType` | 追加の時計。`utcOffset` は夏時間の分を含み、`zoneNameType` は名の種類だけを選ぶ |
 | R075 | `scrollPosition.type` の `"automatic"` | 位置を決めていない（GRS が決める）。今日や基準日へ合わせる意味ではない |
+| R066 | `verticalZoom.automaticallyShownDepth` | `showMode` が `automatic` の帯を出す深さ（1〜`maxGroupDepth`）。縦のズームの 1 刻みは、まずこの深さを変え、最も深いところに着いた後は `ratio` を変える。倍率から計算する値ではない（`JDG-3739`） |
 | R106 | `importedTopTaskOutlineLevel` | 取り込んだ元のファイルの最上位のタスクの OutlineLevel の記録 |
 | R388 | `ColumnFilter.column` | 値ごとに、どの表の列か（スキーマでは表ごとに値を絞る） |
 | `[M]` の名 | `linkLag`・`lagFormat`・`hyperlink`・`dayType`・`weekStartDay`・3 つの `type`・`revision`・`stop`・`resume` | MSPDI の数の符号の意味、単位、0 始まりと 1 始まりの違い（`grs-json-review-request-4.md` の 8 節の案と、AI-A の問 3） |
+
+## 4. 決まったこと（2 節の指摘への持ち主の裁定）
+
+| # | 決まったこと | 裁定 |
+|:---|:---|:---|
+| F-1 | 画面の名を「チェックで日程表を絞る / Filter Schedule by Checks」に改め、キーを `isScheduleFilteredByChecks` にした | `JDG-3727`・`JDG-3728` |
+| F-2 | `isCalculatedFromOppositeColorScheme` | `JDG-3729` |
+| F-3 | `allowedEditorGroupName` | `JDG-3730` |
+| F-4 | `taskPlacementDirection`（画面の英語 Placement Direction、日本語は「積む向き」のまま） | `JDG-3731` |
+| F-5 | `startSlopeCalendarDays`・`finishSlopeCalendarDays`（画面 開始の傾き・終了の傾き） | `JDG-3732` |
+| F-6 | JSON から Lane を無くし、`TaskGroupColor`・`taskGroupTopOffsetPercent` にした | `JDG-3733` |
+| F-7 | 列を `progressMarkStatus` にした。状態の列の隠す値は用語集の英語の名で書く | `JDG-3734`・`JDG-3735` |
+| F-8 | `selfShowMode` を `showMode` にした。値は今のまま | `JDG-3736` |
+| F-9 | タスクの `lastSeenMspdiImportCount` を `mspdiImportCountWhenLastIncluded` にした。値は番号のまま | `JDG-3737` |
+| F-10 | `delayDiagnosisSettings.toleranceWorkingDays` を `parentTaskProgressToleranceWorkingDays` にした | `JDG-3738` |
+| F-11 | `verticalZoom.automaticallyShownDepth` は名を変えず、スキーマの説明で補う（3 節の R066） | `JDG-3739` |
+
+## 5. スキーマの席への宿題（裁定ではない）
+
+| 出どころ | 宿題 |
+|:---|:---|
+| `JDG-3737` の持ち主の問い「日時とか、バージョンとか、ファイル名とか、そういう方が重要では？」 | 人に見せる取り込みの記録（いつ、どのファイルから取り込んだか）を、GRS JSON が持つかを決める。席の例: 文書の側に `lastMspdiImport: { importedAtUtc, fileName }` を 1 つ置く（タスクごとには持たない）。ファイル名はフォルダーを除いた名だけを書く（個人の道筋を JSON に残さない） |

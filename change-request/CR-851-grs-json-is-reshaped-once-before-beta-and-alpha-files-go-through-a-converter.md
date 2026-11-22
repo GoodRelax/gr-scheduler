@@ -239,6 +239,9 @@
 | `rulings.md`（GRS JSON の最終レビューの席、2026-11-22 の 17） | `JDG-3734`（検索の「ステータス」の列の名を `progressMarkStatus` に改める。Progress と Mark の名に矛盾が無いとエージェントが点検した）を足した。本書の行のレビューの前に当てる |
 | `rulings.md`（GRS JSON の最終レビューの席、2026-11-22 の 18） | `JDG-3735`（状態の列の隠す値は用語集の英語の名で書く。担当リストの選択は `selected`・`notSelected`）を足した。本書の行のレビューの前に当てる |
 | `rulings.md`（GRS JSON の最終レビューの席、2026-11-22 の 19） | `JDG-3736`（タスクグループの `selfShowMode` を `showMode` に改める）を足した。本書の行のレビューの前に当てる |
+| `rulings.md`（GRS JSON の最終レビュー 2 の席、2026-11-22 の 20） | `JDG-3737`（タスクの `lastSeenMspdiImportCount` を `mspdiImportCountWhenLastIncluded` に改める）を足した。本書の行のレビューの前に当てる |
+| `rulings.md`（GRS JSON の最終レビュー 2 の席、2026-11-22 の 21） | `JDG-3738`（`delayDiagnosisSettings.toleranceWorkingDays` を `parentTaskProgressToleranceWorkingDays` に改める）を足した。本書の行のレビューの前に当てる |
+| `rulings.md`（GRS JSON の最終レビュー 2 の席、2026-11-22 の 22） | `JDG-3739`（`verticalZoom.automaticallyShownDepth` は名を変えず、スキーマの説明で補う）を足した。本書の行のレビューの前に当てる |
 | `defects.md` | `DFC-3579`（本書）—— 行のレビューの後に起こす |
 | `changelog.md` | 当てるときに 1 行 |
 

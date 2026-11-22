@@ -55,7 +55,7 @@ ScheduleDocument                                    GRS JSON の 1 ファイル
 │   │   ├─ isBaselineOutlineVisible                 前回予定を重ねるか（前回予定輪郭）
 │   │   └─ isAssigneeLabelVisible                   担当のラベルを見せるか
 │   ├─ delayDiagnosisSettings                       遅延診断の設定
-│   │   └─ toleranceWorkingDays                     遅延診断が親タスクの進み具合に許す幅（稼働日）
+│   │   └─ parentTaskProgressToleranceWorkingDays   遅延診断が親タスクの進み具合に許す幅（稼働日）
 │   └─ tableWindows                                 3 つの表の見せ方
 │       ├─ searchWindow                             検索ウィンドウ → TaskTableWindow
 │       ├─ delayDiagnosisReportWindow               遅延診断レポート → TaskTableWindow
@@ -145,7 +145,7 @@ ScheduleDocument                                    GRS JSON の 1 ファイル
 │   │   │   │       ├─ sourceProjectUid             元のファイルの Project の UID
 │   │   │   │       ├─ sourceTaskUid                元のファイルでの、このタスクの UID
 │   │   │   │       ├─ importSessionId              取り込みの id（取り込みのたびに GRS が作る。元に Project の UID が無いときの代わり）
-│   │   │   │       └─ lastSeenMspdiImportCount     このタスクを最後に含んでいた取り込みが何回目か
+│   │   │   │       └─ mspdiImportCountWhenLastIncluded  このタスクを最後に含んでいた取り込みが何回目か
 │   │   │   ├─ predecessorLinks[] [M] (PredecessorLink)  先行への結び付き
 │   │   │   │   ├─ predecessorUid [M]               先行タスク
 │   │   │   │   ├─ type [M] (Type)                  依存の種類（0 FF・1 FS・2 SF・3 SS）。判別子ではない
