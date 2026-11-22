@@ -23,6 +23,7 @@ ScheduleDocument                                    GRS JSON の 1 ファイル
 │   ├─ displayTimeZones[]                           追加の時計（4 つまで）
 │   │   ├─ utcOffset                                UTC との差（"+09:00" の形）
 │   │   └─ zoneNameType                             出すゾーンの名の種類（standard・daylight）。差 utcOffset はもう夏時間の分を含む
+│   ├─ isTimeOfDayVisible                           時刻を見せるか（JDG-3723 で時間の軸の群へ移した）
 │   ├─ dayWidthPx                                   暦日 1 日の幅
 │   ├─ fitDayRange                                  全体表示期間
 │   │   ├─ type                                     fixed・automatic（automatic は描ける物すべての範囲で、期間を持たない）
@@ -41,18 +42,18 @@ ScheduleDocument                                    GRS JSON の 1 ファイル
 │   │   ├─ leftEdgeDayOffsetPercent                 左の端が、その日の始まりから何 % の所か（fixed）
 │   │   ├─ topEdgeTaskGroupId                       上の端の帯（fixed）
 │   │   └─ topEdgeTaskGroupOffsetPercent            上の端が、その帯の上から何 % の所か（fixed）
-│   ├─ isTimeOfDayVisible                           時刻を見せるか
-│   ├─ isPlanBarVisible                             予定バーを見せるか
-│   ├─ isPlanDatesVisible                           予定の日付を見せるか
-│   ├─ isActualBarVisible                           実績バーを見せるか
-│   ├─ isPercentCompleteLabelVisible                完了率のラベルを見せるか
-│   ├─ isBaselineOutlineVisible                     前回予定を重ねるか（前回予定輪郭）
-│   ├─ isProgressLineVisible                        進捗線を見せるか
-│   ├─ isProgressMarkVisible                        進捗マークを見せるか
-│   ├─ isDependencyLineVisible                      依存線を見せるか
-│   ├─ isAssigneeLabelVisible                       担当のラベルを見せるか
-│   ├─ isDateGridLinesVisible                       日の罫線を見せるか
-│   ├─ isGroupGridLinesVisible                      グループ罫線（タスクグループの境の横線）を見せるか
+│   ├─ scheduleCanvasElements                       Schedule Canvas に描く物（JDG-3724）
+│   │   ├─ isDateGridLinesVisible                   日の罫線を見せるか
+│   │   ├─ isGroupGridLinesVisible                  グループ罫線（タスクグループの境の横線）を見せるか
+│   │   ├─ isProgressLineVisible                    進捗線を見せるか
+│   │   ├─ isDependencyLineVisible                  依存線を見せるか
+│   │   ├─ isPlanBarVisible                         予定バーを見せるか
+│   │   ├─ isPlanDatesVisible                       予定の日付を見せるか
+│   │   ├─ isActualBarVisible                       実績バーを見せるか
+│   │   ├─ isPercentCompleteLabelVisible            完了率のラベルを見せるか
+│   │   ├─ isProgressMarkVisible                    進捗マークを見せるか
+│   │   ├─ isBaselineOutlineVisible                 前回予定を重ねるか（前回予定輪郭）
+│   │   └─ isAssigneeLabelVisible                   担当のラベルを見せるか
 │   ├─ delayDiagnosisSettings                       遅延診断の設定
 │   │   └─ toleranceWorkingDays                     遅延診断が親タスクの進み具合に許す幅（稼働日）
 │   └─ tableWindows                                 3 つの表の見せ方
@@ -60,6 +61,12 @@ ScheduleDocument                                    GRS JSON の 1 ファイル
 │       ├─ delayDiagnosisReportWindow               遅延診断レポート → TaskTableWindow
 │       └─ resourceListWindow                       担当リスト → ResourceTableWindow
 ├─ scheduleData                                     スケジュールデータ
+│   ├─ scheduleDataTimeZone                         データの日時の時差（JDG-3720・3721 で先頭へ）
+│   │   └─ utcOffset                                UTC との差（"+09:00" の形。標準時の行だけ）
+│   ├─ sourceFormat                                 元の形式（grs・mspdi12・mspdi15）
+│   ├─ importedTopTaskOutlineLevel                  取り込んだファイルの、最上位のタスクの OutlineLevel
+│   ├─ mspdiImportCount                             MSPDI を取り込んだ回数
+│   ├─ highestIssuedUid                             uid の数え手
 │   ├─ ［MSPDI と往復する群］
 │   │   ├─ project [M]                              プロジェクト（1 件）
 │   │   │   ├─ uid [M]                              一意な識別子（文字列）
@@ -211,12 +218,6 @@ ScheduleDocument                                    GRS JSON の 1 ファイル
 │       │   │   └─ dy                               縦のずれ
 │       │   ├─ hyperlinkAddress                     リンク先の URL
 │       │   └─ hyperlink                            リンクのタイトル
-│       ├─ scheduleDataTimeZone                     データの日時の時差
-│       │   └─ utcOffset                            UTC との差（"+09:00" の形。標準時の行だけ）
-│       ├─ sourceFormat                             元の形式（grs・mspdi12・mspdi15）
-│       ├─ importedTopTaskOutlineLevel              取り込んだファイルの、最上位のタスクの OutlineLevel
-│       ├─ highestIssuedUid                         uid の数え手
-│       ├─ mspdiImportCount                         MSPDI を取り込んだ回数
 │       ├─ passthroughTasks[]                       GRS がタスクにしない MSPDI の要素
 │       │   ├─ precedingTaskUid                     前にある、いちばん近いタスクの uid（先頭では書かない）
 │       │   └─ mspdiElement                         MSPDI の要素（構造と名のまま）
@@ -261,13 +262,13 @@ ScheduleDocument                                    GRS JSON の 1 ファイル
 │   └─ columnSort                                   表の並べ方（列と向き）→ ColumnSort
 ├─ ColumnFilter                                     列のフィルタ
 │   ├─ type                                         values・dateRange
-│   ├─ column                                       列（列の変わらない英語の名）
+│   ├─ column                                       列（列が見せる値の名。表ごとの値は JDG-3726）
 │   ├─ hiddenValues[]                               隠す値（values）
 │   ├─ isBlankHidden                                空の行を隠すか（values）
 │   ├─ firstDay                                     最初の日（dateRange）
 │   └─ lastDay                                      最後の日（dateRange）
 ├─ ColumnSort                                       並べ替え
-│   ├─ column                                       列
+│   ├─ column                                       列（ColumnFilter.column と同じ値）
 │   └─ direction                                    向き（ascending・descending）
 ├─ Paint                                            塗り
 │   ├─ color                                        色 → Color

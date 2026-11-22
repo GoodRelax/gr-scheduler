@@ -55,6 +55,7 @@ documentSettings	文書設定（効く範囲の広い順）
     zoneNameType	出すゾーンの名の種類（差 utcOffset はもう夏時間の分を含む）
       "standard"	標準時の名
       "daylight"	夏時間の名
+  isTimeOfDayVisible	時刻を見せるか（文書の全体の時刻の見せ方）
   dayWidthPx	暦日 1 日の幅
   fitDayRange	全体表示期間
     type	判別子
@@ -79,26 +80,35 @@ documentSettings	文書設定（効く範囲の広い順）
     leftEdgeDayOffsetPercent	左の端が、その日の始まりから何 % の所か（fixed）
     topEdgeTaskGroupId	上の端の帯（fixed）
     topEdgeTaskGroupOffsetPercent	上の端が、その帯の上から何 % の所か（fixed）
-  isTimeOfDayVisible	時刻を見せるか
-  isPlanBarVisible	予定バーを見せるか
-  isPlanDatesVisible	予定の日付を見せるか
-  isActualBarVisible	実績バーを見せるか
-  isPercentCompleteLabelVisible	完了率のラベルを見せるか
-  isBaselineOutlineVisible	前回予定を重ねるか（前回予定輪郭）
-  isProgressLineVisible	進捗線を見せるか
-  isProgressMarkVisible	進捗マークを見せるか
-  isDependencyLineVisible	依存線を見せるか
-  isAssigneeLabelVisible	担当のラベルを見せるか
-  isDateGridLinesVisible	日の罫線を見せるか
-  isGroupGridLinesVisible	グループ罫線（タスクグループの境の横線）を見せるか
+  scheduleCanvasElements	Schedule Canvas に描く物
+    isDateGridLinesVisible	日の罫線を見せるか
+    isGroupGridLinesVisible	グループ罫線（タスクグループの境の横線）を見せるか
+    isProgressLineVisible	進捗線を見せるか
+    isDependencyLineVisible	依存線を見せるか
+    isPlanBarVisible	予定バーを見せるか
+    isPlanDatesVisible	予定の日付を見せるか
+    isActualBarVisible	実績バーを見せるか
+    isPercentCompleteLabelVisible	完了率のラベルを見せるか
+    isProgressMarkVisible	進捗マークを見せるか
+    isBaselineOutlineVisible	前回予定を重ねるか（前回予定輪郭）
+    isAssigneeLabelVisible	担当のラベルを見せるか
   delayDiagnosisSettings	遅延診断の設定
     toleranceWorkingDays	遅延診断が親タスクの進み具合に許す幅（稼働日）
   tableWindows	3 つの表の見せ方
     searchWindow	検索ウィンドウ -> TaskTableWindow
     delayDiagnosisReportWindow	遅延診断レポート -> TaskTableWindow
     resourceListWindow	担当リスト -> ResourceTableWindow
-# part mspdi	スケジュールデータ（MSPDI と往復する群）
-scheduleData	スケジュールデータ（MSPDI と往復する群）
+# part mspdi	スケジュールデータ（頭の値と、MSPDI と往復する群）
+scheduleData	スケジュールデータ（頭の値と、MSPDI と往復する群）
+  scheduleDataTimeZone	データの日時の時差
+    utcOffset	UTC との差（"+09:00" の形。標準時の行だけ）
+  sourceFormat	元の形式
+    "grs"	GRS JSON
+    "mspdi12"	MSPDI（Project の版 12 の形）
+    "mspdi15"	MSPDI（Project の版 15 の形）
+  importedTopTaskOutlineLevel	取り込んだファイルの、最上位のタスクの OutlineLevel
+  mspdiImportCount	MSPDI を取り込んだ回数
+  highestIssuedUid	uid の数え手（GRS が出した最も大きい uid）
   project [M]	プロジェクト（1 件）
     uid [M]	一意な識別子（文字列）
     name [M]	プロジェクト名
@@ -259,8 +269,8 @@ scheduleData	スケジュールデータ（MSPDI と往復する群）
     taskUid [M]	就くタスク
     resourceUid [M]	就く担当
     passthrough [G]	持ち越した MSPDI の値
-# part grs	スケジュールデータ（GRS だけが持つ群）
-scheduleData	スケジュールデータ（GRS だけが持つ群。MSPDI の群の後に続く）
+# part grs	スケジュールデータ（GRS だけが持つ配列）
+scheduleData	スケジュールデータ（GRS だけが持つ配列。MSPDI の群の後に続く）
   taskGroups[]	タスクグループ
     id	一意な UUID
     name	タスクグループ名
@@ -331,15 +341,6 @@ scheduleData	スケジュールデータ（GRS だけが持つ群。MSPDI の群
       dy	縦のずれ
     hyperlinkAddress	リンク先の URL
     hyperlink	リンクのタイトル
-  scheduleDataTimeZone	データの日時の時差
-    utcOffset	UTC との差（"+09:00" の形。標準時の行だけ）
-  sourceFormat	元の形式
-    "grs"	GRS JSON
-    "mspdi12"	MSPDI（Project の版 12 の形）
-    "mspdi15"	MSPDI（Project の版 15 の形）
-  importedTopTaskOutlineLevel	取り込んだファイルの、最上位のタスクの OutlineLevel
-  highestIssuedUid	uid の数え手（GRS が出した最も大きい uid）
-  mspdiImportCount	MSPDI を取り込んだ回数
   passthroughTasks[]	GRS がタスクにしない MSPDI の要素
     precedingTaskUid	前にある、いちばん近いタスクの uid（先頭では書かない）
     mspdiElement	MSPDI の要素（構造と名のまま）
@@ -389,7 +390,28 @@ ColumnFilter	列のフィルタ
   type	判別子
     "values"	値で絞る
     "dateRange"	日の範囲で絞る
-  column	列（列の英語の名。値の一覧は未決）
+  column	列（列が見せる値の名）
+    "progressStatus"	検索・タスク: ステータス（進捗マーカーの値）
+    "percentComplete"	検索・タスク、遅延診断: 進捗
+    "taskType"	検索・タスク、遅延診断: タスク種別（タスクかマイルストーンか）
+    "taskName"	検索・タスク、遅延診断: タスク（マイルストーン）
+    "resourceNames"	検索・タスク、遅延診断: 担当名（そのタスクのすべての担当）
+    "start"	検索・タスク: 予定開始
+    "finish"	検索・タスク: 予定終了
+    "actualStart"	検索・タスク: 実績開始
+    "actualFinish"	検索・タスク: 実績終了
+    "taskGroupPath"	検索・タスク: 最上位までの階層
+    "text"	検索・コメントボックス: 本文
+    "taskGroupName"	検索・コメントボックス: 線先が立つタスクグループの名
+    "leaderTargetDay"	検索・コメントボックス: 線先が立つ日
+    "diagnosisStatus"	遅延診断: ステータス（診断の結果）
+    "planDates"	遅延診断: 予定日（開始〜終了）
+    "actualDates"	遅延診断: 実績日（開始〜終了）
+    "diagnosisReason"	遅延診断: 理由
+    "resourceName"	担当リスト: 担当名
+    "isSelected"	担当リスト: 選択（その担当を選んでいるか）
+    "assignedTaskCount"	担当リスト: 担当タスク数
+    "assignedTaskNames"	担当リスト: 担当タスク
   hiddenValues[]	隠す値（values）
   isBlankHidden	空の行を隠すか（values）
   firstDay	最初の日（dateRange）
