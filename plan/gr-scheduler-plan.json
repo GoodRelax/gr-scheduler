@@ -14,7 +14,7 @@
       "creationDate": "2026-10-31T08:50:00",
       "revision": 11,
       "startDate": "2026-10-17T05:30:00",
-      "statusDate": "2026-11-22T11:00:00",
+      "statusDate": "2026-11-22T11:05:00",
       "minutesPerDay": 1440,
       "minutesPerWeek": 10080,
       "daysPerMonth": 30,
@@ -147,7 +147,7 @@
     "tasks": [
       {
         "uid": 157,
-        "parentTaskUid": 450,
+        "parentTaskUid": null,
         "wbsOrder": 1,
         "name": "🌕 子セッション 1・3(DFC-2870・CR-783・CR-782)の合流",
         "start": "2026-10-17T05:30:00",
@@ -170,7 +170,7 @@
       },
       {
         "uid": 160,
-        "parentTaskUid": 450,
+        "parentTaskUid": null,
         "wbsOrder": 2,
         "name": "🌕 不具合の聞き取り(実績を入力する UI)",
         "start": "2026-10-17T05:30:00",
@@ -193,7 +193,7 @@
       },
       {
         "uid": 163,
-        "parentTaskUid": 450,
+        "parentTaskUid": null,
         "wbsOrder": 3,
         "name": "🌕 CR-789(タスクグループを運ぶ手掛かり, 束 A)の実装",
         "start": "2026-10-17T06:00:00",
@@ -216,7 +216,7 @@
       },
       {
         "uid": 164,
-        "parentTaskUid": 450,
+        "parentTaskUid": null,
         "wbsOrder": 4,
         "name": "🌕 CR-787(パネルの幅, 束 B)の実装",
         "start": "2026-10-17T06:00:00",
@@ -239,7 +239,7 @@
       },
       {
         "uid": 166,
-        "parentTaskUid": 450,
+        "parentTaskUid": null,
         "wbsOrder": 5,
         "name": "🌕 CR-786(最前面に配置, 束 D)の実装",
         "start": "2026-10-17T06:00:00",
@@ -262,7 +262,7 @@
       },
       {
         "uid": 161,
-        "parentTaskUid": 450,
+        "parentTaskUid": null,
         "wbsOrder": 6,
         "name": "🌕 聞き取りで出た不具合(DFC-2980)の直し",
         "start": "2026-10-17T09:16:00",
@@ -285,7 +285,7 @@
       },
       {
         "uid": 169,
-        "parentTaskUid": 450,
+        "parentTaskUid": null,
         "wbsOrder": 7,
         "name": "🌕 CR-784(進行中の印を (→) に)の適用",
         "start": "2026-10-17T09:16:00",
@@ -308,7 +308,7 @@
       },
       {
         "uid": 170,
-        "parentTaskUid": 450,
+        "parentTaskUid": null,
         "wbsOrder": 8,
         "name": "🌕 CR-785(ヘルプのリンクと行, DFC-3000〜3006)の適用",
         "start": "2026-10-17T09:43:00",
@@ -331,7 +331,7 @@
       },
       {
         "uid": 165,
-        "parentTaskUid": 450,
+        "parentTaskUid": null,
         "wbsOrder": 9,
         "name": "🌕 CR-788(担当の欄, 束 C)の実装",
         "start": "2026-10-17T11:48:00",
@@ -354,7 +354,7 @@
       },
       {
         "uid": 158,
-        "parentTaskUid": 450,
+        "parentTaskUid": null,
         "wbsOrder": 10,
         "name": "🌕 GT-2 の赤の直し(CR-782・785・787・788)",
         "start": "2026-10-17T13:20:00",
@@ -377,7 +377,7 @@
       },
       {
         "uid": 162,
-        "parentTaskUid": 450,
+        "parentTaskUid": null,
         "wbsOrder": 11,
         "name": "🌕 α のチェックリストの行を出荷ビルドで確かめる",
         "start": "2026-10-17T15:06:00",
@@ -400,7 +400,7 @@
       },
       {
         "uid": 171,
-        "parentTaskUid": 450,
+        "parentTaskUid": null,
         "wbsOrder": 12,
         "name": "🌕 打鍵が欄から漏れる件(DFC-3100〜3103)の掃きと直し",
         "start": "2026-10-17T18:57:00",
@@ -423,7 +423,7 @@
       },
       {
         "uid": 172,
-        "parentTaskUid": 450,
+        "parentTaskUid": null,
         "wbsOrder": 13,
         "name": "🌕 CR-790(大きな見本の矛盾を減らす)の適用",
         "start": "2026-10-17T19:51:00",
@@ -446,7 +446,7 @@
       },
       {
         "uid": 175,
-        "parentTaskUid": 450,
+        "parentTaskUid": null,
         "wbsOrder": 14,
         "name": "🌕 CR-791(取次の説明とスキーマの資源)の適用",
         "start": "2026-10-17T20:45:00",
@@ -469,7 +469,7 @@
       },
       {
         "uid": 159,
-        "parentTaskUid": 450,
+        "parentTaskUid": null,
         "wbsOrder": 15,
         "name": "🌕 α 前の段ごとの GT-2 と push(ab1e1a3c・f1a0ec6d・815ecba8・0829239a)",
         "start": "2026-10-17T21:13:00",
@@ -492,7 +492,7 @@
       },
       {
         "uid": 173,
-        "parentTaskUid": 450,
+        "parentTaskUid": null,
         "wbsOrder": 16,
         "name": "🌕 CR-793・794(タスクのツールチップ)の適用",
         "start": "2026-10-17T21:13:00",
@@ -515,7 +515,7 @@
       },
       {
         "uid": 174,
-        "parentTaskUid": 450,
+        "parentTaskUid": null,
         "wbsOrder": 17,
         "name": "🌕 CR-792(改名 14 件と状態の語)の段 0〜2",
         "start": "2026-10-17T21:53:00",
@@ -538,7 +538,7 @@
       },
       {
         "uid": 176,
-        "parentTaskUid": 450,
+        "parentTaskUid": null,
         "wbsOrder": 18,
         "name": "🌕 RS-61 の語とダウンロード頁の語(DFC-3280)",
         "start": "2026-10-18T05:29:00",
@@ -561,7 +561,7 @@
       },
       {
         "uid": 177,
-        "parentTaskUid": 450,
+        "parentTaskUid": null,
         "wbsOrder": 19,
         "name": "🌕 CR-795・797(遅延診断の詰み・自分で走り直さない)の適用",
         "start": "2026-10-18T06:58:00",
@@ -584,7 +584,7 @@
       },
       {
         "uid": 178,
-        "parentTaskUid": 450,
+        "parentTaskUid": null,
         "wbsOrder": 20,
         "name": "🌕 CR-796(GRS Relay の 7 片)の適用",
         "start": "2026-10-18T08:27:00",
@@ -607,7 +607,7 @@
       },
       {
         "uid": 45,
-        "parentTaskUid": 450,
+        "parentTaskUid": null,
         "wbsOrder": 21,
         "name": "🌕 CR-695(対話欄の廃止)—— CR-796 の 6 片目が当てた",
         "start": "2026-10-18T11:08:00",
@@ -630,7 +630,7 @@
       },
       {
         "uid": 179,
-        "parentTaskUid": 450,
+        "parentTaskUid": null,
         "wbsOrder": 22,
         "name": "🌕 DFC-3302(検索窓の IME)と CR-798〜802(チェック列・スキーマの部分読み)",
         "start": "2026-10-18T17:06:00",
@@ -653,7 +653,7 @@
       },
       {
         "uid": 180,
-        "parentTaskUid": 450,
+        "parentTaskUid": null,
         "wbsOrder": 23,
         "name": "🌕 サーバー同期のデモ(DFC-3070・3071)の組み立てと紹介頁 05",
         "start": "2026-10-18T22:19:00",
@@ -676,7 +676,7 @@
       },
       {
         "uid": 181,
-        "parentTaskUid": 450,
+        "parentTaskUid": null,
         "wbsOrder": 24,
         "name": "🌕 実地の利用の中継の直し(CR-803〜810)",
         "start": "2026-10-19T07:56:00",
@@ -699,7 +699,7 @@
       },
       {
         "uid": 182,
-        "parentTaskUid": 450,
+        "parentTaskUid": null,
         "wbsOrder": 25,
         "name": "🌕 コメントボックスの字の大きさ(CR-809・811・812)",
         "start": "2026-10-19T08:59:00",
@@ -722,7 +722,7 @@
       },
       {
         "uid": 183,
-        "parentTaskUid": 450,
+        "parentTaskUid": null,
         "wbsOrder": 26,
         "name": "🌕 CR-813 の 1 片目(修正の記録の .tsv・語の改め)",
         "start": "2026-10-19T10:03:00",
@@ -745,7 +745,7 @@
       },
       {
         "uid": 184,
-        "parentTaskUid": 450,
+        "parentTaskUid": null,
         "wbsOrder": 27,
         "name": "🌕 CR-814・816・817(AI の修正の記録・見出しの箱・説明の追従)の適用",
         "start": "2026-10-19T10:57:00",
@@ -768,7 +768,7 @@
       },
       {
         "uid": 139,
-        "parentTaskUid": 450,
+        "parentTaskUid": null,
         "wbsOrder": 28,
         "name": "🌕 α の GT-2(34d6ee84、赤 3 件を残して出した)と push",
         "start": "2026-10-19T11:25:00",
@@ -791,7 +791,7 @@
       },
       {
         "uid": 140,
-        "parentTaskUid": 450,
+        "parentTaskUid": null,
         "wbsOrder": 29,
         "name": "🌕 α 版のリリース(Alpha-20261019T022508Z)",
         "start": "2026-10-19T11:25:00",
@@ -814,7 +814,7 @@
       },
       {
         "uid": 185,
-        "parentTaskUid": 450,
+        "parentTaskUid": null,
         "wbsOrder": 30,
         "name": "🌕 main への push を止める仕組み(JDG-2930〜2934)",
         "start": "2026-10-20T03:30:00",
@@ -837,7 +837,7 @@
       },
       {
         "uid": 186,
-        "parentTaskUid": 450,
+        "parentTaskUid": null,
         "wbsOrder": 31,
         "name": "🌕 CR-819(studies/ への改名)・develop への改名・README・SECURITY",
         "start": "2026-10-20T04:09:00",
@@ -860,7 +860,7 @@
       },
       {
         "uid": 187,
-        "parentTaskUid": 450,
+        "parentTaskUid": null,
         "wbsOrder": 32,
         "name": "🌕 α のリリースノート(英日)と紹介頁の更新(JDG-2960・2961)",
         "start": "2026-10-20T05:03:00",
@@ -883,7 +883,7 @@
       },
       {
         "uid": 188,
-        "parentTaskUid": 450,
+        "parentTaskUid": null,
         "wbsOrder": 33,
         "name": "🌕 CR-820(配る物の版とバイト列を中身が変わるまで保つ)の適用",
         "start": "2026-10-20T05:59:00",
@@ -906,7 +906,7 @@
       },
       {
         "uid": 189,
-        "parentTaskUid": 450,
+        "parentTaskUid": null,
         "wbsOrder": 34,
         "name": "🌕 CR-821(済んだ記録を history/ へ)の適用",
         "start": "2026-10-20T06:33:00",
@@ -929,7 +929,7 @@
       },
       {
         "uid": 190,
-        "parentTaskUid": 450,
+        "parentTaskUid": null,
         "wbsOrder": 35,
         "name": "🌕 CR-822(版の規則を 1 つの表へ)の適用",
         "start": "2026-10-20T06:41:00",
@@ -952,7 +952,7 @@
       },
       {
         "uid": 191,
-        "parentTaskUid": 450,
+        "parentTaskUid": null,
         "wbsOrder": 36,
         "name": "🌕 不具合 2 件・改善 3 件の記録と β に向けた計画の書き直し(記録と計画の子セッション)",
         "start": "2026-10-20T23:20:00",
@@ -975,7 +975,7 @@
       },
       {
         "uid": 147,
-        "parentTaskUid": 451,
+        "parentTaskUid": null,
         "wbsOrder": 37,
         "name": "🌕 週の使用量の戻り(10-21 水 19:00)と仕事の再開(10-22 木 08:15、第 1 波)",
         "start": "2026-10-22T08:15:00",
@@ -998,7 +998,7 @@
       },
       {
         "uid": 198,
-        "parentTaskUid": 451,
+        "parentTaskUid": null,
         "wbsOrder": 38,
         "name": "🌕 第 1 波の合流と GT-2(赤 3 件が消えたか)・develop へ push",
         "start": "2026-10-22T20:16:00",
@@ -1046,7 +1046,7 @@
       },
       {
         "uid": 255,
-        "parentTaskUid": 451,
+        "parentTaskUid": null,
         "wbsOrder": 39,
         "name": "🌕 第 2 波 W1〜W4 の合流と GT-2(中継の版の上げは 1 回)",
         "start": "2026-10-23T03:33:00",
@@ -1102,7 +1102,7 @@
       },
       {
         "uid": 261,
-        "parentTaskUid": 451,
+        "parentTaskUid": null,
         "wbsOrder": 40,
         "name": "🌕 第 2 波の後の基準線の下げ(G1・G3、検査 5 つ)と develop へ push —— D1・D7 を外すのは 275 へ分けた",
         "start": "2026-10-23T05:50:00",
@@ -1134,7 +1134,7 @@
       },
       {
         "uid": 284,
-        "parentTaskUid": 451,
+        "parentTaskUid": null,
         "wbsOrder": 41,
         "name": "🌕 裁定 5 行の記録と当て 3 つ(CR-825 ほか)の合流と push",
         "start": "2026-10-23T06:42:00",
@@ -1157,7 +1157,7 @@
       },
       {
         "uid": 291,
-        "parentTaskUid": 451,
+        "parentTaskUid": null,
         "wbsOrder": 42,
         "name": "🌕 調整役の交代(引継書の節と台帳)",
         "start": "2026-10-24T14:47:00",
@@ -1180,7 +1180,7 @@
       },
       {
         "uid": 299,
-        "parentTaskUid": 451,
+        "parentTaskUid": null,
         "wbsOrder": 43,
         "name": "🌕 10-24〜25 の合流分の dist の組み直し・中継とデモの版の上げ・GT-2・push",
         "start": "2026-10-31T16:25:00",
@@ -1212,7 +1212,7 @@
       },
       {
         "uid": 275,
-        "parentTaskUid": 451,
+        "parentTaskUid": null,
         "wbsOrder": 44,
         "name": "🌕 known-red の揺れる 4 行(D1)と時間切れの延ばし(D7)を外し、GT-2 が時間切れ 0 で通るのを確かめる",
         "start": "2026-10-31T16:48:00",
@@ -1276,7 +1276,7 @@
       },
       {
         "uid": 87,
-        "parentTaskUid": 451,
+        "parentTaskUid": null,
         "wbsOrder": 45,
         "name": "🌕 CR-767(状態機械の原稿)の合流と確かめ",
         "start": "2026-10-23T13:18:00",
@@ -1308,7 +1308,7 @@
       },
       {
         "uid": 105,
-        "parentTaskUid": 451,
+        "parentTaskUid": null,
         "wbsOrder": 46,
         "name": "🌕 CR-768(保存の媒体の型)の C の合流と確かめ",
         "start": "2026-10-23T22:21:00",
@@ -1340,7 +1340,7 @@
       },
       {
         "uid": 199,
-        "parentTaskUid": 451,
+        "parentTaskUid": null,
         "wbsOrder": 47,
         "name": "🌕 週の使用量の戻り(10-28 水 19:00)",
         "start": "2026-10-28T19:00:00",
@@ -1473,7 +1473,7 @@
       },
       {
         "uid": 207,
-        "parentTaskUid": 451,
+        "parentTaskUid": null,
         "wbsOrder": 52,
         "name": "🌕 不具合の合流と GT-2・push",
         "start": "2026-10-24T00:23:00",
@@ -1757,7 +1757,7 @@
       },
       {
         "uid": 200,
-        "parentTaskUid": 451,
+        "parentTaskUid": null,
         "wbsOrder": 62,
         "name": "🌕 遅延診断の ? と炎の裁定(DFC-3390: 基準日より後を開始で読むか・壁の件数も外すか)に答える",
         "start": "2026-10-22T08:24:00",
@@ -1789,7 +1789,7 @@
       },
       {
         "uid": 218,
-        "parentTaskUid": 451,
+        "parentTaskUid": null,
         "wbsOrder": 63,
         "name": "🌕 ハイパーリンク(MSPDI に写すか・コメントのアイコンの置き場)とダークの色の導き方(JDG-326 の ② を覆す)に答える",
         "start": "2026-10-22T20:14:00",
@@ -1821,7 +1821,7 @@
       },
       {
         "uid": 238,
-        "parentTaskUid": 451,
+        "parentTaskUid": null,
         "wbsOrder": 64,
         "name": "🌕 DFC-3397(左端に出す名前と札)の細部の協議に答える",
         "start": "2026-10-22T20:26:00",
@@ -1853,7 +1853,7 @@
       },
       {
         "uid": 254,
-        "parentTaskUid": 451,
+        "parentTaskUid": null,
         "wbsOrder": 65,
         "name": "🌕 DFC-3392・3395(プロンプトの写し方・保存の確認の文)の裁定に答える",
         "start": "2026-10-22T20:44:00",
@@ -1885,7 +1885,7 @@
       },
       {
         "uid": 263,
-        "parentTaskUid": 451,
+        "parentTaskUid": null,
         "wbsOrder": 66,
         "name": "🌕 裁定 5 行(DFC-3430 端の日・DFC-3433 C7 の Developer C・DFC-3453 E17 の pages.yml・DFC-3456 時間切れ・PND-144)に答える",
         "start": "2026-10-23T06:14:00",
@@ -1917,7 +1917,7 @@
       },
       {
         "uid": 305,
-        "parentTaskUid": 451,
+        "parentTaskUid": null,
         "wbsOrder": 67,
         "name": "🌕 SUB 7(用語集)のカードを押して始める",
         "start": "2026-10-31T08:42:00",
@@ -1940,7 +1940,7 @@
       },
       {
         "uid": 308,
-        "parentTaskUid": 451,
+        "parentTaskUid": null,
         "wbsOrder": 68,
         "name": "🌕 計画の置き場(git を使うか・公開するか)を決める",
         "start": "2026-10-31T08:50:00",
@@ -1963,7 +1963,7 @@
       },
       {
         "uid": 309,
-        "parentTaskUid": 451,
+        "parentTaskUid": null,
         "wbsOrder": 69,
         "name": "🌕 PMO の組み直しを見て OK を出す(PMO の決めごとの GQA が閉じた節目)",
         "start": "2026-10-31T08:54:00",
@@ -2009,7 +2009,7 @@
       },
       {
         "uid": 241,
-        "parentTaskUid": 451,
+        "parentTaskUid": null,
         "wbsOrder": 71,
         "name": "🌕 取次からページのアドレスを得る直し(DFC-3400・3401)の案 B1〜B6 に答える",
         "start": "2026-10-24T06:09:00",
@@ -2032,7 +2032,7 @@
       },
       {
         "uid": 244,
-        "parentTaskUid": 451,
+        "parentTaskUid": null,
         "wbsOrder": 72,
         "name": "🌕 DFC-3410(名前付きのフィルタの条件)の細部に答える",
         "start": "2026-10-24T06:09:00",
@@ -2192,7 +2192,7 @@
       },
       {
         "uid": 247,
-        "parentTaskUid": 452,
+        "parentTaskUid": null,
         "wbsOrder": 77,
         "name": "🌕 β への計画の引き直しと利用者の答え 5 つの記録(JDG-3043〜3047)",
         "start": "2026-10-22T08:18:00",
@@ -2215,7 +2215,7 @@
       },
       {
         "uid": 248,
-        "parentTaskUid": 452,
+        "parentTaskUid": null,
         "wbsOrder": 78,
         "name": "🌕 読むだけの棚卸し(仕様・_source・_asset・コード・試験・道具の 6 つの所を数える)",
         "start": "2026-10-22T08:15:00",
@@ -2238,7 +2238,7 @@
       },
       {
         "uid": 192,
-        "parentTaskUid": 452,
+        "parentTaskUid": null,
         "wbsOrder": 79,
         "name": "🌕 GT-2 の赤 ③ uc-008:76(コメントのダブルクリックで PR-21 に焦点が入らない)の調べと直し",
         "start": "2026-10-22T08:24:00",
@@ -2261,7 +2261,7 @@
       },
       {
         "uid": 193,
-        "parentTaskUid": 452,
+        "parentTaskUid": null,
         "wbsOrder": 80,
         "name": "🌕 GT-2 の赤 ① nfr-004 SWS-8(.tsv の IO-9 を押す探り)を足す",
         "start": "2026-10-22T08:21:00",
@@ -2284,7 +2284,7 @@
       },
       {
         "uid": 194,
-        "parentTaskUid": 452,
+        "parentTaskUid": null,
         "wbsOrder": 81,
         "name": "🌕 GT-2 の赤 ② w3-t2(FR-135 の古い引用)を直す",
         "start": "2026-10-22T08:21:00",
@@ -2307,7 +2307,7 @@
       },
       {
         "uid": 195,
-        "parentTaskUid": 452,
+        "parentTaskUid": null,
         "wbsOrder": 82,
         "name": "🌕 紹介頁・ダウンロード頁・デモの頁の語の直し(データだけ)",
         "start": "2026-10-22T08:21:00",
@@ -2330,7 +2330,7 @@
       },
       {
         "uid": 249,
-        "parentTaskUid": 452,
+        "parentTaskUid": null,
         "wbsOrder": 83,
         "name": "🌕 意図しない圧縮への備え(85% の知らせ・セッション台帳・引継書の検査・呼び名の統一)の仕組みと試し",
         "start": "2026-10-22T08:18:00",
@@ -2353,7 +2353,7 @@
       },
       {
         "uid": 250,
-        "parentTaskUid": 452,
+        "parentTaskUid": null,
         "wbsOrder": 84,
         "name": "🌕 利用者の裁定が要る 6 件(DFC-3390・3392・3393・3394・3395・3397)を 1 問ずつ問う",
         "start": "2026-10-22T08:18:00",
@@ -2376,7 +2376,7 @@
       },
       {
         "uid": 262,
-        "parentTaskUid": 452,
+        "parentTaskUid": null,
         "wbsOrder": 85,
         "name": "🌕 裁定 6 件の答えの記録(JDG の行と台帳)",
         "start": "2026-10-22T20:45:00",
@@ -2408,7 +2408,7 @@
       },
       {
         "uid": 251,
-        "parentTaskUid": 452,
+        "parentTaskUid": null,
         "wbsOrder": 86,
         "name": "🌕 合流済みの作業木の掃除(第 1 波の後半)",
         "start": "2026-10-23T03:03:00",
@@ -2495,7 +2495,7 @@
       },
       {
         "uid": 256,
-        "parentTaskUid": 452,
+        "parentTaskUid": null,
         "wbsOrder": 89,
         "name": "🌕 W1 仕様と _source／_assets の掃除(棚卸しの A・B の行、C3 の仕様の側 PI-9)",
         "start": "2026-10-23T03:03:00",
@@ -2527,7 +2527,7 @@
       },
       {
         "uid": 116,
-        "parentTaskUid": 452,
+        "parentTaskUid": null,
         "wbsOrder": 90,
         "name": "🌕 NOT_STORED_DUMMY_SIZES(生成済みの寸法, C2・E28)の読まれない写しと古い注の始末",
         "start": "2026-10-23T03:03:00",
@@ -2582,7 +2582,7 @@
       },
       {
         "uid": 77,
-        "parentTaskUid": 452,
+        "parentTaskUid": null,
         "wbsOrder": 92,
         "name": "🌕 古い STOP の印 15 件(DFC-2730, C9)の除去",
         "start": "2026-10-23T03:11:00",
@@ -2605,7 +2605,7 @@
       },
       {
         "uid": 257,
-        "parentTaskUid": 452,
+        "parentTaskUid": null,
         "wbsOrder": 93,
         "name": "🌕 W2 src の掃除(棚卸しの C4・C10・C15・E15・E16 ほか)",
         "start": "2026-10-23T03:03:00",
@@ -2660,7 +2660,7 @@
       },
       {
         "uid": 115,
-        "parentTaskUid": 452,
+        "parentTaskUid": null,
         "wbsOrder": 95,
         "name": "🌕 edgeOf と baselineEdgeXOf(重複した関数, C1)の 1 つへの寄せ",
         "start": "2026-10-23T07:15:00",
@@ -2700,7 +2700,7 @@
       },
       {
         "uid": 258,
-        "parentTaskUid": 452,
+        "parentTaskUid": null,
         "wbsOrder": 96,
         "name": "🌕 W3 試験の掃除(棚卸しの D の行と G2)",
         "start": "2026-10-23T03:03:00",
@@ -2732,7 +2732,7 @@
       },
       {
         "uid": 259,
-        "parentTaskUid": 452,
+        "parentTaskUid": null,
         "wbsOrder": 97,
         "name": "🌕 W4 道具と目録の掃除(棚卸しの E の行・09-tools.md・About の版の形)",
         "start": "2026-10-23T03:03:00",
@@ -2796,7 +2796,7 @@
       },
       {
         "uid": 260,
-        "parentTaskUid": 452,
+        "parentTaskUid": null,
         "wbsOrder": 99,
         "name": "🌕 W5 台帳と記録の掃除(棚卸しの F の行。古い STOP の台帳 F2 は W2 の後)",
         "start": "2026-10-23T05:24:00",
@@ -2819,7 +2819,7 @@
       },
       {
         "uid": 271,
-        "parentTaskUid": 452,
+        "parentTaskUid": null,
         "wbsOrder": 100,
         "name": "🌕 裁定 5 行(DFC-3430・3433・3453・3456・PND-144)を 1 問ずつ問う",
         "start": "2026-10-23T06:14:00",
@@ -2842,7 +2842,7 @@
       },
       {
         "uid": 272,
-        "parentTaskUid": 452,
+        "parentTaskUid": null,
         "wbsOrder": 101,
         "name": "🌕 裁定 5 行の答えの記録(JDG の行と台帳)",
         "start": "2026-10-23T06:14:00",
@@ -2874,7 +2874,7 @@
       },
       {
         "uid": 273,
-        "parentTaskUid": 452,
+        "parentTaskUid": null,
         "wbsOrder": 102,
         "name": "🌕 計画の予実の更新(実績の測り直しと、まだの仕事の組み直し)",
         "start": "2026-10-23T06:21:00",
@@ -2897,7 +2897,7 @@
       },
       {
         "uid": 278,
-        "parentTaskUid": 452,
+        "parentTaskUid": null,
         "wbsOrder": 103,
         "name": "🌕 cr-811 の 2 枚の絵の比べが GT-2 の負荷で揺れる件(DFC-3467)—— 時計を止める",
         "start": "2026-10-23T16:59:00",
@@ -2920,7 +2920,7 @@
       },
       {
         "uid": 279,
-        "parentTaskUid": 452,
+        "parentTaskUid": null,
         "wbsOrder": 104,
         "name": "🌕 利用者の依頼の調べ",
         "start": "2026-10-23T17:00:00",
@@ -2943,7 +2943,7 @@
       },
       {
         "uid": 281,
-        "parentTaskUid": 452,
+        "parentTaskUid": null,
         "wbsOrder": 105,
         "name": "🌕 cr-822 の道具の試験の時間切れを 1 件 20 秒にする(JDG-3144、DFC-3493)",
         "start": "2026-10-24T05:26:00",
@@ -2966,7 +2966,7 @@
       },
       {
         "uid": 282,
-        "parentTaskUid": 452,
+        "parentTaskUid": null,
         "wbsOrder": 106,
         "name": "🌕 計画の予実と引継書の最新の節の更新(ee5b5afb8 の姿へ)",
         "start": "2026-10-24T05:27:00",
@@ -2989,7 +2989,7 @@
       },
       {
         "uid": 300,
-        "parentTaskUid": 452,
+        "parentTaskUid": null,
         "wbsOrder": 107,
         "name": "🌕 計画の予実の更新(10-25: CR-851 の 1 週間のレビュー・CR-854・答えの前倒し)",
         "start": "2026-10-25T18:28:00",
@@ -3012,7 +3012,7 @@
       },
       {
         "uid": 285,
-        "parentTaskUid": 454,
+        "parentTaskUid": null,
         "wbsOrder": 108,
         "name": "🌕 計画 241・244・217 の答えの前倒し(1 問ずつ問い、記録する)",
         "start": "2026-10-24T06:09:00",
@@ -3035,7 +3035,7 @@
       },
       {
         "uid": 287,
-        "parentTaskUid": 454,
+        "parentTaskUid": null,
         "wbsOrder": 109,
         "name": "🌕 CR-850(基準日線・カーソル・掴みを 15 分に)の当て —— X-3a の 3 か所を除く",
         "start": "2026-10-24T06:33:00",
@@ -3058,7 +3058,7 @@
       },
       {
         "uid": 321,
-        "parentTaskUid": 451,
+        "parentTaskUid": null,
         "wbsOrder": 110,
         "name": "🌕 CR-850(基準日線・カーソル・掴みを 15 分に)の急ぎの出荷: オーナーと GQA で X-3a の 3 か所を決める",
         "start": "2026-10-31T15:50:00",
@@ -3081,7 +3081,7 @@
       },
       {
         "uid": 322,
-        "parentTaskUid": 454,
+        "parentTaskUid": null,
         "wbsOrder": 111,
         "name": "🌕 CR-850(基準日線・カーソル・掴みを 15 分に)の急ぎの出荷の仕様とテスト仕様(X-3a の 3 か所)",
         "start": "2026-10-31T16:11:00",
@@ -3113,7 +3113,7 @@
       },
       {
         "uid": 288,
-        "parentTaskUid": 454,
+        "parentTaskUid": null,
         "wbsOrder": 112,
         "name": "🌕 CR-850(基準日線・カーソル・掴みを 15 分に)の X-3a の 3 か所の当て(急ぎの出荷の実装と自動試験)",
         "start": "2026-10-31T16:11:00",
@@ -3145,7 +3145,7 @@
       },
       {
         "uid": 289,
-        "parentTaskUid": 454,
+        "parentTaskUid": null,
         "wbsOrder": 113,
         "name": "🌕 規則 07 を原本(gr-sw-maker の review-standards)の派生に作り直し、検査 90 と略語の正式名を足す",
         "start": "2026-10-24T07:57:00",
@@ -3168,7 +3168,7 @@
       },
       {
         "uid": 290,
-        "parentTaskUid": 454,
+        "parentTaskUid": null,
         "wbsOrder": 114,
         "name": "🌕 再発防止の検査 91〜93(07 の旧番号・07 と原本・依存と OSS)",
         "start": "2026-10-24T14:57:00",
@@ -3191,7 +3191,7 @@
       },
       {
         "uid": 292,
-        "parentTaskUid": 454,
+        "parentTaskUid": null,
         "wbsOrder": 115,
         "name": "🌕 外への約束(GRS JSON・Agent API・MCP・読み書きの形)の仕様の行の棚卸し(study 77)",
         "start": "2026-10-24T18:09:00",
@@ -3214,7 +3214,7 @@
       },
       {
         "uid": 293,
-        "parentTaskUid": 454,
+        "parentTaskUid": null,
         "wbsOrder": 116,
         "name": "🌕 CR-851(GRS JSON を β の前に 1 回だけ組み替え、α の文書は変換させる)の起草",
         "start": "2026-10-24T16:43:00",
@@ -3237,7 +3237,7 @@
       },
       {
         "uid": 294,
-        "parentTaskUid": 454,
+        "parentTaskUid": null,
         "wbsOrder": 117,
         "name": "🌕 拡大縮小の戦略の調べ(study 78)と CR-853 の起草",
         "start": "2026-10-25T03:06:00",
@@ -3260,7 +3260,7 @@
       },
       {
         "uid": 310,
-        "parentTaskUid": 454,
+        "parentTaskUid": null,
         "wbsOrder": 118,
         "name": "🌕 用語集の監査を始める(SUB 3 cr-851-successor-3-finis。文の書き方の裁定 JDG-3346〜3350)",
         "start": "2026-10-26T22:35:00",
@@ -3283,7 +3283,7 @@
       },
       {
         "uid": 311,
-        "parentTaskUid": 454,
+        "parentTaskUid": null,
         "wbsOrder": 119,
         "name": "🌕 語のシート・GRS 独自のキーの名・SSOT・名の辞書の初版(SUB 4 cr-851-successor-4-term)",
         "start": "2026-10-27T02:01:00",
@@ -3306,7 +3306,7 @@
       },
       {
         "uid": 312,
-        "parentTaskUid": 454,
+        "parentTaskUid": null,
         "wbsOrder": 120,
         "name": "🌕 名の辞書の作り方の紙と GQA 13 の問 1〜4(SUB 5 cr-851-successor-5-gloss)",
         "start": "2026-10-29T02:08:00",
@@ -3329,7 +3329,7 @@
       },
       {
         "uid": 313,
-        "parentTaskUid": 454,
+        "parentTaskUid": null,
         "wbsOrder": 121,
         "name": "🌕 GQA 13 の問 5 の巡(SUB 6 cr-851-successor-6-gloss。JDG-3481〜3507)",
         "start": "2026-10-31T03:11:00",
@@ -3352,7 +3352,7 @@
       },
       {
         "uid": 317,
-        "parentTaskUid": 454,
+        "parentTaskUid": null,
         "wbsOrder": 122,
         "name": "🌕 確定したパート 1〜5 と群 4 の問い(SUB 7 cr-851-successor-7-gloss。JDG-3511〜3513)",
         "start": "2026-10-31T11:22:00",
@@ -4875,7 +4875,7 @@
       },
       {
         "uid": 314,
-        "parentTaskUid": 454,
+        "parentTaskUid": null,
         "wbsOrder": 167,
         "name": "🌕 CR-851・848・849 の行のレビューの初日(SUB cr-851-successor-run-the)",
         "start": "2026-10-25T09:46:00",
@@ -4898,7 +4898,7 @@
       },
       {
         "uid": 315,
-        "parentTaskUid": 454,
+        "parentTaskUid": null,
         "wbsOrder": 168,
         "name": "🌕 CR-851・848・849 の行のレビューの続き(SUB 3 cr-851-successor-3-finis)",
         "start": "2026-10-25T19:14:00",
@@ -5077,7 +5077,7 @@
       },
       {
         "uid": 203,
-        "parentTaskUid": 453,
+        "parentTaskUid": null,
         "wbsOrder": 175,
         "name": "🌕 予定の日が 1 日前へずれる疑い(初見 AI の試験の子セッションの報告)の再現と直し",
         "start": "2026-10-23T23:48:00",
@@ -5100,7 +5100,7 @@
       },
       {
         "uid": 204,
-        "parentTaskUid": 453,
+        "parentTaskUid": null,
         "wbsOrder": 176,
         "name": "🌕 依存線の縦の部分が重なる(O-1)の直し",
         "start": "2026-10-23T23:48:00",
@@ -5302,7 +5302,7 @@
       },
       {
         "uid": 85,
-        "parentTaskUid": 453,
+        "parentTaskUid": null,
         "wbsOrder": 184,
         "name": "🌕 CR-767(状態機械の原稿)の波 1 の実装",
         "start": "2026-10-23T12:00:00",
@@ -5325,7 +5325,7 @@
       },
       {
         "uid": 86,
-        "parentTaskUid": 453,
+        "parentTaskUid": null,
         "wbsOrder": 185,
         "name": "🌕 CR-767(状態機械の原稿)の波 2 の実装",
         "start": "2026-10-23T16:59:00",
@@ -5348,7 +5348,7 @@
       },
       {
         "uid": 277,
-        "parentTaskUid": 453,
+        "parentTaskUid": null,
         "wbsOrder": 186,
         "name": "🌕 遅い 2 件のシステム試験を、確かめる中身を変えずに速くする(DFC-3459、JDG-3118)",
         "start": "2026-10-23T18:06:00",
@@ -5371,7 +5371,7 @@
       },
       {
         "uid": 276,
-        "parentTaskUid": 453,
+        "parentTaskUid": null,
         "wbsOrder": 187,
         "name": "🌕 CR-767(状態機械の原稿)の波 3 —— ガードの式を単位の判定へ生成する",
         "start": "2026-10-23T20:31:00",
@@ -5394,7 +5394,7 @@
       },
       {
         "uid": 104,
-        "parentTaskUid": 453,
+        "parentTaskUid": null,
         "wbsOrder": 188,
         "name": "🌕 CR-768(保存の媒体の型)の C と CM-27 の注の実装",
         "start": "2026-10-23T21:55:00",
@@ -5417,7 +5417,7 @@
       },
       {
         "uid": 286,
-        "parentTaskUid": 453,
+        "parentTaskUid": null,
         "wbsOrder": 189,
         "name": "🌕 W4 前半(CR-578〜580)の分け方の計画を書いて止める",
         "start": "2026-10-24T06:09:00",
@@ -5541,7 +5541,7 @@
       },
       {
         "uid": 217,
-        "parentTaskUid": 453,
+        "parentTaskUid": null,
         "wbsOrder": 194,
         "name": "🌕 DFC-3393・3394(ハイパーリンク・ダークの任意色)の CR の起草",
         "start": "2026-10-24T16:43:00",
@@ -5732,7 +5732,7 @@
       },
       {
         "uid": 17,
-        "parentTaskUid": 453,
+        "parentTaskUid": null,
         "wbsOrder": 200,
         "name": "🌕 試験待ち 23 行(DFC-550・567・641 ほか)の仕様だけを読む試験",
         "start": "2026-10-24T06:09:00",
@@ -5833,7 +5833,7 @@
       },
       {
         "uid": 201,
-        "parentTaskUid": 453,
+        "parentTaskUid": null,
         "wbsOrder": 204,
         "name": "🌕 DFC-3390(基準日より後のタスクの ? と炎)の CR の起草と当て",
         "start": "2026-10-23T23:48:00",
@@ -5905,7 +5905,7 @@
       },
       {
         "uid": 205,
-        "parentTaskUid": 453,
+        "parentTaskUid": null,
         "wbsOrder": 206,
         "name": "🌕 ポインタの当たり判定(予定と依存線の優先順位)の見直し —— 見本と Playwright の掃き",
         "start": "2026-10-23T23:48:00",
@@ -6052,7 +6052,7 @@
       },
       {
         "uid": 11,
-        "parentTaskUid": 453,
+        "parentTaskUid": null,
         "wbsOrder": 212,
         "name": "🌕 未検討 72 行(DFC-611・2560〜2569・2690〜2699・2770 ほか)のトリアージ",
         "start": "2026-10-24T06:09:00",
@@ -6130,7 +6130,7 @@
       },
       {
         "uid": 202,
-        "parentTaskUid": 453,
+        "parentTaskUid": null,
         "wbsOrder": 215,
         "name": "🌕 DFC-3391・3392(プロンプトは本文だけ写し、スキーマは自動で保存)の CR の起草と当て",
         "start": "2026-10-23T23:48:00",
@@ -6162,7 +6162,7 @@
       },
       {
         "uid": 206,
-        "parentTaskUid": 453,
+        "parentTaskUid": null,
         "wbsOrder": 216,
         "name": "🌕 日付の範囲(S-119/S-120 と MS Project の 1984〜2149)・DFC-3003(ライセンスの窓)",
         "start": "2026-10-23T23:48:00",
@@ -6185,7 +6185,7 @@
       },
       {
         "uid": 236,
-        "parentTaskUid": 453,
+        "parentTaskUid": null,
         "wbsOrder": 217,
         "name": "🌕 DFC-3395(保存の確認がサイトの名を出し、通信するように読める)の調べと対応の案",
         "start": "2026-10-23T23:48:00",
@@ -6217,7 +6217,7 @@
       },
       {
         "uid": 280,
-        "parentTaskUid": 453,
+        "parentTaskUid": null,
         "wbsOrder": 218,
         "name": "🌕 a60f69ed5 の GT-2 の赤 7 件の試験を CR-827・828 に合わせる",
         "start": "2026-10-24T02:00:00",
@@ -6364,7 +6364,7 @@
       },
       {
         "uid": 197,
-        "parentTaskUid": 453,
+        "parentTaskUid": null,
         "wbsOrder": 224,
         "name": "🌕 サーバー同期のデモの仕上げ(DFC-3070・3071 の状態を測り直し、配る zip で試す)",
         "start": "2026-10-24T06:09:00",
@@ -6387,7 +6387,7 @@
       },
       {
         "uid": 18,
-        "parentTaskUid": 453,
+        "parentTaskUid": null,
         "wbsOrder": 225,
         "name": "🌕 仕様待ち 31 行の残り(DFC-560・631・1063〜1073 ほか)の CR の起草",
         "start": "2026-10-24T06:09:00",
@@ -6740,7 +6740,7 @@
       },
       {
         "uid": 323,
-        "parentTaskUid": 454,
+        "parentTaskUid": null,
         "wbsOrder": 238,
         "name": "🌕 CR-850(基準日線・カーソル・掴みを 15 分に)の急ぎの出荷の場面の確かめ(別の試験の SUB)",
         "start": "2026-10-31T16:25:00",
@@ -6772,7 +6772,7 @@
       },
       {
         "uid": 324,
-        "parentTaskUid": 451,
+        "parentTaskUid": null,
         "wbsOrder": 239,
         "name": "🌕 CR-850(基準日線を 15 分に)と CR-858(落とした GRS JSON は選択なしで開く)の急ぎの出荷をオーナーが実物で触る",
         "start": "2026-11-01T10:00:00",
@@ -6820,7 +6820,7 @@
       },
       {
         "uid": 327,
-        "parentTaskUid": 451,
+        "parentTaskUid": null,
         "wbsOrder": 240,
         "name": "🌕 OneDrive を止める(CR-850 の急ぎの出荷の GT-2 の間)",
         "start": "2026-10-31T16:45:00",
@@ -6852,7 +6852,7 @@
       },
       {
         "uid": 325,
-        "parentTaskUid": 451,
+        "parentTaskUid": null,
         "wbsOrder": 241,
         "name": "🌕 CR-850(基準日線・カーソル・掴みを 15 分に)の急ぎの出荷: develop → main の PR(調整役)",
         "start": "2026-10-31T21:01:00",
@@ -6900,7 +6900,7 @@
       },
       {
         "uid": 326,
-        "parentTaskUid": 451,
+        "parentTaskUid": null,
         "wbsOrder": 242,
         "name": "🌕 CR-850(基準日線・カーソル・掴みを 15 分に)の急ぎの出荷: PR を見て main へ合流する",
         "start": "2026-11-01T12:00:00",
@@ -6932,7 +6932,7 @@
       },
       {
         "uid": 328,
-        "parentTaskUid": 451,
+        "parentTaskUid": null,
         "wbsOrder": 243,
         "name": "🌕 CR-850(基準日線・カーソル・掴みを 15 分に)の急ぎの出荷: 出荷の道(main からの hotfix か develop から main か)を決める",
         "start": "2026-10-31T18:06:00",
@@ -6955,7 +6955,7 @@
       },
       {
         "uid": 329,
-        "parentTaskUid": 454,
+        "parentTaskUid": null,
         "wbsOrder": 244,
         "name": "🌕 CR-850(基準日線を 15 分に)の急ぎの出荷: develop の試験の穴を埋める(SUB baseline-15min)",
         "start": "2026-10-31T16:37:00",
@@ -6987,7 +6987,7 @@
       },
       {
         "uid": 368,
-        "parentTaskUid": 451,
+        "parentTaskUid": null,
         "wbsOrder": 245,
         "name": "🌕 CR-850(基準日線を 15 分に)の出荷: develop を push する(調整役)",
         "start": "2026-10-31T19:02:00",
@@ -7019,7 +7019,7 @@
       },
       {
         "uid": 369,
-        "parentTaskUid": 451,
+        "parentTaskUid": null,
         "wbsOrder": 246,
         "name": "🌕 CR-850(基準日線を 15 分に)の出荷: main の hotfix(PR #2〜#4)を develop へ合流する(調整役)",
         "start": "2026-10-31T19:36:00",
@@ -7067,7 +7067,7 @@
       },
       {
         "uid": 370,
-        "parentTaskUid": 454,
+        "parentTaskUid": null,
         "wbsOrder": 247,
         "name": "🌕 CR-850(基準日線を 15 分に)の出荷: 全体の試験でだけ赤くなる 2 つの試験(dfc-2980・cr-572)の根を直す(SUB baseline-15min)",
         "start": "2026-10-31T17:10:00",
@@ -7090,7 +7090,7 @@
       },
       {
         "uid": 371,
-        "parentTaskUid": 454,
+        "parentTaskUid": null,
         "wbsOrder": 248,
         "name": "🌕 CR-850(基準日線を 15 分に)の出荷: 仕様の文が変わって落ちる試験(w3-t2-screen-clauses)を直す(SUB baseline-15min)",
         "start": "2026-10-31T18:03:00",
@@ -7122,7 +7122,7 @@
       },
       {
         "uid": 372,
-        "parentTaskUid": 451,
+        "parentTaskUid": null,
         "wbsOrder": 249,
         "name": "🌕 CR-858(落とした GRS JSON は選択なしで開く)の急ぎの出荷: オーナーと GQA で決める",
         "start": "2026-10-31T18:15:00",
@@ -7145,7 +7145,7 @@
       },
       {
         "uid": 373,
-        "parentTaskUid": 453,
+        "parentTaskUid": null,
         "wbsOrder": 250,
         "name": "🌕 CR-858(落とした GRS JSON は選択なしで開く)の急ぎの出荷の仕様とテスト仕様",
         "start": "2026-10-31T18:15:00",
@@ -7177,7 +7177,7 @@
       },
       {
         "uid": 374,
-        "parentTaskUid": 453,
+        "parentTaskUid": null,
         "wbsOrder": 251,
         "name": "🌕 CR-858(落とした GRS JSON は選択なしで開く)の急ぎの出荷の実装と自動試験",
         "start": "2026-10-31T18:15:00",
@@ -7209,7 +7209,7 @@
       },
       {
         "uid": 375,
-        "parentTaskUid": 453,
+        "parentTaskUid": null,
         "wbsOrder": 252,
         "name": "🌕 CR-858(落とした GRS JSON は選択なしで開く)の急ぎの出荷の場面の確かめ(別の試験の SUB)",
         "start": "2026-10-31T19:59:00",
@@ -7241,7 +7241,7 @@
       },
       {
         "uid": 376,
-        "parentTaskUid": 451,
+        "parentTaskUid": null,
         "wbsOrder": 253,
         "name": "🌕 CR-858(落とした GRS JSON は選択なしで開く)の急ぎの出荷: dist の組み直しと版の上げ(CR-850 と一緒)",
         "start": "2026-10-31T20:13:00",
@@ -7281,7 +7281,7 @@
       },
       {
         "uid": 377,
-        "parentTaskUid": 451,
+        "parentTaskUid": null,
         "wbsOrder": 255,
         "name": "🌕 OneDrive を止める(CR-850 と CR-858 の最後の GT-2 の間)",
         "start": "2026-10-31T20:38:00",
@@ -7321,7 +7321,7 @@
       },
       {
         "uid": 378,
-        "parentTaskUid": 451,
+        "parentTaskUid": null,
         "wbsOrder": 256,
         "name": "🌕 CR-858(落とした GRS JSON は選択なしで開く)の急ぎの出荷: CR-850 と CR-858 を含む最後の GT-2",
         "start": "2026-10-31T20:38:00",
@@ -7361,7 +7361,7 @@
       },
       {
         "uid": 379,
-        "parentTaskUid": 453,
+        "parentTaskUid": null,
         "wbsOrder": 257,
         "name": "🌕 CR-858(落とした GRS JSON は選択なしで開く)の急ぎの出荷: 試験の穴 3 つを埋める(SUB cr858-drop-opens)",
         "start": "2026-10-31T20:03:00",
@@ -7393,7 +7393,7 @@
       },
       {
         "uid": 380,
-        "parentTaskUid": 451,
+        "parentTaskUid": null,
         "wbsOrder": 254,
         "name": "🌕 CR-858(落とした GRS JSON は選択なしで開く)の急ぎの出荷: 版の印(release_version.mjs Alpha)とリリースノート 2 本・README の版の行(CR-850 と一緒)",
         "start": "2026-10-31T20:26:00",
@@ -7425,7 +7425,7 @@
       },
       {
         "uid": 381,
-        "parentTaskUid": 451,
+        "parentTaskUid": null,
         "wbsOrder": 258,
         "name": "🌕 CR-858(落とした GRS JSON は選択なしで開く)の出荷の後: BOSS の GQA と CR-858 の GQA を BGQA(チーム ID B の GQA)にまとめる(調整役)",
         "start": "2026-11-01T15:49:00",
@@ -7489,7 +7489,7 @@
       },
       {
         "uid": 383,
-        "parentTaskUid": 451,
+        "parentTaskUid": null,
         "wbsOrder": 260,
         "name": "🌕 SUB 9(用語集 cr851-review-apply-9)のカードを押して始める",
         "start": "2026-11-05T02:46:00",
@@ -7512,7 +7512,7 @@
       },
       {
         "uid": 384,
-        "parentTaskUid": 451,
+        "parentTaskUid": null,
         "wbsOrder": 261,
         "name": "🌕 SUB 10(用語集 cr851-review-apply-10)をオーナーの一言で起こす",
         "start": "2026-11-05T07:23:00",
@@ -7535,7 +7535,7 @@
       },
       {
         "uid": 385,
-        "parentTaskUid": 451,
+        "parentTaskUid": null,
         "wbsOrder": 262,
         "name": "🌕 レビュー基準に NEIM・NDD を足す SUB(JDG-3546、gr-sw-maker)をオーナーの一言で起こす",
         "start": "2026-11-05T07:23:00",
@@ -7581,7 +7581,7 @@
       },
       {
         "uid": 387,
-        "parentTaskUid": 453,
+        "parentTaskUid": null,
         "wbsOrder": 264,
         "name": "🌕 新レビュー基準(原本 0db4e95)の適用 段 1: 窓を開き、全 SUB を止める(調整役)",
         "start": "2026-11-08T07:27:00",
@@ -7604,7 +7604,7 @@
       },
       {
         "uid": 388,
-        "parentTaskUid": 453,
+        "parentTaskUid": null,
         "wbsOrder": 265,
         "name": "🌕 CR-859(純粋性の値の改名とチェッカー)の実装(新レビュー基準 段 2)",
         "start": "2026-11-08T07:59:00",
@@ -7636,7 +7636,7 @@
       },
       {
         "uid": 389,
-        "parentTaskUid": 451,
+        "parentTaskUid": null,
         "wbsOrder": 266,
         "name": "🌕 オーナーが OneDrive を止める(新レビュー基準 段 3 の GT-2 の間)",
         "start": "2026-11-08T11:29:00",
@@ -7668,7 +7668,7 @@
       },
       {
         "uid": 390,
-        "parentTaskUid": 453,
+        "parentTaskUid": null,
         "wbsOrder": 267,
         "name": "🌕 新レビュー基準 段 3: GT-2 を回して合格の行を読み、develop へ push する(調整役)",
         "start": "2026-11-08T11:59:00",
@@ -7916,7 +7916,7 @@
       },
       {
         "uid": 397,
-        "parentTaskUid": 453,
+        "parentTaskUid": null,
         "wbsOrder": 274,
         "name": "🌕 用語集の速さの測り直し(11-15 ごろ。閉じた語の数は用語集の SUB が知らせる。PMO)",
         "start": "2026-11-22T07:18:00",
@@ -8081,7 +8081,7 @@
       },
       {
         "uid": 403,
-        "parentTaskUid": 454,
+        "parentTaskUid": null,
         "wbsOrder": 280,
         "name": "🌕 名の辞書(用語集)のパート 6 の SUB の準備(用語の紙を出す)",
         "start": "2026-10-31T15:49:00",
@@ -9298,144 +9298,6 @@
         "actualStart": "2026-10-31T16:49:00",
         "actualFinish": null,
         "notes": "[rollup:P1] 要約の親タスク。子 4 件のうち未完了 4 件。両端は子から導く(VC-11・VC-12)。"
-      },
-      {
-        "uid": 454,
-        "parentTaskUid": 449,
-        "wbsOrder": null,
-        "milestone": false,
-        "deadline": null,
-        "calendarUid": null,
-        "stop": null,
-        "resume": null,
-        "resumeValid": null,
-        "percentComplete": 100,
-        "fadeInDays": null,
-        "fadeOutDays": null,
-        "dependencies": [],
-        "carry": {},
-        "carryElements": [],
-        "name": "🌕 済: 10-24 以後(規則 07・基準日線・用語集・CR-851・拡大縮小)",
-        "start": "2026-10-24T06:09:00",
-        "finish": "2026-10-31T18:11:00",
-        "actualStart": "2026-10-24T06:09:00",
-        "actualFinish": "2026-10-31T18:11:00",
-        "notes": "[rollup:D5] 要約の親タスク。子 21 件のうち未完了 0 件。両端は子から導く(VC-11・VC-12)。"
-      },
-      {
-        "uid": 453,
-        "parentTaskUid": 449,
-        "wbsOrder": null,
-        "milestone": false,
-        "deadline": null,
-        "calendarUid": null,
-        "stop": null,
-        "resume": null,
-        "resumeValid": null,
-        "percentComplete": 100,
-        "fadeInDays": null,
-        "fadeOutDays": null,
-        "dependencies": [],
-        "carry": {},
-        "carryElements": [],
-        "name": "🌕 済: 子セッション 1〜5 と CR-858",
-        "start": "2026-10-23T12:00:00",
-        "finish": "2026-11-22T07:18:00",
-        "actualStart": "2026-10-23T12:00:00",
-        "actualFinish": "2026-11-22T07:18:00",
-        "notes": "[rollup:D4] 要約の親タスク。子 27 件のうち未完了 0 件。両端は子から導く(VC-11・VC-12)。"
-      },
-      {
-        "uid": 452,
-        "parentTaskUid": 449,
-        "wbsOrder": null,
-        "milestone": false,
-        "deadline": null,
-        "calendarUid": null,
-        "stop": null,
-        "resume": null,
-        "resumeValid": null,
-        "percentComplete": 100,
-        "fadeInDays": null,
-        "fadeOutDays": null,
-        "dependencies": [],
-        "carry": {},
-        "carryElements": [],
-        "name": "🌕 済: 第 1・2 波の棚卸しと掃除",
-        "start": "2026-10-22T08:15:00",
-        "finish": "2026-10-25T18:44:00",
-        "actualStart": "2026-10-22T08:15:00",
-        "actualFinish": "2026-10-25T18:44:00",
-        "notes": "[rollup:D3] 要約の親タスク。子 26 件のうち未完了 0 件。両端は子から導く(VC-11・VC-12)。"
-      },
-      {
-        "uid": 451,
-        "parentTaskUid": 449,
-        "wbsOrder": null,
-        "milestone": false,
-        "deadline": null,
-        "calendarUid": null,
-        "stop": null,
-        "resume": null,
-        "resumeValid": null,
-        "percentComplete": 100,
-        "fadeInDays": null,
-        "fadeOutDays": null,
-        "dependencies": [],
-        "carry": {},
-        "carryElements": [],
-        "name": "🌕 済: 調整役・リリース・オーナーの操作",
-        "start": "2026-10-22T08:15:00",
-        "finish": "2026-11-08T11:59:00",
-        "actualStart": "2026-10-22T08:15:00",
-        "actualFinish": "2026-11-08T11:59:00",
-        "notes": "[rollup:D2] 要約の親タスク。子 40 件のうち未完了 0 件。両端は子から導く(VC-11・VC-12)。"
-      },
-      {
-        "uid": 450,
-        "parentTaskUid": 449,
-        "wbsOrder": null,
-        "milestone": false,
-        "deadline": null,
-        "calendarUid": null,
-        "stop": null,
-        "resume": null,
-        "resumeValid": null,
-        "percentComplete": 100,
-        "fadeInDays": null,
-        "fadeOutDays": null,
-        "dependencies": [],
-        "carry": {},
-        "carryElements": [],
-        "name": "🌕 済: α 版まで(10-17〜10-21)",
-        "start": "2026-10-17T05:30:00",
-        "finish": "2026-10-22T05:46:00",
-        "actualStart": "2026-10-17T05:30:00",
-        "actualFinish": "2026-10-22T05:46:00",
-        "notes": "[rollup:D1] 要約の親タスク。子 36 件のうち未完了 0 件。両端は子から導く(VC-11・VC-12)。"
-      },
-      {
-        "uid": 449,
-        "parentTaskUid": null,
-        "wbsOrder": 8,
-        "milestone": false,
-        "deadline": null,
-        "calendarUid": null,
-        "stop": null,
-        "resume": null,
-        "resumeValid": null,
-        "percentComplete": 100,
-        "fadeInDays": null,
-        "fadeOutDays": null,
-        "dependencies": [],
-        "carry": {},
-        "carryElements": [],
-        "name": "🌕 済(完了した仕事。分類 5 つ)",
-        "start": "2026-10-17T05:30:00",
-        "finish": "2026-11-22T07:18:00",
-        "actualStart": "2026-10-17T05:30:00",
-        "actualFinish": "2026-11-22T07:18:00",
-        "notes": "[rollup:DONE] 要約の親タスク。子 5 件のうち未完了 0 件。両端は子から導く(VC-11・VC-12)。"
       }
     ],
     "resources": [],
@@ -9454,10 +9316,10 @@
       },
       {
         "id": "16a6a826-8c28-542d-b9b1-094dce0b05f6",
-        "parentId": null,
+        "parentId": "a9efa964-11aa-5687-b72e-113cdfd76b9c",
         "name": "済み(10-17 05:20〜10-19 11:25 α 版まで)",
         "derivedFromTaskUid": null,
-        "order": 1,
+        "order": 0,
         "treeState": "auto",
         "editPermission": null,
         "color": null,
@@ -9465,10 +9327,10 @@
       },
       {
         "id": "e7192dc2-32b4-5c5d-abf6-19b9dfe55807",
-        "parentId": null,
+        "parentId": "a9efa964-11aa-5687-b72e-113cdfd76b9c",
         "name": "済み(10-19 11:25〜10-21 α の後)",
         "derivedFromTaskUid": null,
-        "order": 2,
+        "order": 1,
         "treeState": "temporarilyExpanded",
         "editPermission": null,
         "color": null,
@@ -9556,7 +9418,7 @@
         "parentId": null,
         "name": "β版リリースまで",
         "derivedFromTaskUid": null,
-        "order": 3,
+        "order": 4,
         "treeState": "temporarilyExpanded",
         "editPermission": null,
         "color": null,
@@ -10023,6 +9885,61 @@
         "editPermission": null,
         "color": null,
         "minHeightPx": null
+      },
+      {
+        "id": "a9efa964-11aa-5687-b72e-113cdfd76b9c",
+        "parentId": null,
+        "name": "済(完了した仕事)",
+        "derivedFromTaskUid": null,
+        "order": 1,
+        "treeState": "collapsed",
+        "editPermission": null,
+        "color": null,
+        "minHeightPx": null
+      },
+      {
+        "id": "85bcf1f1-5de7-5f02-8472-4bac59991839",
+        "parentId": "a9efa964-11aa-5687-b72e-113cdfd76b9c",
+        "name": "調整役・リリース・オーナーの操作",
+        "derivedFromTaskUid": null,
+        "order": 2,
+        "treeState": "auto",
+        "editPermission": null,
+        "color": null,
+        "minHeightPx": null
+      },
+      {
+        "id": "7155c1ea-fde1-5b96-86f2-4139688959b7",
+        "parentId": "a9efa964-11aa-5687-b72e-113cdfd76b9c",
+        "name": "第 1・2 波の棚卸しと掃除",
+        "derivedFromTaskUid": null,
+        "order": 3,
+        "treeState": "auto",
+        "editPermission": null,
+        "color": null,
+        "minHeightPx": null
+      },
+      {
+        "id": "5419de9f-34b3-529b-8916-132870d66a27",
+        "parentId": "a9efa964-11aa-5687-b72e-113cdfd76b9c",
+        "name": "子セッション 1〜5 と CR-858",
+        "derivedFromTaskUid": null,
+        "order": 4,
+        "treeState": "auto",
+        "editPermission": null,
+        "color": null,
+        "minHeightPx": null
+      },
+      {
+        "id": "3624c12c-b11a-5ea0-ad0b-6f5541ed15d7",
+        "parentId": "a9efa964-11aa-5687-b72e-113cdfd76b9c",
+        "name": "10-24 以後(規則 07・基準日線・用語集・CR-851・拡大縮小)",
+        "derivedFromTaskUid": null,
+        "order": 5,
+        "treeState": "auto",
+        "editPermission": null,
+        "color": null,
+        "minHeightPx": null
       }
     ],
     "taskGroupMembers": [
@@ -10172,31 +10089,31 @@
       },
       {
         "taskUid": 147,
-        "taskGroupId": "360eebfe-b421-54f7-ae66-8f611ac2263d"
+        "taskGroupId": "85bcf1f1-5de7-5f02-8472-4bac59991839"
       },
       {
         "taskUid": 198,
-        "taskGroupId": "360eebfe-b421-54f7-ae66-8f611ac2263d"
+        "taskGroupId": "85bcf1f1-5de7-5f02-8472-4bac59991839"
       },
       {
         "taskUid": 255,
-        "taskGroupId": "360eebfe-b421-54f7-ae66-8f611ac2263d"
+        "taskGroupId": "85bcf1f1-5de7-5f02-8472-4bac59991839"
       },
       {
         "taskUid": 261,
-        "taskGroupId": "360eebfe-b421-54f7-ae66-8f611ac2263d"
+        "taskGroupId": "85bcf1f1-5de7-5f02-8472-4bac59991839"
       },
       {
         "taskUid": 87,
-        "taskGroupId": "360eebfe-b421-54f7-ae66-8f611ac2263d"
+        "taskGroupId": "85bcf1f1-5de7-5f02-8472-4bac59991839"
       },
       {
         "taskUid": 105,
-        "taskGroupId": "360eebfe-b421-54f7-ae66-8f611ac2263d"
+        "taskGroupId": "85bcf1f1-5de7-5f02-8472-4bac59991839"
       },
       {
         "taskUid": 199,
-        "taskGroupId": "360eebfe-b421-54f7-ae66-8f611ac2263d"
+        "taskGroupId": "85bcf1f1-5de7-5f02-8472-4bac59991839"
       },
       {
         "taskUid": 36,
@@ -10216,7 +10133,7 @@
       },
       {
         "taskUid": 207,
-        "taskGroupId": "360eebfe-b421-54f7-ae66-8f611ac2263d"
+        "taskGroupId": "85bcf1f1-5de7-5f02-8472-4bac59991839"
       },
       {
         "taskUid": 216,
@@ -10252,23 +10169,23 @@
       },
       {
         "taskUid": 200,
-        "taskGroupId": "f2b5a632-0e6d-56dd-acc2-4e8c5d72d9fc"
+        "taskGroupId": "85bcf1f1-5de7-5f02-8472-4bac59991839"
       },
       {
         "taskUid": 218,
-        "taskGroupId": "f2b5a632-0e6d-56dd-acc2-4e8c5d72d9fc"
+        "taskGroupId": "85bcf1f1-5de7-5f02-8472-4bac59991839"
       },
       {
         "taskUid": 238,
-        "taskGroupId": "f2b5a632-0e6d-56dd-acc2-4e8c5d72d9fc"
+        "taskGroupId": "85bcf1f1-5de7-5f02-8472-4bac59991839"
       },
       {
         "taskUid": 254,
-        "taskGroupId": "f2b5a632-0e6d-56dd-acc2-4e8c5d72d9fc"
+        "taskGroupId": "85bcf1f1-5de7-5f02-8472-4bac59991839"
       },
       {
         "taskUid": 263,
-        "taskGroupId": "f2b5a632-0e6d-56dd-acc2-4e8c5d72d9fc"
+        "taskGroupId": "85bcf1f1-5de7-5f02-8472-4bac59991839"
       },
       {
         "taskUid": 252,
@@ -10276,11 +10193,11 @@
       },
       {
         "taskUid": 241,
-        "taskGroupId": "f2b5a632-0e6d-56dd-acc2-4e8c5d72d9fc"
+        "taskGroupId": "85bcf1f1-5de7-5f02-8472-4bac59991839"
       },
       {
         "taskUid": 244,
-        "taskGroupId": "f2b5a632-0e6d-56dd-acc2-4e8c5d72d9fc"
+        "taskGroupId": "85bcf1f1-5de7-5f02-8472-4bac59991839"
       },
       {
         "taskUid": 226,
@@ -10300,43 +10217,43 @@
       },
       {
         "taskUid": 247,
-        "taskGroupId": "501e43c6-6052-568d-b776-b811c63ce631"
+        "taskGroupId": "7155c1ea-fde1-5b96-86f2-4139688959b7"
       },
       {
         "taskUid": 248,
-        "taskGroupId": "4a64b3c3-653a-50d0-aa24-f521d807d0c3"
+        "taskGroupId": "7155c1ea-fde1-5b96-86f2-4139688959b7"
       },
       {
         "taskUid": 192,
-        "taskGroupId": "50eb4b83-1fdd-5e1e-bf3d-620b910862fd"
+        "taskGroupId": "7155c1ea-fde1-5b96-86f2-4139688959b7"
       },
       {
         "taskUid": 193,
-        "taskGroupId": "2ac7ae5d-8a54-5d32-b0a1-19f7e247331e"
+        "taskGroupId": "7155c1ea-fde1-5b96-86f2-4139688959b7"
       },
       {
         "taskUid": 194,
-        "taskGroupId": "2ac7ae5d-8a54-5d32-b0a1-19f7e247331e"
+        "taskGroupId": "7155c1ea-fde1-5b96-86f2-4139688959b7"
       },
       {
         "taskUid": 195,
-        "taskGroupId": "aed3f3a9-db48-5e71-955d-d69ec86c1cb6"
+        "taskGroupId": "7155c1ea-fde1-5b96-86f2-4139688959b7"
       },
       {
         "taskUid": 249,
-        "taskGroupId": "d86c6764-fec3-5871-885c-229e73c1a3a8"
+        "taskGroupId": "7155c1ea-fde1-5b96-86f2-4139688959b7"
       },
       {
         "taskUid": 250,
-        "taskGroupId": "d73450b3-30f2-5105-a1c6-aed8b502ac17"
+        "taskGroupId": "7155c1ea-fde1-5b96-86f2-4139688959b7"
       },
       {
         "taskUid": 262,
-        "taskGroupId": "d73450b3-30f2-5105-a1c6-aed8b502ac17"
+        "taskGroupId": "7155c1ea-fde1-5b96-86f2-4139688959b7"
       },
       {
         "taskUid": 251,
-        "taskGroupId": "9955f6b8-8904-53f9-a107-f05bd597dd51"
+        "taskGroupId": "7155c1ea-fde1-5b96-86f2-4139688959b7"
       },
       {
         "taskUid": 253,
@@ -10344,15 +10261,15 @@
       },
       {
         "taskUid": 256,
-        "taskGroupId": "10907ccb-7ed3-516c-9e1a-8ea4d8e29df8"
+        "taskGroupId": "7155c1ea-fde1-5b96-86f2-4139688959b7"
       },
       {
         "taskUid": 115,
-        "taskGroupId": "e629bbe0-38db-52a9-b672-319b50e1317b"
+        "taskGroupId": "7155c1ea-fde1-5b96-86f2-4139688959b7"
       },
       {
         "taskUid": 116,
-        "taskGroupId": "e629bbe0-38db-52a9-b672-319b50e1317b"
+        "taskGroupId": "7155c1ea-fde1-5b96-86f2-4139688959b7"
       },
       {
         "taskUid": 196,
@@ -10360,11 +10277,11 @@
       },
       {
         "taskUid": 77,
-        "taskGroupId": "e629bbe0-38db-52a9-b672-319b50e1317b"
+        "taskGroupId": "7155c1ea-fde1-5b96-86f2-4139688959b7"
       },
       {
         "taskUid": 257,
-        "taskGroupId": "e629bbe0-38db-52a9-b672-319b50e1317b"
+        "taskGroupId": "7155c1ea-fde1-5b96-86f2-4139688959b7"
       },
       {
         "taskUid": 117,
@@ -10372,11 +10289,11 @@
       },
       {
         "taskUid": 258,
-        "taskGroupId": "50263a77-b1b5-5a3f-810b-dfa2e38eee80"
+        "taskGroupId": "7155c1ea-fde1-5b96-86f2-4139688959b7"
       },
       {
         "taskUid": 259,
-        "taskGroupId": "ee9f2278-fc39-59d4-8af2-6dd2d3d88beb"
+        "taskGroupId": "7155c1ea-fde1-5b96-86f2-4139688959b7"
       },
       {
         "taskUid": 118,
@@ -10384,7 +10301,7 @@
       },
       {
         "taskUid": 260,
-        "taskGroupId": "ca7c3615-bad3-5f97-b9dc-39d1164982aa"
+        "taskGroupId": "7155c1ea-fde1-5b96-86f2-4139688959b7"
       },
       {
         "taskUid": 15,
@@ -10404,11 +10321,11 @@
       },
       {
         "taskUid": 203,
-        "taskGroupId": "f38bb5e1-b65d-5bbd-a634-2a1c78cb558f"
+        "taskGroupId": "5419de9f-34b3-529b-8916-132870d66a27"
       },
       {
         "taskUid": 204,
-        "taskGroupId": "f38bb5e1-b65d-5bbd-a634-2a1c78cb558f"
+        "taskGroupId": "5419de9f-34b3-529b-8916-132870d66a27"
       },
       {
         "taskUid": 235,
@@ -10440,15 +10357,15 @@
       },
       {
         "taskUid": 85,
-        "taskGroupId": "45e69727-3ec2-537e-a8f6-f1153006e8c3"
+        "taskGroupId": "5419de9f-34b3-529b-8916-132870d66a27"
       },
       {
         "taskUid": 86,
-        "taskGroupId": "45e69727-3ec2-537e-a8f6-f1153006e8c3"
+        "taskGroupId": "5419de9f-34b3-529b-8916-132870d66a27"
       },
       {
         "taskUid": 104,
-        "taskGroupId": "45e69727-3ec2-537e-a8f6-f1153006e8c3"
+        "taskGroupId": "5419de9f-34b3-529b-8916-132870d66a27"
       },
       {
         "taskUid": 27,
@@ -10468,7 +10385,7 @@
       },
       {
         "taskUid": 217,
-        "taskGroupId": "45e69727-3ec2-537e-a8f6-f1153006e8c3"
+        "taskGroupId": "5419de9f-34b3-529b-8916-132870d66a27"
       },
       {
         "taskUid": 243,
@@ -10492,7 +10409,7 @@
       },
       {
         "taskUid": 17,
-        "taskGroupId": "da39bfdb-f716-589c-8150-97dd28796ef9"
+        "taskGroupId": "5419de9f-34b3-529b-8916-132870d66a27"
       },
       {
         "taskUid": 265,
@@ -10508,7 +10425,7 @@
       },
       {
         "taskUid": 201,
-        "taskGroupId": "da39bfdb-f716-589c-8150-97dd28796ef9"
+        "taskGroupId": "5419de9f-34b3-529b-8916-132870d66a27"
       },
       {
         "taskUid": 242,
@@ -10516,7 +10433,7 @@
       },
       {
         "taskUid": 205,
-        "taskGroupId": "da39bfdb-f716-589c-8150-97dd28796ef9"
+        "taskGroupId": "5419de9f-34b3-529b-8916-132870d66a27"
       },
       {
         "taskUid": 268,
@@ -10540,7 +10457,7 @@
       },
       {
         "taskUid": 11,
-        "taskGroupId": "92288265-9367-5757-9974-b1a8154ae4b6"
+        "taskGroupId": "5419de9f-34b3-529b-8916-132870d66a27"
       },
       {
         "taskUid": 267,
@@ -10552,15 +10469,15 @@
       },
       {
         "taskUid": 202,
-        "taskGroupId": "92288265-9367-5757-9974-b1a8154ae4b6"
+        "taskGroupId": "5419de9f-34b3-529b-8916-132870d66a27"
       },
       {
         "taskUid": 206,
-        "taskGroupId": "92288265-9367-5757-9974-b1a8154ae4b6"
+        "taskGroupId": "5419de9f-34b3-529b-8916-132870d66a27"
       },
       {
         "taskUid": 236,
-        "taskGroupId": "92288265-9367-5757-9974-b1a8154ae4b6"
+        "taskGroupId": "5419de9f-34b3-529b-8916-132870d66a27"
       },
       {
         "taskUid": 269,
@@ -10584,11 +10501,11 @@
       },
       {
         "taskUid": 197,
-        "taskGroupId": "06bb553e-298b-5794-98aa-8762a050243f"
+        "taskGroupId": "5419de9f-34b3-529b-8916-132870d66a27"
       },
       {
         "taskUid": 18,
-        "taskGroupId": "06bb553e-298b-5794-98aa-8762a050243f"
+        "taskGroupId": "5419de9f-34b3-529b-8916-132870d66a27"
       },
       {
         "taskUid": 35,
@@ -10620,15 +10537,15 @@
       },
       {
         "taskUid": 271,
-        "taskGroupId": "0ffb9237-a4e3-5cca-baa4-c49a53590543"
+        "taskGroupId": "7155c1ea-fde1-5b96-86f2-4139688959b7"
       },
       {
         "taskUid": 272,
-        "taskGroupId": "0ffb9237-a4e3-5cca-baa4-c49a53590543"
+        "taskGroupId": "7155c1ea-fde1-5b96-86f2-4139688959b7"
       },
       {
         "taskUid": 273,
-        "taskGroupId": "d4ccc192-cb4a-529f-8958-ef36ad1f90e9"
+        "taskGroupId": "7155c1ea-fde1-5b96-86f2-4139688959b7"
       },
       {
         "taskUid": 274,
@@ -10636,39 +10553,39 @@
       },
       {
         "taskUid": 275,
-        "taskGroupId": "360eebfe-b421-54f7-ae66-8f611ac2263d"
+        "taskGroupId": "85bcf1f1-5de7-5f02-8472-4bac59991839"
       },
       {
         "taskUid": 276,
-        "taskGroupId": "45e69727-3ec2-537e-a8f6-f1153006e8c3"
+        "taskGroupId": "5419de9f-34b3-529b-8916-132870d66a27"
       },
       {
         "taskUid": 277,
-        "taskGroupId": "45e69727-3ec2-537e-a8f6-f1153006e8c3"
+        "taskGroupId": "5419de9f-34b3-529b-8916-132870d66a27"
       },
       {
         "taskUid": 278,
-        "taskGroupId": "a9b6e3eb-2528-558c-952c-a6ef83a11999"
+        "taskGroupId": "7155c1ea-fde1-5b96-86f2-4139688959b7"
       },
       {
         "taskUid": 279,
-        "taskGroupId": "efc628af-bdba-53c0-9a95-d3c80504c8b1"
+        "taskGroupId": "7155c1ea-fde1-5b96-86f2-4139688959b7"
       },
       {
         "taskUid": 281,
-        "taskGroupId": "78a61a21-9bad-5147-8d6c-6fe1d44bb571"
+        "taskGroupId": "7155c1ea-fde1-5b96-86f2-4139688959b7"
       },
       {
         "taskUid": 282,
-        "taskGroupId": "2a194a2b-1553-57cf-ada7-709304c7a75f"
+        "taskGroupId": "7155c1ea-fde1-5b96-86f2-4139688959b7"
       },
       {
         "taskUid": 280,
-        "taskGroupId": "92288265-9367-5757-9974-b1a8154ae4b6"
+        "taskGroupId": "5419de9f-34b3-529b-8916-132870d66a27"
       },
       {
         "taskUid": 284,
-        "taskGroupId": "360eebfe-b421-54f7-ae66-8f611ac2263d"
+        "taskGroupId": "85bcf1f1-5de7-5f02-8472-4bac59991839"
       },
       {
         "taskUid": 283,
@@ -10676,39 +10593,39 @@
       },
       {
         "taskUid": 285,
-        "taskGroupId": "b05ddf3a-e798-5e88-84bf-e7c680aef9bd"
+        "taskGroupId": "3624c12c-b11a-5ea0-ad0b-6f5541ed15d7"
       },
       {
         "taskUid": 286,
-        "taskGroupId": "45e69727-3ec2-537e-a8f6-f1153006e8c3"
+        "taskGroupId": "5419de9f-34b3-529b-8916-132870d66a27"
       },
       {
         "taskUid": 287,
-        "taskGroupId": "e9591aca-8c39-5748-95b5-074b8bb6ab8a"
+        "taskGroupId": "3624c12c-b11a-5ea0-ad0b-6f5541ed15d7"
       },
       {
         "taskUid": 289,
-        "taskGroupId": "2771b3c7-c264-5499-be52-01a93636f7d5"
+        "taskGroupId": "3624c12c-b11a-5ea0-ad0b-6f5541ed15d7"
       },
       {
         "taskUid": 290,
-        "taskGroupId": "aff8a968-9d3c-52bd-84d1-912c90c24ae3"
+        "taskGroupId": "3624c12c-b11a-5ea0-ad0b-6f5541ed15d7"
       },
       {
         "taskUid": 291,
-        "taskGroupId": "360eebfe-b421-54f7-ae66-8f611ac2263d"
+        "taskGroupId": "85bcf1f1-5de7-5f02-8472-4bac59991839"
       },
       {
         "taskUid": 292,
-        "taskGroupId": "98ecbc5e-36ca-5121-9edd-0866bb5d3688"
+        "taskGroupId": "3624c12c-b11a-5ea0-ad0b-6f5541ed15d7"
       },
       {
         "taskUid": 293,
-        "taskGroupId": "4574d045-0e74-5b3d-a21c-78a416b8f6f0"
+        "taskGroupId": "3624c12c-b11a-5ea0-ad0b-6f5541ed15d7"
       },
       {
         "taskUid": 294,
-        "taskGroupId": "fb21db3c-c282-5063-9497-21b17e12d138"
+        "taskGroupId": "3624c12c-b11a-5ea0-ad0b-6f5541ed15d7"
       },
       {
         "taskUid": 295,
@@ -10728,15 +10645,15 @@
       },
       {
         "taskUid": 288,
-        "taskGroupId": "e9591aca-8c39-5748-95b5-074b8bb6ab8a"
+        "taskGroupId": "3624c12c-b11a-5ea0-ad0b-6f5541ed15d7"
       },
       {
         "taskUid": 299,
-        "taskGroupId": "360eebfe-b421-54f7-ae66-8f611ac2263d"
+        "taskGroupId": "85bcf1f1-5de7-5f02-8472-4bac59991839"
       },
       {
         "taskUid": 300,
-        "taskGroupId": "2a194a2b-1553-57cf-ada7-709304c7a75f"
+        "taskGroupId": "7155c1ea-fde1-5b96-86f2-4139688959b7"
       },
       {
         "taskUid": 301,
@@ -10756,15 +10673,15 @@
       },
       {
         "taskUid": 305,
-        "taskGroupId": "f2b5a632-0e6d-56dd-acc2-4e8c5d72d9fc"
+        "taskGroupId": "85bcf1f1-5de7-5f02-8472-4bac59991839"
       },
       {
         "taskUid": 308,
-        "taskGroupId": "f2b5a632-0e6d-56dd-acc2-4e8c5d72d9fc"
+        "taskGroupId": "85bcf1f1-5de7-5f02-8472-4bac59991839"
       },
       {
         "taskUid": 309,
-        "taskGroupId": "f2b5a632-0e6d-56dd-acc2-4e8c5d72d9fc"
+        "taskGroupId": "85bcf1f1-5de7-5f02-8472-4bac59991839"
       },
       {
         "taskUid": 306,
@@ -10776,27 +10693,27 @@
       },
       {
         "taskUid": 310,
-        "taskGroupId": "c2aab55f-aba6-5e58-942b-293e186f4e2f"
+        "taskGroupId": "3624c12c-b11a-5ea0-ad0b-6f5541ed15d7"
       },
       {
         "taskUid": 311,
-        "taskGroupId": "c2aab55f-aba6-5e58-942b-293e186f4e2f"
+        "taskGroupId": "3624c12c-b11a-5ea0-ad0b-6f5541ed15d7"
       },
       {
         "taskUid": 312,
-        "taskGroupId": "c2aab55f-aba6-5e58-942b-293e186f4e2f"
+        "taskGroupId": "3624c12c-b11a-5ea0-ad0b-6f5541ed15d7"
       },
       {
         "taskUid": 313,
-        "taskGroupId": "c2aab55f-aba6-5e58-942b-293e186f4e2f"
+        "taskGroupId": "3624c12c-b11a-5ea0-ad0b-6f5541ed15d7"
       },
       {
         "taskUid": 314,
-        "taskGroupId": "4574d045-0e74-5b3d-a21c-78a416b8f6f0"
+        "taskGroupId": "3624c12c-b11a-5ea0-ad0b-6f5541ed15d7"
       },
       {
         "taskUid": 315,
-        "taskGroupId": "4574d045-0e74-5b3d-a21c-78a416b8f6f0"
+        "taskGroupId": "3624c12c-b11a-5ea0-ad0b-6f5541ed15d7"
       },
       {
         "taskUid": 316,
@@ -10804,7 +10721,7 @@
       },
       {
         "taskUid": 317,
-        "taskGroupId": "c2aab55f-aba6-5e58-942b-293e186f4e2f"
+        "taskGroupId": "3624c12c-b11a-5ea0-ad0b-6f5541ed15d7"
       },
       {
         "taskUid": 318,
@@ -10820,47 +10737,47 @@
       },
       {
         "taskUid": 321,
-        "taskGroupId": "26faf23e-c500-5c95-bc68-3b44ebc6763d"
+        "taskGroupId": "85bcf1f1-5de7-5f02-8472-4bac59991839"
       },
       {
         "taskUid": 322,
-        "taskGroupId": "e9591aca-8c39-5748-95b5-074b8bb6ab8a"
+        "taskGroupId": "3624c12c-b11a-5ea0-ad0b-6f5541ed15d7"
       },
       {
         "taskUid": 323,
-        "taskGroupId": "e9591aca-8c39-5748-95b5-074b8bb6ab8a"
+        "taskGroupId": "3624c12c-b11a-5ea0-ad0b-6f5541ed15d7"
       },
       {
         "taskUid": 324,
-        "taskGroupId": "f2b5a632-0e6d-56dd-acc2-4e8c5d72d9fc"
+        "taskGroupId": "85bcf1f1-5de7-5f02-8472-4bac59991839"
       },
       {
         "taskUid": 327,
-        "taskGroupId": "f2b5a632-0e6d-56dd-acc2-4e8c5d72d9fc"
+        "taskGroupId": "85bcf1f1-5de7-5f02-8472-4bac59991839"
       },
       {
         "taskUid": 325,
-        "taskGroupId": "360eebfe-b421-54f7-ae66-8f611ac2263d"
+        "taskGroupId": "85bcf1f1-5de7-5f02-8472-4bac59991839"
       },
       {
         "taskUid": 326,
-        "taskGroupId": "f2b5a632-0e6d-56dd-acc2-4e8c5d72d9fc"
+        "taskGroupId": "85bcf1f1-5de7-5f02-8472-4bac59991839"
       },
       {
         "taskUid": 328,
-        "taskGroupId": "f2b5a632-0e6d-56dd-acc2-4e8c5d72d9fc"
+        "taskGroupId": "85bcf1f1-5de7-5f02-8472-4bac59991839"
       },
       {
         "taskUid": 329,
-        "taskGroupId": "e9591aca-8c39-5748-95b5-074b8bb6ab8a"
+        "taskGroupId": "3624c12c-b11a-5ea0-ad0b-6f5541ed15d7"
       },
       {
         "taskUid": 368,
-        "taskGroupId": "360eebfe-b421-54f7-ae66-8f611ac2263d"
+        "taskGroupId": "85bcf1f1-5de7-5f02-8472-4bac59991839"
       },
       {
         "taskUid": 369,
-        "taskGroupId": "360eebfe-b421-54f7-ae66-8f611ac2263d"
+        "taskGroupId": "85bcf1f1-5de7-5f02-8472-4bac59991839"
       },
       {
         "taskUid": 331,
@@ -11012,51 +10929,51 @@
       },
       {
         "taskUid": 370,
-        "taskGroupId": "e9591aca-8c39-5748-95b5-074b8bb6ab8a"
+        "taskGroupId": "3624c12c-b11a-5ea0-ad0b-6f5541ed15d7"
       },
       {
         "taskUid": 371,
-        "taskGroupId": "e9591aca-8c39-5748-95b5-074b8bb6ab8a"
+        "taskGroupId": "3624c12c-b11a-5ea0-ad0b-6f5541ed15d7"
       },
       {
         "taskUid": 372,
-        "taskGroupId": "26faf23e-c500-5c95-bc68-3b44ebc6763d"
+        "taskGroupId": "85bcf1f1-5de7-5f02-8472-4bac59991839"
       },
       {
         "taskUid": 373,
-        "taskGroupId": "46ae7c7c-6afc-57bf-857f-3bc66dcebab7"
+        "taskGroupId": "5419de9f-34b3-529b-8916-132870d66a27"
       },
       {
         "taskUid": 374,
-        "taskGroupId": "46ae7c7c-6afc-57bf-857f-3bc66dcebab7"
+        "taskGroupId": "5419de9f-34b3-529b-8916-132870d66a27"
       },
       {
         "taskUid": 375,
-        "taskGroupId": "46ae7c7c-6afc-57bf-857f-3bc66dcebab7"
+        "taskGroupId": "5419de9f-34b3-529b-8916-132870d66a27"
       },
       {
         "taskUid": 376,
-        "taskGroupId": "360eebfe-b421-54f7-ae66-8f611ac2263d"
+        "taskGroupId": "85bcf1f1-5de7-5f02-8472-4bac59991839"
       },
       {
         "taskUid": 377,
-        "taskGroupId": "f2b5a632-0e6d-56dd-acc2-4e8c5d72d9fc"
+        "taskGroupId": "85bcf1f1-5de7-5f02-8472-4bac59991839"
       },
       {
         "taskUid": 378,
-        "taskGroupId": "360eebfe-b421-54f7-ae66-8f611ac2263d"
+        "taskGroupId": "85bcf1f1-5de7-5f02-8472-4bac59991839"
       },
       {
         "taskUid": 379,
-        "taskGroupId": "46ae7c7c-6afc-57bf-857f-3bc66dcebab7"
+        "taskGroupId": "5419de9f-34b3-529b-8916-132870d66a27"
       },
       {
         "taskUid": 380,
-        "taskGroupId": "360eebfe-b421-54f7-ae66-8f611ac2263d"
+        "taskGroupId": "85bcf1f1-5de7-5f02-8472-4bac59991839"
       },
       {
         "taskUid": 381,
-        "taskGroupId": "360eebfe-b421-54f7-ae66-8f611ac2263d"
+        "taskGroupId": "85bcf1f1-5de7-5f02-8472-4bac59991839"
       },
       {
         "taskUid": 382,
@@ -11064,15 +10981,15 @@
       },
       {
         "taskUid": 383,
-        "taskGroupId": "f2b5a632-0e6d-56dd-acc2-4e8c5d72d9fc"
+        "taskGroupId": "85bcf1f1-5de7-5f02-8472-4bac59991839"
       },
       {
         "taskUid": 384,
-        "taskGroupId": "f2b5a632-0e6d-56dd-acc2-4e8c5d72d9fc"
+        "taskGroupId": "85bcf1f1-5de7-5f02-8472-4bac59991839"
       },
       {
         "taskUid": 385,
-        "taskGroupId": "f2b5a632-0e6d-56dd-acc2-4e8c5d72d9fc"
+        "taskGroupId": "85bcf1f1-5de7-5f02-8472-4bac59991839"
       },
       {
         "taskUid": 386,
@@ -11080,19 +10997,19 @@
       },
       {
         "taskUid": 387,
-        "taskGroupId": "46ae7c7c-6afc-57bf-857f-3bc66dcebab7"
+        "taskGroupId": "5419de9f-34b3-529b-8916-132870d66a27"
       },
       {
         "taskUid": 388,
-        "taskGroupId": "46ae7c7c-6afc-57bf-857f-3bc66dcebab7"
+        "taskGroupId": "5419de9f-34b3-529b-8916-132870d66a27"
       },
       {
         "taskUid": 389,
-        "taskGroupId": "f2b5a632-0e6d-56dd-acc2-4e8c5d72d9fc"
+        "taskGroupId": "85bcf1f1-5de7-5f02-8472-4bac59991839"
       },
       {
         "taskUid": 390,
-        "taskGroupId": "46ae7c7c-6afc-57bf-857f-3bc66dcebab7"
+        "taskGroupId": "5419de9f-34b3-529b-8916-132870d66a27"
       },
       {
         "taskUid": 391,
@@ -11120,7 +11037,7 @@
       },
       {
         "taskUid": 397,
-        "taskGroupId": "46ae7c7c-6afc-57bf-857f-3bc66dcebab7"
+        "taskGroupId": "5419de9f-34b3-529b-8916-132870d66a27"
       },
       {
         "taskUid": 398,
@@ -11144,7 +11061,7 @@
       },
       {
         "taskUid": 403,
-        "taskGroupId": "75f839c3-44e8-4b3b-a164-6a00eefd9132"
+        "taskGroupId": "3624c12c-b11a-5ea0-ad0b-6f5541ed15d7"
       },
       {
         "taskUid": 404,
@@ -11324,30 +11241,6 @@
       },
       {
         "taskUid": 437,
-        "taskGroupId": "10a60cfd-625e-5c82-81f0-bd535539d755"
-      },
-      {
-        "taskUid": 454,
-        "taskGroupId": "10a60cfd-625e-5c82-81f0-bd535539d755"
-      },
-      {
-        "taskUid": 453,
-        "taskGroupId": "10a60cfd-625e-5c82-81f0-bd535539d755"
-      },
-      {
-        "taskUid": 452,
-        "taskGroupId": "10a60cfd-625e-5c82-81f0-bd535539d755"
-      },
-      {
-        "taskUid": 451,
-        "taskGroupId": "10a60cfd-625e-5c82-81f0-bd535539d755"
-      },
-      {
-        "taskUid": 450,
-        "taskGroupId": "10a60cfd-625e-5c82-81f0-bd535539d755"
-      },
-      {
-        "taskUid": 449,
         "taskGroupId": "10a60cfd-625e-5c82-81f0-bd535539d755"
       }
     ],
@@ -13951,54 +13844,6 @@
         "fillColor": "blue",
         "strokeColor": null,
         "strokeWidthPx": null
-      },
-      {
-        "taskUid": 454,
-        "shapeKind": "rectangle",
-        "milestoneGlyph": "diamond",
-        "fillColor": "blue",
-        "strokeColor": null,
-        "strokeWidthPx": null
-      },
-      {
-        "taskUid": 453,
-        "shapeKind": "rectangle",
-        "milestoneGlyph": "diamond",
-        "fillColor": "blue",
-        "strokeColor": null,
-        "strokeWidthPx": null
-      },
-      {
-        "taskUid": 452,
-        "shapeKind": "rectangle",
-        "milestoneGlyph": "diamond",
-        "fillColor": "blue",
-        "strokeColor": null,
-        "strokeWidthPx": null
-      },
-      {
-        "taskUid": 451,
-        "shapeKind": "rectangle",
-        "milestoneGlyph": "diamond",
-        "fillColor": "blue",
-        "strokeColor": null,
-        "strokeWidthPx": null
-      },
-      {
-        "taskUid": 450,
-        "shapeKind": "rectangle",
-        "milestoneGlyph": "diamond",
-        "fillColor": "blue",
-        "strokeColor": null,
-        "strokeWidthPx": null
-      },
-      {
-        "taskUid": 449,
-        "shapeKind": "rectangle",
-        "milestoneGlyph": "diamond",
-        "fillColor": "blue",
-        "strokeColor": null,
-        "strokeWidthPx": null
       }
     ],
     "commentBoxes": [
@@ -15482,10 +15327,10 @@
     "zoomY": 1.099862517185352
   },
   "documentStamp": {
-    "scheduleUpdatedAt": "2026-11-22T02:00:00Z",
+    "scheduleUpdatedAt": "2026-11-22T02:05:00Z",
     "lastEditedBy": "PMO child session",
     "settingsUpdatedAt": "2026-10-20T20:24:42Z",
-    "fileSavedAt": "2026-11-22T02:00:00Z"
+    "fileSavedAt": "2026-11-22T02:05:00Z"
   },
   "changeLog": [
     {
@@ -15973,6 +15818,12 @@
       "editedBy": "PMO child session",
       "explanation": "Fact at 11-22 11:00 JST: owner order, finished work goes under one parent. Added parent uid 449 (all finished tasks) with 5 class parents uid 450..454 (alpha era, coordinator and owner actions, waves 1-2, child sessions and CR-858, after 10-24); 149 finished tasks re-pointed by parentTaskUid; unfinished parents 437..448 unchanged. No date moved; N1 and the beta unchanged.",
       "changedAt": "2026-11-22T02:00:00Z"
+    },
+    {
+      "ordinal": 82,
+      "editedBy": "PMO child session",
+      "explanation": "Fact at 11-22 11:05 JST: owner correction, finished work must not be parent tasks in the unfinished Lv1 group. Removed parent tasks uid 449..454 (uids stay retired, uidHighWaterMark 454). Added one collapsed Lv1 task group 'done work' holding the two old done groups and four class groups; 149 finished tasks moved into them by task-group membership. Unfinished parents 437..448 unchanged. No date moved.",
+      "changedAt": "2026-11-22T02:05:00Z"
     }
   ]
 }
