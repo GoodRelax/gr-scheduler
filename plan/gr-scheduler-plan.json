@@ -14,7 +14,7 @@
       "creationDate": "2026-10-31T08:50:00",
       "revision": 11,
       "startDate": "2026-10-17T05:30:00",
-      "statusDate": "2026-11-23T04:38:00",
+      "statusDate": "2026-11-23T04:43:00",
       "minutesPerDay": 1440,
       "minutesPerWeek": 10080,
       "daysPerMonth": 30,
@@ -24,7 +24,7 @@
       "defaultFinishTime": "23:59:00",
       "themeHue": 214,
       "parentTaskProgressToleranceDays": 1,
-      "uidHighWaterMark": 477,
+      "uidHighWaterMark": 478,
       "importSequence": 0,
       "carry": {},
       "carryElements": [],
@@ -7712,8 +7712,8 @@
         "parentTaskUid": null,
         "wbsOrder": 312,
         "name": "🌑 N1 の見込み(① と ② の仮の長さで置いた。事実ではなく PMO の置き)",
-        "start": "2026-11-23T15:12:00",
-        "finish": "2026-11-23T15:12:00",
+        "start": "2026-11-23T15:42:00",
+        "finish": "2026-11-23T15:42:00",
         "milestone": true,
         "deadline": null,
         "calendarUid": null,
@@ -7776,8 +7776,8 @@
         "parentTaskUid": null,
         "wbsOrder": 314,
         "name": "🌑 差分抽出: 決まった名と今の仕様・コードの差を抜き出す(SUB)",
-        "start": "2026-11-23T15:12:00",
-        "finish": "2026-11-24T15:12:00",
+        "start": "2026-11-23T15:42:00",
+        "finish": "2026-11-24T15:42:00",
         "milestone": false,
         "deadline": null,
         "notes": "pmo-5 2026-11-22: new task for the deliverable tree (owner order). Input: the settled contract names of both groups (after part 13 is recorded, uid 418, and part 37 is recorded, uid 434; BOSS 11-22). Output: the list of differences between the settled names and the current spec and code, handed to CR-855/856. Length 1 day is a PMO placeholder (no measured number yet). SUB model: Opus 5.5 high.",
@@ -8040,14 +8040,14 @@
         "wbsOrder": 322,
         "name": "🌘 オーナー: ② Agent API の見直しの方針を決める",
         "start": "2026-11-22T16:39:00",
-        "finish": "2026-11-23T09:42:00",
+        "finish": "2026-11-23T10:12:00",
         "milestone": false,
         "deadline": null,
         "calendarUid": null,
         "actualStart": "2026-11-22T16:39:00",
         "stop": "2026-11-22T16:57:00",
         "actualFinish": null,
-        "resume": "2026-11-23T09:00:00",
+        "resume": "2026-11-23T09:30:00",
         "resumeValid": true,
         "percentComplete": 2,
         "fadeInDays": null,
@@ -8071,8 +8071,8 @@
         "parentTaskUid": null,
         "wbsOrder": 323,
         "name": "🌑 ② 後任 14 が Agent API・文書の命令の名をまとめてそろえる(SUB。BGQA4・BGQA5 の 45 問は 1 つずつ問わない)",
-        "start": "2026-11-23T09:42:00",
-        "finish": "2026-11-23T13:42:00",
+        "start": "2026-11-23T10:12:00",
+        "finish": "2026-11-23T14:12:00",
         "milestone": false,
         "deadline": null,
         "calendarUid": null,
@@ -8103,8 +8103,8 @@
         "parentTaskUid": null,
         "wbsOrder": 324,
         "name": "🌑 オーナー: ② そろえた名を確認する",
-        "start": "2026-11-23T13:42:00",
-        "finish": "2026-11-23T14:42:00",
+        "start": "2026-11-23T14:12:00",
+        "finish": "2026-11-23T15:12:00",
         "milestone": false,
         "deadline": null,
         "calendarUid": null,
@@ -8143,8 +8143,8 @@
         "parentTaskUid": null,
         "wbsOrder": 325,
         "name": "🌑 ② の確認の答えを記録して合流する(後任 14。SUB)",
-        "start": "2026-11-23T14:42:00",
-        "finish": "2026-11-23T15:12:00",
+        "start": "2026-11-23T15:12:00",
+        "finish": "2026-11-23T15:42:00",
         "milestone": false,
         "deadline": null,
         "calendarUid": null,
@@ -8198,8 +8198,8 @@
         "parentTaskUid": null,
         "wbsOrder": 327,
         "name": "🌑 オーナー: ② 方針で決まらない残り 3 問に答える",
-        "start": "2026-11-23T09:42:00",
-        "finish": "2026-11-23T10:02:55",
+        "start": "2026-11-23T10:12:00",
+        "finish": "2026-11-23T10:32:55",
         "milestone": false,
         "deadline": null,
         "calendarUid": null,
@@ -8359,7 +8359,7 @@
         "wbsOrder": 332,
         "name": "🌒 ① 最終レビューの席がレビューを反映する(SUB)",
         "start": "2026-11-22T21:47:00",
-        "finish": "2026-11-23T04:50:53",
+        "finish": "2026-11-23T09:30:00",
         "milestone": false,
         "deadline": null,
         "calendarUid": null,
@@ -8371,7 +8371,7 @@
         "percentComplete": 0,
         "fadeInDays": null,
         "fadeOutDays": null,
-        "notes": "pmo-5 2026-11-22T16:57: BOSS line 11-22 (JDG-3717). 2 h. Length is a PMO placeholder (provisional). pmo-5 2026-11-22T21:47: started at the BOSS line (F-1..F-3 applied; F-4 onward going on). The visual check 471 is still open. 2 h is a PMO placeholder (provisional). pmo-5 2026-11-22T22:37: F-4..F-7 applied with the owner rulings JDG-3731..3734 (402c7b640 at 22:37, develop b7c63b89b). Left: one new open point (the name of the hide value of progressMarkStatus), F-8..F-11, and the visual check 471. Finish unchanged (the 5 rulings at 8.6 rows/h fit in the placeholder). pmo-5 2026-11-22T23:04: the new open point (hide value name) and F-8 applied with JDG-3735..3736 (selfShowMode renamed showMode; 90b783a1b at 23:03, develop c5cadc8ff). Left: F-9..F-11 and the visual check 471. The final review seat is near 85% context and put out a successor card (starts when the owner presses it). Finish follows 471. pmo-5 2026-11-23T00:02: the successor final review seat (local_64677f96) applied F-9..F-11 with JDG-3737..3739 (2846ebb32 at 00:00, develop 299cfb2c2); all outside AI findings are done. Left: the owner visual check 471 (BGQA6) and its apply. Finish unchanged. pmo-5 2026-11-23T00:29: G-1, G-2 applied (lastEditedBy always written; displayTimeZones renamed additionalTimeZones). Waits for round 3 (472) and the visual check 471. pmo-5 2026-11-23T00:53: G-3 applied. Only the owner visual check 471 (BGQA6) is left; the owner answers in the morning. pmo-5 2026-11-23T04:10: the seat decides the 13 items B-1..B-13 one by one with the owner. Finish = now + 13 items at 8.6 rows/h (provisional). B-7 raised JDG-3749 outside GRS JSON (baseline outline shape follows the current task shape; FR-015 BL-2, GR-27), assigned to CR-860. pmo-5 2026-11-23T04:16: B-1..B-8 ruled with JDG-3743..3750 and applied (ee2823643 at 04:16, develop 4e81b6c07). Left: B-9..B-13 (5 items); finish = now + 5 items at 8.6 rows/h (provisional).",
+        "notes": "pmo-5 2026-11-22T16:57: BOSS line 11-22 (JDG-3717). 2 h. Length is a PMO placeholder (provisional). pmo-5 2026-11-22T21:47: started at the BOSS line (F-1..F-3 applied; F-4 onward going on). The visual check 471 is still open. 2 h is a PMO placeholder (provisional). pmo-5 2026-11-22T22:37: F-4..F-7 applied with the owner rulings JDG-3731..3734 (402c7b640 at 22:37, develop b7c63b89b). Left: one new open point (the name of the hide value of progressMarkStatus), F-8..F-11, and the visual check 471. Finish unchanged (the 5 rulings at 8.6 rows/h fit in the placeholder). pmo-5 2026-11-22T23:04: the new open point (hide value name) and F-8 applied with JDG-3735..3736 (selfShowMode renamed showMode; 90b783a1b at 23:03, develop c5cadc8ff). Left: F-9..F-11 and the visual check 471. The final review seat is near 85% context and put out a successor card (starts when the owner presses it). Finish follows 471. pmo-5 2026-11-23T00:02: the successor final review seat (local_64677f96) applied F-9..F-11 with JDG-3737..3739 (2846ebb32 at 00:00, develop 299cfb2c2); all outside AI findings are done. Left: the owner visual check 471 (BGQA6) and its apply. Finish unchanged. pmo-5 2026-11-23T00:29: G-1, G-2 applied (lastEditedBy always written; displayTimeZones renamed additionalTimeZones). Waits for round 3 (472) and the visual check 471. pmo-5 2026-11-23T00:53: G-3 applied. Only the owner visual check 471 (BGQA6) is left; the owner answers in the morning. pmo-5 2026-11-23T04:10: the seat decides the 13 items B-1..B-13 one by one with the owner. Finish = now + 13 items at 8.6 rows/h (provisional). B-7 raised JDG-3749 outside GRS JSON (baseline outline shape follows the current task shape; FR-015 BL-2, GR-27), assigned to CR-860. pmo-5 2026-11-23T04:16: B-1..B-8 ruled with JDG-3743..3750 and applied (ee2823643 at 04:16, develop 4e81b6c07). Left: B-9..B-13 (5 items); finish = now + 5 items at 8.6 rows/h (provisional). pmo-5 2026-11-23T04:43: B-9..B-12 ruled and applied (JDG-3751..3755, 19144d250, develop a8a7eee94); GQA rewritten to round 3. Ends with the owner confirmation 478.",
         "dependencies": [
           {
             "predecessorUid": 471,
@@ -8388,6 +8388,14 @@
             "lagFormat": 7,
             "carry": {},
             "carryElements": []
+          },
+          {
+            "predecessorUid": 478,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
           }
         ],
         "carry": {},
@@ -8398,8 +8406,8 @@
         "parentTaskUid": null,
         "wbsOrder": 333,
         "name": "🌑 ③ GRS JSON のスキーマの席がスキーマを作る(SUB)",
-        "start": "2026-11-23T04:50:53",
-        "finish": "2026-11-23T08:50:53",
+        "start": "2026-11-23T09:30:00",
+        "finish": "2026-11-23T13:30:00",
         "milestone": false,
         "deadline": null,
         "calendarUid": null,
@@ -8462,8 +8470,8 @@
         "parentTaskUid": null,
         "wbsOrder": 335,
         "name": "🌑 CR-860(前回予定の輪郭の形を今のタスクの形に合わせる)の起草と当て(SUB)",
-        "start": "2026-11-24T15:12:00",
-        "finish": "2026-11-24T17:12:00",
+        "start": "2026-11-24T15:42:00",
+        "finish": "2026-11-24T17:42:00",
         "milestone": false,
         "deadline": null,
         "notes": "pmo-5 2026-11-23T04:10: BOSS line 11-23: JDG-3749 (from BGQA6 item B-7; FR-015 BL-2, GR-27) assigned to CR-860. Before the beta, after the diff extraction. 2 h is a BOSS placeholder (provisional). SUB: Opus 5.5 high.",
@@ -8494,8 +8502,8 @@
         "parentTaskUid": null,
         "wbsOrder": 336,
         "name": "🌑 CR-861(担当リストの列の順を変える)の起草と当て(SUB)",
-        "start": "2026-11-24T15:12:00",
-        "finish": "2026-11-24T17:12:00",
+        "start": "2026-11-24T15:42:00",
+        "finish": "2026-11-24T17:42:00",
         "milestone": false,
         "deadline": null,
         "notes": "pmo-5 2026-11-23T04:38: BOSS line 11-23: JDG-3754 from BGQA6 (assignee list columns in the order show, select, assignee name, assigned task count, assigned tasks; FR-151 RQ-2, RQ-3) assigned to CR-861 (the JSON column value order goes with CR-851). Beside CR-860, after the diff extraction, before the final merge. 2 h is a BOSS placeholder (provisional). SUB: Opus 5.5 high.",
@@ -8511,6 +8519,38 @@
         "dependencies": [
           {
             "predecessorUid": 455,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 478,
+        "parentTaskUid": null,
+        "wbsOrder": 337,
+        "name": "🌑 オーナー: ① 最終レビューの決定を確認する(GQA 3 巡目)",
+        "start": "2026-11-23T09:00:00",
+        "finish": "2026-11-23T09:30:00",
+        "milestone": false,
+        "deadline": null,
+        "calendarUid": null,
+        "actualStart": null,
+        "stop": null,
+        "actualFinish": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "notes": "pmo-5 2026-11-23T04:43: BOSS line 11-23: the seat rewrote the GQA to round 3 after B-9..B-12 (JDG-3751..3755, 19144d250, develop a8a7eee94); the owner confirms the decisions once. When it is done, the final review (group 1) ends. 0.5 h in owner hours is a PMO placeholder (provisional).",
+        "dependencies": [
+          {
+            "predecessorUid": 471,
             "linkType": 1,
             "linkLag": 0,
             "lagFormat": 7,
@@ -9950,6 +9990,10 @@
       {
         "taskUid": 477,
         "taskGroupId": "5321b390-7f24-598b-8fb6-6de6c53cf32f"
+      },
+      {
+        "taskUid": 478,
+        "taskGroupId": "8e7eda3c-3814-5706-b12e-2439e88a206b"
       }
     ],
     "taskVisuals": [
@@ -12272,6 +12316,14 @@
         "fillColor": "blue",
         "strokeColor": null,
         "strokeWidthPx": null
+      },
+      {
+        "taskUid": 478,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": "diamond",
+        "fillColor": "orange",
+        "strokeColor": null,
+        "strokeWidthPx": null
       }
     ],
     "commentBoxes": [
@@ -14280,10 +14332,10 @@
     "zoomY": 1.099862517185352
   },
   "documentStamp": {
-    "scheduleUpdatedAt": "2026-11-22T19:38:00Z",
+    "scheduleUpdatedAt": "2026-11-22T19:43:00Z",
     "lastEditedBy": "PMO child session",
     "settingsUpdatedAt": "2026-10-20T20:24:42Z",
-    "fileSavedAt": "2026-11-22T19:38:00Z"
+    "fileSavedAt": "2026-11-22T19:43:00Z"
   },
   "changeLog": [
     {
@@ -14915,6 +14967,12 @@
       "editedBy": "PMO child session",
       "explanation": "Fact at 11-23 04:38 JST: BOSS line, JDG-3754 from BGQA6 (assignee list column order) goes to the new CR-861; added task 477, its drafting and apply (2 h placeholder), beside CR-860 after the diff 455 and before the final merge 228. No other date moved. N1 (316) and the beta (234) stay.",
       "changedAt": "2026-11-22T19:38:00Z"
+    },
+    {
+      "ordinal": 106,
+      "editedBy": "PMO child session",
+      "explanation": "Fact at 11-23 04:43 JST: BOSS line, the final review seat ruled and applied B-9..B-12 (JDG-3751..3755, develop a8a7eee94) and rewrote the GQA to round 3. Added the owner confirmation task 478 (0.5 h placeholder in owner hours); 473 ends with it. Later steps re-placed. N1 (316) and the beta (234) stay.",
+      "changedAt": "2026-11-22T19:43:00Z"
     }
   ]
 }
