@@ -14,7 +14,7 @@
       "creationDate": "2026-10-31T08:50:00",
       "revision": 11,
       "startDate": "2026-10-17T05:30:00",
-      "statusDate": "2026-11-22T11:05:00",
+      "statusDate": "2026-11-22T11:10:00",
       "minutesPerDay": 1440,
       "minutesPerWeek": 10080,
       "daysPerMonth": 30,
@@ -9308,7 +9308,7 @@
         "parentId": null,
         "name": "いま動いている仕事と残り(未完了の要約)",
         "derivedFromTaskUid": null,
-        "order": 0,
+        "order": 1,
         "treeState": "auto",
         "editPermission": null,
         "color": null,
@@ -9416,9 +9416,9 @@
       {
         "id": "e353eb29-4e4b-404e-81d9-e615d5d9e8f7",
         "parentId": null,
-        "name": "β版リリースまで",
+        "name": "未完了の細目(元の作業木。β版リリースまでの仕事を持ち場ごとに並べたもの)",
         "derivedFromTaskUid": null,
-        "order": 4,
+        "order": 2,
         "treeState": "temporarilyExpanded",
         "editPermission": null,
         "color": null,
@@ -9891,7 +9891,7 @@
         "parentId": null,
         "name": "済(完了した仕事)",
         "derivedFromTaskUid": null,
-        "order": 1,
+        "order": 0,
         "treeState": "collapsed",
         "editPermission": null,
         "color": null,
@@ -15327,10 +15327,10 @@
     "zoomY": 1.099862517185352
   },
   "documentStamp": {
-    "scheduleUpdatedAt": "2026-11-22T02:05:00Z",
+    "scheduleUpdatedAt": "2026-11-22T02:10:00Z",
     "lastEditedBy": "PMO child session",
     "settingsUpdatedAt": "2026-10-20T20:24:42Z",
-    "fileSavedAt": "2026-11-22T02:05:00Z"
+    "fileSavedAt": "2026-11-22T02:10:00Z"
   },
   "changeLog": [
     {
@@ -15824,6 +15824,12 @@
       "editedBy": "PMO child session",
       "explanation": "Fact at 11-22 11:05 JST: owner correction, finished work must not be parent tasks in the unfinished Lv1 group. Removed parent tasks uid 449..454 (uids stay retired, uidHighWaterMark 454). Added one collapsed Lv1 task group 'done work' holding the two old done groups and four class groups; 149 finished tasks moved into them by task-group membership. Unfinished parents 437..448 unchanged. No date moved.",
       "changedAt": "2026-11-22T02:05:00Z"
+    },
+    {
+      "ordinal": 83,
+      "editedBy": "PMO child session",
+      "explanation": "Fact at 11-22 11:10 JST: owner order, the done-work Lv1 task group goes first. Lv1 order is now done work, open-work summary (parent tasks 437..448), detail tree. Renamed the old Lv1 group 'until the beta release' to 'open detail (the old work tree, rows by owner of the work)' so it reads apart from the summary. No task, date or membership changed.",
+      "changedAt": "2026-11-22T02:10:00Z"
     }
   ]
 }
