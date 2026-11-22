@@ -12,7 +12,7 @@
 
 **はい。** 構造は閉じる。1・2 版の 【案】 16 件はすべて決まった。残るのは名と置き場の未決（8 節の「まだ決まっていないもの」）と、仕様への当て込みである。
 
-- **閉じたもの**: 要素・状態と値・出来事・キー・命令の一覧（5 表）、`taskGroupVisibility` と `drawn` を導く規則（10 行）、帯ごとの状態機械 `selfShowModeStateMachine`（状態 4・出来事 33）の図と状態遷移表と生まれ方の表、深さの状態機械 `automaticallyShownDepthStateMachine`（状態 3・出来事 8）の図と状態遷移表。
+- **閉じたもの**: 要素・状態と値・出来事・キー・命令の一覧（5 表）、`taskGroupVisibility` と `drawn` を導く規則（10 行）、帯ごとの状態機械 `showModeStateMachine`（状態 4・出来事 33）の図と状態遷移表と生まれ方の表、深さの状態機械 `automaticallyShownDepthStateMachine`（状態 3・出来事 8）の図と状態遷移表。
   どちらの表も、すべての交点に「次の状態 [ガード] / 処理」か `ignore` か `error` を決めた。NDD の章が求める形（1 節で引く）に合わせた。
 - **決めたもの**: 16 件のうち 13 件は裁定が決め、2 件（U-14 の順序、U-15 の目印と薄く描く条件）と U-16 の一部（知らない値・合流の両側にある帯）は方針（`JDG-3686`）が決めた（8 節の表）。方針で決めた所は「方針による決め」と書き、物差しの裁定を添えた。
 - **残るもの 1 —— 名と置き場の未決**: 例外の JSON の置き場、刻みの設定の名、命令の引数の形、深さと比の鍵の置き場など（8 節の末）。どれも表の升の中身を変えない。
@@ -40,8 +40,8 @@
 | 1 つの状態で 1 つのイベントが動かす遷移は多くても 1 つ | 510・585 | 升のガードは互いに重ならない（5.2 節・5.5 節・6.2 節）。取り消しの 3 つのガードは式で互いに排他にした（5.2 節） |
 | 状態は形容詞か分詞、イベントは過去形。定義は `〜StateMachine`、状態の型は `〜State`、今の状態は `current〜State` | 523〜529 | 状態 `shown`・`hidden`・`automatic`・`hiddenUntilZoomIn`（分詞と形容詞）、深さの状態 `shallowest`・`intermediate`・`deepest`（形容詞）。イベントは `…Pressed`・`…Requested`・`…Applied`・`…Asked`・`…Completed` などの過去分詞。定義の名は camelCase、型は PascalCase（`JDG-3689`） |
 | 名前で識別し、通し番号を振らない | 531 | 状態・イベント・ガード・処理はすべて名で書いた |
-| 初期化（電源投入・再起動・復元）のそれぞれで入る状態が 1 つに決まる | 554 | 帯はディスパッチャが作る。初期の擬似状態からの遷移はトリガもガードも持たず（UML 2.5.1 の 14 章）、選択の擬似状態 `◇ byInitialSelfShowMode` で、生まれ方が運ぶ値ごとに入る状態が 1 つに決まる（5.6 節）。表は `[*]` の列を持たない |
-| 複数の値の組み合わせで状態を定義しない | 555 | 帯の状態は 1 つの鍵 `selfShowMode` の値そのもの。`taskGroupVisibility` は状態ではなく導く値（4 節） |
+| 初期化（電源投入・再起動・復元）のそれぞれで入る状態が 1 つに決まる | 554 | 帯はディスパッチャが作る。初期の擬似状態からの遷移はトリガもガードも持たず（UML 2.5.1 の 14 章）、選択の擬似状態 `◇ byInitialShowMode` で、生まれ方が運ぶ値ごとに入る状態が 1 つに決まる（5.6 節）。表は `[*]` の列を持たない |
+| 複数の値の組み合わせで状態を定義しない | 555 | 帯の状態は 1 つの鍵 `showMode` の値そのもの。`taskGroupVisibility` は状態ではなく導く値（4 節） |
 | 履歴擬似状態を使わない | 564 | 使わない。取り消しは記録した値を運ぶイベントで、選択の擬似状態（◇）で行き先を決める |
 | 1 つのイベントを複数のステートマシンで共有するのは、どの順序で処理しても結果が同じ場合だけ。相互作用があるなら、1 つが受け、その遷移が発生させるイベントでほかを動かす | 588〜590 | 帯どうしは順序に依らない（5.8 節）。深さは帯の結果に依るので、帯の遷移の後に発生させるイベント `zoomInConversionCompleted`・`fitConversionCompleted` で動かす（6 節） |
 | ステートマシンごとに図と表が組。図と表の状態・イベント・遷移が一致し、名で辿れる。凡例で「無視」と「異常」の書き方を決める（既定は `ignore` と `error`） | 593・595・598 | 5 節・6 節。凡例は 5.4 節。選択の擬似状態の名は図と表で同じ。自己への遷移も図に描く（帯は ◇ から今と同じ状態へ戻る枝、深さは自己の矢印） |
@@ -56,7 +56,7 @@
 ## 2. 範囲と用語
 
 **範囲**: タスクグループ（帯）を描くか描かないかを決めるもの全部。
-保存する意図（`selfShowMode`・`automaticallyShownDepth`）、導く結果（`taskGroupVisibility`・`drawn`）、それを書くすべての入口、それを示す目印。
+保存する意図（`showMode`・`automaticallyShownDepth`）、導く結果（`taskGroupVisibility`・`drawn`）、それを書くすべての入口、それを示す目印。
 **範囲の外**: 色、帯の高さ、名前、編集の権限、日程の描き方そのもの。縦の比 `verticalZoomRatio` の働き（`CR-853` が持つ。ここでは深さと一緒に縦の 1 刻みを決める所だけ扱う）。横（日の幅）のズームと `setZoom`（`JDG-3675` で横だけを持つ）。
 この文書は「段」を深さの別名に使わない（`JDG-3660`）。縦のズームの 1 回の入力は「刻み」、取り消しの単位は「取り消しの 1 段」と書く。
 
@@ -77,7 +77,7 @@
 
 **この文書で使わない旧い名**（裁定で替わったもの。当て込みで消す）:
 `treeState`（`AT-153`）とその値 `auto`・`collapsed`・`expanded`・`temporarilyExpanded`・`hidden`（旧い意味）、`expandedUntilZoomOut`（`JDG-3653`）、`automaticallyExpandedWithinDepth`（`JDG-3654`）、`isCollapsedIntoParent`（`JDG-3655`）、`childrenExpansionState`（`JDG-3656`）、`levelZeroTreeState`・`rootTreeState`（`S-418`）と命令 `setLevelZeroTreeState`（`CM-86`、`JDG-3664`）、`revealed`・`retracted`・`visibilityIntent`（BGQA3T の案）、出来事 `oneLevelOpenPressed`・`allBelowOpenPressed`・`allBelowFoldPressed`・`hidePressed`・`retractPressed`・`topLevelOpenPressed`・`everyTaskGroupOpenPressed`・`everyTaskGroupFoldPressed`、`verticalZoomExpandPressed`（`JDG-3663` で却下）、運ぶ値 `pressedRowId`（→ `pressedTarget`）・`revealedRowId`（→ `revealTargetId`）、この下書きの 1 版の名 `documentOpened`・`mspdiImported`（→ `documentReplaced`・`documentMerged`、5 節）・`atShallowestDepth`・`withinDepthRange`・`atDeepestDepth`（→ `shallowest`・`intermediate`・`deepest`）。
-3 版で消した名: 鍵 `automaticDepth`（→ `automaticallyShownDepth`、`JDG-3665`）と機械 `automaticDepthStateMachine`（→ `automaticallyShownDepthStateMachine`、`JDG-3689`）、出来事 `verticalZoomShrinkPressed`（今の仕様の名）と 2 版の案 `verticalZoomInPressed`・`verticalZoomOutPressed`（→ `verticalZoomInRequested`・`verticalZoomOutRequested`、`JDG-3674`）、命令 `resetTaskGroupTreeStates`（今の `CM-72`）と 2 版の案 `resetTaskGroupSelfShowModes`（→ `setTaskGroupSelfShowModesToAutomaticExceptHidden`、`JDG-3690`）、出来事 `agentApi/resetTaskGroupSelfShowModesApplied`（AI に単独で見せない、`JDG-3691`）と `agentApi/setZoomApplied`（`setZoom` は縦を持たない、`JDG-3675`）、ガード `dropsIntoFoldedTaskGroup`（`JDG-3682`）・`hasHiddenAncestorOnPath`（`JDG-3679`）、処理 `stageConversionWrite`（`stageWrite` と同じになった、`JDG-3676`）・`setCommandedDepthAndRatio`（`JDG-3675`）・`setDefaultDepth`（既定値なし、`JDG-3668`）、判別子のキー `kind`（→ `type`、`JDG-3672`）、頭の札 Show Top Level Only・Expand All・Collapse All（`IC-92`・`IC-74`・`IC-78`、`JDG-3688`）。
+3 版で消した名: 鍵 `automaticDepth`（→ `automaticallyShownDepth`、`JDG-3665`）と機械 `automaticDepthStateMachine`（→ `automaticallyShownDepthStateMachine`、`JDG-3689`）、出来事 `verticalZoomShrinkPressed`（今の仕様の名）と 2 版の案 `verticalZoomInPressed`・`verticalZoomOutPressed`（→ `verticalZoomInRequested`・`verticalZoomOutRequested`、`JDG-3674`）、命令 `resetTaskGroupTreeStates`（今の `CM-72`）と 2 版の案 `resetTaskGroupSelfShowModes`（→ `setTaskGroupSelfShowModesToAutomaticExceptHidden`、`JDG-3690`）、出来事 `agentApi/resetTaskGroupSelfShowModesApplied`（AI に単独で見せない、`JDG-3691`）と `agentApi/setZoomApplied`（`setZoom` は縦を持たない、`JDG-3675`）、ガード `dropsIntoFoldedTaskGroup`（`JDG-3682`）・`hasHiddenAncestorOnPath`（`JDG-3679`）、処理 `stageConversionWrite`（`stageWrite` と同じになった、`JDG-3676`）・`setCommandedDepthAndRatio`（`JDG-3675`）・`setDefaultDepth`（既定値なし、`JDG-3668`）、判別子のキー `kind`（→ `type`、`JDG-3672`）、頭の札 Show Top Level Only・Expand All・Collapse All（`IC-92`・`IC-74`・`IC-78`、`JDG-3688`）。 4 版で消した名: 鍵 `selfShowMode` と、そこから作った名（`selfShowModeStateMachine`・`SelfShowModeState`・`setTaskGroupSelfShowMode` ほか）→ `self` を抜いた名（`JDG-3736`。`JDG-3662` の align-self に倣う理由を取り下げた。対になるキーが無いので修飾は要らず、self は「自分だけが隠れる」と読ませる）。
 
 ---
 
@@ -90,7 +90,7 @@
 | 名 | 日本語 | 種類 | 働き | 責務 | 出典 |
 |:---|:---|:---|:---|:---|:---|
 | `root` | 根 | 木の節（深さ 0） | 木の頭。最上位のタスクグループの親 | いつも表示され、値を持たない。頭のボタンの「押した物」になる。Retract とピンを持たない | `JDG-3660`・`JDG-3664`・`HF-*` の後の段落（RQ:1799〜1806） |
-| `TaskGroup` | タスクグループ（帯） | 木の節（深さ 1 以上） | 日程を束ねる行 | 自分の表示の意図 `selfShowMode` を 1 つ持つ。帯ごとに 1 つの `selfShowModeStateMachine` を持つ | `JDG-3657`・`JDG-3662`・`JDG-3689` |
+| `TaskGroup` | タスクグループ（帯） | 木の節（深さ 1 以上） | 日程を束ねる行 | この帯を出すかの意図 `showMode` を 1 つ持つ。帯ごとに 1 つの `showModeStateMachine` を持つ | `JDG-3657`・`JDG-3662`・`JDG-3689` |
 | `taskGroupTreeView` | タスクグループの木の見え方 | GRS JSON の物（文書に 1 つ） | 木全体の見え方の値を入れる | `automaticallyShownDepth` を持つ（鍵の置き場は未決、`JDG-3674`）。根の値は持たない | `JDG-3662`・`JDG-3664`・`JDG-3665` |
 | task group panel | タスクグループパネル | 画面の面 | 帯の名と操作子を木の順に並べる | `drawn` の帯だけを行として描く | `HF-*` |
 | panel head | パネルの頭 | 画面の行 | 根の操作子を 1 行に並べる | 根を押した物としてイベントを送る | `HF-10`・`HF-12`・`HF-16`・`HF-17`・`HF-20` |
@@ -105,24 +105,24 @@
 | band ∧ (`IC-59`) | 帯の ∧ 親へしまう／Retract Into Parent | 操作子 | 押した帯を配下ごと親へしまう | `retractIntoParentPressed` を送る。根には無い。ツールチップは短く、戻す手を ∨ の 1 つだけ書く: 英語の 2 文目「Press [∨] to show the task group again.」、日本語の 2 文目「[∨] を押すと、再び表示する。」（1 文目と記号の書き方は 8 節の未決） | `JDG-3658`・`JDG-3659`・`JDG-3661`・`JDG-3677`・`JDG-3678`・`HF-3` |
 | band ＋ (`IC-91`) | 帯の ＋ | 操作子 | 押した帯の子の末子に足す | `childTaskGroupAddPressed` を送る | `HF-14`・`JDG-3664` |
 | band × (`IC-82`) | 帯の × | 操作子 | 押した帯を配下ごと消す | `taskGroupDeletePressed` を送る | `CD-*`・`FR-032` |
-| pin (`IC-60`) | ピン | 操作子 | 帯を画面の上端に留める・外す | `taskGroupPinToggled` を送る。`selfShowMode` に触らない | `FR-098`・`HF-4`・`HF-6` |
+| pin (`IC-60`) | ピン | 操作子 | 帯を画面の上端に留める・外す | `taskGroupPinToggled` を送る。`showMode` に触らない | `FR-098`・`HF-4`・`HF-6` |
 | grip (`GR-20`) | 掴み代 | 操作子 | 帯を掴んで位置と親を変える | 離したとき `taskGroupDropped` を送る | `HF-15`・`JDG-3682` |
 | fit entry (`IC-10`・`SK-18`) | 全体表示 | 操作子とキー | 全体が収まる倍率と位置にし、帯の値を戻す | `fitPressed` を送る | `FR-055`・`HF-8`・`JDG-3677` |
 | vertical zoom inputs | 縦のズームの入力 | ホイール（`MK-4`）・操作子（縮める `IC-14`、拡げる `IC-15`）・キー（縮める `SK-16c`、拡げる `SK-16a`）・ピンチ | 縦を縮める・拡げる指示を出す | `verticalZoomOutRequested`・`verticalZoomInRequested` を手段「1 刻み」で送る。範囲の端でも送る。ホイールの 1 回転分と (+)/(-) ボタンの 1 押し分の刻みは、それぞれ別の設定から読む（名は未決） | `CR-853`・`JDG-3674`・`JDG-3675`・`ZE-2`・`ZE-3` |
 | jump sources | 飛ぶ入口 | 検索の行（`SJ-1`）・`focusTask`（`AM-16`）・依存線の続きの印（`EL-21`）・表の「表示」（`TV-6`） | 指した帯を見せる | `taskGroupRevealAsked` を送る | `SJ-2`・`JDG-3679`・`JDG-3680` |
 | hidden-items indicator (band) | 折りたたみ込みの数（帯） | 目印 | 配下に見えない帯がいくつあるか示す（`▾` と数）。人が隠した帯を抱えるときは、左の辺に注意の色の帯も引く | `▾` の数は、配下のうち `invisible` の帯をすべて数える（人の値で見えない帯も、深さで見えない帯も）。左の注意の帯は、配下に自分か途中の祖先が `hidden` か `hiddenUntilZoomIn` の帯があるときだけ引く。新しい目印は足さない | `HF-18`・`JDG-3663`・`JDG-3692` |
 | hidden-items indicator (head) | 折りたたみ込みの数（頭） | 目印 | 根の下に見えない帯がいくつあるか示す | 同上 | `HF-12`・`JDG-3663`・`JDG-3692` |
-| schedule filter | スケジュールフィルタ | 別の軸 | 表の積で描くタスクを絞る | `selfShowMode` を読まず書かない。`drawn` にだけ効く | `TD-8`・`FR-151` |
+| schedule filter | スケジュールフィルタ | 別の軸 | 表の積で描くタスクを絞る | `showMode` を読まず書かない。`drawn` にだけ効く | `TD-8`・`FR-151` |
 | `taskGroupTreeDispatcher` | タスクグループの木のイベントディスパッチャ | 部品 | イベントを受けて状態機械へ配る | 待ち行列で 1 つずつ。帯の機械を作る（生まれる帯）・除く（終わった帯）。全帯の遷移が終わってから後続のイベントを発生させる（5.8 節） | NDD 576〜583 |
 
 ### 3.2 状態と値
 
 | 名 | 日本語 | 種類 | 働き | 責務 | 出典 |
 |:---|:---|:---|:---|:---|:---|
-| `shown` | 出す | `selfShowMode` の値（保存） | 人がこの帯を出すと選んだ | 深さに依らず帯を `visible` にする（祖先が隠していなければ。祖先が勝つ、`JDG-3673`） | `JDG-3662` |
-| `hidden` | しまう（隠す） | `selfShowMode` の値（保存） | 人がこの帯を出さないと選んだ（配下も隠れる） | 縦のズームインでもズームアウトでも、全体表示でも隠れたまま。帯を新しく見せる画面の操作は、親の ∨・祖先の ∨∨・その帯へ飛ぶ・配下へ飛ぶの 4 つだけ（`JDG-3663`・`JDG-3679`。根は最上位の親なので、頭の ∨・∨∨ もこの一覧に入る）。この一覧の外で値を戻すものが 2 つある: 取り消し・やり直し（記録した値をそのまま戻す復元、`JDG-3670`）と、値を直接置く命令（`setTaskGroupSelfShowMode` など、`JDG-3671`） | `JDG-3662`・`JDG-3663`・`JDG-3670`・`JDG-3671`・`JDG-3679` |
-| `automatic` | 自動 | `selfShowMode` の値（保存） | 規則に任せる（意図が無い） | 深さ・ピン・出ている配下へ至る道で `visible` か決まる（4 節 V-6） | `JDG-3662` |
-| `hiddenUntilZoomIn` | 拡大まで隠す | `selfShowMode` の値（保存） | 今は隠れている。次の縦のズームインの指示で `automatic` に変わる（範囲の端でも変わる） | ズームアウトでは隠れたまま | `JDG-3663`・`JDG-3674` |
+| `shown` | 出す | `showMode` の値（保存） | 人がこの帯を出すと選んだ | 深さに依らず帯を `visible` にする（祖先が隠していなければ。祖先が勝つ、`JDG-3673`） | `JDG-3662` |
+| `hidden` | しまう（隠す） | `showMode` の値（保存） | 人がこの帯を出さないと選んだ（配下も隠れる） | 縦のズームインでもズームアウトでも、全体表示でも隠れたまま。帯を新しく見せる画面の操作は、親の ∨・祖先の ∨∨・その帯へ飛ぶ・配下へ飛ぶの 4 つだけ（`JDG-3663`・`JDG-3679`。根は最上位の親なので、頭の ∨・∨∨ もこの一覧に入る）。この一覧の外で値を戻すものが 2 つある: 取り消し・やり直し（記録した値をそのまま戻す復元、`JDG-3670`）と、値を直接置く命令（`setTaskGroupShowMode` など、`JDG-3671`） | `JDG-3662`・`JDG-3663`・`JDG-3670`・`JDG-3671`・`JDG-3679` |
+| `automatic` | 自動 | `showMode` の値（保存） | 規則に任せる（意図が無い） | 深さ・ピン・出ている配下へ至る道で `visible` か決まる（4 節 V-6） | `JDG-3662` |
+| `hiddenUntilZoomIn` | 拡大まで隠す | `showMode` の値（保存） | 今は隠れている（配下も隠れる）。次の縦のズームインの指示で `automatic` に変わる（範囲の端でも変わる） | ズームアウトでは隠れたまま | `JDG-3663`・`JDG-3674` |
 | `visible` / `invisible` | 見える / 見えない | `taskGroupVisibility` の値（導く。保存しない） | 帯を描く資格があるか | 4 節の規則だけで決まる | `JDG-3657`・`JDG-3662` |
 | `drawn` | 描く | 導く値（保存しない） | 最終の結果。`visible` かつスケジュールフィルタを通る | パネルと日程表が描く帯の集まり。人が押せるのは `drawn` の帯だけ | BGQA3T の後の段のお知らせ・`TD-8` |
 | `shallowest` | 最も浅い | `automaticallyShownDepthStateMachine` の状態 | `automaticallyShownDepth` が 1（下の境） | 縮める向きの端（`ZE-2`）を決める | `JDG-3666`・`JDG-3689` |
@@ -154,15 +154,15 @@
 | `verticalZoomInRequested` | 縦のズームインの指示が出た | 指示（`MK-4` の拡げる向き・`IC-15`・`SK-16a`・ピンチ・命令 `verticalZoomIn`） | `hiddenUntilZoomIn` を `automatic` に変える。そのあと深さの機械が手段の 1 つだけを行う。範囲の端でも出る | `zoomMeans` | `JDG-3674`・`JDG-3675`・`JDG-3676` |
 | `taskGroupRevealAsked` | 帯を見せるよう求めた | 入力（飛ぶ） | 飛ぶ先を `shown` にし、道の `hidden`・`hiddenUntilZoomIn` を `automatic` に戻す | `revealTargetId` | `SJ-2`・`AM-16`・`EL-21`・`TV-6`・`JDG-3679`・`JDG-3680` |
 | `taskGroupPinToggled` | ピンを押した | 入力 | ピンの並びに足す・除く | `taskGroupId` | `FR-098` |
-| `editUndone` / `editRedone` | 取り消した / やり直した | 履歴 | 記録した値へそのまま戻す（`hidden` も戻す） | `recordedSelfShowModes`（帯の id → 戻す値）・`restoredIds`（生き返る帯）・`removedIds`（消える帯）。`restoredIds` と `removedIds` は交わらない | `UN-14`・`FR-031`・`JDG-3670` |
+| `editUndone` / `editRedone` | 取り消した / やり直した | 履歴 | 記録した値へそのまま戻す（`hidden` も戻す） | `recordedShowModes`（帯の id → 戻す値）・`restoredIds`（生き返る帯）・`removedIds`（消える帯）。`restoredIds` と `removedIds` は交わらない | `UN-14`・`FR-031`・`JDG-3670` |
 | `documentReplaced` | 文書を置き換えた | 読み込み（`OP-3` の置き換え。読み直し `OP-13`・ドロップ `OP-19`・起動のテンプレート `FR-027` を含む。β の GRS JSON も MSPDI も、`importDocument`・`requestOpenFile` も同じ） | 今の帯をすべて終わらせ、読んだ文書の帯を立てる。取り消しの履歴を引き継がない（`OP-4`・`UN-6`）。α の GRS JSON は出来事を起こさずに断り、α→β 変換ツールの案内を出す | 帯ごとの保存した値（鍵が無ければ `automatic`。MSPDI はみな `automatic`。4 つ以外の値は `automatic` に読み替える）・`automaticallyShownDepth`（無ければ全体表示と同じ決め方） | `OP-3`・`OP-4`・`JDG-3667`・`JDG-3669`・`JDG-3685`・方針（`JDG-3686`、U-16） |
 | `documentMerged` | 文書を合流させた | 読み込み（`OP-3` の合流、`FR-022`） | 今の帯は値を保ち、入ってきた帯を立てる。合流 1 回で取り消しの 1 段 | 入ってきた帯ごとの保存した値 | `OP-3`・`FR-022`・`UN-6`・方針（`JDG-3686`、U-16） |
-| `agentApi/createTaskGroupApplied` | 帯を作る命令を当てた | 命令（`CM-26`） | 帯を立てる | `taskGroupId`・`selfShowMode`（任意。省けば `automatic`） | `CM-26`・`JDG-3684` |
-| `agentApi/moveTaskGroupApplied` | 帯を動かす命令を当てた | 命令（`CM-73`） | 親と並びを変える | `taskGroupId`・`selfShowMode`（任意。省けば値を保つ） | `CM-73`・`JDG-3684` |
+| `agentApi/createTaskGroupApplied` | 帯を作る命令を当てた | 命令（`CM-26`） | 帯を立てる | `taskGroupId`・`showMode`（任意。省けば `automatic`） | `CM-26`・`JDG-3684` |
+| `agentApi/moveTaskGroupApplied` | 帯を動かす命令を当てた | 命令（`CM-73`） | 親と並びを変える | `taskGroupId`・`showMode`（任意。省けば値を保つ） | `CM-73`・`JDG-3684` |
 | `agentApi/reorderTaskGroupSiblingsApplied` | 兄弟を並べ替える命令を当てた | 命令（`CM-35`） | 並びだけ変える | `parentTaskGroupId` | `CM-35` |
-| `agentApi/pasteTaskGroupSubtreeApplied` | 部分木を貼る命令を当てた | 命令（`CM-28`） | 写しを立てる | 写しと元の対応・`selfShowMode`（任意。写しの根の値。省けば `automatic`） | `CM-28`・`JDG-3684` |
+| `agentApi/pasteTaskGroupSubtreeApplied` | 部分木を貼る命令を当てた | 命令（`CM-28`） | 写しを立てる | 写しと元の対応・`showMode`（任意。写しの根の値。省けば `automatic`） | `CM-28`・`JDG-3684` |
 | `agentApi/deleteTaskGroupApplied` | 帯を消す命令を当てた | 命令（`CM-27`） | 帯を配下ごと消す | `taskGroupId` | `CM-27` |
-| `agentApi/setTaskGroupSelfShowModeApplied` | 帯の表示の意図を置く命令を当てた | 命令（今の `CM-85` を改める） | 1 つの帯に 4 つの値のどれかを置く（配下に広げない。`hidden` の帯にも置ける） | `taskGroupId`・`selfShowMode` | `JDG-3662`・`JDG-3671`・`JDG-3672` |
+| `agentApi/setTaskGroupShowModeApplied` | 帯の表示の意図を置く命令を当てた | 命令（今の `CM-85` を改める） | 1 つの帯に 4 つの値のどれかを置く（配下に広げない。`hidden` の帯にも置ける） | `taskGroupId`・`showMode` | `JDG-3662`・`JDG-3671`・`JDG-3672` |
 | `agentApi/expandOneLevelApplied` | 1 階層展開する命令を当てた | 命令 `expandOneLevel` | 帯の ∨ を押したときと同じ | `pressedTarget` | `JDG-3672`・方針（`JDG-3686`、5.5 節） |
 | `agentApi/expandBelowApplied` | 配下を展開する命令を当てた | 命令 `expandBelow` | 帯の ∨∨ を押したときと同じ | `pressedTarget` | 同上 |
 | `agentApi/collapseBelowApplied` | 配下を折りたたむ命令を当てた | 命令 `collapseBelow` | 帯の ∧∧ を押したときと同じ | `pressedTarget` | 同上 |
@@ -175,22 +175,22 @@
 | `verticalZoomEndReached` | 縦のズームが端に当たった | 結果（今の出来事、`ZE-5`） | 範囲の端で値が変わらなかったことを伝える | `percent`・`end` | `ZE-5`・`JDG-3674` |
 
 出来事でないもの: スケジュールフィルタを掛ける・外す（帯の値を読まず書かない、`TD-8` の MUST NOT）。重ねる（`OP-3` の 3 つ目、`FR-015`。文書を変えずに変更前の予定を描くので、帯の値も深さも変わらない）。並べ替えだけのドラッグは `taskGroupDropped` の `isReparent` が偽の場合。
-`setZoom`（`CM-65`）は横の値だけを持つので、この文書の機械に届かない（`JDG-3675`）。命令 `verticalZoomIn`・`verticalZoomOut` は `agentApi/…Applied` の出来事を持たず、指示 `verticalZoomInRequested`・`verticalZoomOutRequested` を直接起こす（`JDG-3674`・`JDG-3675`）。`setTaskGroupSelfShowModesToAutomaticExceptHidden` は全体表示の部品で、自分の出来事を持たない（`JDG-3691`）。
+`setZoom`（`CM-65`）は横の値だけを持つので、この文書の機械に届かない（`JDG-3675`）。命令 `verticalZoomIn`・`verticalZoomOut` は `agentApi/…Applied` の出来事を持たず、指示 `verticalZoomInRequested`・`verticalZoomOutRequested` を直接起こす（`JDG-3674`・`JDG-3675`）。`setTaskGroupShowModesToAutomaticExceptHidden` は全体表示の部品で、自分の出来事を持たない（`JDG-3691`）。
 結果の出来事（`verticallyZoomedIn`・`verticallyZoomedOut`・`verticalZoomEndReached`）は、どの機械も受けない。指示（`…Requested`）を起こすのは人の入力と命令だけで、値の変化や結果の出来事は指示を起こさない（一方通行、`JDG-3675`）。
 
 ### 3.4 プロパティとキー
 
 | 名 | 日本語 | 型 | 既定 | 置き場 | 働きと責務 | 出典 |
 |:---|:---|:---|:---|:---|:---|:---|
-| `selfShowMode` | 表示の意図 | 文字列の列挙 `shown`・`hidden`・`automatic`・`hiddenUntilZoomIn` | 鍵は任意。無ければ `automatic` と読む（スキーマの既定 `automatic`）。生まれる帯の値は 5.6 節 | GRS JSON の `taskGroups` の各行 | 帯自身の今の意図。書く側はすべて 5.5 節の表の行か 5.6 節の生まれ方の行。保存のとき `automatic` を省くか書くかは未決 | `JDG-3662`・`JDG-3663`・`JDG-3685` |
-| `taskGroupTreeView.automaticallyShownDepth` | 自動で出す深さ | 整数。閉じた範囲 [1, `maxGroupDepth`] | なし。β の GRS JSON は保存のとき必ず書く。新しい文書・MSPDI・鍵の無い β のファイルでは全体表示と同じ決め方で選ぶ | GRS JSON の `taskGroupTreeView`（置き場は未決） | `selfShowMode` が `automatic` の帯を、深さ ≤ この値まで出す（±1 を付けない）。縦のズームと全体表示でだけ変わり、AI も直接置かない。取り消しの対象外（`UN-8`） | `JDG-3665`〜`JDG-3669`・`JDG-3674`・`JDG-3675` |
+| `showMode` | 表示の意図 | 文字列の列挙 `shown`・`hidden`・`automatic`・`hiddenUntilZoomIn` | 鍵は任意。無ければ `automatic` と読む（スキーマの既定 `automatic`）。生まれる帯の値は 5.6 節 | GRS JSON の `taskGroups` の各行 | この帯を出すかの今の意図。書く側はすべて 5.5 節の表の行か 5.6 節の生まれ方の行。保存のとき `automatic` を省くか書くかは未決 | `JDG-3662`・`JDG-3663`・`JDG-3685` |
+| `taskGroupTreeView.automaticallyShownDepth` | 自動で出す深さ | 整数。閉じた範囲 [1, `maxGroupDepth`] | なし。β の GRS JSON は保存のとき必ず書く。新しい文書・MSPDI・鍵の無い β のファイルでは全体表示と同じ決め方で選ぶ | GRS JSON の `taskGroupTreeView`（置き場は未決） | `showMode` が `automatic` の帯を、深さ ≤ この値まで出す（±1 を付けない）。縦のズームと全体表示でだけ変わり、AI も直接置かない。取り消しの対象外（`UN-8`） | `JDG-3665`〜`JDG-3669`・`JDG-3674`・`JDG-3675` |
 | `pinnedTaskGroupIds` | ピン止めの並び | 帯の id の並び | 空 | GRS JSON の見せ方の群（`S-126`） | 留める順。上限は `S-127` | `FR-098`・BGQA3T 6-12-24 a |
 | `verticalZoomRatio` | 縦の比 | 数（1 以上） | 1 | GRS JSON の見せ方の群（β の木では `documentSettings.verticalZoomRatio`。置き場は未決） | 深さと一緒に縦の 1 刻みを決める（6 節）。働きは `CR-853` | `CR-853`・`JDG-3296`・`JDG-3674` |
 | 縦の刻みの設定 2 つ | ホイールの刻み・ボタンの刻み | 数 | 未決 | 設定（今の `zoomStep`、`S-53`、既定 1.1 を 2 つに分ける） | ホイールの 1 回転分と (+)/(-) ボタン（`IC-14`・`IC-15`）の 1 押し分の比の刻み。名・既定・範囲と、キーとピンチの刻みは未決 | `JDG-3675` |
 | `parentTaskGroupId`・`siblingOrder` | 親・兄弟の順 | id・整数 | — | GRS JSON の `taskGroups` の各行 | 木の形。ガードが親・配下・祖先を読む | β の形の下書き |
 | `maxGroupDepth` | 深さの上限 | 整数（今は 5） | — | 設定（`S-125`） | `automaticallyShownDepth` の上の境 | `FR-004`・`S-125`・`JDG-3666` |
 | `taskGroupVisibility` | 表示の結果 | `visible`・`invisible` | — | 保存しない（導く） | 4 節の規則で毎回導く | `JDG-3657`・`JDG-3662` |
-| `currentSelfShowModeState` | 今の表示の意図（コードの変数） | `SelfShowModeState` | — | 実装の中（GRS JSON の `selfShowMode` と 1 対 1） | NDD の命名で今の状態を持つ変数 | `JDG-3689` |
+| `currentShowModeState` | 今の表示の意図（コードの変数） | `ShowModeState` | — | 実装の中（GRS JSON の `showMode` と 1 対 1） | NDD の命名で今の状態を持つ変数 | `JDG-3689` |
 | 消すキー | — | — | — | — | `treeState`（`AT-153`）、`levelZeroTreeState`・`rootTreeState`（`S-418`、`taskGroupTreeView.rootTreeState`）、2 版の名 `automaticDepth` | `JDG-3662`・`JDG-3664`・`JDG-3665` |
 
 ### 3.5 命令（`Agent API`）
@@ -199,16 +199,16 @@
 
 | 名 | 日本語 | 働き | 責務 | 出典 |
 |:---|:---|:---|:---|:---|
-| `setTaskGroupSelfShowMode` | 帯の表示の意図を置く | 1 つの帯に 4 つの値のどれかを置く | 配下にも祖先にも広げない。`hidden` の帯にも置ける。食い違いは描くときの祖先の優越（4 節 V-2）で守る | 今の `CM-85` `setTaskGroupTreeState` を改める。`JDG-3671`・`JDG-3672` |
+| `setTaskGroupShowMode` | 帯の表示の意図を置く | 1 つの帯に 4 つの値のどれかを置く | 配下にも祖先にも広げない。`hidden` の帯にも置ける。食い違いは描くときの祖先の優越（4 節 V-2）で守る | 今の `CM-85` `setTaskGroupTreeState` を改める。`JDG-3671`・`JDG-3672` |
 | `expandOneLevel`・`expandBelow`・`collapseBelow`・`retractIntoParent` | 帯のボタンの命令 | 帯の ∨・∨∨・∧∧・∧ を押したときと同じ結果を作る | 押した物を `pressedTarget`（`{ "type": "root" }` か `{ "type": "taskGroup", "taskGroupId": "A" }`）で渡す。命令の検証は、根を指す `retractIntoParent` と、`drawn` でない帯を指す命令を断る（人は描かれた帯だけを押せる） | `JDG-3672`・方針（`JDG-3686`、5.5 節） |
-| `setTaskGroupSelfShowModesToAutomaticExceptHidden` | 隠していない帯を自動に戻す | すべての帯の `shown`・`hiddenUntilZoomIn` を `automatic` へ。`hidden` は残す | 全体表示の部品。AI に単独では見せない（`applyCommands` で受けない） | 今の `CM-72` `resetTaskGroupTreeStates` を改める。`JDG-3677`・`JDG-3690`・`JDG-3691` |
+| `setTaskGroupShowModesToAutomaticExceptHidden` | 隠していない帯を自動に戻す | すべての帯の `shown`・`hiddenUntilZoomIn` を `automatic` へ。`hidden` は残す | 全体表示の部品。AI に単独では見せない（`applyCommands` で受けない） | 今の `CM-72` `resetTaskGroupTreeStates` を改める。`JDG-3677`・`JDG-3690`・`JDG-3691` |
 | `setLevelZeroTreeState` | （消す） | — | 根は値を持たない | 今の `CM-86`。`JDG-3664` |
-| `createTaskGroup` | 帯を作る | 帯を立てる | 任意の引数 `selfShowMode`。省けば `automatic`。画面の ＋ と同じ結果は引数 `"shown"` で作れる | `CM-26`・`JDG-3684` |
-| `moveTaskGroup` | 動かす | 親と並びを変える | 任意の引数 `selfShowMode`。省けば値を保つ | `CM-73`・`JDG-3684` |
+| `createTaskGroup` | 帯を作る | 帯を立てる | 任意の引数 `showMode`。省けば `automatic`。画面の ＋ と同じ結果は引数 `"shown"` で作れる | `CM-26`・`JDG-3684` |
+| `moveTaskGroup` | 動かす | 親と並びを変える | 任意の引数 `showMode`。省けば値を保つ | `CM-73`・`JDG-3684` |
 | `reorderTaskGroupSiblings` | 並べ替える | 並びを変える | 帯の値は書かない | `CM-35` |
-| `pasteTaskGroupSubtree` | 部分木を貼る | 写しを立てる | 任意の引数 `selfShowMode` で写しの根の値を置く。省けば `automatic`。写しの配下は元の値のまま | `CM-28`・`DU-2`・`JDG-3684` |
+| `pasteTaskGroupSubtree` | 部分木を貼る | 写しを立てる | 任意の引数 `showMode` で写しの根の値を置く。省けば `automatic`。写しの配下は元の値のまま | `CM-28`・`DU-2`・`JDG-3684` |
 | `deleteTaskGroup` | 帯を消す | 帯を配下ごと消す | 帯の状態機械は終わる。ピンの並びからも除く | `CM-27` |
-| `pinTaskGroup`・`unpinTaskGroup` | ピン | 並びに足す・除く | `selfShowMode` に触らない | `CM-68`・`CM-69` |
+| `pinTaskGroup`・`unpinTaskGroup` | ピン | 並びに足す・除く | `showMode` に触らない | `CM-68`・`CM-69` |
 | `setZoom` | 倍率を置く | 横（日の幅）の値だけを置く | 深さも縦の比も持たない | `CM-65`・`JDG-3675` |
 | `verticalZoomIn`・`verticalZoomOut` | 縦にズームイン・ズームアウト | 指示 `verticalZoomInRequested`・`verticalZoomOutRequested` を起こす | 引数なしは人の 1 刻みと同じ。任意の引数は目標の倍率で、結果は人が 1 刻みを繰り返してその倍率に着いたときと同じ。向きに逆らう数（今の比より小さい数の `verticalZoomIn`、大きい数の `verticalZoomOut`）と範囲の外の数は命令を断る。今と同じ数は断らずに指示を起こす | `JDG-3674`・`JDG-3675` |
 | `fitScheduleToScreenOnPage` | 画面の全体表示 | 人の全体表示と同じく、倍率と位置を置き、帯の値も戻す | 1 回呼ぶだけで人と同じ結果になる | `CM-102`・`JDG-3691` |
@@ -225,9 +225,9 @@
 
 | 規則 | 条件 | 結果 | 出典 |
 |:---|:---|:---|:---|
-| V-1 | b の `selfShowMode` が `hidden` か `hiddenUntilZoomIn` | `invisible` | `JDG-3662`・`JDG-3663` |
-| V-2（祖先の優越） | b の祖先のタスクグループのどれかの `selfShowMode` が `hidden` か `hiddenUntilZoomIn` | `invisible` | 今の `TD-3` の後継・`JDG-3673` |
-| V-3 | b の `selfShowMode` が `shown` | `visible` | `JDG-3662` |
+| V-1 | b の `showMode` が `hidden` か `hiddenUntilZoomIn` | `invisible` | `JDG-3662`・`JDG-3663` |
+| V-2（祖先の優越） | b の祖先のタスクグループのどれかの `showMode` が `hidden` か `hiddenUntilZoomIn` | `invisible` | 今の `TD-3` の後継・`JDG-3673` |
+| V-3 | b の `showMode` が `shown` | `visible` | `JDG-3662` |
 | V-4（以下 b は `automatic`） | b の深さ ≤ `automaticallyShownDepth` | `visible` | `JDG-3662`・`JDG-3665`・`TD-4` の後継 |
 | V-5 | b が `pinnedTaskGroupIds` に在る | `visible` | `TD-5`・`FR-098` |
 | V-6（出ている配下へ至る道） | b の配下に、V-1〜V-3 で `visible` になる帯 d がある | `visible` | `JDG-3662`・`TD-7` の後継 |
@@ -237,37 +237,37 @@
 - **祖先の優越**: `shown` の帯が `hidden`・`hiddenUntilZoomIn` の祖先の下にあっても、GRS は読むときにも命令の後にも直さず、拒みもしない。描くときに祖先が勝つ（V-2）。保存した値は書かれたままで、祖先がまた見えれば子孫は前と同じに現れる（`JDG-3673`）。この場合のための読み込みの検査（`IV-*`）は足さない。
 - **ピン**: V-5 は V-1・V-2 より後なので、ピンは人の隠しに勝たない（RQ:6228・6253 と同じ）。
 - **道**: V-6 の d は V-2 を通った帯だけ数える（今の `TD-7` の「`TD-2` と `TD-3` を満たす」と同じ）。だから `shown` の帯は、`automatic` の祖先を深さの外でも描かせ、木が宙に浮かない。
-- **不変の単調性**: 縦のズームアウトの指示（`verticalZoomOutRequested`）は `automaticallyShownDepth` を減らすか比を縮めるだけで、`selfShowMode` を書かない。V-1〜V-7 で `visible` の集まりは `automaticallyShownDepth` について単調（深さが減れば増えない）。
-- **D-1 `drawn`**: `drawn` ＝ `taskGroupVisibility` が `visible`、かつスケジュールフィルタを掛けているあいだは、その帯か配下に描くタスクが載っている（`TD-8`）。フィルタのために `selfShowMode` を書いてはならない（`TD-8` の MUST NOT のまま）。
+- **不変の単調性**: 縦のズームアウトの指示（`verticalZoomOutRequested`）は `automaticallyShownDepth` を減らすか比を縮めるだけで、`showMode` を書かない。V-1〜V-7 で `visible` の集まりは `automaticallyShownDepth` について単調（深さが減れば増えない）。
+- **D-1 `drawn`**: `drawn` ＝ `taskGroupVisibility` が `visible`、かつスケジュールフィルタを掛けているあいだは、その帯か配下に描くタスクが載っている（`TD-8`）。フィルタのために `showMode` を書いてはならない（`TD-8` の MUST NOT のまま）。
 - **D-2 描かない帯のタスク**: `drawn` でない帯に載るタスクは描かない。親の帯に載せ替えない（`HR-1a` のまま）。
 - **D-3 段割当と全体表示の測定**: `drawn` の帯だけを対象にする（`HR-1a` のまま）。
 
 ---
 
-## 5. 帯の状態機械 `selfShowModeStateMachine`
+## 5. 帯の状態機械 `showModeStateMachine`
 
-帯ごとに 1 つ。状態は `selfShowMode` の 4 つの値そのもの（保存する値が状態である。今の 表 T-328 の頭の「本領域の状態は文書に保存する値である」と同じ）。状態の型は `SelfShowModeState`、コードで今の状態を持つ変数は `currentSelfShowModeState`（`JDG-3689`）。
+帯ごとに 1 つ。状態は `showMode` の 4 つの値そのもの（保存する値が状態である。今の 表 T-328 の頭の「本領域の状態は文書に保存する値である」と同じ）。状態の型は `ShowModeState`、コードで今の状態を持つ変数は `currentShowModeState`（`JDG-3689`）。
 全帯の機械は同じ定義で、ディスパッチャが 1 つのイベントを全帯へ配り、帯はガードで自分が的かを選ぶ。
 
 ### 5.1 図
 
 図と表の内容（状態・遷移）は同じ。正は 5.5 節の表とする（NDD 595 行。手で別々に書くので、どちらかを正と決める）。
 同じ 2 つの状態を結ぶ遷移は 1 本の矢印にまとめ、ガードの違う組を「／」で並べた。コンマで並べた出来事は同じガードを持つ。`ignore` の交点は描かない。
-選択の擬似状態は表と同じ名の 3 つ: `byInitialSelfShowMode`（生まれる帯、5.6 節）、`byCommandedSelfShowMode`（命令の値）、`byRecordedSelfShowMode`（取り消し・やり直しの記録の値）。
+選択の擬似状態は表と同じ名の 3 つ: `byInitialShowMode`（生まれる帯、5.6 節）、`byCommandedShowMode`（命令の値）、`byRecordedShowMode`（取り消し・やり直しの記録の値）。
 自己への遷移は、◇ から今と同じ状態へ戻る枝として描いた（たとえば `shown` で命令が `shown` を運ぶ）。それ以外の自己への遷移は無い。
 初期の擬似状態からの遷移はトリガもガードも持たない。帯を作るのはディスパッチャで、作るときに生まれ方の値を渡す。
 
 ```mermaid
 stateDiagram-v2
-    state byInitialSelfShowMode <<choice>>
-    state byCommandedSelfShowMode <<choice>>
-    state byRecordedSelfShowMode <<choice>>
+    state byInitialShowMode <<choice>>
+    state byCommandedShowMode <<choice>>
+    state byRecordedShowMode <<choice>>
 
-    [*] --> byInitialSelfShowMode
-    byInitialSelfShowMode --> shown : [initialValue is shown]
-    byInitialSelfShowMode --> hidden : [initialValue is hidden]
-    byInitialSelfShowMode --> automatic : [initialValue is automatic]
-    byInitialSelfShowMode --> hiddenUntilZoomIn : [initialValue is hiddenUntilZoomIn]
+    [*] --> byInitialShowMode
+    byInitialShowMode --> shown : [initialValue is shown]
+    byInitialShowMode --> hidden : [initialValue is hidden]
+    byInitialShowMode --> automatic : [initialValue is automatic]
+    byInitialShowMode --> hiddenUntilZoomIn : [initialValue is hiddenUntilZoomIn]
 
     automatic --> shown : expandOneLevelPressed, agentApi/expandOneLevelApplied [isChildOfPressedTarget] ／ expandBelowPressed, agentApi/expandBelowApplied [isBelowPressedTarget] ／ taskGroupRevealAsked [isRevealTarget] ／ taskGroupDropped [isDroppedTaskGroup and isReparent]
     hidden --> shown : expandOneLevelPressed, agentApi/expandOneLevelApplied [isChildOfPressedTarget] ／ expandBelowPressed, agentApi/expandBelowApplied [isBelowPressedTarget] ／ taskGroupRevealAsked [isRevealTarget]
@@ -284,23 +284,23 @@ stateDiagram-v2
     hidden --> automatic : taskGroupRevealAsked [isAncestorOfRevealTarget]
     shown --> automatic : fitPressed, agentApi/fitScheduleToScreenOnPageApplied
 
-    shown --> byCommandedSelfShowMode : agentApi/setTaskGroupSelfShowModeApplied [isCommandTarget] ／ agentApi/moveTaskGroupApplied [isCommandTarget and hasCommandedSelfShowMode]
-    hidden --> byCommandedSelfShowMode : agentApi/setTaskGroupSelfShowModeApplied [isCommandTarget] ／ agentApi/moveTaskGroupApplied [isCommandTarget and hasCommandedSelfShowMode]
-    automatic --> byCommandedSelfShowMode : agentApi/setTaskGroupSelfShowModeApplied [isCommandTarget] ／ agentApi/moveTaskGroupApplied [isCommandTarget and hasCommandedSelfShowMode]
-    hiddenUntilZoomIn --> byCommandedSelfShowMode : agentApi/setTaskGroupSelfShowModeApplied [isCommandTarget] ／ agentApi/moveTaskGroupApplied [isCommandTarget and hasCommandedSelfShowMode]
-    byCommandedSelfShowMode --> shown : [commandedValue is shown]
-    byCommandedSelfShowMode --> hidden : [commandedValue is hidden]
-    byCommandedSelfShowMode --> automatic : [commandedValue is automatic]
-    byCommandedSelfShowMode --> hiddenUntilZoomIn : [commandedValue is hiddenUntilZoomIn]
+    shown --> byCommandedShowMode : agentApi/setTaskGroupShowModeApplied [isCommandTarget] ／ agentApi/moveTaskGroupApplied [isCommandTarget and hasCommandedShowMode]
+    hidden --> byCommandedShowMode : agentApi/setTaskGroupShowModeApplied [isCommandTarget] ／ agentApi/moveTaskGroupApplied [isCommandTarget and hasCommandedShowMode]
+    automatic --> byCommandedShowMode : agentApi/setTaskGroupShowModeApplied [isCommandTarget] ／ agentApi/moveTaskGroupApplied [isCommandTarget and hasCommandedShowMode]
+    hiddenUntilZoomIn --> byCommandedShowMode : agentApi/setTaskGroupShowModeApplied [isCommandTarget] ／ agentApi/moveTaskGroupApplied [isCommandTarget and hasCommandedShowMode]
+    byCommandedShowMode --> shown : [commandedValue is shown]
+    byCommandedShowMode --> hidden : [commandedValue is hidden]
+    byCommandedShowMode --> automatic : [commandedValue is automatic]
+    byCommandedShowMode --> hiddenUntilZoomIn : [commandedValue is hiddenUntilZoomIn]
 
-    shown --> byRecordedSelfShowMode : editUndone, editRedone [isRecordedTaskGroup]
-    hidden --> byRecordedSelfShowMode : editUndone, editRedone [isRecordedTaskGroup]
-    automatic --> byRecordedSelfShowMode : editUndone, editRedone [isRecordedTaskGroup]
-    hiddenUntilZoomIn --> byRecordedSelfShowMode : editUndone, editRedone [isRecordedTaskGroup]
-    byRecordedSelfShowMode --> shown : [recordedValue is shown]
-    byRecordedSelfShowMode --> hidden : [recordedValue is hidden]
-    byRecordedSelfShowMode --> automatic : [recordedValue is automatic]
-    byRecordedSelfShowMode --> hiddenUntilZoomIn : [recordedValue is hiddenUntilZoomIn]
+    shown --> byRecordedShowMode : editUndone, editRedone [isRecordedTaskGroup]
+    hidden --> byRecordedShowMode : editUndone, editRedone [isRecordedTaskGroup]
+    automatic --> byRecordedShowMode : editUndone, editRedone [isRecordedTaskGroup]
+    hiddenUntilZoomIn --> byRecordedShowMode : editUndone, editRedone [isRecordedTaskGroup]
+    byRecordedShowMode --> shown : [recordedValue is shown]
+    byRecordedShowMode --> hidden : [recordedValue is hidden]
+    byRecordedShowMode --> automatic : [recordedValue is automatic]
+    byRecordedShowMode --> hiddenUntilZoomIn : [recordedValue is hiddenUntilZoomIn]
 
     shown --> [*] : delete [isDeletedTaskGroup] ／ everyTaskGroupDeletePressed ／ editUndone, editRedone [isRemovedByHistory] ／ newDocumentLanded ／ documentReplaced
     hidden --> [*] : delete [isDeletedTaskGroup] ／ everyTaskGroupDeletePressed ／ editUndone, editRedone [isRemovedByHistory] ／ newDocumentLanded ／ documentReplaced
@@ -328,16 +328,16 @@ stateDiagram-v2
 | `isRevealTarget` | `taskGroup.id == event.revealTargetId` | `SJ-2`・`JDG-3680` |
 | `isAncestorOfRevealTarget` | `taskGroup.id in ancestorIdsOf(event.revealTargetId)`（`isRevealTarget` と同時に真にならない。帯は自分の祖先ではない） | `SJ-2`・`JDG-3679`・`JDG-3680` |
 | `isCommandTarget` | `taskGroup.id == event.taskGroupId` | `CM-85` の後継・`CM-73` |
-| `hasCommandedSelfShowMode` | `event.selfShowMode` が在る（命令が任意の引数 `selfShowMode` を渡した） | `JDG-3684` |
+| `hasCommandedShowMode` | `event.showMode` が在る（命令が任意の引数 `showMode` を渡した） | `JDG-3684` |
 | `isRemovedByHistory` | `taskGroup.id in event.removedIds` | `UN-14` |
-| `isRecordedTaskGroup` | `taskGroup.id in keys(event.recordedSelfShowModes) && !(taskGroup.id in event.removedIds)` —— 消える帯は除く。だから `isRemovedByHistory` と同時に真にならない（帯を足す編集の取り消しで、足したときの値が記録にあっても、その帯は消える側だけに当たる） | `UN-14` |
+| `isRecordedTaskGroup` | `taskGroup.id in keys(event.recordedShowModes) && !(taskGroup.id in event.removedIds)` —— 消える帯は除く。だから `isRemovedByHistory` と同時に真にならない（帯を足す編集の取り消しで、足したときの値が記録にあっても、その帯は消える側だけに当たる） | `UN-14` |
 
 `ancestorIdsOf(x)` は x の祖先のタスクグループの id（根を含まない。根は id を持たない）。
 生まれる帯を選ぶ判定（`isAddedTaskGroup`・`isPasteRoot`・`isPasteCopy`・`isRestoredByHistory`）は、もう帯のガードではない。ディスパッチャが生まれる帯を決める（5.6 節）。
 3 版で除いたガード: `dropsIntoFoldedTaskGroup`（落とした帯はいつも `shown`、`JDG-3682`）と `hasHiddenAncestorOnPath`（飛ぶ道の `hidden` も `automatic` に戻す、`JDG-3679`）。足したガード: `hasCommandedSelfShowMode`（`JDG-3684`）。
 
 **押した物の前提**: 人が押せるのは描かれた帯だけである（`HF-6`・`HF-*` の後の段落「対象とするのは、いま描かれているタスクグループ」）。V-1 により、`hidden`・`hiddenUntilZoomIn` の帯は描かれないので、その列の `isPressedTaskGroup`・`isDroppedTaskGroup` の枝は起こりえない。表はそれを `error` と書く。
-帯のボタンの命令（`expandOneLevel` など）も同じ前提に立つ: 命令の検証が、`drawn` でない帯を指す命令を、配る前に断る。だから命令の行でも、その枝は `error` のままである（方針による決め。物差しは、人にできることは AI にもできる、ただし AI だけの力は作らない —— `JDG-3671`・`JDG-3675`・`JDG-3691`。隠れた帯を見せたい AI は、`focusTask` か `setTaskGroupSelfShowMode` を使える）。
+帯のボタンの命令（`expandOneLevel` など）も同じ前提に立つ: 命令の検証が、`drawn` でない帯を指す命令を、配る前に断る。だから命令の行でも、その枝は `error` のままである（方針による決め。物差しは、人にできることは AI にもできる、ただし AI だけの力は作らない —— `JDG-3671`・`JDG-3675`・`JDG-3691`。隠れた帯を見せたい AI は、`focusTask` か `setTaskGroupShowMode` を使える）。
 根を押した物にする `retractIntoParentPressed`・`agentApi/retractIntoParentApplied` も起こりえない（根に ∧ は無い）。画面ではディスパッチャが配る前に `error` として扱い、命令では検証が断る。
 
 ### 5.3 処理
@@ -379,17 +379,17 @@ stateDiagram-v2
 | `verticalZoomInRequested` | `ignore` | `ignore`（拡大でも隠れたまま、`JDG-3663`） | `ignore` | → `automatic` / `stageWrite`（範囲の端でも変わる、`JDG-3674`。1 段、`JDG-3676`） |
 | `taskGroupRevealAsked` | `ignore`（飛ぶ先なら `shown` のまま。道なら触れない、`JDG-3680`） | → `shown` [`isRevealTarget`] / `stageWrite`<br>→ `automatic` [`isAncestorOfRevealTarget`] / `stageWrite`（`JDG-3679`）<br>それ以外 → `ignore` | → `shown` [`isRevealTarget`] / `stageWrite`<br>それ以外 → `ignore`（道の `automatic` には触れない。祖先は V-6 で描かれる） | → `shown` [`isRevealTarget`] / `stageWrite`<br>→ `automatic` [`isAncestorOfRevealTarget`] / `stageWrite`<br>それ以外 → `ignore` |
 | `taskGroupPinToggled` | `ignore` | `ignore` | `ignore` | `ignore` |
-| `editUndone` | → ◇ `byRecordedSelfShowMode` [`isRecordedTaskGroup`] / `—`<br>→ `[*]` [`isRemovedByHistory`] / `—`<br>それ以外 → `ignore` | 同左 | 同左 | 同左 |
-| `editRedone` | → ◇ `byRecordedSelfShowMode` [`isRecordedTaskGroup`] / `—`<br>→ `[*]` [`isRemovedByHistory`] / `—`<br>それ以外 → `ignore` | 同左 | 同左 | 同左 |
+| `editUndone` | → ◇ `byRecordedShowMode` [`isRecordedTaskGroup`] / `—`<br>→ `[*]` [`isRemovedByHistory`] / `—`<br>それ以外 → `ignore` | 同左 | 同左 | 同左 |
+| `editRedone` | → ◇ `byRecordedShowMode` [`isRecordedTaskGroup`] / `—`<br>→ `[*]` [`isRemovedByHistory`] / `—`<br>それ以外 → `ignore` | 同左 | 同左 | 同左 |
 | `newDocumentLanded` | → `[*]` / `—`（今の文書の帯は終わる。空の文書の帯は 5.6 節） | → `[*]` / `—` | → `[*]` / `—` | → `[*]` / `—` |
 | `documentReplaced` | → `[*]` / `—`（今の文書の帯は終わる。読んだ文書の帯は 5.6 節） | → `[*]` / `—` | → `[*]` / `—` | → `[*]` / `—` |
 | `documentMerged` | `ignore`（今の帯は値を保つ。両側にある帯も今の値を保つ、方針。入ってきた帯は 5.6 節） | `ignore` | `ignore` | `ignore` |
 | `agentApi/createTaskGroupApplied` | `ignore`（生まれる帯は 5.6 節） | `ignore` | `ignore` | `ignore` |
-| `agentApi/moveTaskGroupApplied` | → ◇ `byCommandedSelfShowMode` [`isCommandTarget` and `hasCommandedSelfShowMode`] / `stageWrite`<br>それ以外 → `ignore`（引数を省けば値を保つ、`JDG-3684`） | 同左 | 同左 | 同左 |
+| `agentApi/moveTaskGroupApplied` | → ◇ `byCommandedShowMode` [`isCommandTarget` and `hasCommandedShowMode`] / `stageWrite`<br>それ以外 → `ignore`（引数を省けば値を保つ、`JDG-3684`） | 同左 | 同左 | 同左 |
 | `agentApi/reorderTaskGroupSiblingsApplied` | `ignore` | `ignore` | `ignore` | `ignore` |
 | `agentApi/pasteTaskGroupSubtreeApplied` | `ignore`（生まれる帯は 5.6 節） | `ignore` | `ignore` | `ignore` |
 | `agentApi/deleteTaskGroupApplied` | → `[*]` [`isDeletedTaskGroup`] / `—`<br>それ以外 → `ignore` | 同左 | 同左 | 同左 |
-| `agentApi/setTaskGroupSelfShowModeApplied` | → ◇ `byCommandedSelfShowMode` [`isCommandTarget`] / `stageWrite`<br>それ以外 → `ignore`（無い id は命令の検証が断る。`hidden` の帯にも置ける、`JDG-3671`） | 同左 | 同左 | 同左 |
+| `agentApi/setTaskGroupShowModeApplied` | → ◇ `byCommandedShowMode` [`isCommandTarget`] / `stageWrite`<br>それ以外 → `ignore`（無い id は命令の検証が断る。`hidden` の帯にも置ける、`JDG-3671`） | 同左 | 同左 | 同左 |
 | `agentApi/expandOneLevelApplied` | `ignore` | → `shown` [`isChildOfPressedTarget`] / `stageWrite`<br>`error` [`isPressedTaskGroup`]<br>それ以外 → `ignore` | → `shown` [`isChildOfPressedTarget`] / `stageWrite`<br>それ以外 → `ignore` | → `shown` [`isChildOfPressedTarget`] / `stageWrite`<br>`error` [`isPressedTaskGroup`]<br>それ以外 → `ignore` |
 | `agentApi/expandBelowApplied` | `ignore` | → `shown` [`isBelowPressedTarget`] / `stageWrite`<br>`error` [`isPressedTaskGroup`]<br>それ以外 → `ignore` | → `shown` [`isBelowPressedTarget`] / `stageWrite`<br>それ以外 → `ignore` | → `shown` [`isBelowPressedTarget`] / `stageWrite`<br>`error` [`isPressedTaskGroup`]<br>それ以外 → `ignore` |
 | `agentApi/collapseBelowApplied` | → `hiddenUntilZoomIn` [`isBelowPressedTarget`] / `stageWrite`<br>それ以外 → `ignore` | `error` [`isPressedTaskGroup`]<br>それ以外 → `ignore` | → `hiddenUntilZoomIn` [`isBelowPressedTarget`] / `stageWrite`<br>それ以外 → `ignore` | `error` [`isPressedTaskGroup`]<br>それ以外 → `ignore` |
@@ -398,16 +398,16 @@ stateDiagram-v2
 | `agentApi/pinTaskGroupApplied` | `ignore` | `ignore` | `ignore` | `ignore` |
 | `agentApi/unpinTaskGroupApplied` | `ignore` | `ignore` | `ignore` | `ignore` |
 
-表に無い出来事（`zoomInConversionCompleted`・`fitConversionCompleted`、結果の出来事 `verticallyZoomedIn`・`verticallyZoomedOut`・`verticalZoomEndReached`、横だけの `setZoom` と、表示/非表示に関係しないすべての出来事）は `selfShowModeStateMachine` を変えない（`ignore`）。
+表に無い出来事（`zoomInConversionCompleted`・`fitConversionCompleted`、結果の出来事 `verticallyZoomedIn`・`verticallyZoomedOut`・`verticalZoomEndReached`、横だけの `setZoom` と、表示/非表示に関係しないすべての出来事）は `showModeStateMachine` を変えない（`ignore`）。
 
 **頭のボタン**: 頭の ∨・∨∨・∧∧ は帯のボタンを根で押したもので、札も出来事も帯と同じ（∨ 1 階層展開する／Expand One Level・∨∨ 配下を展開する／Expand Below・∧∧ 配下を折りたたむ／Collapse Below。根に親は無いので ∧ は無い。`JDG-3688`）。上の 3 行を `pressedTarget` ＝ `{ "type": "root" }` で送るだけで、別の行を持たない。
 `isChildOfPressedTarget` は最上位に、`isBelowPressedTarget` はすべての帯に当たる。だから頭の ∨ は最上位を `shown`、頭の ∨∨ はすべてを `shown`、頭の ∧∧ は `hidden` 以外のすべてを `hiddenUntilZoomIn` にする（最上位も消え、欄は空になりうる）。
 
 **帯のボタンの命令**（方針による決め）: 命令 `expandOneLevel`・`expandBelow`・`collapseBelow`・`retractIntoParent`（`JDG-3672`）は、ほかの命令と同じく `agentApi/…Applied` の出来事を持ち、その行の升は帯のボタンの行と 1 字も違わない。物差しは、人と AI で結果が同じになること（`JDG-3671`）。行を分けたのは、ドメインの前置き（画面 `taskGroupTree/`、命令 `agentApi/`）を今の 表 T-328 の書き方のまま保つためで、升を同じにしたので結果は人が押したときと同じになる。
 
-### 5.6 生まれ方の表 —— `◇ byInitialSelfShowMode` の枝（NDD 554 行）
+### 5.6 生まれ方の表 —— `◇ byInitialShowMode` の枝（NDD 554 行）
 
-帯はディスパッチャが作り、初期の擬似状態 → `◇ byInitialSelfShowMode` → 下の「入る状態」へ進む（トリガもガードも持たない遷移）。
+帯はディスパッチャが作り、初期の擬似状態 → `◇ byInitialShowMode` → 下の「入る状態」へ進む（トリガもガードも持たない遷移）。
 どの帯が生まれるかはディスパッチャが出来事の運ぶ値で決め、作るときに `initialValue` を渡す。生まれ方ごとに入る状態が 1 つに決まる。
 人が帯を入れた所（足す・落とす・貼る）は見え、中身はそのまま、兄弟には触れない（`JDG-3664`・`JDG-3682`・`JDG-3683`）。GRS が人の押しによらずに立てる帯は `automatic` を得る（`JDG-3681`）。
 
@@ -418,16 +418,16 @@ stateDiagram-v2
 | `newDocumentLanded`（新しく始める） | 空の文書の 1 つ（表 T-342 の `BK-2`） | `automatic` | `—`（取り消しの履歴ごと捨てる。段を積まない） | `FR-095`・`JDG-3681` |
 | `taskGroupSubtreePasted`（画面で貼る） | 写しの根 `event.pasteRootId` | `shown` | `stageWrite` | `JDG-3683` |
 | 同上 | 写しの配下 | 元の値をそのまま（`shown` → `shown`、`hidden` → `hidden`、`automatic` → `automatic`、`hiddenUntilZoomIn` → `hiddenUntilZoomIn`） | `stageWrite` | `JDG-3683` |
-| `agentApi/pasteTaskGroupSubtreeApplied`（命令で貼る） | 写しの根 | 命令の `selfShowMode`。省けば `automatic` | `stageWrite` | `CM-28`・`JDG-3684` |
+| `agentApi/pasteTaskGroupSubtreeApplied`（命令で貼る） | 写しの根 | 命令の `showMode`。省けば `automatic` | `stageWrite` | `CM-28`・`JDG-3684` |
 | 同上 | 写しの配下 | 元の値をそのまま（画面で貼るのと同じ） | `stageWrite` | `JDG-3683`・`JDG-3684` |
-| `agentApi/createTaskGroupApplied` | `event.taskGroupId` | 命令の `selfShowMode`。省けば `automatic` | `stageWrite` | `CM-26`・`JDG-3684` |
+| `agentApi/createTaskGroupApplied` | `event.taskGroupId` | 命令の `showMode`。省けば `automatic` | `stageWrite` | `CM-26`・`JDG-3684` |
 | `documentReplaced`（置き換え） | 読んだ文書のすべての帯 | 保存した値。鍵が無ければ `automatic`（MSPDI はいつも `automatic`） | `—`（読むことは文書を変えない） | `JDG-3662`・`JDG-3667`・`JDG-3673`・`JDG-3685` |
 | 同上 | 4 つ以外の値を持つ帯 | `automatic`（読み替え） | `reportReinterpretedValue` | 方針（`JDG-3686`、5.9 節） |
 | `documentMerged`（合流） | 入ってきた帯（今の文書に無いもの） | 保存した値。鍵が無ければ `automatic` | `stageWrite`（合流 1 回で取り消しの 1 段） | `FR-022`・`UN-6`・`JDG-3685` |
 | 同上 | 入ってきた帯で 4 つ以外の値を持つもの | `automatic`（読み替え） | `stageWrite`・`reportReinterpretedValue` | 方針（`JDG-3686`、5.9 節） |
-| `editUndone`・`editRedone` | `event.restoredIds` | 記録した値（`event.recordedSelfShowModes`） | `—` | `UN-14`・`JDG-3670` |
+| `editUndone`・`editRedone` | `event.restoredIds` | 記録した値（`event.recordedShowModes`） | `—` | `UN-14`・`JDG-3670` |
 
-合流で両側にある帯（今の文書にも入ってきた文書にもあるもの）は生まれず、今の文書の `selfShowMode` を保つ（5.5 節の `documentMerged` の行）。方針による決め。物差しは、優しくあれ（`JDG-3670`）—— 人が今見ている絵を、合流が知らせずに変えない。見せ方の意図は読む人の都合で、日程の内容ではない。合流はどの道でも取り消しの 1 段なので、戻し方も 1 つで済む（`JDG-3676`）。
+合流で両側にある帯（今の文書にも入ってきた文書にもあるもの）は生まれず、今の文書の `showMode` を保つ（5.5 節の `documentMerged` の行）。方針による決め。物差しは、優しくあれ（`JDG-3670`）—— 人が今見ている絵を、合流が知らせずに変えない。見せ方の意図は読む人の都合で、日程の内容ではない。合流はどの道でも取り消しの 1 段なので、戻し方も 1 つで済む（`JDG-3676`）。
 入ってきた帯が保存した値をそのまま持つのは、読む規則（`JDG-3685`）と、保存した値を書かれたままにする規則（`JDG-3673`）による。
 
 ### 5.7 試験の数の見積もり（NDD 509・596 行）
@@ -443,7 +443,7 @@ stateDiagram-v2
 | `childTaskGroupAddPressed` | 4 | `agentApi/reorderTaskGroupSiblingsApplied` | 4 |
 | `taskGroupDropped` | 7 | `agentApi/pasteTaskGroupSubtreeApplied` | 4 |
 | `taskGroupSubtreePasted` | 4 | `agentApi/deleteTaskGroupApplied` | 8 |
-| `taskGroupDeletePressed` | 8 | `agentApi/setTaskGroupSelfShowModeApplied` | 20 |
+| `taskGroupDeletePressed` | 8 | `agentApi/setTaskGroupShowModeApplied` | 20 |
 | `everyTaskGroupDeletePressed` | 4 | `agentApi/expandOneLevelApplied` | 9 |
 | `defaultTaskGroupCreated` | 4 | `agentApi/expandBelowApplied` | 9 |
 | `fitPressed` | 4 | `agentApi/collapseBelowApplied` | 8 |
@@ -456,21 +456,21 @@ stateDiagram-v2
 | `newDocumentLanded` | 4 | | |
 
 **状態遷移表 258 枝**（行 33 × 列 4 ＝ 交点 132、ガードの枝で 258）。内訳は遷移（終了状態と ◇ の行き先を含む）125、`ignore` 115、`error` 18。
-**生まれ方の表 38 枝**（`◇ byInitialSelfShowMode` の行き先ごと。＋ 1・既定の帯 1・新しく始める 1・画面で貼る 1＋4・命令で貼る 4＋4・命令で作る 4・置き換え 4＋読み替え 1・合流 4＋読み替え 1・取り消し 4・やり直し 4）。
-**帯の機械の合計 296 枝**（2 版は 247 枝）。増えたのは、帯のボタンの命令 4 行（35 枝）、値を運ぶ `moveTaskGroup`（＋16）、飛ぶ道の `hidden`（＋1）、写しの配下が元の値をそのまま持つこと（＋2）、読み替え（＋2）。減ったのは、落とすの `dropsIntoFoldedTaskGroup`（−2）と、行ごと消えた `agentApi/resetTaskGroupSelfShowModesApplied`・`agentApi/setZoomApplied`（−8）。
+**生まれ方の表 38 枝**（`◇ byInitialShowMode` の行き先ごと。＋ 1・既定の帯 1・新しく始める 1・画面で貼る 1＋4・命令で貼る 4＋4・命令で作る 4・置き換え 4＋読み替え 1・合流 4＋読み替え 1・取り消し 4・やり直し 4）。
+**帯の機械の合計 296 枝**（2 版は 247 枝）。増えたのは、帯のボタンの命令 4 行（35 枝）、値を運ぶ `moveTaskGroup`（＋16）、飛ぶ道の `hidden`（＋1）、写しの配下が元の値をそのまま持つこと（＋2）、読み替え（＋2）。減ったのは、落とすの `dropsIntoFoldedTaskGroup`（−2）と、行ごと消えた `agentApi/resetTaskGroupShowModesApplied`・`agentApi/setZoomApplied`（−8）。
 数を減らす手: `editUndone`・`editRedone`（48 枝）は同じ升なので 1 つの試験の表で回せる。帯のボタンの命令 4 行（35 枝）と AI の全体表示（4 枝）は画面の行と升が同じなので、画面の行の試験の表を命令でも回せる。`ignore` だけの行 11（44 枝）は「値が 1 つも変わらない」を 1 つの性質の試験で全状態に当てられる。
 
 ### 5.8 複数のステートマシンとディスパッチャ（NDD 576〜590 行）
 
-- 機械は 3 種: 帯ごとの `selfShowModeStateMachine`（帯の数だけ）、文書に 1 つの `automaticallyShownDepthStateMachine`（6 節）、ピンの並び（`FR-098` が持つ直交の領域。この文書は値を読むだけ）。
-- **帯どうしは順序に依らない**: 帯の升のガードは、イベントの運ぶ値と、その帯自身の木の位置（親・祖先）だけを読む。ほかの帯の `selfShowMode` を読まない。イベントは木の形を変えない（形を変える `taskGroupDropped`・削除・貼り付けは、形の書き込みと値の書き込みを同じ束に入れ、ガードは配る前の形とイベントの値で決まる）。だから 1 つのイベントを全帯へ配ってよい（NDD 590 行「どの順序で処理しても結果が同じ動作だけ」に当たる）。
+- 機械は 3 種: 帯ごとの `showModeStateMachine`（帯の数だけ）、文書に 1 つの `automaticallyShownDepthStateMachine`（6 節）、ピンの並び（`FR-098` が持つ直交の領域。この文書は値を読むだけ）。
+- **帯どうしは順序に依らない**: 帯の升のガードは、イベントの運ぶ値と、その帯自身の木の位置（親・祖先）だけを読む。ほかの帯の `showMode` を読まない。イベントは木の形を変えない（形を変える `taskGroupDropped`・削除・貼り付けは、形の書き込みと値の書き込みを同じ束に入れ、ガードは配る前の形とイベントの値で決まる）。だから 1 つのイベントを全帯へ配ってよい（NDD 590 行「どの順序で処理しても結果が同じ動作だけ」に当たる）。
 - **ほかの帯の値に依る判定は配る前に**: 3 版の表のガードは、ほかの帯の値を 1 つも読まない。2 版にあった `dropsIntoFoldedTaskGroup`（`JDG-3682`）と `hasHiddenAncestorOnPath`（`JDG-3679`）は、裁定で要らなくなった。命令の検証（`drawn` でない帯を指す帯のボタンの命令を断る）は配る前に行うので、帯のガードに入らない。
 - **深さは帯の結果に依る**: 拡大の 1 刻みが深さをいくつ動かすか（効く深さを飛ばす、`CR-853` の 0 節 ③ の 4 番）と、全体表示が選ぶ深さ（`CR-853` の `I-5`）は、`hiddenUntilZoomIn` から `automatic` に変えた後、または全体表示で戻した後の木で決めねばならない。
   ⇒ `automaticallyShownDepthStateMachine` は `verticalZoomInRequested`・`fitPressed`・`agentApi/fitScheduleToScreenOnPageApplied` を直接受けない。ディスパッチャが全帯の遷移を終えた後に `zoomInConversionCompleted`（指示の `zoomMeans` を運ぶ）・`fitConversionCompleted` を発生させ、深さの機械はそれで動く（NDD 587 行の `PowerLost` → `ShutdownStarted` の形）。
   この順（変換が先、深さが後）は方針による決め（U-14）。物差しはペライチ（`JDG-3666`・`JDG-3667`）: 先に深さを動かすと、頭の ∧∧ の後は `automatic` の帯が 0 で効く深さが無く、刻みがすべて比へ飛び、欄が空のまま比だけが跳ぶ。`JDG-3675` で持ち主に示した形（帯の `hiddenUntilZoomIn` を `automatic` に戻した後、深さの機械は手段の 1 つだけを行う）とも同じである。
 - **指示は一方通行**: 指示（`verticalZoomInRequested`・`verticalZoomOutRequested`）を起こすのは人の入力と命令 `verticalZoomIn`・`verticalZoomOut` だけである。値の変化と結果の出来事（`verticallyZoomedIn`・`verticallyZoomedOut`・`verticalZoomEndReached`）は指示を起こさない。だからループは生まれない（`JDG-3675`）。
 - **縮める指示は直接**: `verticalZoomOutRequested` で帯は何もしない（どの升も `ignore`）ので、深さの機械が直接受けても順序の問題は無い。
-- **帯と深さが共に受ける出来事**（`newDocumentLanded`・`documentReplaced`・`documentMerged`・`editUndone`・`editRedone`）: 帯の機械は `selfShowMode` だけを、深さの機械は `automaticallyShownDepth` と `verticalZoomRatio` だけを書く。深さの機械は、`newDocumentLanded`・`documentReplaced` で深さを持たない文書のとき、読んだ文書の木（保存した `selfShowMode`）で深さを選ぶ。帯の機械は深さを読まない。読んだ木は出来事が運ぶ文書そのもので、帯の機械が途中で書く値ではないので、どの順序で処理しても結果が同じで、共有してよい（NDD 590 行）。帯の結果に依る 2 つ（拡大・全体表示）だけを後続のイベントに分けた。
+- **帯と深さが共に受ける出来事**（`newDocumentLanded`・`documentReplaced`・`documentMerged`・`editUndone`・`editRedone`）: 帯の機械は `showMode` だけを、深さの機械は `automaticallyShownDepth` と `verticalZoomRatio` だけを書く。深さの機械は、`newDocumentLanded`・`documentReplaced` で深さを持たない文書のとき、読んだ文書の木（保存した `showMode`）で深さを選ぶ。帯の機械は深さを読まない。読んだ木は出来事が運ぶ文書そのもので、帯の機械が途中で書く値ではないので、どの順序で処理しても結果が同じで、共有してよい（NDD 590 行）。帯の結果に依る 2 つ（拡大・全体表示）だけを後続のイベントに分けた。
 - 1 つのイベントの処理を最後まで終えてから次を取り出す（run-to-completion）。ドラッグ中・その場の入力中・問いの間に来た `Agent API` の書き込みは今までどおり断る（GRS Relay の決まり）。
 - **待ち行列のあふれ**（NDD 583 行）: 積むのは人の入力と命令の束だけで、1 つずつ同期に処理するので、あふれは起こりえない。上限は置かず、もし起きたら `error`（5.9 節）とし、新しいものを捨てる（文書は変えない）。
 
@@ -480,10 +480,10 @@ stateDiagram-v2
 |:---|:---|:---|:---|
 | `error` の交点が起きた（押せない帯が押された、根で ∧、待ち行列のあふれ） | 状態を変えない | 何もしない（次の正しいイベントで普通に動く） | 何も書かないので、文書を壊さない。不具合として記録する（開発の版では assert）。命令は検証が先に断るので、ここに来るのは画面の不具合だけ |
 | ファイルや `Agent API` が、`hidden`・`hiddenUntilZoomIn` の祖先の下に `shown` を置いた | 書いた値のまま（直さない。拒まない） | 祖先の優越（V-2）で描かない。祖先がまた見えれば前の絵に戻る | 読むだけで未保存にならない。読み込みの検査（`IV-*`）を足さない（`JDG-3673`） |
-| ファイルの帯の `selfShowMode` が 4 つのどれでもない | 文書を開き、その帯を `automatic` で立てる | `reportReinterpretedValue` が、どの帯を読み替えたかを知らせ、文書を未保存にする。人はそのまま保存するか、正しいファイルを開き直す | 方針による決め。物差しは、優しくあれ（`JDG-3670`）—— 値 1 つの誤りで文書が開けないと、人はどこを直せばよいか分からない。鍵が無いときを `automatic` と読む規則（`JDG-3685`）と同じ向きで、意図の無い値 `automatic` に寄せる。未保存にするのは、保存すれば値が `automatic` に変わることを人に見せるためである |
+| ファイルの帯の `showMode` が 4 つのどれでもない | 文書を開き、その帯を `automatic` で立てる | `reportReinterpretedValue` が、どの帯を読み替えたかを知らせ、文書を未保存にする。人はそのまま保存するか、正しいファイルを開き直す | 方針による決め。物差しは、優しくあれ（`JDG-3670`）—— 値 1 つの誤りで文書が開けないと、人はどこを直せばよいか分からない。鍵が無いときを `automatic` と読む規則（`JDG-3685`）と同じ向きで、意図の無い値 `automatic` に寄せる。未保存にするのは、保存すれば値が `automatic` に変わることを人に見せるためである |
 | β のファイルの `automaticallyShownDepth` が整数でないか、[1, `maxGroupDepth`] の外にある | 文書を開き、深さと比を全体表示と同じ決め方で選ぶ（鍵が無いときと同じ） | `reportReinterpretedValue` が深さを読み替えたことを知らせ、文書を未保存にする | 方針による決め。物差しは、優しくあれ（`JDG-3670`）と、鍵が無くてもファイルを断らない規則（`JDG-3669`）。深さは見るための設定にすぎず、データは何も失われない |
 | α の GRS JSON を開いた | 文書を開かない（出来事を起こさない） | α→β 変換ツールの案内を出す | `JDG-3667`。β の読み手は α のための既定値を持たない |
-| MSPDI を開いた（深さも `selfShowMode` も持たない） | 帯はみな `automatic`、深さと比は全体表示と同じ決め方 | 何もしない | 開くことは編集ではない: 未保存にせず、取り消しの段も積まない（`JDG-3667`）。折りたたみ（`selfShowMode`）を捨てる話ではないので `OP-10` に反しない |
+| MSPDI を開いた（深さも `showMode` も持たない） | 帯はみな `automatic`、深さと比は全体表示と同じ決め方 | 何もしない | 開くことは編集ではない: 未保存にせず、取り消しの段も積まない（`JDG-3667`）。折りたたみ（`showMode`）を捨てる話ではないので `OP-10` に反しない |
 
 ---
 
@@ -580,24 +580,24 @@ stateDiagram-v2
 - **U-1 帯の ∨・∨∨・∧∧ の日本語の札.** `JDG-3687` が決めた: ∨ 1 階層展開する（`IC-90`）、∨∨ 配下を展開する（`IC-58`）、∧∧ 配下を折りたたむ（`IC-77`）。∧ は「親へしまう」のまま（`JDG-3658`）。2 版の案の「すべて」を落とした。「配下」がすでに「その帯より下のすべて」を言うからである。「すべて」は説明の文に書く。
 - **U-2 頭のボタンの札と説明の文.** `JDG-3688` が決めた: 頭の ∨・∨∨・∧∧ は帯と同じ札・同じ出来事で、根だけの札は付けない。頭に ∧ は無い。説明の文は頭で起きることを書く: 頭の ∨「最上位のタスクグループを展開する。／Expand the top-level task groups.」、頭の ∨∨「すべてのタスクグループを展開する。／Expand every task group.」、頭の ∧∧「すべてのタスクグループを折りたたむ。縦にズームインすると戻る。／Collapse every task group. Zoom in vertically to show them again.」。今の札 `IC-92` Show Top Level Only・`IC-74` Expand All・`IC-78` Collapse All は帯と同じ札に改める。
 - **U-3 頭のイベントを帯と共有し、押した物を明示の印で運ぶ.** `JDG-3672`・`JDG-3688` が決めた: 頭は帯と同じ出来事を `pressedTarget` ＝ `{ "type": "root" }` で送る。判別子のキーは `type` で、`kind` はどこでも使わない（`JDG-3564`）。2 版の判別子のキー `kind` を `type` に改めた。
-- **U-4 NDD の命名の当て方.** `JDG-3689` が決めた: 定義の名は camelCase（`selfShowModeStateMachine`・`automaticallyShownDepthStateMachine`）、状態の型は PascalCase（`SelfShowModeState`）、今の状態の変数は camelCase（`currentSelfShowModeState`）。2 版の深さの機械の名 `automaticDepthStateMachine` を改めた。
+- **U-4 NDD の命名の当て方.** `JDG-3689` が決めた: 定義の名は camelCase（`showModeStateMachine`・`automaticallyShownDepthStateMachine`）、状態の型は PascalCase（`ShowModeState`）、今の状態の変数は camelCase（`currentShowModeState`）。2 版の深さの機械の名 `automaticDepthStateMachine` を改めた。
 - **U-5 縦のズームの出来事の名と定義.** `JDG-3674`・`JDG-3675` が決めた: 指示の出来事 `verticalZoomInRequested`・`verticalZoomOutRequested`（拡大系・縮小系の入力と命令をすべて抽象化し、範囲の端でも出る）、結果の出来事 `verticallyZoomedIn`・`verticallyZoomedOut`（実際に変わったときだけ。端では今の `verticalZoomEndReached`）、命令 `verticalZoomIn`・`verticalZoomOut`（任意の目標の倍率）。今の `verticalZoomShrinkPressed` は `verticalZoomOutRequested` に改める。2 版の案 `verticalZoomInPressed`・`verticalZoomOutPressed` は退けた（ホイールは「押す」ではない）。ホイールと (+)/(-) ボタンの刻みは別の設定にする（名は未決）。
-- **U-6 `Agent API` の命令の名.** `JDG-3672` が `setTaskGroupSelfShowMode`（1 つの帯だけ）と帯のボタンの命令 4 つ（`retractIntoParent`・`expandOneLevel`・`expandBelow`・`collapseBelow`）を、`JDG-3690` が今の `CM-72` の名 `setTaskGroupSelfShowModesToAutomaticExceptHidden` を、`JDG-3691` がそれを全体表示の部品にして AI に単独で見せないことを、`JDG-3664` が `CM-86` `setLevelZeroTreeState` を除くことを決めた。2 版の案 `resetTaskGroupSelfShowModes` は退けた（`reset` は「すべてを初期の値に戻す」と読める）。
+- **U-6 `Agent API` の命令の名.** `JDG-3672` が `setTaskGroupShowMode`（1 つの帯だけ）と帯のボタンの命令 4 つ（`retractIntoParent`・`expandOneLevel`・`expandBelow`・`collapseBelow`）を、`JDG-3690` が今の `CM-72` の名 `setTaskGroupShowModesToAutomaticExceptHidden` を、`JDG-3691` がそれを全体表示の部品にして AI に単独で見せないことを、`JDG-3664` が `CM-86` `setLevelZeroTreeState` を除くことを決めた。2 版の案 `resetTaskGroupShowModes` は退けた（`reset` は「すべてを初期の値に戻す」と読める）。
 - **U-7 `automaticallyShownDepth` の名・範囲・既定・数え方.** `JDG-3665` が名を `automaticallyShownDepth` に改め、数え方を「深さ ≤ この値の `automatic` の帯を出す」（閉じた範囲、±1 なし）と決めた。`JDG-3666` が範囲を [1, `maxGroupDepth`] と決めた。`JDG-3667`〜`JDG-3669` が固定の既定値を持たないと決めた: β の GRS JSON は保存のとき必ず書き、MSPDI・新しい文書・鍵の無い β のファイルでは全体表示と同じ決め方で選び、α の GRS JSON は開かずに変換ツールの案内を出す。2 版の案の既定 4 は退けた。
 - **U-8 根の値を持たない.** `JDG-3664` が決めた: 根はいつも表示され、値を持たない。`S-418`・`CM-86`・表 T-328 の根のセルは適用のときに除く。頭の ∧∧ の後に頭の ＋ を押すと、新しい帯だけが描かれ、残りは今の目印が数で示す（HF-17 は深さ 0 を広げなくなる）。
 - **U-9 最上位に特別の規則を置かない.** `JDG-3666`（の ②）が決めた: 深さの下の境 1 が「自動の最上位は常に描く」を言い、最上位だけの規則は置かない。
 - **U-10 全体表示.** `JDG-3677` が決めた: `shown` と `hiddenUntilZoomIn` を `automatic` へ戻し、`hidden` は残す。そのあと、戻した後の木で深さと比を選ぶ。値が変われば取り消しの 1 段。`JDG-3691` が、AI の全体表示 `fitScheduleToScreenOnPage`（`CM-102`）も帯の値を同じく戻すと決めた（2 版の「`CM-102` は木を戻さない」を改めた）。
 - **U-11 飛ぶ.** `JDG-3679`・`JDG-3680` が決めた: 飛ぶ先の帯を `shown` にする（もとが `hidden`・`hiddenUntilZoomIn` でも）。道（飛ぶ先の祖先）の `hidden` と `hiddenUntilZoomIn` を `automatic` に戻し、道の `automatic`・`shown` と兄弟には触れない。値が変われば取り消しの 1 段。2 版の案（道に `hidden` があれば何も書かずに入口が知らせる）と、そのためのガード `hasHiddenAncestorOnPath` と入口の知らせを除いた。`JDG-3663` の閉じた一覧に「配下へのジャンプ」が加わった。
-- **U-12 帯に入る動作.** `JDG-3664`（＋ は根でも帯でも `shown`、兄弟に触れない、末子）、`JDG-3681`（既定の帯 2 つは `automatic`）、`JDG-3682`（別の親へ落とした帯は `shown`。畳んだ親へ落としても同じ。兄弟に触れない。配下は値を保つ）、`JDG-3683`（画面で貼ると写しの根は `shown`、配下は元の値をそのまま）、`JDG-3684`（`createTaskGroup`・`pasteTaskGroupSubtree`・`moveTaskGroup` は任意の引数 `selfShowMode`。省けば作る帯と写しの根は `automatic`、動かす帯は値を保つ）が決めた。2 版の案のうち、既定の帯の `shown`、畳んだ帯へ落とすと `hiddenUntilZoomIn`（とガード `dropsIntoFoldedTaskGroup`）、写しの配下の `shown` を `automatic` にする写し方を改めた。
+- **U-12 帯に入る動作.** `JDG-3664`（＋ は根でも帯でも `shown`、兄弟に触れない、末子）、`JDG-3681`（既定の帯 2 つは `automatic`）、`JDG-3682`（別の親へ落とした帯は `shown`。畳んだ親へ落としても同じ。兄弟に触れない。配下は値を保つ）、`JDG-3683`（画面で貼ると写しの根は `shown`、配下は元の値をそのまま）、`JDG-3684`（`createTaskGroup`・`pasteTaskGroupSubtree`・`moveTaskGroup` は任意の引数 `showMode`。省けば作る帯と写しの根は `automatic`、動かす帯は値を保つ）が決めた。2 版の案のうち、既定の帯の `shown`、畳んだ帯へ落とすと `hiddenUntilZoomIn`（とガード `dropsIntoFoldedTaskGroup`）、写しの配下の `shown` を `automatic` にする写し方を改めた。
 - **U-13 拡大の変換の取り消し.** `JDG-3676` が決めた: 縦のズームインの指示で `hiddenUntilZoomIn` から `automatic` に変わった値は、取り消しの 1 段（変わる帯が無ければ段を積まない）。深さと比は段にしない（`UN-8`）。値が変われば未保存の印が立ち、`documentStamp` が変わる。あわせて `JDG-3670` が、取り消しは記録した値をそのまま戻す（`hidden` も戻る）と決めた。
 - **U-14 拡大の順序 —— 変換してから深さ.** 方針による決め（`JDG-3686`）。物差しはペライチ（`JDG-3666`・`JDG-3667`）。ディスパッチャは `verticalZoomInRequested` を全帯へ配り、終わってから `zoomInConversionCompleted` を発生させ、深さの機械は変換の後の木で、指示の手段の 1 つだけを行う（5.8 節）。`JDG-3675` で持ち主に示した形と同じ。
 - **U-15 目印の数え方と、薄く描く条件.** 方針による決め（`JDG-3686`）。
   目印: `JDG-3692` が決めた（3 版の方針による決めを改めた）。帯の `▾` と数（`HF-18`）と頭の数（`HF-12`）は、配下のうち `invisible` の帯をすべて数える（人の値で見えない帯も、深さで見えない帯も）。帯の左の辺の注意の色の帯（`S-213`・`S-153`）は、配下に自分か途中の祖先が `hidden` か `hiddenUntilZoomIn` の帯があるときだけ引く。理由: ツリー表示の ▾ は理由を問わず中身が畳まれていることを示す習わしであり、数が見えない帯をそのまま数えるので名と中身がそろう。`HF-18` が心配した「折りたたんだ覚えの無いものを探す」は、注意の色の帯を人の隠しに限ることで防ぐ。新しい目印は足さない（`JDG-3663`）。
   薄く描く: ボタンを薄く描く（`FR-029`）のは「押しても、どの帯の値も変わらないとき」だけ。∨ は子がみな `shown`、∨∨ は配下がみな `shown`、∧∧ は配下がみな `hidden` か `hiddenUntilZoomIn`（子が無い帯では、この 3 つはいつも薄い）、∧ は薄くならない（`HF-3` のまま）、頭の ∨ は最上位がみな `shown`、頭の ∨∨ は全帯がみな `shown`、頭の ∧∧ は全帯がみな `hidden` か `hiddenUntilZoomIn`。物差しは、値が変われば取り消しの 1 段（`JDG-3676`）—— 値が変わる押しは編集なので、絵が同じでも「何かを行う」押しに数え、薄くしない。
 - **U-16 読む規則と `Agent API` の書き込み.** 次の裁定と方針が決めた。
-  `setTaskGroupSelfShowMode` は 1 つの帯だけに書き（`JDG-3672`）、`hidden` の帯にも 4 つのどの値でも置ける（`JDG-3671`）。食い違い（`hidden` の祖先の下の `shown` など）は、読むときにも命令の後にも直さず拒まず、描くときに祖先が勝つ（`JDG-3673`）。
+  `setTaskGroupShowMode` は 1 つの帯だけに書き（`JDG-3672`）、`hidden` の帯にも 4 つのどの値でも置ける（`JDG-3671`）。食い違い（`hidden` の祖先の下の `shown` など）は、読むときにも命令の後にも直さず拒まず、描くときに祖先が勝つ（`JDG-3673`）。
   取り消し・やり直しは記録した値をそのまま戻す（`JDG-3670`）。`JDG-3663` の閉じた一覧は「帯を新しく見せる画面の操作」の一覧で、取り消し（復元）と値を置く命令（別の層）はその外にある（`JDG-3670`・`JDG-3671`）。2 版の ⚠️ の確かめは、この 2 つの裁定で閉じた。
-  鍵 `selfShowMode` が無い帯は `automatic` と読む（`JDG-3685`）。深さの鍵が無ければ全体表示と同じ決め方（`JDG-3669`）。MSPDI は帯がみな `automatic` で、深さは全体表示と同じ決め方（`JDG-3667`）。α の GRS JSON は開かない（`JDG-3667`）。
+  鍵 `showMode` が無い帯は `automatic` と読む（`JDG-3685`）。深さの鍵が無ければ全体表示と同じ決め方（`JDG-3669`）。MSPDI は帯がみな `automatic` で、深さは全体表示と同じ決め方（`JDG-3667`）。α の GRS JSON は開かない（`JDG-3667`）。
   方針による決め: 4 つ以外の値は、文書を開き、その帯を `automatic` で描き、どの帯を読み替えたかを知らせ、文書を未保存にする（物差し `JDG-3670`）。範囲の外の深さも同じ向きで、全体表示と同じ決め方で選び、知らせ、未保存にする（物差し `JDG-3670`・`JDG-3669`）。合流で両側にある帯は今の文書の値を保ち、合流は深さと比も保つ（物差し `JDG-3670`・`JDG-3676`）。
   読み込みの 3 つの扱い（置き換え・合流・重ねる）の分け方は 2 版のまま。
 
@@ -615,9 +615,9 @@ stateDiagram-v2
 | U-1 | 帯の札は ∨ 1 階層展開する・∨∨ 配下を展開する・∧∧ 配下を折りたたむ（∧ は親へしまう） | `JDG-3687` | なし（2 版の案の「すべて」を落とす） |
 | U-2 | 頭は帯と同じ札・同じ出来事。頭に ∧ は無い。説明の文は頭で起きることを書く | `JDG-3688`（・`JDG-3687`） | なし |
 | U-3 | 頭は帯の出来事を `pressedTarget` ＝ `{ "type": "root" }` で送る。判別子は `type` | `JDG-3672`・`JDG-3688` | なし |
-| U-4 | 定義は camelCase（`selfShowModeStateMachine`・`automaticallyShownDepthStateMachine`）、型は PascalCase、変数は `currentSelfShowModeState` | `JDG-3689` | なし |
+| U-4 | 定義は camelCase（`showModeStateMachine`・`automaticallyShownDepthStateMachine`）、型は PascalCase、変数は `currentShowModeState` | `JDG-3689` | なし |
 | U-5 | 指示 `verticalZoomInRequested`・`verticalZoomOutRequested`（端でも出る）、結果 `verticallyZoomedIn`・`verticallyZoomedOut`、命令 `verticalZoomIn`・`verticalZoomOut`（任意の目標の倍率）。刻みはホイールとボタンで別 | `JDG-3674`・`JDG-3675` | なし（今の `verticalZoomShrinkPressed` を改め、2 版の案 `…Pressed` を退ける） |
-| U-6 | `setTaskGroupSelfShowMode`（1 つの帯）、帯のボタンの命令 4 つ、`setTaskGroupSelfShowModesToAutomaticExceptHidden`（全体表示の部品で AI に単独で見せない）、`setLevelZeroTreeState` を除く | `JDG-3672`・`JDG-3690`・`JDG-3691`・`JDG-3664` | `JDG-3677` の「AI は値を戻す命令を送ってから `CM-102` を送る」の部分 |
+| U-6 | `setTaskGroupShowMode`（1 つの帯）、帯のボタンの命令 4 つ、`setTaskGroupShowModesToAutomaticExceptHidden`（全体表示の部品で AI に単独で見せない）、`setLevelZeroTreeState` を除く | `JDG-3672`・`JDG-3690`・`JDG-3691`・`JDG-3664` | `JDG-3677` の「AI は値を戻す命令を送ってから `CM-102` を送る」の部分 |
 | U-7 | 鍵 `automaticallyShownDepth`、閉じた範囲 [1, `maxGroupDepth`]、深さ ≤ 値を出す。既定値なし（新しい文書・MSPDI・鍵なしは全体表示の決め方。α は開かない） | `JDG-3665`〜`JDG-3669` | `JDG-3662`（鍵の名だけ）・`JDG-3296`（名 `taskGroupAutoExpandDepth`）。`CR-853` の既定 3・範囲 0〜4 を改める |
 | U-8 | 根はいつも表示され、値を持たない | `JDG-3664` | `JDG-3651`（根の値）・`JDG-969`（根の部分） |
 | U-9 | 最上位に特別の規則を置かない（下の境 1 が言う） | `JDG-3666` | なし |
@@ -631,12 +631,12 @@ stateDiagram-v2
 
 **まだ決まっていないもの**（どれも表の升の中身を変えない。名と置き場の問いは用語集の席が持ち主に問い、ほかは適用の席が決める）:
 
-- 例外の JSON（人だけの操作の一覧）と、AI に見せない命令（`setTaskGroupSelfShowModesToAutomaticExceptHidden` など）の印の置き場。2 つを同じ置き場で持つか（`JDG-3671`・`JDG-3691`）。
+- 例外の JSON（人だけの操作の一覧）と、AI に見せない命令（`setTaskGroupShowModesToAutomaticExceptHidden` など）の印の置き場。2 つを同じ置き場で持つか（`JDG-3671`・`JDG-3691`）。
 - ホイールの刻みとボタンの刻みの設定の名・既定・範囲、キー（`SK-16a`・`SK-16c`）とピンチの刻み、引数なしの命令 `verticalZoomIn`・`verticalZoomOut` がどの刻みを使うか（`JDG-3675`）。
 - 命令 `verticalZoomIn`・`verticalZoomOut` の引数の形（比か百分率か）と名、指示が運ぶ `zoomMeans` の値の名（`JDG-3674`・`JDG-3675`）。
 - 深さと比の鍵の置き場: 両方を `documentSettings` の下／深さを `taskGroupTreeView` の下／`documentSettings.verticalZoom { ratio, automaticallyShownDepth }`（`JDG-3674`）。
 - `Agent API` 全体の名の見直しで、すべての命令が `JDG-3672` の方針（`type` の中で平らな名、名 ＝ イベント名から接尾辞を除いたもの、set 系は値を 1 つ置く、人の操作には同じ働きの命令がある、対象は `type` で判別するオブジェクト）で統一できるかの確認（`JDG-3672`・`JDG-3684`）。帯のボタンの命令の出来事を `agentApi/…Applied` とした 5.5 節の形も、そのときに確かめる。
-- GRS が保存するとき、`selfShowMode` の `automatic` を省くか書くか（`JDG-3685`）。
+- GRS が保存するとき、`showMode` の `automatic` を省くか書くか（`JDG-3685`）。
 - ∧ のツールチップの 1 文目（席の案「Retract this task group into its parent.」／「このタスクグループを配下ごと親へしまう。」）と、記号の書き方（[∨]・∨）（`JDG-3678`）。
 - 読み替えを知らせる文と、出す所（5.3 節の `reportReinterpretedValue`。適用の席）。
 
@@ -645,7 +645,7 @@ stateDiagram-v2
 ## 9. 出典
 
 **裁定**: `JDG-3657`（結果は `visible`／`invisible`、保存しない）、`JDG-3658`（∧ の日本語の札「親へしまう」）、`JDG-3659`（4 つのボタンの英語の札）、`JDG-3660`（木の用語）、`JDG-3661`（`retractIntoParentPressed` と出来事の名の規則）、`JDG-3662`（`selfShowMode`・深さの鍵・`taskGroupVisibility`）、`JDG-3663`（`hiddenUntilZoomIn`、書く側、`hidden` はズームで戻らない、一時の展開の値を持たない、今の目印で足りる）。
-3 版で当てた裁定: `JDG-3664`（根は値を持たない、＋ は `shown`・兄弟に触れない・末子）、`JDG-3665`（鍵の名 `automaticallyShownDepth`、閉じた範囲）、`JDG-3666`（範囲 [1, `maxGroupDepth`]、最上位の特別の規則なし）、`JDG-3667`（MSPDI を開くと全体表示の決め方、α の GRS JSON は開かない）、`JDG-3668`（新しい文書も全体表示の決め方）、`JDG-3669`（固定の既定値なし、鍵なしの β は全体表示の決め方）、`JDG-3670`（取り消しは記録した値をそのまま戻す。物差し「優しくあれ」）、`JDG-3671`（`setTaskGroupSelfShowMode` は `hidden` の帯にも置ける。人にできることは AI にも、例外は JSON）、`JDG-3672`（帯の表示の命令 5 つの名と形、判別子 `type`）、`JDG-3673`（祖先が勝ち、直さず拒まない）、`JDG-3674`（ズームの命令・指示・結果の名）、`JDG-3675`（AI は深さを直接置かない、`setZoom` は横だけ、目標の倍率、刻みの設定 2 つ）、`JDG-3676`（変換は取り消しの 1 段）、`JDG-3677`（全体表示が戻す値、∧ のツールチップに戻し方）、`JDG-3678`（∧ のツールチップの文言）、`JDG-3679`（飛ぶ道の `hidden` を戻す）、`JDG-3680`（飛ぶ先は `shown`、道と兄弟の扱い）、`JDG-3681`（既定の帯は `automatic`）、`JDG-3682`（落とした帯は `shown`）、`JDG-3683`（画面で貼った写しの値）、`JDG-3684`（命令の任意の引数 `selfShowMode`）、`JDG-3685`（`selfShowMode` が無ければ `automatic`）、`JDG-3686`（振る舞いの細部は方針で決める）、`JDG-3687`（帯の日本語の札）、`JDG-3688`（頭のボタンの札と説明の文）、`JDG-3689`（状態機械の名の大文字）、`JDG-3690`（`setTaskGroupSelfShowModesToAutomaticExceptHidden`）、`JDG-3691`（AI の全体表示も帯の値を戻し、部品は AI に見せない）。ほかに `JDG-3564`（`kind` のキーを使わない）。
+3 版で当てた裁定: `JDG-3664`（根は値を持たない、＋ は `shown`・兄弟に触れない・末子）、`JDG-3665`（鍵の名 `automaticallyShownDepth`、閉じた範囲）、`JDG-3666`（範囲 [1, `maxGroupDepth`]、最上位の特別の規則なし）、`JDG-3667`（MSPDI を開くと全体表示の決め方、α の GRS JSON は開かない）、`JDG-3668`（新しい文書も全体表示の決め方）、`JDG-3669`（固定の既定値なし、鍵なしの β は全体表示の決め方）、`JDG-3670`（取り消しは記録した値をそのまま戻す。物差し「優しくあれ」）、`JDG-3671`（`setTaskGroupSelfShowMode` は `hidden` の帯にも置ける。人にできることは AI にも、例外は JSON）、`JDG-3672`（帯の表示の命令 5 つの名と形、判別子 `type`）、`JDG-3673`（祖先が勝ち、直さず拒まない）、`JDG-3674`（ズームの命令・指示・結果の名）、`JDG-3675`（AI は深さを直接置かない、`setZoom` は横だけ、目標の倍率、刻みの設定 2 つ）、`JDG-3676`（変換は取り消しの 1 段）、`JDG-3677`（全体表示が戻す値、∧ のツールチップに戻し方）、`JDG-3678`（∧ のツールチップの文言）、`JDG-3679`（飛ぶ道の `hidden` を戻す）、`JDG-3680`（飛ぶ先は `shown`、道と兄弟の扱い）、`JDG-3681`（既定の帯は `automatic`）、`JDG-3682`（落とした帯は `shown`）、`JDG-3683`（画面で貼った写しの値）、`JDG-3684`（命令の任意の引数 `selfShowMode`）、`JDG-3685`（`selfShowMode` が無ければ `automatic`）、`JDG-3686`（振る舞いの細部は方針で決める）、`JDG-3687`（帯の日本語の札）、`JDG-3688`（頭のボタンの札と説明の文）、`JDG-3689`（状態機械の名の大文字）、`JDG-3690`（`setTaskGroupSelfShowModesToAutomaticExceptHidden`）、`JDG-3691`（AI の全体表示も帯の値を戻し、部品は AI に見せない）。ほかに `JDG-3564`（`kind` のキーを使わない）。 4 版で当てた裁定: `JDG-3736`（`selfShowMode` → `showMode`。派生の名は `JDG-3684`・`JDG-3689`・`JDG-3690` の規則で `self` を抜く）。
 覆す予定（正式な取り下げは後で）: `JDG-3653`・`JDG-3654`・`JDG-3655`・`JDG-3656`、`JDG-590` の「∨∨ は縮めたら畳む」の部分、`JDG-967` の「足した帯は暫定で開く」の部分、`JDG-3651` の根の値（`JDG-3664`）、`JDG-3296` の名 `taskGroupAutoExpandDepth`、`JDG-3662` の鍵の名 `automaticDepth`（`JDG-3665`）、`JDG-969` の「段 0 を開き、暫定で開いて立てる」の部分（`JDG-3664`・`JDG-3681`）、`JDG-598` の「5 つの値」の部分（値の集合が 4 つに替わる。「どの値も保存し、Ctrl+Z の対象」は残る）、`JDG-3677` の「AI は値を戻す命令を送ってから `CM-102` を送る」の部分（`JDG-3690`・`JDG-3691`）。広げる・読み替える: `JDG-3663` の閉じた一覧（「配下へのジャンプ」を足し、画面の操作の一覧と読む。`JDG-3670`・`JDG-3671`・`JDG-3679`）。
 
 **仕様の行**: 表 T-328（`_assets/tbl-state-machines.md` の「タスクグループの木」）、表 T-329（`FR-018`、`TD-1`〜`TD-8`）、表 T-015（`HR-1`〜`HR-8`・`HR-1a`）、表 T-051（`HF-1`〜`HF-20`）と後の段落、`HM-6`、`HF-15`、`FR-055`・`HF-8`、`FR-098`、`SJ-2`、`DU-2`、`UN-8`・`UN-14`・`UN-17`、`CM-26`〜`CM-28`・`CM-35`・`CM-65`・`CM-68`・`CM-69`・`CM-72`・`CM-71`・`CM-73`・`CM-85`・`CM-86`・`CM-102`、`OP-3`・`OP-4`・`OP-10`・`FR-022`・`FR-015`・`FR-027`・`BT-4`・`FR-095` と表 T-342、表 T-050 の直下の規則と `CD-6`、`UN-6`・`UN-18`、表 T-262 の `ZE-2`・`ZE-3`・`ZE-5`、`SE-5`、`S-53`、`IC-58`・`IC-59`・`IC-74`・`IC-77`・`IC-78`・`IC-90`・`IC-92`、`CR-853` の 0 節 ③ の 3・4 番と `I-4`〜`I-6`。

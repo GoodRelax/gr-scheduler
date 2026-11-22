@@ -177,7 +177,7 @@ ScheduleDocument                                    GRS JSON の 1 ファイル
 │       │   ├─ representativeTaskUid                この帯を代表する WBS のタスク
 │       │   ├─ hyperlinkAddress                     リンク先の URL
 │       │   ├─ hyperlink                            リンクのタイトル
-│       │   ├─ selfShowMode                         帯自身の表示の意図（shown・hidden・automatic・hiddenUntilZoomIn）。書かなければ automatic
+│       │   ├─ showMode                             この帯を出すかの意図（shown・hidden・automatic・hiddenUntilZoomIn）。書かなければ automatic。hidden と hiddenUntilZoomIn は配下も隠す
 │       │   └─ allowedEditorGroupName               編集してよい組の名
 │       ├─ baselineTasks[]                          前回予定
 │       │   ├─ uid                                  今のタスクの uid
@@ -263,7 +263,7 @@ ScheduleDocument                                    GRS JSON の 1 ファイル
 ├─ ColumnFilter                                     列のフィルタ
 │   ├─ type                                         values・dateRange
 │   ├─ column                                       列（列が見せる値の名。表ごとの値は JDG-3726）
-│   ├─ hiddenValues[]                               隠す値（values）
+│   ├─ hiddenValues[]                               隠す値（values）。状態の列は用語集の英語の名（例 finished・delay・task・selected、JDG-3735）、ほかの列はセルの値
 │   ├─ isBlankHidden                                空の行を隠すか（values）
 │   ├─ firstDay                                     最初の日（dateRange）
 │   └─ lastDay                                      最後の日（dateRange）
