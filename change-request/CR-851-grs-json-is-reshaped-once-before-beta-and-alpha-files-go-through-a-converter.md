@@ -192,6 +192,8 @@
 | `rulings.md`（名の辞書の席、2026-11-22 の 13） | `JDG-3687`（帯のボタンの日本語の札: ∨ 1 階層展開する（`IC-90`）、∨∨ 配下を展開する（`IC-58`）、∧∧ 配下を折りたたむ（`IC-77`）。∧ は「親へしまう」のまま）を足した。本書の行のレビューの前に当てる |
 | `rulings.md`（名の辞書の席、2026-11-22 の 14） | `JDG-3688`（頭の ∨・∨∨・∧∧ は帯のボタンを根で押したもので、札と出来事は帯と同じ。根だけの札は付けない。説明の文は頭で起きることを書く: ∨「最上位のタスクグループを展開する。」、∨∨「すべてのタスクグループを展開する。」、∧∧「すべてのタスクグループを折りたたむ。縦にズームインすると戻る。」。今の `IC-92`・`IC-74`・`IC-78` の札を帯と同じに改める）を足した。本書の行のレビューの前に当てる |
 | `rulings.md`（名の辞書の席、2026-11-22 の 15） | `JDG-3689`（状態機械の定義の名は camelCase（`selfShowModeStateMachine`・`automaticallyShownDepthStateMachine`）、状態の型は PascalCase（`SelfShowModeState`）、今の状態の変数は camelCase（`currentSelfShowModeState`）。NDD の例との違いを BOSS 経由で gr-sw-maker へ報告する）を足した。本書の行のレビューの前に当てる |
+| `rulings.md`（名の辞書の席、2026-11-22 の 16） | `JDG-3690`（今の `CM-72` `resetTaskGroupTreeStates`（`shown` と `hiddenUntilZoomIn` を `automatic` にし、`hidden` を残す）の名を `setTaskGroupSelfShowModesToAutomaticExceptHidden` に改める。`reset` は「すべてを初期の値に戻す」と読め、`hidden` を残す働きと食い違う（NEIM でない））を足した。本書の行のレビューの前に当てる |
+| `rulings.md`（名の辞書の席、2026-11-22 の 17） | `JDG-3691`（AI の全体表示 `fitScheduleToScreenOnPage`（`CM-102`）は、人の「全体を収める」と同じく倍率と表示位置を置き、帯の値も戻す。`setTaskGroupSelfShowModesToAutomaticExceptHidden` は全体表示の部品とし、AI に単独では見せない。「AI に見せない命令」の印の置き場は未決（`JDG-3671` の例外の JSON と同じ））を足した。本書の行のレビューの前に当てる |
 | `defects.md` | `DFC-3579`（本書）—— 行のレビューの後に起こす |
 | `changelog.md` | 当てるときに 1 行 |
 
