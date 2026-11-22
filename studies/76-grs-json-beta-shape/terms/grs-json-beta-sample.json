@@ -30,6 +30,7 @@
         "zoneNameType": "daylight"
       }
     ],
+    "isTimeOfDayVisible": false,
     "dayWidthPx": 24,
     "fitDayRange": {
       "type": "fixed",
@@ -53,18 +54,19 @@
       "topEdgeTaskGroupId": "db19099a-0302-418d-82e1-e95c7a6a093c",
       "topEdgeTaskGroupOffsetPercent": 0
     },
-    "isTimeOfDayVisible": false,
-    "isPlanBarVisible": true,
-    "isPlanDatesVisible": true,
-    "isActualBarVisible": true,
-    "isPercentCompleteLabelVisible": true,
-    "isBaselineOutlineVisible": true,
-    "isProgressLineVisible": true,
-    "isProgressMarkVisible": true,
-    "isDependencyLineVisible": true,
-    "isAssigneeLabelVisible": true,
-    "isDateGridLinesVisible": true,
-    "isGroupGridLinesVisible": false,
+    "scheduleCanvasElements": {
+      "isDateGridLinesVisible": true,
+      "isGroupGridLinesVisible": false,
+      "isProgressLineVisible": true,
+      "isDependencyLineVisible": true,
+      "isPlanBarVisible": true,
+      "isPlanDatesVisible": true,
+      "isActualBarVisible": true,
+      "isPercentCompleteLabelVisible": true,
+      "isProgressMarkVisible": true,
+      "isBaselineOutlineVisible": true,
+      "isAssigneeLabelVisible": true
+    },
     "delayDiagnosisSettings": {
       "toleranceWorkingDays": 1
     },
@@ -113,6 +115,13 @@
     }
   },
   "scheduleData": {
+    "scheduleDataTimeZone": {
+      "utcOffset": "+09:00"
+    },
+    "sourceFormat": "mspdi15",
+    "importedTopTaskOutlineLevel": 1,
+    "mspdiImportCount": 1,
+    "highestIssuedUid": 4,
     "project": {
       "uid": "c335b2c9-5721-419b-8203-6ea85ce2dc98",
       "name": "Sample Schedule",
@@ -462,13 +471,6 @@
         "hyperlink": "Draft notes"
       }
     ],
-    "scheduleDataTimeZone": {
-      "utcOffset": "+09:00"
-    },
-    "sourceFormat": "mspdi15",
-    "importedTopTaskOutlineLevel": 1,
-    "highestIssuedUid": 4,
-    "mspdiImportCount": 1,
     "passthroughTasks": [
       {
         "mspdiElement": {
