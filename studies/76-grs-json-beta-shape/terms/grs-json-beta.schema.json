@@ -1,15 +1,15 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://goodrelax.github.io/gr-scheduler/spec/_source/grs-document.schema.json",
-  "$comment": "HAND-WRITTEN CONTRACT -- EDIT THIS FILE. The beta shape of GRS JSON (CR-851), written from the accepted tree grs-json-final-review-tree.md and the sample grs-json-beta-sample.json (rulings JDG-3566..3756). Until CR-851 moves this shape into docs/spec/_source (erd.json, settings.json and their generator), this file is the source of the beta shape; compare_schemas.py is the gate between the two. The review tree is generated from this file: python schema_to_review_tree.py write. Status 2026-11-23: structure, order and enumeration values are final; value bounds and required lists follow the rulings; descriptions are first drafts that the four-step check of JDG-3328 has not yet passed.",
+  "$comment": "HAND-WRITTEN CONTRACT -- EDIT THIS FILE. The beta shape of GRS JSON (CR-851), written from the accepted tree grs-json-final-review-tree.md and the sample grs-json-beta-sample.json (rulings JDG-3566..3756). Until CR-851 moves this shape into docs/spec/_source (erd.json, settings.json and their generator), this file is the source of the beta shape; compare_schemas.py is the gate between the two. The review tree is generated from this file: python schema_to_review_tree.py write. Status 2026-11-23: structure, order and enumeration values are final; value bounds and required lists follow the rulings; the descriptions passed passes 1-3 of the shipped-English check (JDG-3328, ../text-check-2026-11-23-schema/) and wait for the owner (pass 4).",
   "title": "GRS JSON document",
-  "description": "Terms:\nGRS is GoodRelax Scheduler, which opens and edits a Schedule Document and reads and writes GRS JSON files, the format that this GRS JSON Schema defines.\nMSPDI (Microsoft Project XML Data Interchange) is the XML file format that Microsoft Project uses. GRS can also read and write MSPDI (.xml) files.\n\"Same as MSPDI X\" indicates that the property has the same meaning and values as MSPDI element X. The description of that property notes any GRS-specific difference.\nConcepts:\nWBS is the tree of parent and child tasks, as in MSPDI.\nTask groups are GRS's own objects that let GRS draw several tasks in one Task Group Lane. Each task names exactly one task group in grs.taskGroupId.\nAn MSPDI object keeps the values that only GRS uses under the key grs of that object.\nGRS counts working days using a single calendar: the calendar that project.calendarUid names.\n\"Carried\" means GRS does not use the value, but preserves the value and writes the value back to MSPDI unchanged. GRS keeps carried values of an object in grs.passthrough, and carried whole MSPDI elements in the passthrough lists.\nActual dates are the authoritative source of task progress. GRS decides from the actual dates of a task whether the task is not started, in progress, suspended, or finished. GRS recalculates percentComplete from those dates when GRS opens a GRS JSON file.\nDelay Diagnosis: GRS never stores Delay Diagnosis results in a GRS JSON file, because a stored result goes out of date as soon as the Schedule Document changes.\nWhen a person starts Delay Diagnosis or an AI agent asks for Delay Diagnosis, GRS calculates the results from the current Schedule Data and project.statusDate.\nWhile GRS shows Delay Diagnosis results, GRS keeps those results and does not recalculate them.\nThe shape of GRS JSON:\n$schema           Address of this schema\nschemaVersionUtc  Version of the shape\nbuildVersionUtc   GRS build that wrote the file\ndocumentStamp     Last change, last save and last editor\ndocumentSettings  How the schedule is drawn when opened\nscheduleData      Schedule data\n  +- head values: scheduleDataTimeZone, sourceFormat, importedTopTaskOutlineLevel, mspdiImportCount, highestIssuedUid\n  +- same as MSPDI: project, calendars, passthroughCalendars, tasks, passthroughTasks, resources, passthroughResources, assignments, passthroughAssignments\n  +- GRS only: taskGroups, baselineTasks, highlightBoxes, commentBoxes\nchangeLogEntries  Notes on changes\nA property with no value is omitted: null and [] are never written.",
+  "description": "Terms:\nGRS is GoodRelax Scheduler, which opens and edits a Schedule Document and reads and writes GRS JSON files, the format that this GRS JSON Schema defines.\nMSPDI (Microsoft Project XML Data Interchange) is the XML file format that Microsoft Project uses. GRS can also read and write MSPDI (.xml) files.\n\"Same as MSPDI X\" indicates that the property has the same meaning and values as MSPDI element X. The description of that property notes any GRS-specific difference.\nConcepts:\nWBS is the tree of parent and child tasks, as in MSPDI.\nTask groups are GRS's own objects that let GRS draw several tasks in one Task Group Lane. Each task names exactly one task group in grs.taskGroupId.\nAn MSPDI object keeps the values that only GRS uses under the key grs of that object.\nGRS counts working days using a single calendar: the calendar that project.calendarUid names.\n\"Carried\" means GRS does not use the value, but preserves the value and writes the value back to MSPDI unchanged. GRS keeps carried values of an object in grs.passthrough, and carried whole MSPDI elements in the passthrough lists.\nActual dates are the authoritative source of task progress. GRS decides from the actual dates of a task whether the task is not started, in progress, suspended, or finished. GRS recalculates percentComplete from those dates when GRS opens a GRS JSON file.\nDelay Diagnostics: GRS never stores Delay Diagnostics results in a GRS JSON file, because a stored result goes out of date as soon as the Schedule Document changes.\nWhen a person starts Delay Diagnostics or an AI agent asks for Delay Diagnostics, GRS calculates the results from the current Schedule Data and project.statusDate.\nWhile GRS shows Delay Diagnostics results, GRS keeps those results and does not recalculate them.\nThe shape of GRS JSON:\n$schema           Address of this schema\nschemaVersionUtc  Version of the shape\nbuildVersionUtc   GRS build that wrote the file\ndocumentStamp     Last change, last save and last editor\ndocumentSettings  How GRS shows the schedule on opening\nscheduleData      Schedule data\n  +- head values: scheduleDataTimeZone, sourceFormat, importedTopTaskOutlineLevel, mspdiImportCount, highestIssuedUid\n  +- same as MSPDI: project, calendars, passthroughCalendars, tasks, passthroughTasks, resources, passthroughResources, assignments, passthroughAssignments\n  +- GRS only: taskGroups, baselineTasks, highlightBoxes, commentBoxes\nchangeLogEntries  Notes on changes\nOmit a property that has no value: never write null or [].",
   "type": "object",
   "properties": {
     "$schema": {
       "title": "Address of this schema",
       "type": "string",
-      "description": "The address where the latest GRS schema is published; every document holds the same address.",
+      "description": "This value gives the address of the latest GRS schema; every document holds the same address.",
       "examples": [
         "https://goodrelax.github.io/gr-scheduler/spec/_source/grs-document.schema.json"
       ]
@@ -17,26 +17,26 @@
     "schemaVersionUtc": {
       "title": "Version of the shape",
       "$ref": "#/$defs/UtcInstant",
-      "description": "The UTC time (YYYY-MM-DDTHH:MM:SSZ) when the shape of this schema last changed."
+      "description": "This value gives the UTC time (YYYY-MM-DDTHH:MM:SSZ) when the shape of GRS JSON, meaning the keys and the rules, last changed."
     },
     "buildVersionUtc": {
       "title": "GRS build that wrote the file",
       "$ref": "#/$defs/UtcInstant",
-      "description": "The UTC time (YYYY-MM-DDTHH:MM:SSZ) when the GRS build that wrote this file was made. It is only for debugging; to check whether a file can be read, use schemaVersionUtc."
+      "description": "This value gives the UTC time (YYYY-MM-DDTHH:MM:SSZ) when someone built the GRS program that wrote this file. Use this value only for debugging; to check whether GRS can read a file, use schemaVersionUtc."
     },
     "documentStamp": {
       "title": "Last change, last save and last editor",
       "$ref": "#/$defs/DocumentStamp",
-      "description": "The Document Stamp: when the Schedule Data and the Schedule Document last changed, when GRS last saved the file, and who edited the Schedule Document last (type DocumentStamp)."
+      "description": "This object holds the Document Stamp: when the Schedule Data and the Schedule Document last changed, when GRS last saved the file, and who last edited the Schedule Document."
     },
     "documentSettings": {
-      "title": "How the schedule is drawn when opened",
+      "title": "How GRS shows the schedule on opening",
       "type": "object",
-      "description": "Document Settings: how GRS shows the Schedule Document when GRS opens the Schedule Document. GRS writes the settings from the widest effect to the narrowest.",
+      "description": "This object holds the Document Settings: how GRS shows the Schedule Document when GRS opens the Schedule Document. GRS writes the keys from the widest effect to the narrowest.",
       "properties": {
         "displayScaleRatio": {
           "type": "number",
-          "description": "Display scale of the Schedule Canvas as a ratio: 1 is the normal size, 0.5 is half size and 2 is double size. GRS multiplies every value whose key ends in Px by this ratio; the zoom does not change those values.",
+          "description": "This value is the display scale of the Schedule Canvas as a ratio: 1 is the normal size, 0.5 is half size and 2 is double size. When GRS draws, GRS multiplies every value whose key ends in Px by this ratio, and the saved Px values stay as they are.",
           "enum": [
             0.5,
             0.67,
@@ -53,7 +53,7 @@
         },
         "fontSizePreset": {
           "type": "string",
-          "description": "Text size step of the Schedule Canvas: \"small\", \"medium\" or \"large\". GRS holds the pixel size of each step, and displayScaleRatio scales that size.",
+          "description": "This value is the text size step of the Schedule Canvas. GRS holds the pixel size of each step, and displayScaleRatio scales that size.",
           "enum": [
             "small",
             "medium",
@@ -63,12 +63,12 @@
         },
         "isThemeMonochrome": {
           "type": "boolean",
-          "description": "Whether GRS draws the theme in monochrome. This value changes only the drawing; the colors saved in the Schedule Document stay the same.",
+          "description": "GRS draws the theme in monochrome when this value is true. This value changes only the drawing; the colors saved in the Schedule Document stay the same.",
           "default": false
         },
         "themeHue": {
           "type": "string",
-          "description": "The hue of the theme, by name: \"blue\", \"blueGreen\", \"green\", \"yellowGreen\", \"yellow\", \"orange\", \"red\", \"redPurple\", \"purple\" or \"indigo\". Every color written as {\"type\": \"theme\"} takes this hue; GRS holds the hue angle of each name.",
+          "description": "This value names the hue of the theme. Every color written as {\"type\": \"theme\"} takes this hue; GRS holds the hue angle of each name.",
           "enum": [
             "blue",
             "blueGreen",
@@ -85,11 +85,11 @@
         },
         "viewTimeZone": {
           "type": "object",
-          "description": "The Display Base Time Zone: the time zone in which GRS shows date-times on the Schedule Canvas and the Time Ruler.",
+          "description": "This object sets the Display Base Time Zone: the time zone in which GRS shows date-times on the Schedule Canvas and the Time Ruler.",
           "properties": {
             "type": {
               "type": "string",
-              "description": "sameAsScheduleData: GRS shows the time zone of scheduleData.scheduleDataTimeZone and follows that time zone when the time zone changes, so the value is not a copy; \"fixed\": GRS shows the offset in utcOffset.",
+              "description": "\"sameAsScheduleData\": GRS shows date-times in the time zone of scheduleData.scheduleDataTimeZone and follows that time zone when the time zone changes. \"fixed\": GRS shows date-times at the offset in utcOffset.",
               "enum": [
                 "sameAsScheduleData",
                 "fixed"
@@ -97,7 +97,7 @@
             },
             "utcOffset": {
               "$ref": "#/$defs/StandardUtcOffset",
-              "description": "Only when type is \"fixed\". The UTC offset that GRS shows date-times in, such as \"+09:00\". This offset is a standard-time offset; GRS never adds daylight saving time."
+              "description": "Write this key only when type is \"fixed\". This value gives the UTC offset in which GRS shows date-times, such as \"+09:00\". The offset is standard time; GRS never adds daylight saving time."
             }
           },
           "required": [
@@ -137,7 +137,7 @@
         },
         "additionalTimeZones": {
           "type": "array",
-          "description": "Additional Time Zones: up to four extra clocks that GRS shows next to the Display Base Time Zone. While GRS shows the time of day, GRS adds one row under the Time Ruler for each clock. This list is not a list of choices.",
+          "description": "This list holds the Additional Time Zones: up to four extra clocks that GRS shows next to the Display Base Time Zone. While GRS shows the time of day, GRS adds one row under the Time Ruler for each clock.",
           "minItems": 1,
           "maxItems": 4,
           "items": {
@@ -145,12 +145,12 @@
             "properties": {
               "utcOffset": {
                 "type": "string",
-                "description": "The UTC offset of this clock, such as \"-04:00\". The offset already includes any daylight saving time, and GRS uses the offset all year.",
+                "description": "This value gives the UTC offset of this clock, such as \"-04:00\". The offset already includes any daylight saving time, and GRS uses the offset all year.",
                 "pattern": "^[+-]\\d{2}:\\d{2}$"
               },
               "zoneNameType": {
                 "type": "string",
-                "description": "Which zone name GRS shows for this clock: \"standard\" shows the standard-time name of the offset; \"daylight\" shows the daylight-time name. This value only picks the name; this value does not change the offset.",
+                "description": "This value picks which zone name GRS shows for this clock: \"standard\" shows the standard-time name of the offset; \"daylight\" shows the daylight-time name. This value does not change the offset.",
                 "enum": [
                   "standard",
                   "daylight"
@@ -241,23 +241,23 @@
         },
         "isTimeOfDayVisible": {
           "type": "boolean",
-          "description": "Whether GRS shows the time of day on the Schedule Canvas, for the whole Schedule Document. The saved date-times keep their time either way.",
+          "description": "GRS shows the time of day on the Schedule Canvas, for the whole Schedule Document, when this value is true. The saved date-times keep their time either way.",
           "default": false
         },
         "dayWidthPx": {
           "type": "number",
-          "description": "Day Width: the width of one calendar day on the Time Ruler, in CSS pixels at displayScaleRatio 1. This value is the horizontal zoom; Zoom to Fit sets this value.",
+          "description": "This value is the Day Width: the width of one calendar day on the Time Ruler, in CSS pixels when displayScaleRatio is 1. This value is the horizontal zoom, and Zoom to Fit sets this value.",
           "minimum": 0.075,
           "maximum": 900,
           "default": 3.75
         },
         "fitDayRange": {
           "type": "object",
-          "description": "Fit Span: the range of days that Zoom to Fit shows, and that PNG and SVG pictures show. This range does not limit which tasks GRS saves or writes to MSPDI.",
+          "description": "This object sets the Fit Span: the range of days that Zoom to Fit shows and that PNG and SVG pictures show. This range does not limit which tasks GRS saves or writes to MSPDI.",
           "properties": {
             "type": {
               "type": "string",
-              "description": "fixed: the range from firstDay to lastDay; GRS adds no margin and puts the columns of firstDay and lastDay at the two edges of the Task Group Lanes. \"automatic\": the range of everything that GRS draws, with a small margin that GRS fixes and does not save; this type keeps no days, so a change to \"automatic\" drops the earlier firstDay and lastDay.",
+              "description": "\"fixed\": the Fit Span runs from firstDay to lastDay with no margin, and the whole days firstDay and lastDay reach the two edges of the Task Group Lanes. \"automatic\": the Fit Span covers everything that GRS draws, plus a small margin that GRS fixes and does not save; GRS keeps no days for \"automatic\", so a change to \"automatic\" drops the earlier firstDay and lastDay.",
               "enum": [
                 "fixed",
                 "automatic"
@@ -265,11 +265,11 @@
             },
             "firstDay": {
               "$ref": "#/$defs/Day",
-              "description": "Only when type is \"fixed\". The first day of the Fit Span (included), as a day in the Display Base Time Zone."
+              "description": "Write this key only when type is \"fixed\". This value gives the first day of the Fit Span (included), as a day in the Display Base Time Zone."
             },
             "lastDay": {
               "$ref": "#/$defs/Day",
-              "description": "Only when type is \"fixed\". The last day of the Fit Span; the Fit Span includes the whole column of this day."
+              "description": "Write this key only when type is \"fixed\". This value gives the last day of the Fit Span; the Fit Span includes this whole day."
             }
           },
           "required": [
@@ -311,18 +311,18 @@
         },
         "verticalZoom": {
           "type": "object",
-          "description": "The vertical zoom: the two values that one step of vertical zoom and Zoom to Fit change together. When this key is absent, GRS chooses both values as Zoom to Fit does.",
+          "description": "This object holds the vertical zoom: the two values that one step of vertical zoom and Zoom to Fit change together. When this key is absent, GRS chooses both values as Zoom to Fit does.",
           "properties": {
             "ratio": {
               "type": "number",
-              "description": "Vertical size of the Task Graphics as a ratio to the default size: 1 is the default size, and 2 draws Plan Bars, Actual Bars and Name Labels twice as tall.",
+              "description": "This value gives the vertical size of the Task Graphics as a ratio to the default size: 1 is the default size, and 2 draws Plan Bars, Actual Bars and Name Labels twice as tall.",
               "minimum": 1,
               "maximum": 240,
               "default": 1
             },
             "automaticallyShownDepth": {
               "type": "integer",
-              "description": "The depth down to which GRS shows the task groups whose showMode is \"automatic\", both ends included: 1 shows only the top-level task groups. The value runs from 1 to the deepest task group depth that GRS allows. One vertical zoom-in step first makes this depth deeper, and changes ratio only when no deeper task group is left to show; GRS does not calculate this value from ratio.",
+              "description": "This value gives the depth down to which GRS shows the task groups whose showMode is \"automatic\": 1 shows only the top-level task groups. One vertical zoom-in step first makes this depth deeper, and changes ratio only when no deeper task group is left to show; GRS does not calculate this value from ratio.",
               "minimum": 1,
               "maximum": 5
             }
@@ -331,7 +331,7 @@
         },
         "taskGroupPanelWidthPx": {
           "type": "number",
-          "description": "Width of the Task Group Panel, in CSS pixels at displayScaleRatio 1.",
+          "description": "This value gives the width of the Task Group Panel, in CSS pixels when displayScaleRatio is 1.",
           "minimum": 50,
           "default": 188
         },
@@ -342,7 +342,7 @@
         },
         "pinnedTaskGroupIds": {
           "type": "array",
-          "description": "The ids of the Pinned Task Groups: task groups that stay at the top of the Task Group Lanes while the view scrolls vertically. A pinned task group whose showMode is \"automatic\" shows at any depth; a pin does not show a task group that \"hidden\" hides. When the key is absent, no task group has a pin.",
+          "description": "This list holds the ids of the Pinned Task Groups: task groups that stay at the top of the Task Group Lanes while the view scrolls vertically. A pinned task group whose showMode is \"automatic\" shows at any depth, but a pin does not reveal a task group whose showMode is \"hidden\". When the key is absent, no task group has a pin.",
           "minItems": 1,
           "maxItems": 5,
           "items": {
@@ -351,7 +351,7 @@
         },
         "taskPlacementDirection": {
           "type": "string",
-          "description": "Placement Direction: the direction in which GRS places the overlapping tasks of one Task Group Lane on Stack Tiers, earliest task first. \"bottomToTop\": the earliest task goes on the lowest tier and later tasks climb; \"topToBottom\": the earliest task goes on the top tier and later tasks descend. This value does not order the task groups.",
+          "description": "This value sets the Placement Direction: the direction in which GRS places the overlapping tasks of one Task Group Lane on Stack Tiers, earliest task first. \"bottomToTop\": the earliest task goes on the lowest tier and later tasks climb; \"topToBottom\": the earliest task goes on the top tier and later tasks descend. This value does not order the task groups.",
           "enum": [
             "bottomToTop",
             "topToBottom"
@@ -360,7 +360,7 @@
         },
         "scrollPosition": {
           "type": "object",
-          "description": "Where the view of the Schedule Canvas starts when GRS opens the Schedule Document.",
+          "description": "This object says where the view of the Schedule Canvas starts when GRS opens the Schedule Document.",
           "properties": {
             "type": {
               "type": "string",
@@ -372,21 +372,21 @@
             },
             "leftEdgeDay": {
               "$ref": "#/$defs/Day",
-              "description": "Only when type is \"fixed\". The day at the left edge of the view."
+              "description": "Write this key only when type is \"fixed\". This value gives the day at the left edge of the view."
             },
             "leftEdgeDayOffsetPercent": {
               "type": "number",
-              "description": "Only when type is \"fixed\". How far the left edge lies to the right of the start of leftEdgeDay, in percent of one day (0 to 100); 0 is the start of the day.",
+              "description": "Write this key only when type is \"fixed\". This value says how far the left edge lies to the right of the start of leftEdgeDay, in percent of one day, from 0 up to but not including 100; 0 is the start of the day.",
               "minimum": 0,
               "exclusiveMaximum": 100
             },
             "topEdgeTaskGroupId": {
               "$ref": "#/$defs/Uuid",
-              "description": "Only when type is \"fixed\". The id of the task group at the top edge of the view. When that task group no longer exists, GRS treats the scroll position as \"automatic\"."
+              "description": "Write this key only when type is \"fixed\". This value gives the id of the task group at the top edge of the view. When that task group no longer exists, GRS treats the scroll position as \"automatic\"."
             },
             "topEdgeTaskGroupOffsetPercent": {
               "type": "number",
-              "description": "Only when type is \"fixed\". How far the top edge lies below the top edge of that task group, in percent of the step of the task group (the height of the Task Group Lane plus the gap below), from 0 to 100. This value is not a distance from the top of the screen.",
+              "description": "Write this key only when type is \"fixed\". This value says how far the top edge lies below the top edge of that task group, in percent of the step of the task group (the height of the Task Group Lane plus the gap below), from 0 up to but not including 100. This value is not a distance from the top of the screen.",
               "minimum": 0,
               "exclusiveMaximum": 100
             }
@@ -434,61 +434,61 @@
         },
         "scheduleCanvasElements": {
           "type": "object",
-          "description": "Which elements GRS draws on the Schedule Canvas: true draws the element, false hides the element. GRS writes the bars first, then the labels, then the lines.",
+          "description": "This object chooses which elements GRS draws on the Schedule Canvas: true draws the element, false hides the element. GRS writes the keys in this order: bars, then labels, then lines.",
           "properties": {
             "isPlanBarVisible": {
               "type": "boolean",
-              "description": "Whether GRS draws the Plan Bars, apart from isActualBarVisible.",
+              "description": "GRS draws the Plan Bars when this value is true; isActualBarVisible controls the Actual Bars separately.",
               "default": true
             },
             "isActualBarVisible": {
               "type": "boolean",
-              "description": "Whether GRS draws the Actual Bars, apart from isPlanBarVisible.",
+              "description": "GRS draws the Actual Bars when this value is true; isPlanBarVisible controls the Plan Bars separately.",
               "default": true
             },
             "isBaselineOutlineVisible": {
               "type": "boolean",
-              "description": "Whether GRS draws the Baseline Outline: the baseline (baselineTasks) over the current tasks.",
+              "description": "GRS draws the Baseline Outline when this value is true: the baseline (baselineTasks) drawn over the current tasks.",
               "default": false
             },
             "isAssigneeLabelVisible": {
               "type": "boolean",
-              "description": "Whether GRS draws the Assignee Label of each task.",
+              "description": "GRS draws the Assignee Label of each task when this value is true.",
               "default": false
             },
             "isPercentCompleteLabelVisible": {
               "type": "boolean",
-              "description": "Whether GRS draws the Percent Complete Label of each task.",
+              "description": "GRS draws the Percent Complete Label of each task when this value is true.",
               "default": false
             },
             "isProgressStatusMarkVisible": {
               "type": "boolean",
-              "description": "Whether GRS draws the Progress Status Marks and the Resume Marks. A Progress Status Mark sits outside the end of the Actual Bar and shows the progress status of the task by shape; the mark is not a point of the Progress Line.",
+              "description": "GRS draws the Progress Status Marks and the Resume Marks when this value is true. A Progress Status Mark sits outside the end of the Actual Bar and shows the progress status of the task by shape; the mark is not a point of the Progress Line.",
               "default": true
             },
             "isPlanDatesVisible": {
               "type": "boolean",
-              "description": "Whether GRS draws the planned start and finish dates to the right of each Name Label.",
+              "description": "GRS draws the planned start and finish dates to the right of each Name Label when this value is true.",
               "default": false
             },
             "isDependencyLineVisible": {
               "type": "boolean",
-              "description": "Whether GRS draws the Dependency Lines.",
+              "description": "GRS draws the Dependency Lines when this value is true.",
               "default": true
             },
             "isProgressLineVisible": {
               "type": "boolean",
-              "description": "Whether GRS draws the Progress Line: one zigzag line from the status date through the task progress point of each task.",
+              "description": "GRS draws the Progress Line when this value is true: one zigzag line from the status date through the task progress point of each task.",
               "default": false
             },
             "isDateGridLinesVisible": {
               "type": "boolean",
-              "description": "Whether GRS draws the Date Grid Lines: vertical lines at each date.",
+              "description": "GRS draws the Date Grid Lines when this value is true: vertical lines at each date.",
               "default": false
             },
             "isTaskGroupGridLinesVisible": {
               "type": "boolean",
-              "description": "Whether GRS draws the Task Group Grid Lines: horizontal lines between task groups, in the Task Group Lanes and in the Task Group Panel.",
+              "description": "GRS draws the Task Group Grid Lines when this value is true: horizontal lines between task groups, in the Task Group Lanes and in the Task Group Panel.",
               "default": true
             }
           },
@@ -496,11 +496,11 @@
         },
         "delayDiagnosisSettings": {
           "type": "object",
-          "description": "Settings of Delay Diagnostics that belong to the Schedule Document.",
+          "description": "This object holds the settings of Delay Diagnostics that belong to the Schedule Document.",
           "properties": {
             "parentTaskProgressToleranceWorkingDays": {
               "type": "integer",
-              "description": "How many working days the task progress point of a parent task may lie outside the range of the task progress points of the tasks below the parent task, before Delay Diagnostics marks the parent task as doubtful. This value is not an allowance for a late finish or a missed deadline.",
+              "description": "This value gives how many working days the task progress point of a parent task may lie outside the range of the task progress points of the tasks below the parent task, before Delay Diagnostics marks the parent task as doubtful. This value does not allow a late finish or a missed deadline.",
               "minimum": 0,
               "default": 1
             }
@@ -509,7 +509,7 @@
         },
         "tableWindows": {
           "type": "object",
-          "description": "How GRS shows the tables of three tool windows (checks, column filters and sort): the Search Window, the Delay Diagnostics Report Window and the Resource List Window. These keys do not hold window positions.",
+          "description": "This object says how GRS shows the tables of three tool windows: the Search Window, the Delay Diagnostics Report Window and the Resource List Window. The settings cover checks, column filters and sort of each table, and do not hold window positions.",
           "properties": {
             "searchWindow": {
               "allOf": [
@@ -565,7 +565,7 @@
                   }
                 }
               ],
-              "description": "The tables of the Search Window: the task table and the Comment Box table."
+              "description": "This object holds the table settings of the Search Window: the task table and the Comment Box table."
             },
             "delayDiagnosisReportWindow": {
               "allOf": [
@@ -611,7 +611,7 @@
                   }
                 }
               ],
-              "description": "The table of the Delay Diagnostics Report Window."
+              "description": "This object holds the table settings of the Delay Diagnostics Report Window."
             },
             "resourceListWindow": {
               "allOf": [
@@ -649,7 +649,7 @@
                   }
                 }
               ],
-              "description": "The table of the Resource List Window."
+              "description": "This object holds the table settings of the Resource List Window."
             }
           },
           "additionalProperties": false
@@ -660,15 +660,15 @@
     "scheduleData": {
       "title": "Schedule data",
       "type": "object",
-      "description": "Schedule Data: the schedule itself. scheduleData holds five head values, then the MSPDI part, which GRS reads from and writes to MSPDI, then the GRS part, which only GRS defines.",
+      "description": "This object holds the Schedule Data, the schedule itself: five head values, then the MSPDI part, which GRS reads from and writes to MSPDI, then the GRS part, which only GRS defines.",
       "properties": {
         "scheduleDataTimeZone": {
           "type": "object",
-          "description": "The time zone of every schedule date-time in scheduleData. GRS stores those date-times as wall-clock times with no offset in this zone, and GRS does not write the zone to MSPDI. Record times, such as documentStamp and changeLogEntries, use UTC instead.",
+          "description": "This object gives the time zone of every schedule date-time in scheduleData. GRS stores those date-times as local clock times with no offset, read in this zone, and GRS does not write the zone to MSPDI. Record times, such as documentStamp and changeLogEntries, use UTC instead.",
           "properties": {
             "utcOffset": {
               "$ref": "#/$defs/StandardUtcOffset",
-              "description": "The fixed offset from UTC, written like \"+09:00\" (\"+00:00\" for UTC). The offset is always standard time: GRS never switches to daylight saving time, so the same digits name the same moment all year. GRS refuses to open a file whose offset is not a standard-time offset that GRS offers."
+              "description": "This value gives the fixed offset from UTC, written like \"+09:00\" (\"+00:00\" for UTC). The offset is always standard time: GRS never switches to daylight saving time, so the same digits name the same moment all year. GRS refuses to open a file whose offset is not in the allowed list of standard-time offsets."
             }
           },
           "required": [
@@ -678,7 +678,7 @@
         },
         "sourceFormat": {
           "type": "string",
-          "description": "The format that this Schedule Document came from: \"grs\" for a Schedule Document made in GRS, \"mspdi12\" or \"mspdi15\" for an MSPDI file in the form of MS Project version 12 or version 15. GRS does not write this value to MSPDI.",
+          "description": "This value says which format this Schedule Document came from: \"grs\" for a Schedule Document made in GRS, \"mspdi12\" or \"mspdi15\" for an MSPDI file in the form of MS Project version 12 or version 15. GRS does not write this value to MSPDI.",
           "enum": [
             "grs",
             "mspdi12",
@@ -687,19 +687,19 @@
         },
         "importedTopTaskOutlineLevel": {
           "type": "integer",
-          "description": "The OutlineLevel of the top tasks in the imported MSPDI file, not counting the project summary task. When GRS writes MSPDI, GRS gives the top tasks of the WBS this OutlineLevel, so the levels match the original file. A new Schedule Document starts with 1.",
+          "description": "This value gives the OutlineLevel (the depth number of a task in the MSPDI outline) that the top tasks had in the imported MSPDI file, not counting the project summary task. When GRS writes MSPDI, GRS gives the top tasks of the WBS this OutlineLevel, so the levels match the original file. A new Schedule Document starts with 1.",
           "minimum": 0,
           "default": 1
         },
         "mspdiImportCount": {
           "type": "integer",
-          "description": "How many times GRS has imported an MSPDI file into this Schedule Document; 0 means never. At each import GRS adds 1 and copies the new value to grs.importOrigin.mspdiImportCountWhenLastIncluded of every task that the file includes.",
+          "description": "This value counts how many times GRS has imported an MSPDI file into this Schedule Document; 0 means never. At each import GRS adds 1 and copies the new value to grs.importOrigin.mspdiImportCountWhenLastIncluded of every task that the imported file contains.",
           "minimum": 0,
           "default": 0
         },
         "highestIssuedUid": {
           "type": "integer",
-          "description": "The highest uid that GRS has issued, one counter shared by tasks, resources, assignments and calendars. GRS gives a new entity this value plus 1 and raises the counter, so GRS never reuses a uid.",
+          "description": "This value is the highest uid that GRS has issued, one counter shared by tasks, resources, assignments and calendars. GRS gives a new entity this value plus 1 and raises the counter, so GRS never reuses a uid.",
           "minimum": 0,
           "maximum": 2147483647
         },
@@ -717,18 +717,18 @@
         },
         "passthroughCalendars": {
           "type": "array",
-          "description": "MSPDI Calendar elements that GRS does not hold in calendars[]. GRS keeps each element whole and writes the element back into MSPDI Calendars right after the calendar that precedingCalendarUid names. A calendar that GRS holds keeps the MSPDI values that GRS does not use in calendars[].grs.passthrough instead.",
+          "description": "These are the MSPDI Calendar elements that GRS does not hold in calendars[]. GRS keeps each element whole and writes the element back into MSPDI Calendars right after the calendar that precedingCalendarUid names. A calendar that GRS holds keeps the MSPDI values that GRS does not use in calendars[].grs.passthrough instead.",
           "minItems": 1,
           "items": {
             "type": "object",
             "properties": {
               "precedingCalendarUid": {
                 "$ref": "#/$defs/Uid",
-                "description": "The uid of the nearest calendar before this element in the MSPDI Calendars list, counting only the calendars in calendars[]. No key means that the element comes first; elements with the same value keep array order. When GRS deletes that calendar, GRS moves the value to the next calendar before; when the value names no calendar on opening, GRS puts the element at the end of the list and tells the user."
+                "description": "This value is the uid of the nearest calendar before this element in the MSPDI Calendars list, counting only the calendars in calendars[]. No key means that the element comes first; elements with the same value keep array order. When GRS deletes that calendar, GRS moves the value to the next calendar before; when the value names no calendar on opening, GRS puts the element at the end of the list and tells the user."
               },
               "mspdiElement": {
                 "$ref": "#/$defs/MspdiElement",
-                "description": "The whole MSPDI element, keyed by the names of the child elements as in MSPDI. GRS writes the element back unchanged."
+                "description": "This object holds the whole MSPDI element, keyed by the names of the child elements as in MSPDI. GRS writes the element back unchanged."
               }
             },
             "required": [
@@ -747,18 +747,18 @@
         },
         "passthroughTasks": {
           "type": "array",
-          "description": "MSPDI Task elements that GRS does not hold in tasks[], for example the project summary task (UID 0) or an empty task. GRS keeps each element whole and writes the element back into MSPDI Tasks right after the task that precedingTaskUid names; the project summary task always goes first. A task that GRS holds keeps the MSPDI values that GRS does not use in tasks[].grs.passthrough instead.",
+          "description": "This array holds MSPDI Task elements that GRS does not hold in tasks[], for example the project summary task (UID 0) or an empty task row (MSPDI IsNull 1). GRS keeps each element whole and writes the element back into MSPDI Tasks right after the task that precedingTaskUid names; the project summary task always goes first. A task that GRS holds keeps the MSPDI values that GRS does not use in tasks[].grs.passthrough instead.",
           "minItems": 1,
           "items": {
             "type": "object",
             "properties": {
               "precedingTaskUid": {
                 "$ref": "#/$defs/Uid",
-                "description": "The uid of the nearest task before this element in the MSPDI Tasks list, counting only the tasks in tasks[]. No key means that the element comes first; elements with the same value keep array order. When GRS deletes that task, GRS moves the value to the next task before; when the value names no task on opening, GRS puts the element at the end of the list and tells the user. This key does not name a dependency predecessor."
+                "description": "This value is the uid of the nearest task before this element in the MSPDI Tasks list, counting only the tasks in tasks[]. No key means that the element comes first; elements with the same value keep array order. When GRS deletes that task, GRS moves the value to the next task before; when the value names no task on opening, GRS puts the element at the end of the list and tells the user. This key does not name a dependency predecessor."
               },
               "mspdiElement": {
                 "$ref": "#/$defs/MspdiElement",
-                "description": "The whole MSPDI element, keyed by the names of the child elements as in MSPDI. GRS writes the element back unchanged."
+                "description": "This value is the whole MSPDI element, keyed by the names of the child elements as in MSPDI. GRS writes the element back unchanged."
               }
             },
             "required": [
@@ -777,18 +777,18 @@
         },
         "passthroughResources": {
           "type": "array",
-          "description": "MSPDI Resource elements that GRS does not hold in resources[]. GRS keeps each element whole and writes the element back into MSPDI Resources right after the resource that precedingResourceUid names. A resource that GRS holds keeps the MSPDI values that GRS does not use in resources[].grs.passthrough instead.",
+          "description": "This array holds MSPDI Resource elements that GRS does not hold in resources[]. GRS keeps each element whole and writes the element back into MSPDI Resources right after the resource that precedingResourceUid names. A resource that GRS holds keeps the MSPDI values that GRS does not use in resources[].grs.passthrough instead.",
           "minItems": 1,
           "items": {
             "type": "object",
             "properties": {
               "precedingResourceUid": {
                 "$ref": "#/$defs/Uid",
-                "description": "The uid of the nearest resource before this element in the MSPDI Resources list, counting only the resources in resources[]. No key means that the element comes first; elements with the same value keep array order. When GRS deletes that resource, GRS moves the value to the next resource before; when the value names no resource on opening, GRS puts the element at the end of the list and tells the user."
+                "description": "This value is the uid of the nearest resource before this element in the MSPDI Resources list, counting only the resources in resources[]. No key means that the element comes first; elements with the same value keep array order. When GRS deletes that resource, GRS moves the value to the next resource before; when the value names no resource on opening, GRS puts the element at the end of the list and tells the user."
               },
               "mspdiElement": {
                 "$ref": "#/$defs/MspdiElement",
-                "description": "The whole MSPDI element, keyed by the names of the child elements as in MSPDI. GRS writes the element back unchanged."
+                "description": "This value is the whole MSPDI element, keyed by the names of the child elements as in MSPDI. GRS writes the element back unchanged."
               }
             },
             "required": [
@@ -807,18 +807,18 @@
         },
         "passthroughAssignments": {
           "type": "array",
-          "description": "MSPDI Assignment elements that GRS does not hold in assignments[]. GRS keeps each element whole and writes the element back into MSPDI Assignments right after the assignment that precedingAssignmentUid names. An assignment that GRS holds keeps the MSPDI values that GRS does not use in assignments[].grs.passthrough instead.",
+          "description": "This array holds MSPDI Assignment elements that GRS does not hold in assignments[]. GRS keeps each element whole and writes the element back into MSPDI Assignments right after the assignment that precedingAssignmentUid names. An assignment that GRS holds keeps the MSPDI values that GRS does not use in assignments[].grs.passthrough instead.",
           "minItems": 1,
           "items": {
             "type": "object",
             "properties": {
               "precedingAssignmentUid": {
                 "$ref": "#/$defs/Uid",
-                "description": "The uid of the nearest assignment before this element in the MSPDI Assignments list, counting only the assignments in assignments[]. No key means that the element comes first; elements with the same value keep array order. When GRS deletes that assignment, GRS moves the value to the next assignment before; when the value names no assignment on opening, GRS puts the element at the end of the list and tells the user."
+                "description": "This value is the uid of the nearest assignment before this element in the MSPDI Assignments list, counting only the assignments in assignments[]. No key means that the element comes first; elements with the same value keep array order. When GRS deletes that assignment, GRS moves the value to the next assignment before; when the value names no assignment on opening, GRS puts the element at the end of the list and tells the user."
               },
               "mspdiElement": {
                 "$ref": "#/$defs/MspdiElement",
-                "description": "The whole MSPDI element, keyed by the names of the child elements as in MSPDI. GRS writes the element back unchanged."
+                "description": "This value is the whole MSPDI element, keyed by the names of the child elements as in MSPDI. GRS writes the element back unchanged."
               }
             },
             "required": [
@@ -829,7 +829,7 @@
         },
         "taskGroups": {
           "type": "array",
-          "description": "The task groups, in the order of the task group tree, depth first. Each task group is one row of the Task Group Panel and one Task Group Lane; each task names the task group in grs.taskGroupId. The task group tree is a tree of drawing rows, apart from the WBS; on reading an MSPDI file, GRS makes the task groups from the WBS.",
+          "description": "This array lists the task groups in the order of the task group tree, depth first. Each task group is one row of the Task Group Panel and one Task Group Lane; each task names the task group in grs.taskGroupId. The task group tree is a tree of drawing rows, separate from the WBS; on reading an MSPDI file, GRS makes the task groups from the WBS.",
           "minItems": 1,
           "items": {
             "$ref": "#/$defs/TaskGroup"
@@ -837,7 +837,7 @@
         },
         "baselineTasks": {
           "type": "array",
-          "description": "The baseline: a saved copy of earlier task dates. GRS matches each baseline task to the current task with the same uid and draws the Baseline Outline over the current task. A baseline task holds no shape; the Baseline Outline takes the shape of the current task.",
+          "description": "This array holds the baseline, a saved copy of earlier task dates. GRS matches each baseline task to the current task with the same uid and draws the Baseline Outline over the current task. A baseline task holds no shape; the Baseline Outline takes the shape of the current task.",
           "minItems": 1,
           "items": {
             "$ref": "#/$defs/BaselineTask"
@@ -845,7 +845,7 @@
         },
         "highlightBoxes": {
           "type": "array",
-          "description": "The Highlight Boxes: rectangles in the Task Group Lanes that mark a range of days over a range of task groups.",
+          "description": "This array holds the Highlight Boxes: rectangles in the Task Group Lanes that mark a range of days over a range of task groups.",
           "minItems": 1,
           "items": {
             "$ref": "#/$defs/HighlightBox"
@@ -853,7 +853,7 @@
         },
         "commentBoxes": {
           "type": "array",
-          "description": "The Comment Boxes in the Task Group Lanes. The Leader Line of each Comment Box points at a task, a Highlight Box or a free point.",
+          "description": "This array holds the Comment Boxes in the Task Group Lanes. The Leader Line of each Comment Box points at a task, a Highlight Box or a free point.",
           "minItems": 1,
           "items": {
             "$ref": "#/$defs/CommentBox"
@@ -865,7 +865,7 @@
     "changeLogEntries": {
       "title": "Notes on changes",
       "type": "array",
-      "description": "The Change Log: notes that people or an AI write about changes to the Schedule Document, oldest first. A new entry goes at the end.",
+      "description": "This list holds the Change Log: notes that people or an AI write about changes to the Schedule Document, oldest first. GRS adds a new entry at the end.",
       "minItems": 1,
       "items": {
         "$ref": "#/$defs/ChangeLogEntry"
@@ -880,39 +880,39 @@
   "$defs": {
     "Uid": {
       "type": "integer",
-      "description": "The integer identifier of an entity that comes from MSPDI (MSPDI UID), from 0 to 2147483647. A uid is unique within one array, as in MSPDI, and GRS never reuses a uid (see scheduleData.highestIssuedUid). project.uid is a string instead, as in MSPDI.",
+      "description": "This integer identifies an entity that comes from MSPDI (MSPDI UID), from 1 to 2147483647. A uid is unique within one array, as in MSPDI, and GRS never reuses a uid (see scheduleData.highestIssuedUid). project.uid is a string instead, as in MSPDI.",
       "minimum": 1,
       "maximum": 2147483647
     },
     "Uuid": {
       "type": "string",
-      "description": "A random UUID, written in the usual 8-4-4-4-12 hexadecimal form. GRS uses a UUID as the id of an object that only GRS defines, so that objects made apart never share an id.",
+      "description": "This string is a random UUID, written in the usual 8-4-4-4-12 lowercase hexadecimal form. GRS uses a UUID as the id of an object that only GRS defines, so that objects made apart never share an id.",
       "format": "uuid",
       "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
     },
     "DateTime": {
       "type": "string",
-      "description": "A wall-clock date-time in scheduleData.scheduleDataTimeZone, written YYYY-MM-DDTHH:MM:SS with no offset, as MSPDI writes a date-time. GRS reads the value to the minute and ignores the seconds.",
+      "description": "This string is a local date and time in scheduleData.scheduleDataTimeZone, written YYYY-MM-DDTHH:MM:SS with no offset, as MSPDI writes a date-time. GRS reads the value to the minute and ignores the seconds.",
       "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}$"
     },
     "Day": {
       "type": "string",
-      "description": "A date without a time of day, written YYYY-MM-DD. A range of days (firstDay and lastDay) includes both days. Each key that uses Day says which time zone the day is in, where that matters.",
+      "description": "This string is a date without a time of day, written YYYY-MM-DD. A range of days (firstDay and lastDay) includes both days. Each key that uses Day says which time zone the day is in, where that matters.",
       "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
     },
     "Time": {
       "type": "string",
-      "description": "A time of day without a date, written HH:MM:SS, as MSPDI writes a time.",
+      "description": "This string is a time of day without a date, written HH:MM:SS, as MSPDI writes a time.",
       "pattern": "^\\d{2}:\\d{2}:\\d{2}$"
     },
     "UtcInstant": {
       "type": "string",
-      "description": "A point in time in UTC, written YYYY-MM-DDTHH:MM:SSZ, to the second. GRS uses this type for records such as the Document Stamp and the Change Log, and for the two versions at the root.",
+      "description": "This string is a point in time in UTC, written YYYY-MM-DDTHH:MM:SSZ, to the second. GRS uses this type for records such as the Document Stamp and the Change Log, and for the two versions at the root.",
       "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$"
     },
     "StandardUtcOffset": {
       "type": "string",
-      "description": "A fixed offset from UTC, written +HH:MM or -HH:MM, for example \"+09:00\"; UTC itself is \"+00:00\". GRS uses the offset all year and never adds daylight saving time by season.",
+      "description": "This string is a fixed offset from UTC, written +HH:MM or -HH:MM, for example \"+09:00\"; UTC itself is \"+00:00\". GRS uses the offset all year and never adds daylight saving time by season.",
       "enum": [
         "-12:00",
         "-11:00",
@@ -944,7 +944,7 @@
       ]
     },
     "MspdiValue": {
-      "description": "One MSPDI value in the MSPDI structure: a string or a number for an element that holds only text, an array for an element that MSPDI lets repeat (an array even with one item), or an object for an element with child elements, keyed by the MSPDI element names. A boolean stays 0 or 1, as MSPDI writes a boolean.",
+      "description": "This value is one MSPDI value in the MSPDI structure: a string or a number for an element that holds only text, an array for an element that MSPDI lets repeat (an array even with one item), or an object for an element with child elements, keyed by the MSPDI element names. A boolean stays 0 or 1, as MSPDI writes a boolean.",
       "anyOf": [
         {
           "type": "string"
@@ -968,7 +968,7 @@
     },
     "Passthrough": {
       "type": "object",
-      "description": "The MSPDI child elements of one entity that GRS does not use, keyed by the MSPDI element names, with each value in the MSPDI structure. GRS writes these elements back to MSPDI unchanged, in the order of the MSPDI schema, and repeated elements keep array order.",
+      "description": "This object holds the MSPDI child elements of one entity that GRS does not use, keyed by the MSPDI element names, with each value in the MSPDI structure. GRS writes these elements back to MSPDI unchanged, in the order of the MSPDI schema, and repeated elements keep array order.",
       "minProperties": 1,
       "additionalProperties": {
         "$ref": "#/$defs/MspdiValue"
@@ -976,7 +976,7 @@
     },
     "MspdiElement": {
       "type": "object",
-      "description": "One whole MSPDI element that GRS does not hold as an entity, keyed by the names of the child elements, for example the project summary task with UID, Name and OutlineLevel. GRS writes the element back unchanged.",
+      "description": "This object is one whole MSPDI element that GRS does not hold as an entity, keyed by the names of the child elements, for example the project summary task with UID, Name and OutlineLevel. GRS writes the element back unchanged.",
       "minProperties": 1,
       "additionalProperties": {
         "$ref": "#/$defs/MspdiValue"
@@ -984,11 +984,11 @@
     },
     "Color": {
       "type": "object",
-      "description": "A color of one of three types. Where a color key may be absent, an absent color means that GRS does not draw that fill or line.",
+      "description": "This object is a color of one of three types: \"theme\", \"palette\" or \"custom\" (see type). Where a color key may be absent, an absent color means that GRS does not draw that fill or line.",
       "properties": {
         "type": {
           "type": "string",
-          "description": "theme: the color that the theme gives to the place that holds this color, in the hue of documentSettings.themeHue; \"palette\": one of the ten named palette colors in name; \"custom\": own values for the light theme and the dark theme in light and dark.",
+          "description": "\"theme\": GRS takes the color from the theme for the place that holds this color, in the hue of documentSettings.themeHue; \"palette\": the color is one of the ten named palette colors in name; \"custom\": the colors for the light theme and the dark theme are in light and dark.",
           "enum": [
             "theme",
             "palette",
@@ -997,7 +997,7 @@
         },
         "name": {
           "type": "string",
-          "description": "Only when type is \"palette\". The palette color: \"white\", \"black\", \"dimGray\", \"lightGray\", \"red\", \"blue\", \"yellow\", \"green\", \"orange\" or \"purple\". Each name says how the color looks in the light theme; in the dark theme GRS keeps the hue and inverts the lightness.",
+          "description": "Only when type is \"palette\". This value names the palette color. Each name says how the color looks in the light theme; in the dark theme GRS keeps the hue and inverts the lightness.",
           "enum": [
             "white",
             "black",
@@ -1013,11 +1013,11 @@
         },
         "light": {
           "$ref": "#/$defs/ColorSide",
-          "description": "Only when type is \"custom\". The color for the light theme."
+          "description": "Only when type is \"custom\". This object is the color for the light theme."
         },
         "dark": {
           "$ref": "#/$defs/ColorSide",
-          "description": "Only when type is \"custom\". The color for the dark theme, in the same shape as light."
+          "description": "Only when type is \"custom\". This object is the color for the dark theme, in the same shape as light."
         }
       },
       "required": [
@@ -1102,19 +1102,19 @@
           }
         }
       ],
-      "description": "The color of a Task Group Lane: the same shape as Color, except that the palette color \"black\" is not allowed."
+      "description": "This value is the color of a Task Group Lane. This value has the same shape as Color, except that the palette color \"black\" is not allowed."
     },
     "Paint": {
       "type": "object",
-      "description": "A fill: a color and an opacity.",
+      "description": "This object is a fill: a color and an opacity.",
       "properties": {
         "color": {
           "$ref": "#/$defs/Color",
-          "description": "The color of the fill (type Color)."
+          "description": "This value is the color of the fill (type Color)."
         },
         "opacityPercent": {
           "type": "integer",
-          "description": "The opacity of the fill in percent, from 0 to 100: 100 is solid, and at 0 GRS draws no fill. When the key is absent, the opacity is 100.",
+          "description": "This value is the opacity of the fill in percent, from 0 to 100: 100 is solid, and at 0 GRS draws no fill. When the key is absent, the opacity is 100.",
           "minimum": 0,
           "maximum": 100,
           "default": 100
@@ -1127,22 +1127,22 @@
     },
     "Stroke": {
       "type": "object",
-      "description": "A line: a color, an opacity and a width. To draw no line, leave out the whole stroke key.",
+      "description": "This object is a line: a color, an opacity and a width. To draw no line, leave out the whole stroke key.",
       "properties": {
         "color": {
           "$ref": "#/$defs/Color",
-          "description": "The color of the line (type Color)."
+          "description": "This value is the color of the line (type Color)."
         },
         "opacityPercent": {
           "type": "integer",
-          "description": "The opacity of the line in percent, from 0 to 100: 100 is solid, and at 0 GRS draws no line. When the key is absent, the opacity is 100.",
+          "description": "This value is the opacity of the line in percent, from 0 to 100: 100 is solid, and at 0 GRS draws no line. When the key is absent, the opacity is 100.",
           "minimum": 0,
           "maximum": 100,
           "default": 100
         },
         "widthPx": {
           "type": "integer",
-          "description": "The width of the line, in CSS pixels at displayScaleRatio 1. The zoom does not change this width.",
+          "description": "This value is the width of the line, in CSS pixels at displayScaleRatio 1. The zoom does not change this width.",
           "minimum": 1,
           "maximum": 10
         }
@@ -1155,26 +1155,26 @@
     },
     "ShapeStyle": {
       "type": "object",
-      "description": "The fill and the line of a shape, shared by TaskStyle, HighlightBoxStyle and CommentBoxStyle.",
+      "description": "This object holds the fill and the outline of a shape. TaskStyle, HighlightBoxStyle and CommentBoxStyle all use this object.",
       "properties": {
         "fill": {
           "$ref": "#/$defs/Paint",
-          "description": "The fill of the shape (type Paint). When the key is absent, GRS draws no fill."
+          "description": "This value is the fill of the shape (type Paint). When the key is absent, GRS draws no fill."
         },
         "stroke": {
           "$ref": "#/$defs/Stroke",
-          "description": "The outline of the shape (type Stroke). When the key is absent, GRS draws no outline."
+          "description": "This value is the outline of the shape (type Stroke). When the key is absent, GRS draws no outline."
         }
       },
       "additionalProperties": false
     },
     "ColumnFilter": {
       "type": "object",
-      "description": "A filter on one column of a table. \"values\" hides rows by the value in the column; \"dateRange\" hides rows whose date lies outside a range of days.",
+      "description": "This object is a filter on one column of a table. With type \"values\", the filter hides rows by the value in the column; with \"dateRange\", the filter hides rows whose date lies outside a range of days.",
       "properties": {
         "type": {
           "type": "string",
-          "description": "values: hide the rows that show one of hiddenValues, and the empty rows when isBlankHidden is true; \"dateRange\": hide the rows whose date in the column lies outside firstDay to lastDay.",
+          "description": "\"values\": GRS hides the rows that show one of hiddenValues, and the empty rows when isBlankHidden is true; \"dateRange\": GRS hides the rows whose date in the column lies outside firstDay to lastDay.",
           "enum": [
             "values",
             "dateRange"
@@ -1182,7 +1182,7 @@
         },
         "column": {
           "type": "string",
-          "description": "The column, named by the value that the column shows; the same name means the same content in every table. Search Window, task table: \"progressStatus\", \"percentComplete\", \"taskType\", \"taskName\", \"resourceNames\", \"start\", \"finish\", \"actualStart\", \"actualFinish\", \"taskGroupPath\" (the path from the top level). Search Window, Comment Box table: \"text\", \"taskGroupName\" (the task group of the Leader Anchor), \"leaderTargetDay\" (the day of the Leader Anchor). Delay Diagnostics Report Window: \"diagnosisStatus\", \"percentComplete\", \"taskType\", \"taskName\", \"resourceNames\", \"planDates\", \"actualDates\", \"diagnosisReason\". Resource List Window: \"resourceSelectionStatus\", \"resourceName\", \"assignedTaskCount\", \"assignedTaskNames\".",
+          "description": "This value names the column by the content that the column shows; the same name means the same content in every table. Search Window, task table: \"progressStatus\", \"percentComplete\", \"taskType\", \"taskName\", \"resourceNames\", \"start\", \"finish\", \"actualStart\", \"actualFinish\", \"taskGroupPath\" (the path from the top level). Search Window, Comment Box table: \"text\", \"taskGroupName\" (the task group of the Leader Anchor), \"leaderTargetDay\" (the day of the Leader Anchor). Delay Diagnostics Report Window: \"diagnosisStatus\", \"percentComplete\", \"taskType\", \"taskName\", \"resourceNames\", \"planDates\", \"actualDates\", \"diagnosisReason\". Resource List Window: \"resourceSelectionStatus\", \"resourceName\", \"assignedTaskCount\", \"assignedTaskNames\".",
           "enum": [
             "progressStatus",
             "percentComplete",
@@ -1209,7 +1209,7 @@
         },
         "hiddenValues": {
           "type": "array",
-          "description": "Only when type is \"values\". The values whose rows the filter hides. For a status column, write the English status name: \"progressStatus\" takes \"notStarted\", \"inProgress\", \"suspendedWithResumeDate\", \"suspendedWithoutResumeDate\", \"finished\", \"delay\", \"unreliable\", \"bottleneck\" and \"bottleneckPath\"; \"diagnosisStatus\" takes \"unreliable\", \"doubtfulOrMissing\", \"bottleneck\", \"bottleneckPath\", \"delay\" and \"finishedDelayContribution\"; \"taskType\" takes \"task\" and \"milestone\"; \"resourceSelectionStatus\" takes \"selected\" and \"notSelected\". For any other column, write the cell text as the table shows the text.",
+          "description": "Only when type is \"values\". This array lists the values whose rows the filter hides. For a status column, write the English status name: \"progressStatus\" takes \"notStarted\", \"inProgress\", \"suspendedWithResumeDate\", \"suspendedWithoutResumeDate\", \"finished\", \"delay\", \"unreliable\", \"bottleneck\" and \"bottleneckPath\"; \"diagnosisStatus\" takes \"unreliable\", \"doubtfulOrMissing\", \"bottleneck\", \"bottleneckPath\", \"delay\" and \"finishedDelayContribution\"; \"taskType\" takes \"task\" and \"milestone\"; \"resourceSelectionStatus\" takes \"selected\" and \"notSelected\". For any other column, write the cell text as the table shows the text.",
           "minItems": 1,
           "items": {
             "type": "string",
@@ -1219,15 +1219,15 @@
         },
         "isBlankHidden": {
           "type": "boolean",
-          "description": "Only when type is \"values\". Whether the filter hides the rows with an empty cell in this column."
+          "description": "Only when type is \"values\". This value tells whether the filter hides the rows with an empty cell in this column."
         },
         "firstDay": {
           "$ref": "#/$defs/Day",
-          "description": "Only when type is \"dateRange\". The first day that the filter keeps (included), as a day in the time zone of scheduleData.scheduleDataTimeZone."
+          "description": "Only when type is \"dateRange\". This value is the first day that the filter keeps (included), as a day in the time zone of scheduleData.scheduleDataTimeZone."
         },
         "lastDay": {
           "$ref": "#/$defs/Day",
-          "description": "Only when type is \"dateRange\". The last day that the filter keeps (included)."
+          "description": "Only when type is \"dateRange\". This value is the last day that the filter keeps (included)."
         }
       },
       "required": [
@@ -1273,15 +1273,15 @@
     },
     "ColumnSort": {
       "type": "object",
-      "description": "How GRS sorts a table: by one column, in one direction.",
+      "description": "This object tells how GRS sorts a table: by one column, in one direction.",
       "properties": {
         "column": {
           "$ref": "#/$defs/ColumnFilter/properties/column",
-          "description": "The column that GRS sorts the table by, with the same names as ColumnFilter.column."
+          "description": "This value names the column that GRS sorts the table by, with the same names as ColumnFilter.column."
         },
         "direction": {
           "type": "string",
-          "description": "ascending: from the smallest value to the largest; \"descending\": from the largest value to the smallest.",
+          "description": "\"ascending\": GRS sorts from the smallest value to the largest; \"descending\": GRS sorts from the largest value to the smallest.",
           "enum": [
             "ascending",
             "descending"
@@ -1296,16 +1296,16 @@
     },
     "TaskTableWindow": {
       "type": "object",
-      "description": "How GRS shows a table of tasks (the Search Window or the Delay Diagnostics Report Window): the checks, the column filters and the sort.",
+      "description": "This object tells how GRS shows a table of tasks (the Search Window or the Delay Diagnostics Report Window): the checks, the column filters and the sort.",
       "properties": {
         "isScheduleFilteredByChecks": {
           "type": "boolean",
-          "description": "Filter Schedule by Checks: true draws on the Schedule Canvas only the tasks that have a check in this table; false draws every task. The table itself keeps every row either way.",
+          "description": "This value turns Filter Schedule by Checks on or off: when true, GRS draws on the Schedule Canvas only the tasks that have a check in this table; when false, GRS draws every task. The table itself keeps every row either way.",
           "default": false
         },
         "checkedTaskUids": {
           "type": "array",
-          "description": "The uids of the tasks whose row has a check in the Visibility column of this table. When the key is absent, no row has a check.",
+          "description": "This array lists the uids of the tasks whose row has a check in the Visibility column of this table. When the key is absent, no row has a check.",
           "minItems": 1,
           "items": {
             "$ref": "#/$defs/Uid"
@@ -1313,7 +1313,7 @@
         },
         "columnFilters": {
           "type": "array",
-          "description": "The column filters of this table, one for each filtered column. When the key is absent, no column has a filter.",
+          "description": "This array holds the column filters of this table, one for each filtered column. When the key is absent, no column has a filter.",
           "minItems": 1,
           "items": {
             "$ref": "#/$defs/ColumnFilter"
@@ -1321,28 +1321,28 @@
         },
         "columnSort": {
           "$ref": "#/$defs/ColumnSort",
-          "description": "The sort of this table: the column and the direction. When the key is absent, GRS shows the rows in the default order."
+          "description": "This object is the sort of this table: the column and the direction. When the key is absent, GRS shows the rows in the default order."
         }
       },
       "additionalProperties": false
     },
     "ResourceTableWindow": {
       "type": "object",
-      "description": "How GRS shows the table of the Resource List Window: the checks, the column filters and the sort.",
+      "description": "This object tells how GRS shows the table of the Resource List Window: the checks, the column filters and the sort.",
       "properties": {
         "isScheduleFilteredByChecks": {
           "type": "boolean",
-          "description": "Filter Schedule by Checks: true draws on the Schedule Canvas only the tasks of the checked resources, and the tasks with no resource when isUnassignedChecked is true; false draws every task.",
+          "description": "This value turns Filter Schedule by Checks on or off: when true, GRS draws on the Schedule Canvas only the tasks of the checked resources, and the tasks with no resource when isUnassignedChecked is true; when false, GRS draws every task.",
           "default": false
         },
         "isUnassignedChecked": {
           "type": "boolean",
-          "description": "Whether the \"(no assignee)\" row of the Resource List Window has a check.",
+          "description": "This value tells whether the \"(no assignee)\" row of the Resource List Window has a check.",
           "default": false
         },
         "checkedResourceUids": {
           "type": "array",
-          "description": "The uids of the resources whose row has a check in the Visibility column of the Resource List Window. When the key is absent, no resource row has a check.",
+          "description": "This array lists the uids of the resources whose row has a check in the Visibility column of the Resource List Window. When the key is absent, no resource row has a check.",
           "minItems": 1,
           "items": {
             "$ref": "#/$defs/Uid"
@@ -1350,7 +1350,7 @@
         },
         "columnFilters": {
           "type": "array",
-          "description": "The column filters of this table, one for each filtered column. When the key is absent, no column has a filter.",
+          "description": "This array holds the column filters of this table, one for each filtered column. When the key is absent, no column has a filter.",
           "minItems": 1,
           "items": {
             "$ref": "#/$defs/ColumnFilter"
@@ -1358,7 +1358,7 @@
         },
         "columnSort": {
           "$ref": "#/$defs/ColumnSort",
-          "description": "The sort of this table: the column and the direction. When the key is absent, GRS shows the rows in the default order."
+          "description": "This object is the sort of this table: the column and the direction. When the key is absent, GRS shows the rows in the default order."
         }
       },
       "additionalProperties": false
@@ -1368,12 +1368,12 @@
       "properties": {
         "hexColor": {
           "type": "string",
-          "description": "The color value: # and six lowercase hexadecimal digits (#rrggbb).",
+          "description": "This value is the color as # and six lowercase hexadecimal digits (#rrggbb).",
           "pattern": "^#[0-9a-f]{6}$"
         },
         "isCalculatedFromOppositeColorScheme": {
           "type": "boolean",
-          "description": "true when GRS calculated this side from the color of the other side (the light theme). A side that a person chose does not have this key. This key records where the value came from; this key is not a switch.",
+          "description": "true when GRS calculated this side from the color of the opposite side: the dark side from the light side, or the light side from the dark side. A side that a person chose does not have this key. This key records where the value came from; this key is not a switch.",
           "const": true
         }
       },
@@ -1384,11 +1384,11 @@
     },
     "Editor": {
       "type": "object",
-      "description": "Who edited a Schedule Document: a person on the screen, nobody yet (the template that comes with GRS), or an AI through the Agent API. type chooses the case.",
+      "description": "This object tells who edited a Schedule Document: a person on the screen, nobody yet (the template that comes with GRS), or an AI through the Agent API. The key type chooses the case.",
       "properties": {
         "type": {
           "type": "string",
-          "description": "user: a person edited the Schedule Document on the screen; \"template\": nobody has edited the Schedule Document yet, so the Schedule Document is still the template that comes with GRS; \"agent\": an AI edited the Schedule Document through the Agent API. The value \"template\" does not name a user or a program.",
+          "description": "\"user\": a person edited the Schedule Document on the screen. \"agent\": an AI edited the Schedule Document through the Agent API. \"template\": nobody has edited the Schedule Document yet, so the Schedule Document is still the template that comes with GRS.",
           "enum": [
             "user",
             "template",
@@ -1397,7 +1397,7 @@
         },
         "name": {
           "type": "string",
-          "description": "The name of the editor. For \"agent\", the name that the AI gave for itself; for \"user\", the name of the person only when GRS knows that name, for example through a link with a server. When GRS knows no name, the key is absent.",
+          "description": "This value gives the name of the editor. For \"agent\", the name is the one that the AI reports; for \"user\", GRS writes the name of the person only when GRS knows the name. When GRS knows no name, GRS omits the key.",
           "minLength": 1,
           "maxLength": 512
         }
@@ -1439,11 +1439,11 @@
     },
     "TaskStyle": {
       "type": "object",
-      "description": "How GRS draws the Task Graphic of one task: the shape, the fill of the Plan Bar and the outline of the bars. A milestone uses milestoneShape; any other task uses taskShape.",
+      "description": "This object tells how GRS draws the Task Graphic of one task: the shape, the fill of the Plan Bar and the outline of the bars. A milestone uses milestoneShape; any other task uses taskShape.",
       "properties": {
         "taskShape": {
           "type": "string",
-          "description": "The shape of the Plan Bar and the Actual Bar of a task that is not a milestone: rectangle, chevron (a bar with a notched start and a pointed finish), arrow, or dumbbell (a thin line with a dot at each end). Only a task that is not a milestone has taskShape.",
+          "description": "This value gives the shape of the Plan Bar and the Actual Bar of a task that is not a milestone: rectangle, chevron (a bar with a notched start and a pointed finish), arrow, or dumbbell (a thin line with a dot at each end). Only a task that is not a milestone has taskShape.",
           "enum": [
             "rectangle",
             "chevron",
@@ -1453,7 +1453,7 @@
         },
         "milestoneShape": {
           "type": "string",
-          "description": "The shape of the Milestone Mark; each value names the picture, for example diamond or star. Only a milestone has milestoneShape.",
+          "description": "This value gives the shape of the Milestone Mark, and each value names the picture that GRS draws, for example diamond or star. Only a milestone has milestoneShape.",
           "enum": [
             "circle",
             "hexagon",
@@ -1474,37 +1474,37 @@
         },
         "fill": {
           "$ref": "#/$defs/ShapeStyle/properties/fill",
-          "description": "The fill of the Plan Bar; GRS fills the Actual Bar from the same color. No key means no fill, and fill and stroke cannot both be absent."
+          "description": "This object sets the fill of the Plan Bar; GRS fills the Actual Bar from the same color. No key means no fill, but fill and stroke cannot both be absent."
         },
         "stroke": {
           "$ref": "#/$defs/ShapeStyle/properties/stroke",
-          "description": "The outline of the Plan Bar and the Actual Bar. No key means no outline."
+          "description": "This object sets the outline of the Plan Bar and the Actual Bar. No key means no outline."
         }
       },
       "additionalProperties": false
     },
     "ImportOrigin": {
       "type": "object",
-      "description": "Where an imported task came from: which MSPDI file and which task in that file, so that a later import of the same file updates the task instead of adding a copy. A task made in GRS has no import origin.",
+      "description": "This object tells where an imported task came from: which MSPDI file and which task in that file, so that a later import of the same file updates the task instead of adding a copy. A task made in GRS has no import origin.",
       "properties": {
         "sourceProjectUid": {
           "type": "string",
-          "description": "The Project UID of the MSPDI file that GRS imported this task from, a string like project.uid. The key is absent when that file had no Project UID; importSessionId then stands in.",
+          "description": "This value is the Project UID of the MSPDI file that GRS imported this task from, a string like project.uid. The key is absent when that file had no Project UID; importSessionId then identifies the file instead.",
           "maxLength": 16
         },
         "sourceTaskUid": {
           "type": "integer",
-          "description": "The UID of this task in that MSPDI file. The value can differ from uid, because GRS may give the imported task a new uid.",
+          "description": "This value is the UID of this task in that MSPDI file. The value can differ from uid, because GRS may give the imported task a new uid.",
           "minimum": 0,
           "maximum": 2147483647
         },
         "importSessionId": {
           "$ref": "#/$defs/Uuid",
-          "description": "The id of the import that brought this task in; GRS makes a new id for every import. The id stands in for sourceProjectUid when the MSPDI file had no Project UID."
+          "description": "This value is the id of the import that brought this task in; GRS makes a new id for every import. The id replaces sourceProjectUid when the MSPDI file had no Project UID."
         },
         "mspdiImportCountWhenLastIncluded": {
           "type": "integer",
-          "description": "The value of scheduleData.mspdiImportCount at the last import whose file included this task. A value equal to scheduleData.mspdiImportCount means that the latest import included this task; a smaller value means that the latest import left this task out.",
+          "description": "This value copies scheduleData.mspdiImportCount as the counter stood at the last import whose file contained this task. A value equal to scheduleData.mspdiImportCount means that the latest import contained this task; a smaller value means that the latest import left this task out.",
           "minimum": 1
         }
       },
@@ -1517,11 +1517,11 @@
     },
     "TaskGroupStyle": {
       "type": "object",
-      "description": "How GRS draws one task group: the color of the Task Group Lane.",
+      "description": "This object tells how GRS draws one task group: the color of the Task Group Lane.",
       "properties": {
         "color": {
           "$ref": "#/$defs/TaskGroupColor",
-          "description": "The color of the Task Group Lane (type TaskGroupColor). When the key is absent, GRS draws the Task Group Lane with no color; {\"type\": \"theme\"} draws the theme color."
+          "description": "This value is the color of the Task Group Lane (type TaskGroupColor). When the key is absent, GRS draws the Task Group Lane with no color; {\"type\": \"theme\"} draws the theme color."
         }
       },
       "required": [
@@ -1531,22 +1531,22 @@
     },
     "HighlightBoxStyle": {
       "type": "object",
-      "description": "How GRS draws one Highlight Box: the corner radius, the fill and the frame.",
+      "description": "This object tells how GRS draws one Highlight Box: the corner radius, the fill and the outline.",
       "properties": {
         "cornerRadiusPx": {
           "type": "number",
-          "description": "The corner radius of the Highlight Box, in CSS pixels at displayScaleRatio 1; 0 gives square corners.",
+          "description": "This value is the corner radius of the Highlight Box, in CSS pixels at displayScaleRatio 1; 0 gives square corners.",
           "minimum": 0,
           "maximum": 24,
           "default": 0
         },
         "fill": {
           "$ref": "#/$defs/ShapeStyle/properties/fill",
-          "description": "The fill of the Highlight Box (type Paint). The fill always has a color; opacityPercent 0 makes the fill invisible."
+          "description": "This value is the fill of the Highlight Box (type Paint). The fill always has a color; opacityPercent 0 makes the fill invisible."
         },
         "stroke": {
           "$ref": "#/$defs/ShapeStyle/properties/stroke",
-          "description": "The frame of the Highlight Box (type Stroke). When the key is absent, GRS draws no frame."
+          "description": "This value is the outline of the Highlight Box (type Stroke). When the key is absent, GRS draws no outline."
         }
       },
       "required": [
@@ -1556,27 +1556,27 @@
     },
     "CommentBoxStyle": {
       "type": "object",
-      "description": "How GRS draws one Comment Box: the fill of the body, the line of the border and the Leader Line, and the text.",
+      "description": "This object tells how GRS draws one Comment Box: the fill of the body, the outline of the box and the Leader Line, and the text.",
       "properties": {
         "fill": {
           "$ref": "#/$defs/ShapeStyle/properties/fill",
-          "description": "The fill of the Comment Box body (type Paint). The fill always has a color; opacityPercent 0 makes the fill invisible."
+          "description": "This value is the fill of the Comment Box body (type Paint). The fill always has a color; opacityPercent 0 makes the fill invisible."
         },
         "stroke": {
           "$ref": "#/$defs/ShapeStyle/properties/stroke",
-          "description": "The border of the Comment Box and the Leader Line (type Stroke). When the key is absent, GRS draws no border and no Leader Line."
+          "description": "This value is the outline of the Comment Box and the Leader Line (type Stroke). When the key is absent, GRS draws no outline and no Leader Line."
         },
         "font": {
           "type": "object",
-          "description": "The look of the Comment Box text.",
+          "description": "This object holds the look of the Comment Box text: the color and the size.",
           "properties": {
             "color": {
               "$ref": "#/$defs/Color",
-              "description": "The color of the Comment Box text (type Color)."
+              "description": "This value is the color of the Comment Box text (type Color)."
             },
             "sizePx": {
               "type": "integer",
-              "description": "The size of the Comment Box text, in CSS pixels at displayScaleRatio 1. The zoom does not change this size.",
+              "description": "This value is the size of the Comment Box text, in CSS pixels at displayScaleRatio 1. The zoom does not change this size.",
               "minimum": 8,
               "maximum": 24
             }
@@ -1634,11 +1634,11 @@
         },
         "grs": {
           "type": "object",
-          "description": "The GRS part of this day of the week: the keys under grs are GRS names, not MSPDI element names. Here grs holds only passthrough.",
+          "description": "This object is the GRS part of this day of the week: the keys under grs are GRS names, not MSPDI element names. Here grs holds only passthrough.",
           "properties": {
             "passthrough": {
               "$ref": "#/$defs/Passthrough",
-              "description": "MSPDI values of this day of the week that GRS does not use, in the MSPDI structure under the MSPDI element names. GRS writes these values back to MSPDI unchanged."
+              "description": "This object holds the MSPDI values of this day of the week that GRS does not use, in the MSPDI structure under the MSPDI element names. GRS writes these values back to MSPDI unchanged."
             }
           },
           "required": [
@@ -1685,7 +1685,7 @@
         },
         "type": {
           "type": "integer",
-          "description": "Same as MSPDI Type. Repeat code: 1=daily, 2=yearly on a day of the month, 3=yearly on a weekday position (such as the second Monday of May), 4=monthly on a day of the month, 5=monthly on a weekday position, 6=weekly, 7=by day count, 8=by weekday count, 9=no repeat. The value is an MSPDI code, not a discriminator: every exception has the same keys. GRS counts only a one-off exception (type 9, no type, or type 1 with period 1 or no period; write 1 for a new exception) and keeps any other exception unchanged without counting the days.",
+          "description": "Same as MSPDI Type. Repeat code: 1=daily, 2=yearly on a day of the month, 3=yearly on a weekday position (such as the second Monday of May), 4=monthly on a day of the month, 5=monthly on a weekday position, 6=weekly, 7=by day count, 8=by weekday count, 9=no repeat. Every exception has the same keys, whatever the code. GRS counts only a one-off exception (type 9, no type, or type 1 with period 1 or no period; write 1 for a new exception) and keeps any other exception unchanged without counting the days.",
           "enum": [
             1,
             2,
@@ -1705,11 +1705,11 @@
         },
         "grs": {
           "type": "object",
-          "description": "The GRS part of this exception: the keys under grs are GRS names, not MSPDI element names. Here grs holds only passthrough.",
+          "description": "This object is the GRS part of this exception: the keys under grs are GRS names, not MSPDI element names. Here grs holds only passthrough.",
           "properties": {
             "passthrough": {
               "$ref": "#/$defs/Passthrough",
-              "description": "MSPDI values of this exception that GRS does not use, in the MSPDI structure under the MSPDI element names. GRS writes these values back to MSPDI unchanged."
+              "description": "This object holds the MSPDI values of this exception that GRS does not use, in the MSPDI structure under the MSPDI element names. GRS writes these values back to MSPDI unchanged."
             }
           },
           "required": [
@@ -1749,15 +1749,15 @@
         },
         "baseCalendarUid": {
           "$ref": "#/$defs/Uid",
-          "description": "Same as MSPDI BaseCalendarUID. The value names the calendar that this calendar inherits from. GRS keeps the value and writes the value back, but GRS never takes days from the base calendar: GRS counts only the days that this calendar lists."
+          "description": "Same as MSPDI BaseCalendarUID. The value names the calendar that this calendar inherits from in MSPDI. GRS keeps the value and writes the value back, but GRS does not inherit: GRS counts only the days that this calendar lists."
         },
         "grs": {
           "type": "object",
-          "description": "The GRS part of this calendar: the keys under grs are GRS names, not MSPDI element names. Here grs holds only passthrough.",
+          "description": "This object is the GRS part of this calendar: the keys under grs are GRS names, not MSPDI element names. Here grs holds only passthrough.",
           "properties": {
             "passthrough": {
               "$ref": "#/$defs/Passthrough",
-              "description": "MSPDI values of this calendar that GRS does not use, in the MSPDI structure under the MSPDI element names. GRS writes these values back to MSPDI unchanged. A whole MSPDI Calendar element that GRS does not hold in calendars[] goes to passthroughCalendars[] instead."
+              "description": "This object holds the MSPDI values of this calendar that GRS does not use, in the MSPDI structure under the MSPDI element names. GRS writes these values back to MSPDI unchanged. A whole MSPDI Calendar element that GRS does not hold in calendars[] goes to passthroughCalendars[] instead."
             }
           },
           "required": [
@@ -1861,11 +1861,11 @@
         },
         "minutesPerWeek": {
           "type": "integer",
-          "description": "Same as MSPDI MinutesPerWeek."
+          "description": "Same as MSPDI MinutesPerWeek. The value gives the length of one working week in minutes."
         },
         "daysPerMonth": {
           "type": "integer",
-          "description": "Same as MSPDI DaysPerMonth."
+          "description": "Same as MSPDI DaysPerMonth. The value gives the number of working days in one month."
         },
         "weekStartDay": {
           "type": "integer",
@@ -1887,11 +1887,11 @@
         },
         "grs": {
           "type": "object",
-          "description": "The GRS part of this project: the keys under grs are GRS names, not MSPDI element names. Here grs holds only passthrough.",
+          "description": "This object is the GRS part of this project: the keys under grs are GRS names, not MSPDI element names. Here grs holds only passthrough.",
           "properties": {
             "passthrough": {
               "$ref": "#/$defs/Passthrough",
-              "description": "MSPDI values of this project that GRS does not use, in the MSPDI structure under the MSPDI element names. GRS writes these values back to MSPDI unchanged."
+              "description": "This object holds the MSPDI values of this project that GRS does not use, in the MSPDI structure under the MSPDI element names. GRS writes these values back to MSPDI unchanged."
             }
           },
           "required": [
@@ -1912,7 +1912,7 @@
         },
         "type": {
           "type": "integer",
-          "description": "Same as MSPDI Type. Link type code: 0=FF (finish-to-finish), 1=FS (finish-to-start), 2=SF (start-to-finish), 3=SS (start-to-start); the first letter names the end of the predecessor, and the second letter names the end of this task. The value is an MSPDI code, not a discriminator: every link has the same keys.",
+          "description": "Same as MSPDI Type. Link type code: 0=FF (finish-to-finish), 1=FS (finish-to-start), 2=SF (start-to-finish), 3=SS (start-to-start); the first letter names the end of the predecessor, and the second letter names the end of this task. Every link has the same keys, whatever the code.",
           "enum": [
             0,
             1,
@@ -1926,7 +1926,7 @@
         },
         "lagFormat": {
           "type": "integer",
-          "description": "Same as MSPDI LagFormat. Unit code for showing the lag: 3=m, 4=em, 5=h, 6=eh, 7=d, 8=ed, 9=w, 10=ew, 11=mo, 12=emo, 19=%, 20=e%, 35 to 44 = m? to emo? in the same order, 51=%?, 52=e%? (m minutes, h hours, d days, w weeks, mo months, % percent, e elapsed time, ? estimated). The unit never changes linkLag. GRS counts the lag only for 3, 5 and 7; for any other code GRS shows the lag and keeps linkLag unchanged.",
+          "description": "Same as MSPDI LagFormat. Unit code for showing the lag: 3=m, 4=em, 5=h, 6=eh, 7=d, 8=ed, 9=w, 10=ew, 11=mo, 12=emo, 19=%, 20=e%, 35=m?, 36=em?, 37=h?, 38=eh?, 39=d?, 40=ed?, 41=w?, 42=ew?, 43=mo?, 44=emo?, 51=%?, 52=e%? (m minutes, h hours, d days, w weeks, mo months, % percent, e elapsed time, ? estimated). The unit never changes linkLag. GRS counts the lag only for 3, 5 and 7; for any other code GRS shows the lag and keeps linkLag unchanged.",
           "enum": [
             3,
             4,
@@ -1956,11 +1956,11 @@
         },
         "grs": {
           "type": "object",
-          "description": "The GRS part of this link: the keys under grs are GRS names, not MSPDI element names. Here grs holds only passthrough.",
+          "description": "This object holds the GRS part of this link: the keys under grs are GRS names, not MSPDI element names. Here grs holds only passthrough.",
           "properties": {
             "passthrough": {
               "$ref": "#/$defs/Passthrough",
-              "description": "MSPDI values of this link that GRS does not use, in the MSPDI structure under the MSPDI element names. GRS writes these values back to MSPDI unchanged."
+              "description": "This key holds the MSPDI values of this link that GRS does not use, in the MSPDI structure under the MSPDI element names. GRS writes these values back to MSPDI unchanged."
             }
           },
           "required": [
@@ -1977,7 +1977,7 @@
     },
     "Task": {
       "type": "object",
-      "description": "Same as MSPDI Task. GRS reads the progress status of a task with these checks, first match wins: no actualStart, not started; actualFinish, finished; resumeValid false, suspended with no resume date; resume, suspended with a resume date; otherwise in progress.",
+      "description": "Same as MSPDI Task. GRS decides the progress status of a task with these checks in order, and the first match wins: if actualStart is absent, the task is not started; if actualFinish is present, the task is finished; if resumeValid is false, the task is suspended with no resume date; if resume is present, the task is suspended with a resume date; otherwise the task is in progress.",
       "properties": {
         "uid": {
           "$ref": "#/$defs/Uid",
@@ -1999,11 +1999,11 @@
         },
         "stop": {
           "$ref": "#/$defs/DateTime",
-          "description": "Same as MSPDI Stop. The value gives the date-time where the actual work so far ends on a task that is in progress or suspended (split work). GRS removes stop when GRS finishes the task; actualFinish then holds the end."
+          "description": "Same as MSPDI Stop. The value gives the date-time where the actual work so far ends on a task that is in progress or suspended (work split in two parts). GRS removes stop when GRS finishes the task; actualFinish then holds the end."
         },
         "resume": {
           "$ref": "#/$defs/DateTime",
-          "description": "Same as MSPDI Resume. On a suspended task, the value gives the planned date-time when the remaining work restarts (split work)."
+          "description": "Same as MSPDI Resume. On a suspended task, the value gives the planned date-time when the remaining work restarts (work split in two parts)."
         },
         "resumeValid": {
           "type": "boolean",
@@ -2055,42 +2055,42 @@
         },
         "parentTaskUid": {
           "$ref": "#/$defs/Uid",
-          "description": "The uid of the parent task in the WBS. A task without parentTaskUid sits at the top of the WBS. MSPDI has no such element: GRS builds the MSPDI OutlineLevel from parentTaskUid and siblingOrder."
+          "description": "This value is the uid of the parent task in the WBS. A task without parentTaskUid sits at the top of the WBS. MSPDI has no such element: GRS builds the MSPDI OutlineLevel from parentTaskUid and siblingOrder."
         },
         "siblingOrder": {
           "type": "integer",
-          "description": "The place of this task among the tasks with the same parent task, from 1. GRS writes 1, 2, 3 and so on with no gaps; GRS reads the smallest value first, and equal values keep array order.",
+          "description": "This value gives the place of this task among the tasks with the same parent task, from 1. GRS writes 1, 2, 3 and so on with no gaps; GRS reads the smallest value first, and equal values keep array order.",
           "minimum": 1
         },
         "grs": {
           "type": "object",
-          "description": "The GRS values of this task. The keys under grs are GRS names, not MSPDI element names.",
+          "description": "This object holds the GRS values of this task. The keys under grs are GRS names, not MSPDI element names.",
           "properties": {
             "startSlopeCalendarDays": {
               "type": "integer",
-              "description": "Calendar days over which GRS slants the start edge of the Plan Bar (Start Slope), to show a start date that is not firm. The slope changes only the drawing, not start or the schedule; GRS draws slopes on the rectangle and chevron shapes only, and never on the Actual Bar. No key means no slope. GRS writes the value to MSPDI as a Task/ExtendedAttribute.",
+              "description": "This value gives the calendar days over which GRS slants the start edge of the Plan Bar (Start Slope), to show a start date that is not firm. The slope changes only the drawing, not start or the schedule; GRS draws slopes on the rectangle and chevron shapes only, and never on the Actual Bar. No key means no slope. GRS writes the value to MSPDI as a Task/ExtendedAttribute.",
               "minimum": 0
             },
             "finishSlopeCalendarDays": {
               "type": "integer",
-              "description": "Calendar days over which GRS slants the finish edge of the Plan Bar (Finish Slope), to show a finish date that is not firm. The slope changes only the drawing, not finish or the schedule; GRS draws slopes on the rectangle and chevron shapes only, and never on the Actual Bar. No key means no slope. GRS writes the value to MSPDI as a Task/ExtendedAttribute.",
+              "description": "This value gives the calendar days over which GRS slants the finish edge of the Plan Bar (Finish Slope), to show a finish date that is not firm. The slope changes only the drawing, not finish or the schedule; GRS draws slopes on the rectangle and chevron shapes only, and never on the Actual Bar. No key means no slope. GRS writes the value to MSPDI as a Task/ExtendedAttribute.",
               "minimum": 0
             },
             "style": {
               "$ref": "#/$defs/TaskStyle",
-              "description": "How GRS draws the Task Graphic of this task: the shape, the fill and the stroke."
+              "description": "This object says how GRS draws the Task Graphic of this task: the shape, the fill and the stroke."
             },
             "taskGroupId": {
               "$ref": "#/$defs/Uuid",
-              "description": "The id of the task group whose row GRS draws this task in. Every task belongs to exactly one task group; the task group is a different axis from the WBS parent (parentTaskUid)."
+              "description": "This value is the id of the task group whose Task Group Lane GRS draws this task in. Every task belongs to exactly one task group, and the task group is independent of the WBS parent (parentTaskUid)."
             },
             "importOrigin": {
               "$ref": "#/$defs/ImportOrigin",
-              "description": "Where this task came from in an imported MSPDI file, so that a later import of the same file updates this task instead of adding a copy. Only an imported task has importOrigin; a task made in GRS has none."
+              "description": "This object records where this task came from in an imported MSPDI file, so that a later import of the same file updates this task instead of adding a copy. Only an imported task has importOrigin; a task made in GRS has none."
             },
             "passthrough": {
               "$ref": "#/$defs/Passthrough",
-              "description": "MSPDI values of this task that GRS does not use, in the MSPDI structure under the MSPDI element names. GRS writes these values back to MSPDI unchanged. A whole MSPDI Task element that GRS does not hold in tasks[] goes to passthroughTasks[] instead. When GRS changes the dates of the task, GRS rebuilds the values that follow from the dates, such as Duration."
+              "description": "This object holds the MSPDI values of this task that GRS does not use, in the MSPDI structure under the MSPDI element names. GRS writes these values back to MSPDI unchanged. A whole MSPDI Task element that GRS does not hold in tasks[] goes to passthroughTasks[] instead. When GRS changes the dates of the task, GRS rebuilds the values that follow from the dates, such as Duration."
             }
           },
           "required": [
@@ -2177,7 +2177,7 @@
         },
         "type": {
           "type": "integer",
-          "description": "Same as MSPDI Type. Resource type code: 0=material, 1=work. The value is an MSPDI code, not a discriminator: every resource has the same keys.",
+          "description": "Same as MSPDI Type. Resource type code: 0=material, 1=work. Every resource has the same keys, whatever the code.",
           "enum": [
             0,
             1
@@ -2194,11 +2194,11 @@
         },
         "grs": {
           "type": "object",
-          "description": "The GRS part of this resource: the keys under grs are GRS names, not MSPDI element names. Here grs holds only passthrough.",
+          "description": "This object holds the GRS part of this resource: the keys under grs are GRS names, not MSPDI element names. Here grs holds only passthrough.",
           "properties": {
             "passthrough": {
               "$ref": "#/$defs/Passthrough",
-              "description": "MSPDI values of this resource that GRS does not use, in the MSPDI structure under the MSPDI element names. GRS writes these values back to MSPDI unchanged. A whole MSPDI Resource element that GRS does not hold in resources[] goes to passthroughResources[] instead."
+              "description": "This key holds the MSPDI values of this resource that GRS does not use, in the MSPDI structure under the MSPDI element names. GRS writes these values back to MSPDI unchanged. A whole MSPDI Resource element that GRS does not hold in resources[] goes to passthroughResources[] instead."
             }
           },
           "required": [
@@ -2230,11 +2230,11 @@
         },
         "grs": {
           "type": "object",
-          "description": "The GRS part of this assignment: the keys under grs are GRS names, not MSPDI element names. Here grs holds only passthrough.",
+          "description": "This object holds the GRS part of this assignment: the keys under grs are GRS names, not MSPDI element names. Here grs holds only passthrough.",
           "properties": {
             "passthrough": {
               "$ref": "#/$defs/Passthrough",
-              "description": "MSPDI values of this assignment that GRS does not use, in the MSPDI structure under the MSPDI element names. GRS writes these values back to MSPDI unchanged. A whole MSPDI Assignment element that GRS does not hold in assignments[] goes to passthroughAssignments[] instead."
+              "description": "This key holds the MSPDI values of this assignment that GRS does not use, in the MSPDI structure under the MSPDI element names. GRS writes these values back to MSPDI unchanged. A whole MSPDI Assignment element that GRS does not hold in assignments[] goes to passthroughAssignments[] instead."
             }
           },
           "required": [
@@ -2250,55 +2250,55 @@
     },
     "TaskGroup": {
       "type": "object",
-      "description": "A task group: one row of the Task Group Panel and one Task Group Lane. Task groups form their own tree, apart from the WBS (tasks[].parentTaskUid), and GRS does not write task groups to MSPDI.",
+      "description": "This object is a task group: one row of the Task Group Panel and one Task Group Lane. Task groups form their own tree, separate from the WBS (tasks[].parentTaskUid), and GRS does not write task groups to MSPDI.",
       "properties": {
         "id": {
           "$ref": "#/$defs/Uuid",
-          "description": "The id of the task group: a random UUID."
+          "description": "This value is the id of the task group, a random UUID."
         },
         "name": {
           "type": "string",
-          "description": "The task group name that the Task Group Panel shows. When the key is absent, the task group has no name and GRS shows an empty title.",
+          "description": "This value is the task group name that the Task Group Panel shows. When the key is absent, the task group has no name and GRS shows an empty title.",
           "minLength": 1,
           "maxLength": 512
         },
         "parentTaskGroupId": {
           "$ref": "#/$defs/Uuid",
-          "description": "The id of the parent task group. When the key is absent, the task group is a top-level task group (depth 1)."
+          "description": "This value is the id of the parent task group. When the key is absent, the task group is a top-level task group (depth 1)."
         },
         "siblingOrder": {
           "type": "integer",
-          "description": "The order of this task group among the task groups with the same parent. GRS lists the task groups from the smallest number at the top.",
+          "description": "This number sets the order of this task group among the task groups with the same parent. GRS lists the task groups from the smallest number at the top.",
           "minimum": 1
         },
         "style": {
           "$ref": "#/$defs/TaskGroupStyle",
-          "description": "How GRS draws the task group (type TaskGroupStyle)."
+          "description": "This object tells GRS how to draw the task group (type TaskGroupStyle)."
         },
         "minHeightPx": {
           "type": "integer",
-          "description": "The lowest height of the Task Group Lane, in CSS pixels at displayScaleRatio 1. The vertical zoom does not change this height. When the key is absent, the Task Group Lane has no lowest height.",
+          "description": "This value is the minimum height of the Task Group Lane, in CSS pixels at displayScaleRatio 1. The vertical zoom does not change this height. When the key is absent, the Task Group Lane has no minimum height.",
           "minimum": 1
         },
         "representativeTaskUid": {
           "$ref": "#/$defs/Uid",
-          "description": "The uid of the WBS task that this task group stands for, such as the parent task that GRS made the task group from. When a person moves the task group under another task group, GRS moves that task in the WBS to match. When the key is absent, the task group stands for no task."
+          "description": "This value is the uid of the WBS task that this task group stands for, such as the parent task that GRS made the task group from. When a person moves the task group under another task group, GRS moves that task in the WBS to match. When the key is absent, the task group stands for no task."
         },
         "hyperlinkAddress": {
           "type": "string",
-          "description": "The URL that the task group links to. When the key is absent, the task group has no link.",
+          "description": "This value is the URL that the task group links to. When the key is absent, the task group has no link.",
           "minLength": 1,
           "maxLength": 512
         },
         "hyperlink": {
           "type": "string",
-          "description": "The title of the task group link, not the address. When the key is absent, the link has no title.",
+          "description": "This value is the title of the task group link, not the address. When the key is absent, the link has no title.",
           "minLength": 1,
           "maxLength": 512
         },
         "showMode": {
           "type": "string",
-          "description": "Whether a person wants this task group shown. \"shown\": a person chose to show the task group; GRS draws the task group at any depth unless an ancestor hides the task group. \"hidden\": a person chose to put the task group away; GRS hides the task group and every task group below, through zoom and Zoom to Fit, until a person shows the task group again, for example with the Expand One Level Button of the parent or a jump to the task group. \"automatic\": GRS decides from the depth (automaticallyShownDepth), the pins and the path to a shown task group below. \"hiddenUntilZoomIn\": GRS hides the task group and every task group below until the next vertical zoom in, which changes the value to \"automatic\". When the key is absent, the value is \"automatic\".",
+          "description": "This value records what a person wants for this task group. \"shown\": a person chose to show the task group; GRS draws the task group at any depth unless an ancestor hides the task group. \"hidden\": a person chose to put the task group away; GRS hides the task group and every task group below, even when the person zooms or uses Zoom to Fit, until a person shows the task group again, for example with the Expand One Level Button of the parent or a jump to the task group. \"automatic\": GRS decides from the depth (automaticallyShownDepth), the pins and the path to a shown task group below. \"hiddenUntilZoomIn\": GRS hides the task group and every task group below until the next vertical zoom in, and then GRS changes the value to \"automatic\". When the key is absent, the value is \"automatic\".",
           "enum": [
             "shown",
             "hidden",
@@ -2309,7 +2309,7 @@
         },
         "allowedEditorGroupName": {
           "type": "string",
-          "description": "The name of the group of people allowed to edit the tasks in this task group. While this key is present, GRS treats those tasks as read-only and refuses to move a task to a task group with another value. When the key is absent, anyone may edit.",
+          "description": "This value is the name of the group of people allowed to edit the tasks in this task group. While this key is present, GRS treats those tasks as read-only and refuses to move a task to a task group with another value. When the key is absent, anyone may edit.",
           "minLength": 1,
           "maxLength": 512
         }
@@ -2321,29 +2321,29 @@
     },
     "BaselineTask": {
       "type": "object",
-      "description": "One task of the baseline. GRS matches the baseline task to the current task by uid and draws the baseline task only as a Baseline Outline over the current task.",
+      "description": "This object is one task of the baseline. GRS matches the baseline task to the current task by uid and draws the baseline task only as a Baseline Outline over the current task.",
       "properties": {
         "uid": {
           "$ref": "#/$defs/Uid",
-          "description": "The uid of the current task that this baseline task belongs to."
+          "description": "This value is the uid of the current task that this baseline task belongs to."
         },
         "name": {
           "type": "string",
-          "description": "The task name at the time of the baseline.",
+          "description": "This value is the task name at the time of the baseline.",
           "minLength": 1,
           "maxLength": 512
         },
         "start": {
           "$ref": "#/$defs/DateTime",
-          "description": "The planned start at the time of the baseline."
+          "description": "This value is the planned start at the time of the baseline."
         },
         "finish": {
           "$ref": "#/$defs/DateTime",
-          "description": "The planned finish at the time of the baseline."
+          "description": "This value is the planned finish at the time of the baseline."
         },
         "milestone": {
           "type": "boolean",
-          "description": "Whether the task was a milestone at the time of the baseline. GRS keeps this value as a record and still draws the outline in the shape of the current task.",
+          "description": "This value records whether the task was a milestone at the time of the baseline. GRS keeps this value as a record and still draws the outline in the shape of the current task.",
           "default": false
         }
       },
@@ -2356,31 +2356,31 @@
     },
     "HighlightBox": {
       "type": "object",
-      "description": "One Highlight Box: a rectangle over a range of days and a range of task groups.",
+      "description": "This object is one Highlight Box: a rectangle over a range of days and a range of task groups.",
       "properties": {
         "id": {
           "$ref": "#/$defs/Uuid",
-          "description": "The id of the Highlight Box: a random UUID."
+          "description": "This value is the id of the Highlight Box, a random UUID."
         },
         "style": {
           "$ref": "#/$defs/HighlightBoxStyle",
-          "description": "How GRS draws the Highlight Box (type HighlightBoxStyle)."
+          "description": "This object tells GRS how to draw the Highlight Box (type HighlightBoxStyle)."
         },
         "firstDay": {
           "$ref": "#/$defs/Day",
-          "description": "The first day that the Highlight Box covers (included), as a day in the time zone of scheduleData.scheduleDataTimeZone."
+          "description": "This value is the first day that the Highlight Box covers (included), as a day in the time zone of scheduleData.scheduleDataTimeZone."
         },
         "lastDay": {
           "$ref": "#/$defs/Day",
-          "description": "The last day that the Highlight Box covers (included)."
+          "description": "This value is the last day that the Highlight Box covers (included)."
         },
         "firstTaskGroupId": {
           "$ref": "#/$defs/Uuid",
-          "description": "The id of the first task group that the Highlight Box covers. The box covers every task group from firstTaskGroupId to lastTaskGroupId in the order of the task group tree, both ends included."
+          "description": "This value is the id of the first task group that the Highlight Box covers. The box covers every task group from firstTaskGroupId to lastTaskGroupId in the order of the task group tree, both ends included."
         },
         "lastTaskGroupId": {
           "$ref": "#/$defs/Uuid",
-          "description": "The id of the last task group that the Highlight Box covers (included)."
+          "description": "This value is the id of the last task group that the Highlight Box covers (included)."
         }
       },
       "required": [
@@ -2398,7 +2398,7 @@
       "properties": {
         "type": {
           "type": "string",
-          "description": "freePoint: a place in the Task Group Lanes that is tied to nothing; \"task\": one of eight points of the Plan Bar, the Actual Bar or the Milestone Mark of a task; \"highlightBox\": one of eight points of a Highlight Box.",
+          "description": "\"freePoint\": the Leader Anchor stands at a place in the Task Group Lanes that is tied to nothing; \"task\": the Leader Anchor stands at one of eight points of the Plan Bar, the Actual Bar or the Milestone Mark of a task; \"highlightBox\": the Leader Anchor stands at one of eight points of a Highlight Box.",
           "enum": [
             "freePoint",
             "task",
@@ -2407,25 +2407,25 @@
         },
         "dateTime": {
           "$ref": "#/$defs/DateTime",
-          "description": "Only when type is \"freePoint\". The point in time where the Leader Anchor stands."
+          "description": "Only when type is \"freePoint\". This value is the point in time where the Leader Anchor stands, as a date-time in the time zone of scheduleData.scheduleDataTimeZone."
         },
         "taskGroupId": {
           "$ref": "#/$defs/Uuid",
-          "description": "Only when type is \"freePoint\". The id of the task group whose Task Group Lane holds the Leader Anchor."
+          "description": "Only when type is \"freePoint\". This value is the id of the task group whose Task Group Lane holds the Leader Anchor."
         },
         "taskGroupTopOffsetPercent": {
           "type": "number",
-          "description": "Only when type is \"freePoint\". How far the Leader Anchor lies below the top edge of that Task Group Lane, in percent of the lane height: 0 is the top edge and 100 is the bottom edge.",
+          "description": "Only when type is \"freePoint\". This value tells how far the Leader Anchor lies below the top edge of that Task Group Lane, in percent of the lane height: 0 is the top edge and 100 is the bottom edge.",
           "minimum": 0,
           "maximum": 100
         },
         "taskUid": {
           "$ref": "#/$defs/Uid",
-          "description": "Only when type is \"task\". The uid of the task that the Leader Anchor snaps to."
+          "description": "Only when type is \"task\". This value is the uid of the task that the Leader Anchor snaps to."
         },
         "snapPart": {
           "type": "string",
-          "description": "Only when type is \"task\". The part of the Task Graphic that the Leader Anchor snaps to: \"planBar\" (the Plan Bar), \"actualBar\" (the Actual Bar) or \"milestoneMark\" (the Milestone Mark).",
+          "description": "Only when type is \"task\". This value names the part of the Task Graphic that the Leader Anchor snaps to: \"planBar\" (the Plan Bar), \"actualBar\" (the Actual Bar) or \"milestoneMark\" (the Milestone Mark).",
           "enum": [
             "planBar",
             "actualBar",
@@ -2434,11 +2434,11 @@
         },
         "highlightBoxId": {
           "$ref": "#/$defs/Uuid",
-          "description": "Only when type is \"highlightBox\". The id of the Highlight Box that the Leader Anchor snaps to."
+          "description": "Only when type is \"highlightBox\". This value is the id of the Highlight Box that the Leader Anchor snaps to."
         },
         "snapPoint": {
           "type": "string",
-          "description": "Only when type is \"task\" or \"highlightBox\". The point of the target that the Leader Anchor snaps to: one of the four corners (\"topLeftCorner\", \"topRightCorner\", \"bottomRightCorner\", \"bottomLeftCorner\") or the middle of one of the four sides (\"topMiddle\", \"rightMiddle\", \"bottomMiddle\", \"leftMiddle\").",
+          "description": "Only when type is \"task\" or \"highlightBox\". This value names the point of the target that the Leader Anchor snaps to: one of the four corners (\"topLeftCorner\", \"topRightCorner\", \"bottomRightCorner\", \"bottomLeftCorner\") or the middle of one of the four sides (\"topMiddle\", \"rightMiddle\", \"bottomMiddle\", \"leftMiddle\").",
           "enum": [
             "topLeftCorner",
             "topMiddle",
@@ -2526,37 +2526,37 @@
     },
     "CommentBox": {
       "type": "object",
-      "description": "One Comment Box: a text box with a Leader Line. The Leader Anchor stands at a free point (a time, a task group and a height in that Task Group Lane) or at one of eight points of a task or a Highlight Box.",
+      "description": "This object is one Comment Box: a text box with a Leader Line. The Leader Anchor (the end of the Leader Line) stands at a free point (a time, a task group and a height in that Task Group Lane) or at one of eight points of a task or a Highlight Box.",
       "properties": {
         "id": {
           "$ref": "#/$defs/Uuid",
-          "description": "The id of the Comment Box: a random UUID."
+          "description": "This value is the id of the Comment Box, a random UUID."
         },
         "text": {
           "type": "string",
-          "description": "The text of the Comment Box. When the key is absent, the Comment Box has an empty body.",
+          "description": "This value is the text of the Comment Box. When the key is absent, the Comment Box has an empty body.",
           "minLength": 1,
           "maxLength": 65535
         },
         "style": {
           "$ref": "#/$defs/CommentBoxStyle",
-          "description": "How GRS draws the Comment Box (type CommentBoxStyle)."
+          "description": "This object tells GRS how to draw the Comment Box (type CommentBoxStyle)."
         },
         "leaderTarget": {
           "$ref": "#/$defs/LeaderTarget",
-          "description": "Where the Leader Line of the Comment Box points. When a person deletes the task or the Highlight Box that the Leader Line points at, GRS turns the target into a free point. When a file names a target that does not exist, GRS does not draw the Leader Line and tells the person."
+          "description": "This object tells where the Leader Line of the Comment Box points; the end of the Leader Line is the Leader Anchor. When a person deletes the task or the Highlight Box that the Leader Line points at, GRS turns the target into a free point. When a file names a target that does not exist, GRS does not draw the Leader Line and tells the person."
         },
         "bodyOffsetPx": {
           "type": "object",
-          "description": "The offset from the Leader Anchor to the lower-left corner of the Comment Box body, in CSS pixels at displayScaleRatio 1. The zoom does not change this offset.",
+          "description": "This value is the offset from the Leader Anchor to the lower-left corner of the Comment Box body, in CSS pixels at displayScaleRatio 1. The zoom does not change this offset.",
           "properties": {
             "dx": {
               "type": "number",
-              "description": "The horizontal part of the offset; a positive value moves the box to the right."
+              "description": "This value is the horizontal part of the offset; a positive value moves the box to the right."
             },
             "dy": {
               "type": "number",
-              "description": "The vertical part of the offset; a positive value moves the box down."
+              "description": "This value is the vertical part of the offset; a positive value moves the box down."
             }
           },
           "required": [
@@ -2567,13 +2567,13 @@
         },
         "hyperlinkAddress": {
           "type": "string",
-          "description": "The URL that the Comment Box links to. When the key is absent, the Comment Box has no link.",
+          "description": "This value is the URL that the Comment Box links to. When the key is absent, the Comment Box has no link.",
           "minLength": 1,
           "maxLength": 512
         },
         "hyperlink": {
           "type": "string",
-          "description": "The title of the Comment Box link, not the address. When the key is absent, the link has no title.",
+          "description": "This value is the title of the Comment Box link, not the address. When the key is absent, the link has no title.",
           "minLength": 1,
           "maxLength": 512
         }
@@ -2588,42 +2588,42 @@
     },
     "DocumentStamp": {
       "type": "object",
-      "description": "The Document Stamp: when the Schedule Data and the Schedule Document last changed, when GRS last saved the file, and who edited the Schedule Document last. The Agent API uses the same stamp to refuse a write that is based on an old read.",
+      "description": "This object is the Document Stamp: when the Schedule Data and the Schedule Document last changed, when GRS last saved the file, and who edited the Schedule Document last. The Agent API uses the same stamp to refuse a write that is based on an old read.",
       "properties": {
         "scheduleDataUpdatedAt": {
           "$ref": "#/$defs/UtcInstant",
-          "description": "When the Schedule Data last changed, in UTC. A change of documentSettings alone does not move this time."
+          "description": "This value gives the time in UTC when the Schedule Data last changed. A change of documentSettings alone does not move this time."
         },
         "documentUpdatedAt": {
           "$ref": "#/$defs/UtcInstant",
-          "description": "When the Schedule Document last changed, in the Schedule Data or in documentSettings, in UTC."
+          "description": "This value gives the time in UTC when the Schedule Document last changed, whether in the Schedule Data or in documentSettings."
         },
         "fileSavedAt": {
           "$ref": "#/$defs/UtcInstant",
-          "description": "When GRS last saved the Schedule Document to a file, in UTC. The key is absent until the first save."
+          "description": "This value gives the time in UTC when GRS last saved the Schedule Document to a file. The key is absent until the first save."
         },
         "lastEditedBy": {
           "$ref": "#/$defs/Editor",
-          "description": "Who edited the Schedule Document last (type Editor). GRS always writes this key, also in a Schedule Document that nobody has edited yet."
+          "description": "This object says who last edited the Schedule Document. GRS always writes this key, also in a Schedule Document that nobody has edited yet."
         }
       },
       "additionalProperties": false
     },
     "ChangeLogEntry": {
       "type": "object",
-      "description": "One note about a change to the Schedule Document, written by a person or an AI: when, who, which part, what, why, and anything else.",
+      "description": "This object is one note about a change to the Schedule Document, written by a person or an AI: when, who, which part, what, why, and anything else.",
       "properties": {
         "changedAt": {
           "$ref": "#/$defs/UtcInstant",
-          "description": "When the change happened, in UTC. GRS fills in the time of adding the entry; a person may change the time later."
+          "description": "This value gives the time in UTC when the change happened. GRS fills in the time when GRS adds the entry; a person may change the time later."
         },
         "changedBy": {
           "type": "object",
-          "description": "Who made the change: the kind of editor and the name.",
+          "description": "This object says who made the change: the kind of editor and the name.",
           "properties": {
             "editorType": {
               "type": "string",
-              "description": "The kind of editor that wrote this entry; GRS fills in this value by itself. \"user\": a person wrote the entry on the screen; \"agent\": an AI wrote the entry through the Agent API. This key does not choose other keys, unlike lastEditedBy.type.",
+              "description": "This value gives the kind of editor that wrote this entry, and GRS fills in the value. \"user\": a person wrote the entry on the screen; \"agent\": an AI wrote the entry through the Agent API.",
               "enum": [
                 "user",
                 "agent"
@@ -2631,7 +2631,7 @@
             },
             "name": {
               "type": "string",
-              "description": "The name of the editor: the name that a person typed, or the name that an AI gave for itself.",
+              "description": "This value gives the name of the editor: the name that a person typed, or the name that an AI reported.",
               "minLength": 1,
               "maxLength": 512
             }
@@ -2643,25 +2643,25 @@
         },
         "affectedArea": {
           "type": "string",
-          "description": "Free text that names the part of the Schedule Document that the change reached, for example \"tasks\" or the name of one task.",
+          "description": "This free text names the part of the Schedule Document that the change touched, for example \"tasks\" or the name of one task.",
           "minLength": 1,
           "maxLength": 512
         },
         "changeDescription": {
           "type": "string",
-          "description": "Free text that says what changed.",
+          "description": "This free text says what changed.",
           "minLength": 1,
           "maxLength": 65535
         },
         "reason": {
           "type": "string",
-          "description": "Free text that gives the reason for the change.",
+          "description": "This free text gives the reason for the change.",
           "minLength": 1,
           "maxLength": 65535
         },
         "remarks": {
           "type": "string",
-          "description": "Free text with anything else about the change.",
+          "description": "This free text holds anything else about the change that the other keys do not hold.",
           "minLength": 1,
           "maxLength": 65535
         }
