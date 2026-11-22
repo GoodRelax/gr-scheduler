@@ -14,7 +14,7 @@
       "creationDate": "2026-10-31T08:50:00",
       "revision": 11,
       "startDate": "2026-10-17T05:30:00",
-      "statusDate": "2026-11-22T16:18:00",
+      "statusDate": "2026-11-22T16:39:00",
       "minutesPerDay": 1440,
       "minutesPerWeek": 10080,
       "daysPerMonth": 30,
@@ -24,7 +24,7 @@
       "defaultFinishTime": "23:59:00",
       "themeHue": 214,
       "parentTaskProgressToleranceDays": 1,
-      "uidHighWaterMark": 467,
+      "uidHighWaterMark": 468,
       "importSequence": 0,
       "carry": {},
       "carryElements": [],
@@ -7696,8 +7696,8 @@
         "parentTaskUid": null,
         "wbsOrder": 312,
         "name": "🌑 N1 の見込み(① と ② の仮の長さで置いた。事実ではなく PMO の置き)",
-        "start": "2026-11-23T10:30:00",
-        "finish": "2026-11-23T10:30:00",
+        "start": "2026-11-22T23:09:00",
+        "finish": "2026-11-22T23:09:00",
         "milestone": true,
         "deadline": null,
         "calendarUid": null,
@@ -7760,8 +7760,8 @@
         "parentTaskUid": null,
         "wbsOrder": 314,
         "name": "🌑 差分抽出: 決まった名と今の仕様・コードの差を抜き出す(SUB)",
-        "start": "2026-11-23T10:30:00",
-        "finish": "2026-11-24T10:30:00",
+        "start": "2026-11-22T23:09:00",
+        "finish": "2026-11-23T23:09:00",
         "milestone": false,
         "deadline": null,
         "notes": "pmo-5 2026-11-22: new task for the deliverable tree (owner order). Input: the settled contract names of both groups (after part 13 is recorded, uid 418, and part 37 is recorded, uid 434; BOSS 11-22). Output: the list of differences between the settled names and the current spec and code, handed to CR-855/856. Length 1 day is a PMO placeholder (no measured number yet). SUB model: Opus 5.5 high.",
@@ -7990,21 +7990,21 @@
         "uid": 462,
         "parentTaskUid": null,
         "wbsOrder": 321,
-        "name": "🌒 ② 後任 14 が Agent API の見直しの方針の案を出す(SUB)",
+        "name": "🌕 ② 後任 14 が Agent API の見直しの方針の案を出す(SUB)",
         "start": "2026-11-22T16:18:00",
-        "finish": "2026-11-22T18:18:00",
+        "finish": "2026-11-22T16:38:00",
         "milestone": false,
         "deadline": null,
         "calendarUid": null,
         "actualStart": "2026-11-22T16:18:00",
         "stop": null,
-        "actualFinish": null,
+        "actualFinish": "2026-11-22T16:38:00",
         "resume": null,
         "resumeValid": null,
-        "percentComplete": 0,
+        "percentComplete": 100,
         "fadeInDays": null,
         "fadeOutDays": null,
-        "notes": "pmo-5 2026-11-22T11:53: owner answer on group 2 (a: get it out, naming first; BOSS line 11-22). Replaces the per-part tasks 354..361 and 419..434 (3.60 terms/h). Length 2.0 h is a BOSS placeholder (provisional). SUB: Opus 5.5 high. pmo-5 2026-11-22T16:18: started at the BOSS line. Finish = start + 2 h (BOSS placeholder, provisional).",
+        "notes": "pmo-5 2026-11-22T11:53: owner answer on group 2 (a: get it out, naming first; BOSS line 11-22). Replaces the per-part tasks 354..361 and 419..434 (3.60 terms/h). Length 2.0 h is a BOSS placeholder (provisional). SUB: Opus 5.5 high. pmo-5 2026-11-22T16:18: started at the BOSS line. Finish = start + 2 h (BOSS placeholder, provisional). pmo-5 2026-11-22T16:39: done. Policy draft P-1..P-12 (42 of the 45 waiting questions follow it; 3 left) in 50db70de1 (16:38), develop 83423c1d6.",
         "dependencies": [
           {
             "predecessorUid": 401,
@@ -8022,13 +8022,13 @@
         "uid": 463,
         "parentTaskUid": null,
         "wbsOrder": 322,
-        "name": "🌑 オーナー: ② Agent API の見直しの方針を決める",
-        "start": "2026-11-22T18:18:00",
-        "finish": "2026-11-22T19:18:00",
+        "name": "🌒 オーナー: ② Agent API の見直しの方針を決める",
+        "start": "2026-11-22T16:39:00",
+        "finish": "2026-11-22T17:39:00",
         "milestone": false,
         "deadline": null,
         "calendarUid": null,
-        "actualStart": null,
+        "actualStart": "2026-11-22T16:39:00",
         "stop": null,
         "actualFinish": null,
         "resume": null,
@@ -8036,7 +8036,7 @@
         "percentComplete": 0,
         "fadeInDays": null,
         "fadeOutDays": null,
-        "notes": "pmo-5 2026-11-22T11:53: owner answer on group 2 (a: get it out, naming first; BOSS line 11-22). Replaces the per-part tasks 354..361 and 419..434 (3.60 terms/h). Length 1.0 h is a BOSS placeholder (provisional). Owner hours.",
+        "notes": "pmo-5 2026-11-22T11:53: owner answer on group 2 (a: get it out, naming first; BOSS line 11-22). Replaces the per-part tasks 354..361 and 419..434 (3.60 terms/h). Length 1.0 h is a BOSS placeholder (provisional). Owner hours. pmo-5 2026-11-22T16:39: started at the BOSS line (policy draft P-1..P-12 put to the owner). 1 h is a BOSS placeholder (provisional).",
         "dependencies": [
           {
             "predecessorUid": 462,
@@ -8055,8 +8055,8 @@
         "parentTaskUid": null,
         "wbsOrder": 323,
         "name": "🌑 ② 後任 14 が Agent API・文書の命令の名をまとめてそろえる(SUB。BGQA4・BGQA5 の 45 問は 1 つずつ問わない)",
-        "start": "2026-11-22T19:18:00",
-        "finish": "2026-11-22T23:18:00",
+        "start": "2026-11-22T17:39:00",
+        "finish": "2026-11-22T21:39:00",
         "milestone": false,
         "deadline": null,
         "calendarUid": null,
@@ -8087,8 +8087,8 @@
         "parentTaskUid": null,
         "wbsOrder": 324,
         "name": "🌑 オーナー: ② そろえた名を確認する",
-        "start": "2026-11-23T09:00:00",
-        "finish": "2026-11-23T10:00:00",
+        "start": "2026-11-22T21:39:00",
+        "finish": "2026-11-22T22:39:00",
         "milestone": false,
         "deadline": null,
         "calendarUid": null,
@@ -8109,6 +8109,14 @@
             "lagFormat": 7,
             "carry": {},
             "carryElements": []
+          },
+          {
+            "predecessorUid": 468,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
           }
         ],
         "carry": {},
@@ -8119,8 +8127,8 @@
         "parentTaskUid": null,
         "wbsOrder": 325,
         "name": "🌑 ② の確認の答えを記録して合流する(後任 14。SUB)",
-        "start": "2026-11-23T10:00:00",
-        "finish": "2026-11-23T10:30:00",
+        "start": "2026-11-22T22:39:00",
+        "finish": "2026-11-22T23:09:00",
         "milestone": false,
         "deadline": null,
         "calendarUid": null,
@@ -8166,6 +8174,38 @@
         "fadeOutDays": null,
         "notes": "pmo-5 2026-11-22T12:00: BOSS line 11-22: the owner sent a questionnaire on question 6-9-1 to an outside AI and waits for the answer. Actual start = arrival of the BOSS line (the send time itself is not known). 1 h is a PMO placeholder (provisional). The record of question group 2 (459) waits for it. pmo-5 2026-11-22T12:48: done. The seat imported the three outside AI answer sets in 07ac93709 (12:18); the owner ruled JDG-3696 (6-9-1) on them.",
         "dependencies": [],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 468,
+        "parentTaskUid": null,
+        "wbsOrder": 327,
+        "name": "🌑 オーナー: ② 方針で決まらない残り 3 問に答える",
+        "start": "2026-11-22T17:39:00",
+        "finish": "2026-11-22T17:59:55",
+        "milestone": false,
+        "deadline": null,
+        "calendarUid": null,
+        "actualStart": null,
+        "stop": null,
+        "actualFinish": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "notes": "pmo-5 2026-11-22T16:39: BOSS line 11-22: the policy draft settles 42 of the 45 waiting questions; the owner answers the last 3 during the name alignment (464). Length = 3 questions at 8.6 rows/h (provisional).",
+        "dependencies": [
+          {
+            "predecessorUid": 463,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
         "carry": {},
         "carryElements": []
       }
@@ -9547,6 +9587,10 @@
       {
         "taskUid": 467,
         "taskGroupId": "8e7eda3c-3814-5706-b12e-2439e88a206b"
+      },
+      {
+        "taskUid": 468,
+        "taskGroupId": "f5c1a05d-0315-5b9a-9a59-93f3d19dd7ce"
       }
     ],
     "taskVisuals": [
@@ -11789,6 +11833,14 @@
         "fillColor": "orange",
         "strokeColor": null,
         "strokeWidthPx": null
+      },
+      {
+        "taskUid": 468,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": "diamond",
+        "fillColor": "orange",
+        "strokeColor": null,
+        "strokeWidthPx": null
       }
     ],
     "commentBoxes": [
@@ -13797,10 +13849,10 @@
     "zoomY": 1.099862517185352
   },
   "documentStamp": {
-    "scheduleUpdatedAt": "2026-11-22T07:18:00Z",
+    "scheduleUpdatedAt": "2026-11-22T07:39:00Z",
     "lastEditedBy": "PMO child session",
     "settingsUpdatedAt": "2026-10-20T20:24:42Z",
-    "fileSavedAt": "2026-11-22T07:18:00Z"
+    "fileSavedAt": "2026-11-22T07:39:00Z"
   },
   "changeLog": [
     {
@@ -14354,6 +14406,12 @@
       "editedBy": "PMO child session",
       "explanation": "Fact at 11-22 16:18 JST: BOSS line, the owner accepted the structure diagram and settled the four provisional names (JDG-3713, develop 985072472). 399, 401 and the seat task 301 are done; group 1 (GRS JSON terms) is closed. Group 2 step 1 (462, policy draft) started now; the steps after it, the N1 forecast 435 and the diff 455 re-placed behind it. N1 (316) and the beta (234) stay.",
       "changedAt": "2026-11-22T07:18:00Z"
+    },
+    {
+      "ordinal": 93,
+      "editedBy": "PMO child session",
+      "explanation": "Fact at 11-22 16:39 JST: BOSS line, glossary successor 14 wrote the Agent API naming policy draft P-1..P-12 (42 of the 45 waiting questions follow it) and JDG-3714..3715 (develop 83423c1d6); 462 is done. The owner policy decision 463 started now; new owner task 468 answers the last 3 questions during the name alignment. Steps after it, the N1 forecast 435 and the diff 455 re-placed. N1 (316) and the beta (234) stay.",
+      "changedAt": "2026-11-22T07:39:00Z"
     }
   ]
 }
