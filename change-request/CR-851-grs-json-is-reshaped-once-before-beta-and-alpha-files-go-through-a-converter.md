@@ -194,6 +194,7 @@
 | `rulings.md`（名の辞書の席、2026-11-22 の 15） | `JDG-3689`（状態機械の定義の名は camelCase（`selfShowModeStateMachine`・`automaticallyShownDepthStateMachine`）、状態の型は PascalCase（`SelfShowModeState`）、今の状態の変数は camelCase（`currentSelfShowModeState`）。NDD の例との違いを BOSS 経由で gr-sw-maker へ報告する）を足した。本書の行のレビューの前に当てる |
 | `rulings.md`（名の辞書の席、2026-11-22 の 16） | `JDG-3690`（今の `CM-72` `resetTaskGroupTreeStates`（`shown` と `hiddenUntilZoomIn` を `automatic` にし、`hidden` を残す）の名を `setTaskGroupSelfShowModesToAutomaticExceptHidden` に改める。`reset` は「すべてを初期の値に戻す」と読め、`hidden` を残す働きと食い違う（NEIM でない））を足した。本書の行のレビューの前に当てる |
 | `rulings.md`（名の辞書の席、2026-11-22 の 17） | `JDG-3691`（AI の全体表示 `fitScheduleToScreenOnPage`（`CM-102`）は、人の「全体を収める」と同じく倍率と表示位置を置き、帯の値も戻す。`setTaskGroupSelfShowModesToAutomaticExceptHidden` は全体表示の部品とし、AI に単独では見せない。「AI に見せない命令」の印の置き場は未決（`JDG-3671` の例外の JSON と同じ））を足した。本書の行のレビューの前に当てる |
+| `rulings.md`（名の辞書の席、2026-11-22 の 18） | `JDG-3692`（帯の目印を 2 つに分ける: `▾` と数（`HF-18`・`HF-12`）は配下の `invisible` の帯をすべて数える（深さで見えない帯も）。左の注意の色の帯は、人が隠した帯（`hidden`・`hiddenUntilZoomIn`）を抱える帯にだけ引く。今の `HF-18` の「人が折りたたんだ分だけ」「表示量が落とした帯を数えない」を改める）を足した。本書の行のレビューの前に当てる |
 | `defects.md` | `DFC-3579`（本書）—— 行のレビューの後に起こす |
 | `changelog.md` | 当てるときに 1 行 |
 
