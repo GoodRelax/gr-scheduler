@@ -42,7 +42,7 @@ ScheduleDocument                                    GRS JSON の 1 ファイル
 │   ├─ isGroupGridLinesVisible                      グループ罫線（タスクグループの境の横線）を見せるか
 │   ├─ taskStackDirection                           帯の中でタスクを積む向き（bottomToTop・topToBottom）
 │   ├─ isThemeMonochrome                            モノクロか
-│   ├─ themeHue （仮）                              テーマの色相の名（blue・blueGreen・green・yellowGreen・yellow・orange・red・redPurple・purple・indigo）（Project から移した。置き場は問 6-13-5）
+│   ├─ themeHue                                     テーマの色相の名（blue・blueGreen・green・yellowGreen・yellow・orange・red・redPurple・purple・indigo）（Project から移した。JDG-3713）
 │   ├─ taskGroupPanelWidthPx                        タスクグループパネルの幅（表示の倍率 1 のときの CSS ピクセル）
 │   ├─ isTaskGroupPanelWidthFixed                   幅を固定するか
 │   ├─ pinnedTaskGroupIds[]                         ピン止めしたタスクグループの id
@@ -250,13 +250,13 @@ ScheduleDocument                                    GRS JSON の 1 ファイル
 ├─ LaneColor                                        Color から black を除く
 ├─ TaskTableWindow                                  タスクの表の見せ方（検索ウィンドウ・遅延診断レポート）
 │   ├─ isScheduleFilterApplied                      表でチェックしたタスクだけを描くか
-│   ├─ checkedTaskUids[] （仮）                     チェックしたタスク
+│   ├─ checkedTaskUids[]                            チェックしたタスク
 │   ├─ columnFilters[]                              列のフィルタ（掛けた列ごとに 1 つ）→ ColumnFilter
 │   └─ columnSort                                   表の並べ方（列と向き）→ ColumnSort
 ├─ ResourceTableWindow                              担当の表の見せ方（担当リスト）
 │   ├─ isScheduleFilterApplied                      表のチェックでチャートを絞るか
-│   ├─ checkedResourceUids[] （仮）                 チェックした担当
-│   ├─ isUnassignedChecked （仮）                   （担当なし）の行をチェックしたか
+│   ├─ checkedResourceUids[]                        チェックした担当
+│   ├─ isUnassignedChecked                          （担当なし）の行をチェックしたか
 │   ├─ columnFilters[]                              列のフィルタ（掛けた列ごとに 1 つ）→ ColumnFilter
 │   └─ columnSort                                   表の並べ方（列と向き）→ ColumnSort
 ├─ ColumnFilter                                     列のフィルタ
