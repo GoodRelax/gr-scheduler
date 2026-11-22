@@ -1,0 +1,442 @@
+# HAND-WRITTEN -- EDIT THIS FILE. The Japanese column of grs-json-final-review-tree.md, one row per tree line.
+# The keys, their order and the enumeration values come from grs-json-beta.schema.json; this file holds only the Japanese text.
+# Rebuild the tree: python schema_to_review_tree.py write   |   check: python schema_to_review_tree.py check
+# Made once on 2026-11-23 from grs-json-final-review-tree.src.txt (the earlier source of the tree); the tool adds "-> Type".
+path	ja
+ScheduleDocument	GRS JSON の 1 ファイル
+$schema	スキーマの所（URL）
+schemaVersionUtc	スキーマの版（形が最後に変わった UTC の時刻）
+buildVersionUtc	書いた GRS のビルドの版（UTC の時刻）
+documentStamp	文書刻印
+documentStamp.scheduleDataUpdatedAt	データが変わった時（UTC）
+documentStamp.documentUpdatedAt	文書が変わった時（UTC）
+documentStamp.fileSavedAt	保存した時（UTC。初めて保存するまでは無い）
+documentStamp.lastEditedBy	最後に編集した者（型 Editor）
+documentStamp.lastEditedBy.type	判別子
+documentStamp.lastEditedBy.type="user"	人が画面で編集した
+documentStamp.lastEditedBy.type="template"	まだ誰も編集していない（ひな形のまま）
+documentStamp.lastEditedBy.type="agent"	AI が Agent API で編集した
+documentStamp.lastEditedBy.name	編集した者の名（agent は AI が名乗った名、user は GRS が知るときだけ）
+documentSettings	文書設定（下の「文書設定」）
+scheduleData	スケジュールデータ（下の 2 つの群）
+changeLogEntries[]	変更履歴
+changeLogEntries[].changedAt	変更の時（UTC）
+changeLogEntries[].changedBy	変更した者
+changeLogEntries[].changedBy.editorType	書き手の種類（GRS が自動で書く。判別子ではない）
+changeLogEntries[].changedBy.editorType="user"	人が画面で書いた行
+changeLogEntries[].changedBy.editorType="agent"	AI が Agent API で書いた行
+changeLogEntries[].changedBy.name	人が打った名か、AI が名乗った名
+changeLogEntries[].affectedArea	及んだ部分
+changeLogEntries[].changeDescription	何が変わったか
+changeLogEntries[].reason	理由
+changeLogEntries[].remarks	そのほか
+settings:documentSettings	文書設定（効く範囲の広い順）
+documentSettings.displayScaleRatio	表示の倍率（1 が等倍）
+documentSettings.fontSizePreset	文字の大きさの段
+documentSettings.fontSizePreset="small"	小
+documentSettings.fontSizePreset="medium"	中
+documentSettings.fontSizePreset="large"	大
+documentSettings.isThemeMonochrome	モノクロか
+documentSettings.themeHue	テーマの色相の名
+documentSettings.themeHue="blue"	青
+documentSettings.themeHue="blueGreen"	青緑
+documentSettings.themeHue="green"	緑
+documentSettings.themeHue="yellowGreen"	黄緑
+documentSettings.themeHue="yellow"	黄
+documentSettings.themeHue="orange"	橙
+documentSettings.themeHue="red"	赤
+documentSettings.themeHue="redPurple"	赤紫
+documentSettings.themeHue="purple"	紫
+documentSettings.themeHue="indigo"	藍
+documentSettings.viewTimeZone	表示の基準タイムゾーン
+documentSettings.viewTimeZone.type	判別子
+documentSettings.viewTimeZone.type="sameAsScheduleData"	データの時差と同じ
+documentSettings.viewTimeZone.type="fixed"	決まった差を使う
+documentSettings.viewTimeZone.utcOffset	UTC との差（"+09:00" の形。標準時の行だけ）（fixed）
+documentSettings.additionalTimeZones[]	追加の時計（4 つまで）
+documentSettings.additionalTimeZones[].utcOffset	UTC との差（"+09:00" の形）
+documentSettings.additionalTimeZones[].zoneNameType	出すゾーンの名の種類（差 utcOffset はもう夏時間の分を含む）
+documentSettings.additionalTimeZones[].zoneNameType="standard"	標準時の名
+documentSettings.additionalTimeZones[].zoneNameType="daylight"	夏時間の名
+documentSettings.isTimeOfDayVisible	時刻を見せるか（文書の全体の時刻の見せ方）
+documentSettings.dayWidthPx	暦日 1 日の幅
+documentSettings.fitDayRange	全体表示期間
+documentSettings.fitDayRange.type	判別子
+documentSettings.fitDayRange.type="fixed"	決まった期間
+documentSettings.fitDayRange.type="automatic"	描ける物すべての範囲（期間を持たない）
+documentSettings.fitDayRange.firstDay	最初の日（fixed）
+documentSettings.fitDayRange.lastDay	最後の日（fixed）
+documentSettings.verticalZoom	縦のズーム
+documentSettings.verticalZoom.ratio	縦の倍率（1 が既定）
+documentSettings.verticalZoom.automaticallyShownDepth	automatic の帯を、この深さまで出す（1〜maxGroupDepth）
+documentSettings.taskGroupPanelWidthPx	タスクグループパネルの幅（倍率 1 のときの CSS ピクセル）
+documentSettings.isTaskGroupPanelWidthFixed	幅を固定するか
+documentSettings.pinnedTaskGroupIds[]	ピン止めしたタスクグループの id
+documentSettings.taskPlacementDirection	帯の中で、重なるタスクを日付の早い順に置く向き
+documentSettings.taskPlacementDirection="bottomToTop"	下から上へ
+documentSettings.taskPlacementDirection="topToBottom"	上から下へ
+documentSettings.scrollPosition	開いたときの位置
+documentSettings.scrollPosition.type	判別子
+documentSettings.scrollPosition.type="automatic"	位置を決めていない（GRS が決める）
+documentSettings.scrollPosition.type="fixed"	下の 4 つの値で決める
+documentSettings.scrollPosition.leftEdgeDay	左の端の日（fixed）
+documentSettings.scrollPosition.leftEdgeDayOffsetPercent	左の端が、その日の始まりから何 % の所か（fixed）
+documentSettings.scrollPosition.topEdgeTaskGroupId	上の端の帯（fixed）
+documentSettings.scrollPosition.topEdgeTaskGroupOffsetPercent	上の端が、その帯の上から何 % の所か（fixed）
+documentSettings.scheduleCanvasElements	Schedule Canvas に描く物
+documentSettings.scheduleCanvasElements.isPlanBarVisible	予定バーを見せるか
+documentSettings.scheduleCanvasElements.isActualBarVisible	実績バーを見せるか
+documentSettings.scheduleCanvasElements.isBaselineOutlineVisible	前回予定を重ねるか（前回予定輪郭）
+documentSettings.scheduleCanvasElements.isAssigneeLabelVisible	担当のラベルを見せるか
+documentSettings.scheduleCanvasElements.isPercentCompleteLabelVisible	完了率のラベルを見せるか
+documentSettings.scheduleCanvasElements.isProgressStatusMarkVisible	進捗ステータスマークと再開マークを見せるか
+documentSettings.scheduleCanvasElements.isPlanDatesVisible	予定の日付を見せるか
+documentSettings.scheduleCanvasElements.isDependencyLineVisible	依存線を見せるか
+documentSettings.scheduleCanvasElements.isProgressLineVisible	イナズマ線を見せるか
+documentSettings.scheduleCanvasElements.isDateGridLinesVisible	日の罫線を見せるか
+documentSettings.scheduleCanvasElements.isTaskGroupGridLinesVisible	タスクグループ罫線（タスクグループの境の横線）を見せるか
+documentSettings.delayDiagnosisSettings	遅延診断の設定
+documentSettings.delayDiagnosisSettings.parentTaskProgressToleranceWorkingDays	遅延診断が親タスクの進み具合に許す幅（稼働日）
+documentSettings.tableWindows	3 つの表の見せ方
+documentSettings.tableWindows.searchWindow	検索ウィンドウ
+documentSettings.tableWindows.delayDiagnosisReportWindow	遅延診断レポート
+documentSettings.tableWindows.resourceListWindow	担当リスト
+mspdi:scheduleData	スケジュールデータ（頭の値と、MSPDI と往復する群）
+scheduleData.scheduleDataTimeZone	データの日時の時差
+scheduleData.scheduleDataTimeZone.utcOffset	UTC との差（"+09:00" の形。標準時の行だけ）
+scheduleData.sourceFormat	元の形式
+scheduleData.sourceFormat="grs"	GRS JSON
+scheduleData.sourceFormat="mspdi12"	MSPDI（Project の版 12 の形）
+scheduleData.sourceFormat="mspdi15"	MSPDI（Project の版 15 の形）
+scheduleData.importedTopTaskOutlineLevel	取り込んだファイルの、最上位のタスクの OutlineLevel
+scheduleData.mspdiImportCount	MSPDI を取り込んだ回数
+scheduleData.highestIssuedUid	uid の数え手（GRS が出した最も大きい uid）
+scheduleData.project	プロジェクト（1 件）
+scheduleData.project.uid	一意な識別子（文字列）
+scheduleData.project.name	プロジェクト名
+scheduleData.project.title	タイトル
+scheduleData.project.subject	件名
+scheduleData.project.category	分類
+scheduleData.project.company	会社
+scheduleData.project.manager	管理者
+scheduleData.project.author	作成者
+scheduleData.project.creationDate	作った日時
+scheduleData.project.revision	保存した回数
+scheduleData.project.startDate	開始の日時
+scheduleData.project.calendarUid	稼働日を数える暦
+scheduleData.project.defaultStartTime	既定の開始時刻
+scheduleData.project.defaultFinishTime	既定の終了時刻
+scheduleData.project.minutesPerDay	1 日の稼働の分
+scheduleData.project.minutesPerWeek	1 週の稼働の分
+scheduleData.project.daysPerMonth	1 か月の稼働日
+scheduleData.project.weekStartDay	週の始まりの曜日
+scheduleData.project.weekStartDay=0	日曜
+scheduleData.project.weekStartDay=1	月曜
+scheduleData.project.weekStartDay=2	火曜
+scheduleData.project.weekStartDay=3	水曜
+scheduleData.project.weekStartDay=4	木曜
+scheduleData.project.weekStartDay=5	金曜
+scheduleData.project.weekStartDay=6	土曜
+scheduleData.project.statusDate	基準日
+scheduleData.project.grs	GRS の値
+scheduleData.project.grs.passthrough	持ち越した MSPDI の値（MSPDI の構造と名のまま）
+scheduleData.calendars[]	暦
+scheduleData.calendars[].uid	一意な識別子
+scheduleData.calendars[].name	暦の名
+scheduleData.calendars[].isBaseCalendar	基本の暦か
+scheduleData.calendars[].baseCalendarUid	受け継ぐ元の暦
+scheduleData.calendars[].grs	GRS の値
+scheduleData.calendars[].grs.passthrough	持ち越した MSPDI の値
+scheduleData.calendars[].weekDays[]	曜日ごとの稼働
+scheduleData.calendars[].weekDays[].dayType	曜日（MSPDI の 0 例外は GRS では使わない）
+scheduleData.calendars[].weekDays[].dayType=1	日曜
+scheduleData.calendars[].weekDays[].dayType=2	月曜
+scheduleData.calendars[].weekDays[].dayType=3	火曜
+scheduleData.calendars[].weekDays[].dayType=4	水曜
+scheduleData.calendars[].weekDays[].dayType=5	木曜
+scheduleData.calendars[].weekDays[].dayType=6	金曜
+scheduleData.calendars[].weekDays[].dayType=7	土曜
+scheduleData.calendars[].weekDays[].dayWorking	稼働日か
+scheduleData.calendars[].weekDays[].grs	GRS の値
+scheduleData.calendars[].weekDays[].grs.passthrough	持ち越した MSPDI の値
+scheduleData.calendars[].weekDays[].workingTimes[]	稼働の時間帯
+scheduleData.calendars[].weekDays[].workingTimes[].fromTime	始まりの時刻
+scheduleData.calendars[].weekDays[].workingTimes[].toTime	終わりの時刻
+scheduleData.calendars[].exceptions[]	例外の日
+scheduleData.calendars[].exceptions[].name	例外の名
+scheduleData.calendars[].exceptions[].fromDate	最初の日
+scheduleData.calendars[].exceptions[].toDate	最後の日
+scheduleData.calendars[].exceptions[].dayWorking	稼働日か
+scheduleData.calendars[].exceptions[].type	例外の繰り返し方（判別子ではない）
+scheduleData.calendars[].exceptions[].type=1	毎日
+scheduleData.calendars[].exceptions[].type=2	毎年、月の何日
+scheduleData.calendars[].exceptions[].type=3	毎年、月の第何何曜日
+scheduleData.calendars[].exceptions[].type=4	毎月、何日
+scheduleData.calendars[].exceptions[].type=5	毎月、第何何曜日
+scheduleData.calendars[].exceptions[].type=6	毎週
+scheduleData.calendars[].exceptions[].type=7	何日ごと
+scheduleData.calendars[].exceptions[].type=8	何稼働日ごと
+scheduleData.calendars[].exceptions[].type=9	繰り返さない
+scheduleData.calendars[].exceptions[].period	繰り返しの間隔
+scheduleData.calendars[].exceptions[].grs	GRS の値
+scheduleData.calendars[].exceptions[].grs.passthrough	持ち越した MSPDI の値
+scheduleData.calendars[].exceptions[].workingTimes[]	稼働の時間帯
+scheduleData.calendars[].exceptions[].workingTimes[].fromTime	始まりの時刻
+scheduleData.calendars[].exceptions[].workingTimes[].toTime	終わりの時刻
+scheduleData.passthroughCalendars[]	GRS が暦にしない MSPDI の要素
+scheduleData.passthroughCalendars[].precedingCalendarUid	前にある、いちばん近い暦の uid（先頭では書かない）
+scheduleData.passthroughCalendars[].mspdiElement	MSPDI の要素（構造と名のまま）
+scheduleData.tasks[]	タスク
+scheduleData.tasks[].uid	一意な識別子
+scheduleData.tasks[].name	タスク名
+scheduleData.tasks[].start	予定の開始
+scheduleData.tasks[].finish	予定の終了
+scheduleData.tasks[].stop	作業が止まった時
+scheduleData.tasks[].resume	再開の予定
+scheduleData.tasks[].resumeValid	再開日が有効か
+scheduleData.tasks[].milestone	マイルストーンか
+scheduleData.tasks[].percentComplete	完了率
+scheduleData.tasks[].actualStart	実績の開始
+scheduleData.tasks[].actualFinish	実績の終了
+scheduleData.tasks[].calendarUid	タスクの暦
+scheduleData.tasks[].deadline	期限
+scheduleData.tasks[].hyperlink	リンクのタイトル
+scheduleData.tasks[].hyperlinkAddress	リンク先の URL
+scheduleData.tasks[].notes	メモ
+scheduleData.tasks[].parentTaskUid	WBS の親タスク（最上位では書かない）
+scheduleData.tasks[].siblingOrder	兄弟の中の順
+scheduleData.tasks[].grs	タスクに付く GRS の値
+scheduleData.tasks[].grs.startSlopeCalendarDays	開始の傾き（開始の端を斜めに落とす暦日。確定していない日付）
+scheduleData.tasks[].grs.finishSlopeCalendarDays	終了の傾き（終了の端を斜めに落とす暦日。確定していない日付）
+scheduleData.tasks[].grs.style	見た目（型 TaskStyle）
+scheduleData.tasks[].grs.style.taskShape	バーの形（マイルストーンでないときだけ）
+scheduleData.tasks[].grs.style.taskShape="rectangle"	矩形
+scheduleData.tasks[].grs.style.taskShape="chevron"	矢羽根
+scheduleData.tasks[].grs.style.taskShape="arrow"	矢印
+scheduleData.tasks[].grs.style.taskShape="dumbbell"	ダンベル（両端に点のある細い線）
+scheduleData.tasks[].grs.style.milestoneShape	マイルストーンマークの形（マイルストーンのときだけ）
+scheduleData.tasks[].grs.style.milestoneShape="circle"	円
+scheduleData.tasks[].grs.style.milestoneShape="hexagon"	六角形
+scheduleData.tasks[].grs.style.milestoneShape="pentagon"	五角形
+scheduleData.tasks[].grs.style.milestoneShape="diamond"	ひし形
+scheduleData.tasks[].grs.style.milestoneShape="square"	正方形
+scheduleData.tasks[].grs.style.milestoneShape="star"	星
+scheduleData.tasks[].grs.style.milestoneShape="triangleUp"	上向きの三角
+scheduleData.tasks[].grs.style.milestoneShape="triangleDown"	下向きの三角
+scheduleData.tasks[].grs.style.milestoneShape="file"	書類
+scheduleData.tasks[].grs.style.milestoneShape="box"	箱
+scheduleData.tasks[].grs.style.milestoneShape="floppyDisk"	フロッピーディスク
+scheduleData.tasks[].grs.style.milestoneShape="cylinder"	円柱
+scheduleData.tasks[].grs.style.milestoneShape="meetingPeople"	会議の人々
+scheduleData.tasks[].grs.style.milestoneShape="smilingFace"	笑顔
+scheduleData.tasks[].grs.style.milestoneShape="beerMug"	ビールジョッキ
+scheduleData.tasks[].grs.style.fill	塗り
+scheduleData.tasks[].grs.style.stroke	縁
+scheduleData.tasks[].grs.taskGroupId	載せるタスクグループ
+scheduleData.tasks[].grs.importOrigin	取り込み元の控え（型 ImportOrigin。取り込んだタスクだけ）
+scheduleData.tasks[].grs.importOrigin.sourceProjectUid	元のファイルの Project の UID
+scheduleData.tasks[].grs.importOrigin.sourceTaskUid	元のファイルでの、このタスクの UID
+scheduleData.tasks[].grs.importOrigin.importSessionId	取り込みの id（取り込みのたびに GRS が作る）
+scheduleData.tasks[].grs.importOrigin.mspdiImportCountWhenLastIncluded	このタスクを最後に含んでいた取り込みが何回目か
+scheduleData.tasks[].grs.passthrough	持ち越した MSPDI の値
+scheduleData.tasks[].predecessorLinks[]	先行への結び付き
+scheduleData.tasks[].predecessorLinks[].predecessorUid	先行タスク
+scheduleData.tasks[].predecessorLinks[].type	依存の種類（判別子ではない）
+scheduleData.tasks[].predecessorLinks[].type=0	FF 終了から終了
+scheduleData.tasks[].predecessorLinks[].type=1	FS 終了から開始
+scheduleData.tasks[].predecessorLinks[].type=2	SF 開始から終了
+scheduleData.tasks[].predecessorLinks[].type=3	SS 開始から開始
+scheduleData.tasks[].predecessorLinks[].linkLag	ラグ（0.1 分単位）
+scheduleData.tasks[].predecessorLinks[].lagFormat	ラグを見せる単位（e は経過時間、? は見積り）
+scheduleData.tasks[].predecessorLinks[].lagFormat=3	m 分
+scheduleData.tasks[].predecessorLinks[].lagFormat=4	em
+scheduleData.tasks[].predecessorLinks[].lagFormat=5	h 時間
+scheduleData.tasks[].predecessorLinks[].lagFormat=6	eh
+scheduleData.tasks[].predecessorLinks[].lagFormat=7	d 日
+scheduleData.tasks[].predecessorLinks[].lagFormat=8	ed
+scheduleData.tasks[].predecessorLinks[].lagFormat=9	w 週
+scheduleData.tasks[].predecessorLinks[].lagFormat=10	ew
+scheduleData.tasks[].predecessorLinks[].lagFormat=11	mo 月
+scheduleData.tasks[].predecessorLinks[].lagFormat=12	emo
+scheduleData.tasks[].predecessorLinks[].lagFormat=19	% 割合
+scheduleData.tasks[].predecessorLinks[].lagFormat=20	e%
+scheduleData.tasks[].predecessorLinks[].lagFormat=35..44	m? .. emo?（見積り）
+scheduleData.tasks[].predecessorLinks[].lagFormat=51	%?
+scheduleData.tasks[].predecessorLinks[].lagFormat=52	e%?
+scheduleData.tasks[].predecessorLinks[].grs	GRS の値
+scheduleData.tasks[].predecessorLinks[].grs.passthrough	持ち越した MSPDI の値
+scheduleData.passthroughTasks[]	GRS がタスクにしない MSPDI の要素
+scheduleData.passthroughTasks[].precedingTaskUid	前にある、いちばん近いタスクの uid（先頭では書かない）
+scheduleData.passthroughTasks[].mspdiElement	MSPDI の要素（構造と名のまま）
+scheduleData.resources[]	担当
+scheduleData.resources[].uid	一意な識別子
+scheduleData.resources[].name	担当の名
+scheduleData.resources[].type	資材か作業か（判別子ではない）
+scheduleData.resources[].type=0	資材
+scheduleData.resources[].type=1	作業
+scheduleData.resources[].isCostResource	コストの担当か
+scheduleData.resources[].calendarUid	担当の暦
+scheduleData.resources[].grs	GRS の値
+scheduleData.resources[].grs.passthrough	持ち越した MSPDI の値
+scheduleData.passthroughResources[]	GRS が担当にしない MSPDI の要素
+scheduleData.passthroughResources[].precedingResourceUid	前にある、いちばん近い担当の uid（先頭では書かない）
+scheduleData.passthroughResources[].mspdiElement	MSPDI の要素（構造と名のまま）
+scheduleData.assignments[]	割当
+scheduleData.assignments[].uid	一意な識別子
+scheduleData.assignments[].taskUid	就くタスク
+scheduleData.assignments[].resourceUid	就く担当
+scheduleData.assignments[].grs	GRS の値
+scheduleData.assignments[].grs.passthrough	持ち越した MSPDI の値
+scheduleData.passthroughAssignments[]	GRS が割当にしない MSPDI の要素
+scheduleData.passthroughAssignments[].precedingAssignmentUid	前にある、いちばん近い割当の uid（先頭では書かない）
+scheduleData.passthroughAssignments[].mspdiElement	MSPDI の要素（構造と名のまま）
+grs:scheduleData	スケジュールデータ（GRS だけが持つ配列。MSPDI の群の後に続く）
+scheduleData.taskGroups[]	タスクグループ
+scheduleData.taskGroups[].id	一意な UUID
+scheduleData.taskGroups[].name	タスクグループ名
+scheduleData.taskGroups[].parentTaskGroupId	親のタスクグループ（最上位では書かない）
+scheduleData.taskGroups[].siblingOrder	兄弟の中の順
+scheduleData.taskGroups[].style	見た目（型 TaskGroupStyle）
+scheduleData.taskGroups[].style.color	帯の色
+scheduleData.taskGroups[].minHeightPx	帯の最も低い高さ
+scheduleData.taskGroups[].representativeTaskUid	この帯を代表する WBS のタスク
+scheduleData.taskGroups[].hyperlinkAddress	リンク先の URL
+scheduleData.taskGroups[].hyperlink	リンクのタイトル
+scheduleData.taskGroups[].showMode	この帯を出すかの意図（書かなければ automatic。hidden と hiddenUntilZoomIn は配下も隠す）
+scheduleData.taskGroups[].showMode="shown"	出す（人が出すと選んだ。深さに依らず描く。祖先が隠していれば隠れる）
+scheduleData.taskGroups[].showMode="hidden"	しまう（人がしまうと選んだ。配下も隠れ、ズームでも全体表示でも隠れたまま）
+scheduleData.taskGroups[].showMode="automatic"	規則に任せる（深さ・ピン・出ている配下への道で決まる）
+scheduleData.taskGroups[].showMode="hiddenUntilZoomIn"	拡大まで隠す（配下も隠れる。次の縦のズームインで automatic に変わる）
+scheduleData.taskGroups[].allowedEditorGroupName	編集してよい組の名
+scheduleData.baselineTasks[]	前回予定
+scheduleData.baselineTasks[].uid	今のタスクの uid
+scheduleData.baselineTasks[].name	タスク名
+scheduleData.baselineTasks[].start	前回予定の開始
+scheduleData.baselineTasks[].finish	前回予定の終了
+scheduleData.baselineTasks[].milestone	マイルストーンか
+scheduleData.highlightBoxes[]	ハイライトボックス
+scheduleData.highlightBoxes[].id	一意な UUID
+scheduleData.highlightBoxes[].style	見た目（型 HighlightBoxStyle）
+scheduleData.highlightBoxes[].style.cornerRadiusPx	角の丸みの半径
+scheduleData.highlightBoxes[].style.fill	塗り
+scheduleData.highlightBoxes[].style.stroke	枠
+scheduleData.highlightBoxes[].firstDay	最初の日
+scheduleData.highlightBoxes[].lastDay	最後の日
+scheduleData.highlightBoxes[].firstTaskGroupId	覆う最初の帯（両端を含む）
+scheduleData.highlightBoxes[].lastTaskGroupId	覆う最後の帯（両端を含む）
+scheduleData.commentBoxes[]	コメントボックス
+scheduleData.commentBoxes[].id	一意な UUID
+scheduleData.commentBoxes[].text	文
+scheduleData.commentBoxes[].style	見た目（型 CommentBoxStyle）
+scheduleData.commentBoxes[].style.fill	箱の塗り
+scheduleData.commentBoxes[].style.stroke	枠と引出し線
+scheduleData.commentBoxes[].style.font	文字の見た目
+scheduleData.commentBoxes[].style.font.color	文字の色
+scheduleData.commentBoxes[].style.font.sizePx	文字の大きさ
+scheduleData.commentBoxes[].leaderTarget	引出し線の先
+scheduleData.commentBoxes[].leaderTarget.type	判別子
+scheduleData.commentBoxes[].leaderTarget.type="freePoint"	何にも付かない点
+scheduleData.commentBoxes[].leaderTarget.type="task"	タスクの図形
+scheduleData.commentBoxes[].leaderTarget.type="highlightBox"	ハイライトボックス
+scheduleData.commentBoxes[].leaderTarget.dateTime	時点（freePoint）
+scheduleData.commentBoxes[].leaderTarget.taskGroupId	帯（freePoint）
+scheduleData.commentBoxes[].leaderTarget.taskGroupTopOffsetPercent	帯の中の高さ（上の縁から %）（freePoint）
+scheduleData.commentBoxes[].leaderTarget.taskUid	タスク（task）
+scheduleData.commentBoxes[].leaderTarget.snapPart	吸着する図形の部分（task）
+scheduleData.commentBoxes[].leaderTarget.snapPart="planBar"	予定バー
+scheduleData.commentBoxes[].leaderTarget.snapPart="actualBar"	実績バー
+scheduleData.commentBoxes[].leaderTarget.snapPart="milestoneMark"	マイルストーンマーク
+scheduleData.commentBoxes[].leaderTarget.highlightBoxId	箱（highlightBox）
+scheduleData.commentBoxes[].leaderTarget.snapPoint	吸着する 8 点の 1 つ（task・highlightBox）
+scheduleData.commentBoxes[].leaderTarget.snapPoint="topLeftCorner"	左上の角
+scheduleData.commentBoxes[].leaderTarget.snapPoint="topMiddle"	上の辺の中点
+scheduleData.commentBoxes[].leaderTarget.snapPoint="topRightCorner"	右上の角
+scheduleData.commentBoxes[].leaderTarget.snapPoint="rightMiddle"	右の辺の中点
+scheduleData.commentBoxes[].leaderTarget.snapPoint="bottomRightCorner"	右下の角
+scheduleData.commentBoxes[].leaderTarget.snapPoint="bottomMiddle"	下の辺の中点
+scheduleData.commentBoxes[].leaderTarget.snapPoint="bottomLeftCorner"	左下の角
+scheduleData.commentBoxes[].leaderTarget.snapPoint="leftMiddle"	左の辺の中点
+scheduleData.commentBoxes[].bodyOffsetPx	線先から箱へのずれ
+scheduleData.commentBoxes[].bodyOffsetPx.dx	横のずれ
+scheduleData.commentBoxes[].bodyOffsetPx.dy	縦のずれ
+scheduleData.commentBoxes[].hyperlinkAddress	リンク先の URL
+scheduleData.commentBoxes[].hyperlink	リンクのタイトル
+Color	色
+Color.type	判別子
+Color.type="theme"	テーマの色に従う
+Color.type="palette"	パレットの 10 色の 1 つ
+Color.type="custom"	人が選んだ色
+Color.name	パレットの色の名（palette。明るいテーマでの見え方の名）
+Color.name="white"	白
+Color.name="black"	黒
+Color.name="dimGray"	濃い灰色
+Color.name="lightGray"	薄い灰色
+Color.name="red"	赤
+Color.name="blue"	青
+Color.name="yellow"	黄
+Color.name="green"	緑
+Color.name="orange"	橙
+Color.name="purple"	紫
+Color.light	明るいテーマの側（custom）
+Color.light.hexColor	色の値（#rrggbb）
+Color.light.isCalculatedFromOppositeColorScheme	GRS が反対の側の色から計算した側だけ true
+Color.dark	暗いテーマの側（custom）
+Color.dark.hexColor	色の値（#rrggbb）
+Color.dark.isCalculatedFromOppositeColorScheme	GRS が反対の側の色から計算した側だけ true
+TaskGroupColor	帯の色（Color と同じ形。palette の black を除く）
+Paint	塗り
+Paint.color	色
+Paint.opacityPercent	不透明度（%）
+Stroke	線（描かないときは書かない）
+Stroke.color	色
+Stroke.opacityPercent	不透明度（%）
+Stroke.widthPx	太さ
+ShapeStyle	形の見た目（TaskStyle・CommentBoxStyle・HighlightBoxStyle が共にする）
+ShapeStyle.fill	塗り
+ShapeStyle.stroke	線
+ColumnFilter	列のフィルタ
+ColumnFilter.type	判別子
+ColumnFilter.type="values"	値で絞る
+ColumnFilter.type="dateRange"	日の範囲で絞る
+ColumnFilter.column	列（列が見せる値の名）
+ColumnFilter.column="progressStatus"	検索・タスク: ステータス（進捗ステータス）
+ColumnFilter.column="percentComplete"	検索・タスク、遅延診断: 進捗
+ColumnFilter.column="taskType"	検索・タスク、遅延診断: タスク種別（タスクかマイルストーンか）
+ColumnFilter.column="taskName"	検索・タスク、遅延診断: タスク（マイルストーン）
+ColumnFilter.column="resourceNames"	検索・タスク、遅延診断: 担当名（そのタスクのすべての担当）
+ColumnFilter.column="start"	検索・タスク: 予定開始
+ColumnFilter.column="finish"	検索・タスク: 予定終了
+ColumnFilter.column="actualStart"	検索・タスク: 実績開始
+ColumnFilter.column="actualFinish"	検索・タスク: 実績終了
+ColumnFilter.column="taskGroupPath"	検索・タスク: 最上位までの階層
+ColumnFilter.column="text"	検索・コメントボックス: 本文
+ColumnFilter.column="taskGroupName"	検索・コメントボックス: 線先が立つタスクグループの名
+ColumnFilter.column="leaderTargetDay"	検索・コメントボックス: 線先が立つ日
+ColumnFilter.column="diagnosisStatus"	遅延診断: ステータス（診断の結果）
+ColumnFilter.column="planDates"	遅延診断: 予定日（開始〜終了）
+ColumnFilter.column="actualDates"	遅延診断: 実績日（開始〜終了）
+ColumnFilter.column="diagnosisReason"	遅延診断: 理由
+ColumnFilter.column="resourceSelectionStatus"	担当リスト: 選択（その担当を選んでいるか）
+ColumnFilter.column="resourceName"	担当リスト: 担当名
+ColumnFilter.column="assignedTaskCount"	担当リスト: 担当タスク数
+ColumnFilter.column="assignedTaskNames"	担当リスト: 担当タスク
+ColumnFilter.hiddenValues[]	隠す値（values）。状態の列は用語集の英語の名（例 finished・delay・task・selected、JDG-3735）、ほかの列はセルの値
+ColumnFilter.isBlankHidden	空の行を隠すか（values）
+ColumnFilter.firstDay	最初の日（dateRange）
+ColumnFilter.lastDay	最後の日（dateRange）
+ColumnSort	並べ替え
+ColumnSort.column	列（ColumnFilter.column と同じ値）
+ColumnSort.direction	向き
+ColumnSort.direction="ascending"	小さい順
+ColumnSort.direction="descending"	大きい順
+TaskTableWindow	タスクの表の見せ方（検索ウィンドウ・遅延診断レポート）
+TaskTableWindow.isScheduleFilteredByChecks	チェックで日程表を絞るか（チェックしたタスクだけを描く）
+TaskTableWindow.checkedTaskUids[]	チェックしたタスク
+TaskTableWindow.columnFilters[]	列のフィルタ（掛けた列ごとに 1 つ）
+TaskTableWindow.columnSort	表の並べ方（列と向き）
+ResourceTableWindow	担当の表の見せ方（担当リスト）
+ResourceTableWindow.isScheduleFilteredByChecks	チェックで日程表を絞るか（チェックした担当のタスクだけを描く）
+ResourceTableWindow.isUnassignedChecked	（担当なし）の行をチェックしたか
+ResourceTableWindow.checkedResourceUids[]	チェックした担当
+ResourceTableWindow.columnFilters[]	列のフィルタ（掛けた列ごとに 1 つ）
+ResourceTableWindow.columnSort	表の並べ方（列と向き）

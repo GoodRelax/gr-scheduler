@@ -1,0 +1,1814 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://goodrelax.github.io/gr-scheduler/spec/_source/grs-document.schema.json",
+  "$comment": "HAND-WRITTEN CONTRACT -- EDIT THIS FILE. The beta shape of GRS JSON (CR-851), written from the accepted tree grs-json-final-review-tree.md and the sample grs-json-beta-sample.json (rulings JDG-3566..3756). Until CR-851 moves this shape into docs/spec/_source (erd.json, settings.json and their generator), this file is the source of the beta shape; compare_schemas.py is the gate between the two. The review tree is generated from this file: python schema_to_review_tree.py write. Status 2026-11-23: structure, order and enumeration values are final; descriptions marked TODO and value bounds are being written.",
+  "title": "GRS JSON document",
+  "description": "TODO root description",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "schemaVersionUtc": {
+      "$ref": "#/$defs/UtcDateTime"
+    },
+    "buildVersionUtc": {
+      "$ref": "#/$defs/UtcDateTime"
+    },
+    "documentStamp": {
+      "$ref": "#/$defs/DocumentStamp"
+    },
+    "documentSettings": {
+      "type": "object",
+      "properties": {
+        "displayScaleRatio": {
+          "type": "number"
+        },
+        "fontSizePreset": {
+          "type": "string",
+          "enum": [
+            "small",
+            "medium",
+            "large"
+          ]
+        },
+        "isThemeMonochrome": {
+          "type": "boolean"
+        },
+        "themeHue": {
+          "type": "string",
+          "enum": [
+            "blue",
+            "blueGreen",
+            "green",
+            "yellowGreen",
+            "yellow",
+            "orange",
+            "red",
+            "redPurple",
+            "purple",
+            "indigo"
+          ]
+        },
+        "viewTimeZone": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "sameAsScheduleData",
+                "fixed"
+              ]
+            },
+            "utcOffset": {
+              "$ref": "#/$defs/UtcOffset"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type"
+          ],
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "type": {
+                    "const": "sameAsScheduleData"
+                  }
+                }
+              },
+              "then": {
+                "properties": {
+                  "utcOffset": false
+                }
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "type": {
+                    "const": "fixed"
+                  }
+                }
+              },
+              "then": {
+                "required": [
+                  "utcOffset"
+                ]
+              }
+            }
+          ]
+        },
+        "additionalTimeZones": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "utcOffset": {
+                "$ref": "#/$defs/UtcOffset"
+              },
+              "zoneNameType": {
+                "type": "string",
+                "enum": [
+                  "standard",
+                  "daylight"
+                ]
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "isTimeOfDayVisible": {
+          "type": "boolean"
+        },
+        "dayWidthPx": {
+          "type": "number"
+        },
+        "fitDayRange": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "fixed",
+                "automatic"
+              ]
+            },
+            "firstDay": {
+              "$ref": "#/$defs/Day"
+            },
+            "lastDay": {
+              "$ref": "#/$defs/Day"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type"
+          ],
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "type": {
+                    "const": "fixed"
+                  }
+                }
+              },
+              "then": {
+                "required": [
+                  "firstDay",
+                  "lastDay"
+                ]
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "type": {
+                    "const": "automatic"
+                  }
+                }
+              },
+              "then": {
+                "properties": {
+                  "firstDay": false,
+                  "lastDay": false
+                }
+              }
+            }
+          ]
+        },
+        "verticalZoom": {
+          "type": "object",
+          "properties": {
+            "ratio": {
+              "type": "number"
+            },
+            "automaticallyShownDepth": {
+              "type": "integer"
+            }
+          },
+          "additionalProperties": false
+        },
+        "taskGroupPanelWidthPx": {
+          "type": "number"
+        },
+        "isTaskGroupPanelWidthFixed": {
+          "type": "boolean"
+        },
+        "pinnedTaskGroupIds": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Uuid"
+          }
+        },
+        "taskPlacementDirection": {
+          "type": "string",
+          "enum": [
+            "bottomToTop",
+            "topToBottom"
+          ]
+        },
+        "scrollPosition": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "automatic",
+                "fixed"
+              ]
+            },
+            "leftEdgeDay": {
+              "$ref": "#/$defs/Day"
+            },
+            "leftEdgeDayOffsetPercent": {
+              "type": "number"
+            },
+            "topEdgeTaskGroupId": {
+              "$ref": "#/$defs/Uuid"
+            },
+            "topEdgeTaskGroupOffsetPercent": {
+              "type": "number"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type"
+          ],
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "type": {
+                    "const": "automatic"
+                  }
+                }
+              },
+              "then": {
+                "properties": {
+                  "leftEdgeDay": false,
+                  "leftEdgeDayOffsetPercent": false,
+                  "topEdgeTaskGroupId": false,
+                  "topEdgeTaskGroupOffsetPercent": false
+                }
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "type": {
+                    "const": "fixed"
+                  }
+                }
+              },
+              "then": {
+                "required": [
+                  "leftEdgeDay",
+                  "leftEdgeDayOffsetPercent",
+                  "topEdgeTaskGroupId",
+                  "topEdgeTaskGroupOffsetPercent"
+                ]
+              }
+            }
+          ]
+        },
+        "scheduleCanvasElements": {
+          "type": "object",
+          "properties": {
+            "isPlanBarVisible": {
+              "type": "boolean"
+            },
+            "isActualBarVisible": {
+              "type": "boolean"
+            },
+            "isBaselineOutlineVisible": {
+              "type": "boolean"
+            },
+            "isAssigneeLabelVisible": {
+              "type": "boolean"
+            },
+            "isPercentCompleteLabelVisible": {
+              "type": "boolean"
+            },
+            "isProgressStatusMarkVisible": {
+              "type": "boolean"
+            },
+            "isPlanDatesVisible": {
+              "type": "boolean"
+            },
+            "isDependencyLineVisible": {
+              "type": "boolean"
+            },
+            "isProgressLineVisible": {
+              "type": "boolean"
+            },
+            "isDateGridLinesVisible": {
+              "type": "boolean"
+            },
+            "isTaskGroupGridLinesVisible": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        },
+        "delayDiagnosisSettings": {
+          "type": "object",
+          "properties": {
+            "parentTaskProgressToleranceWorkingDays": {
+              "type": "integer"
+            }
+          },
+          "additionalProperties": false
+        },
+        "tableWindows": {
+          "type": "object",
+          "properties": {
+            "searchWindow": {
+              "$ref": "#/$defs/TaskTableWindow"
+            },
+            "delayDiagnosisReportWindow": {
+              "$ref": "#/$defs/TaskTableWindow"
+            },
+            "resourceListWindow": {
+              "$ref": "#/$defs/ResourceTableWindow"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "scheduleData": {
+      "type": "object",
+      "properties": {
+        "scheduleDataTimeZone": {
+          "type": "object",
+          "properties": {
+            "utcOffset": {
+              "$ref": "#/$defs/UtcOffset"
+            }
+          },
+          "additionalProperties": false
+        },
+        "sourceFormat": {
+          "type": "string",
+          "enum": [
+            "grs",
+            "mspdi12",
+            "mspdi15"
+          ]
+        },
+        "importedTopTaskOutlineLevel": {
+          "type": "integer"
+        },
+        "mspdiImportCount": {
+          "type": "integer"
+        },
+        "highestIssuedUid": {
+          "$ref": "#/$defs/Uid"
+        },
+        "project": {
+          "$ref": "#/$defs/Project",
+          "description": "Same as MSPDI Project."
+        },
+        "calendars": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Calendar"
+          },
+          "description": "Same as MSPDI Calendars."
+        },
+        "passthroughCalendars": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "precedingCalendarUid": {
+                "$ref": "#/$defs/Uid"
+              },
+              "mspdiElement": {
+                "$ref": "#/$defs/MspdiElement"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "tasks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Task"
+          },
+          "description": "Same as MSPDI Tasks."
+        },
+        "passthroughTasks": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "precedingTaskUid": {
+                "$ref": "#/$defs/Uid"
+              },
+              "mspdiElement": {
+                "$ref": "#/$defs/MspdiElement"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "resources": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Resource"
+          },
+          "description": "Same as MSPDI Resources."
+        },
+        "passthroughResources": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "precedingResourceUid": {
+                "$ref": "#/$defs/Uid"
+              },
+              "mspdiElement": {
+                "$ref": "#/$defs/MspdiElement"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "assignments": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Assignment"
+          },
+          "description": "Same as MSPDI Assignments."
+        },
+        "passthroughAssignments": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "precedingAssignmentUid": {
+                "$ref": "#/$defs/Uid"
+              },
+              "mspdiElement": {
+                "$ref": "#/$defs/MspdiElement"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "taskGroups": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/TaskGroup"
+          }
+        },
+        "baselineTasks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/BaselineTask"
+          }
+        },
+        "highlightBoxes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/HighlightBox"
+          }
+        },
+        "commentBoxes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/CommentBox"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "changeLogEntries": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/ChangeLogEntry"
+      }
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "Uid": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 2147483647,
+      "description": "TODO"
+    },
+    "Uuid": {
+      "type": "string",
+      "format": "uuid",
+      "description": "TODO"
+    },
+    "DateTime": {
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}$",
+      "description": "TODO"
+    },
+    "Day": {
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+      "description": "TODO"
+    },
+    "Time": {
+      "type": "string",
+      "pattern": "^\\d{2}:\\d{2}:\\d{2}$",
+      "description": "TODO"
+    },
+    "UtcDateTime": {
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$",
+      "description": "TODO"
+    },
+    "UtcOffset": {
+      "type": "string",
+      "pattern": "^[+-]\\d{2}:\\d{2}$",
+      "description": "TODO"
+    },
+    "MspdiValue": {
+      "description": "TODO",
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "number"
+        },
+        {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/MspdiValue"
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/MspdiValue"
+          }
+        }
+      ]
+    },
+    "MspdiPassthrough": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {
+        "$ref": "#/$defs/MspdiValue"
+      },
+      "description": "TODO"
+    },
+    "MspdiElement": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {
+        "$ref": "#/$defs/MspdiValue"
+      },
+      "description": "TODO"
+    },
+    "Color": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "theme",
+            "palette",
+            "custom"
+          ]
+        },
+        "name": {
+          "type": "string",
+          "enum": [
+            "white",
+            "black",
+            "dimGray",
+            "lightGray",
+            "red",
+            "blue",
+            "yellow",
+            "green",
+            "orange",
+            "purple"
+          ]
+        },
+        "light": {
+          "type": "object",
+          "properties": {
+            "hexColor": {
+              "type": "string",
+              "pattern": "^#[0-9a-f]{6}$"
+            },
+            "isCalculatedFromOppositeColorScheme": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        },
+        "dark": {
+          "$ref": "#/$defs/Color/properties/light"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "type"
+      ],
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "theme"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "name": false,
+              "light": false,
+              "dark": false
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "palette"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "name"
+            ],
+            "properties": {
+              "light": false,
+              "dark": false
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "custom"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "light",
+              "dark"
+            ],
+            "properties": {
+              "name": false
+            }
+          }
+        }
+      ]
+    },
+    "TaskGroupColor": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/Color"
+        },
+        {
+          "properties": {
+            "name": {
+              "not": {
+                "const": "black"
+              }
+            }
+          }
+        }
+      ],
+      "description": "TODO"
+    },
+    "Paint": {
+      "type": "object",
+      "properties": {
+        "color": {
+          "$ref": "#/$defs/Color"
+        },
+        "opacityPercent": {
+          "type": "integer"
+        }
+      },
+      "additionalProperties": false
+    },
+    "Stroke": {
+      "type": "object",
+      "properties": {
+        "color": {
+          "$ref": "#/$defs/Color"
+        },
+        "opacityPercent": {
+          "type": "integer"
+        },
+        "widthPx": {
+          "type": "number"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ShapeStyle": {
+      "type": "object",
+      "properties": {
+        "fill": {
+          "$ref": "#/$defs/Paint"
+        },
+        "stroke": {
+          "$ref": "#/$defs/Stroke"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ColumnFilter": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "values",
+            "dateRange"
+          ]
+        },
+        "column": {
+          "type": "string",
+          "enum": [
+            "progressStatus",
+            "percentComplete",
+            "taskType",
+            "taskName",
+            "resourceNames",
+            "start",
+            "finish",
+            "actualStart",
+            "actualFinish",
+            "taskGroupPath",
+            "text",
+            "taskGroupName",
+            "leaderTargetDay",
+            "diagnosisStatus",
+            "planDates",
+            "actualDates",
+            "diagnosisReason",
+            "resourceSelectionStatus",
+            "resourceName",
+            "assignedTaskCount",
+            "assignedTaskNames"
+          ]
+        },
+        "hiddenValues": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "isBlankHidden": {
+          "type": "boolean"
+        },
+        "firstDay": {
+          "$ref": "#/$defs/Day"
+        },
+        "lastDay": {
+          "$ref": "#/$defs/Day"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "type"
+      ],
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "values"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "hiddenValues",
+              "isBlankHidden"
+            ],
+            "properties": {
+              "firstDay": false,
+              "lastDay": false
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "dateRange"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "firstDay",
+              "lastDay"
+            ],
+            "properties": {
+              "hiddenValues": false,
+              "isBlankHidden": false
+            }
+          }
+        }
+      ]
+    },
+    "ColumnSort": {
+      "type": "object",
+      "properties": {
+        "column": {
+          "$ref": "#/$defs/ColumnFilter/properties/column"
+        },
+        "direction": {
+          "type": "string",
+          "enum": [
+            "ascending",
+            "descending"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "TaskTableWindow": {
+      "type": "object",
+      "properties": {
+        "isScheduleFilteredByChecks": {
+          "type": "boolean"
+        },
+        "checkedTaskUids": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Uid"
+          }
+        },
+        "columnFilters": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ColumnFilter"
+          }
+        },
+        "columnSort": {
+          "$ref": "#/$defs/ColumnSort"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ResourceTableWindow": {
+      "type": "object",
+      "properties": {
+        "isScheduleFilteredByChecks": {
+          "type": "boolean"
+        },
+        "isUnassignedChecked": {
+          "type": "boolean"
+        },
+        "checkedResourceUids": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Uid"
+          }
+        },
+        "columnFilters": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ColumnFilter"
+          }
+        },
+        "columnSort": {
+          "$ref": "#/$defs/ColumnSort"
+        }
+      },
+      "additionalProperties": false
+    },
+    "Editor": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "user",
+            "template",
+            "agent"
+          ]
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "type"
+      ]
+    },
+    "TaskStyle": {
+      "type": "object",
+      "properties": {
+        "taskShape": {
+          "type": "string",
+          "enum": [
+            "rectangle",
+            "chevron",
+            "arrow",
+            "dumbbell"
+          ]
+        },
+        "milestoneShape": {
+          "type": "string",
+          "enum": [
+            "circle",
+            "hexagon",
+            "pentagon",
+            "diamond",
+            "square",
+            "star",
+            "triangleUp",
+            "triangleDown",
+            "file",
+            "box",
+            "floppyDisk",
+            "cylinder",
+            "meetingPeople",
+            "smilingFace",
+            "beerMug"
+          ]
+        },
+        "fill": {
+          "$ref": "#/$defs/ShapeStyle/properties/fill"
+        },
+        "stroke": {
+          "$ref": "#/$defs/ShapeStyle/properties/stroke"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ImportOrigin": {
+      "type": "object",
+      "properties": {
+        "sourceProjectUid": {
+          "type": "string"
+        },
+        "sourceTaskUid": {
+          "$ref": "#/$defs/Uid"
+        },
+        "importSessionId": {
+          "$ref": "#/$defs/Uuid"
+        },
+        "mspdiImportCountWhenLastIncluded": {
+          "type": "integer"
+        }
+      },
+      "additionalProperties": false
+    },
+    "TaskGroupStyle": {
+      "type": "object",
+      "properties": {
+        "color": {
+          "$ref": "#/$defs/TaskGroupColor"
+        }
+      },
+      "additionalProperties": false
+    },
+    "HighlightBoxStyle": {
+      "type": "object",
+      "properties": {
+        "cornerRadiusPx": {
+          "type": "number"
+        },
+        "fill": {
+          "$ref": "#/$defs/ShapeStyle/properties/fill"
+        },
+        "stroke": {
+          "$ref": "#/$defs/ShapeStyle/properties/stroke"
+        }
+      },
+      "additionalProperties": false
+    },
+    "CommentBoxStyle": {
+      "type": "object",
+      "properties": {
+        "fill": {
+          "$ref": "#/$defs/ShapeStyle/properties/fill"
+        },
+        "stroke": {
+          "$ref": "#/$defs/ShapeStyle/properties/stroke"
+        },
+        "font": {
+          "type": "object",
+          "properties": {
+            "color": {
+              "$ref": "#/$defs/Color"
+            },
+            "sizePx": {
+              "type": "number"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "WorkingTime": {
+      "type": "object",
+      "properties": {
+        "fromTime": {
+          "$ref": "#/$defs/Time",
+          "description": "Same as MSPDI FromTime."
+        },
+        "toTime": {
+          "$ref": "#/$defs/Time",
+          "description": "Same as MSPDI ToTime."
+        }
+      },
+      "additionalProperties": false
+    },
+    "WeekDay": {
+      "type": "object",
+      "properties": {
+        "dayType": {
+          "type": "integer",
+          "enum": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ],
+          "description": "Same as MSPDI DayType."
+        },
+        "dayWorking": {
+          "type": "boolean",
+          "description": "Same as MSPDI DayWorking."
+        },
+        "grs": {
+          "type": "object",
+          "properties": {
+            "passthrough": {
+              "$ref": "#/$defs/MspdiPassthrough"
+            }
+          },
+          "additionalProperties": false
+        },
+        "workingTimes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/WorkingTime"
+          },
+          "description": "Same as MSPDI WorkingTimes."
+        }
+      },
+      "additionalProperties": false
+    },
+    "Exception": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Same as MSPDI Name."
+        },
+        "fromDate": {
+          "$ref": "#/$defs/DateTime",
+          "description": "Same as MSPDI TimePeriod/FromDate."
+        },
+        "toDate": {
+          "$ref": "#/$defs/DateTime",
+          "description": "Same as MSPDI TimePeriod/ToDate."
+        },
+        "dayWorking": {
+          "type": "boolean",
+          "description": "Same as MSPDI DayWorking."
+        },
+        "type": {
+          "type": "integer",
+          "enum": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9
+          ],
+          "description": "Same as MSPDI Type."
+        },
+        "period": {
+          "type": "integer",
+          "description": "Same as MSPDI Period."
+        },
+        "grs": {
+          "type": "object",
+          "properties": {
+            "passthrough": {
+              "$ref": "#/$defs/MspdiPassthrough"
+            }
+          },
+          "additionalProperties": false
+        },
+        "workingTimes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/WorkingTime"
+          },
+          "description": "Same as MSPDI WorkingTimes."
+        }
+      },
+      "additionalProperties": false
+    },
+    "Calendar": {
+      "type": "object",
+      "properties": {
+        "uid": {
+          "$ref": "#/$defs/Uid",
+          "description": "Same as MSPDI UID."
+        },
+        "name": {
+          "type": "string",
+          "description": "Same as MSPDI Name."
+        },
+        "isBaseCalendar": {
+          "type": "boolean",
+          "description": "Same as MSPDI IsBaseCalendar."
+        },
+        "baseCalendarUid": {
+          "$ref": "#/$defs/Uid",
+          "description": "Same as MSPDI BaseCalendarUID."
+        },
+        "grs": {
+          "type": "object",
+          "properties": {
+            "passthrough": {
+              "$ref": "#/$defs/MspdiPassthrough"
+            }
+          },
+          "additionalProperties": false
+        },
+        "weekDays": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/WeekDay"
+          },
+          "description": "Same as MSPDI WeekDays."
+        },
+        "exceptions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Exception"
+          },
+          "description": "Same as MSPDI Exceptions."
+        }
+      },
+      "additionalProperties": false
+    },
+    "Project": {
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "description": "Same as MSPDI UID."
+        },
+        "name": {
+          "type": "string",
+          "description": "Same as MSPDI Name."
+        },
+        "title": {
+          "type": "string",
+          "description": "Same as MSPDI Title."
+        },
+        "subject": {
+          "type": "string",
+          "description": "Same as MSPDI Subject."
+        },
+        "category": {
+          "type": "string",
+          "description": "Same as MSPDI Category."
+        },
+        "company": {
+          "type": "string",
+          "description": "Same as MSPDI Company."
+        },
+        "manager": {
+          "type": "string",
+          "description": "Same as MSPDI Manager."
+        },
+        "author": {
+          "type": "string",
+          "description": "Same as MSPDI Author."
+        },
+        "creationDate": {
+          "$ref": "#/$defs/DateTime",
+          "description": "Same as MSPDI CreationDate."
+        },
+        "revision": {
+          "type": "integer",
+          "description": "Same as MSPDI Revision."
+        },
+        "startDate": {
+          "$ref": "#/$defs/DateTime",
+          "description": "Same as MSPDI StartDate."
+        },
+        "calendarUid": {
+          "$ref": "#/$defs/Uid",
+          "description": "Same as MSPDI CalendarUID."
+        },
+        "defaultStartTime": {
+          "$ref": "#/$defs/Time",
+          "description": "Same as MSPDI DefaultStartTime."
+        },
+        "defaultFinishTime": {
+          "$ref": "#/$defs/Time",
+          "description": "Same as MSPDI DefaultFinishTime."
+        },
+        "minutesPerDay": {
+          "type": "integer",
+          "description": "Same as MSPDI MinutesPerDay."
+        },
+        "minutesPerWeek": {
+          "type": "integer",
+          "description": "Same as MSPDI MinutesPerWeek."
+        },
+        "daysPerMonth": {
+          "type": "integer",
+          "description": "Same as MSPDI DaysPerMonth."
+        },
+        "weekStartDay": {
+          "type": "integer",
+          "enum": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+          ],
+          "description": "Same as MSPDI WeekStartDay."
+        },
+        "statusDate": {
+          "$ref": "#/$defs/DateTime",
+          "description": "Same as MSPDI StatusDate."
+        },
+        "grs": {
+          "type": "object",
+          "properties": {
+            "passthrough": {
+              "$ref": "#/$defs/MspdiPassthrough"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "PredecessorLink": {
+      "type": "object",
+      "properties": {
+        "predecessorUid": {
+          "$ref": "#/$defs/Uid",
+          "description": "Same as MSPDI PredecessorUID."
+        },
+        "type": {
+          "type": "integer",
+          "enum": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "description": "Same as MSPDI Type."
+        },
+        "linkLag": {
+          "type": "integer",
+          "description": "Same as MSPDI LinkLag."
+        },
+        "lagFormat": {
+          "type": "integer",
+          "enum": [
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            19,
+            20,
+            35,
+            36,
+            37,
+            38,
+            39,
+            40,
+            41,
+            42,
+            43,
+            44,
+            51,
+            52
+          ],
+          "description": "Same as MSPDI LagFormat."
+        },
+        "grs": {
+          "type": "object",
+          "properties": {
+            "passthrough": {
+              "$ref": "#/$defs/MspdiPassthrough"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "Task": {
+      "type": "object",
+      "properties": {
+        "uid": {
+          "$ref": "#/$defs/Uid",
+          "description": "Same as MSPDI UID."
+        },
+        "name": {
+          "type": "string",
+          "description": "Same as MSPDI Name."
+        },
+        "start": {
+          "$ref": "#/$defs/DateTime",
+          "description": "Same as MSPDI Start."
+        },
+        "finish": {
+          "$ref": "#/$defs/DateTime",
+          "description": "Same as MSPDI Finish."
+        },
+        "stop": {
+          "$ref": "#/$defs/DateTime",
+          "description": "Same as MSPDI Stop."
+        },
+        "resume": {
+          "$ref": "#/$defs/DateTime",
+          "description": "Same as MSPDI Resume."
+        },
+        "resumeValid": {
+          "type": "boolean",
+          "description": "Same as MSPDI ResumeValid."
+        },
+        "milestone": {
+          "type": "boolean",
+          "description": "Same as MSPDI Milestone."
+        },
+        "percentComplete": {
+          "type": "integer",
+          "description": "Same as MSPDI PercentComplete."
+        },
+        "actualStart": {
+          "$ref": "#/$defs/DateTime",
+          "description": "Same as MSPDI ActualStart."
+        },
+        "actualFinish": {
+          "$ref": "#/$defs/DateTime",
+          "description": "Same as MSPDI ActualFinish."
+        },
+        "calendarUid": {
+          "$ref": "#/$defs/Uid",
+          "description": "Same as MSPDI CalendarUID."
+        },
+        "deadline": {
+          "$ref": "#/$defs/DateTime",
+          "description": "Same as MSPDI Deadline."
+        },
+        "hyperlink": {
+          "type": "string",
+          "description": "Same as MSPDI Hyperlink."
+        },
+        "hyperlinkAddress": {
+          "type": "string",
+          "description": "Same as MSPDI HyperlinkAddress."
+        },
+        "notes": {
+          "type": "string",
+          "description": "Same as MSPDI Notes."
+        },
+        "parentTaskUid": {
+          "$ref": "#/$defs/Uid"
+        },
+        "siblingOrder": {
+          "type": "integer"
+        },
+        "grs": {
+          "type": "object",
+          "properties": {
+            "startSlopeCalendarDays": {
+              "type": "integer"
+            },
+            "finishSlopeCalendarDays": {
+              "type": "integer"
+            },
+            "style": {
+              "$ref": "#/$defs/TaskStyle"
+            },
+            "taskGroupId": {
+              "$ref": "#/$defs/Uuid"
+            },
+            "importOrigin": {
+              "$ref": "#/$defs/ImportOrigin"
+            },
+            "passthrough": {
+              "$ref": "#/$defs/MspdiPassthrough"
+            }
+          },
+          "additionalProperties": false
+        },
+        "predecessorLinks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/PredecessorLink"
+          },
+          "description": "Same as MSPDI PredecessorLink."
+        }
+      },
+      "additionalProperties": false
+    },
+    "Resource": {
+      "type": "object",
+      "properties": {
+        "uid": {
+          "$ref": "#/$defs/Uid",
+          "description": "Same as MSPDI UID."
+        },
+        "name": {
+          "type": "string",
+          "description": "Same as MSPDI Name."
+        },
+        "type": {
+          "type": "integer",
+          "enum": [
+            0,
+            1
+          ],
+          "description": "Same as MSPDI Type."
+        },
+        "isCostResource": {
+          "type": "boolean",
+          "description": "Same as MSPDI IsCostResource."
+        },
+        "calendarUid": {
+          "$ref": "#/$defs/Uid",
+          "description": "Same as MSPDI CalendarUID."
+        },
+        "grs": {
+          "type": "object",
+          "properties": {
+            "passthrough": {
+              "$ref": "#/$defs/MspdiPassthrough"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "Assignment": {
+      "type": "object",
+      "properties": {
+        "uid": {
+          "$ref": "#/$defs/Uid",
+          "description": "Same as MSPDI UID."
+        },
+        "taskUid": {
+          "$ref": "#/$defs/Uid",
+          "description": "Same as MSPDI TaskUID."
+        },
+        "resourceUid": {
+          "$ref": "#/$defs/Uid",
+          "description": "Same as MSPDI ResourceUID."
+        },
+        "grs": {
+          "type": "object",
+          "properties": {
+            "passthrough": {
+              "$ref": "#/$defs/MspdiPassthrough"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "TaskGroup": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/Uuid"
+        },
+        "name": {
+          "type": "string"
+        },
+        "parentTaskGroupId": {
+          "$ref": "#/$defs/Uuid"
+        },
+        "siblingOrder": {
+          "type": "integer"
+        },
+        "style": {
+          "$ref": "#/$defs/TaskGroupStyle"
+        },
+        "minHeightPx": {
+          "type": "integer"
+        },
+        "representativeTaskUid": {
+          "$ref": "#/$defs/Uid"
+        },
+        "hyperlinkAddress": {
+          "type": "string"
+        },
+        "hyperlink": {
+          "type": "string"
+        },
+        "showMode": {
+          "type": "string",
+          "enum": [
+            "shown",
+            "hidden",
+            "automatic",
+            "hiddenUntilZoomIn"
+          ]
+        },
+        "allowedEditorGroupName": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "BaselineTask": {
+      "type": "object",
+      "properties": {
+        "uid": {
+          "$ref": "#/$defs/Uid"
+        },
+        "name": {
+          "type": "string"
+        },
+        "start": {
+          "$ref": "#/$defs/DateTime"
+        },
+        "finish": {
+          "$ref": "#/$defs/DateTime"
+        },
+        "milestone": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "HighlightBox": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/Uuid"
+        },
+        "style": {
+          "$ref": "#/$defs/HighlightBoxStyle"
+        },
+        "firstDay": {
+          "$ref": "#/$defs/Day"
+        },
+        "lastDay": {
+          "$ref": "#/$defs/Day"
+        },
+        "firstTaskGroupId": {
+          "$ref": "#/$defs/Uuid"
+        },
+        "lastTaskGroupId": {
+          "$ref": "#/$defs/Uuid"
+        }
+      },
+      "additionalProperties": false
+    },
+    "CommentBox": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/Uuid"
+        },
+        "text": {
+          "type": "string"
+        },
+        "style": {
+          "$ref": "#/$defs/CommentBoxStyle"
+        },
+        "leaderTarget": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "freePoint",
+                "task",
+                "highlightBox"
+              ]
+            },
+            "dateTime": {
+              "$ref": "#/$defs/DateTime"
+            },
+            "taskGroupId": {
+              "$ref": "#/$defs/Uuid"
+            },
+            "taskGroupTopOffsetPercent": {
+              "type": "number"
+            },
+            "taskUid": {
+              "$ref": "#/$defs/Uid"
+            },
+            "snapPart": {
+              "type": "string",
+              "enum": [
+                "planBar",
+                "actualBar",
+                "milestoneMark"
+              ]
+            },
+            "highlightBoxId": {
+              "$ref": "#/$defs/Uuid"
+            },
+            "snapPoint": {
+              "type": "string",
+              "enum": [
+                "topLeftCorner",
+                "topMiddle",
+                "topRightCorner",
+                "rightMiddle",
+                "bottomRightCorner",
+                "bottomMiddle",
+                "bottomLeftCorner",
+                "leftMiddle"
+              ]
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type"
+          ],
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "type": {
+                    "const": "freePoint"
+                  }
+                }
+              },
+              "then": {
+                "required": [
+                  "dateTime",
+                  "taskGroupId",
+                  "taskGroupTopOffsetPercent"
+                ],
+                "properties": {
+                  "taskUid": false,
+                  "snapPart": false,
+                  "snapPoint": false,
+                  "highlightBoxId": false
+                }
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "type": {
+                    "const": "task"
+                  }
+                }
+              },
+              "then": {
+                "required": [
+                  "taskUid",
+                  "snapPart",
+                  "snapPoint"
+                ],
+                "properties": {
+                  "dateTime": false,
+                  "taskGroupId": false,
+                  "taskGroupTopOffsetPercent": false,
+                  "highlightBoxId": false
+                }
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "type": {
+                    "const": "highlightBox"
+                  }
+                }
+              },
+              "then": {
+                "required": [
+                  "highlightBoxId",
+                  "snapPoint"
+                ],
+                "properties": {
+                  "dateTime": false,
+                  "taskGroupId": false,
+                  "taskGroupTopOffsetPercent": false,
+                  "taskUid": false,
+                  "snapPart": false
+                }
+              }
+            }
+          ]
+        },
+        "bodyOffsetPx": {
+          "type": "object",
+          "properties": {
+            "dx": {
+              "type": "number"
+            },
+            "dy": {
+              "type": "number"
+            }
+          },
+          "additionalProperties": false
+        },
+        "hyperlinkAddress": {
+          "type": "string"
+        },
+        "hyperlink": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "DocumentStamp": {
+      "type": "object",
+      "properties": {
+        "scheduleDataUpdatedAt": {
+          "$ref": "#/$defs/UtcDateTime"
+        },
+        "documentUpdatedAt": {
+          "$ref": "#/$defs/UtcDateTime"
+        },
+        "fileSavedAt": {
+          "$ref": "#/$defs/UtcDateTime"
+        },
+        "lastEditedBy": {
+          "$ref": "#/$defs/Editor"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ChangeLogEntry": {
+      "type": "object",
+      "properties": {
+        "changedAt": {
+          "$ref": "#/$defs/UtcDateTime"
+        },
+        "changedBy": {
+          "type": "object",
+          "properties": {
+            "editorType": {
+              "type": "string",
+              "enum": [
+                "user",
+                "agent"
+              ]
+            },
+            "name": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "affectedArea": {
+          "type": "string"
+        },
+        "changeDescription": {
+          "type": "string"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "remarks": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}
