@@ -14,7 +14,7 @@
       "creationDate": "2026-10-31T08:50:00",
       "revision": 11,
       "startDate": "2026-10-17T05:30:00",
-      "statusDate": "2026-11-22T11:47:00",
+      "statusDate": "2026-11-22T11:53:00",
       "minutesPerDay": 1440,
       "minutesPerWeek": 10080,
       "daysPerMonth": 30,
@@ -24,7 +24,7 @@
       "defaultFinishTime": "23:59:00",
       "themeHue": 214,
       "parentTaskProgressToleranceDays": 1,
-      "uidHighWaterMark": 461,
+      "uidHighWaterMark": 466,
       "importSequence": 0,
       "carry": {},
       "carryElements": [],
@@ -1591,8 +1591,8 @@
         "parentTaskUid": null,
         "wbsOrder": 57,
         "name": "🌑 最後の合流と PERF・GT-2(重い試験は 1 回だけ)",
-        "start": "2026-12-16T01:00:00",
-        "finish": "2026-12-16T07:00:00",
+        "start": "2026-12-09T01:45:00",
+        "finish": "2026-12-09T07:45:00",
         "milestone": false,
         "deadline": null,
         "notes": "11-02 06:50: 新しい N1（316、11-22 14:59）に合わせ、24 時間 29 分 45 秒後ろへ置いた（順と中身は変えない。BOSS の求め）。",
@@ -1623,8 +1623,8 @@
         "parentTaskUid": null,
         "wbsOrder": 58,
         "name": "🌑 node tools/release_version.mjs Beta・リリースノート(英日)・README の版の行",
-        "start": "2026-12-16T07:00:00",
-        "finish": "2026-12-16T11:00:00",
+        "start": "2026-12-09T07:45:00",
+        "finish": "2026-12-09T11:45:00",
         "milestone": false,
         "deadline": null,
         "notes": "11-02 06:50: 新しい N1（316、11-22 14:59）に合わせ、24 時間 29 分 45 秒後ろへ置いた（順と中身は変えない。BOSS の求め）。",
@@ -1655,8 +1655,8 @@
         "parentTaskUid": null,
         "wbsOrder": 59,
         "name": "🌑 リリースの sha の GT-2 と develop → main の PR",
-        "start": "2026-12-16T11:00:00",
-        "finish": "2026-12-16T14:00:00",
+        "start": "2026-12-09T11:45:00",
+        "finish": "2026-12-09T14:45:00",
         "milestone": false,
         "deadline": null,
         "notes": "11-02 06:50: 新しい N1（316、11-22 14:59）に合わせ、24 時間 29 分 45 秒後ろへ置いた（順と中身は変えない。BOSS の求め）。",
@@ -1687,8 +1687,8 @@
         "parentTaskUid": null,
         "wbsOrder": 60,
         "name": "🌑 Pages の配備(gh workflow run pages.yml --ref main)",
-        "start": "2026-12-16T22:00:00",
-        "finish": "2026-12-16T23:00:00",
+        "start": "2026-12-09T22:00:00",
+        "finish": "2026-12-09T23:00:00",
         "milestone": false,
         "deadline": null,
         "notes": "11-02 06:50: 新しい N1（316、11-22 14:59）に合わせ、24 時間 29 分 45 秒後ろへ置いた（順と中身は変えない。BOSS の求め）。",
@@ -2058,8 +2058,8 @@
         "parentTaskUid": null,
         "wbsOrder": 73,
         "name": "🌖 オーナー: チェックリストを実物で触る",
-        "start": "2026-12-15T06:45:00",
-        "finish": "2026-12-16T00:15:00",
+        "start": "2026-12-08T21:00:00",
+        "finish": "2026-12-09T01:00:00",
         "milestone": false,
         "deadline": null,
         "notes": "11-02 06:50: 新しい N1（316、11-22 14:59）に合わせ、24 時間 29 分 45 秒後ろへ置いた（順と中身は変えない。BOSS の求め）。",
@@ -2090,8 +2090,8 @@
         "parentTaskUid": null,
         "wbsOrder": 74,
         "name": "🌖 オーナー: PR を見て main へ合流する",
-        "start": "2026-12-16T21:00:00",
-        "finish": "2026-12-16T22:00:00",
+        "start": "2026-12-09T21:00:00",
+        "finish": "2026-12-09T22:00:00",
         "milestone": false,
         "deadline": null,
         "notes": "11-02 06:50: 新しい N1（316、11-22 14:59）に合わせ、24 時間 29 分 45 秒後ろへ置いた（順と中身は変えない。BOSS の求め）。",
@@ -2122,8 +2122,8 @@
         "parentTaskUid": null,
         "wbsOrder": 75,
         "name": "🌖 オーナー: Beta のタグを打ち、GitHub Release を作る",
-        "start": "2026-12-16T23:00:00",
-        "finish": "2026-12-17T00:00:00",
+        "start": "2026-12-09T23:00:00",
+        "finish": "2026-12-10T00:00:00",
         "milestone": false,
         "deadline": null,
         "notes": "11-02 06:50: 新しい N1（316、11-22 14:59）に合わせ、24 時間 29 分 45 秒後ろへ置いた（順と中身は変えない。BOSS の求め）。",
@@ -3388,326 +3388,6 @@
         "carryElements": []
       },
       {
-        "uid": 354,
-        "parentTaskUid": null,
-        "wbsOrder": 131,
-        "name": "🌑 名の辞書(用語集)のパート 30(Agent API / Agent API そのもの、40 語)のレビューと確定(オーナーの答え)",
-        "start": "2026-12-03T06:45:00",
-        "finish": "2026-12-05T10:36:40",
-        "milestone": false,
-        "deadline": null,
-        "notes": "オーナー 2026-10-31「用語裁定はタスクを分けろ。 例えば分野とか段階とか。 DivideAncConqurだ。」で、用語集の残り（301）をパートごとのタスクに分けた。パート 30: 40 語、見込み 11-06 21:27〜11-07 11:51（速さ 6.25 語／時、オーナーの時間帯に順に置いた。N1 の日付 11-21 14:30 はオーナーの日付で、この見込みとは別）。SUB のモデルと努力: Opus 5.5・high（命名の仕事）。 11-22 10:25: 3.60 語/時（40 語 ÷ 3.60 ＝ 11.1 時間）で置き直した（PMO の置き）。",
-        "calendarUid": null,
-        "actualStart": null,
-        "stop": null,
-        "actualFinish": null,
-        "resume": null,
-        "resumeValid": null,
-        "percentComplete": 0,
-        "fadeInDays": null,
-        "fadeOutDays": null,
-        "dependencies": [
-          {
-            "predecessorUid": 419,
-            "linkType": 1,
-            "linkLag": 0,
-            "lagFormat": 7,
-            "carry": {},
-            "carryElements": []
-          },
-          {
-            "predecessorUid": 401,
-            "linkType": 1,
-            "linkLag": 0,
-            "lagFormat": 7,
-            "carry": {},
-            "carryElements": []
-          }
-        ],
-        "carry": {},
-        "carryElements": []
-      },
-      {
-        "uid": 355,
-        "parentTaskUid": null,
-        "wbsOrder": 132,
-        "name": "🌑 名の辞書(用語集)のパート 31(Agent API / 受け渡す値の型、28 語)のレビューと確定(オーナーの答え)",
-        "start": "2026-12-05T10:36:40",
-        "finish": "2026-12-05T18:23:20",
-        "milestone": false,
-        "deadline": null,
-        "notes": "オーナー 2026-10-31「用語裁定はタスクを分けろ。 例えば分野とか段階とか。 DivideAncConqurだ。」で、用語集の残り（301）をパートごとのタスクに分けた。パート 31: 28 語、見込み 11-07 11:51〜11-07 16:20（速さ 6.25 語／時、オーナーの時間帯に順に置いた。N1 の日付 11-21 14:30 はオーナーの日付で、この見込みとは別）。SUB のモデルと努力: Opus 5.5・high（命名の仕事）。 11-22 10:25: 3.60 語/時（28 語 ÷ 3.60 ＝ 7.8 時間）で置き直した（PMO の置き）。",
-        "calendarUid": null,
-        "actualStart": null,
-        "stop": null,
-        "actualFinish": null,
-        "resume": null,
-        "resumeValid": null,
-        "percentComplete": 0,
-        "fadeInDays": null,
-        "fadeOutDays": null,
-        "dependencies": [
-          {
-            "predecessorUid": 354,
-            "linkType": 1,
-            "linkLag": 0,
-            "lagFormat": 7,
-            "carry": {},
-            "carryElements": []
-          },
-          {
-            "predecessorUid": 421,
-            "linkType": 1,
-            "linkLag": 0,
-            "lagFormat": 7,
-            "carry": {},
-            "carryElements": []
-          }
-        ],
-        "carry": {},
-        "carryElements": []
-      },
-      {
-        "uid": 356,
-        "parentTaskUid": null,
-        "wbsOrder": 133,
-        "name": "🌑 名の辞書(用語集)のパート 32(Agent API / 断りと理由、67 語)のレビューと確定(オーナーの答え)",
-        "start": "2026-12-05T18:23:20",
-        "finish": "2026-12-06T23:00:00",
-        "milestone": false,
-        "deadline": null,
-        "notes": "オーナー 2026-10-31「用語裁定はタスクを分けろ。 例えば分野とか段階とか。 DivideAncConqurだ。」で、用語集の残り（301）をパートごとのタスクに分けた。パート 32: 67 語、見込み 11-07 16:20〜11-08 13:04（速さ 6.25 語／時、オーナーの時間帯に順に置いた。N1 の日付 11-21 14:30 はオーナーの日付で、この見込みとは別）。SUB のモデルと努力: Opus 5.5・high（命名の仕事）。 11-22 10:25: 3.60 語/時（67 語 ÷ 3.60 ＝ 18.6 時間）で置き直した（PMO の置き）。",
-        "calendarUid": null,
-        "actualStart": null,
-        "stop": null,
-        "actualFinish": null,
-        "resume": null,
-        "resumeValid": null,
-        "percentComplete": 0,
-        "fadeInDays": null,
-        "fadeOutDays": null,
-        "dependencies": [
-          {
-            "predecessorUid": 355,
-            "linkType": 1,
-            "linkLag": 0,
-            "lagFormat": 7,
-            "carry": {},
-            "carryElements": []
-          },
-          {
-            "predecessorUid": 423,
-            "linkType": 1,
-            "linkLag": 0,
-            "lagFormat": 7,
-            "carry": {},
-            "carryElements": []
-          }
-        ],
-        "carry": {},
-        "carryElements": []
-      },
-      {
-        "uid": 357,
-        "parentTaskUid": null,
-        "wbsOrder": 134,
-        "name": "🌑 名の辞書(用語集)のパート 33(Agent API / 断りと理由、37 語)のレビューと確定(オーナーの答え)",
-        "start": "2026-12-07T06:45:00",
-        "finish": "2026-12-09T21:01:40",
-        "milestone": false,
-        "deadline": null,
-        "notes": "オーナー 2026-10-31「用語裁定はタスクを分けろ。 例えば分野とか段階とか。 DivideAncConqurだ。」で、用語集の残り（301）をパートごとのタスクに分けた。パート 33: 37 語、見込み 11-08 13:04〜11-08 18:59（速さ 6.25 語／時、オーナーの時間帯に順に置いた。N1 の日付 11-21 14:30 はオーナーの日付で、この見込みとは別）。SUB のモデルと努力: Opus 5.5・high（命名の仕事）。 11-22 10:25: 3.60 語/時（37 語 ÷ 3.60 ＝ 10.3 時間）で置き直した（PMO の置き）。",
-        "calendarUid": null,
-        "actualStart": null,
-        "stop": null,
-        "actualFinish": null,
-        "resume": null,
-        "resumeValid": null,
-        "percentComplete": 0,
-        "fadeInDays": null,
-        "fadeOutDays": null,
-        "dependencies": [
-          {
-            "predecessorUid": 356,
-            "linkType": 1,
-            "linkLag": 0,
-            "lagFormat": 7,
-            "carry": {},
-            "carryElements": []
-          },
-          {
-            "predecessorUid": 425,
-            "linkType": 1,
-            "linkLag": 0,
-            "lagFormat": 7,
-            "carry": {},
-            "carryElements": []
-          }
-        ],
-        "carry": {},
-        "carryElements": []
-      },
-      {
-        "uid": 358,
-        "parentTaskUid": null,
-        "wbsOrder": 135,
-        "name": "🌑 名の辞書(用語集)のパート 34(Agent API / メンバ、32 語)のレビューと確定(オーナーの答え)",
-        "start": "2026-12-09T21:01:40",
-        "finish": "2026-12-11T06:55:00",
-        "milestone": false,
-        "deadline": null,
-        "notes": "オーナー 2026-10-31「用語裁定はタスクを分けろ。 例えば分野とか段階とか。 DivideAncConqurだ。」で、用語集の残り（301）をパートごとのタスクに分けた。パート 34: 32 語、見込み 11-08 18:59〜11-09 21:21（速さ 6.25 語／時、オーナーの時間帯に順に置いた。N1 の日付 11-21 14:30 はオーナーの日付で、この見込みとは別）。SUB のモデルと努力: Opus 5.5・high（命名の仕事）。 11-22 10:25: 3.60 語/時（32 語 ÷ 3.60 ＝ 8.9 時間）で置き直した（PMO の置き）。",
-        "calendarUid": null,
-        "actualStart": null,
-        "stop": null,
-        "actualFinish": null,
-        "resume": null,
-        "resumeValid": null,
-        "percentComplete": 0,
-        "fadeInDays": null,
-        "fadeOutDays": null,
-        "dependencies": [
-          {
-            "predecessorUid": 357,
-            "linkType": 1,
-            "linkLag": 0,
-            "lagFormat": 7,
-            "carry": {},
-            "carryElements": []
-          },
-          {
-            "predecessorUid": 427,
-            "linkType": 1,
-            "linkLag": 0,
-            "lagFormat": 7,
-            "carry": {},
-            "carryElements": []
-          }
-        ],
-        "carry": {},
-        "carryElements": []
-      },
-      {
-        "uid": 359,
-        "parentTaskUid": null,
-        "wbsOrder": 136,
-        "name": "🌑 名の辞書(用語集)のパート 35(文書の命令 / どの命令も持つもの、38 語)のレビューと確定(オーナーの答え)",
-        "start": "2026-12-11T06:55:00",
-        "finish": "2026-12-12T14:58:20",
-        "milestone": false,
-        "deadline": null,
-        "notes": "オーナー 2026-10-31「用語裁定はタスクを分けろ。 例えば分野とか段階とか。 DivideAncConqurだ。」で、用語集の残り（301）をパートごとのタスクに分けた。パート 35: 38 語、見込み 11-09 21:21〜11-10 22:41（速さ 6.25 語／時、オーナーの時間帯に順に置いた。N1 の日付 11-21 14:30 はオーナーの日付で、この見込みとは別）。SUB のモデルと努力: Opus 5.5・high（命名の仕事）。 11-22 10:25: 3.60 語/時（38 語 ÷ 3.60 ＝ 10.6 時間）で置き直した（PMO の置き）。",
-        "calendarUid": null,
-        "actualStart": null,
-        "stop": null,
-        "actualFinish": null,
-        "resume": null,
-        "resumeValid": null,
-        "percentComplete": 0,
-        "fadeInDays": null,
-        "fadeOutDays": null,
-        "dependencies": [
-          {
-            "predecessorUid": 358,
-            "linkType": 1,
-            "linkLag": 0,
-            "lagFormat": 7,
-            "carry": {},
-            "carryElements": []
-          },
-          {
-            "predecessorUid": 429,
-            "linkType": 1,
-            "linkLag": 0,
-            "lagFormat": 7,
-            "carry": {},
-            "carryElements": []
-          }
-        ],
-        "carry": {},
-        "carryElements": []
-      },
-      {
-        "uid": 360,
-        "parentTaskUid": null,
-        "wbsOrder": 137,
-        "name": "🌑 名の辞書(用語集)のパート 36(文書の命令 / 依存、40 語)のレビューと確定(オーナーの答え)",
-        "start": "2026-12-12T14:58:20",
-        "finish": "2026-12-13T12:05:00",
-        "milestone": false,
-        "deadline": null,
-        "notes": "オーナー 2026-10-31「用語裁定はタスクを分けろ。 例えば分野とか段階とか。 DivideAncConqurだ。」で、用語集の残り（301）をパートごとのタスクに分けた。パート 36: 40 語、見込み 11-10 22:41〜11-12 00:21（速さ 6.25 語／時、オーナーの時間帯に順に置いた。N1 の日付 11-21 14:30 はオーナーの日付で、この見込みとは別）。SUB のモデルと努力: Opus 5.5・high（命名の仕事）。 11-22 10:25: 3.60 語/時（40 語 ÷ 3.60 ＝ 11.1 時間）で置き直した（PMO の置き）。",
-        "calendarUid": null,
-        "actualStart": null,
-        "stop": null,
-        "actualFinish": null,
-        "resume": null,
-        "resumeValid": null,
-        "percentComplete": 0,
-        "fadeInDays": null,
-        "fadeOutDays": null,
-        "dependencies": [
-          {
-            "predecessorUid": 359,
-            "linkType": 1,
-            "linkLag": 0,
-            "lagFormat": 7,
-            "carry": {},
-            "carryElements": []
-          },
-          {
-            "predecessorUid": 431,
-            "linkType": 1,
-            "linkLag": 0,
-            "lagFormat": 7,
-            "carry": {},
-            "carryElements": []
-          }
-        ],
-        "carry": {},
-        "carryElements": []
-      },
-      {
-        "uid": 361,
-        "parentTaskUid": null,
-        "wbsOrder": 138,
-        "name": "🌑 名の辞書(用語集)のパート 37(文書の命令 / 文書の設定と表の見え方、5 語)のレビューと確定(オーナーの答え)",
-        "start": "2026-12-13T12:05:00",
-        "finish": "2026-12-13T13:28:20",
-        "milestone": false,
-        "deadline": null,
-        "notes": "オーナー 2026-10-31「用語裁定はタスクを分けろ。 例えば分野とか段階とか。 DivideAncConqurだ。」で、用語集の残り（301）をパートごとのタスクに分けた。パート 37: 5 語、見込み 11-12 00:21〜11-12 06:54（速さ 6.25 語／時、オーナーの時間帯に順に置いた。N1 の日付 11-21 14:30 はオーナーの日付で、この見込みとは別）。SUB のモデルと努力: Opus 5.5・high（命名の仕事）。 11-22 10:25: 3.60 語/時（5 語 ÷ 3.60 ＝ 1.4 時間）で置き直した（PMO の置き）。",
-        "calendarUid": null,
-        "actualStart": null,
-        "stop": null,
-        "actualFinish": null,
-        "resume": null,
-        "resumeValid": null,
-        "percentComplete": 0,
-        "fadeInDays": null,
-        "fadeOutDays": null,
-        "dependencies": [
-          {
-            "predecessorUid": 360,
-            "linkType": 1,
-            "linkLag": 0,
-            "lagFormat": 7,
-            "carry": {},
-            "carryElements": []
-          },
-          {
-            "predecessorUid": 433,
-            "linkType": 1,
-            "linkLag": 0,
-            "lagFormat": 7,
-            "carry": {},
-            "carryElements": []
-          }
-        ],
-        "carry": {},
-        "carryElements": []
-      },
-      {
         "uid": 338,
         "parentTaskUid": null,
         "wbsOrder": 139,
@@ -3729,14 +3409,6 @@
         "dependencies": [
           {
             "predecessorUid": 234,
-            "linkType": 1,
-            "linkLag": 0,
-            "lagFormat": 7,
-            "carry": {},
-            "carryElements": []
-          },
-          {
-            "predecessorUid": 361,
             "linkType": 1,
             "linkLag": 0,
             "lagFormat": 7,
@@ -4447,8 +4119,8 @@
         "parentTaskUid": null,
         "wbsOrder": 162,
         "name": "🌑 CR-857(SSOT へ寄せる —— 名の原稿 glossary.json と生成、JDG-3411〜3427)の起草と当て",
-        "start": "2026-12-14T14:28:20",
-        "finish": "2026-12-14T17:58:20",
+        "start": "2026-12-08T05:08:17",
+        "finish": "2026-12-08T08:38:17",
         "milestone": false,
         "deadline": null,
         "notes": "カードはまだ起きていない。CR-851 の当て（296）の後。見積は CR-767 の 3 つの波の実績の合計 186 分から 3 時間。 10-31: JDG-3483（規則 07 の R1 の目的の節、原本を先に）と、選べば src の JSON の rowId → specRowId の改名も持つ（見積に 30 分を足した）。カードは引っ込めた —— 用語集の後に出し直す。 10-31 07:45: JDG-3491 で src の JSON の rowId → specTableRowId の改名をこの CR が持つと決まった（前の注の「選べば」「specRowId」ではない）。見積は 3 時間 30 分のまま。 12:09: CR-857 の起草と当ての SUB のモデルと努力: Opus 5.5・high（仕様・設計・実装・レビューの SUB の既定）。表を外れる時は調整役が理由の 1 行を送る。 11-02 06:50: 新しい N1（316、11-22 14:59）に合わせ、24 時間 29 分 45 秒後ろへ置いた（順と中身は変えない。BOSS の求め）。",
@@ -4487,8 +4159,8 @@
         "parentTaskUid": null,
         "wbsOrder": 163,
         "name": "🌑 CR-855(名の辞書のとおりに仕様の文とコードの名を改める)の起草と当て",
-        "start": "2026-12-14T17:58:20",
-        "finish": "2026-12-14T22:13:20",
+        "start": "2026-12-08T08:38:17",
+        "finish": "2026-12-08T12:53:17",
         "milestone": false,
         "deadline": null,
         "notes": "カードはまだ起きていない。CR-851 の後、CR-857 の後（同じ持ち手 —— 仕様の文を同時に触らない）。見積は改名の CR-792 の実績 4 時間 20 分から 4 時間 15 分。 10-31: カードは引っ込めた —— 用語集の後に出し直す。 12:09: CR-855 の起草の SUB のモデルと努力: Opus 5.5・high（仕様・設計・実装・レビューの SUB の既定）。表を外れる時は調整役が理由の 1 行を送る。 11-02 06:50: 新しい N1（316、11-22 14:59）に合わせ、24 時間 29 分 45 秒後ろへ置いた（順と中身は変えない。BOSS の求め）。",
@@ -4527,8 +4199,8 @@
         "parentTaskUid": null,
         "wbsOrder": 164,
         "name": "🌑 CR-856(語の裁定で変わる振る舞い —— プロパティパネルにプロジェクト名 JDG-3355・休日の設定をツールウィンドウに JDG-3356)の起草と当て",
-        "start": "2026-12-14T22:13:20",
-        "finish": "2026-12-15T00:13:20",
+        "start": "2026-12-08T12:53:17",
+        "finish": "2026-12-08T14:53:17",
         "milestone": false,
         "deadline": null,
         "notes": "CR-851 の後。見積は 1 つの CR の当ての中央値 30 分 × 2 で 1 時間。 10-31: JDG-3477（遅延診断レポートに終わりの見込みの列）も持つ（見積に 30 分を足した）。 10-31 08:30: JDG-3502（修正履歴に「だれが」の列 —— いつ・だれが・何を・どう変えたか）も持つ（見積に 30 分を足した）。 10-31 10:35: JDG-3510（クリティカルパスは範囲の外。その訳を SO-10・XO-5 に書く）も持つ。見積と予定は動かしていない（予定の引き直しは調整役が求めた時、問 8）。 12:09: CR-856 の当ての SUB のモデルと努力: Opus 5.5・high（仕様・設計・実装・レビューの SUB の既定）。表を外れる時は調整役が理由の 1 行を送る。 11-02 06:50: 新しい N1（316、11-22 14:59）に合わせ、24 時間 29 分 45 秒後ろへ置いた（順と中身は変えない。BOSS の求め）。",
@@ -4995,8 +4667,8 @@
         "parentTaskUid": null,
         "wbsOrder": 182,
         "name": "🌑 実測待ちの行を出荷ビルドで押す(1/3: 日程表・パネル・ドラッグ)",
-        "start": "2026-12-15T00:13:20",
-        "finish": "2026-12-15T01:28:20",
+        "start": "2026-12-08T14:53:17",
+        "finish": "2026-12-08T16:08:17",
         "milestone": false,
         "deadline": null,
         "notes": "実測待ち 約 525 行。Playwright で画面ごとに押し、実測済へ。 11-02 06:50: 新しい N1（316、11-22 14:59）に合わせ、24 時間 29 分 45 秒後ろへ置いた（順と中身は変えない。BOSS の求め）。",
@@ -5027,8 +4699,8 @@
         "parentTaskUid": null,
         "wbsOrder": 183,
         "name": "🌑 チェックリストで出た直し(仮置き)",
-        "start": "2026-12-16T00:15:00",
-        "finish": "2026-12-16T01:00:00",
+        "start": "2026-12-09T01:00:00",
+        "finish": "2026-12-09T01:45:00",
         "milestone": false,
         "deadline": null,
         "notes": "11-02 06:50: 新しい N1（316、11-22 14:59）に合わせ、24 時間 29 分 45 秒後ろへ置いた（順と中身は変えない。BOSS の求め）。",
@@ -5466,8 +5138,8 @@
         "parentTaskUid": null,
         "wbsOrder": 199,
         "name": "🌑 利用者のチェックリスト 1 枚(今日の 5 件・新機能・押せなかった行)",
-        "start": "2026-12-15T01:28:20",
-        "finish": "2026-12-15T01:58:20",
+        "start": "2026-12-08T16:08:17",
+        "finish": "2026-12-08T16:38:17",
         "milestone": false,
         "deadline": null,
         "notes": "11-02 06:50: 新しい N1（316、11-22 14:59）に合わせ、24 時間 29 分 45 秒後ろへ置いた（順と中身は変えない。BOSS の求め）。",
@@ -6123,8 +5795,8 @@
         "parentTaskUid": null,
         "wbsOrder": 223,
         "name": "🌑 実測待ちの行を出荷ビルドで押す(2/3: 遅延診断・表・検索)",
-        "start": "2026-12-15T00:13:20",
-        "finish": "2026-12-15T01:28:20",
+        "start": "2026-12-08T14:53:17",
+        "finish": "2026-12-08T16:08:17",
         "milestone": false,
         "deadline": null,
         "notes": "11-02 06:50: 新しい N1（316、11-22 14:59）に合わせ、24 時間 29 分 45 秒後ろへ置いた（順と中身は変えない。BOSS の求め）。",
@@ -6357,8 +6029,8 @@
         "parentTaskUid": null,
         "wbsOrder": 232,
         "name": "🌑 実測待ちの行を出荷ビルドで押す(3/3: ファイル・書き出し・AI 連携)",
-        "start": "2026-12-15T00:13:20",
-        "finish": "2026-12-15T01:28:20",
+        "start": "2026-12-08T14:53:17",
+        "finish": "2026-12-08T16:08:17",
         "milestone": false,
         "deadline": null,
         "notes": "11-02 06:50: 新しい N1（316、11-22 14:59）に合わせ、24 時間 29 分 45 秒後ろへ置いた（順と中身は変えない。BOSS の求め）。",
@@ -7932,452 +7604,12 @@
         "carryElements": []
       },
       {
-        "uid": 419,
-        "parentTaskUid": null,
-        "wbsOrder": 296,
-        "name": "🌑 名の辞書(用語集)のパート 30 の SUB の準備(用語の紙を出す)",
-        "start": "2026-12-03T05:45:00",
-        "finish": "2026-12-03T06:45:00",
-        "milestone": false,
-        "deadline": null,
-        "calendarUid": null,
-        "actualStart": null,
-        "stop": null,
-        "actualFinish": null,
-        "resume": null,
-        "resumeValid": null,
-        "percentComplete": 0,
-        "fadeInDays": null,
-        "fadeOutDays": null,
-        "notes": "SUB: Opus 5.5 high。1 時間は PMO の置き。",
-        "dependencies": [],
-        "carry": {},
-        "carryElements": []
-      },
-      {
-        "uid": 420,
-        "parentTaskUid": null,
-        "wbsOrder": 297,
-        "name": "🌑 名の辞書(用語集)のパート 30 の裁定の記録(SUB。ID の表と用語集へ)",
-        "start": "2026-12-05T10:36:40",
-        "finish": "2026-12-05T11:36:40",
-        "milestone": false,
-        "deadline": null,
-        "calendarUid": null,
-        "actualStart": null,
-        "stop": null,
-        "actualFinish": null,
-        "resume": null,
-        "resumeValid": null,
-        "percentComplete": 0,
-        "fadeInDays": null,
-        "fadeOutDays": null,
-        "notes": "SUB: Opus 5.5 high。1 時間は PMO の置き。",
-        "dependencies": [
-          {
-            "predecessorUid": 354,
-            "linkType": 1,
-            "linkLag": 0,
-            "lagFormat": 7,
-            "carry": {},
-            "carryElements": []
-          }
-        ],
-        "carry": {},
-        "carryElements": []
-      },
-      {
-        "uid": 421,
-        "parentTaskUid": null,
-        "wbsOrder": 298,
-        "name": "🌑 名の辞書(用語集)のパート 31 の SUB の準備(用語の紙を出す)",
-        "start": "2026-12-05T09:36:40",
-        "finish": "2026-12-05T10:36:40",
-        "milestone": false,
-        "deadline": null,
-        "calendarUid": null,
-        "actualStart": null,
-        "stop": null,
-        "actualFinish": null,
-        "resume": null,
-        "resumeValid": null,
-        "percentComplete": 0,
-        "fadeInDays": null,
-        "fadeOutDays": null,
-        "notes": "SUB: Opus 5.5 high。1 時間は PMO の置き。",
-        "dependencies": [],
-        "carry": {},
-        "carryElements": []
-      },
-      {
-        "uid": 422,
-        "parentTaskUid": null,
-        "wbsOrder": 299,
-        "name": "🌑 名の辞書(用語集)のパート 31 の裁定の記録(SUB。ID の表と用語集へ)",
-        "start": "2026-12-05T18:23:20",
-        "finish": "2026-12-05T19:23:20",
-        "milestone": false,
-        "deadline": null,
-        "calendarUid": null,
-        "actualStart": null,
-        "stop": null,
-        "actualFinish": null,
-        "resume": null,
-        "resumeValid": null,
-        "percentComplete": 0,
-        "fadeInDays": null,
-        "fadeOutDays": null,
-        "notes": "SUB: Opus 5.5 high。1 時間は PMO の置き。",
-        "dependencies": [
-          {
-            "predecessorUid": 355,
-            "linkType": 1,
-            "linkLag": 0,
-            "lagFormat": 7,
-            "carry": {},
-            "carryElements": []
-          }
-        ],
-        "carry": {},
-        "carryElements": []
-      },
-      {
-        "uid": 423,
-        "parentTaskUid": null,
-        "wbsOrder": 300,
-        "name": "🌑 名の辞書(用語集)のパート 32 の SUB の準備(用語の紙を出す)",
-        "start": "2026-12-05T17:23:20",
-        "finish": "2026-12-05T18:23:20",
-        "milestone": false,
-        "deadline": null,
-        "calendarUid": null,
-        "actualStart": null,
-        "stop": null,
-        "actualFinish": null,
-        "resume": null,
-        "resumeValid": null,
-        "percentComplete": 0,
-        "fadeInDays": null,
-        "fadeOutDays": null,
-        "notes": "SUB: Opus 5.5 high。1 時間は PMO の置き。",
-        "dependencies": [],
-        "carry": {},
-        "carryElements": []
-      },
-      {
-        "uid": 424,
-        "parentTaskUid": null,
-        "wbsOrder": 301,
-        "name": "🌑 名の辞書(用語集)のパート 32 の裁定の記録(SUB。ID の表と用語集へ)",
-        "start": "2026-12-06T23:00:00",
-        "finish": "2026-12-07T00:00:00",
-        "milestone": false,
-        "deadline": null,
-        "calendarUid": null,
-        "actualStart": null,
-        "stop": null,
-        "actualFinish": null,
-        "resume": null,
-        "resumeValid": null,
-        "percentComplete": 0,
-        "fadeInDays": null,
-        "fadeOutDays": null,
-        "notes": "SUB: Opus 5.5 high。1 時間は PMO の置き。",
-        "dependencies": [
-          {
-            "predecessorUid": 356,
-            "linkType": 1,
-            "linkLag": 0,
-            "lagFormat": 7,
-            "carry": {},
-            "carryElements": []
-          }
-        ],
-        "carry": {},
-        "carryElements": []
-      },
-      {
-        "uid": 425,
-        "parentTaskUid": null,
-        "wbsOrder": 302,
-        "name": "🌑 名の辞書(用語集)のパート 33 の SUB の準備(用語の紙を出す)",
-        "start": "2026-12-07T05:45:00",
-        "finish": "2026-12-07T06:45:00",
-        "milestone": false,
-        "deadline": null,
-        "calendarUid": null,
-        "actualStart": null,
-        "stop": null,
-        "actualFinish": null,
-        "resume": null,
-        "resumeValid": null,
-        "percentComplete": 0,
-        "fadeInDays": null,
-        "fadeOutDays": null,
-        "notes": "SUB: Opus 5.5 high。1 時間は PMO の置き。",
-        "dependencies": [],
-        "carry": {},
-        "carryElements": []
-      },
-      {
-        "uid": 426,
-        "parentTaskUid": null,
-        "wbsOrder": 303,
-        "name": "🌑 名の辞書(用語集)のパート 33 の裁定の記録(SUB。ID の表と用語集へ)",
-        "start": "2026-12-09T21:01:40",
-        "finish": "2026-12-09T22:01:40",
-        "milestone": false,
-        "deadline": null,
-        "calendarUid": null,
-        "actualStart": null,
-        "stop": null,
-        "actualFinish": null,
-        "resume": null,
-        "resumeValid": null,
-        "percentComplete": 0,
-        "fadeInDays": null,
-        "fadeOutDays": null,
-        "notes": "SUB: Opus 5.5 high。1 時間は PMO の置き。",
-        "dependencies": [
-          {
-            "predecessorUid": 357,
-            "linkType": 1,
-            "linkLag": 0,
-            "lagFormat": 7,
-            "carry": {},
-            "carryElements": []
-          }
-        ],
-        "carry": {},
-        "carryElements": []
-      },
-      {
-        "uid": 427,
-        "parentTaskUid": null,
-        "wbsOrder": 304,
-        "name": "🌑 名の辞書(用語集)のパート 34 の SUB の準備(用語の紙を出す)",
-        "start": "2026-12-09T20:01:40",
-        "finish": "2026-12-09T21:01:40",
-        "milestone": false,
-        "deadline": null,
-        "calendarUid": null,
-        "actualStart": null,
-        "stop": null,
-        "actualFinish": null,
-        "resume": null,
-        "resumeValid": null,
-        "percentComplete": 0,
-        "fadeInDays": null,
-        "fadeOutDays": null,
-        "notes": "SUB: Opus 5.5 high。1 時間は PMO の置き。",
-        "dependencies": [],
-        "carry": {},
-        "carryElements": []
-      },
-      {
-        "uid": 428,
-        "parentTaskUid": null,
-        "wbsOrder": 305,
-        "name": "🌑 名の辞書(用語集)のパート 34 の裁定の記録(SUB。ID の表と用語集へ)",
-        "start": "2026-12-11T06:55:00",
-        "finish": "2026-12-11T07:55:00",
-        "milestone": false,
-        "deadline": null,
-        "calendarUid": null,
-        "actualStart": null,
-        "stop": null,
-        "actualFinish": null,
-        "resume": null,
-        "resumeValid": null,
-        "percentComplete": 0,
-        "fadeInDays": null,
-        "fadeOutDays": null,
-        "notes": "SUB: Opus 5.5 high。1 時間は PMO の置き。",
-        "dependencies": [
-          {
-            "predecessorUid": 358,
-            "linkType": 1,
-            "linkLag": 0,
-            "lagFormat": 7,
-            "carry": {},
-            "carryElements": []
-          }
-        ],
-        "carry": {},
-        "carryElements": []
-      },
-      {
-        "uid": 429,
-        "parentTaskUid": null,
-        "wbsOrder": 306,
-        "name": "🌑 名の辞書(用語集)のパート 35 の SUB の準備(用語の紙を出す)",
-        "start": "2026-12-11T05:55:00",
-        "finish": "2026-12-11T06:55:00",
-        "milestone": false,
-        "deadline": null,
-        "calendarUid": null,
-        "actualStart": null,
-        "stop": null,
-        "actualFinish": null,
-        "resume": null,
-        "resumeValid": null,
-        "percentComplete": 0,
-        "fadeInDays": null,
-        "fadeOutDays": null,
-        "notes": "SUB: Opus 5.5 high。1 時間は PMO の置き。",
-        "dependencies": [],
-        "carry": {},
-        "carryElements": []
-      },
-      {
-        "uid": 430,
-        "parentTaskUid": null,
-        "wbsOrder": 307,
-        "name": "🌑 名の辞書(用語集)のパート 35 の裁定の記録(SUB。ID の表と用語集へ)",
-        "start": "2026-12-12T14:58:20",
-        "finish": "2026-12-12T15:58:20",
-        "milestone": false,
-        "deadline": null,
-        "calendarUid": null,
-        "actualStart": null,
-        "stop": null,
-        "actualFinish": null,
-        "resume": null,
-        "resumeValid": null,
-        "percentComplete": 0,
-        "fadeInDays": null,
-        "fadeOutDays": null,
-        "notes": "SUB: Opus 5.5 high。1 時間は PMO の置き。",
-        "dependencies": [
-          {
-            "predecessorUid": 359,
-            "linkType": 1,
-            "linkLag": 0,
-            "lagFormat": 7,
-            "carry": {},
-            "carryElements": []
-          }
-        ],
-        "carry": {},
-        "carryElements": []
-      },
-      {
-        "uid": 431,
-        "parentTaskUid": null,
-        "wbsOrder": 308,
-        "name": "🌑 名の辞書(用語集)のパート 36 の SUB の準備(用語の紙を出す)",
-        "start": "2026-12-12T13:58:20",
-        "finish": "2026-12-12T14:58:20",
-        "milestone": false,
-        "deadline": null,
-        "calendarUid": null,
-        "actualStart": null,
-        "stop": null,
-        "actualFinish": null,
-        "resume": null,
-        "resumeValid": null,
-        "percentComplete": 0,
-        "fadeInDays": null,
-        "fadeOutDays": null,
-        "notes": "SUB: Opus 5.5 high。1 時間は PMO の置き。",
-        "dependencies": [],
-        "carry": {},
-        "carryElements": []
-      },
-      {
-        "uid": 432,
-        "parentTaskUid": null,
-        "wbsOrder": 309,
-        "name": "🌑 名の辞書(用語集)のパート 36 の裁定の記録(SUB。ID の表と用語集へ)",
-        "start": "2026-12-13T12:05:00",
-        "finish": "2026-12-13T13:05:00",
-        "milestone": false,
-        "deadline": null,
-        "calendarUid": null,
-        "actualStart": null,
-        "stop": null,
-        "actualFinish": null,
-        "resume": null,
-        "resumeValid": null,
-        "percentComplete": 0,
-        "fadeInDays": null,
-        "fadeOutDays": null,
-        "notes": "SUB: Opus 5.5 high。1 時間は PMO の置き。",
-        "dependencies": [
-          {
-            "predecessorUid": 360,
-            "linkType": 1,
-            "linkLag": 0,
-            "lagFormat": 7,
-            "carry": {},
-            "carryElements": []
-          }
-        ],
-        "carry": {},
-        "carryElements": []
-      },
-      {
-        "uid": 433,
-        "parentTaskUid": null,
-        "wbsOrder": 310,
-        "name": "🌑 名の辞書(用語集)のパート 37 の SUB の準備(用語の紙を出す)",
-        "start": "2026-12-13T11:05:00",
-        "finish": "2026-12-13T12:05:00",
-        "milestone": false,
-        "deadline": null,
-        "calendarUid": null,
-        "actualStart": null,
-        "stop": null,
-        "actualFinish": null,
-        "resume": null,
-        "resumeValid": null,
-        "percentComplete": 0,
-        "fadeInDays": null,
-        "fadeOutDays": null,
-        "notes": "SUB: Opus 5.5 high。1 時間は PMO の置き。",
-        "dependencies": [],
-        "carry": {},
-        "carryElements": []
-      },
-      {
-        "uid": 434,
-        "parentTaskUid": null,
-        "wbsOrder": 311,
-        "name": "🌑 名の辞書(用語集)のパート 37 の裁定の記録(SUB。ID の表と用語集へ)",
-        "start": "2026-12-13T13:28:20",
-        "finish": "2026-12-13T14:28:20",
-        "milestone": false,
-        "deadline": null,
-        "calendarUid": null,
-        "actualStart": null,
-        "stop": null,
-        "actualFinish": null,
-        "resume": null,
-        "resumeValid": null,
-        "percentComplete": 0,
-        "fadeInDays": null,
-        "fadeOutDays": null,
-        "notes": "SUB: Opus 5.5 high。1 時間は PMO の置き。",
-        "dependencies": [
-          {
-            "predecessorUid": 361,
-            "linkType": 1,
-            "linkLag": 0,
-            "lagFormat": 7,
-            "carry": {},
-            "carryElements": []
-          }
-        ],
-        "carry": {},
-        "carryElements": []
-      },
-      {
         "uid": 435,
         "parentTaskUid": null,
         "wbsOrder": 312,
-        "name": "🌑 N1 の見込み(3.60 語/時で置いた。事実ではなく PMO の置き。オーナーの日付の N1 は別)",
-        "start": "2026-12-13T14:28:20",
-        "finish": "2026-12-13T14:28:20",
+        "name": "🌑 N1 の見込み(① と ② の仮の長さで置いた。事実ではなく PMO の置き)",
+        "start": "2026-11-23T10:30:00",
+        "finish": "2026-11-23T10:30:00",
         "milestone": true,
         "deadline": null,
         "calendarUid": null,
@@ -8389,10 +7621,10 @@
         "percentComplete": 0,
         "fadeInDays": null,
         "fadeOutDays": null,
-        "notes": "速さ 3.60 語/時（11-13 の値）。今日の速さでの見込みは後任 14 の数が届き次第 .md に足す。",
+        "notes": "速さ 3.60 語/時（11-13 の値）。今日の速さでの見込みは後任 14 の数が届き次第 .md に足す。 pmo-5 2026-11-22T11:53: re-placed at the end of group 2 (5 steps, BOSS placeholder lengths); no longer 3.60 terms/h.",
         "dependencies": [
           {
-            "predecessorUid": 434,
+            "predecessorUid": 466,
             "linkType": 1,
             "linkLag": 0,
             "lagFormat": 7,
@@ -8440,8 +7672,8 @@
         "parentTaskUid": null,
         "wbsOrder": 314,
         "name": "🌑 差分抽出: 決まった名と今の仕様・コードの差を抜き出す(SUB)",
-        "start": "2026-12-13T14:28:20",
-        "finish": "2026-12-14T14:28:20",
+        "start": "2026-11-23T10:30:00",
+        "finish": "2026-11-24T10:30:00",
         "milestone": false,
         "deadline": null,
         "notes": "pmo-5 2026-11-22: new task for the deliverable tree (owner order). Input: the settled contract names of both groups (after part 13 is recorded, uid 418, and part 37 is recorded, uid 434; BOSS 11-22). Output: the list of differences between the settled names and the current spec and code, handed to CR-855/856. Length 1 day is a PMO placeholder (no measured number yet). SUB model: Opus 5.5 high.",
@@ -8456,7 +7688,7 @@
         "fadeOutDays": null,
         "dependencies": [
           {
-            "predecessorUid": 434,
+            "predecessorUid": 401,
             "linkType": 1,
             "linkLag": 0,
             "lagFormat": 7,
@@ -8464,7 +7696,7 @@
             "carryElements": []
           },
           {
-            "predecessorUid": 401,
+            "predecessorUid": 466,
             "linkType": 1,
             "linkLag": 0,
             "lagFormat": 7,
@@ -8648,6 +7880,166 @@
         "dependencies": [
           {
             "predecessorUid": 460,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 462,
+        "parentTaskUid": null,
+        "wbsOrder": 321,
+        "name": "🌑 ② 後任 14 が Agent API の見直しの方針の案を出す(SUB)",
+        "start": "2026-11-22T16:38:37",
+        "finish": "2026-11-22T18:38:37",
+        "milestone": false,
+        "deadline": null,
+        "calendarUid": null,
+        "actualStart": null,
+        "stop": null,
+        "actualFinish": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "notes": "pmo-5 2026-11-22T11:53: owner answer on group 2 (a: get it out, naming first; BOSS line 11-22). Replaces the per-part tasks 354..361 and 419..434 (3.60 terms/h). Length 2.0 h is a BOSS placeholder (provisional). SUB: Opus 5.5 high.",
+        "dependencies": [
+          {
+            "predecessorUid": 401,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 463,
+        "parentTaskUid": null,
+        "wbsOrder": 322,
+        "name": "🌑 オーナー: ② Agent API の見直しの方針を決める",
+        "start": "2026-11-22T18:38:37",
+        "finish": "2026-11-22T19:38:37",
+        "milestone": false,
+        "deadline": null,
+        "calendarUid": null,
+        "actualStart": null,
+        "stop": null,
+        "actualFinish": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "notes": "pmo-5 2026-11-22T11:53: owner answer on group 2 (a: get it out, naming first; BOSS line 11-22). Replaces the per-part tasks 354..361 and 419..434 (3.60 terms/h). Length 1.0 h is a BOSS placeholder (provisional). Owner hours.",
+        "dependencies": [
+          {
+            "predecessorUid": 462,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 464,
+        "parentTaskUid": null,
+        "wbsOrder": 323,
+        "name": "🌑 ② 後任 14 が Agent API・文書の命令の名をまとめてそろえる(SUB。BGQA4・BGQA5 の 45 問は 1 つずつ問わない)",
+        "start": "2026-11-22T19:38:37",
+        "finish": "2026-11-22T23:38:37",
+        "milestone": false,
+        "deadline": null,
+        "calendarUid": null,
+        "actualStart": null,
+        "stop": null,
+        "actualFinish": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "notes": "pmo-5 2026-11-22T11:53: owner answer on group 2 (a: get it out, naming first; BOSS line 11-22). Replaces the per-part tasks 354..361 and 419..434 (3.60 terms/h). Length 4.0 h is a BOSS placeholder (provisional). SUB: Opus 5.5 high.",
+        "dependencies": [
+          {
+            "predecessorUid": 463,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 465,
+        "parentTaskUid": null,
+        "wbsOrder": 324,
+        "name": "🌑 オーナー: ② そろえた名を確認する",
+        "start": "2026-11-23T09:00:00",
+        "finish": "2026-11-23T10:00:00",
+        "milestone": false,
+        "deadline": null,
+        "calendarUid": null,
+        "actualStart": null,
+        "stop": null,
+        "actualFinish": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "notes": "pmo-5 2026-11-22T11:53: owner answer on group 2 (a: get it out, naming first; BOSS line 11-22). Replaces the per-part tasks 354..361 and 419..434 (3.60 terms/h). Length 1.0 h is a BOSS placeholder (provisional). Owner hours.",
+        "dependencies": [
+          {
+            "predecessorUid": 464,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 466,
+        "parentTaskUid": null,
+        "wbsOrder": 325,
+        "name": "🌑 ② の確認の答えを記録して合流する(後任 14。SUB)",
+        "start": "2026-11-23T10:00:00",
+        "finish": "2026-11-23T10:30:00",
+        "milestone": false,
+        "deadline": null,
+        "calendarUid": null,
+        "actualStart": null,
+        "stop": null,
+        "actualFinish": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "notes": "pmo-5 2026-11-22T11:53: owner answer on group 2 (a: get it out, naming first; BOSS line 11-22). Replaces the per-part tasks 354..361 and 419..434 (3.60 terms/h). Length 0.5 h is a BOSS placeholder (provisional). SUB: Opus 5.5 high.",
+        "dependencies": [
+          {
+            "predecessorUid": 465,
             "linkType": 1,
             "linkLag": 0,
             "lagFormat": 7,
@@ -9902,38 +9294,6 @@
         "taskGroupId": "91cdc81b-7c55-5ebd-b0c1-4ea53a06407f"
       },
       {
-        "taskUid": 354,
-        "taskGroupId": "f5c1a05d-0315-5b9a-9a59-93f3d19dd7ce"
-      },
-      {
-        "taskUid": 355,
-        "taskGroupId": "f5c1a05d-0315-5b9a-9a59-93f3d19dd7ce"
-      },
-      {
-        "taskUid": 356,
-        "taskGroupId": "f5c1a05d-0315-5b9a-9a59-93f3d19dd7ce"
-      },
-      {
-        "taskUid": 357,
-        "taskGroupId": "f5c1a05d-0315-5b9a-9a59-93f3d19dd7ce"
-      },
-      {
-        "taskUid": 358,
-        "taskGroupId": "f5c1a05d-0315-5b9a-9a59-93f3d19dd7ce"
-      },
-      {
-        "taskUid": 359,
-        "taskGroupId": "f5c1a05d-0315-5b9a-9a59-93f3d19dd7ce"
-      },
-      {
-        "taskUid": 360,
-        "taskGroupId": "f5c1a05d-0315-5b9a-9a59-93f3d19dd7ce"
-      },
-      {
-        "taskUid": 361,
-        "taskGroupId": "f5c1a05d-0315-5b9a-9a59-93f3d19dd7ce"
-      },
-      {
         "taskUid": 362,
         "taskGroupId": "91cdc81b-7c55-5ebd-b0c1-4ea53a06407f"
       },
@@ -10010,70 +9370,6 @@
         "taskGroupId": "8e7eda3c-3814-5706-b12e-2439e88a206b"
       },
       {
-        "taskUid": 419,
-        "taskGroupId": "f5c1a05d-0315-5b9a-9a59-93f3d19dd7ce"
-      },
-      {
-        "taskUid": 420,
-        "taskGroupId": "f5c1a05d-0315-5b9a-9a59-93f3d19dd7ce"
-      },
-      {
-        "taskUid": 421,
-        "taskGroupId": "f5c1a05d-0315-5b9a-9a59-93f3d19dd7ce"
-      },
-      {
-        "taskUid": 422,
-        "taskGroupId": "f5c1a05d-0315-5b9a-9a59-93f3d19dd7ce"
-      },
-      {
-        "taskUid": 423,
-        "taskGroupId": "f5c1a05d-0315-5b9a-9a59-93f3d19dd7ce"
-      },
-      {
-        "taskUid": 424,
-        "taskGroupId": "f5c1a05d-0315-5b9a-9a59-93f3d19dd7ce"
-      },
-      {
-        "taskUid": 425,
-        "taskGroupId": "f5c1a05d-0315-5b9a-9a59-93f3d19dd7ce"
-      },
-      {
-        "taskUid": 426,
-        "taskGroupId": "f5c1a05d-0315-5b9a-9a59-93f3d19dd7ce"
-      },
-      {
-        "taskUid": 427,
-        "taskGroupId": "f5c1a05d-0315-5b9a-9a59-93f3d19dd7ce"
-      },
-      {
-        "taskUid": 428,
-        "taskGroupId": "f5c1a05d-0315-5b9a-9a59-93f3d19dd7ce"
-      },
-      {
-        "taskUid": 429,
-        "taskGroupId": "f5c1a05d-0315-5b9a-9a59-93f3d19dd7ce"
-      },
-      {
-        "taskUid": 430,
-        "taskGroupId": "f5c1a05d-0315-5b9a-9a59-93f3d19dd7ce"
-      },
-      {
-        "taskUid": 431,
-        "taskGroupId": "f5c1a05d-0315-5b9a-9a59-93f3d19dd7ce"
-      },
-      {
-        "taskUid": 432,
-        "taskGroupId": "f5c1a05d-0315-5b9a-9a59-93f3d19dd7ce"
-      },
-      {
-        "taskUid": 433,
-        "taskGroupId": "f5c1a05d-0315-5b9a-9a59-93f3d19dd7ce"
-      },
-      {
-        "taskUid": 434,
-        "taskGroupId": "f5c1a05d-0315-5b9a-9a59-93f3d19dd7ce"
-      },
-      {
         "taskUid": 435,
         "taskGroupId": "0934e51c-d746-5905-adfd-610f754b3097"
       },
@@ -10108,6 +9404,26 @@
       {
         "taskUid": 461,
         "taskGroupId": "8e7eda3c-3814-5706-b12e-2439e88a206b"
+      },
+      {
+        "taskUid": 462,
+        "taskGroupId": "f5c1a05d-0315-5b9a-9a59-93f3d19dd7ce"
+      },
+      {
+        "taskUid": 463,
+        "taskGroupId": "f5c1a05d-0315-5b9a-9a59-93f3d19dd7ce"
+      },
+      {
+        "taskUid": 464,
+        "taskGroupId": "f5c1a05d-0315-5b9a-9a59-93f3d19dd7ce"
+      },
+      {
+        "taskUid": 465,
+        "taskGroupId": "f5c1a05d-0315-5b9a-9a59-93f3d19dd7ce"
+      },
+      {
+        "taskUid": 466,
+        "taskGroupId": "f5c1a05d-0315-5b9a-9a59-93f3d19dd7ce"
       }
     ],
     "taskVisuals": [
@@ -11784,70 +11100,6 @@
         "strokeWidthPx": null
       },
       {
-        "taskUid": 354,
-        "shapeKind": "rectangle",
-        "milestoneGlyph": "diamond",
-        "fillColor": "blue",
-        "strokeColor": null,
-        "strokeWidthPx": null
-      },
-      {
-        "taskUid": 355,
-        "shapeKind": "rectangle",
-        "milestoneGlyph": "diamond",
-        "fillColor": "blue",
-        "strokeColor": null,
-        "strokeWidthPx": null
-      },
-      {
-        "taskUid": 356,
-        "shapeKind": "rectangle",
-        "milestoneGlyph": "diamond",
-        "fillColor": "blue",
-        "strokeColor": null,
-        "strokeWidthPx": null
-      },
-      {
-        "taskUid": 357,
-        "shapeKind": "rectangle",
-        "milestoneGlyph": "diamond",
-        "fillColor": "blue",
-        "strokeColor": null,
-        "strokeWidthPx": null
-      },
-      {
-        "taskUid": 358,
-        "shapeKind": "rectangle",
-        "milestoneGlyph": "diamond",
-        "fillColor": "blue",
-        "strokeColor": null,
-        "strokeWidthPx": null
-      },
-      {
-        "taskUid": 359,
-        "shapeKind": "rectangle",
-        "milestoneGlyph": "diamond",
-        "fillColor": "blue",
-        "strokeColor": null,
-        "strokeWidthPx": null
-      },
-      {
-        "taskUid": 360,
-        "shapeKind": "rectangle",
-        "milestoneGlyph": "diamond",
-        "fillColor": "blue",
-        "strokeColor": null,
-        "strokeWidthPx": null
-      },
-      {
-        "taskUid": 361,
-        "shapeKind": "rectangle",
-        "milestoneGlyph": "diamond",
-        "fillColor": "blue",
-        "strokeColor": null,
-        "strokeWidthPx": null
-      },
-      {
         "taskUid": 338,
         "shapeKind": "rectangle",
         "milestoneGlyph": "diamond",
@@ -12296,134 +11548,6 @@
         "strokeWidthPx": null
       },
       {
-        "taskUid": 419,
-        "shapeKind": "rectangle",
-        "milestoneGlyph": "diamond",
-        "fillColor": "blue",
-        "strokeColor": null,
-        "strokeWidthPx": null
-      },
-      {
-        "taskUid": 420,
-        "shapeKind": "rectangle",
-        "milestoneGlyph": "diamond",
-        "fillColor": "blue",
-        "strokeColor": null,
-        "strokeWidthPx": null
-      },
-      {
-        "taskUid": 421,
-        "shapeKind": "rectangle",
-        "milestoneGlyph": "diamond",
-        "fillColor": "blue",
-        "strokeColor": null,
-        "strokeWidthPx": null
-      },
-      {
-        "taskUid": 422,
-        "shapeKind": "rectangle",
-        "milestoneGlyph": "diamond",
-        "fillColor": "blue",
-        "strokeColor": null,
-        "strokeWidthPx": null
-      },
-      {
-        "taskUid": 423,
-        "shapeKind": "rectangle",
-        "milestoneGlyph": "diamond",
-        "fillColor": "blue",
-        "strokeColor": null,
-        "strokeWidthPx": null
-      },
-      {
-        "taskUid": 424,
-        "shapeKind": "rectangle",
-        "milestoneGlyph": "diamond",
-        "fillColor": "blue",
-        "strokeColor": null,
-        "strokeWidthPx": null
-      },
-      {
-        "taskUid": 425,
-        "shapeKind": "rectangle",
-        "milestoneGlyph": "diamond",
-        "fillColor": "blue",
-        "strokeColor": null,
-        "strokeWidthPx": null
-      },
-      {
-        "taskUid": 426,
-        "shapeKind": "rectangle",
-        "milestoneGlyph": "diamond",
-        "fillColor": "blue",
-        "strokeColor": null,
-        "strokeWidthPx": null
-      },
-      {
-        "taskUid": 427,
-        "shapeKind": "rectangle",
-        "milestoneGlyph": "diamond",
-        "fillColor": "blue",
-        "strokeColor": null,
-        "strokeWidthPx": null
-      },
-      {
-        "taskUid": 428,
-        "shapeKind": "rectangle",
-        "milestoneGlyph": "diamond",
-        "fillColor": "blue",
-        "strokeColor": null,
-        "strokeWidthPx": null
-      },
-      {
-        "taskUid": 429,
-        "shapeKind": "rectangle",
-        "milestoneGlyph": "diamond",
-        "fillColor": "blue",
-        "strokeColor": null,
-        "strokeWidthPx": null
-      },
-      {
-        "taskUid": 430,
-        "shapeKind": "rectangle",
-        "milestoneGlyph": "diamond",
-        "fillColor": "blue",
-        "strokeColor": null,
-        "strokeWidthPx": null
-      },
-      {
-        "taskUid": 431,
-        "shapeKind": "rectangle",
-        "milestoneGlyph": "diamond",
-        "fillColor": "blue",
-        "strokeColor": null,
-        "strokeWidthPx": null
-      },
-      {
-        "taskUid": 432,
-        "shapeKind": "rectangle",
-        "milestoneGlyph": "diamond",
-        "fillColor": "blue",
-        "strokeColor": null,
-        "strokeWidthPx": null
-      },
-      {
-        "taskUid": 433,
-        "shapeKind": "rectangle",
-        "milestoneGlyph": "diamond",
-        "fillColor": "blue",
-        "strokeColor": null,
-        "strokeWidthPx": null
-      },
-      {
-        "taskUid": 434,
-        "shapeKind": "rectangle",
-        "milestoneGlyph": "diamond",
-        "fillColor": "blue",
-        "strokeColor": null,
-        "strokeWidthPx": null
-      },
-      {
         "taskUid": 435,
         "shapeKind": "milestone",
         "milestoneGlyph": "diamond",
@@ -12489,6 +11613,46 @@
       },
       {
         "taskUid": 461,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": "diamond",
+        "fillColor": "blue",
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 462,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": "diamond",
+        "fillColor": "blue",
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 463,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": "diamond",
+        "fillColor": "orange",
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 464,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": "diamond",
+        "fillColor": "blue",
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 465,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": "diamond",
+        "fillColor": "orange",
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 466,
         "shapeKind": "rectangle",
         "milestoneGlyph": "diamond",
         "fillColor": "blue",
@@ -13426,62 +12590,6 @@
         "name": "🌒 名の辞書(用語集)のパート 6(GRS JSON / 共通の型とキー、39 語)のレビューと確定(オーナーの答え)",
         "start": "2026-10-31T16:49:00",
         "finish": "2026-11-22T21:45:00",
-        "milestone": false
-      },
-      {
-        "uid": 354,
-        "name": "🌑 名の辞書(用語集)のパート 30(Agent API / Agent API そのもの、40 語)のレビューと確定(オーナーの答え)",
-        "start": "2026-12-03T06:45:00",
-        "finish": "2026-12-05T10:36:40",
-        "milestone": false
-      },
-      {
-        "uid": 355,
-        "name": "🌑 名の辞書(用語集)のパート 31(Agent API / 受け渡す値の型、28 語)のレビューと確定(オーナーの答え)",
-        "start": "2026-12-05T10:36:40",
-        "finish": "2026-12-05T18:23:20",
-        "milestone": false
-      },
-      {
-        "uid": 356,
-        "name": "🌑 名の辞書(用語集)のパート 32(Agent API / 断りと理由、67 語)のレビューと確定(オーナーの答え)",
-        "start": "2026-12-05T18:23:20",
-        "finish": "2026-12-06T23:00:00",
-        "milestone": false
-      },
-      {
-        "uid": 357,
-        "name": "🌑 名の辞書(用語集)のパート 33(Agent API / 断りと理由、37 語)のレビューと確定(オーナーの答え)",
-        "start": "2026-12-07T06:45:00",
-        "finish": "2026-12-09T21:01:40",
-        "milestone": false
-      },
-      {
-        "uid": 358,
-        "name": "🌑 名の辞書(用語集)のパート 34(Agent API / メンバ、32 語)のレビューと確定(オーナーの答え)",
-        "start": "2026-12-09T21:01:40",
-        "finish": "2026-12-11T06:55:00",
-        "milestone": false
-      },
-      {
-        "uid": 359,
-        "name": "🌑 名の辞書(用語集)のパート 35(文書の命令 / どの命令も持つもの、38 語)のレビューと確定(オーナーの答え)",
-        "start": "2026-12-11T06:55:00",
-        "finish": "2026-12-12T14:58:20",
-        "milestone": false
-      },
-      {
-        "uid": 360,
-        "name": "🌑 名の辞書(用語集)のパート 36(文書の命令 / 依存、40 語)のレビューと確定(オーナーの答え)",
-        "start": "2026-12-12T14:58:20",
-        "finish": "2026-12-13T12:05:00",
-        "milestone": false
-      },
-      {
-        "uid": 361,
-        "name": "🌑 名の辞書(用語集)のパート 37(文書の命令 / 文書の設定と表の見え方、5 語)のレビューと確定(オーナーの答え)",
-        "start": "2026-12-13T12:05:00",
-        "finish": "2026-12-13T13:28:20",
         "milestone": false
       },
       {
@@ -14479,118 +13587,6 @@
         "milestone": false
       },
       {
-        "uid": 419,
-        "name": "🌑 名の辞書(用語集)のパート 30 の SUB の準備(用語の紙を出す)",
-        "start": "2026-12-03T05:45:00",
-        "finish": "2026-12-03T06:45:00",
-        "milestone": false
-      },
-      {
-        "uid": 420,
-        "name": "🌑 名の辞書(用語集)のパート 30 の裁定の記録(SUB。ID の表と用語集へ)",
-        "start": "2026-12-05T10:36:40",
-        "finish": "2026-12-05T11:36:40",
-        "milestone": false
-      },
-      {
-        "uid": 421,
-        "name": "🌑 名の辞書(用語集)のパート 31 の SUB の準備(用語の紙を出す)",
-        "start": "2026-12-05T09:36:40",
-        "finish": "2026-12-05T10:36:40",
-        "milestone": false
-      },
-      {
-        "uid": 422,
-        "name": "🌑 名の辞書(用語集)のパート 31 の裁定の記録(SUB。ID の表と用語集へ)",
-        "start": "2026-12-05T18:23:20",
-        "finish": "2026-12-05T19:23:20",
-        "milestone": false
-      },
-      {
-        "uid": 423,
-        "name": "🌑 名の辞書(用語集)のパート 32 の SUB の準備(用語の紙を出す)",
-        "start": "2026-12-05T17:23:20",
-        "finish": "2026-12-05T18:23:20",
-        "milestone": false
-      },
-      {
-        "uid": 424,
-        "name": "🌑 名の辞書(用語集)のパート 32 の裁定の記録(SUB。ID の表と用語集へ)",
-        "start": "2026-12-06T23:00:00",
-        "finish": "2026-12-07T00:00:00",
-        "milestone": false
-      },
-      {
-        "uid": 425,
-        "name": "🌑 名の辞書(用語集)のパート 33 の SUB の準備(用語の紙を出す)",
-        "start": "2026-12-07T05:45:00",
-        "finish": "2026-12-07T06:45:00",
-        "milestone": false
-      },
-      {
-        "uid": 426,
-        "name": "🌑 名の辞書(用語集)のパート 33 の裁定の記録(SUB。ID の表と用語集へ)",
-        "start": "2026-12-09T21:01:40",
-        "finish": "2026-12-09T22:01:40",
-        "milestone": false
-      },
-      {
-        "uid": 427,
-        "name": "🌑 名の辞書(用語集)のパート 34 の SUB の準備(用語の紙を出す)",
-        "start": "2026-12-09T20:01:40",
-        "finish": "2026-12-09T21:01:40",
-        "milestone": false
-      },
-      {
-        "uid": 428,
-        "name": "🌑 名の辞書(用語集)のパート 34 の裁定の記録(SUB。ID の表と用語集へ)",
-        "start": "2026-12-11T06:55:00",
-        "finish": "2026-12-11T07:55:00",
-        "milestone": false
-      },
-      {
-        "uid": 429,
-        "name": "🌑 名の辞書(用語集)のパート 35 の SUB の準備(用語の紙を出す)",
-        "start": "2026-12-11T05:55:00",
-        "finish": "2026-12-11T06:55:00",
-        "milestone": false
-      },
-      {
-        "uid": 430,
-        "name": "🌑 名の辞書(用語集)のパート 35 の裁定の記録(SUB。ID の表と用語集へ)",
-        "start": "2026-12-12T14:58:20",
-        "finish": "2026-12-12T15:58:20",
-        "milestone": false
-      },
-      {
-        "uid": 431,
-        "name": "🌑 名の辞書(用語集)のパート 36 の SUB の準備(用語の紙を出す)",
-        "start": "2026-12-12T13:58:20",
-        "finish": "2026-12-12T14:58:20",
-        "milestone": false
-      },
-      {
-        "uid": 432,
-        "name": "🌑 名の辞書(用語集)のパート 36 の裁定の記録(SUB。ID の表と用語集へ)",
-        "start": "2026-12-13T12:05:00",
-        "finish": "2026-12-13T13:05:00",
-        "milestone": false
-      },
-      {
-        "uid": 433,
-        "name": "🌑 名の辞書(用語集)のパート 37 の SUB の準備(用語の紙を出す)",
-        "start": "2026-12-13T11:05:00",
-        "finish": "2026-12-13T12:05:00",
-        "milestone": false
-      },
-      {
-        "uid": 434,
-        "name": "🌑 名の辞書(用語集)のパート 37 の裁定の記録(SUB。ID の表と用語集へ)",
-        "start": "2026-12-13T13:28:20",
-        "finish": "2026-12-13T14:28:20",
-        "milestone": false
-      },
-      {
         "uid": 435,
         "name": "🌑 N1 の見込み(3.60 語/時で置いた。事実ではなく PMO の置き。オーナーの日付の N1 は別)",
         "start": "2026-12-13T14:28:20",
@@ -14670,10 +13666,10 @@
     "zoomY": 1.099862517185352
   },
   "documentStamp": {
-    "scheduleUpdatedAt": "2026-11-22T02:47:00Z",
+    "scheduleUpdatedAt": "2026-11-22T02:53:00Z",
     "lastEditedBy": "PMO child session",
     "settingsUpdatedAt": "2026-10-20T20:24:42Z",
-    "fileSavedAt": "2026-11-22T02:47:00Z"
+    "fileSavedAt": "2026-11-22T02:53:00Z"
   },
   "changeLog": [
     {
@@ -15191,6 +14187,12 @@
       "editedBy": "PMO child session",
       "explanation": "Fact at 11-22 11:47 JST: BOSS line, glossary successor 14 placed the 10 stale-name questions; group 1 has 16 questions left (JDG-3694 recorded) plus one structure diagram check. Retired the per-part tasks 331..337 and 404..418; placed each question group as an owner answer task and a seat record task (8.6 rows per hour, one question = one row, provisional). Group 2 and the diff follow 401. Removed the dangling dependency 299 -> 330. N1 (316) and the beta (234) stay.",
       "changedAt": "2026-11-22T02:47:00Z"
+    },
+    {
+      "ordinal": 87,
+      "editedBy": "PMO child session",
+      "explanation": "Fact at 11-22 11:53 JST: BOSS line, owner answer on group 2 (a: get it out, naming first). Retired the per-part tasks 354..361 and 419..434; group 2 is now 5 steps after group 1 (seat policy draft, owner policy, seat aligns the names without asking the 45 questions one by one, owner check, record), 462..466, BOSS placeholder lengths. N1 forecast 435 moved to the end of group 2; the diff 455 and its chain re-placed as early as their predecessors allow. N1 (316) and the beta (234) stay.",
+      "changedAt": "2026-11-22T02:53:00Z"
     }
   ]
 }
