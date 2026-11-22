@@ -1,0 +1,325 @@
+id	verdict	failed	problem_ja	suggested_en
+S000	fix	E6	用語が Delay Diagnosis と Delay Diagnostics で揺れている（用語集は Delay Diagnostics）。	Terms: \n GRS is GoodRelax Scheduler, which opens and edits a Schedule Document and reads and writes GRS JSON files, the format that this GRS JSON Schema defines. \n MSPDI (Microsoft Project XML Data Interchange) is the XML file format that Microsoft Project uses. GRS can also read and write MSPDI (.xml) files. \n "Same as MSPDI X" indicates that the property has the same meaning and values as MSPDI element X. The description of that property notes any GRS-specific difference. \n Concepts: \n WBS is the tree of parent and child tasks, as in MSPDI. \n Task groups are GRS's own objects that let GRS draw several tasks in one Task Group Lane. Each task names exactly one task group in grs.taskGroupId. \n An MSPDI object keeps the values that only GRS uses under the key grs of that object. \n GRS counts working days using a single calendar: the calendar that project.calendarUid names. \n "Carried" means GRS does not use the value, but preserves the value and writes the value back to MSPDI unchanged. GRS keeps carried values of an object in grs.passthrough, and carried whole MSPDI elements in the passthrough lists. \n Actual dates are the authoritative source of task progress. GRS decides from the actual dates of a task whether the task is not started, in progress, suspended, or finished. GRS recalculates percentComplete from those dates when GRS opens a GRS JSON file. \n Delay Diagnostics: GRS never stores Delay Diagnostics results in a GRS JSON file, because a stored result goes out of date as soon as the Schedule Document changes. \n When a person starts Delay Diagnostics or an AI agent asks for Delay Diagnostics, GRS calculates the results from the current Schedule Data and project.statusDate. \n While GRS shows Delay Diagnostics results, GRS keeps those results and does not recalculate them. \n The shape of GRS JSON: \n $schema           Address of this schema \n schemaVersionUtc  Version of the shape \n buildVersionUtc   GRS build that wrote the file \n documentStamp     Last change, last save and last editor \n documentSettings  How the schedule is drawn when opened \n scheduleData      Schedule data \n   +- head values: scheduleDataTimeZone, sourceFormat, importedTopTaskOutlineLevel, mspdiImportCount, highestIssuedUid \n   +- same as MSPDI: project, calendars, passthroughCalendars, tasks, passthroughTasks, resources, passthroughResources, assignments, passthroughAssignments \n   +- GRS only: taskGroups, baselineTasks, highlightBoxes, commentBoxes \n changeLogEntries  Notes on changes \n A property with no value is omitted: null and [] are never written.
+S001	fix	S2,S3	名詞句で受け身（is published）になっている。	This value gives the address of the latest GRS schema; every document holds the same address.
+S002	fix	S3,E1	名詞句で、shape が何か（キーと規則）が読み取れない。	This value gives the UTC time (YYYY-MM-DDTHH:MM:SSZ) when the shape of GRS JSON, meaning the keys and the rules, last changed.
+S003	fix	S1,S3,E4	It が使われ、GRS build が分かりにくい。	This value gives the UTC time (YYYY-MM-DDTHH:MM:SSZ) when someone built the GRS program that wrote this file. Use this value only for debugging; to check whether GRS can read a file, use schemaVersionUtc.
+S004	fix	S3,E2	名詞句で、型名の繰り返し (type DocumentStamp) がある。	This object holds the Document Stamp: when the Schedule Data and the Schedule Document last changed, when GRS last saved the file, and who last edited the Schedule Document.
+S005	fix	S3	名詞句で動詞がない。	This value gives the time in UTC when the Schedule Data last changed. A change of documentSettings alone does not move this time.
+S006	fix	S3	名詞句で動詞がない。	This value gives the time in UTC when the Schedule Document last changed, whether in the Schedule Data or in documentSettings.
+S007	fix	S3	最初の文が名詞句である。	This value gives the time in UTC when GRS last saved the Schedule Document to a file. The key is absent until the first save.
+S008	fix	S3,E2	名詞句で、型名を繰り返している。	This object says who last edited the Schedule Document. GRS always writes this key, also in a Schedule Document that nobody has edited yet.
+S009	fix	S1,S5,E1	最後の否定文は対象が曖昧で、it 系の代名詞的な言い回しと読みにくい template の説明がある。	"user": a person edited the Schedule Document on the screen. "agent": an AI edited the Schedule Document through the Agent API. "template": nobody has edited the Schedule Document yet, so the Schedule Document is still the template that comes with GRS.
+S010	fix	S1,S3,E1	名詞句で、itself の用法と「link with a server」が不明確。	This value gives the name of the editor. For "agent", the name is the one that the AI reports; for "user", GRS writes the name only when GRS knows the name, for example through a link with a server. When GRS knows no name, GRS omits the key.
+S011	fix	S3	最初の文が名詞句である。	This object holds the Document Settings: how GRS shows the Schedule Document when GRS opens the Schedule Document. GRS writes the keys from the widest effect to the narrowest.
+S012	fix	S3	最初の文が名詞句で、scheduleData という自己参照がある。	This object holds the Schedule Data, the schedule itself: five head values, then the MSPDI part, which GRS reads from and writes to MSPDI, then the GRS part, which only GRS defines.
+S013	fix	S2,S3	名詞句で、受け身的な「A new entry goes」がある。	This list holds the Change Log: notes that people or an AI write about changes to the Schedule Document, oldest first. GRS adds a new entry at the end.
+S014	fix	S3	最初の文が名詞句である。	This value gives the time in UTC when the change happened. GRS fills in the time when GRS adds the entry; a person may change the time later.
+S015	fix	S3	名詞句である。	This object says who made the change: the kind of editor and the name.
+S016	fix	S5,E1,E2	「他のキーを選ばない」の意味が曖昧で、別キーとの比較は本文の役割ではない。	This value gives the kind of editor that wrote this entry, and GRS fills in the value. "user": a person wrote the entry on the screen; "agent": an AI wrote the entry through the Agent API.
+S017	fix	S3	名詞句である。	This value gives the name of the editor: the name that a person typed, or the name that an AI reported.
+S018	fix	S3,E4	名詞句で、reached の語感が硬い。	This free text names the part of the Schedule Document that the change touched, for example "tasks" or the name of one task.
+S019	fix	S3	名詞句である。	This free text says what changed.
+S020	fix	S3	名詞句である。	This free text gives the reason for the change.
+S021	fix	S3,E1	名詞句で、reason との使い分けが曖昧。	This free text holds anything else about the change that the other keys do not hold.
+S022	fix	S3,E1	名詞句で、最後の節の意味（保存値は変わらない）が分かりにくい。	This value is the display scale of the Schedule Canvas as a ratio: 1 is the normal size, 0.5 is half size and 2 is double size. When GRS draws, GRS multiplies every value whose key ends in Px by this ratio, and the saved Px values stay as they are.
+S023	fix	S3,E2	名詞句で、enum を繰り返している。	This value is the text size step of the Schedule Canvas. GRS holds the pixel size of each step, and displayScaleRatio scales that size.
+S024	fix	S3	Whether で始まる断片である。	GRS draws the theme in monochrome when this value is true. This value changes only the drawing; the colors saved in the Schedule Document stay the same.
+S025	fix	S3,E2	名詞句で、enum を繰り返している。	This value names the hue of the theme. Every color written as {"type": "theme"} takes this hue; GRS holds the hue angle of each name.
+S026	fix	S3	名詞句である。	This object sets the Display Base Time Zone: the time zone in which GRS shows date-times on the Schedule Canvas and the Time Ruler.
+S027	fix	E1,S2	「the value is not a copy」が分かりにくい。	"sameAsScheduleData": GRS shows date-times in the time zone of scheduleData.scheduleDataTimeZone and follows that time zone when the time zone changes. "fixed": GRS shows date-times at the offset in utcOffset.
+S028	fix	S3	断片で始まる。	Write this key only when type is "fixed". This value gives the UTC offset in which GRS shows date-times, such as "+09:00". The offset is standard time; GRS never adds daylight saving time.
+S029	fix	S3,S5,E1	名詞句で、末尾の否定文の意図が不明。	This list holds the Additional Time Zones: up to four extra clocks that GRS shows next to the Display Base Time Zone. While GRS shows the time of day, GRS adds one row under the Time Ruler for each clock.
+S030	fix	S3	最初の文が名詞句である。	This value gives the UTC offset of this clock, such as "-04:00". The offset already includes any daylight saving time, and GRS uses the offset all year.
+S031	fix	S3	最初の文が断片的で、this value の使い方が不統一。	This value picks which zone name GRS shows for this clock: "standard" shows the standard-time name of the offset; "daylight" shows the daylight-time name. This value does not change the offset.
+S032	fix	S3	Whether で始まる断片である。	GRS shows the time of day on the Schedule Canvas, for the whole Schedule Document, when this value is true. The saved date-times keep their time either way.
+S033	fix	S3,E4	名詞句で、「CSS pixels at displayScaleRatio 1」が難しい。	This value is the Day Width: the width of one calendar day on the Time Ruler, in CSS pixels when displayScaleRatio is 1. This value is the horizontal zoom, and Zoom to Fit sets this value.
+S034	fix	S3	名詞句である。	This object sets the Fit Span: the range of days that Zoom to Fit shows and that PNG and SVG pictures show. This range does not limit which tasks GRS saves or writes to MSPDI.
+S035	fix	E1,E3,S3	長く、「columns ... at the two edges」が視覚的で分かりにくい。	"fixed": the Fit Span runs from firstDay to lastDay with no margin, and the whole days firstDay and lastDay reach the two edges of the Task Group Lanes. "automatic": the Fit Span covers everything that GRS draws, plus a small margin that GRS fixes and does not save; GRS keeps no days for "automatic", so a change to "automatic" drops the earlier firstDay and lastDay.
+S036	fix	S3	最初の文が断片である。	Write this key only when type is "fixed". This value gives the first day of the Fit Span (included), as a day in the Display Base Time Zone.
+S037	fix	S3,E4	断片で、column が何を指すか不明。	Write this key only when type is "fixed". This value gives the last day of the Fit Span; the Fit Span includes this whole day.
+S038	fix	S3	名詞句である。	This object holds the vertical zoom: the two values that one step of vertical zoom and Zoom to Fit change together. When this key is absent, GRS chooses both values as Zoom to Fit does.
+S039	fix	S3	名詞句である。	This value gives the vertical size of the Task Graphics as a ratio to the default size: 1 is the default size, and 2 draws Plan Bars, Actual Bars and Name Labels twice as tall.
+S040	fix	S3,E2,E3	名詞句で長く、範囲（型で示済み）を繰り返している。	This value gives the depth down to which GRS shows the task groups whose showMode is "automatic": 1 shows only the top-level task groups. One vertical zoom-in step first makes this depth deeper, and changes ratio only when no deeper task group is left to show; GRS does not calculate this value from ratio.
+S041	fix	S3	名詞句である。	This value gives the width of the Task Group Panel, in CSS pixels when displayScaleRatio is 1.
+S042	ok	-	-	-
+S043	fix	S3,S5	名詞句で、末尾の否定が曖昧。	This list holds the ids of the Pinned Task Groups: task groups that stay at the top of the Task Group Lanes while the view scrolls vertically. A pinned task group whose showMode is "automatic" shows at any depth, but a pin does not reveal a task group whose showMode is "hidden". When the key is absent, no task group is pinned.
+S044	fix	S3	最初の文が名詞句である。	This value sets the Placement Direction: the direction in which GRS places the overlapping tasks of one Task Group Lane on Stack Tiers, earliest task first. "bottomToTop": the earliest task goes on the lowest tier and later tasks climb; "topToBottom": the earliest task goes on the top tier and later tasks descend. This value does not order the task groups.
+S045	fix	S3	名詞句である。	This object says where the view of the Schedule Canvas starts when GRS opens the Schedule Document.
+S046	ok	-	-	-
+S047	fix	S3	断片である。	Write this key only when type is "fixed". This value gives the day at the left edge of the view.
+S048	fix	E7,S3	スキーマは exclusiveMaximum 100 なのに本文は「0 to 100」で食い違う。	Write this key only when type is "fixed". This value says how far the left edge lies to the right of the start of leftEdgeDay, in percent of one day, from 0 up to but not including 100; 0 is the start of the day.
+S049	fix	S3	断片である。	Write this key only when type is "fixed". This value gives the id of the task group at the top edge of the view. When that task group no longer exists, GRS treats the scroll position as "automatic".
+S050	fix	E7,S3	スキーマは 100 を含まないが本文は「from 0 to 100」で食い違う。	Write this key only when type is "fixed". This value says how far the top edge lies below the top edge of that task group, in percent of the step of the task group (the height of the Task Group Lane plus the gap below), from 0 up to but not including 100. This value is not a distance from the top of the screen.
+S051	fix	S3,E1	名詞句で、writes が描画か保存か曖昧。	This object chooses which elements GRS draws on the Schedule Canvas: true draws the element, false hides the element. GRS writes the keys in this order: bars, then labels, then lines.
+S052	fix	S3,E1	Whether の断片で、apart from が曖昧。	GRS draws the Plan Bars when this value is true; isActualBarVisible controls the Actual Bars separately.
+S053	fix	S3,E1	Whether の断片で、apart from が曖昧。	GRS draws the Actual Bars when this value is true; isPlanBarVisible controls the Plan Bars separately.
+S054	fix	S3	Whether の断片である。	GRS draws the Baseline Outline when this value is true: the baseline (baselineTasks) drawn over the current tasks.
+S055	fix	S3	Whether の断片である。	GRS draws the Assignee Label of each task when this value is true.
+S056	fix	S3	Whether の断片である。	GRS draws the Percent Complete Label of each task when this value is true.
+S057	fix	S3	Whether の断片である。	GRS draws the Progress Status Marks and the Resume Marks when this value is true. A Progress Status Mark sits outside the end of the Actual Bar and shows the progress status of the task by shape; the mark is not a point of the Progress Line.
+S058	fix	S3	Whether の断片である。	GRS draws the planned start and finish dates to the right of each Name Label when this value is true.
+S059	fix	S3	Whether の断片である。	GRS draws the Dependency Lines when this value is true.
+S060	fix	S3	Whether の断片である。	GRS draws the Progress Line when this value is true: one zigzag line from the status date through the task progress point of each task.
+S061	fix	S3	Whether の断片である。	GRS draws the Date Grid Lines when this value is true: vertical lines at each date.
+S062	fix	S3	Whether の断片である。	GRS draws the Task Group Grid Lines when this value is true: horizontal lines between task groups, in the Task Group Lanes and in the Task Group Panel.
+S063	fix	S3	名詞句である。	This object holds the settings of Delay Diagnostics that belong to the Schedule Document.
+S064	fix	S3,S5	How many の断片で、否定の対象が曖昧。	This value gives how many working days the task progress point of a parent task may lie outside the range of the task progress points of the tasks below the parent task, before Delay Diagnostics marks the parent task as doubtful. This value does not allow a late finish or a missed deadline.
+S065	fix	S3,E1	断片で、括弧内が三つのウィンドウとどう対応するか不明。	This object says how GRS shows the tables of three tool windows: the Search Window, the Delay Diagnostics Report Window and the Resource List Window. The settings cover checks, column filters and sort of each table, and do not hold window positions.
+S066	fix	S3	名詞句である。	This object holds the table settings of the Search Window: the task table and the Comment Box table.
+S067	fix	S3	名詞句である。	This object holds the table settings of the Delay Diagnostics Report Window.
+S068	fix	S3	名詞句である。	This object holds the table settings of the Resource List Window.
+S069	fix	S3,E4	名詞句で、wall-clock times が難しい。	This object gives the time zone of every schedule date-time in scheduleData. GRS stores those date-times as local clock times with no offset, read in this zone, and GRS does not write the zone to MSPDI. Record times, such as documentStamp and changeLogEntries, use UTC instead.
+S070	fix	S3,E1	断片で、「that GRS offers」が曖昧。	This value gives the fixed offset from UTC, written like "+09:00" ("+00:00" for UTC). The offset is always standard time: GRS never switches to daylight saving time, so the same digits name the same moment all year. GRS refuses to open a file whose offset is not in the allowed list of standard-time offsets.
+S071	fix	S3	名詞句である。	This value says which format this Schedule Document came from: "grs" for a Schedule Document made in GRS, "mspdi12" or "mspdi15" for an MSPDI file in the form of MS Project version 12 or version 15. GRS does not write this value to MSPDI.
+S072	fix	S3,E4	名詞句で、OutlineLevel が説明なしの MSPDI 用語。	This value gives the OutlineLevel (the depth number of a task in the MSPDI outline) that the top tasks had in the imported MSPDI file, not counting the project summary task. When GRS writes MSPDI, GRS gives the top tasks of the WBS this OutlineLevel, so the levels match the original file. A new Schedule Document starts with 1.
+S073	fix	S3	How many の断片である。	This value counts how many times GRS has imported an MSPDI file into this Schedule Document; 0 means never. At each import GRS adds 1 and copies the new value to grs.importOrigin.mspdiImportCountWhenLastIncluded of every task that the imported file contains.
+S074	fix	S3	名詞句である。	This value is the highest uid that GRS has issued, one counter shared by tasks, resources, assignments and calendars. GRS gives a new entity this value plus 1 and raises the counter, so GRS never reuses a uid.
+S075	ok	-	-	-
+S076	ok	-	-	-
+S077	ok	-	-	-
+S078	ok	-	-	-
+S079	ok	-	-	-
+S080	ok	-	-	-
+S081	ok	-	-	-
+S082	ok	-	-	-
+S083	ok	-	-	-
+S084	ok	-	-	-
+S085	ok	-	-	-
+S086	ok	-	-	-
+S087	ok	-	-	-
+S088	ok	-	-	-
+S089	ok	-	-	-
+S090	ok	-	-	-
+S091	fix	E1	MSPDI と同じとだけあり、単位・意味が書かれていない。	Same as MSPDI MinutesPerWeek. The value gives the length of one working week in minutes.
+S092	fix	E1	MSPDI と同じとだけあり、意味が書かれていない。	Same as MSPDI DaysPerMonth. The value gives the number of working days in one month.
+S093	ok	-	-	-
+S094	ok	-	-	-
+S095	fix	S3	最初の文が名詞句である。	This object is the GRS part of this project: the keys under grs are GRS names, not MSPDI element names. Here grs holds only passthrough.
+S096	fix	S3	名詞句である。	This object holds the MSPDI values of this project that GRS does not use, in the MSPDI structure under the MSPDI element names. GRS writes these values back to MSPDI unchanged.
+S097	ok	-	-	-
+S098	ok	-	-	-
+S099	ok	-	-	-
+S100	ok	-	-	-
+S101	fix	E1	「継承する」と「日を取らない」が矛盾して読める。	Same as MSPDI BaseCalendarUID. The value names the calendar that this calendar inherits from in MSPDI. GRS keeps the value and writes the value back, but GRS does not inherit: GRS counts only the days that this calendar lists.
+S102	fix	S3	最初の文が名詞句である。	This object is the GRS part of this calendar: the keys under grs are GRS names, not MSPDI element names. Here grs holds only passthrough.
+S103	fix	S3	名詞句である。	This object holds the MSPDI values of this calendar that GRS does not use, in the MSPDI structure under the MSPDI element names. GRS writes these values back to MSPDI unchanged. A whole MSPDI Calendar element that GRS does not hold in calendars[] goes to passthroughCalendars[] instead.
+S104	ok	-	-	-
+S105	ok	-	-	-
+S106	ok	-	-	-
+S107	fix	S3	最初の文が名詞句である。	This object is the GRS part of this day of the week: the keys under grs are GRS names, not MSPDI element names. Here grs holds only passthrough.
+S108	fix	S3	名詞句である。	This object holds the MSPDI values of this day of the week that GRS does not use, in the MSPDI structure under the MSPDI element names. GRS writes these values back to MSPDI unchanged.
+S109	ok	-	-	-
+S110	ok	-	-	-
+S111	ok	-	-	-
+S112	ok	-	-	-
+S113	ok	-	-	-
+S114	ok	-	-	-
+S115	ok	-	-	-
+S116	ok	-	-	-
+S117	fix	E3,E4	長く、discriminator が専門語である。	Same as MSPDI Type. Repeat code: 1=daily, 2=yearly on a day of the month, 3=yearly on a weekday position (such as the second Monday of May), 4=monthly on a day of the month, 5=monthly on a weekday position, 6=weekly, 7=by day count, 8=by weekday count, 9=no repeat. Every exception has the same keys, whatever the code. GRS counts only a one-off exception (type 9, no type, or type 1 with period 1 or no period; write 1 for a new exception) and keeps any other exception unchanged without counting the days.
+S118	ok	-	-	-
+S119	fix	S3	最初の文が名詞句である。	This object is the GRS part of this exception: the keys under grs are GRS names, not MSPDI element names. Here grs holds only passthrough.
+S120	fix	S3	名詞句である。	This object holds the MSPDI values of this exception that GRS does not use, in the MSPDI structure under the MSPDI element names. GRS writes these values back to MSPDI unchanged.
+S121	ok	-	-	-
+S122	ok	-	-	-
+S123	ok	-	-	-
+S124	fix	S3	名詞句で始まる。	These are the MSPDI Calendar elements that GRS does not hold in calendars[]. GRS keeps each element whole and writes the element back into MSPDI Calendars right after the calendar that precedingCalendarUid names. A calendar that GRS holds keeps the MSPDI values that GRS does not use in calendars[].grs.passthrough instead.
+S125	fix	S3,E3	名詞句で始まり、規則が多く長い。	This value is the uid of the nearest calendar before this element in the MSPDI Calendars list, counting only the calendars in calendars[]. No key means that the element comes first; elements with the same value keep array order. When GRS deletes that calendar, GRS moves the value to the next calendar before; when the value names no calendar on opening, GRS puts the element at the end of the list and tells the user.
+S126	fix	S3	名詞句である。	This object holds the whole MSPDI element, keyed by the names of the child elements as in MSPDI. GRS writes the element back unchanged.
+S127	ok	-	-	-
+S128	ok	-	-	-
+S129	ok	-	-	-
+S130	ok	-	-	-
+S131	ok	-	-	-
+S132	fix	E4	split work が説明なしの用語である。	Same as MSPDI Stop. The value gives the date-time where the actual work so far ends on a task that is in progress or suspended (work split in two parts). GRS removes stop when GRS finishes the task; actualFinish then holds the end.
+S133	fix	E4	split work が説明なしの用語である。	Same as MSPDI Resume. On a suspended task, the value gives the planned date-time when the remaining work restarts (work split in two parts).
+S134	ok	-	-	-
+S135	ok	-	-	-
+S136	ok	-	-	-
+S137	ok	-	-	-
+S138	ok	-	-	-
+S139	ok	-	-	-
+S140	ok	-	-	-
+S141	ok	-	-	-
+S142	ok	-	-	-
+S143	ok	-	-	-
+S144	fix	S3	名詞句で始まる。	This value is the uid of the parent task in the WBS. A task without parentTaskUid sits at the top of the WBS. MSPDI has no such element: GRS builds the MSPDI OutlineLevel from parentTaskUid and siblingOrder.
+S145	fix	S3	名詞句で始まる。	This value gives the place of this task among the tasks with the same parent task, from 1. GRS writes 1, 2, 3 and so on with no gaps; GRS reads the smallest value first, and equal values keep array order.
+S146	fix	S3	名詞句である。	This object holds the GRS values of this task. The keys under grs are GRS names, not MSPDI element names.
+S147	fix	S3,E3	名詞句で始まり長い。	This value gives the calendar days over which GRS slants the start edge of the Plan Bar (Start Slope), to show a start date that is not firm. The slope changes only the drawing, not start or the schedule; GRS draws slopes on the rectangle and chevron shapes only, and never on the Actual Bar. No key means no slope. GRS writes the value to MSPDI as a Task/ExtendedAttribute.
+S148	fix	S3,E3	名詞句で始まり長い。	This value gives the calendar days over which GRS slants the finish edge of the Plan Bar (Finish Slope), to show a finish date that is not firm. The slope changes only the drawing, not finish or the schedule; GRS draws slopes on the rectangle and chevron shapes only, and never on the Actual Bar. No key means no slope. GRS writes the value to MSPDI as a Task/ExtendedAttribute.
+S149	fix	S3	名詞句である。	This object says how GRS draws the Task Graphic of this task: the shape, the fill and the stroke.
+S150	fix	S3,E1	名詞句で、arrow の見た目の説明がない。	This value gives the shape of the Plan Bar and the Actual Bar of a task that is not a milestone: rectangle, chevron (a bar with a notched start and a pointed finish), arrow (a bar drawn as an arrow), or dumbbell (a thin line with a dot at each end). Only a task that is not a milestone has taskShape.
+S151	fix	S3,E1	名詞句で、each value names the picture が曖昧。	This value gives the shape of the Milestone Mark, and each value names the picture that GRS draws, for example diamond or star. Only a milestone has milestoneShape.
+S152	fix	S3,E1	名詞句で、「and」が対比（どちらかは必要）を表さない。	This object sets the fill of the Plan Bar; GRS fills the Actual Bar from the same color. No key means no fill, but fill and stroke cannot both be absent.
+S153	fix	S3	名詞句である。	This object sets the outline of the Plan Bar and the Actual Bar. No key means no outline.
+S154	fix	S3,S4,E6,E1	名詞句で、row ではなく Task Group Lane が用語、axis が比喩的。	This value is the id of the task group whose Task Group Lane GRS draws this task in. Every task belongs to exactly one task group, and the task group is independent of the WBS parent (parentTaskUid).
+S155	fix	S3	名詞句で始まる。	This object records where this task came from in an imported MSPDI file, so that a later import of the same file updates this task instead of adding a copy. Only an imported task has importOrigin; a task made in GRS has none.
+S156	fix	S3,E4	名詞句で、stands in が分かりにくい。	This value is the Project UID of the MSPDI file that GRS imported this task from, a string like project.uid. The key is absent when that file had no Project UID; importSessionId then identifies the file instead.
+S157	fix	S3	名詞句で始まる。	This value is the UID of this task in that MSPDI file. The value can differ from uid, because GRS may give the imported task a new uid.
+S158	fix	S3,E4	名詞句で、stands in が分かりにくい。	This value is the id of the import that brought this task in; GRS makes a new id for every import. The id replaces sourceProjectUid when the MSPDI file had no Project UID.
+S159	fix	S3,E1	名詞句で、仕組みが回りくどい。	This value copies scheduleData.mspdiImportCount as the counter stood at the last import whose file contained this task. A value equal to scheduleData.mspdiImportCount means that the latest import contained this task; a smaller value means that the latest import left this task out.
+S160	fix	S3	名詞句で始まる。	This object holds the MSPDI values of this task that GRS does not use, in the MSPDI structure under the MSPDI element names. GRS writes these values back to MSPDI unchanged. A whole MSPDI Task element that GRS does not hold in tasks[] goes to passthroughTasks[] instead. When GRS changes the dates of the task, GRS rebuilds the values that follow from the dates, such as Duration.
+S161	ok	-	-	-
+S162	ok	-	-	-
+S163	fix	E4	「discriminator」は専門語で、初見の読者に通じない。	Same as MSPDI Type. Link type code: 0=FF (finish-to-finish), 1=FS (finish-to-start), 2=SF (start-to-finish), 3=SS (start-to-start); the first letter names the end of the predecessor, and the second letter names the end of this task. Every link has the same keys, whatever the code.
+S164	ok	-	-	-
+S165	fix	E1,E4	「35 to 44 = m? to emo?」の対応が暗号的で読み取れない。	Same as MSPDI LagFormat. Unit code for showing the lag: 3=m, 4=em, 5=h, 6=eh, 7=d, 8=ed, 9=w, 10=ew, 11=mo, 12=emo, 19=%, 20=e%, 35=m?, 36=em?, 37=h?, 38=eh?, 39=d?, 40=ed?, 41=w?, 42=ew?, 43=mo?, 44=emo?, 51=%?, 52=e%? (m minutes, h hours, d days, w weeks, mo months, % percent, e elapsed time, ? estimated). The unit never changes linkLag. GRS counts the lag only for 3, 5 and 7; for any other code GRS shows the lag and keeps linkLag unchanged.
+S166	ok	-	-	-
+S167	fix	S3	名詞句だけの文で主語と動詞がない。	This key holds the MSPDI values of this link that GRS does not use, in the MSPDI structure under the MSPDI element names. GRS writes these values back to MSPDI unchanged.
+S168	fix	S3,E1	名詞句だけの文で主語と動詞がない。また「empty task」の意味が不明。	This array holds MSPDI Task elements that GRS does not hold in tasks[], for example the project summary task (UID 0) or a Task element with no name and no dates. GRS keeps each element whole and writes the element back into MSPDI Tasks right after the task that precedingTaskUid names; the project summary task always goes first. A task that GRS holds keeps the MSPDI values that GRS does not use in tasks[].grs.passthrough instead.
+S169	fix	S3	名詞句だけの文で主語と動詞がない。	This value is the uid of the nearest task before this element in the MSPDI Tasks list, counting only the tasks in tasks[]. No key means that the element comes first; elements with the same value keep array order. When GRS deletes that task, GRS moves the value to the next task before; when the value names no task on opening, GRS puts the element at the end of the list and tells the user. This key does not name a dependency predecessor.
+S170	fix	S3	名詞句だけの文で主語と動詞がない。	This value is the whole MSPDI element, keyed by the names of the child elements as in MSPDI. GRS writes the element back unchanged.
+S171	ok	-	-	-
+S172	ok	-	-	-
+S173	ok	-	-	-
+S174	fix	E4	「discriminator」は専門語で通じない。	Same as MSPDI Type. Resource type code: 0=material, 1=work. Every resource has the same keys, whatever the code.
+S175	ok	-	-	-
+S176	ok	-	-	-
+S177	ok	-	-	-
+S178	fix	S3	名詞句だけの文で主語と動詞がない。	This key holds the MSPDI values of this resource that GRS does not use, in the MSPDI structure under the MSPDI element names. GRS writes these values back to MSPDI unchanged. A whole MSPDI Resource element that GRS does not hold in resources[] goes to passthroughResources[] instead.
+S179	fix	S3	名詞句だけの文で主語と動詞がない。	This array holds MSPDI Resource elements that GRS does not hold in resources[]. GRS keeps each element whole and writes the element back into MSPDI Resources right after the resource that precedingResourceUid names. A resource that GRS holds keeps the MSPDI values that GRS does not use in resources[].grs.passthrough instead.
+S180	fix	S3	名詞句だけの文で主語と動詞がない。	This value is the uid of the nearest resource before this element in the MSPDI Resources list, counting only the resources in resources[]. No key means that the element comes first; elements with the same value keep array order. When GRS deletes that resource, GRS moves the value to the next resource before; when the value names no resource on opening, GRS puts the element at the end of the list and tells the user.
+S181	fix	S3	名詞句だけの文で主語と動詞がない。	This value is the whole MSPDI element, keyed by the names of the child elements as in MSPDI. GRS writes the element back unchanged.
+S182	ok	-	-	-
+S183	ok	-	-	-
+S184	ok	-	-	-
+S185	ok	-	-	-
+S186	ok	-	-	-
+S187	fix	S3	名詞句だけの文で主語と動詞がない。	This key holds the MSPDI values of this assignment that GRS does not use, in the MSPDI structure under the MSPDI element names. GRS writes these values back to MSPDI unchanged. A whole MSPDI Assignment element that GRS does not hold in assignments[] goes to passthroughAssignments[] instead.
+S188	fix	S3	名詞句だけの文で主語と動詞がない。	This array holds MSPDI Assignment elements that GRS does not hold in assignments[]. GRS keeps each element whole and writes the element back into MSPDI Assignments right after the assignment that precedingAssignmentUid names. An assignment that GRS holds keeps the MSPDI values that GRS does not use in assignments[].grs.passthrough instead.
+S189	fix	S3	名詞句だけの文で主語と動詞がない。	This value is the uid of the nearest assignment before this element in the MSPDI Assignments list, counting only the assignments in assignments[]. No key means that the element comes first; elements with the same value keep array order. When GRS deletes that assignment, GRS moves the value to the next assignment before; when the value names no assignment on opening, GRS puts the element at the end of the list and tells the user.
+S190	fix	S3	名詞句だけの文で主語と動詞がない。	This value is the whole MSPDI element, keyed by the names of the child elements as in MSPDI. GRS writes the element back unchanged.
+S191	fix	S3,S1	名詞句だけの文で主語と動詞がない。「its」も使われている。	This array lists the task groups in the order of the task group tree, depth first. Each task group is one row of the Task Group Panel and one Task Group Lane; each task names the task group in grs.taskGroupId. The task group tree is a tree of drawing rows, separate from the WBS; on reading an MSPDI file, GRS makes the task groups from the WBS.
+S192	fix	S3	名詞句だけの文で主語と動詞がない。	This value is the id of the task group, a random UUID.
+S193	fix	S3	名詞句だけの文で主語と動詞がない。	This value is the task group name that the Task Group Panel shows. When the key is absent, the task group has no name and GRS shows an empty title.
+S194	fix	S3	名詞句だけの文で主語と動詞がない。	This value is the id of the parent task group. When the key is absent, the task group is a top-level task group (depth 1).
+S195	fix	S3	名詞句だけの文で主語と動詞がない。	This number sets the order of this task group among the task groups with the same parent. GRS lists the task groups from the smallest number at the top.
+S196	fix	S3	名詞句だけの文で主語と動詞がない。	This object tells GRS how to draw the task group (type TaskGroupStyle).
+S197	fix	S3	名詞句だけの文で主語と動詞がない。	This value is the color of the Task Group Lane (type TaskGroupColor). When the key is absent, GRS draws the Task Group Lane with no color; {"type": "theme"} draws the theme color.
+S198	fix	S3,E4	名詞句だけの文で主語と動詞がない。「lowest height」は「minimum height」が自然。	This value is the minimum height of the Task Group Lane, in CSS pixels at displayScaleRatio 1. The vertical zoom does not change this height. When the key is absent, the Task Group Lane has no minimum height.
+S199	fix	S3	名詞句だけの文で主語と動詞がない。	This value is the uid of the WBS task that this task group stands for, such as the parent task that GRS made the task group from. When a person moves the task group under another task group, GRS moves that task in the WBS to match. When the key is absent, the task group stands for no task.
+S200	fix	S3	名詞句だけの文で主語と動詞がない。	This value is the URL that the task group links to. When the key is absent, the task group has no link.
+S201	fix	S3	名詞句だけの文で主語と動詞がない。	This value is the title of the task group link, not the address. When the key is absent, the link has no title.
+S202	fix	S3,E1	冒頭が文でなく、「through zoom」の意味が曖昧。	This value records what a person wants for this task group. "shown": a person chose to show the task group; GRS draws the task group at any depth unless an ancestor hides the task group. "hidden": a person chose to put the task group away; GRS hides the task group and every task group below, even when the person zooms or uses Zoom to Fit, until a person shows the task group again, for example with the Expand One Level Button of the parent or a jump to the task group. "automatic": GRS decides from the depth (automaticallyShownDepth), the pins and the path to a shown task group below. "hiddenUntilZoomIn": GRS hides the task group and every task group below until the next vertical zoom in, and then GRS changes the value to "automatic". When the key is absent, the value is "automatic".
+S203	fix	S3	名詞句だけの文で主語と動詞がない。	This value is the name of the group of people allowed to edit the tasks in this task group. While this key is present, GRS treats those tasks as read-only and refuses to move a task to a task group with another value. When the key is absent, anyone may edit.
+S204	fix	S3	名詞句だけの文で主語と動詞がない。	This array holds the baseline, a saved copy of earlier task dates. GRS matches each baseline task to the current task with the same uid and draws the Baseline Outline over the current task. A baseline task holds no shape; the Baseline Outline takes the shape of the current task.
+S205	fix	S3	名詞句だけの文で主語と動詞がない。	This value is the uid of the current task that this baseline task belongs to.
+S206	fix	S3	名詞句だけの文で主語と動詞がない。	This value is the task name at the time of the baseline.
+S207	fix	S3	名詞句だけの文で主語と動詞がない。	This value is the planned start at the time of the baseline.
+S208	fix	S3	名詞句だけの文で主語と動詞がない。	This value is the planned finish at the time of the baseline.
+S209	fix	S3	冒頭が文でない。	This value records whether the task was a milestone at the time of the baseline. GRS keeps this value as a record and still draws the outline in the shape of the current task.
+S210	fix	S3	名詞句だけの文で主語と動詞がない。	This array holds the Highlight Boxes: rectangles in the Task Group Lanes that mark a range of days over a range of task groups.
+S211	fix	S3	名詞句だけの文で主語と動詞がない。	This value is the id of the Highlight Box, a random UUID.
+S212	fix	S3	名詞句だけの文で主語と動詞がない。	This object tells GRS how to draw the Highlight Box (type HighlightBoxStyle).
+S213	fix	S3	名詞句だけの文で主語と動詞がない。	This value is the corner radius of the Highlight Box, in CSS pixels at displayScaleRatio 1; 0 gives square corners.
+S214	fix	S3	名詞句だけの文で主語と動詞がない。	This value is the fill of the Highlight Box (type Paint). The fill always has a color; opacityPercent 0 makes the fill invisible.
+S215	fix	S3,E6	名詞句だけの文で主語と動詞がない。他の箇所の「outline」と語が揃っていない（frame）。	This value is the outline of the Highlight Box (type Stroke). When the key is absent, GRS draws no outline.
+S216	fix	S3	名詞句だけの文で主語と動詞がない。	This value is the first day that the Highlight Box covers (included), as a day in the time zone of scheduleData.scheduleDataTimeZone.
+S217	fix	S3	名詞句だけの文で主語と動詞がない。	This value is the last day that the Highlight Box covers (included).
+S218	fix	S3	名詞句だけの文で主語と動詞がない。	This value is the id of the first task group that the Highlight Box covers. The box covers every task group from firstTaskGroupId to lastTaskGroupId in the order of the task group tree, both ends included.
+S219	fix	S3	名詞句だけの文で主語と動詞がない。	This value is the id of the last task group that the Highlight Box covers (included).
+S220	fix	S3	名詞句だけの文で主語と動詞がない。	This array holds the Comment Boxes in the Task Group Lanes. The Leader Line of each Comment Box points at a task, a Highlight Box or a free point.
+S221	fix	S3	名詞句だけの文で主語と動詞がない。	This value is the id of the Comment Box, a random UUID.
+S222	fix	S3	名詞句だけの文で主語と動詞がない。	This value is the text of the Comment Box. When the key is absent, the Comment Box has an empty body.
+S223	fix	S3	名詞句だけの文で主語と動詞がない。	This object tells GRS how to draw the Comment Box (type CommentBoxStyle).
+S224	fix	S3	名詞句だけの文で主語と動詞がない。	This value is the fill of the Comment Box body (type Paint). The fill always has a color; opacityPercent 0 makes the fill invisible.
+S225	fix	S3,E6	名詞句だけの文で主語と動詞がない。border/outlineの語が揃っていない。	This value is the outline of the Comment Box and the Leader Line (type Stroke). When the key is absent, GRS draws no outline and no Leader Line.
+S226	fix	S3	名詞句だけの文で主語と動詞がない。	This object holds the look of the Comment Box text: the color and the size.
+S227	fix	S3	名詞句だけの文で主語と動詞がない。	This value is the color of the Comment Box text (type Color).
+S228	fix	S3	名詞句だけの文で主語と動詞がない。	This value is the size of the Comment Box text, in CSS pixels at displayScaleRatio 1. The zoom does not change this size.
+S229	fix	S3,E1	冒頭が文でなく、Leader Anchor が未定義。	This object tells where the Leader Line of the Comment Box points; the end of the Leader Line is the Leader Anchor. When a person deletes the task or the Highlight Box that the Leader Line points at, GRS turns the target into a free point. When a file names a target that does not exist, GRS does not draw the Leader Line and tells the person.
+S230	fix	S3,S4	動詞のない断片で、freePoint だけ引用符がない。	"freePoint": the Leader Anchor stands at a place in the Task Group Lanes that is tied to nothing; "task": the Leader Anchor stands at one of eight points of the Plan Bar, the Actual Bar or the Milestone Mark of a task; "highlightBox": the Leader Anchor stands at one of eight points of a Highlight Box.
+S231	fix	S3,E1	冒頭が文でなく、どの時間帯の時刻か書かれていない。	Only when type is "freePoint". This value is the point in time where the Leader Anchor stands, as a date-time in the time zone of scheduleData.scheduleDataTimeZone.
+S232	fix	S3	名詞句だけの文で主語と動詞がない。	Only when type is "freePoint". This value is the id of the task group whose Task Group Lane holds the Leader Anchor.
+S233	fix	S3	名詞句だけの文で主語と動詞がない。	Only when type is "freePoint". This value tells how far the Leader Anchor lies below the top edge of that Task Group Lane, in percent of the lane height: 0 is the top edge and 100 is the bottom edge.
+S234	fix	S3	名詞句だけの文で主語と動詞がない。	Only when type is "task". This value is the uid of the task that the Leader Anchor snaps to.
+S235	fix	S3	名詞句だけの文で主語と動詞がない。	Only when type is "task". This value names the part of the Task Graphic that the Leader Anchor snaps to: "planBar" (the Plan Bar), "actualBar" (the Actual Bar) or "milestoneMark" (the Milestone Mark).
+S236	fix	S3	名詞句だけの文で主語と動詞がない。	Only when type is "highlightBox". This value is the id of the Highlight Box that the Leader Anchor snaps to.
+S237	fix	S3	名詞句だけの文で主語と動詞がない。	Only when type is "task" or "highlightBox". This value names the point of the target that the Leader Anchor snaps to: one of the four corners ("topLeftCorner", "topRightCorner", "bottomRightCorner", "bottomLeftCorner") or the middle of one of the four sides ("topMiddle", "rightMiddle", "bottomMiddle", "leftMiddle").
+S238	fix	S3	名詞句だけの文で主語と動詞がない。	This value is the offset from the Leader Anchor to the lower-left corner of the Comment Box body, in CSS pixels at displayScaleRatio 1. The zoom does not change this offset.
+S239	fix	S3	名詞句だけの文で主語と動詞がない。	This value is the horizontal part of the offset; a positive value moves the box to the right.
+S240	fix	S3	名詞句だけの文で主語と動詞がない。	This value is the vertical part of the offset; a positive value moves the box down.
+S241	fix	S3	名詞句だけの文で主語と動詞がない。	This value is the URL that the Comment Box links to. When the key is absent, the Comment Box has no link.
+S242	fix	S3	名詞句だけの文で主語と動詞がない。	This value is the title of the Comment Box link, not the address. When the key is absent, the link has no title.
+S243	fix	S3,E1	名詞句だけの文で主語と動詞がない。三種類が何かも示されていない。	This object is a color of one of three types: "theme", "palette" or "custom" (see type). Where a color key may be absent, an absent color means that GRS does not draw that fill or line.
+S244	fix	S3,S5	断片で、引用符の付け方が揃わず、「the place that holds this color」が曖昧。	"theme": GRS takes the color from the theme for the place that holds this color, in the hue of documentSettings.themeHue; "palette": the color is one of the ten named palette colors in name; "custom": the colors for the light theme and the dark theme are in light and dark.
+S245	fix	S3	名詞句だけの文で主語と動詞がない。	Only when type is "palette". This value names the palette color. Each name says how the color looks in the light theme; in the dark theme GRS keeps the hue and inverts the lightness.
+S246	fix	S3	名詞句だけの文で主語と動詞がない。	Only when type is "custom". This object is the color for the light theme.
+S247	fix	S3	名詞句だけの文で主語と動詞がない。	This value is the color as # and six lowercase hexadecimal digits (#rrggbb).
+S248	fix	E7	light 側の説明なのに「他方（light theme）」と書かれ、事実と合わない（dark から計算）。	true when GRS calculated this side from the color of the dark side. A side that a person chose does not have this key. This key records where the value came from; this key is not a switch.
+S249	fix	S3	名詞句だけの文で主語と動詞がない。	Only when type is "custom". This object is the color for the dark theme, in the same shape as light.
+S250	fix	S3	名詞句だけの文で主語と動詞がない。	This value is the color as # and six lowercase hexadecimal digits (#rrggbb).
+S251	fix	E7	dark 側の説明が「他方（light theme）」の書き方で曖昧、light 側と同文。	true when GRS calculated this side from the color of the light side. A side that a person chose does not have this key. This key records where the value came from; this key is not a switch.
+S252	fix	S3	名詞句だけの文で主語と動詞がない。	This value is the color of a Task Group Lane. This value has the same shape as Color, except that the palette color "black" is not allowed.
+S253	fix	S3	名詞句だけの文で主語と動詞がない。	This object is a fill: a color and an opacity.
+S254	fix	S3	名詞句だけの文で主語と動詞がない。	This value is the color of the fill (type Color).
+S255	fix	S3	名詞句だけの文で主語と動詞がない。	This value is the opacity of the fill in percent, from 0 to 100: 100 is solid, and at 0 GRS draws no fill. When the key is absent, the opacity is 100.
+S256	fix	S3	名詞句だけの文で主語と動詞がない。	This object is a line: a color, an opacity and a width. To draw no line, leave out the whole stroke key.
+S257	fix	S3	名詞句だけの文で主語と動詞がない。	This value is the color of the line (type Color).
+S258	fix	S3	名詞句だけの文で主語と動詞がない。	This value is the opacity of the line in percent, from 0 to 100: 100 is solid, and at 0 GRS draws no line. When the key is absent, the opacity is 100.
+S259	fix	S3	名詞句だけの文で主語と動詞がない。	This value is the width of the line, in CSS pixels at displayScaleRatio 1. The zoom does not change this width.
+S260	fix	S3,S2	名詞句だけの文で主語と動詞がない。受け身の「shared by」もある。	This object holds the fill and the outline of a shape. TaskStyle, HighlightBoxStyle and CommentBoxStyle all use this object.
+S261	fix	S3	名詞句だけの文で主語と動詞がない。	This value is the fill of the shape (type Paint). When the key is absent, GRS draws no fill.
+S262	fix	S3	名詞句だけの文で主語と動詞がない。	This value is the outline of the shape (type Stroke). When the key is absent, GRS draws no outline.
+S263	fix	S3	冒頭が名詞句で、後半も主語がない。	This object is a filter on one column of a table. With type "values", the filter hides rows by the value in the column; with "dateRange", the filter hides rows whose date lies outside a range of days.
+S264	fix	S3	動詞に主語がなく、values だけ引用符がない。	"values": GRS hides the rows that show one of hiddenValues, and the empty rows when isBlankHidden is true; "dateRange": GRS hides the rows whose date in the column lies outside firstDay to lastDay.
+S265	fix	S3	名詞句だけの文で主語と動詞がない。	This value names the column by the content that the column shows; the same name means the same content in every table. Search Window, task table: "progressStatus", "percentComplete", "taskType", "taskName", "resourceNames", "start", "finish", "actualStart", "actualFinish", "taskGroupPath" (the path from the top level). Search Window, Comment Box table: "text", "taskGroupName" (the task group of the Leader Anchor), "leaderTargetDay" (the day of the Leader Anchor). Delay Diagnostics Report Window: "diagnosisStatus", "percentComplete", "taskType", "taskName", "resourceNames", "planDates", "actualDates", "diagnosisReason". Resource List Window: "resourceSelectionStatus", "resourceName", "assignedTaskCount", "assignedTaskNames".
+S266	fix	S3	名詞句だけの文で主語と動詞がない。	Only when type is "values". This array lists the values whose rows the filter hides. For a status column, write the English status name: "progressStatus" takes "notStarted", "inProgress", "suspendedWithResumeDate", "suspendedWithoutResumeDate", "finished", "delay", "unreliable", "bottleneck" and "bottleneckPath"; "diagnosisStatus" takes "unreliable", "doubtfulOrMissing", "bottleneck", "bottleneckPath", "delay" and "finishedDelayContribution"; "taskType" takes "task" and "milestone"; "resourceSelectionStatus" takes "selected" and "notSelected". For any other column, write the cell text as the table shows the text.
+S267	fix	S3	冒頭が文でない。	Only when type is "values". This value tells whether the filter hides the rows with an empty cell in this column.
+S268	fix	S3	名詞句だけの文で主語と動詞がない。	Only when type is "dateRange". This value is the first day that the filter keeps (included), as a day in the time zone of scheduleData.scheduleDataTimeZone.
+S269	fix	S3	名詞句だけの文で主語と動詞がない。	Only when type is "dateRange". This value is the last day that the filter keeps (included).
+S270	fix	S3	名詞句だけの文で主語と動詞がない。	This object tells how GRS sorts a table: by one column, in one direction.
+S271	fix	S3	名詞句だけの文で主語と動詞がない。	This value names the column that GRS sorts the table by, with the same names as ColumnFilter.column.
+S272	fix	S3	断片で、ascending だけ引用符がない。	"ascending": GRS sorts from the smallest value to the largest; "descending": GRS sorts from the largest value to the smallest.
+S273	fix	S3	名詞句だけの文で主語と動詞がない。	This object tells how GRS shows a table of tasks (the Search Window or the Delay Diagnostics Report Window): the checks, the column filters and the sort.
+S274	fix	S3,E1	冒頭が文でなく、機能名の意味が読み取りにくい。	This value turns Filter Schedule by Checks on or off: when true, GRS draws on the Schedule Canvas only the tasks that have a check in this table; when false, GRS draws every task. The table itself keeps every row either way.
+S275	fix	S3	名詞句だけの文で主語と動詞がない。	This array lists the uids of the tasks whose row has a check in the Visibility column of this table. When the key is absent, no row has a check.
+S276	fix	S3	名詞句だけの文で主語と動詞がない。	This array holds the column filters of this table, one for each filtered column. When the key is absent, no column has a filter.
+S277	fix	S3	名詞句だけの文で主語と動詞がない。	This object is the sort of this table: the column and the direction. When the key is absent, GRS shows the rows in the default order.
+S278	fix	S3	名詞句だけの文で主語と動詞がない。	This object tells how GRS shows the table of the Resource List Window: the checks, the column filters and the sort.
+S279	fix	S3,E1	冒頭が文でなく、機能名の意味が読み取りにくい。	This value turns Filter Schedule by Checks on or off: when true, GRS draws on the Schedule Canvas only the tasks of the checked resources, and the tasks with no resource when isUnassignedChecked is true; when false, GRS draws every task.
+S280	fix	S3	冒頭が文でない。	This value tells whether the "(no assignee)" row of the Resource List Window has a check.
+S281	fix	S3	名詞句だけの文で主語と動詞がない。	This array lists the uids of the resources whose row has a check in the Visibility column of the Resource List Window. When the key is absent, no resource row has a check.
+S282	fix	S3	名詞句だけの文で主語と動詞がない。	This array holds the column filters of this table, one for each filtered column. When the key is absent, no column has a filter.
+S283	fix	S3	名詞句だけの文で主語と動詞がない。	This object is the sort of this table: the column and the direction. When the key is absent, GRS shows the rows in the default order.
+S284	fix	E7,S3	本文は「from 0」だが型の minimum は 1 で矛盾し、冒頭も文でない。	This integer identifies an entity that comes from MSPDI (MSPDI UID), from 1 to 2147483647. A uid is unique within one array, as in MSPDI, and GRS never reuses a uid (see scheduleData.highestIssuedUid). project.uid is a string instead, as in MSPDI.
+S285	fix	S3	名詞句だけの文で主語と動詞がない。	This string is a random UUID, written in the usual 8-4-4-4-12 lowercase hexadecimal form. GRS uses a UUID as the id of an object that only GRS defines, so that objects made apart never share an id.
+S286	fix	S3,E4	冒頭が文でなく、「wall-clock」が難しい。	This string is a local date and time in scheduleData.scheduleDataTimeZone, written YYYY-MM-DDTHH:MM:SS with no offset, as MSPDI writes a date-time. GRS reads the value to the minute and ignores the seconds.
+S287	fix	S3	名詞句だけの文で主語と動詞がない。	This string is a date without a time of day, written YYYY-MM-DD. A range of days (firstDay and lastDay) includes both days. Each key that uses Day says which time zone the day is in, where that matters.
+S288	fix	S3	名詞句だけの文で主語と動詞がない。	This string is a time of day without a date, written HH:MM:SS, as MSPDI writes a time.
+S289	fix	S3	名詞句だけの文で主語と動詞がない。	This string is a point in time in UTC, written YYYY-MM-DDTHH:MM:SSZ, to the second. GRS uses this type for records such as the Document Stamp and the Change Log, and for the two versions at the root.
+S290	fix	S3	名詞句だけの文で主語と動詞がない。	This string is a fixed offset from UTC, written +HH:MM or -HH:MM, for example "+09:00"; UTC itself is "+00:00". GRS uses the offset all year and never adds daylight saving time by season.
+S291	fix	S3	名詞句だけの文で主語と動詞がない。	This value is one MSPDI value in the MSPDI structure: a string or a number for an element that holds only text, an array for an element that MSPDI lets repeat (an array even with one item), or an object for an element with child elements, keyed by the MSPDI element names. A boolean stays 0 or 1, as MSPDI writes a boolean.
+S292	fix	S3	名詞句だけの文で主語と動詞がない。	This object holds the MSPDI child elements of one entity that GRS does not use, keyed by the MSPDI element names, with each value in the MSPDI structure. GRS writes these elements back to MSPDI unchanged, in the order of the MSPDI schema, and repeated elements keep array order.
+S293	fix	S3	名詞句だけの文で主語と動詞がない。	This object is one whole MSPDI element that GRS does not hold as an entity, keyed by the names of the child elements, for example the project summary task with UID, Name and OutlineLevel. GRS writes the element back unchanged.
+S294	fix	S3,E1	名詞句だけの文で主語と動詞がない。三種類が何かも示されていない。	This object is a color of one of three types: "theme", "palette" or "custom" (see type). Where a color key may be absent, an absent color means that GRS does not draw that fill or line.
+S295	fix	S3	名詞句だけの文で主語と動詞がない。	This value is the color of a Task Group Lane. This value has the same shape as Color, except that the palette color "black" is not allowed.
+S296	fix	S3	名詞句だけの文で主語と動詞がない。	This object is a fill: a color and an opacity.
+S297	fix	S3	名詞句だけの文で主語と動詞がない。	This object is a line: a color, an opacity and a width. To draw no line, leave out the whole stroke key.
+S298	fix	S3,S2	名詞句だけの文で主語と動詞がない。受け身の「shared by」もある。	This object holds the fill and the outline of a shape. TaskStyle, HighlightBoxStyle and CommentBoxStyle all use this object.
+S299	fix	S3	冒頭が名詞句で、後半も主語がない。	This object is a filter on one column of a table. With type "values", the filter hides rows by the value in the column; with "dateRange", the filter hides rows whose date lies outside a range of days.
+S300	fix	S3	名詞句だけの文で主語と動詞がない。	This object tells how GRS sorts a table: by one column, in one direction.
+S301	fix	S3	名詞句だけの文で主語と動詞がない。	This object tells how GRS shows a table of tasks (the Search Window or the Delay Diagnostics Report Window): the checks, the column filters and the sort.
+S302	fix	S3	名詞句だけの文で主語と動詞がない。	This object tells how GRS shows the table of the Resource List Window: the checks, the column filters and the sort.
+S303	fix	S3	名詞句だけの文で主語と動詞がない。	This object tells who edited a Schedule Document: a person on the screen, nobody yet (the template that comes with GRS), or an AI through the Agent API. The key type chooses the case.
+S304	fix	S3	名詞句だけの文で主語と動詞がない。	This object tells how GRS draws the Task Graphic of one task: the shape, the fill of the Plan Bar and the outline of the bars. A milestone uses milestoneShape; any other task uses taskShape.
+S305	fix	S3	名詞句だけの文で主語と動詞がない。	This object tells where an imported task came from: which MSPDI file and which task in that file, so that a later import of the same file updates the task instead of adding a copy. A task made in GRS has no import origin.
+S306	fix	S3	名詞句だけの文で主語と動詞がない。	This object tells how GRS draws one task group: the color of the Task Group Lane.
+S307	fix	S3,E6	名詞句だけの文で主語と動詞がない。frame/outline の語が揃っていない。	This object tells how GRS draws one Highlight Box: the corner radius, the fill and the outline.
+S308	fix	S3,E6	名詞句だけの文で主語と動詞がない。border/outline の語が揃っていない。	This object tells how GRS draws one Comment Box: the fill of the body, the outline of the box and the Leader Line, and the text.
+S309	ok	-	-	-
+S310	ok	-	-	-
+S311	ok	-	-	-
+S312	ok	-	-	-
+S313	ok	-	-	-
+S314	ok	-	-	-
+S315	fix	S3,E1	「no actualStart, not started」のような断片で、条件と結果の対応が読み取りにくい。	Same as MSPDI Task. GRS decides the progress status of a task with these checks in order, and the first match wins: if actualStart is absent, the task is not started; if actualFinish is present, the task is finished; if resumeValid is false, the task is suspended with no resume date; if resume is present, the task is suspended with a resume date; otherwise the task is in progress.
+S316	ok	-	-	-
+S317	ok	-	-	-
+S318	fix	S3	名詞句だけの文で主語と動詞がない。	This object is a task group: one row of the Task Group Panel and one Task Group Lane. Task groups form their own tree, separate from the WBS (tasks[].parentTaskUid), and GRS does not write task groups to MSPDI.
+S319	fix	S3	名詞句だけの文で主語と動詞がない。	This object is one task of the baseline. GRS matches the baseline task to the current task by uid and draws the baseline task only as a Baseline Outline over the current task.
+S320	fix	S3	名詞句だけの文で主語と動詞がない。	This object is one Highlight Box: a rectangle over a range of days and a range of task groups.
+S321	fix	S3,E1	名詞句だけの文で主語と動詞がない。Leader Anchor が未定義。	This object is one Comment Box: a text box with a Leader Line. The Leader Anchor (the end of the Leader Line) stands at a free point (a time, a task group and a height in that Task Group Lane) or at one of eight points of a task or a Highlight Box.
+S322	fix	S3	名詞句だけの文で主語と動詞がない。	This object is the Document Stamp: when the Schedule Data and the Schedule Document last changed, when GRS last saved the file, and who edited the Schedule Document last. The Agent API uses the same stamp to refuse a write that is based on an old read.
+S323	fix	S3	名詞句だけの文で主語と動詞がない。	This object is one note about a change to the Schedule Document, written by a person or an AI: when, who, which part, what, why, and anything else.
