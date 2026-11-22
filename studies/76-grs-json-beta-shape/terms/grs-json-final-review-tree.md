@@ -1,6 +1,6 @@
 # GRS JSON β の最終レビューのツリー（列挙の値まで）
 
-持ち主の裁定 `JDG-3717` の 2.「GRS JSON のツリー（列挙型の場合は各パラメータ名も）を作成」の成果。土台は `grs-json-beta-tree.md`（`JDG-3713` で持ち主が ok、`JDG-3714`・`JDG-3715` で並べ替え）に、未決を決めた `JDG-3720`〜`JDG-3726`（GRS のスカラーを `scheduleData` の先頭へ、描く物を `scheduleCanvasElements` に束ねる、表の列の名）を当てた物。列挙のキーの下に、各値を 1 行ずつ置いた。
+持ち主の裁定 `JDG-3717` の 2.「GRS JSON のツリー（列挙型の場合は各パラメータ名も）を作成」の成果。土台は `grs-json-beta-tree.md`（`JDG-3713` で持ち主が ok、`JDG-3714`・`JDG-3715` で並べ替え）に、未決を決めた `JDG-3720`〜`JDG-3726`（GRS のスカラーを `scheduleData` の先頭へ、描く物を `scheduleCanvasElements` に束ねる、表の列の名）と、最終レビューの裁定（`JDG-3727` から）を当てた物。列挙のキーの下に、各値を 1 行ずつ置いた。
 
 - 印: `[M]` は MSPDI の要素を写すキー（括弧の中は、MSPDI の名が違う時の MSPDI の名）。`[G]` は、MSPDI と往復する実体の中にある GRS 特有の値。`[]` は配列、`->` は「共通の型」を指す。
 - 値: `"…"` は文字列の値、数だけの行は MSPDI の数の符号（数のまま書く）。
@@ -312,7 +312,7 @@ R282  |  |  +- "shown"                 出す（人が出すと選んだ。深�
 R283  |  |  +- "hidden"                しまう（人がしまうと選んだ。配下も隠れ、ズームでも全体表示でも隠れたまま）
 R284  |  |  +- "automatic"             規則に任せる（深さ・ピン・出ている配下への道で決まる）
 R285  |  |  +- "hiddenUntilZoomIn"     拡大まで隠す（次の縦のズームインで automatic に変わる）
-R286  |  +- editableByGroupName        編集してよい組の名
+R286  |  +- allowedEditorGroupName     編集してよい組の名
 R287  +- baselineTasks[]               前回予定
 R288  |  +- uid                        今のタスクの uid
 R289  |  +- name                       タスク名
@@ -383,82 +383,82 @@ R351     +- mspdiElement               MSPDI の要素（構造と名のまま�
 ### 共通の型（-> で指す物）
 
 ```text
-R352  Color                                色
-R353  +- type                              判別子
-R354  |  +- "theme"                        テーマの色に従う
-R355  |  +- "palette"                      パレットの 10 色の 1 つ
-R356  |  +- "custom"                       人が選んだ色
-R357  +- name                              パレットの色の名（palette。明るいテーマでの見え方の名）
-R358  |  +- "white"                        白
-R359  |  +- "black"                        黒
-R360  |  +- "dimGray"                      濃い灰色
-R361  |  +- "lightGray"                    薄い灰色
-R362  |  +- "red"                          赤
-R363  |  +- "blue"                         青
-R364  |  +- "yellow"                       黄
-R365  |  +- "green"                        緑
-R366  |  +- "orange"                       橙
-R367  |  +- "purple"                       紫
-R368  +- light                             明るいテーマの側（custom）
-R369  |  +- hexColor                       色の値（#rrggbb）
-R370  |  +- isCalculatedFromOppositeColor  GRS が反対の側の色から計算した側だけ true
-R371  +- dark                              暗いテーマの側（custom。形は light）
-R372  LaneColor                            帯の色（Color から black を除く）
-R373  TaskTableWindow                      タスクの表の見せ方（検索ウィンドウ・遅延診断レポート）
-R374  +- isScheduleFilterApplied           表でチェックしたタスクだけを描くか
-R375  +- checkedTaskUids[]                 チェックしたタスク
-R376  +- columnFilters[]                   列のフィルタ（掛けた列ごとに 1 つ）-> ColumnFilter
-R377  +- columnSort                        表の並べ方（列と向き）-> ColumnSort
-R378  ResourceTableWindow                  担当の表の見せ方（担当リスト）
-R379  +- isScheduleFilterApplied           表のチェックでチャートを絞るか
-R380  +- checkedResourceUids[]             チェックした担当
-R381  +- isUnassignedChecked               （担当なし）の行をチェックしたか
-R382  +- columnFilters[]                   列のフィルタ（掛けた列ごとに 1 つ）-> ColumnFilter
-R383  +- columnSort                        表の並べ方（列と向き）-> ColumnSort
-R384  ColumnFilter                         列のフィルタ
-R385  +- type                              判別子
-R386  |  +- "values"                       値で絞る
-R387  |  +- "dateRange"                    日の範囲で絞る
-R388  +- column                            列（列が見せる値の名）
-R389  |  +- "progressStatus"               検索・タスク: ステータス（進捗マーカーの値）
-R390  |  +- "percentComplete"              検索・タスク、遅延診断: 進捗
-R391  |  +- "taskType"                     検索・タスク、遅延診断: タスク種別（タスクかマイルストーンか）
-R392  |  +- "taskName"                     検索・タスク、遅延診断: タスク（マイルストーン）
-R393  |  +- "resourceNames"                検索・タスク、遅延診断: 担当名（そのタスクのすべての担当）
-R394  |  +- "start"                        検索・タスク: 予定開始
-R395  |  +- "finish"                       検索・タスク: 予定終了
-R396  |  +- "actualStart"                  検索・タスク: 実績開始
-R397  |  +- "actualFinish"                 検索・タスク: 実績終了
-R398  |  +- "taskGroupPath"                検索・タスク: 最上位までの階層
-R399  |  +- "text"                         検索・コメントボックス: 本文
-R400  |  +- "taskGroupName"                検索・コメントボックス: 線先が立つタスクグループの名
-R401  |  +- "leaderTargetDay"              検索・コメントボックス: 線先が立つ日
-R402  |  +- "diagnosisStatus"              遅延診断: ステータス（診断の結果）
-R403  |  +- "planDates"                    遅延診断: 予定日（開始〜終了）
-R404  |  +- "actualDates"                  遅延診断: 実績日（開始〜終了）
-R405  |  +- "diagnosisReason"              遅延診断: 理由
-R406  |  +- "resourceName"                 担当リスト: 担当名
-R407  |  +- "isSelected"                   担当リスト: 選択（その担当を選んでいるか）
-R408  |  +- "assignedTaskCount"            担当リスト: 担当タスク数
-R409  |  +- "assignedTaskNames"            担当リスト: 担当タスク
-R410  +- hiddenValues[]                    隠す値（values）
-R411  +- isBlankHidden                     空の行を隠すか（values）
-R412  +- firstDay                          最初の日（dateRange）
-R413  +- lastDay                           最後の日（dateRange）
-R414  ColumnSort                           並べ替え
-R415  +- column                            列（ColumnFilter.column と同じ値）
-R416  +- direction                         向き
-R417     +- "ascending"                    小さい順
-R418     +- "descending"                   大きい順
-R419  Paint                                塗り
-R420  +- color                             色 -> Color
-R421  +- opacityPercent                    不透明度（%）
-R422  Stroke                               線（描かないときは書かない）
-R423  +- color                             色 -> Color
-R424  +- opacityPercent                    不透明度（%）
-R425  +- widthPx                           太さ
-R426  ShapeStyle                           形の見た目（TaskStyle・CommentBoxStyle・HighlightBoxStyle が共にする）
-R427  +- fill                              塗り -> Paint
-R428  +- stroke                            線 -> Stroke
+R352  Color                                      色
+R353  +- type                                    判別子
+R354  |  +- "theme"                              テーマの色に従う
+R355  |  +- "palette"                            パレットの 10 色の 1 つ
+R356  |  +- "custom"                             人が選んだ色
+R357  +- name                                    パレットの色の名（palette。明るいテーマでの見え方の名）
+R358  |  +- "white"                              白
+R359  |  +- "black"                              黒
+R360  |  +- "dimGray"                            濃い灰色
+R361  |  +- "lightGray"                          薄い灰色
+R362  |  +- "red"                                赤
+R363  |  +- "blue"                               青
+R364  |  +- "yellow"                             黄
+R365  |  +- "green"                              緑
+R366  |  +- "orange"                             橙
+R367  |  +- "purple"                             紫
+R368  +- light                                   明るいテーマの側（custom）
+R369  |  +- hexColor                             色の値（#rrggbb）
+R370  |  +- isCalculatedFromOppositeColorScheme  GRS が反対の側の色から計算した側だけ true
+R371  +- dark                                    暗いテーマの側（custom。形は light）
+R372  LaneColor                                  帯の色（Color から black を除く）
+R373  TaskTableWindow                            タスクの表の見せ方（検索ウィンドウ・遅延診断レポート）
+R374  +- isScheduleFilteredByChecks              チェックで日程表を絞るか（チェックしたタスクだけを描く）
+R375  +- checkedTaskUids[]                       チェックしたタスク
+R376  +- columnFilters[]                         列のフィルタ（掛けた列ごとに 1 つ）-> ColumnFilter
+R377  +- columnSort                              表の並べ方（列と向き）-> ColumnSort
+R378  ResourceTableWindow                        担当の表の見せ方（担当リスト）
+R379  +- isScheduleFilteredByChecks              チェックで日程表を絞るか（チェックした担当のタスクだけを描く）
+R380  +- checkedResourceUids[]                   チェックした担当
+R381  +- isUnassignedChecked                     （担当なし）の行をチェックしたか
+R382  +- columnFilters[]                         列のフィルタ（掛けた列ごとに 1 つ）-> ColumnFilter
+R383  +- columnSort                              表の並べ方（列と向き）-> ColumnSort
+R384  ColumnFilter                               列のフィルタ
+R385  +- type                                    判別子
+R386  |  +- "values"                             値で絞る
+R387  |  +- "dateRange"                          日の範囲で絞る
+R388  +- column                                  列（列が見せる値の名）
+R389  |  +- "progressStatus"                     検索・タスク: ステータス（進捗マーカーの値）
+R390  |  +- "percentComplete"                    検索・タスク、遅延診断: 進捗
+R391  |  +- "taskType"                           検索・タスク、遅延診断: タスク種別（タスクかマイルストーンか）
+R392  |  +- "taskName"                           検索・タスク、遅延診断: タスク（マイルストーン）
+R393  |  +- "resourceNames"                      検索・タスク、遅延診断: 担当名（そのタスクのすべての担当）
+R394  |  +- "start"                              検索・タスク: 予定開始
+R395  |  +- "finish"                             検索・タスク: 予定終了
+R396  |  +- "actualStart"                        検索・タスク: 実績開始
+R397  |  +- "actualFinish"                       検索・タスク: 実績終了
+R398  |  +- "taskGroupPath"                      検索・タスク: 最上位までの階層
+R399  |  +- "text"                               検索・コメントボックス: 本文
+R400  |  +- "taskGroupName"                      検索・コメントボックス: 線先が立つタスクグループの名
+R401  |  +- "leaderTargetDay"                    検索・コメントボックス: 線先が立つ日
+R402  |  +- "diagnosisStatus"                    遅延診断: ステータス（診断の結果）
+R403  |  +- "planDates"                          遅延診断: 予定日（開始〜終了）
+R404  |  +- "actualDates"                        遅延診断: 実績日（開始〜終了）
+R405  |  +- "diagnosisReason"                    遅延診断: 理由
+R406  |  +- "resourceName"                       担当リスト: 担当名
+R407  |  +- "isSelected"                         担当リスト: 選択（その担当を選んでいるか）
+R408  |  +- "assignedTaskCount"                  担当リスト: 担当タスク数
+R409  |  +- "assignedTaskNames"                  担当リスト: 担当タスク
+R410  +- hiddenValues[]                          隠す値（values）
+R411  +- isBlankHidden                           空の行を隠すか（values）
+R412  +- firstDay                                最初の日（dateRange）
+R413  +- lastDay                                 最後の日（dateRange）
+R414  ColumnSort                                 並べ替え
+R415  +- column                                  列（ColumnFilter.column と同じ値）
+R416  +- direction                               向き
+R417     +- "ascending"                          小さい順
+R418     +- "descending"                         大きい順
+R419  Paint                                      塗り
+R420  +- color                                   色 -> Color
+R421  +- opacityPercent                          不透明度（%）
+R422  Stroke                                     線（描かないときは書かない）
+R423  +- color                                   色 -> Color
+R424  +- opacityPercent                          不透明度（%）
+R425  +- widthPx                                 太さ
+R426  ShapeStyle                                 形の見た目（TaskStyle・CommentBoxStyle・HighlightBoxStyle が共にする）
+R427  +- fill                                    塗り -> Paint
+R428  +- stroke                                  線 -> Stroke
 ```
 

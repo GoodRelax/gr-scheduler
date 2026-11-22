@@ -229,6 +229,10 @@
 | `rulings.md`（GRS JSON の最終レビューの席、2026-11-22 の 7） | `JDG-3724`（描く物の親の名は `scheduleCanvasElements`。11 個に Canvas の外の物は無いと確かめた。中の順を決めた）を足した。本書の行のレビューの前に当てる |
 | `rulings.md`（GRS JSON の最終レビューの席、2026-11-22 の 8） | `JDG-3725`（表の列の名は、列が見せる値で名付ける）を足した。本書の行のレビューの前に当てる |
 | `rulings.md`（GRS JSON の最終レビューの席、2026-11-22 の 9） | `JDG-3726`（3 つの表の 25 列の名を決めた。「表示」の列には名を付けない）を足した。本書の行のレビューの前に当てる |
+| `rulings.md`（GRS JSON の最終レビューの席、2026-11-22 の 10） | `JDG-3727`（表の「スケジュールフィルタ」の入切は、画面の名と JSON の名をそろえて替える。新しい名は `JDG-3728`）を足した。本書の行のレビューの前に当てる |
+| `rulings.md`（GRS JSON の最終レビューの席、2026-11-22 の 11） | `JDG-3728`（「スケジュールフィルタ」を Filter Schedule by Checks ／ チェックで日程表を絞る、JSON のキーを `isScheduleFilteredByChecks` に改める）を足した。本書の行のレビューの前に当てる |
+| `rulings.md`（GRS JSON の最終レビューの席、2026-11-22 の 12） | `JDG-3729`（色の自動で作った側の印を `isCalculatedFromOppositeColorScheme` に改める）を足した。本書の行のレビューの前に当てる |
+| `rulings.md`（GRS JSON の最終レビューの席、2026-11-22 の 13） | `JDG-3730`（タスクグループの編集してよい組の名を `allowedEditorGroupName` に改める）を足した。本書の行のレビューの前に当てる |
 | `defects.md` | `DFC-3579`（本書）—— 行のレビューの後に起こす |
 | `changelog.md` | 当てるときに 1 行 |
 

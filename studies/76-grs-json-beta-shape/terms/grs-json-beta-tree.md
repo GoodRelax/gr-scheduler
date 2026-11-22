@@ -178,7 +178,7 @@ ScheduleDocument                                    GRS JSON の 1 ファイル
 │       │   ├─ hyperlinkAddress                     リンク先の URL
 │       │   ├─ hyperlink                            リンクのタイトル
 │       │   ├─ selfShowMode                         帯自身の表示の意図（shown・hidden・automatic・hiddenUntilZoomIn）。書かなければ automatic
-│       │   └─ editableByGroupName                  編集してよい組の名
+│       │   └─ allowedEditorGroupName               編集してよい組の名
 │       ├─ baselineTasks[]                          前回予定
 │       │   ├─ uid                                  今のタスクの uid
 │       │   ├─ name                                 タスク名
@@ -246,16 +246,16 @@ ScheduleDocument                                    GRS JSON の 1 ファイル
 │   ├─ name                                         パレットの色の名（palette）。white・black・dimGray・lightGray・red・blue・yellow・green・orange・purple（どれも明るいテーマでの見え方の名）
 │   ├─ light                                        明るいテーマの側（custom）
 │   │   ├─ hexColor                                 色の値（#rrggbb）
-│   │   └─ isCalculatedFromOppositeColor            GRS が反対の側の色から計算して作った側だけ true（人が選んだ側は書かない）
+│   │   └─ isCalculatedFromOppositeColorScheme      GRS が反対の側の色から計算して作った側だけ true（人が選んだ側は書かない）
 │   └─ dark                                         暗いテーマの側（custom。形は light）
 ├─ LaneColor                                        Color から black を除く
 ├─ TaskTableWindow                                  タスクの表の見せ方（検索ウィンドウ・遅延診断レポート）
-│   ├─ isScheduleFilterApplied                      表でチェックしたタスクだけを描くか
+│   ├─ isScheduleFilteredByChecks                   チェックで日程表を絞るか（チェックしたタスクだけを描く）
 │   ├─ checkedTaskUids[]                            チェックしたタスク
 │   ├─ columnFilters[]                              列のフィルタ（掛けた列ごとに 1 つ）→ ColumnFilter
 │   └─ columnSort                                   表の並べ方（列と向き）→ ColumnSort
 ├─ ResourceTableWindow                              担当の表の見せ方（担当リスト）
-│   ├─ isScheduleFilterApplied                      表のチェックでチャートを絞るか
+│   ├─ isScheduleFilteredByChecks                   チェックで日程表を絞るか（チェックした担当のタスクだけを描く）
 │   ├─ checkedResourceUids[]                        チェックした担当
 │   ├─ isUnassignedChecked                          （担当なし）の行をチェックしたか
 │   ├─ columnFilters[]                              列のフィルタ（掛けた列ごとに 1 つ）→ ColumnFilter

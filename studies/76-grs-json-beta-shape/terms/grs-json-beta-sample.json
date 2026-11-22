@@ -72,7 +72,7 @@
     },
     "tableWindows": {
       "searchWindow": {
-        "isScheduleFilterApplied": true,
+        "isScheduleFilteredByChecks": true,
         "checkedTaskUids": [2, 3],
         "columnFilters": [
           {
@@ -88,7 +88,7 @@
         }
       },
       "delayDiagnosisReportWindow": {
-        "isScheduleFilterApplied": false,
+        "isScheduleFilteredByChecks": false,
         "checkedTaskUids": [2],
         "columnFilters": [
           {
@@ -104,7 +104,7 @@
         }
       },
       "resourceListWindow": {
-        "isScheduleFilterApplied": false,
+        "isScheduleFilteredByChecks": false,
         "checkedResourceUids": [1],
         "isUnassignedChecked": true,
         "columnSort": {
@@ -391,7 +391,7 @@
         "hyperlinkAddress": "https://example.com/lanes/work-package-a",
         "hyperlink": "Lane notes",
         "selfShowMode": "shown",
-        "editableByGroupName": "Team A"
+        "allowedEditorGroupName": "Team A"
       },
       {
         "id": "15e4d36c-dc58-4088-b28d-3530c76a6da5",
@@ -452,7 +452,7 @@
             "color": {
               "type": "custom",
               "light": { "hexColor": "#1f2328" },
-              "dark": { "hexColor": "#e6edf3", "isCalculatedFromOppositeColor": true }
+              "dark": { "hexColor": "#e6edf3", "isCalculatedFromOppositeColorScheme": true }
             },
             "sizePx": 12
           }
