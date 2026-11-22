@@ -245,6 +245,14 @@
 | `rulings.md`（GRS JSON の最終レビュー 2 の席、2026-11-23 の 1） | `JDG-3740`（`lastEditedBy.type` の値 `"template"` は今のままとし、項目は必ず書く）を足した。本書の行のレビューの前に当てる |
 | `rulings.md`（GRS JSON の最終レビュー 2 の席、2026-11-23 の 2） | `JDG-3741`（`displayTimeZones[]` を `additionalTimeZones[]` に改め、画面の名を「Additional Time Zones / 追加のタイムゾーン」にそろえる）を足した。本書の行のレビューの前に当てる |
 | `rulings.md`（GRS JSON の最終レビュー 2 の席、2026-11-23 の 3） | `JDG-3742`（進捗マークを進捗ステータスマークと呼び、`isProgressStatusMarkVisible`・列 `progressStatus` に改める）を足した。本書の行のレビューの前に当てる |
+| `rulings.md`（GRS JSON の最終レビュー 2 の席、2026-11-23 の 4） | `JDG-3743`（`lastEditedBy.name` に、GRS が知るときは人の名も書く）を足した。本書の行のレビューの前に当てる |
+| `rulings.md`（GRS JSON の最終レビュー 2 の席、2026-11-23 の 5） | `JDG-3744`（全体表示の余白は今のまま。`fixed` は余白を取らない）を足した。本書の行のレビューの前に当てる |
+| `rulings.md`（GRS JSON の最終レビュー 2 の席、2026-11-23 の 6） | `JDG-3745`（`isGroupGridLinesVisible` を `isTaskGroupGridLinesVisible` に改め、画面を「Task Group Grid Lines / タスクグループ罫線」にする）を足した。本書の行のレビューの前に当てる |
+| `rulings.md`（GRS JSON の最終レビュー 2 の席、2026-11-23 の 7） | `JDG-3746`（`scheduleCanvasElements` をバー → ラベル → 線の順に、線は依存線を先に並べる）を足した。本書の行のレビューの前に当てる |
+| `rulings.md`（GRS JSON の最終レビュー 2 の席、2026-11-23 の 8） | `JDG-3747`（`[M]` のキーを MSPDI の XSD の順に書く。`project` と `tasks[]` を直した）を足した。本書の行のレビューの前に当てる |
+| `rulings.md`（GRS JSON の最終レビュー 2 の席、2026-11-23 の 9） | `JDG-3748`（MSPDI の実体の `passthrough` を、その物の `grs` の下に置く）を足した。本書の行のレビューの前に当てる |
+| `rulings.md`（GRS JSON の最終レビュー 2 の席、2026-11-23 の 10） | `JDG-3749`（前回予定の輪郭の形を今のタスクの形に合わせる。GRS JSON は変わらず、描き方の仕様 `BL-2` を直す CR が当てる）を足した。本書は当てない。`CR-860` が当てる（記録だけ） |
+| `rulings.md`（GRS JSON の最終レビュー 2 の席、2026-11-23 の 11） | `JDG-3750`（4 つの持ち越しの一覧を、それぞれ対の MSPDI の一覧のすぐ後に置く）を足した。本書の行のレビューの前に当てる |
 | `defects.md` | `DFC-3579`（本書）—— 行のレビューの後に起こす |
 | `changelog.md` | 当てるときに 1 行 |
 

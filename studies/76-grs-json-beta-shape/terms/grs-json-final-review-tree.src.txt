@@ -12,7 +12,7 @@ ScheduleDocument	GRS JSON の 1 ファイル
         "user"	人が画面で編集した
         "template"	まだ誰も編集していない（ひな形のまま）
         "agent"	AI が Agent API で編集した
-      name	AI が名乗った名（agent のときだけ）
+      name	編集した者の名（agent は AI が名乗った名、user は GRS が知るときだけ）
   documentSettings	文書設定（下の「文書設定」）
   scheduleData	スケジュールデータ（下の 2 つの群）
   changeLogEntries[]	変更履歴
@@ -81,17 +81,17 @@ documentSettings	文書設定（効く範囲の広い順）
     topEdgeTaskGroupId	上の端の帯（fixed）
     topEdgeTaskGroupOffsetPercent	上の端が、その帯の上から何 % の所か（fixed）
   scheduleCanvasElements	Schedule Canvas に描く物
-    isDateGridLinesVisible	日の罫線を見せるか
-    isGroupGridLinesVisible	グループ罫線（タスクグループの境の横線）を見せるか
-    isProgressLineVisible	イナズマ線を見せるか
-    isDependencyLineVisible	依存線を見せるか
     isPlanBarVisible	予定バーを見せるか
-    isPlanDatesVisible	予定の日付を見せるか
     isActualBarVisible	実績バーを見せるか
-    isPercentCompleteLabelVisible	完了率のラベルを見せるか
-    isProgressStatusMarkVisible	進捗ステータスマークと再開マークを見せるか
     isBaselineOutlineVisible	前回予定を重ねるか（前回予定輪郭）
     isAssigneeLabelVisible	担当のラベルを見せるか
+    isPercentCompleteLabelVisible	完了率のラベルを見せるか
+    isProgressStatusMarkVisible	進捗ステータスマークと再開マークを見せるか
+    isPlanDatesVisible	予定の日付を見せるか
+    isDependencyLineVisible	依存線を見せるか
+    isProgressLineVisible	イナズマ線を見せるか
+    isDateGridLinesVisible	日の罫線を見せるか
+    isTaskGroupGridLinesVisible	タスクグループ罫線（タスクグループの境の横線）を見せるか
   delayDiagnosisSettings	遅延診断の設定
     parentTaskProgressToleranceWorkingDays	遅延診断が親タスクの進み具合に許す幅（稼働日）
   tableWindows	3 つの表の見せ方
@@ -118,10 +118,12 @@ scheduleData	スケジュールデータ（頭の値と、MSPDI と往復する�
     company [M]	会社
     manager [M]	管理者
     author [M]	作成者
-    revision [M]	保存した回数
     creationDate [M]	作った日時
+    revision [M]	保存した回数
     startDate [M]	開始の日時
-    statusDate [M]	基準日
+    calendarUid [M]	稼働日を数える暦
+    defaultStartTime [M]	既定の開始時刻
+    defaultFinishTime [M]	既定の終了時刻
     minutesPerDay [M]	1 日の稼働の分
     minutesPerWeek [M]	1 週の稼働の分
     daysPerMonth [M]	1 か月の稼働日
@@ -133,15 +135,16 @@ scheduleData	スケジュールデータ（頭の値と、MSPDI と往復する�
       4	木曜
       5	金曜
       6	土曜
-    defaultStartTime [M]	既定の開始時刻
-    defaultFinishTime [M]	既定の終了時刻
-    calendarUid [M]	稼働日を数える暦
-    passthrough [G]	持ち越した MSPDI の値（MSPDI の構造と名のまま）
+    statusDate [M]	基準日
+    grs [G]	GRS の値
+      passthrough	持ち越した MSPDI の値（MSPDI の構造と名のまま）
   calendars[] [M]	暦
     uid [M]	一意な識別子
     name [M]	暦の名
     isBaseCalendar [M]	基本の暦か
     baseCalendarUid [M]	受け継ぐ元の暦
+    grs [G]	GRS の値
+      passthrough	持ち越した MSPDI の値
     weekDays[] [M]	曜日ごとの稼働
       dayType [M]	曜日（MSPDI の 0 例外は GRS では使わない）
         1	日曜
@@ -152,10 +155,11 @@ scheduleData	スケジュールデータ（頭の値と、MSPDI と往復する�
         6	金曜
         7	土曜
       dayWorking [M]	稼働日か
+      grs [G]	GRS の値
+        passthrough	持ち越した MSPDI の値
       workingTimes[] [M]	稼働の時間帯
         fromTime [M]	始まりの時刻
         toTime [M]	終わりの時刻
-      passthrough [G]	持ち越した MSPDI の値
     exceptions[] [M]	例外の日
       name [M]	例外の名
       fromDate [M] (TimePeriod/FromDate)	最初の日
@@ -172,28 +176,31 @@ scheduleData	スケジュールデータ（頭の値と、MSPDI と往復する�
         8	何稼働日ごと
         9	繰り返さない
       period [M]	繰り返しの間隔
+      grs [G]	GRS の値
+        passthrough	持ち越した MSPDI の値
       workingTimes[] [M]	稼働の時間帯
         fromTime [M]	始まりの時刻
         toTime [M]	終わりの時刻
-      passthrough [G]	持ち越した MSPDI の値
-    passthrough [G]	持ち越した MSPDI の値
+  passthroughCalendars[]	GRS が暦にしない MSPDI の要素
+    precedingCalendarUid	前にある、いちばん近い暦の uid（先頭では書かない）
+    mspdiElement	MSPDI の要素（構造と名のまま）
   tasks[] [M]	タスク
     uid [M]	一意な識別子
     name [M]	タスク名
-    notes [M]	メモ
     start [M]	予定の開始
     finish [M]	予定の終了
-    milestone [M]	マイルストーンか
-    deadline [M]	期限
-    actualStart [M]	実績の開始
     stop [M]	作業が止まった時
-    actualFinish [M]	実績の終了
     resume [M]	再開の予定
     resumeValid [M]	再開日が有効か
+    milestone [M]	マイルストーンか
     percentComplete [M]	完了率
+    actualStart [M]	実績の開始
+    actualFinish [M]	実績の終了
     calendarUid [M]	タスクの暦
-    hyperlinkAddress [M]	リンク先の URL
+    deadline [M]	期限
     hyperlink [M]	リンクのタイトル
+    hyperlinkAddress [M]	リンク先の URL
+    notes [M]	メモ
     parentTaskUid [G]	WBS の親タスク（最上位では書かない）
     siblingOrder [G]	兄弟の中の順
     grs [G]	タスクに付く GRS の値
@@ -229,6 +236,7 @@ scheduleData	スケジュールデータ（頭の値と、MSPDI と往復する�
         sourceTaskUid	元のファイルでの、このタスクの UID
         importSessionId	取り込みの id（取り込みのたびに GRS が作る）
         mspdiImportCountWhenLastIncluded	このタスクを最後に含んでいた取り込みが何回目か
+      passthrough	持ち越した MSPDI の値
     predecessorLinks[] [M] (PredecessorLink)	先行への結び付き
       predecessorUid [M]	先行タスク
       type [M]	依存の種類（判別子ではない）
@@ -253,8 +261,11 @@ scheduleData	スケジュールデータ（頭の値と、MSPDI と往復する�
         35..44	m? .. emo?（見積り）
         51	%?
         52	e%?
-      passthrough [G]	持ち越した MSPDI の値
-    passthrough [G]	持ち越した MSPDI の値
+      grs [G]	GRS の値
+        passthrough	持ち越した MSPDI の値
+  passthroughTasks[]	GRS がタスクにしない MSPDI の要素
+    precedingTaskUid	前にある、いちばん近いタスクの uid（先頭では書かない）
+    mspdiElement	MSPDI の要素（構造と名のまま）
   resources[] [M]	担当
     uid [M]	一意な識別子
     name [M]	担当の名
@@ -263,12 +274,20 @@ scheduleData	スケジュールデータ（頭の値と、MSPDI と往復する�
       1	作業
     isCostResource [M]	コストの担当か
     calendarUid [M]	担当の暦
-    passthrough [G]	持ち越した MSPDI の値
+    grs [G]	GRS の値
+      passthrough	持ち越した MSPDI の値
+  passthroughResources[]	GRS が担当にしない MSPDI の要素
+    precedingResourceUid	前にある、いちばん近い担当の uid（先頭では書かない）
+    mspdiElement	MSPDI の要素（構造と名のまま）
   assignments[] [M]	割当
     uid [M]	一意な識別子
     taskUid [M]	就くタスク
     resourceUid [M]	就く担当
-    passthrough [G]	持ち越した MSPDI の値
+    grs [G]	GRS の値
+      passthrough	持ち越した MSPDI の値
+  passthroughAssignments[]	GRS が割当にしない MSPDI の要素
+    precedingAssignmentUid	前にある、いちばん近い割当の uid（先頭では書かない）
+    mspdiElement	MSPDI の要素（構造と名のまま）
 # part grs	スケジュールデータ（GRS だけが持つ配列）
 scheduleData	スケジュールデータ（GRS だけが持つ配列。MSPDI の群の後に続く）
   taskGroups[]	タスクグループ
@@ -341,18 +360,6 @@ scheduleData	スケジュールデータ（GRS だけが持つ配列。MSPDI の
       dy	縦のずれ
     hyperlinkAddress	リンク先の URL
     hyperlink	リンクのタイトル
-  passthroughTasks[]	GRS がタスクにしない MSPDI の要素
-    precedingTaskUid	前にある、いちばん近いタスクの uid（先頭では書かない）
-    mspdiElement	MSPDI の要素（構造と名のまま）
-  passthroughResources[]	GRS が担当にしない MSPDI の要素
-    precedingResourceUid	前にある、いちばん近い担当の uid（先頭では書かない）
-    mspdiElement	MSPDI の要素（構造と名のまま）
-  passthroughAssignments[]	GRS が割当にしない MSPDI の要素
-    precedingAssignmentUid	前にある、いちばん近い割当の uid（先頭では書かない）
-    mspdiElement	MSPDI の要素（構造と名のまま）
-  passthroughCalendars[]	GRS が暦にしない MSPDI の要素
-    precedingCalendarUid	前にある、いちばん近い暦の uid（先頭では書かない）
-    mspdiElement	MSPDI の要素（構造と名のまま）
 # part types	共通の型（-> で指す物）
 Color	色
   type	判別子
