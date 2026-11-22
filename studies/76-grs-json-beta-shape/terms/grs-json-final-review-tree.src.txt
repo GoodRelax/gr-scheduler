@@ -380,19 +380,20 @@ Color	色
   light	明るいテーマの側（custom）
     hexColor	色の値（#rrggbb）
     isCalculatedFromOppositeColorScheme	GRS が反対の側の色から計算した側だけ true
-  dark	暗いテーマの側（custom。形は light）
-TaskGroupColor	帯の色（Color から black を除く）
-TaskTableWindow	タスクの表の見せ方（検索ウィンドウ・遅延診断レポート）
-  isScheduleFilteredByChecks	チェックで日程表を絞るか（チェックしたタスクだけを描く）
-  checkedTaskUids[]	チェックしたタスク
-  columnFilters[]	列のフィルタ（掛けた列ごとに 1 つ）-> ColumnFilter
-  columnSort	表の並べ方（列と向き）-> ColumnSort
-ResourceTableWindow	担当の表の見せ方（担当リスト）
-  isScheduleFilteredByChecks	チェックで日程表を絞るか（チェックした担当のタスクだけを描く）
-  checkedResourceUids[]	チェックした担当
-  isUnassignedChecked	（担当なし）の行をチェックしたか
-  columnFilters[]	列のフィルタ（掛けた列ごとに 1 つ）-> ColumnFilter
-  columnSort	表の並べ方（列と向き）-> ColumnSort
+  dark	暗いテーマの側（custom）
+    hexColor	色の値（#rrggbb）
+    isCalculatedFromOppositeColorScheme	GRS が反対の側の色から計算した側だけ true
+TaskGroupColor	帯の色（Color と同じ形。palette の black を除く）
+Paint	塗り
+  color	色 -> Color
+  opacityPercent	不透明度（%）
+Stroke	線（描かないときは書かない）
+  color	色 -> Color
+  opacityPercent	不透明度（%）
+  widthPx	太さ
+ShapeStyle	形の見た目（TaskStyle・CommentBoxStyle・HighlightBoxStyle が共にする）
+  fill	塗り -> Paint
+  stroke	線 -> Stroke
 ColumnFilter	列のフィルタ
   type	判別子
     "values"	値で絞る
@@ -415,8 +416,8 @@ ColumnFilter	列のフィルタ
     "planDates"	遅延診断: 予定日（開始〜終了）
     "actualDates"	遅延診断: 実績日（開始〜終了）
     "diagnosisReason"	遅延診断: 理由
+    "resourceSelectionStatus"	担当リスト: 選択（その担当を選んでいるか）
     "resourceName"	担当リスト: 担当名
-    "isSelected"	担当リスト: 選択（その担当を選んでいるか）
     "assignedTaskCount"	担当リスト: 担当タスク数
     "assignedTaskNames"	担当リスト: 担当タスク
   hiddenValues[]	隠す値（values）。状態の列は用語集の英語の名（例 finished・delay・task・selected、JDG-3735）、ほかの列はセルの値
@@ -428,13 +429,14 @@ ColumnSort	並べ替え
   direction	向き
     "ascending"	小さい順
     "descending"	大きい順
-Paint	塗り
-  color	色 -> Color
-  opacityPercent	不透明度（%）
-Stroke	線（描かないときは書かない）
-  color	色 -> Color
-  opacityPercent	不透明度（%）
-  widthPx	太さ
-ShapeStyle	形の見た目（TaskStyle・CommentBoxStyle・HighlightBoxStyle が共にする）
-  fill	塗り -> Paint
-  stroke	線 -> Stroke
+TaskTableWindow	タスクの表の見せ方（検索ウィンドウ・遅延診断レポート）
+  isScheduleFilteredByChecks	チェックで日程表を絞るか（チェックしたタスクだけを描く）
+  checkedTaskUids[]	チェックしたタスク
+  columnFilters[]	列のフィルタ（掛けた列ごとに 1 つ）-> ColumnFilter
+  columnSort	表の並べ方（列と向き）-> ColumnSort
+ResourceTableWindow	担当の表の見せ方（担当リスト）
+  isScheduleFilteredByChecks	チェックで日程表を絞るか（チェックした担当のタスクだけを描く）
+  isUnassignedChecked	（担当なし）の行をチェックしたか
+  checkedResourceUids[]	チェックした担当
+  columnFilters[]	列のフィルタ（掛けた列ごとに 1 つ）-> ColumnFilter
+  columnSort	表の並べ方（列と向き）-> ColumnSort

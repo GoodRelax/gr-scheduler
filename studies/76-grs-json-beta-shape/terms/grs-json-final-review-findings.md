@@ -134,3 +134,33 @@
 | R270 | `taskGroups[]` | 帯（行の群）。タスクの親子（WBS）とは別の軸 |
 | R341 | `precedingTaskUid` | MSPDI の中の並びで、すぐ前にあるタスク（依存の先行ではない） |
 | R062・R063 | `firstDay`・`lastDay` | 時刻を持たない日付（`Day`、`YYYY-MM-DD`）。範囲は両端を含む |
+
+## 8. 持ち主の目視（GQA BGQA6、2026-11-23）
+
+持ち主は 1 巡目の木に ★ のコメントを 13 件書いた。席は 12 の問い（B-1〜B-12、R088 と R092 は 1 問）にして、チャットで 1 つずつ問うた。2 巡目（決まったことを全部当てた木）を持ち主は「一旦OK」とした。3 巡目は B-10〜B-12 を当てた木。
+
+### 8.1 決まったこと
+
+| # | 1 巡目の行 | 決まったこと | 裁定 |
+|:---|:---|:---|:---|
+| B-1 | R014 | `lastEditedBy.name` に、GRS が知るときは人の名も書く | `JDG-3743` |
+| B-2 | R062 | 全体表示の余白は今のまま（`fixed` は余白を取らない） | `JDG-3744` |
+| B-3 | R083 | `isTaskGroupGridLinesVisible`、画面「Task Group Grid Lines / タスクグループ罫線」 | `JDG-3745` |
+| B-4 | R088・R092 | `scheduleCanvasElements` をバー → ラベル（画面に出る順）→ 線（依存線を先に） | `JDG-3746` |
+| B-5 | R109 | `[M]` を MSPDI の XSD の順に（`project`・`tasks[]` を直した） | `JDG-3747` |
+| B-6 | R136 | どの実体の `passthrough` も `grs.passthrough` に | `JDG-3748` |
+| B-7 | R292 | 前回予定の輪郭の形を今のタスクの形に合わせる（GRS JSON の外、`CR-860`） | `JDG-3749` |
+| B-8 | R340 | 4 つの `passthrough…[]` を、それぞれ対の MSPDI の一覧のすぐ後へ | `JDG-3750` |
+| B-9 | R371 | 木でも `Color.light` と `dark` を対称に書く | `JDG-3751` |
+| B-10 | R381 | `ResourceTableWindow` で `isUnassignedChecked` を配列の前へ | `JDG-3752` |
+| B-11 | R407 | 列の名 `resourceSelectionStatus`。担当リストの列の順は 選択 → 担当名 → …（画面は `CR-861`） | `JDG-3753`・`JDG-3754` |
+| B-12 | R419 | 共通の型を見た目の群 → 表の群、群の中は小さい型から | `JDG-3755` |
+
+### 8.2 席が説明の文で補う物（スキーマの席へ渡す）
+
+| 行（今の木の名） | 補う事 |
+|:---|:---|
+| `fitDayRange` | `fixed` は余白を取らず、`firstDay`・`lastDay` の列を画面の両端に合わせる。`automatic` の余白は GRS の固定値で、文書に持たない（`JDG-3744`） |
+| `grs.passthrough`・`passthrough…[]` | `grs.passthrough` は GRS が持つ実体の、GRS が読まない欄。`passthrough…[]` は GRS が実体にしない MSPDI の要素まるごと（例: プロジェクトの要約タスク）。`preceding…Uid` が指す物の後ろへ書き戻す（`JDG-3750`） |
+| `baselineTasks[]` | 形は持たない。輪郭は今のタスクの形を借りて描く（`JDG-3749`） |
+| `lastEditedBy.name` | `agent` は AI が名乗った名、`user` は GRS が知るときだけ（`JDG-3743`） |
