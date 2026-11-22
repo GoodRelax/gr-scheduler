@@ -27,22 +27,9 @@ BGQA2 を約束の面ごとに分けたとき（`JDG-3568`）、まだ出して�
 
 #### ❓ 問 6-7-0. 共通のキーの 10 語 —— 推奨の表のとおりでよいか
 
-状態: STALE-NAMES（持ち越しの 7 行は `JDG-3606` で `passthrough` 1 つになった。`taskUid`・`taskGroupId` の持ち主 `taskStyles`・TaskGroupMember は `JDG-3614`・`JDG-3615` で無くなった）
+状態: CLOSED-BY JDG-3606（持ち越しの 7 語は `passthrough` 1 つになった）
 
-直す所が無ければ ok、直す所は表のセルに ★ で書いてください。
-
-| # | キー | 日本語の名 | 意味（日本語） | MSPDI の名 |
-|:---|:---|:---|:---|:---|
-| 7-5 | <span style="color: #0550AE">`PassthroughValues`</span> |  | 持ち越した MSPDI の値。MSPDI の名前を鍵にして持つ。（`JDG-3343`） | 無し |
-| 7-10 | <span style="color: #0550AE">`PassthroughElement`</span> |  | 持ち越した 1 つの MSPDI の要素。GRS はまるごと持ち、同じ所へ書き戻す。（`JDG-3343`） | 無し |
-| 7-7 | `name`（持ち主 `PassthroughElement`） |  | MSPDI のファイルのとおりに綴った要素の名前。 | 無し |
-| 7-8 | `fields` |  | この要素の子のうち、文字だけを持つ子要素の値を、要素の名前ごとに持つ。ほかの要素を含む子要素は children に入る。 | 無し |
-| 7-9 | `children` |  | この要素の中に入れ子になった子要素。 | 無し |
-| 7-11 | <span style="color: #0550AE">`passthroughValues`</span> |  | この要素の、持ち越した MSPDI の値。MSPDI の名前のまま持つ。（`JDG-3343`） | 無し |
-| 7-12 | <span style="color: #0550AE">`passthroughElements`</span> |  | この要素の下にある、持ち越した MSPDI の要素。GRS はそれぞれを同じ所へ書き戻す。（`JDG-3343`） | 無し |
-| 7-15 | `name` |  | この実体の名前。MSPDI に Name があるものは、それと同じ。（`JDG-3561`） | Name（MSPDI に名のある実体だけ） |
-| 7-18 | `taskUid` |  | この実体が扱うタスクの uid。`taskStyles` の 1 つ・TaskGroupMember・線先がこのキーを持つ。（`JDG-3556`・`JDG-3561`） | TaskUID（割当だけ） |
-| 7-19 | `taskGroupId` |  | この実体が扱うタスクグループの id。（`JDG-3561`） | 無し |
+裁定が 10 語の名をすべて決めました。持ち越しの 7 語は `JDG-3606` が `passthrough` 1 つに改め、`name` は `JDG-3553`・`JDG-3561` が、`taskUid`・`taskGroupId` は参照の決まり N-5（`JDG-3609`）と `JDG-3614`・`JDG-3615` が決めました。
 
 回答:
 
@@ -50,7 +37,7 @@ BGQA2 を約束の面ごとに分けたとき（`JDG-3568`）、まだ出して�
 
 #### ❓ 問 6-9-1. 両端に点のある細い線の名 —— `endpointSpan` を形の名にするか
 
-状態: OPEN
+状態: OPEN（2026-11-22 に持ち主へ出した。持ち主は推しの `dumbbell` を「初耳」とし、外の AI への質問状 `task-shape-naming-request-1.md` と見本の絵 `task-shape-naming-sample.png` で名を探す。答えを待つ）
 
 場面: マイルストーンでないタスクは、4 つの形（`taskShape` の値）から 1 つを選びます。兄弟の 3 つ（`rectangle`・`chevron`・`arrow`）は形の名で、`endpointSpan` だけが形の説明です。画面の絵は `*----*` です。
 
@@ -116,22 +103,43 @@ BGQA2 を約束の面ごとに分けたとき（`JDG-3568`）、まだ出して�
 
 ### [style] タスクの描き方
 
-#### ❓ 問 6-10-5. タスクの見た目の型の名 —— 配列の 1 つと `style` の型を何と呼ぶか
+#### ❓ 問 6-10-5. 見た目の型の名 —— 4 つの `style` の型を何と呼ぶか
 
-状態: STALE-NAMES（`taskStyles[]` と配列の 1 つは `JDG-3614` で無くなり、見た目はタスクの `grs.style` に入った。`style` の型の名だけを、`JDG-3610` の `ShapeStyle` と合わせて問い直す）
+状態: OPEN（作り直し 2026-11-22）
 
-場面: `JDG-3556` は、タスクの見た目を `scheduleData.taskStyles[]`（`{ taskUid, style }`）に置くと決めました。配列の名 `taskStyles` は決まりました。配列の 1 つ（1 つのタスクとその見た目の組）の型の名と、`style` の値の型の名が残ります。辞書は前の形の 2 語を持ちます。
+場面: タスク・コメントボックス・ハイライトボックス・タスクグループは、見た目をそれぞれの `style` に持ちます。スキーマは、その `style` の値に型の名を付けます。3 つの物は塗りと線の型 `ShapeStyle { fill, stroke }` を共にし、物ごとの足しを `allOf` で書きます（`JDG-3610`）。タスクの見た目は、`JDG-3614` で `taskStyles[]` からタスクの `grs.style` へ移りました。読む AI と開発者は、Agent API の `readSchema` でこの型の名を引きます。
 
-| # | キー | 日本語の名 | 意味（日本語） | MSPDI の名 |
-|:---|:---|:---|:---|:---|
-| 10-17 | <span style="color: #0550AE">`TaskGraphicStyle`</span> |  | GRS がタスクのタスク図形をどう描くか。形、色、バーの輪郭の太さ。どのタスクもちょうど 1 つの TaskGraphicStyle を持つ。（`JDG-3384`） | 無し |
-| 13-28 | <span style="color: #0550AE">`taskStyles`</span>（前の名 `taskGraphicStyles`） |  | 各タスクの見た目。タスクごとにちょうど 1 つ、taskUid と style の組を持つ。Task は日程のデータを持ち、見た目はここが持つ。（`JDG-3556`） | 無し |
+前（`taskStyles[]` の 1 つ。`style` の型は `TaskGraphicStyle`）:
 
-| 案 | 中身 |
-|:---|:---|
-| **a（推奨）** | 配列の 1 つを `TaskStyle`（1 つのタスクとその見た目の組）、`style` の型を `TaskGraphicStyle`（タスク図形の描き方: 形・塗り・線。`JDG-3384` の意味のまま）と呼ぶ。配列 `taskStyles` と 1 つの名 `TaskStyle` がそろう。コメントボックスとハイライトボックスの `style` の型の名は、色の問い 6-6-4-11 の答えに従う |
-| b | 配列の 1 つを `TaskStyleEntry`、`style` の型を `TaskStyle` と呼ぶ。Entry は入れ物の役目だけを言う。`TaskGraphicStyle` の名は消える |
-| c | 配列の 1 つを `TaskGraphicStyle`（今の名）と呼び、`style` の型をどの物にも共通の `Style` にする。色の問い 6-6-4-11 の案 b（形を共にする）を前に置く |
+```json
+"taskStyles": [ { "taskUid": 7, "style": { "taskShape": "rectangle", "fill": { "color": { "type": "palette", "name": "red" } } } } ]
+```
+
+後（タスクの `grs.style`。型の名は案 a）:
+
+```json
+"tasks": [ { "uid": 7, "grs": { "style": { "taskShape": "rectangle", "fill": { "color": { "type": "palette", "name": "red" } } } } } ]
+```
+
+```json
+"$defs": {
+  "TaskStyle": { "allOf": [ { "$ref": "#/$defs/ShapeStyle" },
+                            { "properties": { "taskShape": {}, "milestoneShape": {} } } ] }
+}
+```
+
+名を付けるもの: 4 つの `style` の値の型の名（スキーマの `$defs` の名）。JSON のキーと値は変わりません。
+
+| 案 | 名 | 良い点 | 弱い点 |
+|:---|:---|:---|:---|
+| a（推し） | `TaskStyle`・`CommentBoxStyle`・`HighlightBoxStyle`・`TaskGroupStyle` | 4 つが「持ち主の型の名 ＋ キーの名 `style`」の 1 つの形でそろう。名が、どの物の `style` かを言う | `JDG-3384` の名 `TaskGraphicStyle` を改める |
+| b | `TaskGraphicStyle`（今の名）・`CommentBoxStyle`・`HighlightBoxStyle`・`TaskGroupStyle` | `JDG-3384` の名を保つ | タスクだけが `Graphic` を持ち、4 つの形がそろわない |
+| c | 型の名を付けない。各物の `style` の中に `allOf` をじかに書き、名を持つのは `ShapeStyle` だけ | 約束に出る型の名が減る | AI と開発者が `readSchema` で型を名で引けない |
+
+推し: a。
+1. 名は指すものを言う（N-2、`JDG-3638` の優先 ⑨）。`style` はいつも描き方を言うので、`Graphic` は何も区別しない（NEIM）。
+2. `JDG-3556` は配列の名 `taskGraphicStyles` を `taskStyles` に縮めました。型の名も同じ向きにそろえる（OKPN）。
+3. 4 つの名が 1 つの形を持つので、見た目を持つ物が増えても名が 1 つに決まる（MECE）。
 
 回答:
 
@@ -156,18 +164,30 @@ BGQA2 を約束の面ごとに分けたとき（`JDG-3568`）、まだ出して�
 
 回答:
 
-#### ❓ 問 6-10-0. 取り込み元の 4 語 —— 推奨の表のとおりでよいか
+#### ❓ 問 6-10-0. 取り込み元の 2 語 —— 推奨の表のとおりでよいか
 
-状態: STALE-NAMES（`taskOrigins`・TaskOrigin は `JDG-3614`・`JDG-3641` で `grs.importOrigin` に、`lastSeenMspdiImportNumber` は `JDG-3649` で `lastSeenMspdiImportCount` になった）
+状態: OPEN（作り直し 2026-11-22）
+
+場面: GRS は MSPDI のファイルからタスクを取り込むと、そのタスクの `grs.importOrigin` に出どころの控えを書きます（`JDG-3614`・`JDG-3641`）。同じファイルをまた取り込むとき、GRS はこの控えで同じタスクを見つけ、写しを足さずに更新します。
+
+```json
+"grs": { "importOrigin": { "sourceProjectUid": "1", "sourceUid": 12,
+                           "importSessionId": "8c1d2e3f-4a5b-4c6d-8e9f-0a1b2c3d4e5f",
+                           "lastSeenMspdiImportCount": 2 } }
+```
+
+表から外した語: `importOrigin`（`JDG-3641`）と `lastSeenMspdiImportCount`（`JDG-3649`）は裁定が決めました。`sourceProjectUid` は `JDG-3617` の仮の名で、問 6-13-5 で全体と一緒に確かめます。`sourceUid` は問 6-10-6 で問います。`taskOrigins[]` は `JDG-3614` で無くなりました。
 
 直す所が無ければ ok、直す所は表のセルに ★ で書いてください。
 
 | # | キー | 日本語の名 | 意味（日本語） | MSPDI の名 |
 |:---|:---|:---|:---|:---|
-| 10-22 | `TaskOrigin` |  | 取り込んだタスクがどこから来たか。同じ MSPDI のファイルを再び取り込んだとき、写しを足さずにそのタスクを更新するために持つ。 | 無し |
-| 10-20 | `importSessionId` |  | タスクを持ち込んだ取り込みの id。取り込みのたびに新しく作る。MSPDI のファイルに Project/UID が無いときは、この id が sourceProjectId の代わりになる（字は問 6-10-6 に従う）。 | 無し |
-| 10-21 | <span style="color: #0550AE">`lastSeenMspdiImportNumber`</span>（前の名 `lastSeenImportNumber`） |  | 取り込んだ MSPDI のファイルの中にこのタスクを見つけた、最後の取り込みの project.lastMspdiImportNumber。（`JDG-3556`） | 無し |
-| 13-29 | `taskOrigins` |  | 取り込んだ MSPDI のファイルから来たタスクごとの 1 つの記録。どの MSPDI のファイルの、そのファイルのどのタスクか。後で同じ MSPDI のファイルを取り込んだとき、写しを足さずにそのタスクを更新するために持つ。GRS で作ったタスクは記録を持たない。 | 無し |
+| 10-22 | `ImportOrigin`（前の名 `TaskOrigin`） |  | `importOrigin` の値の型。取り込んだタスクが、どの MSPDI のファイルのどのタスクから来たかを持つ。型の名はキーの名にそろえる（`LeaderTarget` と同じ。`JDG-3556`）。 | 無し |
+| 10-20 | `importSessionId` |  | タスクを持ち込んだ取り込みの id。GRS は取り込みのたびに新しく作る。MSPDI のファイルが Project/UID を持たないとき、GRS はこの id を `sourceProjectUid` の代わりに使う。 | 無し |
+
+推し: 2 語とも表のとおり。
+1. 型の名をキーの名にそろえる形は、`leaderTarget` と `LeaderTarget` で決まっています（`JDG-3556`、OKPN）。
+2. `importSessionId` は、何の id か（1 回の取り込み）を名が言います（N-2）。
 
 回答:
 
@@ -235,43 +255,33 @@ BGQA2 を約束の面ごとに分けたとき（`JDG-3568`）、まだ出して�
 
 回答:
 
-#### ❓ 問 6-11-0. 注記の 29 語 —— 推奨の表のとおりでよいか
+#### ❓ 問 6-11-0. 注記の 12 語 —— 推奨の表のとおりでよいか
 
-状態: STALE-NAMES（`textColor`・`fontSizePx` は `JDG-3612` で `style.font { color, sizePx }` に、`point` は `JDG-3623` で `snapPoint` になった）
+状態: OPEN（作り直し 2026-11-22）
 
-直す所が無ければ ok、直す所は表のセルに ★ で書いてください。`fallback` と `LeaderAnchorFallback` は、`JDG-3547` で消えるので表に載せません。
+場面: 人はコメントボックスを置き、引出し線の先をタスクやハイライトボックスの点に吸着させます。GRS は線の先を `leaderTarget` に書きます。
+
+```json
+{ "id": "3f2b8c1e-7a4d-4e9b-9c61-2d5a8e0f4b17",
+  "text": "Confirm the date",
+  "leaderTarget": { "type": "task", "taskUid": 7, "snapPart": "planBar", "snapPoint": "topRightCorner" },
+  "bodyOffsetPx": { "dx": 12, "dy": -24 } }
+```
+
+表から外した語（裁定が決めた）: `leaderTarget`・`LeaderTarget`（`JDG-3556`）、`type`（`JDG-3563`）、`freePoint`（`JDG-3547`）、`laneTopOffsetPercent`（`JDG-3556`）、`highlightBoxId`・`taskUid`・`taskGroupId`（N-5、`JDG-3609`）、`snapPart` とその値（`JDG-3623`・`JDG-3647`）、`snapPoint`（`JDG-3623`）、`style.font { color, sizePx }`（`JDG-3612`）、`bodyOffsetPx`・`cornerRadiusPx`（`JDG-3291`）、`dx`・`dy`（`JDG-3643`）、`commentBoxes`・`highlightBoxes`（`JDG-3545`）、`firstTaskGroupId`・`lastTaskGroupId`（`JDG-3528`）。
+
+直す所が無ければ ok、直す所は表のセルに ★ で書いてください。
 
 | # | キー | 日本語の名 | 意味（日本語） | MSPDI の名 |
 |:---|:---|:---|:---|:---|
-| 11-11 | <span style="color: #0550AE">`leaderTarget`</span>（前の名 `leaderAnchor`） |  | コメントボックスの引出し線が指す所。タスクグループレーンの中の自由な点か、引出し線が吸着したタスクやハイライトボックスの点。吸着した対象を消す命令の中で、GRS は線先を自由な点に書き換える。（`JDG-3547`・`JDG-3556`） | 無し |
-| 11-7 | `LeaderTarget`（前の名 `LeaderAnchor`） |  | コメントボックスの引出し線が指す所の型。type で、自由な点・タスク・ハイライトボックスのどれかを選ぶ。名はキー leaderTarget にそろえる（`JDG-3556`）。 | 無し |
-| 11-3 | <span style="color: #0550AE">`type`</span>（持ち主 `LeaderTarget`） |  | freePoint・task・highlightBox のどれか。値で、線先が持つ欄の組が変わる。（`JDG-3563`） | 無し |
-| 11-4 | &emsp;+- `freePoint`（持ち主 `LeaderTarget`） |  | タスクグループレーンの中の、何にも吸着しない点。時点・タスクグループ・レーンの中の高さで場所を決める。 | 無し |
-| 11-5 | &emsp;+- `task`（持ち主 `LeaderTarget`） |  | タスクの予定バー・実績バー・マイルストーンマークの 8 つの点のどれか。 | 無し |
-| 11-6 | &emsp;+- `highlightBox`（持ち主 `LeaderTarget`） |  | ハイライトボックスの 8 つの点のどれか。 | 無し |
-| 10-25 | <span style="color: #0550AE">`laneTopOffsetPercent`</span>（前の名 `laneFraction`） |  | 自由な点の線先が、そのタスクグループレーンの上の縁からどれだけ下にあるか。レーンの高さに対するパーセントで、0 は上の縁、100 は下の縁（CSS の top と同じ向き）。（`JDG-3529`・`JDG-3556`） | 無し |
-| 11-2 | <span style="color: #0550AE">`highlightBoxId`</span> |  | 線先が吸着するハイライトボックスの id。（`JDG-2685`） | 無し |
-| 10-33 | &emsp;+- `topLeftCorner`（持ち主 `point`。字は問 6-10-4 に従う） |  | 左上の角。 | 無し |
-| 10-34 | &emsp;+- `topMiddle`（持ち主 `point`） |  | 上の辺の中点。 | 無し |
-| 10-35 | &emsp;+- `topRightCorner`（持ち主 `point`） |  | 右上の角。 | 無し |
-| 10-36 | &emsp;+- `rightMiddle`（持ち主 `point`） |  | 右の辺の中点。 | 無し |
-| 10-37 | &emsp;+- `bottomRightCorner`（持ち主 `point`） |  | 右下の角。 | 無し |
-| 10-38 | &emsp;+- `bottomMiddle`（持ち主 `point`） |  | 下の辺の中点。 | 無し |
-| 10-39 | &emsp;+- `bottomLeftCorner`（持ち主 `point`） |  | 左下の角。 | 無し |
-| 10-40 | &emsp;+- `leftMiddle`（持ち主 `point`） |  | 左の辺の中点。 | 無し |
-| 11-15 | <span style="color: #0550AE">`CommentBox`</span> |  | 1 つのコメントボックス。線先は、自由な点（時点・タスクグループ・そのタスクグループレーンの中の高さ）か、吸着したタスクやハイライトボックスの 8 つの点のどれかに立つ。（`JDG-3371`） | 無し |
 | 11-12 | `text`（持ち主 `CommentBox`） |  | コメントボックスの文。無ければ本文は空。 | 無し |
-| 11-13 | `textColor` |  | コメントボックスの文字の色。style の中に置く。（`JDG-3556`） | 無し |
-| 11-14 | `fontSizePx` |  | コメントボックスの文字の大きさ。displayScalePercent が 100 のときの CSS ピクセルで表す。displayScalePercent で拡大縮小し、ズームでは変わらない。箱を置くときは 10 を書く。style の中に置く。（`JDG-3556`） | 無し |
-| 11-10 | `bodyOffsetPx` |  | 線先から、コメントボックスの本文の箱の左下の角までのずれ。displayScalePercent が 100 のときの CSS ピクセルで表す。displayScalePercent で拡大縮小し、ズームでは変わらない。 | 無し |
-| 11-8 | `dx` |  | bodyOffsetPx の横の成分。正の値は箱を右へ動かす。 | 無し |
-| 11-9 | `dy` |  | bodyOffsetPx の縦の成分。画面と同じく、正の値は箱を下へ動かす。 | 無し |
-| 13-31 | `commentBoxes` |  | タスクグループレーンの中のコメントボックス。各コメントボックスは、タスク・ハイライトボックス・自由な点のどれかを指す。 | 無し |
-| 11-19 | `HighlightBox` |  | 1 つのハイライトボックス。日付の範囲とタスクグループの範囲を囲む。 | 無し |
-| 11-16 | <span style="color: #0550AE">`firstTaskGroupId`</span>（前の名 `topTaskGroupId`） |  | 箱が覆うタスクグループの範囲の最初のタスクグループ（含む）。順は、タスクグループの木の中の順位で決める。（`JDG-3528`） | 無し |
-| 11-17 | <span style="color: #0550AE">`lastTaskGroupId`</span>（前の名 `bottomTaskGroupId`） |  | 箱が覆うタスクグループの範囲の最後のタスクグループ（含む）。（`JDG-3528`） | 無し |
-| 11-18 | `cornerRadiusPx` |  | ハイライトボックスの角の丸みの半径。displayScalePercent が 100 のときの CSS ピクセルで表し、0 は四角い角。displayScalePercent で拡大縮小し、ズームでは変わらない。箱を置くときは 4 を書く。style の中に置く。（`JDG-3556`） | 無し |
-| 13-32 | `highlightBoxes` |  | ハイライトボックス。タスクグループレーンの中で、日の範囲とタスクグループの範囲を示す矩形。GRS は各ハイライトボックスを枠か塗りか両方で描く。 | 無し |
+| 11-5・11-6 | `task`・`highlightBox`（`leaderTarget.type` の値） |  | 線先が吸着する物の種類。値は、指す物の型の名を camelCase にした語。`task` はタスクの予定バー・実績バー・マイルストーンマークの 8 つの点のどれか、`highlightBox` はハイライトボックスの 8 つの点のどれか。 | 無し |
+| 10-33〜10-40 | `topLeftCorner`・`topMiddle`・`topRightCorner`・`rightMiddle`・`bottomRightCorner`・`bottomMiddle`・`bottomLeftCorner`・`leftMiddle`（`snapPoint` の値） |  | 線先が吸着する 8 つの点。4 つの角は `…Corner`、4 つの辺の中点は `…Middle` で終える。 | 無し |
+| 10-27 | `dateTime`（持ち主 `leaderTarget`。`freePoint` のとき） |  | 自由な点の線先が、時間軸の上で立つ時点。名は値の型で終え（N-13）、持ち主の名を繰り返さない（N-4。兄弟は帯と高さなので、`JDG-3650` の ① の読み違えは起きない）。 | 無し |
+
+推し: 4 行とも表のとおり。
+1. 値 `task`・`highlightBox` は指す物の型の名と同じ語で、`taskUid`・`highlightBoxId` と頭がそろう（OKPN）。
+2. 8 つの点の名は「どこの・何か」を語の順に言い、角と中点を語尾で分ける（NEIM・MECE）。
 
 回答:
 
@@ -324,29 +334,36 @@ BGQA2 を約束の面ごとに分けたとき（`JDG-3568`）、まだ出して�
 
 ### [set] 文書の設定
 
-#### ❓ 問 6-12-1. 設定の欄の名が、後の裁定に追いついていない 9 語 —— 案の名に直すか
+#### ❓ 問 6-12-1. 設定の欄の札が後の裁定と食い違う 9 語 —— 案の札に直すか
 
-状態: STALE-NAMES（`fitSpan` は `JDG-3623` で `fitDayRange` になった。直す行は 12-17・12-16 の 2 行）
+状態: OPEN（作り直し 2026-11-22）
 
-場面: 辞書の日本語の名は、設定の欄の名（画面の語）を写します（`JDG-3518`）。下の 9 つの名は、その後の裁定と食い違います。
+場面: 名の辞書は、設定の欄の札（画面の語）を日本語の名に写します（`JDG-3518`）。人は設定の画面でこの札を読み、AI は辞書でこの札を引きます。下の 9 つの札は、後の裁定と食い違います。例: 設定の画面は今、`isPlanBarVisible` の欄に「予定の表示 / Plan」と出します。案では「予定バー / Plan Bar」と出します。
 
-| # | キー | 今の名（日本語 / 英語） | 案 | 根拠 |
+名を付けるもの: 9 つのキーの欄の札（日本語 / 英語）。キーは変わりません。
+
+| # | キー | 今の札（日本語 / 英語） | 案の札 | 根拠 |
 |:---|:---|:---|:---|:---|
-| 12-35 | <span style="color: #0550AE">`isProgressMarkVisible`</span> | 進捗マーカー / Progress Marker | 進捗マーク / Progress Mark | `JDG-3372`（「マーカー」と書かない） |
-| 12-17 | <span style="color: #0550AE">`fitSpan`</span> | 全体表示時の期間 / Fit Span | 全体表示期間 / Fit Span | `JDG-3376` |
-| 12-16 | `isFixed`（持ち主 `fitSpan`） | 全体表示時の期間を固定する / Fix the fit span | 全体表示期間を固定する / Fix the fit span | `JDG-3376` |
-| 12-29 | <span style="color: #0550AE">`isPlanBarVisible`</span> | 予定の表示 / Plan | 予定バー / Plan Bar | キーは Plan Bar（`JDG-3382`）。ほかの欄（依存線・担当ラベル）も描く物の名 |
-| 12-31 | <span style="color: #0550AE">`isActualBarVisible`</span> | 実績の表示 / Actual | 実績バー / Actual Bar | 同じ |
-| 12-5 | <span style="color: #0550AE">`dayWidthPx`</span> | 横のズーム倍率 / Horizontal Zoom | 1 日の幅 / Day Width | 値は倍率でなく、1 日の幅の px（`JDG-3292`） |
-| 12-39 | `isGroupGridLinesVisible` | グループ罫線（TaskGroup 境界の横線） | グループ罫線（タスクグループ境界の横線） | 日本語の名が英語の型の名を含む |
-| 13-10 | `pinnedTaskGroupIds` | ピン止めの対象 / Pinned Task Groups | ピン止めしたタスクグループ / Pinned Task Groups | 画面の語 `pinnedTaskGroup`（`U-46`）と同じ名 |
-| 12-22 | <span style="color: #0550AE">`viewTimeZone`</span> | 本プロジェクトの基準タイムゾーン / Project Base Time Zone | 表示の基準タイムゾーン / Display Base Time Zone | キーは見せる時計。スケジュールデータの時計は `scheduleDataTimeZone` で、別の物 |
+| 12-35 | `isProgressMarkVisible` | 進捗マーカー / Progress Marker | 進捗マーク / Progress Mark | `JDG-3372`（「マーカー」と書かない） |
+| 12-17 | `fitDayRange` | 全体表示時の期間 / Fit Span | 全体表示期間 / Fit Span | `JDG-3376`。キーは `JDG-3623` で `fitDayRange` |
+| 12-16 | `isFixed`（持ち主 `fitDayRange`） | 全体表示時の期間を固定する / Fix the fit span | 全体表示期間を固定する / Fix the fit span | `JDG-3376` |
+| 12-29 | `isPlanBarVisible` | 予定の表示 / Plan | 予定バー / Plan Bar | キー（`JDG-3382`）と `snapPart` の値 `planBar`（`JDG-3647`）が Plan Bar と言う |
+| 12-31 | `isActualBarVisible` | 実績の表示 / Actual | 実績バー / Actual Bar | 同じ（`JDG-3382`・`JDG-3647` の `actualBar`） |
+| 12-5 | `dayWidthPx` | 横のズーム倍率 / Horizontal Zoom | 1 日の幅 / Day Width | 値は倍率でなく、1 日の幅の px（`JDG-3292`） |
+| 12-39 | `isGroupGridLinesVisible` | グループ罫線（TaskGroup 境界の横線） | グループ罫線（タスクグループ境界の横線） | 日本語の札に英語の型の名が混ざる |
+| 13-10 | `pinnedTaskGroupIds` | ピン止めの対象 / Pinned Task Groups | ピン止めしたタスクグループ / Pinned Task Groups | 画面の語 `pinnedTaskGroup`（`U-46`） |
+| 12-22 | `viewTimeZone` | 本プロジェクトの基準タイムゾーン / Project Base Time Zone | 表示の基準タイムゾーン / Display Base Time Zone | キーは見せる時計を言う。データの時計は別の `scheduleDataTimeZone`（`JDG-3619`・`JDG-3644`） |
 
-| 案 | 中身 |
-|:---|:---|
-| **a（推奨）** | 表の案で直し、`display-words.json` の名と辞書の名を同じ字にそろえる（`CR-857`）。9 つのキーの意味の文は今のまま |
-| b | 行ごとに直す所を書く |
-| c | 今のまま（画面の語のパートで問い直す） |
+| 案 | 名 | 良い点 | 弱い点 |
+|:---|:---|:---|:---|
+| a（推し） | 表の案の札に直し、`display-words.json` と辞書を同じ字にそろえる（`CR-857`） | 画面と辞書とキーが、1 つの物を 1 つの語で言う | 画面の札が 9 つ変わる |
+| b | 行ごとに ★ で直す | 1 行ずつ決められる | 回答が長くなる |
+| c | 今のまま。画面の語の巡で問い直す | 今の画面が変わらない | 辞書が後の裁定と食い違ったまま残る |
+
+推し: a。
+1. 札とキーが同じ物を同じ語で言う（OKPN・NEIM）。
+2. 9 行とも根拠は決まった裁定で、新しい決めを足さない。
+3. 名の辞書が意味の正本なので、辞書と画面の字を 1 つにする（SSOT）。
 
 回答:
 
@@ -372,56 +389,107 @@ BGQA2 を約束の面ごとに分けたとき（`JDG-3568`）、まだ出して�
 
 回答:
 
-#### ❓ 問 6-12-0. 文書の設定の 42 語 —— 推奨の表のとおりでよいか
+#### ❓ 問 6-12-0. 文書の設定の 5 語 —— 推奨の表のとおりでよいか
 
-状態: STALE-NAMES（`displayScalePercent`・`fontSizeStep`・`offset`・`season`・`stackDirection`・根の木の状態・`shownTaskUids` ほかを、`JDG-3617`〜`JDG-3664` が改めた）
+状態: OPEN（作り直し 2026-11-22）
 
-直す所が無ければ ok、直す所は表のセルに ★ で書いてください。日本語の名は設定の欄の名から、折り返しの縦線を除いて写しました（`JDG-3518`・`JDG-3519`）。
+場面: 文書設定（`documentSettings`）は、文書を開いたときの見せ方を持ちます。下の 5 語は、まだ裁定の行を持ちません。
+
+```json
+"documentSettings": {
+  "taskGroupPanelWidthPx": 160,
+  "fitDayRange": { "firstDay": "2026-11-30", "lastDay": "2026-12-11", "isFixed": false },
+  "viewTimeZone": { "type": "fixed", "utcOffset": "+09:00" },
+  "tableWindows": { "searchWindow": {
+    "columnFilters": [ { "type": "values", "column": "taskName", "hiddenValues": ["Work package A"] } ],
+    "columnSort": { "column": "start", "direction": "ascending" } } }
+}
+```
+
+表から外した語（裁定が決めた）: `displayScaleRatio`（`JDG-3621`）、`fontSizePreset`（`JDG-3623`）と値 `small`・`medium`・`large`（`JDG-3295`）、`dayWidthPx`（`JDG-3292`）、`verticalZoomRatio`（`JDG-3617`）、`scrollPosition.type` の値 `fixed`・`automatic`（`JDG-3623`）、`viewTimeZone.type` の値 `sameAsScheduleData`（`JDG-3302`）、`utcOffset`（`JDG-3644`）、`displayTimeZones`（`JDG-2691`）、`zoneNameType` と値 `standard`・`daylight`（`JDG-3631`）、`is…Visible` の 12 語（`JDG-2245`・`JDG-3382`）、`isThemeMonochrome`・`isTaskGroupPanelWidthFixed`（`JDG-2245`）、`taskStackDirection` と値 `bottomToTop`・`topToBottom`（`JDG-3632`）、`themeHue`（`JDG-3541`）、`pinnedTaskGroupIds`（`JDG-2246`）、`fitDayRange`（`JDG-3623`）、`firstDay`・`lastDay`（`JDG-3521`）、`tableWindows`・`searchWindow`・`resourceListWindow`（`JDG-3544`）、`isScheduleFilterApplied`（`JDG-3630`）。根の木の状態は `JDG-3664` で無くなりました。仮の名 `checkedTaskUids`・`checkedResourceUids`・`isUnassignedChecked`（`JDG-3617`）は、問 6-13-5 で全体と一緒に確かめます。深さと縦の比の置き場は問 6-12-0-2、`delayDiagnostics…` の綴りは問 6-12-0-3 で問います。
+
+直す所が無ければ ok、直す所は表のセルに ★ で書いてください。
 
 | # | キー | 日本語の名 | 意味（日本語） | MSPDI の名 |
 |:---|:---|:---|:---|:---|
-| 11-38 | <span style="color: #0550AE">`displayScalePercent`</span> | 表示の倍率 | スケジュールキャンバスの描画の表示の倍率（パーセント）。100 では、名前が Px で終わるプロパティの値をすべてその数の CSS ピクセルで描き、50 では半分の大きさで描く。形と文字を一緒に拡大縮小し、アプリヘッダー・コマンドパレット・ブラウザーのズームは変えない。（`JDG-3292`） | 無し |
-| 12-1 | <span style="color: #0550AE">`fontSizeStep`</span> | 文字サイズ | スケジュールキャンバスの文字の大きさの段。small・medium・large で、displayScalePercent が 100 のとき 7.5・8.75・10 CSS ピクセル。スケジュール文書はこの段で開き、段を変えた読み手はスケジュール文書を編集したことになる。（`JDG-2682`・`JDG-3295`） | 無し |
-| 12-2 | &emsp;+- <span style="color: #0550AE">`small`</span>（持ち主 `fontSizeStep`） |  | displayScalePercent が 100 のとき 7.5 CSS ピクセルの文字。（`JDG-3295`） | 無し |
-| 12-3 | &emsp;+- <span style="color: #0550AE">`medium`</span>（持ち主 `fontSizeStep`） |  | displayScalePercent が 100 のとき 8.75 CSS ピクセルの文字。（`JDG-3295`） | 無し |
-| 12-4 | &emsp;+- <span style="color: #0550AE">`large`</span>（持ち主 `fontSizeStep`） |  | displayScalePercent が 100 のとき 10 CSS ピクセルの文字。（`JDG-3295`） | 無し |
-| 12-6 | <span style="color: #0550AE">`verticalZoomRatio`</span> | 縦のズーム倍率 | タスク図形の縦の大きさの、既定の大きさに対する比。1 が既定の大きさで、2 では予定バー・実績バー・名称ラベルを 2 倍の高さで描く。（`JDG-3296`） | 無し |
-| 12-8 | <span style="color: #0550AE">`type`</span>（持ち主 `scrollPosition`） |  | notDecided: まだ誰も場所を選んでおらず、GRS がスケジュール文書を開くときに選ぶ。placed: ほかのキーが場所を与える。（`JDG-3563`） | 無し |
-| 12-9 | &emsp;+- <span style="color: #0550AE">`notDecided`</span>（持ち主 `scrollPosition`） |  | まだ誰も場所を選んでおらず、GRS がスケジュール文書を開くときに選ぶ。（`JDG-3302`・`JDG-3309`） | 無し |
-| 12-10 | &emsp;+- `placed`（持ち主 `scrollPosition`） |  | ほかのキーが場所を与える。 | 無し |
-| 12-18 | <span style="color: #0550AE">`type`</span>（持ち主 `viewTimeZone`） |  | sameAsScheduleData: スケジュールデータのタイムゾーンを出し、それが変わればそれに従う。fixed: ここで与えたオフセットを出す。（`JDG-3563`） | 無し |
-| 12-19 | &emsp;+- <span style="color: #0550AE">`sameAsScheduleData`</span>（持ち主 `viewTimeZone`） |  | スケジュールデータのタイムゾーンを出し、それが変わればそれに従う。（`JDG-3302`） | 無し |
-| 12-20 | &emsp;+- `fixed`（持ち主 `viewTimeZone`） |  | ここで与えたオフセットを出す。 | 無し |
-| 12-21 | `offset`（持ち主 `viewTimeZone`） |  | GRS がスケジュールキャンバスを出す UTC オフセット。 | 無し |
-| 12-27 | <span style="color: #0550AE">`displayTimeZones`</span> | 表示するタイムゾーン | 最大 4 つの追加の時計。GRS が時刻を出しているあいだ、追加の時計をそれぞれタイムルーラーの下の 1 行として出す。（`JDG-2691`） | 無し |
-| 12-23 | `offset`（持ち主 `displayTimeZones`） |  | この追加の時計の UTC オフセット。 | 無し |
-| 12-25 | &emsp;+- `standard`（持ち主 `season`。字は問 6-12-3 に従う） |  | そのオフセットの標準時のゾーン。 | 無し |
-| 12-26 | &emsp;+- `daylight`（持ち主 `season`） |  | そのオフセットの夏時間のゾーン。 | 無し |
-| 12-28 | `isTimeOfDayVisible` | 時刻を表示する | GRS がスケジュールキャンバスに時刻を出すかどうか。保存した日時はどちらでも時刻を持ち続ける。新しいスケジュール文書は偽で始まる。 | 無し |
-| 12-30 | `isPlanDatesVisible` | 名称ラベルに添える予定日 | GRS が各名称ラベルの右に予定の日付を出すかどうか。新しいスケジュール文書は偽で始まる。 | 無し |
-| 12-32 | <span style="color: #0550AE">`isPercentCompleteLabelVisible`</span> | 完了率ラベル | GRS が各タスクの完了率ラベルを出すかどうか。新しいスケジュール文書は偽で始まる。（`JDG-3382`） | 無し |
-| 12-34 | `isProgressLineVisible` | イナズマ線 | GRS がイナズマ線を描くかどうか。イナズマ線は、基準日から各タスクのタスク進捗点を通る線。新しいスケジュール文書は偽で始まる。 | 無し |
-| 12-36 | <span style="color: #0550AE">`isDependencyLineVisible`</span> | 依存線 | GRS が依存線を描くかどうか。新しいスケジュール文書は真で始まる。（`JDG-3382`） | 無し |
-| 12-37 | <span style="color: #0550AE">`isAssigneeLabelVisible`</span> | 担当ラベル | GRS が各タスクの担当ラベルを出すかどうか。新しいスケジュール文書は偽で始まる。（`JDG-3382`） | 無し |
-| 12-38 | `isDateGridLinesVisible` | 日付罫線（日付ごとの縦線） | GRS が縦の日付罫線を描くかどうか。新しいスケジュール文書は偽で始まる。 | 無し |
-| 13-1 | `stackDirection` | 積む向き | up は、タスクが右上のゴールへ登るようにタスクグループのタスクを積む。down は、右下のゴールへ下るように積む。新しいスケジュール文書は up で始まる。 | 無し |
-| 13-2 | &emsp;+- `up`（持ち主 `stackDirection`） |  | タスクが右上のゴールへ登るように積む。 | 無し |
-| 13-3 | &emsp;+- `down`（持ち主 `stackDirection`） |  | タスクが右下のゴールへ下るように積む。 | 無し |
-| 13-4 | `isThemeMonochrome` | モノクロにするか | テーマがモノクロかどうか。新しいスケジュール文書は偽で始まる。 | 無し |
-| 13-5 | `taskGroupPanelWidthPx` | タスクグループパネルの幅 | タスクグループパネルの幅。displayScalePercent が 100 のときの CSS ピクセルで表す。 | 無し |
-| 13-6 | `isTaskGroupPanelWidthFixed` | タスクグループパネルの幅を固定する | パネル境界のドラッグではなく、taskGroupPanelWidthPx の数がタスクグループパネルの幅を決めるかどうか。新しいスケジュール文書は偽で始まる。 | 無し |
-| 13-8 | &emsp;+- `auto`（持ち主 `levelZeroTreeState`。字は問 6-13-1 に従う） |  | 最上位のタスクグループを描く。 | 無し |
-| 13-9 | &emsp;+- `collapsed`（持ち主 `levelZeroTreeState`） |  | タスクグループを 1 つも描かない。 | 無し |
-| 13-20 | <span style="color: #0550AE">`tableWindows`</span>（前の名 `tableViews`） |  | GRS が 3 つの窓の表をどう出すか。検索ウィンドウ、遅延診断レポートウィンドウ、担当リストウィンドウ。（`JDG-3544`） | 無し |
-| 13-17 | <span style="color: #0550AE">`searchWindow`</span>（持ち主 `tableWindows`） |  | 検索ウィンドウの表をどう出すか。スケジュールフィルター、チェックした行、列のフィルタ、並べ替え。（`JDG-3383`） | 無し |
-| 13-18 | <span style="color: #0550AE">`delayDiagnosisReportWindow`</span>（持ち主 `tableWindows`。前の名 `delayDiagnosticsReportWindow`） |  | 遅延診断レポートウィンドウの表をどう出すか。スケジュールフィルター、チェックした行、列のフィルタ、並べ替え。名は機能の名 delayDiagnosis の派生の名にそろえる（`JDG-3512`）。`JDG-3544` の「中の名は今のまま」は、`tableWindows` の改名だけを言うと私は読んだ。（`JDG-3383`・`JDG-3512`） | 無し |
-| 13-19 | <span style="color: #0550AE">`resourceListWindow`</span>（持ち主 `tableWindows`） |  | 担当リストウィンドウの表をどう出すか。スケジュールフィルター、チェックした行、列のフィルタ、並べ替え。（`JDG-3383`） | 無し |
-| 13-11 | `isScheduleFilterApplied` |  | この表のスケジュールフィルターが掛かっているかどうか。掛かっているあいだ、GRS はこの表のチェックの入った行が選ぶタスクだけを描く。新しいスケジュール文書は偽で始まる。 | 無し |
-| 13-12 | `shownTaskUids` |  | この表の表示の列にチェックが入った行のタスク。無ければどの行にもチェックは無い。 | 無し |
-| 13-15 | `shownResourceUids` |  | この表の表示の列にチェックが入った行の担当。無ければどの行にもチェックは無い。 | 無し |
-| 13-16 | `isUnassignedShown` |  | 担当リストウィンドウの（担当なし）の行にチェックが入っているかどうか。新しいスケジュール文書は偽で始まる。 | 無し |
-| 13-13 | `columnFilters` |  | この表の列のフィルタ。フィルタを掛けた列ごとに 1 つ、この表の列の名前で持つ。無ければどの列にもフィルタは無い。 | 無し |
-| 13-14 | `sort` |  | GRS がこの表をどう並べるか。無ければ既定の並び。 | 無し |
+| 13-5 | `taskGroupPanelWidthPx` | タスクグループパネルの幅 | タスクグループパネルの横幅。表示の倍率 `displayScaleRatio` が 1 のときの CSS ピクセルで表す。あなたの ★「Hightか？」に答え、横幅のまま。 | 無し |
+| 12-16 | `isFixed`（持ち主 `fitDayRange`） | 全体表示期間を固定する（札は問 6-12-1） | 真なら、全体表示と PNG・SVG の書き出しは、GRS が描くものすべてでなく `fitDayRange` の期間を出す。文書を開いても、ビューはこの期間へ動かない。 | 無し |
+| 12-20 | `fixed`（`viewTimeZone.type` の値） |  | ここで与えた `utcOffset` で時刻を出す。`scrollPosition.type` の `fixed` と同じ語。 | 無し |
+| 13-13 | `columnFilters` |  | この表の列のフィルタ。フィルタを掛けた列ごとに 1 つ、列の名前で持つ。無ければどの列にもフィルタは無い。 | 無し |
+| 13-14 | `columnSort`（前の名 `sort`） |  | GRS がこの表をどう並べるか。無ければ既定の並び。あなたの ★「NEIM違反。」に答え、型 `ColumnSort` と同じ名にした。 | 無し |
+
+推し: 5 語とも表のとおり。
+1. `fixed` は `scrollPosition.type` の値（`JDG-3623`）と同じ語で、「人が値を与えた」を 1 つの語で言う（OKPN）。
+2. `columnFilters`・`columnSort` は、型 `ColumnFilter`・`ColumnSort`（`JDG-3514`・`JDG-3522`）と同じ語を持つ（NEIM）。
+
+回答:
+
+#### ❓ 問 6-12-0-2. 自動で出す深さと縦の比の置き場 —— 1 つの物 `verticalZoom` にまとめるか
+
+状態: OPEN（作り直し 2026-11-22）
+
+場面: 人が縦にズームすると、GRS は縦の比と、自動で出す深さを同じ時に書きます（`JDG-3674`・`JDG-3675`）。全体表示も 2 つを一緒に選びます。GRS は 2 つを文書に保存します（`JDG-3669`）。裁定は深さの鍵の名を `automaticallyShownDepth` とし、入れ物を `taskGroupTreeView` と呼びました（`JDG-3651`・`JDG-3665`）。その後、根の値が `JDG-3664` で無くなったので、`taskGroupTreeView` は鍵を 1 つだけ持ちます。置き場は未決です（`JDG-3674`）。
+
+前（β の木）:
+
+```json
+"documentSettings": { "verticalZoomRatio": 1.2, "taskGroupAutoExpandDepth": 2 }
+```
+
+後（案 a）:
+
+```json
+"documentSettings": { "verticalZoom": { "ratio": 1.2, "automaticallyShownDepth": 2 } }
+```
+
+名を付けるもの: 2 つの鍵の置き場と、入れ物の物の名。
+
+| 案 | 名 | 良い点 | 弱い点 |
+|:---|:---|:---|:---|
+| a（推し） | `documentSettings.verticalZoom { ratio, automaticallyShownDepth }` | 縦の 1 刻みが一緒に書く 2 つの値を、1 つの物が持つ。中のキーは持ち主の名を繰り返さない（N-4） | `verticalZoomRatio`（`JDG-3617` の「今のまま」）を `verticalZoom.ratio` に改める |
+| b | `documentSettings.verticalZoomRatio` と `documentSettings.taskGroupTreeView.automaticallyShownDepth` | `JDG-3651`・`JDG-3665` の形のまま。深さがタスクグループの木の値と読める | `taskGroupTreeView` が鍵を 1 つだけ持つ。一緒に変わる 2 つの値が別の所に分かれる |
+| c | `documentSettings.verticalZoomRatio` と `documentSettings.automaticallyShownDepth` | 入れ物を作らず、浅い | 何を自動で出す深さかを、置き場も名も言わない。一緒に変わる 2 つが、ほかの設定の間に並ぶだけ |
+
+推し: a。
+1. 縦のズームの 1 刻みと全体表示が、比と深さを同じ時に書きます（`JDG-3675`）。一緒に変わる値を 1 つの物にまとめます（`JDG-3545` の「関連する要素を群にまとめる」）。
+2. `JDG-3651` が `taskGroupTreeView` を作った理由は、根の値と深さをまとめることでした。根の値は `JDG-3664` で無くなり、その理由も消えました。
+3. 中のキー `ratio` は、持ち主の名を繰り返さない決まり（N-4、優先 ⑩）と、倍率を `…Ratio` で言う決まり（N-16）の両方に合います。
+
+回答:
+
+#### ❓ 問 6-12-0-3. 遅延診断の 2 つのキーの綴り —— `delayDiagnosis…` にそろえるか
+
+状態: OPEN（作り直し 2026-11-22）
+
+場面: `JDG-3512` は、遅延診断の機能のキーを `delayDiagnosis` とし、派生の名もそろえると決めました（遅延診断レポートは `delayDiagnosisReport`、Agent API は `readDelayDiagnosis`・`runDelayDiagnosis`）。その後の 2 つの裁定は、`delayDiagnostics…` の字でキーを書きました: 表の窓 `delayDiagnosticsReportWindow`（`JDG-3544` の「中の名は今のまま」）と、許し幅の入れ物 `delayDiagnosticsSettings`（`JDG-3646`）。今、1 つの機能を 2 つの綴りが指します。
+
+前（β の木と裁定の字）:
+
+```json
+"documentSettings": {
+  "delayDiagnosticsSettings": { "toleranceWorkingDays": 1 },
+  "tableWindows": { "delayDiagnosticsReportWindow": { "isScheduleFilterApplied": false } } }
+```
+
+後（案 a）:
+
+```json
+"documentSettings": {
+  "delayDiagnosisSettings": { "toleranceWorkingDays": 1 },
+  "tableWindows": { "delayDiagnosisReportWindow": { "isScheduleFilterApplied": false } } }
+```
+
+名を付けるもの: GRS JSON の 2 つのキー（文書設定の許し幅の入れ物と、遅延診断レポートの表の窓）。
+
+| 案 | 名 | 良い点 | 弱い点 |
+|:---|:---|:---|:---|
+| a（推し） | `delayDiagnosisSettings`・`delayDiagnosisReportWindow` | 機能の名 `delayDiagnosis`（`JDG-3512`）と 1 つの綴りになる。Agent API の `readDelayDiagnosis` ともそろう | `JDG-3544`・`JDG-3646` が書いた字を改める |
+| b | `delayDiagnosticsSettings`・`delayDiagnosticsReportWindow`（今の字） | `JDG-3544`・`JDG-3646` の字のまま | 1 つの機能に 2 つの綴りが残り、`JDG-3512` の「派生の名もそろえる」に反する |
+
+推し: a。
+1. 1 つの物に 1 つの名（OKPN）。`JDG-3512` は派生の名もそろえると決めました。
+2. `JDG-3544` の「中の名は今のまま」は `tableWindows` の改名だけを言い、`JDG-3646` の要は置き場です。どちらも綴りを選んだ行ではありません。
+3. 名は指す物で選び、直す手間で選ばない（`JDG-3511`、NDD）。
 
 回答:
 
@@ -429,19 +497,9 @@ BGQA2 を約束の面ごとに分けたとき（`JDG-3568`）、まだ出して�
 
 #### ❓ 問 6-13-0. スケジュールデータと文書の根の 7 語 —— 推奨の表のとおりでよいか
 
-状態: STALE-NAMES（`schemaVersion`・`buildVersion` は `JDG-3625` で `…VersionUtc` に、`taskGroupMembers` は `JDG-3614`・`JDG-3615` で無くなった）
+状態: CLOSED-BY JDG-3625（版の 2 つは `…VersionUtc` になり、ほかの語も裁定が決めた）
 
-直す所が無ければ ok、直す所は表のセルに ★ で書いてください。
-
-| # | キー | 日本語の名 | 意味（日本語） | MSPDI の名 |
-|:---|:---|:---|:---|:---|
-| 13-39 | `ScheduleDocument` | <span style="color: #0550AE">スケジュール文書</span> | スケジュール文書: 1 つの GRS JSON のファイル。根に、スキーマの所、スキーマの版、ビルドの版、文書の設定、スケジュールデータ、文書の刻印、変更ログをこの順に持つ（字は問 6-11-1 に従う）。（`JDG-3353`・`JDG-3556`） | 無し |
-| 13-35 | `schemaVersion`（持ち主 `ScheduleDocument`） |  | この GRS JSON スキーマの形が最後に変わった UTC の時刻（YYYY-MM-DDTHH:MM:SSZ）。 | 無し |
-| 13-36 | <span style="color: #0550AE">`buildVersion`</span> |  | この GRS JSON のファイルを書いた GRS のビルドの時刻（UTC、YYYY-MM-DDTHH:MM:SSZ）。この値は不具合を調べるためだけのもので、GRS JSON のファイルが読めるかを確かめるには schemaVersion を使う。（`JDG-3324`・`JDG-3335`） | 無し |
-| 13-34 | <span style="color: #0550AE">`scheduleData`</span> | <span style="color: #0550AE">スケジュールデータ</span> | スケジュールデータ。MSPDI と往復する群（project・tasks・calendars・resources・assignments）と、GRS だけが持つ群（taskGroups・taskGroupMembers・taskStyles・commentBoxes・highlightBoxes・baselineTasks・taskOrigins）をこの順に持つ。（`JDG-3353`・`JDG-3380`・`JDG-3545`） | 無し |
-| 13-23 | `tasks` |  | MSPDI の Tasks と同じ。ただし Task.parentTaskUid と Task.siblingOrder が WBS の木を与える。GRS は MSPDI を書くたびに、その木から ID・OutlineLevel・OutlineNumber・Summary を作る。 | Tasks |
-| 13-26 | `taskGroups` |  | タスクグループ。GRS はそれぞれをタスクグループパネルの 1 行と 1 つのタスクグループレーンとして出す。どのタスクグループがどのタスクを持つかは taskGroupMembers が言う。MSPDI のファイルを読むとき、GRS は WBS からタスクグループを作る。 | 無し |
-| 13-27 | `taskGroupMembers` |  | 各タスクがどのタスクグループに入るか。タスクごとに 1 つ、taskUid から taskGroupId への対応。 | 無し |
+裁定が 7 語の名をすべて決めました。`schemaVersionUtc`・`buildVersionUtc` は `JDG-3625`、`ScheduleDocument`・`scheduleData` は `JDG-3518`、`tasks` は MSPDI と同じ名（`JDG-3553`）、`taskGroups` は `TaskGroup`（`JDG-3554`）の複数形（N-8）です。`taskGroupMembers` は `JDG-3614`・`JDG-3615` で無くなりました。
 
 回答:
 
@@ -1649,145 +1707,9 @@ src は `notAvailable` の説明に「not built yet」と書きます。2 つは
 
 #### ❓ 問 6-6-4-7. 色の要素の一覧 —— 抜けと誤りは無いか
 
-状態: STALE-NAMES（`derivedFrom` は `JDG-3636` で `isCalculatedFromOppositeColor` に、`themeHueDegrees` は `JDG-3541` で `themeHue` になり、`TaskStyleEntry`・`taskStyles` は `JDG-3614` で無くなった。塗りと線と文字の形は `JDG-3607`・`JDG-3610`・`JDG-3612` で決まった）
+状態: POLICY（JDG-3686）
 
-`JDG-3563`・`JDG-3564` で、判別子のキーは `type` に決まりました。下の表と形と例は `type` で書きます。`JDG-3556` の A で、見た目はどの物でも入れ子の `style` に入ります。タスクの見た目は `scheduleData.taskStyles[]` の `{ taskUid, style }` に入ります。不透明度 `opacityPercent` は色の値の外に置きます（`JDG-3526`・`JDG-3556` の E）。カスタムの色の片側は、GRS が作った側だけが `derivedFrom` を持ちます（`JDG-3527`）。
-
-GRS の色の要素を、仕様書と β の形から 12 に数えました（数え方: `doc-shape-map.tsv` で `Color`・`LaneColor` を取るプロパティと、テーマ・色相・モノクロのプロパティ。仕様書の表 T-017b の `CV-1`〜`CV-10`、表 T-294、`FR-039`、`FR-007`。文書の外の色は `_assets/tbl-settings.md` の `S-` の行のうち、`#rrggbb` か `rgba(` の値を持つ行）。
-
-| #   | 要素           | 中身                                                                                                                              | 文書に保存するか                                 | 決めた所                               |
-| :-- | :----------- | :------------------------------------------------------------------------------------------------------------------------------ | :--------------------------------------- | :--------------------------------- |
-| 1   | 明暗（表示のテーマ）   | light と dark。GRS は、起動したときにブラウザーが伝える明暗で描き、読めないときは light で描く。画面の切り替えは、そのページを閉じるまで効く                                               | しない（読む人ごとに違う）                            | `FR-039`                           |
-| 2   | モノクロ         | 決まった色を無彩色にして描く                                                                                                                  | する（`documentSettings.isThemeMonochrome`） | `CV-7`                             |
-| 3   | テーマの色相       | テーマの色を、この色相で描く。新しい文書は 214                                                                                                       | する（`project.themeHueDegrees`）            | `doc-shape-map.tsv`（問 6-8-1 で名を問う） |
-| 4 | 色の 3 つの源 | theme（テーマが、その置き場に決める色）・palette（名の付いた 10 色）・custom（人が決めた色） | する（`Color.type`） | `JDG-3260`・`JDG-3310`・`JDG-3563` |
-| 5 | パレットの 10 色 | paper・ink・dimGray・lightGray・red・blue・yellow・green・orange・purple（paper と ink の名は問 6-6-4-12 で問う）。1 つの名が、明暗ごとに 4 つの値を持つ: 塗り・縁・実績の塗り・タスクグループの帯（10 × 4 × 2 = 80 の値） | 名だけ保存する。値はアプリが持つ（表 T-294） | `CV-1`・`CV-6` |
-| 6 | カスタムの色 | 明るい側と暗い側。各側は `hexColor` を持ち、GRS が作った側だけが `derivedFrom`（light・dark）を持つ。片側を省くと、GRS は文書を開くときに、もう一方の側から作る（色相を保って明度を反転する） | する | `CV-2`〜`CV-4`・`JDG-3523`・`JDG-3527` |
-| 7   | 置き場ごとに導く値    | 1 つの色から、置き場に応じて描く値を導く。予定バーの塗りは塗りの値、実績バーの塗りは実績の塗りの値（カスタムの色は、選んだ値から HSL で導く）、縁は縁の値                                                | しない（描くときに導く）                             | `CV-6`・`CV-10`                     |
-| 8 | 色を塗る 8 つの置き場 | タスクグループの帯（`LaneColor`。ink を取らない）・タスクの塗りと縁・コメントボックスの塗りと枠（引出し線を含む）と文字・ハイライトボックスの塗りと枠 | する（各物の `style` の中） | `doc-shape-map.tsv`・`JDG-3556` |
-| 9 | 透明 | 塗りと線の不透明度（`opacityPercent`。100 が透けない。0 なら描かない）と、色を省く道（タスクの塗りと縁、ハイライトボックスの枠） | する | `JDG-3310`・`JDG-3526` |
-| 10 | 透明の制約 | 1 つのタスクの描き方と 1 つのハイライトボックスで、塗りと線の両方を透明にはできない（画面の通知「塗りと線の両方を透明にはできません」） | しない（GRS が入力を断る） | `FR-007`・`FR-019`・`IV-9` |
-| 11  | コントラストの条件    | パレットの値は、白を除き、地に対して決まったコントラスト比を満たす                                                                                               | しない（アプリの値の条件）                            | `CV-8`                             |
-| 12  | 文書の外の色       | 非稼働日の塗り・基準日線・マーカーなど、アプリが決める描画と画面の色。色の値を持つ設定の行が 42 行                                                                             | しない                                      | `_assets/tbl-settings.md`          |
-
-要素 10 の ★「念確。 予定も実績も非表示にしてタスク名と進捗マークだけの表示もあるよね？ それと透明は無関係だろ？」に答えます。はい、その表示はあります。そして 2 つは別の決まりです。
-
-- 表示の切り替え: 文書の設定 `isPlanBarVisible`・`isActualBarVisible`（仕様書の `S-227`・`S-228`）が、すべてのタスクの予定バーと実績バーをまとめて隠します。`FR-049` は 2 つを独立の真偽とし、両方を隠す形も認めます。タスク名のラベルと進捗マーク（`isProgressMarkVisible`、`S-63`）は残ります。隠したバーは場所を保ち、当たり判定から外れます。ボタンを押せば、バーは戻ります。
-- 透明の制約: `FR-007` は、1 つのタスクで塗りと縁を同時に透明にする入力を断ります。`FR-019` は、ハイライトボックスの塗りと枠に同じ制約を掛けます。仕様書の理由は `FR-019` の 1 文「箱が見えなくなる」です。`FR-007` の RATIONALE は、色弱と線の太さの理由だけを述べます。
-- 違い: 表示の切り替えは文書全体の見せ方で、いつでも戻せます。透明は 1 つの物の色で、`style` に残ります。`FR-049` は、隠したバーの見た目を「透明に描いたときと同じ」と書きます。けれども、両方を透明にしたタスクは、どの表示の切り替えでも見えません。だから GRS は、透明の側だけを断ります。
-
-形の ★「paper, inkは色名じゃないよね？ OKPN違反だろ？ 何したいの？」に答えます。paper と ink は、仕様書の白（`white`、`S-314`）と黒（`black`、`S-315`）です。`JDG-3275`（所見 F05）が名を改めました。暗いテーマで、GRS は白を地と同じ暗い色（`#14161a`）で、黒を白（`#ffffff`）で描きます（`CV-6`）。所見は、名 `white` が暗いテーマで見え方と食い違う、と見ました。そこで所見は、明暗によらない役の名を選びました: paper は地の色、ink はラベルの字の色（`S-168`）です。1 つの列に色の名と役の名が並ぶので、あなたの指摘は当たります。直し方は、次の問 6-6-4-12 で問います。
-
-別の AI の案と、上の一覧を比べました。
-
-| 別の AI の案 | GRS の今の形と決まり | 07 の観点 |
-|:---|:---|:---|
-| テーマの色の役割（task・milestone・criticalTask・summaryTask・comment・highlight）を、値に書く | 置き場が役割を決める。値には `{"type": "theme"}` だけを書く | `OMPV`: 値に書いた役割と置き場が食い違える。criticalTask は GRS の範囲の外（`JDG-3510`）→ 問 6-6-4-8 |
-| カスタムの色は、1 つの #hex | 明るい側と暗い側の 2 つ（要素 6） | 暗いテーマでも同じ値で描き、コントラストの条件（要素 11）を割りうる |
-| パレットが無い | 名の付いた 10 色（要素 5） | 名でテーマに追う道が消える |
-| `opacityPercent`（100 が不透明。既定 100） | 前は `fillTransparencyPercent`（0 が不透明） | `JDG-3526` で `opacityPercent` に決まった（W3C と同じ向き） |
-| `Stroke { paint, widthPx }` | `strokeColor` と `strokeWidthPx` を平らに持つ | → 問 6-6-4-10 |
-| `ShapeStyle` を 3 つの型で共にする | 型ごとに、必ず持つ欄が違う（コメントボックスは塗り・枠・文字を必ず持つ。タスクは塗りも縁も省ける） | → 問 6-6-4-11 |
-| テーマの色の値（#3B82F6 など）を文書に書く | テーマとパレットの値は、アプリの設定だけが持つ。文書は名だけを持つ | `SSOT`: 文書がアプリの値を写すと、2 か所が食い違う |
-| 書いていない要素 | モノクロ・色相・タスクグループの帯・文字の色・実績の塗りの導き方・明暗の片側の導き方・透明の制約（要素 2・3・6〜8・10） | 網羅の抜け |
-
-問 6-6-4-8・6-6-4-10・6-6-4-11 の推奨と `JDG-3526`・`JDG-3527`・`JDG-3556` をすべて採ると、色の形は次のとおりです（β の案）。型の名 `TaskStyle` などは仮の名です。
-
-```json
-{
-  "$defs": {
-    "Color": {
-      "oneOf": [
-        { "properties": { "type": { "const": "theme" } } },
-        { "properties": {
-            "type": { "const": "palette" },
-            "name": { "enum": ["paper", "ink", "dimGray", "lightGray", "red", "blue", "yellow", "green", "orange", "purple"] } } },
-        { "properties": {
-            "type":  { "const": "custom" },
-            "light": { "$ref": "#/$defs/ColorSide" },
-            "dark":  { "$ref": "#/$defs/ColorSide" } } }
-      ]
-    },
-    "ColorSide": {
-      "required": ["hexColor"],
-      "properties": {
-        "hexColor":    { "type": "string", "pattern": "^#[0-9a-f]{6}$" },
-        "derivedFrom": { "enum": ["light", "dark"] }
-      }
-    },
-    "LaneColor": { "description": "The same as Color, except that LaneColor offers no palette color ink." },
-    "Paint": {
-      "required": ["color"],
-      "properties": {
-        "color": { "$ref": "#/$defs/Color" },
-        "opacityPercent": { "type": "integer", "minimum": 0, "maximum": 100, "default": 100 }
-      }
-    },
-    "Stroke": {
-      "required": ["color", "widthPx"],
-      "properties": {
-        "color": { "$ref": "#/$defs/Color" },
-        "opacityPercent": { "type": "integer", "minimum": 0, "maximum": 100, "default": 100 },
-        "widthPx": { "type": "integer", "minimum": 1, "maximum": 10 }
-      }
-    },
-    "TaskStyleEntry": {
-      "required": ["taskUid", "style"],
-      "properties": { "taskUid": { "type": "integer" }, "style": { "$ref": "#/$defs/TaskStyle" } }
-    },
-    "TaskStyle": {
-      "properties": { "fill": { "$ref": "#/$defs/Paint" }, "stroke": { "$ref": "#/$defs/Stroke" } }
-    },
-    "CommentBoxStyle": {
-      "required": ["fill", "stroke", "textColor"],
-      "properties": { "fill": { "$ref": "#/$defs/Paint" }, "stroke": { "$ref": "#/$defs/Stroke" }, "textColor": { "$ref": "#/$defs/Color" } }
-    },
-    "HighlightBoxStyle": {
-      "required": ["fill"],
-      "properties": { "fill": { "$ref": "#/$defs/Paint" }, "stroke": { "$ref": "#/$defs/Stroke" } }
-    },
-    "TaskGroupStyle": { "properties": { "color": { "$ref": "#/$defs/LaneColor" } } }
-  }
-}
-```
-
-置き場: `scheduleData.taskStyles[]` の各 `style` が `TaskStyle` を、`CommentBox.style` が `CommentBoxStyle` を、`HighlightBox.style` が `HighlightBoxStyle` を、`TaskGroup.style` が `TaskGroupStyle` を取ります。`TaskStyle` は形のキー（`taskShape`・`milestoneShape`）も持ちます。上の形では、色に関わるキーだけを書きました。
-
-実例（同じ形で書いた 3 つ）:
-
-```json
-"taskStyles": [
-  { "taskUid": 7,
-    "style": {
-      "taskShape": "rectangle",
-      "fill": { "color": { "type": "palette", "name": "red" } }
-    } },
-  { "taskUid": 8,
-    "style": {
-      "taskShape": "rectangle",
-      "fill": {
-        "color": { "type": "custom",
-                   "light": { "hexColor": "#c0504d" },
-                   "dark":  { "hexColor": "#b2423f", "derivedFrom": "light" } },
-        "opacityPercent": 50 },
-      "stroke": { "color": { "type": "palette", "name": "purple" }, "opacityPercent": 70, "widthPx": 2 }
-    } }
-],
-"commentBoxes": [
-  { "id": "3f2b8c1e-7a4d-4e9b-9c61-2d5a8e0f4b17",
-    "text": "Confirm the date",
-    "style": {
-      "fill":   { "color": { "type": "theme" }, "opacityPercent": 0 },
-      "stroke": { "color": { "type": "theme" }, "widthPx": 1 },
-      "textColor": { "type": "palette", "name": "ink" }
-    } }
-]
-```
-
-- 上から、タスク 7 のバー（赤で塗り、縁を描かない）・タスク 8 のバー（自前の赤を不透明度 50% で塗り、紫の縁を不透明度 70% で描く。暗い側は GRS が明るい側から作った）・コメントボックス（塗りを見せず、テーマの色の枠と、ink の文字）です。
-- 文書の外のもの（要素 1・7・11・12）と、透明の制約（要素 10）は、スキーマに書きません。GRS が描くときと入力を受けるときに守ります。
-
-直す所が無ければ ok、直す所は表のセルに ★ で書いてください。
+色の形の名は、裁定がすべて決めました（`JDG-3523`・`JDG-3526`・`JDG-3541`・`JDG-3563`・`JDG-3607`・`JDG-3608`・`JDG-3610`・`JDG-3612`・`JDG-3636`）。残る名の問いは、パレットの `paper`・`ink`（問 6-6-4-12）と見た目の型の名（問 6-10-5）の 2 つです。要素の一覧に抜けや誤りが無いかは中身の確かめなので、適用する席（`CR-851`）が方針で確かめます。
 
 回答:
 
@@ -1834,7 +1756,7 @@ GRS の色の要素を、仕様書と β の形から 12 に数えました（�
 
 #### ❓ 問 6-9-5. タスクと依存の、MSPDI の名と違う 3 語
 
-状態: OPEN（`fadeInCalendarDays`・`fadeOutCalendarDays` は `JDG-3635` で今のまま。`parentTaskUid` の名だけが残る）
+状態: CLOSED-BY JDG-3694（`parentTaskUid` のまま。`fadeInCalendarDays`・`fadeOutCalendarDays` は `JDG-3635` で今のまま）
 
 あなたの答え「MSPDI同じならOK。 違うならそこだけ抽出して、裁定に回せ。」に従い、MSPDI の名と同じ 17 語を確定しました（`JDG-3553`）。キーが MSPDI の名と違う 3 語を、ここに残しました。案は GRWB の議論の後でこの問いに書きます。
 
@@ -1848,349 +1770,51 @@ GRS の色の要素を、仕様書と β の形から 12 に数えました（�
 
 #### ❓ 問 6-7-7. `recurrencePeriod` —— MSPDI の名 Period と違う名を保つか
 
-状態: STALE-NAMES（兄弟の `recurrenceType` は `JDG-3628` で MSPDI の名 `type` になり、推しの理由が崩れた。`JDG-3638` の優先 ③ と照らして組み直す）
+状態: CLOSED-BY JDG-3628（MSPDI の名を写して `period`）
 
-場面: このキーは、MSPDI の Exception/Period（例外の繰り返しの間隔）を写します。MSPDI の名は Period です。同じ Exception の Type は、`JDG-3548` で `recurrenceType` に決まりました。あなたは問 6-9-5 で、MSPDI の名と違う語を裁定に回すよう指示しました。
-
-| # | キー | 日本語の名 | 意味（日本語） | MSPDI の名 |
-|:---|:---|:---|:---|:---|
-| 7-39 | `recurrencePeriod` |  | MSPDI の Exception/Period と同じ。 | Period |
-
-| 案 | 中身 |
-|:---|:---|
-| **a（推奨）** | `recurrencePeriod` を保つ。名は「例外の繰り返しの間隔」を言い、兄弟の `recurrenceType`（`JDG-3548`）と頭がそろう。意味の欄に、MSPDI の名と違う理由を 1 文で書く（`JDG-3548` と同じ書き方） |
-| b | `period` にする。MSPDI の名を写す決まり（`JDG-3563`）にそのまま合う。兄弟の `recurrenceType` とは頭がそろわない |
+`JDG-3628` は、MSPDI の要素を写すキーに MSPDI の名を使うと決め、兄弟の Type を `type` にしました。同じ決まり（N-3、`JDG-3638` の優先 ③）で、Exception/Period を写すキーは `period` です。MSPDI と同じ名なので、あなたに問う所はありません（`JDG-3553`）。
 
 回答:
 
 ## BGQA3 GRS JSON（11 回目の答えの後に出し直す。2026-11-17）（問 6-8-8 は 2026-11-18 に BGQA3 の 13 回目の表で問い直して決まった（`JDG-3628`）。問 6-13-5 の構造図は、JDG-3618〜3629 を当てて描き直してから出す）
 
-#### ❓ 問 6-13-5. 構造図（2026-11-17 版） —— このとおりでよいか
+#### ❓ 問 6-13-5. 構造図 —— 裁定と食い違う所を直した木で、全体を確かめるか
 
-状態: STALE-NAMES（構造図は `JDG-3618`〜`JDG-3691` より前の版。`utcOffsetMinutes`・`rootTreeState`・`taskStyles[]`・`topTaskGroupId` ほかが変わった）
+状態: OPEN（作り直し 2026-11-22）
 
-場面: あなたは「途中まで見た。 直せ。 そのあとまたツリーを見る。 ツリーで直したところは説明のところに更新マークをつけろ。 そうしないとツリーが壊れる」と書きました。構造図の ★ を直し、その後に決まったこと（`JDG-3606`・`JDG-3607`・`JDG-3610`〜`JDG-3613`）と問 6-8-8 の a（仮）を当てて描き直しました。直した行は、説明の欄の末尾に 🔄 があります。
+場面: β の構造図は `grs-json-beta-tree.md`（2026-11-19 版）にあります。席はその木を、裁定 `JDG-3618`〜`JDG-3694` と照らしました。木と裁定は、下の 9 か所で食い違います。席は出す前に、木をこの表のとおりに直します。あなたは直した木で全体を見ます。`JDG-3617` は、仮の名の最終の決めを「全体を見てから」としました。
 
-**あなたの ★ と直し:**
+| # | 木の今のキー | 裁定が与える名 | 裁定 |
+|:---|:---|:---|:---|
+| 1 | `documentSettings.taskGroupAutoExpandDepth` | `automaticallyShownDepth`（置き場は問 6-12-0-2） | `JDG-3651`・`JDG-3662`・`JDG-3665`・`JDG-3674` |
+| 2 | `documentSettings.taskGroupRootTreeState`（`auto`・`collapsed`） | 無くなる（根は表示の値を持たない） | `JDG-3664` |
+| 3 | `taskGroups[].treeState`（`auto`・`collapsed`・`expanded`・`temporarilyExpanded`・`hidden`） | `selfShowMode`（`shown`・`hidden`・`automatic`・`hiddenUntilZoomIn`。書かなければ `automatic`） | `JDG-3662`・`JDG-3663`・`JDG-3685` |
+| 4 | `documentSettings.delayDiagnosticsToleranceWorkingDays`（仮） | `documentSettings.delayDiagnosticsSettings.toleranceWorkingDays`（綴りは問 6-12-0-3） | `JDG-3646` |
+| 5 | `documentSettings.tableWindows.delayDiagnosticsReportWindow` | `delayDiagnosisReportWindow`（問 6-12-0-3） | `JDG-3512` |
+| 6 | `scheduleData.topTaskOutlineLevel` | `importedTopTaskOutlineLevel` | `JDG-3648` |
+| 7 | `tasks[].grs.importOrigin.lastSeenMspdiImportNumber` | `lastSeenMspdiImportCount` | `JDG-3649` |
+| 8 | `commentBoxes[].leaderTarget.snapPart` の値 `plannedBar`・`actualBar`・`milestone` | `planBar`・`actualBar`・`milestoneMark` | `JDG-3647` |
+| 9 | `highlightBoxes[].topTaskGroupId`・`bottomTaskGroupId` | `firstTaskGroupId`・`lastTaskGroupId` | `JDG-3528` |
 
-| # | あなたの ★ | 直し |
-|:---|:---|:---|
-| 1 | `scrollPosition.type` の `placed`「なぜplaced?、decidedじゃないの？」 | `notDecided`・`decided` にした。対になる 2 つの語で「場所が決まっているか」を言う |
-| 2 | `leftEdgeDayFraction`「これなん？」 | 開いたとき、左の端がその日のどこにあるか（日の始まりから何 %）。`JDG-3529` の決まりで `…Percent` にし、`leftEdgeDayOffsetPercent` とした |
-| 3 | `topEdgeTaskGroupFraction`「これなん？」 | 開いたとき、上の端がその帯のどこにあるか（帯の上から何 %）。`topEdgeTaskGroupOffsetPercent` とした（`laneTopOffsetPercent` と同じ考え） |
-| 4・5 | `offset`「NEIM違反では？ 最低単位必須」 | `utcOffsetMinutes`（UTC との差を分で。例 540）とした。N-10（量は単位で終える）に合う。`scheduleDataTimeZone`（名は `JDG-3569` で確定）の値の形も分の数にそろえるかは、下の案で問う |
-| 6 | `season`「 isSummerTime とかは？」 | 値が標準時と夏時間の 2 つだけなので、真偽の値にした。名は `isDaylightSavingTime`（夏時間の国際的な呼び名。N-9） |
-| 7 | `stackDirection`「taskStackDirectionか？」 | `taskStackDirection` とした。帯の中でタスクを積む向き（up・down）を言う |
-| 8 | `taskGroupPanelWidthPx`「Hightか？」 | 横幅のまま。左にある帯の名の欄の横幅で、境目を左右にドラッグして変える |
-| 9 | `pinnedTaskGroupIds`「配列か？ isTaskGroupPinnedか？」 | 配列のまま。ピン止めは見せ方なので、タスクグループ（中身）でなく文書設定に置く（`S-126`）。ピン止めした帯の並びも配列の順で持てる |
-| 10 | `isScheduleFilterApplied`「isTaskFilterApoliedか？」 | `isTaskFilterApplied` とした。表でチェックしたタスクだけを描くか、を言う。画面の語「スケジュールフィルター」も合わせて直すかは、画面の名の問い（後の巡）で問う |
-| 11 | `sort`「NEIM違反。」 | `columnSort` とした。型 `ColumnSort`（並べ替えの列と向き）と同じ名 |
+木で、まだ裁定の無い所（この問いで全体と一緒に決める）:
 
-構造図（β の形。プロパティの名を併記）:
+- 仮の名（`JDG-3617`）: `checkedTaskUids`・`checkedResourceUids`・`isUnassignedChecked`・`sourceProjectUid`。
+- 仮の置き場: `documentSettings.themeHue`。木は「置き場は問 6-13-4」と書きますが、問 6-13-4 は問 6-13-8（`JDG-3618`）に移り、`themeHue` の置き場を決めていません。
 
-印: `[M]` は MSPDI の要素を写すキー（括弧の中は、MSPDI の名が違う時の MSPDI の名）。`◆` は、MSPDI と往復する実体の中にある GRS 特有の値。GRS だけの群と根の部分のキーは印を持たない。`[]` は配列、`→` は下の共通の型を指す。行の末尾の 🔄 は、前の図から変わった所。
+開いた問いにかかる所（その問いの答えで、席が木を直す）: `sourceUid`（問 6-10-6）・`style` の型の名（問 6-10-5）・`scrollPosition` の 2 つの `…OffsetPercent`（問 6-12-2）・`taskShape` と `milestoneShape` の値（問 6-9-1・6-10-2）・前回予定（問 6-10-3）・`lastEditedBy`（問 6-11-5）・パレットの `paper`・`ink`（問 6-6-4-12）。
 
-```text
-ScheduleDocument                                    GRS JSON の 1 ファイル
-├─ $schema                                          スキーマの所
-├─ schemaVersion                                    スキーマの版
-├─ buildVersion                                     書いたビルドの版
-├─ documentSettings                                 文書設定
-│   ├─ displayScalePercent                          表示の倍率（%）
-│   ├─ fontSizeStep                                 文字の大きさの段
-│   ├─ dayWidthPx                                   1 日の幅
-│   ├─ verticalZoomRatio                            縦の大きさの比
-│   ├─ taskGroupAutoExpandDepth                     自動で開く深さ
-│   ├─ scrollPosition                               開いたときの位置
-│   │   ├─ type                                     notDecided・decided 🔄
-│   │   ├─ leftEdgeDay                              左の端の日
-│   │   ├─ leftEdgeDayOffsetPercent                 左の端が、その日の始まりから何 % の所か 🔄
-│   │   ├─ topEdgeTaskGroupId                       上の端の帯
-│   │   └─ topEdgeTaskGroupOffsetPercent            上の端が、その帯の上から何 % の所か 🔄
-│   ├─ fitSpan                                      全体表示の期間
-│   │   ├─ firstDay                                 最初の日
-│   │   ├─ lastDay                                  最後の日
-│   │   └─ isFixed                                  期間を固定するか
-│   ├─ viewTimeZone                                 見せるタイムゾーン
-│   │   ├─ type                                     sameAsScheduleData・fixed
-│   │   └─ utcOffsetMinutes                         UTC との差（分） 🔄
-│   ├─ displayTimeZones[]                           追加の時計（4 つまで）
-│   │   ├─ utcOffsetMinutes                         UTC との差（分） 🔄
-│   │   └─ isDaylightSavingTime                     夏時間のゾーンか 🔄
-│   ├─ is…Visible ×12                               見せるかの切り替え 12 個
-│   ├─ taskStackDirection                           帯の中でタスクを積む向き（up・down） 🔄
-│   ├─ isThemeMonochrome                            モノクロか
-│   ├─ taskGroupPanelWidthPx                        左の帯の名の欄の横幅（高さではない） 🔄
-│   ├─ isTaskGroupPanelWidthFixed                   幅を固定するか
-│   ├─ rootTreeState                                木の根の状態
-│   ├─ pinnedTaskGroupIds                           ピン止めした帯の id の配列（見せ方なので文書設定に置く） 🔄
-│   └─ tableWindows                                 3 つの表の見せ方
-│       ├─ searchWindow                             検索ウィンドウ
-│       ├─ delayDiagnosticsReportWindow             遅延診断レポート
-│       ├─ resourceListWindow                       担当リスト
-│       └─ （3 つの表は、どれも次の欄を持つ）
-│           ├─ isTaskFilterApplied                  表でチェックしたタスクだけを描くか 🔄
-│           ├─ shownTaskUids                        チェックしたタスク
-│           ├─ shownResourceUids                    チェックした担当（担当リスト）
-│           ├─ isUnassignedShown                    （担当なし）の行（担当リスト）
-│           ├─ columnFilters[]                      列のフィルタ → ColumnFilter
-│           └─ columnSort                           並べ替えの列と向き → ColumnSort 🔄
-├─ scheduleData                                     スケジュールデータ
-│   ├─ ［MSPDI と往復する群］
-│   │   ├─ project [M]                              プロジェクト（1 件）
-│   │   │   ├─ uid [M]                              一意な番号
-│   │   │   ├─ name [M]                             プロジェクト名
-│   │   │   ├─ title [M]                            タイトル
-│   │   │   ├─ subject [M]                          件名
-│   │   │   ├─ category [M]                         分類
-│   │   │   ├─ company [M]                          会社
-│   │   │   ├─ manager [M]                          管理者
-│   │   │   ├─ author [M]                           作成者
-│   │   │   ├─ revision [M]                         保存した回数
-│   │   │   ├─ creationDate [M]                     作った日時
-│   │   │   ├─ startDate [M]                        開始の日時
-│   │   │   ├─ statusDate [M]                       基準日
-│   │   │   ├─ minutesPerDay [M]                    1 日の稼働の分
-│   │   │   ├─ minutesPerWeek [M]                   1 週の稼働の分
-│   │   │   ├─ daysPerMonth [M]                     1 か月の稼働日
-│   │   │   ├─ weekStartDay [M]                     週の始まりの曜日
-│   │   │   ├─ defaultStartTime [M]                 既定の開始時刻
-│   │   │   ├─ defaultFinishTime [M]                既定の終了時刻
-│   │   │   ├─ calendarUid [M]                      稼働日を数える暦
-│   │   │   └─ ◆passthrough                         持ち越した MSPDI の値（MSPDI の構造と名のまま） 🔄
-│   │   ├─ tasks[] [M]                              タスク
-│   │   │   ├─ uid [M]                              一意な番号
-│   │   │   ├─ name [M]                             タスク名
-│   │   │   ├─ notes [M]                            メモ
-│   │   │   ├─ start [M]                            予定の開始
-│   │   │   ├─ finish [M]                           予定の終了
-│   │   │   ├─ milestone [M]                        マイルストーンか
-│   │   │   ├─ deadline [M]                         期限
-│   │   │   ├─ actualStart [M]                      実績の開始
-│   │   │   ├─ stop [M]                             作業が止まった時
-│   │   │   ├─ actualFinish [M]                     実績の終了
-│   │   │   ├─ resume [M]                           再開の予定
-│   │   │   ├─ resumeValid [M]                      再開日が有効か
-│   │   │   ├─ percentComplete [M]                  完了率
-│   │   │   ├─ ◆fadeInCalendarDays                  始まりのフェード暦日
-│   │   │   ├─ ◆fadeOutCalendarDays                 終わりのフェード暦日
-│   │   │   ├─ ◆parentTaskUid                       WBS の親タスク
-│   │   │   ├─ ◆siblingOrder                        兄弟の中の順
-│   │   │   ├─ calendarUid [M]                      タスクの暦
-│   │   │   ├─ hyperlinkAddress [M]                 リンク先の URL
-│   │   │   ├─ hyperlink [M]                        リンクのタイトル
-│   │   │   ├─ predecessorLinks[] [M] (PredecessorLink)  先行への結び付き
-│   │   │   │   ├─ predecessorUid [M]               先行タスク
-│   │   │   │   ├─ predecessorLinkType [M] (Type)   依存の種類（FF・FS・SF・SS）（仮） 🔄
-│   │   │   │   ├─ linkLag [M]                      ラグ
-│   │   │   │   ├─ lagFormat [M]                    ラグの単位
-│   │   │   │   └─ ◆passthrough                     持ち越した MSPDI の値（MSPDI の構造と名のまま） 🔄
-│   │   │   └─ ◆passthrough                         持ち越した MSPDI の値（MSPDI の構造と名のまま） 🔄
-│   │   ├─ calendars[] [M]                          暦
-│   │   │   ├─ uid [M]                              一意な番号
-│   │   │   ├─ name [M]                             暦の名
-│   │   │   ├─ isBaseCalendar [M]                   基本の暦か
-│   │   │   ├─ baseCalendarUid [M]                  受け継ぐ元の暦
-│   │   │   ├─ weekDays[] [M]                       曜日ごとの稼働
-│   │   │   │   ├─ dayType [M]                      曜日（1 が日曜）
-│   │   │   │   ├─ dayWorking [M]                   稼働日か
-│   │   │   │   ├─ workingTimes[] [M]               稼働の時間帯
-│   │   │   │   │   ├─ fromTime [M]                 始まりの時刻
-│   │   │   │   │   └─ toTime [M]                   終わりの時刻 🔄
-│   │   │   │   └─ ◆passthrough                     持ち越した MSPDI の値（MSPDI の構造と名のまま） 🔄
-│   │   │   ├─ exceptions[] [M]                     例外の日
-│   │   │   │   ├─ name [M]                         例外の名
-│   │   │   │   ├─ fromDate [M] (TimePeriod/FromDate)  最初の日
-│   │   │   │   ├─ toDate [M] (TimePeriod/ToDate)   最後の日
-│   │   │   │   ├─ dayWorking [M]                   稼働日か
-│   │   │   │   ├─ exceptionType [M] (Type)         例外の繰り返し方（仮） 🔄
-│   │   │   │   ├─ recurrencePeriod [M] (Period) （問 6-7-7）  繰り返しの間隔
-│   │   │   │   ├─ workingTimes[] [M]               稼働の時間帯（形は上と同じ）
-│   │   │   │   └─ ◆passthrough                     持ち越した MSPDI の値（MSPDI の構造と名のまま） 🔄
-│   │   │   └─ ◆passthrough                         持ち越した MSPDI の値（MSPDI の構造と名のまま） 🔄
-│   │   ├─ resources[] [M]                          担当
-│   │   │   ├─ uid [M]                              一意な番号
-│   │   │   ├─ name [M]                             担当の名
-│   │   │   ├─ resourceType [M] (Type)              資材か作業か（仮） 🔄
-│   │   │   ├─ isCostResource [M]                   コストの担当か
-│   │   │   ├─ calendarUid [M]                      担当の暦
-│   │   │   └─ ◆passthrough                         持ち越した MSPDI の値（MSPDI の構造と名のまま） 🔄
-│   │   └─ assignments[] [M]                        割当
-│   │       ├─ uid [M]                              一意な番号
-│   │       ├─ taskUid [M]                          就くタスク
-│   │       ├─ resourceUid [M]                      就く担当
-│   │       └─ ◆passthrough                         持ち越した MSPDI の値（MSPDI の構造と名のまま） 🔄
-│   └─ ［GRS だけが持つ群］
-│       ├─ （名は次の問いで決める）                 文書全体の GRS の値（名は後の問い 6-13-4） 🔄
-│       │   ├─ scheduleDataTimeZone                 データの日時の時差
-│       │   ├─ sourceFormat                         元の形式
-│       │   ├─ firstOutlineLevel                    最初の OutlineLevel
-│       │   ├─ themeHueDegrees                      テーマの色相（度）
-│       │   ├─ parentTaskProgressToleranceWorkingDays  遅延診断の許し幅
-│       │   ├─ highestIssuedUid                     uid の数え手
-│       │   └─ lastMspdiImportNumber                MSPDI の取り込み回数
-│       ├─ taskGroups[]                             タスクグループ
-│       │   ├─ id                                   一意な UUID
-│       │   ├─ name                                 タスクグループ名
-│       │   ├─ style                                見た目 🔄
-│       │   │   └─ color                            帯の色 → LaneColor 🔄
-│       │   ├─ minHeightPx                          帯の最も低い高さ
-│       │   ├─ parentId                             親のタスクグループ
-│       │   ├─ siblingOrder                         兄弟の中の順
-│       │   ├─ derivedFromTaskUid （問 6-9-2）      表す WBS のタスク
-│       │   ├─ hyperlinkAddress                     リンク先の URL
-│       │   ├─ hyperlink                            リンクのタイトル
-│       │   ├─ treeState                            開閉の状態
-│       │   └─ editGroup                            編集してよい組
-│       ├─ taskGroupMembers[]                       どの帯に載るか
-│       │   ├─ taskUid                              タスク
-│       │   └─ taskGroupId                          載せるタスクグループ
-│       ├─ taskStyles[]                             タスクの見た目
-│       │   ├─ taskUid                              タスク
-│       │   └─ style                                見た目 🔄
-│       │       ├─ taskShape                        バーの形
-│       │       ├─ milestoneShape                   マイルストーンの形
-│       │       ├─ fill                             塗り → Paint 🔄
-│       │       └─ stroke                           縁 → Stroke 🔄
-│       ├─ commentBoxes[]                           コメントボックス
-│       │   ├─ id                                   一意な UUID
-│       │   ├─ text                                 文
-│       │   ├─ style                                見た目 🔄
-│       │   │   ├─ fill                             箱の塗り → Paint 🔄
-│       │   │   ├─ stroke                           枠と引出し線 → Stroke 🔄
-│       │   │   └─ font                             文字の見た目 🔄
-│       │   │       ├─ color                        文字の色 → Color 🔄
-│       │   │       └─ sizePx                       文字の大きさ 🔄
-│       │   ├─ leaderTarget                         引出し線の先
-│       │   │   ├─ type                             freePoint・task・highlightBox
-│       │   │   ├─ dateTime                         時点（freePoint）
-│       │   │   ├─ taskGroupId                      帯（freePoint）
-│       │   │   ├─ laneTopOffsetPercent             帯の中の高さ（freePoint）
-│       │   │   ├─ taskUid                          タスク（task）
-│       │   │   ├─ graphicPart                      図形の部分（task）
-│       │   │   ├─ highlightBoxId                   箱（highlightBox）
-│       │   │   └─ point                            吸着する 8 点の 1 つ
-│       │   ├─ bodyOffsetPx                         線先から箱へのずれ
-│       │   │   ├─ dx                               横のずれ
-│       │   │   └─ dy                               縦のずれ
-│       │   ├─ hyperlinkAddress                     リンク先の URL
-│       │   └─ hyperlink                            リンクのタイトル
-│       ├─ highlightBoxes[]                         ハイライトボックス
-│       │   ├─ id                                   一意な UUID
-│       │   ├─ style                                見た目 🔄
-│       │   │   ├─ cornerRadiusPx                   角の丸みの半径
-│       │   │   ├─ fill                             塗り → Paint 🔄
-│       │   │   └─ stroke                           枠 → Stroke 🔄
-│       │   ├─ firstDay                             最初の日
-│       │   ├─ lastDay                              最後の日
-│       │   ├─ topTaskGroupId                       上の縁の帯
-│       │   └─ bottomTaskGroupId                    下の縁の帯
-│       ├─ baselineTasks[]                          前回予定
-│       │   ├─ uid                                  今のタスクの uid
-│       │   ├─ name                                 タスク名
-│       │   ├─ start                                前の予定の開始
-│       │   ├─ finish                               前の予定の終了
-│       │   └─ milestone                            マイルストーンか
-│       ├─ taskOrigins[]                            取り込み元の控え 🔄
-│       │   ├─ taskUid                              タスク 🔄
-│       │   ├─ sourceProjectId                      元のファイルの UID 🔄
-│       │   ├─ sourceUid                            元のタスクの UID 🔄
-│       │   ├─ importSessionId                      取り込みの id 🔄
-│       │   └─ lastSeenMspdiImportNumber            最後に見た取り込み 🔄
-│       ├─ passthroughTasks[]                       GRS がタスクにしない MSPDI の要素 🔄
-│       │   ├─ precedingTaskUid                     前にある、いちばん近いタスクの uid 🔄
-│       │   └─ mspdiElement                         MSPDI の要素（構造と名のまま） 🔄
-│       ├─ passthroughResources[]                   GRS が担当にしない MSPDI の要素 🔄
-│       │   ├─ precedingResourceUid                 前にある、いちばん近い担当の uid 🔄
-│       │   └─ mspdiElement                         MSPDI の要素（構造と名のまま） 🔄
-│       ├─ passthroughAssignments[]                 GRS が割当にしない MSPDI の要素 🔄
-│       │   ├─ precedingAssignmentUid               前にある、いちばん近い割当の uid 🔄
-│       │   └─ mspdiElement                         MSPDI の要素（構造と名のまま） 🔄
-│       └─ passthroughCalendars[]                   GRS が暦にしない MSPDI の要素 🔄
-│           ├─ precedingCalendarUid                 前にある、いちばん近い暦の uid 🔄
-│           └─ mspdiElement                         MSPDI の要素（構造と名のまま） 🔄
-├─ documentStamp                                    文書刻印
-│   ├─ scheduleDataUpdatedAt                        データが変わった時
-│   ├─ documentUpdatedAt                            文書が変わった時
-│   ├─ fileSavedAt                                  保存した時
-│   └─ lastEditedBy                                 最後に書いた者
-│       ├─ type                                     user・template・agent
-│       └─ name                                     AI が付けた名
-└─ changeLogEntries[]                               変更履歴
-    ├─ changedAt                                    変更の時
-    ├─ changedBy                                    変更した者
-    ├─ affectedArea                                 及んだ部分
-    ├─ changeDescription                            何が変わったか
-    ├─ reason                                       理由
-    └─ remarks                                      そのほか
+名を付けるもの: 木の全体。仮の 4 つの名を確定し、`themeHue` の置き場を決める。
 
-共通の型（→ で指す物）
-├─ Color （問 6-6-4-7）                             色
-│   ├─ type                                         theme・palette・custom
-│   ├─ name                                         パレットの色の名
-│   ├─ light                                        明るいテーマの側
-│   │   ├─ hexColor                                 色の値（#rrggbb）
-│   │   └─ derivedFrom                              GRS が作った元の側
-│   └─ dark                                         暗いテーマの側（形は light）
-├─ LaneColor                                        Color から ink を除く
-├─ ColumnFilter                                     列のフィルタ
-│   ├─ type                                         values・dateRange
-│   ├─ column                                       列
-│   ├─ hiddenValues                                 隠す値
-│   ├─ isBlankHidden                                空の行を隠すか
-│   ├─ firstDay                                     最初の日
-│   └─ lastDay                                      最後の日
-├─ ColumnSort                                       並べ替え
-│   ├─ column                                       列
-│   └─ direction                                    向き
-├─ Paint                                            塗り 🔄
-│   ├─ color                                        色 → Color 🔄
-│   └─ opacityPercent                               不透明度（%） 🔄
-├─ Stroke                                           線 🔄
-│   ├─ color                                        色 → Color 🔄
-│   ├─ opacityPercent                               不透明度（%） 🔄
-│   └─ widthPx                                      太さ 🔄
-└─ ShapeStyle                                       形の見た目（タスク・コメントボックス・ハイライトボックスで共にする） 🔄
-    ├─ fill                                         塗り → Paint 🔄
-    └─ stroke                                       線 → Stroke 🔄
-```
+| 案 | 名 | 良い点 | 弱い点 |
+|:---|:---|:---|:---|
+| a（推し） | 上の 9 か所を直した木を採る。仮の 4 つの名を確定し、`themeHue` を `documentSettings` に置く | 全体を 1 度見て、仮の名と置き場を閉じる（`JDG-3617`） | 開いた問いの答えで、席が木をもう 1 度直す |
+| b | 開いた問いがすべて閉じてから、木を出し直す | 1 度で最終の木を見る | 仮の名が残り続ける |
+| c | 直す所を木の行に ★ で書く | 1 行ずつ直せる | 回答が長くなる |
 
-消した行:
-
-- project の `◆passthroughValues`・`◆passthroughElements`（2 行を `◆passthrough` の 1 行にした）
-- tasks[].predecessorLinks[] の `◆passthroughValues`・`◆passthroughElements`（2 行を `◆passthrough` の 1 行にした）
-- tasks[] の `◆passthroughValues`・`◆passthroughElements`（2 行を `◆passthrough` の 1 行にした）
-- calendars[] の `◆ordinal`
-- calendars[].weekDays[] の `◆ordinal`
-- calendars[].weekDays[].workingTimes[] の `◆ordinal`
-- calendars[].weekDays[] の `◆passthroughValues`・`◆passthroughElements`（2 行を `◆passthrough` の 1 行にした）
-- calendars[].exceptions[] の `◆ordinal`
-- calendars[].exceptions[] の `◆passthroughValues`・`◆passthroughElements`（2 行を `◆passthrough` の 1 行にした）
-- calendars[] の `◆passthroughValues`・`◆passthroughElements`（2 行を `◆passthrough` の 1 行にした）
-- resources[] の `◆passthroughValues`・`◆passthroughElements`（2 行を `◆passthrough` の 1 行にした）
-- assignments[] の `◆passthroughValues`・`◆passthroughElements`（2 行を `◆passthrough` の 1 行にした）
-- taskStyles[].style の `strokeWidthPx`（`stroke` の `widthPx` へ）
-- commentBoxes[].style の `opacityPercent`（`fill`・`stroke` の `opacityPercent` へ）
-- commentBoxes[].style の `strokeWidthPx`（`stroke` の `widthPx` へ）
-- commentBoxes[].style の `textColor`（`font` の `color` へ）
-- commentBoxes[].style の `fontSizePx`（`font` の `sizePx` へ）
-- highlightBoxes[].style の `opacityPercent`（`fill`・`stroke` の `opacityPercent` へ）
-- highlightBoxes[].style の `strokeWidthPx`（`stroke` の `widthPx` へ）
-- 共通の型の `PassthroughElement` と、その子 `ordinal`・`name`・`fields`・`children[]`（5 行）
-
-注:
-
-- `taskOrigins[]` の 6 行と `workingTimes[].toTime` の 1 行は、木の線（`└─` と `├─`）だけが変わった。中身は変わっていない。
-- `Color` は、ほかに変わる所がないので、「（問 6-6-4-7）」を外した。
-- 3 つの `style` は、`ShapeStyle` を開いた形で描いた。`taskStyles[].style` は形のキーを足し、`commentBoxes[].style` は `font` を足し、`highlightBoxes[].style` は `cornerRadiusPx` を足す。
-- `Paint`・`Stroke`・`ShapeStyle` は、共通の型の末尾に置いた。
-- `passthroughResources[]`・`passthroughAssignments[]`・`passthroughCalendars[]` の説明は、`passthroughTasks[]` に倣って席が書いた。
-
-| 案 | 中身 |
-|:---|:---|
-| **a（推奨）** | この構造図のとおりにする。`scheduleDataTimeZone` の値も、分の数（例 540）にそろえる（`utcOffsetMinutes` と同じ形。名は `JDG-3569` のまま） |
-| b | この構造図のとおりにする。`scheduleDataTimeZone` の値は今の文字の形（`"+09:00"`）のまま |
-| c | 直す行に ★ を書く |
+推し: a。
+1. `JDG-3617` は、仮の名の最終を全体を見て決めると言いました。この問いが、その「全体」です。
+2. 9 か所はどれも裁定のとおりに直すだけで、新しい決めを足しません。`themeHue` は色の見せ方の値なので、見せ方の群 `documentSettings` に置きます（`JDG-3605`・`SoC`）。
+3. 開いた問いのうち、木の形を変えるのは問 6-12-0-2 だけです。席はそれを先に問い、ほかの問いは名を 1 つずつ変えるだけにします（`JDG-3543`: 物の境目と入れ子を先に決める）。
 
 回答:
 
