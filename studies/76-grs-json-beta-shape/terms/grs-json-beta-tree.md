@@ -20,7 +20,7 @@ ScheduleDocument                                    GRS JSON の 1 ファイル
 │   ├─ viewTimeZone                                 表示の基準タイムゾーン
 │   │   ├─ type                                     sameAsScheduleData・fixed
 │   │   └─ utcOffset                                UTC との差（"+09:00" の形。標準時の行だけ）（fixed）
-│   ├─ displayTimeZones[]                           追加の時計（4 つまで）
+│   ├─ additionalTimeZones[]                        追加の時計（4 つまで）
 │   │   ├─ utcOffset                                UTC との差（"+09:00" の形）
 │   │   └─ zoneNameType                             出すゾーンの名の種類（standard・daylight）。差 utcOffset はもう夏時間の分を含む
 │   ├─ isTimeOfDayVisible                           時刻を見せるか（JDG-3723 で時間の軸の群へ移した）

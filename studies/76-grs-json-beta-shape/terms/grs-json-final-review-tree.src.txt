@@ -50,7 +50,7 @@ documentSettings	文書設定（効く範囲の広い順）
       "sameAsScheduleData"	データの時差と同じ
       "fixed"	決まった差を使う
     utcOffset	UTC との差（"+09:00" の形。標準時の行だけ）（fixed）
-  displayTimeZones[]	追加の時計（4 つまで）
+  additionalTimeZones[]	追加の時計（4 つまで）
     utcOffset	UTC との差（"+09:00" の形）
     zoneNameType	出すゾーンの名の種類（差 utcOffset はもう夏時間の分を含む）
       "standard"	標準時の名
