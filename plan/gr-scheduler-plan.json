@@ -14,7 +14,7 @@
       "creationDate": "2026-10-31T08:50:00",
       "revision": 11,
       "startDate": "2026-10-17T05:30:00",
-      "statusDate": "2026-11-22T10:31:00",
+      "statusDate": "2026-11-22T10:36:00",
       "minutesPerDay": 1440,
       "minutesPerWeek": 10080,
       "daysPerMonth": 30,
@@ -24,7 +24,7 @@
       "defaultFinishTime": "23:59:00",
       "themeHue": 214,
       "parentTaskProgressToleranceDays": 1,
-      "uidHighWaterMark": 436,
+      "uidHighWaterMark": 448,
       "importSequence": 0,
       "carry": {},
       "carryElements": [],
@@ -1363,7 +1363,7 @@
       },
       {
         "uid": 36,
-        "parentTaskUid": null,
+        "parentTaskUid": 442,
         "wbsOrder": 48,
         "name": "🌑 片付けの合流と台帳の締め",
         "start": "2026-12-04T02:23:17",
@@ -1386,7 +1386,7 @@
       },
       {
         "uid": 31,
-        "parentTaskUid": null,
+        "parentTaskUid": 442,
         "wbsOrder": 49,
         "name": "🌑 W4・W5 の合流と GT-2・push",
         "start": "2026-12-08T10:23:17",
@@ -1418,7 +1418,7 @@
       },
       {
         "uid": 141,
-        "parentTaskUid": null,
+        "parentTaskUid": 442,
         "wbsOrder": 50,
         "name": "🌑 片付けの入った一括の GT-2 と push",
         "start": "2026-12-08T13:23:17",
@@ -1441,7 +1441,7 @@
       },
       {
         "uid": 210,
-        "parentTaskUid": null,
+        "parentTaskUid": 442,
         "wbsOrder": 51,
         "name": "🌑 PERF の測り(OneDrive を止めて)",
         "start": "2026-12-08T18:38:17",
@@ -1496,7 +1496,7 @@
       },
       {
         "uid": 283,
-        "parentTaskUid": null,
+        "parentTaskUid": 442,
         "wbsOrder": 53,
         "name": "🌑 不具合の残り(235・268〜270)の合流と GT-2・push",
         "start": "2026-12-08T17:38:17",
@@ -1519,7 +1519,7 @@
       },
       {
         "uid": 216,
-        "parentTaskUid": null,
+        "parentTaskUid": 442,
         "wbsOrder": 54,
         "name": "🌑 週の使用量の戻り(11-04 水 19:00)",
         "start": "2026-11-04T19:00:00",
@@ -1542,7 +1542,7 @@
       },
       {
         "uid": 48,
-        "parentTaskUid": null,
+        "parentTaskUid": 442,
         "wbsOrder": 55,
         "name": "🌑 AI 連携の合流と GT-2・push",
         "start": "2026-12-08T19:38:17",
@@ -1565,7 +1565,7 @@
       },
       {
         "uid": 221,
-        "parentTaskUid": null,
+        "parentTaskUid": 442,
         "wbsOrder": 56,
         "name": "🌑 新機能の合流と GT-2・push",
         "start": "2026-12-08T21:38:17",
@@ -1597,7 +1597,7 @@
       },
       {
         "uid": 228,
-        "parentTaskUid": null,
+        "parentTaskUid": 442,
         "wbsOrder": 57,
         "name": "🌑 最後の合流と PERF・GT-2(重い試験は 1 回だけ)",
         "start": "2026-12-09T08:53:17",
@@ -1629,7 +1629,7 @@
       },
       {
         "uid": 229,
-        "parentTaskUid": null,
+        "parentTaskUid": 442,
         "wbsOrder": 58,
         "name": "🌑 node tools/release_version.mjs Beta・リリースノート(英日)・README の版の行",
         "start": "2026-12-09T14:53:17",
@@ -1661,7 +1661,7 @@
       },
       {
         "uid": 230,
-        "parentTaskUid": null,
+        "parentTaskUid": 442,
         "wbsOrder": 59,
         "name": "🌑 リリースの sha の GT-2 と develop → main の PR",
         "start": "2026-12-09T18:53:17",
@@ -1693,7 +1693,7 @@
       },
       {
         "uid": 232,
-        "parentTaskUid": null,
+        "parentTaskUid": 442,
         "wbsOrder": 60,
         "name": "🌑 Pages の配備(gh workflow run pages.yml --ref main)",
         "start": "2026-12-10T05:08:17",
@@ -1725,7 +1725,7 @@
       },
       {
         "uid": 49,
-        "parentTaskUid": null,
+        "parentTaskUid": 442,
         "wbsOrder": 61,
         "name": "🌑 計画の終わり",
         "start": "2026-11-28T00:00:00",
@@ -1986,7 +1986,7 @@
       },
       {
         "uid": 252,
-        "parentTaskUid": null,
+        "parentTaskUid": 444,
         "wbsOrder": 70,
         "name": "🌖 憲章の下書き(temp/charter-draft/CHARTER-ja.md)を直す",
         "start": "2026-10-31T17:51:00",
@@ -2064,7 +2064,7 @@
       },
       {
         "uid": 226,
-        "parentTaskUid": null,
+        "parentTaskUid": 442,
         "wbsOrder": 73,
         "name": "🌖 チェックリストを実物で触る",
         "start": "2026-12-09T04:08:17",
@@ -2096,7 +2096,7 @@
       },
       {
         "uid": 231,
-        "parentTaskUid": null,
+        "parentTaskUid": 442,
         "wbsOrder": 74,
         "name": "🌖 PR を見て main へ合流する",
         "start": "2026-12-10T04:08:17",
@@ -2128,7 +2128,7 @@
       },
       {
         "uid": 233,
-        "parentTaskUid": null,
+        "parentTaskUid": 442,
         "wbsOrder": 75,
         "name": "🌖 Beta のタグを打ち、GitHub Release を作る",
         "start": "2026-12-10T06:08:17",
@@ -2160,7 +2160,7 @@
       },
       {
         "uid": 234,
-        "parentTaskUid": null,
+        "parentTaskUid": 442,
         "wbsOrder": 76,
         "name": "🌑 β 版のリリース(仮の日付。条件: β に入れた仕事が全部済み、GT-2 と PERF が通る。目安 11-09 09:00)",
         "start": "2026-11-28T00:00:00",
@@ -2431,7 +2431,7 @@
       },
       {
         "uid": 274,
-        "parentTaskUid": null,
+        "parentTaskUid": 444,
         "wbsOrder": 87,
         "name": "🌑 合流済みの作業木の掃除の残り 23 本(自動の判定に断られて止めた分)",
         "start": "2026-12-03T21:38:17",
@@ -2463,7 +2463,7 @@
       },
       {
         "uid": 253,
-        "parentTaskUid": null,
+        "parentTaskUid": 444,
         "wbsOrder": 88,
         "name": "🌑 プロジェクト憲章(利用者が直した CHARTER-ja.md から)の仕上げ",
         "start": "2026-12-03T21:38:17",
@@ -2550,7 +2550,7 @@
       },
       {
         "uid": 196,
-        "parentTaskUid": null,
+        "parentTaskUid": 444,
         "wbsOrder": 91,
         "name": "🌑 衛生の小物(PlanActualState の中の語の 2 組, C8)の揃え",
         "start": "2026-12-03T21:38:17",
@@ -2628,7 +2628,7 @@
       },
       {
         "uid": 117,
-        "parentTaskUid": null,
+        "parentTaskUid": 444,
         "wbsOrder": 94,
         "name": "🌑 baseChangeCommandOf(名の複数形, C3)の言い直し —— W1 で仕様 PI-9 の名を直した後",
         "start": "2026-12-03T21:38:17",
@@ -2764,7 +2764,7 @@
       },
       {
         "uid": 118,
-        "parentTaskUid": null,
+        "parentTaskUid": 444,
         "wbsOrder": 98,
         "name": "🌑 DFC-2646〜2648(STOP の仕分けで出た 3 行)の始末 —— 2647 の刈り取り(F3)",
         "start": "2026-12-03T21:38:17",
@@ -3375,7 +3375,7 @@
       },
       {
         "uid": 301,
-        "parentTaskUid": null,
+        "parentTaskUid": 440,
         "wbsOrder": 123,
         "name": "🌒 名の辞書(用語集)のパート 6(GRS JSON / 共通の型とキー、39 語)のレビューと確定(オーナーの答え)",
         "start": "2026-10-31T16:49:00",
@@ -3398,7 +3398,7 @@
       },
       {
         "uid": 331,
-        "parentTaskUid": null,
+        "parentTaskUid": 440,
         "wbsOrder": 124,
         "name": "🌑 名の辞書(用語集)のパート 7(GRS JSON / 共通の型とキー、40 語)のレビューと確定(オーナーの答え)",
         "start": "2026-11-22T21:45:00",
@@ -3438,7 +3438,7 @@
       },
       {
         "uid": 332,
-        "parentTaskUid": null,
+        "parentTaskUid": 440,
         "wbsOrder": 125,
         "name": "🌑 名の辞書(用語集)のパート 8(GRS JSON / 暦、40 語)のレビューと確定(オーナーの答え)",
         "start": "2026-11-23T18:51:40",
@@ -3478,7 +3478,7 @@
       },
       {
         "uid": 333,
-        "parentTaskUid": null,
+        "parentTaskUid": 440,
         "wbsOrder": 126,
         "name": "🌑 名の辞書(用語集)のパート 9(GRS JSON / タスクと依存、36 語)のレビューと確定(オーナーの答え)",
         "start": "2026-11-25T22:28:20",
@@ -3518,7 +3518,7 @@
       },
       {
         "uid": 334,
-        "parentTaskUid": null,
+        "parentTaskUid": 440,
         "wbsOrder": 127,
         "name": "🌑 名の辞書(用語集)のパート 10(GRS JSON / タスクの描き方、40 語)のレビューと確定(オーナーの答え)",
         "start": "2026-11-27T22:58:20",
@@ -3558,7 +3558,7 @@
       },
       {
         "uid": 335,
-        "parentTaskUid": null,
+        "parentTaskUid": 440,
         "wbsOrder": 128,
         "name": "🌑 名の辞書(用語集)のパート 11(GRS JSON / 注記、38 語)のレビューと確定(オーナーの答え)",
         "start": "2026-11-28T18:05:00",
@@ -3598,7 +3598,7 @@
       },
       {
         "uid": 336,
-        "parentTaskUid": null,
+        "parentTaskUid": 440,
         "wbsOrder": 129,
         "name": "🌑 名の辞書(用語集)のパート 12(GRS JSON / 文書の設定、39 語)のレビューと確定(オーナーの答え)",
         "start": "2026-11-29T14:38:20",
@@ -3638,7 +3638,7 @@
       },
       {
         "uid": 337,
-        "parentTaskUid": null,
+        "parentTaskUid": 440,
         "wbsOrder": 130,
         "name": "🌑 名の辞書(用語集)のパート 13(GRS JSON / 文書の設定、39 語)のレビューと確定(オーナーの答え)",
         "start": "2026-11-30T22:43:20",
@@ -3678,7 +3678,7 @@
       },
       {
         "uid": 354,
-        "parentTaskUid": null,
+        "parentTaskUid": 440,
         "wbsOrder": 131,
         "name": "🌑 名の辞書(用語集)のパート 30(Agent API / Agent API そのもの、40 語)のレビューと確定(オーナーの答え)",
         "start": "2026-12-03T06:45:00",
@@ -3718,7 +3718,7 @@
       },
       {
         "uid": 355,
-        "parentTaskUid": null,
+        "parentTaskUid": 440,
         "wbsOrder": 132,
         "name": "🌑 名の辞書(用語集)のパート 31(Agent API / 受け渡す値の型、28 語)のレビューと確定(オーナーの答え)",
         "start": "2026-12-05T10:36:40",
@@ -3758,7 +3758,7 @@
       },
       {
         "uid": 356,
-        "parentTaskUid": null,
+        "parentTaskUid": 440,
         "wbsOrder": 133,
         "name": "🌑 名の辞書(用語集)のパート 32(Agent API / 断りと理由、67 語)のレビューと確定(オーナーの答え)",
         "start": "2026-12-05T18:23:20",
@@ -3798,7 +3798,7 @@
       },
       {
         "uid": 357,
-        "parentTaskUid": null,
+        "parentTaskUid": 440,
         "wbsOrder": 134,
         "name": "🌑 名の辞書(用語集)のパート 33(Agent API / 断りと理由、37 語)のレビューと確定(オーナーの答え)",
         "start": "2026-12-07T06:45:00",
@@ -3838,7 +3838,7 @@
       },
       {
         "uid": 358,
-        "parentTaskUid": null,
+        "parentTaskUid": 440,
         "wbsOrder": 135,
         "name": "🌑 名の辞書(用語集)のパート 34(Agent API / メンバ、32 語)のレビューと確定(オーナーの答え)",
         "start": "2026-12-09T21:01:40",
@@ -3878,7 +3878,7 @@
       },
       {
         "uid": 359,
-        "parentTaskUid": null,
+        "parentTaskUid": 440,
         "wbsOrder": 136,
         "name": "🌑 名の辞書(用語集)のパート 35(文書の命令 / どの命令も持つもの、38 語)のレビューと確定(オーナーの答え)",
         "start": "2026-12-11T06:55:00",
@@ -3918,7 +3918,7 @@
       },
       {
         "uid": 360,
-        "parentTaskUid": null,
+        "parentTaskUid": 440,
         "wbsOrder": 137,
         "name": "🌑 名の辞書(用語集)のパート 36(文書の命令 / 依存、40 語)のレビューと確定(オーナーの答え)",
         "start": "2026-12-12T14:58:20",
@@ -3958,7 +3958,7 @@
       },
       {
         "uid": 361,
-        "parentTaskUid": null,
+        "parentTaskUid": 440,
         "wbsOrder": 138,
         "name": "🌑 名の辞書(用語集)のパート 37(文書の命令 / 文書の設定と表の見え方、5 語)のレビューと確定(オーナーの答え)",
         "start": "2026-12-13T12:05:00",
@@ -3998,7 +3998,7 @@
       },
       {
         "uid": 338,
-        "parentTaskUid": null,
+        "parentTaskUid": 441,
         "wbsOrder": 139,
         "name": "🌑 名の辞書(用語集)のパート 14(画面 / 画面の大きな区分、39 語)のレビューと確定",
         "start": "2026-12-13T13:28:20",
@@ -4038,7 +4038,7 @@
       },
       {
         "uid": 339,
-        "parentTaskUid": null,
+        "parentTaskUid": 441,
         "wbsOrder": 140,
         "name": "🌑 名の辞書(用語集)のパート 15(画面 / タスクグループレーンズに描く部品、39 語)のレビューと確定",
         "start": "2026-12-14T21:33:20",
@@ -4070,7 +4070,7 @@
       },
       {
         "uid": 340,
-        "parentTaskUid": null,
+        "parentTaskUid": 441,
         "wbsOrder": 141,
         "name": "🌑 名の辞書(用語集)のパート 16(画面 / マウスで操作するもの、36 語)のレビューと確定",
         "start": "2026-12-16T22:53:20",
@@ -4102,7 +4102,7 @@
       },
       {
         "uid": 341,
-        "parentTaskUid": null,
+        "parentTaskUid": 441,
         "wbsOrder": 142,
         "name": "🌑 名の辞書(用語集)のパート 17(画面 / そのほかの UI パーツ、40 語)のレビューと確定",
         "start": "2026-12-18T23:23:20",
@@ -4134,7 +4134,7 @@
       },
       {
         "uid": 342,
-        "parentTaskUid": null,
+        "parentTaskUid": 441,
         "wbsOrder": 143,
         "name": "🌑 名の辞書(用語集)のパート 18(画面 / アイコン、40 語)のレビューと確定",
         "start": "2026-12-19T18:30:00",
@@ -4166,7 +4166,7 @@
       },
       {
         "uid": 343,
-        "parentTaskUid": null,
+        "parentTaskUid": 441,
         "wbsOrder": 144,
         "name": "🌑 名の辞書(用語集)のパート 19(画面 / アイコン、40 語)のレビューと確定",
         "start": "2026-12-20T15:36:40",
@@ -4198,7 +4198,7 @@
       },
       {
         "uid": 344,
-        "parentTaskUid": null,
+        "parentTaskUid": 441,
         "wbsOrder": 145,
         "name": "🌑 名の辞書(用語集)のパート 20(画面 / アイコン、40 語)のレビューと確定",
         "start": "2026-12-21T23:58:20",
@@ -4230,7 +4230,7 @@
       },
       {
         "uid": 345,
-        "parentTaskUid": null,
+        "parentTaskUid": 441,
         "wbsOrder": 146,
         "name": "🌑 名の辞書(用語集)のパート 21(画面 / プロパティパネルの欄、40 語)のレビューと確定",
         "start": "2026-12-24T07:20:00",
@@ -4262,7 +4262,7 @@
       },
       {
         "uid": 346,
-        "parentTaskUid": null,
+        "parentTaskUid": 441,
         "wbsOrder": 147,
         "name": "🌑 名の辞書(用語集)のパート 22(画面 / 表の列、40 語)のレビューと確定",
         "start": "2026-12-26T11:11:40",
@@ -4294,7 +4294,7 @@
       },
       {
         "uid": 347,
-        "parentTaskUid": null,
+        "parentTaskUid": 441,
         "wbsOrder": 148,
         "name": "🌑 名の辞書(用語集)のパート 23(画面 / 問い、40 語)のレビューと確定",
         "start": "2026-12-26T22:18:20",
@@ -4326,7 +4326,7 @@
       },
       {
         "uid": 348,
-        "parentTaskUid": null,
+        "parentTaskUid": 441,
         "wbsOrder": 149,
         "name": "🌑 名の辞書(用語集)のパート 24(画面 / 状態機械、39 語)のレビューと確定",
         "start": "2026-12-27T19:25:00",
@@ -4358,7 +4358,7 @@
       },
       {
         "uid": 349,
-        "parentTaskUid": null,
+        "parentTaskUid": 441,
         "wbsOrder": 150,
         "name": "🌑 名の辞書(用語集)のパート 25(画面 / 状態機械、39 語)のレビューと確定",
         "start": "2026-12-29T22:45:00",
@@ -4390,7 +4390,7 @@
       },
       {
         "uid": 350,
-        "parentTaskUid": null,
+        "parentTaskUid": 441,
         "wbsOrder": 151,
         "name": "🌑 名の辞書(用語集)のパート 26(画面 / 状態機械、14 語)のレビューと確定",
         "start": "2027-01-01T09:00:00",
@@ -4422,7 +4422,7 @@
       },
       {
         "uid": 351,
-        "parentTaskUid": null,
+        "parentTaskUid": 441,
         "wbsOrder": 152,
         "name": "🌑 名の辞書(用語集)のパート 27(GRS JSON に出ない設定 / タイムルーラー、40 語)のレビューと確定",
         "start": "2027-01-01T12:53:20",
@@ -4454,7 +4454,7 @@
       },
       {
         "uid": 352,
-        "parentTaskUid": null,
+        "parentTaskUid": 441,
         "wbsOrder": 153,
         "name": "🌑 名の辞書(用語集)のパート 28(GRS JSON に出ない設定 / ラベル、40 語)のレビューと確定",
         "start": "2027-01-02T10:00:00",
@@ -4486,7 +4486,7 @@
       },
       {
         "uid": 353,
-        "parentTaskUid": null,
+        "parentTaskUid": 441,
         "wbsOrder": 154,
         "name": "🌑 名の辞書(用語集)のパート 29(GRS JSON に出ない設定 / 画面の値、24 語)のレビューと確定",
         "start": "2027-01-02T21:06:40",
@@ -4518,7 +4518,7 @@
       },
       {
         "uid": 362,
-        "parentTaskUid": null,
+        "parentTaskUid": 441,
         "wbsOrder": 155,
         "name": "🌑 名の辞書(用語集)のパート 38(配るもの、11 語)のレビューと確定",
         "start": "2027-01-03T13:46:40",
@@ -4550,7 +4550,7 @@
       },
       {
         "uid": 363,
-        "parentTaskUid": null,
+        "parentTaskUid": 441,
         "wbsOrder": 156,
         "name": "🌑 名の辞書(用語集)のパート 39(コンポーネント / entity の層、81 語)のレビューと確定",
         "start": "2027-01-03T16:50:00",
@@ -4582,7 +4582,7 @@
       },
       {
         "uid": 364,
-        "parentTaskUid": null,
+        "parentTaskUid": 441,
         "wbsOrder": 157,
         "name": "🌑 名の辞書(用語集)のパート 40(コンポーネント / entity の層、31 語)のレビューと確定",
         "start": "2027-01-07T22:20:00",
@@ -4614,7 +4614,7 @@
       },
       {
         "uid": 365,
-        "parentTaskUid": null,
+        "parentTaskUid": 441,
         "wbsOrder": 158,
         "name": "🌑 名の辞書(用語集)のパート 41(コンポーネント / use-case の層、40 語)のレビューと確定",
         "start": "2027-01-09T10:11:40",
@@ -4646,7 +4646,7 @@
       },
       {
         "uid": 366,
-        "parentTaskUid": null,
+        "parentTaskUid": 441,
         "wbsOrder": 159,
         "name": "🌑 名の辞書(用語集)のパート 42(コンポーネント / adapter の層、40 語)のレビューと確定",
         "start": "2027-01-09T21:18:20",
@@ -4678,7 +4678,7 @@
       },
       {
         "uid": 367,
-        "parentTaskUid": null,
+        "parentTaskUid": 441,
         "wbsOrder": 160,
         "name": "🌑 名の辞書(用語集)のパート 43(コンポーネント / framework の層、6 語)のレビューと確定",
         "start": "2027-01-10T18:25:00",
@@ -4710,7 +4710,7 @@
       },
       {
         "uid": 316,
-        "parentTaskUid": null,
+        "parentTaskUid": 440,
         "wbsOrder": 161,
         "name": "🌑 N1 外部との契約に出る語(約 598 語。パート 6〜13 と 30〜37)の確定",
         "start": "2026-11-22T14:59:45",
@@ -4733,7 +4733,7 @@
       },
       {
         "uid": 302,
-        "parentTaskUid": null,
+        "parentTaskUid": 445,
         "wbsOrder": 162,
         "name": "🌑 CR-857(SSOT へ寄せる —— 名の原稿 glossary.json と生成、JDG-3411〜3427)の起草と当て",
         "start": "2026-12-08T05:08:17",
@@ -4765,7 +4765,7 @@
       },
       {
         "uid": 303,
-        "parentTaskUid": null,
+        "parentTaskUid": 445,
         "wbsOrder": 163,
         "name": "🌑 CR-855(名の辞書のとおりに仕様の文とコードの名を改める)の起草と当て",
         "start": "2026-12-08T08:38:17",
@@ -4788,7 +4788,7 @@
       },
       {
         "uid": 304,
-        "parentTaskUid": null,
+        "parentTaskUid": 445,
         "wbsOrder": 164,
         "name": "🌑 CR-856(語の裁定で変わる振る舞い —— プロパティパネルにプロジェクト名 JDG-3355・休日の設定をツールウィンドウに JDG-3356)の起草と当て",
         "start": "2026-12-08T12:53:17",
@@ -4811,7 +4811,7 @@
       },
       {
         "uid": 297,
-        "parentTaskUid": null,
+        "parentTaskUid": 445,
         "wbsOrder": 165,
         "name": "🌑 CR-853(拡大縮小の戦略)の当て",
         "start": "2026-12-08T05:08:17",
@@ -4843,7 +4843,7 @@
       },
       {
         "uid": 298,
-        "parentTaskUid": null,
+        "parentTaskUid": 445,
         "wbsOrder": 166,
         "name": "🌑 CR-854(変更履歴の窓・パレットのボタン・履歴を足す/直す/消す命令)の起草と当て",
         "start": "2026-12-08T05:08:17",
@@ -4921,7 +4921,7 @@
       },
       {
         "uid": 295,
-        "parentTaskUid": null,
+        "parentTaskUid": 445,
         "wbsOrder": 169,
         "name": "🌑 CR-851・848・849 の行のレビューの残り(用語集の後の SUB。445 行)",
         "start": "2026-12-03T21:38:17",
@@ -4953,7 +4953,7 @@
       },
       {
         "uid": 296,
-        "parentTaskUid": null,
+        "parentTaskUid": 445,
         "wbsOrder": 170,
         "name": "🌑 CR-851 の当て(GRS JSON の組み替えと変換の案内)",
         "start": "2026-12-08T02:08:17",
@@ -4976,7 +4976,7 @@
       },
       {
         "uid": 15,
-        "parentTaskUid": null,
+        "parentTaskUid": 444,
         "wbsOrder": 171,
         "name": "🌑 T-064(公開の名 約 479 の呼び出し形, DFC-2640)の書き起こしと再検討",
         "start": "2026-12-03T21:38:17",
@@ -5008,7 +5008,7 @@
       },
       {
         "uid": 264,
-        "parentTaskUid": null,
+        "parentTaskUid": 444,
         "wbsOrder": 172,
         "name": "🌑 src の写しの畳み込み(C14・G13・F11・F12・F17)",
         "start": "2026-12-03T22:53:17",
@@ -5031,7 +5031,7 @@
       },
       {
         "uid": 12,
-        "parentTaskUid": null,
+        "parentTaskUid": 444,
         "wbsOrder": 173,
         "name": "🌑 罠の束(DFC-544・547・548・549)の実装",
         "start": "2026-12-04T00:08:17",
@@ -5054,7 +5054,7 @@
       },
       {
         "uid": 20,
-        "parentTaskUid": null,
+        "parentTaskUid": 444,
         "wbsOrder": 174,
         "name": "🌑 実装待ちの残り(DFC-464・532〜562・582・630 ほか 35 行)の実装",
         "start": "2026-12-04T00:53:17",
@@ -5123,7 +5123,7 @@
       },
       {
         "uid": 235,
-        "parentTaskUid": null,
+        "parentTaskUid": 443,
         "wbsOrder": 177,
         "name": "🌑 DFC-3396(.html に保存して開くと表示の状態が違う)の再現と直し",
         "start": "2026-12-08T16:23:17",
@@ -5146,7 +5146,7 @@
       },
       {
         "uid": 270,
-        "parentTaskUid": null,
+        "parentTaskUid": 443,
         "wbsOrder": 178,
         "name": "🌑 食い違う写しの畳み込みと px の比べ方の揃え(F4 DFC-2646・F9 DFC-630)の CR の起草と当て",
         "start": "2026-12-08T16:53:17",
@@ -5169,7 +5169,7 @@
       },
       {
         "uid": 211,
-        "parentTaskUid": null,
+        "parentTaskUid": 443,
         "wbsOrder": 179,
         "name": "🌑 CR-813 の 2 片目(遅延診断レポートの親子関係のタブ, DFC-3358)の当て",
         "start": "2026-12-08T17:38:17",
@@ -5192,7 +5192,7 @@
       },
       {
         "uid": 46,
-        "parentTaskUid": null,
+        "parentTaskUid": 443,
         "wbsOrder": 180,
         "name": "🌑 CR-697(取次が口と鍵を覚える)の起草と当て",
         "start": "2026-12-08T18:53:17",
@@ -5215,7 +5215,7 @@
       },
       {
         "uid": 245,
-        "parentTaskUid": null,
+        "parentTaskUid": 443,
         "wbsOrder": 181,
         "name": "🌑 DFC-3410(名前付きのフィルタの条件)の仕様と実装",
         "start": "2026-12-08T19:23:17",
@@ -5247,7 +5247,7 @@
       },
       {
         "uid": 222,
-        "parentTaskUid": null,
+        "parentTaskUid": 443,
         "wbsOrder": 182,
         "name": "🌑 実測待ちの行を出荷ビルドで押す(1/3: 日程表・パネル・ドラッグ)",
         "start": "2026-12-09T00:38:17",
@@ -5270,7 +5270,7 @@
       },
       {
         "uid": 227,
-        "parentTaskUid": null,
+        "parentTaskUid": 443,
         "wbsOrder": 183,
         "name": "🌑 チェックリストで出た直し(仮置き)",
         "start": "2026-12-09T08:08:17",
@@ -5440,7 +5440,7 @@
       },
       {
         "uid": 27,
-        "parentTaskUid": null,
+        "parentTaskUid": 443,
         "wbsOrder": 190,
         "name": "🌑 W4(アダプタ層の分割)の前半 CR-578→579→580 の実装(偶然の写し DFC-1071〜1073)",
         "start": "2026-12-08T05:08:17",
@@ -5472,7 +5472,7 @@
       },
       {
         "uid": 28,
-        "parentTaskUid": null,
+        "parentTaskUid": 443,
         "wbsOrder": 191,
         "name": "🌑 W4 の後半(CR-581 の後半と properties-panel、DFC-1074・1075)の実装",
         "start": "2026-12-08T06:38:17",
@@ -5495,7 +5495,7 @@
       },
       {
         "uid": 29,
-        "parentTaskUid": null,
+        "parentTaskUid": 443,
         "wbsOrder": 192,
         "name": "🌑 W5(異常系 DFC-586 ほか)の仕様",
         "start": "2026-12-08T08:08:17",
@@ -5518,7 +5518,7 @@
       },
       {
         "uid": 30,
-        "parentTaskUid": null,
+        "parentTaskUid": 443,
         "wbsOrder": 193,
         "name": "🌑 W5(異常系)の実装と試験 —— 既知の赤 cr-586-iv-22 の 2 件(DFC-922)を緑に",
         "start": "2026-12-08T08:53:17",
@@ -5573,7 +5573,7 @@
       },
       {
         "uid": 243,
-        "parentTaskUid": null,
+        "parentTaskUid": 443,
         "wbsOrder": 195,
         "name": "🌑 DFC-3410(フィルタの条件に名前を付けて GRS JSON に幾つも保存する)の CR の起草",
         "start": "2026-12-08T02:08:17",
@@ -5605,7 +5605,7 @@
       },
       {
         "uid": 219,
-        "parentTaskUid": null,
+        "parentTaskUid": 443,
         "wbsOrder": 196,
         "name": "🌑 CR-848・849(ダークの任意色・ハイパーリンク)の当て —— CR-851 の後、848 → 849 の順",
         "start": "2026-12-08T16:23:17",
@@ -5645,7 +5645,7 @@
       },
       {
         "uid": 237,
-        "parentTaskUid": null,
+        "parentTaskUid": 443,
         "wbsOrder": 197,
         "name": "🌑 DFC-3397(横に拡大して両端が外に出たタスクの名前を左端に出す)の CR の起草",
         "start": "2026-12-08T17:53:17",
@@ -5677,7 +5677,7 @@
       },
       {
         "uid": 239,
-        "parentTaskUid": null,
+        "parentTaskUid": 443,
         "wbsOrder": 198,
         "name": "🌑 DFC-3397(左端に出す名前と札)の仕様と実装",
         "start": "2026-12-08T18:23:17",
@@ -5709,7 +5709,7 @@
       },
       {
         "uid": 225,
-        "parentTaskUid": null,
+        "parentTaskUid": 443,
         "wbsOrder": 199,
         "name": "🌑 利用者のチェックリスト 1 枚(今日の 5 件・新機能・押せなかった行)",
         "start": "2026-12-09T01:53:17",
@@ -5755,7 +5755,7 @@
       },
       {
         "uid": 265,
-        "parentTaskUid": null,
+        "parentTaskUid": 444,
         "wbsOrder": 201,
         "name": "🌑 長い関数とファイルを割る(C19・F13、07 R2 の設計の判断)",
         "start": "2026-12-03T21:38:17",
@@ -5787,7 +5787,7 @@
       },
       {
         "uid": 266,
-        "parentTaskUid": null,
+        "parentTaskUid": 444,
         "wbsOrder": 202,
         "name": "🌑 試験の補助の写しの共通化(D14・D15)",
         "start": "2026-12-03T22:53:17",
@@ -5810,7 +5810,7 @@
       },
       {
         "uid": 13,
-        "parentTaskUid": null,
+        "parentTaskUid": 444,
         "wbsOrder": 203,
         "name": "🌑 用語集の JSON 化(DFC-2175、7 表 382 行)の仕様と実装",
         "start": "2026-12-04T00:08:17",
@@ -5865,7 +5865,7 @@
       },
       {
         "uid": 242,
-        "parentTaskUid": null,
+        "parentTaskUid": 443,
         "wbsOrder": 205,
         "name": "🌑 取次から AI がページのアドレスを得る恒久の直し(DFC-3400・3401: B1〜B6 を決めてから CR)",
         "start": "2026-12-08T16:23:17",
@@ -5928,7 +5928,7 @@
       },
       {
         "uid": 268,
-        "parentTaskUid": null,
+        "parentTaskUid": 443,
         "wbsOrder": 207,
         "name": "🌑 既定値の選び直しと公開スキーマの $id・比率の数(A10・B5・B10・F27)の CR の起草と当て",
         "start": "2026-12-08T16:23:17",
@@ -5951,7 +5951,7 @@
       },
       {
         "uid": 214,
-        "parentTaskUid": null,
+        "parentTaskUid": 443,
         "wbsOrder": 208,
         "name": "🌑 中継の所見の残り(R5: 4・8・9・10・11・14・17・20・24)の当て",
         "start": "2026-12-08T17:08:17",
@@ -5974,7 +5974,7 @@
       },
       {
         "uid": 215,
-        "parentTaskUid": null,
+        "parentTaskUid": 443,
         "wbsOrder": 209,
         "name": "🌑 中継の所見の「低」8 件(13・16・17・18・19・20・23・25)",
         "start": "2026-12-08T18:23:17",
@@ -5997,7 +5997,7 @@
       },
       {
         "uid": 47,
-        "parentTaskUid": null,
+        "parentTaskUid": 443,
         "wbsOrder": 210,
         "name": "🌑 DFC-2214・2215(AI が読む遅延診断にイナズマ線の頂点・読み方)の仕様と実装",
         "start": "2026-12-08T19:08:17",
@@ -6020,7 +6020,7 @@
       },
       {
         "uid": 220,
-        "parentTaskUid": null,
+        "parentTaskUid": 443,
         "wbsOrder": 211,
         "name": "🌑 ハイパーリンクとダークの任意色の仕様だけを読む試験(別のサブエージェント)",
         "start": "2026-12-08T19:38:17",
@@ -6075,7 +6075,7 @@
       },
       {
         "uid": 267,
-        "parentTaskUid": null,
+        "parentTaskUid": 444,
         "wbsOrder": 213,
         "name": "🌑 道具の補助の写しの共通化(E20〜E22)",
         "start": "2026-12-03T21:38:17",
@@ -6107,7 +6107,7 @@
       },
       {
         "uid": 32,
-        "parentTaskUid": null,
+        "parentTaskUid": 444,
         "wbsOrder": 214,
         "name": "🌑 トリアージで出た直しの実装",
         "start": "2026-12-03T22:53:17",
@@ -6240,7 +6240,7 @@
       },
       {
         "uid": 269,
-        "parentTaskUid": null,
+        "parentTaskUid": 443,
         "wbsOrder": 219,
         "name": "🌑 uid の最高水位と「行」と「タスクグループ」(F10 DFC-1066・F25 DFC-2174)の CR の起草と当て",
         "start": "2026-12-08T16:23:17",
@@ -6263,7 +6263,7 @@
       },
       {
         "uid": 212,
-        "parentTaskUid": null,
+        "parentTaskUid": 443,
         "wbsOrder": 220,
         "name": "🌑 CR-815(絞った表を AI が選んだ列でページに分けて読む)の当て",
         "start": "2026-12-08T17:08:17",
@@ -6286,7 +6286,7 @@
       },
       {
         "uid": 213,
-        "parentTaskUid": null,
+        "parentTaskUid": 443,
         "wbsOrder": 221,
         "name": "🌑 接続が黙って切れる件(DFC-3340〜3342: ping・ページの下書き)の当て",
         "start": "2026-12-08T18:23:17",
@@ -6309,7 +6309,7 @@
       },
       {
         "uid": 240,
-        "parentTaskUid": null,
+        "parentTaskUid": 443,
         "wbsOrder": 222,
         "name": "🌑 DFC-3397(左端に出す名前と札)の仕様だけを読む試験(別のサブエージェント)",
         "start": "2026-12-08T19:38:17",
@@ -6341,7 +6341,7 @@
       },
       {
         "uid": 223,
-        "parentTaskUid": null,
+        "parentTaskUid": 443,
         "wbsOrder": 223,
         "name": "🌑 実測待ちの行を出荷ビルドで押す(2/3: 遅延診断・表・検索)",
         "start": "2026-12-09T00:38:17",
@@ -6410,7 +6410,7 @@
       },
       {
         "uid": 35,
-        "parentTaskUid": null,
+        "parentTaskUid": 444,
         "wbsOrder": 226,
         "name": "🌑 仕様待ちの残りの CR の実装",
         "start": "2026-12-03T21:38:17",
@@ -6442,7 +6442,7 @@
       },
       {
         "uid": 19,
-        "parentTaskUid": null,
+        "parentTaskUid": 444,
         "wbsOrder": 227,
         "name": "🌑 DFC-730(GP-1 編集権限の行は読み取り専用)の実装",
         "start": "2026-12-03T23:08:17",
@@ -6465,7 +6465,7 @@
       },
       {
         "uid": 167,
-        "parentTaskUid": null,
+        "parentTaskUid": 444,
         "wbsOrder": 228,
         "name": "🌑 DFC-2966・2967・2969(文書の形と実績の組み合わせの表, 束 E)の仕様と実装",
         "start": "2026-12-03T23:38:17",
@@ -6488,7 +6488,7 @@
       },
       {
         "uid": 208,
-        "parentTaskUid": null,
+        "parentTaskUid": 443,
         "wbsOrder": 229,
         "name": "🌑 性能の赤の切り分け —— 前の版との交互の比べ(JDG-726)と GR-28・MK-1 のプロファイル",
         "start": "2026-12-08T16:23:17",
@@ -6511,7 +6511,7 @@
       },
       {
         "uid": 209,
-        "parentTaskUid": null,
+        "parentTaskUid": 443,
         "wbsOrder": 230,
         "name": "🌑 重い処理の直し(最も遅い GR-28 から)",
         "start": "2026-12-08T17:08:17",
@@ -6534,7 +6534,7 @@
       },
       {
         "uid": 246,
-        "parentTaskUid": null,
+        "parentTaskUid": 443,
         "wbsOrder": 231,
         "name": "🌑 DFC-3410(名前付きのフィルタの条件)の仕様だけを読む試験(別のサブエージェント)",
         "start": "2026-12-08T20:53:17",
@@ -6566,7 +6566,7 @@
       },
       {
         "uid": 224,
-        "parentTaskUid": null,
+        "parentTaskUid": 443,
         "wbsOrder": 232,
         "name": "🌑 実測待ちの行を出荷ビルドで押す(3/3: ファイル・書き出し・AI 連携)",
         "start": "2026-12-09T00:38:17",
@@ -6589,7 +6589,7 @@
       },
       {
         "uid": 306,
-        "parentTaskUid": null,
+        "parentTaskUid": 448,
         "wbsOrder": 233,
         "name": "🌒 用語集の GQA に答える(GQA 13 の問 5 と 5-5〜5-8 から。残り 1397 語)",
         "start": "2026-10-31T09:15:00",
@@ -6612,7 +6612,7 @@
       },
       {
         "uid": 307,
-        "parentTaskUid": null,
+        "parentTaskUid": 448,
         "wbsOrder": 234,
         "name": "🌖 CR-851・848・849 の行のレビューに答える(残り 445 行)",
         "start": "2026-12-03T21:38:17",
@@ -6644,7 +6644,7 @@
       },
       {
         "uid": 318,
-        "parentTaskUid": null,
+        "parentTaskUid": 447,
         "wbsOrder": 235,
         "name": "🌑 GRS JSON と MSPDI の検証の道具(β 版から。優先度は最低)の仕様とテスト仕様",
         "start": "2026-11-28T00:00:00",
@@ -6676,7 +6676,7 @@
       },
       {
         "uid": 319,
-        "parentTaskUid": null,
+        "parentTaskUid": 447,
         "wbsOrder": 236,
         "name": "🌑 GRS JSON と MSPDI の検証の道具(β 版から。優先度は最低)の実装と自動試験",
         "start": "2026-11-28T01:00:00",
@@ -6708,7 +6708,7 @@
       },
       {
         "uid": 320,
-        "parentTaskUid": null,
+        "parentTaskUid": 447,
         "wbsOrder": 237,
         "name": "🌑 GRS JSON と MSPDI の検証の道具(β 版から。優先度は最低)の場面の確かめ",
         "start": "2026-11-28T04:00:00",
@@ -7457,7 +7457,7 @@
       },
       {
         "uid": 382,
-        "parentTaskUid": null,
+        "parentTaskUid": 448,
         "wbsOrder": 259,
         "name": "🌖 CR-850(基準日線を 15 分に)と CR-858(落とした GRS JSON は選択なしで開く)の出荷: オーナーがタグ Alpha-20261031T105821Z を打つ",
         "start": "2026-11-01T15:49:00",
@@ -7558,7 +7558,7 @@
       },
       {
         "uid": 386,
-        "parentTaskUid": null,
+        "parentTaskUid": 446,
         "wbsOrder": 263,
         "name": "🌒 レビュー基準(gr-sw-maker)に NEIM・NDD を足す(JDG-3546)",
         "start": "2026-11-05T07:23:00",
@@ -7708,7 +7708,7 @@
       },
       {
         "uid": 391,
-        "parentTaskUid": null,
+        "parentTaskUid": 446,
         "wbsOrder": 268,
         "name": "🌑 新レビュー基準 段 4: 窓を閉じ、止めた仕事を再開する(調整役)",
         "start": "2026-11-13T13:05:00",
@@ -7740,7 +7740,7 @@
       },
       {
         "uid": 392,
-        "parentTaskUid": null,
+        "parentTaskUid": 446,
         "wbsOrder": 269,
         "name": "🌑 新レビュー基準 段 5: 規則 07 を原本に追いつかせ、検査 92 を直す(SUB)",
         "start": "2026-11-13T13:35:00",
@@ -7772,7 +7772,7 @@
       },
       {
         "uid": 393,
-        "parentTaskUid": null,
+        "parentTaskUid": 446,
         "wbsOrder": 270,
         "name": "🌑 新レビュー基準 段 6: コメントの規則の lint(検査 55 の形の表と新しい 3 項目)を作る(SUB)",
         "start": "2026-11-13T13:35:00",
@@ -7804,7 +7804,7 @@
       },
       {
         "uid": 394,
-        "parentTaskUid": null,
+        "parentTaskUid": 446,
         "wbsOrder": 271,
         "name": "🌑 新レビュー基準 段 6: see と WHY のコメントを字句解析で機械的に移す(SUB)",
         "start": "2026-11-13T13:35:00",
@@ -7836,7 +7836,7 @@
       },
       {
         "uid": 395,
-        "parentTaskUid": null,
+        "parentTaskUid": 446,
         "wbsOrder": 272,
         "name": "🌑 新レビュー基準 段 6: src のコメントを判定して移す(SUB 2〜3 人)",
         "start": "2026-11-13T21:35:00",
@@ -7876,7 +7876,7 @@
       },
       {
         "uid": 396,
-        "parentTaskUid": null,
+        "parentTaskUid": 446,
         "wbsOrder": 273,
         "name": "🌑 新レビュー基準 段 7: ステートマシンのレビューと語の直し(SUB 2 人。用語集の後)",
         "start": "2026-12-03T21:38:17",
@@ -7939,7 +7939,7 @@
       },
       {
         "uid": 398,
-        "parentTaskUid": null,
+        "parentTaskUid": 448,
         "wbsOrder": 275,
         "name": "🌖 B オーナーが BGQA の問 18 に答える(数え直しの案 b か。答え待ち)",
         "start": "2026-11-22T10:25:00",
@@ -7962,7 +7962,7 @@
       },
       {
         "uid": 399,
-        "parentTaskUid": null,
+        "parentTaskUid": 448,
         "wbsOrder": 276,
         "name": "🌖 A オーナーの最後の確認(1 回。席の下書きが直った後)",
         "start": "2026-11-22T13:30:00",
@@ -7994,7 +7994,7 @@
       },
       {
         "uid": 400,
-        "parentTaskUid": null,
+        "parentTaskUid": 438,
         "wbsOrder": 277,
         "name": "🌒 A 席が下書きを裁定 JDG-3664〜3691 に合わせて直す(後任 14。オーナーへの問いは残り 0)",
         "start": "2026-11-22T08:40:00",
@@ -8017,7 +8017,7 @@
       },
       {
         "uid": 401,
-        "parentTaskUid": null,
+        "parentTaskUid": 438,
         "wbsOrder": 278,
         "name": "🌑 A 裁定を記録して合流する(後任 14。SUB)",
         "start": "2026-11-22T14:30:00",
@@ -8049,7 +8049,7 @@
       },
       {
         "uid": 402,
-        "parentTaskUid": null,
+        "parentTaskUid": 439,
         "wbsOrder": 279,
         "name": "🌑 B 数え直し(JDG-3566..3690 の裁定で決まった語を確定に数えるか。SUB)",
         "start": "2026-11-22T10:55:00",
@@ -8081,7 +8081,7 @@
       },
       {
         "uid": 403,
-        "parentTaskUid": null,
+        "parentTaskUid": 440,
         "wbsOrder": 280,
         "name": "🌕 名の辞書(用語集)のパート 6 の SUB の準備(用語の紙を出す)",
         "start": "2026-10-31T15:49:00",
@@ -8104,7 +8104,7 @@
       },
       {
         "uid": 404,
-        "parentTaskUid": null,
+        "parentTaskUid": 440,
         "wbsOrder": 281,
         "name": "🌑 名の辞書(用語集)のパート 6 の裁定の記録(SUB。ID の表と用語集へ)",
         "start": "2026-11-22T21:45:00",
@@ -8136,7 +8136,7 @@
       },
       {
         "uid": 405,
-        "parentTaskUid": null,
+        "parentTaskUid": 440,
         "wbsOrder": 282,
         "name": "🌑 名の辞書(用語集)のパート 7 の SUB の準備(用語の紙を出す)",
         "start": "2026-11-22T20:45:00",
@@ -8159,7 +8159,7 @@
       },
       {
         "uid": 406,
-        "parentTaskUid": null,
+        "parentTaskUid": 440,
         "wbsOrder": 283,
         "name": "🌑 名の辞書(用語集)のパート 7 の裁定の記録(SUB。ID の表と用語集へ)",
         "start": "2026-11-23T18:51:40",
@@ -8191,7 +8191,7 @@
       },
       {
         "uid": 407,
-        "parentTaskUid": null,
+        "parentTaskUid": 440,
         "wbsOrder": 284,
         "name": "🌑 名の辞書(用語集)のパート 8 の SUB の準備(用語の紙を出す)",
         "start": "2026-11-23T17:51:40",
@@ -8214,7 +8214,7 @@
       },
       {
         "uid": 408,
-        "parentTaskUid": null,
+        "parentTaskUid": 440,
         "wbsOrder": 285,
         "name": "🌑 名の辞書(用語集)のパート 8 の裁定の記録(SUB。ID の表と用語集へ)",
         "start": "2026-11-25T22:28:20",
@@ -8246,7 +8246,7 @@
       },
       {
         "uid": 409,
-        "parentTaskUid": null,
+        "parentTaskUid": 440,
         "wbsOrder": 286,
         "name": "🌑 名の辞書(用語集)のパート 9 の SUB の準備(用語の紙を出す)",
         "start": "2026-11-25T21:28:20",
@@ -8269,7 +8269,7 @@
       },
       {
         "uid": 410,
-        "parentTaskUid": null,
+        "parentTaskUid": 440,
         "wbsOrder": 287,
         "name": "🌑 名の辞書(用語集)のパート 9 の裁定の記録(SUB。ID の表と用語集へ)",
         "start": "2026-11-27T22:58:20",
@@ -8301,7 +8301,7 @@
       },
       {
         "uid": 411,
-        "parentTaskUid": null,
+        "parentTaskUid": 440,
         "wbsOrder": 288,
         "name": "🌑 名の辞書(用語集)のパート 10 の SUB の準備(用語の紙を出す)",
         "start": "2026-11-27T21:58:20",
@@ -8324,7 +8324,7 @@
       },
       {
         "uid": 412,
-        "parentTaskUid": null,
+        "parentTaskUid": 440,
         "wbsOrder": 289,
         "name": "🌑 名の辞書(用語集)のパート 10 の裁定の記録(SUB。ID の表と用語集へ)",
         "start": "2026-11-28T18:05:00",
@@ -8356,7 +8356,7 @@
       },
       {
         "uid": 413,
-        "parentTaskUid": null,
+        "parentTaskUid": 440,
         "wbsOrder": 290,
         "name": "🌑 名の辞書(用語集)のパート 11 の SUB の準備(用語の紙を出す)",
         "start": "2026-11-28T17:05:00",
@@ -8379,7 +8379,7 @@
       },
       {
         "uid": 414,
-        "parentTaskUid": null,
+        "parentTaskUid": 440,
         "wbsOrder": 291,
         "name": "🌑 名の辞書(用語集)のパート 11 の裁定の記録(SUB。ID の表と用語集へ)",
         "start": "2026-11-29T14:38:20",
@@ -8411,7 +8411,7 @@
       },
       {
         "uid": 415,
-        "parentTaskUid": null,
+        "parentTaskUid": 440,
         "wbsOrder": 292,
         "name": "🌑 名の辞書(用語集)のパート 12 の SUB の準備(用語の紙を出す)",
         "start": "2026-11-29T13:38:20",
@@ -8434,7 +8434,7 @@
       },
       {
         "uid": 416,
-        "parentTaskUid": null,
+        "parentTaskUid": 440,
         "wbsOrder": 293,
         "name": "🌑 名の辞書(用語集)のパート 12 の裁定の記録(SUB。ID の表と用語集へ)",
         "start": "2026-11-30T22:43:20",
@@ -8466,7 +8466,7 @@
       },
       {
         "uid": 417,
-        "parentTaskUid": null,
+        "parentTaskUid": 440,
         "wbsOrder": 294,
         "name": "🌑 名の辞書(用語集)のパート 13 の SUB の準備(用語の紙を出す)",
         "start": "2026-11-30T21:43:20",
@@ -8489,7 +8489,7 @@
       },
       {
         "uid": 418,
-        "parentTaskUid": null,
+        "parentTaskUid": 440,
         "wbsOrder": 295,
         "name": "🌑 名の辞書(用語集)のパート 13 の裁定の記録(SUB。ID の表と用語集へ)",
         "start": "2026-12-03T00:03:20",
@@ -8521,7 +8521,7 @@
       },
       {
         "uid": 419,
-        "parentTaskUid": null,
+        "parentTaskUid": 440,
         "wbsOrder": 296,
         "name": "🌑 名の辞書(用語集)のパート 30 の SUB の準備(用語の紙を出す)",
         "start": "2026-12-03T05:45:00",
@@ -8544,7 +8544,7 @@
       },
       {
         "uid": 420,
-        "parentTaskUid": null,
+        "parentTaskUid": 440,
         "wbsOrder": 297,
         "name": "🌑 名の辞書(用語集)のパート 30 の裁定の記録(SUB。ID の表と用語集へ)",
         "start": "2026-12-05T10:36:40",
@@ -8576,7 +8576,7 @@
       },
       {
         "uid": 421,
-        "parentTaskUid": null,
+        "parentTaskUid": 440,
         "wbsOrder": 298,
         "name": "🌑 名の辞書(用語集)のパート 31 の SUB の準備(用語の紙を出す)",
         "start": "2026-12-05T09:36:40",
@@ -8599,7 +8599,7 @@
       },
       {
         "uid": 422,
-        "parentTaskUid": null,
+        "parentTaskUid": 440,
         "wbsOrder": 299,
         "name": "🌑 名の辞書(用語集)のパート 31 の裁定の記録(SUB。ID の表と用語集へ)",
         "start": "2026-12-05T18:23:20",
@@ -8631,7 +8631,7 @@
       },
       {
         "uid": 423,
-        "parentTaskUid": null,
+        "parentTaskUid": 440,
         "wbsOrder": 300,
         "name": "🌑 名の辞書(用語集)のパート 32 の SUB の準備(用語の紙を出す)",
         "start": "2026-12-05T17:23:20",
@@ -8654,7 +8654,7 @@
       },
       {
         "uid": 424,
-        "parentTaskUid": null,
+        "parentTaskUid": 440,
         "wbsOrder": 301,
         "name": "🌑 名の辞書(用語集)のパート 32 の裁定の記録(SUB。ID の表と用語集へ)",
         "start": "2026-12-06T23:00:00",
@@ -8686,7 +8686,7 @@
       },
       {
         "uid": 425,
-        "parentTaskUid": null,
+        "parentTaskUid": 440,
         "wbsOrder": 302,
         "name": "🌑 名の辞書(用語集)のパート 33 の SUB の準備(用語の紙を出す)",
         "start": "2026-12-07T05:45:00",
@@ -8709,7 +8709,7 @@
       },
       {
         "uid": 426,
-        "parentTaskUid": null,
+        "parentTaskUid": 440,
         "wbsOrder": 303,
         "name": "🌑 名の辞書(用語集)のパート 33 の裁定の記録(SUB。ID の表と用語集へ)",
         "start": "2026-12-09T21:01:40",
@@ -8741,7 +8741,7 @@
       },
       {
         "uid": 427,
-        "parentTaskUid": null,
+        "parentTaskUid": 440,
         "wbsOrder": 304,
         "name": "🌑 名の辞書(用語集)のパート 34 の SUB の準備(用語の紙を出す)",
         "start": "2026-12-09T20:01:40",
@@ -8764,7 +8764,7 @@
       },
       {
         "uid": 428,
-        "parentTaskUid": null,
+        "parentTaskUid": 440,
         "wbsOrder": 305,
         "name": "🌑 名の辞書(用語集)のパート 34 の裁定の記録(SUB。ID の表と用語集へ)",
         "start": "2026-12-11T06:55:00",
@@ -8796,7 +8796,7 @@
       },
       {
         "uid": 429,
-        "parentTaskUid": null,
+        "parentTaskUid": 440,
         "wbsOrder": 306,
         "name": "🌑 名の辞書(用語集)のパート 35 の SUB の準備(用語の紙を出す)",
         "start": "2026-12-11T05:55:00",
@@ -8819,7 +8819,7 @@
       },
       {
         "uid": 430,
-        "parentTaskUid": null,
+        "parentTaskUid": 440,
         "wbsOrder": 307,
         "name": "🌑 名の辞書(用語集)のパート 35 の裁定の記録(SUB。ID の表と用語集へ)",
         "start": "2026-12-12T14:58:20",
@@ -8851,7 +8851,7 @@
       },
       {
         "uid": 431,
-        "parentTaskUid": null,
+        "parentTaskUid": 440,
         "wbsOrder": 308,
         "name": "🌑 名の辞書(用語集)のパート 36 の SUB の準備(用語の紙を出す)",
         "start": "2026-12-12T13:58:20",
@@ -8874,7 +8874,7 @@
       },
       {
         "uid": 432,
-        "parentTaskUid": null,
+        "parentTaskUid": 440,
         "wbsOrder": 309,
         "name": "🌑 名の辞書(用語集)のパート 36 の裁定の記録(SUB。ID の表と用語集へ)",
         "start": "2026-12-13T12:05:00",
@@ -8906,7 +8906,7 @@
       },
       {
         "uid": 433,
-        "parentTaskUid": null,
+        "parentTaskUid": 440,
         "wbsOrder": 310,
         "name": "🌑 名の辞書(用語集)のパート 37 の SUB の準備(用語の紙を出す)",
         "start": "2026-12-13T11:05:00",
@@ -8929,7 +8929,7 @@
       },
       {
         "uid": 434,
-        "parentTaskUid": null,
+        "parentTaskUid": 440,
         "wbsOrder": 311,
         "name": "🌑 名の辞書(用語集)のパート 37 の裁定の記録(SUB。ID の表と用語集へ)",
         "start": "2026-12-13T13:28:20",
@@ -8961,7 +8961,7 @@
       },
       {
         "uid": 435,
-        "parentTaskUid": null,
+        "parentTaskUid": 440,
         "wbsOrder": 312,
         "name": "🌑 N1 の見込み(3.60 語/時で置いた。事実ではなく PMO の置き。オーナーの日付の N1 は別)",
         "start": "2026-12-13T14:28:20",
@@ -8993,7 +8993,7 @@
       },
       {
         "uid": 436,
-        "parentTaskUid": null,
+        "parentTaskUid": 441,
         "wbsOrder": 313,
         "name": "🌑 用語の確定の見込み(3.60 語/時で置いた。パート 43 の終わり。事実ではなく PMO の置き)",
         "start": "2027-01-10T20:05:00",
@@ -9022,17 +9022,304 @@
         ],
         "carry": {},
         "carryElements": []
+      },
+      {
+        "uid": 448,
+        "parentTaskUid": null,
+        "wbsOrder": 7,
+        "milestone": false,
+        "deadline": null,
+        "calendarUid": null,
+        "stop": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [],
+        "carry": {},
+        "carryElements": [],
+        "name": "🌒 オーナーの答え・操作の待ち",
+        "start": "2026-10-31T09:15:00",
+        "finish": "2026-12-06T04:53:17",
+        "actualStart": "2026-10-31T10:26:00",
+        "actualFinish": null,
+        "notes": "[rollup:P8] 要約の親タスク。子 5 件のうち未完了 5 件。両端は子から導く(VC-11・VC-12)。"
+      },
+      {
+        "uid": 447,
+        "parentTaskUid": null,
+        "wbsOrder": 6,
+        "milestone": false,
+        "deadline": null,
+        "calendarUid": null,
+        "stop": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [],
+        "carry": {},
+        "carryElements": [],
+        "name": "🌑 検証の道具(GRS JSON と MSPDI。β の後)",
+        "start": "2026-11-28T00:00:00",
+        "finish": "2026-11-28T05:00:00",
+        "actualStart": null,
+        "actualFinish": null,
+        "notes": "[rollup:P7] 要約の親タスク。子 3 件のうち未完了 3 件。両端は子から導く(VC-11・VC-12)。"
+      },
+      {
+        "uid": 446,
+        "parentTaskUid": null,
+        "wbsOrder": 5,
+        "milestone": false,
+        "deadline": null,
+        "calendarUid": null,
+        "stop": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [],
+        "carry": {},
+        "carryElements": [],
+        "name": "🌒 新レビュー基準の適用(段 4〜7)",
+        "start": "2026-11-05T07:23:00",
+        "finish": "2026-12-04T03:38:17",
+        "actualStart": "2026-11-05T07:23:00",
+        "actualFinish": null,
+        "notes": "[rollup:P6] 要約の親タスク。子 7 件のうち未完了 7 件。両端は子から導く(VC-11・VC-12)。"
+      },
+      {
+        "uid": 445,
+        "parentTaskUid": null,
+        "wbsOrder": 4,
+        "milestone": false,
+        "deadline": null,
+        "calendarUid": null,
+        "stop": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [],
+        "carry": {},
+        "carryElements": [],
+        "name": "🌑 CR の起草と当て(用語集・行のレビュー・拡大縮小・変更履歴)",
+        "start": "2026-12-03T21:38:17",
+        "finish": "2026-12-08T14:53:17",
+        "actualStart": null,
+        "actualFinish": null,
+        "notes": "[rollup:P5] 要約の親タスク。子 7 件のうち未完了 7 件。両端は子から導く(VC-11・VC-12)。"
+      },
+      {
+        "uid": 444,
+        "parentTaskUid": null,
+        "wbsOrder": 3,
+        "milestone": false,
+        "deadline": null,
+        "calendarUid": null,
+        "stop": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [],
+        "carry": {},
+        "carryElements": [],
+        "name": "🌑 掃除と実装の残り(β の後ろに置いた分)",
+        "start": "2026-10-31T17:51:00",
+        "finish": "2026-12-04T02:23:17",
+        "actualStart": null,
+        "actualFinish": null,
+        "notes": "[rollup:P4] 要約の親タスク。子 18 件のうち未完了 18 件。両端は子から導く(VC-11・VC-12)。"
+      },
+      {
+        "uid": 443,
+        "parentTaskUid": null,
+        "wbsOrder": 2,
+        "milestone": false,
+        "deadline": null,
+        "calendarUid": null,
+        "stop": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [],
+        "carry": {},
+        "carryElements": [],
+        "name": "🌑 β に入れる新機能・不具合の直し(子セッション 1〜5)",
+        "start": "2026-12-08T02:08:17",
+        "finish": "2026-12-09T08:53:17",
+        "actualStart": null,
+        "actualFinish": null,
+        "notes": "[rollup:P3] 要約の親タスク。子 31 件のうち未完了 31 件。両端は子から導く(VC-11・VC-12)。"
+      },
+      {
+        "uid": 442,
+        "parentTaskUid": null,
+        "wbsOrder": 1,
+        "milestone": false,
+        "deadline": null,
+        "calendarUid": null,
+        "stop": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [],
+        "carry": {},
+        "carryElements": [],
+        "name": "🌑 β 版のリリース(合流・試験・タグ・Pages)",
+        "start": "2026-11-04T19:00:00",
+        "finish": "2026-12-10T07:08:17",
+        "actualStart": null,
+        "actualFinish": null,
+        "notes": "[rollup:P2] 要約の親タスク。子 17 件のうち未完了 17 件。両端は子から導く(VC-11・VC-12)。"
+      },
+      {
+        "uid": 441,
+        "parentTaskUid": 437,
+        "wbsOrder": null,
+        "milestone": false,
+        "deadline": null,
+        "calendarUid": null,
+        "stop": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [],
+        "carry": {},
+        "carryElements": [],
+        "name": "🌑 D ほかの語(β の後。パート 14〜29・38〜43)",
+        "start": "2026-12-13T13:28:20",
+        "finish": "2027-01-10T20:05:00",
+        "actualStart": null,
+        "actualFinish": null,
+        "notes": "[rollup:P1D] 要約の親タスク。子 23 件のうち未完了 23 件。両端は子から導く(VC-11・VC-12)。"
+      },
+      {
+        "uid": 440,
+        "parentTaskUid": 437,
+        "wbsOrder": null,
+        "milestone": false,
+        "deadline": null,
+        "calendarUid": null,
+        "stop": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [],
+        "carry": {},
+        "carryElements": [],
+        "name": "🌒 C N1 外部との契約に出る語(パート 6〜13・30〜37)",
+        "start": "2026-10-31T15:49:00",
+        "finish": "2026-12-13T14:28:20",
+        "actualStart": "2026-10-31T15:49:00",
+        "actualFinish": null,
+        "notes": "[rollup:P1C] 要約の親タスク。子 50 件のうち未完了 49 件。両端は子から導く(VC-11・VC-12)。"
+      },
+      {
+        "uid": 439,
+        "parentTaskUid": 437,
+        "wbsOrder": null,
+        "milestone": false,
+        "deadline": null,
+        "calendarUid": null,
+        "stop": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [],
+        "carry": {},
+        "carryElements": [],
+        "name": "🌑 B 数え直し(JDG-3566..3690 の裁定で決まった語)",
+        "start": "2026-11-22T10:55:00",
+        "finish": "2026-11-22T14:55:00",
+        "actualStart": null,
+        "actualFinish": null,
+        "notes": "[rollup:P1B] 要約の親タスク。子 1 件のうち未完了 1 件。両端は子から導く(VC-11・VC-12)。"
+      },
+      {
+        "uid": 438,
+        "parentTaskUid": 437,
+        "wbsOrder": null,
+        "milestone": false,
+        "deadline": null,
+        "calendarUid": null,
+        "stop": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [],
+        "carry": {},
+        "carryElements": [],
+        "name": "🌒 A GRS JSON β の木の残り(タスクグループの表示の問い)",
+        "start": "2026-11-22T08:40:00",
+        "finish": "2026-11-22T16:30:00",
+        "actualStart": "2026-11-22T08:40:00",
+        "actualFinish": null,
+        "notes": "[rollup:P1A] 要約の親タスク。子 2 件のうち未完了 2 件。両端は子から導く(VC-11・VC-12)。"
+      },
+      {
+        "uid": 437,
+        "parentTaskUid": null,
+        "wbsOrder": 0,
+        "milestone": false,
+        "deadline": null,
+        "calendarUid": null,
+        "stop": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [],
+        "carry": {},
+        "carryElements": [],
+        "name": "🌒 名の辞書(用語集)の確定(A 〜 D の 4 区分)",
+        "start": "2026-10-31T15:49:00",
+        "finish": "2027-01-10T20:05:00",
+        "actualStart": "2026-10-31T15:49:00",
+        "actualFinish": null,
+        "notes": "[rollup:P1] 要約の親タスク。子 4 件のうち未完了 4 件。両端は子から導く(VC-11・VC-12)。"
       }
     ],
     "resources": [],
     "assignments": [],
     "taskGroups": [
       {
+        "id": "10a60cfd-625e-5c82-81f0-bd535539d755",
+        "parentId": null,
+        "name": "いま動いている仕事と残り(未完了の要約)",
+        "derivedFromTaskUid": null,
+        "order": 0,
+        "treeState": "auto",
+        "editPermission": null,
+        "color": null,
+        "minHeightPx": null
+      },
+      {
         "id": "16a6a826-8c28-542d-b9b1-094dce0b05f6",
         "parentId": null,
         "name": "済み(10-17 05:20〜10-19 11:25 α 版まで)",
         "derivedFromTaskUid": null,
-        "order": 0,
+        "order": 1,
         "treeState": "auto",
         "editPermission": null,
         "color": null,
@@ -9043,7 +9330,7 @@
         "parentId": null,
         "name": "済み(10-19 11:25〜10-21 α の後)",
         "derivedFromTaskUid": null,
-        "order": 1,
+        "order": 2,
         "treeState": "temporarilyExpanded",
         "editPermission": null,
         "color": null,
@@ -9131,7 +9418,7 @@
         "parentId": null,
         "name": "β版リリースまで",
         "derivedFromTaskUid": null,
-        "order": 2,
+        "order": 3,
         "treeState": "temporarilyExpanded",
         "editPermission": null,
         "color": null,
@@ -10852,6 +11139,54 @@
       {
         "taskUid": 436,
         "taskGroupId": "b1103a44-ac64-4046-8de9-cbe871ab6d21"
+      },
+      {
+        "taskUid": 448,
+        "taskGroupId": "10a60cfd-625e-5c82-81f0-bd535539d755"
+      },
+      {
+        "taskUid": 447,
+        "taskGroupId": "10a60cfd-625e-5c82-81f0-bd535539d755"
+      },
+      {
+        "taskUid": 446,
+        "taskGroupId": "10a60cfd-625e-5c82-81f0-bd535539d755"
+      },
+      {
+        "taskUid": 445,
+        "taskGroupId": "10a60cfd-625e-5c82-81f0-bd535539d755"
+      },
+      {
+        "taskUid": 444,
+        "taskGroupId": "10a60cfd-625e-5c82-81f0-bd535539d755"
+      },
+      {
+        "taskUid": 443,
+        "taskGroupId": "10a60cfd-625e-5c82-81f0-bd535539d755"
+      },
+      {
+        "taskUid": 442,
+        "taskGroupId": "10a60cfd-625e-5c82-81f0-bd535539d755"
+      },
+      {
+        "taskUid": 441,
+        "taskGroupId": "10a60cfd-625e-5c82-81f0-bd535539d755"
+      },
+      {
+        "taskUid": 440,
+        "taskGroupId": "10a60cfd-625e-5c82-81f0-bd535539d755"
+      },
+      {
+        "taskUid": 439,
+        "taskGroupId": "10a60cfd-625e-5c82-81f0-bd535539d755"
+      },
+      {
+        "taskUid": 438,
+        "taskGroupId": "10a60cfd-625e-5c82-81f0-bd535539d755"
+      },
+      {
+        "taskUid": 437,
+        "taskGroupId": "10a60cfd-625e-5c82-81f0-bd535539d755"
       }
     ],
     "taskVisuals": [
@@ -13358,6 +13693,102 @@
         "fillColor": "blue",
         "strokeColor": null,
         "strokeWidthPx": null
+      },
+      {
+        "taskUid": 448,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": "diamond",
+        "fillColor": "blue",
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 447,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": "diamond",
+        "fillColor": "blue",
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 446,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": "diamond",
+        "fillColor": "blue",
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 445,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": "diamond",
+        "fillColor": "blue",
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 444,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": "diamond",
+        "fillColor": "blue",
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 443,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": "diamond",
+        "fillColor": "blue",
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 442,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": "diamond",
+        "fillColor": "blue",
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 441,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": "diamond",
+        "fillColor": "blue",
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 440,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": "diamond",
+        "fillColor": "blue",
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 439,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": "diamond",
+        "fillColor": "blue",
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 438,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": "diamond",
+        "fillColor": "blue",
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 437,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": "diamond",
+        "fillColor": "blue",
+        "strokeColor": null,
+        "strokeWidthPx": null
       }
     ],
     "commentBoxes": [
@@ -14841,10 +15272,10 @@
     "zoomY": 1.099862517185352
   },
   "documentStamp": {
-    "scheduleUpdatedAt": "2026-11-22T01:35:00Z",
+    "scheduleUpdatedAt": "2026-11-22T01:36:00Z",
     "lastEditedBy": "PMO child session",
     "settingsUpdatedAt": "2026-10-20T20:24:42Z",
-    "fileSavedAt": "2026-11-22T01:35:00Z"
+    "fileSavedAt": "2026-11-22T01:36:00Z"
   },
   "changeLog": [
     {
@@ -15314,6 +15745,12 @@
       "editedBy": "PMO child session",
       "explanation": "Fix at 11-22 10:31 JST on the BOSS line: A has no owner questions left (replaced the 4 h owner answer by seat redraft and one last owner check); chain re-placed from the end of B owner; forecasts: N1 598 (plan rows) and 474 (md); today rulings pace 8.6 rows/h kept out of terms/h forecasts. N1 and the beta unchanged.",
       "changedAt": "2026-11-22T01:35:00Z"
+    },
+    {
+      "ordinal": 79,
+      "editedBy": "PMO child session",
+      "explanation": "Fact at 11-22 10:36 JST: pmo-4 took over from pmo-3. Owner order: summarize the unfinished tasks under Lv1 parents. Added 12 parent tasks (uid 437..448: glossary A-D, beta release, beta features and fixes, cleanup, CR drafts, new review standard, validation tools, owner waits) in a new Lv1 task group; 163 unfinished tasks point to them by parentTaskUid; parent ends derive from children (VC-11, VC-12). Successor 14 recount: N1 terms left about 348 (Parts 1-5: 12, Parts 6-13: 85, Parts 30-37: 251, guides); md head gets the forecast for that number. Plan rows stay at 3.60 terms/h with 598 terms. previous.json not copied (re-grouping only). N1 and the beta unchanged.",
+      "changedAt": "2026-11-22T01:36:00Z"
     }
   ]
 }
