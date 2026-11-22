@@ -254,19 +254,20 @@ ScheduleDocument                                    GRS JSON の 1 ファイル
 │   ├─ light                                        明るいテーマの側（custom）
 │   │   ├─ hexColor                                 色の値（#rrggbb）
 │   │   └─ isCalculatedFromOppositeColorScheme      GRS が反対の側の色から計算して作った側だけ true（人が選んだ側は書かない）
-│   └─ dark                                         暗いテーマの側（custom。形は light）
-├─ TaskGroupColor                                   Color から black を除く
-├─ TaskTableWindow                                  タスクの表の見せ方（検索ウィンドウ・遅延診断レポート）
-│   ├─ isScheduleFilteredByChecks                   チェックで日程表を絞るか（チェックしたタスクだけを描く）
-│   ├─ checkedTaskUids[]                            チェックしたタスク
-│   ├─ columnFilters[]                              列のフィルタ（掛けた列ごとに 1 つ）→ ColumnFilter
-│   └─ columnSort                                   表の並べ方（列と向き）→ ColumnSort
-├─ ResourceTableWindow                              担当の表の見せ方（担当リスト）
-│   ├─ isScheduleFilteredByChecks                   チェックで日程表を絞るか（チェックした担当のタスクだけを描く）
-│   ├─ checkedResourceUids[]                        チェックした担当
-│   ├─ isUnassignedChecked                          （担当なし）の行をチェックしたか
-│   ├─ columnFilters[]                              列のフィルタ（掛けた列ごとに 1 つ）→ ColumnFilter
-│   └─ columnSort                                   表の並べ方（列と向き）→ ColumnSort
+│   └─ dark                                         暗いテーマの側（custom）
+│       ├─ hexColor                                 色の値（#rrggbb）
+│       └─ isCalculatedFromOppositeColorScheme      GRS が反対の側の色から計算して作った側だけ true（人が選んだ側は書かない）
+├─ TaskGroupColor                                   帯の色（Color と同じ形。palette の black を除く）
+├─ Paint                                            塗り
+│   ├─ color                                        色 → Color
+│   └─ opacityPercent                               不透明度（%）
+├─ Stroke                                           線（描かないときは書かない）
+│   ├─ color                                        色 → Color
+│   ├─ opacityPercent                               不透明度（%）
+│   └─ widthPx                                      太さ
+├─ ShapeStyle                                       形の見た目（TaskStyle・CommentBoxStyle・HighlightBoxStyle が共にする）
+│   ├─ fill                                         塗り → Paint
+│   └─ stroke                                       線 → Stroke
 ├─ ColumnFilter                                     列のフィルタ
 │   ├─ type                                         values・dateRange
 │   ├─ column                                       列（列が見せる値の名。表ごとの値は JDG-3726）
@@ -277,14 +278,15 @@ ScheduleDocument                                    GRS JSON の 1 ファイル
 ├─ ColumnSort                                       並べ替え
 │   ├─ column                                       列（ColumnFilter.column と同じ値）
 │   └─ direction                                    向き（ascending・descending）
-├─ Paint                                            塗り
-│   ├─ color                                        色 → Color
-│   └─ opacityPercent                               不透明度（%）
-├─ Stroke                                           線（描かないときは書かない）
-│   ├─ color                                        色 → Color
-│   ├─ opacityPercent                               不透明度（%）
-│   └─ widthPx                                      太さ
-└─ ShapeStyle                                       形の見た目（TaskStyle・CommentBoxStyle・HighlightBoxStyle が共にする）
-    ├─ fill                                         塗り → Paint
-    └─ stroke                                       線 → Stroke
+├─ TaskTableWindow                                  タスクの表の見せ方（検索ウィンドウ・遅延診断レポート）
+│   ├─ isScheduleFilteredByChecks                   チェックで日程表を絞るか（チェックしたタスクだけを描く）
+│   ├─ checkedTaskUids[]                            チェックしたタスク
+│   ├─ columnFilters[]                              列のフィルタ（掛けた列ごとに 1 つ）→ ColumnFilter
+│   └─ columnSort                                   表の並べ方（列と向き）→ ColumnSort
+└─ ResourceTableWindow                              担当の表の見せ方（担当リスト）
+    ├─ isScheduleFilteredByChecks                   チェックで日程表を絞るか（チェックした担当のタスクだけを描く）
+    ├─ isUnassignedChecked                          （担当なし）の行をチェックしたか
+    ├─ checkedResourceUids[]                        チェックした担当
+    ├─ columnFilters[]                              列のフィルタ（掛けた列ごとに 1 つ）→ ColumnFilter
+    └─ columnSort                                   表の並べ方（列と向き）→ ColumnSort
 ```

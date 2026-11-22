@@ -105,8 +105,8 @@
       },
       "resourceListWindow": {
         "isScheduleFilteredByChecks": false,
-        "checkedResourceUids": [1],
         "isUnassignedChecked": true,
+        "checkedResourceUids": [1],
         "columnSort": {
           "column": "resourceName",
           "direction": "ascending"
