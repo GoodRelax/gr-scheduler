@@ -215,6 +215,7 @@
 | `rulings.md`（名の辞書の席、2026-11-22 の 36） | `JDG-3710`（取り込み元の型 `ImportOrigin` と `importSessionId` を表のとおりに採る）を足した。本書の行のレビューの前に当てる |
 | `rulings.md`（名の辞書の席、2026-11-22 の 37） | `JDG-3711`（タスクの形の語を表のとおりに採り、`dumbbell` の日本語の名を「ダンベル」とする）を足した。本書の行のレビューの前に当てる |
 | `rulings.md`（名の辞書の席、2026-11-22 の 38） | `JDG-3712`（文書の刻印と変更ログの語を表のとおりに採り、`changedBy.writerType` を `editorType` に改める）を足した。本書の行のレビューの前に当てる |
+| `rulings.md`（名の辞書の席、2026-11-22 の 39） | `JDG-3713`（構造の木 `grs-json-beta-tree.md` をこのとおりと確かめ、仮の 4 つ（`documentSettings.themeHue` の置き場、`checkedTaskUids[]`・`checkedResourceUids[]`・`isUnassignedChecked`）を確定する。GRS JSON の語の問いはこれで閉じる）を足した。本書の行のレビューの前に当てる |
 | `defects.md` | `DFC-3579`（本書）—— 行のレビューの後に起こす |
 | `changelog.md` | 当てるときに 1 行 |
 
