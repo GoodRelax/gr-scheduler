@@ -198,6 +198,10 @@
 | `rulings.md`（名の辞書の席、2026-11-22 の 19） | `JDG-3693`（用語集の席の今の最優先は GRS JSON の語（BGQA3 の残り）。BGQA4・BGQA5 の名を今は持ち主に問わない。のちに `JDG-3695` が「1 つずつは問わず、見直しの中で方針から決める」と読み替えた）を足した。本書の行のレビューの前に当てる |
 | `rulings.md`（名の辞書の席、2026-11-22 の 20） | `JDG-3694`（タスクの WBS の親を指すキーは `parentTaskUid` のまま。問 6-9-5 の 3 語はこれで閉じる）を足した。本書の行のレビューの前に当てる |
 | `rulings.md`（名の辞書の席、2026-11-22 の 21） | `JDG-3695`（外に出る名（GRS JSON・Agent API・文書の命令）を決めることが、ほかの仕事より先。GRS JSON の語が終わったら、すぐ Agent API の名の見直しに入る。用語集の席が先に方針の案を 1 枚で出し、持ち主が方針を決めてから名をまとめてそろえる）を足した。本書の行のレビューの前に当てる |
+| `rulings.md`（名の辞書の席、2026-11-22 の 22） | `JDG-3696`（タスクの形の値 `endpointSpan` を `dumbbell` に改める。外の AI への質問状 `task-shape-naming-request-1.md` の答えを読んだ持ち主の決め。日本語の名は問 6-9-0 で問う）を足した。本書の行のレビューの前に当てる |
+| `rulings.md`（名の辞書の席、2026-11-22 の 23） | `JDG-3697`（縦の倍率と自動で出す深さを `documentSettings.verticalZoom { ratio, automaticallyShownDepth }` に置く。入れ物 `taskGroupTreeView` は除く）を足した。本書の行のレビューの前に当てる |
+| `rulings.md`（名の辞書の席、2026-11-22 の 24） | `JDG-3698`（遅延診断のキーを `delayDiagnosisSettings`・`delayDiagnosisReportWindow` にする。`JDG-3512` の綴りにそろえる）を足した。本書の行のレビューの前に当てる |
+| `rulings.md`（名の辞書の席、2026-11-22 の 25） | `JDG-3699`（4 つの `style` の型を `TaskStyle`・`CommentBoxStyle`・`HighlightBoxStyle`・`TaskGroupStyle` にする。`TaskGraphicStyle` を改める）を足した。本書の行のレビューの前に当てる |
 | `defects.md` | `DFC-3579`（本書）—— 行のレビューの後に起こす |
 | `changelog.md` | 当てるときに 1 行 |
 
