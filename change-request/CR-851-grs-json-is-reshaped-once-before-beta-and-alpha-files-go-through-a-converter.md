@@ -202,6 +202,11 @@
 | `rulings.md`（名の辞書の席、2026-11-22 の 23） | `JDG-3697`（縦の倍率と自動で出す深さを `documentSettings.verticalZoom { ratio, automaticallyShownDepth }` に置く。入れ物 `taskGroupTreeView` は除く）を足した。本書の行のレビューの前に当てる |
 | `rulings.md`（名の辞書の席、2026-11-22 の 24） | `JDG-3698`（遅延診断のキーを `delayDiagnosisSettings`・`delayDiagnosisReportWindow` にする。`JDG-3512` の綴りにそろえる）を足した。本書の行のレビューの前に当てる |
 | `rulings.md`（名の辞書の席、2026-11-22 の 25） | `JDG-3699`（4 つの `style` の型を `TaskStyle`・`CommentBoxStyle`・`HighlightBoxStyle`・`TaskGroupStyle` にする。`TaskGraphicStyle` を改める）を足した。本書の行のレビューの前に当てる |
+| `rulings.md`（名の辞書の席、2026-11-22 の 26） | `JDG-3700`（文書の刻印のキーは `lastEditedBy` のまま。値の型の名を `Writer` から `Editor` に改める）を足した。本書の行のレビューの前に当てる |
+| `rulings.md`（名の辞書の席、2026-11-22 の 27） | `JDG-3701`（`grs.importOrigin` の 2 つの番号のキーを `sourceProjectUid`・`sourceTaskUid` にする。`sourceUid` を改める）を足した。本書の行のレビューの前に当てる |
+| `rulings.md`（名の辞書の席、2026-11-22 の 28） | `JDG-3702`（パレットの白と黒の名を `paper`・`ink` から `white`・`black` に戻す。10 の名はすべて明るいテーマでの見え方を言う。灰色は 2 つなので `dimGray`・`lightGray` のまま）を足した。本書の行のレビューの前に当てる |
+| `rulings.md`（名の辞書の席、2026-11-22 の 29） | `JDG-3703`（マイルストーンの形の値 `person` → `meetingPeople`、`smile` → `smilingFace`。日本語の名の記号を言葉にする）を足した。本書の行のレビューの前に当てる |
+| `rulings.md`（名の辞書の席、2026-11-22 の 30） | `JDG-3704`（濃い灰色は `dimGray` のまま。CSS の `darkgray` は `gray` より明るく、`darkGray` と呼ぶと逆の明るさに読まれる）を足した。本書の行のレビューの前に当てる |
 | `defects.md` | `DFC-3579`（本書）—— 行のレビューの後に起こす |
 | `changelog.md` | 当てるときに 1 行 |
 
