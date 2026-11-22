@@ -14,7 +14,7 @@
       "creationDate": "2026-10-31T08:50:00",
       "revision": 11,
       "startDate": "2026-10-17T05:30:00",
-      "statusDate": "2026-11-22T10:36:00",
+      "statusDate": "2026-11-22T10:42:00",
       "minutesPerDay": 1440,
       "minutesPerWeek": 10080,
       "daysPerMonth": 30,
@@ -15272,10 +15272,10 @@
     "zoomY": 1.099862517185352
   },
   "documentStamp": {
-    "scheduleUpdatedAt": "2026-11-22T01:36:00Z",
+    "scheduleUpdatedAt": "2026-11-22T01:42:00Z",
     "lastEditedBy": "PMO child session",
     "settingsUpdatedAt": "2026-10-20T20:24:42Z",
-    "fileSavedAt": "2026-11-22T01:36:00Z"
+    "fileSavedAt": "2026-11-22T01:42:00Z"
   },
   "changeLog": [
     {
@@ -15751,6 +15751,12 @@
       "editedBy": "PMO child session",
       "explanation": "Fact at 11-22 10:36 JST: pmo-4 took over from pmo-3. Owner order: summarize the unfinished tasks under Lv1 parents. Added 12 parent tasks (uid 437..448: glossary A-D, beta release, beta features and fixes, cleanup, CR drafts, new review standard, validation tools, owner waits) in a new Lv1 task group; 163 unfinished tasks point to them by parentTaskUid; parent ends derive from children (VC-11, VC-12). Successor 14 recount: N1 terms left about 348 (Parts 1-5: 12, Parts 6-13: 85, Parts 30-37: 251, guides); md head gets the forecast for that number. Plan rows stay at 3.60 terms/h with 598 terms. previous.json not copied (re-grouping only). N1 and the beta unchanged.",
       "changedAt": "2026-11-22T01:36:00Z"
+    },
+    {
+      "ordinal": 80,
+      "editedBy": "PMO child session",
+      "explanation": "Fact at 11-22 10:42 JST: BOSS asked to drop the 10.7 terms/h value from the 348-term N1 forecast (rulings rows cannot be turned into terms/h). Removed the 11-27 forecast from the md head; the rulings-row pace stays as a reference line. Plan rows unchanged.",
+      "changedAt": "2026-11-22T01:42:00Z"
     }
   ]
 }
