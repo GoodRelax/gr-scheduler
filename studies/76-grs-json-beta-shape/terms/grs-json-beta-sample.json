@@ -55,17 +55,17 @@
       "topEdgeTaskGroupOffsetPercent": 0
     },
     "scheduleCanvasElements": {
-      "isDateGridLinesVisible": true,
-      "isGroupGridLinesVisible": false,
-      "isProgressLineVisible": true,
-      "isDependencyLineVisible": true,
       "isPlanBarVisible": true,
-      "isPlanDatesVisible": true,
       "isActualBarVisible": true,
+      "isBaselineOutlineVisible": true,
+      "isAssigneeLabelVisible": true,
       "isPercentCompleteLabelVisible": true,
       "isProgressStatusMarkVisible": true,
-      "isBaselineOutlineVisible": true,
-      "isAssigneeLabelVisible": true
+      "isPlanDatesVisible": true,
+      "isDependencyLineVisible": true,
+      "isProgressLineVisible": true,
+      "isDateGridLinesVisible": true,
+      "isTaskGroupGridLinesVisible": false
     },
     "delayDiagnosisSettings": {
       "parentTaskProgressToleranceWorkingDays": 1
@@ -131,20 +131,22 @@
       "company": "Example Org",
       "manager": "Manager A",
       "author": "Author A",
-      "revision": 3,
       "creationDate": "2026-11-20T09:00:00",
+      "revision": 3,
       "startDate": "2026-12-01T08:00:00",
-      "statusDate": "2026-12-04T17:00:00",
+      "calendarUid": 1,
+      "defaultStartTime": "08:00:00",
+      "defaultFinishTime": "17:00:00",
       "minutesPerDay": 480,
       "minutesPerWeek": 2400,
       "daysPerMonth": 20,
       "weekStartDay": 1,
-      "defaultStartTime": "08:00:00",
-      "defaultFinishTime": "17:00:00",
-      "calendarUid": 1,
-      "passthrough": {
-        "ScheduleFromStart": 1,
-        "CurrencyCode": "USD"
+      "statusDate": "2026-12-04T17:00:00",
+      "grs": {
+        "passthrough": {
+          "ScheduleFromStart": 1,
+          "CurrencyCode": "USD"
+        }
       }
     },
     "calendars": [
@@ -152,14 +154,22 @@
         "uid": 1,
         "name": "Standard",
         "isBaseCalendar": true,
+        "grs": {
+          "passthrough": {
+            "GUID": "8677e724-9b8c-4b5e-aa02-c53710734eb3",
+            "IsBaselineCalendar": 0
+          }
+        },
         "weekDays": [
           {
             "dayType": 1,
             "dayWorking": false,
-            "passthrough": {
-              "TimePeriod": {
-                "FromDate": "2026-01-01T00:00:00",
-                "ToDate": "2026-12-31T23:59:00"
+            "grs": {
+              "passthrough": {
+                "TimePeriod": {
+                  "FromDate": "2026-01-01T00:00:00",
+                  "ToDate": "2026-12-31T23:59:00"
+                }
               }
             }
           },
@@ -216,19 +226,17 @@
             "dayWorking": true,
             "type": 1,
             "period": 1,
+            "grs": {
+              "passthrough": {
+                "EnteredByOccurrences": 1,
+                "Occurrences": 1
+              }
+            },
             "workingTimes": [
               { "fromTime": "08:00:00", "toTime": "12:00:00" }
-            ],
-            "passthrough": {
-              "EnteredByOccurrences": 1,
-              "Occurrences": 1
-            }
+            ]
           }
-        ],
-        "passthrough": {
-          "GUID": "8677e724-9b8c-4b5e-aa02-c53710734eb3",
-          "IsBaselineCalendar": 0
-        }
+        ]
       },
       {
         "uid": 2,
@@ -237,18 +245,30 @@
         "baseCalendarUid": 1
       }
     ],
+    "passthroughCalendars": [
+      {
+        "precedingCalendarUid": 2,
+        "mspdiElement": {
+          "UID": 3,
+          "Name": "Baseline calendar",
+          "IsBaseCalendar": 1,
+          "IsBaselineCalendar": 1,
+          "BaseCalendarUID": -1
+        }
+      }
+    ],
     "tasks": [
       {
         "uid": 1,
         "name": "Work package A",
-        "notes": "Parent of the two steps below.",
         "start": "2026-12-01T08:00:00",
         "finish": "2026-12-04T17:00:00",
         "milestone": false,
         "percentComplete": 0,
         "calendarUid": 1,
-        "hyperlinkAddress": "https://example.com/work-package-a",
         "hyperlink": "Work package A page",
+        "hyperlinkAddress": "https://example.com/work-package-a",
+        "notes": "Parent of the two steps below.",
         "siblingOrder": 1,
         "grs": {
           "style": {
@@ -272,14 +292,14 @@
         "name": "Prepare draft",
         "start": "2026-12-01T08:00:00",
         "finish": "2026-12-03T17:00:00",
-        "milestone": false,
-        "deadline": "2026-12-03T17:00:00",
-        "actualStart": "2026-12-01T08:00:00",
         "stop": "2026-12-02T12:00:00",
         "resume": "2026-12-03T08:00:00",
         "resumeValid": true,
+        "milestone": false,
         "percentComplete": 50,
+        "actualStart": "2026-12-01T08:00:00",
         "calendarUid": 1,
+        "deadline": "2026-12-03T17:00:00",
         "parentTaskUid": 1,
         "siblingOrder": 1,
         "grs": {
@@ -303,14 +323,14 @@
             "sourceTaskUid": 12,
             "importSessionId": "618c67bd-8974-481d-848b-eb68aa1fb8ca",
             "mspdiImportCountWhenLastIncluded": 1
+          },
+          "passthrough": {
+            "Priority": 500,
+            "ExtendedAttribute": [
+              { "FieldID": "188743731", "Value": "Alpha" },
+              { "FieldID": "188743734", "Value": "Beta" }
+            ]
           }
-        },
-        "passthrough": {
-          "Priority": 500,
-          "ExtendedAttribute": [
-            { "FieldID": "188743731", "Value": "Alpha" },
-            { "FieldID": "188743734", "Value": "Beta" }
-          ]
         }
       },
       {
@@ -319,10 +339,10 @@
         "start": "2026-12-04T17:00:00",
         "finish": "2026-12-04T17:00:00",
         "milestone": true,
-        "deadline": "2026-12-04T17:00:00",
+        "percentComplete": 100,
         "actualStart": "2026-12-04T17:00:00",
         "actualFinish": "2026-12-04T17:00:00",
-        "percentComplete": 100,
+        "deadline": "2026-12-04T17:00:00",
         "parentTaskUid": 1,
         "siblingOrder": 2,
         "grs": {
@@ -347,11 +367,35 @@
             "type": 1,
             "linkLag": 4800,
             "lagFormat": 7,
-            "passthrough": {
-              "CrossProject": 0
+            "grs": {
+              "passthrough": {
+                "CrossProject": 0
+              }
             }
           }
         ]
+      }
+    ],
+    "passthroughTasks": [
+      {
+        "mspdiElement": {
+          "UID": 0,
+          "ID": 0,
+          "Name": "Sample Schedule",
+          "Type": 1,
+          "IsNull": 0,
+          "OutlineNumber": "0",
+          "OutlineLevel": 0,
+          "Summary": 1
+        }
+      },
+      {
+        "precedingTaskUid": 2,
+        "mspdiElement": {
+          "UID": 4,
+          "ID": 3,
+          "IsNull": 1
+        }
       }
     ],
     "resources": [
@@ -361,9 +405,29 @@
         "type": 1,
         "isCostResource": false,
         "calendarUid": 2,
-        "passthrough": {
-          "Initials": "WA",
-          "MaxUnits": 1
+        "grs": {
+          "passthrough": {
+            "Initials": "WA",
+            "MaxUnits": 1
+          }
+        }
+      }
+    ],
+    "passthroughResources": [
+      {
+        "mspdiElement": {
+          "UID": 0,
+          "ID": 0,
+          "Type": 1,
+          "IsNull": 0
+        }
+      },
+      {
+        "precedingResourceUid": 1,
+        "mspdiElement": {
+          "UID": 2,
+          "ID": 2,
+          "IsNull": 1
         }
       }
     ],
@@ -372,9 +436,22 @@
         "uid": 1,
         "taskUid": 2,
         "resourceUid": 1,
-        "passthrough": {
-          "Units": 1,
-          "Work": "PT20H0M0S"
+        "grs": {
+          "passthrough": {
+            "Units": 1,
+            "Work": "PT20H0M0S"
+          }
+        }
+      }
+    ],
+    "passthroughAssignments": [
+      {
+        "precedingAssignmentUid": 1,
+        "mspdiElement": {
+          "UID": 2,
+          "TaskUID": 3,
+          "ResourceUID": -65535,
+          "Units": 1
         }
       }
     ],
@@ -469,69 +546,6 @@
         },
         "hyperlinkAddress": "https://example.com/notes/prepare-draft",
         "hyperlink": "Draft notes"
-      }
-    ],
-    "passthroughTasks": [
-      {
-        "mspdiElement": {
-          "UID": 0,
-          "ID": 0,
-          "Name": "Sample Schedule",
-          "Type": 1,
-          "IsNull": 0,
-          "OutlineNumber": "0",
-          "OutlineLevel": 0,
-          "Summary": 1
-        }
-      },
-      {
-        "precedingTaskUid": 2,
-        "mspdiElement": {
-          "UID": 4,
-          "ID": 3,
-          "IsNull": 1
-        }
-      }
-    ],
-    "passthroughResources": [
-      {
-        "mspdiElement": {
-          "UID": 0,
-          "ID": 0,
-          "Type": 1,
-          "IsNull": 0
-        }
-      },
-      {
-        "precedingResourceUid": 1,
-        "mspdiElement": {
-          "UID": 2,
-          "ID": 2,
-          "IsNull": 1
-        }
-      }
-    ],
-    "passthroughAssignments": [
-      {
-        "precedingAssignmentUid": 1,
-        "mspdiElement": {
-          "UID": 2,
-          "TaskUID": 3,
-          "ResourceUID": -65535,
-          "Units": 1
-        }
-      }
-    ],
-    "passthroughCalendars": [
-      {
-        "precedingCalendarUid": 2,
-        "mspdiElement": {
-          "UID": 3,
-          "Name": "Baseline calendar",
-          "IsBaseCalendar": 1,
-          "IsBaselineCalendar": 1,
-          "BaseCalendarUID": -1
-        }
       }
     ]
   },

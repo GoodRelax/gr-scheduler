@@ -1,5 +1,3 @@
-BGQA6
-
 # GRS JSON の最終レビュー —— 持ち主の目視
 
 > 「回答:」の後ろに答えを書いて保存し、1 行目の BGQA6 を切り取ってください。
@@ -24,6 +22,7 @@ BGQA6
 | GRS のスカラー 5 つの置き場と順 | `scheduleData` の先頭に、効く範囲の広い順（時差 → 元の形式 → 取り込んだ最上位の OutlineLevel → 取り込んだ回数 → uid の数え手） | `JDG-3720`・`JDG-3721` |
 | 描く物の旗 | 11 個を `documentSettings.scheduleCanvasElements` に束ね、効く範囲の広い順・物ごとに並べる。`isTimeOfDayVisible` は時間の軸の群へ | `JDG-3722`〜`JDG-3724` |
 | 表の列の名 | 列が見せる値で名付ける。25 列の名は `ColumnFilter.column` の値のとおり | `JDG-3725`・`JDG-3726` |
+| 外の AI の指摘で改めた名（下の木は当てた後の版） | `isScheduleFilteredByChecks`・`isCalculatedFromOppositeColorScheme`・`allowedEditorGroupName`・`taskPlacementDirection`・`startSlopeCalendarDays`／`finishSlopeCalendarDays`・`TaskGroupColor`／`taskGroupTopOffsetPercent`（JSON から Lane を無くした）・`showMode`・`mspdiImportCountWhenLastIncluded`・`parentTaskProgressToleranceWorkingDays`・`additionalTimeZones[]`・`isProgressStatusMarkVisible`／列 `progressStatus`。名を変えずに説明で補う: `automaticallyShownDepth`・`"template"` | `JDG-3727`〜`JDG-3742` |
 
 ***
 
@@ -46,7 +45,7 @@ R010  |     +- type                判別子
 R011  |     |  +- "user"           人が画面で編集した
 R012  |     |  +- "template"       まだ誰も編集していない（ひな形のまま）
 R013  |     |  +- "agent"          AI が Agent API で編集した
-R014  |     +- name                AI が名乗った名（agent のときだけ）
+R014  |     +- name                AI が名乗った名（agent のときだけ）★サーバーと連携してユーザーが分かる場合はユーザー名をここに入れる。
 R015  +- documentSettings          文書設定（下の「文書設定」）
 R016  +- scheduleData              スケジュールデータ（下の 2 つの群）
 R017  +- changeLogEntries[]        変更履歴
@@ -101,7 +100,7 @@ R058  +- fitDayRange                                全体表示期間
 R059  |  +- type                                    判別子
 R060  |  |  +- "fixed"                              決まった期間
 R061  |  |  +- "automatic"                          描ける物すべての範囲（期間を持たない）
-R062  |  +- firstDay                                最初の日（fixed）
+R062  |  +- firstDay                                最初の日（fixed） ★左右のマージンはどこでもつ？
 R063  |  +- lastDay                                 最後の日（fixed）
 R064  +- verticalZoom                               縦のズーム
 R065  |  +- ratio                                   縦の倍率（1 が既定）
@@ -122,16 +121,16 @@ R079  |  +- topEdgeTaskGroupId                      上の端の帯（fixed）
 R080  |  +- topEdgeTaskGroupOffsetPercent           上の端が、その帯の上から何 % の所か（fixed）
 R081  +- scheduleCanvasElements                     Schedule Canvas に描く物
 R082  |  +- isDateGridLinesVisible                  日の罫線を見せるか
-R083  |  +- isGroupGridLinesVisible                 グループ罫線（タスクグループの境の横線）を見せるか
+R083  |  +- isGroupGridLinesVisible  ★isTaskGroupGridLinesVisibleとすべきでは？               グループ罫線（タスクグループの境の横線）を見せるか
 R084  |  +- isProgressLineVisible                   イナズマ線を見せるか
 R085  |  +- isDependencyLineVisible                 依存線を見せるか
 R086  |  +- isPlanBarVisible                        予定バーを見せるか
 R087  |  +- isPlanDatesVisible                      予定の日付を見せるか
-R088  |  +- isActualBarVisible                      実績バーを見せるか
+R088  |  +- isActualBarVisible               ★場所をplan barの下に移動    実績バーを見せるか
 R089  |  +- isPercentCompleteLabelVisible           完了率のラベルを見せるか
 R090  |  +- isProgressStatusMarkVisible             進捗ステータスマークと再開マークを見せるか
 R091  |  +- isBaselineOutlineVisible                前回予定を重ねるか（前回予定輪郭）
-R092  |  +- isAssigneeLabelVisible                  担当のラベルを見せるか
+R092  |  +- isAssigneeLabelVisible           ★担当 → 進捗% →進捗マーク→ 開始日-終了日 と表示する順番にisXXXを並び替える。        担当のラベルを見せるか
 R093  +- delayDiagnosisSettings                     遅延診断の設定
 R094  |  +- parentTaskProgressToleranceWorkingDays  遅延診断が親タスクの進み具合に許す幅（稼働日）
 R095  +- tableWindows                               3 つの表の見せ方
@@ -157,7 +156,7 @@ R105  |  +- "mspdi15"                                 MSPDI（Project の版 15 
 R106  +- importedTopTaskOutlineLevel                  取り込んだファイルの、最上位のタスクの OutlineLevel
 R107  +- mspdiImportCount                             MSPDI を取り込んだ回数
 R108  +- highestIssuedUid                             uid の数え手（GRS が出した最も大きい uid）
-R109  +- project [M]                                  プロジェクト（1 件）
+R109  +- project [M]                                  プロジェクト（1 件）  ★[M]の順序はMSPDIの定義に合っているか？
 R110  |  +- uid [M]                                   一意な識別子（文字列）
 R111  |  +- name [M]                                  プロジェクト名
 R112  |  +- title [M]                                 タイトル
@@ -184,7 +183,7 @@ R132  |  |  +- 6                                      土曜
 R133  |  +- defaultStartTime [M]                      既定の開始時刻
 R134  |  +- defaultFinishTime [M]                     既定の終了時刻
 R135  |  +- calendarUid [M]                           稼働日を数える暦
-R136  |  +- passthrough [G]                           持ち越した MSPDI の値（MSPDI の構造と名のまま）
+R136  |  +- passthrough [G]         ★GRS特有のは一律 grsのname spaceに入れるのでは？ よって1つしか要素が無くてもxxx.grs.pasthoughとすべきでは？ 他も同様  または、passthroughByGrsにするか。                持ち越した MSPDI の値（MSPDI の構造と名のまま）
 R137  +- calendars[] [M]                              暦
 R138  |  +- uid [M]                                   一意な識別子
 R139  |  +- name [M]                                  暦の名
@@ -347,7 +346,7 @@ R288  |  +- uid                           今のタスクの uid
 R289  |  +- name                          タスク名
 R290  |  +- start                         前回予定の開始
 R291  |  +- finish                        前回予定の終了
-R292  |  +- milestone                     マイルストーンか
+R292  |  +- milestone                     マイルストーンか  ★前回のタスクやマイルストーンの形状はどこでもつの？
 R293  +- highlightBoxes[]                 ハイライトボックス
 R294  |  +- id                            一意な UUID
 R295  |  +- style                         見た目（型 HighlightBoxStyle）
@@ -395,7 +394,7 @@ R336  |  |  +- dx                         横のずれ
 R337  |  |  +- dy                         縦のずれ
 R338  |  +- hyperlinkAddress              リンク先の URL
 R339  |  +- hyperlink                     リンクのタイトル
-R340  +- passthroughTasks[]               GRS がタスクにしない MSPDI の要素
+R340  +- passthroughTasks[]               GRS がタスクにしない MSPDI の要素  ★ MSPDI側にあるパススルーとこの辺にあるパススルーの関係は？
 R341  |  +- precedingTaskUid              前にある、いちばん近いタスクの uid（先頭では書かない）
 R342  |  +- mspdiElement                  MSPDI の要素（構造と名のまま）
 R343  +- passthroughResources[]           GRS が担当にしない MSPDI の要素
@@ -433,7 +432,7 @@ R367  |  +- "purple"                             紫
 R368  +- light                                   明るいテーマの側（custom）
 R369  |  +- hexColor                             色の値（#rrggbb）
 R370  |  +- isCalculatedFromOppositeColorScheme  GRS が反対の側の色から計算した側だけ true
-R371  +- dark                                    暗いテーマの側（custom。形は light）
+R371  +- dark                                    暗いテーマの側（custom。形は light） ★良く分からんな。 hexColorとisCalc.. がlightと対象に無いのはなぜ？
 R372  TaskGroupColor                             帯の色（Color から black を除く）
 R373  TaskTableWindow                            タスクの表の見せ方（検索ウィンドウ・遅延診断レポート）
 R374  +- isScheduleFilteredByChecks              チェックで日程表を絞るか（チェックしたタスクだけを描く）
@@ -443,7 +442,7 @@ R377  +- columnSort                              表の並べ方（列と向き�
 R378  ResourceTableWindow                        担当の表の見せ方（担当リスト）
 R379  +- isScheduleFilteredByChecks              チェックで日程表を絞るか（チェックした担当のタスクだけを描く）
 R380  +- checkedResourceUids[]                   チェックした担当
-R381  +- isUnassignedChecked                     （担当なし）の行をチェックしたか
+R381  +- isUnassignedChecked                  ★順番はisScheduleFil...の下 xxx[]の上がいいのでは？   （担当なし）の行をチェックしたか
 R382  +- columnFilters[]                         列のフィルタ（掛けた列ごとに 1 つ）-> ColumnFilter
 R383  +- columnSort                              表の並べ方（列と向き）-> ColumnSort
 R384  ColumnFilter                               列のフィルタ
@@ -469,7 +468,7 @@ R403  |  +- "planDates"                          遅延診断: 予定日（開�
 R404  |  +- "actualDates"                        遅延診断: 実績日（開始〜終了）
 R405  |  +- "diagnosisReason"                    遅延診断: 理由
 R406  |  +- "resourceName"                       担当リスト: 担当名
-R407  |  +- "isSelected"                         担当リスト: 選択（その担当を選んでいるか）
+R407  |  +- "isSelected"                  ★isResourceSelected  かな。 あと順番が変。 なぜここだけisがあるの？ 他のisは？       担当リスト: 選択（その担当を選んでいるか）
 R408  |  +- "assignedTaskCount"                  担当リスト: 担当タスク数
 R409  |  +- "assignedTaskNames"                  担当リスト: 担当タスク
 R410  +- hiddenValues[]                          隠す値（values）。状態の列は用語集の英語の名（例 finished・delay・task・selected、JDG-3735）、ほかの列はセルの値
@@ -481,7 +480,7 @@ R415  +- column                                  列（ColumnFilter.column と�
 R416  +- direction                               向き
 R417     +- "ascending"                          小さい順
 R418     +- "descending"                         大きい順
-R419  Paint                                      塗り
+R419  Paint                            ★Style系の要素は近くに並べろ      塗り
 R420  +- color                                   色 -> Color
 R421  +- opacityPercent                          不透明度（%）
 R422  Stroke                                     線（描かないときは書かない）
@@ -501,4 +500,4 @@ R428  +- stroke                                  線 -> Stroke
 
 ツリーの全体について、気づいた事があれば書いてください（構造・並び・足りない物など）。
 
-回答:
+回答: コメントした。 内容を確認して個別に議論するぞ。
