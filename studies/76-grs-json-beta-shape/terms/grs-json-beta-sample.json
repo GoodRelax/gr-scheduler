@@ -121,6 +121,10 @@
     "sourceFormat": "mspdi15",
     "importedTopTaskOutlineLevel": 1,
     "mspdiImportCount": 1,
+    "lastMspdiImport": {
+      "importedAt": "2026-12-02T03:00:00Z",
+      "fileName": "plan-v3.xml"
+    },
     "highestIssuedUid": 4,
     "project": {
       "uid": "1",
@@ -269,7 +273,7 @@
         "hyperlink": "Work package A page",
         "hyperlinkAddress": "https://example.com/work-package-a",
         "notes": "Parent of the two steps below.",
-        "siblingOrder": 1,
+        "siblingIndex": 0,
         "grs": {
           "style": {
             "taskShape": "dumbbell",
@@ -301,7 +305,7 @@
         "calendarUid": 1,
         "deadline": "2026-12-03T17:00:00",
         "parentTaskUid": 1,
-        "siblingOrder": 1,
+        "siblingIndex": 0,
         "grs": {
           "startSlopeCalendarDays": 2,
           "finishSlopeCalendarDays": 1,
@@ -344,7 +348,7 @@
         "actualFinish": "2026-12-04T17:00:00",
         "deadline": "2026-12-04T17:00:00",
         "parentTaskUid": 1,
-        "siblingOrder": 2,
+        "siblingIndex": 1,
         "grs": {
           "style": {
             "milestoneShape": "diamond",
@@ -459,7 +463,7 @@
       {
         "id": "db19099a-0302-418d-82e1-e95c7a6a093c",
         "name": "Work package A",
-        "siblingOrder": 1,
+        "siblingIndex": 0,
         "style": {
           "color": { "type": "theme" }
         },
@@ -474,7 +478,7 @@
         "id": "15e4d36c-dc58-4088-b28d-3530c76a6da5",
         "name": "Steps",
         "parentTaskGroupId": "db19099a-0302-418d-82e1-e95c7a6a093c",
-        "siblingOrder": 1,
+        "siblingIndex": 0,
         "style": {
           "color": { "type": "palette", "name": "lightGray" }
         },

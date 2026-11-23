@@ -17,6 +17,15 @@ Inputs:
 Usage (run from any folder):
   python schema_to_review_tree.py ja-num   -> the tree, numbered R001.. (the published form)
   python schema_to_review_tree.py ja | en | en-num
+  python schema_to_review_tree.py desc | desc-num -> the tree with the first English sentence of each
+                                              key's description in place of the Japanese column
+  python schema_to_review_tree.py japanese-num -> the Japanese version: each key with its Japanese name and,
+                                              under it, the Japanese translation of its description
+                                              (grs-json-beta-descriptions-ja.tsv, path<TAB>ja)
+  python schema_to_review_tree.py english-num -> the tree in English only: each key with its whole
+                                              English description (the owner's review of the descriptions)
+  python schema_to_review_tree.py review-num -> the tree with the Japanese column and, under each key,
+                                              its whole English description (the owner's review, JDG-3761)
   python schema_to_review_tree.py count    -> keys and values per part
   python schema_to_review_tree.py check    -> unified diff against grs-json-final-review-tree.md;
                                               also reports labels that no tree line uses.
@@ -45,11 +54,13 @@ import json
 import os
 import re
 import sys
+import textwrap
 import unicodedata
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 SCHEMA = os.path.join(HERE, 'grs-json-beta.schema.json')
 LABELS = os.path.join(HERE, 'grs-json-beta-tree-labels-ja.tsv')
+JA_DESCRIPTIONS = os.path.join(HERE, 'grs-json-beta-descriptions-ja.tsv')
 TREE_MD = os.path.join(HERE, 'grs-json-final-review-tree.md')
 
 ROOT_NAME = 'ScheduleDocument'
@@ -61,12 +72,45 @@ PARTS = [
     ('grs', 'スケジュールデータ（GRS だけが持つ配列）'),
     ('types', '共通の型（-> で指す物）'),
 ]
+EN_TITLES = {
+    'root': 'Root and records',
+    'settings': 'Document settings',
+    'mspdi': 'Schedule data (head values and the MSPDI part)',
+    'grs': 'Schedule data (the GRS part)',
+    'types': 'Shared types',
+}
 SPLIT_KEY = 'taskGroups'
 SHARED_TYPES = [
     'Color', 'TaskGroupColor', 'Paint', 'Stroke', 'ShapeStyle',
     'ColumnFilter', 'ColumnSort', 'TaskTableWindow', 'ResourceTableWindow',
 ]
+SEP = '\x00'  # splits the Japanese label from the English text in the review mode
 MSPDI_RE = re.compile(r'^Same as MSPDI ([A-Za-z/]+)')
+
+
+def first_sentence(text):
+    """The first sentence of a description, without the opening 'Same as MSPDI X.' and 'Only when type is ...'."""
+    text = re.sub(r'^Same as MSPDI [A-Za-z/]+\.\s*', '', text)
+    text = re.sub(r'^(Write this key only|Only) when type is [^.]*\.\s*', '', text)
+    if text.startswith('"'):
+        return ''  # a list of values: the value lines below say it
+    m = re.match(r'(.+?\.)(\s|$)', text)
+    return m.group(1) if m else text
+
+
+def wrap_text(text, limit):
+    """Wrap by display width: English at spaces (limit = characters), Japanese anywhere (limit = wide characters)."""
+    if not any(width(ch) == 2 for ch in text):
+        return textwrap.wrap(text, limit)
+    out, line = [], ''
+    for ch in text:
+        if width(line + ch) > limit * 2:
+            out.append(line)
+            line = ''
+        line += ch
+    if line:
+        out.append(line)
+    return out
 
 
 def width(text):
@@ -74,9 +118,11 @@ def width(text):
 
 
 class Walker:
-    def __init__(self, schema, labels):
+    def __init__(self, schema, labels, desc_mode=False, ja_desc=None):
         self.schema = schema
         self.labels = labels
+        self.desc_mode = desc_mode
+        self.ja_desc = ja_desc or {}
         self.used = set()
         self.missing = []
 
@@ -120,6 +166,8 @@ class Walker:
 
     # ---- labels --------------------------------------------------------
     def label(self, path):
+        if self.desc_mode == 'en':
+            return ''
         if path in self.labels:
             self.used.add(path)
             return self.labels[path]
@@ -143,8 +191,17 @@ class Walker:
         body = node['items'] if is_array else node
         kind, payload = self.classify(body)
         ja = self.label(node_path)
-        if kind == 'shared':
+        full = desc or (payload.get('description', '') if isinstance(payload, dict) else '')
+        if self.desc_mode == 'first':
+            ja = first_sentence(full) or ja
+        if self.desc_mode == 'en':
+            ja = ('(type ' + payload + ') ' if kind == 'shared' else '') + full
+        elif kind == 'shared':
             ja = ja + ('-> ' if ja.endswith('）') else ' -> ') + payload
+        if self.desc_mode == 'full' and full:
+            ja = ja + SEP + full
+        if self.desc_mode == 'jadesc' and self.ja_desc.get(node_path):
+            ja = ja + SEP + self.ja_desc[node_path]
         out.append((depth, name, ja))
         if kind == 'node':
             self.children(payload, node_path, depth + 1, bool(m), out, skip, only)
@@ -159,7 +216,8 @@ class Walker:
         for key in keys:
             child_path = (path + '.' if path else '') + key
             if skip and key in skip:
-                out.append((depth, key, self.label(child_path)))
+                text = props[key].get('title', '') if self.desc_mode == 'en' else self.label(child_path)
+                out.append((depth, key, text))
                 continue
             self.lines_for_key(key, props[key], child_path, depth, is_mspdi, out)
         if 'enum' in node and node.get('type') != 'number':
@@ -188,22 +246,25 @@ class Walker:
     def part(self, pid):
         s = self.schema
         out = []
+        en = self.desc_mode == 'en'
         if pid == 'root':
-            out.append((0, ROOT_NAME, self.label(ROOT_NAME)))
+            out.append((0, ROOT_NAME, s.get('title', '') if en else self.label(ROOT_NAME)))
             self.children(s, '', 1, False, out, skip={'documentSettings', 'scheduleData'})
         elif pid == 'settings':
-            node = self.classify(s['properties']['documentSettings'])[1]
-            out.append((0, 'documentSettings', self.label('settings:documentSettings')))
+            prop = s['properties']['documentSettings']
+            node = self.classify(prop)[1]
+            out.append((0, 'documentSettings', prop.get('description', '') if en else self.label('settings:documentSettings')))
             self.children(node, 'documentSettings', 1, False, out)
         elif pid in ('mspdi', 'grs'):
-            node = self.classify(s['properties']['scheduleData'])[1]
-            out.append((0, 'scheduleData', self.label(pid + ':scheduleData')))
+            prop = s['properties']['scheduleData']
+            node = self.classify(prop)[1]
+            out.append((0, 'scheduleData', prop.get('description', '') if en else self.label(pid + ':scheduleData')))
             self.children(node, 'scheduleData', 1, False, out,
                           only='before' if pid == 'mspdi' else 'after')
         elif pid == 'types':
             for name in SHARED_TYPES:
                 node = s['$defs'][name]
-                out.append((0, name, self.label(name)))
+                out.append((0, name, node.get('description', '') if en else self.label(name)))
                 if 'properties' in node:
                     self.children(node, name, 1, False, out)
         return out
@@ -229,7 +290,7 @@ def branches(nodes):
     return out
 
 
-def render(nodes, with_ja, start=None):
+def render(nodes, with_ja, start=None, wrap_ja=False, wrap_width=88):
     pre = branches(nodes)
     left = [p + n for p, (_, n, _) in zip(pre, nodes)]
     if start is not None:
@@ -237,7 +298,16 @@ def render(nodes, with_ja, start=None):
     if not with_ja:
         return '\n'.join(left)
     col = max(width(t) for t in left) + 2
-    return '\n'.join((t + ' ' * (col - width(t)) + ja).rstrip() for t, (_, _, ja) in zip(left, nodes))
+    lines = []
+    for t, (_, _, ja) in zip(left, nodes):
+        ja, _, english = ja.partition(SEP)
+        if wrap_ja:
+            pieces = textwrap.wrap(ja, wrap_width) or ['']
+            ja, english = pieces[0], ' '.join(pieces[1:])
+        lines.append((t + ' ' * (col - width(t)) + ja).rstrip())
+        for piece in wrap_text(english, wrap_width):
+            lines.append(' ' * col + piece)
+    return '\n'.join(lines)
 
 
 def read_labels(path):
@@ -261,8 +331,13 @@ def read_labels(path):
 def build(mode):
     with io.open(SCHEMA, encoding='utf-8') as f:
         schema = json.load(f)
-    walker = Walker(schema, read_labels(LABELS))
-    parts = [(pid, title, walker.part(pid)) for pid, title in PARTS]
+    english = mode.startswith('english')
+    japanese = mode.startswith('japanese')
+    walker = Walker(schema, read_labels(LABELS),
+                    desc_mode='first' if mode.startswith('desc') else 'full' if mode.startswith('review')
+                    else 'en' if english else 'jadesc' if japanese else None,
+                    ja_desc=read_labels(JA_DESCRIPTIONS) if japanese else None)
+    parts = [(pid, EN_TITLES[pid] if english else title, walker.part(pid)) for pid, title in PARTS]
     if mode == 'count':
         lines = []
         for pid, _, nodes in parts:
@@ -274,7 +349,9 @@ def build(mode):
     chunks = []
     for _, title, nodes in parts:
         chunks.append('### ' + title + '\n\n```text\n'
-                      + render(nodes, mode.startswith('ja'), start if numbered else None)
+                      + render(nodes, mode.startswith(('ja', 'desc', 'review', 'english')), start if numbered else None,
+                               wrap_width=44 if japanese else 88,
+                               wrap_ja=english)
                       + '\n```\n\n')
         start += len(nodes)
     return ''.join(chunks), walker

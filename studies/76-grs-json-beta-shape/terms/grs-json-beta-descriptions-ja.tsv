@@ -1,0 +1,330 @@
+# Japanese translation of the descriptions of grs-json-beta.schema.json, for the owner's skim (JDG-3764 follow-up, 2026-11-23).
+# A translation, not a source: the English in the schema is the contract. Remake it when the English changes.
+path	ja
+ROOT	用語: \n GRS は GoodRelax Scheduler である。GRS はスケジュール文書を開いて編集し、GRS JSON ファイルを読み書きする。GRS JSON は、この GRS JSON Schema が定める形式である。 \n MSPDI（Microsoft Project XML Data Interchange）は、Microsoft Project が使う XML のファイル形式である。GRS は MSPDI（.xml）ファイルも読み書きできる。 \n 「MSPDI の X と同じ」は、そのプロパティが MSPDI の要素 X と同じ意味と値を持つことを示す。GRS だけの違いがあれば、そのプロパティの説明がその違いを書く。 \n 考え方: \n WBS は、MSPDI と同じく、親タスクと子タスクの木である。 \n タスクグループは GRS 独自のオブジェクトである。GRS はタスクグループを使って、複数のタスクを 1 本のタスクグループレーンに描く。各タスクは grs.taskGroupId で、ちょうど 1 つのタスクグループを指す。 \n MSPDI のオブジェクトは、GRS だけが使う値を、そのオブジェクトのキー grs の下に持つ。 \n GRS は 1 つの暦で稼働日を数える。その暦は、project.calendarUid が指す暦である。 \n passthrough: GRS は、使わない MSPDI の値を各オブジェクトの grs.passthrough に、オブジェクトにしない MSPDI の要素を passthrough… の配列に持ち、どちらも MSPDI へそのまま書き戻す。 \n 実績の日付が、タスクの進捗の正本である。GRS はタスクの実績の日付から、そのタスクが未着手か、進行中か、中断か、完了かを決める。GRS は GRS JSON ファイルを開くとき、その日付から percentComplete を計算し直す。 \n 遅延診断: GRS は遅延診断の結果を GRS JSON ファイルに保存しない。保存した結果は、スケジュール文書が変わるとすぐに古くなるからである。 \n 人が遅延診断を始めるとき、または AI エージェントが遅延診断を求めるとき、GRS は今のスケジュールデータと project.statusDate から結果を計算する。 \n GRS は遅延診断の結果を見せている間、その結果を保ち、計算し直さない。 \n GRS JSON の形: \n $schema           このスキーマの所 \n schemaVersionUtc  形の版 \n buildVersionUtc   ファイルを書いた GRS のビルド \n documentStamp     最後の変更、最後の保存、最後の編集者 \n documentSettings  開くときに GRS がスケジュールをどう見せるか \n scheduleData      スケジュールデータ \n   +- 頭の値: scheduleDataTimeZone, sourceFormat, importedTopTaskOutlineLevel, mspdiImportCount, highestIssuedUid \n   +- MSPDI と同じ: project, calendars, passthroughCalendars, tasks, passthroughTasks, resources, passthroughResources, assignments, passthroughAssignments \n   +- GRS だけ: taskGroups, baselineTasks, highlightBoxes, commentBoxes \n changeLogEntries  変更についてのメモ \n 値の無いプロパティは書かない。null や [] を決して書かない。
+$schema	この値は、最新の GRS スキーマの所（URL）を示す。どの文書も同じ所を持つ。
+schemaVersionUtc	この値は、GRS JSON の形（キーと規則）が最後に変わった UTC の時刻（YYYY-MM-DDTHH:MM:SSZ）を示す。
+buildVersionUtc	この値は、このファイルを書いた GRS のプログラムを誰かがビルドした UTC の時刻を示す。この値はデバッグのためだけにある。GRS がファイルを読めるかどうかは、schemaVersionUtc が示す。
+documentStamp	このオブジェクトは文書刻印を持つ。文書刻印は、スケジュールデータとスケジュール文書が最後に変わった時、GRS がファイルを最後に保存した時、スケジュール文書を最後に編集した者を記す。
+documentStamp.scheduleDataUpdatedAt	この値は、スケジュールデータが最後に変わった時を UTC で示す。documentSettings だけが変わっても、この時刻は動かない。
+documentStamp.documentUpdatedAt	この値は、スケジュール文書が最後に変わった時を UTC で示す。変わった所がスケジュールデータでも documentSettings でも、この時刻は動く。
+documentStamp.fileSavedAt	この値は、GRS がスケジュール文書を最後にファイルへ保存した時を UTC で示す。初めて保存するまで、このキーは無い。
+documentStamp.lastEditedBy	このオブジェクトは、スケジュール文書を最後に編集した者を示す。GRS はこのキーを必ず書く。まだ誰も編集していないスケジュール文書でも、GRS はこのキーを書く。
+documentStamp.lastEditedBy.type	"user": 人が画面でスケジュール文書を編集した。"agent": AI が Agent API でスケジュール文書を編集した。"template": まだ誰も編集していないので、スケジュール文書は GRS に付いてくるテンプレートのままである。
+documentStamp.lastEditedBy.name	この値は編集者の名を示す。"agent" では、AI が名乗る名を示す。"user" では、GRS が名を知るときだけ、その人の名を示す。
+documentSettings	このオブジェクトは文書設定を持つ。文書設定は、GRS がスケジュール文書を開くとき、GRS がその文書をどう見せるかを決める。GRS はキーを、効く範囲の広いものから狭いものの順に書く。
+scheduleData	このオブジェクトはスケジュールデータを持つ。初めに 5 つの頭の値があり、次に MSPDI の部、最後に GRS の部が続く。GRS は MSPDI の部を MSPDI から読み、MSPDI へ書く。GRS の部は、GRS だけが定める。
+changeLogEntries[]	このリストは変更履歴を持つ。変更履歴は、人や AI がスケジュール文書の変更について書くメモで、古いものから並ぶ。GRS は新しい項目を末尾に足す。
+changeLogEntries[].changedAt	この値は、変更が起きた時を UTC で示す。GRS は項目を足すときに時刻を入れる。人は後でその時刻を変えてよい。
+changeLogEntries[].changedBy	このオブジェクトは、変更した者（編集者の種類と名）を示す。
+changeLogEntries[].changedBy.editorType	この値は、この項目を書いた編集者の種類を示し、GRS がこの値を入れる。"user": 人が画面でこの項目を書いた。"agent": AI が Agent API でこの項目を書いた。
+changeLogEntries[].changedBy.name	この値は編集者の名を示す。この名は、人が打った名か、AI が名乗った名である。
+changeLogEntries[].affectedArea	この自由記述の文は、変更が及んだスケジュール文書の部分を名指す。例えば "tasks" や、1 つのタスクの名である。
+changeLogEntries[].changeDescription	この自由記述の文は、何が変わったかを書く。
+changeLogEntries[].reason	この自由記述の文は、変更の理由を書く。
+changeLogEntries[].remarks	この自由記述の文は、変更についてのそのほかのこと（ほかのキーが持たないこと）を書く。
+documentSettings.displayScaleRatio	この値は、スケジュールキャンバスの大きさを、通常の大きさに対する倍率で決める。GRS は、名前が Px で終わるキーの値に、描くときにこの倍率を掛ける。GRS はそれらの値を、倍率を掛けずに保存する。
+documentSettings.fontSizePreset	この値は、スケジュールキャンバスの文字の大きさの段である。GRS は各段のピクセルの大きさを持ち、displayScaleRatio がその大きさを拡大・縮小する。
+documentSettings.isThemeMonochrome	この値が true のとき、GRS はテーマをモノクロで描く。この値は描き方だけを変える。スケジュール文書に保存した色は変わらない。
+documentSettings.themeHue	この値は、テーマの色相の名を示す。{"type": "theme"} と書いた色は、すべてこの色相を使う。GRS は各名の色相の角度を持つ。
+documentSettings.viewTimeZone	このオブジェクトは、表示の基準タイムゾーンを決める。GRS は、スケジュールキャンバスとタイムルーラーで、このタイムゾーンで日時を見せる。
+documentSettings.viewTimeZone.type	"sameAsScheduleData": GRS は scheduleData.scheduleDataTimeZone のタイムゾーンで日時を見せ、そのタイムゾーンが変わればそれに従う。"fixed": GRS は utcOffset の時差で日時を見せる。
+documentSettings.viewTimeZone.utcOffset	このキーは、type が "fixed" のときだけ書く。この値は、GRS が日時を見せるときの UTC との差を示す。例えば "+09:00" である。この差は標準時で、GRS は夏時間を決して足さない。
+documentSettings.additionalTimeZones[]	このリストは追加の時計を持つ。追加の時計は、GRS が表示の基準タイムゾーンのほかに見せる時計である。GRS が時刻を見せている間、各時計はタイムルーラーの下に 1 行を足す。
+documentSettings.additionalTimeZones[].utcOffset	この値は、この時計の UTC との差を示す。例えば "-04:00" である。この差は夏時間の分をもう含み、GRS はこの差を 1 年中使う。
+documentSettings.additionalTimeZones[].zoneNameType	この値は、GRS がこの時計に出すゾーン名の種類を選ぶ。この値は差を変えない。"standard": 標準時の名。"daylight": 夏時間の名。
+documentSettings.isTimeOfDayVisible	この値が true のとき、GRS はスケジュール文書の全体で、スケジュールキャンバスに時刻を見せる。どちらの値でも、保存した日時は時刻を保つ。
+documentSettings.dayWidthPx	この値は横のズームである。この値は、タイムルーラー上の暦日 1 日の幅を、displayScaleRatio 1 のときの CSS ピクセルで示す。「全体を収める」がこの値を決める。
+documentSettings.fitDayRange	このオブジェクトは、全体表示時の期間を決める。全体表示時の期間は、「全体を収める」と PNG・SVG の画像が見せる日々である。この範囲は、GRS が保存するタスクや MSPDI へ書くタスクを限らない。
+documentSettings.fitDayRange.type	"fixed": 全体表示時の期間は firstDay から lastDay まで余白なしで続き、その 2 日まるごとがタスクグループレーンズの両端に接する。"automatic": 全体表示時の期間は、GRS が描くものすべてと余白を覆う。GRS は余白を決めるが、保存しない。GRS は firstDay も lastDay も持たない。
+documentSettings.fitDayRange.firstDay	このキーは、type が "fixed" のときだけ書く。この値は、全体表示時の期間の最初の日（含む）を、表示の基準タイムゾーンでの日として示す。
+documentSettings.fitDayRange.lastDay	このキーは、type が "fixed" のときだけ書く。この値は、全体表示時の期間の最後の日を示す。全体表示時の期間は、この日をまるごと含む。
+documentSettings.verticalZoom	このオブジェクトは、縦のズームの 1 段と「全体を収める」が一緒に変える 2 つの値を持つ。このキーが無いとき、GRS は「全体を収める」と同じように両方の値を選ぶ。
+documentSettings.verticalZoom.ratio	この値は、タスク図形の縦の大きさを、既定の大きさに対する倍率で示す。2 のとき、GRS は予定バー、実績バー、名称ラベルを 2 倍の高さで描く。
+documentSettings.verticalZoom.automaticallyShownDepth	この値は、showMode が "automatic" のタスクグループを、GRS がどの深さまで見せるかを示す。ズームインの 1 段は、この値が最も深い段に届いてから初めて ratio を変える。ratio はこの値を決して変えない。
+documentSettings.taskGroupPanelWidthPx	この値は、タスクグループパネルの幅を、displayScaleRatio が 1 のときの CSS ピクセルで示す。
+documentSettings.isTaskGroupPanelWidthFixed	true: taskGroupPanelWidthPx がタスクグループパネルの幅を決める。false: パネル境界のドラッグが幅を決める。
+documentSettings.pinnedTaskGroupIds[]	このリストは、ピン止めしたタスクグループの id を持つ。ピン止めしたタスクグループは、縦にスクロールしても上端に留まる。ピンは、showMode が "automatic" ならタスクグループをどの深さでも見せ、"hidden" なら決して見せない。
+documentSettings.taskPlacementDirection	この値は積む向きを決める。積む向きは、1 本のタスクグループレーンの中で重なるタスクを、GRS が早いタスクから積み段に積む向きである。この値はタスクグループの順を決めない。"bottomToTop": GRS は最も早いタスクを最も下の段に置く。"topToBottom": GRS は最も早いタスクを最も上の段に置く。
+documentSettings.scrollPosition	このオブジェクトは、GRS がスケジュール文書を開くとき、スケジュールキャンバスの表示がどこから始まるかを示す。
+documentSettings.scrollPosition.type	"automatic": まだ誰も場所を選んでいないので、GRS が開くときに場所を選ぶ。この値は今日や基準日を意味しない。"fixed": 下の 4 つのキーが場所を示す。
+documentSettings.scrollPosition.leftEdgeDay	このキーは、type が "fixed" のときだけ書く。この値は、表示の左端の日を示す。
+documentSettings.scrollPosition.leftEdgeDayOffsetPercent	type が "fixed" のときだけ書く。この値は、左端が leftEdgeDay の始まりから右へどれだけ離れているかを、1 日に対する % で示す。0 はその日の始まりである。
+documentSettings.scrollPosition.topEdgeTaskGroupId	このキーは、type が "fixed" のときだけ書く。この値は、表示の上端にあるタスクグループの id を示す。そのタスクグループがもう無いとき、GRS はスクロール位置を "automatic" として扱う。
+documentSettings.scrollPosition.topEdgeTaskGroupOffsetPercent	type が "fixed" のときだけ書く。この値は、上端が、画面の上ではなくそのタスクグループの上から、どれだけ下にあるかを示す。単位は、レーンの高さと下の隙間を足した長さに対する % である。
+documentSettings.scheduleCanvasElements	このオブジェクトは、GRS がスケジュールキャンバスにどの要素を描くかを選ぶ。true はその要素を描き、false はその要素を隠す。GRS はキーを、バー、ラベル、線の順に書く。
+documentSettings.scheduleCanvasElements.isPlanBarVisible	この値が true のとき、GRS は予定バーを描く。実績バーは、isActualBarVisible が別に決める。
+documentSettings.scheduleCanvasElements.isActualBarVisible	この値が true のとき、GRS は実績バーを描く。予定バーは、isPlanBarVisible が別に決める。
+documentSettings.scheduleCanvasElements.isBaselineOutlineVisible	この値が true のとき、GRS は前回予定輪郭を描く。前回予定輪郭は、前回予定（baselineTasks）を今のタスクに重ねて描いたものである。
+documentSettings.scheduleCanvasElements.isAssigneeLabelVisible	この値が true のとき、GRS は各タスクの担当ラベルを描く。
+documentSettings.scheduleCanvasElements.isPercentCompleteLabelVisible	この値が true のとき、GRS は各タスクの完了率ラベルを描く。
+documentSettings.scheduleCanvasElements.isProgressStatusMarkVisible	この値が true のとき、GRS は再開マークと進捗ステータスマークを描く。これらのマークは、イナズマ線の上ではなく実績バーの終わりの先で、形によって進捗ステータスを示す。
+documentSettings.scheduleCanvasElements.isPlanDatesVisible	この値が true のとき、GRS は各名称ラベルの右に、予定の開始日と終了日を描く。
+documentSettings.scheduleCanvasElements.isDependencyLineVisible	この値が true のとき、GRS は依存線を描く。
+documentSettings.scheduleCanvasElements.isProgressLineVisible	この値が true のとき、GRS はイナズマ線を描く。イナズマ線は、基準日から各タスクのタスク進捗点を通る 1 本のジグザグの線である。
+documentSettings.scheduleCanvasElements.isDateGridLinesVisible	この値が true のとき、GRS は日付罫線を描く。日付罫線は、日付ごとの縦線である。
+documentSettings.scheduleCanvasElements.isTaskGroupGridLinesVisible	この値が true のとき、GRS はタスクグループ罫線を描く。タスクグループ罫線は、タスクグループレーンズとタスクグループパネルで、タスクグループの間に引く横線である。
+documentSettings.delayDiagnosisSettings	このオブジェクトは、スケジュール文書に属する遅延診断の設定を持つ。
+documentSettings.delayDiagnosisSettings.parentTaskProgressToleranceWorkingDays	この値は、親の進捗点が配下の進捗点からはみ出してよい稼働日の数を示す。はみ出しがこれを超えると、遅延診断は親に疑義を付ける。この値は、どの終了の遅れも許さない。
+documentSettings.tableWindows	このオブジェクトは、検索ウィンドウ、遅延診断レポートウィンドウ、担当リストウィンドウの表の、チェック、列のフィルタ、並べ替えを持つ。このオブジェクトはウィンドウの位置を持たない。
+documentSettings.tableWindows.searchWindow	このオブジェクトは、検索ウィンドウの表の設定（タスクの表とコメントボックスの表）を持つ。
+documentSettings.tableWindows.delayDiagnosisReportWindow	このオブジェクトは、遅延診断レポートウィンドウの表の設定を持つ。
+documentSettings.tableWindows.resourceListWindow	このオブジェクトは、担当リストウィンドウの表の設定を持つ。
+scheduleData.scheduleDataTimeZone	このオブジェクトは、scheduleData の日時のタイムゾーンを示す。scheduleData の日時は時差を持たない。GRS はこのゾーンを MSPDI へ書かない。documentStamp などの記録の時刻は UTC を使う。
+scheduleData.scheduleDataTimeZone.utcOffset	この値は、標準時での UTC からの決まった差を示す。GRS は夏時間に決して切り替えない。GRS は、この一覧にない差を持つファイルを開くのを断る。
+scheduleData.sourceFormat	この値は、このスケジュール文書がどの形式から来たかを示す。GRS はこの値を MSPDI へ書かない。"grs": GRS で作った。"mspdi12" と "mspdi15": MS Project の版 12 か 15 の形の MSPDI ファイルから来た。
+scheduleData.importedTopTaskOutlineLevel	この値は、取り込んだファイルの最上位のタスクの MSPDI OutlineLevel を示す。この値はプロジェクトの要約タスクを数えない。GRS は MSPDI を書くとき、WBS の最上位のタスクにこの OutlineLevel を付ける。
+scheduleData.mspdiImportCount	この値は、このスケジュール文書への MSPDI の取り込みの回数を数える。GRS は取り込むたびに 1 を足し、新しい値を、取り込んだ各タスクの grs.importOrigin.mspdiImportCountWhenLastIncluded へ写す。
+scheduleData.lastMspdiImport	このオブジェクトは、GRS が最後に MSPDI ファイルを取り込んだ時とファイル名を記す。初めて取り込むまで、このオブジェクトは無い。人と AI エージェントがこのオブジェクトを読む。GRS は代わりに mspdiImportCount を比べる。
+scheduleData.lastMspdiImport.importedAt	この値は、GRS が MSPDI ファイルを取り込んだ UTC の時刻（YYYY-MM-DDTHH:MM:SSZ）を示す。
+scheduleData.lastMspdiImport.fileName	この値は、取り込んだ MSPDI ファイルの名を示す。例えば "plan-v3.xml" である。GRS はファイル名だけを書き、フォルダーを決して書かない。こうして、ファイルは個人のパスを持たない。
+scheduleData.highestIssuedUid	この値は、GRS が出した最も大きい uid である。タスク、担当、割当、暦が、1 つの数え手を共にする。GRS は新しい実体に、この値に 1 を足した値を付ける。GRS は uid を決して使い回さない。
+scheduleData.project	MSPDI の Project と同じ。scheduleData.project は、プロジェクト全体の値だけを持つ。MSPDI のリスト（calendars, tasks, resources, assignments）は、MSPDI のように project の中に入らず、scheduleData の中で project と並ぶ。
+scheduleData.project.uid	MSPDI の UID と同じ。GRS は別のファイルに上書きする前に、project.uid、project.name、ファイル名がすべて一致するときだけ、そのファイルを同じスケジュール文書とみなす。無い値は決して一致しない。
+scheduleData.project.name	MSPDI の Name と同じ。GRS はこの値も、project.uid とファイル名と共に使い、既にあるファイルが同じスケジュール文書を持つかを見分ける。
+scheduleData.project.title	MSPDI の Title と同じ。GRS はこの値を、アプリヘッダーのプロジェクトタイトルとして見せる。GRS は、別名保存ダイアログの既定のファイル名をこの値から作る。
+scheduleData.project.subject	MSPDI の Subject と同じ。
+scheduleData.project.category	MSPDI の Category と同じ。
+scheduleData.project.company	MSPDI の Company と同じ。
+scheduleData.project.manager	MSPDI の Manager と同じ。
+scheduleData.project.author	MSPDI の Author と同じ。作成者は、スケジュール文書を最後に書いた者ではない。最後に書いた者は、documentStamp.lastEditedBy が持つ。
+scheduleData.project.creationDate	MSPDI の CreationDate と同じ。GRS は新しいスケジュール文書を作るとき、作った瞬間を書く。
+scheduleData.project.revision	MSPDI の Revision と同じ。この値は、MSPDI ファイルを作ったツールがプロジェクトを保存した回数を数える。この値は、GRS JSON の版でも documentStamp の時刻でもない。
+scheduleData.project.startDate	MSPDI の StartDate と同じ。
+scheduleData.project.calendarUid	MSPDI の CalendarUID と同じ。GRS はすべての稼働日をこの暦で数える。有効な値が無いとき、GRS は isBaseCalendar が true の最初の暦を使い、それも無ければ組み込みの月曜〜金曜の暦を使う。
+scheduleData.project.defaultStartTime	MSPDI の DefaultStartTime と同じ。GRS は、GRS が日単位で決める開始に、この時刻を付ける。キーが無いとき、GRS は 08:00:00 を使う。マイルストーンの開始は、代わりに defaultFinishTime を使う。
+scheduleData.project.defaultFinishTime	MSPDI の DefaultFinishTime と同じ。GRS は、GRS が日単位で決める終了とマイルストーンの開始に、この時刻を付ける。キーが無いとき、GRS は 17:00:00 を使う。
+scheduleData.project.minutesPerDay	MSPDI の MinutesPerDay と同じ。この値は、稼働日 1 日（1d）の分の数を示す。キーが無いとき、GRS は 480 を使う。1 日の稼働時間の合計がこの値と違うとき、GRS は開くときに警告する。
+scheduleData.project.minutesPerWeek	MSPDI の MinutesPerWeek と同じ。この値は、稼働の 1 週の長さを分で示す。
+scheduleData.project.daysPerMonth	MSPDI の DaysPerMonth と同じ。この値は、1 か月の稼働日の数を示す。
+scheduleData.project.weekStartDay	MSPDI の WeekStartDay と同じ。曜日の番号: 0=日曜、1=月曜、2=火曜、3=水曜、4=木曜、5=金曜、6=土曜。日曜はここでは 0 だが、calendars[].weekDays[].dayType では 1 である。GRS はタイムルーラーの各週を、この曜日から始める。
+scheduleData.project.statusDate	MSPDI の StatusDate と同じ。GRS はこの日時に基準日線を描き、この日について遅延診断を行う。statusDate が無いとき、GRS は基準日線を描かず、遅延診断は動かない。
+scheduleData.project.grs	このオブジェクトは、このプロジェクトの GRS の部である。grs の下のキーは GRS の名で、MSPDI の要素名ではない。ここでは、grs は passthrough だけを持つ。
+scheduleData.project.grs.passthrough	このオブジェクトは、このプロジェクトの MSPDI の値のうち、GRS が使わず、MSPDI へそのまま書き戻す値を持つ。
+scheduleData.calendars[]	MSPDI の Calendars と同じ。GRS はすべての稼働日を、project.calendarUid が指す 1 つの暦で数える。GRS はほかの暦を、MSPDI へ書き戻すためだけに持つ。
+scheduleData.calendars[].uid	MSPDI の UID と同じ。
+scheduleData.calendars[].name	MSPDI の Name と同じ。
+scheduleData.calendars[].isBaseCalendar	MSPDI の IsBaseCalendar と同じ。true は基本の暦を示す。false かキーが無いときは、基本の暦でない暦を示す。MSPDI は 1 か 0 を書く。
+scheduleData.calendars[].baseCalendarUid	MSPDI の BaseCalendarUID と同じ。この値は、MSPDI でこの暦が受け継ぐ元の暦を指す。GRS はこの値を書き戻すが、受け継がない。GRS は、この暦が並べる日だけを数える。
+scheduleData.calendars[].grs	このオブジェクトは、この暦の GRS の部である。grs の下のキーは GRS の名で、MSPDI の要素名ではない。ここでは、grs は passthrough だけを持つ。
+scheduleData.calendars[].grs.passthrough	このオブジェクトは、この暦の MSPDI の値のうち、GRS が使わず、そのまま書き戻す値を持つ。calendars[] の外にある Calendar 要素まるごとは、passthroughCalendars[] へ入る。
+scheduleData.calendars[].weekDays[]	MSPDI の WeekDays と同じ。各項目は、dayType が指す曜日を述べる。
+scheduleData.calendars[].weekDays[].dayType	MSPDI の DayType と同じ。曜日の番号: 1=日曜、2=月曜、3=火曜、4=水曜、5=木曜、6=金曜、7=土曜。日曜はここでは 1 だが、project.weekStartDay では 0 である。GRS は MSPDI の番号 0（例外）を決して使わない。例外の日は calendars[].exceptions[] が持つ。
+scheduleData.calendars[].weekDays[].dayWorking	MSPDI の DayWorking と同じ。true は、その曜日が稼働日であることを示す。false かキーが無いときは、非稼働日を示す。MSPDI は 1 か 0 を書く。
+scheduleData.calendars[].weekDays[].grs	このオブジェクトは、この曜日の GRS の部である。grs の下のキーは GRS の名で、MSPDI の要素名ではない。ここでは、grs は passthrough だけを持つ。
+scheduleData.calendars[].weekDays[].grs.passthrough	このオブジェクトは、この曜日の MSPDI の値のうち、GRS が使わず、MSPDI へそのまま書き戻す値を持つ。
+scheduleData.calendars[].weekDays[].workingTimes[]	MSPDI の WorkingTimes と同じ。workingTimes の無い稼働日では、GRS は 08:00-12:00 と 13:00-17:00 を使う。
+scheduleData.calendars[].weekDays[].workingTimes[].fromTime	MSPDI の FromTime と同じ。
+scheduleData.calendars[].weekDays[].workingTimes[].toTime	MSPDI の ToTime と同じ。00:00:00 は 24:00、つまりその日の終わりを示す。
+scheduleData.calendars[].exceptions[]	MSPDI の Exceptions と同じ。各項目は 1 つの例外である。例外は、休日のように、曜日の決まりと違う働き方をする 1 日か、日の範囲である。
+scheduleData.calendars[].exceptions[].name	MSPDI の Name と同じ。
+scheduleData.calendars[].exceptions[].fromDate	MSPDI の TimePeriod/FromDate と同じ。この値は、例外の最初の日を示す。GRS は日付だけを読む。GRS が日付を決めるときは、GRS は T00:00:00 を書く。
+scheduleData.calendars[].exceptions[].toDate	MSPDI の TimePeriod/ToDate と同じ。この値は例外の最後の日を示し、例外はその日を含む。GRS は日付だけを読むので、T00:00:00 でもその日をまるごと数える。GRS は T23:59:00 を書く。
+scheduleData.calendars[].exceptions[].dayWorking	MSPDI の DayWorking と同じ。true は、例外の日々を稼働日にする。false かキーが無いときは、休日のように、その日々を非稼働日にする。MSPDI は 1 か 0 を書く。
+scheduleData.calendars[].exceptions[].type	MSPDI の Type と同じ。この値は繰り返しの番号を示す: 1=毎日、2=毎年・月の何日、3=毎年・月の第何何曜日、4=毎月・何日、5=毎月・第何何曜日、6=毎週、7=日数ごと、8=曜日の数ごと、9=繰り返さない。GRS は一度きりの例外（type 9、type なし、または period が 1 か period なしの type 1。新しい例外は 1 を取る）の日だけを数え、ほかの例外はそのまま保つ。
+scheduleData.calendars[].exceptions[].period	MSPDI の Period と同じ。この値は、type の繰り返しの間隔を示す。例えば type 6 で 2 なら、2 週ごとである。GRS は、type 1 の例外が一度きりかどうかを見分けるためだけに、period を使う。
+scheduleData.calendars[].exceptions[].grs	このオブジェクトは、この例外の GRS の部である。grs の下のキーは GRS の名で、MSPDI の要素名ではない。ここでは、grs は passthrough だけを持つ。
+scheduleData.calendars[].exceptions[].grs.passthrough	このオブジェクトは、この例外の MSPDI の値のうち、GRS が使わず、MSPDI へそのまま書き戻す値を持つ。
+scheduleData.calendars[].exceptions[].workingTimes[]	MSPDI の WorkingTimes と同じ。稼働する例外では、これらの時間帯が曜日の時間帯に代わる。workingTimes の無い稼働する例外は、08:00-12:00 と 13:00-17:00 を使う。
+scheduleData.calendars[].exceptions[].workingTimes[].fromTime	MSPDI の FromTime と同じ。
+scheduleData.calendars[].exceptions[].workingTimes[].toTime	MSPDI の ToTime と同じ。00:00:00 は 24:00、つまりその日の終わりを示す。
+scheduleData.passthroughCalendars[]	このリストは、calendars[] の外にある MSPDI の Calendar 要素まるごとを持つ。GRS は各要素を、precedingCalendarUid が指す暦のすぐ後ろに、MSPDI へ書き戻す。
+scheduleData.passthroughCalendars[].precedingCalendarUid	この値は、MSPDI でこの要素より前にある、calendars[] の中のいちばん近い暦の uid である。キーが無いと、その要素は先頭に来る。値が等しいときは、配列の順を保つ。
+scheduleData.passthroughCalendars[].mspdiElement	このオブジェクトは、MSPDI の要素まるごとを持つ。キーは、MSPDI と同じく子要素の名である。GRS はその要素をそのまま書き戻す。
+scheduleData.tasks[]	MSPDI の Tasks と同じ。このリストの順は意味を持たない。parentTaskUid と siblingIndex が WBS の木を決める。GRS は MSPDI のタスクをその木に沿って深さ優先で書き、ID、OutlineLevel、OutlineNumber、Summary を作り直す。
+scheduleData.tasks[].uid	MSPDI の UID と同じ。
+scheduleData.tasks[].name	MSPDI の Name と同じ。
+scheduleData.tasks[].start	MSPDI の Start と同じ。この値は予定の開始を示す。GRS は、start の無いタスクを持つスケジュール文書を開かない。
+scheduleData.tasks[].finish	MSPDI の Finish と同じ。この値は予定の終了を示す。マイルストーンの開始と終了は同じである。GRS は、finish の無いタスクを持つスケジュール文書を開かない。
+scheduleData.tasks[].stop	MSPDI の Stop と同じ。この値は、進行中か中断のタスクで、ここまでの作業が止まる日時を示す。GRS はタスクを完了にするとき、stop を消す。そのあとは、actualFinish が終わりを持つ。
+scheduleData.tasks[].resume	MSPDI の Resume と同じ。中断のタスクで、この値は、残りの作業が再び始まる予定の日時を示す（作業が 2 つに分かれる）。
+scheduleData.tasks[].resumeValid	MSPDI の ResumeValid と同じ。actualStart があって actualFinish の無いタスクでは、false は再開日の無い中断を示し、GRS は resume を無視する。キーが無いことは、false と同じではない。GRS は再開日を書くたびに true も書く。
+scheduleData.tasks[].milestone	MSPDI の Milestone と同じ。この値は、マイルストーンなら true、作業の期間を持つタスクなら false か無しである。ただし MSPDI は 1 か 0 を書く。
+scheduleData.tasks[].percentComplete	MSPDI の PercentComplete と同じ。GRS は開くときにこの値を数え直す: 実績の稼働時間（actualStart から actualFinish か stop まで）を予定の稼働時間で割り、100 を掛けて丸める。GRS は上限で抑えない。予定の稼働時間が無いとき、この値は actualFinish があれば 100、なければ 0 である。
+scheduleData.tasks[].actualStart	MSPDI の ActualStart と同じ。actualStart の無いタスクは、まだ始まっていない。
+scheduleData.tasks[].actualFinish	MSPDI の ActualFinish と同じ。完了したタスクだけが actualFinish を持つ。percentComplete が 100 でも、完了を意味しない。
+scheduleData.tasks[].calendarUid	MSPDI の CalendarUID と同じ。この値は、このタスクだけの暦を指す。GRS はこの値を保って書き戻すが、稼働日は project.calendarUid だけで数える。
+scheduleData.tasks[].deadline	MSPDI の Deadline と同じ。
+scheduleData.tasks[].hyperlink	MSPDI の Hyperlink と同じ。この値はリンクのタイトル（見せる文字）で、アドレスではない。URL は hyperlinkAddress が持つ。
+scheduleData.tasks[].hyperlinkAddress	MSPDI の HyperlinkAddress と同じ。この値はリンクの URL である。タイトルは hyperlink が持つ。
+scheduleData.tasks[].notes	MSPDI の Notes と同じ。
+scheduleData.tasks[].parentTaskUid	この値は、WBS の親タスクの uid である。このキーの無いタスクは、最上位にある。MSPDI にこの要素は無い。
+scheduleData.tasks[].siblingIndex	この値は、同じ親を持つタスクの中での、このタスクの位置を 0 から数えて示す。GRS は 0, 1, 2 と隙間なく書き、小さい値から先に読み、同じ値なら配列の順を保つ。
+scheduleData.tasks[].grs	このオブジェクトは、このタスクの GRS の値を持つ。grs の下のキーは GRS の名で、MSPDI の要素名ではない。
+scheduleData.tasks[].grs.startSlopeCalendarDays	この値は、開始の傾きを暦日で示す。GRS は予定バーの開始の端を斜めにして、確定していない開始を示す。GRS はスケジュールを変えない。
+scheduleData.tasks[].grs.finishSlopeCalendarDays	この値は、終了の傾きを暦日で示す。GRS は予定バーの終了の端を斜めにして、確定していない終了を示す。GRS はスケジュールを変えない。
+scheduleData.tasks[].grs.style	このオブジェクトは、GRS がこのタスクのタスク図形をどう描くか（形、塗り、線）を示す。
+scheduleData.tasks[].grs.style.taskShape	この値は、マイルストーンでないタスクの予定バーと実績バーの形を示す。"rectangle"、"chevron"（開始に切り欠きがあり、終了がとがったバー）、"arrow"、"dumbbell"（両端に点のある細い線）。
+scheduleData.tasks[].grs.style.milestoneShape	この値は、マイルストーンマークの形を示す。各値は、GRS が描く絵を名指す。例えば diamond（ダイヤ）や star（星）である。マイルストーンだけが milestoneShape を持つ。
+scheduleData.tasks[].grs.style.fill	このオブジェクトは、予定バーの塗りを決める。GRS は実績バーも同じ色から塗る。キーが無いと塗りは無い。fill と stroke のどちらか一方は必ず書く。
+scheduleData.tasks[].grs.style.stroke	このオブジェクトは、予定バーと実績バーの枠線を決める。キーが無いと枠線は無い。
+scheduleData.tasks[].grs.taskGroupId	この値は、GRS がこのタスクを描くタスクグループレーンの、タスクグループの id である。タスクグループは、WBS の親（parentTaskUid）とは関わりが無い。
+scheduleData.tasks[].grs.importOrigin	このオブジェクトは、このタスクがどの MSPDI ファイルのどのタスクから来たかを記す。GRS は後の取り込みで、このオブジェクトを照合に使う。GRS で作ったタスクは importOrigin を持たない。
+scheduleData.tasks[].grs.importOrigin.sourceProjectUid	この値は、GRS がこのタスクを取り込んだ MSPDI ファイルの Project UID である。そのファイルに Project UID が無かったとき、このキーは無く、importSessionId がファイルを見分ける。
+scheduleData.tasks[].grs.importOrigin.sourceTaskUid	この値は、その MSPDI ファイルでのこのタスクの UID である。GRS が取り込んだタスクに新しい uid を付けることがあるので、この値は uid と違うことがある。
+scheduleData.tasks[].grs.importOrigin.importSessionId	この値は、このタスクを持ち込んだ取り込みのために、GRS が作った id である。MSPDI ファイルに Project UID が無かったとき、この id が sourceProjectUid の代わりをする。
+scheduleData.tasks[].grs.importOrigin.mspdiImportCountWhenLastIncluded	この値は、このタスクを含むファイルを取り込んだ最後の時の scheduleData.mspdiImportCount を写す。値が今の回数より小さいとき、最新の取り込みはこのタスクを含まなかった。
+scheduleData.tasks[].grs.passthrough	このオブジェクトは、このタスクの MSPDI の値のうち、GRS が使わず、そのまま書き戻す値を持つ。ただし Duration のような、日付から求める値は除く。tasks[] の外にある Task 要素まるごとは、passthroughTasks[] へ入る。
+scheduleData.tasks[].predecessorLinks[]	MSPDI の PredecessorLink と同じ。各項目は 1 つの依存である: このタスクは、先行タスクの一方の端を待つ。
+scheduleData.tasks[].predecessorLinks[].predecessorUid	MSPDI の PredecessorUID と同じ。この値は、tasks[] の中の先行タスクの uid である。
+scheduleData.tasks[].predecessorLinks[].type	MSPDI の Type と同じ。この値は依存の種類の番号を示す: 0=FF（終了-終了）、1=FS（終了-開始）、2=SF（開始-終了）、3=SS（開始-開始）。1 文字目は先行タスクの端を指し、2 文字目はこのタスクの端を指す。
+scheduleData.tasks[].predecessorLinks[].linkLag	MSPDI の LinkLag と同じ。この値は、lagFormat に関わらず、ラグを 0.1 分単位で示す。4800 は 480 分で、project.minutesPerDay が 480 なら稼働日 1 日である。キーが無いとラグは無い。
+scheduleData.tasks[].predecessorLinks[].lagFormat	MSPDI の LagFormat と同じ。この値は、ラグを見せる単位の番号を示す: 3=m, 4=em, 5=h, 6=eh, 7=d, 8=ed, 9=w, 10=ew, 11=mo, 12=emo, 19=%, 20=e%, 35=m?, 36=em?, 37=h?, 38=eh?, 39=d?, 40=ed?, 41=w?, 42=ew?, 43=mo?, 44=emo?, 51=%?, 52=e%?（m は分、h は時間、d は日、w は週、mo は月、% はパーセント、e は経過時間、? は見積り）。単位は linkLag を決して変えない。GRS は 3、5、7 のときだけラグを数え、ほかの番号ではラグを見せるだけである。
+scheduleData.tasks[].predecessorLinks[].grs	このオブジェクトは、この依存の GRS の部を持つ。grs の下のキーは GRS の名で、MSPDI の要素名ではない。ここでは、grs は passthrough だけを持つ。
+scheduleData.tasks[].predecessorLinks[].grs.passthrough	このオブジェクトは、この依存の MSPDI の値のうち、GRS が使わず、MSPDI へそのまま書き戻す値を持つ。
+scheduleData.passthroughTasks[]	このリストは、tasks[] の外にある MSPDI の Task 要素まるごとを持つ。例えばプロジェクトの要約タスクで、GRS はこれを最初に書く。GRS はほかの各要素を、precedingTaskUid が指すタスクのすぐ後ろに書く。
+scheduleData.passthroughTasks[].precedingTaskUid	この値は、MSPDI でこの要素より前にある、tasks[] の中のいちばん近いタスクの uid である。この値は、依存の先行タスクでは決してない。キーが無いと、その要素は先頭に来る。値が等しいときは、配列の順を保つ。
+scheduleData.passthroughTasks[].mspdiElement	この値は MSPDI の要素まるごとで、キーは MSPDI と同じく子要素の名である。GRS はその要素をそのまま書き戻す。
+scheduleData.resources[]	MSPDI の Resources と同じ。GRS は担当を担当リストウィンドウに並べ、各タスクの担当を担当ラベルに見せる。
+scheduleData.resources[].uid	MSPDI の UID と同じ。
+scheduleData.resources[].name	MSPDI の Name と同じ。
+scheduleData.resources[].type	MSPDI の Type と同じ。担当の種類の番号: 0=資材、1=作業。番号に関わらず、どの担当も同じキーを持つ。
+scheduleData.resources[].isCostResource	MSPDI の IsCostResource と同じ。true はコストの担当を示す。false かキーが無いときは、コストの担当でないことを示す。MSPDI は 1 か 0 を書く。
+scheduleData.resources[].calendarUid	MSPDI の CalendarUID と同じ。この値は、この担当だけの暦を指す。GRS はこの値を保って書き戻すが、稼働日は project.calendarUid だけで数える。
+scheduleData.resources[].grs	このオブジェクトは、この担当の GRS の部を持つ。grs の下のキーは GRS の名で、MSPDI の要素名ではない。ここでは、grs は passthrough だけを持つ。
+scheduleData.resources[].grs.passthrough	このオブジェクトは、この担当の MSPDI の値のうち、GRS が使わず、そのまま書き戻す値を持つ。resources[] の外にある Resource 要素まるごとは、passthroughResources[] へ入る。
+scheduleData.passthroughResources[]	このリストは、resources[] の外にある MSPDI の Resource 要素まるごとを持つ。GRS は各要素を、precedingResourceUid が指す担当のすぐ後ろに、MSPDI へ書き戻す。
+scheduleData.passthroughResources[].precedingResourceUid	この値は、MSPDI でこの要素より前にある、resources[] の中のいちばん近い担当の uid である。キーが無いと、その要素は先頭に来る。値が等しいときは、配列の順を保つ。
+scheduleData.passthroughResources[].mspdiElement	この値は MSPDI の要素まるごとで、キーは MSPDI と同じく子要素の名である。GRS はその要素をそのまま書き戻す。
+scheduleData.assignments[]	MSPDI の Assignments と同じ。各項目は、1 つの担当を 1 つのタスクに就ける。
+scheduleData.assignments[].uid	MSPDI の UID と同じ。
+scheduleData.assignments[].taskUid	MSPDI の TaskUID と同じ。この値は、tasks[] の中のタスクの uid である。
+scheduleData.assignments[].resourceUid	MSPDI の ResourceUID と同じ。この値は、resources[] の中の担当の uid である。
+scheduleData.assignments[].grs	このオブジェクトは、この割当の GRS の部を持つ。grs の下のキーは GRS の名で、MSPDI の要素名ではない。ここでは、grs は passthrough だけを持つ。
+scheduleData.assignments[].grs.passthrough	このオブジェクトは、この割当の MSPDI の値のうち、GRS が使わず、そのまま書き戻す値を持つ。assignments[] の外にある Assignment 要素まるごとは、passthroughAssignments[] へ入る。
+scheduleData.passthroughAssignments[]	このリストは、assignments[] の外にある MSPDI の Assignment 要素まるごとを持つ。GRS は各要素を、precedingAssignmentUid が指す割当のすぐ後ろに、MSPDI へ書き戻す。
+scheduleData.passthroughAssignments[].precedingAssignmentUid	この値は、MSPDI でこの要素より前にある、assignments[] の中のいちばん近い割当の uid である。キーが無いと、その要素は先頭に来る。値が等しいときは、配列の順を保つ。
+scheduleData.passthroughAssignments[].mspdiElement	この値は MSPDI の要素まるごとで、キーは MSPDI と同じく子要素の名である。GRS はその要素をそのまま書き戻す。
+scheduleData.taskGroups[]	このリストは、タスクグループを深さ優先で持つ。タスクグループは、WBS とは別の、描く行の木である。GRS は MSPDI を読むとき、WBS からこのリストを作る。
+scheduleData.taskGroups[].id	この値はタスクグループの id で、ランダムな UUID である。
+scheduleData.taskGroups[].name	この値は、タスクグループパネルが見せるタスクグループ名である。キーが無いとき、タスクグループは名を持たず、GRS は空のタイトルを見せる。
+scheduleData.taskGroups[].parentTaskGroupId	この値は、親のタスクグループの id である。キーが無いとき、そのタスクグループは最上位のタスクグループ（深さ 1）である。
+scheduleData.taskGroups[].siblingIndex	この値は、同じ親を持つタスクグループの中での、このタスクグループの位置を 0 から数えて示す。GRS は、値の小さいタスクグループから上に並べる。
+scheduleData.taskGroups[].style	このオブジェクトは、GRS がタスクグループをどう描くかを示す（型 TaskGroupStyle）。
+scheduleData.taskGroups[].style.color	この値は、タスクグループレーンの色である。キーが無いと色は無い。{"type": "theme"} はテーマ色で描く。
+scheduleData.taskGroups[].minHeightPx	この値は、タスクグループレーンの最小の高さを、displayScaleRatio 1 のときの CSS ピクセルで示す。縦のズームはこの高さを変えない。キーが無いと、最小の高さは無い。
+scheduleData.taskGroups[].representativeTaskUid	この値は、このタスクグループが代表する WBS のタスクの uid である。人がこのタスクグループを別のタスクグループの下に入れると、GRS はそれに合わせて、そのタスクを WBS の中で動かす。
+scheduleData.taskGroups[].hyperlinkAddress	この値は、タスクグループのリンク先の URL である。キーが無いとき、タスクグループはリンクを持たない。
+scheduleData.taskGroups[].hyperlink	この値はタスクグループのリンクのタイトルで、アドレスではない。キーが無いとき、リンクはタイトルを持たない。
+scheduleData.taskGroups[].showMode	この値は、このタスクグループについて人が望むことを記す。"shown": 祖先がこのタスクグループを隠さない限り、GRS はどの深さでもこのタスクグループを描く。"hidden": 人が再び見せるまで、GRS はこのタスクグループと配下のすべてのタスクグループを隠し、ズームでも「全体を収める」でも隠したままにする。"automatic": GRS は、automaticallyShownDepth、ピン、見えている配下のタスクグループへの道から決める。"hiddenUntilZoomIn": 次の縦のズームインまで、GRS はこのタスクグループと配下のすべてのタスクグループを隠し、そのあと値を "automatic" に変える。
+scheduleData.taskGroups[].allowedEditorGroupName	この値は、このタスクグループのタスクを編集してよい人の組の名を示す。GRS はそれらのタスクを読み取り専用として扱い、値の違うタスクグループへの移動を断る。
+scheduleData.baselineTasks[]	このリストは前回予定を持つ。前回予定は、前のタスクの日付を保存した写しである。前回予定のタスクは形を持たない。各前回予定輪郭は、同じ uid を持つ今のタスクの形を使う。
+scheduleData.baselineTasks[].uid	この値は、この前回予定のタスクが属する、今のタスクの uid である。
+scheduleData.baselineTasks[].name	この値は、前回予定を取った時のタスク名である。
+scheduleData.baselineTasks[].start	この値は、前回予定を取った時の予定の開始である。
+scheduleData.baselineTasks[].finish	この値は、前回予定を取った時の予定の終了である。
+scheduleData.baselineTasks[].milestone	この値は、前回予定を取った時にそのタスクがマイルストーンだったかを記す。GRS はそれでも、今のタスクの形で輪郭を描く。
+scheduleData.highlightBoxes[]	この配列はハイライトボックスを持つ。ハイライトボックスは、タスクグループレーンズの中で、タスクグループの範囲にわたって日の範囲を示す矩形である。
+scheduleData.highlightBoxes[].id	この値はハイライトボックスの id で、ランダムな UUID である。
+scheduleData.highlightBoxes[].style	このオブジェクトは、GRS がハイライトボックスをどう描くかを示す（型 HighlightBoxStyle）。
+scheduleData.highlightBoxes[].style.cornerRadiusPx	この値は、ハイライトボックスの角の半径を、displayScaleRatio 1 のときの CSS ピクセルで示す。0 のとき、角は四角になる。
+scheduleData.highlightBoxes[].style.fill	この値は、ハイライトボックスの塗りである（型 Paint）。塗りは必ず色を持つ。opacityPercent 0 のとき、塗りは見えない。
+scheduleData.highlightBoxes[].style.stroke	この値は、ハイライトボックスの枠線である（型 Stroke）。キーが無いとき、GRS は枠線を描かない。
+scheduleData.highlightBoxes[].firstDay	この値は、ハイライトボックスが覆う最初の日（含む）を、scheduleData.scheduleDataTimeZone のタイムゾーンでの日として示す。
+scheduleData.highlightBoxes[].lastDay	この値は、ハイライトボックスが覆う最後の日（含む）である。
+scheduleData.highlightBoxes[].firstTaskGroupId	この値は、ハイライトボックスが覆う最初のタスクグループの id である。ハイライトボックスは、タスクグループの木の順で lastTaskGroupId までのすべてのタスクグループを覆い、両端を含む。
+scheduleData.highlightBoxes[].lastTaskGroupId	この値は、ハイライトボックスが覆う最後のタスクグループ（含む）の id である。
+scheduleData.commentBoxes[]	この配列は、タスクグループレーンズの中のコメントボックスを持つ。各コメントボックスの引出し線は、タスク、ハイライトボックス、または何にも付かない点を指す。
+scheduleData.commentBoxes[].id	この値はコメントボックスの id で、ランダムな UUID である。
+scheduleData.commentBoxes[].text	この値は、コメントボックスの文である。キーが無いとき、コメントボックスの箱の中身は空である。
+scheduleData.commentBoxes[].style	このオブジェクトは、GRS がコメントボックスをどう描くかを示す（型 CommentBoxStyle）。
+scheduleData.commentBoxes[].style.fill	この値は、コメントボックスの箱の塗りである（型 Paint）。塗りは必ず色を持つ。opacityPercent 0 のとき、塗りは見えない。
+scheduleData.commentBoxes[].style.stroke	この値は、コメントボックスの枠線と引出し線の線である（型 Stroke）。キーが無いとき、GRS は枠線も引出し線も描かない。
+scheduleData.commentBoxes[].style.font	このオブジェクトは、コメントボックスの文字の見た目（色と大きさ）を持つ。
+scheduleData.commentBoxes[].style.font.color	この値は、コメントボックスの文字の色である（型 Color）。
+scheduleData.commentBoxes[].style.font.sizePx	この値は、コメントボックスの文字の大きさを、displayScaleRatio 1 のときの CSS ピクセルで示す。ズームはこの大きさを変えない。
+scheduleData.commentBoxes[].leaderTarget	このオブジェクトは、コメントボックスの引出し線がどこを指すかを示す。消した先は、何にも付かない点になる。ファイルに無い先については、GRS は引出し線を描かない。
+scheduleData.commentBoxes[].leaderTarget.type	"freePoint": 線先は、何にも付かない場所に立つ。"task": 線先は、タスクの予定バー、実績バー、マイルストーンマークのどれかの 8 点の 1 つに立つ。"highlightBox": 線先は、ハイライトボックスの 8 点の 1 つに立つ。
+scheduleData.commentBoxes[].leaderTarget.dateTime	type が "freePoint" のときだけ書く。この値は、線先が立つ時点を、scheduleData.scheduleDataTimeZone のタイムゾーンでの日時として示す。
+scheduleData.commentBoxes[].leaderTarget.taskGroupId	type が "freePoint" のときだけ書く。この値は、線先を持つタスクグループレーンの、タスクグループの id である。
+scheduleData.commentBoxes[].leaderTarget.taskGroupTopOffsetPercent	type が "freePoint" のときだけ書く。この値は、線先がそのタスクグループレーンの上の縁からどれだけ下にあるかを、レーンの高さに対する % で示す。100 は下の縁である。
+scheduleData.commentBoxes[].leaderTarget.taskUid	type が "task" のときだけ書く。この値は、線先が吸着するタスクの uid である。
+scheduleData.commentBoxes[].leaderTarget.snapPart	type が "task" のときだけ書く。この値は、線先が吸着するタスク図形の部分を名指す: "planBar"（予定バー）、"actualBar"（実績バー）、"milestoneMark"（マイルストーンマーク）。
+scheduleData.commentBoxes[].leaderTarget.highlightBoxId	type が "highlightBox" のときだけ書く。この値は、線先が吸着するハイライトボックスの id である。
+scheduleData.commentBoxes[].leaderTarget.snapPoint	type が "task" か "highlightBox" のときだけ書く。この値は、線先が吸着する先の点を名指す。その点は、角か辺の中点である。
+scheduleData.commentBoxes[].bodyOffsetPx	このオブジェクトは、線先からコメントボックスの箱の左下の角までのずれを、displayScaleRatio 1 のときの CSS ピクセルで示す。ズームはこのずれを変えない。
+scheduleData.commentBoxes[].bodyOffsetPx.dx	この値は、ずれの横の成分である。正の値は箱を右へ動かす。
+scheduleData.commentBoxes[].bodyOffsetPx.dy	この値は、ずれの縦の成分である。正の値は箱を下へ動かす。
+scheduleData.commentBoxes[].hyperlinkAddress	この値は、コメントボックスのリンク先の URL である。キーが無いとき、コメントボックスはリンクを持たない。
+scheduleData.commentBoxes[].hyperlink	この値はコメントボックスのリンクのタイトルで、アドレスではない。キーが無いとき、リンクはタイトルを持たない。
+Color	このオブジェクトは、type が "theme"、"palette"、"custom" のどれかの色である。色のキーを省いてよい所では、色が無いことは、GRS がそこに塗りも線も描かないことを意味する。
+Color.type	"theme": GRS は、この色を持つ所のテーマ色を、documentSettings.themeHue の色相で使う。"palette": この色はパレットの 10 色の 1 つで、name がその色を名指す。"custom": light と dark が、明るいテーマと暗いテーマの色を持つ。
+Color.name	type が "palette" のときだけ書く。この値は、パレットの色を名指す。各名は、明るいテーマでの色の見え方を表す。暗いテーマでは、GRS は色相を保ち、明るさを反転する。
+Color.light	type が "custom" のときだけ書く。このオブジェクトは、明るいテーマの色である。
+Color.light.hexColor	この値は、# と小文字の 16 進数 6 桁（#rrggbb）で色を表す。
+Color.light.isCalculatedFromOppositeColorScheme	この値は、GRS が反対の側から計算した側に印を付ける。この値は出どころの記録で、切り替えではない。人が選んだ側は、このキーを持たない。
+Color.dark	type が "custom" のときだけ書く。このオブジェクトは暗いテーマの色で、light と同じ形を持つ。
+Color.dark.hexColor	この値は、# と小文字の 16 進数 6 桁（#rrggbb）で色を表す。
+Color.dark.isCalculatedFromOppositeColorScheme	この値は、GRS が反対の側から計算した側に印を付ける。この値は出どころの記録で、切り替えではない。人が選んだ側は、このキーを持たない。
+TaskGroupColor	この値は、タスクグループレーンの色である。この値は Color と同じ形を持つ。ただし、パレットの色 "black" は使えない。
+Paint	このオブジェクトは塗りで、色と不透明度を持つ。
+Paint.color	この値は、塗りの色である（型 Color）。
+Paint.opacityPercent	この値は、塗りの不透明度を % で示す。100 は透けない塗りで、0 のとき GRS は塗りを描かない。
+Stroke	このオブジェクトは線で、色、不透明度、太さを持つ。線を描かないときは、キー stroke をまるごと書かない。
+Stroke.color	この値は、線の色である（型 Color）。
+Stroke.opacityPercent	この値は、線の不透明度を % で示す。100 は透けない線で、0 のとき GRS は線を描かない。
+Stroke.widthPx	この値は、線の太さを、displayScaleRatio 1 のときの CSS ピクセルで示す。ズームはこの太さを変えない。
+ShapeStyle	このオブジェクトは、形の塗りと枠線を持つ。TaskStyle、HighlightBoxStyle、CommentBoxStyle は、どれもこのオブジェクトを使う。
+ShapeStyle.fill	この値は、形の塗りである（型 Paint）。キーが無いとき、GRS は塗りを描かない。
+ShapeStyle.stroke	この値は、形の枠線である（型 Stroke）。キーが無いとき、GRS は枠線を描かない。
+ColumnFilter	このオブジェクトは、表の 1 つの列に掛けるフィルタである。type は、値で絞るか、日の範囲で絞るかを選ぶ。
+ColumnFilter.type	"values": GRS は、hiddenValues のどれかを見せる行を隠す。isBlankHidden が true なら、GRS は空の行も隠す。"dateRange": GRS は、日付が firstDay から lastDay の外にある行を隠す。
+ColumnFilter.column	この値は列を、その列が見せる中身で名指す。同じ名は、どの表でも同じ中身を指す。検索ウィンドウのタスクの表: "progressStatus", "percentComplete", "taskType", "taskName", "resourceNames", "start", "finish", "actualStart", "actualFinish", "taskGroupPath"（最上位からの道筋）。検索ウィンドウのコメントボックスの表: "text", "taskGroupName"（線先のタスクグループ）, "leaderTargetDay"（線先の日）。遅延診断レポートウィンドウ: "diagnosisStatus", "percentComplete", "taskType", "taskName", "resourceNames", "planDates", "actualDates", "diagnosisReason"。担当リストウィンドウ: "resourceSelectionStatus", "resourceName", "assignedTaskCount", "assignedTaskNames"。
+ColumnFilter.hiddenValues[]	type が "values" のときだけ書く。このリストは、フィルタが行を隠す値を持つ。状態の列では英語の状態名を持ち、ほかの列では表が見せるとおりのセルの文字を持つ。"progressStatus": "notStarted", "inProgress", "suspendedWithResumeDate", "suspendedWithoutResumeDate", "finished", "delay", "unreliable", "bottleneck", "bottleneckPath"。"diagnosisStatus": "unreliable", "suspicion", "omission", "bottleneck", "bottleneckPath", "delay", "finishedDelayContribution"。"taskType": "task", "milestone"。"resourceSelectionStatus": "selected", "notSelected"。
+ColumnFilter.isBlankHidden	type が "values" のときだけ書く。この値は、この列のセルが空の行を、フィルタが隠すかどうかを示す。
+ColumnFilter.firstDay	type が "dateRange" のときだけ書く。この値は、フィルタが残す最初の日（含む）を、scheduleData.scheduleDataTimeZone のタイムゾーンでの日として示す。
+ColumnFilter.lastDay	type が "dateRange" のときだけ書く。この値は、フィルタが残す最後の日（含む）である。
+ColumnSort	このオブジェクトは、GRS が表をどう並べ替えるかを示す。GRS は 1 つの列で、1 つの向きに並べ替える。
+ColumnSort.column	この値は、GRS が表を並べ替える列を名指す。名は ColumnFilter.column と同じである。
+ColumnSort.direction	"ascending": GRS は小さい値から大きい値へ並べる。"descending": GRS は大きい値から小さい値へ並べる。
+TaskTableWindow	このオブジェクトは、GRS がタスクの表（検索ウィンドウか遅延診断レポートウィンドウ）をどう見せるか（チェック、列のフィルタ、並べ替え）を示す。
+TaskTableWindow.isScheduleFilteredByChecks	この値は、「チェックで日程表を絞る」を入れたり切ったりする。true のとき、GRS はスケジュールキャンバスに、この表でチェックしたタスクだけを描く。表そのものは、すべての行を残す。
+TaskTableWindow.checkedTaskUids[]	この配列は、この表の表示の列でチェックがある行の、タスクの uid を並べる。キーが無いとき、どの行にもチェックは無い。
+TaskTableWindow.columnFilters[]	この配列は、この表の列のフィルタを、フィルタを掛けた列ごとに 1 つずつ持つ。キーが無いとき、どの列にもフィルタは無い。
+TaskTableWindow.columnSort	このオブジェクトは、この表の並べ替え（列と向き）である。キーが無いとき、GRS は既定の順で行を見せる。
+ResourceTableWindow	このオブジェクトは、GRS が担当リストウィンドウの表をどう見せるか（チェック、列のフィルタ、並べ替え）を示す。
+ResourceTableWindow.isScheduleFilteredByChecks	この値は、「チェックで日程表を絞る」を入れたり切ったりする。true のとき、GRS はスケジュールキャンバスに、チェックした担当のタスクだけを描く。isUnassignedChecked が true なら、GRS は担当の無いタスクも描く。
+ResourceTableWindow.isUnassignedChecked	この値は、担当リストウィンドウの "(no assignee)" の行にチェックがあるかを示す。
+ResourceTableWindow.checkedResourceUids[]	このリストは、担当リストウィンドウの表示の列でチェックがある行の、担当の uid を持つ。
+ResourceTableWindow.columnFilters[]	この配列は、この表の列のフィルタを、フィルタを掛けた列ごとに 1 つずつ持つ。キーが無いとき、どの列にもフィルタは無い。
+ResourceTableWindow.columnSort	このオブジェクトは、この表の並べ替え（列と向き）である。キーが無いとき、GRS は既定の順で行を見せる。
+$defs/Project	MSPDI の Project と同じ。GRS はキーを MSPDI のスキーマの順に書き、GRS の部は最後に grs の下に来る。
+$defs/Calendar	MSPDI の Calendar と同じ。GRS は、project.calendarUid が指す暦だけで稼働日を数える。
+$defs/WeekDay	MSPDI の WeekDay と同じ。各項目は、1 つの曜日の稼働の有無と稼働の時間帯を示す。
+$defs/Exception	MSPDI の Exception と同じ。このオブジェクトは、休日のように、曜日の決まりと違う働き方をする 1 日か、日の範囲を示す。GRS は一度きりの例外だけを数える（type を見よ）。
+$defs/WorkingTime	MSPDI の WorkingTime と同じ。このオブジェクトは、1 日の中の稼働時間の 1 つの区間である。GRS は、1 日の中で重なる区間と、終わりより前に始まらない区間を断る。接する区間はかまわない。
+$defs/Task	MSPDI の Task と同じ。GRS は次の順に調べて進捗ステータスを決め、最初に当てはまったものを採る: actualStart が無ければ未着手、actualFinish があれば完了、resumeValid が false なら中断・再開日未定、resume があれば中断・再開予定あり、それ以外は進行中。
+$defs/PredecessorLink	MSPDI の PredecessorLink と同じ。各項目は、その項目を持つタスクに、先行タスクの一方の端を待たせる。
+$defs/ImportOrigin	このオブジェクトは、取り込んだタスクがどの MSPDI ファイルのどのタスクから来たかを記す。これにより、後でそのファイルを取り込むと、GRS は写しを足さずにそのタスクを更新する。
+$defs/Resource	MSPDI の Resource と同じ。
+$defs/Assignment	MSPDI の Assignment と同じ。
+$defs/TaskGroup	このオブジェクトはタスクグループである。タスクグループは、1 本のタスクグループレーンと、タスクグループパネルの 1 行にあたる。タスクグループは WBS とは別の木を作る。GRS はタスクグループを MSPDI へ決して書かない。
+$defs/BaselineTask	このオブジェクトは、前回予定のタスク 1 つである。GRS はこのタスクを、同じ uid を持つ今のタスクの上に、前回予定輪郭としてだけ描く。
+$defs/HighlightBox	このオブジェクトは、ハイライトボックス 1 つである。ハイライトボックスは、日の範囲とタスクグループの範囲にわたる矩形である。
+$defs/CommentBox	このオブジェクトは、コメントボックス 1 つである。コメントボックスは引出し線の付いた文の箱で、引出し線の端（線先）は、何にも付かない点、タスク、ハイライトボックスのどれかに立つ。
+$defs/DocumentStamp	このオブジェクトは文書刻印で、最後の変更、最後の保存、最後の編集者を持つ。Agent API はこの刻印を使って、古い読み取りに基づく書き込みを断る。
+$defs/Editor	このオブジェクトは、誰がスケジュール文書を編集したかを示す。編集者は、人か、AI か、まだ誰でもないかで、type がその場合を選ぶ。
+$defs/ChangeLogEntry	このオブジェクトは、人か AI が書いた、スケジュール文書の変更についての 1 つのメモである。このメモは、いつ、誰が、どの部分を、何を、なぜ、そのほかを持つ。
+$defs/Uid	この整数は、MSPDI から来る実体を見分ける（MSPDI UID）。この整数は、1 つの配列の中で一意である。GRS は uid を決して使い回さない。ただし project.uid は文字列である。
+$defs/Uuid	この文字列は、ランダムな小文字の UUID である。GRS は、GRS だけが定めるオブジェクトの id に UUID を使う。こうして、別々に作ったオブジェクトが同じ id を持つことは無い。
+$defs/Day	この文字列は、時刻の無い日付である。タイムゾーンが効く所では、各キーが名指すタイムゾーンでの日付である。日の範囲（firstDay から lastDay）は両端を含む。
+$defs/Time	この文字列は日付の無い時刻で、MSPDI が時刻を書くのと同じく HH:MM:SS と書く。
+$defs/DateTime	この文字列は、scheduleData.scheduleDataTimeZone での、時差を持たない地方の日付と時刻で、MSPDI が日時を書くのと同じ形である。GRS は分まで読み、秒を無視する。
+$defs/UtcInstant	この文字列は、秒までの UTC の時点である。GRS はこの型を、文書刻印のような記録と、ルートの 2 つの版に使う。
+$defs/StandardUtcOffset	この文字列は、UTC からの決まった差である。例えば "+09:00" で、UTC そのものは "+00:00" である。GRS はこの差を 1 年中使い、夏時間を決して足さない。
+$defs/MspdiValue	この値は 1 つの MSPDI の値である。値は、文字だけの要素なら文字列か数、繰り返す要素なら配列（項目が 1 つでも）、または子要素の名をキーにしたオブジェクトである。真偽値は、MSPDI と同じく 0 か 1 のままである。
+$defs/Passthrough	このオブジェクトは、1 つの実体の MSPDI の子要素のうち、GRS が使わないものを、要素名をキーにして持つ。GRS はそれらを MSPDI のスキーマの順でそのまま書き戻し、繰り返しは配列の順で書く。
+$defs/MspdiElement	このオブジェクトは、GRS が実体として持たない MSPDI の要素まるごとで、キーは子要素の名である。例えばプロジェクトの要約タスクである。GRS はその要素をそのまま書き戻す。
+$defs/Color	このオブジェクトは、type が "theme"、"palette"、"custom" のどれかの色である。色のキーを省いてよい所では、色が無いことは、GRS がそこに塗りも線も描かないことを意味する。
+$defs/TaskGroupColor	この値は、タスクグループレーンの色である。この値は Color と同じ形を持つ。ただし、パレットの色 "black" は使えない。
+$defs/Paint	このオブジェクトは塗りで、色と不透明度を持つ。
+$defs/Stroke	このオブジェクトは線で、色、不透明度、太さを持つ。線を描かないときは、キー stroke をまるごと書かない。
+$defs/ShapeStyle	このオブジェクトは、形の塗りと枠線を持つ。TaskStyle、HighlightBoxStyle、CommentBoxStyle は、どれもこのオブジェクトを使う。
+$defs/TaskStyle	このオブジェクトは、GRS が 1 つのタスクのタスク図形をどう描くか（形、予定バーの塗り、バーの枠線）を示す。マイルストーンは milestoneShape を使い、ほかのタスクは taskShape を使う。
+$defs/TaskGroupStyle	このオブジェクトは、GRS が 1 つのタスクグループをどう描くか（タスクグループレーンの色）を示す。
+$defs/HighlightBoxStyle	このオブジェクトは、GRS が 1 つのハイライトボックスをどう描くか（角の半径、塗り、枠線）を示す。
+$defs/CommentBoxStyle	このオブジェクトは、GRS が 1 つのコメントボックスをどう描くか（箱の塗り、箱の枠線と引出し線、文字）を示す。
+$defs/ColumnFilter	このオブジェクトは、表の 1 つの列に掛けるフィルタである。type は、値で絞るか、日の範囲で絞るかを選ぶ。
+$defs/ColumnSort	このオブジェクトは、GRS が表をどう並べ替えるかを示す。GRS は 1 つの列で、1 つの向きに並べ替える。
+$defs/TaskTableWindow	このオブジェクトは、GRS がタスクの表（検索ウィンドウか遅延診断レポートウィンドウ）をどう見せるか（チェック、列のフィルタ、並べ替え）を示す。
+$defs/ResourceTableWindow	このオブジェクトは、GRS が担当リストウィンドウの表をどう見せるか（チェック、列のフィルタ、並べ替え）を示す。

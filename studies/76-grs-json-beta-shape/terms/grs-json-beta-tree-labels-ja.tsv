@@ -110,6 +110,9 @@ scheduleData.sourceFormat="mspdi12"	MSPDI（Project の版 12 の形）
 scheduleData.sourceFormat="mspdi15"	MSPDI（Project の版 15 の形）
 scheduleData.importedTopTaskOutlineLevel	取り込んだファイルの、最上位のタスクの OutlineLevel
 scheduleData.mspdiImportCount	MSPDI を取り込んだ回数
+scheduleData.lastMspdiImport	最後の MSPDI の取り込み（取り込むたびに上書き。一度も取り込んでいなければ無い）
+scheduleData.lastMspdiImport.importedAt	取り込んだ時（UTC）
+scheduleData.lastMspdiImport.fileName	取り込んだファイルの名（フォルダーを除く）
 scheduleData.highestIssuedUid	uid の数え手（GRS が出した最も大きい uid）
 scheduleData.project	プロジェクト（1 件）
 scheduleData.project.uid	一意な識別子（文字列）
@@ -204,7 +207,7 @@ scheduleData.tasks[].hyperlink	リンクのタイトル
 scheduleData.tasks[].hyperlinkAddress	リンク先の URL
 scheduleData.tasks[].notes	メモ
 scheduleData.tasks[].parentTaskUid	WBS の親タスク（最上位では書かない）
-scheduleData.tasks[].siblingOrder	兄弟の中の順
+scheduleData.tasks[].siblingIndex	兄弟の中で何番目か（0 から）
 scheduleData.tasks[].grs	タスクに付く GRS の値
 scheduleData.tasks[].grs.startSlopeCalendarDays	開始の傾き（開始の端を斜めに落とす暦日。確定していない日付）
 scheduleData.tasks[].grs.finishSlopeCalendarDays	終了の傾き（終了の端を斜めに落とす暦日。確定していない日付）
@@ -295,7 +298,7 @@ scheduleData.taskGroups[]	タスクグループ
 scheduleData.taskGroups[].id	一意な UUID
 scheduleData.taskGroups[].name	タスクグループ名
 scheduleData.taskGroups[].parentTaskGroupId	親のタスクグループ（最上位では書かない）
-scheduleData.taskGroups[].siblingOrder	兄弟の中の順
+scheduleData.taskGroups[].siblingIndex	兄弟の中で何番目か（0 から）
 scheduleData.taskGroups[].style	見た目（型 TaskGroupStyle）
 scheduleData.taskGroups[].style.color	帯の色
 scheduleData.taskGroups[].minHeightPx	帯の最も低い高さ
