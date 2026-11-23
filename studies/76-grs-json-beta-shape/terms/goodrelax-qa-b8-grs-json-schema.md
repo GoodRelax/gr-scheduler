@@ -1,4 +1,4 @@
-BGQA8
+
 
 # GRS JSON の β のスキーマ —— 持ち主の目視（JDG-3328 の 4 段目）
 
@@ -6,7 +6,7 @@ BGQA8
 > 凡例: ❓回答待 ✅回答済 🔄変化点 ★強調(ユーザー専用)
 
 作った日: 2026-11-23（GRS JSON のスキーマの席、`JDG-3757`）
-🔄 *残 2（❓ で検索）*
+🔄 *残 1（❓ で検索）*
 
 - 正のスキーマ: `studies/76-grs-json-beta-shape/terms/grs-json-beta.schema.json`。キーの順・列挙の値・構成は最終レビューの木と同じです（スキーマから木を作り直して、差 0 を確かめました）。
 - 英語の説明 311 個とルートの説明は、AI の 3 段の確かめを終えました（1 段目 Haiku が仕様を見ずに読む → 2 段目 Sonnet が事実と書き方の決まりに突き合わせる → 3 段目 席が直す。記録は `studies/76-grs-json-beta-shape/text-check-2026-11-23-schema/`）。この GQA が 4 段目です。
@@ -52,6 +52,7 @@ BGQA8
 | ✅ 問 12 説明の最終版 | 持ち主のチャットの指示で、スキーマの説明が仕様を書きすぎている所を消す（問 13・問 14）。ピン止めを hidden より優先する仕様は `CR-862` が当てる | `JDG-3804` |
 | 🔄 *✅ 問 13 書きすぎとして消した文* | 🔄 *49 文のうち、持ち主の ★ で 7 文を戻した（時計の行・予定の日付の表示・scheduleDataTimeZone を MSPDI へ書かない・担当の見せ方・statusDate の 2 文・stop）。8 キーの説明を易しく書き直した（tasks・taskGroups・project.uid と id の違い・title・weekStartDay・例外の type・タスクの passthrough・lagFormat）。ほかの 33 文は消したまま* | 🔄 *`JDG-3805`* |
 | 🔄 *✅ 問 14 迷って残した文* | 🔄 *15 か所は残す* | 🔄 *`JDG-3806`* |
+| 🔄 *✅ 問 15 説明の最終版* | 🔄 *持ち主のチャット「GRS JSONはこれでOKとする」で確定（62628cecc のスキーマ）。β リリースの作業はこれを土台に進め、GRS JSON に問題が見つかれば持ち主の裁定を仰ぐ（勝手に変えない）* | 🔄 *`JDG-3807`* |
 | ✅ 問 6 語「Carried」 | 冒頭の説明から「Carried」を除き、passthrough で言い直した（英語版・日本語版の木も作り直した） | `JDG-3766` |
 | 外の AI のレビュー | 外の AI（AI-A）がスキーマを読み、矛盾 13・誤解 18・冗長 30 を挙げた。席の仕分けは `grs-json-schema-review-findings.md` | `JDG-3717` ③ |
 | 外の AI の指摘: 席が直した 25 件 | 裁定・決まり・仕様から答えが 1 つに決まる 25 件を、説明と必須に当てた。必須の変更は 3 つ: `CommentBoxStyle.stroke` を必須から外す（無いと枠線と引出し線を描かない）、`documentStamp.lastEditedBy` を必須にする、`scheduleData.scheduleDataTimeZone` を必須にする（無いと日時を読めない）。説明の直しの例: タスクの塗りと線はマイルストーンマークにも効く、頭の値は 6 つ、`lagFormat` が無いとラグを分で見せて数えない | `JDG-3634` ④・`JDG-3740`・`JDG-3669`・仕様 |
@@ -78,23 +79,9 @@ BGQA8
 
 ## QA
 
-### [schema] 🔄 *スキーマ（❓ 1）*
+### [schema] 🔄 *スキーマ ✅*
 
-🔄 *席: GRS JSON のスキーマ 2（BOSS は gr-scheduler BOSS（4 代目））。答えが来たら、席が裁定に記録し、スキーマに当てます。*
-
-#### 🔄 *❓ 問 15. 説明の最終版（木の形）*
-
-🔄 ***場面:** 問 13 の ★ を当てた説明の最終版です。戻した 7 文と、書き直した 8 キー（`tasks`・`taskGroups`・`project.uid`・`project.title`・`weekStartDay`・例外の `type`・タスクの `grs.passthrough`・`lagFormat`）の文は、木の中で見られます。キーの順・列挙の値・構成は最終レビューの木と同じです（差 0）。*
-
-- 🔄 *日本語版（先に、さらっと見る）: [grs-json-beta-description-tree-ja.md](grs-json-beta-description-tree-ja.md)*
-- 🔄 *英語版（契約の文そのもの）: [grs-json-beta-description-tree-en.md](grs-json-beta-description-tree-en.md)*
-
-| 案 | 中身 | 変わること |
-|:---|:---|:---|
-| **a（推奨）** | 🔄 *この説明でよい* | 🔄 *スキーマはこのまま。CR-851 の当てに渡す* |
-| b | 🔄 *直す説明がある（R 番号と、何をどう、を回答に書く）* | 🔄 *席が直して、次の回で見せる* |
-
-回答:
+🔄 *席: GRS JSON のスキーマ 2（BOSS は gr-scheduler BOSS（4 代目））。β の GRS JSON は確定しました（`JDG-3807`）。スキーマの問いはありません。*
 
 ***
 
