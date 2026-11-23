@@ -323,6 +323,7 @@ function readingOf(schedule: Schedule, inputs: GeometryInputs, regions: ScreenRe
     groupById,
     groupOfTask,
     pinnedIds: new Set(inputs.settings.pinnedTaskGroupIds),
+    /** @purity non-pure */
     treePositionOf: () => {
       treePosition ??= new Map(inTreeOrder(schedule.taskGroups, groupById).map((group, at) => [group.id, at]))
       return treePosition

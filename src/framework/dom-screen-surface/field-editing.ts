@@ -137,14 +137,17 @@ function isDateEntry(control: unknown): boolean {
 function keyedDateOf() {
   let isKeyed = false
   return {
+    /** @purity non-pure */
     mark: (event: Event): void => {
       const key = (event as Partial<KeyboardEvent>).key
       if (key !== HOST_ENTER && key !== HOST_ESCAPE_KEY && key !== HOST_TAB_KEY) isKeyed = true
     },
     holds: (target: unknown, held: unknown): boolean => isKeyed && target === held,
+    /** @purity non-pure */
     clear: (): void => {
       isKeyed = false
     },
+    /** @purity non-pure */
     settle: (held: TextEntryControl | null, valueAtFocus: string): FieldCommit | null => {
       const wasKeyed = isKeyed
       isKeyed = false
@@ -164,12 +167,14 @@ function jointRowOf() {
   const holds = (target: unknown): boolean => entrances.includes(target as TextEntryControl)
   return {
     holds,
+    /** @purity non-pure */
     enter: (target: unknown): void => {
       if (holds(target)) return
       entrances = rowEntrancesOf(target)
       textsAtStart = entrances.map((one) => one.value)
     },
     restore: (): void => entrances.forEach((one, at) => (one.value = textsAtStart[at] ?? '')),
+    /** @purity non-pure */
     settle: (): FieldCommit | null => {
       const settled = entrances
       const isMoved = settled.some((one, at) => one.value !== textsAtStart[at])
@@ -196,6 +201,7 @@ const PANEL_KEY_SEPARATOR = '#'
 function fieldListenersOf(propertiesPanel: HTMLElement) {
   const listened: (readonly [string, (event: Event) => void])[] = []
   return {
+    /** @purity non-pure */
     listen: (type: string, listener: (event: Event) => void): void => {
       propertiesPanel.addEventListener(type, listener)
       listened.push([type, listener])
@@ -640,10 +646,12 @@ export function fieldEditingOf(host: Document, propertiesPanel: HTMLElement) {
     panelKeyAfterCommits: (described: string): string =>
       `${described}${PANEL_KEY_SEPARATOR}${commitsHandedOut}`,
     isDocumentTitleOpen: (): boolean => documentTitleEntry !== null,
+    /** @purity non-pure */
     holdDocumentTitle: (box: HTMLElement, shown: string): void => {
       documentTitleBox = box
       documentTitleShown = shown
     },
+    /** @purity non-pure */
     holdWatermarkUnlock: (
       drawnModal: {
         readonly element: HTMLElement
@@ -655,6 +663,7 @@ export function fieldEditingOf(host: Document, propertiesPanel: HTMLElement) {
         watchWatermarkUnlock(drawnModal.element)
       }
     },
+    /** @purity non-pure */
     holdNoticeShowing: (isShowing: boolean): void => {
       isNoticeShowing = isShowing
     },

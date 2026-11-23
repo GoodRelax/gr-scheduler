@@ -112,6 +112,9 @@ THE R3 KINDS, BESIDE THE OLD FORMS (study 82, stage B2, 2026-11-24)
        `// Section: ...`, `// Consistency: ...`   1 line each (R7)
        `// Trap: ...`                         2 lines (a project kind, as TRAP)
        `// Step: ...`                         tests/ only, the STEP rules
+       a tool directive with its reason       1 line, in any comment:
+                                              `eslint-... -- <reason>` or
+                                              `@ts-... <reason>`
   The file header keeps its shape; a role line opening with `File:` is a role
   line like any other.
 
@@ -254,7 +257,11 @@ BUDGET = {'see': 1, 'TRAP': 2, 'WHY': 2, 'STOP': 3, 'DEVIATION': 2,
           # The R3 kinds and the project kinds (docstring, "THE R3 KINDS").
           'Why': 2, 'Spec': 1, 'Summary': 3, 'Temporary': 2,
           'Unimplemented': 1, 'Provisional': 1, 'Section': 1,
-          'Consistency': 1, 'Trap': 2}
+          'Consistency': 1, 'Trap': 2, 'Directive': 1}
+# A tool directive with its reason (comment-rules-src.md section 3): ESLint's
+# `-- <reason>` description, or a `@ts-` directive followed by its reason.
+DIRECTIVE = re.compile(u'(?:eslint-[a-z-]+' + u'\\S*(?:' + u'\\s+\\S+)*?' +
+                       u'\\s+--\\s+\\S.*|@ts-[a-z-]+\\s+\\S.*)')
 HEADS = (('TRAP:', 'TRAP'), ('WHY:', 'WHY'), ('STOP:', 'STOP'),
          ('DEVIATION:', 'DEVIATION'), ('Why:', 'Why'),
          ('Summary:', 'Summary'), ('Temporary:', 'Temporary'),
@@ -588,6 +595,8 @@ def classify(body, line_comment, heads=HEADS):
             return None
         return 'tag'
     kind = None
+    if DIRECTIVE.fullmatch(body):
+        return 'Directive'
     if line_comment:
         question = OPEN_QUESTION.fullmatch(body)
         if SEE.fullmatch(body):
@@ -1240,6 +1249,7 @@ import { describe, expect, it } from 'vitest';
 describe('a title with \u65e5\u672c\u8a9e is a string, not a comment', () => {
   it('drags the bar', () => {
     const data = '\u30c7\u30fc\u30bf';
+    // eslint-disable-next-line no-console -- the probe prints its result
     // see FR-013
     // Spec: FR-013
     // Why: the bar moves by whole days only
@@ -1275,6 +1285,10 @@ SELF_TEST_BREAKS = (
       u'    // Spec: FR-013\n'
       u'    // Summary: When the bar is dragged, the task shall move. If the\n'
       u'    // day is a holiday, then the task shall skip it.\n'),
+     1),
+    ('an eslint directive with no reason',
+     (u'    // Spec: FR-013\n',
+      u'    // Spec: FR-013\n    // eslint-disable-next-line no-console\n'),
      1),
 )
 SELF_TEST_QUESTIONS = frozenset([u'OPQ-1'])

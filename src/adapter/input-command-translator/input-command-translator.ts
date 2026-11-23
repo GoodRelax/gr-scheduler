@@ -1411,6 +1411,7 @@ export function taskGroupRankById(groups: readonly TaskGroup[]): ReadonlyMap<str
   for (const siblings of childrenOf.values()) siblings.sort((a, b) => a.order - b.order)
 
   const rankById = new Map<string, number>()
+  /** @purity pure */
   const walk = (parent: string | null): void => {
     for (const group of childrenOf.get(parent) ?? []) {
       if (rankById.has(group.id)) continue

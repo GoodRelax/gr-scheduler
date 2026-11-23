@@ -149,6 +149,7 @@ function mergedInArrival(held: readonly XmlElement[], places: readonly Undeclare
   const arrival = new Map(held.map((element, at) => [element, at]))
   const inArrival = (list: readonly XmlElement[]): readonly XmlElement[] =>
     [...list].sort((a, b) => (arrival.get(a) ?? 0) - (arrival.get(b) ?? 0))
+  /** @purity pure */
   const joined = (side: 'after' | 'before'): ReadonlyMap<XmlElement, readonly XmlElement[]> => {
     const lists = new Map<XmlElement, XmlElement[]>()
     for (const one of places) {

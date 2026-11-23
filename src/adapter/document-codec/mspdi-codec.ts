@@ -275,6 +275,7 @@ export function mspdiVersionOfCarried(schedule: unknown): MspdiVersion {
 function carryHoldersOf(schedule: unknown): CarryHolder[] {
   if (!isObject(schedule)) return []
   const holders: CarryHolder[] = [{ holder: schedule['project'], path: PATHS.project }]
+  /** @purity pure */
   const rowsOf = (owner: unknown, key: string, path: string): unknown[] => {
     const rows = isObject(owner) ? owner[key] : undefined
     for (const row of Array.isArray(rows) ? rows : []) holders.push({ holder: row, path })

@@ -115,6 +115,7 @@ function fieldNameElement(host: Document, name: string, segments: readonly strin
   return shown
 }
 
+/** @purity semi-pure-immutable */
 function propertyControlsStyle(): string {
   return `flex:1;display:flex;flex-wrap:wrap;align-items:flex-start;gap:${fieldSizes().nameGap}px;min-width:0;`
 }
@@ -983,6 +984,7 @@ function assigneeListElement(
   const send = (key: PropertyControl['key'], text: string, pick: AssigneePick): void =>
     commitAssignee(carrier, filter, { key, text, pick })
   const redraw = (): void => drawAssigneeItems(host, items, control, combo, send)
+  /** @purity non-pure */
   const sendList = (pick: 'all' | 'none'): void => {
     const uids = shownUidsOf(combo, pick === 'none')
     if (uids !== '') send(seatedKeyOf(control, null), uids, pick)
@@ -1018,6 +1020,7 @@ function assigneeDropdownElements(
   carrier.setAttribute(FIELD_ROW_ATTRIBUTE, row)
   const filter = assigneeFilterOf(host, row, control)
   const isOpen = (): boolean => field.querySelector(`[${ASSIGNEE_LIST_ATTRIBUTE}]`) !== null
+  /** @purity non-pure */
   const open = (): void => {
     if (isOpen()) return
     if (openAssigneeList.identity !== identity) Object.assign(openAssigneeList, { typed: '', isDescending: false })
@@ -1067,6 +1070,7 @@ function closeAssigneeList(field: HTMLElement): void {
 // WHY: a field the panel has since redrawn lets go of the listener.
 /** @purity non-pure */
 function closeAssigneeOnPressElsewhere(host: Document, field: HTMLElement): void {
+  /** @purity non-pure */
   const onPress = (event: Event): void => {
     if (field.isConnected && field.contains(event.target as Node)) return
     host.removeEventListener('pointerdown', onPress, true)
@@ -1274,6 +1278,7 @@ function twoLineChoiceElement(host: Document, row: string, control: PropertyCont
   field.setAttribute(TWO_LINE_CHOICE_ATTRIBUTE, row)
   const shown = closedFieldOf(host, row, control, choiceLinesElement(host, choiceLines[values.indexOf(control.text)] ?? [control.text, '']))
   field.append(shown)
+  /** @purity non-pure */
   const open = (): void => {
     openTwoLineChoice.identity = identity
     field.append(twoLineListElement(host, row, control, choiceLines))
@@ -1297,6 +1302,7 @@ function closeTwoLineList(field: HTMLElement): void {
 // WHY: a field the panel has since redrawn lets go of the listener.
 /** @purity non-pure */
 function closeOnPressElsewhere(host: Document, field: HTMLElement): void {
+  /** @purity non-pure */
   const onPress = (event: Event): void => {
     const isInside = field.isConnected && field.contains(event.target as Node)
     if (isInside) return

@@ -16,6 +16,7 @@ export function domSvgSurface(host: Element): SvgSurface {
   let lastOverlay = ''
   let overlay: Element | null = null
   return {
+    /** @purity non-pure */
     showSvg(svg: string): void {
       if (svg === last) return
       last = svg
@@ -24,6 +25,7 @@ export function domSvgSurface(host: Element): SvgSurface {
       host.innerHTML = svg
       if (overlay !== null) host.append(overlay)
     },
+    /** @purity non-pure */
     showMarqueeOverlaySvg(svg: string): void {
       if (svg === lastOverlay) return
       lastOverlay = svg

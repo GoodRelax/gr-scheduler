@@ -1548,6 +1548,7 @@ function effectRunnersOf(hands: ScreenEffectHands): EffectRunners<SessionEffect>
     storeFixedCursorBDate: () => undefined,
     storeClearedDualCursor: () => undefined,
     seedHelpLanguage: () => undefined,
+    /** @purity non-pure */
     focusSearchWord: () => {
       hands.raiseSearchPanel()
       hands.focusSearchWord()
@@ -2023,6 +2024,7 @@ function tableWindowsHeldIn(read: () => WindowPlaces, write: (next: WindowPlaces
   const fixTables = delayFixTablesKeeper()
   return {
     // see DX-11, DX-12, RW-16
+    /** @purity non-pure */
     fixTablesNow(diagnostics: Pick<HeldDelayDiagnostics, 'of' | 'report' | 'fixLogAtRun'> | null, fixLog: FixLogSource): DelayFixTables | undefined {
       const window = read().delayDiagnosticsReport
       if (diagnostics === null || window === null) return undefined
@@ -2039,6 +2041,7 @@ function tableWindowsHeldIn(read: () => WindowPlaces, write: (next: WindowPlaces
     // see RW-1, RW-19, FR-130
     // WHY: the diagnosis goes on, so the fix picks and the marked row come back with the window (RW-16).
     shownReport: (): DelayDiagnosticsReportWindow => tableWindowReopened(read().delayDiagnosticsReport, read().closedReport, OPENED_DELAY_DIAGNOSTICS_REPORT),
+    /** @purity non-pure */
     keepMarkWithin<D extends Pick<HeldDelayDiagnostics, 'reportTaskUids'>>(diagnostics: D): D {
       const report = read().delayDiagnosticsReport
       const uid = report?.markedRow?.taskUid
@@ -2065,10 +2068,12 @@ function heldGrabScrollOf() {
   let scrolledTo: Document | null = null
   return {
     read: (): HeldGrabScroll | null => scroll,
+    /** @purity non-pure */
     hold: (to: HeldGrabScroll | null): void => {
       scroll = to
       scrolledTo = null
     },
+    /** @purity non-pure */
     scrolled: (document: Document): Document => {
       if (scroll === null) return document
       if (scrolledFrom !== document || scrolledTo === null) {
@@ -2322,10 +2327,12 @@ function owedJumpHolder(ask: () => void): JumpLandingHold {
   let owed: OwedJump | null = null
   let landings = 0
   return {
+    /** @purity non-pure */
     owe(target, isPlacedAgain): void {
       owed = { target, isPlacedAgain }
       ask()
     },
+    /** @purity non-pure */
     land(hands, frame): boolean {
       const taken = owed
       owed = null
@@ -2333,6 +2340,7 @@ function owedJumpHolder(ask: () => void): JumpLandingHold {
       landings += 1
       return true
     },
+    /** @purity semi-pure-mutable */
     rippleOf(screen, layout, geometry, regions) {
       const mark = screen.landingMarkDisplayState
       if (mark.kind !== 'shown' || mark.landedBy !== 'jump') return undefined
@@ -2350,6 +2358,7 @@ function landingAgentHolder(
   if (holder === undefined) return undefined
   return {
     ...holder,
+    /** @purity non-pure */
     holdJumpTarget: (taskUid) => {
       holder.holdJumpTarget(taskUid)
       const frame = readFrame()
@@ -3050,6 +3059,7 @@ export function frameLoop(
     storeScreenLanguage: (language) => writeBrowserStored('S-99', language),
     askBrowserForFullScreen,
     matchWatermarkUnlock: () => void matchWatermarkUnlock(hands, screen?.readWatermarkUnlockAnswer?.() ?? ''),
+    /** @purity non-pure */
     clearSelection: () => {
       if (selectedObjectsIn(session) === NO_OBJECTS_SELECTED) return
       sendToSession(SELECTION_CLEARED, values)
@@ -3058,13 +3068,16 @@ export function frameLoop(
     startScaleMessageTimer,
     startEntryRepeat: beginEntryRepeat,
     repeatHeldEntry,
+    /** @purity non-pure */
     restorePaletteCorner: () => {
       if (commandPaletteCornerAtPress !== null) commandPaletteDraggedTo = commandPaletteCornerAtPress
     },
     raiseFlowSurface: (surfaceName) => sendToSession({ type: 'surfaceRaisedByFlow', surfaceName }, values),
+    /** @purity non-pure */
     tellFlowSurfaceClosed: (surfaceName, frame) => {
       if (isFlowSurface(surfaceName)) sendToSession({ type: 'flowSurfaceClosed', surfaceName }, frame)
     },
+    /** @purity non-pure */
     writeProgressStep: (writes, frame) => {
       if (frame !== null) carryOutAction({ kind: 'changeDocument', writes: [writes] }, frame)
     },
@@ -3081,6 +3094,7 @@ export function frameLoop(
     storeAgentApiEnabling,
     focusSearchWord: () => (isSearchWordFocusOwed = true),
     raiseSearchPanel: windows.raiseSearchPanel,
+    /** @purity non-pure */
     issueBaseChangeCommand: (effect, frame) => {
       const commands = baseChangeCommandsOf(effect, held.document)
       if (frame !== null && commands.length > 0) writeDocument(commands, frame)
@@ -4357,14 +4371,17 @@ export function frameLoop(
       historySteps: historyStepsOf(replaceHeldDocumentAt),
       // see CM-102, FR-055
       pageFitWrites: () => (values === null ? null : fitWrites(collectInputContext(values))[0] ?? null),
+      /** @purity non-pure */
       askToOpenFile: () => {
         sendToSession(AGENT_OPEN_FILE_ASKED, null)
         ask()
       },
+      /** @purity non-pure */
       runDelayDiagnostics: () => {
         showDelayDiagnostics(true)
         ask()
       },
+      /** @purity non-pure */
       closeWindow: (which) => {
         if (which === 'propertiesPanel') sendToSession(PANEL_CLOSE_ASKED, null)
         else if (isDelayDiagnosticsReportOpen(delayDiagnosticsShown, windows.report())) answerReportEntry(CLOSE_SURFACE_ENTRY, null)

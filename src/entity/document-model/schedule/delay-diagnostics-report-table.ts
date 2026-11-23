@@ -352,6 +352,7 @@ export function delayFixRowsInOrder(
     if (row.causedBy !== null && keys.has(row.causedBy)) chainsOf.set(row.causedBy, [...(chainsOf.get(row.causedBy) ?? []), row])
   }
   const ordered: DelayFixRow[] = []
+  /** @purity pure */
   const place = (row: DelayFixRow): void => {
     ordered.push(row)
     for (const chain of [...(chainsOf.get(row.key) ?? [])].sort(compare)) place(chain)

@@ -91,6 +91,7 @@ export function inTreeOrder<T extends TaskGroup>(
 
   const ordered: T[] = []
   const seen = new Set<string>()
+  /** @purity pure */
   const walk = (parent: string | null): void => {
     for (const row of childrenOf.get(parent) ?? []) {
       if (seen.has(row.id)) continue

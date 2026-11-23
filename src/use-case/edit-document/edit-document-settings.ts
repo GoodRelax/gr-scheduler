@@ -516,6 +516,7 @@ export function editDocumentSettings(
   limits: SettingsLimits,
 ): EditResult {
   const settings = document.documentSettings
+  /** @purity pure */
   const put: SettingsPut = (part) => {
     const keys = Object.keys(part) as readonly (keyof DocumentSettings)[]
     if (keys.every((key) => settings[key] === part[key])) return edited(document)

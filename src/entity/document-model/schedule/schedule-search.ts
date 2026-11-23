@@ -169,6 +169,7 @@ export function searchRowsOf(
   const heldTaskGroup = (taskGroupId: string | null | undefined): string | null =>
     taskGroupId !== null && taskGroupId !== undefined && rankById.has(taskGroupId) ? taskGroupId : null
   const pathByTaskGroupId = new Map<string, readonly string[]>()
+  /** @purity pure */
   const pathOf = (taskGroupId: string | null): readonly string[] => {
     if (taskGroupId === null) return []
     const held = pathByTaskGroupId.get(taskGroupId) ?? taskGroupPathOf(schedule, taskGroupId)
@@ -237,6 +238,7 @@ export function commentBoxShownDateOf(schedule: Schedule, box: CommentBox): stri
 
 type Span = { readonly left: number; readonly right: number }
 
+/** @purity pure */
 function holdsId(id: string | null): (box: HighlightBox) => boolean {
   return (box) => box.id === id
 }

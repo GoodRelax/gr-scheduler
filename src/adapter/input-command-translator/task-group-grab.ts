@@ -155,6 +155,7 @@ function taskGroupLiftsOf(tree: TaskGroupGrabTree, landing: Pick<TaskGroupGrabLa
   const lifts: TaskGroupLift[] = []
   const chain: (string | null)[] = []
   chain[landing.depth - 1] = landing.parentId
+  /** @purity pure */
   const walk = (id: string, depth: number): void => {
     chain[depth] = id
     const parentId = chain[cap - 1]
@@ -226,6 +227,7 @@ function liftsThenMoveOf(
   }
   const standing = childIdsOf(tree)
   const parentAt = parentsNow()
+  /** @purity pure */
   const landed = (taskGroupId: string, parentId: string | null): TaskGroupMove => {
     const finalSiblings = final.get(parentId) ?? []
     const present = new Set((standing.get(parentId) ?? []).filter((id) => id !== taskGroupId))

@@ -697,6 +697,7 @@ interface ReadingTally {
 /** @purity non-pure */
 function readingTallyOf(outer: DocumentFileFlowHands): ReadingTally {
   const counts = new Map<string, number>()
+  /** @purity non-pure */
   const raiseNotice = (reason: NoticeReason, affectedCount: number | null): void => {
     if (NOTICE_DISPLAY_OF_REASON[reason] !== 'report') return outer.raiseNotice(reason, affectedCount)
     const row = NOTICE_WORDS_ROW_OF_REASON[reason]
@@ -1015,11 +1016,13 @@ const ASKED_MERGE_SURFACE = 'U-61'
 function askingOpeningFlow(flow: OpeningFlow, onAsked: (asked: typeof ASKED_MERGE_SURFACE) => void): OpeningFlow {
   return {
     ...flow,
+    /** @purity non-pure */
     askHowToOpen: (discarded, incomingFile) => {
       const answer = flow.askHowToOpen(discarded, incomingFile)
       onAsked(ASKED_MERGE_SURFACE)
       return answer
     },
+    /** @purity non-pure */
     askWhichFileToTakeFrom: (mergeCandidates, unreadColumns) => {
       const answer = flow.askWhichFileToTakeFrom(mergeCandidates, unreadColumns)
       onAsked(ASKED_MERGE_SURFACE)

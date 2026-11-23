@@ -81,6 +81,7 @@ function shiftPassOf(shift: WorkingDayShift): ShiftPass {
   let pulled = 0
   const outside: string[] = []
   return {
+    /** @purity non-pure */
     move: (text, side, what) => {
       const moved = movedText(text, side, shift)
       if (moved === null) return text

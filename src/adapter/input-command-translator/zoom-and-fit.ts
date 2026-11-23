@@ -276,6 +276,7 @@ function tallestBandAtZoomY(
 ): (zoomY: number) => boolean {
   const measuredWith = { ...context.document.documentSettings, zoomX: drawnZoomX }
   const asked = new Map<string, number>()
+  /** @purity pure */
   const tallestAt = (zoomY: number): number => {
     const key = bandZoomKeyOf(measuredWith, zoomY)
     const known = asked.get(key)
