@@ -505,6 +505,8 @@ BGQA2 を約束の面ごとに分けたとき（`JDG-3568`）、まだ出して�
 
 ## BGQA4 文書の命令（16 問）
 
+> 決まった（2026-11-23）: この節の問いは 1 つずつ問わず、方針（`agent-api-naming-policy-draft.md`）を当てた一覧 `agent-api-names-by-policy-draft.md` のとおりに決まった（`JDG-3781`。問 31-1 の型は `JDG-3782`、問 30-4 の `mark` は `JDG-3783`）。下の「状態: OPEN」と推しは、問うた時の記録として残す。
+
 ### [cmd] 文書の命令
 
 #### ❓ 問 35-1. 日程全体をずらす 2 つの命令の名
@@ -887,6 +889,8 @@ MSPDI の LinkLag は 10 分の 1 分で数え、LagFormat は単位を数の符
 回答:
 
 ## BGQA5 Agent API（29 問）
+
+> 決まった（2026-11-23）: この節の問いは 1 つずつ問わず、方針（`agent-api-naming-policy-draft.md`）を当てた一覧 `agent-api-names-by-policy-draft.md` のとおりに決まった（`JDG-3781`。問 31-1 の型は `JDG-3782`、問 30-4 の `mark` は `JDG-3783`）。下の「状態: OPEN」と推しは、問うた時の記録として残す。
 
 ### [api] Agent API
 
