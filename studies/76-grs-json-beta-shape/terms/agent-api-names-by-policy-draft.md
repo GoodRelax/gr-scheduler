@@ -486,5 +486,18 @@ BGQA4（文書の命令 16 問）と BGQA5（Agent API 29 問）の 45 問に、
 - 「変える名」には、新しい道具 `closePropertiesPanel` と、無くす名（`WatcherMark`・`negativeActualLength`）を入れた。条件つきの 2 名（問 32-9 の「理由が残るなら」）も入れた。
 - 2 つの問いに出る名は、1 つの問いでだけ数えた（`state` は問 35-5、`shiftMinutes` は問 35-5、`sourceTaskGroupId` は問 36-5）。
 - 列挙の値は、表に行を立てた値だけを数えた（`resourceList` など）。説明の文の中だけに出る名は数えていない。
-- 4 節の 7 名は、「変える名」にも「今のままの名」にも入れていない。
+- 4 節の名は、決まった名を「変える名」と「今のままの名」に入れて数えた（変える 5・今のまま 2）。`JDG-3781` の記録の「変える名 130」は持ち主に問うた時の数で、その後に問 10（`JDG-3782`）の 3 名ほかを足して 134 になった。
 - 1 つの問いの名の数の検算: 問 35-5 は 2 + 5 + 9 = 16、問 34-2 は 1 + 1 + 35 = 37、問 30-5 は 6 + 30 = 36、問 32-10 は 2 + 1 + 44 = 47 で、問いの語の数と合う。
+
+## AI-C のレビューの後の直し（2026-11-24、Agent API の名 2 の席）
+
+AI-C の独立レビュー（`JDG-3785`、`agent-api-names-ai-c-review.md`）の 26 件を、席が仕分けた（レビューの末尾の表）。名を変える物は GQA BGQA7 の [rev]（問 13〜25）で持ち主に問うており、答えが来たらこの表に当てる。一覧に出てこなかった名は `agent-api-names-missing-from-list.md`、遅延診断の答えの中の名（265 名）は `agent-api-names-delay-diagnosis-draft.md` にある。
+
+席が直した所（新しい名を作らない）:
+
+| 所見 | 直し |
+|:---|:---|
+| 8 | 表の値と窓の名の対応: `readTableRows.table` の値は表の名、`TableWindowName` の値は窓の名で、別の物。検索ウィンドウの表は `readSearchRows` が読む（窓 `searchWindow`）。窓 `delayDiagnosisReportWindow` は表の値 `delayDiagnosisReport`・`fixProposals`・`fixLog` の 3 つを持つ。窓 `resourceListWindow` は表の値 `resourceList` を持つ。`ShownTasks.filteringTableWindows` の値を `readTableRows` へ渡すときは、この対応で表の値に直す |
+| 14 | `editTableWindow.set` のキーは GRS JSON β の窓の型のキーのまま（P-4。木の R430〜R440）: `isScheduleFilteredByChecks`（問 37-1 の行）、`checkedTaskUids`・`checkedResourceUids`・`isUnassignedChecked`（`JDG-3713`）、`columnFilters`、`columnSort`（`JDG-3708`）。CR-851 の対応表の `shownTaskUids`・`shownResourceUids`・`isUnassignedShown`・`sort` は前の段の名 |
+| 23 | 数え方の文（上の「数え方」の 4 節の行）を直した |
+| 25 | `watchChanges.watcher`・`ChangeNotice.watcher` の値は、刻印の書き手の名 `Editor.name` と同じ文字列（説明の文で言う。名は今のまま） |
