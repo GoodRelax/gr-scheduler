@@ -1,0 +1,116 @@
+jdg	subject	landing	evidence
+JDG-3411	One names manuscript; tbl-glossary generated; other manuscripts cite names by ID	step3	glossary.json exists (done); tbl-glossary.md generation is step2; erd.json/settings.json/agent-api-members.json citing glossary keys is step3
+JDG-3413	Rulings stay in rulings.md; generate JSON-schema/API ruling index	other	no generated index of JSON-schema/API rulings exists (grep JDG-3413 hits only rulings.md); no CR-857 step names it
+JDG-3414	Rulings change SSOT via extracted drafts inside each CR	other	CR-process rule for docs/development-rules/ and change-request template; not present there and not in any CR-857 step
+JDG-3415	Dictionary keyed by ID; owner split; en/ja texts; uses; tags; taxonomy	step1-done	glossary.json terms[] with key, owner (387), label/definition {en,ja}, uses, tags (187), parent (607), groups[] (66); UI parts in screen groups
+JDG-3416	Generate one step from SSOT; shared GRS-JSON-schema assembly module	other	glossary_json_to_md.py reads only glossary.json (done); shared schema-assembly module for command schema/MCP/startup generators not built; generator work outside CR-857 steps
+JDG-3418	Check that backticked names in definitions/spec exist in dictionary	step1-missing	glossary_json_to_md.py problems() has no check of backticked names or Entity.column in definitions; spec-text half would be step3
+JDG-3419	Place names dictionary at docs/spec/_source/glossary.json	step1-done	docs/spec/_source/glossary.json; schema at docs/development-rules/manuscript-schemas/glossary.schema.json
+JDG-3420	Move 11 manuscript schemas plus glossary schema into dev-rules folder	step3	glossary.schema.json moved (done); 11 other *.schema.json still in docs/spec/_source; 92 path references
+JDG-3421	Rebuild generators on dev-rule schemas with shared assembly parts	other	generator rebuild (with JDG-3416 shared module) not listed in any CR-857 step
+JDG-3422	Dictionary and dev-rule schemas bilingual, English primary	step1-missing	glossary.json en/ja with en primary (done); glossary.schema.json descriptions are English only, no Japanese; other 11 schemas step3
+JDG-3424	Upstream order: schema, dictionary, review .md, then GRS JSON generation	step3	steps 1-3 done (glossary.schema.json, glossary.json, glossary-review-base.md); GRS JSON schema generated from the dictionary and its review table not done (needs manuscripts citing keys, step3)
+JDG-3425	definition/label as {en,ja}; key and owner as separate fields	step1-done	schema Text {en,ja}; terms carry key + owner (e.g. colorTypeProperty owner Color); tags point by unique key
+JDG-3426	Document command concept in design shape; commands after subjects	step1-done	documentCommand in group designShape; documentCommands groups follow screen/settings/agentApi
+JDG-3427	Ten-group build-up order; contract groups carry since	step1-missing	10 top groups present; since on all 306 grsJson terms but on 0 of 204 agentApi and 0 of 83 documentCommands terms
+JDG-3428	Owner reads 21 core parts first; AI fixes drafts before release	other	review-round procedure (BGQA sheets / naming review seat), not a glossary.json fact
+JDG-3429	Add NDD after Naming, Traceability after SSOT; short principle meanings	step1-done	designPrinciples order: naming, ndd, ssot, traceability, okpn ...; basis JDG-3513
+JDG-3430	Part 1 and Part 2 Japanese names and meanings settled	step1-done	all 58 rules-group terms carry basis JDG-3513
+JDG-3431	wbs meaning is the parent-child task tree only	step1-done	wbs: "the tree of parent tasks and child tasks", no exchange text; multipleTasksPerRow removed per JDG-3467
+JDG-3432	Eight value words; Intuitive Interaction; watermark not a value	step1-done	group values: 7 terms + tag delayDiagnosis (JDG-3512); intuitiveInteraction ja 直感操作; no watermark term; about page via JDG-3470
+JDG-3433	milestoneTask names the key; taskShape and milestoneShape say what	step1-done	milestoneTask, taskShape, milestoneShape definitions
+JDG-3434	baseline Japanese name is 前回予定; drop 変更前の予定	step1-missing	baseline label.ja 前回予定 done; still 変更前の予定 in group title graphicStyleAndOrigin and definitions of importDocument, shiftScheduleTimes, openRoute, labelBaseline, openFileDialog, overlayAsBaselineIcon; screen labels baselineIcon/baselineOutline/isBaselineOutlineVisible and spec/src 69 places go to CR-855
+JDG-3435	Adopt written Japanese names; schedule is スケジュール	step1-done	schedule label.ja スケジュール; basis JDG-3435 on 8 terms
+JDG-3461	Task plan-actual state is named progressStatus	step1-missing	progressStatus term done; dictionary still has commands placeTaskPlanActual/cycleTaskPlanActualState ("plan-and-actual state") where studies/76-grs-json-beta-shape/terms/agent-api-names-by-policy-draft.md (JDG-3781) decided setTaskProgressStatus/cycleTaskProgressStatus; spec/src rewrite CR-855
+JDG-3462	Multibar term becomes Multi-bar Gantt	step1-done	multiBarGantt label Multi-bar Gantt / マルチバーガント
+JDG-3463	Dependency type Japanese names and aliases; hints use 終了	CR-855	finishToStart..startToFinish ja names with aliases done (後追終了 per JDG-3486); display-words.json linkHintFS/SF/FF/SS still 完了 and no alias
+JDG-3464	One counting calendar is projectCalendar; drop 文書の暦	step1-missing	projectCalendar done; 文書の暦 wording remains in workingDay, criticalPath, delayDiagnosis definitions; Calendar type (key calendar) label.ja not カレンダー; group calendar titled 暦
+JDG-3465	Progress-line point per task is taskProgressPoint	step1-done	taskProgressPoint label Task Progress Point / タスク進捗点
+JDG-3466	Settle seven delay-diagnosis words as drafted	step1-done	bottleneck, bottleneckPath, unreliable, suspicion/omission, fixProposal, fixLog carry basis JDG-3466 (pushOut renamed per JDG-3473)
+JDG-3467	Value group eight keys; goals GL-001..009 kept out	step1-done	onePage, smooth, selfExplanatory, intuitiveInteraction, structuredData, singleHtml, aiInteraction + values tag delayDiagnosis; no GL term
+JDG-3468	English dependency type names unchanged, no English aliases	step1-done	finishToStart etc. label.en Finish-to-Start..., definition.en has no alias
+JDG-3469	Expected finish is estimatedFinish (終了見込み)	CR-855	estimatedFinish done in dictionary; spec 11 and src 8 rewrites remain
+JDG-3470	Spec T-106 eight values, T-054 goals, about page wording	CR-855	targets docs/spec/01-04-requirements.md T-054, docs/about/index.html; T-106 follows from step2 generation; CR-857 sec 0.2 hands it to CR-855/step3
+JDG-3471	multiBarGantt names the chart type; misuse examples banned	step1-done	multiBarGantt definition and usage.bad
+JDG-3472	Add usage good/bad field; avoid holds words only	step1-done	schema Term.usage; multiBarGantt usage good 3 / bad 3; avoid entries are words
+JDG-3473	endTask, delayContribution, finishedDelayContribution, diagnosisBlocker; Agent API renames	step1-missing	concept terms done; readDelayDiagnostics and readDelayDiagnosticsParts definitions still use 押し出し, pushOutMinutes, terminalPushOuts, walls, settledPushOuts; Agent API rename itself CR-851
+JDG-3474	finishedDelayContribution Japanese is 完了済みの遅延寄与	step1-done	finishedDelayContribution label.ja 完了済みの遅延寄与
+JDG-3475	Delay diagnosis meaning: diagnosis leaves the document unchanged	step1-done	delayDiagnosis definition says the diagnosis keeps the document; schema note is CR-851
+JDG-3476	Delay amount keys are the Minutes names; Agent API renames	step1-missing	dependencyDelayMinutes, internalDelayMinutes, endTaskDelayMinutes, delayContributionMinutes done; readDelayDiagnostics definition still cites inheritedDelayMinutes/selfDelayMinutes; API rename CR-851
+JDG-3481	NDD meaning quotes the Laozi line in pinyin	step1-done	ndd definition en and ja carry the pinyin with hanzi
+JDG-3482	Abbreviation terms state their spelled-out name (now expansion field)	step1-done	expansion on 25 terms (overturned in part by JDG-3524)
+JDG-3483	Affirmative active wording with objects; add rule to 07	step3	affirmativeActiveWording term and basis JDG-3483 on 58 terms (done); 07-review-standards.md lacks the transitive-verb-object rule
+JDG-3484	Drop value-word label from diagnosableDelay meaning	step1-done	diagnosableDelay merged into delayDiagnosis (JDG-3512); no value-word prefix
+JDG-3485	multiBarGantt meaning is the owner sentence	step1-done	multiBarGantt definition ends "GRS は multiBarGantt 方式"
+JDG-3486	Finish-to-finish alias is 後追終了, also in hints	CR-855	finishToFinish definition 後追終了 done; display-words.json linkHintFF has no alias
+JDG-3487	Rewrite document meaning short and affirmative	step1-done	document definition (three parts)
+JDG-3488	Verb names belong to semi-pure (B) functions; say so	step1-done	semiPureMutable definition names the verb rule
+JDG-3489	JSON and JSON Schema mean the standards; GRS names carry GRS	step1-done	json, jsonSchema definitions; grsJsonFormat, grsDocumentSchema, grsCommandsSchema
+JDG-3490	Rule term AffirmativeActiveWording, Japanese 否定形・受動態の排除	step1-done	affirmativeActiveWording; Japanese name only as the definition head (label.ja = written name per X-c)
+JDG-3491	rowId renamed specTableRowId in dictionary, display words, src	step3	specTableRowId term with renames from rowId and schema field (done); display-words.json, icon-roster.json, tools, src remain
+JDG-3492	schedule meaning in EARS form with date-times	step1-done	schedule definition
+JDG-3493	task meaning says a milestone is a kind of task	step1-done	task definition
+JDG-3494	Drop shape talk from milestoneTask; chevron is 矢羽根	step1-done	milestoneTask, taskShapeChevron ja 矢羽根; note taskShapeEndpointSpan still endpointSpan while studies/76-grs-json-beta-shape/terms/grs-json-beta.schema.json (frozen, JDG-3807) has dumbbell (later ruling)
+JDG-3495	Time values are date-times, not dates, dictionary-wide	step1-missing	plan, actual, progressStatus done; ja definitions still say 実績の日付/予定の日付 in place, placeTaskPlanActual, shiftScheduleTimes, documentModelProgressStatus, taskActualDurationField, isPlanDatesVisible
+JDG-3496	WBS children are 配下, not 下	step1-missing	parentTask, childTask done; parentTaskProgressToleranceWorkingDays definition still says その下のタスク
+JDG-3497	externalWbsMaster is any system exporting/importing MSPDI	step1-done	externalWbsMaster definition
+JDG-3498	Dependency meanings say which side waits for which	step1-done	dependency, predecessor, successor definitions
+JDG-3499	taskProgressPoint is one point on the time axis	step1-done	taskProgressPoint definition
+JDG-3500	delay meaning follows DL-1..DL-3 and status date	step1-done	delay definition
+JDG-3501	Delay amount names drop unit; unit stated once	step1-done	labels Dependency Delay / 依存関係遅延 etc.; unit in delayDiagnosis definition
+JDG-3503	doubtfulOrMissing breaks OKPN; fix asked	step1-done	resolved by JDG-3508: suspicion and omission
+JDG-3505	smooth meaning names layout calculation and drawing	step1-done	smooth definition
+JDG-3506	intuitiveInteraction meaning covers while-held and release/cancel	step1-done	intuitiveInteraction definition
+JDG-3507	Value meanings never say a state	step1-done	values definitions use "という、GRS の特長" (JDG-3509)
+JDG-3508	Split doubtfulOrMissing into suspicion and omission	step1-done	suspicion, omission (parent delayDiagnosis)
+JDG-3509	Value meanings read "the quality of GRS that ..."	other	all 7 values definitions done; whether spec GL-001..009 sentences change is still undecided in CR-857 (no step)
+JDG-3512	Feature named delayDiagnosis; derived names follow	step1-missing	delayDiagnosis with renames done; dictionary keeps readDelayDiagnostics/runDelayDiagnostics (members), tableWindows delayDiagnosticsReportWindow (beta: delayDiagnosisReportWindow), delayDiagnosticsReport (components), delayDiagnosticsReportWindow (screen U-66)
+JDG-3513	Settle Parts 1-5 (113 terms) per the sheet	step1-done	basis JDG-3513 on 113 terms
+JDG-3514	Adopt eight GRS JSON word meanings (UtcOffset, colors, ColumnFilter)	step1-done	utcOffset, colorDimGray, colorLightGray, columnKey, columnFilterType/Values/DateRange, isBlankHidden; note beta uses StandardUtcOffset and has no ColumnKey
+JDG-3516	Add DivideAndConquer before SoC; add to 07 index	step3	divideAndConquer term done; 07-review-standards.md principle index lacks it
+JDG-3518	GRS JSON Japanese labels only for 33 settings words plus 4	step1-missing	33 setting-copied labels done; projectName, title (Project), scheduleData, scheduleDocument have label.ja = written name, not プロジェクト名/プロジェクトタイトル/スケジュールデータ/スケジュール文書
+JDG-3519	Copy setting names into label.ja without wrap marks	step1-missing	label.ja still holds "|" in 23 terms (e.g. displayScalePercent 表示の|倍率, rootTreeState, pinnedTaskGroupIds, rulerHeightPx)
+JDG-3520	Add container sentence to 12 MSPDI-same type/array meanings	step1-missing	only "MSPDI の X と同じ。" in weekDay, exception, weekDays, exceptions, calendar, predecessorLink, predecessorLinks, calendars, resources, assignments
+JDG-3521	Rewrite UtcInstant meaning; settle five date-time types	step1-missing	utcInstant definition still "UTC での時点。YYYY-MM-DDTHH:MM:SSZ と書く。" without the event-time / DateTime sentences; day, dateTimeType, time, firstDay, lastDay present
+JDG-3522	Rewrite hiddenValues meaning; settle six column words	step1-missing	hiddenValues definition not the ruled text (unchecked values list); column, columnFilter, columnSortDirection, ascending/descending, columnSort present
+JDG-3523	ColorSide value renamed hexColor; settle 21 color words	step1-missing	term value (ColorSide) still "value"; beta has hexColor
+JDG-3524	Add expansion field; generator prints it; check abbreviations have it	step1-missing	expansion in schema and on 25 terms done; glossary_json_to_md.py neither prints expansion nor counts abbreviation keys lacking it
+JDG-3526	Fill/stroke transparency becomes opacityPercent	step1-missing	dictionary keeps fillTransparencyPercent; beta has opacityPercent; screen wording CR-856
+JDG-3527	Replace ColorSide source with derivedFrom	step1-missing	colorSideSource, sourceChosen, sourceDerived remain; beta has isCalculatedFromOppositeColorScheme (later ruling)
+JDG-3528	HighlightBox top/bottomTaskGroupId become first/lastTaskGroupId	step1-missing	topTaskGroupId, bottomTaskGroupId remain; beta has firstTaskGroupId/lastTaskGroupId
+JDG-3529	Fractions become ...Percent (lanePositionPercent etc.)	step1-missing	laneFraction, leftEdgeDayFraction, topEdgeTaskGroupFraction remain; beta has taskGroupTopOffsetPercent, leftEdgeDayOffsetPercent, topEdgeTaskGroupOffsetPercent
+JDG-3541	themeHueDegrees becomes named enum themeHue	step1-missing	themeHueDegrees remains, no hue-name values (blueGreen, indigo, ...); beta has themeHue
+JDG-3542	highestIssuedUid becomes lastIssuedUid	other	superseded: studies/76-grs-json-beta-shape/terms/grs-json-beta.schema.json (frozen, JDG-3807) keeps highestIssuedUid (JDG-3721/JDG-3784); dictionary highestIssuedUid matches beta; ruling row not marked overturned
+JDG-3544	documentSettings.tableViews becomes tableWindows	step1-done	tableWindows and its three windows in group documentSettings
+JDG-3548	MSPDI Type keys named ...Type with a reason sentence	step1-missing	recurrenceType, linkType, resourceType exist but definitions lack the why-differs-from-MSPDI sentence; beta later folds them into type
+JDG-3549	Every 暦 in the dictionary becomes カレンダー	step1-missing	暦 (not 暦日) remains in 33 terms (e.g. workingDay, projectCalendar, calendarUid, baseCalendarUid, workingCalendar) and group titles calendar, calendarCommands; spec and display-words go to CR-855
+JDG-3550	Settle 17 calendar words; meanings say カレンダー	step1-missing	17 terms present; calendarUid, baseCalendarUid, projectCalendarUid definitions still say 暦; group calendar titled 暦
+JDG-3551	Adopt parentTaskProgressToleranceWorkingDays and firstOutlineLevel	step1-missing	both keys present; dictionary keeps themeHueDegrees and lastImportNumber (importSequence), beta has themeHue and mspdiImportCount
+JDG-3552	Sibling order of tasks and task groups is siblingOrder	step1-done	siblingOrder (sharedTypes); note beta later renamed it siblingIndex
+JDG-3553	Settle 21 keys equal to MSPDI names	step1-done	start, finish, milestone, hyperlinkAddress, hyperlink, notes, deadline, actualStart ... isCostResource, resource, assignment present
+JDG-3554	Settle 11 task group words	step1-done	parentId, treeState and values, editGroup, color, minHeightPx, taskGroup present; note beta renamed (parentTaskGroupId, showMode)
+JDG-3556	Board proposals A-E: nested style, taskStyles, import numbers, leaderTarget	step1-missing	dictionary keeps taskGraphicStyles, lastImportNumber, lastSeenImportNumber, leaderAnchor, laneFraction, no style; beta has style, leaderTarget, mspdiImportCount (later)
+JDG-3557	MSPDI-derived rows use uid, GRS rows id; Project uid	step1-done	uid, id, projectUid; AT-1 and schema are CR-851
+JDG-3558	uid/id rules live in dictionary; spec 5.4 cites them	step3	uid and id definitions done; spec section 5.4 citing dictionary keys is step3
+JDG-3559	Dictionary calls identified things entities, not rows	step1-done	entity wording in uid, id and the 13 terms of JDG-3561
+JDG-3560	uid and id definitions use the owner sentences	step1-done	uid, id definitions en/ja
+JDG-3561	Thirteen meanings switch row to entity	step1-done	ordinal, siblingOrder, taskUid, reasonDuplicateKey, reasonDanglingReference, reasonNotFound ... say 実体
+JDG-3562	uid unique within its kind; AT-24 fix	step1-done	uid definition has the scope sentence; AT-24 and spec 5.4 table are CR-851
+JDG-3563	Discriminator key is type everywhere, never kind	step1-done	colorTypeProperty, columnFilterType, leaderAnchorTypeProperty, writerType, scrollPositionType, viewTimeZoneType, documentCommandTypeProperty, lagType; no kind label
+JDG-3564	No kind key; Refusal.commandType; AgentTableColumn.valueType	step1-done	refusalCommandType, agentTableColumnValueType; uid range is schema (CR-851)
+JDG-3565	GRS entity id stays id, random UUID v4	step1-done	id definition has the second sentence; template defect and schema are elsewhere
+JDG-3569	Settle 23 project words	step1-done	projectUid, projectName, title, subject ... in group project
+JDG-3602	note to remarks; rootTreeState; document root order	step1-done	remarks, rootTreeState present; root property order is schema (CR-851)
+JDG-3603	Root parts named 文書刻印, 文書設定, 変更履歴	step1-done	group stampAndLog 文書刻印と変更履歴, documentSettings 文書設定; only component documentType still says 文書の刻印/変更ログ
+JDG-3604	dependencies to predecessorLinks, Dependency to PredecessorLink	step1-done	predecessorLinks, predecessorLink; readSchema example cites PredecessorLink
+JDG-3605	GRS JSON structure; move Project GRS values to GRS object	step1-missing	themeHueDegrees, parentTaskProgressToleranceWorkingDays, highestIssuedUid, lastImportNumber, firstOutlineLevel, sourceFormat, scheduleDataTimeZone still in group project; beta puts them in scheduleData (JDG-3720)
+JDG-3606	Unread MSPDI values in per-entity passthrough; no ordinal	step1-missing	passthrough present, but term ordinal still in sharedTypes; beta has no ordinal
+JDG-3607	Fill and stroke as Paint and Stroke objects	step1-missing	fillColor, strokeColor, strokeWidthPx remain; no Paint/Stroke/fill/stroke; beta has them
+JDG-3609	Adopt naming rules N-1..N-12, X-1..X-4, E-1/2/4/5	step1-missing	no naming-rule term (N-x, X-x, E-x) in the rules groups of glossary.json
+JDG-3610	Shared ShapeStyle {fill, stroke}; comment text style object	step1-missing	no ShapeStyle term; textColor, fontSizePx remain; beta has ShapeStyle, CommentBoxStyle
+JDG-3612	Comment text style is style.font {color, sizePx}	step1-missing	textColor, fontSizePx remain; beta has font, sizePx
+JDG-3614	Per-task GRS values gathered under task grs	step1-missing	taskGroupMembers, taskGraphicStyles, taskOrigins remain in documentRoot; no Task grs term; beta has grs
+JDG-3616	Add naming rules N-13..N-17; state X-2	step1-missing	no naming-rule terms in glossary.json
+JDG-3652	Naming rules only in the dictionary rules group	step1-missing	rules groups (designPrinciples, designShape, rowIds, externalStandards) hold no N-x rule
+JDG-3656	expansionState becomes childrenExpansionState; root variant	step1-missing	dictionary keeps treeState/auto/collapsed/expanded/temporarilyExpanded; no childrenExpansionState; beta has showMode, automaticallyShownDepth (later)
+JDG-3660	Define task-group tree words root, depth, topLevel, below ...	step1-done	root, depth, topLevel, topLevelTaskGroup, parent, child, below, ancestor carry basis JDG-3660

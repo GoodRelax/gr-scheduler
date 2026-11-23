@@ -1,0 +1,4771 @@
+{
+ "$comment": [
+  "Patch for studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json so that it carries the frozen contract names.",
+  "Sources: GRS JSON grs-json-beta.schema.json (JDG-3807) with grs-json-beta-descriptions-ja.tsv; commands and Agent API: agent-api-names-by-policy-draft.md (JDG-3781..3784) and rulings JDG-3771..3785.",
+  "rename: apply all at once (AgentRefusal -> Refusal and Refusal -> CommandRefusal chain). newOwner keeps the draft owner, renamed when the owner itself was renamed; an owner is added only where the new key would collide.",
+  "definition null on a rename = keep the draft text. GRS JSON definitions are the frozen English description and its Japanese row, verbatim.",
+  "add: afterKey/afterOwner name the term (draft key, or a key added in this patch) after which the new term sits; afterKey null with a parentKey = first child. parentKey uses the draft key of the parent (it may be renamed by this patch).",
+  "notAdded: frozen names left out because no frozen source states their meaning, or because they are not frozen."
+ ],
+ "rename": [
+  {
+   "key": "delayDiagnostics",
+   "owner": null,
+   "newKey": "delayDiagnosis",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3512"
+   ],
+   "basis": [
+    "JDG-3512",
+    "JDG-3781"
+   ],
+   "definition": null
+  },
+  {
+   "key": "UtcOffset",
+   "owner": null,
+   "newKey": "StandardUtcOffset",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3762"
+   ],
+   "basis": [
+    "JDG-3807",
+    "JDG-3781"
+   ],
+   "definition": {
+    "en": "GRS uses the offset all year and never adds daylight saving time.",
+    "ja": "GRS はこの差を 1 年中使い、夏時間を決して足さない。"
+   }
+  },
+  {
+   "key": "value",
+   "owner": null,
+   "newKey": "hexColor",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3523"
+   ],
+   "basis": [
+    "JDG-3807",
+    "JDG-3781"
+   ],
+   "definition": null,
+   "note": "definition null: no frozen description"
+  },
+  {
+   "key": "source",
+   "owner": "ColorSide",
+   "newKey": "isCalculatedFromOppositeColorScheme",
+   "newOwner": "ColorSide",
+   "renameBasis": [
+    "JDG-3729"
+   ],
+   "basis": [
+    "JDG-3807",
+    "JDG-3781"
+   ],
+   "definition": {
+    "en": "A mark on a side that GRS calculated from the opposite side, as a record of origin and not a switch.",
+    "ja": "GRS が反対の側から計算した側に付ける印。この値は出どころの記録で、切り替えではない。"
+   }
+  },
+  {
+   "key": "paper",
+   "owner": "Color",
+   "newKey": "white",
+   "newOwner": "Color",
+   "renameBasis": [
+    "JDG-3702"
+   ],
+   "basis": [
+    "JDG-3807"
+   ],
+   "definition": null,
+   "note": "definition null: enum value: no own description"
+  },
+  {
+   "key": "ink",
+   "owner": "Color",
+   "newKey": "black",
+   "newOwner": "Color",
+   "renameBasis": [
+    "JDG-3702"
+   ],
+   "basis": [
+    "JDG-3807"
+   ],
+   "definition": null,
+   "note": "definition null: enum value: no own description"
+  },
+  {
+   "key": "LaneColor",
+   "owner": null,
+   "newKey": "TaskGroupColor",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3733"
+   ],
+   "basis": [
+    "JDG-3807"
+   ],
+   "definition": null,
+   "note": "definition null: no frozen description"
+  },
+  {
+   "key": "siblingOrder",
+   "owner": null,
+   "newKey": "siblingIndex",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3776"
+   ],
+   "basis": [
+    "JDG-3807",
+    "JDG-3781"
+   ],
+   "definition": null,
+   "note": "two frozen descriptions (Task.siblingIndex, TaskGroup.siblingIndex) differ; definition left to the draft text"
+  },
+  {
+   "key": "fillColor",
+   "owner": null,
+   "newKey": "color",
+   "newOwner": "Paint",
+   "renameBasis": [
+    "JDG-3607"
+   ],
+   "basis": [
+    "JDG-3807",
+    "JDG-3781"
+   ],
+   "definition": null,
+   "note": "definition null: no frozen description"
+  },
+  {
+   "key": "fillTransparencyPercent",
+   "owner": null,
+   "newKey": "opacityPercent",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3526"
+   ],
+   "basis": [
+    "JDG-3807",
+    "JDG-3781"
+   ],
+   "definition": null,
+   "note": "definition null: no frozen description"
+  },
+  {
+   "key": "strokeColor",
+   "owner": null,
+   "newKey": "color",
+   "newOwner": "Stroke",
+   "renameBasis": [
+    "JDG-3607"
+   ],
+   "basis": [
+    "JDG-3807",
+    "JDG-3781"
+   ],
+   "definition": null,
+   "note": "definition null: no frozen description"
+  },
+  {
+   "key": "strokeWidthPx",
+   "owner": null,
+   "newKey": "widthPx",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3607"
+   ],
+   "basis": [
+    "JDG-3807",
+    "JDG-3781"
+   ],
+   "definition": {
+    "en": "Horizontal and vertical zoom leave this width unchanged.",
+    "ja": "横と縦のズームは、この太さを変えない。"
+   }
+  },
+  {
+   "key": "recurrenceType",
+   "owner": null,
+   "newKey": "type",
+   "newOwner": "Exception",
+   "renameBasis": [
+    "JDG-3628"
+   ],
+   "basis": [
+    "JDG-3807"
+   ],
+   "definition": {
+    "en": "GRS counts working days only with a one-off exception: type 9, no type, or type 1 with period 1 or no period. A new exception takes 1.",
+    "ja": "GRS は一度きりの例外だけで稼働日を数える: type 9、type なし、または period が 1 か period なしの type 1。新しい例外は 1 を取る。"
+   }
+  },
+  {
+   "key": "recurrencePeriod",
+   "owner": null,
+   "newKey": "period",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3622",
+    "JDG-3628"
+   ],
+   "basis": [
+    "JDG-3807"
+   ],
+   "definition": null,
+   "note": "no ruling names this rename; it follows the MSPDI-name rule (JDG-3622 (2), JDG-3628) and the frozen schema (JDG-3807)"
+  },
+  {
+   "key": "themeHueDegrees",
+   "owner": null,
+   "newKey": "themeHue",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3541"
+   ],
+   "basis": [
+    "JDG-3807",
+    "JDG-3781"
+   ],
+   "definition": {
+    "en": "GRS holds the hue angle of each name.",
+    "ja": "GRS は各名の色相の角度を持つ。"
+   }
+  },
+  {
+   "key": "lastImportNumber",
+   "owner": null,
+   "newKey": "mspdiImportCount",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3627"
+   ],
+   "basis": [
+    "JDG-3807"
+   ],
+   "definition": null,
+   "note": "definition null: no frozen description"
+  },
+  {
+   "key": "firstOutlineLevel",
+   "owner": null,
+   "newKey": "importedTopTaskOutlineLevel",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3648"
+   ],
+   "basis": [
+    "JDG-3807"
+   ],
+   "definition": {
+    "en": "The MSPDI OutlineLevel of the top tasks in the imported file, not counting the project summary task; GRS gives this OutlineLevel to the top WBS tasks when writing MSPDI.",
+    "ja": "取り込んだファイルの最上位のタスクの MSPDI OutlineLevel。この値はプロジェクトの要約タスクを数えない。GRS は MSPDI を書くとき、WBS の最上位のタスクにこの OutlineLevel を付ける。"
+   }
+  },
+  {
+   "key": "pj12",
+   "owner": "sourceFormat",
+   "newKey": "mspdi12",
+   "newOwner": "sourceFormat",
+   "renameBasis": [
+    "JDG-3633"
+   ],
+   "basis": [
+    "JDG-3807"
+   ],
+   "definition": null,
+   "note": "definition null: enum value: no own description"
+  },
+  {
+   "key": "pj15",
+   "owner": "sourceFormat",
+   "newKey": "mspdi15",
+   "newOwner": "sourceFormat",
+   "renameBasis": [
+    "JDG-3633"
+   ],
+   "basis": [
+    "JDG-3807"
+   ],
+   "definition": null,
+   "note": "definition null: enum value: no own description"
+  },
+  {
+   "key": "linkType",
+   "owner": null,
+   "newKey": "type",
+   "newOwner": "PredecessorLink",
+   "renameBasis": [
+    "JDG-3628"
+   ],
+   "basis": [
+    "JDG-3807"
+   ],
+   "definition": null,
+   "note": "definition null: no frozen description"
+  },
+  {
+   "key": "fadeInCalendarDays",
+   "owner": null,
+   "newKey": "startSlopeCalendarDays",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3732"
+   ],
+   "basis": [
+    "JDG-3807",
+    "JDG-3781"
+   ],
+   "definition": {
+    "en": "The Start Slope in calendar days: GRS slants the start edge of the Plan Bar inward, from start toward finish, to mark a start that is not firm, without changing the schedule.",
+    "ja": "開始の傾き（暦日）。GRS は予定バーの開始の端を内側へ（開始から終了の向きへ）斜めにして、確定していない開始を示す。GRS はスケジュールを変えない。"
+   }
+  },
+  {
+   "key": "fadeOutCalendarDays",
+   "owner": null,
+   "newKey": "finishSlopeCalendarDays",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3732"
+   ],
+   "basis": [
+    "JDG-3807",
+    "JDG-3781"
+   ],
+   "definition": {
+    "en": "The Finish Slope in calendar days: GRS slants the finish edge of the Plan Bar inward, from finish toward start, to mark a finish that is not firm, without changing the schedule.",
+    "ja": "終了の傾き（暦日）。GRS は予定バーの終了の端を内側へ（終了から開始の向きへ）斜めにして、確定していない終了を示す。GRS はスケジュールを変えない。"
+   }
+  },
+  {
+   "key": "resourceType",
+   "owner": null,
+   "newKey": "type",
+   "newOwner": "Resource",
+   "renameBasis": [
+    "JDG-3628"
+   ],
+   "basis": [
+    "JDG-3807"
+   ],
+   "definition": {
+    "en": "Every resource has the same keys, whatever the code.",
+    "ja": "番号に関わらず、どの担当も同じキーを持つ。"
+   }
+  },
+  {
+   "key": "parentId",
+   "owner": null,
+   "newKey": "parentTaskGroupId",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3622"
+   ],
+   "basis": [
+    "JDG-3807",
+    "JDG-3781"
+   ],
+   "definition": {
+    "en": "When the key is absent, the task group is a top-level task group (depth 1).",
+    "ja": "キーが無いとき、そのタスクグループは最上位のタスクグループ（深さ 1）である。"
+   }
+  },
+  {
+   "key": "representedTaskUid",
+   "owner": null,
+   "newKey": "representativeTaskUid",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3639"
+   ],
+   "basis": [
+    "JDG-3807",
+    "JDG-3781"
+   ],
+   "definition": {
+    "en": "The uid of the WBS task that this task group stands for.",
+    "ja": "このタスクグループが代表する WBS のタスクの uid。"
+   }
+  },
+  {
+   "key": "treeState",
+   "owner": null,
+   "newKey": "showMode",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3736"
+   ],
+   "basis": [
+    "JDG-3807",
+    "JDG-3781"
+   ],
+   "definition": {
+    "en": "What a person wants for this task group. \"shown\": GRS draws the task group at any depth unless an ancestor hides the task group. \"hidden\": GRS hides the task group and every task group below. \"automatic\": GRS decides from automaticallyShownDepth, the pins and the path to a shown task group below. \"hiddenUntilZoomIn\": GRS hides the task group and every task group below until the next vertical zoom-in.",
+    "ja": "このタスクグループについて人が望むこと。\"shown\": 祖先がこのタスクグループを隠さない限り、GRS はどの深さでもこのタスクグループを描く。\"hidden\": GRS はこのタスクグループと配下のすべてのタスクグループを隠す。\"automatic\": GRS は、automaticallyShownDepth、ピン、見えている配下のタスクグループへの道から決める。\"hiddenUntilZoomIn\": 次の縦のズームインまで、GRS はこのタスクグループと配下のすべてのタスクグループを隠す。"
+   }
+  },
+  {
+   "key": "auto",
+   "owner": "treeState",
+   "newKey": "automatic",
+   "newOwner": "showMode",
+   "renameBasis": [
+    "JDG-3662"
+   ],
+   "basis": [
+    "JDG-3807"
+   ],
+   "definition": null,
+   "note": "definition null: enum value: no own description"
+  },
+  {
+   "key": "hidden",
+   "owner": "treeState",
+   "newKey": "hidden",
+   "newOwner": "showMode",
+   "renameBasis": [
+    "JDG-3662"
+   ],
+   "basis": [
+    "JDG-3807"
+   ],
+   "definition": null,
+   "note": "definition null: enum value: no own description"
+  },
+  {
+   "key": "editGroup",
+   "owner": null,
+   "newKey": "allowedEditorGroupName",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3730"
+   ],
+   "basis": [
+    "JDG-3807",
+    "JDG-3781"
+   ],
+   "definition": {
+    "en": "The name of the group of people allowed to edit the tasks in this task group. GRS treats those tasks as read-only for every person and AI agent, because GRS alone holds no group of its own.",
+    "ja": "このタスクグループのタスクを編集してよい人の組の名。GRS はそれらのタスクを、どの人にもどの AI エージェントにも読み取り専用として扱う。GRS は単体では自分の組を持たないからである。"
+   }
+  },
+  {
+   "key": "endpointSpan",
+   "owner": "taskShape",
+   "newKey": "dumbbell",
+   "newOwner": "taskShape",
+   "renameBasis": [
+    "JDG-3696"
+   ],
+   "basis": [
+    "JDG-3807"
+   ],
+   "definition": null,
+   "note": "definition null: enum value: no own description"
+  },
+  {
+   "key": "person",
+   "owner": "milestoneShape",
+   "newKey": "meetingPeople",
+   "newOwner": "milestoneShape",
+   "renameBasis": [
+    "JDG-3703"
+   ],
+   "basis": [
+    "JDG-3807"
+   ],
+   "definition": null,
+   "note": "definition null: enum value: no own description"
+  },
+  {
+   "key": "smile",
+   "owner": "milestoneShape",
+   "newKey": "smilingFace",
+   "newOwner": "milestoneShape",
+   "renameBasis": [
+    "JDG-3703"
+   ],
+   "basis": [
+    "JDG-3807"
+   ],
+   "definition": null,
+   "note": "definition null: enum value: no own description"
+  },
+  {
+   "key": "TaskGraphicStyle",
+   "owner": null,
+   "newKey": "TaskStyle",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3699"
+   ],
+   "basis": [
+    "JDG-3807"
+   ],
+   "definition": null,
+   "note": "definition null: no frozen description"
+  },
+  {
+   "key": "sourceProjectId",
+   "owner": null,
+   "newKey": "sourceProjectUid",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3701"
+   ],
+   "basis": [
+    "JDG-3807"
+   ],
+   "definition": null,
+   "note": "definition null: no frozen description"
+  },
+  {
+   "key": "sourceUid",
+   "owner": null,
+   "newKey": "sourceTaskUid",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3701"
+   ],
+   "basis": [
+    "JDG-3807"
+   ],
+   "definition": {
+    "en": "The value can differ from uid, because GRS may give the imported task a new uid.",
+    "ja": "GRS が取り込んだタスクに新しい uid を付けることがあるので、この値は uid と違うことがある。"
+   }
+  },
+  {
+   "key": "lastSeenImportNumber",
+   "owner": null,
+   "newKey": "mspdiImportCountWhenLastIncluded",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3737"
+   ],
+   "basis": [
+    "JDG-3807"
+   ],
+   "definition": {
+    "en": "A copy of scheduleData.mspdiImportCount at the last import whose file contained this task. A value below the current count means that the latest import left this task out.",
+    "ja": "このタスクを含むファイルを取り込んだ最後の時の scheduleData.mspdiImportCount の写し。値が今の回数より小さいとき、最新の取り込みはこのタスクを含まなかった。"
+   }
+  },
+  {
+   "key": "TaskOrigin",
+   "owner": null,
+   "newKey": "ImportOrigin",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3710"
+   ],
+   "basis": [
+    "JDG-3807"
+   ],
+   "definition": {
+    "en": "Which MSPDI file and task an imported task came from.",
+    "ja": "取り込んだタスクがどの MSPDI ファイルのどのタスクから来たか。"
+   }
+  },
+  {
+   "key": "laneFraction",
+   "owner": null,
+   "newKey": "taskGroupTopOffsetPercent",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3733"
+   ],
+   "basis": [
+    "JDG-3807",
+    "JDG-3781"
+   ],
+   "definition": {
+    "en": "Only when type is \"freePoint\". How far the Leader Anchor lies below the top edge of that Task Group Lane, in percent of the lane height.",
+    "ja": "type が \"freePoint\" のときだけ書く。線先がそのタスクグループレーンの上の縁からどれだけ下にあるか（レーンの高さに対する %）。"
+   }
+  },
+  {
+   "key": "graphicPart",
+   "owner": null,
+   "newKey": "snapPart",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3623"
+   ],
+   "basis": [
+    "JDG-3807",
+    "JDG-3781"
+   ],
+   "definition": {
+    "en": "Only when type is \"task\". \"milestoneMark\" on a milestone, \"planBar\" or \"actualBar\" on other tasks.",
+    "ja": "type が \"task\" のときだけ書く。マイルストーンでは \"milestoneMark\"、ほかのタスクでは \"planBar\" か \"actualBar\"。"
+   }
+  },
+  {
+   "key": "plannedBar",
+   "owner": "graphicPart",
+   "newKey": "planBar",
+   "newOwner": "snapPart",
+   "renameBasis": [
+    "JDG-3647"
+   ],
+   "basis": [
+    "JDG-3807"
+   ],
+   "definition": null,
+   "note": "definition null: enum value: no own description"
+  },
+  {
+   "key": "actualBar",
+   "owner": "graphicPart",
+   "newKey": "actualBar",
+   "newOwner": "snapPart",
+   "renameBasis": [
+    "JDG-3623"
+   ],
+   "basis": [
+    "JDG-3807"
+   ],
+   "definition": null,
+   "note": "definition null: enum value: no own description"
+  },
+  {
+   "key": "milestone",
+   "owner": "graphicPart",
+   "newKey": "milestoneMark",
+   "newOwner": "snapPart",
+   "renameBasis": [
+    "JDG-3647"
+   ],
+   "basis": [
+    "JDG-3807"
+   ],
+   "definition": null,
+   "note": "definition null: enum value: no own description"
+  },
+  {
+   "key": "point",
+   "owner": null,
+   "newKey": "snapPoint",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3623"
+   ],
+   "basis": [
+    "JDG-3807",
+    "JDG-3781"
+   ],
+   "definition": null,
+   "note": "definition null: no frozen description"
+  },
+  {
+   "key": "topLeftCorner",
+   "owner": "point",
+   "newKey": "topLeftCorner",
+   "newOwner": "snapPoint",
+   "renameBasis": [
+    "JDG-3623"
+   ],
+   "basis": [
+    "JDG-3807"
+   ],
+   "definition": null,
+   "note": "definition null: enum value: no own description"
+  },
+  {
+   "key": "topMiddle",
+   "owner": "point",
+   "newKey": "topMiddle",
+   "newOwner": "snapPoint",
+   "renameBasis": [
+    "JDG-3623"
+   ],
+   "basis": [
+    "JDG-3807"
+   ],
+   "definition": null,
+   "note": "definition null: enum value: no own description"
+  },
+  {
+   "key": "topRightCorner",
+   "owner": "point",
+   "newKey": "topRightCorner",
+   "newOwner": "snapPoint",
+   "renameBasis": [
+    "JDG-3623"
+   ],
+   "basis": [
+    "JDG-3807"
+   ],
+   "definition": null,
+   "note": "definition null: enum value: no own description"
+  },
+  {
+   "key": "rightMiddle",
+   "owner": "point",
+   "newKey": "rightMiddle",
+   "newOwner": "snapPoint",
+   "renameBasis": [
+    "JDG-3623"
+   ],
+   "basis": [
+    "JDG-3807"
+   ],
+   "definition": null,
+   "note": "definition null: enum value: no own description"
+  },
+  {
+   "key": "bottomRightCorner",
+   "owner": "point",
+   "newKey": "bottomRightCorner",
+   "newOwner": "snapPoint",
+   "renameBasis": [
+    "JDG-3623"
+   ],
+   "basis": [
+    "JDG-3807"
+   ],
+   "definition": null,
+   "note": "definition null: enum value: no own description"
+  },
+  {
+   "key": "bottomMiddle",
+   "owner": "point",
+   "newKey": "bottomMiddle",
+   "newOwner": "snapPoint",
+   "renameBasis": [
+    "JDG-3623"
+   ],
+   "basis": [
+    "JDG-3807"
+   ],
+   "definition": null,
+   "note": "definition null: enum value: no own description"
+  },
+  {
+   "key": "bottomLeftCorner",
+   "owner": "point",
+   "newKey": "bottomLeftCorner",
+   "newOwner": "snapPoint",
+   "renameBasis": [
+    "JDG-3623"
+   ],
+   "basis": [
+    "JDG-3807"
+   ],
+   "definition": null,
+   "note": "definition null: enum value: no own description"
+  },
+  {
+   "key": "leftMiddle",
+   "owner": "point",
+   "newKey": "leftMiddle",
+   "newOwner": "snapPoint",
+   "renameBasis": [
+    "JDG-3623"
+   ],
+   "basis": [
+    "JDG-3807"
+   ],
+   "definition": null,
+   "note": "definition null: enum value: no own description"
+  },
+  {
+   "key": "type",
+   "owner": "LeaderAnchor",
+   "newKey": "type",
+   "newOwner": "LeaderTarget",
+   "renameBasis": [
+    "JDG-3556"
+   ],
+   "basis": [
+    "JDG-3807",
+    "JDG-3781"
+   ],
+   "definition": null,
+   "note": "definition null: no frozen description"
+  },
+  {
+   "key": "freePoint",
+   "owner": "LeaderAnchor",
+   "newKey": "freePoint",
+   "newOwner": "LeaderTarget",
+   "renameBasis": [
+    "JDG-3556"
+   ],
+   "basis": [
+    "JDG-3807"
+   ],
+   "definition": null,
+   "note": "definition null: enum value: no own description"
+  },
+  {
+   "key": "task",
+   "owner": "LeaderAnchor",
+   "newKey": "task",
+   "newOwner": "LeaderTarget",
+   "renameBasis": [
+    "JDG-3556"
+   ],
+   "basis": [
+    "JDG-3807"
+   ],
+   "definition": null,
+   "note": "definition null: enum value: no own description"
+  },
+  {
+   "key": "highlightBox",
+   "owner": "LeaderAnchor",
+   "newKey": "highlightBox",
+   "newOwner": "LeaderTarget",
+   "renameBasis": [
+    "JDG-3556"
+   ],
+   "basis": [
+    "JDG-3807"
+   ],
+   "definition": null,
+   "note": "definition null: enum value: no own description"
+  },
+  {
+   "key": "LeaderAnchor",
+   "owner": null,
+   "newKey": "LeaderTarget",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3710"
+   ],
+   "basis": [
+    "JDG-3807"
+   ],
+   "definition": null,
+   "note": "definition null: no frozen description"
+  },
+  {
+   "key": "leaderAnchor",
+   "owner": null,
+   "newKey": "leaderTarget",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3556"
+   ],
+   "basis": [
+    "JDG-3807",
+    "JDG-3781"
+   ],
+   "definition": {
+    "en": "When the file names a target that the Schedule Data lacks, GRS draws no Leader Line.",
+    "ja": "スケジュールデータに無い先をファイルが指すとき、GRS は引出し線を描かない。"
+   }
+  },
+  {
+   "key": "textColor",
+   "owner": null,
+   "newKey": "color",
+   "newOwner": "font",
+   "renameBasis": [
+    "JDG-3612"
+   ],
+   "basis": [
+    "JDG-3807",
+    "JDG-3781"
+   ],
+   "definition": null,
+   "note": "definition null: no frozen description"
+  },
+  {
+   "key": "fontSizePx",
+   "owner": null,
+   "newKey": "sizePx",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3612"
+   ],
+   "basis": [
+    "JDG-3807",
+    "JDG-3781"
+   ],
+   "definition": {
+    "en": "Horizontal and vertical zoom leave this size unchanged.",
+    "ja": "横と縦のズームは、この大きさを変えない。"
+   }
+  },
+  {
+   "key": "topTaskGroupId",
+   "owner": null,
+   "newKey": "firstTaskGroupId",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3528"
+   ],
+   "basis": [
+    "JDG-3807",
+    "JDG-3781"
+   ],
+   "definition": {
+    "en": "The box covers every task group through lastTaskGroupId in task group tree order, both ends included.",
+    "ja": "ハイライトボックスは、タスクグループの木の順で lastTaskGroupId までのすべてのタスクグループを覆い、両端を含む。"
+   }
+  },
+  {
+   "key": "bottomTaskGroupId",
+   "owner": null,
+   "newKey": "lastTaskGroupId",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3528"
+   ],
+   "basis": [
+    "JDG-3807",
+    "JDG-3781"
+   ],
+   "definition": null,
+   "note": "definition null: no frozen description"
+  },
+  {
+   "key": "type",
+   "owner": "Writer",
+   "newKey": "type",
+   "newOwner": "Editor",
+   "renameBasis": [
+    "JDG-3700"
+   ],
+   "basis": [
+    "JDG-3807",
+    "JDG-3781"
+   ],
+   "definition": {
+    "en": "\"template\": nobody has edited yet, so the Schedule Document is still the template that comes with GRS.",
+    "ja": "\"template\": まだ誰も編集していないので、スケジュール文書は GRS に付いてくるテンプレートのままである。"
+   }
+  },
+  {
+   "key": "user",
+   "owner": "Writer",
+   "newKey": "user",
+   "newOwner": "Editor",
+   "renameBasis": [
+    "JDG-3700"
+   ],
+   "basis": [
+    "JDG-3807"
+   ],
+   "definition": null,
+   "note": "definition null: enum value: no own description"
+  },
+  {
+   "key": "template",
+   "owner": "Writer",
+   "newKey": "template",
+   "newOwner": "Editor",
+   "renameBasis": [
+    "JDG-3700"
+   ],
+   "basis": [
+    "JDG-3807"
+   ],
+   "definition": null,
+   "note": "definition null: enum value: no own description"
+  },
+  {
+   "key": "agent",
+   "owner": "Writer",
+   "newKey": "agent",
+   "newOwner": "Editor",
+   "renameBasis": [
+    "JDG-3700"
+   ],
+   "basis": [
+    "JDG-3807"
+   ],
+   "definition": null,
+   "note": "definition null: enum value: no own description"
+  },
+  {
+   "key": "name",
+   "owner": "Writer",
+   "newKey": "name",
+   "newOwner": "Editor",
+   "renameBasis": [
+    "JDG-3700"
+   ],
+   "basis": [
+    "JDG-3807",
+    "JDG-3781"
+   ],
+   "definition": {
+    "en": "The name of the editor: for \"agent\", the name that the AI reports; for \"user\", the name of the person, only when GRS knows the name.",
+    "ja": "編集者の名。\"agent\" では、AI が名乗る名を示す。\"user\" では、GRS が名を知るときだけ、その人の名を示す。"
+   }
+  },
+  {
+   "key": "Writer",
+   "owner": null,
+   "newKey": "Editor",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3700"
+   ],
+   "basis": [
+    "JDG-3807"
+   ],
+   "definition": null,
+   "note": "definition null: no frozen description"
+  },
+  {
+   "key": "displayScalePercent",
+   "owner": null,
+   "newKey": "displayScaleRatio",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3621"
+   ],
+   "basis": [
+    "JDG-3807",
+    "JDG-3781"
+   ],
+   "definition": {
+    "en": "GRS multiplies the values of keys ending in Px, which are CSS pixels, by this ratio when drawing, and saves those values unscaled.",
+    "ja": "GRS は、名前が Px で終わるキーの値（CSS ピクセル）に、描くときにこの倍率を掛ける。GRS はそれらの値を、倍率を掛けずに保存する。"
+   }
+  },
+  {
+   "key": "fontSizeStep",
+   "owner": null,
+   "newKey": "fontSizePreset",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3623"
+   ],
+   "basis": [
+    "JDG-3807",
+    "JDG-3781"
+   ],
+   "definition": {
+    "en": "GRS holds the pixel size of each step, and displayScaleRatio scales that size.",
+    "ja": "GRS は各段のピクセルの大きさを持ち、displayScaleRatio がその大きさを拡大・縮小する。"
+   }
+  },
+  {
+   "key": "small",
+   "owner": "fontSizeStep",
+   "newKey": "small",
+   "newOwner": "fontSizePreset",
+   "renameBasis": [
+    "JDG-3623"
+   ],
+   "basis": [
+    "JDG-3807"
+   ],
+   "definition": null,
+   "note": "definition null: enum value: no own description"
+  },
+  {
+   "key": "medium",
+   "owner": "fontSizeStep",
+   "newKey": "medium",
+   "newOwner": "fontSizePreset",
+   "renameBasis": [
+    "JDG-3623"
+   ],
+   "basis": [
+    "JDG-3807"
+   ],
+   "definition": null,
+   "note": "definition null: enum value: no own description"
+  },
+  {
+   "key": "large",
+   "owner": "fontSizeStep",
+   "newKey": "large",
+   "newOwner": "fontSizePreset",
+   "renameBasis": [
+    "JDG-3623"
+   ],
+   "basis": [
+    "JDG-3807"
+   ],
+   "definition": null,
+   "note": "definition null: enum value: no own description"
+  },
+  {
+   "key": "verticalZoomRatio",
+   "owner": null,
+   "newKey": "ratio",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3697"
+   ],
+   "basis": [
+    "JDG-3807",
+    "JDG-3781"
+   ],
+   "definition": {
+    "en": "The vertical size of the Task Graphics as a ratio to the default size.",
+    "ja": "タスク図形の縦の大きさの、既定の大きさに対する倍率。"
+   }
+  },
+  {
+   "key": "taskGroupAutoExpandDepth",
+   "owner": null,
+   "newKey": "automaticallyShownDepth",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3697"
+   ],
+   "basis": [
+    "JDG-3807",
+    "JDG-3781"
+   ],
+   "definition": {
+    "en": "The depth to which GRS shows task groups with showMode \"automatic\".",
+    "ja": "showMode が \"automatic\" のタスクグループを、GRS がどの深さまで見せるか。"
+   }
+  },
+  {
+   "key": "notDecided",
+   "owner": "scrollPosition",
+   "newKey": "automatic",
+   "newOwner": "scrollPosition",
+   "renameBasis": [
+    "JDG-3623"
+   ],
+   "basis": [
+    "JDG-3807"
+   ],
+   "definition": null,
+   "note": "definition null: enum value: no own description"
+  },
+  {
+   "key": "placed",
+   "owner": "scrollPosition",
+   "newKey": "fixed",
+   "newOwner": "scrollPosition",
+   "renameBasis": [
+    "JDG-3623"
+   ],
+   "basis": [
+    "JDG-3807"
+   ],
+   "definition": null,
+   "note": "definition null: enum value: no own description"
+  },
+  {
+   "key": "leftEdgeDayFraction",
+   "owner": null,
+   "newKey": "leftEdgeDayOffsetPercent",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3705"
+   ],
+   "basis": [
+    "JDG-3807",
+    "JDG-3781"
+   ],
+   "definition": {
+    "en": "Only when type is \"fixed\". How far the left edge lies to the right of the start of leftEdgeDay, in percent of one day.",
+    "ja": "type が \"fixed\" のときだけ書く。左端が leftEdgeDay の始まりから右へどれだけ離れているか（1 日に対する %）。"
+   }
+  },
+  {
+   "key": "topEdgeTaskGroupFraction",
+   "owner": null,
+   "newKey": "topEdgeTaskGroupOffsetPercent",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3705"
+   ],
+   "basis": [
+    "JDG-3807",
+    "JDG-3781"
+   ],
+   "definition": {
+    "en": "Only when type is \"fixed\". How far the top edge lies below the top of that task group, not of the screen, in percent of the lane height plus the gap below.",
+    "ja": "type が \"fixed\" のときだけ書く。上端が、画面の上ではなくそのタスクグループの上から、どれだけ下にあるか。単位は、レーンの高さと下の隙間を足した長さに対する % である。"
+   }
+  },
+  {
+   "key": "isFixed",
+   "owner": null,
+   "newKey": "type",
+   "newOwner": "fitDayRange",
+   "renameBasis": [
+    "JDG-3708"
+   ],
+   "basis": [
+    "JDG-3807",
+    "JDG-3781"
+   ],
+   "definition": {
+    "en": "\"fixed\": the Fit Span runs from firstDay to lastDay with no margin. \"automatic\": the Fit Span covers everything that GRS draws, plus a margin that GRS fixes and does not save.",
+    "ja": "\"fixed\": 全体表示時の期間は firstDay から lastDay まで余白なしで続く。\"automatic\": 全体表示時の期間は、GRS が描くものすべてと余白を覆う。GRS は余白を決めるが、保存しない。"
+   },
+   "note": "boolean became the discriminator fitDayRange.type with the values fixed / automatic (added below)"
+  },
+  {
+   "key": "fitSpan",
+   "owner": null,
+   "newKey": "fitDayRange",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3623"
+   ],
+   "basis": [
+    "JDG-3807",
+    "JDG-3781"
+   ],
+   "definition": {
+    "en": "The Fit Span: the days that Zoom to Fit and PNG and SVG pictures show.",
+    "ja": "全体表示時の期間。全体表示時の期間は、「全体を収める」と PNG・SVG の画像が見せる日々である。"
+   }
+  },
+  {
+   "key": "offset",
+   "owner": "viewTimeZone",
+   "newKey": "utcOffset",
+   "newOwner": "viewTimeZone",
+   "renameBasis": [
+    "JDG-3644"
+   ],
+   "basis": [
+    "JDG-3807",
+    "JDG-3781"
+   ],
+   "definition": null,
+   "note": "definition null: no frozen description"
+  },
+  {
+   "key": "offset",
+   "owner": "displayTimeZones",
+   "newKey": "utcOffset",
+   "newOwner": "additionalTimeZones",
+   "renameBasis": [
+    "JDG-3644"
+   ],
+   "basis": [
+    "JDG-3807",
+    "JDG-3781"
+   ],
+   "definition": {
+    "en": "The offset already includes any daylight saving time, and GRS uses the offset all year.",
+    "ja": "この差は夏時間の分をもう含み、GRS はこの差を 1 年中使う。"
+   }
+  },
+  {
+   "key": "season",
+   "owner": null,
+   "newKey": "zoneNameType",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3631"
+   ],
+   "basis": [
+    "JDG-3807",
+    "JDG-3781"
+   ],
+   "definition": {
+    "en": "Which name of the zone GRS shows for this clock: the standard-time name or the daylight-time name. This value does not change the offset.",
+    "ja": "GRS がこの時計に見せるゾーンの名: 標準時の名か夏時間の名。この値は時差を変えない。"
+   }
+  },
+  {
+   "key": "standard",
+   "owner": "season",
+   "newKey": "standard",
+   "newOwner": "zoneNameType",
+   "renameBasis": [
+    "JDG-3631"
+   ],
+   "basis": [
+    "JDG-3807"
+   ],
+   "definition": null,
+   "note": "definition null: enum value: no own description"
+  },
+  {
+   "key": "daylight",
+   "owner": "season",
+   "newKey": "daylight",
+   "newOwner": "zoneNameType",
+   "renameBasis": [
+    "JDG-3631"
+   ],
+   "basis": [
+    "JDG-3807"
+   ],
+   "definition": null,
+   "note": "definition null: enum value: no own description"
+  },
+  {
+   "key": "displayTimeZones",
+   "owner": null,
+   "newKey": "additionalTimeZones",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3741"
+   ],
+   "basis": [
+    "JDG-3807",
+    "JDG-3781"
+   ],
+   "definition": {
+    "en": "While GRS shows times of day, each clock adds a row under the Time Ruler.",
+    "ja": "GRS が時刻を見せている間、各時計はタイムルーラーの下に 1 行を足す。"
+   }
+  },
+  {
+   "key": "isProgressMarkVisible",
+   "owner": null,
+   "newKey": "isProgressStatusMarkVisible",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3742"
+   ],
+   "basis": [
+    "JDG-3807",
+    "JDG-3781"
+   ],
+   "definition": {
+    "en": "When this value is true, GRS draws the Resume Marks and the Progress Status Marks.",
+    "ja": "この値が true のとき、GRS は再開マークと進捗ステータスマークを描く。"
+   }
+  },
+  {
+   "key": "isGroupGridLinesVisible",
+   "owner": null,
+   "newKey": "isTaskGroupGridLinesVisible",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3745"
+   ],
+   "basis": [
+    "JDG-3807",
+    "JDG-3781"
+   ],
+   "definition": null,
+   "note": "definition null: no frozen description"
+  },
+  {
+   "key": "stackDirection",
+   "owner": null,
+   "newKey": "taskPlacementDirection",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3731"
+   ],
+   "basis": [
+    "JDG-3807",
+    "JDG-3781"
+   ],
+   "definition": {
+    "en": "The Placement Direction: how GRS stacks the overlapping tasks of one Task Group Lane on Stack Tiers; this value does not order the task groups.",
+    "ja": "積む向き。積む向きは、1 本のタスクグループレーンの中で重なるタスクを、GRS が積み段に積む向きである。この値はタスクグループの順を決めない。"
+   }
+  },
+  {
+   "key": "up",
+   "owner": "stackDirection",
+   "newKey": "bottomToTop",
+   "newOwner": "taskPlacementDirection",
+   "renameBasis": [
+    "JDG-3632"
+   ],
+   "basis": [
+    "JDG-3807"
+   ],
+   "definition": null,
+   "note": "definition null: enum value: no own description"
+  },
+  {
+   "key": "down",
+   "owner": "stackDirection",
+   "newKey": "topToBottom",
+   "newOwner": "taskPlacementDirection",
+   "renameBasis": [
+    "JDG-3632"
+   ],
+   "basis": [
+    "JDG-3807"
+   ],
+   "definition": null,
+   "note": "definition null: enum value: no own description"
+  },
+  {
+   "key": "isScheduleFilterApplied",
+   "owner": null,
+   "newKey": "isScheduleFilteredByChecks",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3728"
+   ],
+   "basis": [
+    "JDG-3807",
+    "JDG-3781"
+   ],
+   "definition": null,
+   "note": "definition null: several frozen descriptions"
+  },
+  {
+   "key": "shownTaskUids",
+   "owner": null,
+   "newKey": "checkedTaskUids",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3713"
+   ],
+   "basis": [
+    "JDG-3807",
+    "JDG-3781"
+   ],
+   "definition": null,
+   "note": "definition null: no frozen description"
+  },
+  {
+   "key": "sort",
+   "owner": null,
+   "newKey": "columnSort",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3708"
+   ],
+   "basis": [
+    "JDG-3807",
+    "JDG-3781"
+   ],
+   "definition": null,
+   "note": "definition null: no frozen description"
+  },
+  {
+   "key": "shownResourceUids",
+   "owner": null,
+   "newKey": "checkedResourceUids",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3713"
+   ],
+   "basis": [
+    "JDG-3807",
+    "JDG-3781"
+   ],
+   "definition": null,
+   "note": "definition null: no frozen description"
+  },
+  {
+   "key": "isUnassignedShown",
+   "owner": null,
+   "newKey": "isUnassignedChecked",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3713"
+   ],
+   "basis": [
+    "JDG-3807",
+    "JDG-3781"
+   ],
+   "definition": null,
+   "note": "definition null: no frozen description"
+  },
+  {
+   "key": "delayDiagnosticsReportWindow",
+   "owner": "tableWindows",
+   "newKey": "delayDiagnosisReportWindow",
+   "newOwner": "tableWindows",
+   "renameBasis": [
+    "JDG-3698"
+   ],
+   "basis": [
+    "JDG-3807",
+    "JDG-3781"
+   ],
+   "definition": null,
+   "note": "definition null: no frozen description"
+  },
+  {
+   "key": "taskGraphicStyles",
+   "owner": null,
+   "newKey": "style",
+   "newOwner": "Task",
+   "renameBasis": [
+    "JDG-3614"
+   ],
+   "basis": [
+    "JDG-3807"
+   ],
+   "definition": null,
+   "note": "definition null: no frozen description"
+  },
+  {
+   "key": "taskOrigins",
+   "owner": null,
+   "newKey": "importOrigin",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3614"
+   ],
+   "basis": [
+    "JDG-3807"
+   ],
+   "definition": {
+    "en": "A task made in GRS has no importOrigin.",
+    "ja": "GRS で作ったタスクは importOrigin を持たない。"
+   }
+  },
+  {
+   "key": "schemaVersion",
+   "owner": "ScheduleDocument",
+   "newKey": "schemaVersionUtc",
+   "newOwner": "ScheduleDocument",
+   "renameBasis": [
+    "JDG-3625"
+   ],
+   "basis": [
+    "JDG-3807"
+   ],
+   "definition": {
+    "en": "The UTC time when the shape of GRS JSON, meaning the keys and the rules, last changed.",
+    "ja": "GRS JSON の形（キーと規則）が最後に変わった UTC の時刻。"
+   }
+  },
+  {
+   "key": "buildVersion",
+   "owner": null,
+   "newKey": "buildVersionUtc",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3625"
+   ],
+   "basis": [
+    "JDG-3807"
+   ],
+   "definition": {
+    "en": "This value serves debugging only; schemaVersionUtc tells whether GRS can read the file.",
+    "ja": "この値はデバッグのためだけにある。GRS がファイルを読めるかどうかは、schemaVersionUtc が示す。"
+   }
+  },
+  {
+   "key": "DelayFixRow",
+   "owner": null,
+   "newKey": "FixProposalRow",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3781"
+   ],
+   "basis": [
+    "JDG-3781"
+   ],
+   "definition": null
+  },
+  {
+   "key": "DelayFixLogRow",
+   "owner": null,
+   "newKey": "FixLogRow",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3781"
+   ],
+   "basis": [
+    "JDG-3781"
+   ],
+   "definition": null
+  },
+  {
+   "key": "VisibilityTable",
+   "owner": null,
+   "newKey": "TableWindowName",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3781"
+   ],
+   "basis": [
+    "JDG-3781"
+   ],
+   "definition": null
+  },
+  {
+   "key": "ok",
+   "owner": null,
+   "newKey": "isAccepted",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3780"
+   ],
+   "basis": [
+    "JDG-3781",
+    "JDG-3780"
+   ],
+   "definition": null
+  },
+  {
+   "key": "AgentWriteRequest",
+   "owner": null,
+   "newKey": "WriteRequest",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3781"
+   ],
+   "basis": [
+    "JDG-3781"
+   ],
+   "definition": null
+  },
+  {
+   "key": "hasUpdatedSchedule",
+   "owner": null,
+   "newKey": "isScheduleDataUpdated",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3780"
+   ],
+   "basis": [
+    "JDG-3781",
+    "JDG-3780"
+   ],
+   "definition": null
+  },
+  {
+   "key": "AgentWriteOutcome",
+   "owner": null,
+   "newKey": "WriteOutcome",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3781"
+   ],
+   "basis": [
+    "JDG-3781"
+   ],
+   "definition": null
+  },
+  {
+   "key": "value",
+   "owner": "AgentExport",
+   "newKey": "value",
+   "newOwner": "ExportOutcome",
+   "renameBasis": [
+    "JDG-3781"
+   ],
+   "basis": [
+    "JDG-3781"
+   ],
+   "definition": null
+  },
+  {
+   "key": "AgentExport",
+   "owner": null,
+   "newKey": "ExportOutcome",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3781"
+   ],
+   "basis": [
+    "JDG-3781"
+   ],
+   "definition": null
+  },
+  {
+   "key": "AgentFocusOutcome",
+   "owner": null,
+   "newKey": "FocusOutcome",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3781"
+   ],
+   "basis": [
+    "JDG-3781"
+   ],
+   "definition": null
+  },
+  {
+   "key": "text",
+   "owner": "AgentImportSource",
+   "newKey": "text",
+   "newOwner": "ImportSource",
+   "renameBasis": [
+    "JDG-3781"
+   ],
+   "basis": [
+    "JDG-3781"
+   ],
+   "definition": null
+  },
+  {
+   "key": "AgentImportSource",
+   "owner": null,
+   "newKey": "ImportSource",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3781"
+   ],
+   "basis": [
+    "JDG-3781"
+   ],
+   "definition": null
+  },
+  {
+   "key": "asked",
+   "owner": null,
+   "newKey": "pendingQuestion",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3774"
+   ],
+   "basis": [
+    "JDG-3781",
+    "JDG-3774"
+   ],
+   "definition": null
+  },
+  {
+   "key": "AgentImportOutcome",
+   "owner": null,
+   "newKey": "ImportOutcome",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3781"
+   ],
+   "basis": [
+    "JDG-3781"
+   ],
+   "definition": null
+  },
+  {
+   "key": "filteringTables",
+   "owner": null,
+   "newKey": "filteringTableWindows",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3781"
+   ],
+   "basis": [
+    "JDG-3781"
+   ],
+   "definition": null
+  },
+  {
+   "key": "AgentShownTasks",
+   "owner": null,
+   "newKey": "ShownTasks",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3781"
+   ],
+   "basis": [
+    "JDG-3781"
+   ],
+   "definition": null
+  },
+  {
+   "key": "AgentDelayDiagnostics",
+   "owner": null,
+   "newKey": "DelayDiagnosisReport",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3781"
+   ],
+   "basis": [
+    "JDG-3781"
+   ],
+   "definition": null,
+   "note": "AI-C review finding 2: the alpha external type DelayDiagnosticsReport (JDG-3512) would take the same name"
+  },
+  {
+   "key": "AgentChangeReceiver",
+   "owner": null,
+   "newKey": "ChangeReceiver",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3781"
+   ],
+   "basis": [
+    "JDG-3781"
+   ],
+   "definition": null
+  },
+  {
+   "key": "hasReplacedEarlierWatch",
+   "owner": null,
+   "newKey": "isEarlierWatchReplaced",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3780"
+   ],
+   "basis": [
+    "JDG-3781",
+    "JDG-3780"
+   ],
+   "definition": null
+  },
+  {
+   "key": "AgentWatch",
+   "owner": null,
+   "newKey": "WatchOutcome",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3781"
+   ],
+   "basis": [
+    "JDG-3781"
+   ],
+   "definition": null
+  },
+  {
+   "key": "taskTotal",
+   "owner": null,
+   "newKey": "taskRowCount",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3776"
+   ],
+   "basis": [
+    "JDG-3781",
+    "JDG-3776"
+   ],
+   "definition": null
+  },
+  {
+   "key": "AgentSearchPage",
+   "owner": null,
+   "newKey": "SearchWindowPage",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3781"
+   ],
+   "basis": [
+    "JDG-3781"
+   ],
+   "definition": null
+  },
+  {
+   "key": "id",
+   "owner": "AgentTableColumn",
+   "newKey": "key",
+   "newOwner": "TableColumn",
+   "renameBasis": [
+    "JDG-3781"
+   ],
+   "basis": [
+    "JDG-3781"
+   ],
+   "definition": null
+  },
+  {
+   "key": "valueType",
+   "owner": "AgentTableColumn",
+   "newKey": "valueType",
+   "newOwner": "TableColumn",
+   "renameBasis": [
+    "JDG-3782"
+   ],
+   "basis": [
+    "JDG-3781",
+    "JDG-3782"
+   ],
+   "definition": null
+  },
+  {
+   "key": "AgentTableColumn",
+   "owner": null,
+   "newKey": "TableColumn",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3782"
+   ],
+   "basis": [
+    "JDG-3781",
+    "JDG-3782"
+   ],
+   "definition": null
+  },
+  {
+   "key": "total",
+   "owner": null,
+   "newKey": "rowCount",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3776"
+   ],
+   "basis": [
+    "JDG-3781",
+    "JDG-3776"
+   ],
+   "definition": null
+  },
+  {
+   "key": "AgentTableRows",
+   "owner": null,
+   "newKey": "TableRowsOutcome",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3781"
+   ],
+   "basis": [
+    "JDG-3781"
+   ],
+   "definition": null
+  },
+  {
+   "key": "AgentTableRow",
+   "owner": null,
+   "newKey": "TableRow",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3782"
+   ],
+   "basis": [
+    "JDG-3781",
+    "JDG-3782"
+   ],
+   "definition": null
+  },
+  {
+   "key": "column",
+   "owner": "AgentTableCell",
+   "newKey": "column",
+   "newOwner": "TableCell",
+   "renameBasis": [
+    "JDG-3782"
+   ],
+   "basis": [
+    "JDG-3781",
+    "JDG-3782"
+   ],
+   "definition": null
+  },
+  {
+   "key": "text",
+   "owner": "AgentTableCell",
+   "newKey": "text",
+   "newOwner": "TableCell",
+   "renameBasis": [
+    "JDG-3782"
+   ],
+   "basis": [
+    "JDG-3781",
+    "JDG-3782"
+   ],
+   "definition": null
+  },
+  {
+   "key": "AgentTableCell",
+   "owner": null,
+   "newKey": "TableCell",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3782"
+   ],
+   "basis": [
+    "JDG-3781",
+    "JDG-3782"
+   ],
+   "definition": null
+  },
+  {
+   "key": "from",
+   "owner": null,
+   "newKey": "refusedBy",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3781"
+   ],
+   "basis": [
+    "JDG-3781"
+   ],
+   "definition": null
+  },
+  {
+   "key": "page",
+   "owner": "from",
+   "newKey": "page",
+   "newOwner": "refusedBy",
+   "renameBasis": [
+    "JDG-3781"
+   ],
+   "basis": [
+    "JDG-3781"
+   ],
+   "definition": null
+  },
+  {
+   "key": "relay",
+   "owner": "from",
+   "newKey": "relay",
+   "newOwner": "refusedBy",
+   "renameBasis": [
+    "JDG-3781"
+   ],
+   "basis": [
+    "JDG-3781"
+   ],
+   "definition": null
+  },
+  {
+   "key": "notOwnStep",
+   "owner": "reason",
+   "newKey": "notOwnEdit",
+   "newOwner": "reason",
+   "renameBasis": [
+    "JDG-3781"
+   ],
+   "basis": [
+    "JDG-3781"
+   ],
+   "definition": null
+  },
+  {
+   "key": "gestureInFlight",
+   "owner": "reason",
+   "newKey": "dragInProgress",
+   "newOwner": "reason",
+   "renameBasis": [
+    "JDG-3778"
+   ],
+   "basis": [
+    "JDG-3781",
+    "JDG-3778"
+   ],
+   "definition": null
+  },
+  {
+   "key": "editingInPlace",
+   "owner": "reason",
+   "newKey": "inPlaceEditInProgress",
+   "newOwner": "reason",
+   "renameBasis": [
+    "JDG-3778"
+   ],
+   "basis": [
+    "JDG-3781",
+    "JDG-3778"
+   ],
+   "definition": null
+  },
+  {
+   "key": "questionAsked",
+   "owner": "reason",
+   "newKey": "confirmationInProgress",
+   "newOwner": "reason",
+   "renameBasis": [
+    "JDG-3778"
+   ],
+   "basis": [
+    "JDG-3781",
+    "JDG-3778"
+   ],
+   "definition": null
+  },
+  {
+   "key": "deliveringNotices",
+   "owner": "reason",
+   "newKey": "noticeDeliveryInProgress",
+   "newOwner": "reason",
+   "renameBasis": [
+    "JDG-3778"
+   ],
+   "basis": [
+    "JDG-3781",
+    "JDG-3778"
+   ],
+   "definition": null
+  },
+  {
+   "key": "tooTall",
+   "owner": "reason",
+   "newKey": "imageTooTall",
+   "newOwner": "reason",
+   "renameBasis": [
+    "JDG-3781"
+   ],
+   "basis": [
+    "JDG-3781"
+   ],
+   "definition": null
+  },
+  {
+   "key": "nothingToIssue",
+   "owner": "reason",
+   "newKey": "noFixProposalToApply",
+   "newOwner": "reason",
+   "renameBasis": [
+    "JDG-3781"
+   ],
+   "basis": [
+    "JDG-3781"
+   ],
+   "definition": null
+  },
+  {
+   "key": "importNotLanded",
+   "owner": "reason",
+   "newKey": "importNotApplied",
+   "newOwner": "reason",
+   "renameBasis": [
+    "JDG-3781"
+   ],
+   "basis": [
+    "JDG-3781"
+   ],
+   "definition": null
+  },
+  {
+   "key": "taskGroupTooDeep",
+   "owner": "reason",
+   "newKey": "taskGroupTreeTooDeep",
+   "newOwner": "reason",
+   "renameBasis": [
+    "JDG-3781"
+   ],
+   "basis": [
+    "JDG-3781"
+   ],
+   "definition": null
+  },
+  {
+   "key": "taskGroupMembershipBroken",
+   "owner": "reason",
+   "newKey": "taskGroupMembershipCountNotOne",
+   "newOwner": "reason",
+   "renameBasis": [
+    "JDG-3781"
+   ],
+   "basis": [
+    "JDG-3781"
+   ],
+   "definition": null,
+   "note": "the policy table renames it only if the reason survives (JDG-3686)"
+  },
+  {
+   "key": "fadeWithoutFinish",
+   "owner": "reason",
+   "newKey": "slopeWithoutFinish",
+   "newOwner": "reason",
+   "renameBasis": [
+    "JDG-3781"
+   ],
+   "basis": [
+    "JDG-3781"
+   ],
+   "definition": null
+  },
+  {
+   "key": "fadeLongerThanTask",
+   "owner": "reason",
+   "newKey": "slopeLongerThanTask",
+   "newOwner": "reason",
+   "renameBasis": [
+    "JDG-3781"
+   ],
+   "basis": [
+    "JDG-3781"
+   ],
+   "definition": null
+  },
+  {
+   "key": "importSequenceAhead",
+   "owner": "reason",
+   "newKey": "mspdiImportCountAhead",
+   "newOwner": "reason",
+   "renameBasis": [
+    "JDG-3781"
+   ],
+   "basis": [
+    "JDG-3781"
+   ],
+   "definition": null
+  },
+  {
+   "key": "highlightBoxInverted",
+   "owner": "reason",
+   "newKey": "lastTaskGroupBeforeFirst",
+   "newOwner": "reason",
+   "renameBasis": [
+    "JDG-3781"
+   ],
+   "basis": [
+    "JDG-3781"
+   ],
+   "definition": null
+  },
+  {
+   "key": "taskVisualCountNotOne",
+   "owner": "reason",
+   "newKey": "taskStyleCountNotOne",
+   "newOwner": "reason",
+   "renameBasis": [
+    "JDG-3781"
+   ],
+   "basis": [
+    "JDG-3781"
+   ],
+   "definition": null,
+   "note": "the policy table renames it only if the reason survives (JDG-3686)"
+  },
+  {
+   "key": "limitReached",
+   "owner": "reason",
+   "newKey": "pinLimitReached",
+   "newOwner": "reason",
+   "renameBasis": [
+    "JDG-3781"
+   ],
+   "basis": [
+    "JDG-3781"
+   ],
+   "definition": null
+  },
+  {
+   "key": "missingValue",
+   "owner": "reason",
+   "newKey": "newTaskGroupIdMissing",
+   "newOwner": "reason",
+   "renameBasis": [
+    "JDG-3781"
+   ],
+   "basis": [
+    "JDG-3781"
+   ],
+   "definition": null
+  },
+  {
+   "key": "bothEndsAreOneTask",
+   "owner": "reason",
+   "newKey": "selfDependency",
+   "newOwner": "reason",
+   "renameBasis": [
+    "JDG-3781"
+   ],
+   "basis": [
+    "JDG-3781"
+   ],
+   "definition": null
+  },
+  {
+   "key": "commandType",
+   "owner": "Refusal",
+   "newKey": "commandType",
+   "newOwner": "CommandRefusal",
+   "renameBasis": [
+    "JDG-3781"
+   ],
+   "basis": [
+    "JDG-3781"
+   ],
+   "definition": null
+  },
+  {
+   "key": "Refusal",
+   "owner": null,
+   "newKey": "CommandRefusal",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3781"
+   ],
+   "basis": [
+    "JDG-3781"
+   ],
+   "definition": null,
+   "note": "apply together with AgentRefusal -> Refusal"
+  },
+  {
+   "key": "at",
+   "owner": null,
+   "newKey": "jsonPointer",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3775"
+   ],
+   "basis": [
+    "JDG-3781",
+    "JDG-3775"
+   ],
+   "definition": null
+  },
+  {
+   "key": "taskUids",
+   "owner": "AgentRefusal",
+   "newKey": "missingTaskUids",
+   "newOwner": "Refusal",
+   "renameBasis": [
+    "JDG-3781"
+   ],
+   "basis": [
+    "JDG-3781"
+   ],
+   "definition": null
+  },
+  {
+   "key": "seconds",
+   "owner": null,
+   "newKey": "waitedSeconds",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3781"
+   ],
+   "basis": [
+    "JDG-3781"
+   ],
+   "definition": null
+  },
+  {
+   "key": "path",
+   "owner": null,
+   "newKey": "existingFilePath",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3781"
+   ],
+   "basis": [
+    "JDG-3781"
+   ],
+   "definition": null
+  },
+  {
+   "key": "folder",
+   "owner": null,
+   "newKey": "saveFolder",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3781"
+   ],
+   "basis": [
+    "JDG-3781"
+   ],
+   "definition": null
+  },
+  {
+   "key": "notValidated",
+   "owner": "cause",
+   "newKey": "documentInvalid",
+   "newOwner": "cause",
+   "renameBasis": [
+    "JDG-3781"
+   ],
+   "basis": [
+    "JDG-3781"
+   ],
+   "definition": null
+  },
+  {
+   "key": "importCanceled",
+   "owner": "cause",
+   "newKey": "canceled",
+   "newOwner": "cause",
+   "renameBasis": [
+    "JDG-3781"
+   ],
+   "basis": [
+    "JDG-3781"
+   ],
+   "definition": null
+  },
+  {
+   "key": "knownSchemaVersion",
+   "owner": null,
+   "newKey": "knownSchemaVersionUtc",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3781"
+   ],
+   "basis": [
+    "JDG-3781"
+   ],
+   "definition": null
+  },
+  {
+   "key": "name",
+   "owner": "AgentRefusal",
+   "newKey": "sentName",
+   "newOwner": "Refusal",
+   "renameBasis": [
+    "JDG-3781"
+   ],
+   "basis": [
+    "JDG-3781"
+   ],
+   "definition": null
+  },
+  {
+   "key": "replacement",
+   "owner": null,
+   "newKey": "replacementName",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3781"
+   ],
+   "basis": [
+    "JDG-3781"
+   ],
+   "definition": null
+  },
+  {
+   "key": "AgentRefusal",
+   "owner": null,
+   "newKey": "Refusal",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3781"
+   ],
+   "basis": [
+    "JDG-3781"
+   ],
+   "definition": null,
+   "note": "apply together with Refusal -> CommandRefusal (the name Refusal moves to the former AgentRefusal)"
+  },
+  {
+   "key": "agentApiVersion",
+   "owner": null,
+   "newKey": "agentApiVersionUtc",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3781"
+   ],
+   "basis": [
+    "JDG-3781"
+   ],
+   "definition": null
+  },
+  {
+   "key": "schemaVersion",
+   "owner": "AgentApi",
+   "newKey": "schemaVersionUtc",
+   "newOwner": "AgentApi",
+   "renameBasis": [
+    "JDG-3781"
+   ],
+   "basis": [
+    "JDG-3781"
+   ],
+   "definition": null
+  },
+  {
+   "key": "which",
+   "owner": "readSchema",
+   "newKey": "part",
+   "newOwner": "readSchema",
+   "renameBasis": [
+    "JDG-3781"
+   ],
+   "basis": [
+    "JDG-3781"
+   ],
+   "definition": null
+  },
+  {
+   "key": "full",
+   "owner": null,
+   "newKey": "returnWholeSchema",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3780"
+   ],
+   "basis": [
+    "JDG-3781",
+    "JDG-3780"
+   ],
+   "definition": null
+  },
+  {
+   "key": "includeCarry",
+   "owner": null,
+   "newKey": "includePassthrough",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3781"
+   ],
+   "basis": [
+    "JDG-3781"
+   ],
+   "definition": null
+  },
+  {
+   "key": "readDelayDiagnostics",
+   "owner": null,
+   "newKey": "readDelayDiagnosis",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3512"
+   ],
+   "basis": [
+    "JDG-3781",
+    "JDG-3512"
+   ],
+   "definition": null
+  },
+  {
+   "key": "parts",
+   "owner": "readDelayDiagnostics",
+   "newKey": "parts",
+   "newOwner": "readDelayDiagnosis",
+   "renameBasis": [
+    "JDG-3781"
+   ],
+   "basis": [
+    "JDG-3781"
+   ],
+   "definition": null
+  },
+  {
+   "key": "limit",
+   "owner": "readDelayDiagnostics",
+   "newKey": "limit",
+   "newOwner": "readDelayDiagnosis",
+   "renameBasis": [
+    "JDG-3781"
+   ],
+   "basis": [
+    "JDG-3781"
+   ],
+   "definition": null
+  },
+  {
+   "key": "issueDelayFixes",
+   "owner": null,
+   "newKey": "applyFixProposals",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3781"
+   ],
+   "basis": [
+    "JDG-3781"
+   ],
+   "definition": null
+  },
+  {
+   "key": "fixKeys",
+   "owner": null,
+   "newKey": "fixProposalKeys",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3781"
+   ],
+   "basis": [
+    "JDG-3781"
+   ],
+   "definition": null
+  },
+  {
+   "key": "runDelayDiagnostics",
+   "owner": null,
+   "newKey": "runDelayDiagnosis",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3512"
+   ],
+   "basis": [
+    "JDG-3781",
+    "JDG-3512"
+   ],
+   "definition": null
+  },
+  {
+   "key": "which",
+   "owner": "closeWindow",
+   "newKey": "window",
+   "newOwner": "closeWindow",
+   "renameBasis": [
+    "JDG-3781"
+   ],
+   "basis": [
+    "JDG-3781"
+   ],
+   "definition": null
+  },
+  {
+   "key": "shiftScheduleTimes",
+   "owner": null,
+   "newKey": "shiftScheduleByMinutes",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3781"
+   ],
+   "basis": [
+    "JDG-3781"
+   ],
+   "definition": null
+  },
+  {
+   "key": "minutes",
+   "owner": "shiftScheduleTimes",
+   "newKey": "minutes",
+   "newOwner": "shiftScheduleByMinutes",
+   "renameBasis": [
+    "JDG-3781"
+   ],
+   "basis": [
+    "JDG-3781"
+   ],
+   "definition": null
+  },
+  {
+   "key": "shiftScheduleToStartDate",
+   "owner": null,
+   "newKey": "shiftScheduleToStartDay",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3781"
+   ],
+   "basis": [
+    "JDG-3781"
+   ],
+   "definition": null
+  },
+  {
+   "key": "sourceUids",
+   "owner": null,
+   "newKey": "sourceTaskUids",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3781"
+   ],
+   "basis": [
+    "JDG-3781"
+   ],
+   "definition": null
+  },
+  {
+   "key": "landing",
+   "owner": null,
+   "newKey": "placement",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3781"
+   ],
+   "basis": [
+    "JDG-3781"
+   ],
+   "definition": null
+  },
+  {
+   "key": "taskGroupIdOf",
+   "owner": null,
+   "newKey": "taskGroupIdBySourceTaskUid",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3772"
+   ],
+   "basis": [
+    "JDG-3781",
+    "JDG-3772"
+   ],
+   "definition": null
+  },
+  {
+   "key": "placeTaskPlanActual",
+   "owner": null,
+   "newKey": "setTaskProgressStatus",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3781"
+   ],
+   "basis": [
+    "JDG-3781"
+   ],
+   "definition": null
+  },
+  {
+   "key": "place",
+   "owner": null,
+   "newKey": "progressStatus",
+   "newOwner": "setTaskProgressStatus",
+   "renameBasis": [
+    "JDG-3781"
+   ],
+   "basis": [
+    "JDG-3781"
+   ],
+   "definition": null,
+   "note": "owner setTaskProgressStatus keeps it apart from the concept term progressStatus (same word, JDG-3742)"
+  },
+  {
+   "key": "state",
+   "owner": "place",
+   "newKey": "state",
+   "newOwner": "progressStatus",
+   "renameBasis": [
+    "JDG-3781"
+   ],
+   "basis": [
+    "JDG-3781"
+   ],
+   "definition": null
+  },
+  {
+   "key": "grabbed",
+   "owner": null,
+   "newKey": "grabbedArea",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3779"
+   ],
+   "basis": [
+    "JDG-3781",
+    "JDG-3779"
+   ],
+   "definition": null
+  },
+  {
+   "key": "barDummyStart",
+   "owner": "grabbed",
+   "newKey": "barDummyStart",
+   "newOwner": "grabbedArea",
+   "renameBasis": [
+    "JDG-3779"
+   ],
+   "basis": [
+    "JDG-3781",
+    "JDG-3779"
+   ],
+   "definition": null
+  },
+  {
+   "key": "barDummyFinish",
+   "owner": "grabbed",
+   "newKey": "barDummyFinish",
+   "newOwner": "grabbedArea",
+   "renameBasis": [
+    "JDG-3779"
+   ],
+   "basis": [
+    "JDG-3781",
+    "JDG-3779"
+   ],
+   "definition": null
+  },
+  {
+   "key": "milestoneDummy",
+   "owner": "grabbed",
+   "newKey": "milestoneDummy",
+   "newOwner": "grabbedArea",
+   "renameBasis": [
+    "JDG-3779"
+   ],
+   "basis": [
+    "JDG-3781",
+    "JDG-3779"
+   ],
+   "definition": null
+  },
+  {
+   "key": "arrowDummyStart",
+   "owner": "grabbed",
+   "newKey": "arrowDummyStart",
+   "newOwner": "grabbedArea",
+   "renameBasis": [
+    "JDG-3779"
+   ],
+   "basis": [
+    "JDG-3781",
+    "JDG-3779"
+   ],
+   "definition": null
+  },
+  {
+   "key": "arrowDummyFinish",
+   "owner": "grabbed",
+   "newKey": "arrowDummyFinish",
+   "newOwner": "grabbedArea",
+   "renameBasis": [
+    "JDG-3779"
+   ],
+   "basis": [
+    "JDG-3781",
+    "JDG-3779"
+   ],
+   "definition": null
+  },
+  {
+   "key": "released",
+   "owner": null,
+   "newKey": "releasedPlace",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3779"
+   ],
+   "basis": [
+    "JDG-3781",
+    "JDG-3779"
+   ],
+   "definition": null
+  },
+  {
+   "key": "cycleTaskPlanActualState",
+   "owner": null,
+   "newKey": "cycleTaskProgressStatus",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3781"
+   ],
+   "basis": [
+    "JDG-3781"
+   ],
+   "definition": null
+  },
+  {
+   "key": "remembered",
+   "owner": null,
+   "newKey": "removedActual",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3781"
+   ],
+   "basis": [
+    "JDG-3781"
+   ],
+   "definition": null
+  },
+  {
+   "key": "predecessorEdge",
+   "owner": null,
+   "newKey": "predecessorSide",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3781"
+   ],
+   "basis": [
+    "JDG-3781"
+   ],
+   "definition": null
+  },
+  {
+   "key": "successorEdge",
+   "owner": null,
+   "newKey": "successorSide",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3781"
+   ],
+   "basis": [
+    "JDG-3781"
+   ],
+   "definition": null
+  },
+  {
+   "key": "changeDependencyLag",
+   "owner": null,
+   "newKey": "setDependencyLag",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3781"
+   ],
+   "basis": [
+    "JDG-3781"
+   ],
+   "definition": null
+  },
+  {
+   "key": "typed",
+   "owner": "lag",
+   "newKey": "duration",
+   "newOwner": "lag",
+   "renameBasis": [
+    "JDG-3781"
+   ],
+   "basis": [
+    "JDG-3781"
+   ],
+   "definition": null
+  },
+  {
+   "key": "unit",
+   "owner": null,
+   "newKey": "displayUnit",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3781"
+   ],
+   "basis": [
+    "JDG-3781"
+   ],
+   "definition": null
+  },
+  {
+   "key": "day",
+   "owner": "unit",
+   "newKey": "day",
+   "newOwner": "displayUnit",
+   "renameBasis": [
+    "JDG-3781"
+   ],
+   "basis": [
+    "JDG-3781"
+   ],
+   "definition": null
+  },
+  {
+   "key": "hour",
+   "owner": "unit",
+   "newKey": "hour",
+   "newOwner": "displayUnit",
+   "renameBasis": [
+    "JDG-3781"
+   ],
+   "basis": [
+    "JDG-3781"
+   ],
+   "definition": null
+  },
+  {
+   "key": "minute",
+   "owner": "unit",
+   "newKey": "minute",
+   "newOwner": "displayUnit",
+   "renameBasis": [
+    "JDG-3781"
+   ],
+   "basis": [
+    "JDG-3781"
+   ],
+   "definition": null
+  },
+  {
+   "key": "order",
+   "owner": null,
+   "newKey": "index",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3776"
+   ],
+   "basis": [
+    "JDG-3781",
+    "JDG-3776"
+   ],
+   "definition": null
+  },
+  {
+   "key": "newTaskGroupIds",
+   "owner": null,
+   "newKey": "newTaskGroupIdBySourceTaskGroupId",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3772"
+   ],
+   "basis": [
+    "JDG-3781",
+    "JDG-3772"
+   ],
+   "definition": null
+  },
+  {
+   "key": "orderedIds",
+   "owner": null,
+   "newKey": "orderedTaskGroupIds",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3781"
+   ],
+   "basis": [
+    "JDG-3781"
+   ],
+   "definition": null
+  },
+  {
+   "key": "resetTaskGroupTreeStates",
+   "owner": null,
+   "newKey": "setTaskGroupShowModesToAutomaticExceptHidden",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3690"
+   ],
+   "basis": [
+    "JDG-3781"
+   ],
+   "definition": null
+  },
+  {
+   "key": "editTaskVisual",
+   "owner": null,
+   "newKey": "editTaskStyle",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3781"
+   ],
+   "basis": [
+    "JDG-3781"
+   ],
+   "definition": null
+  },
+  {
+   "key": "fitScheduleToScreenOnPage",
+   "owner": null,
+   "newKey": "zoomToFit",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3781"
+   ],
+   "basis": [
+    "JDG-3781"
+   ],
+   "definition": null
+  },
+  {
+   "key": "editTableView",
+   "owner": null,
+   "newKey": "editTableWindow",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3781"
+   ],
+   "basis": [
+    "JDG-3781"
+   ],
+   "definition": null
+  },
+  {
+   "key": "table",
+   "owner": "editTableView",
+   "newKey": "tableWindow",
+   "newOwner": "editTableWindow",
+   "renameBasis": [
+    "JDG-3781"
+   ],
+   "basis": [
+    "JDG-3781"
+   ],
+   "definition": null
+  },
+  {
+   "key": "AgentSavedFile",
+   "owner": null,
+   "newKey": "SavedFile",
+   "newOwner": null,
+   "renameBasis": [
+    "JDG-3781"
+   ],
+   "basis": [
+    "JDG-3781"
+   ],
+   "definition": null,
+   "note": "outside the earlier check (its uses lack agentApi); renamed by question 30-1 of the policy table"
+  }
+ ],
+ "add": [
+  {
+   "key": "Uid",
+   "owner": null,
+   "afterKey": "UtcOffset",
+   "afterOwner": null,
+   "parentKey": null,
+   "parentOwner": null,
+   "uses": [
+    "grsJsonSchema",
+    "spec",
+    "src"
+   ],
+   "basis": [
+    "JDG-3807"
+   ],
+   "since": "2026-11-01T00:00:00Z",
+   "label": null,
+   "definition": {
+    "en": "The identifier of a task, a resource, an assignment or a calendar, unique within one array, the same as MSPDI UID, whether the entity came from MSPDI or GRS made the entity; GRS never reuses a uid.",
+    "ja": "タスク・リソース・割り当て・暦を見分ける番号。MSPDI UID と同じで、MSPDI から来た物も GRS が作った物も、この整数を持つ。この整数は、1 つの配列の中で一意である。GRS は uid を決して使い回さない。"
+   }
+  },
+  {
+   "key": "Uuid",
+   "owner": null,
+   "afterKey": "Uid",
+   "afterOwner": null,
+   "parentKey": null,
+   "parentOwner": null,
+   "uses": [
+    "grsJsonSchema",
+    "spec",
+    "src"
+   ],
+   "basis": [
+    "JDG-3807"
+   ],
+   "since": "2026-11-01T00:00:00Z",
+   "label": null,
+   "definition": {
+    "en": "GRS uses a UUID as the id of an object that only GRS defines, so that objects made apart never share an id; GRS writes the UUID in lower case.",
+    "ja": "GRS は、GRS だけが定めるオブジェクトの id に UUID を使う。こうして、別々に作ったオブジェクトが同じ id を持つことは無い。GRS は UUID を小文字で書く。"
+   }
+  },
+  {
+   "key": "Paint",
+   "owner": null,
+   "afterKey": "LaneColor",
+   "afterOwner": null,
+   "parentKey": null,
+   "parentOwner": null,
+   "uses": [
+    "grsJsonSchema",
+    "spec",
+    "src",
+    "commandSchema"
+   ],
+   "basis": [
+    "JDG-3807",
+    "JDG-3607"
+   ],
+   "since": "2026-11-01T00:00:00Z",
+   "label": null,
+   "definition": {
+    "en": "A fill: a color and its opacity.",
+    "ja": "塗り。色とその不透明度を持つ。"
+   },
+   "note": "$defs/Paint has no description; meaning from JDG-3607 (fill is Paint {color, opacityPercent})"
+  },
+  {
+   "key": "Stroke",
+   "owner": null,
+   "afterKey": "Paint",
+   "afterOwner": null,
+   "parentKey": null,
+   "parentOwner": null,
+   "uses": [
+    "grsJsonSchema",
+    "spec",
+    "src",
+    "commandSchema"
+   ],
+   "basis": [
+    "JDG-3807",
+    "JDG-3607"
+   ],
+   "since": "2026-11-01T00:00:00Z",
+   "label": null,
+   "definition": {
+    "en": "A line: a color, its opacity and a width.",
+    "ja": "線。色とその不透明度と太さを持つ。"
+   },
+   "note": "$defs/Stroke has no description; meaning from JDG-3607 (stroke is Stroke {color, opacityPercent, widthPx})"
+  },
+  {
+   "key": "stroke",
+   "owner": "ShapeStyle",
+   "afterKey": "Stroke",
+   "afterOwner": null,
+   "parentKey": null,
+   "parentOwner": null,
+   "uses": [
+    "grsJsonSchema",
+    "spec",
+    "src",
+    "commandSchema"
+   ],
+   "basis": [
+    "JDG-3807"
+   ],
+   "since": "2026-11-01T00:00:00Z",
+   "label": null,
+   "definition": {
+    "en": "When the key is absent, GRS draws no outline.",
+    "ja": "キーが無いとき、GRS は枠線を描かない。"
+   }
+  },
+  {
+   "key": "ShapeStyle",
+   "owner": null,
+   "afterKey": "stroke",
+   "afterOwner": "ShapeStyle",
+   "parentKey": null,
+   "parentOwner": null,
+   "uses": [
+    "grsJsonSchema",
+    "spec",
+    "src"
+   ],
+   "basis": [
+    "JDG-3807",
+    "JDG-3610"
+   ],
+   "since": "2026-11-01T00:00:00Z",
+   "label": null,
+   "definition": {
+    "en": "The fill and the line that the styles of tasks, comment boxes and highlight boxes share.",
+    "ja": "タスク・コメントボックス・ハイライトボックスの見た目が共にする塗りと線。"
+   },
+   "note": "$defs/ShapeStyle has no description; meaning from JDG-3610 (ShapeStyle {fill, stroke})"
+  },
+  {
+   "key": "MspdiValue",
+   "owner": null,
+   "afterKey": "ColumnSort",
+   "afterOwner": null,
+   "parentKey": null,
+   "parentOwner": null,
+   "uses": [
+    "grsJsonSchema",
+    "spec",
+    "src"
+   ],
+   "basis": [
+    "JDG-3807"
+   ],
+   "since": "2026-11-01T00:00:00Z",
+   "label": null,
+   "definition": {
+    "en": "One MSPDI value: a string that keeps the MSPDI text as written for a text-only element (a boolean stays \"0\" or \"1\", a number stays as spelled), an array for a repeatable element (even with one item), or an object keyed by child element names.",
+    "ja": "1 つの MSPDI の値。値は、文字だけの要素なら MSPDI の文字を書いたとおりに保つ文字列（真偽値は \"0\" か \"1\"、数は綴りのまま）、繰り返す要素なら配列（項目が 1 つでも）、または子要素の名をキーにしたオブジェクトである。"
+   }
+  },
+  {
+   "key": "MspdiElement",
+   "owner": null,
+   "afterKey": "Passthrough",
+   "afterOwner": null,
+   "parentKey": null,
+   "parentOwner": null,
+   "uses": [
+    "grsJsonSchema",
+    "spec",
+    "src"
+   ],
+   "basis": [
+    "JDG-3807"
+   ],
+   "since": "2026-11-01T00:00:00Z",
+   "label": null,
+   "definition": {
+    "en": "One whole MSPDI element that GRS does not hold as an entity, keyed by child element names.",
+    "ja": "GRS が実体として持たない MSPDI の要素まるごと。キーは子要素の名である。"
+   }
+  },
+  {
+   "key": "grs",
+   "owner": null,
+   "afterKey": "passthrough",
+   "afterOwner": null,
+   "parentKey": null,
+   "parentOwner": null,
+   "uses": [
+    "grsJsonSchema",
+    "spec",
+    "src"
+   ],
+   "basis": [
+    "JDG-3807",
+    "JDG-3614"
+   ],
+   "since": "2026-11-01T00:00:00Z",
+   "label": null,
+   "definition": {
+    "en": "An MSPDI object keeps the values that only GRS uses under the key grs of that object.",
+    "ja": "MSPDI のオブジェクトは、GRS だけが使う値を、そのオブジェクトのキー grs の下に持つ。"
+   },
+   "note": "Task.grs, Project.grs ... have no own description; the sentence is quoted from the root description of the frozen schema and its Japanese row (ROOT); distinct from the sourceFormat value grs"
+  },
+  {
+   "key": "taskGroupPath",
+   "owner": "column",
+   "afterKey": null,
+   "afterOwner": null,
+   "parentKey": "column",
+   "parentOwner": null,
+   "uses": [
+    "grsJsonSchema",
+    "spec",
+    "src"
+   ],
+   "basis": [
+    "JDG-3807"
+   ],
+   "since": "2026-11-01T00:00:00Z",
+   "label": null,
+   "definition": {
+    "en": "Search Window, task table: the path from the top level.",
+    "ja": "検索ウィンドウのタスクの表: 最上位からの道筋。"
+   },
+   "note": "column name; meaning quoted from the parenthesis in the frozen ColumnFilter.column description (English and its Japanese row)"
+  },
+  {
+   "key": "taskGroupName",
+   "owner": "column",
+   "afterKey": "taskGroupPath",
+   "afterOwner": "column",
+   "parentKey": "column",
+   "parentOwner": null,
+   "uses": [
+    "grsJsonSchema",
+    "spec",
+    "src"
+   ],
+   "basis": [
+    "JDG-3807"
+   ],
+   "since": "2026-11-01T00:00:00Z",
+   "label": null,
+   "definition": {
+    "en": "Search Window, Comment Box table: the task group of the Leader Anchor.",
+    "ja": "検索ウィンドウのコメントボックスの表: 線先のタスクグループ。"
+   },
+   "note": "column name; meaning quoted from the parenthesis in the frozen ColumnFilter.column description (English and its Japanese row)"
+  },
+  {
+   "key": "leaderTargetDay",
+   "owner": "column",
+   "afterKey": "taskGroupName",
+   "afterOwner": "column",
+   "parentKey": "column",
+   "parentOwner": null,
+   "uses": [
+    "grsJsonSchema",
+    "spec",
+    "src"
+   ],
+   "basis": [
+    "JDG-3807"
+   ],
+   "since": "2026-11-01T00:00:00Z",
+   "label": null,
+   "definition": {
+    "en": "Search Window, Comment Box table: the day of the Leader Anchor.",
+    "ja": "検索ウィンドウのコメントボックスの表: 線先の日。"
+   },
+   "note": "column name; meaning quoted from the parenthesis in the frozen ColumnFilter.column description (English and its Japanese row)"
+  },
+  {
+   "key": "lastMspdiImport",
+   "owner": null,
+   "afterKey": "lastImportNumber",
+   "afterOwner": null,
+   "parentKey": null,
+   "parentOwner": null,
+   "uses": [
+    "grsJsonSchema",
+    "spec",
+    "src"
+   ],
+   "basis": [
+    "JDG-3807",
+    "JDG-3758"
+   ],
+   "since": "2026-11-01T00:00:00Z",
+   "label": null,
+   "definition": {
+    "en": "People and AI agents read this object; GRS compares mspdiImportCount instead.",
+    "ja": "人と AI エージェントがこのオブジェクトを読む。GRS は代わりに mspdiImportCount を比べる。"
+   }
+  },
+  {
+   "key": "importedAt",
+   "owner": null,
+   "afterKey": null,
+   "afterOwner": null,
+   "parentKey": "lastMspdiImport",
+   "parentOwner": null,
+   "uses": [
+    "grsJsonSchema",
+    "spec",
+    "src"
+   ],
+   "basis": [
+    "JDG-3807",
+    "JDG-3758"
+   ],
+   "since": "2026-11-01T00:00:00Z",
+   "label": null,
+   "definition": {
+    "en": "The UTC time when GRS imported the MSPDI file.",
+    "ja": "MSPDI ファイルを取り込んだ UTC の時刻。"
+   },
+   "note": "no frozen description; meaning from JDG-3758 (importedAt: the UTC time of the import)"
+  },
+  {
+   "key": "fileName",
+   "owner": "lastMspdiImport",
+   "afterKey": "importedAt",
+   "afterOwner": null,
+   "parentKey": "lastMspdiImport",
+   "parentOwner": null,
+   "uses": [
+    "grsJsonSchema",
+    "spec",
+    "src"
+   ],
+   "basis": [
+    "JDG-3807",
+    "JDG-3758"
+   ],
+   "since": "2026-11-01T00:00:00Z",
+   "label": null,
+   "definition": {
+    "en": "GRS writes the file name only, never the folder, so that the file keeps no personal path.",
+    "ja": "GRS はファイル名だけを書き、フォルダーを決して書かない。こうして、ファイルは個人のパスを持たない。"
+   },
+   "note": "owner given: the Agent API term fileName (export tools argument) means another thing"
+  },
+  {
+   "key": "blue",
+   "owner": "themeHue",
+   "afterKey": null,
+   "afterOwner": null,
+   "parentKey": "themeHueDegrees",
+   "parentOwner": null,
+   "uses": [
+    "grsJsonSchema",
+    "spec",
+    "src"
+   ],
+   "basis": [
+    "JDG-3807",
+    "JDG-3541"
+   ],
+   "since": "2026-11-01T00:00:00Z",
+   "label": null,
+   "definition": {
+    "en": "The theme hue blue.",
+    "ja": "テーマの色相の青。"
+   },
+   "note": "value of themeHue; the frozen description says only that GRS holds the hue angle of each name; the hue names and their Japanese words are from JDG-3541 (the review labels write 橙 for orange)"
+  },
+  {
+   "key": "blueGreen",
+   "owner": "themeHue",
+   "afterKey": "blue",
+   "afterOwner": "themeHue",
+   "parentKey": "themeHueDegrees",
+   "parentOwner": null,
+   "uses": [
+    "grsJsonSchema",
+    "spec",
+    "src"
+   ],
+   "basis": [
+    "JDG-3807",
+    "JDG-3541"
+   ],
+   "since": "2026-11-01T00:00:00Z",
+   "label": null,
+   "definition": {
+    "en": "The theme hue blue-green.",
+    "ja": "テーマの色相の青緑。"
+   },
+   "note": "value of themeHue; the frozen description says only that GRS holds the hue angle of each name; the hue names and their Japanese words are from JDG-3541 (the review labels write 橙 for orange)"
+  },
+  {
+   "key": "green",
+   "owner": "themeHue",
+   "afterKey": "blueGreen",
+   "afterOwner": "themeHue",
+   "parentKey": "themeHueDegrees",
+   "parentOwner": null,
+   "uses": [
+    "grsJsonSchema",
+    "spec",
+    "src"
+   ],
+   "basis": [
+    "JDG-3807",
+    "JDG-3541"
+   ],
+   "since": "2026-11-01T00:00:00Z",
+   "label": null,
+   "definition": {
+    "en": "The theme hue green.",
+    "ja": "テーマの色相の緑。"
+   },
+   "note": "value of themeHue; the frozen description says only that GRS holds the hue angle of each name; the hue names and their Japanese words are from JDG-3541 (the review labels write 橙 for orange)"
+  },
+  {
+   "key": "yellowGreen",
+   "owner": "themeHue",
+   "afterKey": "green",
+   "afterOwner": "themeHue",
+   "parentKey": "themeHueDegrees",
+   "parentOwner": null,
+   "uses": [
+    "grsJsonSchema",
+    "spec",
+    "src"
+   ],
+   "basis": [
+    "JDG-3807",
+    "JDG-3541"
+   ],
+   "since": "2026-11-01T00:00:00Z",
+   "label": null,
+   "definition": {
+    "en": "The theme hue yellow-green.",
+    "ja": "テーマの色相の黄緑。"
+   },
+   "note": "value of themeHue; the frozen description says only that GRS holds the hue angle of each name; the hue names and their Japanese words are from JDG-3541 (the review labels write 橙 for orange)"
+  },
+  {
+   "key": "yellow",
+   "owner": "themeHue",
+   "afterKey": "yellowGreen",
+   "afterOwner": "themeHue",
+   "parentKey": "themeHueDegrees",
+   "parentOwner": null,
+   "uses": [
+    "grsJsonSchema",
+    "spec",
+    "src"
+   ],
+   "basis": [
+    "JDG-3807",
+    "JDG-3541"
+   ],
+   "since": "2026-11-01T00:00:00Z",
+   "label": null,
+   "definition": {
+    "en": "The theme hue yellow.",
+    "ja": "テーマの色相の黄。"
+   },
+   "note": "value of themeHue; the frozen description says only that GRS holds the hue angle of each name; the hue names and their Japanese words are from JDG-3541 (the review labels write 橙 for orange)"
+  },
+  {
+   "key": "orange",
+   "owner": "themeHue",
+   "afterKey": "yellow",
+   "afterOwner": "themeHue",
+   "parentKey": "themeHueDegrees",
+   "parentOwner": null,
+   "uses": [
+    "grsJsonSchema",
+    "spec",
+    "src"
+   ],
+   "basis": [
+    "JDG-3807",
+    "JDG-3541"
+   ],
+   "since": "2026-11-01T00:00:00Z",
+   "label": null,
+   "definition": {
+    "en": "The theme hue orange.",
+    "ja": "テーマの色相のオレンジ。"
+   },
+   "note": "value of themeHue; the frozen description says only that GRS holds the hue angle of each name; the hue names and their Japanese words are from JDG-3541 (the review labels write 橙 for orange)"
+  },
+  {
+   "key": "red",
+   "owner": "themeHue",
+   "afterKey": "orange",
+   "afterOwner": "themeHue",
+   "parentKey": "themeHueDegrees",
+   "parentOwner": null,
+   "uses": [
+    "grsJsonSchema",
+    "spec",
+    "src"
+   ],
+   "basis": [
+    "JDG-3807",
+    "JDG-3541"
+   ],
+   "since": "2026-11-01T00:00:00Z",
+   "label": null,
+   "definition": {
+    "en": "The theme hue red.",
+    "ja": "テーマの色相の赤。"
+   },
+   "note": "value of themeHue; the frozen description says only that GRS holds the hue angle of each name; the hue names and their Japanese words are from JDG-3541 (the review labels write 橙 for orange)"
+  },
+  {
+   "key": "redPurple",
+   "owner": "themeHue",
+   "afterKey": "red",
+   "afterOwner": "themeHue",
+   "parentKey": "themeHueDegrees",
+   "parentOwner": null,
+   "uses": [
+    "grsJsonSchema",
+    "spec",
+    "src"
+   ],
+   "basis": [
+    "JDG-3807",
+    "JDG-3541"
+   ],
+   "since": "2026-11-01T00:00:00Z",
+   "label": null,
+   "definition": {
+    "en": "The theme hue red-purple.",
+    "ja": "テーマの色相の赤紫。"
+   },
+   "note": "value of themeHue; the frozen description says only that GRS holds the hue angle of each name; the hue names and their Japanese words are from JDG-3541 (the review labels write 橙 for orange)"
+  },
+  {
+   "key": "purple",
+   "owner": "themeHue",
+   "afterKey": "redPurple",
+   "afterOwner": "themeHue",
+   "parentKey": "themeHueDegrees",
+   "parentOwner": null,
+   "uses": [
+    "grsJsonSchema",
+    "spec",
+    "src"
+   ],
+   "basis": [
+    "JDG-3807",
+    "JDG-3541"
+   ],
+   "since": "2026-11-01T00:00:00Z",
+   "label": null,
+   "definition": {
+    "en": "The theme hue purple.",
+    "ja": "テーマの色相の紫。"
+   },
+   "note": "value of themeHue; the frozen description says only that GRS holds the hue angle of each name; the hue names and their Japanese words are from JDG-3541 (the review labels write 橙 for orange)"
+  },
+  {
+   "key": "indigo",
+   "owner": "themeHue",
+   "afterKey": "purple",
+   "afterOwner": "themeHue",
+   "parentKey": "themeHueDegrees",
+   "parentOwner": null,
+   "uses": [
+    "grsJsonSchema",
+    "spec",
+    "src"
+   ],
+   "basis": [
+    "JDG-3807",
+    "JDG-3541"
+   ],
+   "since": "2026-11-01T00:00:00Z",
+   "label": null,
+   "definition": {
+    "en": "The theme hue indigo.",
+    "ja": "テーマの色相の藍。"
+   },
+   "note": "value of themeHue; the frozen description says only that GRS holds the hue angle of each name; the hue names and their Japanese words are from JDG-3541 (the review labels write 橙 for orange)"
+  },
+  {
+   "key": "shown",
+   "owner": "showMode",
+   "afterKey": null,
+   "afterOwner": null,
+   "parentKey": "treeState",
+   "parentOwner": null,
+   "uses": [
+    "grsJsonSchema",
+    "spec",
+    "src"
+   ],
+   "basis": [
+    "JDG-3807",
+    "JDG-3662"
+   ],
+   "since": "2026-11-01T00:00:00Z",
+   "label": null,
+   "definition": {
+    "en": "GRS draws the task group at any depth unless an ancestor hides the task group.",
+    "ja": "祖先がこのタスクグループを隠さない限り、GRS はどの深さでもこのタスクグループを描く。"
+   },
+   "note": "value of showMode; the sentence after \"shown\": in the frozen showMode description and its Japanese row"
+  },
+  {
+   "key": "hiddenUntilZoomIn",
+   "owner": "showMode",
+   "afterKey": "hidden",
+   "afterOwner": "treeState",
+   "parentKey": "treeState",
+   "parentOwner": null,
+   "uses": [
+    "grsJsonSchema",
+    "spec",
+    "src"
+   ],
+   "basis": [
+    "JDG-3807",
+    "JDG-3663"
+   ],
+   "since": "2026-11-01T00:00:00Z",
+   "label": null,
+   "definition": {
+    "en": "GRS hides the task group and every task group below until the next vertical zoom-in.",
+    "ja": "次の縦のズームインまで、GRS はこのタスクグループと配下のすべてのタスクグループを隠す。"
+   },
+   "note": "value of showMode; the sentence after \"hiddenUntilZoomIn\": in the frozen showMode description and its Japanese row"
+  },
+  {
+   "key": "TaskGroupStyle",
+   "owner": null,
+   "afterKey": "color",
+   "afterOwner": null,
+   "parentKey": null,
+   "parentOwner": null,
+   "uses": [
+    "grsJsonSchema",
+    "spec",
+    "src"
+   ],
+   "basis": [
+    "JDG-3807",
+    "JDG-3699"
+   ],
+   "since": "2026-11-01T00:00:00Z",
+   "label": null,
+   "definition": {
+    "en": "The type of the style of a task group.",
+    "ja": "タスクグループの style の値の型。"
+   },
+   "note": "$defs/TaskGroupStyle has no description; meaning from JDG-3699"
+  },
+  {
+   "key": "style",
+   "owner": "TaskGroup",
+   "afterKey": "TaskGroupStyle",
+   "afterOwner": null,
+   "parentKey": null,
+   "parentOwner": null,
+   "uses": [
+    "grsJsonSchema",
+    "spec",
+    "src",
+    "commandSchema"
+   ],
+   "basis": [
+    "JDG-3807"
+   ],
+   "since": "2026-11-01T00:00:00Z",
+   "label": null,
+   "definition": {
+    "en": "When style is absent, GRS leaves the Task Group Lane uncolored.",
+    "ja": "style が無いとき、GRS はタスクグループレーンに色を付けない。"
+   }
+  },
+  {
+   "key": "fill",
+   "owner": "TaskStyle",
+   "afterKey": "milestoneShape",
+   "afterOwner": null,
+   "parentKey": null,
+   "parentOwner": null,
+   "uses": [
+    "grsJsonSchema",
+    "spec",
+    "src",
+    "commandSchema"
+   ],
+   "basis": [
+    "JDG-3807"
+   ],
+   "since": "2026-11-01T00:00:00Z",
+   "label": null,
+   "definition": {
+    "en": "The fill of the Plan Bar, or of the Milestone Mark for a milestone. No key means no fill.",
+    "ja": "予定バー（マイルストーンではマイルストーンマーク）の塗り。キーが無いと塗りは無い。"
+   }
+  },
+  {
+   "key": "stroke",
+   "owner": "TaskStyle",
+   "afterKey": "fill",
+   "afterOwner": "TaskStyle",
+   "parentKey": null,
+   "parentOwner": null,
+   "uses": [
+    "grsJsonSchema",
+    "spec",
+    "src",
+    "commandSchema"
+   ],
+   "basis": [
+    "JDG-3807"
+   ],
+   "since": "2026-11-01T00:00:00Z",
+   "label": null,
+   "definition": {
+    "en": "The outline of the Plan Bar and the Actual Bar, or of the Milestone Mark for a milestone.",
+    "ja": "予定バーと実績バー（マイルストーンではマイルストーンマーク）の枠線。"
+   }
+  },
+  {
+   "key": "font",
+   "owner": null,
+   "afterKey": "text",
+   "afterOwner": "CommentBox",
+   "parentKey": null,
+   "parentOwner": null,
+   "uses": [
+    "grsJsonSchema",
+    "spec",
+    "src",
+    "commandSchema"
+   ],
+   "basis": [
+    "JDG-3807",
+    "JDG-3610",
+    "JDG-3612"
+   ],
+   "since": "2026-11-01T00:00:00Z",
+   "label": null,
+   "definition": {
+    "en": "The look of the text of a comment box, held in its style.",
+    "ja": "コメントボックスの文字の見た目。style の中に持つ。"
+   },
+   "note": "CommentBoxStyle.font has no description; meaning from JDG-3610 (text look as one object in style) and JDG-3612 (name font)"
+  },
+  {
+   "key": "stroke",
+   "owner": "CommentBoxStyle",
+   "afterKey": "fontSizePx",
+   "afterOwner": null,
+   "parentKey": null,
+   "parentOwner": null,
+   "uses": [
+    "grsJsonSchema",
+    "spec",
+    "src",
+    "commandSchema"
+   ],
+   "basis": [
+    "JDG-3807"
+   ],
+   "since": "2026-11-01T00:00:00Z",
+   "label": null,
+   "definition": {
+    "en": "When the key is absent, GRS draws no outline and no Leader Line.",
+    "ja": "キーが無いとき、GRS は枠線も引出し線も描かない。"
+   }
+  },
+  {
+   "key": "CommentBoxStyle",
+   "owner": null,
+   "afterKey": "stroke",
+   "afterOwner": "CommentBoxStyle",
+   "parentKey": null,
+   "parentOwner": null,
+   "uses": [
+    "grsJsonSchema",
+    "spec",
+    "src"
+   ],
+   "basis": [
+    "JDG-3807",
+    "JDG-3699"
+   ],
+   "since": "2026-11-01T00:00:00Z",
+   "label": null,
+   "definition": {
+    "en": "The type of the style of a comment box.",
+    "ja": "コメントボックスの style の値の型。"
+   },
+   "note": "$defs/CommentBoxStyle has no description; meaning from JDG-3699"
+  },
+  {
+   "key": "HighlightBoxStyle",
+   "owner": null,
+   "afterKey": "cornerRadiusPx",
+   "afterOwner": null,
+   "parentKey": null,
+   "parentOwner": null,
+   "uses": [
+    "grsJsonSchema",
+    "spec",
+    "src"
+   ],
+   "basis": [
+    "JDG-3807",
+    "JDG-3699"
+   ],
+   "since": "2026-11-01T00:00:00Z",
+   "label": null,
+   "definition": {
+    "en": "The type of the style of a highlight box.",
+    "ja": "ハイライトボックスの style の値の型。"
+   },
+   "note": "$defs/HighlightBoxStyle has no description; meaning from JDG-3699"
+  },
+  {
+   "key": "editorType",
+   "owner": null,
+   "afterKey": "changedBy",
+   "afterOwner": null,
+   "parentKey": null,
+   "parentOwner": null,
+   "uses": [
+    "grsJsonSchema",
+    "spec",
+    "src"
+   ],
+   "basis": [
+    "JDG-3807"
+   ],
+   "since": "2026-11-01T00:00:00Z",
+   "label": null,
+   "definition": {
+    "en": "GRS fills in the value.",
+    "ja": "GRS がこの値を入れる。"
+   }
+  },
+  {
+   "key": "verticalZoom",
+   "owner": null,
+   "afterKey": "taskGroupAutoExpandDepth",
+   "afterOwner": null,
+   "parentKey": null,
+   "parentOwner": null,
+   "uses": [
+    "grsJsonSchema",
+    "spec",
+    "src",
+    "commandSchema"
+   ],
+   "basis": [
+    "JDG-3807",
+    "JDG-3697"
+   ],
+   "since": "2026-11-01T00:00:00Z",
+   "label": null,
+   "definition": {
+    "en": "When this key is absent, GRS chooses both values as Zoom to Fit does; when only automaticallyShownDepth is absent, GRS chooses that value as Zoom to Fit does.",
+    "ja": "このキーが無いとき、GRS は「全体を収める」と同じように両方の値を選ぶ。automaticallyShownDepth だけが無いときは、GRS はその値を「全体を収める」と同じように選ぶ。"
+   }
+  },
+  {
+   "key": "fixed",
+   "owner": "fitDayRange",
+   "afterKey": null,
+   "afterOwner": null,
+   "parentKey": "isFixed",
+   "parentOwner": null,
+   "uses": [
+    "grsJsonSchema",
+    "spec",
+    "src"
+   ],
+   "basis": [
+    "JDG-3807",
+    "JDG-3708"
+   ],
+   "since": "2026-11-01T00:00:00Z",
+   "label": null,
+   "definition": {
+    "en": "The Fit Span runs from firstDay to lastDay with no margin.",
+    "ja": "全体表示時の期間は firstDay から lastDay まで余白なしで続く。"
+   },
+   "note": "value of fitDayRange.type; the sentence after \"fixed\": in the frozen description and its Japanese row"
+  },
+  {
+   "key": "automatic",
+   "owner": "fitDayRange",
+   "afterKey": "fixed",
+   "afterOwner": "fitDayRange",
+   "parentKey": "isFixed",
+   "parentOwner": null,
+   "uses": [
+    "grsJsonSchema",
+    "spec",
+    "src"
+   ],
+   "basis": [
+    "JDG-3807",
+    "JDG-3708"
+   ],
+   "since": "2026-11-01T00:00:00Z",
+   "label": null,
+   "definition": {
+    "en": "The Fit Span covers everything that GRS draws, plus a margin that GRS fixes and does not save.",
+    "ja": "全体表示時の期間は、GRS が描くものすべてと余白を覆う。GRS は余白を決めるが、保存しない。"
+   },
+   "note": "value of fitDayRange.type; the sentence after \"automatic\": in the frozen description and its Japanese row"
+  },
+  {
+   "key": "scheduleCanvasElements",
+   "owner": null,
+   "afterKey": "isGroupGridLinesVisible",
+   "afterOwner": null,
+   "parentKey": null,
+   "parentOwner": null,
+   "uses": [
+    "grsJsonSchema",
+    "spec",
+    "src",
+    "commandSchema"
+   ],
+   "basis": [
+    "JDG-3807",
+    "JDG-3724"
+   ],
+   "since": "2026-11-01T00:00:00Z",
+   "label": null,
+   "definition": {
+    "en": "GRS writes the keys in this order: bars, labels, lines.",
+    "ja": "GRS はキーを、バー、ラベル、線の順に書く。"
+   }
+  },
+  {
+   "key": "delayDiagnosisSettings",
+   "owner": null,
+   "afterKey": "pinnedTaskGroupIds",
+   "afterOwner": null,
+   "parentKey": null,
+   "parentOwner": null,
+   "uses": [
+    "grsJsonSchema",
+    "spec",
+    "src",
+    "commandSchema"
+   ],
+   "basis": [
+    "JDG-3807",
+    "JDG-3698"
+   ],
+   "since": "2026-11-01T00:00:00Z",
+   "label": null,
+   "definition": {
+    "en": "The holder of the tolerance values of the Delay Diagnosis in the document settings.",
+    "ja": "文書設定の、遅延診断の許し幅の入れ物。"
+   },
+   "note": "no frozen description; meaning from JDG-3698 (the holder of the tolerance values in the document settings)"
+  },
+  {
+   "key": "passthroughCalendars",
+   "owner": null,
+   "afterKey": "assignments",
+   "afterOwner": null,
+   "parentKey": null,
+   "parentOwner": null,
+   "uses": [
+    "grsJsonSchema",
+    "spec",
+    "src"
+   ],
+   "basis": [
+    "JDG-3807",
+    "JDG-3613"
+   ],
+   "since": "2026-11-01T00:00:00Z",
+   "label": null,
+   "definition": {
+    "en": "The whole MSPDI Calendar elements outside calendars[].",
+    "ja": "calendars[] の外にある MSPDI の Calendar 要素まるごと。"
+   },
+   "note": "no frozen description; written after the frozen passthroughTasks text, as JDG-3613 states one list per entity"
+  },
+  {
+   "key": "precedingCalendarUid",
+   "owner": null,
+   "afterKey": null,
+   "afterOwner": null,
+   "parentKey": "passthroughCalendars",
+   "parentOwner": null,
+   "uses": [
+    "grsJsonSchema",
+    "spec",
+    "src"
+   ],
+   "basis": [
+    "JDG-3807",
+    "JDG-3613"
+   ],
+   "since": "2026-11-01T00:00:00Z",
+   "label": null,
+   "definition": {
+    "en": "The uid of the nearest calendar in calendars[] that precedes this element in MSPDI. No key puts the element first; equal values keep array order.",
+    "ja": "MSPDI でこの要素より前にある、calendars[] の中のいちばん近い暦の uid。キーが無いと、その要素は先頭に来る。値が等しいときは、配列の順を保つ。"
+   }
+  },
+  {
+   "key": "passthroughTasks",
+   "owner": null,
+   "afterKey": "passthroughCalendars",
+   "afterOwner": null,
+   "parentKey": null,
+   "parentOwner": null,
+   "uses": [
+    "grsJsonSchema",
+    "spec",
+    "src"
+   ],
+   "basis": [
+    "JDG-3807",
+    "JDG-3613"
+   ],
+   "since": "2026-11-01T00:00:00Z",
+   "label": null,
+   "definition": {
+    "en": "The whole MSPDI Task elements outside tasks[], such as the project summary task.",
+    "ja": "tasks[] の外にある MSPDI の Task 要素まるごと。例えばプロジェクトの要約タスク。"
+   }
+  },
+  {
+   "key": "precedingTaskUid",
+   "owner": null,
+   "afterKey": null,
+   "afterOwner": null,
+   "parentKey": "passthroughTasks",
+   "parentOwner": null,
+   "uses": [
+    "grsJsonSchema",
+    "spec",
+    "src"
+   ],
+   "basis": [
+    "JDG-3807",
+    "JDG-3613"
+   ],
+   "since": "2026-11-01T00:00:00Z",
+   "label": null,
+   "definition": {
+    "en": "The uid of the nearest task in tasks[] that precedes this element in MSPDI. No key puts the element first; equal values keep array order.",
+    "ja": "MSPDI でこの要素より前にある、tasks[] の中のいちばん近いタスクの uid。キーが無いと、その要素は先頭に来る。値が等しいときは、配列の順を保つ。"
+   }
+  },
+  {
+   "key": "passthroughResources",
+   "owner": null,
+   "afterKey": "passthroughTasks",
+   "afterOwner": null,
+   "parentKey": null,
+   "parentOwner": null,
+   "uses": [
+    "grsJsonSchema",
+    "spec",
+    "src"
+   ],
+   "basis": [
+    "JDG-3807",
+    "JDG-3613"
+   ],
+   "since": "2026-11-01T00:00:00Z",
+   "label": null,
+   "definition": {
+    "en": "The whole MSPDI Resource elements outside resources[].",
+    "ja": "resources[] の外にある MSPDI の Resource 要素まるごと。"
+   },
+   "note": "no frozen description; written after the frozen passthroughTasks text, as JDG-3613 states one list per entity"
+  },
+  {
+   "key": "precedingResourceUid",
+   "owner": null,
+   "afterKey": null,
+   "afterOwner": null,
+   "parentKey": "passthroughResources",
+   "parentOwner": null,
+   "uses": [
+    "grsJsonSchema",
+    "spec",
+    "src"
+   ],
+   "basis": [
+    "JDG-3807",
+    "JDG-3613"
+   ],
+   "since": "2026-11-01T00:00:00Z",
+   "label": null,
+   "definition": {
+    "en": "The uid of the nearest resource in resources[] that precedes this element in MSPDI. No key puts the element first; equal values keep array order.",
+    "ja": "MSPDI でこの要素より前にある、resources[] の中のいちばん近い担当の uid。キーが無いと、その要素は先頭に来る。値が等しいときは、配列の順を保つ。"
+   }
+  },
+  {
+   "key": "passthroughAssignments",
+   "owner": null,
+   "afterKey": "passthroughResources",
+   "afterOwner": null,
+   "parentKey": null,
+   "parentOwner": null,
+   "uses": [
+    "grsJsonSchema",
+    "spec",
+    "src"
+   ],
+   "basis": [
+    "JDG-3807",
+    "JDG-3613"
+   ],
+   "since": "2026-11-01T00:00:00Z",
+   "label": null,
+   "definition": {
+    "en": "The whole MSPDI Assignment elements outside assignments[].",
+    "ja": "assignments[] の外にある MSPDI の Assignment 要素まるごと。"
+   },
+   "note": "no frozen description; written after the frozen passthroughTasks text, as JDG-3613 states one list per entity"
+  },
+  {
+   "key": "precedingAssignmentUid",
+   "owner": null,
+   "afterKey": null,
+   "afterOwner": null,
+   "parentKey": "passthroughAssignments",
+   "parentOwner": null,
+   "uses": [
+    "grsJsonSchema",
+    "spec",
+    "src"
+   ],
+   "basis": [
+    "JDG-3807",
+    "JDG-3613"
+   ],
+   "since": "2026-11-01T00:00:00Z",
+   "label": null,
+   "definition": {
+    "en": "The uid of the nearest assignment in assignments[] that precedes this element in MSPDI. No key puts the element first; equal values keep array order.",
+    "ja": "MSPDI でこの要素より前にある、assignments[] の中のいちばん近い割当の uid。キーが無いと、その要素は先頭に来る。値が等しいときは、配列の順を保つ。"
+   }
+  },
+  {
+   "key": "mspdiElement",
+   "owner": null,
+   "afterKey": "passthroughAssignments",
+   "afterOwner": null,
+   "parentKey": null,
+   "parentOwner": null,
+   "uses": [
+    "grsJsonSchema",
+    "spec",
+    "src"
+   ],
+   "basis": [
+    "JDG-3807",
+    "JDG-3613"
+   ],
+   "since": "2026-11-01T00:00:00Z",
+   "label": null,
+   "definition": {
+    "en": "The whole MSPDI element, of type MspdiElement.",
+    "ja": "MSPDI の要素まるごと（型 MspdiElement）。"
+   },
+   "note": "the key has no own description; meaning from its type $defs/MspdiElement and JDG-3613; used in all four passthrough lists"
+  },
+  {
+   "key": "closePropertiesPanel",
+   "owner": null,
+   "afterKey": "closeWindow",
+   "afterOwner": null,
+   "parentKey": null,
+   "parentOwner": null,
+   "uses": [
+    "agentApi",
+    "mcpText",
+    "spec",
+    "src"
+   ],
+   "basis": [
+    "JDG-3781"
+   ],
+   "since": null,
+   "label": null,
+   "definition": {
+    "en": "Closes the Properties Panel.",
+    "ja": "プロパティパネルを閉じる。"
+   },
+   "note": "new tool, question 33-2-2; the draft definition of closeWindow still covers the Properties Panel and should narrow to windows only"
+  },
+  {
+   "key": "uidLimitReached",
+   "owner": "reason",
+   "afterKey": "limitReached",
+   "afterOwner": "reason",
+   "parentKey": "reason",
+   "parentOwner": "AgentApi",
+   "uses": [
+    "agentApi",
+    "mcpText",
+    "spec",
+    "src"
+   ],
+   "basis": [
+    "JDG-3784",
+    "JDG-3803"
+   ],
+   "since": null,
+   "label": null,
+   "definition": {
+    "en": "The uid of the document has reached its upper limit 2147483647, so GRS refuses an operation that adds a task, a resource, an assignment or a calendar.",
+    "ja": "文書の uid が上限の 2147483647 に届いたので、GRS はタスク・担当・割当・カレンダーを足す操作を断る。"
+   }
+  },
+  {
+   "key": "setTaskGroupShowMode",
+   "owner": null,
+   "afterKey": "resetTaskGroupTreeStates",
+   "afterOwner": null,
+   "parentKey": null,
+   "parentOwner": null,
+   "uses": [
+    "commandSchema",
+    "agentApi",
+    "mcpText",
+    "spec",
+    "src"
+   ],
+   "basis": [
+    "JDG-3781",
+    "JDG-3672",
+    "JDG-3736"
+   ],
+   "since": null,
+   "label": null,
+   "definition": {
+    "en": "Puts a showMode value on exactly one task group.",
+    "ja": "1 つのタスクグループだけに showMode の値を置く。"
+   },
+   "note": "named in the preface of the JDG-3781 policy table (JDG-3672 setTaskGroupSelfShowMode, Self dropped by JDG-3736); not in commands-map.tsv"
+  },
+  {
+   "key": "delayDiagnosisReport",
+   "owner": "table",
+   "afterKey": null,
+   "afterOwner": null,
+   "parentKey": "table",
+   "parentOwner": null,
+   "uses": [
+    "agentApi",
+    "mcpText",
+    "spec",
+    "src"
+   ],
+   "basis": [
+    "JDG-3781"
+   ],
+   "since": null,
+   "label": null,
+   "definition": {
+    "en": "The Delay Diagnosis Report table.",
+    "ja": "遅延診断レポートの表。"
+   },
+   "note": "value of readTableRows.table, question 34-1; the draft term table already names these four tables"
+  },
+  {
+   "key": "fixProposals",
+   "owner": "table",
+   "afterKey": "delayDiagnosisReport",
+   "afterOwner": "table",
+   "parentKey": "table",
+   "parentOwner": null,
+   "uses": [
+    "agentApi",
+    "mcpText",
+    "spec",
+    "src"
+   ],
+   "basis": [
+    "JDG-3781"
+   ],
+   "since": null,
+   "label": null,
+   "definition": {
+    "en": "The fix proposals table.",
+    "ja": "修正案の表。"
+   },
+   "note": "value of readTableRows.table, question 34-1; the draft term table already names these four tables"
+  },
+  {
+   "key": "fixLog",
+   "owner": "table",
+   "afterKey": "fixProposals",
+   "afterOwner": "table",
+   "parentKey": "table",
+   "parentOwner": null,
+   "uses": [
+    "agentApi",
+    "mcpText",
+    "spec",
+    "src"
+   ],
+   "basis": [
+    "JDG-3781"
+   ],
+   "since": null,
+   "label": null,
+   "definition": {
+    "en": "The fix log table.",
+    "ja": "修正の記録の表。"
+   },
+   "note": "value of readTableRows.table, question 34-1; the draft term table already names these four tables"
+  },
+  {
+   "key": "resourceList",
+   "owner": "table",
+   "afterKey": "fixLog",
+   "afterOwner": "table",
+   "parentKey": "table",
+   "parentOwner": null,
+   "uses": [
+    "agentApi",
+    "mcpText",
+    "spec",
+    "src"
+   ],
+   "basis": [
+    "JDG-3781"
+   ],
+   "since": null,
+   "label": null,
+   "definition": {
+    "en": "The Resource List table.",
+    "ja": "担当リストの表。"
+   },
+   "note": "value of readTableRows.table, question 34-1; the draft term table already names these four tables"
+  }
+ ],
+ "drop": [
+  {
+   "key": "unknownTask",
+   "owner": "reason",
+   "why": "merged into the existing value notFound (renamed by JDG-3778; merged into notFound, question 32-2)",
+   "basis": [
+    "JDG-3778",
+    "JDG-3781"
+   ]
+  },
+  {
+   "key": "notAvailable",
+   "owner": "reason",
+   "why": "merged into the existing value notImplemented (renamed by JDG-3781; merged, question 32-3)",
+   "basis": [
+    "JDG-3781"
+   ]
+  },
+  {
+   "key": "pinnedTaskGroupMissing",
+   "owner": "reason",
+   "why": "merged into the existing value danglingReference (renamed by JDG-3778; merged, question 32-7)",
+   "basis": [
+    "JDG-3778",
+    "JDG-3781"
+   ]
+  },
+  {
+   "key": "settingOutOfBounds",
+   "owner": "reason",
+   "why": "merged into the existing value outOfRange (renamed by JDG-3778; merged, question 32-4)",
+   "basis": [
+    "JDG-3778",
+    "JDG-3781"
+   ]
+  },
+  {
+   "key": "negativeActualLength",
+   "owner": "reason",
+   "why": "merged into the existing value endBeforeStart (renamed by JDG-3781; removed; endBeforeStart covers it (question 32-5))",
+   "basis": [
+    "JDG-3781"
+   ]
+  },
+  {
+   "key": "wouldMakeCycle",
+   "owner": "reason",
+   "why": "merged into the existing value taskGroupParentCycle (renamed by JDG-3778; question 32-6 (taskParentCycle for a task parent cycle))",
+   "basis": [
+    "JDG-3778",
+    "JDG-3781"
+   ]
+  },
+  {
+   "key": "chosen",
+   "owner": "source",
+   "why": "ColorSide.source and its values were removed: a calculated side writes isCalculatedFromOppositeColorScheme: true, a chosen side writes nothing",
+   "basis": [
+    "JDG-3636",
+    "JDG-3729"
+   ]
+  },
+  {
+   "key": "derived",
+   "owner": "source",
+   "why": "ColorSide.source and its values were removed: a calculated side writes isCalculatedFromOppositeColorScheme: true",
+   "basis": [
+    "JDG-3636",
+    "JDG-3729"
+   ]
+  },
+  {
+   "key": "ordinal",
+   "owner": null,
+   "why": "passthrough keeps no ordinal; order is array order, passthrough lists use preceding<Entity>Uid",
+   "basis": [
+    "JDG-3606",
+    "JDG-3613"
+   ]
+  },
+  {
+   "key": "collapsed",
+   "owner": "treeState",
+   "why": "the showMode value set (shown, hidden, automatic) rejects collapsed: it describes the children, not the task group itself",
+   "basis": [
+    "JDG-3662"
+   ]
+  },
+  {
+   "key": "expanded",
+   "owner": "treeState",
+   "why": "the showMode value set (shown, hidden, automatic) rejects expanded: it describes the children, not the task group itself",
+   "basis": [
+    "JDG-3662"
+   ]
+  },
+  {
+   "key": "temporarilyExpanded",
+   "owner": "treeState",
+   "why": "not in the showMode value set; the added value hiddenUntilZoomIn has a different meaning",
+   "basis": [
+    "JDG-3662",
+    "JDG-3663"
+   ]
+  },
+  {
+   "key": "TaskGroupMember",
+   "owner": null,
+   "why": "the member array was removed; a task names its task group with grs.taskGroupId",
+   "basis": [
+    "JDG-3614"
+   ]
+  },
+  {
+   "key": "taskGroupMembers",
+   "owner": null,
+   "why": "the array was removed; a task names its task group with grs.taskGroupId",
+   "basis": [
+    "JDG-3614"
+   ]
+  },
+  {
+   "key": "LeaderAnchorFallback",
+   "owner": null,
+   "why": "task and highlightBox targets hold no fallback copy of a place",
+   "basis": [
+    "JDG-3547"
+   ]
+  },
+  {
+   "key": "fallback",
+   "owner": null,
+   "why": "task and highlightBox targets hold no fallback copy of a place",
+   "basis": [
+    "JDG-3547"
+   ]
+  },
+  {
+   "key": "rootTreeState",
+   "owner": null,
+   "why": "the root (depth 0) is always shown and holds no show value",
+   "basis": [
+    "JDG-3664"
+   ]
+  },
+  {
+   "key": "auto",
+   "owner": "rootTreeState",
+   "why": "removed with rootTreeState",
+   "basis": [
+    "JDG-3664"
+   ]
+  },
+  {
+   "key": "collapsed",
+   "owner": "rootTreeState",
+   "why": "removed with rootTreeState",
+   "basis": [
+    "JDG-3664"
+   ]
+  },
+  {
+   "key": "WatcherMark",
+   "owner": null,
+   "why": "the field mark and its type WatcherMark were removed from ChangeNotice",
+   "basis": [
+    "JDG-3783"
+   ]
+  },
+  {
+   "key": "mark",
+   "owner": null,
+   "why": "removed from ChangeNotice; stamp.scheduleDataUpdatedAt carries the time",
+   "basis": [
+    "JDG-3783"
+   ]
+  }
+ ],
+ "keep": [
+  {
+   "key": "JSONSchema",
+   "owner": null,
+   "why": "external standard, not a key; the schema cites \"JSON Schema\" only in its own description"
+  },
+  {
+   "key": "MSPDI",
+   "owner": null,
+   "why": "external standard, not a key; MSPDI is named in descriptions and in key names (mspdiElement, mspdiImportCount)"
+  },
+  {
+   "key": "ISO8601",
+   "owner": null,
+   "why": "external standard, not a key; the schema writes no \"ISO 8601\""
+  },
+  {
+   "key": "estimatedFinish",
+   "owner": null,
+   "why": "concept word; no Agent API member, field or value with this name in the alpha manuscript or the policy table (the readDelayDiagnosis part names have no rows: AI-C review finding 3)"
+  },
+  {
+   "key": "dependencyDelayMinutes",
+   "owner": null,
+   "why": "concept word; no Agent API member, field or value with this name in the alpha manuscript or the policy table (the readDelayDiagnosis part names have no rows: AI-C review finding 3)"
+  },
+  {
+   "key": "internalDelayMinutes",
+   "owner": null,
+   "why": "concept word; no Agent API member, field or value with this name in the alpha manuscript or the policy table (the readDelayDiagnosis part names have no rows: AI-C review finding 3)"
+  },
+  {
+   "key": "endTask",
+   "owner": null,
+   "why": "concept word; no Agent API member, field or value with this name in the alpha manuscript or the policy table (the readDelayDiagnosis part names have no rows: AI-C review finding 3)"
+  },
+  {
+   "key": "endTaskDelayMinutes",
+   "owner": null,
+   "why": "concept word; no Agent API member, field or value with this name in the alpha manuscript or the policy table (the readDelayDiagnosis part names have no rows: AI-C review finding 3)"
+  },
+  {
+   "key": "delayContributionMinutes",
+   "owner": null,
+   "why": "concept word; no Agent API member, field or value with this name in the alpha manuscript or the policy table (the readDelayDiagnosis part names have no rows: AI-C review finding 3)"
+  },
+  {
+   "key": "bottleneck",
+   "owner": null,
+   "why": "concept word; no Agent API member, field or value with this name in the alpha manuscript or the policy table (the readDelayDiagnosis part names have no rows: AI-C review finding 3)"
+  },
+  {
+   "key": "bottleneckPath",
+   "owner": null,
+   "why": "concept word; no Agent API member, field or value with this name in the alpha manuscript or the policy table (the readDelayDiagnosis part names have no rows: AI-C review finding 3)"
+  },
+  {
+   "key": "unreliable",
+   "owner": null,
+   "why": "concept word; no Agent API member, field or value with this name in the alpha manuscript or the policy table (the readDelayDiagnosis part names have no rows: AI-C review finding 3)"
+  },
+  {
+   "key": "diagnosisBlocker",
+   "owner": null,
+   "why": "concept word; no Agent API member, field or value with this name in the alpha manuscript or the policy table (the readDelayDiagnosis part names have no rows: AI-C review finding 3)"
+  },
+  {
+   "key": "fixProposal",
+   "owner": null,
+   "why": "the contract uses only fixProposals, fixProposalKeys, FixProposalRow (question 34-1)"
+  },
+  {
+   "key": "ColumnKey",
+   "owner": null,
+   "why": "adopted by JDG-3514 but the frozen schema has no $defs/ColumnKey: column names are inline enums of ColumnFilter.column / ColumnSort.column; the Agent API table still cites ColumnKey as the type of TableColumn.key"
+  },
+  {
+   "key": "grsDocumentSchema",
+   "owner": null,
+   "why": "document name, not a key; the frozen schema $id is .../grs-document.schema.json (moves there with CR-851)"
+  },
+  {
+   "key": "grsCommandsSchema",
+   "owner": null,
+   "why": "document name, not a key (docs/spec/_source/grs-commands.schema.json, still alpha)"
+  }
+ ],
+ "notAdded": [
+  {
+   "key": "$schema",
+   "why": "frozen key with a description, but the glossary Key pattern ^[A-Za-z][A-Za-z0-9]*$ forbids \"$\"",
+   "basis": [
+    "JDG-3807"
+   ]
+  },
+  {
+   "key": "TaskTableWindow / ResourceTableWindow",
+   "why": "$defs without a description; no ruling found that states their meaning",
+   "basis": [
+    "JDG-3807"
+   ]
+  },
+  {
+   "key": "taskType / taskName / resourceNames / diagnosisStatus / planDates / actualDates / diagnosisReason / resourceSelectionStatus / resourceName / assignedTaskCount / assignedTaskNames (column values)",
+   "why": "the frozen ColumnFilter.column description lists some names without a meaning and the delay-diagnosis / resource-list names not at all; only the review labels (Japanese) name them",
+   "basis": [
+    "JDG-3807"
+   ]
+  },
+  {
+   "key": "fill / stroke under CommentBoxStyle, HighlightBoxStyle, ShapeStyle (fill), HighlightBoxStyle (stroke)",
+   "why": "no own description; the key itself is carried by the added owner-specific terms",
+   "basis": [
+    "JDG-3807"
+   ]
+  },
+  {
+   "key": "style under HighlightBox / CommentBox",
+   "why": "no own description; key carried by style|Task (rename) and style|TaskGroup (add)",
+   "basis": [
+    "JDG-3807"
+   ]
+  },
+  {
+   "key": "searchWindow / delayDiagnosisReportWindow / resourceListWindow as TableWindowName values",
+   "why": "already carried as GRS JSON keys under tableWindows with the same meaning",
+   "basis": [
+    "JDG-3781"
+   ]
+  },
+  {
+   "key": "document / commands / notes (readSchema.part values)",
+   "why": "kept by question 33-2, but no frozen source states each value's meaning",
+   "basis": [
+    "JDG-3781"
+   ]
+  },
+  {
+   "key": "waitMilliseconds (watchChanges MCP argument)",
+   "why": "renamed from waitMs by question 30-4-2; waitMs is not in the draft and no source states more than the name",
+   "basis": [
+    "JDG-3781"
+   ]
+  },
+  {
+   "key": "RefusalReason",
+   "why": "the policy table only notes that the alpha type AgentRefusalReason drops Agent; the name was not asked",
+   "basis": [
+    "JDG-3781"
+   ]
+  },
+  {
+   "key": "retractIntoParent / expandOneLevel / expandBelow / collapseBelow / pressedTarget",
+   "why": "named by JDG-3672, whose owner deferred the API review; no row in the JDG-3781 policy table",
+   "basis": [
+    "JDG-3672"
+   ]
+  },
+  {
+   "key": "verticalZoomIn / verticalZoomOut",
+   "why": "JDG-3674 names them, but their place (command or tool) and arguments are not settled (JDG-3674, JDG-3675)",
+   "basis": [
+    "JDG-3674"
+   ]
+  },
+  {
+   "key": "notStarted / inProgress / suspendedWithResumeDate / suspendedWithoutResumeDate / finished (progressStatus.state values)",
+   "why": "alpha command schema only; no rows in the policy table",
+   "basis": []
+  },
+  {
+   "key": "carriedActualDuration / recurrenceKind / carryElements / calloutBox / polyline",
+   "why": "alpha command schema names, not frozen (AI-C review)",
+   "basis": []
+  },
+  {
+   "key": "request / stamp / target / Document / InvariantRow / CodecRefusalReason / asShown / none / readDelayDiagnosis part names",
+   "why": "alpha Agent API names with no row in the policy table (AI-C review)",
+   "basis": []
+  },
+  {
+   "key": "fileName / overwrite (export tool arguments)",
+   "why": "already in the draft (agentApi/refusals) and kept by question 34-2; their uses lack agentApi",
+   "basis": [
+    "JDG-3781"
+   ]
+  },
+  {
+   "key": "word / filters / offset / limit for readTableRows; fixLog field of DelayDiagnosisReport",
+   "why": "same names already in the draft (under readSearchRows, valueTypes, scheduleConcepts)",
+   "basis": []
+  }
+ ]
+}

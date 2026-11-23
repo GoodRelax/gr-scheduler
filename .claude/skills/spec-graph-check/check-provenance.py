@@ -35,6 +35,10 @@ ARTIFACTS = [
     # hand edit here is worth even less than usual -- half the document is not
     # in the manuscript at all.
     ('docs/spec/_assets/tbl-row-id-prefixes.md', 'row-id-prefixes.json'),
+    # The naming review base of the names dictionary (CR-857, step 1). Step 2
+    # adds docs/spec/_assets/tbl-glossary.md here when it becomes generated.
+    ('studies/82-anms-ndd-apply-plan/glossary-review/glossary-review-base.md',
+     'glossary.json'),
     ('docs/spec/_assets/fig-erd-detail.md', 'erd.json'),
     ('docs/spec/_assets/fig-erd-overview.md', 'erd.json'),
     ('docs/spec/_source/grs-document.schema.json', 'erd.json'),

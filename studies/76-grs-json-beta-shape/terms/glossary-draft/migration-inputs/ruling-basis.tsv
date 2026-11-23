@@ -1,0 +1,801 @@
+key	labelEn	status	basis	evidence
+browserWindow	Browser Window	checked	JDG-3365 JDG-3375	★の無かった名も案のとおり「ブラウザーウィンドウ」
+grs	GRS	checked	JDG-3351	製品は文の中で GRS とだけ呼ぶ (owner chose A)
+appHeader	App Header	checked	JDG-3365	table: sheet-1 conclusion tree (10-screen-term-tree.md sec.1)
+branding	Branding	checked	JDG-3365	table: sheet-1 conclusion tree (10-screen-term-tree.md sec.1)
+projectTitle	Project Title	checked	JDG-3355 JDG-3365	「App Hedder に出すのが Project Title」
+fileStatus	File Status	checked	JDG-3365	★の無かった名も案のとおり「ファイル状態」
+openedFileName	Opened File Name	checked	JDG-3365	table: sheet-1 conclusion tree (10-screen-term-tree.md sec.1)
+fileSavedAtDisplay	File Saved At	checked	JDG-3365	table: sheet-1 conclusion tree (10-screen-term-tree.md sec.1)
+headerCommands	Header Commands	checked	JDG-3365	「ヘッダーのコマンド」→「★ヘッダーコマンド」
+scheduleFilterBar	Schedule Filter Bar	conflict	JDG-1869 JDG-3375 JDG-3728	filter renamed Filter Schedule by Checks; bar name to follow (3728)
+taskGroupPanel	Task Group Panel	checked	JDG-1659 JDG-3360	「行見出しパネル」→「タスクグループパネル」/ Task Group Panel
+taskGroupTitleTree	Task Group Title Tree	checked	JDG-3363	→「★タスクグループタイトルツリー」
+panelDivider	Panel Divider	checked	JDG-3360 JDG-3365	Panel Divider はパネルと Schedule Canvas の境目; tree
+scheduleCanvas	Schedule Canvas	checked	JDG-3357 JDG-3360 JDG-3365	指す所によって Schedule Canvas … と書く (A)
+timeRuler	Time Ruler	checked	JDG-3365	table: sheet-1 conclusion tree (10-screen-term-tree.md sec.1)
+scrollbars	Scrollbars	checked	JDG-3367	Scrollbars は Scroll Track と Scroll Thumb でできる (A/A)
+scrollTrack	Scroll Track	checked	JDG-3367 JDG-3379	「スクロール溝」→「★スクロールトラック」
+scrollThumb	Scroll Thumb	checked	JDG-3367	問12 A Scroll Thumb（推奨）
+watermark	Watermark	checked	JDG-3365	table: sheet-1 conclusion tree (10-screen-term-tree.md sec.1)
+propertiesPanel	Properties Panel	checked	JDG-3360 JDG-3365	table: sheet-1 conclusion tree (10-screen-term-tree.md sec.1)
+commandPalette	Command Palette	checked	JDG-3356 JDG-3365	table: sheet-1 conclusion tree (10-screen-term-tree.md sec.1)
+paletteGroups	Palette Groups	none		
+toolWindow	Tool Window	checked	JDG-3356	Windows の用語に合わせる (Tool Window・Dialog・Message Box…)
+helpWindow	Help Window	checked	JDG-3356	窓の名の末尾を種類でそろえる (owner wrote names in tree)
+searchWindow	Search Window	checked	JDG-3356	窓の名の末尾を種類でそろえる (owner wrote names in tree)
+resourceListWindow	Resource List Window	checked	JDG-3356	窓の名の末尾を種類でそろえる (owner wrote names in tree)
+delayDiagnosticsReportWindow	Delay Diagnostics Report Window	conflict	JDG-3356 JDG-3512	Delay Diagnosis Report (Window) — 3512 renamed the function
+holidaySettingsWindow	Holiday Settings Window	checked	JDG-3356 JDG-3365	「休日の設定ウィンドウ」→「★休日設定ウィンドウ」
+dialog	Dialog	checked	JDG-3356	Windows の用語に合わせる (Tool Window・Dialog・Message Box…)
+saveAsDialog	Save As Dialog	checked	JDG-3356 JDG-3364	「別名保存ダイアログ / 確認メッセージ としろ」
+openFileDialog	Open File Dialog	checked	JDG-3356 JDG-3363	→「★ファイルオープンダイアログ」
+watermarkUnlockDialog	Watermark Unlock Dialog	checked	JDG-3356	窓の名の末尾を種類でそろえる (owner wrote names in tree)
+differenceReviewDialog	Difference Review Dialog	checked	JDG-3356 JDG-3363	→「★差分確認ダイアログ」
+importReportDialog	Import Report Dialog	checked	JDG-3356 JDG-3363	→「★読込報告ダイアログ」
+messageBox	Message Box	checked	JDG-3356	Windows の用語に合わせる (Tool Window・Dialog・Message Box…)
+confirmationMessage	Confirmation Message	checked	JDG-3363 JDG-3364	「別名保存ダイアログ / 確認メッセージ としろ」
+notification	Notification	checked	JDG-3356	Windows の用語に合わせる (Tool Window・Dialog・Message Box…)
+notificationArea	Notification Area	checked	JDG-3363	「通知の場所」→「★通知領域」
+tooltip	Tooltip	checked	JDG-3356	Windows の用語に合わせる (Tool Window・Dialog・Message Box…)
+taskGroupLanes	Task Group Lanes	checked	JDG-3361 JDG-3374	区分は Task Group Lanes（推奨）→ A
+taskGroupLane	Task Group Lane	checked	JDG-3361 JDG-3374 JDG-3733	「Task Group lane(タスクグループレーン)とかは？」
+stackTier	Stack Tier	checked	JDG-3377	問18-3 A Stack Tier（推奨）
+graphics	Graphics	checked	JDG-3374	Graphics は用語集の名 (A)
+taskGraphic	Task Graphic	checked	JDG-3348 JDG-3363	「Task Graphic ├─ Plan Bar …」; ja ★タスク図形
+taskBars	Task Bars	none		
+planBar	Plan Bar	checked	JDG-3348 JDG-3647	「Task Graphic ├─ Plan Bar ├─ Actual Bar …」
+fadeRamp	Fade Ramp	checked	JDG-3373	表の名で用語集に行を足す (A)
+actualBar	Actual Bar	checked	JDG-3348	「Task Graphic ├─ Plan Bar ├─ Actual Bar └─ Milestone Mark」
+actualDummy	Actual Dummy	checked	JDG-3375	d: 推奨通り — Actual Dummy（実績ダミー）
+milestoneMark	Milestone Mark	checked	JDG-3348 JDG-3363 JDG-3372	「マイルストーンの印」→「マイルストーンマーク」
+baselineOutline	Baseline Outline	conflict	JDG-3373 JDG-3706	前回予定輪郭 (3706: 変更前予定輪郭 → 前回予定輪郭)
+planActualGuideLine	Plan-Actual Guide Line	checked	JDG-3373	表の名で用語集に行を足す (A)
+progressMark	Progress Mark	conflict	JDG-3372 JDG-3742	Progress Status Mark / 進捗ステータスマーク
+resumeMark	Resume Mark	checked	JDG-3372	小さな印は Mark (B)
+resumeDashLine	Resume Dash Line	checked	JDG-3373	表の名で用語集に行を足す (A)
+deadlineMark	Deadline Mark	checked	JDG-3372	小さな印は Mark (B)
+taskLabels	Task Labels	checked	JDG-3370	Label names, Task Labels adopted (A)
+nameLabel	Name Label	checked	JDG-3370	Label names, Task Labels adopted (A)
+assigneeLabel	Assignee Label	checked	JDG-3370	Label names, Task Labels adopted (A)
+percentCompleteLabel	Percent Complete Label	checked	JDG-3370	Label names, Task Labels adopted (A)
+dependencyLine	Dependency Line	checked	JDG-3374 JDG-3375	Graphics の子 (A); b: 名は単数
+arrowhead	Arrowhead	checked	JDG-3373	表の名で用語集に行を足す (A)
+continuationMark	Continuation Mark	checked	JDG-3378	A Continuation Mark（推奨）
+annotation	Annotation	checked	JDG-3374 JDG-3375	Graphics の子 (A); b: 名は単数
+commentBoxGraphic	Comment Box	checked	JDG-3371 JDG-3375	英語はどこでも Comment Box（推奨）→ A
+leaderLine	Leader Line	checked	JDG-3348	「leaderLine leaderAnchor でどうか？」
+leaderAnchorGraphic	Leader Anchor	checked	JDG-3348 JDG-3373	「leaderLine leaderAnchor でどうか？」
+highlightBoxGraphic	Highlight Box	checked	JDG-3375	b: 推奨通り — 名は単数 (Highlight Box)
+progressLine	Progress Line	checked	JDG-3374	Graphics の子 (A)
+statusLine	Status Line	checked	JDG-3374 JDG-3201	Graphics の子 (A); 基準日線 / Status Line
+dateGridLines	Date Grid Lines	checked	JDG-3374	Graphics の子 (A)
+groupGridLines	Group Grid Lines	conflict	JDG-3374 JDG-3745	Task Group Grid Lines / タスクグループ罫線
+pointer	Pointer	checked	JDG-3375	a: 長音は伸ばす形 —— ポインター
+grabPoint	Grab Point	checked	JDG-3366	Grab Point/Area, Handle, Grip, Grab Margin adopted (A)
+handle	Handle	checked	JDG-3366	Grab Point/Area, Handle, Grip, Grab Margin adopted (A)
+fadeHandle	Fade Handle	none		
+resizeHandle	Resize Handle	none		
+leaderAnchorHandle	Leader Anchor Handle	none		
+grabArea	Grab Area	checked	JDG-3366	Grab Point/Area, Handle, Grip, Grab Margin adopted (A)
+grip	Grip	checked	JDG-3366	Grab Point/Area, Handle, Grip, Grab Margin adopted (A)
+paletteGrip	Palette Grip	none		
+taskGroupGrip	Task Group Grip	none		
+grabMargin	Grab Margin	checked	JDG-3366	Grab Point/Area, Handle, Grip, Grab Margin adopted (A)
+taskGroupButtons	Task Group Buttons	checked	JDG-3368	Task Group Buttons and 5 button names adopted (A)
+collapseButton	Collapse Button	conflict	JDG-3368 JDG-3658 JDG-3659	∧ label is now Retract Into Parent / 親へしまう
+expandOneLevelButton	Expand One Level Button	checked	JDG-3368	Task Group Buttons and 5 button names adopted (A)
+collapseBelowButton	Collapse Below Button	checked	JDG-3368	Task Group Buttons and 5 button names adopted (A)
+expandBelowButton	Expand Below Button	checked	JDG-3368	Task Group Buttons and 5 button names adopted (A)
+pinButton	Pin Button	checked	JDG-3368	Task Group Buttons and 5 button names adopted (A)
+interactionCues	Interaction Cues	checked	JDG-3369	Interaction Cues + Jump Landing Marks names adopted (A/A)
+selectionFrame	Selection Frame	checked	JDG-3369	Interaction Cues + Jump Landing Marks names adopted (A/A)
+marqueeRectangle	Marquee Rectangle	checked	JDG-3369	Interaction Cues + Jump Landing Marks names adopted (A/A)
+tentativeDependencyLine	Tentative Dependency Line	checked	JDG-3369	Interaction Cues + Jump Landing Marks names adopted (A/A)
+dependencyEndOutline	Dependency End Outline	checked	JDG-3369	Interaction Cues + Jump Landing Marks names adopted (A/A)
+dropLine	Drop Line	checked	JDG-3369	Interaction Cues + Jump Landing Marks names adopted (A/A)
+dragCopy	Drag Copy	checked	JDG-3369	Interaction Cues + Jump Landing Marks names adopted (A/A)
+dropCue	Drop Cue	checked	JDG-3369	Interaction Cues + Jump Landing Marks names adopted (A/A)
+jumpLandingMarks	Jump Landing Marks	checked	JDG-3369	Interaction Cues + Jump Landing Marks names adopted (A/A)
+jumpLandingRing	Jump Landing Ring	checked	JDG-3369	Interaction Cues + Jump Landing Marks names adopted (A/A)
+jumpRelatedRing	Jump Related Ring	checked	JDG-3369	Interaction Cues + Jump Landing Marks names adopted (A/A)
+jumpRipple	Jump Ripple	checked	JDG-3369	Interaction Cues + Jump Landing Marks names adopted (A/A)
+item	Item	none		
+selection	Selection	none		
+armedShape	ArmedShape	none		
+marquee	Marquee	none		
+cursors	Cursors	conflict	JDG-3375	b: 名は単数にする (… Cursor など) → Cursor
+dualCursor	Dual Cursor	checked	JDG-3375	c:「2 連カーソル」は「デュアルカーソル」に直す
+guideCursor	Guide Cursor	none		
+pinnedTaskGroup	Pinned Task Group	checked	JDG-3707	ピン止めしたタスクグループ / Pinned Task Groups (a)
+canvasOverlays	Canvas Overlays	conflict	JDG-3362	B: 使われていない名なので消す (owner chose delete)
+screenState	ScreenState	none		
+watermarkUnlockPassword	Watermark Unlock Password	none		
+timeAxisLevelOfDetail	timeAxisLevelOfDetail	none		
+groupLevelOfDetail	groupLevelOfDetail	none		
+exportFormats	exportFormats	none		
+grsJsonFormat	GRS JSON	checked	JDG-3353	「GRS JSON, MSPDI, GRS HTMLの総称は Schecule Document」
+mspdiXmlFormat	MSPDI XML	none		
+singleHtmlFormat	Single HTML	conflict	JDG-1095 JDG-3353	GRS HTML（今の「単一 HTML」に名を付ける）
+svgImageFormat	SVG Image	checked	JDG-1095 JDG-1098	「SVG画像」;「PNG画像」の空白も一緒に埋めろ
+pngImageFormat	PNG Image	checked	JDG-1095 JDG-1098	「SVG画像」;「PNG画像」の空白も一緒に埋めろ
+placeGroup	Place	none		
+alignGroup	Align	none		
+displayGroup	Display	none		
+cursorsGroup	Cursors	none		
+currentToolGroup	Current Tool	checked	JDG-2250	Arm → 道具の名 (Recommended): Armed Shape → Current Tool
+commandPaletteIcon	Command Palette	checked	JDG-1166	table: owner-returned header icon list (ID | 名前 | 説明)
+newIcon	New	checked	JDG-1166	table: owner-returned header icon list (ID | 名前 | 説明)
+openIcon	Open…	checked	JDG-1166 JDG-2374	table: owner-returned header icon list (ID | 名前 | 説明); Open… kept (A)
+saveAsIcon	Save As…	checked	JDG-79 JDG-1166 JDG-2251	「SaveAsはそのままで」; ja 書き出して保存
+copyImageIcon	Copy Image	checked	JDG-1166	table: owner-returned header icon list (ID | 名前 | 説明)
+baselineIcon	Baseline	conflict	JDG-1166 JDG-3434 JDG-3706	前回予定 (baseline ja everywhere)
+planBarIcon	Plan Bar	checked	JDG-1166	table: owner-returned header icon list (ID | 名前 | 説明)
+actualBarIcon	Actual Bar	checked	JDG-1166	table: owner-returned header icon list (ID | 名前 | 説明)
+zoomToFitIcon	Zoom to Fit	conflict	JDG-1166 JDG-3376	全体表示 (IC-10「全体を収める」を「全体表示」に)
+smallerIcon	Smaller	checked	JDG-1166	table: owner-returned header icon list (ID | 名前 | 説明)
+largerIcon	Larger	checked	JDG-1166	table: owner-returned header icon list (ID | 名前 | 説明)
+fullScreenIcon	Full Screen	checked	JDG-1166	table: owner-returned header icon list (ID | 名前 | 説明)
+zoomOutHorizontallyIcon	Zoom Out Horizontally	checked	JDG-1166	table: owner-returned header icon list (ID | 名前 | 説明)
+zoomInHorizontallyIcon	Zoom In Horizontally	checked	JDG-1166	table: owner-returned header icon list (ID | 名前 | 説明)
+zoomOutVerticallyIcon	Zoom Out Vertically	checked	JDG-1166	table: owner-returned header icon list (ID | 名前 | 説明)
+zoomInVerticallyIcon	Zoom In Vertically	checked	JDG-1166	table: owner-returned header icon list (ID | 名前 | 説明)
+monochromeIcon	Monochrome	checked	JDG-1166	table: owner-returned header icon list (ID | 名前 | 説明)
+lightDarkIcon	Light / Dark	checked	JDG-1166	table: owner-returned header icon list (ID | 名前 | 説明)
+undoIcon	Undo	checked	JDG-1166	table: owner-returned header icon list (ID | 名前 | 説明)
+redoIcon	Redo	checked	JDG-1166	table: owner-returned header icon list (ID | 名前 | 説明)
+searchIcon	Search	checked	JDG-1166	table: owner-returned header icon list (ID | 名前 | 説明)
+delayDiagnosticsIcon	Delay Diagnostics	conflict	JDG-473 JDG-1166 JDG-3512	Delay Diagnosis / 遅延診断
+scheduleImageToJSONPromptIcon	Schedule Image-to-JSON Prompt	checked	JDG-504 JDG-511 JDG-1166	「アイコン名: 日程の画像をデータ化するプロンプト とせよ」
+agentAPIIcon	Agent API	checked	JDG-1166	table: owner-returned header icon list (ID | 名前 | 説明)
+documentSettingsIcon	Document Settings	conflict	JDG-1166 JDG-3365	文書設定 (「文書の設定」→「★文書設定」)
+screenLanguageIcon	Screen Language	checked	JDG-1166	table: owner-returned header icon list (ID | 名前 | 説明)
+helpIcon	Help	checked	JDG-1166	table: owner-returned header icon list (ID | 名前 | 説明)
+rectangleIcon	Rectangle	checked	JDG-3711	task shape names table「ok」(矩形・矢印)
+chevronIcon	Chevron	checked	JDG-3494 JDG-3711	「シェブロンの和訳は矢羽根」
+arrowIcon	Arrow	checked	JDG-3711	task shape names table「ok」(矩形・矢印)
+endpointSpanIcon	Endpoint Span	conflict	JDG-3696 JDG-3711	dumbbell / ダンベル
+milestoneCircleIcon	Milestone (Circle)	conflict	JDG-3703	マイルストーン（円）— 3703: milestone shape names (value/icon/ja) aligned
+milestoneHexagonIcon	Milestone (Hexagon)	checked	JDG-3703	3703: milestone shape names (value/icon/ja) aligned (kept)
+milestonePentagonIcon	Milestone (Pentagon)	checked	JDG-3703	3703: milestone shape names (value/icon/ja) aligned (kept)
+milestoneDiamondIcon	Milestone (Diamond)	conflict	JDG-3703	マイルストーン（ひし形）— 3703: milestone shape names (value/icon/ja) aligned
+milestoneSquareIcon	Milestone (Square)	conflict	JDG-3703	マイルストーン（正方形）— 3703: milestone shape names (value/icon/ja) aligned
+milestoneStarIcon	Milestone (Star)	conflict	JDG-3703	マイルストーン（星）— 3703: milestone shape names (value/icon/ja) aligned
+milestoneTriangleUpIcon	Milestone (Triangle Up)	conflict	JDG-3703	マイルストーン（上向き三角）— 3703: milestone shape names (value/icon/ja) aligned
+milestoneTriangleDownIcon	Milestone (Triangle Down)	conflict	JDG-3703	マイルストーン（下向き三角）— 3703: milestone shape names (value/icon/ja) aligned
+milestoneFileIcon	Milestone (File)	checked	JDG-3703	3703: milestone shape names (value/icon/ja) aligned (kept)
+milestoneBoxIcon	Milestone (Box)	conflict	JDG-3703	マイルストーン（箱）— 3703: milestone shape names (value/icon/ja) aligned
+milestoneFloppyDiskIcon	Milestone (Floppy Disk)	conflict	JDG-3703	マイルストーン（フロッピーディスク）— 3703: milestone shape names (value/icon/ja) aligned
+milestoneCylinderIcon	Milestone (Cylinder)	checked	JDG-3703	3703: milestone shape names (value/icon/ja) aligned (kept)
+milestoneMeetingPeopleIcon	Milestone (Meeting People)	checked	JDG-3703	3703: milestone shape names (value/icon/ja) aligned (kept)
+milestoneSmilingFaceIcon	Milestone (Smiling Face)	conflict	JDG-3703	マイルストーン（笑顔）— 3703: milestone shape names (value/icon/ja) aligned
+milestoneBeerMugIcon	Milestone (Beer Mug)	checked	JDG-3703	3703: milestone shape names (value/icon/ja) aligned (kept)
+linkTasksIcon	Link Tasks	checked	JDG-79 JDG-2251	IC-61 label 依存線を引く; en Link Tasks (bundle A)
+calloutIcon	Callout	conflict	JDG-2250 JDG-3371	Comment Box —「英語はどこでも Comment Box」
+highlightBoxIcon	Highlight Box	none		
+alignToStartIcon	Align to Start	none		
+alignToFinishIcon	Align to Finish	none		
+progressLineIcon	Progress Line	none		
+progressMarkerIcon	Progress Marker	conflict	JDG-3372 JDG-3742	Progress Status Mark / 進捗ステータスマーク
+watermarkIcon	Watermark…	conflict	JDG-80 JDG-1865	Hide the Watermark (Password Required); ja matches
+dateGridLinesIcon	Date Grid Lines	none		
+groupGridLinesIcon	Group Grid Lines	conflict	JDG-3745	Task Group Grid Lines / タスクグループ罫線
+assigneeLabelIcon	Assignee Label	none		
+percentCompleteLabelIcon	Percent Complete Label	none		
+showDependencyLinesIcon	Show Dependency Lines	checked	JDG-79	IC-81 label 依存線の表示 / Show Dependency Lines
+showParentTasksIcon	Show Parent Tasks	checked	JDG-1667	「親タスク表示 / 親タスク設定 (Recommended)」
+setParentTaskIcon	Set Parent Task	checked	JDG-1667	「親タスク表示 / 親タスク設定 (Recommended)」
+canvasFontSizeIcon	Font Size	checked	JDG-1245	「②も「文字サイズ / Font size」」
+stackDirectionIcon	Stack Direction	none		
+plannedDatesIcon	Planned Dates	none		
+statusDateIcon	Status Date	none		
+crosshairIcon	Crosshair	none		
+singleVerticalIcon	Single Vertical	none		
+dualCursorIcon	Dual Cursor	checked	JDG-3375	c:「2 連カーソル」は「デュアルカーソル」に直す
+milestoneListIcon	Milestone	checked	JDG-79	IC-50 label マイルストーン / Milestone
+closeIcon	Close	none		
+dragToMoveIcon	Drag to Move	none		
+minimizePaletteIcon	Minimize	none		
+currentToolIcon	Current Tool	checked	JDG-2250	Armed Glyph → Current Tool (Recommended)
+wheelIcon	Wheel	none		
+helpLanguageIcon	Help Language	none		
+expandBelowIcon	Expand Below	conflict	JDG-1860 JDG-3659 JDG-3687	配下を展開する (ja; en Expand Below kept)
+collapseIcon	Collapse	conflict	JDG-1860 JDG-3658 JDG-3659	Retract Into Parent / 親へしまう
+collapseBelowIcon	Collapse Below	conflict	JDG-1860 JDG-3659 JDG-3687	配下を折りたたむ (ja; en Collapse Below kept)
+expandOneLevelIcon	Expand One Level	conflict	JDG-1860 JDG-3659 JDG-3687	1 階層展開する (ja; en kept)
+addBelowIcon	Add Below	checked	JDG-1157	「足す → 追加 / 消す→削除 / 当てる→適用」(listed IC)
+pinIcon	Pin	none		
+deleteTaskGroupIcon	Delete Task Group	none		
+deleteAllTaskGroupsIcon	Delete All Task Groups	none		
+tasksIcon	Tasks	none		
+calloutsIcon	Callouts	conflict	JDG-2250 JDG-3371	Comment Box —「英語はどこでも Comment Box」
+clearFiltersIcon	Clear Filters	checked	JDG-1778	「フィルタをクリア Clear filters としろ」
+scheduleFilterIcon	Schedule Filter	conflict	JDG-1851 JDG-3727 JDG-3728	Filter Schedule by Checks / チェックで日程表を絞る
+minimizeWindowIcon	Minimize	none		
+maximizeIcon	Maximize	none		
+restoreIcon	Restore	none		
+filterIcon	Filter	checked	JDG-1850	「Filter はフィルタとする」
+sortAscendingIcon	Sort Ascending	checked	JDG-1854	並べ替え・昇順・降順・元の順 (A)
+sortDescendingIcon	Sort Descending	checked	JDG-1854	並べ替え・昇順・降順・元の順 (A)
+checkAllIcon	Check All	checked	JDG-1852	「Check All ／ Uncheck All すべてチェック ／ チェックをすべて外す」
+uncheckAllIcon	Uncheck All	checked	JDG-1852	「Check All ／ Uncheck All すべてチェック ／ チェックをすべて外す」
+tableFontSizeIcon	Font Size	checked	JDG-1245	「②も「文字サイズ / Font size」」
+diagnoseAgainIcon	Diagnose Again	checked	JDG-2807	「[再診断] だけでいいと思うがどうか？」
+saveAsMarkdownIcon	Save as Markdown…	checked	JDG-2374	Save as Markdown… kept (A)
+copyReportIcon	Copy	checked	JDG-1234	「日本語で 写す は Copy としろ」
+diagnosisIcon	Diagnosis	checked	JDG-1948	table: 遅延診断の画面の語「表のとおり」
+fixProposalsIcon	Fix Proposals	checked	JDG-1948 JDG-2141	「[直す案] は [修正案] としろ。英語はそのまま」
+fixLogIcon	Fix Log	checked	JDG-1948 JDG-2154	「直す」の家族を「修正」に (B)
+overwriteAndFixIcon	Overwrite and Fix	checked	JDG-1948 JDG-2154	「直す」の家族を「修正」に (B)
+backUpTheScheduleUnderAnotherNameAndFixIcon	Back Up the Schedule Under Another Name and Fix	checked	JDG-2154 JDG-2371	「[スケジュールを別名でバックアップして修正] としろ」
+adoptAllRecommendedIcon	Adopt All Recommended	none		
+saveAsTsvIcon	Save As .tsv	checked	JDG-2907	.tsv 保存ボタン; 語の表「それ以外は提案通り」
+previousIcon	Previous	checked	JDG-1948	table: 遅延診断の画面の語「表のとおり」
+nextIcon	Next	checked	JDG-1948	table: 遅延診断の画面の語「表のとおり」
+resourceListIcon	Resource List	checked	JDG-1853	「担当リスト／Resource List にしろ」
+workingTimeIcon	Working Time…	checked	JDG-1182 JDG-2374	休日の設定 (日英とも揃える); Working Time… kept
+selectAllIcon	Select All	checked	JDG-1861	「A: 選択／解除 (Recommended)」
+deselectAllIcon	Deselect All	checked	JDG-1861	「A: 選択／解除 (Recommended)」
+selectUnreferencedIcon	Select Unreferenced	checked	JDG-1861	「A: 選択／解除 (Recommended)」
+deleteResourcesIcon	Delete	checked	JDG-1157	「足す → 追加 / 消す→削除 / 当てる→適用」(listed IC)
+selectedIcon	Selected	none		
+notSelectedIcon	Not Selected	none		
+weekdayIcon	Weekday	checked	JDG-1157	calendar words 曜日／週の始まり／休み asked; kept
+weekStartsOnIcon	Week Starts On	checked	JDG-1157	calendar words 曜日／週の始まり／休み asked; kept
+addTimeRangeIcon	+	none		
+deleteTimeRangeIcon	Delete	none		
+timeIcon	Time	none		
+addExceptionDayIcon	Add	checked	JDG-1157	「足す → 追加 / 消す→削除 / 当てる→適用」(listed IC)
+deleteExceptionDayIcon	Delete	checked	JDG-1157	「足す → 追加 / 消す→削除 / 当てる→適用」(listed IC)
+dayOffIcon	Day Off	checked	JDG-1157	calendar words 曜日／週の始まり／休み asked; kept
+applyIcon	Apply	checked	JDG-1157	「足す → 追加 / 消す→削除 / 当てる→適用」(listed IC)
+replaceIcon	Replace	none		
+mergeIcon	Merge	none		
+overlayAsBaselineIcon	Overlay as Baseline	checked	JDG-1864	「A: Overlay as Baseline (Recommended)」
+expandAllIcon	Expand All	conflict	JDG-1860 JDG-3688	Expand Below / 配下を展開する (root uses band labels)
+collapseAllIcon	Collapse All	conflict	JDG-1860 JDG-3688	Collapse Below / 配下を折りたたむ (root uses band labels)
+showTopLevelOnlyIcon	Show Top Level Only	conflict	JDG-1860 JDG-2251 JDG-3688	Expand One Level / 1 階層展開する (no root-only label)
+addTopTaskGroupIcon	Add Top Task Group	checked	JDG-1157	「足す → 追加 / 消す→削除 / 当てる→適用」(listed IC)
+interactionLogIcon	Interaction Log	none		
+useOpenedFileIcon	Use Opened File	none		
+keepBothIcon	Keep Both	none		
+cancelImportIcon	Cancel Import	checked	JDG-1863 JDG-2251	ja 取り込みをやめる (A); en Cancel Import (bundle)
+grsResetIcon	GRS Reset	checked	JDG-851	「[GRS リセット] / [GRS Reset]」
+timeShiftIcon	Time Shift	none		
+taskTaskNameField	Task Name	checked	JDG-1651	owner field list「…正式用語とで統一しろ」
+taskUidField	UID	checked	JDG-1651	owner field list「…正式用語とで統一しろ」
+taskAssigneeField	Assignee	checked	JDG-1651 JDG-1856	担当者 → 担当 (「者」も外して「担当名」などにそろえる)
+taskPlannedStartField	Planned Start	checked	JDG-1651	owner field list「…正式用語とで統一しろ」
+taskPlannedFinishField	Planned Finish	checked	JDG-1651	owner field list「…正式用語とで統一しろ」
+taskPlannedDateField	Planned Date	none		
+taskActualStartField	Actual Start	checked	JDG-1651	owner field list「…正式用語とで統一しろ」
+taskActualFinishField	Actual Finish	checked	JDG-1651	owner field list「…正式用語とで統一しろ」
+taskActualDateField	Actual Date	none		
+taskActualDurationField	Actual Duration	checked	JDG-1651	owner field list「…正式用語とで統一しろ」
+taskPercentCompleteField	% Complete	checked	JDG-1651	owner field list「…正式用語とで統一しろ」
+taskResumeField	Resume	checked	JDG-1651	owner field list「…正式用語とで統一しろ」
+taskResumeDateConfirmedField	Resume Date Confirmed	checked	JDG-1654	「再開日確定 (Recommended)」
+taskDeadlineField	Deadline	checked	JDG-1651	owner field list「…正式用語とで統一しろ」
+taskMilestoneShapeField	Milestone Shape	none		
+taskFadeInOutDaysField	Fade In/Out Days	checked	JDG-1651	owner field list「…正式用語とで統一しろ」
+taskParentTaskField	Parent Task	checked	JDG-1614 JDG-1651	「親タスク / Parent task (Recommended)」
+taskPredecessorTasksField	Predecessor Tasks	checked	JDG-1651 JDG-1653	owner field list「…正式用語とで統一しろ」; 依存は案 A
+taskSuccessorTasksField	Successor Tasks	checked	JDG-1651 JDG-1653	owner field list「…正式用語とで統一しろ」; 依存は案 A
+taskNotesField	Notes	checked	JDG-1652	「備考は色の前でよい」
+taskOutlineWidthField	Outline Width	checked	JDG-1566 JDG-1651	owner field list「…正式用語とで統一しろ」
+taskOutlineColorField	Outline Color	checked	JDG-1566 JDG-1651	owner field list「…正式用語とで統一しろ」
+taskFillColorField	Fill Color	checked	JDG-1566 JDG-1651	owner field list「…正式用語とで統一しろ」
+taskGroupTaskGroupNameField	Task Group Name	checked	JDG-1659	「行タイトル」→「タスクグループ名」/ Task Group Name
+taskGroupMinHeightField	Min Height	checked	JDG-714 JDG-1652	「最小高さの方がいいかも。」
+taskGroupEditPermissionField	Edit Permission	checked	JDG-508 JDG-2643	「CR-563 は案 1 の編集権限でいけ」
+taskGroupColorField	Color	checked	JDG-1652	欄名は短い名（最小高さ・現在の高さ・色）で OK
+commentBoxTextField	Text	checked	JDG-2899	「フォントサイズは Textの下」「本文のすぐ下」
+commentBoxFontSizeField	Font Size	checked	JDG-2897	「フォントサイズ、 font size にしろ」
+commentBoxBringToFrontField	Bring to Front	checked	JDG-2475	[最前面に配置] を両方の箱に付ける (A)
+commentBoxOutlineWidthField	Outline Width	checked	JDG-1566	owner chose order 枠線幅 → 枠線色 → 塗潰し色 (→ 文字色)
+commentBoxOutlineColorField	Outline Color	checked	JDG-1566	owner chose order 枠線幅 → 枠線色 → 塗潰し色 (→ 文字色)
+commentBoxFillColorField	Fill Color	checked	JDG-1566	owner chose order 枠線幅 → 枠線色 → 塗潰し色 (→ 文字色)
+commentBoxFillTransparencyPercentField	Fill Transparency (%)	conflict	JDG-3526	不透明度 (opacity): 画面の語を「塗りの透過率（%）」から改める
+commentBoxTextColorField	Text Color	checked	JDG-1566	owner chose order 枠線幅 → 枠線色 → 塗潰し色 (→ 文字色)
+highlightBoxBringToFrontField	Bring to Front	checked	JDG-2475	[最前面に配置] を両方の箱に付ける (A)
+highlightBoxOutlineWidthField	Outline Width	checked	JDG-1566	owner chose order 枠線幅 → 枠線色 → 塗潰し色 (→ 文字色)
+highlightBoxOutlineColorField	Outline Color	checked	JDG-1566	owner chose order 枠線幅 → 枠線色 → 塗潰し色 (→ 文字色)
+highlightBoxFillColorField	Fill Color	checked	JDG-1566	owner chose order 枠線幅 → 枠線色 → 塗潰し色 (→ 文字色)
+highlightBoxFillTransparencyPercentField	Fill Transparency (%)	conflict	JDG-3526	不透明度 (opacity): 画面の語を「塗りの透過率（%）」から改める
+dependencyTypeField	Type	none		
+dependencyLagField	Lag	none		
+dependencyPredecessorField	Predecessor	none		
+dependencySuccessorField	Successor	none		
+searchWindowVisibilityColumn	Visibility	checked	JDG-1804 JDG-1817 JDG-2821	「「表示」を残す (推奨)」 ja 表示 / en Visibility
+searchWindowStatusColumn	Status	checked	JDG-3726	table: 表の 25 列の名「a 表のとおり」
+searchWindowProgressColumn	Progress	checked	JDG-3726	table: 表の 25 列の名「a 表のとおり」
+searchWindowTaskTypeColumn	Task Type	checked	JDG-2181 JDG-3726	「タスク種別とせよ」
+searchWindowTaskMilestoneColumn	Task (Milestone)	checked	JDG-3726	table: 表の 25 列の名「a 表のとおり」
+searchWindowAssigneesColumn	Assignees	checked	JDG-1856 JDG-3726	担当者名 → 担当名; table: 表の 25 列の名「a 表のとおり」
+searchWindowPlannedStartColumn	Planned Start	checked	JDG-3726	table: 表の 25 列の名「a 表のとおり」
+searchWindowPlannedFinishColumn	Planned Finish	checked	JDG-3726	table: 表の 25 列の名「a 表のとおり」
+searchWindowActualStartColumn	Actual Start	checked	JDG-3726	table: 表の 25 列の名「a 表のとおり」
+searchWindowActualFinishColumn	Actual Finish	checked	JDG-3726	table: 表の 25 列の名「a 表のとおり」
+searchWindowPathFromTopColumn	Path from Top	checked	JDG-3726	table: 表の 25 列の名「a 表のとおり」
+searchWindowBodyColumn	Body	checked	JDG-631 JDG-3726	1 列目の見出しは「本文」(案 A)
+searchWindowTaskGroupNameColumn	Task Group Name	checked	JDG-1659 JDG-3726	「行タイトル」（SQ-8）→「タスクグループ名」
+searchWindowDateColumn	Date	checked	JDG-3726	table: 表の 25 列の名「a 表のとおり」
+delayDiagnosticsReportWindowVisibilityColumn	Visibility	checked	JDG-1804 JDG-1817 JDG-2821	「「表示」を残す (推奨)」 ja 表示 / en Visibility
+delayDiagnosticsReportWindowStatusColumn	Status	checked	JDG-1227 JDG-3726	table: 報告の窓の語「表のとおり (推奨)」
+delayDiagnosticsReportWindowProgressColumn	Progress	checked	JDG-1227 JDG-3726	table: 報告の窓の語「表のとおり (推奨)」
+delayDiagnosticsReportWindowTaskTypeColumn	Task Type	checked	JDG-2181 JDG-3726	「タスク種別とせよ」
+delayDiagnosticsReportWindowTaskMilestoneColumn	Task (Milestone)	checked	JDG-1227 JDG-3726	table: 報告の窓の語「表のとおり (推奨)」
+delayDiagnosticsReportWindowAssigneeColumn	Assignee	checked	JDG-1227 JDG-3726	table: 報告の窓の語「表のとおり (推奨)」
+delayDiagnosticsReportWindowPlannedDatesColumn	Planned Dates	checked	JDG-1227 JDG-3726	table: 報告の窓の語「表のとおり (推奨)」
+delayDiagnosticsReportWindowActualDatesColumn	Actual Dates	checked	JDG-1227 JDG-3726	table: 報告の窓の語「表のとおり (推奨)」
+delayDiagnosticsReportWindowReasonColumn	Reason	checked	JDG-1227 JDG-3726	table: 報告の窓の語「表のとおり (推奨)」
+resourceListWindowVisibilityColumn	Visibility	checked	JDG-1804 JDG-1817 JDG-2821	「「表示」を残す (推奨)」 ja 表示 / en Visibility
+resourceListWindowResourceColumn	Resource	checked	JDG-1856 JDG-1871 JDG-3726	担当名 / Resource (A)
+resourceListWindowSelectedColumn	Selected	checked	JDG-1827 JDG-1871 JDG-3726	「表示 | 担当者名 | 選択| の列順ね」; Selected
+resourceListWindowTaskCountColumn	Task Count	checked	JDG-1871 JDG-3726	「A: Task Count ／ (Unassigned)」; Assigned Tasks
+resourceListWindowAssignedTasksColumn	Assigned Tasks	checked	JDG-1871 JDG-3726	「A: Task Count ／ (Unassigned)」; Assigned Tasks
+fixTablesFixColumn	Fix	checked	JDG-1948 JDG-2154	「直す」の家族を「修正」に (B)
+fixTablesDateAndTimeColumn	Date and Time	checked	JDG-1948	table: 遅延診断の画面の語「表のとおり」
+fixTablesFixTypeColumn	Fix Type	checked	JDG-1948 JDG-2154	「直す」の家族を「修正」に (B)
+fixTablesFindingColumn	Finding	checked	JDG-1948	table: 遅延診断の画面の語「表のとおり」
+fixTablesTaskTypeColumn	Task Type	none		
+fixTablesTaskColumn	Task	checked	JDG-1948	table: 遅延診断の画面の語「表のとおり」
+fixTablesPropertyColumn	Property	checked	JDG-2905	「この名称は プロパティー に変更すべきでは？」
+fixTablesBeforeColumn	Before	checked	JDG-1948	table: 遅延診断の画面の語「表のとおり」
+fixTablesAfterColumn	After	checked	JDG-1948	table: 遅延診断の画面の語「表のとおり」
+inputNotAccepted	inputNotAccepted	none		
+timedNotification	timedNotification	none		
+destructiveResult	destructiveResult	none		
+failureNotification	failureNotification	none		
+pendingAtStartup	pendingAtStartup	none		
+limitReached	limitReached	none		
+acceptedWithCaution	acceptedWithCaution	none		
+askWhetherToGoOn	askWhetherToGoOn	none		
+dismissNotification	dismissNotification	none		
+notificationWidth	notificationWidth	none		
+deleteTaskGroupQuestion	deleteTaskGroupQuestion	none		
+deleteTaskQuestion	deleteTaskQuestion	none		
+deleteResourcesQuestion	deleteResourcesQuestion	none		
+overwriteOtherDocumentQuestion	overwriteOtherDocumentQuestion	none		
+closeDocumentQuestion	closeDocumentQuestion	none		
+hideWatermarkQuestion	hideWatermarkQuestion	none		
+deleteAllTaskGroupsQuestion	deleteAllTaskGroupsQuestion	none		
+resetGrsQuestion	resetGrsQuestion	none		
+tasksOrParentArrowsQuestion	tasksOrParentArrowsQuestion	none		
+timeShiftQuestion	timeShiftQuestion	none		
+wholeScheduleShiftQuestion	wholeScheduleShiftQuestion	none		
+liftTooDeepTaskGroupsQuestion	liftTooDeepTaskGroupsQuestion	none		
+aiOpenFileQuestion	aiOpenFileQuestion	none		
+irreversibleOperationQuestion	irreversibleOperationQuestion	none		
+armModeStateMachine	armModeStateMachine	none		
+armModeStateMachineNotArmed	None (Default)	none		
+armModeStateMachineArmed	armed	none		
+armModeStateMachineTaskShapeArmed	Task Shape	none		
+armModeStateMachineMilestoneShapeArmed	Milestone Shape	none		
+armModeStateMachineDependencyArmed	Dependency Line	none		
+armModeStateMachineCommentBoxArmed	Callout	conflict	JDG-3371	Comment Box —「英語はどこでも Comment Box」
+armModeStateMachineHighlightBoxArmed	Highlight Box	none		
+armModeStateMachineParentTaskArmed	Parent Task	none		
+paletteDisplayStateMachine	paletteDisplayStateMachine	none		
+paletteDisplayStateMachineShown	shown	none		
+paletteDisplayStateMachineExpanded	expanded	none		
+paletteDisplayStateMachineMinimized	minimized	none		
+paletteDisplayStateMachineHidden	hidden	none		
+milestoneListDisplayStateMachine	milestoneListDisplayStateMachine	none		
+milestoneListDisplayStateMachineClosed	closed	none		
+milestoneListDisplayStateMachineOpen	open	none		
+fullScreenModeStateMachine	fullScreenModeStateMachine	none		
+fullScreenModeStateMachineNormal	normal	none		
+fullScreenModeStateMachineFull	full	none		
+openSurfaceStateMachine	openSurfaceStateMachine	none		
+openSurfaceStateMachineClosed	closed	none		
+openSurfaceStateMachineOpen	open	none		
+watermarkDisplayStateMachine	watermarkDisplayStateMachine	none		
+watermarkDisplayStateMachineShown	shown	none		
+watermarkDisplayStateMachineHidden	hidden	none		
+propertiesPanelContentStateMachine	propertiesPanelContentStateMachine	none		
+propertiesPanelContentStateMachineHidden	hidden	none		
+propertiesPanelContentStateMachineSelectionDisplayed	selectionDisplayed	none		
+propertiesPanelContentStateMachineDocumentSettingsDisplayed	documentSettingsDisplayed	none		
+dualCursorModeStateMachine	dualCursorModeStateMachine	none		
+dualCursorModeStateMachineOff	off	none		
+dualCursorModeStateMachineOn	on	none		
+dualCursorModeStateMachinePlacingCursorA	placingCursorA	none		
+dualCursorModeStateMachinePlacingCursorB	placingCursorB	none		
+scaleMessageDisplayStateMachine	scaleMessageDisplayStateMachine	none		
+scaleMessageDisplayStateMachineHidden	hidden	none		
+scaleMessageDisplayStateMachineShown	shown	none		
+tooltipDisplayStateMachine	tooltipDisplayStateMachine	none		
+tooltipDisplayStateMachineAllowed	allowed	none		
+tooltipDisplayStateMachineDismissed	dismissed	none		
+searchPanelDisplayStateMachine	searchPanelDisplayStateMachine	none		
+searchPanelDisplayStateMachineHidden	hidden	none		
+searchPanelDisplayStateMachineShown	shown	none		
+searchPanelDisplayStateMachineNormal	normal	none		
+searchPanelDisplayStateMachineMinimized	minimized	none		
+searchPanelDisplayStateMachineMaximized	maximized	none		
+helpDisplayStateMachine	helpDisplayStateMachine	none		
+helpDisplayStateMachineHidden	hidden	none		
+helpDisplayStateMachineShown	shown	none		
+helpDisplayStateMachineNormal	normal	none		
+helpDisplayStateMachineMinimized	minimized	none		
+helpDisplayStateMachineMaximized	maximized	none		
+landingMarkDisplayStateMachine	landingMarkDisplayStateMachine	none		
+landingMarkDisplayStateMachineHidden	hidden	none		
+landingMarkDisplayStateMachineShown	shown	none		
+dropCueDisplayStateMachine	dropCueDisplayStateMachine	none		
+dropCueDisplayStateMachineHidden	hidden	none		
+dropCueDisplayStateMachineShown	shown	none		
+baseTimeZoneDraftStateMachine	baseTimeZoneDraftStateMachine	none		
+baseTimeZoneDraftStateMachineUntouched	untouched	none		
+baseTimeZoneDraftStateMachineDrafted	drafted	none		
+timeShiftDraftStateMachine	timeShiftDraftStateMachine	none		
+timeShiftDraftStateMachineEmpty	empty	none		
+timeShiftDraftStateMachineAmountHeld	amountHeld	none		
+wholeScheduleShiftDraftStateMachine	wholeScheduleShiftDraftStateMachine	none		
+wholeScheduleShiftDraftStateMachineEmpty	empty	none		
+wholeScheduleShiftDraftStateMachineDateHeld	dateHeld	none		
+calendarDraftStateMachine	calendarDraftStateMachine	none		
+calendarDraftStateMachineUntouched	untouched	none		
+calendarDraftStateMachineDrafted	drafted	none		
+noticeDisplayStateMachine	noticeDisplayStateMachine	none		
+noticeDisplayStateMachineHidden	hidden	none		
+noticeDisplayStateMachineShown	shown	none		
+changeDeliveryStateMachine	changeDeliveryStateMachine	none		
+changeDeliveryStateMachineIdle	idle	none		
+changeDeliveryStateMachineDelivering	delivering	none		
+pointerPressStateMachine	pointerPressStateMachine	none		
+pointerPressStateMachineNotPressed	notPressed	none		
+pointerPressStateMachineChangingDocument	changingDocument	none		
+pointerPressStateMachineViewingDocument	viewingDocument	none		
+taskGroupGrabStateMachine	taskGroupGrabStateMachine	none		
+taskGroupGrabStateMachineNotGrabbed	notGrabbed	none		
+taskGroupGrabStateMachineGrabbed	grabbed	none		
+taskGroupGrabStateMachineGrabPressed	grabPressed	none		
+taskGroupGrabStateMachineCarrying	carrying	none		
+fileOperationStateMachine	fileOperationStateMachine	none		
+fileOperationStateMachineIdle	idle	none		
+fileOperationStateMachineReadingDocumentFile	readingDocumentFile	none		
+fileOperationStateMachineAwaitingOpenChoice	awaitingOpenChoice	none		
+fileOperationStateMachineAwaitingDiscardAnswer	awaitingDiscardAnswer	none		
+fileOperationStateMachineImportingDocument	importingDocument	none		
+fileOperationStateMachineAwaitingMergeMapping	awaitingMergeMapping	none		
+fileOperationStateMachineWritingDocumentFile	writingDocumentFile	none		
+confirmationStateMachine	confirmationStateMachine	none		
+confirmationStateMachineNotAsked	notAsked	none		
+confirmationStateMachineQuestionAsked	questionAsked	none		
+unsavedEditsStateMachine	unsavedEditsStateMachine	none		
+unsavedEditsStateMachineNothingUnsaved	nothingUnsaved	none		
+unsavedEditsStateMachineEditsUnsaved	editsUnsaved	none		
+createdTaskNamingStateMachine	createdTaskNamingStateMachine	none		
+createdTaskNamingStateMachineIdle	idle	none		
+createdTaskNamingStateMachineNamingCreatedTask	namingCreatedTask	none		
+createdTaskNamingStateMachineCreatedNameEnded	createdNameEnded	none		
+fieldEditStateMachine	fieldEditStateMachine	none		
+fieldEditStateMachineIdle	idle	none		
+fieldEditStateMachineFieldFocusWanted	fieldFocusWanted	none		
+fieldEditStateMachineEditingField	editingField	none		
+selectionStateMachine	selectionStateMachine	none		
+selectionStateMachineNothingSelected	nothingSelected	none		
+selectionStateMachineObjectsSelected	objectsSelected	none		
+interactionRecordingStateMachine	interactionRecordingStateMachine	none		
+interactionRecordingStateMachineNotRecording	notRecording	none		
+interactionRecordingStateMachineRecordingInteractions	recordingInteractions	none		
+agentApiEnablingStateMachine	agentApiEnablingStateMachine	none		
+agentApiEnablingStateMachineDisabled	disabled	none		
+agentApiEnablingStateMachineEnabled	enabled	none		
+treeStateMachine	treeStateMachine	none		
+pxPerDayAt1x	pxPerDayAt1x	none		
+rulerHeightPx	Ruler Height	none		
+rulerFontSizePx	Ruler Font Size	none		
+rulerLabelGap	rulerLabelGap	none		
+rulerLabelPad	rulerLabelPad	none		
+rulerLabelBottomPad	rulerLabelBottomPad	none		
+basePlanHeight	basePlanHeight	none		
+actualOfPlan	actualOfPlan	none		
+actualMin	actualMin	none		
+fontOfActual	fontOfActual	none		
+fontMin	fontMin	none		
+thinFontScale	thinFontScale	none		
+actualGap	actualGap	none		
+stackGap	stackGap	none		
+taskGroupGap	taskGroupGap	none		
+shapeHeightOf	shapeHeightOf	none		
+shapeHeightOfRectangle	rectangle	none		
+shapeHeightOfChevron	chevron	none		
+shapeHeightOfArrow	arrow	none		
+shapeHeightOfEndpointSpan	endpointSpan	conflict	JDG-3696	dumbbell (endpointSpan から dumbbell に改める)
+shapeHeightOfMilestone	milestone	none		
+dependencyWidth	dependencyWidth	none		
+dependencyArrowLength	dependencyArrowLength	none		
+dependencyLeadOut	dependencyLeadOut	none		
+dependencyLeadIn	dependencyLeadIn	none		
+dependencyArrowWidth	dependencyArrowWidth	none		
+dependencyLagDefault	dependencyLagDefault	none		
+markerSize	markerSize	none		
+markerStroke	markerStroke	none		
+resumeScaleInvalid	resumeScaleInvalid	none		
+resumeArmOfMarker	resumeArmOfMarker	none		
+resumeHeadOfMarker	resumeHeadOfMarker	none		
+resumeDashOn	resumeDashOn	none		
+resumeDashOff	resumeDashOff	none		
+resumeOpacityInvalid	resumeOpacityInvalid	none		
+resumeDashWidth	resumeDashWidth	none		
+labelCoef	labelCoef	none		
+labelPad	labelPad	none		
+labelGap	labelGap	none		
+milestoneNameMarkerGap	milestoneNameMarkerGap	none		
+assigneeLabelGap	assigneeLabelGap	none		
+progressMarkerEdgeGap	progressMarkerEdgeGap	none		
+milestoneNameStartOfWidth	milestoneNameStartOfWidth	none		
+labelBaseline	labelBaseline	none		
+labelHaloOfFont	labelHaloOfFont	none		
+truncateUnits	truncateUnits	none		
+taskGroupTitleFont	taskGroupTitleFont	none		
+taskGroupTitleIndent	taskGroupTitleIndent	none		
+taskGroupTitleTopScale	taskGroupTitleTopScale	none		
+fontSizeStepSizes	fontSizeStepSizes	none		
+fontSizeStepSizesS	S	none		
+fontSizeStepSizesM	M	none		
+fontSizeStepSizesL	L	none		
+planStroke	planStroke	none		
+chevronNotchOfHeight	chevronNotchOfHeight	none		
+chevronNotchOfWidth	chevronNotchOfWidth	none		
+arrowHeadOfSpan	arrowHeadOfSpan	none		
+thinStrokeWidth	thinStrokeWidth	none		
+thinArrowHeadLength	thinArrowHeadLength	none		
+thinArrowHeadHeight	thinArrowHeadHeight	none		
+spanDotSize	spanDotSize	none		
+starInnerOfOuter	starInnerOfOuter	none		
+minShapeWidth	minShapeWidth	none		
+progressLineWidth	progressLineWidth	none		
+progressLineOverhang	progressLineOverhang	none		
+rulerTierPxPerDayMonth	rulerTierPxPerDayMonth	none		
+rulerTierPxPerDayWeek	rulerTierPxPerDayWeek	none		
+rulerTierPxPerDayDay	rulerTierPxPerDayDay	none		
+groupLevelOfDetailBase	groupLevelOfDetailBase	none		
+groupLevelOfDetailRatio	groupLevelOfDetailRatio	none		
+stackSafetyCap	stackSafetyCap	none		
+themePreference	themePreference	none		
+zoomStep	zoomStep	none		
+zoomMin	zoomMin	none		
+zoomMax	zoomMax	none		
+canvasPadding	canvasPadding	none		
+propertyPanelWidth	propertyPanelWidth	none		
+pinnedTaskGroupMax	pinnedTaskGroupMax	none		
+screenValuesDualCursor	dualCursor	none		
+guideCursorMode	guideCursorMode	none		
+screenLanguage	screenLanguage	none		
+helpLanguage	helpLanguage	none		
+exportCanvas	exportCanvas	none		
+exportCanvasHeightCap	exportCanvasHeightCap	none		
+importMaxBytes	importMaxBytes	none		
+importMaxItems	importMaxItems	none		
+importMaxDepth	importMaxDepth	none		
+importMinDate	importMinDate	none		
+importMaxDate	importMaxDate	none		
+carryMaxDepth	carryMaxDepth	none		
+maxGroupDepth	maxGroupDepth	none		
+planActualGuideWeight	planActualGuideWeight	none		
+planActualGuidePattern	planActualGuidePattern	none		
+planActualGuideColor	planActualGuideColor	none		
+fadeHandleHalfPx	fadeHandleHalfPx	none		
+fadeHandleStrokePx	fadeHandleStrokePx	none		
+appHeaderMaxHeight	appHeaderMaxHeight	none		
+watermarkOpacity	watermarkOpacity	none		
+iconHintDelayMs	iconHintDelayMs	none		
+actualInitialDuration	actualInitialDuration	none		
+milestoneActualDuration	milestoneActualDuration	none		
+dummyOpacity	dummyOpacity	none		
+commentBoxPad	commentBoxPad	none		
+commentBoxWrapUnits	commentBoxWrapUnits	none		
+agentSavedFile	AgentSavedFile	none		
+fileName	fileName	none		
+overwrite	overwrite	none		
+grsApp	grsApp	none		
+grsAppBuildVersion	buildVersion	none		
+grsRelay	GRS Relay	none		
+grsRelayBundle	grsRelayBundle	none		
+grsRelayScript	grsRelayScript	none		
+grsRelayBuiltAt	grsRelayBuiltAt	none		
+serverSyncDemo	serverSyncDemo	none		
+serverSyncDemoBuiltAt	serverSyncDemoBuiltAt	none		
+releaseTag	releaseTag	none		
+documentModel	DocumentModel	none		
+calendarDay	CalendarDay	none		
+dateTimeSide	DateTimeSide	none		
+daySpanTooWide	DaySpanTooWide	none		
+delayDiagnosticsReport	DelayDiagnosticsReport	none		
+documentType	Document	none		
+documentSettingsType	DocumentSettings	none		
+drawnSettings	DrawnSettings	none		
+dualCursorSide	DualCursorSide	none		
+editHistoryType	EditHistory	none		
+escapeTargetType	EscapeTarget	none		
+historyLimits	HistoryLimits	none		
+instantOnSideType	InstantOnSide	none		
+itemRef	ItemRef	none		
+noWorkingDayReached	NoWorkingDayReached	none		
+parentTaskResolution	ParentTaskResolution	none		
+rememberedActual	RememberedActual	none		
+scheduleType	Schedule	none		
+taskVisual	TaskVisual	none		
+windowName	WindowName	none		
+workingCalendar	WorkingCalendar	none		
+actualInstantsOf	actualInstantsOf	none		
+actualLastDay	actualLastDay	none		
+actualLengthOf	actualLengthOf	none		
+actualMinutesOf	actualMinutesOf	none		
+blankTaskVisual	blankTaskVisual	none		
+calendarDaysBetween	calendarDaysBetween	none		
+compareDays	compareDays	none		
+customColorOf	customColorOf	none		
+customSideOf	customSideOf	none		
+dataWallOfViewWall	dataWallOfViewWall	none		
+dayOf	dayOf	none		
+dayOfInstant	dayOfInstant	none		
+delayDiagnosticsReportRows	delayDiagnosticsReportRows	none		
+delayFixCommands	delayFixCommands	none		
+delayFixProposalRows	delayFixProposalRows	none		
+diagnoseDelay	diagnoseDelay	none		
+earliestPlanStartDayOf	earliestPlanStartDayOf	none		
+emptyHistory	emptyHistory	none		
+emptySelection	emptySelection	none		
+escapeTarget	escapeTarget	none		
+instantAfterWorkingMinutes	instantAfterWorkingMinutes	none		
+instantOf	instantOf	none		
+instantOnSide	instantOnSide	none		
+instantOnSideReader	instantOnSideReader	none		
+isNonRecurringException	isNonRecurringException	none		
+isRecommendedDelayFix	isRecommendedDelayFix	none		
+isSameDay	isSameDay	none		
+isSameWorkingTimeSet	isSameWorkingTimeSet	none		
+isStandardTimeZoneKey	isStandardTimeZoneKey	none		
+lastDayForLength	lastDayForLength	none		
+minutesPerWorkingDayOf	minutesPerWorkingDayOf	none		
+parentTaskResolutionsOf	parentTaskResolutionsOf	none		
+documentModelProgressStatus	progressStatus	none		
+plannedDurationMinutesOf	plannedDurationMinutesOf	none		
+plannedInstantsOf	plannedInstantsOf	none		
+progressMarkerOf	progressMarkerOf	none		
+proposeDelayFixes	proposeDelayFixes	none		
+scheduleViolations	scheduleViolations	none		
+searchRowsOf	searchRowsOf	none		
+selectionWith	selectionWith	none		
+serial	serial	none		
+shownInstantReader	shownInstantReader	none		
+sideOfTaskColumn	sideOfTaskColumn	none		
+startSideOf	startSideOf	none		
+taskByUid	taskByUid	none		
+taskUidsIn	taskUidsIn	none		
+textOfDay	textOfDay	none		
+textOfDayEnd	textOfDayEnd	none		
+textOfDayStart	textOfDayStart	none		
+textOfFinishSide	textOfFinishSide	none		
+textOfInstant	textOfInstant	none		
+textOfStartSide	textOfStartSide	none		
+viewRegionOf	viewRegionOf	none		
+weekDayOf	weekDayOf	none		
+workingCalendarOf	workingCalendarOf	none		
+workingDayShiftOf	workingDayShiftOf	none		
+workingSpansReader	workingSpansReader	none		
+workingTimeSetOf	workingTimeSetOf	none		
+workingTimesBreach	workingTimesBreach	none		
+zoneClockOf	zoneClockOf	none		
+layoutEngine	LayoutEngine	none		
+barGeometry	BarGeometry	none		
+hit	Hit	none		
+landedTarget	LandedTarget	none		
+pointType	Point	none		
+scheduleGeometry	ScheduleGeometry	none		
+scheduleLayout	ScheduleLayout	none		
+screenRect	ScreenRect	none		
+screenRegions	ScreenRegions	none		
+taskGroupPlacement	TaskGroupPlacement	none		
+cursorInstantAtX	cursorInstantAtX	none		
+dateAtX	dateAtX	none		
+dependencyEndAtPointer	dependencyEndAtPointer	none		
+dependencyStartOfHit	dependencyStartOfHit	none		
+displayRatioOf	displayRatioOf	none		
+drawnSettingsOf	drawnSettingsOf	none		
+fitZoom	fitZoom	none		
+fixedFitSpanOf	fixedFitSpanOf	none		
+grabSizesOf	grabSizesOf	none		
+groupDepthLimit	groupDepthLimit	none		
+hasRoomBelowPinsIn	hasRoomBelowPinsIn	none		
+itemAtPointer	itemAtPointer	none		
+keptInViewByTreeState	keptInViewByTreeState	none		
+landedShapeBoxOf	landedShapeBoxOf	none		
+regionAtPointer	regionAtPointer	none		
+shownSpanOf	shownSpanOf	none		
+snappedInstantAtX	snappedInstantAtX	none		
+taskGroupAnchorIn	taskGroupAnchorIn	none		
+taskPlacement	taskPlacement	none		
+timeAxisOf	timeAxisOf	none		
+xFromDay	xFromDay	none		
+advanceScreenSession	AdvanceScreenSession	none		
+noticeReason	NoticeReason	none		
+propertiesSubject	PropertiesSubject	none		
+screenSession	ScreenSession	none		
+screenValues	ScreenValues	none		
+screenValuesEvent	ScreenValuesEvent	none		
+searchPanelSession	SearchPanelSession	none		
+sessionEvent	SessionEvent	none		
+tableView	TableView	none		
+tableVisibility	TableVisibility	none		
+armedOf	armedOf	none		
+emptySearchPanelSession	emptySearchPanelSession	none		
+isWindowStandingIn	isWindowStandingIn	none		
+tableViewOf	tableViewOf	none		
+applyDocumentChangeType	ApplyDocumentChange	none		
+changeAudience	ChangeAudience	none		
+documentHolder	DocumentHolder	none		
+planRefusal	PlanRefusal	none		
+replaceOutcome	ReplaceOutcome	none		
+replacementCall	ReplacementCall	none		
+replacementRefusal	ReplacementRefusal	none		
+writeMoment	WriteMoment	none		
+applyDocumentChange	applyDocumentChange	none		
+replaceDocument	replaceDocument	none		
+chooseStartupDocument	ChooseStartupDocument	none		
+editDocumentType	EditDocument	none		
+settingsLimits	SettingsLimits	none		
+editDocument	editDocument	none		
+searchJumpCommands	searchJumpCommands	none		
+searchJumpReachOf	searchJumpReachOf	none		
+searchJumpWrites	searchJumpWrites	none		
+shownTasksRevealWrites	shownTasksRevealWrites	none		
+importDocumentType	ImportDocument	none		
+importRequest	ImportRequest	none		
+importDocumentImportDocument	importDocument	none		
+notifyChangeWatchers	NotifyChangeWatchers	none		
+redoEditType	RedoEdit	none		
+undoEditType	UndoEdit	none		
+heldDocument	HeldDocument	none		
+validateImportedDocument	ValidateImportedDocument	none		
+agentApiEndpoint	AgentApiEndpoint	none		
+answerRelayedCall	answerRelayedCall	none		
+clipboardGateway	ClipboardGateway	none		
+clipboard	Clipboard	none		
+documentCodec	DocumentCodec	none		
+jsonFromDocument	jsonFromDocument	none		
+mspdiFromDocument	mspdiFromDocument	none		
+fileGateway	FileGateway	none		
+fileStore	FileStore	none		
+openRoute	OpenRoute	none		
+openedFileState	OpenedFileState	none		
+imageExporter	ImageExporter	none		
+rasterFaultReason	RasterFaultReason	none		
+rasterizer	Rasterizer	none		
+imageExporterExportSvg	exportSvg	none		
+inputCommandTranslator	InputCommandTranslator	none		
+humanInput	HumanInput	none		
+pointerInput	PointerInput	none		
+mcpToolTranslator	McpToolTranslator	none		
+screenRenderer	ScreenRenderer	none		
+appHeaderItems	AppHeaderItems	none		
+displayLanguage	DisplayLanguage	none		
+fieldCommit	FieldCommit	none		
+fieldEditNotice	FieldEditNotice	none		
+horizontalWhole	HorizontalWhole	none		
+screenPart	ScreenPart	none		
+screenSurface	ScreenSurface	none		
+screenView	ScreenView	none		
+searchFilterChange	SearchFilterChange	none		
+taskGroupTitle	TaskGroupTitle	none		
+verticalWhole	VerticalWhole	none		
+windowShown	WindowShown	none		
+taskGroupTitleFontPxOf	taskGroupTitleFontPxOf	none		
+svgRenderer	SvgRenderer	none		
+svgSurface	SvgSurface	none		
+viewerValues	ViewerValues	none		
+colorOf	colorOf	none		
+svgFromSchedule	svgFromSchedule	none		
+browserClipboard	BrowserClipboard	none		
+canvasRasterizer	CanvasRasterizer	none		
+domInputSource	DomInputSource	none		
+domScreenSurface	DomScreenSurface	none		
+domSvgSurface	DomSvgSurface	none		
+fileSystemAccessFileStore	FileSystemAccessFileStore	none		
+mcpRelayServer	McpRelayServer	none		
+singleHtmlShell	SingleHtmlShell	none		
