@@ -62,6 +62,9 @@ SCHEMA = os.path.join(HERE, 'grs-json-beta.schema.json')
 LABELS = os.path.join(HERE, 'grs-json-beta-tree-labels-ja.tsv')
 JA_DESCRIPTIONS = os.path.join(HERE, 'grs-json-beta-descriptions-ja.tsv')
 TREE_MD = os.path.join(HERE, 'grs-json-final-review-tree.md')
+# Which keys are MSPDI elements, and under which MSPDI name (JDG-3801: the schema
+# descriptions no longer say "Same as MSPDI X", so the [M] marks come from here).
+MSPDI_ELEMENTS = os.path.join(HERE, 'grs-json-beta-mspdi-elements.tsv')
 
 ROOT_NAME = 'ScheduleDocument'
 # Parts in print order: (id, title). The scheduleData parts split at SPLIT_KEY.
@@ -125,6 +128,8 @@ class Walker:
         self.ja_desc = ja_desc or {}
         self.used = set()
         self.missing = []
+        self.mspdi = read_labels(MSPDI_ELEMENTS) if os.path.exists(MSPDI_ELEMENTS) else None
+        self.mspdi_found = []  # (path, element) read from the descriptions, for mode mspdi-map
 
     # ---- schema access -------------------------------------------------
     def pointer(self, ref):
@@ -179,15 +184,18 @@ class Walker:
         """Append (depth, name, ja) for one key and its subtree."""
         is_array = node.get('type') == 'array' or 'items' in node
         desc = node.get('description', '')
+        node_path = path + ('[]' if is_array else '')
         m = MSPDI_RE.match(desc)
-        name = key + ('[]' if is_array else '')
         if m:
+            self.mspdi_found.append((node_path, m.group(1)))
+        element = self.mspdi.get(node_path) if self.mspdi is not None else (m.group(1) if m else None)
+        name = key + ('[]' if is_array else '')
+        if element:
             name += ' [M]'
-            if m.group(1).lower() != key.lower():
-                name += ' (' + m.group(1) + ')'
+            if element.lower() != key.lower():
+                name += ' (' + element + ')'
         elif parent_mspdi:
             name += ' [G]'
-        node_path = path + ('[]' if is_array else '')
         body = node['items'] if is_array else node
         kind, payload = self.classify(body)
         ja = self.label(node_path)
@@ -204,7 +212,7 @@ class Walker:
             ja = ja + SEP + self.ja_desc[node_path]
         out.append((depth, name, ja))
         if kind == 'node':
-            self.children(payload, node_path, depth + 1, bool(m), out, skip, only)
+            self.children(payload, node_path, depth + 1, bool(element), out, skip, only)
 
     def children(self, node, path, depth, is_mspdi, out, skip=None, only=None):
         props = node.get('properties', {})
@@ -240,7 +248,10 @@ class Walker:
                 skip_until = end
                 continue
             text = json.dumps(v, ensure_ascii=False)
-            out.append((depth, text, self.label(path + '=' + text)))
+            label = self.label(path + '=' + text)
+            if self.desc_mode == 'jadesc' and isinstance(v, str):
+                label = ''  # JDG-3801: a named value says itself; only number codes keep a label
+            out.append((depth, text, label))
 
     # ---- parts ---------------------------------------------------------
     def part(self, pid):
@@ -358,6 +369,21 @@ def build(mode):
 
 
 def main(mode):
+    if mode == 'mspdi-map':
+        # One-off: write the MSPDI element of each key as the descriptions say it today.
+        _, walker = build('ja-num')
+        found = {}
+        for path, element in walker.mspdi_found:
+            if found.setdefault(path, element) != element:
+                sys.exit('two MSPDI names for ' + path)
+        with io.open(MSPDI_ELEMENTS, 'w', encoding='utf-8', newline='\n') as f:
+            f.write('# The MSPDI element of each key of grs-json-beta.schema.json that is an MSPDI element\n'
+                    '# (JDG-3801). schema_to_review_tree.py reads this file for the [M] marks.\n'
+                    'path\tmspdi_element\n')
+            for path, element in found.items():
+                f.write(path + '\t' + element + '\n')
+        print('wrote', MSPDI_ELEMENTS, len(found))
+        return
     if mode in ('check', 'write'):
         text, walker = build('ja-num')
         with io.open(TREE_MD, encoding='utf-8') as f:
