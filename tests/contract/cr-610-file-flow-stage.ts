@@ -37,14 +37,13 @@ import { frameLoop, type FrameLoop } from '../../src/framework/single-html-shell
 import { surfaceOf, wire, type FakeElement, type Stage as DomStage } from '../fixtures/fake-browser'
 import { pointerOf, taskGroupDocument, SCREEN } from '../unit/cr-541-stage'
 import { bare, specTable, unbroken, type SpecTable } from './spec-table'
+import { readStateMachineView } from './state-machine-manuscript'
 
 export const REQUIREMENTS = unbroken(
   readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'),
 )
 export const DESIGN = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '05-07-design.md'), 'utf8'))
-export const STATE_MACHINES_SOURCE = JSON.parse(
-  readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'state-machines.json'), 'utf8'),
-) as { readonly regions: readonly Record<string, any>[] }
+export const STATE_MACHINES_SOURCE = readStateMachineView() as { readonly regions: readonly Record<string, any>[] }
 export { SETTINGS_SOURCE, settingNumber, settingRow } from '../fixtures/setting-number'
 export const SPEC_WORDS = JSON.parse(
   readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8'),

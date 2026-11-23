@@ -52,6 +52,7 @@ import {
 import { NOT_STORED_ZOOM_BOUNDS } from '../../src/use-case/edit-document/edit-document'
 import { importDocument, type ImportRequest } from '../../src/use-case/import-document/import-document'
 import { bare, specTable, unbroken } from './spec-table'
+import { readStateMachineView } from './state-machine-manuscript'
 
 type Loose = Record<string, unknown>
 
@@ -89,7 +90,7 @@ type RawRegion = {
 }
 
 const FLOW_REGION = (
-  JSON.parse(readFileSync(join(SPEC, '_source', 'state-machines.json'), 'utf8')) as { readonly regions: readonly RawRegion[] }
+  readStateMachineView() as { readonly regions: readonly RawRegion[] }
 ).regions.find((r) => r.region === 'fileFlow')
 
 const branchesOf = (cell: RawBranch | readonly RawBranch[] | undefined): readonly RawBranch[] =>

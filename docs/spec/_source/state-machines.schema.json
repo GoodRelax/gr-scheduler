@@ -4,109 +4,256 @@
  "$comment": [
   "HAND-WRITTEN CONTRACT -- EDIT THIS FILE.",
   "Validates _source/state-machines.json, which is the single source of truth. Same role as _source/settings.schema.json.",
-  "The shape only. What the manuscript may hold is table T-250 of docs/spec/05-07-design.md; the cross-entry rules (evidence ids defined, states and events resolved, every target a state of the same machine, one initial state per union (none in a composite entered only by naming a child), machine names unique, no event key in two regions, every guard a cell names defined once in its region's `guards` and every condition written in `guardLanguage` and resolved) are checked by the generators, because a schema cannot see another entry."
+  "Shape: the state transition table keys of the NDD review standard, appendix A.6 'List of JSON Keys' -- a top-level array stateMachines[], each with name, states (state names, without initial) and transitions[] ({source, target, trigger}; trigger on every transition but the initial one; optional guard and effect), plus the optional unhandled[] ({source, trigger, handling: ignore | error}) and finalStates. Every key the project adds starts with x: xPriorities, xGuardLanguage and xRegions at the top; xRegion and xStates on a machine; xEffectArgument, xEvidence and xNote on a transition. Inside the value of a project key the keys are the project's own and carry no x.",
+  "The shape only. What the manuscript may hold is table T-250 of docs/spec/05-07-design.md; the cross-entry rules (evidence ids defined, states and events resolved, every target a state of the same machine, one initial transition per level (none in a composite entered only by naming a child), every pair of a leaf state and an event of the machine answered exactly once by a transition or by unhandled[], machine names unique, no event key in two regions, every guard a transition names defined once in its region's `guards` and every condition written in `xGuardLanguage` and resolved) are checked by the generators (state_machine_source.py and state_machines_json_to_md.py), because a schema cannot see another entry."
  ],
  "title": "The state-machine manuscript",
- "description": "Per region: the events it receives (defined once), the values its root carries, its guards with their conditions, and one state machine per orthogonal concern -- its states and its state transition table keyed event -> current state -> cell. The language the conditions are written in is `guardLanguage`, once for every region. docs/spec/_assets/tbl-state-machines.md and the generated region of each region unit are printed from it.",
+ "description": "The state transition tables (stateMachines[]) and, per region (xRegions[]), the events it receives (defined once), the values its root carries and its guards with their conditions. The language the conditions are written in is xGuardLanguage, once for every region. docs/spec/_assets/tbl-state-machines.md and the generated region of each region unit are printed from it.",
  "type": "object",
- "required": ["guardLanguage", "regions"],
+ "required": [
+  "xGuardLanguage",
+  "xRegions",
+  "stateMachines"
+ ],
  "additionalProperties": false,
  "properties": {
-  "$schema": {"type": "string"},
+  "$schema": {
+   "type": "string"
+  },
   "$comment": {
    "description": "Notes for whoever edits this manuscript. JSON carries no comments, so the role declaration goes here. Not rendered.",
    "type": "array",
-   "items": {"type": "string"}
+   "items": {
+    "type": "string"
+   }
   },
-  "priorities": {"$ref": "#/$defs/priorities"},
-  "guardLanguage": {"$ref": "#/$defs/guardLanguage"},
-  "regions": {
+  "xPriorities": {
+   "$ref": "#/$defs/priorities"
+  },
+  "xGuardLanguage": {
+   "$ref": "#/$defs/guardLanguage"
+  },
+  "xRegions": {
    "type": "array",
    "minItems": 1,
-   "items": {"$ref": "#/$defs/region"}
+   "items": {
+    "$ref": "#/$defs/region"
+   }
+  },
+  "stateMachines": {
+   "type": "array",
+   "minItems": 1,
+   "items": {
+    "$ref": "#/$defs/machine"
+   }
   }
  },
  "$defs": {
   "guardLanguage": {
    "description": "SD-3: the language every guard condition is written in -- its terms, its operators and the named functions a condition may call. Printed once at the head of the state machine document; the loader parses every condition against it.",
    "type": "object",
-   "required": ["terms", "operators", "functions"],
+   "required": [
+    "terms",
+    "operators",
+    "functions"
+   ],
    "additionalProperties": false,
    "properties": {
-    "terms": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/guardForm"}},
-    "operators": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/guardForm"}},
-    "functions": {"type": "array", "items": {"$ref": "#/$defs/guardFunction"}}
+    "terms": {
+     "type": "array",
+     "minItems": 1,
+     "items": {
+      "$ref": "#/$defs/guardForm"
+     }
+    },
+    "operators": {
+     "type": "array",
+     "minItems": 1,
+     "items": {
+      "$ref": "#/$defs/guardForm"
+     }
+    },
+    "functions": {
+     "type": "array",
+     "items": {
+      "$ref": "#/$defs/guardFunction"
+     }
+    }
    }
   },
   "guardForm": {
    "description": "One form of the guard language as a condition writes it, and what it means.",
    "type": "object",
-   "required": ["form", "meaning"],
+   "required": [
+    "form",
+    "meaning"
+   ],
    "additionalProperties": false,
    "properties": {
-    "form": {"type": "string", "minLength": 1},
-    "meaning": {"$ref": "#/$defs/text"}
+    "form": {
+     "type": "string",
+     "minLength": 1
+    },
+    "meaning": {
+     "$ref": "#/$defs/text"
+    }
    }
   },
   "guardFunction": {
    "description": "A named function a condition may call: its parameters, what it returns, and the rows that define that value.",
    "type": "object",
-   "required": ["name", "parameters", "meaning", "evidence"],
+   "required": [
+    "name",
+    "parameters",
+    "meaning",
+    "evidence"
+   ],
    "additionalProperties": false,
    "properties": {
-    "name": {"$ref": "#/$defs/identifier"},
-    "parameters": {"type": "array", "items": {"$ref": "#/$defs/identifier"}},
-    "meaning": {"$ref": "#/$defs/text"},
-    "evidence": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/rowId"}}
+    "name": {
+     "$ref": "#/$defs/identifier"
+    },
+    "parameters": {
+     "type": "array",
+     "items": {
+      "$ref": "#/$defs/identifier"
+     }
+    },
+    "meaning": {
+     "$ref": "#/$defs/text"
+    },
+    "evidence": {
+     "type": "array",
+     "minItems": 1,
+     "items": {
+      "$ref": "#/$defs/rowId"
+     }
+    }
    }
   },
   "guard": {
    "description": "SD-3: one guard of a region -- the name the cells use and its condition, an expression in the guard language. Defined once per region; a name two regions use is defined in each.",
    "type": "object",
-   "required": ["name", "condition", "evidence"],
+   "required": [
+    "name",
+    "condition",
+    "evidence"
+   ],
    "additionalProperties": false,
    "properties": {
-    "name": {"$ref": "#/$defs/identifier"},
-    "condition": {"type": "string", "minLength": 1},
-    "evidence": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/rowId"}},
-    "note": {"$ref": "#/$defs/text"}
+    "name": {
+     "$ref": "#/$defs/identifier"
+    },
+    "condition": {
+     "type": "string",
+     "minLength": 1
+    },
+    "evidence": {
+     "type": "array",
+     "minItems": 1,
+     "items": {
+      "$ref": "#/$defs/rowId"
+     }
+    },
+    "note": {
+     "$ref": "#/$defs/text"
+    }
    }
   },
   "stateEffect": {
    "description": "SD-1: the effect a state runs on entry (every transition that enters it) or on exit (every transition that leaves it), as UML runs them: exit, then the transition's effect, then entry. A transition to itself neither enters nor leaves.",
    "type": "object",
-   "required": ["effect", "evidence"],
+   "required": [
+    "effect",
+    "evidence"
+   ],
    "additionalProperties": false,
    "properties": {
-    "effect": {"$ref": "#/$defs/identifier"},
-    "effectArgument": {"$ref": "#/$defs/rowId"},
-    "evidence": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/rowId"}},
-    "note": {"$ref": "#/$defs/text"}
+    "effect": {
+     "$ref": "#/$defs/identifier"
+    },
+    "effectArgument": {
+     "$ref": "#/$defs/rowId"
+    },
+    "evidence": {
+     "type": "array",
+     "minItems": 1,
+     "items": {
+      "$ref": "#/$defs/rowId"
+     }
+    },
+    "note": {
+     "$ref": "#/$defs/text"
+    }
    }
   },
   "priorities": {
    "description": "SD-4: the order across regions in which the contested keys are consumed (table T-283). Each rung names the states that stand on it; the order itself is the requirement rows the rung cites.",
    "type": "object",
-   "required": ["table", "rungs"],
+   "required": [
+    "table",
+    "rungs"
+   ],
    "additionalProperties": false,
    "properties": {
-    "table": {"$ref": "#/$defs/caption"},
-    "rungs": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/rung"}}
+    "table": {
+     "$ref": "#/$defs/caption"
+    },
+    "rungs": {
+     "type": "array",
+     "minItems": 1,
+     "items": {
+      "$ref": "#/$defs/rung"
+     }
+    }
    }
   },
   "rung": {
    "description": "One rung: the key or keys it contests, its words (for Esc, the words of the chain IN-4 writes), the states standing on it, and the rows that decided its place. Rungs of one key are listed first to last.",
    "type": "object",
-   "required": ["id", "keys", "rung", "states", "evidence"],
+   "required": [
+    "id",
+    "keys",
+    "rung",
+    "states",
+    "evidence"
+   ],
    "additionalProperties": false,
    "properties": {
-    "id": {"$ref": "#/$defs/rowId"},
-    "keys": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
-    "rung": {"$ref": "#/$defs/text"},
-    "states": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/rungState"}},
-    "also": {"$ref": "#/$defs/text"},
-    "evidence": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/rowId"}},
-    "note": {"$ref": "#/$defs/text"}
+    "id": {
+     "$ref": "#/$defs/rowId"
+    },
+    "keys": {
+     "type": "array",
+     "minItems": 1,
+     "items": {
+      "type": "string",
+      "minLength": 1
+     }
+    },
+    "rung": {
+     "$ref": "#/$defs/text"
+    },
+    "states": {
+     "type": "array",
+     "minItems": 1,
+     "items": {
+      "$ref": "#/$defs/rungState"
+     }
+    },
+    "also": {
+     "$ref": "#/$defs/text"
+    },
+    "evidence": {
+     "type": "array",
+     "minItems": 1,
+     "items": {
+      "$ref": "#/$defs/rowId"
+     }
+    },
+    "note": {
+     "$ref": "#/$defs/text"
+    }
    }
   },
   "rungState": {
@@ -114,17 +261,30 @@
    "oneOf": [
     {
      "type": "object",
-     "required": ["in"],
+     "required": [
+      "in"
+     ],
      "additionalProperties": false,
-     "properties": {"in": {"$ref": "#/$defs/stateId"}}
+     "properties": {
+      "in": {
+       "$ref": "#/$defs/stateId"
+      }
+     }
     },
     {
      "type": "object",
-     "required": ["machine", "except"],
+     "required": [
+      "machine",
+      "except"
+     ],
      "additionalProperties": false,
      "properties": {
-      "machine": {"$ref": "#/$defs/machineName"},
-      "except": {"$ref": "#/$defs/stateKey"}
+      "machine": {
+       "$ref": "#/$defs/machineName"
+      },
+      "except": {
+       "$ref": "#/$defs/stateKey"
+      }
      }
     }
    ]
@@ -132,15 +292,29 @@
   "text": {
    "description": "Printed prose, held per language.",
    "type": "object",
-   "required": ["ja"],
+   "required": [
+    "ja"
+   ],
    "additionalProperties": false,
    "properties": {
-    "ja": {"type": "string", "minLength": 1},
-    "en": {"type": "string", "minLength": 1}
+    "ja": {
+     "type": "string",
+     "minLength": 1
+    },
+    "en": {
+     "type": "string",
+     "minLength": 1
+    }
    }
   },
-  "rowId": {"type": "string", "pattern": "^[A-Z][A-Za-z]*-[0-9]+[a-z]?$"},
-  "identifier": {"type": "string", "pattern": "^[a-z][A-Za-z0-9]*$"},
+  "rowId": {
+   "type": "string",
+   "pattern": "^[A-Z][A-Za-z]*-[0-9]+[a-z]?$"
+  },
+  "identifier": {
+   "type": "string",
+   "pattern": "^[a-z][A-Za-z0-9]*$"
+  },
   "machineName": {
    "description": "The definition's name: a noun phrase naming what the machine tracks, then StateMachine (R4.4). Unique across every region. The code holds its current state under the same noun phrase plus State.",
    "type": "string",
@@ -163,118 +337,275 @@
   },
   "caption": {
    "type": "object",
-   "required": ["id", "caption"],
+   "required": [
+    "id",
+    "caption"
+   ],
    "additionalProperties": false,
    "properties": {
-    "id": {"type": "string", "pattern": "^[TF]-[0-9]+[a-z]?$"},
-    "caption": {"$ref": "#/$defs/text"}
+    "id": {
+     "type": "string",
+     "pattern": "^[TF]-[0-9]+[a-z]?$"
+    },
+    "caption": {
+     "$ref": "#/$defs/text"
+    }
    }
   },
   "carry": {
    "description": "The NAME of a value the state or event carries (SD-1, SD-2). Its type is the code's.",
    "type": "object",
-   "required": ["name"],
+   "required": [
+    "name"
+   ],
    "additionalProperties": false,
    "properties": {
-    "name": {"$ref": "#/$defs/identifier"},
-    "rows": {"type": "array", "items": {"$ref": "#/$defs/rowId"}},
-    "note": {"$ref": "#/$defs/text"}
+    "name": {
+     "$ref": "#/$defs/identifier"
+    },
+    "rows": {
+     "type": "array",
+     "items": {
+      "$ref": "#/$defs/rowId"
+     }
+    },
+    "note": {
+     "$ref": "#/$defs/text"
+    }
    }
   },
   "region": {
    "type": "object",
-   "required": ["region", "name", "unit", "typeStem", "table", "figure", "root", "events", "machines"],
+   "required": [
+    "region",
+    "name",
+    "unit",
+    "typeStem",
+    "table",
+    "figure",
+    "root",
+    "events"
+   ],
    "additionalProperties": false,
    "properties": {
-    "region": {"$ref": "#/$defs/identifier"},
-    "name": {"$ref": "#/$defs/text"},
-    "unit": {"type": "string", "pattern": "^src/.+\\.ts$"},
-    "typeStem": {"type": "string", "pattern": "^[A-Z][A-Za-z0-9]*$"},
+    "region": {
+     "$ref": "#/$defs/identifier"
+    },
+    "name": {
+     "$ref": "#/$defs/text"
+    },
+    "unit": {
+     "type": "string",
+     "pattern": "^src/.+\\.ts$"
+    },
+    "typeStem": {
+     "type": "string",
+     "pattern": "^[A-Z][A-Za-z0-9]*$"
+    },
     "holds": {
      "description": "SD-5 of table T-250: the region holds a SAVED value of the document (the task group tree), not an unsaved screen or session value. Its generated region carries only the events and the transition-table constant; the state type is the enum of the erd.json column named in `column`.",
-     "enum": ["documentData"]
+     "enum": [
+      "documentData"
+     ]
     },
     "column": {
      "description": "With `holds`: the erd.json column (its AT- seat) whose enum values are this region's state keys, in the same order. The generators refuse a mismatch.",
      "$ref": "#/$defs/rowId"
     },
-    "table": {"$ref": "#/$defs/caption"},
-    "figure": {"$ref": "#/$defs/caption"},
-    "root": {"$ref": "#/$defs/root"},
-    "events": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/event"}},
-    "guards": {"type": "array", "items": {"$ref": "#/$defs/guard"}},
-    "machines": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/machine"}}
-   }
+    "table": {
+     "$ref": "#/$defs/caption"
+    },
+    "figure": {
+     "$ref": "#/$defs/caption"
+    },
+    "root": {
+     "$ref": "#/$defs/root"
+    },
+    "events": {
+     "type": "array",
+     "minItems": 1,
+     "items": {
+      "$ref": "#/$defs/event"
+     }
+    },
+    "guards": {
+     "type": "array",
+     "items": {
+      "$ref": "#/$defs/guard"
+     }
+    }
+   },
+   "description": "One region: what it holds, its root, the events it receives and its guards. Its machines are the entries of stateMachines[] whose xRegion names it."
   },
   "root": {
    "description": "The region's root: the values it carries beside its machines, and the events that only rewrite those values (a cell without `to`).",
    "type": "object",
-   "required": ["carries", "evidence", "transitions"],
+   "required": [
+    "carries",
+    "evidence",
+    "transitions"
+   ],
    "additionalProperties": false,
    "properties": {
-    "carries": {"type": "array", "items": {"$ref": "#/$defs/carry"}},
-    "evidence": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/rowId"}},
+    "carries": {
+     "type": "array",
+     "items": {
+      "$ref": "#/$defs/carry"
+     }
+    },
+    "evidence": {
+     "type": "array",
+     "minItems": 1,
+     "items": {
+      "$ref": "#/$defs/rowId"
+     }
+    },
     "transitions": {
      "type": "object",
-     "propertyNames": {"$ref": "#/$defs/identifier"},
-     "additionalProperties": {"$ref": "#/$defs/rootCell"}
+     "propertyNames": {
+      "$ref": "#/$defs/identifier"
+     },
+     "additionalProperties": {
+      "$ref": "#/$defs/rootCell"
+     }
     }
    }
   },
   "event": {
    "description": "SD-2 of table T-250. Defined once per region; its id is region/key.",
    "type": "object",
-   "required": ["key", "source", "carries"],
+   "required": [
+    "key",
+    "source",
+    "carries"
+   ],
    "additionalProperties": false,
    "properties": {
-    "key": {"$ref": "#/$defs/identifier"},
+    "key": {
+     "$ref": "#/$defs/identifier"
+    },
     "source": {
      "type": "object",
-     "required": ["kind", "rows"],
+     "required": [
+      "kind",
+      "rows"
+     ],
      "additionalProperties": false,
      "properties": {
-      "kind": {"enum": ["input", "effectResult", "otherRegion", "time"]},
-      "rows": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/rowId"}},
-      "note": {"$ref": "#/$defs/text"}
+      "kind": {
+       "enum": [
+        "input",
+        "effectResult",
+        "otherRegion",
+        "time"
+       ]
+      },
+      "rows": {
+       "type": "array",
+       "minItems": 1,
+       "items": {
+        "$ref": "#/$defs/rowId"
+       }
+      },
+      "note": {
+       "$ref": "#/$defs/text"
+      }
      }
     },
-    "carries": {"type": "array", "items": {"$ref": "#/$defs/carry"}}
+    "carries": {
+     "type": "array",
+     "items": {
+      "$ref": "#/$defs/carry"
+     }
+    }
    }
   },
   "machine": {
-   "description": "One state machine: its states (SD-1) and its state transition table (SD-3), keyed event -> current state -> cell. An absent cell leaves the machine unchanged, at the same reference.",
+   "description": "One state machine (SD-1, SD-3): its states, its transitions and the pairs of a state and an event it leaves unhandled. Every pair of a leaf state and an event the machine names is answered exactly once: by a transition from the leaf or one of its composites, or by an unhandled entry.",
    "type": "object",
-   "required": ["name", "states", "transitions"],
+   "required": [
+    "name",
+    "xRegion",
+    "states",
+    "xStates",
+    "transitions"
+   ],
    "additionalProperties": false,
    "properties": {
-    "name": {"$ref": "#/$defs/machineName"},
-    "states": {"type": "array", "minItems": 2, "items": {"$ref": "#/$defs/state"}},
-    "transitions": {
+    "name": {
+     "$ref": "#/$defs/machineName"
+    },
+    "xRegion": {
+     "description": "The region of xRegions the machine belongs to.",
+     "$ref": "#/$defs/identifier"
+    },
+    "states": {
+     "description": "The state names, without initial, in reading order: a composite before its children.",
+     "type": "array",
+     "minItems": 2,
+     "items": {
+      "$ref": "#/$defs/stateKey"
+     }
+    },
+    "xStates": {
+     "description": "Per state name of `states`, in the same order: the values it carries, its evidence and its entry and exit effects. The parent of a state is its name without the last word.",
      "type": "object",
-     "minProperties": 1,
-     "propertyNames": {"$ref": "#/$defs/identifier"},
+     "propertyNames": {
+      "$ref": "#/$defs/stateKey"
+     },
      "additionalProperties": {
-      "type": "object",
-      "minProperties": 1,
-      "propertyNames": {"$ref": "#/$defs/stateKey"},
-      "additionalProperties": {"$ref": "#/$defs/cell"}
+      "$ref": "#/$defs/state"
+     }
+    },
+    "transitions": {
+     "type": "array",
+     "minItems": 1,
+     "items": {
+      "$ref": "#/$defs/transition"
+     }
+    },
+    "unhandled": {
+     "type": "array",
+     "items": {
+      "$ref": "#/$defs/unhandled"
+     }
+    },
+    "finalStates": {
+     "type": "array",
+     "items": {
+      "$ref": "#/$defs/stateKey"
      }
     }
    }
   },
   "state": {
-   "description": "SD-1 of table T-250. Its id is machine.key.",
+   "description": "SD-1 of table T-250: the facts of one state. Its id is machine.name; whether it is initial is the initial transition's.",
    "type": "object",
-   "required": ["key", "parent", "initial", "carries", "evidence"],
+   "required": [
+    "carries",
+    "evidence"
+   ],
    "additionalProperties": false,
    "properties": {
-    "key": {"$ref": "#/$defs/stateKey"},
-    "parent": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/stateKey"}]},
-    "initial": {"type": "boolean"},
-    "carries": {"type": "array", "items": {"$ref": "#/$defs/carry"}},
-    "evidence": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/rowId"}},
-    "entry": {"$ref": "#/$defs/stateEffect"},
-    "exit": {"$ref": "#/$defs/stateEffect"}
+    "carries": {
+     "type": "array",
+     "items": {
+      "$ref": "#/$defs/carry"
+     }
+    },
+    "evidence": {
+     "type": "array",
+     "minItems": 1,
+     "items": {
+      "$ref": "#/$defs/rowId"
+     }
+    },
+    "entry": {
+     "$ref": "#/$defs/stateEffect"
+    },
+    "exit": {
+     "$ref": "#/$defs/stateEffect"
+    }
    }
   },
   "guardTerm": {
@@ -282,61 +613,153 @@
    "oneOf": [
     {
      "type": "object",
-     "required": ["name"],
+     "required": [
+      "name"
+     ],
      "additionalProperties": false,
      "properties": {
-      "name": {"$ref": "#/$defs/identifier"},
-      "not": {"const": true}
+      "name": {
+       "$ref": "#/$defs/identifier"
+      },
+      "not": {
+       "const": true
+      }
      }
     },
     {
      "type": "object",
-     "required": ["in"],
+     "required": [
+      "in"
+     ],
      "additionalProperties": false,
      "properties": {
-      "in": {"$ref": "#/$defs/stateId"}
+      "in": {
+       "$ref": "#/$defs/stateId"
+      }
      }
     }
    ]
   },
-  "branch": {
-   "description": "One outcome of a cell. `to` equal to the current state is a transition to itself (the kind stays, carried values may be rewritten).",
-   "type": "object",
-   "required": ["to", "evidence"],
-   "additionalProperties": false,
-   "properties": {
-    "to": {"$ref": "#/$defs/targetKey"},
-    "guard": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/guardTerm"}},
-    "effect": {"$ref": "#/$defs/identifier"},
-    "effectArgument": {"$ref": "#/$defs/rowId"},
-    "evidence": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/rowId"}},
-    "note": {"$ref": "#/$defs/text"}
-   }
-  },
-  "cell": {
-   "description": "One branch, or two or more branches told apart by their guards.",
-   "oneOf": [
-    {"$ref": "#/$defs/branch"},
-    {"type": "array", "minItems": 2, "items": {"$ref": "#/$defs/branch"}}
-   ]
-  },
   "rootBranch": {
    "type": "object",
-   "required": ["evidence"],
+   "required": [
+    "evidence"
+   ],
    "additionalProperties": false,
    "properties": {
-    "guard": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/guardTerm"}},
-    "effect": {"$ref": "#/$defs/identifier"},
-    "effectArgument": {"$ref": "#/$defs/rowId"},
-    "evidence": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/rowId"}},
-    "note": {"$ref": "#/$defs/text"}
+    "guard": {
+     "type": "array",
+     "minItems": 1,
+     "items": {
+      "$ref": "#/$defs/guardTerm"
+     }
+    },
+    "effect": {
+     "$ref": "#/$defs/identifier"
+    },
+    "effectArgument": {
+     "$ref": "#/$defs/rowId"
+    },
+    "evidence": {
+     "type": "array",
+     "minItems": 1,
+     "items": {
+      "$ref": "#/$defs/rowId"
+     }
+    },
+    "note": {
+     "$ref": "#/$defs/text"
+    }
    }
   },
   "rootCell": {
    "oneOf": [
-    {"$ref": "#/$defs/rootBranch"},
-    {"type": "array", "minItems": 2, "items": {"$ref": "#/$defs/rootBranch"}}
+    {
+     "$ref": "#/$defs/rootBranch"
+    },
+    {
+     "type": "array",
+     "minItems": 2,
+     "items": {
+      "$ref": "#/$defs/rootBranch"
+     }
+    }
    ]
+  },
+  "transition": {
+   "description": "One transition. A transition from `initial` is the initial transition: only source and target, the target being the initial state at its level. Otherwise a trigger is required; two or more transitions with the same source and trigger are told apart by their guards. `target` equal to `source` is a transition to itself (the kind stays, carried values may be rewritten).",
+   "type": "object",
+   "required": [
+    "source",
+    "target"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "source": {
+     "anyOf": [
+      {
+       "const": "initial"
+      },
+      {
+       "$ref": "#/$defs/stateKey"
+      }
+     ]
+    },
+    "target": {
+     "$ref": "#/$defs/targetKey"
+    },
+    "trigger": {
+     "description": "The event, by its key in the region's events.",
+     "$ref": "#/$defs/identifier"
+    },
+    "guard": {
+     "type": "array",
+     "minItems": 1,
+     "items": {
+      "$ref": "#/$defs/guardTerm"
+     }
+    },
+    "effect": {
+     "$ref": "#/$defs/identifier"
+    },
+    "xEffectArgument": {
+     "$ref": "#/$defs/rowId"
+    },
+    "xEvidence": {
+     "type": "array",
+     "minItems": 1,
+     "items": {
+      "$ref": "#/$defs/rowId"
+     }
+    },
+    "xNote": {
+     "$ref": "#/$defs/text"
+    }
+   }
+  },
+  "unhandled": {
+   "description": "A pair of a state and an event with no transition. ignore: the machine keeps its state and the same reference (SD-3). error: the pair must not occur.",
+   "type": "object",
+   "required": [
+    "source",
+    "trigger",
+    "handling"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "source": {
+     "$ref": "#/$defs/stateKey"
+    },
+    "trigger": {
+     "$ref": "#/$defs/identifier"
+    },
+    "handling": {
+     "enum": [
+      "ignore",
+      "error"
+     ]
+    }
+   }
   }
  }
 }

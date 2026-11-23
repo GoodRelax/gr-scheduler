@@ -33,6 +33,7 @@ import {
   type SessionEvent,
 } from '../../src/use-case/advance-screen-session/advance-screen-session'
 import { bare, specTable, unbroken } from './spec-table'
+import { readStateMachineView } from './state-machine-manuscript'
 
 const rowCells = (table: string, id: string): string => {
   const row = specTable(table).rows.find((one) => one.id === id)
@@ -181,7 +182,7 @@ const T_280_HIDDEN_FIRST = '`landingMarkDisplayStateMachine.hidden` —— 初�
 const T_328_FIGURE = '[![treeStateMachine](fig-sm-treeStateMachine.svg)](fig-sm-treeStateMachine.svg)'
 type TreeBranch = { readonly to?: string }
 const TREE_MACHINE = (
-  JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'state-machines.json'), 'utf8')) as {
+  readStateMachineView() as {
     readonly regions: readonly {
       readonly region: string
       readonly machines: readonly {

@@ -1,18 +1,24 @@
-# 状態機械 — 出来事・状態・状態遷移表
+# ステートマシン — 出来事・状態・状態遷移表
 
 **UID**: DOC-TBL-STATE-MACHINES
 **Version**: 0.2
 
 > ⛔ 本書は生成物である。  
 > 手で直さない —— 直しても次の `npm run gen` で消える。
-> **状態機械の唯一の正は `_source/state-machines.json` である。**  
+> **ステートマシンの唯一の正は `_source/state-machines.json` である。**  
 > 本書はそれを `_source/state_machines_json_to_md.py` が印字したものである。
 > **作り直す**: `npm run gen` ／ **ズレを検出する**: `npm run gen:check`。
 
-本書は、保存しない状態の状態機械（`05-07-design.md` の 5.6 の ADR-002）を、領域ごと・状態機械ごとに印字したものである。  
+本書は、保存しない状態のステートマシン（`05-07-design.md` の 5.6 の ADR-002）を、領域ごと・ステートマシンごとに印字したものである。  
 ⚠️ 例外はタスクグループの木（`taskGroupTree`）の 1 つだけであり、その状態は文書に保存する値である（`05-07-design.md` の 表 T-250 の `SD-5`）。  
-原稿が持つもの・持たないものは `05-07-design.md` の 表 T-250 が、状態機械の形は 表 T-249 が持つ。  
+原稿が持つもの・持たないものは `05-07-design.md` の 表 T-250 が、ステートマシンの形は 表 T-249 が持つ。  
 名前の読み方は `05-07-design.md` の 5.5 が持つ。
+
+⭐ **状態遷移表の升の凡例** —— `→ 状態` は遷移であり、`[...]` はそのガードである。  
+`—` は無視（`ignore`）の升であり、出来事を受けても状態を変えない（同じ参照のまま。`SD-3`）。  
+`エラー` はエラー（`error`）の升であり、起きてはならない組である。  
+`それ以外 → —` は、遷移の升でどのガードにも当たらないとき、状態を変えないことである。  
+無視とエラーの升は、原稿の `unhandled[]` が 1 つずつ持つ（NDD レビュー基準の付録 A.6）。
 
 ## ガードの条件の書き方
 
@@ -25,10 +31,10 @@
 | --- | --- |
 | `event.<carry>` | 升の出来事が運ぶ値（`SD-2`）。ガードを使うどの升の出来事も、その値を運ぶ。後ろに続く `.欄` はコードの型の欄であり、生成器は引かない |
 | `root.<carry>` | 領域の根が運ぶ値 |
-| `<machine>.<carry>` | 同じ領域のその状態機械の、いまの状態が運ぶ値。いまの状態がその値を運ばなければ `null` |
+| `<machine>.<carry>` | 同じ領域のそのステートマシンの、いまの状態が運ぶ値。いまの状態がその値を運ばなければ `null` |
 | `taskGroup.<column>` | 文書に保存する値を持つ領域（`SD-5`）だけ: 升が木の状態を決めるタスクグループの列（`_assets/fig-erd-detail.md` の `TaskGroup`）。根の升にはタスクグループが無く、`null` を読む |
-| `in(<machine>.<state>)` | 同じ領域のその状態機械が、いまその状態か、その下の状態にいる |
-| `inAfter(<machine>.<state>)` | 同じ出来事の 1 段を終えた後に、同じ領域のその状態機械がその状態か、その下の状態にいる |
+| `in(<machine>.<state>)` | 同じ領域のそのステートマシンが、いまその状態か、その下の状態にいる |
+| `inAfter(<machine>.<state>)` | 同じ出来事の 1 段を終えた後に、同じ領域のそのステートマシンがその状態か、その下の状態にいる |
 | `<function>(<argument>, ...)` | 下の関数の値。引数の数は関数ごとに決まっている |
 | `'text', 0, true, false, null, [a, b, ...]` | 字・整数・真偽・値が無いこと・並び。`null` の欄は `null` である |
 
@@ -49,7 +55,7 @@
 
 | 関数 | 意味 | 根拠 |
 | --- | --- | --- |
-| `after(value)` | 同じ出来事の 1 段を終えた後の、その状態機械の運ぶ値（`<状態機械>.<運ぶ値>` を渡す）。その後の状態がその値を運ばなければ `null` | `FR-088` ・ `S-99g` |
+| `after(value)` | 同じ出来事の 1 段を終えた後の、そのステートマシンの運ぶ値（`<ステートマシン>.<運ぶ値>` を渡す）。その後の状態がその値を運ばなければ `null` | `FR-088` ・ `S-99g` |
 | `ancestors(taskGroupId)` | その `id` のタスクグループの親、親の親……と最上位までの `id` の並び（自身は含まない）。その `id` のタスクグループが無ければ空 | `HR-3` ・ `HR-1a` ・ `SJ-2` |
 | `calendarDraftRefusals(calendarDraft)` | 休日の設定の下書きが当てられない断りの並び（`WC-10` の 1 件 1 行）。`null` を受けると空 | `WC-10` ・ `WC-7` |
 | `childTaskGroups(taskGroupId)` | 親（`parentId`）がその `id` のタスクグループである、直下の子のタスクグループの並び | `HR-7` ・ `TD-6` |
@@ -74,7 +80,7 @@
 | RG-2 | `Esc` | 確定していないその場の編集 | `fieldEditStateMachine.editingField` | `IN-4` | 面が消費する（`IF-9`） |
 | RG-3 | `Esc` | 開いている面 | `confirmationStateMachine.questionAsked` ／ `openSurfaceStateMachine.open` | `IN-4` ・ `FR-070` | 同じ段の中は、問い → 面の順。問いか面が立っているあいだは `SK-19` の 2 段目を当てない（`FR-070`）。ヘルプはこの段に立たない —— 開いているウィンドウの段に立つ（`IN-4`） |
 | RG-4 | `Esc` | 進行中のドラッグ・引きかけの矢印 | `pointerPressStateMachine.changingDocument` ／ `pointerPressStateMachine.viewingDocument` | `IN-4` | — |
-| RG-16 | `Esc` | 開いているウィンドウ | `searchPanelDisplayStateMachine.shown.normal` ／ `searchPanelDisplayStateMachine.shown.maximized` ／ `helpDisplayStateMachine.shown.normal` ／ `helpDisplayStateMachine.shown.maximized` と、フレームの値（焦点がどのウィンドウの中にあるか、焦点がプロパティパネルの中にあるか）。遅延診断レポートの窓は状態機械を持たず、出ていて（`S-451`）最小化していないときに立つ。担当リストのウィンドウも同じ（`S-545`） | `IN-4` ・ `SV-14` ・ `HN-2` ・ `FR-152` ・ `RW-1` ・ `RO-1` | 1 度の `Esc` で 1 つだけ閉じる。焦点がその中にあるウィンドウが先、ほかは 表 T-337 の手前から（`IN-4`）。焦点がプロパティパネルの中にあるあいだは立たない —— `RG-14` が先に受ける（`IN-4`）。最小化したウィンドウは立たない。検索パネルは、列のフィルタが開いていればフィルタだけを閉じる（`SV-14`）。遅延診断レポートの窓は窓だけを閉じ、診断の表示は終えない（`RW-1`）。担当リストのウィンドウを閉じると担当リストの表のスケジュールフィルタを解除する（`RO-1`）。`escapePressed` の `rung` の語は `searchPanel` ・ `helpModal` ・ `delayDiagnosticsReport` ・ `resourceList` |
+| RG-16 | `Esc` | 開いているウィンドウ | `searchPanelDisplayStateMachine.shown.normal` ／ `searchPanelDisplayStateMachine.shown.maximized` ／ `helpDisplayStateMachine.shown.normal` ／ `helpDisplayStateMachine.shown.maximized` と、フレームの値（焦点がどのウィンドウの中にあるか、焦点がプロパティパネルの中にあるか）。遅延診断レポートの窓はステートマシンを持たず、出ていて（`S-451`）最小化していないときに立つ。担当リストのウィンドウも同じ（`S-545`） | `IN-4` ・ `SV-14` ・ `HN-2` ・ `FR-152` ・ `RW-1` ・ `RO-1` | 1 度の `Esc` で 1 つだけ閉じる。焦点がその中にあるウィンドウが先、ほかは 表 T-337 の手前から（`IN-4`）。焦点がプロパティパネルの中にあるあいだは立たない —— `RG-14` が先に受ける（`IN-4`）。最小化したウィンドウは立たない。検索パネルは、列のフィルタが開いていればフィルタだけを閉じる（`SV-14`）。遅延診断レポートの窓は窓だけを閉じ、診断の表示は終えない（`RW-1`）。担当リストのウィンドウを閉じると担当リストの表のスケジュールフィルタを解除する（`RO-1`）。`escapePressed` の `rung` の語は `searchPanel` ・ `helpModal` ・ `delayDiagnosticsReport` ・ `resourceList` |
 | RG-14 | `Esc` | プロパティパネル | `propertiesPanelContentStateMachine`（`hidden` 以外） | `IN-4` | 面ではない（`S-99g`、`S-99h`）。進行中のドラッグと開いているウィンドウの後に置く（`IN-4`）。番号は最後の次を採り、並びは表の上下が持つ。`escapePressed` の `rung` の語は `propertiesPanel` —— 開いている面（`RG-3`）の `surface` とは別の語 |
 | RG-5 | `Esc` | 構え | `armModeStateMachine.armed` | `IN-4` | — |
 | RG-6 | `Esc` | 選択 | `selectionStateMachine.objectsSelected` と、根の値 `chosenTaskGroups`（空でないとき）のどちらか —— タスクグループパネルのタスクグループだけを選んでいるときも立つ（`FR-085`） | `IN-4` ・ `FR-085` | 構えより前に置かない（`IN-4`） |
@@ -89,12 +95,12 @@
 
 ## 画面の値（`screen`）
 
-**表 T-280 — 画面の値の状態機械**
+**表 T-280 — 画面の値のステートマシン**
 
-本表は、出来事の定義・根の値・状態機械ごとの状態遷移表と状態の一覧からなる。  
-状態遷移表の行はその状態機械を動かす出来事、列はその状態機械の葉の状態、升は「→ 次の状態 [ガード] / 副作用」である。  
+本表は、出来事の定義・根の値・ステートマシンごとの状態遷移表と状態の一覧からなる。  
+状態遷移表の行はそのステートマシンを動かす出来事、列はそのステートマシンの葉の状態、升は「→ 次の状態 [ガード] / 副作用」である。  
 ガードは名と条件を「`名`（`条件`）」と刷り、条件は同じ領域のガードの一覧と同じである。  
-状態に entry ／ exit の副作用がある状態機械は、出来事の行の上に `entry` ／ `exit` の行を置く —— その状態へ入る遷移・出る遷移が、出 → 遷移の副作用 → 入の順に起こし、自己への遷移（「→ 自己」）は起こさない。  
+状態に entry ／ exit の副作用があるステートマシンは、出来事の行の上に `entry` ／ `exit` の行を置く —— その状態へ入る遷移・出る遷移が、出 → 遷移の副作用 → 入の順に起こし、自己への遷移（「→ 自己」）は起こさない。  
 升の「—」は変化なし（同じ参照）を表す。  
 ガードの付いた枝がすべての場合を覆わない升には「それ以外 → —」を添え、どの場合に何が起きるかを升ごとに言い切る。  
 親の状態に置いた升は、その子のすべての列に同じ升を刷り、「親 … の升」と書き添える。
@@ -211,12 +217,12 @@
 
 **図 F-026 — 画面の値の状態遷移**
 
-状態機械ごとに 1 つの図に分け、その状態機械の節に置く。状態機械どうしは直交する。  
-図は UML の状態機械図である —— 矢印のラベルは「出来事 [ガード] / 副作用」、同じ 2 つの状態を結ぶ遷移は 1 本の矢印に 1 行ずつ並べる。ガードは名で書き、条件は同じ領域のガードの一覧が持つ。  
+ステートマシンごとに 1 つの図に分け、そのステートマシンの節に置く。ステートマシンどうしは直交する。  
+図は UML のステートマシン図である —— 矢印のラベルは「出来事 [ガード] / 副作用」、同じ 2 つの状態を結ぶ遷移は 1 本の矢印に 1 行ずつ並べる。ガードは名で書き、条件は同じ領域のガードの一覧が持つ。  
 行き先が運ぶ値で決まる升は選択の擬似状態（◇）で分ける。entry ／ exit は状態の箱の中に書く。  
 ⭐ 遷移の全数は 表 T-280 の状態遷移表が持つ。図と表はどちらも原稿から刷る。
 
-### 状態機械 `armModeStateMachine`
+### ステートマシン `armModeStateMachine`
 
 [![armModeStateMachine](fig-sm-armModeStateMachine.svg)](fig-sm-armModeStateMachine.svg)
 
@@ -237,7 +243,7 @@
 
 表に無い出来事は `armModeStateMachine` を変えない（同じ参照）。
 
-### 状態機械 `paletteDisplayStateMachine`
+### ステートマシン `paletteDisplayStateMachine`
 
 [![paletteDisplayStateMachine](fig-sm-paletteDisplayStateMachine.svg)](fig-sm-paletteDisplayStateMachine.svg)
 
@@ -253,7 +259,7 @@
 
 表に無い出来事は `paletteDisplayStateMachine` を変えない（同じ参照）。
 
-### 状態機械 `milestoneListDisplayStateMachine`
+### ステートマシン `milestoneListDisplayStateMachine`
 
 [![milestoneListDisplayStateMachine](fig-sm-milestoneListDisplayStateMachine.svg)](fig-sm-milestoneListDisplayStateMachine.svg)
 
@@ -266,7 +272,7 @@
 
 表に無い出来事は `milestoneListDisplayStateMachine` を変えない（同じ参照）。
 
-### 状態機械 `fullScreenModeStateMachine`
+### ステートマシン `fullScreenModeStateMachine`
 
 [![fullScreenModeStateMachine](fig-sm-fullScreenModeStateMachine.svg)](fig-sm-fullScreenModeStateMachine.svg)
 
@@ -280,7 +286,7 @@
 
 表に無い出来事は `fullScreenModeStateMachine` を変えない（同じ参照）。
 
-### 状態機械 `openSurfaceStateMachine`
+### ステートマシン `openSurfaceStateMachine`
 
 [![openSurfaceStateMachine](fig-sm-openSurfaceStateMachine.svg)](fig-sm-openSurfaceStateMachine.svg)
 
@@ -301,7 +307,7 @@
 
 表に無い出来事は `openSurfaceStateMachine` を変えない（同じ参照）。
 
-### 状態機械 `watermarkDisplayStateMachine`
+### ステートマシン `watermarkDisplayStateMachine`
 
 [![watermarkDisplayStateMachine](fig-sm-watermarkDisplayStateMachine.svg)](fig-sm-watermarkDisplayStateMachine.svg)
 
@@ -315,7 +321,7 @@
 
 表に無い出来事は `watermarkDisplayStateMachine` を変えない（同じ参照）。
 
-### 状態機械 `propertiesPanelContentStateMachine`
+### ステートマシン `propertiesPanelContentStateMachine`
 
 [![propertiesPanelContentStateMachine](fig-sm-propertiesPanelContentStateMachine.svg)](fig-sm-propertiesPanelContentStateMachine.svg)
 
@@ -335,7 +341,7 @@
 
 表に無い出来事は `propertiesPanelContentStateMachine` を変えない（同じ参照）。
 
-### 状態機械 `dualCursorModeStateMachine`
+### ステートマシン `dualCursorModeStateMachine`
 
 [![dualCursorModeStateMachine](fig-sm-dualCursorModeStateMachine.svg)](fig-sm-dualCursorModeStateMachine.svg)
 
@@ -354,7 +360,7 @@
 
 表に無い出来事は `dualCursorModeStateMachine` を変えない（同じ参照）。
 
-### 状態機械 `scaleMessageDisplayStateMachine`
+### ステートマシン `scaleMessageDisplayStateMachine`
 
 [![scaleMessageDisplayStateMachine](fig-sm-scaleMessageDisplayStateMachine.svg)](fig-sm-scaleMessageDisplayStateMachine.svg)
 
@@ -370,7 +376,7 @@
 
 表に無い出来事は `scaleMessageDisplayStateMachine` を変えない（同じ参照）。
 
-### 状態機械 `tooltipDisplayStateMachine`
+### ステートマシン `tooltipDisplayStateMachine`
 
 [![tooltipDisplayStateMachine](fig-sm-tooltipDisplayStateMachine.svg)](fig-sm-tooltipDisplayStateMachine.svg)
 
@@ -384,7 +390,7 @@
 
 表に無い出来事は `tooltipDisplayStateMachine` を変えない（同じ参照）。
 
-### 状態機械 `searchPanelDisplayStateMachine`
+### ステートマシン `searchPanelDisplayStateMachine`
 
 [![searchPanelDisplayStateMachine](fig-sm-searchPanelDisplayStateMachine.svg)](fig-sm-searchPanelDisplayStateMachine.svg)
 
@@ -405,7 +411,7 @@
 
 表に無い出来事は `searchPanelDisplayStateMachine` を変えない（同じ参照）。
 
-### 状態機械 `helpDisplayStateMachine`
+### ステートマシン `helpDisplayStateMachine`
 
 [![helpDisplayStateMachine](fig-sm-helpDisplayStateMachine.svg)](fig-sm-helpDisplayStateMachine.svg)
 
@@ -425,7 +431,7 @@
 
 表に無い出来事は `helpDisplayStateMachine` を変えない（同じ参照）。
 
-### 状態機械 `landingMarkDisplayStateMachine`
+### ステートマシン `landingMarkDisplayStateMachine`
 
 [![landingMarkDisplayStateMachine](fig-sm-landingMarkDisplayStateMachine.svg)](fig-sm-landingMarkDisplayStateMachine.svg)
 
@@ -440,7 +446,7 @@
 
 表に無い出来事は `landingMarkDisplayStateMachine` を変えない（同じ参照）。
 
-### 状態機械 `dropCueDisplayStateMachine`
+### ステートマシン `dropCueDisplayStateMachine`
 
 [![dropCueDisplayStateMachine](fig-sm-dropCueDisplayStateMachine.svg)](fig-sm-dropCueDisplayStateMachine.svg)
 
@@ -454,7 +460,7 @@
 
 表に無い出来事は `dropCueDisplayStateMachine` を変えない（同じ参照）。
 
-### 状態機械 `baseTimeZoneDraftStateMachine`
+### ステートマシン `baseTimeZoneDraftStateMachine`
 
 [![baseTimeZoneDraftStateMachine](fig-sm-baseTimeZoneDraftStateMachine.svg)](fig-sm-baseTimeZoneDraftStateMachine.svg)
 
@@ -477,7 +483,7 @@
 
 表に無い出来事は `baseTimeZoneDraftStateMachine` を変えない（同じ参照）。
 
-### 状態機械 `timeShiftDraftStateMachine`
+### ステートマシン `timeShiftDraftStateMachine`
 
 [![timeShiftDraftStateMachine](fig-sm-timeShiftDraftStateMachine.svg)](fig-sm-timeShiftDraftStateMachine.svg)
 
@@ -500,7 +506,7 @@
 
 表に無い出来事は `timeShiftDraftStateMachine` を変えない（同じ参照）。
 
-### 状態機械 `wholeScheduleShiftDraftStateMachine`
+### ステートマシン `wholeScheduleShiftDraftStateMachine`
 
 [![wholeScheduleShiftDraftStateMachine](fig-sm-wholeScheduleShiftDraftStateMachine.svg)](fig-sm-wholeScheduleShiftDraftStateMachine.svg)
 
@@ -523,7 +529,7 @@
 
 表に無い出来事は `wholeScheduleShiftDraftStateMachine` を変えない（同じ参照）。
 
-### 状態機械 `calendarDraftStateMachine`
+### ステートマシン `calendarDraftStateMachine`
 
 [![calendarDraftStateMachine](fig-sm-calendarDraftStateMachine.svg)](fig-sm-calendarDraftStateMachine.svg)
 
@@ -545,12 +551,12 @@
 
 ## 通知（`notices`）
 
-**表 T-286 — 通知の状態機械**
+**表 T-286 — 通知のステートマシン**
 
-本表は、出来事の定義・根の値・状態機械ごとの状態遷移表と状態の一覧からなる。  
-状態遷移表の行はその状態機械を動かす出来事、列はその状態機械の葉の状態、升は「→ 次の状態 [ガード] / 副作用」である。  
+本表は、出来事の定義・根の値・ステートマシンごとの状態遷移表と状態の一覧からなる。  
+状態遷移表の行はそのステートマシンを動かす出来事、列はそのステートマシンの葉の状態、升は「→ 次の状態 [ガード] / 副作用」である。  
 ガードは名と条件を「`名`（`条件`）」と刷り、条件は同じ領域のガードの一覧と同じである。  
-状態に entry ／ exit の副作用がある状態機械は、出来事の行の上に `entry` ／ `exit` の行を置く —— その状態へ入る遷移・出る遷移が、出 → 遷移の副作用 → 入の順に起こし、自己への遷移（「→ 自己」）は起こさない。  
+状態に entry ／ exit の副作用があるステートマシンは、出来事の行の上に `entry` ／ `exit` の行を置く —— その状態へ入る遷移・出る遷移が、出 → 遷移の副作用 → 入の順に起こし、自己への遷移（「→ 自己」）は起こさない。  
 升の「—」は変化なし（同じ参照）を表す。  
 ガードの付いた枝がすべての場合を覆わない升には「それ以外 → —」を添え、どの場合に何が起きるかを升ごとに言い切る。  
 親の状態に置いた升は、その子のすべての列に同じ升を刷り、「親 … の升」と書き添える。
@@ -589,12 +595,12 @@
 
 **図 F-029 — 通知の状態遷移**
 
-状態機械ごとに 1 つの図に分け、その状態機械の節に置く。状態機械どうしは直交する。  
-図は UML の状態機械図である —— 矢印のラベルは「出来事 [ガード] / 副作用」、同じ 2 つの状態を結ぶ遷移は 1 本の矢印に 1 行ずつ並べる。ガードは名で書き、条件は同じ領域のガードの一覧が持つ。  
+ステートマシンごとに 1 つの図に分け、そのステートマシンの節に置く。ステートマシンどうしは直交する。  
+図は UML のステートマシン図である —— 矢印のラベルは「出来事 [ガード] / 副作用」、同じ 2 つの状態を結ぶ遷移は 1 本の矢印に 1 行ずつ並べる。ガードは名で書き、条件は同じ領域のガードの一覧が持つ。  
 行き先が運ぶ値で決まる升は選択の擬似状態（◇）で分ける。entry ／ exit は状態の箱の中に書く。  
 ⭐ 遷移の全数は 表 T-286 の状態遷移表が持つ。図と表はどちらも原稿から刷る。
 
-### 状態機械 `noticeDisplayStateMachine`
+### ステートマシン `noticeDisplayStateMachine`
 
 [![noticeDisplayStateMachine](fig-sm-noticeDisplayStateMachine.svg)](fig-sm-noticeDisplayStateMachine.svg)
 
@@ -610,7 +616,7 @@
 
 表に無い出来事は `noticeDisplayStateMachine` を変えない（同じ参照）。
 
-### 状態機械 `changeDeliveryStateMachine`
+### ステートマシン `changeDeliveryStateMachine`
 
 [![changeDeliveryStateMachine](fig-sm-changeDeliveryStateMachine.svg)](fig-sm-changeDeliveryStateMachine.svg)
 
@@ -626,12 +632,12 @@
 
 ## 身振り（`gesture`）
 
-**表 T-289 — 身振りの状態機械**
+**表 T-289 — 身振りのステートマシン**
 
-本表は、出来事の定義・根の値・状態機械ごとの状態遷移表と状態の一覧からなる。  
-状態遷移表の行はその状態機械を動かす出来事、列はその状態機械の葉の状態、升は「→ 次の状態 [ガード] / 副作用」である。  
+本表は、出来事の定義・根の値・ステートマシンごとの状態遷移表と状態の一覧からなる。  
+状態遷移表の行はそのステートマシンを動かす出来事、列はそのステートマシンの葉の状態、升は「→ 次の状態 [ガード] / 副作用」である。  
 ガードは名と条件を「`名`（`条件`）」と刷り、条件は同じ領域のガードの一覧と同じである。  
-状態に entry ／ exit の副作用がある状態機械は、出来事の行の上に `entry` ／ `exit` の行を置く —— その状態へ入る遷移・出る遷移が、出 → 遷移の副作用 → 入の順に起こし、自己への遷移（「→ 自己」）は起こさない。  
+状態に entry ／ exit の副作用があるステートマシンは、出来事の行の上に `entry` ／ `exit` の行を置く —— その状態へ入る遷移・出る遷移が、出 → 遷移の副作用 → 入の順に起こし、自己への遷移（「→ 自己」）は起こさない。  
 升の「—」は変化なし（同じ参照）を表す。  
 ガードの付いた枝がすべての場合を覆わない升には「それ以外 → —」を添え、どの場合に何が起きるかを升ごとに言い切る。  
 親の状態に置いた升は、その子のすべての列に同じ升を刷り、「親 … の升」と書き添える。
@@ -667,12 +673,12 @@
 
 **図 F-035 — 身振りの状態遷移**
 
-状態機械ごとに 1 つの図に分け、その状態機械の節に置く。状態機械どうしは直交する。  
-図は UML の状態機械図である —— 矢印のラベルは「出来事 [ガード] / 副作用」、同じ 2 つの状態を結ぶ遷移は 1 本の矢印に 1 行ずつ並べる。ガードは名で書き、条件は同じ領域のガードの一覧が持つ。  
+ステートマシンごとに 1 つの図に分け、そのステートマシンの節に置く。ステートマシンどうしは直交する。  
+図は UML のステートマシン図である —— 矢印のラベルは「出来事 [ガード] / 副作用」、同じ 2 つの状態を結ぶ遷移は 1 本の矢印に 1 行ずつ並べる。ガードは名で書き、条件は同じ領域のガードの一覧が持つ。  
 行き先が運ぶ値で決まる升は選択の擬似状態（◇）で分ける。entry ／ exit は状態の箱の中に書く。  
 ⭐ 遷移の全数は 表 T-289 の状態遷移表が持つ。図と表はどちらも原稿から刷る。
 
-### 状態機械 `pointerPressStateMachine`
+### ステートマシン `pointerPressStateMachine`
 
 [![pointerPressStateMachine](fig-sm-pointerPressStateMachine.svg)](fig-sm-pointerPressStateMachine.svg)
 
@@ -689,7 +695,7 @@
 
 表に無い出来事は `pointerPressStateMachine` を変えない（同じ参照）。
 
-### 状態機械 `taskGroupGrabStateMachine`
+### ステートマシン `taskGroupGrabStateMachine`
 
 [![taskGroupGrabStateMachine](fig-sm-taskGroupGrabStateMachine.svg)](fig-sm-taskGroupGrabStateMachine.svg)
 
@@ -709,12 +715,12 @@
 
 ## ファイル操作と問い（`fileFlow`）
 
-**表 T-290 — ファイル操作と問いの状態機械**
+**表 T-290 — ファイル操作と問いのステートマシン**
 
-本表は、出来事の定義・根の値・状態機械ごとの状態遷移表と状態の一覧からなる。  
-状態遷移表の行はその状態機械を動かす出来事、列はその状態機械の葉の状態、升は「→ 次の状態 [ガード] / 副作用」である。  
+本表は、出来事の定義・根の値・ステートマシンごとの状態遷移表と状態の一覧からなる。  
+状態遷移表の行はそのステートマシンを動かす出来事、列はそのステートマシンの葉の状態、升は「→ 次の状態 [ガード] / 副作用」である。  
 ガードは名と条件を「`名`（`条件`）」と刷り、条件は同じ領域のガードの一覧と同じである。  
-状態に entry ／ exit の副作用がある状態機械は、出来事の行の上に `entry` ／ `exit` の行を置く —— その状態へ入る遷移・出る遷移が、出 → 遷移の副作用 → 入の順に起こし、自己への遷移（「→ 自己」）は起こさない。  
+状態に entry ／ exit の副作用があるステートマシンは、出来事の行の上に `entry` ／ `exit` の行を置く —— その状態へ入る遷移・出る遷移が、出 → 遷移の副作用 → 入の順に起こし、自己への遷移（「→ 自己」）は起こさない。  
 升の「—」は変化なし（同じ参照）を表す。  
 ガードの付いた枝がすべての場合を覆わない升には「それ以外 → —」を添え、どの場合に何が起きるかを升ごとに言い切る。  
 親の状態に置いた升は、その子のすべての列に同じ升を刷り、「親 … の升」と書き添える。
@@ -778,12 +784,12 @@
 
 **図 F-036 — ファイル操作と問いの状態遷移**
 
-状態機械ごとに 1 つの図に分け、その状態機械の節に置く。状態機械どうしは直交する。  
-図は UML の状態機械図である —— 矢印のラベルは「出来事 [ガード] / 副作用」、同じ 2 つの状態を結ぶ遷移は 1 本の矢印に 1 行ずつ並べる。ガードは名で書き、条件は同じ領域のガードの一覧が持つ。  
+ステートマシンごとに 1 つの図に分け、そのステートマシンの節に置く。ステートマシンどうしは直交する。  
+図は UML のステートマシン図である —— 矢印のラベルは「出来事 [ガード] / 副作用」、同じ 2 つの状態を結ぶ遷移は 1 本の矢印に 1 行ずつ並べる。ガードは名で書き、条件は同じ領域のガードの一覧が持つ。  
 行き先が運ぶ値で決まる升は選択の擬似状態（◇）で分ける。entry ／ exit は状態の箱の中に書く。  
 ⭐ 遷移の全数は 表 T-290 の状態遷移表が持つ。図と表はどちらも原稿から刷る。
 
-### 状態機械 `fileOperationStateMachine`
+### ステートマシン `fileOperationStateMachine`
 
 [![fileOperationStateMachine](fig-sm-fileOperationStateMachine.svg)](fig-sm-fileOperationStateMachine.svg)
 
@@ -815,7 +821,7 @@
 
 表に無い出来事は `fileOperationStateMachine` を変えない（同じ参照）。
 
-### 状態機械 `confirmationStateMachine`
+### ステートマシン `confirmationStateMachine`
 
 [![confirmationStateMachine](fig-sm-confirmationStateMachine.svg)](fig-sm-confirmationStateMachine.svg)
 
@@ -834,7 +840,7 @@
 
 表に無い出来事は `confirmationStateMachine` を変えない（同じ参照）。
 
-### 状態機械 `unsavedEditsStateMachine`
+### ステートマシン `unsavedEditsStateMachine`
 
 [![unsavedEditsStateMachine](fig-sm-unsavedEditsStateMachine.svg)](fig-sm-unsavedEditsStateMachine.svg)
 
@@ -853,12 +859,12 @@
 
 ## 名前付けと入力欄（`fieldEntry`）
 
-**表 T-292 — 名前付けと入力欄の状態機械**
+**表 T-292 — 名前付けと入力欄のステートマシン**
 
-本表は、出来事の定義・根の値・状態機械ごとの状態遷移表と状態の一覧からなる。  
-状態遷移表の行はその状態機械を動かす出来事、列はその状態機械の葉の状態、升は「→ 次の状態 [ガード] / 副作用」である。  
+本表は、出来事の定義・根の値・ステートマシンごとの状態遷移表と状態の一覧からなる。  
+状態遷移表の行はそのステートマシンを動かす出来事、列はそのステートマシンの葉の状態、升は「→ 次の状態 [ガード] / 副作用」である。  
 ガードは名と条件を「`名`（`条件`）」と刷り、条件は同じ領域のガードの一覧と同じである。  
-状態に entry ／ exit の副作用がある状態機械は、出来事の行の上に `entry` ／ `exit` の行を置く —— その状態へ入る遷移・出る遷移が、出 → 遷移の副作用 → 入の順に起こし、自己への遷移（「→ 自己」）は起こさない。  
+状態に entry ／ exit の副作用があるステートマシンは、出来事の行の上に `entry` ／ `exit` の行を置く —— その状態へ入る遷移・出る遷移が、出 → 遷移の副作用 → 入の順に起こし、自己への遷移（「→ 自己」）は起こさない。  
 升の「—」は変化なし（同じ参照）を表す。  
 ガードの付いた枝がすべての場合を覆わない升には「それ以外 → —」を添え、どの場合に何が起きるかを升ごとに言い切る。  
 親の状態に置いた升は、その子のすべての列に同じ升を刷り、「親 … の升」と書き添える。
@@ -895,12 +901,12 @@
 
 **図 F-038 — 名前付けと入力欄の状態遷移**
 
-状態機械ごとに 1 つの図に分け、その状態機械の節に置く。状態機械どうしは直交する。  
-図は UML の状態機械図である —— 矢印のラベルは「出来事 [ガード] / 副作用」、同じ 2 つの状態を結ぶ遷移は 1 本の矢印に 1 行ずつ並べる。ガードは名で書き、条件は同じ領域のガードの一覧が持つ。  
+ステートマシンごとに 1 つの図に分け、そのステートマシンの節に置く。ステートマシンどうしは直交する。  
+図は UML のステートマシン図である —— 矢印のラベルは「出来事 [ガード] / 副作用」、同じ 2 つの状態を結ぶ遷移は 1 本の矢印に 1 行ずつ並べる。ガードは名で書き、条件は同じ領域のガードの一覧が持つ。  
 行き先が運ぶ値で決まる升は選択の擬似状態（◇）で分ける。entry ／ exit は状態の箱の中に書く。  
 ⭐ 遷移の全数は 表 T-292 の状態遷移表が持つ。図と表はどちらも原稿から刷る。
 
-### 状態機械 `createdTaskNamingStateMachine`
+### ステートマシン `createdTaskNamingStateMachine`
 
 [![createdTaskNamingStateMachine](fig-sm-createdTaskNamingStateMachine.svg)](fig-sm-createdTaskNamingStateMachine.svg)
 
@@ -917,7 +923,7 @@
 
 表に無い出来事は `createdTaskNamingStateMachine` を変えない（同じ参照）。
 
-### 状態機械 `fieldEditStateMachine`
+### ステートマシン `fieldEditStateMachine`
 
 [![fieldEditStateMachine](fig-sm-fieldEditStateMachine.svg)](fig-sm-fieldEditStateMachine.svg)
 
@@ -937,12 +943,12 @@
 
 ## 選択（`selection`）
 
-**表 T-293 — 選択の状態機械**
+**表 T-293 — 選択のステートマシン**
 
-本表は、出来事の定義・根の値・状態機械ごとの状態遷移表と状態の一覧からなる。  
-状態遷移表の行はその状態機械を動かす出来事、列はその状態機械の葉の状態、升は「→ 次の状態 [ガード] / 副作用」である。  
+本表は、出来事の定義・根の値・ステートマシンごとの状態遷移表と状態の一覧からなる。  
+状態遷移表の行はそのステートマシンを動かす出来事、列はそのステートマシンの葉の状態、升は「→ 次の状態 [ガード] / 副作用」である。  
 ガードは名と条件を「`名`（`条件`）」と刷り、条件は同じ領域のガードの一覧と同じである。  
-状態に entry ／ exit の副作用がある状態機械は、出来事の行の上に `entry` ／ `exit` の行を置く —— その状態へ入る遷移・出る遷移が、出 → 遷移の副作用 → 入の順に起こし、自己への遷移（「→ 自己」）は起こさない。  
+状態に entry ／ exit の副作用があるステートマシンは、出来事の行の上に `entry` ／ `exit` の行を置く —— その状態へ入る遷移・出る遷移が、出 → 遷移の副作用 → 入の順に起こし、自己への遷移（「→ 自己」）は起こさない。  
 升の「—」は変化なし（同じ参照）を表す。  
 ガードの付いた枝がすべての場合を覆わない升には「それ以外 → —」を添え、どの場合に何が起きるかを升ごとに言い切る。  
 親の状態に置いた升は、その子のすべての列に同じ升を刷り、「親 … の升」と書き添える。
@@ -991,12 +997,12 @@
 
 **図 F-039 — 選択の状態遷移**
 
-状態機械ごとに 1 つの図に分け、その状態機械の節に置く。状態機械どうしは直交する。  
-図は UML の状態機械図である —— 矢印のラベルは「出来事 [ガード] / 副作用」、同じ 2 つの状態を結ぶ遷移は 1 本の矢印に 1 行ずつ並べる。ガードは名で書き、条件は同じ領域のガードの一覧が持つ。  
+ステートマシンごとに 1 つの図に分け、そのステートマシンの節に置く。ステートマシンどうしは直交する。  
+図は UML のステートマシン図である —— 矢印のラベルは「出来事 [ガード] / 副作用」、同じ 2 つの状態を結ぶ遷移は 1 本の矢印に 1 行ずつ並べる。ガードは名で書き、条件は同じ領域のガードの一覧が持つ。  
 行き先が運ぶ値で決まる升は選択の擬似状態（◇）で分ける。entry ／ exit は状態の箱の中に書く。  
 ⭐ 遷移の全数は 表 T-293 の状態遷移表が持つ。図と表はどちらも原稿から刷る。
 
-### 状態機械 `selectionStateMachine`
+### ステートマシン `selectionStateMachine`
 
 [![selectionStateMachine](fig-sm-selectionStateMachine.svg)](fig-sm-selectionStateMachine.svg)
 
@@ -1018,12 +1024,12 @@
 
 ## 操作の記録（`interactionRecord`）
 
-**表 T-295 — 操作の記録の状態機械**
+**表 T-295 — 操作の記録のステートマシン**
 
-本表は、出来事の定義・根の値・状態機械ごとの状態遷移表と状態の一覧からなる。  
-状態遷移表の行はその状態機械を動かす出来事、列はその状態機械の葉の状態、升は「→ 次の状態 [ガード] / 副作用」である。  
+本表は、出来事の定義・根の値・ステートマシンごとの状態遷移表と状態の一覧からなる。  
+状態遷移表の行はそのステートマシンを動かす出来事、列はそのステートマシンの葉の状態、升は「→ 次の状態 [ガード] / 副作用」である。  
 ガードは名と条件を「`名`（`条件`）」と刷り、条件は同じ領域のガードの一覧と同じである。  
-状態に entry ／ exit の副作用がある状態機械は、出来事の行の上に `entry` ／ `exit` の行を置く —— その状態へ入る遷移・出る遷移が、出 → 遷移の副作用 → 入の順に起こし、自己への遷移（「→ 自己」）は起こさない。  
+状態に entry ／ exit の副作用があるステートマシンは、出来事の行の上に `entry` ／ `exit` の行を置く —— その状態へ入る遷移・出る遷移が、出 → 遷移の副作用 → 入の順に起こし、自己への遷移（「→ 自己」）は起こさない。  
 升の「—」は変化なし（同じ参照）を表す。  
 ガードの付いた枝がすべての場合を覆わない升には「それ以外 → —」を添え、どの場合に何が起きるかを升ごとに言い切る。  
 親の状態に置いた升は、その子のすべての列に同じ升を刷り、「親 … の升」と書き添える。
@@ -1043,12 +1049,12 @@
 
 **図 F-041 — 操作の記録の状態遷移**
 
-状態機械ごとに 1 つの図に分け、その状態機械の節に置く。状態機械どうしは直交する。  
-図は UML の状態機械図である —— 矢印のラベルは「出来事 [ガード] / 副作用」、同じ 2 つの状態を結ぶ遷移は 1 本の矢印に 1 行ずつ並べる。ガードは名で書き、条件は同じ領域のガードの一覧が持つ。  
+ステートマシンごとに 1 つの図に分け、そのステートマシンの節に置く。ステートマシンどうしは直交する。  
+図は UML のステートマシン図である —— 矢印のラベルは「出来事 [ガード] / 副作用」、同じ 2 つの状態を結ぶ遷移は 1 本の矢印に 1 行ずつ並べる。ガードは名で書き、条件は同じ領域のガードの一覧が持つ。  
 行き先が運ぶ値で決まる升は選択の擬似状態（◇）で分ける。entry ／ exit は状態の箱の中に書く。  
 ⭐ 遷移の全数は 表 T-295 の状態遷移表が持つ。図と表はどちらも原稿から刷る。
 
-### 状態機械 `interactionRecordingStateMachine`
+### ステートマシン `interactionRecordingStateMachine`
 
 [![interactionRecordingStateMachine](fig-sm-interactionRecordingStateMachine.svg)](fig-sm-interactionRecordingStateMachine.svg)
 
@@ -1063,12 +1069,12 @@
 
 ## `Agent API`（`agentApi`）
 
-**表 T-296 — `Agent API` の状態機械**
+**表 T-296 — `Agent API` のステートマシン**
 
-本表は、出来事の定義・根の値・状態機械ごとの状態遷移表と状態の一覧からなる。  
-状態遷移表の行はその状態機械を動かす出来事、列はその状態機械の葉の状態、升は「→ 次の状態 [ガード] / 副作用」である。  
+本表は、出来事の定義・根の値・ステートマシンごとの状態遷移表と状態の一覧からなる。  
+状態遷移表の行はそのステートマシンを動かす出来事、列はそのステートマシンの葉の状態、升は「→ 次の状態 [ガード] / 副作用」である。  
 ガードは名と条件を「`名`（`条件`）」と刷り、条件は同じ領域のガードの一覧と同じである。  
-状態に entry ／ exit の副作用がある状態機械は、出来事の行の上に `entry` ／ `exit` の行を置く —— その状態へ入る遷移・出る遷移が、出 → 遷移の副作用 → 入の順に起こし、自己への遷移（「→ 自己」）は起こさない。  
+状態に entry ／ exit の副作用があるステートマシンは、出来事の行の上に `entry` ／ `exit` の行を置く —— その状態へ入る遷移・出る遷移が、出 → 遷移の副作用 → 入の順に起こし、自己への遷移（「→ 自己」）は起こさない。  
 升の「—」は変化なし（同じ参照）を表す。  
 ガードの付いた枝がすべての場合を覆わない升には「それ以外 → —」を添え、どの場合に何が起きるかを升ごとに言い切る。  
 親の状態に置いた升は、その子のすべての列に同じ升を刷り、「親 … の升」と書き添える。
@@ -1099,12 +1105,12 @@
 
 **図 F-042 — `Agent API` の状態遷移**
 
-状態機械ごとに 1 つの図に分け、その状態機械の節に置く。状態機械どうしは直交する。  
-図は UML の状態機械図である —— 矢印のラベルは「出来事 [ガード] / 副作用」、同じ 2 つの状態を結ぶ遷移は 1 本の矢印に 1 行ずつ並べる。ガードは名で書き、条件は同じ領域のガードの一覧が持つ。  
+ステートマシンごとに 1 つの図に分け、そのステートマシンの節に置く。ステートマシンどうしは直交する。  
+図は UML のステートマシン図である —— 矢印のラベルは「出来事 [ガード] / 副作用」、同じ 2 つの状態を結ぶ遷移は 1 本の矢印に 1 行ずつ並べる。ガードは名で書き、条件は同じ領域のガードの一覧が持つ。  
 行き先が運ぶ値で決まる升は選択の擬似状態（◇）で分ける。entry ／ exit は状態の箱の中に書く。  
 ⭐ 遷移の全数は 表 T-296 の状態遷移表が持つ。図と表はどちらも原稿から刷る。
 
-### 状態機械 `agentApiEnablingStateMachine`
+### ステートマシン `agentApiEnablingStateMachine`
 
 [![agentApiEnablingStateMachine](fig-sm-agentApiEnablingStateMachine.svg)](fig-sm-agentApiEnablingStateMachine.svg)
 
@@ -1120,12 +1126,12 @@
 
 ## タスクグループの木（`taskGroupTree`）
 
-**表 T-328 — タスクグループの木の状態機械**
+**表 T-328 — タスクグループの木のステートマシン**
 
-本表は、出来事の定義・根の値・状態機械ごとの状態遷移表と状態の一覧からなる。  
-状態遷移表の行はその状態機械を動かす出来事、列はその状態機械の葉の状態、升は「→ 次の状態 [ガード] / 副作用」である。  
+本表は、出来事の定義・根の値・ステートマシンごとの状態遷移表と状態の一覧からなる。  
+状態遷移表の行はそのステートマシンを動かす出来事、列はそのステートマシンの葉の状態、升は「→ 次の状態 [ガード] / 副作用」である。  
 ガードは名と条件を「`名`（`条件`）」と刷り、条件は同じ領域のガードの一覧と同じである。  
-状態に entry ／ exit の副作用がある状態機械は、出来事の行の上に `entry` ／ `exit` の行を置く —— その状態へ入る遷移・出る遷移が、出 → 遷移の副作用 → 入の順に起こし、自己への遷移（「→ 自己」）は起こさない。  
+状態に entry ／ exit の副作用があるステートマシンは、出来事の行の上に `entry` ／ `exit` の行を置く —— その状態へ入る遷移・出る遷移が、出 → 遷移の副作用 → 入の順に起こし、自己への遷移（「→ 自己」）は起こさない。  
 升の「—」は変化なし（同じ参照）を表す。  
 ガードの付いた枝がすべての場合を覆わない升には「それ以外 → —」を添え、どの場合に何が起きるかを升ごとに言い切る。  
 親の状態に置いた升は、その子のすべての列に同じ升を刷り、「親 … の升」と書き添える。
@@ -1181,12 +1187,12 @@
 
 **図 F-043 — タスクグループの木の状態遷移**
 
-状態機械ごとに 1 つの図に分け、その状態機械の節に置く。状態機械どうしは直交する。  
-図は UML の状態機械図である —— 矢印のラベルは「出来事 [ガード] / 副作用」、同じ 2 つの状態を結ぶ遷移は 1 本の矢印に 1 行ずつ並べる。ガードは名で書き、条件は同じ領域のガードの一覧が持つ。  
+ステートマシンごとに 1 つの図に分け、そのステートマシンの節に置く。ステートマシンどうしは直交する。  
+図は UML のステートマシン図である —— 矢印のラベルは「出来事 [ガード] / 副作用」、同じ 2 つの状態を結ぶ遷移は 1 本の矢印に 1 行ずつ並べる。ガードは名で書き、条件は同じ領域のガードの一覧が持つ。  
 行き先が運ぶ値で決まる升は選択の擬似状態（◇）で分ける。entry ／ exit は状態の箱の中に書く。  
 ⭐ 遷移の全数は 表 T-328 の状態遷移表が持つ。図と表はどちらも原稿から刷る。
 
-### 状態機械 `treeStateMachine`
+### ステートマシン `treeStateMachine`
 
 [![treeStateMachine](fig-sm-treeStateMachine.svg)](fig-sm-treeStateMachine.svg)
 

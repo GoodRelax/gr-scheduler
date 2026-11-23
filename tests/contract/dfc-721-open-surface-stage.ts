@@ -13,6 +13,7 @@ import { emptySelection } from '../../src/entity/document-model/selection/select
 import { emptyScreenSession, type ScreenSession } from '../../src/use-case/advance-screen-session/advance-screen-session'
 import { REGIONS, SCHEDULE, SETTINGS } from './cr-727-stage'
 import { bare, bareAll, specTable } from './spec-table'
+import { readStateMachineView } from './state-machine-manuscript'
 
 const SOURCE = join(process.cwd(), 'docs', 'spec', '_source')
 
@@ -28,7 +29,7 @@ interface RawMachine {
 // see T-280
 // WHY: the table is read from its manuscript docs/spec/_source/state-machines.json
 export const OPEN_SURFACE_ROWS: readonly string[] = (() => {
-  const regions = (JSON.parse(readFileSync(join(SOURCE, 'state-machines.json'), 'utf8')) as {
+  const regions = (readStateMachineView() as {
     readonly regions: readonly { readonly machines?: readonly RawMachine[] }[]
   }).regions
   const rows = regions

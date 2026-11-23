@@ -19,6 +19,7 @@ import {
 } from '../../src/use-case/edit-document/task-group-folding'
 import { taskGroupDocument, SCREEN, TEMPLATE } from '../unit/cr-541-stage'
 import { unbroken } from './spec-table'
+import { readStateMachineView } from './state-machine-manuscript'
 
 type TreeState = TaskGroup['treeState']
 
@@ -49,7 +50,7 @@ type RawRegion = {
   }[]
 }
 
-const MANUSCRIPT = JSON.parse(readFileSync(join(SPEC, '_source', 'state-machines.json'), 'utf8')) as {
+const MANUSCRIPT = readStateMachineView() as {
   readonly regions: readonly RawRegion[]
 }
 const REGION = ((): RawRegion => {

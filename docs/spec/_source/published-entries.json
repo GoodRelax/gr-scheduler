@@ -5004,7 +5004,7 @@
      "name": "isWindowStandingIn",
      "note": {
       "ja": [
-       "ウィンドウ（`FR-036` の 表 T-335）が立っているか —— 表示の状態機械が `shown.normal` か `shown.maximized`。",
+       "ウィンドウ（`FR-036` の 表 T-335）が立っているか —— 表示のステートマシンが `shown.normal` か `shown.maximized`。",
        "`InputCommandTranslator` が `Esc` の段（表 T-283 の `RG-16`）に読む"
       ]
      }

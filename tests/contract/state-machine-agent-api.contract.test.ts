@@ -1,7 +1,5 @@
 // Contract test: table T-296 agentApiEnablingStateMachine (figure F-042) against advanceScreenSession.
 
-import { readFileSync } from 'node:fs'
-import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
 
@@ -11,6 +9,7 @@ import {
   type ScreenSession,
   type SessionEvent,
 } from '../../src/use-case/advance-screen-session/advance-screen-session'
+import { readStateMachineView } from './state-machine-manuscript'
 
 type Loose = Record<string, unknown>
 type RawBranch = {
@@ -36,7 +35,7 @@ type RawRegion = {
 
 // see SD-5
 const REGIONS = (
-  JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'state-machines.json'), 'utf8')) as {
+  readStateMachineView() as {
     readonly regions: readonly RawRegion[]
   }
 ).regions.filter((r) => r.holds !== 'documentData')

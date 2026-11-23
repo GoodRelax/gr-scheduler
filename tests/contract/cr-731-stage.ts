@@ -17,6 +17,7 @@ import type {
 import { undoEdit } from '../../src/use-case/undo-edit/undo-edit'
 import { redoEdit } from '../../src/use-case/redo-edit/redo-edit'
 import { specTable, unbroken } from './spec-table'
+import { readStateMachineView } from './state-machine-manuscript'
 
 export type Loose = Record<string, unknown>
 
@@ -28,9 +29,7 @@ export const DESIGN = read('05-07-design.md')
 export const GLOSSARY = read('_assets', 'tbl-glossary.md')
 export const SETTINGS_BOOK = read('_assets', 'tbl-settings.md')
 export const STATE_MACHINE_BOOK = read('_assets', 'tbl-state-machines.md')
-export const STATE_MACHINES_SOURCE = JSON.parse(
-  readFileSync(join(SPEC, '_source', 'state-machines.json'), 'utf8'),
-) as { readonly regions: readonly Record<string, any>[] }
+export const STATE_MACHINES_SOURCE = readStateMachineView() as { readonly regions: readonly Record<string, any>[] }
 export const WORDS = JSON.parse(readFileSync(join(SPEC, '_source', 'display-words.json'), 'utf8')) as Record<string, any>
 export const SETTINGS_SOURCE = JSON.parse(readFileSync(join(SPEC, '_source', 'settings.json'), 'utf8')) as unknown
 

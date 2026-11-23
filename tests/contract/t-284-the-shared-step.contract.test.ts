@@ -13,12 +13,13 @@ import {
 } from '../../src/use-case/advance-screen-session/advance-screen-session'
 import { assertNever, NO_EFFECTS, unchanged } from '../../src/use-case/advance-screen-session/session-step'
 import { bare, specTable, unbroken } from './spec-table'
+import { readStateMachineView } from './state-machine-manuscript'
 
 const DESIGN = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '05-07-design.md'), 'utf8'))
 
 const T284_LEAD =
   '全領域が共有する 1 段の形の約束を 表 T-284 に示す。領域のユニットと公開エントリは、本表の名前と約束に従うこと（MUST）'
-const T285_LEAD = '状態機械に領域を 1 つ足す手順を 表 T-285 に示す。領域を足すときは、本表の段の順に従うこと（MUST）'
+const T285_LEAD = 'ステートマシンに領域を 1 つ足す手順を 表 T-285 に示す。領域を足すときは、本表の段の順に従うこと（MUST）'
 
 type Loose = Record<string, unknown>
 type Region = {
@@ -34,7 +35,7 @@ type Region = {
 
 // see SD-5
 const REGIONS = (
-  JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'state-machines.json'), 'utf8')) as {
+  readStateMachineView() as {
     readonly regions: readonly Region[]
   }
 ).regions.filter((r) => r.holds !== 'documentData')

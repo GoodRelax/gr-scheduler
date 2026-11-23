@@ -32,9 +32,21 @@ pointers out of src/.
 
 ⭐ A MIRROR IS A TESTED CLAIM. The ledger records work about rows the
 specification defines -- its UF-32 IS the specification's UF-32 -- so
-`mirrored_in` is held against the ids: every id in the mirroring tree must be
+`xMirroredIn` is held against the ids: every id in the mirroring tree must be
 one the owner defines. That test separates a real mirror, with not one foreign
 id, from a prefix that means two different things.
+
+⭐ `section` IS A TESTED CLAIM TOO. The NDD review standard (appendix A.6,
+'List of JSON Keys') makes `section` a required key of the ID registry. The
+manuscript writes the one place that defines the rows; the walk must find the
+owner tree defining rows of the prefix there, and fails the run when it does
+not. The walk still prints every table and counts the rows: the manuscript
+names the home, the walk proves it and finds the rest.
+
+⭐ KEYS. prefix / standsFor / meaning / section are the standard's keys; every
+key the project adds starts with `x` (xOwner, xMirroredIn, xPending,
+xCollisionsSuppressed), as the standard requires. row-id-prefixes.schema.json
+holds the shape.
 
 
 ⚠️ docs/spec/output/ is NOT walked. It is an untracked StrictDoc export: its
@@ -69,6 +81,7 @@ SPEC = os.path.dirname(HERE)
 ROOT = os.path.dirname(os.path.dirname(SPEC))
 ASSETS = os.path.join(SPEC, '_assets')
 SRC = os.path.join(HERE, 'row-id-prefixes.json')
+SCHEMA = os.path.join(HERE, 'row-id-prefixes.schema.json')
 OUT = os.path.join(ASSETS, 'tbl-row-id-prefixes.md')
 
 LANG = 'ja'
@@ -208,7 +221,7 @@ def tables_cell(entry, found):
     divided by subject, not one spelling meaning several things.
     """
     if found is None:
-        return PENDING_CELL if entry.get('pending') else NO_TABLE
+        return PENDING_CELL if entry.get('xPending') else NO_TABLE
     out = []
     for name in found['tables']:
         if name.startswith('UID:'):
@@ -242,6 +255,33 @@ def spots(found):
     return ', '.join(spot(name) for name in found['tables'])
 
 
+def section_of(name):
+    """One location as the manuscript's `section` spells it: a table id, the
+    UID an untitled table stands under, or a file path."""
+    if name.startswith('UID:') or name.startswith('FILE:'):
+        return name.split(':', 1)[1]
+    return name
+
+
+def schema_problems(doc):
+    """Soft dependency, as in state_machines_json_to_md.py: a machine without
+    a validator must still be able to build the specification."""
+    try:
+        import jsonschema
+    except ImportError:
+        say('NOTE     jsonschema is not installed, so '
+            'row-id-prefixes.schema.json was not enforced this run')
+        return []
+    schema = json.load(io.open(SCHEMA, encoding='utf-8'))
+    validator = jsonschema.Draft202012Validator(schema)
+    out = []
+    for e in sorted(validator.iter_errors(doc), key=lambda e: list(e.path)):
+        message = e.message if len(e.message) <= 160 else e.message[:157] + '...'
+        out.append('%s: %s' % ('/'.join(str(x) for x in e.path) or '(root)',
+                               message))
+    return out
+
+
 def rows_cell(entry, found):
     return '0' if found is None else str(found['rows'])
 
@@ -252,13 +292,13 @@ def owner_cell(entry, rosters, suppressed):
     ⭐ THE SUPPRESSED COLLISIONS ARE PRINTED HERE, not only in the manuscript:
     a debt nobody can see in the document is a debt nobody pays.
     """
-    out = TREE_WORD[entry['owner']]
+    out = TREE_WORD[entry['xOwner']]
     extra = []
     for key in where_used(rosters, entry['prefix']):
-        if key == entry['owner']:
+        if key == entry['xOwner']:
             continue
         rows = rosters[key][entry['prefix']]['rows']
-        if key in entry.get('mirrored_in', []):
+        if key in entry.get('xMirroredIn', []):
             extra.append(u'%sにも %d 行。コピーとして申告済み'
                          % (TREE_WORD[key], rows))
         else:
@@ -290,15 +330,16 @@ def build(doc, rosters, suppressed):
         '本書は表の行 ID の接頭辞の全数である。'
         '`1.9 Notation` がここを指す。',
         '',
-        '⭐ **`接頭辞` `元の語` `何を指すか` `持ち主` は原稿（`_source/row-id-prefixes.json`）が持ち、'
-        '`定義する表` と `行数` は生成のたびに文書の木を歩いて数える。**'
-        ' 原稿は員数を持たない —— 持たせると、表が動いたときに黙ってずれる側ができる。',
+        '⭐ **`接頭辞` `元の語` `何を指すか` `持ち主` と、行を定義する場所 1 つ（キー `section`）は原稿（`_source/row-id-prefixes.json`）が持つ。'
+        '`定義する表` の全部と `行数` は生成のたびに文書の木を歩いて数える。**'
+        ' 原稿は員数を持たない —— 持たせると、表が動いたときに黙ってずれる側ができる。'
+        ' `section` は歩いた結果と突き合わせるので、黙ってはずれない。',
         '',
         '⭐ **歩く木は 3 つである** —— %s。'
         '⛔ **1 つでは足りない** —— 同じ綴りが仕様書と台帳で別のものを指す形こそが、'
         '本登録簿の作られた理由だからである。' % TREE_LIST,
         '',
-        '⛔ **次の 4 つを `npm run gen` が拒む（MUST）。** 別の検査は無い。',
+        '⛔ **次の 5 つを `npm run gen` が拒む（MUST）。** 別の検査は無い。',
         '',
         '| # | 拒むもの |',
         '| --- | --- |',
@@ -306,6 +347,7 @@ def build(doc, rosters, suppressed):
         '| 2 | 登録が在って、どの木も使っていない接頭辞 |',
         '| 3 | 2 つ以上の木が行を定義していて、コピーとして申告されていない接頭辞 |',
         '| 4 | コピーと申告しながら、持ち主が定義していない綴りを持つ接頭辞 |',
+        '| 5 | `section` が、持ち主の木が行を定義していない場所を指す接頭辞 |',
         '',
         '⭐ **「コピー」は申告ではなく検査である。**'
         '台帳が持ち主の行について記録を書くとき、その綴りは持ち主が定義したものに限る。'
@@ -323,11 +365,11 @@ def build(doc, rosters, suppressed):
         '| --- | --- | --- | --- | --- | --- |',
     ]
     for entry in doc['prefixes']:
-        found = rosters[entry['owner']].get(entry['prefix'])
+        found = rosters[entry['xOwner']].get(entry['prefix'])
         out.append('| `%s` | %s | %s | %s | %s | %s |' % (
             entry['prefix'],
-            entry['words'] or NO_TABLE,
-            broken(entry['means'][LANG]),
+            entry['standsFor'] or NO_TABLE,
+            broken(entry['meaning'][LANG]),
             owner_cell(entry, rosters, suppressed),
             tables_cell(entry, found),
             rows_cell(entry, found),
@@ -344,7 +386,7 @@ def suppression_block(doc, rosters):
     removes it, so a reader can count them and see that the count is not
     supposed to stay where it is.
     """
-    held = doc.get('collisions_suppressed', [])
+    held = doc.get('xCollisionsSuppressed', [])
     if not held:
         return []
     out = [
@@ -391,14 +433,15 @@ def problems(doc, rosters, suppressed):
         if prefix in seen:
             found.append('%s is registered more than once' % prefix)
         seen.add(prefix)
-        if LANG not in entry.get('means', {}):
-            found.append('%s has no means cell in %s' % (prefix, LANG))
-        owner = entry.get('owner')
+        for lang in ('en', LANG):
+            if lang not in entry.get('meaning', {}):
+                found.append('%s has no meaning in %s' % (prefix, lang))
+        owner = entry.get('xOwner')
         if owner not in TREE_WORD:
             found.append('%s names an owner tree nobody walks: %r' % (prefix, owner))
             continue
         used = where_used(rosters, prefix)
-        if entry.get('pending'):
+        if entry.get('xPending'):
             if used:
                 found.append(
                     '%s is marked pending but %s -- strike the flag, the wave '
@@ -412,15 +455,25 @@ def problems(doc, rosters, suppressed):
         if not used:
             found.append(
                 '%s is registered and no tree uses it -- a dead registration. '
-                'Strike it, or mark it "pending": true if its rows are still '
+                'Strike it, or mark it "xPending": true if its rows are still '
                 'to be written' % prefix)
             continue
         if owner not in used:
             found.append(
                 '%s is registered as owned by %s, which defines no row of it; '
-                'its rows stand in %s. Point `owner` at the tree that defines '
+                'its rows stand in %s. Point `xOwner` at the tree that defines '
                 'them' % (prefix, owner, ', '.join(used)))
-        mirrors = entry.get('mirrored_in', [])
+        else:
+            # ⭐ THE SECTION IS TESTED, not believed: the walk must find the
+            # owner defining rows of this prefix at the place it names.
+            homes = [section_of(name)
+                     for name in rosters[owner][prefix]['tables']]
+            if entry.get('section') not in homes:
+                found.append(
+                    '%s names section %r, but %s defines its rows at %s. '
+                    'Point `section` at one of them'
+                    % (prefix, entry.get('section'), owner, ', '.join(homes)))
+        mirrors = entry.get('xMirroredIn', [])
         for key in mirrors:
             if key not in TREE_WORD:
                 found.append('%s claims a mirror in a tree nobody walks: %r'
@@ -456,7 +509,7 @@ def problems(doc, rosters, suppressed):
                 '%s is defined in %s (%d row(s)) as well as in %s (%d row(s)) '
                 'and %s declares neither a mirror nor a suppression -- one '
                 'spelling, two meanings, which is the defect this register '
-                'exists to catch. Declare "mirrored_in" if %s only records '
+                'exists to catch. Declare "xMirroredIn" if %s only records '
                 'what %s defines, and rule the collision if it does not'
                 % (prefix, key, rosters[key][prefix]['rows'], owner,
                    rosters[owner][prefix]['rows'] if owner in used else 0,
@@ -471,7 +524,7 @@ def problems(doc, rosters, suppressed):
                     'what it indexes'
                     % (prefix, key, rosters[key][prefix]['rows'],
                        spots(rosters[key][prefix])))
-    for item in doc.get('collisions_suppressed', []):
+    for item in doc.get('xCollisionsSuppressed', []):
         prefix = item['prefix']
         if prefix not in seen:
             found.append('%s is suppressed as a collision and is not '
@@ -512,8 +565,8 @@ def main():
     doc = json.load(io.open(SRC, encoding='utf-8'))
     rosters = walk_all()
     suppressed = dict((item['prefix'], item)
-                      for item in doc.get('collisions_suppressed', []))
-    found = problems(doc, rosters, suppressed)
+                      for item in doc.get('xCollisionsSuppressed', []))
+    found = schema_problems(doc) or problems(doc, rosters, suppressed)
     if found:
         for p in found:
             say('  %s' % p)

@@ -13,6 +13,7 @@ import {
   type SessionEffect,
   type SessionEvent,
 } from '../../src/use-case/advance-screen-session/advance-screen-session'
+import { readStateMachineView } from './state-machine-manuscript'
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
 
@@ -52,7 +53,7 @@ interface Region {
   readonly events: readonly { readonly key: string; readonly carries: readonly { readonly name: string }[] }[]
 }
 
-const MACHINES = JSON.parse(readFileSync(join(SPEC, '_source', 'state-machines.json'), 'utf8')) as {
+const MACHINES = readStateMachineView() as {
   readonly regions: readonly Region[]
 }
 

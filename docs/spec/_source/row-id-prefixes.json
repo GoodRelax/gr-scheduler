@@ -1,1803 +1,2244 @@
 {
+ "$schema": "./row-id-prefixes.schema.json",
  "$comment": [
   "SINGLE SOURCE OF TRUTH -- EDIT THIS FILE.",
-  "What every row-ID prefix of the documentation MEANS, and which tree owns it. `words` is the English the letters stand for, `means` is one line saying what the numbered rows index, `owner` is the tree that DEFINES them, `mirrored_in` names a tree that only RECORDS them, `pending` marks a prefix registered before its rows exist.",
+  "The ID registry: what every row-ID prefix of the documentation MEANS, and where its rows are defined. The keys are the ID registry keys of the NDD review standard, appendix A.6 'List of JSON Keys': `prefix`, `standsFor` (the English words the letters stand for), `meaning` (one line saying what the numbered rows index, per BCP 47 language tag; `en` is the master) and `section` (the one place that defines the rows: a table id, the UID an untitled table stands under, or a ledger or rules file). Every key the project adds starts with `x`: `xOwner` is the tree that DEFINES the rows, `xMirroredIn` names a tree that only RECORDS them, `xPending` marks a prefix registered before its rows exist, and the top-level `xCollisionsSuppressed` lists the collisions held open. row-id-prefixes.schema.json holds the shape.",
   "Generated FROM this file: _assets/tbl-row-id-prefixes.md (row_id_prefixes_json_to_md.py).",
   "Rebuild: npm run gen   |   npm run gen:check fails if anything has drifted.",
-  "THIS FILE HOLDS NO ROSTER. Which prefixes exist, where each is defined and how many rows it has are read on every run from THREE trees -- docs/spec, docs/development-records and docs/development-rules -- as every `| XX-n |` row of their Markdown and the table caption it sits under. Do NOT write an owning table or a row count here: the join between this file and that walk IS the check, and a copy of either side would be the thing that drifts. A prefix a tree uses and this file does not carry fails the run (unregistered); a prefix this file carries and no tree uses fails it too (dead registration). There is no separate checker.",
+  "THIS FILE HOLDS NO ROSTER. Which prefixes exist, every table each is defined in and how many rows it has are read on every run from THREE trees -- docs/spec, docs/development-records and docs/development-rules -- as every `| XX-n |` row of their Markdown and the table caption it sits under. Do NOT write a row count or a list of tables here: the join between this file and that walk IS the check, and a copy of either side would be the thing that drifts. A prefix a tree uses and this file does not carry fails the run (unregistered); a prefix this file carries and no tree uses fails it too (dead registration). There is no separate checker.",
+  "`section` IS A CLAIM THE GENERATOR TESTS. The standard requires it, so the file names ONE home of the rows, and the walk must find the owner tree defining rows of the prefix there; a table renumbered or moved without this file fails the run instead of drifting in silence. The walk still prints every table and counts the rows.",
   "THE WALK COVERS ALL THREE TREES BECAUSE THE DEFECT IT EXISTS FOR SPANS THEM. One prefix can name a row of the specification and a row of the ledger, and a register that walked only docs/spec could not see the second one.",
-  "`mirrored_in` IS A CLAIM THE GENERATOR TESTS, not a way to silence it. A mirror is a tree that records work about rows the owner defines (the ledger's UF-32 is the specification's UF-32), so the generator holds every id in the mirroring tree against the ids the owner defines and fails on the first one the owner never wrote. That test is what separates the real mirrors from the prefixes that mean two different things. `collisions_suppressed` is empty: no prefix stands in two trees with two meanings.",
-  "`collisions_suppressed` IS A DEBT, NOT A PERMISSION. Each entry names the prefix, the trees it is used in, the day the suppression was written, why, and what removes it. The printed table shows every one of them, so the count cannot grow in silence, and the generator fails on an entry whose prefix no longer collides -- a suppression cannot outlive its reason.",
-  "`words` MAY BE EMPTY, and an empty one is not a gap to be filled by guessing. It says the letters' origin could not be read out of the documents themselves. The defect this registry exists to remove is a spelling that two readers expand two ways, so an invented expansion here would be that same defect with a registry around it. Write `means` and leave `words` empty.",
-  "`pending: true` SUPPRESSES THE DEAD-REGISTRATION ERROR, and only that. It is for a prefix registered ahead of the wave that writes its rows; the printed table shows such an entry as a registration with no rows yet, so a reader can see what is suppressed and count it. The generator faults a pending prefix that HAS rows, so the flag cannot outlive its reason.",
-  "One line per prefix, on purpose: a registry is read as a list, and a 128-entry file broken over six lines each cannot be scanned.",
-  "The `means` cells are Japanese because they are printed prose of a Japanese specification, held per language the way Chapter 6.2 requires (check 23). `words` is Latin letters and belongs to no language."
+  "`xMirroredIn` IS A CLAIM THE GENERATOR TESTS, not a way to silence it. A mirror is a tree that records work about rows the owner defines (the ledger's UF-32 is the specification's UF-32), so the generator holds every id in the mirroring tree against the ids the owner defines and fails on the first one the owner never wrote. That test is what separates the real mirrors from the prefixes that mean two different things. `xCollisionsSuppressed` is empty: no prefix stands in two trees with two meanings.",
+  "`xCollisionsSuppressed` IS A DEBT, NOT A PERMISSION. Each entry names the prefix, the trees it is used in, the day the suppression was written, why, and what removes it. The printed table shows every one of them, so the count cannot grow in silence, and the generator fails on an entry whose prefix no longer collides -- a suppression cannot outlive its reason.",
+  "`standsFor` MAY BE EMPTY, and an empty one is not a gap to be filled by guessing. It says the letters' origin could not be read out of the documents themselves. The defect this registry exists to remove is a spelling that two readers expand two ways, so an invented expansion here would be that same defect with a registry around it. Write `meaning` and leave `standsFor` empty.",
+  "`xPending: true` SUPPRESSES THE DEAD-REGISTRATION ERROR, and only that. It is for a prefix registered ahead of the wave that writes its rows; such an entry writes an empty `section`, and the printed table shows it as a registration with no rows yet, so a reader can see what is suppressed and count it. The generator faults a pending prefix that HAS rows, so the flag cannot outlive its reason.",
+  "`meaning` holds `en` and `ja`. English is the master (NDD review standard, appendix A.6); the specification prints the `ja` text because it is a Japanese document. `standsFor` is Latin letters and belongs to no language."
  ],
- "collisions_suppressed": [],
+ "xCollisionsSuppressed": [],
  "prefixes": [
   {
    "prefix": "A",
-   "words": "",
-   "owner": "spec",
-   "means": {
+   "standsFor": "",
+   "meaning": {
+    "en": "An ambiguous Japanese word that must not be used alone",
     "ja": "単独で使ってはならない曖昧な日本語の語"
-   }
+   },
+   "section": "T-006b",
+   "xOwner": "spec"
   },
   {
    "prefix": "AC",
-   "words": "Actor",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Actor",
+   "meaning": {
+    "en": "A person who uses the software, or an outside system that uses it from outside",
     "ja": "本ソフトウェアを使う人と、外から使う外部システム"
-   }
+   },
+   "section": "T-010",
+   "xOwner": "spec"
   },
   {
    "prefix": "AG",
-   "words": "Agent API",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Agent API",
+   "meaning": {
+    "en": "One clause of the rules the `Agent API` meets",
     "ja": "`Agent API` が満たす規約の条"
-   }
+   },
+   "section": "T-035",
+   "xOwner": "spec"
   },
   {
    "prefix": "AM",
-   "words": "Agent API Member",
-   "owner": "spec",
-   "mirrored_in": [
-    "records"
-   ],
-   "means": {
+   "standsFor": "Agent API Member",
+   "meaning": {
+    "en": "One member the `Agent API` exposes",
     "ja": "`Agent API` が公開するメンバ 1 つ"
-   }
+   },
+   "section": "T-107",
+   "xOwner": "spec",
+   "xMirroredIn": [
+    "records"
+   ]
   },
   {
    "prefix": "AR",
-   "words": "Armed shape",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Armed shape",
+   "meaning": {
+    "en": "The kind of current tool picked in the palette",
     "ja": "パレットで選んでいる構えの種別"
-   }
+   },
+   "section": "T-023b",
+   "xOwner": "spec"
   },
   {
    "prefix": "AS",
-   "words": "",
-   "owner": "spec",
-   "means": {
+   "standsFor": "",
+   "meaning": {
+    "en": "One clause of the entry points and rules for assigning an assignee",
     "ja": "担当を割り当てる入口と規則の条"
-   }
+   },
+   "section": "T-225",
+   "xOwner": "spec"
   },
   {
    "prefix": "AT",
-   "words": "Attribute",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Attribute",
+   "meaning": {
+    "en": "One column of an entity, with its type and its mapping to the exchange partner",
     "ja": "エンティティの列 1 つと、その型・交換相手の対応"
-   }
+   },
+   "section": "T-058",
+   "xOwner": "spec"
   },
   {
    "prefix": "AV",
-   "words": "Agent API Value",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Agent API Value",
+   "meaning": {
+    "en": "One type of value that `Agent API` members pass, and its fields (table T-400)",
     "ja": "`Agent API` のメンバが受け渡す値の型 1 つと、その欄（表 T-400）"
-   }
+   },
+   "section": "T-400",
+   "xOwner": "spec"
   },
   {
    "prefix": "BC",
-   "words": "Band Ceiling",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Band Ceiling",
+   "meaning": {
+    "en": "One step of the procedure that finds the upper limit of the vertical axis (on the band side)",
     "ja": "縦軸の上限（帯の側）を探す手順の段"
-   }
+   },
+   "section": "T-253",
+   "xOwner": "spec"
   },
   {
    "prefix": "BD",
-   "words": "Bottleneck Detection",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Bottleneck Detection",
+   "meaning": {
+    "en": "One step of the bottleneck detection procedure",
     "ja": "ボトルネック検出の手順の段"
-   }
+   },
+   "section": "T-313",
+   "xOwner": "spec"
   },
   {
    "prefix": "BF",
-   "words": "Browser Function",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Browser Function",
+   "meaning": {
+    "en": "A browser function, not a GRS assignment, listed in the Help",
     "ja": "ヘルプに載せる、GRS の割当ではないブラウザの機能"
-   }
+   },
+   "section": "T-255",
+   "xOwner": "spec"
   },
   {
    "prefix": "BK",
-   "words": "Blank document",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Blank document",
+   "meaning": {
+    "en": "The content of the blank document placed when starting anew",
     "ja": "新しく始めたときに置く空の文書の中身"
-   }
+   },
+   "section": "T-342",
+   "xOwner": "spec"
   },
   {
    "prefix": "BL",
-   "words": "Baseline",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Baseline",
+   "meaning": {
+    "en": "The rules for drawing the outline of the Baseline (the plan before the change)",
     "ja": "変更前の予定の輪郭を描く規則"
-   }
+   },
+   "section": "T-339",
+   "xOwner": "spec"
   },
   {
    "prefix": "BO",
-   "words": "",
-   "owner": "spec",
-   "means": {
+   "standsFor": "",
+   "meaning": {
+    "en": "One step of the order of what is done at startup",
     "ja": "起動のときに行うことの順序の段"
-   }
+   },
+   "section": "T-077",
+   "xOwner": "spec"
   },
   {
    "prefix": "BR",
-   "words": "Branding",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Branding",
+   "meaning": {
+    "en": "A row of how the `Branding` (the letters of the product's short name) at the left end of the `App Header` is placed, its border, and what pressing it does",
     "ja": "`App Header` の左端の `Branding`（製品の略称の字）の置き方・縁・押したときの行"
-   }
+   },
+   "section": "T-349",
+   "xOwner": "spec"
   },
   {
    "prefix": "BS",
-   "words": "Bulk Shift",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Bulk Shift",
+   "meaning": {
+    "en": "The columns a Time Shift rewrites, and what goes to the confirmation (table T-377)",
     "ja": "タイムシフトが書き換える列と、確認に出すもの（表 T-377）"
-   }
+   },
+   "section": "T-377",
+   "xOwner": "spec"
   },
   {
    "prefix": "BT",
-   "words": "",
-   "owner": "spec",
-   "means": {
+   "standsFor": "",
+   "meaning": {
+    "en": "The sources of the document opened at startup, and their priority",
     "ja": "起動時に開く文書の出どころと、その優先順位"
-   }
+   },
+   "section": "T-034",
+   "xOwner": "spec"
   },
   {
    "prefix": "CA",
-   "words": "Cache",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Cache",
+   "meaning": {
+    "en": "One clause of the agreements about the cache",
     "ja": "キャッシュについての取り決めの条"
-   }
+   },
+   "section": "T-071",
+   "xOwner": "spec"
   },
   {
    "prefix": "CD",
-   "words": "Cascade Delete",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Cascade Delete",
+   "meaning": {
+    "en": "One clause of what is deleted together when something is deleted",
     "ja": "あるものを消したときに一緒に消えるものの条"
-   }
+   },
+   "section": "T-050",
+   "xOwner": "spec"
   },
   {
    "prefix": "CF",
-   "words": "Color Fit",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Color Fit",
+   "meaning": {
+    "en": "One step of solving the theme color per hue",
     "ja": "テーマ色を色相ごとに解く段"
-   }
+   },
+   "section": "T-366",
+   "xOwner": "spec"
   },
   {
    "prefix": "CH",
-   "words": "Challenge",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Challenge",
+   "meaning": {
+    "en": "A challenge the product solves",
     "ja": "本製品が解く課題"
-   }
+   },
+   "section": "T-054",
+   "xOwner": "spec"
   },
   {
    "prefix": "CHN",
-   "words": "Channel",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Channel",
+   "meaning": {
+    "en": "A data path between devices, and its trust boundary (⛔ not `R-`, which would be confused with a row of the user's rulings. `RTE-` was not chosen either: `RT` already means \"the rules a dependency line's route meets\" and `RP` \"its branches\", so \"route\" is already used for something else in the specification)",
     "ja": "機器と機器のあいだのデータの経路と、その信頼境界（⛔ `R-` は利用者の裁定の行と紛れるので使わない。`RT` が既に「依存線の経路が満たす規則」、`RP` が「その分岐」であり、「経路」は仕様書のなかで既に別のものに使われているので、`RTE-` は選ばなかった）"
-   }
+   },
+   "section": "T-008",
+   "xOwner": "spec"
   },
   {
    "prefix": "CL",
-   "words": "",
-   "owner": "spec",
-   "means": {
+   "standsFor": "",
+   "meaning": {
+    "en": "The classes of colors and line widths the palette holds",
     "ja": "パレットが持つ色と線の太さの区分"
-   }
+   },
+   "section": "T-017",
+   "xOwner": "spec"
   },
   {
    "prefix": "CM",
-   "words": "Command",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Command",
+   "meaning": {
+    "en": "One command that changes the document (`DocumentCommand`)",
     "ja": "文書を変える命令（`DocumentCommand`）1 つ"
-   }
+   },
+   "section": "T-108",
+   "xOwner": "spec"
   },
   {
    "prefix": "CN",
-   "words": "Constraint",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Constraint",
+   "meaning": {
+    "en": "A constraint the product follows",
     "ja": "製品が従う制約事項"
-   }
+   },
+   "section": "T-003",
+   "xOwner": "spec"
   },
   {
    "prefix": "CP",
-   "words": "Component",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Component",
+   "meaning": {
+    "en": "One component of the design",
     "ja": "設計上のコンポーネント 1 つ"
-   }
+   },
+   "section": "T-062",
+   "xOwner": "spec"
   },
   {
    "prefix": "CR",
-   "words": "Change Request",
-   "owner": "records",
-   "means": {
+   "standsFor": "Change Request",
+   "meaning": {
+    "en": "One change request. Its body is one file in `change-request/`; a ledger row cites it and records the result of each round",
     "ja": "変更要求 1 通。本体は `change-request/` の 1 ファイルであり、台帳の行はそれを引いて巡ごとの結果を記録したものである"
-   }
+   },
+   "section": "docs/development-records/history/W4-adapter.md",
+   "xOwner": "records"
   },
   {
    "prefix": "CQ",
-   "words": "Confirmation with a list",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Confirmation with a list",
+   "meaning": {
+    "en": "How a confirmation with a list of names is built: its heading part, lines and list",
     "ja": "名前の一覧を持つ確認の、見出し部・線・一覧の組み方"
-   }
+   },
+   "section": "T-258",
+   "xOwner": "spec"
   },
   {
    "prefix": "CS",
-   "words": "Consistency",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Consistency",
+   "meaning": {
+    "en": "A unit that keeps the look of the document consistent",
     "ja": "文書の見え方を一貫させる単位"
-   }
+   },
+   "section": "T-066",
+   "xOwner": "spec"
   },
   {
    "prefix": "CT",
-   "words": "Contrast",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Contrast",
+   "meaning": {
+    "en": "A contrast condition the theme color meets",
     "ja": "テーマ色が満たすコントラストの条件"
-   }
+   },
+   "section": "T-017a",
+   "xOwner": "spec"
   },
   {
    "prefix": "CU",
-   "words": "Cursor",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Cursor",
+   "meaning": {
+    "en": "A kind of cursor shown on the screen",
     "ja": "画面に立てるカーソルの種別"
-   }
+   },
+   "section": "T-029",
+   "xOwner": "spec"
   },
   {
    "prefix": "CV",
-   "words": "Color Value",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Color Value",
+   "meaning": {
+    "en": "How a color chosen by the author is held and drawn",
     "ja": "作成者が選んだ色の持ち方と描き方"
-   }
+   },
+   "section": "T-017b",
+   "xOwner": "spec"
   },
   {
    "prefix": "CY",
-   "words": "Copy drag",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Copy drag",
+   "meaning": {
+    "en": "One clause of what is copied, and where the copy is placed, when the selection is dragged with `Ctrl` to copy it",
     "ja": "選択を `Ctrl` で引いてコピーするときの、コピーするものとコピーの置き場の条"
-   }
+   },
+   "section": "T-308",
+   "xOwner": "spec"
   },
   {
    "prefix": "DA",
-   "words": "Deadline Arrow",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Deadline Arrow",
+   "meaning": {
+    "en": "How the Deadline Mark is drawn (when to draw it, shape, color, place, hit area)",
     "ja": "期限の印の描き方（描く条件・形・色・置き場・当たり）"
-   }
+   },
+   "section": "T-304",
+   "xOwner": "spec"
   },
   {
    "prefix": "DC",
-   "words": "Dual Cursor",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Dual Cursor",
+   "meaning": {
+    "en": "One clause of the `Dual Cursor` operation",
     "ja": "`Dual Cursor` の操作の条"
-   }
+   },
+   "section": "T-029a",
+   "xOwner": "spec"
   },
   {
    "prefix": "DEV",
-   "words": "Device",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Device",
+   "meaning": {
+    "en": "A device on the deployment diagram (⛔ not `D-`, which would be confused with a defect row of the ledger. `words` is not an invented word)",
     "ja": "配置図に載る機器（⛔ `D-` は台帳の欠陥の行と紛れるので使わない。`words` は発明した語ではない）"
-   }
+   },
+   "section": "T-007",
+   "xOwner": "spec"
   },
   {
    "prefix": "DF",
-   "words": "",
-   "owner": "spec",
-   "means": {
+   "standsFor": "",
+   "meaning": {
+    "en": "One clause of the document format -- how the exchange partner's tree is copied, and where elements that are not interpreted are put",
     "ja": "文書の形の条 —— 交換相手の木をどう写し、解釈しない要素をどこへ置くか"
-   }
+   },
+   "section": "T-053",
+   "xOwner": "spec"
   },
   {
    "prefix": "DFC",
-   "words": "Defect",
-   "owner": "records",
-   "means": {
+   "standsFor": "Defect",
+   "meaning": {
+    "en": "A defect in the ledger (⛔ not `D-`, which would be confused with a device of the deployment diagram)",
     "ja": "台帳に載る欠陥（⛔ `D-` は配置図の機器と紛れるので使わない）"
-   }
+   },
+   "section": "docs/development-records/defects.md",
+   "xOwner": "records"
   },
   {
    "prefix": "DG",
-   "words": "",
-   "owner": "spec",
-   "means": {
+   "standsFor": "",
+   "meaning": {
+    "en": "A state that Delay Diagnostics gives to a Progress Marker",
     "ja": "遅延診断が進捗マーカーに与える状態"
-   }
+   },
+   "section": "T-315",
+   "xOwner": "spec"
   },
   {
    "prefix": "DI",
-   "words": "Document Identity",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Document Identity",
+   "meaning": {
+    "en": "One clause of how to tell whether a document is the same one, and of the overwrite confirmation",
     "ja": "同じ文書かどうかの見分け方と、上書きの確認の条"
-   }
+   },
+   "section": "T-227",
+   "xOwner": "spec"
   },
   {
    "prefix": "DL",
-   "words": "Delay",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Delay",
+   "meaning": {
+    "en": "The cases for counting the amount of delay",
     "ja": "遅れの量の数え方の場合分け"
-   }
+   },
+   "section": "T-021b",
+   "xOwner": "spec"
   },
   {
    "prefix": "DM",
-   "words": "Dummy",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Dummy",
+   "meaning": {
+    "en": "One clause of the rules of the Actual Dummy",
     "ja": "実績のダミーの規則の条"
-   }
+   },
+   "section": "T-240",
+   "xOwner": "spec"
   },
   {
    "prefix": "DN",
-   "words": "",
-   "owner": "spec",
-   "means": {
+   "standsFor": "",
+   "meaning": {
+    "en": "A dependency shape that must not be made",
     "ja": "作ってはならない依存の形"
-   }
+   },
+   "section": "T-018b",
+   "xOwner": "spec"
   },
   {
    "prefix": "DP",
-   "words": "Dependency",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Dependency",
+   "meaning": {
+    "en": "A kind of dependency, and where its line attaches",
     "ja": "依存の種別と、線を着ける位置"
-   }
+   },
+   "section": "T-018",
+   "xOwner": "spec"
   },
   {
    "prefix": "DQ",
-   "words": "",
-   "owner": "spec",
-   "means": {
+   "standsFor": "",
+   "meaning": {
+    "en": "An amount of delay that Delay Diagnostics counts",
     "ja": "遅延診断が数える遅れの量"
-   }
+   },
+   "section": "T-314",
+   "xOwner": "spec"
   },
   {
    "prefix": "DR",
-   "words": "Document Root",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Document Root",
+   "meaning": {
+    "en": "The groups placed at the document root, and one clause of their content",
     "ja": "文書ルートに置く群と、その中身の条"
-   }
+   },
+   "section": "T-052",
+   "xOwner": "spec"
   },
   {
    "prefix": "DS",
-   "words": "Display Scale",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Display Scale",
+   "meaning": {
+    "en": "What the Display Scale multiplies, and what it does not",
     "ja": "表示の倍率を何に掛け、何に掛けないか"
-   }
+   },
+   "section": "T-252",
+   "xOwner": "spec"
   },
   {
    "prefix": "DT",
-   "words": "",
-   "owner": "spec",
-   "means": {
+   "standsFor": "",
+   "meaning": {
+    "en": "A column of the table of the Delay Diagnostics Report",
     "ja": "遅延診断レポートの表の欄"
-   }
+   },
+   "section": "T-347",
+   "xOwner": "spec"
   },
   {
    "prefix": "DU",
-   "words": "Duplicate",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Duplicate",
+   "meaning": {
+    "en": "One clause of what is duplicated together when something is duplicated",
     "ja": "複製したときに一緒に複製されるものの条"
-   }
+   },
+   "section": "T-223",
+   "xOwner": "spec"
   },
   {
    "prefix": "DV",
-   "words": "Derived Value",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Derived Value",
+   "meaning": {
+    "en": "A value made at export (the document does not hold it; export derives it)",
     "ja": "書き出すときに作る値（文書は持たず、書き出しで導く）"
-   }
+   },
+   "section": "T-059",
+   "xOwner": "spec"
   },
   {
    "prefix": "DW",
-   "words": "",
-   "owner": "spec",
-   "means": {
+   "standsFor": "",
+   "meaning": {
+    "en": "A kind of wall that stops the Delay Diagnostics analysis",
     "ja": "遅延診断の解析を止める壁の種類"
-   }
+   },
+   "section": "T-316",
+   "xOwner": "spec"
   },
   {
    "prefix": "DX",
-   "words": "",
-   "owner": "spec",
-   "means": {
+   "standsFor": "",
+   "meaning": {
+    "en": "A field of the Delay Diagnostics Report",
     "ja": "遅延診断のレポートの欄"
-   }
+   },
+   "section": "T-317",
+   "xOwner": "spec"
   },
   {
    "prefix": "ED",
-   "words": "",
-   "owner": "spec",
-   "means": {
+   "standsFor": "",
+   "meaning": {
+    "en": "A word written as the last editor",
     "ja": "最後に編集した者として書く語"
-   }
+   },
+   "section": "T-229",
+   "xOwner": "spec"
   },
   {
    "prefix": "EG",
-   "words": "",
-   "owner": "spec",
-   "means": {
+   "standsFor": "",
+   "meaning": {
+    "en": "An edge between components",
     "ja": "コンポーネントの辺"
-   }
+   },
+   "section": "T-247",
+   "xOwner": "spec"
   },
   {
    "prefix": "EL",
-   "words": "Elision",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Elision",
+   "meaning": {
+    "en": "How a dependency line whose endpoint is not visible is drawn",
     "ja": "端点が見えていない依存線の描き方"
-   }
+   },
+   "section": "T-303",
+   "xOwner": "spec"
   },
   {
    "prefix": "EN",
-   "words": "",
-   "owner": "spec",
-   "means": {
+   "standsFor": "",
+   "meaning": {
+    "en": "A state shown by filling an entry point",
     "ja": "入口を塗って示す状態"
-   }
+   },
+   "section": "T-237",
+   "xOwner": "spec"
   },
   {
    "prefix": "EP",
-   "words": "Export Part",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Export Part",
+   "meaning": {
+    "en": "The UI parts drawn on the exported picture, and the UI parts not drawn",
     "ja": "書き出す絵に描く UI パーツと、描かない UI パーツ"
-   }
+   },
+   "section": "T-076",
+   "xOwner": "spec"
   },
   {
    "prefix": "ET",
-   "words": "Entity",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Entity",
+   "meaning": {
+    "en": "One entity",
     "ja": "エンティティ 1 つ"
-   }
+   },
+   "section": "T-056",
+   "xOwner": "spec"
   },
   {
    "prefix": "EX",
-   "words": "Export",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Export",
+   "meaning": {
+    "en": "One clause of the export rules",
     "ja": "書き出しの規約の条"
-   }
+   },
+   "section": "T-033",
+   "xOwner": "spec"
   },
   {
    "prefix": "EZ",
-   "words": "Easy",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Easy",
+   "meaning": {
+    "en": "A means of making the software usable without reading the manual",
     "ja": "マニュアルを読まずに使えるようにする手立て"
-   }
+   },
+   "section": "T-040",
+   "xOwner": "spec"
   },
   {
    "prefix": "FA",
-   "words": "",
-   "owner": "spec",
-   "means": {
+   "standsFor": "",
+   "meaning": {
+    "en": "How to fix, per Delay Diagnostics viewpoint (table T-373)",
     "ja": "遅延診断の観点ごとの修正のしかた（表 T-373）"
-   }
+   },
+   "section": "T-373",
+   "xOwner": "spec"
   },
   {
    "prefix": "FD",
-   "words": "Fade",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Fade",
+   "meaning": {
+    "en": "The cases of the shape of the Fade",
     "ja": "フェードの形の場合分け"
-   }
+   },
+   "section": "T-012a",
+   "xOwner": "spec"
   },
   {
    "prefix": "FM",
-   "words": "",
-   "owner": "spec",
-   "means": {
+   "standsFor": "",
+   "meaning": {
+    "en": "A column of the tables of the Delay Diagnostics Fix Proposals and Fix Log (table T-374)",
     "ja": "遅延診断の修正案と修正の記録の表の欄（表 T-374）"
-   }
+   },
+   "section": "T-374",
+   "xOwner": "spec"
   },
   {
    "prefix": "FN",
-   "words": "File Name",
-   "owner": "spec",
-   "means": {
+   "standsFor": "File Name",
+   "meaning": {
+    "en": "One step of tidying the name that export proposes",
     "ja": "書き出しの提案する名の整え方の段"
-   }
+   },
+   "section": "T-352",
+   "xOwner": "spec"
   },
   {
    "prefix": "FO",
-   "words": "Field Order",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Field Order",
+   "meaning": {
+    "en": "The order of the fields on the Document Settings surface (table T-369)",
     "ja": "文書の設定の面の欄の並び（表 T-369）"
-   }
+   },
+   "section": "T-369",
+   "xOwner": "spec"
   },
   {
    "prefix": "FT",
-   "words": "Frame Trigger",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Frame Trigger",
+   "meaning": {
+    "en": "A trigger on which a frame runs",
     "ja": "フレームが走る契機"
-   }
+   },
+   "section": "T-078",
+   "xOwner": "spec"
   },
   {
    "prefix": "FU",
-   "words": "Future",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Future",
+   "meaning": {
+    "en": "Something not built now, but kept addable later",
     "ja": "いま作らないが、後から足せるようにしておくもの"
-   }
+   },
+   "section": "T-039",
+   "xOwner": "spec"
   },
   {
    "prefix": "FX",
-   "words": "Fit span fiXed",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Fit span fiXed",
+   "meaning": {
+    "en": "The rules of the Fit Span value, when it is applied, and its field (table T-367)",
     "ja": "全体表示時の期間の値・当てる時・欄の規則（表 T-367）"
-   }
+   },
+   "section": "T-367",
+   "xOwner": "spec"
   },
   {
    "prefix": "G",
-   "words": "Glossary",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Glossary",
+   "meaning": {
+    "en": "A word for reading this document",
     "ja": "本書を読むための語"
-   }
+   },
+   "section": "T-005",
+   "xOwner": "spec"
   },
   {
    "prefix": "GA",
-   "words": "Grab Area",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Grab Area",
+   "meaning": {
+    "en": "The geometry of the Grab Margin per operation target",
     "ja": "操作対象ごとの掴み代の幾何"
-   }
+   },
+   "section": "T-266",
+   "xOwner": "spec"
   },
   {
    "prefix": "GD",
-   "words": "Guide",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Guide",
+   "meaning": {
+    "en": "One clause of the Plan-Actual Guide Line",
     "ja": "予実の補助線の条"
-   }
+   },
+   "section": "T-020a",
+   "xOwner": "spec"
   },
   {
    "prefix": "GO",
-   "words": "Grab outcome",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Grab outcome",
+   "meaning": {
+    "en": "A row of the values set and the values kept when a grabbed end is released",
     "ja": "掴んだ端を離したときに置く値と据え置く値の行"
-   }
+   },
+   "section": "T-245",
+   "xOwner": "spec"
   },
   {
    "prefix": "GP",
-   "words": "Group Permission",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Group Permission",
+   "meaning": {
+    "en": "One clause of the rules of a task group's edit group",
     "ja": "タスクグループの編集グループの規則の条"
-   }
+   },
+   "section": "T-275",
+   "xOwner": "spec"
   },
   {
    "prefix": "GR",
-   "words": "Grab region",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Grab region",
+   "meaning": {
+    "en": "One Grab Area, and its step in the priority order",
     "ja": "掴み領域 1 つと、その優先順位の段"
-   }
+   },
+   "section": "T-023d",
+   "xOwner": "spec"
   },
   {
    "prefix": "GT",
-   "words": "Gate",
-   "owner": "rules",
-   "means": {
+   "standsFor": "Gate",
+   "meaning": {
+    "en": "One gate -- what is run before a commit, a push to `develop`, or a fast-forward of `main`, and its entry point",
     "ja": "関門 1 つ —— commit・`develop` への push・`main` の早送りの前に打つものと、その口"
-   }
+   },
+   "section": "docs/development-rules/04-verification.md",
+   "xOwner": "rules"
   },
   {
    "prefix": "HB",
-   "words": "Highlight box",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Highlight box",
+   "meaning": {
+    "en": "A row of the place, Grab Margin and pointer of a Highlight Box's Grab Points and frame, and the value set on release",
     "ja": "ハイライトボックスの掴み点と枠の場所・掴み代・ポインタと、離したときに置く値の行"
-   }
+   },
+   "section": "T-246",
+   "xOwner": "spec"
   },
   {
    "prefix": "HC",
-   "words": "Help Column",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Help Column",
+   "meaning": {
+    "en": "A Help column, and the order of the blocks placed in it",
     "ja": "ヘルプの段と、段に置く塊の並び"
-   }
+   },
+   "section": "T-256",
+   "xOwner": "spec"
   },
   {
    "prefix": "HF",
-   "words": "",
-   "owner": "spec",
-   "means": {
+   "standsFor": "",
+   "meaning": {
+    "en": "One clause of the controls for collapsing and hiding per task group",
     "ja": "タスクグループごとの折りたたみと隠しの操作面の条"
-   }
+   },
+   "section": "T-051",
+   "xOwner": "spec"
   },
   {
    "prefix": "HM",
-   "words": "Hierarchy Move",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Hierarchy Move",
+   "meaning": {
+    "en": "One clause of the rules for moving in the hierarchy",
     "ja": "階層の移動の規則の条"
-   }
+   },
+   "section": "T-015a",
+   "xOwner": "spec"
   },
   {
    "prefix": "HN",
-   "words": "Help miNimized",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Help miNimized",
+   "meaning": {
+    "en": "The minimized Help, and other input",
     "ja": "最小化したヘルプと、ほかの入力"
-   }
+   },
+   "section": "T-336",
+   "xOwner": "spec"
   },
   {
    "prefix": "HR",
-   "words": "Hierarchy",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Hierarchy",
+   "meaning": {
+    "en": "A kind of hierarchy operation (expand, collapse, hide)",
     "ja": "階層の操作（展開・折りたたみ・隠し）の種別"
-   }
+   },
+   "section": "T-015",
+   "xOwner": "spec"
   },
   {
    "prefix": "HS",
-   "words": "Header Status",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Header Status",
+   "meaning": {
+    "en": "An item of how the header shows the File Status (name, time written, size)",
     "ja": "ヘッダーのファイルの状態（名前・書けた時刻・大きさ）の見せ方の項目"
-   }
+   },
+   "section": "T-341",
+   "xOwner": "spec"
   },
   {
    "prefix": "HT",
-   "words": "Hit Test",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Hit Test",
+   "meaning": {
+    "en": "The procedure that settles on the one Grab Margin that responds (1 to 4)",
     "ja": "応える掴み代を 1 つに決める手順（1〜4）"
-   }
+   },
+   "section": "T-267",
+   "xOwner": "spec"
   },
   {
    "prefix": "IC",
-   "words": "Icon",
-   "owner": "spec",
-   "mirrored_in": [
-    "records"
-   ],
-   "means": {
+   "standsFor": "Icon",
+   "meaning": {
+    "en": "One icon shown on the screen",
     "ja": "画面に出すアイコン 1 つ"
-   }
+   },
+   "section": "T-109",
+   "xOwner": "spec",
+   "xMirroredIn": [
+    "records"
+   ]
   },
   {
    "prefix": "IF",
-   "words": "Interface",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Interface",
+   "meaning": {
+    "en": "One interface that crosses layers",
     "ja": "層をまたぐインターフェース 1 本"
-   }
+   },
+   "section": "T-065",
+   "xOwner": "spec"
   },
   {
    "prefix": "IN",
-   "words": "Input",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Input",
+   "meaning": {
+    "en": "One clause of the input manners",
     "ja": "入力の作法の条"
-   }
+   },
+   "section": "T-028",
+   "xOwner": "spec"
   },
   {
    "prefix": "IO",
-   "words": "Input / Output",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Input / Output",
+   "meaning": {
+    "en": "An input/output format that is read and written",
     "ja": "読み書きする入出力の形式"
-   }
+   },
+   "section": "T-024",
+   "xOwner": "spec"
   },
   {
    "prefix": "IP",
-   "words": "",
-   "owner": "spec",
-   "means": {
+   "standsFor": "",
+   "meaning": {
+    "en": "How a parent task that is not stated explicitly is derived",
     "ja": "明記されていない親タスクの導き方"
-   }
+   },
+   "section": "T-318",
+   "xOwner": "spec"
   },
   {
    "prefix": "IR",
-   "words": "Interaction Record",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Interaction Record",
+   "meaning": {
+    "en": "The screen state written for each drawn frame in the record of human operations and screen drawing",
     "ja": "人の操作と画面の描画の記録に、描いたフレームごとに書く画面の状態"
-   }
+   },
+   "section": "T-263",
+   "xOwner": "spec"
   },
   {
    "prefix": "IV",
-   "words": "Invariant",
-   "owner": "spec",
-   "mirrored_in": [
-    "records"
-   ],
-   "means": {
+   "standsFor": "Invariant",
+   "meaning": {
+    "en": "An invariant the document meets",
     "ja": "文書が満たす不変条件"
-   }
+   },
+   "section": "T-220",
+   "xOwner": "spec",
+   "xMirroredIn": [
+    "records"
+   ]
   },
   {
    "prefix": "IX",
-   "words": "Image eXport",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Image eXport",
+   "meaning": {
+    "en": "One clause of the image export rules",
     "ja": "画像の書き出しの規則の条"
-   }
+   },
+   "section": "T-241",
+   "xOwner": "spec"
   },
   {
    "prefix": "JDG",
-   "words": "Judgment",
-   "owner": "records",
-   "means": {
+   "standsFor": "Judgment",
+   "meaning": {
+    "en": "A ruling of the user (⛔ not `R-`, which would be confused with a data path. `RLG-` was not chosen because `RL` is \"a relation between entities\" and `RLG-` is one letter off, nor `RUL-`, which would be confused with \"rule\")",
     "ja": "利用者の裁定（⛔ `R-` はデータの経路と紛れるので使わない。`RL` が「実体のあいだの関係」であり `RLG-` は 1 字違い、`RUL-` は「規則」と紛れるので選ばなかった）"
-   }
+   },
+   "section": "docs/development-records/rulings.md",
+   "xOwner": "records"
   },
   {
    "prefix": "JF",
-   "words": "",
-   "owner": "spec",
-   "means": {
+   "standsFor": "",
+   "meaning": {
+    "en": "Where the `.json` files of `src/` are placed",
     "ja": "`src/` の `.json` の置き場"
-   }
+   },
+   "section": "T-248",
+   "xOwner": "spec"
   },
   {
    "prefix": "K",
-   "words": "Key",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Key",
+   "meaning": {
+    "en": "One key of a setting",
     "ja": "設定値のキー 1 つ"
-   }
+   },
+   "section": "T-104",
+   "xOwner": "spec"
   },
   {
    "prefix": "L",
-   "words": "Level of Detail",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Level of Detail",
+   "meaning": {
+    "en": "A kind of increase or decrease of the amount shown (LOD)",
     "ja": "表示量の増減（LOD）の種別"
-   }
+   },
+   "section": "T-005a",
+   "xOwner": "spec"
   },
   {
    "prefix": "LC",
-   "words": "Layout Calculation",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Layout Calculation",
+   "meaning": {
+    "en": "One step of the calculation that finds the layout",
     "ja": "レイアウトを求める計算の段"
-   }
+   },
+   "section": "T-068",
+   "xOwner": "spec"
   },
   {
    "prefix": "LF",
-   "words": "Layout Formula",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Layout Formula",
+   "meaning": {
+    "en": "One clause of the layout formulas",
     "ja": "レイアウトの算式の条"
-   }
+   },
+   "section": "T-221",
+   "xOwner": "spec"
   },
   {
    "prefix": "LM",
-   "words": "Limitation",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Limitation",
+   "meaning": {
+    "en": "A limitation the product accepts",
     "ja": "製品が引き受ける制限事項"
-   }
+   },
+   "section": "T-004",
+   "xOwner": "spec"
   },
   {
    "prefix": "LP",
-   "words": "Label Placement",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Label Placement",
+   "meaning": {
+    "en": "The placement of labels (marker, name, assignee and progress)",
     "ja": "札（マーカー・名前・担当と進捗）の配置"
-   }
+   },
+   "section": "T-273",
+   "xOwner": "spec"
   },
   {
    "prefix": "LR",
-   "words": "Layer Rule",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Layer Rule",
+   "meaning": {
+    "en": "A rule of dependency between layers",
     "ja": "層と層のあいだの依存の規則"
-   }
+   },
+   "section": "T-061",
+   "xOwner": "spec"
   },
   {
    "prefix": "LY",
-   "words": "Layer",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Layer",
+   "meaning": {
+    "en": "One layer of the design",
     "ja": "設計上の層 1 つ"
-   }
+   },
+   "section": "T-060",
+   "xOwner": "spec"
   },
   {
    "prefix": "MC",
-   "words": "Measurement Condition",
-   "owner": "spec",
-   "mirrored_in": [
-    "records"
-   ],
-   "means": {
+   "standsFor": "Measurement Condition",
+   "meaning": {
+    "en": "A condition of the environment where performance is measured",
     "ja": "性能を測る環境の条件"
-   }
+   },
+   "section": "T-025",
+   "xOwner": "spec",
+   "xMirroredIn": [
+    "records"
+   ]
   },
   {
    "prefix": "MG",
-   "words": "Merge",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Merge",
+   "meaning": {
+    "en": "One clause of the rules for merging an imported document",
     "ja": "取り込んだ文書を合流させるときの規則の条"
-   }
+   },
+   "section": "T-032",
+   "xOwner": "spec"
   },
   {
    "prefix": "MH",
-   "words": "Min Height",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Min Height",
+   "meaning": {
+    "en": "The rules of the task group minimum height field (table T-338)",
     "ja": "タスクグループの最小の高さの欄の規則（表 T-338）"
-   }
+   },
+   "section": "T-338",
+   "xOwner": "spec"
   },
   {
    "prefix": "MK",
-   "words": "",
-   "owner": "spec",
-   "mirrored_in": [
-    "records"
-   ],
-   "means": {
+   "standsFor": "",
+   "meaning": {
+    "en": "One pointer and keyboard assignment",
     "ja": "ポインタとキーボードの割当 1 つ"
-   }
+   },
+   "section": "T-023",
+   "xOwner": "spec",
+   "xMirroredIn": [
+    "records"
+   ]
   },
   {
    "prefix": "MM",
-   "words": "",
-   "owner": "spec",
-   "means": {
+   "standsFor": "",
+   "meaning": {
+    "en": "A mapping choice shown at merge",
     "ja": "合流のときに示す対応付けの選択肢"
-   }
+   },
+   "section": "T-032a",
+   "xOwner": "spec"
   },
   {
    "prefix": "MN",
-   "words": "Minimum",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Minimum",
+   "meaning": {
+    "en": "What was added to the minimum configuration, and why",
     "ja": "最小構成に対して増やしたものと、その理由"
-   }
+   },
+   "section": "T-070",
+   "xOwner": "spec"
   },
   {
    "prefix": "MP",
-   "words": "",
-   "owner": "spec",
-   "means": {
+   "standsFor": "",
+   "meaning": {
+    "en": "How a milestone's predecessors and achievement are derived",
     "ja": "マイルストーンの先行と達成の導き方"
-   }
+   },
+   "section": "T-319",
+   "xOwner": "spec"
   },
   {
    "prefix": "MR",
-   "words": "MSPDI Read",
-   "owner": "spec",
-   "means": {
+   "standsFor": "MSPDI Read",
+   "meaning": {
+    "en": "The rules for reading MSPDI",
     "ja": "MSPDI を読むときの規約"
-   }
+   },
+   "section": "T-265",
+   "xOwner": "spec"
   },
   {
    "prefix": "MS",
-   "words": "Milestone",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Milestone",
+   "meaning": {
+    "en": "A development milestone",
     "ja": "開発の節目"
-   }
+   },
+   "section": "T-042",
+   "xOwner": "spec"
   },
   {
    "prefix": "N",
-   "words": "",
-   "owner": "spec",
-   "means": {
+   "standsFor": "",
+   "meaning": {
+    "en": "A data word -- the Japanese name of an entity or a column",
     "ja": "データの語 —— エンティティと列の日本語の呼び名"
-   }
+   },
+   "section": "T-101",
+   "xOwner": "spec"
   },
   {
    "prefix": "ND",
-   "words": "Name-label Dates",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Name-label Dates",
+   "meaning": {
+    "en": "How the text of the planned dates added to the Name Label is written",
     "ja": "名称ラベルに添える予定日の文字の書き方"
-   }
+   },
+   "section": "T-251",
+   "xOwner": "spec"
   },
   {
    "prefix": "NF",
-   "words": "No Figure",
-   "owner": "spec",
-   "means": {
+   "standsFor": "No Figure",
+   "meaning": {
+    "en": "A figure not drawn, and why it was not drawn",
     "ja": "描かなかった図と、描かなかった理由"
-   }
+   },
+   "section": "T-072",
+   "xOwner": "spec"
   },
   {
    "prefix": "NG",
-   "words": "Not Grabbable",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Not Grabbable",
+   "meaning": {
+    "en": "Something that cannot be grabbed and does not move, because it is not drawn in that frame (or is display only)",
     "ja": "そのフレームで描いていない（または表示だけの）ために掴めず動かないもの"
-   }
+   },
+   "section": "T-355",
+   "xOwner": "spec"
   },
   {
    "prefix": "NR",
-   "words": "",
-   "owner": "spec",
-   "means": {
+   "standsFor": "",
+   "meaning": {
+    "en": "One clause of the normalization applied before exchange formats are compared",
     "ja": "交換形式を比べる前に当てる正規化の条"
-   }
+   },
+   "section": "T-228",
+   "xOwner": "spec"
   },
   {
    "prefix": "NS",
-   "words": "",
-   "owner": "spec",
-   "means": {
+   "standsFor": "",
+   "meaning": {
+    "en": "One clause of the normalization applied before exported pictures are compared, and of the match judgment",
     "ja": "書き出した絵を比べる前に当てる正規化と、一致の判定の条"
-   }
+   },
+   "section": "T-231",
+   "xOwner": "spec"
   },
   {
    "prefix": "NT",
-   "words": "Notification",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Notification",
+   "meaning": {
+    "en": "One clause of the manners of notifying",
     "ja": "通知するときの作法の条"
-   }
+   },
+   "section": "T-037",
+   "xOwner": "spec"
   },
   {
    "prefix": "OC",
-   "words": "Occupancy",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Occupancy",
+   "meaning": {
+    "en": "What counts toward the occupied width of a shape",
     "ja": "形状の占有幅に算入するもの"
-   }
+   },
+   "section": "T-038",
+   "xOwner": "spec"
   },
   {
    "prefix": "OD",
-   "words": "Off Day",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Off Day",
+   "meaning": {
+    "en": "The fill of Non-Working Days (table T-343)",
     "ja": "非稼働日の塗り（表 T-343）"
-   }
+   },
+   "section": "T-343",
+   "xOwner": "spec"
   },
   {
    "prefix": "OP",
-   "words": "Open",
-   "owner": "spec",
-   "mirrored_in": [
-    "records"
-   ],
-   "means": {
+   "standsFor": "Open",
+   "meaning": {
+    "en": "One clause of the rules for opening a document",
     "ja": "文書を開くときの規則の条"
-   }
+   },
+   "section": "T-024a",
+   "xOwner": "spec",
+   "xMirroredIn": [
+    "records"
+   ]
   },
   {
    "prefix": "OR",
-   "words": "Order",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Order",
+   "meaning": {
+    "en": "One clause of the left-right order of what is put outside the shape",
     "ja": "形状の外へ出すものの左右の並びの条"
-   }
+   },
+   "section": "T-243",
+   "xOwner": "spec"
   },
   {
    "prefix": "OW",
-   "words": "Owner",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Owner",
+   "meaning": {
+    "en": "The owner class of a requirement (which unit it opens from)",
     "ja": "要求の持ち主の区分（どのユニットから開くか）"
-   }
+   },
+   "section": "T-277",
+   "xOwner": "spec"
   },
   {
    "prefix": "P",
-   "words": "Property",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Property",
+   "meaning": {
+    "en": "A word for a property shown on the screen",
     "ja": "画面に出すプロパティの語"
-   }
+   },
+   "section": "T-102",
+   "xOwner": "spec"
   },
   {
    "prefix": "PA",
-   "words": "Plan and Actual",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Plan and Actual",
+   "meaning": {
+    "en": "A state that the Plan and the Actual can take",
     "ja": "予定と実績が取りうる状態"
-   }
+   },
+   "section": "T-019",
+   "xOwner": "spec"
   },
   {
    "prefix": "PE",
-   "words": "Press Effect",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Press Effect",
+   "meaning": {
+    "en": "The effect of pressing and pulling",
     "ja": "押す・引くの効果"
-   }
+   },
+   "section": "T-270",
+   "xOwner": "spec"
   },
   {
    "prefix": "PF",
-   "words": "Profile",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Profile",
+   "meaning": {
+    "en": "An item of the document's basic information",
     "ja": "文書の基本情報の項目"
-   }
+   },
+   "section": "T-224",
+   "xOwner": "spec"
   },
   {
    "prefix": "PG",
-   "words": "",
-   "owner": "spec",
-   "mirrored_in": [
-    "records"
-   ],
-   "means": {
+   "standsFor": "",
+   "meaning": {
+    "en": "What is measured at each development milestone, and whether it is a gate",
     "ja": "節目ごとに測るものと、それがゲートかどうか"
-   }
+   },
+   "section": "T-043",
+   "xOwner": "spec",
+   "xMirroredIn": [
+    "records"
+   ]
   },
   {
    "prefix": "PI",
-   "words": "Public Interface",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Public Interface",
+   "meaning": {
+    "en": "The set of members a component exposes",
     "ja": "コンポーネントが公開するメンバの組"
-   }
+   },
+   "section": "T-064",
+   "xOwner": "spec"
   },
   {
    "prefix": "PK",
-   "words": "Pointer Kind",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Pointer Kind",
+   "meaning": {
+    "en": "A shape of the pointer",
     "ja": "ポインタの形"
-   }
+   },
+   "section": "T-269",
+   "xOwner": "spec"
   },
   {
    "prefix": "PL",
-   "words": "Progress Line",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Progress Line",
+   "meaning": {
+    "en": "How the vertices of the Progress Line are placed",
     "ja": "イナズマ線の頂点の打ち方"
-   }
+   },
+   "section": "T-022",
+   "xOwner": "spec"
   },
   {
    "prefix": "PLM",
-   "words": "",
-   "owner": "spec",
-   "means": {
+   "standsFor": "",
+   "meaning": {
+    "en": "A problem that today's way of making schedules has",
     "ja": "いまの日程表の作り方が抱えている問題"
-   }
+   },
+   "section": "T-001",
+   "xOwner": "spec"
   },
   {
    "prefix": "PM",
-   "words": "Progress Marker",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Progress Marker",
+   "meaning": {
+    "en": "A symbol of the Progress Marker",
     "ja": "進捗マーカーの記号"
-   }
+   },
+   "section": "T-021",
+   "xOwner": "spec"
   },
   {
    "prefix": "PND",
-   "words": "Pending Decision",
-   "owner": "records",
-   "means": {
+   "standsFor": "Pending Decision",
+   "meaning": {
+    "en": "A matter not yet ruled (⛔ not `PD-`, which would be confused with a step of the decision order)",
     "ja": "まだ裁定されていない決めごと（⛔ `PD-` は判定順序の段と紛れるので使わない）"
-   }
+   },
+   "section": "docs/development-records/pending-decisions.md",
+   "xOwner": "records"
   },
   {
    "prefix": "PO",
-   "words": "Policy",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Policy",
+   "meaning": {
+    "en": "A directive of the content security policy of the Single HTML",
     "ja": "単一 HTML の内容セキュリティ方針の指令"
-   }
+   },
+   "section": "T-232",
+   "xOwner": "spec"
   },
   {
    "prefix": "PP",
-   "words": "",
-   "owner": "spec",
-   "means": {
+   "standsFor": "",
+   "meaning": {
+    "en": "A principle of direct manipulation (the reason for that behavior)",
     "ja": "直接操作の原則（なぜその振る舞いなのかの理由）"
-   }
+   },
+   "section": "T-274",
+   "xOwner": "spec"
   },
   {
    "prefix": "PR",
-   "words": "Property",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Property",
+   "meaning": {
+    "en": "One item the Properties Panel shows",
     "ja": "プロパティパネルが出す項目 1 つ"
-   }
+   },
+   "section": "T-016",
+   "xOwner": "spec"
   },
   {
    "prefix": "PS",
-   "words": "",
-   "owner": "spec",
-   "means": {
+   "standsFor": "",
+   "meaning": {
+    "en": "A step of the order that tells the plan-actual state",
     "ja": "予実の状態を判別する順の段"
-   }
+   },
+   "section": "T-019a",
+   "xOwner": "spec"
   },
   {
    "prefix": "PTD",
-   "words": "Pointer Down",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Pointer Down",
+   "meaning": {
+    "en": "A step of the decision order when the pointer is pressed (⛔ not `PD-`, which would be confused with a matter not yet ruled)",
     "ja": "ポインタを押したときの判定順序の段（⛔ `PD-` はまだ裁定されていない決めごとと紛れるので使わない）"
-   }
+   },
+   "section": "T-023a",
+   "xOwner": "spec"
   },
   {
    "prefix": "PV",
-   "words": "",
-   "owner": "spec",
-   "means": {
+   "standsFor": "",
+   "meaning": {
+    "en": "The value set when a mark is pressed to settle the state",
     "ja": "印を押して状態を確定したときに置く値"
-   }
+   },
+   "section": "T-021a",
+   "xOwner": "spec"
   },
   {
    "prefix": "PW",
-   "words": "Performance Watch",
-   "owner": "rules",
-   "means": {
+   "standsFor": "Performance Watch",
+   "meaning": {
+    "en": "One rule of when performance tests are measured, how they are measured, and when the user is called",
     "ja": "性能の試験を測る時期・測り方・利用者を呼ぶ場面の決まり 1 つ"
-   }
+   },
+   "section": "docs/development-rules/04-verification.md",
+   "xOwner": "rules"
   },
   {
    "prefix": "QN",
-   "words": "Question",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Question",
+   "meaning": {
+    "en": "A sentence a question shows",
     "ja": "問いが示す文"
-   }
+   },
+   "section": "T-234",
+   "xOwner": "spec"
   },
   {
    "prefix": "RA",
-   "words": "Region Addition",
-   "owner": "spec",
-   "means": {
-    "ja": "状態機械に領域を 1 つ足す手順の段"
-   }
+   "standsFor": "Region Addition",
+   "meaning": {
+    "en": "A step of the procedure for adding one region to a state machine",
+    "ja": "ステートマシンに領域を 1 つ足す手順の段"
+   },
+   "section": "T-285",
+   "xOwner": "spec"
   },
   {
    "prefix": "RC",
-   "words": "Reduction Candidate",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Reduction Candidate",
+   "meaning": {
+    "en": "A candidate for reduction or review",
     "ja": "削減・見直しの候補"
-   }
+   },
+   "section": "T-026",
+   "xOwner": "spec"
   },
   {
    "prefix": "RD",
-   "words": "",
-   "owner": "spec",
-   "means": {
+   "standsFor": "",
+   "meaning": {
+    "en": "How each caller is handled when the whole document is replaced",
     "ja": "文書をまるごと差し替えるときの、呼び手ごとの扱い"
-   }
+   },
+   "section": "T-230",
+   "xOwner": "spec"
   },
   {
    "prefix": "RF",
-   "words": "Reference",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Reference",
+   "meaning": {
+    "en": "The reference a label attaches to (actual / dummy / plan)",
     "ja": "札が付く基準（実績 ／ ダミー ／ 予定）"
-   }
+   },
+   "section": "T-272",
+   "xOwner": "spec"
   },
   {
    "prefix": "RG",
-   "words": "RunG",
-   "owner": "spec",
-   "means": {
-    "ja": "領域をまたぐ優先順の段（同じ入力を奪い合う状態機械の、どの段が先に消費するか）"
-   }
+   "standsFor": "RunG",
+   "meaning": {
+    "en": "A step of the cross-region priority order (which step of the state machines competing for the same input consumes it first)",
+    "ja": "領域をまたぐ優先順の段（同じ入力を奪い合うステートマシンの、どの段が先に消費するか）"
+   },
+   "section": "T-283",
+   "xOwner": "spec"
   },
   {
    "prefix": "RK",
-   "words": "Retired Key",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Retired Key",
+   "meaning": {
+    "en": "A column the specification dropped, discarded on read",
     "ja": "仕様が落とし、読むときに捨てる列"
-   }
+   },
+   "section": "T-297",
+   "xOwner": "spec"
   },
   {
    "prefix": "RL",
-   "words": "Relation",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Relation",
+   "meaning": {
+    "en": "One relation between entities",
     "ja": "エンティティのあいだの関係 1 本"
-   }
+   },
+   "section": "T-057",
+   "xOwner": "spec"
   },
   {
    "prefix": "RN",
-   "words": "Read-oNly settings",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Read-oNly settings",
+   "meaning": {
+    "en": "The set of read-only rows on the Document Settings surface (table T-380)",
     "ja": "文書の設定の面の読むだけの行の組（表 T-380）"
-   }
+   },
+   "section": "T-380",
+   "xOwner": "spec"
   },
   {
    "prefix": "RO",
-   "words": "",
-   "owner": "spec",
-   "means": {
+   "standsFor": "",
+   "meaning": {
+    "en": "The Resource List Window (how it differs from the Search Panel)",
     "ja": "担当リストのウィンドウ（検索パネルとの違い）"
-   }
+   },
+   "section": "T-370",
+   "xOwner": "spec"
   },
   {
    "prefix": "RP",
-   "words": "",
-   "owner": "spec",
-   "means": {
+   "standsFor": "",
+   "meaning": {
+    "en": "A branch of a dependency line's route",
     "ja": "依存線の経路の分岐"
-   }
+   },
+   "section": "T-222",
+   "xOwner": "spec"
   },
   {
    "prefix": "RQ",
-   "words": "",
-   "owner": "spec",
-   "means": {
+   "standsFor": "",
+   "meaning": {
+    "en": "A column of the Resource List table",
     "ja": "担当リストの表の列"
-   }
+   },
+   "section": "T-371",
+   "xOwner": "spec"
   },
   {
    "prefix": "RR",
-   "words": "",
-   "owner": "spec",
-   "means": {
+   "standsFor": "",
+   "meaning": {
+    "en": "The font size, scrolling, rule lines and close entry point of the holiday settings list",
     "ja": "休日の設定の一覧の字の大きさ・スクロール・罫線・閉じる入口"
-   }
+   },
+   "section": "T-257",
+   "xOwner": "spec"
   },
   {
    "prefix": "RS",
-   "words": "",
-   "owner": "spec",
-   "means": {
+   "standsFor": "",
+   "meaning": {
+    "en": "A reason a notification carries",
     "ja": "通知が運ぶ理由"
-   }
+   },
+   "section": "T-233",
+   "xOwner": "spec"
   },
   {
    "prefix": "RT",
-   "words": "",
-   "owner": "spec",
-   "means": {
+   "standsFor": "",
+   "meaning": {
+    "en": "A rule a dependency line's route meets",
     "ja": "依存線の経路が満たす規則"
-   }
+   },
+   "section": "T-018a",
+   "xOwner": "spec"
   },
   {
    "prefix": "RV",
-   "words": "",
-   "owner": "spec",
-   "means": {
+   "standsFor": "",
+   "meaning": {
+    "en": "A value found when drawing (the document does not hold it; each drawing derives it)",
     "ja": "描くときに求める値（文書は持たず、描くたびに導く）"
-   }
+   },
+   "section": "T-069",
+   "xOwner": "spec"
   },
   {
    "prefix": "RW",
-   "words": "",
-   "owner": "spec",
-   "means": {
+   "standsFor": "",
+   "meaning": {
+    "en": "Where the Delay Diagnostics Report window differs from the Search Panel",
     "ja": "遅延診断レポートの窓が検索パネルと違う所"
-   }
+   },
+   "section": "T-346",
+   "xOwner": "spec"
   },
   {
    "prefix": "S",
-   "words": "Setting",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Setting",
+   "meaning": {
+    "en": "One setting. One series of serial numbers is only split into several tables by subject; the same spelling does not point at different things",
     "ja": "設定値 1 つ。一連の通し番号を主題ごとに複数の表へ割っているだけであり、同じ綴りが別のものを指しているのではない"
-   }
+   },
+   "section": "T-201",
+   "xOwner": "spec"
   },
   {
    "prefix": "SC",
-   "words": "Scroll",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Scroll",
+   "meaning": {
+    "en": "What scrolls, and what does not",
     "ja": "何がスクロールし、何がしないか"
-   }
+   },
+   "section": "T-031",
+   "xOwner": "spec"
   },
   {
    "prefix": "SD",
-   "words": "State-machine Definition",
-   "owner": "spec",
-   "means": {
-    "ja": "状態機械の原稿が持つものの条"
-   }
+   "standsFor": "State-machine Definition",
+   "meaning": {
+    "en": "One clause of what a state machine manuscript holds",
+    "ja": "ステートマシンの原稿が持つものの条"
+   },
+   "section": "T-250",
+   "xOwner": "spec"
   },
   {
    "prefix": "SE",
-   "words": "Scale Echo",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Scale Echo",
+   "meaning": {
+    "en": "How the message showing the current scale appears and disappears when the Display Scale is changed",
     "ja": "表示の倍率を変えたときに出す、いまの倍率を示すメッセージの出し方と消え方"
-   }
+   },
+   "section": "T-260",
+   "xOwner": "spec"
   },
   {
    "prefix": "SF",
-   "words": "State-machine Form",
-   "owner": "spec",
-   "means": {
-    "ja": "状態機械の形の条"
-   }
+   "standsFor": "State-machine Form",
+   "meaning": {
+    "en": "One clause of the form of a state machine",
+    "ja": "ステートマシンの形の条"
+   },
+   "section": "T-249",
+   "xOwner": "spec"
   },
   {
    "prefix": "SG",
-   "words": "Snap Grain",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Snap Grain",
+   "meaning": {
+    "en": "The unit a grabbed-and-released position snaps to (table T-378)",
     "ja": "掴んで離した位置を寄せる単位（表 T-378）"
-   }
+   },
+   "section": "T-378",
+   "xOwner": "spec"
   },
   {
    "prefix": "SH",
-   "words": "Shape",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Shape",
+   "meaning": {
+    "en": "The shape of a task (`shapeKind`)",
     "ja": "タスクの形状（`shapeKind`）"
-   }
+   },
+   "section": "T-012",
+   "xOwner": "spec"
   },
   {
    "prefix": "SJ",
-   "words": "Search Jump",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Search Jump",
+   "meaning": {
+    "en": "A step of the jump when a row of the Search table is pressed",
     "ja": "検索の表の行を押したときの飛び方の段"
-   }
+   },
+   "section": "T-332",
+   "xOwner": "spec"
   },
   {
    "prefix": "SK",
-   "words": "Shortcut Key",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Shortcut Key",
+   "meaning": {
+    "en": "A shortcut key assignment",
     "ja": "ショートカットキーの割当"
-   }
+   },
+   "section": "T-036",
+   "xOwner": "spec"
   },
   {
    "prefix": "SL",
-   "words": "Selection",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Selection",
+   "meaning": {
+    "en": "One clause of the selection rules",
     "ja": "選択の規則の条"
-   }
+   },
+   "section": "T-023c",
+   "xOwner": "spec"
   },
   {
    "prefix": "SO",
-   "words": "Scope",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Scope",
+   "meaning": {
+    "en": "The scope of the product (what it includes and what it does not)",
     "ja": "製品の範囲（含むもの・含まないもの）"
-   }
+   },
+   "section": "T-002",
+   "xOwner": "spec"
   },
   {
    "prefix": "SP",
-   "words": "",
-   "owner": "spec",
-   "means": {
+   "standsFor": "",
+   "meaning": {
+    "en": "One clause that sets, per selection state, what pressing a shape in the palette means",
     "ja": "パレットの形状を押したときの意味を、選択の状態ごとに定める条"
-   }
+   },
+   "section": "FR-083",
+   "xOwner": "spec"
   },
   {
    "prefix": "SQ",
-   "words": "Search Query",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Search Query",
+   "meaning": {
+    "en": "A column of the Search table",
     "ja": "検索の表の列"
-   }
+   },
+   "section": "T-331",
+   "xOwner": "spec"
   },
   {
    "prefix": "SS",
-   "words": "Shared Step",
-   "owner": "spec",
-   "means": {
-    "ja": "状態機械の全領域が共有する 1 段の形の、公開された名前 1 つと、それが約束すること"
-   }
+   "standsFor": "Shared Step",
+   "meaning": {
+    "en": "One public name of a one-step form shared by all regions of the state machine, and what it promises",
+    "ja": "ステートマシンの全領域が共有する 1 段の形の、公開された名前 1 つと、それが約束すること"
+   },
+   "section": "T-284",
+   "xOwner": "spec"
   },
   {
    "prefix": "ST",
-   "words": "Stack",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Stack",
+   "meaning": {
+    "en": "A rule of the automatic assignment of the stacking order",
     "ja": "積み順の自動割当の規則"
-   }
+   },
+   "section": "T-014",
+   "xOwner": "spec"
   },
   {
    "prefix": "SU",
-   "words": "Structure Unit",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Structure Unit",
+   "meaning": {
+    "en": "A unit of structure (component, module, unit)",
     "ja": "構造の単位（コンポーネント・モジュール・ユニット）"
-   }
+   },
+   "section": "T-074",
+   "xOwner": "spec"
   },
   {
    "prefix": "SV",
-   "words": "Search View",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Search View",
+   "meaning": {
+    "en": "An item of how the Search Panel looks and behaves",
     "ja": "検索パネルの見せ方と振舞いの項目"
-   }
+   },
+   "section": "T-330",
+   "xOwner": "spec"
   },
   {
    "prefix": "SX",
-   "words": "Save or Export",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Save or Export",
+   "meaning": {
+    "en": "A row of whether a successful write to a file is treated as a save or as an export",
     "ja": "ファイルへ書けた後に、保存として扱うか書き出しとして扱うかの行"
-   }
+   },
+   "section": "T-340",
+   "xOwner": "spec"
   },
   {
    "prefix": "TC",
-   "words": "Task Creation",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Task Creation",
+   "meaning": {
+    "en": "One clause of the rules of the gestures that make a task",
     "ja": "タスクを作る手つきの規則の条"
-   }
+   },
+   "section": "T-239",
+   "xOwner": "spec"
   },
   {
    "prefix": "TD",
-   "words": "Tree Drawn",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Tree Drawn",
+   "meaning": {
+    "en": "The condition for drawing a task group, by the state of the task group tree",
     "ja": "タスクグループの木の状態によってタスクグループを描くかの条件"
-   }
+   },
+   "section": "T-329",
+   "xOwner": "spec"
   },
   {
    "prefix": "TH",
-   "words": "Theme Color (Hue)",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Theme Color (Hue)",
+   "meaning": {
+    "en": "A Theme Color selectable on the screen",
     "ja": "画面で選べるテーマ色"
-   }
+   },
+   "section": "T-305",
+   "xOwner": "spec"
   },
   {
    "prefix": "TL",
-   "words": "Tooltip Line",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Tooltip Line",
+   "meaning": {
+    "en": "A line of the explanation shown when the pointer rests",
     "ja": "ポインタを止めたときの説明の行"
-   }
+   },
+   "section": "T-348",
+   "xOwner": "spec"
   },
   {
    "prefix": "TM",
-   "words": "",
-   "owner": "spec",
-   "means": {
+   "standsFor": "",
+   "meaning": {
+    "en": "What a tier of the ruler prints",
     "ja": "目盛の段が刷るもの"
-   }
+   },
+   "section": "T-238",
+   "xOwner": "spec"
   },
   {
    "prefix": "TP",
-   "words": "Template",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Template",
+   "meaning": {
+    "en": "The content of the initial template",
     "ja": "初期テンプレートの中身"
-   }
+   },
+   "section": "T-226",
+   "xOwner": "spec"
   },
   {
    "prefix": "TR",
-   "words": "Trade-off",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Trade-off",
+   "meaning": {
+    "en": "A cost paid on purpose, and what is gained in exchange",
     "ja": "意図して払う代償と、その代わりに得るもの"
-   }
+   },
+   "section": "T-073",
+   "xOwner": "spec"
   },
   {
    "prefix": "TS",
-   "words": "",
-   "owner": "spec",
-   "means": {
+   "standsFor": "",
+   "meaning": {
+    "en": "A test family",
     "ja": "テストの系統"
-   }
+   },
+   "section": "T-218",
+   "xOwner": "spec"
   },
   {
    "prefix": "TV",
-   "words": "Task Visibility",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Task Visibility",
+   "meaning": {
+    "en": "The rules of the Schedule Filter, which narrows the tasks drawn on the schedule by the shown columns of the three tables (Search, Delay Diagnostics Report, Resource List) and the Schedule Filter",
     "ja": "3 つの表（検索・遅延診断レポート・担当リスト）の表示の列とスケジュールフィルタで日程表に描くタスクを絞る、スケジュールフィルタの規則"
-   }
+   },
+   "section": "T-353",
+   "xOwner": "spec"
   },
   {
    "prefix": "TW",
-   "words": "",
-   "owner": "spec",
-   "means": {
+   "standsFor": "",
+   "meaning": {
+    "en": "The test policy and pass criteria per chapter",
     "ja": "章ごとのテストの方針と合格基準"
-   }
+   },
+   "section": "T-219",
+   "xOwner": "spec"
   },
   {
    "prefix": "TX",
-   "words": "Time teXt",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Time teXt",
+   "meaning": {
+    "en": "A place that shows a date and time, and the format of dates, times and durations at that place (table T-375)",
     "ja": "日時を見せる所と、その所での日時と長さの形（表 T-375）"
-   }
+   },
+   "section": "T-375",
+   "xOwner": "spec"
   },
   {
    "prefix": "TY",
-   "words": "Type",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Type",
+   "meaning": {
+    "en": "The order in which Grab Margins respond by kind within the same step",
     "ja": "同じ手順の中で、種別の掴み代が応える順"
-   }
+   },
+   "section": "T-268",
+   "xOwner": "spec"
   },
   {
    "prefix": "U",
-   "words": "UI part",
-   "owner": "spec",
-   "means": {
+   "standsFor": "UI part",
+   "meaning": {
+    "en": "One UI part of the screen",
     "ja": "画面の UI パーツ 1 つ"
-   }
+   },
+   "section": "T-103",
+   "xOwner": "spec"
   },
   {
    "prefix": "UD",
-   "words": "Unit Division",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Unit Division",
+   "meaning": {
+    "en": "A basis for dividing units",
     "ja": "ユニットを割る基準"
-   }
+   },
+   "section": "T-276",
+   "xOwner": "spec"
   },
   {
    "prefix": "UF",
-   "words": "",
-   "owner": "spec",
-   "mirrored_in": [
-    "records"
-   ],
-   "means": {
+   "standsFor": "",
+   "meaning": {
+    "en": "One unit -- one file, its purity and its owner",
     "ja": "ユニット 1 つ —— 1 ファイルと、その純粋性と持ち主"
-   }
+   },
+   "section": "T-075",
+   "xOwner": "spec",
+   "xMirroredIn": [
+    "records"
+   ]
   },
   {
    "prefix": "UN",
-   "words": "Undo",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Undo",
+   "meaning": {
+    "en": "What undo covers and what it does not",
     "ja": "取り消しの対象と対象外"
-   }
+   },
+   "section": "T-027",
+   "xOwner": "spec"
   },
   {
    "prefix": "UO",
-   "words": "Unit-test Omission",
-   "owner": "rules",
-   "means": {
+   "standsFor": "Unit-test Omission",
+   "meaning": {
+    "en": "One case where a unit test may be omitted. A function that matches no row gets a unit test",
     "ja": "単体試験を省略してよい場合 1 つ。どの行にも当たらない関数には単体試験を書く"
-   }
+   },
+   "section": "docs/development-rules/04-verification.md",
+   "xOwner": "rules"
   },
   {
    "prefix": "UT",
-   "words": "",
-   "owner": "spec",
-   "means": {
+   "standsFor": "",
+   "meaning": {
+    "en": "A reason for dividing the units",
     "ja": "ユニットを割った理由"
-   }
+   },
+   "section": "T-063",
+   "xOwner": "spec"
   },
   {
    "prefix": "UW",
-   "words": "User Wording",
-   "owner": "rules",
-   "means": {
+   "standsFor": "User Wording",
+   "meaning": {
+    "en": "One word of the text the user reads outside the screen -- the Japanese and English words to use and to avoid (secondary; for screen words the glossary rules)",
     "ja": "利用者が画面の外で読む文の語 1 つ —— 日英の使う語と避ける語（副。画面の語は用語集が正）"
-   }
+   },
+   "section": "docs/development-rules/user-wording.md",
+   "xOwner": "rules"
   },
   {
    "prefix": "UZ",
-   "words": "UI Z-Order",
-   "owner": "spec",
-   "means": {
+   "standsFor": "UI Z-Order",
+   "meaning": {
+    "en": "A step of the stacking order of the screen's UI parts (front to back)",
     "ja": "画面の UI パーツの重ね順（前面から背面へ）の段"
-   }
+   },
+   "section": "T-337",
+   "xOwner": "spec"
   },
   {
    "prefix": "V",
-   "words": "",
-   "owner": "spec",
-   "means": {
+   "standsFor": "",
+   "meaning": {
+    "en": "A use case, and its mapping to the requests of the previous project",
     "ja": "ユースケースと、前プロジェクトの要望との対応"
-   }
+   },
+   "section": "T-011",
+   "xOwner": "spec"
   },
   {
    "prefix": "VC",
-   "words": "Validation Contradiction",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Validation Contradiction",
+   "meaning": {
+    "en": "A contradiction viewpoint of the progress validity check",
     "ja": "進捗妥当性検査の矛盾の観点"
-   }
+   },
+   "section": "T-310",
+   "xOwner": "spec"
   },
   {
    "prefix": "VG",
-   "words": "Vertical Gap",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Vertical Gap",
+   "meaning": {
+    "en": "The vertical gap between the shapes of tasks stacked above and below",
     "ja": "上下に積んだタスクの形と形の縦の隙間"
-   }
+   },
+   "section": "T-259",
+   "xOwner": "spec"
   },
   {
    "prefix": "VK",
-   "words": "",
-   "owner": "spec",
-   "means": {
+   "standsFor": "",
+   "meaning": {
+    "en": "A value word -- a word that names in one word the state a goal states",
     "ja": "価値のことば —— 目標が述べる状態を 1 語で指すことば"
-   }
+   },
+   "section": "T-106",
+   "xOwner": "spec"
   },
   {
    "prefix": "VO",
-   "words": "Validation Omission",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Validation Omission",
+   "meaning": {
+    "en": "An Omission viewpoint of the progress validity check",
     "ja": "進捗妥当性検査の記載漏れの観点"
-   }
+   },
+   "section": "T-312",
+   "xOwner": "spec"
   },
   {
    "prefix": "VS",
-   "words": "Validation Suspicion",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Validation Suspicion",
+   "meaning": {
+    "en": "A Suspicion viewpoint of the progress validity check",
     "ja": "進捗妥当性検査の疑義の観点"
-   }
+   },
+   "section": "T-311",
+   "xOwner": "spec"
   },
   {
    "prefix": "VT",
-   "words": "Verification Target",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Verification Target",
+   "meaning": {
+    "en": "One thing to verify -- where its full set is held, and the test family that takes it",
     "ja": "確かめるもの 1 つ —— 全数を持つ所と、それを受ける試験の系統"
-   }
+   },
+   "section": "T-334",
+   "xOwner": "spec"
   },
   {
    "prefix": "W",
-   "words": "",
-   "owner": "spec",
-   "means": {
+   "standsFor": "",
+   "meaning": {
+    "en": "The notation per surface",
     "ja": "面ごとの記法"
-   }
+   },
+   "section": "T-006a",
+   "xOwner": "spec"
   },
   {
    "prefix": "WB",
-   "words": "Window Behavior",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Window Behavior",
+   "meaning": {
+    "en": "Window states and behavior (normal, minimized, maximized, title bar, moving, resizing, bringing to front)",
     "ja": "ウィンドウの状態と振舞い（通常・最小化・最大化・タイトルバー・動かす・大きさを変える・前に出す）"
-   }
+   },
+   "section": "T-335",
+   "xOwner": "spec"
   },
   {
    "prefix": "WC",
-   "words": "Working Calendar",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Working Calendar",
+   "meaning": {
+    "en": "The fields and entry points of the holiday settings (table T-344)",
     "ja": "休日の設定の欄と入口（表 T-344）"
-   }
+   },
+   "section": "T-344",
+   "xOwner": "spec"
   },
   {
    "prefix": "WF",
-   "words": "Width Field",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Width Field",
+   "meaning": {
+    "en": "The rules of the Task Group Panel width field, and of the boundary while it is fixed (table T-368)",
     "ja": "タスクグループパネルの幅の欄と、固定のあいだの境界の規則（表 T-368）"
-   }
+   },
+   "section": "T-368",
+   "xOwner": "spec"
   },
   {
    "prefix": "PTL",
-   "words": "Parent Task Link",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Parent Task Link",
+   "meaning": {
+    "en": "One row of the actions that link, unlink and follow a parent task (table T-351)",
     "ja": "親タスクを結ぶ・外す・辿る手の 1 行（表 T-351）"
-   }
+   },
+   "section": "T-351",
+   "xOwner": "spec"
   },
   {
    "prefix": "WH",
-   "words": "WHole schedule shift",
-   "owner": "spec",
-   "means": {
+   "standsFor": "WHole schedule shift",
+   "meaning": {
+    "en": "How the whole schedule shift moves the schedule (table T-379)",
     "ja": "全体日程シフトの移し方（表 T-379）"
-   }
+   },
+   "section": "T-379",
+   "xOwner": "spec"
   },
   {
    "prefix": "WM",
-   "words": "Watermark",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Watermark",
+   "meaning": {
+    "en": "One clause of the Watermark rules",
     "ja": "透かしの規則の条"
-   }
+   },
+   "section": "T-242",
+   "xOwner": "spec"
   },
   {
    "prefix": "WP",
-   "words": "Wipe",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Wipe",
+   "meaning": {
+    "en": "One thing that GRS Reset decides to delete or keep (table T-345)",
     "ja": "GRS リセットが消すか残すかを決める 1 つのもの（表 T-345）"
-   }
+   },
+   "section": "T-345",
+   "xOwner": "spec"
   },
   {
    "prefix": "WR",
-   "words": "",
-   "owner": "rules",
-   "means": {
+   "standsFor": "",
+   "meaning": {
+    "en": "How a requirement refers to a table or a figure -- one form is correct, the other is forbidden",
     "ja": "要求が表や図を指すときの書き方 —— 1 つが正、もう 1 つが禁じられた形である"
-   }
+   },
+   "section": "docs/development-rules/08-spec-template/spec-writing-rules.md",
+   "xOwner": "rules"
   },
   {
    "prefix": "WS",
-   "words": "Write Step",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Write Step",
+   "meaning": {
+    "en": "A step of the procedure that changes the document",
     "ja": "文書を変える手順の段"
-   }
+   },
+   "section": "T-067",
+   "xOwner": "spec"
   },
   {
    "prefix": "WT",
-   "words": "Written Time",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Written Time",
+   "meaning": {
+    "en": "The time of day of a date-time that `GRS` writes (per column side)",
     "ja": "`GRS` が書く日時の時刻（列の側ごと）"
-   }
+   },
+   "section": "T-350",
+   "xOwner": "spec"
   },
   {
    "prefix": "WY",
-   "words": "WYSIWYG",
-   "owner": "spec",
-   "means": {
+   "standsFor": "WYSIWYG",
+   "meaning": {
+    "en": "The pass judgment that the screen and the output are the same",
     "ja": "画面と成果物が同じであることの達成判定"
-   }
+   },
+   "section": "T-041",
+   "xOwner": "spec"
   },
   {
    "prefix": "X",
-   "words": "eXception",
-   "owner": "spec",
-   "means": {
+   "standsFor": "eXception",
+   "meaning": {
+    "en": "A word not translated literally (an exception to the translations)",
     "ja": "直訳しない語（訳語の例外）"
-   }
+   },
+   "section": "T-105",
+   "xOwner": "spec"
   },
   {
    "prefix": "XO",
-   "words": "",
-   "owner": "spec",
-   "means": {
+   "standsFor": "",
+   "meaning": {
+    "en": "Something the product does not have",
     "ja": "本製品が持たないもの"
-   }
+   },
+   "section": "T-009",
+   "xOwner": "spec"
   },
   {
    "prefix": "XS",
-   "words": "Cross Section",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Cross Section",
+   "meaning": {
+    "en": "The vertical cross section per shape (position and height of the band)",
     "ja": "形ごとの縦の断面（帯の位置と高さ）"
-   }
+   },
+   "section": "T-271",
+   "xOwner": "spec"
   },
   {
    "prefix": "ZE",
-   "words": "Zoom End",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Zoom End",
+   "meaning": {
+    "en": "How it is handled when the vertical zoom changes nothing at an end",
     "ja": "縦軸のズームが端で何も変えないときの扱い"
-   }
+   },
+   "section": "T-262",
+   "xOwner": "spec"
   },
   {
    "prefix": "ZN",
-   "words": "ZoNe",
-   "owner": "spec",
-   "means": {
+   "standsFor": "ZoNe",
+   "meaning": {
+    "en": "A time zone choice (table T-376)",
     "ja": "タイムゾーンの選択肢（表 T-376）"
-   }
+   },
+   "section": "T-376",
+   "xOwner": "spec"
   },
   {
    "prefix": "ZO",
-   "words": "Z-Order",
-   "owner": "spec",
-   "means": {
+   "standsFor": "Z-Order",
+   "meaning": {
+    "en": "A step of the stacking order (back to front)",
     "ja": "重ね順（背面から前面へ）の段"
-   }
+   },
+   "section": "T-020",
+   "xOwner": "spec"
   }
  ]
 }

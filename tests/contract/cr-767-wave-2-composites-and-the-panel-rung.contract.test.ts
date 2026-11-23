@@ -13,6 +13,7 @@ import {
   type SessionEvent,
 } from '../../src/use-case/advance-screen-session/advance-screen-session'
 import { unbroken } from './spec-table'
+import { readStateMachineView } from './state-machine-manuscript'
 
 type Loose = Record<string, unknown>
 type RawGuard = { readonly name: string; readonly not?: boolean } | { readonly in: string }
@@ -34,7 +35,7 @@ type RawRegion = {
 type Rung = { readonly id: string; readonly states: readonly Loose[]; readonly note?: { readonly ja: string } }
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
-const MANUSCRIPT = JSON.parse(readFileSync(join(SPEC, '_source', 'state-machines.json'), 'utf8')) as {
+const MANUSCRIPT = readStateMachineView() as {
   readonly priorities: { readonly rungs: readonly Rung[] }
   readonly regions: readonly RawRegion[]
 }

@@ -11,6 +11,7 @@ import {
   type EscapeTarget,
 } from '../../src/entity/document-model/screen-state/screen-state'
 import { bare, specTable, unbroken } from './spec-table'
+import { readStateMachineView } from './state-machine-manuscript'
 
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 const DESIGN = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '05-07-design.md'), 'utf8'))
@@ -67,9 +68,7 @@ interface Machine {
   readonly states: readonly { readonly key: string }[]
 }
 
-const MANUSCRIPT = JSON.parse(
-  readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'state-machines.json'), 'utf8'),
-) as {
+const MANUSCRIPT = readStateMachineView() as {
   readonly priorities: { readonly table: { readonly id: string }; readonly rungs: readonly Rung[] }
   readonly regions: readonly { readonly machines: readonly Machine[] }[]
 }

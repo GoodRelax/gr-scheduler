@@ -234,7 +234,7 @@ class Spec(object):
 
         machines = json.loads(read(MACHINES_REL))
         self.regions = sorted((region['table']['id'], region['region'])
-                              for region in machines['regions'])
+                              for region in machines['xRegions'])
 
     @staticmethod
     def _gate_rows(idx):

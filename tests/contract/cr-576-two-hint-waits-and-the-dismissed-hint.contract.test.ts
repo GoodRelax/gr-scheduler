@@ -19,6 +19,7 @@ import {
   type SessionEvent,
 } from '../../src/use-case/advance-screen-session/advance-screen-session'
 import { bare, specTable, unbroken } from './spec-table'
+import { readStateMachineView } from './state-machine-manuscript'
 
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 const SETTINGS_TABLES = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-settings.md'), 'utf8'))
@@ -60,7 +61,7 @@ type Machine = {
   readonly transitions: Readonly<Record<string, Readonly<Record<string, { readonly to: string; readonly guard?: unknown }>>>>
 }
 const TOOLTIP_MACHINE: Machine | undefined = (
-  JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'state-machines.json'), 'utf8')) as {
+  readStateMachineView() as {
     readonly regions: readonly { readonly machines: readonly Machine[] }[]
   }
 ).regions
