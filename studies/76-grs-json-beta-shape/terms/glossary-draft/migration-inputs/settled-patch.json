@@ -1,0 +1,1960 @@
+{
+ "terms": [
+  {
+   "key": "Naming",
+   "group": "rules/designPrinciples",
+   "settledRow": "1-1",
+   "basis": [
+    "JDG-3513",
+    "JDG-3483"
+   ],
+   "definition": {
+    "en": "A name says what it names. Names are the main interface of software, so naming is a required review point. The author names each thing so that a reader can tell its role from the name alone.",
+    "ja": "名は体を表す。名前はソフトウェアの主な接点なので、命名は必須のレビュー観点である。読む人が名前だけでその物の役目を読み取れるように、物に名を付ける。"
+   }
+  },
+  {
+   "key": "NDD",
+   "group": "rules/designPrinciples",
+   "settledRow": "1-2",
+   "basis": [
+    "JDG-3513",
+    "JDG-3481",
+    "JDG-3524"
+   ],
+   "definition": {
+    "en": "The AI-assisted software development style that puts naming first. GRS develops its software in this style. People put their soul into words, aimed at what they want to achieve (the purpose and the goals). In the beginning was the word. Wú míng tiāndì zhī shǐ, yǒu míng wànwù zhī mǔ (無名 天地之始 有名 萬物之母). Software is the spirit that lives in words.",
+    "ja": "命名を最優先とする AI 連携の SW 開発スタイル。GRS が採用する開発方式。人間は実現したいこと（目的・目標）に向けて、言葉に魂を込める。はじめに言葉ありき。Wú míng tiāndì zhī shǐ, yǒu míng wànwù zhī mǔ（無名 天地之始 有名 萬物之母）。ソフトは言霊。"
+   },
+   "expansion": {
+    "en": "Naming Driven Development",
+    "ja": "Naming Driven Development"
+   }
+  },
+  {
+   "key": "SSOT",
+   "group": "rules/designPrinciples",
+   "settledRow": "1-3",
+   "basis": [
+    "JDG-3513",
+    "JDG-3483",
+    "JDG-3524"
+   ],
+   "definition": {
+    "en": "An author writes each fact in exactly one place, and every other place generates its copy from that place or points at it. When two copies exist and disagree, the reader has to guess which one is right.",
+    "ja": "1 つの事実は 1 か所にだけ書き、ほかの所はそこから写しを生成するか、そこを指す。写しが 2 つあると、食い違ったときにどちらが正しいかで迷う。"
+   },
+   "expansion": {
+    "en": "Single Source of Truth",
+    "ja": "唯一の正"
+   }
+  },
+  {
+   "key": "Traceability",
+   "group": "rules/designPrinciples",
+   "settledRow": "1-4",
+   "basis": [
+    "JDG-3513"
+   ],
+   "definition": {
+    "en": "Traceability: a reader can follow the purpose, the upper requirements, the lower requirements, the implementation and the tests in both directions by their IDs. The review standards give the details.",
+    "ja": "トレーサビリティ: 目的・上位の要求・下位の要求・実装・試験を、ID で両方向にたどれる。詳しくはレビュー基準。"
+   }
+  },
+  {
+   "key": "OKPN",
+   "group": "rules/designPrinciples",
+   "settledRow": "1-5",
+   "basis": [
+    "JDG-3513",
+    "JDG-3524"
+   ],
+   "definition": {
+    "en": "One name takes values of one kind only. The rule covers every identifier, such as JSON properties, variables, arguments and components. The review standards give the details.",
+    "ja": "1 つの名前は 1 種類の値だけを取る。JSON のプロパティ、変数や引数、コンポーネントなど、すべての識別子が対象。詳しくはレビュー基準。"
+   },
+   "expansion": {
+    "en": "One Kind Per Name",
+    "ja": "1 つの名前に 1 種類の値"
+   }
+  },
+  {
+   "key": "OMPV",
+   "group": "rules/designPrinciples",
+   "settledRow": "1-6",
+   "basis": [
+    "JDG-3513",
+    "JDG-3524"
+   ],
+   "definition": {
+    "en": "One value carries one meaning only. The review standards give the details.",
+    "ja": "1 つの値は 1 つの意味だけを持つ。詳しくはレビュー基準。"
+   },
+   "expansion": {
+    "en": "One Meaning Per Value",
+    "ja": "1 つの値に 1 つの意味"
+   }
+  },
+  {
+   "key": "NullTrap",
+   "group": "rules/designPrinciples",
+   "settledRow": "1-7",
+   "basis": [
+    "JDG-3513",
+    "JDG-3483"
+   ],
+   "definition": {
+    "en": "Null Trap: the data shows a missing value by omitting the element. It uses omission in place of null. The review standards give the details.",
+    "ja": "Null の罠: 値の欠けは要素を省いて表す。null の代わりに省略を使う。詳しくはレビュー基準。"
+   }
+  },
+  {
+   "key": "DependencyDirection",
+   "group": "rules/designPrinciples",
+   "settledRow": "1-8",
+   "basis": [
+    "JDG-3513"
+   ],
+   "definition": {
+    "en": "Dependencies point only in the directions that the architecture layers allow, that is, from an outer layer toward an inner layer.",
+    "ja": "依存は、アーキテクチャの層が許す向き、つまり外側の層から内側の層へだけ向く。"
+   }
+  },
+  {
+   "key": "SDP",
+   "group": "rules/designPrinciples",
+   "settledRow": "1-9",
+   "basis": [
+    "JDG-3513",
+    "JDG-3482",
+    "JDG-3524"
+   ],
+   "definition": {
+    "en": "A component depends only on components that change less often than itself.",
+    "ja": "コンポーネントは、自分より変わりにくいコンポーネントにだけ依存する。"
+   },
+   "expansion": {
+    "en": "Stable Dependencies Principle",
+    "ja": "安定依存の原則"
+   }
+  },
+  {
+   "key": "KISS",
+   "group": "rules/designPrinciples",
+   "settledRow": "1-10",
+   "basis": [
+    "JDG-3513",
+    "JDG-3524"
+   ],
+   "definition": {
+    "en": "A designer chooses the simplest of the solutions that work.",
+    "ja": "動く解のうち、いちばん単純なものを選ぶ。"
+   },
+   "expansion": {
+    "en": "Keep It Simple, Stupid",
+    "ja": "Keep It Simple, Stupid"
+   }
+  },
+  {
+   "key": "YAGNI",
+   "group": "rules/designPrinciples",
+   "settledRow": "1-11",
+   "basis": [
+    "JDG-3513",
+    "JDG-3483",
+    "JDG-3524"
+   ],
+   "definition": {
+    "en": "A developer builds only what the current requirements ask for.",
+    "ja": "いまの要求が求めるものだけを作る。"
+   },
+   "expansion": {
+    "en": "You Aren't Gonna Need It",
+    "ja": "You Aren't Gonna Need It"
+   }
+  },
+  {
+   "key": "MinimalComparison",
+   "group": "rules/designPrinciples",
+   "settledRow": "1-12",
+   "basis": [
+    "JDG-3513"
+   ],
+   "definition": {
+    "en": "Minimal Comparison: a designer compares the design with the smallest configuration that meets the requirements, and writes a reason for each element that the design adds beyond it.",
+    "ja": "最小構成との比較: 設計を、要求を満たす最小の構成と比べ、それより増やした要素のそれぞれに理由を書く。"
+   }
+  },
+  {
+   "key": "DRY",
+   "group": "rules/designPrinciples",
+   "settledRow": "1-13",
+   "basis": [
+    "JDG-3513",
+    "JDG-3483",
+    "JDG-3524"
+   ],
+   "definition": {
+    "en": "One decision, calculation or conversion lives in exactly one place of the code. Other places call that place.",
+    "ja": "1 つの判断・計算・変換は、コードの 1 か所だけが持つ。ほかの所はそこを呼ぶ。"
+   },
+   "expansion": {
+    "en": "Don't Repeat Yourself",
+    "ja": "Don't Repeat Yourself"
+   }
+  },
+  {
+   "key": "SoC",
+   "group": "rules/designPrinciples",
+   "settledRow": "1-15",
+   "basis": [
+    "JDG-3513",
+    "JDG-3482",
+    "JDG-3524"
+   ],
+   "definition": {
+    "en": "The design puts things of different concerns, such as the screen, the business rules and storage, in separate places.",
+    "ja": "画面・業務の規則・保存のように関心の違うものは、別の場所に置く。"
+   },
+   "expansion": {
+    "en": "Separation of Concerns",
+    "ja": "関心の分離"
+   }
+  },
+  {
+   "key": "SRP",
+   "group": "rules/designPrinciples",
+   "settledRow": "1-16",
+   "basis": [
+    "JDG-3513",
+    "JDG-3482",
+    "JDG-3483",
+    "JDG-3524"
+   ],
+   "definition": {
+    "en": "Each class, unit, module, component and layer has exactly one responsibility. The responsibility of a larger unit is a one-sentence summary of its contents, and the author writes it at one level of abstraction above the sum of those contents.",
+    "ja": "クラス・ユニット・モジュール・コンポーネント・層は、それぞれ責務を 1 つだけ持つ。大きな単位の責務は、中身を 1 文に要約したもので、中身の総和より一段高い抽象で書く。"
+   },
+   "expansion": {
+    "en": "Single Responsibility Principle",
+    "ja": "単一責任の原則"
+   }
+  },
+  {
+   "key": "SLAP",
+   "group": "rules/designPrinciples",
+   "settledRow": "1-17",
+   "basis": [
+    "JDG-3513",
+    "JDG-3482",
+    "JDG-3483",
+    "JDG-3524"
+   ],
+   "definition": {
+    "en": "One function stays at one level of abstraction. The author separates a function that states what to do from a function that holds the details of how to do it.",
+    "ja": "1 つの関数は 1 つの抽象度にとどまる。「何をするか」を書く関数と、「どうやるか」の細部を書く関数を分ける。"
+   },
+   "expansion": {
+    "en": "Single Level of Abstraction Principle",
+    "ja": "単一抽象レベルの原則"
+   }
+  },
+  {
+   "key": "OCP",
+   "group": "rules/designPrinciples",
+   "settledRow": "1-18",
+   "basis": [
+    "JDG-3513",
+    "JDG-3482",
+    "JDG-3483",
+    "JDG-3524"
+   ],
+   "definition": {
+    "en": "A module is open to extension and closed to modification. A developer adds a new feature by adding new code, and keeps the existing branches as they are.",
+    "ja": "モジュールは拡張に開き、修正に閉じる。新しい機能は新しいコードを足して加え、既存の分岐はそのまま保つ。"
+   },
+   "expansion": {
+    "en": "Open-Closed Principle",
+    "ja": "開放閉鎖の原則"
+   }
+  },
+  {
+   "key": "LSP",
+   "group": "rules/designPrinciples",
+   "settledRow": "1-19",
+   "basis": [
+    "JDG-3513",
+    "JDG-3482",
+    "JDG-3483",
+    "JDG-3524"
+   ],
+   "definition": {
+    "en": "A subtype keeps the promises of its parent type and can stand in for the parent.",
+    "ja": "子の型は親の型の約束を守り、親の代わりに使える。"
+   },
+   "expansion": {
+    "en": "Liskov Substitution Principle",
+    "ja": "リスコフの置換原則"
+   }
+  },
+  {
+   "key": "ISP",
+   "group": "rules/designPrinciples",
+   "settledRow": "1-20",
+   "basis": [
+    "JDG-3513",
+    "JDG-3482",
+    "JDG-3483",
+    "JDG-3524"
+   ],
+   "definition": {
+    "en": "The design splits interfaces by use, so that both the users and the implementers of an interface handle only the methods of their own use.",
+    "ja": "インターフェースを用途ごとに分け、使う側も実装する側も、自分の用途のメソッドだけを扱う形にする。"
+   },
+   "expansion": {
+    "en": "Interface Segregation Principle",
+    "ja": "インターフェース分離の原則"
+   }
+  },
+  {
+   "key": "DIP",
+   "group": "rules/designPrinciples",
+   "settledRow": "1-21",
+   "basis": [
+    "JDG-3513",
+    "JDG-3482",
+    "JDG-3483",
+    "JDG-3524"
+   ],
+   "definition": {
+    "en": "Higher-level code depends on abstractions in place of the concrete lower-level parts.",
+    "ja": "上位のコードは、下位の具体的な部分の代わりに、抽象に依存する。"
+   },
+   "expansion": {
+    "en": "Dependency Inversion Principle",
+    "ja": "依存性逆転の原則"
+   }
+  },
+  {
+   "key": "LoD",
+   "group": "rules/designPrinciples",
+   "settledRow": "1-22",
+   "basis": [
+    "JDG-3513",
+    "JDG-3482",
+    "JDG-3483",
+    "JDG-3524"
+   ],
+   "definition": {
+    "en": "An object talks only with its direct collaborators. It asks a collaborator to do a job in place of walking through the inner structure of that collaborator.",
+    "ja": "オブジェクトは直接の協力相手とだけやり取りする。相手の内部構造をたどる代わりに、相手に頼む。"
+   },
+   "expansion": {
+    "en": "Law of Demeter",
+    "ja": "デメテルの法則"
+   }
+  },
+  {
+   "key": "CQS",
+   "group": "rules/designPrinciples",
+   "settledRow": "1-23",
+   "basis": [
+    "JDG-3513",
+    "JDG-3482",
+    "JDG-3524"
+   ],
+   "definition": {
+    "en": "A method does exactly one of two things: it changes state (a command) or it returns a value (a query).",
+    "ja": "メソッドは、状態を変える（コマンド）か値を返す（クエリ）かのどちらか一方だけをする。"
+   },
+   "expansion": {
+    "en": "Command-Query Separation",
+    "ja": "コマンド・クエリ分離"
+   }
+  },
+  {
+   "key": "POLA",
+   "group": "rules/designPrinciples",
+   "settledRow": "1-24",
+   "basis": [
+    "JDG-3513",
+    "JDG-3482",
+    "JDG-3483",
+    "JDG-3524"
+   ],
+   "definition": {
+    "en": "Code behaves as its name leads a reader to expect. When code has a side effect, its name shows that side effect.",
+    "ja": "コードは、名前から読み手が予想するとおりに動く。副作用を持つなら、名前でそれを示す。"
+   },
+   "expansion": {
+    "en": "Principle of Least Astonishment",
+    "ja": "最小驚きの原則"
+   }
+  },
+  {
+   "key": "PIE",
+   "group": "rules/designPrinciples",
+   "settledRow": "1-25",
+   "basis": [
+    "JDG-3513",
+    "JDG-3482",
+    "JDG-3483",
+    "JDG-3524"
+   ],
+   "definition": {
+    "en": "Code and names show the intent, and comments state why.",
+    "ja": "コードと名前で意図を示し、コメントには「なぜ」を書く。"
+   },
+   "expansion": {
+    "en": "Program Intently and Expressively",
+    "ja": "意図を明確に表すプログラミング"
+   }
+  },
+  {
+   "key": "Testability",
+   "group": "rules/designPrinciples",
+   "settledRow": "1-26",
+   "basis": [
+    "JDG-3513"
+   ],
+   "definition": {
+    "en": "Testability: a tester can test a unit alone and can easily plug in stand-ins (mocks and stubs).",
+    "ja": "テスト容易性: 単体で試験でき、代役（モックやスタブ）を差し込みやすい。"
+   }
+  },
+  {
+   "key": "purity",
+   "group": "rules/designPrinciples",
+   "settledRow": "1-27",
+   "basis": [
+    "JDG-3513",
+    "JDG-3483"
+   ],
+   "definition": {
+    "en": "Purity: the design sorts every function into one of four classes by whether it has side effects and by how it reads outside state. The design moves side effects and outside reads out of the calculation logic.",
+    "ja": "純粋性: 副作用の有無と外部の状態の読み方で、どの関数も 4 つの分類のどれかに分ける。副作用と外部の読み取りを、計算ロジックの外へ寄せる。"
+   }
+  },
+  {
+   "key": "pure",
+   "group": "rules/designPrinciples",
+   "settledRow": "1-28",
+   "basis": [
+    "JDG-3513",
+    "JDG-3483"
+   ],
+   "definition": {
+    "en": "Pure: a function that reads only its arguments and returns a result as its only output. It returns the same result for the same arguments.",
+    "ja": "純粋: 引数だけを読み、結果だけを返す関数。同じ引数には同じ結果を返す。"
+   }
+  },
+  {
+   "key": "semiPureImmutable",
+   "group": "rules/designPrinciples",
+   "settledRow": "1-29",
+   "basis": [
+    "JDG-3513",
+    "JDG-3483"
+   ],
+   "definition": {
+    "en": "Semi-pure-immutable: a function that returns a result as its only output and, besides its arguments, reads outside state that stays fixed, such as constants or settings that the program decides at start-up. It returns the same result for the same arguments.",
+    "ja": "準純粋-不変: 結果だけを返し、引数のほかに、定数や起動時に決まる設定のような不変の外部の状態を読む関数。同じ引数には同じ結果を返す。"
+   }
+  },
+  {
+   "key": "semiPureMutable",
+   "group": "rules/designPrinciples",
+   "settledRow": "1-30",
+   "basis": [
+    "JDG-3513",
+    "JDG-3488"
+   ],
+   "definition": {
+    "en": "Semi-pure-mutable: a function that returns a result as its only output and, besides its arguments, reads outside state that changes, such as the clock, random numbers, files or the network. The author gives a semi-pure-mutable function a verb name, so that the name shows that the read takes time and can fail.",
+    "ja": "準純粋-可変: 結果だけを返し、引数のほかに、時計・乱数・ファイル・ネットワークのような、変わる外部の状態を読む関数。読むのに時間がかかり失敗もしうることを名で示すため、準純粋-可変の関数には動詞の名を付ける。"
+   }
+  },
+  {
+   "key": "nonPure",
+   "group": "rules/designPrinciples",
+   "settledRow": "1-31",
+   "basis": [
+    "JDG-3513",
+    "JDG-3483"
+   ],
+   "definition": {
+    "en": "Non-pure: a function that holds mutable state or has side effects, such as input and output, logging or rewriting a global value.",
+    "ja": "非純粋: 可変の状態か、入出力・ログ出力・大域の値の書き換えのような副作用を持つ関数。"
+   }
+  },
+  {
+   "key": "CollectProcessSeparation",
+   "group": "rules/designPrinciples",
+   "settledRow": "1-32",
+   "basis": [
+    "JDG-3513",
+    "JDG-3483"
+   ],
+   "definition": {
+    "en": "Collect-Process Separation: a process reads all the outside values that it needs before it starts, and in the middle it uses only the values that it has already read. This rule makes the result independent of timing.",
+    "ja": "収集と処理の分離: 処理は、要る外部の値をすべて読んでから始め、途中では読み終えた値だけを使う。結果をタイミングから切り離すためである。"
+   }
+  },
+  {
+   "key": "StateTransition",
+   "group": "rules/designPrinciples",
+   "settledRow": "1-33",
+   "basis": [
+    "JDG-3513"
+   ],
+   "definition": {
+    "en": "State Transition: the code separates getting the condition of a transition from carrying out the transition.",
+    "ja": "状態遷移: 遷移の条件を得ることと、遷移を実行することを分ける。"
+   }
+  },
+  {
+   "key": "StateMachine",
+   "group": "rules/designPrinciples",
+   "settledRow": "1-34",
+   "basis": [
+    "JDG-3513"
+   ],
+   "definition": {
+    "en": "State Machine: the author prepares a diagram and a state transition table as a matching pair for each state machine, and gives the machine and its current state separate names.",
+    "ja": "状態機械: 状態機械ごとに図と状態遷移表を対にして揃え、機械の名前と今の状態の名前を分ける。"
+   }
+  },
+  {
+   "key": "ConcurrencySafety",
+   "group": "rules/designPrinciples",
+   "settledRow": "1-35",
+   "basis": [
+    "JDG-3513",
+    "JDG-3483"
+   ],
+   "definition": {
+    "en": "Concurrency Safety: processes that run concurrently keep a correct state in whatever order they proceed. The design prevents deadlocks, race conditions and glitches (wrong states that appear for a moment in the middle of a state transition).",
+    "ja": "並行性の安全: 並行に動く処理どうしが、どの順で進んでも正しい状態を保つ。デッドロック・競合状態・グリッチ（状態遷移の途中に一瞬だけ現れる不正な状態）を防ぐ。"
+   }
+  },
+  {
+   "key": "ErrorPropagation",
+   "group": "rules/designPrinciples",
+   "settledRow": "1-36",
+   "basis": [
+    "JDG-3513",
+    "JDG-3483"
+   ],
+   "definition": {
+    "en": "Error Propagation: the code passes each error on to the place where it belongs, or handles it on the spot. The code always does one of the two.",
+    "ja": "エラーの伝播: エラーは、しかるべき所へ伝えるか、その場で処理する。どちらかを必ずする。"
+   }
+  },
+  {
+   "key": "ResourceLifecycle",
+   "group": "rules/designPrinciples",
+   "settledRow": "1-37",
+   "basis": [
+    "JDG-3513"
+   ],
+   "definition": {
+    "en": "Resource Lifecycle: the code releases every resource that it acquires, such as a connection, a file or memory, always in a pair with the acquisition.",
+    "ja": "資源の生存期間: 接続・ファイル・メモリのように取得した資源は、必ず対にして解放する。"
+   }
+  },
+  {
+   "key": "Immutability",
+   "group": "rules/designPrinciples",
+   "settledRow": "1-38",
+   "basis": [
+    "JDG-3513",
+    "JDG-3483"
+   ],
+   "definition": {
+    "en": "Immutability: the code makes mutable only the values that need to change after creation, and holds every other value in an immutable form.",
+    "ja": "不変性: 作った後に変える必要のある値だけを可変にし、ほかの値は不変の形で持つ。"
+   }
+  },
+  {
+   "key": "Compatibility",
+   "group": "rules/designPrinciples",
+   "settledRow": "1-39",
+   "basis": [
+    "JDG-3513"
+   ],
+   "definition": {
+    "en": "Compatibility and versioning: every format for storage and exchange carries a version. When a designer changes the shape, the designer tells compatible changes (adding values or optional elements) apart from incompatible changes, and lets a reader learn of an incompatible change through an error.",
+    "ja": "互換性と版: 保存し交換する形式は版を持つ。形を変えるときは、互換な変更（値や省ける要素を足す）と非互換な変更を分け、非互換は読み手がエラーで知れるようにする。"
+   }
+  },
+  {
+   "key": "LeastPrivilege",
+   "group": "rules/designPrinciples",
+   "settledRow": "1-40",
+   "basis": [
+    "JDG-3513"
+   ],
+   "definition": {
+    "en": "Principle of Least Privilege: every process runs with only the smallest set of rights that it needs.",
+    "ja": "最小権限の原則: どの処理も、要る最小の権限だけで動く。"
+   }
+  },
+  {
+   "key": "ResourceEfficiency",
+   "group": "rules/designPrinciples",
+   "settledRow": "1-41",
+   "basis": [
+    "JDG-3513",
+    "JDG-3483"
+   ],
+   "definition": {
+    "en": "Resource Efficiency: the software keeps processor load, memory use, storage wear and similar costs within the allowed range.",
+    "ja": "資源の効率: CPU の負荷・メモリの使用量・記憶装置の摩耗などを、許容の範囲に収める。"
+   }
+  },
+  {
+   "key": "CA",
+   "group": "rules/designShape",
+   "settledRow": "2-1",
+   "basis": [
+    "JDG-3513",
+    "JDG-3482",
+    "JDG-3483",
+    "JDG-3524"
+   ],
+   "definition": {
+    "en": "The design splits the code into layers and points every dependency from an outer layer toward an inner layer. This shape keeps the inner rules intact when an outer tool changes.",
+    "ja": "コードを層に分け、依存はすべて外側の層から内側の層へ向ける。外側の道具が変わっても、内側の規則をそのまま保つためである。"
+   },
+   "expansion": {
+    "en": "Clean Architecture",
+    "ja": "クリーンアーキテクチャ"
+   }
+  },
+  {
+   "key": "entity",
+   "group": "rules/designShape",
+   "settledRow": "2-2",
+   "basis": [
+    "JDG-3513",
+    "JDG-3483"
+   ],
+   "definition": {
+    "en": "The innermost layer (src/entity). This layer holds the document, its invariants, and the values that live only in the page memory (the edit history, the selection and the screen values) as immutable values. This layer also holds the pure layout calculation.",
+    "ja": "いちばん内側の層（src/entity）。この層は、文書とその不変条件と、ページのメモリだけに持つ値（編集の履歴・選択・画面の値）を、不変の値として持つ。純粋な配置の計算もこの層が持つ。"
+   }
+  },
+  {
+   "key": "useCase",
+   "group": "rules/designShape",
+   "settledRow": "2-3",
+   "basis": [
+    "JDG-3513"
+   ],
+   "definition": {
+    "en": "The second layer from the inside (src/use-case). It holds the operations that change the document and the steps up to their confirmation, the checks on imported documents, the change notices, and the transitions of the screen and session flows.",
+    "ja": "内側から 2 つ目の層（src/use-case）。文書を変える操作と確定までの手順、取り込んだ文書の検査、変更の通知、画面とセッションの流れの遷移を持つ。"
+   }
+  },
+  {
+   "key": "adapter",
+   "group": "rules/designShape",
+   "settledRow": "2-4",
+   "basis": [
+    "JDG-3513"
+   ],
+   "definition": {
+    "en": "The third layer from the inside (src/adapter). It holds the Agent API, SVG generation, the conversion to and from the exchange formats, the translation of screen input into operations, and the declarations of the interfaces of the outer tools.",
+    "ja": "内側から 3 つ目の層（src/adapter）。Agent API、SVG の生成、交換形式との相互変換、画面の入力を操作へ変えること、外側の道具のインターフェースの宣言を持つ。"
+   }
+  },
+  {
+   "key": "framework",
+   "group": "rules/designShape",
+   "settledRow": "2-5",
+   "basis": [
+    "JDG-3513"
+   ],
+   "definition": {
+    "en": "The outermost layer (src/framework). It implements the interfaces that the adapter layer declares by using the browser (DOM, SVG, file reading and writing, local storage), and it also holds the shell of the single-file page and the relay process. This layer alone holds current values.",
+    "ja": "いちばん外側の層（src/framework）。adapter の層が宣言したインターフェースを、ブラウザー（DOM・SVG・ファイルの読み書き・ローカルストレージ）を使って実装し、1 ファイルのページの殻と取次のプロセスも持つ。今の値を持つのはこの層だけである。"
+   }
+  },
+  {
+   "key": "document",
+   "group": "rules/designShape",
+   "settledRow": "2-6",
+   "basis": [
+    "JDG-3513",
+    "JDG-3487"
+   ],
+   "definition": {
+    "en": "Document: everything that GRS saves in one file. It consists of three parts: the schedule data, the view settings and the stamp.",
+    "ja": "文書: GRS が 1 つのファイルに保存する全部。日程データ・見せ方の設定・刻印の 3 つからなる。"
+   }
+  },
+  {
+   "key": "documentCommand",
+   "group": "rules/designShape",
+   "settledRow": "2-7",
+   "basis": [
+    "JDG-3513"
+   ],
+   "definition": {
+    "en": "Document command: a value that states one change to the document. A person and an AI use the same commands to make changes, so both pass the same checks.",
+    "ja": "文書の命令: 文書への 1 つの変更を値として書いたもの。人が変えても AI が変えても同じ命令を使うので、どちらも同じ検査を通る。"
+   }
+  },
+  {
+   "key": "editHistory",
+   "group": "rules/designShape",
+   "settledRow": "2-8",
+   "basis": [
+    "JDG-3513",
+    "JDG-3483"
+   ],
+   "definition": {
+    "en": "Edit history: the sequence of change steps that undo and redo move along. Each step remembers its writer, so an AI can undo its own steps alone. GRS holds the history in the page memory and discards it when GRS opens the document again.",
+    "ja": "編集の履歴: 取り消しとやり直しがたどる変更の段の並び。段ごとに書いた者を覚えているので、AI は自分の段だけを取り消せる。GRS は履歴をページのメモリに持ち、文書を開き直すとその履歴を捨てる。"
+   }
+  },
+  {
+   "key": "stamp",
+   "group": "rules/designShape",
+   "settledRow": "2-9",
+   "basis": [
+    "JDG-3513",
+    "JDG-3483"
+   ],
+   "definition": {
+    "en": "Stamp: the time of the last change to the document, the time of its last save, and its last writer. A writer hands over the stamp that it read last, and GRS refuses the write when that stamp differs from the current one. This rule protects the changes that others made after the writer read the document.",
+    "ja": "刻印: 文書を最後に変えた時刻と最後に保存した時刻、最後に書いた者。書く側は最後に読んだ刻印を渡し、今の刻印と違えば、GRS はその書き込みを断る。書く側が読んだ後の変更を守るためである。"
+   }
+  },
+  {
+   "key": "rowId",
+   "newKey": "specTableRowId",
+   "group": "rules/rowIds",
+   "settledRow": "2-10",
+   "basis": [
+    "JDG-3513",
+    "JDG-3491"
+   ],
+   "definition": {
+    "en": "Specification table row ID: a short prefix and a number that together name one row of a table in the specification. Other places cite the row by this ID. A separate file holds the list of prefixes, and each prefix carries exactly one meaning.",
+    "ja": "仕様書の表の行 ID: 短い接頭辞と番号で、仕様書の表の 1 行を名指すもの。ほかの所はこれで行を引く。接頭辞の名簿は別のファイルが持ち、1 つの接頭辞は 1 つの意味だけを持つ。"
+   }
+  },
+  {
+   "key": "JSON",
+   "group": "rules/externalStandards",
+   "settledRow": "2-11",
+   "basis": [
+    "JDG-3513",
+    "JDG-3482",
+    "JDG-3489",
+    "JDG-3524"
+   ],
+   "definition": {
+    "en": "The standard text format for writing data (RFC 8259). GRS calls its own format \"GRS JSON\".",
+    "ja": "データを書くための文字の形式の標準（RFC 8259）。GRS 自身の形式は「GRS JSON」と呼ぶ。"
+   },
+   "expansion": {
+    "en": "JavaScript Object Notation",
+    "ja": "JavaScript Object Notation"
+   }
+  },
+  {
+   "key": "JSONSchema",
+   "group": "rules/externalStandards",
+   "settledRow": "2-12",
+   "basis": [
+    "JDG-3513",
+    "JDG-3489"
+   ],
+   "definition": {
+    "en": "JSON Schema: the standard way to describe the shapes that JSON data may take (json-schema.org; GRS uses the 2020-12 edition). GRS puts \"GRS\" in the name of every schema that it publishes.",
+    "ja": "JSON Schema: JSON のデータが取ってよい形を書く標準の方法（json-schema.org。GRS は 2020-12 版を使う）。GRS が公開するスキーマは、名に GRS を付けて呼ぶ。"
+   }
+  },
+  {
+   "key": "MCP",
+   "group": "rules/externalStandards",
+   "settledRow": "2-13",
+   "basis": [
+    "JDG-3513",
+    "JDG-3524"
+   ],
+   "definition": {
+    "en": "The open communication protocol through which AI applications call tools. GRS offers its Agent API to AI applications as MCP tools through the relay.",
+    "ja": "AI のアプリが道具を呼ぶための公開の通信の決まり。GRS は取次を通して、Agent API を MCP の道具として AI のアプリへ出す。"
+   },
+   "expansion": {
+    "en": "Model Context Protocol",
+    "ja": "Model Context Protocol"
+   }
+  },
+  {
+   "key": "MSPDI",
+   "group": "rules/externalStandards",
+   "settledRow": "2-14",
+   "basis": [
+    "JDG-3513",
+    "JDG-3524"
+   ],
+   "definition": {
+    "en": "The XML format that GRS reads and writes to exchange schedules with other tools. The official XML schema is the source of truth for its names.",
+    "ja": "ほかの道具と日程をやり取りするために GRS が読み書きする XML の形式。名前の正は公式の XML スキーマである。"
+   },
+   "expansion": {
+    "en": "Microsoft Project Data Interchange",
+    "ja": "Microsoft Project Data Interchange"
+   }
+  },
+  {
+   "key": "ISO8601",
+   "group": "rules/externalStandards",
+   "settledRow": "2-15",
+   "basis": [
+    "JDG-3513",
+    "JDG-3524"
+   ],
+   "definition": {
+    "en": "The international standard for writing dates and times, such as 2026-10-28T09:00:00. GRS writes dates, times and versions in this form.",
+    "ja": "2026-10-28T09:00:00 のように日付と時刻を書く国際標準。GRS は日付・時刻・版をこの形で書く。"
+   },
+   "expansion": {
+    "en": "ISO 8601",
+    "ja": "ISO 8601"
+   }
+  },
+  {
+   "key": "BCP47",
+   "group": "rules/externalStandards",
+   "settledRow": "2-16",
+   "basis": [
+    "JDG-3513",
+    "JDG-3524"
+   ],
+   "definition": {
+    "en": "The standard for language tags such as en and ja. This dictionary holds its texts separately under these tags.",
+    "ja": "en や ja のような言語のタグの標準。この辞書は文をこのタグで分けて持つ。"
+   },
+   "expansion": {
+    "en": "Best Current Practice 47",
+    "ja": "Best Current Practice 47"
+   }
+  },
+  {
+   "key": "onePage",
+   "group": "values",
+   "settledRow": "3-1",
+   "basis": [
+    "JDG-3513",
+    "JDG-3467",
+    "JDG-3483",
+    "JDG-3509"
+   ],
+   "definition": {
+    "en": "One Page: the quality of GRS that lets a reader read the whole plan on one sheet. GRS puts several tasks on one row and fits the whole schedule on one screen.",
+    "ja": "ペライチ: 計画の全体を 1 枚で読めるという、GRS の特長。GRS は 1 つの行に複数のタスクを置き、全体日程を 1 画面に収める。"
+   },
+   "label": {
+    "en": "One Page",
+    "ja": "ペライチ"
+   }
+  },
+  {
+   "key": "smooth",
+   "group": "values",
+   "settledRow": "3-2",
+   "basis": [
+    "JDG-3513",
+    "JDG-3467",
+    "JDG-3483",
+    "JDG-3505",
+    "JDG-3509"
+   ],
+   "definition": {
+    "en": "Smooth: the quality of GRS that finishes the layout calculation and the drawing in step with the movement of the hand, in every operation. GRS keeps waiting for answers from outside systems, and reading or writing large amounts of data, outside the scope of this tracking.",
+    "ja": "ぬるサク: どの操作でも、レイアウトの計算と描画を手の動きに追従して終えるという、GRS の特長。GRS は、外部のシステムの応答の待ちと大量のデータの読み書きを、この追従の対象の外に置く。"
+   },
+   "label": {
+    "en": "Smooth",
+    "ja": "ぬるサク"
+   }
+  },
+  {
+   "key": "selfExplanatory",
+   "group": "values",
+   "settledRow": "3-3",
+   "basis": [
+    "JDG-3513",
+    "JDG-3467",
+    "JDG-3483",
+    "JDG-3509"
+   ],
+   "definition": {
+    "en": "Self-Explanatory: the quality of GRS that lets a first-time user find where each operation is by looking at the screen alone. People also call this quality discoverability.",
+    "ja": "すぐわか: 初めて GRS を触る人が、画面だけを見て、どこに何の操作があるかを見つけられるという、GRS の特長。見つけやすさとも呼ぶ。"
+   },
+   "label": {
+    "en": "Self-Explanatory",
+    "ja": "すぐわか"
+   }
+  },
+  {
+   "key": "intuitiveInteraction",
+   "group": "values",
+   "settledRow": "3-4",
+   "basis": [
+    "JDG-3513",
+    "JDG-3467",
+    "JDG-3483",
+    "JDG-3506",
+    "JDG-3509"
+   ],
+   "definition": {
+    "en": "Intuitive Interaction: the quality of GRS that returns the result of a person's operation to the picture on the spot. While a person grabs a task on the screen and moves it, GRS draws the result of the move in the picture on the spot. When the person lets go, GRS applies the result to the schedule. When the person presses Esc, or loses the pointer before letting go, GRS keeps the schedule as it was.",
+    "ja": "直感操作: 人の操作の結果が、その場で絵に返るという、GRS の特長。人が画面のタスクを掴んで動かしているあいだ、GRS は動かした結果をその場で絵に描く。人が手を離すと、GRS はその結果を日程に当てる。人が Esc を押すか、手を離す前にポインターを失うと、GRS は日程を元のまま保つ。"
+   },
+   "label": {
+    "en": "Intuitive Interaction",
+    "ja": "直感操作"
+   }
+  },
+  {
+   "key": "structuredData",
+   "group": "values",
+   "settledRow": "3-5",
+   "basis": [
+    "JDG-3513",
+    "JDG-3467",
+    "JDG-3483",
+    "JDG-3509"
+   ],
+   "definition": {
+    "en": "Structured Data: the quality of GRS that it exports and imports the schedule as machine-readable data, and makes round trips with an external WBS master that keep all the information.",
+    "ja": "構造化データ: GRS が、日程を機械の読めるデータとして出し入れし、外部 WBS マスタとの間で情報をすべて保ったまま往復させるという、GRS の特長。"
+   },
+   "label": {
+    "en": "Structured Data",
+    "ja": "構造化データ"
+   }
+  },
+  {
+   "key": "singleHtml",
+   "group": "values",
+   "settledRow": "3-6",
+   "basis": [
+    "JDG-3513",
+    "JDG-3467",
+    "JDG-3483",
+    "JDG-3509"
+   ],
+   "definition": {
+    "en": "Single HTML: the quality of GRS that lets a person edit a schedule just by opening one .html file in a browser. A browser is all that the person needs.",
+    "ja": "単一 HTML: 1 つの .html をブラウザーで開くだけで日程を編集できるという、GRS の特長。要るのはブラウザーだけである。"
+   },
+   "label": {
+    "en": "Single HTML",
+    "ja": "単一 HTML"
+   }
+  },
+  {
+   "key": "aiInteraction",
+   "group": "values",
+   "settledRow": "3-8",
+   "basis": [
+    "JDG-3513",
+    "JDG-3467",
+    "JDG-3509"
+   ],
+   "definition": {
+    "en": "AI Interaction: the quality of GRS that lets an AI read and write the document through the Agent API and MCP with the same operations that a person uses.",
+    "ja": "AI 連携: AI が、Agent API と MCP を通して、人と同じ操作で文書を読み書きできるという、GRS の特長。"
+   },
+   "label": {
+    "en": "AI Interaction",
+    "ja": "AI 連携"
+   }
+  },
+  {
+   "key": "schedule",
+   "group": "scheduleConcepts",
+   "settledRow": "4-1",
+   "basis": [
+    "JDG-3513",
+    "JDG-3435",
+    "JDG-3483",
+    "JDG-3492"
+   ],
+   "definition": {
+    "en": "Schedule: all the planned and actual date-times of the work of one project. GRS draws the schedule as a chart that lines the tasks up along the time axis.",
+    "ja": "スケジュール: 1 つのプロジェクトの作業の、予定と実績の日時の全体。GRS は、タスクを時間の軸に沿って並べた図として、スケジュールを描く。"
+   },
+   "label": {
+    "en": "Schedule",
+    "ja": "スケジュール"
+   }
+  },
+  {
+   "key": "task",
+   "group": "scheduleConcepts",
+   "settledRow": "4-2",
+   "basis": [
+    "JDG-3513",
+    "JDG-3493"
+   ],
+   "definition": {
+    "en": "Task: one piece of work in the schedule. It has a planned start date-time and a planned finish date-time. A milestone is also a kind of task.",
+    "ja": "タスク: 日程の中の 1 つの作業。予定の開始と終了の日時を持つ。マイルストーンもタスクの 1 種である。"
+   },
+   "label": {
+    "en": "Task",
+    "ja": "タスク"
+   }
+  },
+  {
+   "key": "milestoneTask",
+   "group": "scheduleConcepts",
+   "settledRow": "4-3",
+   "basis": [
+    "JDG-3513",
+    "JDG-3433",
+    "JDG-3483",
+    "JDG-3494"
+   ],
+   "definition": {
+    "en": "Milestone: a task that marks a point in time in place of a span. The boolean task property `milestone` holds whether the task is a milestone, and GRS also writes this value to MSPDI.",
+    "ja": "マイルストーン: 期間の代わりに、ある時点を示すタスク。タスクの真偽のプロパティー `milestone` が、マイルストーンかどうかを持ち、GRS はこの値を MSPDI にも書き出す。"
+   },
+   "label": {
+    "en": "Milestone",
+    "ja": "マイルストーン"
+   }
+  },
+  {
+   "key": "plan",
+   "group": "scheduleConcepts",
+   "settledRow": "4-4",
+   "basis": [
+    "JDG-3513",
+    "JDG-3495"
+   ],
+   "definition": {
+    "en": "Plan: the date-times at which a task should start and finish.",
+    "ja": "予定: タスクが始まり終わるはずの日時。"
+   },
+   "label": {
+    "en": "Plan",
+    "ja": "予定"
+   }
+  },
+  {
+   "key": "actual",
+   "group": "scheduleConcepts",
+   "settledRow": "4-5",
+   "basis": [
+    "JDG-3513",
+    "JDG-3483",
+    "JDG-3495"
+   ],
+   "definition": {
+    "en": "Actual: the date-times at which a task really started, stopped, resumed and finished. One task holds both its plan and its actual.",
+    "ja": "実績: タスクが実際に始まり、止まり、再開し、終わった日時。1 つのタスクが予定と実績の両方を持つ。"
+   },
+   "label": {
+    "en": "Actual",
+    "ja": "実績"
+   }
+  },
+  {
+   "key": "progressStatus",
+   "group": "scheduleConcepts",
+   "settledRow": "4-6",
+   "basis": [
+    "JDG-3513",
+    "JDG-3461",
+    "JDG-3483",
+    "JDG-3495"
+   ],
+   "definition": {
+    "en": "Progress Status: how far a task has progressed. GRS reads it from the actual date-times and takes the first match in this order: Not started; Finished; Suspended, no resume date; Suspended, resume date set; and In progress for all the rest.",
+    "ja": "進捗ステータス: タスクの進み具合。実績の日時から、上から順に最初に当たったものを取る: 未着手、完了、中断・再開日未定、中断・再開予定あり、残りは進行中。"
+   },
+   "label": {
+    "en": "Progress Status",
+    "ja": "進捗ステータス"
+   }
+  },
+  {
+   "key": "notStarted",
+   "group": "scheduleConcepts",
+   "settledRow": "4-7",
+   "basis": [
+    "JDG-3513",
+    "JDG-3483"
+   ],
+   "definition": {
+    "en": "Not started: the actual start of the task is empty.",
+    "ja": "未着手: 実績の開始が空である。"
+   },
+   "label": {
+    "en": "Not started",
+    "ja": "未着手"
+   }
+  },
+  {
+   "key": "finished",
+   "group": "scheduleConcepts",
+   "settledRow": "4-8",
+   "basis": [
+    "JDG-3513"
+   ],
+   "definition": {
+    "en": "Finished: the task has an actual finish.",
+    "ja": "完了: 実績の終了がある。"
+   },
+   "label": {
+    "en": "Finished",
+    "ja": "完了"
+   }
+  },
+  {
+   "key": "suspendedWithoutResumeDate",
+   "group": "scheduleConcepts",
+   "settledRow": "4-9",
+   "basis": [
+    "JDG-3513",
+    "JDG-3483"
+   ],
+   "definition": {
+    "en": "Suspended, no resume date: the work has stopped, and the resume-date-confirmed flag (`resumeValid`) is false.",
+    "ja": "中断・再開日未定: 作業が止まり、再開日確定（`resumeValid`）が偽である。"
+   },
+   "label": {
+    "en": "Suspended, no resume date",
+    "ja": "中断・再開日未定"
+   }
+  },
+  {
+   "key": "suspendedWithResumeDate",
+   "group": "scheduleConcepts",
+   "settledRow": "4-10",
+   "basis": [
+    "JDG-3513"
+   ],
+   "definition": {
+    "en": "Suspended, resume date set: the work has stopped, and the task has a planned resume date.",
+    "ja": "中断・再開予定あり: 作業が止まり、再開の予定日がある。"
+   },
+   "label": {
+    "en": "Suspended, resume date set",
+    "ja": "中断・再開予定あり"
+   }
+  },
+  {
+   "key": "inProgress",
+   "group": "scheduleConcepts",
+   "settledRow": "4-11",
+   "basis": [
+    "JDG-3513",
+    "JDG-3483"
+   ],
+   "definition": {
+    "en": "In progress: the work has started and continues. This state covers every case that the four states above leave.",
+    "ja": "進行中: 作業が始まり、続いている。上の 4 つの状態の残りである。"
+   },
+   "label": {
+    "en": "In progress",
+    "ja": "進行中"
+   }
+  },
+  {
+   "key": "wbs",
+   "group": "scheduleConcepts",
+   "settledRow": "4-12",
+   "basis": [
+    "JDG-3513",
+    "JDG-3431"
+   ],
+   "definition": {
+    "en": "WBS (work breakdown structure): the tree of parent tasks and child tasks.",
+    "ja": "WBS（作業分解構成）: 親タスクと子タスクの木。"
+   }
+  },
+  {
+   "key": "parentTask",
+   "group": "scheduleConcepts",
+   "settledRow": "4-13",
+   "basis": [
+    "JDG-3513",
+    "JDG-3496"
+   ],
+   "definition": {
+    "en": "Parent Task: a task in the WBS that groups its subordinate tasks.",
+    "ja": "親タスク: WBS で、配下のタスクをまとめるタスク。"
+   },
+   "label": {
+    "en": "Parent Task",
+    "ja": "親タスク"
+   }
+  },
+  {
+   "key": "childTask",
+   "group": "scheduleConcepts",
+   "settledRow": "4-14",
+   "basis": [
+    "JDG-3513",
+    "JDG-3435",
+    "JDG-3496"
+   ],
+   "definition": {
+    "en": "Child Task: a task in the WBS that is subordinate to a parent task.",
+    "ja": "子タスク: WBS で、親タスクの配下にあるタスク。"
+   },
+   "label": {
+    "en": "Child Task",
+    "ja": "子タスク"
+   }
+  },
+  {
+   "key": "externalWbsMaster",
+   "group": "scheduleConcepts",
+   "settledRow": "4-15",
+   "basis": [
+    "JDG-3513",
+    "JDG-3435",
+    "JDG-3483",
+    "JDG-3497"
+   ],
+   "definition": {
+    "en": "External WBS Master: a system outside GRS that holds the WBS. This system exports MSPDI files and imports the files that GRS exports. The word names a role, and any product may take this role.",
+    "ja": "外部 WBS マスタ: GRS の外で WBS を持つシステム。このシステムは MSPDI のファイルをエクスポートし、GRS がエクスポートしたファイルをインポートする。役目の名で、どの製品がこの役目を担ってもよい。"
+   },
+   "label": {
+    "en": "External WBS Master",
+    "ja": "外部 WBS マスタ"
+   }
+  },
+  {
+   "key": "multiBarGantt",
+   "group": "scheduleConcepts",
+   "settledRow": "4-16",
+   "basis": [
+    "JDG-3513",
+    "JDG-3471",
+    "JDG-3472",
+    "JDG-3485"
+   ],
+   "definition": {
+    "en": "Multi-bar Gantt: a Gantt chart that can place the bars of several tasks and milestones on one task group lane. The word sets this chart apart from the ordinary Gantt chart, which places one task on each row. GRS uses the multiBarGantt style.",
+    "ja": "マルチバーガント: 1 本のタスクグループレーンに、複数のタスクのバーとマイルストーンを置けるガントチャート。1 行に 1 タスクを置く普通のガントチャートと区別するための言葉。GRS は multiBarGantt 方式。"
+   },
+   "label": {
+    "en": "Multi-bar Gantt",
+    "ja": "マルチバーガント"
+   }
+  },
+  {
+   "key": "dependency",
+   "group": "scheduleConcepts",
+   "settledRow": "4-17",
+   "basis": [
+    "JDG-3513",
+    "JDG-3435",
+    "JDG-3498"
+   ],
+   "definition": {
+    "en": "Dependency: a link between two tasks. One end (the start or the finish) of the successor task waits for one end (the start or the finish) of the predecessor task. The type of the dependency decides which end links to which end.",
+    "ja": "依存: 2 つのタスクの結び付き。後続のタスクの一端（開始か終了）が、先行のタスクの一端（開始か終了）を待つ。どの端とどの端を結ぶかは、依存の種類が決める。"
+   },
+   "label": {
+    "en": "Dependency",
+    "ja": "依存"
+   }
+  },
+  {
+   "key": "predecessor",
+   "group": "scheduleConcepts",
+   "settledRow": "4-18",
+   "basis": [
+    "JDG-3513",
+    "JDG-3483",
+    "JDG-3498"
+   ],
+   "definition": {
+    "en": "Predecessor: the task at the tail of a dependency arrow. The successor waits for one end of this task.",
+    "ja": "先行: 依存の矢印の元にあるタスク。後続は、このタスクの一端を待つ。"
+   },
+   "label": {
+    "en": "Predecessor",
+    "ja": "先行"
+   }
+  },
+  {
+   "key": "successor",
+   "group": "scheduleConcepts",
+   "settledRow": "4-19",
+   "basis": [
+    "JDG-3513",
+    "JDG-3483",
+    "JDG-3498"
+   ],
+   "definition": {
+    "en": "Successor: the task at the head of a dependency arrow. One end of this task waits for one end of the predecessor.",
+    "ja": "後続: 依存の矢印の先にあるタスク。このタスクの一端は、先行の一端を待つ。"
+   },
+   "label": {
+    "en": "Successor",
+    "ja": "後続"
+   }
+  },
+  {
+   "key": "lag",
+   "group": "scheduleConcepts",
+   "settledRow": "4-20",
+   "basis": [
+    "JDG-3513"
+   ],
+   "definition": {
+    "en": "Lag: an extra wait that a dependency puts between the two ends that it links. The lag may be negative.",
+    "ja": "ラグ: 依存で結んだ 2 つの端のあいだに置く追加の待ち。負でもよい。"
+   },
+   "label": {
+    "en": "Lag",
+    "ja": "ラグ"
+   }
+  },
+  {
+   "key": "finishToStart",
+   "group": "scheduleConcepts",
+   "settledRow": "4-21",
+   "basis": [
+    "JDG-3513"
+   ],
+   "definition": {
+    "en": "Finish-to-Start: the successor starts after the predecessor finishes.",
+    "ja": "終了-開始（直列作業）: 先行が終わってから後続が始まる。"
+   },
+   "label": {
+    "en": "Finish-to-Start",
+    "ja": "終了-開始"
+   }
+  },
+  {
+   "key": "startToStart",
+   "group": "scheduleConcepts",
+   "settledRow": "4-22",
+   "basis": [
+    "JDG-3513"
+   ],
+   "definition": {
+    "en": "Start-to-Start: the successor starts after the predecessor starts.",
+    "ja": "開始-開始（並列開始）: 先行が始まってから後続が始まる。"
+   },
+   "label": {
+    "en": "Start-to-Start",
+    "ja": "開始-開始"
+   }
+  },
+  {
+   "key": "finishToFinish",
+   "group": "scheduleConcepts",
+   "settledRow": "4-23",
+   "basis": [
+    "JDG-3513",
+    "JDG-3486"
+   ],
+   "definition": {
+    "en": "Finish-to-Finish: the successor finishes after the predecessor finishes.",
+    "ja": "終了-終了（後追終了）: 先行が終わってから後続が終わる。"
+   },
+   "label": {
+    "en": "Finish-to-Finish",
+    "ja": "終了-終了"
+   }
+  },
+  {
+   "key": "startToFinish",
+   "group": "scheduleConcepts",
+   "settledRow": "4-24",
+   "basis": [
+    "JDG-3513"
+   ],
+   "definition": {
+    "en": "Start-to-Finish: the successor finishes after the predecessor starts.",
+    "ja": "開始-終了（引継必須）: 先行が始まってから後続が終わる。"
+   },
+   "label": {
+    "en": "Start-to-Finish",
+    "ja": "開始-終了"
+   }
+  },
+  {
+   "key": "workingDay",
+   "group": "scheduleConcepts",
+   "settledRow": "4-25",
+   "basis": [
+    "JDG-3513",
+    "JDG-3435"
+   ],
+   "definition": {
+    "en": "Working Day: a day on which work takes place, according to the one calendar of the document. GRS counts the lengths of work and the lags in working days.",
+    "ja": "稼働日: 文書の 1 つの暦で、作業をする日。作業の長さとラグは稼働日で数える。"
+   },
+   "label": {
+    "en": "Working Day",
+    "ja": "稼働日"
+   }
+  },
+  {
+   "key": "nonWorkingDay",
+   "group": "scheduleConcepts",
+   "settledRow": "4-26",
+   "basis": [
+    "JDG-3513",
+    "JDG-3435"
+   ],
+   "definition": {
+    "en": "Non-Working Day: a day off in the project calendar.",
+    "ja": "非稼働日: プロジェクトカレンダーで休みの日。"
+   },
+   "label": {
+    "en": "Non-Working Day",
+    "ja": "非稼働日"
+   }
+  },
+  {
+   "key": "exceptionDay",
+   "group": "scheduleConcepts",
+   "settledRow": "4-27",
+   "basis": [
+    "JDG-3513",
+    "JDG-3435"
+   ],
+   "definition": {
+    "en": "Exception Day: a day on which the calendar departs from its usual weekday rules. The exception may make the day a day off or a working day.",
+    "ja": "例外日: 暦が、いつもの曜日の決まりから外れる日。休みにすることも稼働にすることもある。"
+   },
+   "label": {
+    "en": "Exception Day",
+    "ja": "例外日"
+   }
+  },
+  {
+   "key": "projectCalendar",
+   "group": "scheduleConcepts",
+   "settledRow": "4-28",
+   "basis": [
+    "JDG-3513",
+    "JDG-3464",
+    "JDG-3483"
+   ],
+   "definition": {
+    "en": "Project Calendar: the one calendar with which GRS counts all working days. GRS keeps the calendars of single tasks and resources only to carry them through the round trip with MSPDI.",
+    "ja": "プロジェクトカレンダー: GRS がすべての稼働日を数える 1 つの暦。タスクや担当ごとの暦は、MSPDI との往復のために持ち続けるだけである。"
+   },
+   "label": {
+    "en": "Project Calendar",
+    "ja": "プロジェクトカレンダー"
+   }
+  },
+  {
+   "key": "baseline",
+   "group": "scheduleConcepts",
+   "settledRow": "4-29",
+   "basis": [
+    "JDG-3513",
+    "JDG-3431",
+    "JDG-3434"
+   ],
+   "definition": {
+    "en": "Baseline: an earlier plan that the author keeps to compare the current plan with.",
+    "ja": "前回予定: 今の予定と比べるために残した、前の予定。"
+   },
+   "label": {
+    "en": "Baseline",
+    "ja": "前回予定"
+   }
+  },
+  {
+   "key": "criticalPath",
+   "group": "scheduleConcepts",
+   "settledRow": "4-30",
+   "basis": [
+    "JDG-3513",
+    "JDG-3435",
+    "JDG-3483",
+    "JDG-3510"
+   ],
+   "definition": {
+    "en": "Critical Path: the chain of tasks and their dependencies that decides the earliest finish of the project. GRS places the calculation of this chain outside its scope, for three reasons. People decide the dates, and GRS draws those dates as they are. GRS counts days with the one calendar of the document alone. GRS places work effort outside its scope. Users find the source of a delay through the bottleneck path of Delay Diagnosis.",
+    "ja": "クリティカルパス: プロジェクトの最も早い終了を決める、依存で結んだタスクの連なり。GRS は、この連なりの計算を範囲の外に置く。理由は 3 つある。人が日付を決め、GRS はその日付をそのまま描く。GRS は文書の 1 つの暦だけで日を数える。GRS は工数を範囲の外に置く。利用者は、遅れの元を遅延診断のボトルネック経路で見つける。"
+   },
+   "label": {
+    "en": "Critical Path",
+    "ja": "クリティカルパス"
+   }
+  },
+  {
+   "key": "taskProgressPoint",
+   "group": "scheduleConcepts",
+   "settledRow": "4-31",
+   "basis": [
+    "JDG-3513",
+    "JDG-3465",
+    "JDG-3483",
+    "JDG-3499"
+   ],
+   "definition": {
+    "en": "Task Progress Point: one point on the time axis that shows how far the work of a task has advanced (a vertex of the Progress Line). GRS plots the point for three progress statuses only: for In progress at the right end of the actual bar, for Not started at the planned start, and for Suspended, resume date set at the planned resume date. GRS plots the last two only when that date-time comes before the status date.",
+    "ja": "タスク進捗点: タスクの作業がどこまで進んだかを示す、時間の軸の上の 1 点（イナズマ線の頂点）。GRS が点を打つのは 3 つの進捗ステータスだけ: 進行中は実績バーの右端、未着手は予定の開始、中断・再開予定ありは再開の予定日。後の 2 つは、その日時が基準日より前のときだけ打つ。"
+   },
+   "label": {
+    "en": "Task Progress Point",
+    "ja": "タスク進捗点"
+   }
+  },
+  {
+   "key": "delay",
+   "group": "scheduleConcepts",
+   "settledRow": "4-32",
+   "basis": [
+    "JDG-3513",
+    "JDG-3483",
+    "JDG-3500"
+   ],
+   "definition": {
+    "en": "Late: in a document that has a status date, an unfinished task meets one of these conditions: the task is In progress and its planned finish comes before the status date; the task is Not started and its planned start comes before the status date; or the task is suspended and its planned resume date comes before the status date.",
+    "ja": "遅れ: 基準日を持つ文書で、未完了のタスクが次のどれかに当たること —— 進行中で予定の終了が基準日より前、未着手で予定の開始が基準日より前、中断で再開の予定日が基準日より前。"
+   },
+   "label": {
+    "en": "Late",
+    "ja": "遅れ"
+   }
+  },
+  {
+   "key": "delayDiagnostics",
+   "newKey": "delayDiagnosis",
+   "group": "scheduleConcepts",
+   "settledRow": "5-1",
+   "basis": [
+    "JDG-3513",
+    "JDG-3466",
+    "JDG-3483",
+    "JDG-3501",
+    "JDG-3512"
+   ],
+   "definition": {
+    "en": "Delay Diagnosis: the feature that finds, as of the status date, the tasks whose numbers are unreliable and the sources of delay (bottlenecks). It saves the reader the work of following the dependencies by hand. GRS counts the amount of delay in minutes of working time on the calendar of the document. The diagnosis keeps the document as it is, and draws its marks (?, flame, !!) on the progress markers and in the report only while GRS shows the diagnosis. GRS saves only the view of the diagnosis result table (the shown columns, the schedule filter, the column filters and the sort order). When the author issues a fix proposal, GRS applies it to the document as an edit by the author.",
+    "ja": "遅延診断: 基準日の時点で、数字が信用できないタスクと、遅れの発生源（ボトルネック）を見つける機能。読み手は依存を自分でたどる手間を省ける。GRS は遅れの量を、文書の暦の稼働時間の分で数える。診断は文書をそのまま保ち、診断の印（? ・炎・!!）を、診断を出しているあいだだけ進捗マーカーとレポートに描く。保存するのは、診断結果の表の見え方（表示する列・スケジュールフィルタ・列のフィルタ・並べ替え）だけである。作成者が修正案を発行すると、GRS はそれを作成者の編集として文書に当てる。"
+   },
+   "label": {
+    "en": "Delay Diagnosis",
+    "ja": "遅延診断"
+   }
+  },
+  {
+   "key": "estimatedFinish",
+   "group": "scheduleConcepts",
+   "settledRow": "5-2",
+   "basis": [
+    "JDG-3513",
+    "JDG-3469",
+    "JDG-3477",
+    "JDG-3483"
+   ],
+   "definition": {
+    "en": "Estimated Finish: the time at which GRS expects a task to finish. For a finished task, it is the actual finish. For a task that has started and remains unfinished, it is the status date plus the remaining work. For a task that is Not started, it is the later of the earliest start and the start of the status date's day, plus the planned length.",
+    "ja": "終了見込み: GRS が見込む、タスクの終わる時。完了なら実績の終了。着手済みで未完了なら、基準日に残りの作業を足した時。未着手なら、最早開始と基準日の日の始まりの遅いほうに、予定の長さを足した時。"
+   },
+   "label": {
+    "en": "Estimated Finish",
+    "ja": "終了見込み"
+   }
+  },
+  {
+   "key": "dependencyDelayMinutes",
+   "group": "scheduleConcepts",
+   "settledRow": "5-3",
+   "basis": [
+    "JDG-3513",
+    "JDG-3476",
+    "JDG-3483",
+    "JDG-3501"
+   ],
+   "definition": {
+    "en": "Dependency Delay: the amount by which the earliest start, which the estimated finishes of the predecessors decide, comes later than the planned start.",
+    "ja": "依存関係遅延: 先行の終了見込みで決まる最早開始が、予定の開始より後になる分。"
+   },
+   "label": {
+    "en": "Dependency Delay",
+    "ja": "依存関係遅延"
+   }
+  },
+  {
+   "key": "internalDelayMinutes",
+   "group": "scheduleConcepts",
+   "settledRow": "5-4",
+   "basis": [
+    "JDG-3513",
+    "JDG-3476",
+    "JDG-3483",
+    "JDG-3501"
+   ],
+   "definition": {
+    "en": "Internal Delay: the amount by which the estimated finish of a task comes later than its earliest start plus its planned length. This amount is a source of delay. GRS sets this value to 0 for a parent task.",
+    "ja": "内部要因遅延: タスクの終了見込みが、最早開始に予定の長さを足した時より後になる分。遅れの発生源である。GRS は親タスクのこの値を 0 とする。"
+   },
+   "label": {
+    "en": "Internal Delay",
+    "ja": "内部要因遅延"
+   }
+  },
+  {
+   "key": "endTask",
+   "group": "scheduleConcepts",
+   "settledRow": "5-5",
+   "basis": [
+    "JDG-3513",
+    "JDG-3473",
+    "JDG-3483"
+   ],
+   "definition": {
+    "en": "End Task: the place where GRS measures the delay of the schedule. End tasks are the tasks and milestones at the ends of the dependency chains.",
+    "ja": "末端タスク: 日程の遅れを測る所。依存の連なりの最後にあるタスクとマイルストーン。"
+   },
+   "label": {
+    "en": "End Task",
+    "ja": "末端タスク"
+   }
+  },
+  {
+   "key": "endTaskDelayMinutes",
+   "group": "scheduleConcepts",
+   "settledRow": "5-6",
+   "basis": [
+    "JDG-3513",
+    "JDG-3473",
+    "JDG-3476",
+    "JDG-3501"
+   ],
+   "definition": {
+    "en": "End Task Delay: the amount by which the estimated finish of an end task comes later than its planned finish.",
+    "ja": "末端タスクの遅れ: 末端タスクの終了見込みが、予定の終了より後になる分。"
+   },
+   "label": {
+    "en": "End Task Delay",
+    "ja": "末端タスクの遅れ"
+   }
+  },
+  {
+   "key": "delayContributionMinutes",
+   "group": "scheduleConcepts",
+   "settledRow": "5-7",
+   "basis": [
+    "JDG-3513",
+    "JDG-3473",
+    "JDG-3476",
+    "JDG-3483",
+    "JDG-3501"
+   ],
+   "definition": {
+    "en": "Delay Contribution: the part of the Internal Delay of one task that reaches an end task along the dependencies. GRS sums this part over every end task that it reaches, and adds the number of those end tasks.",
+    "ja": "遅延寄与: あるタスクの内部要因遅延のうち、依存をたどって末端タスクへ届いた分。GRS は届いたすべての末端タスクについて足し合わせ、届いた末端タスクの数を添える。"
+   },
+   "label": {
+    "en": "Delay Contribution",
+    "ja": "遅延寄与"
+   }
+  },
+  {
+   "key": "bottleneck",
+   "group": "scheduleConcepts",
+   "settledRow": "5-8",
+   "basis": [
+    "JDG-3513",
+    "JDG-3466"
+   ],
+   "definition": {
+    "en": "Bottleneck: an unfinished task whose Delay Contribution is large and that needs action first.",
+    "ja": "ボトルネック: 遅延寄与が大きく、最優先で手を打つべき未完了のタスク。"
+   },
+   "label": {
+    "en": "Bottleneck",
+    "ja": "ボトルネック"
+   }
+  },
+  {
+   "key": "bottleneckPath",
+   "group": "scheduleConcepts",
+   "settledRow": "5-9",
+   "basis": [
+    "JDG-3513",
+    "JDG-3466"
+   ],
+   "definition": {
+    "en": "Bottleneck path: the ancestor tasks of a bottleneck, from the top of the WBS down to the bottleneck.",
+    "ja": "ボトルネック経路: WBS の上からボトルネックまでの、ボトルネックの祖先のタスク。"
+   },
+   "label": {
+    "en": "Bottleneck path",
+    "ja": "ボトルネック経路"
+   }
+  },
+  {
+   "key": "unreliable",
+   "group": "scheduleConcepts",
+   "settledRow": "5-10",
+   "basis": [
+    "JDG-3513",
+    "JDG-3466"
+   ],
+   "definition": {
+    "en": "Unreliable: a task whose values conflict with each other or with the rules, so that its numbers stay untrustworthy until someone fixes the task.",
+    "ja": "信用できない: 自分の値どうし、または規則と食い違っていて、直すまで数字を信用できないタスク。"
+   },
+   "label": {
+    "en": "Unreliable, fix needed",
+    "ja": "信用できない・要修正"
+   }
+  },
+  {
+   "key": "finishedDelayContribution",
+   "group": "scheduleConcepts",
+   "settledRow": "5-13",
+   "basis": [
+    "JDG-3513",
+    "JDG-3473",
+    "JDG-3474",
+    "JDG-3483"
+   ],
+   "definition": {
+    "en": "Finished Delay Contribution: the Delay Contribution that an already finished task produced. The time for action has passed, so GRS excludes this contribution from the bottlenecks and shows it only in the list.",
+    "ja": "完了済みの遅延寄与: もう完了したタスクが生んだ遅延寄与。手を打つ時期が過ぎたので、GRS はこの遅延寄与をボトルネックから外し、一覧にだけ載せる。"
+   },
+   "label": {
+    "en": "Finished Delay Contribution",
+    "ja": "完了済みの遅延寄与"
+   }
+  },
+  {
+   "key": "diagnosisBlocker",
+   "group": "scheduleConcepts",
+   "settledRow": "5-14",
+   "basis": [
+    "JDG-3513",
+    "JDG-3473",
+    "JDG-3483"
+   ],
+   "definition": {
+    "en": "Diagnosis Blocker: a place where the data contradicts itself and the calculation of Delay Diagnosis stops. It holds the task that causes the contradiction and the range where the calculation stopped.",
+    "ja": "診断阻害: データが矛盾していて、遅延診断の計算が止まる所。原因のタスクと、止まった範囲を持つ。"
+   },
+   "label": {
+    "en": "Diagnosis Blocker",
+    "ja": "診断阻害"
+   }
+  },
+  {
+   "key": "fixProposal",
+   "group": "scheduleConcepts",
+   "settledRow": "5-15",
+   "basis": [
+    "JDG-3513",
+    "JDG-3466"
+   ],
+   "definition": {
+    "en": "Fix Proposal: a change that Delay Diagnosis proposes to remove a problem that it found.",
+    "ja": "修正案: 遅延診断が、見つけた問題を取り除くために出す変更の案。"
+   },
+   "label": {
+    "en": "Fix Proposals",
+    "ja": "修正案"
+   }
+  },
+  {
+   "key": "fixLog",
+   "group": "scheduleConcepts",
+   "settledRow": "5-16",
+   "basis": [
+    "JDG-3513",
+    "JDG-3466",
+    "JDG-3502"
+   ],
+   "definition": {
+    "en": "Fix Log: the record that holds, for each fix proposal that GRS applied, the date-time, the finding, the task kind, the task, the property, the value before the fix and the value after the fix.",
+    "ja": "修正の記録: 当てた修正案ごとに、日時・指摘・タスク種別・タスク・プロパティ・修正前・修正後を持つ記録。"
+   },
+   "label": {
+    "en": "Fix Log",
+    "ja": "修正の記録"
+   }
+  }
+ ],
+ "unmatched": [
+  {
+   "settledRow": "1-14",
+   "key": "DivideAndConquer",
+   "why": "New term (JDG-3516); the draft has no DivideAndConquer. Insert it before SoC.",
+   "proposed": {
+    "key": "DivideAndConquer",
+    "group": "rules/designPrinciples",
+    "settledRow": "1-14",
+    "basis": [
+     "JDG-3513",
+     "JDG-3516"
+    ],
+    "definition": {
+     "en": "Divide and Conquer: a solver splits a large problem into small problems that it can solve independently of each other, solves them one at a time, and combines their answers to solve the whole problem.",
+     "ja": "分割統治: 大きな問題を、互いに独立に解ける小さな問題に分け、1 つずつ解き、その答えを組み合わせて全体を解く。"
+    }
+   }
+  },
+  {
+   "settledRow": "1-42",
+   "key": "AffirmativeActiveWording",
+   "why": "New term (JDG-3483, JDG-3490); the draft has no AffirmativeActiveWording. Append it after ResourceEfficiency.",
+   "proposed": {
+    "key": "AffirmativeActiveWording",
+    "group": "rules/designPrinciples",
+    "settledRow": "1-42",
+    "basis": [
+     "JDG-3513",
+     "JDG-3483",
+     "JDG-3490"
+    ],
+    "definition": {
+     "en": "Affirmative Active Wording: a writer writes each sentence in the affirmative and in the active voice, and gives every transitive verb an object. For every negative requirement, the writer adds the action to take instead.",
+     "ja": "否定形・受動態の排除: 文は肯定形と能動態で書き、他動詞には目的語を書く。否定の要求には、代わりにする行動を添える。"
+    }
+   }
+  },
+  {
+   "settledRow": "3-7",
+   "key": "delayDiagnosis",
+   "why": "A tag row, not a term (JDG-3512): the values group points at Part 5 #1 delayDiagnosis. It replaces the draft term diagnosableDelay; the schema has no tag-row shape yet, so CR-857 must choose how to hold it.",
+   "proposed": {
+    "key": "delayDiagnosis",
+    "group": "values",
+    "settledRow": "3-7",
+    "basis": [
+     "JDG-3513",
+     "JDG-3512"
+    ],
+    "definition": {
+     "en": "(Tag) This tag points at the term `delayDiagnosis`, number 1 of Part 5. That one term alone carries the meaning of Delay Diagnosis.",
+     "ja": "（タグ）Part 5 の 1 番の語 `delayDiagnosis` を指す。遅延診断の意味を持つ語は、Part 5 の 1 番の 1 語だけである。"
+    },
+    "label": {
+     "en": "Delay Diagnosis",
+     "ja": "遅延診断"
+    }
+   }
+  },
+  {
+   "settledRow": "5-11",
+   "key": "suspicion",
+   "why": "New child of delayDiagnosis (JDG-3508): the draft term doubtfulOrMissing splits into suspicion and omission. Label en is proposed (key-based), not settled.",
+   "proposed": {
+    "key": "suspicion",
+    "group": "scheduleConcepts",
+    "settledRow": "5-11",
+    "basis": [
+     "JDG-3513",
+     "JDG-3466",
+     "JDG-3483",
+     "JDG-3508"
+    ],
+    "definition": {
+     "en": "Suspicion: a task that holds a set of values that fit together but look unlikely against the dependencies, the parent-child links or the status date. GRS stops short of calling this set an error. The Unreliable finding handles contradictions between values.",
+     "ja": "疑義: 両立はするが、依存・親子・基準日と照らすとありそうにない値の組を持つタスク。GRS は、これを誤りと断定しない。値どうしの矛盾は「信用できない」が扱う。"
+    },
+    "label": {
+     "en": "Suspicion",
+     "ja": "疑義"
+    },
+    "parentKey": "delayDiagnosis"
+   }
+  },
+  {
+   "settledRow": "5-12",
+   "key": "omission",
+   "why": "New child of delayDiagnosis (JDG-3508): the draft term doubtfulOrMissing splits into suspicion and omission. Label en is proposed (key-based), not settled.",
+   "proposed": {
+    "key": "omission",
+    "group": "scheduleConcepts",
+    "settledRow": "5-12",
+    "basis": [
+     "JDG-3513",
+     "JDG-3466",
+     "JDG-3483",
+     "JDG-3508"
+    ],
+    "definition": {
+     "en": "Omission: a task that leaves empty an actual date-time or a parent that it should have. One example is a task whose actual start is empty, although all the dependency ends that gate its start have occurred and its planned start comes before the status date.",
+     "ja": "記載漏れ: 書くべき実績の日時、または親が空のままのタスク。たとえば、着手を縛る依存の端がすべて起きていて、予定の開始が基準日より前なのに、実績の開始が空のタスク。"
+    },
+    "label": {
+     "en": "Omission",
+     "ja": "記載漏れ"
+    },
+    "parentKey": "delayDiagnosis"
+   }
+  }
+ ],
+ "draftOnly": [
+  {
+   "key": "diagnosableDelay",
+   "group": "values",
+   "why": "Merged into delayDiagnosis by JDG-3512; the values group keeps only a tag (settled row 3-7). Remove the term."
+  },
+  {
+   "key": "root",
+   "group": "scheduleConcepts",
+   "why": "Added to the draft by JDG-3660 (2026-11-08, task group tree) after the Part 1..5 settlement; outside the settled table. Keep as is."
+  },
+  {
+   "key": "depth",
+   "group": "scheduleConcepts",
+   "why": "Added to the draft by JDG-3660 (2026-11-08, task group tree) after the Part 1..5 settlement; outside the settled table. Keep as is."
+  },
+  {
+   "key": "topLevel",
+   "group": "scheduleConcepts",
+   "why": "Added to the draft by JDG-3660 (2026-11-08, task group tree) after the Part 1..5 settlement; outside the settled table. Keep as is."
+  },
+  {
+   "key": "topLevelTaskGroup",
+   "group": "scheduleConcepts",
+   "why": "Added to the draft by JDG-3660 (2026-11-08, task group tree) after the Part 1..5 settlement; outside the settled table. Keep as is."
+  },
+  {
+   "key": "parent",
+   "group": "scheduleConcepts",
+   "why": "Added to the draft by JDG-3660 (2026-11-08, task group tree) after the Part 1..5 settlement; outside the settled table. Keep as is."
+  },
+  {
+   "key": "child",
+   "group": "scheduleConcepts",
+   "why": "Added to the draft by JDG-3660 (2026-11-08, task group tree) after the Part 1..5 settlement; outside the settled table. Keep as is."
+  },
+  {
+   "key": "below",
+   "group": "scheduleConcepts",
+   "why": "Added to the draft by JDG-3660 (2026-11-08, task group tree) after the Part 1..5 settlement; outside the settled table. Keep as is."
+  },
+  {
+   "key": "ancestor",
+   "group": "scheduleConcepts",
+   "why": "Added to the draft by JDG-3660 (2026-11-08, task group tree) after the Part 1..5 settlement; outside the settled table. Keep as is."
+  },
+  {
+   "key": "doubtfulOrMissing",
+   "group": "scheduleConcepts",
+   "why": "Split into suspicion and omission by JDG-3503/JDG-3508 (settled rows 5-11, 5-12). Remove the term."
+  }
+ ]
+}
