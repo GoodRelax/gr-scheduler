@@ -11,7 +11,7 @@ overwritten, and --check catches one before it can be committed.
 
 ⭐ THE MANUSCRIPT HOLDS NO ROSTER, and that is the whole point (CR-371). Which
 prefixes exist, where each one is defined and how many rows it has are read on
-every run out of THREE trees -- every `| XX-n |` row of their Markdown and the
+every run out of FOUR trees (the fourth scoped, see SCOPED_TREES) -- every `| XX-n |` row of their Markdown and the
 表 caption it sits under. The manuscript holds the meanings, the walk holds the
 numbers, and joining them IS the check:
 
@@ -24,7 +24,7 @@ numbers, and joining them IS the check:
 ⛔ All of them exit 1. Nothing else checks this; `npm run gen:check` is where
 it lands.
 
-⛔⚠️ THE WALK COVERS THREE TREES BECAUSE A COLLISION SPANS THEM. A prefix can
+⛔⚠️ THE WALK COVERS SEVERAL TREES BECAUSE A COLLISION SPANS THEM. A prefix can
 name a row of the specification AND a row of a ledger, and a register that
 walked docs/spec alone could not see the second one: it would report green on
 the very collision, and a classifier built on that spelling can strip live
@@ -92,8 +92,16 @@ TREES = [
     ('spec', 'docs/spec', u'仕様書'),
     ('records', 'docs/development-records', u'台帳'),
     ('rules', 'docs/development-rules', u'規則'),
+    ('review', 'docs/review', u'レビュー'),
 ]
 TREE_WORD = dict((key, word) for key, _, word in TREES)
+
+# ⚠️ A SCOPED TREE counts only the prefixes the registry gives it (xOwner or
+# xMirroredIn). docs/review holds the review reports, where rule 07 writes
+# one RVF row per finding, and also years of working notes numbered ad hoc
+# (A-1, C-3, ...); those are not row IDs of the documentation, so the walk
+# neither registers nor faults them.
+SCOPED_TREES = ('review',)
 
 # Folders that are not manuscripts.
 SKIP_DIRS = ('output', '__pycache__')
@@ -129,7 +137,7 @@ JOIN = u' ／ '                       # the separator the tables join with
 NO_TABLE = u'—'                     # an empty cell
 PENDING_CELL = u'—（登録のみ）'    # registered, no rows yet
 
-# The three trees, as the document names them.
+# The trees, as the document names them.
 TREE_LIST = JOIN.join(u'%s（`%s`）' % (word, tree)
                       for _, tree, word in TREES)
 
@@ -210,9 +218,19 @@ def walk(tree):
             for p in rows}
 
 
-def walk_all():
-    """Every tree's roster, keyed by the name the manuscript writes."""
-    return dict((key, walk(tree)) for key, tree, _ in TREES)
+def walk_all(doc):
+    """Every tree's roster, keyed by the name the manuscript writes. A scoped
+    tree keeps only the prefixes the registry gives it."""
+    out = {}
+    for key, tree, _ in TREES:
+        found = walk(tree)
+        if key in SCOPED_TREES:
+            given = set(e['prefix'] for e in doc['prefixes']
+                        if e.get('xOwner') == key
+                        or key in e.get('xMirroredIn', []))
+            found = dict((p, v) for p, v in found.items() if p in given)
+        out[key] = found
+    return out
 
 
 def where_used(rosters, prefix):
@@ -329,8 +347,8 @@ def build(doc, rosters, suppressed):
         '> ⛔ 本書は生成物である。手で直さない —— 直しても次の `npm run gen` で消える。',
         '> **行 ID の接頭辞の唯一の正は `_source/row-id-prefixes.json` である。**'
         ' 本書はそれを `_source/row_id_prefixes_json_to_md.py` が印字したものである。',
-        '> ⚠️ **行数は登録簿の中に無い** —— `docs/spec`、`docs/development-records`、`docs/development-rules` の'
-        ' 3 つの木を毎回歩いて数えるので、'
+        '> ⚠️ **行数は登録簿の中に無い** —— `docs/spec`、`docs/development-records`、`docs/development-rules`、`docs/review` の'
+        ' 4 つの木を毎回歩いて数えるので、'
         '**`01-04-requirements.md` など原稿が動けば本書も動く。**',
         '> **作り直す**: `npm run gen` ／ **ズレを検出する**: `npm run gen:check`。',
         '',
@@ -342,7 +360,9 @@ def build(doc, rosters, suppressed):
         ' 原稿は員数を持たない —— 持たせると、表が動いたときに黙ってずれる側ができる。'
         ' `section` は歩いた結果と突き合わせるので、黙ってはずれない。',
         '',
-        '⭐ **歩く木は 3 つである** —— %s。'
+        '⭐ **歩く木は 4 つである** —— %s。'
+        ' ⚠️ レビュー（`docs/review`）は、登録簿がその木を持ち主かコピーにした接頭辞（`RVF`）だけを数える —— '
+        'その木の作業の記録が振った番号（`A-1` など）は文書の行 ID ではないからである。'
         '⛔ **1 つでは足りない** —— 同じ綴りが仕様書と台帳で別のものを指す形こそが、'
         '本登録簿の作られた理由だからである。' % TREE_LIST,
         '',
@@ -570,7 +590,7 @@ def main():
     if refused is not None:
         return refused
     doc = json.load(io.open(SRC, encoding='utf-8'))
-    rosters = walk_all()
+    rosters = walk_all(doc)
     suppressed = dict((item['prefix'], item)
                       for item in doc.get('xCollisionsSuppressed', []))
     found = schema_problems(doc) or problems(doc, rosters, suppressed)

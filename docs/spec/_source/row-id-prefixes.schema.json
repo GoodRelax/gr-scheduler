@@ -32,8 +32,8 @@
  },
  "$defs": {
   "tree": {
-   "description": "A tree the generator walks: spec = docs/spec, records = docs/development-records, rules = docs/development-rules.",
-   "enum": ["spec", "records", "rules"]
+   "description": "A tree the generator walks: spec = docs/spec, records = docs/development-records, rules = docs/development-rules, review = docs/review (scoped: only the prefixes the registry gives it are counted).",
+   "enum": ["spec", "records", "rules", "review"]
   },
   "text": {
    "description": "One text per language, keyed by its BCP 47 language tag. en is the master; ja translates it.",
