@@ -87,6 +87,6 @@
 | 文書 | 今の扱い |
 |:---|:---|
 | [`anms-v036-ja.md`](anms-v036-ja.md) | ANMS v0.36 の写し。テンプレートの正 |
-| [`spec-writing-rules.md`](spec-writing-rules.md) | ⚠️ 旧い 10 章の番号で書いてある。組み替えの間は 3 節の表で読む。⛔ ANMS v0.36 と食い違えば、ANMS v0.36 と本書に従う。書き直しは組み替え（B8）と一緒に行う |
+| [`spec-writing-rules.md`](spec-writing-rules.md) | ANMS が持たない GRS の書き方 —— StrictDoc の記法、散文の数、履歴を持たないこと、表と図、規則と理由の置き場、検査の走らせ方。2026-11-24 に旧い 10 章の章ごとの規則を消した |
 | [`00-ai-guide.md`](00-ai-guide.md)・[`01-ai-queries.md`](01-ai-queries.md) | StrictDoc の Markdown と jq の手引き。章立てに依らないので、そのまま使う |
 | [`spec.sgra`](spec.sgra) | StrictDoc の文法。要求の節点（2 節）が使う |
