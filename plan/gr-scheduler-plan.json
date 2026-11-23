@@ -14,7 +14,7 @@
       "creationDate": "2026-10-31T08:50:00",
       "revision": 11,
       "startDate": "2026-10-17T05:30:00",
-      "statusDate": "2026-11-23T23:10:00",
+      "statusDate": "2026-11-23T23:33:00",
       "minutesPerDay": 1440,
       "minutesPerWeek": 10080,
       "daysPerMonth": 30,
@@ -24,7 +24,7 @@
       "defaultFinishTime": "23:59:00",
       "themeHue": 214,
       "parentTaskProgressToleranceDays": 1,
-      "uidHighWaterMark": 491,
+      "uidHighWaterMark": 492,
       "importSequence": 0,
       "carry": {},
       "carryElements": [],
@@ -7283,180 +7283,12 @@
         "uid": 391,
         "parentTaskUid": null,
         "wbsOrder": 268,
-        "name": "🌑 新レビュー基準 段 4: 窓を閉じ、止めた仕事を再開する(調整役)",
-        "start": "2026-11-13T13:05:00",
-        "finish": "2026-11-13T13:35:00",
+        "name": "🌑 新 ANMS・NDD 段 4 の後: コードの SUB を止める窓を閉じ、止めた仕事を再開する(調整役)",
+        "start": "2026-12-04T08:21:43",
+        "finish": "2026-12-04T08:51:43",
         "milestone": false,
         "deadline": null,
-        "notes": "共有メモ new-review-standard-plan-b-2026-11-08.md の「順序」 の段 4。PMO は再開を記録し、窓の後の 1 回で予定を引き直す。 11-09 08:54: 新基準の窓の残り（段 5・6）は、基準書の新しい版 7015aa4 との差をオーナーと協議してから決める（BOSS の一言）。391 以後の予定は協議の後に置く。 11-11 07:21: 新基準の窓の残りは、基準書の新しい版 7015aa4 との差をオーナーと協議してから決める。重い処理の禁止（11-11 06:08）が解けるまで始められない。予定は動かさない。 11-13 13:05: 禁止の解除で測り直した。391 を今から 30 分、392〜394 を 391 の後に並べ、395 は 393・394 の後、396 は 395 と N1 の後。基準書の新しい版 7015aa4 との協議が済んでいなければ、段 5・6 の中身は協議で変わる（事実）。",
-        "calendarUid": null,
-        "actualStart": null,
-        "stop": null,
-        "actualFinish": null,
-        "resume": null,
-        "resumeValid": null,
-        "percentComplete": 0,
-        "fadeInDays": null,
-        "fadeOutDays": null,
-        "dependencies": [
-          {
-            "predecessorUid": 390,
-            "linkType": 1,
-            "linkLag": 0,
-            "lagFormat": 7,
-            "carry": {},
-            "carryElements": []
-          }
-        ],
-        "carry": {},
-        "carryElements": []
-      },
-      {
-        "uid": 392,
-        "parentTaskUid": null,
-        "wbsOrder": 269,
-        "name": "🌑 新レビュー基準 段 5: 規則 07 を原本に追いつかせ、検査 92 を直す(SUB)",
-        "start": "2026-11-13T13:35:00",
-        "finish": "2026-11-13T16:35:00",
-        "milestone": false,
-        "deadline": null,
-        "notes": "共有メモ new-review-standard-plan-b-2026-11-08.md の「順序」 の段 5。Opus 5.5・high。見積は 2〜4 時間の中央。GT-2 は要らず privacy の数だけ確かめて push する。 11-11 07:21: 新基準の窓の残りは、基準書の新しい版 7015aa4 との差をオーナーと協議してから決める。重い処理の禁止（11-11 06:08）が解けるまで始められない。予定は動かさない。 11-13 13:05: 禁止の解除で測り直した。391 を今から 30 分、392〜394 を 391 の後に並べ、395 は 393・394 の後、396 は 395 と N1 の後。基準書の新しい版 7015aa4 との協議が済んでいなければ、段 5・6 の中身は協議で変わる（事実）。",
-        "calendarUid": null,
-        "actualStart": null,
-        "stop": null,
-        "actualFinish": null,
-        "resume": null,
-        "resumeValid": null,
-        "percentComplete": 0,
-        "fadeInDays": null,
-        "fadeOutDays": null,
-        "dependencies": [
-          {
-            "predecessorUid": 391,
-            "linkType": 1,
-            "linkLag": 0,
-            "lagFormat": 7,
-            "carry": {},
-            "carryElements": []
-          }
-        ],
-        "carry": {},
-        "carryElements": []
-      },
-      {
-        "uid": 393,
-        "parentTaskUid": null,
-        "wbsOrder": 270,
-        "name": "🌑 新レビュー基準 段 6: コメントの規則の lint(検査 55 の形の表と新しい 3 項目)を作る(SUB)",
-        "start": "2026-11-13T13:35:00",
-        "finish": "2026-11-13T21:35:00",
-        "milestone": false,
-        "deadline": null,
-        "notes": "共有メモ new-review-standard-plan-b-2026-11-08.md の「順序」 の段 6。Opus 5.5・high。見積は 4〜8 時間の上限。 11-11 07:21: 新基準の窓の残りは、基準書の新しい版 7015aa4 との差をオーナーと協議してから決める。重い処理の禁止（11-11 06:08）が解けるまで始められない。予定は動かさない。 11-13 13:05: 禁止の解除で測り直した。391 を今から 30 分、392〜394 を 391 の後に並べ、395 は 393・394 の後、396 は 395 と N1 の後。基準書の新しい版 7015aa4 との協議が済んでいなければ、段 5・6 の中身は協議で変わる（事実）。",
-        "calendarUid": null,
-        "actualStart": null,
-        "stop": null,
-        "actualFinish": null,
-        "resume": null,
-        "resumeValid": null,
-        "percentComplete": 0,
-        "fadeInDays": null,
-        "fadeOutDays": null,
-        "dependencies": [
-          {
-            "predecessorUid": 391,
-            "linkType": 1,
-            "linkLag": 0,
-            "lagFormat": 7,
-            "carry": {},
-            "carryElements": []
-          }
-        ],
-        "carry": {},
-        "carryElements": []
-      },
-      {
-        "uid": 394,
-        "parentTaskUid": null,
-        "wbsOrder": 271,
-        "name": "🌑 新レビュー基準 段 6: see と WHY のコメントを字句解析で機械的に移す(SUB)",
-        "start": "2026-11-13T13:35:00",
-        "finish": "2026-11-13T16:35:00",
-        "milestone": false,
-        "deadline": null,
-        "notes": "共有メモ new-review-standard-plan-b-2026-11-08.md の「順序」 の段 6。Sonnet 5.5・medium。見積は 2〜4 時間の中央。 11-11 07:21: 新基準の窓の残りは、基準書の新しい版 7015aa4 との差をオーナーと協議してから決める。重い処理の禁止（11-11 06:08）が解けるまで始められない。予定は動かさない。 11-13 13:05: 禁止の解除で測り直した。391 を今から 30 分、392〜394 を 391 の後に並べ、395 は 393・394 の後、396 は 395 と N1 の後。基準書の新しい版 7015aa4 との協議が済んでいなければ、段 5・6 の中身は協議で変わる（事実）。",
-        "calendarUid": null,
-        "actualStart": null,
-        "stop": null,
-        "actualFinish": null,
-        "resume": null,
-        "resumeValid": null,
-        "percentComplete": 0,
-        "fadeInDays": null,
-        "fadeOutDays": null,
-        "dependencies": [
-          {
-            "predecessorUid": 391,
-            "linkType": 1,
-            "linkLag": 0,
-            "lagFormat": 7,
-            "carry": {},
-            "carryElements": []
-          }
-        ],
-        "carry": {},
-        "carryElements": []
-      },
-      {
-        "uid": 395,
-        "parentTaskUid": null,
-        "wbsOrder": 272,
-        "name": "🌑 新レビュー基準 段 6: src のコメントを判定して移す(SUB 2〜3 人)",
-        "start": "2026-11-13T21:35:00",
-        "finish": "2026-11-15T21:35:00",
-        "milestone": false,
-        "deadline": null,
-        "notes": "共有メモ new-review-standard-plan-b-2026-11-08.md の「順序」 の段 6。Opus 5.5・high。見積は共有メモの 1〜3.5 日の 2 日。対象 1,777 件。 11-11 07:21: 新基準の窓の残りは、基準書の新しい版 7015aa4 との差をオーナーと協議してから決める。重い処理の禁止（11-11 06:08）が解けるまで始められない。予定は動かさない。 11-13 13:05: 禁止の解除で測り直した。391 を今から 30 分、392〜394 を 391 の後に並べ、395 は 393・394 の後、396 は 395 と N1 の後。基準書の新しい版 7015aa4 との協議が済んでいなければ、段 5・6 の中身は協議で変わる（事実）。",
-        "calendarUid": null,
-        "actualStart": null,
-        "stop": null,
-        "actualFinish": null,
-        "resume": null,
-        "resumeValid": null,
-        "percentComplete": 0,
-        "fadeInDays": null,
-        "fadeOutDays": null,
-        "dependencies": [
-          {
-            "predecessorUid": 393,
-            "linkType": 1,
-            "linkLag": 0,
-            "lagFormat": 7,
-            "carry": {},
-            "carryElements": []
-          },
-          {
-            "predecessorUid": 394,
-            "linkType": 1,
-            "linkLag": 0,
-            "lagFormat": 7,
-            "carry": {},
-            "carryElements": []
-          }
-        ],
-        "carry": {},
-        "carryElements": []
-      },
-      {
-        "uid": 396,
-        "parentTaskUid": null,
-        "wbsOrder": 273,
-        "name": "🌑 新レビュー基準 段 7: ステートマシンのレビューと語の直し(SUB 2 人。用語集の後)",
-        "start": "2026-11-23T22:11:55",
-        "finish": "2026-11-24T04:11:55",
-        "milestone": false,
-        "deadline": null,
-        "notes": "共有メモ new-review-standard-plan-b-2026-11-08.md の「順序」 の段 7。Opus 5.5・high と Sonnet 5.5・medium。見積は 4〜8 時間の中央。用語集の後に置く。 11-11 07:21: 新基準の窓の残りは、基準書の新しい版 7015aa4 との差をオーナーと協議してから決める。重い処理の禁止（11-11 06:08）が解けるまで始められない。予定は動かさない。 11-13 13:05: 禁止の解除で測り直した。391 を今から 30 分、392〜394 を 391 の後に並べ、395 は 393・394 の後、396 は 395 と N1 の後。基準書の新しい版 7015aa4 との協議が済んでいなければ、段 5・6 の中身は協議で変わる（事実）。",
+        "notes": "共有メモ new-review-standard-plan-b-2026-11-08.md の「順序」 の段 4。PMO は再開を記録し、窓の後の 1 回で予定を引き直す。 11-09 08:54: 新基準の窓の残り（段 5・6）は、基準書の新しい版 7015aa4 との差をオーナーと協議してから決める（BOSS の一言）。391 以後の予定は協議の後に置く。 11-11 07:21: 新基準の窓の残りは、基準書の新しい版 7015aa4 との差をオーナーと協議してから決める。重い処理の禁止（11-11 06:08）が解けるまで始められない。予定は動かさない。 11-13 13:05: 禁止の解除で測り直した。391 を今から 30 分、392〜394 を 391 の後に並べ、395 は 393・394 の後、396 は 395 と N1 の後。基準書の新しい版 7015aa4 との協議が済んでいなければ、段 5・6 の中身は協議で変わる（事実）。 pmo-6 2026-11-23T23:33: folded into study 82 (afdaf418f) as named; the same work keeps uid 391 (JDG-1931). Placed after the beta tag 233 and the owner answers 492; length 0.5 h = the middle of the study 82 estimate (provisional). Stage 2 also waits for team T to land the standard in gr-sw-maker main (outside this plan).",
         "calendarUid": null,
         "actualStart": null,
         "stop": null,
@@ -7474,9 +7306,33 @@
             "lagFormat": 7,
             "carry": {},
             "carryElements": []
-          },
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 392,
+        "parentTaskUid": null,
+        "wbsOrder": 269,
+        "name": "🌑 新 ANMS・NDD 段 2: 規則 07 を新しい版へ追いつかせ、検査 92 を直す(SUB)",
+        "start": "2026-11-29T12:51:43",
+        "finish": "2026-11-29T17:21:43",
+        "milestone": false,
+        "deadline": null,
+        "notes": "共有メモ new-review-standard-plan-b-2026-11-08.md の「順序」 の段 5。Opus 5.5・high。見積は 2〜4 時間の中央。GT-2 は要らず privacy の数だけ確かめて push する。 11-11 07:21: 新基準の窓の残りは、基準書の新しい版 7015aa4 との差をオーナーと協議してから決める。重い処理の禁止（11-11 06:08）が解けるまで始められない。予定は動かさない。 11-13 13:05: 禁止の解除で測り直した。391 を今から 30 分、392〜394 を 391 の後に並べ、395 は 393・394 の後、396 は 395 と N1 の後。基準書の新しい版 7015aa4 との協議が済んでいなければ、段 5・6 の中身は協議で変わる（事実）。 pmo-6 2026-11-23T23:33: folded into study 82 (afdaf418f) as named; the same work keeps uid 392 (JDG-1931). Placed after the beta tag 233 and the owner answers 492; length 4.5 h = the middle of the study 82 estimate (provisional). Stage 2 also waits for team T to land the standard in gr-sw-maker main (outside this plan).",
+        "calendarUid": null,
+        "actualStart": null,
+        "stop": null,
+        "actualFinish": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
           {
-            "predecessorUid": 316,
+            "predecessorUid": 233,
             "linkType": 1,
             "linkLag": 0,
             "lagFormat": 7,
@@ -7484,7 +7340,143 @@
             "carryElements": []
           },
           {
-            "predecessorUid": 435,
+            "predecessorUid": 492,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 393,
+        "parentTaskUid": null,
+        "wbsOrder": 270,
+        "name": "🌑 新 ANMS・NDD 段 3: 規則 03・05・06 を書き直し、検査 25・41・44・55 を作り直す(SUB 2 人)",
+        "start": "2026-11-29T17:21:43",
+        "finish": "2026-11-30T05:21:43",
+        "milestone": false,
+        "deadline": null,
+        "notes": "共有メモ new-review-standard-plan-b-2026-11-08.md の「順序」 の段 6。Opus 5.5・high。見積は 4〜8 時間の上限。 11-11 07:21: 新基準の窓の残りは、基準書の新しい版 7015aa4 との差をオーナーと協議してから決める。重い処理の禁止（11-11 06:08）が解けるまで始められない。予定は動かさない。 11-13 13:05: 禁止の解除で測り直した。391 を今から 30 分、392〜394 を 391 の後に並べ、395 は 393・394 の後、396 は 395 と N1 の後。基準書の新しい版 7015aa4 との協議が済んでいなければ、段 5・6 の中身は協議で変わる（事実）。 pmo-6 2026-11-23T23:33: folded into study 82 (afdaf418f) as named; the same work keeps uid 393 (JDG-1931). Placed after the beta tag 233 and the owner answers 492; length 12 h = the middle of the study 82 estimate (provisional). Stage 2 also waits for team T to land the standard in gr-sw-maker main (outside this plan).",
+        "calendarUid": null,
+        "actualStart": null,
+        "stop": null,
+        "actualFinish": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 392,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 394,
+        "parentTaskUid": null,
+        "wbsOrder": 271,
+        "name": "🌑 新 ANMS・NDD 段 4: コメントの WHY・see を機械で移し、種類の名を当てる(SUB)",
+        "start": "2026-11-30T05:21:43",
+        "finish": "2026-11-30T08:21:43",
+        "milestone": false,
+        "deadline": null,
+        "notes": "共有メモ new-review-standard-plan-b-2026-11-08.md の「順序」 の段 6。Sonnet 5.5・medium。見積は 2〜4 時間の中央。 11-11 07:21: 新基準の窓の残りは、基準書の新しい版 7015aa4 との差をオーナーと協議してから決める。重い処理の禁止（11-11 06:08）が解けるまで始められない。予定は動かさない。 11-13 13:05: 禁止の解除で測り直した。391 を今から 30 分、392〜394 を 391 の後に並べ、395 は 393・394 の後、396 は 395 と N1 の後。基準書の新しい版 7015aa4 との協議が済んでいなければ、段 5・6 の中身は協議で変わる（事実）。 pmo-6 2026-11-23T23:33: folded into study 82 (afdaf418f) as named; the same work keeps uid 394 (JDG-1931). Placed after the beta tag 233 and the owner answers 492; length 3 h = the middle of the study 82 estimate (provisional). Stage 2 also waits for team T to land the standard in gr-sw-maker main (outside this plan).",
+        "calendarUid": null,
+        "actualStart": null,
+        "stop": null,
+        "actualFinish": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 393,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 395,
+        "parentTaskUid": null,
+        "wbsOrder": 272,
+        "name": "🌑 新 ANMS・NDD 段 4: 置き所と種類の無い tests の単位を判定して移す(SUB 2〜3 人)",
+        "start": "2026-11-30T08:21:43",
+        "finish": "2026-12-04T08:21:43",
+        "milestone": false,
+        "deadline": null,
+        "notes": "共有メモ new-review-standard-plan-b-2026-11-08.md の「順序」 の段 6。Opus 5.5・high。見積は共有メモの 1〜3.5 日の 2 日。対象 1,777 件。 11-11 07:21: 新基準の窓の残りは、基準書の新しい版 7015aa4 との差をオーナーと協議してから決める。重い処理の禁止（11-11 06:08）が解けるまで始められない。予定は動かさない。 11-13 13:05: 禁止の解除で測り直した。391 を今から 30 分、392〜394 を 391 の後に並べ、395 は 393・394 の後、396 は 395 と N1 の後。基準書の新しい版 7015aa4 との協議が済んでいなければ、段 5・6 の中身は協議で変わる（事実）。 pmo-6 2026-11-23T23:33: folded into study 82 (afdaf418f) as named; the same work keeps uid 395 (JDG-1931). Placed after the beta tag 233 and the owner answers 492; length 96 h = the middle of the study 82 estimate (provisional). Stage 2 also waits for team T to land the standard in gr-sw-maker main (outside this plan).",
+        "calendarUid": null,
+        "actualStart": null,
+        "stop": null,
+        "actualFinish": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 394,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 396,
+        "parentTaskUid": null,
+        "wbsOrder": 273,
+        "name": "🌑 新 ANMS・NDD 段 5: 原本の JSON(登録簿のキー・状態遷移・en の文)とステートマシンのレビュー・語(SUB 2 人)",
+        "start": "2026-12-04T08:51:43",
+        "finish": "2026-12-06T08:51:43",
+        "milestone": false,
+        "deadline": null,
+        "notes": "共有メモ new-review-standard-plan-b-2026-11-08.md の「順序」 の段 7。Opus 5.5・high と Sonnet 5.5・medium。見積は 4〜8 時間の中央。用語集の後に置く。 11-11 07:21: 新基準の窓の残りは、基準書の新しい版 7015aa4 との差をオーナーと協議してから決める。重い処理の禁止（11-11 06:08）が解けるまで始められない。予定は動かさない。 11-13 13:05: 禁止の解除で測り直した。391 を今から 30 分、392〜394 を 391 の後に並べ、395 は 393・394 の後、396 は 395 と N1 の後。基準書の新しい版 7015aa4 との協議が済んでいなければ、段 5・6 の中身は協議で変わる（事実）。 pmo-6 2026-11-23T23:33: folded into study 82 (afdaf418f) as named; the same work keeps uid 396 (JDG-1931). Placed after the beta tag 233 and the owner answers 492; length 48 h = the middle of the study 82 estimate (provisional). Stage 2 also waits for team T to land the standard in gr-sw-maker main (outside this plan).",
+        "calendarUid": null,
+        "actualStart": null,
+        "stop": null,
+        "actualFinish": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 391,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          },
+          {
+            "predecessorUid": 302,
             "linkType": 1,
             "linkLag": 0,
             "lagFormat": 7,
@@ -8996,14 +8988,37 @@
         "uid": 491,
         "parentTaskUid": null,
         "wbsOrder": 350,
-        "name": "🌒 新 ANMS・NDD 基準の適用計画(SUB)",
+        "name": "🌕 新 ANMS・NDD 基準の適用計画(SUB)",
         "start": "2026-11-23T23:05:00",
-        "finish": "2026-11-24T03:05:00",
+        "finish": "2026-11-23T23:32:00",
         "milestone": false,
         "deadline": null,
-        "notes": "pmo-6 2026-11-23T23:05: BOSS line 11-23: a new seat (local_bacbcd6e) writes the plan for applying the new ANMS and NDD standards (plan only). The application itself starts after the owner reads the plan. 4 h is a BOSS placeholder (provisional). SUB: Opus 5.5 high.",
+        "notes": "pmo-6 2026-11-23T23:05: BOSS line 11-23: a new seat (local_bacbcd6e) writes the plan for applying the new ANMS and NDD standards (plan only). The application itself starts after the owner reads the plan. 4 h is a BOSS placeholder (provisional). SUB: Opus 5.5 high. pmo-6 2026-11-23T23:33: done. The seat wrote the plan (studies/82-anms-ndd-apply-plan/README.md; afdaf418f 23:32, develop afdaf418f) and put BGQA9 (7 questions) to the owner. Before the beta only CR-857 and CR-855 follow the new shape (stage 1, in the BOSS briefs); stages 2..7 come after the beta.",
         "calendarUid": null,
         "actualStart": "2026-11-23T23:05:00",
+        "stop": null,
+        "actualFinish": "2026-11-23T23:32:00",
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 100,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 492,
+        "parentTaskUid": null,
+        "wbsOrder": 351,
+        "name": "🌑 オーナー: BGQA9(新 ANMS・NDD 基準の適用計画、7 問)に答える",
+        "start": "2026-11-24T06:45:00",
+        "finish": "2026-11-24T21:03:50",
+        "milestone": false,
+        "deadline": null,
+        "notes": "pmo-6 2026-11-23T23:33: BOSS line 11-23: the owner reads the apply plan (study 82) and answers BGQA9. The application starts after this. Length = 7 questions at 8.6 rows/h in owner hours (provisional).",
+        "calendarUid": null,
+        "actualStart": null,
         "stop": null,
         "actualFinish": null,
         "resume": null,
@@ -9011,7 +9026,16 @@
         "percentComplete": 0,
         "fadeInDays": null,
         "fadeOutDays": null,
-        "dependencies": [],
+        "dependencies": [
+          {
+            "predecessorUid": 491,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
         "carry": {},
         "carryElements": []
       }
@@ -10499,6 +10523,10 @@
       },
       {
         "taskUid": 491,
+        "taskGroupId": "b2a0e74c-4c44-5678-b53c-aecd31dc8ae5"
+      },
+      {
+        "taskUid": 492,
         "taskGroupId": "b2a0e74c-4c44-5678-b53c-aecd31dc8ae5"
       }
     ],
@@ -12934,6 +12962,14 @@
         "fillColor": "blue",
         "strokeColor": null,
         "strokeWidthPx": null
+      },
+      {
+        "taskUid": 492,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": "diamond",
+        "fillColor": "blue",
+        "strokeColor": null,
+        "strokeWidthPx": null
       }
     ],
     "commentBoxes": [
@@ -14942,10 +14978,10 @@
     "zoomY": 1.099862517185352
   },
   "documentStamp": {
-    "scheduleUpdatedAt": "2026-11-23T14:10:00Z",
+    "scheduleUpdatedAt": "2026-11-23T14:33:00Z",
     "lastEditedBy": "PMO child session",
     "settingsUpdatedAt": "2026-10-20T20:24:42Z",
-    "fileSavedAt": "2026-11-23T14:10:00Z"
+    "fileSavedAt": "2026-11-23T14:33:00Z"
   },
   "changeLog": [
     {
@@ -15661,6 +15697,12 @@
       "editedBy": "PMO child session",
       "explanation": "Fact at 11-23 23:10 JST: BOSS line, the Agent API seat ruled BGQA7 question 12 (JDG-3784 uidLimitReached, 582046612): 489 done. Every step before the diff extraction 455 is done; 455 placed from now, its seat not started yet (the BOSS asks the owner). N1 (316) and the beta (234) stay.",
       "changedAt": "2026-11-23T14:10:00Z"
+    },
+    {
+      "ordinal": 120,
+      "editedBy": "PMO child session",
+      "explanation": "Fact at 11-23 23:33 JST: BOSS line, the apply plan for the new ANMS and NDD standards is written (study 82, afdaf418f): 491 done; owner task 492 (BGQA9, 7 questions) added. The 11-08 stages 391..396 are folded into stages 2..5 of study 82 (renamed, uids kept) and placed after the beta tag 233. N1 (316) and the beta (234) stay.",
+      "changedAt": "2026-11-23T14:33:00Z"
     }
   ]
 }
