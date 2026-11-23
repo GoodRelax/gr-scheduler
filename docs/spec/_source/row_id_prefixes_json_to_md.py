@@ -85,6 +85,11 @@ TREE_WORD = dict((key, word) for key, _, word in TREES)
 # Folders that are not manuscripts.
 SKIP_DIRS = ('output', '__pycache__')
 
+# Files that are verbatim copies of an external master, not manuscripts of
+# this repository: their example tables ("FR-012", "CH-001") define no row of
+# GRS. The ANMS v0.36 template copy (2026-11-24, plan B1) is one.
+SKIP_FILES = ('docs/development-rules/08-spec-template/anms-v036-ja.md',)
+
 # The ids the specification retired on purpose (.claude/skills/spec-graph-check/
 # retired.py, a module that holds data and nothing else). A ledger row about a
 # retired id records a row the owner DID define, so it is no second meaning.
@@ -122,8 +127,10 @@ def manuscripts(tree):
     for base, dirs, names in os.walk(os.path.join(ROOT, *tree.split('/'))):
         dirs[:] = [d for d in dirs if d not in SKIP_DIRS]
         for name in sorted(names):
-            if name.endswith('.md'):
-                out.append(os.path.join(base, name))
+            path = os.path.join(base, name)
+            relative = os.path.relpath(path, ROOT).replace(os.sep, '/')
+            if name.endswith('.md') and relative not in SKIP_FILES:
+                out.append(path)
     return sorted(out)
 
 
