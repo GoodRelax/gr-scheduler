@@ -70,14 +70,23 @@
 | Agent API | 方針の表の BGQA5 の節と、表の外の名（`readDelayDiagnostics` → `readDelayDiagnosis` ほか、`JDG-3512`） | 表の「今の名」→「方針で選ぶ名」。「今のまま」の行は除いた。新しい道具 `closePropertiesPanel` は前の名が無いので入れていない |
 | 画面の名 | `terms/6-cr855-handoff.md` 2 節（`JDG-3351`〜`JDG-3379`）と `JDG-3512`（Delay Diagnostics → Delay Diagnosis） | 表の行をそのまま。`JDG-3512` は札と、コードの名（`[Dd]elayDiagnostics` で始まる識別子）の 2 行 |
 
-## 要確認（4 件、行 7）
+## 要確認 —— 片づけた 2 件と、残る 2 件（行 5）
 
-勝手に決めず、BOSS に知らせる。
+1 回目（06615b267）で 4 件を BOSS に知らせた。5 代目 BOSS の読みを受けて、①② は根拠を書いて閉じ、③④ は案を書いた。
 
-1. **`CarryElement` → `MspdiElement`（`RN-002`）**: 型の形も変わる（`{ordinal, name, fields, children}` → 子の要素の名をキーにした物）。この組を名指しした裁定が見つからない。
-2. **`carryElements` の行き先（`RN-018`）**: α は Project・Calendar・WeekDay・Exception・Task・Dependency・Resource・Assignment の 8 つに `carryElements` を持つ。β の丸ごとの要素の置き場は `scheduleData.passthroughCalendars`・`passthroughTasks`・`passthroughResources`・`passthroughAssignments` の 4 つ（`JDG-3613`・`JDG-3750`）。残る 4 つ（Project・WeekDay・Exception・Dependency）の丸ごとの要素をどこへ書くか、表からは読めない。
-3. **`treeState` の値 → `showMode` の値（`RN-105`・`RN-106`・`RN-109`・`RN-120`）**: α は `auto`・`collapsed`・`expanded`・`temporarilyExpanded`、β は `shown`・`hidden`・`automatic`・`hiddenUntilZoomIn`。`auto` → `automatic` は読みで組めるが、残る 3 つは 1 対 1 にならない（見せ方の考えが `JDG-3664`〜`JDG-3685` で変わった）。読み替えを CR-851 で当てるか、振る舞いとして CR-856 で当てるかも決まっていない。
-4. **`AgentRefusalReason` の新しい名（`RN-230`）**: 方針 P-5 で頭の `Agent` を外すが、新しい名を決めた行が無い（方針の表の「問いの外で気づいた名」）。
+### 閉じた物
+
+1. **`CarryElement` → `MspdiElement`（`RN-002`）**: この組を名指しした裁定は無いが、形は `JDG-3606`（MSPDI の構造と要素の名のまま、`ordinal` を持たず、繰り返せる要素はいつも配列）と `JDG-3613`（`mspdiElement`）で決まっていて、凍結したスキーマ（`JDG-3807`）の `$defs/MspdiElement` がその型である。オーナーに問う物は無い。
+2. **`carryElements` の行き先（`RN-018`）**: 1 回目は「β の 4 つの配列だけ」と読んだが誤りだった。凍結したスキーマでは 8 つの実体すべて（Project・Calendar・WeekDay・Exception・Task・PredecessorLink・Resource・Assignment）に `grs.passthrough` があり（`JDG-3606`・`JDG-3748`）、実体の中の知らない子要素はその実体の `grs.passthrough` へ行く。だから `carry`（`RN-017`）と `carryElements` はどちらも `passthrough` になる。`scheduleData.passthroughCalendars`・`passthroughTasks`・`passthroughResources`・`passthroughAssignments`（`JDG-3613`・`JDG-3750`）は、GRS が行にしない一覧の要素まるごとで、別物である。
+
+### 残る物（決めるのは BOSS とオーナー）
+
+3. **`treeState` → `showMode` を当てる CR（`RN-105`・`RN-106`・`RN-109`・`RN-120`）**: 前の値から新しい値への読み替えは作らない（発売前は旧い形を変換しない）。値は 1 対 1 でなくてよく、新しいふるまい（`JDG-3662`〜`JDG-3685`）で `shown`・`hidden`・`automatic`・`hiddenUntilZoomIn` を当てる。
+   - **案: CR-851。** 理由: `JDG-3662`〜`JDG-3685` の 24 行すべてが、当ての欄で「`CR-851` が当てる」と書く（`rulings.md` の各行の右から 2 つ目の欄を数えた。`CR-856` と書く行は 0）。その中には、元に戻す規則（`JDG-3670`）や祖先を優先して描く規則（`JDG-3673`）のようなふるまいの行も入る。`CR-856` は CR の本文がまだ無い。裁定の当ての欄から読むと、`CR-856` は用語の裁定から出た画面のふるまい（プロパティパネルでプロジェクトの名を直す `JDG-3355`、休日設定をツールウィンドウにする `JDG-3356` など）を受け持つ。
+   - **知らせ（食い違いの疑い）**: `CR-851` の 4.1 節には、まだ α → β の変換の HTML（`docs/download/grs-json-alpha-to-beta-converter.html`、`JDG-3306`・`JDG-3307`）がある。写し替えの規則は「3 つの表の『今 → 新』の列そのもの」と書いてある。「読み替えを作らない」がアプリだけの話ならこの節と両立する。変換の HTML も作らないなら、4.1 節と `JDG-3306`・`JDG-3307` を覆す裁定が要る。変換の HTML を残すなら、`treeState` の 4 つの値の写し方をそこで決める必要がある。
+4. **`AgentRefusalReason` の新しい名（`RN-230`）**: 方針の表（`agent-api-names-by-policy-draft.md`）、外の AI のレビュー（`agent-api-names-ai-c-review.md`）、Agent API の名の席 1・2 の作業の枝（2026-11-24 の先端）のどこにも名が無い。方針の表は「P-5 で頭の `Agent` を外す。名は問いに無い」とだけ書く。
+   - **案: `RefusalReason`。** P-5 で呼ぶ側の頭 `Agent` を外し、P-9（欄の型は欄の名を PascalCase にした物）で親の型 `Refusal` の欄 `reason` から作る。退けた案: `Reason`（短すぎて `readSchema` で引けない。`Column` を退けて `TableColumn` にしたのと同じ N-2）、`AgentRefusalReason` のまま（P-5 に反する）。オーナーへは BOSS が GQA でまとめて問う。
+   - 近くの名: 原稿の `CodecRefusalReason` も、外の AI のレビューが「`JDG-3285` の後の名が無い」と挙げている。頭が `Agent` でないので、この一覧の行には入れていない。
 
 ## この一覧が覆わない物
 
