@@ -14,7 +14,7 @@
       "creationDate": "2026-10-31T08:50:00",
       "revision": 11,
       "startDate": "2026-10-17T05:30:00",
-      "statusDate": "2026-11-23T21:08:00",
+      "statusDate": "2026-11-23T21:51:00",
       "minutesPerDay": 1440,
       "minutesPerWeek": 10080,
       "daysPerMonth": 30,
@@ -24,7 +24,7 @@
       "defaultFinishTime": "23:59:00",
       "themeHue": 214,
       "parentTaskProgressToleranceDays": 1,
-      "uidHighWaterMark": 489,
+      "uidHighWaterMark": 490,
       "importSequence": 0,
       "carry": {},
       "carryElements": [],
@@ -1624,6 +1624,14 @@
           },
           {
             "predecessorUid": 477,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          },
+          {
+            "predecessorUid": 490,
             "linkType": 1,
             "linkLag": 0,
             "lagFormat": 7,
@@ -7776,8 +7784,8 @@
         "parentTaskUid": null,
         "wbsOrder": 314,
         "name": "🌑 差分抽出: 決まった名と今の仕様・コードの差を抜き出す(SUB)",
-        "start": "2026-11-23T22:08:00",
-        "finish": "2026-11-24T22:08:00",
+        "start": "2026-11-23T22:11:55",
+        "finish": "2026-11-24T22:11:55",
         "milestone": false,
         "deadline": null,
         "notes": "pmo-5 2026-11-22: new task for the deliverable tree (owner order). Input: the settled contract names of both groups (after part 13 is recorded, uid 418, and part 37 is recorded, uid 434; BOSS 11-22). Output: the list of differences between the settled names and the current spec and code, handed to CR-855/856. Length 1 day is a PMO placeholder (no measured number yet). SUB model: Opus 5.5 high. pmo-6 2026-11-23T12:22: now follows 479 and 480 (the schema successor and the owner answers) instead of 474. pmo-6 2026-11-23T12:56: also waits for 482 (BGQA8 next round applied). pmo-6 2026-11-23T19:51: also waits for 484 (last BGQA8 answers applied). pmo-6 2026-11-23T20:06: placed right after 484 (the last of its predecessors). Tasks behind 455 stay where they are (no pull-forward until the BOSS asks). pmo-6 2026-11-23T20:31: also waits for 487 (second outside AI review applied; BOSS line). pmo-6 2026-11-23T21:08: also waits for the owner tasks 488 and 489 (BOSS line).",
@@ -8903,7 +8911,7 @@
         "wbsOrder": 347,
         "name": "🌒 オーナー: ③ BGQA8 の残り 2 つに答える(問 12 説明の最終版の木・自由)",
         "start": "2026-11-23T21:08:00",
-        "finish": "2026-11-23T22:08:00",
+        "finish": "2026-11-23T22:11:55",
         "milestone": false,
         "deadline": null,
         "calendarUid": null,
@@ -8915,7 +8923,7 @@
         "percentComplete": 0,
         "fadeInDays": null,
         "fadeOutDays": null,
-        "notes": "pmo-6 2026-11-23T21:08: BOSS line 11-23: BGQA8 has 2 left (question 12: the final description tree; a free question). 1 h in owner hours is a placeholder like 483 (provisional).",
+        "notes": "pmo-6 2026-11-23T21:08: BOSS line 11-23: BGQA8 has 2 left (question 12: the final description tree; a free question). 1 h in owner hours is a placeholder like 483 (provisional). pmo-6 2026-11-23T21:51: BOSS line: the owner ruled JDG-3804 (pinning wins over hidden; table T-329 TD-3, TD-5); the successor cut 49 over-specified description sentences (2ec36bd61, 5422bcc40 21:50). BGQA8 has 3 left (questions 13, 14, free). Finish = now + 3 questions at 8.6 rows/h in owner hours, not earlier than before (provisional).",
         "dependencies": [
           {
             "predecessorUid": 487,
@@ -8951,6 +8959,38 @@
         "dependencies": [
           {
             "predecessorUid": 466,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 490,
+        "parentTaskUid": null,
+        "wbsOrder": 349,
+        "name": "🌑 CR-862(ピン止めしたタスクグループは hidden でも描く)の起草と当て(SUB)",
+        "start": "2026-11-24T22:31:00",
+        "finish": "2026-11-25T00:31:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "pmo-6 2026-11-23T21:51: BOSS line 11-23: the owner ruled JDG-3804 (pinning wins over hidden; table T-329 TD-3, TD-5) and the BOSS assigned it to CR-862. The drafting seat starts on the owner signal (not started yet). Beside CR-860 and CR-861, after the diff extraction, before the final merge 228. 2 h is a BOSS placeholder (provisional). SUB: Opus 5.5 high.",
+        "calendarUid": null,
+        "actualStart": null,
+        "stop": null,
+        "actualFinish": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 455,
             "linkType": 1,
             "linkLag": 0,
             "lagFormat": 7,
@@ -10438,6 +10478,10 @@
       {
         "taskUid": 489,
         "taskGroupId": "f5c1a05d-0315-5b9a-9a59-93f3d19dd7ce"
+      },
+      {
+        "taskUid": 490,
+        "taskGroupId": "5321b390-7f24-598b-8fb6-6de6c53cf32f"
       }
     ],
     "taskVisuals": [
@@ -12856,6 +12900,14 @@
         "fillColor": "blue",
         "strokeColor": null,
         "strokeWidthPx": null
+      },
+      {
+        "taskUid": 490,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": "diamond",
+        "fillColor": "blue",
+        "strokeColor": null,
+        "strokeWidthPx": null
       }
     ],
     "commentBoxes": [
@@ -14864,10 +14916,10 @@
     "zoomY": 1.099862517185352
   },
   "documentStamp": {
-    "scheduleUpdatedAt": "2026-11-23T12:08:00Z",
+    "scheduleUpdatedAt": "2026-11-23T12:51:00Z",
     "lastEditedBy": "PMO child session",
     "settingsUpdatedAt": "2026-10-20T20:24:42Z",
-    "fileSavedAt": "2026-11-23T12:08:00Z"
+    "fileSavedAt": "2026-11-23T12:51:00Z"
   },
   "changeLog": [
     {
@@ -15565,6 +15617,12 @@
       "editedBy": "PMO child session",
       "explanation": "Fact at 11-23 21:08 JST: BOSS line, the schema successor applied the second outside AI review and recorded JDG-3802..3803 (d4e8e3be4): 486 and 487 done. Owner waits 488 (BGQA8 last 2) and 489 (BGQA7 question 12, a new refusal reason name) added; 455 waits for both. N1 (316) and the beta (234) stay.",
       "changedAt": "2026-11-23T12:08:00Z"
+    },
+    {
+      "ordinal": 117,
+      "editedBy": "PMO child session",
+      "explanation": "Fact at 11-23 21:51 JST: BOSS line, the owner ruled JDG-3804 (pinning wins over hidden) and the BOSS assigned it to CR-862: task 490 added beside CR-860 and CR-861 (2 h provisional). The schema successor cut 49 over-specified sentences (5422bcc40); BGQA8 has 3 left, kept in 488. N1 (316) and the beta (234) stay.",
+      "changedAt": "2026-11-23T12:51:00Z"
     }
   ]
 }
