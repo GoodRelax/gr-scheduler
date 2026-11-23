@@ -11,6 +11,7 @@
   "docs/spec/_source/document-commands.json",
   "docs/spec/_source/erd.json",
   "docs/spec/_source/fig-mcp-relay.json",
+  "docs/spec/_source/glossary.json",
   "docs/spec/_source/grs-json-changes.json",
   "docs/spec/_source/mspdi-custom-fields.json",
   "docs/spec/_source/notice-reasons.json",
@@ -814,6 +815,26 @@
    "from": "docs/spec/_source/fig-mcp-relay.json",
    "to": "docs/spec/_assets/tbl-glossary.md",
    "count": 2
+  },
+  {
+   "from": "docs/spec/_source/glossary.json",
+   "to": "docs/spec/01-04-requirements.md",
+   "count": 71
+  },
+  {
+   "from": "docs/spec/_source/glossary.json",
+   "to": "docs/spec/_assets/tbl-glossary.md",
+   "count": 385
+  },
+  {
+   "from": "docs/spec/_source/glossary.json",
+   "to": "docs/spec/_source/notice-reasons.json",
+   "count": 14
+  },
+  {
+   "from": "docs/spec/_source/glossary.json",
+   "to": "docs/spec/_source/property-items.json",
+   "count": 44
   },
   {
    "from": "docs/spec/_source/grs-commands.schema.json",

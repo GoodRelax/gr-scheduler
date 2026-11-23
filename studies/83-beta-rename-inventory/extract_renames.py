@@ -144,29 +144,37 @@ TYPE_RENAMES = [
     ('TaskVisual', 'TaskStyle', 'JDG-3384;JDG-3699', 'TaskVisual rows move under tasks[].grs.style'),
     ('TaskOrigin', 'ImportOrigin', 'JDG-3710', 'moves under tasks[].grs.importOrigin'),
     ('Carry', 'Passthrough', 'JDG-3606;JDG-3748', 'moves under <entity>.grs.passthrough'),
-    ('CarryElement', 'MspdiElement', 'JDG-3606', 'CHECK: the shape changes too ({ordinal,name,fields,children} -> keyed by child names); no ruling names the pair'),
+    ('CarryElement', 'MspdiElement', 'JDG-3606;JDG-3613;JDG-3807',
+     'no ruling names the pair; the shape is fixed by JDG-3606 (MSPDI structure and element names, no ordinal, a repeatable element is always an array) '
+     'and JDG-3613 (mspdiElement), and $defs/MspdiElement of the frozen schema (JDG-3807) is the type'),
     ('TaskGroupMember', '(removed)', 'JDG-3614', 'replaced by tasks[].grs.taskGroupId'),
 ]
+
+
+TREE_NOTE = ('CHECK (BOSS decides the CR): no old-to-new reading is built; the new values (shown / hidden / automatic / hiddenUntilZoomIn) '
+             'are applied with the new behaviour. Proposal: CR-851, because all 24 rulings JDG-3662..3685 say CR-851 applies them. '
+             'CR-851 section 4.1 still holds an alpha-to-beta converter HTML (JDG-3306, JDG-3307) whose rules are the old -> new columns')
 
 
 VALUE_OVERRIDES = [
     # alpha key, alpha value, beta value, extra ruling, note
     ('shapeKind', 'endpointSpan', 'dumbbell', 'JDG-3711', ''),
     ('shapeKind', 'milestone', '(removed)', 'JDG-3711', 'a milestone takes milestoneShape instead of a task shape'),
-    ('treeState', 'auto', 'automatic', 'JDG-3685;JDG-3736',
-     'CHECK: the show model changed (shown / hidden / automatic / hiddenUntilZoomIn); the pair is a reading, not a ruling'),
-    ('treeState', 'collapsed', '(no one-to-one value)', 'JDG-3664;JDG-3685', 'CHECK: the show model changed; collapse is no longer a stored state'),
-    ('treeState', 'expanded', '(no one-to-one value)', 'JDG-3664;JDG-3685', 'CHECK: the show model changed; shown may be the nearest value'),
-    ('treeState', 'temporarilyExpanded', '(no one-to-one value)', 'JDG-3664;JDG-3685', 'CHECK: the show model changed'),
+    ('treeState', 'auto', '(no conversion; showMode values follow the new behaviour)', 'JDG-3662..3685', TREE_NOTE),
+    ('treeState', 'collapsed', '(no conversion; showMode values follow the new behaviour)', 'JDG-3662..3685', TREE_NOTE),
+    ('treeState', 'expanded', '(no conversion; showMode values follow the new behaviour)', 'JDG-3662..3685', TREE_NOTE),
+    ('treeState', 'temporarilyExpanded', '(no conversion; showMode values follow the new behaviour)', 'JDG-3662..3685', TREE_NOTE),
 ]
 
 
 KEY_EXTRA = [
     # alpha key, beta key, context, rulings, note
     ('carry', 'passthrough', '<entity>.grs.passthrough  <-  alpha /$defs/<entity>/properties/carry ($defs/Carry)', 'JDG-3606;JDG-3748', ''),
-    ('carryElements', 'passthroughCalendars / passthroughTasks / passthroughResources / passthroughAssignments',
-     'scheduleData.passthrough<Entities>[].mspdiElement  <-  alpha /$defs/<entity>/properties/carryElements', 'JDG-3613;JDG-3750',
-     'CHECK: alpha keeps carryElements on Project, Calendar, WeekDay, Exception, Task, Dependency, Resource and Assignment; beta has the 4 arrays only'),
+    ('carryElements', 'passthrough',
+     '<entity>.grs.passthrough  <-  alpha /$defs/<entity>/properties/carryElements', 'JDG-3606;JDG-3748',
+     'unknown child elements of an entity go to that entity\'s grs.passthrough; all 8 entities have it (Project, Calendar, WeekDay, Exception, Task, '
+     'PredecessorLink, Resource, Assignment). scheduleData.passthroughCalendars/Tasks/Resources/Assignments[] (JDG-3613, JDG-3750) are a different thing: '
+     'whole list elements that GRS makes no row for'),
     ('children', '(removed)', 'alpha /$defs/CarryElement/properties/children', 'JDG-3606', 'MspdiElement is keyed by child element names'),
     ('fields', '(removed)', 'alpha /$defs/CarryElement/properties/fields', 'JDG-3606', 'MspdiElement is keyed by child element names'),
     ('isFitSpanFixed', 'type', 'documentSettings.fitDayRange.type ("fixed" / "automatic")  <-  alpha /properties/documentSettings/properties/isFitSpanFixed',
@@ -398,14 +406,17 @@ def policy_map():
             news = ['(removed)'] * len(olds)
         if alpha_alt and len(olds) == 1 and len(news) == 1:
             result.append({'section': sec, 'q': q, 'old_full': alpha_alt[0], 'new_full': news[0], 'is_value': is_value,
-                           'parent': '.'.join(parent), 'jdg': ';'.join(['JDG-3781'] + [j for j in jdgs(rule + note) if j != 'JDG-3781']),
+                           'parent': '.'.join(parent), 'jdg': ';'.join(['JDG-3781'] + [j for j in jdgs(rule + ' ' + note) if j != 'JDG-3781']),
                            'note': 'alpha name given in the table', 'field': True})
         if len(news) == len(olds):
             pairs = list(zip(olds, news))
             note2 = ''
         elif len(news) == 1:
             pairs = [(o, news[0]) for o in olds]
-            note2 = 'CHECK: several old names, one new name in the table'
+            if len({o.split('.')[-1] for o in olds}) == 1:
+                note2 = 'one name in several commands'
+            else:
+                note2 = 'CHECK: several old names, one new name in the table'
         elif len(olds) == 1:
             pairs = [(olds[0], ' / '.join(news))]
             note2 = 'split into %d names, as the table says' % len(news)
@@ -414,7 +425,7 @@ def policy_map():
             note2 = 'CHECK: old and new counts differ in the table row'
         for o, n in pairs:
             result.append({'section': sec, 'q': q, 'old_full': o, 'new_full': n, 'is_value': is_value,
-                           'field': is_field, 'parent': '.'.join(parent), 'jdg': ';'.join(['JDG-3781'] + [j for j in jdgs(rule + note) if j != 'JDG-3781']),
+                           'field': is_field, 'parent': '.'.join(parent), 'jdg': ';'.join(['JDG-3781'] + [j for j in jdgs(rule + ' ' + note) if j != 'JDG-3781']),
                            'note': note2})
     return result
 
@@ -481,7 +492,10 @@ AGENT_EXTRA = [
     ('runDelayDiagnostics', 'runDelayDiagnosis', 'JDG-3512', 'member', ''),
     ('setTaskGroupSelfShowMode', 'setTaskGroupShowMode', 'JDG-3672;JDG-3736', 'command', 'draft name; check the alpha name'),
     ('setTaskGroupSelfShowModesToAutomaticExceptHidden', 'setTaskGroupShowModesToAutomaticExceptHidden', 'JDG-3690;JDG-3736', 'command', 'draft name; check the alpha name'),
-    ('AgentRefusalReason', '(drop the Agent prefix; name not ruled)', 'JDG-3716', 'type', 'CHECK: P-5 drops the prefix, but no table names the new type'),
+    ('AgentRefusalReason', 'RefusalReason (proposal; not ruled)', 'JDG-3716', 'type',
+     'CHECK (owner, through the BOSS GQA): no table names it (searched agent-api-names-by-policy-draft.md, agent-api-names-ai-c-review.md and both '
+     'Agent API naming branches). Proposal RefusalReason: P-5 drops the caller prefix Agent, and P-9 names a field type after the field (Refusal.reason). '
+     'Rejected: Reason (too bare to look up, as Column was for TableColumn, N-2); keeping AgentRefusalReason (P-5)'),
 ]
 
 
@@ -534,10 +548,10 @@ def screen_rows():
 CR_OVERRIDES = {
     # the rename is CR-855/CR-851, the behaviour that comes with it is CR-856 (6-cr855-handoff.md section 4)
     'Document Title': 'CR-855;CR-856 (JDG-3355: the project title is edited in the Properties Panel)',
-    'auto': 'CR-851 (CHECK: CR-856 for the show model?)',
-    'collapsed': 'CR-851 (CHECK: CR-856 for the show model?)',
-    'expanded': 'CR-851 (CHECK: CR-856 for the show model?)',
-    'temporarilyExpanded': 'CR-851 (CHECK: CR-856 for the show model?)',
+    'auto': 'CR-851 (proposal; BOSS decides)',
+    'collapsed': 'CR-851 (proposal; BOSS decides)',
+    'expanded': 'CR-851 (proposal; BOSS decides)',
+    'temporarilyExpanded': 'CR-851 (proposal; BOSS decides)',
 }
 
 
