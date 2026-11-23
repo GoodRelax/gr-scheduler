@@ -1,0 +1,19 @@
+file	bytes	nado	tou_etc	tou_raw	demo_raw	demo_adj	passive_sareru	passive_rareru
+01-04-requirements.md	1444611	27	13	42	2032	1972	163	198
+05-07-design.md	279308	4	4	7	329	319	36	26
+08-10-test.md	2993	0	0	0	3	3	0	0
+A-appendix.md	1611	0	0	0	0	0	1	0
+_assets\design-mcp-relay.md	32583	1	0	0	30	29	2	6
+_assets\fig-erd-detail.md	55379	0	0	0	43	40	2	0
+_assets\fig-erd-overview.md	2816	0	0	0	1	1	0	0
+_assets\tbl-agent-api-members.md	46997	4	0	0	31	31	2	1
+_assets\tbl-document-commands.md	36768	1	0	0	21	21	0	0
+_assets\tbl-glossary.md	69980	1	0	0	45	45	7	1
+_assets\tbl-notice-reasons.md	23304	2	0	0	34	34	9	5
+_assets\tbl-property-items.md	16431	0	0	0	17	17	0	1
+_assets\tbl-published-entries.md	122373	0	0	1	105	100	15	7
+_assets\tbl-row-id-prefixes.md	27953	1	0	0	23	23	6	2
+_assets\tbl-settings.md	248634	1	4	8	184	176	5	13
+_assets\tbl-state-machines.md	160018	0	0	3	233	232	4	8
+_assets\tbl-verification.md	2641	0	0	0	2	2	0	0
+TOTAL		42	21	61	3133	3045	252	268

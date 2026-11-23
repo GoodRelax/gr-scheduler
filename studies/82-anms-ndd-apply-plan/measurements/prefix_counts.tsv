@@ -1,0 +1,220 @@
+A	16	16	spec	
+AC	4	4	spec	Actor
+AG	12	12	spec	Agent API
+AM	27	27	spec	Agent API Member
+AR	7	7	spec	Armed shape
+AS	12	12	spec	
+AT	160	160	spec	Attribute
+AV	19	19	spec	Agent API Value
+BC	5	5	spec	Band Ceiling
+BD	4	4	spec	Bottleneck Detection
+BF	2	2	spec	Browser Function
+BK	6	6	spec	Blank document
+BL	5	5	spec	Baseline
+BO	5	5	spec	
+BR	7	7	spec	Branding
+BS	4	4	spec	Bulk Shift
+BT	3	4	spec	
+CA	4	4	spec	Cache
+CD	6	6	spec	Cascade Delete
+CF	6	6	spec	Color Fit
+CH	7	7	spec	Challenge
+CHN	14	14	spec	Channel
+CL	2	2	spec	
+CM	93	93	spec	Command
+CN	9	9	spec	Constraint
+CP	37	37	spec	Component
+CR	0	17	records	Change Request
+CQ	4	4	spec	Confirmation with a list
+CS	4	4	spec	Consistency
+CT	5	5	spec	Contrast
+CU	3	3	spec	Cursor
+CV	10	10	spec	Color Value
+CY	11	11	spec	Copy drag
+DA	7	7	spec	Deadline Arrow
+DC	9	9	spec	Dual Cursor
+DEV	6	6	spec	Device
+DF	5	5	spec	
+DFC	0	0	records	Defect
+DG	4	4	spec	
+DI	6	6	spec	Document Identity
+DL	3	3	spec	Delay
+DM	9	9	spec	Dummy
+DN	3	3	spec	
+DP	4	4	spec	Dependency
+DQ	4	4	spec	
+DR	5	5	spec	Document Root
+DS	10	10	spec	Display Scale
+DT	9	9	spec	
+DU	2	2	spec	Duplicate
+DV	14	14	spec	Derived Value
+DW	3	3	spec	
+DX	12	12	spec	
+ED	3	3	spec	
+EG	8	8	spec	
+EL	21	21	spec	Elision
+EN	8	8	spec	
+EP	24	24	spec	Export Part
+ET	19	19	spec	Entity
+EX	16	16	spec	Export
+EZ	12	12	spec	Easy
+FA	26	26	spec	
+FD	9	9	spec	Fade
+FM	9	9	spec	
+FN	5	5	spec	File Name
+FO	17	17	spec	Field Order
+FT	5	5	spec	Frame Trigger
+FU	5	5	spec	Future
+FX	8	8	spec	Fit span fiXed
+G	14	14	spec	Glossary
+GA	23	23	spec	Grab Area
+GD	7	7	spec	Guide
+GO	11	11	spec	Grab outcome
+GP	7	7	spec	Group Permission
+GR	14	14	spec	Grab region
+GT	0	1	rules	Gate
+HB	12	12	spec	Highlight box
+HC	4	4	spec	Help Column
+HF	20	20	spec	
+HM	13	13	spec	Hierarchy Move
+HN	7	7	spec	Help miNimized
+HR	9	9	spec	Hierarchy
+HS	12	12	spec	Header Status
+HT	4	4	spec	Hit Test
+IC	138	138	spec	Icon
+IF	8	8	spec	Interface
+IN	11	11	spec	Input
+IO	10	10	spec	Input / Output
+IP	5	5	spec	
+IR	4	4	spec	Interaction Record
+IV	23	23	spec	Invariant
+IX	16	16	spec	Image eXport
+JDG	0	0	records	Judgment
+JF	4	4	spec	
+K	132	132	spec	Key
+L	2	2	spec	Level of Detail
+LC	11	11	spec	Layout Calculation
+LF	18	18	spec	Layout Formula
+LM	25	25	spec	Limitation
+LP	8	8	spec	Label Placement
+LR	6	6	spec	Layer Rule
+LY	5	5	spec	Layer
+MC	10	10	spec	Measurement Condition
+MG	16	16	spec	Merge
+MH	5	5	spec	Min Height
+MK	17	17	spec	
+MM	4	4	spec	
+MN	9	9	spec	Minimum
+MP	4	4	spec	
+MR	4	4	spec	MSPDI Read
+MS	6	6	spec	Milestone
+N	15	15	spec	
+ND	5	5	spec	Name-label Dates
+NF	4	4	spec	No Figure
+NG	10	10	spec	Not Grabbable
+NR	7	7	spec	
+NS	6	6	spec	
+NT	10	10	spec	Notification
+OC	10	10	spec	Occupancy
+OD	7	7	spec	Off Day
+OP	20	20	spec	Open
+OR	1	1	spec	Order
+OW	5	5	spec	Owner
+P	22	22	spec	Property
+PA	5	5	spec	Plan and Actual
+PE	10	10	spec	Press Effect
+PF	9	9	spec	Profile
+PG	13	13	spec	
+PI	37	37	spec	Public Interface
+PK	16	16	spec	Pointer Kind
+PL	5	5	spec	Progress Line
+PLM	9	9	spec	
+PM	5	5	spec	Progress Marker
+PND	0	3	records	Pending Decision
+PO	7	7	spec	Policy
+PP	7	7	spec	
+PR	44	44	spec	Property
+PS	5	5	spec	
+PTD	7	7	spec	Pointer Down
+PV	5	5	spec	
+PW	0	0	rules	Performance Watch
+QN	14	14	spec	Question
+RA	8	8	spec	Region Addition
+RC	7	7	spec	Reduction Candidate
+RD	6	7	spec	
+RF	2	2	spec	Reference
+RG	16	16	spec	RunG
+RK	2	2	spec	Retired Key
+RL	34	34	spec	Relation
+RN	8	8	spec	Read-oNly settings
+RO	10	10	spec	
+RP	8	8	spec	
+RQ	5	5	spec	
+RR	6	6	spec	
+RS	81	81	spec	
+RT	7	7	spec	
+RV	6	6	spec	
+RW	20	20	spec	
+S	523	526	spec	Setting
+SC	6	6	spec	Scroll
+SD	5	5	spec	State-machine Definition
+SE	5	5	spec	Scale Echo
+SF	10	10	spec	State-machine Form
+SG	4	4	spec	Snap Grain
+SH	5	5	spec	Shape
+SJ	11	11	spec	Search Jump
+SK	28	28	spec	Shortcut Key
+SL	10	10	spec	Selection
+SO	14	14	spec	Scope
+SP	4	4	spec	
+SQ	14	14	spec	Search Query
+SS	6	6	spec	Shared Step
+ST	10	10	spec	Stack
+SU	3	3	spec	Structure Unit
+SV	18	18	spec	Search View
+SX	3	3	spec	Save or Export
+TC	12	12	spec	Task Creation
+TD	8	8	spec	Tree Drawn
+TH	10	10	spec	Theme Color (Hue)
+TL	14	14	spec	Tooltip Line
+TM	5	5	spec	
+TP	8	8	spec	Template
+TR	3	3	spec	Trade-off
+TS	6	6	spec	
+TV	13	13	spec	Task Visibility
+TW	3	3	spec	
+TX	12	12	spec	Time teXt
+TY	9	9	spec	Type
+U	66	66	spec	UI part
+UD	5	5	spec	Unit Division
+UF	185	185	spec	
+UN	21	21	spec	Undo
+UO	0	0	rules	Unit-test Omission
+UT	17	17	spec	
+UW	0	0	rules	User Wording
+UZ	12	12	spec	UI Z-Order
+V	17	17	spec	
+VC	15	15	spec	Validation Contradiction
+VG	7	7	spec	Vertical Gap
+VK	4	4	spec	
+VO	5	5	spec	Validation Omission
+VS	6	6	spec	Validation Suspicion
+VT	3	3	spec	Verification Target
+W	11	11	spec	
+WB	11	11	spec	Window Behavior
+WC	10	10	spec	Working Calendar
+WF	4	4	spec	Width Field
+PTL	17	17	spec	Parent Task Link
+WH	12	12	spec	WHole schedule shift
+WM	14	14	spec	Watermark
+WP	9	9	spec	Wipe
+WR	0	0	rules	
+WS	7	7	spec	Write Step
+WT	10	10	spec	Written Time
+WY	4	4	spec	WYSIWYG
+X	5	5	spec	eXception
+XO	6	6	spec	
+XS	11	11	spec	Cross Section
+ZE	6	6	spec	Zoom End
+ZN	39	39	spec	ZoNe
+ZO	17	17	spec	Z-Order

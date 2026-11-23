@@ -1,0 +1,109 @@
+ONLY IN GRS 07 (8 of 40):
+  ## R1: 要求品質レビュー観点（仕様書 Ch1-4 対象）
+  ## R2: SW設計原則レビュー観点（仕様書 Ch5-6・コード対象）
+  ### Naming（命名）— 名は体を表す（MUST・最重要）
+  ### その他の設計原則
+  ### グリッジ（状態遷移中の瞬間的な不正状態）
+  ### 状態機械
+  ## R6: テスト品質レビュー観点（テストコード対象）
+  ## R7: 純粋性・構造レビュー観点（仕様書 Ch5-6・コード対象）
+ONLY IN NEW (10 of 42):
+  ## R1: 要求品質レビュー観点（仕様書の要求と、要求の上位の項目（例: 目的、ユースケース）が対象。文の決まりは仕様書の全章）
+  ### R1c: ユースケース品質
+  ## R2: SW設計原則レビュー観点（仕様書のアーキテクチャ・仕様とコードが対象）
+  ### Naming（命名）— 設計とコードの命名規約（MUST・最重要）
+  ### ほかの設計原則
+  ### コメント
+  ### グリッチ（状態遷移中の瞬間的な不正状態）
+  ### ステートマシン（STM: State Machine）
+  ## R6: テスト品質レビュー観点（仕様書のテスト・テストコード・テスト記録が対象）
+  ## R7: 純粋性・構造レビュー観点（仕様書のアーキテクチャ・仕様とコードが対象）
+
+CHECKLIST: GRS 70 rows, NEW 108 rows
+ONLY IN GRS 07 (22):
+  R1 | 否定形・受動態の排除 | SHOULD
+  R2 | Naming | MUST
+  R2 | DIP（Dependency Inversion Principle / 依存性逆転原則） | SHOULD
+  R2 | CA（Clean Architecture / クリーンアーキテクチャ / レイヤードアーキテクチャ） | MUST
+  R2 | プロンプト工学 | SHOULD
+  R2 | 最小構成との比較 | MUST
+  R2 | OKPN（One Kind Per Name / 1つの名前に1種類の値） | MUST
+  R2 | OMPV（One Meaning Per Value / 1つの値に1つの意味） | MUST
+  R2 | 互換性と版 | MUST
+  R2 | ビルドの版 | MUST
+  R3 | エラーハンドリング | MUST
+  R3 | 資源の生存期間 | MUST
+  R4 | デッドロック | MUST
+  R4 | レースコンディション | MUST
+  R4 | グリッチ | MUST
+  R4 | 状態機械 | MUST
+  R5 | メモリ・リソース | MUST
+  R7 | 純粋性の分類 | MUST
+  R7 | 計算ロジックの純粋性 | MUST
+  R7 | 収集と処理の分離 | MUST
+  R7 | 純粋側クラスの不変性 | MUST
+  R8 | 認証と認可 | MUST
+ONLY IN NEW (60):
+  NDD | 命名を最優先にする開発の考え方、NEIM（名は体を表す）、OKPN/OMPV、用語集、機械が読む原本、図と表、名前の選び方、改名、仕様が決めていない振る舞い | すべて（要求仕様から）
+  R1 | 要求品質 | 仕様書の要求と、要求の上位の項目（例: 目的、ユースケース）（文の決まりは仕様書の全章）
+  R2 | SW 設計原則（設計とコードの命名規約・SOLID・DRY ほか） | 仕様書のアーキテクチャ・仕様、コード
+  R3 | コーディング品質 | コード
+  R4 | 並行性・状態遷移 | 仕様書・コード・テスト
+  R5 | パフォーマンス | 仕様書・コード
+  R6 | テスト品質 | 仕様書のテスト、テストコード、テスト記録
+  R7 | 純粋性・構造 | 仕様書のアーキテクチャ・仕様、コード
+  R8 | セキュリティ | 仕様書・コード
+  NDD | NEIM（Name Explaining Its Meaning / 名は体を表す） | MUST
+  NDD | OKPN（One Kind Per Name / 1つの名前に1種類の値） | MUST
+  NDD | OMPV（One Meaning Per Value / 1つの値に1つの意味） | MUST
+  NDD | 用語集（NDD で重要となるレビュー観点） | MUST
+  NDD | 図と表（NDD で重要となるレビュー観点） | MUST
+  NDD | 用語集と SSOT の形（NDD で重要となるレビュー観点） | SHOULD
+  NDD | 機械が読む原本（NDD で重要となるレビュー観点） | MUST
+  NDD | 名前の選び方（NDD: Naming Driven Development） | MUST
+  NDD | 改名 | MUST
+  NDD | 仕様が決めていない振る舞い | MUST
+  R1 | 要求の書き方（R1a） | MUST
+  R1 | 文の決まり（仕様書の全章） | MUST
+  R1 | 受動態の排除 | MUST
+  R1 | 否定形の扱い | MUST
+  R1 | ユースケース品質（R1c） | MUST
+  R2 | Naming（設計とコードの命名規約） | MUST
+  R2 | DIP（Dependency Inversion Principle / 依存性逆転原則）・Testability | SHOULD
+  R2 | CA（Clean Architecture / クリーンアーキテクチャ / レイヤードアーキテクチャ）・Dependency Direction・SDP（Stable Dependencies Principle） | MUST
+  R2 | Prompt Engineering | SHOULD
+  R2 | 最小構成との比較（Minimal Comparison） | MUST
+  R2 | デザインパターン（Design Patterns。使う条件） | SHOULD
+  R2 | デザインパターン（シングルトン） | SHOULD
+  R2 | 互換性とバージョン（Compatibility） | MUST
+  R2 | ビルドのバージョン | MUST
+  R3 | エラーハンドリング（Error Propagation） | MUST
+  R3 | 資源の生存期間（Resource Lifecycle） | MUST
+  R3 | コメント（種類） | MUST
+  R3 | コメント（Why と言い換え） | MUST
+  R3 | コメント（Spec） | MUST
+  R3 | コメント（Summary） | SHOULD
+  R3 | コメント（Temporary） | MUST
+  R3 | コメント（Unimplemented と Provisional） | MUST
+  R4 | デッドロック（Concurrency Safety） | MUST
+  R4 | レースコンディション（Concurrency Safety） | MUST
+  R4 | グリッチ（Concurrency Safety） | MUST
+  R4 | ステートマシン（State Machine。命名） | MUST
+  R4 | ステートマシン（状態の定義） | MUST
+  R4 | ステートマシン（履歴擬似状態。状態の定義） | MUST
+  R4 | ステートマシン（処理とタイマー） | MUST
+  R4 | ステートマシン（複数のステートマシン） | MUST
+  R4 | ステートマシン（状態遷移表とテスト） | MUST
+  R4 | ステートマシン（故障時） | MUST
+  R4 | ステートマシン（実装。ステートマシンの基本の考え方・命名） | SHOULD
+  R4 | ステートマシン（状態遷移表の形。状態遷移表とテスト） | SHOULD
+  R5 | メモリ・リソース（Resource Efficiency） | MUST
+  R6 | テスト記録と `@manual` | MUST
+  R7 | 純粋性の分類（Pure / Semi-pure-immutable / Semi-pure-mutable / Non-pure） | MUST
+  R7 | 計算ロジックの純粋性（functional core / imperative shell） | MUST
+  R7 | 収集と処理の分離（Collect-Process Separation / 収集後処理・State Transition） | MUST
+  R7 | 純粋側クラスの不変性（Immutability） | MUST
+  R8 | 認証と認可（Least Privilege: Principle of Least Privilege） | MUST
+SAME NAME, LEVEL CHANGED:
+  R1 | 要求の記法（EARS: Easy Approach to Requirements Syntax） | SHOULD -> MUST
+  R6 | Gherkin | SHOULD -> MUST
