@@ -14,7 +14,7 @@
       "creationDate": "2026-10-31T08:50:00",
       "revision": 11,
       "startDate": "2026-10-17T05:30:00",
-      "statusDate": "2026-11-23T21:51:00",
+      "statusDate": "2026-11-23T23:05:00",
       "minutesPerDay": 1440,
       "minutesPerWeek": 10080,
       "daysPerMonth": 30,
@@ -24,7 +24,7 @@
       "defaultFinishTime": "23:59:00",
       "themeHue": 214,
       "parentTaskProgressToleranceDays": 1,
-      "uidHighWaterMark": 490,
+      "uidHighWaterMark": 491,
       "importSequence": 0,
       "carry": {},
       "carryElements": [],
@@ -7784,8 +7784,8 @@
         "parentTaskUid": null,
         "wbsOrder": 314,
         "name": "🌑 差分抽出: 決まった名と今の仕様・コードの差を抜き出す(SUB)",
-        "start": "2026-11-23T22:11:55",
-        "finish": "2026-11-24T22:11:55",
+        "start": "2026-11-23T23:11:58",
+        "finish": "2026-11-24T23:11:58",
         "milestone": false,
         "deadline": null,
         "notes": "pmo-5 2026-11-22: new task for the deliverable tree (owner order). Input: the settled contract names of both groups (after part 13 is recorded, uid 418, and part 37 is recorded, uid 434; BOSS 11-22). Output: the list of differences between the settled names and the current spec and code, handed to CR-855/856. Length 1 day is a PMO placeholder (no measured number yet). SUB model: Opus 5.5 high. pmo-6 2026-11-23T12:22: now follows 479 and 480 (the schema successor and the owner answers) instead of 474. pmo-6 2026-11-23T12:56: also waits for 482 (BGQA8 next round applied). pmo-6 2026-11-23T19:51: also waits for 484 (last BGQA8 answers applied). pmo-6 2026-11-23T20:06: placed right after 484 (the last of its predecessors). Tasks behind 455 stay where they are (no pull-forward until the BOSS asks). pmo-6 2026-11-23T20:31: also waits for 487 (second outside AI review applied; BOSS line). pmo-6 2026-11-23T21:08: also waits for the owner tasks 488 and 489 (BOSS line).",
@@ -8526,8 +8526,8 @@
         "parentTaskUid": null,
         "wbsOrder": 335,
         "name": "🌑 CR-860(前回予定の輪郭の形を今のタスクの形に合わせる)の起草と当て(SUB)",
-        "start": "2026-11-24T22:31:00",
-        "finish": "2026-11-25T00:31:00",
+        "start": "2026-11-24T23:11:58",
+        "finish": "2026-11-25T01:11:58",
         "milestone": false,
         "deadline": null,
         "notes": "pmo-5 2026-11-23T04:10: BOSS line 11-23: JDG-3749 (from BGQA6 item B-7; FR-015 BL-2, GR-27) assigned to CR-860. Before the beta, after the diff extraction. 2 h is a BOSS placeholder (provisional). SUB: Opus 5.5 high.",
@@ -8558,8 +8558,8 @@
         "parentTaskUid": null,
         "wbsOrder": 336,
         "name": "🌑 CR-861(担当リストの列の順を変える)の起草と当て(SUB)",
-        "start": "2026-11-24T22:31:00",
-        "finish": "2026-11-25T00:31:00",
+        "start": "2026-11-24T23:11:58",
+        "finish": "2026-11-25T01:11:58",
         "milestone": false,
         "deadline": null,
         "notes": "pmo-5 2026-11-23T04:38: BOSS line 11-23: JDG-3754 from BGQA6 (assignee list columns in the order show, select, assignee name, assigned task count, assigned tasks; FR-151 RQ-2, RQ-3) assigned to CR-861 (the JSON column value order goes with CR-851). Beside CR-860, after the diff extraction, before the final merge. 2 h is a BOSS placeholder (provisional). SUB: Opus 5.5 high.",
@@ -8909,21 +8909,21 @@
         "uid": 488,
         "parentTaskUid": null,
         "wbsOrder": 347,
-        "name": "🌒 オーナー: ③ BGQA8 の残り 2 つに答える(問 12 説明の最終版の木・自由)",
+        "name": "🌕 オーナー: ③ BGQA8 の残り 2 つに答える(問 12 説明の最終版の木・自由)",
         "start": "2026-11-23T21:08:00",
-        "finish": "2026-11-23T22:11:55",
+        "finish": "2026-11-23T23:04:00",
         "milestone": false,
         "deadline": null,
         "calendarUid": null,
         "actualStart": "2026-11-23T21:08:00",
         "stop": null,
-        "actualFinish": null,
+        "actualFinish": "2026-11-23T23:04:00",
         "resume": null,
         "resumeValid": null,
-        "percentComplete": 0,
+        "percentComplete": 100,
         "fadeInDays": null,
         "fadeOutDays": null,
-        "notes": "pmo-6 2026-11-23T21:08: BOSS line 11-23: BGQA8 has 2 left (question 12: the final description tree; a free question). 1 h in owner hours is a placeholder like 483 (provisional). pmo-6 2026-11-23T21:51: BOSS line: the owner ruled JDG-3804 (pinning wins over hidden; table T-329 TD-3, TD-5); the successor cut 49 over-specified description sentences (2ec36bd61, 5422bcc40 21:50). BGQA8 has 3 left (questions 13, 14, free). Finish = now + 3 questions at 8.6 rows/h in owner hours, not earlier than before (provisional).",
+        "notes": "pmo-6 2026-11-23T21:08: BOSS line 11-23: BGQA8 has 2 left (question 12: the final description tree; a free question). 1 h in owner hours is a placeholder like 483 (provisional). pmo-6 2026-11-23T21:51: BOSS line: the owner ruled JDG-3804 (pinning wins over hidden; table T-329 TD-3, TD-5); the successor cut 49 over-specified description sentences (2ec36bd61, 5422bcc40 21:50). BGQA8 has 3 left (questions 13, 14, free). Finish = now + 3 questions at 8.6 rows/h in owner hours, not earlier than before (provisional). pmo-6 2026-11-23T23:05: done. The owner settled the beta GRS JSON and its schema (JDG-3807: \"GRS JSONはこれでOKとする。これをベースにβリリースの作業に向かえ。\"; 8a1ada70b 23:04, develop 8a1ada70b). Group 3 (schema) is done.",
         "dependencies": [
           {
             "predecessorUid": 487,
@@ -8943,7 +8943,7 @@
         "wbsOrder": 348,
         "name": "🌒 オーナー: ② BGQA7 の問 12(断りの理由の新しい名)に答える",
         "start": "2026-11-23T21:08:00",
-        "finish": "2026-11-23T21:14:58",
+        "finish": "2026-11-23T23:11:58",
         "milestone": false,
         "deadline": null,
         "calendarUid": null,
@@ -8955,7 +8955,7 @@
         "percentComplete": 0,
         "fadeInDays": null,
         "fadeOutDays": null,
-        "notes": "pmo-6 2026-11-23T21:08: BOSS line 11-23: JDG-3803 (highestIssuedUid) brings a new refusal reason; the Agent API seat asks its name in BGQA7 question 12. Length = 1 question at 8.6 rows/h in owner hours (provisional).",
+        "notes": "pmo-6 2026-11-23T21:08: BOSS line 11-23: JDG-3803 (highestIssuedUid) brings a new refusal reason; the Agent API seat asks its name in BGQA7 question 12. Length = 1 question at 8.6 rows/h in owner hours (provisional). pmo-6 2026-11-23T23:05: the only open question of group 2. The owner is awake now (JDG-3807 at 23:04), so the finish is now + 1 question at 8.6 rows/h, not moved to the next owner window (provisional).",
         "dependencies": [
           {
             "predecessorUid": 466,
@@ -8973,14 +8973,14 @@
         "uid": 490,
         "parentTaskUid": null,
         "wbsOrder": 349,
-        "name": "🌑 CR-862(ピン止めしたタスクグループは hidden でも描く)の起草と当て(SUB)",
-        "start": "2026-11-24T22:31:00",
-        "finish": "2026-11-25T00:31:00",
+        "name": "🌒 CR-862(ピン止めしたタスクグループは hidden でも描く)の起草と当て(SUB)",
+        "start": "2026-11-23T23:05:00",
+        "finish": "2026-11-24T01:05:00",
         "milestone": false,
         "deadline": null,
-        "notes": "pmo-6 2026-11-23T21:51: BOSS line 11-23: the owner ruled JDG-3804 (pinning wins over hidden; table T-329 TD-3, TD-5) and the BOSS assigned it to CR-862. The drafting seat starts on the owner signal (not started yet). Beside CR-860 and CR-861, after the diff extraction, before the final merge 228. 2 h is a BOSS placeholder (provisional). SUB: Opus 5.5 high.",
+        "notes": "pmo-6 2026-11-23T21:51: BOSS line 11-23: the owner ruled JDG-3804 (pinning wins over hidden; table T-329 TD-3, TD-5) and the BOSS assigned it to CR-862. The drafting seat starts on the owner signal (not started yet). Beside CR-860 and CR-861, after the diff extraction, before the final merge 228. 2 h is a BOSS placeholder (provisional). SUB: Opus 5.5 high. pmo-6 2026-11-23T23:05: started: the CR-862 drafting seat (local_e796f44e) drafts from now; the link from 455 is removed because the drafting does not wait for the diff extraction. The final merge 228 still waits for 490. 2 h kept (provisional).",
         "calendarUid": null,
-        "actualStart": null,
+        "actualStart": "2026-11-23T23:05:00",
         "stop": null,
         "actualFinish": null,
         "resume": null,
@@ -8988,16 +8988,30 @@
         "percentComplete": 0,
         "fadeInDays": null,
         "fadeOutDays": null,
-        "dependencies": [
-          {
-            "predecessorUid": 455,
-            "linkType": 1,
-            "linkLag": 0,
-            "lagFormat": 7,
-            "carry": {},
-            "carryElements": []
-          }
-        ],
+        "dependencies": [],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 491,
+        "parentTaskUid": null,
+        "wbsOrder": 350,
+        "name": "🌒 新 ANMS・NDD 基準の適用計画(SUB)",
+        "start": "2026-11-23T23:05:00",
+        "finish": "2026-11-24T03:05:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "pmo-6 2026-11-23T23:05: BOSS line 11-23: a new seat (local_bacbcd6e) writes the plan for applying the new ANMS and NDD standards (plan only). The application itself starts after the owner reads the plan. 4 h is a BOSS placeholder (provisional). SUB: Opus 5.5 high.",
+        "calendarUid": null,
+        "actualStart": "2026-11-23T23:05:00",
+        "stop": null,
+        "actualFinish": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [],
         "carry": {},
         "carryElements": []
       }
@@ -10482,6 +10496,10 @@
       {
         "taskUid": 490,
         "taskGroupId": "5321b390-7f24-598b-8fb6-6de6c53cf32f"
+      },
+      {
+        "taskUid": 491,
+        "taskGroupId": "b2a0e74c-4c44-5678-b53c-aecd31dc8ae5"
       }
     ],
     "taskVisuals": [
@@ -12908,6 +12926,14 @@
         "fillColor": "blue",
         "strokeColor": null,
         "strokeWidthPx": null
+      },
+      {
+        "taskUid": 491,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": "diamond",
+        "fillColor": "blue",
+        "strokeColor": null,
+        "strokeWidthPx": null
       }
     ],
     "commentBoxes": [
@@ -14916,10 +14942,10 @@
     "zoomY": 1.099862517185352
   },
   "documentStamp": {
-    "scheduleUpdatedAt": "2026-11-23T12:51:00Z",
+    "scheduleUpdatedAt": "2026-11-23T14:05:00Z",
     "lastEditedBy": "PMO child session",
     "settingsUpdatedAt": "2026-10-20T20:24:42Z",
-    "fileSavedAt": "2026-11-23T12:51:00Z"
+    "fileSavedAt": "2026-11-23T14:05:00Z"
   },
   "changeLog": [
     {
@@ -15623,6 +15649,12 @@
       "editedBy": "PMO child session",
       "explanation": "Fact at 11-23 21:51 JST: BOSS line, the owner ruled JDG-3804 (pinning wins over hidden) and the BOSS assigned it to CR-862: task 490 added beside CR-860 and CR-861 (2 h provisional). The schema successor cut 49 over-specified sentences (5422bcc40); BGQA8 has 3 left, kept in 488. N1 (316) and the beta (234) stay.",
       "changedAt": "2026-11-23T12:51:00Z"
+    },
+    {
+      "ordinal": 118,
+      "editedBy": "PMO child session",
+      "explanation": "Fact at 11-23 23:05 JST: BOSS line, the owner settled the beta GRS JSON and schema (JDG-3807, 8a1ada70b): 488 done, group 3 done; group 2 has only 489 left. The CR-862 drafting seat started 490 now (link from 455 removed). New task 491, the plan for applying the new ANMS and NDD standards (4 h provisional), started under the new review standards group. N1 (316) and the beta (234) stay.",
+      "changedAt": "2026-11-23T14:05:00Z"
     }
   ]
 }
