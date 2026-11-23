@@ -14,7 +14,7 @@
       "creationDate": "2026-10-31T08:50:00",
       "revision": 11,
       "startDate": "2026-10-17T05:30:00",
-      "statusDate": "2026-11-24T00:11:00",
+      "statusDate": "2026-11-24T00:18:00",
       "minutesPerDay": 1440,
       "minutesPerWeek": 10080,
       "daysPerMonth": 30,
@@ -4183,11 +4183,11 @@
         "parentTaskUid": null,
         "wbsOrder": 162,
         "name": "🌑 CR-857(SSOT へ寄せる —— 名の原稿 glossary.json と生成、JDG-3411〜3427)の起草と当て",
-        "start": "2026-11-27T18:00:00",
-        "finish": "2026-11-27T21:30:00",
+        "start": "2026-11-24T23:10:00",
+        "finish": "2026-11-25T08:10:00",
         "milestone": false,
         "deadline": null,
-        "notes": "カードはまだ起きていない。CR-851 の当て（296）の後。見積は CR-767 の 3 つの波の実績の合計 186 分から 3 時間。 10-31: JDG-3483（規則 07 の R1 の目的の節、原本を先に）と、選べば src の JSON の rowId → specRowId の改名も持つ（見積に 30 分を足した）。カードは引っ込めた —— 用語集の後に出し直す。 10-31 07:45: JDG-3491 で src の JSON の rowId → specTableRowId の改名をこの CR が持つと決まった（前の注の「選べば」「specRowId」ではない）。見積は 3 時間 30 分のまま。 12:09: CR-857 の起草と当ての SUB のモデルと努力: Opus 5.5・high（仕様・設計・実装・レビューの SUB の既定）。表を外れる時は調整役が理由の 1 行を送る。 11-02 06:50: 新しい N1（316、11-22 14:59）に合わせ、24 時間 29 分 45 秒後ろへ置いた（順と中身は変えない。BOSS の求め）。",
+        "notes": "カードはまだ起きていない。CR-851 の当て（296）の後。見積は CR-767 の 3 つの波の実績の合計 186 分から 3 時間。 10-31: JDG-3483（規則 07 の R1 の目的の節、原本を先に）と、選べば src の JSON の rowId → specRowId の改名も持つ（見積に 30 分を足した）。カードは引っ込めた —— 用語集の後に出し直す。 10-31 07:45: JDG-3491 で src の JSON の rowId → specTableRowId の改名をこの CR が持つと決まった（前の注の「選べば」「specRowId」ではない）。見積は 3 時間 30 分のまま。 12:09: CR-857 の起草と当ての SUB のモデルと努力: Opus 5.5・high（仕様・設計・実装・レビューの SUB の既定）。表を外れる時は調整役が理由の 1 行を送る。 11-02 06:50: 新しい N1（316、11-22 14:59）に合わせ、24 時間 29 分 45 秒後ろへ置いた（順と中身は変えない。BOSS の求め）。 pmo-6 2026-11-24T00:18: study 82 B3 (fb3a35e3e): CR-857 moves forward from 11-27 (owner answer in BGQA9: before the beta; BOSS line 11-24). glossary.json in the terms[] shape, English as the master (JDG-3825), a source (JDG) field per term, the unchecked terms counted and sent to the owner on one sheet (BGQA9 q12; owner 1..2 h). The link from 296 is removed; it still follows the diff extraction 455. 9 h = middle of 6..12 seat hours (provisional). The full review B14 (493) waits for it.",
         "calendarUid": null,
         "actualStart": null,
         "stop": null,
@@ -4198,14 +4198,6 @@
         "fadeInDays": null,
         "fadeOutDays": null,
         "dependencies": [
-          {
-            "predecessorUid": 296,
-            "linkType": 1,
-            "linkLag": 0,
-            "lagFormat": 7,
-            "carry": {},
-            "carryElements": []
-          },
           {
             "predecessorUid": 455,
             "linkType": 1,
@@ -9075,6 +9067,14 @@
             "lagFormat": 7,
             "carry": {},
             "carryElements": []
+          },
+          {
+            "predecessorUid": 302,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
           }
         ],
         "carry": {},
@@ -9421,11 +9421,11 @@
         "parentTaskUid": null,
         "wbsOrder": 361,
         "name": "🌒 オーナー: BGQA9 の 2 回目(問 8〜12)に答える",
-        "start": "2026-11-24T06:45:00",
+        "start": "2026-11-24T00:11:00",
         "finish": "2026-11-24T07:19:53",
         "milestone": false,
         "deadline": null,
-        "notes": "pmo-6 2026-11-24T00:11: BOSS line 11-24: BGQA9 round 2 (questions 8..12: seats count q11, glossary sheet q12, tools q9 among them) is with the owner. Length = 5 questions at 8.6 rows/h in owner hours (provisional). The full review B14 (493) waits for it.",
+        "notes": "pmo-6 2026-11-24T00:11: BOSS line 11-24: BGQA9 round 2 (questions 8..12: seats count q11, glossary sheet q12, tools q9 among them) is with the owner. Length = 5 questions at 8.6 rows/h in owner hours (provisional). The full review B14 (493) waits for it. pmo-6 2026-11-24T00:18: start set to the actual start (the planned start had stayed at the owner window).",
         "calendarUid": null,
         "actualStart": "2026-11-24T00:11:00",
         "stop": null,
@@ -15498,10 +15498,10 @@
     "zoomY": 1.099862517185352
   },
   "documentStamp": {
-    "scheduleUpdatedAt": "2026-11-23T15:11:00Z",
+    "scheduleUpdatedAt": "2026-11-23T15:18:00Z",
     "lastEditedBy": "PMO child session",
     "settingsUpdatedAt": "2026-10-20T20:24:42Z",
-    "fileSavedAt": "2026-11-23T15:11:00Z"
+    "fileSavedAt": "2026-11-23T15:18:00Z"
   },
   "changeLog": [
     {
@@ -16241,6 +16241,12 @@
       "editedBy": "PMO child session",
       "explanation": "Fact at 11-24 00:11 JST: BOSS line, study 82 replanned to meet the new ANMS/NDD standards before the beta (fb3a35e3e, B1..B15). 391..396, 493, 494 moved before the beta as B15, B1, B2, B6, B11, B4, B14, B8 (uids kept); new tasks for B5, B7, B9, B10, B12, B13 and the owner wait BGQA9 round 2; CR-851 application 296 waits for B15. B3 (CR-857 forward) not moved yet. N1 (316) and the beta (234) stay.",
       "changedAt": "2026-11-23T15:11:00Z"
+    },
+    {
+      "ordinal": 124,
+      "editedBy": "PMO child session",
+      "explanation": "Fact at 11-24 00:18 JST: BOSS line, study 82 B3: CR-857 (302) moved forward from 11-27 to right after the diff extraction 455 (the owner answered in BGQA9 to do it before the beta); B14 (493) waits for it. N1 (316) and the beta (234) stay.",
+      "changedAt": "2026-11-23T15:18:00Z"
     }
   ]
 }
