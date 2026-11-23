@@ -102,3 +102,7 @@ AI-A の総評: 説明は全体として長すぎる（「This value is…」の
 | 消しすぎ 1〜4・6・11 | 説明を戻すか足した（`schemaVersionUtc`・`dayWidthPx`・`zoneNameType`・帯の名が無いとき・`Time` の範囲・`documentUpdatedAt`/`fileSavedAt`） | — |
 | 消しすぎ 5 | `Color.type` に「custom では無い側を GRS がもう一方から計算する」を足した | `isCalculatedFromOppositeColorScheme` |
 | 消しすぎ 7・8・10・12 | 足さない（名と `baselineTasks` の説明で足りる） | `JDG-3801` |
+
+## 7. 書きすぎた仕様を消した（`JDG-3804`、2026-11-23）
+
+持ち主の指示で、説明はファイルの値の読み方だけを書くことにし、画面の描き方・操作の振る舞い・遅延診断や書き出しの細目を消した（49 文。説明 10 個が丸ごと消え、30 個が短くなった）。一覧は BGQA8 の問 13、迷って残した 15 か所は問 14。passthrough の「そのまま書き戻す」の「そのまま」も消した（作り直す値があるため）。ピン止めを hidden より優先する仕様は `CR-862` が当てる。

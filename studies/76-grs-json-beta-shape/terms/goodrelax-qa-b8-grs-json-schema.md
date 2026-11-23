@@ -6,7 +6,7 @@ BGQA8
 > 凡例: ❓回答待 ✅回答済 🔄変化点 ★強調(ユーザー専用)
 
 作った日: 2026-11-23（GRS JSON のスキーマの席、`JDG-3757`）
-🔄 *残 2（❓ で検索）*
+残 3（❓ で検索）
 
 - 正のスキーマ: `studies/76-grs-json-beta-shape/terms/grs-json-beta.schema.json`。キーの順・列挙の値・構成は最終レビューの木と同じです（スキーマから木を作り直して、差 0 を確かめました）。
 - 英語の説明 311 個とルートの説明は、AI の 3 段の確かめを終えました（1 段目 Haiku が仕様を見ずに読む → 2 段目 Sonnet が事実と書き方の決まりに突き合わせる → 3 段目 席が直す。記録は `studies/76-grs-json-beta-shape/text-check-2026-11-23-schema/`）。この GQA が 4 段目です。
@@ -49,6 +49,7 @@ BGQA8
 | 🔄 *✅ 問 10 passthrough の値の形* | 🔄 *MSPDI の値は文字列だけで書く（`"Priority": "500"`、`"IsNull": "0"`）。スキーマの `MspdiValue` から数の型を外し、見本の 32 か所を直した* | 🔄 *`JDG-3802`* |
 | 🔄 *✅ 問 11 `highestIssuedUid` が無いとき・上限* | 🔄 *無ければ、GRS は開くときに 4 つの一覧の uid の最大を数える。2147483647 に届いたら、新しい物を足す操作を断る。説明に書いた。仕様の `AT-20`・`TC-2` は CR-851 の当てで直す* | 🔄 *`JDG-3803`* |
 | 🔄 *外の AI の 2 回目* | 🔄 *矛盾 9・誤解 10・冗長 13・消しすぎ 12 を仕分け、席が決められる物を当てた（消しすぎで抜けた事実を戻した所を含む）。仕分けは `grs-json-schema-review-findings.md` の 6 節* | 🔄 *`JDG-3801`* |
+| 🔄 *✅ 問 12 説明の最終版* | 🔄 *持ち主のチャットの指示で、スキーマの説明が仕様を書きすぎている所を消す（問 13・問 14）。ピン止めを hidden より優先する仕様は `CR-862` が当てる* | 🔄 *`JDG-3804`* |
 | ✅ 問 6 語「Carried」 | 冒頭の説明から「Carried」を除き、passthrough で言い直した（英語版・日本語版の木も作り直した） | `JDG-3766` |
 | 外の AI のレビュー | 外の AI（AI-A）がスキーマを読み、矛盾 13・誤解 18・冗長 30 を挙げた。席の仕分けは `grs-json-schema-review-findings.md` | `JDG-3717` ③ |
 | 外の AI の指摘: 席が直した 25 件 | 裁定・決まり・仕様から答えが 1 つに決まる 25 件を、説明と必須に当てた。必須の変更は 3 つ: `CommentBoxStyle.stroke` を必須から外す（無いと枠線と引出し線を描かない）、`documentStamp.lastEditedBy` を必須にする、`scheduleData.scheduleDataTimeZone` を必須にする（無いと日時を読めない）。説明の直しの例: タスクの塗りと線はマイルストーンマークにも効く、頭の値は 6 つ、`lagFormat` が無いとラグを分で見せて数えない | `JDG-3634` ④・`JDG-3740`・`JDG-3669`・仕様 |
@@ -75,21 +76,99 @@ BGQA8
 
 ## QA
 
-### [schema] 🔄 *スキーマ（❓ 1）*
+### [schema] スキーマ（❓ 2）
 
-🔄 *席: GRS JSON のスキーマ 2（BOSS は gr-scheduler BOSS（4 代目））。答えが来たら、席が裁定に記録し、スキーマに当てます。*
+🔄 *席: GRS JSON のスキーマ 2（BOSS は gr-scheduler BOSS（4 代目））。持ち主の指示（`JDG-3804`）で、スキーマの説明が仕様を書きすぎている所を消しました。ピン止めを hidden より優先する仕様は、BOSS が `CR-862` に割り当てました。説明の最終版の木（前の問 12）は、問 13・問 14 の答えを当てた後に出し直します。*
 
-#### 🔄 *❓ 問 12. 説明の最終版（木の形）*
+#### 🔄 *❓ 問 13. 書きすぎとして消した文（49 文）*
 
-🔄 ***場面:** AI の確かめと直しをすべて終えた説明の最終版です。前に見ていただいた木（問 9）から、次が変わりました: 自明な説明と重複を消した（`JDG-3801`。英語の説明は 314 個から 150 個ほど）、外の AI の 2 回目の指摘を当てた、passthrough の値を文字列にした（`JDG-3802`）、`highestIssuedUid` が無いときを書いた（`JDG-3803`）。説明の無いキーは、名と制約で分かるとしたキーです。日本語版では、名のある列挙の値（"small"・"white" など）に日本語の名を付けていません。キーの順・列挙の値・構成は最終レビューの木と同じです（差 0）。*
+🔄 ***場面:** スキーマの説明は、ファイルの値の読み方（意味・単位・タイムゾーン・無いときの意味・GRS が読むときの扱い）だけを書く、と決めました（`JDG-3804`）。画面の描き方、操作の振る舞い、遅延診断や書き出しの細目は、将来変わり得るので消しました。消したのは次の文です（説明 10 個が丸ごと消え、30 個が短くなりました）。木の差 0、見本の検証エラー 0 です。*
 
-- 🔄 *日本語版（先に、さらっと見る）: [grs-json-beta-description-tree-ja.md](grs-json-beta-description-tree-ja.md)*
-- 🔄 *英語版（契約の文そのもの）: [grs-json-beta-description-tree-en.md](grs-json-beta-description-tree-en.md)*
+| 🔄 *#* | 🔄 *キー* | 🔄 *消した文（英語）* | 🔄 *何の約束だったか* |
+|:---|:---|:---|:---|
+| 🔄 *1* | 🔄 *`(root)`* | 🔄 *When a person starts Delay Diagnostics or an AI agent asks for Delay Diagnostics, GRS calculates the results from the current Schedule Data and project.statusDate.* | 🔄 *遅延診断の細目* |
+| 🔄 *2* | 🔄 *`(root)`* | 🔄 *While GRS shows Delay Diagnostics results, GRS keeps those results and does not recalculate them.* | 🔄 *画面の振る舞い* |
+| 🔄 *3* | 🔄 *`isThemeMonochrome`* | 🔄 *GRS draws every color in monochrome when this value is true: the theme colors, the palette colors and the custom colors.* | 🔄 *画面の描き方* |
+| 🔄 *4* | 🔄 *`additionalTimeZones`* | 🔄 *While GRS shows times of day, each clock adds a row under the Time Ruler.* | 🔄 *画面の描き方* |
+| 🔄 *5* | 🔄 *`dayWidthPx`* | 🔄 *Zoom to Fit sets this value.* | 🔄 *操作の振る舞い* |
+| 🔄 *6* | 🔄 *`type`* | 🔄 *and those two whole days touch the edges of the Task Group Lanes* | 🔄 *画面の描き方* |
+| 🔄 *7* | 🔄 *`verticalZoom`* | 🔄 *The two values that one step of vertical zoom and Zoom to Fit change together.* | 🔄 *操作の振る舞い* |
+| 🔄 *8* | 🔄 *`ratio`* | 🔄 *2 draws Plan Bars, Actual Bars and Name Labels twice as tall* | 🔄 *画面の描き方* |
+| 🔄 *9* | 🔄 *`automaticallyShownDepth`* | 🔄 *A zoom-in step changes ratio only after this value reaches the depth of the deepest task group in the Schedule Document; ratio never sets this value.* | 🔄 *操作の振る舞い* |
+| 🔄 *10* | 🔄 *`isTaskGroupPanelWidthFixed`* | 🔄 *GRS always draws the Task Group Panel at taskGroupPanelWidthPx.* | 🔄 *画面の描き方（true・false の意味は残した）* |
+| 🔄 *11* | 🔄 *`pinnedTaskGroupIds`* | 🔄 *which stay at the top during vertical scrolling* | 🔄 *画面の描き方* |
+| 🔄 *12* | 🔄 *`pinnedTaskGroupIds`* | 🔄 *A pin shows the task group at any depth if showMode is "automatic", never if "hidden"; an ancestor with showMode "hidden" or "hiddenUntilZoomIn" still hides the pinned task group.* | 🔄 *表示の細目* |
+| 🔄 *13* | 🔄 *`taskPlacementDirection`* | 🔄 *earliest task first* | 🔄 *画面の描き方* |
+| 🔄 *14* | 🔄 *`isProgressStatusMarkVisible`* | 🔄 *which show progress status by shape past the Actual Bar end, not on the Progress Line* | 🔄 *画面の描き方* |
+| 🔄 *15* | 🔄 *`isPlanDatesVisible`* | 🔄 *GRS draws the planned start and finish dates to the right of each Name Label when this value is true.* | 🔄 *画面の描き方* |
+| 🔄 *16* | 🔄 *`isProgressLineVisible`* | 🔄 *one zigzag line from the status date through the task progress point of each task* | 🔄 *画面の描き方* |
+| 🔄 *17* | 🔄 *`parentTaskProgressToleranceWorkingDays`* | 🔄 *This value excuses no late finish.* | 🔄 *遅延診断の細目* |
+| 🔄 *18* | 🔄 *`searchWindow`* | 🔄 *and the other table then shows the default order* | 🔄 *画面の振る舞い* |
+| 🔄 *19* | 🔄 *`scheduleDataTimeZone`* | 🔄 *GRS does not write this zone to MSPDI.* | 🔄 *書き出しの細目* |
+| 🔄 *20* | 🔄 *`highestIssuedUid`* | 🔄 *GRS gives a new entity this value plus 1.* | 🔄 *編集操作の振る舞い* |
+| 🔄 *21* | 🔄 *`highestIssuedUid`* | 🔄 *at 2147483647, GRS refuses to add a new entity.* | 🔄 *追加を断る操作* |
+| 🔄 *22* | 🔄 *`tasks`* | 🔄 *GRS writes MSPDI tasks depth first along that tree and rebuilds ID, OutlineLevel, OutlineNumber and Summary.* | 🔄 *書き出しの細目* |
+| 🔄 *23* | 🔄 *`passthroughTasks`* | 🔄 *which GRS writes first* | 🔄 *書き出しの細目* |
+| 🔄 *24* | 🔄 *`resources`* | 🔄 *GRS lists the resources in the Resource List Window and shows the resources of each task in the Assignee Label.* | 🔄 *画面の描き方* |
+| 🔄 *25* | 🔄 *`taskGroups`* | 🔄 *GRS builds this list from the WBS when reading MSPDI* | 🔄 *取り込みの細目* |
+| 🔄 *26* | 🔄 *`changeLogEntries`* | 🔄 *GRS adds a new entry at the end.* | 🔄 *編集操作の振る舞い* |
+| 🔄 *27* | 🔄 *`uid`* | 🔄 *Before writing over another file, GRS treats that file as the same Schedule Document only when project.uid, project.name and the file name all match; an absent value never matches.* | 🔄 *保存操作の振る舞い* |
+| 🔄 *28* | 🔄 *`title`* | 🔄 *GRS shows the value as the Project Title in the App Header and builds the default file name in the Save As Dialog from the value.* | 🔄 *画面と保存ダイアログの振る舞い* |
+| 🔄 *29* | 🔄 *`weekStartDay`* | 🔄 *GRS starts each week of the Time Ruler on this day.* | 🔄 *画面の描き方* |
+| 🔄 *30* | 🔄 *`statusDate`* | 🔄 *GRS draws the Status Line at this date-time and runs Delay Diagnostics for this date.* | 🔄 *画面の描き方と遅延診断の細目* |
+| 🔄 *31* | 🔄 *`statusDate`* | 🔄 *Without statusDate, GRS draws no Status Line and Delay Diagnostics does not run.* | 🔄 *画面の描き方と遅延診断の細目* |
+| 🔄 *32* | 🔄 *`type`* | 🔄 *a new exception takes 1* | 🔄 *編集操作の振る舞い* |
+| 🔄 *33* | 🔄 *`stop`* | 🔄 *GRS removes stop when GRS finishes the task; actualFinish then holds the end.* | 🔄 *状態遷移の操作* |
+| 🔄 *34* | 🔄 *`passthrough`* | 🔄 *Only for a task that GRS made or whose dates a person changed, GRS rebuilds Duration and ManualStart, ManualFinish and ManualDuration, writes ConstraintType and ConstraintDate, and leaves out FreeSlack, TotalSlack, StartSlack and FinishSlack; GRS rebuilds ActualDuration after a person changes the actual dates.* | 🔄 *書き出しの細目* |
+| 🔄 *35* | 🔄 *`lagFormat`* | 🔄 *and for other codes only shows the lag* | 🔄 *画面の見せ方* |
+| 🔄 *36* | 🔄 *`lagFormat`* | 🔄 *shows the lag in minutes, such as 2880m, and* | 🔄 *画面の見せ方* |
+| 🔄 *37* | 🔄 *`ImportOrigin`* | 🔄 *so that a later import of that file updates the task rather than adding a copy* | 🔄 *取り込みの細目* |
+| 🔄 *38* | 🔄 *`representativeTaskUid`* | 🔄 *When a person nests this task group under another, GRS moves that task in the WBS to match.* | 🔄 *操作の振る舞い* |
+| 🔄 *39* | 🔄 *`showMode`* | 🔄 *even on zoom or Zoom to Fit* | 🔄 *操作の振る舞い* |
+| 🔄 *40* | 🔄 *`showMode`* | 🔄 *until a person shows the task group again* | 🔄 *操作の振る舞い* |
+| 🔄 *41* | 🔄 *`showMode`* | 🔄 *and then changes the value to "automatic"* | 🔄 *状態遷移の操作* |
+| 🔄 *42* | 🔄 *`allowedEditorGroupName`* | 🔄 *and refuses moves into a task group with another value* | 🔄 *移動を断る操作* |
+| 🔄 *43* | 🔄 *`leaderTarget`* | 🔄 *When the target is deleted in GRS, GRS turns this object into a free point* | 🔄 *削除操作の振る舞い* |
+| 🔄 *44* | 🔄 *`snapPart`* | 🔄 *GRS hides the Comment Box while the named part is not drawn.* | 🔄 *画面の描き方* |
+| 🔄 *45* | 🔄 *`DocumentStamp`* | 🔄 *The Agent API uses this stamp to refuse writes based on an old read.* | 🔄 *Agent API の振る舞い* |
+| 🔄 *46* | 🔄 *`fill`* | 🔄 *GRS fills the Actual Bar from the same color* | 🔄 *画面の描き方* |
+| 🔄 *47* | 🔄 *`isScheduleFilteredByChecks`* | 🔄 *The table itself keeps every row.* | 🔄 *画面の振る舞い* |
+| 🔄 *48* | 🔄 *`（冒頭の説明）passthrough`* | 🔄 *unchanged（GRS writes both back to MSPDI unchanged）* | 🔄 *書き出しの細目（作り直す値があるので「そのまま」を約束しない）* |
+| 🔄 *49* | 🔄 *`Passthrough（型）`* | 🔄 *unchanged in MSPDI schema order, repeats in array order* | 🔄 *書き出しの細目* |
 
 | 案 | 中身 | 変わること |
 |:---|:---|:---|
-| **a（推奨）** | 🔄 *この説明でよい* | 🔄 *スキーマはこのまま。CR-851 の当てに渡す* |
-| b | 🔄 *直す説明がある（R 番号と、何をどう、を回答に書く）* | 🔄 *席が直して、次の回で見せる* |
+| **a（推奨）** | 🔄 *消したままでよい* | 🔄 *このまま* |
+| b | 🔄 *戻す文がある（番号を回答に書く）* | 🔄 *席が戻す* |
+
+回答:
+
+#### 🔄 *❓ 問 14. 迷って残した文（15 か所）*
+
+🔄 ***場面:** 次の所は、値の読み方と振る舞いの両方にまたがるので、残しました。消したい物があれば番号で教えてください。*
+
+| 🔄 *#* | 🔄 *キー* | 🔄 *残した文（要旨）* | 🔄 *迷った点* |
+|:---|:---|:---|:---|
+| 🔄 *1* | 🔄 *`documentSettings・scheduleCanvasElements・project`* | 🔄 *キーを書く順（効く範囲の広い順、バー・ラベル・線の順、MSPDI のスキーマの順）* | 🔄 *ファイルの書き方だが、約束しすぎかもしれない* |
+| 🔄 *2* | 🔄 *`viewTimeZone`* | 🔄 *「スケジュールキャンバスとタイムルーラーで」日時を見せるタイムゾーン* | 🔄 *語の定めの中に画面の場所がある* |
+| 🔄 *3* | 🔄 *`searchWindow`* | 🔄 *2 つの表を「一度に 1 つ」見せる* | 🔄 *画面の細目だが、2 つの表の定めの中にある* |
+| 🔄 *4* | 🔄 *`importedTopTaskOutlineLevel`* | 🔄 *MSPDI を書き出すとき、上のタスクにこの OutlineLevel を付ける* | 🔄 *書き出しの細目だが、値の目的そのもの* |
+| 🔄 *5* | 🔄 *`baselineTasks`* | 🔄 *前回予定の枠は、同じ uid の今のタスクの形を取る* | 🔄 *描き方だが、uid のつながりを言う* |
+| 🔄 *6* | 🔄 *`minutesPerDay`* | 🔄 *1 日の稼働時間の合計が違うと、開くときに知らせる* | 🔄 *画面の知らせだが、書く人への決まりでもある* |
+| 🔄 *7* | 🔄 *`creationDate`* | 🔄 *新しい文書を作るとき、GRS が作った時刻を書く* | 🔄 *値の意味と操作の両方* |
+| 🔄 *8* | 🔄 *`startSlopeCalendarDays・finishSlopeCalendarDays`* | 🔄 *予定バーの端を斜めにして、確かでない開始・終了を示す* | 🔄 *描き方と意味が 1 つの文にある* |
+| 🔄 *9* | 🔄 *`minHeightPx・bodyOffsetPx・widthPx・sizePx`* | 🔄 *横と縦のズームはこの値を変えない* | 🔄 *単位の意味（ズームで変わらないピクセル）だが、ズームの話でもある* |
+| 🔄 *10* | 🔄 *`showMode`* | 🔄 *"automatic": 深さ・ピン・出ている配下への道から GRS が決める* | 🔄 *ピンの扱いの約束に近い（CR-862 で変わる所）* |
+| 🔄 *11* | 🔄 *`allowedEditorGroupName`* | 🔄 *それらのタスクを、どの人にも AI にも読み取り専用として扱う* | 🔄 *値の効き目か、操作の振る舞いか* |
+| 🔄 *12* | 🔄 *`leaderTarget`* | 🔄 *スケジュールデータに無い先をファイルが指すとき、引出し線を描かない* | 🔄 *読み方（ファイルを断らない）だが、描き方の言葉* |
+| 🔄 *13* | 🔄 *`changedAt・editorType`* | 🔄 *GRS が時刻・種類を入れる。人は後で時刻を変えてよい* | 🔄 *操作だが、値の出どころを言う* |
+| 🔄 *14* | 🔄 *`Color.name`* | 🔄 *暗いテーマでは、GRS は色相を保ち明るさを反転する* | 🔄 *色の導き方の決まり* |
+| 🔄 *15* | 🔄 *`ColumnFilter.hiddenValues`* | 🔄 *「GRS が遅延診断の結果を見せている間」の診断の印* | 🔄 *画面の状態が値の一覧の中にある* |
+
+| 案 | 中身 | 変わること |
+|:---|:---|:---|
+| **a（推奨）** | 🔄 *残したままでよい* | 🔄 *このまま* |
+| b | 🔄 *消す文がある（番号を回答に書く）* | 🔄 *席が消す* |
 
 回答:
 

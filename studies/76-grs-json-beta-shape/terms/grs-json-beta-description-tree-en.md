@@ -10,7 +10,7 @@ R001  ScheduleDocument             GRS JSON document
 R002  +- $schema                   The address of the latest GRS schema; every document holds the same address.
 R003  +- schemaVersionUtc          The UTC time when the shape of GRS JSON, meaning the keys and the rules, last changed.
 R004  +- buildVersionUtc           This value serves debugging only; schemaVersionUtc tells whether GRS can read the file.
-R005  +- documentStamp             The Agent API uses this stamp to refuse writes based on an old read.
+R005  +- documentStamp
 R006  |  +- scheduleDataUpdatedAt  A change of documentSettings alone does not move this time.
 R007  |  +- documentUpdatedAt      The last change of the Schedule Document, documentSettings included.
 R008  |  +- fileSavedAt            The key is absent until the first save.
@@ -25,7 +25,7 @@ R014  |     +- name                The name of the editor: for "agent", the name
 R015  +- documentSettings          How GRS shows the schedule on opening
 R016  +- scheduleData              Schedule data
 R017  +- changeLogEntries[]        The Change Log: notes that people or an AI write about changes to the Schedule Document,
-                                   oldest first. GRS adds a new entry at the end.
+                                   oldest first.
 R018     +- changedAt              GRS fills in the time when GRS adds the entry; a person may change the time later.
 R019     +- changedBy
 R020     |  +- editorType          GRS fills in the value.
@@ -48,9 +48,8 @@ R030  +- fontSizePreset                             GRS holds the pixel size of 
 R031  |  +- "small"
 R032  |  +- "medium"
 R033  |  +- "large"
-R034  +- isThemeMonochrome                          GRS draws every color in monochrome when this value is true: the theme colors, the
-                                                    palette colors and the custom colors. This value changes only the drawing; the colors
-                                                    saved in the Schedule Document stay the same.
+R034  +- isThemeMonochrome                          This value changes only the drawing; the colors saved in the Schedule Document stay the
+                                                    same.
 R035  +- themeHue                                   GRS holds the hue angle of each name.
 R036  |  +- "blue"
 R037  |  +- "blueGreen"
@@ -69,7 +68,7 @@ R047  |  +- type                                    "sameAsScheduleData": GRS sh
 R048  |  |  +- "sameAsScheduleData"
 R049  |  |  +- "fixed"
 R050  |  +- utcOffset                               GRS uses the offset all year and never adds daylight saving time.
-R051  +- additionalTimeZones[]                      While GRS shows times of day, each clock adds a row under the Time Ruler.
+R051  +- additionalTimeZones[]
 R052  |  +- utcOffset                               The offset already includes any daylight saving time, and GRS uses the offset all year.
 R053  |  +- zoneNameType                            Which name of the zone GRS shows for this clock: the standard-time name or the daylight-
                                                     time name. This value does not change the offset.
@@ -77,35 +76,25 @@ R054  |     +- "standard"
 R055  |     +- "daylight"
 R056  +- isTimeOfDayVisible
 R057  +- dayWidthPx                                 The Day Width (the horizontal zoom): the width of one calendar day on the Time Ruler.
-                                                    Zoom to Fit sets this value.
 R058  +- fitDayRange                                The Fit Span: the days that Zoom to Fit and PNG and SVG pictures show.
-R059  |  +- type                                    "fixed": the Fit Span runs from firstDay to lastDay with no margin, and those two whole
-                                                    days touch the edges of the Task Group Lanes. "automatic": the Fit Span covers
-                                                    everything that GRS draws, plus a margin that GRS fixes and does not save.
+R059  |  +- type                                    "fixed": the Fit Span runs from firstDay to lastDay with no margin. "automatic": the Fit
+                                                    Span covers everything that GRS draws, plus a margin that GRS fixes and does not save.
 R060  |  |  +- "fixed"
 R061  |  |  +- "automatic"
 R062  |  +- firstDay                                Write this key only when type is "fixed". The first day of the Fit Span, as a day in the
                                                     Display Base Time Zone.
 R063  |  +- lastDay                                 A date without a time of day, in the time zone that each key names where that matters. A
                                                     range of days (firstDay to lastDay) includes both ends.
-R064  +- verticalZoom                               The two values that one step of vertical zoom and Zoom to Fit change together. When this
-                                                    key is absent, GRS chooses both values as Zoom to Fit does; when only
+R064  +- verticalZoom                               When this key is absent, GRS chooses both values as Zoom to Fit does; when only
                                                     automaticallyShownDepth is absent, GRS chooses that value as Zoom to Fit does.
-R065  |  +- ratio                                   The vertical size of the Task Graphics as a ratio to the default size: 2 draws Plan
-                                                    Bars, Actual Bars and Name Labels twice as tall.
-R066  |  +- automaticallyShownDepth                 The depth to which GRS shows task groups with showMode "automatic". A zoom-in step
-                                                    changes ratio only after this value reaches the depth of the deepest task group in the
-                                                    Schedule Document; ratio never sets this value.
+R065  |  +- ratio                                   The vertical size of the Task Graphics as a ratio to the default size.
+R066  |  +- automaticallyShownDepth                 The depth to which GRS shows task groups with showMode "automatic".
 R067  +- taskGroupPanelWidthPx
-R068  +- isTaskGroupPanelWidthFixed                 GRS always draws the Task Group Panel at taskGroupPanelWidthPx. true: a person changes
-                                                    taskGroupPanelWidthPx in the document settings, and the Panel Divider stays fixed;
-                                                    false: a drag of the Panel Divider changes taskGroupPanelWidthPx.
-R069  +- pinnedTaskGroupIds[]                       The ids of the Pinned Task Groups, which stay at the top during vertical scrolling. A
-                                                    pin shows the task group at any depth if showMode is "automatic", never if "hidden"; an
-                                                    ancestor with showMode "hidden" or "hiddenUntilZoomIn" still hides the pinned task
-                                                    group.
+R068  +- isTaskGroupPanelWidthFixed                 true: taskGroupPanelWidthPx sets the width of the Task Group Panel and the Panel Divider
+                                                    stays fixed; false: a drag of the Panel Divider changes taskGroupPanelWidthPx.
+R069  +- pinnedTaskGroupIds[]                       The ids of the Pinned Task Groups.
 R070  +- taskPlacementDirection                     The Placement Direction: how GRS stacks the overlapping tasks of one Task Group Lane on
-                                                    Stack Tiers, earliest task first; this value does not order the task groups.
+                                                    Stack Tiers; this value does not order the task groups.
 R071  |  +- "bottomToTop"
 R072  |  +- "topToBottom"
 R073  +- scrollPosition
@@ -128,26 +117,21 @@ R083  |  +- isActualBarVisible
 R084  |  +- isBaselineOutlineVisible
 R085  |  +- isAssigneeLabelVisible
 R086  |  +- isPercentCompleteLabelVisible
-R087  |  +- isProgressStatusMarkVisible             When this value is true, GRS draws the Resume Marks and the Progress Status Marks, which
-                                                    show progress status by shape past the Actual Bar end, not on the Progress Line.
-R088  |  +- isPlanDatesVisible                      GRS draws the planned start and finish dates to the right of each Name Label when this
-                                                    value is true.
+R087  |  +- isProgressStatusMarkVisible             When this value is true, GRS draws the Resume Marks and the Progress Status Marks.
+R088  |  +- isPlanDatesVisible
 R089  |  +- isDependencyLineVisible
-R090  |  +- isProgressLineVisible                   GRS draws the Progress Line when this value is true: one zigzag line from the status
-                                                    date through the task progress point of each task.
+R090  |  +- isProgressLineVisible                   GRS draws the Progress Line when this value is true.
 R091  |  +- isDateGridLinesVisible
 R092  |  +- isTaskGroupGridLinesVisible
 R093  +- delayDiagnosisSettings
 R094  |  +- parentTaskProgressToleranceWorkingDays  The working days by which a parent's progress point may stray beyond the progress points
-                                                    below before Delay Diagnostics marks the parent doubtful. This value excuses no late
-                                                    finish.
+                                                    below before Delay Diagnostics marks the parent doubtful.
 R095  +- tableWindows                               The checks, column filters and sort of the tables in the Search Window, the Delay
                                                     Diagnostics Report Window and the Resource List Window, but no window positions.
 R096     +- searchWindow                            (type TaskTableWindow) The table settings of the Search Window, which shows the task
                                                     table or the Comment Box table, one at a time. columnFilters holds the filters of both
-                                                    tables, told apart by column; columnSort holds one sort, on a column of either table,
-                                                    and the other table then shows the default order. The checks belong to the task table
-                                                    only.
+                                                    tables, told apart by column; columnSort holds one sort, on a column of either table.
+                                                    The checks belong to the task table only.
 R097     +- delayDiagnosisReportWindow              (type TaskTableWindow)
 R098     +- resourceListWindow                      (type ResourceTableWindow)
 ```
@@ -156,7 +140,7 @@ R098     +- resourceListWindow                      (type ResourceTableWindow)
 
 ```text
 R099  scheduleData
-R100  +- scheduleDataTimeZone                         GRS does not write this zone to MSPDI.
+R100  +- scheduleDataTimeZone
 R101  |  +- utcOffset                                 GRS uses the offset all year and never adds daylight saving time.
 R102  +- sourceFormat
 R103  |  +- "grs"
@@ -170,18 +154,14 @@ R109  |  +- importedAt
 R110  |  +- fileName                                  GRS writes the file name only, never the folder, so that the file keeps no personal
                                                       path.
 R111  +- highestIssuedUid                             The highest uid that GRS has issued, one counter for tasks, resources, assignments and
-                                                      calendars. GRS gives a new entity this value plus 1. When the key is absent, GRS takes
-                                                      the highest uid of the four lists on opening; at 2147483647, GRS refuses to add a new
-                                                      entity.
+                                                      calendars. When the key is absent, GRS takes the highest uid of the four lists on
+                                                      opening.
 R112  +- project [M]                                  scheduleData.project holds only the values for the whole project: the MSPDI lists
                                                       (calendars, tasks, resources, assignments) sit beside project in scheduleData, not
                                                       inside project as in MSPDI.
-R113  |  +- uid [M]                                   Before writing over another file, GRS treats that file as the same Schedule Document
-                                                      only when project.uid, project.name and the file name all match; an absent value never
-                                                      matches.
+R113  |  +- uid [M]
 R114  |  +- name [M]
-R115  |  +- title [M]                                 GRS shows the value as the Project Title in the App Header and builds the default file
-                                                      name in the Save As Dialog from the value.
+R115  |  +- title [M]
 R116  |  +- subject [M]
 R117  |  +- category [M]
 R118  |  +- company [M]
@@ -201,8 +181,7 @@ R127  |  +- minutesPerDay [M]                         GRS uses 480 when the key 
                                                       day total otherwise.
 R128  |  +- minutesPerWeek [M]
 R129  |  +- daysPerMonth [M]
-R130  |  +- weekStartDay [M]                          Sunday is 0 here but 1 in calendars[].weekDays[].dayType. GRS starts each week of the
-                                                      Time Ruler on this day.
+R130  |  +- weekStartDay [M]                          Sunday is 0 here but 1 in calendars[].weekDays[].dayType.
 R131  |  |  +- 0
 R132  |  |  +- 1
 R133  |  |  +- 2
@@ -210,11 +189,11 @@ R134  |  |  +- 3
 R135  |  |  +- 4
 R136  |  |  +- 5
 R137  |  |  +- 6
-R138  |  +- statusDate [M]                            GRS draws the Status Line at this date-time and runs Delay Diagnostics for this date.
-                                                      Without statusDate, GRS draws no Status Line and Delay Diagnostics does not run.
+R138  |  +- statusDate [M]                            A local date and time in scheduleData.scheduleDataTimeZone with no offset, as MSPDI
+                                                      writes a date-time. GRS reads the value to the minute and ignores the seconds.
 R139  |  +- grs [G]
 R140  |     +- passthrough                            The MSPDI child elements of one entity that GRS does not use, keyed by element name. GRS
-                                                      writes them back unchanged in MSPDI schema order, repeats in array order.
+                                                      writes them back to MSPDI.
 R141  +- calendars[] [M]                              GRS keeps the calendars other than the one that project.calendarUid names only to write
                                                       them back to MSPDI.
 R142  |  +- uid [M]                                   The identifier of a task, a resource, an assignment or a calendar, unique within one
@@ -226,7 +205,7 @@ R145  |  +- baseCalendarUid [M]                       GRS writes this value back
                                                       calendar lists.
 R146  |  +- grs [G]
 R147  |  |  +- passthrough                            The MSPDI child elements of one entity that GRS does not use, keyed by element name. GRS
-                                                      writes them back unchanged in MSPDI schema order, repeats in array order.
+                                                      writes them back to MSPDI.
 R148  |  +- weekDays[] [M]
 R149  |  |  +- dayType [M]
 R150  |  |  |  +- 1
@@ -239,7 +218,7 @@ R156  |  |  |  +- 7
 R157  |  |  +- dayWorking [M]
 R158  |  |  +- grs [G]
 R159  |  |  |  +- passthrough                         The MSPDI child elements of one entity that GRS does not use, keyed by element name. GRS
-                                                      writes them back unchanged in MSPDI schema order, repeats in array order.
+                                                      writes them back to MSPDI.
 R160  |  |  +- workingTimes[] [M]                     On a working day without workingTimes, GRS uses 08:00-12:00 and 13:00-17:00. On a non-
                                                       working day, GRS keeps workingTimes for MSPDI and counts no working time.
 R161  |  |     +- fromTime [M]                        A time of day from 00:00:00 to 23:59:59.
@@ -251,9 +230,8 @@ R165  |     +- fromDate [M] (TimePeriod/FromDate)     GRS reads only the date, a
 R166  |     +- toDate [M] (TimePeriod/ToDate)         GRS reads only the date, so T00:00:00 still counts the whole day; GRS writes T23:59:00.
 R167  |     +- dayWorking [M]
 R168  |     +- type [M]                               GRS counts working days with a one-off exception only, which covers every day from
-                                                      fromDate to toDate: type 9, no type, or type 1 (every day) with period 1 or no period; a
-                                                      new exception takes 1. GRS keeps the other exceptions unchanged and leaves them out of
-                                                      the count.
+                                                      fromDate to toDate: type 9, no type, or type 1 (every day) with period 1 or no period.
+                                                      GRS keeps the other exceptions unchanged and leaves them out of the count.
 R169  |     |  +- 1
 R170  |     |  +- 2
 R171  |     |  +- 3
@@ -266,7 +244,7 @@ R177  |     |  +- 9
 R178  |     +- period [M]
 R179  |     +- grs [G]
 R180  |     |  +- passthrough                         The MSPDI child elements of one entity that GRS does not use, keyed by element name. GRS
-                                                      writes them back unchanged in MSPDI schema order, repeats in array order.
+                                                      writes them back to MSPDI.
 R181  |     +- workingTimes[] [M]                     On a working exception, these spans replace the spans of the day of the week; a working
                                                       exception without workingTimes uses 08:00-12:00 and 13:00-17:00. On a non-working
                                                       exception, GRS keeps workingTimes for MSPDI and counts no working time.
@@ -278,8 +256,7 @@ R185  |  +- precedingCalendarUid                      The uid of the nearest cal
 R186  |  +- mspdiElement                              One whole MSPDI element that GRS does not hold as an entity, keyed by child element
                                                       names.
 R187  +- tasks[] [M]                                  The order of this list carries no meaning: parentTaskUid and siblingIndex give the WBS
-                                                      tree. GRS writes MSPDI tasks depth first along that tree and rebuilds ID, OutlineLevel,
-                                                      OutlineNumber and Summary.
+                                                      tree.
 R188  |  +- uid [M]                                   The identifier of a task, a resource, an assignment or a calendar, unique within one
                                                       array, the same as MSPDI UID, whether the entity came from MSPDI or GRS made the entity;
                                                       GRS never reuses a uid.
@@ -287,7 +264,8 @@ R189  |  +- name [M]
 R190  |  +- start [M]                                 A local date and time in scheduleData.scheduleDataTimeZone with no offset, as MSPDI
                                                       writes a date-time. GRS reads the value to the minute and ignores the seconds.
 R191  |  +- finish [M]                                A milestone has the same start and finish.
-R192  |  +- stop [M]                                  GRS removes stop when GRS finishes the task; actualFinish then holds the end.
+R192  |  +- stop [M]                                  A local date and time in scheduleData.scheduleDataTimeZone with no offset, as MSPDI
+                                                      writes a date-time. GRS reads the value to the minute and ignores the seconds.
 R193  |  +- resume [M]                                A local date and time in scheduleData.scheduleDataTimeZone with no offset, as MSPDI
                                                       writes a date-time. GRS reads the value to the minute and ignores the seconds.
 R194  |  +- resumeValid [M]                           Only a written false marks a suspension with no resume date. GRS writes true with each
@@ -340,8 +318,8 @@ R227  |  |  |  |  +- "cylinder"
 R228  |  |  |  |  +- "meetingPeople"
 R229  |  |  |  |  +- "smilingFace"
 R230  |  |  |  |  +- "beerMug"
-R231  |  |  |  +- fill                                (type Paint) The fill of the Plan Bar, or of the Milestone Mark for a milestone; GRS
-                                                      fills the Actual Bar from the same color. No key means no fill.
+R231  |  |  |  +- fill                                (type Paint) The fill of the Plan Bar, or of the Milestone Mark for a milestone. No key
+                                                      means no fill.
 R232  |  |  |  +- stroke                              (type Stroke) The outline of the Plan Bar and the Actual Bar, or of the Milestone Mark
                                                       for a milestone.
 R233  |  |  +- taskGroupId                            GRS uses a UUID as the id of an object that only GRS defines, so that objects made apart
@@ -352,10 +330,8 @@ R236  |  |  |  +- sourceTaskUid                       The value can differ from 
 R237  |  |  |  +- importSessionId                     This id stands in for sourceProjectUid when the MSPDI file had no Project UID.
 R238  |  |  |  +- mspdiImportCountWhenLastIncluded    A copy of scheduleData.mspdiImportCount at the last import whose file contained this
                                                       task. A value below the current count means that the latest import left this task out.
-R239  |  |  +- passthrough                            Only for a task that GRS made or whose dates a person changed, GRS rebuilds Duration and
-                                                      ManualStart, ManualFinish and ManualDuration, writes ConstraintType and ConstraintDate,
-                                                      and leaves out FreeSlack, TotalSlack, StartSlack and FinishSlack; GRS rebuilds
-                                                      ActualDuration after a person changes the actual dates.
+R239  |  |  +- passthrough                            The MSPDI child elements of one entity that GRS does not use, keyed by element name. GRS
+                                                      writes them back to MSPDI.
 R240  |  +- predecessorLinks[] [M] (PredecessorLink)
 R241  |     +- predecessorUid [M]                     The identifier of a task, a resource, an assignment or a calendar, unique within one
                                                       array, the same as MSPDI UID, whether the entity came from MSPDI or GRS made the entity;
@@ -367,8 +343,7 @@ R245  |     |  +- 2
 R246  |     |  +- 3
 R247  |     +- linkLag [M]                            The lag in tenths of a minute, whatever lagFormat says: 4800 is 480 minutes, one working
                                                       day when project.minutesPerDay is 480.
-R248  |     +- lagFormat [M]                          GRS counts the lag only for 3, 5 and 7, and for other codes only shows the lag. When
-                                                      lagFormat is absent, GRS shows the lag in minutes, such as 2880m, and leaves the lag out
+R248  |     +- lagFormat [M]                          GRS counts the lag only for 3, 5 and 7. When lagFormat is absent, GRS leaves the lag out
                                                       of the count.
 R249  |     |  +- 3
 R250  |     |  +- 4
@@ -387,15 +362,13 @@ R262  |     |  +- 51
 R263  |     |  +- 52
 R264  |     +- grs [G]
 R265  |        +- passthrough                         The MSPDI child elements of one entity that GRS does not use, keyed by element name. GRS
-                                                      writes them back unchanged in MSPDI schema order, repeats in array order.
-R266  +- passthroughTasks[]                           The whole MSPDI Task elements outside tasks[], such as the project summary task, which
-                                                      GRS writes first.
+                                                      writes them back to MSPDI.
+R266  +- passthroughTasks[]                           The whole MSPDI Task elements outside tasks[], such as the project summary task.
 R267  |  +- precedingTaskUid                          The uid of the nearest task in tasks[] that precedes this element in MSPDI. No key puts
                                                       the element first; equal values keep array order.
 R268  |  +- mspdiElement                              One whole MSPDI element that GRS does not hold as an entity, keyed by child element
                                                       names.
-R269  +- resources[] [M]                              GRS lists the resources in the Resource List Window and shows the resources of each task
-                                                      in the Assignee Label.
+R269  +- resources[] [M]
 R270  |  +- uid [M]                                   The identifier of a task, a resource, an assignment or a calendar, unique within one
                                                       array, the same as MSPDI UID, whether the entity came from MSPDI or GRS made the entity;
                                                       GRS never reuses a uid.
@@ -407,7 +380,7 @@ R275  |  +- isCostResource [M]
 R276  |  +- calendarUid [M]                           GRS keeps this value only to write it back to MSPDI.
 R277  |  +- grs [G]
 R278  |     +- passthrough                            The MSPDI child elements of one entity that GRS does not use, keyed by element name. GRS
-                                                      writes them back unchanged in MSPDI schema order, repeats in array order.
+                                                      writes them back to MSPDI.
 R279  +- passthroughResources[]
 R280  |  +- precedingResourceUid                      The uid of the nearest resource in resources[] that precedes this element in MSPDI. No
                                                       key puts the element first; equal values keep array order.
@@ -425,7 +398,7 @@ R285  |  +- resourceUid [M]                           The identifier of a task, 
                                                       GRS never reuses a uid.
 R286  |  +- grs [G]
 R287  |     +- passthrough                            The MSPDI child elements of one entity that GRS does not use, keyed by element name. GRS
-                                                      writes them back unchanged in MSPDI schema order, repeats in array order.
+                                                      writes them back to MSPDI.
 R288  +- passthroughAssignments[]
 R289     +- precedingAssignmentUid                    The uid of the nearest assignment in assignments[] that precedes this element in MSPDI.
                                                       No key puts the element first; equal values keep array order.
@@ -437,8 +410,7 @@ R290     +- mspdiElement                              One whole MSPDI element th
 
 ```text
 R291  scheduleData
-R292  +- taskGroups[]                     The task groups, depth first, as a tree of drawing rows separate from the WBS; GRS
-                                          builds this list from the WBS when reading MSPDI.
+R292  +- taskGroups[]                     The task groups, depth first, as a tree of drawing rows separate from the WBS.
 R293  |  +- id                            GRS uses a UUID as the id of an object that only GRS defines, so that objects made apart
                                           never share an id; GRS writes the UUID in lower case.
 R294  |  +- name                          When the key is absent, GRS shows an empty title.
@@ -448,23 +420,21 @@ R296  |  +- siblingIndex                  GRS lists the task groups from the sma
 R297  |  +- style                         When style is absent, GRS leaves the Task Group Lane uncolored.
 R298  |  |  +- color                      (type TaskGroupColor)
 R299  |  +- minHeightPx                   Vertical zoom leaves this minimum unchanged.
-R300  |  +- representativeTaskUid         The uid of the WBS task that this task group stands for. When a person nests this task
-                                          group under another, GRS moves that task in the WBS to match.
+R300  |  +- representativeTaskUid         The uid of the WBS task that this task group stands for.
 R301  |  +- hyperlinkAddress
 R302  |  +- hyperlink                     The title of the task group link, not the address.
 R303  |  +- showMode                      What a person wants for this task group. "shown": GRS draws the task group at any depth
                                           unless an ancestor hides the task group. "hidden": GRS hides the task group and every
-                                          task group below, even on zoom or Zoom to Fit, until a person shows the task group
-                                          again. "automatic": GRS decides from automaticallyShownDepth, the pins and the path to a
-                                          shown task group below. "hiddenUntilZoomIn": GRS hides the task group and every task
-                                          group below until the next vertical zoom-in, and then changes the value to "automatic".
+                                          task group below. "automatic": GRS decides from automaticallyShownDepth, the pins and
+                                          the path to a shown task group below. "hiddenUntilZoomIn": GRS hides the task group and
+                                          every task group below until the next vertical zoom-in.
 R304  |  |  +- "shown"
 R305  |  |  +- "hidden"
 R306  |  |  +- "automatic"
 R307  |  |  +- "hiddenUntilZoomIn"
 R308  |  +- allowedEditorGroupName        The name of the group of people allowed to edit the tasks in this task group. GRS treats
                                           those tasks as read-only for every person and AI agent, because GRS alone holds no group
-                                          of its own, and refuses moves into a task group with another value.
+                                          of its own.
 R309  +- baselineTasks[]                  The baseline, a saved copy of earlier task dates. Baseline tasks hold no shape: each
                                           Baseline Outline takes the shape of the current task with the same uid.
 R310  |  +- uid                           The identifier of a task, a resource, an assignment or a calendar, unique within one
@@ -503,8 +473,7 @@ R330     |  +- stroke                     (type Stroke) When the key is absent, 
 R331     |  +- font
 R332     |     +- color                   (type Color)
 R333     |     +- sizePx                  Horizontal and vertical zoom leave this size unchanged.
-R334     +- leaderTarget                  When the target is deleted in GRS, GRS turns this object into a free point; when the
-                                          file names a target that the Schedule Data lacks, GRS draws no Leader Line.
+R334     +- leaderTarget                  When the file names a target that the Schedule Data lacks, GRS draws no Leader Line.
 R335     |  +- type
 R336     |  |  +- "freePoint"
 R337     |  |  +- "task"
@@ -519,7 +488,7 @@ R342     |  +- taskUid                    The identifier of a task, a resource, 
                                           array, the same as MSPDI UID, whether the entity came from MSPDI or GRS made the entity;
                                           GRS never reuses a uid.
 R343     |  +- snapPart                   Only when type is "task". "milestoneMark" on a milestone, "planBar" or "actualBar" on
-                                          other tasks. GRS hides the Comment Box while the named part is not drawn.
+                                          other tasks.
 R344     |  |  +- "planBar"
 R345     |  |  +- "actualBar"
 R346     |  |  +- "milestoneMark"
@@ -637,7 +606,7 @@ R428     +- "ascending"
 R429     +- "descending"
 R430  TaskTableWindow
 R431  +- isScheduleFilteredByChecks              Filter Schedule by Checks, on or off: when true, GRS draws on the Schedule Canvas only
-                                                 the tasks checked in this table. The table itself keeps every row.
+                                                 the tasks checked in this table.
 R432  +- checkedTaskUids[]                       The identifier of a task, a resource, an assignment or a calendar, unique within one
                                                  array, the same as MSPDI UID, whether the entity came from MSPDI or GRS made the entity;
                                                  GRS never reuses a uid.
@@ -673,15 +642,12 @@ An MSPDI object keeps the values that only GRS uses under the key grs of that ob
 GRS counts working days using a single calendar: the calendar that project.calendarUid names.
 Passthrough: GRS keeps the MSPDI values that GRS does not use in grs.passthrough of each object, and
 the MSPDI elements that GRS does not turn into objects in the passthrough lists; GRS writes both
-back to MSPDI unchanged.
+back to MSPDI.
 Actual dates are the authoritative source of task progress. GRS decides from the actual dates of a
 task, together with resume and resumeValid, whether the task is not started, in progress, suspended,
 or finished. GRS recalculates percentComplete from those dates when GRS opens a GRS JSON file.
 Delay Diagnostics: GRS never stores Delay Diagnostics results in a GRS JSON file, because a stored
 result goes out of date as soon as the Schedule Document changes.
-When a person starts Delay Diagnostics or an AI agent asks for Delay Diagnostics, GRS calculates the
-results from the current Schedule Data and project.statusDate.
-While GRS shows Delay Diagnostics results, GRS keeps those results and does not recalculate them.
 The shape of GRS JSON:
 $schema           Address of this schema
 schemaVersionUtc  Version of the shape

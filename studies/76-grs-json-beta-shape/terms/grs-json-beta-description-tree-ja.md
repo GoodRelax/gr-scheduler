@@ -35,7 +35,7 @@ R015  +- documentSettings          文書設定（下の「文書設定」）
 R016  +- scheduleData              スケジュールデータ（下の 2 つの群）
 R017  +- changeLogEntries[]        変更履歴
                                    変更履歴。変更履歴は、人や AI がスケジュール文書の変更について書くメモで、古いものから並
-                                   ぶ。GRS は新しい項目を末尾に足す。
+                                   ぶ。
 R018     +- changedAt              変更の時（UTC）
                                    GRS は項目を足すときに時刻を入れる。人は後でその時刻を変えてよい。
 R019     +- changedBy              変更した者
@@ -64,8 +64,7 @@ R031  |  +- "small"
 R032  |  +- "medium"
 R033  |  +- "large"
 R034  +- isThemeMonochrome                          モノクロか
-                                                    この値が true のとき、GRS はすべての色をモノクロで描く: テーマの色、パレットの色、任意の
-                                                    色。この値は描き方だけを変える。スケジュール文書に保存した色は変わらない。
+                                                    この値は描き方だけを変える。スケジュール文書に保存した色は変わらない。
 R035  +- themeHue                                   テーマの色相の名
                                                     GRS は各名の色相の角度を持つ。
 R036  |  +- "blue"
@@ -88,7 +87,6 @@ R048  |  |  +- "sameAsScheduleData"
 R049  |  |  +- "fixed"
 R050  |  +- utcOffset                               UTC との差（"+09:00" の形。標準時の行だけ）（fixed）
 R051  +- additionalTimeZones[]                      追加の時計（4 つまで）
-                                                    GRS が時刻を見せている間、各時計はタイムルーラーの下に 1 行を足す。
 R052  |  +- utcOffset                               UTC との差（"+09:00" の形）
                                                     この差は夏時間の分をもう含み、GRS はこの差を 1 年中使う。
 R053  |  +- zoneNameType                            出すゾーンの名の種類（差 utcOffset はもう夏時間の分を含む）
@@ -97,15 +95,13 @@ R054  |     +- "standard"
 R055  |     +- "daylight"
 R056  +- isTimeOfDayVisible                         時刻を見せるか（文書の全体の時刻の見せ方）
 R057  +- dayWidthPx                                 暦日 1 日の幅
-                                                    日の幅（横のズーム）: タイムルーラー上の暦日 1 日の幅。「全体を収める」がこの値を決める
-                                                    。
+                                                    日の幅（横のズーム）: タイムルーラー上の暦日 1 日の幅。
 R058  +- fitDayRange                                全体表示期間
                                                     全体表示時の期間。全体表示時の期間は、「全体を収める」と PNG・SVG の画像が見せる日々であ
                                                     る。
 R059  |  +- type                                    判別子
-                                                    "fixed": 全体表示時の期間は firstDay から lastDay まで余白なしで続き、その 2 日まるごと
-                                                    がタスクグループレーンズの両端に接する。"automatic": 全体表示時の期間は、GRS が描くもの
-                                                    すべてと余白を覆う。GRS は余白を決めるが、保存しない。
+                                                    "fixed": 全体表示時の期間は firstDay から lastDay まで余白なしで続く。"automatic": 全体
+                                                    表示時の期間は、GRS が描くものすべてと余白を覆う。GRS は余白を決めるが、保存しない。
 R060  |  |  +- "fixed"
 R061  |  |  +- "automatic"
 R062  |  +- firstDay                                最初の日（fixed）
@@ -113,29 +109,21 @@ R062  |  +- firstDay                                最初の日（fixed）
                                                     の最初の日。
 R063  |  +- lastDay                                 最後の日（fixed）
 R064  +- verticalZoom                               縦のズーム
-                                                    縦のズームの 1 段と「全体を収める」が一緒に変える 2 つの値。このキーが無いとき、GRS は「
-                                                    全体を収める」と同じように両方の値を選ぶ。automaticallyShownDepth だけが無いときは、GRS 
-                                                    はその値を「全体を収める」と同じように選ぶ。
+                                                    このキーが無いとき、GRS は「全体を収める」と同じように両方の値を選ぶ。automaticallyShown
+                                                    Depth だけが無いときは、GRS はその値を「全体を収める」と同じように選ぶ。
 R065  |  +- ratio                                   縦の倍率（1 が既定）
-                                                    タスク図形の縦の大きさの、既定の大きさに対する倍率。2 のとき、GRS は予定バー、実績バー、
-                                                    名称ラベルを 2 倍の高さで描く。
+                                                    タスク図形の縦の大きさの、既定の大きさに対する倍率。
 R066  |  +- automaticallyShownDepth                 automatic の帯を、この深さまで出す（1〜maxGroupDepth）
-                                                    showMode が "automatic" のタスクグループを、GRS がどの深さまで見せるか。ズームインの 1 
-                                                    段は、この値がスケジュール文書の中のいちばん深いタスクグループの深さに届いてから初めて r
-                                                    atio を変える。ratio はこの値を決して変えない。
+                                                    showMode が "automatic" のタスクグループを、GRS がどの深さまで見せるか。
 R067  +- taskGroupPanelWidthPx                      タスクグループパネルの幅（倍率 1 のときの CSS ピクセル）
 R068  +- isTaskGroupPanelWidthFixed                 幅を固定するか
-                                                    GRS はタスクグループパネルを、いつも taskGroupPanelWidthPx の幅で描く。true: 人が文書の
-                                                    設定で taskGroupPanelWidthPx を変え、パネル境界は動かない。false: パネル境界のドラッグが
-                                                     taskGroupPanelWidthPx を変える。
+                                                    true: taskGroupPanelWidthPx がタスクグループパネルの幅を決め、パネル境界は動かない。fals
+                                                    e: パネル境界のドラッグが taskGroupPanelWidthPx を変える。
 R069  +- pinnedTaskGroupIds[]                       ピン止めしたタスクグループの id
-                                                    ピン止めしたタスクグループの id。ピン止めしたタスクグループは、縦にスクロールしても上端
-                                                    に留まる。ピンは、showMode が "automatic" ならタスクグループをどの深さでも見せ、"hidden"
-                                                     なら決して見せない。showMode が "hidden" か "hiddenUntilZoomIn" の祖先があると、ピン止
-                                                    めしたタスクグループも隠れる。
+                                                    ピン止めしたタスクグループの id。
 R070  +- taskPlacementDirection                     帯の中で、重なるタスクを日付の早い順に置く向き
-                                                    積む向き。積む向きは、1 本のタスクグループレーンの中で重なるタスクを、GRS が早いタスクか
-                                                    ら積み段に積む向きである。この値はタスクグループの順を決めない。
+                                                    積む向き。積む向きは、1 本のタスクグループレーンの中で重なるタスクを、GRS が積み段に積む
+                                                    向きである。この値はタスクグループの順を決めない。
 R071  |  +- "bottomToTop"
 R072  |  +- "topToBottom"
 R073  +- scrollPosition                             開いたときの位置
@@ -164,28 +152,24 @@ R084  |  +- isBaselineOutlineVisible                前回予定を重ねるか�
 R085  |  +- isAssigneeLabelVisible                  担当のラベルを見せるか
 R086  |  +- isPercentCompleteLabelVisible           完了率のラベルを見せるか
 R087  |  +- isProgressStatusMarkVisible             進捗ステータスマークと再開マークを見せるか
-                                                    この値が true のとき、GRS は再開マークと進捗ステータスマークを描く。これらのマークは、イ
-                                                    ナズマ線の上ではなく実績バーの終わりの先で、形によって進捗ステータスを示す。
+                                                    この値が true のとき、GRS は再開マークと進捗ステータスマークを描く。
 R088  |  +- isPlanDatesVisible                      予定の日付を見せるか
-                                                    この値が true のとき、GRS は各名称ラベルの右に、予定の開始日と終了日を描く。
 R089  |  +- isDependencyLineVisible                 依存線を見せるか
 R090  |  +- isProgressLineVisible                   イナズマ線を見せるか
-                                                    この値が true のとき、GRS はイナズマ線を描く。イナズマ線は、基準日から各タスクのタスク進
-                                                    捗点を通る 1 本のジグザグの線である。
+                                                    この値が true のとき、GRS はイナズマ線を描く。
 R091  |  +- isDateGridLinesVisible                  日の罫線を見せるか
 R092  |  +- isTaskGroupGridLinesVisible             タスクグループ罫線（タスクグループの境の横線）を見せるか
 R093  +- delayDiagnosisSettings                     遅延診断の設定
 R094  |  +- parentTaskProgressToleranceWorkingDays  遅延診断が親タスクの進み具合に許す幅（稼働日）
                                                     親の進捗点が配下の進捗点からはみ出してよい稼働日の数。はみ出しがこれを超えると、遅延診断
-                                                    は親に疑義を付ける。この値は、どの終了の遅れも許さない。
+                                                    は親に疑義を付ける。
 R095  +- tableWindows                               3 つの表の見せ方
                                                     検索ウィンドウ、遅延診断レポートウィンドウ、担当リストウィンドウの表の、チェック、列のフ
                                                     ィルタ、並べ替え。このオブジェクトはウィンドウの位置を持たない。
 R096     +- searchWindow                            検索ウィンドウ -> TaskTableWindow
                                                     検索ウィンドウの表の設定。検索ウィンドウは、タスクの表かコメントボックスの表を、一度に 1
                                                      つ見せる。columnFilters は両方の表のフィルタを列で分けて持つ。columnSort は、どちらかの
-                                                    表の列で並べ替えを 1 つ持ち、そのとき他方の表は既定の並びで見せる。チェックはタスクの表
-                                                    だけのものである。
+                                                    表の列で並べ替えを 1 つ持つ。チェックはタスクの表だけのものである。
 R097     +- delayDiagnosisReportWindow              遅延診断レポート -> TaskTableWindow
 R098     +- resourceListWindow                      担当リスト -> ResourceTableWindow
 ```
@@ -195,7 +179,6 @@ R098     +- resourceListWindow                      担当リスト -> ResourceT
 ```text
 R099  scheduleData                                    スケジュールデータ（頭の値と、MSPDI と往復する群）
 R100  +- scheduleDataTimeZone                         データの日時の時差
-                                                      GRS はこのゾーンを MSPDI へ書かない。
 R101  |  +- utcOffset                                 UTC との差（"+09:00" の形。標準時の行だけ）
 R102  +- sourceFormat                                 元の形式
 R103  |  +- "grs"
@@ -213,21 +196,15 @@ R110  |  +- fileName                                  取り込んだファイ�
                                                       GRS はファイル名だけを書き、フォルダーを決して書かない。こうして、ファイルは個人のパスを
                                                       持たない。
 R111  +- highestIssuedUid                             uid の数え手（GRS が出した最も大きい uid）
-                                                      GRS が出した最も大きい uid。タスク、担当、割当、暦が、1 つの数え手を共にする。GRS は新し
-                                                      い実体に、この値に 1 を足した値を付ける。キーが無いとき、GRS は開くときに 4 つの一覧の u
-                                                      id の最大を数えてこの値にする。この値が 2147483647 に届いたら、GRS は新しい実体を足す操
-                                                      作を断る。
+                                                      GRS が出した最も大きい uid。タスク、担当、割当、暦が、1 つの数え手を共にする。キーが無い
+                                                      とき、GRS は開くときに 4 つの一覧の uid の最大を数えてこの値にする。
 R112  +- project [M]                                  プロジェクト（1 件）
                                                       scheduleData.project は、プロジェクト全体の値だけを持つ。MSPDI のリスト（calendars, task
                                                       s, resources, assignments）は、MSPDI のように project の中に入らず、scheduleData の中で 
                                                       project と並ぶ。
 R113  |  +- uid [M]                                   一意な識別子（文字列）
-                                                      GRS は別のファイルに上書きする前に、project.uid、project.name、ファイル名がすべて一致す
-                                                      るときだけ、そのファイルを同じスケジュール文書とみなす。無い値は決して一致しない。
 R114  |  +- name [M]                                  プロジェクト名
 R115  |  +- title [M]                                 タイトル
-                                                      GRS はこの値を、アプリヘッダーのプロジェクトタイトルとして見せる。GRS は、別名保存ダイア
-                                                      ログの既定のファイル名をこの値から作る。
 R116  |  +- subject [M]                               件名
 R117  |  +- category [M]                              分類
 R118  |  +- company [M]                               会社
@@ -252,8 +229,7 @@ R127  |  +- minutesPerDay [M]                         1 日の稼働の分
 R128  |  +- minutesPerWeek [M]                        1 週の稼働の分
 R129  |  +- daysPerMonth [M]                          1 か月の稼働日
 R130  |  +- weekStartDay [M]                          週の始まりの曜日
-                                                      日曜はここでは 0 だが、calendars[].weekDays[].dayType では 1 である。GRS はタイムルーラ
-                                                      ーの各週を、この曜日から始める。
+                                                      日曜はここでは 0 だが、calendars[].weekDays[].dayType では 1 である。
 R131  |  |  +- 0                                      日曜
 R132  |  |  +- 1                                      月曜
 R133  |  |  +- 2                                      火曜
@@ -262,8 +238,6 @@ R135  |  |  +- 4                                      木曜
 R136  |  |  +- 5                                      金曜
 R137  |  |  +- 6                                      土曜
 R138  |  +- statusDate [M]                            基準日
-                                                      GRS はこの日時に基準日線を描き、この日について遅延診断を行う。statusDate が無いとき、GRS
-                                                       は基準日線を描かず、遅延診断は動かない。
 R139  |  +- grs [G]                                   GRS の値
 R140  |     +- passthrough                            持ち越した MSPDI の値（MSPDI の構造と名のまま）
 R141  +- calendars[] [M]                              暦
@@ -303,8 +277,8 @@ R166  |     +- toDate [M] (TimePeriod/ToDate)         最後の日
 R167  |     +- dayWorking [M]                         稼働日か
 R168  |     +- type [M]                               例外の繰り返し方（判別子ではない）
                                                       GRS は一度きりの例外だけで稼働日を数える。一度きりの例外は fromDate から toDate までの毎
-                                                      日に効く: type 9、type なし、または period が 1 か period なしの type 1（毎日）。新しい
-                                                      例外は 1 を取る。GRS はほかの例外をそのまま保ち、数えるときには使わない。
+                                                      日に効く: type 9、type なし、または period が 1 か period なしの type 1（毎日）。GRS は
+                                                      ほかの例外をそのまま保ち、数えるときには使わない。
 R169  |     |  +- 1                                   毎日
 R170  |     |  +- 2                                   毎年、月の何日
 R171  |     |  +- 3                                   毎年、月の第何何曜日
@@ -330,16 +304,13 @@ R185  |  +- precedingCalendarUid                      前にある、いちば�
                                                       要素は先頭に来る。値が等しいときは、配列の順を保つ。
 R186  |  +- mspdiElement                              MSPDI の要素（構造と名のまま）
 R187  +- tasks[] [M]                                  タスク
-                                                      このリストの順は意味を持たない。parentTaskUid と siblingIndex が WBS の木を決める。GRS 
-                                                      は MSPDI のタスクをその木に沿って深さ優先で書き、ID、OutlineLevel、OutlineNumber、Summar
-                                                      y を作り直す。
+                                                      このリストの順は意味を持たない。parentTaskUid と siblingIndex が WBS の木を決める。
 R188  |  +- uid [M]                                   一意な識別子
 R189  |  +- name [M]                                  タスク名
 R190  |  +- start [M]                                 予定の開始
 R191  |  +- finish [M]                                予定の終了
                                                       マイルストーンの開始と終了は同じである。
 R192  |  +- stop [M]                                  作業が止まった時
-                                                      GRS はタスクを完了にするとき、stop を消す。そのあとは、actualFinish が終わりを持つ。
 R193  |  +- resume [M]                                再開の予定
 R194  |  +- resumeValid [M]                           再開日が有効か
                                                       書いた false だけが、再開日のない中断を示す。GRS は再開日を書くたびに true も書く。
@@ -393,8 +364,7 @@ R228  |  |  |  |  +- "meetingPeople"
 R229  |  |  |  |  +- "smilingFace"
 R230  |  |  |  |  +- "beerMug"
 R231  |  |  |  +- fill                                塗り -> Paint
-                                                      予定バー（マイルストーンではマイルストーンマーク）の塗り。GRS は実績バーも同じ色から塗る
-                                                      。キーが無いと塗りは無い。
+                                                      予定バー（マイルストーンではマイルストーンマーク）の塗り。キーが無いと塗りは無い。
 R232  |  |  |  +- stroke                              縁 -> Stroke
                                                       予定バーと実績バー（マイルストーンではマイルストーンマーク）の枠線。
 R233  |  |  +- taskGroupId                            載せるタスクグループ
@@ -411,10 +381,6 @@ R238  |  |  |  +- mspdiImportCountWhenLastIncluded    このタスクを最後�
                                                       このタスクを含むファイルを取り込んだ最後の時の scheduleData.mspdiImportCount の写し。値
                                                       が今の回数より小さいとき、最新の取り込みはこのタスクを含まなかった。
 R239  |  |  +- passthrough                            持ち越した MSPDI の値
-                                                      GRS が作ったタスクと、人が日付を変えたタスクに限り、GRS は Duration と ManualStart・Manu
-                                                      alFinish・ManualDuration を作り直し、ConstraintType と ConstraintDate を書き、FreeSlack
-                                                      ・TotalSlack・StartSlack・FinishSlack を書かない。人が実績の日付を変えた後は、GRS は Act
-                                                      ualDuration を作り直す。
 R240  |  +- predecessorLinks[] [M] (PredecessorLink)  先行への結び付き
 R241  |     +- predecessorUid [M]                     先行タスク
 R242  |     +- type [M]                               依存の種類（判別子ではない）
@@ -426,8 +392,8 @@ R247  |     +- linkLag [M]                            ラグ（0.1 分単位）
                                                       lagFormat に関わらず、0.1 分単位で表したラグ。4800 は 480 分で、project.minutesPerDay が
                                                        480 なら稼働日 1 日である。
 R248  |     +- lagFormat [M]                          ラグを見せる単位（e は経過時間、? は見積り）
-                                                      GRS は 3、5、7 のときだけラグを数え、ほかの番号ではラグを見せるだけである。lagFormat が
-                                                      無いとき、GRS はラグを 2880m のように分で見せ、数えには入れない。
+                                                      GRS は 3、5、7 のときだけラグを数える。lagFormat が無いとき、GRS はラグを数えには入れな
+                                                      い。
 R249  |     |  +- 3                                   m 分
 R250  |     |  +- 4                                   em
 R251  |     |  +- 5                                   h 時間
@@ -446,14 +412,12 @@ R263  |     |  +- 52                                  e%?
 R264  |     +- grs [G]                                GRS の値
 R265  |        +- passthrough                         持ち越した MSPDI の値
 R266  +- passthroughTasks[]                           GRS がタスクにしない MSPDI の要素
-                                                      tasks[] の外にある MSPDI の Task 要素まるごと。例えばプロジェクトの要約タスクで、GRS は
-                                                      これを最初に書く。
+                                                      tasks[] の外にある MSPDI の Task 要素まるごと。例えばプロジェクトの要約タスク。
 R267  |  +- precedingTaskUid                          前にある、いちばん近いタスクの uid（先頭では書かない）
                                                       MSPDI でこの要素より前にある、tasks[] の中のいちばん近いタスクの uid。キーが無いと、その
                                                       要素は先頭に来る。値が等しいときは、配列の順を保つ。
 R268  |  +- mspdiElement                              MSPDI の要素（構造と名のまま）
 R269  +- resources[] [M]                              担当
-                                                      GRS は担当を担当リストウィンドウに並べ、各タスクの担当を担当ラベルに見せる。
 R270  |  +- uid [M]                                   一意な識別子
 R271  |  +- name [M]                                  担当の名
 R272  |  +- type [M]                                  資材か作業か（判別子ではない）
@@ -488,8 +452,7 @@ R290     +- mspdiElement                              MSPDI の要素（構造�
 ```text
 R291  scheduleData                        スケジュールデータ（GRS だけが持つ配列。MSPDI の群の後に続く）
 R292  +- taskGroups[]                     タスクグループ
-                                          タスクグループ（深さ優先）。タスクグループは、WBS とは別の、描く行の木である。GRS は MSP
-                                          DI を読むとき、WBS からこのリストを作る。
+                                          タスクグループ（深さ優先）。タスクグループは、WBS とは別の、描く行の木である。
 R293  |  +- id                            一意な UUID
 R294  |  +- name                          タスクグループ名
                                           キーが無いとき、GRS は空の題を見せる。
@@ -504,18 +467,16 @@ R298  |  |  +- color                      帯の色 -> TaskGroupColor
 R299  |  +- minHeightPx                   帯の最も低い高さ
                                           縦のズームは、この最小の高さを変えない。
 R300  |  +- representativeTaskUid         この帯を代表する WBS のタスク
-                                          このタスクグループが代表する WBS のタスクの uid。人がこのタスクグループを別のタスクグル
-                                          ープの下に入れると、GRS はそれに合わせて、そのタスクを WBS の中で動かす。
+                                          このタスクグループが代表する WBS のタスクの uid。
 R301  |  +- hyperlinkAddress              リンク先の URL
 R302  |  +- hyperlink                     リンクのタイトル
                                           タスクグループのリンクのタイトルで、アドレスではない。
 R303  |  +- showMode                      この帯を出すかの意図（書かなければ automatic。hidden と hiddenUntilZoomIn は配下も隠す）
                                           このタスクグループについて人が望むこと。"shown": 祖先がこのタスクグループを隠さない限り
-                                          、GRS はどの深さでもこのタスクグループを描く。"hidden": 人が再び見せるまで、GRS はこのタ
-                                          スクグループと配下のすべてのタスクグループを隠し、ズームでも「全体を収める」でも隠したま
-                                          まにする。"automatic": GRS は、automaticallyShownDepth、ピン、見えている配下のタスクグル
-                                          ープへの道から決める。"hiddenUntilZoomIn": 次の縦のズームインまで、GRS はこのタスクグル
-                                          ープと配下のすべてのタスクグループを隠し、そのあと値を "automatic" に変える。
+                                          、GRS はどの深さでもこのタスクグループを描く。"hidden": GRS はこのタスクグループと配下の
+                                          すべてのタスクグループを隠す。"automatic": GRS は、automaticallyShownDepth、ピン、見えて
+                                          いる配下のタスクグループへの道から決める。"hiddenUntilZoomIn": 次の縦のズームインまで、G
+                                          RS はこのタスクグループと配下のすべてのタスクグループを隠す。
 R304  |  |  +- "shown"
 R305  |  |  +- "hidden"
 R306  |  |  +- "automatic"
@@ -523,7 +484,7 @@ R307  |  |  +- "hiddenUntilZoomIn"
 R308  |  +- allowedEditorGroupName        編集してよい組の名
                                           このタスクグループのタスクを編集してよい人の組の名。GRS はそれらのタスクを、どの人にもど
                                           の AI エージェントにも読み取り専用として扱う。GRS は単体では自分の組を持たないからである
-                                          。GRS は、値の違うタスクグループへの移動も断る。
+                                          。
 R309  +- baselineTasks[]                  前回予定
                                           前回予定。前回予定は、前のタスクの日付を保存した写しである。前回予定のタスクは形を持たな
                                           い。各前回予定輪郭は、同じ uid を持つ今のタスクの形を使う。
@@ -561,8 +522,7 @@ R332     |     +- color                   文字の色 -> Color
 R333     |     +- sizePx                  文字の大きさ
                                           横と縦のズームは、この大きさを変えない。
 R334     +- leaderTarget                  引出し線の先
-                                          GRS の中で先を消すと、GRS はこのオブジェクトを何にも付かない点に変える。スケジュールデー
-                                          タに無い先をファイルが指すとき、GRS は引出し線を描かない。
+                                          スケジュールデータに無い先をファイルが指すとき、GRS は引出し線を描かない。
 R335     |  +- type                       判別子
 R336     |  |  +- "freePoint"
 R337     |  |  +- "task"
@@ -575,7 +535,7 @@ R341     |  +- taskGroupTopOffsetPercent  帯の中の高さ（上の縁から %
 R342     |  +- taskUid                    タスク（task）
 R343     |  +- snapPart                   吸着する図形の部分（task）
                                           type が "task" のときだけ書く。マイルストーンでは "milestoneMark"、ほかのタスクでは "pla
-                                          nBar" か "actualBar"。名指した部分が描かれていない間、GRS はコメントボックスを隠す。
+                                          nBar" か "actualBar"。
 R344     |  |  +- "planBar"
 R345     |  |  +- "actualBar"
 R346     |  |  +- "milestoneMark"
@@ -695,7 +655,7 @@ R429     +- "descending"
 R430  TaskTableWindow                            タスクの表の見せ方（検索ウィンドウ・遅延診断レポート）
 R431  +- isScheduleFilteredByChecks              チェックで日程表を絞るか（チェックしたタスクだけを描く）
                                                  チェックでスケジュールを絞るかどうか: true のとき、GRS はスケジュールキャンバスに、この
-                                                 表でチェックしたタスクだけを描く。表そのものはすべての行を残す。
+                                                 表でチェックしたタスクだけを描く。
 R432  +- checkedTaskUids[]                       チェックしたタスク
 R433  +- columnFilters[]                         列のフィルタ（掛けた列ごとに 1 つ）-> ColumnFilter
                                                  この表の列のフィルタ（フィルタを掛けた列ごとに 1 つ）。
@@ -724,11 +684,9 @@ WBS は、MSPDI と同じく、親タスクと子タスクの木である。
 タスクグループは GRS 独自のオブジェクトである。GRS はタスクグループを使って、複数のタスクを 1 本のタスクグループレーンに描く。各タスクは grs.taskGroupId で、ちょうど 1 つのタスクグループを指す。
 MSPDI のオブジェクトは、GRS だけが使う値を、そのオブジェクトのキー grs の下に持つ。
 GRS は 1 つの暦で稼働日を数える。その暦は、project.calendarUid が指す暦である。
-passthrough: GRS は、使わない MSPDI の値を各オブジェクトの grs.passthrough に、オブジェクトにしない MSPDI の要素を passthrough… の配列に持ち、どちらも MSPDI へそのまま書き戻す。
+passthrough: GRS は、使わない MSPDI の値を各オブジェクトの grs.passthrough に、オブジェクトにしない MSPDI の要素を passthrough… の配列に持ち、どちらも MSPDI へ書き戻す。
 実績の日付が、タスクの進捗の正本である。GRS はタスクの実績の日付と resume・resumeValid から、そのタスクが未着手か、進行中か、中断か、完了かを決める。GRS は GRS JSON ファイルを開くとき、その日付から percentComplete を計算し直す。
 遅延診断: GRS は遅延診断の結果を GRS JSON ファイルに保存しない。保存した結果は、スケジュール文書が変わるとすぐに古くなるからである。
-人が遅延診断を始めるとき、または AI エージェントが遅延診断を求めるとき、GRS は今のスケジュールデータと project.statusDate から結果を計算する。
-GRS は遅延診断の結果を見せている間、その結果を保ち、計算し直さない。
 GRS JSON の形:
 $schema           このスキーマの所
 schemaVersionUtc  形の版
