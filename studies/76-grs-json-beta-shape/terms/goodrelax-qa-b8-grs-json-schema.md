@@ -84,57 +84,57 @@ BGQA8
 
 🔄 ***場面:** スキーマの説明は、ファイルの値の読み方（意味・単位・タイムゾーン・無いときの意味・GRS が読むときの扱い）だけを書く、と決めました（`JDG-3804`）。画面の描き方、操作の振る舞い、遅延診断や書き出しの細目は、将来変わり得るので消しました。消したのは次の文です（説明 10 個が丸ごと消え、30 個が短くなりました）。木の差 0、見本の検証エラー 0 です。*
 
-| 🔄 *#* | 🔄 *キー* | 🔄 *消した文（英語）* | 🔄 *何の約束だったか* |
+| 🔄 *#* | 🔄 *キー* | 🔄 *消した文（英語/日本語）* | 🔄 *何の約束だったか* |
 |:---|:---|:---|:---|
-| 🔄 *1* | 🔄 *`(root)`* | 🔄 *When a person starts Delay Diagnostics or an AI agent asks for Delay Diagnostics, GRS calculates the results from the current Schedule Data and project.statusDate.* | 🔄 *遅延診断の細目* |
-| 🔄 *2* | 🔄 *`(root)`* | 🔄 *While GRS shows Delay Diagnostics results, GRS keeps those results and does not recalculate them.* | 🔄 *画面の振る舞い* |
-| 🔄 *3* | 🔄 *`isThemeMonochrome`* | 🔄 *GRS draws every color in monochrome when this value is true: the theme colors, the palette colors and the custom colors.* | 🔄 *画面の描き方* |
-| 🔄 *4* | 🔄 *`additionalTimeZones`* | 🔄 *While GRS shows times of day, each clock adds a row under the Time Ruler.* | 🔄 *画面の描き方* |
-| 🔄 *5* | 🔄 *`dayWidthPx`* | 🔄 *Zoom to Fit sets this value.* | 🔄 *操作の振る舞い* |
-| 🔄 *6* | 🔄 *`type`* | 🔄 *and those two whole days touch the edges of the Task Group Lanes* | 🔄 *画面の描き方* |
-| 🔄 *7* | 🔄 *`verticalZoom`* | 🔄 *The two values that one step of vertical zoom and Zoom to Fit change together.* | 🔄 *操作の振る舞い* |
-| 🔄 *8* | 🔄 *`ratio`* | 🔄 *2 draws Plan Bars, Actual Bars and Name Labels twice as tall* | 🔄 *画面の描き方* |
-| 🔄 *9* | 🔄 *`automaticallyShownDepth`* | 🔄 *A zoom-in step changes ratio only after this value reaches the depth of the deepest task group in the Schedule Document; ratio never sets this value.* | 🔄 *操作の振る舞い* |
-| 🔄 *10* | 🔄 *`isTaskGroupPanelWidthFixed`* | 🔄 *GRS always draws the Task Group Panel at taskGroupPanelWidthPx.* | 🔄 *画面の描き方（true・false の意味は残した）* |
-| 🔄 *11* | 🔄 *`pinnedTaskGroupIds`* | 🔄 *which stay at the top during vertical scrolling* | 🔄 *画面の描き方* |
-| 🔄 *12* | 🔄 *`pinnedTaskGroupIds`* | 🔄 *A pin shows the task group at any depth if showMode is "automatic", never if "hidden"; an ancestor with showMode "hidden" or "hiddenUntilZoomIn" still hides the pinned task group.* | 🔄 *表示の細目* |
-| 🔄 *13* | 🔄 *`taskPlacementDirection`* | 🔄 *earliest task first* | 🔄 *画面の描き方* |
-| 🔄 *14* | 🔄 *`isProgressStatusMarkVisible`* | 🔄 *which show progress status by shape past the Actual Bar end, not on the Progress Line* | 🔄 *画面の描き方* |
-| 🔄 *15* | 🔄 *`isPlanDatesVisible`* | 🔄 *GRS draws the planned start and finish dates to the right of each Name Label when this value is true.* | 🔄 *画面の描き方* |
-| 🔄 *16* | 🔄 *`isProgressLineVisible`* | 🔄 *one zigzag line from the status date through the task progress point of each task* | 🔄 *画面の描き方* |
-| 🔄 *17* | 🔄 *`parentTaskProgressToleranceWorkingDays`* | 🔄 *This value excuses no late finish.* | 🔄 *遅延診断の細目* |
-| 🔄 *18* | 🔄 *`searchWindow`* | 🔄 *and the other table then shows the default order* | 🔄 *画面の振る舞い* |
-| 🔄 *19* | 🔄 *`scheduleDataTimeZone`* | 🔄 *GRS does not write this zone to MSPDI.* | 🔄 *書き出しの細目* |
-| 🔄 *20* | 🔄 *`highestIssuedUid`* | 🔄 *GRS gives a new entity this value plus 1.* | 🔄 *編集操作の振る舞い* |
-| 🔄 *21* | 🔄 *`highestIssuedUid`* | 🔄 *at 2147483647, GRS refuses to add a new entity.* | 🔄 *追加を断る操作* |
-| 🔄 *22* | 🔄 *`tasks`* | 🔄 *GRS writes MSPDI tasks depth first along that tree and rebuilds ID, OutlineLevel, OutlineNumber and Summary.* | 🔄 *書き出しの細目* |
-| 🔄 *23* | 🔄 *`passthroughTasks`* | 🔄 *which GRS writes first* | 🔄 *書き出しの細目* |
-| 🔄 *24* | 🔄 *`resources`* | 🔄 *GRS lists the resources in the Resource List Window and shows the resources of each task in the Assignee Label.* | 🔄 *画面の描き方* |
-| 🔄 *25* | 🔄 *`taskGroups`* | 🔄 *GRS builds this list from the WBS when reading MSPDI* | 🔄 *取り込みの細目* |
-| 🔄 *26* | 🔄 *`changeLogEntries`* | 🔄 *GRS adds a new entry at the end.* | 🔄 *編集操作の振る舞い* |
-| 🔄 *27* | 🔄 *`uid`* | 🔄 *Before writing over another file, GRS treats that file as the same Schedule Document only when project.uid, project.name and the file name all match; an absent value never matches.* | 🔄 *保存操作の振る舞い* |
-| 🔄 *28* | 🔄 *`title`* | 🔄 *GRS shows the value as the Project Title in the App Header and builds the default file name in the Save As Dialog from the value.* | 🔄 *画面と保存ダイアログの振る舞い* |
-| 🔄 *29* | 🔄 *`weekStartDay`* | 🔄 *GRS starts each week of the Time Ruler on this day.* | 🔄 *画面の描き方* |
-| 🔄 *30* | 🔄 *`statusDate`* | 🔄 *GRS draws the Status Line at this date-time and runs Delay Diagnostics for this date.* | 🔄 *画面の描き方と遅延診断の細目* |
-| 🔄 *31* | 🔄 *`statusDate`* | 🔄 *Without statusDate, GRS draws no Status Line and Delay Diagnostics does not run.* | 🔄 *画面の描き方と遅延診断の細目* |
-| 🔄 *32* | 🔄 *`type`* | 🔄 *a new exception takes 1* | 🔄 *編集操作の振る舞い* |
-| 🔄 *33* | 🔄 *`stop`* | 🔄 *GRS removes stop when GRS finishes the task; actualFinish then holds the end.* | 🔄 *状態遷移の操作* |
-| 🔄 *34* | 🔄 *`passthrough`* | 🔄 *Only for a task that GRS made or whose dates a person changed, GRS rebuilds Duration and ManualStart, ManualFinish and ManualDuration, writes ConstraintType and ConstraintDate, and leaves out FreeSlack, TotalSlack, StartSlack and FinishSlack; GRS rebuilds ActualDuration after a person changes the actual dates.* | 🔄 *書き出しの細目* |
-| 🔄 *35* | 🔄 *`lagFormat`* | 🔄 *and for other codes only shows the lag* | 🔄 *画面の見せ方* |
-| 🔄 *36* | 🔄 *`lagFormat`* | 🔄 *shows the lag in minutes, such as 2880m, and* | 🔄 *画面の見せ方* |
-| 🔄 *37* | 🔄 *`ImportOrigin`* | 🔄 *so that a later import of that file updates the task rather than adding a copy* | 🔄 *取り込みの細目* |
-| 🔄 *38* | 🔄 *`representativeTaskUid`* | 🔄 *When a person nests this task group under another, GRS moves that task in the WBS to match.* | 🔄 *操作の振る舞い* |
-| 🔄 *39* | 🔄 *`showMode`* | 🔄 *even on zoom or Zoom to Fit* | 🔄 *操作の振る舞い* |
-| 🔄 *40* | 🔄 *`showMode`* | 🔄 *until a person shows the task group again* | 🔄 *操作の振る舞い* |
-| 🔄 *41* | 🔄 *`showMode`* | 🔄 *and then changes the value to "automatic"* | 🔄 *状態遷移の操作* |
-| 🔄 *42* | 🔄 *`allowedEditorGroupName`* | 🔄 *and refuses moves into a task group with another value* | 🔄 *移動を断る操作* |
-| 🔄 *43* | 🔄 *`leaderTarget`* | 🔄 *When the target is deleted in GRS, GRS turns this object into a free point* | 🔄 *削除操作の振る舞い* |
-| 🔄 *44* | 🔄 *`snapPart`* | 🔄 *GRS hides the Comment Box while the named part is not drawn.* | 🔄 *画面の描き方* |
-| 🔄 *45* | 🔄 *`DocumentStamp`* | 🔄 *The Agent API uses this stamp to refuse writes based on an old read.* | 🔄 *Agent API の振る舞い* |
-| 🔄 *46* | 🔄 *`fill`* | 🔄 *GRS fills the Actual Bar from the same color* | 🔄 *画面の描き方* |
-| 🔄 *47* | 🔄 *`isScheduleFilteredByChecks`* | 🔄 *The table itself keeps every row.* | 🔄 *画面の振る舞い* |
-| 🔄 *48* | 🔄 *`（冒頭の説明）passthrough`* | 🔄 *unchanged（GRS writes both back to MSPDI unchanged）* | 🔄 *書き出しの細目（作り直す値があるので「そのまま」を約束しない）* |
-| 🔄 *49* | 🔄 *`Passthrough（型）`* | 🔄 *unchanged in MSPDI schema order, repeats in array order* | 🔄 *書き出しの細目* |
+| 🔄 *1* | 🔄 *`(root)`* | 🔄 *When a person starts Delay Diagnostics or an AI agent asks for Delay Diagnostics, GRS calculates the results from the current Schedule Data and project.statusDate.<br>人が遅延診断を始めるとき、または AI エージェントが遅延診断を求めるとき、GRS は今のスケジュールデータと project.statusDate から結果を計算する。* | 🔄 *遅延診断の細目* |
+| 🔄 *2* | 🔄 *`(root)`* | 🔄 *While GRS shows Delay Diagnostics results, GRS keeps those results and does not recalculate them.<br>GRS は遅延診断の結果を見せている間、その結果を保ち、計算し直さない。* | 🔄 *画面の振る舞い* |
+| 🔄 *3* | 🔄 *`isThemeMonochrome`* | 🔄 *GRS draws every color in monochrome when this value is true: the theme colors, the palette colors and the custom colors.<br>この値が true のとき、GRS はすべての色をモノクロで描く: テーマの色、パレットの色、任意の色。* | 🔄 *画面の描き方* |
+| 🔄 *4* | 🔄 *`additionalTimeZones`* | 🔄 *While GRS shows times of day, each clock adds a row under the Time Ruler.<br>GRS が時刻を見せている間、各時計はタイムルーラーの下に 1 行を足す。* | 🔄 *画面の描き方* |
+| 🔄 *5* | 🔄 *`dayWidthPx`* | 🔄 *Zoom to Fit sets this value.<br>「全体を収める」がこの値を決める。* | 🔄 *操作の振る舞い* |
+| 🔄 *6* | 🔄 *`type`* | 🔄 *and those two whole days touch the edges of the Task Group Lanes<br>その 2 日まるごとがタスクグループレーンズの両端に接する* | 🔄 *画面の描き方* |
+| 🔄 *7* | 🔄 *`verticalZoom`* | 🔄 *The two values that one step of vertical zoom and Zoom to Fit change together.<br>縦のズームの 1 段と「全体を収める」が一緒に変える 2 つの値。* | 🔄 *操作の振る舞い* |
+| 🔄 *8* | 🔄 *`ratio`* | 🔄 *2 draws Plan Bars, Actual Bars and Name Labels twice as tall<br>2 のとき、GRS は予定バー、実績バー、名称ラベルを 2 倍の高さで描く。* | 🔄 *画面の描き方* |
+| 🔄 *9* | 🔄 *`automaticallyShownDepth`* | 🔄 *A zoom-in step changes ratio only after this value reaches the depth of the deepest task group in the Schedule Document; ratio never sets this value.<br>ズームインの 1 段は、この値がスケジュール文書の中のいちばん深いタスクグループの深さに届いてから初めて ratio を変える。ratio はこの値を決して変えない。* | 🔄 *操作の振る舞い* |
+| 🔄 *10* | 🔄 *`isTaskGroupPanelWidthFixed`* | 🔄 *GRS always draws the Task Group Panel at taskGroupPanelWidthPx.<br>GRS はタスクグループパネルを、いつも taskGroupPanelWidthPx の幅で描く。* | 🔄 *画面の描き方（true・false の意味は残した）* |
+| 🔄 *11* | 🔄 *`pinnedTaskGroupIds`* | 🔄 *which stay at the top during vertical scrolling<br>縦にスクロールしても上端に留まる* | 🔄 *画面の描き方* |
+| 🔄 *12* | 🔄 *`pinnedTaskGroupIds`* | 🔄 *A pin shows the task group at any depth if showMode is "automatic", never if "hidden"; an ancestor with showMode "hidden" or "hiddenUntilZoomIn" still hides the pinned task group.<br>ピンは、showMode が "automatic" ならタスクグループをどの深さでも見せ、"hidden" なら決して見せない。showMode が "hidden" か "hiddenUntilZoomIn" の祖先があると、ピン止めしたタスクグループも隠れる。* | 🔄 *表示の細目* |
+| 🔄 *13* | 🔄 *`taskPlacementDirection`* | 🔄 *earliest task first<br>早いタスクから* | 🔄 *画面の描き方* |
+| 🔄 *14* | 🔄 *`isProgressStatusMarkVisible`* | 🔄 *which show progress status by shape past the Actual Bar end, not on the Progress Line<br>イナズマ線の上ではなく実績バーの終わりの先で、形によって進捗ステータスを示す* | 🔄 *画面の描き方* |
+| 🔄 *15* | 🔄 *`isPlanDatesVisible`* | 🔄 *GRS draws the planned start and finish dates to the right of each Name Label when this value is true.<br>この値が true のとき、GRS は各名称ラベルの右に、予定の開始日と終了日を描く。* | 🔄 *画面の描き方* |
+| 🔄 *16* | 🔄 *`isProgressLineVisible`* | 🔄 *one zigzag line from the status date through the task progress point of each task<br>基準日から各タスクのタスク進捗点を通る 1 本のジグザグの線* | 🔄 *画面の描き方* |
+| 🔄 *17* | 🔄 *`parentTaskProgressToleranceWorkingDays`* | 🔄 *This value excuses no late finish.<br>この値は、どの終了の遅れも許さない。* | 🔄 *遅延診断の細目* |
+| 🔄 *18* | 🔄 *`searchWindow`* | 🔄 *and the other table then shows the default order<br>そのとき他方の表は既定の並びで見せる* | 🔄 *画面の振る舞い* |
+| 🔄 *19* | 🔄 *`scheduleDataTimeZone`* | 🔄 *GRS does not write this zone to MSPDI.<br>GRS はこのゾーンを MSPDI へ書かない。* | 🔄 *書き出しの細目* |
+| 🔄 *20* | 🔄 *`highestIssuedUid`* | 🔄 *GRS gives a new entity this value plus 1.<br>GRS は新しい実体に、この値に 1 を足した値を付ける。* | 🔄 *編集操作の振る舞い* |
+| 🔄 *21* | 🔄 *`highestIssuedUid`* | 🔄 *at 2147483647, GRS refuses to add a new entity.<br>この値が 2147483647 に届いたら、GRS は新しい実体を足す操作を断る。* | 🔄 *追加を断る操作* |
+| 🔄 *22* | 🔄 *`tasks`* | 🔄 *GRS writes MSPDI tasks depth first along that tree and rebuilds ID, OutlineLevel, OutlineNumber and Summary.<br>GRS は MSPDI のタスクをその木に沿って深さ優先で書き、ID、OutlineLevel、OutlineNumber、Summary を作り直す。* | 🔄 *書き出しの細目* |
+| 🔄 *23* | 🔄 *`passthroughTasks`* | 🔄 *which GRS writes first<br>GRS はこれを最初に書く* | 🔄 *書き出しの細目* |
+| 🔄 *24* | 🔄 *`resources`* | 🔄 *GRS lists the resources in the Resource List Window and shows the resources of each task in the Assignee Label.<br>GRS は担当を担当リストウィンドウに並べ、各タスクの担当を担当ラベルに見せる。* | 🔄 *画面の描き方* |
+| 🔄 *25* | 🔄 *`taskGroups`* | 🔄 *GRS builds this list from the WBS when reading MSPDI<br>GRS は MSPDI を読むとき、WBS からこのリストを作る* | 🔄 *取り込みの細目* |
+| 🔄 *26* | 🔄 *`changeLogEntries`* | 🔄 *GRS adds a new entry at the end.<br>GRS は新しい項目を末尾に足す。* | 🔄 *編集操作の振る舞い* |
+| 🔄 *27* | 🔄 *`uid`* | 🔄 *Before writing over another file, GRS treats that file as the same Schedule Document only when project.uid, project.name and the file name all match; an absent value never matches.<br>GRS は別のファイルに上書きする前に、project.uid、project.name、ファイル名がすべて一致するときだけ、そのファイルを同じスケジュール文書とみなす。無い値は決して一致しない。* | 🔄 *保存操作の振る舞い* |
+| 🔄 *28* | 🔄 *`title`* | 🔄 *GRS shows the value as the Project Title in the App Header and builds the default file name in the Save As Dialog from the value.<br>GRS はこの値を、アプリヘッダーのプロジェクトタイトルとして見せる。GRS は、別名保存ダイアログの既定のファイル名をこの値から作る。* | 🔄 *画面と保存ダイアログの振る舞い* |
+| 🔄 *29* | 🔄 *`weekStartDay`* | 🔄 *GRS starts each week of the Time Ruler on this day.<br>GRS はタイムルーラーの各週を、この曜日から始める。* | 🔄 *画面の描き方* |
+| 🔄 *30* | 🔄 *`statusDate`* | 🔄 *GRS draws the Status Line at this date-time and runs Delay Diagnostics for this date.<br>GRS はこの日時に基準日線を描き、この日について遅延診断を行う。* | 🔄 *画面の描き方と遅延診断の細目* |
+| 🔄 *31* | 🔄 *`statusDate`* | 🔄 *Without statusDate, GRS draws no Status Line and Delay Diagnostics does not run.<br>statusDate が無いとき、GRS は基準日線を描かず、遅延診断は動かない。* | 🔄 *画面の描き方と遅延診断の細目* |
+| 🔄 *32* | 🔄 *`type`* | 🔄 *a new exception takes 1<br>新しい例外は 1 を取る* | 🔄 *編集操作の振る舞い* |
+| 🔄 *33* | 🔄 *`stop`* | 🔄 *GRS removes stop when GRS finishes the task; actualFinish then holds the end.<br>GRS はタスクを完了にするとき、stop を消す。そのあとは、actualFinish が終わりを持つ。* | 🔄 *状態遷移の操作* |
+| 🔄 *34* | 🔄 *`passthrough`* | 🔄 *Only for a task that GRS made or whose dates a person changed, GRS rebuilds Duration and ManualStart, ManualFinish and ManualDuration, writes ConstraintType and ConstraintDate, and leaves out FreeSlack, TotalSlack, StartSlack and FinishSlack; GRS rebuilds ActualDuration after a person changes the actual dates.<br>GRS が作ったタスクと、人が日付を変えたタスクに限り、GRS は Duration と ManualStart・ManualFinish・ManualDuration を作り直し、ConstraintType と ConstraintDate を書き、FreeSlack・TotalSlack・StartSlack・FinishSlack を書かない。人が実績の日付を変えた後は、GRS は ActualDuration を作り直す。* | 🔄 *書き出しの細目* |
+| 🔄 *35* | 🔄 *`lagFormat`* | 🔄 *and for other codes only shows the lag<br>ほかの番号ではラグを見せるだけである* | 🔄 *画面の見せ方* |
+| 🔄 *36* | 🔄 *`lagFormat`* | 🔄 *shows the lag in minutes, such as 2880m, and<br>ラグを 2880m のように分で見せ、* | 🔄 *画面の見せ方* |
+| 🔄 *37* | 🔄 *`ImportOrigin`* | 🔄 *so that a later import of that file updates the task rather than adding a copy<br>これにより、後でそのファイルを取り込むと、GRS は写しを足さずにそのタスクを更新する* | 🔄 *取り込みの細目* |
+| 🔄 *38* | 🔄 *`representativeTaskUid`* | 🔄 *When a person nests this task group under another, GRS moves that task in the WBS to match.<br>人がこのタスクグループを別のタスクグループの下に入れると、GRS はそれに合わせて、そのタスクを WBS の中で動かす。* | 🔄 *操作の振る舞い* |
+| 🔄 *39* | 🔄 *`showMode`* | 🔄 *even on zoom or Zoom to Fit<br>ズームでも「全体を収める」でも* | 🔄 *操作の振る舞い* |
+| 🔄 *40* | 🔄 *`showMode`* | 🔄 *until a person shows the task group again<br>人が再び見せるまで* | 🔄 *操作の振る舞い* |
+| 🔄 *41* | 🔄 *`showMode`* | 🔄 *and then changes the value to "automatic"<br>そのあと値を "automatic" に変える* | 🔄 *状態遷移の操作* |
+| 🔄 *42* | 🔄 *`allowedEditorGroupName`* | 🔄 *and refuses moves into a task group with another value<br>GRS は、値の違うタスクグループへの移動も断る* | 🔄 *移動を断る操作* |
+| 🔄 *43* | 🔄 *`leaderTarget`* | 🔄 *When the target is deleted in GRS, GRS turns this object into a free point<br>GRS の中で先を消すと、GRS はこのオブジェクトを何にも付かない点に変える。* | 🔄 *削除操作の振る舞い* |
+| 🔄 *44* | 🔄 *`snapPart`* | 🔄 *GRS hides the Comment Box while the named part is not drawn.<br>名指した部分が描かれていない間、GRS はコメントボックスを隠す。* | 🔄 *画面の描き方* |
+| 🔄 *45* | 🔄 *`DocumentStamp`* | 🔄 *The Agent API uses this stamp to refuse writes based on an old read.<br>Agent API はこの刻印を使って、古い読み取りに基づく書き込みを断る。* | 🔄 *Agent API の振る舞い* |
+| 🔄 *46* | 🔄 *`fill`* | 🔄 *GRS fills the Actual Bar from the same color<br>GRS は実績バーも同じ色から塗る* | 🔄 *画面の描き方* |
+| 🔄 *47* | 🔄 *`isScheduleFilteredByChecks`* | 🔄 *The table itself keeps every row.<br>表そのものはすべての行を残す。* | 🔄 *画面の振る舞い* |
+| 🔄 *48* | 🔄 *`（冒頭の説明）passthrough`* | 🔄 *unchanged（GRS writes both back to MSPDI unchanged）<br>そのまま（GRS は両方を MSPDI へそのまま書き戻す）* | 🔄 *書き出しの細目（作り直す値があるので「そのまま」を約束しない）* |
+| 🔄 *49* | 🔄 *`Passthrough（型）`* | 🔄 *unchanged in MSPDI schema order, repeats in array order<br>MSPDI のスキーマの順でそのまま、繰り返しは配列の順で* | 🔄 *書き出しの細目* |
 
 | 案 | 中身 | 変わること |
 |:---|:---|:---|
