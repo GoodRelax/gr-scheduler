@@ -1,669 +1,92 @@
-# [プロジェクト名] 仕様書
+# 仕様書のテンプレート（GRS）—— ANMS v0.36 を正にする
 
-**Grammar**: spec-anms.sgra
-**UID**: DOC-SPEC
-**Version**: 0.1
+⭐ **GRS の仕様書のテンプレートは ANMS v0.36 である**（持ち主の裁定 `JDG-3823`・`JDG-3824`、計画 `studies/82-anms-ndd-apply-plan/README.md` の B1）。原本は gr-sw-maker の `process-rules/spec-template-ja.md` の改定案の確定の写し（ANMS v0.36 draft v53、2026-11-23）で、写しを [`anms-v036-ja.md`](anms-v036-ja.md) に置く。⚠️ 改定案はまだ gr-sw-maker の `main` に無い —— 計画の B1 のとおり、確定の写しを原本に使う。⛔ 写しを手で直さない。直すときは原本を先に直し、写しを取り直す。
+⭐ **本書は、ANMS v0.36 を GRS に当てるときの決まりだけを持つ。** 章・節・ID・鎖・全章の決まり・運用は写しが持ち、本書は書き写さない。
+⚠️ **2026-11-24 まで、本書は GRS 独自の 10 章のテンプレート（Chapter 1〜10 と付録）だった。** 今の仕様書（`docs/spec/` の 4 ファイル）はまだ旧い形である —— 組み替えは計画の B5・B8・B9 が行う。組み替えの間は、3 節の対応表で旧い章を新しい章へ読む。
 
-## Chapter 1. Foundation (基本事項)
+---
 
-### 1.1 Background (背景)
+## 1. 仕様書の頭の 3 行と変更履歴
 
-**Type**: SECTION
+⭐ ANMS の「仕様書の冒頭」のとおり、仕様書の頭に次の 3 行を書く。
 
-[なぜこのソフトウェアが必要か、ドメインの現状を記入する]
-
-### 1.2 Challenges (課題)
-
-**Type**: SECTION
-
-[現状の具体的な問題点を記入する]
-
-### 1.3 Goals (目標)
-
-#### [達成すべき状態を 1 つ、機能の目標として記入する]
-
-**Type**: GOAL
-**UID**: GL-001
-
-**STATEMENT**: [誰が、何をできる状態になるかを 1 文で記入する]
-
-#### [達成すべき状態を 1 つ、品質の目標として記入する]
-
-**Type**: GOAL
-**UID**: GL-002
-
-**STATEMENT**: [速さ・安全・可用性のいずれかについて、達成すべき状態を 1 文で記入する]
-
-### 1.4 Approach (解決方針)
-
-**Type**: SECTION
-
-[技術スタックとアーキテクチャ方針を記入する]
-
-### 1.5 Scope (範囲)
-
-**Type**: SECTION
-
-| 区分         | 内容                                 |
-| ------------ | ------------------------------------ |
-| In-scope     | [本プロジェクトでやることを記入する] |
-| Out-of-scope | [やらないことを記入する]             |
-
-### 1.6 Constraints (制約事項)
-
-**Type**: SECTION
-
-[技術・法規・倫理・特許等、絶対に破れない制約を記入する]
-
-### 1.7 Limitations (制限事項)
-
-**Type**: SECTION
-
-[要求を完全には満たさないが許容可能な既知の妥協点を記入する]
-
-### 1.8 Glossary (用語集)
-
-**Type**: SECTION
-
-| 用語                     | 定義   |
-| ------------------------ | ------ |
-| [プロジェクト固有の用語] | [定義] |
-| [2 つ目の用語]           | [定義] |
-
-### 1.9 Notation (表記規約)
-
-**Type**: SECTION
-
-本書は RFC 2119 / RFC 8174 に従う。SHALL / MUST は必須、SHOULD は推奨、MAY は任意を表す。規範語として扱うのは大文字で書かれた場合に限る。
-
-**例外:** EARS 構文中の小文字 `shall` は、本書では大文字の SHALL と同じ拘束力を持つものとする。
-
-**文体:** 記述文では主語と他動詞の目的語を省略しない。指示文（「〜する（MUST）」の形）はこの限りでない。
-
-**図:** 大きな図は `_assets/fig-<name>.md` へ出して本文から参照する。判定の閾値を変更した場合はここに記す。
-
-**EARS 構文パターン（日英併記）:**
-
-| パターン | 英語構文 | 日本語の形 | 用途 |
-|---|---|---|---|
-| Ubiquitous | The [System] shall [Response]. | [System] は、[Response] すること。 | 常に成り立つ要求 |
-| Event-driven | **When** [Trigger], the [System] shall [Response]. | [Trigger] したとき、[System] は、[Response] すること。 | イベント起点の要求 |
-| State-driven | **While** [In State], the [System] shall [Response]. | [In State] の間、[System] は、[Response] すること。 | 状態依存の要求 |
-| Unwanted Behavior | **If** [Trigger], then the [System] shall [Response]. | もし [Trigger] ならば、[System] は、[Response] すること。 | 異常系・例外処理 |
-| Optional Feature | **Where** [Feature is included], the [System] shall [Response]. | [Feature] がある場合、[System] は、[Response] すること。 | オプション機能・条件付き機能 |
-| Complex | **While** [In State], **when** [Trigger], the [System] shall [Response]. | [In State] の間、[Trigger] したとき、[System] は、[Response] すること。 | 複合条件の要求。**状態が先、契機が後**（原論文の節順に従う） |
-
-**条件は主語より先に書く（MUST）。これが EARS の要点である。**
-
-**要求は必ず「〜すること。」で終える（MUST）。** 事実の記述は「〜する。」、推奨は「〜が望ましい。」で区別する。
-
-> **`Where` は、製品にその機能が入っているかどうかで分ける。実行時に切り替わるものは State-driven である（MUST）。**
-
-**`[System]` の定義。** EARS の `[System]` は、**Chapter 2.2 で「対象ソフトが載る」と記した機器の上で動くソフトウェアを指す。Chapter 2 を書かずに Chapter 4 を書いてはならない（MUST NOT）。**
-
-## Chapter 2. System Overview (システム概要)
-
-### 2.1 Overview Diagram (概要図)
-
-**Type**: SECTION
-
-**構成の概要:**
-
-```mermaid
-flowchart LR
-    Actor["[アクター名]"] -->|"[何が流れるか]"| Device
-    Device["[対象ソフトが載る機器]"]:::target -->|"[何が流れるか]"| Actor
-
-    classDef target fill:#FFFFFF,stroke:#000,stroke-width:4px
+```markdown
+**バージョン:** 20261124T000000Z
+**テンプレート:** ANMS v0.36
+**変更履歴:** ../development-records/changelog.md
 ```
 
-対象ソフトが載る機器を太枠で示す。色は使わない。線のラベルには何が流れるかを書く。
-
-### 2.2 Devices (機器)
-
-**Type**: SECTION
-
-| 機器           | 種別   | 対象ソフトが載るか | 供給元        | こちらで変えられるか        |
-| -------------- | ------ | ------------------ | ------------- | --------------------------- |
-| [機器名]       | [種別] | [載る / 載らない]  | [既存 / 新規] | [変えられる / 変えられない] |
-| [2 つ目の機器] | [種別] | [載る / 載らない]  | [既存 / 新規] | [変えられる / 変えられない] |
-
-### 2.3 Routes (経路)
-
-**Type**: SECTION
-
-| from   | to     | 運ぶもの   | 方式   | 入力として信頼できるか |
-| ------ | ------ | ---------- | ------ | ---------------------- |
-| [起点] | [終点] | [運ぶもの] | [方式] | [信頼できない]         |
-| [終点] | [起点] | [運ぶもの] | [方式] | [該当なし（送信のみ）] |
-
-### 2.4 Exclusions (持たないもの)
-
-**Type**: SECTION
-
-| 持たないもの           | 理由             |
-| ---------------------- | ---------------- |
-| [構成に含まれないもの] | [なぜ持たないか] |
-| [2 つ目の持たないもの] | [なぜ持たないか] |
-
-## Chapter 3. Use Cases (ユースケース)
-
-### 3.1 Actors (アクター)
-
-**Type**: SECTION
-
-| アクター           | アクター種別 | 対応する機器 | 関心           |
-| ------------------ | ------------ | ------------ | -------------- |
-| [アクター名]       | 人           | 該当なし     | [何を得たいか] |
-| [2 つ目のアクター] | 外部システム | [機器名]     | [何を得たいか] |
-
-### 3.2 Use Cases (ユースケース)
-
-#### [アクターの目標を動詞句で記入する]
-
-**Type**: USE_CASE
-**UID**: UC-001
-
-**STATEMENT**: [アクターが何を示し、システムが何を返すかを 1 文で記入する]
-
-**SCENARIO**:
-
-1. [アクターがすることを 1 文で記入する]
-2. [システムがすることを 1 文で記入する]
-3. [システムがすることを 1 文で記入する]
-
-**EXTENSIONS**:
-
-- 2a. [主成功シナリオから外れる条件を記入する]
-  - [そのときシステムがすることを記入する]
-
-**Relations**:
-
-- **Type**: `Parent`
-  **ID**: `GL-001`
-  **Role**: `Satisfies`
-
-#### [2 つ目のユースケース]
-
-**Type**: USE_CASE
-**UID**: UC-002
-
-**STATEMENT**: [1 文で書く]
-
-**SCENARIO**:
-
-1. [手順 1]
-2. [手順 2]
-3. [手順 3]
-
-**EXTENSIONS**:
-
-- 2a. [条件]
-  - [処置]
-
-**Relations**:
-
-- **Type**: `Parent`
-  **ID**: `GL-001`
-  **Role**: `Satisfies`
-
-## Chapter 4. Requirements (要求)
-
-### 4.1 Functional Requirements (機能要求)
-
-#### [システムの振る舞いを 1 つ、名前として記入する]
-
-**Type**: FUNC_REQ
-**UID**: FR-001
-
-**STATEMENT**: [EARS 1 文で記入する。条件を主語より先に置き、「〜すること。」で終える]
-
-**ORIGIN**: [どの手順または拡張から来たかを記入する]
-
-**RATIONALE**: [なぜこの要求が要るのかを記入する]
-
-**Relations**:
-
-- **Type**: `Parent`
-  **ID**: `UC-001`
-  **Role**: `Satisfies`
-
-#### [2 つ目の機能要求]
-
-**Type**: FUNC_REQ
-**UID**: FR-002
-
-**STATEMENT**: [EARS 1 文で書く]
-
-**ORIGIN**: [出どころ]
-
-**RATIONALE**: [理由]
-
-**Relations**:
-
-- **Type**: `Parent`
-  **ID**: `UC-002`
-  **Role**: `Satisfies`
-
-### 4.2 Non-Functional Requirements (非機能要求)
-
-#### [品質の要求を 1 つ、名前として記入する]
-
-**Type**: NON_FUNC_REQ
-**UID**: NFR-001
-
-**STATEMENT**: [測定可能な数値基準を含む EARS 1 文で記入する]
-
-**RATIONALE**: [どの経路・どの機器に効くのかを名前で記入する]
-
-**Relations**:
-
-- **Type**: `Parent`
-  **ID**: `GL-002`
-  **Role**: `Satisfies`
-
-#### [2 つ目の非機能要求]
-
-**Type**: NON_FUNC_REQ
-**UID**: NFR-002
-
-**STATEMENT**: [数値基準を含む EARS 1 文で書く]
-
-**RATIONALE**: [効く対象]
-
-**Relations**:
-
-- **Type**: `Parent`
-  **ID**: `GL-001`
-  **Role**: `Satisfies`
-
-### 4.3 Reduction Candidates (削減候補)
-
-**Type**: SECTION
-
-| 対象ID           | 紐づけ先が無い理由 | 外すと何が起きるか | ユーザーの判断 |
-| ---------------- | ------------------ | ------------------ | -------------- |
-| [UID / 候補なし] | [理由]             | [1 行で記入する]   | [残す / 外す]  |
-| [2 つ目の対象ID] | [理由]             | [1 行で書く]       | [残す / 外す]  |
-
-## Chapter 5. Design (設計)
-
-### 5.1 Architecture Concept (アーキテクチャ方式)
-
-**Type**: SECTION
-
-**層の凡例:**
-
-```mermaid
-graph RL
-    subgraph Legend["CA Layer Legend (dependency direction)"]
-        direction RL
-
-        L_F["Framework"]:::framework -->|"depends on"| L_A["Adapter"]:::adapter
-        L_A -->|"depends on"| L_U["Use Case"]:::usecase
-        L_U -->|"depends on"| L_E["Entity"]:::entity
-    end
-
-    classDef entity fill:#FF8C00,stroke:#333,color:#000
-    classDef usecase fill:#FFD700,stroke:#333,color:#000
-    classDef adapter fill:#90EE90,stroke:#333,color:#000
-    classDef framework fill:#87CEEB,stroke:#333,color:#000
-```
-
-[採用するアーキテクチャを記入する。Clean Architecture 以外を採る場合は凡例をここで差し替える]
-
-### 5.2 Components (コンポーネント)
-
-**Type**: SECTION
-
-[部品と責務の分割をコンポーネント図で記入する。各コンポーネントが Chapter 2.2 のどの機器に載るかを書く]
-
-### 5.3 File Structure (ファイル構成)
-
-**Type**: SECTION
-
-[ディレクトリ構成と、コンポーネントとフォルダの対応を記入する。各コンポーネントの公開面を宣言する]
-
-### 5.4 Domain Model (ドメインモデル)
-
-**Type**: SECTION
-
-[概念と関係を記入する。構造を持つ型が複数あるならクラス図、永続ストアを持つなら ER 図を描く]
-
-### 5.5 Behavior (振る舞い)
-
-**Type**: SECTION
-
-[処理フローと相互作用を記入する。持続する状態を持つなら状態遷移図、複数コンポーネントの相互作用があるならシーケンス図を描く]
-
-### 5.6 Decisions (設計判断)
-
-**Type**: SECTION
-
-**ADR-000 最小構成との比較:**
-
-| 項目         | 内容                                 |
-| ------------ | ------------------------------------ |
-| Context      | [要求を満たす最小の構成を記入する]   |
-| Decision     | [採用案が増やした要素を記入する]     |
-| Status       | [Proposed / Accepted / Superseded]   |
-| Consequences | [各々を増やした理由と代償を記入する] |
-
-**ADR-001 [2 つ目の設計判断]:**
-
-| 項目         | 内容                               |
-| ------------ | ---------------------------------- |
-| Context      | [背景]                             |
-| Decision     | [決めたこと]                       |
-| Status       | [Proposed / Accepted / Superseded] |
-| Consequences | [結果と代償]                       |
-
-**描かなかった図:** [図の種類と、描かなかった理由を 1 行で記入する。無ければ「該当なし」と記入する]
-
-## Chapter 6. Software Specification (ソフトウェア仕様)
-
-### 6.1 Software Specifications (ソフトウェア仕様)
-
-#### [実装可能な言明を 1 つ、名前として記入する]
-
-**Type**: SW_SPEC
-**UID**: SWS-001
-
-**STATEMENT**: [EARS 1 文で記入する。符号・状態遷移・境界値などの手段を書く]
-
-**RATIONALE**: [親の要求を、どの経路・どの条件で具体化したものかを記入する]
-
-**Relations**:
-
-- **Type**: `Parent`
-  **ID**: `FR-001`
-  **Role**: `Satisfies`
-
-#### [2 つ目のソフトウェア仕様]
-
-**Type**: SW_SPEC
-**UID**: SWS-002
-
-**STATEMENT**: [EARS 1 文で書く]
-
-**RATIONALE**: [具体化の理由]
-
-**Relations**:
-
-- **Type**: `Parent`
-  **ID**: `FR-002`
-  **Role**: `Satisfies`
-
-### 6.2 Data Schema (データスキーマ)
-
-**Type**: SECTION
-
-**[スキーマの名前]:**
-
-```json
-{
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "[名前]",
-  "type": "object",
-  "required": [],
-  "properties": {},
-  "additionalProperties": false
-}
-```
-
-[永続ストアを持たない場合は「持たない」と記入し、Chapter 2.4 と揃える]
-
-## Chapter 7. Test Strategy (テスト戦略)
-
-**Type**: SECTION
-
-| 系統                   | テストレベル            | 方針   | ツール/フレームワーク | 合格基準                 |
-| ---------------------- | ----------------------- | ------ | --------------------- | ------------------------ |
-| ユースケーステスト     | —（系統として持たない） | [方針] | [ツール]              | 全 `UC` PASS             |
-| ソフトウェア仕様テスト | `Unit`                  | [方針。**仕様書の外で実施する**（`5c`）。ケースは Ch9 に書かない] | [ツール]              | [合格率]                 |
-| ソフトウェア仕様テスト | `Integration`           | [方針] | [ツール]              | [合格率]                 |
-| ソフトウェア仕様テスト | `System`                | [方針] | [ツール]              | [合格率]                 |
-| 非機能テスト           | —（系統として持たない） | [方針] | [ツール]              | NFR 数値目標をすべて達成 |
-
-[機器をまたぐ検証は、どの経路（Chapter 2.3）を実際に通すかを名前で記入する]
-
-## Chapter 8. Use Case Tests (ユースケーステスト)
-
-### 8.1 Test Cases (テストケース)
-
-#### [確かめることを 1 つ、名前として記入する]
-
-**Type**: USE_CASE_TEST
-**UID**: TC-001
-
-**GIVEN**: [前提を完全な文で記入する]
-
-**WHEN**: [きっかけを完全な文で記入する]
-
-**THEN**: [観測できる結果を完全な文で記入する]
-
-**Relations**:
-
-- **Type**: `Parent`
-  **ID**: `UC-001`
-  **Role**: `Verifies`
-- **Type**: `File`
-  **Path**: `[テストコードの位置]`
-
-#### [2 つ目のテストケース]
-
-**Type**: USE_CASE_TEST
-**UID**: TC-002
-
-**GIVEN**: [前提]
-
-**WHEN**: [きっかけ]
-
-**THEN**: [結果]
-
-**Relations**:
-
-- **Type**: `Parent`
-  **ID**: `UC-002`
-  **Role**: `Verifies`
-- **Type**: `File`
-  **Path**: `[テストコードの位置]`
-
-### 8.2 Test Results (テスト結果)
-
-#### [PASS] [対応するテストケースの名前]
-
-**Type**: TEST_RESULT
-**UID**: TR-001
-**RESULT**: PASS
-
-**EVIDENCE**: [後から取り出せるログの位置・実行 ID・成果物のパスを記入する]
-
-**Relations**:
-
-- **Type**: `Parent`
-  **ID**: `TC-001`
-  **Role**: `ResultOf`
-
-#### [PASS] [2 つ目のテスト結果]
-
-**Type**: TEST_RESULT
-**UID**: TR-002
-**RESULT**: PASS
-
-**EVIDENCE**: [取り出せる位置]
-
-**Relations**:
-
-- **Type**: `Parent`
-  **ID**: `TC-002`
-  **Role**: `ResultOf`
-
-## Chapter 9. Software Specification Tests (ソフトウェア仕様テスト)
-
-### 9.1 Test Cases (テストケース)
-
-#### [確かめることを 1 つ、名前として記入する]
-
-**Type**: SW_SPEC_TEST
-**UID**: TC-003
-**TEST_LEVEL**: Integration
-
-**GIVEN**: [前提を完全な文で記入する]
-
-**WHEN**: [きっかけを完全な文で記入する]
-
-**THEN**: [観測できる結果を完全な文で記入する]
-
-**Relations**:
-
-- **Type**: `Parent`
-  **ID**: `SWS-001`
-  **Role**: `Verifies`
-- **Type**: `File`
-  **Path**: `[テストコードの位置]`
-
-#### [2 つ目のテストケース]
-
-**Type**: SW_SPEC_TEST
-**UID**: TC-004
-**TEST_LEVEL**: System
-
-**GIVEN**: [前提]
-
-**WHEN**: [きっかけ]
-
-**THEN**: [結果]
-
-**Relations**:
-
-- **Type**: `Parent`
-  **ID**: `SWS-002`
-  **Role**: `Verifies`
-- **Type**: `File`
-  **Path**: `[テストコードの位置]`
-
-### 9.2 Test Results (テスト結果)
-
-#### [PASS] [対応するテストケースの名前]
-
-**Type**: TEST_RESULT
-**UID**: TR-003
-**RESULT**: PASS
-
-**EVIDENCE**: [後から取り出せるログの位置・実行 ID・成果物のパスを記入する]
-
-**Relations**:
-
-- **Type**: `Parent`
-  **ID**: `TC-003`
-  **Role**: `ResultOf`
-
-#### [PASS] [2 つ目のテスト結果]
-
-**Type**: TEST_RESULT
-**UID**: TR-004
-**RESULT**: PASS
-
-**EVIDENCE**: [取り出せる位置]
-
-**Relations**:
-
-- **Type**: `Parent`
-  **ID**: `TC-004`
-  **Role**: `ResultOf`
-
-## Chapter 10. Non-Functional Tests (非機能テスト)
-
-### 10.1 Test Cases (テストケース)
-
-#### [確かめることを 1 つ、名前として記入する]
-
-**Type**: NON_FUNC_TEST
-**UID**: TC-005
-
-**GIVEN**: [測り方と負荷の条件を完全な文で記入する]
-
-**WHEN**: [きっかけを完全な文で記入する]
-
-**THEN**: [親の NON_FUNC_REQ と一致する数値を含む結果を完全な文で記入する]
-
-**Relations**:
-
-- **Type**: `Parent`
-  **ID**: `NFR-001`
-  **Role**: `Verifies`
-- **Type**: `File`
-  **Path**: `[テストコードの位置]`
-
-#### [2 つ目のテストケース]
-
-**Type**: NON_FUNC_TEST
-**UID**: TC-006
-
-**GIVEN**: [測り方と負荷の条件]
-
-**WHEN**: [きっかけ]
-
-**THEN**: [数値を含む結果]
-
-**Relations**:
-
-- **Type**: `Parent`
-  **ID**: `NFR-002`
-  **Role**: `Verifies`
-- **Type**: `File`
-  **Path**: `[テストコードの位置]`
-
-### 10.2 Test Results (テスト結果)
-
-#### [PASS] [対応するテストケースの名前]
-
-**Type**: TEST_RESULT
-**UID**: TR-005
-**RESULT**: PASS
-
-**EVIDENCE**: [後から取り出せるログの位置・実行 ID・成果物のパスを記入する]
-
-**Relations**:
-
-- **Type**: `Parent`
-  **ID**: `TC-005`
-  **Role**: `ResultOf`
-
-#### [PASS] [2 つ目のテスト結果]
-
-**Type**: TEST_RESULT
-**UID**: TR-006
-**RESULT**: PASS
-
-**EVIDENCE**: [取り出せる位置]
-
-**Relations**:
-
-- **Type**: `Parent`
-  **ID**: `TC-006`
-  **Role**: `ResultOf`
-
-## Appendix (付録)
-
-### A.1 References (参考文献)
-
-**Type**: SECTION
-
-[標準規格・外部資料へのリンクを記入する]
-
-### A.2 Licenses (ライセンス)
-
-**Type**: SECTION
-
-[依存ライブラリのライセンス情報を記入する]
-
-### A.3 Changelog (変更履歴)
-
-**Type**: SECTION
-
-| 版  | 日付         | 変更内容     |
-| --- | ------------ | ------------ |
-| 0.1 | [YYYY-MM-DD] | [初版]       |
-| 0.2 | [YYYY-MM-DD] | [2 つ目の版] |
+| 事 | GRS の決まり |
+|:---|:---|
+| 置き場 | 最初のファイルの頭だけに 3 行を書く。2 つ目から後のファイルの頭には、最初のファイルの名を書く。今のバージョンは頭だけに書き、ほかの所に写さない |
+| バージョンの書き方と上げ方 | 規則 10 の表（版の規則は規則 10 だけが持つ） |
+| 変更履歴のファイル | `docs/development-records/changelog.md`（仕様書と別のファイル。2026-09-11 から） |
+| 変更履歴の列 | 切り替えた後の行は「バージョン / 変更 / 変えた ID / 根拠」の 4 列で書く。「変えた ID」は足した ID・変えた ID・消した ID を分けて書く。「根拠」は変更を求めた記録の ID（`CR-`・`RVF-`・`OPQ-`・ADR の ID） |
+| 前の行 | 3 列（版 / 日付 / 変更内容）の行は書いたまま残す。4 列の行は、その下に見出しを分けた新しい表で末尾に足す。⛔ 行を書き換えない |
+| 最後の行 | 最後の行のバージョンは、仕様書の頭のバージョンと同じにする |
+| 切り替える時 | 頭の 3 行は、組み替え（計画の B8）が入るコミットで書く。それより前に「テンプレート: ANMS v0.36」と書かない —— 仕様がまだ旧い形だからである。StrictDoc の文書の欄（`**Grammar**`・`**UID**`）との並べ方と、古い `**Version**` の行の扱いは、B9 が組み立ての道具と一緒に決めて本表に書く |
+
+---
+
+## 2. GRS が ANMS に足す決まりと、ANMS の選択肢から選んだ決まり
+
+| 事 | GRS の決まり | 拠り所 |
+|:---|:---|:---|
+| 要求の表 | 要求は StrictDoc の節点（`UID`・`STATEMENT`・`PARENT`）で書く。ANMS の「ID / 要求文 / 親の ID」は `UID`・`STATEMENT`・`PARENT` の関係で読み、ANMS の traces の列は `PARENT` の関係で読む | `JDG-3831` |
+| 行 ID | 今の ID（桁をそろえていない ID を含む）は振り直さない。新しく足す接頭辞だけ 3 桁にする。表の行の ID（`S-`・`CM-` ほか）は、実装仕様の ID として保つ | 計画の 5 節、ANMS「ID の振り方」、基準書の「ID を振り直さない」。チーム T への問い T3 |
+| 未決の問い | 付録 A.3 に置く。列は ANMS の 6 列に「分類（`A`〜`I`）/ 触る行 ID」を足す | 規則 06 の 3 節 |
+| 機械が読む原本 | 製品のコードは 10,000 行を超える（2026-11-23 の実測 52,283 行、計画の 7 節）ので、用語集・ID の登録簿・状態遷移表の JSON は必須である。置き場: 用語集は CR-857 が作る `glossary.json`、ID の登録簿は `docs/spec/_source/row-id-prefixes.json`、状態遷移表は `docs/spec/_source/state-machines.json`。キーの形は計画の B3・B4 が合わせる | ANMS「機械が読む原本（JSON）」 |
+| UI の文言 | `docs/spec/_source/display-words.json`。英語を正にする | `JDG-3825` |
+| 仕様の原稿の和文 | `en` を正にするかは、チーム T の答え（T4）の後に決める | `JDG-3825` |
+| 仕様書の分け方 | ANMS の Chapter Structure の括弧の外側から分け、1 ファイルを約 100 KB までにする。ファイルの名は B9 が決めて本表に書く | ANMS「仕様書の分割」 |
+| 6.2 のシナリオ | Gherkin のシナリオを 6.2 に書き、今の e2e の試験の題にシナリオの ID（`SCN-xxx`）とユースケースの印のタグを付けて対応させる。新しい道具を足さない | `JDG-3830` |
+| テスト記録 | GT-2 ごとに、試験した sha とファイルごとの passed・failed・skipped の数の要約を `docs/development-records/test-records/` に置く | `JDG-3827` |
+| 第 7 章 | 設計原則の準拠確認の表を置く（計画の B13） | `JDG-3823` |
+| レビューの指摘 | 仕様書のノードは持たない。置き場は規則 07 の「レビュー指摘の置き場（GRS）」 | 規則 07 の付録 A.1 |
+
+---
+
+## 3. 旧い 10 章から ANMS v0.36 の章へ（組み替えの対応表）
+
+⭐ B8 は本表で節を移す。⛔ 移しても行 ID は変えない（2 節）。
+
+| 旧い章と節 | ANMS v0.36 の章と節 | 移すときに足すこと |
+|:---|:---|:---|
+| 1.1 Background | 1.1 Background | — |
+| （無い） | 1.2 Purposes・1.3 Analysis・1.4 Issues | 憲章の下書きから PUR・AN・ISS を書く（計画の B5、`JDG-3824`） |
+| 1.2 Challenges | 1.5 Challenges | 親を ISS にする（今は CH が子の GL を持つ向きで、逆である） |
+| 1.3 Goals | 1.6 Goals | 親を CH にする |
+| 1.4 Approach | 1.7 Approach | 見込みの行数と JSON を持つ判断を書く |
+| 1.5 Scope | 1.8 Scope | — |
+| 1.6 Constraints | 1.9 Constraints | — |
+| 1.7 Limitations | 1.10 Limitations | 実装を見送る MAY・SHOULD の要求の ID と理由 |
+| 1.8 Glossary | 1.11 Glossary | 表は用語集の JSON から作る |
+| 1.9 Notation | 1.12 Notation | — |
+| 2.1 Overview Diagram・2.2 Devices・2.3 Routes | 4.1 Architecture Concept・4.2 Components | — |
+| 2.4 Exclusions | 1.8 Scope（Out-of-scope） | — |
+| 3 Use Cases | 2.1 Use Cases（流れが要れば 2.2 Use Case Flows） | 6 つの欄と印（計画の B5） |
+| 4.1 Functional Requirements | 3.1 Functional Requirements | 親をユースケースの印か目標にする |
+| 4.2 Non-Functional Requirements | 3.2 Non-Functional Requirements | — |
+| 4.3 Reduction Candidates | 1.10 Limitations | — |
+| 5.1〜5.5 | 4.1〜4.5 | 図の要素の一覧表に traces の列 |
+| 5.6 Decisions | 4.6 Decisions（ADR） | — |
+| 6.1 Software Specifications | 5.x Natural Language Implementation Specification と、属する 5.x の節 | 「ID / 実装仕様 / traces」の表。新しい ID は `IMPS-xxx` |
+| 6.2 Data Schema | 5.x Data Schema | — |
+| 7 Test Strategy | 6.1 Test Strategy | 検証方法の表 |
+| 8 Use Case Tests | 6.2 Use Case Tests | シナリオ（`JDG-3830`） |
+| 9 Software Specification Tests・10 Non-Functional Tests | 6.3 から後の節 | — |
+| （無い） | 7 Design Principles Compliance | 計画の B13 |
+| A.1 References・A.2 Licenses | A.1 References・A.2 Licenses | — |
+| A.3 Changelog（2026-09-11 に `changelog.md` へ移した） | 頭の 3 行の「変更履歴」 | 1 節 |
+| （無い） | A.3 Open Questions | 開いた `PND` の行を `OPQ` で移す（計画の B7） |
+
+---
+
+## 4. 同じフォルダーのほかの文書
+
+| 文書 | 今の扱い |
+|:---|:---|
+| [`anms-v036-ja.md`](anms-v036-ja.md) | ANMS v0.36 の写し。テンプレートの正 |
+| [`spec-writing-rules.md`](spec-writing-rules.md) | ⚠️ 旧い 10 章の番号で書いてある。組み替えの間は 3 節の表で読む。⛔ ANMS v0.36 と食い違えば、ANMS v0.36 と本書に従う。書き直しは組み替え（B8）と一緒に行う |
+| [`00-ai-guide.md`](00-ai-guide.md)・[`01-ai-queries.md`](01-ai-queries.md) | StrictDoc の Markdown と jq の手引き。章立てに依らないので、そのまま使う |
+| [`spec.sgra`](spec.sgra) | StrictDoc の文法。要求の節点（2 節）が使う |
