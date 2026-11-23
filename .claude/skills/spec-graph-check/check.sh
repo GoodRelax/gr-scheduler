@@ -621,12 +621,17 @@ PYTHONIOENCODING=utf-8 python tools/ledger_metrics.py --check || failed
 echo ""
 section "25  provisional marks match the pending-decision list"
 # ⭐ 2026-11-24 (study 82, B2): the open questions of the NDD review standard
-# (appendix A.3) are held too, while B7 moves the open PND rows: a | OPQ-n |
-# row of docs/spec has six cells, every Provisional / Unimplemented comment
+# (appendix A.3) are held too, as rule 06 sections 3 and 6 write them, while
+# B7 moves the open PND rows: a | OPQ-n | row of docs/spec has eight cells
+# with a class A-I in the seventh, every Provisional / Unimplemented comment
 # and every (provisional / undecided: OPQ-n) mark of the specification names
-# a row, and every row is named by a mark. MEASURED by breaking it with probe
-# files: a 2-cell row, a mark in tools/ with no row, a spec mark with no row
-# and two rows with no mark gave the 5 problems expected.
+# a row, every row is named by a mark, a D-I row carries no Provisional
+# (except a row moved from a D-H STOP, printed on every run), an A-C row no
+# Unimplemented, and a PND row moved to OPQ-n (its state cell) points at a
+# row and keeps no @provisional mark. MEASURED by breaking it with probe
+# files: a 2-cell row, a mark with no row, a spec mark with no row, rows with
+# no mark, a bad class, Unimplemented on A, Provisional on E each reported;
+# Provisional on an F row a PND row moved to was printed and passed.
 PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/check-pending-decisions.py || failed
 
 echo ""

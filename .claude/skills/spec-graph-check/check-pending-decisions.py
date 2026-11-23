@@ -16,20 +16,28 @@ asks for the reason in the row, and why a person reads the list.
 
 THE OPEN QUESTIONS (OPQ, study 82 stage B2, 2026-11-24). The NDD review
 standard (appendix A.3) moves the open rows into an appendix of the
-specification as `OPQ-xxx`, with six columns: ID / Undecided point / Places
-searched / Decider / Provisional handling / Tests to fix on reversal. Its marks
-are `// Unimplemented: OPQ-n` and `// Provisional: OPQ-n` in code and tests,
-and `(provisional: OPQ-n)` / `(undecided: OPQ-n)` -- `（仮: OPQ-n）` /
-`（未決: OPQ-n）` in Japanese -- at the end of a sentence of the
-specification. While stage B7 moves the open PND rows, both halves are held:
+specification as `OPQ-xxx`. Rule 06 section 3 gives the row eight cells: the
+six of the standard (ID / Undecided point / Places searched / Decider /
+Provisional handling / Tests to fix on reversal) and two GRS adds (class A-I /
+row IDs touched). Its marks are `// Unimplemented: OPQ-n` and
+`// Provisional: OPQ-n` in code and tests, and `(provisional: OPQ-n)` /
+`(undecided: OPQ-n)` -- `（仮: OPQ-n）` / `（未決: OPQ-n）` in Japanese -- at the
+end of a sentence of the specification. Rule 06 section 6 is held:
 
-  - a `| OPQ-n |` row of a Markdown file under docs/spec with fewer than six
-    cells is malformed;
+  - a `| OPQ-n |` row of a Markdown file under docs/spec with fewer than
+    eight cells, or with no class A-I in its seventh cell, is malformed;
   - a mark naming an OPQ-n that no row holds is a problem (the answered
     question left its mark behind, or the row was never written);
   - a row that no mark names, in the tree or in the specification, is a
-    problem (the standard adds a row for each stopped or provisional place,
-    so a row with no place is stale).
+    problem (a row with no place is stale);
+  - a Provisional mark on a D-I row is a problem (the rule says wait), except
+    on a row moved from a D-H PND row whose code had already chosen (rule 06
+    section 3) -- those are counted and printed on every run;
+  - an Unimplemented mark on an A-C row is a problem (the rule says build).
+
+While stage B7 moves the open PND rows, the PND half stays: a moved PND row
+writes its OPQ-n in the state cell, the OPQ-n must have a row, and the moved
+row may no longer carry an `@provisional` mark.
 
 The ID of an answered question is never reused; check 44 holds that once
 the closed ID is added to retired.py.
@@ -52,15 +60,18 @@ TREES = ('src', 'tests', 'tools')
 
 MARK = re.compile(r'@provisional\s+(PND-\d+)')
 ROW = re.compile(r'^\|\s*(PND-\d+)\s*\|([^|]*)\|([^|]*)\|\s*([A-H])\s*\|'
-                 r'([^|]*)\|([^|]*)\|([^|]*)\|\s*(未裁定|裁定済)\s*\|')
+                 r'([^|]*)\|([^|]*)\|([^|]*)\|\s*(未裁定|裁定済|[^|]*?OPQ-\d+[^|]*?)\s*\|')
 DEFER_OK = ('A', 'B', 'C')
+OPQ_ID = re.compile(r'OPQ-\d+')
 
 SPEC = os.path.join(ROOT, 'docs', 'spec')
-OPQ_CODE_MARK = re.compile(r'(?:Unimplemented|Provisional):\s+(OPQ-\d+)')
+OPQ_CODE_MARK = re.compile(r'(Unimplemented|Provisional):\s+(OPQ-\d+)')
 OPQ_SPEC_MARK = re.compile(r'(?:\((?:provisional|undecided):\s*|'
                            r'\uff08(?:\u4eee|\u672a\u6c7a):\s*)(OPQ-\d+)')
 OPQ_ROW = re.compile(r'^\|\s*\**`?(OPQ-\d+)`?\**\s*\|')
-OPQ_CELLS = 6
+OPQ_CELLS = 8
+OPQ_CLASS_CELL = 6
+OPQ_CLASSES = frozenset('ABCDEFGHI')
 # A record whose state table has no unfinished row is a closed wave.
 UNFINISHED = ('⬜', '🔧', '🧪')
 
@@ -98,9 +109,12 @@ def rows_in_list():
         line = line.rstrip('\n')
         m = ROW.match(line)
         if m:
+            state = m.group(8).strip()
+            moved = OPQ_ID.search(state)
             rows[m.group(1)] = {'class': m.group(4),
                                 'wave': m.group(5).strip().strip('`'),
-                                'state': m.group(8)}
+                                'state': 'moved' if moved else state,
+                                'moved_to': moved.group(0) if moved else None}
         elif re.match(r'^\|\s*PND-\d+\s*\|', line):
             malformed.append(line.strip()[:90])
     return rows, malformed
@@ -120,10 +134,14 @@ def opq_rows_and_spec_marks():
                 line = line.strip()
                 row = OPQ_ROW.match(line)
                 if row:
-                    cells = [c for c in re.split(r'(?<!\\)\|', line)[1:-1]]
-                    if len(cells) < OPQ_CELLS:
+                    cells = [c.strip().strip('`*').strip()
+                             for c in re.split(r'(?<!\\)\|', line)[1:-1]]
+                    letter = (cells[OPQ_CLASS_CELL]
+                              if len(cells) >= OPQ_CELLS else None)
+                    if letter not in OPQ_CLASSES:
                         malformed.append('%s: %s' % (rel, line[:90]))
-                    rows.setdefault(row.group(1), rel)
+                        letter = None
+                    rows.setdefault(row.group(1), {'file': rel, 'class': letter})
                     continue
                 for opq in OPQ_SPEC_MARK.findall(line):
                     marks.setdefault(opq, []).append(rel)
@@ -142,19 +160,53 @@ def opq_marks_in_tree():
                     continue
                 path = os.path.join(here, name)
                 body = io.open(path, encoding='utf-8', errors='replace').read()
-                for opq in OPQ_CODE_MARK.findall(body):
+                for kind, opq in OPQ_CODE_MARK.findall(body):
                     rel = os.path.relpath(path, ROOT).replace('\\', '/')
-                    found.setdefault(opq, []).append(rel)
+                    found.setdefault(opq, []).append((kind, rel))
     return found
 
 
-def opq_problems():
+def opq_problems(pnd_rows):
     """The OPQ half of the check (docstring, THE OPEN QUESTIONS)."""
     rows, malformed, spec_marks = opq_rows_and_spec_marks()
-    code_marks = opq_marks_in_tree()
-    problems = ['an OPQ row holds fewer than %d cells (ID / Undecided point / '
-                'Places searched / Decider / Provisional handling / Tests to '
-                'fix on reversal): %s' % (OPQ_CELLS, line) for line in malformed]
+    marked = opq_marks_in_tree()
+    code_marks = dict((opq, [rel for _k, rel in places])
+                      for opq, places in marked.items())
+    problems = ['an OPQ row lacks its %d cells (ID / Undecided point / Places '
+                'searched / Decider / Provisional handling / Tests to fix on '
+                'reversal / class A-I / row IDs touched) or its class: %s'
+                % (OPQ_CELLS, line) for line in malformed]
+    # Rule 06 section 3: a D-H PND row whose code had already chosen moves to
+    # an OPQ row that keeps its Provisional mark; only those are excused.
+    moved_from_stop = set(row['moved_to'] for row in pnd_rows.values()
+                          if row['moved_to'] and row['class'] not in DEFER_OK)
+    for pd, row in sorted(pnd_rows.items()):
+        if row['moved_to'] and row['moved_to'] not in rows:
+            problems.append('%s says it moved to %s, but no | %s | row of '
+                            'docs/spec holds it' % (pd, row['moved_to'],
+                                                    row['moved_to']))
+    excused = []
+    for opq, places in sorted(marked.items()):
+        letter = rows.get(opq, {}).get('class')
+        if letter is None:
+            continue
+        for kind, rel in places:
+            if kind == 'Provisional' and letter not in DEFER_OK:
+                if opq in moved_from_stop:
+                    excused.append('%s %s' % (opq, rel))
+                else:
+                    problems.append('%s is class %s, which the rule says to '
+                                    'wait for, yet %s marks it Provisional'
+                                    % (opq, letter, rel))
+            if kind == 'Unimplemented' and letter in DEFER_OK:
+                problems.append('%s is class %s, which the rule says to build '
+                                'provisionally, yet %s marks it Unimplemented'
+                                % (opq, letter, rel))
+    if excused:
+        sys.stdout.write('INFO     %d Provisional mark(s) on D-H rows moved '
+                         'from a STOP (rule 06 section 3, High acceptance '
+                         'table of JDG-3826): %s\n'
+                         % (len(excused), ', '.join(excused)))
     for opq in sorted(set(code_marks) - set(rows)):
         problems.append('%s is marked in %s but no | %s | row of docs/spec '
                         'holds it -- an answered question leaves no mark, and '
@@ -167,7 +219,7 @@ def opq_problems():
         problems.append('%s has a row (%s) but no mark names it -- neither a '
                         'Provisional / Unimplemented comment nor a '
                         '(provisional / undecided: %s) mark in the '
-                        'specification' % (opq, rows[opq], opq))
+                        'specification' % (opq, rows[opq]['file'], opq))
     return problems, len(rows)
 
 
@@ -234,6 +286,11 @@ def main():
                             'provisional mark -- rule 06 section 3 strikes the '
                             'mark BEFORE the state moves, so one of the two is '
                             'wrong' % (pd, ', '.join(sorted(marks[pd]))))
+        if row['state'] == 'moved' and pd in marks:
+            problems.append('%s moved to %s, but %s still carries its '
+                            '@provisional mark -- the mark becomes Provisional: '
+                            '%s' % (pd, row['moved_to'],
+                                    ', '.join(sorted(marks[pd])), row['moved_to']))
 
     for wave in closed_waves():
         for pd, row in sorted(rows.items()):
@@ -244,7 +301,7 @@ def main():
                                 'reversed may not be left behind a finished '
                                 'wave' % (wave, pd, row['class']))
 
-    more, open_questions = opq_problems()
+    more, open_questions = opq_problems(rows)
     problems.extend(more)
 
     if problems:
