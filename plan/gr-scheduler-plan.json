@@ -14,7 +14,7 @@
       "creationDate": "2026-10-31T08:50:00",
       "revision": 11,
       "startDate": "2026-10-17T05:30:00",
-      "statusDate": "2026-11-23T12:22:00",
+      "statusDate": "2026-11-23T12:32:00",
       "minutesPerDay": 1440,
       "minutesPerWeek": 10080,
       "daysPerMonth": 30,
@@ -8092,7 +8092,7 @@
         "percentComplete": 0,
         "fadeInDays": null,
         "fadeOutDays": null,
-        "notes": "pmo-5 2026-11-22T11:53: owner answer on group 2 (a: get it out, naming first; BOSS line 11-22). Replaces the per-part tasks 354..361 and 419..434 (3.60 terms/h). Length 4.0 h is a BOSS placeholder (provisional). SUB: Opus 5.5 high. pmo-6 2026-11-23T12:22: started 11:31 after the BGQA7 rulings (45 names aligned by the policy). The seat's last turn was stopped (likely by the owner; no reason recorded). 4 h placeholder kept (provisional).",
+        "notes": "pmo-5 2026-11-22T11:53: owner answer on group 2 (a: get it out, naming first; BOSS line 11-22). Replaces the per-part tasks 354..361 and 419..434 (3.60 terms/h). Length 4.0 h is a BOSS placeholder (provisional). SUB: Opus 5.5 high. pmo-6 2026-11-23T12:22: started 11:31 after the BGQA7 rulings (45 names aligned by the policy). The seat's last turn was stopped (likely by the owner; no reason recorded). 4 h placeholder kept (provisional). pmo-6 2026-11-23T12:32: BOSS line: the Agent API seat resumed after the stop and continues 464; it waits for the owner on questions 9..11 added to BGQA7 (raised while aligning the 45 names). 4 h kept (provisional; no measured number yet).",
         "dependencies": [
           {
             "predecessorUid": 463,
@@ -8587,7 +8587,7 @@
         "percentComplete": 0,
         "fadeInDays": null,
         "fadeOutDays": null,
-        "notes": "pmo-6 2026-11-23T12:22: the successor seat \"GRS JSON schema 2\" (local_8f8cf250) started now: 16 fixes to apply and 10 checks. Length = 26 rows at 8.6 rows/h (provisional). SUB: Opus 5.5 high.",
+        "notes": "pmo-6 2026-11-23T12:22: the successor seat \"GRS JSON schema 2\" (local_8f8cf250) started now: 16 fixes to apply and 10 checks. Length = 26 rows at 8.6 rows/h (provisional). SUB: Opus 5.5 high. pmo-6 2026-11-23T12:32: BOSS line: the successor applied the 18 seat-fix items (uncommitted), examined the 10 spec checks, and waits for the owner on question C9 (first of the 3 owner questions, task 480). Length kept (provisional).",
         "dependencies": [
           {
             "predecessorUid": 474,
@@ -8605,13 +8605,13 @@
         "uid": 480,
         "parentTaskUid": null,
         "wbsOrder": 339,
-        "name": "🌑 オーナー: ③ スキーマの残り 3 問に答える(BGQA8 の 問 3-3・5-2 ほか)",
-        "start": "2026-11-23T12:22:00",
-        "finish": "2026-11-23T12:42:55",
+        "name": "🌒 オーナー: ③ スキーマの残り 3 問に答える(BGQA8 の 問 3-3・5-2 ほか)",
+        "start": "2026-11-23T12:32:00",
+        "finish": "2026-11-23T12:52:55",
         "milestone": false,
         "deadline": null,
         "calendarUid": null,
-        "actualStart": null,
+        "actualStart": "2026-11-23T12:32:00",
         "stop": null,
         "actualFinish": null,
         "resume": null,
@@ -8619,7 +8619,7 @@
         "percentComplete": 0,
         "fadeInDays": null,
         "fadeOutDays": null,
-        "notes": "pmo-6 2026-11-23T12:22: the schema successor asks the owner 3 questions (BGQA8 leftovers 3-3 and 5-2 among them). Length = 3 questions at 8.6 rows/h in owner hours (provisional).",
+        "notes": "pmo-6 2026-11-23T12:22: the schema successor asks the owner 3 questions (BGQA8 leftovers 3-3 and 5-2 among them). Length = 3 questions at 8.6 rows/h in owner hours (provisional). pmo-6 2026-11-23T12:32: started: the successor put question C9 (1 of 3) to the owner. Finish = now + 3 questions at 8.6 rows/h (provisional).",
         "dependencies": [
           {
             "predecessorUid": 474,
@@ -14428,10 +14428,10 @@
     "zoomY": 1.099862517185352
   },
   "documentStamp": {
-    "scheduleUpdatedAt": "2026-11-23T03:22:00Z",
+    "scheduleUpdatedAt": "2026-11-23T03:32:00Z",
     "lastEditedBy": "PMO child session",
     "settingsUpdatedAt": "2026-10-20T20:24:42Z",
-    "fileSavedAt": "2026-11-23T03:22:00Z"
+    "fileSavedAt": "2026-11-23T03:32:00Z"
   },
   "changeLog": [
     {
@@ -15093,6 +15093,12 @@
       "editedBy": "PMO child session",
       "explanation": "Fact at 11-23 12:22 JST: BOSS brief, the schema seat finished its part (cuts 2-3, BGQA8 JDG-3757..3766, outside AI review triage 9d7f7a141) and stopped at 85% context; successor seat 479 and owner task 480 added. The Agent API seat closed BGQA7 (JDG-3771..3780, develop 45fa0f788): 463 and 468 done, 464 started. PMO changed from pmo-5 to pmo-6. Later steps re-placed. N1 (316) and the beta (234) stay.",
       "changedAt": "2026-11-23T03:22:00Z"
+    },
+    {
+      "ordinal": 111,
+      "editedBy": "PMO child session",
+      "explanation": "Fact at 11-23 12:32 JST: BOSS line, the Agent API seat resumed 464 and waits for the owner on BGQA7 questions 9-11; the schema successor applied 18 fixes (uncommitted) and waits for the owner on question C9, so 480 started. Lengths stay provisional. N1 (316) and the beta (234) stay.",
+      "changedAt": "2026-11-23T03:32:00Z"
     }
   ]
 }
