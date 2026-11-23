@@ -14,7 +14,7 @@
       "creationDate": "2026-10-31T08:50:00",
       "revision": 11,
       "startDate": "2026-10-17T05:30:00",
-      "statusDate": "2026-11-23T12:32:00",
+      "statusDate": "2026-11-23T12:56:00",
       "minutesPerDay": 1440,
       "minutesPerWeek": 10080,
       "daysPerMonth": 30,
@@ -24,7 +24,7 @@
       "defaultFinishTime": "23:59:00",
       "themeHue": 214,
       "parentTaskProgressToleranceDays": 1,
-      "uidHighWaterMark": 480,
+      "uidHighWaterMark": 482,
       "importSequence": 0,
       "carry": {},
       "carryElements": [],
@@ -7780,7 +7780,7 @@
         "finish": "2026-11-24T17:01:00",
         "milestone": false,
         "deadline": null,
-        "notes": "pmo-5 2026-11-22: new task for the deliverable tree (owner order). Input: the settled contract names of both groups (after part 13 is recorded, uid 418, and part 37 is recorded, uid 434; BOSS 11-22). Output: the list of differences between the settled names and the current spec and code, handed to CR-855/856. Length 1 day is a PMO placeholder (no measured number yet). SUB model: Opus 5.5 high. pmo-6 2026-11-23T12:22: now follows 479 and 480 (the schema successor and the owner answers) instead of 474.",
+        "notes": "pmo-5 2026-11-22: new task for the deliverable tree (owner order). Input: the settled contract names of both groups (after part 13 is recorded, uid 418, and part 37 is recorded, uid 434; BOSS 11-22). Output: the list of differences between the settled names and the current spec and code, handed to CR-855/856. Length 1 day is a PMO placeholder (no measured number yet). SUB model: Opus 5.5 high. pmo-6 2026-11-23T12:22: now follows 479 and 480 (the schema successor and the owner answers) instead of 474. pmo-6 2026-11-23T12:56: also waits for 482 (BGQA8 next round applied).",
         "calendarUid": null,
         "actualStart": null,
         "stop": null,
@@ -7809,6 +7809,14 @@
           },
           {
             "predecessorUid": 480,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          },
+          {
+            "predecessorUid": 482,
             "linkType": 1,
             "linkLag": 0,
             "lagFormat": 7,
@@ -8573,21 +8581,21 @@
         "uid": 479,
         "parentTaskUid": null,
         "wbsOrder": 338,
-        "name": "🌒 ③ GRS JSON schema 2 の席が直しを当て、確かめる(SUB)",
+        "name": "🌕 ③ GRS JSON schema 2 の席が直しを当て、確かめる(SUB)",
         "start": "2026-11-23T12:22:00",
-        "finish": "2026-11-23T15:23:23",
+        "finish": "2026-11-23T12:55:00",
         "milestone": false,
         "deadline": null,
         "calendarUid": null,
         "actualStart": "2026-11-23T12:22:00",
         "stop": null,
-        "actualFinish": null,
+        "actualFinish": "2026-11-23T12:55:00",
         "resume": null,
         "resumeValid": null,
-        "percentComplete": 0,
+        "percentComplete": 100,
         "fadeInDays": null,
         "fadeOutDays": null,
-        "notes": "pmo-6 2026-11-23T12:22: the successor seat \"GRS JSON schema 2\" (local_8f8cf250) started now: 16 fixes to apply and 10 checks. Length = 26 rows at 8.6 rows/h (provisional). SUB: Opus 5.5 high. pmo-6 2026-11-23T12:32: BOSS line: the successor applied the 18 seat-fix items (uncommitted), examined the 10 spec checks, and waits for the owner on question C9 (first of the 3 owner questions, task 480). Length kept (provisional).",
+        "notes": "pmo-6 2026-11-23T12:22: the successor seat \"GRS JSON schema 2\" (local_8f8cf250) started now: 16 fixes to apply and 10 checks. Length = 26 rows at 8.6 rows/h (provisional). SUB: Opus 5.5 high. pmo-6 2026-11-23T12:32: BOSS line: the successor applied the 18 seat-fix items (uncommitted), examined the 10 spec checks, and waits for the owner on question C9 (first of the 3 owner questions, task 480). Length kept (provisional). pmo-6 2026-11-23T12:56: done. The successor applied 25 of the outside AI findings, changed 3 required lists and recorded C9 (JDG-3767; b673ed3e8 12:55, develop b673ed3e8). Actual 33 min against the 3 h placeholder.",
         "dependencies": [
           {
             "predecessorUid": 474,
@@ -8605,13 +8613,45 @@
         "uid": 480,
         "parentTaskUid": null,
         "wbsOrder": 339,
-        "name": "🌒 オーナー: ③ スキーマの残り 3 問に答える(BGQA8 の 問 3-3・5-2 ほか)",
+        "name": "🌕 オーナー: ③ スキーマの残り 3 問に答える(BGQA8 の 問 3-3・5-2 ほか)",
         "start": "2026-11-23T12:32:00",
-        "finish": "2026-11-23T12:52:55",
+        "finish": "2026-11-23T12:55:00",
         "milestone": false,
         "deadline": null,
         "calendarUid": null,
         "actualStart": "2026-11-23T12:32:00",
+        "stop": null,
+        "actualFinish": "2026-11-23T12:55:00",
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 100,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "notes": "pmo-6 2026-11-23T12:22: the schema successor asks the owner 3 questions (BGQA8 leftovers 3-3 and 5-2 among them). Length = 3 questions at 8.6 rows/h in owner hours (provisional). pmo-6 2026-11-23T12:32: started: the successor put question C9 (1 of 3) to the owner. Finish = now + 3 questions at 8.6 rows/h (provisional). pmo-6 2026-11-23T12:56: done. The owner answered C9 (JDG-3767, b673ed3e8). C13 (search window table) needed no question: the spec decides it. Finish = seat commit time; the answer time is unmeasured. The BGQA8 next round continues in the next task.",
+        "dependencies": [
+          {
+            "predecessorUid": 474,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 481,
+        "parentTaskUid": null,
+        "wbsOrder": 340,
+        "name": "🌒 オーナー: ③ BGQA8 の次の回の残り 3 問に答える(問 5-2・7・8)",
+        "start": "2026-11-23T12:56:00",
+        "finish": "2026-11-23T13:16:55",
+        "milestone": false,
+        "deadline": null,
+        "calendarUid": null,
+        "actualStart": "2026-11-23T12:56:00",
         "stop": null,
         "actualFinish": null,
         "resume": null,
@@ -8619,10 +8659,42 @@
         "percentComplete": 0,
         "fadeInDays": null,
         "fadeOutDays": null,
-        "notes": "pmo-6 2026-11-23T12:22: the schema successor asks the owner 3 questions (BGQA8 leftovers 3-3 and 5-2 among them). Length = 3 questions at 8.6 rows/h in owner hours (provisional). pmo-6 2026-11-23T12:32: started: the successor put question C9 (1 of 3) to the owner. Finish = now + 3 questions at 8.6 rows/h (provisional).",
+        "notes": "pmo-6 2026-11-23T12:56: BOSS line: the schema successor put the BGQA8 next round (3 left: 5-2, 7, 8) to the owner and waits. Length = 3 questions at 8.6 rows/h in owner hours (provisional).",
         "dependencies": [
           {
-            "predecessorUid": 474,
+            "predecessorUid": 479,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 482,
+        "parentTaskUid": null,
+        "wbsOrder": 341,
+        "name": "🌑 ③ GRS JSON schema 2 の席が BGQA8 の答えを当てて記録する(SUB)",
+        "start": "2026-11-23T13:16:55",
+        "finish": "2026-11-23T13:46:55",
+        "milestone": false,
+        "deadline": null,
+        "calendarUid": null,
+        "actualStart": null,
+        "stop": null,
+        "actualFinish": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "notes": "pmo-6 2026-11-23T12:56: the successor applies and records the owner answers of the BGQA8 next round. 0.5 h is a PMO placeholder like 466 (provisional). SUB: Opus 5.5 high.",
+        "dependencies": [
+          {
+            "predecessorUid": 481,
             "linkType": 1,
             "linkLag": 0,
             "lagFormat": 7,
@@ -10073,6 +10145,14 @@
       },
       {
         "taskUid": 480,
+        "taskGroupId": "25d59281-1ef0-5d73-86da-c3c8ee9f9de5"
+      },
+      {
+        "taskUid": 481,
+        "taskGroupId": "25d59281-1ef0-5d73-86da-c3c8ee9f9de5"
+      },
+      {
+        "taskUid": 482,
         "taskGroupId": "25d59281-1ef0-5d73-86da-c3c8ee9f9de5"
       }
     ],
@@ -12420,6 +12500,22 @@
         "fillColor": "blue",
         "strokeColor": null,
         "strokeWidthPx": null
+      },
+      {
+        "taskUid": 481,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": "diamond",
+        "fillColor": "blue",
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 482,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": "diamond",
+        "fillColor": "blue",
+        "strokeColor": null,
+        "strokeWidthPx": null
       }
     ],
     "commentBoxes": [
@@ -14428,10 +14524,10 @@
     "zoomY": 1.099862517185352
   },
   "documentStamp": {
-    "scheduleUpdatedAt": "2026-11-23T03:32:00Z",
+    "scheduleUpdatedAt": "2026-11-23T03:56:00Z",
     "lastEditedBy": "PMO child session",
     "settingsUpdatedAt": "2026-10-20T20:24:42Z",
-    "fileSavedAt": "2026-11-23T03:32:00Z"
+    "fileSavedAt": "2026-11-23T03:56:00Z"
   },
   "changeLog": [
     {
@@ -15099,6 +15195,12 @@
       "editedBy": "PMO child session",
       "explanation": "Fact at 11-23 12:32 JST: BOSS line, the Agent API seat resumed 464 and waits for the owner on BGQA7 questions 9-11; the schema successor applied 18 fixes (uncommitted) and waits for the owner on question C9, so 480 started. Lengths stay provisional. N1 (316) and the beta (234) stay.",
       "changedAt": "2026-11-23T03:32:00Z"
+    },
+    {
+      "ordinal": 112,
+      "editedBy": "PMO child session",
+      "explanation": "Fact at 11-23 12:56 JST: BOSS line, the schema successor applied 25 outside AI findings and C9 (JDG-3767, b673ed3e8): 479 and 480 done. Owner task 481 (BGQA8 next round, 3 questions) started; seat task 482 records the answers; 455 also waits for 482. N1 (316) and the beta (234) stay.",
+      "changedAt": "2026-11-23T03:56:00Z"
     }
   ]
 }
