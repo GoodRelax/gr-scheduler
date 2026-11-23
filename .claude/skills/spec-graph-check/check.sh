@@ -10,7 +10,8 @@
 #
 # then add up the ranges in the headings (1-4 is four, 5-10 is six, and so
 # on). A heading may carry several numbers because one script answers them.
-# The ranges today are 1 + 4 + 8 + 4 + 74. (Recounted 2026-11-08 at check 94
+# The ranges today are 1 + 4 + 8 + 4 + 76. (Recounted 2026-11-24 at checks 95-96
+# (the test record of JDG-3827, @purity coverage of R7): 74 + 2. Recounted 2026-11-08 at check 94
 # (the retired purity values, CR-859): 73 + 1. Recounted 2026-10-24 at checks 91-93
 # (old rule-07 numbers, rule 07 against its master, the lockfile and OSS;
 # JDG-3251..3253): 70 + 3. Recounted 2026-10-24 at check 90
@@ -459,6 +460,13 @@
 #          old values as history (BGQA question 8 = a, JDG-3593) and are
 #          excluded BY NAME, printed on every run -- the check 63 form.
 #          Baseline 0
+#   95     tools/gate/test-record.mjs --check : a test record of JDG-3827
+#          under docs/development-records/test-records/ keeps its shape and
+#          holds no absolute path and no account name (the repository is
+#          public)
+#   96     check-purity-coverage.mjs : a function of src/ with no @purity
+#          tag, a tag value outside the four, or two tags on one function
+#          (R7 of the review standard). Ratchet: purity-coverage-baseline.txt
 #
 # Green does NOT prove the specification is sound: defects of meaning have
 # appeared while all of these were green. They stop broken references, not
@@ -1286,6 +1294,36 @@ section "94  the two retired purity values stay out of the living tree"
 # same pattern found 758 lines in 163 files of the scanned area.
 # MEASURED by breaking it: one old tag put back into a src file reports 1.
 PYTHONIOENCODING=utf-8 python "$HERE/check-retired-purity-values.py" "$REPO" || failed
+
+echo ""
+section "95  every test record keeps its shape, with no absolute path and no account name"
+# JDG-3827: each GT-2 commits one summary (the sha, and per test file the
+# passed / failed / skipped counts) to docs/development-records/test-records/;
+# run-gate.mjs writes it through tools/gate/test-record.mjs, and the full tool
+# reports stay in the gitignored scratch/test-reports/. The repository is
+# public, so a record holding a drive letter, a home folder or this machine's
+# account name goes red. The self-test runs first, so a check that can no
+# longer go red goes red itself.
+# MEASURED by breaking it (--self-test, 2026-11-24): an absolute path in a
+# row, the account name in a row, and a file name that disagrees with the
+# title each report red; the clean record is green.
+node tools/gate/test-record.mjs --self-test >/dev/null || { echo "FAIL the self-test of test-record.mjs"; failed; }
+node tools/gate/test-record.mjs --check || failed
+
+echo ""
+section "96  every function of src/ carries exactly one @purity tag of the four values"
+# R7 of the review standard: tag coverage of product code is 100%. Check 64
+# reads what a tag claims and check 94 the retired values; this one counts
+# the functions with no tag. A RATCHET of four terms (untagged-named,
+# untagged-anonymous, bad-value, two-tags) in purity-coverage-baseline.txt.
+# MEASURED 2026-11-24 on e90fc8c65: 86 named block-bodied functions untagged
+# in 31 files (study 82 counted the same 86), and 220 block-bodied anonymous
+# callbacks, held apart until team T answers T7 (whether R7's "anonymous
+# functions" exempts them). MEASURED by breaking it (--self-test): a bare
+# named function, a bare block-bodied callback, the value n/a and two tags on
+# one function each report 1 in their own term; a generated function reports 0.
+node "$HERE/check-purity-coverage.mjs" --self-test >/dev/null || { echo "FAIL the self-test of check-purity-coverage.mjs"; failed; }
+node "$HERE/check-purity-coverage.mjs" || failed
 
 echo ""
 section "NOT COVERED  what this run did not look at"

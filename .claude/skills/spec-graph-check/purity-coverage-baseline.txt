@@ -1,0 +1,8 @@
+# Check 96 (check-purity-coverage.mjs): the numbers held, one "key value" per line.
+# A count above its line fails; a count below it asks for the line to be lowered.
+# Started 2026-11-24 on e90fc8c65 at the measured tree (study 82, A17). Raising a
+# line needs the owner's OK (JDG-520).
+untagged-named 86
+untagged-anonymous 220
+bad-value 0
+two-tags 0

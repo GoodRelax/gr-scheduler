@@ -27,6 +27,7 @@ import { tmpdir } from 'node:os'
 import { dirname, join, relative, resolve } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { acquire, oneDriveRefusal } from './gate-queue.mjs'
+import { writeTestRecord } from './test-record.mjs'
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..')
 const KNOWN_RED = 'tests/known-red.txt'
@@ -229,6 +230,9 @@ function main(gate, argv = []) {
   const env = childEnvironment()
   const release = acquire(`gate ${gate}`)
   const scratch = mkdtempSync(join(tmpdir(), 'grs-gate-'))
+  const vitestReport = join(scratch, 'vitest.json')
+  const playwrightReport = join(scratch, 'playwright.json')
+  let verdict = 'stopped: the gate ended before its last step'
   try {
     if (gate === 'PERF') {
       mustPass('vite build', 'npm run build', env)
@@ -245,7 +249,6 @@ function main(gate, argv = []) {
     mustPass('typecheck', 'npm run typecheck', env)
     mustPass('gen:check', 'npm run gen:check', env)
 
-    const vitestReport = join(scratch, 'vitest.json')
     run('vitest', process.execPath, [
       findInNodeModules(join('vitest', 'vitest.mjs')), 'run', '--passWithNoTests',
       '--reporter=default', '--reporter=json', `--outputFile.json=${vitestReport}`,
@@ -262,15 +265,24 @@ function main(gate, argv = []) {
     mustPass('relay build', 'npm run build:relay', env)
     // CR-820: the same commit packs the same grs-relay.mcpb and demo zip, built twice.
     mustPass('reproducible artifacts', 'node tools/check_reproducible_artifacts.mjs', env)
-    const playwrightReport = join(scratch, 'playwright.json')
     run('use-case tests (file://) and e2e', process.execPath, [
       findInNodeModules(join('@playwright', 'test', 'cli.js')), 'test', '--reporter=list,json',
     ], env, { extraEnv: { PLAYWRIGHT_JSON_OUTPUT_NAME: playwrightReport } })
     holdAgainstTheList('playwright', playwrightOutcomes(readReport(playwrightReport, 'playwright')), inPlaywright)
 
     mustPass('parity', 'npm run parity', env)
+    verdict = 'passed'
     console.log(`\n✅ gate GT-2 passed`)
+  } catch (error) {
+    if (error instanceof GateStopped) verdict = `stopped: ${error.message.split('\n')[0]}`
+    throw error
   } finally {
+    // Why: JDG-3827 keeps one summary per GT-2 in git; the reports themselves are deleted with
+    // the scratch folder, so the record is written first, and only once vitest has reported.
+    if (gate === 'GT-2' && existsSync(vitestReport)) {
+      const written = writeTestRecord({ gate, verdict, vitestReport, playwrightReport })
+      console.log(`test record: ${written.record} (full reports kept in ${written.reports})`)
+    }
     rmSync(scratch, { recursive: true, force: true })
     release()
   }
