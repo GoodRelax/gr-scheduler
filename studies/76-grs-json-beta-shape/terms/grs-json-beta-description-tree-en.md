@@ -22,7 +22,7 @@ R007  |  +- documentUpdatedAt      This value gives the time in UTC when the Sch
 R008  |  +- fileSavedAt            This value gives the time in UTC when GRS last saved the Schedule Document to a file.
                                    The key is absent until the first save.
 R009  |  +- lastEditedBy           This object says who last edited the Schedule Document. GRS always writes this key, also
-                                   in a Schedule Document that nobody has edited yet.
+                                   while the Schedule Document is still the bundled template.
 R010  |     +- type                "user": a person edited the Schedule Document on the screen. "agent": an AI edited the
                                    Schedule Document through the Agent API. "template": nobody has edited yet, so the
                                    Schedule Document is still the template that comes with GRS.
@@ -65,8 +65,9 @@ R030  +- fontSizePreset                             This value is the text size 
 R031  |  +- "small"
 R032  |  +- "medium"
 R033  |  +- "large"
-R034  +- isThemeMonochrome                          GRS draws the theme in monochrome when this value is true. This value changes only the
-                                                    drawing; the colors saved in the Schedule Document stay the same.
+R034  +- isThemeMonochrome                          GRS draws every color in monochrome when this value is true: the theme colors, the
+                                                    palette colors and the custom colors. This value changes only the drawing; the colors
+                                                    saved in the Schedule Document stay the same.
 R035  +- themeHue                                   This value names the hue of the theme. Every color written as {"type": "theme"} takes
                                                     this hue; GRS holds the hue angle of each name.
 R036  |  +- "blue"
@@ -115,16 +116,18 @@ R062  |  +- firstDay                                Write this key only when typ
 R063  |  +- lastDay                                 Write this key only when type is "fixed". This value gives the last day of the Fit Span;
                                                     the Fit Span includes this whole day.
 R064  +- verticalZoom                               This object holds the two values that one step of vertical zoom and Zoom to Fit change
-                                                    together. When this key is absent, GRS chooses both values as Zoom to Fit does.
+                                                    together. When this key is absent, GRS chooses both values as Zoom to Fit does; when
+                                                    only automaticallyShownDepth is absent, GRS chooses that value as Zoom to Fit does.
 R065  |  +- ratio                                   This value gives the vertical size of the Task Graphics as a ratio to the default size:
                                                     2 draws Plan Bars, Actual Bars and Name Labels twice as tall.
 R066  |  +- automaticallyShownDepth                 This value is the depth to which GRS shows task groups with showMode "automatic". A
-                                                    zoom-in step changes ratio only after this value reaches the deepest level; ratio never
-                                                    sets this value.
+                                                    zoom-in step changes ratio only after this value reaches the depth of the deepest task
+                                                    group in the Schedule Document; ratio never sets this value.
 R067  +- taskGroupPanelWidthPx                      This value gives the width of the Task Group Panel, in CSS pixels when displayScaleRatio
                                                     is 1.
-R068  +- isTaskGroupPanelWidthFixed                 true: taskGroupPanelWidthPx sets the width of the Task Group Panel; false: a drag of the
-                                                    Panel Divider sets the width.
+R068  +- isTaskGroupPanelWidthFixed                 GRS always draws the Task Group Panel at taskGroupPanelWidthPx. true: a person changes
+                                                    taskGroupPanelWidthPx in the document settings, and the Panel Divider stays fixed;
+                                                    false: a drag of the Panel Divider changes taskGroupPanelWidthPx.
 R069  +- pinnedTaskGroupIds[]                       This list holds the ids of the Pinned Task Groups, which stay at the top during vertical
                                                     scrolling. A pin shows the task group at any depth if showMode is "automatic", never if
                                                     "hidden".
@@ -141,7 +144,7 @@ R074  |  +- type                                    "automatic": nobody has chos
 R075  |  |  +- "automatic"
 R076  |  |  +- "fixed"
 R077  |  +- leftEdgeDay                             Write this key only when type is "fixed". This value gives the day at the left edge of
-                                                    the view.
+                                                    the view, as a day in the time zone of scheduleData.scheduleDataTimeZone.
 R078  |  +- leftEdgeDayOffsetPercent                Only when type is "fixed". This value says how far the left edge lies to the right of
                                                     the start of leftEdgeDay, in percent of one day; 0 is the start of the day.
 R079  |  +- topEdgeTaskGroupId                      Write this key only when type is "fixed". This value gives the id of the task group at
@@ -178,8 +181,11 @@ R094  |  +- parentTaskProgressToleranceWorkingDays  This value gives the working
 R095  +- tableWindows                               This object holds the checks, column filters and sort of the tables in the Search
                                                     Window, the Delay Diagnostics Report Window and the Resource List Window, but no window
                                                     positions.
-R096     +- searchWindow                            (type TaskTableWindow) This object holds the table settings of the Search Window: the
-                                                    task table and the Comment Box table.
+R096     +- searchWindow                            (type TaskTableWindow) This object holds the table settings of the Search Window, which
+                                                    shows the task table or the Comment Box table, one at a time. columnFilters holds the
+                                                    filters of both tables, told apart by column; columnSort holds one sort, on a column of
+                                                    either table, and the other table then shows the default order. The checks belong to the
+                                                    task table only.
 R097     +- delayDiagnosisReportWindow              (type TaskTableWindow) This object holds the table settings of the Delay Diagnostics
                                                     Report Window.
 R098     +- resourceListWindow                      (type ResourceTableWindow) This object holds the table settings of the Resource List
@@ -189,7 +195,7 @@ R098     +- resourceListWindow                      (type ResourceTableWindow) T
 ### Schedule data (head values and the MSPDI part)
 
 ```text
-R099  scheduleData                                    This object holds the Schedule Data: five head values, then the MSPDI part, which GRS
+R099  scheduleData                                    This object holds the Schedule Data: six head values, then the MSPDI part, which GRS
                                                       reads from and writes to MSPDI, then the GRS part, which only GRS defines.
 R100  +- scheduleDataTimeZone                         This object gives the time zone of the date-times in scheduleData, which carry no
                                                       offset; GRS does not write this zone to MSPDI. Record times such as documentStamp use
@@ -318,8 +324,10 @@ R167  |     +- dayWorking [M]                         Same as MSPDI DayWorking. 
 R168  |     +- type [M]                               Same as MSPDI Type. This value gives the repeat code: 1=daily, 2=yearly on a day of the
                                                       month, 3=yearly on a weekday position, 4=monthly on a day of the month, 5=monthly on a
                                                       weekday position, 6=weekly, 7=by day count, 8=by weekday count, 9=no repeat. GRS counts
-                                                      the days of a one-off exception only (type 9, no type, or type 1 with period 1 or no
-                                                      period; a new exception takes 1) and keeps the others unchanged.
+                                                      working days with a one-off exception only, which covers every day from fromDate to
+                                                      toDate: type 9, no type, or type 1 (every day) with period 1 or no period; a new
+                                                      exception takes 1. GRS keeps the other exceptions unchanged and leaves them out of the
+                                                      count.
 R169  |     |  +- 1
 R170  |     |  +- 2
 R171  |     |  +- 3
@@ -389,9 +397,11 @@ R205  |  +- siblingIndex [G]                          This value gives the place
 R206  |  +- grs [G]                                   This object holds the GRS values of this task. The keys under grs are GRS names, not
                                                       MSPDI element names.
 R207  |  |  +- startSlopeCalendarDays                 This value gives the Start Slope in calendar days: GRS slants the start edge of the Plan
-                                                      Bar to mark a start that is not firm, without changing the schedule.
+                                                      Bar inward, from start toward finish, to mark a start that is not firm, without changing
+                                                      the schedule.
 R208  |  |  +- finishSlopeCalendarDays                This value gives the Finish Slope in calendar days: GRS slants the finish edge of the
-                                                      Plan Bar to mark a finish that is not firm, without changing the schedule.
+                                                      Plan Bar inward, from finish toward start, to mark a finish that is not firm, without
+                                                      changing the schedule.
 R209  |  |  +- style                                  This object says how GRS draws the Task Graphic of this task: the shape, the fill and
                                                       the stroke.
 R210  |  |  |  +- taskShape                           This value gives the shape of the Plan Bar and the Actual Bar of a task that is not a
@@ -418,10 +428,10 @@ R227  |  |  |  |  +- "cylinder"
 R228  |  |  |  |  +- "meetingPeople"
 R229  |  |  |  |  +- "smilingFace"
 R230  |  |  |  |  +- "beerMug"
-R231  |  |  |  +- fill                                (type Paint) This object sets the fill of the Plan Bar, and GRS fills the Actual Bar
-                                                      from the same color. No key means no fill; fill and stroke cannot both be absent.
-R232  |  |  |  +- stroke                              (type Stroke) This object sets the outline of the Plan Bar and the Actual Bar. No key
-                                                      means no outline.
+R231  |  |  |  +- fill                                (type Paint) This object sets the fill of the Plan Bar, or of the Milestone Mark for a
+                                                      milestone, and GRS fills the Actual Bar from the same color. No key means no fill.
+R232  |  |  |  +- stroke                              (type Stroke) This object sets the outline of the Plan Bar and the Actual Bar, or of the
+                                                      Milestone Mark for a milestone. No key means no outline.
 R233  |  |  +- taskGroupId                            This value is the id of the task group in whose Task Group Lane GRS draws this task; the
                                                       task group is independent of the WBS parent (parentTaskUid).
 R234  |  |  +- importOrigin                           This object records which MSPDI file and which task this task came from, for matching at
@@ -435,9 +445,12 @@ R237  |  |  |  +- importSessionId                     This value is the id that 
 R238  |  |  |  +- mspdiImportCountWhenLastIncluded    This value copies scheduleData.mspdiImportCount at the last import whose file contained
                                                       this task. A value below the current count means that the latest import left this task
                                                       out.
-R239  |  |  +- passthrough                            This object holds the MSPDI values of this task that GRS does not use and writes back
-                                                      unchanged, except date-derived values such as Duration. A whole Task element outside
-                                                      tasks[] goes to passthroughTasks[].
+R239  |  |  +- passthrough                            This object holds the MSPDI values of this task that GRS does not use, and GRS writes
+                                                      them back unchanged. Only for a task that GRS made or whose dates a person changed, GRS
+                                                      rebuilds Duration and ManualStart, ManualFinish and ManualDuration, writes
+                                                      ConstraintType and ConstraintDate, and leaves out FreeSlack, TotalSlack, StartSlack and
+                                                      FinishSlack; GRS rebuilds ActualDuration after a person changes the actual dates. A
+                                                      whole Task element outside tasks[] goes to passthroughTasks[].
 R240  |  +- predecessorLinks[] [M] (PredecessorLink)  Same as MSPDI PredecessorLink. Each item is one dependency: this task waits for one end
                                                       of a predecessor task.
 R241  |     +- predecessorUid [M]                     Same as MSPDI PredecessorUID. The value is the uid of the predecessor task in tasks[].
@@ -456,7 +469,8 @@ R248  |     +- lagFormat [M]                          Same as MSPDI LagFormat. T
                                                       38=eh?, 39=d?, 40=ed?, 41=w?, 42=ew?, 43=mo?, 44=emo?, 51=%?, 52=e%? (m minutes, h
                                                       hours, d days, w weeks, mo months, % percent, e elapsed time, ? estimated). The unit
                                                       never changes linkLag; GRS counts the lag only for 3, 5 and 7, and for other codes only
-                                                      shows the lag.
+                                                      shows the lag. When lagFormat is absent, GRS shows the lag in minutes, such as 2880m,
+                                                      and leaves the lag out of the count.
 R249  |     |  +- 3
 R250  |     |  +- 4
 R251  |     |  +- 5
@@ -529,7 +543,7 @@ R290     +- mspdiElement                              This value is the whole MS
 ### Schedule data (the GRS part)
 
 ```text
-R291  scheduleData                        This object holds the Schedule Data: five head values, then the MSPDI part, which GRS
+R291  scheduleData                        This object holds the Schedule Data: six head values, then the MSPDI part, which GRS
                                           reads from and writes to MSPDI, then the GRS part, which only GRS defines.
 R292  +- taskGroups[]                     This list holds the task groups, depth first, as a tree of drawing rows separate from
                                           the WBS; GRS builds this list from the WBS when reading MSPDI.
@@ -540,9 +554,10 @@ R295  |  +- parentTaskGroupId             This value is the id of the parent tas
                                           a top-level task group (depth 1).
 R296  |  +- siblingIndex                  This value gives the place of this task group among the task groups with the same
                                           parent, counted from 0. GRS lists the task groups from the smallest value at the top.
-R297  |  +- style                         This object tells GRS how to draw the task group (type TaskGroupStyle).
-R298  |  |  +- color                      (type TaskGroupColor) This value is the color of the Task Group Lane: no key means no
-                                          color, and {"type": "theme"} draws the theme color.
+R297  |  +- style                         This object tells GRS how to draw the task group (type TaskGroupStyle). When style is
+                                          absent, GRS leaves the Task Group Lane uncolored.
+R298  |  |  +- color                      (type TaskGroupColor) This value is the color of the Task Group Lane, and {"type":
+                                          "theme"} draws the theme color.
 R299  |  +- minHeightPx                   This value is the minimum height of the Task Group Lane in CSS pixels at
                                           displayScaleRatio 1; vertical zoom does not change this height. No key means no minimum.
 R300  |  +- representativeTaskUid         This value is the uid of the WBS task that this task group stands for. When a person
@@ -563,7 +578,8 @@ R305  |  |  +- "hidden"
 R306  |  |  +- "automatic"
 R307  |  |  +- "hiddenUntilZoomIn"
 R308  |  +- allowedEditorGroupName        This value names the group of people allowed to edit the tasks in this task group. GRS
-                                          treats those tasks as read-only and refuses moves into a task group with another value.
+                                          treats those tasks as read-only for every person and AI agent, because GRS alone holds
+                                          no group of its own, and refuses moves into a task group with another value.
 R309  +- baselineTasks[]                  This list holds the baseline, a saved copy of earlier task dates. Baseline tasks hold no
                                           shape: each Baseline Outline takes the shape of the current task with the same uid.
 R310  |  +- uid                           This value is the uid of the current task that this baseline task belongs to.
@@ -603,8 +619,9 @@ R331     |  +- font                       This object holds the look of the Comm
 R332     |     +- color                   (type Color) This value is the color of the Comment Box text (type Color).
 R333     |     +- sizePx                  This value is the size of the Comment Box text, in CSS pixels at displayScaleRatio 1.
                                           The zoom does not change this size.
-R334     +- leaderTarget                  This object tells where the Leader Line of the Comment Box points. A deleted target
-                                          becomes a free point; for a target missing from the file, GRS draws no Leader Line.
+R334     +- leaderTarget                  This object tells where the Leader Line of the Comment Box points. When the target is
+                                          deleted in GRS, GRS turns this object into a free point; when the file names a target
+                                          that the Schedule Data lacks, GRS draws no Leader Line.
 R335     |  +- type                       "freePoint": the Leader Anchor stands at a place tied to nothing; "task": the Leader
                                           Anchor stands at one of eight points of the Plan Bar, the Actual Bar or the Milestone
                                           Mark of a task; "highlightBox": the Leader Anchor stands at one of eight points of a
@@ -639,7 +656,8 @@ R354     |     +- "bottomMiddle"
 R355     |     +- "bottomLeftCorner"
 R356     |     +- "leftMiddle"
 R357     +- bodyOffsetPx                  This object is the offset from the Leader Anchor to the lower-left corner of the Comment
-                                          Box body, in CSS pixels at displayScaleRatio 1; the zoom does not change this offset.
+                                          Box body, in CSS pixels at displayScaleRatio 1; horizontal and vertical zoom leave this
+                                          offset unchanged.
 R358     |  +- dx                         This value is the horizontal part of the offset; a positive value moves the box to the
                                           right.
 R359     |  +- dy                         This value is the vertical part of the offset; a positive value moves the box down.
@@ -652,8 +670,7 @@ R361     +- hyperlink                     This value is the title of the Comment
 ### Shared types
 
 ```text
-R362  Color                                      This object is a color of type "theme", "palette" or "custom". Where a color key may be
-                                                 absent, an absent color means that GRS draws no fill or line there.
+R362  Color                                      This object is a color of type "theme", "palette" or "custom".
 R363  +- type                                    "theme": GRS takes the theme color for the place that holds this color, in the hue of
                                                  documentSettings.themeHue; "palette": the color is one of the ten palette colors, named
                                                  in name; "custom": light and dark hold the colors for the light and dark themes.
@@ -705,7 +722,7 @@ R395  ColumnFilter                               This object is a filter on one 
                                                  a range of days.
 R396  +- type                                    "values": GRS hides the rows that show one of hiddenValues, and the empty rows when
                                                  isBlankHidden is true; "dateRange": GRS hides the rows whose date lies outside firstDay
-                                                 to lastDay.
+                                                 to lastDay; an absent firstDay or lastDay leaves that end open.
 R397  |  +- "values"
 R398  |  +- "dateRange"
 R399  +- column                                  This value names the column by the content that the column shows, and the same name
@@ -741,11 +758,11 @@ R420  |  +- "assignedTaskNames"
 R421  +- hiddenValues[]                          Only when type is "values". This list holds the values whose rows the filter hides: the
                                                  English status name for a status column, and the cell text as the table shows the text
                                                  for any other column. "progressStatus": "notStarted", "inProgress",
-                                                 "suspendedWithResumeDate", "suspendedWithoutResumeDate", "finished", "delay",
-                                                 "unreliable", "bottleneck", "bottleneckPath"; "diagnosisStatus": "unreliable",
-                                                 "suspicion", "omission", "bottleneck", "bottleneckPath", "delay",
-                                                 "finishedDelayContribution"; "taskType": "task", "milestone"; "resourceSelectionStatus":
-                                                 "selected", "notSelected".
+                                                 "suspendedWithResumeDate", "suspendedWithoutResumeDate", "finished", "delay", and, while
+                                                 GRS shows Delay Diagnostics results, the diagnosis marks "unreliable", "bottleneck",
+                                                 "bottleneckPath"; "diagnosisStatus": "unreliable", "suspicion", "omission",
+                                                 "bottleneck", "bottleneckPath", "delay", "finishedDelayContribution"; "taskType":
+                                                 "task", "milestone"; "resourceSelectionStatus": "selected", "notSelected".
 R422  +- isBlankHidden                           Only when type is "values". This value tells whether the filter hides the rows with an
                                                  empty cell in this column.
 R423  +- firstDay                                Only when type is "dateRange". This value is the first day that the filter keeps
@@ -804,8 +821,8 @@ Passthrough: GRS keeps the MSPDI values that GRS does not use in grs.passthrough
 the MSPDI elements that GRS does not turn into objects in the passthrough lists; GRS writes both
 back to MSPDI unchanged.
 Actual dates are the authoritative source of task progress. GRS decides from the actual dates of a
-task whether the task is not started, in progress, suspended, or finished. GRS recalculates
-percentComplete from those dates when GRS opens a GRS JSON file.
+task, together with resume and resumeValid, whether the task is not started, in progress, suspended,
+or finished. GRS recalculates percentComplete from those dates when GRS opens a GRS JSON file.
 Delay Diagnostics: GRS never stores Delay Diagnostics results in a GRS JSON file, because a stored
 result goes out of date as soon as the Schedule Document changes.
 When a person starts Delay Diagnostics or an AI agent asks for Delay Diagnostics, GRS calculates the
@@ -818,7 +835,7 @@ buildVersionUtc   GRS build that wrote the file
 documentStamp     Last change, last save and last editor
 documentSettings  How GRS shows the schedule on opening
 scheduleData      Schedule data
-  +- head values: scheduleDataTimeZone, sourceFormat, importedTopTaskOutlineLevel, mspdiImportCount, highestIssuedUid
+  +- head values: scheduleDataTimeZone, sourceFormat, importedTopTaskOutlineLevel, mspdiImportCount, lastMspdiImport, highestIssuedUid
   +- same as MSPDI: project, calendars, passthroughCalendars, tasks, passthroughTasks, resources, passthroughResources, assignments, passthroughAssignments
   +- GRS only: taskGroups, baselineTasks, highlightBoxes, commentBoxes
 changeLogEntries  Notes on changes

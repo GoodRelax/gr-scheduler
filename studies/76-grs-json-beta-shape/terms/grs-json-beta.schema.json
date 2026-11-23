@@ -3,7 +3,7 @@
   "$id": "https://goodrelax.github.io/gr-scheduler/spec/_source/grs-document.schema.json",
   "$comment": "HAND-WRITTEN CONTRACT -- EDIT THIS FILE. The beta shape of GRS JSON (CR-851), written from the accepted tree grs-json-final-review-tree.md and the sample grs-json-beta-sample.json (rulings JDG-3566..3756). Until CR-851 moves this shape into docs/spec/_source (erd.json, settings.json and their generator), this file is the source of the beta shape; compare_schemas.py is the gate between the two. x-grsChanges is the change ledger of GRS JSON (JDG-3262, JDG-3765): one element per changed key, oldest first, appended only, each with version, kind (added, removed, renamed, converted, refused), entity and column; it tells how the latest GRS reads a document of an older version. CR-851 writes one element: GRS refuses an alpha document as a whole and points to the converter; the seat that lands CR-851 sets its version and schemaVersionUtc to the landing time. The review tree is generated from this file: python schema_to_review_tree.py write. Status 2026-11-23: structure, order and enumeration values are final; value bounds and required lists follow the rulings; the descriptions passed passes 1-3 of the shipped-English check (JDG-3328, ../text-check-2026-11-23-schema/) and wait for the owner (pass 4).",
   "title": "GRS JSON document",
-  "description": "Terms:\nGRS is GoodRelax Scheduler, which opens and edits a Schedule Document and reads and writes GRS JSON files, the format that this GRS JSON Schema defines.\nMSPDI (Microsoft Project XML Data Interchange) is the XML file format that Microsoft Project uses. GRS can also read and write MSPDI (.xml) files.\n\"Same as MSPDI X\" indicates that the property has the same meaning and values as MSPDI element X. The description of that property notes any GRS-specific difference.\nConcepts:\nWBS is the tree of parent and child tasks, as in MSPDI.\nTask groups are GRS's own objects that let GRS draw several tasks in one Task Group Lane. Each task names exactly one task group in grs.taskGroupId.\nAn MSPDI object keeps the values that only GRS uses under the key grs of that object.\nGRS counts working days using a single calendar: the calendar that project.calendarUid names.\nPassthrough: GRS keeps the MSPDI values that GRS does not use in grs.passthrough of each object, and the MSPDI elements that GRS does not turn into objects in the passthrough lists; GRS writes both back to MSPDI unchanged.\nActual dates are the authoritative source of task progress. GRS decides from the actual dates of a task whether the task is not started, in progress, suspended, or finished. GRS recalculates percentComplete from those dates when GRS opens a GRS JSON file.\nDelay Diagnostics: GRS never stores Delay Diagnostics results in a GRS JSON file, because a stored result goes out of date as soon as the Schedule Document changes.\nWhen a person starts Delay Diagnostics or an AI agent asks for Delay Diagnostics, GRS calculates the results from the current Schedule Data and project.statusDate.\nWhile GRS shows Delay Diagnostics results, GRS keeps those results and does not recalculate them.\nThe shape of GRS JSON:\n$schema           Address of this schema\nschemaVersionUtc  Version of the shape\nbuildVersionUtc   GRS build that wrote the file\ndocumentStamp     Last change, last save and last editor\ndocumentSettings  How GRS shows the schedule on opening\nscheduleData      Schedule data\n  +- head values: scheduleDataTimeZone, sourceFormat, importedTopTaskOutlineLevel, mspdiImportCount, highestIssuedUid\n  +- same as MSPDI: project, calendars, passthroughCalendars, tasks, passthroughTasks, resources, passthroughResources, assignments, passthroughAssignments\n  +- GRS only: taskGroups, baselineTasks, highlightBoxes, commentBoxes\nchangeLogEntries  Notes on changes\nOmit a property that has no value: never write null or [].",
+  "description": "Terms:\nGRS is GoodRelax Scheduler, which opens and edits a Schedule Document and reads and writes GRS JSON files, the format that this GRS JSON Schema defines.\nMSPDI (Microsoft Project XML Data Interchange) is the XML file format that Microsoft Project uses. GRS can also read and write MSPDI (.xml) files.\n\"Same as MSPDI X\" indicates that the property has the same meaning and values as MSPDI element X. The description of that property notes any GRS-specific difference.\nConcepts:\nWBS is the tree of parent and child tasks, as in MSPDI.\nTask groups are GRS's own objects that let GRS draw several tasks in one Task Group Lane. Each task names exactly one task group in grs.taskGroupId.\nAn MSPDI object keeps the values that only GRS uses under the key grs of that object.\nGRS counts working days using a single calendar: the calendar that project.calendarUid names.\nPassthrough: GRS keeps the MSPDI values that GRS does not use in grs.passthrough of each object, and the MSPDI elements that GRS does not turn into objects in the passthrough lists; GRS writes both back to MSPDI unchanged.\nActual dates are the authoritative source of task progress. GRS decides from the actual dates of a task, together with resume and resumeValid, whether the task is not started, in progress, suspended, or finished. GRS recalculates percentComplete from those dates when GRS opens a GRS JSON file.\nDelay Diagnostics: GRS never stores Delay Diagnostics results in a GRS JSON file, because a stored result goes out of date as soon as the Schedule Document changes.\nWhen a person starts Delay Diagnostics or an AI agent asks for Delay Diagnostics, GRS calculates the results from the current Schedule Data and project.statusDate.\nWhile GRS shows Delay Diagnostics results, GRS keeps those results and does not recalculate them.\nThe shape of GRS JSON:\n$schema           Address of this schema\nschemaVersionUtc  Version of the shape\nbuildVersionUtc   GRS build that wrote the file\ndocumentStamp     Last change, last save and last editor\ndocumentSettings  How GRS shows the schedule on opening\nscheduleData      Schedule data\n  +- head values: scheduleDataTimeZone, sourceFormat, importedTopTaskOutlineLevel, mspdiImportCount, lastMspdiImport, highestIssuedUid\n  +- same as MSPDI: project, calendars, passthroughCalendars, tasks, passthroughTasks, resources, passthroughResources, assignments, passthroughAssignments\n  +- GRS only: taskGroups, baselineTasks, highlightBoxes, commentBoxes\nchangeLogEntries  Notes on changes\nOmit a property that has no value: never write null or [].",
   "x-grsChanges": [
     {
       "version": "2026-11-25T00:00:00Z",
@@ -71,7 +71,7 @@
         },
         "isThemeMonochrome": {
           "type": "boolean",
-          "description": "GRS draws the theme in monochrome when this value is true. This value changes only the drawing; the colors saved in the Schedule Document stay the same.",
+          "description": "GRS draws every color in monochrome when this value is true: the theme colors, the palette colors and the custom colors. This value changes only the drawing; the colors saved in the Schedule Document stay the same.",
           "default": false
         },
         "themeHue": {
@@ -319,7 +319,7 @@
         },
         "verticalZoom": {
           "type": "object",
-          "description": "This object holds the two values that one step of vertical zoom and Zoom to Fit change together. When this key is absent, GRS chooses both values as Zoom to Fit does.",
+          "description": "This object holds the two values that one step of vertical zoom and Zoom to Fit change together. When this key is absent, GRS chooses both values as Zoom to Fit does; when only automaticallyShownDepth is absent, GRS chooses that value as Zoom to Fit does.",
           "properties": {
             "ratio": {
               "type": "number",
@@ -330,7 +330,7 @@
             },
             "automaticallyShownDepth": {
               "type": "integer",
-              "description": "This value is the depth to which GRS shows task groups with showMode \"automatic\". A zoom-in step changes ratio only after this value reaches the deepest level; ratio never sets this value.",
+              "description": "This value is the depth to which GRS shows task groups with showMode \"automatic\". A zoom-in step changes ratio only after this value reaches the depth of the deepest task group in the Schedule Document; ratio never sets this value.",
               "minimum": 1,
               "maximum": 5
             }
@@ -345,7 +345,7 @@
         },
         "isTaskGroupPanelWidthFixed": {
           "type": "boolean",
-          "description": "true: taskGroupPanelWidthPx sets the width of the Task Group Panel; false: a drag of the Panel Divider sets the width.",
+          "description": "GRS always draws the Task Group Panel at taskGroupPanelWidthPx. true: a person changes taskGroupPanelWidthPx in the document settings, and the Panel Divider stays fixed; false: a drag of the Panel Divider changes taskGroupPanelWidthPx.",
           "default": false
         },
         "pinnedTaskGroupIds": {
@@ -380,7 +380,7 @@
             },
             "leftEdgeDay": {
               "$ref": "#/$defs/Day",
-              "description": "Write this key only when type is \"fixed\". This value gives the day at the left edge of the view."
+              "description": "Write this key only when type is \"fixed\". This value gives the day at the left edge of the view, as a day in the time zone of scheduleData.scheduleDataTimeZone."
             },
             "leftEdgeDayOffsetPercent": {
               "type": "number",
@@ -573,7 +573,7 @@
                   }
                 }
               ],
-              "description": "This object holds the table settings of the Search Window: the task table and the Comment Box table."
+              "description": "This object holds the table settings of the Search Window, which shows the task table or the Comment Box table, one at a time. columnFilters holds the filters of both tables, told apart by column; columnSort holds one sort, on a column of either table, and the other table then shows the default order. The checks belong to the task table only."
             },
             "delayDiagnosisReportWindow": {
               "allOf": [
@@ -666,7 +666,7 @@
       "additionalProperties": false
     },
     "scheduleData": {
-      "description": "This object holds the Schedule Data: five head values, then the MSPDI part, which GRS reads from and writes to MSPDI, then the GRS part, which only GRS defines.",
+      "description": "This object holds the Schedule Data: six head values, then the MSPDI part, which GRS reads from and writes to MSPDI, then the GRS part, which only GRS defines.",
       "title": "Schedule data",
       "type": "object",
       "properties": {
@@ -889,7 +889,10 @@
           }
         }
       },
-      "additionalProperties": false
+      "additionalProperties": false,
+      "required": [
+        "scheduleDataTimeZone"
+      ]
     },
     "changeLogEntries": {
       "title": "Notes on changes",
@@ -1155,7 +1158,7 @@
         },
         "type": {
           "type": "integer",
-          "description": "Same as MSPDI Type. This value gives the repeat code: 1=daily, 2=yearly on a day of the month, 3=yearly on a weekday position, 4=monthly on a day of the month, 5=monthly on a weekday position, 6=weekly, 7=by day count, 8=by weekday count, 9=no repeat. GRS counts the days of a one-off exception only (type 9, no type, or type 1 with period 1 or no period; a new exception takes 1) and keeps the others unchanged.",
+          "description": "Same as MSPDI Type. This value gives the repeat code: 1=daily, 2=yearly on a day of the month, 3=yearly on a weekday position, 4=monthly on a day of the month, 5=monthly on a weekday position, 6=weekly, 7=by day count, 8=by weekday count, 9=no repeat. GRS counts working days with a one-off exception only, which covers every day from fromDate to toDate: type 9, no type, or type 1 (every day) with period 1 or no period; a new exception takes 1. GRS keeps the other exceptions unchanged and leaves them out of the count.",
           "enum": [
             1,
             2,
@@ -1201,7 +1204,7 @@
     },
     "WorkingTime": {
       "type": "object",
-      "description": "Same as MSPDI WorkingTime. This object is one span of working time within a day. GRS refuses overlapping spans in one day and spans that do not start before they end; touching spans are fine.",
+      "description": "Same as MSPDI WorkingTime. This object is one span of working time within a day. GRS refuses overlapping spans in one day and spans that do not start before they end; touching spans are fine. In this check a toTime of 00:00:00 counts as 24:00, so 00:00:00 to 00:00:00 is the whole day.",
       "properties": {
         "fromTime": {
           "$ref": "#/$defs/Time",
@@ -1307,12 +1310,12 @@
           "properties": {
             "startSlopeCalendarDays": {
               "type": "integer",
-              "description": "This value gives the Start Slope in calendar days: GRS slants the start edge of the Plan Bar to mark a start that is not firm, without changing the schedule.",
+              "description": "This value gives the Start Slope in calendar days: GRS slants the start edge of the Plan Bar inward, from start toward finish, to mark a start that is not firm, without changing the schedule.",
               "minimum": 0
             },
             "finishSlopeCalendarDays": {
               "type": "integer",
-              "description": "This value gives the Finish Slope in calendar days: GRS slants the finish edge of the Plan Bar to mark a finish that is not firm, without changing the schedule.",
+              "description": "This value gives the Finish Slope in calendar days: GRS slants the finish edge of the Plan Bar inward, from finish toward start, to mark a finish that is not firm, without changing the schedule.",
               "minimum": 0
             },
             "style": {
@@ -1329,7 +1332,7 @@
             },
             "passthrough": {
               "$ref": "#/$defs/Passthrough",
-              "description": "This object holds the MSPDI values of this task that GRS does not use and writes back unchanged, except date-derived values such as Duration. A whole Task element outside tasks[] goes to passthroughTasks[]."
+              "description": "This object holds the MSPDI values of this task that GRS does not use, and GRS writes them back unchanged. Only for a task that GRS made or whose dates a person changed, GRS rebuilds Duration and ManualStart, ManualFinish and ManualDuration, writes ConstraintType and ConstraintDate, and leaves out FreeSlack, TotalSlack, StartSlack and FinishSlack; GRS rebuilds ActualDuration after a person changes the actual dates. A whole Task element outside tasks[] goes to passthroughTasks[]."
             }
           },
           "required": [
@@ -1425,7 +1428,7 @@
         },
         "lagFormat": {
           "type": "integer",
-          "description": "Same as MSPDI LagFormat. This value gives the unit code for showing the lag: 3=m, 4=em, 5=h, 6=eh, 7=d, 8=ed, 9=w, 10=ew, 11=mo, 12=emo, 19=%, 20=e%, 35=m?, 36=em?, 37=h?, 38=eh?, 39=d?, 40=ed?, 41=w?, 42=ew?, 43=mo?, 44=emo?, 51=%?, 52=e%? (m minutes, h hours, d days, w weeks, mo months, % percent, e elapsed time, ? estimated). The unit never changes linkLag; GRS counts the lag only for 3, 5 and 7, and for other codes only shows the lag.",
+          "description": "Same as MSPDI LagFormat. This value gives the unit code for showing the lag: 3=m, 4=em, 5=h, 6=eh, 7=d, 8=ed, 9=w, 10=ew, 11=mo, 12=emo, 19=%, 20=e%, 35=m?, 36=em?, 37=h?, 38=eh?, 39=d?, 40=ed?, 41=w?, 42=ew?, 43=mo?, 44=emo?, 51=%?, 52=e%? (m minutes, h hours, d days, w weeks, mo months, % percent, e elapsed time, ? estimated). The unit never changes linkLag; GRS counts the lag only for 3, 5 and 7, and for other codes only shows the lag. When lagFormat is absent, GRS shows the lag in minutes, such as 2880m, and leaves the lag out of the count.",
           "enum": [
             3,
             4,
@@ -1617,7 +1620,7 @@
         },
         "style": {
           "$ref": "#/$defs/TaskGroupStyle",
-          "description": "This object tells GRS how to draw the task group (type TaskGroupStyle)."
+          "description": "This object tells GRS how to draw the task group (type TaskGroupStyle). When style is absent, GRS leaves the Task Group Lane uncolored."
         },
         "minHeightPx": {
           "type": "integer",
@@ -1653,7 +1656,7 @@
         },
         "allowedEditorGroupName": {
           "type": "string",
-          "description": "This value names the group of people allowed to edit the tasks in this task group. GRS treats those tasks as read-only and refuses moves into a task group with another value.",
+          "description": "This value names the group of people allowed to edit the tasks in this task group. GRS treats those tasks as read-only for every person and AI agent, because GRS alone holds no group of its own, and refuses moves into a task group with another value.",
           "minLength": 1,
           "maxLength": 512
         }
@@ -1757,11 +1760,11 @@
         },
         "leaderTarget": {
           "$ref": "#/$defs/LeaderTarget",
-          "description": "This object tells where the Leader Line of the Comment Box points. A deleted target becomes a free point; for a target missing from the file, GRS draws no Leader Line."
+          "description": "This object tells where the Leader Line of the Comment Box points. When the target is deleted in GRS, GRS turns this object into a free point; when the file names a target that the Schedule Data lacks, GRS draws no Leader Line."
         },
         "bodyOffsetPx": {
           "type": "object",
-          "description": "This object is the offset from the Leader Anchor to the lower-left corner of the Comment Box body, in CSS pixels at displayScaleRatio 1; the zoom does not change this offset.",
+          "description": "This object is the offset from the Leader Anchor to the lower-left corner of the Comment Box body, in CSS pixels at displayScaleRatio 1; horizontal and vertical zoom leave this offset unchanged.",
           "properties": {
             "dx": {
               "type": "number",
@@ -1948,10 +1951,13 @@
         },
         "lastEditedBy": {
           "$ref": "#/$defs/Editor",
-          "description": "This object says who last edited the Schedule Document. GRS always writes this key, also in a Schedule Document that nobody has edited yet."
+          "description": "This object says who last edited the Schedule Document. GRS always writes this key, also while the Schedule Document is still the bundled template."
         }
       },
-      "additionalProperties": false
+      "additionalProperties": false,
+      "required": [
+        "lastEditedBy"
+      ]
     },
     "Editor": {
       "type": "object",
@@ -2072,7 +2078,7 @@
     },
     "Uid": {
       "type": "integer",
-      "description": "This integer identifies an entity that comes from MSPDI (MSPDI UID), unique within one array; GRS never reuses a uid, and project.uid is a string instead.",
+      "description": "This integer identifies a task, a resource, an assignment or a calendar, unique within one array, the same as MSPDI UID, whether the entity came from MSPDI or GRS made the entity; GRS never reuses a uid, and project.uid is a string instead.",
       "minimum": 1,
       "maximum": 2147483647
     },
@@ -2195,7 +2201,7 @@
     },
     "Color": {
       "type": "object",
-      "description": "This object is a color of type \"theme\", \"palette\" or \"custom\". Where a color key may be absent, an absent color means that GRS draws no fill or line there.",
+      "description": "This object is a color of type \"theme\", \"palette\" or \"custom\".",
       "properties": {
         "type": {
           "type": "string",
@@ -2416,11 +2422,11 @@
         },
         "fill": {
           "$ref": "#/$defs/ShapeStyle/properties/fill",
-          "description": "This object sets the fill of the Plan Bar, and GRS fills the Actual Bar from the same color. No key means no fill; fill and stroke cannot both be absent."
+          "description": "This object sets the fill of the Plan Bar, or of the Milestone Mark for a milestone, and GRS fills the Actual Bar from the same color. No key means no fill."
         },
         "stroke": {
           "$ref": "#/$defs/ShapeStyle/properties/stroke",
-          "description": "This object sets the outline of the Plan Bar and the Actual Bar. No key means no outline."
+          "description": "This object sets the outline of the Plan Bar and the Actual Bar, or of the Milestone Mark for a milestone. No key means no outline."
         }
       },
       "additionalProperties": false
@@ -2431,7 +2437,7 @@
       "properties": {
         "color": {
           "$ref": "#/$defs/TaskGroupColor",
-          "description": "This value is the color of the Task Group Lane: no key means no color, and {\"type\": \"theme\"} draws the theme color."
+          "description": "This value is the color of the Task Group Lane, and {\"type\": \"theme\"} draws the theme color."
         }
       },
       "required": [
@@ -2500,7 +2506,6 @@
       },
       "required": [
         "fill",
-        "stroke",
         "font"
       ],
       "additionalProperties": false
@@ -2511,7 +2516,7 @@
       "properties": {
         "type": {
           "type": "string",
-          "description": "\"values\": GRS hides the rows that show one of hiddenValues, and the empty rows when isBlankHidden is true; \"dateRange\": GRS hides the rows whose date lies outside firstDay to lastDay.",
+          "description": "\"values\": GRS hides the rows that show one of hiddenValues, and the empty rows when isBlankHidden is true; \"dateRange\": GRS hides the rows whose date lies outside firstDay to lastDay; an absent firstDay or lastDay leaves that end open.",
           "enum": [
             "values",
             "dateRange"
@@ -2546,7 +2551,7 @@
         },
         "hiddenValues": {
           "type": "array",
-          "description": "Only when type is \"values\". This list holds the values whose rows the filter hides: the English status name for a status column, and the cell text as the table shows the text for any other column. \"progressStatus\": \"notStarted\", \"inProgress\", \"suspendedWithResumeDate\", \"suspendedWithoutResumeDate\", \"finished\", \"delay\", \"unreliable\", \"bottleneck\", \"bottleneckPath\"; \"diagnosisStatus\": \"unreliable\", \"suspicion\", \"omission\", \"bottleneck\", \"bottleneckPath\", \"delay\", \"finishedDelayContribution\"; \"taskType\": \"task\", \"milestone\"; \"resourceSelectionStatus\": \"selected\", \"notSelected\".",
+          "description": "Only when type is \"values\". This list holds the values whose rows the filter hides: the English status name for a status column, and the cell text as the table shows the text for any other column. \"progressStatus\": \"notStarted\", \"inProgress\", \"suspendedWithResumeDate\", \"suspendedWithoutResumeDate\", \"finished\", \"delay\", and, while GRS shows Delay Diagnostics results, the diagnosis marks \"unreliable\", \"bottleneck\", \"bottleneckPath\"; \"diagnosisStatus\": \"unreliable\", \"suspicion\", \"omission\", \"bottleneck\", \"bottleneckPath\", \"delay\", \"finishedDelayContribution\"; \"taskType\": \"task\", \"milestone\"; \"resourceSelectionStatus\": \"selected\", \"notSelected\".",
           "minItems": 1,
           "items": {
             "type": "string",

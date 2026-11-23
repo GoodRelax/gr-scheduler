@@ -269,6 +269,7 @@
 | `rulings.md`（GRS JSON のスキーマの席、2026-11-23 の 8） | `JDG-3764`（英語の説明の木は英語だけで見せる）を足した |
 | `rulings.md`（GRS JSON のスキーマの席、2026-11-23 の 9） | `JDG-3765`（スキーマのルートに変更の台帳 `x-grsChanges` を置き、CR-851 の分は 1 行）を足した |
 | `rulings.md`（GRS JSON のスキーマの席、2026-11-23 の 10） | `JDG-3766`（冒頭の説明の語「Carried」を passthrough で言い直す）を足した |
+| `rulings.md`（GRS JSON のスキーマ 2 の席、2026-11-23 の 1） | `JDG-3767`（冒頭の説明の進捗の文に `resume`・`resumeValid` を足す。外の AI の矛盾 C9）を足した |
 | `rulings.md`（Agent API の名の席、2026-11-23 の 1） | `JDG-3771`（Agent API の名の未決の問いを GQA BGQA7 にまとめて出す）を足した |
 | `rulings.md`（Agent API の名の席、2026-11-23 の 2） | `JDG-3772`（方針の P-11: 対応表の名は `<値>By<鍵>`、`To` は行き先だけ、`Of`・`Into` は使わない）を足した。BGQA4・BGQA5 の名をそろえるときに当てる |
 | `rulings.md`（Agent API の名の席、2026-11-23 の 3） | `JDG-3773`（道具の分類の欄 `kind` → `memberType`）を足した。原稿 `grs-commands.schema.json` の命令の判別子 `kind`（約 190 か所 → `type`）と `agent-api-members.json` の `kind`（29 か所 → `memberType`）、それを読む src・tests の `kind` は、本書の実装でまとめて直す |
