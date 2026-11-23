@@ -87,6 +87,7 @@ R048  |  |  +- "sameAsScheduleData"
 R049  |  |  +- "fixed"
 R050  |  +- utcOffset                               UTC との差（"+09:00" の形。標準時の行だけ）（fixed）
 R051  +- additionalTimeZones[]                      追加の時計（4 つまで）
+                                                    GRS が時刻を見せている間、各時計はタイムルーラーの下に 1 行を足す。
 R052  |  +- utcOffset                               UTC との差（"+09:00" の形）
                                                     この差は夏時間の分をもう含み、GRS はこの差を 1 年中使う。
 R053  |  +- zoneNameType                            出すゾーンの名の種類（差 utcOffset はもう夏時間の分を含む）
@@ -154,6 +155,7 @@ R086  |  +- isPercentCompleteLabelVisible           完了率のラベルを見�
 R087  |  +- isProgressStatusMarkVisible             進捗ステータスマークと再開マークを見せるか
                                                     この値が true のとき、GRS は再開マークと進捗ステータスマークを描く。
 R088  |  +- isPlanDatesVisible                      予定の日付を見せるか
+                                                    この値が true のとき、GRS は各名称ラベルの右に、予定の開始日と終了日を描く。
 R089  |  +- isDependencyLineVisible                 依存線を見せるか
 R090  |  +- isProgressLineVisible                   イナズマ線を見せるか
                                                     この値が true のとき、GRS はイナズマ線を描く。
@@ -179,6 +181,7 @@ R098     +- resourceListWindow                      担当リスト -> ResourceT
 ```text
 R099  scheduleData                                    スケジュールデータ（頭の値と、MSPDI と往復する群）
 R100  +- scheduleDataTimeZone                         データの日時の時差
+                                                      GRS はこのゾーンを MSPDI へ書かない。
 R101  |  +- utcOffset                                 UTC との差（"+09:00" の形。標準時の行だけ）
 R102  +- sourceFormat                                 元の形式
 R103  |  +- "grs"
@@ -203,8 +206,12 @@ R112  +- project [M]                                  プロジェクト（1 件
                                                       s, resources, assignments）は、MSPDI のように project の中に入らず、scheduleData の中で 
                                                       project と並ぶ。
 R113  |  +- uid [M]                                   一意な識別子（文字列）
+                                                      プロジェクトの識別子。MSPDI の Project の UID と同じで、文字列で書く。MSPDI にもある物（
+                                                      タスク・担当・割当・暦）は整数の uid を持ち、GRS だけが定める物（タスクグループ・ハイラ
+                                                      イトボックス・コメントボックス）は UUID の id を持つ。
 R114  |  +- name [M]                                  プロジェクト名
 R115  |  +- title [M]                                 タイトル
+                                                      プロジェクトの題。GRS はこれをプロジェクトタイトルとして見せる。
 R116  |  +- subject [M]                               件名
 R117  |  +- category [M]                              分類
 R118  |  +- company [M]                               会社
@@ -229,7 +236,8 @@ R127  |  +- minutesPerDay [M]                         1 日の稼働の分
 R128  |  +- minutesPerWeek [M]                        1 週の稼働の分
 R129  |  +- daysPerMonth [M]                          1 か月の稼働日
 R130  |  +- weekStartDay [M]                          週の始まりの曜日
-                                                      日曜はここでは 0 だが、calendars[].weekDays[].dayType では 1 である。
+                                                      週の初めの曜日。0 が日曜、1 が月曜、…、6 が土曜。GRS はタイムルーラーの各週をこの曜日か
+                                                      ら始める。
 R131  |  |  +- 0                                      日曜
 R132  |  |  +- 1                                      月曜
 R133  |  |  +- 2                                      火曜
@@ -238,6 +246,8 @@ R135  |  |  +- 4                                      木曜
 R136  |  |  +- 5                                      金曜
 R137  |  |  +- 6                                      土曜
 R138  |  +- statusDate [M]                            基準日
+                                                      GRS はこの日時に基準日線を描き、この日について遅延診断を行う。statusDate が無いとき、GRS
+                                                       は基準日線を描かず、遅延診断は動かない。
 R139  |  +- grs [G]                                   GRS の値
 R140  |     +- passthrough                            持ち越した MSPDI の値（MSPDI の構造と名のまま）
 R141  +- calendars[] [M]                              暦
@@ -276,9 +286,8 @@ R166  |     +- toDate [M] (TimePeriod/ToDate)         最後の日
                                                       。
 R167  |     +- dayWorking [M]                         稼働日か
 R168  |     +- type [M]                               例外の繰り返し方（判別子ではない）
-                                                      GRS は一度きりの例外だけで稼働日を数える。一度きりの例外は fromDate から toDate までの毎
-                                                      日に効く: type 9、type なし、または period が 1 か period なしの type 1（毎日）。GRS は
-                                                      ほかの例外をそのまま保ち、数えるときには使わない。
+                                                      GRS は一度きりの例外だけで稼働日を数える: type 9、type なし、または period が 1 か perio
+                                                      d なしの type 1。新しい例外は 1 を取る。
 R169  |     |  +- 1                                   毎日
 R170  |     |  +- 2                                   毎年、月の何日
 R171  |     |  +- 3                                   毎年、月の第何何曜日
@@ -304,13 +313,15 @@ R185  |  +- precedingCalendarUid                      前にある、いちば�
                                                       要素は先頭に来る。値が等しいときは、配列の順を保つ。
 R186  |  +- mspdiElement                              MSPDI の要素（構造と名のまま）
 R187  +- tasks[] [M]                                  タスク
-                                                      このリストの順は意味を持たない。parentTaskUid と siblingIndex が WBS の木を決める。
+                                                      スケジュールのタスク。各項目は 1 つのタスクか 1 つのマイルストーンである。WBS の中の位置
+                                                      は、この配列の順ではなく、parentTaskUid と siblingIndex が決める。
 R188  |  +- uid [M]                                   一意な識別子
 R189  |  +- name [M]                                  タスク名
 R190  |  +- start [M]                                 予定の開始
 R191  |  +- finish [M]                                予定の終了
                                                       マイルストーンの開始と終了は同じである。
 R192  |  +- stop [M]                                  作業が止まった時
+                                                      GRS はタスクを完了にするとき、stop を消す。そのあとは、actualFinish が終わりを持つ。
 R193  |  +- resume [M]                                再開の予定
 R194  |  +- resumeValid [M]                           再開日が有効か
                                                       書いた false だけが、再開日のない中断を示す。GRS は再開日を書くたびに true も書く。
@@ -381,6 +392,8 @@ R238  |  |  |  +- mspdiImportCountWhenLastIncluded    このタスクを最後�
                                                       このタスクを含むファイルを取り込んだ最後の時の scheduleData.mspdiImportCount の写し。値
                                                       が今の回数より小さいとき、最新の取り込みはこのタスクを含まなかった。
 R239  |  |  +- passthrough                            持ち越した MSPDI の値
+                                                      このタスクの MSPDI の値のうち、GRS が使わないもの。GRS はそれらを MSPDI へ書き戻すために
+                                                      持つ。
 R240  |  +- predecessorLinks[] [M] (PredecessorLink)  先行への結び付き
 R241  |     +- predecessorUid [M]                     先行タスク
 R242  |     +- type [M]                               依存の種類（判別子ではない）
@@ -392,8 +405,9 @@ R247  |     +- linkLag [M]                            ラグ（0.1 分単位）
                                                       lagFormat に関わらず、0.1 分単位で表したラグ。4800 は 480 分で、project.minutesPerDay が
                                                        480 なら稼働日 1 日である。
 R248  |     +- lagFormat [M]                          ラグを見せる単位（e は経過時間、? は見積り）
-                                                      GRS は 3、5、7 のときだけラグを数える。lagFormat が無いとき、GRS はラグを数えには入れな
-                                                      い。
+                                                      MSPDI がラグを見せる単位を表す、MSPDI の番号（たとえば 3 は分、5 は時間、7 は日）。linkL
+                                                      ag は、単位によらず長さを 0.1 分で持つ。GRS が分かるのは 3、5、7 だけで、ほかの番号はそ
+                                                      のまま保つ。
 R249  |     |  +- 3                                   m 分
 R250  |     |  +- 4                                   em
 R251  |     |  +- 5                                   h 時間
@@ -418,6 +432,7 @@ R267  |  +- precedingTaskUid                          前にある、いちば�
                                                       要素は先頭に来る。値が等しいときは、配列の順を保つ。
 R268  |  +- mspdiElement                              MSPDI の要素（構造と名のまま）
 R269  +- resources[] [M]                              担当
+                                                      GRS は担当を担当リストウィンドウに並べ、各タスクの担当を担当ラベルに見せる。
 R270  |  +- uid [M]                                   一意な識別子
 R271  |  +- name [M]                                  担当の名
 R272  |  +- type [M]                                  資材か作業か（判別子ではない）
@@ -452,7 +467,9 @@ R290     +- mspdiElement                              MSPDI の要素（構造�
 ```text
 R291  scheduleData                        スケジュールデータ（GRS だけが持つ配列。MSPDI の群の後に続く）
 R292  +- taskGroups[]                     タスクグループ
-                                          タスクグループ（深さ優先）。タスクグループは、WBS とは別の、描く行の木である。
+                                          タスクグループ。タスクグループはチャートの 1 行（タスクグループレーン）で、GRS は grs.ta
+                                          skGroupId でそのタスクグループを指すタスクを、すべてその行に描く。タスクグループは、WBS 
+                                          のタスクの親子とは別の、自分の木を作る。この配列は深さ優先で並べる。
 R293  |  +- id                            一意な UUID
 R294  |  +- name                          タスクグループ名
                                           キーが無いとき、GRS は空の題を見せる。

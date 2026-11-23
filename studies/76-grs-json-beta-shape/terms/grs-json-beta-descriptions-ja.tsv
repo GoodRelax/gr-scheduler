@@ -51,18 +51,18 @@ scheduleData.project.calendarUid	このキーが無いか、calendars[] のど�
 scheduleData.project.defaultStartTime	GRS は、GRS が日単位で決める開始に、この時刻を付ける。キーが無いとき、GRS は 08:00:00 を使う。
 scheduleData.project.defaultFinishTime	GRS は、GRS が日単位で決める終了とマイルストーンの開始に、この時刻を付ける。キーが無いとき、GRS は 17:00:00 を使う。
 scheduleData.project.minutesPerDay	キーが無いとき、GRS は 480 を使う。1 日の稼働時間の合計がこの値と違うとき、GRS は開くときに警告する。
-scheduleData.project.weekStartDay	日曜はここでは 0 だが、calendars[].weekDays[].dayType では 1 である。
+scheduleData.project.weekStartDay	週の初めの曜日。0 が日曜、1 が月曜、…、6 が土曜。GRS はタイムルーラーの各週をこの曜日から始める。
 scheduleData.calendars[]	GRS は、project.calendarUid が指す暦のほかの暦を、MSPDI へ書き戻すためだけに持つ。
 scheduleData.calendars[].baseCalendarUid	GRS はこの値を書き戻すが、受け継がない。GRS は、この暦が並べる日だけを数える。
 scheduleData.calendars[].weekDays[].workingTimes[]	workingTimes の無い稼働日では、GRS は 08:00-12:00 と 13:00-17:00 を使う。稼働しない日では、GRS は workingTimes を MSPDI のために保ち、稼働時間を数えない。
 scheduleData.calendars[].weekDays[].workingTimes[].toTime	00:00:00 は 24:00、つまりその日の終わりを示す。
 scheduleData.calendars[].exceptions[].fromDate	GRS は日付だけを読む。GRS が日付を決めるときは、GRS は T00:00:00 を書く。
 scheduleData.calendars[].exceptions[].toDate	GRS は日付だけを読むので、T00:00:00 でもその日をまるごと数える。GRS は T23:59:00 を書く。
-scheduleData.calendars[].exceptions[].type	GRS は一度きりの例外だけで稼働日を数える。一度きりの例外は fromDate から toDate までの毎日に効く: type 9、type なし、または period が 1 か period なしの type 1（毎日）。GRS はほかの例外をそのまま保ち、数えるときには使わない。
+scheduleData.calendars[].exceptions[].type	GRS は一度きりの例外だけで稼働日を数える: type 9、type なし、または period が 1 か period なしの type 1。新しい例外は 1 を取る。
 scheduleData.calendars[].exceptions[].workingTimes[]	稼働する例外では、これらの時間帯が曜日の時間帯に代わる。workingTimes の無い稼働する例外は、08:00-12:00 と 13:00-17:00 を使う。稼働しない例外では、GRS は workingTimes を MSPDI のために保ち、稼働時間を数えない。
 scheduleData.calendars[].exceptions[].workingTimes[].toTime	00:00:00 は 24:00、つまりその日の終わりを示す。
 scheduleData.passthroughCalendars[].precedingCalendarUid	MSPDI でこの要素より前にある、calendars[] の中のいちばん近い暦の uid。キーが無いと、その要素は先頭に来る。値が等しいときは、配列の順を保つ。
-scheduleData.tasks[]	このリストの順は意味を持たない。parentTaskUid と siblingIndex が WBS の木を決める。
+scheduleData.tasks[]	スケジュールのタスク。各項目は 1 つのタスクか 1 つのマイルストーンである。WBS の中の位置は、この配列の順ではなく、parentTaskUid と siblingIndex が決める。
 scheduleData.tasks[].finish	マイルストーンの開始と終了は同じである。
 scheduleData.tasks[].resumeValid	書いた false だけが、再開日のない中断を示す。GRS は再開日を書くたびに true も書く。
 scheduleData.tasks[].percentComplete	実績の稼働時間（actualStart から actualFinish か stop まで）を予定の稼働時間で割り、100 を掛けて丸める。GRS は上限で抑えない。予定の稼働時間が無いとき、この値は actualFinish があれば 100、なければ 0 である。actualStart があり、actualFinish も stop も無いタスクは、実績の稼働時間を 0 と数える。
@@ -78,13 +78,13 @@ scheduleData.tasks[].grs.importOrigin.sourceTaskUid	GRS が取り込んだタス
 scheduleData.tasks[].grs.importOrigin.importSessionId	MSPDI ファイルに Project UID が無かったとき、この id が sourceProjectUid の代わりをする。
 scheduleData.tasks[].grs.importOrigin.mspdiImportCountWhenLastIncluded	このタスクを含むファイルを取り込んだ最後の時の scheduleData.mspdiImportCount の写し。値が今の回数より小さいとき、最新の取り込みはこのタスクを含まなかった。
 scheduleData.tasks[].predecessorLinks[].linkLag	lagFormat に関わらず、0.1 分単位で表したラグ。4800 は 480 分で、project.minutesPerDay が 480 なら稼働日 1 日である。
-scheduleData.tasks[].predecessorLinks[].lagFormat	GRS は 3、5、7 のときだけラグを数える。lagFormat が無いとき、GRS はラグを数えには入れない。
+scheduleData.tasks[].predecessorLinks[].lagFormat	MSPDI がラグを見せる単位を表す、MSPDI の番号（たとえば 3 は分、5 は時間、7 は日）。linkLag は、単位によらず長さを 0.1 分で持つ。GRS が分かるのは 3、5、7 だけで、ほかの番号はそのまま保つ。
 scheduleData.passthroughTasks[]	tasks[] の外にある MSPDI の Task 要素まるごと。例えばプロジェクトの要約タスク。
 scheduleData.passthroughTasks[].precedingTaskUid	MSPDI でこの要素より前にある、tasks[] の中のいちばん近いタスクの uid。キーが無いと、その要素は先頭に来る。値が等しいときは、配列の順を保つ。
 scheduleData.resources[].type	番号に関わらず、どの担当も同じキーを持つ。
 scheduleData.passthroughResources[].precedingResourceUid	MSPDI でこの要素より前にある、resources[] の中のいちばん近い担当の uid。キーが無いと、その要素は先頭に来る。値が等しいときは、配列の順を保つ。
 scheduleData.passthroughAssignments[].precedingAssignmentUid	MSPDI でこの要素より前にある、assignments[] の中のいちばん近い割当の uid。キーが無いと、その要素は先頭に来る。値が等しいときは、配列の順を保つ。
-scheduleData.taskGroups[]	タスクグループ（深さ優先）。タスクグループは、WBS とは別の、描く行の木である。
+scheduleData.taskGroups[]	タスクグループ。タスクグループはチャートの 1 行（タスクグループレーン）で、GRS は grs.taskGroupId でそのタスクグループを指すタスクを、すべてその行に描く。タスクグループは、WBS のタスクの親子とは別の、自分の木を作る。この配列は深さ優先で並べる。
 scheduleData.taskGroups[].parentTaskGroupId	キーが無いとき、そのタスクグループは最上位のタスクグループ（深さ 1）である。
 scheduleData.taskGroups[].siblingIndex	GRS は、値の小さいタスクグループから上に並べる。siblingIndex の無いタスクグループは、その後ろに配列の順で並ぶ。
 scheduleData.taskGroups[].style	style が無いとき、GRS はタスクグループレーンに色を付けない。
@@ -143,3 +143,12 @@ $defs/Time	00:00:00 から 23:59:59 までの時刻。
 documentStamp.documentUpdatedAt	スケジュール文書の最後の変更。documentSettings の変更も含む。
 documentStamp.fileSavedAt	最初の保存まで、このキーは無い。
 scheduleData.commentBoxes[].leaderTarget.snapPart	type が "task" のときだけ書く。マイルストーンでは "milestoneMark"、ほかのタスクでは "planBar" か "actualBar"。
+documentSettings.additionalTimeZones[]	GRS が時刻を見せている間、各時計はタイムルーラーの下に 1 行を足す。
+documentSettings.scheduleCanvasElements.isPlanDatesVisible	この値が true のとき、GRS は各名称ラベルの右に、予定の開始日と終了日を描く。
+scheduleData.scheduleDataTimeZone	GRS はこのゾーンを MSPDI へ書かない。
+scheduleData.resources[]	GRS は担当を担当リストウィンドウに並べ、各タスクの担当を担当ラベルに見せる。
+scheduleData.project.statusDate	GRS はこの日時に基準日線を描き、この日について遅延診断を行う。statusDate が無いとき、GRS は基準日線を描かず、遅延診断は動かない。
+scheduleData.tasks[].stop	GRS はタスクを完了にするとき、stop を消す。そのあとは、actualFinish が終わりを持つ。
+scheduleData.project.uid	プロジェクトの識別子。MSPDI の Project の UID と同じで、文字列で書く。MSPDI にもある物（タスク・担当・割当・暦）は整数の uid を持ち、GRS だけが定める物（タスクグループ・ハイライトボックス・コメントボックス）は UUID の id を持つ。
+scheduleData.project.title	プロジェクトの題。GRS はこれをプロジェクトタイトルとして見せる。
+scheduleData.tasks[].grs.passthrough	このタスクの MSPDI の値のうち、GRS が使わないもの。GRS はそれらを MSPDI へ書き戻すために持つ。

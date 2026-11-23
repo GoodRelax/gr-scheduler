@@ -242,7 +242,8 @@
                 }
               }
             ]
-          }
+          },
+          "description": "While GRS shows times of day, each clock adds a row under the Time Ruler."
         },
         "isTimeOfDayVisible": {
           "type": "boolean",
@@ -464,7 +465,8 @@
             },
             "isPlanDatesVisible": {
               "type": "boolean",
-              "default": false
+              "default": false,
+              "description": "GRS draws the planned start and finish dates to the right of each Name Label when this value is true."
             },
             "isDependencyLineVisible": {
               "type": "boolean",
@@ -660,7 +662,8 @@
           "required": [
             "utcOffset"
           ],
-          "additionalProperties": false
+          "additionalProperties": false,
+          "description": "GRS does not write this zone to MSPDI."
         },
         "sourceFormat": {
           "type": "string",
@@ -741,7 +744,7 @@
         },
         "tasks": {
           "type": "array",
-          "description": "The order of this list carries no meaning: parentTaskUid and siblingIndex give the WBS tree.",
+          "description": "The tasks of the schedule: each item is one task or one milestone. Its place in the WBS comes from parentTaskUid and siblingIndex, not from the order of this list.",
           "minItems": 1,
           "items": {
             "$ref": "#/$defs/Task"
@@ -773,7 +776,8 @@
           "minItems": 1,
           "items": {
             "$ref": "#/$defs/Resource"
-          }
+          },
+          "description": "GRS lists the resources in the Resource List Window and shows the resources of each task in the Assignee Label."
         },
         "passthroughResources": {
           "type": "array",
@@ -824,7 +828,7 @@
         },
         "taskGroups": {
           "type": "array",
-          "description": "The task groups, depth first, as a tree of drawing rows separate from the WBS.",
+          "description": "The task groups. A task group is one row of the chart, a Task Group Lane, where GRS draws every task that names the task group in grs.taskGroupId. Task groups nest in a tree of their own, apart from the parent and child tasks of the WBS; this list holds them depth first.",
           "minItems": 1,
           "items": {
             "$ref": "#/$defs/TaskGroup"
@@ -882,7 +886,8 @@
       "properties": {
         "uid": {
           "type": "string",
-          "maxLength": 16
+          "maxLength": 16,
+          "description": "The identifier of the project, the same as MSPDI Project UID, written as a string. Tasks, resources, assignments and calendars, which also exist in MSPDI, take an integer uid; the objects that only GRS defines (task groups, Highlight Boxes, Comment Boxes) take an id, which is a UUID."
         },
         "name": {
           "type": "string",
@@ -890,7 +895,8 @@
         },
         "title": {
           "type": "string",
-          "maxLength": 512
+          "maxLength": 512,
+          "description": "The title of the project, which GRS shows as the Project Title."
         },
         "subject": {
           "type": "string",
@@ -946,7 +952,7 @@
         },
         "weekStartDay": {
           "type": "integer",
-          "description": "Sunday is 0 here but 1 in calendars[].weekDays[].dayType.",
+          "description": "The first day of the week: 0 is Sunday, 1 is Monday, and so on to 6, Saturday. GRS starts each week of the Time Ruler on this day.",
           "enum": [
             0,
             1,
@@ -959,7 +965,8 @@
           "default": 1
         },
         "statusDate": {
-          "$ref": "#/$defs/DateTime"
+          "$ref": "#/$defs/DateTime",
+          "description": "GRS draws the Status Line at this date-time and runs Delay Diagnostics for this date. Without statusDate, GRS draws no Status Line and Delay Diagnostics does not run."
         },
         "grs": {
           "type": "object",
@@ -1094,7 +1101,7 @@
         },
         "type": {
           "type": "integer",
-          "description": "GRS counts working days with a one-off exception only, which covers every day from fromDate to toDate: type 9, no type, or type 1 (every day) with period 1 or no period. GRS keeps the other exceptions unchanged and leaves them out of the count.",
+          "description": "GRS counts working days only with a one-off exception: type 9, no type, or type 1 with period 1 or no period. A new exception takes 1.",
           "enum": [
             1,
             2,
@@ -1169,7 +1176,8 @@
           "description": "A milestone has the same start and finish."
         },
         "stop": {
-          "$ref": "#/$defs/DateTime"
+          "$ref": "#/$defs/DateTime",
+          "description": "GRS removes stop when GRS finishes the task; actualFinish then holds the end."
         },
         "resume": {
           "$ref": "#/$defs/DateTime"
@@ -1248,7 +1256,8 @@
               "description": "A task made in GRS has no importOrigin."
             },
             "passthrough": {
-              "$ref": "#/$defs/Passthrough"
+              "$ref": "#/$defs/Passthrough",
+              "description": "The MSPDI values of this task that GRS does not use; GRS keeps them to write them back to MSPDI."
             }
           },
           "required": [
@@ -1340,7 +1349,7 @@
         },
         "lagFormat": {
           "type": "integer",
-          "description": "GRS counts the lag only for 3, 5 and 7. When lagFormat is absent, GRS leaves the lag out of the count.",
+          "description": "The unit in which MSPDI shows the lag, as an MSPDI code, for example 3 for minutes, 5 for hours and 7 for days. linkLag holds the length in tenths of a minute whatever the unit. GRS understands only 3, 5 and 7, and keeps any other code as it is.",
           "enum": [
             3,
             4,
