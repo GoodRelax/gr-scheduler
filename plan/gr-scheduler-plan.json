@@ -14,7 +14,7 @@
       "creationDate": "2026-10-31T08:50:00",
       "revision": 11,
       "startDate": "2026-10-17T05:30:00",
-      "statusDate": "2026-11-24T07:23:00",
+      "statusDate": "2026-11-24T07:29:00",
       "minutesPerDay": 1440,
       "minutesPerWeek": 10080,
       "daysPerMonth": 30,
@@ -24,7 +24,7 @@
       "defaultFinishTime": "23:59:00",
       "themeHue": 214,
       "parentTaskProgressToleranceDays": 1,
-      "uidHighWaterMark": 504,
+      "uidHighWaterMark": 505,
       "importSequence": 0,
       "carry": {},
       "carryElements": [],
@@ -4236,6 +4236,14 @@
             "lagFormat": 7,
             "carry": {},
             "carryElements": []
+          },
+          {
+            "predecessorUid": 505,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
           }
         ],
         "carry": {},
@@ -7759,19 +7767,19 @@
         "uid": 455,
         "parentTaskUid": null,
         "wbsOrder": 314,
-        "name": "🌒 差分抽出: 決まった名と今の仕様・コードの差を抜き出す(SUB)",
+        "name": "🌕 差分抽出: 決まった名と今の仕様・コードの差を抜き出す(SUB)",
         "start": "2026-11-24T06:51:00",
-        "finish": "2026-11-25T06:51:00",
+        "finish": "2026-11-24T07:18:00",
         "milestone": false,
         "deadline": null,
-        "notes": "pmo-5 2026-11-22: new task for the deliverable tree (owner order). Input: the settled contract names of both groups (after part 13 is recorded, uid 418, and part 37 is recorded, uid 434; BOSS 11-22). Output: the list of differences between the settled names and the current spec and code, handed to CR-855/856. Length 1 day is a PMO placeholder (no measured number yet). SUB model: Opus 5.5 high. pmo-6 2026-11-23T12:22: now follows 479 and 480 (the schema successor and the owner answers) instead of 474. pmo-6 2026-11-23T12:56: also waits for 482 (BGQA8 next round applied). pmo-6 2026-11-23T19:51: also waits for 484 (last BGQA8 answers applied). pmo-6 2026-11-23T20:06: placed right after 484 (the last of its predecessors). Tasks behind 455 stay where they are (no pull-forward until the BOSS asks). pmo-6 2026-11-23T20:31: also waits for 487 (second outside AI review applied; BOSS line). pmo-6 2026-11-23T21:08: also waits for the owner tasks 488 and 489 (BOSS line). pmo-6 2026-11-23T23:10: every predecessor is done, so 455 can start now. The seat is not started yet; the BOSS asks the owner whether to start it. Placed from now (1 day placeholder, provisional). pmo-6 2026-11-24T00:24: the seat waits for the owner signal (BOSS line 11-24). Re-placed from now (not started); later tasks follow by the forward pass. pmo-6 2026-11-24T06:51: started on the owner signal (seat local_8b4e6411: diff extraction). Length kept (provisional).",
+        "notes": "pmo-5 2026-11-22: new task for the deliverable tree (owner order). Input: the settled contract names of both groups (after part 13 is recorded, uid 418, and part 37 is recorded, uid 434; BOSS 11-22). Output: the list of differences between the settled names and the current spec and code, handed to CR-855/856. Length 1 day is a PMO placeholder (no measured number yet). SUB model: Opus 5.5 high. pmo-6 2026-11-23T12:22: now follows 479 and 480 (the schema successor and the owner answers) instead of 474. pmo-6 2026-11-23T12:56: also waits for 482 (BGQA8 next round applied). pmo-6 2026-11-23T19:51: also waits for 484 (last BGQA8 answers applied). pmo-6 2026-11-23T20:06: placed right after 484 (the last of its predecessors). Tasks behind 455 stay where they are (no pull-forward until the BOSS asks). pmo-6 2026-11-23T20:31: also waits for 487 (second outside AI review applied; BOSS line). pmo-6 2026-11-23T21:08: also waits for the owner tasks 488 and 489 (BOSS line). pmo-6 2026-11-23T23:10: every predecessor is done, so 455 can start now. The seat is not started yet; the BOSS asks the owner whether to start it. Placed from now (1 day placeholder, provisional). pmo-6 2026-11-24T00:24: the seat waits for the owner signal (BOSS line 11-24). Re-placed from now (not started); later tasks follow by the forward pass. pmo-6 2026-11-24T06:51: started on the owner signal (seat local_8b4e6411: diff extraction). Length kept (provisional). pmo-6 2026-11-24T07:29: done. The seat listed every old name the settled beta names replace (studies/83-beta-rename-inventory; 06615b267 07:18, develop 1ca575fa6). Actual 27 min against the 1 day placeholder. Of the 4 points to confirm, 1 and 2 touch the frozen GRS JSON and go to the owner by BGQA (task 505, the BOSS asks); 3 and 4 are settled by the seat. Tasks behind 455 are not pulled forward (only when the BOSS asks).",
         "calendarUid": null,
         "actualStart": "2026-11-24T06:51:00",
         "stop": null,
-        "actualFinish": null,
+        "actualFinish": "2026-11-24T07:18:00",
         "resume": null,
         "resumeValid": null,
-        "percentComplete": 0,
+        "percentComplete": 100,
         "fadeInDays": null,
         "fadeOutDays": null,
         "dependencies": [
@@ -9501,6 +9509,38 @@
         ],
         "carry": {},
         "carryElements": []
+      },
+      {
+        "uid": 505,
+        "parentTaskUid": null,
+        "wbsOrder": 364,
+        "name": "🌑 オーナー: 差分抽出の要確認 ①・②(凍結した GRS JSON にかかる)に BGQA で答える",
+        "start": "2026-11-24T07:29:00",
+        "finish": "2026-11-24T21:12:57",
+        "milestone": false,
+        "deadline": null,
+        "notes": "pmo-6 2026-11-24T07:29: BOSS line 11-24: points 1 and 2 of the diff extraction (study 83) touch the frozen GRS JSON (JDG-3807), so the BOSS puts them to the owner by BGQA. Not asked yet. Length = 2 questions at 8.6 rows/h in owner hours (provisional). CR-855 (303) waits for it.",
+        "calendarUid": null,
+        "actualStart": null,
+        "stop": null,
+        "actualFinish": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 455,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
       }
     ],
     "resources": [],
@@ -11039,6 +11079,10 @@
       {
         "taskUid": 504,
         "taskGroupId": "f5c1a05d-0315-5b9a-9a59-93f3d19dd7ce"
+      },
+      {
+        "taskUid": 505,
+        "taskGroupId": "f4978d7c-dec8-502c-8ee2-b73a226717c2"
       }
     ],
     "taskVisuals": [
@@ -13577,6 +13621,14 @@
         "fillColor": "blue",
         "strokeColor": null,
         "strokeWidthPx": null
+      },
+      {
+        "taskUid": 505,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": "diamond",
+        "fillColor": "blue",
+        "strokeColor": null,
+        "strokeWidthPx": null
       }
     ],
     "commentBoxes": [
@@ -15585,10 +15637,10 @@
     "zoomY": 1.099862517185352
   },
   "documentStamp": {
-    "scheduleUpdatedAt": "2026-11-23T22:23:00Z",
+    "scheduleUpdatedAt": "2026-11-23T22:29:00Z",
     "lastEditedBy": "PMO child session",
     "settingsUpdatedAt": "2026-10-20T20:24:42Z",
-    "fileSavedAt": "2026-11-23T22:23:00Z"
+    "fileSavedAt": "2026-11-23T22:29:00Z"
   },
   "changeLog": [
     {
@@ -16358,6 +16410,12 @@
       "editedBy": "PMO child session",
       "explanation": "Fact at 11-24 07:23 JST: line of the 5th BOSS (local_ce96eac6, JDG-3814: BOSS changed). Owner answer BGQA q18 = a (JDG-3812): N1 (316) done at its actual 11-23 19:59 (deadline 11-22 14:59 kept); the beta (234) and the plan end (49) moved to 11-30, deadline 12-02; 11-28 dropped. q19 = a (JDG-3813): new standards seats start with B1, B2, B4.",
       "changedAt": "2026-11-23T22:23:00Z"
+    },
+    {
+      "ordinal": 129,
+      "editedBy": "PMO child session",
+      "explanation": "Fact at 11-24 07:29 JST: BOSS line, the diff extraction 455 is done (study 83, 06615b267, 27 min). Owner task 505 added for its points 1-2 (frozen GRS JSON, by BGQA); CR-855 (303) waits for it. Tasks behind 455 are not pulled forward.",
+      "changedAt": "2026-11-23T22:29:00Z"
     }
   ]
 }
