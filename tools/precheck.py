@@ -251,6 +251,27 @@ def trap_backticked_ids(relative, lines):
     return found
 
 
+# ------------------------------------------------------------ trap 1b
+# An open-question mark of the NDD review standard (R3, appendix A.3) names an
+# OPQ row of the specification. A mark spelled with a PND id mixes the new form
+# with the old ledger, and checks 25 and 55 would refuse it only after the edit
+# (study 82, stage B2, 2026-11-24).
+OPEN_QUESTION_WITH_PND = re.compile(
+    r'(?:\b(?:Unimplemented|Provisional):\s*|\((?:provisional|undecided):\s*|'
+    r'（(?:仮|未決):\s*)(PND-\d+)')
+
+
+def trap_open_question_with_pnd(relative, lines):
+    found = []
+    for number, line in enumerate(lines, start=1):
+        for hit in OPEN_QUESTION_WITH_PND.findall(line):
+            found.append(
+                '%s:%d  an open-question mark names %s -- the mark names an '
+                'OPQ-n row of the specification (appendix A.3); PND is the old '
+                'ledger' % (relative, number, hit))
+    return found
+
+
 # ---------------------------------------------------------------- trap 2
 # StrictDoc refuses two blank lines in a row, and says so only as a process
 # pool dying unless --no-parallelization is passed.
@@ -368,6 +389,7 @@ def trap_challenge_pairing(relative, lines, goals):
 
 TRAPS = (
     ('backticked change-request or pending-decision id in docs/spec', trap_backticked_ids),
+    ('an open-question mark that names a PND id', trap_open_question_with_pnd),
     ('two blank lines in a row', trap_double_blank),
     ('a generated artifact edited by hand', trap_generated_edit),
     ('an absolute path, which names one machine', trap_absolute_path),

@@ -14,6 +14,26 @@ all.
 called A that is really G reads the same to a machine. That is why the rule
 asks for the reason in the row, and why a person reads the list.
 
+THE OPEN QUESTIONS (OPQ, study 82 stage B2, 2026-11-24). The NDD review
+standard (appendix A.3) moves the open rows into an appendix of the
+specification as `OPQ-xxx`, with six columns: ID / Undecided point / Places
+searched / Decider / Provisional handling / Tests to fix on reversal. Its marks
+are `// Unimplemented: OPQ-n` and `// Provisional: OPQ-n` in code and tests,
+and `(provisional: OPQ-n)` / `(undecided: OPQ-n)` -- `（仮: OPQ-n）` /
+`（未決: OPQ-n）` in Japanese -- at the end of a sentence of the
+specification. While stage B7 moves the open PND rows, both halves are held:
+
+  - a `| OPQ-n |` row of a Markdown file under docs/spec with fewer than six
+    cells is malformed;
+  - a mark naming an OPQ-n that no row holds is a problem (the answered
+    question left its mark behind, or the row was never written);
+  - a row that no mark names, in the tree or in the specification, is a
+    problem (the standard adds a row for each stopped or provisional place,
+    so a row with no place is stale).
+
+The ID of an answered question is never reused; check 44 holds that once
+the closed ID is added to retired.py.
+
     python check-pending-decisions.py
 """
 import io
@@ -34,6 +54,13 @@ MARK = re.compile(r'@provisional\s+(PND-\d+)')
 ROW = re.compile(r'^\|\s*(PND-\d+)\s*\|([^|]*)\|([^|]*)\|\s*([A-H])\s*\|'
                  r'([^|]*)\|([^|]*)\|([^|]*)\|\s*(未裁定|裁定済)\s*\|')
 DEFER_OK = ('A', 'B', 'C')
+
+SPEC = os.path.join(ROOT, 'docs', 'spec')
+OPQ_CODE_MARK = re.compile(r'(?:Unimplemented|Provisional):\s+(OPQ-\d+)')
+OPQ_SPEC_MARK = re.compile(r'(?:\((?:provisional|undecided):\s*|'
+                           r'\uff08(?:\u4eee|\u672a\u6c7a):\s*)(OPQ-\d+)')
+OPQ_ROW = re.compile(r'^\|\s*\**`?(OPQ-\d+)`?\**\s*\|')
+OPQ_CELLS = 6
 # A record whose state table has no unfinished row is a closed wave.
 UNFINISHED = ('⬜', '🔧', '🧪')
 
@@ -77,6 +104,71 @@ def rows_in_list():
         elif re.match(r'^\|\s*PND-\d+\s*\|', line):
             malformed.append(line.strip()[:90])
     return rows, malformed
+
+
+def opq_rows_and_spec_marks():
+    """The OPQ rows of docs/spec, the malformed ones, and the spec's marks."""
+    rows, malformed, marks = {}, [], {}
+    for here, dirs, files in os.walk(SPEC):
+        dirs[:] = sorted(d for d in dirs if d not in ('output', '__pycache__'))
+        for name in sorted(files):
+            if not name.endswith('.md'):
+                continue
+            path = os.path.join(here, name)
+            rel = os.path.relpath(path, ROOT).replace('\\', '/')
+            for line in io.open(path, encoding='utf-8', errors='replace'):
+                line = line.strip()
+                row = OPQ_ROW.match(line)
+                if row:
+                    cells = [c for c in re.split(r'(?<!\\)\|', line)[1:-1]]
+                    if len(cells) < OPQ_CELLS:
+                        malformed.append('%s: %s' % (rel, line[:90]))
+                    rows.setdefault(row.group(1), rel)
+                    continue
+                for opq in OPQ_SPEC_MARK.findall(line):
+                    marks.setdefault(opq, []).append(rel)
+    return rows, malformed, marks
+
+
+def opq_marks_in_tree():
+    found = {}
+    for tree in TREES:
+        base = os.path.join(ROOT, tree)
+        if not os.path.isdir(base):
+            continue
+        for here, _dirs, files in os.walk(base):
+            for name in files:
+                if not name.endswith(('.ts', '.py', '.js', '.mjs', '.feature')):
+                    continue
+                path = os.path.join(here, name)
+                body = io.open(path, encoding='utf-8', errors='replace').read()
+                for opq in OPQ_CODE_MARK.findall(body):
+                    rel = os.path.relpath(path, ROOT).replace('\\', '/')
+                    found.setdefault(opq, []).append(rel)
+    return found
+
+
+def opq_problems():
+    """The OPQ half of the check (docstring, THE OPEN QUESTIONS)."""
+    rows, malformed, spec_marks = opq_rows_and_spec_marks()
+    code_marks = opq_marks_in_tree()
+    problems = ['an OPQ row holds fewer than %d cells (ID / Undecided point / '
+                'Places searched / Decider / Provisional handling / Tests to '
+                'fix on reversal): %s' % (OPQ_CELLS, line) for line in malformed]
+    for opq in sorted(set(code_marks) - set(rows)):
+        problems.append('%s is marked in %s but no | %s | row of docs/spec '
+                        'holds it -- an answered question leaves no mark, and '
+                        'an open one has its row'
+                        % (opq, ', '.join(sorted(set(code_marks[opq]))), opq))
+    for opq in sorted(set(spec_marks) - set(rows)):
+        problems.append('%s is marked in the specification (%s) but no row '
+                        'holds it' % (opq, ', '.join(sorted(set(spec_marks[opq])))))
+    for opq in sorted(set(rows) - set(code_marks) - set(spec_marks)):
+        problems.append('%s has a row (%s) but no mark names it -- neither a '
+                        'Provisional / Unimplemented comment nor a '
+                        '(provisional / undecided: %s) mark in the '
+                        'specification' % (opq, rows[opq], opq))
+    return problems, len(rows)
 
 
 def closed_waves():
@@ -152,6 +244,9 @@ def main():
                                 'reversed may not be left behind a finished '
                                 'wave' % (wave, pd, row['class']))
 
+    more, open_questions = opq_problems()
+    problems.extend(more)
+
     if problems:
         for p in problems:
             sys.stdout.write('PROBLEM  %s\n' % p)
@@ -161,6 +256,8 @@ def main():
     sys.stdout.write('OK       %d pending decision(s), %d still open, and every '
                      'provisional mark matches its row\n'
                      % (len(rows), open_rows))
+    sys.stdout.write('OK       %d open question(s) (OPQ) in docs/spec, and every '
+                     'OPQ mark matches its row\n' % open_questions)
     return 0
 
 

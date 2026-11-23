@@ -87,6 +87,39 @@ THE THREE MEASURES
      A row whose class is found neither way counts as missing here; check 25
      reports it as malformed.
 
+THE R3 KINDS, BESIDE THE OLD FORMS (study 82, stage B2, 2026-11-24)
+
+  The NDD review standard (20261123T131438Z, R3 "Comments") closes the kinds
+  to Why / Spec / Summary / Temporary / Unimplemented / Provisional and the R7
+  comments, and lets a project add kinds in its rules. While stage B6 renames
+  the comment heads by script, both spellings pass, so no branch goes red in
+  the middle of the move. The new forms:
+       `// Why: ...`                          2 lines
+       `// Spec: <ID>[, <ID>...]`             1 line
+       `// Summary: ...`                      3 lines; 4 or more sentences is
+                                              one violating line, and 2 or 3
+                                              sentences with no `Temporary:`
+                                              form in the same block is one
+       `// Temporary: ... Until: ...`         2 lines; with no `Until:` in the
+                                              form, the head is one violating
+                                              line
+       `// Unimplemented: OPQ-n`              1 line, the ID and nothing else
+       `// Provisional: OPQ-n`                1 line, the ID and nothing else;
+                                              an OPQ-n that no `| OPQ-n |` row
+                                              of docs/spec holds (the open-
+                                              question list, appendix A.3) is
+                                              one violating line
+       `// Section: ...`, `// Consistency: ...`   1 line each (R7)
+       `// Trap: ...`                         2 lines (a project kind, as TRAP)
+       `// Step: ...`                         tests/ only, the STEP rules
+  The file header keeps its shape; a role line opening with `File:` is a role
+  line like any other.
+
+  `--new-only` measures the tree as it will be once the old forms are gone:
+  it reads see / WHY / TRAP / STOP / DEVIATION / STEP and `@provisional` as in
+  no form, prints the held numbers for src/ and tests/, and gates nothing. It
+  is the progress meter of B6 and B11.
+
 THE NUMBER HELD (line 1 of comment-rules-baseline.txt)
 
     held = A + B + C + D
@@ -217,13 +250,24 @@ RATIO = 9
 HEADER_MAX = 5
 PROVENANCE_EXTRA = 4
 
-BUDGET = {'see': 1, 'TRAP': 2, 'WHY': 2, 'STOP': 3, 'DEVIATION': 2}
+BUDGET = {'see': 1, 'TRAP': 2, 'WHY': 2, 'STOP': 3, 'DEVIATION': 2,
+          # The R3 kinds and the project kinds (docstring, "THE R3 KINDS").
+          'Why': 2, 'Spec': 1, 'Summary': 3, 'Temporary': 2,
+          'Unimplemented': 1, 'Provisional': 1, 'Section': 1,
+          'Consistency': 1, 'Trap': 2}
 HEADS = (('TRAP:', 'TRAP'), ('WHY:', 'WHY'), ('STOP:', 'STOP'),
-         ('DEVIATION:', 'DEVIATION'))
+         ('DEVIATION:', 'DEVIATION'), ('Why:', 'Why'),
+         ('Summary:', 'Summary'), ('Temporary:', 'Temporary'),
+         ('Section:', 'Section'), ('Consistency:', 'Consistency'),
+         ('Trap:', 'Trap'))
 
 # tests/ only (JDG-62): the STEP form, 1 line, at most STEP_PER_TEST per test.
-TESTS_BUDGET = dict(BUDGET, STEP=1)
-TESTS_HEADS = HEADS + (('STEP:', 'STEP'),)
+TESTS_BUDGET = dict(BUDGET, STEP=1, Step=1)
+TESTS_HEADS = HEADS + (('STEP:', 'STEP'), ('Step:', 'Step'))
+STEP_KINDS = frozenset(['STEP', 'Step'])
+# The old forms --new-only reads as in no form.
+LEGACY_KINDS = frozenset(['see', 'TRAP', 'WHY', 'STOP', 'DEVIATION', 'STEP'])
+NEW_ONLY = [False]
 STEP_PER_TEST = 3
 RULES = {'src': (BUDGET, HEADS), 'tests': (TESTS_BUDGET, TESTS_HEADS)}
 
@@ -248,6 +292,14 @@ NON_ASCII = re.compile(u'[^\\x20-\\x7e]')
 ID = u'[A-Z]{1,4}-[0-9]+[a-z]?'
 SEE = re.compile(u'see' + WS + u'+' + ID + u'(?:' + WS + u'*,' + WS + u'*' +
                  ID + u')*')
+SPEC = re.compile(u'Spec:' + WS + u'+' + ID + u'(?:' + WS + u'*,' + WS +
+                  u'*' + ID + u')*')
+OPEN_QUESTION = re.compile(u'(Unimplemented|Provisional):' + WS +
+                           u'+(OPQ-[0-9]+)')
+OPQ_ROW = re.compile(u'^\\|' + WS + u'*\\**`?(OPQ-[0-9]+)`?\\**' + WS +
+                     u'*\\|')
+SENTENCE_END = re.compile(u'[.!?](?=' + WS + u'|$)')
+SPEC_DIR = os.path.join(ROOT, 'docs', 'spec')
 # `@purity n/a` is a tag here although the density above counts its line:
 # PURITY_ONLY keeps to the Node measurement, whose value pattern has no slash.
 TAG_ANYWHERE = re.compile(u'@provisional' + WS + u'+PND-[0-9]+|@seam' + WS +
@@ -317,6 +369,38 @@ def read_ledger():
             if letter is not None:
                 classes[cells[0]] = letter
     return classes
+
+
+def read_open_questions():
+    """Every OPQ-n a `| OPQ-n |` table row of a Markdown file in docs/spec holds.
+
+    The list of open questions lives in an appendix of the specification
+    (review standard, appendix A.3); its file is not fixed yet, so every
+    Markdown file under docs/spec is read.
+    """
+    found = set()
+    for base, dirs, names in os.walk(SPEC_DIR):
+        dirs[:] = sorted(d for d in dirs if d not in ('output', 'node_modules'))
+        for name in names:
+            if not name.endswith('.md'):
+                continue
+            with io.open(os.path.join(base, name), encoding='utf-8',
+                         errors='replace') as handle:
+                for line in handle:
+                    match = OPQ_ROW.match(line.strip())
+                    if match:
+                        found.add(match.group(1))
+    return frozenset(found)
+
+
+_OPEN_QUESTIONS = []
+
+
+def open_questions():
+    """read_open_questions(), read once per run."""
+    if not _OPEN_QUESTIONS:
+        _OPEN_QUESTIONS.append(read_open_questions())
+    return _OPEN_QUESTIONS[0]
 
 
 def lex(src):
@@ -500,56 +584,102 @@ def classify(body, line_comment, heads=HEADS):
     if body == u'':
         return 'blank'
     if TAG_ANYWHERE.fullmatch(body):
+        if NEW_ONLY[0] and body.startswith(u'@provisional'):
+            return None
         return 'tag'
+    kind = None
     if line_comment:
+        question = OPEN_QUESTION.fullmatch(body)
         if SEE.fullmatch(body):
-            return 'see'
-        for head, name in heads:
-            if body.startswith(head):
-                return name
-    return None
+            kind = 'see'
+        elif SPEC.fullmatch(body):
+            kind = 'Spec'
+        elif question:
+            kind = question.group(1)
+        else:
+            for head, name in heads:
+                if body.startswith(head):
+                    kind = name
+                    break
+    if NEW_ONLY[0] and kind in LEGACY_KINDS:
+        return None
+    return kind
 
 
 def judge_block(rows, line_comment, found, stops, tree='src', steps=None):
     """Violating lines of one block that is not the file header.
 
     Each STOP form met is appended to `stops` as its (number, body) rows, and
-    under tests/ each STEP head line to `steps`.
+    under tests/ each STEP head line to `steps`. Returns the block's forms as
+    (kind, rows) pairs, for judge_forms().
     """
     budget, heads = RULES[tree]
     head = None
     used = 0
     form = None
+    forms = []
+    current = None
     for number, body in rows:
         kind = classify(body, line_comment, heads)
         if kind == 'blank':
             found.append((number, 'empty or delimiter-only comment line'))
             head = None
             form = None
+            current = None
             continue
         if kind in budget:
             head = kind
             used = 1
             form = None
+            current = (kind, [(number, body)])
+            forms.append(current)
             if kind == 'STOP':
                 form = [(number, body)]
                 stops.append(form)
-            if kind == 'STEP' and steps is not None:
+            if kind in STEP_KINDS and steps is not None:
                 steps.append(number)
             continue
         if head in budget:
             used += 1
             if form is not None:
                 form.append((number, body))
+            if current is not None:
+                current[1].append((number, body))
             if used > budget[head]:
                 found.append((number, '%s form longer than %d line(s)'
                                % (head, budget[head])))
             continue
         if kind == 'tag':
             head = 'tag'
+            current = None
             continue
         found.append((number, 'in no allowed form'))
         head = None
+        current = None
+    return forms
+
+
+def judge_forms(forms, questions, found):
+    """The R3 rules a form's text carries: Until:, Summary length, OPQ rows."""
+    kinds = set(kind for kind, _rows in forms)
+    for kind, rows in forms:
+        number = rows[0][0]
+        text = u' '.join(body for _n, body in rows).strip(JS_SPACE)
+        if kind == 'Temporary' and u'Until:' not in text:
+            found.append((number, 'Temporary with no Until:'))
+        elif kind == 'Summary':
+            sentences = max(1, len(SENTENCE_END.findall(text)))
+            if sentences > 3:
+                found.append((number, 'Summary of %d sentences; split the '
+                                      'processing' % sentences))
+            elif sentences > 1 and 'Temporary' not in kinds:
+                found.append((number, 'Summary of %d sentences with no '
+                                      'Temporary in its block' % sentences))
+        elif kind in ('Unimplemented', 'Provisional'):
+            opq = OPEN_QUESTION.fullmatch(rows[0][1]).group(2)
+            if opq not in questions:
+                found.append((number, '%s names %s, which no | OPQ-n | row '
+                                      'of docs/spec holds' % (kind, opq)))
 
 
 def judge_stop(form, by_line, ledger, found, tree='src'):
@@ -713,9 +843,14 @@ def measure(path, ledger, tree='src'):
     return measure_text(src, rel, ledger, tree)
 
 
-def measure_text(src, rel, ledger, tree='src'):
-    """Every measure of one source text, judged by the rules of `tree`."""
+def measure_text(src, rel, ledger, tree='src', questions=None):
+    """Every measure of one source text, judged by the rules of `tree`.
+
+    `questions` is the set of open-question IDs; None reads docs/spec.
+    """
     budget, heads = RULES[tree]
+    if questions is None:
+        questions = open_questions()
     src = src.replace(u'\r\n', u'\n')
     lines = src.split(u'\n')
     generated = generated_lines(lines)
@@ -799,11 +934,14 @@ def measure_text(src, rel, ledger, tree='src'):
                                          'allowed head'))
             if kind == 'STOP':
                 stops.append([(number, body)])
-            if kind == 'STEP' and steps is not None:
+            if kind in STEP_KINDS and steps is not None:
                 steps.append(number)
+            if kind in budget:
+                judge_forms([(kind, [(number, body)])], questions, findings)
         else:
-            judge_block(rows, block['kind'] == 'run', findings, stops, tree,
-                        steps)
+            judge_forms(judge_block(rows, block['kind'] == 'run', findings,
+                                    stops, tree, steps),
+                        questions, findings)
     for form in stops:
         judge_stop(form, by_line, ledger, findings, tree)
     if steps:
@@ -1103,8 +1241,10 @@ describe('a title with \u65e5\u672c\u8a9e is a string, not a comment', () => {
   it('drags the bar', () => {
     const data = '\u30c7\u30fc\u30bf';
     // see FR-013
+    // Spec: FR-013
+    // Why: the bar moves by whole days only
     // STEP: press the bar
-    // STEP: drag it one day right
+    // Step: drag it one day right
     // STEP: release it
     expect(data).toBe(data);
   });
@@ -1122,13 +1262,29 @@ SELF_TEST_BREAKS = (
     ('a STEP line above the it',
      (u"  it('drags the bar'", u"  // STEP: open the file\n  it('drags the bar'"),
      1),
+    ('a Temporary with no Until:',
+     (u'    // Why: the bar moves by whole days only\n',
+      u'    // Why: the bar moves by whole days only\n'
+      u'    // Temporary: the drag snaps by hand\n'),
+     1),
+    ('a Provisional naming an OPQ no row holds',
+     (u'    // Spec: FR-013\n', u'    // Spec: FR-013\n    // Provisional: OPQ-2\n'),
+     1),
+    ('a Summary of two sentences with no Temporary',
+     (u'    // Spec: FR-013\n',
+      u'    // Spec: FR-013\n'
+      u'    // Summary: When the bar is dragged, the task shall move. If the\n'
+      u'    // day is a holiday, then the task shall skip it.\n'),
+     1),
 )
+SELF_TEST_QUESTIONS = frozenset([u'OPQ-1'])
 
 
 def self_test():
     """Break a held-in-memory test file on purpose; red each time, then green."""
     ledger = {}
-    clean = measure_text(SELF_TEST_CLEAN, SELF_TEST_REL, ledger, 'tests')
+    clean = measure_text(SELF_TEST_CLEAN, SELF_TEST_REL, ledger, 'tests',
+                         SELF_TEST_QUESTIONS)
     s = summarize([clean])
     base = {'files': {SELF_TEST_REL: held_of(clean)},
             'density': basis_points(s['comment'], s['code'])}
@@ -1142,7 +1298,8 @@ def self_test():
             failures.append('%s: the text to break is not in the file' % name)
             continue
         broken = measure_text(SELF_TEST_CLEAN.replace(old, new, 1),
-                              SELF_TEST_REL, ledger, 'tests')
+                              SELF_TEST_REL, ledger, 'tests',
+                              SELF_TEST_QUESTIONS)
         red, _lines = tests_verdict([broken], base)
         say('         broken on purpose -- %s: held %d, %s'
             % (name, held_of(broken), 'RED' if red else 'green'))
@@ -1150,7 +1307,8 @@ def self_test():
             failures.append('%s: expected red with %d, got %s with %d'
                             % (name, rise, 'red' if red else 'green',
                                held_of(broken)))
-    back = measure_text(SELF_TEST_CLEAN, SELF_TEST_REL, ledger, 'tests')
+    back = measure_text(SELF_TEST_CLEAN, SELF_TEST_REL, ledger, 'tests',
+                        SELF_TEST_QUESTIONS)
     red, _lines = tests_verdict([back], base)
     say('         put back: held %d, %s' % (held_of(back),
                                              'RED' if red else 'green'))
@@ -1174,6 +1332,8 @@ def main(argv):
             'could be judged' % REL_LEDGER)
         return 1
 
+    if '--new-only' in argv:
+        return new_only(ledger)
     if '--file' in argv:
         at = argv.index('--file')
         if at + 1 >= len(argv):
@@ -1197,6 +1357,22 @@ def main(argv):
         return show_list(results, s)
 
     return max(src_gate(results, s), tests_gate(ledger))
+
+
+def new_only(ledger):
+    """The held numbers once the old forms are gone; gates nothing."""
+    NEW_ONLY[0] = True
+    for tree, top in (('src', SRC), ('tests', TESTS)):
+        results = [measure(p, ledger, tree) for p in source_files(top)]
+        s = summarize(results)
+        forms = sum(len(r['form']) for r in results)
+        say('INFO     --new-only %s: %d form-violating line(s) in %d of %d '
+            'file(s) with the old forms read as in no form'
+            % (tree, forms, sum(1 for r in results if r['form']),
+               len(results)))
+        if tree == 'src':
+            say('         src held would be %d = %s' % (s['held'], terms(s)))
+    return 0
 
 
 def src_gate(results, s):

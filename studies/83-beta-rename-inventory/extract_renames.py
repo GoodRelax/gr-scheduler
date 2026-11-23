@@ -16,11 +16,11 @@ Writes next to this file:
   - occurrences.tsv  one row per (old name, counted pattern, file) with the line numbers
 
 Search areas (git ls-files, so ignored files are never counted):
-  source   docs/spec/_source/**
+  source   docs/spec/_source/** except glossary.json
   spec     docs/spec/*.md and docs/spec/_assets/*.md
   src      src/**
   tests    tests/**
-  glossary studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json
+  glossary docs/spec/_source/glossary.json (the names dictionary of CR-857; the older draft under studies is not read)
 
 Search pattern of an ASCII name: case-sensitive, the name not glued to another identifier character
   (?<![A-Za-z0-9_$])NAME(?![A-Za-z0-9_$])
@@ -151,19 +151,20 @@ TYPE_RENAMES = [
 ]
 
 
-TREE_NOTE = ('CHECK (BOSS decides the CR): no old-to-new reading is built; the new values (shown / hidden / automatic / hiddenUntilZoomIn) '
-             'are applied with the new behaviour. Proposal: CR-851, because all 24 rulings JDG-3662..3685 say CR-851 applies them. '
-             'CR-851 section 4.1 still holds an alpha-to-beta converter HTML (JDG-3306, JDG-3307) whose rules are the old -> new columns')
+TREE_NOTE = ('CHECK (the CR-851 applying seat decides; the owner sees it in the CR-851 row review): a rule for the alpha-to-beta converter HTML '
+             '(CR-851 section 4.1, JDG-3306, JDG-3307); GRS itself refuses an alpha file. An alpha value speaks of the group\'s children, a beta '
+             'value of the band itself, so a parent\'s alpha value becomes its children\'s beta value; an own alpha hidden stays hidden. '
+             'See README.md, open point 3')
 
 
 VALUE_OVERRIDES = [
     # alpha key, alpha value, beta value, extra ruling, note
     ('shapeKind', 'endpointSpan', 'dumbbell', 'JDG-3711', ''),
     ('shapeKind', 'milestone', '(removed)', 'JDG-3711', 'a milestone takes milestoneShape instead of a task shape'),
-    ('treeState', 'auto', '(no conversion; showMode values follow the new behaviour)', 'JDG-3662..3685', TREE_NOTE),
-    ('treeState', 'collapsed', '(no conversion; showMode values follow the new behaviour)', 'JDG-3662..3685', TREE_NOTE),
-    ('treeState', 'expanded', '(no conversion; showMode values follow the new behaviour)', 'JDG-3662..3685', TREE_NOTE),
-    ('treeState', 'temporarilyExpanded', '(no conversion; showMode values follow the new behaviour)', 'JDG-3662..3685', TREE_NOTE),
+    ('treeState', 'auto', 'proposal: automatic (the group and its children keep automatic)', 'JDG-3662', TREE_NOTE),
+    ('treeState', 'collapsed', 'proposal: the group automatic, each child hiddenUntilZoomIn', 'JDG-3663', TREE_NOTE),
+    ('treeState', 'expanded', 'proposal: the group automatic, each child shown', 'JDG-3663', TREE_NOTE),
+    ('treeState', 'temporarilyExpanded', 'proposal: the group automatic, each child shown', 'JDG-3663;JDG-3664;JDG-3677', TREE_NOTE),
 ]
 
 
@@ -283,8 +284,9 @@ def grs_json_rows():
             if r['old'] == value and ('/properties/' + leaf) in r['context']:
                 r['new'] = new
                 r['note'] = note
-                if j:
-                    r['jdg'] = (r['jdg'] + ';' + j).strip(';')
+                for one in j.split(';'):
+                    if one and one not in r['jdg'].split(';'):
+                        r['jdg'] = (r['jdg'] + ';' + one).strip(';')
     # types
     for old, new, j, note in TYPE_RENAMES:
         rows.append({'area': 'GRS JSON', 'kind': 'type', 'old': old, 'new': new, 'context': '$defs/' + old,
@@ -548,10 +550,10 @@ def screen_rows():
 CR_OVERRIDES = {
     # the rename is CR-855/CR-851, the behaviour that comes with it is CR-856 (6-cr855-handoff.md section 4)
     'Document Title': 'CR-855;CR-856 (JDG-3355: the project title is edited in the Properties Panel)',
-    'auto': 'CR-851 (proposal; BOSS decides)',
-    'collapsed': 'CR-851 (proposal; BOSS decides)',
-    'expanded': 'CR-851 (proposal; BOSS decides)',
-    'temporarilyExpanded': 'CR-851 (proposal; BOSS decides)',
+    'auto': 'CR-851 (section 4.1 converter)',
+    'collapsed': 'CR-851 (section 4.1 converter)',
+    'expanded': 'CR-851 (section 4.1 converter)',
+    'temporarilyExpanded': 'CR-851 (section 4.1 converter)',
 }
 
 
@@ -571,7 +573,9 @@ def area_files():
     for p in out:
         if not p:
             continue
-        if p.startswith('docs/spec/_source/'):
+        if p == 'docs/spec/_source/glossary.json':
+            areas['glossary'].append(p)
+        elif p.startswith('docs/spec/_source/'):
             areas['source'].append(p)
         elif re.match(r'docs/spec/[^/]+\.md$', p) or re.match(r'docs/spec/_assets/[^/]+\.md$', p):
             areas['spec'].append(p)
@@ -579,8 +583,6 @@ def area_files():
             areas['src'].append(p)
         elif p.startswith('tests/'):
             areas['tests'].append(p)
-        elif p == 'studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json':
-            areas['glossary'].append(p)
     texts = {}
     for name, files in areas.items():
         for p in files:
