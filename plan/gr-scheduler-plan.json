@@ -14,7 +14,7 @@
       "creationDate": "2026-10-31T08:50:00",
       "revision": 11,
       "startDate": "2026-10-17T05:30:00",
-      "statusDate": "2026-11-23T20:06:00",
+      "statusDate": "2026-11-23T20:31:00",
       "minutesPerDay": 1440,
       "minutesPerWeek": 10080,
       "daysPerMonth": 30,
@@ -24,7 +24,7 @@
       "defaultFinishTime": "23:59:00",
       "themeHue": 214,
       "parentTaskProgressToleranceDays": 1,
-      "uidHighWaterMark": 485,
+      "uidHighWaterMark": 487,
       "importSequence": 0,
       "carry": {},
       "carryElements": [],
@@ -7776,11 +7776,11 @@
         "parentTaskUid": null,
         "wbsOrder": 314,
         "name": "🌑 差分抽出: 決まった名と今の仕様・コードの差を抜き出す(SUB)",
-        "start": "2026-11-23T20:36:00",
-        "finish": "2026-11-24T20:36:00",
+        "start": "2026-11-23T22:31:00",
+        "finish": "2026-11-24T22:31:00",
         "milestone": false,
         "deadline": null,
-        "notes": "pmo-5 2026-11-22: new task for the deliverable tree (owner order). Input: the settled contract names of both groups (after part 13 is recorded, uid 418, and part 37 is recorded, uid 434; BOSS 11-22). Output: the list of differences between the settled names and the current spec and code, handed to CR-855/856. Length 1 day is a PMO placeholder (no measured number yet). SUB model: Opus 5.5 high. pmo-6 2026-11-23T12:22: now follows 479 and 480 (the schema successor and the owner answers) instead of 474. pmo-6 2026-11-23T12:56: also waits for 482 (BGQA8 next round applied). pmo-6 2026-11-23T19:51: also waits for 484 (last BGQA8 answers applied). pmo-6 2026-11-23T20:06: placed right after 484 (the last of its predecessors). Tasks behind 455 stay where they are (no pull-forward until the BOSS asks).",
+        "notes": "pmo-5 2026-11-22: new task for the deliverable tree (owner order). Input: the settled contract names of both groups (after part 13 is recorded, uid 418, and part 37 is recorded, uid 434; BOSS 11-22). Output: the list of differences between the settled names and the current spec and code, handed to CR-855/856. Length 1 day is a PMO placeholder (no measured number yet). SUB model: Opus 5.5 high. pmo-6 2026-11-23T12:22: now follows 479 and 480 (the schema successor and the owner answers) instead of 474. pmo-6 2026-11-23T12:56: also waits for 482 (BGQA8 next round applied). pmo-6 2026-11-23T19:51: also waits for 484 (last BGQA8 answers applied). pmo-6 2026-11-23T20:06: placed right after 484 (the last of its predecessors). Tasks behind 455 stay where they are (no pull-forward until the BOSS asks). pmo-6 2026-11-23T20:31: also waits for 487 (second outside AI review applied; BOSS line).",
         "calendarUid": null,
         "actualStart": null,
         "stop": null,
@@ -7825,6 +7825,14 @@
           },
           {
             "predecessorUid": 484,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          },
+          {
+            "predecessorUid": 487,
             "linkType": 1,
             "linkLag": 0,
             "lagFormat": 7,
@@ -8494,8 +8502,8 @@
         "parentTaskUid": null,
         "wbsOrder": 335,
         "name": "🌑 CR-860(前回予定の輪郭の形を今のタスクの形に合わせる)の起草と当て(SUB)",
-        "start": "2026-11-24T22:11:55",
-        "finish": "2026-11-25T00:11:55",
+        "start": "2026-11-24T22:31:00",
+        "finish": "2026-11-25T00:31:00",
         "milestone": false,
         "deadline": null,
         "notes": "pmo-5 2026-11-23T04:10: BOSS line 11-23: JDG-3749 (from BGQA6 item B-7; FR-015 BL-2, GR-27) assigned to CR-860. Before the beta, after the diff extraction. 2 h is a BOSS placeholder (provisional). SUB: Opus 5.5 high.",
@@ -8526,8 +8534,8 @@
         "parentTaskUid": null,
         "wbsOrder": 336,
         "name": "🌑 CR-861(担当リストの列の順を変える)の起草と当て(SUB)",
-        "start": "2026-11-24T22:11:55",
-        "finish": "2026-11-25T00:11:55",
+        "start": "2026-11-24T22:31:00",
+        "finish": "2026-11-25T00:31:00",
         "milestone": false,
         "deadline": null,
         "notes": "pmo-5 2026-11-23T04:38: BOSS line 11-23: JDG-3754 from BGQA6 (assignee list columns in the order show, select, assignee name, assigned task count, assigned tasks; FR-151 RQ-2, RQ-3) assigned to CR-861 (the JSON column value order goes with CR-851). Beside CR-860, after the diff extraction, before the final merge. 2 h is a BOSS placeholder (provisional). SUB: Opus 5.5 high.",
@@ -8749,21 +8757,21 @@
         "uid": 484,
         "parentTaskUid": null,
         "wbsOrder": 343,
-        "name": "🌒 ③ GRS JSON schema 2 の席が BGQA8 の最後の答えを当てて記録する(SUB)",
+        "name": "🌕 ③ GRS JSON schema 2 の席が BGQA8 の最後の答えを当てて記録する(SUB)",
         "start": "2026-11-23T20:06:00",
-        "finish": "2026-11-23T20:36:00",
+        "finish": "2026-11-23T20:27:00",
         "milestone": false,
         "deadline": null,
         "calendarUid": null,
         "actualStart": "2026-11-23T20:06:00",
         "stop": null,
-        "actualFinish": null,
+        "actualFinish": "2026-11-23T20:27:00",
         "resume": null,
         "resumeValid": null,
-        "percentComplete": 0,
+        "percentComplete": 100,
         "fadeInDays": null,
         "fadeOutDays": null,
-        "notes": "pmo-6 2026-11-23T19:51: the successor applies and records the last BGQA8 answers. 0.5 h is a PMO placeholder (provisional). SUB: Opus 5.5 high. pmo-6 2026-11-23T20:06: started: the successor applies the last answers and makes the final commit. 0.5 h kept (provisional).",
+        "notes": "pmo-6 2026-11-23T19:51: the successor applies and records the last BGQA8 answers. 0.5 h is a PMO placeholder (provisional). SUB: Opus 5.5 high. pmo-6 2026-11-23T20:06: started: the successor applies the last answers and makes the final commit. 0.5 h kept (provisional). pmo-6 2026-11-23T20:31: done. By the owner order JDG-3801 the successor cut obvious and duplicate descriptions (English 314 -> 150); BGQA8 has 0 questions left (817f59567 20:27, develop 817f59567).",
         "dependencies": [
           {
             "predecessorUid": 483,
@@ -8799,6 +8807,70 @@
         "dependencies": [
           {
             "predecessorUid": 463,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 486,
+        "parentTaskUid": null,
+        "wbsOrder": 345,
+        "name": "🌒 オーナー: ③ 外の AI へスキーマの 2 回目の質問状を出し、答えを貼る",
+        "start": "2026-11-23T20:31:00",
+        "finish": "2026-11-23T21:31:00",
+        "milestone": false,
+        "deadline": null,
+        "calendarUid": null,
+        "actualStart": "2026-11-23T20:31:00",
+        "stop": null,
+        "actualFinish": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "notes": "pmo-6 2026-11-23T20:31: BOSS line 11-23: at the owner request the seat prepared a second outside AI questionnaire on the schema (studies/76 review request 2); the owner sends it and pastes the answers into the seat. 1 h in owner hours is a placeholder like 467 (provisional).",
+        "dependencies": [
+          {
+            "predecessorUid": 484,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 487,
+        "parentTaskUid": null,
+        "wbsOrder": 346,
+        "name": "🌑 ③ GRS JSON schema 2 の席が外の AI の 2 回目の答えを当てる(SUB)",
+        "start": "2026-11-23T21:31:00",
+        "finish": "2026-11-23T22:31:00",
+        "milestone": false,
+        "deadline": null,
+        "calendarUid": null,
+        "actualStart": null,
+        "stop": null,
+        "actualFinish": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "notes": "pmo-6 2026-11-23T20:31: the successor triages and applies the second outside AI answers. 1 h is a PMO placeholder (provisional; the first round, 479, took 33 min for 25 findings). SUB: Opus 5.5 high.",
+        "dependencies": [
+          {
+            "predecessorUid": 486,
             "linkType": 1,
             "linkLag": 0,
             "lagFormat": 7,
@@ -10270,6 +10342,14 @@
       {
         "taskUid": 485,
         "taskGroupId": "f5c1a05d-0315-5b9a-9a59-93f3d19dd7ce"
+      },
+      {
+        "taskUid": 486,
+        "taskGroupId": "25d59281-1ef0-5d73-86da-c3c8ee9f9de5"
+      },
+      {
+        "taskUid": 487,
+        "taskGroupId": "25d59281-1ef0-5d73-86da-c3c8ee9f9de5"
       }
     ],
     "taskVisuals": [
@@ -12656,6 +12736,22 @@
         "fillColor": "blue",
         "strokeColor": null,
         "strokeWidthPx": null
+      },
+      {
+        "taskUid": 486,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": "diamond",
+        "fillColor": "blue",
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 487,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": "diamond",
+        "fillColor": "blue",
+        "strokeColor": null,
+        "strokeWidthPx": null
       }
     ],
     "commentBoxes": [
@@ -14664,10 +14760,10 @@
     "zoomY": 1.099862517185352
   },
   "documentStamp": {
-    "scheduleUpdatedAt": "2026-11-23T11:06:00Z",
+    "scheduleUpdatedAt": "2026-11-23T11:31:00Z",
     "lastEditedBy": "PMO child session",
     "settingsUpdatedAt": "2026-10-20T20:24:42Z",
-    "fileSavedAt": "2026-11-23T11:06:00Z"
+    "fileSavedAt": "2026-11-23T11:31:00Z"
   },
   "changeLog": [
     {
@@ -15353,6 +15449,12 @@
       "editedBy": "PMO child session",
       "explanation": "Fact at 11-23 20:06 JST: BOSS line, the Agent API seat closed BGQA7 (JDG-3781..3783, b905ecebe): 485, 464, 465, 466 done at 19:59; BGQA8 question 9 closed by JDG-3801: 483 done, 484 started. Every contract term name is settled, so the N1 forecast row 435 is reached at 19:59. 455 placed after 484; later tasks not pulled forward. N1 (316) and the beta (234) stay.",
       "changedAt": "2026-11-23T11:06:00Z"
+    },
+    {
+      "ordinal": 115,
+      "editedBy": "PMO child session",
+      "explanation": "Fact at 11-23 20:31 JST: BOSS line, the schema successor cut obvious and duplicate descriptions by JDG-3801 (817f59567): 484 done. At the owner request, owner task 486 (second outside AI questionnaire) and seat task 487 (apply the answers) added; 455 waits for 487. N1 (316) and the beta (234) stay.",
+      "changedAt": "2026-11-23T11:31:00Z"
     }
   ]
 }
