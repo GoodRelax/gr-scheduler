@@ -1,9 +1,10 @@
+
 # Agent API と文書の命令の名 —— 方針の残りと、方針で決まらない名
 
 > 「回答:」の後ろに答えを書いて保存し、1 行目の BGQA7 を切り取ってください。
 > 凡例: ❓回答待 ✅回答済 🔄変化点 ★強調(ユーザー専用)
 
-🔄 *作った日: 2026-11-23（Agent API の名の席）。2〜5 巡目: 2026-11-23。5 巡目で方針の問いはすべて決まった*
+🔄 *作った日: 2026-11-23（Agent API の名の席）。2〜5 巡目: 2026-11-23。5 巡目で方針の問いはすべて決まった。6 巡目: 方針を当てた名の確かめ（[apply]）を足した。7 巡目で [apply] も決まり、問いはすべて閉じた*
 
 🔄 *残 1（❓ で検索）*
 
@@ -11,8 +12,9 @@
 
 | 分野 | 問い |
 |:---|:---|
-| [pol] 名の付け方の方針 | 🔄 *無し（すべて決まった）* |
+| [pol] 名の付け方の方針 | 無し（すべて決まった） |
 | [name] 方針で決まらない名 | 無し（すべて決まった） |
+| [apply] 方針を当てた名の確かめ | 🔄 *無し（すべて決まった）* |
 
 ***
 
@@ -28,7 +30,7 @@
 | P-4 | 1 つの物は、GRS JSON・文書の命令・Agent API で 1 つの語を持つ | `JDG-3410`・`JDG-3684` |
 | P-5 | 代名詞・前置詞・たとえ・読みが 2 つの語・呼ぶ者の頭 `Agent`・過去分詞だけのキーを使わない | `JDG-3716` |
 | P-6 | 許す略に `Url` を足す | `JDG-3716` |
-| 🔄 *P-7* | 🔄 *ページが返す答えと値の真偽は `is…`（`isAccepted`・`isScheduleDataUpdated`）。AI が渡すフラグは動詞で始める（`includePassthrough`・`overwrite`・`returnWholeSchema`）* | 🔄 *`JDG-3780`* |
+| P-7 | ページが返す答えと値の真偽は `is…`（`isAccepted`・`isScheduleDataUpdated`）。AI が渡すフラグは動詞で始める（`includePassthrough`・`overwrite`・`returnWholeSchema`） | `JDG-3780` |
 | P-8 | 単位の無い数は、何を数えるかで終える: 個数は `…Count`、木の深さは `…Depth`、何番目かは 0 から数えて `…Index`（`deleteDependencyAt.order` → `index`、GRS JSON の `siblingOrder` → `siblingIndex`）。ページ送りの `offset`・`nextOffset`・`limit` は通り名のまま | `JDG-3776`・`JDG-3777` |
 | P-9 | 欄が入れる型は欄の名を PascalCase にした名。値か断りを返す答えの型は `…Outcome` | `JDG-3716` |
 | P-10 | 直し方が同じ断りは、物によらず 1 つの名（無い物を名指したら `notFound`）。どの物かは `field`・`missingTaskUids`・`commandType`・`member` が言う。直し方が違えば名に物を入れる | `JDG-3778` |
@@ -46,17 +48,29 @@
 | 文書の誤りの所 | `at` → `jsonPointer` | `JDG-3775` |
 | 実績ダミーの命令の引数 | `grabbed` → `grabbedArea`、`released` → `releasedPlace` | `JDG-3779` |
 
+### [apply] 方針を当てた名の確かめ
+
+| 🔄 *問い* | 🔄 *決まったこと* | 🔄 *裁定* |
+|:---|:---|:---|
+| 🔄 *45 問の名* | 🔄 *一覧 `agent-api-names-by-policy-draft.md` のとおり（変える名 134、今のままの名 182）。`setDependencyLag`・`TableRowsOutcome` ほか席が決めた 4 つ、`shiftScheduleByMinutes`・`deleteDependencyAt` も含む* | 🔄 *`JDG-3781`* |
+| 🔄 *画面の表の型* | 🔄 *`TableRow`・`TableColumn`・`TableCell`* | 🔄 *`JDG-3782`* |
+| 🔄 *変更の知らせの `mark`* | 🔄 *欄 `mark` と型 `WatcherMark` を無くす。時刻は `stamp.scheduleDataUpdatedAt` が言う* | 🔄 *`JDG-3783`* |
+
 ***
 
 ## QA
 
-### [pol] 🔄 *名の付け方の方針 ✅*
+### [pol] 名の付け方の方針 ✅
 
-🔄 *すべて決まりました（上の決定事項）。*
+すべて決まりました（上の決定事項）。
 
 ### [name] 方針で決まらない名 ✅
 
 すべて決まりました（上の決定事項）。
+
+### [apply] 🔄 *方針を当てた名の確かめ ✅*
+
+🔄 *すべて決まりました（上の決定事項）。*
 
 ***
 
