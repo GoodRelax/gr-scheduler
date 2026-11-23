@@ -875,7 +875,7 @@ test.describe('CR-574 items 9 and 9a, CR-575 item 5a -- another surface stands i
 })
 
 test.describe('CR-574 item 10 -- maximize and restore (T-335 WB-3, WB-4, WB-5)', () => {
-  // @provisional PND-746
+  // Provisional: OPQ-19
   test('item 10: maximized the help fills the Schedule Canvas below the App Header; IC-131 restores it; maximized then minimized, IC-129 brings it to normal', async () => {
     test.setTimeout(240_000)
     const stage = await openTheSample(TALL)

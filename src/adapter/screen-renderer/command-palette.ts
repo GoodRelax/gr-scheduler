@@ -290,8 +290,7 @@ function armedEntry(armMode: ScreenSession['screen']['armModeState']): ArmedEntr
 }
 
 // see FR-038, FR-053
-// STOP: spec does not decide what an arm with no word says. Looked in T-023b, FR-038
-// @provisional PND-221
+// Provisional: OPQ-4
 /** @purity pure */
 function armedWord(
   armed: ScreenSession['screen']['armModeState'],

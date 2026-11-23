@@ -1564,8 +1564,7 @@ NOT_STORED_TARGETS = {
     # with its view (FR-134), so the rows join this constant, which
     # dom-screen-surface.ts already reads -- a constant of their own would
     # stand unread until the window is drawn, and noUnusedLocals refuses it.
-    # @provisional PND-670 -- the seven values are placeholders until a
-    # touchable sample decides them (JDG-1183).
+    # Provisional: OPQ-14
     # DFC-1770: S-428, the room SJ-6 of table T-332 leaves between the view's
     # left edge and where a jump lands. One constant per consuming SUBJECT:
     # the jump is decided by search-jump.ts, which reads it where it stands.

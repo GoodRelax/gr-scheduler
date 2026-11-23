@@ -561,8 +561,7 @@ export interface ExportChooser extends OpenSurface {
   readonly fitSpanLine: string | null
 }
 
-// STOP: spec does not decide what each open surface carries. Looked in T-103, T-280
-// @provisional PND-140
+// Provisional: OPQ-2
 export type OpenModal =
   | HelpModal
   | ExportChooser

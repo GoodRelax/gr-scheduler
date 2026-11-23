@@ -222,8 +222,7 @@ function grabPointSquares(box: HighlightGeometry, ground: string, edge: string):
 }
 
 // see FR-019, AT-146, AT-147, ZO-14
-// STOP: spec names S-155 for the null fill but marks it provisional. Looked in FR-019, AT-146, S-370
-// @provisional PND-609
+// Provisional: OPQ-12
 /** @purity pure */
 function highlightFillSvg(
   box: HighlightGeometry,
