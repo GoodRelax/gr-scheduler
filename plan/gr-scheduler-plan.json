@@ -14,7 +14,7 @@
       "creationDate": "2026-10-31T08:50:00",
       "revision": 11,
       "startDate": "2026-10-17T05:30:00",
-      "statusDate": "2026-11-23T23:33:00",
+      "statusDate": "2026-11-23T23:37:00",
       "minutesPerDay": 1440,
       "minutesPerWeek": 10080,
       "daysPerMonth": 30,
@@ -24,7 +24,7 @@
       "defaultFinishTime": "23:59:00",
       "themeHue": 214,
       "parentTaskProgressToleranceDays": 1,
-      "uidHighWaterMark": 492,
+      "uidHighWaterMark": 494,
       "importSequence": 0,
       "carry": {},
       "carryElements": [],
@@ -9038,6 +9038,86 @@
         ],
         "carry": {},
         "carryElements": []
+      },
+      {
+        "uid": 493,
+        "parentTaskUid": null,
+        "wbsOrder": 352,
+        "name": "🌑 新 ANMS・NDD 段 6: 新しい基準書で全体を初めてレビューし、High の受容をオーナーへ 1 回で出す(SUB 1〜2)",
+        "start": "2026-12-06T08:51:43",
+        "finish": "2026-12-07T08:51:43",
+        "milestone": false,
+        "deadline": null,
+        "notes": "pmo-6 2026-11-23T23:37: BOSS line 11-23: study 82 stage 6 (first full review by the new standard; findings in RVF; one owner approval of the accepted Highs, BGQA9 question 6). After stage 5 (396) and the owner answers (492). 24 h = the study estimate \"1 day and the owner time\" (provisional). SUB: Opus 5.5 high, a separate review session.",
+        "calendarUid": null,
+        "actualStart": null,
+        "stop": null,
+        "actualFinish": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 396,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          },
+          {
+            "predecessorUid": 492,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 494,
+        "parentTaskUid": null,
+        "wbsOrder": 353,
+        "name": "🌑 新 ANMS・NDD 段 7: 仕様を ANMS v0.36 の形へ組み替える(SUB 2〜3、切れ目ごと)",
+        "start": "2026-12-07T08:51:43",
+        "finish": "2027-01-04T08:51:43",
+        "milestone": false,
+        "deadline": null,
+        "notes": "pmo-6 2026-11-23T23:37: BOSS line 11-23: study 82 stage 7 (try chapters 1-2 first and measure the speed, then chapter 3 in cuts, IMPS, Gherkin, chapter 7, the 100 KB split, the leak count check). After stage 6 and the owner answers (492). 4 weeks = the middle of the study range 2..6 weeks (provisional; no measured speed yet, PMO re-measures after the trial).",
+        "calendarUid": null,
+        "actualStart": null,
+        "stop": null,
+        "actualFinish": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 493,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          },
+          {
+            "predecessorUid": 492,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
       }
     ],
     "resources": [],
@@ -9300,6 +9380,17 @@
         "id": "25d59281-1ef0-5d73-86da-c3c8ee9f9de5",
         "parentId": "0934e51c-d746-5905-adfd-610f754b3097",
         "name": "③ GRS JSON のスキーマ(① の後。② と並べる)",
+        "derivedFromTaskUid": null,
+        "order": 2,
+        "treeState": "auto",
+        "editPermission": null,
+        "color": null,
+        "minHeightPx": null
+      },
+      {
+        "id": "f5177506-3749-4d97-96c2-b7695fcefda4",
+        "parentId": "4d2e009f-b43f-5913-8c41-7823115822b4",
+        "name": "新 ANMS・NDD 基準の適用(study 82 の段 6・7)",
         "derivedFromTaskUid": null,
         "order": 2,
         "treeState": "auto",
@@ -10528,6 +10619,14 @@
       {
         "taskUid": 492,
         "taskGroupId": "b2a0e74c-4c44-5678-b53c-aecd31dc8ae5"
+      },
+      {
+        "taskUid": 493,
+        "taskGroupId": "f5177506-3749-4d97-96c2-b7695fcefda4"
+      },
+      {
+        "taskUid": 494,
+        "taskGroupId": "f5177506-3749-4d97-96c2-b7695fcefda4"
       }
     ],
     "taskVisuals": [
@@ -12970,6 +13069,22 @@
         "fillColor": "blue",
         "strokeColor": null,
         "strokeWidthPx": null
+      },
+      {
+        "taskUid": 493,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": "diamond",
+        "fillColor": "blue",
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 494,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": "diamond",
+        "fillColor": "blue",
+        "strokeColor": null,
+        "strokeWidthPx": null
       }
     ],
     "commentBoxes": [
@@ -14978,10 +15093,10 @@
     "zoomY": 1.099862517185352
   },
   "documentStamp": {
-    "scheduleUpdatedAt": "2026-11-23T14:33:00Z",
+    "scheduleUpdatedAt": "2026-11-23T14:37:00Z",
     "lastEditedBy": "PMO child session",
     "settingsUpdatedAt": "2026-10-20T20:24:42Z",
-    "fileSavedAt": "2026-11-23T14:33:00Z"
+    "fileSavedAt": "2026-11-23T14:37:00Z"
   },
   "changeLog": [
     {
@@ -15703,6 +15818,12 @@
       "editedBy": "PMO child session",
       "explanation": "Fact at 11-23 23:33 JST: BOSS line, the apply plan for the new ANMS and NDD standards is written (study 82, afdaf418f): 491 done; owner task 492 (BGQA9, 7 questions) added. The 11-08 stages 391..396 are folded into stages 2..5 of study 82 (renamed, uids kept) and placed after the beta tag 233. N1 (316) and the beta (234) stay.",
       "changedAt": "2026-11-23T14:33:00Z"
+    },
+    {
+      "ordinal": 121,
+      "editedBy": "PMO child session",
+      "explanation": "Fact at 11-23 23:37 JST: BOSS line, study 82 stages 6 (493, full review, 1 day) and 7 (494, reshape the spec into ANMS v0.36, 4 weeks = middle of 2..6 weeks) added under a new group after the beta; both start after the owner answers BGQA9 (492). N1 (316) and the beta (234) stay.",
+      "changedAt": "2026-11-23T14:37:00Z"
     }
   ]
 }
