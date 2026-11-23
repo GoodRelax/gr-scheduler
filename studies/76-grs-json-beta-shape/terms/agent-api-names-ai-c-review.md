@@ -69,3 +69,38 @@
 - 画面の名: `zoomToFit`（Zoom to Fit）、`closePropertiesPanel`（Properties Panel）、`SearchWindowPage`（Search Window）、`applyFixProposals`・`fixProposals`（Fix Proposals）、`fixLog`・`FixLogRow`（Fix Log）は用語集の札と同じ語。`10-screen-term-tree.md` の Delay Diagnostics Report Window は JDG-3512 より古い記録で、一覧の `delayDiagnosisReportWindow` が新しい名。
 - α の Agent API の断りの理由 14 の値は、どれも一覧に行がある。
 - `TableRow.key` と `TableColumn.key` は同じ語で「表の中で見分ける名」を言い、セルの `column` は GRS JSON の `ColumnFilter.column` と同じ語でそろう。
+
+## 席の仕分け（Agent API の名 2 の席、2026-11-24）
+
+席は 26 件を元の資料で確かめ、4 つに分けた。「席が直す」は一覧と方針の文の直しで、新しい名を作らない。「席が方針で決める」は方針か既決の裁定で名が 1 つに決まる物で、BGQA7 の問 25 で持ち主にまとめて見せる（`JDG-3686`）。「持ち主に問う」は BGQA7 の [rev] の分野で 1 問ずつ問う。「採らない」は理由を書いた。
+
+| # | 仕分け | 席の結論 | 理由 |
+|:---|:---|:---|:---|
+| 1 | 持ち主に問う（問 13） | `grabbedArea` の決め直し | 用語集の Grab Area（面・線）と Grab Point（点）が値と逆。`JDG-3779` を改める |
+| 2 | 席が方針で決める | 2 つの型を `DelayDiagnosisReport` の 1 つに畳む | 表 T-317 が修正案と修正の記録を `DX-11`・`DX-12` に持つ（`docs/spec/01-04-requirements.md` の T-317）。1 つの物に 1 つの型（P-4・`JDG-3512`） |
+| 3 | 一部既決、一部は持ち主に問う（問 21〜24） | `walls` → `diagnosisBlockers`、`terminalPushOuts` → `endTaskDelays` ほかは `JDG-3473`・`JDG-3476` の既決。`markerStates`・`outcome` ほかの名は問う | 遅延診断の答えの中の名を 1 枚の表 `agent-api-names-delay-diagnosis-draft.md` にした |
+| 4 | 持ち主に問う（問 14） | `mspdiImportCountAhead` の決め直し | 大きすぎるのはタスクの `importOrigin` の数で、名の主語が逆 |
+| 5 | 採らない | `releasedPlace` は今のまま | 持ち主が `JDG-3779` で自分の名として選んだ。仕様書の型 `ReleasedPlace` と同じ語（P-4）。`place` は「離した所」の 1 つの読みしか持たない（問 35-3 の `place` は動詞とも読めた） |
+| 6 | 持ち主に問う（問 15） | `endBeforeStart` の決め直し | GRS JSON に end の語が無い。予定・実績・箱の日の 3 つを受け持つ |
+| 7 | 持ち主に問う（問 16） | `filters` の決め直し | 値は「人の掛けたフィルタと並べ替えを当てるか」で、フィルタそのものではない |
+| 8 | 席が直す ／ 改名は採らない | 表の値と窓の名の対応を一覧に 1 か所書く | 表の値は表の名、窓の名は窓の名で、別の物（`JDG-3781` の一覧 158 行）。修正案と記録の表は窓の中の別の表 |
+| 9 | 席が方針で決める | `readShownTasks` → `readDrawnTasks`、`ShownTasks` → `DrawnTasks` | 欄 `drawnTaskUids` と 1 語（P-4）。`shown` は GRS JSON の `showMode` の値と別の意味 |
+| 10 | 持ち主に問う（問 17） | 絞っていないときの答えの形 | キーが無いことが意味を持つ（`JDG-3740` の Null Trap） |
+| 11 | 席が方針で決める | `savedTo` → `savedFilePath`、`backedUpTo` → `backupFilePath` | 同じ種類の値 `existingFilePath` と同じ語（P-4）。前置詞で終える名を P-5 が退ける |
+| 12 | 持ち主に問う（問 18） | `setTaskProgressStatus` の引数の形 | 表の列の `progressStatus` は状態の名 1 つで、命令の `progressStatus` は日時を含む物。1 つの語が 2 つの形を持つ（P-4 の後半） |
+| 13 | 席が直す | 方針 P-4 に「`set` は物の中の道から `grs` の段だけを除いて書く」を足す | 一覧の決まった行（`editTask.set.startSlopeCalendarDays`・`editDocumentSettings.set.scheduleCanvasElements.…`・`editTaskGroup.set.style.color`、`JDG-3781`）がすでにこの形 |
+| 14 | 席が直す | `editTableWindow.set` の 4 つ（`checkedTaskUids`・`checkedResourceUids`・`isUnassignedChecked`・`columnSort`）に行を立てる | GRS JSON β の木 R430〜R440 のキー（P-4、`JDG-3713`・`JDG-3708`） |
+| 15 | 持ち主に問う（問 19） | `scheduleDataTimeZone` を書く命令 | β は `project` の外の `scheduleData` に置く（`JDG-3618`）。CR-851 の対応表は前の形の `editProject` |
+| 16 | 席が直す | P-9 の文に「欄の名の名詞を含み、物の語を頭に足してよい（`TableRow`、`JDG-3782`）」を足す | 持ち主の裁定 `JDG-3782` を方針の文に写すだけ |
+| 17 | 席が方針で決める | `canceled` → `canceledByUser` | P-10（何が・どうなった）と P-11（過去分詞＋By は、した者）。`user` は GRS JSON の書き手の種類の語 |
+| 18 | 席が方針で決める | `confirmationInProgress` → `questionInProgress` | 人に出した問いは `pendingQuestion`（`JDG-3774`）と同じ物（P-4） |
+| 19 | 席が直す | P-11 に「画面の札から来た名（P-2）の前置詞は札のまま」を足す | `zoomToFit` は札 Zoom to Fit（`JDG-3716` の P-2） |
+| 20 | 席が直す | P-11 に「過去分詞＋By＋手段」を足す | `isScheduleFilteredByChecks` は持ち主が `JDG-3728` で決めた |
+| 21 | 席が方針で決める | `noFixProposalToApply` → `fixProposalsEmpty` | 兄弟 `historyEmpty` と同じ形（P-10）。否定形を退ける（`JDG-3740`） |
+| 22 | 席が方針で決める | `closeWindow.window` → `closeWindow.tableWindow`（型 `TableWindowName`） | 窓の名を受ける引数は 1 つの語（P-4）。プロパティパネルは道具 `closePropertiesPanel` へ移った。人が閉じられる表の窓は AI も閉じられる（`JDG-3671`） |
+| 23 | 席が直す | 数え方の文を直す | 4 節の名は 134・182 に入れて数えた |
+| 24 | 席が方針で決める | `Document` → `ScheduleDocument` | GRS JSON β の根の物の名（P-4）。部分だけを返す答えは説明の文で言う |
+| 25 | 席が直す ／ 改名は採らない | `watcher` の説明に「`Editor.name` と同じ文字列」を足す | 名は役目（見張る者）を言い、値の出どころは説明が言う |
+| 26 | 持ち主に問う（問 20） | `CommandRefusal.field` の決め直し | 誤りの所を言う欄が 2 つの名と 2 つの書き方を持つ |
+
+「一覧に出てこない名」（30 名）は、席が作業役に元の資料を調べさせ、既決 16・方針で一つ 15・持ち主に問う 5・退く 5 に分けた（41 行。命令の中の値をまとめて数えた）。持ち主に問う 5 つは遅延診断の答えの中の名で、2 つ目の作業役が答えの中の名を全部（265 名）表にして、問いを 4 つ（問 21〜24）にまとめた（`agent-api-names-delay-diagnosis-draft.md`）。表は `agent-api-names-missing-from-list.md`。退く 5 つ: 型 `DelayDiagnosticsReport`（所見 2）・`InvariantRow`・`CodecRefusalReason`（`JDG-3285`、CR-851 の対応表 316〜319 行）、`replaceCalendarRules` の `carryElements`・`carry`・`ordinal`（`JDG-3606`・`JDG-3748`）、引出し線の形 `calloutBox`・`polyline`（CR-851 の対応表 215・276 行が退ける）。
