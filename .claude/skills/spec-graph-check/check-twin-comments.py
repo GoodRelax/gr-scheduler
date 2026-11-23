@@ -155,8 +155,12 @@ NOT_A_CLAIM = re.compile(
     r"repeats its|names its twin|same-as word)", re.I)
 
 # The heads of check 55 that open a new form inside a block.
-HEAD = re.compile(r'^(see\s+[A-Z]{1,4}-[0-9]|TRAP:|WHY:|STOP:|DEVIATION:|@)')
-HEAD_WORD = re.compile(r'^(TRAP|WHY|STOP|DEVIATION):\s*')
+# The R3 kinds of check 55 open a form too, so the rename of stage B6 keeps
+# this check seeing the same forms (study 82, 2026-11-24).
+HEAD = re.compile(r'^(see\s+[A-Z]{1,4}-[0-9]|Spec:\s+[A-Z]{1,4}-[0-9]|TRAP:|WHY:|STOP:|DEVIATION:|'
+                  r'Why:|Trap:|Summary:|Temporary:|Unimplemented:|Provisional:|Section:|Consistency:|@)')
+HEAD_WORD = re.compile(r'^(TRAP|WHY|STOP|DEVIATION|Why|Trap|Summary|Temporary|Unimplemented|'
+                       r'Provisional|Section|Consistency):\s*')
 LEADER = re.compile(r'^\s*(?://+|/\*\*?|\*(?!/))\s?')
 CLOSER = re.compile(r'\s*\*/\s*$')
 

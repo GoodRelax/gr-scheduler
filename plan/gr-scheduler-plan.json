@@ -14,7 +14,7 @@
       "creationDate": "2026-10-31T08:50:00",
       "revision": 11,
       "startDate": "2026-10-17T05:30:00",
-      "statusDate": "2026-11-24T07:38:00",
+      "statusDate": "2026-11-24T08:00:00",
       "minutesPerDay": 1440,
       "minutesPerWeek": 10080,
       "daysPerMonth": 30,
@@ -24,7 +24,7 @@
       "defaultFinishTime": "23:59:00",
       "themeHue": 214,
       "parentTaskProgressToleranceDays": 1,
-      "uidHighWaterMark": 505,
+      "uidHighWaterMark": 508,
       "importSequence": 0,
       "carry": {},
       "carryElements": [],
@@ -4182,19 +4182,19 @@
         "uid": 302,
         "parentTaskUid": null,
         "wbsOrder": 162,
-        "name": "🌒 CR-857(SSOT へ寄せる —— 名の原稿 glossary.json と生成、JDG-3411〜3427)の起草と当て",
+        "name": "🌕 CR-857(SSOT へ寄せる —— 名の原稿 glossary.json と生成、JDG-3411〜3427)の段 1: terms[] の JSON の原稿",
         "start": "2026-11-24T06:51:00",
-        "finish": "2026-11-24T15:51:00",
+        "finish": "2026-11-24T07:43:00",
         "milestone": false,
         "deadline": null,
-        "notes": "カードはまだ起きていない。CR-851 の当て（296）の後。見積は CR-767 の 3 つの波の実績の合計 186 分から 3 時間。 10-31: JDG-3483（規則 07 の R1 の目的の節、原本を先に）と、選べば src の JSON の rowId → specRowId の改名も持つ（見積に 30 分を足した）。カードは引っ込めた —— 用語集の後に出し直す。 10-31 07:45: JDG-3491 で src の JSON の rowId → specTableRowId の改名をこの CR が持つと決まった（前の注の「選べば」「specRowId」ではない）。見積は 3 時間 30 分のまま。 12:09: CR-857 の起草と当ての SUB のモデルと努力: Opus 5.5・high（仕様・設計・実装・レビューの SUB の既定）。表を外れる時は調整役が理由の 1 行を送る。 11-02 06:50: 新しい N1（316、11-22 14:59）に合わせ、24 時間 29 分 45 秒後ろへ置いた（順と中身は変えない。BOSS の求め）。 pmo-6 2026-11-24T00:18: study 82 B3 (fb3a35e3e): CR-857 moves forward from 11-27 (owner answer in BGQA9: before the beta; BOSS line 11-24). glossary.json in the terms[] shape, English as the master (JDG-3825), a source (JDG) field per term, the unchecked terms counted and sent to the owner on one sheet (BGQA9 q12; owner 1..2 h). The link from 296 is removed; it still follows the diff extraction 455. 9 h = middle of 6..12 seat hours (provisional). The full review B14 (493) waits for it. pmo-6 2026-11-24T00:24: BOSS line 11-24: the apply-plan seat put the glossary JSON (B3) first in priority (723f99ce3). pmo-6 2026-11-24T00:28: BOSS line 11-24: top priority, placed at the head of 11-24 (now). The link from the diff extraction 455 is removed: 455 hands its difference list to CR-855 and CR-856, and CR-857 builds glossary.json from the settled names and rulings, so it does not need that list. Not started (the CR-857 seat is not up yet). 9 h kept (provisional). pmo-6 2026-11-24T06:51: started on the owner signal (seat local_b6b6e668: CR-857 glossary JSON; JDG ids 3841..3850 reserved). Length kept (provisional).",
+        "notes": "カードはまだ起きていない。CR-851 の当て（296）の後。見積は CR-767 の 3 つの波の実績の合計 186 分から 3 時間。 10-31: JDG-3483（規則 07 の R1 の目的の節、原本を先に）と、選べば src の JSON の rowId → specRowId の改名も持つ（見積に 30 分を足した）。カードは引っ込めた —— 用語集の後に出し直す。 10-31 07:45: JDG-3491 で src の JSON の rowId → specTableRowId の改名をこの CR が持つと決まった（前の注の「選べば」「specRowId」ではない）。見積は 3 時間 30 分のまま。 12:09: CR-857 の起草と当ての SUB のモデルと努力: Opus 5.5・high（仕様・設計・実装・レビューの SUB の既定）。表を外れる時は調整役が理由の 1 行を送る。 11-02 06:50: 新しい N1（316、11-22 14:59）に合わせ、24 時間 29 分 45 秒後ろへ置いた（順と中身は変えない。BOSS の求め）。 pmo-6 2026-11-24T00:18: study 82 B3 (fb3a35e3e): CR-857 moves forward from 11-27 (owner answer in BGQA9: before the beta; BOSS line 11-24). glossary.json in the terms[] shape, English as the master (JDG-3825), a source (JDG) field per term, the unchecked terms counted and sent to the owner on one sheet (BGQA9 q12; owner 1..2 h). The link from 296 is removed; it still follows the diff extraction 455. 9 h = middle of 6..12 seat hours (provisional). The full review B14 (493) waits for it. pmo-6 2026-11-24T00:24: BOSS line 11-24: the apply-plan seat put the glossary JSON (B3) first in priority (723f99ce3). pmo-6 2026-11-24T00:28: BOSS line 11-24: top priority, placed at the head of 11-24 (now). The link from the diff extraction 455 is removed: 455 hands its difference list to CR-855 and CR-856, and CR-857 builds glossary.json from the settled names and rulings, so it does not need that list. Not started (the CR-857 seat is not up yet). 9 h kept (provisional). pmo-6 2026-11-24T06:51: started on the owner signal (seat local_b6b6e668: CR-857 glossary JSON; JDG ids 3841..3850 reserved). Length kept (provisional). pmo-6 2026-11-24T08:00: step 1 done (glossary.json terms[] with 1,549 terms; 1eae497d3 07:43, develop 8d2e3519b). Renamed to step 1; steps 1b, 2 and 3 move to task 506 (a successor seat).",
         "calendarUid": null,
         "actualStart": "2026-11-24T06:51:00",
         "stop": null,
-        "actualFinish": null,
+        "actualFinish": "2026-11-24T07:43:00",
         "resume": null,
         "resumeValid": null,
-        "percentComplete": 0,
+        "percentComplete": 100,
         "fadeInDays": null,
         "fadeOutDays": null,
         "dependencies": [],
@@ -4231,6 +4231,14 @@
           },
           {
             "predecessorUid": 302,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          },
+          {
+            "predecessorUid": 506,
             "linkType": 1,
             "linkLag": 0,
             "lagFormat": 7,
@@ -7284,11 +7292,11 @@
         "parentTaskUid": null,
         "wbsOrder": 268,
         "name": "🌑 新 ANMS・NDD B15: GT-2 を 1 回回し、develop へ合流する(調整役)",
-        "start": "2026-11-26T08:41:00",
-        "finish": "2026-11-26T12:11:00",
+        "start": "2026-11-27T02:36:58",
+        "finish": "2026-11-27T06:06:58",
         "milestone": false,
         "deadline": null,
-        "notes": "共有メモ new-review-standard-plan-b-2026-11-08.md の「順序」 の段 4。PMO は再開を記録し、窓の後の 1 回で予定を引き直す。 11-09 08:54: 新基準の窓の残り（段 5・6）は、基準書の新しい版 7015aa4 との差をオーナーと協議してから決める（BOSS の一言）。391 以後の予定は協議の後に置く。 11-11 07:21: 新基準の窓の残りは、基準書の新しい版 7015aa4 との差をオーナーと協議してから決める。重い処理の禁止（11-11 06:08）が解けるまで始められない。予定は動かさない。 11-13 13:05: 禁止の解除で測り直した。391 を今から 30 分、392〜394 を 391 の後に並べ、395 は 393・394 の後、396 は 395 と N1 の後。基準書の新しい版 7015aa4 との協議が済んでいなければ、段 5・6 の中身は協議で変わる（事実）。 pmo-6 2026-11-23T23:33: folded into study 82 (afdaf418f) as named; the same work keeps uid 391 (JDG-1931). Placed after the beta tag 233 and the owner answers 492; length 0.5 h = the middle of the study 82 estimate (provisional). Stage 2 also waits for team T to land the standard in gr-sw-maker main (outside this plan). pmo-6 2026-11-24T00:11: study 82 replanned before the beta (fb3a35e3e, owner order JDG-3821..3823, 3828). Moved before the beta as 新 ANMS・NDD B15; same work keeps uid 391. 3.5 h wall = middle of the study estimate (provisional). pmo-6 2026-11-24T07:23: JDG-3813: this step gets a seat only after the results of B1, B2 and B4.",
+        "notes": "共有メモ new-review-standard-plan-b-2026-11-08.md の「順序」 の段 4。PMO は再開を記録し、窓の後の 1 回で予定を引き直す。 11-09 08:54: 新基準の窓の残り（段 5・6）は、基準書の新しい版 7015aa4 との差をオーナーと協議してから決める（BOSS の一言）。391 以後の予定は協議の後に置く。 11-11 07:21: 新基準の窓の残りは、基準書の新しい版 7015aa4 との差をオーナーと協議してから決める。重い処理の禁止（11-11 06:08）が解けるまで始められない。予定は動かさない。 11-13 13:05: 禁止の解除で測り直した。391 を今から 30 分、392〜394 を 391 の後に並べ、395 は 393・394 の後、396 は 395 と N1 の後。基準書の新しい版 7015aa4 との協議が済んでいなければ、段 5・6 の中身は協議で変わる（事実）。 pmo-6 2026-11-23T23:33: folded into study 82 (afdaf418f) as named; the same work keeps uid 391 (JDG-1931). Placed after the beta tag 233 and the owner answers 492; length 0.5 h = the middle of the study 82 estimate (provisional). Stage 2 also waits for team T to land the standard in gr-sw-maker main (outside this plan). pmo-6 2026-11-24T00:11: study 82 replanned before the beta (fb3a35e3e, owner order JDG-3821..3823, 3828). Moved before the beta as 新 ANMS・NDD B15; same work keeps uid 391. 3.5 h wall = middle of the study estimate (provisional). pmo-6 2026-11-24T07:23: JDG-3813: this step gets a seat only after the results of B1, B2 and B4. pmo-6 2026-11-24T08:00: BOSS line 11-24: one GT-2 also runs when B1, B2 and B4 are all in.",
         "calendarUid": null,
         "actualStart": null,
         "stop": null,
@@ -7315,14 +7323,14 @@
         "uid": 392,
         "parentTaskUid": null,
         "wbsOrder": 269,
-        "name": "🌑 新 ANMS・NDD B1: 規則 07 を新しい版へ追いつかせ、検査 92 を直し、規則 02・03・05・06 を書き直す(SUB)",
-        "start": "2026-11-24T00:11:00",
-        "finish": "2026-11-24T11:11:00",
+        "name": "🌒 新 ANMS・NDD B1: 規則 07 を新しい版へ追いつかせ、検査 92 を直し、規則 02・03・05・06 を書き直す(SUB)",
+        "start": "2026-11-24T07:36:00",
+        "finish": "2026-11-24T18:36:00",
         "milestone": false,
         "deadline": null,
-        "notes": "共有メモ new-review-standard-plan-b-2026-11-08.md の「順序」 の段 5。Opus 5.5・high。見積は 2〜4 時間の中央。GT-2 は要らず privacy の数だけ確かめて push する。 11-11 07:21: 新基準の窓の残りは、基準書の新しい版 7015aa4 との差をオーナーと協議してから決める。重い処理の禁止（11-11 06:08）が解けるまで始められない。予定は動かさない。 11-13 13:05: 禁止の解除で測り直した。391 を今から 30 分、392〜394 を 391 の後に並べ、395 は 393・394 の後、396 は 395 と N1 の後。基準書の新しい版 7015aa4 との協議が済んでいなければ、段 5・6 の中身は協議で変わる（事実）。 pmo-6 2026-11-23T23:33: folded into study 82 (afdaf418f) as named; the same work keeps uid 392 (JDG-1931). Placed after the beta tag 233 and the owner answers 492; length 4.5 h = the middle of the study 82 estimate (provisional). Stage 2 also waits for team T to land the standard in gr-sw-maker main (outside this plan). pmo-6 2026-11-24T00:11: study 82 replanned before the beta (fb3a35e3e, owner order JDG-3821..3823, 3828). Moved before the beta as 新 ANMS・NDD B1; same work keeps uid 392. 11 h wall = middle of the study estimate (provisional). pmo-6 2026-11-24T07:23: JDG-3813 (BGQA q19 = a): the new standards seats start with B1, B2 and B4; more seats follow after their results.",
+        "notes": "共有メモ new-review-standard-plan-b-2026-11-08.md の「順序」 の段 5。Opus 5.5・high。見積は 2〜4 時間の中央。GT-2 は要らず privacy の数だけ確かめて push する。 11-11 07:21: 新基準の窓の残りは、基準書の新しい版 7015aa4 との差をオーナーと協議してから決める。重い処理の禁止（11-11 06:08）が解けるまで始められない。予定は動かさない。 11-13 13:05: 禁止の解除で測り直した。391 を今から 30 分、392〜394 を 391 の後に並べ、395 は 393・394 の後、396 は 395 と N1 の後。基準書の新しい版 7015aa4 との協議が済んでいなければ、段 5・6 の中身は協議で変わる（事実）。 pmo-6 2026-11-23T23:33: folded into study 82 (afdaf418f) as named; the same work keeps uid 392 (JDG-1931). Placed after the beta tag 233 and the owner answers 492; length 4.5 h = the middle of the study 82 estimate (provisional). Stage 2 also waits for team T to land the standard in gr-sw-maker main (outside this plan). pmo-6 2026-11-24T00:11: study 82 replanned before the beta (fb3a35e3e, owner order JDG-3821..3823, 3828). Moved before the beta as 新 ANMS・NDD B1; same work keeps uid 392. 11 h wall = middle of the study estimate (provisional). pmo-6 2026-11-24T07:23: JDG-3813 (BGQA q19 = a): the new standards seats start with B1, B2 and B4; more seats follow after their results. pmo-6 2026-11-24T08:00: started 07:36 (B1 branch made then; the B2 start is taken as the same time, unmeasured); first round landed (rules 07, 02, 03, 05, 06, 10; ANMS v0.36 template; 628ccbe08..7bca2b2d8, develop e481b710d 07:55). Rule 07 and check 92 are redone after team T settles its standard (outside wait). GT-2 runs once when B1, B2 and B4 are all in (BOSS).",
         "calendarUid": null,
-        "actualStart": null,
+        "actualStart": "2026-11-24T07:36:00",
         "stop": null,
         "actualFinish": null,
         "resume": null,
@@ -7347,14 +7355,14 @@
         "uid": 393,
         "parentTaskUid": null,
         "wbsOrder": 270,
-        "name": "🌑 新 ANMS・NDD B2: 検査 25・41・44・55 と RVF・テストの記録・@purity・漏れの数の検査を作り直す(SUB)",
-        "start": "2026-11-24T11:11:00",
-        "finish": "2026-11-25T03:11:00",
+        "name": "🌒 新 ANMS・NDD B2: 検査 25・41・44・55 と RVF・テストの記録・@purity・漏れの数の検査を作り直す(SUB)",
+        "start": "2026-11-24T07:36:00",
+        "finish": "2026-11-24T23:36:00",
         "milestone": false,
         "deadline": null,
-        "notes": "共有メモ new-review-standard-plan-b-2026-11-08.md の「順序」 の段 6。Opus 5.5・high。見積は 4〜8 時間の上限。 11-11 07:21: 新基準の窓の残りは、基準書の新しい版 7015aa4 との差をオーナーと協議してから決める。重い処理の禁止（11-11 06:08）が解けるまで始められない。予定は動かさない。 11-13 13:05: 禁止の解除で測り直した。391 を今から 30 分、392〜394 を 391 の後に並べ、395 は 393・394 の後、396 は 395 と N1 の後。基準書の新しい版 7015aa4 との協議が済んでいなければ、段 5・6 の中身は協議で変わる（事実）。 pmo-6 2026-11-23T23:33: folded into study 82 (afdaf418f) as named; the same work keeps uid 393 (JDG-1931). Placed after the beta tag 233 and the owner answers 492; length 12 h = the middle of the study 82 estimate (provisional). Stage 2 also waits for team T to land the standard in gr-sw-maker main (outside this plan). pmo-6 2026-11-24T00:11: study 82 replanned before the beta (fb3a35e3e, owner order JDG-3821..3823, 3828). Moved before the beta as 新 ANMS・NDD B2; same work keeps uid 393. 16 h wall = middle of the study estimate (provisional). pmo-6 2026-11-24T07:23: JDG-3813 (BGQA q19 = a): the new standards seats start with B1, B2 and B4; more seats follow after their results.",
+        "notes": "共有メモ new-review-standard-plan-b-2026-11-08.md の「順序」 の段 6。Opus 5.5・high。見積は 4〜8 時間の上限。 11-11 07:21: 新基準の窓の残りは、基準書の新しい版 7015aa4 との差をオーナーと協議してから決める。重い処理の禁止（11-11 06:08）が解けるまで始められない。予定は動かさない。 11-13 13:05: 禁止の解除で測り直した。391 を今から 30 分、392〜394 を 391 の後に並べ、395 は 393・394 の後、396 は 395 と N1 の後。基準書の新しい版 7015aa4 との協議が済んでいなければ、段 5・6 の中身は協議で変わる（事実）。 pmo-6 2026-11-23T23:33: folded into study 82 (afdaf418f) as named; the same work keeps uid 393 (JDG-1931). Placed after the beta tag 233 and the owner answers 492; length 12 h = the middle of the study 82 estimate (provisional). Stage 2 also waits for team T to land the standard in gr-sw-maker main (outside this plan). pmo-6 2026-11-24T00:11: study 82 replanned before the beta (fb3a35e3e, owner order JDG-3821..3823, 3828). Moved before the beta as 新 ANMS・NDD B2; same work keeps uid 393. 16 h wall = middle of the study estimate (provisional). pmo-6 2026-11-24T07:23: JDG-3813 (BGQA q19 = a): the new standards seats start with B1, B2 and B4; more seats follow after their results. pmo-6 2026-11-24T08:00: started 07:36 (B1 branch made then; the B2 start is taken as the same time, unmeasured); first round landed (test record tool, check 96; d8d859073, develop ea0bb1d27 07:55). GT-2 runs once when B1, B2 and B4 are all in (BOSS). pmo-6 2026-11-24T08:00: runs beside B1 by JDG-3813, so the link from 392 is removed.",
         "calendarUid": null,
-        "actualStart": null,
+        "actualStart": "2026-11-24T07:36:00",
         "stop": null,
         "actualFinish": null,
         "resume": null,
@@ -7362,16 +7370,7 @@
         "percentComplete": 0,
         "fadeInDays": null,
         "fadeOutDays": null,
-        "dependencies": [
-          {
-            "predecessorUid": 392,
-            "linkType": 1,
-            "linkLag": 0,
-            "lagFormat": 7,
-            "carry": {},
-            "carryElements": []
-          }
-        ],
+        "dependencies": [],
         "carry": {},
         "carryElements": []
       },
@@ -7444,8 +7443,8 @@
         "parentTaskUid": null,
         "wbsOrder": 273,
         "name": "🌑 新 ANMS・NDD B4: 原本の JSON(登録簿のキー・状態遷移の形・ステートマシンの語)を新しい形にする(SUB)",
-        "start": "2026-11-24T11:11:00",
-        "finish": "2026-11-25T04:11:00",
+        "start": "2026-11-24T18:36:00",
+        "finish": "2026-11-25T11:36:00",
         "milestone": false,
         "deadline": null,
         "notes": "共有メモ new-review-standard-plan-b-2026-11-08.md の「順序」 の段 7。Opus 5.5・high と Sonnet 5.5・medium。見積は 4〜8 時間の中央。用語集の後に置く。 11-11 07:21: 新基準の窓の残りは、基準書の新しい版 7015aa4 との差をオーナーと協議してから決める。重い処理の禁止（11-11 06:08）が解けるまで始められない。予定は動かさない。 11-13 13:05: 禁止の解除で測り直した。391 を今から 30 分、392〜394 を 391 の後に並べ、395 は 393・394 の後、396 は 395 と N1 の後。基準書の新しい版 7015aa4 との協議が済んでいなければ、段 5・6 の中身は協議で変わる（事実）。 pmo-6 2026-11-23T23:33: folded into study 82 (afdaf418f) as named; the same work keeps uid 396 (JDG-1931). Placed after the beta tag 233 and the owner answers 492; length 48 h = the middle of the study 82 estimate (provisional). Stage 2 also waits for team T to land the standard in gr-sw-maker main (outside this plan). pmo-6 2026-11-24T00:11: study 82 replanned before the beta (fb3a35e3e, owner order JDG-3821..3823, 3828). Moved before the beta as 新 ANMS・NDD B4; same work keeps uid 396. 17 h wall = middle of the study estimate (provisional). pmo-6 2026-11-24T07:23: JDG-3813 (BGQA q19 = a): the new standards seats start with B1, B2 and B4; more seats follow after their results.",
@@ -9028,8 +9027,8 @@
         "parentTaskUid": null,
         "wbsOrder": 352,
         "name": "🌑 新 ANMS・NDD B14: 新しい基準書で全体をレビューし、残る High をオーナーが 1 回で承認する(SUB 1〜2)",
-        "start": "2026-11-26T00:41:00",
-        "finish": "2026-11-26T08:41:00",
+        "start": "2026-11-26T18:36:58",
+        "finish": "2026-11-27T02:36:58",
         "milestone": false,
         "deadline": null,
         "notes": "pmo-6 2026-11-23T23:37: BOSS line 11-23: study 82 stage 6 (first full review by the new standard; findings in RVF; one owner approval of the accepted Highs, BGQA9 question 6). After stage 5 (396) and the owner answers (492). 24 h = the study estimate \"1 day and the owner time\" (provisional). SUB: Opus 5.5 high, a separate review session. pmo-6 2026-11-24T00:11: study 82 replanned before the beta (fb3a35e3e, owner order JDG-3821..3823, 3828). Moved before the beta as 新 ANMS・NDD B14; same work keeps uid 493. 8 h wall = middle of the study estimate (provisional). pmo-6 2026-11-24T07:23: JDG-3813: this step gets a seat only after the results of B1, B2 and B4.",
@@ -9074,6 +9073,14 @@
             "lagFormat": 7,
             "carry": {},
             "carryElements": []
+          },
+          {
+            "predecessorUid": 506,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
           }
         ],
         "carry": {},
@@ -9084,8 +9091,8 @@
         "parentTaskUid": null,
         "wbsOrder": 353,
         "name": "🌑 新 ANMS・NDD B8: 仕様の 3 章と 5 章を組み替え、規範の文を FR・NFR と実装仕様の行へ移す(SUB 4)",
-        "start": "2026-11-24T11:11:00",
-        "finish": "2026-11-25T06:41:00",
+        "start": "2026-11-25T05:06:58",
+        "finish": "2026-11-26T00:36:58",
         "milestone": false,
         "deadline": null,
         "notes": "pmo-6 2026-11-23T23:37: BOSS line 11-23: study 82 stage 7 (try chapters 1-2 first and measure the speed, then chapter 3 in cuts, IMPS, Gherkin, chapter 7, the 100 KB split, the leak count check). After stage 6 and the owner answers (492). 4 weeks = the middle of the study range 2..6 weeks (provisional; no measured speed yet, PMO re-measures after the trial). pmo-6 2026-11-24T00:11: study 82 replanned before the beta (fb3a35e3e, owner order JDG-3821..3823, 3828). Moved before the beta as 新 ANMS・NDD B8; same work keeps uid 494. 19.5 h wall = middle of the study estimate (provisional). pmo-6 2026-11-24T07:23: JDG-3813: this step gets a seat only after the results of B1, B2 and B4.",
@@ -9164,8 +9171,8 @@
         "parentTaskUid": null,
         "wbsOrder": 355,
         "name": "🌑 新 ANMS・NDD B5: 仕様の試し(1 章の下書き・2 章のユースケース 15 個・3 章の 1 節で速さを測る)(SUB)",
-        "start": "2026-11-24T00:11:00",
-        "finish": "2026-11-24T08:11:00",
+        "start": "2026-11-24T21:06:58",
+        "finish": "2026-11-25T05:06:58",
         "milestone": false,
         "deadline": null,
         "notes": "pmo-6 2026-11-24T00:11: study 82 replanned before the beta (fb3a35e3e, owner order JDG-3821..3823, 3828). B5. 8 h = middle of 6..10 seat hours; the owner looks at chapter 1 (0.5..1 h). Measures the reshaping speed for B8. pmo-6 2026-11-24T07:23: JDG-3813: this step gets a seat only after the results of B1, B2 and B4.",
@@ -9189,6 +9196,14 @@
           },
           {
             "predecessorUid": 253,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          },
+          {
+            "predecessorUid": 508,
             "linkType": 1,
             "linkLag": 0,
             "lagFormat": 7,
@@ -9244,8 +9259,8 @@
         "parentTaskUid": null,
         "wbsOrder": 357,
         "name": "🌑 新 ANMS・NDD B9: 仕様を約 100 KB ずつのファイルに割り、道具の道筋を直す(SUB)",
-        "start": "2026-11-25T06:41:00",
-        "finish": "2026-11-25T18:41:00",
+        "start": "2026-11-26T00:36:58",
+        "finish": "2026-11-26T12:36:58",
         "milestone": false,
         "deadline": null,
         "notes": "pmo-6 2026-11-24T00:11: study 82 replanned before the beta (fb3a35e3e, owner order JDG-3821..3823, 3828). B9. 12 h = middle of 8..16 h. A delay of B8 lands here as is. pmo-6 2026-11-24T07:23: JDG-3813: this step gets a seat only after the results of B1, B2 and B4.",
@@ -9276,8 +9291,8 @@
         "parentTaskUid": null,
         "wbsOrder": 358,
         "name": "🌑 新 ANMS・NDD B10: Gherkin のシナリオ約 63 本を書き、e2e の試験に SCN の ID とタグを付ける(SUB)",
-        "start": "2026-11-24T08:11:00",
-        "finish": "2026-11-24T20:11:00",
+        "start": "2026-11-25T05:06:58",
+        "finish": "2026-11-25T17:06:58",
         "milestone": false,
         "deadline": null,
         "notes": "pmo-6 2026-11-24T00:11: study 82 replanned before the beta (fb3a35e3e, owner order JDG-3821..3823, 3828). B10. 12 h = middle of 8..16 h; +0.5..1 day if BGQA9 question 9 adds a tool. pmo-6 2026-11-24T07:23: JDG-3813: this step gets a seat only after the results of B1, B2 and B4.",
@@ -9308,8 +9323,8 @@
         "parentTaskUid": null,
         "wbsOrder": 359,
         "name": "🌑 新 ANMS・NDD B12: src の UseCase をユースケースと 1 対 1 にする(SUB)",
-        "start": "2026-11-24T08:11:00",
-        "finish": "2026-11-24T20:11:00",
+        "start": "2026-11-25T05:06:58",
+        "finish": "2026-11-25T17:06:58",
         "milestone": false,
         "deadline": null,
         "notes": "pmo-6 2026-11-24T00:11: study 82 replanned before the beta (fb3a35e3e, owner order JDG-3821..3823, 3828). B12. 12 h = middle of 8..16 h; one more GT-2 run inside B15. pmo-6 2026-11-24T07:23: JDG-3813: this step gets a seat only after the results of B1, B2 and B4.",
@@ -9340,8 +9355,8 @@
         "parentTaskUid": null,
         "wbsOrder": 360,
         "name": "🌑 新 ANMS・NDD B13: 7 章の設計原則の準拠の表を置き、漏れの数 0 を確かめる(SUB)",
-        "start": "2026-11-25T18:41:00",
-        "finish": "2026-11-26T00:41:00",
+        "start": "2026-11-26T12:36:58",
+        "finish": "2026-11-26T18:36:58",
         "milestone": false,
         "deadline": null,
         "notes": "pmo-6 2026-11-24T00:11: study 82 replanned before the beta (fb3a35e3e, owner order JDG-3821..3823, 3828). B13 (the split seat continues). 6 h = middle of 4..8 h. pmo-6 2026-11-24T07:23: JDG-3813: this step gets a seat only after the results of B1, B2 and B4.",
@@ -9476,7 +9491,7 @@
         "wbsOrder": 363,
         "name": "🌒 ② Agent API の後任の席が別の AI のレビュー 26 件を仕分け、名を問い、ほかの AI へ 2 段の質問状を出す(SUB)",
         "start": "2026-11-24T06:51:00",
-        "finish": "2026-11-24T09:52:23",
+        "finish": "2026-11-24T23:00:41",
         "milestone": false,
         "deadline": null,
         "calendarUid": null,
@@ -9488,10 +9503,106 @@
         "percentComplete": 0,
         "fadeInDays": null,
         "fadeOutDays": null,
-        "notes": "pmo-6 2026-11-24T00:24: BOSS line 11-24: the Agent API seat recorded the first independent AI review of the Agent API names (26 findings, 4 high; JDG-3785, 70072a3fb 00:20, develop ad639f551). A successor seat continues on the owner signal: triage, name questions, a two-stage questionnaire to other AIs. Not started. Length = 26 findings at 8.6 rows/h (provisional). Owner waits come as their own tasks when asked. SUB: Opus 5.5 high. pmo-6 2026-11-24T06:51: started on the owner signal (seat local_6568f2a0: Agent API successor; JDG ids 3786..3800 reserved; the previous seat local_bc823393 is done). Length kept (provisional).",
+        "notes": "pmo-6 2026-11-24T00:24: BOSS line 11-24: the Agent API seat recorded the first independent AI review of the Agent API names (26 findings, 4 high; JDG-3785, 70072a3fb 00:20, develop ad639f551). A successor seat continues on the owner signal: triage, name questions, a two-stage questionnaire to other AIs. Not started. Length = 26 findings at 8.6 rows/h (provisional). Owner waits come as their own tasks when asked. SUB: Opus 5.5 high. pmo-6 2026-11-24T06:51: started on the owner signal (seat local_6568f2a0: Agent API successor; JDG ids 3786..3800 reserved; the previous seat local_bc823393 is done). Length kept (provisional). pmo-6 2026-11-24T08:00: waits for the owner on BGQA7 round 10 (507); finish = 507 + 0.5 h (provisional).",
         "dependencies": [
           {
             "predecessorUid": 489,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 506,
+        "parentTaskUid": null,
+        "wbsOrder": 364,
+        "name": "🌑 CR-857(SSOT へ寄せる —— 名の原稿 glossary.json と生成)の段 1b・2・3(後任の席。SUB)",
+        "start": "2026-11-24T08:00:00",
+        "finish": "2026-11-24T14:00:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "pmo-6 2026-11-24T08:00: BOSS line 11-24: the rest of CR-857 (steps 1b, 2, 3) goes to a successor seat, which starts on the owner signal (\"立てろ\"). Not started. 6 h is a PMO placeholder (provisional). SUB: Opus 5.5 high.",
+        "calendarUid": null,
+        "actualStart": null,
+        "stop": null,
+        "actualFinish": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 302,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 507,
+        "parentTaskUid": null,
+        "wbsOrder": 365,
+        "name": "🌒 オーナー: ② BGQA7 の 10 巡目(問 13〜25)に答える",
+        "start": "2026-11-24T07:43:00",
+        "finish": "2026-11-24T22:30:41",
+        "milestone": false,
+        "deadline": null,
+        "calendarUid": null,
+        "actualStart": "2026-11-24T07:43:00",
+        "stop": null,
+        "actualFinish": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "notes": "pmo-6 2026-11-24T08:00: BOSS line 11-24: the Agent API successor sorted the AI-C review and put BGQA7 round 10 (questions 13..25) to the owner (87b608711 07:43, develop f103ba529). Length = 13 questions at 8.6 rows/h in owner hours (provisional).",
+        "dependencies": [
+          {
+            "predecessorUid": 489,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 508,
+        "parentTaskUid": null,
+        "wbsOrder": 366,
+        "name": "🌒 オーナー: BGQA の問 23(B5 だけを今すぐ立てるか)に答える",
+        "start": "2026-11-24T08:00:00",
+        "finish": "2026-11-24T21:06:58",
+        "milestone": false,
+        "deadline": null,
+        "notes": "pmo-6 2026-11-24T08:00: BOSS line 11-24: study 82 re-estimate (795dfd6ab): with B5 started now (case B) the beta stays 11-30 even on the slow side; B5 after B1 (case A, JDG-3813) gives 11-30, slow side 12-01. Length = 1 question in owner hours (provisional). B5 (496) waits for it.",
+        "calendarUid": null,
+        "actualStart": "2026-11-24T08:00:00",
+        "stop": null,
+        "actualFinish": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 491,
             "linkType": 1,
             "linkLag": 0,
             "lagFormat": 7,
@@ -11039,6 +11150,18 @@
       {
         "taskUid": 504,
         "taskGroupId": "f5c1a05d-0315-5b9a-9a59-93f3d19dd7ce"
+      },
+      {
+        "taskUid": 506,
+        "taskGroupId": "5321b390-7f24-598b-8fb6-6de6c53cf32f"
+      },
+      {
+        "taskUid": 507,
+        "taskGroupId": "f5c1a05d-0315-5b9a-9a59-93f3d19dd7ce"
+      },
+      {
+        "taskUid": 508,
+        "taskGroupId": "b2a0e74c-4c44-5678-b53c-aecd31dc8ae5"
       }
     ],
     "taskVisuals": [
@@ -13577,6 +13700,30 @@
         "fillColor": "blue",
         "strokeColor": null,
         "strokeWidthPx": null
+      },
+      {
+        "taskUid": 506,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": "diamond",
+        "fillColor": "blue",
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 507,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": "diamond",
+        "fillColor": "blue",
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 508,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": "diamond",
+        "fillColor": "blue",
+        "strokeColor": null,
+        "strokeWidthPx": null
       }
     ],
     "commentBoxes": [
@@ -15585,10 +15732,10 @@
     "zoomY": 1.099862517185352
   },
   "documentStamp": {
-    "scheduleUpdatedAt": "2026-11-23T22:38:00Z",
+    "scheduleUpdatedAt": "2026-11-23T23:00:00Z",
     "lastEditedBy": "PMO child session",
     "settingsUpdatedAt": "2026-10-20T20:24:42Z",
-    "fileSavedAt": "2026-11-23T22:38:00Z"
+    "fileSavedAt": "2026-11-23T23:00:00Z"
   },
   "changeLog": [
     {
@@ -16370,6 +16517,12 @@
       "editedBy": "PMO child session",
       "explanation": "Fact at 11-24 07:38 JST: BOSS correction, the diff extraction points 1-2 are already decided (JDG-3606, 3613, 3748 and the frozen schema): owner task 505 removed (uid retired) and CR-855 (303) no longer waits for it. At the BOSS request CR-860..862 applications (476, 477, 495) pulled forward to now. Notice JDG-3815, 3816 (owner org tasks) needs no plan row.",
       "changedAt": "2026-11-23T22:38:00Z"
+    },
+    {
+      "ordinal": 131,
+      "editedBy": "PMO child session",
+      "explanation": "Fact at 11-24 08:00 JST: BOSS line, CR-857 step 1 done (1eae497d3): 302 renamed to step 1, steps 1b-3 in successor task 506 (owner signal). Agent API successor put BGQA7 round 10 to the owner: owner task 507. B1 (392) and B2 (393) started 07:36 and landed their first rounds; B1 waits for team T on rule 07. Owner task 508 (BGQA q23, start B5 now?) before B5. Study 82 re-estimated (795dfd6ab).",
+      "changedAt": "2026-11-23T23:00:00Z"
     }
   ]
 }

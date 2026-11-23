@@ -10,8 +10,8 @@
 #
 # then add up the ranges in the headings (1-4 is four, 5-10 is six, and so
 # on). A heading may carry several numbers because one script answers them.
-# The ranges today are 1 + 4 + 8 + 4 + 76. (Recounted 2026-11-24 at checks 95-96
-# (the test record of JDG-3827, @purity coverage of R7): 74 + 2. Recounted 2026-11-08 at check 94
+# The ranges today are 1 + 4 + 8 + 4 + 77. (Recounted 2026-11-24 at checks 95-97
+# (the test record of JDG-3827, @purity coverage of R7, the R1b gap counts): 74 + 3. Recounted 2026-11-08 at check 94
 # (the retired purity values, CR-859): 73 + 1. Recounted 2026-10-24 at checks 91-93
 # (old rule-07 numbers, rule 07 against its master, the lockfile and OSS;
 # JDG-3251..3253): 70 + 3. Recounted 2026-10-24 at check 90
@@ -467,6 +467,9 @@
 #   96     check-purity-coverage.mjs : a function of src/ with no @purity
 #          tag, a tag value outside the four, or two tags on one function
 #          (R7 of the review standard). Ratchet: purity-coverage-baseline.txt
+#   97     check-trace-gaps.py : the four traceability gap counts of R1b
+#          over the StrictDoc chain and the traces rows. Ratchet:
+#          trace-gaps-baseline.txt
 #
 # Green does NOT prove the specification is sound: defects of meaning have
 # appeared while all of these were green. They stop broken references, not
@@ -523,6 +526,9 @@ section "41  the traps that are cheaper to catch before the edit"
 # ignore gates. ⚠️ With no arguments it reads what git reports as changed, so
 # on a clean tree it passes having examined nothing. That is correct: it is
 # the early guard, not the authority. check.sh below stays the authority.
+# ⭐ 2026-11-24 (study 82, B2): trap 1b catches an open-question mark
+# (`Provisional:` / `Unimplemented:` / `(provisional:` / `(undecided:`) that
+# names a PND id; the mark names an OPQ row (checks 25 and 55 hold it later).
 PYTHONIOENCODING=utf-8 python tools/precheck.py || failed
 
 echo ""
@@ -614,6 +620,13 @@ PYTHONIOENCODING=utf-8 python tools/ledger_metrics.py --check || failed
 
 echo ""
 section "25  provisional marks match the pending-decision list"
+# ⭐ 2026-11-24 (study 82, B2): the open questions of the NDD review standard
+# (appendix A.3) are held too, while B7 moves the open PND rows: a | OPQ-n |
+# row of docs/spec has six cells, every Provisional / Unimplemented comment
+# and every (provisional / undecided: OPQ-n) mark of the specification names
+# a row, and every row is named by a mark. MEASURED by breaking it with probe
+# files: a 2-cell row, a mark in tools/ with no row, a spec mark with no row
+# and two rows with no mark gave the 5 problems expected.
 PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/check-pending-decisions.py || failed
 
 echo ""
@@ -821,8 +834,18 @@ section "55  src/ and tests/ comments hold to ruling 17 and JDG-62: ASCII, the a
 # `// STEP:` allowed, 3 per test) and for the tree density; no 10% cap yet.
 # Red when a number rises; lower the line in the commit that lowers it.
 # `--list [tests]` names the files, `--file <path>` the lines.
+# ⭐ 2026-11-24 (study 82, B2): the R3 kinds of the NDD review standard pass
+# beside the old forms while B6 renames the heads -- Why: / Spec: / Summary:
+# / Temporary: (with Until:) / Unimplemented: OPQ-n / Provisional: OPQ-n
+# (the OPQ row must exist in docs/spec) / Section: / Consistency: / Trap: /
+# Step:. `--new-only` prints what the old forms still leave (on 3027a1eff:
+# src 4985 lines in 179 files, tests 34614 lines in 750 files); it gates
+# nothing.
 # The self-test runs first: it breaks a test file held in memory on purpose
 # and is red unless every break goes red and the clean file stays green.
+# MEASURED 2026-11-24: 6 breaks -- one Japanese line, a 4th STEP, a STEP
+# outside a test, a Temporary with no Until:, a Provisional naming a missing
+# OPQ, a two-sentence Summary with no Temporary -- each go red.
 PYTHONIOENCODING=utf-8 python "$HERE/check-comment-rules.py" --self-test || failed
 PYTHONIOENCODING=utf-8 python "$HERE/check-comment-rules.py" || failed
 
@@ -1324,6 +1347,24 @@ section "96  every function of src/ carries exactly one @purity tag of the four 
 # one function each report 1 in their own term; a generated function reports 0.
 node "$HERE/check-purity-coverage.mjs" --self-test >/dev/null || { echo "FAIL the self-test of check-purity-coverage.mjs"; failed; }
 node "$HERE/check-purity-coverage.mjs" || failed
+
+echo ""
+section "97  the traceability gap counts of R1b do not grow"
+# R1b of the review standard asks four gap counts to be 0: a chain node with
+# no parent, an item above the requirements with no child, a leaf requirement
+# with no implementation or no test, and a node below the requirements with
+# no implementation or no test. Read over the StrictDoc export of sections
+# 1-4 (GOAL / USE_CASE / FUNC_REQ / NON_FUNC_REQ / SW_SPEC) and the rows of
+# any docs/spec table with a traces column; src/ builds an ID by a see or
+# Spec: comment, tests/ tests it by naming it anywhere. A RATCHET in
+# trace-gaps-baseline.txt. MEASURED 2026-11-24 on 9994f6d0c: 0, 0, 29, 8 --
+# the 29 and 8 fall as stage B8 links the implementation tables. The
+# verification method list and the MAY/SHOULD exemption are not read yet
+# (no such table exists). MEASURED by breaking it (--self-test): a requirement
+# whose parent is missing, a goal with no child, an unbuilt leaf and an
+# unbuilt implementation specification each land in their term.
+PYTHONIOENCODING=utf-8 python "$HERE/check-trace-gaps.py" --self-test >/dev/null || { echo "FAIL the self-test of check-trace-gaps.py"; failed; }
+PYTHONIOENCODING=utf-8 python "$HERE/check-trace-gaps.py" || failed
 
 echo ""
 section "NOT COVERED  what this run did not look at"
