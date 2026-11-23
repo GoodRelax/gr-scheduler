@@ -1235,6 +1235,15 @@
    ]
   },
   {
+   "prefix": "OPQ",
+   "words": "Open Question",
+   "owner": "spec",
+   "means": {
+    "ja": "仕様が決めていない振る舞いの、未決の問い（付録 A.3 の一覧。レビュー基準書の付録 A.3。開いた `PND` の行がここへ移る）"
+   },
+   "pending": true
+  },
+  {
    "prefix": "OR",
    "standsFor": "Order",
    "meaning": {
@@ -1596,6 +1605,15 @@
    },
    "section": "T-069",
    "xOwner": "spec"
+  },
+  {
+   "prefix": "RVF",
+   "words": "Review Finding",
+   "owner": "records",
+   "means": {
+    "ja": "レビューの報告に載る指摘 1 件（重大度・対応・期限・承認した人を持つ。レビュー基準書の付録 A.1。不具合は `DFC` の行を指す）"
+   },
+   "pending": true
   },
   {
    "prefix": "RW",

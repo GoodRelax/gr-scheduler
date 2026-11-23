@@ -19,8 +19,11 @@ red: lowering it is welcome and must not redden another session's work; run
 --update to lower the lines.
 
 NOT COUNTED. Text inside Japanese corner brackets (quotations and the names
-of the words themselves), text inside backticks, and the verbatim records in
-EXEMPT.
+of the words themselves), text inside backticks, the verbatim records in
+EXEMPT, and the IDIOMS below -- set phrases in which the character means
+something else. The proverb "the name shows the substance" (the Japanese
+gloss of NEIM) is one: rule 07, copied from its external master, writes it
+four times, and none of them is a session (2026-11-24, plan B1).
 
 WHAT IT DOES NOT SEE. Whether a counted word really means a session (a
 standalone character can mean something else); files outside SCOPE; English
@@ -61,6 +64,8 @@ EXEMPT = (
 SUFFIXES = ('.md', '.json', '.py', '.mjs', '.sh', '.txt', '.yml', '.bat')
 IDEOGRAPH = '\u4e00-\u9fff\u3005'
 QUOTED = re.compile('\u300c[^\u300d\n]*\u300d|`[^`\n]*`')
+# "the name shows the substance", with either particle (wa / ga)
+IDIOMS = re.compile('\u540d[\u306f\u304c]\u4f53\u3092\u8868\u3059')
 
 
 def old_words(text):
@@ -91,7 +96,7 @@ def patterns(words):
 
 
 def count(text, pats):
-    stripped = QUOTED.sub('', text)
+    stripped = IDIOMS.sub('', QUOTED.sub('', text))
     return sum(len(p.findall(stripped)) for p in pats)
 
 
@@ -140,7 +145,10 @@ def self_test():
     pats = patterns(words)
     sample = ('\u5e2d\u3092\u8d77\u3053\u3059 \u5ea7\u5e2d \u300c\u5e2d\u300d `\u5e2d` '
               '\u6307\u4ee4\u5f79\u304c')
+    body = patterns(['\u4f53'])
+    idiom = '\u540d\u306f\u4f53\u3092\u8868\u3059 \u540d\u304c\u4f53\u3092\u8868\u3059 \u4f53\u3092'
     ok = (words == ['\u5e2d', '\u6307\u4ee4\u5f79'] and count(sample, pats) == 2
+          and count(idiom, body) == 1
           and in_scope('docs/development-rules/05-working-method.md')
           and not in_scope('docs/development-records/rulings.md'))
     print('self-test %s' % ('passed' if ok else 'FAILED'))
