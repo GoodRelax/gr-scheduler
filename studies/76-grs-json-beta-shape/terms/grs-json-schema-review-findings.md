@@ -76,3 +76,29 @@ AI-A の総評: 説明は全体として長すぎる（「This value is…」の
 ## 5. 自明な説明と重複を消した（`JDG-3801`、2026-11-23）
 
 持ち主の指示で、すべてのキーに説明を付けることをやめた。英語の説明は 314 個から 150 個になった（164 個を丸ごと消し、102 個を縮めた。日本語訳は 175 行を消し、103 行を縮めた）。消した物: 「Same as MSPDI X」、名をなぞる文、MSPDI の番号の一覧の写し、ほかの説明や冒頭が既に言う事（いちばん近い 1 か所に残した）、列挙の値の名をなぞる説明。最終レビューの木の [M] の印は `grs-json-beta-mspdi-elements.tsv`（73 行）から作るようにした（木の差 0）。日本語版の説明の木は、名のある列挙の値（"small" や "white"）に日本語の名を付けない。次は外の AI への 2 回目の質問状 `grs-json-schema-review-request-2-en.md`。
+
+## 6. 外の AI の 2 回目（AI-A、2026-11-23）の仕分けと結果
+
+写しは `ai-answers/grs-json-schema-review-answers-2.md`（矛盾 9・誤解 10・冗長 13・消しすぎ 12）。見たのは 817f59567 の版。
+
+| 指摘 | 結果 | 拠り所 |
+|:---|:---|:---|
+| C1 | 消しすぎで生じた矛盾。`ShapeStyle.fill` の「無いと塗らない」を消し、塗りを省ける `TaskStyle.fill` に移した | `JDG-3634` ④ |
+| C3 | `Task.calendarUid`・`Resource.calendarUid` に「MSPDI へ書き戻すためだけに持つ」を戻した | 冒頭の 1 つの暦の文 |
+| C4 | ピンより、`showMode` が `"hidden"`・`"hiddenUntilZoomIn"` の祖先が勝つと書いた | 仕様 表 T-329 の `TD-3`・`TD-5` |
+| C5 | `WorkingTime` に「toTime の 00:00:00 は 24:00 と数える」を戻した | 1 回目の M14 |
+| C8 | 冒頭の形の図で、passthrough の 4 つの配列を「MSPDI と同じ」から分けた | 事実の直し |
+| C2 | 直さない。`taskGroupId` が在る帯を指すかは JSON Schema では確かめられず、`dependentRequired` は空の時しか捕まえない | — |
+| C6 | 直さない。最小 0 は正しい（要約タスクの無いファイルは起点 0） | 仕様 R:6904〜6907 |
+| C7・消しすぎ 9 | BGQA8 の問 11 で持ち主に問う | 仕様 `AT-20`・`TC-2` に答えなし |
+| C9 | 直さない | `JDG-3337` |
+| M1・M2・M4・M5・M8 | 語を直した（状態のキー、横と縦のズーム、キーが無いか当たらないとき、UUID は小文字、最小の高さ） | — |
+| M3 | タスクの表の `isScheduleFilteredByChecks` の意味を戻した（消しすぎ） | — |
+| M6 | BGQA8 の問 10 で持ち主に問う（文字列か数か） | 仕様 `W-9`・`AT-22` と前の席の案が食い違う |
+| M7 | `snapPart` に、どのタスクにどの値か、名指した部分が描かれない間は箱を隠す、を書いた | 仕様 `LF-15`・`DM-7`・R:6565 |
+| M9・M10 | 直さない（`CommentBoxStyle.stroke` と `leftEdgeDay` が既に言う） | — |
+| R1〜R11・R13 | 消した（R4 は `baselineTasks` が言う） | `JDG-3801` |
+| R12 | 直さない（検索ウィンドウのどちらの表の列かは列挙から分からない） | — |
+| 消しすぎ 1〜4・6・11 | 説明を戻すか足した（`schemaVersionUtc`・`dayWidthPx`・`zoneNameType`・帯の名が無いとき・`Time` の範囲・`documentUpdatedAt`/`fileSavedAt`） | — |
+| 消しすぎ 5 | `Color.type` に「custom では無い側を GRS がもう一方から計算する」を足した | `isCalculatedFromOppositeColorScheme` |
+| 消しすぎ 7・8・10・12 | 足さない（名と `baselineTasks` の説明で足りる） | `JDG-3801` |
