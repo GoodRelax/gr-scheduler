@@ -16,11 +16,11 @@ Writes next to this file:
   - occurrences.tsv  one row per (old name, counted pattern, file) with the line numbers
 
 Search areas (git ls-files, so ignored files are never counted):
-  source   docs/spec/_source/**
+  source   docs/spec/_source/** except glossary.json
   spec     docs/spec/*.md and docs/spec/_assets/*.md
   src      src/**
   tests    tests/**
-  glossary studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json
+  glossary docs/spec/_source/glossary.json (the names dictionary of CR-857; the older draft under studies is not read)
 
 Search pattern of an ASCII name: case-sensitive, the name not glued to another identifier character
   (?<![A-Za-z0-9_$])NAME(?![A-Za-z0-9_$])
@@ -573,7 +573,9 @@ def area_files():
     for p in out:
         if not p:
             continue
-        if p.startswith('docs/spec/_source/'):
+        if p == 'docs/spec/_source/glossary.json':
+            areas['glossary'].append(p)
+        elif p.startswith('docs/spec/_source/'):
             areas['source'].append(p)
         elif re.match(r'docs/spec/[^/]+\.md$', p) or re.match(r'docs/spec/_assets/[^/]+\.md$', p):
             areas['spec'].append(p)
@@ -581,8 +583,6 @@ def area_files():
             areas['src'].append(p)
         elif p.startswith('tests/'):
             areas['tests'].append(p)
-        elif p == 'studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json':
-            areas['glossary'].append(p)
     texts = {}
     for name, files in areas.items():
         for p in files:

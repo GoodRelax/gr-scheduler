@@ -1,13 +1,13 @@
 # 決まった名と今の仕様・コードの差 —— 前の名の一覧（計画の 455「差分抽出」）
 
-2026-11-24、SUB「差分抽出」が作った。β の名（GRS JSON は `JDG-3566`〜`JDG-3807`、文書の命令と Agent API は `JDG-3771`〜`JDG-3785`、画面の名は裁定）で引退する **前の名** を、仕様の原稿・仕様の本文・src・tests・用語集で数えた一覧である。改名の手順（`studies/82-anms-ndd-apply-plan/README.md` の A9、NDD 付録 A.2）の「前の名で全部のファイルを検索する」に当たる。**この席は何も直していない。** 直すのは CR-851（GRS JSON と Agent API の原稿）、CR-855（仕様の文とコードの名）、CR-856（振る舞いが変わる物）である。
+2026-11-24、SUB「差分抽出」が作った。数は develop 5b2a45ca7（CR-857 の 1 段目で用語集が `docs/spec/_source/glossary.json` へ移った後）で数え直した。β の名（GRS JSON は `JDG-3566`〜`JDG-3807`、文書の命令と Agent API は `JDG-3771`〜`JDG-3785`、画面の名は裁定）で引退する **前の名** を、仕様の原稿・仕様の本文・src・tests・用語集で数えた一覧である。改名の手順（`studies/82-anms-ndd-apply-plan/README.md` の A9、NDD 付録 A.2）の「前の名で全部のファイルを検索する」に当たる。**この席は何も直していない。** 直すのは CR-851（GRS JSON と Agent API の原稿）、CR-855（仕様の文とコードの名）、CR-856（振る舞いが変わる物）である。
 
 ## 置き場
 
 | ファイル | 中身 |
 |---|---|
 | [`renames.tsv`](renames.tsv) | 前の名 1 つと新しい名 1 つの組ごとに 1 行（350 行、`RN-001`〜`RN-350`）。列は下の表 |
-| [`occurrences.tsv`](occurrences.tsv) | 前の名 × ファイルごとに 1 行（16,621 行）。当たった数と行番号 |
+| [`occurrences.tsv`](occurrences.tsv) | 前の名 × ファイルごとに 1 行（16,616 行）。当たった数と行番号 |
 | [`beta-keys-without-old-name.txt`](beta-keys-without-old-name.txt) | 前の名を持たない β のキー（β で足したキー）64 個 |
 | [`extract_renames.py`](extract_renames.py) | 3 つを作るスクリプト。手で直さず、スクリプトを直して作り直す |
 
@@ -44,15 +44,15 @@
 
 | 前の名の種類 | 式の数 | 原稿 `_source` | 本文 `docs/spec` | src | tests | 用語集 | 計 |
 |---|---:|---:|---:|---:|---:|---:|---:|
-| 汎用語でない名 | 256 | 2,874 | 3,450 | 17,967 | 25,979 | 523 | **50,793** |
-| 汎用語（1 語の小文字）と値 | 80 | 9,748 | 4,162 | 25,132 | 83,710 | 1,436 | 124,188（キーの形・引用符つきだけなら **50,387**） |
+| 汎用語でない名 | 256 | 2,878 | 3,450 | 17,967 | 25,979 | 503 | **50,777** |
+| 汎用語（1 語の小文字）と値 | 80 | 9,820 | 4,162 | 25,132 | 83,710 | 1,682 | 124,506（キーの形・引用符つきだけなら **50,452**） |
 
-- 当たり 0 の行は 8。7 行は下書き（2026-10-25 の `doc-shape-map`・`commands-map`）にだけある名で、今の原稿・コードには無い（α の名は別の行にある。例: `taskStackDirection` は `stackDirection` の行 `RN-086`）。残る 1 行は画面の語「操作点」（引き渡しの時も 0）。当てる物は無い。
+- 当たり 0 の行は 12。7 行は下書き（2026-10-25 の `doc-shape-map`・`commands-map`）にだけある名で、今の原稿・コードには無い（α の名は別の行にある。例: `taskStackDirection` は `stackDirection` の行 `RN-086`）。4 行は Agent API の断りの値（`negativeActualLength`・`pinnedTaskGroupMissing`・`settingOutOfBounds`・`wouldMakeCycle`）で、1 回目は古い用語集の下書きにだけ当たり、今の原稿・コードには無い。残る 1 行は画面の語「操作点」（引き渡しの時も 0）。どれも当てる物は無い。
 - src と tests の当たりが多いのは、GRS JSON を読み書きするコードと見本が前のキーで書いてあるためである（`carry` は src 2,698・tests 3,151、`fadeInDays` は src 1,051・tests 1,255）。
 
 ## 数え方
 
-- 検索する所は `git ls-files` の中だけ: 原稿 `docs/spec/_source/**`、本文 `docs/spec/*.md` と `docs/spec/_assets/*.md`、`src/**`、`tests/**`、用語集 `studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json`。図の `.svg`・`dist`・`studies` のほかの所・台帳・CR は数えていない（履歴なので）。
+- 検索する所は `git ls-files` の中だけ: 原稿 `docs/spec/_source/**`、本文 `docs/spec/*.md` と `docs/spec/_assets/*.md`、`src/**`、`tests/**`、用語集 `docs/spec/_source/glossary.json`（CR-857 の名の辞書。原稿の数には入れない。`studies` の古い下書きは読まない）。図の `.svg`・`dist`・`studies` のほかの所・台帳・CR は数えていない（履歴なので）。
 - 英字の名: 大文字小文字を区別し、前後に識別子の字が付かない所だけ —— `(?<![A-Za-z0-9_$])NAME(?![A-Za-z0-9_$])`。だから `changeLog` は `changeLogEntries` に当たらない。
 - 汎用語（`order`・`which`・`name`・`id` など、1 語の小文字）は文や別のコードにも当たるので、キーの形の式も数えた —— `["'`]NAME["'`]|\.NAME(?![A-Za-z0-9_$])|(?<![A-Za-z0-9_$.])NAME\??\s*:`。`occurrences.tsv` はこちらで書く。
 - 値: 引用符で囲んだ形だけをキーの形として数えた —— `["'`]VALUE["'`]`。数の値（表示の倍率 50〜200 → 0.5〜2）は名でないので行を立てず、キーの行 `displayScale`（`RN-025`）の注に書いた。`UTC+09:00` → `+09:00` の 25 個は 1 行の正規表現 `UTC[+-][0-9]{2}:[0-9]{2}`（`RN-122`）にまとめた。

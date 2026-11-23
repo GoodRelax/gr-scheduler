@@ -4,7 +4,7 @@ old	area	file	line	matches	text
 2 連カーソル	pattern	spec	docs/spec/05-07-design.md	1	1	1072
 2 連カーソル	pattern	tests	tests/contract/cr-662-the-progress-line-in-front-of-the-labels.test.ts	1	1	29
 2 連カーソル	pattern	tests	tests/contract/cr-740-ca-1-the-picture-beneath-is-built-again-only-when-what-it-reads-changes.contract.test.ts	1	1	49
-[Dd]elayDiagnostics	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	40	36	1635,6271,7056,9158,12216,12233,12250,12267,12284,12301,12318,12335,12352,16261,16274,18262,18263,18316,18317,18340,18354,18368,18445,18446,18458,18459,18633,18635,18636,20156,20157,20176,20177,20475,20486,20839
+[Dd]elayDiagnostics	pattern	glossary	docs/spec/_source/glossary.json	49	45	2998,11540,12820,15286,18825,18836,18849,18860,18872,18883,18895,18906,18918,18929,18941,18952,18964,18975,18987,18998,19010,19021,24411,28198,28199,28285,28286,28332,28497,28498,28531,28532,28822,28823,28827,31217,31218,31255,31256,31562,31564,31565,32082,32084,32085
 [Dd]elayDiagnostics	pattern	source	docs/spec/_source/agent-api-members.json	24	23	39,115,429,437,455,504,509,512,531,548,569,717,718,728,733,735,1145,1155,1161,1179,1721,1723,1725
 [Dd]elayDiagnostics	pattern	source	docs/spec/_source/document-commands.json	2	2	3276,3297
 [Dd]elayDiagnostics	pattern	source	docs/spec/_source/grs-commands.schema.json	2	2	2974,2982
@@ -121,7 +121,7 @@ old	area	file	line	matches	text
 [Dd]elayDiagnostics	pattern	tests	tests/unit/cr-826-no-question-mark-or-flame-on-a-task-not-due-yet.test.ts	2	2	6,145
 [Dd]elayDiagnostics	pattern	tests	tests/unit/cr-826-stage.ts	9	8	6,43,47,49,51,52,54,55
 [Dd]elayDiagnostics	pattern	tests	tests/unit/uf-27-28-29.test.ts	2	2	120,135
-\b[Cc]hart\b	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	8	6	814,1311,1829,7576,8973,8989
+\b[Cc]hart\b	pattern	glossary	docs/spec/_source/glossary.json	7	5	2007,2580,13448,15052,15072
 \b[Cc]hart\b	pattern	source	docs/spec/_source/display-words.json	2	2	121,132
 \b[Cc]hart\b	pattern	source	docs/spec/_source/grs-commands.schema.json	2	2	2552,3186
 \b[Cc]hart\b	pattern	source	docs/spec/_source/grs-document.schema.json	2	2	304,358
@@ -154,7 +154,7 @@ Actual Operation Dummy	pattern	spec	docs/spec/_assets/tbl-glossary.md	1	1	131
 Actual Operation Dummy	pattern	tests	tests/contract/cr-740-stage.ts	1	1	57
 Actual Operation Dummy	pattern	tests	tests/unit/fr-043-dummy-drawn.test.ts	6	6	1,58,82,1017,1374,1404
 Actual Operation Dummy	pattern	tests	tests/unit/uf-39-40.test.ts	1	1	1053
-agentApiVersion	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	1	1	18096
+agentApiVersion	pattern	glossary	docs/spec/_source/glossary.json	1	1	27875
 agentApiVersion	pattern	source	docs/spec/_source/agent-api-members.json	2	2	35,173
 agentApiVersion	pattern	spec	docs/spec/_assets/design-mcp-relay.md	2	2	74,211
 agentApiVersion	pattern	spec	docs/spec/_assets/tbl-agent-api-members.md	2	2	27,97
@@ -178,7 +178,7 @@ agentApiVersion	pattern	tests	tests/system/cr-823-the-download-page-address-prom
 agentApiVersion	pattern	tests	tests/unit/uf-185-uf-188-relay-page-side.test.ts	4	4	17,34,124,215
 agentApiVersion	pattern	tests	tests/unit/uf-27-28-29.test.ts	4	4	112,619,729,737
 agentApiVersion	pattern	tests	tests/use-case/uc-012-let-an-ai-agent-edit.test.ts	1	1	37
-AgentChangeReceiver	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	1	1	16295
+AgentChangeReceiver	pattern	glossary	docs/spec/_source/glossary.json	1	1	24470
 AgentChangeReceiver	pattern	source	docs/spec/_source/agent-api-members.json	2	2	1215,1749
 AgentChangeReceiver	pattern	spec	docs/spec/_assets/tbl-agent-api-members.md	2	2	53,79
 AgentChangeReceiver	pattern	src	src/adapter/agent-api-endpoint/agent-api-endpoint.ts	1	1	12
@@ -186,14 +186,14 @@ AgentChangeReceiver	pattern	src	src/adapter/agent-api-endpoint/agent-api-members
 AgentChangeReceiver	pattern	tests	tests/contract/cr-765-t-107-the-printed-call-shapes.contract.test.ts	2	2	82,186
 AgentChangeReceiver	pattern	tests	tests/contract/cr-765-t-400-the-value-types.contract.test.ts	1	1	49
 AgentChangeReceiver	pattern	tests	tests/contract/cr-765-the-agent-api-type-and-the-relayed-params.contract.test.ts	2	2	17,164
-AgentDelayDiagnostics	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	1	1	16261
+AgentDelayDiagnostics	pattern	glossary	docs/spec/_source/glossary.json	1	1	24411
 AgentDelayDiagnostics	pattern	source	docs/spec/_source/agent-api-members.json	2	2	569,1721
 AgentDelayDiagnostics	pattern	spec	docs/spec/_assets/tbl-agent-api-members.md	2	2	36,78
 AgentDelayDiagnostics	pattern	src	src/adapter/agent-api-endpoint/agent-api-members.ts	7	6	186,276,420,424,605,1120
 AgentDelayDiagnostics	pattern	tests	tests/contract/cr-765-t-107-the-printed-call-shapes.contract.test.ts	1	1	65
 AgentDelayDiagnostics	pattern	tests	tests/contract/cr-765-t-400-the-value-types.contract.test.ts	1	1	48
 AgentDelayDiagnostics	pattern	tests	tests/contract/cr-765-the-agent-api-type-and-the-relayed-params.contract.test.ts	2	2	18,132
-AgentExport	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	2	2	16094,16107
+AgentExport	pattern	glossary	docs/spec/_source/glossary.json	1	1	24081
 AgentExport	pattern	source	docs/spec/_source/agent-api-members.json	7	7	822,864,906,948,991,1033,1529
 AgentExport	pattern	spec	docs/spec/_assets/tbl-agent-api-members.md	7	7	43,44,45,46,47,48,74
 AgentExport	pattern	src	src/adapter/agent-api-endpoint/agent-api-endpoint.ts	1	1	13
@@ -205,7 +205,7 @@ AgentExport	pattern	tests	tests/contract/cr-765-the-agent-api-type-and-the-relay
 AgentExport	pattern	tests	tests/contract/if-7-snapshot-source.test.ts	2	2	55,262
 AgentExport	pattern	tests	tests/nfr/nfr-002-003-frame-time-is-the-interval.test.ts	4	4	46,952,1204,1401
 AgentExport	pattern	tests	tests/unit/uf-27-28-29.test.ts	3	3	52,591,1538
-AgentFocusOutcome	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	1	1	16133
+AgentFocusOutcome	pattern	glossary	docs/spec/_source/glossary.json	1	1	24136
 AgentFocusOutcome	pattern	source	docs/spec/_source/agent-api-members.json	2	2	1084,1584
 AgentFocusOutcome	pattern	spec	docs/spec/_assets/tbl-agent-api-members.md	2	2	49,75
 AgentFocusOutcome	pattern	src	src/adapter/agent-api-endpoint/agent-api-endpoint.ts	1	1	14
@@ -213,7 +213,7 @@ AgentFocusOutcome	pattern	src	src/adapter/agent-api-endpoint/agent-api-members.t
 AgentFocusOutcome	pattern	tests	tests/contract/cr-765-t-107-the-printed-call-shapes.contract.test.ts	1	1	78
 AgentFocusOutcome	pattern	tests	tests/contract/cr-765-t-400-the-value-types.contract.test.ts	1	1	45
 AgentFocusOutcome	pattern	tests	tests/contract/cr-765-the-agent-api-type-and-the-relayed-params.contract.test.ts	2	2	20,150
-AgentImportOutcome	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	1	1	16191
+AgentImportOutcome	pattern	glossary	docs/spec/_source/glossary.json	1	1	24264
 AgentImportOutcome	pattern	source	docs/spec/_source/agent-api-members.json	5	5	652,656,676,679,1828
 AgentImportOutcome	pattern	spec	docs/spec/_assets/design-mcp-relay.md	1	1	164
 AgentImportOutcome	pattern	spec	docs/spec/_assets/tbl-agent-api-members.md	5	3	38,39,82
@@ -222,7 +222,7 @@ AgentImportOutcome	pattern	tests	tests/contract/cr-765-t-107-the-printed-call-sh
 AgentImportOutcome	pattern	tests	tests/contract/cr-765-t-400-the-value-types.contract.test.ts	1	1	52
 AgentImportOutcome	pattern	tests	tests/contract/cr-765-the-agent-api-type-and-the-relayed-params.contract.test.ts	2	2	27,146
 AgentImportOutcome	pattern	tests	tests/contract/cr-796-s1-calls-that-wait-on-a-person-return-at-once.contract.test.ts	1	1	362
-AgentImportSource	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	2	2	16147,16160
+AgentImportSource	pattern	glossary	docs/spec/_source/glossary.json	1	1	24192
 AgentImportSource	pattern	source	docs/spec/_source/agent-api-members.json	2	2	645,1650
 AgentImportSource	pattern	spec	docs/spec/_assets/tbl-agent-api-members.md	2	2	38,76
 AgentImportSource	pattern	src	src/adapter/agent-api-endpoint/agent-api-endpoint.ts	1	1	15
@@ -233,7 +233,7 @@ AgentImportSource	pattern	tests	tests/contract/cr-765-t-400-the-value-types.cont
 AgentImportSource	pattern	tests	tests/contract/cr-765-the-agent-api-type-and-the-relayed-params.contract.test.ts	3	3	21,145,192
 AgentImportSource	pattern	tests	tests/contract/cr-765-the-clauses-that-point-at-t-107.contract.test.ts	1	1	37
 AgentImportSource	pattern	tests	tests/nfr/nfr-002-003-frame-time-is-the-interval.test.ts	2	2	52,1362
-AgentRefusal	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	3	3	17844,18017,18069
+AgentRefusal	pattern	glossary	docs/spec/_source/glossary.json	1	1	27838
 AgentRefusal	pattern	source	docs/spec/_source/agent-api-members.json	6	6	1361,1375,1570,1636,1901,2081
 AgentRefusal	pattern	spec	docs/spec/_assets/tbl-agent-api-members.md	6	6	71,72,74,75,82,85
 AgentRefusal	pattern	src	src/adapter/agent-api-endpoint/agent-api-endpoint.ts	1	1	16
@@ -247,7 +247,7 @@ AgentRefusalReason	pattern	src	src/adapter/agent-api-endpoint/agent-api-members.
 AgentRefusalReason	pattern	tests	tests/contract/cr-765-t-400-the-value-types.contract.test.ts	4	4	8,43,122,285
 AgentRefusalReason	pattern	tests	tests/contract/cr-765-the-agent-api-type-and-the-relayed-params.contract.test.ts	2	2	23,170
 AgentRefusalReason	pattern	tests	tests/nfr/nfr-002-003-frame-time-is-the-interval.test.ts	1	1	963
-AgentSavedFile	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	1	1	16721
+AgentSavedFile	pattern	glossary	docs/spec/_source/glossary.json	1	1	25373
 AgentSavedFile	pattern	source	docs/spec/_source/agent-api-members.json	7	7	841,883,925,968,1010,1052,2140
 AgentSavedFile	pattern	spec	docs/spec/_assets/design-mcp-relay.md	1	1	150
 AgentSavedFile	pattern	spec	docs/spec/_assets/tbl-agent-api-members.md	7	7	43,44,45,46,47,48,88
@@ -255,7 +255,7 @@ AgentSavedFile	pattern	src	src/adapter/agent-api-endpoint/agent-api-members.ts	1
 AgentSavedFile	pattern	tests	tests/contract/cr-765-t-107-the-printed-call-shapes.contract.test.ts	1	1	202
 AgentSavedFile	pattern	tests	tests/contract/cr-765-t-400-the-value-types.contract.test.ts	1	1	58
 AgentSavedFile	pattern	tests	tests/contract/cr-796-s7-the-relay-saves-into-the-save-folder.contract.test.ts	1	1	361
-AgentSearchPage	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	1	1	16470
+AgentSearchPage	pattern	glossary	docs/spec/_source/glossary.json	1	1	24780
 AgentSearchPage	pattern	source	docs/spec/_source/agent-api-members.json	2	2	416,1915
 AgentSearchPage	pattern	spec	docs/spec/_assets/tbl-agent-api-members.md	2	2	33,83
 AgentSearchPage	pattern	src	src/adapter/agent-api-endpoint/agent-api-members.ts	4	4	208,270,461,1099
@@ -263,7 +263,7 @@ AgentSearchPage	pattern	tests	tests/contract/cr-765-t-107-the-printed-call-shape
 AgentSearchPage	pattern	tests	tests/contract/cr-765-t-400-the-value-types.contract.test.ts	1	1	53
 AgentSearchPage	pattern	tests	tests/contract/cr-765-the-agent-api-type-and-the-relayed-params.contract.test.ts	2	2	28,130
 AgentSearchPage	pattern	tests	tests/contract/cr-796-s4-the-ai-reads-in-small-pieces.contract.test.ts	5	5	11,53,215,322,487
-AgentShownTasks	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	1	1	16230
+AgentShownTasks	pattern	glossary	docs/spec/_source/glossary.json	1	1	24353
 AgentShownTasks	pattern	source	docs/spec/_source/agent-api-members.json	2	2	528,1697
 AgentShownTasks	pattern	spec	docs/spec/_assets/tbl-agent-api-members.md	2	2	35,77
 AgentShownTasks	pattern	src	src/adapter/agent-api-endpoint/agent-api-endpoint.ts	1	1	18
@@ -271,28 +271,28 @@ AgentShownTasks	pattern	src	src/adapter/agent-api-endpoint/agent-api-members.ts	
 AgentShownTasks	pattern	tests	tests/contract/cr-765-t-107-the-printed-call-shapes.contract.test.ts	1	1	64
 AgentShownTasks	pattern	tests	tests/contract/cr-765-t-400-the-value-types.contract.test.ts	1	1	47
 AgentShownTasks	pattern	tests	tests/contract/cr-765-the-agent-api-type-and-the-relayed-params.contract.test.ts	2	2	24,131
-AgentTableCell	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	3	3	16642,16656,16669
+AgentTableCell	pattern	glossary	docs/spec/_source/glossary.json	1	1	25275
 AgentTableCell	pattern	source	docs/spec/_source/agent-api-members.json	2	2	2104,2116
 AgentTableCell	pattern	spec	docs/spec/_assets/tbl-agent-api-members.md	2	2	86,87
 AgentTableCell	pattern	src	src/adapter/agent-api-endpoint/agent-api-members.ts	2	2	241,245
 AgentTableCell	pattern	tests	tests/contract/cr-765-t-400-the-value-types.contract.test.ts	1	1	57
-AgentTableColumn	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	3	3	16484,16524,16537
+AgentTableColumn	pattern	glossary	docs/spec/_source/glossary.json	1	1	24914
 AgentTableColumn	pattern	source	docs/spec/_source/agent-api-members.json	3	3	1934,1967,2032
 AgentTableColumn	pattern	spec	docs/spec/_assets/tbl-agent-api-members.md	3	3	83,84,85
 AgentTableColumn	pattern	src	src/adapter/agent-api-endpoint/agent-api-members.ts	7	7	211,218,230,438,444,479,487
 AgentTableColumn	pattern	tests	tests/contract/cr-765-t-400-the-value-types.contract.test.ts	1	1	54
-AgentTableRow	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	1	1	16628
+AgentTableRow	pattern	glossary	docs/spec/_source/glossary.json	1	1	25194
 AgentTableRow	pattern	source	docs/spec/_source/agent-api-members.json	2	2	2039,2092
 AgentTableRow	pattern	spec	docs/spec/_assets/tbl-agent-api-members.md	2	2	85,86
 AgentTableRow	pattern	src	src/adapter/agent-api-endpoint/agent-api-members.ts	3	3	231,239,503
 AgentTableRow	pattern	tests	tests/contract/cr-765-t-400-the-value-types.contract.test.ts	1	1	56
-AgentTableRows	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	1	1	16589
+AgentTableRows	pattern	glossary	docs/spec/_source/glossary.json	1	1	25118
 AgentTableRows	pattern	source	docs/spec/_source/agent-api-members.json	2	2	494,2005
 AgentTableRows	pattern	spec	docs/spec/_assets/tbl-agent-api-members.md	2	2	34,85
 AgentTableRows	pattern	src	src/adapter/agent-api-endpoint/agent-api-members.ts	4	4	226,272,516,1104
 AgentTableRows	pattern	tests	tests/contract/cr-765-t-107-the-printed-call-shapes.contract.test.ts	1	1	62
 AgentTableRows	pattern	tests	tests/contract/cr-765-t-400-the-value-types.contract.test.ts	1	1	55
-AgentWatch	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	1	1	16334
+AgentWatch	pattern	glossary	docs/spec/_source/glossary.json	1	1	24560
 AgentWatch	pattern	source	docs/spec/_source/agent-api-members.json	2	2	1232,1770
 AgentWatch	pattern	spec	docs/spec/_assets/tbl-agent-api-members.md	2	2	53,80
 AgentWatch	pattern	src	src/adapter/agent-api-endpoint/agent-api-endpoint.ts	1	1	19
@@ -300,7 +300,7 @@ AgentWatch	pattern	src	src/adapter/agent-api-endpoint/agent-api-members.ts	3	3	1
 AgentWatch	pattern	tests	tests/contract/cr-765-t-107-the-printed-call-shapes.contract.test.ts	1	1	82
 AgentWatch	pattern	tests	tests/contract/cr-765-t-400-the-value-types.contract.test.ts	1	1	50
 AgentWatch	pattern	tests	tests/contract/cr-765-the-agent-api-type-and-the-relayed-params.contract.test.ts	2	2	25,165
-AgentWriteOutcome	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	1	1	16080
+AgentWriteOutcome	pattern	glossary	docs/spec/_source/glossary.json	1	1	24025
 AgentWriteOutcome	pattern	source	docs/spec/_source/agent-api-members.json	8	8	617,722,761,797,1118,1149,1186,1309
 AgentWriteOutcome	pattern	spec	docs/spec/_assets/tbl-agent-api-members.md	8	8	37,40,41,42,50,51,52,71
 AgentWriteOutcome	pattern	src	src/adapter/agent-api-endpoint/agent-api-endpoint.ts	1	1	20
@@ -317,7 +317,7 @@ AgentWriteOutcome	pattern	tests	tests/contract/dfc-325-fr-028-a-malformed-reques
 AgentWriteOutcome	pattern	tests	tests/nfr/nfr-002-003-frame-time-is-the-interval.test.ts	1	1	1379
 AgentWriteOutcome	pattern	tests	tests/unit/uf-27-28-29.test.ts	4	4	54,1064,1075,1537
 AgentWriteOutcome	pattern	tests	tests/unit/use-case.test.ts	3	3	28,547,566
-AgentWriteRequest	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	2	2	16028,18396
+AgentWriteRequest	pattern	glossary	docs/spec/_source/glossary.json	1	1	23914
 AgentWriteRequest	pattern	source	docs/spec/_source/agent-api-members.json	2	2	610,1285
 AgentWriteRequest	pattern	spec	docs/spec/_assets/tbl-agent-api-members.md	2	2	37,70
 AgentWriteRequest	pattern	src	src/adapter/agent-api-endpoint/agent-api-endpoint.ts	1	1	21
@@ -615,7 +615,7 @@ anchorTaskUid	pattern	tests	tests/unit/cr-559-comment-box-leader-handle-bundles-
 anchorTaskUid	pattern	tests	tests/unit/cr-646-edits-write-side-times.test.ts	1	1	371
 anchorTaskUid	pattern	tests	tests/unit/cr-811-the-comment-box-font-size-is-8-to-24-and-10-by-default.test.ts	1	1	118
 anchorTaskUid	pattern	tests	tests/unit/t-023c-selection-points-at-what-exists.test.ts	1	1	311
-asked	key_pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	1	1	16178
+asked	key_pattern	glossary	docs/spec/_source/glossary.json	1	1	24229
 asked	key_pattern	source	docs/spec/_source/agent-api-members.json	1	1	1872
 asked	key_pattern	spec	docs/spec/_assets/tbl-agent-api-members.md	1	1	82
 asked	key_pattern	src	src/adapter/agent-api-endpoint/agent-api-members.ts	4	4	204,342,977,995
@@ -684,7 +684,7 @@ asked	key_pattern	tests	tests/unit/uf-45-46.test.ts	2	2	535,569
 asked	key_pattern	tests	tests/unit/uf-48-write-moment.test.ts	4	4	82,1280,1307,1309
 asked	key_pattern	tests	tests/unit/uf-50.test.ts	6	6	636,648,1108,1127,1131,1204
 asked	key_pattern	tests	tests/unit/uf-51.test.ts	6	6	974,975,985,1005,1027,1044
-at	key_pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	1	1	17817
+at	key_pattern	glossary	docs/spec/_source/glossary.json	1	1	27308
 at	key_pattern	source	docs/spec/_source/document_commands_json_to_md.py	6	6	86,89,92,101,105,106
 at	key_pattern	source	docs/spec/_source/spec_md_printing.py	2	2	79,81
 at	key_pattern	source	docs/spec/_source/state_machine_figures.py	1	1	362
@@ -984,7 +984,7 @@ at	key_pattern	tests	tests/unit/uf-71.test.ts	8	8	577,586,595,664,897,952,1139,1
 at	key_pattern	tests	tests/unit/uf-72-screen-part.test.ts	11	11	852,861,870,946,1042,1060,1531,1862,1863,1866,3170
 at	key_pattern	tests	tests/use-case/uc-004-show-dependencies-between-tasks.test.ts	3	3	64,72,117
 at	key_pattern	tests	tests/use-case/uc-006-find-delays.test.ts	1	1	51
-auto	key_pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	3	3	3944,6122,19881
+auto	key_pattern	glossary	docs/spec/_source/glossary.json	2	2	7325,30784
 auto	key_pattern	source	docs/spec/_source/document-commands.json	2	2	3072,3075
 auto	key_pattern	source	docs/spec/_source/erd.json	5	3	1600,1607,1613
 auto	key_pattern	source	docs/spec/_source/fig-components.drawio	1	1	1
@@ -1174,11 +1174,11 @@ auto	key_pattern	tests	tests/unit/uf-48-write-moment.test.ts	1	1	232
 auto	key_pattern	tests	tests/unit/uf-72-screen-part.test.ts	11	10	3089,3181,3388,3644,3650,3656,3657,3661,4373,4383
 auto	key_pattern	tests	tests/unit/uf-8-9-replace-document.test.ts	1	1	228
 auto	key_pattern	tests	tests/unit/use-case.test.ts	2	2	71,396
-bothEndsAreOneTask	key_pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	1	1	17679
+bothEndsAreOneTask	key_pattern	glossary	docs/spec/_source/glossary.json	1	1	27040
 bothEndsAreOneTask	key_pattern	src	src/framework/single-html-shell/frame-loop.ts	1	1	889
 bothEndsAreOneTask	key_pattern	src	src/use-case/edit-document/edit-dependency.ts	1	1	104
 bothEndsAreOneTask	key_pattern	src	src/use-case/edit-document/edit-document.ts	1	1	82
-bottomTaskGroupId	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	3	3	4991,20017,20018
+bottomTaskGroupId	pattern	glossary	docs/spec/_source/glossary.json	3	3	9297,31018,31019
 bottomTaskGroupId	pattern	source	docs/spec/_source/document-commands.json	1	1	148
 bottomTaskGroupId	pattern	source	docs/spec/_source/erd.json	3	3	3136,3801,3803
 bottomTaskGroupId	pattern	source	docs/spec/_source/grs-commands.schema.json	4	4	2334,2343,2399,2408
@@ -1229,10 +1229,10 @@ bottomTaskGroupId	pattern	tests	tests/unit/cr-831-the-accepted-days-match-ms-pro
 bottomTaskGroupId	pattern	tests	tests/unit/t-023c-selection-points-at-what-exists.test.ts	1	1	331
 bottomTaskGroupId	pattern	tests	tests/unit/t-024a-op-10-first-day-covered.test.ts	1	1	534
 bottomTaskGroupId	pattern	tests	tests/use-case/uc-008-tell-by-annotations.test.ts	2	2	106,125
-Callout	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	4	4	9577,9581,10169,13016
+Callout	pattern	glossary	docs/spec/_source/glossary.json	4	4	15776,15780,16429,19872
 Callout	pattern	source	docs/spec/_source/display-words.json	5	5	535,539,942,4319,4668
 Callout	pattern	src	src/adapter/screen-renderer/display-words.json	5	5	525,529,932,5180,5243
-Canvas Overlays	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	3	3	8560,8561,8564
+Canvas Overlays	pattern	glossary	docs/spec/_source/glossary.json	3	3	14583,14584,14587
 Canvas Overlays	pattern	spec	docs/spec/01-04-requirements.md	2	2	5260,7426
 Canvas Overlays	pattern	spec	docs/spec/_assets/tbl-glossary.md	1	1	114
 Canvas Overlays	pattern	tests	tests/unit/uf-39-40.test.ts	1	1	1047
@@ -1670,7 +1670,7 @@ carryElements	pattern	tests	tests/unit/uf-48-undo-through-the-one-path.test.ts	1
 carryElements	pattern	tests	tests/unit/uf-48-write-moment.test.ts	1	1	224
 carryElements	pattern	tests	tests/unit/uf-8-9-replace-document.test.ts	2	2	195,219
 carryElements	pattern	tests	tests/use-case/uc-010-exchange-with-an-external-wbs-master.test.ts	1	1	110
-changeDependencyLag	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	1	1	19433
+changeDependencyLag	pattern	glossary	docs/spec/_source/glossary.json	1	1	30080
 changeLog	pattern	source	docs/spec/_source/agent-api-members.json	2	2	301,302
 changeLog	pattern	source	docs/spec/_source/components.json	1	1	170
 changeLog	pattern	source	docs/spec/_source/erd.json	5	5	210,316,317,383,3406
@@ -1832,7 +1832,6 @@ changeLog	pattern	tests	tests/unit/uf-8-9-replace-document.test.ts	1	1	301
 changeLog	pattern	tests	tests/unit/use-case.test.ts	1	1	84
 changeLog	pattern	tests	tests/use-case/uc-013-fix-the-schedule-with-an-ai.test.ts	2	2	10,34
 changeLog	pattern	tests	tests/use-case/uc-harness.ts	1	1	68
-children	key_pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	146	146	299,466,922,1023,1379,1497,1658,2007,2066,2126,2392,2476,3436,3942,4113,4194,4588,4646,4804,5094,5337,5449,5623,5718,6014,6120,6646,6662,6720,6809,6859,6891,6973,7006,7103,7198,7233,7294,7315,7349,7364,7396,7550,7603,7676,7724,7750,7950,7965,8030,8045,8110,8228,8351,8500,8641,12930,12959,13076,13088,13139,13176,13213,13250,13287,13336,13360,13399,13436,13473,13497,13548,13572,13623,13660,13697,13734,13771,13808,13845,13882,13919,13968,13992,14031,14128,14165,14202,14251,14300,14337,14374,14648,15090,15852,16753,16823,17944,18134,18189,18271,18351,18412,18454,18586,18615,18657,18686,18827,18858,18911,19003,19031,19113,19127,19173,19187,19316,19382,19456,19471,19532,19609,19684,19803,19847,19955,20171,20214,20254,20296,20440,21384,21744,21911,22047,22131,22204,22258,22287,22321,22361,22417,22474,22530,22696
 children	key_pattern	source	docs/spec/_source/erd.json	3	3	3299,3812,3817
 children	key_pattern	source	docs/spec/_source/grs-commands.schema.json	2	2	1699,1715
 children	key_pattern	source	docs/spec/_source/grs-document.schema.json	2	2	1677,1693
@@ -1989,7 +1988,6 @@ clearStatusDate	pattern	src	src/use-case/edit-document/edit-project.ts	2	2	60,10
 clearStatusDate	pattern	tests	tests/contract/cr-766-the-command-unions-carry-the-printed-values.contract.test.ts	1	1	51
 clearStatusDate	pattern	tests	tests/contract/dfc-378-a-write-that-changed-nothing-answers-the-same-document.test.ts	3	3	178,182,185
 clearStatusDate	pattern	tests	tests/unit/use-case.test.ts	4	4	176,260,277,287
-collapsed	key_pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	2	2	3958,6136
 collapsed	key_pattern	source	docs/spec/_source/display-words.json	1	1	5758
 collapsed	key_pattern	source	docs/spec/_source/erd.json	2	2	1601,1613
 collapsed	key_pattern	source	docs/spec/_source/grs-commands.schema.json	2	2	3209,3259
@@ -2054,7 +2052,7 @@ collapsed	key_pattern	tests	tests/unit/t-051-hf-17-unfolds-segment-zero-by-one-l
 collapsed	key_pattern	tests	tests/unit/uf-47-48.test.ts	3	3	694,707,1165
 collapsed	key_pattern	tests	tests/unit/use-case.test.ts	6	6	350,372,394,406,425,460
 collapsed	key_pattern	tests	tests/use-case/uc-002-build-task-groups-as-a-hierarchy.test.ts	2	2	86,106
-color	key_pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	4	4	2042,4030,11603,19760
+color	key_pattern	glossary	docs/spec/_source/glossary.json	12	12	3624,4992,4993,5066,5067,7457,7459,7460,9112,9113,18109,30575
 color	key_pattern	source	docs/spec/_source/components.json	6	6	1278,1286,1303,1319,1338,1357
 color	key_pattern	source	docs/spec/_source/display-words.json	1	1	5716
 color	key_pattern	source	docs/spec/_source/document-commands.json	2	2	1546,1556
@@ -2268,9 +2266,9 @@ color	key_pattern	tests	tests/unit/uf-72-screen-part.test.ts	2	2	2726,2728
 color	key_pattern	tests	tests/unit/uf-8-9-replace-document.test.ts	1	1	229
 color	key_pattern	tests	tests/unit/use-case.test.ts	1	1	71
 color	key_pattern	tests	tests/use-case/uc-002-build-task-groups-as-a-hierarchy.test.ts	1	1	55
-Comment Boxes	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	2	2	6470,7031
+Comment Boxes	pattern	glossary	docs/spec/_source/glossary.json	2	2	12047,12784
 Comment Boxes	pattern	spec	docs/spec/_assets/tbl-glossary.md	2	2	32,96
-cycleTaskPlanActualState	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	1	1	19296
+cycleTaskPlanActualState	pattern	glossary	docs/spec/_source/glossary.json	1	1	29856
 cycleTaskPlanActualState	pattern	source	docs/spec/_source/document-commands.json	1	1	1070
 cycleTaskPlanActualState	pattern	source	docs/spec/_source/grs-commands.schema.json	3	3	63,905,910
 cycleTaskPlanActualState	pattern	source	docs/spec/_source/published-entries.json	1	1	2346
@@ -2287,7 +2285,7 @@ cycleTaskPlanActualState	pattern	tests	tests/contract/cr-766-the-command-unions-
 cycleTaskPlanActualState	pattern	tests	tests/contract/dfc-294-t-019-the-carried-original-is-dropped-only-by-an-actual-edit.test.ts	1	1	37
 cycleTaskPlanActualState	pattern	tests	tests/contract/dfc-572-pv-1-pv-2-actual-finish-is-the-finish-day.test.ts	1	1	212
 cycleTaskPlanActualState	pattern	tests	tests/unit/cr-646-edits-write-side-times.test.ts	2	2	262,269
-Delay Diagnostics	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	56	53	773,777,1637,1641,1840,1859,3232,3364,5910,6275,6304,7059,7063,9161,9165,10365,12223,12240,12257,12274,12291,12308,12325,12342,12359,12461,12478,12495,12512,12529,12546,12563,12580,12597,15910,15928,15946,16245,16552,16604,17038,18316,18445,18564,18606,18635,18648,18662,20477,20841,20874,21050,21106
+Delay Diagnostics	pattern	glossary	docs/spec/_source/glossary.json	49	46	5822,6274,11535,11596,12822,12826,15288,15292,16658,18831,18855,18878,18901,18924,18947,18970,18993,19016,19157,19180,19202,19225,19247,19266,19288,19310,19332,23718,23755,23792,24382,24944,25147,25926,28285,28497,28713,28778,28822,28857,28878,31568,32088,32139,32411,32497
 Delay Diagnostics	pattern	source	docs/spec/_source/agent-api-members.json	12	11	38,39,458,507,509,732,1040,1133,1158,1182,1195
 Delay Diagnostics	pattern	source	docs/spec/_source/display-words.json	5	5	249,253,1078,2847,2850
 Delay Diagnostics	pattern	source	docs/spec/_source/erd.json	1	1	838
@@ -2333,6 +2331,8 @@ Delay Diagnostics	pattern	tests	tests/system/cr-762-sv-18-a-border-pull-follows-
 Delay Diagnostics	pattern	tests	tests/unit/cr-648-the-delay-diagnostics-report-window-fixes.test.ts	1	1	1
 Delay Diagnostics	pattern	tests	tests/unit/cr-781-the-ic-107-pressed-reading-and-the-ic-167-entry.test.ts	2	2	96,100
 Delay Diagnostics	pattern	tests	tests/unit/cr-813-the-fix-log-saves-as-tsv-and-two-words-change.test.ts	2	2	171,174
+delayDiagnosticsReport	pattern	glossary	docs/spec/_source/glossary.json	1	1	31562
+delayDiagnosticsReport	key_pattern	glossary	docs/spec/_source/glossary.json	1	1	31562
 delayDiagnosticsReport	pattern	source	docs/spec/_source/agent-api-members.json	3	3	455,531,1179
 delayDiagnosticsReport	key_pattern	source	docs/spec/_source/agent-api-members.json	3	3	455,531,1179
 delayDiagnosticsReport	pattern	source	docs/spec/_source/document-commands.json	2	2	3276,3297
@@ -2452,7 +2452,7 @@ delayDiagnosticsReport	pattern	tests	tests/system/cr-803-run-and-close-the-repor
 delayDiagnosticsReport	key_pattern	tests	tests/system/cr-803-run-and-close-the-report-window-from-the-agent-api.test.ts	3	3	10,103,118
 delayDiagnosticsReport	pattern	tests	tests/unit/cr-666-full-screen-is-the-last-esc-rung.test.ts	1	1	109
 delayDiagnosticsReport	key_pattern	tests	tests/unit/cr-666-full-screen-is-the-last-esc-rung.test.ts	1	1	109
-delayDiagnosticsReportWindow	key_pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	12	12	6271,7056,12216,12233,12250,12267,12284,12301,12318,12335,12352,20156
+delayDiagnosticsReportWindow	key_pattern	glossary	docs/spec/_source/glossary.json	12	12	11540,12820,18836,18860,18883,18906,18929,18952,18975,18998,19021,31217
 delayFixLog	key_pattern	source	docs/spec/_source/agent-api-members.json	1	1	455
 delayFixLog	key_pattern	spec	docs/spec/_assets/tbl-agent-api-members.md	1	1	34
 delayFixLog	key_pattern	src	src/adapter/agent-api-endpoint/agent-api-members.ts	2	2	272,510
@@ -2460,7 +2460,7 @@ delayFixLog	key_pattern	src	src/adapter/agent-api-endpoint/relayed-call.ts	1	1	2
 delayFixLog	key_pattern	src	src/adapter/mcp-tool-translator/mcp-tool-descriptions.json	1	1	139
 delayFixLog	key_pattern	tests	tests/contract/cr-765-t-107-the-printed-call-shapes.contract.test.ts	1	1	56
 delayFixLog	key_pattern	tests	tests/contract/cr-814-the-ai-reads-and-saves-the-fix-log.contract.test.ts	12	12	494,497,504,514,524,534,535,536,544,546,581,637
-DelayFixLogRow	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	2	2	15926,20398
+DelayFixLogRow	pattern	glossary	docs/spec/_source/glossary.json	1	1	23760
 DelayFixLogRow	pattern	source	docs/spec/_source/agent-api-members.json	2	2	121,1737
 DelayFixLogRow	pattern	source	docs/spec/_source/published-entries.json	1	1	272
 DelayFixLogRow	pattern	spec	docs/spec/_assets/tbl-agent-api-members.md	1	1	78
@@ -2481,7 +2481,7 @@ delayFixProposals	key_pattern	src	src/adapter/agent-api-endpoint/relayed-call.ts
 delayFixProposals	key_pattern	src	src/adapter/mcp-tool-translator/mcp-tool-descriptions.json	1	1	138
 delayFixProposals	key_pattern	tests	tests/contract/cr-765-t-107-the-printed-call-shapes.contract.test.ts	1	1	56
 delayFixProposals	key_pattern	tests	tests/contract/cr-814-the-ai-reads-and-saves-the-fix-log.contract.test.ts	14	14	406,409,422,431,440,450,454,462,464,468,478,479,485,525
-DelayFixRow	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	2	2	15908,20401
+DelayFixRow	pattern	glossary	docs/spec/_source/glossary.json	1	1	23723
 DelayFixRow	pattern	source	docs/spec/_source/agent-api-members.json	2	2	118,1730
 DelayFixRow	pattern	source	docs/spec/_source/published-entries.json	2	2	263,286
 DelayFixRow	pattern	spec	docs/spec/_assets/tbl-agent-api-members.md	1	1	78
@@ -2497,7 +2497,7 @@ DelayFixRow	pattern	tests	tests/contract/cr-731-stage.ts	1	1	222
 DelayFixRow	pattern	tests	tests/contract/cr-752-call-shapes-and-two-fix-rows.contract.test.ts	1	1	88
 DelayFixRow	pattern	tests	tests/contract/cr-810-a-row-with-no-parent-task-and-a-milestone-heading-its-row.contract.test.ts	5	5	14,128,135,373,492
 DelayFixRow	pattern	tests	tests/contract/cr-816-the-fix-heading-box-checks-the-listed-rows-then-clears-every-row.contract.test.ts	6	5	16,89,90,91,97
-deliveringNotices	key_pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	1	1	16895
+deliveringNotices	key_pattern	glossary	docs/spec/_source/glossary.json	1	1	25720
 deliveringNotices	key_pattern	source	docs/spec/_source/agent-api-members.json	1	1	1457
 deliveringNotices	key_pattern	spec	docs/spec/_assets/tbl-agent-api-members.md	1	1	73
 deliveringNotices	key_pattern	src	src/adapter/agent-api-endpoint/agent-api-members.ts	2	2	146,555
@@ -2720,7 +2720,7 @@ dependencies	key_pattern	tests	tests/unit/uf-48-undo-through-the-one-path.test.t
 dependencies	key_pattern	tests	tests/unit/uf-48-write-moment.test.ts	1	1	222
 dependencies	key_pattern	tests	tests/unit/uf-8-9-replace-document.test.ts	1	1	217
 dependencies	key_pattern	tests	tests/use-case/uc-004-show-dependencies-between-tasks.test.ts	4	4	49,67,85,107
-Dependency	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	30	30	233,1484,1677,1685,5925,5929,7660,7664,7684,7699,8023,8262,8266,8277,8281,9753,9757,11886,11908,11930,11952,12999,14721,14729,14741,14753,14765,14777,19357,20404
+Dependency	pattern	glossary	docs/spec/_source/glossary.json	30	30	311,485,1048,2638,2642,3055,3059,10943,10947,13551,13555,13580,13600,13962,14243,14247,14263,14267,15963,15967,18437,18459,18481,18503,19852,22209,22226,22243,22260,22277
 Dependency	pattern	source	docs/spec/_source/agent-api-members.json	3	3	36,237,238
 Dependency	pattern	source	docs/spec/_source/display-words.json	7	7	656,660,2461,4312,6984,7040,7047
 Dependency	pattern	source	docs/spec/_source/document-commands.json	4	4	1659,1717,1750,1792
@@ -2729,7 +2729,7 @@ Dependency	pattern	source	docs/spec/_source/grs-document.schema.json	2	2	891,905
 Dependency	pattern	source	docs/spec/_source/property-items.json	5	5	304,672,688,705,722
 Dependency	pattern	source	docs/spec/_source/property-items.schema.json	2	2	83,90
 Dependency	pattern	source	docs/spec/_source/row-id-prefixes.json	1	1	367
-Dependency	pattern	source	docs/spec/_source/source-relations.json	1	1	1203
+Dependency	pattern	source	docs/spec/_source/source-relations.json	1	1	1224
 Dependency	pattern	spec	docs/spec/01-04-requirements.md	5	5	2939,3657,5379,6065,7418
 Dependency	pattern	spec	docs/spec/05-07-design.md	1	1	439
 Dependency	pattern	spec	docs/spec/_assets/fig-erd-detail.md	16	16	72,76,222,223,249,267,294,295,321,382,385,386,387,388,389,390
@@ -2765,7 +2765,7 @@ Dependency	pattern	tests	tests/unit/cr-541-panels-help-and-tooltip.test.ts	5	5	1
 Dependency	pattern	tests	tests/unit/cr-787-the-panel-opens-at-the-default-width-of-its-kind.test.ts	2	2	22,92
 Dependency	pattern	tests	tests/unit/dfc-540-the-write-path-guards-the-notes-used-to-hold.test.ts	2	2	1,54
 Dependency	pattern	tests	tests/unit/uf-36.test.ts	8	8	705,706,707,708,745,764,1059,1193
-Dependency Lines	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	4	4	5925,5929,9753,9757
+Dependency Lines	pattern	glossary	docs/spec/_source/glossary.json	4	4	10943,10947,15963,15967
 Dependency Lines	pattern	source	docs/spec/_source/display-words.json	3	3	656,660,2461
 Dependency Lines	pattern	spec	docs/spec/01-04-requirements.md	1	1	7418
 Dependency Lines	pattern	spec	docs/spec/_assets/tbl-glossary.md	2	2	39,99
@@ -3022,7 +3022,7 @@ displayScale	pattern	tests	tests/unit/t-027-outside-the-history.test.ts	2	2	427,
 displayScale	pattern	tests	tests/unit/uf-39-40.test.ts	1	1	140
 displayScale	pattern	tests	tests/unit/uf-47-48.test.ts	1	1	686
 displayScale	pattern	tests	tests/unit/uf-48-write-moment.test.ts	2	2	1354,1363
-displayTimeZones	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	2	2	5691,5750
+displayTimeZones	pattern	glossary	docs/spec/_source/glossary.json	1	1	10710
 displayTimeZones	pattern	source	docs/spec/_source/document-commands.json	2	2	3345,3354
 displayTimeZones	pattern	source	docs/spec/_source/grs-commands.schema.json	3	3	3117,3122,3173
 displayTimeZones	pattern	source	docs/spec/_source/grs-document.schema.json	2	2	122,173
@@ -3084,7 +3084,7 @@ Document Title	pattern	tests	tests/unit/cr-628-the-branding-seat.test.ts	3	3	50,
 Document Title	pattern	tests	tests/unit/uf-39-40.test.ts	6	6	961,1066,1170,1171,1195,1207
 Document Title	pattern	tests	tests/unit/uf-47-48.test.ts	1	1	1579
 Document Title	pattern	tests	tests/unit/uf-71.test.ts	7	7	177,1235,2781,2875,2910,2957,3073
-documentStamp	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	7	7	3177,3178,3191,3192,6550,18221,18222
+documentStamp	pattern	glossary	docs/spec/_source/glossary.json	9	9	5732,5733,5755,5756,12200,12202,12203,28133,28134
 documentStamp	pattern	source	docs/spec/_source/agent-api-members.json	2	2	301,302
 documentStamp	pattern	source	docs/spec/_source/erd.json	7	7	203,298,299,375,630,3321,3399
 documentStamp	pattern	source	docs/spec/_source/erd_json_to_schema.py	2	2	246,261
@@ -3267,7 +3267,7 @@ documentStamp	pattern	tests	tests/unit/uf-8-9-history-depth.test.ts	1	1	163
 documentStamp	pattern	tests	tests/unit/uf-8-9-replace-document.test.ts	39	35	289,300,519,591,602,616,617,649,660,771,787,813,817,829,965,968,969,970,975,976,984,1230,1231,1242,1243,1245,1257,1302,1306,1402,1403,1404,1405,1424,1425
 documentStamp	pattern	tests	tests/unit/use-case.test.ts	18	16	79,102,261,278,325,333,334,338,381,382,386,387,418,494,519,599
 documentStamp	pattern	tests	tests/use-case/uc-harness.ts	1	1	67
-down	key_pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	1	1	6030
+down	key_pattern	glossary	docs/spec/_source/glossary.json	1	1	11157
 down	key_pattern	source	docs/spec/_source/grs-commands.schema.json	1	1	2550
 down	key_pattern	source	docs/spec/_source/grs-document.schema.json	1	1	361
 down	key_pattern	source	docs/spec/_source/settings.json	1	1	1592
@@ -3503,7 +3503,7 @@ editedBy	pattern	tests	tests/unit/uf-27-28-29.test.ts	3	3	377,530,539
 editedBy	pattern	tests	tests/unit/uf-8-9-history-depth.test.ts	1	1	168
 editedBy	pattern	tests	tests/unit/uf-8-9-replace-document.test.ts	2	2	631,680
 editedBy	pattern	tests	tests/unit/use-case.test.ts	4	4	108,499,524,604
-editingInPlace	key_pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	1	1	16867
+editingInPlace	key_pattern	glossary	docs/spec/_source/glossary.json	1	1	25646
 editingInPlace	key_pattern	source	docs/spec/_source/agent-api-members.json	1	1	1445
 editingInPlace	key_pattern	spec	docs/spec/_assets/tbl-agent-api-members.md	1	1	73
 editingInPlace	key_pattern	src	src/adapter/agent-api-endpoint/agent-api-members.ts	4	4	144,1002,1175,1218
@@ -3610,7 +3610,7 @@ editPermission	pattern	tests	tests/unit/uf-48-input.test.ts	1	1	283
 editPermission	pattern	tests	tests/unit/uf-48-undo-through-the-one-path.test.ts	1	1	241
 editPermission	pattern	tests	tests/unit/uf-48-write-moment.test.ts	1	1	232
 editPermission	pattern	tests	tests/unit/uf-8-9-replace-document.test.ts	1	1	228
-endpointSpan	key_pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	3	3	4164,14689,18940
+endpointSpan	key_pattern	glossary	docs/spec/_source/glossary.json	4	4	7684,22167,22168,29263
 endpointSpan	key_pattern	source	docs/spec/_source/document-commands.json	2	2	768,775
 endpointSpan	key_pattern	source	docs/spec/_source/erd.json	1	1	2547
 endpointSpan	key_pattern	source	docs/spec/_source/grs-commands.schema.json	3	3	534,544,1082
@@ -3640,7 +3640,7 @@ endpointSpan	key_pattern	tests	tests/integration/schedule-drawing.sws.test.ts	1	
 endpointSpan	key_pattern	tests	tests/unit/cr-419-names-draw-heavier-and-every-text-shares-one-typeface-list.test.ts	1	1	121
 endpointSpan	key_pattern	tests	tests/unit/cr-430-cross-section-scene.ts	1	1	104
 endpointSpan	key_pattern	tests	tests/unit/cr-430-scene.ts	1	1	190
-expanded	key_pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	2	2	3972,13090
+expanded	key_pattern	glossary	docs/spec/_source/glossary.json	2	2	19966,19967
 expanded	key_pattern	source	docs/spec/_source/erd.json	2	2	1602,1613
 expanded	key_pattern	source	docs/spec/_source/grs-commands.schema.json	1	1	3210
 expanded	key_pattern	source	docs/spec/_source/grs-document.schema.json	1	1	999
@@ -3744,7 +3744,7 @@ Export Chooser	pattern	tests	tests/unit/uf-71.test.ts	1	1	3559
 Export Chooser	pattern	tests	tests/use-case/uc-002-build-task-groups-as-a-hierarchy.test.ts	1	1	101
 Export Chooser	pattern	tests	tests/use-case/uc-010-exchange-with-an-external-wbs-master.test.ts	1	1	64
 Export Chooser	pattern	tests	tests/use-case/uc-011-save-and-hand-out-the-document.test.ts	1	1	13
-fadeInCalendarDays	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	9	9	3747,3766,3767,7413,11371,17332,17333,17346,17347
+fadeInCalendarDays	pattern	glossary	docs/spec/_source/glossary.json	5	5	6968,26438,26439,26474,26475
 fadeInDays	pattern	source	docs/spec/_source/document-commands.json	2	2	1123,1132
 fadeInDays	pattern	source	docs/spec/_source/document_commands_json_to_md.py	1	1	104
 fadeInDays	pattern	source	docs/spec/_source/erd.json	2	2	1271,1306
@@ -3916,8 +3916,8 @@ fadeInDays	pattern	tests	tests/unit/uf-48-input.test.ts	1	1	271
 fadeInDays	pattern	tests	tests/unit/uf-48-undo-through-the-one-path.test.ts	1	1	229
 fadeInDays	pattern	tests	tests/unit/uf-48-write-moment.test.ts	1	1	220
 fadeInDays	pattern	tests	tests/unit/uf-8-9-replace-document.test.ts	1	1	215
-fadeLongerThanTask	key_pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	1	1	17343
-fadeOutCalendarDays	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	5	5	3762,17332,17333,17346,17347
+fadeLongerThanTask	key_pattern	glossary	docs/spec/_source/glossary.json	1	1	26479
+fadeOutCalendarDays	pattern	glossary	docs/spec/_source/glossary.json	5	5	7005,26438,26439,26474,26475
 fadeOutDays	pattern	source	docs/spec/_source/document-commands.json	2	2	1153,1162
 fadeOutDays	pattern	source	docs/spec/_source/erd.json	1	1	1291
 fadeOutDays	pattern	source	docs/spec/_source/grs-commands.schema.json	3	3	997,1005,1017
@@ -4083,7 +4083,7 @@ fadeOutDays	pattern	tests	tests/unit/uf-48-input.test.ts	1	1	272
 fadeOutDays	pattern	tests	tests/unit/uf-48-undo-through-the-one-path.test.ts	1	1	230
 fadeOutDays	pattern	tests	tests/unit/uf-48-write-moment.test.ts	1	1	221
 fadeOutDays	pattern	tests	tests/unit/uf-8-9-replace-document.test.ts	1	1	216
-fadeWithoutFinish	key_pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	1	1	17329
+fadeWithoutFinish	key_pattern	glossary	docs/spec/_source/glossary.json	1	1	26443
 fields	key_pattern	source	docs/spec/_source/agent-api-members.json	25	25	1287,1316,1351,1377,1539,1560,1591,1626,1666,1680,1699,1727,1754,1772,1799,1835,1863,1891,1917,1969,2015,2071,2094,2118,2142
 fields	key_pattern	source	docs/spec/_source/agent-api-members.schema.json	3	3	268,275,327
 fields	key_pattern	source	docs/spec/_source/agent_api_members_json_to_md.py	7	7	159,166,188,193,224,227,228
@@ -4098,7 +4098,7 @@ fields	key_pattern	source	docs/spec/_source/grs-document.schema.json	2	2	1676,16
 fields	key_pattern	source	docs/spec/_source/settings.json	3	3	2541,4746,9502
 fields	key_pattern	source	docs/spec/_source/settings.schema.json	2	2	465,522
 fields	key_pattern	source	docs/spec/_source/settings_json_to_md.py	1	1	174
-fields	key_pattern	source	docs/spec/_source/source-relations.json	30	30	105,135,147,161,173,185,197,209,222,235,247,260,270,281,293,305,315,325,335,347,360,418,437,452,465,478,492,505,519,532
+fields	key_pattern	source	docs/spec/_source/source-relations.json	30	30	106,136,148,162,174,186,198,210,223,236,248,261,271,282,294,306,316,326,336,348,361,419,438,453,466,479,493,506,520,533
 fields	key_pattern	source	docs/spec/_source/source_relations.py	2	2	154,255
 fields	key_pattern	spec	docs/spec/_assets/fig-erd-detail.md	1	1	481
 fields	key_pattern	spec	docs/spec/_assets/tbl-document-commands.md	1	1	31
@@ -4202,12 +4202,12 @@ fields	key_pattern	tests	tests/unit/uf-39-40.test.ts	1	1	477
 fields	key_pattern	tests	tests/unit/uf-50.test.ts	2	2	409,412
 fields	key_pattern	tests	tests/unit/uf-71.test.ts	3	3	1182,1685,3011
 fields	key_pattern	tests	tests/unit/use-case.test.ts	2	2	154,168
-fillColor	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	8	8	2741,11515,11731,11858,17304,17305,19918,19919
+fillColor	pattern	glossary	docs/spec/_source/glossary.json	5	5	5001,26392,26393,30865,30866
 fillColor	pattern	source	docs/spec/_source/document-commands.json	6	6	1304,1317,2338,2347,2636,2645
 fillColor	pattern	source	docs/spec/_source/erd.json	3	3	2595,2991,3201
 fillColor	pattern	source	docs/spec/_source/fig-components.drawio	44	1	1
 fillColor	pattern	source	docs/spec/_source/fig-mcp-relay.drawio	16	1	1
-fillColor	pattern	source	docs/spec/_source/fig-source-relations.drawio	49	1	1
+fillColor	pattern	source	docs/spec/_source/fig-source-relations.drawio	51	1	1
 fillColor	pattern	source	docs/spec/_source/grs-commands.schema.json	9	9	1134,1142,1160,2190,2199,2210,2473,2482,2493
 fillColor	pattern	source	docs/spec/_source/grs-document.schema.json	6	6	1343,1383,1459,1567,1607,1655
 fillColor	pattern	source	docs/spec/_source/image-to-grs-json-prompt.en.md	4	3	72,78,103
@@ -4327,7 +4327,7 @@ fillColor	pattern	tests	tests/unit/t-023c-selection-points-at-what-exists.test.t
 fillColor	pattern	tests	tests/unit/t-109-milestone-entrances-arm-their-glyph.test.ts	1	1	353
 fillColor	pattern	tests	tests/unit/uf-36.test.ts	1	1	980
 fillColor	pattern	tests	tests/use-case/uc-003-edit-task-attributes.test.ts	1	1	121
-fillTransparencyPercent	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	9	9	2756,11753,11880,17304,17305,19975,19976,20039,20040
+fillTransparencyPercent	pattern	glossary	docs/spec/_source/glossary.json	7	7	5039,26392,26393,30952,30953,31044,31045
 fillTransparencyPercent	pattern	source	docs/spec/_source/document-commands.json	4	4	2368,2377,2666,2675
 fillTransparencyPercent	pattern	source	docs/spec/_source/erd.json	2	2	3007,3217
 fillTransparencyPercent	pattern	source	docs/spec/_source/grs-commands.schema.json	6	6	2216,2225,2235,2499,2508,2518
@@ -4380,7 +4380,7 @@ fillTransparencyPercent	pattern	tests	tests/unit/cr-559-comment-box-leader-handl
 fillTransparencyPercent	pattern	tests	tests/unit/cr-646-edits-write-side-times.test.ts	2	2	379,394
 fillTransparencyPercent	pattern	tests	tests/unit/cr-811-the-comment-box-font-size-is-8-to-24-and-10-by-default.test.ts	1	1	126
 fillTransparencyPercent	pattern	tests	tests/unit/t-023c-selection-points-at-what-exists.test.ts	2	2	320,337
-filteringTables	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	1	1	16217
+filteringTables	pattern	glossary	docs/spec/_source/glossary.json	1	1	24319
 filteringTables	pattern	source	docs/spec/_source/agent-api-members.json	1	1	1708
 filteringTables	pattern	spec	docs/spec/_assets/tbl-agent-api-members.md	1	1	77
 filteringTables	pattern	src	src/adapter/agent-api-endpoint/agent-api-members.ts	2	2	182,600
@@ -4389,7 +4389,7 @@ filteringTables	pattern	tests	tests/contract/cr-765-t-400-the-value-types.contra
 filteringTables	pattern	tests	tests/system/cr-661-show-only-the-checked-tasks-on-the-shipped-build.test.ts	8	7	164,171,174,177,178,357,372
 filteringTables	pattern	tests	tests/system/cr-722-the-eyes-the-red-and-the-resource-list-on-the-shipped-build.test.ts	16	15	161,171,344,364,383,407,413,429,434,438,459,477,492,494,499
 filteringTables	pattern	tests	tests/system/cr-723-the-views-are-saved-and-the-windows-come-back-minimized-on-the-shipped-build.test.ts	10	9	42,52,54,228,260,262,265,311,336
-finish	key_pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	9	9	1457,1471,1662,2677,11144,18940,18961,18971,19364
+finish	key_pattern	glossary	docs/spec/_source/glossary.json	8	8	4892,4894,4895,17575,29263,29281,29292,29951
 finish	key_pattern	source	docs/spec/_source/document-commands.json	8	8	138,267,753,774,930,940,1681,1692
 finish	key_pattern	source	docs/spec/_source/erd.json	6	6	1070,1286,3102,3542,3892,3964
 finish	key_pattern	source	docs/spec/_source/grs-commands.schema.json	15	15	534,552,565,676,688,697,882,888,985,1443,1449,2326,2341,2391,2406
@@ -4792,7 +4792,7 @@ fitScheduleToScreen	pattern	tests	tests/contract/dfc-378-a-write-that-changed-no
 fitScheduleToScreen	pattern	tests	tests/unit/cr-404-a-task-group-opened-by-hand-stays-open.test.ts	1	1	802
 fitScheduleToScreen	pattern	tests	tests/unit/fr-027-startup-shows-its-depth.test.ts	1	1	337
 fitScheduleToScreen	pattern	tests	tests/unit/use-case.test.ts	2	2	354,431
-fitScheduleToScreenOnPage	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	1	1	20140
+fitScheduleToScreenOnPage	pattern	glossary	docs/spec/_source/glossary.json	1	1	31187
 fitScheduleToScreenOnPage	pattern	source	docs/spec/_source/document-commands.json	1	1	3038
 fitScheduleToScreenOnPage	pattern	source	docs/spec/_source/grs-commands.schema.json	3	3	243,2797,2802
 fitScheduleToScreenOnPage	pattern	source	docs/spec/_source/published-entries.json	1	1	2828
@@ -4883,7 +4883,7 @@ fitSpanStart	pattern	tests	tests/system/w3-t1-the-export-span-picture.test.ts	2	
 fitSpanStart	pattern	tests	tests/system/w3-t1-the-parent-task-and-the-panel-task-groups.test.ts	3	2	313,317
 fitSpanStart	pattern	tests	tests/system/w3-t2-file-and-picture-clauses.test.ts	2	2	78,162
 fitSpanStart	pattern	tests	tests/unit/uf-48-write-moment.test.ts	1	1	1367
-fixKeys	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	1	1	18456
+fixKeys	pattern	glossary	docs/spec/_source/glossary.json	1	1	28536
 fixKeys	pattern	source	docs/spec/_source/agent-api-members.json	1	1	714
 fixKeys	pattern	spec	docs/spec/_assets/tbl-agent-api-members.md	1	1	40
 fixKeys	pattern	src	src/adapter/agent-api-endpoint/agent-api-members.ts	12	10	285,1041,1045,1048,1054,1056,1057,1059,1149,1150
@@ -4898,7 +4898,7 @@ fixKeys	pattern	tests	tests/contract/cr-765-t-107-the-printed-call-shapes.contra
 fixKeys	pattern	tests	tests/contract/cr-765-the-agent-api-type-and-the-relayed-params.contract.test.ts	1	1	196
 fixKeys	pattern	tests	tests/contract/cr-803-the-agent-runs-and-fixes-the-delay-diagnostics.contract.test.ts	4	3	40,261,266
 fixKeys	pattern	tests	tests/contract/cr-814-the-ai-reads-and-saves-the-fix-log.contract.test.ts	1	1	298
-folder	key_pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	1	1	17907
+folder	key_pattern	glossary	docs/spec/_source/glossary.json	1	1	27501
 folder	key_pattern	source	docs/spec/_source/verification.json	6	6	92,102,112,122,135,148
 folder	key_pattern	source	docs/spec/_source/verification.schema.json	2	2	111,145
 folder	key_pattern	source	docs/spec/_source/verification_json_to_md.py	1	1	133
@@ -4912,7 +4912,7 @@ folder	key_pattern	tests	tests/contract/cr-799-the-relay-answers-readschema-and-
 folder	key_pattern	tests	tests/contract/cr-814-the-ai-reads-and-saves-the-fix-log.contract.test.ts	1	1	644
 folder	key_pattern	tests	tests/contract/dfc-1780-untitled-is-spelled-once-and-read-by-both-surfaces.test.ts	1	1	52
 folder	key_pattern	tests	tests/unit/cr-378-an-import-is-an-edge-and-json-sits-with-its-owner.test.ts	5	5	58,63,74,227,228
-fontSizePx	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	2	2	4949,11648
+fontSizePx	pattern	glossary	docs/spec/_source/glossary.json	1	1	9158
 fontSizePx	pattern	source	docs/spec/_source/agent-api-members.json	1	1	68
 fontSizePx	pattern	source	docs/spec/_source/document-commands.json	2	2	2428,2437
 fontSizePx	pattern	source	docs/spec/_source/erd.json	1	1	3040
@@ -4944,7 +4944,7 @@ fontSizePx	pattern	tests	tests/contract/cr-814-the-ai-reads-and-saves-the-fix-lo
 fontSizePx	pattern	tests	tests/contract/document-invariants.contract.test.ts	1	1	546
 fontSizePx	pattern	tests	tests/unit/cr-811-the-comment-box-font-size-is-8-to-24-and-10-by-default.test.ts	68	62	1,34,102,128,274,275,285,293,299,307,308,316,324,330,332,337,338,344,350,356,379,385,409,415,423,429,431,435,442,444,445,448,452,453,457,461,462,465,470,474,477,485,491,495,496,521,523,530,531,533,535,554,562,576,581,582,583,587,588,590,599,600
 fontSizePx	pattern	tests	tests/unit/t-023c-selection-points-at-what-exists.test.ts	1	1	322
-fontSizeStep	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	4	4	5320,5340,5354,5368
+fontSizeStep	pattern	glossary	docs/spec/_source/glossary.json	1	1	9865
 fontSizeStep	pattern	source	docs/spec/_source/document-commands.json	2	2	2793,2802
 fontSizeStep	pattern	source	docs/spec/_source/grs-commands.schema.json	3	3	2596,2601,2611
 fontSizeStep	pattern	source	docs/spec/_source/grs-document.schema.json	2	2	125,238
@@ -4984,13 +4984,14 @@ fontSizeStep	pattern	tests	tests/unit/uf-48-write-moment.test.ts	6	6	838,1103,16
 fontSizeStep	pattern	tests	tests/unit/uf-8-9-replace-document.test.ts	2	2	247,331
 fontSizeStep	pattern	tests	tests/unit/use-case.test.ts	3	3	36,244,248
 fontSizeStep	pattern	tests	tests/use-case/uc-011-save-and-hand-out-the-document.test.ts	3	2	78,81
-from	key_pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	5	5	3428,16742,16756,16770,19405
+from	key_pattern	glossary	docs/spec/_source/glossary.json	173	172	1686,2998,3477,3555,3592,3769,3805,4090,4796,5001,5039,5075,5113,5341,5376,6002,6329,6433,6462,6511,6547,6632,6968,7005,7092,7216,7252,7288,7325,7432,7684,8021,8057,8162,8197,8231,8286,8320,8406,8465,8501,8560,8596,8933,9036,9121,9158,9261,9297,9580,9828,9865,9995,10032,10116,10152,10212,10273,10333,10420,10528,10590,10628,10710,10915,11024,11084,11121,11157,11312,11348,11407,11444,11480,11540,11957,11992,12141,12177,23723,23760,23797,23831,23914,23948,24025,24081,24136,24192,24229,24264,24319,24353,24411,24470,24504,24560,24702,24780,24814,24914,25083,25118,25194,25275,25373,25406,25573,25609,25646,25683,25720,25803,25931,25967,26302,26338,26443,26479,26538,26620,26702,26968,27004,27040,27253,27308,27364,27399,27467,27501,27600,27636,27672,27727,27762,27838,27875,27909,27965,28023,28080,28332,28502,28536,28827,28883,29100,29159,29345,29381,29440,29503,29544,29634,29796,29856,29895,30003,30008,30044,30080,30168,30229,30381,30672,30731,30789,30870,31187,31222,31260
 from	key_pattern	source	docs/spec/_source/erd.json	11	11	358,366,374,382,390,398,406,414,422,430,438
 from	key_pattern	source	docs/spec/_source/erd.schema.json	2	2	795,802
 from	key_pattern	source	docs/spec/_source/erd_json_to_md.py	5	5	203,416,419,422,425
+from	key_pattern	source	docs/spec/_source/glossary_json_to_md.py	6	6	26,28,131,152,154,264
 from	key_pattern	source	docs/spec/_source/settings.json	1	1	1802
 from	key_pattern	source	docs/spec/_source/settings.schema.json	3	3	214,220,315
-from	key_pattern	source	docs/spec/_source/source-relations.json	171	171	27,35,102,132,144,158,170,182,194,206,219,232,244,257,267,278,290,302,312,322,332,344,357,415,434,449,462,475,489,502,516,529,544,549,554,559,564,569,574,579,584,589,594,599,604,609,614,619,624,629,634,639,644,649,654,659,664,669,674,679,684,689,694,699,704,709,714,719,724,729,734,739,744,749,754,759,764,769,774,779,784,789,794,799,804,809,814,819,824,829,834,839,844,849,854,859,864,869,874,879,884,889,894,899,904,909,914,919,924,929,934,939,944,949,954,959,964,969,974,979,984,989,994,999,1004,1009,1014,1019,1024,1029,1034,1039,1044,1049,1054,1059,1064,1069,1074,1079,1084,1089,1094,1099,1104,1109,1114,1119,1124,1129,1134,1139,1144,1149,1154,1159,1164,1169,1174,1179,1184,1189,1194,1201,1208,1215,1222,1229,1236,1243,1250
+from	key_pattern	source	docs/spec/_source/source-relations.json	175	175	28,36,103,133,145,159,171,183,195,207,220,233,245,258,268,279,291,303,313,323,333,345,358,416,435,450,463,476,490,503,517,530,545,550,555,560,565,570,575,580,585,590,595,600,605,610,615,620,625,630,635,640,645,650,655,660,665,670,675,680,685,690,695,700,705,710,715,720,725,730,735,740,745,750,755,760,765,770,775,780,785,790,795,800,805,810,815,820,825,830,835,840,845,850,855,860,865,870,875,880,885,890,895,900,905,910,915,920,925,930,935,940,945,950,955,960,965,970,975,980,985,990,995,1000,1005,1010,1015,1020,1025,1030,1035,1040,1045,1050,1055,1060,1065,1070,1075,1080,1085,1090,1095,1100,1105,1110,1115,1120,1125,1130,1135,1140,1145,1150,1155,1160,1165,1170,1175,1180,1185,1190,1195,1200,1205,1210,1215,1222,1229,1236,1243,1250,1257,1264,1271
 from	key_pattern	source	docs/spec/_source/source_relations.py	12	12	148,153,158,161,184,186,193,194,257,261,304,307
 from	key_pattern	src	src/adapter/agent-api-endpoint/agent-api-members.ts	1	1	850
 from	key_pattern	src	src/adapter/document-codec/embedded-html-codec.ts	1	1	67
@@ -5270,7 +5271,7 @@ from	key_pattern	tests	tests/unit/uf-72-screen-part.test.ts	2	2	3498,3521
 from	key_pattern	tests	tests/unit/uf-8-9-replace-document.test.ts	1	1	872
 from	key_pattern	tests	tests/unit/use-case.test.ts	1	1	232
 from	key_pattern	tests	tests/use-case/uc-harness.ts	1	1	193
-fromDate	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	1	1	2901
+fromDate	pattern	glossary	docs/spec/_source/glossary.json	3	3	5288,5290,5291
 fromDate	pattern	source	docs/spec/_source/document-commands.json	2	2	1880,1888
 fromDate	pattern	source	docs/spec/_source/erd.json	2	2	2070,2085
 fromDate	pattern	source	docs/spec/_source/grs-commands.schema.json	5	5	1576,1606,1625,3026,3040
@@ -5325,7 +5326,7 @@ fromDate	pattern	tests	tests/unit/document-model.test.ts	1	1	315
 fromDate	pattern	tests	tests/unit/edit-calendar.test.ts	1	1	401
 fromDate	pattern	tests	tests/unit/t-024a-op-10-first-day-covered.test.ts	5	5	44,68,438,542,551
 fromDate	pattern	tests	tests/unit/uf-36.test.ts	1	1	719
-full	key_pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	2	2	13190,18163
+full	key_pattern	glossary	docs/spec/_source/glossary.json	3	3	20106,20107,28023
 full	key_pattern	source	docs/spec/_source/agent-api-members.json	3	3	242,254,255
 full	key_pattern	source	docs/spec/_source/state-machines.json	6	6	257,2232,2252,2253,2263,2273
 full	key_pattern	spec	docs/spec/_assets/design-mcp-relay.md	2	2	60,64
@@ -5343,7 +5344,7 @@ full	key_pattern	tests	tests/contract/cr-799-the-relay-answers-readschema-and-na
 full	key_pattern	tests	tests/contract/cr-802-readschema-hands-the-schema-in-parts.contract.test.ts	8	8	442,448,454,489,490,491,523,527
 full	key_pattern	tests	tests/contract/dfc-295-entering-the-dual-cursor-drops-the-arm.test.ts	1	1	401
 full	key_pattern	tests	tests/unit/document-model.test.ts	1	1	630
-gestureInFlight	key_pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	1	1	16853
+gestureInFlight	key_pattern	glossary	docs/spec/_source/glossary.json	1	1	25609
 gestureInFlight	key_pattern	source	docs/spec/_source/agent-api-members.json	1	1	1439
 gestureInFlight	key_pattern	spec	docs/spec/_assets/tbl-agent-api-members.md	1	1	73
 gestureInFlight	key_pattern	src	src/adapter/agent-api-endpoint/agent-api-members.ts	4	4	143,1001,1175,1218
@@ -5361,7 +5362,7 @@ gestureInFlight	key_pattern	tests	tests/unit/uf-8-9-replace-document.test.ts	1	1
 gestureInFlight	key_pattern	tests	tests/unit/use-case.test.ts	1	1	286
 Grab Region	pattern	spec	docs/spec/01-04-requirements.md	1	1	7425
 Grab Region	pattern	spec	docs/spec/_assets/tbl-glossary.md	1	1	124
-grabbed	key_pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	8	8	13982,19155,19175,19190,19205,19220,19235,19250
+grabbed	key_pattern	glossary	docs/spec/_source/glossary.json	4	4	21222,21223,29603,29634
 grabbed	key_pattern	source	docs/spec/_source/document-commands.json	2	2	1024,1058
 grabbed	key_pattern	source	docs/spec/_source/grs-commands.schema.json	3	3	859,867,899
 grabbed	key_pattern	source	docs/spec/_source/state-machines.json	6	6	5423,5433,5444,5455,5469,5478
@@ -5384,7 +5385,7 @@ grabbed	key_pattern	tests	tests/contract/cr-776-778-command-values-carry-their-c
 grabbed	key_pattern	tests	tests/contract/dfc-554-gr-17-released-at-or-left-of-the-dummy-keeps-s-129.test.ts	1	1	205
 grabbed	key_pattern	tests	tests/contract/state-machine-gesture.contract.test.ts	1	1	321
 grabbed	key_pattern	tests	tests/unit/cr-646-edits-write-side-times.test.ts	1	1	256
-hasReplacedEarlierWatch	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	1	1	16308
+hasReplacedEarlierWatch	pattern	glossary	docs/spec/_source/glossary.json	1	1	24504
 hasReplacedEarlierWatch	pattern	source	docs/spec/_source/agent-api-members.json	1	1	1774
 hasReplacedEarlierWatch	pattern	spec	docs/spec/_assets/tbl-agent-api-members.md	1	1	80
 hasReplacedEarlierWatch	pattern	src	src/adapter/agent-api-endpoint/agent-api-members.ts	3	3	196,1327,1334
@@ -5397,7 +5398,7 @@ hasReplacedEarlierWatch	pattern	tests	tests/contract/cr-765-the-agent-api-type-a
 hasReplacedEarlierWatch	pattern	tests	tests/contract/cr-796-s1-the-relay-answers-a-silent-page-after-its-deadline.contract.test.ts	1	1	254
 hasReplacedEarlierWatch	pattern	tests	tests/unit/uf-185-uf-188-relay-page-side.test.ts	2	2	41,243
 hasReplacedEarlierWatch	pattern	tests	tests/unit/uf-27-28-29.test.ts	2	2	1397,1398
-hasUpdatedSchedule	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	1	1	16041
+hasUpdatedSchedule	pattern	glossary	docs/spec/_source/glossary.json	1	1	23948
 hasUpdatedSchedule	pattern	source	docs/spec/_source/agent-api-members.json	3	3	1332,1607,1851
 hasUpdatedSchedule	pattern	spec	docs/spec/_assets/tbl-agent-api-members.md	3	3	71,75,82
 hasUpdatedSchedule	pattern	src	src/adapter/agent-api-endpoint/agent-api-members.ts	9	7	125,168,203,840,895,931,1008
@@ -5466,8 +5467,8 @@ Help Modal	pattern	tests	tests/unit/in-4-escape-closes-the-panel.test.ts	1	1	33
 Help Modal	pattern	tests	tests/unit/uf-39-40.test.ts	1	1	506
 Help Modal	pattern	tests	tests/unit/uf-71.test.ts	9	9	180,1187,1535,2655,2666,2861,3101,3113,3558
 Help Modal	pattern	tests	tests/unit/uf-72-screen-part.test.ts	11	11	239,1361,1406,1556,1863,2227,2230,2231,2238,2247,2250
-highlightBoxInverted	key_pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	2	2	17427,20039
-id	key_pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	5	4	2575,16483,19779,19793
+highlightBoxInverted	key_pattern	glossary	docs/spec/_source/glossary.json	2	2	26620,31044
+id	key_pattern	glossary	docs/spec/_source/glossary.json	7	6	4715,4717,4718,24814,30600,30622
 id	key_pattern	source	docs/spec/_source/agent-api-members.json	49	49	139,169,193,217,273,328,352,375,445,520,544,600,635,668,697,744,780,814,856,898,940,983,1025,1067,1101,1141,1169,1205,1262,1284,1308,1374,1419,1528,1583,1649,1696,1720,1748,1769,1795,1827,1914,1966,1971,2004,2091,2115,2139
 id	key_pattern	source	docs/spec/_source/agent-api-members.schema.json	6	6	105,111,156,168,289,296
 id	key_pattern	source	docs/spec/_source/agent_api_members_json_to_md.py	29	27	112,143,172,179,181,185,187,189,192,194,216,217,219,221,223,226,229,237,238,241,242,257,264,272,299,315,327
@@ -5478,6 +5479,7 @@ id	key_pattern	source	docs/spec/_source/erd.json	23	23	178,218,283,298,316,336,3
 id	key_pattern	source	docs/spec/_source/erd.schema.json	5	5	711,713,717,776,781
 id	key_pattern	source	docs/spec/_source/erd_json_to_md.py	6	5	196,393,414,427,429
 id	key_pattern	source	docs/spec/_source/erd_json_to_schema.py	9	9	152,172,186,203,571,586,630,749,989
+id	key_pattern	source	docs/spec/_source/glossary_json_to_md.py	1	1	89
 id	key_pattern	source	docs/spec/_source/grs-commands.schema.json	5	4	1210,1215,1244,1276
 id	key_pattern	source	docs/spec/_source/grs-document.schema.json	8	8	550,581,956,968,1446,1466,1599,1612
 id	key_pattern	source	docs/spec/_source/notice-reasons.json	97	97	15,51,75,86,97,108,119,130,141,153,164,176,187,198,210,222,233,244,255,266,277,288,299,310,321,332,343,354,365,376,387,398,409,420,431,442,453,464,475,486,498,509,520,531,542,553,564,575,586,597,608,619,630,641,652,663,674,685,696,707,718,729,740,751,762,773,784,795,806,817,828,839,850,861,872,883,894,905,916,927,938,949,960,973,986,999,1012,1025,1038,1051,1064,1077,1090,1103,1116,1129,1142
@@ -6255,10 +6257,10 @@ id	key_pattern	tests	tests/use-case/uc-007-bring-the-range-into-view.test.ts	3	3
 id	key_pattern	tests	tests/use-case/uc-008-tell-by-annotations.test.ts	3	3	30,51,98
 id	key_pattern	tests	tests/use-case/uc-014-merge-schedules-into-one.test.ts	1	1	29
 id	key_pattern	tests	tests/use-case/uc-harness.ts	3	3	94,97,258
-importCanceled	key_pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	1	1	17974
+importCanceled	key_pattern	glossary	docs/spec/_source/glossary.json	1	1	27636
 importCanceled	key_pattern	src	src/use-case/import-document/import-document.ts	3	3	86,545,552
-importNotLanded	key_pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	1	1	17049
-importSequence	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	1	1	3398
+importNotLanded	key_pattern	glossary	docs/spec/_source/glossary.json	1	1	25967
+importSequence	pattern	glossary	docs/spec/_source/glossary.json	1	1	6320
 importSequence	pattern	source	docs/spec/_source/display-words.json	1	1	2531
 importSequence	pattern	source	docs/spec/_source/erd.json	1	1	862
 importSequence	pattern	source	docs/spec/_source/grs-document.schema.json	2	2	572,708
@@ -6303,8 +6305,8 @@ importSequence	pattern	tests	tests/unit/fr-043-dummy-drawn.test.ts	1	1	352
 importSequence	pattern	tests	tests/unit/property-date-field-delete-empties-the-date.test.ts	1	1	271
 importSequence	pattern	tests	tests/unit/uf-36.test.ts	2	1	968
 importSequence	pattern	tests	tests/unit/uf-8-9-replace-document.test.ts	1	1	190
-importSequenceAhead	key_pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	1	1	17371
-includeCarry	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	3	3	18180,18181,18191
+importSequenceAhead	key_pattern	glossary	docs/spec/_source/glossary.json	1	1	26538
+includeCarry	pattern	glossary	docs/spec/_source/glossary.json	3	3	28054,28055,28080
 includeCarry	pattern	source	docs/spec/_source/agent-api-members.json	3	3	282,311,318
 includeCarry	pattern	spec	docs/spec/_assets/tbl-agent-api-members.md	2	1	30
 includeCarry	pattern	src	src/adapter/agent-api-endpoint/agent-api-members.ts	5	5	264,429,432,1082,1083
@@ -6484,7 +6486,7 @@ isFitSpanFixed	pattern	tests	tests/contract/w3-t4-a-saved-export-span-draws-one-
 isFitSpanFixed	pattern	tests	tests/fixtures/measuring-document.json	1	1	47570
 isFitSpanFixed	pattern	tests	tests/system/w3-t1-the-export-span-picture.test.ts	8	8	43,151,170,193,200,214,224,263
 isFitSpanFixed	pattern	tests	tests/system/w3-t2-file-and-picture-clauses.test.ts	1	1	78
-isFixed	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	7	5	5571,5598,5599,20090,20091
+isFixed	pattern	glossary	docs/spec/_source/glossary.json	5	3	10333,31110,31111
 isFixed	pattern	src	src/adapter/screen-renderer/table-window.ts	2	2	123,315
 isFixed	pattern	src	src/framework/dom-screen-surface/search-panel-drawing.ts	9	8	260,261,262,441,444,669,670,673
 isFixed	pattern	tests	tests/contract/cr-660-the-two-tables-lead-with-status-and-filter-like-excel.contract.test.ts	3	3	431,437,441
@@ -6495,7 +6497,7 @@ isFixed	pattern	tests	tests/contract/cr-760-stage.ts	2	2	248,254
 isFixed	pattern	tests	tests/contract/dfc-1361-the-search-table-header-stays-on-top.contract.test.ts	8	8	148,294,295,318,319,327,334,335
 isFixed	pattern	tests	tests/unit/cr-648-the-delay-diagnostics-report-window-fixes.test.ts	2	2	217,218
 isFixed	pattern	tests	tests/unit/cr-660-the-search-table-is-drawn-from-its-view.test.ts	2	1	20
-isGroupGridLinesVisible	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	1	1	5978
+isGroupGridLinesVisible	pattern	glossary	docs/spec/_source/glossary.json	1	1	11024
 isGroupGridLinesVisible	pattern	source	docs/spec/_source/grs-commands.schema.json	1	1	2576
 isGroupGridLinesVisible	pattern	source	docs/spec/_source/grs-document.schema.json	2	2	132,271
 isGroupGridLinesVisible	pattern	source	docs/spec/_source/settings.json	1	1	1752
@@ -6666,8 +6668,8 @@ isProgressMarkerVisible	pattern	tests	tests/unit/t-023d-follows-the-pointer.test
 isProgressMarkerVisible	pattern	tests	tests/unit/uf-48-write-moment.test.ts	2	2	962,1023
 isProgressMarkerVisible	pattern	tests	tests/use-case/uc-005-record-actuals.test.ts	1	1	47
 isProgressMarkerVisible	pattern	tests	tests/use-case/uc-006-find-delays.test.ts	1	1	57
-isProgressMarkVisible	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	1	1	5902
-isScheduleFilterApplied	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	1	1	6171
+isProgressMarkVisible	pattern	glossary	docs/spec/_source/glossary.json	1	1	10915
+isScheduleFilterApplied	pattern	glossary	docs/spec/_source/glossary.json	1	1	11312
 isScheduleFilterApplied	pattern	source	docs/spec/_source/document-commands.json	1	1	454
 isScheduleFilterApplied	pattern	source	docs/spec/_source/grs-commands.schema.json	2	2	3007,3015
 isScheduleFilterApplied	pattern	source	docs/spec/_source/grs-document.schema.json	6	6	378,391,412,426,451,464
@@ -6714,7 +6716,7 @@ isScheduleFilterApplied	pattern	tests	tests/fixtures/measuring-document.json	3	3
 isScheduleFilterApplied	pattern	tests	tests/system/cr-661-show-only-the-checked-tasks-on-the-shipped-build.test.ts	2	2	319,320
 isScheduleFilterApplied	pattern	tests	tests/system/cr-722-the-eyes-the-red-and-the-resource-list-on-the-shipped-build.test.ts	1	1	348
 isScheduleFilterApplied	pattern	tests	tests/system/cr-723-the-views-are-saved-and-the-windows-come-back-minimized-on-the-shipped-build.test.ts	17	17	195,210,211,212,276,277,278,286,299,300,301,326,327,328,350,354,356
-issueDelayFixes	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	3	3	17038,17039,18443
+issueDelayFixes	pattern	glossary	docs/spec/_source/glossary.json	3	3	25926,25927,28502
 issueDelayFixes	pattern	source	docs/spec/_source/agent-api-members.json	2	2	39,701
 issueDelayFixes	pattern	spec	docs/spec/01-04-requirements.md	1	1	3959
 issueDelayFixes	pattern	spec	docs/spec/_assets/tbl-agent-api-members.md	2	2	40,101
@@ -6729,7 +6731,7 @@ issueDelayFixes	pattern	tests	tests/contract/cr-765-the-mcp-tool-inputs-are-the-
 issueDelayFixes	pattern	tests	tests/contract/cr-803-the-agent-runs-and-fixes-the-delay-diagnostics.contract.test.ts	10	10	40,194,208,225,236,253,266,278,287,290
 issueDelayFixes	pattern	tests	tests/contract/cr-814-the-ai-reads-and-saves-the-fix-log.contract.test.ts	2	2	298,370
 issueDelayFixes	pattern	tests	tests/unit/uf-27-28-29.test.ts	1	1	124
-isUnassignedShown	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	1	1	6242
+isUnassignedShown	pattern	glossary	docs/spec/_source/glossary.json	1	1	11480
 isUnassignedShown	pattern	source	docs/spec/_source/document-commands.json	1	1	446
 isUnassignedShown	pattern	source	docs/spec/_source/grs-commands.schema.json	2	2	3004,3014
 isUnassignedShown	pattern	source	docs/spec/_source/grs-document.schema.json	2	2	413,430
@@ -6769,13 +6771,13 @@ Jump Landing Ripple	pattern	src	src/framework/dom-screen-surface/dom-screen-surf
 Jump Landing Ripple	pattern	tests	tests/contract/cr-728-a-search-jump-lands-in-the-middle-and-marks-its-target.contract.test.ts	1	1	536
 Jump Landing Ripple	pattern	tests	tests/system/cr-728-a-search-jump-lands-in-the-middle-and-marks-its-target.test.ts	1	1	27
 Jump Landing Ripple	pattern	tests	tests/system/cr-763-the-jump-landing-ripple-is-rose-and-rounded.test.ts	1	1	26
-knownSchemaVersion	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	1	1	17990
-L	key_pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	1	1	15118
+knownSchemaVersion	pattern	glossary	docs/spec/_source/glossary.json	1	1	27672
+L	key_pattern	glossary	docs/spec/_source/glossary.json	2	2	22736,22737
 L	key_pattern	source	docs/spec/_source/grs-commands.schema.json	1	1	2605
 L	key_pattern	source	docs/spec/_source/grs-document.schema.json	1	1	242
 L	key_pattern	source	docs/spec/_source/row-id-prefixes.json	1	1	780
 L	key_pattern	source	docs/spec/_source/settings.json	1	1	1785
-L	key_pattern	source	docs/spec/_source/source-relations.json	1	1	1332
+L	key_pattern	source	docs/spec/_source/source-relations.json	1	1	1353
 L	key_pattern	spec	docs/spec/01-04-requirements.md	1	1	2000
 L	key_pattern	spec	docs/spec/_assets/tbl-row-id-prefixes.md	1	1	140
 L	key_pattern	spec	docs/spec/_assets/tbl-settings.md	1	1	177
@@ -6804,7 +6806,7 @@ L	key_pattern	tests	tests/unit/t-027-outside-the-history.test.ts	2	2	421,422
 L	key_pattern	tests	tests/unit/uf-48-write-moment.test.ts	1	1	1103
 L	key_pattern	tests	tests/unit/uf-8-9-replace-document.test.ts	1	1	331
 L	key_pattern	tests	tests/unit/use-case.test.ts	1	1	248
-landing	key_pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	2	2	18993,19019
+landing	key_pattern	glossary	docs/spec/_source/glossary.json	2	2	29318,29381
 landing	key_pattern	source	docs/spec/_source/document-commands.json	2	2	829,844
 landing	key_pattern	source	docs/spec/_source/grs-commands.schema.json	2	2	589,600
 landing	key_pattern	spec	docs/spec/_assets/tbl-document-commands.md	1	1	41
@@ -6843,7 +6845,7 @@ landing	key_pattern	tests	tests/contract/dfc-1282-sj-7-sj-8-a-pinned-task-group-
 landing	key_pattern	tests	tests/contract/dfc-2968-a-snapped-tip-is-searched-and-jumped-to-where-it-is-drawn.test.ts	1	1	133
 landing	key_pattern	tests	tests/unit/cr-560-ctrl-drag-copies-the-selection-unstarted.test.ts	4	4	607,610,611,906
 landing	key_pattern	tests	tests/unit/cr-656-shift-drag-keeps-the-dates.test.ts	3	3	633,642,742
-LaneColor	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	2	2	2310,2313
+LaneColor	pattern	glossary	docs/spec/_source/glossary.json	2	2	4085,4090
 lastSeenImportSequence	pattern	source	docs/spec/_source/erd.json	1	1	2705
 lastSeenImportSequence	pattern	source	docs/spec/_source/grs-document.schema.json	2	2	1414,1431
 lastSeenImportSequence	pattern	spec	docs/spec/05-07-design.md	1	1	1340
@@ -6954,8 +6956,8 @@ levelZeroTreeState	pattern	tests	tests/unit/cr-541-stage.ts	1	1	139
 levelZeroTreeState	pattern	tests	tests/unit/cr-541-task-group-panel-open-all-and-reset.test.ts	3	3	56,57,147
 levelZeroTreeState	pattern	tests	tests/unit/t-015-t-051-the-four-folding-controls.test.ts	2	2	701,1059
 levelZeroTreeState	pattern	tests	tests/unit/t-051-hf-17-unfolds-segment-zero-by-one-level.test.ts	1	1	348
-limitReached	key_pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	2	2	12675,17651
-linkType	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	3	3	3525,11902,19379
+limitReached	key_pattern	glossary	docs/spec/_source/glossary.json	4	4	19433,19435,19436,26968
+linkType	pattern	glossary	docs/spec/_source/glossary.json	1	1	6632
 linkType	pattern	source	docs/spec/_source/agent-api-members.json	1	1	63
 linkType	pattern	source	docs/spec/_source/document-commands.json	2	2	1684,1702
 linkType	pattern	source	docs/spec/_source/erd.json	1	1	1402
@@ -7036,7 +7038,7 @@ linkType	pattern	tests	tests/unit/dfc-540-the-write-path-guards-the-notes-used-t
 linkType	pattern	tests	tests/unit/t-023c-selection-points-at-what-exists.test.ts	1	1	272
 linkType	pattern	tests	tests/unit/uf-36.test.ts	5	4	278,384,706,1195
 linkType	pattern	tests	tests/use-case/uc-004-show-dependencies-between-tasks.test.ts	3	3	52,69,109
-M	key_pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	1	1	15105
+M	key_pattern	glossary	docs/spec/_source/glossary.json	2	2	22717,22718
 M	key_pattern	source	docs/spec/_source/grs-commands.schema.json	1	1	2604
 M	key_pattern	source	docs/spec/_source/grs-document.schema.json	2	2	241,244
 M	key_pattern	source	docs/spec/_source/settings.json	2	2	1785,1787
@@ -7066,7 +7068,6 @@ M	key_pattern	tests	tests/unit/cr-617-the-delay-diagnostics-report-window.test.t
 M	key_pattern	tests	tests/unit/cr-811-the-comment-box-font-size-is-8-to-24-and-10-by-default.test.ts	6	6	283,292,306,342,457,470
 M	key_pattern	tests	tests/unit/edit-calendar.test.ts	1	1	123
 M	key_pattern	tests	tests/unit/uf-8-9-replace-document.test.ts	1	1	247
-mark	key_pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	1	1	16360
 mark	key_pattern	source	docs/spec/_source/agent-api-members.json	1	1	1815
 mark	key_pattern	source	docs/spec/_source/display-words.json	1	1	4142
 mark	key_pattern	source	docs/spec/_source/settings.json	167	167	197,218,239,282,402,423,504,693,712,733,752,771,790,809,830,851,992,1053,1092,1113,1192,1211,1232,1271,1312,1331,1350,1369,1388,1407,1470,2131,3605,3618,3632,3646,3660,3677,3691,3705,3719,3736,3749,3774,3788,3802,3816,3830,3844,3858,3875,3905,3919,3965,3979,3996,4111,4125,4139,4153,4167,4181,4298,4374,4399,4413,4427,4453,4467,4510,4524,4541,4555,4569,4596,4837,4851,4889,4903,4917,4931,4945,4959,4973,4986,5163,5224,5237,5250,5264,5278,5338,5363,5376,5389,5402,5470,5496,5510,5536,5610,5623,5636,5649,5662,5687,5751,5768,5882,5896,5910,5924,6009,6022,6036,6050,6076,6102,6116,6133,6147,6197,6211,6225,6299,6313,6327,6353,6379,6417,6443,6481,6495,6509,6523,6537,6551,6565,6579,6653,6667,6934,8681,8700,8719,8781,8799,8817,8835,8853,8884,9114,9129,9142,9207,9226,9309,9324,9341,9355,9467,9489,9591,9612,9649,9670,9711
@@ -7103,7 +7104,7 @@ mark	key_pattern	tests	tests/unit/t-109-milestone-entrances-arm-their-glyph.test
 mark	key_pattern	tests	tests/unit/uf-24-25.test.ts	8	7	119,121,182,198,203,206,269
 mark	key_pattern	tests	tests/unit/uf-36.test.ts	1	1	2645
 mark	key_pattern	tests	tests/unit/uf-71-confirmation.test.ts	1	1	224
-milestone	key_pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	7	5	852,853,2693,4618,14702
+milestone	key_pattern	glossary	docs/spec/_source/glossary.json	8	8	2051,2052,4917,4919,4920,8560,22186,22187
 milestone	key_pattern	source	docs/spec/_source/agent-api-members.json	1	1	427
 milestone	key_pattern	source	docs/spec/_source/display-words.json	1	1	6299
 milestone	key_pattern	source	docs/spec/_source/document-commands.json	4	2	768,775
@@ -7278,8 +7279,8 @@ milestoneGlyph	pattern	tests	tests/unit/in-2-b-armed-dependency-shows-the-arrow.
 milestoneGlyph	pattern	tests	tests/unit/in-2-pointer-shape.test.ts	1	1	298
 milestoneGlyph	pattern	tests	tests/unit/t-109-milestone-entrances-arm-their-glyph.test.ts	9	9	49,164,173,178,343,352,553,560,744
 milestoneGlyph	pattern	tests	tests/unit/uf-36.test.ts	1	1	983
-missingValue	key_pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	1	1	17665
-name	key_pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	16	14	2112,2590,3056,3057,3087,5140,11056,11537,18016,19638,19639,19660,19760,19779
+missingValue	key_pattern	glossary	docs/spec/_source/glossary.json	1	1	27004
+name	key_pattern	glossary	docs/spec/_source/glossary.json	21	19	3735,3736,4739,4741,4742,5541,5542,5587,5588,9546,9547,17474,18032,27727,30413,30414,30439,30575,30600
 name	key_pattern	source	docs/spec/_source/agent-api-members.json	156	156	173,197,221,226,234,242,277,282,290,298,332,356,379,384,392,400,408,449,454,462,470,478,486,524,548,553,561,604,609,639,644,672,701,706,714,748,753,784,789,818,838,846,860,880,888,902,922,930,944,965,973,987,1007,1015,1029,1049,1057,1071,1076,1105,1110,1145,1173,1178,1209,1214,1224,1285,1289,1296,1309,1318,1325,1332,1339,1353,1360,1375,1379,1386,1393,1400,1407,1420,1529,1541,1548,1562,1569,1584,1593,1600,1607,1614,1628,1635,1650,1668,1682,1697,1701,1708,1721,1729,1736,1749,1756,1770,1774,1781,1796,1801,1808,1815,1828,1837,1844,1851,1865,1872,1879,1893,1900,1915,1919,1926,1933,1940,1947,1954,1967,1971,1978,1985,1992,2005,2017,2024,2031,2038,2045,2052,2059,2073,2080,2092,2096,2103,2116,2120,2127,2140,2144,2151,2158,2165
 name	key_pattern	source	docs/spec/_source/agent-api-members.schema.json	8	8	136,142,158,175,221,227,290,300
 name	key_pattern	source	docs/spec/_source/agent_api_members_json_to_md.py	9	9	112,129,133,143,171,239,241,243,249
@@ -7309,7 +7310,7 @@ name	key_pattern	source	docs/spec/_source/published_entries_json_to_md.py	9	9	10
 name	key_pattern	source	docs/spec/_source/settings.json	125	125	2524,2544,2557,2573,2588,2603,2616,6790,6815,6829,6843,6881,6906,6918,6930,6948,6960,6972,6996,7021,7041,7061,7081,7101,7121,7141,7161,7181,7201,7221,7241,7261,7281,7301,7321,7341,7361,7381,7401,7421,7441,7461,7481,7501,7521,7539,7557,7575,7593,7611,7631,7649,7667,7685,7705,7725,7745,7765,7785,7805,7825,7843,7863,7881,7901,7921,7941,7959,7979,7997,8017,8035,8055,8075,8127,8176,8214,8252,8292,8334,8376,8418,8460,8502,8544,8586,8651,8676,8695,8714,8751,8776,8795,8813,8831,8849,8867,8880,8898,8939,8964,8977,9013,9038,9052,9084,9109,9124,9137,9177,9202,9221,9240,9279,9296,9317,9332,9349,9363,9376,9389,9437,9462,9481,9514
 name	key_pattern	source	docs/spec/_source/settings.schema.json	5	5	493,529,541,601,659
 name	key_pattern	source	docs/spec/_source/settings_json_to_md.py	2	2	222,223
-name	key_pattern	source	docs/spec/_source/source-relations.json	1	1	261
+name	key_pattern	source	docs/spec/_source/source-relations.json	1	1	262
 name	key_pattern	source	docs/spec/_source/source_relations.py	3	3	211,243,292
 name	key_pattern	source	docs/spec/_source/state-machines.json	451	451	481,494,508,521,534,547,560,572,585,601,621,624,627,630,633,636,639,774,793,813,837,851,871,897,900,903,933,988,1005,1040,1043,1059,1065,1081,1102,1126,1129,1146,1149,1175,1190,1205,1224,1243,1246,1252,1388,1391,1423,1426,1443,1474,1483,1508,1544,1594,1651,1692,1700,1707,1717,1728,1738,1745,1755,1762,1770,1780,1789,1797,1807,1817,1825,1833,1841,1849,1857,1864,1872,1879,1887,1899,1907,1914,1924,1951,1974,2032,2060,2073,2091,2102,2179,2220,2266,2277,2289,2306,2336,2339,2355,2358,2387,2390,2421,2435,2469,2473,2493,2497,2519,2522,2534,2537,2555,2568,2585,2624,2635,2652,2682,2694,2708,2720,2782,2796,2835,2839,2852,2856,2869,2926,2940,2987,3004,3007,3077,3105,3126,3276,3288,3309,3432,3446,3458,3470,3487,3493,3499,3505,3565,3593,3615,3633,3654,3670,3685,3731,3748,3765,3782,3799,3816,3833,3858,3875,3896,3910,3926,3964,3981,3998,4015,4032,4049,4066,4091,4108,4130,4144,4160,4198,4215,4232,4249,4266,4283,4300,4325,4343,4395,4417,4434,4451,4468,4485,4513,4552,4558,4579,4614,4649,4659,4667,4674,4681,4688,4696,4704,4713,4731,4754,4768,4786,4800,4804,4818,4822,4842,4845,4856,4859,4878,4889,4908,4919,4934,4973,4985,5003,5042,5057,5125,5142,5153,5161,5169,5179,5197,5203,5223,5229,5251,5264,5268,5286,5290,5324,5343,5359,5378,5395,5411,5458,5502,5522,5529,5536,5544,5569,5590,5605,5649,5695,5707,5734,5743,5769,5792,5827,5838,5860,5884,5908,5932,5941,5981,5987,6011,6017,6027,6037,6046,6072,6094,6150,6193,6203,6213,6220,6228,6240,6248,6255,6263,6271,6278,6286,6299,6317,6348,6398,6404,6422,6620,6636,6656,6669,6673,6707,6722,6741,6759,6771,6785,6812,6825,6842,6856,6921,6939,6953,7050,7068,7088,7107,7145,7148,7164,7167,7180,7193,7231,7249,7266,7314,7341,7371,7399,7436,7469,7502,7511,7519,7529,7547,7565,7583,7595,7610,7627,7670,7689,7715,7762,7845,7871,7891,7897,7904,7962,8011,8046,8098,8101,8126,8147,8168,8185,8203,8221,8228,8236,8244,8253,8272,8293,8308,8326,8351,8381,8396,8457,8500,8556,8621,8634,8644,8692,8707,8747,8763,8779,8794,8810,8825,8855,8877,8899,8921,8989,9059,9069,9079,9087,9095,9103,9114,9121,9131,9192,9204,9216,9228,9243,9256,9259,9275,9288,9291,9305,9308,9323,9326,9340,9343,9360,9372,9386,9399,9411,9426,9438,9455,9468,9483,9496,9511,9524,9540,9555,9569,9584,9598,9640,9654,9666,9713,9724,9735,9746
 name	key_pattern	source	docs/spec/_source/state-machines.schema.json	13	13	54,57,66,69,145,176,179,186,190,247,250,285,288
@@ -7929,8 +7930,7 @@ name	key_pattern	tests	tests/use-case/uc-012-let-an-ai-agent-edit.test.ts	9	7	46
 name	key_pattern	tests	tests/use-case/uc-013-fix-the-schedule-with-an-ai.test.ts	4	4	19,23,33,39
 name	key_pattern	tests	tests/use-case/uc-014-merge-schedules-into-one.test.ts	2	2	40,70
 name	key_pattern	tests	tests/use-case/uc-harness.ts	10	10	22,42,49,73,119,136,146,151,231,268
-negativeActualLength	key_pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	1	1	17455
-newTaskGroupIds	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	3	3	19793,19794,19819
+newTaskGroupIds	pattern	glossary	docs/spec/_source/glossary.json	3	3	30622,30623,30672
 newTaskGroupIds	pattern	source	docs/spec/_source/document-commands.json	2	2	1480,1495
 newTaskGroupIds	pattern	source	docs/spec/_source/grs-commands.schema.json	3	3	1276,1292,1303
 newTaskGroupIds	pattern	spec	docs/spec/_assets/tbl-document-commands.md	1	1	60
@@ -7944,7 +7944,6 @@ newTaskGroupIds	pattern	tests	tests/contract/cr-766-the-command-unions-carry-the
 newTaskGroupIds	pattern	tests	tests/contract/dfc-1054-a-pasted-task-group-copy-writes-no-slack.test.ts	1	1	57
 newTaskGroupIds	pattern	tests	tests/unit/cr-404-a-task-group-opened-by-hand-stays-open.test.ts	1	1	964
 newTaskGroupIds	pattern	tests	tests/unit/cr-560-ctrl-drag-copies-the-selection-unstarted.test.ts	1	1	887
-notAvailable	key_pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	1	1	16993
 notAvailable	key_pattern	source	docs/spec/_source/agent-api-members.json	1	1	1499
 notAvailable	key_pattern	spec	docs/spec/_assets/tbl-agent-api-members.md	1	1	73
 notAvailable	key_pattern	src	src/adapter/agent-api-endpoint/agent-api-members.ts	2	2	153,595
@@ -7956,17 +7955,17 @@ notAvailable	key_pattern	tests	tests/nfr/nfr-001-010-011-013-the-rest-of-chapter
 notAvailable	key_pattern	tests	tests/nfr/nfr-002-003-frame-time-is-the-interval.test.ts	7	7	37,43,48,962,964,1440,1906
 notAvailable	key_pattern	tests	tests/system/fr-073-fr-022-the-difference-review-that-is-not-there.test.ts	1	1	13
 notAvailable	key_pattern	tests	tests/unit/uf-27-28-29.test.ts	2	2	160,468
-nothingToIssue	key_pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	1	1	17035
-notOwnStep	key_pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	1	1	16839
+nothingToIssue	key_pattern	glossary	docs/spec/_source/glossary.json	1	1	25931
+notOwnStep	key_pattern	glossary	docs/spec/_source/glossary.json	1	1	25573
 notOwnStep	key_pattern	source	docs/spec/_source/agent-api-members.json	3	3	766,802,1433
 notOwnStep	key_pattern	spec	docs/spec/_assets/tbl-agent-api-members.md	3	3	41,42,73
 notOwnStep	key_pattern	src	src/adapter/agent-api-endpoint/agent-api-members.ts	4	3	142,565,571
 notOwnStep	key_pattern	src	src/use-case/apply-document-change/document-change-plan.ts	2	2	332,385
 notOwnStep	key_pattern	tests	tests/contract/cr-765-t-400-the-value-types.contract.test.ts	1	1	109
 notOwnStep	key_pattern	tests	tests/contract/cr-796-s5-the-ai-undoes-only-its-own-step.contract.test.ts	7	7	204,215,229,252,265,353,358
-notValidated	key_pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	1	1	17960
+notValidated	key_pattern	glossary	docs/spec/_source/glossary.json	1	1	27600
 notValidated	key_pattern	src	src/use-case/import-document/import-document.ts	2	2	84,275
-ok	key_pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	1	1	15979
+ok	key_pattern	glossary	docs/spec/_source/glossary.json	1	1	23831
 ok	key_pattern	source	docs/spec/_source/agent-api-members.json	12	12	1318,1353,1541,1562,1593,1628,1837,1865,1893,2017,2073,2144
 ok	key_pattern	source	docs/spec/_source/source_relations.py	2	2	123,141
 ok	key_pattern	spec	docs/spec/_assets/tbl-agent-api-members.md	12	6	71,74,75,82,85,88
@@ -8305,9 +8304,10 @@ Open Chooser	pattern	tests	tests/unit/uf-47-48-choosers.test.ts	5	5	921,922,984,
 Open Chooser	pattern	tests	tests/unit/uf-71.test.ts	1	1	3559
 Open Chooser	pattern	tests	tests/use-case/uc-010-exchange-with-an-external-wbs-master.test.ts	4	4	86,99,100,101
 Open Chooser	pattern	tests	tests/use-case/uc-harness.ts	2	2	157,159
-order	key_pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	3	3	5,19599,19611
+order	key_pattern	glossary	docs/spec/_source/glossary.json	4	4	2125,11056,30354,30381
 order	key_pattern	source	docs/spec/_source/document-commands.json	8	8	1406,1415,1640,1649,1768,1781,3100,3109
 order	key_pattern	source	docs/spec/_source/erd.json	1	1	1578
+order	key_pattern	source	docs/spec/_source/glossary_json_to_md.py	1	1	69
 order	key_pattern	source	docs/spec/_source/grs-commands.schema.json	10	10	1210,1238,1248,1400,1485,1496,1504,2825,2841,2849
 order	key_pattern	source	docs/spec/_source/grs-document.schema.json	2	2	960,991
 order	key_pattern	source	docs/spec/_source/state_machines_json_to_md.py	1	1	433
@@ -8516,7 +8516,7 @@ order	key_pattern	tests	tests/unit/uf-71.test.ts	1	1	1285
 order	key_pattern	tests	tests/unit/uf-72-screen-part.test.ts	2	2	1053,4708
 order	key_pattern	tests	tests/unit/uf-8-9-replace-document.test.ts	7	7	227,296,482,490,1187,1222,1428
 order	key_pattern	tests	tests/unit/use-case.test.ts	1	1	71
-orderedIds	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	3	3	19837,19838,19849
+orderedIds	pattern	glossary	docs/spec/_source/glossary.json	3	3	30704,30705,30731
 orderedIds	pattern	source	docs/spec/_source/document-commands.json	2	2	1636,1649
 orderedIds	pattern	source	docs/spec/_source/grs-commands.schema.json	3	3	1400,1412,1423
 orderedIds	pattern	spec	docs/spec/_assets/tbl-document-commands.md	1	1	65
@@ -8526,7 +8526,6 @@ orderedIds	pattern	src	src/use-case/edit-document/edit-task-group.ts	1	1	71
 orderedIds	pattern	src	src/use-case/edit-document/task-group-order.ts	3	3	104,105,115
 orderedIds	pattern	tests	tests/contract/cr-766-the-command-unions-carry-the-printed-values.contract.test.ts	1	1	126
 orderedIds	pattern	tests	tests/unit/cr-567-an-imported-leaf-task-sits-on-its-parents-task-group.test.ts	1	1	236
-ordinal	key_pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	1	1	2534
 ordinal	key_pattern	source	docs/spec/_source/erd.json	10	10	1795,1901,1906,2033,2038,2214,2219,3243,3248,3416
 ordinal	key_pattern	source	docs/spec/_source/grs-commands.schema.json	8	8	1604,1616,1658,1664,1696,1703,1732,1738
 ordinal	key_pattern	source	docs/spec/_source/grs-document.schema.json	12	12	1052,1081,1111,1120,1161,1173,1226,1232,1674,1681,1740,1747
@@ -8615,7 +8614,7 @@ outlineBase	pattern	tests	tests/integration/schedule-drawing.sws.test.ts	1	1	348
 outlineBase	pattern	tests	tests/unit/cr-569-the-project-summary-task-is-carried-not-a-row.test.ts	1	1	263
 outlineBase	pattern	tests	tests/unit/fr-021-the-outline-base-of-the-file-comes-back.test.ts	5	5	33,217,227,259,316
 outlineBase	pattern	tests	tests/unit/uf-8-9-replace-document.test.ts	1	1	191
-parentId	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	9	9	3901,19779,19780,19793,19794,19837,19838,19867,19868
+parentId	pattern	glossary	docs/spec/_source/glossary.json	9	9	7216,30600,30601,30622,30623,30704,30705,30762,30763
 parentId	pattern	source	docs/spec/_source/document-commands.json	8	8	1394,1415,1473,1494,1629,1649,3096,3109
 parentId	pattern	source	docs/spec/_source/erd.json	3	3	1529,3619,3621
 parentId	pattern	source	docs/spec/_source/grs-commands.schema.json	12	12	1210,1219,1245,1276,1285,1302,1400,1405,1422,2825,2834,2848
@@ -8953,17 +8952,18 @@ parentTaskProgressToleranceDays	pattern	tests	tests/unit/cr-648-the-delay-diagno
 parentTaskProgressToleranceDays	pattern	tests	tests/unit/cr-651-a-parent-whose-progress-point-leaves-its-work.test.ts	17	17	197,198,271,323,327,500,527,537,545,554,570,571,574,577,584,603,607
 parentTaskProgressToleranceDays	pattern	tests	tests/unit/cr-826-stage.ts	1	1	35
 parentTaskProgressToleranceDays	pattern	tests	tests/unit/uf-8-9-replace-document.test.ts	1	1	188
-path	key_pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	4	4	1583,1779,17894,21992
+path	key_pattern	glossary	docs/spec/_source/glossary.json	3	3	3200,27467,33815
 path	key_pattern	source	docs/spec/_source/agent_api_members_json_to_md.py	11	7	55,56,57,58,59,363,367
 path	key_pattern	source	docs/spec/_source/build.py	24	20	38,39,40,45,50,52,58,345,369,373,379,380,384,404,415,416,421,464,466,469
 path	key_pattern	source	docs/spec/_source/document_commands_json_to_md.py	14	10	53,54,55,56,57,58,59,251,410,414
 path	key_pattern	source	docs/spec/_source/erd.schema.json	1	1	417
 path	key_pattern	source	docs/spec/_source/erd_json_to_md.py	13	10	31,35,61,321,322,333,335,464,470,501
 path	key_pattern	source	docs/spec/_source/erd_json_to_schema.py	23	17	65,68,79,80,81,82,90,142,143,165,184,201,563,1100,1101,1106,1109
+path	key_pattern	source	docs/spec/_source/glossary_json_to_md.py	15	13	47,48,49,50,51,53,54,55,56,292,293,305,309
 path	key_pattern	source	docs/spec/_source/notice_reasons_json_to_md.py	12	10	51,52,53,54,55,56,57,59,238,242
 path	key_pattern	source	docs/spec/_source/property_items_json_to_md.py	11	7	37,38,39,40,41,191,194
 path	key_pattern	source	docs/spec/_source/published_entries_json_to_md.py	11	7	75,76,77,78,79,206,212
-path	key_pattern	source	docs/spec/_source/row_id_prefixes_json_to_md.py	15	13	67,68,69,70,71,72,91,96,122,126,146,524,530
+path	key_pattern	source	docs/spec/_source/row_id_prefixes_json_to_md.py	16	14	67,68,69,70,71,72,96,101,127,130,131,153,531,537
 path	key_pattern	source	docs/spec/_source/settings_json_to_md.py	16	10	28,29,30,31,188,189,200,204,209,327
 path	key_pattern	source	docs/spec/_source/source_relations.py	22	17	43,44,45,46,49,50,55,322,339,342,343,346,349,354,366,384,386
 path	key_pattern	source	docs/spec/_source/spec_md_printing.py	1	1	171
@@ -9048,7 +9048,7 @@ path	key_pattern	tests	tests/unit/cr-648-the-delay-diagnostics-report-window-fix
 path	key_pattern	tests	tests/unit/fr-043-dummy-drawn.test.ts	2	2	577,626
 path	key_pattern	tests	tests/unit/uf-36.test.ts	4	4	144,576,585,626
 path	key_pattern	tests	tests/use-case/uc-010-exchange-with-an-external-wbs-master.test.ts	1	1	30
-person	key_pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	1	1	4364
+person	key_pattern	glossary	docs/spec/_source/glossary.json	1	1	8021
 person	key_pattern	source	docs/spec/_source/erd.json	1	1	2579
 person	key_pattern	source	docs/spec/_source/fig-mcp-relay.json	1	1	179
 person	key_pattern	source	docs/spec/_source/grs-commands.schema.json	1	1	1118
@@ -9063,8 +9063,7 @@ person	key_pattern	src	src/entity/document-model/schedule/schedule-entities.ts	2
 person	key_pattern	src	src/entity/layout-engine/schedule-geometry/milestone-shapes.json	1	1	145
 person	key_pattern	tests	tests/contract/cr-583-milestone-figures-sit-on-the-task-group-center.contract.test.ts	2	2	398,880
 person	key_pattern	tests	tests/contract/cr-768-the-hand-copies-are-generated-and-drift-is-caught.contract.test.ts	1	1	226
-pinnedTaskGroupMissing	key_pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	1	1	17231
-pj12	key_pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	1	1	3452
+pj12	key_pattern	glossary	docs/spec/_source/glossary.json	1	1	6511
 pj12	key_pattern	source	docs/spec/_source/erd.json	4	2	941,950
 pj12	key_pattern	source	docs/spec/_source/grs-document.schema.json	1	1	727
 pj12	key_pattern	spec	docs/spec/01-04-requirements.md	1	1	4020
@@ -9083,7 +9082,7 @@ pj12	key_pattern	tests	tests/contract/cr-710-w1-ex-working-times-and-durations-r
 pj12	key_pattern	tests	tests/unit/cr-429-mspdi-schema.ts	4	4	6,11,253,578
 pj12	key_pattern	tests	tests/unit/dfc-1620-an-fs-chain-that-starts-the-next-morning-carries-the-whole-delay.test.ts	2	2	40,99
 pj12	key_pattern	tests	tests/unit/uf-36.test.ts	1	1	94
-pj15	key_pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	1	1	3466
+pj15	key_pattern	glossary	docs/spec/_source/glossary.json	1	1	6547
 pj15	key_pattern	source	docs/spec/_source/erd.json	4	2	942,950
 pj15	key_pattern	source	docs/spec/_source/grs-document.schema.json	1	1	728
 pj15	key_pattern	spec	docs/spec/01-04-requirements.md	1	1	4020
@@ -9100,7 +9099,7 @@ pj15	key_pattern	tests	tests/contract/cr-654-ex-1-ex-13-ex-14-the-startup-sample
 pj15	key_pattern	tests	tests/unit/cr-429-mspdi-schema.ts	6	6	6,12,254,443,509,578
 pj15	key_pattern	tests	tests/unit/dfc-1620-an-fs-chain-that-starts-the-next-morning-carries-the-whole-delay.test.ts	2	2	40,99
 pj15	key_pattern	tests	tests/unit/uf-36.test.ts	1	1	95
-place	key_pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	3	3	19089,19115,19130
+place	key_pattern	glossary	docs/spec/_source/glossary.json	2	2	29498,29544
 place	key_pattern	source	docs/spec/_source/document-commands.json	2	2	991,1003
 place	key_pattern	source	docs/spec/_source/grs-commands.schema.json	3	3	728,736,853
 place	key_pattern	source	docs/spec/_source/verification_json_to_md.py	1	1	74
@@ -9214,7 +9213,7 @@ place	key_pattern	tests	tests/unit/uf-71-confirmation.test.ts	1	1	21
 place	key_pattern	tests	tests/unit/uf-71.test.ts	2	2	7,781
 place	key_pattern	tests	tests/unit/uf-72-screen-part.test.ts	2	2	8,4710
 place	key_pattern	tests	tests/unit/uf-8-9-replace-document.test.ts	1	1	8
-plannedBar	key_pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	1	1	4590
+plannedBar	key_pattern	glossary	docs/spec/_source/glossary.json	1	1	8501
 plannedBar	key_pattern	source	docs/spec/_source/erd.json	1	1	2900
 plannedBar	key_pattern	source	docs/spec/_source/grs-commands.schema.json	2	2	1923,2070
 plannedBar	key_pattern	source	docs/spec/_source/grs-document.schema.json	1	1	1528
@@ -9230,7 +9229,7 @@ plannedBar	key_pattern	tests	tests/contract/dfc-2911-the-tip-stands-free-or-snap
 plannedBar	key_pattern	tests	tests/contract/dfc-2950-the-format-version-covers-the-comment-tip-columns.test.ts	2	2	54,119
 plannedBar	key_pattern	tests	tests/contract/dfc-2968-a-snapped-tip-is-searched-and-jumped-to-where-it-is-drawn.test.ts	1	1	70
 plannedBar	key_pattern	tests	tests/contract/document-invariants.contract.test.ts	1	1	940
-predecessorEdge	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	3	3	19364,19365,19403
+predecessorEdge	pattern	glossary	docs/spec/_source/glossary.json	3	3	29951,29952,30008
 predecessorEdge	pattern	source	docs/spec/_source/document-commands.json	4	4	1677,1702,1706,1707
 predecessorEdge	pattern	source	docs/spec/_source/grs-commands.schema.json	4	3	1429,1440,1457
 predecessorEdge	pattern	spec	docs/spec/_assets/tbl-document-commands.md	2	1	66
@@ -9243,16 +9242,16 @@ predecessorEdge	pattern	tests	tests/contract/cr-586-a-merge-and-the-readers-foll
 predecessorEdge	pattern	tests	tests/contract/cr-766-the-command-unions-carry-the-printed-values.contract.test.ts	1	1	130
 predecessorEdge	pattern	tests	tests/contract/cr-806-s-the-commands-say-milestone-fs-and-empty-working-times.contract.test.ts	2	2	58,59
 predecessorEdge	pattern	tests	tests/unit/cr-644-the-lag-is-stored-in-tenths-of-a-minute-and-shown-in-working-days.test.ts	1	1	178
-Progress Marker	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	4	4	5906,7514,9657,9661
+Progress Marker	pattern	glossary	docs/spec/_source/glossary.json	4	4	10906,13378,15861,15865
 Progress Marker	pattern	source	docs/spec/_source/display-words.json	3	3	590,594,2468
-Progress Marker	pattern	source	docs/spec/_source/row-id-prefixes.json	1	1	1089
+Progress Marker	pattern	source	docs/spec/_source/row-id-prefixes.json	1	1	1098
 Progress Marker	pattern	spec	docs/spec/01-04-requirements.md	4	4	265,395,396,7418
 Progress Marker	pattern	spec	docs/spec/_assets/tbl-glossary.md	1	1	87
-Progress Marker	pattern	spec	docs/spec/_assets/tbl-row-id-prefixes.md	1	1	177
+Progress Marker	pattern	spec	docs/spec/_assets/tbl-row-id-prefixes.md	1	1	178
 Progress Marker	pattern	src	src/adapter/screen-renderer/display-words.json	3	3	580,584,2796
 Progress Marker	pattern	tests	tests/contract/cr-754-t-380-the-read-only-rows-in-their-groups.test.ts	1	1	255
 Progress Marker	pattern	tests	tests/unit/fr-043-dummy-drawn.test.ts	3	3	60,1434,1438
-questionAsked	key_pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	2	2	14142,16881
+questionAsked	key_pattern	glossary	docs/spec/_source/glossary.json	3	3	21452,21453,25683
 questionAsked	key_pattern	source	docs/spec/_source/agent-api-members.json	1	1	1451
 questionAsked	key_pattern	source	docs/spec/_source/state-machines.json	18	18	6934,6977,6991,7019,7020,7030,7036,7037,7047,7064,7065,7085,7103,7104,7125,7131,7132,7140
 questionAsked	key_pattern	spec	docs/spec/_assets/tbl-agent-api-members.md	1	1	73
@@ -9272,7 +9271,7 @@ questionAsked	key_pattern	tests	tests/contract/cr-803-the-agent-runs-and-fixes-t
 questionAsked	key_pattern	tests	tests/contract/state-machine-file-flow.contract.test.ts	3	3	290,299,470
 questionAsked	key_pattern	tests	tests/contract/state-machine-unsaved-edits.contract.test.ts	2	2	91,92
 questionAsked	key_pattern	tests	tests/contract/w3-t5-ws-2-four-moments-and-the-un-8-judgment.contract.test.ts	2	2	37,161
-readDelayDiagnostics	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	15	13	18262,18263,18316,18317,18340,18354,18368,18445,18446,18458,18459,18635,18636
+readDelayDiagnostics	pattern	glossary	docs/spec/_source/glossary.json	13	11	28198,28199,28285,28286,28332,28497,28498,28531,28532,28822,28823
 readDelayDiagnostics	pattern	source	docs/spec/_source/agent-api-members.json	12	12	39,429,437,504,509,512,548,717,718,733,1155,1161
 readDelayDiagnostics	pattern	spec	docs/spec/_assets/tbl-agent-api-members.md	6	6	33,34,36,40,51,101
 readDelayDiagnostics	pattern	src	src/adapter/agent-api-endpoint/agent-api-members.ts	4	4	276,1039,1097,1120
@@ -9321,7 +9320,7 @@ recurrenceKind	pattern	tests	tests/unit/document-model.test.ts	1	1	318
 recurrenceKind	pattern	tests	tests/unit/edit-calendar.test.ts	2	2	17,404
 recurrenceKind	pattern	tests	tests/unit/t-024a-op-10-first-day-covered.test.ts	1	1	554
 recurrenceKind	pattern	tests	tests/unit/uf-36.test.ts	4	4	321,336,722,1301
-Refusal	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	3	3	17765,17791,21908
+Refusal	pattern	glossary	docs/spec/_source/glossary.json	5	5	27253,27376,27739,27829,27830
 Refusal	pattern	source	docs/spec/_source/agent-api-members.json	2	2	112,1401
 Refusal	pattern	source	docs/spec/_source/published-entries.json	2	2	2263,2277
 Refusal	pattern	spec	docs/spec/_assets/tbl-agent-api-members.md	1	1	72
@@ -9345,7 +9344,7 @@ Refusal	pattern	src	src/use-case/edit-document/whole-schedule-shift.ts	3	3	30,14
 Refusal	pattern	tests	tests/contract/dfc-406-d-411-the-reason-a-refused-write-carries.test.ts	1	1	56
 Refusal	pattern	tests	tests/unit/t-233-rs-56-a-self-dependency-is-told-its-own-row.test.ts	3	3	3,44,365
 Refusal	pattern	tests	tests/unit/uf-48-write-moment.test.ts	1	1	104
-released	key_pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	2	2	19155,19266
+released	key_pattern	glossary	docs/spec/_source/glossary.json	2	2	29603,29796
 released	key_pattern	source	docs/spec/_source/document-commands.json	2	2	1038,1058
 released	key_pattern	source	docs/spec/_source/grs-commands.schema.json	3	3	859,876,900
 released	key_pattern	spec	docs/spec/_assets/tbl-document-commands.md	1	1	47
@@ -9371,7 +9370,7 @@ released	key_pattern	tests	tests/unit/cr-376-go-3-a-rest-day-release-stays.test.
 released	key_pattern	tests	tests/unit/cr-850-stage.ts	1	1	356
 released	key_pattern	tests	tests/unit/fr-103-t-245-what-a-released-end-puts.test.ts	9	6	576,598,605,612,613,614
 released	key_pattern	tests	tests/unit/go-3-the-released-day-is-the-actual-finish-date.test.ts	1	1	336
-remembered	key_pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	3	3	19298,19318,20643
+remembered	key_pattern	glossary	docs/spec/_source/glossary.json	2	2	29851,29895
 remembered	key_pattern	source	docs/spec/_source/document-commands.json	2	2	1079,1102
 remembered	key_pattern	source	docs/spec/_source/grs-commands.schema.json	3	3	907,915,965
 remembered	key_pattern	spec	docs/spec/_assets/tbl-document-commands.md	1	1	48
@@ -9384,7 +9383,7 @@ remembered	key_pattern	tests	tests/contract/cr-756-go-6-go-7-pv-1-the-dummy-actu
 remembered	key_pattern	tests	tests/contract/cr-766-the-command-unions-carry-the-printed-values.contract.test.ts	2	2	89,394
 remembered	key_pattern	tests	tests/contract/dfc-572-pv-1-pv-2-actual-finish-is-the-finish-day.test.ts	1	1	212
 remembered	key_pattern	tests	tests/unit/cr-646-edits-write-side-times.test.ts	1	1	269
-replacement	key_pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	1	1	18030
+replacement	key_pattern	glossary	docs/spec/_source/glossary.json	1	1	27762
 replacement	key_pattern	tests	tests/unit/uf-47-48.test.ts	1	1	28
 resetTaskGroupColor	pattern	source	docs/spec/_source/document-commands.json	1	1	1568
 resetTaskGroupColor	pattern	source	docs/spec/_source/grs-commands.schema.json	3	3	108,1355,1360
@@ -9432,6 +9431,7 @@ resourceKind	pattern	tests	tests/unit/cr-430-cross-section-scene.ts	1	1	369
 resourceKind	pattern	tests	tests/unit/dfc-540-541-695-696-1651-the-chosen-task-groups-the-chosen-assignees-and-the-question.test.ts	1	1	47
 resourceKind	pattern	tests	tests/unit/h10-one-assignee-per-line.test.ts	2	2	178,182
 resourceKind	pattern	tests	tests/unit/uf-36.test.ts	4	3	273,397,726
+resourceList	pattern	glossary	docs/spec/_source/glossary.json	2	2	25030,25031
 resourceList	pattern	source	docs/spec/_source/agent-api-members.json	2	2	455,531
 resourceList	pattern	source	docs/spec/_source/display-words.json	1	1	6343
 resourceList	pattern	source	docs/spec/_source/document-commands.json	2	2	3277,3297
@@ -9494,12 +9494,12 @@ resourceList	pattern	tests	tests/fixtures/measuring-document.json	1	1	47596
 resourceList	pattern	tests	tests/system/cr-722-the-eyes-the-red-and-the-resource-list-on-the-shipped-build.test.ts	7	6	322,344,348,383,407,434
 resourceList	pattern	tests	tests/system/cr-723-the-views-are-saved-and-the-windows-come-back-minimized-on-the-shipped-build.test.ts	6	6	211,228,278,287,301,328
 resourceList	pattern	tests	tests/unit/dfc-540-541-695-696-1651-the-chosen-task-groups-the-chosen-assignees-and-the-question.test.ts	2	2	61,65
-Resume Icon	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	2	2	7543,9661
+Resume Icon	pattern	glossary	docs/spec/_source/glossary.json	2	2	13407,15865
 Resume Icon	pattern	source	docs/spec/_source/display-words.json	1	1	594
 Resume Icon	pattern	spec	docs/spec/01-04-requirements.md	1	1	7418
 Resume Icon	pattern	spec	docs/spec/_assets/tbl-glossary.md	1	1	88
 Resume Icon	pattern	src	src/adapter/screen-renderer/display-words.json	1	1	584
-rulerFontSizePx	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	1	1	14469
+rulerFontSizePx	pattern	glossary	docs/spec/_source/glossary.json	1	1	21870
 rulerFontSizePx	pattern	source	docs/spec/_source/grs-document.schema.json	2	2	143,323
 rulerFontSizePx	pattern	source	docs/spec/_source/settings.json	10	9	248,264,266,1529,1801,1802,1807,1821,2903
 rulerFontSizePx	pattern	spec	docs/spec/01-04-requirements.md	3	3	1999,2104,5708
@@ -9539,7 +9539,7 @@ rulerFontSizePx	pattern	tests	tests/unit/cr-850-stage.ts	2	2	80,82
 rulerFontSizePx	pattern	tests	tests/unit/cr-850-the-grabs-the-status-line-and-the-cursors-snap-to-fifteen-minutes.test.ts	1	1	55
 rulerFontSizePx	pattern	tests	tests/unit/edit-calendar.test.ts	1	1	125
 rulerFontSizePx	pattern	tests	tests/unit/use-case.test.ts	1	1	251
-rulerHeightPx	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	1	1	14452
+rulerHeightPx	pattern	glossary	docs/spec/_source/glossary.json	1	1	21852
 rulerHeightPx	pattern	source	docs/spec/_source/erd_json_to_schema.py	1	1	905
 rulerHeightPx	pattern	source	docs/spec/_source/grs-document.schema.json	2	2	144,328
 rulerHeightPx	pattern	source	docs/spec/_source/settings.json	2	2	1798,1832
@@ -9580,7 +9580,7 @@ rulerHeightPx	pattern	tests	tests/unit/fr-025-no-png-scale-and-retained-key.test
 rulerHeightPx	pattern	tests	tests/unit/uf-39-40.test.ts	3	3	284,298,308
 rulerHeightPx	pattern	tests	tests/unit/uf-45-46.test.ts	4	4	433,443,445,512
 rulerHeightPx	pattern	tests	tests/unit/use-case.test.ts	1	1	252
-runDelayDiagnostics	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	3	3	18445,18446,18633
+runDelayDiagnostics	pattern	glossary	docs/spec/_source/glossary.json	3	3	28497,28498,28827
 runDelayDiagnostics	pattern	source	docs/spec/_source/agent-api-members.json	4	4	39,728,735,1145
 runDelayDiagnostics	pattern	spec	docs/spec/01-04-requirements.md	1	1	3596
 runDelayDiagnostics	pattern	spec	docs/spec/_assets/tbl-agent-api-members.md	3	3	40,51,101
@@ -9595,16 +9595,16 @@ runDelayDiagnostics	pattern	tests	tests/contract/cr-797-fr-130-the-diagnosis-is-
 runDelayDiagnostics	pattern	tests	tests/contract/cr-803-the-agent-runs-and-fixes-the-delay-diagnostics.contract.test.ts	8	7	32,41,122,126,130,141,154
 runDelayDiagnostics	pattern	tests	tests/system/cr-803-run-and-close-the-report-window-from-the-agent-api.test.ts	3	3	38,39,63
 runDelayDiagnostics	pattern	tests	tests/unit/uf-27-28-29.test.ts	1	1	135
-S	key_pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	1	1	15092
+S	key_pattern	glossary	docs/spec/_source/glossary.json	2	2	22698,22699
 S	key_pattern	source	docs/spec/_source/grs-commands.schema.json	1	1	2603
 S	key_pattern	source	docs/spec/_source/grs-document.schema.json	1	1	240
-S	key_pattern	source	docs/spec/_source/row-id-prefixes.json	1	1	1296
+S	key_pattern	source	docs/spec/_source/row-id-prefixes.json	1	1	1314
 S	key_pattern	source	docs/spec/_source/settings.json	1	1	1785
-S	key_pattern	source	docs/spec/_source/source-relations.json	7	7	221,227,246,252,531,537,1484
+S	key_pattern	source	docs/spec/_source/source-relations.json	7	7	222,228,247,253,532,538,1505
 S	key_pattern	source	docs/spec/_source/source_relations.py	1	1	101
 S	key_pattern	source	docs/spec/_source/state-machines.json	2	2	5690,5703
 S	key_pattern	spec	docs/spec/01-04-requirements.md	3	3	2000,5650,8888
-S	key_pattern	spec	docs/spec/_assets/tbl-row-id-prefixes.md	1	1	203
+S	key_pattern	spec	docs/spec/_assets/tbl-row-id-prefixes.md	1	1	205
 S	key_pattern	spec	docs/spec/_assets/tbl-settings.md	1	1	177
 S	key_pattern	spec	docs/spec/_assets/tbl-state-machines.md	2	1	728
 S	key_pattern	src	src/adapter/document-codec/grs-json-schema.ts	2	2	900,2573
@@ -9633,7 +9633,7 @@ S	key_pattern	tests	tests/unit/fr-006-panel-typography.test.ts	1	1	1244
 S	key_pattern	tests	tests/unit/t-023-wheel-goes-to-the-browser.test.ts	2	2	454,615
 S	key_pattern	tests	tests/unit/uf-48-input.test.ts	1	1	491
 S	key_pattern	tests	tests/unit/uf-50.test.ts	1	1	125
-schedule	key_pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	5	5	812,814,841,15946,21443
+schedule	key_pattern	glossary	docs/spec/_source/glossary.json	4	4	2001,2041,23792,33009
 schedule	key_pattern	source	docs/spec/_source/erd.json	10	10	189,218,359,390,398,406,414,422,431,439
 schedule	key_pattern	source	docs/spec/_source/erd_json_to_schema.py	6	6	116,117,118,245,630,1002
 schedule	key_pattern	source	docs/spec/_source/grs-document.schema.json	3	3	6,12,27
@@ -10157,7 +10157,7 @@ schedule	key_pattern	tests	tests/use-case/uc-012-let-an-ai-agent-edit.test.ts	7	
 schedule	key_pattern	tests	tests/use-case/uc-013-fix-the-schedule-with-an-ai.test.ts	3	3	19,33,39
 schedule	key_pattern	tests	tests/use-case/uc-014-merge-schedules-into-one.test.ts	9	9	40,49,69,70,71,78,81,87,91
 schedule	key_pattern	tests	tests/use-case/uc-harness.ts	1	1	54
-scheduleDataTimeZone	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	7	7	1928,1929,3243,5679,5680,18798,18799
+scheduleDataTimeZone	pattern	glossary	docs/spec/_source/glossary.json	9	9	3407,3408,5839,5841,5842,10561,10562,29070,29071
 scheduleDataTimeZone	pattern	source	docs/spec/_source/agent-api-members.json	1	1	58
 scheduleDataTimeZone	pattern	source	docs/spec/_source/document-commands.json	2	2	654,663
 scheduleDataTimeZone	pattern	source	docs/spec/_source/erd.json	1	1	955
@@ -10265,7 +10265,7 @@ scheduleUpdatedAt	pattern	tests	tests/unit/uf-48-undo-through-the-one-path.test.
 scheduleUpdatedAt	pattern	tests	tests/unit/uf-8-9-replace-document.test.ts	27	27	276,317,338,371,554,591,602,616,617,649,660,778,970,984,1158,1227,1229,1230,1231,1239,1242,1243,1257,1287,1302,1306,1404
 scheduleUpdatedAt	pattern	tests	tests/unit/use-case.test.ts	10	10	80,261,272,325,333,334,381,382,418,519
 scheduleUpdatedAt	pattern	tests	tests/use-case/uc-012-let-an-ai-agent-edit.test.ts	1	1	41
-schemaVersion	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	12	12	6522,6540,6541,17080,17081,17094,17095,17992,17993,18109,18125,18126
+schemaVersion	pattern	glossary	docs/spec/_source/glossary.json	10	10	12141,26021,26022,26044,26045,27667,27668,27909,27939,27940
 schemaVersion	pattern	source	docs/spec/_source/agent-api-members.json	4	4	180,197,254,261
 schemaVersion	pattern	source	docs/spec/_source/components.json	1	1	170
 schemaVersion	pattern	source	docs/spec/_source/erd.json	1	1	182
@@ -11163,7 +11163,7 @@ searchPanel	pattern	tests	tests/system/cr-803-run-and-close-the-report-window-fr
 searchPanel	pattern	tests	tests/unit/cr-621-a-window-answers-its-title-band-and-edges.test.ts	2	2	39,67
 searchPanel	pattern	tests	tests/unit/cr-666-full-screen-is-the-last-esc-rung.test.ts	1	1	107
 searchPanel	pattern	tests	tests/unit/dfc-540-541-695-696-1651-the-chosen-task-groups-the-chosen-assignees-and-the-question.test.ts	1	1	68
-seconds	key_pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	1	1	17857
+seconds	key_pattern	glossary	docs/spec/_source/glossary.json	1	1	27399
 seconds	key_pattern	tests	tests/contract/cr-699-the-grs-json-carries-its-schema-address-and-version-instant.contract.test.ts	1	1	70
 seconds	key_pattern	tests	tests/contract/cr-799-the-build-version-the-stamped-page-and-the-texts-the-ai-reads.contract.test.ts	1	1	25
 seconds	key_pattern	tests	tests/contract/document-invariants.contract.test.ts	1	1	1162
@@ -11859,7 +11859,6 @@ setTimeOfDayVisible	pattern	src	src/use-case/edit-document/edit-document.ts	1	1	
 setTimeOfDayVisible	pattern	tests	tests/contract/cr-710-w2-the-show-time-of-day-switch.test.ts	1	1	123
 setTimeOfDayVisible	pattern	tests	tests/contract/cr-766-the-command-unions-carry-the-printed-values.contract.test.ts	1	1	271
 setTimeOfDayVisible	pattern	tests	tests/system/nfr-004-file-scheme-sweep.sws.test.ts	1	1	2040
-settingOutOfBounds	key_pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	1	1	17385
 settingsUpdatedAt	pattern	source	docs/spec/_source/erd.json	1	1	3367
 settingsUpdatedAt	pattern	source	docs/spec/_source/grs-document.schema.json	2	2	1707,1720
 settingsUpdatedAt	pattern	spec	docs/spec/_assets/fig-erd-detail.md	2	2	205,485
@@ -11963,7 +11962,7 @@ shapeKind	pattern	source	docs/spec/_source/grs-commands.schema.json	7	6	534,539,
 shapeKind	pattern	source	docs/spec/_source/grs-document.schema.json	3	3	821,1341,1352
 shapeKind	pattern	source	docs/spec/_source/image-to-grs-json-prompt.en.md	2	2	66,78
 shapeKind	pattern	source	docs/spec/_source/image-to-grs-json-prompt.ja.md	2	2	66,78
-shapeKind	pattern	source	docs/spec/_source/row-id-prefixes.json	1	1	1348
+shapeKind	pattern	source	docs/spec/_source/row-id-prefixes.json	1	1	1366
 shapeKind	pattern	source	docs/spec/_source/state-machines.json	5	4	900,1888,1895,1951
 shapeKind	pattern	spec	docs/spec/01-04-requirements.md	6	6	256,1175,1524,5569,7076,8578
 shapeKind	pattern	spec	docs/spec/05-07-design.md	2	1	1346
@@ -11971,7 +11970,7 @@ shapeKind	pattern	spec	docs/spec/_assets/fig-erd-detail.md	4	4	152,370,442,443
 shapeKind	pattern	spec	docs/spec/_assets/tbl-agent-api-members.md	1	1	125
 shapeKind	pattern	spec	docs/spec/_assets/tbl-document-commands.md	5	2	39,53
 shapeKind	pattern	spec	docs/spec/_assets/tbl-glossary.md	3	3	28,61,68
-shapeKind	pattern	spec	docs/spec/_assets/tbl-row-id-prefixes.md	1	1	209
+shapeKind	pattern	spec	docs/spec/_assets/tbl-row-id-prefixes.md	1	1	211
 shapeKind	pattern	spec	docs/spec/_assets/tbl-state-machines.md	29	4	116,193,226,231
 shapeKind	pattern	src	src/adapter/document-codec/grs-json-schema.ts	6	6	495,501,1238,1244,1597,1606
 shapeKind	pattern	src	src/adapter/input-command-translator/armed-placement.ts	10	8	62,63,69,157,158,159,160,167
@@ -12099,7 +12098,7 @@ shapeKind	pattern	tests	tests/unit/t-109-milestone-entrances-arm-their-glyph.tes
 shapeKind	pattern	tests	tests/unit/uf-36.test.ts	1	1	979
 shapeKind	pattern	tests	tests/use-case/uc-001-place-a-task-and-set-its-period.test.ts	1	1	41
 shapeKind	pattern	tests	tests/use-case/uc-003-edit-task-attributes.test.ts	1	1	47
-shiftScheduleTimes	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	4	4	18815,18830,18848,18849
+shiftScheduleTimes	pattern	glossary	docs/spec/_source/glossary.json	3	3	29100,29154,29155
 shiftScheduleTimes	pattern	source	docs/spec/_source/document-commands.json	2	2	676,726
 shiftScheduleTimes	pattern	source	docs/spec/_source/grs-commands.schema.json	4	4	30,498,503,517
 shiftScheduleTimes	pattern	spec	docs/spec/_assets/tbl-document-commands.md	1	1	37
@@ -12110,7 +12109,7 @@ shiftScheduleTimes	pattern	src	src/use-case/edit-document/edit-document.ts	1	1	2
 shiftScheduleTimes	pattern	src	src/use-case/edit-document/edit-project.ts	2	2	70,124
 shiftScheduleTimes	pattern	tests	tests/contract/cr-757-fo-17-the-settings-row-asks-then-moves.test.ts	1	1	249
 shiftScheduleTimes	pattern	tests	tests/contract/cr-766-the-command-unions-carry-the-printed-values.contract.test.ts	1	1	55
-shiftScheduleToStartDate	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	1	1	18846
+shiftScheduleToStartDate	pattern	glossary	docs/spec/_source/glossary.json	1	1	29159
 shiftScheduleToStartDate	pattern	source	docs/spec/_source/document-commands.json	1	1	707
 shiftScheduleToStartDate	pattern	source	docs/spec/_source/grs-commands.schema.json	3	3	33,515,520
 shiftScheduleToStartDate	pattern	spec	docs/spec/_assets/tbl-document-commands.md	1	1	38
@@ -12123,7 +12122,7 @@ shiftScheduleToStartDate	pattern	tests	tests/contract/cr-757-cm-99-one-write-mov
 shiftScheduleToStartDate	pattern	tests	tests/contract/cr-757-fo-17-the-settings-row-asks-then-moves.test.ts	1	1	240
 shiftScheduleToStartDate	pattern	tests	tests/contract/cr-757-stage.ts	1	1	340
 shiftScheduleToStartDate	pattern	tests	tests/contract/cr-766-the-command-unions-carry-the-printed-values.contract.test.ts	1	1	56
-shownResourceUids	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	1	1	6228
+shownResourceUids	pattern	glossary	docs/spec/_source/glossary.json	1	1	11444
 shownResourceUids	pattern	source	docs/spec/_source/document-commands.json	1	1	437
 shownResourceUids	pattern	source	docs/spec/_source/grs-commands.schema.json	2	2	2998,3013
 shownResourceUids	pattern	source	docs/spec/_source/grs-document.schema.json	2	2	414,434
@@ -12158,7 +12157,7 @@ shownResourceUids	pattern	tests	tests/contract/display-words.contract.test.ts	1	
 shownResourceUids	pattern	tests	tests/fixtures/measuring-document.json	1	1	47600
 shownResourceUids	pattern	tests	tests/system/cr-722-the-eyes-the-red-and-the-resource-list-on-the-shipped-build.test.ts	1	1	348
 shownResourceUids	pattern	tests	tests/system/cr-723-the-views-are-saved-and-the-windows-come-back-minimized-on-the-shipped-build.test.ts	6	6	195,211,278,287,301,328
-shownTaskUids	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	1	1	6185
+shownTaskUids	pattern	glossary	docs/spec/_source/glossary.json	1	1	11348
 shownTaskUids	pattern	source	docs/spec/_source/document-commands.json	1	1	425
 shownTaskUids	pattern	source	docs/spec/_source/grs-commands.schema.json	2	2	2992,3012
 shownTaskUids	pattern	source	docs/spec/_source/grs-document.schema.json	4	4	379,395,452,468
@@ -12207,9 +12206,9 @@ shownTaskUids	pattern	tests	tests/contract/display-words.contract.test.ts	4	4	95
 shownTaskUids	pattern	tests	tests/fixtures/measuring-document.json	2	2	47593,47606
 shownTaskUids	pattern	tests	tests/system/cr-661-show-only-the-checked-tasks-on-the-shipped-build.test.ts	2	2	319,320
 shownTaskUids	pattern	tests	tests/system/cr-723-the-views-are-saved-and-the-windows-come-back-minimized-on-the-shipped-build.test.ts	15	15	194,195,210,212,246,263,276,277,286,299,300,326,327,350,354
-siblingOrder	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	9	9	2619,6352,6353,19779,19780,19837,19838,19867,19868
+siblingOrder	pattern	glossary	docs/spec/_source/glossary.json	9	9	4796,11659,11660,30600,30601,30704,30705,30762,30763
 siblingOrder	pattern	tests	tests/unit/cr-567-an-imported-leaf-task-sits-on-its-parents-task-group.test.ts	6	6	207,246,247,309,322,384
-smile	key_pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	1	1	4378
+smile	key_pattern	glossary	docs/spec/_source/glossary.json	1	1	8057
 smile	key_pattern	source	docs/spec/_source/erd.json	1	1	2580
 smile	key_pattern	source	docs/spec/_source/grs-commands.schema.json	1	1	1119
 smile	key_pattern	source	docs/spec/_source/grs-document.schema.json	1	1	1377
@@ -12223,7 +12222,7 @@ smile	key_pattern	src	src/entity/document-model/schedule/schedule-entities.ts	2	
 smile	key_pattern	src	src/entity/layout-engine/schedule-geometry/milestone-shapes.json	1	1	159
 smile	key_pattern	tests	tests/contract/cr-583-milestone-figures-sit-on-the-task-group-center.contract.test.ts	2	2	398,720
 smile	key_pattern	tests	tests/integration/schedule-drawing.sws.test.ts	3	3	1896,1905,1915
-sort	key_pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	2	2	6213,20156
+sort	key_pattern	glossary	docs/spec/_source/glossary.json	2	2	11407,31217
 sort	key_pattern	source	docs/spec/_source/build.py	1	1	312
 sort	key_pattern	source	docs/spec/_source/document-commands.json	1	1	406
 sort	key_pattern	source	docs/spec/_source/grs-commands.schema.json	2	2	3057,3083
@@ -12530,7 +12529,7 @@ sort	key_pattern	tests	tests/unit/uf-72-screen-part.test.ts	25	23	1680,1812,1843
 sort	key_pattern	tests	tests/unit/uf-8-9-history-depth.test.ts	1	1	317
 sort	key_pattern	tests	tests/use-case/uc-012-let-an-ai-agent-edit.test.ts	1	1	41
 sort	key_pattern	tests	tests/use-case/uc-harness.ts	1	1	211
-sourceProjectId	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	3	3	4422,4451,4452
+sourceProjectId	pattern	glossary	docs/spec/_source/glossary.json	3	3	8197,8260,8261
 sourceProjectId	pattern	source	docs/spec/_source/erd.json	1	1	2673
 sourceProjectId	pattern	source	docs/spec/_source/grs-document.schema.json	2	2	1412,1422
 sourceProjectId	pattern	spec	docs/spec/_assets/fig-erd-detail.md	2	2	160,448
@@ -12541,7 +12540,7 @@ sourceProjectId	pattern	src	src/use-case/import-document/import-document.ts	6	5	
 sourceProjectId	pattern	tests	tests/contract/cr-796-s4-the-ai-reads-in-small-pieces.contract.test.ts	1	1	170
 sourceProjectId	pattern	tests	tests/contract/cr-796-s4b-the-ai-reads-the-report-and-the-resource-list.contract.test.ts	1	1	163
 sourceProjectId	pattern	tests	tests/contract/document-invariants.contract.test.ts	1	1	438
-sourceUid	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	1	1	4435
+sourceUid	pattern	glossary	docs/spec/_source/glossary.json	1	1	8231
 sourceUid	pattern	source	docs/spec/_source/erd.json	1	1	2689
 sourceUid	pattern	source	docs/spec/_source/grs-document.schema.json	2	2	1413,1428
 sourceUid	pattern	spec	docs/spec/_assets/fig-erd-detail.md	2	2	161,449
@@ -12553,7 +12552,7 @@ sourceUid	pattern	tests	tests/contract/cr-796-s4-the-ai-reads-in-small-pieces.co
 sourceUid	pattern	tests	tests/contract/cr-796-s4b-the-ai-reads-the-report-and-the-resource-list.contract.test.ts	1	1	164
 sourceUid	pattern	tests	tests/contract/document-invariants.contract.test.ts	2	2	439,853
 sourceUid	pattern	tests	tests/use-case/uc-014-merge-schedules-into-one.test.ts	1	1	72
-sourceUids	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	3	3	18993,18994,19005
+sourceUids	pattern	glossary	docs/spec/_source/glossary.json	3	3	29318,29319,29345
 sourceUids	pattern	source	docs/spec/_source/document-commands.json	2	2	821,843
 sourceUids	pattern	source	docs/spec/_source/grs-commands.schema.json	3	3	589,594,622
 sourceUids	pattern	spec	docs/spec/_assets/tbl-document-commands.md	1	1	41
@@ -12570,7 +12569,7 @@ sourceUids	pattern	tests	tests/contract/dfc-1054-a-pasted-task-group-copy-writes
 sourceUids	pattern	tests	tests/contract/dfc-685-a-dateless-pasted-copy-drops-its-slack.test.ts	3	3	61,74,84
 sourceUids	pattern	tests	tests/unit/cr-560-ctrl-drag-copies-the-selection-unstarted.test.ts	4	4	607,609,867,905
 sourceUids	pattern	tests	tests/unit/h4-several-copied-tasks-paste-back.test.ts	1	1	34
-stackDirection	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	5	5	4081,4082,5997,6017,6031
+stackDirection	pattern	glossary	docs/spec/_source/glossary.json	1	1	11084
 stackDirection	pattern	source	docs/spec/_source/document-commands.json	2	2	2718,2727
 stackDirection	pattern	source	docs/spec/_source/document_commands_json_to_md.py	1	1	104
 stackDirection	pattern	source	docs/spec/_source/erd.json	1	1	1675
@@ -12642,7 +12641,7 @@ stackDirection	pattern	tests	tests/unit/uf-48-write-moment.test.ts	6	6	838,1102,
 stackDirection	pattern	tests	tests/unit/uf-8-9-replace-document.test.ts	1	1	246
 stackDirection	pattern	tests	tests/unit/use-case.test.ts	1	1	329
 stackDirection	pattern	tests	tests/use-case/uc-001-place-a-task-and-set-its-period.test.ts	1	1	79
-start	key_pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	10	10	1429,1443,2661,11122,17780,17781,18940,18958,18971,19364
+start	key_pattern	glossary	docs/spec/_source/glossary.json	10	10	4867,4869,4870,17550,27227,27228,29263,29280,29292,29951
 start	key_pattern	source	docs/spec/_source/agent-api-members.json	1	1	428
 start	key_pattern	source	docs/spec/_source/agent_api_members_json_to_md.py	2	2	103,105
 start	key_pattern	source	docs/spec/_source/display-words.json	1	1	5549
@@ -13067,12 +13066,12 @@ start	key_pattern	tests	tests/use-case/uc-005-record-actuals.test.ts	2	2	64,67
 start	key_pattern	tests	tests/use-case/uc-006-find-delays.test.ts	1	1	23
 start	key_pattern	tests	tests/use-case/uc-007-bring-the-range-into-view.test.ts	1	1	106
 start	key_pattern	tests	tests/use-case/uc-008-tell-by-annotations.test.ts	1	1	104
-strokeColor	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	14	10	2770,11493,11709,11836,17304,17305,19918,19919,20039,20040
+strokeColor	pattern	glossary	docs/spec/_source/glossary.json	15	11	5064,5075,17981,18231,18375,26392,26393,30865,30866,31044,31045
 strokeColor	pattern	source	docs/spec/_source/document-commands.json	6	6	1308,1317,2278,2287,2576,2585
 strokeColor	pattern	source	docs/spec/_source/erd.json	3	3	2611,2958,3153
 strokeColor	pattern	source	docs/spec/_source/fig-components.drawio	54	1	1
 strokeColor	pattern	source	docs/spec/_source/fig-mcp-relay.drawio	23	1	1
-strokeColor	pattern	source	docs/spec/_source/fig-source-relations.drawio	83	1	1
+strokeColor	pattern	source	docs/spec/_source/fig-source-relations.drawio	85	1	1
 strokeColor	pattern	source	docs/spec/_source/grs-commands.schema.json	9	9	1134,1149,1161,2139,2148,2159,2422,2431,2442
 strokeColor	pattern	source	docs/spec/_source/grs-document.schema.json	6	6	1344,1390,1457,1554,1604,1636
 strokeColor	pattern	source	docs/spec/_source/image-to-grs-json-prompt.en.md	4	3	72,78,103
@@ -13198,7 +13197,7 @@ strokeColor	pattern	tests	tests/unit/t-024a-op-10-first-day-covered.test.ts	1	1	
 strokeColor	pattern	tests	tests/unit/t-109-milestone-entrances-arm-their-glyph.test.ts	1	1	354
 strokeColor	pattern	tests	tests/unit/uf-36.test.ts	1	1	981
 strokeColor	pattern	tests	tests/use-case/uc-003-edit-task-attributes.test.ts	2	2	50,121
-strokeWidthPx	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	4	4	2785,11471,11687,11814
+strokeWidthPx	pattern	glossary	docs/spec/_source/glossary.json	1	1	5113
 strokeWidthPx	pattern	source	docs/spec/_source/document-commands.json	6	6	1364,1373,2308,2317,2606,2615
 strokeWidthPx	pattern	source	docs/spec/_source/erd.json	3	3	2627,2975,3185
 strokeWidthPx	pattern	source	docs/spec/_source/grs-commands.schema.json	9	9	1184,1192,1204,2165,2174,2184,2448,2457,2467
@@ -13307,7 +13306,7 @@ strokeWidthPx	pattern	tests	tests/unit/t-023c-selection-points-at-what-exists.te
 strokeWidthPx	pattern	tests	tests/unit/t-109-milestone-entrances-arm-their-glyph.test.ts	1	1	355
 strokeWidthPx	pattern	tests	tests/unit/uf-36.test.ts	1	1	982
 strokeWidthPx	pattern	tests	tests/use-case/uc-003-edit-task-attributes.test.ts	1	1	53
-successorEdge	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	3	3	19364,19365,19417
+successorEdge	pattern	glossary	docs/spec/_source/glossary.json	3	3	29951,29952,30044
 successorEdge	pattern	source	docs/spec/_source/document-commands.json	4	4	1688,1702,1706,1707
 successorEdge	pattern	source	docs/spec/_source/grs-commands.schema.json	4	3	1429,1446,1458
 successorEdge	pattern	spec	docs/spec/_assets/tbl-document-commands.md	2	1	66
@@ -13320,7 +13319,7 @@ successorEdge	pattern	tests	tests/contract/cr-586-a-merge-and-the-readers-follow
 successorEdge	pattern	tests	tests/contract/cr-766-the-command-unions-carry-the-printed-values.contract.test.ts	1	1	131
 successorEdge	pattern	tests	tests/contract/cr-806-s-the-commands-say-milestone-fs-and-empty-working-times.contract.test.ts	2	2	58,59
 successorEdge	pattern	tests	tests/unit/cr-644-the-lag-is-stored-in-tenths-of-a-minute-and-shown-in-working-days.test.ts	1	1	178
-table	key_pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	8	8	2453,2511,16419,16550,16630,20156,20173,21836
+table	key_pattern	glossary	docs/spec/_source/glossary.json	21	21	4250,4273,4296,4478,4569,24676,24938,24940,24941,24969,24970,24992,24993,25015,25016,25038,25039,25189,31217,31260,33590
 table	key_pattern	source	docs/spec/_source/agent-api-members.json	5	5	138,454,1261,2024,2027
 table	key_pattern	source	docs/spec/_source/agent-api-members.schema.json	5	5	102,485,492,513,519
 table	key_pattern	source	docs/spec/_source/agent_api_members_json_to_md.py	4	4	257,272,311,312
@@ -13339,7 +13338,7 @@ table	key_pattern	source	docs/spec/_source/published_entries_json_to_md.py	2	2	1
 table	key_pattern	source	docs/spec/_source/settings.json	20	20	146,1551,1974,2644,2749,2829,3025,6779,6870,6985,8116,8640,8740,8928,9002,9073,9166,9268,9426,9544
 table	key_pattern	source	docs/spec/_source/settings.schema.json	5	5	101,126,205,561,575
 table	key_pattern	source	docs/spec/_source/settings_json_to_md.py	3	3	267,293,340
-table	key_pattern	source	docs/spec/_source/source-relations.json	1	1	294
+table	key_pattern	source	docs/spec/_source/source-relations.json	1	1	295
 table	key_pattern	source	docs/spec/_source/source_relations.py	2	2	107,132
 table	key_pattern	source	docs/spec/_source/state-machines.json	10	10	15,606,4518,5008,5507,7319,7876,8462,8561,8714
 table	key_pattern	source	docs/spec/_source/state-machines.schema.json	4	4	90,93,186,201
@@ -13786,7 +13785,7 @@ Task Group Pin	pattern	tests	tests/system/cr-783-to-cr-789-the-alpha-checklist-r
 Task Group Pin	pattern	tests	tests/unit/uf-39-40.test.ts	1	1	985
 Task Group Pin	pattern	tests	tests/unit/uf-71.test.ts	1	1	187
 Task Group Pin	pattern	tests	tests/unit/uf-72-screen-part.test.ts	13	13	1369,1375,1383,2335,2342,2368,2371,3077,3404,3439,3455,3786,3929
-taskGroupIdOf	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	1	1	19047
+taskGroupIdOf	pattern	glossary	docs/spec/_source/glossary.json	1	1	29440
 taskGroupIdOf	pattern	source	docs/spec/_source/document-commands.json	1	1	165
 taskGroupIdOf	pattern	source	docs/spec/_source/grs-commands.schema.json	2	2	606,615
 taskGroupIdOf	pattern	spec	docs/spec/_assets/tbl-document-commands.md	1	1	41
@@ -13803,7 +13802,6 @@ taskGroupIdOf	pattern	tests	tests/contract/cr-757-stage.ts	5	5	156,192,209,210,2
 taskGroupIdOf	pattern	tests	tests/contract/cr-766-the-command-unions-carry-the-printed-values.contract.test.ts	1	1	68
 taskGroupIdOf	pattern	tests	tests/unit/cr-560-ctrl-drag-copies-the-selection-unstarted.test.ts	4	4	125,607,611,906
 taskGroupIdOf	pattern	tests	tests/unit/cr-656-shift-drag-keeps-the-dates.test.ts	2	2	633,635
-TaskGroupMember	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	2	2	4077,20431
 TaskGroupMember	pattern	source	docs/spec/_source/erd.json	4	4	253,1672,3626,3637
 TaskGroupMember	pattern	source	docs/spec/_source/grs-document.schema.json	2	2	82,1026
 TaskGroupMember	pattern	spec	docs/spec/01-04-requirements.md	10	10	258,260,337,409,1136,1595,2586,2598,2745,7083
@@ -13832,7 +13830,7 @@ TaskGroupMember	pattern	tests	tests/unit/fr-043-dummy-drawn.test.ts	2	2	108,364
 TaskGroupMember	pattern	tests	tests/unit/t-050-a-document-always-holds-one-task-group.test.ts	2	2	49,175
 TaskGroupMember	pattern	tests	tests/unit/uf-36.test.ts	2	2	52,1466
 TaskGroupMember	pattern	tests	tests/unit/uf-8-9-replace-document.test.ts	3	3	85,234,285
-taskGroupMembers	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	7	7	6395,6396,6406,18180,18181,18221,18222
+taskGroupMembers	pattern	glossary	docs/spec/_source/glossary.json	6	6	11930,11931,28054,28055,28133,28134
 taskGroupMembers	pattern	source	docs/spec/_source/agent-api-members.json	3	3	302,313,319
 taskGroupMembers	pattern	source	docs/spec/_source/erd.json	1	1	252
 taskGroupMembers	pattern	source	docs/spec/_source/grs-document.schema.json	2	2	37,79
@@ -14094,9 +14092,9 @@ taskGroupMembers	pattern	tests	tests/unit/uf-8-9-replace-document.test.ts	2	2	26
 taskGroupMembers	pattern	tests	tests/use-case/uc-001-place-a-task-and-set-its-period.test.ts	2	2	42,74
 taskGroupMembers	pattern	tests	tests/use-case/uc-007-bring-the-range-into-view.test.ts	1	1	104
 taskGroupMembers	pattern	tests	tests/use-case/uc-harness.ts	1	1	60
-taskGroupMembershipBroken	key_pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	1	1	17273
-taskGroupTooDeep	key_pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	1	1	17259
-TaskOrigin	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	5	5	3402,3403,4474,17374,17375
+taskGroupMembershipBroken	key_pattern	glossary	docs/spec/_source/glossary.json	1	1	26338
+taskGroupTooDeep	key_pattern	glossary	docs/spec/_source/glossary.json	1	1	26302
+TaskOrigin	pattern	glossary	docs/spec/_source/glossary.json	5	5	6324,6325,8320,26533,26534
 TaskOrigin	pattern	source	docs/spec/_source/erd.json	4	4	273,476,2647,3764
 TaskOrigin	pattern	source	docs/spec/_source/grs-document.schema.json	2	2	106,1407
 TaskOrigin	pattern	spec	docs/spec/01-04-requirements.md	6	6	2586,2737,2745,2748,2750,2774
@@ -14113,7 +14111,7 @@ TaskOrigin	pattern	src	src/use-case/import-document/import-document.ts	2	2	21,36
 TaskOrigin	pattern	tests	tests/contract/dfc-290-d-321-fr-033-copy-and-paste-reach-the-document.test.ts	5	5	20,135,475,548,549
 TaskOrigin	pattern	tests	tests/contract/document-invariants.contract.test.ts	5	5	88,436,726,853,929
 TaskOrigin	pattern	tests	tests/unit/uf-8-9-replace-document.test.ts	2	2	86,270
-taskOrigins	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	3	3	6433,18180,18181
+taskOrigins	pattern	glossary	docs/spec/_source/glossary.json	3	3	11992,28054,28055
 taskOrigins	pattern	source	docs/spec/_source/agent-api-members.json	2	2	313,319
 taskOrigins	pattern	source	docs/spec/_source/erd.json	1	1	272
 taskOrigins	pattern	source	docs/spec/_source/grs-document.schema.json	2	2	41,103
@@ -14300,14 +14298,14 @@ taskOrigins	pattern	tests	tests/unit/uf-48-undo-through-the-one-path.test.ts	1	1
 taskOrigins	pattern	tests	tests/unit/uf-48-write-moment.test.ts	1	1	260
 taskOrigins	pattern	tests	tests/unit/uf-8-9-replace-document.test.ts	1	1	270
 taskOrigins	pattern	tests	tests/use-case/uc-014-merge-schedules-into-one.test.ts	1	1	71
-taskTotal	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	5	3	16430,18262,18263
+taskTotal	pattern	glossary	docs/spec/_source/glossary.json	5	3	24702,28198,28199
 taskTotal	pattern	source	docs/spec/_source/agent-api-members.json	4	3	427,435,1940
 taskTotal	pattern	spec	docs/spec/_assets/tbl-agent-api-members.md	2	2	33,83
 taskTotal	pattern	src	src/adapter/agent-api-endpoint/agent-api-members.ts	2	2	212,471
 taskTotal	pattern	src	src/adapter/mcp-tool-translator/mcp-tool-descriptions.json	2	1	100
 taskTotal	pattern	tests	tests/contract/cr-765-t-400-the-value-types.contract.test.ts	1	1	93
 taskTotal	pattern	tests	tests/contract/cr-796-s4-the-ai-reads-in-small-pieces.contract.test.ts	10	10	337,339,342,345,359,362,373,431,433,434
-taskUids	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	5	5	17843,18180,18181,18204,18617
+taskUids	pattern	glossary	docs/spec/_source/glossary.json	7	7	27364,28054,28055,28106,28107,28795,28796
 taskUids	pattern	source	docs/spec/_source/agent-api-members.json	4	4	290,313,319,1110
 taskUids	pattern	spec	docs/spec/_assets/tbl-agent-api-members.md	3	2	30,50
 taskUids	pattern	src	src/adapter/agent-api-endpoint/agent-api-members.ts	22	18	264,308,382,383,429,430,431,614,615,616,619,634,637,641,643,1082,1083,1316
@@ -14334,7 +14332,7 @@ taskUids	pattern	tests	tests/system/cr-722-the-eyes-the-red-and-the-resource-lis
 taskUids	pattern	tests	tests/system/cr-723-the-views-are-saved-and-the-windows-come-back-minimized-on-the-shipped-build.test.ts	1	1	43
 taskUids	pattern	tests	tests/system/duplicate-paste-and-dual-cursor.test.ts	12	11	223,377,741,749,750,763,764,777,778,862,864
 taskUids	pattern	tests	tests/unit/fr-072-a-moved-selection-does-not-open-the-panel.test.ts	6	6	467,489,697,710,944,961
-TaskVisual	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	1	1	20664
+TaskVisual	pattern	glossary	docs/spec/_source/glossary.json	2	2	31823,31824
 TaskVisual	pattern	source	docs/spec/_source/agent-api-members.json	1	1	67
 TaskVisual	pattern	source	docs/spec/_source/document-commands.json	5	5	1232,1263,1293,1327,1353
 TaskVisual	pattern	source	docs/spec/_source/erd.json	7	7	258,1098,1101,1286,2512,2533,3753
@@ -14390,7 +14388,7 @@ TaskVisual	pattern	tests	tests/unit/in-2-b-armed-dependency-shows-the-arrow.test
 TaskVisual	pattern	tests	tests/unit/in-2-pointer-shape.test.ts	4	4	22,122,294,302
 TaskVisual	pattern	tests	tests/unit/t-109-milestone-entrances-arm-their-glyph.test.ts	4	4	49,164,341,743
 TaskVisual	pattern	tests	tests/unit/uf-8-9-replace-document.test.ts	2	2	87,267
-taskVisualCountNotOne	key_pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	1	1	17483
+taskVisualCountNotOne	key_pattern	glossary	docs/spec/_source/glossary.json	1	1	26702
 taskVisuals	pattern	source	docs/spec/_source/agent-api-members.json	3	3	302,313,319
 taskVisuals	pattern	source	docs/spec/_source/erd.json	1	1	257
 taskVisuals	pattern	source	docs/spec/_source/grs-document.schema.json	2	2	38,85
@@ -14618,7 +14616,6 @@ taskVisuals	pattern	tests	tests/unit/uf-8-9-replace-document.test.ts	1	1	267
 taskVisuals	pattern	tests	tests/use-case/uc-001-place-a-task-and-set-its-period.test.ts	1	1	41
 taskVisuals	pattern	tests	tests/use-case/uc-003-edit-task-attributes.test.ts	1	1	9
 taskVisuals	pattern	tests	tests/use-case/uc-harness.ts	1	1	61
-temporarilyExpanded	key_pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	1	1	3986
 temporarilyExpanded	key_pattern	source	docs/spec/_source/erd.json	3	2	1603,1613
 temporarilyExpanded	key_pattern	source	docs/spec/_source/grs-commands.schema.json	1	1	3211
 temporarilyExpanded	key_pattern	source	docs/spec/_source/grs-document.schema.json	1	1	1000
@@ -14655,7 +14652,7 @@ temporarilyExpanded	key_pattern	tests	tests/unit/cr-423-the-vertical-zoom-stops-
 temporarilyExpanded	key_pattern	tests	tests/unit/cr-541-stage.ts	1	1	70
 temporarilyExpanded	key_pattern	tests	tests/unit/cr-541-task-group-panel-open-all-and-reset.test.ts	6	6	85,86,102,134,136,139
 temporarilyExpanded	key_pattern	tests	tests/unit/t-051-hf-14-a-raised-task-group-is-visible.test.ts	7	7	421,422,524,526,617,659,660
-textColor	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	2	2	4935,11775
+textColor	pattern	glossary	docs/spec/_source/glossary.json	1	1	9121
 textColor	pattern	source	docs/spec/_source/document-commands.json	2	2	2398,2407
 textColor	pattern	source	docs/spec/_source/erd.json	1	1	3023
 textColor	pattern	source	docs/spec/_source/grs-commands.schema.json	3	3	2241,2250,2261
@@ -14705,7 +14702,7 @@ textColor	pattern	tests	tests/unit/cr-559-comment-box-leader-handle-bundles-and-
 textColor	pattern	tests	tests/unit/cr-646-edits-write-side-times.test.ts	1	1	380
 textColor	pattern	tests	tests/unit/cr-811-the-comment-box-font-size-is-8-to-24-and-10-by-default.test.ts	1	1	127
 textColor	pattern	tests	tests/unit/t-023c-selection-points-at-what-exists.test.ts	1	1	321
-toDate	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	1	1	2914
+toDate	pattern	glossary	docs/spec/_source/glossary.json	3	3	5309,5311,5312
 toDate	pattern	source	docs/spec/_source/document-commands.json	2	2	1880,1888
 toDate	pattern	source	docs/spec/_source/erd.json	3	3	2082,2085,2090
 toDate	pattern	source	docs/spec/_source/grs-commands.schema.json	5	5	1576,1607,1632,3027,3047
@@ -14759,7 +14756,7 @@ toDate	pattern	tests	tests/unit/document-model.test.ts	1	1	316
 toDate	pattern	tests	tests/unit/edit-calendar.test.ts	1	1	402
 toDate	pattern	tests	tests/unit/t-024a-op-10-first-day-covered.test.ts	1	1	552
 toDate	pattern	tests	tests/unit/uf-36.test.ts	1	1	720
-tooTall	key_pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	1	1	16951
+tooTall	key_pattern	glossary	docs/spec/_source/glossary.json	1	1	25803
 tooTall	key_pattern	source	docs/spec/_source/agent-api-members.json	1	1	1481
 tooTall	key_pattern	spec	docs/spec/_assets/tbl-agent-api-members.md	1	1	73
 tooTall	key_pattern	src	src/adapter/agent-api-endpoint/agent-api-members.ts	3	3	150,1203,1255
@@ -14767,7 +14764,7 @@ tooTall	key_pattern	src	src/adapter/image-exporter/image-exporter.ts	2	2	39,208
 tooTall	key_pattern	tests	tests/contract/cr-765-t-400-the-value-types.contract.test.ts	1	1	117
 tooTall	key_pattern	tests	tests/contract/ix-4-ep-1-the-exported-height-is-whole-and-the-title-stays-inside.test.ts	1	1	335
 tooTall	key_pattern	tests	tests/contract/w3-t4-a-saved-export-span-draws-one-picture.test.ts	1	1	296
-topTaskGroupId	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	3	3	4977,20017,20018
+topTaskGroupId	pattern	glossary	docs/spec/_source/glossary.json	3	3	9261,31018,31019
 topTaskGroupId	pattern	source	docs/spec/_source/document-commands.json	1	1	143
 topTaskGroupId	pattern	source	docs/spec/_source/erd.json	3	3	3119,3790,3792
 topTaskGroupId	pattern	source	docs/spec/_source/grs-commands.schema.json	4	4	2330,2342,2395,2407
@@ -14818,7 +14815,7 @@ topTaskGroupId	pattern	tests	tests/unit/cr-831-the-accepted-days-match-ms-projec
 topTaskGroupId	pattern	tests	tests/unit/t-023c-selection-points-at-what-exists.test.ts	1	1	330
 topTaskGroupId	pattern	tests	tests/unit/t-024a-op-10-first-day-covered.test.ts	1	1	533
 topTaskGroupId	pattern	tests	tests/use-case/uc-008-tell-by-annotations.test.ts	1	1	106
-total	key_pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	1	1	16576
+total	key_pattern	glossary	docs/spec/_source/glossary.json	1	1	25083
 total	key_pattern	source	docs/spec/_source/agent-api-members.json	1	1	2045
 total	key_pattern	spec	docs/spec/_assets/tbl-agent-api-members.md	1	1	85
 total	key_pattern	src	src/adapter/agent-api-endpoint/agent-api-members.ts	2	2	232,524
@@ -14831,7 +14828,7 @@ total	key_pattern	tests	tests/contract/cr-814-the-ai-reads-and-saves-the-fix-log
 total	key_pattern	tests	tests/system/cr-722-the-eyes-the-red-and-the-resource-list-on-the-shipped-build.test.ts	1	1	299
 total	key_pattern	tests	tests/unit/cr-429-mspdi-fixtures.ts	1	1	87
 total	key_pattern	tests	tests/unit/document-model.test.ts	1	1	251
-treeState	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	11	11	3929,3945,3959,3973,3987,4001,5424,5425,14404,14405,14413
+treeState	pattern	glossary	docs/spec/_source/glossary.json	3	3	7288,21822,21823
 treeState	pattern	source	docs/spec/_source/document-commands.json	2	2	3401,3410
 treeState	pattern	source	docs/spec/_source/erd.json	1	1	1594
 treeState	pattern	source	docs/spec/_source/grs-commands.schema.json	3	3	3197,3206,3220
@@ -15030,7 +15027,7 @@ treeState	pattern	tests	tests/unit/uf-48-write-moment.test.ts	1	1	232
 treeState	pattern	tests	tests/unit/uf-8-9-replace-document.test.ts	1	1	228
 treeState	pattern	tests	tests/unit/use-case.test.ts	11	11	71,350,372,394,395,396,406,409,415,425,460
 treeState	pattern	tests	tests/use-case/uc-002-build-task-groups-as-a-hierarchy.test.ts	4	4	86,91,94,106
-typed	key_pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	1	1	19488
+typed	key_pattern	glossary	docs/spec/_source/glossary.json	1	1	30168
 uidHighWaterMark	pattern	source	docs/spec/_source/agent-api-members.json	2	2	66,1342
 uidHighWaterMark	pattern	source	docs/spec/_source/document-commands.json	4	4	769,770,776,777
 uidHighWaterMark	pattern	source	docs/spec/_source/erd.json	1	1	843
@@ -15212,7 +15209,7 @@ uidHighWaterMark	pattern	tests	tests/unit/uf-48-input.test.ts	1	1	293
 uidHighWaterMark	pattern	tests	tests/unit/uf-48-undo-through-the-one-path.test.ts	1	1	251
 uidHighWaterMark	pattern	tests	tests/unit/uf-48-write-moment.test.ts	1	1	242
 uidHighWaterMark	pattern	tests	tests/unit/uf-8-9-replace-document.test.ts	1	1	189
-unit	key_pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	4	4	19520,19535,19550,19565
+unit	key_pattern	glossary	docs/spec/_source/glossary.json	1	1	30229
 unit	key_pattern	source	docs/spec/_source/display-words.json	2	2	5011,5048
 unit	key_pattern	source	docs/spec/_source/erd.schema.json	1	1	385
 unit	key_pattern	source	docs/spec/_source/erd_json_to_schema.py	1	1	786
@@ -15247,13 +15244,12 @@ unit	key_pattern	tests	tests/unit/uf-50.test.ts	2	2	19,70
 unit	key_pattern	tests	tests/unit/uf-71.test.ts	2	2	20,98
 unit	key_pattern	tests	tests/unit/uf-72-screen-part.test.ts	5	5	21,4732,4734,4762,4766
 unit	key_pattern	tests	tests/unit/uf-8-9-replace-document.test.ts	3	3	14,565,1161
-unknownTask	key_pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	1	1	16923
 unknownTask	key_pattern	source	docs/spec/_source/agent-api-members.json	1	1	1469
 unknownTask	key_pattern	spec	docs/spec/_assets/tbl-agent-api-members.md	1	1	73
 unknownTask	key_pattern	src	src/adapter/agent-api-endpoint/agent-api-members.ts	3	3	148,620,665
 unknownTask	key_pattern	tests	tests/contract/cr-765-t-400-the-value-types.contract.test.ts	1	1	115
 unknownTask	key_pattern	tests	tests/unit/uf-27-28-29.test.ts	3	3	214,1185,1420
-up	key_pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	1	1	6016
+up	key_pattern	glossary	docs/spec/_source/glossary.json	1	1	11121
 up	key_pattern	source	docs/spec/_source/grs-commands.schema.json	1	1	2549
 up	key_pattern	source	docs/spec/_source/grs-document.schema.json	2	2	360,363
 up	key_pattern	source	docs/spec/_source/settings.json	2	2	1592,1594
@@ -15427,7 +15423,7 @@ up	key_pattern	tests	tests/unit/uf-48-input.test.ts	8	8	860,878,900,1005,1025,10
 up	key_pattern	tests	tests/unit/uf-48-write-moment.test.ts	3	3	601,1154,1283
 up	key_pattern	tests	tests/unit/uf-50.test.ts	4	4	859,881,1006,1183
 up	key_pattern	tests	tests/unit/uf-8-9-replace-document.test.ts	1	1	246
-UTC[+-][0-9]{2}:[0-9]{2}	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	4	4	1968,1969,3246,3247
+UTC[+-][0-9]{2}:[0-9]{2}	pattern	glossary	docs/spec/_source/glossary.json	2	2	5845,5846
 UTC[+-][0-9]{2}:[0-9]{2}	pattern	source	docs/spec/_source/agent-api-members.json	1	1	58
 UTC[+-][0-9]{2}:[0-9]{2}	pattern	source	docs/spec/_source/erd.json	1	1	971
 UTC[+-][0-9]{2}:[0-9]{2}	pattern	source	docs/spec/_source/grs-commands.schema.json	67	67	461,462,463,464,465,466,467,468,469,470,471,472,473,474,475,476,477,478,479,480,481,482,483,484,485,486,487,489,3126,3127,3128,3129,3130,3131,3132,3133,3134,3135,3136,3137,3138,3139,3140,3141,3142,3143,3144,3145,3146,3147,3148,3149,3150,3151,3152,3153,3154,3155,3156,3157,3158,3159,3160,3161,3162,3163,3164
@@ -15460,7 +15456,7 @@ UTC[+-][0-9]{2}:[0-9]{2}	pattern	tests	tests/fixtures/measuring-document.json	1	
 UTC[+-][0-9]{2}:[0-9]{2}	pattern	tests	tests/integration/schedule-drawing.sws.test.ts	1	1	350
 UTC[+-][0-9]{2}:[0-9]{2}	pattern	tests	tests/system/cr-783-to-cr-789-the-alpha-checklist-rows-on-the-shipped-build.test.ts	2	2	378,385
 UTC[+-][0-9]{2}:[0-9]{2}	pattern	tests	tests/unit/uf-8-9-replace-document.test.ts	1	1	193
-viewTimeZone	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	7	7	5610,5626,5640,5656,5671,20090,20091
+viewTimeZone	pattern	glossary	docs/spec/_source/glossary.json	7	7	10456,10482,10505,10540,10555,31110,31111
 viewTimeZone	pattern	source	docs/spec/_source/document-commands.json	2	2	3314,3328
 viewTimeZone	pattern	source	docs/spec/_source/grs-commands.schema.json	3	3	3097,3102,3111
 viewTimeZone	pattern	source	docs/spec/_source/grs-document.schema.json	2	2	152,488
@@ -15502,7 +15498,7 @@ viewTimeZone	pattern	tests	tests/contract/cr-794-the-tip-dates-are-padded-and-th
 viewTimeZone	pattern	tests	tests/contract/dfc-2642-every-t-108-command-takes-the-values-its-manuscript-row-names.test.ts	1	1	158
 viewTimeZone	pattern	tests	tests/fixtures/measuring-document.json	1	1	47611
 viewTimeZone	pattern	tests	tests/unit/uf-48-write-moment.test.ts	1	1	1368
-VisibilityTable	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	2	2	15944,21741
+VisibilityTable	pattern	glossary	docs/spec/_source/glossary.json	1	1	23797
 VisibilityTable	pattern	source	docs/spec/_source/agent-api-members.json	2	2	130,1709
 VisibilityTable	pattern	source	docs/spec/_source/published-entries.json	2	2	4934,4971
 VisibilityTable	pattern	spec	docs/spec/_assets/tbl-agent-api-members.md	1	1	77
@@ -15520,7 +15516,7 @@ VisibilityTable	pattern	tests	tests/contract/cr-722-stage.ts	3	3	8,13,131
 VisibilityTable	pattern	tests	tests/contract/cr-722-tv-11-the-schedule-filter-bar-names-the-tables.contract.test.ts	6	5	7,24,27,32,59
 VisibilityTable	pattern	tests	tests/contract/cr-723-stage.ts	10	10	15,23,34,39,80,97,119,124,125,131
 VisibilityTable	pattern	tests	tests/contract/cr-723-un-20-cm-92-cd-1-cd-5-a-view-change-is-an-edit-and-one-undo-step.contract.test.ts	2	2	30,35
-waitMs	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	2	2	18690,18691
+waitMs	pattern	glossary	docs/spec/_source/glossary.json	2	2	28956,28957
 waitMs	pattern	source	docs/spec/_source/agent-api-members.json	2	2	1218,1224
 waitMs	pattern	spec	docs/spec/_assets/design-mcp-relay.md	3	3	75,122,123
 waitMs	pattern	spec	docs/spec/_assets/tbl-agent-api-members.md	1	1	53
@@ -15534,7 +15530,6 @@ waitMs	pattern	tests	tests/contract/cr-765-the-agent-api-type-and-the-relayed-pa
 waitMs	pattern	tests	tests/contract/cr-765-the-mcp-tool-inputs-are-the-printed-arguments.contract.test.ts	7	6	29,185,186,188,189,191
 waitMs	pattern	tests	tests/contract/cr-796-s1-the-relay-answers-a-silent-page-after-its-deadline.contract.test.ts	5	5	367,368,377,386,391
 waitMs	pattern	tests	tests/contract/dfc-2641-an-mcp-tool-call-reaches-its-member-under-the-manuscript-argument-names.test.ts	2	2	19,57
-WatcherMark	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	1	1	15957
 WatcherMark	pattern	source	docs/spec/_source/agent-api-members.json	2	2	133,1816
 WatcherMark	pattern	spec	docs/spec/_assets/tbl-agent-api-members.md	1	1	81
 WatcherMark	pattern	src	src/use-case/notify-change-watchers/change-notice.ts	3	3	8,22,29
@@ -15696,7 +15691,7 @@ wbsOrder	pattern	tests	tests/unit/uf-48-input.test.ts	1	1	257
 wbsOrder	pattern	tests	tests/unit/uf-48-undo-through-the-one-path.test.ts	1	1	215
 wbsOrder	pattern	tests	tests/unit/uf-48-write-moment.test.ts	1	1	206
 wbsOrder	pattern	tests	tests/unit/uf-8-9-replace-document.test.ts	1	1	201
-which	key_pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	2	2	18136,18659
+which	key_pattern	glossary	docs/spec/_source/glossary.json	2	2	27965,28883
 which	key_pattern	source	docs/spec/_source/agent-api-members.json	4	4	50,226,256,1178
 which	key_pattern	source	docs/spec/_source/build.py	1	1	57
 which	key_pattern	source	docs/spec/_source/source_relations.py	1	1	54
@@ -15750,7 +15745,6 @@ which	key_pattern	tests	tests/unit/uf-48-one-input-one-step.test.ts	1	1	39
 which	key_pattern	tests	tests/unit/uf-48-undo-through-the-one-path.test.ts	1	1	360
 which	key_pattern	tests	tests/unit/uf-48-write-moment.test.ts	1	1	338
 which	key_pattern	tests	tests/unit/uf-72-screen-part.test.ts	1	1	5019
-wouldMakeCycle	key_pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	1	1	17623
 zoomX	pattern	source	docs/spec/_source/display-words.json	1	1	1851
 zoomX	pattern	source	docs/spec/_source/document-commands.json	4	4	2845,2858,2997,3026
 zoomX	pattern	source	docs/spec/_source/grs-commands.schema.json	6	6	2634,2639,2652,2750,2755,2788
@@ -16024,7 +16018,7 @@ zoomY	pattern	tests	tests/unit/uf-47-48.test.ts	2	1	642
 zoomY	pattern	tests	tests/unit/uf-8-9-replace-document.test.ts	1	1	250
 zoomY	pattern	tests	tests/unit/use-case.test.ts	7	7	192,198,314,356,369,433,464
 zoomY	pattern	tests	tests/use-case/uc-007-bring-the-range-into-view.test.ts	2	1	152
-つまみ	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	3	3	6900,6911,6915
+つまみ	pattern	glossary	docs/spec/_source/glossary.json	3	3	12620,12637,12641
 つまみ	pattern	source	docs/spec/_source/published-entries.json	1	1	3686
 つまみ	pattern	source	docs/spec/_source/state-machines.json	2	2	5059,5138
 つまみ	pattern	spec	docs/spec/01-04-requirements.md	9	4	4499,4582,4602,5336
@@ -16034,12 +16028,12 @@ zoomY	pattern	tests	tests/use-case/uc-007-bring-the-range-into-view.test.ts	2	1	
 つまみ	pattern	tests	tests/contract/dfc-298-d-420-gr-21-the-grip-starts-and-follows.test.ts	1	1	51
 つまみ	pattern	tests	tests/unit/t-023d-follows-the-pointer.test.ts	1	1	100
 タスクグループ見出しツリー	pattern	spec	docs/spec/_assets/tbl-glossary.md	1	1	106
-フィルタ(?!ー)	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	26	22	1642,2340,2428,2441,2454,6203,6261,6276,6291,10186,10190,10202,10206,10266,10270,16527,18263,18289,18317,21804,21826,22628
+フィルタ(?!ー)	pattern	glossary	docs/spec/_source/glossary.json	44	32	2994,4229,4437,4458,4479,11308,11380,11512,11536,11573,12468,12472,12555,16447,16451,16467,16471,16535,16539,24294,24315,24887,28199,28242,28286,28735,28779,28800,33540,33574,33591,34643
 フィルタ(?!ー)	pattern	source	docs/spec/_source/agent-api-members.json	21	20	395,421,422,427,457,465,473,498,502,531,1036,1088,1121,1122,1124,1126,1127,1704,1711,1995
 フィルタ(?!ー)	pattern	source	docs/spec/_source/display-words.json	12	12	952,956,963,967,1007,1011,5641,5669,6264,6271,6278,6546
 フィルタ(?!ー)	pattern	source	docs/spec/_source/document-commands.json	4	3	402,462,3293
 フィルタ(?!ー)	pattern	source	docs/spec/_source/published-entries.json	51	43	415,1337,2460,2470,2480,3735,3736,3745,3747,3755,3756,3766,3767,3795,3812,3821,3822,3839,3848,3858,3900,3920,3939,3948,3958,3968,4021,4030,4031,4048,4106,4107,4117,4181,4405,4432,4449,4474,4910,4928,4938,4946,4971
-フィルタ(?!ー)	pattern	source	docs/spec/_source/row-id-prefixes.json	2	1	1508
+フィルタ(?!ー)	pattern	source	docs/spec/_source/row-id-prefixes.json	2	1	1526
 フィルタ(?!ー)	pattern	source	docs/spec/_source/settings.json	17	14	2221,2259,2302,2340,2437,2549,5727,5975,6065,6308,6316,6322,7322,7336
 フィルタ(?!ー)	pattern	source	docs/spec/_source/state-machines.json	5	2	141,9054
 フィルタ(?!ー)	pattern	spec	docs/spec/01-04-requirements.md	143	64	1578,1579,2372,2430,2532,2534,2535,2676,2677,2691,3029,3030,3865,3895,3896,3900,3902,3905,3907,3912,3913,3914,3922,3956,3957,3958,4029,4034,4073,4868,5526,5528,5529,5531,5539,5545,5550,5552,5556,5564,5566,5585,5597,5601,5602,5604,5605,5606,5607,5608,5609,5611,5612,5613,6248,6336,7379,7437,7479,7482,7542,8548,8831,9106
@@ -16048,7 +16042,7 @@ zoomY	pattern	tests	tests/use-case/uc-007-bring-the-range-into-view.test.ts	2	1	
 フィルタ(?!ー)	pattern	spec	docs/spec/_assets/tbl-document-commands.md	4	1	116
 フィルタ(?!ー)	pattern	spec	docs/spec/_assets/tbl-glossary.md	9	5	113,147,498,499,503
 フィルタ(?!ー)	pattern	spec	docs/spec/_assets/tbl-published-entries.md	51	5	19,20,27,51,53
-フィルタ(?!ー)	pattern	spec	docs/spec/_assets/tbl-row-id-prefixes.md	2	1	229
+フィルタ(?!ー)	pattern	spec	docs/spec/_assets/tbl-row-id-prefixes.md	2	1	231
 フィルタ(?!ー)	pattern	spec	docs/spec/_assets/tbl-settings.md	17	12	212,214,216,218,223,258,544,563,570,589,590,667
 フィルタ(?!ー)	pattern	spec	docs/spec/_assets/tbl-state-machines.md	5	2	77,1151
 フィルタ(?!ー)	pattern	src	src/adapter/screen-renderer/display-words.json	12	12	942,946,953,957,997,1001,6218,6246,6855,6862,6869,7137
@@ -16090,7 +16084,7 @@ zoomY	pattern	tests	tests/use-case/uc-007-bring-the-range-into-view.test.ts	2	1	
 フィルタ(?!ー)	pattern	tests	tests/system/cr-721-sv-7-ic-153-the-green-heading-and-the-clear-entry.test.ts	4	4	25,26,27,28
 フィルタ(?!ー)	pattern	tests	tests/system/cr-722-the-eyes-the-red-and-the-resource-list-on-the-shipped-build.test.ts	5	4	15,16,19,21
 フィルタ(?!ー)	pattern	tests	tests/unit/cr-617-the-delay-diagnostics-report-window.test.ts	1	1	250
-ブラウザ(?!ー)	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	2	2	11006,12832
+ブラウザ(?!ー)	pattern	glossary	docs/spec/_source/glossary.json	2	2	17423,19644
 ブラウザ(?!ー)	pattern	source	docs/spec/_source/display-words.json	10	10	1517,3575,3579,3824,4413,4475,4508,4515,4634,4656
 ブラウザ(?!ー)	pattern	source	docs/spec/_source/notice-reasons.json	2	2	775,1069
 ブラウザ(?!ー)	pattern	source	docs/spec/_source/published-entries.json	2	2	2779,3356
@@ -16137,13 +16131,13 @@ zoomY	pattern	tests	tests/use-case/uc-007-bring-the-range-into-view.test.ts	2	1	
 ブラウザ(?!ー)	pattern	tests	tests/unit/t-023-wheel-goes-to-the-browser.test.ts	7	7	40,63,69,72,569,683,772
 ブラウザ(?!ー)	pattern	tests	tests/unit/uf-48-input.test.ts	8	8	58,81,84,509,682,698,708,1286
 ブラウザ(?!ー)	pattern	tests	tests/unit/uf-48-write-moment.test.ts	2	2	85,451
-ヘッダーのコマンド|休日の設定ウィンドウ|文書の設定|文書の刻印|変更の記録	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	7	6	9210,13317,20494,20510,20526,21881
+ヘッダーのコマンド|休日の設定ウィンドウ|文書の設定|文書の刻印|変更の記録	pattern	glossary	docs/spec/_source/glossary.json	7	6	15348,20285,31589,31609,31629,33659
 ヘッダーのコマンド|休日の設定ウィンドウ|文書の設定|文書の刻印|変更の記録	pattern	source	docs/spec/_source/agent-api-members.json	1	1	339
 ヘッダーのコマンド|休日の設定ウィンドウ|文書の設定|文書の刻印|変更の記録	pattern	source	docs/spec/_source/display-words.json	3	3	281,6632,6639
 ヘッダーのコマンド|休日の設定ウィンドウ|文書の設定|文書の刻印|変更の記録	pattern	source	docs/spec/_source/erd.json	4	4	205,212,378,386
 ヘッダーのコマンド|休日の設定ウィンドウ|文書の設定|文書の刻印|変更の記録	pattern	source	docs/spec/_source/notice-reasons.json	1	1	588
 ヘッダーのコマンド|休日の設定ウィンドウ|文書の設定|文書の刻印|変更の記録	pattern	source	docs/spec/_source/published-entries.json	3	3	2479,3629,4388
-ヘッダーのコマンド|休日の設定ウィンドウ|文書の設定|文書の刻印|変更の記録	pattern	source	docs/spec/_source/row-id-prefixes.json	2	2	538,1228
+ヘッダーのコマンド|休日の設定ウィンドウ|文書の設定|文書の刻印|変更の記録	pattern	source	docs/spec/_source/row-id-prefixes.json	2	2	538,1237
 ヘッダーのコマンド|休日の設定ウィンドウ|文書の設定|文書の刻印|変更の記録	pattern	source	docs/spec/_source/settings.json	6	6	1945,2173,3764,4216,4223,5933
 ヘッダーのコマンド|休日の設定ウィンドウ|文書の設定|文書の刻印|変更の記録	pattern	source	docs/spec/_source/state-machines.json	21	21	3739,3756,3773,3790,3807,3824,3841,3972,3989,4006,4023,4040,4057,4074,4206,4223,4240,4257,4274,4291,4308
 ヘッダーのコマンド|休日の設定ウィンドウ|文書の設定|文書の刻印|変更の記録	pattern	spec	docs/spec/01-04-requirements.md	36	36	345,957,996,1964,1970,1987,2023,2025,2032,2034,2041,2043,2052,2058,2092,2221,3510,3630,3688,5379,5388,5773,5775,5793,5900,6007,6039,6531,7083,7334,7337,7675,7942,7998,8106,9032
@@ -16153,7 +16147,7 @@ zoomY	pattern	tests	tests/use-case/uc-007-bring-the-range-into-view.test.ts	2	1	
 ヘッダーのコマンド|休日の設定ウィンドウ|文書の設定|文書の刻印|変更の記録	pattern	spec	docs/spec/_assets/tbl-glossary.md	1	1	549
 ヘッダーのコマンド|休日の設定ウィンドウ|文書の設定|文書の刻印|変更の記録	pattern	spec	docs/spec/_assets/tbl-notice-reasons.md	1	1	65
 ヘッダーのコマンド|休日の設定ウィンドウ|文書の設定|文書の刻印|変更の記録	pattern	spec	docs/spec/_assets/tbl-published-entries.md	3	2	27,51
-ヘッダーのコマンド|休日の設定ウィンドウ|文書の設定|文書の刻印|変更の記録	pattern	spec	docs/spec/_assets/tbl-row-id-prefixes.md	2	2	110,194
+ヘッダーのコマンド|休日の設定ウィンドウ|文書の設定|文書の刻印|変更の記録	pattern	spec	docs/spec/_assets/tbl-row-id-prefixes.md	2	2	110,195
 ヘッダーのコマンド|休日の設定ウィンドウ|文書の設定|文書の刻印|変更の記録	pattern	spec	docs/spec/_assets/tbl-settings.md	6	5	185,209,395,428,560
 ヘッダーのコマンド|休日の設定ウィンドウ|文書の設定|文書の刻印|変更の記録	pattern	spec	docs/spec/_assets/tbl-state-machines.md	21	21	466,467,468,469,470,471,472,489,490,491,492,493,494,495,512,513,514,515,516,517,518
 ヘッダーのコマンド|休日の設定ウィンドウ|文書の設定|文書の刻印|変更の記録	pattern	src	src/adapter/screen-renderer/display-words.json	3	3	271,7223,7230
@@ -16181,8 +16175,8 @@ zoomY	pattern	tests	tests/use-case/uc-007-bring-the-range-into-view.test.ts	2	1	
 ポインタ(?!ー)	pattern	source	docs/spec/_source/display-words.json	1	1	4535
 ポインタ(?!ー)	pattern	source	docs/spec/_source/notice-reasons.json	1	1	1079
 ポインタ(?!ー)	pattern	source	docs/spec/_source/published-entries.json	5	5	1482,2153,2195,3396,4519
-ポインタ(?!ー)	pattern	source	docs/spec/_source/row-id-prefixes.json	5	5	626,870,1068,1140,1468
-ポインタ(?!ー)	pattern	source	docs/spec/_source/row_id_prefixes_json_to_md.py	1	1	105
+ポインタ(?!ー)	pattern	source	docs/spec/_source/row-id-prefixes.json	5	5	626,870,1077,1149,1486
+ポインタ(?!ー)	pattern	source	docs/spec/_source/row_id_prefixes_json_to_md.py	1	1	110
 ポインタ(?!ー)	pattern	source	docs/spec/_source/settings.json	21	18	4184,4906,4948,4954,4962,5153,5273,5281,5287,5303,5320,5333,5485,5499,5505,5513,8690,8709
 ポインタ(?!ー)	pattern	source	docs/spec/_source/state-machines.json	3	3	4574,5037,5088
 ポインタ(?!ー)	pattern	spec	docs/spec/01-04-requirements.md	211	136	214,405,433,793,822,823,1614,1700,1767,1769,1775,1781,1783,2780,2782,2890,2891,2892,2893,3026,3382,3390,3482,3516,3563,4062,4071,4131,4137,4262,4275,4368,4375,4377,4397,4402,4428,4433,4452,4453,4456,4457,4488,4494,4499,4505,4512,4544,4547,4556,4565,4572,4576,4577,4578,4579,4580,4582,4585,4605,4612,4614,4616,4624,4706,4728,4792,4855,4860,4862,4878,4881,4902,4904,4908,4909,4989,5214,5352,5373,5374,5375,5376,5384,5385,5392,5405,5420,5443,5493,5545,5553,5556,5792,5805,5883,6680,6683,6685,6689,6690,6700,6726,6728,6734,7419,7428,8429,8433,8438,8453,8484,8523,8526,8529,8532,8620,8833,8834,8848,8913,9067,9089,9094,9102,9103,9104,9105,9109,9111,9112,9114,9115,9144,9231,9233
@@ -16190,7 +16184,7 @@ zoomY	pattern	tests	tests/use-case/uc-007-bring-the-range-into-view.test.ts	2	1	
 ポインタ(?!ー)	pattern	spec	docs/spec/_assets/tbl-glossary.md	2	2	123,398
 ポインタ(?!ー)	pattern	spec	docs/spec/_assets/tbl-notice-reasons.md	1	1	113
 ポインタ(?!ー)	pattern	spec	docs/spec/_assets/tbl-published-entries.md	5	4	23,25,49,52
-ポインタ(?!ー)	pattern	spec	docs/spec/_assets/tbl-row-id-prefixes.md	5	5	121,150,174,183,224
+ポインタ(?!ー)	pattern	spec	docs/spec/_assets/tbl-row-id-prefixes.md	5	5	121,150,175,184,226
 ポインタ(?!ー)	pattern	spec	docs/spec/_assets/tbl-settings.md	21	15	425,481,484,485,500,510,511,512,513,514,525,526,527,746,747
 ポインタ(?!ー)	pattern	spec	docs/spec/_assets/tbl-state-machines.md	3	3	563,643,645
 ポインタ(?!ー)	pattern	src	src/adapter/screen-renderer/display-words.json	1	1	5047
@@ -16270,14 +16264,14 @@ zoomY	pattern	tests	tests/use-case/uc-007-bring-the-range-into-view.test.ts	2	1	
 ポインタ(?!ー)	pattern	tests	tests/unit/uf-71-confirmation.test.ts	1	1	1548
 ポインタ(?!ー)	pattern	tests	tests/unit/uf-71.test.ts	1	1	2198
 ポインタ(?!ー)	pattern	tests	tests/unit/uf-72-screen-part.test.ts	7	7	3425,4053,4055,4192,4210,4272,5214
-全体を収める	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	1	1	8954
+全体を収める	pattern	glossary	docs/spec/_source/glossary.json	4	3	10064,10416,15032
 全体を収める	pattern	source	docs/spec/_source/display-words.json	1	1	105
 全体を収める	pattern	spec	docs/spec/01-04-requirements.md	3	3	3026,5661,9256
 全体を収める	pattern	spec	docs/spec/05-07-design.md	7	7	111,342,462,907,909,913,1831
 全体を収める	pattern	src	src/adapter/screen-renderer/display-words.json	1	1	95
 全体を収める	pattern	tests	tests/contract/cr-601-the-landing-mark-stays-while-the-view-moves.contract.test.ts	1	1	63
 全体を収める	pattern	tests	tests/nfr/nfr-001-010-011-013-the-rest-of-chapter-7.test.ts	1	1	1266
-再開アイコン	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	1	1	9662
+再開アイコン	pattern	glossary	docs/spec/_source/glossary.json	1	1	15866
 再開アイコン	pattern	source	docs/spec/_source/display-words.json	6	6	593,2047,2054,2061,2068,2082
 再開アイコン	pattern	source	docs/spec/_source/settings.json	8	8	818,839,1715,3522,5473,7540,7552,7558
 再開アイコン	pattern	spec	docs/spec/01-04-requirements.md	47	46	1319,1321,1322,1345,1346,1360,1611,1626,1630,1637,1639,1645,2518,2772,3302,3304,4482,4495,4587,4627,4683,4747,4749,4812,4814,4825,4826,4842,4891,4947,4951,4965,4988,5021,5043,5073,5074,5077,5090,5137,5140,5141,5146,5195,5200,5603
@@ -16295,7 +16289,7 @@ zoomY	pattern	tests	tests/use-case/uc-007-bring-the-range-into-view.test.ts	2	1	
 再開アイコン	pattern	tests	tests/system/cr-430-labels-and-hidden-things-sweep.test.ts	3	3	42,330,342
 再開アイコン	pattern	tests	tests/unit/cr-430-table-go-the-values-a-release-puts.test.ts	1	1	250
 再開アイコン	pattern	tests	tests/unit/t-023d-follows-the-pointer.test.ts	5	5	89,798,969,972,980
-写し	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	17	14	58,164,4479,6437,6451,8312,17669,18181,18994,19022,19036,19050,19794,19822
+写し	pattern	glossary	docs/spec/_source/glossary.json	16	12	628,8282,12023,14308,27000,28055,29319,29377,29413,29436,30623,30668
 写し	pattern	source	docs/spec/_source/document-commands.json	2	2	1476,1485
 写し	pattern	source	docs/spec/_source/notice-reasons.json	1	1	643
 写し	pattern	source	docs/spec/_source/published-entries.json	1	1	2799
@@ -16326,13 +16320,13 @@ zoomY	pattern	tests	tests/use-case/uc-007-bring-the-range-into-view.test.ts	2	1	
 写し	pattern	tests	tests/unit/uf-47-48-choosers.test.ts	4	4	1700,1876,2572,2655
 写し	pattern	tests	tests/unit/uf-71.test.ts	2	2	1605,1655
 写し	pattern	tests	tests/unit/uf-72-screen-part.test.ts	1	1	521
-単一 HTML	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	4	4	759,763,8679,8683
+単一 HTML	pattern	glossary	docs/spec/_source/glossary.json	4	4	1963,1967,14727,14731
 単一 HTML	pattern	source	docs/spec/_source/display-words.json	1	1	4194
-単一 HTML	pattern	source	docs/spec/_source/row-id-prefixes.json	1	1	1108
+単一 HTML	pattern	source	docs/spec/_source/row-id-prefixes.json	1	1	1117
 単一 HTML	pattern	spec	docs/spec/01-04-requirements.md	3	3	199,212,7625
 単一 HTML	pattern	spec	docs/spec/05-07-design.md	3	3	1463,1466,1598
 単一 HTML	pattern	spec	docs/spec/A-appendix.md	1	1	26
-単一 HTML	pattern	spec	docs/spec/_assets/tbl-row-id-prefixes.md	1	1	179
+単一 HTML	pattern	spec	docs/spec/_assets/tbl-row-id-prefixes.md	1	1	180
 単一 HTML	pattern	src	src/adapter/screen-renderer/display-words.json	1	1	4934
 単一 HTML	pattern	tests	tests/unit/t-023a-ptd-1-pan-follows-the-pointer.test.ts	1	1	22
 単一 HTML	pattern	tests	tests/unit/t-023c-sl-3-marquee-drawn-while-held.test.ts	1	1	26
@@ -16347,7 +16341,7 @@ zoomY	pattern	tests	tests/use-case/uc-007-bring-the-range-into-view.test.ts	2	1	
 実績操作のダミー|実績のダミー	pattern	spec	docs/spec/_assets/tbl-settings.md	4	4	139,383,504,505
 実績操作のダミー|実績のダミー	pattern	tests	tests/contract/cr-740-ca-1-the-picture-beneath-is-built-again-only-when-what-it-reads-changes.contract.test.ts	1	1	48
 実績操作のダミー|実績のダミー	pattern	tests	tests/unit/fr-043-dummy-drawn.test.ts	1	1	50
-掴み帯	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	1	1	13106
+掴み帯	pattern	glossary	docs/spec/_source/glossary.json	1	1	19989
 掴み帯	pattern	source	docs/spec/_source/settings.json	3	3	3974,3991,4023
 掴み帯	pattern	source	docs/spec/_source/state-machines.json	2	2	5059,5138
 掴み帯	pattern	spec	docs/spec/01-04-requirements.md	19	18	4375,4486,4490,4866,5253,5258,5327,5390,5405,5435,5443,5448,5455,5479,5503,6502,7545,8734
@@ -16401,6 +16395,7 @@ zoomY	pattern	tests	tests/use-case/uc-007-bring-the-range-into-view.test.ts	2	1	
 操作子	pattern	tests	tests/unit/uf-39-40.test.ts	1	1	1137
 操作子	pattern	tests	tests/unit/uf-71.test.ts	9	9	2373,2378,2383,2407,2433,2438,3089,3429,3502
 操作子	pattern	tests	tests/unit/uf-72-screen-part.test.ts	78	67	282,284,286,288,291,298,330,332,411,412,445,471,525,528,532,533,2448,2449,2450,2539,2543,2584,2590,2632,2735,2765,2822,3073,3074,3077,3078,3084,3207,3404,3405,3425,3442,3453,3457,3496,3690,3720,3789,3794,3926,4053,4055,4196,4213,4252,4254,4275,4313,4314,4316,4319,4336,4709,4717,4791,4831,5146,5148,5171,5174,5234,5249
+日程データ	pattern	glossary	docs/spec/_source/glossary.json	1	1	1594
 日程データ	pattern	source	docs/spec/_source/agent-api-members.json	6	5	301,1335,1610,1818,1854
 日程データ	pattern	source	docs/spec/_source/document-commands.json	1	1	660
 日程データ	pattern	source	docs/spec/_source/erd.json	5	5	191,362,968,3346,3396
@@ -16430,19 +16425,19 @@ zoomY	pattern	tests	tests/use-case/uc-007-bring-the-range-into-view.test.ts	2	1	
 日程データ	pattern	tests	tests/unit/uf-48-input.test.ts	4	4	101,1194,1207,1277
 日程データ	pattern	tests	tests/unit/uf-48-undo-through-the-one-path.test.ts	2	2	50,427
 日程データ	pattern	tests	tests/unit/uf-8-9-replace-document.test.ts	12	12	323,345,377,553,574,621,776,973,982,1226,1228,1286
-日程表	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	19	17	1312,1830,4140,7577,8478,8699,8715,8862,8974,8990,10206,10366,15947,16207,18330,22519,22617
+日程表	pattern	glossary	docs/spec/_source/glossary.json	17	15	7640,13449,14494,14749,14771,14916,15053,15073,16471,16659,23793,24294,28307,34485,34626
 日程表	pattern	source	docs/spec/_source/agent-api-members.json	2	2	531,1704
 日程表	pattern	source	docs/spec/_source/display-words.json	9	9	43,120,131,967,1077,3711,5781,5788,6264
 日程表	pattern	source	docs/spec/_source/image-to-grs-json-prompt.ja.md	2	2	2,82
 日程表	pattern	source	docs/spec/_source/published-entries.json	8	8	107,108,134,136,620,2962,2979,3558
-日程表	pattern	source	docs/spec/_source/row-id-prefixes.json	2	2	1084,1508
+日程表	pattern	source	docs/spec/_source/row-id-prefixes.json	2	2	1093,1526
 日程表	pattern	source	docs/spec/_source/settings.json	12	10	1848,3805,3833,5001,5075,5101,5267,6606,6824,8728
 日程表	pattern	spec	docs/spec/01-04-requirements.md	93	81	20,25,35,42,43,95,102,167,458,853,889,982,1282,1319,1449,1511,1614,1668,1775,1999,2001,2110,2357,2517,2624,2715,2837,3464,3564,3780,3807,3808,3821,3836,3883,3895,3896,3900,3913,4137,4401,4455,4457,4458,4460,4616,4620,4667,4929,5173,5214,5294,5432,5528,5532,5545,5553,5567,5595,5601,5602,5605,5608,5610,5660,5883,6267,6820,7084,7415,7473,7479,7752,8431,8470,8842,8945,9006,9017,9055,9186
 日程表	pattern	spec	docs/spec/05-07-design.md	9	7	53,139,412,462,513,1047,1535
 日程表	pattern	spec	docs/spec/_assets/tbl-agent-api-members.md	2	2	35,77
 日程表	pattern	spec	docs/spec/_assets/tbl-glossary.md	5	5	143,147,361,363,509
 日程表	pattern	spec	docs/spec/_assets/tbl-published-entries.md	8	3	19,36,51
-日程表	pattern	spec	docs/spec/_assets/tbl-row-id-prefixes.md	2	2	176,229
+日程表	pattern	spec	docs/spec/_assets/tbl-row-id-prefixes.md	2	2	177,231
 日程表	pattern	spec	docs/spec/_assets/tbl-settings.md	12	10	180,398,400,488,494,496,509,611,630,748
 日程表	pattern	src	src/adapter/screen-renderer/display-words.json	11	11	33,110,121,957,1067,4451,6358,6363,6372,6377,6855
 日程表	pattern	src	src/adapter/screen-renderer/icon-roster.json	1	1	1110
@@ -16490,13 +16485,13 @@ zoomY	pattern	tests	tests/use-case/uc-007-bring-the-range-into-view.test.ts	2	1	
 期限の印	pattern	spec	docs/spec/_assets/tbl-row-id-prefixes.md	1	1	79
 期限の印	pattern	spec	docs/spec/_assets/tbl-settings.md	5	5	116,506,507,508,682
 本ソフトウェア|本ツール|本製品	pattern	source	docs/spec/_source/erd.json	1	1	2668
-本ソフトウェア|本ツール|本製品	pattern	source	docs/spec/_source/row-id-prefixes.json	3	3	31,186,1767
+本ソフトウェア|本ツール|本製品	pattern	source	docs/spec/_source/row-id-prefixes.json	3	3	31,186,1785
 本ソフトウェア|本ツール|本製品	pattern	source	docs/spec/_source/settings.json	1	1	5828
 本ソフトウェア|本ツール|本製品	pattern	spec	docs/spec/01-04-requirements.md	38	36	197,198,214,220,262,268,269,319,340,355,445,496,498,518,520,545,1302,1575,1859,4442,4445,4462,5352,6917,6924,6941,6980,6984,7083,7168,7977,8378,8393,9096,9104,9107
 本ソフトウェア|本ツール|本製品	pattern	spec	docs/spec/05-07-design.md	1	1	1663
 本ソフトウェア|本ツール|本製品	pattern	spec	docs/spec/_assets/fig-erd-detail.md	1	1	447
 本ソフトウェア|本ツール|本製品	pattern	spec	docs/spec/_assets/tbl-glossary.md	2	2	125,155
-本ソフトウェア|本ツール|本製品	pattern	spec	docs/spec/_assets/tbl-row-id-prefixes.md	3	3	47,66,261
+本ソフトウェア|本ツール|本製品	pattern	spec	docs/spec/_assets/tbl-row-id-prefixes.md	3	3	47,66,263
 本ソフトウェア|本ツール|本製品	pattern	spec	docs/spec/_assets/tbl-settings.md	1	1	552
 本ソフトウェア|本ツール|本製品	pattern	tests	tests/contract/cr-768-t-024-holds-the-media-type-and-the-offered-column.contract.test.ts	2	1	27
 本ソフトウェア|本ツール|本製品	pattern	tests	tests/contract/dfc-3002-the-help-copyright-link-is-s-503-underlined.test.ts	2	2	19,21
@@ -16512,14 +16507,14 @@ zoomY	pattern	tests	tests/use-case/uc-007-bring-the-range-into-view.test.ts	2	1	
 札	pattern	source	docs/spec/_source/display-words.json	1	1	2117
 札	pattern	source	docs/spec/_source/property-items.json	6	2	304,321
 札	pattern	source	docs/spec/_source/published-entries.json	7	7	634,1665,1683,1710,1711,1719,1725
-札	pattern	source	docs/spec/_source/row-id-prefixes.json	2	2	816,1196
+札	pattern	source	docs/spec/_source/row-id-prefixes.json	2	2	816,1205
 札	pattern	source	docs/spec/_source/settings.json	14	12	649,920,940,960,1021,1499,5166,5479,5557,6967,6979,7974
 札	pattern	spec	docs/spec/01-04-requirements.md	82	61	431,1507,1522,1609,1627,1641,1645,1756,1773,1783,2695,3010,3215,4315,4316,4667,4988,5038,5045,5052,5055,5066,5097,5099,5104,5106,5119,5121,5127,5134,5141,5143,5145,5147,5198,5199,5201,5202,5249,5545,5591,5595,5796,6418,6680,6700,6728,6784,6817,7209,7237,7248,7249,7250,7251,7255,7256,7538,8466,9008,9112
 札	pattern	spec	docs/spec/05-07-design.md	14	9	342,402,403,408,413,475,1361,1406,1535
 札	pattern	spec	docs/spec/_assets/tbl-glossary.md	3	3	131,226,510
 札	pattern	spec	docs/spec/_assets/tbl-property-items.md	6	2	51,52
 札	pattern	spec	docs/spec/_assets/tbl-published-entries.md	7	2	19,23
-札	pattern	spec	docs/spec/_assets/tbl-row-id-prefixes.md	2	2	144,190
+札	pattern	spec	docs/spec/_assets/tbl-row-id-prefixes.md	2	2	144,191
 札	pattern	spec	docs/spec/_assets/tbl-settings.md	14	12	97,111,112,113,116,140,501,525,531,645,646,700
 札	pattern	src	src/adapter/screen-renderer/display-words.json	1	1	2231
 札	pattern	src	src/adapter/screen-renderer/icon-roster.json	1	1	1121
@@ -16535,7 +16530,7 @@ zoomY	pattern	tests	tests/use-case/uc-007-bring-the-range-into-view.test.ts	2	1	
 札	pattern	tests	tests/unit/cr-550-dual-cursor-readout.test.ts	1	1	47
 札	pattern	tests	tests/unit/cr-556-the-deadline-arrow.test.ts	1	1	75
 札	pattern	tests	tests/unit/t-015-t-051-the-four-folding-controls.test.ts	1	1	980
-積み順の段|段目	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	1	1	12880
+積み順の段|段目	pattern	glossary	docs/spec/_source/glossary.json	1	1	19712
 積み順の段|段目	pattern	source	docs/spec/_source/display-words.json	2	2	1942,3852
 積み順の段|段目	pattern	source	docs/spec/_source/settings.json	6	5	3600,3608,3621,4790,5588
 積み順の段|段目	pattern	source	docs/spec/_source/state-machines.json	2	2	84,1035
@@ -16572,11 +16567,11 @@ zoomY	pattern	tests	tests/use-case/uc-007-bring-the-range-into-view.test.ts	2	1	
 続きの印	pattern	tests	tests/contract/dfc-1230-the-continuation-send-moves-an-unplaced-view.contract.test.ts	1	1	67
 続きの印	pattern	tests	tests/unit/cr-555-dependency-lines-are-elided.test.ts	1	1	57
 続きの印	pattern	tests	tests/unit/cr-555-the-continuation-mark-sends-the-view.test.ts	5	5	54,55,71,73,412
-進捗マーカー	pattern	glossary	studies/76-grs-json-beta-shape/terms/glossary-draft/glossary.json	5	5	1642,5907,7517,9658,9662
+進捗マーカー	pattern	glossary	docs/spec/_source/glossary.json	5	5	2994,10907,13381,15862,15866
 進捗マーカー	pattern	source	docs/spec/_source/agent-api-members.json	2	2	1152,1190
 進捗マーカー	pattern	source	docs/spec/_source/display-words.json	4	4	589,593,2124,2467
 進捗マーカー	pattern	source	docs/spec/_source/published-entries.json	8	8	106,1649,1683,1860,2749,2760,2879,2961
-進捗マーカー	pattern	source	docs/spec/_source/row-id-prefixes.json	2	2	330,1092
+進捗マーカー	pattern	source	docs/spec/_source/row-id-prefixes.json	2	2	330,1101
 進捗マーカー	pattern	source	docs/spec/_source/settings.json	32	31	130,227,631,671,687,706,727,746,765,784,803,824,880,900,920,960,980,1715,3152,3496,3529,3594,5196,5220,5233,5246,5359,5594,7502,7522,7552
 進捗マーカー	pattern	source	docs/spec/_source/state-machines.json	1	1	1238
 進捗マーカー	pattern	spec	docs/spec/01-04-requirements.md	91	87	265,760,792,1080,1319,1321,1322,1344,1486,1610,1626,1630,1639,1640,2518,2772,3010,3158,3217,3249,3275,3278,3376,3381,3382,3383,3404,3415,3447,3477,3478,3547,3565,3585,3598,3788,3793,3823,3895,3913,4482,4495,4586,4594,4627,4682,4706,4732,4747,4749,4812,4814,4825,4826,4830,4840,4842,4863,4879,4929,4938,4947,4951,4961,4962,4970,4988,5020,5043,5094,5174,5198,5199,5200,5202,5567,5595,5603,6296,6419,6770,6784,6787,8702,9023,9054,9462
@@ -16584,7 +16579,7 @@ zoomY	pattern	tests	tests/use-case/uc-007-bring-the-range-into-view.test.ts	2	1	
 進捗マーカー	pattern	spec	docs/spec/_assets/tbl-agent-api-members.md	2	2	51,52
 進捗マーカー	pattern	spec	docs/spec/_assets/tbl-glossary.md	13	13	87,213,214,215,216,217,218,219,220,221,227,276,465
 進捗マーカー	pattern	spec	docs/spec/_assets/tbl-published-entries.md	8	4	19,23,35,36
-進捗マーカー	pattern	spec	docs/spec/_assets/tbl-row-id-prefixes.md	2	2	84,177
+進捗マーカー	pattern	spec	docs/spec/_assets/tbl-row-id-prefixes.md	2	2	84,178
 進捗マーカー	pattern	spec	docs/spec/_assets/tbl-settings.md	32	31	62,76,96,99,100,101,102,103,104,105,106,107,109,110,111,113,114,172,349,376,378,383,504,506,507,508,516,534,676,677,678
 進捗マーカー	pattern	spec	docs/spec/_assets/tbl-state-machines.md	1	1	136
 進捗マーカー	pattern	src	src/adapter/screen-renderer/display-words.json	4	4	579,583,2241,2795
