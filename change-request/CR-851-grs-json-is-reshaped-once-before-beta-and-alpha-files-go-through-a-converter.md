@@ -274,6 +274,8 @@
 | `rulings.md`（GRS JSON のスキーマ 2 の席、2026-11-23 の 3） | `JDG-3769`（仕様が決めていない 4 つの場合の読み方: 終わりの無い実績は 0、日付の無い例外と稼働しない日の時間帯は保って数えない、`siblingIndex` の無い兄弟は後ろへ）を足した。仕様への足しは本 CR の当てで行う |
 | `rulings.md`（GRS JSON のスキーマ 2 の席、2026-11-23 の 4） | `JDG-3770`（繰り返しの説明 15 個を削り、説明の頭の `This value is` などを除いて名詞の句で言う）を足した |
 | `rulings.md`（GRS JSON のスキーマ 2 の席、2026-11-23 の 5） | `JDG-3801`（すべてのプロパティに説明を付けることをやめ、自明な説明と重複を消す。`JDG-3327` を覆す）を足した |
+| `rulings.md`（GRS JSON のスキーマ 2 の席、2026-11-23 の 6） | `JDG-3802`（passthrough の MSPDI の値は文字列だけ）を足した |
+| `rulings.md`（GRS JSON のスキーマ 2 の席、2026-11-23 の 7） | `JDG-3803`（`highestIssuedUid` が無ければ開くときに数える。上限に届いたら足す操作を断る。仕様の `AT-20`・`TC-2` を本 CR の当てで直す）を足した |
 | `rulings.md`（Agent API の名の席、2026-11-23 の 1） | `JDG-3771`（Agent API の名の未決の問いを GQA BGQA7 にまとめて出す）を足した |
 | `rulings.md`（Agent API の名の席、2026-11-23 の 2） | `JDG-3772`（方針の P-11: 対応表の名は `<値>By<鍵>`、`To` は行き先だけ、`Of`・`Into` は使わない）を足した。BGQA4・BGQA5 の名をそろえるときに当てる |
 | `rulings.md`（Agent API の名の席、2026-11-23 の 3） | `JDG-3773`（道具の分類の欄 `kind` → `memberType`）を足した。原稿 `grs-commands.schema.json` の命令の判別子 `kind`（約 190 か所 → `type`）と `agent-api-members.json` の `kind`（29 か所 → `memberType`）、それを読む src・tests の `kind` は、本書の実装でまとめて直す |

@@ -148,7 +148,7 @@
       "statusDate": "2026-12-04T17:00:00",
       "grs": {
         "passthrough": {
-          "ScheduleFromStart": 1,
+          "ScheduleFromStart": "1",
           "CurrencyCode": "USD"
         }
       }
@@ -161,7 +161,7 @@
         "grs": {
           "passthrough": {
             "GUID": "8677e724-9b8c-4b5e-aa02-c53710734eb3",
-            "IsBaselineCalendar": 0
+            "IsBaselineCalendar": "0"
           }
         },
         "weekDays": [
@@ -232,8 +232,8 @@
             "period": 1,
             "grs": {
               "passthrough": {
-                "EnteredByOccurrences": 1,
-                "Occurrences": 1
+                "EnteredByOccurrences": "1",
+                "Occurrences": "1"
               }
             },
             "workingTimes": [
@@ -253,11 +253,11 @@
       {
         "precedingCalendarUid": 2,
         "mspdiElement": {
-          "UID": 3,
+          "UID": "3",
           "Name": "Baseline calendar",
-          "IsBaseCalendar": 1,
-          "IsBaselineCalendar": 1,
-          "BaseCalendarUID": -1
+          "IsBaseCalendar": "1",
+          "IsBaselineCalendar": "1",
+          "BaseCalendarUID": "-1"
         }
       }
     ],
@@ -329,7 +329,7 @@
             "mspdiImportCountWhenLastIncluded": 1
           },
           "passthrough": {
-            "Priority": 500,
+            "Priority": "500",
             "ExtendedAttribute": [
               { "FieldID": "188743731", "Value": "Alpha" },
               { "FieldID": "188743734", "Value": "Beta" }
@@ -373,7 +373,7 @@
             "lagFormat": 7,
             "grs": {
               "passthrough": {
-                "CrossProject": 0
+                "CrossProject": "0"
               }
             }
           }
@@ -383,22 +383,22 @@
     "passthroughTasks": [
       {
         "mspdiElement": {
-          "UID": 0,
-          "ID": 0,
+          "UID": "0",
+          "ID": "0",
           "Name": "Sample Schedule",
-          "Type": 1,
-          "IsNull": 0,
+          "Type": "1",
+          "IsNull": "0",
           "OutlineNumber": "0",
-          "OutlineLevel": 0,
-          "Summary": 1
+          "OutlineLevel": "0",
+          "Summary": "1"
         }
       },
       {
         "precedingTaskUid": 2,
         "mspdiElement": {
-          "UID": 4,
-          "ID": 3,
-          "IsNull": 1
+          "UID": "4",
+          "ID": "3",
+          "IsNull": "1"
         }
       }
     ],
@@ -412,7 +412,7 @@
         "grs": {
           "passthrough": {
             "Initials": "WA",
-            "MaxUnits": 1
+            "MaxUnits": "1"
           }
         }
       }
@@ -420,18 +420,18 @@
     "passthroughResources": [
       {
         "mspdiElement": {
-          "UID": 0,
-          "ID": 0,
-          "Type": 1,
-          "IsNull": 0
+          "UID": "0",
+          "ID": "0",
+          "Type": "1",
+          "IsNull": "0"
         }
       },
       {
         "precedingResourceUid": 1,
         "mspdiElement": {
-          "UID": 2,
-          "ID": 2,
-          "IsNull": 1
+          "UID": "2",
+          "ID": "2",
+          "IsNull": "1"
         }
       }
     ],
@@ -442,7 +442,7 @@
         "resourceUid": 1,
         "grs": {
           "passthrough": {
-            "Units": 1,
+            "Units": "1",
             "Work": "PT20H0M0S"
           }
         }
@@ -452,10 +452,10 @@
       {
         "precedingAssignmentUid": 1,
         "mspdiElement": {
-          "UID": 2,
-          "TaskUID": 3,
-          "ResourceUID": -65535,
-          "Units": 1
+          "UID": "2",
+          "TaskUID": "3",
+          "ResourceUID": "-65535",
+          "Units": "1"
         }
       }
     ],
