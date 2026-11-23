@@ -384,6 +384,12 @@ BGQA4（文書の命令 16 問）と BGQA5（Agent API 29 問）の 45 問に、
 | 32-10 | `reason` の値 `notDrawnYet` | 今のまま | P-10・NEIM（席が決めた。4 節） | |
 | 32-10 | `refusedBy` の値 `page`・`relay`、`member`・`message`・`reason`、`reason` の値 `staleStamp`・`commandRefused`・`rasterFailed`・`embeddedHtmlFailed`・`malformedRequest`・`historyEmpty`・`schemaViolation`・`formatTooNew`・`formatTooOld`・`retiredName`・`pageNotConnected`・`relayTimedOut`・`badFileName`・`fileExists`・`saveFolderUnavailable`・`duplicateKey`・`noCalendar`・`fillAndStrokeBothInvisible`・`unusableDate`・`calendarWithoutWorkingDay`・`noTaskGroup`・`milestoneShapeMismatch`・`invalidWorkingTimes`・`fileTooLarge`・`tooManyTasks`・`taskTreeTooDeep`・`taskWithoutDates`・`alreadyExists`・`hyperlinkSchemeNotAllowed`・`siblingListMismatch`・`alreadyStarted`・`fieldSetAndCleared`、`commandIndex`・`field`・`documentFaults`・`pageUrl`・`converterUrl`・`min`・`max` | 今のまま（44 語） | P-12（方針の表が 32-10 を挙げる）・P-6（`Url`・`min`・`max`）・P-8（`commandIndex`）・P-10 | `malformedRequest` の説明の `which`・`full` は `part`・`returnWholeSchema`。`formatTooNew` の説明の版は `knownSchemaVersionUtc` |
 
+#### 45 問の後に足した名
+
+| 問 | 今の名（親を含めて） | 方針で選ぶ名 | 決める規則 | 注 |
+|:---|:---|:---|:---|:---|
+| （BGQA7 の問 12） | 無い（`JDG-3803` の新しい断り: uid が上限の 2147483647 に届いた文書で、新しい物を足す操作を断る） | 命令の断りの `reason` の値 `uidLimitReached` | P-10・JDG-3784 | `pinLimitReached` と同じ形。数には入れない |
+
 ## 推しと違う所
 
 規則か最終レビューの改名が、問いの推し（推しの表・推しの文）と違う名を選んだ行です。
