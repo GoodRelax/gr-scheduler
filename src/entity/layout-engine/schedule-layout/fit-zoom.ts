@@ -71,8 +71,7 @@ interface FitRun {
 // see FR-055, LF-16
 /** @purity pure */
 function fitsTaskGroupArea(run: ScheduleLayout, regions: ScreenRegions): boolean {
-  // STOP: spec does not decide whether a run stopped by ST-7 fits; here it never does. Looked in ST-7, FR-055
-  // @provisional PND-479
+  // Provisional: OPQ-9
   if (run.stackSafetyCapReached !== null) return false
   const remainderTop = run.scrollAreaY ?? regions.taskGroupArea.y
   return run.contentHeight <= regions.taskGroupArea.y + regions.taskGroupArea.height - remainderTop

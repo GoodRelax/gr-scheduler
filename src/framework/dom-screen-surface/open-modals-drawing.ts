@@ -61,8 +61,7 @@ const ABOUT_LINK_KEY = 'about'
 // see FR-036, IC-20
 const AGENT_API_LINK_KEY = 'agentApi'
 
-// STOP: spec does not decide how parts with no T-103 or T-109 row are marked for read-back. Looked in W-4, IF-9
-// @provisional PND-474
+// Provisional: OPQ-8
 const WATERMARK_UNLOCK_ENTRY_ATTRIBUTE = 'data-watermark-unlock'
 
 // see FR-036, T-256, S-457, S-458
@@ -599,8 +598,7 @@ function exportFormatChoicesElement(host: Document, modal: ExportChooser): HTMLE
   for (const format of modal.formats) {
     const choice = made(host, 'button', entryStyle())
     choice.setAttribute('type', 'button')
-    // STOP: spec does not decide how a format choice is marked for read-back. Looked in W-4, IF-9, T-024
-    // @provisional PND-474
+    // Provisional: OPQ-8
     choice.setAttribute('data-format', format.row)
     const shown = `${format.name} ${format.extension}`
     choice.setAttribute('aria-label', shown)

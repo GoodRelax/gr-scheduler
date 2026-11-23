@@ -110,9 +110,7 @@ export function previewOfHeldPress(
   for (const commands of action.writes) {
     for (const command of commands) {
       const result = editDocument(drawn, command, limits, DEFAULT_TASK_GROUP_NAME)
-      // STOP: spec does not decide what a refused drag draws.
-      // Looked in FR-052, WS-3, FD-6, IV-12
-      // @provisional PND-253
+      // Provisional: OPQ-5
       if (!result.ok) return null
       drawn = result.document
     }

@@ -40,8 +40,7 @@ export function screenEventFromDualCursorPress(
   context: InputContext,
 ): ScreenValuesEvent | null {
   const date = cursorDateAtX(context, press.at.x)
-  // STOP: spec does not decide a DC-2 click where the axis has no day. Looked in DC-2, PTD-2
-  // @provisional PND-314
+  // Provisional: OPQ-6
   if (date === null) return null
   return { type: 'dualCursorPlaced', date }
 }
