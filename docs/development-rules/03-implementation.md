@@ -1,7 +1,7 @@
 # 03 実装の規則 —— 識別子・命名・コメント・読みやすさ
 
 ⛔ **本書は「レビュー観点の規約」を書き写さない。** 正は
-`docs/development-rules/07-review-standards.md` にあり、条項番号で引く。
+`docs/development-rules/07-review-standards.md` にあり、章と観点の名で引く。
 ⭐ **本書が持つのは、あちらに無い規則と、この製品に固有の作法だけである。**
 
 ---
@@ -246,6 +246,7 @@ import ではないので読み手として数えない。
 ## 2. ⛔ 名前を足すときは、名が体を表すこと
 
 ⭐ **必要なら名前を足してよい。** ⛔ **ただし、その識別子の意味と責務が読んで分かること。**
+⛔ **名前を改めるときは、規則 02 の 2.6「名前を改めるときの手順」に従う**（07 の付録 A.2）—— 前に古い名前で全部のファイルを検索し、用語集に改名の履歴を残し、後で古い名前の当たりを数える。
 
 ⚠️ **品詞・接頭辞・単位の規約は既にある。書き写さない:**
 
@@ -287,31 +288,52 @@ import ではないので読み手として数えない。
 
 ---
 
-## 3. ⛔ コメントには「なぜ」を書く。「どう動くか」を書かない
+## 3. ⛔ コメントは決まった種類だけを書く。「なぜ」を書き、「どう動くか」を書かない
 
 ⭐ **コードを見れば分かることをコメントに書かない。** ⛔ **コードを見ても分からない意図を書く。**
-⚠️ 規約としては `R2.15`（名前・コメントが「何を」でなく「なぜ」を表す）が既に持つ。**以下はこの製品に固有の作法である。**
-⛔ **コメントの形と量は `docs/review/comment-rules-src.md`（裁定 17・18、`tests/` は `JDG-62`）が決め、検査 55 が数える。** 本節は何を書くかだけを持つ —— 形（`// see`・`// TRAP:`・`// WHY:`・`// STOP:`・`// DEVIATION:`）と行数の上限はあちらを引け。
+⭐ **種類と書く時は [07](07-review-standards.md) の R3「コメント」が持つ** —— `Why`・`Spec`・`Summary`・`Temporary`・`Unimplemented`・`Provisional` と R7 のコメント（`@purity`・`Section`・`Consistency`）。基準書は「ほかの種類を使うなら、先にプロジェクトルールに定める」と言う —— ⭐ **GRS の種類は下の「GRS の種類」の表だけである**（種類の名は子セッションが決める、`JDG-3597`）。
+⛔ **コメントの形・置き場・量は `docs/review/comment-rules-src.md`（裁定 17・18、`tests/` は `JDG-62`）が決め、検査 55 が数える。** 本節は何を書くかだけを持つ。
 ⛔ **コメントは英語の ASCII で書く**（5 節）。下の例も、そのまま書ける形にしてある。
 
 ### 書くべきこと
 
-| | 例 |
-|---|---|
-| ⭐ **なぜ他の選び方を採らなかったか** | `// WHY: looping per row would let the stacking order change the winner, so rows are the outer loop.` |
-| ⭐ **その値・規則を持っている仕様書の行 ID** | `// see T-266 GA-5 (values S-262 / S-263 of T-206)` |
-| ⭐ **危険の理由** | `// TRAP: treating null and undefined alike marks a task that never finished as complete.` |
-| ⛔ **無いもの・未決のもの** | `// STOP: no table holds the nine anchor points; check the range only, never guess.`（`@provisional` の要否はコメントの規則の 3 節） |
+| | 種類 | 例 |
+|---|---|---|
+| ⭐ **なぜ他の選び方を採らなかったか** | `Why` | `// Why: looping per row would let the stacking order change the winner, so rows are the outer loop.` |
+| ⭐ **実装する仕様の行 ID**（仕様の振る舞いを実装する所とテストだけ） | `Spec` | `// Spec: FR-013` |
+| ⭐ **危険の理由** | `Trap`（GRS の種類） | `// Trap: treating null and undefined alike marks a task that never finished as complete.` |
+| ⭐ **仕様が決めていない所** | `Unimplemented`・`Provisional` | `// Provisional: OPQ-012`（どちらを書くかと一覧の行は規則 06） |
+| ⭐ **わざと仕様から外れている暫定のコード** | `Temporary` | `// Temporary: spec says the list is sorted by name; here it is unsorted (DFC-n). Until: DFC-n is fixed.` |
+
+### `Spec` を書く所と書かない所
+
+⭐ **`Spec` は、仕様の振る舞いを実装する所とテストにだけ書く** —— UseCase の公開の関数、コンポーネントの公開面の関数、実装仕様を実装する関数、テスト。⛔ **ほかのコードは呼ぶ側の親を受け継ぎ、`Spec` を書かない**（07 の R3「コメント（Spec）」、ANMS の「親の ID を書く所」）。
+⛔ **`Spec` に書けるのは仕様の本文の ID だけである。** 裁定（`JDG`）・不具合（`DFC`）・変更要求（`CR`）・未決の問い（`OPQ`）の ID は親にならない —— 未決の問いは `Unimplemented`・`Provisional` に、不具合は `Temporary` の理由に書く。
+
+### GRS の種類（07 の R3 が「先にプロジェクトルールに定める」とした分）
+
+| 種類 | 書く形 | 書く時 |
+|---|---|---|
+| Trap | `// Trap: <何をすると何が壊れるか>` | 型・試験・機械検査のどれも止めない壊れ方がある |
+| File | `// File: <Name>: <役割を 1 文>` | ファイルの先頭の役割の行。続けて頭の札を置く |
+| 頭の札 | `// @unit <UF-n>`・`// @component <Name>, layer <Layer>`・`// @publishes <表と行>`・`// @seam <Name>, ...` | ファイルの先頭。単位・部品・公開する行・継ぎ目を名乗る（検査が読む） |
+| 試験の札 | `@unit-test-omitted`・`@external-contract` | 単体テストを省く理由が表 UO にある関数と、外部との約束の行を試す試験（検査 65） |
+| Step | `// Step: <1 つの手順>` | `tests/` に限る。押し方の順が自明でない |
+| ツールの指示 | `// eslint-disable-next-line <rule> -- <reason>` ほか、ツールが読む形 | ツールが求める時。理由を `--` の後に書く |
+| 生成領域の印 | `<generated -- do not edit by hand>` から `</generated>` まで、と出どころの見出し | 生成器が書く。手で書かない（検査 21） |
+
+⚠️ **移る間（計画 `studies/82-anms-ndd-apply-plan/README.md` の B6・B11）**: 2026-11-24 までの形 —— `// see`・`// WHY:`・`// TRAP:`・`// STOP:` と `@provisional PND-n`・`// DEVIATION:`・`// STEP:`・役割の行 —— はまだ木に在る。⛔ **新しく書くコメントは新しい種類で書く。** 検査 55 は移る間だけ新旧の両方を通す。古い形から新しい種類への対応は `docs/review/comment-rules-src.md` の 3 節。
 
 ### 書いてはならないこと
 
 - ⛔ **コードの言い換え**（`// i を 1 増やす`）
-- ⛔ **仕様の本文の写し** —— **行 ID を書く。** 写すと 2 か所になり、片方が腐る
+- ⛔ **仕様の本文の写し** —— **`Spec` で行 ID を書く。** 写すと 2 か所になり、片方が腐る
 - ⛔ **値の写し** —— ⚠️ **実例**: 掴み代の注記が `6px` / `15 x 15` / `30 x 20` と数を写しており、
   原稿を変えても古い数を言い続けた。**注記は行 ID を名乗る**
 - ⛔ **嘘** —— ⚠️ **実例**: 「これは DOM ではない」と書いたコメントを型検査が拒んだ。
   **注記が事実かどうかは、機械が確かめられる形にしておくほうがよい**
 - ⛔ **数と範囲の綴り**（`CM-56 to CM-71`）—— 事実を書いた文は、事実が動くと腐る。⭐ 集合を名乗らせ、数はコンパイラに数えさせる
+- ⛔ **未決の問いの中身** —— `Unimplemented`・`Provisional` には ID を 1 つだけ書く。決まっていないこと・探した所・仮の扱いは一覧の行に書く
 
 ⭐ **ごみの判定基準は 1 つ** —— **その文を消したとき、失われる規則があるか。無ければごみである。**
 ⛔ **注に合わせてコードを直すな** —— コードが正しく、理由だけが誤っていた例が何度もあった。注とコードが食い違ったら、仕様で裁け。
