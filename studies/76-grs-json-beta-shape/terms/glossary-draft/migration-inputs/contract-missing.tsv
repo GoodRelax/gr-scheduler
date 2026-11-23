@@ -1,0 +1,88 @@
+contract	name	owner	where	note
+grsJson	$schema		$schema	JDG-3807; no draft term (by key or by renamed name)
+grsJson	blueGreen		documentSettings.themeHue (enum value)	JDG-3807; no draft term (by key or by renamed name)
+grsJson	yellowGreen		documentSettings.themeHue (enum value)	JDG-3807; no draft term (by key or by renamed name)
+grsJson	redPurple		documentSettings.themeHue (enum value)	JDG-3807; no draft term (by key or by renamed name)
+grsJson	indigo		documentSettings.themeHue (enum value)	JDG-3807; no draft term (by key or by renamed name)
+grsJson	delayDiagnosisSettings		documentSettings.delayDiagnosisSettings	JDG-3807; no draft term (by key or by renamed name)
+grsJson	progressStatus		documentSettings.tableWindows.searchWindow.columnFilters[].column (enum value); documentSettings.tableWindows.searchWindow.columnSort.column (enum value); #ColumnFilter.column (enum value)	JDG-3807; no draft term (by key or by renamed name)
+grsJson	taskType		documentSettings.tableWindows.searchWindow.columnFilters[].column (enum value); documentSettings.tableWindows.searchWindow.columnSort.column (enum value); documentSettings.tableWindows.delayDiagnosisReportWindow.columnFilters[].column (enum value); documentSettings.tableWindows.delayDiagnosisReportWindow.columnSort.column (enum value) (+1 more)	JDG-3807; no draft term (by key or by renamed name)
+grsJson	taskName		documentSettings.tableWindows.searchWindow.columnFilters[].column (enum value); documentSettings.tableWindows.searchWindow.columnSort.column (enum value); documentSettings.tableWindows.delayDiagnosisReportWindow.columnFilters[].column (enum value); documentSettings.tableWindows.delayDiagnosisReportWindow.columnSort.column (enum value) (+1 more)	JDG-3807; no draft term (by key or by renamed name)
+grsJson	resourceNames		documentSettings.tableWindows.searchWindow.columnFilters[].column (enum value); documentSettings.tableWindows.searchWindow.columnSort.column (enum value); documentSettings.tableWindows.delayDiagnosisReportWindow.columnFilters[].column (enum value); documentSettings.tableWindows.delayDiagnosisReportWindow.columnSort.column (enum value) (+1 more)	JDG-3807; no draft term (by key or by renamed name)
+grsJson	taskGroupPath		documentSettings.tableWindows.searchWindow.columnFilters[].column (enum value); documentSettings.tableWindows.searchWindow.columnSort.column (enum value); #ColumnFilter.column (enum value)	JDG-3807; no draft term (by key or by renamed name)
+grsJson	taskGroupName		documentSettings.tableWindows.searchWindow.columnFilters[].column (enum value); documentSettings.tableWindows.searchWindow.columnSort.column (enum value); #ColumnFilter.column (enum value)	JDG-3807; no draft term (by key or by renamed name)
+grsJson	leaderTargetDay		documentSettings.tableWindows.searchWindow.columnFilters[].column (enum value); documentSettings.tableWindows.searchWindow.columnSort.column (enum value); #ColumnFilter.column (enum value)	JDG-3807; no draft term (by key or by renamed name)
+grsJson	diagnosisStatus		documentSettings.tableWindows.delayDiagnosisReportWindow.columnFilters[].column (enum value); documentSettings.tableWindows.delayDiagnosisReportWindow.columnSort.column (enum value); #ColumnFilter.column (enum value)	JDG-3807; no draft term (by key or by renamed name)
+grsJson	planDates		documentSettings.tableWindows.delayDiagnosisReportWindow.columnFilters[].column (enum value); documentSettings.tableWindows.delayDiagnosisReportWindow.columnSort.column (enum value); #ColumnFilter.column (enum value)	JDG-3807; no draft term (by key or by renamed name)
+grsJson	actualDates		documentSettings.tableWindows.delayDiagnosisReportWindow.columnFilters[].column (enum value); documentSettings.tableWindows.delayDiagnosisReportWindow.columnSort.column (enum value); #ColumnFilter.column (enum value)	JDG-3807; no draft term (by key or by renamed name)
+grsJson	diagnosisReason		documentSettings.tableWindows.delayDiagnosisReportWindow.columnFilters[].column (enum value); documentSettings.tableWindows.delayDiagnosisReportWindow.columnSort.column (enum value); #ColumnFilter.column (enum value)	JDG-3807; no draft term (by key or by renamed name)
+grsJson	resourceSelectionStatus		documentSettings.tableWindows.resourceListWindow.columnFilters[].column (enum value); documentSettings.tableWindows.resourceListWindow.columnSort.column (enum value); #ColumnFilter.column (enum value)	JDG-3807; no draft term (by key or by renamed name)
+grsJson	resourceName		documentSettings.tableWindows.resourceListWindow.columnFilters[].column (enum value); documentSettings.tableWindows.resourceListWindow.columnSort.column (enum value); #ColumnFilter.column (enum value)	JDG-3807; no draft term (by key or by renamed name)
+grsJson	assignedTaskCount		documentSettings.tableWindows.resourceListWindow.columnFilters[].column (enum value); documentSettings.tableWindows.resourceListWindow.columnSort.column (enum value); #ColumnFilter.column (enum value)	JDG-3807; no draft term (by key or by renamed name)
+grsJson	assignedTaskNames		documentSettings.tableWindows.resourceListWindow.columnFilters[].column (enum value); documentSettings.tableWindows.resourceListWindow.columnSort.column (enum value); #ColumnFilter.column (enum value)	JDG-3807; no draft term (by key or by renamed name)
+grsJson	lastMspdiImport		scheduleData.lastMspdiImport	JDG-3807; no draft term (by key or by renamed name)
+grsJson	importedAt		scheduleData.lastMspdiImport.importedAt	JDG-3807; no draft term (by key or by renamed name)
+grsJson	fileName		scheduleData.lastMspdiImport.fileName	JDG-3807; no draft term (by key or by renamed name)
+grsJson	passthroughCalendars		scheduleData.passthroughCalendars	JDG-3807; no draft term (by key or by renamed name)
+grsJson	precedingCalendarUid		scheduleData.passthroughCalendars[].precedingCalendarUid	JDG-3807; no draft term (by key or by renamed name)
+grsJson	mspdiElement		scheduleData.passthroughCalendars[].mspdiElement; scheduleData.passthroughTasks[].mspdiElement; scheduleData.passthroughResources[].mspdiElement; scheduleData.passthroughAssignments[].mspdiElement	JDG-3807; no draft term (by key or by renamed name)
+grsJson	passthroughTasks		scheduleData.passthroughTasks	JDG-3807; no draft term (by key or by renamed name)
+grsJson	precedingTaskUid		scheduleData.passthroughTasks[].precedingTaskUid	JDG-3807; no draft term (by key or by renamed name)
+grsJson	passthroughResources		scheduleData.passthroughResources	JDG-3807; no draft term (by key or by renamed name)
+grsJson	precedingResourceUid		scheduleData.passthroughResources[].precedingResourceUid	JDG-3807; no draft term (by key or by renamed name)
+grsJson	passthroughAssignments		scheduleData.passthroughAssignments	JDG-3807; no draft term (by key or by renamed name)
+grsJson	precedingAssignmentUid		scheduleData.passthroughAssignments[].precedingAssignmentUid	JDG-3807; no draft term (by key or by renamed name)
+grsJson	shown		#TaskGroup.showMode (enum value)	JDG-3807; no draft term (by key or by renamed name)
+grsJson	hiddenUntilZoomIn		#TaskGroup.showMode (enum value)	JDG-3807; no draft term (by key or by renamed name)
+grsJson	editorType		#ChangeLogEntry.changedBy.editorType	JDG-3807; no draft term (by key or by renamed name)
+grsJson	Uid		$defs/Uid	JDG-3807; no draft term (by key or by renamed name)
+grsJson	Uuid		$defs/Uuid	JDG-3807; no draft term (by key or by renamed name)
+grsJson	MspdiValue		$defs/MspdiValue	JDG-3807; no draft term (by key or by renamed name)
+grsJson	MspdiElement		$defs/MspdiElement	JDG-3807; no draft term (by key or by renamed name)
+grsJson	Paint		$defs/Paint	JDG-3807; no draft term (by key or by renamed name)
+grsJson	Stroke		$defs/Stroke	JDG-3807; no draft term (by key or by renamed name)
+grsJson	ShapeStyle		$defs/ShapeStyle	JDG-3807; no draft term (by key or by renamed name)
+grsJson	TaskGroupStyle		$defs/TaskGroupStyle	JDG-3807; no draft term (by key or by renamed name)
+grsJson	HighlightBoxStyle		$defs/HighlightBoxStyle	JDG-3807; no draft term (by key or by renamed name)
+grsJson	CommentBoxStyle		$defs/CommentBoxStyle	JDG-3807; no draft term (by key or by renamed name)
+grsJson	TaskTableWindow		$defs/TaskTableWindow	JDG-3807; no draft term (by key or by renamed name)
+grsJson	ResourceTableWindow		$defs/ResourceTableWindow	JDG-3807; no draft term (by key or by renamed name)
+grsJson	grs	Project / Calendar / WeekDay / Exception / Task / PredecessorLink / Resource / Assignment	#Task.grs, #Project.grs, ... (namespace object of GRS-only values)	JDG-3807 (namespace JDG-3614); the draft has only the sourceFormat enum value grs, a different meaning
+grsJson	blue / green / yellow / orange / red / purple	documentSettings.themeHue	documentSettings.themeHue (enum value)	JDG-3807 (values JDG-3541); the draft has these words only as Color.name palette values
+grsJson	fixed / automatic	documentSettings.fitDayRange.type	documentSettings.fitDayRange.type (enum value)	JDG-3807 (JDG-3708); covered only through the renamed term isFixed
+commands	setTaskGroupShowMode		command (JDG-3672 setTaskGroupSelfShowMode; Self dropped by JDG-3736, noted in the policy table)	not in commands-map.tsv either
+commands	retractIntoParent		command (JDG-3672; event retractIntoParentPressed JDG-3661)	band-button command
+commands	expandOneLevel		command (JDG-3672)	band-button command
+commands	expandBelow		command (JDG-3672)	band-button command
+commands	collapseBelow		command (JDG-3672)	band-button command
+commands	pressedTarget	retractIntoParent etc.	argument {type: root | taskGroup, taskGroupId} (JDG-3672)	
+commands	verticalZoomIn		command (JDG-3674; events verticalZoomInRequested)	JDG-3674 calls it an Agent API command; place (document command or tool) not settled in the policy table
+commands	verticalZoomOut		command (JDG-3674; events verticalZoomOutRequested)	as above
+commands	showMode	createTaskGroup / pasteTaskGroupSubtree / moveTaskGroup	optional argument (JDG-3684 selfShowMode; renamed JDG-3736; policy table question 36-5)	
+commands	parentTaskGroupId	createTaskGroup / pasteTaskGroupSubtree / reorderTaskGroupSiblings / moveTaskGroup	argument (policy table question 36-5)	the draft has only the GRS JSON term parentId (renamed)
+commands	siblingIndex	createTaskGroup / moveTaskGroup	argument (JDG-3776; policy table question 36-5)	the draft has only the GRS JSON term siblingOrder (renamed)
+commands	notStarted / inProgress / suspendedWithResumeDate / suspendedWithoutResumeDate / finished	setTaskProgressStatus.progressStatus.state	enum values (alpha grs-commands.schema.json)	no rows in the policy table (AI-C review)
+commands	start / finish	beginTaskActual.releasedPlace	fields (JDG-3779)	
+commands	carriedActualDuration	cycleTaskProgressStatus.removedActual	field (alpha grs-commands.schema.json:943)	uses the word carried that JDG-3766 removed (AI-C review)
+commands	recurrenceKind / carryElements	replaceCalendarRules.exceptions[]	fields (alpha)	GRS JSON now uses exceptions[].type and grs.passthrough; no row (AI-C review)
+commands	calloutBox / polyline	leaderShapeKind	enum values (alpha)	no leader-shape key in the beta GRS JSON; not retired in commands-map (AI-C review)
+agentApi	closePropertiesPanel		new tool (policy table question 33-2-2, JDG-3781)	
+agentApi	uidLimitReached	reason	command refusal reason (JDG-3784, JDG-3803)	
+agentApi	fileName	export tools	argument (policy table question 34-2, kept)	MCP relay argument
+agentApi	overwrite	export tools	argument (policy table question 34-2, JDG-3780)	MCP relay argument
+agentApi	waitMilliseconds	watchChanges (MCP)	argument, was waitMs (policy table question 30-4-2, P-6)	
+agentApi	request	applyCommands	argument of type WriteRequest (alpha agent-api-members.json)	no row of its own
+agentApi	stamp	WriteOutcome / Refusal / ChangeNotice	field (alpha AgentWriteOutcome, AgentRefusal, ChangeNotice)	no row in the policy table (AI-C review)
+agentApi	target	AgentRefusal	field (alpha)	the questions write member; no rename row (AI-C review)
+agentApi	SavedFile		value type, was AgentSavedFile (policy table question 30-1)	the draft has its fields savedTo/bytes/backedUpTo but not the type
+agentApi	RefusalReason		value type, alpha AgentRefusalReason (policy table: drop Agent, name not asked)	
+agentApi	Document		external type (alpha)	AI-C review finding 24: GRS JSON root is ScheduleDocument
+agentApi	DelayDiagnosisReport		external type, alpha DelayDiagnosticsReport (JDG-3512)	clashes with the renamed AgentDelayDiagnostics (AI-C review finding 2)
+agentApi	InvariantRow / CodecRefusalReason		external types (alpha)	no post-JDG-3285 name (AI-C review)
+agentApi	asShown / none	readSearchRows.filters / readTableRows.filters	enum values (alpha)	no rows (AI-C review finding 7)
+agentApi	findings / bottlenecks / endTaskDelays / walls (diagnosisBlockers) / markerStates / finishedDelayContributions / derivedParentTasks / lateDays / outcome / statusDate / unreliableCount	readDelayDiagnosis.parts and answer	part names (13-glossary-queue.md:1022, JDG-3473)	no rows in the policy table (AI-C review finding 3)
+agentApi	word / filters / offset / limit	readTableRows	arguments (alpha)	the draft has these only under readSearchRows
+agentApi	fixLog	DelayDiagnosisReport	field (alpha AgentDelayDiagnostics.fixLog)	only the concept term fixLog exists in the draft
+agentApi	delayDiagnosisReport / fixProposals / fixLog / resourceList	readTableRows.table	enum values (policy table question 34-1)	the draft has no value terms under table
+agentApi	document / commands / notes	readSchema.part	enum values (policy table question 33-2, kept)	
+agentApi	searchWindow / delayDiagnosisReportWindow / resourceListWindow	TableWindowName	enum values (policy table question 30-2)	exist as GRS JSON keys under tableWindows

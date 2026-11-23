@@ -1,0 +1,285 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "https://github.com/GoodRelax/gr-scheduler/docs/development-rules/manuscript-schemas/glossary.schema.json",
+ "$comment": [
+  "HAND-WRITTEN CONTRACT -- EDIT THIS FILE.",
+  "Validates docs/spec/_source/glossary.json, the names dictionary and the single source of truth for every name GRS uses (JDG-3411, JDG-3419). The schema lives under docs/development-rules/ because the rules for writing a manuscript belong to the development rules (JDG-3420).",
+  "Shape: the glossary keys of the NDD review standard, appendix A.6 'List of JSON Keys' (array terms[]; required key, label, definition; optional avoid, renames[], checkedBasis), plus project keys, each starting with x in camelCase as the standard asks (CR-857).",
+  "English is the primary text and Japanese its translation (JDG-3422, JDG-3825). Order is array position only (JDG-3423).",
+  "The schema sees the SHAPE. glossary_json_to_md.py refuses what JSON Schema cannot say: a key written twice, a group or parent or tag that names nothing, a child placed before its parent, and a group that holds no term."
+ ],
+ "title": "The names dictionary manuscript",
+ "description": "Every name GRS uses: data entities, properties, screen parts, setting keys, Agent API members, document commands, the value words and the rules. One entry of terms[] is one term. The generated glossary tables and the review tables are printed from this file in one step (JDG-3416).",
+ "type": "object",
+ "required": [
+  "$schema",
+  "xGroups",
+  "terms"
+ ],
+ "additionalProperties": false,
+ "properties": {
+  "$schema": {
+   "type": "string"
+  },
+  "$comment": {
+   "type": "array",
+   "items": {
+    "type": "string"
+   }
+  },
+  "xGroups": {
+   "description": "The taxonomy (JDG-3415, JDG-3427), in reading order: a group comes before its sub-groups. The order of the groups is the order of the generated tables.",
+   "type": "array",
+   "minItems": 1,
+   "items": {
+    "$ref": "#/$defs/Group"
+   }
+  },
+  "terms": {
+   "description": "Every term, in reading order: a definition uses only names defined earlier, and a child term follows its parent.",
+   "type": "array",
+   "minItems": 1,
+   "items": {
+    "$ref": "#/$defs/Term"
+   }
+  }
+ },
+ "$defs": {
+  "Text": {
+   "description": "One text per language, keyed by its BCP 47 language tag (OKPN/OMPV: never two languages in one string, JDG-3425). en is the primary text; ja translates it; more languages may be added as further tags.",
+   "type": "object",
+   "required": [
+    "en",
+    "ja"
+   ],
+   "additionalProperties": false,
+   "patternProperties": {
+    "^[a-z]{2,3}(-[A-Z][a-z]{3})?(-[A-Z]{2})?$": {
+     "type": "string",
+     "minLength": 1
+    }
+   }
+  },
+  "TermKey": {
+   "description": "The identifier of a term inside the dictionary: an English word or phrase in camelCase, unique across terms[], never a number.",
+   "type": "string",
+   "pattern": "^[a-z][A-Za-z0-9]*$"
+  },
+  "GroupKey": {
+   "type": "string",
+   "pattern": "^[a-z][A-Za-z0-9]*$"
+  },
+  "RulingId": {
+   "description": "A ruling of the owner in docs/development-records/rulings.md.",
+   "type": "string",
+   "pattern": "^JDG-[0-9]+$"
+  },
+  "Group": {
+   "type": "object",
+   "required": [
+    "key",
+    "title"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "key": {
+     "$ref": "#/$defs/GroupKey"
+    },
+    "parent": {
+     "$ref": "#/$defs/GroupKey",
+     "description": "The group this group sits in. Omitted for a top group."
+    },
+    "title": {
+     "$ref": "#/$defs/Text"
+    },
+    "description": {
+     "$ref": "#/$defs/Text"
+    },
+    "tags": {
+     "description": "Terms of other groups that this group points at instead of holding a term of the same meaning (the values group points at delayDiagnosis, JDG-3512).",
+     "type": "array",
+     "minItems": 1,
+     "uniqueItems": true,
+     "items": {
+      "$ref": "#/$defs/TermKey"
+     }
+    }
+   }
+  },
+  "Rename": {
+   "description": "One rename of this term (NDD review standard, appendix A.2, step 2). A former name is never reused for another term and never listed again in avoid.",
+   "type": "object",
+   "required": [
+    "from",
+    "version",
+    "reason",
+    "basis"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "from": {
+     "type": "string",
+     "minLength": 1,
+     "description": "The former name as it was written."
+    },
+    "version": {
+     "type": "string",
+     "minLength": 1,
+     "description": "The version, date or change request that made the rename."
+    },
+    "reason": {
+     "$ref": "#/$defs/Text"
+    },
+    "basis": {
+     "type": "array",
+     "minItems": 1,
+     "uniqueItems": true,
+     "items": {
+      "$ref": "#/$defs/RulingId"
+     }
+    }
+   }
+  },
+  "Term": {
+   "type": "object",
+   "required": [
+    "key",
+    "label",
+    "definition",
+    "xGroup",
+    "xUses"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "key": {
+     "$ref": "#/$defs/TermKey"
+    },
+    "label": {
+     "$ref": "#/$defs/Text",
+     "description": "The name shown in documents and screens. For a name a person reads as code writes it (a JSON key, an API member, a type), en is that written name."
+    },
+    "definition": {
+     "$ref": "#/$defs/Text",
+     "description": "What the term means. The schema and MCP descriptions take the English text."
+    },
+    "avoid": {
+     "description": "Words (not sentences) that must not stand in for this term.",
+     "type": "object",
+     "additionalProperties": false,
+     "minProperties": 1,
+     "patternProperties": {
+      "^[a-z]{2,3}(-[A-Z][a-z]{3})?(-[A-Z]{2})?$": {
+       "type": "array",
+       "minItems": 1,
+       "uniqueItems": true,
+       "items": {
+        "type": "string",
+        "minLength": 1
+       }
+      }
+     }
+    },
+    "renames": {
+     "type": "array",
+     "minItems": 1,
+     "items": {
+      "$ref": "#/$defs/Rename"
+     }
+    },
+    "xGroup": {
+     "$ref": "#/$defs/GroupKey",
+     "description": "Project key (x-prefixed): the group of the taxonomy that holds the term."
+    },
+    "xParent": {
+     "$ref": "#/$defs/TermKey",
+     "description": "Project key (x-prefixed): the term this term derives from (JDG-3415). The parent comes earlier in terms[]."
+    },
+    "xIdentifier": {
+     "type": "string",
+     "pattern": "^[A-Za-z][A-Za-z0-9]*$",
+     "description": "Project key (x-prefixed): the name as code and data write it (taskNameField under Task), given only when it differs from both key and label.en."
+    },
+    "xOwner": {
+     "type": "string",
+     "pattern": "^[A-Za-z][A-Za-z0-9]*$",
+     "description": "Project key (x-prefixed): the entity or part that owns the written name, given when the written name means different things under different owners (kind under Color; JDG-3425)."
+    },
+    "checkedBasis": {
+     "description": "The rulings that record a person's check of this term (NDD review standard, 'List of JSON Keys': the optional key checkedBasis). Absent while no person has checked the term.",
+     "type": "array",
+     "minItems": 1,
+     "uniqueItems": true,
+     "items": {
+      "$ref": "#/$defs/RulingId"
+     }
+    },
+    "xSpecTableRowId": {
+     "description": "Project key (x-prefixed): the specification table row that cites this term today (N-1, PR-1, IC-7), kept so that existing references still resolve (JDG-3491).",
+     "type": "string",
+     "pattern": "^[A-Z]+-[0-9]+[a-z]?$"
+    },
+    "xSince": {
+     "description": "Project key (x-prefixed): for a term of a contract group (GRS JSON, Agent API, document commands), the schemaVersion or agentApiVersion that first published it. A published term never changes its name or meaning.",
+     "type": "string",
+     "minLength": 1
+    },
+    "xExpansion": {
+     "$ref": "#/$defs/Text",
+     "description": "Project key (x-prefixed): the spelled-out name of an abbreviation (SSOT -> Single Source of Truth; JDG-3524)."
+    },
+    "xNonLiteral": {
+     "$ref": "#/$defs/Text",
+     "description": "Project key (x-prefixed): why the Japanese label is not a literal translation of the English one. Present only for the few agreed exceptions."
+    },
+    "xUsage": {
+     "description": "Project key (x-prefixed): example sentences for a term that is easy to misuse.",
+     "type": "object",
+     "additionalProperties": false,
+     "minProperties": 1,
+     "properties": {
+      "good": {
+       "type": "array",
+       "minItems": 1,
+       "items": {
+        "$ref": "#/$defs/Text"
+       }
+      },
+      "bad": {
+       "type": "array",
+       "minItems": 1,
+       "items": {
+        "$ref": "#/$defs/Text"
+       }
+      }
+     }
+    },
+    "xUses": {
+     "description": "Project key (x-prefixed): where the generators print this term.",
+     "type": "array",
+     "minItems": 1,
+     "uniqueItems": true,
+     "items": {
+      "enum": [
+       "grsJsonSchema",
+       "commandSchema",
+       "agentApi",
+       "mcpText",
+       "screen",
+       "spec",
+       "src"
+      ]
+     }
+    },
+    "xTags": {
+     "description": "Project key (x-prefixed): related terms, by key. Every one must exist in terms[].",
+     "type": "array",
+     "minItems": 1,
+     "uniqueItems": true,
+     "items": {
+      "$ref": "#/$defs/TermKey"
+     }
+    }
+   }
+  }
+ }
+}

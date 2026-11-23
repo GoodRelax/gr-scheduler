@@ -1,0 +1,610 @@
+group	key	owner	uses	status	newName	basis	note
+rules/externalStandards	JSONSchema		spec,grsJsonSchema,commandSchema	notInContract			external standard, not a key; the schema cites "JSON Schema" only in its own description
+rules/externalStandards	MSPDI		spec,grsJsonSchema,src	notInContract			external standard, not a key; MSPDI is named in descriptions and in key names (mspdiElement, mspdiImportCount)
+rules/externalStandards	ISO8601		spec,grsJsonSchema	notInContract			external standard, not a key; the schema writes no "ISO 8601"
+scheduleConcepts	lag		spec,screen,commandSchema	match		JDG-3781	setDependencyLag.lag (question 36-3, JDG-3781)
+scheduleConcepts	delayDiagnostics		spec,screen,agentApi,mcpText	renamed	delayDiagnosis	JDG-3512; JDG-3781	renamed by JDG-3512; feature name; members readDelayDiagnosis / runDelayDiagnosis, type DelayDiagnosisReport
+scheduleConcepts	estimatedFinish		spec,agentApi	notInContract			concept word; no Agent API member, field or value with this name in the alpha manuscript or the policy table (the readDelayDiagnosis part names have no rows: AI-C review finding 3)
+scheduleConcepts	dependencyDelayMinutes		spec,agentApi	notInContract			concept word; no Agent API member, field or value with this name in the alpha manuscript or the policy table (the readDelayDiagnosis part names have no rows: AI-C review finding 3)
+scheduleConcepts	internalDelayMinutes		spec,agentApi	notInContract			concept word; no Agent API member, field or value with this name in the alpha manuscript or the policy table (the readDelayDiagnosis part names have no rows: AI-C review finding 3)
+scheduleConcepts	endTask		spec,agentApi	notInContract			concept word; no Agent API member, field or value with this name in the alpha manuscript or the policy table (the readDelayDiagnosis part names have no rows: AI-C review finding 3)
+scheduleConcepts	endTaskDelayMinutes		spec,agentApi	notInContract			concept word; no Agent API member, field or value with this name in the alpha manuscript or the policy table (the readDelayDiagnosis part names have no rows: AI-C review finding 3)
+scheduleConcepts	delayContributionMinutes		spec,agentApi	notInContract			concept word; no Agent API member, field or value with this name in the alpha manuscript or the policy table (the readDelayDiagnosis part names have no rows: AI-C review finding 3)
+scheduleConcepts	bottleneck		spec,screen,agentApi	notInContract			concept word; no Agent API member, field or value with this name in the alpha manuscript or the policy table (the readDelayDiagnosis part names have no rows: AI-C review finding 3)
+scheduleConcepts	bottleneckPath		spec,screen,agentApi	notInContract			concept word; no Agent API member, field or value with this name in the alpha manuscript or the policy table (the readDelayDiagnosis part names have no rows: AI-C review finding 3)
+scheduleConcepts	unreliable		spec,screen,agentApi	notInContract			concept word; no Agent API member, field or value with this name in the alpha manuscript or the policy table (the readDelayDiagnosis part names have no rows: AI-C review finding 3)
+scheduleConcepts	diagnosisBlocker		spec,agentApi	notInContract			concept word; no Agent API member, field or value with this name in the alpha manuscript or the policy table (the readDelayDiagnosis part names have no rows: AI-C review finding 3)
+scheduleConcepts	fixProposal		spec,screen,agentApi	notInContract			the contract uses only fixProposals, fixProposalKeys, FixProposalRow (question 34-1)
+scheduleConcepts	fixLog		spec,screen,agentApi	match		JDG-3781	readTableRows.table value fixLog and the diagnosis answer field fixLog (question 34-1, JDG-3781)
+grsJson/sharedTypes	Day		grsJsonSchema,spec,src,commandSchema	match		JDG-3807; JDG-3781	
+grsJson/sharedTypes	DateTime		grsJsonSchema,spec,src,commandSchema	match		JDG-3807; JDG-3781	
+grsJson/sharedTypes	Time		grsJsonSchema,spec,src	match		JDG-3807	
+grsJson/sharedTypes	UtcInstant		grsJsonSchema,spec,src	match		JDG-3807	
+grsJson/sharedTypes	UtcOffset		grsJsonSchema,spec,src,commandSchema	renamed	StandardUtcOffset	JDG-3807; JDG-3781	renamed by JDG-3762; $defs/StandardUtcOffset (JDG-3514 had UtcOffset)
+grsJson/sharedTypes	value		grsJsonSchema,spec,src,commandSchema,mcpText	renamed	hexColor	JDG-3807; JDG-3781	renamed by JDG-3523; ColorSide.hexColor
+grsJson/sharedTypes	source	ColorSide	grsJsonSchema,spec,src,commandSchema	renamed	isCalculatedFromOppositeColorScheme	JDG-3807; JDG-3781	renamed by JDG-3729; ColorSide.isCalculatedFromOppositeColorScheme (const true); JDG-3636 replaced the chosen/derived enum with a boolean
+grsJson/sharedTypes	chosen	source	grsJsonSchema,spec,src	notInContract		JDG-3807	enum dropped (JDG-3636, JDG-3729): a chosen side writes no isCalculatedFromOppositeColorScheme
+grsJson/sharedTypes	derived	source	grsJsonSchema,spec,src	notInContract		JDG-3807	enum dropped (JDG-3636, JDG-3729): a derived side writes isCalculatedFromOppositeColorScheme: true
+grsJson/sharedTypes	ColorSide		grsJsonSchema,spec,src	match		JDG-3807	
+grsJson/sharedTypes	type	Color	grsJsonSchema,spec,src,commandSchema,mcpText	match		JDG-3807; JDG-3781	
+grsJson/sharedTypes	theme	Color	grsJsonSchema,spec,src	match		JDG-3807	
+grsJson/sharedTypes	palette	Color	grsJsonSchema,spec,src	match		JDG-3807	
+grsJson/sharedTypes	custom	Color	grsJsonSchema,spec,src	match		JDG-3807	
+grsJson/sharedTypes	name	Color	grsJsonSchema,spec,src,commandSchema,mcpText	match		JDG-3807; JDG-3781	
+grsJson/sharedTypes	paper	Color	grsJsonSchema,spec,src	renamed	white	JDG-3807	renamed by JDG-3702; Color.name enum value
+grsJson/sharedTypes	ink	Color	grsJsonSchema,spec,src	renamed	black	JDG-3807	renamed by JDG-3702; Color.name enum value
+grsJson/sharedTypes	dimGray	Color	grsJsonSchema,spec,src	match		JDG-3807	
+grsJson/sharedTypes	lightGray	Color	grsJsonSchema,spec,src	match		JDG-3807	
+grsJson/sharedTypes	red	Color	grsJsonSchema,spec,src	match		JDG-3807	
+grsJson/sharedTypes	blue	Color	grsJsonSchema,spec,src	match		JDG-3807	
+grsJson/sharedTypes	yellow	Color	grsJsonSchema,spec,src	match		JDG-3807	
+grsJson/sharedTypes	green	Color	grsJsonSchema,spec,src	match		JDG-3807	
+grsJson/sharedTypes	orange	Color	grsJsonSchema,spec,src	match		JDG-3807	
+grsJson/sharedTypes	purple	Color	grsJsonSchema,spec,src	match		JDG-3807	
+grsJson/sharedTypes	light		grsJsonSchema,spec,src,commandSchema	match		JDG-3807; JDG-3781	
+grsJson/sharedTypes	dark		grsJsonSchema,spec,src	match		JDG-3807	
+grsJson/sharedTypes	Color		grsJsonSchema,spec,src	match		JDG-3807	
+grsJson/sharedTypes	LaneColor		grsJsonSchema,spec,src	renamed	TaskGroupColor	JDG-3807	renamed by JDG-3733; $defs/TaskGroupColor
+grsJson/sharedTypes	ColumnKey		grsJsonSchema,spec,src	notInContract		JDG-3807	adopted by JDG-3514 but the frozen schema has no $defs/ColumnKey: column names are inline enums of ColumnFilter.column / ColumnSort.column; the Agent API table still cites ColumnKey as the type of TableColumn.key
+grsJson/sharedTypes	column		grsJsonSchema,spec,src,mcpText	match		JDG-3807	
+grsJson/sharedTypes	firstDay		grsJsonSchema,spec,src,commandSchema	match		JDG-3807; JDG-3781	
+grsJson/sharedTypes	lastDay		grsJsonSchema,spec,src,commandSchema	match		JDG-3807; JDG-3781	
+grsJson/sharedTypes	type	ColumnFilter	grsJsonSchema,spec,src,commandSchema,mcpText	match		JDG-3807; JDG-3781	
+grsJson/sharedTypes	values	ColumnFilter	grsJsonSchema,spec,src	match		JDG-3807	
+grsJson/sharedTypes	dateRange	ColumnFilter	grsJsonSchema,spec,src	match		JDG-3807	
+grsJson/sharedTypes	hiddenValues		grsJsonSchema,spec,src	match		JDG-3807	
+grsJson/sharedTypes	isBlankHidden		grsJsonSchema,spec,src	match		JDG-3807	
+grsJson/sharedTypes	ColumnFilter		grsJsonSchema,spec,src	match		JDG-3807	
+grsJson/sharedTypes	direction	ColumnSort	grsJsonSchema,spec,src,commandSchema	match		JDG-3807; JDG-3781	
+grsJson/sharedTypes	ascending	direction	grsJsonSchema,spec,src	match		JDG-3807	
+grsJson/sharedTypes	descending	direction	grsJsonSchema,spec,src	match		JDG-3807	
+grsJson/sharedTypes	ColumnSort		grsJsonSchema,spec,src	match		JDG-3807	
+grsJson/sharedTypes	Passthrough		grsJsonSchema,spec,src	match		JDG-3807	
+grsJson/sharedTypes	ordinal		grsJsonSchema,spec,src	notInContract		JDG-3807	removed by JDG-3606 / JDG-3613 (order is array order; passthrough arrays use preceding<Entity>Uid)
+grsJson/sharedTypes	passthrough		grsJsonSchema,spec,src	match		JDG-3807	
+grsJson/sharedTypes	uid		grsJsonSchema,spec,src,commandSchema	match		JDG-3807; JDG-3781	
+grsJson/sharedTypes	id		grsJsonSchema,spec,src,commandSchema,mcpText	match		JDG-3807; JDG-3781	
+grsJson/sharedTypes	name		grsJsonSchema,spec,src,commandSchema,mcpText	match		JDG-3807; JDG-3781	
+grsJson/sharedTypes	calendarUid		grsJsonSchema,spec,src	match		JDG-3807	
+grsJson/sharedTypes	siblingOrder		grsJsonSchema,spec,src,commandSchema	renamed	siblingIndex	JDG-3807; JDG-3781	renamed by JDG-3776; Task.siblingIndex, TaskGroup.siblingIndex; counts from 0
+grsJson/sharedTypes	taskUid		grsJsonSchema,spec,src,commandSchema	match		JDG-3807; JDG-3781	
+grsJson/sharedTypes	taskGroupId		grsJsonSchema,spec,src,commandSchema	match		JDG-3807; JDG-3781	
+grsJson/sharedTypes	start		grsJsonSchema,spec,src,commandSchema,mcpText	match		JDG-3807; JDG-3781	
+grsJson/sharedTypes	finish		grsJsonSchema,spec,src,commandSchema,mcpText	match		JDG-3807; JDG-3781	
+grsJson/sharedTypes	milestone		grsJsonSchema,spec,src,commandSchema,mcpText	match		JDG-3807; JDG-3781	
+grsJson/sharedTypes	hyperlinkAddress		grsJsonSchema,spec,src,commandSchema	match		JDG-3807; JDG-3781	
+grsJson/sharedTypes	hyperlink		grsJsonSchema,spec,src,commandSchema	match		JDG-3807; JDG-3781	
+grsJson/sharedTypes	fillColor		grsJsonSchema,spec,src,commandSchema	renamed	fill.color	JDG-3807; JDG-3781	renamed by JDG-3607; fill is Paint {color, opacityPercent} inside each style (JDG-3610)
+grsJson/sharedTypes	fillTransparencyPercent		grsJsonSchema,spec,src,commandSchema	renamed	opacityPercent	JDG-3807; JDG-3781	renamed by JDG-3526; Paint.opacityPercent / Stroke.opacityPercent; direction inverted (100 = opaque); placed by JDG-3607
+grsJson/sharedTypes	strokeColor		grsJsonSchema,spec,src,commandSchema	renamed	stroke.color	JDG-3807; JDG-3781	renamed by JDG-3607; Stroke.color
+grsJson/sharedTypes	strokeWidthPx		grsJsonSchema,spec,src,commandSchema	renamed	stroke.widthPx	JDG-3807; JDG-3781	renamed by JDG-3607; Stroke.widthPx
+grsJson/calendar	fromTime		grsJsonSchema,spec,src	match		JDG-3807	
+grsJson/calendar	toTime		grsJsonSchema,spec,src	match		JDG-3807	
+grsJson/calendar	WorkingTime		grsJsonSchema,spec,src	match		JDG-3807	
+grsJson/calendar	workingTimes		grsJsonSchema,spec,src,commandSchema	match		JDG-3807; JDG-3781	
+grsJson/calendar	dayWorking		grsJsonSchema,spec,src	match		JDG-3807	
+grsJson/calendar	dayType		grsJsonSchema,spec,src	match		JDG-3807	
+grsJson/calendar	WeekDay		grsJsonSchema,spec,src	match		JDG-3807	
+grsJson/calendar	fromDate		grsJsonSchema,spec,src	match		JDG-3807	
+grsJson/calendar	toDate		grsJsonSchema,spec,src	match		JDG-3807	
+grsJson/calendar	recurrenceType		grsJsonSchema,spec,src	renamed	type	JDG-3807	renamed by JDG-3628; Exception.type (MSPDI name wins; not a discriminator)
+grsJson/calendar	recurrencePeriod		grsJsonSchema,spec,src	renamed	period	JDG-3807	Exception.period; no ruling names this rename explicitly; it follows the MSPDI-name rule (JDG-3622 (2), JDG-3628) - owner check only via JDG-3807
+grsJson/calendar	Exception		grsJsonSchema,spec,src	match		JDG-3807	
+grsJson/calendar	weekDays		grsJsonSchema,spec,src	match		JDG-3807	
+grsJson/calendar	exceptions		grsJsonSchema,spec,src,commandSchema	match		JDG-3807; JDG-3781	
+grsJson/calendar	baseCalendarUid		grsJsonSchema,spec,src	match		JDG-3807	
+grsJson/calendar	isBaseCalendar		grsJsonSchema,spec,src	match		JDG-3807	
+grsJson/calendar	Calendar		grsJsonSchema,spec,src	match		JDG-3807	
+grsJson/project	uid	Project	grsJsonSchema,spec,src,commandSchema,mcpText	match		JDG-3807; JDG-3781	
+grsJson/project	calendarUid	Project	grsJsonSchema,spec,src	match		JDG-3807	
+grsJson/project	name	Project	grsJsonSchema,spec,src,commandSchema,mcpText	match		JDG-3807; JDG-3781	
+grsJson/project	title		grsJsonSchema,spec,src,commandSchema,mcpText	match		JDG-3807; JDG-3781	
+grsJson/project	subject		grsJsonSchema,spec,src,commandSchema	match		JDG-3807; JDG-3781	
+grsJson/project	category		grsJsonSchema,spec,src,commandSchema	match		JDG-3807; JDG-3781	
+grsJson/project	company		grsJsonSchema,spec,src,commandSchema	match		JDG-3807; JDG-3781	
+grsJson/project	manager		grsJsonSchema,spec,src,commandSchema	match		JDG-3807; JDG-3781	
+grsJson/project	author		grsJsonSchema,spec,src,commandSchema	match		JDG-3807; JDG-3781	
+grsJson/project	revision		grsJsonSchema,spec,src,commandSchema	match		JDG-3807; JDG-3781	
+grsJson/project	creationDate		grsJsonSchema,spec,src	match		JDG-3807	
+grsJson/project	startDate		grsJsonSchema,spec,src,commandSchema	match		JDG-3807; JDG-3781	
+grsJson/project	statusDate		grsJsonSchema,spec,src,commandSchema	match		JDG-3807; JDG-3781	
+grsJson/project	scheduleDataTimeZone		grsJsonSchema,spec,src,commandSchema	match		JDG-3807; JDG-3781	moved to scheduleData; now an object {utcOffset} (JDG-3644, JDG-3720)
+grsJson/project	minutesPerDay		grsJsonSchema,spec,src,mcpText	match		JDG-3807	
+grsJson/project	minutesPerWeek		grsJsonSchema,spec,src	match		JDG-3807	
+grsJson/project	daysPerMonth		grsJsonSchema,spec,src	match		JDG-3807	
+grsJson/project	weekStartDay		grsJsonSchema,spec,src,commandSchema	match		JDG-3807; JDG-3781	
+grsJson/project	defaultStartTime		grsJsonSchema,spec,src	match		JDG-3807	
+grsJson/project	defaultFinishTime		grsJsonSchema,spec,src	match		JDG-3807	
+grsJson/project	themeHueDegrees		grsJsonSchema,spec,src,commandSchema	renamed	documentSettings.themeHue	JDG-3807; JDG-3781	renamed by JDG-3541; enum of 10 hue names; moved from Project to documentSettings by JDG-3713
+grsJson/project	parentTaskProgressToleranceWorkingDays		grsJsonSchema,spec,src,commandSchema	match		JDG-3807; JDG-3781	moved to documentSettings.delayDiagnosisSettings (JDG-3646, name JDG-3738)
+grsJson/project	highestIssuedUid		grsJsonSchema,spec,src,commandSchema	match		JDG-3807; JDG-3781	moved to scheduleData (JDG-3720)
+grsJson/project	lastImportNumber		grsJsonSchema,spec,src	renamed	scheduleData.mspdiImportCount	JDG-3807	renamed by JDG-3627; via lastMspdiImportNumber (JDG-3556)
+grsJson/project	firstOutlineLevel		grsJsonSchema,spec,src	renamed	scheduleData.importedTopTaskOutlineLevel	JDG-3807	renamed by JDG-3648; via topTaskOutlineLevel (JDG-3617/3623)
+grsJson/project	sourceFormat		grsJsonSchema,spec,src	match		JDG-3807	moved to scheduleData (JDG-3720)
+grsJson/project	grs	sourceFormat	grsJsonSchema,spec,src	match		JDG-3807	
+grsJson/project	pj12	sourceFormat	grsJsonSchema,spec,src	renamed	mspdi12	JDG-3807	renamed by JDG-3633; scheduleData.sourceFormat enum value
+grsJson/project	pj15	sourceFormat	grsJsonSchema,spec,src	renamed	mspdi15	JDG-3807	renamed by JDG-3633; scheduleData.sourceFormat enum value
+grsJson/project	Project		grsJsonSchema,spec,src,mcpText	match		JDG-3807	
+grsJson/task	predecessorUid		grsJsonSchema,spec,src,commandSchema	match		JDG-3807; JDG-3781	
+grsJson/task	linkType		grsJsonSchema,spec,src	renamed	type	JDG-3807	renamed by JDG-3628; PredecessorLink.type (MSPDI name; not a discriminator)
+grsJson/task	linkLag		grsJsonSchema,spec,src	match		JDG-3807	
+grsJson/task	lagFormat		grsJsonSchema,spec,src	match		JDG-3807	
+grsJson/task	PredecessorLink		grsJsonSchema,spec,src	match		JDG-3807	
+grsJson/task	parentTaskUid		grsJsonSchema,spec,src,commandSchema	match		JDG-3807; JDG-3781	
+grsJson/task	notes		grsJsonSchema,spec,src,commandSchema,mcpText	match		JDG-3807; JDG-3781	
+grsJson/task	deadline		grsJsonSchema,spec,src,commandSchema	match		JDG-3807; JDG-3781	
+grsJson/task	actualStart		grsJsonSchema,spec,src,commandSchema,mcpText	match		JDG-3807; JDG-3781	
+grsJson/task	stop		grsJsonSchema,spec,src,commandSchema	match		JDG-3807; JDG-3781	
+grsJson/task	actualFinish		grsJsonSchema,spec,src,commandSchema,mcpText	match		JDG-3807; JDG-3781	
+grsJson/task	resume		grsJsonSchema,spec,src,commandSchema	match		JDG-3807; JDG-3781	
+grsJson/task	resumeValid		grsJsonSchema,spec,src	match		JDG-3807	
+grsJson/task	percentComplete		grsJsonSchema,spec,src,commandSchema,mcpText	match		JDG-3807; JDG-3781	
+grsJson/task	fadeInCalendarDays		grsJsonSchema,spec,src,commandSchema	renamed	startSlopeCalendarDays	JDG-3807; JDG-3781	renamed by JDG-3732; Task.grs.startSlopeCalendarDays
+grsJson/task	fadeOutCalendarDays		grsJsonSchema,spec,src,commandSchema	renamed	finishSlopeCalendarDays	JDG-3807; JDG-3781	renamed by JDG-3732; Task.grs.finishSlopeCalendarDays
+grsJson/task	predecessorLinks		grsJsonSchema,spec,src,commandSchema,mcpText	match		JDG-3807; JDG-3781	
+grsJson/task	Task		grsJsonSchema,spec,src	match		JDG-3807	
+grsJson/resource	resourceType		grsJsonSchema,spec,src	renamed	type	JDG-3807	renamed by JDG-3628; Resource.type (MSPDI name; not a discriminator)
+grsJson/resource	isCostResource		grsJsonSchema,spec,src	match		JDG-3807	
+grsJson/resource	Resource		grsJsonSchema,spec,src,mcpText	match		JDG-3807	
+grsJson/resource	resourceUid		grsJsonSchema,spec,src,commandSchema	match		JDG-3807; JDG-3781	
+grsJson/resource	Assignment		grsJsonSchema,spec,src	match		JDG-3807	
+grsJson/taskGroup	parentId		grsJsonSchema,spec,src,commandSchema	renamed	parentTaskGroupId	JDG-3807; JDG-3781	renamed by JDG-3622; TaskGroup.parentTaskGroupId (item 5)
+grsJson/taskGroup	representedTaskUid		grsJsonSchema,spec,src,commandSchema	renamed	representativeTaskUid	JDG-3807; JDG-3781	renamed by JDG-3639; TaskGroup.representativeTaskUid
+grsJson/taskGroup	treeState		grsJsonSchema,spec,src,commandSchema	renamed	showMode	JDG-3807; JDG-3781	renamed by JDG-3736; TaskGroup.showMode (selfShowMode JDG-3662, renamed JDG-3736); the value set changed (shown, hidden, automatic, hiddenUntilZoomIn)
+grsJson/taskGroup	auto	treeState	grsJsonSchema,spec,src	renamed	showMode.automatic	JDG-3807	renamed by JDG-3662; nearest value: automatic = follow the rules (depth, pins)
+grsJson/taskGroup	collapsed	treeState	grsJsonSchema,spec,src	notInContract		JDG-3807	JDG-3662 rejected collapsed/expanded (they describe children, not the band itself); no showMode value has this meaning
+grsJson/taskGroup	expanded	treeState	grsJsonSchema,spec,src	notInContract		JDG-3807	JDG-3662 rejected collapsed/expanded; showMode.shown is about the band itself, not its children
+grsJson/taskGroup	temporarilyExpanded	treeState	grsJsonSchema,spec,src	notInContract		JDG-3807	no counterpart; showMode.hiddenUntilZoomIn (JDG-3663) has a different meaning
+grsJson/taskGroup	hidden	treeState	grsJsonSchema,spec,src	renamed	showMode.hidden	JDG-3807	renamed by JDG-3662; value name unchanged; only its owner was renamed (treeState -> showMode, JDG-3736); hidden now also hides descendants
+grsJson/taskGroup	editGroup		grsJsonSchema,spec,src,commandSchema	renamed	allowedEditorGroupName	JDG-3807; JDG-3781	renamed by JDG-3730; via editorGroupName (JDG-3617) and editableByGroupName (JDG-3623)
+grsJson/taskGroup	color		grsJsonSchema,spec,src,commandSchema	match		JDG-3807; JDG-3781	TaskGroupStyle.color: moved under TaskGroup.style
+grsJson/taskGroup	minHeightPx		grsJsonSchema,spec,src,commandSchema	match		JDG-3807; JDG-3781	
+grsJson/taskGroup	TaskGroup		grsJsonSchema,spec,src	match		JDG-3807	
+grsJson/taskGroup	TaskGroupMember		grsJsonSchema,spec,src	notInContract		JDG-3807	removed by JDG-3614 / JDG-3615: a task names its band with Task.grs.taskGroupId
+grsJson/graphicStyleAndOrigin	taskShape		grsJsonSchema,spec,src,commandSchema	match		JDG-3807; JDG-3781	
+grsJson/graphicStyleAndOrigin	rectangle	taskShape	grsJsonSchema,spec,src	match		JDG-3807	
+grsJson/graphicStyleAndOrigin	chevron	taskShape	grsJsonSchema,spec,src	match		JDG-3807	
+grsJson/graphicStyleAndOrigin	arrow	taskShape	grsJsonSchema,spec,src	match		JDG-3807	
+grsJson/graphicStyleAndOrigin	endpointSpan	taskShape	grsJsonSchema,spec,src	renamed	dumbbell	JDG-3807	renamed by JDG-3696; TaskStyle.taskShape enum value
+grsJson/graphicStyleAndOrigin	milestoneShape		grsJsonSchema,spec,src,commandSchema	match		JDG-3807; JDG-3781	
+grsJson/graphicStyleAndOrigin	circle	milestoneShape	grsJsonSchema,spec,src	match		JDG-3807	
+grsJson/graphicStyleAndOrigin	hexagon	milestoneShape	grsJsonSchema,spec,src	match		JDG-3807	
+grsJson/graphicStyleAndOrigin	pentagon	milestoneShape	grsJsonSchema,spec,src	match		JDG-3807	
+grsJson/graphicStyleAndOrigin	diamond	milestoneShape	grsJsonSchema,spec,src	match		JDG-3807	
+grsJson/graphicStyleAndOrigin	square	milestoneShape	grsJsonSchema,spec,src	match		JDG-3807	
+grsJson/graphicStyleAndOrigin	star	milestoneShape	grsJsonSchema,spec,src	match		JDG-3807	
+grsJson/graphicStyleAndOrigin	triangleUp	milestoneShape	grsJsonSchema,spec,src	match		JDG-3807	
+grsJson/graphicStyleAndOrigin	triangleDown	milestoneShape	grsJsonSchema,spec,src	match		JDG-3807	
+grsJson/graphicStyleAndOrigin	file	milestoneShape	grsJsonSchema,spec,src	match		JDG-3807	
+grsJson/graphicStyleAndOrigin	box	milestoneShape	grsJsonSchema,spec,src	match		JDG-3807	
+grsJson/graphicStyleAndOrigin	floppyDisk	milestoneShape	grsJsonSchema,spec,src	match		JDG-3807	
+grsJson/graphicStyleAndOrigin	cylinder	milestoneShape	grsJsonSchema,spec,src	match		JDG-3807	
+grsJson/graphicStyleAndOrigin	person	milestoneShape	grsJsonSchema,spec,src	renamed	meetingPeople	JDG-3807	renamed by JDG-3703; TaskStyle.milestoneShape enum value
+grsJson/graphicStyleAndOrigin	smile	milestoneShape	grsJsonSchema,spec,src	renamed	smilingFace	JDG-3807	renamed by JDG-3703; TaskStyle.milestoneShape enum value
+grsJson/graphicStyleAndOrigin	beerMug	milestoneShape	grsJsonSchema,spec,src	match		JDG-3807	
+grsJson/graphicStyleAndOrigin	TaskGraphicStyle		grsJsonSchema,spec,src	renamed	TaskStyle	JDG-3807	renamed by JDG-3699; $defs/TaskStyle (value of Task.grs.style)
+grsJson/graphicStyleAndOrigin	sourceProjectId		grsJsonSchema,spec,src	renamed	sourceProjectUid	JDG-3807	renamed by JDG-3701; ImportOrigin.sourceProjectUid (tentative JDG-3617)
+grsJson/graphicStyleAndOrigin	sourceUid		grsJsonSchema,spec,src	renamed	sourceTaskUid	JDG-3807	renamed by JDG-3701; ImportOrigin.sourceTaskUid
+grsJson/graphicStyleAndOrigin	importSessionId		grsJsonSchema,spec,src	match		JDG-3807	
+grsJson/graphicStyleAndOrigin	lastSeenImportNumber		grsJsonSchema,spec,src	renamed	mspdiImportCountWhenLastIncluded	JDG-3807	renamed by JDG-3737; ImportOrigin.mspdiImportCountWhenLastIncluded (via lastSeenMspdiImportCount JDG-3649)
+grsJson/graphicStyleAndOrigin	TaskOrigin		grsJsonSchema,spec,src	renamed	ImportOrigin	JDG-3807	renamed by JDG-3710; $defs/ImportOrigin (key Task.grs.importOrigin, JDG-3641)
+grsJson/graphicStyleAndOrigin	uid	BaselineTask	grsJsonSchema,spec,src,commandSchema	match		JDG-3807; JDG-3781	
+grsJson/graphicStyleAndOrigin	BaselineTask		grsJsonSchema,spec,src	match		JDG-3807	
+grsJson/annotations	laneFraction		grsJsonSchema,spec,src,commandSchema	renamed	taskGroupTopOffsetPercent	JDG-3807; JDG-3781	renamed by JDG-3733; LeaderTarget.taskGroupTopOffsetPercent (via lanePositionPercent JDG-3529, laneTopOffsetPercent JDG-3556)
+grsJson/annotations	LeaderAnchorFallback		grsJsonSchema,spec,src	notInContract		JDG-3807	removed by JDG-3547 (no fallback copy of a place)
+grsJson/annotations	dateTime		grsJsonSchema,spec,src,commandSchema	match		JDG-3807; JDG-3781	
+grsJson/annotations	graphicPart		grsJsonSchema,spec,src,commandSchema	renamed	snapPart	JDG-3807; JDG-3781	renamed by JDG-3623; LeaderTarget.snapPart (tentative JDG-3617, kept JDG-3623)
+grsJson/annotations	plannedBar	graphicPart	grsJsonSchema,spec,src	renamed	snapPart.planBar	JDG-3807	renamed by JDG-3647; LeaderTarget.snapPart enum value
+grsJson/annotations	actualBar	graphicPart	grsJsonSchema,spec,src	renamed	snapPart.actualBar	JDG-3807	renamed by JDG-3623; value name unchanged; only its owner was renamed (graphicPart -> snapPart); value confirmed by JDG-3647
+grsJson/annotations	milestone	graphicPart	grsJsonSchema,spec,src	renamed	snapPart.milestoneMark	JDG-3807	renamed by JDG-3647; LeaderTarget.snapPart enum value
+grsJson/annotations	point		grsJsonSchema,spec,src,commandSchema	renamed	snapPoint	JDG-3807; JDG-3781	renamed by JDG-3623; LeaderTarget.snapPoint (tentative JDG-3617, kept JDG-3623)
+grsJson/annotations	topLeftCorner	point	grsJsonSchema,spec,src	renamed	snapPoint.topLeftCorner	JDG-3807	renamed by JDG-3623; value name unchanged; only its owner was renamed (point -> snapPoint); values confirmed by JDG-3709
+grsJson/annotations	topMiddle	point	grsJsonSchema,spec,src	renamed	snapPoint.topMiddle	JDG-3807	renamed by JDG-3623; value name unchanged; only its owner was renamed (point -> snapPoint); values confirmed by JDG-3709
+grsJson/annotations	topRightCorner	point	grsJsonSchema,spec,src	renamed	snapPoint.topRightCorner	JDG-3807	renamed by JDG-3623; value name unchanged; only its owner was renamed (point -> snapPoint); values confirmed by JDG-3709
+grsJson/annotations	rightMiddle	point	grsJsonSchema,spec,src	renamed	snapPoint.rightMiddle	JDG-3807	renamed by JDG-3623; value name unchanged; only its owner was renamed (point -> snapPoint); values confirmed by JDG-3709
+grsJson/annotations	bottomRightCorner	point	grsJsonSchema,spec,src	renamed	snapPoint.bottomRightCorner	JDG-3807	renamed by JDG-3623; value name unchanged; only its owner was renamed (point -> snapPoint); values confirmed by JDG-3709
+grsJson/annotations	bottomMiddle	point	grsJsonSchema,spec,src	renamed	snapPoint.bottomMiddle	JDG-3807	renamed by JDG-3623; value name unchanged; only its owner was renamed (point -> snapPoint); values confirmed by JDG-3709
+grsJson/annotations	bottomLeftCorner	point	grsJsonSchema,spec,src	renamed	snapPoint.bottomLeftCorner	JDG-3807	renamed by JDG-3623; value name unchanged; only its owner was renamed (point -> snapPoint); values confirmed by JDG-3709
+grsJson/annotations	leftMiddle	point	grsJsonSchema,spec,src	renamed	snapPoint.leftMiddle	JDG-3807	renamed by JDG-3623; value name unchanged; only its owner was renamed (point -> snapPoint); values confirmed by JDG-3709
+grsJson/annotations	fallback		grsJsonSchema,spec,src,commandSchema	notInContract		JDG-3807; JDG-3781	removed by JDG-3547
+grsJson/annotations	highlightBoxId		grsJsonSchema,spec,src,commandSchema	match		JDG-3807; JDG-3781	
+grsJson/annotations	type	LeaderAnchor	grsJsonSchema,spec,src,commandSchema,mcpText	renamed	LeaderTarget.type	JDG-3807; JDG-3781	renamed by JDG-3556; key unchanged; owner LeaderAnchor -> LeaderTarget
+grsJson/annotations	freePoint	LeaderAnchor	grsJsonSchema,spec,src	renamed	LeaderTarget.type.freePoint	JDG-3807	renamed by JDG-3556; value name unchanged; only its owner was renamed
+grsJson/annotations	task	LeaderAnchor	grsJsonSchema,spec,src	renamed	LeaderTarget.type.task	JDG-3807	renamed by JDG-3556; value name unchanged; only its owner was renamed; value confirmed by JDG-3709
+grsJson/annotations	highlightBox	LeaderAnchor	grsJsonSchema,spec,src	renamed	LeaderTarget.type.highlightBox	JDG-3807	renamed by JDG-3556; value name unchanged; only its owner was renamed; value confirmed by JDG-3709
+grsJson/annotations	LeaderAnchor		grsJsonSchema,spec,src	renamed	LeaderTarget	JDG-3807	renamed by JDG-3710; $defs/LeaderTarget: the type takes the key name (key renamed by JDG-3556)
+grsJson/annotations	dx		grsJsonSchema,spec,src,commandSchema	match		JDG-3807; JDG-3781	
+grsJson/annotations	dy		grsJsonSchema,spec,src,commandSchema	match		JDG-3807; JDG-3781	
+grsJson/annotations	bodyOffsetPx		grsJsonSchema,spec,src,commandSchema	match		JDG-3807; JDG-3781	
+grsJson/annotations	leaderAnchor		grsJsonSchema,spec,src,commandSchema	renamed	leaderTarget	JDG-3807; JDG-3781	renamed by JDG-3556; CommentBox.leaderTarget (item C)
+grsJson/annotations	text	CommentBox	grsJsonSchema,spec,src,commandSchema,mcpText	match		JDG-3807; JDG-3781	
+grsJson/annotations	textColor		grsJsonSchema,spec,src,commandSchema	renamed	style.font.color	JDG-3807; JDG-3781	renamed by JDG-3612; CommentBoxStyle.font.color
+grsJson/annotations	fontSizePx		grsJsonSchema,spec,src,commandSchema	renamed	style.font.sizePx	JDG-3807; JDG-3781	renamed by JDG-3612; CommentBoxStyle.font.sizePx
+grsJson/annotations	CommentBox		grsJsonSchema,spec,src	match		JDG-3807	
+grsJson/annotations	topTaskGroupId		grsJsonSchema,spec,src,commandSchema	renamed	firstTaskGroupId	JDG-3807; JDG-3781	renamed by JDG-3528; HighlightBox.firstTaskGroupId
+grsJson/annotations	bottomTaskGroupId		grsJsonSchema,spec,src,commandSchema	renamed	lastTaskGroupId	JDG-3807; JDG-3781	renamed by JDG-3528; HighlightBox.lastTaskGroupId
+grsJson/annotations	cornerRadiusPx		grsJsonSchema,spec,src	match		JDG-3807	HighlightBoxStyle.cornerRadiusPx: moved under HighlightBox.style
+grsJson/annotations	HighlightBox		grsJsonSchema,spec,src	match		JDG-3807	
+grsJson/stampAndLog	scheduleDataUpdatedAt		grsJsonSchema,spec,src	match		JDG-3807	
+grsJson/stampAndLog	documentUpdatedAt		grsJsonSchema,spec,src	match		JDG-3807	
+grsJson/stampAndLog	fileSavedAt		grsJsonSchema,spec,src	match		JDG-3807	
+grsJson/stampAndLog	type	Writer	grsJsonSchema,spec,src,commandSchema,mcpText	renamed	Editor.type	JDG-3807; JDG-3781	renamed by JDG-3700; key unchanged; owner Writer -> Editor
+grsJson/stampAndLog	user	Writer	grsJsonSchema,spec,src	renamed	Editor.type.user	JDG-3807	renamed by JDG-3700; value name unchanged; only its owner was renamed
+grsJson/stampAndLog	template	Writer	grsJsonSchema,spec,src	renamed	Editor.type.template	JDG-3807	renamed by JDG-3700; value name unchanged; only its owner was renamed
+grsJson/stampAndLog	agent	Writer	grsJsonSchema,spec,src	renamed	Editor.type.agent	JDG-3807	renamed by JDG-3700; value name unchanged; only its owner was renamed
+grsJson/stampAndLog	name	Writer	grsJsonSchema,spec,src,commandSchema,mcpText	renamed	Editor.name	JDG-3807; JDG-3781	renamed by JDG-3700; key unchanged; owner Writer -> Editor
+grsJson/stampAndLog	Writer		grsJsonSchema,spec,src	renamed	Editor	JDG-3807	renamed by JDG-3700; $defs/Editor
+grsJson/stampAndLog	lastEditedBy		grsJsonSchema,spec,src	match		JDG-3807	
+grsJson/stampAndLog	DocumentStamp		grsJsonSchema,spec,src	match		JDG-3807	
+grsJson/stampAndLog	changedAt		grsJsonSchema,spec,src	match		JDG-3807	
+grsJson/stampAndLog	changedBy		grsJsonSchema,spec,src	match		JDG-3807	
+grsJson/stampAndLog	affectedArea		grsJsonSchema,spec,src	match		JDG-3807	
+grsJson/stampAndLog	changeDescription		grsJsonSchema,spec,src	match		JDG-3807	
+grsJson/stampAndLog	reason	ChangeLogEntry	grsJsonSchema,spec,src	match		JDG-3807	
+grsJson/stampAndLog	remarks		grsJsonSchema,spec,src	match		JDG-3807	
+grsJson/stampAndLog	ChangeLogEntry		grsJsonSchema,spec,src	match		JDG-3807	
+grsJson/documentSettings	displayScalePercent		grsJsonSchema,spec,src,commandSchema	renamed	displayScaleRatio	JDG-3807; JDG-3781	renamed by JDG-3621; 1 = 100 %; enum of 10 ratios
+grsJson/documentSettings	fontSizeStep		grsJsonSchema,spec,src,commandSchema	renamed	fontSizePreset	JDG-3807; JDG-3781	renamed by JDG-3623; via fontSize (JDG-3617)
+grsJson/documentSettings	small	fontSizeStep	grsJsonSchema,spec,src	renamed	fontSizePreset.small	JDG-3807	renamed by JDG-3623; value name unchanged; only its owner was renamed
+grsJson/documentSettings	medium	fontSizeStep	grsJsonSchema,spec,src	renamed	fontSizePreset.medium	JDG-3807	renamed by JDG-3623; value name unchanged; only its owner was renamed
+grsJson/documentSettings	large	fontSizeStep	grsJsonSchema,spec,src	renamed	fontSizePreset.large	JDG-3807	renamed by JDG-3623; value name unchanged; only its owner was renamed
+grsJson/documentSettings	dayWidthPx		grsJsonSchema,spec,src,commandSchema	match		JDG-3807; JDG-3781	
+grsJson/documentSettings	verticalZoomRatio		grsJsonSchema,spec,src,commandSchema	renamed	verticalZoom.ratio	JDG-3807; JDG-3781	renamed by JDG-3697
+grsJson/documentSettings	taskGroupAutoExpandDepth		grsJsonSchema,spec,src,commandSchema	renamed	verticalZoom.automaticallyShownDepth	JDG-3807; JDG-3781	renamed by JDG-3697; name JDG-3665 (kept JDG-3739), place JDG-3697
+grsJson/documentSettings	type	scrollPosition	grsJsonSchema,spec,src,commandSchema,mcpText	match		JDG-3807; JDG-3781	
+grsJson/documentSettings	notDecided	scrollPosition	grsJsonSchema,spec,src	renamed	automatic	JDG-3807	renamed by JDG-3623; scrollPosition.type enum value
+grsJson/documentSettings	placed	scrollPosition	grsJsonSchema,spec,src	renamed	fixed	JDG-3807	renamed by JDG-3623; scrollPosition.type enum value (JDG-3623 names the old value "decided")
+grsJson/documentSettings	leftEdgeDay		grsJsonSchema,spec,src,commandSchema	match		JDG-3807; JDG-3781	
+grsJson/documentSettings	leftEdgeDayFraction		grsJsonSchema,spec,src,commandSchema	renamed	leftEdgeDayOffsetPercent	JDG-3807; JDG-3781	renamed by JDG-3705; 0..100 (rule JDG-3529)
+grsJson/documentSettings	topEdgeTaskGroupId		grsJsonSchema,spec,src,commandSchema	match		JDG-3807; JDG-3781	
+grsJson/documentSettings	topEdgeTaskGroupFraction		grsJsonSchema,spec,src,commandSchema	renamed	topEdgeTaskGroupOffsetPercent	JDG-3807; JDG-3781	renamed by JDG-3705; 0..100 (rule JDG-3529)
+grsJson/documentSettings	scrollPosition		grsJsonSchema,spec,src,commandSchema	match		JDG-3807; JDG-3781	
+grsJson/documentSettings	isFixed		grsJsonSchema,spec,src,commandSchema	renamed	fitDayRange.type	JDG-3807; JDG-3781	renamed by JDG-3708; discriminator with values fixed / automatic
+grsJson/documentSettings	fitSpan		grsJsonSchema,spec,src,commandSchema	renamed	fitDayRange	JDG-3807; JDG-3781	renamed by JDG-3623; tentative JDG-3617, kept JDG-3623
+grsJson/documentSettings	type	viewTimeZone	grsJsonSchema,spec,src,commandSchema,mcpText	match		JDG-3807; JDG-3781	
+grsJson/documentSettings	sameAsScheduleData	viewTimeZone	grsJsonSchema,spec,src	match		JDG-3807	
+grsJson/documentSettings	fixed	viewTimeZone	grsJsonSchema,spec,src	match		JDG-3807	
+grsJson/documentSettings	offset	viewTimeZone	grsJsonSchema,spec,src,commandSchema,mcpText	renamed	viewTimeZone.utcOffset	JDG-3807; JDG-3781	renamed by JDG-3644; string like "+09:00"
+grsJson/documentSettings	viewTimeZone		grsJsonSchema,spec,src,commandSchema	match		JDG-3807; JDG-3781	
+grsJson/documentSettings	offset	displayTimeZones	grsJsonSchema,spec,src,commandSchema,mcpText	renamed	additionalTimeZones[].utcOffset	JDG-3807; JDG-3781	renamed by JDG-3644; parent renamed by JDG-3741
+grsJson/documentSettings	season		grsJsonSchema,spec,src,commandSchema	renamed	zoneNameType	JDG-3807; JDG-3781	renamed by JDG-3631; additionalTimeZones[].zoneNameType
+grsJson/documentSettings	standard	season	grsJsonSchema,spec,src	renamed	zoneNameType.standard	JDG-3807	renamed by JDG-3631; value name unchanged; only its owner was renamed
+grsJson/documentSettings	daylight	season	grsJsonSchema,spec,src	renamed	zoneNameType.daylight	JDG-3807	renamed by JDG-3631; value name unchanged; only its owner was renamed
+grsJson/documentSettings	displayTimeZones		grsJsonSchema,spec,src,commandSchema	renamed	additionalTimeZones	JDG-3807; JDG-3781	renamed by JDG-3741
+grsJson/documentSettings	isTimeOfDayVisible		grsJsonSchema,spec,src,commandSchema	match		JDG-3807; JDG-3781	
+grsJson/documentSettings	isPlanBarVisible		grsJsonSchema,spec,src,commandSchema	match		JDG-3807; JDG-3781	moved under documentSettings.scheduleCanvasElements (JDG-3724)
+grsJson/documentSettings	isPlanDatesVisible		grsJsonSchema,spec,src,commandSchema	match		JDG-3807; JDG-3781	moved under documentSettings.scheduleCanvasElements (JDG-3724)
+grsJson/documentSettings	isActualBarVisible		grsJsonSchema,spec,src,commandSchema	match		JDG-3807; JDG-3781	moved under documentSettings.scheduleCanvasElements (JDG-3724)
+grsJson/documentSettings	isPercentCompleteLabelVisible		grsJsonSchema,spec,src,commandSchema	match		JDG-3807; JDG-3781	moved under documentSettings.scheduleCanvasElements (JDG-3724)
+grsJson/documentSettings	isBaselineOutlineVisible		grsJsonSchema,spec,src,commandSchema	match		JDG-3807; JDG-3781	moved under documentSettings.scheduleCanvasElements (JDG-3724)
+grsJson/documentSettings	isProgressLineVisible		grsJsonSchema,spec,src,commandSchema	match		JDG-3807; JDG-3781	moved under documentSettings.scheduleCanvasElements (JDG-3724)
+grsJson/documentSettings	isProgressMarkVisible		grsJsonSchema,spec,src,commandSchema	renamed	scheduleCanvasElements.isProgressStatusMarkVisible	JDG-3807; JDG-3781	renamed by JDG-3742; parent scheduleCanvasElements JDG-3724
+grsJson/documentSettings	isDependencyLineVisible		grsJsonSchema,spec,src,commandSchema	match		JDG-3807; JDG-3781	moved under documentSettings.scheduleCanvasElements (JDG-3724)
+grsJson/documentSettings	isAssigneeLabelVisible		grsJsonSchema,spec,src,commandSchema	match		JDG-3807; JDG-3781	moved under documentSettings.scheduleCanvasElements (JDG-3724)
+grsJson/documentSettings	isDateGridLinesVisible		grsJsonSchema,spec,src,commandSchema	match		JDG-3807; JDG-3781	moved under documentSettings.scheduleCanvasElements (JDG-3724)
+grsJson/documentSettings	isGroupGridLinesVisible		grsJsonSchema,spec,src,commandSchema	renamed	scheduleCanvasElements.isTaskGroupGridLinesVisible	JDG-3807; JDG-3781	renamed by JDG-3745; parent scheduleCanvasElements JDG-3724
+grsJson/documentSettings	stackDirection		grsJsonSchema,spec,src,commandSchema	renamed	taskPlacementDirection	JDG-3807; JDG-3781	renamed by JDG-3731; via taskStackDirection
+grsJson/documentSettings	up	stackDirection	grsJsonSchema,spec,src	renamed	taskPlacementDirection.bottomToTop	JDG-3807	renamed by JDG-3632
+grsJson/documentSettings	down	stackDirection	grsJsonSchema,spec,src	renamed	taskPlacementDirection.topToBottom	JDG-3807	renamed by JDG-3632
+grsJson/documentSettings	isThemeMonochrome		grsJsonSchema,spec,src,commandSchema	match		JDG-3807; JDG-3781	
+grsJson/documentSettings	taskGroupPanelWidthPx		grsJsonSchema,spec,src,commandSchema	match		JDG-3807; JDG-3781	
+grsJson/documentSettings	isTaskGroupPanelWidthFixed		grsJsonSchema,spec,src,commandSchema	match		JDG-3807; JDG-3781	
+grsJson/documentSettings	rootTreeState		grsJsonSchema,spec,src,commandSchema	notInContract		JDG-3807; JDG-3781	removed by JDG-3664 (the root holds no show value)
+grsJson/documentSettings	auto	rootTreeState	grsJsonSchema,spec,src	notInContract		JDG-3807	removed with rootTreeState (JDG-3664)
+grsJson/documentSettings	collapsed	rootTreeState	grsJsonSchema,spec,src	notInContract		JDG-3807	removed with rootTreeState (JDG-3664)
+grsJson/documentSettings	pinnedTaskGroupIds		grsJsonSchema,spec,src,commandSchema	match		JDG-3807; JDG-3781	
+grsJson/documentSettings	isScheduleFilterApplied		grsJsonSchema,spec,src,commandSchema	renamed	isScheduleFilteredByChecks	JDG-3807; JDG-3781	renamed by JDG-3728; TaskTableWindow / ResourceTableWindow
+grsJson/documentSettings	shownTaskUids		grsJsonSchema,spec,src,commandSchema	renamed	checkedTaskUids	JDG-3807; JDG-3781	renamed by JDG-3713; TaskTableWindow.checkedTaskUids (tentative JDG-3617, confirmed JDG-3713)
+grsJson/documentSettings	columnFilters		grsJsonSchema,spec,src,commandSchema	match		JDG-3807; JDG-3781	
+grsJson/documentSettings	sort		grsJsonSchema,spec,src,commandSchema,mcpText	renamed	columnSort	JDG-3807; JDG-3781	renamed by JDG-3708; TaskTableWindow / ResourceTableWindow .columnSort
+grsJson/documentSettings	shownResourceUids		grsJsonSchema,spec,src,commandSchema	renamed	checkedResourceUids	JDG-3807; JDG-3781	renamed by JDG-3713; ResourceTableWindow.checkedResourceUids (tentative JDG-3617)
+grsJson/documentSettings	isUnassignedShown		grsJsonSchema,spec,src,commandSchema	renamed	isUnassignedChecked	JDG-3807; JDG-3781	renamed by JDG-3713; ResourceTableWindow.isUnassignedChecked (tentative JDG-3617)
+grsJson/documentSettings	searchWindow	tableWindows	grsJsonSchema,spec,src,commandSchema	match		JDG-3807; JDG-3781	
+grsJson/documentSettings	delayDiagnosticsReportWindow	tableWindows	grsJsonSchema,spec,src,commandSchema	renamed	delayDiagnosisReportWindow	JDG-3807; JDG-3781	renamed by JDG-3698; applies JDG-3512
+grsJson/documentSettings	resourceListWindow	tableWindows	grsJsonSchema,spec,src,commandSchema	match		JDG-3807; JDG-3781	
+grsJson/documentSettings	tableWindows		grsJsonSchema,spec,src	match		JDG-3807	
+grsJson/documentSettings	documentSettings		grsJsonSchema,spec,src	match		JDG-3807	
+grsJson/documentRoot	calendars		grsJsonSchema,spec,src	match		JDG-3807	
+grsJson/documentRoot	tasks		grsJsonSchema,spec,src,commandSchema,mcpText	match		JDG-3807; JDG-3781	
+grsJson/documentRoot	resources		grsJsonSchema,spec,src,commandSchema	match		JDG-3807; JDG-3781	
+grsJson/documentRoot	assignments		grsJsonSchema,spec,src,mcpText	match		JDG-3807	
+grsJson/documentRoot	taskGroups		grsJsonSchema,spec,src,mcpText	match		JDG-3807	
+grsJson/documentRoot	taskGroupMembers		grsJsonSchema,spec,src,mcpText	notInContract		JDG-3807	array removed by JDG-3614 / JDG-3615: Task.grs.taskGroupId
+grsJson/documentRoot	taskGraphicStyles		grsJsonSchema,spec,src	renamed	tasks[].grs.style	JDG-3807	renamed by JDG-3614; array removed; one style per task under grs (via taskStyles[] JDG-3556)
+grsJson/documentRoot	taskOrigins		grsJsonSchema,spec,src,mcpText	renamed	tasks[].grs.importOrigin	JDG-3807	renamed by JDG-3614; array removed; key name importOrigin JDG-3641
+grsJson/documentRoot	baselineTasks		grsJsonSchema,spec,src,mcpText	match		JDG-3807	
+grsJson/documentRoot	commentBoxes		grsJsonSchema,spec,src	match		JDG-3807	
+grsJson/documentRoot	highlightBoxes		grsJsonSchema,spec,src	match		JDG-3807	
+grsJson/documentRoot	project		grsJsonSchema,spec,src,commandSchema,mcpText	match		JDG-3807; JDG-3781	
+grsJson/documentRoot	scheduleData		grsJsonSchema,spec,src	match		JDG-3807	
+grsJson/documentRoot	schemaVersion	ScheduleDocument	grsJsonSchema,spec,src,mcpText	renamed	schemaVersionUtc	JDG-3807	renamed by JDG-3625
+grsJson/documentRoot	buildVersion		grsJsonSchema,spec,src	renamed	buildVersionUtc	JDG-3807	renamed by JDG-3625
+grsJson/documentRoot	documentStamp		grsJsonSchema,spec,src	match		JDG-3807	
+grsJson/documentRoot	changeLogEntries		grsJsonSchema,spec,src	match		JDG-3807	
+grsJson/documentRoot	ScheduleDocument		grsJsonSchema,spec,src	match		JDG-3807	the root object: no $defs entry; named in x-grsChanges (entity) and in the review tree R001
+agentApi/agentApiHead	agentApi		agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 34-2
+agentApi/agentApiHead	grSchedulerAgentApi		agentApi,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 34-2
+agentApi/externalTypes	Selection		agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 30-5
+agentApi/externalTypes	SearchRows		agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 30-5
+agentApi/externalTypes	DelayFixRow		agentApi,mcpText,spec,src	renamed	FixProposalRow	JDG-3781	renamed by JDG-3781; question 34-1
+agentApi/externalTypes	DelayFixLogRow		agentApi,mcpText,spec,src	renamed	FixLogRow	JDG-3781	renamed by JDG-3781; question 34-1
+agentApi/externalTypes	VisibilityTable		agentApi,mcpText,spec,src	renamed	TableWindowName	JDG-3781	renamed by JDG-3781; question 30-2
+agentApi/externalTypes	WatcherMark		agentApi,mcpText,spec,src	notInContract		JDG-3781	removed by JDG-3783 (question 30-4)
+agentApi/valueTypes	ok		agentApi,mcpText,spec,src	renamed	isAccepted	JDG-3781; JDG-3780	renamed by JDG-3780; P-7, listed in JDG-3781 question 30-5
+agentApi/valueTypes	expectedStamp		agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 30-5
+agentApi/valueTypes	commands		agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 30-5
+agentApi/valueTypes	AgentWriteRequest		agentApi,mcpText,spec,src	renamed	WriteRequest	JDG-3781	renamed by JDG-3781; question 30-1
+agentApi/valueTypes	hasUpdatedSchedule		agentApi,mcpText,spec,src	renamed	isScheduleDataUpdated	JDG-3781; JDG-3780	renamed by JDG-3780; WriteOutcome.isScheduleDataUpdated, question 30-5
+agentApi/valueTypes	createdUids		agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 30-5
+agentApi/valueTypes	refusal		agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 30-5 (type Refusal)
+agentApi/valueTypes	AgentWriteOutcome		agentApi,mcpText,spec,src	renamed	WriteOutcome	JDG-3781	renamed by JDG-3781; question 30-1
+agentApi/valueTypes	value	AgentExport	agentApi,mcpText,spec,src	renamed	ExportOutcome.value	JDG-3781	renamed by JDG-3781; key kept (question 30-5); owner AgentExport -> ExportOutcome
+agentApi/valueTypes	AgentExport		agentApi,mcpText,spec,src	renamed	ExportOutcome	JDG-3781	renamed by JDG-3781; question 30-1
+agentApi/valueTypes	isScrolled		agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 30-5 (JDG-3780)
+agentApi/valueTypes	AgentFocusOutcome		agentApi,mcpText,spec,src	renamed	FocusOutcome	JDG-3781	renamed by JDG-3781; question 30-1
+agentApi/valueTypes	text	AgentImportSource	agentApi,mcpText,spec,src	renamed	ImportSource.text	JDG-3781	renamed by JDG-3781; key kept (question 30-5); owner AgentImportSource -> ImportSource
+agentApi/valueTypes	AgentImportSource		agentApi,mcpText,spec,src	renamed	ImportSource	JDG-3781	renamed by JDG-3781; question 30-1
+agentApi/valueTypes	asked		agentApi,mcpText,spec,src	renamed	pendingQuestion	JDG-3781; JDG-3774	renamed by JDG-3774; ImportOutcome.pendingQuestion, question 30-3
+agentApi/valueTypes	AgentImportOutcome		agentApi,mcpText,spec,src	renamed	ImportOutcome	JDG-3781	renamed by JDG-3781; question 30-1
+agentApi/valueTypes	drawnTaskUids		agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 30-5
+agentApi/valueTypes	filteringTables		agentApi,mcpText,spec,src	renamed	filteringTableWindows	JDG-3781	renamed by JDG-3781; ShownTasks.filteringTableWindows, question 30-5
+agentApi/valueTypes	AgentShownTasks		agentApi,mcpText,spec,src	renamed	ShownTasks	JDG-3781	renamed by JDG-3781; question 30-1
+agentApi/valueTypes	fixProposals		agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 30-5
+agentApi/valueTypes	AgentDelayDiagnostics		agentApi,mcpText,spec,src	renamed	DelayDiagnosisReport	JDG-3781	renamed by JDG-3781; question 30-1 (JDG-3512); AI-C review finding 2: clashes with the renamed external type
+agentApi/valueTypes	notice		agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 30-5
+agentApi/valueTypes	AgentChangeReceiver		agentApi,mcpText,spec,src	renamed	ChangeReceiver	JDG-3781	renamed by JDG-3781; question 30-1
+agentApi/valueTypes	hasReplacedEarlierWatch		agentApi,mcpText,spec,src	renamed	isEarlierWatchReplaced	JDG-3781; JDG-3780	renamed by JDG-3780; WatchOutcome.isEarlierWatchReplaced, question 30-5
+agentApi/valueTypes	stopWatching		agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 30-5
+agentApi/valueTypes	AgentWatch		agentApi,mcpText,spec,src	renamed	WatchOutcome	JDG-3781	renamed by JDG-3781; question 30-1
+agentApi/valueTypes	watcher		agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 30-5
+agentApi/valueTypes	mark		agentApi,mcpText,spec,src	notInContract		JDG-3781	removed by JDG-3783: ChangeNotice.stamp.scheduleDataUpdatedAt carries the time
+agentApi/valueTypes	ChangeNotice		agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 30-5
+agentApi/valueTypes	taskRows		agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 30-5
+agentApi/valueTypes	commentBoxRows		agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 30-5
+agentApi/valueTypes	columns		agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 30-5
+agentApi/valueTypes	taskTotal		agentApi,mcpText,spec,src	renamed	taskRowCount	JDG-3781; JDG-3776	renamed by JDG-3776; SearchWindowPage.taskRowCount (P-8), question 30-5
+agentApi/valueTypes	offset	AgentApi	agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 30-5 (JDG-3777)
+agentApi/valueTypes	nextOffset		agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 30-5 (JDG-3777)
+agentApi/valueTypes	AgentSearchPage		agentApi,mcpText,spec,src	renamed	SearchWindowPage	JDG-3781	renamed by JDG-3781; question 31-1
+agentApi/valueTypes	id	AgentTableColumn	agentApi,mcpText,spec,src	renamed	TableColumn.key	JDG-3781	renamed by JDG-3781; question 31-1-2 (N-6: id only for UUIDs)
+agentApi/valueTypes	ja		agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 30-5
+agentApi/valueTypes	en		agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 30-5
+agentApi/valueTypes	valueType	AgentTableColumn	agentApi,mcpText,spec,src	renamed	TableColumn.valueType	JDG-3781; JDG-3782	renamed by JDG-3782; owner renamed (JDG-3782); the key itself (alpha kind -> valueType, JDG-3564) has no row in the policy table (AI-C review)
+agentApi/valueTypes	AgentTableColumn		agentApi,mcpText,spec,src	renamed	TableColumn	JDG-3781; JDG-3782	renamed by JDG-3782; question 31-1
+agentApi/valueTypes	table		agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 30-5
+agentApi/valueTypes	rows		agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 30-5
+agentApi/valueTypes	total		agentApi,mcpText,spec,src	renamed	rowCount	JDG-3781; JDG-3776	renamed by JDG-3776; readTableRows answer rowCount (P-8), question 30-5
+agentApi/valueTypes	AgentTableRows		agentApi,mcpText,spec,src	renamed	TableRowsOutcome	JDG-3781	renamed by JDG-3781; decided by the seat (P-9), confirmed in JDG-3781
+agentApi/valueTypes	key		agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 30-5
+agentApi/valueTypes	cells		agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 30-5
+agentApi/valueTypes	AgentTableRow		agentApi,mcpText,spec,src	renamed	TableRow	JDG-3781; JDG-3782	renamed by JDG-3782; question 31-1
+agentApi/valueTypes	column	AgentTableCell	agentApi,mcpText,spec,src	renamed	TableCell.column	JDG-3781; JDG-3782	renamed by JDG-3782; owner renamed; the key column has no row in the policy table (AI-C review says it matches ColumnFilter.column)
+agentApi/valueTypes	text	AgentTableCell	agentApi,mcpText,spec,src	renamed	TableCell.text	JDG-3781; JDG-3782	renamed by JDG-3782; key kept (question 30-5); owner AgentTableCell -> TableCell
+agentApi/valueTypes	AgentTableCell		agentApi,mcpText,spec,src	renamed	TableCell	JDG-3781; JDG-3782	renamed by JDG-3782; question 31-1
+agentApi/valueTypes	savedTo		agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 30-5 (AI-C review finding 11 proposes savedFilePath)
+agentApi/valueTypes	bytes		agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 30-5
+agentApi/valueTypes	backedUpTo		agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 30-5
+agentApi/refusals	from		agentApi,mcpText,spec,src	renamed	refusedBy	JDG-3781	renamed by JDG-3781; Refusal.refusedBy, question 31-2
+agentApi/refusals	page	from	agentApi,mcpText,spec,src	renamed	refusedBy.page	JDG-3781	renamed by JDG-3781; value name unchanged; only its owner was renamed (question 32-10)
+agentApi/refusals	relay	from	agentApi,mcpText,spec,src	renamed	refusedBy.relay	JDG-3781	renamed by JDG-3781; value name unchanged; only its owner was renamed (question 32-10)
+agentApi/refusals	member		agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 32-10
+agentApi/refusals	message		agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 32-10
+agentApi/refusals	reason	AgentApi	agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 32-10
+agentApi/refusals	staleStamp	reason	agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 32-10
+agentApi/refusals	notOwnStep	reason	agentApi,mcpText,spec,src	renamed	notOwnEdit	JDG-3781	renamed by JDG-3781; question 32-9
+agentApi/refusals	gestureInFlight	reason	agentApi,mcpText,spec,src	renamed	dragInProgress	JDG-3781; JDG-3778	renamed by JDG-3778; P-10, question 32-1
+agentApi/refusals	editingInPlace	reason	agentApi,mcpText,spec,src	renamed	inPlaceEditInProgress	JDG-3781; JDG-3778	renamed by JDG-3778; P-10, question 32-1
+agentApi/refusals	questionAsked	reason	agentApi,mcpText,spec,src	renamed	confirmationInProgress	JDG-3781; JDG-3778	renamed by JDG-3778; P-10, question 32-1
+agentApi/refusals	deliveringNotices	reason	agentApi,mcpText,spec,src	renamed	noticeDeliveryInProgress	JDG-3781; JDG-3778	renamed by JDG-3778; P-10, question 32-1
+agentApi/refusals	commandRefused	reason	agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 32-10
+agentApi/refusals	unknownTask	reason	agentApi,mcpText,spec,src	renamed	notFound	JDG-3781; JDG-3778	renamed by JDG-3778; merged into notFound, question 32-2
+agentApi/refusals	notDrawnYet	reason	agentApi,mcpText,spec,src	match		JDG-3781	kept by the seat, confirmed in JDG-3781 (question 32-10)
+agentApi/refusals	tooTall	reason	agentApi,mcpText,spec,src	renamed	imageTooTall	JDG-3781	renamed by JDG-3781; question 32-9
+agentApi/refusals	rasterFailed	reason	agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 32-10
+agentApi/refusals	embeddedHtmlFailed	reason	agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 32-10
+agentApi/refusals	notAvailable	reason	agentApi,mcpText,spec,src	renamed	notImplemented	JDG-3781	renamed by JDG-3781; merged, question 32-3
+agentApi/refusals	malformedRequest	reason	agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 32-10
+agentApi/refusals	historyEmpty	reason	agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 32-10
+agentApi/refusals	nothingToIssue	reason	agentApi,mcpText,spec,src	renamed	noFixProposalToApply	JDG-3781	renamed by JDG-3781; question 34-1
+agentApi/refusals	importNotLanded	reason	agentApi,mcpText,spec,src	renamed	importNotApplied	JDG-3781	renamed by JDG-3781; question 32-8
+agentApi/refusals	schemaViolation	reason	agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 32-10
+agentApi/refusals	formatTooNew	reason	agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 32-10
+agentApi/refusals	formatTooOld	reason	agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 32-10
+agentApi/refusals	documentInvalid	reason	agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 32-8
+agentApi/refusals	retiredName	reason	agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 32-10
+agentApi/refusals	pageNotConnected	reason	agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 32-10
+agentApi/refusals	relayTimedOut	reason	agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 32-10
+agentApi/refusals	badFileName	reason	agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 32-10
+agentApi/refusals	fileExists	reason	agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 32-10
+agentApi/refusals	saveFolderUnavailable	reason	agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 32-10
+agentApi/refusals	duplicateKey	reason	agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 32-10
+agentApi/refusals	danglingReference	reason	agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 32-7
+agentApi/refusals	pinnedTaskGroupMissing	reason	agentApi,mcpText,spec,src	renamed	danglingReference	JDG-3781; JDG-3778	renamed by JDG-3778; merged, question 32-7
+agentApi/refusals	taskParentCycle	reason	agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 32-6
+agentApi/refusals	taskGroupTooDeep	reason	agentApi,mcpText,spec,src	renamed	taskGroupTreeTooDeep	JDG-3781	renamed by JDG-3781; question 32-9
+agentApi/refusals	taskGroupMembershipBroken	reason	agentApi,mcpText,spec,src	renamed	taskGroupMembershipCountNotOne	JDG-3781	renamed by JDG-3781; question 32-9; only if the reason survives (JDG-3686)
+agentApi/refusals	noCalendar	reason	agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 32-10
+agentApi/refusals	fillAndStrokeBothInvisible	reason	agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 32-10
+agentApi/refusals	endBeforeStart	reason	agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 32-5
+agentApi/refusals	fadeWithoutFinish	reason	agentApi,mcpText,spec,src	renamed	slopeWithoutFinish	JDG-3781	renamed by JDG-3781; question 32-10 (JDG-3732)
+agentApi/refusals	fadeLongerThanTask	reason	agentApi,mcpText,spec,src	renamed	slopeLongerThanTask	JDG-3781	renamed by JDG-3781; question 32-10 (JDG-3732)
+agentApi/refusals	unusableDate	reason	agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 32-10
+agentApi/refusals	importSequenceAhead	reason	agentApi,mcpText,spec,src	renamed	mspdiImportCountAhead	JDG-3781	renamed by JDG-3781; question 32-9; AI-C review finding 4 says the subject is wrong
+agentApi/refusals	settingOutOfBounds	reason	agentApi,mcpText,spec,src	renamed	outOfRange	JDG-3781; JDG-3778	renamed by JDG-3778; merged, question 32-4
+agentApi/refusals	calendarWithoutWorkingDay	reason	agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 32-10
+agentApi/refusals	taskGroupParentCycle	reason	agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 32-6
+agentApi/refusals	highlightBoxInverted	reason	agentApi,mcpText,spec,src	renamed	lastTaskGroupBeforeFirst	JDG-3781	renamed by JDG-3781; question 32-5
+agentApi/refusals	noTaskGroup	reason	agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 32-10
+agentApi/refusals	negativeActualLength	reason	agentApi,mcpText,spec,src	renamed	endBeforeStart	JDG-3781	renamed by JDG-3781; removed; endBeforeStart covers it (question 32-5)
+agentApi/refusals	milestoneShapeMismatch	reason	agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 32-10
+agentApi/refusals	taskVisualCountNotOne	reason	agentApi,mcpText,spec,src	renamed	taskStyleCountNotOne	JDG-3781	renamed by JDG-3781; question 32-9; only if the reason survives (JDG-3686)
+agentApi/refusals	invalidWorkingTimes	reason	agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 32-10
+agentApi/refusals	fileTooLarge	reason	agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 32-10
+agentApi/refusals	tooManyTasks	reason	agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 32-10
+agentApi/refusals	taskTreeTooDeep	reason	agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 32-10
+agentApi/refusals	taskWithoutDates	reason	agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 32-10
+agentApi/refusals	notFound	reason	agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 32-2
+agentApi/refusals	alreadyExists	reason	agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 32-10
+agentApi/refusals	outOfRange	reason	agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 32-4
+agentApi/refusals	hyperlinkSchemeNotAllowed	reason	agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 32-10
+agentApi/refusals	wouldMakeCycle	reason	agentApi,mcpText,spec,src	renamed	taskGroupParentCycle	JDG-3781; JDG-3778	renamed by JDG-3778; question 32-6 (taskParentCycle for a task parent cycle)
+agentApi/refusals	siblingListMismatch	reason	agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 32-10
+agentApi/refusals	limitReached	reason	agentApi,mcpText,spec,src	renamed	pinLimitReached	JDG-3781	renamed by JDG-3781; question 32-9
+agentApi/refusals	missingValue	reason	agentApi,mcpText,spec,src	renamed	newTaskGroupIdMissing	JDG-3781	renamed by JDG-3781; question 32-9
+agentApi/refusals	bothEndsAreOneTask	reason	agentApi,mcpText,spec,src	renamed	selfDependency	JDG-3781	renamed by JDG-3781; question 32-9
+agentApi/refusals	alreadyStarted	reason	agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 32-10
+agentApi/refusals	unknownCommand	reason	agentApi,mcpText,spec,src	match			not a row of the policy table; question 32-3 recommendation keeps it; present in the alpha manuscript - no explicit owner check found
+agentApi/refusals	notImplemented	reason	agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 32-3
+agentApi/refusals	fieldSetAndCleared	reason	agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 32-10
+agentApi/refusals	commandIndex		agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 32-10 (JDG-3776)
+agentApi/refusals	commandType	Refusal	agentApi,mcpText,spec,src	renamed	CommandRefusal.commandType	JDG-3781	renamed by JDG-3781; owner Refusal -> CommandRefusal (question 33-3); the key has no row of its own (JDG-3778 names it)
+agentApi/refusals	field		agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 32-10 (now CommandRefusal.field)
+agentApi/refusals	Refusal		agentApi,mcpText,spec,src	renamed	CommandRefusal	JDG-3781	renamed by JDG-3781; question 33-3 (the name Refusal now means the former AgentRefusal)
+agentApi/refusals	commandRefusals		agentApi,mcpText,spec,src	match		JDG-3781	chosen in question 33-3 (JDG-3781)
+agentApi/refusals	at		agentApi,mcpText,spec,src	renamed	jsonPointer	JDG-3781; JDG-3775	renamed by JDG-3775; documentFaults[].jsonPointer, question 31-2-2
+agentApi/refusals	documentFaults		agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 32-10
+agentApi/refusals	taskUids	AgentRefusal	agentApi,mcpText,spec,src	renamed	Refusal.missingTaskUids	JDG-3781	renamed by JDG-3781; question 32-2-2
+agentApi/refusals	seconds		agentApi,mcpText,spec,src	renamed	waitedSeconds	JDG-3781	renamed by JDG-3781; question 33-4
+agentApi/refusals	path		agentApi,mcpText,spec,src	renamed	existingFilePath	JDG-3781	renamed by JDG-3781; question 33-4
+agentApi/refusals	folder		agentApi,mcpText,spec,src	renamed	saveFolder	JDG-3781	renamed by JDG-3781; question 33-4
+agentApi/refusals	pageUrl		agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 32-10
+agentApi/refusals	cause		agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 32-8
+agentApi/refusals	openInProgress	cause	agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 32-8
+agentApi/refusals	notValidated	cause	agentApi,mcpText,spec,src	renamed	documentInvalid	JDG-3781	renamed by JDG-3781; question 32-8
+agentApi/refusals	importCanceled	cause	agentApi,mcpText,spec,src	renamed	canceled	JDG-3781	renamed by JDG-3781; question 32-8; AI-C review finding 17 proposes canceledByUser
+agentApi/refusals	knownSchemaVersion		agentApi,mcpText,spec,src	renamed	knownSchemaVersionUtc	JDG-3781	renamed by JDG-3781; question 34-2-2 (JDG-3625)
+agentApi/refusals	converterUrl		agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 32-10
+agentApi/refusals	name	AgentRefusal	agentApi,mcpText,spec,src	renamed	Refusal.sentName	JDG-3781	renamed by JDG-3781; question 33-4
+agentApi/refusals	replacement		agentApi,mcpText,spec,src	renamed	replacementName	JDG-3781	renamed by JDG-3781; question 33-4
+agentApi/refusals	min		agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 32-10
+agentApi/refusals	max		agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 32-10
+agentApi/refusals	AgentRefusal		agentApi,mcpText,spec,src	renamed	Refusal	JDG-3781	renamed by JDG-3781; question 33-3
+agentApi/members	agentApiVersion		agentApi,mcpText,spec,src	renamed	agentApiVersionUtc	JDG-3781	renamed by JDG-3781; question 34-2-2 (JDG-3625)
+agentApi/members	schemaVersion	AgentApi	agentApi,mcpText,spec,src	renamed	schemaVersionUtc	JDG-3781	renamed by JDG-3781; question 34-2-2 (JDG-3625)
+agentApi/members	readSchema		agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 34-2
+agentApi/members	which	readSchema	agentApi,mcpText,spec,src	renamed	readSchema.part	JDG-3781	renamed by JDG-3781; question 33-2
+agentApi/members	defs		agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 34-2
+agentApi/members	full		agentApi,mcpText,spec,src	renamed	returnWholeSchema	JDG-3781; JDG-3780	renamed by JDG-3780; P-7, question 34-2
+agentApi/members	readDocument		agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 34-2
+agentApi/members	includeCarry		agentApi,mcpText,spec,src	renamed	includePassthrough	JDG-3781	renamed by JDG-3781; question 33-1 (P-7, JDG-3780)
+agentApi/members	taskUids	readDocument	agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 34-2
+agentApi/members	parts	readDocument	agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 34-2
+agentApi/members	readStamp		agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 34-2
+agentApi/members	readSelection		agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 34-2
+agentApi/members	readSearchRows		agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 34-2
+agentApi/members	word		agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 34-2
+agentApi/members	filters		agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 34-2 (AI-C review finding 7 proposes filterMode)
+agentApi/members	limit		agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 34-2 (JDG-3777)
+agentApi/members	readTableRows		agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 34-2
+agentApi/members	readShownTasks		agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 34-2
+agentApi/members	readDelayDiagnostics		agentApi,mcpText,spec,src	renamed	readDelayDiagnosis	JDG-3781; JDG-3512	renamed by JDG-3512; noted in the policy table (question 34-2 preface)
+agentApi/members	parts	readDelayDiagnostics	agentApi,mcpText,spec,src	renamed	readDelayDiagnosis.parts	JDG-3781	renamed by JDG-3781; key kept (question 34-2); owner renamed by JDG-3512; the part values have no rows (AI-C review finding 3)
+agentApi/members	limit	readDelayDiagnostics	agentApi,mcpText,spec,src	renamed	readDelayDiagnosis.limit	JDG-3781	renamed by JDG-3781; key kept by the seat (JDG-3777), confirmed JDG-3781; owner renamed by JDG-3512
+agentApi/members	applyCommands		agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 34-2
+agentApi/members	importDocument		agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 34-2
+agentApi/members	source	importDocument	agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 34-2
+agentApi/members	requestOpenFile		agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 34-2
+agentApi/members	issueDelayFixes		agentApi,mcpText,spec,src	renamed	applyFixProposals	JDG-3781	renamed by JDG-3781; question 34-1
+agentApi/members	fixKeys		agentApi,mcpText,spec,src	renamed	fixProposalKeys	JDG-3781	renamed by JDG-3781; applyFixProposals.fixProposalKeys, question 34-1
+agentApi/members	undoEdit		agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 34-2
+agentApi/members	redoEdit		agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 34-2
+agentApi/members	exportJson		agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 34-2
+agentApi/members	exportMspdi		agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 34-2
+agentApi/members	exportSvg		agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 34-2
+agentApi/members	exportPng		agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 34-2
+agentApi/members	exportEmbeddedHtml		agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 34-2
+agentApi/members	exportFixLogTsv		agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 34-2
+agentApi/members	focusTask		agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 34-2
+agentApi/members	taskUid	focusTask	agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 34-2
+agentApi/members	showOnlyTasks		agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 34-2
+agentApi/members	taskUids	showOnlyTasks	agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 34-2
+agentApi/members	runDelayDiagnostics		agentApi,mcpText,spec,src	renamed	runDelayDiagnosis	JDG-3781; JDG-3512	renamed by JDG-3512; noted in the policy table (outside the 45 questions)
+agentApi/members	closeWindow		agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 33-2-2
+agentApi/members	which	closeWindow	agentApi,mcpText,spec,src	renamed	closeWindow.window	JDG-3781	renamed by JDG-3781; question 33-2-2
+agentApi/members	watchChanges		agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 34-2
+agentApi/members	receive		agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 30-4-2
+documentCommands/commandShape	type	DocumentCommand	commandSchema,agentApi,mcpText,spec,src	match		JDG-3781	discriminator type (JDG-3563, JDG-3773: alpha kind -> type)
+documentCommands/commandShape	set		commandSchema,agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 35-2
+documentCommands/commandShape	clear		commandSchema,agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 35-2
+documentCommands/commandShape	DocumentCommand		commandSchema,agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 35-2
+documentCommands/projectCommands	editProject		commandSchema,agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 35-2
+documentCommands/projectCommands	shiftScheduleTimes		commandSchema,agentApi,mcpText,spec,src	renamed	shiftScheduleByMinutes	JDG-3781	renamed by JDG-3781; question 35-1 (P-5)
+documentCommands/projectCommands	minutes	shiftScheduleTimes	commandSchema,agentApi,mcpText,spec,src	renamed	shiftScheduleByMinutes.minutes	JDG-3781	renamed by JDG-3781; key kept; only the command was renamed (question 35-1)
+documentCommands/projectCommands	shiftScheduleToStartDate		commandSchema,agentApi,mcpText,spec,src	renamed	shiftScheduleToStartDay	JDG-3781	renamed by JDG-3781; question 35-1 (P-1, N-13)
+documentCommands/projectCommands	newStartDay		commandSchema,agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 35-1 (command renamed to shiftScheduleToStartDay)
+documentCommands/calendarCommands	replaceCalendarRules		commandSchema,agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 35-2
+documentCommands/calendarCommands	workingDayTypes		commandSchema,agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 35-2
+documentCommands/taskCommands	createTask		commandSchema,agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 35-5
+documentCommands/taskCommands	editTask		commandSchema,agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 35-5 (set.fadeIn/OutCalendarDays -> set.start/finishSlopeCalendarDays)
+documentCommands/taskCommands	pasteTasks		commandSchema,agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 35-5
+documentCommands/taskCommands	sourceUids		commandSchema,agentApi,mcpText,spec,src	renamed	sourceTaskUids	JDG-3781	renamed by JDG-3781; pasteTasks.sourceTaskUids, question 35-4
+documentCommands/taskCommands	landing		commandSchema,agentApi,mcpText,spec,src	renamed	placement	JDG-3781	renamed by JDG-3781; pasteTasks.placement, question 35-4
+documentCommands/taskCommands	shiftMinutes		commandSchema,agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 35-5 (parent now placement)
+documentCommands/taskCommands	taskGroupIdOf		commandSchema,agentApi,mcpText,spec,src	renamed	taskGroupIdBySourceTaskUid	JDG-3781; JDG-3772	renamed by JDG-3772; pasteTasks.placement.taskGroupIdBySourceTaskUid (P-11), listed in JDG-3781
+documentCommands/taskCommands	moveTaskToTaskGroup		commandSchema,agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 35-5
+documentCommands/taskCommands	placeTaskPlanActual		commandSchema,agentApi,mcpText,spec,src	renamed	setTaskProgressStatus	JDG-3781	renamed by JDG-3781; question 35-3
+documentCommands/taskCommands	place		commandSchema,agentApi,mcpText,spec,src	renamed	progressStatus	JDG-3781	renamed by JDG-3781; setTaskProgressStatus.progressStatus, question 35-3 (type ProgressStatus)
+documentCommands/taskCommands	state	place	commandSchema,agentApi,mcpText,spec,src	renamed	progressStatus.state	JDG-3781	renamed by JDG-3781; key kept (question 35-5); owner place -> progressStatus
+documentCommands/taskCommands	beginTaskActual		commandSchema,agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 35-5
+documentCommands/taskCommands	grabbed		commandSchema,agentApi,mcpText,spec,src	renamed	grabbedArea	JDG-3781; JDG-3779	renamed by JDG-3779; beginTaskActual.grabbedArea (type GrabbedArea); AI-C review finding 1 questions the word Area
+documentCommands/taskCommands	barDummyStart	grabbed	commandSchema,agentApi,mcpText,spec,src	renamed	grabbedArea.barDummyStart	JDG-3781; JDG-3779	renamed by JDG-3779; value name unchanged; only its owner was renamed
+documentCommands/taskCommands	barDummyFinish	grabbed	commandSchema,agentApi,mcpText,spec,src	renamed	grabbedArea.barDummyFinish	JDG-3781; JDG-3779	renamed by JDG-3779; value name unchanged; only its owner was renamed
+documentCommands/taskCommands	milestoneDummy	grabbed	commandSchema,agentApi,mcpText,spec,src	renamed	grabbedArea.milestoneDummy	JDG-3781; JDG-3779	renamed by JDG-3779; value name unchanged; only its owner was renamed
+documentCommands/taskCommands	arrowDummyStart	grabbed	commandSchema,agentApi,mcpText,spec,src	renamed	grabbedArea.arrowDummyStart	JDG-3781; JDG-3779	renamed by JDG-3779; value name unchanged; only its owner was renamed
+documentCommands/taskCommands	arrowDummyFinish	grabbed	commandSchema,agentApi,mcpText,spec,src	renamed	grabbedArea.arrowDummyFinish	JDG-3781; JDG-3779	renamed by JDG-3779; value name unchanged; only its owner was renamed
+documentCommands/taskCommands	released		commandSchema,agentApi,mcpText,spec,src	renamed	releasedPlace	JDG-3781; JDG-3779	renamed by JDG-3779; beginTaskActual.releasedPlace {start, finish} (type ReleasedPlace)
+documentCommands/taskCommands	snapMinutes		commandSchema,agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 35-5
+documentCommands/taskCommands	cycleTaskPlanActualState		commandSchema,agentApi,mcpText,spec,src	renamed	cycleTaskProgressStatus	JDG-3781	renamed by JDG-3781; question 35-3
+documentCommands/taskCommands	remembered		commandSchema,agentApi,mcpText,spec,src	renamed	removedActual	JDG-3781	renamed by JDG-3781; cycleTaskProgressStatus.removedActual, question 35-3
+documentCommands/taskCommands	deleteTask		commandSchema,agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 35-5
+documentCommands/dependencyCommands	createDependency		commandSchema,agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 36-3
+documentCommands/dependencyCommands	successorUid		commandSchema,agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 36-3 (MSPDI name, JDG-3622 (2))
+documentCommands/dependencyCommands	predecessorEdge		commandSchema,agentApi,mcpText,spec,src	renamed	predecessorSide	JDG-3781	renamed by JDG-3781; question 35-6
+documentCommands/dependencyCommands	successorEdge		commandSchema,agentApi,mcpText,spec,src	renamed	successorSide	JDG-3781	renamed by JDG-3781; question 35-6
+documentCommands/dependencyCommands	changeDependencyLag		commandSchema,agentApi,mcpText,spec,src	renamed	setDependencyLag	JDG-3781	renamed by JDG-3781; decided by the seat under P-3 / JDG-3672 and confirmed in JDG-3781 (question 36-3)
+documentCommands/dependencyCommands	type	lag	commandSchema,agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 36-3 (command renamed to setDependencyLag)
+documentCommands/dependencyCommands	workingDays	lag	commandSchema,agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 36-3
+documentCommands/dependencyCommands	typed	lag	commandSchema,agentApi,mcpText,spec,src	renamed	duration	JDG-3781	renamed by JDG-3781; lag.type value, question 36-1
+documentCommands/dependencyCommands	minutes	lag	commandSchema,agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 36-3-2
+documentCommands/dependencyCommands	unit		commandSchema,agentApi,mcpText,spec,src	renamed	displayUnit	JDG-3781	renamed by JDG-3781; setDependencyLag.lag.displayUnit, question 36-3-2
+documentCommands/dependencyCommands	day	unit	commandSchema,agentApi,mcpText,spec,src	renamed	displayUnit.day	JDG-3781	renamed by JDG-3781; value name unchanged; only its owner was renamed (question 36-3)
+documentCommands/dependencyCommands	hour	unit	commandSchema,agentApi,mcpText,spec,src	renamed	displayUnit.hour	JDG-3781	renamed by JDG-3781; value name unchanged; only its owner was renamed (question 36-3)
+documentCommands/dependencyCommands	minute	unit	commandSchema,agentApi,mcpText,spec,src	renamed	displayUnit.minute	JDG-3781	renamed by JDG-3781; value name unchanged; only its owner was renamed (question 36-3)
+documentCommands/dependencyCommands	deleteDependency		commandSchema,agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 36-3
+documentCommands/dependencyCommands	deleteDependencyAt		commandSchema,agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 36-2 (JDG-3776)
+documentCommands/dependencyCommands	order		commandSchema,agentApi,mcpText,spec,src	renamed	index	JDG-3781; JDG-3776	renamed by JDG-3776; deleteDependencyAt.index (P-8), listed in JDG-3781 question 36-2
+documentCommands/resourceCommands	editResource		commandSchema,agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 36-4
+documentCommands/resourceCommands	createResource		commandSchema,agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 36-4
+documentCommands/resourceCommands	deleteResources		commandSchema,agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 36-4
+documentCommands/resourceCommands	resourceUids		commandSchema,agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 36-4
+documentCommands/resourceCommands	deleteUnreferencedResources		commandSchema,agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 36-4
+documentCommands/resourceCommands	createAssignment		commandSchema,agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 36-4
+documentCommands/resourceCommands	deleteAssignment		commandSchema,agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 36-4
+documentCommands/taskGroupCommands	editTaskGroup		commandSchema,agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 36-5
+documentCommands/taskGroupCommands	createTaskGroup		commandSchema,agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 36-5
+documentCommands/taskGroupCommands	pasteTaskGroupSubtree		commandSchema,agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 36-5
+documentCommands/taskGroupCommands	sourceTaskGroupId		commandSchema,agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 36-5
+documentCommands/taskGroupCommands	newTaskGroupIds		commandSchema,agentApi,mcpText,spec,src	renamed	newTaskGroupIdBySourceTaskGroupId	JDG-3781; JDG-3772	renamed by JDG-3772; pasteTaskGroupSubtree.newTaskGroupIdBySourceTaskGroupId (P-11), listed in JDG-3781 question 35-4
+documentCommands/taskGroupCommands	reorderTaskGroupSiblings		commandSchema,agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 36-5
+documentCommands/taskGroupCommands	orderedIds		commandSchema,agentApi,mcpText,spec,src	renamed	orderedTaskGroupIds	JDG-3781	renamed by JDG-3781; question 35-4
+documentCommands/taskGroupCommands	moveTaskGroup		commandSchema,agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 36-5
+documentCommands/taskGroupCommands	resetTaskGroupTreeStates		commandSchema,agentApi,mcpText,spec,src	renamed	setTaskGroupShowModesToAutomaticExceptHidden	JDG-3781	renamed by JDG-3690; JDG-3690 named it setTaskGroupSelfShowModesToAutomaticExceptHidden; Self dropped by JDG-3736; the policy table notes it outside the 45 questions (not counted)
+documentCommands/taskGroupCommands	deleteTaskGroup		commandSchema,agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 36-5
+documentCommands/graphicAndAnnotationCommands	editTaskVisual		commandSchema,agentApi,mcpText,spec,src	renamed	editTaskStyle	JDG-3781	renamed by JDG-3781; question 36-6
+documentCommands/graphicAndAnnotationCommands	createCommentBox		commandSchema,agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 36-7
+documentCommands/graphicAndAnnotationCommands	commentBoxId		commandSchema,agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 36-7
+documentCommands/graphicAndAnnotationCommands	editCommentBox		commandSchema,agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 36-7
+documentCommands/graphicAndAnnotationCommands	bringCommentBoxToFront		commandSchema,agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 36-7
+documentCommands/graphicAndAnnotationCommands	deleteCommentBox		commandSchema,agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 36-7
+documentCommands/graphicAndAnnotationCommands	createHighlightBox		commandSchema,agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 36-7
+documentCommands/graphicAndAnnotationCommands	editHighlightBox		commandSchema,agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 36-7
+documentCommands/graphicAndAnnotationCommands	bringHighlightBoxToFront		commandSchema,agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 36-7
+documentCommands/graphicAndAnnotationCommands	deleteHighlightBox		commandSchema,agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 36-7
+documentCommands/settingsCommands	editDocumentSettings		commandSchema,agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 36-7
+documentCommands/settingsCommands	pinTaskGroup		commandSchema,agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 36-5
+documentCommands/settingsCommands	unpinTaskGroup		commandSchema,agentApi,mcpText,spec,src	match		JDG-3781	kept by the policy table (JDG-3781), question 36-5
+documentCommands/settingsCommands	fitScheduleToScreenOnPage		commandSchema,agentApi,mcpText,spec,src	renamed	zoomToFit	JDG-3781	renamed by JDG-3781; question 37-2 (P-2; event zoomToFitPressed)
+documentCommands/settingsCommands	editTableView		commandSchema,agentApi,mcpText,spec,src	renamed	editTableWindow	JDG-3781	renamed by JDG-3781; question 37-1
+documentCommands/settingsCommands	table	editTableView	commandSchema,agentApi,mcpText,spec,src	renamed	editTableWindow.tableWindow	JDG-3781	renamed by JDG-3781; question 37-1
+deliverables	grsDocumentSchema		spec,grsJsonSchema	notInContract			document name, not a key; the frozen schema $id is .../grs-document.schema.json (moves there with CR-851)
+deliverables	grsCommandsSchema		spec,commandSchema	notInContract			document name, not a key (docs/spec/_source/grs-commands.schema.json, still alpha)
