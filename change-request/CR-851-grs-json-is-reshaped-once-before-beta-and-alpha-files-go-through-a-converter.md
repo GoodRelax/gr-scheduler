@@ -294,6 +294,7 @@
 | `rulings.md`（Agent API の名の席、2026-11-23 の 12） | `JDG-3782`（画面の表の型を `TableRow`・`TableColumn`・`TableCell` にする）を足した |
 | `rulings.md`（Agent API の名の席、2026-11-23 の 13） | `JDG-3783`（変更の知らせの欄 `mark` と型 `WatcherMark` を無くす）を足した。src の `change-notice.ts` ほかは本書の実装で直す |
 | `rulings.md`（Agent API の名の席、2026-11-23 の 14） | `JDG-3784`（uid が上限に届いたときの断りの理由の名を `uidLimitReached` にする。`JDG-3803` の断り）を足した。原稿と src・tests は本書の実装で当てる |
+| `rulings.md`（Agent API の名の席、2026-11-23 の 15） | `JDG-3785`（Agent API と文書の命令の名を、まず AI-C で、次にほかの AI でレビューし、GRS JSON・用語集・画面の札との関係も見る）を足した。AI-C のレビューの結果は `studies/76-grs-json-beta-shape/terms/agent-api-names-ai-c-review.md` |
 | `defects.md` | `DFC-3579`（本書）—— 行のレビューの後に起こす |
 | `changelog.md` | 当てるときに 1 行 |
 
