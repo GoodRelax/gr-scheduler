@@ -1,0 +1,9 @@
+# Check 97 (check-trace-gaps.py): the R1b gap counts held, one "key value" per line.
+# A count above its line fails; a count below it asks for the line to be lowered.
+# Started 2026-11-24 on 9994f6d0c at the measured tree (study 82, A16); stage
+# B8 links the implementation tables (traces column) and B13 drives every line
+# to 0. Raising a line needs the owner's OK (JDG-520).
+no-parent 0
+no-child 0
+leaf-unbuilt 29
+below-unbuilt 8
