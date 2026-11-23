@@ -292,6 +292,7 @@
 | `rulings.md`（Agent API の名の席、2026-11-23 の 11） | `JDG-3781`（BGQA4・BGQA5 の 45 問の名を、方針を当てた一覧 `agent-api-names-by-policy-draft.md` のとおりに決める）を足した。原稿と src・tests へは本書の実装で当てる |
 | `rulings.md`（Agent API の名の席、2026-11-23 の 12） | `JDG-3782`（画面の表の型を `TableRow`・`TableColumn`・`TableCell` にする）を足した |
 | `rulings.md`（Agent API の名の席、2026-11-23 の 13） | `JDG-3783`（変更の知らせの欄 `mark` と型 `WatcherMark` を無くす）を足した。src の `change-notice.ts` ほかは本書の実装で直す |
+| `rulings.md`（Agent API の名の席、2026-11-23 の 14） | `JDG-3784`（uid が上限に届いたときの断りの理由の名を `uidLimitReached` にする。`JDG-3803` の断り）を足した。原稿と src・tests は本書の実装で当てる |
 | `defects.md` | `DFC-3579`（本書）—— 行のレビューの後に起こす |
 | `changelog.md` | 当てるときに 1 行 |
 

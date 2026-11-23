@@ -4,7 +4,7 @@
 > 「回答:」の後ろに答えを書いて保存し、1 行目の BGQA7 を切り取ってください。
 > 凡例: ❓回答待 ✅回答済 🔄変化点 ★強調(ユーザー専用)
 
-🔄 *作った日: 2026-11-23（Agent API の名の席）。2〜5 巡目: 2026-11-23。5 巡目で方針の問いはすべて決まった。6 巡目: 方針を当てた名の確かめ（[apply]）を足した。7 巡目で [apply] も決まり、問いはすべて閉じた*
+🔄 *作った日: 2026-11-23（Agent API の名の席）。2〜5 巡目: 2026-11-23。5 巡目で方針の問いはすべて決まった。6 巡目: 方針を当てた名の確かめ（[apply]）を足した。7 巡目で [apply] も決まった。8 巡目: uid の上限の断りの名（[uid]）を足した。9 巡目で [uid] も決まり、問いはすべて閉じた*
 
 🔄 *残 1（❓ で検索）*
 
@@ -14,7 +14,8 @@
 |:---|:---|
 | [pol] 名の付け方の方針 | 無し（すべて決まった） |
 | [name] 方針で決まらない名 | 無し（すべて決まった） |
-| [apply] 方針を当てた名の確かめ | 🔄 *無し（すべて決まった）* |
+| [apply] 方針を当てた名の確かめ | 無し（すべて決まった） |
+| [uid] uid の上限の断り | 🔄 *無し（すべて決まった）* |
 
 ***
 
@@ -50,11 +51,17 @@
 
 ### [apply] 方針を当てた名の確かめ
 
+| 問い | 決まったこと | 裁定 |
+|:---|:---|:---|
+| 45 問の名 | 一覧 `agent-api-names-by-policy-draft.md` のとおり（変える名 134、今のままの名 182）。`setDependencyLag`・`TableRowsOutcome` ほか席が決めた 4 つ、`shiftScheduleByMinutes`・`deleteDependencyAt` も含む | `JDG-3781` |
+| 画面の表の型 | `TableRow`・`TableColumn`・`TableCell` | `JDG-3782` |
+| 変更の知らせの `mark` | 欄 `mark` と型 `WatcherMark` を無くす。時刻は `stamp.scheduleDataUpdatedAt` が言う | `JDG-3783` |
+
+### [uid] uid の上限の断り
+
 | 🔄 *問い* | 🔄 *決まったこと* | 🔄 *裁定* |
 |:---|:---|:---|
-| 🔄 *45 問の名* | 🔄 *一覧 `agent-api-names-by-policy-draft.md` のとおり（変える名 134、今のままの名 182）。`setDependencyLag`・`TableRowsOutcome` ほか席が決めた 4 つ、`shiftScheduleByMinutes`・`deleteDependencyAt` も含む* | 🔄 *`JDG-3781`* |
-| 🔄 *画面の表の型* | 🔄 *`TableRow`・`TableColumn`・`TableCell`* | 🔄 *`JDG-3782`* |
-| 🔄 *変更の知らせの `mark`* | 🔄 *欄 `mark` と型 `WatcherMark` を無くす。時刻は `stamp.scheduleDataUpdatedAt` が言う* | 🔄 *`JDG-3783`* |
+| 🔄 *uid が上限に届いた断りの理由* | 🔄 *`uidLimitReached`（`pinLimitReached` と同じ形）* | 🔄 *`JDG-3784`* |
 
 ***
 
@@ -68,7 +75,11 @@
 
 すべて決まりました（上の決定事項）。
 
-### [apply] 🔄 *方針を当てた名の確かめ ✅*
+### [apply] 方針を当てた名の確かめ ✅
+
+すべて決まりました（上の決定事項）。
+
+### [uid] 🔄 *uid の上限の断り ✅*
 
 🔄 *すべて決まりました（上の決定事項）。*
 
