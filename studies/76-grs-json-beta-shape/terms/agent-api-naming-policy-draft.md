@@ -16,7 +16,7 @@
 | P-8 | 単位の無い数は、何を数えるかで終える: 個数は `…Count`、1 から振る順は `…Order`、0 から数える位置は `…Index`、木の深さは `…Depth`。 | `deleteDependencyAt` の `order` → `index`、`total` → `rowCount`、`taskTotal` → `taskRowCount` | JDG-3650 ②に `…Index` を足す（`commandIndex` と同じ語） | 36-2・30-5・34-2 | a（推奨）頁送りの通り名 `offset`・`nextOffset`・`limit` は残す ／ b `startIndex`・`nextStartIndex`・`maxRowCount` に改める | 改めた（`JDG-3776`・`JDG-3777`。何番目かは全部 0 から数えて `…Index`、`…Order` は使わない。GRS JSON の `siblingOrder` → `siblingIndex`。ページ送りの `offset`・`nextOffset`・`limit` は通り名のまま） |
 | P-9 | 1 つの欄が入れる型は、欄の名を PascalCase にした名を持つ。値か断りのどちらかを返す答えの型は、名を `…Outcome` で終える。 | `AgentRefusal`・`Refusal` → `Refusal`・`CommandRefusal`、`AgentExport` → `ExportOutcome`、`AgentWatch` → `WatchOutcome` | N-1・JDG-820・JDG-3689 | 30-1・31-1・33-3 | 新しい決まり。ok を問う | ok（`JDG-3716`） |
 | P-10 | 断りの理由の名は「何が・どうなった」を言う。呼ぶ側の直し方が同じ断りは、物によらず 1 つの名を持ち、欄がどの物かを言う。直し方が違えば、名に物を入れる。文書の検査と命令の検査は同じ名を使う。待てば通る断りは、名を `…InProgress` で終える。 | `unknownTask` → `notFound`（欄 `missingTaskUids`）、`gestureInFlight` → `dragInProgress`、`wouldMakeCycle` → `taskGroupParentCycle`、`limitReached` → `pinLimitReached` | JDG-3285・JDG-3690・P-4 | 32-1・32-2・32-2-2・32-3・32-4・32-5・32-6・32-7・32-8・32-9・32-10 | a（推奨）上のとおり ／ b どの理由も名に物を入れる（`taskNotFound`・`settingOutOfRange`） | a（`JDG-3778`） |
-| P-11 | 鍵から値への対応表（オブジェクト）は、名を `<値>By<鍵>` にする。 | `taskGroupIdOf` → `taskGroupIdBySourceTaskUid`、`newTaskGroupIds` → `newTaskGroupIdBySourceTaskGroupId` | N-5（参照は相手の名＋`Uid`・`Id`）を広げる | 35-4 | a（推奨）`<値>By<鍵>` ／ b `<鍵>To<値>`（`sourceTaskUidToTaskGroupId`） | a（`JDG-3772`。`By` は対応表と「誰が」、`To` は行き先だけ、`Of`・`Into` は使わない） |
+| P-11 | 鍵から値への対応表（オブジェクト）は、名を `<値>By<鍵>` にする。 | `taskGroupIdOf` → `taskGroupIdBySourceTaskUid`、`newTaskGroupIds` → `newTaskGroupIdBySourceTaskGroupId` | N-5（参照は相手の名＋`Uid`・`Id`）を広げる | 35-4 | a（推奨）`<値>By<鍵>` ／ b `<鍵>To<値>`（`sourceTaskUidToTaskGroupId`） | a（`JDG-3772`。`By` は対応表と「誰が」、動詞＋`By`＋量は「どれだけ」（`shiftScheduleByMinutes`、`JDG-3781`）、`To` は行き先だけ、`Of`・`Into` は使わない） |
 | P-12 | 名が P-1〜P-11 に合うとき、AI は今の名を変えない。 | `deleteDependencyAt`・`receive`・`createTaskGroup` は今のまま | JDG-3695（名を 1 度にそろえる） | 35-2・35-5（2 行を除く）・36-3・36-4・36-5・36-7・34-2・30-4-2・30-5・32-10 | 新しい決まり。ok を問う | ok、レビューする（`JDG-3716`） |
 
 注: `grs-commands.schema.json` は、命令の判別子に今も `kind` を使います（190 か所）。`agent-api-members.json` も欄 `kind`（`property`・`method`）を使います。どちらも JDG-3564 に反します。新しい名は `type` と `memberType`（`JDG-3773`）で、原稿と src・tests は `CR-851` の実装でまとめて直します。
@@ -37,3 +37,7 @@
 - 方針が決める問いは 42（文書の命令 15・Agent API 27）。
 - 残る問いは 3（上の 3 問）。AI が持ち主に 1 問ずつ問う。
 - 持ち主が a・b を選ぶ行は 6（P-2・P-6・P-7・P-8・P-10・P-11）。ok を問う行は 5（P-1・P-3・P-5・P-9・P-12）。既決の行は 1（P-4）。
+
+## 当てた結果
+
+方針を BGQA4・BGQA5 の 45 問に当てた一覧は `agent-api-names-by-policy-draft.md`。持ち主が BGQA7 の問 9 で一覧のとおりと決めた（`JDG-3781`、P-12 のレビューを含む）。
