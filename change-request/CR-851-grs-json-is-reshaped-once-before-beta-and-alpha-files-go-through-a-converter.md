@@ -269,6 +269,16 @@
 | `rulings.md`（GRS JSON のスキーマの席、2026-11-23 の 8） | `JDG-3764`（英語の説明の木は英語だけで見せる）を足した |
 | `rulings.md`（GRS JSON のスキーマの席、2026-11-23 の 9） | `JDG-3765`（スキーマのルートに変更の台帳 `x-grsChanges` を置き、CR-851 の分は 1 行）を足した |
 | `rulings.md`（GRS JSON のスキーマの席、2026-11-23 の 10） | `JDG-3766`（冒頭の説明の語「Carried」を passthrough で言い直す）を足した |
+| `rulings.md`（Agent API の名の席、2026-11-23 の 1） | `JDG-3771`（Agent API の名の未決の問いを GQA BGQA7 にまとめて出す）を足した |
+| `rulings.md`（Agent API の名の席、2026-11-23 の 2） | `JDG-3772`（方針の P-11: 対応表の名は `<値>By<鍵>`、`To` は行き先だけ、`Of`・`Into` は使わない）を足した。BGQA4・BGQA5 の名をそろえるときに当てる |
+| `rulings.md`（Agent API の名の席、2026-11-23 の 3） | `JDG-3773`（道具の分類の欄 `kind` → `memberType`）を足した。原稿 `grs-commands.schema.json` の命令の判別子 `kind`（約 190 か所 → `type`）と `agent-api-members.json` の `kind`（29 か所 → `memberType`）、それを読む src・tests の `kind` は、本書の実装でまとめて直す |
+| `rulings.md`（Agent API の名の席、2026-11-23 の 4） | `JDG-3774`（取り込みで出した問いの欄 `asked` → `pendingQuestion`）を足した |
+| `rulings.md`（Agent API の名の席、2026-11-23 の 5） | `JDG-3775`（文書の誤りの所の欄 `at` → `jsonPointer`）を足した |
+| `rulings.md`（Agent API の名の席、2026-11-23 の 6） | `JDG-3776`（方針の P-8: 何番目かは 0 から数えて `…Index`。GRS JSON の `siblingOrder` → `siblingIndex`、命令の `order` → `index`）を足した。GRS JSON の側はスキーマの席が当てる |
+| `rulings.md`（Agent API の名の席、2026-11-23 の 7） | `JDG-3777`（ページ送りの `offset`・`nextOffset`・`limit` は通り名のまま、P-8 の例外）を足した |
+| `rulings.md`（Agent API の名の席、2026-11-23 の 8） | `JDG-3778`（方針の P-10: 直し方が同じ断りは物によらず 1 つの名、無い物は `notFound`）を足した。BGQA5 の断りの名をそろえるときに当てる |
+| `rulings.md`（Agent API の名の席、2026-11-23 の 9） | `JDG-3779`（実績ダミーの命令の引数 `grabbed` → `grabbedArea`、`released` → `releasedPlace`）を足した |
+| `rulings.md`（Agent API の名の席、2026-11-23 の 10） | `JDG-3780`（方針の P-7: 答えの真偽は `is…`、AI が渡すフラグは動詞で始める、`full` → `returnWholeSchema`）を足した |
 | `defects.md` | `DFC-3579`（本書）—— 行のレビューの後に起こす |
 | `changelog.md` | 当てるときに 1 行 |
 
