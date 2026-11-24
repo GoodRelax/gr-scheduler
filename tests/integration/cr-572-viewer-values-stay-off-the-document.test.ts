@@ -44,7 +44,7 @@ const FR_039_FONT_REACHES_THE_RULER = '文字サイズの変更は目盛にも�
 const FR_039_FONT_IS_AN_EDIT = '変更した結果は文書の編集として保存される'
 const FR_041_ONLY_TWO_ARE_SAVED =
   '保存するのは `themeHue` / `isThemeMonochrome` の 2 つだけとし、明暗（`themePreference`）は画面の値とし（`FR-039`）'
-// WHY: CR-787 -- the width starts at the default of the kind shown; the settings face IC-17 shows is S-171.
+// Why: CR-787 -- the width starts at the default of the kind shown; the settings face IC-17 shows is S-171.
 const FR_052_STARTS_AT_THE_KIND_DEFAULT =
   'プロパティパネルの幅は画面の値とし、出している中身の種の既定の幅から始めること（MUST）'
 const FR_052_SETTINGS_FACE_IS_S_171 = '文書の設定の面は `S-171`'

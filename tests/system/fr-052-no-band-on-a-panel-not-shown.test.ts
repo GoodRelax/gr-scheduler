@@ -1,8 +1,8 @@
 // System case for FR-052's clause on a properties panel that is not shown (GR-22 of table T-023d).
 
-// WHY: a Playwright file, not a unit -- which part a press reaches is decided by
+// Why: a Playwright file, not a unit -- which part a press reaches is decided by
 // the page the shell builds; the uf-61 unit test that held the frame side was deleted by CR-573.
-// WHY: every number asserted (screen, band width, press/drag boundary) is read
+// Why: every number asserted (screen, band width, press/drag boundary) is read
 // out of docs/spec at read time, never measured locally.
 
 import { expect, test, type Browser, type Page } from '@playwright/test'
@@ -31,15 +31,15 @@ function settingOf(id: string): number {
 
 const BASE_SCREEN = screenOf(rowOf(T025, 'MC-6'))
 
-// see GR-22, S-134
+// Spec: GR-22, S-134
 const BAND_WIDTH_PX = settingOf('S-134')
 
-// see S-208
+// Spec: S-208
 const PRESS_OR_DRAG_PX = settingOf('S-208')
 
 const REACH_PX = 120
 
-// WHY: the same selectors the neighboring System files lean on -- no spec
+// Why: the same selectors the neighboring System files lean on -- no spec
 // row fixes how a part is marked in the page.
 const PROPERTIES = '[data-role="Properties Panel"]'
 const SCROLLBARS = '[data-role="Scrollbars"]'
@@ -52,7 +52,7 @@ test.beforeAll(async () => {
 })
 
 test.afterAll(async () => {
-  // WHY: this is the hook's own allowance, not an assertion's -- see
+  // Why: this is the hook's own allowance, not an assertion's -- see
   // CLEARING_UP_MS in ./live-app.
   test.setTimeout(CLEARING_UP_MS)
   await browser?.close()
@@ -121,7 +121,7 @@ async function propertiesWidth(page: Page): Promise<number> {
   }, PROPERTIES)
 }
 
-// WHY: goes red if the properties panel's grab band is laid over the right
+// Why: goes red if the properties panel's grab band is laid over the right
 // edge while the panel is put away -- the press would reach the band, not the bar.
 test('FR-052 (S-99h): pressing the right edge while the panel is not shown grabs the vertical bar', async ({
   baseURL,
@@ -135,7 +135,7 @@ test('FR-052 (S-99h): pressing the right edge while the panel is not shown grabs
     const track = bar as Box
     const before = await propertiesWidth(page)
 
-    // WHY: the pixel just inside the bar's right edge -- the place a band laid
+    // Why: the pixel just inside the bar's right edge -- the place a band laid
     // on the panel boundary (S-134 wide, straddling it) would cover.
     expect(BAND_WIDTH_PX, 'S-134 states a band a pointer could land in').toBeGreaterThan(1)
     const at = { x: track.x + track.width - 1, y: track.y + track.height / 2 }

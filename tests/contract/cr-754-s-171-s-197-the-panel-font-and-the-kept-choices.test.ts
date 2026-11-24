@@ -6,11 +6,11 @@ import type { PropertiesPanel } from '../../src/adapter/screen-renderer/screen-r
 import { selfAndDescendants, styleMap, type FakeElement } from '../fixtures/fake-browser'
 import { drawnPanel, LANGUAGES, REQUIREMENTS, SETTINGS_BOOK, settingsPanel, settingValue, taskPanel } from './cr-754-stage'
 
-// see FR-006, S-171, S-197
+// Spec: FR-006, S-171, S-197
 const FR_006_KEPT_CHOICE =
   '⭐ 候補が決まった一覧の選び（表 T-016 の `入力の型` が `選択` で、上の段に当たらないもの、と文書の設定の面の選び）は、要る幅を割らないこと（MUST）'
 const FR_006_SCROLL_NOT_SHRINK = 'パネルを横に送って見せ、選びを縮めない。'
-// WHY: CR-787 -- S-171 is the settings face's default, measured in 10 px steps to the smallest width that fits.
+// Why: CR-787 -- S-171 is the settings face's default, measured in 10 px steps to the smallest width that fits.
 const S_171_RULE = '縦のスクロールバーを出したパネルの幅を 900 px から 10 px ずつ狭め、横にはみ出さず、どの項目名も 2 行以内に収まる最も小さい幅とする'
 const S_171_SETTINGS_FACE = '本値は、文書の設定の面（`FR-072` の 表 T-369 のすべての行と、先頭の閉じる入口だけの行と、読むだけの行）を出したプロパティパネルの既定の幅である。'
 const FR_156_LIST = '⭐ タイムゾーンを選ぶ欄（`FO-14`・`FO-15`）は、いま選んでいる名を同じ 2 行で見せ、押すと欄の下に 2 行の選択肢の一覧を開き、選択肢を押すとそれを選んで一覧を閉じること（MUST）'
@@ -73,7 +73,7 @@ describe(`FR-006 -- ${FR_006_KEPT_CHOICE}`, () => {
     const choices = choicesOf(panel)
     expect(choices.length, 'premise: the settings face offers fixed-list choices').toBeGreaterThan(0)
     const drawn = drawnPanel(panel)
-    // WHY: CR-787 (FR-156) -- the time zone rows are drawn as the two-line field, not the host choice; it keeps
+    // Why: CR-787 (FR-156) -- the time zone rows are drawn as the two-line field, not the host choice; it keeps
     // the room of its first line as its floor.
     const twoLineRows = new Set(panel.fields.filter((field) => field.controls.some((one) => one.choiceLines !== undefined)).map((field) => field.row))
     expect(twoLineRows.size, 'premise: the settings face has two-line time zone fields').toBeGreaterThan(0)

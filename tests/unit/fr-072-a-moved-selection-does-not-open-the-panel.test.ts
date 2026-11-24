@@ -310,7 +310,7 @@ function twoTaskDocument(): Document {
 // The host UF-48 is given. Copied from tests/unit/uf-48-input.test.ts.
 // ---------------------------------------------------------------------------
 
-// WHY: wide enough that the bars stay in the Task Group Area beside a panel of S-171 (560 px since CR-754).
+// Why: wide enough that the bars stay in the Task Group Area beside a panel of S-171 (560 px since CR-754).
 const SCREEN: FrameEnvironment = {
   width: 2400,
   height: 800,
@@ -354,7 +354,7 @@ interface ScreenPane {
   readonly wiring: ScreenWiring
   /** What `readScreenPartAt` answers from now on. The case decides; the fake does not. */
   drawAt(part: ScreenPart | null): void
-  // WHY: starts or ends an edit in the name field (SK-19's own condition);
+  // Why: starts or ends an edit in the name field (SK-19's own condition);
   // IF-9 tells the shell by a begin/end notice, kept as `editingField` (CR-500 wave B).
   leaveAnEditUnsettled(unsettled: boolean): void
   last(): ScreenView
@@ -364,7 +364,7 @@ function screenPane(language: DisplayLanguage = 'ja'): ScreenPane {
   const views: ScreenView[] = []
   let part: ScreenPart | null = null
   let unsettled = false
-  // WHY: IF-9's notices raised since the shell last read them, in order.
+  // Why: IF-9's notices raised since the shell last read them, in order.
   const pending: FieldEditNotice[] = []
   const surface: ScreenSurface = {
     showScreenView: (view) => {
@@ -382,7 +382,7 @@ function screenPane(language: DisplayLanguage = 'ja'): ScreenPane {
     leaveAnEditUnsettled: (next) => {
       if (next === unsettled) return
       unsettled = next
-      // WHY: PR-1 is the row the name field names (table T-016).
+      // Why: PR-1 is the row the name field names (table T-016).
       pending.push({ kind: next ? 'began' : 'ended', row: 'PR-1' })
     },
     last: () => {
@@ -527,7 +527,7 @@ function middleOfTheBar(built: Stage, uid: number): { readonly x: number; readon
   }
   const xs = drawn.plan.points.map((one) => one.x)
   const ys = drawn.plan.points.map((one) => one.y)
-  // WHY: only the part the Task Group Area shows can be pressed; a shown panel (S-171 wide, CR-572) covers the rest.
+  // Why: only the part the Task Group Area shows can be pressed; a shown panel (S-171 wide, CR-572) covers the rest.
   const area = values.regions.taskGroupArea
   const right = Math.min(Math.max(...xs), area.x + area.width - 1)
   const marker = drawn.marker
@@ -874,7 +874,7 @@ describe('table T-036 SK-19 -- `Enter` closes a panel with nothing left to settl
 
 describe('table T-036’s closing rule -- the second stage is off while a 面 stands', () => {
   it('⛔ MUST NOT: with the help up, `Enter` does not take the panel away', () => {
-    // WHY: T-036 bars the second stage of SK-19 while a surface stands, and S-99g counts the normal help as one.
+    // Why: T-036 bars the second stage of SK-19 while a surface stands, and S-99g counts the normal help as one.
     const built = stage()
     doubleClickTask(built, THE_TASK)
     built.send(OPEN_HELP())

@@ -183,7 +183,7 @@ describe('notices (U-57)', () => {
     expect(button.parentNode).toBe(box)
   })
 
-  // WHY: it.fails -- the code draws this notice exactly like a refusal; the mismatch goes to the ledger.
+  // Why: it.fails -- the code draws this notice exactly like a refusal; the mismatch goes to the ledger.
   it.fails('NT-5 NT-1 と見分けがつく形にすること（MUST） -- an accepted-with-caution notice does not look like a refusal', () => {
     const { built } = drawn([
       notice({ manner: 'NT-1', mannerText: 'Not accepted', dismissKey: 'a' }),

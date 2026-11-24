@@ -29,7 +29,7 @@ export const pointerIdsIn = (cell: string): readonly string[] => [...new Set(cel
 export const numbersIn = (cell: string): readonly number[] =>
   (cell.replace(/`/g, '').match(/-?\d+(?:\.\d+)?/g) ?? []).map(Number)
 
-// see T-206
+// Spec: T-206
 export const defaultOf = (settingId: string): number => {
   const found = numbersIn(cellOf('T-206', settingId, '既定'))
   if (found.length === 0) throw new Error(`table T-206 row ${settingId} prints no number in the default column`)
@@ -54,7 +54,7 @@ export const COLUMN_ACROSS = '横'
 export const COLUMN_DOWN = '縦（帯 ＋ 上下）'
 export const COLUMN_POINTER = 'ポインタ（表 T-269）'
 
-// see T-266
+// Spec: T-266
 export const grabTaskGroups = (): readonly GrabTaskGroup[] =>
   rowsOf('T-266').map((row) => {
     const across = row.by[COLUMN_ACROSS] ?? ''
@@ -405,7 +405,7 @@ export const probesOf = (scene: Scene): readonly Probe[] => {
   for (let y = top; y <= bottom; y += PROBE_STEP) {
     for (let x = left; x <= right; x += PROBE_STEP) out.push({ x, y })
   }
-  // WHY: a dummy's grab can be thinner than PROBE_STEP once CR-553 shrank the band, so the grid
+  // Why: a dummy's grab can be thinner than PROBE_STEP once CR-553 shrank the band, so the grid
   // also runs one row of probes through the middle of every drawn dummy.
   for (const task of [scene.started, scene.unstarted, scene.downstream]) {
     for (const dummy of dummiesOf(task)) {

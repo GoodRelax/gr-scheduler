@@ -1,4 +1,4 @@
-// DomScreenSurface -- the frame every window of table T-335 shares: its title row, and the title band and edge grabs.
+// File: DomScreenSurface: the frame every window of table T-335 shares: its title row, and the title band and edge grabs.
 // @unit      UF-191  (docs/spec/05-07-design.md, table T-075)
 // @component DomScreenSurface, layer Framework (table T-062)
 // @purity    non-pure
@@ -29,7 +29,7 @@ const TITLE_GAP_STYLE = 'flex:1;'
 
 type WindowGrab = NonNullable<ScreenPart['windowGrab']>
 
-// see WB-1, WB-3
+// Spec: WB-1, WB-3
 export interface PlacedWindow {
   readonly window: WindowName
   readonly shown: WindowShown
@@ -50,7 +50,7 @@ function titleRowStyle(): string {
   return `display:flex;align-items:center;flex:none;background:${PAINT.panel};height:${entranceOuterHeightPx()}px;`
 }
 
-// see WB-7, SV-1, SV-16, GR-24
+// Spec: WB-7, SV-1, SV-16, GR-24
 /** @purity non-pure */
 export function windowTitleRowElement(
   host: Document,
@@ -82,8 +82,8 @@ function zOrderAt(node: Element): number {
   return SCREEN_Z_ORDER.indexOf(zCarrierOf(node)?.getAttribute(SCREEN_Z_ORDER_ATTRIBUTE) ?? '')
 }
 
-// see T-337, UZ-6, WB-11
-// WHY: windows sharing one row of T-337 stand in tree order, so the later layer is the one in front.
+// Spec: T-337, UZ-6, WB-11
+// Why: windows sharing one row of T-337 stand in tree order, so the later layer is the one in front.
 /** @purity semi-pure-mutable */
 function isInFrontOf(node: Element, window: Element): boolean {
   const front = zOrderAt(node)
@@ -103,8 +103,8 @@ function isOnTitleBand(start: Element, window: Element): boolean {
   return false
 }
 
-// see IF-9, GR-24, GR-25, WB-8, WB-9
-// WHY: only a normal window has an edge (GR-25), and it answers before the title band (GR-24).
+// Spec: IF-9, GR-24, GR-25, WB-8, WB-9
+// Why: only a normal window has an edge (GR-25), and it answers before the title band (GR-24).
 /** @purity semi-pure-mutable */
 function windowGrabAt(window: Element, placed: PlacedWindow, asked: PointAsked): WindowGrab | null {
   const { x, y, first } = asked
@@ -117,8 +117,8 @@ function windowGrabAt(window: Element, placed: PlacedWindow, asked: PointAsked):
   return null
 }
 
-// see IF-9, GR-24, GR-25, T-023d
-// WHY: an entrance, and anything drawn in front of the window, answers alone; GR-24 is where no entrance sits.
+// Spec: IF-9, GR-24, GR-25, T-023d
+// Why: an entrance, and anything drawn in front of the window, answers alone; GR-24 is where no entrance sits.
 /** @purity semi-pure-mutable */
 export function windowPartAt(
   window: Element | null,

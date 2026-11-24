@@ -12,13 +12,13 @@ import { applyCommandsOf, readDocumentOf, taskGroupsDocument } from './w3-t1-sta
 
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
-// WHY: each constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
+// Why: each constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
 const FR_135_FIELD = 'プロパティパネルの親タスクの欄の出し方と、押したときの動きは、表 T-351 の `PTL-15` 〜 `PTL-17` に従うこと（MUST）'
 const FR_135_HANDS = '—— 候補がどれかを図の上で読み、そのまま引いて結べる。親タスクを結ぶ・外す手は 表 T-351 に従うこと（MUST）'
 const FR_075_COLORS = '掴み点の寸法は `_assets/tbl-settings.md` の表 T-210 が持つ。掴み点の面と縁は、同書の 表 T-236 の `S-527` と `S-528` の色で描くこと（MUST）'
 const FR_006_LOOK_LAST =
   '⭐ 見た目の行（表 T-016 の入力の型に `色` を含む行と、塗りの透過率・枠線の幅の行）は、同じ対象の行の並びの末尾に置くこと（MUST）'
-// WHY: CR-690 -- the old span row retired; the field rule is FX-5 of table T-367 (one settle, written only while fixed).
+// Why: CR-690 -- the old span row retired; the field rule is FX-5 of table T-367 (one settle, written only while fixed).
 const IX_17_FIELD =
   '⭐ 2 つの入力は 1 つの欄として確定し、確定した値で 表 T-108 の `CM-88` を、片方か 2 つともを空にして確定したら同表の `CM-89` を、1 回発行すること（MUST）'
 
@@ -37,13 +37,13 @@ const SPAN_LABELS = (() => {
   return found === undefined ? [] : [found.label.ja, found.label.en]
 })()
 
-// see T-016
+// Spec: T-016
 const LOOK_ROWS_OF_A_TASK = specTable('T-016')
   .rows.filter((row) => bare(row.by['対象'] ?? '') === 'Task')
   .filter((row) => (row.by['入力の型'] ?? '').includes('色') || /fillTransparencyPercent|strokeWidthPx/.test(row.by['列（`GRS JSON`）'] ?? ''))
   .map((row) => row.id)
 
-// WHY: task 2 hangs under task 1; task 4 is a milestone; March 2026 starts on a Monday.
+// Why: task 2 hangs under task 1; task 4 is a milestone; March 2026 starts on a Monday.
 const DOCUMENT = (): string => taskGroupsDocument({ rows: 4, parentTaskOf: { 2: 1 }, milestoneUids: [4], settings: { zoomX: 6, scrollDate: '2026-02-25T00:00:00' } })
 
 let browser: Browser | null = null
@@ -152,7 +152,7 @@ test.describe(`FR-135 (MUST): ${FR_135_FIELD.slice(-40)}`, () => {
       expect(field?.ink, 'the S-503 ink').toBe(await inkOf(opened.page, LINK_INK))
       expect(field?.line).toContain('underline')
       expect(field?.cross, 'a cross on the right').toBe(true)
-      // WHY: SJ-2 opens the target's task groups (treeState) as part of the jump; PTL-16 forbids any other write.
+      // Why: SJ-2 opens the target's task groups (treeState) as part of the jump; PTL-16 forbids any other write.
       const written = async (): Promise<string> => {
         const held = (await readDocumentOf(opened.page)).schedule
         return JSON.stringify({ ...held, taskGroups: (held.taskGroups as Record<string, unknown>[]).map((one) => ({ ...one, treeState: null })) })
@@ -247,7 +247,7 @@ test.describe(`FR-075 (MUST): ${FR_075_COLORS.slice(-40)}`, () => {
       const light = await handles()
       expect(light.length, 'premise: the chosen task shows its grab points (S-111)').toBeGreaterThan(0)
       for (const one of light) expect(one).toEqual({ fill: colorOf('S-527', 214, false, false), stroke: colorOf('S-528', 214, false, false) })
-      // WHY: an open panel holds an unsettled field, and AG-9 refuses a write then; close it first.
+      // Why: an open panel holds an unsettled field, and AG-9 refuses a write then; close it first.
       await opened.page.keyboard.press('Escape')
       await opened.page.keyboard.press('Escape')
       await settle(opened.page)
@@ -301,7 +301,7 @@ test.describe(`FX-5 (MUST): ${IX_17_FIELD.slice(-40)}`, () => {
       const inputs = opened.page.locator(`${PROPERTIES} input[type="date"]`).filter({ hasNot: opened.page.locator('[data-field-row="IC-44"]') })
       const spanInputs = opened.page.locator(`${PROPERTIES} [data-field-row="K-141"] input[type="date"]`)
       expect(await inputs.count()).toBeGreaterThan(0)
-      // WHY: FX-5 lets the two inputs be written only while the span is fixed; FX-4 fixes it in one step (K-142).
+      // Why: FX-5 lets the two inputs be written only while the span is fixed; FX-4 fixes it in one step (K-142).
       await opened.page.locator(`${PROPERTIES} [data-field-row="K-142"] input[type="checkbox"]`).check()
       await settle(opened.page)
       const fixed = (await readDocumentOf(opened.page)).documentSettings

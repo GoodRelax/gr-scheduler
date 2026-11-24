@@ -10,7 +10,7 @@ import { windowStage, type WindowStage } from './cr-731-window-stage'
 
 export { BEFORE_ALL, diagnosed, windowStage, type WindowStage }
 
-// WHY: the search table is drawn again in place when its rows change (a browser's ChildNode.replaceWith); the stand-in
+// Why: the search table is drawn again in place when its rows change (a browser's ChildNode.replaceWith); the stand-in
 // DOM has no such member, so it is given one here the way cr-731-window-stage gives parentElement.
 const replaceable = FakeElement.prototype as unknown as { replaceWith?: (...nodes: FakeElement[]) => void }
 if (replaceable.replaceWith === undefined) {
@@ -25,15 +25,15 @@ if (replaceable.replaceWith === undefined) {
 export type Language = 'ja' | 'en'
 export const LANGUAGES: readonly Language[] = ['ja', 'en']
 
-// see T-021, T-315
+// Spec: T-021, T-315
 export type Marker = 'PM-1a' | 'PM-1' | 'PM-2' | 'PM-3' | 'PM-4' | 'DG-1' | 'DG-2' | 'DG-3'
 export type Diagnosed = 'DG-1' | 'DG-2' | 'DG-3'
 export const DIAGNOSED: readonly Diagnosed[] = ['DG-1', 'DG-2', 'DG-3']
 
-// see T-019a
+// Spec: T-019a
 export type State = 'PS-1' | 'PS-2' | 'PS-3' | 'PS-4' | 'PS-5'
 
-// WHY: PM-3 stands for both pauses of T-019a, so the word of a row is read from its state, never from its marker.
+// Why: PM-3 stands for both pauses of T-019a, so the word of a row is read from its state, never from its marker.
 export const MARKER_OF_STATE: Readonly<Record<State, Marker>> = {
   'PS-1': 'PM-1a',
   'PS-5': 'PM-1',
@@ -77,7 +77,7 @@ export interface MarkerTask {
 
 const started = (day: string): Partial<TaskSpec> => ({ actualStart: START_OF(`2027-${day}`), percentComplete: 10 })
 
-// WHY: Done's finish lies before the status date, so a finished task that is never late is seen (T-021 PM-4).
+// Why: Done's finish lies before the status date, so a finished task that is never late is seen (T-021 PM-4).
 export const MARKER_TASKS: readonly MarkerTask[] = [
   { uid: 10, name: 'Parent', state: 'PS-5', late: 'DL-1', spec: span(10, 'Parent', '05-03', '05-07', started('05-03')) },
   { uid: 1, name: 'Lead', state: 'PS-5', late: 'DL-1', spec: span(1, 'Lead', '05-03', '05-07', { parent: 10, ...started('05-03') }) },
@@ -134,7 +134,7 @@ export const markerTask = (uid: number): MarkerTask => {
   return found
 }
 
-// see T-021, T-021b
+// Spec: T-021, T-021b
 export const markerWithoutDiagnosis = (task: MarkerTask): Marker => (task.late !== null ? 'PM-4' : MARKER_OF_STATE[task.state])
 
 export interface DiagnosisRows {
@@ -143,7 +143,7 @@ export interface DiagnosisRows {
   readonly every: readonly { readonly uid: number; readonly row: string }[]
 }
 
-// WHY: byUid is the mark drawn on the chart that SQ-5 follows (FR-133 drops DG-1 / DG-2 from a task not begun after
+// Why: byUid is the mark drawn on the chart that SQ-5 follows (FR-133 drops DG-1 / DG-2 from a task not begun after
 // the status date), read from the published diagnosedMarkerRowsOf (PI-1); every stays the report's DX-8.
 export function diagnosisRowsOf(document: Document): DiagnosisRows {
   const report = diagnosed(document) as { markerStates: { uid: number; row: string }[]; bottlenecks: { uid: number }[] }
@@ -155,14 +155,14 @@ export function diagnosisRowsOf(document: Document): DiagnosisRows {
 
 export const markerWithDiagnosis = (task: MarkerTask, rows: DiagnosisRows): Marker => rows.byUid.get(task.uid) ?? markerWithoutDiagnosis(task)
 
-// see SQ-5
+// Spec: SQ-5
 export function wordOfMarker(task: MarkerTask, marker: Marker, language: Language): string {
   if (marker === 'PM-4') return statusWord('DG-4', language)
   if (marker === 'DG-1' || marker === 'DG-2' || marker === 'DG-3') return statusWord(marker, language)
   return stateWord(task.state, language)
 }
 
-// see SV-8
+// Spec: SV-8
 export function rankOf(task: MarkerTask, marker: Marker): number {
   const order: readonly string[] = ['DG-1', 'DG-2', 'DG-3', 'PM-4', 'PS-1', 'PS-5', 'PS-2', 'PS-4', 'PS-3']
   const key = marker === 'PM-4' || marker.startsWith('DG-') ? marker : task.state
@@ -177,7 +177,7 @@ export interface TypeTask {
   readonly milestone: boolean | null
 }
 
-// WHY: Alpha's span differs from its children's (VC-11, a machine fix -- the log gets a row); Gate is a milestone with two
+// Why: Alpha's span differs from its children's (VC-11, a machine fix -- the log gets a row); Gate is a milestone with two
 // days (VC-4); Echo and the task named with the Task Type word are late (DG-4) -- so every task reaches the report.
 export const TYPE_TASKS: readonly TypeTask[] = [
   { uid: 1, name: 'Alpha', milestone: false },
@@ -200,7 +200,7 @@ export function typeDocument(): Document {
     ],
     { statusDate: BEFORE_ALL },
   )
-  // WHY: documentOf writes milestone true or false only; AT-30 lets it be empty too, and Echo's is.
+  // Why: documentOf writes milestone true or false only; AT-30 lets it be empty too, and Echo's is.
   const tasks = made.schedule.tasks.map((one) => (one.uid === 5 ? { ...one, milestone: null } : one))
   return { ...made, schedule: { ...made.schedule, tasks } } as Document
 }
@@ -211,12 +211,12 @@ export const typeTaskNamed = (name: string): TypeTask => {
   return found
 }
 
-// see SQ-14
+// Spec: SQ-14
 export const typeWordOf = (task: TypeTask, language: Language): string => taskTypeWord(task.milestone === true ? 'milestone' : 'task', language)
 
 export async function stageIn(document: Document, language: Language): Promise<WindowStage> {
   const stage = await windowStage(document)
-  // WHY: IC-21 chooses the screen language (FR-038); the stage starts in Japanese.
+  // Why: IC-21 chooses the screen language (FR-038); the stage starts in Japanese.
   if (language === 'en') await stage.press('IC-21')
   return stage
 }
@@ -270,7 +270,7 @@ export const cellOfColumn = (read: TableRead, uid: number, column: string): stri
   return row.cells[at] ?? ''
 }
 
-// WHY: a filter or sort entrance of a column is the IC-122 inside that column's heading cell (SV-7).
+// Why: a filter or sort entrance of a column is the IC-122 inside that column's heading cell (SV-7).
 export async function pressHeadingFilter(stage: WindowStage, root: FakeElement, column: string): Promise<void> {
   const heading = selfAndDescendants(root).find((one) => one.tagName === 'TH' && one.getAttribute('data-column') === column)
   if (heading === undefined) throw new Error(`no heading cell for ${column}`)
@@ -285,7 +285,7 @@ export async function pressMenuEntry(stage: WindowStage, icon: string): Promise<
   await stage.clickOn(entry)
 }
 
-// WHY: SV-7 closes an open filter when the IC-122 of its own column is pressed again, so it is pressed only while shut.
+// Why: SV-7 closes an open filter when the IC-122 of its own column is pressed again, so it is pressed only while shut.
 export async function sortBy(stage: WindowStage, root: () => FakeElement, column: string, icon: 'IC-123' | 'IC-124'): Promise<void> {
   const isOpen = selfAndDescendants(stage.built.root()).some((one) => one.getAttribute('data-icon') === icon)
   if (!isOpen) await pressHeadingFilter(stage, root(), column)
@@ -303,7 +303,7 @@ export async function copiedMarkdown(stage: WindowStage): Promise<string> {
   return last.text
 }
 
-// WHY: a Markdown table row is split on its pipes; the heading row of a table is the one holding the given word.
+// Why: a Markdown table row is split on its pipes; the heading row of a table is the one holding the given word.
 export const markdownCells = (line: string): readonly string[] =>
   line
     .trim()
@@ -330,7 +330,7 @@ export function readSearchRowsOf(api: AgentApi, word: string): { readonly taskRo
   return member.call(api, word) as { readonly taskRows: readonly Record<string, unknown>[] }
 }
 
-// see PI-1
+// Spec: PI-1
 export type ProgressMarkerOf = (task: scheduleEntry.Task, statusDate: scheduleEntry.CalendarDay | null, diagnosed?: Diagnosed) => string
 
 export function progressMarkerSeam(): ProgressMarkerOf {

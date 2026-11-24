@@ -17,7 +17,7 @@ const saveAs = async (page: Page, format: 'IO-2' | 'IO-3' | 'IO-4'): Promise<{ n
 
 const exportSvg = (page: Page): Promise<string> => page.evaluate(() => (window as any).grSchedulerAgentApi.exportSvg().value)
 
-// see T-231
+// Spec: T-231
 const normalizedSvg = (svg: string): string => svg.replace(STAMP, 'STAMP').replace(/-?\d+\.\d+/g, (n) => Number(n).toFixed(2)).replace(/>\s+</g, '><')
 
 test('UC-011 save the document and hand it out (FR-096, FR-024, FR-080, FR-025, T-204 S-81, FR-027, FR-095)', async ({ page }) => {
@@ -44,7 +44,7 @@ test('UC-011 save the document and hand it out (FR-096, FR-024, FR-080, FR-025, 
     await openByDrop(page, saved.name, saved.text)
     const documentAfter = await readDocument(page)
     expect(documentAfter.schedule).toEqual(documentBefore.schedule)
-    // WHY: OP-10 puts the drawn place on the saved copy of the startup template; the open one keeps null.
+    // Why: OP-10 puts the drawn place on the saved copy of the startup template; the open one keeps null.
     const placeless = (settings: Record<string, unknown>) => ({ ...settings, scrollDate: null, scrollTaskGroupId: null, scrollDateFraction: 0, scrollTaskGroupFraction: 0 })
     expect(documentBefore.documentSettings.scrollDate).toBeNull()
     expect(documentAfter.documentSettings.scrollDate).not.toBeNull()

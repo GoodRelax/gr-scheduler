@@ -109,7 +109,7 @@ type TreeState = (typeof TREE_STATES)[number]
 const withTreeState = (group: Record<string, any>, treeState: TreeState): Record<string, any> => ({ ...group, treeState })
 const TEMPLATE_SETTINGS = { ...TEMPLATE.documentSettings, levelZeroTreeState: 'auto' }
 
-// WHY: S-87 and S-88 are constants since CR-572; the document no longer carries them.
+// Why: S-87 and S-88 are constants since CR-572; the document no longer carries them.
 const thresholdOf = (depth: number): number =>
   SETTINGS_CONSTANTS.groupLevelOfDetailBase * SETTINGS_CONSTANTS.groupLevelOfDetailRatio ** (depth - 2)
 
@@ -951,7 +951,7 @@ describe(`FR-018 -- ${FR_018_ONLY_T_328}`, () => {
     expect(named(groups.filter((one: any) => one.treeState === 'expanded').map((one: any) => one.id)).sort()).toEqual(['C1', 'R'])
   })
 
-  // WHY: DU-2 does not say whether a copied task group keeps its treeState or is created auto (AT-153),
+  // Why: DU-2 does not say whether a copied task group keeps its treeState or is created auto (AT-153),
   // so only the originals are asserted here; the gap is reported, not decided.
   it('a pasted subtree leaves the values of the originals alone', () => {
     const doc = smallDocument({ zoomY: 0.8, expanded: [R, C1] })

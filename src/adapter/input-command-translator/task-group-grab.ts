@@ -1,4 +1,4 @@
-// InputCommandTranslator -- a grabbed task group carried by HF-15 and landed as one parent-and-order write.
+// File: InputCommandTranslator: a grabbed task group carried by HF-15 and landed as one parent-and-order write.
 // @unit      UF-97   (docs/spec/05-07-design.md, table T-075)
 // @component InputCommandTranslator, layer Adapter (table T-062)
 // @purity    pure
@@ -51,7 +51,7 @@ function taskGroupGrabTreeOf(taskGroups: readonly TaskGroup[], heldId: string): 
   return { byId, childrenOf, heldId }
 }
 
-// TRAP: CM-73 reads a rank among the siblings with the held one taken out, not the `order` column.
+// Trap: CM-73 reads a rank among the siblings with the held one taken out, not the `order` column.
 /** @purity pure */
 function siblingsWithoutHeld(tree: TaskGroupGrabTree, parentId: string | null): readonly TaskGroup[] {
   return (tree.childrenOf.get(parentId) ?? []).filter((one) => one.id !== tree.heldId)
@@ -70,8 +70,8 @@ function heldSubtreeOf(tree: TaskGroupGrabTree): { readonly ids: ReadonlySet<str
   return { ids, height }
 }
 
-// see HF-15, HR-6, FR-018, FR-098
-// WHY: only the drawn rows count; a pinned row stands at the panel head, not at its place in the tree.
+// Spec: HF-15, HR-6, FR-018, FR-098
+// Why: only the drawn rows count; a pinned row stands at the panel head, not at its place in the tree.
 /** @purity pure */
 function taskGroupGrabRowsOf(context: InputContext, tree: TaskGroupGrabTree, held: ReadonlySet<string>): readonly TaskGroupGrabRow[] {
   const pinned = new Set(context.document.documentSettings.pinnedTaskGroupIds)
@@ -92,7 +92,7 @@ function taskGroupGrabPlaceOf(
 ): { readonly parentId: string | null; readonly order: number } {
   if (above === null) return { parentId: null, order: 0 }
   if (depth === above.depth + 1) {
-    // WHY: into a collapsed task group as its last child, kept collapsed; an open one takes it first.
+    // Why: into a collapsed task group as its last child, kept collapsed; an open one takes it first.
     const isCollapsed = above.taskGroup.treeState === 'collapsed'
     return { parentId: above.taskGroup.id, order: isCollapsed ? siblingsWithoutHeld(tree, above.taskGroup.id).length : 0 }
   }
@@ -106,13 +106,13 @@ function taskGroupGrabPlaceOf(
   return { parentId: branch.parentId, order: rank + 1 }
 }
 
-// TRAP: the DRAWN S-37 (DS-1), or the line falls behind the hand by the display ratio.
+// Trap: the DRAWN S-37 (DS-1), or the line falls behind the hand by the display ratio.
 /** @purity pure */
 function drawnTaskGroupIndentOf(context: InputContext): number {
   return SETTINGS_CONSTANTS.taskGroupTitleIndent * displayRatioOf(context.document.documentSettings)
 }
 
-// see HF-15, S-37, FR-004, HM-3a
+// Spec: HF-15, S-37, FR-004, HM-3a
 /** @purity pure */
 export function taskGroupGrabLandingAt(
   context: InputContext,
@@ -129,7 +129,7 @@ export function taskGroupGrabLandingAt(
   const above = rows[gap - 1] ?? null
   const below = rows[gap] ?? null
   const lowest = below === null ? 1 : below.depth
-  // WHY: only the held task group itself stays within S-125; a subtree reaching past it is asked on release (QN-16).
+  // Why: only the held task group itself stays within S-125; a subtree reaching past it is asked on release (QN-16).
   const highest = Math.min(above === null ? 1 : above.depth + 1, SETTINGS_CONSTANTS.maxGroupDepth)
   if (highest < lowest) return null
   const indent = drawnTaskGroupIndentOf(context)
@@ -148,7 +148,7 @@ interface TaskGroupLift {
   readonly afterId: string
 }
 
-// see HF-15, QN-16
+// Spec: HF-15, QN-16
 /** @purity pure */
 function taskGroupLiftsOf(tree: TaskGroupGrabTree, landing: Pick<TaskGroupGrabLanding, 'parentId' | 'depth'>): readonly TaskGroupLift[] {
   const cap = SETTINGS_CONSTANTS.maxGroupDepth
@@ -167,13 +167,13 @@ function taskGroupLiftsOf(tree: TaskGroupGrabTree, landing: Pick<TaskGroupGrabLa
   return lifts
 }
 
-// see HF-15, CM-73
+// Spec: HF-15, CM-73
 /** @purity pure */
 function childIdsOf(tree: TaskGroupGrabTree): Map<string | null, string[]> {
   return new Map([...tree.childrenOf].map(([parentId, children]) => [parentId, children.map((one) => one.id)]))
 }
 
-// see HF-15, CM-73
+// Spec: HF-15, CM-73
 /** @purity pure */
 function withChildPlaced(childIds: Map<string | null, string[]>, id: string, from: string | null, to: string | null, at: number): void {
   childIds.set(from, (childIds.get(from) ?? []).filter((one) => one !== id))
@@ -181,8 +181,8 @@ function withChildPlaced(childIds: Map<string | null, string[]>, id: string, fro
   childIds.set(to, [...siblings.slice(0, at), id, ...siblings.slice(at)])
 }
 
-// see HF-15, QN-16, CM-73, HM-3a, HM-12
-// WHY: read after the held move, in tree order; each order is CM-73's rank among the new siblings.
+// Spec: HF-15, QN-16, CM-73, HM-3a, HM-12
+// Why: read after the held move, in tree order; each order is CM-73's rank among the new siblings.
 /** @purity pure */
 export function taskGroupLiftMovesAfter(
   taskGroups: readonly TaskGroup[],
@@ -207,8 +207,8 @@ export function taskGroupLiftMovesAfter(
   return commands
 }
 
-// see HF-15, QN-16, CM-73, HM-3a
-// WHY: lifts first and the held move last, so no command passes S-125 when it lands (JDG-2414); each
+// Spec: HF-15, QN-16, CM-73, HM-3a
+// Why: lifts first and the held move last, so no command passes S-125 when it lands (JDG-2414); each
 // order ranks the final tree of taskGroupLiftMovesAfter among the siblings standing at that moment.
 /** @purity pure */
 function liftsThenMoveOf(
@@ -239,7 +239,7 @@ function liftsThenMoveOf(
   return [...lifts.map((lift) => landed(lift.taskGroupId, lift.parentId)), landed(heldId, landing.parentId)]
 }
 
-// see HF-15, S-597, S-598
+// Spec: HF-15, S-597, S-598
 /** @purity pure */
 export function taskGroupGrabScrollSpeedAt(pointerY: number, panelTop: number, panelBottom: number): number {
   const band = NOT_STORED_TASK_GROUP_GRAB_SIZES['S-597']
@@ -252,8 +252,8 @@ export function taskGroupGrabScrollSpeedAt(pointerY: number, panelTop: number, p
   return 0
 }
 
-// see HF-15, MK-1
-// WHY: WS-2 refuses a write mid-gesture, so the turn is handed to the shell to hold until release.
+// Spec: HF-15, MK-1
+// Why: WS-2 refuses a write mid-gesture, so the turn is handed to the shell to hold until release.
 /** @purity pure */
 export function taskGroupGrabWheel(input: WheelInput, context: InputContext): TranslatedInput | null {
   const press = context.pressed
@@ -265,24 +265,24 @@ export function taskGroupGrabWheel(input: WheelInput, context: InputContext): Tr
 /** @purity pure */
 export function grabbedTaskGroupId(press: PointerPress): string | null {
   const on = press.on
-  // TRAP: a pinned task group is refused only because the surface draws no strip on it.
+  // Trap: a pinned task group is refused only because the surface draws no strip on it.
   if (on === null || on.isTaskGroupGrabStrip !== true) return null
   return on.taskGroupId
 }
 
-// WHY: once carried, a hand brought back within S-208 still carries; it no longer chooses.
+// Why: once carried, a hand brought back within S-208 still carries; it no longer chooses.
 /** @purity pure */
 function isTaskGroupGrabCarried(press: PointerPress, at: PointerInput): boolean {
   return press.isTaskGroupGrabCarried === true || hasDraggedPastThreshold(press, at)
 }
 
-// see HF-15
+// Spec: HF-15
 /** @purity pure */
 export function taskGroupGrabFollow(input: PointerInput, context: InputContext): TranslatedInput {
   const press = context.pressed
   if (press === null) return UNASSIGNED
   const taskGroupId = grabbedTaskGroupId(press)
-  // WHY: a caller that does not record the carry cannot hold it (as `paletteFollow` refuses).
+  // Why: a caller that does not record the carry cannot hold it (as `paletteFollow` refuses).
   if (taskGroupId === null || press.isTaskGroupGrabCarried === undefined) return UNASSIGNED
   if (!isTaskGroupGrabCarried(press, input)) return UNASSIGNED
   const area = context.regions.taskGroupArea
@@ -305,7 +305,7 @@ function isWhereItStands(context: InputContext, heldTaskGroupId: string, landing
 
 const DEPTH_CAP_QUESTION = 'QN-16'
 
-// see HF-15, FR-085, CM-73, QN-16
+// Spec: HF-15, FR-085, CM-73, QN-16
 /** @purity pure */
 export function commandFromRowGrab(
   release: PointerInput,
@@ -321,11 +321,11 @@ export function commandFromRowGrab(
     })
   }
   const landing = taskGroupGrabLandingAt(context, heldTaskGroupId, release, press)
-  // WHY: not written: an accepted write marks unsaved edits even if nothing moved.
+  // Why: not written: an accepted write marks unsaved edits even if nothing moved.
   if (landing === null || isWhereItStands(context, heldTaskGroupId, landing)) return CONSUMED_ELSEWHERE
   const move: TaskGroupMove = { kind: 'moveTaskGroup', taskGroupId: heldTaskGroupId, parentId: landing.parentId, order: landing.order }
   if (!landing.isPastDepthCap) return changed([move])
-  // WHY: one write, so Yes lands it as one undo step; lifts first, so no command passes S-125 (HM-3a, JDG-2414).
+  // Why: one write, so Yes lands it as one undo step; lifts first, so no command passes S-125 (HM-3a, JDG-2414).
   const taskGroups = context.document.schedule.taskGroups
   const lifts = taskGroupLiftMovesAfter(taskGroups, heldTaskGroupId, landing)
   const bundle = liftsThenMoveOf(taskGroupGrabTreeOf(taskGroups, heldTaskGroupId), lifts, landing)

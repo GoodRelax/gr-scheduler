@@ -70,7 +70,7 @@ function nodesOf(root: unknown): readonly unknown[] {
 const MARK_ROW = /^DG-[1-4]$/
 const FINDING_ROW = /^V[COS]-\d+$/
 
-// see T-317, DX-8
+// Spec: T-317, DX-8
 function marksOf(report: Report): ReadonlyMap<number, string> {
   const marks = new Map<number, string>()
   for (const node of nodesOf(report)) {
@@ -90,7 +90,7 @@ function marksOf(report: Report): ReadonlyMap<number, string> {
   return marks
 }
 
-// see T-317, DX-3
+// Spec: T-317, DX-3
 function findingRows(report: Report): readonly string[] {
   return nodesOf(report)
     .filter(isPlain)
@@ -145,12 +145,12 @@ interface TableSRow {
   readonly pathCeiling: number
   readonly unreliable: number
   readonly delay: number
-  // WHY: CR-790 table S' gives DG-1 with no tolerance; when set, DG-1 must equal this and the
+  // Why: CR-790 table S' gives DG-1 with no tolerance; when set, DG-1 must equal this and the
   // "table S + VS-6 count +-1" form is not used.
   readonly unreliableExact?: number
 }
 
-// WHY: CR-618 section 9.2 table S (rewritten by JDG-1040, 2026-10-01), copied as it stands;
+// Why: CR-618 section 9.2 table S (rewritten by JDG-1040, 2026-10-01), copied as it stands;
 // tasks and delay are kept for the reader only -- see the tolerance bullet below.
 const TABLE_S: readonly TableSRow[] = [
   {
@@ -173,7 +173,7 @@ const TABLE_S: readonly TableSRow[] = [
     unreliable: 7,
     delay: 2,
   },
-  // WHY: the large row is CR-790 table S' (2026-10-17), not CR-618 table S: DG-2 11, DG-3 14 (ceiling 19),
+  // Why: the large row is CR-790 table S' (2026-10-17), not CR-618 table S: DG-2 11, DG-3 14 (ceiling 19),
   // DG-1 exactly 3, DG-4 9; tasks and delay are kept for the reader only.
   {
     sample: 'sample-large-erp-program',
@@ -189,15 +189,15 @@ const TABLE_S: readonly TableSRow[] = [
 ]
 const BOTTLENECK_AND_UNRELIABLE_SLACK = 1
 const VS_6 = 'VS-6'
-// see VS-6, S-487
-// TRAP: the large sample used to carry 10 VS-6 findings (S-487); since CR-790 it carries exactly 1
+// Spec: VS-6, S-487
+// Trap: the large sample used to carry 10 VS-6 findings (S-487); since CR-790 it carries exactly 1
 // (Task uid 200), because the tool aligns the other nine summaries' stop with their leftmost leaf.
 const VS_6_COUNT_OF_SAMPLE: ReadonlyMap<string, number> = new Map([
   ['sample-small-website-renewal', 1],
   ['sample-medium-sfa-webapp', 0],
   ['sample-large-erp-program', 1],
 ])
-// WHY: findings per sample, sorted. Small and medium: CR-618 table S (one VC-5) plus the VS-6 count of CR-651;
+// Why: findings per sample, sorted. Small and medium: CR-618 table S (one VC-5) plus the VS-6 count of CR-651;
 // large: CR-790 table S' (VC-12 twice, VS-6 once, no other row).
 const FINDINGS_OF_SAMPLE: ReadonlyMap<string, readonly string[]> = new Map([
   ['sample-small-website-renewal', ['VC-5', 'VS-6']],
@@ -233,7 +233,7 @@ describe('CR-618 T8 -- each MSPDI sample diagnoses to table S of CR-618 section 
     )
   })
 
-  // WHY: table S predates CR-716 (JDG-1772), which makes every VS-6 parent DG-1; a VS-6 parent that
+  // Why: table S predates CR-716 (JDG-1772), which makes every VS-6 parent DG-1; a VS-6 parent that
   // table S counted as DG-3 now counts as DG-1, so the DG-3 floor drops and the DG-1 target rises by the VS-6 count.
   it.each(cases)('%s: DG-3 from table S - 2 - the VS-6 count up to the tree ceiling in parens', (file, row) => {
     const counts = countsOf(file)
@@ -244,7 +244,7 @@ describe('CR-618 T8 -- each MSPDI sample diagnoses to table S of CR-618 section 
     )
   })
 
-  // WHY: CR-790 table S' says DG-1 is exactly 3 for the large sample (no tolerance, nothing spreads downstream).
+  // Why: CR-790 table S' says DG-1 is exactly 3 for the large sample (no tolerance, nothing spreads downstream).
   it.each(cases)('%s: DG-1 unreliable within +-1 of table S + the VS-6 count (exactly 3 for the large sample, CR-790)', (file, row) => {
     const counts = countsOf(file)
     if (row.unreliableExact !== undefined) {
@@ -262,7 +262,7 @@ describe('CR-618 T8 -- each MSPDI sample diagnoses to table S of CR-618 section 
     expect(counts['DG-4'], JSON.stringify(counts)).toBeGreaterThanOrEqual(DELAY_AT_LEAST)
   })
 
-  // WHY: CR-651 added VS-6 after table S was written (small 1, medium 0); the large sample is CR-790 table S':
+  // Why: CR-651 added VS-6 after table S was written (small 1, medium 0); the large sample is CR-790 table S':
   // VC-12 twice and VS-6 once, and no other finding row.
   it.each(cases)('%s: exactly the findings of its table (small and medium: one VC-5 and the VS-6 count; large: CR-790)', (file, row) => {
     const findings = countsOf(file).findings
@@ -286,7 +286,7 @@ function fixRowsOf(file: string): readonly Loose[] {
   return seam(document, diagnose(document), [])
 }
 
-// WHY: CR-790 table S' and its three-finding table: two FA-12 machine fixes (VC-12 on Task uid 48 and 153,
+// Why: CR-790 table S' and its three-finding table: two FA-12 machine fixes (VC-12 on Task uid 48 and 153,
 // initially checked) and one FA-21 by-hand fix (VS-6 on Task uid 200).
 const LARGE_FIX_ROWS = [
   { fixRow: 'FA-12', findingRow: 'VC-12', taskUid: 48, fixKind: 'automatic', checked: true },

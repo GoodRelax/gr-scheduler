@@ -140,7 +140,7 @@ def survey():
     where, generated = scan()
     whole = [r for r in rows if r['how'] == 'whole']
     olds = {r['old'] for r in whole}
-    # WHY: after --apply a new name such as setFontSizeStep holds the run less
+    # Why: after --apply a new name such as setFontSizeStep holds the run less
     # its last part of setFontScale; a name the table writes is never related.
     olds |= set(rename_table().values())
     out = []

@@ -8,17 +8,17 @@ import { specTable, type SpecTable } from '../contract/spec-table'
 import { CLEARING_UP_MS, launchReferenceBrowser, readSettledDrawnSvg, screenOf } from './live-app'
 import { rowOf } from './sws-case'
 
-// see NFR-004
+// Spec: NFR-004
 const SHIPPED_BUILD = join(process.cwd(), 'dist', 'index.html')
 
 const T025: SpecTable = specTable('T-025')
 
-// see T-025
+// Spec: T-025
 const SCREEN_ROW = 'MC-6'
 
 const BASE_SCREEN = screenOf(rowOf(T025, SCREEN_ROW))
 
-// TRAP: renaming this attribute breaks silently unless
+// Trap: renaming this attribute breaks silently unless
 // tests/system/rows-fixed-with-nothing-holding-them.test.ts is updated too.
 const DRAWN_TASK_GROUP = '[data-depth]'
 
@@ -40,7 +40,7 @@ interface DrawnTaskGroup {
 
 const RECORDER = 'grsFirstFrameRecord'
 
-// WHY: not an assertion -- only when to stop watching, set well past the
+// Why: not an assertion -- only when to stop watching, set well past the
 // worst-case wrong-tree window so a slow machine is watched through it.
 const QUIET_MS = 1_500
 const LEAST_WATCHED_MS = 5_000
@@ -59,7 +59,7 @@ async function readRecorded(page: Page): Promise<Recorded> {
   )
 }
 
-// WHY: polls the page's own notches, not the screen -- the notches are what
+// Why: polls the page's own notches, not the screen -- the notches are what
 // the comparison uses, so quiet there means quiet for the comparison.
 /** @purity non-pure */
 async function watchUntilQuiet(page: Page): Promise<Recorded> {
@@ -105,7 +105,7 @@ test.beforeAll(async () => {
   browser = await launchReferenceBrowser()
 })
 
-// WHY: closing the reference browser can outlast a hook's default
+// Why: closing the reference browser can outlast a hook's default
 // timeout; the measured allowance is applied explicitly here.
 test.afterAll(async () => {
   test.setTimeout(CLEARING_UP_MS)
@@ -115,7 +115,7 @@ test.afterAll(async () => {
 test('DFC-230: the first tree the shipped build draws is the tree it settles on', async () => {
   test.setTimeout(300_000)
   if (browser === null) throw new Error('the reference browser was not opened')
-  // TRAP: this must stay the first page opened in this browser process --
+  // Trap: this must stay the first page opened in this browser process --
   // the fault only shows on that page.
   const context = await browser.newContext({ viewport: BASE_SCREEN })
   await context.addInitScript(
@@ -152,7 +152,7 @@ test('DFC-230: the first tree the shipped build draws is the tree it settles on'
   const page = await context.newPage()
   try {
     await page.goto(pathToFileURL(SHIPPED_BUILD).href)
-    // WHY: not a fixed pause -- only gets the run past the first drawing so
+    // Why: not a fixed pause -- only gets the run past the first drawing so
     // the recorder below has something to watch.
     await readSettledDrawnSvg(page)
     const recorded = await watchUntilQuiet(page)
@@ -176,7 +176,7 @@ test('DFC-230: the first tree the shipped build draws is the tree it settles on'
         'a shifted tree from an unshifted one',
     ).toBeGreaterThan(1)
 
-    // WHY: compares the trees themselves, not their descriptions -- each
+    // Why: compares the trees themselves, not their descriptions -- each
     // description also carries the moment it was notched at.
     expect(
       first.tree,

@@ -1,4 +1,4 @@
-// Document: the document root binding the three groups.
+// File: Document: the document root binding the three groups.
 // @unit      UF-57   (docs/spec/05-07-design.md, table T-075)
 // @component Document, layer documentModel (table T-062)
 // @purity    pure
@@ -22,7 +22,7 @@ export interface DocumentViolation {
   readonly what: string
 }
 
-// see DR-1, DR-4, DR-5
+// Spec: DR-1, DR-4, DR-5
 /** @purity pure */
 export function documentViolations(value: unknown): readonly DocumentViolation[] {
   const found: DocumentViolation[] = []
@@ -63,8 +63,8 @@ export function documentViolations(value: unknown): readonly DocumentViolation[]
 // Single source of truth:
 //   docs/spec/_source/grs-document.schema.json (itself generated from erd.json and settings.json)
 // Rebuild: npm run gen   ||   npm run gen:check fails on drift.
-// see DR-1, DR-4
-// WHY: '$schema' (DR-4) stands in the written text only -- DocumentCodec writes it first and drops it on read.
+// Spec: DR-1, DR-4
+// Why: '$schema' (DR-4) stands in the written text only -- DocumentCodec writes it first and drops it on read.
 const ROOT_KEYS = [
   '$schema',
   'schemaVersion',

@@ -158,7 +158,7 @@ const numbersOf = (cell: string): number[] => (cell.match(/\d+(?:\.\d+)?/g) ?? [
  * tolerance this file invented.
  */
 const GRID = ((): number => {
-  // TRAP: the cell names NS-1 before the grid, so the first bare number is that 1; take the number before px.
+  // Trap: the cell names NS-1 before the grid, so the first bare number is that 1; take the number before px.
   const [first] = numbersOf(/\d+(?:\.\d+)?\s*px/.exec(NS_3['規則'] ?? '')?.[0] ?? '')
   if (first === undefined || first <= 0) {
     throw new Error(`table T-231 row NS-3 states no grid: ${NS_3['規則']}`)
@@ -201,27 +201,27 @@ const PX_PER_DAY_AT_1X = ((): number => {
 const dayWidthAt = (zoomX: number): number =>
   PX_PER_DAY_AT_1X * zoomX * DEFAULT_DISPLAY_RATIO
 
-// see T-206, T-240
+// Spec: T-206, T-240
 const S_247 = ((): number => {
   const [only, ...rest] = numbersOf(rowOf('T-206', 'S-247')['既定'] ?? '')
   if (only === undefined || rest.length !== 0) throw new Error('table T-206 row S-247 states no one ratio')
   return only
 })()
 
-// see T-240, FR-039
+// Spec: T-240, FR-039
 const MARKER_DIAMETER = ((): number => {
   const value = SETTINGS_CONSTANTS['markerSize']
   if (typeof value !== 'number' || value <= 0) throw new Error('S-22 is not a positive number')
   return value * DEFAULT_DISPLAY_RATIO
 })()
 
-// see T-240
+// Spec: T-240
 const drawnWidthAt = (_zoomX: number): number =>
   Math.min(MARKER_DIAMETER * S_247, DUMMY_WIDTH_UPPER_BOUND)
 
-// see T-240, FR-017
+// Spec: T-240, FR-017
 const NARROW_DAY_ZOOM = 0.5 / DEFAULT_DISPLAY_RATIO
-// see T-240, FR-017
+// Spec: T-240, FR-017
 const WIDE_DAY_ZOOM = 8 / DEFAULT_DISPLAY_RATIO
 
 const DM_3_THE_WIDTH =
@@ -379,7 +379,7 @@ const day = (d: number): string => `2026-03-${String(d).padStart(2, '0')}T00:00:
 /** The Task these cases watch, and one task group above it so it is not at the edge. */
 const UNDER_TEST = 1
 
-// see FR-043, S-129
+// Spec: FR-043, S-129
 const ACTUAL_INITIAL_DURATION = ((): number => {
   const value = SETTINGS_CONSTANTS['actualInitialDuration']
   if (typeof value !== 'number') throw new Error('S-129 is not a number')
@@ -428,7 +428,7 @@ const draw = (schedule: Schedule, zoomX: number): Drawn => {
     scrollDate: day(1),
     stackDirection: 'down',
     displayScale: DEFAULT_DISPLAY_SCALE,
-    isProgressMarkerVisible: true, // see S-63
+    isProgressMarkerVisible: true, // Spec: S-63
   })
   const regions = regionsFromScreen(SCREEN, settings)
   const layout = layoutFromSchedule(schedule, settings, regions)
@@ -1035,7 +1035,7 @@ describe('FR-043 / table T-206 S-180 -- the Actual Operation Dummy is drawn', ()
   })
 
   it('⭐ the two magnifications put one day on either side of the DM-3 width, which S-180 does not cap here', () => {
-    // WHY: a pair of zooms whose days both exceed the mark could not tell DM-3 from the retired min(1 day, S-180).
+    // Why: a pair of zooms whose days both exceed the mark could not tell DM-3 from the retired min(1 day, S-180).
     expect(dayWidthAt(NARROW_DAY_ZOOM)).toBeLessThan(drawnWidthAt(NARROW_DAY_ZOOM))
     expect(dayWidthAt(WIDE_DAY_ZOOM)).toBeGreaterThan(drawnWidthAt(WIDE_DAY_ZOOM))
     expect(MARKER_DIAMETER * S_247).toBeLessThan(DUMMY_WIDTH_UPPER_BOUND)
@@ -1091,7 +1091,7 @@ describe('FR-043 / table T-206 S-180 -- the Actual Operation Dummy is drawn', ()
         onGrid(gr9.x0),
         2,
       )
-      // WHY: DM-3 lets the one mark cover GA-6's column where a day is narrower than the mark, so a second mark is one that BEGINS there.
+      // Why: DM-3 lets the one mark cover GA-6's column where a day is narrower than the mark, so a second mark is one that BEGINS there.
       expect(
         found.filter((one) => onGrid(one.x0) >= onGrid(gr17.x0) - GRID / 2),
         'FR-043 (MUST NOT): a second mark is drawn at GA-6',
@@ -1099,7 +1099,7 @@ describe('FR-043 / table T-206 S-180 -- the Actual Operation Dummy is drawn', ()
     })
 
     it(`⭐ T-240 DM-3 (MUST) draws the dummy min(marker diameter x S-247, S-180) wide, whatever the day, at ${days}: ${DM_3_THE_WIDTH}`, () => {
-      // STEP: the same width at both zooms is the rule; a mark cut to one day at the narrow zoom is the retired one.
+      // Step: the same width at both zooms is the rule; a mark cut to one day at the narrow zoom is the retired one.
       const fresh = draw(notStartedSchedule(), zoomX)
       const started = draw(startedSchedule(), zoomX)
       const expected = inkExpectedOf(fresh, zoomX)
@@ -1114,7 +1114,7 @@ describe('FR-043 / table T-206 S-180 -- the Actual Operation Dummy is drawn', ()
     })
 
     it(`⭐ FR-043 (MUST) begins the dummy at its day column's left edge at ${days}`, () => {
-      // STEP: the left edge is counted in days from the plan bar's own left edge (T-023d GA-1).
+      // Step: the left edge is counted in days from the plan bar's own left edge (T-023d GA-1).
       const fresh = draw(notStartedSchedule(), zoomX)
       const started = draw(startedSchedule(), zoomX)
       const expected = inkExpectedOf(fresh, zoomX)
@@ -1139,7 +1139,7 @@ describe('FR-043 / table T-206 S-180 -- the Actual Operation Dummy is drawn', ()
         expect(onGrid(ink.x0) - GRID, 'ること（MUST）。**⛔ **翌稼働日へずらしてはならない（MUST NOT）').toBeLessThan(
           onGrid(planStartColumnEnds),
         )
-        // WHY: DM-3 accepts that a mark wider than one day covers the days to its right, so the right edge is held only where the day is wider.
+        // Why: DM-3 accepts that a mark wider than one day covers the days to its right, so the right edge is held only where the day is wider.
         if (dayWidthAt(zoomX) >= drawnWidthAt(zoomX)) {
           expect(onGrid(ink.x1) - GRID).toBeLessThanOrEqual(onGrid(planStartColumnEnds))
         }
@@ -1354,7 +1354,7 @@ const taskGeometryOf = (pictures: TwoPictures, uid: number) => {
   return found
 }
 
-// see DM-1, FR-017, FR-055
+// Spec: DM-1, FR-017, FR-055
 const dayWidthOf = (pictures: TwoPictures, schedule: Schedule, one: number, other: number): number => {
   const gr9At = (uid: number): number => {
     const found = taskGeometryOf(pictures, uid).dummies.find((dummy) => dummy.grab === 'GA-5')
@@ -1385,7 +1385,7 @@ describe('EP-14 of table T-076 -- an export draws no dummy, and moves nothing', 
     const pictures = shellPictures(schedule)
     const dummies = taskGeometryOf(pictures, UNDER_TEST).dummies
     expect(dummies.map((one) => one.grab)).toEqual(['GA-5', 'GA-6'])
-    // STEP: the DM-3 width, which no day width enters.
+    // Step: the DM-3 width, which no day width enters.
     const width = drawnWidthAt(1)
     expect(dayWidthOf(pictures, schedule, UNDER_TEST, 2)).toBeGreaterThan(0)
     // ⛔ THE PRECONDITION IS PART OF THE CLAIM. Without it this case passes

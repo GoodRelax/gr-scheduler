@@ -53,7 +53,7 @@ describe('CR-383 -- the manuscript these cases are driven by', () => {
 type Side = 'start' | 'finish'
 type Edge = 'left' | 'right'
 
-// see T-018, FR-009
+// Spec: T-018, FR-009
 const T_018 = specTable('T-018').rows.map((row) => ({
   id: row.id,
   name: bare(row.by['名'] ?? ''),
@@ -74,9 +74,9 @@ const edgeOf = (cell: string): Edge => {
 
 const wordOf = (side: Side): string => (side === 'start' ? START_WORD : FINISH_WORD)
 
-// see FR-009
-// WHY: the left half is the start side and the right half the finish side, so the
-// WHY: row is the one whose name reads from-side then into-side.
+// Spec: FR-009
+// Why: the left half is the start side and the right half the finish side, so the
+// Why: row is the one whose name reads from-side then into-side.
 const rowFor = (from: Side, into: Side) => {
   const pattern = new RegExp(`（${wordOf(from)} → ${wordOf(into)}）`)
   const found = T_018.filter((row) => pattern.test(row.name))
@@ -103,7 +103,7 @@ describe('table T-018 still reads the way these cases read it', () => {
   })
 })
 
-// see AR-4
+// Spec: AR-4
 const DEPENDENCY_ARMING_ENTRY: IconId = ((): string => {
   const found = specTable('T-109').rows.find((one) => (one.by['構え'] ?? '').includes('AR-4'))
   if (found === undefined) throw new Error('table T-109 has no entry whose 構え is AR-4')
@@ -182,7 +182,7 @@ function fixtureDocument(): Document {
     },
     documentSettings: {
       ...template.documentSettings,
-      // WHY: S-1 is a constant (CR-572); the stored zoomX (S-75) carries the day width this fixture draws at.
+      // Why: S-1 is a constant (CR-572); the stored zoomX (S-75) carries the day width this fixture draws at.
       zoomX: PX_PER_DAY_AT_1X / SETTINGS_CONSTANTS.pxPerDayAt1x,
       isDependencyVisible: true,
       isProgressLineVisible: false,
@@ -284,9 +284,9 @@ function planBox(loop: FrameLoop, uid: number): ScreenRect {
 
 const midY = (box: ScreenRect): number => box.y + box.height / 2
 
-// see FR-009
-// WHY: a quarter in from each end keeps the probe clear of the midpoint rule,
-// WHY: which is not what these cases are about.
+// Spec: FR-009
+// Why: a quarter in from each end keeps the probe clear of the midpoint rule,
+// Why: which is not what these cases are about.
 const halfProbe = (box: ScreenRect, side: Side): Point => ({
   x: box.x + box.width * (side === 'start' ? 0.25 : 0.75),
   y: midY(box),
@@ -312,7 +312,7 @@ function arm(built: Stage): void {
 const attribute = (element: string, name: string): string | null =>
   new RegExp(`\\s${name}="([^"]*)"`).exec(element)?.[1] ?? null
 
-// see GD-6
+// Spec: GD-6
 function arrowedLines(svg: string): readonly (readonly Point[])[] {
   return [...svg.matchAll(/<polyline\b[^>]*>/g)]
     .map((hit) => hit[0])
@@ -365,7 +365,7 @@ describe(`FR-009 (MUST) -- over nothing: ${FR_009_DRAFT_ENTERS_FROM_THE_LEFT}`, 
       arm(built)
       const source = planBox(built.loop, UID_A)
       const at = emptyPlace(built.loop)
-      // STEP: press on the source half, then move to an empty place without releasing
+      // Step: press on the source half, then move to an empty place without releasing
       built.send(pointer('down', halfProbe(source, from)))
       built.send(pointer('move', at))
 
@@ -406,7 +406,7 @@ describe(`FR-009 (MUST) -- over a partner: ${FR_009_DRAFT_OVER_A_PARTNER}`, () =
         arm(built)
         const target = planBox(built.loop, UID_B)
         const over = halfProbe(target, into)
-        // STEP: press on A, move over B, read the draft, then release on the same point
+        // Step: press on A, move over B, read the draft, then release on the same point
         built.send(pointer('down', halfProbe(planBox(built.loop, UID_A), from)))
         built.send(pointer('move', over))
         const draft = onlyArrowedLine(built.svg(), `draft ${from} -> ${into}`)

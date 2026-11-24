@@ -17,29 +17,29 @@ const verticalIn = (table: string, id: string) => {
   return found
 }
 
-// see T-023, MK-13
+// Spec: T-023, MK-13
 const MK_13 = verticalIn('T-023', 'MK-13').cells.join(' ')
 // see CR-824, JDG-3053, DFC-3411
 const MK_13_COMMENT_OVER_LABEL =
   '⭐ コメントボックス（表 T-023d の `GR-14` の本体・引出し線・線先）が名称ラベルか担当ラベル（同表の `GR-10` / `GR-11`）に重なる点では、コメントボックスの宛先を読むこと（MUST） —— コメントボックスはラベルより手前に描く（表 T-020 の `ZO-9` と `ZO-5`）ので、見えているほうに応える'
 
-// see T-020, ZO-5, ZO-9
+// Spec: T-020, ZO-5, ZO-9
 const drawOrderOf = (id: string): number => Number.parseInt(verticalIn('T-020', id).by['順'] ?? '', 10)
 
-// see T-023d, GR-10, GR-11, GR-14
+// Spec: T-023d, GR-10, GR-11, GR-14
 const GRAB_PLACE_OF = (id: string): string => verticalIn('T-023d', id).by['掴み領域'] ?? ''
 
 const NAMED_UID = 1
 const ASSIGNED_UID = 2
 const COMMENT_ID = '82400000-0000-4000-8000-000000000001'
-// WHY: a one-day bar with a long name, so the name label stands clear of the bar (FR-109) and only the label is under the point.
+// Why: a one-day bar with a long name, so the name label stands clear of the bar (FR-109) and only the label is under the point.
 const LONG_NAME = 'A rather long task name that cannot fit inside a one-day bar'
 const ASSIGNEE = 'A very long assignee name'
-// WHY: far right of both tasks, so the comment's own anchor never shares the point under test.
+// Why: far right of both tasks, so the comment's own anchor never shares the point under test.
 const FAR_DATE = april(28, '12:00:00')
 
 interface Wish {
-  // WHY: null leaves the comment box out of the document.
+  // Why: null leaves the comment box out of the document.
   readonly bodyOffsetPx: { readonly dx: number; readonly dy: number } | null
   readonly anchorDate?: string
   readonly anchorBandFraction?: number | null
@@ -113,11 +113,11 @@ function bodyOf(geometry: ScheduleGeometry): Rect {
   return found.body
 }
 
-// WHY: the point under test is the label's middle, which T-023d makes the label's own place.
+// Why: the point under test is the label's middle, which T-023d makes the label's own place.
 const labelPoint = (which: 'label' | 'assigneeLabel', uid: number): Point =>
   centerOf(labelOf(geometryOf({ bodyOffsetPx: null }), uid, which))
 
-// WHY: the body is laid from the stored offset (FR-019); shifting the offset by the miss twice lands its middle on the point.
+// Why: the body is laid from the stored offset (FR-019); shifting the offset by the miss twice lands its middle on the point.
 function geometryWithBodyOver(at: Point): ScheduleGeometry {
   let offset = { dx: 60, dy: -60 }
   for (let turn = 0; turn < 3; turn += 1) {

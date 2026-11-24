@@ -34,18 +34,18 @@ const MSPDI_BYTES = encoder.encode('<Project><Name>a</Name></Project>')
 
 const BYTE_ORDER_MARK = Uint8Array.from([0xef, 0xbb, 0xbf])
 
-// WHY: CN-5 sends the character set for both rows, and the table's note
+// Why: CN-5 sends the character set for both rows, and the table's note
 // forbids adding a BOM (MUST NOT); this unit obeys both by never touching the bytes.
 const T_024_FORMS = [
   { row: 'IO-1', fileName: 'plan.xml', bytes: MSPDI_BYTES },
   { row: 'IO-2', fileName: 'plan.json', bytes: GRS_JSON_BYTES },
 ] as const
 
-// WHY: nothing in this file turns on the order FR-096 (MUST) gives these
+// Why: nothing in this file turns on the order FR-096 (MUST) gives these
 // five; the surface that does is driven in tests/unit/uf-47-48-choosers.test.ts.
 const T_024_EXTENSIONS = ['.json', '.xml', '.html', '.svg', '.png'] as const
 
-// WHY: a media type is known for some extensions, not others, giving two
+// Why: a media type is known for some extensions, not others, giving two
 // different options objects; checked against the roster so it stays a fake one.
 const AN_EXTENSION_NO_ROW_CARRIES = '.zzz'
 
@@ -64,18 +64,18 @@ const extensionsNamedTo = (options: Record<string, unknown>): readonly string[] 
 const mediaTypesNamedTo = (options: Record<string, unknown>): readonly string[] =>
   acceptMapsOf(options).flatMap((accept) => Object.keys(accept))
 
-// WHY: since CR-768 (JDG-2163) table T-024 holds the media type FR-096 hands the chooser.
+// Why: since CR-768 (JDG-2163) table T-024 holds the media type FR-096 hands the chooser.
 /** @purity pure */
 const mediaTypeOfExtension = (extension: string): string | undefined => {
   const row = specTable('T-024').rows.find((one) => (one.by['拡張子'] ?? '') === `\`${extension}\``)
   return /`([^`]+)`/.exec(row?.by['保存の選択面に渡す媒体の型'] ?? '')?.[1]
 }
 
-// WHY: both routes are one member taking a value, so the walk below is
+// Why: both routes are one member taking a value, so the walk below is
 // the whole of OP-2's rule (one entry, two routes).
 const T_024A_OP2_ROUTES: readonly OpenRoute[] = ['chooser', 'drop']
 
-// WHY: IF-3 publishes three states; the middle one is when a file is
+// Why: IF-3 publishes three states; the middle one is when a file is
 // remembered but may not be written -- the startup offer FR-060 exists for.
 const IF_3_PERMISSION = [
   { permission: 'granted', state: 'writable' },
@@ -86,7 +86,7 @@ const IF_3_PERMISSION = [
   state: 'writable' | 'permissionLost'
 }[]
 
-// WHY: NT-3a is why these four are not flattened into one -- a failure
+// Why: NT-3a is why these four are not flattened into one -- a failure
 // notice must carry a next step, and only the reason can decide which step.
 const IF_3_REASONS: readonly FileStoreFaultReason[] = [
   'canceled',
@@ -95,7 +95,7 @@ const IF_3_REASONS: readonly FileStoreFaultReason[] = [
   'unavailable',
 ]
 
-// WHY: the ceiling is not this unit's -- FR-023 rules on the size the
+// Why: the ceiling is not this unit's -- FR-023 rules on the size the
 // gateway reports; the case using this asserts the store does NOT refuse.
 const ABOVE_ANY_CEILING = Number.MAX_SAFE_INTEGER
 
@@ -140,7 +140,7 @@ function quotaExceeded(): DOMException {
 interface FileSpec {
   readonly name: string
   readonly bytes?: Uint8Array
-  // WHY: kept apart from bytes so a file above S-113's ceiling costs nothing.
+  // Why: kept apart from bytes so a file above S-113's ceiling costs nothing.
   readonly size?: number
   readonly arrayBufferFails?: Failure
 }
@@ -168,7 +168,7 @@ interface HandleSpec {
   readonly size?: number
   readonly queried?: FilePermissionState
   readonly requested?: FilePermissionState
-  // WHY: PND-105 -- a browser that has handles but neither permission member.
+  // Why: PND-105 -- a browser that has handles but neither permission member.
   readonly withoutPermissionApi?: boolean
   readonly getFileFails?: Failure
   readonly queryFails?: Failure
@@ -253,7 +253,7 @@ interface ItemSpec {
   readonly kind?: string
   readonly file: ReadableFile | null
   readonly handle?: DroppedHandle | null
-  // WHY: a browser with no handles at all -- the drop cannot be remembered.
+  // Why: a browser with no handles at all -- the drop cannot be remembered.
   readonly withoutHandleApi?: boolean
   readonly handleFails?: Failure
 }
@@ -358,7 +358,7 @@ function browser(spec: { readonly opens: OpenAnswer; readonly saves: SaveAnswer 
   }
 }
 
-// WHY: a drop is taken DURING the event, but what it took
+// Why: a drop is taken DURING the event, but what it took
 // (getAsFileSystemHandle, arrayBuffer) only settles afterwards.
 function settled(): Promise<void> {
   return new Promise<void>((resolve) => {
@@ -413,7 +413,7 @@ describe('construction -- the drop surface (OP-2, OP-4)', () => {
   })
 
   it('refuses the browser default for a drag carrying files (OP-4)', () => {
-    // TRAP: without this the drop event never arrives and the browser leaves
+    // Trap: without this the drop event never arrives and the browser leaves
     // the page to open the file, discarding the document without OP-4's confirmation.
     const fake = browser({ opens: 'noApi', saves: 'noApi' })
     fileSystemAccessFileStore(fake.environment)
@@ -496,7 +496,7 @@ describe("readFileToOpen('chooser') -- the ordinary path", () => {
   })
 
   it('keeps the remembered file when a later open fails (FR-060)', async () => {
-    // TRAP: losing the overwrite target because a second open went wrong
+    // Trap: losing the overwrite target because a second open went wrong
     // would break the round trip FR-060 exists to close for an unrelated reason.
     const first = fileHandle({ name: 'plan.json' })
     let answers: readonly FileHandle[] | 'fail' = [first.handle]
@@ -599,7 +599,7 @@ describe('readOpenedFileState -- what may be overwritten right now', () => {
   })
 
   it('answers writable where the browser has handles but no queryPermission (PND-105)', async () => {
-    // WHY: PND-105 is undecided; the pessimistic answer would put FR-060's
+    // Why: PND-105 is undecided; the pessimistic answer would put FR-060's
     // restore offer on NT-4's startup panel every time nothing was wrong.
     const { store } = await opened({ name: 'plan.json', withoutPermissionApi: true })
     await expect(store.readOpenedFileState()).resolves.toEqual({
@@ -668,7 +668,7 @@ describe('restoreOpenedFilePermission -- FR-060 offers the way back', () => {
   })
 
   it('answers writable where the browser has no requestPermission either (PND-105)', async () => {
-    // WHY: PND-105 again -- with no way to ask, the store can only find out
+    // Why: PND-105 again -- with no way to ask, the store can only find out
     // by trying to write, and a refused write still comes back as permissionLost.
     const { store } = await opened({ name: 'plan.json', withoutPermissionApi: true })
     await expect(store.restoreOpenedFilePermission()).resolves.toEqual({
@@ -777,14 +777,14 @@ describe('overwriteOpenedFile -- the round trip closes on one file (FR-060)', ()
 })
 
 describe('writeChosenFile -- a file the person points at', () => {
-  // WHY: the answer to askToWriteOver is the near side's -- the store does
+  // Why: the answer to askToWriteOver is the near side's -- the store does
   // not judge -- so the stand-in here simply says yes.
   const request = (
     over: Partial<{ suggestedFileName: string; extension: string; shouldBecomeOpenedFile: boolean }>,
   ): ChosenFileWrite => ({
     bytes: GRS_JSON_BYTES,
     suggestedFileName: over.suggestedFileName ?? 'plan.json',
-    // WHY: the default is deliberately one no row carries, so cases not
+    // Why: the default is deliberately one no row carries, so cases not
     // about the chooser get no types entry they never look at.
     extension: over.extension ?? AN_EXTENSION_NO_ROW_CARRIES,
     shouldBecomeOpenedFile: over.shouldBecomeOpenedFile ?? true,
@@ -792,7 +792,7 @@ describe('writeChosenFile -- a file the person points at', () => {
   })
 
   it('hands the chooser the suggested name alone, where no media type is known for the extension', async () => {
-    // WHY: an extension with no known media type has nothing else to tell
+    // Why: an extension with no known media type has nothing else to tell
     // the host, so the name alone is what FR-096 leaves to hand over here.
     expect(
       T_024_EXTENSIONS as readonly string[],
@@ -818,9 +818,9 @@ describe('writeChosenFile -- a file the person points at', () => {
   })
 
   it('FR-096 (MUST): the chooser is told the extension as a type, for every row of table T-024', async () => {
-    // WHY: this is the fix for DFC-172 -- suggestedName alone was already
+    // Why: this is the fix for DFC-172 -- suggestedName alone was already
     // right, so only a case reading the accept lists too can tell the fix apart.
-    // TRAP: reading the extension off suggestedName's tail instead of the
+    // Trap: reading the extension off suggestedName's tail instead of the
     // accept lists would leave this green even without the fix, since the two agree here.
     for (const extension of T_024_EXTENSIONS) {
       saveCalls.length = 0
@@ -842,7 +842,7 @@ describe('writeChosenFile -- a file the person points at', () => {
         extensionsNamedTo(options),
         `FR-096 (MUST): the host was not told that ${extension} is what this file is`,
       ).toContain(extension)
-      // WHY: one type, not a list -- the person chose one row of table
+      // Why: one type, not a list -- the person chose one row of table
       // T-024, so offering the host several offers a form nobody chose.
       expect(extensionsNamedTo(options), extension).toEqual([extension])
       for (const mediaType of mediaTypesNamedTo(options)) {
@@ -855,7 +855,7 @@ describe('writeChosenFile -- a file the person points at', () => {
   })
 
   it('writes then closes, and reports the file the person actually chose', async () => {
-    // WHY: suggestedFileName is a suggestion the person may overrule, so
+    // Why: suggestedFileName is a suggestion the person may overrule, so
     // the name reported back is the handle's, not the one that was suggested.
     const chosen = fileHandle({ name: 'their-name.json' })
     const store = fileSystemAccessFileStore(
@@ -955,7 +955,7 @@ describe('writeChosenFile -- a file the person points at', () => {
   })
 
   it('calls a refused gesture unavailable while no file is remembered', async () => {
-    // WHY: permissionLost means a file is remembered but may not be
+    // Why: permissionLost means a file is remembered but may not be
     // written; with nothing remembered that cannot be true, leaving unavailable.
     const store = fileSystemAccessFileStore(
       browser({ opens: 'noApi', saves: { rejectsWith: denial() } }).environment,
@@ -967,7 +967,7 @@ describe('writeChosenFile -- a file the person points at', () => {
     expect(writing.fault.what.length).toBeGreaterThan(0)
   })
 
-  // WHY: the cases above hand the store a stand-in that always says yes, so
+  // Why: the cases above hand the store a stand-in that always says yes, so
   // none of them can tell a store that ASKS from one that never asks at all.
   const asking = (
     answer: boolean,
@@ -990,7 +990,7 @@ describe('writeChosenFile -- a file the person points at', () => {
   }
 
   it('reads the destination once and asks before a byte is written (DI-4)', async () => {
-    // WHY: the destination is given bytes that are not the ones being
+    // Why: the destination is given bytes that are not the ones being
     // written, so the two cannot be confused for one another in the record below.
     const chosen = fileHandle({ name: 'their-name.json', bytes: MSPDI_BYTES })
     const store = fileSystemAccessFileStore(
@@ -1004,7 +1004,7 @@ describe('writeChosenFile -- a file the person points at', () => {
     expect(writing.ok, `the write failed (${log.join(', ')})`).toBe(true)
     const askedAt = log.indexOf('asked')
     expect(askedAt, `DI-4: the question was never put (${log.join(', ')})`).toBeGreaterThan(-1)
-    // TRAP: a stream opened on the handle truncates the file in a real
+    // Trap: a stream opened on the handle truncates the file in a real
     // browser, so the ask must precede createWritable, not merely write.
     const touched = log.findIndex((one) => /\.createWritable|\.write|\.close/.test(one))
     expect(touched, `DI-4: the destination was touched first (${log.join(', ')})`)
@@ -1014,7 +1014,7 @@ describe('writeChosenFile -- a file the person points at', () => {
   })
 
   it('hands the question what is standing at the destination (DI-1 / DI-3)', async () => {
-    // WHY: the name is the handle's -- the person may have overruled the
+    // Why: the name is the handle's -- the person may have overruled the
     // suggestion -- and the bytes are the ones actually on the disk.
     const chosen = fileHandle({ name: 'their-name.json', bytes: MSPDI_BYTES })
     const store = fileSystemAccessFileStore(
@@ -1030,7 +1030,7 @@ describe('writeChosenFile -- a file the person points at', () => {
   })
 
   it('writes nothing and calls a refusal canceled (DI-4 / NT-7)', async () => {
-    // WHY: NT-7 makes calling off a CHOICE; a store that wrote anyway would
+    // Why: NT-7 makes calling off a CHOICE; a store that wrote anyway would
     // leave the person a question that decided nothing, so this is not a failure.
     const chosen = fileHandle({ name: 'their-name.json', bytes: MSPDI_BYTES })
     const store = fileSystemAccessFileStore(
@@ -1050,7 +1050,7 @@ describe('writeChosenFile -- a file the person points at', () => {
   })
 
   it('leaves the opened file untouched when the write was called off', async () => {
-    // WHY: shouldBecomeOpenedFile is about a write that HAPPENED; a refusal
+    // Why: shouldBecomeOpenedFile is about a write that HAPPENED; a refusal
     // that still moved FR-060's target would misdirect the next overwrite.
     const alreadyOpen = fileHandle({ name: 'plan.json' })
     const chosen = fileHandle({ name: 'their-name.json', bytes: MSPDI_BYTES })
@@ -1081,7 +1081,7 @@ describe('where the API is absent -- CN-2 / LM-14', () => {
   })
 
   it('answers unavailable rather than falling back to a download (FR-060 RATIONALE)', async () => {
-    // WHY: downloads cannot control where a file lands and breed numbered
+    // Why: downloads cannot control where a file lands and breed numbered
     // copies of one name, which is the problem FR-060 exists to solve.
     const store = fileSystemAccessFileStore(browser({ opens: 'noApi', saves: 'noApi' }).environment)
     log.length = 0
@@ -1152,7 +1152,7 @@ describe("readFileToOpen('drop') -- the drop route (OP-2)", () => {
   })
 
   it('takes only the first of a multi-file drop, and says how many were left (OP-11)', async () => {
-    // WHY: OP-11 rules this case, not OP-3 -- several files in one act, kept
+    // Why: OP-11 rules this case, not OP-3 -- several files in one act, kept
     // first and the rest reported left behind, never read as a refusal.
     const fake = browser({ opens: 'noApi', saves: 'noApi' })
     const store = fileSystemAccessFileStore(fake.environment)
@@ -1179,7 +1179,7 @@ describe("readFileToOpen('drop') -- the drop route (OP-2)", () => {
   })
 
   it('hands back the bytes but remembers nothing where the browser has no handles', async () => {
-    // WHY: there is nothing to overwrite, so saying writable would name a
+    // Why: there is nothing to overwrite, so saying writable would name a
     // file that cannot be written -- one of the three states IF-3 avoids.
     const fake = browser({ opens: 'noApi', saves: 'noApi' })
     const store = fileSystemAccessFileStore(fake.environment)
@@ -1495,7 +1495,7 @@ describe('boundaries', () => {
   })
 
   it('refuses a second read while one is still running', async () => {
-    // WHY: this is the store's OWN guard, not OP-8 (which belongs to
+    // Why: this is the store's OWN guard, not OP-8 (which belongs to
     // ImportDocument) -- two reads at once would both set the handle, racing.
     let release: (handles: readonly FileHandle[]) => void = () => undefined
     const pending = new Promise<readonly FileHandle[]>((resolve) => {

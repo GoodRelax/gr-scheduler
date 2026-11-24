@@ -4,8 +4,8 @@ import type { ScreenSurface } from '../../src/adapter/screen-renderer/screen-sur
 
 const OPEN_ROWS = new WeakMap<ScreenSurface, Set<string>>()
 
-// see IF-9
-// WHY: reading the notices takes them, so the rows still open are kept per surface.
+// Spec: IF-9
+// Why: reading the notices takes them, so the rows still open are kept per surface.
 export function textEntryStandsOpen(surface: ScreenSurface): boolean {
   const open = OPEN_ROWS.get(surface) ?? new Set<string>()
   for (const notice of surface.readFieldEditNotices?.() ?? []) {

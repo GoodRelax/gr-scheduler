@@ -58,7 +58,7 @@ const SECTION_6_2_NO_WORDS = '⭐ 同原稿は、理由と問いの行 ID・場�
 
 const FR_076_POINTS_AT_THE_PRINT = '表 T-233 の全行は `_assets/tbl-notice-reasons.md` が持つ'
 
-// see T-233, T-234
+// Spec: T-233, T-234
 function printedRows(caption: string): readonly string[] {
   const lines = PRINTED.split('\n')
   const at = lines.findIndex((line) => line.startsWith(caption))

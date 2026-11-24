@@ -202,7 +202,7 @@ const THE_CONDITION = '表示位置が `null`、または指すタスクグル�
 // ===========================================================================
 
 const T_036 = specTable('T-036')
-// see S-53
+// Spec: S-53
 const ZOOM_STEP = Number(/\d+(?:\.\d+)?/.exec(specTable('T-201').rows.find((row) => row.id === 'S-53')?.by['既定値'] ?? '')?.[0] ?? '')
 
 const ENTRANCE_COLUMN = ((): string => {
@@ -515,7 +515,7 @@ describe('OP-10 (MUST) -- what a person chose becomes the place', () => {
     expect(one.picture().pxPerDay).toBeLessThan(before.pxPerDay)
   })
 
-  // WHY: the fit may land inside the shrinking end (ZE-1), where ZE-6 writes more than one S-53
+  // Why: the fit may land inside the shrinking end (ZE-1), where ZE-6 writes more than one S-53
   // step; OP-10 fixes only that the zoom is taken from the fit's zoom, so the step is a floor here.
   it('IC-15: a press of the vertical-axis zoom-in writes at least one S-53 step up from the fit zoom, and keeps it', () => {
     const one = boot()
@@ -541,7 +541,7 @@ describe('OP-10 (MUST) -- what a person chose becomes the place', () => {
     one.send(SHIFT_PLUS)
     expect(one.picture().pxPerDay).not.toBe(fitted.pxPerDay)
     one.send(PRESS_F)
-    // WHY: FR-055 names where the fit lands, not a bit-exact float; a zoom and back may differ in the last ulp.
+    // Why: FR-055 names where the fit lands, not a bit-exact float; a zoom and back may differ in the last ulp.
     expect(one.picture().pxPerDay).toBeCloseTo(fitted.pxPerDay, 9)
   })
 

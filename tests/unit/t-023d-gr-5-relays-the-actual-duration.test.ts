@@ -79,7 +79,7 @@ const PLAIN_UID = 1
 const MILESTONE_UID = 2
 
 const day = (d: number): string => `2026-04-${String(d).padStart(2, '0')}T00:00:00`
-// WHY: a finish side at 17:00 (T-350), so the instant reading of FR-054 keeps the day whole (CR-710).
+// Why: a finish side at 17:00 (T-350), so the instant reading of FR-054 keeps the day whole (CR-710).
 const dayEnd = (d: number): string => `2026-04-${String(d).padStart(2, '0')}T17:00:00`
 
 const dayPart = (value: string | null): string => {
@@ -189,7 +189,7 @@ function fixtureDocument(): Document {
     },
     documentSettings: {
       ...structuredClone(template.documentSettings),
-      // WHY: S-1 is a constant (CR-572); the stored zoomX (S-75) carries the day width this fixture draws at.
+      // Why: S-1 is a constant (CR-572); the stored zoomX (S-75) carries the day width this fixture draws at.
       zoomX: PX_PER_DAY_AT_1X / SETTINGS_CONSTANTS.pxPerDayAt1x,
       scrollDate: day(1),
       scrollTaskGroupId: TASK_GROUP_A,
@@ -215,10 +215,10 @@ const nextCalendarDay = (text: string): string => {
   return new Date(Date.UTC(y, m - 1, d + 1)).toISOString().slice(0, 10)
 }
 
-// see FR-011, T-019
+// Spec: FR-011, T-019
 const lastDayOf = (one: Task): string => dayPart(one.actualFinish ?? one.stop)
 
-// see FR-011
+// Spec: FR-011
 const lengthOf = (one: Task): number => {
   const start = dayPart(one.actualStart)
   const last = lastDayOf(one)
@@ -229,8 +229,8 @@ const lengthOf = (one: Task): number => {
   return count
 }
 
-// see FR-012
-// WHY: the plan is counted by FR-011's rule, both end days included (CR-667).
+// Spec: FR-012
+// Why: the plan is counted by FR-011's rule, both end days included (CR-667).
 const planSpanOf = (one: Task): number => {
   const start = dayPart(one.start)
   const finish = dayPart(one.finish)
@@ -373,7 +373,7 @@ const dayUnder = (loop: FrameLoop, x: number): string => {
   return dayPart(textOfDay(found))
 }
 
-// WHY: the release lands 0.4 day inside a column, away from the edge where a rounding either way changes the day.
+// Why: the release lands 0.4 day inside a column, away from the edge where a rounding either way changes the day.
 function dragBy(built: Stage, at: Point, days: number): void {
   const width = pxPerDay(built.loop)
   const to = at.x + days * width + 0.4 * width

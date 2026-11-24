@@ -45,19 +45,19 @@ const CV_9_ORDER =
   '② 2 段目 —— 残りの名を同じ順に並べ、その後ろに透明の入口、カスタムカラーの入口をこの順に置く。'
 const PR_22_NULL = '`null` ＝ 注記の色 `S-312`'
 
-// see SK-14
+// Spec: SK-14
 const PALETTE_KEY = bare(verticalIn('T-036', 'SK-14').cells[1] ?? '')
-// see T-016, PR-22
+// Spec: T-016, PR-22
 const PR_22 = verticalIn('T-016', 'PR-22')
 const FRAME_ROW = PR_22.id
 const FRAME_WORD = WORDS.properties.find((one) => one.rowId === FRAME_ROW)?.label.ja ?? ''
-// see T-294
+// Spec: T-294
 const TRANSPARENT = bare(verticalIn('T-294', 'S-324').cells[1] ?? '')
 const BLUE = bare(verticalIn('T-294', 'S-319').cells[1] ?? '')
 const NAMED = specTable('T-294').rows.map((row) => bare(row.cells[1] ?? '')).filter((one) => one !== TRANSPARENT)
 const NO_LINE_WORD = wordOf('noLine')
-// see CV-9, PR-22, T-236
-// WHY: the frame's null draws S-312; its hue column says theme or default.
+// Spec: CV-9, PR-22, T-236
+// Why: the frame's null draws S-312; its hue column says theme or default.
 const S_312_FOLLOWS_HUE = bare(verticalIn('T-236', 'S-312').by['色相追随'] ?? '') === '○'
 const ENTRANCE_WORD = wordOf(S_312_FOLLOWS_HUE ? 'themeHint' : 'defaultColor')
 const PROPERTIES_PANEL = bare(verticalIn('T-103', 'U-25').by['確定名（英）'] ?? '')
@@ -96,7 +96,7 @@ function fieldDrawn(built: Stage, row: string): boolean {
   return panel !== undefined && selfAndDescendants(panel).some((one) => one.getAttribute('data-field-row') === row)
 }
 
-// WHY: the host never lets the focus into a drawn field here, so a focus request stays pending until withdrawn.
+// Why: the host never lets the focus into a drawn field here, so a focus request stays pending until withdrawn.
 function bench(document: Record<string, unknown>): Bench {
   const waiting: ((time: number) => void)[] = []
   GLOBAL['requestAnimationFrame'] = (callback: (time: number) => void): number => waiting.push(callback)
@@ -119,7 +119,7 @@ function bench(document: Record<string, unknown>): Bench {
   const loop = frameLoop({ showSvg: () => undefined } as never, document as never, SCREEN, {
     surface,
     language: 'ja',
-    // WHY: a field the panel drew keeps the focus out (false, asked again); a field it did not draw is told
+    // Why: a field the panel drew keeps the focus out (false, asked again); a field it did not draw is told
     // as not there (null), the way a host that cannot find the element answers.
     focusPropertyField: (row: string) => (fieldDrawn(built, row) ? false : null),
   })
@@ -148,7 +148,7 @@ function bench(document: Record<string, unknown>): Bench {
     pressOnPanel: () => {
       aimed = partOn(PROPERTIES_PANEL, null)
       send(pointerOf('down', SCREEN.width - 40, 200))
-      // WHY: the release is heard before the next frame, and the click it causes lands before that frame too.
+      // Why: the release is heard before the next frame, and the click it causes lands before that frame too.
       loop.receiveInput(pointerOf('up', SCREEN.width - 40, 200))
       aimed = null
     },
@@ -164,7 +164,7 @@ function bench(document: Record<string, unknown>): Bench {
   }
 }
 
-// WHY: the same event raiser tests/unit/property-date-field-delete-empties-the-date.test.ts uses on this fake.
+// Why: the same event raiser tests/unit/property-date-field-delete-empties-the-date.test.ts uses on this fake.
 function raise(built: Stage, node: FakeElement, type: string): FakeEvent {
   const event = {
     type,
@@ -190,7 +190,7 @@ function raise(built: Stage, node: FakeElement, type: string): FakeEvent {
   return event
 }
 
-// WHY: a pointer press reaches the shell as pointer input and the page as click, before the next frame; the
+// Why: a pointer press reaches the shell as pointer input and the page as click, before the next frame; the
 // shared fake has no dispatchEvent, so what the page dispatches is routed through raise().
 function pointerPress(built: Bench, node: FakeElement): void {
   ;(node as unknown as { dispatchEvent: (event: Event) => boolean }).dispatchEvent = (event) => {
@@ -233,7 +233,7 @@ describe('IN-5a -- a withdrawn focus request lets its keys go', () => {
   })
 
   it('IN-5a: while the task-group-name focus request is pending, the key is held (premise of the two cases below)', () => {
-    // see IN-5a, MK-13
+    // Spec: IN-5a, MK-13
     const built = bench(documentOf())
     const box = titleBox(built, 'g1')
     built.doubleClick(box.x + box.width / 2, box.y + box.height / 2, taskGroupPart('g1'))
@@ -243,7 +243,7 @@ describe('IN-5a -- a withdrawn focus request lets its keys go', () => {
   })
 
   it('IN-5a: 選択が変わったとき -- the request is withdrawn and the key works as SK-14 again', () => {
-    // see IN-5a, SK-14
+    // Spec: IN-5a, SK-14
     const built = bench(documentOf())
     const first = titleBox(built, 'g1')
     built.doubleClick(first.x + first.width / 2, first.y + first.height / 2, taskGroupPart('g1'))
@@ -255,7 +255,7 @@ describe('IN-5a -- a withdrawn focus request lets its keys go', () => {
   })
 
   it('DFC-541 2, IN-5a: 選択が変わったとき -- a task group just added by HF-14 is being named; a press on another task group ends it', () => {
-    // see HF-14, T-109
+    // Spec: HF-14, T-109
     const addChild = specTable('T-109').rows.find(
       (one) => bareAll(one.by['面'] ?? '').includes('Task Group Panel') && /(^|[^0-9A-Za-z-])HF-14([^0-9-]|$)/.test(one.by['正'] ?? ''),
     )
@@ -272,7 +272,7 @@ describe('IN-5a -- a withdrawn focus request lets its keys go', () => {
   })
 
   it('IN-5a control: two task groups chosen with Shift and no focus request -- the key works as SK-14', () => {
-    // see IN-5a, SK-14
+    // Spec: IN-5a, SK-14
     const built = bench(documentOf())
     const first = titleBox(built, 'g1')
     built.click(first.x + first.width / 2, first.y + first.height / 2, taskGroupPart('g1'))
@@ -284,7 +284,7 @@ describe('IN-5a -- a withdrawn focus request lets its keys go', () => {
   })
 
   it('IN-5a: 求めた欄がパネルに無いとき (two task groups chosen with Shift, no task-group-name field) -- the key works as SK-14 again', () => {
-    // see IN-5a, SK-14, SL-1
+    // Spec: IN-5a, SK-14, SL-1
     const built = bench(documentOf())
     const first = titleBox(built, 'g1')
     built.click(first.x + first.width / 2, first.y + first.height / 2, taskGroupPart('g1'))
@@ -308,7 +308,7 @@ const HIGHLIGHT = {
   cornerRadiusPx: null,
 }
 
-// see GR-14, MK-13
+// Spec: GR-14, MK-13
 function panelOnHighlight(): Bench {
   const built = bench(documentOf(HIGHLIGHT))
   const box = built.loop.current()?.geometry.highlightBoxes.find((one) => one.id === 'h1')?.box
@@ -334,7 +334,7 @@ const frameGrid = (built: Bench): FakeElement => {
   return found
 }
 const choiceOf = (node: FakeElement): string => node.getAttribute('data-color-choice') ?? ''
-// WHY: CV-9 (CR-689) holds the names and every entrance in one grid of two rows.
+// Why: CV-9 (CR-689) holds the names and every entrance in one grid of two rows.
 const cellOf = (node: FakeElement): string => {
   if (node.getAttribute('data-color-theme-entry') !== null) return 'theme'
   if (node.getAttribute('data-color-custom-entry') !== null) return 'custom'
@@ -355,7 +355,7 @@ describe('PR-22 / CV-9 -- the highlight box frame color field', () => {
   })
 
   it('PR-22: selecting a highlight box shows the frame color field under the dictionary words', () => {
-    // see PR-22, FR-038, IR-1
+    // Spec: PR-22, FR-038, IR-1
     const built = panelOnHighlight()
     const field = built.view().propertiesPanel?.fields.find((one) => one.row === FRAME_ROW)
     expect(field, `fields: ${(built.view().propertiesPanel?.fields ?? []).map((one) => one.row).join(' ')}`).toBeDefined()
@@ -363,7 +363,7 @@ describe('PR-22 / CV-9 -- the highlight box frame color field', () => {
   })
 
   it('CV-9: the frame field offers the names, the theme entrance (default tooltip), then transparent (no line) and Custom', () => {
-    // see CV-9, FR-019, PR-22
+    // Spec: CV-9, FR-019, PR-22
     const built = panelOnHighlight()
     const cells = frameGrid(built).children
     expect(cells.map(choiceOf).filter((one) => one !== '' && one !== TRANSPARENT)).toEqual(NAMED)
@@ -375,7 +375,7 @@ describe('PR-22 / CV-9 -- the highlight box frame color field', () => {
   })
 
   it('PR-22 / CM-55: a choice writes the box strokeColor, and one undo takes it back', () => {
-    // see PR-22, CM-55, SK-6
+    // Spec: PR-22, CM-55, SK-6
     const built = panelOnHighlight()
     const stroke = (): unknown => built.loop.document().schedule.highlightBoxes.find((one) => one.id === 'h1')?.strokeColor ?? null
     expect(stroke(), 'premise: the frame follows the theme').toBeNull()

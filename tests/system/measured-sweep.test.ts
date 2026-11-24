@@ -258,20 +258,20 @@ const T201_DEFAULT = 3
  */
 const TASK_GROUP_INDENT = numberIn(cellOf(T201, 'S-37', T201_DEFAULT, T201_COLUMNS), 'T-201 S-37')
 
-// see FR-039, T-252, T-202, S-234, S-236
+// Spec: FR-039, T-252, T-202, S-234, S-236
 const DRAWN_RATIO = displayRatioAt(DEFAULT_DISPLAY_SCALE)
 
-// see FR-039, T-252, DS-1, S-37
+// Spec: FR-039, T-252, DS-1, S-37
 const DRAWN_TASK_GROUP_INDENT = TASK_GROUP_INDENT * DRAWN_RATIO
 
-// see FR-039, T-252, DS-1, S-4, S-13
+// Spec: FR-039, T-252, DS-1, S-4, S-13
 const DRAWN_PLAN_BAR_PX =
   numberIn(cellOf(T201, 'S-4', T201_DEFAULT, T201_COLUMNS), 'T-201 S-4') *
   numberIn(cellOf(T201, 'S-13', T201_DEFAULT, T201_COLUMNS), 'T-201 S-13') *
   DRAWN_RATIO
 
-// WHY: a browser hands back a drawn length already rounded, so the floor is let
-// WHY: down by half a pixel -- still well above the S-5 actual bar under it.
+// Why: a browser hands back a drawn length already rounded, so the floor is let
+// Why: down by half a pixel -- still well above the S-5 actual bar under it.
 const BAR_FLOOR_PX = DRAWN_PLAN_BAR_PX - 0.5
 
 /**
@@ -310,7 +310,7 @@ const TOOLTIP_TEXT_SCALE = numberIn(cellOf(T206, 'S-204', T206_DEFAULT, T206_COL
  */
 const SAVED_AT_TEXT_SCALE = numberIn(cellOf(T206, 'S-210', T206_DEFAULT, T206_COLUMNS), 'T-206 S-210')
 
-// see S-235, HS-7
+// Spec: S-235, HS-7
 const HEADER_SCALE = numberIn(cellOf(T206, 'S-235', T206_DEFAULT, T206_COLUMNS), 'T-206 S-235')
 
 /**
@@ -409,8 +409,8 @@ function weekdayWords(): readonly string[] {
 }
 
 // see FR-036, JDG-76
-// WHY: GLYPH_TOKEN of dom-screen-surface.ts turns exactly this token into
-// WHY: the wheel glyph, wherever in a dictionary word it stands.
+// Why: GLYPH_TOKEN of dom-screen-surface.ts turns exactly this token into
+// Why: the wheel glyph, wherever in a dictionary word it stands.
 /** @purity pure */
 const WHEEL_GLYPH_TOKEN = '{IC-102}'
 
@@ -425,9 +425,9 @@ function assignmentPressWordsByRow(): Map<string, string> {
   return new Map(rows.map((one) => [one.rowId ?? '', `${one.press?.ja ?? ''} ${one.press?.en ?? ''}`]))
 }
 
-// see FR-036
-// WHY: table T-023's own entrance column is the one place carrying an icon
-// WHY: row's wheel operation (`MK-3` -> IC-12/IC-13; `MK-4` -> IC-14/IC-15).
+// Spec: FR-036
+// Why: table T-023's own entrance column is the one place carrying an icon
+// Why: row's wheel operation (`MK-3` -> IC-12/IC-13; `MK-4` -> IC-14/IC-15).
 /** @purity semi-pure-mutable */
 function wheelOperationByIcon(): Map<string, string> {
   const out = new Map<string, string>()
@@ -515,15 +515,15 @@ function pressable(cell: string): string {
   return said.split(plus).join('+').replace(/\s+/g, '').replace(/^Ctrl\+/, 'Control+')
 }
 
-// see T-109
+// Spec: T-109
 /** @purity pure */
 function surfacesOf(cell: string): readonly string[] {
   return Array.from(cell.matchAll(/`([^`]+)`/g), (one) => one[1] ?? '')
 }
 
-// see FR-036
-// WHY: read out of the sentence, found by its opening in code points (rule 03 section 5),
-// WHY: so a surface it gains is swept unedited; ASCII names drop the quoted column heading.
+// Spec: FR-036
+// Why: read out of the sentence, found by its opening in code points (rule 03 section 5),
+// Why: so a surface it gains is swept unedited; ASCII names drop the quoted column heading.
 /** @purity semi-pure-mutable */
 function helpBarred(): { readonly surfaces: ReadonlySet<string>; readonly rows: ReadonlySet<string> } {
   const opening = `${String.fromCharCode(0x26d4)} ${String.fromCharCode(0x8868)} T-109 ` +
@@ -543,7 +543,7 @@ function helpBarred(): { readonly surfaces: ReadonlySet<string>; readonly rows: 
   return { surfaces, rows }
 }
 
-// see FR-036
+// Spec: FR-036
 /** @purity semi-pure-mutable */
 function helpListedEntrances(): ReadonlySet<string> {
   const barred = helpBarred()
@@ -573,7 +573,7 @@ function helpListedEntrances(): ReadonlySet<string> {
  * @purity pure
  */
 // see FR-036, CR-770
-// WHY: the screen spells each chord of a cell Ctrl+A and writes the plus key with the help language's word.
+// Why: the screen spells each chord of a cell Ctrl+A and writes the plus key with the help language's word.
 function screenChordsOf(cell: string): readonly string[] {
   const words = JSON.parse(
     readFileSync(join(process.cwd(), 'src', 'adapter', 'screen-renderer', 'display-words.json'), 'utf8'),
@@ -1154,7 +1154,7 @@ async function panelDates(page: Page): Promise<{ start: string; finish: string; 
     const finish = dateIn('PR-47')
     if (start === null || finish === null) return null
     const both = [start.value, finish.value]
-    // WHY: textarea, not input: CR-408 made the name field of PR-1 a textarea.
+    // Why: textarea, not input: CR-408 made the name field of PR-1 a textarea.
     const named = document.querySelector('[data-field-row="PR-1"] textarea') as HTMLTextAreaElement | null
     return { start: both[0] ?? '', finish: both[1] ?? '', name: named?.value ?? '' }
   })
@@ -1543,8 +1543,8 @@ test('DFC-105: a help item reads shape, description, assignment, drawn at S-203'
   const page = shared()
 
   const ground = await groundTextPx(page)
-  // WHY: FR-036 also owns the legend mark, which stands inside the help itself;
-  // WHY: only a row placed outside the Help Modal can be what opens it.
+  // Why: FR-036 also owns the legend mark, which stands inside the help itself;
+  // Why: only a row placed outside the Help Modal can be what opens it.
   const helpSurface = /"([^"]+)"/.exec(HELP)?.[1] ?? HELP
   const helpEntrances = T109.rows
     .filter((row) => row.cells.length === T109_COLUMNS)
@@ -1594,11 +1594,11 @@ test('DFC-105: a help item reads shape, description, assignment, drawn at S-203'
   for (const table of ['T-023a', 'T-023b', 'T-023c', 'T-023d']) {
     expect(read.tables, `the help lists ${table}, which FR-036 (MUST NOT) bars`).not.toContain(table)
   }
-  // see FR-036
-  // WHY: CR-785 took MK-15, MK-16 and MK-17 off the list (FR-036); they are known by touching.
+  // Spec: FR-036
+  // Why: CR-785 took MK-15, MK-16 and MK-17 off the list (FR-036); they are known by touching.
   const helpMouseRows = ['MK-2', 'MK-5', 'MK-7']
-  // WHY: CR-635 keeps the rows helpBarred names off the list, and CR-637 moves
-  // WHY: a key whose entrance item is not listed into the block of keys with no entrance.
+  // Why: CR-635 keeps the rows helpBarred names off the list, and CR-637 moves
+  // Why: a key whose entrance item is not listed into the block of keys with no entrance.
   const listedEntrances = helpListedEntrances()
   const t109Listed = T109.rows.filter((row) => listedEntrances.has(row.id))
   const foldedIntoOne = t109Listed.filter((row) => (row.cells[T109_STANCE] ?? '').includes('AR-3')).length
@@ -1611,7 +1611,7 @@ test('DFC-105: a help item reads shape, description, assignment, drawn at S-203'
       const entrances = (row.cells[T036_ENTRANCE] ?? '').match(/IC-\d+/g) ?? []
       return entrances.length > 0 && !entrances.some((one) => listedEntrances.has(one))
     }).length
-  // see FR-036, T-255
+  // Spec: FR-036, T-255
   const combosOf = (cell: string): string[] =>
     assignmentText(cell)
       .split(' / ')
@@ -1662,8 +1662,8 @@ test('DFC-105: a help item reads shape, description, assignment, drawn at S-203'
       wrongKeys.push(`${rowId} is carried by ${itemId}, which is not in the help at all`)
       continue
     }
-    // WHY: an entrance item may carry a key and a mouse operation in one place
-    // WHY: (FR-036), so the key is looked for inside the place, not as all of it.
+    // Why: an entrance item may carry a key and a mouse operation in one place
+    // Why: (FR-036), so the key is looked for inside the place, not as all of it.
     if (!screenChordsOf(key).every((chord) => (places[2] ?? '').includes(chord))) {
       wrongKeys.push(`${itemId} prints ${JSON.stringify(places[2] ?? '')} where T-036 ${rowId} writes ${JSON.stringify(key)}`)
     }
@@ -1731,7 +1731,7 @@ test('DFC-43: double-clicking a task opens the panel with all of the name select
   }, PANEL)
 
   expect(state.panelShown, 'a double click on a task body left the Properties Panel hidden').not.toBe('none')
-  // WHY: FR-006 has a text field wrap inside the panel and grow downwards, which a one-line input cannot do.
+  // Why: FR-006 has a text field wrap inside the panel and grow downwards, which a one-line input cannot do.
   expect(state.tag, 'the focus after a double click is not in a wrapping name field').toBe('TEXTAREA')
   expect(
     state.row,
@@ -1756,7 +1756,7 @@ test('DFC-43: double-clicking a task opens the panel with all of the name select
 // Table T-017b row CV-9 (MUST) brings the host input up only on that press
 // (JDG-397), so the case presses it first.
 //
-// WHY: anything merely beside the input is left out, the custom entrance CV-9 paints with the
+// Why: anything merely beside the input is left out, the custom entrance CV-9 paints with the
 // value among them (CR-689): whether a swatch next to the input breaks FR-006 is a question the
 // specification does not settle yet (DFC-979), and this case takes neither side of it.
 test('DFC-82: nothing drawn over a color control shows the color it holds', async () => {
@@ -1794,7 +1794,7 @@ test('DFC-82: nothing drawn over a color control shows the color it holds', asyn
             const value = (control as HTMLInputElement).value.toLowerCase()
             const box = control.getBoundingClientRect()
             const over: string[] = []
-            // WHY: only the panel is searched -- the chart the panel floats over is behind it, not in front.
+            // Why: only the panel is searched -- the chart the panel floats over is behind it, not in front.
             const panel = rowElement.closest(asked.panel) ?? rowElement
             for (const node of Array.from(panel.querySelectorAll('*'))) {
               if (node === control || node.contains(control) || control.contains(node)) continue
@@ -2301,9 +2301,9 @@ test('DFC-91: the weekday tier of the ruler is ticked exactly where the day tier
 // ---------------------------------------------------------------------------
 
 // see DFC-24, FR-055, HF-8, T-068, T-328
-// WHY: fitPressed returns every collapsed task group to auto (table T-328), so the first task group reads
+// Why: fitPressed returns every collapsed task group to auto (table T-328), so the first task group reads
 // as before the fold; the task groups landed on must fit, or the drawing is already at depth 1.
-// TRAP: how many runs table T-068 took is not published by the build, so only its two
+// Trap: how many runs table T-068 took is not published by the build, so only its two
 // outcomes are pressed here; FR-055 does not promise a fit, hence the depth-1 escape.
 test('DFC-24: a fit throws away what a person folded, and the task groups it lands on fit', async () => {
   test.setTimeout(240_000)
@@ -2872,11 +2872,11 @@ test('DFC-210: a bar shape needs a drag, a milestone needs only a press', async 
     // canvas draws and 〇 is not one. Table T-109's IC-30 is 「同・◇」, and the
     // figure is read out of that cell rather than typed as a row id.
     const diamond = entranceBy(T109_PURPOSE, '◇')
-    // WHY: FR-053 (MUST) shows only the first S-216 milestone shapes of SH-5 and
-    // WHY: keeps the rest off the palette until the one list entrance opens them
-    // WHY: (S-142, closed by default); the diamond is past S-216, so the list is
-    // WHY: opened here, before any ground is searched, so the palette the gestures
-    // WHY: below are measured beside is the one the diamond is armed from.
+    // Why: FR-053 (MUST) shows only the first S-216 milestone shapes of SH-5 and
+    // Why: keeps the rest off the palette until the one list entrance opens them
+    // Why: (S-142, closed by default); the diamond is past S-216, so the list is
+    // Why: opened here, before any ground is searched, so the palette the gestures
+    // Why: below are measured beside is the one the diamond is armed from.
     const milestoneList = entranceBy(T109_PURPOSE, 'S-142')
     await readSettledDrawnSvg(page)
     if ((await entranceBox(page, diamond)) === null) {
@@ -3005,8 +3005,8 @@ test('DFC-210: a bar shape needs a drag, a milestone needs only a press', async 
     // selected, so arming a milestone also asks SP-2 to change its shape, which
     // CM-20 refuses across 表 T-012's SH-1..SH-4 / SH-5 line -- and FR-083 (MUST)
     // still stands the arm up. The notices are cleared rather than read.
-    // WHY: the point is found, not computed -- FR-001 places what is armed only where
-    // WHY: the press hits no item; swept outward from the bar the drag just made.
+    // Why: the point is found, not computed -- FR-001 places what is armed only where
+    // Why: the press hits no item; swept outward from the bar the drag just made.
     const milestoneTries: number[] = []
     for (let x = startX + dragPx + 80; x <= 1840; x += 80) milestoneTries.push(x)
     for (let x = startX - 80; x >= 280; x -= 80) milestoneTries.push(x)
@@ -3868,7 +3868,7 @@ test('DFC-233: the settings surface prints dictionary words and no raw identifie
     ).toBeGreaterThan(0)
 
     const held = dictionaryWords()
-    // WHY: CR-755 (FO-15) -- a display time zone row is the dictionary's name followed by its number 1 to 4.
+    // Why: CR-755 (FO-15) -- a display time zone row is the dictionary's name followed by its number 1 to 4.
     const unnumbered = (name: string): string => name.replace(/ [1-4]$/, '')
     const strangers = [...new Set(printing.names)].filter((name) => !held.has(name) && !held.has(unnumbered(name)))
     expect(
@@ -4024,8 +4024,8 @@ test('DFC-235: changing the display language changes the language the document n
   const opened = await openStubbedPage()
   try {
     const page = opened.page
-    // WHY: FR-038 has two entrances since CR-574 -- the screen's language in the
-    // WHY: App Header and the help's own inside the Help Modal; this case is the former.
+    // Why: FR-038 has two entrances since CR-574 -- the screen's language in the
+    // Why: App Header and the help's own inside the Help Modal; this case is the former.
     const screenToggles = T109.rows
       .filter((row) => row.cells.length === T109_COLUMNS)
       .filter((row) => (row.cells[T109_SOURCE] ?? '').includes('FR-038'))

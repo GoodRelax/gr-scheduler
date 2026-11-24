@@ -45,22 +45,22 @@ import { expectDeclarationsUsable, swsRegistry } from './sws-case'
 
 const registry = swsRegistry()
 
-// WHY: not index.html and not the dev server -- CN-1 of table T-003 makes the
-// WHY: deliverable one file, and NFR-004 is a statement about that file.
+// Why: not index.html and not the dev server -- CN-1 of table T-003 makes the
+// Why: deliverable one file, and NFR-004 is a statement about that file.
 const DELIVERABLE = join(process.cwd(), 'dist', 'index.html')
 
-// WHY: readings are compared in pairs rather than trusted after one delay --
-// WHY: see settled.
+// Why: readings are compared in pairs rather than trusted after one delay --
+// Why: see settled.
 const QUIET_MS = 250
 
-// WHY: a wait for the IO-6 seam, not a pass mark -- a row that never reaches it still reads moved=false.
+// Why: a wait for the IO-6 seam, not a pass mark -- a row that never reaches it still reads moved=false.
 const IO_6_REACH_MS = 10_000
 
 const SWEEP_MS = 2_400_000
 
-// see NFR-004
+// Spec: NFR-004
 
-// WHY: not fixed at 2 letters -- prefixes run 1-3 letters (tbl-row-id-prefixes.md);
+// Why: not fixed at 2 letters -- prefixes run 1-3 letters (tbl-row-id-prefixes.md);
 // PTD (DFC-468 rename) needs 3, and a 2-letter-only pattern missed T-023a's rows.
 const ROW_ID = /^[A-Z]{1,3}-\d+[a-z]?$/
 
@@ -96,22 +96,22 @@ const EXCLUDED_BY_LM_14: Readonly<Record<string, string>> = {
   'IO-5': 'LM-14: localStorage is the 別枠 store of table T-206',
 }
 
-// WHY: canvas and page are hashed separately -- watching only canvas would
-// WHY: have called IC-14, IC-15 and IC-21 dead (FR-053 / EN-1 of table T-237).
+// Why: canvas and page are hashed separately -- watching only canvas would
+// Why: have called IC-14, IC-15 and IC-21 dead (FR-053 / EN-1 of table T-237).
 interface Reading {
   readonly roles: readonly string[]
   readonly canvas: number
   readonly page: number
   readonly notices: readonly string[]
-  // see SL-8
+  // Spec: SL-8
   readonly dashed: number
   readonly shapes: number
   readonly saved: readonly string[]
   readonly asked: readonly string[]
-  // see MK-10, MK-12
+  // Spec: MK-10, MK-12
   readonly prevented: readonly string[]
   readonly notPrevented: readonly string[]
-  // see IO-6
+  // Spec: IO-6
   readonly clipboardWrites: number
 }
 
@@ -210,8 +210,8 @@ async function read(page: Page): Promise<Reading> {
   return (await page.evaluate(READ_SCRIPT)) as Reading
 }
 
-// WHY: a fixed delay is what tests/system/live-app.ts already refuses -- the
-// WHY: shell may draw twice on the way up, so agreement is the condition.
+// Why: a fixed delay is what tests/system/live-app.ts already refuses -- the
+// Why: shell may draw twice on the way up, so agreement is the condition.
 async function settled(page: Page): Promise<Reading> {
   const deadline = Date.now() + 20_000
   let previous = await read(page)
@@ -246,8 +246,8 @@ function outcomeOf(before: Reading, after: Reading, held: number | null): Outcom
   }
 }
 
-// WHY: the SVG carries no data-uid and no id on a bar, so table T-023d's grab
-// WHY: regions can only be reached by coordinate (see tests/system/live-app.ts).
+// Why: the SVG carries no data-uid and no id on a bar, so table T-023d's grab
+// Why: regions can only be reached by coordinate (see tests/system/live-app.ts).
 
 interface Spot {
   readonly x: number
@@ -268,26 +268,26 @@ interface RawGeometry {
 }
 
 interface Geometry {
-  // see GA-9, MK-8, PTD-3, SL-1
+  // Spec: GA-9, MK-8, PTD-3, SL-1
   readonly barBody: Spot
-  // see GA-1
+  // Spec: GA-1
   readonly barStart: Spot
-  // see GA-2
+  // Spec: GA-2
   readonly barFinish: Spot
-  // see SL-2, SL-4
+  // Spec: SL-2, SL-4
   readonly otherBar: Spot | null
-  // see PTD-4, PTD-5, MK-6, MK-11
+  // Spec: PTD-4, PTD-5, MK-6, MK-11
   readonly empty: Spot | null
-  // see GR-19
+  // Spec: GR-19
   readonly paletteBand: Spot | null
-  // see GR-20
+  // Spec: GR-20
   readonly taskGroupGrab: Spot | null
-  // see GR-16
+  // Spec: GR-16
   readonly statusLine: Spot | null
-  // see GA-19
+  // Spec: GA-19
   readonly dependency: Spot | null
-  // WHY: null with lines drawn means no place to press; null with none drawn
-  // WHY: means RT-4a left the link out at this zoom -- GA-19 names which.
+  // Why: null with lines drawn means no place to press; null with none drawn
+  // Why: means RT-4a left the link out at this zoom -- GA-19 names which.
   readonly dependencyLines: number
 }
 
@@ -546,7 +546,7 @@ async function geometryOf(page: Page): Promise<Geometry> {
   return { ...found, barBody, barStart, barFinish }
 }
 
-// see T-051, HF-6
+// Spec: T-051, HF-6
 async function reveal(page: Page, at: Spot): Promise<void> {
   await page.mouse.move(at.x, at.y)
   await page.waitForTimeout(120)
@@ -580,7 +580,7 @@ async function wheelAt(page: Page, at: Spot, keys: readonly string[], dy: number
   for (const key of keys) await page.keyboard.up(key)
 }
 
-// see GR-21
+// Spec: GR-21
 interface Lane {
   readonly grip: Spot
   readonly gripLength: number
@@ -631,8 +631,8 @@ async function laneOf(page: Page, axis: 'horizontal' | 'vertical'): Promise<Lane
   return found
 }
 
-// WHY: Reading.canvas hashes a shell-generated id that changes on every
-// WHY: redraw; GR-21 redraws without moving, so those ids are stripped first.
+// Why: Reading.canvas hashes a shell-generated id that changes on every
+// Why: redraw; GR-21 redraws without moving, so those ids are stripped first.
 /** @purity non-pure */
 async function drawingOf(page: Page): Promise<string> {
   return (await page.evaluate(`(() => {
@@ -647,8 +647,8 @@ interface AxisSpans {
   readonly taskGroupSpans: Readonly<Record<string, number>>
 }
 
-// WHY: a plan run's width is days times the day width, and a task group band's height
-// WHY: is the vertical axis; both are keyed so one reading is compared id by id.
+// Why: a plan run's width is days times the day width, and a task group band's height
+// Why: is the vertical axis; both are keyed so one reading is compared id by id.
 /** @purity non-pure */
 async function axisSpansOf(page: Page): Promise<AxisSpans> {
   return (await page.evaluate(`(() => {
@@ -692,9 +692,9 @@ function medianRatio(
   return ratios[Math.floor(ratios.length / 2)] ?? null
 }
 
-// WHY: moved alone is vacuous for a zoom key (any redraw moves the hashes), so
-// WHY: the act throws unless the named axis stepped the named way and only it.
-// see FR-016, T-036
+// Why: moved alone is vacuous for a zoom key (any redraw moves the hashes), so
+// Why: the act throws unless the named axis stepped the named way and only it.
+// Spec: FR-016, T-036
 /** @purity non-pure */
 async function zoomStroke(
   page: Page,
@@ -725,7 +725,7 @@ async function zoomStroke(
   return null
 }
 
-// see FR-039, S-234, T-260, SE-2, SE-4
+// Spec: FR-039, S-234, T-260, SE-2, SE-4
 const DISPLAY_SCALE_STEPS: readonly number[] = (() => {
   const row = specTable('T-202').rows.find((one) => one.id === 'S-234')
   const steps = (row?.cells[1] ?? '').match(/\d+/g)?.map(Number) ?? []
@@ -757,8 +757,8 @@ async function scaleShown(page: Page, keys: string, unlike: number | null): Prom
   )
 }
 
-// WHY: the opposite step first, so the act starts one step off the end it moves towards
-// WHY: and the sweep leaves the display scale where it found it.
+// Why: the opposite step first, so the act starts one step off the end it moves towards
+// Why: and the sweep leaves the display scale where it found it.
 /** @purity non-pure */
 async function scaleStepSetUp(page: Page, at: Geometry, opposite: string): Promise<void> {
   await selectBar(page, at)
@@ -767,9 +767,9 @@ async function scaleStepSetUp(page: Page, at: Geometry, opposite: string): Promi
   scaleShownBeforeAct = await scaleShown(page, opposite, null)
 }
 
-// WHY: moved alone is vacuous here too, so the act throws unless T-260's message
-// WHY: names the next S-234 step and the drawn day width followed it.
-// see FR-039, SK-22, SK-23, SE-1, SE-2, DS-4
+// Why: moved alone is vacuous here too, so the act throws unless T-260's message
+// Why: names the next S-234 step and the drawn day width followed it.
+// Spec: FR-039, SK-22, SK-23, SE-1, SE-2, DS-4
 /** @purity non-pure */
 async function scaleStroke(page: Page, keys: string, towards: 1 | -1): Promise<null> {
   const from = scaleShownBeforeAct
@@ -796,7 +796,7 @@ async function scaleStroke(page: Page, keys: string, towards: 1 | -1): Promise<n
   return null
 }
 
-// see GR-24, GR-25, SV-10, SV-11
+// Spec: GR-24, GR-25, SV-10, SV-11
 async function searchPanelPlaces(page: Page): Promise<{ box: Box4; band: Spot | null } | null> {
   return page.evaluate(() => {
     const panel = document.querySelector('[data-role="Search Panel"]')
@@ -813,8 +813,8 @@ async function searchPanelPlaces(page: Page): Promise<{ box: Box4; band: Spot | 
   })
 }
 
-// see GR-28, SV-18
-// WHY: SV-18 gives the Show column (SQ-10, first since CR-661) no GR-28 border, so it is passed over.
+// Spec: GR-28, SV-18
+// Why: SV-18 gives the Show column (SQ-10, first since CR-661) no GR-28 border, so it is passed over.
 async function searchColumnBorder(page: Page): Promise<{ border: Spot; width: number } | null> {
   return page.evaluate(() => {
     const cell = document.querySelector('[data-role="Search Panel"] thead th:not([data-column="SQ-10"])')
@@ -825,10 +825,10 @@ async function searchColumnBorder(page: Page): Promise<{ border: Spot; width: nu
   })
 }
 
-// WHY: the Agent API (FR-065) is the one road that sets a value or reads the
-// WHY: document without pressing a row of the population, so the two setUps
-// WHY: of GR-26 and GR-27 below take it rather than a probed gesture.
-// see FR-065, IC-20
+// Why: the Agent API (FR-065) is the one road that sets a value or reads the
+// Why: document without pressing a row of the population, so the two setUps
+// Why: of GR-26 and GR-27 below take it rather than a probed gesture.
+// Spec: FR-065, IC-20
 async function openAgentApi(page: Page): Promise<void> {
   const isOpen = await page.evaluate(() => (window as unknown as { grSchedulerAgentApi?: unknown }).grSchedulerAgentApi !== undefined)
   if (isOpen) return
@@ -836,10 +836,10 @@ async function openAgentApi(page: Page): Promise<void> {
   await page.waitForTimeout(600)
 }
 
-// WHY: the figure key is `task-<uid>-...` (svg-renderer.ts), so the uid of the
-// WHY: bar under a point is read off whatever part of it the point lands on.
-// WHY: every layer under the point is read, not the top one alone -- a link or label drawn
-// WHY: over a bar after MK-16 moved it would otherwise hide the bar the geometry measured.
+// Why: the figure key is `task-<uid>-...` (svg-renderer.ts), so the uid of the
+// Why: bar under a point is read off whatever part of it the point lands on.
+// Why: every layer under the point is read, not the top one alone -- a link or label drawn
+// Why: over a bar after MK-16 moved it would otherwise hide the bar the geometry measured.
 async function taskUidAt(page: Page, at: Spot): Promise<number> {
   const found = await page.evaluate((point: Spot) => {
     const keys = document.elementsFromPoint(point.x, point.y)
@@ -857,8 +857,8 @@ async function taskUidAt(page: Page, at: Spot): Promise<number> {
   return found.uid
 }
 
-// WHY: the renderer keys each drawn task group's ground `task-group-<taskGroupId>-band`, so the task group a
-// WHY: point lies in is read off the drawing rather than off a fixed task group height.
+// Why: the renderer keys each drawn task group's ground `task-group-<taskGroupId>-band`, so the task group a
+// Why: point lies in is read off the drawing rather than off a fixed task group height.
 const TASK_GROUP_BANDS_SCRIPT = `(() => [...document.querySelectorAll('[data-role="Schedule Canvas"] svg [data-figure^="task-group-"][data-figure$="-band"]')]
   .map((e) => {
     const r = e.getBoundingClientRect()
@@ -873,11 +873,11 @@ interface TaskGroupBand {
   readonly bottom: number
 }
 
-// WHY: the same clearance GEOMETRY_SCRIPT keeps above the canvas foot, and a reach into the task group's top.
+// Why: the same clearance GEOMETRY_SCRIPT keeps above the canvas foot, and a reach into the task group's top.
 const CANVAS_FOOT_CLEARANCE = 40
 const REACH_INTO_TASK_GROUP = 12
 
-// see MK-16, T-270
+// Spec: MK-16, T-270
 async function nextTaskGroupY(page: Page, at: Spot): Promise<number> {
   const bands = (await page.evaluate(TASK_GROUP_BANDS_SCRIPT)) as readonly TaskGroupBand[]
   const lowest = await page.evaluate(() => {
@@ -892,7 +892,7 @@ async function nextTaskGroupY(page: Page, at: Spot): Promise<number> {
   return Math.round(into.top + Math.min((into.bottom - into.top) / 2, REACH_INTO_TASK_GROUP))
 }
 
-// see MK-16, T-270
+// Spec: MK-16, T-270
 async function planTaskGroupOf(page: Page, uid: number): Promise<{ readonly row: string; readonly left: number }> {
   const box = await page.evaluate((key: string) => {
     const drawn = document.querySelector(`[data-figure="${key}"]`)
@@ -908,9 +908,9 @@ async function planTaskGroupOf(page: Page, uid: number): Promise<{ readonly row:
 
 const DAY_MS = 86_400_000
 
-// WHY: the tooltip's words are what TL-2 / TL-3 of table T-348 change, so a
-// WHY: hover is judged by them and not by a role that is always in the page.
-// see EZ-6, T-348
+// Why: the tooltip's words are what TL-2 / TL-3 of table T-348 change, so a
+// Why: hover is judged by them and not by a role that is always in the page.
+// Spec: EZ-6, T-348
 async function tooltipWordsAfterResting(page: Page, at: Spot, away: Spot | null): Promise<{ before: string; after: string }> {
   const words = async (): Promise<string> =>
     page.evaluate(() => (document.querySelector('[data-role="Tooltip"]')?.textContent ?? '').trim())
@@ -931,19 +931,19 @@ interface Box4 {
 
 interface Probe {
   readonly rows: readonly string[]
-  // WHY: answersWhileHeld is SL-3/PTD-1/GR-19's while-held answer; placesNothing
-  // WHY: is PTD-4a/MK-12/SK-1's "no shape placed"; answersSilently is SK-4's own.
+  // Why: answersWhileHeld is SL-3/PTD-1/GR-19's while-held answer; placesNothing
+  // Why: is PTD-4a/MK-12/SK-1's "no shape placed"; answersSilently is SK-4's own.
   readonly expect: 'answers' | 'answersWhileHeld' | 'placesNothing' | 'answersSilently'
-  // WHY: runs before the baseline reading -- otherwise a row needing something
-  // WHY: armed first reads the setting-up itself as the answer (measured, SK-4).
+  // Why: runs before the baseline reading -- otherwise a row needing something
+  // Why: armed first reads the setting-up itself as the answer (measured, SK-4).
   readonly setUp?: (page: Page, at: Geometry) => Promise<void>
   readonly act: (page: Page, at: Geometry) => Promise<number | null>
 }
 
 async function calm(page: Page): Promise<void> {
-  // WHY: NT-7's answers are word buttons spelled Yes / No in every language,
-  // WHY: with no row of T-109; No puts a question down without changing the document.
-  // see NT-7, U-55, W-4, FR-038
+  // Why: NT-7's answers are word buttons spelled Yes / No in every language,
+  // Why: with no row of T-109; No puts a question down without changing the document.
+  // Spec: NT-7, U-55, W-4, FR-038
   for (const selector of [
     '[data-notice]',
     `[data-role="Confirmation"] button:text-is("No")`,
@@ -964,8 +964,8 @@ async function calm(page: Page): Promise<void> {
   await page.evaluate(() =>
     document.fullscreenElement === null ? undefined : document.exitFullscreen().catch(() => undefined),
   )
-  // WHY: SK-14 toggles the palette and later probes press its entrances, so
-  // WHY: it is put back here through IC-7, the same route SK-14 itself uses.
+  // Why: SK-14 toggles the palette and later probes press its entrances, so
+  // Why: it is put back here through IC-7, the same route SK-14 itself uses.
   if ((await page.$('[data-role="Command Palette"]')) === null) {
     const toggle = await page.$('[data-icon="IC-7"]')
     if (toggle !== null) {
@@ -975,8 +975,8 @@ async function calm(page: Page): Promise<void> {
   }
 }
 
-// WHY: page.click reports the same "Timeout 8000ms exceeded" whichever of
-// WHY: four causes applies, so they are read apart here for couldNotBePressed.
+// Why: page.click reports the same "Timeout 8000ms exceeded" whichever of
+// Why: four causes applies, so they are read apart here for couldNotBePressed.
 /** @purity non-pure */
 async function press(page: Page, icon: string): Promise<null> {
   const selector = `[data-icon="${icon}"]`
@@ -994,7 +994,7 @@ async function press(page: Page, icon: string): Promise<null> {
         const over = middle.closest('[data-role]')
         return `covered by ${over === null ? middle.tagName : String(over.getAttribute('data-role'))}`
       }
-      // see FR-029
+      // Spec: FR-029
       if (entry.getAttribute('aria-disabled') === 'true' || entry.getAttribute('data-enabled') === 'false') {
         return 'reachable but turned off by the tool (aria-disabled), so its rule was not met'
       }
@@ -1014,14 +1014,14 @@ async function selectBar(page: Page, at: Geometry): Promise<void> {
   await page.waitForTimeout(250)
 }
 
-// WHY: selectBar alone is not enough -- FR-085 (MUST) keeps the panel's task group
-// WHY: selection separate from the schedule area's, so SK-4 needs one task group here.
+// Why: selectBar alone is not enough -- FR-085 (MUST) keeps the panel's task group
+// Why: selection separate from the schedule area's, so SK-4 needs one task group here.
 /** @purity non-pure */
 async function selectOneTaskGroup(page: Page): Promise<void> {
   const rows = page.locator('[data-depth]')
   const drawn = await rows.count()
   if (drawn === 0) throw new Error('SK-4 needs a task group of the Task Group Panel to take a copy of')
-  // see FR-018
+  // Spec: FR-018
   await rows.nth(drawn > 1 ? 1 : 0).click({ timeout: 5_000 })
   await page.waitForTimeout(300)
 }
@@ -1031,7 +1031,7 @@ async function stroke(page: Page, keys: string): Promise<null> {
   return null
 }
 
-// see FR-071, SK-15
+// Spec: FR-071, SK-15
 async function fullScreenStroke(page: Page): Promise<null> {
   await page.keyboard.press('F11')
   await page.waitForTimeout(600)
@@ -1063,15 +1063,15 @@ async function fullScreenStroke(page: Page): Promise<null> {
   return null
 }
 
-// WHY: order is part of the reading -- SL-2's replacement can only be seen
-// WHY: after SL-1 has made a selection, so probes run in the table's order.
-// see SK-16, T-036
+// Why: order is part of the reading -- SL-2's replacement can only be seen
+// Why: after SL-1 has made a selection, so probes run in the table's order.
+// Spec: SK-16, T-036
 const TIME_ZOOM_IN = 'Shift+='
 
-// see FR-039, T-252, DS-4, S-1
+// Spec: FR-039, T-252, DS-4, S-1
 const TIME_ZOOM_STEPS = 12
 
-// WHY: the one place the GR-14 probe put a comment box, for its act to grab.
+// Why: the one place the GR-14 probe put a comment box, for its act to grab.
 let placedCommentBoxTip: Spot | null = null
 
 function fixableDocumentText(): string {
@@ -1105,7 +1105,7 @@ const PROBES: readonly Probe[] = [
   { rows: ['MK-4'], expect: 'answers', act: async (p, g) => { await wheelAt(p, g.barBody, ['Alt'], -300); return null } },
   { rows: ['MK-5'], expect: 'answers', act: async (p, g) => { await wheelAt(p, g.barBody, ['Control', 'Shift'], 400); return null } },
   {
-    // see ZO-6
+    // Spec: ZO-6
     rows: ['MK-6', 'PTD-5', 'SL-3'],
     expect: 'answersWhileHeld',
     act: async (p, g) => {
@@ -1126,7 +1126,7 @@ const PROBES: readonly Probe[] = [
   { rows: ['MK-8', 'PTD-3', 'GA-9', 'SL-7'], expect: 'answers', act: async (p, g) => dragFrom(p, g.barBody, 140, 0) },
   { rows: ['MK-9'], expect: 'answers', act: async (p) => press(p, 'IC-12') },
   {
-    // see GR-19
+    // Spec: GR-19
     rows: ['MK-9a', 'GR-19'],
     expect: 'answers',
     act: async (p, g) => {
@@ -1188,7 +1188,7 @@ const PROBES: readonly Probe[] = [
   {
     rows: ['AR-3'],
     expect: 'answers',
-    // WHY: IC-50 opens the milestone shapes; IC-27..IC-34 are not drawn until it has.
+    // Why: IC-50 opens the milestone shapes; IC-27..IC-34 are not drawn until it has.
     setUp: async (p) => { await press(p, 'IC-50'); await p.waitForTimeout(300) },
     act: async (p) => press(p, 'IC-27'),
   },
@@ -1207,8 +1207,8 @@ const PROBES: readonly Probe[] = [
   { rows: ['AR-5'], expect: 'answers', act: async (p) => press(p, 'IC-35') },
   { rows: ['AR-6'], expect: 'answers', act: async (p) => press(p, 'IC-36') },
   {
-    // WHY: AR-7 armed by IC-142 selects a bar released without a drag; the arm
-    // WHY: is taken in setUp, as for AR-4, since arming changes the screen itself.
+    // Why: AR-7 armed by IC-142 selects a bar released without a drag; the arm
+    // Why: is taken in setUp, as for AR-4, since arming changes the screen itself.
     rows: ['AR-7'],
     expect: 'answers',
     setUp: async (p) => { await press(p, 'IC-142'); await p.waitForTimeout(300) },
@@ -1259,15 +1259,15 @@ const PROBES: readonly Probe[] = [
   },
   { rows: ['GA-1'], expect: 'answers', setUp: selectBar, act: async (p, g) => dragFrom(p, g.barStart, -90, 0) },
   {
-    // see FR-034
+    // Spec: FR-034
     rows: ['SL-7b'],
     expect: 'answers',
     setUp: async (p, g) => {
       if (g.otherBar === null) {
         throw new Error('SL-7b needs a second target: an order is what FR-034 reads')
       }
-      // WHY: the mark count alone says nothing (dashed elements exist before any
-      // WHY: selection), so it is read three times and the steps between judged.
+      // Why: the mark count alone says nothing (dashed elements exist before any
+      // Why: selection), so it is read three times and the steps between judged.
       const marks = async (): Promise<number> =>
         p.evaluate(() => {
           const svg = document.querySelector('[data-role="Schedule Canvas"] svg')
@@ -1281,8 +1281,8 @@ const PROBES: readonly Probe[] = [
       await p.mouse.click(g.otherBar.x, g.otherBar.y)
       await p.keyboard.up('Shift')
       await p.waitForTimeout(400)
-      // WHY: the entrance is turned off until the selection has an order --
-      // WHY: read here so a setting-up that did not take is named, not timed out.
+      // Why: the entrance is turned off until the selection has an order --
+      // Why: read here so a setting-up that did not take is named, not timed out.
       const armed = await p.evaluate(() => {
         const entry = document.querySelector('[data-icon="IC-37"]')
         const svg = document.querySelector('[data-role="Schedule Canvas"] svg')
@@ -1328,7 +1328,7 @@ const PROBES: readonly Probe[] = [
     },
   },
   {
-    // WHY: GR-22's band wins over what lies under it, and FR-052 moves the panel edge with it.
+    // Why: GR-22's band wins over what lies under it, and FR-052 moves the panel edge with it.
     rows: ['GR-22'],
     expect: 'answers',
     act: async (p) => {
@@ -1340,9 +1340,9 @@ const PROBES: readonly Probe[] = [
           if (r.width < 1 || r.height < 1) return null
           const x = Math.round(r.left + r.width / 2)
           const palette = document.querySelector('[data-role="Command Palette"]')
-          // WHY: table T-337 draws the Command Palette (UZ-5) in front of this
-          // WHY: band (UZ-10), and its first corner sits on the Task Group Area's edge,
-          // WHY: so a stretch it covers is passed over rather than read as GR-22's.
+          // Why: table T-337 draws the Command Palette (UZ-5) in front of this
+          // Why: band (UZ-10), and its first corner sits on the Task Group Area's edge,
+          // Why: so a stretch it covers is passed over rather than read as GR-22's.
           for (let y = Math.round(r.top + Math.min(r.height / 2, 200)); y < r.bottom - 4; y += 40) {
             const top = document.elementFromPoint(x, y)
             if (top !== null && palette !== null && palette.contains(top)) continue
@@ -1380,9 +1380,9 @@ const PROBES: readonly Probe[] = [
     },
   },
   {
-    // WHY: HF-6 puts a task group's controls out on hover, and moved folds the body's
-    // WHY: hash in -- so the pointer is revealed in setUp, before the baseline,
-    // WHY: leaving the click in the act as the only new thing the baseline lacks.
+    // Why: HF-6 puts a task group's controls out on hover, and moved folds the body's
+    // Why: hash in -- so the pointer is revealed in setUp, before the baseline,
+    // Why: leaving the click in the act as the only new thing the baseline lacks.
     rows: ['GA-19'],
     expect: 'answers',
     setUp: async (p, g) => {
@@ -1402,7 +1402,7 @@ const PROBES: readonly Probe[] = [
     },
   },
   {
-    // see FR-013
+    // Spec: FR-013
     rows: ['GA-18'],
     expect: 'answers',
     setUp: selectBar,
@@ -1414,7 +1414,7 @@ const PROBES: readonly Probe[] = [
     },
   },
   {
-    // see FR-044
+    // Spec: FR-044
     rows: ['GA-20'],
     expect: 'answers',
     setUp: selectBar,
@@ -1426,7 +1426,7 @@ const PROBES: readonly Probe[] = [
     },
   },
   {
-    // see AS-1
+    // Spec: AS-1
     rows: ['GR-11'],
     expect: 'answers',
     setUp: selectBar,
@@ -1445,9 +1445,9 @@ const PROBES: readonly Probe[] = [
   { rows: ['GA-8'], expect: 'answers', setUp: selectBar, act: async (p, g) => dragFrom(p, { x: g.barFinish.x - 2, y: g.barFinish.y + 8 }, -60, 0) },
   {
     // see AR-5, PTD-4, CR-782
-    // WHY: a placed comment box is selected and takes the text at once (CR-782), so the first Escape leaves
-    // WHY: the text field and only the second one puts the entrance down; the box is then grabbed by its tip
-    // WHY: where it was placed, because the empty place measured after the placing is another one.
+    // Why: a placed comment box is selected and takes the text at once (CR-782), so the first Escape leaves
+    // Why: the text field and only the second one puts the entrance down; the box is then grabbed by its tip
+    // Why: where it was placed, because the empty place measured after the placing is another one.
     rows: ['GR-14'],
     expect: 'answers',
     setUp: async (p, g) => {
@@ -1490,9 +1490,9 @@ const PROBES: readonly Probe[] = [
     act: async (p) => {
       await p.keyboard.press('Delete')
       await p.waitForTimeout(500)
-      // WHY: a question is owed only where T-234 has a row, so its absence is
-      // WHY: not a failure; an answered question that still stands is.
-      // see NT-7, U-55, T-234
+      // Why: a question is owed only where T-234 has a row, so its absence is
+      // Why: not a failure; an answered question that still stands is.
+      // Spec: NT-7, U-55, T-234
       const asked = '[data-role="Confirmation"]'
       const yes = await p.$(`${asked} button:text-is("Yes")`)
       if (yes !== null) {
@@ -1506,8 +1506,8 @@ const PROBES: readonly Probe[] = [
     },
   },
   {
-    // WHY: FR-033 (MUST) keeps a copy inside the application and writes, draws
-    // WHY: and changes nothing, so silence is the answer and a notice the refusal.
+    // Why: FR-033 (MUST) keeps a copy inside the application and writes, draws
+    // Why: and changes nothing, so silence is the answer and a notice the refusal.
     rows: ['SK-4'],
     expect: 'answersSilently',
     setUp: async (p) => selectOneTaskGroup(p),
@@ -1526,7 +1526,7 @@ const PROBES: readonly Probe[] = [
   { rows: ['SK-6'], expect: 'answers', setUp: selectBar, act: async (p) => stroke(p, 'Control+z') },
   { rows: ['SK-7'], expect: 'answers', setUp: selectBar, act: async (p) => stroke(p, 'Control+y') },
   {
-    // see T-028, IN-4
+    // Spec: T-028, IN-4
     rows: ['SK-8'],
     expect: 'answers',
     setUp: async (p) => { await press(p, 'IC-22'); await p.waitForTimeout(500) },
@@ -1541,10 +1541,10 @@ const PROBES: readonly Probe[] = [
   { rows: ['SK-16'], expect: 'answers', setUp: selectBar, act: async (p) => zoomStroke(p, 'Shift+=', 'time', 'in') },
   { rows: ['SK-16b'], expect: 'answers', setUp: selectBar, act: async (p) => zoomStroke(p, 'Shift+-', 'time', 'out') },
   {
-    // WHY: MK-4's three notches leave the vertical axis at its FR-016 ceiling, where
-    // WHY: Alt+= has nothing left to take; one notch out in setUp leaves it room,
-    // WHY: and SK-16c still starts from where it started before.
-    // see FR-016, SK-16a, SK-16c, MK-4
+    // Why: MK-4's three notches leave the vertical axis at its FR-016 ceiling, where
+    // Why: Alt+= has nothing left to take; one notch out in setUp leaves it room,
+    // Why: and SK-16c still starts from where it started before.
+    // Spec: FR-016, SK-16a, SK-16c, MK-4
     rows: ['SK-16a'],
     expect: 'answers',
     setUp: async (p) => {
@@ -1616,11 +1616,11 @@ const PROBES: readonly Probe[] = [
     act: async (p) => stroke(p, 'Enter'),
   },
   { rows: ['SK-21'], expect: 'answers', setUp: selectBar, act: async (p) => stroke(p, 'Control+r') },
-  // WHY: calm answers the FR-095 question with No, so nothing is discarded.
+  // Why: calm answers the FR-095 question with No, so nothing is discarded.
   { rows: ['SK-25'], expect: 'answers', setUp: selectBar, act: async (p) => stroke(p, 'n') },
   { rows: ['SK-24'], expect: 'answers', act: async (p) => stroke(p, 'Control+f') },
   {
-    // WHY: the act judges for itself, as GR-22's does -- a redraw alone would read as moved.
+    // Why: the act judges for itself, as GR-22's does -- a redraw alone would read as moved.
     rows: ['GR-24'],
     expect: 'answers',
     setUp: async (p) => { await p.keyboard.press('Control+f'); await p.waitForTimeout(400) },
@@ -1654,7 +1654,7 @@ const PROBES: readonly Probe[] = [
     },
   },
   {
-    // WHY: the act judges for itself, as GR-24's does -- a redraw alone would read as moved.
+    // Why: the act judges for itself, as GR-24's does -- a redraw alone would read as moved.
     rows: ['GR-28'],
     expect: 'answers',
     setUp: async (p) => { await p.keyboard.press('Control+f'); await p.waitForTimeout(400) },
@@ -1677,8 +1677,8 @@ const PROBES: readonly Probe[] = [
     // key that could plausibly place one.
     rows: ['SK-1', 'SK-1a'],
     expect: 'placesNothing',
-    // WHY: the pointer sits over PTD-4's empty place, and Enter also closes
-    // WHY: SK-19's panel -- a widen-on-close would move the shape count too.
+    // Why: the pointer sits over PTD-4's empty place, and Enter also closes
+    // Why: SK-19's panel -- a widen-on-close would move the shape count too.
     setUp: async (p, g) => {
       await p.keyboard.press('Escape')
       await p.waitForTimeout(200)
@@ -1686,8 +1686,8 @@ const PROBES: readonly Probe[] = [
       if (g.empty !== null) await p.mouse.move(g.empty.x, g.empty.y)
       await p.waitForTimeout(200)
     },
-    // WHY: arrow keys are not pressed -- MK-10 (MUST NOT) leaves them to the
-    // WHY: host, so they would scroll the page instead of testing placement.
+    // Why: arrow keys are not pressed -- MK-10 (MUST NOT) leaves them to the
+    // Why: host, so they would scroll the page instead of testing placement.
     act: async (p) => {
       for (const one of ['Enter', 'Space']) {
         await p.keyboard.press(one)
@@ -1712,7 +1712,7 @@ const PROBES: readonly Probe[] = [
     }),
   ),
   {
-    // see IO-8, FR-134, RW-7
+    // Spec: IO-8, FR-134, RW-7
     rows: ['IO-8'],
     expect: 'answers',
     setUp: async (p) => {
@@ -1733,8 +1733,8 @@ const PROBES: readonly Probe[] = [
       const start = await read(p)
       const before = start.clipboardWrites + start.notices.length
       await press(p, 'IC-3')
-      // WHY: DFC-2413 -- the picture reaches the seam about 350 ms after the press (500 ms loaded), past
-      // WHY: one QUIET_MS pair, and leaves the drawing unchanged, so settled() read it before it came.
+      // Why: DFC-2413 -- the picture reaches the seam about 350 ms after the press (500 ms loaded), past
+      // Why: one QUIET_MS pair, and leaves the drawing unchanged, so settled() read it before it came.
       const deadline = Date.now() + IO_6_REACH_MS
       while (Date.now() < deadline) {
         const now = await read(p)
@@ -1745,8 +1745,8 @@ const PROBES: readonly Probe[] = [
     },
   },
   {
-    // see IO-10, FR-068
-    // WHY: CR-827 -- IC-115 hands the schema to the download and writes the prompt to the clipboard in one press.
+    // Spec: IO-10, FR-068
+    // Why: CR-827 -- IC-115 hands the schema to the download and writes the prompt to the clipboard in one press.
     rows: ['IO-10'],
     expect: 'answers',
     act: async (p) => {
@@ -1764,9 +1764,9 @@ const PROBES: readonly Probe[] = [
   },
 
   {
-    // WHY: late in the list -- the copy is a new bar, and the widest-bar
-    // WHY: geometry of the probes before it should not have to step round it.
-    // see FR-033, T-308
+    // Why: late in the list -- the copy is a new bar, and the widest-bar
+    // Why: geometry of the probes before it should not have to step round it.
+    // Spec: FR-033, T-308
     rows: ['MK-15', 'PTD-7'],
     expect: 'answers',
     setUp: selectBar,
@@ -1778,8 +1778,8 @@ const PROBES: readonly Probe[] = [
     },
   },
   {
-    // WHY: T-270 moves by the drawn task group tops crossed and a task group can be taller than any fixed reach
-    // WHY: (DFC-2300), so the release is aimed into the next drawn task group and the act judges for itself.
+    // Why: T-270 moves by the drawn task group tops crossed and a task group can be taller than any fixed reach
+    // Why: (DFC-2300), so the release is aimed into the next drawn task group and the act judges for itself.
     rows: ['MK-16'],
     expect: 'answers',
     setUp: selectBar,
@@ -1802,8 +1802,8 @@ const PROBES: readonly Probe[] = [
     },
   },
   {
-    // WHY: GR-26 answers a resting pointer only (EZ-6), so the act judges the tooltip's
-    // WHY: words; the deadline sits a little past the bar's finish, where nothing else is drawn.
+    // Why: GR-26 answers a resting pointer only (EZ-6), so the act judges the tooltip's
+    // Why: words; the deadline sits a little past the bar's finish, where nothing else is drawn.
     rows: ['GR-26'],
     expect: 'answers',
     setUp: async (p, g) => {
@@ -1857,8 +1857,8 @@ const PROBES: readonly Probe[] = [
     },
   },
   {
-    // WHY: the overlay is the document with every task moved back half its span, so half
-    // WHY: of each outline lies clear of its own bar (GR-27 yields to GR-23 where they overlap).
+    // Why: the overlay is the document with every task moved back half its span, so half
+    // Why: of each outline lies clear of its own bar (GR-27 yields to GR-23 where they overlap).
     rows: ['GR-27'],
     expect: 'answers',
     setUp: async (p) => {
@@ -1896,8 +1896,8 @@ const PROBES: readonly Probe[] = [
       }
     },
     act: async (p, g) => {
-      // WHY: any drawn outline of a bar will do (a milestone's diamond leaves its
-      // WHY: box corners empty); up to a few are rested on, each clear of panels and bars.
+      // Why: any drawn outline of a bar will do (a milestone's diamond leaves its
+      // Why: box corners empty); up to a few are rested on, each clear of panels and bars.
       const found = await p.evaluate(() => {
         const canvas = document.querySelector('[data-role="Schedule Canvas"]')
         if (canvas === null) return { drawn: 0, spots: [] }
@@ -1936,8 +1936,8 @@ const PROBES: readonly Probe[] = [
     },
   },
 
-  // WHY: GR-21 moves the display position, and geometryOf takes the widest
-  // WHY: bar wherever it now is -- nothing may follow this probe.
+  // Why: GR-21 moves the display position, and geometryOf takes the widest
+  // Why: bar wherever it now is -- nothing may follow this probe.
   {
     rows: ['GR-21'],
     expect: 'answers',
@@ -1995,17 +1995,17 @@ const PROBES: readonly Probe[] = [
     // sweep with the drag at 0px now names `GR-21` there.
     act: async (p) => {
       let lane = await laneOf(p, 'horizontal')
-      // see FR-039, T-252, DS-4, S-1, SK-16
-      // WHY: DS-4 scales the day width too, so at the default display scale the
-      // WHY: fitted schedule sits inside its lane and GR-21 has nothing to move.
+      // Spec: FR-039, T-252, DS-4, S-1, SK-16
+      // Why: DS-4 scales the day width too, so at the default display scale the
+      // Why: fitted schedule sits inside its lane and GR-21 has nothing to move.
       for (let step = 0; step < TIME_ZOOM_STEPS; step += 1) {
         if (lane.gripLength < lane.trackLength - 1) break
         await p.keyboard.press(TIME_ZOOM_IN)
         await settled(p)
         lane = await laneOf(p, 'horizontal')
       }
-      // WHY: named rather than swallowed -- a grip as long as its lane says
-      // WHY: something about the document, not about GR-21.
+      // Why: named rather than swallowed -- a grip as long as its lane says
+      // Why: something about the document, not about GR-21.
       if (lane.gripLength >= lane.trackLength - 1) {
         throw new Error(
           `GR-21: the horizontal grip fills its lane (${String(Math.round(lane.gripLength))} of ` +
@@ -2026,9 +2026,9 @@ const PROBES: readonly Probe[] = [
     },
   },
   {
-    // WHY: MK-17 is pressed only while the time of day is shown (FR-158), which the Agent API turns on;
-    // WHY: last in the list, as S-576 then stays on for whatever probe would come after it.
-    // see MK-17, SG-4, S-576
+    // Why: MK-17 is pressed only while the time of day is shown (FR-158), which the Agent API turns on;
+    // Why: last in the list, as S-576 then stays on for whatever probe would come after it.
+    // Spec: MK-17, SG-4, S-576
     rows: ['MK-17'],
     expect: 'answers',
     setUp: async (p) => {
@@ -2066,7 +2066,7 @@ const PROBES: readonly Probe[] = [
     },
   },
   {
-    // see IO-9, FR-155, RW-20
+    // Spec: IO-9, FR-155, RW-20
     rows: ['IO-9'],
     expect: 'answers',
     setUp: async (p) => {
@@ -2139,8 +2139,8 @@ function couldNotBePressed(result: SweepResult): readonly string[] {
   )
 }
 
-// WHY: moved folds five readings into one boolean, so a failing row prints
-// WHY: which of the five actually changed rather than a bare pass/fail.
+// Why: moved folds five readings into one boolean, so a failing row prints
+// Why: which of the five actually changed rather than a bare pass/fail.
 /** @purity pure */
 function reading(one: Outcome | undefined): string {
   if (one === undefined) return 'no reading'
@@ -2161,7 +2161,7 @@ function didNotAnswer(result: SweepResult): readonly string[] {
   ).map((probe) => `${nameOf(probe)} (${probe.expect}: ${reading(result.outcomes[nameOf(probe)])})`)
 }
 
-// WHY: a step that never reads the geometry is not failed for a bar it does not press (SK-4 beside a S-171 panel, CR-754).
+// Why: a step that never reads the geometry is not failed for a bar it does not press (SK-4 beside a S-171 panel, CR-754).
 async function geometryWanted(page: Page, step: (page: Page, at: Geometry) => Promise<unknown>): Promise<Geometry> {
   return step.length > 1 ? geometryOf(page) : (undefined as unknown as Geometry)
 }
@@ -2192,7 +2192,7 @@ async function sweep(browser: Browser, url: string): Promise<SweepResult> {
         await probe.setUp(page, await geometryWanted(page, probe.setUp))
         await settled(page)
       }
-      // WHY: re-taken after the setting-up, so what is judged is the act.
+      // Why: re-taken after the setting-up, so what is judged is the act.
       const baseline = probe.setUp === undefined ? before : await read(page)
       const held = await probe.act(page, await geometryWanted(page, probe.act))
       const after = await settled(page)
@@ -2207,8 +2207,8 @@ async function sweep(browser: Browser, url: string): Promise<SweepResult> {
         askedNames: [],
         clipboardDelta: 0,
         dashedDelta: 0,
-        // WHY: failure is asserted first, so a thrown probe never passes as
-        // WHY: placesNothing on this delta alone.
+        // Why: failure is asserted first, so a thrown probe never passes as
+        // Why: placesNothing on this delta alone.
         shapesDelta: -1,
         beforeCanvas: before.canvas,
         heldCanvas: null,
@@ -2223,8 +2223,8 @@ async function sweep(browser: Browser, url: string): Promise<SweepResult> {
   return { outcomes, pageErrors, refusals }
 }
 
-// WHY: one reader for both schemes, so file:// and http:// cannot be judged
-// WHY: by two different standards.
+// Why: one reader for both schemes, so file:// and http:// cannot be judged
+// Why: by two different standards.
 function answeredAsPromised(probe: Probe, one: Outcome | undefined): boolean {
   if (one === undefined) return false
   switch (probe.expect) {
@@ -2234,7 +2234,7 @@ function answeredAsPromised(probe: Probe, one: Outcome | undefined): boolean {
       return one.heldCanvas !== null && one.heldCanvas !== one.beforeCanvas
     case 'placesNothing':
       return one.shapesDelta === 0
-    // see FR-029
+    // Spec: FR-029
     case 'answersSilently':
       return !one.moved
   }
@@ -2257,8 +2257,8 @@ const openSockets = new Set<Socket>()
 let fileResult: SweepResult
 let httpResult: SweepResult
 
-// WHY: not serial -- a failure under one scheme must not skip the other's
-// WHY: sweep, since the difference between the two is what NFR-004 asks.
+// Why: not serial -- a failure under one scheme must not skip the other's
+// Why: sweep, since the difference between the two is what NFR-004 asks.
 test.describe.configure({ timeout: SWEEP_MS })
 
 test.beforeAll(async () => {
@@ -2268,8 +2268,8 @@ test.beforeAll(async () => {
     response.writeHead(200, { 'content-type': 'text/html; charset=utf-8' })
     response.end(bytes)
   })
-  // WHY: every socket is held so it can be cut -- Server.close waits for open
-  // WHY: ones, and a browser leaves a keep-alive behind after its page closes.
+  // Why: every socket is held so it can be cut -- Server.close waits for open
+  // Why: ones, and a browser leaves a keep-alive behind after its page closes.
   server.on('connection', (socket) => {
     openSockets.add(socket)
     socket.on('close', () => openSockets.delete(socket))
@@ -2279,9 +2279,9 @@ test.beforeAll(async () => {
   if (address === null || typeof address === 'string') throw new Error('the loopback server took no port')
   const httpUrl = `http://127.0.0.1:${address.port}/`
 
-  // WHY: the browser is opened and shut inside this hook, both sweeps run here
-  // WHY: rather than one per case -- a browser left open past a failed case
-  // WHY: hung the run until killed, measured.
+  // Why: the browser is opened and shut inside this hook, both sweeps run here
+  // Why: rather than one per case -- a browser left open past a failed case
+  // Why: hung the run until killed, measured.
   const browser: Browser = await launchReferenceBrowser()
   try {
     fileResult = await sweep(browser, pathToFileURL(DELIVERABLE).href)
@@ -2317,14 +2317,14 @@ test(
     const owed = population.filter((id) => !excluded.includes(id))
     const pressed = new Set(PROBES.flatMap((probe) => probe.rows))
 
-    // WHY: an exclusion that names nothing is an exclusion that rotted.
+    // Why: an exclusion that names nothing is an exclusion that rotted.
     for (const id of excluded) {
       expect(
         population.includes(id) || id === 'IO-5',
         `LM-14 excludes ${id}, but no table NFR-004 names holds that row any more`,
       ).toBe(true)
     }
-    // WHY: a row the sweep presses that LM-14 excluded would be a false defect.
+    // Why: a row the sweep presses that LM-14 excluded would be a false defect.
     for (const id of excluded) {
       expect(pressed.has(id), `${id} is excluded by LM-14 and must not be pressed`).toBe(false)
     }
@@ -2343,8 +2343,8 @@ test('the declarations this file makes are ones a Chapter 9 generator could use'
   expectDeclarationsUsable(registry, known)
 })
 
-// WHY: one case for all three readings, last in the file -- a failing case
-// WHY: followed by another hangs the run (measured), so this is soft and last.
+// Why: one case for all three readings, last in the file -- a failing case
+// Why: followed by another hangs the run (measured), so this is soft and last.
 test(
   registry.swsCase({
     sws: 'SWS-8',
@@ -2365,9 +2365,9 @@ test(
     expect
       .soft(didNotAnswer(fileResult), 'rows that did not answer under file://')
       .toEqual([])
-    // WHY: the same list over http tells the two kinds of defect apart -- a
-    // WHY: row in both is some other defect, and a row in the file list alone
-    // WHY: is NFR-004's.
+    // Why: the same list over http tells the two kinds of defect apart -- a
+    // Why: row in both is some other defect, and a row in the file list alone
+    // Why: is NFR-004's.
     expect
       .soft(
         didNotAnswer(httpResult),

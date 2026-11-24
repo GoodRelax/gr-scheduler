@@ -28,14 +28,14 @@ import { unbroken } from './spec-table'
 
 const PUBLISHED = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-published-entries.md'), 'utf8'))
 
-// see PI-1
+// Spec: PI-1
 describe('PI-1 names the counter and the day reader CR-749 publishes', () => {
   it.each(['workingTimeCounterOf', 'WorkingTimeCounter', 'finishSideDayFrom'])('%s is a member of PI-1', (name) => {
     expect(PUBLISHED).toContain(`\`${name}\``)
   })
 })
 
-// WHY: Monday to Friday 08:00-12:00 and 13:00-17:00 (S-580), with Thursday 2026-01-08 a holiday and Wednesday 2026-01-07 a short day.
+// Why: Monday to Friday 08:00-12:00 and 13:00-17:00 (S-580), with Thursday 2026-01-08 a holiday and Wednesday 2026-01-07 a short day.
 const WITH_EXCEPTIONS = workingCalendarOver({
   working: MONDAY_TO_FRIDAY_WITH_SPANS,
   exceptions: [
@@ -51,7 +51,7 @@ const planOf = (start: string | null, finish: string | null, milestone = false):
 const actualOf = (actualStart: string | null, stop: string | null, actualFinish: string | null = null): Task =>
   ({ start: null, finish: null, milestone: false, actualStart, stop, actualFinish }) as unknown as Task
 
-// WHY: dates only, dates with times, a span over the holiday and a weekend, a reversed span, a milestone, and texts that cannot be read.
+// Why: dates only, dates with times, a span over the holiday and a weekend, a reversed span, a milestone, and texts that cannot be read.
 const PLANS: readonly (readonly [string, Task])[] = [
   ['dates only, Monday to Wednesday', planOf('2026-01-05', '2026-01-07')],
   ['dates only over the holiday', planOf('2026-01-07', '2026-01-09')],
@@ -163,7 +163,7 @@ describe.each(CALENDARS)('FR-012: one counter over many Tasks equals a fresh cou
   })
 })
 
-// see FR-054
+// Spec: FR-054
 describe('FR-054: finishSideDayFrom(dayOf(text), text) equals finishSideDayOf(text)', () => {
   it.each([
     ['a time during the day', '2026-01-07T08:00:00'],

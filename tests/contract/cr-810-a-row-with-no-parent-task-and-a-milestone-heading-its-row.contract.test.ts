@@ -39,7 +39,7 @@ interface TaskSpec {
 
 const idOfGroupAt = (index: number): string => `dddddddd-0000-4000-8000-${String(index + 1).padStart(12, '0')}`
 
-// WHY: a bench document whose task groups are named by the test, several tasks per group, with every parentTaskUid null (nothing is written by hand).
+// Why: a bench document whose task groups are named by the test, several tasks per group, with every parentTaskUid null (nothing is written by hand).
 function documentOf(groups: readonly GroupSpec[], tasks: readonly TaskSpec[]): Document {
   const idOf = (key: string): string => {
     const at = groups.findIndex((one) => one.key === key)
@@ -169,7 +169,7 @@ describe('CR-810 DW-3 / FR-136 -- a milestone heading its row is an origin, not 
   })
 
   it('DW-3: a Task on the same row that starts the same day (not before) leaves the milestone an origin', () => {
-    // WHY: the Task finishes after the milestone, so MP-1 derives no predecessor.
+    // Why: the Task finishes after the milestone, so MP-1 derives no predecessor.
     const document = documentOf(TOP, [
       { uid: 1, group: 'row', start: '2027-05-12', finish: '2027-05-12', milestone: true },
       { uid: 2, group: 'row', start: '2027-05-12', finish: '2027-05-14' },
@@ -201,7 +201,7 @@ describe('CR-810 DW-3 / FR-136 -- a milestone heading its row is an origin, not 
   })
 
   const NOT_AN_ORIGIN: readonly TaskSpec[] = [
-    // WHY: the Task starts on an earlier day and finishes after the milestone, so MP-1 and MP-2 derive no predecessor and only DW-3 can speak.
+    // Why: the Task starts on an earlier day and finishes after the milestone, so MP-1 and MP-2 derive no predecessor and only DW-3 can speak.
     { uid: 1, group: 'row', start: '2027-05-14', finish: '2027-05-14', milestone: true },
     { uid: 2, group: 'row', start: '2027-05-12', finish: '2027-05-18' },
   ]
@@ -220,7 +220,7 @@ describe('CR-810 DW-3 / FR-136 -- a milestone heading its row is an origin, not 
   })
 
   it('DW-3: only the milestone own task group counts -- a Task of a child task group starting earlier does not stop it being an origin', () => {
-    // WHY: the child Task finishes after the milestone, so MP-2 derives no predecessor either.
+    // Why: the child Task finishes after the milestone, so MP-2 derives no predecessor either.
     const document = documentOf(
       [
         { key: 'row', parent: null, name: 'Row one' },
@@ -314,7 +314,7 @@ describe('CR-810 FA-25 -- one choose row per task group, the other Tasks of the 
     { key: 'top', parent: null, name: 'Summary row' },
     { key: 'phase', parent: 'top', name: 'Phase A' },
   ]
-  // WHY: the smallest uid (11) is listed second, so "smallest uid" cannot be mistaken for "first listed".
+  // Why: the smallest uid (11) is listed second, so "smallest uid" cannot be mistaken for "first listed".
   const TASKS: readonly TaskSpec[] = [
     { uid: 13, group: 'phase', start: '2027-05-12', finish: '2027-05-14' },
     { uid: 11, group: 'phase', start: '2027-05-10', finish: '2027-05-11' },

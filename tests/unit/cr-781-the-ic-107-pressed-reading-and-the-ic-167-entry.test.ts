@@ -106,7 +106,7 @@ describe('T-109 -- IC-168 is a row of the report window, standing just before IC
   })
 })
 
-// WHY: the smallest report that gives the window something to draw; the cases below read only the entries of the RW-3 line.
+// Why: the smallest report that gives the window something to draw; the cases below read only the entries of the RW-3 line.
 const REPORT: DelayDiagnosticsReport = {
   outcome: 'diagnosed',
   statusDate: '2026-01-02T00:00:00',

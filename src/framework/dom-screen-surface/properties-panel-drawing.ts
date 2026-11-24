@@ -1,4 +1,4 @@
-// DomScreenSurface -- the Properties Panel fields, one control per input kind of table T-016.
+// File: DomScreenSurface: the Properties Panel fields, one control per input kind of table T-016.
 // @unit      UF-106  (docs/spec/05-07-design.md, table T-075)
 // @component DomScreenSurface, layer Framework (table T-062)
 // @purity    non-pure
@@ -25,7 +25,7 @@ import {
 import type { TextEntryControl } from './field-editing'
 import { CONTROL_KEYS, CONTROL_PICKS, SETTLED_AS_ONE_ATTRIBUTE, TYPED_CONTROLS, TYPED_ROWS } from './field-editing'
 
-// see FR-006
+// Spec: FR-006
 /** @purity pure */
 function fieldSizes(): {
   readonly controlMinHeight: number
@@ -63,8 +63,8 @@ export function propertiesPanelStyle(): string {
   )
 }
 
-// see FR-072, IC-52
-// WHY: a line of its own at the head of the panel, its entrance at the right end (JDG-2097, JDG-2103).
+// Spec: FR-072, IC-52
+// Why: a line of its own at the head of the panel, its entrance at the right end (JDG-2097, JDG-2103).
 /** @purity pure */
 function propertyWayOutStyle(): string {
   const size = fieldSizes()
@@ -85,8 +85,8 @@ function propertyFieldStyle(): string {
   )
 }
 
-// see FR-006, FR-038
-// WHY: balance picks the break that keeps the longer line shortest; keep-all leaves only the marks (wbr) to break at.
+// Spec: FR-006, FR-038
+// Why: balance picks the break that keeps the longer line shortest; keep-all leaves only the marks (wbr) to break at.
 /** @purity pure */
 function propertyFieldNameStyle(isSegmented = false): string {
   const size = fieldSizes()
@@ -120,8 +120,8 @@ function propertyControlsStyle(): string {
   return `flex:1;display:flex;flex-wrap:wrap;align-items:flex-start;gap:${fieldSizes().nameGap}px;min-width:0;`
 }
 
-// see FR-006, PR-5, S-589, S-590
-// WHY: a date or a choice from a fixed list never shrinks below the host's own drawing of it (JDG-2046, JDG-2098):
+// Spec: FR-006, PR-5, S-589, S-590
+// Why: a date or a choice from a fixed list never shrinks below the host's own drawing of it (JDG-2046, JDG-2098):
 // the em floor alone falls short where the host raises small text to its least size.
 /** @purity pure */
 function propertyControlStyle(widthInFontSizes: number, sizing: 'fill' | 'asDate' | 'date' | 'keptChoice' = 'fill'): string {
@@ -147,13 +147,13 @@ function propertyColorStyle(): string {
   )
 }
 
-// see FR-006
+// Spec: FR-006
 /** @purity pure */
 function propertyCheckStyle(): string {
   return 'font:inherit;flex:none;margin:0;'
 }
 
-// see FR-006, CV-9
+// Spec: FR-006, CV-9
 /** @purity pure */
 function controlStyleOf(control: PropertyControl, isWrapping: boolean): string {
   if (control.kind === 'color') return propertyColorStyle()
@@ -162,8 +162,8 @@ function controlStyleOf(control: PropertyControl, isWrapping: boolean): string {
   return propertyControlStyle(control.widthInFontSizes, sizingOf(control))
 }
 
-// see FR-006
-// WHY: a choice with no floor gathers names from the document and must fit the panel (CR-671), so it alone may shrink.
+// Spec: FR-006
+// Why: a choice with no floor gathers names from the document and must fit the panel (CR-671), so it alone may shrink.
 /** @purity pure */
 function sizingOf(control: PropertyControl): 'fill' | 'asDate' | 'date' | 'keptChoice' {
   if (control.kind === 'date') return 'date'
@@ -171,14 +171,14 @@ function sizingOf(control: PropertyControl): 'fill' | 'asDate' | 'date' | 'keptC
   return control.kind === 'choice' && control.widthInFontSizes > 0 ? 'keptChoice' : 'fill'
 }
 
-// see MH-1, MH-2, PR-8, IN-3
+// Spec: MH-1, MH-2, PR-8, IN-3
 /** @purity non-pure */
 function markControl(drawn: HTMLElement, control: PropertyControl): void {
   if (control.hint !== undefined) drawn.setAttribute('title', control.hint)
   if (control.isDisabled === true) drawn.setAttribute('disabled', 'true')
 }
 
-// WHY: `text` is a textarea as well: an input cannot wrap, and FR-006 wraps a long name downwards.
+// Why: `text` is a textarea as well: an input cannot wrap, and FR-006 wraps a long name downwards.
 const CONTROL_TAG: Readonly<Record<PropertyControlKind, string>> = {
   text: 'textarea',
   multiline: 'textarea',
@@ -201,10 +201,10 @@ const CONTROL_INPUT_TYPE: Readonly<Record<PropertyControlKind, string | null>> =
   taskReference: null,
 }
 
-// see TX-3, FR-158
+// Spec: TX-3, FR-158
 const DATE_TIME_INPUT_TYPE = 'datetime-local'
 
-// TRAP: must match how textOfValue (properties-panel.ts) writes a boolean; change both.
+// Trap: must match how textOfValue (properties-panel.ts) writes a boolean; change both.
 const TRUE_TEXT = String(true)
 
 const IS_KIND_TYPED_INTO: Readonly<Record<PropertyControlKind, boolean>> = {
@@ -218,7 +218,7 @@ const IS_KIND_TYPED_INTO: Readonly<Record<PropertyControlKind, boolean>> = {
   taskReference: false,
 }
 
-// see FR-006
+// Spec: FR-006
 const IS_KIND_WRAPPING: Readonly<Record<PropertyControlKind, boolean>> = {
   text: true,
   multiline: true,
@@ -236,8 +236,8 @@ const SINGLE_LINE_ROWS = 1
 
 const LINE_BREAKS = /[\r\n]+/g
 
-// see FR-006
-// TRAP: no min-width from widthInFontSizes: FR-006 exempts these kinds from the room rule, and a
+// Spec: FR-006
+// Trap: no min-width from widthInFontSizes: FR-006 exempts these kinds from the room rule, and a
 // floor wider than the panel pushes the field out past its right edge.
 /** @purity pure */
 function propertyWrappingStyle(): string {
@@ -249,20 +249,20 @@ function propertyWrappingStyle(): string {
   )
 }
 
-// see FR-006
+// Spec: FR-006
 /** @purity non-pure */
 function growWrappingField(field: Element): void {
   const box = field as Partial<HTMLTextAreaElement>
   const style = box.style
   if (style === undefined || typeof box.scrollHeight !== 'number') return
   if (typeof box.offsetHeight !== 'number' || typeof box.clientHeight !== 'number') return
-  // WHY: back to the rows height first, or a field that wrapped once never shrinks again.
+  // Why: back to the rows height first, or a field that wrapped once never shrinks again.
   style.height = ''
   const frameHeight = box.offsetHeight - box.clientHeight
   if (box.scrollHeight > box.clientHeight) style.height = `${box.scrollHeight + frameHeight}px`
 }
 
-// see FR-006, S-589, S-590
+// Spec: FR-006, S-589, S-590
 /** @purity non-pure */
 export function fitPanelFields(panel: HTMLElement): void {
   growWrappingFields(panel)
@@ -270,7 +270,7 @@ export function fitPanelFields(panel: HTMLElement): void {
 }
 
 // see FR-006, PR-5, DFC-2870
-// WHY: a host date entry outgrows its em floor at small type (its picker is fixed px), so the field copies the drawn width of the date entry before it.
+// Why: a host date entry outgrows its em floor at small type (its picker is fixed px), so the field copies the drawn width of the date entry before it.
 /** @purity non-pure */
 function matchDateSizedFields(panel: HTMLElement): void {
   if (typeof panel.querySelectorAll !== 'function') return
@@ -286,7 +286,7 @@ const DATE_SIZED_FIELD_ATTRIBUTE = 'data-field-sized-as-date'
 const DATE_ENTRY_SELECTOR = 'input[type="date"], input[type="datetime-local"]'
 const DOCUMENT_POSITION_FOLLOWING = 4
 
-// see FR-006
+// Spec: FR-006
 /** @purity non-pure */
 function growWrappingFields(panel: HTMLElement): void {
   if (typeof panel.querySelectorAll !== 'function') return
@@ -295,13 +295,13 @@ function growWrappingFields(panel: HTMLElement): void {
   }
 }
 
-// see FR-006
+// Spec: FR-006
 /** @purity non-pure */
 function watchWrappingField(field: Element, isSingleLine: boolean): void {
   if (typeof field.addEventListener !== 'function') return
   field.addEventListener('input', () => {
     const typed = field as Partial<HTMLTextAreaElement>
-    // WHY: a paste into a one-line value drops its breaks, as a text input does; wrapping itself
+    // Why: a paste into a one-line value drops its breaks, as a text input does; wrapping itself
     // never writes a break into the value (FR-006).
     if (isSingleLine && typeof typed.value === 'string') {
       const joined = typed.value.replace(LINE_BREAKS, '')
@@ -312,14 +312,14 @@ function watchWrappingField(field: Element, isSingleLine: boolean): void {
   if (!isSingleLine) return
   field.addEventListener('keydown', (event: Event) => {
     const typed = event as { readonly key?: unknown; readonly isComposing?: unknown }
-    // TRAP: leave a composing Enter alone; it confirms the input method's candidate.
+    // Trap: leave a composing Enter alone; it confirms the input method's candidate.
     if (typed.isComposing === true || typed.key !== HOST_ENTER) return
-    // WHY: default only; the panel's own Enter listener still commits the value.
+    // Why: default only; the panel's own Enter listener still commits the value.
     if (typeof event.preventDefault === 'function') event.preventDefault()
   })
 }
 
-// see T-016, FR-031, SK-19, IN-6
+// Spec: T-016, FR-031, SK-19, IN-6
 /** @purity non-pure */
 function controlElement(
   host: Document,
@@ -367,13 +367,13 @@ function controlElement(
   return drawn as HTMLElement
 }
 
-// see T-016, IN-6
+// Spec: T-016, IN-6
 /** @purity non-pure */
 export function surfaceFieldElement(host: Document, row: string, control: PropertyControl): HTMLElement {
   return controlElement(host, row, control, null)
 }
 
-// see T-016, FR-006
+// Spec: T-016, FR-006
 /** @purity non-pure */
 function fillTypedValue(drawn: HTMLElement, control: PropertyControl): void {
   if (control.kind === 'multiline') drawn.setAttribute('rows', String(fieldSizes().multilineRows))
@@ -388,8 +388,8 @@ function fillTypedValue(drawn: HTMLElement, control: PropertyControl): void {
 
 const WHEEL_MAY_STOP_DEFAULT: AddEventListenerOptions = { passive: false }
 
-// see MH-4, UN-8, T-023
-// WHY: the host steps a focused number entry under a plain wheel (DFC-2178); scroll the panel instead.
+// Spec: MH-4, UN-8, T-023
+// Why: the host steps a focused number entry under a plain wheel (DFC-2178); scroll the panel instead.
 /** @purity non-pure */
 function scrollInsteadOfStepping(field: HTMLElement): void {
   if (typeof field.addEventListener !== 'function') return
@@ -426,7 +426,7 @@ function wheelLinePx(wheel: WheelEvent, scroller: HTMLElement): number {
   return 1
 }
 
-// see AS-1, AS-5
+// Spec: AS-1, AS-5
 /** @purity non-pure */
 function holdTypedEntry(
   typedByRow: Map<string, TextEntryControl> | null,
@@ -440,7 +440,7 @@ function holdTypedEntry(
   }
 }
 
-// see T-016
+// Spec: T-016
 /** @purity non-pure */
 function optionElement(host: Document, value: string, choice: string): HTMLElement {
   const option = host.createElement('option')
@@ -455,16 +455,16 @@ type ColorName = NonNullable<ColorField['names']>[number]
 
 type ColorEntrance = ColorField['theme']
 
-// TRAP: the light side only: S-336 and S-337 hold one color for both themes, and a row that
+// Trap: the light side only: S-336 and S-337 hold one color for both themes, and a row that
 // split them would need the theme passed down to this side.
 /** @purity pure */
 function checkerColor(row: 'S-336' | 'S-337'): string {
   return SCREEN_COLORS[row]?.light ?? ''
 }
 
-// see T-294, CV-9
+// Spec: T-294, CV-9
 const UNSET_COLOR_VALUE = ''
-// TRAP: change with NOT_DRAWN in svg-renderer.ts; a mismatch paints transparent as the ink color.
+// Trap: change with NOT_DRAWN in svg-renderer.ts; a mismatch paints transparent as the ink color.
 const TRANSPARENT_PAINT = 'none'
 const CHECKER_TILE_SPAN = 2
 const SWATCH_BORDER_PX = 1
@@ -476,7 +476,7 @@ const PRESSED_VALUE = 'true'
 const FIELD_ROW_ATTRIBUTE = 'data-field-row'
 const CHOSEN_ATTRIBUTE = 'data-color-chosen'
 
-// see CV-9, S-335, S-336, S-337
+// Spec: CV-9, S-335, S-336, S-337
 /** @purity pure */
 function checkerPattern(side: string): string {
   const tile = `calc(${side} * ${CHECKER_TILE_SPAN} / ${NOT_STORED_PROPERTY_FIELD_SIZES['S-335']})`
@@ -491,7 +491,7 @@ function swatchPaint(paint: string, side: string): string {
   return paint === TRANSPARENT_PAINT ? `background:${checkerPattern(side)};` : `background:${paint};`
 }
 
-// TRAP: read PAINT at the call; this file is imported by dom-screen-surface.ts, so a
+// Trap: read PAINT at the call; this file is imported by dom-screen-surface.ts, so a
 // module-level read of it sees nothing.
 /** @purity pure */
 function choiceSwatchBorder(): string {
@@ -503,13 +503,13 @@ function swatchBox(side: string): string {
   return `display:inline-block;box-sizing:border-box;flex:none;width:${side};height:${side};vertical-align:middle;`
 }
 
-// see CV-9, S-186
+// Spec: CV-9, S-186
 /** @purity pure */
 function choiceSide(): string {
   return `${fieldSizes().controlMinHeight}px`
 }
 
-// see CV-9, S-530, S-531, S-147
+// Spec: CV-9, S-530, S-531, S-147
 /** @purity pure */
 function chosenOutline(isChosen: boolean): string {
   if (!isChosen) return ''
@@ -524,7 +524,7 @@ function markChosen(entry: HTMLElement, isChosen: boolean): void {
   entry.setAttribute(CHOSEN_ATTRIBUTE, 'true')
 }
 
-// see CV-9, T-294
+// Spec: CV-9, T-294
 /** @purity pure */
 function paletteNamesOf(control: PropertyControl): readonly string[] {
   const words = control.choices ?? []
@@ -534,7 +534,7 @@ function paletteNamesOf(control: PropertyControl): readonly string[] {
   )
 }
 
-// WHY: the one field whose host color input stands; only a press on the custom entrance opens it.
+// Why: the one field whose host color input stands; only a press on the custom entrance opens it.
 const openCustomColor: { identity: string | null } = { identity: null }
 
 /** @purity pure */
@@ -542,8 +542,8 @@ function colorFieldIdentity(row: string, control: PropertyControl): string {
   return `${row}|${JSON.stringify(control.key)}`
 }
 
-// see CV-9, CV-4
-// WHY: the custom entrance commits one #rrggbb; the translator writes it to the side being drawn.
+// Spec: CV-9, CV-4
+// Why: the custom entrance commits one #rrggbb; the translator writes it to the side being drawn.
 /** @purity non-pure */
 function hostColorInput(host: Document, row: string, control: PropertyControl, color: ColorField): HTMLElement {
   const custom = made(host, 'input', propertyColorStyle())
@@ -558,7 +558,7 @@ function hostColorInput(host: Document, row: string, control: PropertyControl, c
   return custom
 }
 
-// WHY: a host input or check keeps the focus after its change; held, it stops the panel's redraw (CV-9, MH-2).
+// Why: a host input or check keeps the focus after its change; held, it stops the panel's redraw (CV-9, MH-2).
 /** @purity non-pure */
 function letGoOnChange(entry: HTMLElement): void {
   if (typeof entry.addEventListener !== 'function') return
@@ -567,8 +567,8 @@ function letGoOnChange(entry: HTMLElement): void {
   })
 }
 
-// see CV-9, IF-9
-// WHY: a press reaches the panel's change listener as a choice from the list did, then lets the
+// Spec: CV-9, IF-9
+// Why: a press reaches the panel's change listener as a choice from the list did, then lets the
 // focus go, which would otherwise hold the panel and leave it stale.
 /** @purity non-pure */
 function commitOnPress(entry: HTMLElement): void {
@@ -592,7 +592,7 @@ function swatchButton(host: Document, row: string, style: string, hint: string):
   return entry
 }
 
-// see CV-9, T-294
+// Spec: CV-9, T-294
 /** @purity non-pure */
 function colorChoiceElement(host: Document, row: string, control: PropertyControl, name: string): HTMLElement {
   const at = (control.choiceValues ?? []).indexOf(name)
@@ -610,7 +610,7 @@ function colorChoiceElement(host: Document, row: string, control: PropertyContro
   return choice
 }
 
-// see CV-9, T-294
+// Spec: CV-9, T-294
 /** @purity pure */
 function paletteOrderOf(control: PropertyControl, color: ColorField): readonly ColorName[] {
   return color.names ?? paletteNamesOf(control).map((name) => ({ name, isOffered: true }))
@@ -622,15 +622,15 @@ function transparentOf(control: PropertyControl, color: ColorField): ColorName {
   return listed ?? { name: color.transparentName, isOffered: false }
 }
 
-// see CV-9
-// WHY: an unoffered name keeps its place as an empty slot, so a color stays where it is learned.
+// Spec: CV-9
+// Why: an unoffered name keeps its place as an empty slot, so a color stays where it is learned.
 /** @purity non-pure */
 function colorSlotElement(host: Document, row: string, control: PropertyControl, one: ColorName): HTMLElement {
   if (!one.isOffered) return made(host, 'span', swatchBox(choiceSide()))
   return colorChoiceElement(host, row, control, one.name)
 }
 
-// see CV-9, S-338, S-368
+// Spec: CV-9, S-338, S-368
 /** @purity pure */
 function colorGridStyle(perLine: number): string {
   return (
@@ -639,7 +639,7 @@ function colorGridStyle(perLine: number): string {
   )
 }
 
-// see CV-9
+// Spec: CV-9
 /** @purity pure */
 function glyphSwatchStyle(entrance: ColorEntrance, isChosen: boolean): string {
   const ground = entrance.paint === null ? `background:${PAINT.ground};` : swatchPaint(entrance.paint, choiceSide())
@@ -673,7 +673,7 @@ function customEntryElement(
   return entry
 }
 
-// see CV-9, CV-5, FR-007
+// Spec: CV-9, CV-5, FR-007
 /** @purity non-pure */
 function themeEntryElement(host: Document, row: string, control: PropertyControl, color: ColorField): HTMLElement {
   const isChosen = control.text === UNSET_COLOR_VALUE
@@ -688,8 +688,8 @@ function themeEntryElement(host: Document, row: string, control: PropertyControl
   return entry
 }
 
-// see CV-9
-// WHY: a field that refuses transparent keeps the slot empty, so the custom entrance stays in its place.
+// Spec: CV-9
+// Why: a field that refuses transparent keeps the slot empty, so the custom entrance stays in its place.
 /** @purity non-pure */
 function transparentEntryElement(host: Document, row: string, control: PropertyControl, color: ColorField): HTMLElement {
   const word = color.transparentWord
@@ -710,7 +710,7 @@ function transparentEntryElement(host: Document, row: string, control: PropertyC
   return entry
 }
 
-// WHY: MK-13 focuses a color field (JDG-410), which takes no text: the value's swatch, else the first.
+// Why: MK-13 focuses a color field (JDG-410), which takes no text: the value's swatch, else the first.
 /** @purity non-pure */
 function holdColorFocusTarget(
   focusByRow: Map<string, TextEntryControl> | null,
@@ -723,7 +723,7 @@ function holdColorFocusTarget(
   focusByRow.set(row, target as unknown as TextEntryControl)
 }
 
-// see CV-9, CV-4, S-338
+// Spec: CV-9, CV-4, S-338
 /** @purity non-pure */
 function colorFieldElements(
   host: Document,
@@ -753,7 +753,7 @@ function colorFieldElements(
   return [palette]
 }
 
-// see FR-041, S-368
+// Spec: FR-041, S-368
 /** @purity non-pure */
 function swatchFieldElements(
   host: Document,
@@ -775,7 +775,7 @@ function swatchFieldElements(
   return [palette, shown]
 }
 
-// see FX-7
+// Spec: FX-7
 /** @purity non-pure */
 function pressElement(host: Document, row: string, control: PropertyControl, word: string): HTMLElement {
   const entry = made(host, 'button', 'font:inherit;flex:none;')
@@ -791,7 +791,7 @@ function pressElement(host: Document, row: string, control: PropertyControl, wor
   return entry
 }
 
-// WHY: a field no longer described closes its host color input, so it stands only after a press.
+// Why: a field no longer described closes its host color input, so it stands only after a press.
 /** @purity non-pure */
 function forgetClosedCustomColor(description: PropertiesPanel): void {
   const standing = description.fields.flatMap((field) =>
@@ -802,7 +802,7 @@ function forgetClosedCustomColor(description: PropertiesPanel): void {
   }
 }
 
-// WHY: the open list, its narrowing and order outlive the redraw after each check; the filter regains the focus.
+// Why: the open list, its narrowing and order outlive the redraw after each check; the filter regains the focus.
 const openAssigneeList: { identity: string | null; typed: string; isDescending: boolean; isFilterRefocused: boolean } = {
   identity: null,
   typed: '',
@@ -825,14 +825,14 @@ function assigneeListStyle(): string {
   )
 }
 
-// see AS-5, S-607
+// Spec: AS-5, S-607
 /** @purity pure */
 function assigneeItemsStyle(): string {
   const height = NOT_STORED_PROPERTY_FIELD_SIZES['S-607'] * LINES_PER_CHOICE * FIELD_LINE_HEIGHT
   return `display:flex;flex-direction:column;max-height:${height}em;overflow-y:auto;`
 }
 
-// WHY: preventDefault keeps the focus where it is; stopPropagation keeps the press from settle-on-press-outside.
+// Why: preventDefault keeps the focus where it is; stopPropagation keeps the press from settle-on-press-outside.
 /** @purity non-pure */
 function onPressHeld(element: HTMLElement, act: () => void): void {
   element.addEventListener('pointerdown', (event: Event) => {
@@ -842,8 +842,8 @@ function onPressHeld(element: HTMLElement, act: () => void): void {
   })
 }
 
-// see AS-5, AS-7, IC-125, IC-126
-// WHY: one carrier writes, as a list choice does; the filter lets go first, or the held field stops the redraw (MH-2).
+// Spec: AS-5, AS-7, IC-125, IC-126
+// Why: one carrier writes, as a list choice does; the filter lets go first, or the held field stops the redraw (MH-2).
 /** @purity non-pure */
 function commitAssignee(carrier: HTMLElement, filter: HTMLInputElement, write: { readonly key: PropertyControl['key']; readonly text: string; readonly pick: AssigneePick }): void {
   const isFocused = filter.ownerDocument.activeElement === filter
@@ -862,7 +862,7 @@ function seatedKeyOf(control: PropertyControl, resourceUid: number | null): Prop
   return { ...(control.key as Extract<PropertyControl['key'], { holder: 'assignment' }>), resourceUid }
 }
 
-// see AS-5, AS-7, AS-10
+// Spec: AS-5, AS-7, AS-10
 /** @purity non-pure */
 function assigneeItemElement(
   host: Document,
@@ -870,7 +870,7 @@ function assigneeItemElement(
   isSeated: boolean,
   press: () => void,
 ): HTMLElement {
-  // WHY: a div, not a label: a label would flip its own check and raise a change of its own.
+  // Why: a div, not a label: a label would flip its own check and raise a change of its own.
   const item = made(host, 'div', `display:flex;align-items:center;gap:${fieldSizes().nameGap}px;cursor:default;padding:0 0.25em;`)
   const check = made(host, 'input', 'margin:0;flex:none;pointer-events:none;')
   check.setAttribute('type', 'checkbox')
@@ -884,7 +884,7 @@ function assigneeItemElement(
   return item
 }
 
-// see AS-5, AS-7, AS-10, IC-123, IC-124
+// Spec: AS-5, AS-7, AS-10, IC-123, IC-124
 /** @purity non-pure */
 function drawAssigneeItems(
   host: Document,
@@ -905,10 +905,10 @@ function drawAssigneeItems(
   }))
 }
 
-// see AS-3
+// Spec: AS-3
 const UNASSIGN_TOKEN = '-'
 
-// see AS-5, IC-123, IC-124, IC-125, IC-126
+// Spec: AS-5, IC-123, IC-124, IC-125, IC-126
 /** @purity non-pure */
 function assigneeHeadElement(
   host: Document,
@@ -934,7 +934,7 @@ function assigneeHeadElement(
   return head
 }
 
-// see AS-5, AS-8, SV-4
+// Spec: AS-5, AS-8, SV-4
 /** @purity non-pure */
 function onAssigneeFilterKey(event: Event, combo: AssigneeComboOf, check: (uid: number) => void): void {
   const key = event as Partial<KeyboardEvent>
@@ -946,7 +946,7 @@ function onAssigneeFilterKey(event: Event, combo: AssigneeComboOf, check: (uid: 
   if (named !== undefined && !combo.seated.includes(named.uid)) check(named.uid)
 }
 
-// see AS-5, IC-125, IC-126
+// Spec: AS-5, IC-125, IC-126
 /** @purity pure */
 function shownUidsOf(combo: AssigneeComboOf, isSeated: boolean): string {
   return combo
@@ -956,20 +956,20 @@ function shownUidsOf(combo: AssigneeComboOf, isSeated: boolean): string {
     .join(ASSIGNEE_LIST_SEPARATOR)
 }
 
-// see AS-5, SV-4
+// Spec: AS-5, SV-4
 /** @purity non-pure */
 function assigneeFilterOf(host: Document, row: string, control: PropertyControl): HTMLInputElement {
   const filter = made(host, 'input', propertyControlStyle(control.widthInFontSizes)) as HTMLInputElement
   filter.setAttribute('type', 'text')
   filter.setAttribute('data-assignee-filter', row)
   filter.value = openAssigneeList.typed
-  // WHY: a text entry (T-292): while it holds the focus its keys are its own, not the single-key shortcuts.
+  // Why: a text entry (T-292): while it holds the focus its keys are its own, not the single-key shortcuts.
   TYPED_CONTROLS.add(filter)
   TYPED_ROWS.set(filter, row)
   return filter
 }
 
-// see AS-5, AS-7, AS-10, IC-123, IC-124, IC-125, IC-126
+// Spec: AS-5, AS-7, AS-10, IC-123, IC-124, IC-125, IC-126
 /** @purity non-pure */
 function assigneeListElement(
   host: Document,
@@ -1001,7 +1001,7 @@ function assigneeListElement(
   return list
 }
 
-// see AS-1, AS-5, FR-059, AS-13
+// Spec: AS-1, AS-5, FR-059, AS-13
 /** @purity non-pure */
 function assigneeDropdownElements(
   host: Document,
@@ -1037,7 +1037,7 @@ function assigneeDropdownElements(
   return [field]
 }
 
-// WHY: AS-1 focuses the row's typed entry; the filter is that entry, so its focus opens the list first.
+// Why: AS-1 focuses the row's typed entry; the filter is that entry, so its focus opens the list first.
 /** @purity non-pure */
 function holdAssigneeFocus(
   filter: HTMLInputElement,
@@ -1067,7 +1067,7 @@ function closeAssigneeList(field: HTMLElement): void {
   field.querySelector(`[${ASSIGNEE_LIST_ATTRIBUTE}]`)?.remove()
 }
 
-// WHY: a field the panel has since redrawn lets go of the listener.
+// Why: a field the panel has since redrawn lets go of the listener.
 /** @purity non-pure */
 function closeAssigneeOnPressElsewhere(host: Document, field: HTMLElement): void {
   /** @purity non-pure */
@@ -1103,7 +1103,7 @@ function propertyBadgeStyle(): string {
   return `flex:none;padding:0 0.25em;border:1px solid ${PAINT.rule};color:${PAINT.quiet};font-size:0.85em;line-height:1.4;`
 }
 
-// see PR-37, PR-38, T-018, IN-3
+// Spec: PR-37, PR-38, T-018, IN-3
 /** @purity non-pure */
 function linkTailElements(host: Document, control: PropertyControl): readonly HTMLElement[] {
   const tail: HTMLElement[] = []
@@ -1123,7 +1123,7 @@ function linkTailElements(host: Document, control: PropertyControl): readonly HT
   return tail
 }
 
-// see PTL-15, PTL-16, PTL-17, PR-37, PR-38, CM-18, SQ-1, S-503, FR-006
+// Spec: PTL-15, PTL-16, PTL-17, PR-37, PR-38, CM-18, SQ-1, S-503, FR-006
 /** @purity non-pure */
 function linkFieldElements(host: Document, row: string, control: PropertyControl, link: NonNullable<PropertyControl['link']>): readonly HTMLElement[] {
   const name = made(host, 'span', propertyLinkStyle())
@@ -1146,7 +1146,7 @@ function linkFieldElements(host: Document, row: string, control: PropertyControl
   return [name, unlink]
 }
 
-// see PTL-16, SJ-1, T-332
+// Spec: PTL-16, SJ-1, T-332
 /** @purity semi-pure-mutable */
 export function withPropertyLinkJump(answer: ScreenPart | null, first: Element | null): ScreenPart | null {
   if (answer === null || first === null || typeof first.getAttribute !== 'function') return answer
@@ -1159,7 +1159,7 @@ const READOUT_ATTRIBUTE = 'data-field-readout'
 
 const READOUT_MEMBER: keyof PropertyField = 'readout'
 
-// see FR-006, MH-1, PR-5, PR-40
+// Spec: FR-006, MH-1, PR-5, PR-40
 /** @purity non-pure */
 function unitElement(host: Document, unit: string): HTMLElement {
   const shown = made(host, 'span', 'flex:none;align-self:center;white-space:nowrap;')
@@ -1167,15 +1167,15 @@ function unitElement(host: Document, unit: string): HTMLElement {
   return shown
 }
 
-// see MH-4
-// TRAP: keep the readout out of this key, or each zoom step rebuilds the panel and a held field reads stale.
+// Spec: MH-4
+// Trap: keep the readout out of this key, or each zoom step rebuilds the panel and a held field reads stale.
 /** @purity pure */
 export function propertiesPanelKeyOf(description: PropertiesPanel | null): string {
   const withoutReadout = (member: string, value: unknown): unknown => (member === READOUT_MEMBER ? undefined : value)
   return JSON.stringify(description, withoutReadout) ?? ''
 }
 
-// see MH-4
+// Spec: MH-4
 /** @purity non-pure */
 export function rewritePanelReadouts(panel: HTMLElement, description: PropertiesPanel): void {
   if (typeof panel.querySelector !== 'function') return
@@ -1187,7 +1187,7 @@ export function rewritePanelReadouts(panel: HTMLElement, description: Properties
   }
 }
 
-// see FO-14, FR-156
+// Spec: FO-14, FR-156
 /** @purity non-pure */
 function ownLineOf(host: Document, elements: readonly HTMLElement[]): readonly HTMLElement[] {
   const line = made(host, 'div', 'flex:1 1 100%;display:flex;')
@@ -1202,7 +1202,7 @@ function wordsElement(host: Document, words: string): HTMLElement {
   return shown
 }
 
-// see T-016, FR-006, CV-9, AS-5, PTL-15
+// Spec: T-016, FR-006, CV-9, AS-5, PTL-15
 /** @purity non-pure */
 function controlElementsOf(
   host: Document,
@@ -1221,7 +1221,7 @@ function controlElementsOf(
 
 type ChoiceLines = NonNullable<PropertyControl['choiceLines']>
 
-// WHY: the one two-line choice whose list stands; the panel redraws it open until a choice or a press elsewhere.
+// Why: the one two-line choice whose list stands; the panel redraws it open until a choice or a press elsewhere.
 const openTwoLineChoice: { identity: string | null } = { identity: null }
 
 const CHOICE_MARK = '▾'
@@ -1230,14 +1230,14 @@ const TWO_LINE_CHOICE_ATTRIBUTE = 'data-two-line-choice'
 
 const TWO_LINE_LIST_ATTRIBUTE = 'data-two-line-list'
 
-// see FO-14, FO-15, FR-006
-// WHY: grown from its floor, not from its longest line, so a long place wraps rather than widening the panel.
+// Spec: FO-14, FO-15, FR-006
+// Why: grown from its floor, not from its longest line, so a long place wraps rather than widening the panel.
 /** @purity pure */
 function twoLineFieldStyle(control: PropertyControl): string {
   return `display:flex;flex-direction:column;flex:1 1 ${control.widthInFontSizes}em;min-width:${control.widthInFontSizes}em;`
 }
 
-// WHY: flex:none, or the list's height cap squeezes each choice and its two lines overlap the next.
+// Why: flex:none, or the list's height cap squeezes each choice and its two lines overlap the next.
 /** @purity pure */
 function twoLineEntryStyle(isChosen: boolean): string {
   return (
@@ -1249,7 +1249,7 @@ function twoLineEntryStyle(isChosen: boolean): string {
 
 const LINES_PER_CHOICE = 2
 
-// see FO-14, FO-15, S-607
+// Spec: FO-14, FO-15, S-607
 /** @purity pure */
 function twoLineListStyle(): string {
   const height = NOT_STORED_PROPERTY_FIELD_SIZES['S-607'] * LINES_PER_CHOICE * FIELD_LINE_HEIGHT
@@ -1268,7 +1268,7 @@ function choiceLinesElement(host: Document, [head, place]: readonly [string, str
 }
 
 // see FO-14, FO-15, FR-156, JDG-2463
-// WHY: the host's list draws one line per choice and the zone names take two, so the field draws its own:
+// Why: the host's list draws one line per choice and the zone names take two, so the field draws its own:
 // a press on the field opens the list under it, a press on a choice commits it as a list choice does.
 /** @purity non-pure */
 function twoLineChoiceElement(host: Document, row: string, control: PropertyControl, choiceLines: ChoiceLines): HTMLElement {
@@ -1299,7 +1299,7 @@ function closeTwoLineList(field: HTMLElement): void {
   field.querySelector(`[${TWO_LINE_LIST_ATTRIBUTE}]`)?.remove()
 }
 
-// WHY: a field the panel has since redrawn lets go of the listener.
+// Why: a field the panel has since redrawn lets go of the listener.
 /** @purity non-pure */
 function closeOnPressElsewhere(host: Document, field: HTMLElement): void {
   /** @purity non-pure */
@@ -1312,7 +1312,7 @@ function closeOnPressElsewhere(host: Document, field: HTMLElement): void {
   host.addEventListener('pointerdown', onPress, true)
 }
 
-// see FO-14, AS-5
+// Spec: FO-14, AS-5
 /** @purity non-pure */
 function closedFieldOf(host: Document, row: string, control: PropertyControl, words: HTMLElement): HTMLElement {
   const shown = made(host, 'button', twoLineEntryStyle(false))
@@ -1327,7 +1327,7 @@ function closedFieldOf(host: Document, row: string, control: PropertyControl, wo
   return shown
 }
 
-// WHY: the field and its choices take no focus, so the panel keeps redrawing (a held control stops it, MH-2).
+// Why: the field and its choices take no focus, so the panel keeps redrawing (a held control stops it, MH-2).
 /** @purity non-pure */
 function keepFocusOff(entry: HTMLElement): void {
   entry.addEventListener('mousedown', (event: Event) => event.preventDefault())
@@ -1347,7 +1347,7 @@ function twoLineListElement(host: Document, row: string, control: PropertyContro
     if (value === control.text) markChosen(choice, true)
     CONTROL_KEYS.set(choice, { row, key: control.key })
     keepFocusOff(choice)
-    // WHY: the list goes at once: a choice equal to the value writes nothing, so no redraw would close it.
+    // Why: the list goes at once: a choice equal to the value writes nothing, so no redraw would close it.
     choice.addEventListener(HOST_CLICK, () => {
       choice.dispatchEvent(new Event(HOST_CHANGE, { bubbles: true }))
       closeTwoLineList(list.parentElement ?? list)
@@ -1357,8 +1357,8 @@ function twoLineListElement(host: Document, row: string, control: PropertyContro
   return list
 }
 
-// see T-016, MH-3, PR-37, PR-38
-// WHY: pre-line, so a read-only row of one line per dependency shows its lines; a readout is rewritten in place (MH-4).
+// Spec: T-016, MH-3, PR-37, PR-38
+// Why: pre-line, so a read-only row of one line per dependency shows its lines; a readout is rewritten in place (MH-4).
 /** @purity non-pure */
 function valueElement(host: Document, field: PropertyField): HTMLElement {
   const value = made(host, 'span', 'white-space:pre-line;')
@@ -1371,7 +1371,7 @@ function valueElement(host: Document, field: PropertyField): HTMLElement {
   return value
 }
 
-// see T-016, T-058, T-104
+// Spec: T-016, T-058, T-104
 /** @purity non-pure */
 export function fieldElement(
   host: Document,
@@ -1390,7 +1390,7 @@ export function fieldElement(
   }
 
   const controls = made(host, 'div', propertyControlsStyle())
-  // WHY: a read-out with an entrance under it is one field (FX-6, FX-7): the read-out takes the first line.
+  // Why: a read-out with an entrance under it is one field (FX-6, FX-7): the read-out takes the first line.
   if (field.readout !== undefined) {
     const readout = valueElement(host, field)
     readout.style.flex = '1 1 100%'
@@ -1410,8 +1410,8 @@ export function fieldElement(
   return line
 }
 
-// see FR-153, IC-139
-// WHY: laid out as a field row, name left and entry right, but carries no field row: it holds no
+// Spec: FR-153, IC-139
+// Why: laid out as a field row, name left and entry right, but carries no field row: it holds no
 // value; anchored so a press reaches the shell as any entry's does (T-109).
 /** @purity non-pure */
 function headEntryElement(host: Document, entry: PropertiesPanel['commands'][number], anchors: Map<string, HTMLElement>): HTMLElement {
@@ -1424,14 +1424,14 @@ function headEntryElement(host: Document, entry: PropertiesPanel['commands'][num
   return line
 }
 
-// see FR-072
+// Spec: FR-072
 /** @purity non-pure */
 export function markPropertiesPanel(panel: HTMLElement, description: PropertiesPanel): void {
   panel.setAttribute('data-showing', description.showing)
   panel.setAttribute('data-subject-gone', String(description.isSubjectGone))
 }
 
-// see U-25, FR-072
+// Spec: U-25, FR-072
 /** @purity non-pure */
 export function fillPropertiesPanel(
   host: Document,
@@ -1440,7 +1440,7 @@ export function fillPropertiesPanel(
   anchors: Map<string, HTMLElement>,
   typedByRow: Map<string, TextEntryControl>,
 ): void {
-  // TRAP: clear first, as anchorsOf does: a leftover row would name a control no longer drawn.
+  // Trap: clear first, as anchorsOf does: a leftover row would name a control no longer drawn.
   typedByRow.clear()
   forgetClosedCustomColor(description)
   const folded = foldedGroupsOf(panel)
@@ -1461,8 +1461,8 @@ const READ_ONLY_HEADING_ATTRIBUTE = 'data-read-only-heading'
 
 const READ_ONLY_SECTION_ATTRIBUTE = 'data-read-only-section'
 
-// see T-380
-// TRAP: the panel is rebuilt whenever its description changes, so a group the author folded is read back first.
+// Spec: T-380
+// Trap: the panel is rebuilt whenever its description changes, so a group the author folded is read back first.
 /** @purity non-pure */
 function foldedGroupsOf(panel: HTMLElement): ReadonlySet<string> {
   if (typeof panel.querySelectorAll !== 'function') return new Set()
@@ -1489,8 +1489,8 @@ function readOnlyGroupElement(host: Document, group: NonNullable<PropertyField['
   return box
 }
 
-// see FR-072, T-369, T-380, RN-6
-// WHY: the read-only rows come last; each group is one foldable box, open at first, a window's name heading its rows.
+// Spec: FR-072, T-369, T-380, RN-6
+// Why: the read-only rows come last; each group is one foldable box, open at first, a window's name heading its rows.
 /** @purity non-pure */
 function withReadOnlyGroups(
   host: Document,

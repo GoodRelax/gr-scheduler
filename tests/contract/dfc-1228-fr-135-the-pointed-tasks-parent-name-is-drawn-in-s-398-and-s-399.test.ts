@@ -9,7 +9,7 @@ import type { ScheduleLayout } from '../../src/entity/layout-engine/schedule-lay
 import { C, D, F, P, Q, cellOf, numberIn, rowText, sceneOf, type FamiliesSpec } from '../unit/cr-631-scene'
 import { figuresKeyed } from '../fixtures/svg-selected-scene'
 
-// see T-236
+// Spec: T-236
 const S_398 = /#[0-9a-f]{6}/i.exec(rowText('T-236', 'S-398'))?.[0] ?? ''
 const S_399 = numberIn(cellOf('T-206', 'S-399', '既定'))
 const S_245 = numberIn(cellOf('T-206', 'S-245', '既定'))

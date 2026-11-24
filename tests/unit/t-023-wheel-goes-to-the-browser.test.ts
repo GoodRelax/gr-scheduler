@@ -644,7 +644,7 @@ describe('the two ways a surface can stand, and the state with none', () => {
     // MK-1 is 「縦スクロール」 and MK-5 「横スクロール」, and FR-051 (MUST) has a
     // changed position land in `S-77` / `S-78`; MK-2 〜 MK-4 are zooms and land in
     // the zoom keys -- either way the document is where the assignment shows.
-    // WHY: T-262 ZE-2 / ZE-3 forbid writing a vertical-axis zoom at its end, so one direction may rightly move
+    // Why: T-262 ZE-2 / ZE-3 forbid writing a vertical-axis zoom at its end, so one direction may rightly move
     // nothing; a build refusing every wheel still moves neither.
     for (const one of HANDED_OVER) {
       const moved = ([1, -1] as const).some((sign) => {
@@ -719,7 +719,7 @@ describe(`HN-1 of table T-336: ${HN_1}`, () => {
   })
 
   it('with the help minimized, every handed-over turn moves the document as with nothing standing', () => {
-    // WHY: the same control as above, run with WB-2 up; one of the two directions may rightly move nothing (ZE-2 / ZE-3).
+    // Why: the same control as above, run with WB-2 up; one of the two directions may rightly move nothing (ZE-2 / ZE-3).
     for (const one of HANDED_OVER) {
       const moved = ([1, -1] as const).some((sign) => {
         const built = withTheHelpMinimized()

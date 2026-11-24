@@ -131,7 +131,7 @@ describe(`T-331 SQ-5 -- ${SQ_5_WHILE_SHOWN}`, () => {
     expect(read.rows.find((one) => one.uid === 12)?.glyph).toBe('DG-3')
   })
 
-  // WHY: CR-781 -- IC-107 again with the report open closes only the window (FR-130); the diagnosis ends with IC-40 (RW-1).
+  // Why: CR-781 -- IC-107 again with the report open closes only the window (FR-130); the diagnosis ends with IC-40 (RW-1).
   it('ending the diagnosis (IC-40) brings back the values without it', async () => {
     const stage = await opened('ja', true)
     await stage.press('IC-40')

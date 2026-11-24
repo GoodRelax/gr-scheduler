@@ -12,23 +12,23 @@ import { rowOf } from './sws-case'
 const SPEC = join(process.cwd(), 'docs', 'spec')
 const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8'))
 
-// see FR-006
+// Spec: FR-006
 const FR_006_ACTUAL_LENGTH =
   '⭐ 実績の長さの欄（表 T-016 の `PR-5`）の入力は、日付の欄の入力と同じ幅とし、その右に単位の語を置くこと（MUST）'
 
 const SHIPPED_BUILD = join(process.cwd(), 'dist', 'index.html')
 const SCREEN = screenOf(rowOf(specTable('T-025'), 'MC-6'))
 
-// see T-025
+// Spec: T-025
 const REFERENCE_CHANNEL = 'msedge'
 
-// see U-25
+// Spec: U-25
 const PROPERTIES_PANEL = `[data-role="${bare(specTable('T-103').rows.find((one) => one.id === 'U-25')?.by['確定名（英）'] ?? '')}"]`
 
 const DOCUMENT_SETTINGS = 'IC-17'
 const SHOW_TIME_OF_DAY = 'K-146'
 
-// see T-016
+// Spec: T-016
 const ACTUAL_LENGTH_ROW = 'PR-5'
 const DATE_ROWS = ['PR-4', 'PR-6']
 
@@ -44,12 +44,12 @@ const LOOKS = [
 
 const SETTLE_MS = 700
 
-// WHY: the drawn widths are whole px but the host rounds a scaled font, so a sub-pixel gap is not a miss.
+// Why: the drawn widths are whole px but the host rounds a scaled font, so a sub-pixel gap is not a miss.
 const ONE_PX = 1
 
 let browser: Browser | null = null
 
-// WHY: Playwright hides scrollbars by default; the panel width was measured with the vertical scrollbar drawn, so it is drawn here too.
+// Why: Playwright hides scrollbars by default; the panel width was measured with the vertical scrollbar drawn, so it is drawn here too.
 test.beforeAll(async () => {
   if (!existsSync(SHIPPED_BUILD)) throw new Error('build the shipped app first (dist/index.html)')
   browser = await chromium.launch({ channel: REFERENCE_CHANNEL, ignoreDefaultArgs: ['--hide-scrollbars'] })
@@ -72,7 +72,7 @@ async function pressIcon(page: Page, icon: string): Promise<void> {
   await page.waitForTimeout(SETTLE_MS)
 }
 
-// WHY: the time of day is a document setting (K-146); the Task panel is then opened from a Task body as a person does.
+// Why: the time of day is a document setting (K-146); the Task panel is then opened from a Task body as a person does.
 /** @purity non-pure */
 async function openTaskPanel(locale: string, isTimeShown: boolean): Promise<{ readonly page: Page; close(): Promise<void> }> {
   if (browser === null) throw new Error('the reference browser was not opened')
@@ -104,7 +104,7 @@ interface EntryBox {
   readonly width: number
 }
 
-// WHY: the rendered box is read, not the style written: DFC-2870 drew PR-5 at 308 px against 122 px dates under a model that said the two were equal.
+// Why: the rendered box is read, not the style written: DFC-2870 drew PR-5 at 308 px against 122 px dates under a model that said the two were equal.
 /** @purity semi-pure-mutable */
 async function readBoxes(page: Page, rows: readonly string[]): Promise<readonly EntryBox[]> {
   return page.evaluate(

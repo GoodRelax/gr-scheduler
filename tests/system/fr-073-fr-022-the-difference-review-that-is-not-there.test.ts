@@ -448,7 +448,7 @@ async function sweep(page: Page): Promise<Measured> {
       return node
     }
 
-    // WHY: AM-3 leaves out the required carry fields unless includeCarry is true (CR-796);
+    // Why: AM-3 leaves out the required carry fields unless includeCarry is true (CR-796);
     // without them the handed document no longer fits the schema and FR-073 refuses it with RS-64.
     const open = call(given.members.read, true)
     const before = tasksOf(open)
@@ -523,7 +523,7 @@ async function sweep(page: Page): Promise<Measured> {
     return { tasksBefore: before.length, uidHeldBack, uidsInBoth, imports, awaiting }
   }, args)
 
-  // see OP-3, IC-72
+  // Spec: OP-3, IC-72
   await page.waitForTimeout(1_500)
   await pressIfThere(page, rowOf(T109, 'IC-72').id)
 

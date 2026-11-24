@@ -10,7 +10,7 @@ const PREFERENCES = ['light', 'dark'] as const
 
 const stand = (written: string): number => (written.match(/\bH\b/g) ?? []).length
 
-// see T-236
+// Spec: T-236
 const HUED_CELLS = specTable('T-236').rows.flatMap((row) =>
   [row.by['明るいテーマ'], row.by['暗いテーマ']].filter((cell): cell is string => cell !== undefined && stand(cell.replace(/`/g, '')) > 0),
 )

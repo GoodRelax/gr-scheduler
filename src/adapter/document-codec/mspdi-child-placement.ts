@@ -1,4 +1,4 @@
-// DocumentCodec, MSPDI half -- places the children of a written element in the partner schema's order.
+// File: DocumentCodec, MSPDI half: places the children of a written element in the partner schema's order.
 // @unit      UF-154  (docs/spec/05-07-design.md, table T-075)
 // @component DocumentCodec, layer Adapter (table T-062)
 // @purity    pure
@@ -13,7 +13,7 @@ interface ParentOrder {
   readonly pj15Only: ReadonlySet<string>
 }
 
-// see EX-1, EX-10, AT-143
+// Spec: EX-1, EX-10, AT-143
 export const PARENT_ORDERS: ReadonlyMap<string, ParentOrder> = new Map(
   Object.entries(childOrder.parents).map(([path, row]) => [path, {
     isAll: row.all,
@@ -34,11 +34,11 @@ export interface PlacedChild {
   readonly element: XmlElement
 }
 
-// WHY: a row GRS holds keeps no place between a carried leaf, a carried element and the children it writes, so
+// Why: a row GRS holds keeps no place between a carried leaf, a carried element and the children it writes, so
 // under such a row an undeclared child is placed among the carried siblings of its own kind (EX-10).
 type ChildAnchors = 'kind' | 'siblings'
 
-// see EX-10
+// Spec: EX-10
 /** @purity pure */
 export function writtenChildren(
   path: string,
@@ -50,7 +50,7 @@ export function writtenChildren(
   return placedChildren(path, heldInArrivalOrder(path, carry, carried), written, 'kind')
 }
 
-// see EX-10
+// Spec: EX-10
 /** @purity pure */
 function placedChildren(
   path: string,
@@ -59,7 +59,7 @@ function placedChildren(
   anchors: ChildAnchors,
 ): readonly XmlElement[] {
   const order = PARENT_ORDERS.get(path)
-  // WHY: an xsd:all parent takes any order and a parent the table lacks names none, so either keeps
+  // Why: an xsd:all parent takes any order and a parent the table lacks names none, so either keeps
   // the order the file arrived in.
   if (order === undefined || order.isAll) return [...held, ...written]
   return inSchemaOrder(order.ranks, held, written, anchors)
@@ -74,7 +74,7 @@ function heldInArrivalOrder(
   const elements = [...carried].sort((a, b) => a.ordinal - b.ordinal)
   const texts = Object.entries(leaves)
   const held: XmlElement[] = []
-  // TRAP: a leaf keeps no ordinal (AT-125), so leaves fill in order the places the carried ordinals leave free.
+  // Trap: a leaf keeps no ordinal (AT-125), so leaves fill in order the places the carried ordinals leave free.
   for (let leafAt = 0, elementAt = 0; leafAt < texts.length || elementAt < elements.length;) {
     const element = elements[elementAt]
     const text = texts[leafAt]
@@ -96,7 +96,7 @@ interface RankedChild {
   readonly arrival: number
 }
 
-// see EX-10
+// Spec: EX-10
 /** @purity pure */
 function inSchemaOrder(
   ranks: ReadonlyMap<string, number>,
@@ -112,7 +112,7 @@ function inSchemaOrder(
   written.forEach((element, arrival) => {
     declared.push({ element, rank: rankOf(element), isWritten: true, arrival })
   })
-  // TRAP: at one rank the held come first, so a written fade value follows the carried ones of its name.
+  // Trap: at one rank the held come first, so a written fade value follows the carried ones of its name.
   declared.sort((a, b) => a.rank - b.rank
     || Number(a.isWritten) - Number(b.isWritten) || a.arrival - b.arrival)
   const undeclared = undeclaredByNeighbor(ranks, held, anchors)
@@ -130,7 +130,7 @@ interface UndeclaredPlaces {
   readonly unanchored: readonly XmlElement[]
 }
 
-// see EX-10
+// Spec: EX-10
 /** @purity pure */
 function undeclaredByNeighbor(
   ranks: ReadonlyMap<string, number>,
@@ -161,7 +161,7 @@ function mergedInArrival(held: readonly XmlElement[], places: readonly Undeclare
   return { after: joined('after'), before: joined('before'), unanchored }
 }
 
-// WHY: a child neither schema declares has no rank, so it rides with the declared child before it, or
+// Why: a child neither schema declares has no rank, so it rides with the declared child before it, or
 // with the one after it when it came first; with no declared neighbor at all it goes last.
 /** @purity pure */
 function placesByNeighbor(

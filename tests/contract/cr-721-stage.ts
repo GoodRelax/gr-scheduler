@@ -47,7 +47,7 @@ export function found<T>(value: T | undefined | null, what: string): T {
   return value
 }
 
-// WHY: two nameless-free tasks on one task group; the states differ so a state filter has something to drop.
+// Why: two nameless-free tasks on one task group; the states differ so a state filter has something to drop.
 const TASKS: readonly { readonly uid: number; readonly name: string; readonly start: string; readonly actualStart: string | null }[] = [
   { uid: 1, name: 'Alpha', start: '2026-04-01', actualStart: D('2026-04-01') },
   { uid: 2, name: 'Bravo', start: '2026-04-02', actualStart: null },
@@ -110,7 +110,7 @@ export function sessionIn(language: DisplayLanguage): ScreenSession {
   return { ...shown, screen: { ...shown.screen, screenLanguage: language, helpLanguage: language } } as unknown as ScreenSession
 }
 
-// WHY: CR-723 -- the table view (Visibility column, Schedule Filter, column filters, sort) is the document's, the panel
+// Why: CR-723 -- the table view (Visibility column, Schedule Filter, column filters, sort) is the document's, the panel
 // holds only the screen's own values, so a case carries both together as one pane and threads it through the steps.
 export const NO_VIEW: TableView = { visibility: NO_ROW_CHECKED, columnFilters: [], sort: null }
 
@@ -150,7 +150,7 @@ export function valuesOf(pane: Pane, language: DisplayLanguage = 'ja'): ValuesMe
   return menu
 }
 
-// WHY: opens the column, takes one value off by the label it is shown with, and leaves the filter open.
+// Why: opens the column, takes one value off by the label it is shown with, and leaves the filter open.
 export function withValueOff(column: string, label: string, pane: Pane = TASK_PANEL, language: DisplayLanguage = 'ja'): Pane {
   const there = opened(column, pane, language)
   const value = found(valuesOf(there, language).values.find((one) => one.label === label), `an item labeled ${label} in ${column}`).value
@@ -160,7 +160,7 @@ export function withValueOff(column: string, label: string, pane: Pane = TASK_PA
 export const columnOf = (view: SearchPanelView, column: string): SearchPanelView['columns'][number] =>
   found(view.columns.find((one) => one.column === column), `the heading of ${column}`)
 
-// WHY: the dictionary is the spec's own file; a word is read from it, never retyped here.
+// Why: the dictionary is the spec's own file; a word is read from it, never retyped here.
 type Words = Record<DisplayLanguage, string>
 export const WORDS = JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8')) as {
   readonly icons: readonly { readonly rowId: string; readonly label: Words }[]
@@ -194,13 +194,13 @@ export const REPORT_SCHEDULE = {
     reportTask(2, 'Bravo', '2026-01-05', { percentComplete: 40, actualStart: '2026-01-05T08:00:00' }),
     reportTask(3, 'Charlie', '2026-02-02'),
   ],
-  // WHY: CR-710 shows the T-314 quantities through 1d = Project.minutesPerDay (empty, so S-128 = 480 minutes, TX-8).
+  // Why: CR-710 shows the T-314 quantities through 1d = Project.minutesPerDay (empty, so S-128 = 480 minutes, TX-8).
   project: { minutesPerDay: null },
   resources: [],
   assignments: [],
 } as unknown as Schedule
 
-// WHY: CR-710 holds the quantities in working minutes (T-314); 480 is one working day of the fixture (S-128).
+// Why: CR-710 holds the quantities in working minutes (T-314); 480 is one working day of the fixture (S-128).
 const QUANTITIES = { inheritedDelayMinutes: 480, selfDelayMinutes: 960, pushOutMinutes: 2400, terminalsReached: 2 }
 
 export const REPORT: DelayDiagnosticsReport = {
@@ -224,7 +224,7 @@ export const REPORT: DelayDiagnosticsReport = {
 
 const REPORT_SESSION = { screen: { screenLanguage: 'ja' } } as unknown as ScreenSession
 
-// WHY: the report window (screen only) and the report table's view (the document's), carried together as the panel is.
+// Why: the report window (screen only) and the report table's view (the document's), carried together as the panel is.
 export interface ReportPane {
   readonly window: DelayDiagnosticsReportWindow
   readonly view: TableView

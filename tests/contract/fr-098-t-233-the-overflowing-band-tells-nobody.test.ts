@@ -23,7 +23,7 @@ describe('FR-098 after CR-363 -- an overflowing band tells nobody', () => {
   })
 
   it('table T-233 carries no reason that answers to FR-098 (通知は出さない)', () => {
-    // WHY: the table is the unit under test -- "no notice for this" means
+    // Why: the table is the unit under test -- "no notice for this" means
     // no row of table T-233 names FR-098 in its own row.
     const named = specTable('T-233').rows.filter((row) => (row.by['正'] ?? '').includes('FR-098'))
     expect(
@@ -33,7 +33,7 @@ describe('FR-098 after CR-363 -- an overflowing band tells nobody', () => {
   })
 
   it('FR-098 limits an undrawn pinned task group to the all-required rows of table T-329 and the overflow', () => {
-    // WHY: latched whole, not paraphrased, so a rewrite that keeps the
+    // Why: latched whole, not paraphrased, so a rewrite that keeps the
     // overflow but drops the table cannot slip past separate substring checks.
     expect(REQUIREMENTS).toContain(
       'ピン止めしたタスクグループが描かれないのは、`FR-018` の 表 T-329 の種類「すべて要る」の行のどれかが成り立たないときと、' +
@@ -56,7 +56,7 @@ describe('FR-098 after CR-363 -- an overflowing band tells nobody', () => {
   })
 
   it('⛔ and FR-098 no longer asks the band to scroll', () => {
-    // WHY: latched here too -- this file's third case depends on the band
+    // Why: latched here too -- this file's third case depends on the band
     // being cut, which only holds if the scroll MUST stays withdrawn.
     expect(
       REQUIREMENTS.includes('ピン止めしたタスクグループの並びを縦にスクロールできるようにすること'),

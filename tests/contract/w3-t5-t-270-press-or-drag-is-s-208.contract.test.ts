@@ -13,7 +13,7 @@ import { specTable, unbroken } from './spec-table'
 
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
-// see T-270
+// Spec: T-270
 const T_270_ONE_DISTANCE =
   '⭐ 押して離す（動かさない）と引くを分ける距離は、本表のすべての行で `_assets/tbl-settings.md` の 表 T-206 の `S-208` とすること（MUST）'
 const T_270_EITHER_AXIS = '押した点から横か縦のどちらかへ `S-208` を超えて離せば引く、どちらも超えなければ押して離すである。'
@@ -29,7 +29,7 @@ function settingPx(id: string): number {
 const S_208 = settingPx('S-208')
 const AT = { x: 400, y: 300 }
 
-// WHY: the predicate reads only where the press began; the other members of a press are not this clause's.
+// Why: the predicate reads only where the press began; the other members of a press are not this clause's.
 const PRESS = {
   at: { kind: 'pointer', phase: 'down', button: 'primary', x: AT.x, y: AT.y, modifiers: {}, clickCount: 1 },
   hit: null,

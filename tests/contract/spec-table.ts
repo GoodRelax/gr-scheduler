@@ -109,19 +109,19 @@ export function specTable(id: string): SpecTable {
   return copyOf(held)
 }
 
-// WHY: one read and split per test file, not per call -- the grab-area scans call this
-// WHY: hundreds of times per case (DFC-2312); each test file still loads its own module.
+// Why: one read and split per test file, not per call -- the grab-area scans call this
+// Why: hundreds of times per case (DFC-2312); each test file still loads its own module.
 const LINES_READ = new Map<string, readonly string[]>()
 const TABLES_READ = new Map<string, SpecTable>()
 
-// TRAP: hand out copies -- a test that edits a cached table would change what later cases read.
+// Trap: hand out copies -- a test that edits a cached table would change what later cases read.
 const copyOf = (table: SpecTable): SpecTable => ({
   ...table,
   headings: [...table.headings],
   rows: table.rows.map((row) => ({ id: row.id, cells: [...row.cells], by: { ...row.by } })),
 })
 
-// WHY: an empty read is not kept, so the next call reads the manuscript again (DFC-255).
+// Why: an empty read is not kept, so the next call reads the manuscript again (DFC-255).
 function manuscriptLines(file: string): readonly string[] | null {
   const held = LINES_READ.get(file)
   if (held !== undefined) return held

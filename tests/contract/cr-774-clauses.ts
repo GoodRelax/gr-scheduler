@@ -20,7 +20,7 @@ export const HM_3A_GRAB_NOTE =
   '⚠️ タスクグループパネルで掴んで運ぶときは、離したときに 表 T-234 の `QN-16` で問い、答えが Yes なら深すぎる配下を上限の段へ引き上げてから移す（表 T-051 の `HF-15`）'
 export const HM_3A_STILL_HOLDS = '引き上げたあとは上限を超えないので、本行は破られない。'
 
-// WHY: the sentences the retired reading of CR-772 stood on; a manuscript that still carries one has not taken CR-774.
+// Why: the sentences the retired reading of CR-772 stood on; a manuscript that still carries one has not taken CR-774.
 export const RETIRED_CAP_WITH_SUBTREE = '上限は、配下を含めて `FR-004` の深さの上限を超えないところまで下げること（MUST）'
 export const RETIRED_NO_PLACE = '置ける段が 1 つも無い隙間では差し込み線を引かず、離しても書き込まないこと（MUST）'
 export const RETIRED_HM_3A_NOTE = '上限を超える段をそもそも選ばせず、告げない'

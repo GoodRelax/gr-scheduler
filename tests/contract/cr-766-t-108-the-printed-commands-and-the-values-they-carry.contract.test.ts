@@ -25,22 +25,22 @@ const PRINTED = unbroken(PRINTED_TEXT)
 const table = printedCommands()
 const { commands } = table
 
-// see T-108
+// Spec: T-108
 const ALL_COMMANDS = '**本表は `applyDocumentChange` が受け取る命令の全数である**（表 T-064 の `PI-8`）。'
 const VALUES_ARE_HERE =
   '⭐ **命令が運ぶ値（名・型・意味）は本表が持つ** —— 文書の列を書く値は、その列（表 T-058 の `AT-` の行、見せ方の群は 表 T-202 ・表 T-203 の `S-` の行）を指し、型と上下限はその行に従う。'
 const PRINTED_NOT_WRITTEN =
   'コードの命令の型と、`Agent API` の `applyCommands`（表 T-107 の `AM-7`）が受ける形は本表の原稿から生成し、手で書かない。'
 const MANUSCRIPT_IS_THE_TRUTH = '**文書を書き換える命令と、命令ごとに運ぶ値の唯一の正は `_source/document-commands.json` である。**'
-// see PI-8
+// Spec: PI-8
 const PI_8_GENERATED = '**全数と、命令ごとに運ぶ値は 表 T-108 が持ち、本型はその原稿から生成する**（`_assets/tbl-document-commands.md`）'
-// WHY: CR-766 leaves section 7 of the glossary its heading and one pointer.
+// Why: CR-766 leaves section 7 of the glossary its heading and one pointer.
 const GLOSSARY_POINTER =
   '表 T-108（`DocumentCommand` の全数）と、命令ごとに運ぶ値は `_assets/tbl-document-commands.md` が持つ（原稿 `_source/document-commands.json`）。'
-// WHY: CR-766 section 3 lists these two sentences of the old preface as removed.
+// Why: CR-766 section 3 lists these two sentences of the old preface as removed.
 const RETIRED_SENTENCES = ['引数・戻り値は `src/` の公開エントリが持ち', '本表は名前と、何を担うかだけを持つ。']
 
-// WHY: the retired numbers live in the manuscript only (CR-766 X-k), never in the printed file.
+// Why: the retired numbers live in the manuscript only (CR-766 X-k), never in the printed file.
 const RETIRED_IDS = (
   JSON.parse(readFileSync(join(SPEC, '_source', 'document-commands.json'), 'utf8')) as { retired: string[] }
 ).retired
@@ -66,11 +66,11 @@ const everyValue: PrintedValue[] = commands.flatMap((command) => [
   ...(command.choice?.shapes.flatMap((shape) => every(shape.fields)) ?? []),
 ])
 
-// WHY: a T-058 row reads AT-n, then the entity and the column, each in backticks.
+// Why: a T-058 row reads AT-n, then the entity and the column, each in backticks.
 const COLUMN_OF = new Map(
   [...ERD_DETAIL.matchAll(/^\| (AT-\d+) \| `(\w+)` \| `(\w+)` \|/gm)].map((found) => [found[1] ?? '', `${found[2]}.${found[3]}`]),
 )
-// WHY: a T-202 / T-203 row reads S-n, then the key in backticks.
+// Why: a T-202 / T-203 row reads S-n, then the key in backticks.
 const SETTING_OF = new Map([...SETTINGS.matchAll(/^\| (S-\d+) \| `([\w.]+)` \|/gm)].map((found) => [found[1] ?? '', found[2] ?? '']))
 const PRESENTATION_ROWS = new Set([...specTable('T-202').rows, ...specTable('T-203').rows].map((row) => row.id))
 

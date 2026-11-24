@@ -22,10 +22,10 @@ const NT_1_SAYS_WHY_IN_WORDS = 'どの項目が、なぜ誤りかを文字で示
 const LIMIT = settingNumber('S-114')
 const RS_79 = WORDS.reasons.find((one) => one.rowId === 'RS-79')
 
-// see S-114
+// Spec: S-114
 const spelled = (words: string): string => words.replace('{importMaxItems}', String(LIMIT))
 
-// WHY: the shipped template already holds 1000 Tasks on its task groups; clones of its first Task and its first membership bring the count one past the limit.
+// Why: the shipped template already holds 1000 Tasks on its task groups; clones of its first Task and its first membership bring the count one past the limit.
 const oneTaskOverTheLimit = (): string => {
   const schedule = structuredClone(TEMPLATE['schedule']) as Record<string, any[]> & { project: Record<string, unknown> }
   const task = schedule['tasks']![0]

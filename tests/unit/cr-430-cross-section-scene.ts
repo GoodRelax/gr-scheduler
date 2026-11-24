@@ -39,17 +39,17 @@ const numberIn = (text: string): number => {
   return Number(found[0])
 }
 
-// see T-201
-// WHY: a default written as another row's id reads that row (T-201 S-300 states S-19, CR-758).
+// Spec: T-201
+// Why: a default written as another row's id reads that row (T-201 S-300 states S-19, CR-758).
 export const stored = (id: string): number => {
   const cell = bare(rowOf('T-201', id).by[DEFAULT_OF_T201] ?? '')
   return /^S-\d+[a-z]?$/.test(cell) ? stored(cell) : numberIn(cell)
 }
 
-// see T-206
+// Spec: T-206
 export const notStored = (id: string): number => numberIn(bare(rowOf('T-206', id).by[DEFAULT_OF_T206] ?? ''))
 
-// see DS-1, DS-3
+// Spec: DS-1, DS-3
 export const RATIO = displayRatioAt(DEFAULT_DISPLAY_SCALE)
 
 export const S_4 = stored('S-4')
@@ -79,15 +79,15 @@ export const S_233 = notStored('S-233')
 export const S_247 = notStored('S-247')
 export const S_260 = notStored('S-260')
 
-// see XS-1
+// Spec: XS-1
 export const H = S_4 * RATIO
-// see XS-2
+// Spec: XS-2
 export const ACTUAL_H = H * S_5
-// see XS-3
+// Spec: XS-3
 export const MARKER_D = S_22 * RATIO
-// see XS-5
+// Spec: XS-5
 export const GAP_TIER_1 = S_196 * RATIO
-// see XS-6
+// Spec: XS-6
 export const GAP_ACTUAL = S_10 * RATIO
 export const THIN_STROKE = S_304 * RATIO
 export const THIN_HEAD_LENGTH = S_305 * RATIO
@@ -99,7 +99,7 @@ export const MILESTONE_NAME_GAP = S_301 * RATIO
 export const ASSIGNEE_GAP = S_302 * RATIO
 export const FONT_MIN = S_8 * RATIO
 
-// see XS-4
+// Spec: XS-4
 export const tierOneFontOf = (planHeight: number, shapeKind: string): number => {
   const band = planHeight * (shapeKind === 'endpointSpan' ? S_16 : S_15)
   return Math.max(band * S_5 * S_7 * S_9, FONT_MIN)
@@ -143,7 +143,7 @@ export interface Dummy {
   readonly figure?: Bar
 }
 
-// see XS-10
+// Spec: XS-10
 export interface Resume {
   readonly arm?: readonly Pt[]
   readonly head?: readonly Pt[]
@@ -257,7 +257,7 @@ const EVERY_DAY_WORKED = {
     ordinal,
     dayType: ordinal,
     dayWorking: true,
-    // WHY: CR-710 reads the working times of a day (AT-158); none held reads S-580.
+    // Why: CR-710 reads the working times of a day (AT-158); none held reads S-580.
     workingTimes: [],
     carry: {},
     carryElements: [],
@@ -265,8 +265,8 @@ const EVERY_DAY_WORKED = {
   exceptions: [],
 } as unknown as Calendar
 
-// see WT-2, WT-4, FR-054, RV-1, RV-6
-// WHY: day(n) is the day's 00:00, which FR-054 reads as the END of the day before when it stands on a finish side;
+// Spec: WT-2, WT-4, FR-054, RV-1, RV-6
+// Why: day(n) is the day's 00:00, which FR-054 reads as the END of the day before when it stands on a finish side;
 // GRS writes an end at the day's close, so the scene does too and an end named day(n) is drawn on day n.
 const FINISH_SIDE_COLUMNS: readonly string[] = ['finish', 'actualFinish', 'stop']
 const DAY_OPEN = 'T00:00:00'
@@ -476,7 +476,7 @@ export const sceneOf = (wish: SceneWish): Scene => {
         (draw.watermark ?? null) as never,
         (draw.tentativeLink ?? null) as never,
       ) +
-      // WHY: table T-065 IF-1 lays the marquee overlay in front of the picture beneath, so the screen reads them in this order.
+      // Why: table T-065 IF-1 lays the marquee overlay in front of the picture beneath, so the screen reads them in this order.
       marqueeOverlaySvg(schedule, settings, regions, { themePreference: 'light', guideCursorMode: 'none' }, (draw.marquee ?? null) as never),
   }
 }

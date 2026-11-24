@@ -1,4 +1,4 @@
-// Fills the open surface of the screen description.
+// File: ScreenRenderer: Fills the open surface of the screen description.
 // @unit      UF-66   (docs/spec/05-07-design.md, table T-075)
 // @component ScreenRenderer, layer Adapter (table T-062)
 // @purity    pure
@@ -40,7 +40,7 @@ const HELP_MODAL = 'Help Modal'
 
 const ICON_TABLE = 'T-109'
 
-// see WB-4
+// Spec: WB-4
 const MAXIMIZE_ICON: IconId = 'IC-130'
 const RESTORE_ICON: IconId = 'IC-131'
 
@@ -50,7 +50,7 @@ const OPEN_CHOOSER = 'Open Chooser'
 
 const CLOSE_SURFACE_ENTRY: IconId = 'IC-52'
 
-// see FR-035, OP-16, PI-37
+// Spec: FR-035, OP-16, PI-37
 export const UNTITLED_DOCUMENT_TITLE = 'Untitled'
 
 const OPEN_CHOOSER_WORDS_BY_PART = new Map(displayWords.openChooser.map((entry) => [entry.part, entry]))
@@ -71,7 +71,7 @@ const IMPORT_REPORT = 'Import Report'
 
 const HOLIDAY_SETTINGS = HOLIDAY_SETTINGS_SURFACE
 
-// see T-103, T-280
+// Spec: T-103, T-280
 const SURFACE_OF_ROW: ReadonlyMap<string, string> = new Map([
   ['U-54', EXPORT_CHOOSER],
   ['U-56', OPEN_CHOOSER],
@@ -87,7 +87,7 @@ const MISSING_TASKS_REASON = 'RS-73'
 
 const NEWER_FORMAT_VERSION_REASON = 'RS-48'
 
-// see FR-073
+// Spec: FR-073
 /** @purity pure */
 function unreadWords(readings: ScreenViewReadings, language: DisplayLanguage): {
   readonly unreadText: string
@@ -106,8 +106,8 @@ function unreadWords(readings: ScreenViewReadings, language: DisplayLanguage): {
   }
 }
 
-// see MG-14, U-62, RS-73
-// WHY: a reason with no names has no words on the surface (MG-14 tells no zero count).
+// Spec: MG-14, U-62, RS-73
+// Why: a reason with no names has no words on the surface (MG-14 tells no zero count).
 /** @purity pure */
 function missingWords(readings: ScreenViewReadings, language: DisplayLanguage): {
   readonly missingTaskNames: readonly (string | null)[]
@@ -120,12 +120,12 @@ function missingWords(readings: ScreenViewReadings, language: DisplayLanguage): 
   return { missingTaskNames, missingText: said.text, missingNextStep: said.nextStep }
 }
 
-// see T-233
+// Spec: T-233
 const PRINTED_REASON_ORDER: readonly string[] = Object.keys(NOTICE_DISPLAY_OF_REASON)
 
 type ReportedReason = Pick<ImportReportLine, 'reason' | 'count' | 'names'>
 
-// see U-62, FR-076, MG-14
+// Spec: U-62, FR-076, MG-14
 /** @purity pure */
 function reportLinesOf(readings: ScreenViewReadings, language: DisplayLanguage): readonly ImportReportLine[] {
   const named: readonly ReportedReason[] = [
@@ -141,7 +141,7 @@ function reportLinesOf(readings: ScreenViewReadings, language: DisplayLanguage):
     })
 }
 
-// see U-62, FR-023, MG-14
+// Spec: U-62, FR-023, MG-14
 /** @purity pure */
 function importReportWords(readings: ScreenViewReadings, language: DisplayLanguage) {
   return {
@@ -160,7 +160,7 @@ const FORMAT_NAME_BY_TASK_GROUP = new Map(
   displayWords.exportFormats.map((entry) => [entry.rowId, entry]),
 )
 
-// see FR-096
+// Spec: FR-096
 /** @purity pure */
 function exportFormatChoices(
   language: DisplayLanguage,
@@ -176,7 +176,7 @@ const NO_WORDS = ''
 
 const FIT_SPAN_WORD = displayWords.exportChooser.find((entry) => entry.part === 'fitSpan')
 
-// see FR-096, IX-12, FX-1, FX-8
+// Spec: FR-096, IX-12, FX-1, FX-8
 /** @purity pure */
 function fitSpanLineOf(settings: DocumentSettings, language: DisplayLanguage): string | null {
   if (fixedFitSpanOf(settings) === null || FIT_SPAN_WORD === undefined) return null
@@ -187,10 +187,10 @@ function fitSpanLineOf(settings: DocumentSettings, language: DisplayLanguage): s
 
 const HEADINGS_BY_SURFACE = new Map(displayWords.surfaces.map((entry) => [entry.name, entry]))
 
-// see FN-1
+// Spec: FN-1
 const FILE_NAME_REPLACED = /[\s\\/:*?"<>|\x00-\x1f\x7f]/g
 
-// see FN-2
+// Spec: FN-2
 const FILE_NAME_DROPPED = /[^\x00-\x7f]/g
 
 const FILE_NAME_RUNS = /_+/g
@@ -199,10 +199,10 @@ const FILE_NAME_ENDS = /^[_. ]+|[_. ]+$/g
 
 const FILE_NAME_JOINER = '_'
 
-// see FN-5
+// Spec: FN-5
 const FILE_NAME_WHEN_EMPTY = 'schedule'
 
-// see T-352, FR-096, RW-7
+// Spec: T-352, FR-096, RW-7
 /** @purity pure */
 export function exportNameBodyOf(documentName: string): string {
   return documentName
@@ -212,7 +212,7 @@ export function exportNameBodyOf(documentName: string): string {
     .replace(FILE_NAME_ENDS, NO_WORDS)
 }
 
-// see FR-096, FN-5
+// Spec: FR-096, FN-5
 /** @purity pure */
 export function exportFileNameOf(documentName: string, extension: string): string {
   const body = exportNameBodyOf(documentName)
@@ -225,7 +225,7 @@ const FIX_LOG_FILE_WORD = 'fix-log'
 
 const BACKUP_MINUTE_OF_MOMENT = /^(\d{4}-\d{2}-\d{2})T(\d{2}):(\d{2}).*$/
 
-// see RW-15, RW-20
+// Spec: RW-15, RW-20
 /** @purity pure */
 function momentFileNameOf(documentName: string, word: string, localMoment: string, extension: string): string {
   const body = exportNameBodyOf(documentName)
@@ -238,7 +238,7 @@ export function delayFixBackupFileNameOf(documentName: string, localMoment: stri
   return momentFileNameOf(documentName, BACKUP_FILE_WORD, localMoment, extension)
 }
 
-// see RW-20, IO-9
+// Spec: RW-20, IO-9
 /** @purity pure */
 export function delayFixLogFileNameOf(documentName: string, localMoment: string, extension: string): string {
   return momentFileNameOf(documentName, FIX_LOG_FILE_WORD, localMoment, extension)
@@ -260,8 +260,8 @@ const HELP_NOTES_BY_ROW = new Map(displayWords.helpNotes.map((entry) => [entry.r
 
 const HELP_LINKS_BY_KEY = new Map(displayWords.helpLinks.map((entry) => [entry.link, entry]))
 
-// see FR-036, IC-20
-// WHY: a link that stands on an item names its T-109 row in the dictionary (helpLinks agentApi on IC-20).
+// Spec: FR-036, IC-20
+// Why: a link that stands on an item names its T-109 row in the dictionary (helpLinks agentApi on IC-20).
 const HELP_LINKS_BY_ROW = new Map(
   displayWords.helpLinks.flatMap((entry) => (entry.rowId === undefined ? [] : [[entry.rowId, entry] as const])),
 )
@@ -282,8 +282,8 @@ const BROWSER_FUNCTION_TABLE = 'T-255'
 
 type HelpRosterEntry = (typeof helpRoster.entries)[number]
 
-// see FR-036, S-350
-// WHY: the download page switches its own language (default English), so its address carries no ?lang.
+// Spec: FR-036, S-350
+// Why: the download page switches its own language (default English), so its address carries no ?lang.
 /** @purity pure */
 function helpDownloadLink(language: DisplayLanguage): HelpLink {
   return {
@@ -292,7 +292,7 @@ function helpDownloadLink(language: DisplayLanguage): HelpLink {
   }
 }
 
-// see FR-036, S-583
+// Spec: FR-036, S-583
 /** @purity pure */
 function helpAboutLink(language: DisplayLanguage): HelpLink {
   return {
@@ -301,8 +301,8 @@ function helpAboutLink(language: DisplayLanguage): HelpLink {
   }
 }
 
-// see FR-036, IC-20, S-350
-// WHY: the link on an item follows its name, so the item's text stays the icon label alone.
+// Spec: FR-036, IC-20, S-350
+// Why: the link on an item follows its name, so the item's text stays the icon label alone.
 /** @purity pure */
 function helpEntryLink(entry: HelpRosterEntry, language: DisplayLanguage): HelpLink | null {
   if (entry.kind !== 'item' || entry.table !== ICON_TABLE) return null
@@ -311,7 +311,7 @@ function helpEntryLink(entry: HelpRosterEntry, language: DisplayLanguage): HelpL
   return { words: link.text[language], address: downloadPageAddress() }
 }
 
-// see FR-036
+// Spec: FR-036
 /** @purity pure */
 function withNote(label: string, note: string | null, language: DisplayLanguage): string {
   if (note === null) return label
@@ -319,8 +319,8 @@ function withNote(label: string, note: string | null, language: DisplayLanguage)
   return word === undefined || word === '' ? label : `${label} ${word}`
 }
 
-// see FR-036, FR-038
-// TRAP: an item's word is its own row's; an entrance item takes the icon label, never a shortcut word.
+// Spec: FR-036, FR-038
+// Trap: an item's word is its own row's; an entrance item takes the icon label, never a shortcut word.
 /** @purity pure */
 function helpText(entry: HelpRosterEntry, language: DisplayLanguage): string {
   if (entry.kind === 'heading') {
@@ -343,7 +343,7 @@ function helpPress(entry: HelpRosterEntry, language: DisplayLanguage): string | 
   return word === undefined || word === '' ? null : word
 }
 
-// see FR-036
+// Spec: FR-036
 /** @purity pure */
 function helpEntries(language: DisplayLanguage): readonly HelpEntry[] {
   return helpRoster.entries.map((entry) => helpEntry(entry, language))
@@ -396,7 +396,7 @@ function commandItemFor(icon: IconId, language: DisplayLanguage): CommandItem {
   }
 }
 
-// see FR-029
+// Spec: FR-029
 /** @purity pure */
 function commandsOnSurface(surface: string, language: DisplayLanguage): readonly CommandItem[] {
   return iconRoster.icons
@@ -404,7 +404,7 @@ function commandsOnSurface(surface: string, language: DisplayLanguage): readonly
     .map((row) => commandItemFor(row.rowId, language))
 }
 
-// see FR-069
+// Spec: FR-069
 /** @purity pure */
 function helpLegalWords(language: DisplayLanguage): HelpModal['helpLegal'] {
   return {
@@ -418,21 +418,21 @@ function helpBlockNotes(language: DisplayLanguage): HelpModal['blockNotes'] {
   return HELP_BLOCK_NOTES.map((entry) => ({ block: entry.block, text: entry.text[language] }))
 }
 
-// see MG-10, U-61
+// Spec: MG-10, U-61
 /** @purity pure */
 function separateNoteOf(readings: ScreenViewReadings, language: DisplayLanguage): string {
   if ((readings.mergeCandidates ?? []).length === 0) return NO_WORDS
   return DIFFERENCE_REVIEW_WORDS_BY_PART.get(SEPARATE_NOTE_PART)?.text[language] ?? NO_WORDS
 }
 
-// see OP-16
+// Spec: OP-16
 /** @purity pure */
 function openChooserWord(part: string, language: DisplayLanguage): string {
   return OPEN_CHOOSER_WORDS_BY_PART.get(part)?.text[language] ?? NO_WORDS
 }
 
-// see OP-16, AM-8
-// WHY: read off the state that raised the chooser, so the rows keep what was read while it stands.
+// Spec: OP-16, AM-8
+// Why: read off the state that raised the chooser, so the rows keep what was read while it stands.
 /** @purity pure */
 function incomingFileOf(session: ScreenSession): OpenChooser['incomingFile'] {
   const state = session.fileFlow.fileOperationState
@@ -441,7 +441,7 @@ function incomingFileOf(session: ScreenSession): OpenChooser['incomingFile'] {
   return { fileName: read.fileName, byteLength: read.byteLength, documentTitle: read.documentTitle ?? UNTITLED_DOCUMENT_TITLE }
 }
 
-// see OP-16, FR-029, EZ-2
+// Spec: OP-16, FR-029, EZ-2
 /** @purity pure */
 function openChooserOf(session: ScreenSession, heading: string, commands: readonly CommandItem[], language: DisplayLanguage): OpenChooser {
   return {
@@ -458,8 +458,8 @@ function openChooserOf(session: ScreenSession, heading: string, commands: readon
   }
 }
 
-// see T-280, S-99g, T-103
-// WHY: the session names a surface by its U row; the drawing names it by the glossary word of that row.
+// Spec: T-280, S-99g, T-103
+// Why: the session names a surface by its U row; the drawing names it by the glossary word of that row.
 /** @purity pure */
 function openSurfaceNameOf(session: ScreenSession): string | null {
   const open = session.screen.openSurfaceState
@@ -467,7 +467,7 @@ function openSurfaceNameOf(session: ScreenSession): string | null {
   return SURFACE_OF_ROW.get(open.surfaceName) ?? null
 }
 
-// see FR-036, FR-038, T-335, HN-4
+// Spec: FR-036, FR-038, T-335, HN-4
 /** @purity pure */
 export function helpModalFromSession(session: ScreenSession, area: HelpWindowArea): HelpModal | null {
   const help = session.screen.helpDisplayState
@@ -503,7 +503,7 @@ interface SurfaceFrame {
   readonly language: DisplayLanguage
 }
 
-// see U-65, FR-088, T-280
+// Spec: U-65, FR-088, T-280
 /** @purity pure */
 function holidaySettingsOrBare(frame: SurfaceFrame): OpenModal {
   const { session, schedule, surface, heading, commands, language } = frame
@@ -511,7 +511,7 @@ function holidaySettingsOrBare(frame: SurfaceFrame): OpenModal {
   return holidaySettingsOf(session, schedule, heading, commands, language)
 }
 
-// see FR-029, FR-038
+// Spec: FR-029, FR-038
 /** @purity pure */
 export function openModalFromSession(
   session: ScreenSession,
@@ -575,7 +575,7 @@ export function openModalFromSession(
 // Single source of truth:
 //   docs/spec/_source/settings.json (table T-206)
 // Rebuild: npm run gen   ||   npm run gen:check fails on drift.
-// see T-206
+// Spec: T-206
 const NOT_STORED_ABOUT_ADDRESS: {
   readonly 'S-583': string
 } = {

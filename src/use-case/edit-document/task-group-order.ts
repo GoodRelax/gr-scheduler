@@ -1,4 +1,4 @@
-// EditDocument -- sibling task groups' order and parent change, and the WBS order follows the task groups.
+// File: EditDocument: sibling task groups' order and parent change, and the WBS order follows the task groups.
 // @unit      UF-80  (docs/spec/05-07-design.md, table T-075)
 // @component EditDocument, layer UseCase (table T-062)
 // @purity    pure
@@ -12,8 +12,8 @@ import { refused, edited, reject } from './edit-document'
 import type { TaskGroupCommandOf } from './edit-task-group'
 import { depthOf, subtreeOf, wbsSubtreesOf, withScheduleParts } from './edit-task-group'
 
-// see HM-9
-// TRAP: schedule-invariants.ts and the input translator walk the task group tree the same way; change all three.
+// Spec: HM-9
+// Trap: schedule-invariants.ts and the input translator walk the task group tree the same way; change all three.
 /** @purity pure */
 function taskGroupTreeRankById(groups: readonly TaskGroup[]): ReadonlyMap<string, number> {
   const childrenOf = new Map<string | null, TaskGroup[]>()
@@ -40,7 +40,7 @@ function taskGroupTreeRankById(groups: readonly TaskGroup[]): ReadonlyMap<string
   return rankById
 }
 
-// see ST-2
+// Spec: ST-2
 /** @purity pure */
 function compareByStackOrder(left: Task, right: Task): number {
   const text = (a: string | null, b: string | null): number =>
@@ -52,7 +52,7 @@ function compareByStackOrder(left: Task, right: Task): number {
   return left.uid - right.uid
 }
 
-// see HM-9
+// Spec: HM-9
 /** @purity pure */
 export function tasksRankedByTheTaskGroupTree(schedule: Schedule): readonly Task[] {
   if (schedule.tasks.length === 0) return schedule.tasks
@@ -90,7 +90,7 @@ function withWbsOrderFollowingTheTaskGroups(document: Document, taskGroups: read
   return withScheduleParts(moved, { tasks: tasksRankedByTheTaskGroupTree(moved.schedule) })
 }
 
-// see CM-35, FR-005
+// Spec: CM-35, FR-005
 /** @purity pure */
 export function reorderTaskGroupSiblings(
   document: Document,
@@ -123,14 +123,14 @@ export function reorderTaskGroupSiblings(
   return edited(withWbsOrderFollowingTheTaskGroups(document, ordered))
 }
 
-// see CM-73
-// TRAP: ranked by `order`, not by the array: a bundle of moves (QN-16) leaves the array out of tree order.
+// Spec: CM-73
+// Trap: ranked by `order`, not by the array: a bundle of moves (QN-16) leaves the array out of tree order.
 /** @purity pure */
 function siblingsByOrder(groups: readonly TaskGroup[], parentId: string | null, without: string): readonly TaskGroup[] {
   return groups.filter((one) => one.id !== without && one.parentId === parentId).sort((a, b) => a.order - b.order)
 }
 
-// see CM-73, FR-005
+// Spec: CM-73, FR-005
 /** @purity pure */
 export function moveTaskGroup(
   document: Document,
@@ -189,8 +189,8 @@ export function moveTaskGroup(
   return movedWithTheWbs(document, next, byId, moved, parent)
 }
 
-// see HM-1, HM-4
-// WHY: byId is the pre-move task group index moveTaskGroup already holds; the WBS walk reads the task groups as they stood.
+// Spec: HM-1, HM-4
+// Why: byId is the pre-move task group index moveTaskGroup already holds; the WBS walk reads the task groups as they stood.
 /** @purity pure */
 function movedWithTheWbs(
   document: Document,
@@ -210,8 +210,8 @@ function movedWithTheWbs(
   return edited(withWbsOrderFollowingTheTaskGroups(withScheduleParts(document, { tasks: reparented }), taskGroups))
 }
 
-// see HM-1, HM-7, HM-12
-// WHY: undefined when the move reaches no parent task: a hand-made task group carries no Task, and a reorder is no move;
+// Spec: HM-1, HM-7, HM-12
+// Why: undefined when the move reaches no parent task: a hand-made task group carries no Task, and a reorder is no move;
 // null is the root.
 /** @purity pure */
 function parentTaskAfterTheMove(
@@ -225,8 +225,8 @@ function parentTaskAfterTheMove(
   return nearestDerivedTaskUid(schedule, byId, parent)
 }
 
-// see HM-12, DU-1
-// WHY: walks up from the landing task group; a task group whose source Task is gone derives nothing, and no derived task group is the root.
+// Spec: HM-12, DU-1
+// Why: walks up from the landing task group; a task group whose source Task is gone derives nothing, and no derived task group is the root.
 // A copy's walk passes the task groups that derive from its own WBS descendants (DU-1), so no loop forms.
 /** @purity pure */
 export function nearestDerivedTaskUid(

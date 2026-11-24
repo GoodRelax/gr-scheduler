@@ -28,7 +28,7 @@ import { bare } from './spec-table'
 
 afterEach(restoreAnimationFrames)
 
-// see FR-017
+// Spec: FR-017
 const FR_017_ZONE_ROWS =
   '表示するタイムゾーン（`FR-156`）は、時刻を表示しているあいだ、目盛の帯の下に 1 つにつき 1 段を足して刷ること（MUST）'
 const FR_017_ABBREVIATION =
@@ -50,15 +50,15 @@ describe('FR-017 -- the manuscript these cases are built from still reads as quo
   )
 })
 
-// see S-8, S-577, S-578, T-205
+// Spec: S-8, S-577, S-578, T-205
 const PX_SCALE = ((SETTINGS_DEFAULTS['rulerFontSizePx'] as number) * RATIO) / stored('S-8')
 const thresholdOf = (id: string): number => Number(bare(rowOf('T-205', id).by['既定'] ?? ''))
 const S_577 = thresholdOf('S-577')
 const S_578 = thresholdOf('S-578')
-// WHY: inside the day tier, and wide inside the hour tier where every hour carries its number.
+// Why: inside the day tier, and wide inside the hour tier where every hour carries its number.
 const DAY_TIER = S_577 / 2
 const HOUR_TIER = S_578 * 1.25
-// see S-313
+// Spec: S-313
 const S_313 = notStored('S-313')
 
 const WEEKDAY_WORDS = ['日', '月', '火', '水', '木', '金', '土']
@@ -115,7 +115,7 @@ const elementOf = (svg: string, figure: string): string | null =>
 const attrOf = (element: string, name: string): string | null => new RegExp(`(?:^|\\s)${name}="([^"]*)"`).exec(element)?.[1] ?? null
 const NEAR = 0.01
 
-// see FR-017, FR-156, TM-5, S-574, S-575
+// Spec: FR-017, FR-156, TM-5, S-574, S-575
 describe(`FR-017 -- ${FR_017_ABBREVIATION}`, () => {
   it('at the hour tier: the view base hour row prints the base abbreviation, then each display zone row its own, top to bottom', () => {
     const scene = sceneOf({ width: HOUR_TIER, display: ['UTC+09:00', 'UTC-07:00 DST'] })
@@ -148,7 +148,7 @@ describe(`FR-017 -- ${FR_017_ABBREVIATION}`, () => {
   })
 })
 
-// see FR-017, FR-156
+// Spec: FR-017, FR-156
 describe(`FR-017 -- ${FR_017_FIXED}`, () => {
   it.each([
     ['January', '2026-01-05'],
@@ -172,7 +172,7 @@ describe(`FR-017 -- ${FR_017_FIXED}`, () => {
   })
 })
 
-// see FR-017, S-313, T-206
+// Spec: FR-017, S-313, T-206
 describe(`FR-017 -- ${FR_017_FONT_AND_EDGE}`, () => {
   const scene = sceneOf({ width: HOUR_TIER, display: ['UTC+09:00', 'UTC-07:00 DST'] })
   const panel = scene.regions.taskGroupPanel
@@ -210,7 +210,7 @@ describe(`FR-017 -- ${FR_017_FONT_AND_EDGE}`, () => {
   })
 })
 
-// see FR-017, U-22
+// Spec: FR-017, U-22
 describe('FR-017 -- the DOM prints each abbreviation right-aligned in its box', () => {
   const ABBREVIATIONS: readonly RulerAbbreviation[] = [
     { text: 'PST', box: { x: 0, y: 30, width: 296, height: 23 }, baseline: 48, fontPx: 21 },
@@ -249,7 +249,7 @@ function withClocks(document: Document, settings: Loose, data = 'UTC-08:00'): Do
 
 const BENCH = (): Document => documentOf({ tasks: [{ uid: 1, name: 'Kickoff', start: '2028-04-03T08:00:00', finish: '2028-04-03T17:00:00' }] })
 
-// see FR-017, EP-2, EP-3, FR-025
+// Spec: FR-017, EP-2, EP-3, FR-025
 describe(`FR-017 -- the screen view and the exported picture: ${FR_017_PICTURE}`, () => {
   it('the screen view carries no abbreviations while time of day is hidden', async () => {
     const built = await shiftStage(withClocks(BENCH(), { isTimeOfDayVisible: false, displayTimeZones: ['UTC+09:00'] }))

@@ -1,4 +1,4 @@
-// DocumentCodec, MSPDI half -- converts between XML text and the element tree.
+// File: DocumentCodec, MSPDI half: converts between XML text and the element tree.
 // @unit      UF-153  (docs/spec/05-07-design.md, table T-075)
 // @component DocumentCodec, layer Adapter (table T-062)
 // @purity    pure
@@ -10,7 +10,7 @@ export interface MspdiFault {
 
 export interface XmlElement {
   readonly name: string
-  // TRAP: meaningful only when children is empty; whitespace between child elements is layout.
+  // Trap: meaningful only when children is empty; whitespace between child elements is layout.
   readonly text: string
   readonly children: readonly XmlElement[]
 }
@@ -21,7 +21,7 @@ interface OpenElement {
   readonly children: XmlElement[]
 }
 
-// WHY: rootNamespace is the URI the root's own start tag binds to the root's prefix; null when it binds none (EX-15).
+// Why: rootNamespace is the URI the root's own start tag binds to the root's prefix; null when it binds none (EX-15).
 type XmlReading =
   | { readonly ok: true; readonly root: XmlElement; readonly rootNamespace: string | null }
   | { readonly ok: false; readonly fault: MspdiFault }
@@ -71,8 +71,8 @@ function decodedText(raw: string): string | null {
   return out
 }
 
-// WHY: an explicit stack, since nothing bounds nesting before validation and recursion would overflow.
-// see FR-023
+// Why: an explicit stack, since nothing bounds nesting before validation and recursion would overflow.
+// Spec: FR-023
 /** @purity pure */
 export function readXml(text: string): XmlReading {
   const stack: OpenElement[] = []
@@ -171,7 +171,7 @@ type EndTagReading =
   | { readonly ok: true; readonly built: XmlElement; readonly after: number }
   | { readonly ok: false; readonly fault: MspdiFault }
 
-// WHY: reads the end tag against the open element on top without popping it; the caller pops.
+// Why: reads the end tag against the open element on top without popping it; the caller pops.
 /** @purity pure */
 function readEndTag(text: string, from: number, stack: readonly OpenElement[]): EndTagReading {
   const end = text.indexOf('>', from + 2)
@@ -194,7 +194,7 @@ type StartTagReading =
       readonly name: string
       readonly isEmpty: boolean
       readonly after: number
-      // WHY: only the declarations on this tag, which is all the root has (EX-15).
+      // Why: only the declarations on this tag, which is all the root has (EX-15).
       readonly namespace: string | null
     }
   | { readonly ok: false; readonly fault: MspdiFault }
@@ -233,7 +233,7 @@ function readStartTag(text: string, from: number, path: string): StartTagReading
   }
 }
 
-// WHY: only namespace declarations are read; any other attribute is refused, since the XSD declares no
+// Why: only namespace declarations are read; any other attribute is refused, since the XSD declares no
 // attribute and carry has no room for one; it would vanish on write.
 /** @purity pure */
 function readAttribute(text: string, from: number, path: string, element: string): AttributeReading {
@@ -291,7 +291,7 @@ function escapedText(value: string): string {
   return value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
 }
 
-// see CN-5
+// Spec: CN-5
 /** @purity pure */
 export function writtenXml(root: XmlElement, namespace: string): string {
   const parts: string[] = ['<?xml version="1.0" encoding="UTF-8"?>\n']

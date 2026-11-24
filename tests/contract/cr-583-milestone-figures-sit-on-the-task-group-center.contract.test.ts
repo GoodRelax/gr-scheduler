@@ -70,8 +70,8 @@ const S_280_THE_SQUARE = '⭐ 掴み代は描いた図形の外接正方形そ�
 const JDG_742 = '⭐ フロッピーの窓は線で描く（くり抜かない）。外形は変えない'
 
 
-// WHY: the SVG writes coordinates to two decimals and curves are sampled, so a drawn value is
-// WHY: compared to a few hundredths of a px -- the smallest move CR-583 makes is 0.095 of a half side.
+// Why: the SVG writes coordinates to two decimals and curves are sampled, so a drawn value is
+// Why: compared to a few hundredths of a px -- the smallest move CR-583 makes is 0.095 of a half side.
 const EPS = 0.02
 const ARC_STEPS = 256
 
@@ -87,8 +87,8 @@ const numbersOf = (text: string): number[] => (text.match(NUMBER) ?? []).map(Num
 const angleBetween = (ux: number, uy: number, vx: number, vy: number): number =>
   Math.atan2(ux * vy - uy * vx, ux * vx + uy * vy)
 
-// WHY: an arc is sampled from its center form (SVG 1.1 appendix F.6.5) so its extent is measured,
-// WHY: not guessed from its end points.
+// Why: an arc is sampled from its center form (SVG 1.1 appendix F.6.5) so its extent is measured,
+// Why: not guessed from its end points.
 const arcRun = (from: Pt, rxIn: number, ryIn: number, tilt: number, large: number, sweep: number, to: Pt): Pt[] => {
   let rx = Math.abs(rxIn)
   let ry = Math.abs(ryIn)
@@ -386,7 +386,7 @@ const shapeOf = (glyph: string): Shape => {
 const unitExtentOf = (glyph: string): Extent => extentOf(shapeOf(glyph).layers.map((one) => one.outline))
 const layersOf = (glyph: string, role: Role): readonly Layer[] => shapeOf(glyph).layers.filter((one) => one.role === role)
 
-// see SH-5, T-012
+// Spec: SH-5, T-012
 const sh5Spellings = (): readonly string[] => {
   const at = REQUIREMENTS.indexOf(SH_5_PAIRS)
   if (at < 0) throw new Error('the note under table T-012 no longer pairs SH-5 to milestoneGlyph')
@@ -428,7 +428,7 @@ const paintOf = (element: Element, name: string): string | null => {
 }
 
 const color = (text: string | null): string => (text ?? '').replace(/\s+/g, '').toLowerCase()
-// WHY: an absent fill paints black in SVG, so only an explicit none leaves a shape unfilled.
+// Why: an absent fill paints black in SVG, so only an explicit none leaves a shape unfilled.
 const isFilled = (element: Element): boolean => color(paintOf(element, 'fill')) !== 'none'
 const isStroked = (element: Element): boolean => {
   const stroke = color(paintOf(element, 'stroke'))
@@ -461,8 +461,8 @@ const elementsOf = (svg: string): readonly Element[] => {
 
 type Part = 'plan' | 'actual' | 'dummies'
 
-// WHY: no spec row names the element that carries a figure or a layer, so the renderer's data-figure
-// WHY: mark (task-<uid>-<part>, on the shape or a group round it) is the only handle, as for CR-588.
+// Why: no spec row names the element that carries a figure or a layer, so the renderer's data-figure
+// Why: mark (task-<uid>-<part>, on the shape or a group round it) is the only handle, as for CR-588.
 const figureOf = (elements: readonly Element[], uid: number, part: Part): readonly Element[] => {
   const mark = new RegExp(`data-figure="task-${uid}-${part}(?:-[^"]*)?"`)
   const found = elements.filter((one) => mark.test(one.attrs) || one.groupAttrs.some((group) => mark.test(group)))
@@ -543,7 +543,7 @@ interface Place {
   readonly half: number
 }
 
-// see F-044, LF-10
+// Spec: F-044, LF-10
 const mapped = (p: Pt, place: Place): Pt => ({ x: place.center.x + p.x * place.half, y: place.center.y + p.y * place.half })
 
 const planPlace = (stage: Stage): Place => ({
@@ -554,7 +554,7 @@ const actualPlace = (stage: Stage): Place => ({
   center: { x: stage.startX(ACTUAL_DAY), y: stage.planMiddleY(STARTED_UID) },
   half: (stage.planSide(STARTED_UID) / 2) * S_5,
 })
-// see DM-12
+// Spec: DM-12
 const dummyPlace = (stage: Stage): Place => ({
   center: { x: stage.startX(UNSTARTED_DAY), y: stage.planMiddleY(UNSTARTED_UID) },
   half: (stage.planSide(UNSTARTED_UID) / 2) * S_5,
@@ -578,13 +578,13 @@ const carriers = (figure: readonly Element[], p: Pt): readonly Element[] =>
 const isOnABody = (glyph: string, p: Pt): boolean =>
   layersOf(glyph, 'body').some((one) => distanceTo(one.outline, p) <= 1e-6)
 
-// WHY: an arc's end points sit on the body it spans, so the middle of each run is probed as well.
+// Why: an arc's end points sit on the body it spans, so the middle of each run is probed as well.
 const probesOf = (layer: Layer): readonly Pt[] => [
   ...layer.outline.anchors,
   ...layer.outline.runs.map((run) => run[Math.floor(run.length / 2)] as Pt),
 ]
 
-// WHY: a figure's fill and edge are read off the filled element that carries F-044's first body point.
+// Why: a figure's fill and edge are read off the filled element that carries F-044's first body point.
 const bodyOf = (figure: readonly Element[], glyph: string, place: Place): Element => {
   const first = (layersOf(glyph, 'body')[0] as Layer).outline.anchors[0] as Pt
   const found = carriers(figure, mapped(first, place)).find(isFilled)
@@ -592,7 +592,7 @@ const bodyOf = (figure: readonly Element[], glyph: string, place: Place): Elemen
   return found
 }
 
-// see LF-18
+// Spec: LF-18
 const expectedInk = (stage: Stage, part: Part): string => {
   const planBody = bodyOf(figureOf(stage.elements, STARTED_UID, 'plan'), stage.glyph, planPlace(stage))
   return part === 'plan' ? color(paintOf(planBody, 'stroke')) : color(paintOf(planBody, 'fill'))
@@ -789,7 +789,7 @@ describe('LF-18 -- the color of the inner lines and dots', () => {
           top: place.center.y + unit.top * place.half,
           bottom: place.center.y + unit.bottom * place.half,
         }
-        // WHY: LF-18 does not say one element per dot, so a dot is any sub-path of a filled element.
+        // Why: LF-18 does not say one element per dot, so a dot is any sub-path of a filled element.
         const dots = figure.filter((one) =>
           isFilled(one) &&
           one.outline.runs.some((run) => {
@@ -876,7 +876,7 @@ describe('LF-18 -- the circle, the face, the cylinder, the person and the mug ar
 })
 
 describe('LF-18 "奥から順に描く" -- the head over the torso, the mug over its handle', () => {
-  // WHY: F-044 lists the back body first -- the torso before the head, the handle before the mug.
+  // Why: F-044 lists the back body first -- the torso before the head, the handle before the mug.
   const TWO_BODIES = ['person', 'beerMug'] as const
 
   it('premise: F-044 gives person and beerMug two bodies each', () => {
@@ -927,7 +927,7 @@ describe('HT-1 / GA-15 -- the hit test reads the drawn outline of a moved triang
     return itemAtPointer(stage.geometry, place.center.x, place.center.y + dy * place.half, grabSizesOf())
   }
 
-  // WHY: 0.65 of a half side is inside the redrawn triangle and past the old one's base (0.5).
+  // Why: 0.65 of a half side is inside the redrawn triangle and past the old one's base (0.5).
   it.each([
     ['triangleUp', 0.65],
     ['triangleDown', -0.65],
@@ -937,7 +937,7 @@ describe('HT-1 / GA-15 -- the hit test reads the drawn outline of a moved triang
     expect(hit?.grab).toBe('GA-15')
   })
 
-  // WHY: 0.9 of a half side is where the old apex stood and outside the redrawn figure's band (0.75).
+  // Why: 0.9 of a half side is where the old apex stood and outside the redrawn figure's band (0.75).
   it.each([
     ['triangleUp', -0.9],
     ['triangleDown', 0.9],

@@ -14,7 +14,7 @@ const CLAUSE_RIGHT_MARGIN =
   '⭐ 並びのいちばん右の操作子（すべて消す）の外形と、タスクグループパネルの右端とのあいだを、タスクグループの並び（`HF-4`）と同じく `_assets/tbl-settings.md` の 表 T-206 の `S-313` とすること（MUST）'
 const CLAUSE_TAB_ORDER = '⭐ 焦点が `Tab` で進む順も、この並びの左から右とすること（MUST）'
 
-// see T-109
+// Spec: T-109
 const TASK_GROUP_PANEL = bare(specTable('T-103').rows.find((one) => one.id === 'U-22')?.by['確定名（英）'] ?? '')
 const headEntryOf = (rule: string): string => {
   const found = specTable('T-109').rows.filter(
@@ -26,10 +26,10 @@ const headEntryOf = (rule: string): string => {
 const DELETE_EVERY_TASK_GROUP = headEntryOf('HF-20')
 const HEAD_ROW = [headEntryOf('HF-12'), headEntryOf('HF-16'), headEntryOf('HF-10'), headEntryOf('HF-17'), DELETE_EVERY_TASK_GROUP]
 
-// see S-313
+// Spec: S-313
 const S_313 = Number(/(\d+(?:\.\d+)?)\s*px/.exec(specTable('T-206').rows.find((one) => one.id === 'S-313')?.by['既定'] ?? '')?.[1])
 
-// see MC-6
+// Spec: MC-6
 const SCREEN = screenOf(rowOf(specTable('T-025'), 'MC-6'))
 const NEAR_PX = 0.5
 

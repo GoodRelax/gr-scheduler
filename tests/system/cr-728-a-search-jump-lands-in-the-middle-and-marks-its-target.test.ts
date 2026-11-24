@@ -44,7 +44,7 @@ interface Spot {
   readonly y: number
 }
 
-// WHY: task 30 hangs under task 25 and depends on task 18; task 35 depends on task 30. Forty one-task rows put task 25 mid-list.
+// Why: task 30 hangs under task 25 and depends on task 18; task 35 depends on task 30. Forty one-task rows put task 25 mid-list.
 /** @purity pure */
 function documentText(): string {
   const base = JSON.parse(
@@ -100,7 +100,7 @@ async function barCenter(page: Page, uid: number): Promise<Spot> {
   return at
 }
 
-// WHY: the press and the ripple's start are one happening; the ripple lasts S-557 x S-558, so it is looked for
+// Why: the press and the ripple's start are one happening; the ripple lasts S-557 x S-558, so it is looked for
 // right after the release, before any settling wait.
 /** @purity non-pure */
 async function pressAndSeeRipple(page: Page, at: Spot): Promise<number> {
@@ -123,7 +123,7 @@ interface Reading {
   readonly areaHeight: number
 }
 
-// WHY: the Task Group Area is read off the drawing -- the ruler ground spans its width and ends at its top, and the
+// Why: the Task Group Area is read off the drawing -- the ruler ground spans its width and ends at its top, and the
 // ground clip spans its height.
 /** @purity semi-pure-mutable */
 async function readingOf(page: Page, uid: number): Promise<Reading> {
@@ -160,7 +160,7 @@ interface Landing {
   readonly isWide?: boolean
 }
 
-// see SJ-5, SJ-6, SJ-10
+// Spec: SJ-5, SJ-6, SJ-10
 /** @purity non-pure */
 async function expectLanded(page: Page, uid: number, shape: Landing = {}): Promise<void> {
   const read = await readingOf(page, uid)
@@ -375,7 +375,7 @@ test.describe('CR-728 -- SJ-9: the Agent API focusTask', () => {
 test.describe('CR-728 -- the other entrances that press and jump', () => {
   test.setTimeout(240_000)
 
-  // WHY: a double click on the bar opens the Properties Panel on that task; the press clears the old mark (EL-17).
+  // Why: a double click on the bar opens the Properties Panel on that task; the press clears the old mark (EL-17).
   /** @purity non-pure */
   async function openPanelOn(page: Page, uid: number): Promise<void> {
     await focusTask(page, uid)

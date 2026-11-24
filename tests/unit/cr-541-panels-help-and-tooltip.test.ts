@@ -37,13 +37,13 @@ import { REQUIREMENTS, taskGroupDocument, rowOf, taskOf } from './cr-541-stage'
 const Q07 = '⭐ パネルが文書の設定を出しているあいだ、その欄は読むだけとすること（MUST）'
 const Q08 = 'だけとすること（MUST）。⛔ 編集できると示してはならない（MUST NOT）'
 const Q08A = '⭐ ただし、別の要求がその入口を本面の欄として置いたときは、その欄だけは、その要求に従って選ばせること（MUST） —— `FR-041` のテーマ色の欄がこれである。'
-// WHY: CR-690 -- the order of the face's fields moved to table T-369, and no placing requirement names another field.
+// Why: CR-690 -- the order of the face's fields moved to table T-369, and no placing requirement names another field.
 const Q08B = '⭐ 本面の欄の並びと欄の名は 表 T-369 に従うこと（MUST）'
 const THEME_HUE_FIELD = 'K-60'
-// WHY: table T-369 places under K-60 the fields FO-3 to FO-16 name; FR-156, FR-157 and FR-158 placed the last four.
-// WHY: CR-755 (FO-15) -- the display time zones are four rows, the setting's row and its number.
+// Why: table T-369 places under K-60 the fields FO-3 to FO-16 name; FR-156, FR-157 and FR-158 placed the last four.
+// Why: CR-755 (FO-15) -- the display time zones are four rows, the setting's row and its number.
 const LATER_PLACED_FIELDS = ['K-125', 'K-85', 'K-143', 'K-71', 'IC-44', 'K-142', 'K-141', 'K-140', 'K-146', 'K-144', 'K-145:1', 'K-145:2', 'K-145:3', 'K-145:4', 'FO-17', 'IC-162']
-// WHY: FO-11's read-out holds the copy entrance (FX-7), a control on a field that is itself read only.
+// Why: FO-11's read-out holds the copy entrance (FX-7), a control on a field that is itself read only.
 const SHOWN_SPAN_FIELD = 'FX-6'
 const Q17 = '⭐ 画面に依存の種別を出すときは、本表の `名` の欄の略号（括弧の前の `FS` / `SF` / `FF` / `SS`）で出すこと（MUST）'
 const Q18 = '（MUST）。⛔ 保存した数（`linkType`）をそのまま出してはならない（MUST NOT）'
@@ -101,8 +101,8 @@ const KINDS = specTable('T-018').rows.map((one) => ({
   abbreviation: (bare(one.by['名'] ?? one.cells[2] ?? '').split('（')[0] ?? '').trim(),
 }))
 
-// see T-016, IR-1
-// WHY: a field carries its T-016 row id; the dependency kind is the Dependency row of linkType.
+// Spec: T-016, IR-1
+// Why: a field carries its T-016 row id; the dependency kind is the Dependency row of linkType.
 const LINK_TYPE_SEAT =
   specTable('T-016').rows.find(
     (one) => bare(one.by['対象'] ?? '') === 'Dependency' && (one.by['列（`GRS JSON`）'] ?? '').trim() === '`linkType`',
@@ -145,7 +145,7 @@ describe('FR-072 -- the document settings are read only in the panel, but for th
   it(Q08, () => {
     const described = panel()
     const withControls = described!.fields.filter((one) => one.controls.length > 0).map((one) => one.row)
-    // WHY: FX-6 (the shown span and its copy entrance) stands after K-141 (FO-11), before K-140 (FO-12).
+    // Why: FX-6 (the shown span and its copy entrance) stands after K-141 (FO-11), before K-140 (FO-12).
     const afterShownSpan = LATER_PLACED_FIELDS.indexOf('K-140')
     const placedWithControls = [THEME_HUE_FIELD, ...LATER_PLACED_FIELDS.slice(0, afterShownSpan), SHOWN_SPAN_FIELD, ...LATER_PLACED_FIELDS.slice(afterShownSpan)]
     expect(withControls, 'no field offers a control to change it but the fields table T-369 places')
@@ -234,7 +234,7 @@ describe('FR-036 -- the help title row stands outside what scrolls', () => {
       copyrightNotice: 'Copyright notice',
       attributions: ['An attribution'],
       helpLegal: { licensedUnder: 'LicensedUnderHere', fullText: 'FullTextHere' },
-      // WHY: CR-828 made blockNotes a required member of the Help Modal view; these cases do not read the notes.
+      // Why: CR-828 made blockNotes a required member of the Help Modal view; these cases do not read the notes.
       blockNotes: [],
       area: { belowAppHeader: { x: 0, y: 37, width: 1280, height: 763 } },
       downloadLink: { words: '', address: '' },
@@ -268,7 +268,7 @@ describe('IN-3 / EZ-6 -- a task tooltip', () => {
       assignment: null,
       at: { x: 200, y: 150 },
     }
-    // WHY: a window the tip fits in below and to the right, so IN-7 leaves it at its first place.
+    // Why: a window the tip fits in below and to the right, so IN-7 leaves it at its first place.
     const built = stage({ 'App Header': 37, [TOOLTIP]: 700 })
     built.world.widthsByRole.set(TOOLTIP, 1000)
     domScreenSurface(wiringOf(built, THEME)).showScreenView(viewWith({ tooltips: [tip] }))

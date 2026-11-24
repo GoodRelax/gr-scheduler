@@ -32,7 +32,7 @@ const RW_1_IC_107 = '`IC-107` を押せば診断をやり直して開く（`FR-1
 const PE_8_EXCEPTION =
   '⚠️ 遅延診断レポートの窓が開いているあいだ、`FR-133` の 表 T-315 の `DG-1` 〜 `DG-3` で描いたマーカーは、そのタスクの行にいまの行の印が付いていなければ巡らせない —— `FR-134` の 表 T-346 の `RW-19` に従う'
 const PE_10_EXCEPTION = '⚠️ 遅延診断レポートの窓が開いているあいだの例外は `PE-8` と同じ（`RW-19`）'
-// WHY: CR-781 rewrote this sentence of FR-130: an open window (minimized included) is closed alone like IC-52, and the marks stay.
+// Why: CR-781 rewrote this sentence of FR-130: an open window (minimized included) is closed alone like IC-52, and the marks stay.
 const FR_130_THE_SAME_ENTRY =
   '診断を出しているあいだに同じ入口を押したら、遅延診断レポートの窓（`FR-134` の 表 T-346 の `RW-1`）が開いていれば（最小化を含む）、窓の `IC-52` と同じく窓だけを閉じ、窓だけを閉じていれば（`IC-52`）いまの文書で診断をやり直し、その結果をマーカーと一覧に出して窓を開くこと（MUST）'
 
@@ -48,11 +48,11 @@ const SHIPPED_WORDS = JSON.parse(
 const cellOf = (table: string, id: string, heading: string): string =>
   unbroken(specTable(table).rows.find((one) => one.id === id)?.by[heading] ?? '')
 
-// see T-315
-// WHY: SELF depends on itself (DG-1), LATE is not started after its start (DG-2), PARENT is its ancestor (DG-3),
-// WHY: WAITING waits on the late SLOW (DG-4) and PLAIN has no state; the premise case checks each.
-// WHY: BEHIND follows AHEAD; begun first, it makes AHEAD a predecessor still open (VO-3, DG-1) until undone.
-// WHY: SELF starts before the status date and AHEAD is begun; a task not begun that starts after it is never drawn with DG-1 or DG-2 (FR-133).
+// Spec: T-315
+// Why: SELF depends on itself (DG-1), LATE is not started after its start (DG-2), PARENT is its ancestor (DG-3),
+// Why: WAITING waits on the late SLOW (DG-4) and PLAIN has no state; the premise case checks each.
+// Why: BEHIND follows AHEAD; begun first, it makes AHEAD a predecessor still open (VO-3, DG-1) until undone.
+// Why: SELF starts before the status date and AHEAD is begun; a task not begun that starts after it is never drawn with DG-1 or DG-2 (FR-133).
 const SELF = 40
 const PARENT = 20
 const LATE = 21
@@ -69,7 +69,7 @@ const span = (uid: number, from: string, to: string, extra: Partial<TaskSpec> = 
   ...extra,
 })
 
-// WHY: the canvas starts before April, so every marker stands on the chart and clear of the report window below it.
+// Why: the canvas starts before April, so every marker stands on the chart and clear of the report window below it.
 function seeded(): Document {
   const made = documentOf(
     [
@@ -164,10 +164,10 @@ const rowsIn = (container: FakeElement): FakeElement[] => {
   const head = new Set(selfAndDescendants(container).filter((one) => one.tagName === 'THEAD').flatMap((one) => selfAndDescendants(one)))
   return selfAndDescendants(container).filter((one) => one.tagName === 'TR' && !head.has(one))
 }
-// see RW-11
+// Spec: RW-11
 const chosenTab = (stage: WindowStage): string | null =>
   ((needReport(stage) as unknown as { tabEntries?: readonly { icon: string; isChosen: boolean }[] }).tabEntries ?? []).find((one) => one.isChosen)?.icon ?? null
-// see RW-14
+// Spec: RW-14
 const counterOf = (stage: WindowStage): string => JSON.stringify((needReport(stage) as unknown as { walkCounter?: unknown }).walkCounter ?? null)
 
 describe('CR-764 -- the clauses this file is driven by', () => {
@@ -303,7 +303,7 @@ describe(`RW-19 / PE-8 / PE-10 -- ${RW_19_STEPS_IN_ORDER}`, () => {
     expect(currentUids(stage)).toEqual([LATE])
   })
 
-  // WHY: CR-797 -- the diagnosis is made again only on IC-168 and IC-107 (FR-130), so a row leaves the table, and its mark goes with it, only then.
+  // Why: CR-797 -- the diagnosis is made again only on IC-168 and IC-107 (FR-130), so a row leaves the table, and its mark goes with it, only then.
   it(`${RW_19_MARK_GONE} -- the rebuild is IC-168`, async () => {
     const stage = await diagnosed()
     expect(reportUids(stage), 'premise: AHEAD has no row').not.toContain(AHEAD)
@@ -421,7 +421,7 @@ describe(`FR-130 -- ${FR_130_THE_SAME_ENTRY}`, () => {
   it('the IC-107 hint says the same in both languages, and the shipped dictionary carries it', () => {
     const spec = SPEC_WORDS.icons.find((one) => one.rowId === 'IC-107')?.hint
     const shipped = SHIPPED_WORDS.icons.find((one) => one.rowId === 'IC-107')?.hint
-    // WHY: CR-781 reworded the hint of IC-107 (display-words.json): an open report is closed alone.
+    // Why: CR-781 reworded the hint of IC-107 (display-words.json): an open report is closed alone.
     expect(spec?.ja).toBe('遅延診断を行う。レポートを閉じていれば診断をやり直して開き、開いていればレポートだけを閉じる')
     expect(spec?.en).toBe('Run the Delay Diagnostics; runs them again and opens the report if it is closed, or closes only the report while it is open')
     expect(shipped).toEqual(spec)

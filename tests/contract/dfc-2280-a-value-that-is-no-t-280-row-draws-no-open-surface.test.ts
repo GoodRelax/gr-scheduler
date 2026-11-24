@@ -25,11 +25,11 @@ const FR_072_NO_TITLE_BAR = '⛔ **パネルの先頭にタイトルバーを置
 const SEARCH_PANEL = 'Search Panel'
 const DELAY_REPORT = 'Delay Diagnostics Report'
 
-// WHY: values the code once drew as surfaces (FR-074, FR-088) and window names the focus names; none is a T-280 row.
+// Why: values the code once drew as surfaces (FR-074, FR-088) and window names the focus names; none is a T-280 row.
 const NAMED_NON_ROWS: readonly string[] = ['FR-074', 'FR-088', SEARCH_PANEL, DELAY_REPORT, 'Properties Panel', 'Dialogue Field']
 
-// see T-280, T-103
-// WHY: every U row T-280 does not carry, and the settled name of every T-103 row (a name is not a row id)
+// Spec: T-280, T-103
+// Why: every U row T-280 does not carry, and the settled name of every T-103 row (a name is not a row id)
 const NON_ROWS: readonly string[] = [
   ...new Set([
     ...NAMED_NON_ROWS,
@@ -38,8 +38,8 @@ const NON_ROWS: readonly string[] = [
   ]),
 ]
 
-// see S-451, RW-1
-// WHY: an empty diagnosis still raises the window
+// Spec: S-451, RW-1
+// Why: an empty diagnosis still raises the window
 const NO_DELAY_FOUND = {
   outcome: 'diagnosed',
   statusDate: null,

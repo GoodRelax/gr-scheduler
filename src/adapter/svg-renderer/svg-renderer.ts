@@ -1,4 +1,4 @@
-// SvgRenderer -- turns the schedule geometry into one SVG string.
+// File: SvgRenderer: turns the schedule geometry into one SVG string.
 // @unit      UF-32   (docs/spec/05-07-design.md, table T-075)
 // @component SvgRenderer, layer Adapter (table T-062)
 // @purity    pure
@@ -46,7 +46,7 @@ import {
 
 export type { SvgSurface } from './svg-surface'
 
-// see FR-133, SQ-5, DT-1
+// Spec: FR-133, SQ-5, DT-1
 export { markerGlyphSvg } from './schedule-task-figures'
 
 export type SchedulePicture = 'screen' | 'export'
@@ -58,27 +58,27 @@ export { jumpLandingRingOf } from './schedule-overlays'
 export { rulerClockRowsOf } from './schedule-grid'
 export type { RulerClockRow } from './schedule-grid'
 
-// see DC-2, DC-8
+// Spec: DC-2, DC-8
 export interface DualCursorFollow {
   readonly side: 'cursorA' | 'cursorB'
   readonly x: number | null
 }
 
-// see FR-020
+// Spec: FR-020
 export interface Watermark {
   readonly openedBy: string
   readonly stampedAt: string
 }
 
-// see PI-19, CA-1, IF-1
+// Spec: PI-19, CA-1, IF-1
 export interface BeneathPointerReading {
   readonly guideCursorPoint: Point | null
   readonly pointerInsideDummyTaskUids: readonly number[]
   readonly pointerOnMarkerTaskUid: number | null
 }
 
-// see PI-19, CA-1, ZO-2, ZO-3, ZO-8
-// WHY: svgFromSchedule draws with this answer and the shell keys its held picture on it, so the two cannot part.
+// Spec: PI-19, CA-1, ZO-2, ZO-3, ZO-8
+// Why: svgFromSchedule draws with this answer and the shell keys its held picture on it, so the two cannot part.
 /** @purity pure */
 export function beneathPointerReadingOf(
   geometry: ScheduleGeometry,
@@ -96,9 +96,9 @@ export function beneathPointerReadingOf(
 
 const OFF_SCREEN_SIDE_MARGIN = 0.25
 
-// see PE-0, FR-105
-// WHY: the chart's own surface, not a stopped default: MK-12 leaves the browser its defaults, and PE-0 takes out the one of them that starts a text selection.
-// TRAP: the prefixed spelling first, so a viewer that reads only that one still obeys PE-0.
+// Spec: PE-0, FR-105
+// Why: the chart's own surface, not a stopped default: MK-12 leaves the browser its defaults, and PE-0 takes out the one of them that starts a text selection.
+// Trap: the prefixed spelling first, so a viewer that reads only that one still obeys PE-0.
 const NO_TEXT_SELECTION_STYLE = '-webkit-user-select:none;user-select:none'
 
 /** @purity pure */
@@ -110,13 +110,13 @@ export function escaped(text: string): string {
     .replace(/"/g, '&quot;')
 }
 
-// see NS-3
+// Spec: NS-3
 /** @purity pure */
 export function rounded(value: number): string {
   return (Math.round(value * 100) / 100).toString()
 }
 
-// TRAP: key by the document's id, never an array index: a delete or a sideways scroll moves an index.
+// Trap: key by the document's id, never an array index: a delete or a sideways scroll moves an index.
 /** @purity pure */
 export function figureKey(key: string): string {
   return ` data-figure="${escaped(key)}"`
@@ -144,7 +144,7 @@ export function boxOfPoints(path: Path): ScreenRect | null {
   return { x: left, y: top, width: right - left, height: bottom - top }
 }
 
-// see SL-8
+// Spec: SL-8
 /** @purity pure */
 export function selectionFrameSvg(box: ScreenRect, color: string, key: string): string {
   const stroke = NOT_STORED_SELECTION_SIZES['S-174']
@@ -160,31 +160,31 @@ export function selectionFrameSvg(box: ScreenRect, color: string, key: string): 
   )
 }
 
-// see SL-8, EL-16
+// Spec: SL-8, EL-16
 /** @purity pure */
 export function emphasizedWidthOf(own: number): number {
   return own + NOT_STORED_DEPENDENCY_EMPHASIS_SIZES['S-447']
 }
 
-// see DC-8
+// Spec: DC-8
 /** @purity pure */
 export function selectedLineWidth(own: number, selected: boolean): number {
   return selected ? own * NOT_STORED_SELECTION_SIZES['S-178'] : own
 }
 
-// see EP-1, ZO-5
+// Spec: EP-1, ZO-5
 /** @purity pure */
 export function bandBaselineYOf(band: ScreenRect, fontPx: number): number {
   return band.y + band.height / 2 + fontPx * SETTINGS_CONSTANTS.labelBaseline
 }
 
-// see CF-1
+// Spec: CF-1
 /** @purity pure */
 export function isScheduleColorRow(rowId: string): boolean {
   return SCHEDULE_COLORS[rowId] !== undefined
 }
 
-// see FR-041
+// Spec: FR-041
 /** @purity pure */
 export function achromatic(color: string): string {
   const asHsl = /^hsla?\(\s*[\d.]+\s*[, ]\s*[\d.]+%\s*[, ]\s*([\d.]+)%/.exec(color.trim())
@@ -198,8 +198,8 @@ export function achromatic(color: string): string {
   return `hsl(0 0% ${rounded(lightness * 100)}%)`
 }
 
-// see T-236, FR-041, CF-1
-// WHY: a row whose cell names another row (S-527, S-528) is drawn as that row, so it shifts with it (T-366).
+// Spec: T-236, FR-041, CF-1
+// Why: a row whose cell names another row (S-527, S-528) is drawn as that row, so it shifts with it (T-366).
 /** @purity pure */
 export function colorOf(rowId: string, hue: number, dark: boolean, monochrome: boolean): string {
   const named = SCHEDULE_COLORS_SOURCES[rowId]?.[dark ? 'dark' : 'light']
@@ -216,7 +216,7 @@ interface ThemeSolve {
   readonly groundSaturation: number | null
 }
 
-// see T-366, CF-2, CF-4
+// Spec: T-366, CF-2, CF-4
 const SHIFT_RATIO_ROW_OF: Readonly<Record<string, 'S-522' | 'S-523' | 'S-524' | 'S-525'>> = {
   'S-155': 'S-522',
   'S-156': 'S-523',
@@ -228,12 +228,12 @@ const GROUND_ROW = 'S-146'
 
 const CT_FLOOR = { 'CT-3': 3, 'CT-4': 3, 'CT-5': 1.3 } as const
 
-// see CF-5, NFR-007
+// Spec: CF-5, NFR-007
 const TEXT_ON_GROUND_FLOOR = 4.5
 const TEXT_ROWS_ON_GROUND = ['S-147', 'S-148', 'S-503'] as const
 const LINE_ROWS_ON_GROUND = ['S-159', 'S-160', 'S-163', 'S-195', 'S-312', 'S-364'] as const
 
-// WHY: white is the ground's own color (S-314), so CV-8 leaves it out; transparent has no string cell.
+// Why: white is the ground's own color (S-314), so CV-8 leaves it out; transparent has no string cell.
 const PALETTE_ROWS_OFF_THE_GROUND: readonly string[] = ['S-314']
 
 const TENTHS = 10
@@ -259,7 +259,7 @@ function shiftDeltaOf(rowId: string, shift: number, dark: boolean): number | nul
   return (dark ? 1 : -1) * shift * NOT_STORED_THEME_SOLVE[ratioRow]
 }
 
-// see CF-2, CF-4
+// Spec: CF-2, CF-4
 /** @purity pure */
 function solvedCellOf(rowId: string, written: string, solve: ThemeSolve, dark: boolean): string {
   const delta = shiftDeltaOf(rowId, solve.shift, dark)
@@ -275,7 +275,7 @@ function withSaturation(written: string, saturation: number): string {
   return `hsl(H ${rounded(saturation)}% ${rounded(lightness)}%)`
 }
 
-// see CF-6, CV-7
+// Spec: CF-6, CV-7
 /** @purity pure */
 function measuredCellOf(written: string, hue: number, monochrome: boolean): readonly [number, number, number] {
   const cell = HSL_CELL.exec(written)
@@ -301,7 +301,7 @@ function shiftedThemeCellOf(rowId: string, shift: number, dark: boolean): string
   return solvedCellOf(rowId, themeCellOf(rowId, dark), { shift, groundSaturation: null }, dark)
 }
 
-// see CF-3, CT-3, CT-4, CT-5
+// Spec: CF-3, CT-3, CT-4, CT-5
 /** @purity pure */
 function meetsShiftFloors(hue: number, dark: boolean, monochrome: boolean, shift: number): boolean {
   const ground = measuredCellOf(withSaturation(themeCellOf(GROUND_ROW, dark), 0), hue, monochrome)
@@ -324,7 +324,7 @@ function shiftOf(hue: number, dark: boolean, monochrome: boolean): number {
   return cap
 }
 
-// see CF-5, CV-8, T-294
+// Spec: CF-5, CV-8, T-294
 /** @purity pure */
 function shiftedGroundPairsOf(hue: number, dark: boolean, shift: number): readonly GroundPair[] {
   const pairs: readonly (readonly [string, number])[] = [
@@ -335,8 +335,8 @@ function shiftedGroundPairsOf(hue: number, dark: boolean, shift: number): readon
   return pairs.map(([cell, floor]) => [relativeLuminance(measuredCellOf(cell, hue, false)), floor] as const)
 }
 
-// see CF-5, CV-8, T-294
-// WHY: these inks do not follow the hue, so they are measured once per light/dark, not once per hue.
+// Spec: CF-5, CV-8, T-294
+// Why: these inks do not follow the hue, so they are measured once per light/dark, not once per hue.
 /** @purity pure */
 function fixedGroundPairsOf(dark: boolean): readonly GroundPair[] {
   const pairs: (readonly [string, number])[] = [
@@ -362,7 +362,7 @@ function groundPasses(hue: number, dark: boolean, pairs: readonly GroundPair[], 
     (Math.max(ink, groundLuminance) + LUMINANCE_OFFSET) / (Math.min(ink, groundLuminance) + LUMINANCE_OFFSET) >= floor)
 }
 
-// see CF-4, S-526
+// Spec: CF-4, S-526
 /** @purity pure */
 function groundSaturationOf(hue: number, dark: boolean, shift: number, fixed: readonly GroundPair[]): number | null {
   const pairs = [...shiftedGroundPairsOf(hue, dark, shift), ...fixed]
@@ -380,7 +380,7 @@ function groundSaturationOf(hue: number, dark: boolean, shift: number, fixed: re
   return found >= top ? null : found
 }
 
-// WHY: monochrome draws S-146 gray whatever its saturation, so CF-4's 0 is the table's own cell grayed.
+// Why: monochrome draws S-146 gray whatever its saturation, so CF-4's 0 is the table's own cell grayed.
 /** @purity pure */
 function solvedThemeOf(hue: number, dark: boolean, monochrome: boolean, fixed: readonly GroundPair[]): ThemeSolve {
   const shift = shiftOf(hue, dark, monochrome)
@@ -392,7 +392,7 @@ function themeVariantOf(dark: boolean, monochrome: boolean): number {
   return (dark ? 2 : 0) + (monochrome ? 1 : 0)
 }
 
-// WHY: every hue the document can hold (0..359) reads the table solved at load; any other number is solved here.
+// Why: every hue the document can hold (0..359) reads the table solved at load; any other number is solved here.
 /** @purity pure */
 function themeSolveOf(hue: number, dark: boolean, monochrome: boolean): ThemeSolve {
   if (!Number.isFinite(hue)) return { shift: 0, groundSaturation: null }
@@ -410,24 +410,24 @@ function solvedThemeTableOf(): readonly (readonly ThemeSolve[])[] {
   })
 }
 
-// see T-236, FR-041, CV-9
-// WHY: one reader of the theme rows for the drawing and the panel's swatches, so the two cannot drift.
+// Spec: T-236, FR-041, CV-9
+// Why: one reader of the theme rows for the drawing and the panel's swatches, so the two cannot drift.
 /** @purity pure */
 function themedColors(hue: number, dark: boolean, monochrome: boolean): (rowId: string) => string {
   return (rowId) => colorOf(rowId, hue, dark, monochrome)
 }
 
-// see CV-6
+// Spec: CV-6
 export type ColorForm = keyof PaletteForms
 
-// see CV-6
+// Spec: CV-6
 export type ChosenColor = (stored: string | null, form: ColorForm) => string | null
 
 const NOT_DRAWN = 'none'
 
 const HSL_CELL = /^hsl\(\s*\S+\s+([\d.]+)%\s+([\d.]+)%\s*\)$/
 
-// see CV-6, S-155, S-157
+// Spec: CV-6, S-155, S-157
 /** @purity pure */
 function planToActualShift(dark: boolean): { readonly s: number; readonly l: number } {
   /** @purity pure */
@@ -457,14 +457,14 @@ function hueSector(red: number, green: number, blue: number, high: number, chrom
   return (red - green) / chroma + 4
 }
 
-// see CV-10
+// Spec: CV-10
 interface Hsl {
   readonly h: number
   readonly s: number
   readonly l: number
 }
 
-// see CV-10
+// Spec: CV-10
 /** @purity pure */
 function hexToHsl(hex: string): Hsl {
   const [red = 0, green = 0, blue = 0] = [1, 3, 5].map(
@@ -489,14 +489,14 @@ function hslToRgbChannels(hue: number, saturation: number, lightness: number): r
   return [f(0), f(8), f(4)].map((v) => Math.round(v * 255)) as [number, number, number]
 }
 
-// see CV-10, CV-7
+// Spec: CV-10, CV-7
 /** @purity pure */
 function grayChannelsOf(rgb: readonly [number, number, number]): readonly [number, number, number] {
   const gray = Math.round(((Math.max(...rgb) + Math.min(...rgb)) / 2 / 255) * 255)
   return [gray, gray, gray]
 }
 
-// see CV-10
+// Spec: CV-10
 /** @purity pure */
 function measuredRgbOf(hsl: Hsl, monochrome: boolean): readonly [number, number, number] {
   const rgb = hslToRgbChannels(hsl.h, hsl.s, hsl.l)
@@ -507,7 +507,7 @@ const LUMINANCE_THRESHOLD = 0.03928
 const LUMINANCE_OFFSET = 0.05
 const LUMINANCE_WEIGHTS: readonly [number, number, number] = [0.2126, 0.7152, 0.0722]
 
-// see CV-10
+// Spec: CV-10
 /** @purity pure */
 function relativeLuminance(rgb: readonly [number, number, number]): number {
   /** @purity pure */
@@ -518,7 +518,7 @@ function relativeLuminance(rgb: readonly [number, number, number]): number {
   return LUMINANCE_WEIGHTS.reduce((sum, weight, index) => sum + weight * channel(rgb[index] as number), 0)
 }
 
-// see CV-10
+// Spec: CV-10
 /** @purity pure */
 function contrastRatioOf(a: readonly [number, number, number], b: readonly [number, number, number]): number {
   const lumA = relativeLuminance(a)
@@ -526,29 +526,29 @@ function contrastRatioOf(a: readonly [number, number, number], b: readonly [numb
   return (Math.max(lumA, lumB) + LUMINANCE_OFFSET) / (Math.min(lumA, lumB) + LUMINANCE_OFFSET)
 }
 
-const ACTUAL_TO_PICK_CONTRAST_TARGET = 3 // see CT-3
+const ACTUAL_TO_PICK_CONTRAST_TARGET = 3 // Spec: CT-3
 
-// see CV-10
+// Spec: CV-10
 /** @purity pure */
 function meetsContrastTarget(candidate: Hsl, pick: Hsl, monochrome: boolean): boolean {
   const ratio = contrastRatioOf(measuredRgbOf(candidate, monochrome), measuredRgbOf(pick, monochrome))
   return ratio >= ACTUAL_TO_PICK_CONTRAST_TARGET
 }
 
-// see CV-10
+// Spec: CV-10
 /** @purity pure */
 function saturationOfActual(pick: Hsl, shift: { readonly s: number }): number {
   return pick.s === 0 ? 0 : clampedPercent(pick.s + shift.s)
 }
 
-// see CV-10
+// Spec: CV-10
 /** @purity pure */
 function lightnessCandidateOf(pick: Hsl, delta: number): number {
   const bounds = NOT_STORED_CUSTOM_ACTUAL_LIGHTNESS
   return Math.min(bounds['S-416'], Math.max(bounds['S-415'], pick.l + delta))
 }
 
-// see CV-10
+// Spec: CV-10
 /** @purity pure */
 function lightnessOfActual(
   pick: Hsl,
@@ -568,7 +568,7 @@ function lightnessOfActual(
   return floorRatio >= ceilingRatio ? floor.l : ceiling.l
 }
 
-// see CV-6, CV-10
+// Spec: CV-6, CV-10
 /** @purity pure */
 export function actualOfCustom(hex: string, dark: boolean, monochrome: boolean): string {
   const pick = hexToHsl(hex)
@@ -578,7 +578,7 @@ export function actualOfCustom(hex: string, dark: boolean, monochrome: boolean):
   return `hsl(${rounded(pick.h)} ${rounded(s)}% ${rounded(l)}%)`
 }
 
-// see CV-6, CV-3, T-294
+// Spec: CV-6, CV-3, T-294
 /** @purity pure */
 function drawnChoice(
   stored: string,
@@ -600,8 +600,8 @@ function drawnChoice(
   return form === 'actual' ? actualOfCustom(side, dark, monochrome) : side
 }
 
-// see CV-6, CV-7, FR-041
-// WHY: null keeps the theme's color: nothing chosen, or a form the chosen name offers no value for.
+// Spec: CV-6, CV-7, FR-041
+// Why: null keeps the theme's color: nothing chosen, or a form the chosen name offers no value for.
 /** @purity pure */
 function chosenColorOf(
   stored: string | null,
@@ -616,7 +616,7 @@ function chosenColorOf(
   return monochrome ? achromatic(drawn) : drawn
 }
 
-// see CV-9, T-236
+// Spec: CV-9, T-236
 const THEME_ROW_OF_FORM: Readonly<Record<ColorForm, string>> = {
   fill: 'S-155',
   outline: 'S-156',
@@ -637,7 +637,7 @@ export function inkOn(paint: string): string {
   return Number(lightness[1]) < INK_TURNS_AT_LIGHTNESS ? INK_ON_DARK : INK_ON_LIGHT
 }
 
-// see CV-9, CV-7, S-74
+// Spec: CV-9, CV-7, S-74
 /** @purity pure */
 export function swatchOf(
   stored: string | null,
@@ -653,13 +653,13 @@ export function swatchOf(
 
 export const GROUP_GRID_LINE_WIDTH_PX = 1
 
-// see FR-039, S-246
+// Spec: FR-039, S-246
 /** @purity pure */
 export function typefaceAttribute(): string {
   return ` font-family="${escaped(NOT_STORED_TYPEFACES['S-246'])}"`
 }
 
-// TRAP: SVG ids are document-wide; an id not unique to the picture collides when an export is drawn into the screen's document.
+// Trap: SVG ids are document-wide; an id not unique to the picture collides when an export is drawn into the screen's document.
 /** @purity pure */
 function pictureId(seed: string): string {
   let hash = 0x811c9dc5
@@ -670,8 +670,8 @@ function pictureId(seed: string): string {
   return (hash >>> 0).toString(36)
 }
 
-// see T-020
-// TRAP: one group per row of table T-020, pinned half first: the seam reads the order off this string.
+// Spec: T-020
+// Trap: one group per row of table T-020, pinned half first: the seam reads the order off this string.
 /** @purity pure */
 function zoLayer(row: string, drawn: readonly string[]): readonly string[] {
   const inner = drawn.join('')
@@ -679,9 +679,9 @@ function zoLayer(row: string, drawn: readonly string[]): readonly string[] {
   return [`<g data-zo="${row}">${inner}</g>`]
 }
 
-// see FR-051, EP-5
-// WHY: drawn only on the ground the task group bands paint (no scrollbar band, no canvasPadding under task groups).
-// TRAP: one clip per layer; one group around them all, halo mask inside, paints 3-4x slower (DFC-1132).
+// Spec: FR-051, EP-5
+// Why: drawn only on the ground the task group bands paint (no scrollbar band, no canvasPadding under task groups).
+// Trap: one clip per layer; one group around them all, halo mask inside, paints 3-4x slower (DFC-1132).
 /** @purity pure */
 function groundClipped(
   input: Pick<GridInput, 'area' | 'settings'>,
@@ -701,7 +701,7 @@ function groundClipped(
   ]
 }
 
-// see IF-1
+// Spec: IF-1
 /** @purity pure */
 function pictureSizeOf(regions: ScreenRegions): { readonly width: number; readonly height: number } {
   return {
@@ -710,8 +710,8 @@ function pictureSizeOf(regions: ScreenRegions): { readonly width: number; readon
   }
 }
 
-// see FR-080, T-020, T-076
-// TRAP: snapshot-source.ts reads Parameters<typeof svgFromSchedule>[3] and [4] by position; insert no parameter ahead of regions.
+// Spec: FR-080, T-020, T-076
+// Trap: snapshot-source.ts reads Parameters<typeof svgFromSchedule>[3] and [4] by position; insert no parameter ahead of regions.
 /** @purity pure */
 export function svgFromSchedule(
   schedule: Schedule,
@@ -720,7 +720,7 @@ export function svgFromSchedule(
   geometry: ScheduleGeometry,
   regions: ScreenRegions,
   selection: Selection,
-  // TRAP: no default: a forgotten export would draw FR-043's dummies into a reader's file (EP-14).
+  // Trap: no default: a forgotten export would draw FR-043's dummies into a reader's file (EP-14).
   picture: SchedulePicture,
   viewer: ViewerValues,
   follow: DualCursorFollow | null = null,
@@ -740,7 +740,7 @@ export function svgFromSchedule(
   const visualOf = new Map(schedule.taskVisuals.map((one) => [one.taskUid, one]))
   const strokeOfBox = new Map(schedule.highlightBoxes.map((one) => [one.id, one.strokeColor]))
   const colorOfGroup = new Map(schedule.taskGroups.map((one) => [one.id, one.color]))
-  // TRAP: gate every operation mark on drawsOperationState, or it leaks into an export (EP-12, DC-8).
+  // Trap: gate every operation mark on drawsOperationState, or it leaks into an export (EP-12, DC-8).
   const drawsOperationState = picture === 'screen'
   const marks: readonly ItemRef[] = drawsOperationState ? selection.items : []
   const following = drawsOperationState ? follow : null
@@ -853,11 +853,11 @@ export function svgFromSchedule(
     )
   }
 
-  // see FR-009
-  // WHY: FR-009 calls it a tentative dependency line, so it takes the line's own color, width and head.
+  // Spec: FR-009
+  // Why: FR-009 calls it a tentative dependency line, so it takes the line's own color, width and head.
   const tentative = drawsOperationState ? tentativeLink : null
   const tentativeArrowId = `grs-tentative-arrow-${pictureId(`${rounded(width)}x${rounded(height)}`)}`
-  // TRAP: the head is a definition, not ink: inside ZO-11's group it would sit in a drawn layer.
+  // Trap: the head is a definition, not ink: inside ZO-11's group it would sit in a drawn layer.
   if (tentative !== null) {
     defsParts.push(
       dependencyArrowSvg(tentativeArrowId, settings, themed('S-159')),
@@ -872,8 +872,8 @@ export function svgFromSchedule(
             ` marker-end="url(#${tentativeArrowId})"/>`,
         ]
 
-  // see T-020
-  // TRAP: the rows run back to front in the order the table prints them, not in row-ID order.
+  // Spec: T-020
+  // Trap: the rows run back to front in the order the table prints them, not in row-ID order.
   const parts = [
     ...defsParts,
     ...groundClipped(drawing, [
@@ -904,7 +904,7 @@ export function svgFromSchedule(
           : [watermarkSvg(area, width, watermark, themed('S-223'), watermarkClipId)],
       ),
     ]),
-    // WHY: the ruler draws in its own band, so table T-020 holds no row for it (the table's closing note).
+    // Why: the ruler draws in its own band, so table T-020 holds no row for it (the table's closing note).
     ...rulerSvg(
       layout,
       settings,
@@ -928,8 +928,8 @@ export function svgFromSchedule(
   )
 }
 
-// see IF-1, ZO-6, SL-3
-// WHY: the size, viewBox and clip box of the picture beneath, under its own clip id (one document); never exported (FR-080).
+// Spec: IF-1, ZO-6, SL-3
+// Why: the size, viewBox and clip box of the picture beneath, under its own clip id (one document); never exported (FR-080).
 /** @purity pure */
 export function marqueeOverlaySvg(
   schedule: Schedule,
@@ -957,7 +957,7 @@ export function marqueeOverlaySvg(
 // Single source of truth:
 //   docs/spec/_source/settings.json (tables T-206, T-207, T-236 and T-294)
 // Rebuild: npm run gen   ||   npm run gen:check fails on drift.
-// see T-206
+// Spec: T-206
 export const NOT_STORED_SELECTION_SIZES: {
   readonly 'S-174': number
   readonly 'S-175': readonly [number, number]
@@ -972,7 +972,7 @@ export const NOT_STORED_SELECTION_SIZES: {
   'S-376': 8,
 }
 
-// see T-206
+// Spec: T-206
 export const NOT_STORED_DEPENDENCY_SIZES: {
   readonly 'S-224': number
   readonly 'S-360': number
@@ -985,14 +985,14 @@ export const NOT_STORED_DEPENDENCY_SIZES: {
   'S-362': 3.2,
 }
 
-// see T-206
+// Spec: T-206
 const NOT_STORED_DEPENDENCY_EMPHASIS_SIZES: {
   readonly 'S-447': number
 } = {
   'S-447': 2,
 }
 
-// see T-206
+// Spec: T-206
 export const NOT_STORED_DUAL_CURSOR_SIZES: {
   readonly 'S-194': number
   readonly 'S-333': number
@@ -1003,7 +1003,7 @@ export const NOT_STORED_DUAL_CURSOR_SIZES: {
   'S-438': 4,
 }
 
-// see T-206
+// Spec: T-206
 export const NOT_STORED_JUMP_LANDING_RING_SIZES: {
   readonly 'S-555': number
   readonly 'S-556': number
@@ -1014,7 +1014,7 @@ export const NOT_STORED_JUMP_LANDING_RING_SIZES: {
   'S-588': 2,
 }
 
-// see T-206
+// Spec: T-206
 export const NOT_STORED_DELAY_MARK_SIZES: {
   readonly 'S-328': number
   readonly 'S-329': number
@@ -1045,21 +1045,21 @@ export const NOT_STORED_DELAY_MARK_SIZES: {
   'S-601': 0.5,
 }
 
-// see T-206
+// Spec: T-206
 const NOT_STORED_BASELINE_OUTLINE_SIZES: {
   readonly 'S-444': readonly [number, number]
 } = {
   'S-444': [4, 2],
 }
 
-// see T-206
+// Spec: T-206
 export const NOT_STORED_RULER_WEEKDAY_SIZES: {
   readonly 'S-219': number
 } = {
   'S-219': 0.6,
 }
 
-// see T-206
+// Spec: T-206
 const NOT_STORED_CUSTOM_ACTUAL_LIGHTNESS: {
   readonly 'S-415': number
   readonly 'S-416': number
@@ -1068,7 +1068,7 @@ const NOT_STORED_CUSTOM_ACTUAL_LIGHTNESS: {
   'S-416': 85,
 }
 
-// see T-206
+// Spec: T-206
 const NOT_STORED_THEME_SOLVE: {
   readonly 'S-520': number
   readonly 'S-521': number
@@ -1087,21 +1087,21 @@ const NOT_STORED_THEME_SOLVE: {
   'S-526': 9,
 }
 
-// see T-206
+// Spec: T-206
 const NOT_STORED_TYPEFACES: {
   readonly 'S-246': string
 } = {
   'S-246': '"Yu Gothic UI", "Yu Gothic", YuGothic, "BIZ UDPGothic", sans-serif',
 }
 
-// see T-206
+// Spec: T-206
 export const NOT_STORED_NAME_LABEL_WEIGHT: {
   readonly 'S-245': number
 } = {
   'S-245': 600,
 }
 
-// see T-236, S-73
+// Spec: T-236, S-73
 const SCHEDULE_COLORS: {
   readonly [rowId: string]: {
     readonly light: string
@@ -1152,7 +1152,7 @@ const SCHEDULE_COLORS: {
   'S-587': { light: '#b31959', dark: '#f283b1', followsHue: false },
 }
 
-// see T-236, T-366
+// Spec: T-236, T-366
 const SCHEDULE_COLORS_SOURCES: {
   readonly [rowId: string]: { readonly light: string; readonly dark: string }
 } = {
@@ -1167,7 +1167,7 @@ const SCHEDULE_COLORS_SOURCES: {
   'S-528': { light: 'S-156', dark: 'S-156' },
 }
 
-// see T-294, T-017b
+// Spec: T-294, T-017b
 type PaletteCell = string | null | false | { readonly sameAs: string }
 interface PaletteForms {
   readonly fill: PaletteCell
@@ -1239,7 +1239,7 @@ const COLOR_NAME_VALUES: {
   },
 }
 
-// see T-207, FR-020
+// Spec: T-207, FR-020
 export const WATERMARK_MARKS: {
   readonly 'S-220': string
   readonly 'S-221': string
@@ -1253,6 +1253,6 @@ export const WATERMARK_MARKS: {
 }
 // </generated>
 
-// see CF-1
-// WHY: solved once per hue, light/dark and monochrome when the module loads, never per frame; colorOf reads it.
+// Spec: CF-1
+// Why: solved once per hue, light/dark and monochrome when the module loads, never per frame; colorOf reads it.
 const SOLVED_THEMES = solvedThemeTableOf()

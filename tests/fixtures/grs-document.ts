@@ -8,15 +8,15 @@ const SCHEMA_PATH = join(process.cwd(), 'docs', 'spec', '_source', 'grs-document
 
 export const documentSchema: unknown = JSON.parse(readFileSync(SCHEMA_PATH, 'utf8'))
 
-// WHY: the published schema is the writer's promise (FR-024), so its date
+// Why: the published schema is the writer's promise (FR-024), so its date
 // pattern and version const hold here though the reader drops them (CR-643).
 const ajv = new Ajv2020({ allErrors: true, strict: false })
-// WHY: registered once under its own $id so a reference reaches it, rather
+// Why: registered once under its own $id so a reference reaches it, rather
 // than compiling the schema a second time for each reference.
 const schemaId = (documentSchema as { $id: string }).$id
 ajv.addSchema(documentSchema as object, schemaId)
 
-// WHY: ajv's getSchema returns undefined, not a thrown error, for an
+// Why: ajv's getSchema returns undefined, not a thrown error, for an
 // unresolved id -- turned into one here so no call site must check for it.
 const compiledSchema = (id: string): ValidateFunction => {
   const found = ajv.getSchema(id)

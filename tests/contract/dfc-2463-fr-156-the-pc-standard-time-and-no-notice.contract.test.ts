@@ -18,7 +18,7 @@ import {
 } from './cr-610-file-flow-stage'
 import { bare, specTable } from './spec-table'
 
-// see FR-156, BK-4
+// Spec: FR-156, BK-4
 const FR_156_PC_STANDARD =
   '⭐ MSPDI を置き換えて開いた文書と、新しく作った文書（表 T-342 の `BK-4`）の日程データのタイムゾーンは、その PC の標準時の行とすること（MUST） —— 夏時間の季節に開いても標準時とする（例 太平洋時間の PC は 8 月でも `UTC-08:00`）（利用者の判断）。'
 const FR_156_PC_FOLD =
@@ -62,7 +62,7 @@ describe('DFC-2463 (b) FR-156: standardTimeZoneKeyForSystem takes the smaller of
   })
 })
 
-// WHY: a zone of the table other than this PC's, so a change to the PC's region shows.
+// Why: a zone of the table other than this PC's, so a change to the PC's region shows.
 const PC_REGION = readSystemStandardTimeZone()
 const OTHER_REGION = TIME_ZONE_ROWS.filter((one) => !one.isDaylight).map((one) => one.key).find((one) => one !== PC_REGION) as string
 
@@ -76,7 +76,7 @@ function heldIn(region: string): Document {
 
 const NAMESPACE = 'http://schemas.microsoft.com/project/2007'
 const BENCH_PROJECT = here().schedule.project
-// WHY: the name (PF-1) and the start (PF-8) of the bench, so a merge meets no MG-4 question the shell cannot ask yet (PND-423).
+// Why: the name (PF-1) and the start (PF-8) of the bench, so a merge meets no MG-4 question the shell cannot ask yet (PND-423).
 const MSPDI = [
   '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>',
   `<Project xmlns="${NAMESPACE}">`,

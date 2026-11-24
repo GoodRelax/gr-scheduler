@@ -77,12 +77,12 @@ const FRAME_ONE = frameDefinition(188743767, 'Number1', 'theirOne')
 const FRAME_TWO = frameDefinition(188743768, 'Number2', 'theirTwo')
 const RS_15 = 'RS-15'
 
-// see FR-102, T-233
+// Spec: FR-102, T-233
 function toldRs15(view: ScreenView): readonly { reason: string; affectedCount: number | null }[] {
   return raised(view).filter((one) => one.reason === RS_15)
 }
 
-// see T-233, FR-038
+// Spec: T-233, FR-038
 function spokenRs15(view: ScreenView): boolean {
   return view.notices.some((one) => one.text === reasonWords(RS_15).text.ja)
 }

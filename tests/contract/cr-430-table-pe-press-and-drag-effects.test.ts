@@ -73,7 +73,7 @@ const cellOf = (row: string, heading: string): string => {
 
 afterEach(restoreAnimationFrames)
 
-// see S-63
+// Spec: S-63
 const built = (): Stage => stage(benchDocument({ isProgressMarkerVisible: true }))
 
 const scanOf = (one: Stage, uid: number): GrabScan => {
@@ -299,8 +299,8 @@ describe(`PE-7 -- ${cellOf('PE-7', GRABBED)}`, () => {
 })
 
 describe('PE-6 -- ◆ の予定', () => {
-  // WHY: the released day is not asserted: no row says whether a milestone plan
-  // WHY: reads the released position or the dragged amount (reported as a gap).
+  // Why: the released day is not asserted: no row says whether a milestone plan
+  // Why: reads the released position or the dragged amount (reported as a gap).
   it(`PE-6 sideways: ${cellOf('PE-6', SIDEWAYS)}`, () => {
     const one = built()
     const before = datesOf(one, MILESTONE_UID)
@@ -366,8 +366,8 @@ describe('PE-10 -- 進捗マーカー（それ以外）', () => {
     const before = datesOf(one, PAUSED_UID)
     const from = at(one, PAUSED_UID, 'GA-18')
     const to = xOfDay(one.loop, april(6))
-    // WHY: a day far to the left -- the marker of this Task stands within a pixel of april(11), and
-    // WHY: a travel under the threshold is a press, which the ring of table T-021a answers instead.
+    // Why: a day far to the left -- the marker of this Task stands within a pixel of april(11), and
+    // Why: a travel under the threshold is a press, which the ring of table T-021a answers instead.
     expect(Math.abs(from.x - to), 'premise: the drag is longer than a press').toBeGreaterThan(8)
     dragTo(one, from, to)
     expect(datesOf(one, PAUSED_UID), T_270_PAUSED_MARKER).toEqual(before)

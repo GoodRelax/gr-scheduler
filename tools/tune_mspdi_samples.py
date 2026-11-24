@@ -182,7 +182,7 @@ class Calendar:
                                  re.findall(r'<WeekDay>\s*<DayType>(\d)</DayType>\s*<DayWorking>(\d)</DayWorking>', body)
                                  if working == '1'}
         working_day = re.search(r'<WeekDay>\s*<DayType>\d</DayType>\s*<DayWorking>1</DayWorking>.*?</WeekDay>', body, re.S)
-        # WHY: the minutes of the day each shift covers, the same on every working weekday of these samples.
+        # Why: the minutes of the day each shift covers, the same on every working weekday of these samples.
         self.shifts = [(minute_of_day(low), minute_of_day(high)) for low, high in re.findall(
             r'<FromTime>([^<]*)</FromTime>\s*<ToTime>([^<]*)</ToTime>', working_day.group(0))]
         self.off = set()
@@ -325,7 +325,7 @@ def cap_at_status_date(summary: Element, calendar: Calendar, status: dt.date, mi
         return
     most = calendar.working_days(start, status) * minutes_per_day
     spent = minutes_of(summary.get('ActualDuration'))
-    # WHY: the importer rounds the length to whole days (half away from zero) before it counts the stop.
+    # Why: the importer rounds the length to whole days (half away from zero) before it counts the stop.
     if int(spent / minutes_per_day + 0.5) * minutes_per_day <= most:
         return
     whole = minutes_of(summary.get('Duration'))
@@ -347,7 +347,7 @@ def stop_at_leftmost_leaf(tasks: dict[int, Element], uid: int, children_of: dict
     start = summary.get('ActualStart')
     if start is None or summary.get('ActualFinish') is not None or summary.get('ActualDuration') is None:
         return
-    # WHY: a leaf that draws no vertex (finished or not started) stands at the status date (VS-6).
+    # Why: a leaf that draws no vertex (finished or not started) stands at the status date (VS-6).
     stops = []
     for leaf in leaf_descendants(uid, children_of):
         task = tasks[leaf]
@@ -467,7 +467,7 @@ def tune(xml: str, treatment: dict) -> str:
         elif uid in late:
             mark_started(task, own, late[uid])
         elif wanted[uid] == NOT_STARTED and task.state() == NOT_STARTED and task.get('PercentComplete') not in (None, '0'):
-            # WHY: a seed the table no longer names keeps its typed percent unless it is cleared here.
+            # Why: a seed the table no longer names keeps its typed percent unless it is cleared here.
             mark_not_started(task, own)
         elif wanted[uid] == task.state():
             continue

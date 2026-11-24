@@ -29,7 +29,7 @@ interface ManuscriptCommand {
   readonly carries: Cell
 }
 
-// WHY: the generator joins the lines of an `en` cell with newlines after trimming each line and the whole.
+// Why: the generator joins the lines of an `en` cell with newlines after trimming each line and the whole.
 export const englishOf = (cell: Cell): string => {
   const lines = typeof cell.en === 'string' ? [cell.en] : [...(cell.en ?? [])]
   return lines.map((line) => line.trim()).join('\n').trim()
@@ -49,7 +49,7 @@ export const manuscriptMember = (name: string): ManuscriptMember => {
   return found
 }
 
-// WHY: a key of an MCP tool is an argument or, for a member with MCP-only keys, one of those (AG-12 (5)).
+// Why: a key of an MCP tool is an argument or, for a member with MCP-only keys, one of those (AG-12 (5)).
 export const keyMeaningEnglish = (member: string, key: string): string => {
   const row = manuscriptMember(member)
   const found = [...row.arguments, ...(row.mcpOnlyKeys ?? [])].find((one) => one.name === key)

@@ -10,7 +10,7 @@ import { rowOf } from './sws-case'
 
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
-// WHY: each constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
+// Why: each constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
 const FR_036_ONE_SCREEN =
   'ない環境の両方で、ヘルプの言語が日本語でも英語でも、開いたときの大きさ（表 T-335 の `WB-1`）で全部の塊とライセンスの行（`FR-069`）を 1 画面に収め、縦にも横にもスクロールを要さないこと（MUST）'
 const S_203_FITS_BOTH =
@@ -34,10 +34,10 @@ const HELP = `[data-role="${nameOf('U-30')}"]`
 const HELP_ENTRY = `[data-role="${nameOf('U-31')}"] [data-icon="${rowOf(T_109, 'IC-22').id}"]`
 const HELP_LANGUAGE_ENTRY = `${HELP} [data-icon="${rowOf(T_109, 'IC-128').id}"]`
 
-// see S-203
+// Spec: S-203
 const S_203 = Number(bare(rowOf(T_206, 'S-203').by['既定'] ?? '').replace(/[^\d.]/g, ''))
 
-// see T-109, T-256
+// Spec: T-109, T-256
 const surfaceOf = (cell: string): string => cell.replace(/`/g, '').trim()
 const PALETTE_ALIGN_ROWS: readonly string[] = T_109.rows
   .filter((row) => surfaceOf(row.by['面'] ?? '') === 'Command Palette' && bare(row.by['群'] ?? '') === '揃える')
@@ -49,13 +49,13 @@ const LEFT_OFF_ROWS: readonly string[] = [
   'IC-75',
 ]
 
-// see FR-036, MC-6
+// Spec: FR-036, MC-6
 const SCREENS: readonly (readonly [string, { width: number; height: number }])[] = [
   ['1280 x 627 (1920 x 1080 at 150 %, maximized)', { width: 1280, height: 627 }],
   ['MC-6', screenOf(rowOf(specTable('T-025'), 'MC-6'))],
 ]
 
-// WHY: a box laid out at a fractional position reads back a fraction off; less than that is not a move.
+// Why: a box laid out at a fractional position reads back a fraction off; less than that is not a move.
 const EDGE = 1.5
 
 interface Box {
@@ -104,7 +104,7 @@ async function isShown(page: Page, selector: string): Promise<boolean> {
   }, selector)
 }
 
-// see FR-036, FR-069
+// Spec: FR-036, FR-069
 /** @purity semi-pure-mutable */
 async function readLayout(page: Page): Promise<HelpLayout> {
   const read = await page.evaluate((help: string) => {
@@ -128,7 +128,7 @@ async function readLayout(page: Page): Promise<HelpLayout> {
         (one) => one.getAttribute('data-row') ?? '',
       )
     }
-    // WHY: the inked text, not the boxes around it, which may span the whole line.
+    // Why: the inked text, not the boxes around it, which may span the whole line.
     const textRects = (root: Element): DOMRect[] => {
       const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT)
       const rects: DOMRect[] = []
@@ -151,7 +151,7 @@ async function readLayout(page: Page): Promise<HelpLayout> {
         bottom: Math.max(...rects.map((r) => r.bottom)),
       }
     }
-    // WHY: CR-785 removed note *1; the license line stands in the element that holds the folded full text.
+    // Why: CR-785 removed note *1; the license line stands in the element that holds the folded full text.
     const details = modal.querySelector('details')
     const legal = details?.parentElement ?? null
     const copyright =

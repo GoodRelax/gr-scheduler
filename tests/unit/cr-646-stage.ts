@@ -43,7 +43,7 @@ const TEMPLATE = JSON.parse(
   readFileSync(join(ROOT, 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
 ) as Record<string, any>
 
-// see T-209
+// Spec: T-209
 /** @purity pure */
 export function settingLiteral(id: string): string {
   const seen: unknown[] = [SETTINGS]
@@ -304,7 +304,7 @@ export interface Stage {
   lastView(): ScreenView | null
 }
 
-// WHY: the day width the cr-430 bench draws at, so 70 days of April and May are on the screen.
+// Why: the day width the cr-430 bench draws at, so 70 days of April and May are on the screen.
 const PX_PER_DAY = 20
 
 /** @purity non-pure */

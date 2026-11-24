@@ -24,12 +24,12 @@ afterEach(restoreAnimationFrames)
 const FRONT = '78600000-0000-4000-8000-000000000011'
 const BACK = '78600000-0000-4000-8000-000000000012'
 
-// WHY: past the last task (20 April) and inside the drawn days, so no task shape shares the press.
+// Why: past the last task (20 April) and inside the drawn days, so no task shape shares the press.
 const FREE_DATE = april(24, '00:00:00')
 const BODY_OFFSET = { dx: 60, dy: -60 }
-// WHY: the second body is pushed right by less than a body width, so the two overlap only in part.
+// Why: the second body is pushed right by less than a body width, so the two overlap only in part.
 const PART_SHIFT_PX = 15
-// WHY: highlight boxes on the milestone band, before the milestone (13 April), so no task shape shares the frame.
+// Why: highlight boxes on the milestone band, before the milestone (13 April), so no task shape shares the frame.
 const BOX_START = april(2, '00:00:00')
 const BOX_FINISH = april(5, '23:59:00')
 

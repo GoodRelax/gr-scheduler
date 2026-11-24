@@ -14,7 +14,7 @@ const T109: SpecTable = specTable('T-109')
 const T206: SpecTable = specTable('T-206')
 const T220: SpecTable = specTable('T-220')
 
-// see T-025, MC-6
+// Spec: T-025, MC-6
 const BASE_SCREEN = screenOf(rowOf(T025, 'MC-6'))
 
 /** @purity pure */
@@ -27,18 +27,18 @@ function numberIn(cell: string, what: string): number {
   return value
 }
 
-// see T-206, S-208, FR-019
+// Spec: T-206, S-208, FR-019
 const PRESS_OR_DRAG_PX = numberIn(
   rowOf(T206, 'S-208').cells[1] ?? '',
   'table T-206 row S-208',
 )
 
-// see T-014, ST-2
+// Spec: T-014, ST-2
 /** @purity pure */
 function sortKeysOfSt2(): ReadonlyArray<{ readonly key: string; readonly ascending: boolean }> {
   const cell = lastCellOf(rowOf(T014, 'ST-2'))
-  // WHY: given as code points, not literal characters, to keep non-ASCII text
-  // WHY: out of this source file (U+6607 U+9806 ascending; U+964D U+9806 descending).
+  // Why: given as code points, not literal characters, to keep non-ASCII text
+  // Why: out of this source file (U+6607 U+9806 ascending; U+964D U+9806 descending).
   const ASCENDING = String.fromCharCode(0x6607, 0x9806)
   const DESCENDING = String.fromCharCode(0x964d, 0x9806)
   const found: Array<{ key: string; ascending: boolean }> = []
@@ -71,7 +71,7 @@ function entranceArming(holding: string): string {
   return found[0]?.id ?? ''
 }
 
-// see T-023b, AR-6
+// Spec: T-023b, AR-6
 const HIGHLIGHT_BOX_ENTRANCE = entranceArming(rowOf(T023B, 'AR-6').id)
 
 /** @purity pure */
@@ -95,7 +95,7 @@ const HM_3 = rowOf(T015A, 'HM-3').id
 const HM_8 = rowOf(T015A, 'HM-8').id
 const HM_9 = rowOf(T015A, 'HM-9').id
 const IV_19 = rowOf(T220, 'IV-19').id
-// see T-023d, GR-20
+// Spec: T-023d, GR-20
 const GR_20 = rowOf(T023D, 'GR-20').id
 
 interface DocGroup {
@@ -138,7 +138,7 @@ interface DrawnTaskGroup {
   readonly height: number
 }
 
-// see T-058, AT-52, AT-55, FR-019, HM-9
+// Spec: T-058, AT-52, AT-55, FR-019, HM-9
 /** @purity pure */
 function rankInTaskGroupTree(groups: readonly DocGroup[]): ReadonlyMap<string, number> {
   const children = new Map<string | null, DocGroup[]>()
@@ -172,7 +172,7 @@ test.beforeAll(async () => {
 })
 
 test.afterAll(async () => {
-  // WHY: this raises the hook's own timeout, not an assertion's; see CLEARING_UP_MS.
+  // Why: this raises the hook's own timeout, not an assertion's; see CLEARING_UP_MS.
   test.setTimeout(CLEARING_UP_MS)
   await browser?.close()
 })
@@ -205,8 +205,8 @@ async function openTheApp(baseURL: string | undefined): Promise<Opened> {
   }
 }
 
-// WHY: a real pointer, not element.click() -- a synthetic click has reached
-// WHY: nothing in this project before, because the shell reads the pointer.
+// Why: a real pointer, not element.click() -- a synthetic click has reached
+// Why: nothing in this project before, because the shell reads the pointer.
 /** @purity non-pure */
 async function pressAt(page: Page, at: { x: number; y: number }): Promise<void> {
   await page.mouse.move(at.x, at.y)
@@ -228,7 +228,7 @@ async function pressEntrance(page: Page, icon: string): Promise<boolean> {
   return true
 }
 
-// see T-051, HF-6
+// Spec: T-051, HF-6
 /** @purity non-pure */
 async function pressEntranceInRow(page: Page, index: number, icon: string): Promise<boolean> {
   const hover = await page.evaluate((wanted: number) => {
@@ -275,7 +275,7 @@ async function drawnTaskGroups(page: Page): Promise<DrawnTaskGroup[]> {
   )
 }
 
-// see T-107, AM-3, AG-4, FR-065
+// Spec: T-107, AM-3, AG-4, FR-065
 /** @purity semi-pure-mutable */
 async function readDocumentShot(page: Page): Promise<DocShot | null> {
   return page.evaluate(() => {
@@ -292,7 +292,7 @@ async function readDocumentShot(page: Page): Promise<DocShot | null> {
   })
 }
 
-// see T-028, IN-2
+// Spec: T-028, IN-2
 /** @purity non-pure */
 async function cursorAt(page: Page, x: number, y: number): Promise<string> {
   await page.mouse.move(x, y)
@@ -305,7 +305,7 @@ async function cursorAt(page: Page, x: number, y: number): Promise<string> {
 /** @purity pure */
 const REACH_PX = 160
 
-// see T-023a, PTD-5, AR-6
+// Spec: T-023a, PTD-5, AR-6
 /** @purity non-pure */
 async function emptyColumnAcross(
   page: Page,
@@ -366,7 +366,7 @@ async function drawnOutlines(
   )
 }
 
-// see T-023d, GA-9
+// Spec: T-023d, GA-9
 /** @purity non-pure */
 async function barBodyOn(page: Page, row: DrawnTaskGroup): Promise<{ x: number; y: number } | null> {
   const left = Math.round(
@@ -379,7 +379,7 @@ async function barBodyOn(page: Page, row: DrawnTaskGroup): Promise<{ x: number; 
     for (const offset of [-20, 0, 20, 40]) {
       const y = row.y + Math.round(row.height / 2) + offset
       if (y < row.y + 6 || y > row.y + row.height - 6) continue
-      // see T-028, IN-2
+      // Spec: T-028, IN-2
       if ((await cursorAt(page, x, y)) === 'grab') return { x, y }
     }
   }
@@ -424,7 +424,7 @@ async function grabStripCenterOn(
   }, id)
 }
 
-// see T-014, ST-2
+// Spec: T-014, ST-2
 /** @purity pure */
 function beforeUnderSt2(left: DocTask, right: DocTask): number {
   const cellOf = (task: DocTask, key: string): string | number | null =>

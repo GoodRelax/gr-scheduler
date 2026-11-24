@@ -28,8 +28,8 @@ const FADED = 3
 
 const FADE_DAYS = 3
 
-// see T-206
-// WHY: the press / pull boundary is the settings row S-208, never a number held here.
+// Spec: T-206
+// Why: the press / pull boundary is the settings row S-208, never a number held here.
 const S_208 = sizePx('S-208')
 
 const TASKS = [
@@ -56,9 +56,9 @@ function taskRef(uid: number): { kind: string; uid: number } {
   return { kind: 'task', uid }
 }
 
-// see T-266, T-267, T-268
-// WHY: every point where the grab area answers, not only the middle one, so a case can
-// WHY: press the part of an end grab that lies in the neighbouring day column.
+// Spec: T-266, T-267, T-268
+// Why: every point where the grab area answers, not only the middle one, so a case can
+// Why: press the part of an end grab that lies in the neighbouring day column.
 /** @purity pure */
 function pointsAnswering(built: Stage, uid: number, grabArea: string): readonly Point[] {
   const frame = frameOf(built.loop)
@@ -91,7 +91,7 @@ function middlemost(all: readonly Point[]): Point {
   return best
 }
 
-// WHY: S-208 is the largest move that is still a press -- "does not exceed" includes it.
+// Why: S-208 is the largest move that is still a press -- "does not exceed" includes it.
 const PRESS_OFFSETS: readonly { readonly dx: number; readonly dy: number }[] = [
   { dx: 0, dy: 0 },
   { dx: -S_208 / 2, dy: 0 },

@@ -44,7 +44,7 @@ const LF_15_ORDER = '並びは左上・上・右上・右・右下・下・左�
 const LF_15_FREE_Y = '縦は `anchorTaskGroupId` のタスクグループが描かれた帯'
 const AT_167_EIGHT = '線先が吸着した、対象の 8 点のどれか —— 四隅と 4 辺の中点（`LF-15`）'
 
-// see T-206, S-292
+// Spec: T-206, S-292
 const S_292 = (() => {
   const row = specTable('T-206').rows.find((one) => one.id === 'S-292')
   const found = /(\d+(?:\.\d+)?)px/.exec(row?.cells[1] ?? '')
@@ -62,7 +62,7 @@ const dragTipTo = (built: Stage, to: { x: number; y: number }): void => {
   built.drag(tip.x, tip.y, to.x, to.y)
 }
 
-// see LF-15, AT-167
+// Spec: LF-15, AT-167
 const planPointsOf = (built: Stage, uid: number) => eightPointsOf(boxOfTask(built.loop, uid, 'plan'), false)
 
 const highlightPointsOf = (built: Stage) => {

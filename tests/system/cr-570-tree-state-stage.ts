@@ -11,7 +11,7 @@ import { readSettledDrawnSvg, screenOf } from './live-app'
 import { rowOf } from './sws-case'
 
 export const SHIPPED_BUILD = join(process.cwd(), 'dist', 'index.html')
-// see T-025, MC-6
+// Spec: T-025, MC-6
 export const BASE_SCREEN = screenOf(rowOf(specTable('T-025'), 'MC-6'))
 export const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 export const ERP_SAMPLE = readFileSync(join(process.cwd(), 'sample-schedule', 'sample-large-erp-program.ja.xml'), 'utf8')
@@ -19,7 +19,7 @@ export const ERP_PROGRAM_TASK_GROUP = '1. \u30d7\u30ed\u30b0\u30e9\u30e0\u7ba1\u
 
 export type TreeState = 'auto' | 'collapsed' | 'expanded' | 'temporarilyExpanded' | 'hidden'
 
-// see T-109
+// Spec: T-109
 /** @purity pure */
 export function entranceRuledBy(rule: string): string {
   const wanted = new RegExp(`${rule}(?![0-9a-z])`)
@@ -61,10 +61,10 @@ export function reasonWords(rowId: string): readonly string[] {
   return [found.text.ja, found.text.en]
 }
 
-// see SK-11, SK-6, SK-16c
+// Spec: SK-11, SK-6, SK-16c
 /** @purity pure */
 export function keyOf(id: string): string {
-  // WHY: the raw cell -- bare() refuses a cell of several code spans (DFC-343), and this one is a chord.
+  // Why: the raw cell -- bare() refuses a cell of several code spans (DFC-343), and this one is a chord.
   const said = (rowOf(specTable('T-036'), id).cells[1] ?? '').replace(/`|\*/g, '').trim()
   return said
     .split(/\s*\uff0b\s*/)
@@ -77,7 +77,7 @@ export interface Stage {
   close(): Promise<void>
 }
 
-// WHY: a driven browser cannot answer the host's file pickers; stand-ins with the same shape hand
+// Why: a driven browser cannot answer the host's file pickers; stand-ins with the same shape hand
 // over the next document to open and keep every body the save wrote (as measured-sweep does).
 /** @purity non-pure */
 export async function openStage(browser: Browser): Promise<Stage> {
@@ -156,7 +156,7 @@ export async function pressEntrance(page: Page, icon: string): Promise<boolean> 
   return true
 }
 
-// see OP-3, IC-1, IC-71
+// Spec: OP-3, IC-1, IC-71
 /** @purity non-pure */
 export async function openDocument(page: Page, name: string, text: string): Promise<void> {
   await page.evaluate((next: { name: string; text: string }) => {
@@ -185,7 +185,7 @@ export interface TreeReading {
   readonly rows: readonly TreeTaskGroup[]
 }
 
-// see AM-3
+// Spec: AM-3
 /** @purity semi-pure-mutable */
 export async function readTree(page: Page): Promise<TreeReading> {
   return page.evaluate(() => {
@@ -241,7 +241,7 @@ export function descendantsOf(reading: TreeReading, id: string): readonly TreeTa
   return childrenOf(reading, id).flatMap((child) => [child, ...descendantsOf(reading, child.id)])
 }
 
-// WHY: the panel marks the task groups it draws; FR-055 fits the whole picture on one screen, so after a
+// Why: the panel marks the task groups it draws; FR-055 fits the whole picture on one screen, so after a
 // fit this list is every drawn task group, and elsewhere it is the drawn task groups the window shows.
 /** @purity semi-pure-mutable */
 export async function drawnRowIds(page: Page): Promise<string[]> {
@@ -251,7 +251,7 @@ export async function drawnRowIds(page: Page): Promise<string[]> {
   )
 }
 
-// see FR-029, EN-2
+// Spec: FR-029, EN-2
 /** @purity semi-pure-mutable */
 export async function isArmed(page: Page, icon: string): Promise<boolean> {
   const said = await page.evaluate((wanted: string) => {
@@ -263,7 +263,7 @@ export async function isArmed(page: Page, icon: string): Promise<boolean> {
   return !said
 }
 
-// WHY: a task group's controls are drawn only while the pointer is on its name (HF-6), so the pointer goes
+// Why: a task group's controls are drawn only while the pointer is on its name (HF-6), so the pointer goes
 // to the left end of the name first and the entrance is read and pressed from there.
 /** @purity non-pure */
 async function showTaskGroupControls(page: Page, id: string): Promise<void> {
@@ -329,7 +329,7 @@ export async function pressKey(page: Page, id: string): Promise<void> {
   await settle(page)
 }
 
-// see FR-100
+// Spec: FR-100
 /** @purity semi-pure-mutable */
 export async function wouldWarn(page: Page): Promise<boolean> {
   return page.evaluate(() => {
@@ -339,7 +339,7 @@ export async function wouldWarn(page: Page): Promise<boolean> {
   })
 }
 
-// see SK-11
+// Spec: SK-11
 /** @purity non-pure */
 export async function saveDocument(page: Page): Promise<string> {
   const before = await page.evaluate(() => ((window as unknown as Record<string, { written: string[] }>)['grsCr570'] as { written: string[] }).written.length)
@@ -353,7 +353,7 @@ export async function saveDocument(page: Page): Promise<string> {
   throw new Error('SK-11 wrote nothing through the save picker')
 }
 
-// see FR-029, T-233
+// Spec: FR-029, T-233
 /** @purity semi-pure-mutable */
 export async function toldReason(page: Page, rowId: string): Promise<boolean> {
   const said = await page.evaluate(
@@ -363,7 +363,7 @@ export async function toldReason(page: Page, rowId: string): Promise<boolean> {
   return reasonWords(rowId).some((words) => said.includes(words))
 }
 
-// WHY: IC-14 until the zoom stops moving, which is the ZE-1 end; bounded so a build that never
+// Why: IC-14 until the zoom stops moving, which is the ZE-1 end; bounded so a build that never
 // reaches it fails here instead of spinning.
 /** @purity non-pure */
 export async function shrinkToTheEnd(page: Page): Promise<number> {
@@ -381,14 +381,14 @@ const TEMPLATE = JSON.parse(
   readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
 ) as { schedule: Record<string, unknown> & { taskGroups: Record<string, unknown>[] }; documentSettings: Record<string, unknown> }
 
-// see S-87, S-88
-// WHY: threshold(d) = base x ratio^(d - 2) (S-87's remark); below the depth-2 threshold only depth 1
+// Spec: S-87, S-88
+// Why: threshold(d) = base x ratio^(d - 2) (S-87's remark); below the depth-2 threshold only depth 1
 // is drawn by the zoom, at 1 every depth of this tree is.
 const THRESHOLD_OF_DEPTH_TWO = SETTINGS_CONSTANTS.groupLevelOfDetailBase
 export const SHALLOW_ZOOM = THRESHOLD_OF_DEPTH_TWO * 0.9
 export const DEEP_ZOOM = 1
 
-// WHY: T1 reaches depth 4 so TD-7 has an ancestor, a pressed task group and a child to show; T2 has one
+// Why: T1 reaches depth 4 so TD-7 has an ancestor, a pressed task group and a child to show; T2 has one
 // leaf child; T3 is a leaf at depth 1.
 const TREE: readonly { readonly id: string; readonly parentId: string | null }[] = [
   { id: 'T1', parentId: null },
@@ -451,7 +451,7 @@ export function documentOf(arranged: Arrangement): string {
   return JSON.stringify(built)
 }
 
-// WHY: the first task group the panel draws at a point no control of its own covers (HF-6), pressed to
+// Why: the first task group the panel draws at a point no control of its own covers (HF-6), pressed to
 // choose the task group (FR-004's task group choice), as tests/system/duplicate-paste-and-dual-cursor does.
 /** @purity non-pure */
 export async function chooseTaskGroup(page: Page, id: string): Promise<void> {

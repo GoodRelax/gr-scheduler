@@ -103,7 +103,7 @@ describe('HF-15 -- the two keys: the rows and the cues', () => {
   })
 })
 
-// WHY: the surface paints from requestAnimationFrame in a browser; the harness has none, so a frame is run by hand when the unit asks for one.
+// Why: the surface paints from requestAnimationFrame in a browser; the harness has none, so a frame is run by hand when the unit asks for one.
 const GLOBAL = globalThis as unknown as Record<string, unknown>
 
 function viewOf(panel: TaskGroupPanel): ScreenView {

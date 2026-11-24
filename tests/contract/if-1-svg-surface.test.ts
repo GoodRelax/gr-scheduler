@@ -180,7 +180,7 @@ describe(`${IF_1.id} ${IF_1.seam} -- only a value crosses it (LR-6)`, () => {
     expect(content()).toBe(A_PICTURE)
   })
 
-  // WHY: table T-065 IF-1 has two seams since CR-736 -- the picture beneath and the marquee overlay.
+  // Why: table T-065 IF-1 has two seams since CR-736 -- the picture beneath and the marquee overlay.
   it('gives back nothing but the members the seam declares', () => {
     const { host } = bareHost()
     const surface = domSvgSurface(host)
@@ -191,7 +191,7 @@ describe(`${IF_1.id} ${IF_1.seam} -- only a value crosses it (LR-6)`, () => {
 })
 
 describe(`${IF_1.id} ${IF_1.seam} -- showing the same picture twice`, () => {
-  // see IF-1
+  // Spec: IF-1
   it('does not write the host again: 実装は、渡された文字列が前に載せたものと同じなら画面を書き換えないこと（MUST）', () => {
     const { host, writes, content } = bareHost()
     const surface = domSvgSurface(host)

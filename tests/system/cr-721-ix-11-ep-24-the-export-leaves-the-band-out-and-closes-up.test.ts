@@ -23,7 +23,7 @@ const wordsOf = (part: string): readonly string[] => {
   if (held === undefined) throw new Error(`the dictionary holds no ${part}`)
   return [held.ja, held.en]
 }
-// WHY: the band line holds {tables}, {total} and {shown} (TV-11); the fixed parts around the braces are what a picture would carry.
+// Why: the band line holds {tables}, {total} and {shown} (TV-11); the fixed parts around the braces are what a picture would carry.
 const BAND_WORDS = [...wordsOf('scheduleFilterBar').flatMap((text) => text.split(/\{[^}]*\}/).map((part) => part.trim())), ...wordsOf('scheduleFilterOff')].filter(
   (text) => text.length >= 4,
 )
@@ -57,7 +57,7 @@ async function exportedSvg(page: Page): Promise<string> {
   })
 }
 
-// WHY: the ground of the ruler is the topmost thing of the picture; its y says where the schedule starts.
+// Why: the ground of the ruler is the topmost thing of the picture; its y says where the schedule starts.
 /** @purity pure */
 function rulerTop(svg: string): string {
   const tag = /<[^>]*data-figure="ruler-ground"[^>]*>/.exec(svg)?.[0]
@@ -75,7 +75,7 @@ test.describe('T-241 IX-11 / T-076 EP-24 -- the band is a screen thing', () => {
       const page = stage.page
       const unfiltered = await exportedSvg(page)
       expect(unfiltered.length, 'premise: the picture is made').toBeGreaterThan(0)
-      // STEP: check the first row's Visibility box, then press IC-143
+      // Step: check the first row's Visibility box, then press IC-143
       const firstBox = await boxOf(page, `${PANEL} tbody tr:first-child input[type="checkbox"]`)
       if (firstBox === null) throw new Error('premise: the first row has a Visibility box')
       await pressAt(page, firstBox.x + firstBox.width / 2, firstBox.y + firstBox.height / 2)

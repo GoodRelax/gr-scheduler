@@ -159,7 +159,7 @@ function editingDate(row: string, column: string): Editing {
   ) as FakeElement
   expect(entry, `premise: the panel drew an entry for ${row}`).toBeDefined()
   expect(entry.getAttribute('type'), 'premise: a date item is a date entry').toBe('date')
-  // WHY: a browser reflects the type attribute onto the property; the shared fake does not.
+  // Why: a browser reflects the type attribute onto the property; the shared fake does not.
   ;(entry as unknown as { type: string | null }).type = entry.getAttribute('type')
   entry.value = THE_DATE
   entry.focus()

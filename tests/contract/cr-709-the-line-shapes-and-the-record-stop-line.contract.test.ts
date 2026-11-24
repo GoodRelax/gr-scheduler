@@ -15,11 +15,11 @@ import { bare, specTable, unbroken } from './spec-table'
 
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
-// WHY: each constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
-// see CT-4
+// Why: each constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
+// Spec: CT-4
 const CT_4_LINE_COLOR =
   '予定の線・矢じり・端点を、予定の輪郭線と同じ色（表 T-017b の `CV-6` の縁の値 —— テーマに従うときは `_assets/tbl-settings.md` の `S-156`）で描くこと（MUST）'
-// see FR-102
+// Spec: FR-102
 const FR_102_START_AND_STOP =
   '⭐ 始めたときは、始めたことと押した入口の行 ID を 1 行に書き、止めたときは、渡す前に、止めたことと押した入口の行 ID を記録の最後の行に書くこと（MUST）'
 const FR_102_SPELLING = '綴りは、始めの行が `started entrance=IC-76`、止めの行が `stopped entrance=IC-76` である。'
@@ -30,8 +30,8 @@ const rowOf = (table: string, id: string) => {
   return found
 }
 
-// see T-012
-// WHY: the spelling the document stores is the second cell of each T-012 row, read rather than typed.
+// Spec: T-012
+// Why: the spelling the document stores is the second cell of each T-012 row, read rather than typed.
 const shapeKindOf = (id: string): string => {
   const cell = rowOf('T-012', id).cells[1] ?? ''
   const found = /'([A-Za-z]+)'/.exec(bare(cell))
@@ -94,8 +94,8 @@ const silentSurface = (part: () => ScreenPart | null): ScreenSurface =>
   }) as ScreenSurface
 
 
-// see T-294
-// WHY: a palette name the line-color field offers; the drawn value is the table's, never typed here.
+// Spec: T-294
+// Why: a palette name the line-color field offers; the drawn value is the table's, never typed here.
 const CHOSEN_STROKE = 'red'
 
 interface Figure {
@@ -104,7 +104,7 @@ interface Figure {
   readonly stroke: string | null
 }
 
-// WHY: one rectangle and one of each line shape, theme-colored, then the same three with a chosen line color.
+// Why: one rectangle and one of each line shape, theme-colored, then the same three with a chosen line color.
 const FIGURES: readonly Figure[] = [
   { uid: 1, shape: 'SH-1', stroke: null },
   { uid: 2, shape: 'SH-3', stroke: null },
@@ -182,8 +182,8 @@ function drawnPicture(): string {
 const attributeOf = (attributes: string, name: string): string | null =>
   new RegExp(`(?:^|\\s)${name}="([^"]*)"`).exec(attributes)?.[1] ?? null
 
-// see FR-007
-// WHY: the plan figure is every element keyed task-<uid>-plan; the halo masks and the actual carry other keys.
+// Spec: FR-007
+// Why: the plan figure is every element keyed task-<uid>-plan; the halo masks and the actual carry other keys.
 function planMarksOf(picture: string, uid: number): readonly Mark[] {
   const marks: Mark[] = []
   for (const found of picture.matchAll(/<(line|polygon|circle|path|rect|polyline)\b([^>]*)>/g)) {
@@ -195,7 +195,7 @@ function planMarksOf(picture: string, uid: number): readonly Mark[] {
   return marks
 }
 
-// WHY: a line draws with its stroke; a head and a dot are filled. Each takes the color it shows.
+// Why: a line draws with its stroke; a head and a dot are filled. Each takes the color it shows.
 const inkOf = (mark: Mark): string | null => (mark.tag === 'line' || mark.tag === 'polyline' ? mark.stroke : mark.fill)
 
 describe(`CT-4 -- ${CT_4_LINE_COLOR}`, () => {

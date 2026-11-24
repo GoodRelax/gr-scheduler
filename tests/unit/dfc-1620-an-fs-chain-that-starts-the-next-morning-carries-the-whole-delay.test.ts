@@ -13,7 +13,7 @@ import { taskGroupDocument, taskOf } from './cr-541-stage'
 
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
-// WHY: each clause is cut from the manuscript as check 39 reads it, so the cases cannot drift from the words they test.
+// Why: each clause is cut from the manuscript as check 39 reads it, so the cases cannot drift from the words they test.
 // CR-710 retired the "MSPDI documents only" reading and the "same day" FS bound: every document reads instants.
 const BD_2_INSTANT = 'すべての文書で瞬間で読み、FS の後続の最早開始は、先行の見込み終了の瞬間 ＋ `linkLag` である'
 const BD_2_K_DAYS = '17:00 に終わり翌朝 8:00 に始める FS の鎖では、計画どおりなら押し出しは 0、先行が k 日遅れれば後続へ k 日届く'
@@ -35,7 +35,7 @@ const A = 201
 const B = 202
 const C = 203
 
-// WHY: April 2026 runs Mon 6, Tue 7, Wed 8, Thu 9, Fri 10, Mon 13, Tue 14, Wed 15 (a Monday-to-Friday calendar).
+// Why: April 2026 runs Mon 6, Tue 7, Wed 8, Thu 9, Fri 10, Mon 13, Tue 14, Wed 15 (a Monday-to-Friday calendar).
 // A is planned Mon 6 08:00 to Wed 8 17:00, B the next morning (Thu 9 to Fri 10), C the next working morning (Mon 13 to Tue 14).
 function chain(sourceFormat: 'grs' | 'pj12' | 'pj15', finishOfA: number): Document {
   const raw = taskGroupDocument([
@@ -43,7 +43,7 @@ function chain(sourceFormat: 'grs' | 'pj12' | 'pj15', finishOfA: number): Docume
     { id: 'r2', parentId: null },
     { id: 'r3', parentId: null },
   ])
-  // WHY: the status date is the day A really finished, so B and C are both still to be started on it.
+  // Why: the status date is the day A really finished, so B and C are both still to be started on it.
   raw['schedule'].project.statusDate = F(finishOfA)
   raw['schedule'].project.uidHighWaterMark = 1000
   raw['schedule'].project.sourceFormat = sourceFormat
@@ -70,11 +70,11 @@ function diagnose(document: Document): unknown {
   return seam(document, scheduleEntry.workingCalendarOf(document.schedule))
 }
 
-// WHY: CR-710 counts the push-out in working minutes (T-314); one working day of this calendar is S-128 = 480 minutes.
+// Why: CR-710 counts the push-out in working minutes (T-314); one working day of this calendar is S-128 = 480 minutes.
 const MINUTES_PER_WORKING_DAY = 480
 
-// see T-313, BD-4
-// WHY: a terminal whose delay is zero may be left out of the report, which reads as 0.
+// Spec: T-313, BD-4
+// Why: a terminal whose delay is zero may be left out of the report, which reads as 0.
 function terminalDelayOf(report: unknown, uid: number): number {
   const seen = new Set<unknown>()
   const found: number[] = []
@@ -94,7 +94,7 @@ function terminalDelayOf(report: unknown, uid: number): number {
   return found[0] ?? 0
 }
 
-// WHY: CR-710 retired the GRS document's day reading (the successor started on the day its predecessor ended, so only
+// Why: CR-710 retired the GRS document's day reading (the successor started on the day its predecessor ended, so only
 // 1 of A's 3 days reached C); a GRS document now reads instants as an MSPDI one does.
 const FORMATS = ['grs', 'pj12', 'pj15'] as const
 
@@ -103,7 +103,7 @@ describe('BD-2 (MUST): in every document a FS chain from 17:00 to the next morni
     expect(terminalDelayOf(diagnose(chain(format, 8)), C)).toBe(0)
   })
 
-  // WHY: A finishes Mon 13 against a planned Wed 8, three working days late (Thu 9, Fri 10, Mon 13).
+  // Why: A finishes Mon 13 against a planned Wed 8, three working days late (Thu 9, Fri 10, Mon 13).
   it.each(FORMATS)('%s: A three days late reaches the end of the chain as 3', (format) => {
     expect(terminalDelayOf(diagnose(chain(format, 13)), C)).toBe(3)
   })

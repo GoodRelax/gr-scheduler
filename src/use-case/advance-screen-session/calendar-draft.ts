@@ -1,4 +1,4 @@
-// CalendarDraft: the Holiday Settings draft -- built from the document's calendar, edited, judged and turned into CM-39.
+// File: AdvanceScreenSession: CalendarDraft: the Holiday Settings draft -- built from the document's calendar, edited, judged and turned into CM-39.
 // @unit      UF-203  (docs/spec/05-07-design.md, table T-075)
 // @component AdvanceScreenSession, layer UseCase (table T-062)
 // @purity    pure
@@ -30,7 +30,7 @@ export interface CalendarDraftRange {
   readonly end: string
 }
 
-// see T-280, FR-088, WC-2, WC-3, WC-4, WC-8
+// Spec: T-280, FR-088, WC-2, WC-3, WC-4, WC-8
 export interface CalendarDraft {
   readonly workingDayTypes: readonly number[]
   readonly weekStartDay: number
@@ -40,7 +40,7 @@ export interface CalendarDraft {
 
 export type CalendarDraftRangeSide = 'start' | 'end'
 
-// see WC-10
+// Spec: WC-10
 export type CalendarDraftRefusal =
   | { readonly kind: 'timeNotReadable'; readonly rangeIndex: number; readonly side: CalendarDraftRangeSide; readonly text: string }
   | { readonly kind: 'startNotBeforeEnd'; readonly rangeIndex: number }
@@ -52,7 +52,7 @@ export type CalendarDraftRefusal =
 const MINUTES_PER_HOUR = 60
 const MINUTES_PER_DAY = 1440
 
-// see WC-8, T-375
+// Spec: WC-8, T-375
 const CLOCK_TEXT = /^(\d{1,2}):([0-5]\d)$/
 
 const RANGE_ADDED_AFTER_MINUTES = 60
@@ -69,8 +69,8 @@ function shownClockOf(minute: number): string {
   return `${Math.floor(minute / MINUTES_PER_HOUR)}:${padded(minute % MINUTES_PER_HOUR)}`
 }
 
-// see WC-8, IV-24
-// WHY: H:MM and HH:MM up to 24:00; the end side reads 0:00 as 24:00.
+// Spec: WC-8, IV-24
+// Why: H:MM and HH:MM up to 24:00; the end side reads 0:00 as 24:00.
 /** @purity pure */
 export function draftClockMinuteOf(text: string, side: CalendarDraftRangeSide): number | null {
   const hit = CLOCK_TEXT.exec(text.trim())
@@ -103,8 +103,8 @@ function rangeOfStored(time: WorkingTime): CalendarDraftRange {
   }
 }
 
-// see WC-8, IV-24
-// WHY: a start of 24:00 is written as 24:00:00, which the calendar does not read, so CM-39 refuses it as out of order.
+// Spec: WC-8, IV-24
+// Why: a start of 24:00 is written as 24:00:00, which the calendar does not read, so CM-39 refuses it as out of order.
 /** @purity pure */
 function workingTimeOf(range: CalendarDraftRange, ordinal: number): WorkingTime | null {
   const from = draftClockMinuteOf(range.start, 'start')
@@ -144,14 +144,14 @@ export function shownCalendarDraft(draft: CalendarDraft | null, schedule: Schedu
   return draft ?? calendarDraftOf(schedule)
 }
 
-// see WC-9
+// Spec: WC-9
 /** @purity pure */
 export function otherHoursDayTypesOf(draft: CalendarDraft, schedule: Schedule): readonly number[] {
   const working = new Set(draft.workingDayTypes)
   return workingTimeSetOf(workingCalendarOf(schedule)).unlikeDayTypes.filter((dayType) => working.has(dayType))
 }
 
-// see IC-133, WC-2
+// Spec: IC-133, WC-2
 /** @purity pure */
 export function withWeekdayToggled(draft: CalendarDraft, dayType: number): CalendarDraft {
   const held = draft.workingDayTypes.includes(dayType)
@@ -166,7 +166,7 @@ export function withWeekStart(draft: CalendarDraft, weekStartDay: number): Calen
   return draft.weekStartDay === weekStartDay ? draft : { ...draft, weekStartDay }
 }
 
-// see IC-163, WC-8, S-582
+// Spec: IC-163, WC-8, S-582
 /** @purity pure */
 export function canAddRange(draft: CalendarDraft): boolean {
   return draft.ranges.length < SETTINGS_CONSTANTS.workingTimesPerDayMax
@@ -177,8 +177,8 @@ export function canDeleteRange(draft: CalendarDraft): boolean {
   return draft.ranges.length > 1
 }
 
-// see IC-163, WC-8
-// WHY: an hour after the latest end that reads, moved back inside the day, so no refusal shows on the press.
+// Spec: IC-163, WC-8
+// Why: an hour after the latest end that reads, moved back inside the day, so no refusal shows on the press.
 /** @purity pure */
 export function withRangeAdded(draft: CalendarDraft): CalendarDraft {
   if (!canAddRange(draft)) return draft
@@ -198,8 +198,8 @@ export function withRangeDeleted(draft: CalendarDraft, rangeIndex: number): Cale
   return { ...draft, ranges: draft.ranges.filter((_, index) => index !== rangeIndex) }
 }
 
-// see IC-165, WC-8, WC-10
-// WHY: a value that reads is shown in its own form (08:00 -> 8:00); one that does not stays as typed.
+// Spec: IC-165, WC-8, WC-10
+// Why: a value that reads is shown in its own form (08:00 -> 8:00); one that does not stays as typed.
 /** @purity pure */
 export function withRangeTimeTyped(
   draft: CalendarDraft,
@@ -222,7 +222,7 @@ function nextExceptionOrdinal(draft: CalendarDraft, schedule: Schedule): number 
   return held.reduce((high, one) => Math.max(high, one), -1) + 1
 }
 
-// see IC-135, WC-6, EX-13
+// Spec: IC-135, WC-6, EX-13
 /** @purity pure */
 export function withExceptionAdded(draft: CalendarDraft, schedule: Schedule, today: CalendarDay): CalendarDraft {
   const added: Exception = {
@@ -257,7 +257,7 @@ export function withExceptionDeleted(draft: CalendarDraft, ordinal: number): Cal
   return exceptions.length === draft.exceptions.length ? draft : { ...draft, exceptions }
 }
 
-// see IC-137, WC-4, AT-81
+// Spec: IC-137, WC-4, AT-81
 /** @purity pure */
 export function withExceptionKindToggled(draft: CalendarDraft, ordinal: number): CalendarDraft {
   return withException(draft, ordinal, (held) =>
@@ -271,8 +271,8 @@ export function withExceptionNameTyped(draft: CalendarDraft, ordinal: number, te
     held.name === name || !isNonRecurringException(held) ? held : { ...held, name })
 }
 
-// see WC-4, AT-79, AT-80, WT-6, WT-7
-// WHY: the draft holds the day only; editCalendar stamps the time (JDG-1220), and keeps a held text of the same day.
+// Spec: WC-4, AT-79, AT-80, WT-6, WT-7
+// Why: the draft holds the day only; editCalendar stamps the time (JDG-1220), and keeps a held text of the same day.
 /** @purity pure */
 export function withExceptionDayTyped(
   draft: CalendarDraft,
@@ -316,8 +316,8 @@ interface ExceptionDays {
   readonly to: number
 }
 
-// see WC-10, FR-054, AT-82
-// WHY: a row with no readable start counts no day (as the calendar reads it), and a missing finish is its start.
+// Spec: WC-10, FR-054, AT-82
+// Why: a row with no readable start counts no day (as the calendar reads it), and a missing finish is its start.
 /** @purity pure */
 function exceptionDaysOf(exception: Exception): ExceptionDays | null {
   const from = dayOf(exception.fromDate)
@@ -326,7 +326,7 @@ function exceptionDaysOf(exception: Exception): ExceptionDays | null {
   return { ordinal: exception.ordinal, from: serial(from), to: serial(to) }
 }
 
-// see WC-10
+// Spec: WC-10
 /** @purity pure */
 function exceptionRefusals(draft: CalendarDraft): readonly CalendarDraftRefusal[] {
   const refusals: CalendarDraftRefusal[] = []
@@ -347,7 +347,7 @@ function exceptionRefusals(draft: CalendarDraft): readonly CalendarDraftRefusal[
   return refusals
 }
 
-// see WC-10, IV-17, IV-24
+// Spec: WC-10, IV-17, IV-24
 /** @purity pure */
 export function calendarDraftRefusalsOf(draft: CalendarDraft): readonly CalendarDraftRefusal[] {
   const weekdays: readonly CalendarDraftRefusal[] = draft.workingDayTypes.length === 0 ? [{ kind: 'noWorkingWeekday' }] : []
@@ -372,8 +372,8 @@ function readWorkingTimesOf(draft: CalendarDraft): readonly WorkingTime[] {
   })
 }
 
-// see CM-39, WC-7, FR-031, FR-088
-// WHY: a part the draft left as the document holds it is omitted, so a draft equal to the document writes nothing.
+// Spec: CM-39, WC-7, FR-031, FR-088
+// Why: a part the draft left as the document holds it is omitted, so a draft equal to the document writes nothing.
 // The set is written when it moved or a weekday starts working, so the new day takes the shown set.
 /** @purity pure */
 export function calendarCommandOf(draft: CalendarDraft, schedule: Schedule): Extract<DocumentCommand, { readonly kind: 'setCalendar' }> {

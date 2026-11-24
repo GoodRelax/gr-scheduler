@@ -28,7 +28,7 @@ type RawRegion = {
   readonly root: { readonly carries: readonly unknown[]; readonly transitions: Readonly<Record<string, unknown>> }
 }
 
-// see SD-5
+// Spec: SD-5
 const REGIONS = (
   readStateMachineView() as {
     readonly regions: readonly RawRegion[]
@@ -125,7 +125,7 @@ function sampleOf(ev: RawEvent): Loose {
   return event
 }
 
-// WHY: S-206 says Esc does not stop the record, so every rung of both Esc events is crossed.
+// Why: S-206 says Esc does not stop the record, so every rung of both Esc events is crossed.
 function otherEvents(): (readonly [string, Loose])[] {
   return OTHER_REGIONS.flatMap((name) =>
     regionNamed(name).events.flatMap((ev) => {

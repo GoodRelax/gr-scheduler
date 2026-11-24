@@ -1,4 +1,4 @@
-// Selection: the selected items and whether their pick order can be relied on.
+// File: Selection: the selected items and whether their pick order can be relied on.
 // @unit      UF-55   (docs/spec/05-07-design.md, table T-075)
 // @component Selection, layer documentModel (table T-062)
 // @purity    pure
@@ -6,7 +6,7 @@
 
 import { taskByUid, type Schedule } from '../schedule/schedule'
 
-// see SL-1
+// Spec: SL-1
 export type SelectableKind =
   | 'task'
   | 'dependency'
@@ -78,20 +78,20 @@ export function selectionWithout(selection: Selection, item: ItemRef): Selection
   return { items, isOrdered: selection.isOrdered }
 }
 
-// see SL-1
+// Spec: SL-1
 /** @purity pure */
 export function taskUidsIn(selection: Selection): readonly number[] {
   return selection.items.flatMap((one) => (one.kind === 'task' ? [one.uid] : []))
 }
 
-// see FR-034, SL-7b
+// Spec: FR-034, SL-7b
 /** @purity pure */
 export function lastPicked(selection: Selection): ItemRef | null {
   if (!selection.isOrdered || selection.items.length === 0) return null
   return selection.items[selection.items.length - 1] ?? null
 }
 
-// see T-023c
+// Spec: T-023c
 /** @purity pure */
 function scheduleHolds(schedule: Schedule, item: ItemRef): boolean {
   switch (item.kind) {
@@ -112,11 +112,11 @@ function scheduleHolds(schedule: Schedule, item: ItemRef): boolean {
   }
 }
 
-// see T-023c
+// Spec: T-023c
 /** @purity pure */
 export function selectionWithinSchedule(selection: Selection, schedule: Schedule): Selection {
   const items = selection.items.filter((item) => scheduleHolds(schedule, item))
-  // TRAP: the shell compares selections by identity; a fresh object here reopens
+  // Trap: the shell compares selections by identity; a fresh object here reopens
   // the Properties Panel on every unrelated edit.
   if (items.length === selection.items.length) return selection
   return selection.isOrdered ? { items, isOrdered: true } : selectionOfAll(items)

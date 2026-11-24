@@ -72,7 +72,7 @@ const numberIn = (cell: string): number => {
   return value
 }
 
-// see S-397
+// Spec: S-397
 const S_397 = numberIn(cellOf('T-206', 'S-397', '既定'))
 
 type Report = unknown
@@ -137,7 +137,7 @@ const owns = (record: Loose, uid: number): boolean => Object.values(flat(record)
 
 const DG = /^DG-[1-4]$/
 
-// see T-317, DX-8
+// Spec: T-317, DX-8
 function marksOf(report: Report, uids: readonly number[]): ReadonlyMap<number, string> {
   const marks = new Map<number, string>()
   const known = new Set(uids)
@@ -178,7 +178,7 @@ function heldBy(report: Report, rowId: string): readonly unknown[] {
   return out
 }
 
-// see T-317, DX-3, DX-6
+// Spec: T-317, DX-3, DX-6
 const namesTask = (report: Report, rowId: string, uid: number): unknown[] =>
   heldBy(report, rowId).flatMap((part) => {
     if (Array.isArray(part)) return part.filter((one) => holdsNumber(one, uid))
@@ -191,7 +191,7 @@ interface Pushed {
   readonly container: unknown
 }
 
-// see T-317, DX-4, DX-9
+// Spec: T-317, DX-4, DX-9
 function pushedOf(report: Report, uid: number): readonly Pushed[] {
   return everything(report)
     .filter((one) => one.container !== null && isPlain(one.node))
@@ -237,7 +237,7 @@ function documentOf(statusDate: string | null, rows: readonly Row[], keepsWritte
   const decoded = documentFromJson(JSON.stringify(raw))
   if (!decoded.ok) throw new Error(`the schedule does not decode: ${JSON.stringify(decoded.faults)}`)
   if (!keepsWrittenPercent) return decoded.document
-  // WHY: a GRS JSON read recounts percentComplete (FR-012); VC-5 stands on a value an MSPDI import keeps (FR-021).
+  // Why: a GRS JSON read recounts percentComplete (FR-012); VC-5 stands on a value an MSPDI import keeps (FR-021).
   const written = new Map(raw.schedule.tasks.map((task: Loose) => [task['uid'], task['percentComplete']]))
   const tasks = decoded.document.schedule.tasks.map((task) => ({
     ...task,
@@ -248,10 +248,10 @@ function documentOf(statusDate: string | null, rows: readonly Row[], keepsWritte
 
 const STATUS = F(15)
 
-// WHY: CR-710 counts the T-314 quantities in working minutes; one working day here is S-128 = 480 minutes.
+// Why: CR-710 counts the T-314 quantities in working minutes; one working day here is S-128 = 480 minutes.
 const DAY = 480
 
-// WHY: B, B2 start the morning after their predecessor ends (VC-15 by instants, CR-710). A counts 1 actual day
+// Why: B, B2 start the morning after their predecessor ends (VC-15 by instants, CR-710). A counts 1 actual day
 // (FR-011), so BD-1 ends it the 17th, 7 late, all reaching B's end; B2 keeps min(2, 4) and hands A2 min(2, 2) = 2.
 const P = 100
 const A = 101
@@ -356,7 +356,7 @@ const DERIVED = documentOf(STATUS, [
   {
     id: 'r1b',
     parentId: 'r0',
-    // WHY: Z starts the morning after Y's finish (VC-15 by instants, CR-710), so Y's 7 days (BD-1, CR-633) reach Z's end whole.
+    // Why: Z starts the morning after Y's finish (VC-15 by instants, CR-710), so Y's 7 days (BD-1, CR-633) reach Z's end whole.
     tasks: [taskOf(Z, { name: 'Zoning', parentTaskUid: W, start: S(9), finish: F(13), dependencies: [after(Y)] })],
   },
   {
@@ -401,7 +401,7 @@ const LONE_MILESTONE = documentOf(STATUS, [
     id: 'r1',
     parentId: 'r0',
     tasks: [
-      // WHY: T4 starts on its row before M0, so M0 does not head its row and is no origin (DW-3, CR-810).
+      // Why: T4 starts on its row before M0, so M0 does not head its row and is no origin (DW-3, CR-810).
       taskOf(M0, { name: 'Gate zero', parentTaskUid: W4, milestone: true, start: S(7), finish: S(7) }),
       taskOf(T4, { name: 'Tooling', parentTaskUid: W4, start: S(6), finish: F(10) }),
     ],
@@ -480,7 +480,7 @@ describe('CR-561 -- the clauses these cases are driven by', () => {
     expect(REQUIREMENTS).toContain(clause)
   })
 
-  // WHY: CR-731 added DX-11 (the fix proposals) and DX-12 (the fix log) after DX-10; the cases here read DX-1 .. DX-10,
+  // Why: CR-731 added DX-11 (the fix proposals) and DX-12 (the fix log) after DX-10; the cases here read DX-1 .. DX-10,
   // and the cr-731 cases read the two new rows.
   it('T-313 BD-1 .. BD-4, T-314 DQ-1 .. DQ-4 and T-317 DX-1 .. DX-10 are still the rows read here, DX-11 and DX-12 after them', () => {
     expect(specTable('T-313').rows.map((row) => row.id)).toEqual(['BD-1', 'BD-2', 'BD-3', 'BD-4'])

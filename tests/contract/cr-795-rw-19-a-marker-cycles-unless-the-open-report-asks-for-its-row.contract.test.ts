@@ -156,7 +156,7 @@ describe('RW-19 -- the marker cycles unless the open report asks for its row (tr
 })
 
 
-// WHY: SELF starts before the status date; a task not begun that starts after it is never drawn with DG-1 or DG-2 (FR-133).
+// Why: SELF starts before the status date; a task not begun that starts after it is never drawn with DG-1 or DG-2 (FR-133).
 const SELF = 40
 const PARENT = 20
 const LATE = 21

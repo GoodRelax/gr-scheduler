@@ -10,7 +10,7 @@ import { bare, specTable, unbroken } from './spec-table'
 
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
-// WHY: each constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
+// Why: each constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
 const CF_1 = 'CF-2` 〜 `CF-4` を、この順に 1 回解くこと（MUST）。解いた値を保存してはならない（MUST NOT）'
 const CF_4 = '| CF-4 | 地の彩度 | モノクロでなければ、`S-146` の彩度を次のとおり解くこと（MUST）'
 const CF_6 = '| CF-6 | 測り方 | 比は WCAG 2.1 のコントラスト比とし、HSL を 8 ビットの sRGB に丸めた値から求めること（MUST）'
@@ -26,7 +26,7 @@ const rowOf = (table: string, id: string) => {
   return found
 }
 
-// see T-206
+// Spec: T-206
 const numberOf = (id: string): number => {
   const value = Number(/-?\d+(?:\.\d+)?/.exec(bare(rowOf('T-206', id).cells[1] ?? ''))?.[0] ?? '')
   if (!Number.isFinite(value)) throw new Error(`table T-206 row ${id} states no number`)
@@ -50,7 +50,7 @@ interface Hsl {
 
 const CELLS = new Map<string, string>()
 
-// see T-236
+// Spec: T-236
 const tableHsl = (id: string, dark: boolean, hue: number): Hsl => {
   const key = `${id}/${String(dark)}`
   const cell = CELLS.get(key) ?? bare(rowOf('T-236', id).by[dark ? '暗いテーマ' : '明るいテーマ'] ?? '').replace(/`/g, '')
@@ -61,7 +61,7 @@ const tableHsl = (id: string, dark: boolean, hue: number): Hsl => {
   throw new Error(`T-236 ${id} holds ${cell}, which this case cannot read`)
 }
 
-// see CF-6
+// Spec: CF-6
 const rgb8 = (one: Hsl): readonly number[] => {
   const s = one.s / 100
   const l = one.l / 100
@@ -74,7 +74,7 @@ const rgb8 = (one: Hsl): readonly number[] => {
   return [r, g, b].map((v) => Math.round((v + m) * 255))
 }
 
-// see CF-6
+// Spec: CF-6
 const luminance = (rgb: readonly number[]): number => {
   const [r, g, b] = rgb.map((v) => {
     const unit = v / 255
@@ -83,20 +83,20 @@ const luminance = (rgb: readonly number[]): number => {
   return 0.2126 * r + 0.7152 * g + 0.0722 * b
 }
 
-// see CF-6
+// Spec: CF-6
 const contrast = (a: readonly number[], b: readonly number[]): number => {
   const [hi, lo] = [luminance(a), luminance(b)].sort((p, q) => q - p) as [number, number]
   return (hi + 0.05) / (lo + 0.05)
 }
 
-// see CF-2
+// Spec: CF-2
 const shifted = (id: string, dark: boolean, hue: number, k: number): Hsl => {
   const base = tableHsl(id, dark, hue)
   const moved = base.l + (dark ? 1 : -1) * k * (RATIO_OF[id] ?? NaN)
   return { ...base, l: Math.round(Math.min(100, Math.max(0, moved)) * 10) / 10 }
 }
 
-// see CF-3, CT-3, CT-4, CT-5
+// Spec: CF-3, CT-3, CT-4, CT-5
 const holds = (dark: boolean, hue: number, k: number): boolean => {
   const ground = rgb8({ ...tableHsl('S-146', dark, hue), s: 0 })
   const fill = rgb8(shifted('S-155', dark, hue, k))
@@ -105,13 +105,13 @@ const holds = (dark: boolean, hue: number, k: number): boolean => {
   return contrast(actual, fill) >= 3 && contrast(edge, ground) >= 3 && contrast(fill, ground) >= 1.3
 }
 
-// see CF-3
+// Spec: CF-3
 const kOf = (dark: boolean, hue: number): number => {
   for (let k = 0; k < CEILING; k += STEP) if (holds(dark, hue, k)) return k
   return CEILING
 }
 
-// see PI-19
+// Spec: PI-19
 const drawnHsl = (id: string, hue: number, dark: boolean, monochrome = false): Hsl => {
   const said = colorOf(id, hue, dark, monochrome).trim()
   const hsl = /^hsl\(\s*([\d.]+)(?:deg)?[ ,]+([\d.]+)%[ ,]+([\d.]+)%\s*\)$/.exec(said)

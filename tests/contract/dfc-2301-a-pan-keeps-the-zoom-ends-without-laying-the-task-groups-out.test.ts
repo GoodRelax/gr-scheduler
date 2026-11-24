@@ -50,8 +50,8 @@ async function pan(built: PaletteStage): Promise<void> {
   await send(built, pointerOf('up', PAN_FROM.x - PAN_STEPS * PAN_STEP_PX, PAN_FROM.y - PAN_STEPS * PAN_STEP_PX, CTRL))
 }
 
-// see S-96, S-97, OP-10
-// WHY: a stored place and zoom one IC-12 step above the floor, so one press reaches the end.
+// Spec: S-96, S-97, OP-10
+// Why: a stored place and zoom one IC-12 step above the floor, so one press reaches the end.
 const oneStepAboveTheTimeFloor = (): Document => {
   const document = here()
   const taskGroupId = document.schedule.taskGroups[0]?.id ?? null

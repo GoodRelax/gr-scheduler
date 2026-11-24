@@ -58,7 +58,7 @@ const DOCUMENT_COMMANDS = readFileSync(join(SPEC, '_assets', 'tbl-document-comma
 const ERD_DETAIL = readFileSync(join(SPEC, '_assets', 'fig-erd-detail.md'), 'utf8')
 
 const GR_14_SPLIT = '⭐ `GR-14` の場所は、箱の種類で分けること（MUST）。'
-// WHY: CR-558 gave the highlight box eight grab points and a frame; these are the clauses as they read now.
+// Why: CR-558 gave the highlight box eight grab points and a frame; these are the clauses as they read now.
 const HIGHLIGHT_PARTS =
   'ハイライトボックスは、8 つの掴み点（四隅と 4 辺の中点）と枠を持つ —— 場所・掴み代・引いたときに変わるもの・ポインタの形は 表 T-246 の `HB-8` 〜 `HB-12` に、応える順は本結びの後の段に従うこと（MUST）。'
 const HIGHLIGHT_CM_54 =
@@ -66,7 +66,7 @@ const HIGHLIGHT_CM_54 =
 const HIGHLIGHT_COLUMNS =
   '⭐ ハイライトボックスの位置と大きさを持つ列は囲む範囲の 4 列（`_assets/fig-erd-detail.md` の `AT-117` 〜 `AT-120`）だけであり、それを書く命令は同表に `CM-54` 1 つしか無い。'
 const COMMENT_PARTS = 'コメントボックスは本体・引出し線・線先を持つ。'
-// WHY: CR-559 rewrote the comment box clauses; CR-773 (JDG-2400): the body and the leader write CM-51 alone, the anchor writes CM-50 and CM-51 as one bundle.
+// Why: CR-559 rewrote the comment box clauses; CR-773 (JDG-2400): the body and the leader write CM-51 alone, the anchor writes CM-50 and CM-51 as one bundle.
 const COMMENT_BODY_MOVES_ALONE =
   '⭐ 本体（本文の箱の全体）か引出し線（線から左右へ同表の `S-291`）を掴んで引いたときは、本文の箱だけを動かし、線先は動かさないこと（MUST） —— 本文の箱は引いた量だけ動かし、線先の日とタスクグループは今のままとする（箱を空いた所へよけるたびに指す先が変わると、どのタスクについてのコメントかが崩れる）。'
 const COMMENT_BODY_WRITES_CM_51 =
@@ -193,7 +193,7 @@ const grabMarginPx = (): number => {
 
 const S_230 = grabMarginPx()
 
-// WHY: `S-293` is the reach the frame keeps either side of its drawn line; the
+// Why: `S-293` is the reach the frame keeps either side of its drawn line; the
 // inside of the box is no grab margin since CR-430, so the move is on the frame.
 const S_293 =((): number => {
   const cell = t206Default('S-293')
@@ -202,7 +202,7 @@ const S_293 =((): number => {
   return Number(numbers[0])
 })()
 
-// WHY: `S-292` is the comment anchor's own reach; `S-230` belongs to the highlight box's grab points.
+// Why: `S-292` is the comment anchor's own reach; `S-230` belongs to the highlight box's grab points.
 const S_292 = ((): number => {
   const cell = t206Default('S-292')
   const numbers = cell.match(/\d+(?:\.\d+)?/g) ?? []
@@ -320,7 +320,7 @@ function fixtureDocument(fixture: Fixture = {}): Document {
     },
     documentSettings: {
       ...(template['documentSettings'] as Record<string, unknown>),
-      // WHY: S-1 is a constant (CR-572); the stored zoomX (S-75) carries the day width this fixture draws at.
+      // Why: S-1 is a constant (CR-572); the stored zoomX (S-75) carries the day width this fixture draws at.
       zoomX: PX_PER_DAY_AT_1X / SETTINGS_CONSTANTS.pxPerDayAt1x,
       scrollDate: '2026-04-01',
       scrollDateFraction: 0,
@@ -499,11 +499,11 @@ const offsetFrom = (point: Point, direction: Point, by: number): Point => ({
   y: point.y + direction.y * by,
 })
 
-// WHY: a quarter along the top frame line is on the frame and clear of every grab point -- the middle
-// WHY: of the line is the HB-11 midpoint since CR-558, so a press there resizes instead of moving.
+// Why: a quarter along the top frame line is on the frame and clear of every grab point -- the middle
+// Why: of the line is the HB-11 midpoint since CR-558, so a press there resizes instead of moving.
 const onTheFrame =(box: ScreenRect): Point => ({ x: box.x + box.width / 4, y: box.y })
 
-// WHY: the left frame line at a chosen height lets a move start in a named task group.
+// Why: the left frame line at a chosen height lets a move start in a named task group.
 const onTheLeftFrame =(box: ScreenRect, y: number): Point => ({ x: box.x, y })
 
 const justInside = (loop: FrameLoop, name: CornerName): Point => {
@@ -559,7 +559,7 @@ function expectBodyMove(built: Stage, press: Point, what: string): void {
   expect(after['bottomTaskGroupId'], `${what}: bottomTaskGroupId moved`).toEqual(before['bottomTaskGroupId'])
 }
 
-// WHY: the inside of a highlight box holds no grab margin since CR-430, so a
+// Why: the inside of a highlight box holds no grab margin since CR-430, so a
 // press there reaches what the box was drawn over and its columns stay put.
 function expectInsidePassesThrough(built: Stage, press: Point, what: string): void {
   const before = storedOf(built.loop, 'highlightBoxes', HIGHLIGHT_ID)
@@ -583,8 +583,8 @@ const drawnWidth = (range: HighlightRange): { readonly box: ScreenRect; readonly
 const WIDTH_SLACK = 0.05
 
 describe('DFC-568 premises: the clauses and the fixture still read this way', () => {
-  // WHY: the comment box clauses CR-559 rewrote stand in their own case so a red there names CR-559
-  // WHY: and does not hide the highlight box clauses CR-558 rewrote.
+  // Why: the comment box clauses CR-559 rewrote stand in their own case so a red there names CR-559
+  // Why: and does not hide the highlight box clauses CR-558 rewrote.
   it('CR-559: the comment box body and anchor commands clause still reads verbatim', () => {
     for (const clause of [COMMENT_BODY_MOVES_ALONE, COMMENT_BODY_WRITES_CM_51, COMMENT_ANCHOR_ALONE]) {
       expect(REQUIREMENTS).toContain(clause)
@@ -645,7 +645,7 @@ describe('DFC-568 premises: the clauses and the fixture still read this way', ()
   })
 
   it('S-230 and S-293 each resolve to one positive number of their own', () => {
-    // WHY: S-230 pointed at `S-137` until CR-430 and carries its own figure now,
+    // Why: S-230 pointed at `S-137` until CR-430 and carries its own figure now,
     // with the frame's reach `S-293` a separate row beside it -- one value, one role.
     expect(S_230).toBeGreaterThan(0)
     expect(S_293).toBeGreaterThan(0)
@@ -1081,7 +1081,7 @@ function moveAnchor(
   return { before, after: storedOf(built.loop, 'commentBoxes', COMMENT_ID), body }
 }
 
-// see T-023d, CM-50, CM-51
+// Spec: T-023d, CM-50, CM-51
 function expectBundleKeepsTheBox(
   built: Stage,
   moved: { before: Record<string, unknown>; after: Record<string, unknown>; body: ScreenRect },
@@ -1188,7 +1188,7 @@ describe('DFC-568 FR-019: the body and the leader stand on the drawn anchor', ()
     expect(offset.dy).toBeCloseTo(drawn.body.y + drawn.body.height - drawn.anchor.y, 1)
   })
 
-  // WHY: the fixture's body stands up-right of the anchor, so LF-17 picks the bottom-left corner here.
+  // Why: the fixture's body stands up-right of the anchor, so LF-17 picks the bottom-left corner here.
   it(`${FR_019_LEADER} -- one line from the pinned point to the body's bottom-left, in the drawn picture`, () => {
     const built = stage()
     const svg = built.lastSvg()
@@ -1205,7 +1205,7 @@ describe('DFC-568 FR-019: the body and the leader stand on the drawn anchor', ()
       [num('x1'), num('y1')],
       [num('x2'), num('y2')],
     ].sort((a, b) => a[0]! - b[0]!)
-    // STEP: the pinned point is the body's bottom-left minus bodyOffsetPx, in the picture's own space
+    // Step: the pinned point is the body's bottom-left minus bodyOffsetPx, in the picture's own space
     expect(ends[0]![0]).toBeCloseTo(left - 60, 1)
     expect(ends[0]![1]).toBeCloseTo(bottom + 60, 1)
     expect(ends[1]![0]).toBeCloseTo(left, 1)
@@ -1284,7 +1284,7 @@ describe('DFC-568 JDG-72: placing and moving read the same place for the same po
       const moving = stage()
       moveAnchor(moving, DEAD_ON, at)
       const stored = storedOf(moving.loop, 'commentBoxes', COMMENT_ID)
-      // STEP: the created anchor and the moved anchor name the same day and task group
+      // Step: the created anchor and the moved anchor name the same day and task group
       expect(`${String(created['date']).slice(0, 10)} ${taskGroupLetter(created['taskGroupId'])}`).toBe(
         `${String(stored['anchorDate']).slice(0, 10)} ${taskGroupLetter(stored['anchorTaskGroupId'])}`,
       )

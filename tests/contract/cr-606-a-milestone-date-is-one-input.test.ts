@@ -20,13 +20,13 @@ import {
   visualOf,
 } from './cr-606-stage'
 
-// see PR-35, PR-36
+// Spec: PR-35, PR-36
 const PLANNED_ONE_INPUT = '1 つの入力で `start` と `finish` へ同じ日を書く（表 T-108 の `CM-11`）'
 const ACTUAL_ONE_INPUT =
   '1 つの入力で `actualStart` と `actualFinish` へ同じ日を書き、表 T-019 の `PA-5`（完了）に置く。'
 const ACTUAL_EMPTIED = '空にしたときは両方を空にして `PA-1`（未着手）に置く（どちらも 表 T-108 の `CM-13`）'
 const PLANNED_EMPTIED = '空のまま確定したときの扱いは `FR-006` の `start` ／ `finish` の欄と同じ'
-// see FR-006
+// Spec: FR-006
 const FR_006_EMPTIED =
   '空のまま確定したときは、`start` ／ `finish` の欄なら何も書かずに欄を元の値へ戻し、それ以外の日付の欄なら `null` を書くこと（MUST）'
 
@@ -42,7 +42,7 @@ describe('CR-606 premise -- the clauses these cases quote still stand', () => {
   })
 })
 
-// see T-016
+// Spec: T-016
 const ONE_INPUT_ROWS = T_016.filter((one) => one.oneInput === true)
 const rowOfColumns = (columns: readonly string[]): string => {
   const found = ONE_INPUT_ROWS.find((one) => one.columns.join(',') === columns.join(','))

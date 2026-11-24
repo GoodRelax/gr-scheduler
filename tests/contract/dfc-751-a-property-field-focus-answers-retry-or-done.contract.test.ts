@@ -67,7 +67,7 @@ const VIEW = {
   tooltips: [],
 } as unknown as ScreenView
 
-// WHY: the shared fake host has no activeElement, and a host that cannot say where the focus
+// Why: the shared fake host has no activeElement, and a host that cannot say where the focus
 // is reads as focused; this stage lends one so the false answer can be reached at all.
 function wired(): { built: Stage; focusField: (row: string) => boolean } {
   const built = stage({ [ROLE.appHeader]: HEADER_PX })
@@ -114,11 +114,11 @@ describe('DFC-751 / IF-9, IN-5b, MK-13 -- the focus request answers retry or don
     const { built, focusField } = wired()
     const control = controlOf(built, NAME_TASK_GROUP)
     const lands = control.focus.bind(control)
-    // STEP: the host refuses the focus on this frame
+    // Step: the host refuses the focus on this frame
     control.focus = (): void => {}
     expect(focusField(NAME_TASK_GROUP)).toBe(false)
     expect(built.world.activeElement).toBeNull()
-    // STEP: the next frame asks again and the host lets the focus in
+    // Step: the next frame asks again and the host lets the focus in
     control.focus = lands
     expect(focusField(NAME_TASK_GROUP)).toBe(true)
   })

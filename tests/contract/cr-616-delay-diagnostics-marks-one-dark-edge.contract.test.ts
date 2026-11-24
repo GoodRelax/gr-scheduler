@@ -61,7 +61,7 @@ const groundIdOf = (row: DgRow): string => settingIdOf(cellOf('T-315', row, '地
 const inkIdOf = (row: DgRow): string => settingIdOf(cellOf('T-315', row, '記号'))
 const defaultOf = (id: string): number => Number(/-?\d+(?:\.\d+)?/.exec(bare(cellOf('T-201', id, '既定値')))?.[0] ?? 'NaN')
 const S_24 = defaultOf('S-24')
-// WHY: S-24 and S-22 are both scaled by the display ratio; S-22's drawn size names the ratio without a copy of it.
+// Why: S-24 and S-22 are both scaled by the display ratio; S-22's drawn size names the ratio without a copy of it.
 const drawnEdgeWidth = (stage: Stage): number => (S_24 * drawnSettingsOf(stage.settings).markerSize) / defaultOf('S-22')
 
 const luminanceOf = (hex: string): number => {
@@ -160,7 +160,7 @@ describe('CR-616 -- the clauses read here are still in the specification', () =>
   })
 
   it('premise: the stage draws DG-1 .. DG-4, PM-2 and PM-3 where it means to', () => {
-    // WHY: T-315 makes DG-4 the PM-4 mark itself, so the geometry names it PM-4.
+    // Why: T-315 makes DG-4 the PM-4 mark itself, so the geometry names it PM-4.
     for (const row of DG_ROWS) expect(markOf(COLORED, 'light', UID_OF[row]).symbol, row).toBe(row === 'DG-4' ? 'PM-4' : row)
     expect(markOf(COLORED, 'light', DONE).symbol).toBe('PM-2')
     expect(markOf(COLORED, 'light', SUSPENDED).symbol).toBe('PM-3')

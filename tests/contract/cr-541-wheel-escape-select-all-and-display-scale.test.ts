@@ -147,7 +147,7 @@ describe('SE-5 -- no FR-029 notice at an end', () => {
       built.send(keyOf(sign, { alt: true }))
     }
     const atEnd = zoomY()
-    // WHY: the loop stops on the first press that changed nothing, which is already one end press.
+    // Why: the loop stops on the first press that changed nothing, which is already one end press.
     const noticesBefore = built.notices().length
     built.send(keyOf(sign, { alt: true }))
     expect(zoomY(), 'premise: at the end the press does not change zoomY').toBe(atEnd)

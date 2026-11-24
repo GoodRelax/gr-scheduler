@@ -1,4 +1,4 @@
-// DomScreenSurface -- the three table windows (Search Panel, Delay Diagnostics Report, Resource List): title row, word field, table and the report's fix rows.
+// File: DomScreenSurface: the three table windows (Search Panel, Delay Diagnostics Report, Resource List): title row, word field, table and the report's fix rows.
 // @unit      UF-182  (docs/spec/05-07-design.md, table T-075)
 // @component DomScreenSurface, layer Framework (table T-062)
 // @purity    non-pure
@@ -45,7 +45,7 @@ type SearchColumnView = SearchPanelView['columns'][number]
 
 type SearchRowView = SearchPanelView['rows'][number]
 
-// see SJ-1, SQ-10, DT-8, RQ-1, RQ-3
+// Spec: SJ-1, SQ-10, DT-8, RQ-1, RQ-3
 export interface DrawnRow {
   readonly cells: readonly string[]
   readonly glyph?: SearchRowView['glyph']
@@ -57,7 +57,7 @@ export interface DrawnRow {
   readonly isCurrent?: boolean
 }
 
-// WHY: read off the published report view, so no further name leaves ScreenRenderer (T-064).
+// Why: read off the published report view, so no further name leaves ScreenRenderer (T-064).
 type ReportView = NonNullable<ScreenView['delayDiagnosticsReport']>
 type FixCell = NonNullable<Extract<ReportView['rows'][number], { readonly status: null }>['fix']>
 type FixFooter = NonNullable<ReportView['fixFooter']>
@@ -72,7 +72,7 @@ type SearchFilterMenuView = NonNullable<SearchPanelView['filterMenu']>
 
 type SearchFilterValueView = Extract<SearchFilterMenuView, { kind: 'values' }>['values'][number]
 
-// see T-330, T-346, T-370, RW-3, RW-4, RO-3
+// Spec: T-330, T-346, T-370, RW-3, RW-4, RO-3
 export type TableWindowView = Omit<SearchPanelView, 'table' | 'rows'> & {
   readonly rows: readonly DrawnRow[]
   readonly chosenAt?: number
@@ -87,14 +87,14 @@ export type TableWindowView = Omit<SearchPanelView, 'table' | 'rows'> & {
   readonly rowRevealed?: { readonly at: number; readonly count: number } | null
 }
 
-// see T-337, RW-5, SQ-10, DT-8, RQ-1
+// Spec: T-337, RW-5, SQ-10, DT-8, RQ-1
 export interface TableWindowIdentity {
   readonly window: WindowName
   readonly role: string
   readonly visibilityColumn: string
 }
 
-// see SV-6, SV-17, SV-18, RW-9, SQ-5, DT-1
+// Spec: SV-6, SV-17, SV-18, RW-9, SQ-5, DT-1
 export type DrawnTable = Pick<TableWindowView, 'columns' | 'rows' | 'jumpAt' | 'glyphAt' | 'showAt' | 'showHeading' | 'chosenAt' | 'fixTable'>
 
 const SEARCH_PANEL_ROLE = 'Search Panel'
@@ -109,12 +109,12 @@ const SUMMARY_ITEM_STYLE = 'white-space:nowrap;'
 
 export const SEARCH_WORD_FIELD_ATTRIBUTE = 'data-search-word'
 
-// see SV-2, IF-9
+// Spec: SV-2, IF-9
 export const SEARCH_WORD_ROW = 'SV-2'
 
 const FIELD_ROW_ATTRIBUTE = 'data-field-row'
 
-// see SV-7, IN-5a
+// Spec: SV-7, IN-5a
 export const SEARCH_FILTER_ROW = 'SV-7'
 
 export const SEARCH_FILTER_COLUMN_ATTRIBUTE = 'data-search-filter-column'
@@ -133,26 +133,26 @@ export const SEARCH_JUMP_TASK_ATTRIBUTE = 'data-search-task'
 
 export const SEARCH_JUMP_COMMENT_BOX_ATTRIBUTE = 'data-search-comment-box'
 
-// see RW-13
+// Spec: RW-13
 const SEARCH_JUMP_RELATED_ATTRIBUTE = 'data-search-related'
 
 const SEARCH_JUMP_OPEN_FIELD_ATTRIBUTE = 'data-search-open-field'
 
-// see RW-16, FM-1, FM-8
+// Spec: RW-16, FM-1, FM-8
 const DELAY_FIX_KEY_ATTRIBUTE = 'data-delay-fix-key'
 
 const DELAY_FIX_PART_ATTRIBUTE = 'data-delay-fix-part'
 
 const TABLE_BOX_ATTRIBUTE = 'data-table-box'
 
-// see RW-11, RW-12, T-374
+// Spec: RW-11, RW-12, T-374
 const FIX_TABLE_ROLES = { proposals: 'Delay Fix Proposals', log: 'Delay Fix Log' } as const
 
 const DELAY_FIX_FOOTER_ROLE = 'Delay Fix Footer'
 
 const DELAY_FIX_NOTICE_ROLE = 'Delay Fix Notice'
 
-// WHY: the entries line wraps between items as RW-4's summary does; the RW-17 notice takes its own line under it (RW-12).
+// Why: the entries line wraps between items as RW-4's summary does; the RW-17 notice takes its own line under it (RW-12).
 const FIX_FOOTER_STYLE = 'flex:none;display:flex;flex-direction:column;row-gap:0.25em;padding:0.25em 0.5em;'
 
 const FIX_FOOTER_LINE_STYLE = 'display:flex;flex-wrap:wrap;align-items:center;column-gap:0.5em;row-gap:0.25em;'
@@ -165,7 +165,7 @@ const FIX_AFTER_COLUMN = 'FM-8'
 
 const UID_JOIN = ','
 
-// see T-374, S-481, S-478
+// Spec: T-374, S-481, S-478
 const FIX_COLUMN_WIDTH_ROWS: { readonly [column: string]: keyof typeof NOT_STORED_SEARCH_PANEL_SIZES } = {
   'FM-4': 'S-481',
   'FM-5': 'S-478',
@@ -181,7 +181,7 @@ const VISIBILITY_KEY_ATTRIBUTE = 'data-visibility-key'
 
 const SHOWN_ALL_ATTRIBUTE = 'data-search-shown-all'
 
-// see SQ-10, DT-8, RQ-1, S-496
+// Spec: SQ-10, DT-8, RQ-1, S-496
 const VISIBILITY_COLUMNS: readonly string[] = ['SQ-10', 'DT-8', 'RQ-1']
 
 const NO_BORDER_ATTRIBUTE = 'data-no-border'
@@ -190,7 +190,7 @@ const FILTER_ENTRY = 'IC-122'
 
 const LISTED_ENTRIES: readonly string[] = ['IC-125', 'IC-126']
 
-// TRAP: PAINT is read at a call, never at load; dom-screen-surface.ts imports this file, so it is not set yet then.
+// Trap: PAINT is read at a call, never at load; dom-screen-surface.ts imports this file, so it is not set yet then.
 /** @purity pure */
 export function windowStyle(): string {
   return (
@@ -210,7 +210,7 @@ const HEADING_WORD_STYLE = 'flex:1 1 auto;min-width:0;overflow:hidden;text-overf
 
 const HEADING_LINE_STYLE = 'display:flex;align-items:center;'
 
-// see SV-7
+// Spec: SV-7
 /** @purity pure */
 function filterMenuStyle(): string {
   return (
@@ -231,7 +231,7 @@ const FILTER_BOUND_WORD_STYLE = 'margin-right:0.25em;'
 
 const GLYPH_STYLE = 'display:inline-block;width:1em;height:1em;vertical-align:-0.125em;margin-right:0.25em;'
 
-// see SV-17, S-425
+// Spec: SV-17, S-425
 const CELL_PADDING_EM = 0.25
 
 const CELL_RULE_PX = 1
@@ -241,8 +241,8 @@ function cellStyle(): string {
   return `border:${CELL_RULE_PX}px solid ${PAINT.rule};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 ${CELL_PADDING_EM}em;`
 }
 
-// see SV-6
-// WHY: front to back; unstacked sticky cells paint in tree order, so a fixed body cell would cover the header.
+// Spec: SV-6
+// Why: front to back; unstacked sticky cells paint in tree order, so a fixed body cell would cover the header.
 const TABLE_CELL_STACK = ['fixedHeaderCell', 'headerCell', 'fixedBodyCell'] as const
 
 /** @purity pure */
@@ -250,7 +250,7 @@ function stackStyle(cell: (typeof TABLE_CELL_STACK)[number]): string {
   return `z-index:${TABLE_CELL_STACK.length - TABLE_CELL_STACK.indexOf(cell)};`
 }
 
-// TRAP: left:0 until pinFixedColumns measures the drawn columns; a guessed width is no row's value (S-425).
+// Trap: left:0 until pinFixedColumns measures the drawn columns; a guessed width is no row's value (S-425).
 /** @purity pure */
 function fixedColumnStyle(): string {
   return `position:sticky;left:0;background:${PAINT.ground};`
@@ -268,7 +268,7 @@ const FIXED_COLUMN_ATTRIBUTE = 'data-fixed-column'
 
 const FILTERED_ATTRIBUTE = 'data-filtered-column'
 
-// see SQ-1, DT-4, SJ-1, S-503
+// Spec: SQ-1, DT-4, SJ-1, S-503
 /** @purity pure */
 function jumpCellStyle(): string {
   return `cursor:pointer;color:${PAINT.link};text-decoration:underline;`
@@ -276,13 +276,13 @@ function jumpCellStyle(): string {
 
 type SearchJumpCell = NonNullable<ScreenPart['searchJumpTarget']>
 
-// see SV-18, RW-9, S-425
+// Spec: SV-18, RW-9, S-425
 export interface ColumnSizing {
   readonly floor: number
   readonly measured: ReadonlyMap<string, number>
 }
 
-// see S-425, SV-18, IC-122, SV-7, S-465
+// Spec: S-425, SV-18, IC-122, SV-7, S-465
 /** @purity pure */
 export function measuredWidthFloor(fontPx: number): number {
   return Math.ceil(entranceOuterWidthPx() + CELL_PADDING_EM * 2 * fontPx + NOT_STORED_SEARCH_PANEL_SIZES['S-465'] + CELL_RULE_PX)
@@ -300,8 +300,8 @@ function tableRowWidthPx(column: SearchColumnView): number {
   return NOT_STORED_SEARCH_PANEL_SIZES[row]
 }
 
-// see SV-18, RW-9, S-425, S-496
-// WHY: the Visibility column keeps its fixed S-496 and has no border to pull, so the floor is not laid on it.
+// Spec: SV-18, RW-9, S-425, S-496
+// Why: the Visibility column keeps its fixed S-496 and has no border to pull, so the floor is not laid on it.
 /** @purity pure */
 export function columnWidthPx(column: SearchColumnView, sizing: ColumnSizing): number {
   if (VISIBILITY_COLUMNS.includes(column.column)) return column.width ?? tableRowWidthPx(column)
@@ -313,7 +313,7 @@ const MEASURE_BOX_STYLE = 'position:fixed;left:0;top:0;width:max-content;visibil
 
 const MEASURE_TABLE_STYLE = 'border-collapse:collapse;table-layout:auto;'
 
-// see SV-18, RW-9, SV-17
+// Spec: SV-18, RW-9, SV-17
 /** @purity non-pure */
 function measureTableElement(host: Document, column: SearchColumnView, hasGlyph: boolean, fontPx: number): HTMLElement {
   const table = made(host, 'table', MEASURE_TABLE_STYLE + `font-size:${fontPx}px;`)
@@ -331,8 +331,8 @@ function measureTableElement(host: Document, column: SearchColumnView, hasGlyph:
   return table
 }
 
-// see SV-18, RW-9
-// TRAP: a host with no layout reads 0; such a width is dropped, and the column falls back to the floor.
+// Spec: SV-18, RW-9
+// Trap: a host with no layout reads 0; such a width is dropped, and the column falls back to the floor.
 /** @purity non-pure */
 function measureDefaultColumnWidths(host: Document, layer: Element, table: DrawnTable, fontPx: number): ReadonlyMap<string, number> {
   const measured = table.columns.flatMap((column, at) => (column.widthSamples === null ? [] : [{ column, at }]))
@@ -350,8 +350,8 @@ function measureDefaultColumnWidths(host: Document, layer: Element, table: Drawn
   return new Map(widths)
 }
 
-// see SQ-5, DT-1, RW-4, FR-133
-// TRAP: innerHTML only for statusGlyphSvg's markup, which carries numbers and row ids, never a document's text.
+// Spec: SQ-5, DT-1, RW-4, FR-133
+// Trap: innerHTML only for statusGlyphSvg's markup, which carries numbers and row ids, never a document's text.
 /** @purity non-pure */
 function glyphElement(host: Document, glyph: SearchRowView['glyph']): HTMLElement {
   const box = made(host, 'span', GLYPH_STYLE)
@@ -362,7 +362,7 @@ function glyphElement(host: Document, glyph: SearchRowView['glyph']): HTMLElemen
 
 type SizeRatio = { readonly width: number; readonly height: number }
 
-// see SV-9, SV-12, SV-13
+// Spec: SV-9, SV-12, SV-13
 /** @purity pure */
 export function searchPanelBoxOf(view: TableWindowView, defaultRatio: SizeRatio): ScreenRect {
   return windowBoxOf(view.shown, searchPanelPlaceOf(view, defaultRatio), view.canvas, entranceOuterHeightPx())
@@ -376,7 +376,7 @@ function searchPanelPlaceOf(view: TableWindowView, defaultRatio: SizeRatio): Scr
   return windowNormalBoxOf(view, defaultBox, canvas)
 }
 
-// see SJ-1
+// Spec: SJ-1
 /** @purity semi-pure-mutable */
 function searchJumpFrom(start: Element, layer: Element): SearchJumpCell | null {
   for (let node: Element | null = start; node !== null && node !== layer; node = node.parentElement) {
@@ -398,8 +398,8 @@ function fixLandingFrom(node: Element): { readonly relatedTaskUids?: readonly nu
   }
 }
 
-// see SV-16, T-333
-// TRAP: a step is a key's place in sizes; sizes not written in table T-333's order pick the wrong size.
+// Spec: SV-16, T-333
+// Trap: a step is a key's place in sizes; sizes not written in table T-333's order pick the wrong size.
 /** @purity pure */
 export function searchPanelFontPxOf(textSizeStep: number, sizes: { readonly [row: string]: number }): number {
   const fontPx = Object.values(sizes)[textSizeStep]
@@ -407,7 +407,7 @@ export function searchPanelFontPxOf(textSizeStep: number, sizes: { readonly [row
   return fontPx
 }
 
-// see SV-2, SV-16
+// Spec: SV-2, SV-16
 /** @purity non-pure */
 export function wordFieldElement(host: Document, word: string, fontPx: number): HTMLElement {
   const field = made(host, 'input', WORD_FIELD_STYLE + `font-size:${fontPx}px;`) as HTMLInputElement
@@ -418,7 +418,7 @@ export function wordFieldElement(host: Document, word: string, fontPx: number): 
   return field
 }
 
-// see SV-7, S-183, S-146
+// Spec: SV-7, S-183, S-146
 /** @purity pure */
 function filteredHeadingStyle(): string {
   return `background:${PAINT.filteredHeading};color:${PAINT.ground};`
@@ -429,7 +429,7 @@ function filteredEntryStyle(): string {
   return `background:transparent;color:${PAINT.ground};border-color:${PAINT.ground};`
 }
 
-// see SV-7, SV-18, FR-106
+// Spec: SV-7, SV-18, FR-106
 /** @purity non-pure */
 function headerCellElement(
   host: Document,
@@ -456,14 +456,14 @@ function headerCellElement(
   }
   const heading = made(host, 'span', HEADING_WORD_STYLE)
   heading.textContent = column.heading
-  // WHY: FM-1 keeps its word beside the box and its border, so the column name stays readable (T-374).
+  // Why: FM-1 keeps its word beside the box and its border, so the column name stays readable (T-374).
   line.replaceChildren(...(showHeading === null ? [heading, filter] : [shownBoxElement(host, showHeading), heading]))
   cell.replaceChildren(line)
   return cell
 }
 
-// see SQ-10
-// WHY: checked while any row of the table is checked, listed or not (JDG-2826); never half.
+// Spec: SQ-10
+// Why: checked while any row of the table is checked, listed or not (JDG-2826); never half.
 /** @purity non-pure */
 function shownBoxElement(host: Document, showHeading: SearchPanelView['showHeading'] | undefined): HTMLInputElement {
   const box = made(host, 'input', 'margin:0;flex:none;') as HTMLInputElement
@@ -473,7 +473,7 @@ function shownBoxElement(host: Document, showHeading: SearchPanelView['showHeadi
   return box
 }
 
-// see SQ-10, DT-8, RQ-1
+// Spec: SQ-10, DT-8, RQ-1
 /** @purity non-pure */
 function shownRowBox(host: Document, key: VisibilityKey, isShown: boolean): HTMLInputElement {
   const box = made(host, 'input', 'margin:0;') as HTMLInputElement
@@ -492,7 +492,7 @@ function filterControl(host: Document, type: string, fontPx: number): HTMLInputE
   return control
 }
 
-// see SV-7
+// Spec: SV-7
 /** @purity non-pure */
 function filterValueLine(host: Document, shown: SearchFilterValueView, fontPx: number): HTMLElement {
   const line = made(host, 'label', FILTER_LINE_STYLE + `font-size:${fontPx}px;`)
@@ -507,8 +507,8 @@ function filterValueLine(host: Document, shown: SearchFilterValueView, fontPx: n
   return line
 }
 
-// see SV-7
-// WHY: one line per bound, the word on its left, so which input starts the range reads at a glance.
+// Spec: SV-7
+// Why: one line per bound, the word on its left, so which input starts the range reads at a glance.
 /** @purity non-pure */
 function filterDateFields(host: Document, menu: Extract<SearchFilterMenuView, { kind: 'dates' }>, fontPx: number): HTMLElement {
   const lines = made(host, 'div', '')
@@ -532,7 +532,7 @@ function filterDateFields(host: Document, menu: Extract<SearchFilterMenuView, { 
   return lines
 }
 
-// see SV-7
+// Spec: SV-7
 /** @purity non-pure */
 export function searchFilterMenuElement(
   host: Document,
@@ -559,7 +559,7 @@ export function searchFilterMenuElement(
   return box
 }
 
-// see SV-7
+// Spec: SV-7
 /** @purity non-pure */
 function filterSearchField(host: Document, hint: string, fontPx: number): HTMLElement {
   const field = made(host, 'input', FILTER_SEARCH_STYLE + `font-size:${fontPx}px;`) as HTMLInputElement
@@ -570,7 +570,7 @@ function filterSearchField(host: Document, hint: string, fontPx: number): HTMLEl
   return field
 }
 
-// see SV-7
+// Spec: SV-7
 /** @purity non-pure */
 function narrowFilterList(layer: Element, typed: string): void {
   for (const line of layer.querySelectorAll<HTMLElement>(`[${FILTER_LABEL_ATTRIBUTE}]`)) {
@@ -578,7 +578,7 @@ function narrowFilterList(layer: Element, typed: string): void {
   }
 }
 
-// see SV-7, IF-9, IC-125, IC-126
+// Spec: SV-7, IF-9, IC-125, IC-126
 /** @purity semi-pure-mutable */
 function listedFilterValues(layer: Element): readonly string[] | null {
   const field = layer.querySelector<HTMLInputElement>(`[${SEARCH_FILTER_SEARCH_ATTRIBUTE}]`)
@@ -587,14 +587,14 @@ function listedFilterValues(layer: Element): readonly string[] | null {
   return marks.filter((mark) => mark.parentElement?.style.display !== 'none').map((mark) => mark.getAttribute(SEARCH_FILTER_VALUE_ATTRIBUTE) ?? '')
 }
 
-// see SV-7, IF-9
+// Spec: SV-7, IF-9
 /** @purity semi-pure-mutable */
 function withListedValues(answer: ScreenPart, layer: Element): ScreenPart {
   if (answer.entry === null || !LISTED_ENTRIES.includes(answer.entry)) return answer
   return { ...answer, searchFilterListed: listedFilterValues(layer) }
 }
 
-// see SJ-1, RW-13
+// Spec: SJ-1, RW-13
 /** @purity non-pure */
 function markJumpCell(cell: HTMLElement, target: Extract<NonNullable<DrawnRow['target']>, { readonly kind: 'task' }>): void {
   cell.setAttribute(SEARCH_JUMP_TASK_ATTRIBUTE, String(target.taskUid))
@@ -620,7 +620,7 @@ function fixCheckElement(host: Document, fix: FixCell): HTMLElement | null {
   return box
 }
 
-// see FM-8, T-373
+// Spec: FM-8, T-373
 /** @purity non-pure */
 function fixAfterElement(host: Document, fix: FixCell): HTMLElement | null {
   if (fix.choices !== null) {
@@ -649,7 +649,7 @@ function fixAfterElement(host: Document, fix: FixCell): HTMLElement | null {
   return held
 }
 
-// see FM-1, FM-8, RW-16
+// Spec: FM-1, FM-8, RW-16
 /** @purity non-pure */
 function fixControlOf(host: Document, fix: DrawnRow['fix'], column: string | undefined): HTMLElement | null {
   if (fix === null || fix === undefined) return null
@@ -657,7 +657,7 @@ function fixControlOf(host: Document, fix: DrawnRow['fix'], column: string | und
   return column === FIX_AFTER_COLUMN ? fixAfterElement(host, fix) : null
 }
 
-// see SJ-1, SV-17, SQ-1, SQ-5, DT-1, DT-4
+// Spec: SJ-1, SV-17, SQ-1, SQ-5, DT-1, DT-4
 /** @purity non-pure */
 function bodyRowElement(host: Document, row: DrawnRow, columns: readonly SearchColumnView[], places: DrawnPlaces): HTMLElement {
   const isCurrent = row.fix?.isCurrent === true || row.isCurrent === true
@@ -678,7 +678,7 @@ function bodyRowElement(host: Document, row: DrawnRow, columns: readonly SearchC
   return line
 }
 
-// WHY: a fix row's own control wins over the Visibility box, so FM-1 shows the fix check (SQ-10, FM-1, FM-8).
+// Why: a fix row's own control wins over the Visibility box, so FM-1 shows the fix check (SQ-10, FM-1, FM-8).
 /** @purity non-pure */
 function fillBodyCell(
   host: Document,
@@ -708,13 +708,13 @@ function visibilityKeyOfRow(row: DrawnRow): VisibilityKey | null {
   return row.target?.kind === 'task' ? row.target.taskUid : null
 }
 
-// see RQ-3, RO-5, IC-67, IC-68
+// Spec: RQ-3, RO-5, IC-67, IC-68
 /** @purity non-pure */
 function chosenEntryOf(host: Document, entry: CommandItem | null | undefined): readonly HTMLElement[] {
   return entry === null || entry === undefined ? [] : [commandEntry(host, entry)]
 }
 
-// see SV-6, SV-16, SV-17, SV-18, T-331
+// Spec: SV-6, SV-16, SV-17, SV-18, T-331
 /** @purity non-pure */
 export function searchTableElement(host: Document, view: DrawnTable, fontPx: number, sizing: ColumnSizing = unmeasuredSizing(fontPx)): HTMLElement {
   const box = view.fixTable === undefined || view.fixTable === null ? made(host, 'div', TABLE_BOX_STYLE) : part(host, 'div', FIX_TABLE_ROLES[view.fixTable], TABLE_BOX_STYLE)
@@ -737,7 +737,7 @@ export function searchTableElement(host: Document, view: DrawnTable, fontPx: num
   return box
 }
 
-// see RW-4
+// Spec: RW-4
 /** @purity non-pure */
 function summaryItemElement(host: Document, one: NonNullable<TableWindowView['summary']>[number]): HTMLElement {
   const item = made(host, 'span', SUMMARY_ITEM_STYLE)
@@ -746,7 +746,7 @@ function summaryItemElement(host: Document, one: NonNullable<TableWindowView['su
   return item
 }
 
-// see RW-3, RW-4, RO-3
+// Spec: RW-3, RW-4, RO-3
 /** @purity non-pure */
 function aboveTableElements(host: Document, view: TableWindowView, fontPx: number, anchors: Map<string, HTMLElement>, role: string): readonly HTMLElement[] {
   const tools = (view.toolEntries ?? []).map((item) => toolEntry(host, item, { fontPx, anchors, role }))
@@ -761,8 +761,8 @@ function aboveTableElements(host: Document, view: TableWindowView, fontPx: numbe
   return [line, ...tabs, summary]
 }
 
-// see RW-11, RW-12, IC-154, IC-155, IC-156, IC-157, IC-158, IC-166
-// WHY: these entries carry words (the count, RW-11), so the word is drawn beside the picture, from its left (RW-12).
+// Spec: RW-11, RW-12, IC-154, IC-155, IC-156, IC-157, IC-158, IC-166
+// Why: these entries carry words (the count, RW-11), so the word is drawn beside the picture, from its left (RW-12).
 /** @purity non-pure */
 function wordedEntry(host: Document, item: CommandItem, anchors: Map<string, HTMLElement>, role: string, count?: number): HTMLElement {
   const entry = anchoredEntry(host, item, anchors, role)
@@ -771,7 +771,7 @@ function wordedEntry(host: Document, item: CommandItem, anchors: Map<string, HTM
   return entry
 }
 
-// see RW-3, IC-168, S-429, S-623
+// Spec: RW-3, IC-168, S-429, S-623
 /** @purity non-pure */
 function toolEntry(host: Document, item: CommandItem, at: EntryPlace): HTMLElement {
   if (item.isLabelShown !== true) return anchoredEntry(host, item, at.anchors, at.role)
@@ -781,7 +781,7 @@ function toolEntry(host: Document, item: CommandItem, at: EntryPlace): HTMLEleme
   return entry
 }
 
-// see RW-11
+// Spec: RW-11
 /** @purity non-pure */
 function fixTabsElements(host: Document, view: TableWindowView, at: EntryPlace): readonly HTMLElement[] {
   if (view.tabEntries === undefined) return []
@@ -790,7 +790,7 @@ function fixTabsElements(host: Document, view: TableWindowView, at: EntryPlace):
   return [tabs]
 }
 
-// see RW-14, IC-159, IC-160
+// Spec: RW-14, IC-159, IC-160
 /** @purity non-pure */
 function walkElements(host: Document, view: TableWindowView, anchors: Map<string, HTMLElement>, role: string): readonly HTMLElement[] {
   if (view.walkEntries === undefined) return []
@@ -799,7 +799,7 @@ function walkElements(host: Document, view: TableWindowView, anchors: Map<string
   return [...view.walkEntries.map((item) => anchoredEntry(host, item, anchors, role)), counter]
 }
 
-// see RW-12, RW-17, IC-166, IC-157, IC-158
+// Spec: RW-12, RW-17, IC-166, IC-157, IC-158
 /** @purity non-pure */
 function fixFooterElements(host: Document, footer: FixFooter | null | undefined, at: EntryPlace): readonly HTMLElement[] {
   if (footer === undefined || footer === null) return []
@@ -818,7 +818,7 @@ function fixFooterElements(host: Document, footer: FixFooter | null | undefined,
   return [band]
 }
 
-// see U-64, U-66, FR-134, FR-151, T-330, T-346
+// Spec: U-64, U-66, FR-134, FR-151, T-330, T-346
 /** @purity non-pure */
 export function searchPanelElement(
   host: Document,
@@ -835,15 +835,15 @@ export function searchPanelElement(
     return panel
   }
   const menu = view.filterMenu === null ? [] : [searchFilterMenuElement(host, view.filterMenu, placed.fontPx, anchors)]
-  // TRAP: redrawInPlace finds the table by its data-table-box mark; the fix footer (RW-12) stands under it.
+  // Trap: redrawInPlace finds the table by its data-table-box mark; the fix footer (RW-12) stands under it.
   const table = searchTableElement(host, view, placed.fontPx, placed.sizing ?? unmeasuredSizing(placed.fontPx))
   const footer = fixFooterElements(host, view.fixFooter, { fontPx: placed.fontPx, anchors, role })
   panel.replaceChildren(title, ...aboveTableElements(host, view, placed.fontPx, anchors, role), ...menu, table, ...footer)
   return panel
 }
 
-// see SV-7
-// WHY: under the pressed heading cell, at least its width, pushed back inside the visible table box (JDG-1096 Q16).
+// Spec: SV-7
+// Why: under the pressed heading cell, at least its width, pushed back inside the visible table box (JDG-1096 Q16).
 /** @purity non-pure */
 function placeFilterMenu(window: HTMLElement): void {
   const menu = window.querySelector<HTMLElement>(`[${FILTER_MENU_ATTRIBUTE}]`)
@@ -862,7 +862,7 @@ function placeFilterMenu(window: HTMLElement): void {
   menu.style.top = `${heading.bottom - frame.top}px`
 }
 
-// see SV-6
+// Spec: SV-6
 /** @purity non-pure */
 export function pinFixedColumns(tableBox: Element): void {
   let reached = 0
@@ -879,13 +879,13 @@ export function pinFixedColumns(tableBox: Element): void {
   }
 }
 
-// see RW-12
+// Spec: RW-12
 /** @purity semi-pure-mutable */
 function tableBoxIn(window: Element): Element | null {
   return window.querySelector(`[${TABLE_BOX_ATTRIBUTE}]`) ?? window.lastElementChild
 }
 
-// see SV-2
+// Spec: SV-2
 /** @purity non-pure */
 export function focusSearchWordIn(panel: HTMLElement): boolean {
   const field = panel.querySelector<HTMLInputElement>(`[${SEARCH_WORD_FIELD_ATTRIBUTE}]`)
@@ -895,8 +895,8 @@ export function focusSearchWordIn(panel: HTMLElement): boolean {
   return true
 }
 
-// see RW-19, RW-10
-// WHY: under the heading row, which stays on top of the scrolled rows.
+// Spec: RW-19, RW-10
+// Why: under the heading row, which stays on top of the scrolled rows.
 /** @purity non-pure */
 function rowScrolledIntoView(window: Element | null, at: number): void {
   const box = window === null ? null : (tableBoxIn(window) as HTMLElement | null)
@@ -912,7 +912,7 @@ function rowScrolledIntoView(window: Element | null, at: number): void {
 
 type PanelDraw = (panel: TableWindowView | null | undefined, isChanged: boolean, anchorsOf: () => Map<string, HTMLElement>) => void
 
-// see RW-19
+// Spec: RW-19
 /** @purity non-pure */
 function drawnWithRowRevealed(layer: HTMLElement, draw: PanelDraw): PanelDraw {
   let revealedCount: number | null = null
@@ -925,7 +925,7 @@ function drawnWithRowRevealed(layer: HTMLElement, draw: PanelDraw): PanelDraw {
   }
 }
 
-// see SV-9, SV-12, SV-13
+// Spec: SV-9, SV-12, SV-13
 /** @purity pure */
 function panelPlacedOf(panel: TableWindowView, window: WindowName): PlacedWindow {
   const ratio = { width: NOT_STORED_SEARCH_PANEL_SIZES['S-421'], height: NOT_STORED_SEARCH_PANEL_SIZES['S-422'] }
@@ -933,7 +933,7 @@ function panelPlacedOf(panel: TableWindowView, window: WindowName): PlacedWindow
   return { window, shown: panel.shown, place, box: searchPanelBoxOf(panel, ratio), range: panel.canvas }
 }
 
-// see SV-18
+// Spec: SV-18
 /** @purity semi-pure-mutable */
 function shownRightOf(tableBox: Element): number {
   const shown = tableBox.getBoundingClientRect()
@@ -942,8 +942,8 @@ function shownRightOf(tableBox: Element): number {
   return Math.min(shown.right, shown.left + (inner.clientLeft ?? 0) + inner.clientWidth)
 }
 
-// see GR-28, SV-18, RW-9
-// WHY: on the heading row only, within S-465 of a column's right border; an entrance and GR-24 / GR-25 answer first.
+// Spec: GR-28, SV-18, RW-9
+// Why: on the heading row only, within S-465 of a column's right border; an entrance and GR-24 / GR-25 answer first.
 /** @purity semi-pure-mutable */
 function columnBorderAt(window: Element, placed: PlacedWindow, asked: PointAsked, widthFloor: number): NonNullable<ScreenPart['windowGrab']> | null {
   const head = window.querySelector('thead')
@@ -965,7 +965,7 @@ function columnBorderAt(window: Element, placed: PlacedWindow, asked: PointAsked
   return null
 }
 
-// see SV-7, IF-9
+// Spec: SV-7, IF-9
 /** @purity semi-pure-mutable */
 function headingColumnOf(start: Element, window: Element): string | null {
   for (let node: Element | null = start; node !== null && node !== window; node = node.parentElement) {
@@ -974,8 +974,8 @@ function headingColumnOf(start: Element, window: Element): string | null {
   return null
 }
 
-// see IF-9, GR-24, GR-25, GR-28, SJ-1, SV-7, T-023d
-// WHY: the heading word of a column answers as that column's IC-122 (SV-7), below the border band.
+// Spec: IF-9, GR-24, GR-25, GR-28, SJ-1, SV-7, T-023d
+// Why: the heading word of a column answers as that column's IC-122 (SV-7), below the border band.
 /** @purity semi-pure-mutable */
 function tableWindowPartAt(
   window: Element | null,
@@ -996,7 +996,7 @@ function tableWindowPartAt(
   return { ...answer, searchJumpTarget: searchJumpFrom(first, window) }
 }
 
-// see SV-5, SV-10, SV-11, SV-18
+// Spec: SV-5, SV-10, SV-11, SV-18
 /** @purity non-pure */
 function redrawInPlace(
   host: Document,
@@ -1017,8 +1017,8 @@ function redrawInPlace(
   pinFixedColumns(redrawn)
 }
 
-// see SV-18, SV-6, MC-8
-// WHY: a width moves no row; the fixed lefts move only when a fixed column stands right of a changed one.
+// Spec: SV-18, SV-6, MC-8
+// Why: a width moves no row; the fixed lefts move only when a fixed column stands right of a changed one.
 /** @purity non-pure */
 function columnWidthsRewrittenInPlace(tableBox: Element, widths: readonly number[], fontPx: number): void {
   const headings = [...tableBox.querySelectorAll('thead th')]
@@ -1035,7 +1035,7 @@ function columnWidthsRewrittenInPlace(tableBox: Element, widths: readonly number
   if (headings.some((cell, at) => at > firstChanged && cell.hasAttribute(FIXED_COLUMN_ATTRIBUTE))) pinFixedColumns(tableBox)
 }
 
-// WHY: the heading's IC-122 and the drawn filter both name their column; wantsEntry tells them apart (SV-7).
+// Why: the heading's IC-122 and the drawn filter both name their column; wantsEntry tells them apart (SV-7).
 /** @purity semi-pure-mutable */
 function filterColumnAbove(start: Element | null, layer: Element, wantsEntry: boolean): string | null {
   for (let node: Element | null = start; node !== null && node !== layer; node = node.parentElement) {
@@ -1046,7 +1046,7 @@ function filterColumnAbove(start: Element | null, layer: Element, wantsEntry: bo
   return null
 }
 
-// see IF-9, SV-7, IC-122, IC-125, IC-126
+// Spec: IF-9, SV-7, IC-122, IC-125, IC-126
 /** @purity semi-pure-mutable */
 function withPressedWindowFilter(answer: ScreenPart | null, first: Element | null, layer: Element): ScreenPart | null {
   if (answer === null || first === null || !layer.contains(first)) return answer
@@ -1056,7 +1056,7 @@ function withPressedWindowFilter(answer: ScreenPart | null, first: Element | nul
   return column === null ? inMenu : { ...inMenu, searchFilterColumn: column }
 }
 
-// see SV-7, IF-9
+// Spec: SV-7, IF-9
 /** @purity semi-pure-mutable */
 function filterChangeOf(control: HTMLInputElement | null, layer: Element, visibilityColumn: string): SearchFilterChange | null {
   if (control === null || typeof control.getAttribute !== 'function') return null
@@ -1073,7 +1073,7 @@ function filterChangeOf(control: HTMLInputElement | null, layer: Element, visibi
   return { kind: 'bound', column, bound, day: control.value === '' ? null : control.value }
 }
 
-// see RW-16, FM-1, FM-8
+// Spec: RW-16, FM-1, FM-8
 /** @purity semi-pure-mutable */
 function fixPickOf(control: HTMLInputElement): SearchFilterChange | null {
   const key = control.getAttribute(DELAY_FIX_KEY_ATTRIBUTE)
@@ -1083,8 +1083,8 @@ function fixPickOf(control: HTMLInputElement): SearchFilterChange | null {
   return { kind: 'fixPick', column: fixPart === 'check' ? FIX_CHECK_COLUMN : FIX_AFTER_COLUMN, key, part: fixPart, value }
 }
 
-// see FM-1, FM-8
-// TRAP: the host flipped the box before this listener, so a refused tick is put back; showPicker may be absent or throw.
+// Spec: FM-1, FM-8
+// Trap: the host flipped the box before this listener, so a refused tick is put back; showPicker may be absent or throw.
 /** @purity non-pure */
 function isUnchosenTickRefused(control: HTMLInputElement | null, layer: Element): boolean {
   if (control === null || typeof control.getAttribute !== 'function' || control.getAttribute(DELAY_FIX_PART_ATTRIBUTE) !== 'check') return false
@@ -1113,8 +1113,8 @@ function visibilityKeyFrom(written: string): VisibilityKey {
   return written === UNASSIGNED_ROW_KEY ? UNASSIGNED_ROW_KEY : Number(written)
 }
 
-// see SQ-10, DT-8, RQ-1, TV-2
-// WHY: the heading's box names every listed row, so a check leaves the rows not listed; its clear takes every row (SQ-10).
+// Spec: SQ-10, DT-8, RQ-1, TV-2
+// Why: the heading's box names every listed row, so a check leaves the rows not listed; its clear takes every row (SQ-10).
 /** @purity semi-pure-mutable */
 function shownChangeOf(control: HTMLInputElement, layer: Element, column: string): SearchFilterChange | null {
   const one = control.getAttribute(VISIBILITY_KEY_ATTRIBUTE)
@@ -1125,7 +1125,7 @@ function shownChangeOf(control: HTMLInputElement, layer: Element, column: string
   return { kind: 'shown', column, keys: listed, isShown: control.checked, isHeading: true, fixKeys }
 }
 
-// WHY: input, the one event T-078 lets this layer hear; a check mark or a whole date is settled (IF-9, SV-7).
+// Why: input, the one event T-078 lets this layer hear; a check mark or a whole date is settled (IF-9, SV-7).
 /** @purity non-pure */
 export function filterChangeWatch(layer: HTMLElement, onChanged: () => void, visibilityColumn: string): { readonly read: () => readonly SearchFilterChange[] } {
   let changes: readonly SearchFilterChange[] = []
@@ -1158,7 +1158,7 @@ const FOCUS_MARKS: readonly string[] = [
 
 type FocusMark = readonly (readonly [string, string | null])[]
 
-// see IN-4, SV-14
+// Spec: IN-4, SV-14
 /** @purity semi-pure-mutable */
 function focusMarkIn(host: Document, layer: Element): FocusMark | null {
   const active = (host as Partial<Document>).activeElement ?? null
@@ -1166,7 +1166,7 @@ function focusMarkIn(host: Document, layer: Element): FocusMark | null {
   return FOCUS_MARKS.map((name) => [name, active.getAttribute(name)] as const)
 }
 
-// WHY: a redraw drops the focused control; focus goes back inside, so IN-4 still reads the panel (JDG-633).
+// Why: a redraw drops the focused control; focus goes back inside, so IN-4 still reads the panel (JDG-633).
 /** @purity non-pure */
 function focusKeptIn(host: Document, layer: Element, mark: FocusMark | null): void {
   if (mark === null || isInside(layer, (host as Partial<Document>).activeElement ?? null)) return
@@ -1176,7 +1176,7 @@ function focusKeptIn(host: Document, layer: Element, mark: FocusMark | null): vo
   target?.focus()
 }
 
-// see IN-4, SV-14
+// Spec: IN-4, SV-14
 /** @purity non-pure */
 function drawnKeepingFocus(host: Document, layer: Element, drawIt: () => void): void {
   const mark = (layer.firstElementChild ?? null) === null ? null : focusMarkIn(host, layer)
@@ -1184,7 +1184,7 @@ function drawnKeepingFocus(host: Document, layer: Element, drawIt: () => void): 
   focusKeptIn(host, layer, mark)
 }
 
-// see SV-7, IF-9
+// Spec: SV-7, IF-9
 /** @purity non-pure */
 function filterSearchKeeper(layer: HTMLElement): (menu: TableWindowView['filterMenu']) => void {
   let held: { readonly column: string; readonly text: string } | null = null
@@ -1206,7 +1206,7 @@ function filterSearchKeeper(layer: HTMLElement): (menu: TableWindowView['filterM
   }
 }
 
-// see SV-2, SV-5, IF-9
+// Spec: SV-2, SV-5, IF-9
 /** @purity non-pure */
 export function typedWordWatch(layer: HTMLElement, onWordTyped: () => void): { readonly read: () => string | null } {
   let typed: string | null = null
@@ -1217,7 +1217,7 @@ export function typedWordWatch(layer: HTMLElement, onWordTyped: () => void): { r
     if (field === null || typeof field.getAttribute !== 'function' || field.getAttribute(SEARCH_WORD_FIELD_ATTRIBUTE) === null) return null
     return field
   }
-  // WHY: a letter still being converted is not yet a word; sending it redraws the field and drops the composition (DFC-3302).
+  // Why: a letter still being converted is not yet a word; sending it redraws the field and drops the composition (DFC-3302).
   layer.addEventListener('compositionstart', (event: Event) => {
     if (wordFieldOf(event) !== null) isComposing = true
   })
@@ -1244,14 +1244,14 @@ export function typedWordWatch(layer: HTMLElement, onWordTyped: () => void): { r
   return { read }
 }
 
-// see SV-7, SV-18
+// Spec: SV-7, SV-18
 /** @purity pure */
 export function tableKeyOf(table: DrawnTable, fontPx: number, filterMenu: unknown): string {
   return JSON.stringify([table.rows, table.columns.map((column) => ({ ...column, width: null })), fontPx, filterMenu])
 }
 
-// see SV-6, SV-7, SV-9
-// TRAP: the typed filter word goes back before the filter is placed; it narrows the list the placing measures.
+// Spec: SV-6, SV-7, SV-9
+// Trap: the typed filter word goes back before the filter is placed; it narrows the list the placing measures.
 /** @purity non-pure */
 function placeDrawnPanel(
   layer: HTMLElement,
@@ -1266,8 +1266,8 @@ function placeDrawnPanel(
   placeFilterMenu(drawn)
 }
 
-// see SV-18, RW-9, S-425
-// WHY: measured on opening, on a step (IC-127) or a language change, never per frame (JDG-1810).
+// Spec: SV-18, RW-9, S-425
+// Why: measured on opening, on a step (IC-127) or a language change, never per frame (JDG-1810).
 /** @purity non-pure */
 function tableSizingKeeper(host: Document, layer: Element) {
   let measuredFor = ''
@@ -1293,8 +1293,8 @@ function tableSizingKeeper(host: Document, layer: Element) {
   }
 }
 
-// see FR-151, SV-5, SV-9, SV-16, SV-18, IF-9
-// TRAP: the table alone when nothing else moved; a rebuilt word field loses the caret and the typed word.
+// Spec: FR-151, SV-5, SV-9, SV-16, SV-18, IF-9
+// Trap: the table alone when nothing else moved; a rebuilt word field loses the caret and the typed word.
 /** @purity non-pure */
 export function searchPanelPainter(host: Document, layer: HTMLElement, onWordTyped: () => void, identity = SEARCH_PANEL_IDENTITY) {
   let frameDrawn = ''
@@ -1321,7 +1321,7 @@ export function searchPanelPainter(host: Document, layer: HTMLElement, onWordTyp
     }
     const fontPx = searchPanelFontPxOf(panel.textSizeStep, NOT_STORED_SEARCH_PANEL_FONT_SIZES)
     const sizing = sizes.sizingOf(panel, fontPx)
-    // WHY: not the word: only typing changes it, and the typed field already holds it.
+    // Why: not the word: only typing changes it, and the typed field already holds it.
     const frameKey = JSON.stringify({ ...panel, rows: [], columns: [], at: null, size: null, canvas: null, word: null, rowRevealed: null })
     const tableKey = tableKeyOf(panel, fontPx, [...sizing.measured])
     const drawnPanel = layer.firstElementChild as HTMLElement | null

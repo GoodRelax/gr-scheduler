@@ -129,7 +129,7 @@ function openedFrom(text: string): Document {
   return opened.document
 }
 
-// WHY: Alpha and Charlie are Sato's, Bravo and Delta Tanaka's, Echo is nobody's and Idle carries no task (cr-723-fixture).
+// Why: Alpha and Charlie are Sato's, Bravo and Delta Tanaka's, Echo is nobody's and Idle carries no task (cr-723-fixture).
 const WITHOUT_VIEWS = documentText({ tableViews: undefined })
 const DOCUMENT = openedFrom(WITHOUT_VIEWS)
 const SCHEDULE: Schedule = DOCUMENT.schedule
@@ -455,7 +455,7 @@ describe('FR-151 T-353 TV-13 -- 担当リストの表がタスクを「表示」
   })
 })
 
-// WHY: one more Assignment on the fixture's schedule, so a task has two assignees.
+// Why: one more Assignment on the fixture's schedule, so a task has two assignees.
 function assignmentsPlus(taskUid: number, resourceUid: number): Loose {
   const schedule = JSON.parse(JSON.stringify((JSON.parse(documentText()) as { schedule: Loose }).schedule)) as Loose
   const first = (schedule['assignments'] as Loose[])[0] as Loose
@@ -473,7 +473,7 @@ function eyeOf(view: { readonly titleEntries: SearchPanelView['titleEntries']; r
   return { isEnabled: found(entry, 'the eye IC-143 among the title bar entries').isEnabled, refusals: (view.entryRefusals ?? []).filter((one) => one.icon === 'IC-143') }
 }
 
-// WHY: the three tables answer the same question from their own views, so one case table walks them.
+// Why: the three tables answer the same question from their own views, so one case table walks them.
 const EYE_OF: Readonly<Record<TableName, (part: Partial<Visibility>) => EyeReading>> = {
   searchPanel: (part) => eyeOf(searchViewOf(searchPane(viewWith(startOf('searchPanel'), part)))),
   delayDiagnosticsReport: (part) => eyeOf(reportViewOf(reportPane(viewWith(startOf('delayDiagnosticsReport'), part)))),
@@ -510,7 +510,7 @@ describe.each(['searchPanel', 'delayDiagnosticsReport', 'resourceList'] as const
   })
 })
 
-// WHY: CR-800 JDG-2825 -- one checked row is enough; a table with every row checked draws the same as the table without the filter, and the eye still works.
+// Why: CR-800 JDG-2825 -- one checked row is enough; a table with every row checked draws the same as the table without the filter, and the eye still works.
 const EVERY_CHECKED: Readonly<Record<TableName, () => Partial<Visibility>>> = {
   searchPanel: () => ({ shownTaskUids: ALL_TASKS }),
   delayDiagnosticsReport: () => ({ shownTaskUids: [...new Set(reportRowUids(reportViewOf(reportPane())))] }),
@@ -585,7 +585,7 @@ describe(`FR-151 T-330 SV-7 -- ${SV_7_NO_ENTRANCE.slice(0, 40)}`, () => {
   })
 })
 
-// WHY: CR-801 -- an empty box raises isShown true (adds the listed rows), a checked box raises isShown false (clears every row); a case names the listed keys as the drawn box would.
+// Why: CR-801 -- an empty box raises isShown true (adds the listed rows), a checked box raises isShown false (clears every row); a case names the listed keys as the drawn box would.
 const headingChange = (keys: readonly (number | 'unassigned')[], isShown: boolean): SearchFilterChange =>
   ({ kind: 'shown', column: 'SQ-10', keys, isShown, isHeading: true }) as unknown as SearchFilterChange
 
@@ -599,7 +599,7 @@ describe(`FR-151 T-331 SQ-10 -- ${SQ_10_HEADING_ADD.slice(0, 30)} (the Search Pa
     expect(searchViewOf(after).showHeading).toBe('checked')
   })
 
-  // WHY: CR-801 -- one checked row is enough for a checked box, so the host raises isShown false and the press clears the table.
+  // Why: CR-801 -- one checked row is enough for a checked box, so the host raises isShown false and the press clears the table.
   it('one listed row checked: the box is checked and the press clears every row', () => {
     const some = searchPane(viewWith(startOf('searchPanel'), { shownTaskUids: [ALPHA] }))
     expect(searchViewOf(some).showHeading).toBe('checked')
@@ -695,7 +695,7 @@ describe(`FR-134 T-347 DT-8 -- ${SQ_10_HEADING_ADD.slice(0, 30)} (the report)`, 
     expect(sorted(press(narrowed, true).visibility.shownTaskUids)).toEqual(sorted(listedOf(narrowed)))
   })
 
-  // WHY: CR-801 -- a task the word keeps out of the report still counts, so the box is checked and the press clears it.
+  // Why: CR-801 -- a task the word keeps out of the report still counts, so the box is checked and the press clears it.
   it('a row the word keeps out checked alone: the box is checked and the press clears it', () => {
     const kept = EVERY.find((uid) => !listedOf(reportPane(undefined, 'alpha')).includes(uid)) ?? -1
     const narrowed = reportPane(viewWith(startOf('delayDiagnosticsReport'), { shownTaskUids: [kept] }), 'alpha')
@@ -745,7 +745,7 @@ describe(`FR-099 T-371 RQ-1 -- ${SQ_10_HEADING_ADD.slice(0, 30)} (the Resource L
     expect(after.visibility.isUnassignedShown).toBe(listed.includes(UNASSIGNED))
   })
 
-  // WHY: CR-801 -- a resource the word keeps out of the list still counts, so the box is checked and the press clears it.
+  // Why: CR-801 -- a resource the word keeps out of the list still counts, so the box is checked and the press clears it.
   it('a resource the word keeps out checked alone: the box is checked and the press clears it', () => {
     const narrowed = listPane(viewWith(startOf('resourceList'), { shownResourceUids: [TANAKA] }), 'Sato')
     expect(listedOf(narrowed), 'premise: the word keeps Tanaka out').not.toContain(TANAKA)

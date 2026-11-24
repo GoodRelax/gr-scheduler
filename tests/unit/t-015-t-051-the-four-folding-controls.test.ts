@@ -161,8 +161,8 @@ const isHeadRule = (authority: string): boolean =>
     new RegExp(`(^|[^0-9A-Za-z-])${rule}([^0-9-]|$)`).test(authority),
   )
 
-// see HF-20, IC-106
-// WHY: IC-106 shares its authority column (FR-032) with IC-82; only its entrance column names HF-20.
+// Spec: HF-20, IC-106
+// Why: IC-106 shares its authority column (FR-032) with IC-82; only its entrance column names HF-20.
 const namesHeadRule = (one: { readonly by: Readonly<Record<string, string>> }): boolean =>
   isHeadRule(one.by['正'] ?? '') || isHeadRule(one.by['何の入口か'] ?? '')
 
@@ -207,7 +207,7 @@ const HEAD_OPEN_ONE_LEVEL = entranceFor('HF-16')
 const HEAD_FOLD_EVERY_TASK_GROUP = entranceFor('HF-12')
 const HEAD_OPEN_EVERY_TASK_GROUP = entranceFor('HF-10')
 const HEAD_ADD_TASK_GROUP = entranceFor('HF-17')
-// see HF-20
+// Spec: HF-20
 const HEAD_DELETE_EVERY_TASK_GROUP = entranceFor('FR-032', AT_THE_HEAD)
 const DELETE_THIS_TASK_GROUP = entranceFor('FR-032', ON_A_TASK_GROUP)
 
@@ -274,7 +274,7 @@ interface Fixture {
   readonly folded?: readonly string[]
   /** Task groups standing `hidden` (AT-153); hidden wins over folded, as one task group holds one value. */
   readonly hidden?: readonly string[]
-  // WHY: OP-10 keeps the stored zoom 1, where FR-018 draws every depth; JDG-302 needs that.
+  // Why: OP-10 keeps the stored zoom 1, where FR-018 draws every depth; JDG-302 needs that.
   readonly atStoredZoom?: boolean
 }
 
@@ -506,7 +506,7 @@ function storedTaskGroup(built: Stage, taskGroupId: string): TaskGroup {
   return found as TaskGroup
 }
 
-// see AT-153
+// Spec: AT-153
 const treeOf = (built: Stage, taskGroupId: string): TaskGroup['treeState'] =>
   storedTaskGroup(built, taskGroupId).treeState
 
@@ -670,7 +670,7 @@ describe('the manuscript still says what these cases read', () => {
     expect(REQUIREMENTS).toContain('本行を `HF-3`（隠す）と同じ働きにしてはならない（MUST NOT）')
     expect(REQUIREMENTS).toContain('押したタスクグループの状態を書き換えずに、その配下の状態だけを書き換えてはならない（MUST NOT）')
     expect(REQUIREMENTS).toContain('パネルの頭は段 0 であり、タスクグループではない。')
-    // see HF-20
+    // Spec: HF-20
     expect(REQUIREMENTS).toContain(
       '頭が持つ入口が 5 つ、タスクグループが持つ入口が 7 つであることは、この 1 つの違いから出る（MUST）',
     )
@@ -691,7 +691,7 @@ describe('the manuscript still says what these cases read', () => {
   })
 
   it('⛔ the one column that decides whether a task group is drawn is AT-153, and 段 0 holds S-418', () => {
-    // see FR-004, AT-153, S-418
+    // Spec: FR-004, AT-153, S-418
     const detail = unbroken(readFileSync(
       join(process.cwd(), 'docs', 'spec', '_assets', 'fig-erd-detail.md'),
       'utf8',
@@ -759,7 +759,7 @@ describe('表 T-051 の結び -- the press writes the pressed task group, not it
     expect(isHiddenTaskGroup(built, BETA), 'HR-6 (MUST): the pressed task group was not hidden').toBe(true)
     expect(isHiddenTaskGroup(built, GAMMA), 'the child was hidden as well as the task group').toBe(false)
     expect(isHiddenTaskGroup(built, DELTA), 'the grandchild was hidden as well as the task group').toBe(false)
-    // WHY: HR-6 folds the hidden task group too; T-328 holds that as the one value hidden, which the
+    // Why: HR-6 folds the hidden task group too; T-328 holds that as the one value hidden, which the
     // parent's HF-13 turns into collapsed (oneLevelOpenPressed), so the task group comes back folded.
     built.press(OPEN_ONE_LEVEL, ALPHA)
     expect(treeOf(built, BETA), 'HR-6 (MUST): the hidden task group came back unfolded').toBe('collapsed')
@@ -1048,8 +1048,8 @@ describe('表 T-015 の HR-6 -- the two ways back from a hide, and their one dif
 
 describe('表 T-051 の結び -- the head does at 段 0 what the paired control does on a task group', () => {
   it('⭐⭐ HF-12 is HF-11 at 段 0: pressing it can leave no task group drawn at all (HR-2)', () => {
-    // see HR-2, S-418, TD-1
-    // WHY: a task group's fold hides only its descendants, so only the head's own value S-418 can empty the panel.
+    // Spec: HR-2, S-418, TD-1
+    // Why: a task group's fold hides only its descendants, so only the head's own value S-418 can empty the panel.
     const built = stage()
 
     built.press(HEAD_FOLD_EVERY_TASK_GROUP, null)
@@ -1120,7 +1120,7 @@ describe('表 T-051 の結び -- the head does at 段 0 what the paired control 
     )
   })
 
-  // see HF-20
+  // Spec: HF-20
   it('⛔ MUST NOT: the head carries neither of the two a task group keeps to itself', () => {
     // A press that names no task group cannot hide or pin anything, whichever of the two entrances it carries.
     const taskGroupsBefore = drawnTaskGroups(stage())
@@ -1144,7 +1144,7 @@ describe('表 T-051 の結び -- the head does at 段 0 what the paired control 
 // 6. Four entrances at the head, seven on a task group -- and why
 // ===========================================================================
 
-// see HF-20
+// Spec: HF-20
 describe('表 T-051 の結び -- the head has five entrances and a task group has seven', () => {
   it('⛔ the roster itself splits five and seven, and hide and pin stay on the task group', () => {
     expect(AT_THE_HEAD).toHaveLength(5)
@@ -1233,7 +1233,7 @@ describe('FR-029 -- the arming of every entrance the panel carries', () => {
   })
 
   it('⛔ MUST: HF-2 is armed exactly when some task group below it is not drawn', () => {
-    // see HF-2, RS-28, T-329
+    // Spec: HF-2, RS-28, T-329
     const open = stage()
     expect(
       (titleOf(open, ALPHA).expander as any).canOpen,
@@ -1306,8 +1306,8 @@ describe('FR-029 -- the arming of every entrance the panel carries', () => {
   })
 
   it('⛔ MUST: the head’s すべて展開する and すべて折りたたむ follow the same rule (RS-31 / RS-32)', () => {
-    // see HF-10, HF-12, RS-31, RS-32, S-418
-    // WHY: head open is armed iff some task group is not drawn; head fold iff S-418 is still auto.
+    // Spec: HF-10, HF-12, RS-31, RS-32, S-418
+    // Why: head open is armed iff some task group is not drawn; head fold iff S-418 is still auto.
     const open = stage()
     expect(
       (open.screen.last().taskGroupPanel as any).canOpenEveryTaskGroup ?? false,

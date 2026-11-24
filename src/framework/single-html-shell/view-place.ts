@@ -1,4 +1,4 @@
-// SingleHtmlShell frame loop -- decides the view place (OP-10): the stored place, else the fit (FR-055) solved once and held.
+// File: SingleHtmlShell frame loop: decides the view place (OP-10): the stored place, else the fit (FR-055) solved once and held.
 // @unit      UF-161  (docs/spec/05-07-design.md, table T-075)
 // @component SingleHtmlShell, layer Framework (table T-062)
 // @purity    non-pure
@@ -23,15 +23,15 @@ type ScrollPlace = CarriedBy<'setScrollPosition'>
 
 type ViewPlace = CarriedBy<'setZoom'> & ScrollPlace
 
-// TRAP: input-command-translator.ts names the same half of OP-10's condition in isPlaceNamed; change both together.
-// see OP-10
+// Trap: input-command-translator.ts names the same half of OP-10's condition in isPlaceNamed; change both together.
+// Spec: OP-10
 /** @purity pure */
 function storedNamesAPlace(held: Document, stored: ViewPlace): boolean {
   if (stored.scrollDate === null) return false
   return held.schedule.taskGroups.some((one) => one.id === stored.scrollTaskGroupId)
 }
 
-// see OP-10
+// Spec: OP-10
 /** @purity pure */
 function viewPlaceOf(settings: DocumentSettings): ViewPlace {
   return {
@@ -61,7 +61,7 @@ function firstRowIdOf(held: Document): string | null {
 
 const HALF = 2
 
-// see S-534
+// Spec: S-534
 /** @purity pure */
 function startupMarginPx(): number {
   return (
@@ -69,8 +69,8 @@ function startupMarginPx(): number {
   )
 }
 
-// see OP-10, S-534, S-177
-// WHY: the day under the Task Group Area's left edge and the fraction into it, S-534 left of the first day.
+// Spec: OP-10, S-534, S-177
+// Why: the day under the Task Group Area's left edge and the fraction into it, S-534 left of the first day.
 /** @purity pure */
 function dayLeftOfFirstDay(
   firstDay: string,
@@ -85,7 +85,7 @@ function dayLeftOfFirstDay(
   return { scrollDate: textOfDayStart(edge), scrollDateFraction: offset > 0 && offset < 1 ? offset : 0 }
 }
 
-// see OP-10, FR-024
+// Spec: OP-10, FR-024
 /** @purity pure */
 function startupTemplatePlaceOf(
   held: Document,
@@ -98,7 +98,7 @@ function startupTemplatePlaceOf(
   return { ...dayLeftOfFirstDay(firstDay, settings, regions), scrollTaskGroupId: firstRowId, scrollTaskGroupFraction: 0 }
 }
 
-// WHY: OP-10 puts the place on the written document alone; the open one keeps its null place.
+// Why: OP-10 puts the place on the written document alone; the open one keeps its null place.
 /** @purity pure */
 function writtenDocumentOf(document: Document, fromTemplate: boolean, regions: ScreenRegions | null): Document {
   if (!fromTemplate || regions === null) return document
@@ -107,7 +107,7 @@ function writtenDocumentOf(document: Document, fromTemplate: boolean, regions: S
   return place === null ? document : { ...document, documentSettings: { ...document.documentSettings, ...place } }
 }
 
-// see OP-10, FR-055
+// Spec: OP-10, FR-055
 /** @purity pure */
 function viewSettings(
   held: Document,
@@ -124,7 +124,7 @@ function viewSettings(
 
   const pinned: DocumentSettings = {
     ...stored,
-    // TRAP: never null; dateAtX answers null without an origin day and OP-10 would ask again forever.
+    // Trap: never null; dateAtX answers null without an origin day and OP-10 would ask again forever.
     scrollDate: firstCoveredDayOf(held) ?? stored.scrollDate ?? runDay,
     scrollTaskGroupId: firstRowIdOf(held) ?? stored.scrollTaskGroupId,
   }
@@ -161,7 +161,7 @@ export function heldViewPlaceOf(
   hands: ViewPlaceHands,
   startedFromTemplate: boolean | undefined,
 ) {
-  // WHY: not read off the template stamp, which the first write turns into user; the view would jump.
+  // Why: not read off the template stamp, which the first write turns into user; the view would jump.
   let fromStartupTemplate = startedFromTemplate === true
   let regionsLastSeated: ScreenRegions | null = null
   let fitHeldForNoPlace:
@@ -172,7 +172,7 @@ export function heldViewPlaceOf(
       }
     | null = null
 
-  // see OP-10
+  // Spec: OP-10
   /** @purity non-pure */
   function viewSettingsOnce(
     document: Document,
@@ -190,7 +190,7 @@ export function heldViewPlaceOf(
       isSameEnvironment(taken.environment, hands.readEnvironment()) &&
       storedNamesAPlace(document, taken.place)
     ) {
-      // TRAP: the place alone is laid over; the whole held object would freeze every other
+      // Trap: the place alone is laid over; the whole held object would freeze every other
       // setting the author switches while no place is seated.
       return { settings: { ...stored, ...taken.place }, isAtStoredZoom: taken.isAtStoredZoom }
     }
@@ -231,7 +231,7 @@ export type HeldViewPlace = ReturnType<typeof heldViewPlaceOf>
 // Single source of truth:
 //   docs/spec/_source/settings.json (table T-206)
 // Rebuild: npm run gen   ||   npm run gen:check fails on drift.
-// see T-206
+// Spec: T-206
 const NOT_STORED_STARTUP_MARGIN_TERMS: {
   readonly 'S-134': number
   readonly 'S-268': number

@@ -6,7 +6,7 @@ import { fitPanelFields } from '../../src/framework/dom-screen-surface/propertie
 import { descendants, selfAndDescendants, styleMap, FakeElement } from '../fixtures/fake-browser'
 import { drawnPanel, LANGUAGES, REQUIREMENTS, taskPanel } from './cr-754-stage'
 
-// see FR-006
+// Spec: FR-006
 const FR_006_ACTUAL_LENGTH =
   '⭐ 実績の長さの欄（表 T-016 の `PR-5`）の入力は、日付の欄の入力と同じ幅とし、その右に単位の語を置くこと（MUST）'
 
@@ -38,7 +38,7 @@ function entryOf(panel: FakeElement, row: string): FakeElement {
   return found[0] as FakeElement
 }
 
-// WHY: the fake browser has no `compareDocumentPosition` and its selector engine takes no comma list; both are what the real DOM gives, so they are lent here and returned after.
+// Why: the fake browser has no `compareDocumentPosition` and its selector engine takes no comma list; both are what the real DOM gives, so they are lent here and returned after.
 const realCompare = (FakeElement.prototype as unknown as Record<string, unknown>)['compareDocumentPosition']
 const FOLLOWING = 4
 const PRECEDING = 2

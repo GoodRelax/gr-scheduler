@@ -87,7 +87,7 @@ function tnRow(raw: RawRegion, state: string, event: string, branch: RawBranch, 
   }
 }
 
-// WHY: the manuscript holds one table per machine (JDG-286); this reads it back into the state,
+// Why: the manuscript holds one table per machine (JDG-286); this reads it back into the state,
 // event and transition rows the oracle walks. An `in` guard term joins the source conjunction.
 function regionOf(raw: RawRegion): Region {
   const states: SmRow[] = [{ id: raw.region, key: raw.region, parent: null, initial: true, carries: raw.root.carries }]
@@ -122,7 +122,7 @@ function regionOf(raw: RawRegion): Region {
   return { region: raw.region, states, events, transitions: [...rootRows, ...machineRows] }
 }
 
-// WHY: the manuscript, not the generated table, is read: it is the single source, and
+// Why: the manuscript, not the generated table, is read: it is the single source, and
 // generated-vs-manuscript drift is gen:check's job.
 const MANUSCRIPT = readStateMachineView() as { readonly regions: readonly RawRegion[] }
 
@@ -139,7 +139,7 @@ const leafStates = STATES.filter((s) => s.parent !== null && !STATES.some((t) =>
 function axisAndPath(key: string): { axis: string; path: string[] } {
   const [machine, ...path] = key.split('.')
   if (machine === undefined) throw new Error(`state key ${key} has no machine`)
-  // WHY: the machine is named `...StateMachine` and the value holding its current state `...State` (R4.4).
+  // Why: the machine is named `...StateMachine` and the value holding its current state `...State` (R4.4).
   return { axis: machine.replace(/Machine$/, ''), path }
 }
 
@@ -153,7 +153,7 @@ function kindPath(value: unknown): string[] {
   return path
 }
 
-// see T-280
+// Spec: T-280
 function completePath(key: string): string[] {
   let at = key
   for (;;) {
@@ -166,15 +166,15 @@ function completePath(key: string): string[] {
 const UNLOCK_SURFACE = 'U-60'
 const CHOICE = { selection: { items: [{ kind: 'task', uid: 1 }], isOrdered: false }, taskGroupIds: [] }
 const NO_CHOICE = { selection: { items: [], isOrdered: false }, taskGroupIds: [] }
-// see T-280, EL-16
+// Spec: T-280, EL-16
 const STORED_LANDING = { predecessorUid: 1, successorUid: 2 }
 const NEW_LANDING = { predecessorUid: 3, successorUid: 4 }
-// see T-280, FR-088, WC-10
+// Spec: T-280, FR-088, WC-10
 const HOLIDAY_SURFACE = 'U-65'
 const CLEAN_CALENDAR_DRAFT = { workingDayTypes: [2, 3, 4, 5, 6], weekStartDay: 1, ranges: [{ start: '8:00', end: '17:00' }], exceptions: [] }
 const REFUSED_CALENDAR_DRAFT = { ...CLEAN_CALENDAR_DRAFT, workingDayTypes: [] }
 
-// see T-280
+// Spec: T-280
 const STATE_CARRIED_VARIANTS: Record<string, readonly unknown[]> = {
   shapeKind: ['SH-1'],
   glyph: ['SH-5'],
@@ -288,13 +288,13 @@ const EVENT_CARRIED_VARIANTS: Record<string, readonly unknown[]> = {
   calendarDraft: [CLEAN_CALENDAR_DRAFT],
 }
 
-// WHY: the arms are the children of the composite `armed`, which has no initial child; the
+// Why: the arms are the children of the composite `armed`, which has no initial child; the
 // event's armKind names the child the cell `armed.{armKind}` enters (JDG-2364).
 const ARM_KINDS = STATES.filter((s) => s.parent === 'armModeStateMachine.armed').map(
   (s) => axisAndPath(s.key).path[1] as string,
 )
 
-// see T-280, FR-016
+// Spec: T-280, FR-016
 function armEvent(armKind: string, carried = 'SH-1'): Loose {
   return {
     type: 'armEntryPressed',
@@ -350,8 +350,8 @@ function nested(path: readonly string[]): Loose | undefined {
   return child === undefined ? { kind } : { kind, child }
 }
 
-// see FR-088, S-99g, FR-156, FR-157
-// WHY: inAfter / after read a machine after the same event's step; the step is predicted from the
+// Spec: FR-088, S-99g, FR-156, FR-157
+// Why: inAfter / after read a machine after the same event's step; the step is predicted from the
 // machine's own cells, and only the surface name is carried over, as the T-280 notes write it.
 function valueAfter(session: ScreenSession, event: Loose, machine: string): unknown {
   const now = screenOf(session)[axisAndPath(`${machine}.x`).axis]
@@ -364,7 +364,7 @@ function valueAfter(session: ScreenSession, event: Loose, machine: string): unkn
   return nested(targetPath(row.to[0] as string, event))
 }
 
-// WHY: the rows of one machine only, so a guard reading another machine's step cannot call itself.
+// Why: the rows of one machine only, so a guard reading another machine's step cannot call itself.
 function landingsOn(session: ScreenSession, event: Loose, machine: string): TnRow[] {
   return TRANSITIONS.filter((row) => row.event === event['type']
     && row.from.some((conj) => conj.some((key) => key.startsWith(`${machine}.`)) && conj.every((key) => holds(session, key)))
@@ -375,7 +375,7 @@ function openingSurfaceName(event: Loose): unknown {
   return event['type'] === 'watermarkEntryPressed' ? UNLOCK_SURFACE : event['surfaceName']
 }
 
-// WHY: an open -> open cell rewrites surfaceName only when it replaces the surface, and those
+// Why: an open -> open cell rewrites surfaceName only when it replaces the surface, and those
 // cells are the ones that tell the replaced surface it closed.
 function surfaceNameAfter(session: ScreenSession, event: Loose): unknown {
   const surface = screenOf(session)['openSurfaceState'] as Loose
@@ -406,7 +406,7 @@ function stateRow(key: string): SmRow | undefined {
   return STATES.find((s) => s.key === key)
 }
 
-// see SD-1, SD-3
+// Spec: SD-1, SD-3
 function cellEffects(session: ScreenSession, row: TnRow, event: Loose): string[] {
   const own = row.effect === null ? [] : [row.effect.name]
   if (row.to === 'self') return own
@@ -433,7 +433,7 @@ function isAxis(value: unknown): boolean {
   return typeof value === 'object' && value !== null && 'kind' in value
 }
 
-// see SD-3, SF-3
+// Spec: SD-3, SF-3
 function expectStepMatchesManuscript(session: ScreenSession, event: Loose): void {
   const rows = firingRows(session, event)
   const claimed = rows.flatMap((f) => f.axes)

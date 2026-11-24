@@ -26,7 +26,7 @@ import {
 } from './cr-757-stage'
 import { specTable, unbroken } from './spec-table'
 
-// WHY: CR-787 renamed the start date to the first task start (JDG-2540).
+// Why: CR-787 renamed the start date to the first task start (JDG-2540).
 const WH_11_SHOWS =
   '最初のタスクの開始日と新しい開始日（`WH-2` で寄せたときはその 1 行も）、ずらす稼働日の数（正負）、書き換える `Task` の件数、前の稼働日へ寄せる日付の件数（`WH-5`）、移した後に開始か終了が稼働時間の外に出る `Task` の件数、例 1 つ（文書の並びで最初に開始を持つ `Task` の名と、前後の日付）'
 const TX_12_NO_TIME = '⭐ 時刻を表示していても時刻を添えない —— 全体日程シフトは日の単位で動かす'
@@ -94,7 +94,7 @@ describe('the dictionary section wholeScheduleShiftField -- the words JDG-2109 s
   })
 })
 
-// WHY: Monday to Friday 08:00-12:00 / 13:00-17:00, and Tuesday 2029-03-06 a short working day from 09:00 to 12:00.
+// Why: Monday to Friday 08:00-12:00 / 13:00-17:00, and Tuesday 2029-03-06 a short working day from 09:00 to 12:00.
 const COUNTED = () =>
   documentOf({
     exceptions: [{ from: '2029-03-06', to: '2029-03-06', working: true, spans: [['09:00', '12:00']] }],
@@ -231,7 +231,7 @@ const outsideOf = (gate: { readonly start: string; readonly finish: string } | n
     '2029-03-05',
   )?.outsideCount
 
-// WHY: DFC-2760 -- the count judges a milestone's start as a start, though WT-5 and FR-054 read it on the finish side.
+// Why: DFC-2760 -- the count judges a milestone's start as a start, though WT-5 and FR-054 read it on the finish side.
 describe('WH-11 / WT-5 / FR-054 -- a milestone at the end of the last span is inside working time', () => {
   it(`premise: FR-054 says ${FR_054_DATE_ONLY_MILESTONE}`, () => {
     expect(REQUIREMENTS).toContain(FR_054_DATE_ONLY_MILESTONE)

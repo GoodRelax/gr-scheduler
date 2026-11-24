@@ -1,4 +1,4 @@
-// AgentApiValues: the Agent API region of the session and its transitions.
+// File: AdvanceScreenSession: AgentApiValues: the Agent API region of the session and its transitions.
 // @unit      UF-125  (docs/spec/05-07-design.md, table T-075)
 // @component AdvanceScreenSession, layer UseCase (table T-062)
 // @purity    pure
@@ -60,10 +60,10 @@ type EventOf<T extends AgentApiValuesEvent['type']> = Extract<AgentApiValuesEven
 
 const ENABLED: AgentApiEnablingState = { kind: 'enabled' }
 
-// see T-296
+// Spec: T-296
 export const emptyAgentApiValues: AgentApiValues = { ...AGENT_API_VALUES_INITIAL_AXES }
 
-// WHY: the root cell stores the value after the press (S-99b); only turning it off tells RS-20 (FR-065).
+// Why: the root cell stores the value after the press (S-99b); only turning it off tells RS-20 (FR-065).
 /** @purity pure */
 function onAgentApiEntryPressed(values: AgentApiValues): AgentApiStep {
   if (values.agentApiEnablingState.kind === 'disabled') {
@@ -75,7 +75,7 @@ function onAgentApiEntryPressed(values: AgentApiValues): AgentApiStep {
   }
 }
 
-// WHY: the startup read of S-99b comes back as an event; it neither stores nor tells anything.
+// Why: the startup read of S-99b comes back as an event; it neither stores nor tells anything.
 /** @purity pure */
 function onRememberedEnablingLoaded(values: AgentApiValues, event: EventOf<'rememberedEnablingLoaded'>): AgentApiStep {
   if (values.agentApiEnablingState.kind !== 'disabled' || !AGENT_API_VALUES_GUARDS.isRememberedEnabled(event)) {
@@ -91,7 +91,7 @@ const HANDLERS: {
   rememberedEnablingLoaded: onRememberedEnablingLoaded,
 }
 
-// see SF-2, SF-8, T-296
+// Spec: SF-2, SF-8, T-296
 /** @purity pure */
 export function stepAgentApiValues(values: AgentApiValues, event: AgentApiValuesEvent): AgentApiStep {
   const handler = HANDLERS[event.type] as (values: AgentApiValues, event: AgentApiValuesEvent) => AgentApiStep

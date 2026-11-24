@@ -9,7 +9,7 @@ const FACINGS = ['start', 'end'] as const
 const INKS = ['hollow', 'filled'] as const
 const SVG_DATA_HEAD = 'data:image/svg+xml,'
 
-// WHY: an unquoted CSS url() ends at a bare quote, parenthesis, whitespace or backslash,
+// Why: an unquoted CSS url() ends at a bare quote, parenthesis, whitespace or backslash,
 // so none of them may stand inside its body.
 const UNQUOTED_URL_BREAKERS = /['"()\s\\]/
 
@@ -20,7 +20,7 @@ interface DrawnCase {
   readonly value: string
 }
 
-// see T-269
+// Spec: T-269
 const drawnCases = (): readonly DrawnCase[] =>
   specTable('T-269').rows.flatMap((row) =>
     FACINGS.flatMap((facing) =>

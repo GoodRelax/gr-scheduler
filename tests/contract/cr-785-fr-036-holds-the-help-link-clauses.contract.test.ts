@@ -12,21 +12,21 @@ const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 
 const FR_036_HEAD = '**UID**: FR-036'
 const NEXT_UID = '**UID**: '
 const MUST_MARK = '（MUST）'
-// WHY: a quoted MUST clause names its rule only when it is this long, the mark included (check 39).
+// Why: a quoted MUST clause names its rule only when it is this long, the mark included (check 39).
 const MIN_MUST_CLAUSE_LENGTH = 28
 
-// see FR-036, S-350, S-583
+// Spec: FR-036, S-350, S-583
 const FR_036_LINK_TARGETS =
   '下のリンクの宛先は同表の `S-583` の所にヘルプの言語を `?lang=ja` ／ `?lang=en` で付けたものとし、どちらも押したら閲覧環境の新しいタブで開くこと（MUST）'
-// see FR-036, FR-038
+// Spec: FR-036, FR-038
 const FR_036_LINK_WORDS = '2 つのリンクの語は `FR-038` の辞書（`helpLinks` の `download` と `about`）が持つこと（MUST）'
-// see FR-036, S-503
+// Spec: FR-036, S-503
 const FR_036_LINK_LOOK =
   '`FR-069` の著作権表示 —— の字は、`_assets/tbl-settings.md` の 表 T-236 の `S-503` の色で下線を引いて描くこと（MUST）'
-// see FR-036, IC-20
+// Spec: FR-036, IC-20
 const FR_036_AGENT_API_LINK =
   '最新版を入手する頁（`_assets/tbl-settings.md` の 表 T-206 の `S-350`）へのリンクを添え、押したら閲覧環境の新しいタブで開くこと（MUST）'
-// see FR-036, IC-54
+// Spec: FR-036, IC-54
 const FR_036_PARENTHESES = '⭐ `IC-54` の項目に添える語は、丸括弧で囲むこと（MUST）'
 
 const fr036Section = (): string => {

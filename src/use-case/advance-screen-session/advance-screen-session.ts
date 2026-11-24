@@ -1,4 +1,4 @@
-// AdvanceScreenSession: advances the unsaved screen session by one event.
+// File: AdvanceScreenSession: advances the unsaved screen session by one event.
 // @unit      UF-84   (docs/spec/05-07-design.md, table T-075)
 // @component AdvanceScreenSession, layer UseCase (table T-062)
 // @purity    pure
@@ -126,7 +126,7 @@ export type { PressedOn } from './gesture-values'
 export type { NoticeReason, StandingNotice } from './notice-values'
 export { NOTICE_DISPLAY_OF_REASON, NOTICE_MANNER_OF_REASON, NOTICE_WORDS_ROW_OF_REASON } from './notice-values'
 
-// see SF-8, PI-39
+// Spec: SF-8, PI-39
 export interface ScreenSession {
   readonly screen: ScreenValues
   readonly notices: NoticeValues
@@ -138,7 +138,7 @@ export interface ScreenSession {
   readonly agentApi: AgentApiValues
 }
 
-// see T-280, T-286, T-289, T-290, T-292, T-293, T-295, T-296
+// Spec: T-280, T-286, T-289, T-290, T-292, T-293, T-295, T-296
 export type SessionEvent =
   | ScreenValuesEvent
   | NoticeValuesEvent
@@ -159,7 +159,7 @@ export type SessionEffect =
   | InteractionRecordValuesEffect
   | AgentApiValuesEffect
 
-// see T-280, T-286, T-289, T-290, T-292, T-293, T-295, T-296, SS-6
+// Spec: T-280, T-286, T-289, T-290, T-292, T-293, T-295, T-296, SS-6
 export const emptyScreenSession: ScreenSession = {
   screen: emptyScreenValues,
   notices: emptyNoticeValues,
@@ -171,7 +171,7 @@ export const emptyScreenSession: ScreenSession = {
   agentApi: emptyAgentApiValues,
 }
 
-// WHY: a Record per region fails to compile on a missing event; the rest are screen events.
+// Why: a Record per region fails to compile on a missing event; the rest are screen events.
 const IS_NOTICE_EVENT: { readonly [T in NoticeValuesEvent['type']]: true } = {
   noticeRaised: true,
   noticeTimeElapsed: true,
@@ -281,7 +281,7 @@ function isAgentApiEvent(event: SessionEvent): event is AgentApiValuesEvent {
   return Object.hasOwn(IS_AGENT_API_EVENT, event.type)
 }
 
-// see SS-5, SF-3
+// Spec: SS-5, SF-3
 /** @purity pure */
 function composed<K extends keyof ScreenSession>(
   session: ScreenSession,
@@ -295,7 +295,7 @@ function composed<K extends keyof ScreenSession>(
   return { state: session, effects: step.effects }
 }
 
-// see SF-2, SF-3, SF-8, SS-5
+// Spec: SF-2, SF-3, SF-8, SS-5
 /** @purity pure */
 export function advanceScreenSession(
   session: ScreenSession,

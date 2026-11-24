@@ -19,11 +19,11 @@ import { bare, specTable, unbroken } from './spec-table'
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
 
-// see T-280
+// Spec: T-280
 const MACHINES = unbroken(readFileSync(join(SPEC, '_assets', 'tbl-state-machines.md'), 'utf8'))
 const EVENT_ROW = /\| `screen\/fullScreenEntryPressed` \| ([^|]*) \|/
 
-// see PI-18
+// Spec: PI-18
 const PI_18 = unbroken(readFileSync(join(SPEC, '_assets', 'tbl-published-entries.md'), 'utf8'))
 const PI_18_NULL_WHEN_NONE = '作るものが無ければ `null`。'
 const PI_18_SOURCE_IS_INPUT = '作るのは、出どころが入力の出来事だけである。'
@@ -34,7 +34,7 @@ const rowOf = (table: string, id: string) => {
   return found
 }
 
-// see T-036, SK-15
+// Spec: T-036, SK-15
 const SK_15_KEY = bare(rowOf('T-036', 'SK-15').by['割当'] ?? '')
 const SK_15_ENTRANCE = bare(rowOf('T-036', 'SK-15').by['入口'] ?? '')
 const FULL_SCREEN_ENTRANCE = 'IC-11'

@@ -1,4 +1,4 @@
-// InputCommandTranslator -- a chart item released after a grab into writes (tables T-266, T-023d).
+// File: InputCommandTranslator: a chart item released after a grab into writes (tables T-266, T-023d).
 // @unit      UF-98   (docs/spec/05-07-design.md, table T-075)
 // @component InputCommandTranslator, layer Adapter (table T-062)
 // @purity    pure
@@ -96,14 +96,14 @@ const MK_13_GRAB_TASK_GROUPS: ReadonlySet<string> = new Set([
 
 const PRESS_ONLY_GRAB_TASK_GROUPS: ReadonlySet<string> = new Set(['GA-1', 'GA-2', 'GA-7', 'GA-8', 'GA-10', 'GA-11'])
 
-// WHY: T-270 parts a press from a pull by S-208; an end or fade grab reaches past its day column (PE-3, PE-11).
+// Why: T-270 parts a press from a pull by S-208; an end or fade grab reaches past its day column (PE-3, PE-11).
 /** @purity pure */
 function isPressInPlace(grab: string, press: PointerPress, release: PointerInput): boolean {
   const isPressOnly = MK_13_GRAB_TASK_GROUPS.has(grab) || PRESS_ONLY_GRAB_TASK_GROUPS.has(grab)
   return isPressOnly && !hasDraggedPastThreshold(press, release)
 }
 
-// see T-023d, MK-13
+// Spec: T-023d, MK-13
 /** @purity pure */
 export function commandFromGrab(
   release: PointerInput,
@@ -117,7 +117,7 @@ export function commandFromGrab(
     return isContinuationMarkClick(press, release) ? continuationSend(context, item) : CONSUMED_ELSEWHERE
   }
 
-  // TRAP: MK-13 must be read before the switch; the actual ends stand above the body in T-267,
+  // Trap: MK-13 must be read before the switch; the actual ends stand above the body in T-267,
   // so the switch would rewrite the same day instead of opening the name.
   const opened = release.clickCount >= 2 ? doubleClickOf(hit) : null
   if (opened !== null) return opened
@@ -129,20 +129,20 @@ export function commandFromGrab(
       : changed([{ kind: 'setStatusDate', statusDate }])
   }
 
-  // TRAP: must stay above GR-14's moves below, or a double click and a drag on one place are one press.
+  // Trap: must stay above GR-14's moves below, or a double click and a drag on one place are one press.
   const boxTarget = release.clickCount >= 2 && hit.grab === 'GR-14' ? boxFieldTargetOf(item) : null
   if (boxTarget !== null) return acted({ kind: 'editInPlace', target: boxTarget })
 
-  // TRAP: the first release of a double click has `clickCount` 1; without this arm it falls to the
+  // Trap: the first release of a double click has `clickCount` 1; without this arm it falls to the
   // switch and reaches a second destination (for GA-6, a 0px actual).
   if (isPressInPlace(hit.grab, press, release)) return CONSUMED_ELSEWHERE
 
-  // see GR-14, CM-54
+  // Spec: GR-14, CM-54
   if (item.kind === 'highlightBox' && hit.grab === 'GR-14') {
     return highlightBoxRangeWrite(context, press, release, item.id, hit.boxPart ?? { kind: 'body' })
   }
 
-  // see GR-14, CM-50, CM-51
+  // Spec: GR-14, CM-50, CM-51
   if (item.kind === 'commentBox' && hit.grab === 'GR-14') {
     return commentBoxMoveWrite(context, press, release, item.id, hit.boxPart?.kind === 'anchor')
   }
@@ -168,7 +168,7 @@ export function commandFromGrab(
       const isStartHeld = grab === 'GA-1' || grab === 'GA-10'
       const released = releasedText(context, release, isStartHeld ? 'start' : 'finish', task.milestone === true)
       if (released === null) return CONSUMED_ELSEWHERE
-      // WHY: an end dragged past the other is not clamped; IV-10 is `editTask`'s, so every caller gets one answer.
+      // Why: an end dragged past the other is not clamped; IV-10 is `editTask`'s, so every caller gets one answer.
       return changed([
         {
           kind: 'setTaskPlanDates',
@@ -200,10 +200,10 @@ export function commandFromGrab(
       const task = taskByUid(context.document.schedule, uid)
       const dropped = dayAtX(context.layout, release.x)
       if (task === null || dropped === null) return CONSUMED_ELSEWHERE
-      // WHY: unreachable: PS-1, FR-011, PV-2, GO-6 and GO-7 never leave a started Task without a last day.
+      // Why: unreachable: PS-1, FR-011, PV-2, GO-6 and GO-7 never leave a started Task without a last day.
       const lastDay = actualLastDay(task)
       if (task.actualStart === null || lastDay === null) return CONSUMED_ELSEWHERE
-      // see GO-10
+      // Spec: GO-10
       const earliest = dayShifted(lastDay, 1)
       const resume = compareDay(dropped, earliest) < 0 ? earliest : dropped
       const project = context.document.schedule.project
@@ -225,14 +225,14 @@ export function commandFromGrab(
   }
 }
 
-// see EL-18, MK-13
-// TRAP: judged above MK-13 and every grab row; judged by the caller alone, a Task body's second press opens its name.
+// Spec: EL-18, MK-13
+// Trap: judged above MK-13 and every grab row; judged by the caller alone, a Task body's second press opens its name.
 /** @purity pure */
 function grabbedHitOf(press: PointerPress, context: InputContext): Hit | null {
   return isSwallowedSecondPress(press, context) ? null : press.hit
 }
 
-// see MK-13
+// Spec: MK-13
 /** @purity pure */
 function doubleClickOf(hit: Hit): TranslatedInput | null {
   const item = hit.item
@@ -246,15 +246,15 @@ function doubleClickOf(hit: Hit): TranslatedInput | null {
   return null
 }
 
-// see PE-12, EL-18
+// Spec: PE-12, EL-18
 /** @purity pure */
 export function isContinuationMarkClick(press: PointerPress, release: PointerInput): boolean {
   if (press.hit === null || press.hit.grab !== 'GA-24') return false
   return press.at.clickCount === 1 && !hasDraggedPastThreshold(press, release)
 }
 
-// see PE-12, EL-10, EL-11, EL-12, EL-16, EL-21, UN-8, UN-14
-// WHY: the geometry judged EL-1, EL-2 and EL-20 when it drew the mark; the far end is read off it, never judged again.
+// Spec: PE-12, EL-10, EL-11, EL-12, EL-16, EL-21, UN-8, UN-14
+// Why: the geometry judged EL-1, EL-2 and EL-20 when it drew the mark; the far end is read off it, never judged again.
 /** @purity pure */
 function continuationSend(context: InputContext, item: Hit['item']): TranslatedInput {
   if (item.kind !== 'dependency') return CONSUMED_ELSEWHERE
@@ -280,14 +280,14 @@ function continuationSend(context: InputContext, item: Hit['item']): TranslatedI
   return { ...sent, landingMarked }
 }
 
-// see EL-21, SJ-2, T-328
+// Spec: EL-21, SJ-2, T-328
 /** @purity pure */
 function farTaskGroupRevealWrites(context: InputContext, foldedRowId: string | null): readonly DocumentCommand[] {
   if (foldedRowId === null) return []
   return treeWritesOf(context, { type: 'taskGroupRevealAsked', revealedRowId: foldedRowId })
 }
 
-// see EL-11, EL-12, FR-046, AM-16, OP-10
+// Spec: EL-11, EL-12, FR-046, AM-16, OP-10
 /** @purity pure */
 function farEndSendWrites(
   context: InputContext,
@@ -311,21 +311,21 @@ function farEndSendWrites(
   return isScrollPositionInForce(context, to) ? zoom : [...zoom, to]
 }
 
-// see EL-10, UN-8, OP-10
+// Spec: EL-10, UN-8, OP-10
 /** @purity pure */
 function farEndZoomWrites(
   context: InputContext,
   undrawnTaskGroupDepth: number | null,
   isAtStoredZoom: boolean,
 ): readonly DocumentCommand[] {
-  // WHY: a picture drawn at the fit (OP-10) stores no zoom; the drawn zoom goes with the place so it stays.
+  // Why: a picture drawn at the fit (OP-10) stores no zoom; the drawn zoom goes with the place so it stays.
   if (undrawnTaskGroupDepth === null && isAtStoredZoom) return []
   const drawnZoom = zoomOnScreen(context)
   return [
     {
       kind: 'setZoom',
       zoomX: drawnZoom.x,
-      // TRAP: only groupDepthThresholdOf; any other route can differ by one ulp from groupDepthLimit.
+      // Trap: only groupDepthThresholdOf; any other route can differ by one ulp from groupDepthLimit.
       zoomY:
         undrawnTaskGroupDepth === null
           ? drawnZoom.y
@@ -335,7 +335,7 @@ function farEndZoomWrites(
 }
 
 // see PE-8, PE-10, DFC-2980
-// WHY: read from the picture drawn at the press: the held picture already draws the pull, the document does not.
+// Why: read from the picture drawn at the press: the held picture already draws the pull, the document does not.
 /** @purity pure */
 function markerPullRow(context: InputContext, press: PointerPress, uid: number): 'PE-8' | 'PE-10' {
   const drawn = (press.geometryAtPress ?? context.geometry).tasks.find((one) => one.taskUid === uid)
@@ -362,7 +362,7 @@ function rightEdgeOfBar(bar: BarGeometry): number | null {
   return xs.length === 0 ? null : Math.max(...xs)
 }
 
-// see GO-3, GO-4, GO-5
+// Spec: GO-3, GO-4, GO-5
 /** @purity pure */
 function actualEndWrite(
   context: InputContext,
@@ -381,7 +381,7 @@ function actualEndWrite(
 
 type DummyHold = Extract<DocumentCommand, { readonly kind: 'beginTaskActual' }>['grabbed']
 
-// see CM-14, T-266
+// Spec: CM-14, T-266
 /** @purity pure */
 function dummyHoldOf(grab: 'GA-5' | 'GA-6' | 'GA-17' | 'GA-21' | 'GA-22'): DummyHold {
   switch (grab) {
@@ -406,8 +406,8 @@ function releasedPairOf(context: InputContext, release: PointerInput,
   return start === null || finish === null ? null : { start, finish }
 }
 
-// see GO-6, GO-7, GO-8, FR-103, T-378
-// WHY: read as every other end is (releasedText): with time of day shown the snapped instant, never the day (DFC-2572).
+// Spec: GO-6, GO-7, GO-8, FR-103, T-378
+// Why: read as every other end is (releasedText): with time of day shown the snapped instant, never the day (DFC-2572).
 /** @purity pure */
 function dummyReleaseWrite(
   context: InputContext,
@@ -424,7 +424,7 @@ function dummyReleaseWrite(
   ])
 }
 
-// see GO-9, DM-1, FR-158
+// Spec: GO-9, DM-1, FR-158
 /** @purity pure */
 function isLeftOfPlanStart(context: InputContext, task: Task, released: string): boolean {
   if (!context.document.documentSettings.isTimeOfDayVisible) {
@@ -438,7 +438,7 @@ function isLeftOfPlanStart(context: InputContext, task: Task, released: string):
   return planStart !== null && dropped !== null && dropped < planStart
 }
 
-// see GO-9
+// Spec: GO-9
 /** @purity pure */
 function markerPullWrite(
   context: InputContext,
@@ -455,7 +455,7 @@ function markerPullWrite(
   const finish = releasedPairOf(context, release, task)?.finish ?? null
   if (finish === null) return CONSUMED_ELSEWHERE
   const snapMinutes = snapMinutesOfView(context)
-  // WHY: released left of the plan start, GO-9 asks for the dummy's own actual (DM-2) on the plan start, not a refusal.
+  // Why: released left of the plan start, GO-9 asks for the dummy's own actual (DM-2) on the plan start, not a refusal.
   if (isLeftOfPlanStart(context, task, finish)) {
     return changed([
       { kind: 'beginTaskActual', taskUid: uid, grabbed: 'barDummyStart', released: { start: task.start, finish: task.start }, snapMinutes },
@@ -466,8 +466,8 @@ function markerPullWrite(
   ])
 }
 
-// see PE-1, PE-6, SL-1, SL-7, MK-16
-// WHY: the Selection's boxes go in the same bundle as its tasks, so one drag is one undo step (FR-031).
+// Spec: PE-1, PE-6, SL-1, SL-7, MK-16
+// Why: the Selection's boxes go in the same bundle as its tasks, so one drag is one undo step (FR-031).
 /** @purity pure */
 function bodyMoveWrites(
   context: InputContext,
@@ -505,13 +505,13 @@ function bodyMoveWrites(
 
 type ReleasedSide = 'start' | 'finish'
 
-// WHY: a 00:00 boundary begins the start side's day, ends the finish side's (FR-103); a milestone's start is a finish (WT-5).
+// Why: a 00:00 boundary begins the start side's day, ends the finish side's (FR-103); a milestone's start is a finish (WT-5).
 /** @purity pure */
 function dayOfBoundary(boundary: number, side: ReleasedSide, isMilestone: boolean): CalendarDay {
   return dayOfInstant(side === 'start' && !isMilestone ? boundary : boundary - 1)
 }
 
-// WHY: with time of day shown the nearest day boundary is read on the side (FR-103); hidden, the day column (SG-1).
+// Why: with time of day shown the nearest day boundary is read on the side (FR-103); hidden, the day column (SG-1).
 /** @purity pure */
 function releasedDay(context: InputContext, release: PointerInput, side: ReleasedSide, isMilestone: boolean): CalendarDay | null {
   const layout = context.layout
@@ -520,7 +520,7 @@ function releasedDay(context: InputContext, release: PointerInput, side: Release
   return boundary === null ? null : dayOfBoundary(boundary, side, isMilestone)
 }
 
-// see FR-046, T-378, SG-1, SG-2, WT-4
+// Spec: FR-046, T-378, SG-1, SG-2, WT-4
 /** @purity pure */
 function releasedStatusDate(context: InputContext, release: PointerInput): string | null {
   const snap = snapMinutesOfView(context)
@@ -532,8 +532,8 @@ function releasedStatusDate(context: InputContext, release: PointerInput): strin
   return instant === null ? null : textOfInstant(instant)
 }
 
-// see FR-103, T-378, T-350
-// WHY: the released place as the text written; a whole-day unit keeps the day's default time of T-350.
+// Spec: FR-103, T-378, T-350
+// Why: the released place as the text written; a whole-day unit keeps the day's default time of T-350.
 /** @purity pure */
 function releasedText(context: InputContext, release: PointerInput, side: ReleasedSide, isMilestone: boolean): string | null {
   const layout = context.layout
@@ -554,8 +554,8 @@ interface DragSpan {
   readonly dayCount: number
 }
 
-// see PE-1, T-378, FR-103
-// WHY: both ends move by the same elapsed time; the snap lands on the start, so the length in minutes is kept.
+// Spec: PE-1, T-378, FR-103
+// Why: both ends move by the same elapsed time; the snap lands on the start, so the length in minutes is kept.
 /** @purity pure */
 function planMoveWrite(context: InputContext, task: Task, drag: DragSpan): DocumentCommand | null {
   const project = context.document.schedule.project
@@ -586,7 +586,7 @@ function pulledMinutesOf(context: InputContext, press: PointerPress, release: Po
   return ((release.x - press.at.x) / context.layout.pxPerDay) * MINUTES_PER_CALENDAR_DAY
 }
 
-// WHY: the grabbed Task's start lands on the nearest day boundary (FR-103); every moved item takes that one count.
+// Why: the grabbed Task's start lands on the nearest day boundary (FR-103); every moved item takes that one count.
 /** @purity pure */
 function bodyDayCount(context: InputContext, press: PointerPress, release: PointerInput, uid: number): number {
   const dragged = draggedDayCount(context, press, release)
@@ -609,7 +609,7 @@ interface SelectedBoxes {
 
 const NO_BOXES: SelectedBoxes = { highlightBoxes: [], commentBoxes: [] }
 
-// see SL-1, SL-7, CY-4
+// Spec: SL-1, SL-7, CY-4
 /** @purity pure */
 function selectedBoxesOf(context: InputContext): SelectedBoxes {
   const schedule = context.document.schedule
@@ -624,8 +624,8 @@ function selectedBoxesOf(context: InputContext): SelectedBoxes {
   return { highlightBoxes, commentBoxes }
 }
 
-// see PE-1, SL-7, FR-019
-// WHY: the frame keeps its size: both dates by the same days, both task groups by the same task groups, as a GR-14 body drag does.
+// Spec: PE-1, SL-7, FR-019
+// Why: the frame keeps its size: both dates by the same days, both task groups by the same task groups, as a GR-14 body drag does.
 /** @purity pure */
 function highlightBoxShiftWrite(
   context: InputContext,
@@ -645,15 +645,15 @@ function highlightBoxShiftWrite(
   return highlightRangeWrite(context, box, { upper, lower, left: dayShifted(early, days), right: dayShifted(late, days) })
 }
 
-// see FR-019
-// WHY: a box with no anchor date stands at the document's start date, as commentGeometry draws it.
+// Spec: FR-019
+// Why: a box with no anchor date stands at the document's start date, as commentGeometry draws it.
 /** @purity pure */
 function stoodDayOf(context: InputContext, box: CommentBox): CalendarDay | null {
   return dayOf(box.anchorDate) ?? dayOf(context.document.schedule.project.startDate)
 }
 
-// see PE-1, SL-7, FR-019, CM-50
-// WHY: CM-50 alone: the body stands off the anchor (bodyOffsetPx), so it rides along with the moved anchor.
+// Spec: PE-1, SL-7, FR-019, CM-50
+// Why: CM-50 alone: the body stands off the anchor (bodyOffsetPx), so it rides along with the moved anchor.
 /** @purity pure */
 function commentBoxShiftWrite(
   context: InputContext,
@@ -674,7 +674,7 @@ function commentBoxShiftWrite(
   return { kind: 'setCommentBoxAnchor', commentBoxId: box.id, anchor: { ...heldAnchorOf(box), date, taskGroupId } }
 }
 
-// see FR-019, CM-50
+// Spec: FR-019, CM-50
 /** @purity pure */
 function heldAnchorOf(box: CommentBox): Omit<AnnotationAnchor, 'date' | 'taskGroupId'> {
   return {
@@ -713,8 +713,8 @@ function orderedDays(start: CalendarDay, end: CalendarDay): { readonly early: Ca
   return compareDay(start, end) <= 0 ? { early: start, late: end } : { early: end, late: start }
 }
 
-// see PE-1, SL-7
-// WHY: one shift for the whole selection: a per-item clamp would spread a selection that
+// Spec: PE-1, SL-7
+// Why: one shift for the whole selection: a per-item clamp would spread a selection that
 // started a task group apart, and the table asks for the same number of task groups for all of them.
 /** @purity pure */
 function clampedTaskGroupShift(
@@ -740,15 +740,15 @@ function clampedTaskGroupShift(
   return shiftWithinTaskGroups(taskGroups, held, asked)
 }
 
-// see CY-6
-// WHY: a held drag draws its result into the task groups, so a release is measured on the task groups the press saw.
+// Spec: CY-6
+// Why: a held drag draws its result into the task groups, so a release is measured on the task groups the press saw.
 /** @purity pure */
 function layoutAtPressOf(context: InputContext, press: PointerPress): InputContext['layout'] {
   const taskGroups = press.layoutRowsAtPress
   return taskGroups === undefined ? context.layout : { ...context.layout, taskGroups }
 }
 
-// see PE-1, CY-6
+// Spec: PE-1, CY-6
 /** @purity pure */
 function shiftWithinTaskGroups(taskGroups: readonly TaskGroupPlacement[], held: readonly number[], asked: number): number {
   if (held.length === 0) return 0
@@ -756,8 +756,8 @@ function shiftWithinTaskGroups(taskGroups: readonly TaskGroupPlacement[], held: 
   return Math.min(Math.max(asked, room.up), room.down)
 }
 
-// see CY-5, PE-1, FR-103, T-378
-// WHY: the pressed task shifts as PE-1 shifts it, one amount for every copy; a null hit (isCopyDragPress bars it) reads columns.
+// Spec: CY-5, PE-1, FR-103, T-378
+// Why: the pressed task shifts as PE-1 shifts it, one amount for every copy; a null hit (isCopyDragPress bars it) reads columns.
 /** @purity pure */
 function copyShiftMinutes(context: InputContext, press: PointerPress, release: PointerInput): number {
   const item = press.hit?.item
@@ -770,8 +770,8 @@ function copyShiftMinutes(context: InputContext, press: PointerPress, release: P
   return snappedStartShift(plan[0], pulledMinutesOf(context, press, release), snap)
 }
 
-// see PTD-7, CY-3, CY-5, CY-6, CY-8, CY-9, CM-8, DU-1, FR-103, T-378
-// WHY: one CM-8 with the landing is one undo step (FR-031); task groups count the chosen Tasks' copies, not CY-4's boxes.
+// Spec: PTD-7, CY-3, CY-5, CY-6, CY-8, CY-9, CM-8, DU-1, FR-103, T-378
+// Why: one CM-8 with the landing is one undo step (FR-031); task groups count the chosen Tasks' copies, not CY-4's boxes.
 /** @purity pure */
 export function copyDragWrite(context: InputContext, press: PointerPress, release: PointerInput): TranslatedInput {
   if (!hasDraggedPastThreshold(press, release)) return CONSUMED_ELSEWHERE
@@ -799,7 +799,7 @@ export function copyDragWrite(context: InputContext, press: PointerPress, releas
   return acted({ kind: 'changeDocument', writes: [[write]], picked })
 }
 
-// see HB-5
+// Spec: HB-5
 /** @purity pure */
 function nearestDrawnTaskGroupBoundary(taskGroups: readonly TaskGroupPlacement[], y: number): number {
   let nearest = 0
@@ -810,7 +810,7 @@ function nearestDrawnTaskGroupBoundary(taskGroups: readonly TaskGroupPlacement[]
     const gapTop = above === undefined ? Number.NEGATIVE_INFINITY : above.y + above.height
     const gapBottom = below === undefined ? Number.POSITIVE_INFINITY : below.y
     const distance = Math.max(Math.min(gapTop, gapBottom) - y, 0, y - Math.max(gapTop, gapBottom))
-    // WHY: within 1e-9, not exact: a band of 24.0012px puts its middle a float step off either gap, and HB-5's tie takes the lower.
+    // Why: within 1e-9, not exact: a band of 24.0012px puts its middle a float step off either gap, and HB-5's tie takes the lower.
     if (distance <= nearestDistance + 1e-9) {
       nearest = at
       nearestDistance = distance
@@ -819,7 +819,7 @@ function nearestDrawnTaskGroupBoundary(taskGroups: readonly TaskGroupPlacement[]
   return nearest
 }
 
-// see MK-13, PR-21, PR-22
+// Spec: MK-13, PR-21, PR-22
 /** @purity pure */
 function boxFieldTargetOf(item: Hit['item']): InPlaceTarget | null {
   if (item.kind === 'commentBox') return { kind: 'commentBoxText', id: item.id }
@@ -832,8 +832,8 @@ interface DraggedSides {
   readonly vertical: 'top' | 'bottom' | null
 }
 
-// see HB-7, HB-8, HB-9, HB-10, HB-11
-// WHY: a corner moves one side each way; a midpoint moves its one side and keeps the other direction (HB-7).
+// Spec: HB-7, HB-8, HB-9, HB-10, HB-11
+// Why: a corner moves one side each way; a midpoint moves its one side and keeps the other direction (HB-7).
 /** @purity pure */
 function draggedSidesOf(part: Extract<NonNullable<Hit['boxPart']>, { kind: 'corner' | 'edge' }>): DraggedSides {
   if (part.kind === 'corner') return { horizontal: part.horizontal, vertical: part.vertical }
@@ -849,7 +849,7 @@ interface HeldRange {
   readonly late: CalendarDay
 }
 
-// see HB-4, HB-5, HB-6, HB-7
+// Spec: HB-4, HB-5, HB-6, HB-7
 /** @purity pure */
 function grabPointRange(
   held: HeldRange,
@@ -863,7 +863,7 @@ function grabPointRange(
   readonly right: CalendarDay
 } {
   const { taskGroups, upperAt, lowerAt, early, late } = held
-  // TRAP: Math.round sends a tie to the later day's boundary; Math.trunc or toFixed would not.
+  // Trap: Math.round sends a tie to the later day's boundary; Math.trunc or toFixed would not.
   const dayBoundary = Math.round(atPointer)
   const taskGroupBoundary = nearestDrawnTaskGroupBoundary(taskGroups, releaseY)
   const earlySerial = serialOfDay(early)
@@ -872,7 +872,7 @@ function grabPointRange(
   let right = late
   let upper = taskGroups[upperAt]
   let lower = taskGroups[lowerAt]
-  // WHY: no one-day special case on the opposite edge; it would skip the two-day width.
+  // Why: no one-day special case on the opposite edge; it would skip the two-day width.
   if (sides.horizontal === 'left') {
     left = dayFromSerial(Math.min(dayBoundary, lateSerial))
     right = dayBoundary > lateSerial ? dayFromSerial(dayBoundary - 1) : late
@@ -890,7 +890,7 @@ function grabPointRange(
   return { upper, lower, left, right }
 }
 
-// see GR-14, CM-54, HB-1, HB-2, HB-3, HB-4, HB-5, HB-6, HB-7
+// Spec: GR-14, CM-54, HB-1, HB-2, HB-3, HB-4, HB-5, HB-6, HB-7
 /** @purity pure */
 function highlightBoxRangeWrite(
   context: InputContext,
@@ -905,7 +905,7 @@ function highlightBoxRangeWrite(
   const taskGroups = drawnTaskGroupsOf(context.layout)
   const span = box === undefined ? null : highlightTaskGroupSpanOf(context, taskGroups, box)
   if (box === undefined || start === null || end === null || span === null) return CONSUMED_ELSEWHERE
-  // WHY: a highlight box holds a frame and eight grab points only; the anchor and the leader
+  // Why: a highlight box holds a frame and eight grab points only; the anchor and the leader
   // belong to a comment box, and CM-54 has no value to write for either.
   if (part.kind === 'anchor' || part.kind === 'leader') return CONSUMED_ELSEWHERE
 
@@ -933,7 +933,7 @@ function highlightBoxRangeWrite(
   return changedUnlessUnmoved(box, highlightRangeWrite(context, box, { upper, lower, left, right }))
 }
 
-// see GR-14, CM-54, FR-100
+// Spec: GR-14, CM-54, FR-100
 /** @purity pure */
 function changedUnlessUnmoved(box: HighlightBox, write: DocumentCommand): TranslatedInput {
   if (write.kind !== 'setHighlightBoxRange') return changed([write])
@@ -944,7 +944,7 @@ function changedUnlessUnmoved(box: HighlightBox, write: DocumentCommand): Transl
   return isUnmoved ? CONSUMED_ELSEWHERE : changed([write])
 }
 
-// see HB-3, FR-019
+// Spec: HB-3, FR-019
 /** @purity pure */
 function highlightTaskGroupSpanOf(
   context: InputContext,
@@ -954,14 +954,14 @@ function highlightTaskGroupSpanOf(
   const firstTaskGroup = context.layout.taskGroups[0]
   const lastTaskGroup = context.layout.taskGroups[context.layout.taskGroups.length - 1]
   if (firstTaskGroup === undefined || lastTaskGroup === undefined) return null
-  // TRAP: fall back to the first and last layout task groups exactly as highlightGeometry does, or the grabbed box is not the drawn one.
+  // Trap: fall back to the first and last layout task groups exactly as highlightGeometry does, or the grabbed box is not the drawn one.
   const topAt = taskGroups.indexOf(taskGroups.find((taskGroup) => taskGroup.taskGroupId === box.topTaskGroupId) ?? firstTaskGroup)
   const bottomAt = taskGroups.indexOf(taskGroups.find((taskGroup) => taskGroup.taskGroupId === box.bottomTaskGroupId) ?? lastTaskGroup)
   return { upperAt: Math.min(topAt, bottomAt), lowerAt: Math.max(topAt, bottomAt) }
 }
 
-// see CM-54, FR-019, WT-10
-// TRAP: normalize here, not in edit-annotation.ts: CM-54 checks no direction, so a reversed pair would be stored as dragged.
+// Spec: CM-54, FR-019, WT-10
+// Trap: normalize here, not in edit-annotation.ts: CM-54 checks no direction, so a reversed pair would be stored as dragged.
 /** @purity pure */
 function highlightRangeWrite(
   context: InputContext,
@@ -984,15 +984,15 @@ function highlightRangeWrite(
   }
 }
 
-// see WT-10
+// Spec: WT-10
 /** @purity pure */
 function heldOrWritten(held: string | null, day: CalendarDay, write: (day: CalendarDay) => string): string {
   const heldDay = dayOf(held)
   return held !== null && heldDay !== null && compareDay(heldDay, day) === 0 ? held : write(day)
 }
 
-// see GR-14, CM-51
-// WHY: the body and the leader move the text box alone, so the comment keeps pointing at its task.
+// Spec: GR-14, CM-51
+// Why: the body and the leader move the text box alone, so the comment keeps pointing at its task.
 /** @purity pure */
 function commentBoxMoveWrite(
   context: InputContext,
@@ -1010,8 +1010,8 @@ function commentBoxMoveWrite(
   return changed([{ kind: 'setCommentBoxBodyOffsetPx', commentBoxId: id, dx: offset.dx + pull.dx, dy: offset.dy + pull.dy }])
 }
 
-// see GR-14, CM-50, CM-51, RS-44
-// WHY: CM-50 and CM-51 in one bundle, one undo (FR-031): CM-50 alone would carry the box with the anchor.
+// Spec: GR-14, CM-50, CM-51, RS-44
+// Why: CM-50 and CM-51 in one bundle, one undo (FR-031): CM-50 alone would carry the box with the anchor.
 /** @purity pure */
 function commentAnchorMoveWrite(
   context: InputContext,
@@ -1019,7 +1019,7 @@ function commentAnchorMoveWrite(
   release: PointerInput,
   box: CommentBox,
 ): TranslatedInput {
-  // TRAP: the layout at the press, never context.geometry's comment boxes: a held drag draws the box already moved.
+  // Trap: the layout at the press, never context.geometry's comment boxes: a held drag draws the box already moved.
   const layout = layoutAtPressOf(context, press)
   const snapsFrom = context.geometry
   const around = { schedule: context.document.schedule, layout, snaps: anchorSnapsOf(snapsFrom.tasks, snapsFrom.highlightBoxes) }
@@ -1036,8 +1036,8 @@ function commentAnchorMoveWrite(
   ])
 }
 
-// see GR-14, FR-100
-// WHY: a tip released within half a pixel of its point writes nothing, or unsaved edits rise (as DFC-2912).
+// Spec: GR-14, FR-100
+// Why: a tip released within half a pixel of its point writes nothing, or unsaved edits rise (as DFC-2912).
 /** @purity pure */
 function isReleasedInPlace(box: CommentBox, anchor: AnnotationAnchor, stood: Point, at: Point): boolean {
   const isSameTarget =
@@ -1048,8 +1048,8 @@ function isReleasedInPlace(box: CommentBox, anchor: AnnotationAnchor, stood: Poi
   return isSameTarget && Math.abs(at.x - stood.x) < 0.5 && Math.abs(at.y - stood.y) < 0.5
 }
 
-// see FR-016, FD-5, RV-6
-// WHY: compared in days, not pixels -- the table forbids a drag threshold; an unset end released on the day it
+// Spec: FR-016, FD-5, RV-6
+// Why: compared in days, not pixels -- the table forbids a drag threshold; an unset end released on the day it
 // stood on stays unset instead of turning into an explicit 0, which draws flat.
 /** @purity pure */
 function fadeEndWrite(context: InputContext, release: PointerInput, uid: number, grab: 'GA-7' | 'GA-8'): TranslatedInput {
@@ -1070,7 +1070,7 @@ function fadeEndWrite(context: InputContext, release: PointerInput, uid: number,
   ])
 }
 
-// see FD-6, IV-12
+// Spec: FD-6, IV-12
 /** @purity pure */
 function clampedFadeDays(task: Task, grab: 'GA-7' | 'GA-8', pulled: number, span: number): number {
   const other = grab === 'GA-7' ? task.fadeOutDays : task.fadeInDays
@@ -1080,7 +1080,7 @@ function clampedFadeDays(task: Task, grab: 'GA-7' | 'GA-8', pulled: number, span
 
 const ACTUAL_START_HOLDS: readonly ActualEndHold[] = ['GA-3', 'GA-12']
 
-// see GO-3, GO-4, GO-5
+// Spec: GO-3, GO-4, GO-5
 /** @purity pure */
 function actualEndPlacement(
   task: Task,
@@ -1090,9 +1090,9 @@ function actualEndPlacement(
   const heldText = task.actualStart
   if (dayOf(heldText) === null || heldText === null) return null
   const isStartHeld = ACTUAL_START_HOLDS.includes(grab)
-  // WHY: an actual start not moved keeps its text as it stands (T-350 WT-10).
+  // Why: an actual start not moved keeps its text as it stands (T-350 WT-10).
   const actualStart = isStartHeld || grab === 'GA-16' ? released.start : heldText
-  // WHY: GO-5 keeps the last day; the end holds put the released place itself, not a working day (GO-3).
+  // Why: GO-5 keeps the last day; the end holds put the released place itself, not a working day (GO-3).
   const lastDay = isStartHeld ? null : released.finish
   const lastDayColumn = planActualState(task) === 'finished' ? 'actualFinish' : 'stop'
   const moved: Task = lastDay === null
@@ -1101,7 +1101,7 @@ function actualEndPlacement(
   return placementAt(moved)
 }
 
-// see SL-7, SL-4, MK-16
+// Spec: SL-7, SL-4, MK-16
 /** @purity pure */
 function movedTaskUids(context: InputContext, grabbed: number, press: PointerPress): readonly number[] {
   if (!isSelectionMoved(context, grabbed, press)) return [grabbed]
@@ -1112,14 +1112,14 @@ function movedTaskUids(context: InputContext, grabbed: number, press: PointerPre
   return isSelected(context.selection, { kind: 'task', uid: grabbed }) ? uids : [...uids, grabbed]
 }
 
-// see SL-7, SL-4, MK-16
+// Spec: SL-7, SL-4, MK-16
 /** @purity pure */
 function isSelectionMoved(context: InputContext, grabbed: number, press: PointerPress): boolean {
   const held: ItemRef = { kind: 'task', uid: grabbed }
   return isSelected(context.selection, held) || isDateKeepingDrag(press)
 }
 
-// TRAP: reading ScheduleLayout.placements instead breaks a body drag: the layout already
+// Trap: reading ScheduleLayout.placements instead breaks a body drag: the layout already
 // draws the Task under the pointer, so PE-1's guard cancels the move.
 /** @purity pure */
 function taskGroupOfTask(context: InputContext, uid: number): string | null {

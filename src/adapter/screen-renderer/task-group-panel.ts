@@ -1,4 +1,4 @@
-// Describes the Task Group Panel and the Task Group Title Tree inside it.
+// File: ScreenRenderer: Describes the Task Group Panel and the Task Group Title Tree inside it.
 // @unit      UF-63   (docs/spec/05-07-design.md, table T-075)
 // @component ScreenRenderer, layer Adapter (table T-062)
 // @purity    pure
@@ -45,7 +45,7 @@ interface PanelIndex extends OpenArming {
 
 type IndexCore = Omit<PanelIndex, keyof OpenArming>
 
-// see T-329, RS-28, RS-30, RS-31
+// Spec: T-329, RS-28, RS-30, RS-31
 interface OpenArming {
   readonly taskGroupIdsWithAnUnplacedTaskGroupBelow: ReadonlySet<string>
   readonly taskGroupIdsWithAChildToOpen: ReadonlySet<string>
@@ -54,7 +54,7 @@ interface OpenArming {
 
 const TRUNCATION_MARK = '\u2026'
 
-// TRAP: U+0100 is the boundary ScheduleLayout's LC-5 uses; change both together.
+// Trap: U+0100 is the boundary ScheduleLayout's LC-5 uses; change both together.
 /** @purity pure */
 function charUnits(ch: string): number {
   return ch.charCodeAt(0) < 0x100 ? 1 : 2
@@ -75,7 +75,7 @@ function labelWidthPx(text: string, fontSizePx: number, settings: DrawnSettings)
 /** @purity pure */
 function availableLabelWidthPx(depth: number, settings: DrawnSettings): number {
   const roomForControlsPx = NOT_STORED_TASK_GROUP_CONTROL_SIZES['S-140']
-  // see FR-029
+  // Spec: FR-029
   const roomForGrabStripPx =
     NOT_STORED_TASK_GROUP_GRAB_ROOM_SIZES['S-138'] * NOT_STORED_CHROME_SCALE['S-235'] +
     NOT_STORED_TASK_GROUP_GRAB_ROOM_SIZES['S-218']
@@ -87,7 +87,7 @@ function availableLabelWidthPx(depth: number, settings: DrawnSettings): number {
   return Math.max(0, available)
 }
 
-// see HF-5, FR-016, PI-37, T-252, DS-1, S-36
+// Spec: HF-5, FR-016, PI-37, T-252, DS-1, S-36
 /** @purity pure */
 export function taskGroupTitleFontPxOf(depth: number, settings: DocumentSettings): number {
   const drawn = drawnSettingsOf(settings)
@@ -116,7 +116,7 @@ function labelCutToFit(
   return kept + TRUNCATION_MARK
 }
 
-// TRAP: the maxGroupDepth cap is the only thing that ends this climb on a parentId ring.
+// Trap: the maxGroupDepth cap is the only thing that ends this climb on a parentId ring.
 /** @purity pure */
 function taskGroupDepth(
   group: TaskGroup,
@@ -134,14 +134,14 @@ function taskGroupDepth(
   return depth
 }
 
-// see HF-2, RS-28, T-329
-// TRAP: task-group-tree-entrances.ts arms IC-58 by this same test (isOpenAllBelowArmed); change both together.
+// Spec: HF-2, RS-28, T-329
+// Trap: task-group-tree-entrances.ts arms IC-58 by this same test (isOpenAllBelowArmed); change both together.
 /** @purity pure */
 function isOpenAllBelowOn(group: TaskGroup, index: PanelIndex): boolean {
   return index.taskGroupIdsWithAnUnplacedTaskGroupBelow.has(group.id)
 }
 
-// see HF-1
+// Spec: HF-1
 /** @purity pure */
 function expanderOf(group: TaskGroup, index: PanelIndex): TaskGroupExpander {
   return {
@@ -153,8 +153,8 @@ function expanderOf(group: TaskGroup, index: PanelIndex): TaskGroupExpander {
 
 type GrabbedTaskGroup = NonNullable<ScreenViewReadings['taskGroupGrabbedAt']>
 
-// see HF-15
-// WHY: the grabbed task group and every drawn one below it take the ground; they move as one (X-h of CR-772).
+// Spec: HF-15
+// Why: the grabbed task group and every drawn one below it take the ground; they move as one (X-h of CR-772).
 /** @purity pure */
 function heldTaskGroupIdsOf(grabbed: GrabbedTaskGroup | null, groupsById: ReadonlyMap<string, TaskGroup>): ReadonlySet<string> {
   const held = new Set<string>()
@@ -169,7 +169,7 @@ function heldTaskGroupIdsOf(grabbed: GrabbedTaskGroup | null, groupsById: Readon
   return held
 }
 
-// see HF-15, S-599
+// Spec: HF-15, S-599
 /** @purity pure */
 function grabCuesOf(
   grabbed: GrabbedTaskGroup | null,
@@ -217,15 +217,15 @@ function taskGroupTitleOf(
     canOpenOneLevel: index.taskGroupIdsWithAChildToOpen.has(group.id),
     canAddChildTaskGroup: depth < settings.maxGroupDepth,
     isPinned,
-    // see FR-085, T-293
+    // Spec: FR-085, T-293
     isSelected: chosenTaskGroupIds.has(group.id),
     foldedTaskGroupCount: index.foldedTaskGroupCountByTaskGroupId.get(group.id) ?? 0,
     isHeld,
   }
 }
 
-// see T-329
-// WHY: the task groups the picture places, off-screen ones included: a task group only scrolled away is drawn
+// Spec: T-329
+// Why: the task groups the picture places, off-screen ones included: a task group only scrolled away is drawn
 // (decision 15 of CR-570). Without the reading, the on-screen boxes stand in for it.
 /** @purity pure */
 function placedRowIdsOf(readings: ScreenViewReadings): ReadonlySet<string> {
@@ -233,10 +233,10 @@ function placedRowIdsOf(readings: ScreenViewReadings): ReadonlySet<string> {
   return new Set(placed)
 }
 
-// see HF-2, HF-10, HF-13, RS-28, RS-30, RS-31, T-329
-// TRAP: task-group-tree-entrances.ts arms IC-58, IC-74 and IC-90 by these same tests
+// Spec: HF-2, HF-10, HF-13, RS-28, RS-30, RS-31, T-329
+// Trap: task-group-tree-entrances.ts arms IC-58, IC-74 and IC-90 by these same tests
 // (isOpenAllBelowArmed, isEveryTaskGroupOpenArmed, isOpenOneLevelArmed); change both together.
-// WHY: a child drawn only because of a temporarilyExpanded task group still counts for the one-level open
+// Why: a child drawn only because of a temporarilyExpanded task group still counts for the one-level open
 // (decision 5 of CR-570). Every task group TD-6 / TD-7 keeps is placed, so the placed task groups are enough.
 /** @purity pure */
 function openArmingOf(
@@ -249,7 +249,7 @@ function openArmingOf(
   const taskGroupIdsWithAnUnplacedTaskGroupBelow = new Set<string>()
   for (const group of schedule.taskGroups) {
     if (placed.has(group.id)) continue
-    // TRAP: climbed guards a parentId ring; without it the climb never returns.
+    // Trap: climbed guards a parentId ring; without it the climb never returns.
     const climbed = new Set<string>()
     for (let at = group.parentId; at !== null && !climbed.has(at);) {
       climbed.add(at)
@@ -280,7 +280,7 @@ function openArmingOf(
   }
 }
 
-// see S-418, T-329
+// Spec: S-418, T-329
 /** @purity pure */
 function panelIndexWithArmingOf(
   schedule: Schedule,
@@ -294,7 +294,7 @@ function panelIndexWithArmingOf(
   }
 }
 
-// see HF-12, HF-13, HF-18
+// Spec: HF-12, HF-13, HF-18
 /** @purity pure */
 function panelIndexOf(schedule: Schedule, readings: ScreenViewReadings, isLevelZeroCollapsed: boolean): IndexCore {
   const groupsById = new Map<string, TaskGroup>()
@@ -322,7 +322,7 @@ function panelIndexOf(schedule: Schedule, readings: ScreenViewReadings, isLevelZ
   const foldedTaskGroupCountByTaskGroupId = new Map<string, number>()
   const subtreeSizeByTaskGroupId = new Map<string, number>()
   const orderedDeepestFirst: TaskGroup[] = []
-  // TRAP: visited guards a parentId ring; without it the walk never returns.
+  // Trap: visited guards a parentId ring; without it the walk never returns.
   const visited = new Set<string>()
   /** @purity pure */
   const walkDeepestFirst = (parentId: string | null): void => {
@@ -370,8 +370,8 @@ function panelIndexOf(schedule: Schedule, readings: ScreenViewReadings, isLevelZ
   }
 }
 
-// see FR-042, FR-098
-// WHY: from the placed boxes, not a held task group's moved one: the schedule side's line stays put too.
+// Spec: FR-042, FR-098
+// Why: from the placed boxes, not a held task group's moved one: the schedule side's line stays put too.
 /** @purity pure */
 function groupGridLinesOf(
   described: readonly TaskGroupTitle[],
@@ -388,7 +388,7 @@ function groupGridLinesOf(
   }))
 }
 
-// see FR-085, FR-098
+// Spec: FR-085, FR-098
 /** @purity pure */
 export function taskGroupPanelFromSchedule(
   schedule: Schedule,
@@ -397,7 +397,7 @@ export function taskGroupPanelFromSchedule(
   _session: ScreenSession,
   readings: ScreenViewReadings,
 ): TaskGroupPanel {
-  // see FR-039, T-252
+  // Spec: FR-039, T-252
   const settings = drawnSettingsOf(storedSettings)
   const isLevelZeroCollapsed = settings.levelZeroTreeState === 'collapsed'
   const index = panelIndexWithArmingOf(schedule, settings, readings, isLevelZeroCollapsed)
@@ -444,7 +444,7 @@ export function taskGroupPanelFromSchedule(
 }
 
 // see FR-017, FR-156, JDG-2043, S-313, EP-3
-// WHY: each clock row of the ruler gets its zone's abbreviation in the blank over the panel, right-aligned S-313 in
+// Why: each clock row of the ruler gets its zone's abbreviation in the blank over the panel, right-aligned S-313 in
 // from the panel's right edge (as the head controls, HF-10); none while time of day is not shown.
 /** @purity pure */
 export function rulerAbbreviationsOf(
@@ -457,7 +457,7 @@ export function rulerAbbreviationsOf(
   if (!settings.isTimeOfDayVisible) return []
   const panel = regions.taskGroupPanel
   const tier = rulerTierOf(timeAxisOf(storedSettings, regions).pxPerDay, storedSettings)
-  // TRAP: read through ?.: views built from a partial schedule carry no project.
+  // Trap: read through ?.: views built from a partial schedule carry no project.
   const dataRegion = schedule.project?.scheduleDataTimeZone ?? PRINTED_TIME_ZONE
   const width = Math.max(0, panel.width - NOT_STORED_TASK_GROUP_CONTROL_SIZES['S-313'])
   return rulerClockRowsOf(tier, settings, regions.timeRuler, dataRegion).map((row) => ({
@@ -472,7 +472,7 @@ export function rulerAbbreviationsOf(
 // Single source of truth:
 //   docs/spec/_source/settings.json (table T-206)
 // Rebuild: npm run gen   ||   npm run gen:check fails on drift.
-// see T-206
+// Spec: T-206
 const NOT_STORED_TASK_GROUP_CONTROL_SIZES: {
   readonly 'S-140': number
   readonly 'S-313': number
@@ -481,7 +481,7 @@ const NOT_STORED_TASK_GROUP_CONTROL_SIZES: {
   'S-313': 4,
 }
 
-// see T-206
+// Spec: T-206
 const NOT_STORED_TASK_GROUP_GRAB_ROOM_SIZES: {
   readonly 'S-138': number
   readonly 'S-218': number
@@ -490,7 +490,7 @@ const NOT_STORED_TASK_GROUP_GRAB_ROOM_SIZES: {
   'S-218': 4,
 }
 
-// see T-206
+// Spec: T-206
 const NOT_STORED_CHROME_SCALE: {
   readonly 'S-235': number
 } = {
@@ -498,7 +498,7 @@ const NOT_STORED_CHROME_SCALE: {
 }
 // </generated>
 
-// see SC-1, FR-098
+// Spec: SC-1, FR-098
 /** @purity pure */
 export function drawnTaskGroupBoxesOf(
   layout: ScheduleLayout,

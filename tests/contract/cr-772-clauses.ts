@@ -40,6 +40,6 @@ export const HF_15_SPEED = '速さは縁に近いほど速くし、縁とその�
 export const HF_15_WHEEL = '縁とその外では 表 T-206 の `S-598` とする。⭐ 握っているあいだもホイールで縦に送れること（MUST）'
 export const HF_15_RESELECT = 'どちらで送っても、落ち先は送ったあとの行で選び直す。'
 
-// WHY: the retired HM-3a note and UC-002 2a sentences are in cr-774-clauses.ts, which holds their replacements.
+// Why: the retired HM-3a note and UC-002 2a sentences are in cr-774-clauses.ts, which holds their replacements.
 export const UF_97_ROW =
   '掴んだタスクグループを 表 T-051 の `HF-15` に従って運び、落ち先（隙間と段）を親と並びの書き込み（表 T-108 の `CM-73`）に変える'

@@ -19,8 +19,8 @@ const SJ_10_RIPPLE =
 const SJ_10_MONO = '⭐ モノクロ（`FR-041`）では、色は表 T-236 のほかの行と同じく灰にし、線を太さ `S-556` の中で 2 本に分ける'
 const S_586_EDGES = '内の縁は `S-588` − `S-556` の半分（0 を下回れば直角）'
 
-// see S-588
-// WHY: a CSS outline follows the box's border-radius from the line's inner edge, so the box rounds by half a line less.
+// Spec: S-588
+// Why: a CSS outline follows the box's border-radius from the line's inner edge, so the box rounds by half a line less.
 const INNER_EDGE_RADIUS = Math.max(0, S_586 - S_556 / 2)
 
 const RIPPLE = '[data-role="Jump Landing Ripple"]'
@@ -61,7 +61,7 @@ interface Opened {
   close(): Promise<void>
 }
 
-// WHY: the dev server serves the source under test; the open-file picker stand-in hands over the next document
+// Why: the dev server serves the source under test; the open-file picker stand-in hands over the next document
 // (the shape tests/system/cr-570-tree-state-stage.ts uses on the shipped build).
 /** @purity non-pure */
 async function openWith(settings: Readonly<Record<string, unknown>>): Promise<Opened> {
@@ -101,7 +101,7 @@ interface RippleStyle {
   readonly jumpLanding: string
 }
 
-// WHY: the ripple lasts S-557 x S-558 from the landing, so it is read in the same evaluation that asks AM-16 to jump.
+// Why: the ripple lasts S-557 x S-558 from the landing, so it is read in the same evaluation that asks AM-16 to jump.
 /** @purity non-pure */
 async function jumpAndReadRipple(page: Page, uid: number): Promise<RippleStyle | null> {
   return page.evaluate(

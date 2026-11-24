@@ -1,4 +1,4 @@
-// FieldEntryValues: the naming and field-entry region of the session and its transitions.
+// File: AdvanceScreenSession: FieldEntryValues: the naming and field-entry region of the session and its transitions.
 // @unit      UF-121  (docs/spec/05-07-design.md, table T-075)
 // @component AdvanceScreenSession, layer UseCase (table T-062)
 // @purity    pure
@@ -6,7 +6,7 @@
 
 import { NO_EFFECTS, unchanged, type Step } from './session-step'
 
-// WHY: the rows asked for focus; an edited field may name any editable row (IF-9), so carried rows are strings.
+// Why: the rows asked for focus; an edited field may name any editable row (IF-9), so carried rows are strings.
 export type FieldEntryFieldRow = 'PR-1' | 'AT-53' | 'PR-16' | 'PR-21' | 'PR-22' | 'U-27'
 
 export interface FieldEntryCreatedTask {
@@ -19,7 +19,7 @@ export interface FieldEntryCreatedRow {
   readonly taskGroupId: string
 }
 
-// WHY: the translator's created again; UseCase may not read an Adapter type (table T-061).
+// Why: the translator's created again; UseCase may not read an Adapter type (table T-061).
 export type FieldEntryCreated = FieldEntryCreatedTask | FieldEntryCreatedRow
 
 export interface FieldEntryValuesStateCarried {
@@ -118,7 +118,7 @@ const TASK_GROUP_NAME_FIELD_TASK_GROUP: FieldEntryFieldRow = 'AT-53'
 
 export const emptyFieldEntryValues: FieldEntryValues = { ...FIELD_ENTRY_VALUES_INITIAL_AXES }
 
-// WHY: an unmoved machine, or a carried value rewritten with itself, keeps its reference (SD-3, SF-3).
+// Why: an unmoved machine, or a carried value rewritten with itself, keeps its reference (SD-3, SF-3).
 /** @purity pure */
 function combined(
   values: FieldEntryValues,
@@ -143,14 +143,14 @@ function editing(edit: FieldEditState, fieldRow: string): FieldEditState {
   return { kind: 'editingField', fieldRow }
 }
 
-// WHY: an end of the name field, committed or canceled, makes the next Enter the one that settles the name (FR-091).
+// Why: an end of the name field, committed or canceled, makes the next Enter the one that settles the name (FR-091).
 /** @purity pure */
 function nameEnded(naming: CreatedTaskNamingState, event: EventOf<'fieldEditEnded'>): CreatedTaskNamingState {
   if (naming.kind !== 'namingCreatedTask' || !FIELD_ENTRY_VALUES_GUARDS.isNameField(event)) return naming
   return { kind: 'createdNameEnded', createdTaskUid: naming.createdTaskUid }
 }
 
-// WHY: an edit begun again means the end of the name is no longer the last thing that happened (T-292).
+// Why: an edit begun again means the end of the name is no longer the last thing that happened (T-292).
 /** @purity pure */
 function nameReopened(naming: CreatedTaskNamingState): CreatedTaskNamingState {
   if (naming.kind !== 'createdNameEnded') return naming
@@ -170,7 +170,7 @@ function onFieldFocusAsked(values: FieldEntryValues, event: EventOf<'fieldFocusA
   return combined(values, values.createdTaskNamingState, want, NO_EFFECTS)
 }
 
-// WHY: an added task group leaves the naming scene as it is, as today's shell does (CR-480 decision 9).
+// Why: an added task group leaves the naming scene as it is, as today's shell does (CR-480 decision 9).
 /** @purity pure */
 function onCreationLanded(values: FieldEntryValues, event: EventOf<'creationLanded'>): FieldEntryStep {
   const { createdTaskNamingState: naming, fieldEditState: edit } = values
@@ -199,7 +199,7 @@ function onFieldEditBegan(values: FieldEntryValues, event: EventOf<'fieldEditBeg
 /** @purity pure */
 function onFieldEditEnded(values: FieldEntryValues, event: EventOf<'fieldEditEnded'>): FieldEntryStep {
   const naming = nameEnded(values.createdTaskNamingState, event)
-  // WHY: a late end of the previous field must not end the next one's edit (CR-500 decision 5).
+  // Why: a late end of the previous field must not end the next one's edit (CR-500 decision 5).
   const isEdited = FIELD_ENTRY_VALUES_GUARDS.isEditedField(values, event)
   const edit = isEdited ? FIELD_ENTRY_VALUES_INITIAL_AXES.fieldEditState : values.fieldEditState
   return combined(values, naming, edit, NO_EFFECTS)
@@ -223,7 +223,7 @@ const HANDLERS: {
   choiceMoved: onChoiceMoved,
 }
 
-// see SF-2, SF-8, T-292
+// Spec: SF-2, SF-8, T-292
 /** @purity pure */
 export function stepFieldEntryValues(values: FieldEntryValues, event: FieldEntryValuesEvent): FieldEntryStep {
   const handler = HANDLERS[event.type] as (values: FieldEntryValues, event: FieldEntryValuesEvent) => FieldEntryStep

@@ -55,15 +55,15 @@ function twoTasks(project: Record<string, unknown> = {}): Record<string, any> {
 }
 
 describe('CR-646 the manuscript as these cases read it', () => {
-  // WHY: CR-699 (JDG-1677) raises the version to the instant a change lands, not the day.
+  // Why: CR-699 (JDG-1677) raises the version to the instant a change lands, not the day.
   it('FR-073: a shape change raises the version once, to the instant it is applied, and is not read across', () => {
-    // WHY: CR-822 (JDG-2985) moved when and how often the version is raised to docs/development-rules/10-versions.md.
+    // Why: CR-822 (JDG-2985) moved when and how often the version is raised to docs/development-rules/10-versions.md.
     expect(REQUIREMENTS).toContain('形式の版は、それまでのどの版よりも新しい時刻になること（MUST）')
     expect(VERSION_TABLE).toContain('1 つの変更要求の中で版を上げるのは 1 度だけとする')
     expect(REQUIREMENTS).toContain('は、版を上げても古い形の文書を読み替えない')
   })
 
-  // WHY: CR-699 (JDG-1677) made the version an RFC 3339 UTC instant; check 76 holds the same shape.
+  // Why: CR-699 (JDG-1677) made the version an RFC 3339 UTC instant; check 76 holds the same shape.
   it('FR-073 / JDG-1677: the schema const is the manifest version, and it is an instant in YYYY-MM-DDTHH:MM:SSZ', () => {
     expect(SCHEMA['properties'].schemaVersion.const).toBe(MANIFEST['schemaVersion'])
     expect(SCHEMA['properties'].schemaVersion.const).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/)
@@ -117,7 +117,7 @@ describe('X-9 IV-23: exactly one TaskVisual per Task', () => {
     expect(rows).toContain('IV-23')
   })
 
-  // WHY: Chapter 6.1 has scheduleViolations driven by table T-220, row by row, and nothing there lets one
+  // Why: Chapter 6.1 has scheduleViolations driven by table T-220, row by row, and nothing there lets one
   // row stand in for another; IV-1 (duplicate key taskUid) and IV-23 ("exactly one") are both broken.
   it('IV-23 / IV-1: a Task two TaskVisuals point at is told under both rows it breaks', () => {
     const document = twoTasks()
@@ -133,7 +133,7 @@ describe('X-9 IV-23: exactly one TaskVisual per Task', () => {
     expect(scheduleViolations(typed.schedule, typed.documentSettings as DocumentSettings).map((one) => one.row)).not.toContain('IV-23')
   })
 
-  // WHY: IV-23 spans two arrays, so the schema shape (RS-25) cannot hold it; CP-13 makes ValidateImportedDocument
+  // Why: IV-23 spans two arrays, so the schema shape (RS-25) cannot hold it; CP-13 makes ValidateImportedDocument
   // (PI-13) the check the three import routes share, so the T-220 row is refused there, not in the codec.
   it('IV-23 / CP-13: the codec opens a GRS JSON whose Task lacks a TaskVisual (no RS-25 shape fault)', () => {
     expect(documentFromJson(textOf(missingOne()), KNOWN_VERSION).ok).toBe(true)
@@ -181,7 +181,7 @@ describe('X-10 FR-073 / T-297 / JDG-1206: the old shape is refused, not read acr
   })
 
   it('JDG-1206: a Project carrying lastSaved refuses the document', () => {
-    // WHY: documentObject drops a lastSaved handed in through the project part, so it is put back after.
+    // Why: documentObject drops a lastSaved handed in through the project part, so it is put back after.
     const document = twoTasks()
     document['schedule'].project.lastSaved = '2026-01-01T00:00:00'
     expect(Object.keys(document['schedule'].project), 'premise: the Project carries lastSaved').toContain('lastSaved')

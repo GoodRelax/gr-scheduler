@@ -201,7 +201,7 @@ def value_declaration(row):
     """
     params = row.get('typeParameters')
     name = row['name'] + ('<%s>' % ', '.join(params) if params else '')
-    out = ['// see %s' % row['id']]
+    out = ['// Spec: %s' % row['id']]
     if row['shape'] == 'interface':
         base = (' extends %s' % row['extends']) if 'extends' in row else ''
         out.append('export interface %s%s {' % (name, base))
@@ -239,8 +239,8 @@ def held_fields(rows):
         "'%s'" % one['name'] for one in row['fields'])) for row in rows]
     return [
         '',
-        '// see %s' % ', '.join(row['id'] for row in rows),
-        '// WHY: declared by their own components; their field names are held against table T-400 here.',
+        '// Spec: %s' % ', '.join(row['id'] for row in rows),
+        '// Why: declared by their own components; their field names are held against table T-400 here.',
         'type SameFieldNames<TValue, TNames extends PropertyKey> = [keyof TValue] extends [TNames]',
         '  ? ([TNames] extends [keyof TValue] ? true : false)',
         '  : false',
@@ -271,7 +271,7 @@ def page_members(doc):
 
 def agent_api_interface(doc):
     """@purity pure"""
-    out = ['// see %s' % doc['members']['table']['id'], 'export interface AgentApi {']
+    out = ['// Spec: %s' % doc['members']['table']['id'], 'export interface AgentApi {']
     group = None
     for member in page_members(doc):
         if group is not None and member['group']['ja'] != group:
@@ -294,7 +294,7 @@ def members_region(doc):
         out += value_declaration(row) + ['']
     out += agent_api_interface(doc)
     out += held_fields(elsewhere)
-    out += ['', '// see AM-1, AG-1', "const AGENT_API_VERSION = '%s'" % doc['version']]
+    out += ['', '// Spec: AM-1, AG-1', "const AGENT_API_VERSION = '%s'" % doc['version']]
     return ('tables %s and %s' % (doc['members']['table']['id'], doc['values']['table']['id']),
             out)
 
@@ -304,10 +304,10 @@ def relayed_region(doc):
 
     @purity pure
     """
-    out = ['// see %s, AG-12' % doc['members']['table']['id'], 'export interface RelayedParams {']
+    out = ['// Spec: %s, AG-12' % doc['members']['table']['id'], 'export interface RelayedParams {']
     for member in page_members(doc):
         if 'mcpOnlyKeys' in member:
-            out.append('  // WHY: the relay reads %s itself; the page %s.'
+            out.append('  // Why: the relay reads %s itself; the page %s.'
                        % (', '.join(one['name'] for one in member['mcpOnlyKeys']),
                           'only subscribes' if member['arguments'] else 'takes no argument'))
             out.append('  %s: {}' % member['name'])
@@ -315,7 +315,7 @@ def relayed_region(doc):
         params = '; '.join('%s: %s' % (one['name'], one['type']) for one in member['arguments'])
         out.append('  %s: %s' % (member['name'], '{ %s }' % params if params else '{}'))
     out.append('}')
-    out += ['', '// WHY: only members with arguments, in their argument order.', 'const MEMBER_PARAMETERS = {']
+    out += ['', '// Why: only members with arguments, in their argument order.', 'const MEMBER_PARAMETERS = {']
     for member in page_members(doc):
         if member['arguments'] and 'mcpOnlyKeys' not in member:
             out.append('  %s: [%s],' % (member['name'], ', '.join(
@@ -351,10 +351,10 @@ def relay_server_region(doc):
     saving_ids = ', '.join(one['id'] for one in saving)
     return ('table %s, the MCP-only keys of %s and %s'
             % (doc['members']['table']['id'], member['id'], saving_ids), [
-        '// see %s, AG-12' % member['id'],
+        '// Spec: %s, AG-12' % member['id'],
         "const WATCH_CHANGES = '%s'" % member['name'],
         "const WAIT_MS_KEY = '%s'" % member['mcpOnlyKeys'][0]['name'],
-        '// see %s, AG-12' % saving_ids,
+        '// Spec: %s, AG-12' % saving_ids,
         "const FILE_NAME_KEY = '%s'" % save_keys[0][0],
         "const OVERWRITE_KEY = '%s'" % save_keys[0][1],
         'const SAVED_EXTENSION_OF: Readonly<Record<string, string>> = {',

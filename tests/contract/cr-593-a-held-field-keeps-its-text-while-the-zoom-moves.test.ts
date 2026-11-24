@@ -145,7 +145,7 @@ const pointerAt = (phase: 'down' | 'up', x: number, y: number, clickCount = 1): 
 const partOn = (part: string, entry: string | null, taskGroupId: string | null = null): ScreenPart =>
   ({ part, entry, format: null, taskGroupId, resourceUid: null, dividerPanel: null, noticeDismissKey: null }) as unknown as ScreenPart
 
-// see T-036
+// Spec: T-036
 function keyOfRow(id: string): KeyInput {
   const row = specTable('T-036').rows.find((one) => one.id === id)
   const spans = [...(row?.by['割当'] ?? '').matchAll(/`([^`]+)`/g)].map((one) => one[1]!)
@@ -160,17 +160,17 @@ function keyOfRow(id: string): KeyInput {
 
 const SK_19 = keyOfRow('SK-19')
 
-// see U-25
+// Spec: U-25
 const PROPERTIES_PANEL = bare(specTable('T-103').rows.find((one) => one.id === 'U-25')?.by['確定名（英）'] ?? '')
 
-// see T-108
+// Spec: T-108
 function kindOf(row: string): string {
   const name = bare(specTable('T-108').rows.find((one) => one.id === row)?.by['確定名'] ?? '')
   if (name === '') throw new Error(`table T-108 has no ${row}`)
   return name
 }
 
-// WHY: the same event raiser the cr-582 cases use on this fake.
+// Why: the same event raiser the cr-582 cases use on this fake.
 function raise(built: Stage, node: FakeElement, type: string, extra: Record<string, unknown> = {}): FakeEvent {
   const event = {
     type,
@@ -262,7 +262,7 @@ function bench(document: Document): Bench {
       }
       send(input)
     },
-    // see MK-13
+    // Spec: MK-13
     openTaskGroup: (taskGroupId) => {
       const title = view().taskGroupPanel.titles.find((one) => one.taskGroupId === taskGroupId)
       if (title === undefined) throw new Error(`the task group title of ${taskGroupId} is not drawn`)
@@ -300,7 +300,7 @@ function typeInto(built: Bench, row: string, text: string): FakeElement {
   return input
 }
 
-// WHY: the task group name field names AT-53, not PR-18 (PR-18 says MK-13 names AT-53); PR-20 is the min height.
+// Why: the task group name field names AT-53, not PR-18 (PR-18 says MK-13 names AT-53); PR-20 is the min height.
 const HALF_TYPED: readonly (readonly [string, string])[] = [
   ['AT-53', 'Row1 half-typ'],
   ['PR-20', '37'],
@@ -329,7 +329,7 @@ function expectTheFieldKept(built: Bench, row: string, input: FakeElement, text:
   expect([group['name'], group['minHeightPx']], WS_2_UNTOUCHED).toEqual([label, null])
 }
 
-// WHY: the notch sign of MK-4 is not in the manuscript; cr-577 proves -1 raises zoomY.
+// Why: the notch sign of MK-4 is not in the manuscript; cr-577 proves -1 raises zoomY.
 const IN = -1
 
 describe(`T-067 WS-2 "${WS_2_EXEMPT}" -- through the shell, a half-typed field`, () => {
@@ -355,7 +355,7 @@ describe(`T-067 WS-2 "${WS_2_EXEMPT}" -- through the shell, a half-typed field`,
   })
 })
 
-// see AG-9, AG-9a, RS-8
+// Spec: AG-9, AG-9a, RS-8
 describe(`T-035 AG-9 "${AG_9_EDITING}" -- through the Agent API while a field is half-typed`, () => {
   const agentOf = (built: Bench) =>
     installAgentApi({ ...built.loop.agentApiSeams(), writerName: 'cr-593-tester', schemaVersion: BUILT_VERSION } as never)
@@ -367,11 +367,11 @@ describe(`T-035 AG-9 "${AG_9_EDITING}" -- through the Agent API while a field is
     return outcome
   }
 
-  // see CM-65, UN-8
+  // Spec: CM-65, UN-8
   const ZOOM = { kind: kindOf('CM-65'), zoomX: 1, zoomY: 2 }
-  // see CM-64, UN-13
+  // Spec: CM-64, UN-13
   const MONOCHROME = { kind: kindOf('CM-64'), isThemeMonochrome: true }
-  // see CM-1, UN-13
+  // Spec: CM-1, UN-13
   const TITLE = { kind: kindOf('CM-1'), title: 'CR-593 another title' }
 
   it.each(HALF_TYPED)(`%s: [setZoom] is accepted and moves zoomY; "${MH_4_KEEP_INPUT}"`, (row, text) => {

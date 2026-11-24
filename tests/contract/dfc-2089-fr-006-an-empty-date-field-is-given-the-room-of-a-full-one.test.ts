@@ -6,7 +6,7 @@ import type { PropertyControl } from '../../src/adapter/screen-renderer/screen-r
 import { bare, specTable } from './spec-table'
 import { REQUIREMENTS, T_016, documentOf, fieldOf, panelOf, taskItem, taskOf } from './cr-606-stage'
 
-// see FR-006
+// Spec: FR-006
 const FR_006_DATE_IS_WIDER = '⭐ 値が空でも同じ幅とすること（MUST）'
 const FR_006_NO_NARROWER = '⛔ 1 つの操作子に、その値を出すのに要る幅より狭い幅を割ってはならない（MUST NOT）'
 const FR_006_DATE_AID = '同表の `S-590` を掛けた幅とすること（MUST）'
@@ -23,11 +23,11 @@ const settingOf = (table: string, id: string, heading: string): number => {
   return numberIn(row.by[heading] ?? '')
 }
 
-// see S-589, FR-006
-// WHY: CR-754 moved the room of a date field off FR-093's estimate onto its own row of table T-206 (JDG-2046).
+// Spec: S-589, FR-006
+// Why: CR-754 moved the room of a date field off FR-093's estimate onto its own row of table T-206 (JDG-2046).
 const SHAPE_ROOM = settingOf('T-206', 'S-589', '既定')
 
-// WHY: the date rows a plain task shows, each named by the one column table T-016 gives it.
+// Why: the date rows a plain task shows, each named by the one column table T-016 gives it.
 const DATE_ROWS = T_016.filter(
   (one) =>
     (one.appliesTo ?? 'Task') === 'Task' &&

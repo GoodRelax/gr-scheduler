@@ -1,4 +1,4 @@
-// Runs the Task and TaskVisual commands against the document.
+// File: EditDocument: Runs the Task and TaskVisual commands against the document.
 // @unit      UF-11   (docs/spec/05-07-design.md, table T-075)
 // @component EditDocument, layer UseCase (table T-062)
 // @purity    pure
@@ -48,19 +48,19 @@ export type TaskShapeKind = NonNullable<TaskVisual['shapeKind']>
 
 export type TaskMilestoneGlyph = NonNullable<TaskVisual['milestoneGlyph']>
 
-// see T-266, FR-043, CM-14
-// WHY: the holds are table T-108's, printed into TaskCommand below; read off it, never retyped.
+// Spec: T-266, FR-043, CM-14
+// Why: the holds are table T-108's, printed into TaskCommand below; read off it, never retyped.
 export type ActualGrabHold = Extract<TaskCommand, { readonly kind: 'beginTaskActual' }>['grabbed']
 
 // <generated -- do not edit by hand>
 // From docs/spec/_source/document-commands.json (table T-108, TaskCommand).
-// see T-108
+// Spec: T-108
 export interface PasteLanding {
   readonly shiftMinutes: number
   readonly taskGroupIdOf: Readonly<Record<number, string>>
 }
 
-// see T-108
+// Spec: T-108
 export type PlanActualPlacement =
   | { readonly state: 'notStarted' }
   | {
@@ -85,7 +85,7 @@ export type PlanActualPlacement =
       readonly actualFinish: NonNullable<Task['actualFinish']>
     }
 
-// see T-108
+// Spec: T-108
 export type TaskCommand =
   | {
       readonly kind: 'createTask'
@@ -170,8 +170,8 @@ export type TaskCommand =
       readonly strokeWidthPx: TaskVisual['strokeWidthPx']
     }
 
-// see T-108
-// WHY: another component declares these shapes; their field names are held against table T-108 here.
+// Spec: T-108
+// Why: another component declares these shapes; their field names are held against table T-108 here.
 type SameFieldNames<TValue, TNames extends PropertyKey> = [keyof TValue] extends [TNames]
   ? ([TNames] extends [keyof TValue] ? true : false)
   : false
@@ -186,7 +186,7 @@ export function withSchedule(document: Document, schedule: Schedule): Document {
   return { ...document, schedule }
 }
 
-// TRAP: list and map columns compare by reference; exact only while every arm spreads the held row.
+// Trap: list and map columns compare by reference; exact only while every arm spreads the held row.
 /** @purity pure */
 export function isSameRecord<T extends object>(a: T, b: T): boolean {
   const left = a as Record<string, unknown>
@@ -198,19 +198,19 @@ export function isSameRecord<T extends object>(a: T, b: T): boolean {
 /** @purity pure */
 export function withTask(document: Document, next: Task): Document {
   const held = document.schedule.tasks.find((one) => one.uid === next.uid)
-  // TRAP: return the same document when nothing changed; document-change-plan.ts compares references.
+  // Trap: return the same document when nothing changed; document-change-plan.ts compares references.
   if (held !== undefined && isSameRecord(held, next)) return document
   const tasks = document.schedule.tasks.map((one) => (one.uid === next.uid ? next : one))
   return withSchedule(document, { ...document.schedule, tasks })
 }
 
-// WHY: IV-23 holds one row for every Task; the blank row answers only for a uid no Task holds yet (CM-6 makes it).
+// Why: IV-23 holds one row for every Task; the blank row answers only for a uid no Task holds yet (CM-6 makes it).
 /** @purity pure */
 export function visualOf(schedule: Schedule, taskUid: number): TaskVisual {
   return schedule.taskVisuals.find((one) => one.taskUid === taskUid) ?? blankTaskVisual(taskUid)
 }
 
-// see G-1, IV-22
+// Spec: G-1, IV-22
 /** @purity pure */
 export function isMilestone(task: Task): boolean {
   return task.milestone === true
@@ -220,7 +220,7 @@ type DayCheck =
   | { readonly ok: true; readonly day: CalendarDay }
   | { readonly ok: false; readonly what: string }
 
-// see IV-14, T-214
+// Spec: IV-14, T-214
 /** @purity pure */
 export function checkDay(text: string): DayCheck {
   const day = dayOf(text)
@@ -236,8 +236,8 @@ export function checkDay(text: string): DayCheck {
   return { ok: true, day }
 }
 
-// see CM-7, FR-019
-// WHY: a tip snapped to a deleted Task falls back to a free point in this same command (FR-031).
+// Spec: CM-7, FR-019
+// Why: a tip snapped to a deleted Task falls back to a free point in this same command (FR-031).
 /** @purity pure */
 function deleteTask(document: Document, uid: Task['uid'], defaultTaskGroupName: string): EditResult {
   const schedule = document.schedule
@@ -249,7 +249,7 @@ function deleteTask(document: Document, uid: Task['uid'], defaultTaskGroupName: 
       taskGroups.push(group)
       continue
     }
-    // WHY: settle the name rather than refuse; refusing makes every task drawn on empty space undeletable.
+    // Why: settle the name rather than refuse; refusing makes every task drawn on empty space undeletable.
     taskGroups.push(settledTaskGroup(schedule, group, defaultTaskGroupName))
   }
 
@@ -280,7 +280,7 @@ function deleteTask(document: Document, uid: Task['uid'], defaultTaskGroupName: 
   )
 }
 
-// see T-108, IV-2
+// Spec: T-108, IV-2
 /** @purity pure */
 export function editTask(document: Document, command: TaskCommand, defaultTaskGroupName: string): EditResult {
   const schedule = document.schedule
@@ -288,13 +288,13 @@ export function editTask(document: Document, command: TaskCommand, defaultTaskGr
   if (command.kind === 'pasteTasks') return pasteTasks(document, command, within)
 
   const named = command.kind === 'createTask' ? null : taskByUid(schedule, command.taskUid)
-  // WHY: CM-7 is exempt; FR-032's select-all delete bundles one CM-7 per task, an earlier one can
+  // Why: CM-7 is exempt; FR-032's select-all delete bundles one CM-7 per task, an earlier one can
   // carry off a later one's subtree, and refusing that one would throw the bundle away (AG-3).
   const missingTargetIsRefused = command.kind !== 'createTask' && command.kind !== 'deleteTask'
   if (missingTargetIsRefused && named === null) {
     return refused([reject(TABLE_T108_ROWS[command.kind], 'IV-2', `no Task with uid ${command.taskUid}`)])
   }
-  // TRAP: the cast holds only for guarded kinds; createTask and deleteTask must not read task.
+  // Trap: the cast holds only for guarded kinds; createTask and deleteTask must not read task.
   const task = named as Task
 
   switch (command.kind) {
@@ -381,7 +381,7 @@ export function editTask(document: Document, command: TaskCommand, defaultTaskGr
   }
 }
 
-// WHY: named so the Record reads as keyed over the generated union (check 69).
+// Why: named so the Record reads as keyed over the generated union (check 69).
 type TaskCommandKind = TaskCommand['kind']
 
 const TABLE_T108_ROWS: Readonly<Record<TaskCommandKind, string>> = {

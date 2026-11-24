@@ -1,4 +1,4 @@
-// DocumentCodec, MSPDI half -- maps the fade days to and from the frames of the extended-attribute area.
+// File: DocumentCodec, MSPDI half: maps the fade days to and from the frames of the extended-attribute area.
 // @unit      UF-155  (docs/spec/05-07-design.md, table T-075)
 // @component DocumentCodec, layer Adapter (table T-062)
 // @purity    pure
@@ -43,10 +43,10 @@ function aliasOfColumn(column: FadeColumn): string {
   return CUSTOM_FIELD_FRAMES.find((frame) => frame.prefers === column)?.alias ?? ''
 }
 
-// see EX-6
+// Spec: EX-6
 /** @purity pure */
 function isAliasUsable(alias: string): boolean {
-  // TRAP: count code points, as xsd:maxLength does; alias.length counts UTF-16 units.
+  // Trap: count code points, as xsd:maxLength does; alias.length counts UTF-16 units.
   return alias !== '' && [...alias].length <= customFields.aliasMaxLength
 }
 
@@ -57,7 +57,7 @@ function carriedDefinitions(carried: readonly CarryElement[]): readonly CarryEle
   return collection.children.filter((one) => one.name === 'ExtendedAttribute')
 }
 
-// WHY: matched by Alias, not FieldID alone, or the partner's own value in the frame would read as days.
+// Why: matched by Alias, not FieldID alone, or the partner's own value in the frame would read as days.
 /** @purity pure */
 export function fadeColumnsByFieldId(root: XmlElement): ReadonlyMap<number, FadeColumn> {
   const claimed = new Map<number, FadeColumn>()
@@ -88,8 +88,8 @@ interface FadeReading {
   readonly carryElements: readonly CarryElement[]
 }
 
-// see EX-16
-// WHY: the place of a read value, without the value: the days live in the column alone.
+// Spec: EX-16
+// Why: the place of a read value, without the value: the days live in the column alone.
 /** @purity pure */
 function fadeMarkOf(element: CarryElement): CarryElement {
   return { ordinal: element.ordinal, name: element.name, fields: { FieldID: element.fields['FieldID'] ?? '' }, children: [] }
@@ -97,7 +97,7 @@ function fadeMarkOf(element: CarryElement): CarryElement {
 
 const ROSTER_FIELD_IDS: ReadonlySet<number> = new Set(CUSTOM_FIELD_FRAMES.map((frame) => frame.fieldId))
 
-// see EX-16
+// Spec: EX-16
 /** @purity pure */
 function isFadeMark(element: CarryElement): boolean {
   if (element.name !== 'ExtendedAttribute' || element.children.length > 0) return false
@@ -106,7 +106,7 @@ function isFadeMark(element: CarryElement): boolean {
   return keys.length === 1 && fieldId !== null && ROSTER_FIELD_IDS.has(fieldId)
 }
 
-// see EX-6, EX-16
+// Spec: EX-6, EX-16
 /** @purity pure */
 export function fadeOfCarried(
   carried: readonly CarryElement[],
@@ -121,7 +121,7 @@ export function fadeOfCarried(
       : null
     const column = fieldId === null ? undefined : fadeColumns.get(fieldId)
     const days = column === undefined ? null : wholeNumberOf(one.fields['Value'])
-    // TRAP: a claimed value must leave the carried list, or the writer writes it twice; its mark stays (EX-16).
+    // Trap: a claimed value must leave the carried list, or the writer writes it twice; its mark stays (EX-16).
     if (days === null) {
       rest.push(one)
       continue
@@ -139,7 +139,7 @@ export interface ClaimedFrame {
   readonly alias: string
 }
 
-// see EX-6
+// Spec: EX-6
 /** @purity pure */
 export function claimedFrames(schedule: Schedule, run: ExportRun): readonly ClaimedFrame[] {
   const inUse = new Set<FadeColumn>()
@@ -181,7 +181,7 @@ export function claimedFrames(schedule: Schedule, run: ExportRun): readonly Clai
   return claimed
 }
 
-// WHY: free only with no definition or this column's alias; any roster word would let one fade column evict the other.
+// Why: free only with no definition or this column's alias; any roster word would let one fade column evict the other.
 /** @purity pure */
 function aliasesOfDefinitions(carried: readonly CarryElement[]): ReadonlyMap<number, string> {
   const knownFieldIds = new Set(CUSTOM_FIELD_FRAMES.map((frame) => frame.fieldId))
@@ -200,7 +200,7 @@ interface FadeDefinitions {
   readonly named: readonly PlacedChild[]
 }
 
-// see EX-8
+// Spec: EX-8
 /** @purity pure */
 export function writtenFadeDefinitions(
   frames: readonly ClaimedFrame[],
@@ -222,7 +222,7 @@ export function writtenFadeDefinitions(
     const children = missing.map((claimed, index) => writtenCarriedElement(
       definitionOfFrame(claimed, index), PATHS.definition,
     ))
-    // TRAP: an empty ExtendedAttributes that arrived sits in carry as a scalar; it is dropped here
+    // Trap: an empty ExtendedAttributes that arrived sits in carry as a scalar; it is dropped here
     // once a frame is claimed, and written back otherwise.
     const { ExtendedAttributes: _takenOver, ...rest } = carry
     return {
@@ -267,8 +267,8 @@ export interface WrittenFadeValues {
   readonly appended: readonly PlacedChild[]
 }
 
-// see EX-16, FR-021
-// WHY: a mark of a frame no longer claimed, or of an emptied column, is a place with nothing to hold.
+// Spec: EX-16, FR-021
+// Why: a mark of a frame no longer claimed, or of an emptied column, is a place with nothing to hold.
 /** @purity pure */
 function valueAtMark(task: Task, mark: CarryElement, frames: readonly ClaimedFrame[]): CarryElement | null {
   const fieldId = wholeNumberOf(mark.fields['FieldID'])
@@ -278,8 +278,8 @@ function valueAtMark(task: Task, mark: CarryElement, frames: readonly ClaimedFra
   return { ...mark, fields: { ...mark.fields, Value: String(days) } }
 }
 
-// see EX-16, EX-10
-// WHY: a value with no mark (set after the import, or never imported) follows the carried ones of its name.
+// Spec: EX-16, EX-10
+// Why: a value with no mark (set after the import, or never imported) follows the carried ones of its name.
 /** @purity pure */
 export function writtenFadeValues(task: Task, frames: readonly ClaimedFrame[]): WrittenFadeValues {
   const carried: CarryElement[] = []

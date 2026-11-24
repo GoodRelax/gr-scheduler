@@ -188,7 +188,7 @@ describe('UF-188 openAgentApiRelayLink: when the page connects (AG-12 (2) (7))',
 describe('UF-188 openAgentApiRelayLink: answering the relay (design 3.2, 3.3)', () => {
   it('design 3.2: a relay request is answered with the same id and the RelayedAnswer', async () => {
     const { socket, fake } = openedWithKey()
-    // WHY: the four arguments in the order the table prints them (see AM-25)
+    // Why: the four arguments in the order the table prints them (see AM-25)
     socket.deliver({
       jsonrpc: '2.0',
       id: 7,

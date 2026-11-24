@@ -9,7 +9,7 @@ import type { DisplayLanguage, PropertyField } from '../../src/adapter/screen-re
 import { FakeElement, type FakeNode } from '../fixtures/fake-browser'
 import { BREAK_MARK, drawnPanel, LANGUAGES, MARKED_WORDS, REQUIREMENTS, settingsPanel, withoutMarks, type Loose } from './cr-754-stage'
 
-// see FR-006, FR-038
+// Spec: FR-006, FR-038
 const FR_006_BREAK_AT_MARKS =
   '⭐ 項目名が項目名の欄の 1 行に収まらないときは、`FR-038` の辞書がその語に持つ折り目でだけ折り、折った行の長さがなるべくそろう折り目を選ぶこと（MUST）'
 const FR_006_UNMARKED = '折り目を持たない語は、空白で折る（英語の語）。'
@@ -31,7 +31,7 @@ interface MarkedWord {
   readonly marked: string
 }
 
-// WHY: every dictionary word a panel item name is taken from, wherever a mark was written into it.
+// Why: every dictionary word a panel item name is taken from, wherever a mark was written into it.
 const MARKED: readonly MarkedWord[] = Object.entries(MARKED_WORDS).flatMap(([section, entries]) =>
   Array.isArray(entries)
     ? (entries as readonly Loose[]).flatMap((entry) =>
@@ -73,7 +73,7 @@ const isElement = (node: FakeNode): node is FakeElement => node instanceof FakeE
 /** @purity pure */
 const textOf = (node: FakeNode): string => (isElement(node) ? node.textContent : node.data)
 
-// WHY: the name is the field row's first child; its pieces are read in order, a WBR element standing for a break.
+// Why: the name is the field row's first child; its pieces are read in order, a WBR element standing for a break.
 /** @purity pure */
 function drawnPieces(row: FakeElement): readonly string[] {
   const name = row.children[0]

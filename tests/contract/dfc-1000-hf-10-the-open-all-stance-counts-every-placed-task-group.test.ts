@@ -82,7 +82,7 @@ describe('DFC-1000 -- HF-10 with every task group drawn the head entrance has no
   })
 })
 
-// see HF-2
+// Spec: HF-2
 async function documentWithFoldedGrandchildBelowTheWindow() {
   const flat = await paletteStage({ document: taskGroupDocument(Array.from({ length: TASK_GROUPS }, (_, index) => ({ id: idOf(index), parentId: null }))) as never })
   const shown = flat.last().taskGroupPanel.titles

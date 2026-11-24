@@ -266,7 +266,7 @@ class Judgment(object):
 
     def wrapped_term(self, term, op):
         text = self.top(term)
-        # WHY: a || term inside an && chain must keep its parentheses.
+        # Why: a || term inside an && chain must keep its parentheses.
         return '(%s)' % text if op == '&&' and term[0] == '||' else text
 
     @staticmethod

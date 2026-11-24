@@ -283,7 +283,7 @@ function stage(language: DisplayLanguage = 'ja'): Stage {
       send(pointer('down', 700, 400))
       send(pointer('up', 700, 400))
       drawn(null)
-      // WHY: the match ends by asking for a frame (UF-166); a fixed count of turns loses to a loaded digest worker (DFC-2417).
+      // Why: the match ends by asking for a frame (UF-166); a fixed count of turns loses to a loaded digest worker (DFC-2417).
       await pen.frameAsked()
       pen.runAnimationFrames()
     },

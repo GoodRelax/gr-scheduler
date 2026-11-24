@@ -37,7 +37,7 @@ const VIEW = {
   tooltips: [{ anchor: { kind: 'task', taskUid: 1 }, text: 'first line\nsecond line', assignment: null, at: { x: 40, y: 60 } }],
 } as unknown as ScreenView
 
-// WHY: the table writes a hue-driven color as `hsl(H 14% 87%)`; the drawn hue stands for the H.
+// Why: the table writes a hue-driven color as `hsl(H 14% 87%)`; the drawn hue stands for the H.
 const colorOf = (id: string, theme: 'light' | 'dark', hue: number): string => {
   const row = specTable('T-236').rows.find((one) => one.id === id)
   const cell = row?.by[theme === 'light' ? '明るいテーマ' : '暗いテーマ']

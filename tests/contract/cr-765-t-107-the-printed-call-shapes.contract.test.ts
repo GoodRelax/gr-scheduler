@@ -27,7 +27,7 @@ const GLOSSARY = unbroken(readFileSync(join(SPEC, '_assets', 'tbl-glossary.md'),
 
 const GLOSSARY_POINTER = '表 T-107（`Agent API` のメンバ）と、その呼び方（引数・型・戻り値）は `_assets/tbl-agent-api-members.md` が持つ'
 const VERSION_SENTENCE = 'いまの版は `2026-10-19T01:15:00Z` である（`AM-1` が返す値）。'
-// WHY: CR-822 (JDG-2985) keeps the promise here; when and how the version is raised is docs/development-rules/10-versions.md.
+// Why: CR-822 (JDG-2985) keeps the promise here; when and how the version is raised is docs/development-rules/10-versions.md.
 const CHANGE_RAISES_VERSION = '呼び方が変われば、版はそれまでのどの版よりも新しい時刻になる（表 T-035 の `AG-1`）。'
 const TWENTY_TWO = '**`Agent API` は 1 つの面に 27 のメンバをフラットに並べる。**'
 const CALL_SHAPES_ARE_GENERATED =
@@ -40,7 +40,7 @@ const AM_25_POINTS_AT_19 = '正確な遅延の解析には遅延診断（`readDe
 const AM_19_RETURNS_ANALYSIS = '正確な遅延の解析（信用できない値・ボトルネック・ボトルネック経路）はこの命令が返す。'
 const AM_19_POINTS_AT_25 = '`readSearchRows`（`AM-25`）の遅れは基準日との比べだけである'
 
-// see T-107
+// Spec: T-107
 const EXPECTED_ROWS: readonly (readonly [string, string, readonly string[], string])[] = [
   ['AM-1', 'agentApiVersion', [], 'string'],
   ['AM-2', 'schemaVersion', [], 'string'],
@@ -154,7 +154,7 @@ describe('T-107 arguments and return values, row by row', () => {
     }
   })
 
-  // see AM-3, AM-25
+  // Spec: AM-3, AM-25
   it('the argument columns name fourteen members that take an argument; the rest print a dash', () => {
     const taking = members.filter((one) => one.arguments.some((argument) => !argument.isMcpOnly)).map((one) => one.name)
     expect(taking).toEqual([
@@ -191,7 +191,7 @@ describe('AM-17 and AM-11 to AM-15: the keys only the MCP tool takes', () => {
     expect(waitMs?.meaning).toContain('切れたら「まだ無い」を値で返す（`AG-12` の ⑤）')
   })
 
-  // see AM-11, AM-12, AM-13, AM-14, AM-15, AV-21
+  // Spec: AM-11, AM-12, AM-13, AM-14, AM-15, AV-21
   it('the six export rows print fileName and overwrite as MCP-only keys', () => {
     for (const name of ['exportJson', 'exportMspdi', 'exportSvg', 'exportPng', 'exportEmbeddedHtml', 'exportFixLogTsv']) {
       const one = memberNamed(name)

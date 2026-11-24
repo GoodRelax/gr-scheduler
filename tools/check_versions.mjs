@@ -119,7 +119,7 @@ function trackedTextFiles(root) {
     try {
       files[name] = readFileSync(join(root, name), 'utf8').replace(/\r\n/g, '\n')
     } catch {
-      // WHY: a file deleted in the working tree but still in the index is not there to state anything.
+      // Why: a file deleted in the working tree but still in the index is not there to state anything.
     }
   }
   return files

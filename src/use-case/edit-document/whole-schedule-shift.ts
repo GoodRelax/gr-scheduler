@@ -1,4 +1,4 @@
-// EditDocument -- the Shift Whole Schedule: every date but the calendar moved by working days to a new start date.
+// File: EditDocument: the Shift Whole Schedule: every date but the calendar moved by working days to a new start date.
 // @unit      UF-207  (docs/spec/05-07-design.md, table T-075)
 // @component EditDocument, layer UseCase (table T-062)
 // @purity    pure
@@ -33,21 +33,21 @@ import { isAcceptedDay, isInsideWorkingTime } from './edit-project'
 
 // <generated -- do not edit by hand>
 // From docs/spec/_source/document-commands.json (table T-108, WholeScheduleShiftCommand).
-// see T-108
+// Spec: T-108
 export type WholeScheduleShiftCommand =
   | { readonly kind: 'shiftScheduleToStartDate'; readonly newStartDate: string }
 // </generated>
 
 const COMMAND_ROW = 'CM-99'
 
-// see WH-7
+// Spec: WH-7
 const TASK_COLUMNS = DATE_COLUMNS.Task as readonly (keyof Task & string)[]
 const BASELINE_COLUMNS = ['start', 'finish'] as const
 const HIGHLIGHT_COLUMNS = DATE_COLUMNS.HighlightBox
 const COMMENT_COLUMNS = DATE_COLUMNS.CommentBox
 const SETTINGS_COLUMNS = ['scrollDate', 'fitSpanStart', 'fitSpanFinish'] as const
 
-// see WH-6
+// Spec: WH-6
 const DATE_PART = /^(\s*)\d{4}-\d{2}-\d{2}/
 const DATE_PART_LENGTH = 10
 
@@ -57,8 +57,8 @@ interface MovedText {
   readonly isAccepted: boolean
 }
 
-// see WH-6, FR-054
-// WHY: a finish at 00:00 is the end of the day before, so that day moves and the text names the day after it.
+// Spec: WH-6, FR-054
+// Why: a finish at 00:00 is the end of the day before, so that day moves and the text names the day after it.
 /** @purity pure */
 function movedText(text: string | null, side: DateTimeSide, shift: WorkingDayShift): MovedText | null {
   if (text === null || instantOf(text) === null) return null
@@ -111,10 +111,10 @@ function movedRow<TRow extends object>(
   return held
 }
 
-// WHY: a whole-day range and a single day (WT-6 to WT-8) are read as the day written.
+// Why: a whole-day range and a single day (WT-6 to WT-8) are read as the day written.
 const AS_DAY = (): DateTimeSide => 'start'
 
-// see WH-7, WH-8
+// Spec: WH-7, WH-8
 /** @purity pure */
 function movedDocument(document: Document, pass: ShiftPass): Document {
   const schedule = document.schedule
@@ -140,7 +140,7 @@ function movedDocument(document: Document, pass: ShiftPass): Document {
 
 type ShiftPlan = { readonly shift: WorkingDayShift | null; readonly currentStart: CalendarDay | null } | { readonly refusal: Refusal }
 
-// see WH-1, WH-2, WH-3, WH-9
+// Spec: WH-1, WH-2, WH-3, WH-9
 /** @purity pure */
 function shiftPlanOf(document: Document, newStartDate: string): ShiftPlan {
   const newStart = dayOf(newStartDate)
@@ -152,16 +152,16 @@ function shiftPlanOf(document: Document, newStartDate: string): ShiftPlan {
   return { shift: shift.workingDays === 0 ? null : shift, currentStart }
 }
 
-// see T-214, IV-14
-// TRAP: only the walks' own refusals become IV-14; anything else is a fault and is thrown on.
+// Spec: T-214, IV-14
+// Trap: only the walks' own refusals become IV-14; anything else is a fault and is thrown on.
 /** @purity pure */
 function walkRefusalOf(error: unknown): Refusal {
   if (error instanceof NoWorkingDayReached || error instanceof DaySpanTooWide) return reject(COMMAND_ROW, 'IV-14', error.message)
   throw error
 }
 
-// see CM-99, FR-159, T-379, WH-9, WH-10
-// WHY: no task with a start, or no working day to move, writes nothing and leaves no undo step (WH-9).
+// Spec: CM-99, FR-159, T-379, WH-9, WH-10
+// Why: no task with a start, or no working day to move, writes nothing and leaves no undo step (WH-9).
 /** @purity pure */
 export function wholeScheduleShifted(document: Document, command: WholeScheduleShiftCommand): EditResult {
   try {
@@ -183,7 +183,7 @@ function dayKeyOf(day: CalendarDay): string {
   return textOfDay(day).slice(0, DATE_PART_LENGTH)
 }
 
-// see WH-11, BS-3
+// Spec: WH-11, BS-3
 /** @purity pure */
 function outsideTaskCountOf(document: Document, moved: Document): number {
   const within = workingCalendarOf(document.schedule)
@@ -196,7 +196,7 @@ function outsideTaskCountOf(document: Document, moved: Document): number {
   }).length
 }
 
-// see WH-11
+// Spec: WH-11
 /** @purity pure */
 function shiftExampleOf(tasks: readonly Task[], shift: WorkingDayShift) {
   const task = tasks.find((one) => instantOf(one.start) !== null)
@@ -205,8 +205,8 @@ function shiftExampleOf(tasks: readonly Task[], shift: WorkingDayShift) {
   return { name: task.name, before: dayKeyOf(day), after: dayKeyOf(shift.moveDay(day).day) }
 }
 
-// see WH-11, QN-15, FR-159
-// WHY: what the question shows before the write; null when the Apply button would move nothing (WH-12).
+// Spec: WH-11, QN-15, FR-159
+// Why: what the question shows before the write; null when the Apply button would move nothing (WH-12).
 /** @purity pure */
 export function wholeScheduleShiftPreviewOf(document: Document, newStartDate: string) {
   try {

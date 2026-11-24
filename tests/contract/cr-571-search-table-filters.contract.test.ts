@@ -47,10 +47,10 @@ const SV_8_DEFAULT =
 
 const SQ_6_JOIN = '最上位から順に「 → 」で繋ぐ'
 
-// see T-019a
-// WHY: the fixture spells a state as PlanActualState does; the first case pins each spelling to its row's word.
-// see T-021, SQ-5
-// WHY: CR-760 gives a row the marker of its state (no row of this fixture is late or diagnosed).
+// Spec: T-019a
+// Why: the fixture spells a state as PlanActualState does; the first case pins each spelling to its row's word.
+// Spec: T-021, SQ-5
+// Why: CR-760 gives a row the marker of its state (no row of this fixture is late or diagnosed).
 const MARKER_OF: Readonly<Record<PlanActualState, string>> = {
   notStarted: 'PM-1a',
   inProgress: 'PM-1',
@@ -105,7 +105,7 @@ const P1 = '1. Program'
 const P15 = '1.5 Steering'
 const P2 = '2. Review'
 
-// WHY: the seam hands the rows over in SV-8's default order, so this array order IS the default order.
+// Why: the seam hands the rows over in SV-8's default order, so this array order IS the default order.
 // Uids 2 and 5 share a start day and uids 3 and 6 a blank name, so a tie or a blank that moves is seen.
 const ROWS: SearchRows = {
   taskRows: [
@@ -149,7 +149,7 @@ const idsOf = (rows: SearchRows): readonly string[] => rows.commentBoxRows.map((
 const ALL_UIDS = [1, 2, 3, 4, 5, 6]
 const ALL_IDS = ['c-1', 'c-2', 'c-3']
 
-// WHY: SV-7 prints the blank item as a word of the dictionary, so its stored value is found, not typed.
+// Why: SV-7 prints the blank item as a word of the dictionary, so its stored value is found, not typed.
 const blankItemOf = (column: string, nonBlank: readonly string[]): string => {
   const others = columnValuesOf(ROWS, column).filter((value) => !nonBlank.includes(value))
   expect(others, `${column} offers exactly one item besides its non-blank values`).toHaveLength(1)

@@ -29,7 +29,7 @@ const REQUIREMENTS = unbroken(
   readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'),
 )
 
-// WHY: CR-710 rewrote this clause (FR-054 reads instants and counts working time in minutes).
+// Why: CR-710 rewrote this clause (FR-054 reads instants and counts working time in minutes).
 const FR_011_SAME_DAY_IS_ONE_DAY =
   '⭐ 実績の開始と終わりが同じ日の 08:00 〜 17:00 であるとき、その実績は 480 分（1d）である（下の段の数え方、既定の時間帯の暦）。'
 
@@ -74,10 +74,10 @@ const dayAfter = (iso: string): string => {
   return next.toISOString().slice(0, 10)
 }
 
-// see FR-011, RV-1
+// Spec: FR-011, RV-1
 const rightEndOf = (lastDay: string): string => dayAfter(lastDay)
 
-// see FR-011
+// Spec: FR-011
 const lengthOf = (start: string, last: string): number => {
   let count = 0
   for (let at = start; at <= last; at = dayAfter(at)) {
@@ -88,13 +88,13 @@ const lengthOf = (start: string, last: string): number => {
 
 const ymd = (dayOfMonth: number): string => `2026-01-${String(dayOfMonth).padStart(2, '0')}`
 
-// see EX-7
+// Spec: EX-7
 const stored = (iso: string): string => `${iso}T00:00:00`
 
-// WHY: stop is on the finish side of T-350; the project leaves defaultFinishTime empty, so S-483 stands.
+// Why: stop is on the finish side of T-350; the project leaves defaultFinishTime empty, so S-483 stands.
 const finishSide = (iso: string): string => `${iso}T${DEFAULT_CALENDAR_VALUES['S-483']}`
 
-// WHY: PV-1 / PV-5 write actualStart as a column of their own, so it takes the T-350 start side (WT-3), S-482 here.
+// Why: PV-1 / PV-5 write actualStart as a column of their own, so it takes the T-350 start side (WT-3), S-482 here.
 const startSide = (iso: string): string => `${iso}T${DEFAULT_CALENDAR_VALUES['S-482']}`
 
 const dayPart = (value: string | null): string => {
@@ -251,14 +251,14 @@ describe('DFC-572 premises: the clauses and the calendar still read this way', (
 })
 
 describe('DFC-572 table T-021a PV-1: not started -> in progress writes the floor day', () => {
-  // WHY: CR-430 lengthened the cycle, so `PV-1` writes its floor day to `stop`
+  // Why: CR-430 lengthened the cycle, so `PV-1` writes its floor day to `stop`
   // and not `actualFinish`; the day is the actual's last, not the bar's end.
   it('⭐ 実績の開始と終わりが同じ日の 08:00 〜 17:00 であるとき、その実績は 480 分（1d）である -- PV-1 on a Monday writes stop = actualStart', () => {
     const task = pressed(documentWith(taskOf({ start: stored(ymd(5)), finish: stored(ymd(9)) }), 'rectangle'))
     expect(task.actualStart).toBe(startSide(ymd(5)))
     expect(task.actualFinish, 'PV-1: actualFinish stays empty until PV-2').toBeNull()
     expect(task.stop, 'PV-1 floor day').toBe(finishSide(ymd(5)))
-    // WHY: the two ends sit on different sides of T-350, so FR-054 compares the day parts.
+    // Why: the two ends sit on different sides of T-350, so FR-054 compares the day parts.
     expect(dayOf(task.stop), 'FR-011 last day of a 1-day actual is its start').toEqual(dayOf(task.actualStart))
     expect(task.stop, 'MUST NOT: the right end').not.toBe(stored(rightEndOf(ymd(5))))
     expect(planActualState(task)).toBe('inProgress')
@@ -342,7 +342,7 @@ describe('DFC-572 table T-021a PV-2: in progress -> finished moves stop to actua
         'milestone',
       ),
     )
-    // WHY: CR-430 gives a milestone two states, one of them carrying an actual,
+    // Why: CR-430 gives a milestone two states, one of them carrying an actual,
     // so this press takes the actual off and `ScreenState` alone remembers it.
     expect(task.actualFinish, 'PV-5: the actual comes off').toBeNull()
     expect(task.actualStart, 'PV-5: the actual comes off').toBeNull()

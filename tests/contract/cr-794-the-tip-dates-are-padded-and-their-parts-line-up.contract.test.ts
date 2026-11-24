@@ -39,7 +39,7 @@ const WEEKDAY: Readonly<Record<Language, Readonly<Record<Weekday, string>>>> = {
   ja: { Thu: '木', Fri: '金', Sat: '土' },
   en: { Thu: 'Thu', Fri: 'Fri', Sat: 'Sat' },
 }
-// WHY: 2026-04-23 and 2026-07-16 are Thursdays, 2026-04-24 and 2026-05-01 Fridays, 2026-04-25 a Saturday.
+// Why: 2026-04-23 and 2026-07-16 are Thursdays, 2026-04-24 and 2026-05-01 Fridays, 2026-04-25 a Saturday.
 const dayName = (language: Language, name: Weekday): string => ` (${WEEKDAY[language][name]})`
 
 const sessionIn = (language: Language): ScreenSession => ({

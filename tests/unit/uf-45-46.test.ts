@@ -107,7 +107,7 @@ const EVERY_CONTENT: readonly { readonly why: string; readonly content: Clipboar
 const PICTURE: ClipboardContent = { kind: 'picture', pngBytes: Uint8Array.from([0x89, 0x50, 0x4e, 0x47]) }
 const DOCUMENT: ClipboardContent = { kind: 'document', text: 'a document for an AI' }
 
-// WHY: FR-025 puts PNG bytes on the board, so a picture is compared by the bytes it carries.
+// Why: FR-025 puts PNG bytes on the board, so a picture is compared by the bytes it carries.
 const stringOf = (content: ClipboardContent): string =>
   content.kind === 'picture' ? new TextDecoder().decode(content.pngBytes) : content.text
 
@@ -531,7 +531,7 @@ interface PaintedSize {
   readonly heightPx: number
 }
 
-// WHY: a stub paints no pixels, so the size IO-6 carries is read from what the painter was asked for.
+// Why: a stub paints no pixels, so the size IO-6 carries is read from what the painter was asked for.
 const sizeRecordingRasterizer = (asked: PaintedSize[]): Rasterizer => ({
   rasterizePng: (_svg, sizePx) => {
     asked.push(sizePx)

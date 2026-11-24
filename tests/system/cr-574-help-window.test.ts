@@ -17,7 +17,7 @@ const FR_036_TITLE_OUTSIDE_THE_SCROLL =
   '⛔ タイトルバーを本文のスクロールの中に置いてはならない（MUST NOT） —— 中に置いて上端に留めると、送った本文がタイトルバーの縁に透け、送る前はタイトルバーが最初の見出しを覆う。'
 const FR_036_GAP = '⭐ 説明と割当のあいだは、`_assets/tbl-settings.md` の 表 T-206 の `S-436` を下限としてあけること（MUST）。'
 const FR_036_RIGHT_END = '⭐ 割当は、その項目の行の右端（枠の内側の右の縁）へ寄せて置くこと（MUST）'
-// WHY: CR-669 moved the maximized help from the browser window to the Schedule Canvas.
+// Why: CR-669 moved the maximized help from the browser window to the Schedule Canvas.
 const FR_036_MAXIMIZED = 'ヘルプを最大化したときに占める範囲は、`Schedule Canvas`（`_assets/tbl-glossary.md` の `U-32`）の全体とする（MUST）'
 const FR_036_NOT_A_SURFACE =
   '⭐ ヘルプは `_assets/tbl-settings.md` の `S-99g` の面ではない —— ほかの面を立ててもヘルプを閉じず、ヘルプの状態も言語も変えないこと（MUST）。'
@@ -122,7 +122,7 @@ const numberOf = (cell: string): number => {
   return value
 }
 
-// see S-436
+// Spec: S-436
 const S_436_EM = numberOf(rowOf(T_206, 'S-436').by['既定'] ?? '')
 const S_201_SHARE = numberOf(rowOf(T_206, 'S-201').by['既定'] ?? '')
 const S_459_ADDRESS = bare(rowOf(T_206, 'S-459').by['既定'] ?? '')
@@ -149,7 +149,7 @@ const LEGEND_WORDS = wordsOf(WORDS.icons.find((one) => one.rowId === LEGEND)?.la
 const TITLE_WORDS = wordsOf(WORDS.surfaces.find((one) => one.name === HELP_NAME)?.heading, HELP_NAME)
 const FIRST_HEADING_WORDS = wordsOf(WORDS.helpHeadings[0]?.text, 'the first help heading')
 
-// see FR-036, T-036
+// Spec: FR-036, T-036
 /** @purity pure */
 function spelledOnScreen(cell: string): string {
   return cell
@@ -164,11 +164,11 @@ const KEY_SPELLINGS: readonly string[] = [...new Set(T_036.rows.map((row) => spe
   .filter((one) => one !== '')
   .sort((a, b) => b.length - a.length)
 
-// WHY: the two window sizes CR-574 section 9 names for the shipped build.
+// Why: the two window sizes CR-574 section 9 names for the shipped build.
 const TALL = { width: 1600, height: 1000 }
 const LOW = { width: 1600, height: 600 }
 
-// WHY: a box laid out at a fractional position reads back a fraction off; less than that is not a move.
+// Why: a box laid out at a fractional position reads back a fraction off; less than that is not a move.
 const SUBPIXEL = 0.5
 const EDGE = 1.5
 
@@ -207,7 +207,7 @@ interface HelpReading {
   readonly scroll: { readonly top: number; readonly height: number; readonly client: number } | null
   readonly textOverTitle: readonly string[]
   readonly hitsOverTitle: number
-  // WHY: T-337 puts the Command Palette (UZ-5) in front of the help (UZ-7), so a point of the heading
+  // Why: T-337 puts the Command Palette (UZ-5) in front of the help (UZ-7), so a point of the heading
   // may rightly be under it; what FR-036 forbids is the help's own title row covering the heading.
   readonly firstHeading: { readonly rect: Rect; readonly onHeading: number; readonly underHelp: number; readonly underFront: number } | null
   readonly gaps: readonly Gap[]
@@ -241,7 +241,7 @@ test.afterAll(async () => {
   await browser?.close()
 })
 
-// see OP-3
+// Spec: OP-3
 /** @purity non-pure */
 async function openTheSample(size: { width: number; height: number }): Promise<Stage> {
   if (browser === null) throw new Error('the reference browser was not opened')
@@ -251,7 +251,7 @@ async function openTheSample(size: { width: number; height: number }): Promise<S
   return stage
 }
 
-// see T-337
+// Spec: T-337
 /** @purity semi-pure-mutable */
 async function frontPointOf(page: Page, selector: string): Promise<Point | null> {
   return page.evaluate((wanted: string) => {
@@ -296,7 +296,7 @@ async function isShown(page: Page, selector: string): Promise<boolean> {
   }, selector)
 }
 
-// see FR-036, IC-22
+// Spec: FR-036, IC-22
 /** @purity non-pure */
 async function openHelp(page: Page): Promise<HelpReading> {
   await press(page, `${HEADER} [data-icon="${OPEN_HELP}"]`)
@@ -304,7 +304,7 @@ async function openHelp(page: Page): Promise<HelpReading> {
   return readHelp(page)
 }
 
-// see FR-036, FR-038, T-335
+// Spec: FR-036, FR-038, T-335
 /** @purity semi-pure-mutable */
 async function readHelp(page: Page): Promise<HelpReading> {
   const read = await page.evaluate(
@@ -596,7 +596,7 @@ test.describe('CR-574 items 1-2 -- the title row and the body are two regions (F
       if (opened.body === null || opened.scroll === null) throw new Error(`${FR_036_BODY_SCROLLS} -- no region of ${HELP} scrolls`)
       expect(opened.scroll.height, `premise: at ${LOW.width} x ${LOW.height} the body has more than it shows`).toBeGreaterThan(opened.scroll.client)
 
-      // STEP: send the body down with the wheel until it stops at its end
+      // Step: send the body down with the wheel until it stops at its end
       for (let turn = 0; turn < 40; turn += 1) {
         const now = await readHelp(page)
         if (now.scroll === null || now.scroll.top + now.scroll.client >= now.scroll.height - 1) break
@@ -754,7 +754,7 @@ test.describe('CR-574 items 7-8 -- the minimized help (T-335 WB-2, T-336 HN-1, H
       const normal = await openHelp(page)
       const spot = { x: normal.box.left + (normal.box.right - normal.box.left) * 0.25, y: (normal.box.top + normal.box.bottom) / 2 }
 
-      // STEP: control -- while the help stands at normal, the wheel does not reach the schedule
+      // Step: control -- while the help stands at normal, the wheel does not reach the schedule
       const untouched = await readSettledDrawnSvg(page)
       await wheelAt(page, spot, 3, 400)
       expect(await readSettledDrawnSvg(page), 'control: T-023 -- a standing help keeps the wheel from the schedule').toBe(untouched)
@@ -837,7 +837,7 @@ test.describe('CR-574 items 9 and 9a, CR-575 item 5a -- another surface stands i
       const { page } = stage
       const opened = await openHelp(page)
       const exportAt = await frontPointOf(page, `${HEADER} [data-icon="${EXPORT}"]`)
-      // STEP: IC-2 when a point of it is the front, else its key SK-12 (the help may cover the header, T-337)
+      // Step: IC-2 when a point of it is the front, else its key SK-12 (the help may cover the header, T-337)
       if (exportAt !== null) await press(page, `${HEADER} [data-icon="${EXPORT}"]`)
       else {
         await page.keyboard.press(EXPORT_KEY)
@@ -928,7 +928,7 @@ test.describe('CR-574 item 11 -- nothing of the help reaches the saved document 
       await expect.poll(() => isShown(page, HELP), { message: `${CLOSE} closes ${HELP}` }).toBe(false)
       const plainAgain = await saveDocument(page)
 
-      // WHY: two saves with the help closed are the control -- a path that differs between them (a save time) is no finding.
+      // Why: two saves with the help closed are the control -- a path that differs between them (a save time) is no finding.
       const control = new Set(differingPaths(plain, plainAgain))
       expect(differingPaths(plain, whileMaximized).filter((one) => !control.has(one)), `${WB_6_NOT_SAVED} / ${FR_038_NOT_STORED}`).toEqual([])
       expect(differingPaths(plain, whileMinimized).filter((one) => !control.has(one)), `${WB_6_NOT_SAVED} / ${FR_038_NOT_STORED}`).toEqual([])
@@ -941,7 +941,7 @@ test.describe('CR-574 item 11 -- nothing of the help reaches the saved document 
 /** @purity semi-pure-mutable */
 async function readLicenseLines(page: Page) {
   return page.evaluate((help: string) => {
-    // WHY: the last link outside the fold; the S-350 note link stands earlier, inside the columns.
+    // Why: the last link outside the fold; the S-350 note link stands earlier, inside the columns.
     const link = [...document.querySelectorAll(`${help} a[target="_blank"]`)].filter((one) => one.closest('details') === null).at(-1)
     const line = link?.parentElement ?? null
     const next = line?.nextElementSibling ?? null
@@ -1037,15 +1037,15 @@ test.describe('CR-621 -- the help moves and narrows like every window (T-335 WB-
       const opened = await openHelp(page)
       const columnsAtOpening = await readHelpColumns(page)
 
-      // STEP: GR-24 -- the title row left of the legend, where no entrance stands
+      // Step: GR-24 -- the title row left of the legend, where no entrance stands
       const band = { x: opened.title.left + 8, y: (opened.title.top + opened.title.bottom) / 2 }
-      // WHY: CR-669 keeps the help inside the Schedule Canvas, so the drag stays below the App Header.
+      // Why: CR-669 keeps the help inside the Schedule Canvas, so the drag stays below the App Header.
       await dragBy(page, band, { x: -40, y: -20 })
       const moved = await readHelp(page)
       expect(Math.abs(moved.box.left - (opened.box.left - 40)), `WB-8: ${said(moved.box)} vs ${said(opened.box)}`).toBeLessThanOrEqual(EDGE)
       expect(Math.abs(moved.box.top - (opened.box.top - 20)), `WB-8: ${said(moved.box)} vs ${said(opened.box)}`).toBeLessThanOrEqual(EDGE)
 
-      // STEP: GR-25 -- the right edge, half way down, past the S-423 floor: no S-202 columns at their S-458 floor fit there, whatever S-203 is
+      // Step: GR-25 -- the right edge, half way down, past the S-423 floor: no S-202 columns at their S-458 floor fit there, whatever S-203 is
       const edge = { x: moved.box.right - 1, y: (moved.box.top + moved.box.bottom) / 2 }
       await dragBy(page, edge, { x: S_423_PX - (moved.box.right - moved.box.left) - 40, y: 0 })
       const narrowed = await readHelp(page)

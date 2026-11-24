@@ -75,7 +75,7 @@ const dayAfter = (iso: string): string => {
   return at.toISOString().slice(0, 10)
 }
 
-// see FR-011
+// Spec: FR-011
 const signedLength = (startIso: string, lastIso: string): number => {
   let count = 0
   if (lastIso < startIso) {
@@ -92,7 +92,7 @@ const ymd = (dayOfMonth: number): string => `2026-01-${String(dayOfMonth).padSta
 
 const stored = (iso: string): string => `${iso}T00:00:00`
 
-// WHY: T-350 writes each side at its own time; the project leaves both default times empty, so S-482 / S-483 stand.
+// Why: T-350 writes each side at its own time; the project leaves both default times empty, so S-482 / S-483 stand.
 const startSide = (iso: string): string => `${iso}T${DEFAULT_CALENDAR_VALUES['S-482']}`
 const finishSide = (iso: string): string => `${iso}T${DEFAULT_CALENDAR_VALUES['S-483']}`
 

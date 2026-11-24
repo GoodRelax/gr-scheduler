@@ -49,7 +49,7 @@ const GO_9_ACTUAL_RIGHT = '実績の右に立つときは、実績の最後の�
 const GO_9_DUMMY_RIGHT = '未着手のダミーの右に立つときは、`actualStart` ＝ 予定の開始日'
 const GO_9_LEFT_OF_PLAN_START = '⚠️ 予定の開始より左で離したときは、予定の開始に表 T-240 の `DM-2` の長さの実績を置く'
 
-// see S-208
+// Spec: S-208
 const DRAG_THRESHOLD_PX = (() => {
   const row = SETTINGS.split('\n').find((line) => line.startsWith('| S-208 |'))
   const found = row === undefined ? null : /\|\s*(\d+)px\b/.exec(row)
@@ -90,7 +90,7 @@ describe('DFC-2980 -- the manuscript these cases are driven by', () => {
 const SHORT_NAME = 'Q'
 const LONG_NAME = 'Alpha that will not fit inside its own actual'
 
-// WHY: a short name lets the tentative actual grow until the name fits (table T-273 LP-1), which stands the marker inside it.
+// Why: a short name lets the tentative actual grow until the name fits (table T-273 LP-1), which stands the marker inside it.
 /** @purity pure */
 function documentWith(over: { readonly name?: string; readonly planFinish?: string; readonly zoomX?: number }): Document {
   const base = benchDocument({ isProgressMarkerVisible: true, ...(over.zoomX === undefined ? {} : { zoomX: over.zoomX }) })
@@ -146,7 +146,7 @@ interface Pull {
   readonly planStart: string | null
 }
 
-// WHY: one send() per move, as a real drag does; the bench draws a frame inside each send().
+// Why: one send() per move, as a real drag does; the bench draws a frame inside each send().
 /** @purity non-pure */
 function pull(one: Stage, uid: number, stepPx: number, releaseDay: string): Pull {
   const frame = frameOf(one.loop)
