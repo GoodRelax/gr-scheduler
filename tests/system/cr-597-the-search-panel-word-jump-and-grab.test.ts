@@ -111,7 +111,7 @@ async function openErpSample(page: Page): Promise<void> {
   await openDocument(page, 'sample-large-erp-program.ja.xml', ERP_SAMPLE)
 }
 
-// WHY: no sample holds a comment box, so one is added to the exported sample and the result reopened.
+// Why: no sample holds a comment box, so one is added to the exported sample and the result reopened.
 /** @purity non-pure */
 async function openErpSampleWithCommentBox(page: Page): Promise<number> {
   await openErpSample(page)
@@ -218,8 +218,8 @@ async function boxOf(page: Page, selector: string): Promise<Box | null> {
   }, selector)
 }
 
-// WHY: the range starts at the App Header's lower edge; the element with the role spans the window.
-// see U-32
+// Why: the range starts at the App Header's lower edge; the element with the role spans the window.
+// Spec: U-32
 /** @purity semi-pure-mutable */
 async function scheduleCanvasRange(page: Page): Promise<Box> {
   const header = await boxOf(page, APP_HEADER)
@@ -248,7 +248,7 @@ async function drawnTaskUids(page: Page): Promise<number[]> {
   )
 }
 
-// WHY: the column a cell stands in is read from the heading above it, which the view marks per SQ row.
+// Why: the column a cell stands in is read from the heading above it, which the view marks per SQ row.
 /** @purity semi-pure-mutable */
 async function cellCenter(page: Page, column: string, rowIndex: number): Promise<Spot> {
   const found = await page.evaluate(
@@ -267,7 +267,7 @@ async function cellCenter(page: Page, column: string, rowIndex: number): Promise
   return found
 }
 
-// WHY: the heading row is the band above the SV-2 field; a point on no entrance is GR-24's.
+// Why: the heading row is the band above the SV-2 field; a point on no entrance is GR-24's.
 /** @purity semi-pure-mutable */
 async function headingBandSpot(page: Page): Promise<Spot> {
   const found = await page.evaluate(
@@ -542,7 +542,7 @@ test.describe(`SV-10 -- ${SV_10_FOLLOW}`, () => {
     try {
       await one.page.keyboard.press(OPEN_SEARCH)
       await settle(one.page)
-      // WHY: IN-4 puts the focused panel's rung before the drag's, so the focus is taken out of the panel first.
+      // Why: IN-4 puts the focused panel's rung before the drag's, so the focus is taken out of the panel first.
       await one.page.evaluate(() => (document.activeElement as HTMLElement | null)?.blur())
       const start = await panelBox(one.page)
       await grabAndHold(one.page, await headingBandSpot(one.page), Math.round(start.width / 10), -Math.round(start.height / 3))

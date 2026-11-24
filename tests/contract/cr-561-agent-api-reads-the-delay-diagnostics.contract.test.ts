@@ -183,7 +183,7 @@ function diagnosed(document: Document): unknown {
   return seam(document, scheduleEntry.workingCalendarOf(document.schedule))
 }
 
-// see DX-11, DX-12
+// Spec: DX-11, DX-12
 /** @purity pure */
 function reportPartOf(value: unknown): unknown {
   const fixParts = new Set(['fixProposals', 'fixLog'])

@@ -1,4 +1,4 @@
-// SingleHtmlShell -- answers the Delay Diagnostics Report window's entries: its tables and frame, IC-108, IC-140 and the fixes (IC-154 .. IC-160).
+// File: SingleHtmlShell: answers the Delay Diagnostics Report window's entries: its tables and frame, IC-108, IC-140 and the fixes (IC-154 .. IC-160).
 // @unit      UF-195  (docs/spec/05-07-design.md, table T-075)
 // @component SingleHtmlShell, layer Framework (table T-062)
 // @purity    non-pure
@@ -43,7 +43,7 @@ export interface ReportHeld {
   readonly documentName: string
   readonly language: DisplayLanguage
   readonly fixTables?: DelayFixTables
-  // see FR-158, TX-7, TX-8
+  // Spec: FR-158, TX-7, TX-8
   readonly isTimeOfDayVisible?: boolean
   readonly viewTimeZone?: unknown
 }
@@ -66,23 +66,23 @@ export interface ReportOutlets {
   readonly jumpToFix?: (target: FixJumpCell) => void
 }
 
-// see RW-6
+// Spec: RW-6
 /** @purity pure */
 function madeAtText(now: Date): string {
   const two = (value: number): string => String(value).padStart(2, '0')
   return `${now.getFullYear()}/${two(now.getMonth() + 1)}/${two(now.getDate())} ${two(now.getHours())}:${two(now.getMinutes())}`
 }
 
-// see RW-15, RW-20
+// Spec: RW-15, RW-20
 /** @purity pure */
 function localMomentOf(now: Date): string {
   const two = (value: number): string => String(value).padStart(2, '0')
   return `${now.getFullYear()}-${two(now.getMonth() + 1)}-${two(now.getDate())}T${two(now.getHours())}:${two(now.getMinutes())}`
 }
 
-// see FR-134, RW-6, RW-7, T-227
-// WHY: a text that is no document: never the opened file (FR-096 holds one export entry), always asked before an occupied file.
-// TRAP: started inside the input's own call; deferred, the browser can refuse the clipboard write and the picker.
+// Spec: FR-134, RW-6, RW-7, T-227
+// Why: a text that is no document: never the opened file (FR-096 holds one export entry), always asked before an occupied file.
+// Trap: started inside the input's own call; deferred, the browser can refuse the clipboard write and the picker.
 /** @purity non-pure */
 function handOutMarkdown(entry: IconId, held: ReportHeld, outlets: ReportOutlets): void {
   const stamp = { documentName: held.documentName, madeAt: madeAtText(new Date()) }
@@ -108,7 +108,7 @@ function handOutMarkdown(entry: IconId, held: ReportHeld, outlets: ReportOutlets
     .then((writing) => (writing.ok ? undefined : outlets.raiseFileFault(writing.fault)))
 }
 
-// see RW-20, IO-9, IC-169
+// Spec: RW-20, IO-9, IC-169
 /** @purity non-pure */
 function handOutFixLogTsv(held: ReportHeld, outlets: ReportOutlets): void {
   const files = outlets.files
@@ -125,8 +125,8 @@ function handOutFixLogTsv(held: ReportHeld, outlets: ReportOutlets): void {
     .then((writing) => (writing.ok ? undefined : outlets.raiseFileFault(writing.fault)))
 }
 
-// see T-346, IC-108, IC-140, RW-1, TV-8, UN-20
-// WHY: the view is written before the window is held, so a close that lifts the filter writes it once (CM-92).
+// Spec: T-346, IC-108, IC-140, RW-1, TV-8, UN-20
+// Why: the view is written before the window is held, so a close that lifts the filter writes it once (CM-92).
 /** @purity non-pure */
 export function answerDelayDiagnosticsReportEntry(
   entry: IconId,
@@ -148,7 +148,7 @@ export function answerDelayDiagnosticsReportEntry(
   return answer !== null && handOn(answer, outlets)
 }
 
-// see RW-12, RW-14, FR-155
+// Spec: RW-12, RW-14, FR-155
 /** @purity non-pure */
 function handOn(answer: NonNullable<ReturnType<typeof delayDiagnosticsReportAfterEntry>>, outlets: ReportOutlets): true {
   outlets.writeView(answer.view)
@@ -172,8 +172,8 @@ export function withoutDelayFixes(window: DelayDiagnosticsReportWindow): DelayDi
 
 const NO_PICKS: NonNullable<DelayDiagnosticsReportWindow['fixes']>['picks'] = {}
 
-// see RW-16, DX-11, DX-12, FR-155, T-374
-// WHY: the proposals are made again on each diagnosis (a new document) and each pick, never per frame (rule 04).
+// Spec: RW-16, DX-11, DX-12, FR-155, T-374
+// Why: the proposals are made again on each diagnosis (a new document) and each pick, never per frame (rule 04).
 /** @purity non-pure */
 export function delayFixTablesKeeper() {
   let made: { readonly of: Document; readonly report: DelayDiagnosticsReport; readonly picks: typeof NO_PICKS; readonly rows: readonly DelayFixRow[] } | null = null

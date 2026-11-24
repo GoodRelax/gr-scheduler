@@ -33,24 +33,24 @@ const hexOf = (cell: string): string => {
   return found[0].toLowerCase()
 }
 
-// see S-325
+// Spec: S-325
 const S_325 = numberOf(verticalIn('T-206', 'S-325').by['既定'] ?? '')
-// see S-30, LC-5
+// Spec: S-30, LC-5
 const LABEL_COEF = numberOf(verticalIn('T-201', 'S-30').by['既定値'] ?? '')
-// see S-24
+// Spec: S-24
 const S_24 = numberOf(verticalIn('T-201', 'S-24').by['既定値'] ?? '')
-// see S-326, S-327
+// Spec: S-326, S-327
 const S_326_LIGHT = hexOf(verticalIn('T-236', 'S-326').by['明るいテーマ'] ?? '')
 const S_327_LIGHT = hexOf(verticalIn('T-236', 'S-327').by['明るいテーマ'] ?? '')
-// see S-328, S-329, S-330, S-331
+// Spec: S-328, S-329, S-330, S-331
 const S_328 = numberOf(verticalIn('T-206', 'S-328').by['既定'] ?? '')
 const S_329 = numberOf(verticalIn('T-206', 'S-329').by['既定'] ?? '')
 const S_330 = numberOf(verticalIn('T-206', 'S-330').by['既定'] ?? '')
 const S_331 = numberOf(verticalIn('T-206', 'S-331').by['既定'] ?? '')
 
-// see FR-093
+// Spec: FR-093
 const units = (text: string): number => [...text].length
-// see LC-5
+// Spec: LC-5
 const lc5 = (text: string, font: number): number => units(text) * font * LABEL_COEF
 
 
@@ -128,7 +128,7 @@ describe('ND-5 (table T-251) -- the year beside the plan dates', () => {
   })
 
   it('ND-5: 1 つの暦年に収まるときは書かない -- a one-year document writes month/day only', () => {
-    // see ND-5
+    // Spec: ND-5
     const built = bench(
       documentOf(
         [
@@ -143,7 +143,7 @@ describe('ND-5 (table T-251) -- the year beside the plan dates', () => {
   })
 
   it('ND-5: 2 つ以上の暦年にまたがるときは、すべての日を 年（西暦の 4 桁） / 月 / 日 -- every day of the document', () => {
-    // see ND-5
+    // Spec: ND-5
     const built = bench(
       documentOf(
         [
@@ -158,7 +158,7 @@ describe('ND-5 (table T-251) -- the year beside the plan dates', () => {
   })
 
   it('ND-5: 年を下 2 桁に縮めない -- 2005 is written 2005, not 05', () => {
-    // see ND-5
+    // Spec: ND-5
     const built = bench(
       documentOf([{ name: 'Alpha', start: '2005-12-29', finish: '2006-01-05' }], {
         isPlanDatesVisible: true,
@@ -186,7 +186,7 @@ describe('FR-002 -- plan dates at the name size x S-325', () => {
   })
 
   it('FR-002: 予定日の文字（その前に置く半角空白を含む）は ... S-325 を掛けた大きさで描く -- the drawn tspan', () => {
-    // see FR-002, S-325
+    // Spec: FR-002, S-325
     const built = bench(documentOf([{ name: 'Alpha', start: '2026-04-06', finish: '2026-04-24' }], { isPlanDatesVisible: true }))
     const drawn = [...built.svg().matchAll(LABEL_TEXT)]
     expect(drawn.length, 'premise: the label is drawn as the name followed by one smaller part').toBe(1)
@@ -199,7 +199,7 @@ describe('FR-002 -- plan dates at the name size x S-325', () => {
   })
 
   it('FR-002: 名前の部分と予定日の部分をそれぞれの大きさで測った和 -- the width T-273 and OC-1 read', () => {
-    // see FR-002, LC-5, OC-1
+    // Spec: FR-002, LC-5, OC-1
     const document = documentOf([{ name: 'Alpha', start: '2026-04-06', finish: '2026-04-24' }], { isPlanDatesVisible: true })
     const shown = placementOf(bench(document).loop, 1)
     const font = shown.labelFontSize
@@ -207,8 +207,8 @@ describe('FR-002 -- plan dates at the name size x S-325', () => {
   })
 
   it('FR-002 / OC-1: switching S-232 on widens the occupied width by the dates part measured at x S-325', () => {
-    // see OC-1, FR-002
-    // WHY: a one-day bar, so the name stands outside the shape with and without the dates.
+    // Spec: OC-1, FR-002
+    // Why: a one-day bar, so the name stands outside the shape with and without the dates.
     const seeds = [{ name: 'Alpha', start: '2026-04-06', finish: '2026-04-06' }]
     const hidden = placementOf(bench(documentOf(seeds, { isPlanDatesVisible: false })).loop, 1)
     const shown = placementOf(bench(documentOf(seeds, { isPlanDatesVisible: true })).loop, 1)
@@ -231,7 +231,7 @@ interface DelayMark {
 }
 
 function delayMark(): DelayMark {
-  // WHY: a task that should have finished before the status date and has no actual start is late (PM-4).
+  // Why: a task that should have finished before the status date and has no actual start is late (PM-4).
   const document = documentOf(
     [{ name: 'Alpha', start: '2026-04-06', finish: '2026-04-24' }],
     { isProgressMarkerVisible: true, themePreference: 'light' },
@@ -259,14 +259,14 @@ describe('FR-013 -- the delay mark', () => {
   })
 
   it('FR-013: 地を S-326 で塗る -- the ground of the PM-4 mark is S-326 (light theme)', () => {
-    // see FR-013, S-326
+    // Spec: FR-013, S-326
     const { svg } = delayMark()
     const grounds = shapesIn(svg).filter((one) => one.startsWith('<circle') && paintOf(one, 'fill') === S_326_LIGHT)
     expect(grounds.length, `the drawn mark: ${svg}`).toBeGreaterThanOrEqual(1)
   })
 
   it('FR-013: 記号を同表の S-327 で塗る -- the (!) glyph is painted S-327', () => {
-    // see FR-013, S-327
+    // Spec: FR-013, S-327
     const { svg } = delayMark()
     const glyph = shapesIn(svg).filter(
       (one) => !(one.startsWith('<circle') && paintOf(one, 'fill') === S_326_LIGHT) &&
@@ -276,11 +276,11 @@ describe('FR-013 -- the delay mark', () => {
   })
 
   it('FR-013: 縦棒の太さは S-24 に S-328 を掛けた値 -- the bar width', () => {
-    // see FR-013, S-24, S-328
+    // Spec: FR-013, S-24, S-328
     const { svg } = delayMark()
     const bar = shapesIn(svg).find((one) => /^<(line|path)/.test(one) && paintOf(one, 'stroke') === S_327_LIGHT)
     expect(bar, `a stroked bar in ${svg}`).toBeDefined()
-    // WHY: the ring is S-24 as drawn (the whole mark is scaled together, FR-094), so the bar is read against it.
+    // Why: the ring is S-24 as drawn (the whole mark is scaled together, FR-094), so the bar is read against it.
     const ring = shapesIn(svg).find((one) => one.startsWith('<circle') && paintOf(one, 'fill') === S_326_LIGHT) ?? ''
     const ringWidth = attr(ring, 'stroke-width')
     expect(ringWidth, 'premise: the ring of the mark is stroked (S-24)').toBeGreaterThan(0)
@@ -289,8 +289,8 @@ describe('FR-013 -- the delay mark', () => {
   })
 
   it('FR-013: 縦棒の下端・点の中心・点の半径は S-329 ・ S-330 ・ S-331 (a gap between bar and dot)', () => {
-    // see S-329, S-330, S-331
-    // TRAP: S-329 / S-330 measure against the half height of the symbol, which no row sizes;
+    // Spec: S-329, S-330, S-331
+    // Trap: S-329 / S-330 measure against the half height of the symbol, which no row sizes;
     // so both are checked against ONE common half height, and S-331 against the radius it names.
     const { svg, center, radius } = delayMark()
     const shapes = shapesIn(svg)
@@ -360,7 +360,7 @@ describe('FD-5 (table T-012a) -- the chevron ends', () => {
   })
 
   it('FD-5: 開始側の切り込みの深さを fadeIn に -- and the end tip keeps the plain depth', () => {
-    // see FD-5
+    // Spec: FD-5
     const plain = chevronEnds(null, null)
     const faded = chevronEnds(4, null)
     expect(faded.fadeInPx, 'premise: the fade is wider than the plain notch').not.toBeCloseTo(plain.startNotch, 1)
@@ -369,7 +369,7 @@ describe('FD-5 (table T-012a) -- the chevron ends', () => {
   })
 
   it('FD-5: 終了側の先端の深さを fadeOut に -- and the start notch keeps the plain depth', () => {
-    // see FD-5
+    // Spec: FD-5
     const plain = chevronEnds(null, null)
     const faded = chevronEnds(null, 4)
     expect(faded.endTip).toBeCloseTo(faded.fadeOutPx, 2)
@@ -377,7 +377,7 @@ describe('FD-5 (table T-012a) -- the chevron ends', () => {
   })
 
   it('FD-5: 2 つの端は別々 -- both fades set, each end takes its own length', () => {
-    // see FD-5
+    // Spec: FD-5
     const faded = chevronEnds(2, 6)
     expect(faded.startNotch).toBeCloseTo(faded.fadeInPx, 2)
     expect(faded.endTip).toBeCloseTo(faded.fadeOutPx, 2)
@@ -387,7 +387,7 @@ describe('FD-5 (table T-012a) -- the chevron ends', () => {
 
 describe('S-63 -- isProgressMarkerVisible defaults to true', () => {
   it('S-63: 既定 `true` -- the table, the settings defaults and the startup template agree', () => {
-    // see S-63
+    // Spec: S-63
     const row = verticalIn('T-202', 'S-63')
     const key = bare(row.by['キー'] ?? '')
     expect(key).toBe('isProgressMarkerVisible')
@@ -419,7 +419,7 @@ function oldDocumentText(): string {
     strokeColor: null,
     strokeWidthPx: null,
   }
-  // WHY: the two values a saved document used to carry; any value is dropped before the schema runs.
+  // Why: the two values a saved document used to carry; any value is dropped before the schema runs.
   for (const one of RETIRED) visual[one.column] = one.column === 'nameAnchor' ? 'middleRight' : 'start'
   document.schedule.taskVisuals = [visual]
   return JSON.stringify(document)
@@ -436,7 +436,7 @@ describe('T-297 -- retired columns are dropped when read', () => {
   })
 
   it('RK-1 / RK-2: a document with nameAnchor / nameAlign opens without error and without a notice', () => {
-    // see T-297, RK-1, RK-2
+    // Spec: T-297, RK-1, RK-2
     const decoded = documentFromJson(oldDocumentText())
     expect(decoded.ok, JSON.stringify(decoded.ok ? '' : decoded.faults)).toBe(true)
     if (!decoded.ok) return
@@ -448,7 +448,7 @@ describe('T-297 -- retired columns are dropped when read', () => {
   })
 
   it('RK-1 / RK-2: opening it raises no notice on the screen', () => {
-    // see T-297
+    // Spec: T-297
     const decoded = documentFromJson(oldDocumentText())
     if (!decoded.ok) throw new Error('premise: the document opens')
     const built = bench(decoded.document as unknown as Record<string, unknown>)
@@ -456,7 +456,7 @@ describe('T-297 -- retired columns are dropped when read', () => {
   })
 
   it('RK-1 / RK-2: 書き戻してもならない -- saving does not write them back', () => {
-    // see T-297
+    // Spec: T-297
     const decoded = documentFromJson(oldDocumentText())
     if (!decoded.ok) throw new Error('premise: the document opens')
     const written = jsonFromDocument(decoded.document)

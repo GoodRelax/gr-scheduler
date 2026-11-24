@@ -7,7 +7,7 @@ import { serialOf } from '../../src/entity/layout-engine/schedule-layout/time-ax
 import { DEFAULT_DISPLAY_SCALE, DISPLAY_SCALE_STEPS } from '../fixtures/display-scale'
 import { keyOf, REQUIREMENTS, taskGroupDocument, shell, type TaskGroupSeed, type ShellBench } from '../unit/cr-541-stage'
 
-// see FR-039
+// Spec: FR-039
 const FR_039_HOLD_THE_MIDDLE =
   '⭐ 表示の倍率を変えたとき、`Task Group Area` の横の中点が指す日付と、縦の中点が指すタスクグループを動かさないこと（MUST）'
 
@@ -15,7 +15,7 @@ const TASK_GROUP_COUNT = 60
 const SEATED_TASK_GROUP = 'task-group-20'
 const SEATED_TASK_GROUP_PART = 0.3
 const SEATED_DAY_PART = 0.25
-// WHY: a millionth of a day or of a task group is float noise from the anchor round trip,
+// Why: a millionth of a day or of a task group is float noise from the anchor round trip,
 // while every mutation the traps name moves the middle by whole px.
 const DIGITS = 6
 

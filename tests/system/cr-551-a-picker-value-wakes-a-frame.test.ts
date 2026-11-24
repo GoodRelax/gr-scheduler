@@ -12,19 +12,19 @@ const DESIGN = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '05-07-
 
 const FT_1_PICKER = '閲覧環境が開いた選ぶ窓（色の入力の色選び、日付の入力のカレンダー）で選んだ値が届いたことも、その窓を開いた押下の続きに数え、シェル自身が起こす'
 
-// see U-25
+// Spec: U-25
 const PROPERTIES_PANEL = `[data-role="${bare(specTable('T-103').rows.find((one) => one.id === 'U-25')?.by['確定名（英）'] ?? '')}"]`
-// see T-016
+// Spec: T-016
 const LINE_ROW = specTable('T-016').rows.find(
   (row) => bare(row.by['対象'] ?? '') === 'Task' && (row.by['列（`GRS JSON`）'] ?? '').includes('`strokeColor`'),
 )?.id ?? ''
 
-// see MC-6
+// Spec: MC-6
 const SCREEN = screenOf(rowOf(specTable('T-025'), 'MC-6'))
 
-// WHY: a value no palette name draws, so seeing it proves the picker's value landed.
+// Why: a value no palette name draws, so seeing it proves the picker's value landed.
 const PICKED = '#12ab34'
-// WHY: "a short wait": the frames the page asks for by itself, and no more.
+// Why: "a short wait": the frames the page asks for by itself, and no more.
 const SETTLE_MS = 1_000
 
 let browser: Browser | null = null
@@ -46,7 +46,7 @@ test('FT-1 still says: 選ぶ窓 ... で選んだ値が届いたことも、そ�
 test('FT-1 / CV-9: a color chosen in the picker shows on the bar and in the field with no pointer or key input afterwards', async ({
   baseURL,
 }) => {
-  // see FT-1, CV-9, CV-4, CV-6
+  // Spec: FT-1, CV-9, CV-4, CV-6
   test.setTimeout(180_000)
   if (baseURL === undefined) throw new Error('playwright.config.ts declares no baseURL for the running application')
   if (browser === null) throw new Error('the reference browser was not opened')
@@ -64,7 +64,7 @@ test('FT-1 / CV-9: a color chosen in the picker shows on the bar and in the fiel
     await page.locator(`${field} [data-color-custom-entry]`).first().click()
     const picker = page.locator(`${field} input[type="color"]`).first()
     await picker.waitFor({ state: 'attached' })
-    // WHY: what the browser does when its picker window closes: the value is set and input / change fire.
+    // Why: what the browser does when its picker window closes: the value is set and input / change fire.
     await picker.evaluate((input: HTMLInputElement, value: string) => {
       input.value = value
       input.dispatchEvent(new Event('input', { bubbles: true }))
@@ -77,7 +77,7 @@ test('FT-1 / CV-9: a color chosen in the picker shows on the bar and in the fiel
       { selector: DRAWN_SVG, uid: target.uid },
     )
     expect(stroke.toLowerCase(), 'CV-6: the bar draws the chosen value').toBe(PICKED)
-    // WHY: CV-9 (CR-689) has no sides line; the custom entrance names the value in its tooltip and is outlined.
+    // Why: CV-9 (CR-689) has no sides line; the custom entrance names the value in its tooltip and is outlined.
     const custom = page.locator(`${field} [data-color-custom-entry]`).first()
     expect(await custom.getAttribute('title'), 'CV-9: the custom entrance tooltip shows the uppercase hex').toContain(
       PICKED.toUpperCase(),

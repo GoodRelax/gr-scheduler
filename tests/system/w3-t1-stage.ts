@@ -21,7 +21,7 @@ export const rowIdOf = (index: number): string => `5c000000-0000-4000-8000-${Str
 export const taskGroupLabelOf = (index: number): string => `Row ${String(index + 1).padStart(2, '0')}`
 export const taskNameOf = (index: number): string => `Task ${String(index + 1).padStart(2, '0')}`
 
-// WHY: March 2026 runs Mon 2 .. Fri 6; every task takes Mon..Wed of the week after the previous one's start, wrapping at 4 weeks.
+// Why: March 2026 runs Mon 2 .. Fri 6; every task takes Mon..Wed of the week after the previous one's start, wrapping at 4 weeks.
 const startOf = (index: number): string => `2026-03-${String(2 + (index % 4) * 7).padStart(2, '0')}T08:00:00`
 const finishOf = (index: number): string => `2026-03-${String(4 + (index % 4) * 7).padStart(2, '0')}T17:00:00`
 

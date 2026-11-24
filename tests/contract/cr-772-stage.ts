@@ -19,7 +19,7 @@ import { REQUIREMENTS, DESIGN } from './cr-731-stage'
 
 export { REQUIREMENTS, DESIGN }
 
-// see T-206, T-201, T-211
+// Spec: T-206, T-201, T-211
 export const S_208 = numberIn(rowOf('T-206', 'S-208').by['既定'] ?? '')
 export const S_597 = numberIn(rowOf('T-206', 'S-597').by['既定'] ?? '')
 export const S_598 = numberIn(rowOf('T-206', 'S-598').by['既定'] ?? '')
@@ -28,7 +28,7 @@ export const S_213 = numberIn(rowOf('T-206', 'S-213').by['既定'] ?? '')
 export const S_37 = numberIn(rowOf('T-201', 'S-37').by['既定値'] ?? '')
 export const S_125 = numberIn(rowOf('T-211', 'S-125').by['値'] ?? '')
 
-// WHY: drawing order is A, A1, A1x, A2, A2a, B, B1, C (folded), D, E, E1, E2, E3; Ah is hidden and C1 sits in the folded C, so neither is drawn.
+// Why: drawing order is A, A1, A1x, A2, A2a, B, B1, C (folded), D, E, E1, E2, E3; Ah is hidden and C1 sits in the folded C, so neither is drawn.
 export const ROWS: readonly TaskGroupSeed[] = [
   { id: 'A', parentId: null },
   { id: 'A1', parentId: 'A' },
@@ -63,9 +63,9 @@ export interface Box {
 }
 
 export interface Scene {
-  // see FR-042
+  // Spec: FR-042
   readonly heights?: Readonly<Record<string, number>>
-  // see FR-098
+  // Spec: FR-098
   readonly pinned?: readonly string[]
 }
 
@@ -95,7 +95,7 @@ export const boxOf = (id: string, scene: Scene = {}): Box => {
   return found.box
 }
 
-// WHY: the boundary under a drawn row is the gap between it and the next drawn row.
+// Why: the boundary under a drawn row is the gap between it and the next drawn row.
 export const under = (id: string, scene: Scene = {}): number => boxOf(id, scene).y + boxOf(id, scene).height
 
 export const indentPx = (document: Document = documentOf()): number => S_37 * displayRatioOf(document.documentSettings)
@@ -144,7 +144,7 @@ export const pointerAt = (
   clickCount: 1,
 })
 
-// WHY: steps counts indents to the right of the press point, y is the pointer height.
+// Why: steps counts indents to the right of the press point, y is the pointer height.
 export function landingAt(
   heldId: string,
   steps: number,
@@ -167,7 +167,7 @@ export interface MoveWrite {
   readonly order: number
 }
 
-// WHY: empty when the release wrote nothing.
+// Why: empty when the release wrote nothing.
 export function writesOf(result: TranslatedInput): readonly MoveWrite[] {
   const action = result.action as { kind: string; writes?: readonly (readonly MoveWrite[])[] } | null
   if (action === null || action.kind !== 'changeDocument') return []
@@ -186,7 +186,7 @@ export interface Placement {
   readonly after: Document
 }
 
-// WHY: applies the release's one write with the document's own edit road, then reads where the held task group stands.
+// Why: applies the release's one write with the document's own edit road, then reads where the held task group stands.
 export function placedBy(heldId: string, result: TranslatedInput, scene: Scene = {}): Placement {
   const writes = writesOf(result)
   if (writes.length !== 1) throw new Error(`premise: one write, got ${writes.length}`)

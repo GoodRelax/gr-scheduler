@@ -32,7 +32,7 @@ const PAD_EM = 0.25
 const RULE_PX = 1
 const TOLERANCE_PX = 0.6
 
-// WHY: SQ-10, DT-8 and RQ-1 hold a fixed width and have no right border (SV-18, RW-9, RO-9)
+// Why: SQ-10, DT-8 and RQ-1 hold a fixed width and have no right border (SV-18, RW-9, RO-9)
 const NO_BORDER = new Set(['SQ-10', 'DT-8', 'RQ-1'])
 
 interface Window {
@@ -117,7 +117,7 @@ async function columnsOf(page: Page, window: string): Promise<readonly Column[]>
   )
 }
 
-// WHY: the first, the middle and the last bordered column that lies clear of the window's right edge (GR-25 wins there)
+// Why: the first, the middle and the last bordered column that lies clear of the window's right edge (GR-25 wins there)
 /** @purity non-pure */
 async function borderedColumns(page: Page, window: string): Promise<readonly Column[]> {
   const win = await boxOf(page, window)
@@ -163,7 +163,7 @@ async function underMark(page: Page, x: number, y: number): Promise<boolean> {
 
 const middleOf = (one: Box): number => one.y + one.height / 2
 
-// WHY: offsets inside the S-465 band, kept 1px clear of its rim for sub-pixel layout
+// Why: offsets inside the S-465 band, kept 1px clear of its rim for sub-pixel layout
 const OFFSETS: readonly number[] = [-(BAND - 1), -Math.round(BAND / 2), -1, 0, 1, Math.round(BAND / 2), BAND - 1]
 
 for (const win of WINDOWS) {
@@ -289,7 +289,7 @@ for (const win of WINDOWS) {
         await page.mouse.down()
         await page.mouse.move(cell.box.right - 60, y, { steps: 6 })
         expect(await shapeHere(page, cell.box.right - 60, y), 'held, moving left').toBe('col-resize')
-        // WHY: pulling far left stops the border at the floor, so the pointer then travels over this column's own mark and the earlier columns' marks, which stay put.
+        // Why: pulling far left stops the border at the floor, so the pointer then travels over this column's own mark and the earlier columns' marks, which stay put.
         await page.mouse.move(cell.box.x - 900 < 0 ? 0 : cell.box.x - 900, y, { steps: 6 })
         const ownMark = (await columnsOf(page, win.selector)).find((one) => one.column === target.column)
         if (ownMark === undefined) throw new Error('premise: the column is still drawn')
@@ -347,7 +347,7 @@ for (const win of WINDOWS) {
           ['bottom left corner, inside', box.x + near, box.bottom - near, 'nesw-resize'],
           ['bottom left corner, outside', box.x - near, box.bottom + near, 'nesw-resize'],
         ]
-        // WHY: a window that sits against the screen's edge has no outside to point at there
+        // Why: a window that sits against the screen's edge has no outside to point at there
         const seen = cases.filter(([, x, y]) => x >= 0 && y >= 0 && x < (view?.width ?? 0) && y < (view?.height ?? 0))
         expect(seen.length, `premise: the edge points on the screen for ${JSON.stringify(box)}`).toBeGreaterThanOrEqual(6)
         for (const [what, x, y, expected] of seen) expect(await shapeAt(page, x, y), what).toBe(expected)

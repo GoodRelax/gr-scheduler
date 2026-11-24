@@ -12,7 +12,7 @@ export const T_108_HEADINGS = ['行 ID', '群', '確定名', '組', '運ぶ値',
 const LINE_BREAK = /<br\s*\/?>/gi
 const INDENT = '　　'
 const VALUE_LINE = /^`([A-Za-z_$][\w$]*)`: (.*)$/
-// WHY: a word tag is followed by the table row it stands for, as (`PA-1`) in full-width brackets (CR-792).
+// Why: a word tag is followed by the table row it stands for, as (`PA-1`) in full-width brackets (CR-792).
 const VARIANT_LINE = /^`([A-Za-z_$][\w$]*)` が `'([^']+)'`(?:（`[A-Z]+-[0-9]+`）)?:?$/
 const SHAPE_LINE = /^`([A-Z][\w$]*)`:$/
 const CHOICE_LINE = /^次の形のどちらか —— (.*)$/
@@ -84,7 +84,7 @@ function linesOf(cell: string): Line[] {
   })
 }
 
-// WHY: a line's children are the lines after it that sit deeper, up to the next line at its own depth or shallower.
+// Why: a line's children are the lines after it that sit deeper, up to the next line at its own depth or shallower.
 function childrenOf(lines: readonly Line[], at: number): Line[] {
   const own = lines[at]?.depth ?? 0
   const out: Line[] = []
@@ -189,10 +189,10 @@ export function printedCommands(): PrintedCommandTable {
   return { caption: lines[at] ?? '', headings: rawCells(head), commands: rest.map((line) => commandOf(rawCells(line))) }
 }
 
-// WHY: the carried values of one command as a reader counts them -- each named value, and a choice of shapes as one.
+// Why: the carried values of one command as a reader counts them -- each named value, and a choice of shapes as one.
 export const carriedCountOf = (command: PrintedCommand): number => command.values.length + (command.choice === null ? 0 : 1)
 
-// WHY: the shapes the table names -- a value typed by a backticked capitalised name, a nested one, or a choice.
+// Why: the shapes the table names -- a value typed by a backticked capitalised name, a nested one, or a choice.
 export function shapeNamesOf(commands: readonly PrintedCommand[]): string[] {
   const found = new Set<string>()
   const visit = (value: PrintedValue): void => {
@@ -213,6 +213,6 @@ export function shapeNamesOf(commands: readonly PrintedCommand[]): string[] {
   return [...found].sort()
 }
 
-// WHY: the CM- rows a command does not offer the Agent API -- the table says it is not implemented and refused.
+// Why: the CM- rows a command does not offer the Agent API -- the table says it is not implemented and refused.
 export const isUnimplemented = (command: PrintedCommand): boolean =>
   command.notes.some((note) => note.includes('まだ実装していない'))

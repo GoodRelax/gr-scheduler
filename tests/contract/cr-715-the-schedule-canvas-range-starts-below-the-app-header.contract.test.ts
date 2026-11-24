@@ -18,7 +18,7 @@ const U_32_THE_LAYER =
   'ページの中で `data-role` に `Schedule Canvas` を持つ要素は、ウィンドウの左上の角 (0, 0) からウィンドウ全体を覆う描画の層であり、`App Header` の帯の上も含む —— 範囲とは別である'
 const WB_3_THE_RANGE = '`Schedule Canvas`（`U-32`）の全体 —— `App Header` の下の縁からウィンドウの下の端まで。'
 
-// see FR-036
+// Spec: FR-036
 const LOW_SCREEN = { width: 1280, height: 627 }
 const HEADER_PX = 40
 const BAND_PX = 24

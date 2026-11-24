@@ -30,7 +30,7 @@ interface ZipEntry {
   readonly data: Buffer
 }
 
-// WHY: a minimal reader instead of a zip library -- the repository has none; entries stay in central-directory order.
+// Why: a minimal reader instead of a zip library -- the repository has none; entries stay in central-directory order.
 function entriesOf(bytes: Buffer): ZipEntry[] {
   let end = -1
   for (let at = bytes.length - 22; at >= 0; at--) {
@@ -69,7 +69,7 @@ function entriesOf(bytes: Buffer): ZipEntry[] {
   return entries
 }
 
-// WHY: the DOS date and time hold calendar fields with no zone, so decoded as written they are UTC; seconds are kept in 2-second steps.
+// Why: the DOS date and time hold calendar fields with no zone, so decoded as written they are UTC; seconds are kept in 2-second steps.
 function dosToIso(date: number, time: number): string {
   const two = (n: number): string => String(n).padStart(2, '0')
   const year = 1980 + (date >> 9)
@@ -81,7 +81,7 @@ function dosToIso(date: number, time: number): string {
   return `${String(year)}-${two(month)}-${two(day)}T${two(hour)}:${two(minute)}:${two(second)}Z`
 }
 
-// WHY: a DOS time cannot hold an odd second, so the spec's rounding is down to the even second.
+// Why: a DOS time cannot hold an odd second, so the spec's rounding is down to the even second.
 function roundedDownToEven(builtAt: string): string {
   const seconds = Number(builtAt.slice(17, 19))
   return `${builtAt.slice(0, 17)}${String(seconds - (seconds % 2)).padStart(2, '0')}Z`

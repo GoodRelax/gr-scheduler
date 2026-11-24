@@ -50,7 +50,7 @@ test('UC-004 show dependencies between tasks (FR-009 T-018 DP-1 DP-3, T-018a, T-
     expect(links).toHaveLength(1)
     expect(links[0].predecessorUid).toBe(a)
     expect(links[0].linkType).toBe(1)
-    // WHY: the default lag is a constant of the tool (T-213), which a file never carries.
+    // Why: the default lag is a constant of the tool (T-213), which a file never carries.
     expect(links[0].linkLag).toBe(SETTINGS_CONSTANTS.dependencyLagDefault)
     expect(Object.keys(doc.documentSettings)).not.toContain('dependencyLagDefault')
   })

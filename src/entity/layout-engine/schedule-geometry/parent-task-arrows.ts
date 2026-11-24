@@ -1,4 +1,4 @@
-// ScheduleGeometry -- the parent task arrows of the drawn families, and the marks of a child whose parent is undecided (FR-135).
+// File: ScheduleGeometry: the parent task arrows of the drawn families, and the marks of a child whose parent is undecided (FR-135).
 // @unit      UF-196  (docs/spec/05-07-design.md, table T-075)
 // @component ScheduleGeometry, layer layoutEngine (table T-062)
 // @purity    pure
@@ -9,7 +9,7 @@ import type { ScreenRect } from '../screen-regions/screen-regions'
 import { placedEndOf, plannedPlacementsOf, unseenEndStubOf, type LinkEnd } from './dependency-route'
 import { point, type GeometryInputs, type Path, type Point } from './schedule-geometry'
 
-// see FR-135, T-351
+// Spec: FR-135, T-351
 export interface ParentTaskFamilies {
   readonly resolutions: ReadonlyMap<number, ParentTaskResolution>
   readonly ownerUids: readonly number[]
@@ -17,7 +17,7 @@ export interface ParentTaskFamilies {
   readonly selectedLinkChildUids: ReadonlySet<number>
 }
 
-// see FR-135, S-19, S-300, S-485, S-486
+// Spec: FR-135, S-19, S-300, S-485, S-486
 export interface ParentTaskArrowGeometry {
   readonly childUid: number
   readonly parentUid: number
@@ -28,13 +28,13 @@ export interface ParentTaskArrowGeometry {
   readonly hitPoints: Path
   readonly hitWidth: number
   readonly dash: readonly [number, number] | null
-  // see FR-135, EL-20, TV-3
-  // TRAP: optional so literals compile; absent draws no mark, the same as an empty list.
+  // Spec: FR-135, EL-20, TV-3
+  // Trap: optional so literals compile; absent draws no mark, the same as an empty list.
   readonly continuationDots?: readonly Point[]
   readonly continuationRadius?: number
 }
 
-// see FR-135, VO-4, IP-4
+// Spec: FR-135, VO-4, IP-4
 export interface ParentTaskCandidateGeometry {
   readonly uid: number
   readonly order: number
@@ -56,8 +56,8 @@ export interface ParentTaskGeometry {
   readonly highlightedParentUid: number | null
 }
 
-// see FR-135
-// WHY: three, as the ruling's sample showed; more numbers than that crowd the bars they ring.
+// Spec: FR-135
+// Why: three, as the ruling's sample showed; more numbers than that crowd the bars they ring.
 const SHOWN_CANDIDATE_COUNT = 3
 
 const NO_PARENT_TASK_GEOMETRY: ParentTaskGeometry = { arrows: [], queries: [], highlightedParentUid: null }
@@ -73,8 +73,8 @@ function middleXOf(end: LinkEnd): number {
   return end.x + end.width / 2
 }
 
-// see FR-135, S-19, S-300
-// WHY: the bend sits one head length above the child, so a bent arrow never runs along the child's own top edge.
+// Spec: FR-135, S-19, S-300
+// Why: the bend sits one head length above the child, so a bent arrow never runs along the child's own top edge.
 /** @purity pure */
 function arrowOf(inputs: GeometryInputs, child: LinkEnd, parent: LinkEnd, resolution: ParentTaskResolution,
                  isSelected: boolean): ParentTaskArrowGeometry {
@@ -107,8 +107,8 @@ function arrowOf(inputs: GeometryInputs, child: LinkEnd, parent: LinkEnd, resolu
   }
 }
 
-// see FR-135, EL-20, TV-3
-// WHY: the far end is the one the filter leaves undrawn; the stub stands on the seen end, up from a child and down from a parent.
+// Spec: FR-135, EL-20, TV-3
+// Why: the far end is the one the filter leaves undrawn; the stub stands on the seen end, up from a child and down from a parent.
 /** @purity pure */
 function stubOf(inputs: GeometryInputs, seen: LinkEnd, isChildSeen: boolean, childUid: number, parentUid: number,
                 resolution: ParentTaskResolution): ParentTaskArrowGeometry {
@@ -136,7 +136,7 @@ function stubOf(inputs: GeometryInputs, seen: LinkEnd, isChildSeen: boolean, chi
   }
 }
 
-// see FR-135, VO-4, IP-4
+// Spec: FR-135, VO-4, IP-4
 /** @purity pure */
 function queryOf(child: LinkEnd, fontSize: number, candidates: readonly number[],
                  endByUid: ReadonlyMap<number, LinkEnd>): ParentTaskQueryGeometry {
@@ -171,7 +171,7 @@ function childrenByParentOf(resolutions: ReadonlyMap<number, ParentTaskResolutio
 }
 
 // see FR-135, T-351, JDG-1131
-// WHY: only the owners' families, never every pair: one sheet full of arrows reads as nothing (JDG-1131).
+// Why: only the owners' families, never every pair: one sheet full of arrows reads as nothing (JDG-1131).
 /** @purity pure */
 export function parentTaskGeometryOf(inputs: GeometryInputs, families: ParentTaskFamilies | null): ParentTaskGeometry {
   if (families === null) return NO_PARENT_TASK_GEOMETRY
@@ -183,7 +183,7 @@ export function parentTaskGeometryOf(inputs: GeometryInputs, families: ParentTas
   const queries: ParentTaskQueryGeometry[] = []
   const drawn = new Set<number>()
   const shown = inputs.layout.shownTaskUids ?? null
-  // see TV-3
+  // Spec: TV-3
   const isFiltered = (uid: number): boolean => shown !== null && !shown.has(uid)
   /** @purity pure */
   const pairOf = (childUid: number): void => {
@@ -222,7 +222,7 @@ export function parentTaskGeometryOf(inputs: GeometryInputs, families: ParentTas
 // Single source of truth:
 //   docs/spec/_source/settings.json (table T-206)
 // Rebuild: npm run gen   ||   npm run gen:check fails on drift.
-// see T-206
+// Spec: T-206
 const NOT_STORED_PARENT_TASK_ARROW_SIZES: {
   readonly 'S-485': number
   readonly 'S-486': readonly [number, number]

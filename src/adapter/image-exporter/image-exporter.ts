@@ -1,4 +1,4 @@
-// Assembles the exported picture of the screen and declares the Rasterizer seam.
+// File: ImageExporter: Assembles the exported picture of the screen and declares the Rasterizer seam.
 // @unit      UF-39   (docs/spec/05-07-design.md, table T-075)
 // @component ImageExporter, layer Adapter (table T-062)
 // @purity    semi-pure-mutable
@@ -57,7 +57,7 @@ function isDarkIn(scene: ExportScene): boolean {
   return scene.themePreference === 'dark'
 }
 
-// see EP-1, EP-3
+// Spec: EP-1, EP-3
 /** @purity pure */
 function chromeGround(scene: ExportScene): string {
   return colorOf('S-150', scene.themeHue, isDarkIn(scene), scene.settings.isThemeMonochrome)
@@ -68,22 +68,22 @@ function pictureGround(scene: ExportScene): string {
   return colorOf('S-146', scene.themeHue, isDarkIn(scene), scene.settings.isThemeMonochrome)
 }
 
-// see EP-1, EP-3
+// Spec: EP-1, EP-3
 /** @purity pure */
 function chromeInk(scene: ExportScene): string {
   return colorOf('S-147', scene.themeHue, isDarkIn(scene), scene.settings.isThemeMonochrome)
 }
 
-// TRAP: must not collide with an id inside the received picture it clips.
+// Trap: must not collide with an id inside the received picture it clips.
 const FIT_CLIP_ID = 'grs-export-fit'
 
-// TRAP: rounds as svg-renderer.ts does; change both together.
+// Trap: rounds as svg-renderer.ts does; change both together.
 /** @purity pure */
 function rounded(value: number): string {
   return (Math.round(value * 100) / 100).toString()
 }
 
-// TRAP: never round a ratio; the far edge of a wide screen moves by pixels.
+// Trap: never round a ratio; the far edge of a wide screen moves by pixels.
 /** @purity pure */
 function ratioText(ratio: number): string {
   return ratio.toString()
@@ -128,7 +128,7 @@ function textSvg(
   )
 }
 
-// see EP-1, BR-2, BR-6, BR-7
+// Spec: EP-1, BR-2, BR-6, BR-7
 /** @purity pure */
 function appHeaderSvg(
   band: ScreenRect,
@@ -139,7 +139,7 @@ function appHeaderSvg(
   const ground = rectSvg(scaledRect(band, ratio), chromeGround(scene))
   const documentTitle = items.documentTitle
   if (documentTitle === null || documentTitle === '') return ground
-  // see FR-051, EP-1
+  // Spec: FR-051, EP-1
   const titlePx = NOT_STORED_DOCUMENT_TITLE_SIZES['S-225'] * NOT_STORED_CHROME_SCALE['S-235']
   const x = (band.x + (items.documentTitleLeftPx ?? 0)) * ratio
   const y = bandBaselineYOf(band, titlePx) * ratio
@@ -147,7 +147,7 @@ function appHeaderSvg(
   return ground + textSvg(x, y, titlePx * ratio, documentTitle, chromeInk(scene), weight)
 }
 
-// see EP-3
+// Spec: EP-3
 /** @purity pure */
 function taskGroupTitleSvg(
   title: TaskGroupTitle,
@@ -163,8 +163,8 @@ function taskGroupTitleSvg(
   return textSvg(x, y, fontSizePx * ratio, title.label, ink)
 }
 
-// see EP-2, EP-3, FR-017, FR-156
-// WHY: the zone abbreviation of each ruler clock row, as the screen prints it over the panel (text-anchor end).
+// Spec: EP-2, EP-3, FR-017, FR-156
+// Why: the zone abbreviation of each ruler clock row, as the screen prints it over the panel (text-anchor end).
 /** @purity pure */
 function rulerAbbreviationsSvg(view: ScreenView, ink: string, ratio: number): string {
   return (view.taskGroupPanel.rulerAbbreviations ?? [])
@@ -175,7 +175,7 @@ function rulerAbbreviationsSvg(view: ScreenView, ink: string, ratio: number): st
     .join('')
 }
 
-// see EP-3, FR-042
+// Spec: EP-3, FR-042
 /** @purity pure */
 function groupGridLinesSvg(view: ScreenView, scene: ExportScene, ratio: number): string {
   const ink = colorOf('S-165', scene.themeHue, isDarkIn(scene), scene.settings.isThemeMonochrome)
@@ -184,7 +184,7 @@ function groupGridLinesSvg(view: ScreenView, scene: ExportScene, ratio: number):
     .join('')
 }
 
-// see EP-9
+// Spec: EP-9
 /** @purity pure */
 function dividerLinesSvg(view: ScreenView, scene: ExportScene, ratio: number): string {
   const ink = colorOf('S-149', scene.themeHue, isDarkIn(scene), scene.settings.isThemeMonochrome)
@@ -193,7 +193,7 @@ function dividerLinesSvg(view: ScreenView, scene: ExportScene, ratio: number): s
     .join('')
 }
 
-// see FR-025, FR-080, IX-10, IX-11, EP-24
+// Spec: FR-025, FR-080, IX-10, IX-11, EP-24
 /** @purity pure */
 export function exportSvg(scene: ExportScene): SvgExport {
   const { regions, screenView, settings } = scene
@@ -201,7 +201,7 @@ export function exportSvg(scene: ExportScene): SvgExport {
   const canvas = SETTINGS_CONSTANTS.exportCanvas
   const ratio = canvas.width / screenWidth
   const screenHeight = Math.max(1, regions.scheduleCanvas.y + regions.scheduleCanvas.height)
-  // TRAP: ceil the 0.01-rounded height; a raw ceil turns float noise into one more pixel row.
+  // Trap: ceil the 0.01-rounded height; a raw ceil turns float noise into one more pixel row.
   const grownHeight = Math.ceil(Number(rounded(screenHeight * ratio)))
   const height = Math.max(canvas.height, grownHeight)
   if (height > SETTINGS_CONSTANTS.exportCanvasHeightCap) {
@@ -211,7 +211,7 @@ export function exportSvg(scene: ExportScene): SvgExport {
   const titles = screenView.taskGroupPanel.titles
   const panel = regions.taskGroupPanel
   const pinned = screenView.taskGroupPanel.pinnedTitles
-  // see FR-039, T-252
+  // Spec: FR-039, T-252
   const drawn = drawnSettingsOf(settings)
   const ink = chromeInk(scene)
   const drawnHere =
@@ -239,7 +239,7 @@ export function exportSvg(scene: ExportScene): SvgExport {
   return { ok: true, svg, heightPx: height }
 }
 
-// see FR-025, FR-028
+// Spec: FR-025, FR-028
 /** @purity semi-pure-mutable */
 export async function exportPng(
   rasterizer: Rasterizer,
@@ -247,7 +247,7 @@ export async function exportPng(
 ): Promise<ImageExport> {
   const picture = exportSvg(scene)
   if (!picture.ok) return picture
-  // TRAP: paint at the picture's own height, not the export canvas setting's.
+  // Trap: paint at the picture's own height, not the export canvas setting's.
   const sizePx = {
     widthPx: SETTINGS_CONSTANTS.exportCanvas.width,
     heightPx: picture.heightPx,
@@ -255,7 +255,7 @@ export async function exportPng(
   try {
     return { ...picture, png: await rasterizer.rasterizePng(picture.svg, sizePx) }
   } catch {
-    // WHY: a rejection's reason cannot be read without its message; report the least claim.
+    // Why: a rejection's reason cannot be read without its message; report the least claim.
     return {
       ...picture,
       png: {
@@ -270,7 +270,7 @@ export async function exportPng(
 // Single source of truth:
 //   docs/spec/_source/settings.json (table T-206)
 // Rebuild: npm run gen   ||   npm run gen:check fails on drift.
-// see T-206
+// Spec: T-206
 const NOT_STORED_DOCUMENT_TITLE_SIZES: {
   readonly 'S-225': number
   readonly 'S-226': number
@@ -291,14 +291,14 @@ const NOT_STORED_DOCUMENT_TITLE_SIZES: {
   'S-492': 1,
 }
 
-// see T-206
+// Spec: T-206
 const NOT_STORED_CHROME_SCALE: {
   readonly 'S-235': number
 } = {
   'S-235': 0.6667,
 }
 
-// see T-206
+// Spec: T-206
 const NOT_STORED_TYPEFACES: {
   readonly 'S-246': string
 } = {

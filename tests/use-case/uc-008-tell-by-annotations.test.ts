@@ -9,11 +9,11 @@ const RANGE_FROM_NEAR = { x: 1400, y: 500 }
 const RANGE_TO = { x: 1600, y: 650 }
 const OFFSET = { dx: 60, dy: -40 }
 
-// WHY: AR-5 and AR-6 act only where the press hits nothing; on a drawn bar the existing item wins
+// Why: AR-5 and AR-6 act only where the press hits nothing; on a drawn bar the existing item wins
 // (T-023b), so a fixed point breaks whenever the sample moves a bar under it (DFC-2132).
 const bareSpotNear = (page: Page, near: { x: number; y: number }): Promise<{ x: number; y: number }> =>
   page.evaluate(({ x, y }) => {
-    // WHY: the task group under the point is tried first; a bar can fill a whole task group, so nearby task groups follow.
+    // Why: the task group under the point is tried first; a bar can fill a whole task group, so nearby task groups follow.
     for (let row = 0; row < 30; row++) {
       for (const dy of [row * 10, -row * 10]) {
         for (let step = 0; step < 60; step++) {
@@ -107,7 +107,7 @@ test('UC-008 tell by annotations (FR-019, T-023b AR-5 AR-6, FR-097 PR-21, T-217,
     expect(await cornerRadius(page, highlightId)).toBe(box.cornerRadiusPx)
   })
 
-  // WHY: measured while the box is drawn; extension 2a later hides the pointed task group, which in the
+  // Why: measured while the box is drawn; extension 2a later hides the pointed task group, which in the
   // template is an ancestor of the range task groups, so the box is no longer drawn after it (DFC-2132).
   await test.step('UC-008 step 4 over zoom: the corner radius stays the same when the zoom changes (T-217)', async () => {
     const radius = (await readDocument(page)).schedule.highlightBoxes[0]!.cornerRadiusPx

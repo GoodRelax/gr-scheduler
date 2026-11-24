@@ -65,7 +65,7 @@ describe('CR-423 -- the manuscript these cases are driven by', () => {
     expect(REQUIREMENTS).toContain(clause)
   })
 
-  // WHY: ZE-6 (CR-577) is the widening past the floor; this file holds the shrinking end only.
+  // Why: ZE-6 (CR-577) is the widening past the floor; this file holds the shrinking end only.
   it('table T-262 holds ZE-1 .. ZE-5 ahead of ZE-6', () => {
     expect(specTable('T-262').rows.map((row) => row.id)).toEqual(['ZE-1', 'ZE-2', 'ZE-3', 'ZE-4', 'ZE-5', 'ZE-6'])
   })
@@ -86,7 +86,7 @@ const numberIn = (cell: string): number => {
 
 const settingIn = (table: string, id: string, column: string): number => numberIn(rowOf(table, id).by[column] ?? '')
 
-// see T-201
+// Spec: T-201
 const S_4 = settingIn('T-201', 'S-4', '既定値')
 const S_5 = settingIn('T-201', 'S-5', '既定値')
 const S_6 = settingIn('T-201', 'S-6', '既定値')
@@ -97,19 +97,19 @@ const S_36 = settingIn('T-201', 'S-36', '既定値')
 const S_38 = settingIn('T-201', 'S-38', '既定値')
 const S_53 = settingIn('T-201', 'S-53', '既定値')
 const S_54 = settingIn('T-201', 'S-54', '既定値')
-// see T-205
+// Spec: T-205
 const S_87 = settingIn('T-205', 'S-87', '既定')
 const S_88 = settingIn('T-205', 'S-88', '既定')
-// see T-206
+// Spec: T-206
 const S_244 = settingIn('T-206', 'S-244', '既定')
 
-// see ZE-1, FR-094
+// Spec: ZE-1, FR-094
 const PLAN_FLOOR_LETS_GO_AT = S_6 / S_5 / S_4
 
-// see FR-018
+// Spec: FR-018
 const thresholdOf = (depth: number): number => S_87 * S_88 ** (depth - 2)
 
-// see FR-016
+// Spec: FR-016
 const TEXT_SIDE_CEILING = (S_36 * S_38) / (S_4 * S_13 * S_5 * S_7)
 
 interface ScaleEcho {
@@ -132,10 +132,10 @@ const endWord = (end: 'min' | 'max'): string => {
 const MIN_WORD = endWord('min')
 const MAX_WORD = endWord('max')
 
-// see ZE-5
+// Spec: ZE-5
 const endMessage = (zoomY: number, word: string): string => `${Math.round(zoomY * 100)}%${word}`
 
-// see T-036
+// Spec: T-036
 function keyOfRow(id: string): KeyInput {
   const spans = [...(rowOf('T-036', id).by['割当'] ?? '').matchAll(/`([^`]+)`/g)].map((one) => one[1]!)
   if (spans.length === 0) throw new Error(`table T-036 ${id} states no key`)
@@ -207,7 +207,7 @@ const OPENED_BY = (treeState: NonNullable<RowSpec['treeState']>): readonly RowSp
 const EXPANDED = OPENED_BY('expanded')
 const TEMPORARILY_EXPANDED = OPENED_BY('temporarilyExpanded')
 
-// see ZE-1, FR-094, FR-018, FR-016
+// Spec: ZE-1, FR-094, FR-018, FR-016
 function documentOf(rows: readonly RowSpec[], zoomY: number): Document {
   const task = (uid: number) => ({
     uid,
@@ -409,7 +409,7 @@ function bench(document: Document): Bench {
   }
 }
 
-// WHY: MK-4's notch sign is not in the manuscript; a control case below proves +1 lowers zoomY off the end.
+// Why: MK-4's notch sign is not in the manuscript; a control case below proves +1 lowers zoomY off the end.
 const OUT = 1
 const IN = -1
 
@@ -575,7 +575,7 @@ function treeStateOf(built: Bench, id: string): unknown {
   return (built.loop.document().schedule.taskGroups as readonly { id: string; treeState?: unknown }[]).find((one) => one.id === id)?.treeState
 }
 
-// see FR-016, ZE-3
+// Spec: FR-016, ZE-3
 function ceilingReachedBySk16a(): number {
   const built = bench(documentOf(FLAT, 1.5))
   let last = built.zoomY()
@@ -725,7 +725,7 @@ describe('T-262 is not applied to MK-2', () => {
 
 describe('CR-423 section 9 -- returned questions', () => {
   it.skip('the zoomY a fit-all writes when it picks depth 1 -- PND-204 was ruled by JDG-300, but no clause of the manuscript states the value yet (CR-423 question 1)', () => {})
-  // WHY: the raise seam (noticeRaised) is held by tests/unit/dfc-3446-fr-029-an-end-zoom-entrance-raises-no-reason.test.ts; this case holds what the screen shows.
+  // Why: the raise seam (noticeRaised) is held by tests/unit/dfc-3446-fr-029-an-end-zoom-entrance-raises-no-reason.test.ts; this case holds what the screen shows.
   it('T-260 SE-5 (MUST NOT) -- an IC-14 / IC-15 pressed at an end stands the end message and no FR-029 reason notice beside it (JDG-300 Q9, CR-423 question 2)', () => {
     const SE_5_NO_REASON =
       '⭐ 端の段で押して倍率が変わらなかった入口（`SE-1` の後段と、縦軸のズームの 表 T-262 の `ZE-2` / `ZE-3`）には、`FR-029` の行えない理由の通知を出してはならない（MUST NOT）'

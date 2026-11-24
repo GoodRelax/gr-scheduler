@@ -99,7 +99,7 @@ const oneTaskGroupDocument = (title: string, rowId: string, uid: number): Docume
   draft.schedule.tasks[0].name = `Task ${uid}`
   draft.schedule.taskGroupMembers[0].taskUid = uid
   draft.schedule.taskVisuals[0].taskUid = uid
-  // WHY: with a row id held in scrollTaskGroupId on either side, IC-72 landed no
+  // Why: with a row id held in scrollTaskGroupId on either side, IC-72 landed no
   // task in this build; that is not the seam under test, so neither holds one.
   draft.documentSettings.scrollTaskGroupId = null
   return draft as unknown as Document
@@ -452,7 +452,7 @@ describe(`FR-060 (MUST) -- ${KEEP_THE_TARGET_MUST}`, () => {
     expect(built.browser.saveQuestions()).toBe(1)
   })
 
-  // WHY: a dropped file opens as a replace without U-56 (OP-19), so the merge opens through the file dialog.
+  // Why: a dropped file opens as a replace without U-56 (OP-19), so the merge opens through the file dialog.
   it('⛔ after a merge through the file dialog, SK-11 writes the previous target', async () => {
     const { built } = await stageWithTarget()
     const theirs = built.file('theirs.xml', UTF8.encode(mspdiFromDocument(there(), LAST_SAVED_AT).text))

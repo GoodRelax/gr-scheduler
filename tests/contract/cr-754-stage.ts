@@ -30,7 +30,7 @@ const read = (...parts: string[]): string => unbroken(readFileSync(join(SPEC, ..
 export const REQUIREMENTS = read('01-04-requirements.md')
 export const SETTINGS_BOOK = read('_assets', 'tbl-settings.md')
 
-// WHY: read WITH its break marks -- FR-038 lets a panel item name carry `|` where it may wrap.
+// Why: read WITH its break marks -- FR-038 lets a panel item name carry `|` where it may wrap.
 export const MARKED_WORDS = JSON.parse(readFileSync(join(SPEC, '_source', 'display-words.json'), 'utf8')) as Loose
 
 export const BREAK_MARK = '|'
@@ -39,7 +39,7 @@ export const LANGUAGES: readonly DisplayLanguage[] = ['ja', 'en']
 /** @purity pure */
 export const withoutMarks = (word: string): string => word.split(BREAK_MARK).join('')
 
-// see T-104
+// Spec: T-104
 /** @purity pure */
 export function markedSettingLabel(rowId: string, language: DisplayLanguage): string {
   const entry = (MARKED_WORDS['settings'] as readonly Loose[]).find((one) => one['rowId'] === rowId)
@@ -71,7 +71,7 @@ export function surfaceHeading(name: string, language: DisplayLanguage): string 
   return entry['heading'][language] as string
 }
 
-// see T-206
+// Spec: T-206
 /** @purity pure */
 export function settingValue(id: string): number {
   const row = specTable('T-206').rows.find((one) => one.id === id)
@@ -82,7 +82,7 @@ export function settingValue(id: string): number {
   return value
 }
 
-// see T-103
+// Spec: T-103
 /** @purity pure */
 export const partName = (id: string): string => bare(specTable('T-103').rows.find((one) => one.id === id)?.by['確定名（英）'] ?? '')
 
@@ -97,7 +97,7 @@ function templateDocument(): Document {
 
 export const TEMPLATE = templateDocument()
 
-// WHY: the first plain Task and the first task group of the startup document are the selections pressed.
+// Why: the first plain Task and the first task group of the startup document are the selections pressed.
 export const FIRST_TASK_UID = ((): number => {
   const found = (TEMPLATE.schedule.tasks as readonly Loose[]).find((one) => one['milestone'] !== true && one['summary'] !== true)
   if (found === undefined) throw new Error('premise: the startup document holds a plain Task')
@@ -171,7 +171,7 @@ function sessionOf(language: DisplayLanguage, content: Loose): ScreenSession {
   } as unknown as ScreenSession
 }
 
-// see FR-072, IC-17
+// Spec: FR-072, IC-17
 /** @purity pure */
 export function settingsPanel(look: Partial<Look> = {}): PropertiesPanel {
   const whole = { ...PLAIN, ...look }
@@ -187,7 +187,7 @@ export function settingsPanel(look: Partial<Look> = {}): PropertiesPanel {
   return panel
 }
 
-// see FR-072, FR-006, FR-042
+// Spec: FR-072, FR-006, FR-042
 /** @purity pure */
 export function selectionPanel(item: ItemRef | null, taskGroupIds: readonly string[], look: Partial<Look> = {}): PropertiesPanel {
   const whole = { ...PLAIN, ...look }
@@ -250,7 +250,7 @@ const EMPTY_VIEW = {
 
 export const PROPERTIES_PANEL_PART = partName('U-25')
 
-// see U-25
+// Spec: U-25
 /** @purity non-pure */
 export function drawnPanel(panel: PropertiesPanel): FakeElement {
   const built = wire({ preference: 'light', hue: 214 }, { 'App Header': 37 })

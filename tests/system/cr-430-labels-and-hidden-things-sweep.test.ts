@@ -35,7 +35,7 @@ const Y_SAMPLES = 12
 
 const T_266_WHERE = '掴む所'
 
-// see T-266
+// Spec: T-266
 const FAMILY_WORDS: readonly (readonly [string, string])[] = [
   ['fade', 'フェード'],
   ['marker', '進捗マーカー'],
@@ -241,7 +241,7 @@ const bandOf = (scene: Scene): Box | null => {
   if (parts.length === 0) return null
   const margin = 16
   return {
-    // WHY: from the task group area's own edge: at S-54 with the constant S-1 an early actual is under 1 px wide there.
+    // Why: from the task group area's own edge: at S-54 with the constant S-1 an early actual is under 1 px wide there.
     x0: Math.max(Math.min(...parts.map((one) => one.x0)) - margin, scene.taskGroupArea.x0),
     x1: Math.min(Math.max(...parts.map((one) => one.x1)) + margin, scene.taskGroupArea.x1 - 1),
     y0: Math.max(Math.min(...parts.map((one) => one.y0)) - margin, scene.taskGroupArea.y0 + 1),
@@ -254,7 +254,7 @@ const answeredIn = (scene: Scene): ReadonlySet<string> => {
   const answered = new Set<string>()
   if (band === null || band.x1 <= band.x0 || band.y1 <= band.y0) return answered
   const sizes = sizesOrSeam()
-  // WHY: no 1 px floor on x: S-1 is a constant, and at S-54 a figure can be narrower than 1 px.
+  // Why: no 1 px floor on x: S-1 is a constant, and at S-54 a figure can be narrower than 1 px.
   const stepX = (band.x1 - band.x0) / X_SAMPLES
   const stepY = Math.max((band.y1 - band.y0) / Y_SAMPLES, 1)
   for (let y = band.y0; y <= band.y1; y += stepY) {
@@ -268,7 +268,7 @@ const answeredIn = (scene: Scene): ReadonlySet<string> => {
   return answered
 }
 
-// see FR-108
+// Spec: FR-108
 const allowedIn = (scene: Scene): ReadonlySet<string> => {
   const turn = scene.turn
   const out = new Set<string>()
@@ -282,7 +282,7 @@ const allowedIn = (scene: Scene): ReadonlySet<string> => {
   return out
 }
 
-// see T-266
+// Spec: T-266
 const inkOf = (drawn: TaskGeometry, family: string): readonly Box[] => {
   if (family === 'marker') {
     const box = markerBoxOf(drawn)
@@ -295,16 +295,16 @@ const inkOf = (drawn: TaskGeometry, family: string): readonly Box[] => {
 
 const touches = (a: Box, b: Box): boolean => a.x0 <= b.x1 && b.x0 <= a.x1 && a.y0 <= b.y1 && b.y0 <= a.y1
 
-// see FR-108
-// WHY: the frame clips the scrolling layer to the task group area, so a figure whose
-// WHY: whole ink sits outside that area is not drawn in this frame and carries
-// WHY: no grab area. Reading the display setting alone would ask FR-104 about
-// WHY: a bar the author cannot see -- at the high end of the zoom one day is
-// WHY: over a thousand px wide, and most of the figure is off the right edge.
+// Spec: FR-108
+// Why: the frame clips the scrolling layer to the task group area, so a figure whose
+// Why: whole ink sits outside that area is not drawn in this frame and carries
+// Why: no grab area. Reading the display setting alone would ask FR-104 about
+// Why: a bar the author cannot see -- at the high end of the zoom one day is
+// Why: over a thousand px wide, and most of the figure is off the right edge.
 const showsInFrame = (scene: Scene, family: string): boolean =>
   scene.drawn !== null && inkOf(scene.drawn, family).some((box) => touches(box, scene.taskGroupArea))
 
-// see FR-104, FR-108, FR-018
+// Spec: FR-104, FR-108, FR-018
 const wantedIn = (scene: Scene): readonly string[] => {
   const out: string[] = []
   if (scene.drawn === null) return out
@@ -391,7 +391,7 @@ test('control: a turn that hides everything leaves no grab area allowed', () => 
   ).toBeGreaterThan(0)
 })
 
-// see FR-018, S-49, S-54
+// Spec: FR-018, S-49, S-54
 test('FR-018: no turn leaves its Task undrawn, at either end of the zoom', () => {
   const low = scenes().filter((scene) => scene.turn.zoomX === ZOOM_ENDS[0] && scene.turn.shape === 'rectangle')
   const floor = (drawingDefault('S-49') * sizePx('S-236') * Number(SETTINGS_DEFAULTS['displayScale'])) / 100

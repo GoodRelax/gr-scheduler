@@ -579,7 +579,7 @@ describe('表 T-206 -- the two rows FR-031 says the bounds are', () => {
 //    段数と合計メモリに上限を持ち」
 // ===========================================================================
 
-// WHY: DFC-1024 -- the default timeout reds these cases on a loaded machine though they pass
+// Why: DFC-1024 -- the default timeout reds these cases on a loaded machine though they pass
 // alone; an explicit ceiling, not a retry (JDG-642).
 const LOADED_MACHINE_TIMEOUT_MS = 60_000
 
@@ -606,8 +606,8 @@ describe('FR-031 / S-94 / S-95 -- the bound the REAL shell holds the REAL startu
     const { loop } = drive(START, S_94)
     for (let undone = 1; undone <= S_94; undone += 1) loop.receiveInput(SK_6)
 
-    // see UN-8, FR-046
-    // WHY: showing the status line also slides the view, and zoom and scroll are no undo target,
+    // Spec: UN-8, FR-046
+    // Why: showing the status line also slides the view, and zoom and scroll are no undo target,
     // so the six view rows (S-75 to S-78, S-176, S-177) are laid back from START before the compare.
     const VIEW_KEYS = ['zoomX', 'zoomY', 'scrollDate', 'scrollTaskGroupId', 'scrollTaskGroupFraction', 'scrollDateFraction']
     const startSettings = START.documentSettings as unknown as Record<string, unknown>

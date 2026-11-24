@@ -8,7 +8,7 @@ import { pathToFileURL } from 'node:url'
 
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
-// WHY: each test runs git and the tools in a copy outside the tree; under the GT-2 load one took over 5 s (JDG-3116).
+// Why: each test runs git and the tools in a copy outside the tree; under the GT-2 load one took over 5 s (JDG-3116).
 const TOOL_RUN_TIMEOUT_MS = 20_000
 vi.setConfig({ testTimeout: TOOL_RUN_TIMEOUT_MS })
 
@@ -28,7 +28,7 @@ const RELAY_VERSION_TOOL = join(TOOLS, 'relay_version.mjs')
 const VERSIONS_FILE = join('tools', 'artifact-versions.json')
 const BUILT_AT = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/
 
-// WHY: the build tools are plain .mjs files with no type declarations; they are loaded by path and typed here.
+// Why: the build tools are plain .mjs files with no type declarations; they are loaded by path and typed here.
 async function relayVersion(): Promise<RelayVersionTool> {
   return (await import(pathToFileURL(RELAY_VERSION_TOOL).href)) as RelayVersionTool
 }
@@ -95,7 +95,7 @@ function tool(root: string, args: string[]): { status: number | null; output: st
 
 const read = (root: string, path: string): string => readFileSync(join(root, path), 'utf8')
 
-// WHY: a first commit holds inputs and a version together, so the starting state is the one a bump leaves behind.
+// Why: a first commit holds inputs and a version together, so the starting state is the one a bump leaves behind.
 function repoWithBumpedVersions(): string {
   const root = temporaryRoot()
   git(root, ['init', '-q'])

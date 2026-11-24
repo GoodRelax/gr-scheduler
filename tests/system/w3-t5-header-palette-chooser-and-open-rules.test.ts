@@ -1,6 +1,6 @@
 // W3 spec-only tester 5: HF-10, FR-096, FR-053, FR-095, OP-10 and table T-109 measured on the running application.
 
-// WHY: positions, widths and what is printed are decided by layout in a real browser; every expected value is read from docs/spec.
+// Why: positions, widths and what is printed are decided by layout in a real browser; every expected value is read from docs/spec.
 
 import { expect, test, type Page } from '@playwright/test'
 import { readFileSync } from 'node:fs'
@@ -13,24 +13,24 @@ const SPEC = join(process.cwd(), 'docs', 'spec')
 const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8'))
 const GLOSSARY = unbroken(readFileSync(join(SPEC, '_assets', 'tbl-glossary.md'), 'utf8'))
 
-// see HF-10
+// Spec: HF-10
 const HF_10_COUNT_PLACE =
   '⭐ `HF-12` の折りたたみ込んだタスクグループの数は、並びのいちばん左の操作子（すべて折りたたむ）のすぐ左に置き、数の右端をその操作子の外形の左端に接すること（MUST）'
-// see FR-096
+// Spec: FR-096
 const FR_096_ONE_COLUMN = '⭐ 選択面は、形式を上の順で上から下へ 1 段に 1 つずつ並べること（MUST）'
 const FR_096_SAME_SIZE = '⭐ 形式のボタンは、幅も高さもすべて揃えること（MUST）'
 const FR_096_WIDTH_FROM_THE_ROW =
   '⭐ 選択面の幅は、縦に並べた形式と見出しの段が決めること（MUST） —— 閲覧環境の窓の幅の割合で抑えてはならない（MUST NOT）'
-// see FR-053
+// Spec: FR-053
 const FR_053_RECORDING_ON_THE_BAND =
   '⭐ ただし操作と描画を記録しているあいだ（表 T-206 の `S-206`）は、記録の入口（表 T-109 の `IC-76`）も押下状態のまま帯の `IC-53` の左に載せること（MUST）'
-// see FR-095
+// Spec: FR-095
 const FR_095_BOTH_TIERS_BACK =
   '⭐ 新しく始めた後は、`FR-101` のファイルの状態を 2 段ともまだ書いていない側へ戻すこと（MUST）'
-// see OP-10
+// Spec: OP-10
 const OP_10_EITHER_NULL =
   '⭐ 表示位置は `scrollDate`（`S-77`）と `scrollTaskGroupId`（`S-78`）の組であり、どちらか一方でも `null` なら、表示位置が `null` であるとすること（MUST）'
-// see T-109
+// Spec: T-109
 const T_109_BLOCKS =
   '同じ面で同じ `群` の行を 1 つの塊に寄せ、塊どうしは塊の最初の行が本表に現れる順に、塊の中は本表の行の順に並べること（MUST）'
 const T_109_GROUP_NOT_PRINTED = '⛔ 本表の `群` の欄は、この塊を決めるためだけに在る。画面に刷ってはならない（MUST NOT）'
@@ -38,7 +38,7 @@ const T_109_GROUP_NOT_PRINTED = '⛔ 本表の `群` の欄は、この塊を決
 const VIEWPORT = { width: 1920, height: 1080 }
 test.use({ viewport: VIEWPORT, locale: 'ja-JP' })
 
-// WHY: half a pixel either way is subpixel layout, not a different place.
+// Why: half a pixel either way is subpixel layout, not a different place.
 const SUBPIXEL = 0.5
 
 const WORDS = JSON.parse(readFileSync(join(SPEC, '_source', 'display-words.json'), 'utf8')) as {
@@ -48,7 +48,7 @@ const NEVER_SAVED_JA = WORDS.fileStatus.find((one) => one.state === 'neverSaved'
 
 const TEMPLATE_TEXT = readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8')
 
-// see S-75, S-77, S-78
+// Spec: S-75, S-77, S-78
 const settingKey = (id: string): string => {
   const row = specTable('T-203').rows.find((one) => one.id === id)
   const key = bare(row?.by['キー'] ?? '')
@@ -59,7 +59,7 @@ const ZOOM_X = settingKey('S-75')
 const SCROLL_DATE = settingKey('S-77')
 const SCROLL_GROUP = settingKey('S-78')
 
-// WHY: a headless browser has no file picker; this stands in for the host and hands over the next file (window.__w3Next).
+// Why: a headless browser has no file picker; this stands in for the host and hands over the next file (window.__w3Next).
 const HOST_STUB = `(() => {
   window.__w3Next = null
   const handleOf = (name, text) => ({
@@ -103,7 +103,7 @@ async function openByDrop(page: Page, name: string, text: string): Promise<void>
     },
     { name, text },
   )
-  // WHY: a dropped GRS JSON opens as a replace without U-56 (OP-19).
+  // Why: a dropped GRS JSON opens as a replace without U-56 (OP-19).
   await page.waitForTimeout(200)
   if (await page.locator('[data-role="Confirmation"] [data-confirmation-answer="proceed"]').count()) await answerConfirmation(page, 'proceed')
   await settle(page)
@@ -135,7 +135,7 @@ function documentWith(edit: (root: Record<string, any>) => void): string {
   return JSON.stringify(root)
 }
 
-// see T-109
+// Spec: T-109
 interface IconRow {
   readonly id: string
   readonly surfaces: readonly string[]
@@ -222,7 +222,7 @@ test(`FR-096: "${FR_096_ONE_COLUMN}" / "${FR_096_SAME_SIZE}" / "${FR_096_WIDTH_F
     if (above !== undefined) expect(button.top, `${FR_096_ONE_COLUMN} -- format ${index} stands below format ${index - 1}`).toBeGreaterThanOrEqual(above.bottom - SUBPIXEL)
   }
 
-  // WHY: a window 1.5 times the chooser; a width held to half the window or less would wrap or shrink the buttons here.
+  // Why: a window 1.5 times the chooser; a width held to half the window or less would wrap or shrink the buttons here.
   await page.setViewportSize({ width: Math.floor(wide.chooser.width * 1.5), height: VIEWPORT.height })
   await settle(page)
   const narrow = await measure()
@@ -284,7 +284,7 @@ test(`FR-095: "${FR_095_BOTH_TIERS_BACK}"`, async ({ page }) => {
 test(`OP-10: "${OP_10_EITHER_NULL}"`, async ({ page }) => {
   await launch(page)
   const firstRow = (JSON.parse(TEMPLATE_TEXT) as { schedule: { taskGroups: { id: string }[] } }).schedule.taskGroups[0]?.id ?? ''
-  // WHY: OP-10 rules the picture drawn at open; the fit entrance (IC-10, FR-055) draws the picture it would choose.
+  // Why: OP-10 rules the picture drawn at open; the fit entrance (IC-10, FR-055) draws the picture it would choose.
   const pictureOf = async (): Promise<Readonly<Record<string, readonly number[]>>> =>
     page.evaluate(() => {
       const boxes: Record<string, number[]> = {}
@@ -299,7 +299,7 @@ test(`OP-10: "${OP_10_EITHER_NULL}"`, async ({ page }) => {
     if (shared.length < 5) return [`only ${shared.length} figures drawn in both pictures`]
     return shared.filter((key) => JSON.stringify(a[key]) !== JSON.stringify(b[key]))
   }
-  // WHY: a zoom no fit would choose, so a kept place is told apart from a fitted one.
+  // Why: a zoom no fit would choose, so a kept place is told apart from a fitted one.
   const ODD_ZOOM = 0.37
   const openedPicture = async (date: string | null, group: string | null) => {
     await openByDrop(

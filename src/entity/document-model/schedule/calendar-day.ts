@@ -1,4 +1,4 @@
-// Schedule -- the calendar day and the instant: their text form, their order and their numbers.
+// File: Schedule: the calendar day and the instant: their text form, their order and their numbers.
 // @unit      UF-170  (docs/spec/05-07-design.md, table T-075)
 // @component Schedule, layer documentModel (table T-062)
 // @purity    pure
@@ -9,10 +9,10 @@ export interface CalendarDay {
   readonly day: number
 }
 
-// TRAP: the day is the lexical date part; converting through a time zone moves it by one on some machines.
+// Trap: the day is the lexical date part; converting through a time zone moves it by one on some machines.
 const DATE_HEAD = /^(\d{4})-(\d{2})-(\d{2})(?:[T ].*)?$/
 
-// see FR-054, EX-2
+// Spec: FR-054, EX-2
 /** @purity pure */
 export function dayOf(text: string | null): CalendarDay | null {
   if (text === null) return null
@@ -44,7 +44,7 @@ function minuteOfTimeText(text: string): number | null {
   return hour * MINUTES_PER_HOUR + minute
 }
 
-// see FR-054, IV-14
+// Spec: FR-054, IV-14
 /** @purity pure */
 export function instantOf(text: string | null): number | null {
   const read = dayWithTimeOf(dayOf(text), text)
@@ -75,13 +75,13 @@ export function dayOfInstant(instant: number): CalendarDay {
   return dayFromSerial(Math.floor(instant / MINUTES_PER_CALENDAR_DAY))
 }
 
-// WHY: an end at 00:00 closes the day before; parsed once, as the layout reads it for every Task (DFC-2471).
+// Why: an end at 00:00 closes the day before; parsed once, as the layout reads it for every Task (DFC-2471).
 /** @purity pure */
 export function finishSideDayOf(text: string | null): CalendarDay | null {
   return finishSideDayFrom(dayOf(text), text)
 }
 
-// WHY: a reader that already holds dayOf(text) passes it, so the date part is not parsed twice (DFC-2471).
+// Why: a reader that already holds dayOf(text) passes it, so the date part is not parsed twice (DFC-2471).
 /** @purity pure */
 export function finishSideDayFrom(day: CalendarDay | null, text: string | null): CalendarDay | null {
   const read = dayWithTimeOf(day, text)
@@ -89,7 +89,7 @@ export function finishSideDayFrom(day: CalendarDay | null, text: string | null):
   return dayFromSerial(serial(read.day) - (read.minute > 0 ? 0 : 1))
 }
 
-// see RV-1, RV-6, BL-2, FR-054, FR-158
+// Spec: RV-1, RV-6, BL-2, FR-054, FR-158
 /** @purity pure */
 export function edgeInstantOf(text: string | null, side: 'start' | 'finish', instantAt: () => number | null,
                               isTimeOfDayVisible: boolean, dayAt: (text: string | null) => CalendarDay | null): number | null {
@@ -110,9 +110,9 @@ export function textOfInstant(instant: number): string {
   return textOfDayAt(day, `${pad(Math.floor(minute / MINUTES_PER_HOUR))}:${pad(minute % MINUTES_PER_HOUR)}:00`)
 }
 
-// see WT-6
+// Spec: WT-6
 export const DAY_START_TIME = '00:00:00'
-// see WT-7
+// Spec: WT-7
 export const DAY_END_TIME = '23:59:00'
 
 /** @purity pure */
@@ -121,13 +121,13 @@ function dateTextOf(day: CalendarDay): string {
   return `${pad(day.year, 4)}-${pad(day.month, 2)}-${pad(day.day, 2)}`
 }
 
-// see EX-7, UF-170
+// Spec: EX-7, UF-170
 /** @purity pure */
 export function textOfDayAt(day: CalendarDay, time: string): string {
   return `${dateTextOf(day)}T${time}`
 }
 
-// TRAP: this is the day's KEY, read back by dayOf and used as a Map key on per-frame paths;
+// Trap: this is the day's KEY, read back by dayOf and used as a Map key on per-frame paths;
 // a writer that stores a column picks a side (textOfDayStart, textOfStartSide, ...) instead.
 /** @purity pure */
 export function textOfDay(day: CalendarDay): string {
@@ -161,7 +161,7 @@ export function isSameDay(left: string | null, right: string | null): boolean {
 
 const LAST_YEAR_DATE_UTC_SHIFTS = 99
 
-// WHY: Date.UTC reads the years 0 to 99 as 1900 to 1999, so a typed 0075 would come back as 1975
+// Why: Date.UTC reads the years 0 to 99 as 1900 to 1999, so a typed 0075 would come back as 1975
 // and pass the accepted range (T-214); setUTCFullYear takes the year as written.
 /** @purity pure */
 function utcMillisecondsOf(year: number, monthIndex: number, day: number): number {

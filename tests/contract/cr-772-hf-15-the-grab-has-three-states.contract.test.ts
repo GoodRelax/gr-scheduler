@@ -18,7 +18,7 @@ const TRAVEL_EVENT = 'taskGroupGrabTravelPassed'
 
 const STRIP = { kind: 'taskGroupGrabStrip', taskGroupId: 'g1' }
 
-// WHY: wave 2 of CR-767 (JDG-2364) puts grabPressed and carrying under the composite grabbed;
+// Why: wave 2 of CR-767 (JDG-2364) puts grabPressed and carrying under the composite grabbed;
 // the value holds the child, read back here as the dotted state key (grabbed.carrying).
 const grabOf = (session: ScreenSession): string => {
   const path: string[] = []

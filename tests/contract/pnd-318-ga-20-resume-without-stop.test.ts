@@ -29,7 +29,7 @@ const T_245_NO_NEW_REFUSALS = '⛔ 本要求は新しい拒み方を立てない
 afterEach(restoreAnimationFrames)
 
 const withoutStop = (): Document => {
-  const document = benchDocument({ isProgressMarkerVisible: true }) // see S-63
+  const document = benchDocument({ isProgressMarkerVisible: true }) // Spec: S-63
   const tasks = document.schedule.tasks.map((one) => (one.uid === PAUSED_UID ? { ...one, stop: null } : one))
   return { ...document, schedule: { ...document.schedule, tasks } }
 }

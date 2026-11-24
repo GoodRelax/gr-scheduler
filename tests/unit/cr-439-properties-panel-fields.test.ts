@@ -43,7 +43,7 @@ const FR_007 =
   '作成者が色を選ぶとき、`GRS` は、**表 T-017 のパレット色**から選ばせ、線色と塗り色を個別に指定できるようにすること。'
 const IF_9_COMMIT = '**編集できる欄で確定した値を、その欄が名乗る行 ID とともに返し**'
 
-// WHY: since CR-548 the cell goes on, after the list's full stop, to point at table T-294.
+// Why: since CR-548 the cell goes on, after the list's full stop, to point at table T-294.
 const CL_1_COLORS = ((rowOf('T-017', 'CL-1').cells[1] ?? '').split('。')[0] ?? '')
   .split('/')
   .map((one) => one.replace(/[*。]/g, '').trim())
@@ -75,10 +75,10 @@ const field = (row: string, name: string, isEditable: boolean, controls: Propert
 
 const FIELDS: PropertyField[] = [
   field('PR-1', 'Name label', true, [controlOf('name', 'text', 'Kick-off')]),
-  // WHY: the renderer gives a read-only row no control, so this description gives none either.
+  // Why: the renderer gives a read-only row no control, so this description gives none either.
   { row: 'PR-9', name: 'Percent label', text: '50', isEditable: false, controls: [] },
   field('PR-17', 'Glyph label', true, [controlOf('milestoneGlyph', 'choice', 'circle', ['circle', 'diamond', 'star'])]),
-  // WHY: the color control as the renderer describes it after CR-689 (CV-9): a blank for the
+  // Why: the color control as the renderer describes it after CR-689 (CV-9): a blank for the
   // theme, the palette names, a swatch per choice and the theme and custom entrances.
   field('PR-12', 'Stroke label', true, [
     {
@@ -159,7 +159,7 @@ function raise(built: Stage, node: FakeElement, type: string, extra: Record<stri
   }
 }
 
-// see CV-9
+// Spec: CV-9
 const ENTRY_TAGS = ['INPUT', 'TEXTAREA', 'SELECT', 'BUTTON']
 
 function entriesOf(built: Stage, row: string): FakeElement[] {
@@ -241,7 +241,7 @@ describe('FR-006 -- 表 T-016 の項目をプロパティパネルに出し', ()
     expect(offered).toEqual(['circle', 'diamond', 'star'])
   })
 
-  // see CV-9
+  // Spec: CV-9
   it('FR-007 表 T-017 のパレット色から選ばせ -- the color field offers the CL-1 palette, and the host picker only after the custom entrance is pressed (CV-9)', () => {
     const { built } = drawn()
     const pickersOf = (): FakeElement[] =>

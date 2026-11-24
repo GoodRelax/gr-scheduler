@@ -33,7 +33,7 @@ describe('T-223 DU-1 / DU-2 -- the clauses this file is driven by still stand', 
   })
 })
 
-// WHY: Q holds P, P holds C (C is a leaf, so it rides on P's task group, FR-058); X holds Y; D derives task group G_D but
+// Why: Q holds P, P holds C (C is a leaf, so it rides on P's task group, FR-058); X holds Y; D derives task group G_D but
 // rides on X's task group; M is a hand-made task group. Q, P and X ride on the task groups they derive.
 const Q = 1
 const P = 2

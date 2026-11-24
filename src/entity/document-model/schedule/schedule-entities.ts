@@ -1,4 +1,4 @@
-// Schedule -- the schedule group's entity types, their column tables and the default calendar.
+// File: Schedule: the schedule group's entity types, their column tables and the default calendar.
 // @unit      UF-126  (docs/spec/05-07-design.md, table T-075)
 // @component Schedule, layer documentModel (table T-062)
 // @purity    pure
@@ -380,7 +380,7 @@ export interface BaselineTask {
   readonly milestone: boolean | null
 }
 
-// see DR-2
+// Spec: DR-2
 export interface Schedule {
   readonly project: Project
   readonly calendars: readonly Calendar[]
@@ -396,7 +396,7 @@ export interface Schedule {
   readonly baselineTasks: readonly BaselineTask[]
 }
 
-// see T-058, IV-14
+// Spec: T-058, IV-14
 export const DATE_COLUMNS: {
   readonly Project: readonly (keyof Project & string)[]
   readonly Task: readonly (keyof Task & string)[]
@@ -413,7 +413,7 @@ export const DATE_COLUMNS: {
   BaselineTask: ['start', 'finish'],
 }
 
-// see T-058
+// Spec: T-058
 export interface ColumnShape {
   readonly kind: string
   readonly choices: readonly string[] | null
@@ -422,7 +422,7 @@ export interface ColumnShape {
   readonly isNullable: boolean
 }
 
-// see T-058, T-016
+// Spec: T-058, T-016
 export const COLUMN_SHAPES: {
   readonly Task: {
     readonly [column: string]: ColumnShape
@@ -526,7 +526,7 @@ export const COLUMN_SHAPES: {
   },
 }
 
-// see T-057
+// Spec: T-057
 export interface ForeignKeyColumn {
   readonly fromColumn: string
   readonly child: string
@@ -538,7 +538,7 @@ export interface NestedRows {
   readonly entity: string
 }
 
-// see T-056, T-058
+// Spec: T-056, T-058
 export interface EntityRows {
   readonly entity: string
   readonly scheduleKey: string | null
@@ -548,7 +548,7 @@ export interface EntityRows {
   readonly nested: readonly NestedRows[]
 }
 
-// see IV-1, IV-2
+// Spec: IV-1, IV-2
 export const ENTITY_ROWS: readonly EntityRows[] = [
   {
     entity: 'Project',
@@ -720,7 +720,7 @@ export const ENTITY_ROWS: readonly EntityRows[] = [
   },
 ]
 
-// see T-058
+// Spec: T-058
 export const COLUMN_DEFAULTS: {
   readonly Project: {
     readonly outlineBase: NonNullable<Project['outlineBase']>
@@ -737,7 +737,7 @@ export const COLUMN_DEFAULTS: {
   TaskVisual: { milestoneGlyph: 'diamond' },
 }
 
-// see T-209, FR-054
+// Spec: T-209, FR-054
 export const DEFAULT_CALENDAR_VALUES: {
   /** S-106, as `WeekDay.dayType` (1 = Sunday) */
   readonly 'S-106': readonly number[]

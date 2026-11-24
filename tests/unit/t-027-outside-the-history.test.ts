@@ -265,7 +265,7 @@ const KEYED_CASES: readonly OutsideCase[] = [
     } as unknown as DocumentCommand,
     before: [],
   },
-  // WHY: CR-572 took the dual cursor (S-65) and the properties panel width out of the document,
+  // Why: CR-572 took the dual cursor (S-65) and the properties panel width out of the document,
   // so table T-027 no longer has a row for the dual cursor and CM-67 writes the task group panel width alone.
   {
     undoRow: 'UN-16',
@@ -283,7 +283,7 @@ const KEYED_CASES: readonly OutsideCase[] = [
 
 const OUTSIDE_CASES: readonly OutsideCase[] = [...UN_7_CASES, ...KEYED_CASES]
 
-// WHY: UN-19 (FR-153) clears browser storage and reloads the page; it writes no document column.
+// Why: UN-19 (FR-153) clears browser storage and reloads the page; it writes no document column.
 const ROWS_WITH_NO_DOCUMENT_COLUMN = ['UN-9', 'UN-10', 'UN-11', 'UN-19'] as const
 
 
@@ -300,11 +300,11 @@ describe('表 T-027 -- the 対象外 half, and this file covering all of it', ()
   })
 
   it('UN-7 covers exactly the 真偽 rows of 表 T-202, and the other rows are left to UN-13', () => {
-    // WHY: CR-572 moved S-65 and S-66 to table T-206 and the ruler rows S-2 and S-3 in beside S-70.
-    // WHY: CR-677 added the export span S-518 / S-519 (dates); UN-13 names it (FR-055, FX-1).
+    // Why: CR-572 moved S-65 and S-66 to table T-206 and the ruler rows S-2 and S-3 in beside S-70.
+    // Why: CR-677 added the export span S-518 / S-519 (dates); UN-13 names it (FR-055, FX-1).
     expect(T_202_BOOLEAN_ROWS.length).toBeGreaterThan(0)
     expect(UN_7_CASES).toHaveLength(T_202_BOOLEAN_ROWS.length)
-    // WHY: CR-710 added the two time zone rows S-574 / S-575 to UN-13 (FR-156); S-576 is a boolean row (UN-7).
+    // Why: CR-710 added the two time zone rows S-574 / S-575 to UN-13 (FR-156); S-576 is a boolean row (UN-7).
     expect([...T_202_OTHER_ROWS].sort()).toEqual(
       ['S-2', 'S-234', 'S-3', 'S-518', 'S-519', 'S-574', 'S-575', 'S-58', 'S-70'],
     )
@@ -425,7 +425,7 @@ const UN_13_CASES: readonly InsideCase[] = [
     commandRow: 'CM-74',
     settingRow: 'S-234',
     key: 'displayScale',
-    // WHY: 150, not 100: CR-409 made 100 the template's own step, and the case must change something.
+    // Why: 150, not 100: CR-409 made 100 the template's own step, and the case must change something.
     wanted: 150,
     command: {
       kind: commandKindOf('CM-74'),
@@ -469,7 +469,7 @@ describe('表 T-027 UN-9 / UN-10 / UN-11 -- outside the document, not merely out
 
   it('the document root and the 見せ方の群 hold no key for any of the three', () => {
     const named = ['selection', 'selectedIds', 'language', 'displayLanguage', 'armed', 'stance']
-    // WHY: the root keys are read from the schema they are generated from (CR-768).
+    // Why: the root keys are read from the schema they are generated from (CR-768).
     const schema = JSON.parse(readFileSync(SCHEMA_PATH, 'utf8')) as { readonly properties: Record<string, unknown> }
     const keys = [...Object.keys(schema.properties), ...Object.keys(SETTINGS_DEFAULTS)]
     for (const key of named) expect(keys, key).not.toContain(key)

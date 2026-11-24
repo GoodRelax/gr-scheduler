@@ -25,7 +25,7 @@ function numberIn(cell: string, what: string): number {
   return value
 }
 
-// WHY: by position, not heading -- these headings are Japanese (rule 03
+// Why: by position, not heading -- these headings are Japanese (rule 03
 // section 5 keeps this tree ASCII), so a changed column fails loudly here.
 /** @purity pure */
 function cellOf(table: SpecTable, id: string, column: number, columns: number): string {
@@ -41,18 +41,18 @@ function cellOf(table: SpecTable, id: string, column: number, columns: number): 
 
 const BASE_SCREEN = screenOf(rowOf(T025, 'MC-6'))
 
-// WHY: table T-217 holds six cells after the row ID -- key, type, default,
+// Why: table T-217 holds six cells after the row ID -- key, type, default,
 // floor, ceiling, meaning -- with the default in the third.
 const T217_COLUMNS = 6
 const T217_DEFAULT = 2
 
-// see S-132
+// Spec: S-132
 const CORNER_RADIUS_PX = numberIn(
   cellOf(T217, 'S-132', T217_DEFAULT, T217_COLUMNS),
   'table T-217 row S-132',
 )
 
-// WHY: table T-206 holds three cells after the row ID -- what the value is,
+// Why: table T-206 holds three cells after the row ID -- what the value is,
 // the default, and the note.
 const T206_COLUMNS = 3
 const T206_DEFAULT = 1
@@ -62,13 +62,13 @@ function settingOf(id: string): number {
   return numberIn(cellOf(T206, id, T206_DEFAULT, T206_COLUMNS), `table T-206 row ${id}`)
 }
 
-// see S-208
+// Spec: S-208
 const PRESS_OR_DRAG_PX = settingOf('S-208')
 
-// see S-193
+// Spec: S-193
 const MULTILINE_ROWS = settingOf('S-193')
 
-// WHY: table T-236 holds five cells after the row ID -- what the color is,
+// Why: table T-236 holds five cells after the row ID -- what the color is,
 // the light theme, the dark theme, whether it follows the hue, and the note.
 const T236_COLUMNS = 5
 const T236_LIGHT = 1
@@ -77,7 +77,7 @@ const T236_FOLLOWS_HUE = 3
 
 const FOLLOWS_THE_HUE = String.fromCharCode(0x25cb)
 
-// WHY: the row writes its hue as a letter and the other two parts as
+// Why: the row writes its hue as a letter and the other two parts as
 // percentages, so only those two are taken; the hue comes from AT-19.
 /** @purity pure */
 function ruleColorParts(dark: boolean): { saturation: number; lightness: number } {
@@ -92,7 +92,7 @@ function ruleColorParts(dark: boolean): { saturation: number; lightness: number 
   return { saturation: Number(found[1]), lightness: Number(found[2]) }
 }
 
-// WHY: a guard, not an assertion of its own -- the case below resolves the
+// Why: a guard, not an assertion of its own -- the case below resolves the
 // color at the document's hue, which is only right while this mark holds.
 const RULE_COLOR_FOLLOWS_THE_HUE = cellOf(
   T236,
@@ -101,7 +101,7 @@ const RULE_COLOR_FOLLOWS_THE_HUE = cellOf(
   T236_COLUMNS,
 ).includes(FOLLOWS_THE_HUE)
 
-// WHY: table T-016 holds six cells after the row ID -- the column, the
+// Why: table T-016 holds six cells after the row ID -- the column, the
 // input form, what it belongs to, the kinds it is shown for, the note, and the MSPDI counterpart.
 const T016_COLUMNS = 6
 const T016_FORM = 1
@@ -109,7 +109,7 @@ const T016_SUBJECT = 2
 
 const MULTILINE_FORM = String.fromCharCode(0x8907, 0x6570, 0x884c)
 
-// WHY: not written out -- FR-006 forbids enumerating these rows in prose, so
+// Why: not written out -- FR-006 forbids enumerating these rows in prose, so
 // the roster is taken from the table; a row added for a comment box adds itself.
 /** @purity pure */
 function rowsBelongingTo(entity: string): readonly string[] {
@@ -137,7 +137,7 @@ function isMultiline(id: string): boolean {
   return cellOf(T016, id, T016_FORM, T016_COLUMNS).includes(MULTILINE_FORM)
 }
 
-// WHY: given as code-point escapes, not literal characters -- rule 03
+// Why: given as code-point escapes, not literal characters -- rule 03
 // section 5 keeps this tree ASCII, for the two words table T-023b names.
 const HIGHLIGHT_BOX_WORD = String.fromCharCode(
   0x30cf, 0x30a4, 0x30e9, 0x30a4, 0x30c8, 0x30dc, 0x30c3, 0x30af, 0x30b9,
@@ -146,7 +146,7 @@ const COMMENT_BOX_WORD = String.fromCharCode(
   0x30b3, 0x30e1, 0x30f3, 0x30c8, 0x30dc, 0x30c3, 0x30af, 0x30b9,
 )
 
-// WHY: not found by the word alone -- table T-109 prints the comment box's
+// Why: not found by the word alone -- table T-109 prints the comment box's
 // name in two entrances' purpose, so the holding is looked up first.
 /** @purity pure */
 function entranceArming(holding: string): string {
@@ -168,13 +168,13 @@ function entranceArming(holding: string): string {
 const HIGHLIGHT_BOX_ENTRANCE = entranceArming(HIGHLIGHT_BOX_WORD)
 const COMMENT_BOX_ENTRANCE = entranceArming(COMMENT_BOX_WORD)
 
-// see FR-065
+// Spec: FR-065
 const AGENT_API_ENTRANCE = 'IC-20'
 
-// see AM-3
+// Spec: AM-3
 const AM_3 = 'readDocument'
 
-// WHY: only the generated block is read, between the markers the generator
+// Why: only the generated block is read, between the markers the generator
 // and check-generated-constants.py use -- nothing a person wrote is read.
 /** @purity semi-pure-immutable */
 function generatedNumber(file: string, constant: string, rowId: string): number {
@@ -212,7 +212,7 @@ test.beforeAll(async () => {
 })
 
 test.afterAll(async () => {
-  // WHY: this is the hook's own allowance, not an assertion's -- see
+  // Why: this is the hook's own allowance, not an assertion's -- see
   // CLEARING_UP_MS in ./live-app.
   test.setTimeout(CLEARING_UP_MS)
   await browser?.close()
@@ -223,7 +223,7 @@ interface Opened {
   close(): Promise<void>
 }
 
-// WHY: not a fixed pause after the load -- the shell may draw twice on the
+// Why: not a fixed pause after the load -- the shell may draw twice on the
 // way up, so this waits for two identical readings of the drawing.
 /** @purity non-pure */
 async function openTheApp(baseURL: string | undefined): Promise<Opened> {
@@ -244,7 +244,7 @@ async function openTheApp(baseURL: string | undefined): Promise<Opened> {
   }
 }
 
-// WHY: a real pointer, not element.click() -- the shell builds its input
+// Why: a real pointer, not element.click() -- the shell builds its input
 // from pointer events, and a synthetic click has reached nothing here before.
 /** @purity non-pure */
 async function pressEntrance(page: Page, icon: string): Promise<boolean> {
@@ -263,7 +263,7 @@ async function pressEntrance(page: Page, icon: string): Promise<boolean> {
   return true
 }
 
-// see FR-029
+// Spec: FR-029
 /** @purity semi-pure-mutable */
 async function armingOf(page: Page, icon: string): Promise<string | null> {
   return page.evaluate(
@@ -279,7 +279,7 @@ async function arm(page: Page, entrance: string): Promise<void> {
   expect(await armingOf(page, entrance), `${entrance} stands armed`).toBe('true')
 }
 
-// see IN-2
+// Spec: IN-2
 /** @purity non-pure */
 async function cursorAt(page: Page, x: number, y: number): Promise<string> {
   await page.mouse.move(x, y)
@@ -291,7 +291,7 @@ async function cursorAt(page: Page, x: number, y: number): Promise<string> {
 
 const REACH_PX = 160
 
-// WHY: ground below the last task group is no good -- FR-019 holds a position by a
+// Why: ground below the last task group is no good -- FR-019 holds a position by a
 // date and a task group identifier, and ground no task group covers points at no task group.
 /** @purity non-pure */
 async function groundOnADrawnTaskGroup(page: Page): Promise<{ x: number; y: number } | null> {
@@ -330,7 +330,7 @@ interface Drawn {
   readonly rx: number | null
 }
 
-// WHY: the corner radius is read from the resolved geometry (rx of an SVG
+// Why: the corner radius is read from the resolved geometry (rx of an SVG
 // rectangle), not the attribute text, so a style-based value is still seen.
 /** @purity semi-pure-mutable */
 async function drawnElements(page: Page): Promise<Drawn[]> {
@@ -355,7 +355,7 @@ async function drawnElements(page: Page): Promise<Drawn[]> {
   }, CANVAS)
 }
 
-// WHY: by multiset, not set -- a placement drawing one more of an existing
+// Why: by multiset, not set -- a placement drawing one more of an existing
 // shape would be invisible to a plain set difference.
 /** @purity pure */
 function addedBy(before: readonly Drawn[], after: readonly Drawn[]): Drawn[] {
@@ -393,7 +393,7 @@ async function openTheAgentApi(page: Page): Promise<void> {
   ).toBe('object')
 }
 
-// WHY: goes red if the tree's corner radius stops matching S-132 -- this
+// Why: goes red if the tree's corner radius stops matching S-132 -- this
 // judges the generated road, not the browser; the drawn rx is the case below.
 test(`S-132: the tree carries the corner radius table T-217 states (${CORNER_RADIUS_PX})`, () => {
   expect(
@@ -404,7 +404,7 @@ test(`S-132: the tree carries the corner radius table T-217 states (${CORNER_RAD
   ).toBe(CORNER_RADIUS_PX)
 })
 
-// WHY: goes red if a placed highlight box's corner radius is not S-132 at
+// Why: goes red if a placed highlight box's corner radius is not S-132 at
 // every zoom (FR-019); pressed on the dev server since this checkout has no build.
 test(`S-132: a placed highlight box is drawn with a corner radius of ${CORNER_RADIUS_PX}`, async ({
   baseURL,
@@ -453,7 +453,7 @@ interface Painted {
   readonly html: string
 }
 
-// WHY: found by geometry, not a name -- the line inside the band carries no
+// Why: found by geometry, not a name -- the line inside the band carries no
 // mark of its own, so it is looked for where S-134 says the band sits.
 /** @purity semi-pure-mutable */
 async function dividerLines(page: Page): Promise<Painted[]> {
@@ -479,7 +479,7 @@ async function dividerLines(page: Page): Promise<Painted[]> {
   }, DIVIDER)
 }
 
-// WHY: goes red if the line's color is not S-149 at the document's own hue
+// Why: goes red if the line's color is not S-149 at the document's own hue
 // (AT-19); resolved by the browser itself, so no rounding rule can disagree.
 test('S-149: the screen paints the Panel Divider line with the color table T-236 states', async ({
   baseURL,
@@ -503,7 +503,7 @@ test('S-149: the screen paints the Panel Divider line with the color table T-236
       const doc = (read as () => unknown).call(api) as {
         schedule?: { project?: { themeHue?: unknown } }
       }
-      // WHY: S-72 is not in the document (FR-039); a start paints the browser's
+      // Why: S-72 is not in the document (FR-039); a start paints the browser's
       // color scheme, light when unread, and this case never presses IC-16.
       let dark = false
       try {
@@ -562,7 +562,7 @@ interface Field {
   }[]
 }
 
-// WHY: a control is [data-field-kind] inside [data-field-row]; multiline is
+// Why: a control is [data-field-kind] inside [data-field-row]; multiline is
 // asked of the element (textarea or editable box), not the tree's own word.
 /** @purity semi-pure-mutable */
 async function panelFields(page: Page): Promise<Field[]> {
@@ -570,7 +570,7 @@ async function panelFields(page: Page): Promise<Field[]> {
     const shown = document.querySelector(panel)
     if (shown === null) return []
     const out: Field[] = []
-    // WHY: a field's line is the element marked editable or not (FR-072); a color swatch also
+    // Why: a field's line is the element marked editable or not (FR-072); a color swatch also
     // names its row so MK-13 can focus it, and read as a field it repeated PR-28 once per swatch.
     for (const field of Array.from(shown.querySelectorAll('[data-field-row][data-editable]'))) {
       if (field.hasAttribute('data-field-kind')) continue
@@ -592,7 +592,7 @@ async function panelFields(page: Page): Promise<Field[]> {
   }, PROPERTIES) as Promise<Field[]>
 }
 
-// WHY: goes red if the comment box's body field has no control or the wrong
+// Why: goes red if the comment box's body field has no control or the wrong
 // form; reached by MK-13's double click, as IC-17 now only toggles the settings face (FR-072).
 test(`PR-21 / FR-006: the comment box's field carries the control table T-016 names`, async ({
   baseURL,
@@ -611,7 +611,7 @@ test(`PR-21 / FR-006: the comment box's field carries the control table T-016 na
     await page.mouse.up()
     await page.waitForTimeout(900)
 
-    // WHY: the arming stays up (table T-023b's closing rule), so it is put
+    // Why: the arming stays up (table T-023b's closing rule), so it is put
     // down before the box is picked -- else the press places a second box.
     await page.keyboard.press('Escape')
     await page.waitForTimeout(400)

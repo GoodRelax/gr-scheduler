@@ -207,7 +207,7 @@ describe('IN-4 -- Esc cancels the edit in place', () => {
     expect(editing.entry.value).toBe(STARTED_WITH)
   })
 
-  // WHY: one press clears one rung, so the surface lets go of the field on keyup; a browser sends both.
+  // Why: one press clears one rung, so the surface lets go of the field on keyup; a browser sends both.
   it('IN-4 -- after one Esc press (down and up) no unsettled edit is left, nothing is handed back, the value is restored', () => {
     const editing = typing('Half typed')
     raise(editing.built, editing.entry, 'keydown', { key: ESC_KEY })

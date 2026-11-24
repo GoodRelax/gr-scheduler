@@ -1,4 +1,4 @@
-// Registers change watchers and delivers each confirmed change to them.
+// File: NotifyChangeWatchers: Registers change watchers and delivers each confirmed change to them.
 // @unit      UF-24  (docs/spec/05-07-design.md, table T-075)
 // @component NotifyChangeWatchers, layer UseCase (table T-062)
 // @purity    non-pure
@@ -34,8 +34,8 @@ interface Registration {
   readonly mark: WatcherMark
 }
 
-// see SF-10, CP-15
-// WHY: the shell holds these (CR-530 decision 6); the delivery window sits beside them, not in a
+// Spec: SF-10, CP-15
+// Why: the shell holds these (CR-530 decision 6); the delivery window sits beside them, not in a
 // flag parameter of its own, which would let a subscriber fake this window's edge (uf-24-25).
 export interface ChangeWatchers {
   readonly byWatcher: Map<string, Registration>
@@ -47,7 +47,7 @@ export function emptyChangeWatchers(): ChangeWatchers {
   return { byWatcher: new Map<string, Registration>(), isDelivering: false }
 }
 
-// see AG-6, AM-17, ED-2, LM-16
+// Spec: AG-6, AM-17, ED-2, LM-16
 /** @purity non-pure */
 export function watchChanges(watchers: ChangeWatchers, subscription: ChangeWatcher): boolean {
   const replaced = watchers.byWatcher.has(subscription.watcher)
@@ -60,18 +60,18 @@ export function unwatchChanges(watchers: ChangeWatchers, watcher: string): boole
   return watchers.byWatcher.delete(watcher)
 }
 
-// see WS-2, RS-9
+// Spec: WS-2, RS-9
 /** @purity semi-pure-mutable */
 export function isDeliveringNotices(watchers: ChangeWatchers): boolean {
   return watchers.isDelivering
 }
 
-// see AG-6, WS-7
+// Spec: AG-6, WS-7
 /** @purity non-pure */
 export function notifyChangeWatchers(watchers: ChangeWatchers, confirmed: ConfirmedChange): NotifyOutcome {
   watchers.isDelivering = true
   try {
-    // TRAP: walk a copy: deliver may watch or unwatch, which would change the Map mid-walk.
+    // Trap: walk a copy: deliver may watch or unwatch, which would change the Map mid-walk.
     const round = [...watchers.byWatcher.values()]
     const notified: string[] = []
     const failures: DeliveryFailure[] = []
@@ -88,7 +88,7 @@ export function notifyChangeWatchers(watchers: ChangeWatchers, confirmed: Confir
         continue
       }
 
-      // TRAP: advance only the registration still held, or an unwatched or re-registered one is overwritten.
+      // Trap: advance only the registration still held, or an unwatched or re-registered one is overwritten.
       if (watchers.byWatcher.get(watcher) === held) {
         watchers.byWatcher.set(watcher, { subscription: held.subscription, mark: notice.mark })
       }

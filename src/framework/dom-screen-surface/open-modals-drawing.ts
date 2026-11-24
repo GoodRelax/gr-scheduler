@@ -1,4 +1,4 @@
-// DomScreenSurface -- the surfaces opened on top (IN-4), one kind of surface at a time.
+// File: DomScreenSurface: the surfaces opened on top (IN-4), one kind of surface at a time.
 // @unit      UF-109  (docs/spec/05-07-design.md, table T-075)
 // @component DomScreenSurface, layer Framework (table T-062)
 // @purity    non-pure
@@ -47,7 +47,7 @@ const HOLIDAY_SETTINGS_SURFACE = 'Holiday Settings'
 
 const MODAL_BORDER_PX = 1
 
-// see FR-036
+// Spec: FR-036
 const BASICS_BLOCK = 'basics'
 
 const HELP_LINK_ATTRIBUTE = 'data-help-link'
@@ -58,16 +58,16 @@ const DOWNLOAD_LINK_KEY = 'download'
 
 const ABOUT_LINK_KEY = 'about'
 
-// see FR-036, IC-20
+// Spec: FR-036, IC-20
 const AGENT_API_LINK_KEY = 'agentApi'
 
 // Provisional: OPQ-8
 const WATERMARK_UNLOCK_ENTRY_ATTRIBUTE = 'data-watermark-unlock'
 
-// see FR-036, T-256, S-457, S-458
-// TRAP: a height bound here (flex:1 with min-height:0, or column-fill over a bounded box) sends a
+// Spec: FR-036, T-256, S-457, S-458
+// Trap: a height bound here (flex:1 with min-height:0, or column-fill over a bounded box) sends a
 // block that does not fit into a column added to the right, and the help scrolls sideways.
-// WHY: the floor is the opened column width where that is under S-458, so the opened help never scrolls sideways.
+// Why: the floor is the opened column width where that is under S-458, so the opened help never scrolls sideways.
 /** @purity pure */
 function helpColumnsStyle(openedBodyWidthPx: number): string {
   const count = NOT_STORED_HELP_SIZES['S-202']
@@ -85,7 +85,7 @@ function helpColumnStyle(): string {
   return `${STYLE.helpColumn}display:flex;flex-direction:column;row-gap:${NOT_STORED_HELP_SIZES['S-457']}em;`
 }
 
-// see FR-036, S-437, S-457
+// Spec: FR-036, S-437, S-457
 /** @purity pure */
 function helpBlockFrameStyle(): string {
   return (
@@ -94,7 +94,7 @@ function helpBlockFrameStyle(): string {
   )
 }
 
-// see FR-036, WB-1, S-201
+// Spec: FR-036, WB-1, S-201
 /** @purity pure */
 function defaultHelpBox(belowAppHeader: ScreenRect): ScreenRect {
   const share = NOT_STORED_HELP_SIZES['S-201']
@@ -108,8 +108,8 @@ function defaultHelpBox(belowAppHeader: ScreenRect): ScreenRect {
   }
 }
 
-// see FR-036, T-335, WB-1, WB-3, S-455, FR-069
-// WHY: only the drawn box reaches down; the place WB-8 and WB-9 grab from stays, so folding restores it.
+// Spec: FR-036, T-335, WB-1, WB-3, S-455, FR-069
+// Why: only the drawn box reaches down; the place WB-8 and WB-9 grab from stays, so folding restores it.
 /** @purity pure */
 function helpPlacedOf(modal: HelpModal, isFullTextOpen = false): PlacedWindow {
   const range = modal.area.belowAppHeader
@@ -124,21 +124,21 @@ function reachingRangeBottom(box: ScreenRect, range: ScreenRect): ScreenRect {
   return { ...box, height: Math.max(box.height, range.y + range.height - box.y) }
 }
 
-// see FR-036, T-335
+// Spec: FR-036, T-335
 /** @purity pure */
 function helpWindowStyle(placed: PlacedWindow): string {
   const frame =
     `${STYLE.modal}display:flex;flex-direction:column;overflow:hidden;padding:0;` +
     `transform:none;max-width:none;max-height:none;font-size:${NOT_STORED_HELP_SIZES['S-203']}em;`
   if (placed.shown !== 'minimized') return frame + boxStyle(placed.box)
-  // WHY: WB-2 shrinks the title row to its content, so only the restore box's bottom-right corner is placed.
+  // Why: WB-2 shrinks the title row to its content, so only the restore box's bottom-right corner is placed.
   const { range, place } = placed
   const right = range.x + range.width - (place.x + place.width)
   const bottom = range.y + range.height - (place.y + place.height)
   return frame + `left:auto;top:auto;right:${right}px;bottom:${bottom}px;width:max-content;height:auto;`
 }
 
-// see FR-036, WB-1
+// Spec: FR-036, WB-1
 /** @purity pure */
 function openedHelpBodyWidthPx(modal: HelpModal, gutterPx: number): number {
   return defaultHelpBox(modal.area.belowAppHeader).width - MODAL_BORDER_PX * 2 - gutterPx
@@ -150,8 +150,8 @@ interface HelpColumnsDrawn {
   readonly fullText: HTMLElement
 }
 
-// see FR-036, S-458
-// WHY: the gutter is measured once the help is in the page; the host is never asked (LY-5), and a host with no layout keeps 0.
+// Spec: FR-036, S-458
+// Why: the gutter is measured once the help is in the page; the host is never asked (LY-5), and a host with no layout keeps 0.
 /** @purity non-pure */
 function fitHelpColumnFloor(drawn: HelpColumnsDrawn | null, modal: HelpModal): void {
   if (drawn === null) return
@@ -172,8 +172,8 @@ function helpBodyStyle(): string {
 
 const HELP_GLYPH_GAP_EM = 0.5
 
-// see FR-036, S-436
-// WHY: margin-left:auto, not only the growing explanation, so an assignment sent to the next line stays right.
+// Spec: FR-036, S-436
+// Why: margin-left:auto, not only the growing explanation, so an assignment sent to the next line stays right.
 /** @purity pure */
 function helpItemStyles(glyphCount: number): {
   readonly row: string
@@ -190,8 +190,8 @@ function helpItemStyles(glyphCount: number): {
   }
 }
 
-// see FR-036, IC-102
-// WHY: no data-icon, so the pointer never reads the legend as an entrance to press.
+// Spec: FR-036, IC-102
+// Why: no data-icon, so the pointer never reads the legend as an entrance to press.
 /** @purity non-pure */
 function helpLegendElement(host: Document, item: CommandItem): HTMLElement {
   const legend = made(host, 'span', STYLE.helpLegend)
@@ -204,7 +204,7 @@ function helpLegendElement(host: Document, item: CommandItem): HTMLElement {
   return legend
 }
 
-// see FR-036
+// Spec: FR-036
 /** @purity non-pure */
 function helpItemElement(
   host: Document,
@@ -228,7 +228,7 @@ function helpItemElement(
   }
   row.append(glyph)
 
-  // WHY: the adapter joins the keys and the press in the help's language, as the tooltip does (EZ-2).
+  // Why: the adapter joins the keys and the press in the help's language, as the tooltip does (EZ-2).
   const written = line.assignment ?? ''
   const text = made(host, 'span', written === '' ? STYLE.helpText : styles.text)
   text.textContent = line.text
@@ -251,14 +251,14 @@ type HelpLink = HelpModal['aboutLink']
 
 type HelpTopLinks = Pick<HelpModal, 'downloadLink' | 'aboutLink'>
 
-// see FR-036, S-503
+// Spec: FR-036, S-503
 /** @purity non-pure */
 function helpLinkAnchor(host: Document, link: HelpLink): HTMLElement {
   return linkElement(host, link.address, link.words, STYLE.helpLink)
 }
 
-// see FR-036, IC-20, S-350
-// WHY: the link follows the item's name after one space; it takes no parentheses, its look marks it apart.
+// Spec: FR-036, IC-20, S-350
+// Why: the link follows the item's name after one space; it takes no parentheses, its look marks it apart.
 /** @purity non-pure */
 function helpItemLinkElement(host: Document, link: HelpLink): HTMLElement {
   const anchor = helpLinkAnchor(host, link)
@@ -266,8 +266,8 @@ function helpItemLinkElement(host: Document, link: HelpLink): HTMLElement {
   return anchor
 }
 
-// see FR-036, S-350, S-583
-// WHY: the two links stand in the basics block's column just above its frame, one per line, download first.
+// Spec: FR-036, S-350, S-583
+// Why: the two links stand in the basics block's column just above its frame, one per line, download first.
 /** @purity non-pure */
 function helpTopLinkElements(host: Document, links: HelpTopLinks): readonly HTMLElement[] {
   const lines: [string, HelpLink][] = [
@@ -282,8 +282,8 @@ function helpTopLinkElements(host: Document, links: HelpTopLinks): readonly HTML
   })
 }
 
-// see FR-036, FR-053, T-256
-// WHY: each entry names its column (table T-256), so a block is placed, never flowed.
+// Spec: FR-036, FR-053, T-256
+// Why: each entry names its column (table T-256), so a block is placed, never flowed.
 /** @purity non-pure */
 function helpColumnsElement(
   host: Document,
@@ -318,7 +318,7 @@ function helpColumnsElement(
       blockName = name
       segment = lineSegment
     } else if (lineSegment !== segment) {
-      // WHY: a heading is no group, so the first group under it takes no line (CR-665: one group, no line).
+      // Why: a heading is no group, so the first group under it takes no line (CR-665: one group, no line).
       if (segment !== null) block.append(made(host, 'div', paletteGroupRuleStyle()))
       segment = lineSegment
     }
@@ -336,7 +336,7 @@ function helpColumnsElement(
   return columns
 }
 
-// see FR-036, T-255
+// Spec: FR-036, T-255
 /** @purity non-pure */
 function helpBlockNoteElement(host: Document, note: HelpModal['blockNotes'][number]): HTMLElement {
   const line = made(host, 'div', STYLE.helpBlockNote)
@@ -351,7 +351,7 @@ interface DrawnModal {
   readonly helpColumns: HelpColumnsDrawn | null
 }
 
-// see FR-036, WB-7, GR-24
+// Spec: FR-036, WB-7, GR-24
 /** @purity non-pure */
 function helpTitleRow(host: Document, modal: HelpModal, anchors: Map<string, HTMLElement>): HTMLElement {
   const titled = headingRowCommands(modal).filter((item) => item.icon !== modal.legend)
@@ -373,15 +373,15 @@ function closeOnlyTitleTaskGroup(host: Document, modal: ExportChooser | OpenChoo
   return windowTitleRowElement(host, modal.heading, { before: [], titled: closeEntriesOf(modal) }, anchors, modal.surface)
 }
 
-// see WB-10, FR-096, OP-16
-// WHY: content sets the size, so a format's words are never wrapped by a share of the window (FR-096).
+// Spec: WB-10, FR-096, OP-16
+// Why: content sets the size, so a format's words are never wrapped by a share of the window (FR-096).
 /** @purity pure */
 function closeOnlyTitledFrameStyle(modal: ExportChooser | OpenChooser): string {
   const cap = 'formats' in modal ? 'max-width:none;' : ''
   return `${STYLE.modal}display:flex;flex-direction:column;overflow:hidden;padding:0;width:max-content;${cap}`
 }
 
-// see FR-029, RR-6
+// Spec: FR-029, RR-6
 /** @purity non-pure */
 function modalTitleRow(
   host: Document,
@@ -403,8 +403,8 @@ function modalTitleRow(
   return header
 }
 
-// see FR-036, RR-6
-// WHY: the close entrance last, so it stands at the right end of the heading row on every surface.
+// Spec: FR-036, RR-6
+// Why: the close entrance last, so it stands at the right end of the heading row on every surface.
 /** @purity pure */
 function headingRowCommands(modal: OpenModal): readonly CommandItem[] {
   return [...modal.commands.filter((item) => item.icon !== CLOSE_SURFACE_ENTRY), ...closeEntriesOf(modal)]
@@ -415,7 +415,7 @@ function closeEntriesOf(modal: OpenModal): readonly CommandItem[] {
   return modal.commands.filter((item) => item.icon === CLOSE_SURFACE_ENTRY)
 }
 
-// see RR-6
+// Spec: RR-6
 /** @purity non-pure */
 function pushToTheRightEnd(entry: HTMLElement): void {
   entry.setAttribute('style', `${entry.getAttribute('style') ?? ''}margin-left:auto;`)
@@ -503,7 +503,7 @@ export function modalElement(
     const question = made(host, 'div', '')
     question.textContent = modal.question
 
-    // WHY: type=password, not a painted mask, which would leave the characters in the DOM.
+    // Why: type=password, not a painted mask, which would leave the characters in the DOM.
     const answerEntry = host.createElement('input')
     answerEntry.setAttribute('type', 'password')
     answerEntry.setAttribute('style', STYLE.watermarkUnlockEntry)
@@ -522,7 +522,7 @@ export function modalElement(
   return { element: drawn, watermarkUnlockEntry, helpColumns }
 }
 
-// see FR-088, RR-1, RR-2
+// Spec: FR-088, RR-1, RR-2
 /** @purity pure */
 function modalFrameStyle(modal: OpenModal): string {
   if ('entries' in modal) return helpWindowStyle(helpPlacedOf(modal))
@@ -537,7 +537,7 @@ function closeOnlyTitledBody(host: Document, body: readonly HTMLElement[]): HTML
   return box
 }
 
-// see FR-069, FR-036, S-437, S-149, S-457
+// Spec: FR-069, FR-036, S-437, S-149, S-457
 /** @purity pure */
 function helpLegalStyle(): string {
   const gap = NOT_STORED_HELP_SIZES['S-457']
@@ -547,13 +547,13 @@ function helpLegalStyle(): string {
   )
 }
 
-// WHY: floats, so the folded text's summary shares their line (JDG-1391) and the opened text spans the box.
+// Why: floats, so the folded text's summary shares their line (JDG-1391) and the opened text spans the box.
 /** @purity pure */
 function helpLegalLeadStyle(): string {
   return `float:left;margin-right:${NOT_STORED_HELP_SIZES['S-436']}em;`
 }
 
-// see FR-069, FR-036, S-459
+// Spec: FR-069, FR-036, S-459
 /** @purity non-pure */
 function helpLegalElement(host: Document, modal: HelpModal): { readonly legal: HTMLElement; readonly fullText: HTMLElement } {
   const legal = made(host, 'div', helpLegalStyle())
@@ -575,7 +575,7 @@ function helpLegalElement(host: Document, modal: HelpModal): { readonly legal: H
   return { legal, fullText }
 }
 
-// see FR-036, FR-069, T-335
+// Spec: FR-036, FR-069, T-335
 /** @purity non-pure */
 function helpBodyElement(host: Document, modal: HelpModal): HelpColumnsDrawn {
   const body = made(host, 'div', helpBodyStyle())
@@ -585,13 +585,13 @@ function helpBodyElement(host: Document, modal: HelpModal): HelpColumnsDrawn {
   return { body, columns, fullText }
 }
 
-// see FR-096, S-517, OP-16
+// Spec: FR-096, S-517, OP-16
 /** @purity pure */
 function formatChoicesStyle(): string {
   return `${STYLE.formatChoices}row-gap:${NOT_STORED_EXPORT_CHOOSER_SIZES['S-517']}em;`
 }
 
-// see FR-096
+// Spec: FR-096
 /** @purity non-pure */
 function exportFormatChoicesElement(host: Document, modal: ExportChooser): HTMLElement {
   const choices = made(host, 'div', formatChoicesStyle())
@@ -608,7 +608,7 @@ function exportFormatChoicesElement(host: Document, modal: ExportChooser): HTMLE
   return choices
 }
 
-// see FR-096, IX-12
+// Spec: FR-096, IX-12
 /** @purity non-pure */
 function exportChooserBodyElements(host: Document, modal: ExportChooser): readonly HTMLElement[] {
   const choices = exportFormatChoicesElement(host, modal)
@@ -618,7 +618,7 @@ function exportChooserBodyElements(host: Document, modal: ExportChooser): readon
   return [choices, line]
 }
 
-// see OP-16, AM-8, HS-3
+// Spec: OP-16, AM-8, HS-3
 /** @purity non-pure */
 function openChooserRows(host: Document, modal: OpenChooser, anchors: Map<string, HTMLElement>): readonly HTMLElement[] {
   const rows: HTMLElement[] = []
@@ -634,7 +634,7 @@ function openChooserRows(host: Document, modal: OpenChooser, anchors: Map<string
     rows.push(title)
   }
   for (const choice of modal.choices) rows.push(openChooserLine(host, anchoredEntry(host, choice.entry, anchors), choice.hint))
-  // WHY: a second IC-52, not anchored, so the tooltip and the anchor stay with the heading row's (OP-16, FR-029).
+  // Why: a second IC-52, not anchored, so the tooltip and the anchor stay with the heading row's (OP-16, FR-029).
   const cancel = made(host, 'button', entryStyle())
   cancel.setAttribute('type', 'button')
   cancel.setAttribute('data-icon', CLOSE_SURFACE_ENTRY)
@@ -674,7 +674,7 @@ function reasonLines(host: Document, text: string, nextStep: string, taskNames: 
   return lines
 }
 
-// see MG-10, U-61
+// Spec: MG-10, U-61
 /** @purity non-pure */
 function separateNoteElements(host: Document, note: string): HTMLElement[] {
   if (note === '') return []
@@ -684,7 +684,7 @@ function separateNoteElements(host: Document, note: string): HTMLElement[] {
   return [said]
 }
 
-// see U-62, FR-076
+// Spec: U-62, FR-076
 /** @purity non-pure */
 function reportLineElements(host: Document, line: ImportReport['reportLines'][number]): HTMLElement[] {
   if (line.count === null) return reasonLines(host, line.text, line.nextStep, line.names)
@@ -699,8 +699,8 @@ function reportLineElements(host: Document, line: ImportReport['reportLines'][nu
   return [row]
 }
 
-// see U-62, FR-023, FR-076, MG-14
-// WHY: RS-50 stays when the reading reported nothing, as before the count lines.
+// Spec: U-62, FR-023, FR-076, MG-14
+// Why: RS-50 stays when the reading reported nothing, as before the count lines.
 /** @purity non-pure */
 function importReportElements(host: Document, modal: ImportReport): readonly HTMLElement[] {
   const lines: HTMLElement[] = modal.reportLines.length === 0
@@ -718,13 +718,13 @@ function importReportElements(host: Document, modal: ImportReport): readonly HTM
   return [names, wayOut]
 }
 
-// see FR-036, T-335, IF-9, S-455
+// Spec: FR-036, T-335, IF-9, S-455
 /** @purity non-pure */
 export function helpWindowPainter(host: Document, helpLayer: HTMLElement) {
   let placed: PlacedWindow | null = null
   let drawn: HTMLElement | null = null
   let shownHelp: HelpModal | null = null
-  // see FR-069, WB-6
+  // Spec: FR-069, WB-6
   let isFullTextOpen = false
 
   /** @purity non-pure */
@@ -733,7 +733,7 @@ export function helpWindowPainter(host: Document, helpLayer: HTMLElement) {
     if (drawn !== null && placed !== null) drawn.setAttribute('style', helpWindowStyle(placed))
   }
 
-  // TRAP: a rebuilt body (language, restore) draws the fold shut; carry the open state across.
+  // Trap: a rebuilt body (language, restore) draws the fold shut; carry the open state across.
   /** @purity non-pure */
   function followFullText(fullText: HTMLElement): void {
     if (isFullTextOpen) fullText.setAttribute('open', '')

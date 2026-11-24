@@ -16,8 +16,8 @@ export const S_597 = numberIn(rowOf('T-206', 'S-597').by['既定'] ?? '')
 export const S_599 = numberIn(rowOf('T-206', 'S-599').by['既定'] ?? '')
 export const S_620 = numberIn(rowOf('T-206', 'S-620').by['既定'] ?? '')
 
-// see T-236
-// WHY: the light-theme value of a screen colour, solved at HUE, spelled the way fake-browser's resolved() hands a colour back.
+// Spec: T-236
+// Why: the light-theme value of a screen colour, solved at HUE, spelled the way fake-browser's resolved() hands a colour back.
 export function screenColor(id: string): string {
   const row = specTable('T-236').rows.find((one) => one.id === id)
   if (row === undefined) throw new Error(`table T-236 has no row ${id}`)
@@ -36,7 +36,7 @@ interface Compound {
 }
 
 interface Selector {
-  // WHY: right to left; combinator[i] joins compounds[i] to compounds[i + 1] (the one to its left).
+  // Why: right to left; combinator[i] joins compounds[i] to compounds[i + 1] (the one to its left).
   readonly compounds: readonly Compound[]
   readonly combinators: readonly ('descendant' | 'child')[]
   readonly specificity: readonly [number, number, number]
@@ -182,7 +182,7 @@ function parseSelector(text: string): Selector {
   return { compounds: [...compounds].reverse(), combinators: [...combinators].reverse(), specificity: total }
 }
 
-// WHY: every <style> under the root, in order; @-blocks are not written by the surface for these properties.
+// Why: every <style> under the root, in order; @-blocks are not written by the surface for these properties.
 export function rulesOf(root: FakeElement): Rule[] {
   const text = selfAndDescendants(root)
     .filter((node) => node.tagName === 'STYLE')
@@ -243,7 +243,7 @@ export function selectorMatches(element: FakeElement, selector: Selector, hovere
   return matchesFrom(element, selector, 0, hovered)
 }
 
-// WHY: :hover holds for the element under the pointer and for every ancestor of it.
+// Why: :hover holds for the element under the pointer and for every ancestor of it.
 export function hoverChainOf(element: FakeElement | null): ReadonlySet<FakeElement> {
   const out = new Set<FakeElement>()
   for (let up = element; up !== null; up = up.parentNode) out.add(up)
@@ -252,7 +252,7 @@ export function hoverChainOf(element: FakeElement | null): ReadonlySet<FakeEleme
 
 const NO_HOVER: ReadonlySet<FakeElement> = new Set()
 
-// WHY: important sheet > inline > sheet by specificity then order (the parts of the cascade the surface uses).
+// Why: important sheet > inline > sheet by specificity then order (the parts of the cascade the surface uses).
 export function cascaded(element: FakeElement, property: string, rules: readonly Rule[], hovered: ReadonlySet<FakeElement> = NO_HOVER): string | undefined {
   let best: { important: boolean; specificity: readonly number[]; order: number; value: string } | undefined
   const better = (a: NonNullable<typeof best>, b: NonNullable<typeof best>): boolean => {
@@ -272,7 +272,7 @@ export function cascaded(element: FakeElement, property: string, rules: readonly
   return best?.value
 }
 
-// WHY: visibility inherits; display:none hides the whole subtree.
+// Why: visibility inherits; display:none hides the whole subtree.
 export function isShown(element: FakeElement, rules: readonly Rule[], hovered: ReadonlySet<FakeElement> = NO_HOVER): boolean {
   let visibility: string | undefined
   for (let up: FakeElement | null = element; up !== null; up = up.parentNode) {
@@ -310,7 +310,7 @@ function pathFromRoot(element: FakeElement): FakeElement[] {
   return out
 }
 
-// WHY: the layer a branch paints in, inside the stacking context the two branches share.
+// Why: the layer a branch paints in, inside the stacking context the two branches share.
 function layerOf(branch: readonly FakeElement[], rules: readonly Rule[], hovered: ReadonlySet<FakeElement>): number {
   for (const one of branch) {
     if (makesStackingContext(one, rules, hovered)) return isPositioned(one, rules, hovered) ? (zIndexOf(one, rules, hovered) ?? 0) : 0
@@ -318,7 +318,7 @@ function layerOf(branch: readonly FakeElement[], rules: readonly Rule[], hovered
   return branch.some((one) => isPositioned(one, rules, hovered)) ? 0 : -0.5
 }
 
-// WHY: true when `front` paints over `back` where they overlap.
+// Why: true when `front` paints over `back` where they overlap.
 export function paintsOver(front: FakeElement, back: FakeElement, rules: readonly Rule[], hovered: ReadonlySet<FakeElement> = NO_HOVER): boolean {
   const a = pathFromRoot(front)
   const b = pathFromRoot(back)
@@ -347,7 +347,7 @@ export interface PageBox {
   readonly height: number
 }
 
-// WHY: the surface places every panel part with left/top in px inside positioned parents; the page box sums them up to the unit's root.
+// Why: the surface places every panel part with left/top in px inside positioned parents; the page box sums them up to the unit's root.
 export function pageBoxOf(element: FakeElement, root: FakeElement): PageBox {
   let left = 0
   let top = 0
@@ -360,7 +360,7 @@ export function pageBoxOf(element: FakeElement, root: FakeElement): PageBox {
   return { left, top, width: pxOf(style.get('width')) ?? NaN, height: pxOf(style.get('height')) ?? NaN }
 }
 
-// WHY: the box the eye sees, border included, whichever box-sizing the element states.
+// Why: the box the eye sees, border included, whichever box-sizing the element states.
 export function outerSizeOf(element: FakeElement): { width: number; height: number; stroke: number } {
   const style = styleMap(element)
   const border = style.get('border') ?? ''
@@ -378,21 +378,21 @@ export interface CarryBench {
   readonly dom: Stage
   root(): FakeElement
   rules(): Rule[]
-  // WHY: the drawn row (a child of the title tree) whose words are the task group's name.
+  // Why: the drawn row (a child of the title tree) whose words are the task group's name.
   row(taskGroupId: string): FakeElement
   rows(): FakeElement[]
   tree(): FakeElement
   copy(): FakeElement | null
   line(): FakeElement | null
-  // WHY: the pointer as last sent, in the frame loop's coordinates.
+  // Why: the pointer as last sent, in the frame loop's coordinates.
   pointer(): { x: number; y: number }
-  // WHY: the box of a drawn task group title, as the frame loop described it.
+  // Why: the box of a drawn task group title, as the frame loop described it.
   layoutBox(taskGroupId: string): { x: number; y: number; width: number; height: number }
   press(taskGroupId: string): { x: number; y: number }
   move(x: number, y: number): void
   release(x: number, y: number): void
   esc(): void
-  // WHY: draw the frame loop's last description with the DOM surface.
+  // Why: draw the frame loop's last description with the DOM surface.
   show(): void
 }
 
@@ -484,5 +484,5 @@ export function carryBench(document?: Document): CarryBench {
   }
 }
 
-// WHY: a colour as the eye gets it, through the root's custom properties.
+// Why: a colour as the eye gets it, through the root's custom properties.
 export const colorIn = (dom: Stage, written: string): string => resolved(dom, written)

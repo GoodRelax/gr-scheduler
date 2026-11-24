@@ -125,7 +125,7 @@ describe('CR-560 premises: the clauses read this way', () => {
     expect(line).toContain('`taskGroupIdOf`: `integer` から `string` への対応')
   })
 
-  // WHY: CR-785 moved MK-15 from the rows the help shows to the rows that are known by touching; CR-850 then retired MK-17 from that list.
+  // Why: CR-785 moved MK-15 from the rows the help shows to the rows that are known by touching; CR-850 then retired MK-17 from that list.
   it('FR-036: the help does not list MK-15; it stands among the T-023 rows learned by touching', () => {
     expect(REQUIREMENTS).toContain('表 T-023 の `MK-2` / `MK-5` / `MK-7` と')
     expect(REQUIREMENTS).not.toContain('表 T-023 の `MK-2` / `MK-5` / `MK-7` / `MK-15`')
@@ -280,7 +280,7 @@ function fixtureDocument(): Document {
     },
     documentSettings: {
       ...(template['documentSettings'] as Record<string, unknown>),
-      // WHY: S-1 is a constant (CR-572); the stored zoomX (S-75) carries the day width this fixture draws at.
+      // Why: S-1 is a constant (CR-572); the stored zoomX (S-75) carries the day width this fixture draws at.
       zoomX: PX_PER_DAY_AT_1X / SETTINGS_CONSTANTS.pxPerDayAt1x,
     },
     documentStamp: template['documentStamp'],
@@ -483,7 +483,7 @@ const selectRoot = (built: Stage): void => {
   expect(built.selection().items, 'SL-2: a click on the body picks the Task').toEqual([taskRef(ROOT)])
 }
 
-// WHY: DU-1 copies only the chosen Tasks (CR-706), so a case about the child's copy chooses the child too.
+// Why: DU-1 copies only the chosen Tasks (CR-706), so a case about the child's copy chooses the child too.
 const selectRootAndChild = (built: Stage): void => {
   selectRoot(built)
   click(built, bodyOf(built.loop, CHILD), SHIFT)

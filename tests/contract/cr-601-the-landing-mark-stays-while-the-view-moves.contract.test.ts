@@ -94,12 +94,12 @@ const T201 = (id: string): number => numberIn(cellOf('T-201', id, '既定値'))
 const T206 = (id: string): number => numberIn(cellOf('T-206', id, '既定'))
 const S_159_LIGHT = cellOf('T-236', 'S-159', '明るいテーマ').replace(/`/g, '').trim().toLowerCase()
 
-// see FR-039, T-252
+// Spec: FR-039, T-252
 const ratioAt = (displayScale: number): number => (T206('S-236') * displayScale) / 100
-// see SL-8, EL-16, S-447
+// Spec: SL-8, EL-16, S-447
 const EMPHASIZED_WIDTH = (displayScale: number): number => T201('S-18') * ratioAt(displayScale) + T206('S-447')
 
-// WHY: the SVG prints two decimals.
+// Why: the SVG prints two decimals.
 const SVG_EPS = 0.006
 
 interface Pt {
@@ -132,7 +132,7 @@ const attrOf = (attrs: string, name: string): string | null => {
   return found === null ? null : found[1]!
 }
 
-// see T-020
+// Spec: T-020
 const elementsOf = (svg: string): readonly Element[] => {
   const out: Element[] = []
   const groups: (string | null)[] = []
@@ -167,7 +167,7 @@ const samePath = (actual: readonly Pt[], expected: readonly Pt[]): boolean =>
 
 const strokeOf = (one: Element): string => (attrOf(one.attrs, 'stroke') ?? '').toLowerCase()
 
-// see EL-16, SL-8
+// Spec: EL-16, SL-8
 const emphasizedLines = (svg: string, displayScale: number): readonly Element[] =>
   elementsOf(svg).filter(
     (one) =>
@@ -176,7 +176,7 @@ const emphasizedLines = (svg: string, displayScale: number): readonly Element[] 
       Math.abs(Number(attrOf(one.attrs, 'stroke-width')) - EMPHASIZED_WIDTH(displayScale)) <= SVG_EPS,
   )
 
-// see EL-16, ZO-10
+// Spec: EL-16, ZO-10
 const outlinesOf = (svg: string): readonly Element[] =>
   elementsOf(svg).filter(
     (one) => one.zo === 'ZO-10' && strokeOf(one) === S_159_LIGHT && attrOf(one.attrs, 'stroke-dasharray') === null,
@@ -190,7 +190,7 @@ const TEMPLATE = JSON.parse(
 
 type Loose = Record<string, unknown>
 
-// see T-023
+// Spec: T-023
 const wheelModifiersOf = (id: string): InputModifiers => {
   const said = cellOf('T-023', id, '操作')
   if (!said.includes('ホイール')) throw new Error(`table T-023 row ${id} is not a wheel row`)
@@ -198,7 +198,7 @@ const wheelModifiersOf = (id: string): InputModifiers => {
 }
 const WHEEL_ROWS = ['MK-1', 'MK-2', 'MK-3', 'MK-4', 'MK-5'] as const
 
-// see T-036
+// Spec: T-036
 const keyOf = (id: string): KeyInput => {
   const first = (specTable('T-036').rows.find((row) => row.id === id)?.by['割当'] ?? '').split('／')[0] ?? ''
   const parts = [...first.matchAll(/`([^`]+)`/g)].map((span) => span[1] as string)
@@ -341,7 +341,7 @@ const shellDocument = (rows: readonly string[], tasks: readonly (readonly [Loose
     changeLog: [],
   }) as unknown as Document
 
-// see EL-4
+// Spec: EL-4
 const PLAIN = (): Document =>
   shellDocument(
     [TASK_GROUP_A, TASK_GROUP_B, TASK_GROUP_Z],
@@ -351,7 +351,7 @@ const PLAIN = (): Document =>
     ],
   )
 
-// WHY: task groups enough below the two ends that the vertical grip has somewhere to go.
+// Why: task groups enough below the two ends that the vertical grip has somewhere to go.
 const TALL = (): Document =>
   shellDocument(
     [TASK_GROUP_A, TASK_GROUP_B, ...Array.from({ length: 40 }, (_unused, at) => uuid(100 + at))],
@@ -361,7 +361,7 @@ const TALL = (): Document =>
     ],
   )
 
-// WHY: the second line leaves the first landing's far end for a far end of its own, so its mark stands beside the landing.
+// Why: the second line leaves the first landing's far end for a far end of its own, so its mark stands beside the landing.
 const CHAIN = (): Document =>
   shellDocument(
     [TASK_GROUP_A, TASK_GROUP_B, TASK_GROUP_C, TASK_GROUP_Z],
@@ -446,7 +446,7 @@ const clickAt = (shell: Shell, at: Pt, button: PointerInput['button'] = 'left'):
 
 const displayScaleOf = (shell: Shell): number => Number(shell.loop.document().documentSettings.displayScale ?? 100)
 
-// see EL-16
+// Spec: EL-16
 const isLandingShown = (shell: Shell): boolean => emphasizedLines(shell.svg(), displayScaleOf(shell)).length > 0
 
 const emptyPlace = (shell: Shell): Pt => {
@@ -504,7 +504,7 @@ const isInTaskGroupArea = (shell: Shell, uid: number): boolean => {
   )
 }
 
-// WHY: an end the view has moved off is not outlined, so the outline is asked of an end inside the Task Group Area only.
+// Why: an end the view has moved off is not outlined, so the outline is asked of an end inside the Task Group Area only.
 const keepsIt = (shell: Shell, clause: string): void => {
   expect(isLandingShown(shell), `${clause} (the emphasized line stays)`).toBe(true)
   if (isInTaskGroupArea(shell, 1) || isInTaskGroupArea(shell, 2)) {
@@ -527,7 +527,7 @@ describe(`(a) the shell -- EL-17: ${EL_17_VIEW_ONLY}`, () => {
 
   it(`${EL_17_WHEEL} -- a wheel over the search panel keeps it`, () => {
     const shell = landedShell()
-    // STEP: open the panel by its key, then land again (that key cleared the first landing)
+    // Step: open the panel by its key, then land again (that key cleared the first landing)
     shell.send(keyOf('SK-24'))
     clickAt(shell, markOf(shell, 1, 2))
     expect(isLandingShown(shell), 'premise: the landing is shown with the panel open').toBe(true)
@@ -653,7 +653,7 @@ describe(`(c) the shell -- ${EL_17_STAR}`, () => {
   it('after scrolling and zooming with the mark kept, one click on another line\'s mark moves the mark to that line', () => {
     const shell = landedShell(CHAIN())
     const before = viewOf(shell)
-    // STEP: scroll sideways and zoom both axes with the mark kept
+    // Step: scroll sideways and zoom both axes with the mark kept
     shell.send(wheelAt(middleOf(shell.taskGroupArea()), wheelModifiersOf('MK-5')))
     shell.send(wheelAt(middleOf(shell.taskGroupArea()), wheelModifiersOf('MK-2')))
     expect(viewOf(shell), 'premise: the view moved').not.toBe(before)
@@ -662,7 +662,7 @@ describe(`(c) the shell -- ${EL_17_STAR}`, () => {
       emphasizedLines(shell.svg(), displayScaleOf(shell)).some((one) => samePath(pointsAttr(one.attrs), routeOf(shell, 1, 2))),
       'premise: 1 -> 2 is the landed line',
     ).toBe(true)
-    // STEP: one click on the mark of 2 -> 3
+    // Step: one click on the mark of 2 -> 3
     clickAt(shell, markOf(shell, 2, 3))
     const emphasized = emphasizedLines(shell.svg(), displayScaleOf(shell))
     expect(emphasized.length, EL_17_STAR).toBe(1)

@@ -91,7 +91,7 @@ async function boxOf(page: Page, selector: string): Promise<Box> {
   return box as Box
 }
 
-// WHY: WB-11 and UZ-6 speak of what is in front at a point; the element the browser finds there is what the author sees.
+// Why: WB-11 and UZ-6 speak of what is in front at a point; the element the browser finds there is what the author sees.
 /** @purity semi-pure-mutable */
 async function windowAt(page: Page, x: number, y: number): Promise<Which | null> {
   const role = await page.evaluate(
@@ -134,7 +134,7 @@ interface Overlap {
   readonly frontBox: Box
 }
 
-// WHY: both windows open in the same SV-9 box; the later one is dragged right by half its width so the earlier one's left half shows.
+// Why: both windows open in the same SV-9 box; the later one is dragged right by half its width so the earlier one's left half shows.
 /** @purity non-pure */
 async function overlapped(page: Page, back: Which, front: Which): Promise<Overlap> {
   await openWindow(page, back)
@@ -233,7 +233,7 @@ for (const [back, front] of PAIRS) {
         await expectFrontAtOverlap(one.page, { ...o, backBox: moved }, back, 'the dragged window is in front (WB-8, WB-11)')
         await bringFrontAgain(one.page, { ...o, backBox: moved })
 
-        // STEP: grab again, move, press Esc, release
+        // Step: grab again, move, press Esc, release
         const again = await boxOf(one.page, ROLE_OF[back])
         const restPoint = { x: again.x + 12, y: await titleBarY(one.page, back) }
         await one.page.mouse.move(restPoint.x, restPoint.y)
@@ -258,7 +258,7 @@ for (const [back, front] of PAIRS) {
         const a = await boxOf(one.page, ROLE_OF[back])
         const b = await boxOf(one.page, ROLE_OF[front])
         const titleY = await titleBarY(one.page, front)
-        // WHY: 4px inside the back window's right end puts the title-bar left end under its outside edge band.
+        // Why: 4px inside the back window's right end puts the title-bar left end under its outside edge band.
         await dragFrom(one.page, b.x + 14, titleY, Math.round(a.right - 4 - b.x), 0)
         const placed = await boxOf(one.page, ROLE_OF[front])
         const backNow = await boxOf(one.page, ROLE_OF[back])
@@ -306,7 +306,7 @@ test.describe('WB-11 -- the pressed control still acts', () => {
       await openWindow(one.page, 'report')
       const first = await boxOf(one.page, REPORT)
       const y = await titleBarY(one.page, 'report')
-      // WHY: moving the report right by its width leaves the search panel's entrances uncovered.
+      // Why: moving the report right by its width leaves the search panel's entrances uncovered.
       await dragFrom(one.page, first.x + 14, y, Math.round(first.width), 0)
       const entrance = await boxOf(one.page, `${SEARCH} [data-icon="${IC_129_MINIMIZE}"]`)
       const heightBefore = (await boxOf(one.page, SEARCH)).height
@@ -330,7 +330,7 @@ test.describe('WB-11 / WB-2 -- a minimized window comes to the front when presse
       await openWindow(one.page, 'report')
       const report = await boxOf(one.page, REPORT)
       const y = await titleBarY(one.page, 'report')
-      // STEP: drag the report over the right half of the minimized bar
+      // Step: drag the report over the right half of the minimized bar
       await dragFrom(one.page, report.x + 14, y, Math.round(bar.x + bar.width / 2 - report.x), 0)
       const reportNow = await boxOf(one.page, REPORT)
       const barNow = await boxOf(one.page, SEARCH)
@@ -360,7 +360,7 @@ test.describe('WB-11 -- opening puts a window in front', () => {
       await one.page.waitForTimeout(100)
       await openWindow(one.page, 'list')
       expect(await windowAt(one.page, at.x, at.y), 'the roster opened last is in front of both').toBe('list')
-      // STEP: close the roster, then the panel, then open the panel again
+      // Step: close the roster, then the panel, then open the panel again
       const closeList = await boxOf(one.page, `${LIST} [data-icon="${IC_52_CLOSE}"]`)
       await pressAt(one.page, closeList.x + closeList.width / 2, closeList.y + closeList.height / 2)
       await expect(one.page.locator(LIST)).toHaveCount(0)

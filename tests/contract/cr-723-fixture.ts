@@ -15,7 +15,7 @@ export const TANAKA = 2002
 export const IDLE = 2003
 export const GROUP = '5c000000-0000-4000-8000-000000007230'
 
-// WHY: the system cases scroll to a day clear of the palette so every figure is on the screen.
+// Why: the system cases scroll to a day clear of the palette so every figure is on the screen.
 export const SCROLLED_CLEAR_OF_THE_PALETTE: Loose = {
   zoomX: 6,
   scrollDate: '2025-12-20T00:00:00',
@@ -38,7 +38,7 @@ export function templateCopy(): Loose {
   return JSON.parse(readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8')) as Loose
 }
 
-// WHY: Sato carries Alpha and Charlie, Tanaka Bravo and Delta, Echo nobody, and Idle carries no task; every field the schema asks for is present.
+// Why: Sato carries Alpha and Charlie, Tanaka Bravo and Delta, Echo nobody, and Idle carries no task; every field the schema asks for is present.
 /** @purity semi-pure-mutable */
 export function scheduleFixture(): Loose {
   const schedule = templateCopy()['schedule'] as Loose

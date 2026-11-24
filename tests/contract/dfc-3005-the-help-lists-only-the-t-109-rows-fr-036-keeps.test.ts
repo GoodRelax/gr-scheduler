@@ -12,11 +12,11 @@ const FR_036_LEFT_OUT =
   '⛔ 表 T-109 のうち、`面` が `Search Panel`・`Delay Diagnostics Report`・`Properties Panel`・`Resource List`・`Holiday Settings`・`Open Chooser`・`Difference Review` の面だけ（`Help Modal` を併せて持つものを含む）である行と、`IC-52`・`IC-53`・`IC-75` を、段に載せてはならない（MUST NOT）'
 const FR_036_MERGED = '⭐ 表 T-109 で `構え` の欄が `AR-3` の行と `IC-50` は、1 つの項目にまとめること（MUST）'
 
-// WHY: the dialogue entrance the row asked to drop is retired from table T-109, so it is caught as an IC row the table does not hold.
+// Why: the dialogue entrance the row asked to drop is retired from table T-109, so it is caught as an IC row the table does not hold.
 const IC_ID = /^IC-\d+$/
 const T_109_IDS: ReadonlySet<string> = new Set(T_109_ROWS.map((one) => one.id))
 
-// see FR-036
+// Spec: FR-036
 const LEFT_OUT_SURFACES = new Set([
   'Search Panel',
   'Delay Diagnostics Report',
@@ -29,12 +29,12 @@ const LEFT_OUT_SURFACES = new Set([
 ])
 const LEFT_OUT_ROWS = new Set(['IC-52', 'IC-53', 'IC-75'])
 
-// WHY: FR-036 written out -- a row stays unless its surfaces are all left out, or it is one of the three named rows.
+// Why: FR-036 written out -- a row stays unless its surfaces are all left out, or it is one of the three named rows.
 const KEPT: readonly string[] = T_109_ROWS.filter(
   (one) => !LEFT_OUT_ROWS.has(one.id) && !one.surfaces.every((surface) => LEFT_OUT_SURFACES.has(surface)),
 ).map((one) => one.id)
 
-// WHY: FR-036 merges the AR-3 rows and IC-50 into ONE item, so that item stands for every one of them.
+// Why: FR-036 merges the AR-3 rows and IC-50 into ONE item, so that item stands for every one of them.
 const MERGED: ReadonlySet<string> = new Set([
   ...specTable('T-109').rows.filter((one) => (one.by['構え'] ?? '').includes('`AR-3`')).map((one) => one.id),
   'IC-50',
@@ -80,7 +80,7 @@ describe('DFC-3005 -- FR-036 the T-109 rows in the help', () => {
 
   it.each(LANGUAGES)('%s: every T-109 row the help shows is one FR-036 keeps', (language) => {
     const shown = [...t109RowsIn(helpOf(language).entries)]
-    // WHY: IC-102 is the wheel glyph FR-036 draws inside the wheel assignment words, not an item of its own.
+    // Why: IC-102 is the wheel glyph FR-036 draws inside the wheel assignment words, not an item of its own.
     expect(shown.filter((one) => !KEPT.includes(one) && one !== 'IC-102')).toEqual([])
   })
 

@@ -863,7 +863,7 @@ describe('WS-2 -- 書ける時機かを見る、三つの moment', () => {
   }
 
   // see CR-440, RD-6, PI-15
-  // WHY: these two cases go through the shell; the delivery window is
+  // Why: these two cases go through the shell; the delivery window is
   // changeDeliveryStateMachine.delivering, so only the shell's WS-7 can refuse.
   const SHELL_WATCHER = 'uf-8-9 WS-2 subscriber'
   const LONG_AGO = { seenScheduleUpdatedAt: '2000-01-01T00:00:00Z' }
@@ -896,7 +896,7 @@ describe('WS-2 -- 書ける時機かを見る、三つの moment', () => {
       built.loop.holdDocument({ row: 'RD-6', document: shellDocument(2) })
 
       expect(told, 'premise: the outer replacement reached WS-7').toBeGreaterThan(0)
-      // WHY: the write from inside reached neither WS-6 nor WS-7: the document
+      // Why: the write from inside reached neither WS-6 nor WS-7: the document
       // held while it was refused, and afterwards, is the outer one.
       expect(heldInside).toBe(2)
       expect(taskGroupsHeld(built)).toBe(2)

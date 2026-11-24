@@ -753,7 +753,7 @@ describe('IN-4 of table T-028 -- `Esc` closes the `Properties Panel`', () => {
 
 describe('IN-4 of table T-028 -- one press spends exactly ONE level', () => {
   it('⛔ MUST: with the help AND the panel up, the first `Esc` takes exactly one of them -- the help', () => {
-    // WHY: IN-4 puts the open-window rung, where the normal help stands, above the properties panel.
+    // Why: IN-4 puts the open-window rung, where the normal help stands, above the properties panel.
     expect(IN_4).toContain(IN_4_LADDER)
     const built = withThePanelUp()
     built.send(OPEN_HELP())
@@ -767,7 +767,7 @@ describe('IN-4 of table T-028 -- one press spends exactly ONE level', () => {
   })
 
   it(`HN-2 of table T-336: ${HN_2}`, () => {
-    // WHY: IC-129 takes the help to WB-2, which S-99g does not count as standing.
+    // Why: IC-129 takes the help to WB-2, which S-99g does not count as standing.
     expect(rowOf('T-336', 'HN-2').cells.join(' ')).toContain(HN_2)
     const built = withThePanelUp()
     built.send(OPEN_HELP())

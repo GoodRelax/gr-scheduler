@@ -367,7 +367,7 @@ function fixtureDocument(): Document {
     },
     documentSettings: {
       ...structuredClone(template.documentSettings),
-      // WHY: S-1 is a constant (CR-572); the stored zoomX (S-75) carries the day width this fixture draws at.
+      // Why: S-1 is a constant (CR-572); the stored zoomX (S-75) carries the day width this fixture draws at.
       zoomX: PX_PER_DAY_AT_1X / SETTINGS_CONSTANTS.pxPerDayAt1x,
     },
     documentStamp: structuredClone(template.documentStamp),
@@ -622,7 +622,7 @@ function planEnds(loop: FrameLoop): readonly Point[] {
 /** 実績バーの端点 -- GA-3 (左端) then GA-4 (右端) of table T-023d. */
 function actualEnds(loop: FrameLoop): readonly Point[] {
   const box = boxOf(drawnTask(loop, BAR_UID).actual, "the bar Task's actual bar")
-  // WHY: the end probe stands one px inside, where GA-4 grabs, not on the pixel a touching marker takes.
+  // Why: the end probe stands one px inside, where GA-4 grabs, not on the pixel a touching marker takes.
   return [
     onEndpoint(loop, box.x, midY(box)),
     onEndpoint(loop, box.x + box.width - 1, midY(box)),
@@ -849,7 +849,7 @@ describe('T-028 IN-2: 何にも当たらない場所は範囲選択の合図', (
 //     -- GA-1 / GA-2 / GA-3 / GA-4 of table T-023d
 // ===========================================================================
 
-// see T-266
+// Spec: T-266
 const T_266_ENDS = [
   '箱の矢印 ← 白（`PK-1`）',
   '箱の矢印 → 白（`PK-1`）',
@@ -857,7 +857,7 @@ const T_266_ENDS = [
   '箱の矢印 → 黒（`PK-1`）',
 ] as const
 
-// see FR-106
+// Spec: FR-106
 const FR_106_KEEPS = '押しているあいだは、掴んだときの形を保つこと（MUST）'
 const IN_2_T_269 = '掴み代の上は `FR-106` の 表 T-269 の形'
 
@@ -910,7 +910,7 @@ describe('FR-106: while pressed, the pointer keeps the shape it had when pressed
     const restingAway = shapeAt(built, away)
     const atPress = shapeAt(built, end)
     expect(atPress, 'the premise: the end and the empty canvas answer apart').not.toBe(restingAway)
-    // STEP: press on the end, then drag to where the resting shape differs
+    // Step: press on the end, then drag to where the resting shape differs
     built.send(pointer('down', end))
     built.send(pointer('move', away))
     expect(built.latest(), FR_106_KEEPS).toBe(atPress)
@@ -923,7 +923,7 @@ describe('FR-106: while pressed, the pointer keeps the shape it had when pressed
     const restingAway = shapeAt(built, away)
     const atPress = shapeAt(built, body)
     expect(atPress).not.toBe(restingAway)
-    // STEP: press on the body, then drag to where the resting shape differs
+    // Step: press on the body, then drag to where the resting shape differs
     built.send(pointer('down', body))
     built.send(pointer('move', away))
     expect(built.latest(), FR_106_KEEPS).toBe(atPress)
@@ -950,7 +950,7 @@ describe('T-028 IN-2: タスクの本体とマイルストーンの図形の上�
   })
 
   it('answers the milestone figure with its OWN circle, not the body\'s hand', () => {
-    // WHY: the closing rule of table T-269 replaces IN-2's grab sign on a
+    // Why: the closing rule of table T-269 replaces IN-2's grab sign on a
     // milestone with `PK-5`, so the figure answers with its own circle.
     const built = stage()
     expect(
@@ -962,7 +962,7 @@ describe('T-028 IN-2: タスクの本体とマイルストーンの図形の上�
   it('⭐ answers something OTHER than the bars ends do', () => {
     const built = stage()
     const [left] = planEnds(built.loop)
-    // WHY: IN-2 gives the ends table T-269's shapes and the body its grab sign;
+    // Why: IN-2 gives the ends table T-269's shapes and the body its grab sign;
     // two meanings need two shapes, or one bar would promise the same end to end.
     expect(shapeAt(built, barBody(built.loop))).not.toBe(shapeAt(built, left as Point))
   })

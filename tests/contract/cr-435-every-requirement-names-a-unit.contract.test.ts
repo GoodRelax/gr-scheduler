@@ -68,8 +68,8 @@ for (const row of T075.rows) {
   for (const text of cell.split(SEPARATOR)) segments.push({ row: row.id, text: text.trim() })
 }
 
-// WHY: CR-435 6.1 says to open the cell with bareAll; on the cell the applying
-// WHY: round wrote it stops at the first pair, so it opens a segment instead.
+// Why: CR-435 6.1 says to open the cell with bareAll; on the cell the applying
+// Why: round wrote it stops at the first pair, so it opens a segment instead.
 const P: Pair[] = []
 const malformed: Segment[] = []
 const disagreeing: string[] = []

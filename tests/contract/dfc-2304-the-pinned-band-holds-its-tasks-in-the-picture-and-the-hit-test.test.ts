@@ -45,7 +45,7 @@ const CLAUSES: readonly (readonly [string, string])[] = [
   ['T-023c SL-2 a click picks', SL_2_CLICK],
 ]
 
-// WHY: four task groups of one task each, at four different days so no two bars share an x; the third is pinned,
+// Why: four task groups of one task each, at four different days so no two bars share an x; the third is pinned,
 // so it is lifted out of the middle of the tree (FR-098 / LF-14).
 const GROUPS = ['g1', 'g2', 'g3', 'g4'] as const
 const PINNED_GROUP = 'g3'
@@ -70,7 +70,7 @@ const group = (id: string, order: number): unknown => ({
   minHeightPx: null,
 })
 
-// WHY: S-78 / S-176 are the vertical scroll; three places of it -- nothing under the band, g1 wholly under it,
+// Why: S-78 / S-176 are the vertical scroll; three places of it -- nothing under the band, g1 wholly under it,
 // and g1 half under it so its bar straddles the band's lower edge.
 interface ScrollState {
   readonly name: string
@@ -150,7 +150,7 @@ const rectOf = (tag: string): Rect => ({
   height: Number(attr(tag, 'height')),
 })
 
-// WHY: walks the SVG tags once, keeping the clip-path ids every open element carries, so each figure knows the
+// Why: walks the SVG tags once, keeping the clip-path ids every open element carries, so each figure knows the
 // clips it is drawn under; also reads each clipPath's rectangle and every rect that names its figure.
 const pictureOf = (svg: string): Picture => {
   const figures: Figure[] = []
@@ -188,18 +188,18 @@ const bandOf = (geometry: ScheduleGeometry): NonNullable<ScheduleGeometry['pinne
   return geometry.pinnedBand
 }
 
-// WHY: a clip is "the band cut" when its rectangle begins at the band's lower edge -- the top of the rest (FR-098).
+// Why: a clip is "the band cut" when its rectangle begins at the band's lower edge -- the top of the rest (FR-098).
 const isCutAtBand = (picture: Picture, clipId: string, scrollTop: number): boolean => {
   const rect = picture.clipRects.get(clipId)
   return rect !== undefined && Math.abs(rect.y - scrollTop) <= 0.01
 }
 
-// WHY: true when the task's figures are drawn free of the band cut -- that is, drawn in the band.
+// Why: true when the task's figures are drawn free of the band cut -- that is, drawn in the band.
 const drawnInBand = (picture: Picture, uid: number, scrollTop: number): boolean => {
   const figures = figuresOfTask(picture, uid)
   if (figures.length === 0) throw new Error(`task ${uid} has no figure in the picture`)
   const cut = figures.map((one) => one.clips.some((clip) => isCutAtBand(picture, clip, scrollTop)))
-  // WHY: one task's figures all go one way; a split would itself break FR-098 (bar in the band, label under it).
+  // Why: one task's figures all go one way; a split would itself break FR-098 (bar in the band, label under it).
   expect(new Set(cut).size, `task ${uid}: some figures are cut at the band edge and some are not`).toBe(1)
   return cut[0] === false
 }
@@ -222,7 +222,7 @@ const pickedAt = (geometry: ScheduleGeometry, x: number, y: number): number | nu
   return hit !== null && hit.item.kind === 'task' ? hit.item.taskUid : null
 }
 
-// WHY: the middle of the part of the bar above the band's lower edge; null when no part of it is there.
+// Why: the middle of the part of the bar above the band's lower edge; null when no part of it is there.
 const pointInBandOn = (bar: Bar, scrollTop: number): { x: number; y: number } | null => {
   const top = bar.y
   const bottom = Math.min(bar.y + bar.planHeight, scrollTop)
@@ -355,7 +355,7 @@ describe('DFC-2304: the pinned band holds its tasks in the picture and in the hi
   })
 
   it('PI-6 / FR-098 one geometry, one answer: whatever band the geometry carries, the picture and the hit test read the same set', () => {
-    // WHY: the geometry is the one place the band is judged (PI-6); handing both readers a geometry whose band also
+    // Why: the geometry is the one place the band is judged (PI-6); handing both readers a geometry whose band also
     // holds task 1 must move the drawing and the press together -- two judgements would part here.
     const scene = sceneOf(AT_G2)
     const band = bandOf(scene.geometry)

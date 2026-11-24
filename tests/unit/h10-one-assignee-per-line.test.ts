@@ -190,7 +190,7 @@ const seat = (uid: number, taskUid: number, person: Person): Schedule['assignmen
   ({ uid, taskUid, resourceUid: person.uid, carry: {}, carryElements: [] }) as unknown as
     Schedule['assignments'][number]
 
-// WHY: name order puts ALPHA first and uid order puts BRAVO first; the seat order differs per task below, so only
+// Why: name order puts ALPHA first and uid order puts BRAVO first; the seat order differs per task below, so only
 // the assignment order (AS-13) passes every case.
 const BRAVO = personOf(1, 'Bravo')
 const ALPHA = personOf(2, 'Alpha')
@@ -201,7 +201,7 @@ const WORKER = personOf(6, 'Worker')
 const CHARLIE = personOf(7, 'Charlie')
 const NEW_NAME = 'Nobody'
 const ROSTER = [BRAVO, ALPHA, TWIN_LOW, TWIN_HIGH, STOCK, WORKER, CHARLIE]
-// see AS-5
+// Spec: AS-5
 const ROSTER_BY_NAME = [ALPHA, BRAVO, CHARLIE, STOCK, TWIN_LOW, TWIN_HIGH, WORKER]
 
 const T_NONE = 20
@@ -239,7 +239,7 @@ const SCHEDULE = {
     seat(37, T_STOCK_ONLY, STOCK),
     seat(38, T_DOUBLED, ALPHA),
     seat(39, T_DOUBLED, ALPHA),
-    // WHY: the higher uid listed first -- the document order wins over the uid order (AS-13).
+    // Why: the higher uid listed first -- the document order wins over the uid order (AS-13).
     seat(52, T_ALPHA_FIRST, ALPHA),
     seat(51, T_ALPHA_FIRST, BRAVO),
     seat(53, T_STOCK_FIRST, STOCK),
@@ -566,8 +566,8 @@ interface DrawnField {
   readonly surface: ScreenSurface
 }
 
-// see S-3, S-6
-// WHY: the real DOM surface draws the panel propertiesPanelFromSelection describes; the focus is asked through the
+// Spec: S-3, S-6
+// Why: the real DOM surface draws the panel propertiesPanelFromSelection describes; the focus is asked through the
 // seam the shell holds (holdFocusPropertyField), as dfc-806 does with realFocus.
 function drawnAssigneeField(taskUid: number): DrawnField {
   const built = stage(HEADER_HEIGHT)

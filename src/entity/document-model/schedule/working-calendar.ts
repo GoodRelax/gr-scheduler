@@ -1,4 +1,4 @@
-// Schedule -- working days on the document's calendar: judged, counted, stepped, a lag's working days, the actual length.
+// File: Schedule: working days on the document's calendar: judged, counted, stepped, a lag's working days, the actual length.
 // @unit      UF-128  (docs/spec/05-07-design.md, table T-075)
 // @component Schedule, layer documentModel (table T-062)
 // @purity    pure
@@ -54,7 +54,7 @@ export const DAILY_RECURRENCE_KIND = 1
 const NO_RECURRENCE_KIND = 9
 const ONE_DAY_PERIOD = 1
 
-// see AT-82, FR-054
+// Spec: AT-82, FR-054
 /** @purity pure */
 export function isNonRecurringException(exception: Pick<Exception, 'recurrenceKind' | 'carry'>): boolean {
   const kind = exception.recurrenceKind
@@ -64,7 +64,7 @@ export function isNonRecurringException(exception: Pick<Exception, 'recurrenceKi
   return period === '' || Number(period) === ONE_DAY_PERIOD
 }
 
-// TRAP: build it once per walk, never per day: the layout counts working days for every Task each frame.
+// Trap: build it once per walk, never per day: the layout counts working days for every Task each frame.
 /** @purity pure */
 function indexOfCalendar(within: WorkingCalendar): CalendarIndex {
   const exceptionSpans: ExceptionSpan[] = []
@@ -109,13 +109,13 @@ export function isWorkingDay(within: WorkingCalendar, day: CalendarDay): boolean
   return isWorkingDayAt(indexOfCalendar(within), serial(day))
 }
 
-// see AT-72, AT-73, AT-74, AT-158
+// Spec: AT-72, AT-73, AT-74, AT-158
 /** @purity pure */
 export function weekDayOf(ordinal: number, dayType: number, dayWorking: boolean): WeekDay {
   return { ordinal, dayType, dayWorking, workingTimes: [], carry: {}, carryElements: [] }
 }
 
-// TRAP: S-106 is in dayType numbering (1 = Sunday), not weekStartDay's (0 = Sunday).
+// Trap: S-106 is in dayType numbering (1 = Sunday), not weekStartDay's (0 = Sunday).
 const DEFAULT_WEEK_DAYS: readonly WeekDay[] = [1, 2, 3, 4, 5, 6, 7].map((dayType, ordinal) =>
   weekDayOf(ordinal, dayType, DEFAULT_CALENDAR_VALUES['S-106'].includes(dayType)))
 
@@ -131,8 +131,8 @@ const DEFAULT_CALENDAR: Calendar = {
   exceptions: [],
 }
 
-// WHY: baseCalendarUid is not walked; the import resolves inheritance once instead of every frame.
-// see FR-054
+// Why: baseCalendarUid is not walked; the import resolves inheritance once instead of every frame.
+// Spec: FR-054
 /** @purity pure */
 export function workingCalendarOf(schedule: Schedule): WorkingCalendar {
   const named = schedule.project.calendarUid
@@ -157,7 +157,7 @@ const ACCEPTED_DAY_SPAN = daySpanOf(
   SETTINGS_CONSTANTS.importMaxDate,
 )
 
-// see S-119, S-120
+// Spec: S-119, S-120
 /** @purity pure */
 function daySpanOf(fromText: string, toText: string): number {
   const from = dayOf(fromText)
@@ -168,7 +168,7 @@ function daySpanOf(fromText: string, toText: string): number {
   return serial(to) - serial(from)
 }
 
-// see T-214
+// Spec: T-214
 export class NoWorkingDayReached extends Error {
   /** @purity pure */
   constructor(readonly calendarUid: number) {
@@ -177,7 +177,7 @@ export class NoWorkingDayReached extends Error {
   }
 }
 
-// see T-214
+// Spec: T-214
 export class DaySpanTooWide extends Error {
   /** @purity pure */
   constructor(readonly from: CalendarDay, readonly to: CalendarDay) {
@@ -221,8 +221,8 @@ export function dateFromWorkingDays(within: WorkingCalendar, from: CalendarDay,
   return dayFromSerial(at)
 }
 
-// WHY: not dateFromWorkingDays(from, 1), which answers a half-open end bound (Saturday for a Friday).
-// see FR-043, FR-054
+// Why: not dateFromWorkingDays(from, 1), which answers a half-open end bound (Saturday for a Friday).
+// Spec: FR-043, FR-054
 /** @purity pure */
 export function nextWorkingDay(within: WorkingCalendar, from: CalendarDay): CalendarDay {
   const index = indexOfCalendar(within)
@@ -257,7 +257,7 @@ export interface MovedDay {
   readonly isPulled: boolean
 }
 
-// see FR-159, T-379, WH-2, WH-3, WH-9
+// Spec: FR-159, T-379, WH-2, WH-3, WH-9
 export interface WorkingDayShift {
   readonly fromZero: CalendarDay
   readonly toZero: CalendarDay
@@ -266,8 +266,8 @@ export interface WorkingDayShift {
   readonly moveDay: (day: CalendarDay) => MovedDay
 }
 
-// see FR-159, T-379, WH-2, WH-3, WH-4, WH-5
-// WHY: the one mapping the write, the question's counts and the Agent API share (R2.21); ranks are walked once per pass.
+// Spec: FR-159, T-379, WH-2, WH-3, WH-4, WH-5
+// Why: the one mapping the write, the question's counts and the Agent API share (R2.21); ranks are walked once per pass.
 /** @purity pure */
 export function workingDayShiftOf(within: WorkingCalendar, currentStart: CalendarDay, newStart: CalendarDay): WorkingDayShift {
   const index = indexOfCalendar(within)
@@ -292,8 +292,8 @@ export function workingDayShiftOf(within: WorkingCalendar, currentStart: Calenda
   }
 }
 
-// see WH-3
-// WHY: half-open counts from the rank-0 day, grown on demand and kept for the pass (workingDaysBetween's count).
+// Spec: WH-3
+// Why: half-open counts from the rank-0 day, grown on demand and kept for the pass (workingDaysBetween's count).
 /** @purity pure */
 function rankCounter(index: CalendarIndex, zero: number): (atSerial: number) => number {
   const ahead = [0]
@@ -312,7 +312,7 @@ function rankCounter(index: CalendarIndex, zero: number): (atSerial: number) => 
   }
 }
 
-// see WH-4
+// Spec: WH-4
 /** @purity pure */
 function rankWalker(index: CalendarIndex, zero: number, calendarUid: number): (rank: number) => number {
   const ahead = [zero]
@@ -333,7 +333,7 @@ function rankWalker(index: CalendarIndex, zero: number, calendarUid: number): (r
   }
 }
 
-// see FR-159, WH-1, WT-1, WT-5, FR-054
+// Spec: FR-159, WH-1, WT-1, WT-5, FR-054
 /** @purity pure */
 export function earliestPlanStartDayOf(tasks: readonly Pick<Task, 'start' | 'milestone'>[]): CalendarDay | null {
   let earliest: CalendarDay | null = null
@@ -345,14 +345,14 @@ export function earliestPlanStartDayOf(tasks: readonly Pick<Task, 'start' | 'mil
   return earliest
 }
 
-// see FR-011, T-019
+// Spec: FR-011, T-019
 /** @purity pure */
 export function actualLastDay(task: Task): CalendarDay | null {
   if (planActualState(task) === 'notStarted') return null
   return dayOf(task.actualFinish !== null ? task.actualFinish : task.stop)
 }
 
-// see FR-011, IV-21
+// Spec: FR-011, IV-21
 /** @purity pure */
 export function actualLengthOf(within: WorkingCalendar, start: CalendarDay,
                                lastDay: CalendarDay): number {
@@ -369,16 +369,16 @@ type MilestoneMark = Partial<Pick<Task, 'milestone'>>
 
 type PlannedEnds = Pick<Task, 'start' | 'finish'> & MilestoneMark
 
-// see T-350, WT-5
+// Spec: T-350, WT-5
 /** @purity pure */
 export function startSideOf(task: MilestoneMark): DateTimeSide {
   return task.milestone === true ? 'finish' : 'start'
 }
 
-// see T-350, WT-1, WT-2, WT-3, WT-4, WT-5
+// Spec: T-350, WT-1, WT-2, WT-3, WT-4, WT-5
 const START_SIDE_COLUMNS: ReadonlySet<string> = new Set(['start', 'actualStart', 'resume'])
 
-// see T-350, FR-054
+// Spec: T-350, FR-054
 /** @purity pure */
 export function sideOfTaskColumn(task: MilestoneMark, column: string): DateTimeSide {
   return START_SIDE_COLUMNS.has(column) ? startSideOf(task) : 'finish'
@@ -386,8 +386,8 @@ export function sideOfTaskColumn(task: MilestoneMark, column: string): DateTimeS
 
 export type InstantOnSide = (text: string | null, side: DateTimeSide) => number | null
 
-// see FR-054, WC-8
-// WHY: one calendar index per reader (hold it for one pass), built only when a date without a time needs it.
+// Spec: FR-054, WC-8
+// Why: one calendar index per reader (hold it for one pass), built only when a date without a time needs it.
 /** @purity pure */
 export function instantOnSideReader(within: WorkingCalendar | Schedule): InstantOnSide {
   let index: TimeIndex | null = null
@@ -407,13 +407,13 @@ function instantOnSideOver(indexOnce: () => TimeIndex): InstantOnSide {
   }
 }
 
-// see FR-054, WC-8
+// Spec: FR-054, WC-8
 /** @purity pure */
 export function instantOnSide(within: WorkingCalendar, text: string | null, side: DateTimeSide): number | null {
   return instantOnSideReader(within)(text, side)
 }
 
-// see FR-156, S-574, T-375
+// Spec: FR-156, S-574, T-375
 /** @purity pure */
 export function viewWallReader(dataRegion: string, viewTimeZone: unknown): (dataWall: number) => number {
   const viewRegion = viewRegionOf(dataRegion, viewTimeZone)
@@ -425,7 +425,7 @@ export function viewWallReader(dataRegion: string, viewTimeZone: unknown): (data
   }
 }
 
-// see FR-054, FR-156, FR-158, T-375
+// Spec: FR-054, FR-156, FR-158, T-375
 /** @purity pure */
 export function shownInstantReader(schedule: Schedule, viewTimeZone: unknown): InstantOnSide {
   const read = instantOnSideReader(schedule)
@@ -448,7 +448,7 @@ function plannedInstantsBy(onSide: InstantOnSide, task: PlannedEnds): readonly [
   return start === null || finish === null ? null : [start, finish]
 }
 
-// see FR-011, T-019
+// Spec: FR-011, T-019
 /** @purity pure */
 export function actualInstantsOf(within: WorkingCalendar, task: Task): readonly [number, number] | null {
   return actualInstantsBy(instantOnSideReader(within), task)
@@ -461,7 +461,7 @@ function actualInstantsBy(onSide: InstantOnSide, task: Task): readonly [number, 
   return start === null || end === null ? null : [start, end]
 }
 
-// see IV-10, FR-054
+// Spec: IV-10, FR-054
 /** @purity pure */
 export function isPlanReversed(within: WorkingCalendar, task: PlannedEnds): boolean {
   const plan = plannedInstantsOf(within, task)
@@ -477,19 +477,19 @@ function plannedMinutesBy(count: CountOfMinutes, within: WorkingCalendar, task: 
   return task.milestone === true ? 0 : count(within, plan[0], plan[1])
 }
 
-// see DV-8, EX-12
+// Spec: DV-8, EX-12
 /** @purity pure */
 export function plannedDurationMinutesOf(within: WorkingCalendar, task: Task): number | null {
   return plannedMinutesBy(workingMinutesBetween, within, task)
 }
 
-// see FR-012, FR-011
+// Spec: FR-012, FR-011
 /** @purity pure */
 export function plannedLengthMinutesOf(within: WorkingCalendar, task: Task): number | null {
   return workingTimeCounterOf(within).plannedLengthMinutes(task)
 }
 
-// see FR-011
+// Spec: FR-011
 /** @purity pure */
 export function lastDayForLength(within: WorkingCalendar, start: CalendarDay,
                                  length: number): CalendarDay {
@@ -528,7 +528,7 @@ function minuteOfClock(text: string | null, isEnd: boolean): number | null {
   return isEnd && at === 0 ? MINUTES_PER_CALENDAR_DAY : at
 }
 
-// see AT-158, AT-159, AT-161, AT-162, IV-24
+// Spec: AT-158, AT-159, AT-161, AT-162, IV-24
 /** @purity pure */
 function spansOfTimes(times: readonly WorkingTime[]): readonly MinuteSpan[] {
   const spans: MinuteSpan[] = []
@@ -557,7 +557,7 @@ export interface WorkingTimeSet {
   readonly unlikeDayTypes: readonly number[]
 }
 
-// see WC-8, WC-9, FR-088
+// Spec: WC-8, WC-9, FR-088
 /** @purity pure */
 export function workingTimeSetOf(within: WorkingCalendar): WorkingTimeSet {
   const startType = (within.weekStartDay ?? DEFAULT_CALENDAR_VALUES['S-108']) + 1
@@ -603,7 +603,7 @@ function timeIndexOf(within: WorkingCalendar): TimeIndex {
   }
 }
 
-// see FR-054, AT-82
+// Spec: FR-054, AT-82
 /** @purity pure */
 function spansAt(index: TimeIndex, atSerial: number): readonly MinuteSpan[] {
   for (const span of index.days.exceptionSpans) {
@@ -621,7 +621,7 @@ function minutesInside(spans: readonly MinuteSpan[], from: number, to: number): 
 
 type SpansOfDay = (atSerial: number) => readonly MinuteSpan[]
 
-// see FR-054, DV-8
+// Spec: FR-054, DV-8
 /** @purity pure */
 function minutesOver(spansOfDay: SpansOfDay, from: number, to: number): number {
   const first = Math.floor(from / MINUTES_PER_CALENDAR_DAY)
@@ -635,15 +635,15 @@ function minutesOver(spansOfDay: SpansOfDay, from: number, to: number): number {
   return sum
 }
 
-// see OD-1, OD-2, FR-054
-// WHY: one index for every day a frame paints; built per day it would parse the calendar again each day.
+// Spec: OD-1, OD-2, FR-054
+// Why: one index for every day a frame paints; built per day it would parse the calendar again each day.
 /** @purity pure */
 export function workingSpansReader(within: WorkingCalendar): (atSerial: number) => readonly MinuteSpan[] {
   const index = timeIndexOf(within)
   return (atSerial) => spansAt(index, atSerial)
 }
 
-// see FR-054, DV-8
+// Spec: FR-054, DV-8
 /** @purity pure */
 export function workingMinutesBetween(within: WorkingCalendar, from: number, to: number): number {
   if (to <= from) return to === from ? 0 : -workingMinutesBetween(within, to, from)
@@ -651,7 +651,7 @@ export function workingMinutesBetween(within: WorkingCalendar, from: number, to:
   return minutesOver((at) => spansAt(index, at), from, to)
 }
 
-// see FR-011
+// Spec: FR-011
 /** @purity pure */
 function edgeSpansOf(index: TimeIndex, startSerial: number, endSerial: number): SpansOfDay {
   return (at) => {
@@ -661,7 +661,7 @@ function edgeSpansOf(index: TimeIndex, startSerial: number, endSerial: number): 
   }
 }
 
-// see FR-011, FR-012, IV-21
+// Spec: FR-011, FR-012, IV-21
 /** @purity pure */
 export function actualMinutesOf(within: WorkingCalendar, start: number, end: number): number {
   return end === start ? 0 : actualMinutesAt(timeIndexOf(within), start, end)
@@ -675,14 +675,14 @@ function actualMinutesAt(index: TimeIndex, start: number, end: number): number {
   return end > start ? minutesOver(spansOfDay, start, end) : -minutesOver(spansOfDay, end, start)
 }
 
-// see FR-011, FR-012
+// Spec: FR-011, FR-012
 export interface WorkingTimeCounter {
   plannedLengthMinutes(task: Task): number | null
   actualLengthMinutes(task: Task): number | null
 }
 
-// see FR-011, FR-012
-// WHY: one calendar index for a whole recount; built per Task it parsed the calendar again for each Task (DFC-2472).
+// Spec: FR-011, FR-012
+// Why: one calendar index for a whole recount; built per Task it parsed the calendar again for each Task (DFC-2472).
 /** @purity pure */
 export function workingTimeCounterOf(within: WorkingCalendar): WorkingTimeCounter {
   let index: TimeIndex | null = null
@@ -700,22 +700,22 @@ export function workingTimeCounterOf(within: WorkingCalendar): WorkingTimeCounte
   }
 }
 
-// see IV-21, FR-011
+// Spec: IV-21, FR-011
 /** @purity pure */
 export function reversedActualMinutesOf(within: WorkingCalendar, task: Task): number | null {
   const actual = actualInstantsOf(within, task)
   return actual === null || actual[1] >= actual[0] ? null : actualMinutesOf(within, actual[0], actual[1])
 }
 
-// see FR-011, T-019
+// Spec: FR-011, T-019
 /** @purity pure */
 export function actualEndOf(task: Task): string | null {
   if (planActualState(task) === 'notStarted') return null
   return task.actualFinish !== null ? task.actualFinish : task.stop
 }
 
-// see FR-011, AT-141
-// WHY: the start's own day is an edge, so it counts by actualMinutesOf's own rule and the two agree.
+// Spec: FR-011, AT-141
+// Why: the start's own day is an edge, so it counts by actualMinutesOf's own rule and the two agree.
 // On a range boundary both ways stop at the earlier instant, the end of a range (FR-011).
 /** @purity pure */
 export function instantAfterWorkingMinutes(within: WorkingCalendar, from: number, minutes: number): number {
@@ -740,7 +740,7 @@ export function instantAfterWorkingMinutes(within: WorkingCalendar, from: number
   throw new NoWorkingDayReached(within.calendar.uid)
 }
 
-// see FR-054, RS-89
+// Spec: FR-054, RS-89
 /** @purity pure */
 export function isWorkingDayUnlikeMinutesPerDay(schedule: Schedule): boolean {
   const within = workingCalendarOf(schedule)
@@ -757,19 +757,19 @@ function workingTimesSumOf(workingTimes: readonly WorkingTime[]): number {
   return minutesInside(spansOfTimes(workingTimes), 0, MINUTES_PER_CALENDAR_DAY)
 }
 
-// see FR-088, RS-89
+// Spec: FR-088, RS-89
 /** @purity pure */
 export function isWorkingTimeSetUnlikeDay(project: Project, workingTimes: readonly WorkingTime[]): boolean {
   return workingTimesSumOf(workingTimes) !== minutesPerWorkingDayOf(project)
 }
 
-// see WC-8, WC-9
+// Spec: WC-8, WC-9
 /** @purity pure */
 export function isSameWorkingTimeSet(left: readonly WorkingTime[], right: readonly WorkingTime[]): boolean {
   return keyOfSpans(spansOfTimes(left)) === keyOfSpans(spansOfTimes(right))
 }
 
-// see IV-24
+// Spec: IV-24
 /** @purity pure */
 export function workingTimesBreach(workingTimes: readonly WorkingTime[], most: number): string | null {
   if (workingTimes.length > most) return `${workingTimes.length} working time spans, over ${most}`
@@ -779,14 +779,14 @@ export function workingTimesBreach(workingTimes: readonly WorkingTime[], most: n
   return overlapped ? 'two working time spans overlap' : null
 }
 
-// see AT-47
+// Spec: AT-47
 export const TENTHS_OF_A_MINUTE = 10
 
-// see FR-009, S-118, AT-48
-// WHY: the code is the exchange partner's (mspdi_pj12.xsd:2203, 7 = d); no table of the spec holds it as a value.
+// Spec: FR-009, S-118, AT-48
+// Why: the code is the exchange partner's (mspdi_pj12.xsd:2203, 7 = d); no table of the spec holds it as a value.
 export const WORKING_DAY_LAG_FORMAT = 7
 
-// see FR-054, S-128
+// Spec: FR-054, S-128
 /** @purity pure */
 export function minutesPerWorkingDayOf(project: Project): number {
   const held = project.minutesPerDay
@@ -817,8 +817,8 @@ export function textOfFinishSide(day: CalendarDay, project: Project): string {
   return textOfDayAt(day, time)
 }
 
-// see FR-009, AT-47, AT-48
-// TRAP: null means GRS does not read the lag's format, never "no lag"; a zero lag is zero whatever its format.
+// Spec: FR-009, AT-47, AT-48
+// Trap: null means GRS does not read the lag's format, never "no lag"; a zero lag is zero whatever its format.
 /** @purity pure */
 export function lagWorkingDaysOf(dependency: Dependency, minutesPerDay: number): number | null {
   const lag = dependency.linkLag ?? 0
@@ -827,7 +827,7 @@ export function lagWorkingDaysOf(dependency: Dependency, minutesPerDay: number):
   return lag / TENTHS_OF_A_MINUTE / minutesPerDay
 }
 
-// see FR-009, AT-47
+// Spec: FR-009, AT-47
 /** @purity pure */
 export function lagOfWorkingDays(workingDays: number, minutesPerDay: number): number {
   return Math.round(workingDays * minutesPerDay * TENTHS_OF_A_MINUTE)

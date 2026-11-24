@@ -261,7 +261,7 @@ describe('FR-035 / IF-9 -- the Document Title (U-27) is edited in place', () => 
     expect(oneByRole(built.root(), DOCUMENT_TITLE).textContent).toContain('Plan of the year')
   })
 
-  // WHY: the field stands only after F2 asks for it, so the case opens it the way the shell does.
+  // Why: the field stands only after F2 asks for it, so the case opens it the way the shell does.
   it('IF-9 ヘッダーの文書名の欄は U-27 を名乗る -- once opened, a field named U-27 stands and its settled value names U-27', () => {
     const built = stage({ 'App Header': 37 })
     let focusField: ((row: string) => boolean) | undefined

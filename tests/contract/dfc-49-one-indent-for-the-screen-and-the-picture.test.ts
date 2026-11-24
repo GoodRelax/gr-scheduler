@@ -65,15 +65,15 @@ const settingsOf = (part: Record<string, unknown>): DocumentSettings =>
 
 const PANEL = settingsOf({
   displayScale: DEFAULT_DISPLAY_SCALE,
-  taskGroupPanelWidthPx: 400, // see S-79
-  pinnedTaskGroupIds: [], // see S-126
+  taskGroupPanelWidthPx: 400, // Spec: S-79
+  pinnedTaskGroupIds: [], // Spec: S-126
 })
 
-// WHY: S-30, S-36, S-37, S-38 and S-125 are constants now; a document cannot carry them.
+// Why: S-30, S-36, S-37, S-38 and S-125 are constants now; a document cannot carry them.
 const keyOf = (settings: DocumentSettings, key: string): number =>
   (Object.hasOwn(SETTINGS_CONSTANTS, key) ? SETTINGS_CONSTANTS : settings)[key as never] as number
 
-// see FR-039, T-252
+// Spec: FR-039, T-252
 const drawnPanelOf = (settings: DocumentSettings): number =>
   Math.max(
     keyOf(settings, 'taskGroupPanelWidthPx') * DEFAULT_DISPLAY_RATIO,
@@ -82,11 +82,11 @@ const drawnPanelOf = (settings: DocumentSettings): number =>
       26 * S_235 * 4,
   )
 
-// see FR-093, FR-039
+// Spec: FR-093, FR-039
 const drawnPerCharacterOf = (settings: DocumentSettings, depth: number): number =>
   taskGroupNameFontPx(depth) * keyOf(settings, 'labelCoef') * DEFAULT_DISPLAY_RATIO
 
-// see FR-029, T-252
+// Spec: FR-029, T-252
 const DRAWN_GRAB_STRIP = S_138 * S_235 + S_218
 
 const ROOT: ScreenSession = {

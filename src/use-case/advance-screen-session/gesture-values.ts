@@ -1,4 +1,4 @@
-// GestureValues: the gesture region of the session and its transitions.
+// File: AdvanceScreenSession: GestureValues: the gesture region of the session and its transitions.
 // @unit      UF-88   (docs/spec/05-07-design.md, table T-075)
 // @component AdvanceScreenSession, layer UseCase (table T-062)
 // @purity    pure
@@ -6,10 +6,10 @@
 
 import { NO_EFFECTS, unchanged, type Step } from './session-step'
 
-// WHY: the translator's PressRow again; UseCase may not read an Adapter type (table T-061).
+// Why: the translator's PressRow again; UseCase may not read an Adapter type (table T-061).
 export type GesturePressRow = 'PTD-7' | 'PTD-1' | 'PTD-2' | 'PTD-3' | 'PTD-4' | 'PTD-4a' | 'PTD-5'
 
-// WHY: what was pressed, never where -- a point is a frame value (SF-5).
+// Why: what was pressed, never where -- a point is a frame value (SF-5).
 export type PressedOn =
   | { readonly kind: 'grab'; readonly grabTaskGroup: string; readonly itemId: string }
   | { readonly kind: 'entry'; readonly entry: string }
@@ -126,10 +126,10 @@ type GestureStep = Step<GestureValues, GestureValuesEffect>
 
 type EventOf<T extends GestureValuesEvent['type']> = Extract<GestureValuesEvent, { readonly type: T }>
 
-// see T-289
+// Spec: T-289
 export const emptyGestureValues: GestureValues = { ...GESTURE_VALUES_INITIAL_AXES }
 
-// WHY: a machine the event leaves alone keeps its reference, and so does the region (SD-3, SF-3).
+// Why: a machine the event leaves alone keeps its reference, and so does the region (SD-3, SF-3).
 /** @purity pure */
 function combined(
   values: GestureValues,
@@ -158,7 +158,7 @@ function onPointerPressed(values: GestureValues, event: EventOf<'pointerPressed'
   return combined(values, pressed, grabbed, effects)
 }
 
-// WHY: releasing and interrupting end both machines alike (IN-1, IN-1a); only an interruption on
+// Why: releasing and interrupting end both machines alike (IN-1, IN-1a); only an interruption on
 // the palette band asks for the corner back (FR-053).
 /** @purity pure */
 function ended(values: GestureValues, isInterrupted: boolean): GestureStep {
@@ -170,7 +170,7 @@ function ended(values: GestureValues, isInterrupted: boolean): GestureStep {
   return combined(values, released, ungrabbed, effects)
 }
 
-// WHY: a carried grab finds no cell and keeps its reference until release (HF-15, S-208).
+// Why: a carried grab finds no cell and keeps its reference until release (HF-15, S-208).
 /** @purity pure */
 function onTaskGroupGrabTravelPassed(values: GestureValues): GestureStep {
   if (values.taskGroupGrabState.kind !== 'grabbed' || values.taskGroupGrabState.child.kind !== 'grabPressed') return unchanged(values)
@@ -178,7 +178,7 @@ function onTaskGroupGrabTravelPassed(values: GestureValues): GestureStep {
   return combined(values, values.pointerPressState, carrying, NO_EFFECTS)
 }
 
-// WHY: a tick that arrives after the press ended finds no cell, so the shell need not ask again.
+// Why: a tick that arrives after the press ended finds no cell, so the shell need not ask again.
 /** @purity pure */
 function onEntryRepeatTimeElapsed(values: GestureValues): GestureStep {
   const press = values.pointerPressState
@@ -196,7 +196,7 @@ const HANDLERS: {
   entryRepeatTimeElapsed: onEntryRepeatTimeElapsed,
 }
 
-// see SF-2, SF-8, T-289
+// Spec: SF-2, SF-8, T-289
 /** @purity pure */
 export function stepGestureValues(values: GestureValues, event: GestureValuesEvent): GestureStep {
   const handler = HANDLERS[event.type] as (values: GestureValues, event: GestureValuesEvent) => GestureStep

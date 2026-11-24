@@ -17,7 +17,7 @@ export interface SwsRegistry {
   declared(): readonly SwsCase[]
 }
 
-// WHY: not one module-level array -- Playwright may run two spec files in one
+// Why: not one module-level array -- Playwright may run two spec files in one
 // worker, and a shared array would let one file's check see the other's.
 /** @purity non-pure */
 export function swsRegistry(): SwsRegistry {
@@ -35,7 +35,7 @@ export function swsRegistry(): SwsRegistry {
   }
 }
 
-// WHY: guards the declarations, not the product -- TW-2 (Chapter 9) has no
+// Why: guards the declarations, not the product -- TW-2 (Chapter 9) has no
 // other reader that would catch an empty GIVEN or an unknown row ID.
 /** @purity non-pure */
 export function expectDeclarationsUsable(
@@ -71,7 +71,7 @@ export function rowOf(table: SpecTable, id: string): SpecRow {
   return row
 }
 
-// WHY: read by position, not heading -- headings are Japanese and rule 03
+// Why: read by position, not heading -- headings are Japanese and rule 03
 // section 5 keeps this tree ASCII; a caller needing another column guards it.
 /** @purity pure */
 export function lastCellOf(row: SpecRow): string {

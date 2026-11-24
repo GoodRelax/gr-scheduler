@@ -38,7 +38,7 @@ interface Schema {
   readonly required?: unknown
 }
 
-// WHY: CR-766 gives the request of AM-7 the keys of the write request and one choice per command of table T-108,
+// Why: CR-766 gives the request of AM-7 the keys of the write request and one choice per command of table T-108,
 // so this one key carries more than a type and a description; the shape of its choices is pinned by the CR-766 tests.
 const WRITE_REQUEST_TOOL = 'applyCommands'
 const WRITE_REQUEST_KEYS = ['expectedStamp', 'commands']
@@ -48,7 +48,7 @@ const STRING_LIST = 'readonly string[]'
 const STRING_CHOICES = /^'[^']+'( \| '[^']+')+$/
 
 // see AG-12, CR-796
-// WHY: the description of a key is the English (en) of the meaning in the manuscript; the printed table stays Japanese.
+// Why: the description of a key is the English (en) of the meaning in the manuscript; the printed table stays Japanese.
 const schemaOf = (member: PrintedMember, argument: PrintedArgument): Schema => {
   const description = keyMeaningEnglish(member.name, argument.name)
   if (argument.typeText === 'string') return { type: 'string', description }
@@ -60,14 +60,14 @@ const schemaOf = (member: PrintedMember, argument: PrintedArgument): Schema => {
   if (argument.typeText === STRING_LIST) {
     return { type: 'array', items: { type: 'string' }, description }
   }
-  // WHY: a list of string values is a string enum (design 3.1) (see AM-25)
+  // Why: a list of string values is a string enum (design 3.1) (see AM-25)
   if (STRING_CHOICES.test(argument.typeText)) {
     return { type: 'string', enum: argument.typeText.split(' | ').map((one) => one.slice(1, -1)), description }
   }
   return { type: 'object', description }
 }
 
-// see AG-12
+// Spec: AG-12
 const keysOf = (member: PrintedMember): readonly PrintedArgument[] => {
   const mcpOnly = member.arguments.filter((argument) => argument.isMcpOnly)
   return mcpOnly.length > 0 ? mcpOnly : member.arguments
@@ -169,7 +169,7 @@ describe('mcpToolList: one tool per row of T-107, with the input the argument co
     }
   })
 
-  // see AM-11, AM-12, AM-13, AM-14, AM-15
+  // Spec: AM-11, AM-12, AM-13, AM-14, AM-15
   it('the five export tools take { fileName, overwrite } and nothing else', () => {
     for (const name of ['exportJson', 'exportMspdi', 'exportSvg', 'exportPng', 'exportEmbeddedHtml']) {
       expect(Object.keys(toolNamed(name).inputSchema.properties), name).toEqual(['fileName', 'overwrite'])
@@ -187,7 +187,7 @@ describe('AM-17 and AG-12 (5): watchChanges takes waitMs and not its receiver', 
     const properties = toolNamed('watchChanges').inputSchema.properties as Readonly<Record<string, Schema>>
     expect(Object.keys(properties)).toEqual(['waitMs'])
     expect(properties['waitMs']?.type).toBe('number')
-    // WHY: the milliseconds and the answer of an expired wait are said in the English of the manuscript
+    // Why: the milliseconds and the answer of an expired wait are said in the English of the manuscript
     expect(properties['waitMs']?.description).toBe(keyMeaningEnglish('watchChanges', 'waitMs'))
   })
 
@@ -221,7 +221,7 @@ describe('mcp-tool-descriptions.json is what mcpToolList returns', () => {
 describe('AM-19 and AM-25: the sentences that divide the delay analysis reach the tool descriptions', () => {
   it('readSearchRows tells an AI that its status is not a diagnosis and where the diagnosis is', () => {
     const description = toolNamed('readSearchRows').description
-    // WHY: the English lines of the manuscript that divide the two, and the name of the tool that diagnoses
+    // Why: the English lines of the manuscript that divide the two, and the name of the tool that diagnoses
     const lines = englishLinesOf(manuscriptMember('readSearchRows').carries)
     expect(lines.length).toBeGreaterThan(0)
     expect(description).toContain(lines[lines.length - 1])
@@ -230,7 +230,7 @@ describe('AM-19 and AM-25: the sentences that divide the delay analysis reach th
 
   it('readDelayDiagnostics tells an AI that it returns the analysis and that the search status is only a comparison with the base date', () => {
     const description = toolNamed('readDelayDiagnostics').description
-    // WHY: the English lines of both tools -- this one returns the analysis, the search status only compares dates
+    // Why: the English lines of both tools -- this one returns the analysis, the search status only compares dates
     const own = englishLinesOf(manuscriptMember('readDelayDiagnostics').carries)
     expect(own.length).toBeGreaterThan(0)
     expect(description).toContain(own[own.length - 1])

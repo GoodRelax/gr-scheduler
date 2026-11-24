@@ -17,7 +17,7 @@ const BUILD_INPUTS = [
   'package-lock.json',
 ]
 
-// TRAP: an entry here silences the URL scan below; add one only when nothing
+// Trap: an entry here silences the URL scan below; add one only when nothing
 // ever dereferences it, or an external fetch passes unnoticed.
 const NON_DEREFERENCED_URI_IDENTIFIERS = [
   'http://www.apache.org/licenses/',
@@ -28,18 +28,18 @@ const NON_DEREFERENCED_URI_IDENTIFIERS = [
   'http://schemas.microsoft.com/project/2007',
   'https://schemas.microsoft.com/project/2007/mspdi_pj12.xsd',
   'https://json-schema.org/draft/2020-12/schema',
-  // see S-540, DR-4, CN-6
-  // WHY: a written GRS JSON carries this as its "$schema"; the app never fetches it,
-  // WHY: and it is read from the manuscript because S-540 forbids copying it into code.
+  // Spec: S-540, DR-4, CN-6
+  // Why: a written GRS JSON carries this as its "$schema"; the app never fetches it,
+  // Why: and it is read from the manuscript because S-540 forbids copying it into code.
   SCHEMA_ADDRESS,
 ]
 
-// see CN-6, FR-073, FR-069, BR-4
-// WHY: CN-6 exempts a link a person presses; S-350, S-459 and S-583 are the targets,
+// Spec: CN-6, FR-073, FR-069, BR-4
+// Why: CN-6 exempts a link a person presses; S-350, S-459 and S-583 are the targets,
 // read from the manuscript because the rows forbid copying the address into code.
 const LINKS_PRESSED_BY_A_PERSON: readonly string[] = [DOWNLOAD_ADDRESS, REPOSITORY_ADDRESS, ABOUT_ADDRESS]
 
-// WHY: a minified call sits next to its string argument, so this window
+// Why: a minified call sits next to its string argument, so this window
 // catches fetch(...), xhr.open(...), import(...), importScripts(...).
 const LOADER_CALL_WINDOW = 40
 
@@ -51,7 +51,7 @@ function loaderCallsAddress(text: string, address: string): boolean {
   return pattern.test(text)
 }
 
-// TRAP: widening this list beyond LM-14's exclusions would hide a real
+// Trap: widening this list beyond LM-14's exclusions would hide a real
 // console error as though it were an LM-14 storage complaint.
 const LM_14_EXCLUDED = [
   /localstorage/i,
@@ -65,11 +65,11 @@ const IN_FILE_SCHEMES = /^(?:data|blob|about|javascript):/i
 
 const ABSOLUTE_URL = /(?:https?|wss?|ftps?):\/\/[^\s"'`<>()\\\][{}]+/gi
 
-// WHY: the scan above stops at `{`, so a same-origin `${...host}` WebSocket
+// Why: the scan above stops at `{`, so a same-origin `${...host}` WebSocket
 // URL leaves only the scheme and a trailing `$` behind, not an external one.
 const SAME_ORIGIN_HOST_HOLE = /^\{[^{}'"`]*\bhost\b[^{}'"`]*\}/
 
-// see AG-12
+// Spec: AG-12
 function isSameOriginWsInterpolation(url: string, tail: string): boolean {
   return /^wss?:\/\/\$$/.test(url) && SAME_ORIGIN_HOST_HOLE.test(tail)
 }
@@ -94,7 +94,7 @@ function mtimes(paths: string[]): number[] {
   return paths.map((p) => statSync(p).mtimeMs)
 }
 
-// WHY: the build is skipped only when every dist/ file is already newer than
+// Why: the build is skipped only when every dist/ file is already newer than
 // every input -- the one case a rebuild could not change the answer.
 function buildUnlessAlreadyCurrent(): void {
   const inputs: string[] = []
@@ -130,7 +130,7 @@ test('NFR-004 / CN-1: given a fresh production build, when dist is listed, then 
 })
 
 test('NFR-004 / CN-6: given the built deliverable, when every URL-bearing attribute and CSS url() is resolved, then none of them points off the file', async ({ page }) => {
-  // WHY: parsed via DOMParser rather than navigated to -- reads the file's
+  // Why: parsed via DOMParser rather than navigated to -- reads the file's
   // text without running a script or fetching a sub-resource.
   const uses = await page.evaluate((html: string): UrlUse[] => {
     const cssUrls = (css: string): string[] => {
@@ -179,7 +179,7 @@ test('NFR-004 / CN-6: given the built deliverable, when every URL-bearing attrib
     if (value.startsWith('#')) return false
     if (IN_FILE_SCHEMES.test(value)) return false
     if (where === '<a href>' && LINKS_PRESSED_BY_A_PERSON.includes(value)) return false
-    // WHY: a relative path here means a second file, which CN-1 already
+    // Why: a relative path here means a second file, which CN-1 already
     // forbids, so it counts as off-file too.
     return true
   })
@@ -205,7 +205,7 @@ test('NFR-004 / CN-6: given the built deliverable, when its raw text is scanned 
     external,
     'CN-6: an absolute URL that is not a declared identifier or an S-350 / S-459 / S-583 link target means the deliverable points outside itself',
   ).toEqual([])
-  // TRAP: if this assertion needs deleting, the namespace exemption above has
+  // Trap: if this assertion needs deleting, the namespace exemption above has
   // gone stale and its entries should be reconsidered.
   expect(
     seen.has('http://www.w3.org/2000/svg'),
@@ -249,7 +249,7 @@ test('NFR-004 (judged from file://) / NFR-011 / CN-8: given the deliverable open
   const painted = await page.evaluate(() => document.body.querySelectorAll('*').length)
   expect(painted, 'NFR-011: the first frame must not be a blank page').toBeGreaterThan(0)
 
-  // TRAP: this scan runs before the LM-14 filter -- swap the order and a CSP
+  // Trap: this scan runs before the LM-14 filter -- swap the order and a CSP
   // refusal could be silently excluded as an LM-14 storage complaint.
   const refusals = [...consoleErrors, ...pageErrors].filter((t) =>
     /content security policy|refused to (?:load|execute|apply|connect|frame)/i.test(t))

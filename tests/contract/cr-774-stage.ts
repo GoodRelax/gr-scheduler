@@ -14,13 +14,13 @@ import { shell, type Shell } from './cr-772-shell-stage'
 
 export { REQUIREMENTS, DESIGN }
 
-// see T-206, T-201, T-211
+// Spec: T-206, T-201, T-211
 export const S_208 = numberIn(rowOf('T-206', 'S-208').by['既定'] ?? '')
 export const S_37 = numberIn(rowOf('T-201', 'S-37').by['既定値'] ?? '')
 export const S_125 = numberIn(rowOf('T-211', 'S-125').by['値'] ?? '')
 
-// WHY: P is the target; S is a chain of S_125 levels; H has two leaves under one parent; T is a chain to drop under.
-// WHY: the tree is built for S_125 = 5, and the first case of the cases file says so.
+// Why: P is the target; S is a chain of S_125 levels; H has two leaves under one parent; T is a chain to drop under.
+// Why: the tree is built for S_125 = 5, and the first case of the cases file says so.
 export const ROWS: readonly TaskGroupSeed[] = [
   { id: 'P', parentId: null },
   { id: 'P1', parentId: 'P' },
@@ -56,7 +56,7 @@ export interface Box {
   readonly height: number
 }
 
-// WHY: a structural reading of the landing; the new member is added by CR-774, so no type name is imported for it.
+// Why: a structural reading of the landing; the new member is added by CR-774, so no type name is imported for it.
 export interface PastCapLanding {
   readonly parentId: string | null
   readonly order: number
@@ -94,7 +94,7 @@ const boxOf = (id: string): Box => {
   return found.box
 }
 
-// WHY: the boundary under a drawn row is the gap between it and the next drawn row.
+// Why: the boundary under a drawn row is the gap between it and the next drawn row.
 export const under = (id: string): number => boxOf(id).y + boxOf(id).height
 
 export const indentPx = (document: Document = documentOf()): number => S_37 * displayRatioOf(document.documentSettings)
@@ -139,7 +139,7 @@ const pointerAt = (steps: number, y: number, phase: 'move' | 'up') => ({
   clickCount: 1,
 })
 
-// WHY: steps counts indents to the right of the press point, y is the pointer height.
+// Why: steps counts indents to the right of the press point, y is the pointer height.
 export function landingAt(heldId: string, steps: number, y: number): PastCapLanding | null {
   const press = pressOn(heldId)
   return grab.taskGroupGrabLandingAt(contextOf(press), heldId, pointerAt(steps, y, 'move'), press) as PastCapLanding | null
@@ -158,7 +158,7 @@ export interface ChangeAction {
 
 export const actionOf = (result: TranslatedInput): ChangeAction | null => result.action as unknown as ChangeAction | null
 
-// WHY: empty when the release wrote nothing; the bundles are one undo step each.
+// Why: empty when the release wrote nothing; the bundles are one undo step each.
 export const bundlesOf = (result: TranslatedInput): readonly (readonly MoveCommand[])[] => actionOf(result)?.writes ?? []
 
 export const groupsOf = (document: Document = documentOf()): readonly TaskGroupRow[] =>
@@ -166,14 +166,14 @@ export const groupsOf = (document: Document = documentOf()): readonly TaskGroupR
 
 type LiftMovesAfter = (taskGroups: readonly unknown[], heldGroupId: string, landing: unknown) => readonly MoveCommand[]
 
-// WHY: the seam CR-774 adds; looked up, so a missing one is one named failure rather than a compile error in every case.
+// Why: the seam CR-774 adds; looked up, so a missing one is one named failure rather than a compile error in every case.
 export function liftMovesAfter(heldId: string, landing: PastCapLanding): readonly MoveCommand[] {
   const found = (grab as unknown as { taskGroupLiftMovesAfter?: LiftMovesAfter }).taskGroupLiftMovesAfter
   if (found === undefined) throw new Error('premise: task-group-grab.ts exports taskGroupLiftMovesAfter (CR-774 section 5.1)')
   return found(groupsOf(), heldId, landing)
 }
 
-// WHY: the CM-73 reading of a move: order is the index among the new parent's children with the moved one taken out.
+// Why: the CM-73 reading of a move: order is the index among the new parent's children with the moved one taken out.
 export function applyMoves(groups: readonly TaskGroupRow[], commands: readonly MoveCommand[]): readonly TaskGroupRow[] {
   let now = groups.map((one) => ({ ...one }))
   for (const command of commands) {
@@ -207,13 +207,13 @@ export const deepestIn = (groups: readonly TaskGroupRow[]): number => Math.max(.
 export const idsDeeperThan = (groups: readonly TaskGroupRow[], limit: number): readonly string[] =>
   groups.filter((one) => depthIn(groups, one.id) > limit).map((one) => one.id)
 
-// WHY: the same tree through the frame loop, so the question and the answer are the real ones.
+// Why: the same tree through the frame loop, so the question and the answer are the real ones.
 export function shellOf(language: 'ja' | 'en' = 'ja'): Shell {
   const open = ROWS.map((one) => ({ ...one, treeState: 'expanded' as const }))
   return shell(taskGroupDocument(open) as unknown as Document, language)
 }
 
-// WHY: presses the strip of heldId, carries it past S-208, then moves to the gap under aboveId, steps indents right of the press.
+// Why: presses the strip of heldId, carries it past S-208, then moves to the gap under aboveId, steps indents right of the press.
 export function carryUnder(built: Shell, heldId: string, aboveId: string, steps: number): { x: number; y: number } {
   const home = built.press(heldId)
   built.move(home.x + 2, home.y + S_208 + 3)

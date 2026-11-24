@@ -9,7 +9,7 @@ const T075 = specTable('T-075')
 const T062 = specTable('T-062')
 const T074 = specTable('T-074')
 
-// WHY: table T-074 SU-3 states the unit count in prose; a literal here went
+// Why: table T-074 SU-3 states the unit count in prose; a literal here went
 // stale (this file said 160 while T-075 already held 167). Read SU-3 instead.
 const statedCount = (id: string): number => {
   const row = T074.rows.find((one) => one.id === id)

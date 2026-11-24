@@ -15,7 +15,7 @@ afterEach(restoreAnimationFrames)
 
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
-// see FR-106, T-269, PK-8, PK-11
+// Spec: FR-106, T-269, PK-8, PK-11
 const BODY_AND_LEADER_ARE_THE_PALM =
   '（表 T-023d の `GR-14`、`_assets/tbl-settings.md` の 表 T-206 の `S-291`）では、表 T-269 の `PK-8` とすること（MUST）'
 const ANCHOR_IS_THE_MOVE_SHAPE =

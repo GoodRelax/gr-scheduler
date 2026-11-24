@@ -1,4 +1,4 @@
-// Reads and writes document files through the FileStore seam.
+// File: FileGateway: Reads and writes document files through the FileStore seam.
 // @unit      UF-41   (docs/spec/05-07-design.md, table T-075)
 // @component FileGateway, layer Adapter (table T-062)
 // @purity    semi-pure-mutable
@@ -89,7 +89,7 @@ export type DocumentFileSaving =
   | { readonly ok: true; readonly openedFile: OpenedFileState }
   | { readonly ok: false; readonly fault: DocumentFileFault }
 
-// see SX-1, SX-2, FR-060, IO-2
+// Spec: SX-1, SX-2, FR-060, IO-2
 const ROUND_TRIP_FORMS: readonly SaveFileForm[] = ['IO-2']
 
 /** @purity pure */
@@ -102,7 +102,7 @@ function bytesOfContent(content: SaveFileContent): Uint8Array {
   return 'text' in content ? new TextEncoder().encode(content.text) : content.bytes
 }
 
-// TRAP: ignoreBOM keeps a leading BOM for the codecs to drop; change them together.
+// Trap: ignoreBOM keeps a leading BOM for the codecs to drop; change them together.
 /** @purity pure */
 function textOfBytes(
   bytes: Uint8Array,
@@ -137,7 +137,7 @@ function openedOf(file: OpenedFileContent, text: string): OpenedDocumentFile {
   return { text, byteLength: file.bytes.byteLength, fileName: file.fileName }
 }
 
-// see DI-1, DI-2
+// Spec: DI-1, DI-2
 /** @purity pure */
 function isSameDocument(here: DocumentIdentity, there: DocumentIdentity): boolean {
   const isEitherProjectUnnamed =
@@ -155,14 +155,14 @@ function isSameDocument(here: DocumentIdentity, there: DocumentIdentity): boolea
   )
 }
 
-// see DI-6
-// WHY: judged by byte count, not by arm: a file a chooser just created looks empty.
+// Spec: DI-6
+// Why: judged by byte count, not by arm: a file a chooser just created looks empty.
 /** @purity pure */
 function isDestinationAlreadyThere(destination: ChosenWriteDestination): boolean {
   return destination.kind === 'occupied' && destination.bytes.byteLength > 0
 }
 
-// see DI-3
+// Spec: DI-3
 /** @purity pure */
 function destinationIdentity(
   destination: ChosenWriteDestination,
@@ -183,7 +183,7 @@ function destinationIdentity(
   }
 }
 
-// see OP-2, OP-11
+// Spec: OP-2, OP-11
 /** @purity semi-pure-mutable */
 export async function openDocumentFile(
   store: FileStore,
@@ -202,7 +202,7 @@ export async function openDocumentFile(
   }
 }
 
-// see T-227
+// Spec: T-227
 /** @purity non-pure */
 async function askToWriteOver(
   request: ChosenFileSaveRequest,
@@ -216,7 +216,7 @@ async function askToWriteOver(
   return await request.confirmOverwrite()
 }
 
-// see FR-060, FR-096
+// Spec: FR-060, FR-096
 /** @purity non-pure */
 export async function saveDocumentFile(
   store: FileStore,
@@ -230,7 +230,7 @@ export async function saveDocumentFile(
       suggestedFileName: request.suggestedFileName,
       extension: request.extension,
       shouldBecomeOpenedFile: isRoundTripForm(request.form),
-      // WHY: asked by the store once the destination is open, so it is read only once.
+      // Why: asked by the store once the destination is open, so it is read only once.
       askToWriteOver: (destination) => askToWriteOver(request, destination),
     }
     return savingOfWriting(await store.writeChosenFile(write))
@@ -252,6 +252,6 @@ export async function saveDocumentFile(
 // Single source of truth:
 //   docs/spec/01-04-requirements.md (table T-024)
 // Rebuild: npm run gen   ||   npm run gen:check fails on drift.
-// see T-024, FR-096
+// Spec: T-024, FR-096
 export type SaveFileForm = 'IO-2' | 'IO-1' | 'IO-7' | 'IO-3' | 'IO-4'
 // </generated>

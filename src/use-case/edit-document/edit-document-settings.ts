@@ -1,4 +1,4 @@
-// Runs the presentation-group commands against the document.
+// File: EditDocument: Runs the presentation-group commands against the document.
 // @unit      UF-18  (docs/spec/05-07-design.md, table T-075)
 // @component EditDocument, layer UseCase (table T-062)
 // @purity    pure
@@ -25,24 +25,24 @@ import type { EditResult } from './edit-document'
 import { refused, edited, reject } from './edit-document'
 import type { ProjectCommand } from './edit-project'
 
-// see FR-016, FR-052, T-206
+// Spec: FR-016, FR-052, T-206
 export interface SettingsLimits {
   readonly zoomMin: number
   readonly zoomMax: number
-  // TRAP: never rebuild this from a window width here; regionsFromScreen owns that arithmetic.
+  // Trap: never rebuild this from a window width here; regionsFromScreen owns that arithmetic.
   readonly taskGroupAreaWidthWithoutPanels: number
 }
 
 // <generated -- do not edit by hand>
 // From docs/spec/_source/document-commands.json (table T-108, DocumentSettingsCommand).
-// see T-108
+// Spec: T-108
 export interface TableView {
   readonly visibility: { readonly shownTaskUids: readonly number[]; readonly shownResourceUids: readonly number[]; readonly isUnassignedShown: boolean; readonly isScheduleFilterApplied: boolean }
   readonly columnFilters: readonly ColumnFilter[]
   readonly sort: ColumnSort | null
 }
 
-// see T-108
+// Spec: T-108
 export type DocumentSettingsCommand =
   | { readonly kind: 'setStackDirection'; readonly stackDirection: DocumentSettings['stackDirection'] }
   | {
@@ -146,8 +146,8 @@ function visibilityOf(held: HeldTableView): TableVisibility {
   return { shownTaskUids: held.shownTaskUids, shownResourceUids: [], isUnassignedShown: false, isScheduleFilterApplied: held.isScheduleFilterApplied }
 }
 
-// see FR-151, TV-2, S-560
-// TRAP: a document read before OP-6 fills the group may lack tableViews; it reads as the defaults.
+// Spec: FR-151, TV-2, S-560
+// Trap: a document read before OP-6 fills the group may lack tableViews; it reads as the defaults.
 /** @purity pure */
 export function tableViewOf(settings: DocumentSettings, table: VisibilityTable): TableView {
   const views = settings.tableViews as TableViews | undefined
@@ -156,7 +156,7 @@ export function tableViewOf(settings: DocumentSettings, table: VisibilityTable):
   return { visibility: visibilityOf(held), columnFilters: held.columnFilters, sort: held.sort }
 }
 
-// WHY: rebuilt field by field, so a caller's extra keys never reach the document and two equal views print alike.
+// Why: rebuilt field by field, so a caller's extra keys never reach the document and two equal views print alike.
 /** @purity pure */
 function heldColumnFilter(filter: ColumnFilter): ColumnFilter {
   return { column: filter.column, hiddenValues: [...filter.hiddenValues], fromDate: filter.fromDate, toDate: filter.toDate }
@@ -210,8 +210,8 @@ function isTableVisibility(value: unknown): boolean {
   return typeof fieldOf(value, 'isUnassignedShown') === 'boolean' && typeof fieldOf(value, 'isScheduleFilterApplied') === 'boolean'
 }
 
-// see CM-92, AG-5, T-372
-// WHY: judged at run time, not left to the type; the Agent API hands commands over as data (AG-5).
+// Spec: CM-92, AG-5, T-372
+// Why: judged at run time, not left to the type; the Agent API hands commands over as data (AG-5).
 /** @purity pure */
 function tableViewFaultOf(table: unknown, view: unknown): string | null {
   if (typeof table !== 'string' || !Object.hasOwn(TABLE_NAMES, table)) return `not a table tableViews holds: ${String(table)}`
@@ -220,8 +220,8 @@ function tableViewFaultOf(table: unknown, view: unknown): string | null {
   return isColumnSort(fieldOf(view, 'sort')) ? null : 'the sort is neither null nor of the shape table T-372 gives'
 }
 
-// see CM-92, FR-151, UN-20
-// WHY: an unchanged view writes nothing, so a repeated press adds no undo step.
+// Spec: CM-92, FR-151, UN-20
+// Why: an unchanged view writes nothing, so a repeated press adds no undo step.
 /** @purity pure */
 function tableViewEdited(
   settings: DocumentSettings,
@@ -243,8 +243,8 @@ function keptUids<V>(held: V | undefined, key: keyof V, present: ReadonlySet<num
   return { ...(held as V), [key]: uids.filter((uid) => present.has(uid)) }
 }
 
-// see CD-1, CD-2, CD-5, OP-18, TV-2
-// WHY: the same settings back when no hidden uid goes; a value not yet settled by OP-6 is passed through.
+// Spec: CD-1, CD-2, CD-5, OP-18, TV-2
+// Why: the same settings back when no hidden uid goes; a value not yet settled by OP-6 is passed through.
 /** @purity pure */
 export function tableViewsKeptIn(settings: DocumentSettings, schedule: Schedule): DocumentSettings {
   const views = settings.tableViews as Partial<TableViews> | undefined
@@ -267,7 +267,7 @@ export function documentWithTableViewsKept(document: Document): Document {
   return settings === document.documentSettings ? document : withSettings(document, settings)
 }
 
-// WHY: a Record over the type, so a value added to S-418 fails to compile here.
+// Why: a Record over the type, so a value added to S-418 fails to compile here.
 const LEVEL_ZERO_TREE_STATES: Readonly<Record<DocumentSettings['levelZeroTreeState'], true>> = {
   auto: true,
   collapsed: true,
@@ -280,7 +280,7 @@ function withSettings(document: Document, settings: DocumentSettings): Document 
 
 type SettingsPut = (part: Partial<DocumentSettings>) => EditResult
 
-// see CM-67, FR-052
+// Spec: CM-67, FR-052
 /** @purity pure */
 function taskGroupPanelWidthEdited(
   settings: DocumentSettings,
@@ -288,12 +288,12 @@ function taskGroupPanelWidthEdited(
   limits: SettingsLimits,
   put: SettingsPut,
 ): EditResult {
-  // TRAP: test as !(w > 0), not w <= 0; AG-8 hands commands over as data and NaN fails both.
+  // Trap: test as !(w > 0), not w <= 0; AG-8 hands commands over as data and NaN fails both.
   if (!(command.taskGroupPanelWidthPx > 0)) {
-    // WHY: S-79's formula floor is not applied; applying it here would own a second copy of that row.
+    // Why: S-79's formula floor is not applied; applying it here would own a second copy of that row.
     return refused([reject('CM-67', 'FR-052', 'the task group panel must be wider than zero')])
   }
-  // TRAP: the limit is measured off the DRAWN regions, so the stored width has to be scaled to meet it.
+  // Trap: the limit is measured off the DRAWN regions, so the stored width has to be scaled to meet it.
   const taskGroupArea = limits.taskGroupAreaWidthWithoutPanels - command.taskGroupPanelWidthPx * displayRatioOf(settings)
   if (!(taskGroupArea > 0)) {
     return refused([reject('CM-67', 'FR-052', 'the width would leave the Task Group Area at or below zero')])
@@ -301,13 +301,13 @@ function taskGroupPanelWidthEdited(
   return put({ taskGroupPanelWidthPx: command.taskGroupPanelWidthPx })
 }
 
-// see CM-86, S-418, T-328
+// Spec: CM-86, S-418, T-328
 /** @purity pure */
 function levelZeroTreeStateEdited(
   command: Extract<DocumentSettingsCommand, { readonly kind: 'setLevelZeroTreeState' }>,
   put: SettingsPut,
 ): EditResult {
-  // WHY: judged at run time, not left to the type; the Agent API hands commands over as data (AG-5).
+  // Why: judged at run time, not left to the type; the Agent API hands commands over as data (AG-5).
   if (!Object.prototype.hasOwnProperty.call(LEVEL_ZERO_TREE_STATES, command.levelZeroTreeState)) {
     return refused([
       reject('CM-86', 'FR-004', `not a level zero tree state S-418 names: ${command.levelZeroTreeState}`),
@@ -316,7 +316,7 @@ function levelZeroTreeStateEdited(
   return put({ levelZeroTreeState: command.levelZeroTreeState })
 }
 
-// see CM-62, FR-039, S-70
+// Spec: CM-62, FR-039, S-70
 /** @purity pure */
 function fontSizeStepEdited(
   settings: DocumentSettings,
@@ -337,7 +337,7 @@ function fontSizeStepEdited(
   })
 }
 
-// see CM-68, FR-098
+// Spec: CM-68, FR-098
 /** @purity pure */
 function pinEdited(
   settings: DocumentSettings,
@@ -356,7 +356,7 @@ function pinEdited(
 
 type FitSpanPair = { readonly span: Partial<DocumentSettings> } | { readonly refusal: EditResult }
 
-// see FX-1, RS-58, WT-6, WT-7
+// Spec: FX-1, RS-58, WT-6, WT-7
 /** @purity pure */
 function fitSpanPairOf(command: 'CM-88' | 'CM-90', startIn: string | null, finishIn: string | null): FitSpanPair {
   const startText = startIn ?? finishIn
@@ -366,7 +366,7 @@ function fitSpanPairOf(command: 'CM-88' | 'CM-90', startIn: string | null, finis
   if (start === null || finish === null) {
     return { refusal: refused([reject(command, 'S-518', `not a pair of dates: ${startText} / ${finishText}`)]) }
   }
-  // TRAP: refused, never pulled to the start; only a document read is settled that way (FX-1).
+  // Trap: refused, never pulled to the start; only a document read is settled that way (FX-1).
   if (compareDays(finish, start) < 0) {
     return { refusal: refused([reject(command, 'FX-1', 'the fit span finishes before it starts')]) }
   }
@@ -382,7 +382,7 @@ function fitSpanEdited(
   return 'refusal' in pair ? pair.refusal : put(pair.span)
 }
 
-// see CM-90, FX-1, FX-4
+// Spec: CM-90, FX-1, FX-4
 /** @purity pure */
 function fitSpanFixedEdited(
   settings: DocumentSettings,
@@ -397,7 +397,7 @@ function fitSpanFixedEdited(
 
 type FitSpanCommand = Extract<DocumentSettingsCommand, { readonly kind: 'setFitSpan' | 'clearFitSpan' | 'setFitSpanFixed' }>
 
-// WHY: the commands that write a group of columns under rules of their own, edited ahead of the switch below.
+// Why: the commands that write a group of columns under rules of their own, edited ahead of the switch below.
 type ComposedCommand = FitSpanCommand | Extract<DocumentSettingsCommand, { readonly kind: 'setTableView' }>
 
 const COMPOSED_KINDS: Readonly<Record<ComposedCommand['kind'], true>> = {
@@ -439,7 +439,7 @@ function isZoneCommand(command: DocumentSettingsCommand): command is ZoneCommand
 
 const MOST_DISPLAY_TIME_ZONES = 4
 
-// see CM-95, CM-96, FR-156, T-376, S-574, S-575
+// Spec: CM-95, CM-96, FR-156, T-376, S-574, S-575
 /** @purity pure */
 function zoneCommandEdited(settings: DocumentSettings, command: ZoneCommand, put: SettingsPut): EditResult {
   if (command.kind === 'setViewTimeZone') {
@@ -458,7 +458,7 @@ function zoneCommandEdited(settings: DocumentSettings, command: ZoneCommand, put
   return put({ displayTimeZones: [...zones] })
 }
 
-// see CM-64, CM-91, CM-97
+// Spec: CM-64, CM-91, CM-97
 /** @purity pure */
 function flagCommandEdited(command: FlagCommand, put: SettingsPut): EditResult {
   if (command.kind === 'setThemeMonochrome') return put({ isThemeMonochrome: command.isThemeMonochrome })
@@ -472,7 +472,7 @@ function composedCommandEdited(settings: DocumentSettings, command: ComposedComm
   return fitSpanCommandEdited(settings, command, put)
 }
 
-// see FR-016
+// Spec: FR-016
 /** @purity pure */
 function isZoomFinite(zoom: { readonly zoomX: number; readonly zoomY: number }): boolean {
   return Number.isFinite(zoom.zoomX) && Number.isFinite(zoom.zoomY)
@@ -480,14 +480,14 @@ function isZoomFinite(zoom: { readonly zoomX: number; readonly zoomY: number }):
 
 type FitCommand = Extract<DocumentSettingsCommand, { readonly kind: 'fitScheduleToScreen' | 'fitScheduleToScreenOnPage' }>
 
-// see CM-71, CM-102, FR-016, FR-055
+// Spec: CM-71, CM-102, FR-016, FR-055
 /** @purity pure */
 function fitEdited(command: FitCommand, put: SettingsPut, clamp: (value: number) => number): EditResult {
-  // WHY: the Agent API puts the page's own CM-71 in place of CM-102; reaching here, no page has drawn a screen to count from.
+  // Why: the Agent API puts the page's own CM-71 in place of CM-102; reaching here, no page has drawn a screen to count from.
   if (command.kind === 'fitScheduleToScreenOnPage') {
     return refused([reject('CM-102', 'FR-055', 'the page has not drawn its screen yet, so it cannot count the fit')])
   }
-  // TRAP: keep CM-71 and CM-72 two writes in this order, or an undo rewinds the zoom (UN-8, UN-17).
+  // Trap: keep CM-71 and CM-72 two writes in this order, or an undo rewinds the zoom (UN-8, UN-17).
   if (!isZoomFinite(command)) return refused([reject('CM-71', 'FR-016', 'zoom must be a finite number')])
   return put({
     zoomX: clamp(command.zoomX),
@@ -499,16 +499,16 @@ function fitEdited(command: FitCommand, put: SettingsPut, clamp: (value: number)
   })
 }
 
-// see CM-88, CM-89, CM-90, FX-1, FX-4, FX-5
+// Spec: CM-88, CM-89, CM-90, FX-1, FX-4, FX-5
 /** @purity pure */
 function fitSpanCommandEdited(settings: DocumentSettings, command: FitSpanCommand, put: SettingsPut): EditResult {
   if (command.kind === 'setFitSpan') return fitSpanEdited(command, put)
   if (command.kind === 'setFitSpanFixed') return fitSpanFixedEdited(settings, command, put)
-  // WHY: a cleared span takes its fix with it in the same one step (FX-5).
+  // Why: a cleared span takes its fix with it in the same one step (FX-5).
   return put({ fitSpanStart: null, fitSpanFinish: null, isFitSpanFixed: false })
 }
 
-// see T-108, FR-063
+// Spec: T-108, FR-063
 /** @purity pure */
 export function editDocumentSettings(
   document: Document,
@@ -538,12 +538,12 @@ export function editDocumentSettings(
     case 'setFontSizeStep':
       return fontSizeStepEdited(settings, command, put)
 
-    // see CM-74, FR-039
+    // Spec: CM-74, FR-039
     case 'setDisplayScale':
       return put({ displayScale: command.displayScale })
 
     case 'setZoom': {
-      // TRAP: refuse NaN here; it fails both comparisons, so the clamp alone would store it.
+      // Trap: refuse NaN here; it fails both comparisons, so the clamp alone would store it.
       if (!isZoomFinite(command)) return refused([reject('CM-65', 'FR-016', 'zoom must be a finite number')])
       return put({ zoomX: clamp(command.zoomX), zoomY: clamp(command.zoomY) })
     }
@@ -595,8 +595,8 @@ export function baseTimeZonesAfterChange(held: BaseTimeZones, chosenRegion: stri
   return { ...held, viewTimeZone: chosenRegion === held.scheduleDataTimeZone ? null : chosenRegion }
 }
 
-// see FR-156, FO-14, CM-94, CM-95, UN-13
-// WHY: one list written at once, so one undo takes it back (UN-13); held.viewTimeZone is the stored S-574.
+// Spec: FR-156, FO-14, CM-94, CM-95, UN-13
+// Why: one list written at once, so one undo takes it back (UN-13); held.viewTimeZone is the stored S-574.
 /** @purity pure */
 export function baseChangeCommandOf(
   held: BaseTimeZones,
@@ -619,7 +619,7 @@ export function baseChangeCommandOf(
 //   docs/spec/_assets/tbl-glossary.md (table T-109)
 //   docs/spec/_source/settings.json (table T-202)
 // Rebuild: npm run gen   ||   npm run gen:check fails on drift.
-// see T-109, T-202, FR-049
+// Spec: T-109, T-202, FR-049
 export type VisibleElement =
   | 'isBaselineVisible'
   | 'isPlanVisible'

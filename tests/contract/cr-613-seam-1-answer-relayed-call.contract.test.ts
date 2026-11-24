@@ -10,14 +10,14 @@ import {
 } from '../../src/adapter/agent-api-endpoint/agent-api-endpoint'
 import { specTable } from './spec-table'
 
-// see T-107, AG-12
-// WHY: the argument column writes each argument as `name`: type, and a member with an MCP-only key carries none to the
+// Spec: T-107, AG-12
+// Why: the argument column writes each argument as `name`: type, and a member with an MCP-only key carries none to the
 // page -- the relay reads that key itself. The Japanese is the table's own heading and label.
 const ARGUMENT_HEADING = '\u5f15\u6570'
 const TOOL_ONLY_LABEL = '\u26a0\ufe0f MCP \u3060\u3051\u306e\u9375'
 const ARGUMENT_NAME = /`([A-Za-z_$][\w$]*)`:/g
 
-// WHY: AM-30 readSchema is answered by the relay itself (AG-12 (4), CR-799); the page's AgentApi, and so this seam, has no such member.
+// Why: AM-30 readSchema is answered by the relay itself (AG-12 (4), CR-799); the page's AgentApi, and so this seam, has no such member.
 const RELAY_ANSWERED = new Set(['readSchema'])
 const PAGE_ROWS = specTable('T-107').rows.filter((row) => !RELAY_ANSWERED.has((row.cells[1] ?? '').replace(/`/g, '')))
 
@@ -31,7 +31,7 @@ const PARAM_KEYS: Readonly<Record<string, readonly string[]>> = Object.fromEntri
 
 const PROPERTIES = new Set(['agentApiVersion', 'schemaVersion'])
 
-// WHY: the two write members answer { accepted }, every other member { ok } (SEAM-1).
+// Why: the two write members answer { accepted }, every other member { ok } (SEAM-1).
 const ANSWERS_ACCEPTED = new Set(['applyCommands', 'importDocument'])
 
 const MEMBERS: readonly string[] = PAGE_ROWS.map((row) => (row.cells[1] ?? '').replace(/`/g, ''))
@@ -88,7 +88,7 @@ const valueOf = (member: string, mode: Mode, args: readonly unknown[]): unknown 
     : { ok: false, refusal: refusalOf(member) }
 }
 
-// WHY: exportPng and importDocument answer a promise, so an implementation
+// Why: exportPng and importDocument answer a promise, so an implementation
 // that forgets to await is seen; the rest answer at once.
 const ASYNC_MEMBERS = new Set(['exportPng', 'importDocument'])
 
@@ -132,7 +132,7 @@ describe('SEAM-1: the fake is built from table T-107', () => {
     expect([...MEMBERS].sort()).toEqual(Object.keys(PARAM_KEYS).sort())
   })
 
-  // see AM-3, AM-25
+  // Spec: AM-3, AM-25
   it('the argument column gives twelve members arguments the relay carries, in their order', () => {
     expect(Object.entries(PARAM_KEYS).filter(([, keys]) => keys.length > 0)).toEqual([
       ['readDocument', ['includeCarry', 'taskUids', 'parts']],

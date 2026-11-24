@@ -16,7 +16,7 @@ import {
 import { englishOf, manuscriptMembers } from './cr-796-manuscript-english'
 import { specTable } from './spec-table'
 
-// WHY: read raw rather than through specTable, which drops each `<br>`;
+// Why: read raw rather than through specTable, which drops each `<br>`;
 // SEAM-2 turns each one into a newline in the description.
 interface T107Row {
   readonly id: string
@@ -33,8 +33,8 @@ const NAME_COLUMN = 2
 const ARGUMENT_COLUMN = 4
 const DESCRIPTION_COLUMN = 6
 
-// see T-107, AG-12
-// WHY: the argument cell writes one argument per line as `name`: type, and the keys only the MCP tool takes
+// Spec: T-107, AG-12
+// Why: the argument cell writes one argument per line as `name`: type, and the keys only the MCP tool takes
 // open with the label the table prints for them -- the Japanese is the table's own word.
 const ARGUMENT_LINE = /^`([A-Za-z_$][\w$]*)`:/
 const TOOL_ONLY_LINE = /^\u26a0\ufe0f MCP \u3060\u3051\u306e\u9375 `([A-Za-z_$][\w$]*)`:/
@@ -75,12 +75,12 @@ const T_107: readonly T107Row[] = (() => {
   return rows
 })()
 
-// see T-107
+// Spec: T-107
 const PARAM_KEYS: Readonly<Record<string, readonly string[]>> = Object.fromEntries(
   T_107.map((row) => [row.name, row.paramKeys]),
 )
 
-// see AG-12
+// Spec: AG-12
 const TOOL_ONLY_KEYS: Readonly<Record<string, readonly string[]>> = Object.fromEntries(
   T_107.filter((row) => row.toolOnlyKeys.length > 0).map((row) => [row.name, row.toolOnlyKeys]),
 )
@@ -110,7 +110,7 @@ describe('SEAM-2 mcpToolList: the tools are table T-107, row for row (AG-12 (4))
     expect(T_107.map((row) => row.name)).toEqual(shared.map((row) => (row.cells[1] ?? '').replace(/`/g, '')))
   })
 
-  // see AM-3, AM-25
+  // Spec: AM-3, AM-25
   it('the argument column of T-107 names the fourteen members with arguments and the MCP-only keys of the export rows and watchChanges', () => {
     expect(Object.entries(PARAM_KEYS).filter(([, keys]) => keys.length > 0)).toEqual([
       ['readSchema', ['which', 'defs', 'full']],

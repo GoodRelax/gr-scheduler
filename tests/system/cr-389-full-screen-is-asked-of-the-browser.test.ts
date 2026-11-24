@@ -14,7 +14,7 @@ const FULL_SCREEN_ENTRY = 'IC-11'
 const ENTRY = `[data-icon="${FULL_SCREEN_ENTRY}"]`
 const SETTLE_MS = 600
 
-// see FR-038, RS-59
+// Spec: FR-038, RS-59
 const RS_59_WORDS: readonly string[] = ((): readonly string[] => {
   const raw = JSON.parse(
     readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8'),
@@ -24,9 +24,9 @@ const RS_59_WORDS: readonly string[] = ((): readonly string[] => {
   return [found.text.ja, found.text.en]
 })()
 
-// see FR-071
-// WHY: headless Chromium can refuse requestFullscreen (no window to fill, no activation from a driven key),
-// WHY: so these cases stand in for the browser: they count each ask and fire fullscreenchange when they accept.
+// Spec: FR-071
+// Why: headless Chromium can refuse requestFullscreen (no window to fill, no activation from a driven key),
+// Why: so these cases stand in for the browser: they count each ask and fire fullscreenchange when they accept.
 const STAND_IN_BROWSER = `
   window.__grsFullScreen = { requests: 0, exits: 0, refuse: false, element: null }
   window.__grsKeys = []
@@ -94,7 +94,7 @@ async function openTheApp(standIn: boolean): Promise<{ page: Page; close(): Prom
   }
 }
 
-// see FR-071, IC-11
+// Spec: FR-071, IC-11
 /** @purity semi-pure-mutable */
 async function look(page: Page): Promise<Seen> {
   return page.evaluate((selector: string) => {
@@ -191,7 +191,7 @@ test('FR-071 in the real browser: IC-11 enters full screen or tells RS-59, and t
     const seen = await pressEntry(opened.page)
     expect(seen.isDocumentElement || toldRs59(seen), `entered or told RS-59: ${JSON.stringify(seen)}`).toBe(true)
     expect(seen.isPressed, 'the pressed look of IC-11 is document.fullscreenElement').toBe(seen.isHeld)
-    // WHY: the second half needs the browser to have accepted; a refusal was already held to RS-59 above.
+    // Why: the second half needs the browser to have accepted; a refusal was already held to RS-59 above.
     if (seen.isDocumentElement) {
       expect(await pressEntry(opened.page)).toMatchObject({ isHeld: false, isPressed: false })
     }

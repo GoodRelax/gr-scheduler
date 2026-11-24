@@ -17,7 +17,7 @@ import { emptySelection } from '../../src/entity/document-model/selection/select
 import { grabSizesOf, itemAtPointer } from '../../src/entity/layout-engine/item-hit-area/item-hit-area'
 import { geometryFromLayout } from '../../src/entity/layout-engine/schedule-geometry/schedule-geometry'
 import { layoutFromSchedule, taskPlacement } from '../../src/entity/layout-engine/schedule-layout/schedule-layout'
-// WHY: outlineWidthOf is not on the ScheduleLayout entry (T-064 does not publish it, check 26b).
+// Why: outlineWidthOf is not on the ScheduleLayout entry (T-064 does not publish it, check 26b).
 import { outlineWidthOf } from '../../src/entity/layout-engine/schedule-layout/shape-cross-sections'
 import {
   displayRatioOf,
@@ -30,7 +30,7 @@ import { SCREEN, day, scheduleOf, stored, taskOf as sceneTaskOf } from '../unit/
 import { DESIGN, REQUIREMENTS, documentOf, highlightBoxOf, taskOf, visualOf } from './cr-606-stage'
 import { bare, specTable, unbroken } from './spec-table'
 
-// see CL-2, AT-104, VG-5, BL-3
+// Spec: CL-2, AT-104, VG-5, BL-3
 const CL_2_RANGE_AT_AT_104 = '受ける下限と上限は列の定義（`AT-104`）に書く。'
 const CL_2_NULL_IS_S_39 = '`null` のときは `_assets/tbl-settings.md` の 表 T-201 の `S-39` の太さで描く'
 const AT_104_BOTH_OUTLINES = '予定バーと実績バーの縁の両方をこの太さで描く。'
@@ -38,7 +38,7 @@ const VG_5_OUTER_EDGE =
   '枠線（その形の枠線の太さの列 `AT-104` の値、`null` のときは `S-39` に、描く比を掛けた太さ）は形の端を中心に引くので、その半分が形の外へ出る。'
 const BL_3_KEEPS_S_39 =
   '太さは同書の 表 T-201 の `S-39`（枠線の太さを指定していない予定の輪郭と同じ太さ —— 今の予定の `AT-104` は継がない）'
-// see FR-019, HB-12, IV-9
+// Spec: FR-019, HB-12, IV-9
 const FR_019_NO_LINE = 'ハイライトボックスの枠の線にも、タスクと同じく透明（線なし）を選ばせること（MUST）'
 const FR_019_NOT_BOTH = '⛔ ただし、塗りと枠の線を同時に透明にすることを許してはならない（MUST NOT）'
 const FR_019_NULL_FILL =
@@ -228,7 +228,7 @@ const elementsOf = (svg: string): readonly SvgElement[] => {
   return out
 }
 
-// WHY: a stroke width may sit on the nearest group rather than on the shape.
+// Why: a stroke width may sit on the nearest group rather than on the shape.
 const painted = (element: SvgElement, name: string): string | null => {
   const own = attrOf(element.attrs, name)
   if (own !== null) return own
@@ -245,7 +245,7 @@ const figureOf = (svg: string, figure: string): SvgElement => {
   return found[0] as SvgElement
 }
 
-// WHY: the SVG writes numbers to two decimals.
+// Why: the SVG writes numbers to two decimals.
 const EPS = 0.006
 
 const PLAN_AND_ACTUAL = sceneTaskOf({
@@ -281,7 +281,7 @@ describe(`CL-2 / AT-104 -- ${AT_104_BOTH_OUTLINES}`, () => {
 })
 
 describe(`VG-5 -- ${VG_5_OUTER_EDGE}`, () => {
-  // WHY: two tasks over the same days stack in the one task group; the gap is measured between the outer
+  // Why: two tasks over the same days stack in the one task group; the gap is measured between the outer
   // edges, so the distance between the two shapes grows by one whole outline width (half from each).
   const BELOW = 2
   const stackedGap = (width: number | null): number => {

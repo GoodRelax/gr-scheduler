@@ -33,15 +33,15 @@ afterEach(restoreAnimationFrames)
 
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
-// see FR-019, AR-5, PR-21
+// Spec: FR-019, AR-5, PR-21
 const PLACED_IS_SELECTED_AND_FOCUSED =
   '置いたコメントボックスを選び、プロパティパネルを出して本文の欄（`_assets/tbl-property-items.md` の 表 T-016 の `PR-21`）に焦点を置くこと（MUST）'
 const BODY_FIELD_ROW = 'PR-21'
 
-// see FR-019, CM-46, S-600
+// Spec: FR-019, CM-46, S-600
 const PLACED_OFFSET_CLAUSE = 'は、本文のずれを `{ dx: S-600, dy: −S-600 }` とすること（MUST）'
 
-// see T-217, S-600
+// Spec: T-217, S-600
 const S_600 = ((): number => {
   const row = specTable('T-217').rows.find((one) => one.id === 'S-600')
   const found = /[0-9]+/.exec((row?.by['既定'] ?? '').replace(/`/g, ''))
@@ -53,12 +53,12 @@ type Loose = Record<string, unknown>
 
 const FREE_ROW = groupOf(3)
 
-// see AR-5
+// Spec: AR-5
 function pointerAt(phase: PointerPhase, x: number, y: number): PointerInput {
   return { kind: 'pointer', phase, button: 'left', x, y, modifiers: { ...NO_MODIFIERS }, clickCount: 1 }
 }
 
-// WHY: a free point in the band of task group 3, clear of every figure point (the AR-5 snap reach).
+// Why: a free point in the band of task group 3, clear of every figure point (the AR-5 snap reach).
 function freePointOf(loop: FrameLoop): { x: number; y: number } {
   const band = bandOf(loop, FREE_ROW)
   return { x: columnLeft(loop, april(27)) + 0.25 * frameOf(loop).layout.pxPerDay, y: band.y + 0.3 * band.height }
@@ -112,7 +112,7 @@ describe(`AR-5: ${PLACED_IS_SELECTED_AND_FOCUSED} -- the press hands the placed 
   })
 })
 
-// see SD-3, T-293
+// Spec: SD-3, T-293
 function sessionWith(selectionState: Loose): ScreenSession {
   const base = emptyScreenSession as unknown as Loose
   return { ...base, selection: { ...(base['selection'] as Loose), selectionState } } as unknown as ScreenSession
@@ -124,7 +124,7 @@ function selectionStateOf(session: ScreenSession): Loose {
 
 const CREATED = { type: 'createdCommentBoxSelected', createdCommentBoxId: 'box-new' } as unknown as SessionEvent
 
-// see SL-7b
+// Spec: SL-7b
 const OTHER_PICK = { items: [{ kind: 'task', uid: 3 }, { kind: 'commentBox', id: 'box-old' }], isOrdered: true }
 
 describe(`selection region: createdCommentBoxSelected -- ${PLACED_IS_SELECTED_AND_FOCUSED}`, () => {
@@ -148,7 +148,7 @@ describe(`selection region: createdCommentBoxSelected -- ${PLACED_IS_SELECTED_AN
   })
 })
 
-// WHY: this stage is the cr-646 one with the property-field focus seam added; the seam answers true only for a row the panel draws.
+// Why: this stage is the cr-646 one with the property-field focus seam added; the seam answers true only for a row the panel draws.
 interface Bench {
   readonly loop: FrameLoop
   readonly asked: string[]
@@ -272,7 +272,7 @@ describe(`FR-019: ${PLACED_OFFSET_CLAUSE}`, () => {
   })
 })
 
-// see LF-17, FR-019
+// Spec: LF-17, FR-019
 describe('FR-019 with LF-17: right after placing, the tip and the leader stand out at the lower left of the box', () => {
   const placedBox = () => {
     const built = stageFor(documentWith([]))

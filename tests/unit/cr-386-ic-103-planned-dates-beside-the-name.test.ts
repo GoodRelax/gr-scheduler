@@ -72,9 +72,9 @@ const PLAN_VISIBLE_KEY = 'isPlanVisible'
 const DATES_ENTRY = 'IC-103'
 const STATUS_DATE_ENTRY = 'IC-44'
 
-// see ND-2
+// Spec: ND-2
 const TASK_DATES_JOINER = ' - '
-// see FR-002
+// Spec: FR-002
 const NAME_DATES_JOINER = ' '
 
 interface Dated {
@@ -85,18 +85,18 @@ interface Dated {
 
 const yearOf = (day: string): number => Number(day.slice(0, 4))
 
-// see ND-4, ND-5
+// Spec: ND-4, ND-5
 const dayText = (day: string, withYear: boolean): string => {
   const [year, month, date] = day.split('-').map(Number)
   const monthDay = `${month}/${date}`
   return withYear ? `${String(Number(year)).padStart(4, '0')}/${monthDay}` : monthDay
 }
 
-// see ND-5
+// Spec: ND-5
 const spansYears = (all: readonly Dated[]): boolean =>
   new Set(all.flatMap((one) => [yearOf(one.start), yearOf(one.finish)])).size > 1
 
-// see ND-1, ND-2, ND-3
+// Spec: ND-1, ND-2, ND-3
 const datesText = (one: Dated, all: readonly Dated[]): string => {
   const withYear = spansYears(all)
   if (one.milestone) return dayText(one.start, withYear)
@@ -138,13 +138,13 @@ const ALPHA: Planned = { uid: 1, name: 'Alpha', start: '2026-04-06', finish: '20
 const BETA: Planned = { uid: 2, name: 'Beta', start: '2026-04-13', finish: '2026-04-13', milestone: false }
 const GAMMA: Planned = { uid: 3, name: 'Gamma', start: '2026-04-15', finish: '2026-04-15', milestone: true }
 const NAMELESS: Planned = { uid: 4, name: '', start: '2026-04-20', finish: '2026-04-22', milestone: false }
-// WHY: eight letters, not ten: CR-412's S-7 0.90 widens the name, and ten no longer fit inside the three days.
+// Why: eight letters, not ten: CR-412's S-7 0.90 widens the name, and ten no longer fit inside the three days.
 const NARROW: Planned = { uid: 5, name: 'abcdefgh', start: '2026-04-27', finish: '2026-04-29', milestone: false, actual: true }
 const NEXT_YEAR: Planned = { uid: 6, name: 'Later', start: '2027-01-05', finish: '2027-01-06', milestone: false }
 
 const SAME_YEAR: readonly Planned[] = [ALPHA, BETA, GAMMA, NAMELESS, NARROW]
 
-// WHY: an end is written at the day's close (WT-2, WT-4); a date alone or 00:00 is read by FR-054 as the day before (RV-1, RV-6).
+// Why: an end is written at the day's close (WT-2, WT-4); a date alone or 00:00 is read by FR-054 as the day before (RV-1, RV-6).
 const endOf = (date: string): string => `${date}T17:00:00`
 
 const task = (one: Planned): Task =>
@@ -210,7 +210,7 @@ function fixtureDocument(planned: readonly Planned[], settings: Readonly<Record<
       taskOrigins: [],
       baselineTasks: [],
     },
-    // WHY: S-1 is a constant (CR-572); the stored zoomX (S-75) carries the day width this fixture draws at.
+    // Why: S-1 is a constant (CR-572); the stored zoomX (S-75) carries the day width this fixture draws at.
     documentSettings: {
       ...template.documentSettings,
       ...settings,
@@ -443,8 +443,8 @@ describe(`FR-002 (MUST) -- ${FR_002_T_273_MEASURES_THE_DATES}`, () => {
   const placementOf = (built: Stage) =>
     built.loop.current()?.layout.placements.find((one) => one.taskUid === NARROW.uid)?.labelPlacement
 
-  // see FR-039, OP-10
-  // WHY: a view held by the document, not the FR-055 fit -- since S-332 the fit spreads these four weeks
+  // Spec: FR-039, OP-10
+  // Why: a view held by the document, not the FR-055 fit -- since S-332 the fit spreads these four weeks
   // over the Task Group Area, and at that zoom the name and its dates fit inside the three days together.
   const AT_THE_DEFAULT_STEP = {
     displayScale: DEFAULT_DISPLAY_SCALE,

@@ -1,4 +1,4 @@
-// BrowserClipboard: implements Clipboard (table T-065 IF-5) over the browser's clipboard.
+// File: BrowserClipboard: implements Clipboard (table T-065 IF-5) over the browser's clipboard.
 // @unit      UF-53   (docs/spec/05-07-design.md, table T-075)
 // @component BrowserClipboard, layer Framework (table T-062)
 // @purity    non-pure
@@ -12,8 +12,8 @@ import type {
 
 const PNG_TYPE = 'image/png'
 
-// see FR-025
-// TRAP: reached through globalThis, not imported as a DOM type: this unit is compiled
+// Spec: FR-025
+// Trap: reached through globalThis, not imported as a DOM type: this unit is compiled
 // without the DOM library, and an absent host constructor must read as unsupported.
 type MakeBlob = new (parts: readonly unknown[], options: { type: string }) => unknown
 
@@ -61,7 +61,7 @@ export function browserClipboard(
           await systemClipboard.writeText(content.text)
           return { ok: true }
         }
-        // see FR-025
+        // Spec: FR-025
         const { makeBlob, makeItem } = pictureHost()
         const write = systemClipboard.write
         if (write === undefined || makeBlob === undefined || makeItem === undefined) {

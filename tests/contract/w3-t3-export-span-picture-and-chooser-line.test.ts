@@ -29,7 +29,7 @@ const WORDS = JSON.parse(readFileSync(join(SPEC, '_source', 'display-words.json'
   readonly exportFormats: readonly { readonly rowId: string; readonly name?: Record<DisplayLanguage, string> }[]
 }
 
-// WHY: CR-690 -- the condition is the fix (FX-1, S-532), the old span row retired, and the days carry the year (FX-8).
+// Why: CR-690 -- the condition is the fix (FX-1, S-532), the old span row retired, and the days carry the year (FX-8).
 const CLAUSE_SPAN_PICTURE =
   '⭐ 文書が全体表示時の期間を固定しているとき（`FR-055` の 表 T-367 の `FX-1`）は、本要求の縮めた絵ではなく、`FR-025` の 表 T-241 の `IX-12` 〜 `IX-16` が定める絵を出すこと（MUST）'
 const CLAUSE_NO_DUAL_CURSOR = '表 T-076 に従うこと（MUST）。⛔ ただし `EP-6` の `Dual Cursor` を描いてはならない（MUST NOT）'
@@ -42,7 +42,7 @@ const IC_2 = 'IC-2'
 const IC_45 = 'IC-45'
 const IO_3 = 'IO-3'
 
-// see S-81
+// Spec: S-81
 const S_81 = bare(specTable('T-204').rows.find((one) => one.id === 'S-81')?.by['既定'] ?? '')
 const [S_81_WIDTH, S_81_HEIGHT] = S_81.split('×').map((one) => Number(one.trim()))
 
@@ -52,7 +52,7 @@ const SPAN_FINISH = '2027-07-30'
 const TEMPLATE = templateDocument()
 const SPANNED = withSpan(TEMPLATE, SPAN_START, SPAN_FINISH)
 
-// WHY: a few task groups, so the span picture with every task group stays under the S-217 cap (IX-5 would refuse it).
+// Why: a few task groups, so the span picture with every task group stays under the S-217 cap (IX-5 would refuse it).
 const SMALL = documentOf({
   tasks: [taskOf(1), taskOf(2, { start: '2026-05-04T08:00:00', finish: '2026-05-15T17:00:00' })],
 })
@@ -77,8 +77,8 @@ const svgSizeOf = (svg: string): { readonly width: number; readonly height: numb
   }
 }
 
-// see FX-8
-// WHY: the year, the month and the day, zero-filled to 4, 2 and 2 digits, whatever years the tasks span.
+// Spec: FX-8
+// Why: the year, the month and the day, zero-filled to 4, 2 and 2 digits, whatever years the tasks span.
 function dayWordOf(day: string, _document: Document): string {
   return day.split('-').join('/')
 }
@@ -147,7 +147,7 @@ describe('FR-080 -- a document with an export span exports the IX-12 to IX-16 pi
   })
 
   it(`"${CLAUSE_SPAN_PICTURE}" -- with a span the window size does not change the picture (IX-12)`, async () => {
-    // WHY: the picture carries the edit time; two renders a second apart under load differ by it alone.
+    // Why: the picture carries the edit time; two renders a second apart under load differ by it alone.
     vi.useFakeTimers({ toFake: ['Date'] })
     vi.setSystemTime(new Date('2026-04-01T09:00:00Z'))
     try {
@@ -170,7 +170,7 @@ describe('FR-025 IX-16 -- the span picture never draws the Dual Cursor', () => {
   })
 
   it(`"${CLAUSE_NO_DUAL_CURSOR}" -- with a span, the picture is the same with the Dual Cursor out`, async () => {
-    // WHY: the picture carries the edit time; two renders a second apart under load differ by it alone.
+    // Why: the picture carries the edit time; two renders a second apart under load differ by it alone.
     vi.useFakeTimers({ toFake: ['Date'] })
     vi.setSystemTime(new Date('2026-04-01T09:00:00Z'))
     try {

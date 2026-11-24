@@ -10,7 +10,7 @@ const FROM = { x: 655, y: 88 }
 const TO = { x: 768, y: 88 }
 const DRAG_THRESHOLD_PX = 6
 
-// WHY: a frame between moves, as a hand makes them; two rAF turns let the tentative picture be drawn before it is read.
+// Why: a frame between moves, as a hand makes them; two rAF turns let the tentative picture be drawn before it is read.
 /** @purity non-pure */
 async function frame(page: Page): Promise<void> {
   await page.evaluate(() => new Promise<void>((done) => requestAnimationFrame(() => requestAnimationFrame(() => done()))))
@@ -21,7 +21,7 @@ async function placeANamedTask(page: Page): Promise<number> {
   await launch(page)
   await enableAgentApi(page)
   await press(page, 'IC-98')
-  // WHY: FR-095 asks QN-5 only when edits are unsaved; the start-up document has none, so most runs see no question.
+  // Why: FR-095 asks QN-5 only when edits are unsaved; the start-up document has none, so most runs see no question.
   if ((await page.locator('[data-role="Confirmation"]').count()) > 0) await answerConfirmation(page, 'proceed')
   await press(page, 'IC-23')
   await drag(page, FROM, TO)
@@ -42,7 +42,7 @@ for (const travel of [64, 66, 70, 120]) {
     expect(marker, 'premise: the not-started task draws its progress marker (FR-109)').not.toBeNull()
     expect(await figureBox(page, `task-${String(uid)}-actual`), 'premise: a not-started task has no actual figure yet (FR-013)').toBeNull()
 
-    // WHY: the right half of the marker; the dummy's grab area (GA-5) takes the left half (table T-267).
+    // Why: the right half of the marker; the dummy's grab area (GA-5) takes the left half (table T-267).
     const press0 = { x: marker!.x + marker!.w * 0.75, y: marker!.y + marker!.h / 2 }
     await page.mouse.move(press0.x, press0.y)
     await page.mouse.down()

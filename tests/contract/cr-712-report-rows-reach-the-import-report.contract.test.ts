@@ -73,8 +73,8 @@ const QUESTION = { manner: 'NT-7', question: 'QN-5', items: [] } as const
 
 const INCOMING = { fileName: 'incoming.json', byteLength: 2, documentTitle: null } as const
 
-// see T-290
-// WHY: the file dialog; a dropped file skips U-56 (OP-19), so a merge opens through IC-1.
+// Spec: T-290
+// Why: the file dialog; a dropped file skips U-56 (OP-19), so a merge opens through IC-1.
 const MERGING: readonly SessionEvent[] = [
   { type: 'documentOpenAsked', openRoute: 'chooser' },
   { type: 'documentFileRead', question: QUESTION, incomingFile: INCOMING },
@@ -83,7 +83,7 @@ const MERGING: readonly SessionEvent[] = [
 
 const COUNTED = [{ reason: 'RS-51', count: 2 }]
 
-// WHY: reportedCounts is new in CR-712 and the generated event may not hold it yet; the cast keeps a missing name a red case.
+// Why: reportedCounts is new in CR-712 and the generated event may not hold it yet; the cast keeps a missing name a red case.
 /** @purity pure */
 function landed(reportedCounts: unknown): SessionEvent {
   return {

@@ -24,7 +24,7 @@ const SPEC = join(process.cwd(), 'docs', 'spec')
 const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8').replace(/\r\n/g, '\n'))
 const DESIGN = unbroken(readFileSync(join(SPEC, '05-07-design.md'), 'utf8').replace(/\r\n/g, '\n'))
 
-// see T-023d
+// Spec: T-023d
 const EIGHT_THEN_FRAME = '⭐ 同表の `HB-8` 〜 `HB-11` の 8 つの掴み点を先に、`HB-12` の枠をその後に応えさせること（MUST）。'
 const NEAREST_WINS =
   '⭐ 8 つの掴み点は 1 つの段とし、押した点を掴み代に含む点のうち、押した点にいちばん近い点を採ること（MUST）'
@@ -39,11 +39,11 @@ const FRAME_ON_A_SHAPE =
 const POINTS_ON_A_SHAPE = '⭐ 掴み点は、描いた形の上でも同じ掴み代で応えること（MUST）'
 const INSIDE_PASSES_THROUGH =
   '⛔ 囲んだ内側を掴み代にしてはならない（MUST NOT） —— 内側の押下は下のタスクへ素通しにすること（MUST）。'
-// see FR-106
+// Spec: FR-106
 const FR_106_HIGHLIGHT =
   '⭐ ハイライトボックスの掴み代（表 T-023d の `GR-14`）では、`FR-016` の 表 T-246 の `HB-8` 〜 `HB-12` が名指す形とすること（MUST）'
-// see FR-019
-// WHY: the fill's null is no longer T-217's default but the theme color (CR-606 E-31).
+// Spec: FR-019
+// Why: the fill's null is no longer T-217's default but the theme color (CR-606 E-31).
 const NULL_DRAWS_THE_DEFAULT = '⭐ 線の太さと透過率の列が `null` のときは、表 T-217 の同じ列の既定で描くこと（MUST）'
 const NULL_FILL_IS_THE_THEME =
   '⭐ 塗りの色の列が `null` のときは、テーマの色（`_assets/tbl-settings.md` の 表 T-236 の `S-155`）で塗ること（MUST）'
@@ -57,7 +57,7 @@ const OUT_OF_RANGE_REFUSED =
 const NO_TRANSPARENT_OUTLINE = 'ハイライトボックスの枠の線にも、タスクと同じく透明（線なし）を選ばせること（MUST）'
 const NOT_BOTH_TRANSPARENT = '⛔ ただし、塗りと枠の線を同時に透明にすることを許してはならない（MUST NOT）'
 const FILL_MAY_BE_TRANSPARENT = '⭐ 塗りには透明を選ばせてよい'
-// WHY: 05-07-design reads a GRS JSON document this way before the schema runs.
+// Why: 05-07-design reads a GRS JSON document this way before the schema runs.
 const MISSING_COLUMNS_READ_AS_NULL =
   '⭐ 同じくスキーマを走らせる前に、`_assets/fig-erd-detail.md` の `AT-145` ・ `AT-146` ・ `AT-147` の列を持たない `HighlightBox` の項と、`AT-148` 〜 `AT-152` と `AT-168` の列を持たない `CommentBox` の項には、その列を `null` として足して読むこと（MUST）'
 const WHATEVER_THE_VERSION = '⭐ 形式の版（`FR-073`）によらずに足す'
@@ -99,14 +99,14 @@ const S_369 = t217('S-369')
 const S_371 = t217('S-371')
 const S_370_FALLBACK = /'([a-z]+)'/.exec(cellOf('T-217', 'S-370', '既定'))?.[1] ?? ''
 
-// WHY: a palette name is drawn with the fill value table T-294 holds for it, in whichever theme is drawn.
+// Why: a palette name is drawn with the fill value table T-294 holds for it, in whichever theme is drawn.
 const paletteFills = (spelling: string): readonly string[] => {
   const row = specTable('T-294').rows.find((one) => one.by['保存する綴り'] === `\`${spelling}\``)
   if (row === undefined) throw new Error(`table T-294 has no spelling ${spelling}`)
   return [row.by['明るいテーマの塗り'] ?? '', row.by['暗いテーマの塗り'] ?? ''].map((one) => one.replace(/`/g, ''))
 }
 
-// WHY: a T-236 color may carry the theme hue H, so it is read as a pattern with H any whole number.
+// Why: a T-236 color may carry the theme hue H, so it is read as a pattern with H any whole number.
 const themeColorPattern = (row: string): RegExp => {
   const cells = [cellOf('T-236', row, '明るいテーマ'), cellOf('T-236', row, '暗いテーマ')].map((one) =>
     one.replace(/`/g, '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\bH\b/, '\\d+(?:\\.\\d+)?'),
@@ -174,7 +174,7 @@ const boxRecord = (spec: BoxSpec): Record<string, unknown> => ({
   fillTransparencyPercent: spec.fillTransparencyPercent === undefined ? null : spec.fillTransparencyPercent,
 })
 
-// WHY: a plain Task in task group B from day 2 to day 12, so the left frame line of the default box crosses its bar.
+// Why: a plain Task in task group B from day 2 to day 12, so the left frame line of the default box crosses its bar.
 const TASK = {
   uid: TASK_UID,
   parentTaskUid: null,
@@ -326,7 +326,7 @@ interface GrabPoint {
   readonly part: Hit['boxPart']
 }
 
-// see HB-8, HB-9, HB-10, HB-11
+// Spec: HB-8, HB-9, HB-10, HB-11
 const GRAB_POINTS: readonly GrabPoint[] = [
   { name: 'top-left', hb: 'HB-8', at: (b) => ({ x: b.x, y: b.y }), part: { kind: 'corner', horizontal: 'left', vertical: 'top' } },
   { name: 'bottom-right', hb: 'HB-8', at: (b) => ({ x: b.x + b.width, y: b.y + b.height }), part: { kind: 'corner', horizontal: 'right', vertical: 'bottom' } },
@@ -340,7 +340,7 @@ const GRAB_POINTS: readonly GrabPoint[] = [
 
 const grabPoint = (name: PointName): GrabPoint => GRAB_POINTS.find((one) => one.name === name)!
 
-// WHY: a quarter along the top line is on the frame and clear of every grab point of the default box.
+// Why: a quarter along the top line is on the frame and clear of every grab point of the default box.
 const onTheFrame = (box: ScreenRect): Point => ({ x: box.x + box.width / 4, y: box.y })
 
 const storedBox = (loop: FrameLoop, id: string = BOX_ID): Record<string, unknown> => {
@@ -383,7 +383,7 @@ const attributeOf = (tag: string, name: string): string | null => new RegExp(`\\
 
 const numberAttribute = (tag: string, name: string): number => Number(attributeOf(tag, name) ?? Number.NaN)
 
-// WHY: the layer an element sits in is the last data-zo opened before it in the drawn text.
+// Why: the layer an element sits in is the last data-zo opened before it in the drawn text.
 const layerOf = (svg: string, at: number): string | null => {
   const opened = [...svg.slice(0, at).matchAll(/data-zo="([^"]+)"/g)]
   return opened.length === 0 ? null : (opened[opened.length - 1]![1] ?? null)
@@ -450,8 +450,8 @@ describe('CR-558 premises: the clauses these cases read, and the fixture they st
 })
 
 describe(`T-246 HB-8 .. HB-11 and HB-7: each of the eight points moves exactly the sides it names -- ${UNDRAWN_STILL_ANSWER}`, () => {
-  // WHY: B..D over days 6..16; each press is dead on its point, released three day columns right and
-  // WHY: one drawn task group down, so every release sits on a day boundary and a task group boundary.
+  // Why: B..D over days 6..16; each press is dead on its point, released three day columns right and
+  // Why: one drawn task group down, so every release sits on a day boundary and a task group boundary.
   const EXPECTED: Readonly<Record<PointName, string>> = {
     'top-left': '9..16 C..D',
     'top-right': '6..19 C..D',

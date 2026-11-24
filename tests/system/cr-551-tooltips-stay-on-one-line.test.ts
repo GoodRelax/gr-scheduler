@@ -22,23 +22,23 @@ const numberOf = (cell: string): number => {
   return value
 }
 
-// see S-124, T-212
+// Spec: S-124, T-212
 const S_124_MS = numberOf(specTable('T-212').rows.find((row) => row.id === 'S-124')?.by['値'] ?? '')
-// see S-339, T-206
+// Spec: S-339, T-206
 const S_339_PX = numberOf(specTable('T-206').rows.find((row) => row.id === 'S-339')?.by['既定'] ?? '')
 
-// see FR-038, EZ-2
+// Spec: FR-038, EZ-2
 const WORDS = JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8')) as {
   icons: { rowId: string; hint?: { ja: string; en: string } }[]
 }
 const HINTED: readonly string[] = WORDS.icons.filter((one) => one.hint !== undefined).map((one) => one.rowId)
 
-// WHY: 800 x 600 -- a narrow window, where the App Header runs out of room, long descriptions meet the cap and
+// Why: 800 x 600 -- a narrow window, where the App Header runs out of room, long descriptions meet the cap and
 // the entrances on the right (the help entrance IC-22 among them) must turn their descriptions back.
 const NARROW = { width: 800, height: 600 }
-// WHY: 1280 x 800 -- a common laptop window between the two ends.
+// Why: 1280 x 800 -- a common laptop window between the two ends.
 const MEDIUM = { width: 1280, height: 800 }
-// WHY: the reference screen of table T-025 (MC-6), where nothing is cramped.
+// Why: the reference screen of table T-025 (MC-6), where nothing is cramped.
 const WIDE = screenOf(rowOf(specTable('T-025'), 'MC-6'))
 
 const WIDTHS: readonly { readonly name: string; readonly size: { width: number; height: number } }[] = [
@@ -47,16 +47,16 @@ const WIDTHS: readonly { readonly name: string; readonly size: { width: number; 
   { name: 'wide', size: WIDE },
 ]
 
-// see U-53
+// Spec: U-53
 const TOOLTIP_LAYER = `[data-role="${bare(specTable('T-103').rows.find((row) => row.id === 'U-53')?.cells[0] ?? '')}"]`
 
-// WHY: the hover has to outlast S-124 and the frame that follows it; this is the allowance past it.
+// Why: the hover has to outlast S-124 and the frame that follows it; this is the allowance past it.
 const SHOW_ALLOWANCE_MS = 1_500
 
 interface Measured {
   readonly icon: string
   readonly box: { left: number; right: number; top: number; bottom: number }
-  // WHY: the cap of IN-7 holds the box's padding and border too (DFC-1476), so a line has this much less room.
+  // Why: the cap of IN-7 holds the box's padding and border too (DFC-1476), so a line has this much less room.
   readonly sides: number
   readonly lines: readonly { readonly text: string; readonly lineBoxes: number; readonly naturalWidth: number }[]
 }
@@ -137,7 +137,7 @@ async function readTooltip(page: Page, icon: string): Promise<Measured | null> {
 
 /** @purity non-pure */
 async function hoverAndRead(page: Page, icon: string): Promise<Measured | null> {
-  // WHY: leave to a spot that carries no icon first, so the previous description is gone.
+  // Why: leave to a spot that carries no icon first, so the previous description is gone.
   await page.mouse.move(2, (await page.evaluate(() => window.innerHeight)) - 2)
   await page.waitForTimeout(200)
   const at = await page.evaluate((wanted: string) => {
@@ -171,7 +171,7 @@ for (const width of WIDTHS) {
   test(`IN-7 (${width.name}, ${width.size.width} x ${width.size.height}): every icon tooltip is one line a line and stays S-339 inside the window`, async ({
     baseURL,
   }) => {
-    // see IN-7, S-339, S-124, EZ-2
+    // Spec: IN-7, S-339, S-124, EZ-2
     test.setTimeout(600_000)
     if (baseURL === undefined) throw new Error('playwright.config.ts declares no baseURL for the running application')
     if (browser === null) throw new Error('the reference browser was not opened')
@@ -206,12 +206,12 @@ for (const width of WIDTHS) {
             )
           }
         }
-        // see IN-7, S-339
+        // Spec: IN-7, S-339
         if (read.box.left < S_339_PX - 0.5) problems.push(`${icon}: left ${read.box.left.toFixed(1)} < S-339 ${S_339_PX}`)
         if (read.box.right > innerWidth - S_339_PX + 0.5) {
           problems.push(`${icon}: right ${read.box.right.toFixed(1)} > window ${innerWidth} - S-339 ${S_339_PX}`)
         }
-        // WHY: IN-7 keeps S-339 on the two sides; above and below, the box must at least be inside the window.
+        // Why: IN-7 keeps S-339 on the two sides; above and below, the box must at least be inside the window.
         if (read.box.top < -0.5 || read.box.bottom > innerHeight + 0.5) {
           problems.push(`${icon}: top ${read.box.top.toFixed(1)} / bottom ${read.box.bottom.toFixed(1)} leave the window height ${innerHeight}`)
         }

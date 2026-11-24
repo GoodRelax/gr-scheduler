@@ -87,7 +87,7 @@ describe(`opening a file past a limit -- ${FR_023_NO_PARTIAL_APPLY}`, () => {
   })
 })
 
-// see S-119, S-120, T-214
+// Spec: S-119, S-120, T-214
 const dateOf = (row: string): string => {
   const found = /\d{4}-\d{2}-\d{2}/.exec(specTable('T-214').rows.find((one) => one.id === row)?.cells.join(' ') ?? '')
   if (found === null) throw new Error(`table T-214 ${row} states no date`)

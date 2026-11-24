@@ -44,7 +44,7 @@ const COMMANDS_URI = 'grs-relay://grs-commands.schema.json'
 
 const sleep = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms))
 
-// see T-108
+// Spec: T-108
 const T_108_NAMES = specTable('T-108').rows.map((row) => bare(row.by['確定名'] ?? ''))
 const T_108_ROW = (id: string): ReturnType<typeof specTable>['rows'][number] | undefined =>
   specTable('T-108').rows.find((row) => row.id === id)
@@ -122,7 +122,7 @@ class StdioClient {
         try {
           this.messages.push(JSON.parse(line) as Json)
         } catch {
-          // WHY: a line that is not JSON cannot answer a request; the caller times out on its own id.
+          // Why: a line that is not JSON cannot answer a request; the caller times out on its own id.
         }
       }
     })
@@ -190,7 +190,7 @@ async function schemaAnswer(client: StdioClient, args: Json): Promise<Json> {
   return JSON.parse(content[0]?.['text'] as string) as Json
 }
 
-// see AM-30
+// Spec: AM-30
 describe('AM-30 readSchema on the commands hands a table of contents and single definitions', () => {
   it('the table of contents lists every command name in T-108 order, each with the first sentence of its description', async () => {
     const client = await startRelay()
@@ -218,7 +218,7 @@ describe('AM-30 readSchema on the commands hands a table of contents and single 
   })
 })
 
-// see AM-7, CM-71, CM-102
+// Spec: AM-7, CM-71, CM-102
 interface State {
   document: Document
   history: EditHistory<ChangeStep>
@@ -366,7 +366,7 @@ describe('AM-7 applyCommands replaces CM-102 with the page own CM-71 write', () 
     expect(FIRST_TASK(state)['name']).not.toBe('must not land')
   })
 
-  // see UN-8
+  // Spec: UN-8
   it('a batch of only CM-102 stacks no undo step, since CM-71 is view-only', () => {
     const state = startingState()
     const api = agentApiMembers(wiringFor(state, () => [fitCommandOf(state)]))
@@ -378,7 +378,7 @@ describe('AM-7 applyCommands replaces CM-102 with the page own CM-71 write', () 
   })
 })
 
-// see FR-055, IC-10, FR-031
+// Spec: FR-055, IC-10, FR-031
 const ENV: ScreenEnvironment = { width: 1000, height: 700, appHeaderHeight: 56, scrollbarThickness: 8, propertyPanelWidth: 0 }
 
 function inputContextOf(document: Document): InputContext {

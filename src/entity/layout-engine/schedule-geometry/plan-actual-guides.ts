@@ -1,4 +1,4 @@
-// ScheduleGeometry -- the plan-actual guides: lines from the actual back to the plan when the two part (FR-084).
+// File: ScheduleGeometry: the plan-actual guides: lines from the actual back to the plan when the two part (FR-084).
 // @unit      UF-146  (docs/spec/05-07-design.md, table T-075)
 // @component ScheduleGeometry, layer layoutEngine (table T-062)
 // @purity    pure
@@ -7,7 +7,7 @@ import { compareDays, dayOf, type Task } from '../../document-model/schedule/sch
 import type { TaskPlacement } from '../schedule-layout/schedule-layout'
 import { point, type GeometryInputs, type Path } from './schedule-geometry'
 
-// see T-020a
+// Spec: T-020a
 /** @purity pure */
 export function guidesOf(inputs: GeometryInputs, task: Task, placed: TaskPlacement,
                   actualHeight: number): readonly Path[] {
@@ -15,7 +15,7 @@ export function guidesOf(inputs: GeometryInputs, task: Task, placed: TaskPlaceme
   if (!settings.isPlanVisible || !settings.isActualVisible || placed.actualX === null) return []
   const middle = placed.y + placed.planHeight / 2
 
-  // TRAP: judge GD-4 before GD-1's overlap: milestone figures a day apart overlap in pixels, so GD-4 would never fire.
+  // Trap: judge GD-4 before GD-1's overlap: milestone figures a day apart overlap in pixels, so GD-4 would never fire.
   if (placed.actualPlacement === 'sideways') {
     const planDay = dayOf(task.start)
     const actualDay = dayOf(task.actualStart)

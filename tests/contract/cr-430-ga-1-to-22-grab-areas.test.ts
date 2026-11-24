@@ -60,13 +60,13 @@ const T_266_NO_DISPLAY_RATIO =
 const T_303_MARK_IS_PART_OF_THE_LINE =
   '⭐ 続きの印はその依存線の一部である —— 押して離せばその依存線を選び（表 T-270 の `PE-12`）、掴み代は `FR-104` の 表 T-266 の `GA-24`、応える順は `FR-105` の 表 T-268 が持つ。'
 
-// WHY: the rows the table holds as it stands: CR-555 added GA-24, and the id before it was never
-// WHY: written (CR-431 used it as its example of an id that does not exist).
+// Why: the rows the table holds as it stands: CR-555 added GA-24, and the id before it was never
+// Why: written (CR-431 used it as its example of an id that does not exist).
 const EXPECTED_ROW_IDS = [...Array.from({ length: 22 }, (_one, at) => `GA-${at + 1}`), 'GA-24']
 const EXPECTED_VALUE_COUNT = 42
 
-// WHY: the continuation mark exists only on a line one of whose ends is not visible (table T-303),
-// WHY: which the three shared scenes never draw, so its row is read on a scene of its own.
+// Why: the continuation mark exists only on a line one of whose ends is not visible (table T-303),
+// Why: which the three shared scenes never draw, so its row is read on a scene of its own.
 type SceneKind = ShapeKind | 'elided'
 
 const ELIDED_MARK = 'EL-9'
@@ -82,12 +82,12 @@ const sceneKindOf = (shape: string): ShapeKind => {
   return 'rectangle'
 }
 
-// see S-63
+// Spec: S-63
 const RECTANGLE = sceneOf('rectangle', { isProgressMarkerVisible: true })
 const ARROW = sceneOf('arrow', { isProgressMarkerVisible: true })
 const MILESTONE = sceneOf('milestone', { isProgressMarkerVisible: true })
-// WHY: the same three Tasks drawn wider, so the line's successor lies wholly right of the Task Group Area
-// WHY: while its predecessor is still in it -- EL-4, a short line ending in the mark (EL-9).
+// Why: the same three Tasks drawn wider, so the line's successor lies wholly right of the Task Group Area
+// Why: while its predecessor is still in it -- EL-4, a short line ending in the mark (EL-9).
 const ELIDED = sceneOf('rectangle', { isProgressMarkerVisible: true, zoomX: 16 })
 
 const sceneFor = (kind: SceneKind): Scene =>
@@ -209,9 +209,9 @@ describe(`table T-266 -- one value moves one target and one direction: ${FR_104_
   const MARKER_CAP = 'マーカーの中心で止めること'
   const INNER = '内側'
 
-  // WHY: only the inner value the clause names, never the row's other two: GA-3's inner reach
-  // WHY: stops at the marker's center, which stands nearer than S-257 ever does, so raising it
-  // WHY: cannot move an answer -- while S-256 and S-258 of the same row still can.
+  // Why: only the inner value the clause names, never the row's other two: GA-3's inner reach
+  // Why: stops at the marker's center, which stands nearer than S-257 ever does, so raising it
+  // Why: cannot move an answer -- while S-256 and S-258 of the same row still can.
   const cappedByTheMarker = (settingId: string): boolean => {
     const across = ownerOf(settingId).across
     if (!across.includes(MARKER_CAP) || !across.includes(INNER)) return false
@@ -233,10 +233,10 @@ describe(`table T-266 -- one value moves one target and one direction: ${FR_104_
     },
   )
 
-  // WHY: one Task's answers, not the row's: every Task drawn carries the same row of table T-266,
-  // WHY: so a bounding box over all three widens as soon as a neighbor's own grab starts answering.
-  // WHY: one Task's answers, not the row's: every Task drawn carries the same row of table T-266,
-  // WHY: so a bounding box over all three widens as soon as a neighbor's own grab starts answering.
+  // Why: one Task's answers, not the row's: every Task drawn carries the same row of table T-266,
+  // Why: so a bounding box over all three widens as soon as a neighbor's own grab starts answering.
+  // Why: one Task's answers, not the row's: every Task drawn carries the same row of table T-266,
+  // Why: so a bounding box over all three widens as soon as a neighbor's own grab starts answering.
   const answeringPoints = (scene: Scene, probes: readonly Probe[], sizes: GrabSizes, id: string) =>
     probes.filter((at) => {
       const answer = answerAt(scene, at.x, at.y, sizes)
@@ -258,16 +258,16 @@ describe(`table T-266 -- one value moves one target and one direction: ${FR_104_
     return inAcross ? 'across' : 'down'
   }
 
-  // WHY: a row whose down column is the dash has no band at all -- table T-266 gives GA-19 a margin
-  // WHY: measured from the drawn stroke's edge, so on a horizontal run it necessarily reaches down too.
+  // Why: a row whose down column is the dash has no band at all -- table T-266 gives GA-19 a margin
+  // Why: measured from the drawn stroke's edge, so on a horizontal run it necessarily reaches down too.
   const bandless = (settingId: string): boolean => ownerOf(settingId).down.trim() === NO_BAND
 
   const oneWay = grabSettingIds().filter(
     (one) => directionOf(one) !== 'both' && !capped(one) && !bandless(one),
   )
 
-  // WHY: the lines the grab already owned, not the whole grid: a taller band exposes columns that a
-  // WHY: neighboring task group shadowed at every earlier height, and that is reach gained, not reach moved.
+  // Why: the lines the grab already owned, not the whole grid: a taller band exposes columns that a
+  // Why: neighboring task group shadowed at every earlier height, and that is reach gained, not reach moved.
   it.each(oneWay)(`%s moves its target in one direction only: ${T_266_ONE_TARGET_A_ROW}`, (settingId) => {
     const owner = ownerOf(settingId)
     const kind = sceneKindOfRow(owner)
@@ -294,8 +294,8 @@ describe(`table T-266 -- one value moves one target and one direction: ${FR_104_
   })
 })
 
-// WHY: the Task no dependency touches -- a line leaves the predecessor's plan end at that very
-// WHY: height, and off the drawn shape table T-268 puts the line (TY-2) ahead of a plan end (TY-6).
+// Why: the Task no dependency touches -- a line leaves the predecessor's plan end at that very
+// Why: height, and off the drawn shape table T-268 puts the line (TY-2) ahead of a plan end (TY-6).
 describe('GA-1 / GA-2 -- the plan ends of a rectangle', () => {
   const plan = boxOf(planOf(RECTANGLE.unstarted))
   const outerStart = defaultOf('S-250')
@@ -319,8 +319,8 @@ describe('GA-1 / GA-2 -- the plan ends of a rectangle', () => {
 
   it('a dependency line takes the same point on the Task it leaves, as table T-268 orders', () => {
     const linked = boxOf(planOf(RECTANGLE.started))
-    // WHY: T-222 RP-2 bends the line at x1, S-298 past the exit edge, and drops it there (CR-758),
-    // WHY: so the press stands on that bend, which is still inside the plan end's outer S-253.
+    // Why: T-222 RP-2 bends the line at x1, S-298 past the exit edge, and drops it there (CR-758),
+    // Why: so the press stands on that bend, which is still inside the plan end's outer S-253.
     const x1 = linked.right + stored('S-298') * RATIO
     expect(x1 - linked.right, 'premise: the bend is inside the plan end grab').toBeLessThan(outerFinish)
     expect(grabAt(RECTANGLE, x1, linked.middleY)).toBe('GA-19')
@@ -471,8 +471,8 @@ describe('GA-15 / GA-16 / GA-17 -- the three diamonds of a milestone', () => {
     const outer = (plan.width * ratio) / 2
     const inner = actual.width / 2 + defaultOf('S-280')
     expect(outer, 'premise: the S-278 square is wider than the actual square').toBeGreaterThan(inner)
-    // WHY: the left of the diamond -- LP-7 stands the marker at the base diamond's right edge, and
-    // WHY: a marker outside the actual answers before the milestone plan (table T-268, TY-2 over TY-8).
+    // Why: the left of the diamond -- LP-7 stands the marker at the base diamond's right edge, and
+    // Why: a marker outside the actual answers before the milestone plan (table T-268, TY-2 over TY-8).
     expect(grabAt(MILESTONE, plan.middleX - (inner + outer) / 2, plan.middleY)).toBe('GA-15')
     expect(grabAt(MILESTONE, plan.middleX - outer - 3, plan.middleY)).not.toBe('GA-15')
     expect(grabAt(MILESTONE, plan.middleX + (inner + outer) / 2, plan.middleY)).toBe('GA-18')

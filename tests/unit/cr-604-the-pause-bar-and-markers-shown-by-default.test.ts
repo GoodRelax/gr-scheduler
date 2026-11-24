@@ -10,27 +10,27 @@ import { cellOf, day, notStored, rowOf, sceneOf, taskOf, type Scene } from './cr
 
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
-// see FR-013
+// Spec: FR-013
 const FR_013_PAUSE_BAR =
   '中断の記号 `( − )`（表 T-021 の `PM-3`）は、円の中心を通る水平の横棒 1 本とし、半分の長さを円の半径に 表 T-206 の `S-341` を掛けた値、太さを `S-24` に同表の `S-328` を掛けた値とすること（MUST）'
-// see FR-013, S-328
+// Spec: FR-013, S-328
 const FR_013_BANG_BAR = '遅れの記号 `(!)` の縦棒の太さは、`S-24` に 表 T-206 の `S-328` を掛けた値とすること（MUST）'
-// see T-021
+// Spec: T-021
 const PM_3_STATES = ['中断・再開予定あり', '中断・再開日未定']
-// see T-019a
+// Spec: T-019a
 const PS_3_CONDITION = '`resumeValid` が `false`'
 const PS_4_CONDITION = '`resume` に日付がある'
 
 const PAUSE_SYMBOL = '( − )'
 const OLD_PAUSE_SYMBOL = '( \\ )'
 
-// see S-328, S-341
+// Spec: S-328, S-341
 const S_328 = notStored('S-328')
 const S_341 = notStored('S-341')
-// see S-63
+// Spec: S-63
 const MARKER_VISIBLE = cellOf('T-202', 'S-63', 'キー')
 
-// WHY: the renderer writes coordinates rounded to two decimals; one rounding is at most 0.005.
+// Why: the renderer writes coordinates rounded to two decimals; one rounding is at most 0.005.
 const ROUND = 0.005
 
 interface Shape {
@@ -60,7 +60,7 @@ interface DrawnMark {
   readonly glyph: readonly Shape[]
 }
 
-// WHY: the ring is the stroked circle as wide as the marker; everything else in the marker is the symbol.
+// Why: the ring is the stroked circle as wide as the marker; everything else in the marker is the symbol.
 const drawnMarkOf = (scene: Scene, uid: number): DrawnMark => {
   const marker = scene.taskOf(uid).marker
   if (marker === null) throw new Error(`task ${uid}: no progress marker in the geometry`)
@@ -79,18 +79,18 @@ const drawnMarkOf = (scene: Scene, uid: number): DrawnMark => {
   }
 }
 
-// see T-019
+// Spec: T-019
 const PA_4 = { actualStart: day(2), stop: day(5), resumeValid: false, percentComplete: 30 }
 const PA_3 = { actualStart: day(2), stop: day(5), resume: day(8), resumeValid: true, percentComplete: 30 }
 const PA_2 = { actualStart: day(2), stop: day(5), resumeValid: true, percentComplete: 30 }
 
 const PLAN = { name: 'a task', start: day(2), finish: day(12) }
 
-// WHY: no status date, so no T-021b condition holds and PM-4 cannot win over PM-3 (FR-046).
+// Why: no status date, so no T-021b condition holds and PM-4 cannot win over PM-3 (FR-046).
 const pausedScene = (pause: Readonly<Record<string, unknown>>): Scene =>
   sceneOf({ tasks: [taskOf({ uid: 1, ...PLAN, ...pause })], settings: { [MARKER_VISIBLE]: true } })
 
-// WHY: a status date past the start of an unstarted task makes it late (T-021b DL-2), so it shows PM-4;
+// Why: a status date past the start of an unstarted task makes it late (T-021b DL-2), so it shows PM-4;
 // the PA-4 task has no resume date, so DL-3 cannot make it late.
 const sideBySide = (): Scene =>
   sceneOf({
@@ -117,7 +117,7 @@ describe('CR-604 -- the clauses these cases rest on still stand', () => {
   it('T-021 PM-3 folds both pause states; T-019a PS-3 / PS-4 are how a Task reads as paused', () => {
     const states = cellOf('T-021', 'PM-3', '対応する状態')
     for (const one of PM_3_STATES) expect(states).toContain(one)
-    // WHY: each condition cell is one sentence spelled with code spans, so it is read raw (DFC-343).
+    // Why: each condition cell is one sentence spelled with code spans, so it is read raw (DFC-343).
     expect((rowOf('T-019a', 'PS-3').by['条件'] ?? '').trim()).toBe(PS_3_CONDITION)
     expect((rowOf('T-019a', 'PS-4').by['条件'] ?? '').trim()).toBe(PS_4_CONDITION)
     expect(cellOf('T-019a', 'PS-3', '状態')).toBe(PM_3_STATES[1])
@@ -173,7 +173,7 @@ describe('FR-013 -- the pause mark PM-3 is one horizontal bar through the center
     })
 
     it(`${name}: 太さを S-24 に S-328 を掛けた値 -- stroke-width == markerStroke x S-328`, () => {
-      // WHY: the ring is drawn at S-24 (markerStroke) as scaled for the screen (FR-094), so the bar is read against it.
+      // Why: the ring is drawn at S-24 (markerStroke) as scaled for the screen (FR-094), so the bar is read against it.
       const mark = drawnMarkOf(pausedScene(pause), 1)
       const bar = barOf(mark, 1)
       const ring = numOf(mark.ring, 'stroke-width')

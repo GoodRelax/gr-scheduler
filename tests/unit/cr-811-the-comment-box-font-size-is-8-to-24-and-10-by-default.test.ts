@@ -24,30 +24,30 @@ const DESIGN = unbroken(readFileSync(join(SPEC, '05-07-design.md'), 'utf8').repl
 const ERD_DETAIL = unbroken(readFileSync(join(SPEC, '_assets', 'fig-erd-detail.md'), 'utf8').replace(/\r\n/g, '\n'))
 const DOCUMENT_COMMANDS = readFileSync(join(SPEC, '_assets', 'tbl-document-commands.md'), 'utf8').replace(/\r\n/g, '\n')
 
-// see FR-019
+// Spec: FR-019
 const NULL_DRAWS_DEFAULT =
   '字の大きさの列（`AT-168`）が `null` のときは 表 T-217 の `S-624` の既定で描くこと（MUST）'
 const DEFAULT_NOT_STEP = '字の大きさの既定は文書の文字サイズ（表 T-215）に従わない'
 const PLACED_WITH_NULLS = '置くとき（`_assets/tbl-document-commands.md` の 表 T-108 の `CM-46`）は 6 列を `null` とすること（MUST）'
-// see FR-097
+// Spec: FR-097
 const SIZE_IS_OWN_OR_DEFAULT =
   '文字の大きさは、その箱の `CommentBox.fontSizePx`（`_assets/fig-erd-detail.md` の `AT-168`）が `null` でなければその値（px）、`null` なら `_assets/tbl-settings.md` の 表 T-217 の `S-624` の既定とし、**1 行の高さは文字の大きさに等しいものとして数えること（MUST）。**'
 const RANGE_IS_S_624 =
   '⭐ `AT-168` の範囲は `_assets/tbl-settings.md` の 表 T-217 の `S-624` とすること（MUST） —— 範囲の外の値を置く命令（`_assets/tbl-document-commands.md` の 表 T-108 の `CM-103`）は拒み、読んだ値は範囲へ寄せて描く（`FR-019` の太さと同じ規則）。'
 const WIDTH_FROM_ESTIMATE = '幅は `FR-093` の概算で求め、**文字の実寸を測ってはならない（MUST NOT）。**'
 const BELOW_FONT_MIN = '⚠️ 既定と下限は `fontMin`（表 T-201 の `S-8`）を割る'
-// see FR-077
+// Spec: FR-077
 const FLOOR_NOT_APPLIED = '`FR-077` の可読の下限は、この選んだ大きさには当てない。'
 const BOX_FONT_NOT_FLOORED = 'コメントボックスの字は本要求の下限に当てない（`FR-097`、利用者が定めた）。'
-// see FR-006
+// Spec: FR-006
 const FR_006_FONT_SIZE_BELOW_BODY = 'コメントボックスの字の大きさ（表 T-016 の `PR-50`）は見た目の行に数えず、本文の欄（`PR-21`）のすぐ下に置くこと（MUST）'
 const FR_006_LOOK_ORDER = '見た目の行どうしは、どの対象でも 枠線の幅 → 枠線の色 → 塗りの色 → 塗りの透過率 → 字の色 の順に並べ'
-// see PR-48
+// Spec: PR-48
 const PR_48_BELOW_FONT_SIZE = '本文の欄とフォントサイズの欄（`PR-50`）のすぐ下に置く'
-// see PR-50
+// Spec: PR-50
 const PR_50_SHOWS_DEFAULT = '列が `null` の箱は、既定の値（`_assets/tbl-settings.md` の表 T-217 の `S-624`）を欄に出す'
 const PR_50_EMPTY_IS_NULL = '欄を空にして確定すると `null` に戻る。'
-// see AT-168
+// Spec: AT-168
 const MISSING_COLUMNS_READ_AS_NULL =
   '`AT-148` 〜 `AT-152` と `AT-168` の列を持たない `CommentBox` の項には、その列を `null` として足して読むこと（MUST）'
 const MISSING_COLUMN_DEFAULT_DIFFERS =
@@ -67,12 +67,12 @@ const oneNumberIn = (cell: string, what: string): number => {
   return Number(numbers[0])
 }
 
-// see S-624
+// Spec: S-624
 const LOW = oneNumberIn(cellOf('T-217', 'S-624', '下限'), 'S-624 lower bound')
 const HIGH = oneNumberIn(cellOf('T-217', 'S-624', '上限'), 'S-624 upper bound')
 const DEFAULT = oneNumberIn(cellOf('T-217', 'S-624', '既定'), 'S-624 default')
 
-// see T-215
+// Spec: T-215
 const STEP_SIZE = {
   S: oneNumberIn(cellOf('T-215', 'S-121', '値'), 'S-121'),
   M: oneNumberIn(cellOf('T-215', 'S-122', '値'), 'S-122'),
@@ -367,7 +367,7 @@ describe(`FR-097: ${SIZE_IS_OWN_OR_DEFAULT.slice(0, 80)}... -- the body box foll
   })
 
   it(`${WIDTH_FROM_ESTIMATE} -- the estimate scales with the size: the text width at 24 px is twice the text width at 12 px`, () => {
-    // WHY: the inner margin is drawn at the display ratio, so it is read off the height (2 lines x size + 2 margins).
+    // Why: the inner margin is drawn at the display ratio, so it is read off the height (2 lines x size + 2 margins).
     const margin = (bodyAt(12).height - 2 * 12) / 2
     expect(margin, 'premise: a positive inner margin').toBeGreaterThan(0)
     const text = (size: number): number => bodyAt(size).width - 2 * margin
@@ -502,7 +502,7 @@ describe(`05-07-design: ${MISSING_COLUMNS_READ_AS_NULL}`, () => {
   it(`${MISSING_COLUMN_DEFAULT_DIFFERS} -- a note read without the column draws like one holding null, at ${String(DEFAULT)} px even at step L`, () => {
     const read = documentFromJson(withoutColumn('2026-08-20'))
     if (!read.ok) throw new Error(`refused: ${JSON.stringify(read.faults)}`)
-    // WHY: the watermark carries the second each loop was built (FR-020); two loops built across a second differ (DFC-3467).
+    // Why: the watermark carries the second each loop was built (FR-020); two loops built across a second differ (DFC-3467).
     vi.useFakeTimers({ toFake: ['Date'] })
     try {
       vi.setSystemTime(new Date(2026, 3, 1, 12, 0, 0))

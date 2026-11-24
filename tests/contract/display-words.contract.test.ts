@@ -243,7 +243,7 @@ const GENERATED_PATH = join(ROOT, 'src', 'adapter', 'screen-renderer', 'display-
 const GENERATED_MODULE = '../../src/adapter/screen-renderer/display-words.json'
 
 // see FR-038, CR-754
-// WHY: the manuscript may mark where an item name wraps; the generator takes the marks out, so the cells compare without them.
+// Why: the manuscript may mark where an item name wraps; the generator takes the marks out, so the cells compare without them.
 const BREAK_MARK = /\|/g
 const withoutBreakMarks = (_key: string, value: unknown): unknown =>
   typeof value === 'string' ? value.replace(BREAK_MARK, '') : value
@@ -307,10 +307,10 @@ const KEY_FIELD: Readonly<Record<string, string>> = {
   notices: 'rowId',
   shortcuts: 'rowId',
   helpHeadings: 'block',
-  // WHY: CR-622 keys the help's two license words (FR-069) by the part they fill.
+  // Why: CR-622 keys the help's two license words (FR-069) by the part they fill.
   helpLegal: 'part',
   helpNotes: 'rowId',
-  // WHY: CR-828 keys the one sentence under the browser functions block (FR-036, JDG-3087) by that block.
+  // Why: CR-828 keys the one sentence under the browser functions block (FR-036, JDG-3087) by that block.
   helpBlockNotes: 'block',
   // see FR-036, CR-748, CR-785
   helpLinks: 'link',
@@ -329,7 +329,7 @@ const KEY_FIELD: Readonly<Record<string, string>> = {
   // T-109: `FR-096`'s chooser prints one line per format and FR-038 (MUST NOT)
   // forbids the 形式 column of that table being carried to the screen.
   fileStatus: 'state',
-  // WHY: CR-628 keys the App Header's Branding word (BR-1 of table T-349) by the part it fills.
+  // Why: CR-628 keys the App Header's Branding word (BR-1 of table T-349) by the part it fills.
   branding: 'part',
   // ⭐ THE SECTION DFC-171 RAISED. `FR-032` (MUST) settles the name of a task group whose
   // derivation source is about to go, and 2026-09-01 added the case the reader
@@ -345,13 +345,13 @@ const KEY_FIELD: Readonly<Record<string, string>> = {
   // FRAME; see omission 7 of the head comment and the `drop` below it.
   defaultNames: 'use',
   exportFormats: 'rowId',
-  // WHY: CR-690 keys the settings face's fit span field's words by the part they fill (T-367).
+  // Why: CR-690 keys the settings face's fit span field's words by the part they fill (T-367).
   fitSpanField: 'part',
-  // WHY: CR-677 (E-36) keys the Export Chooser's span line by the part it fills; FR-096 holds no table row for it.
+  // Why: CR-677 (E-36) keys the Export Chooser's span line by the part it fills; FR-096 holds no table row for it.
   exportChooser: 'part',
-  // WHY: CR-623 keys the Open Chooser's words by the part they fill.
+  // Why: CR-623 keys the Open Chooser's words by the part they fill.
   openChooser: 'part',
-  // WHY: CR-727 keys the Drop Cue's line (OP-17, U-68) by the part it fills.
+  // Why: CR-727 keys the Drop Cue's line (OP-17, U-68) by the part it fills.
   dropCue: 'part',
   differenceReview: 'part',
   // ⛔ `panelHeadings` IS NOT HERE ANY MORE, and its absence is a claim (CR-272).
@@ -384,62 +384,62 @@ const KEY_FIELD: Readonly<Record<string, string>> = {
   // stands last for the same reason `arms` does: this roster is the GENERATED
   // file's printed order, and the generator prints `weekdays` after `arms`.
   weekdays: 'weekday',
-  // WHY: CR-624 keys a bar tooltip's line words by their row of table T-348.
+  // Why: CR-624 keys a bar tooltip's line words by their row of table T-348.
   hintLines: 'rowId',
-  // WHY: CR-548 keys a palette color by its stored spelling (table T-294) and a
+  // Why: CR-548 keys a palette color by its stored spelling (table T-294) and a
   // part of the color field by the part it names (CV-9); neither is a row.
   colorNames: 'spelling',
   colorField: 'part',
-  // WHY: CR-606 keys the words a property field fills around a value (a dependency end, the
+  // Why: CR-606 keys the words a property field fills around a value (a dependency end, the
   // assignee field's add item) by the part they fill; no row of table T-016 numbers them.
   propertyField: 'part',
-  // WHY: CR-582 keys the min-height field's words by the part of the field they fill.
+  // Why: CR-582 keys the min-height field's words by the part of the field they fill.
   rowMinHeightField: 'part',
-  // WHY: CR-690 keys the settings face's width field's words the same way (T-368).
+  // Why: CR-690 keys the settings face's width field's words the same way (T-368).
   taskGroupPanelWidthField: 'part',
-  // WHY: CR-557 keys a theme hue by its row of table T-305 (FR-041).
+  // Why: CR-557 keys a theme hue by its row of table T-305 (FR-041).
   themeHues: 'rowId',
-  // WHY: CR-710 keys a time zone's shown name by its row of table T-376 (FR-156).
+  // Why: CR-710 keys a time zone's shown name by its row of table T-376 (FR-156).
   timeZones: 'rowId',
-  // WHY: CR-710 wave 3b keys the words of the zone fields and of the Time Shift question by their part.
+  // Why: CR-710 wave 3b keys the words of the zone fields and of the Time Shift question by their part.
   timeZoneField: 'part',
-  // WHY: CR-757 keys the words of the Shift Whole Schedule row (FO-17) and of its question by their part.
+  // Why: CR-757 keys the words of the Shift Whole Schedule row (FO-17) and of its question by their part.
   wholeScheduleShiftField: 'part',
-  // WHY: CR-754 keys the words of the read-only rows of the settings face (table T-380) by their part.
+  // Why: CR-754 keys the words of the read-only rows of the settings face (table T-380) by their part.
   readOnlySettings: 'part',
-  // WHY: CR-743 section 4.4 keys the Holiday Settings words (U-65, T-344) by the part they fill.
+  // Why: CR-743 section 4.4 keys the Holiday Settings words (U-65, T-344) by the part they fill.
   holidaySettings: 'part',
-  // WHY: CR-411 6.3 keys the end word of SE-2 by the end it names, max or min.
+  // Why: CR-411 6.3 keys the end word of SE-2 by the end it names, max or min.
   scaleEcho: 'end',
-  // WHY: CR-770 keys the two words FR-036 prints around the keys (the join and the plus key) by their part.
+  // Why: CR-770 keys the two words FR-036 prints around the keys (the join and the plus key) by their part.
   keyNotation: 'part',
-  // WHY: CR-550 keys the lines of DC-3's readout by the line they fill.
+  // Why: CR-550 keys the lines of DC-3's readout by the line they fill.
   dualCursorReadout: 'line',
-  // WHY: CR-571 keys a search column's heading by its row of table T-331 (FR-151),
+  // Why: CR-571 keys a search column's heading by its row of table T-331 (FR-151),
   // the state word of column SQ-5 by its row of table T-019a, and the panel's own
   // words (SV-7's blank item, SQ-1's no-name word) by the part they fill.
   searchColumns: 'rowId',
   planActualStates: 'rowId',
   searchPanel: 'part',
-  // WHY: CR-760 keys the two values of the Task Type column (SQ-14, DT-9, FM-9) by the part they name, task or milestone.
+  // Why: CR-760 keys the two values of the Task Type column (SQ-14, DT-9, FM-9) by the part they name, task or milestone.
   taskTypes: 'part',
-  // WHY: CR-722 keys the Resource List's headings by their row of table T-371, and its (Unassigned) and joining words by part.
+  // Why: CR-722 keys the Resource List's headings by their row of table T-371, and its (Unassigned) and joining words by part.
   resourceListColumns: 'rowId',
   resourceList: 'part',
-  // WHY: CR-631 keys QN-12's two choices by the part they fill (PTL-13): the armed and the unarmed
+  // Why: CR-631 keys QN-12's two choices by the part they fill (PTL-13): the armed and the unarmed
   // wording of the first choice, then the arrows; no table row numbers them.
   parentTaskChoice: 'part',
-  // WHY: CR-648 keys the report's headings by T-347 row, its statuses by the DG / DX row each is
+  // Why: CR-648 keys the report's headings by T-347 row, its statuses by the DG / DX row each is
   // made of (DT-1), and its summary, Markdown and DT-7 words by the part they fill (FR-134).
   delayReportColumns: 'rowId',
   delayReportStatuses: 'rowId',
   delayReportSummary: 'part',
   delayReportMarkdown: 'part',
   delayReportReasons: 'part',
-  // WHY: CR-670 keys DT-7's aspect words by their row of table T-310 / T-311 and its wall words by their row of T-316.
+  // Why: CR-670 keys DT-7's aspect words by their row of table T-310 / T-311 and its wall words by their row of T-316.
   delayReportAspects: 'rowId',
   delayReportWalls: 'rowId',
-  // WHY: CR-731 keys the fix tables' headings by their row of table T-374 and the other fix words by part (FR-155).
+  // Why: CR-731 keys the fix tables' headings by their row of table T-374 and the other fix words by part (FR-155).
   delayFixColumns: 'rowId',
   delayFixes: 'part',
 }
@@ -540,7 +540,7 @@ const T220_SHARING: Readonly<Record<string, string>> = (
   }
 ).invariantRefusals.wordsOf ?? {}
 
-// see FR-076
+// Spec: FR-076
 const IMPORT_REFUSAL_MANNER = ((): string => {
   const requirements = readFileSync(join(ROOT, 'docs', 'spec', '01-04-requirements.md'), 'utf8')
   const found = /取り込みの検証が拒んだとき、`(NT-\d+[a-z]?)` の通知が運ぶ理由は/.exec(requirements)
@@ -736,7 +736,7 @@ const SCHEDULE = {
       taskUid: THE_TASK,
       shapeKind: null,
       milestoneGlyph: null,
-      // WHY: one custom color with each side left undefined, so the color field
+      // Why: one custom color with each side left undefined, so the color field
       // prints both notes of CV-9 (CR-548).
       fillColor: '#c0504d/',
       strokeColor: '/#3a5f8a',
@@ -913,7 +913,7 @@ const PANEL_STATES: Readonly<Record<string, Frame>> = {
 }
 
 // see CR-571, FR-151, T-330, T-331, T-019a, DFC-1470
-// WHY: one task per row of table T-019a, keyed by the row, so each state word has a cell to be printed
+// Why: one task per row of table T-019a, keyed by the row, so each state word has a cell to be printed
 // in (SQ-5); the PS-1 task has no name (SQ-1's no-name word) and no task has an assignee, so the
 // assignee filter offers the blank item (SV-7).
 const SEARCH_STARTED = '2026-01-05T08:00:00'
@@ -944,11 +944,11 @@ const SCHEDULE_TO_SEARCH = {
   taskVisuals: [],
 } as unknown as Schedule
 
-// WHY: CR-723 -- the search table's view (Visibility column, Schedule Filter, column filters, sort) is the document's, so it
+// Why: CR-723 -- the search table's view (Visibility column, Schedule Filter, column filters, sort) is the document's, so it
 // is handed in through the settings the frame carries, not through the panel reading.
 type SearchTableViewSetting = DocumentSettings['tableViews']['searchPanel']
 
-// TRAP: SETTINGS is built from the flat SETTINGS_DEFAULTS, so it holds no nested tableViews group of its own.
+// Trap: SETTINGS is built from the flat SETTINGS_DEFAULTS, so it holds no nested tableViews group of its own.
 const NO_SEARCH_VIEW: SearchTableViewSetting = { columnFilters: [], shownTaskUids: [], isScheduleFilterApplied: false, sort: null }
 
 const searchFrame = (
@@ -971,21 +971,21 @@ const MAXIMIZE_ENTRY = 'IC-121'
 const COMMENT_BOX_COLUMNS: ReadonlySet<string> = new Set(['SQ-7', 'SQ-8', 'SQ-9'])
 
 const SEARCH_TASKS_SHOWN = searchFrame('normal', { filters: { open: ASSIGNEE_COLUMN } })
-// see SQ-10, TV-11
+// Spec: SQ-10, TV-11
 const SHOWN_SEARCH_UIDS: readonly number[] = [2, 3]
-// WHY: CR-798 TV-2 -- every row starts unchecked (Hide), so the rows named are the checked (Show) ones.
+// Why: CR-798 TV-2 -- every row starts unchecked (Hide), so the rows named are the checked (Show) ones.
 const checkedOnly = (shown: readonly number[], isScheduleFilterApplied: boolean): Partial<SearchTableViewSetting> => ({
   shownTaskUids: Object.values(SEARCH_TASK_BY_STATE).map((one) => one.uid).filter((uid) => shown.includes(uid)),
   isScheduleFilterApplied: isScheduleFilterApplied,
 })
-// WHY: CR-798 TV-5 -- IC-143 is idle for two reasons: no row is checked (the frame's default) or every row is checked (nothing to narrow).
+// Why: CR-798 TV-5 -- IC-143 is idle for two reasons: no row is checked (the frame's default) or every row is checked (nothing to narrow).
 const SEARCH_EVERY_TASK_CHECKED = searchFrame('normal', {}, checkedOnly(Object.values(SEARCH_TASK_BY_STATE).map((one) => one.uid), false))
-// WHY: the shell hands the product in as a reading (TV-1); the band counts it.
+// Why: the shell hands the product in as a reading (TV-1); the band counts it.
 const SEARCH_SCHEDULE_FILTERED: Frame = (() => {
   const frame = searchFrame('minimized', {}, checkedOnly(SHOWN_SEARCH_UIDS, true))
   return { ...frame, readings: { ...frame.readings, drawnTaskUids: new Set(SHOWN_SEARCH_UIDS) } }
 })()
-// WHY: TV-11 fills {tables}, {total} and {shown}, so the table name and the digits are put back to see the literal word
+// Why: TV-11 fills {tables}, {total} and {shown}, so the table name and the digits are put back to see the literal word
 // (as minHeightWordOf does for MH-3); a sentinel holds no digit standing alone and passes unchanged.
 const countSlotsOf = (text: string | null | undefined, tables: string | undefined): string | undefined =>
   text === null || text === undefined || tables === undefined
@@ -1008,17 +1008,17 @@ const helpShown = (window: 'normal' | 'maximized'): Frame =>
 
 const HELP_SHOWN = helpShown('normal')
 
-// WHY: T-335 WB-4 draws IC-131 only while the help is maximized (WB-3), in the place of IC-130.
+// Why: T-335 WB-4 draws IC-131 only while the help is maximized (WB-3), in the place of IC-130.
 const HELP_MAXIMIZED = helpShown('maximized')
 
-// see T-335, WB-3, WB-4
+// Spec: T-335, WB-3, WB-4
 const RESTORE_ENTRY = 'IC-131'
 
-// WHY: IC-143 refuses while no row is Hide (TV-5), and its hint would then carry the reason too.
+// Why: IC-143 refuses while no row is Hide (TV-5), and its hint would then carry the reason too.
 const SEARCH_TASKS_CHECKED = searchFrame('normal', { filters: { open: ASSIGNEE_COLUMN } }, checkedOnly(SHOWN_SEARCH_UIDS, false))
 
-// see S-451, RW-1
-// WHY: the shell holds the report and hands it in as a reading; an empty diagnosis still raises the window.
+// Spec: S-451, RW-1
+// Why: the shell holds the report and hands it in as a reading; an empty diagnosis still raises the window.
 const NO_DELAY_FOUND: DelayDiagnosticsReport = {
   outcome: 'diagnosed',
   statusDate: null,
@@ -1033,9 +1033,9 @@ const NO_DELAY_FOUND: DelayDiagnosticsReport = {
   lateDays: [],
 }
 
-// WHY: a filter stands open, so IC-123 .. IC-126 stand in its menu (RW-2, SV-7).
+// Why: a filter stands open, so IC-123 .. IC-126 stand in its menu (RW-2, SV-7).
 const REPORT_FILTER_OPEN = { ...OPENED_DELAY_DIAGNOSTICS_REPORT.panel, filters: { open: 'DT-1' } }
-// WHY: CR-731 -- IC-157 and IC-158 stand in the footer under the fix proposals only (RW-12), so their frame shows that table.
+// Why: CR-731 -- IC-157 and IC-158 stand in the footer under the fix proposals only (RW-12), so their frame shows that table.
 const delayReportShown = (shown: 'normal' | 'maximized', table: 'diagnosis' | 'proposals' | 'log' = 'diagnosis'): Frame =>
   frameWith({
     readings: sessionWith({
@@ -1047,12 +1047,12 @@ const delayReportShown = (shown: 'normal' | 'maximized', table: 'diagnosis' | 'p
     }),
   })
 
-// see RW-12
+// Spec: RW-12
 const FIX_FOOTER_ENTRIES: readonly string[] = ['IC-166', 'IC-157', 'IC-158']
 
 const FIX_LOG_FOOTER_ENTRIES: readonly string[] = ['IC-169']
 
-// WHY: CR-731 -- IC-156 stands only once the fix log holds a row (RW-11); the row's own fields are not read here.
+// Why: CR-731 -- IC-156 stands only once the fix log holds a row (RW-11); the row's own fields are not read here.
 const ONE_FIX_LOGGED = {
   proposals: [],
   log: [{
@@ -1069,8 +1069,8 @@ const ONE_FIX_LOGGED = {
   }],
 }
 
-// see FR-099, T-370, T-371, S-545
-// WHY: the one resource of SCHEDULE is chosen for IC-67 and not for IC-68 (RQ-3), and a filter stands open for IC-123 .. IC-126.
+// Spec: FR-099, T-370, T-371, S-545
+// Why: the one resource of SCHEDULE is chosen for IC-67 and not for IC-68 (RQ-3), and a filter stands open for IC-123 .. IC-126.
 const resourceListShown = (shown: 'normal' | 'maximized', isChosen: boolean): Frame => {
   const panel = { ...OPENED_RESOURCE_LIST.panel, filters: { open: 'RQ-2' } }
   const resourceList = { ...OPENED_RESOURCE_LIST, shown, panel }
@@ -1082,7 +1082,7 @@ type TableWindowView =
   | NonNullable<ScreenView['delayDiagnosticsReport']>
   | NonNullable<ScreenView['resourceList']>
 
-// see FR-151, FR-134, T-335, SV-7
+// Spec: FR-151, FR-134, T-335, SV-7
 const tableWindowEntries = (window: TableWindowView | null | undefined): readonly CommandItem[] | undefined =>
   window === null || window === undefined
     ? undefined
@@ -1096,7 +1096,7 @@ const tableWindowEntries = (window: TableWindowView | null | undefined): readonl
         ...(window.filterMenu?.entries ?? []),
       ]
 
-// see FR-072, FR-153, AS-5
+// Spec: FR-072, FR-153, AS-5
 const propertiesPanelEntries = (panel: ScreenView['propertiesPanel']): readonly CommandItem[] | undefined =>
   panel === null
     ? undefined
@@ -1109,24 +1109,24 @@ const propertiesPanelEntries = (panel: ScreenView['propertiesPanel']): readonly 
       ]
 
 // see FO-16, IC-162, DFC-2517
-// WHY: an entrance of table T-109 drawn as its own field's word button stands in that field, not beside IC-52.
+// Why: an entrance of table T-109 drawn as its own field's word button stands in that field, not beside IC-52.
 const wordEntranceOf = (row: string, press: string | undefined): readonly CommandItem[] =>
   press === undefined || !row.startsWith('IC-')
     ? []
     : [{ icon: row as CommandItem['icon'], label: press, isEnabled: true, isPressed: false, isArmed: false, isChosen: false }]
 
-// see FR-153, FO-16
+// Spec: FR-153, FO-16
 const ON_THE_SETTINGS_FACE_ONLY: readonly string[] = ['IC-139', 'IC-162']
 
-// see IC-52, T-109
+// Spec: IC-52, T-109
 interface SurfaceScene {
   readonly frame: (rowId: string | null) => Frame
   readonly heading: ((view: ScreenView) => string | undefined) | null
   readonly entries: (view: ScreenView) => readonly CommandItem[] | undefined
 }
 
-// see T-280, S-99g, IC-52
-// WHY: S-99g holds U rows only (DFC-2280), so the help, the panel and the windows are raised by their own scenes.
+// Spec: T-280, S-99g, IC-52
+// Why: S-99g holds U rows only (DFC-2280), so the help, the panel and the windows are raised by their own scenes.
 const SCENE_OF_WINDOW: ReadonlyMap<string, SurfaceScene> = new Map([
   [
     HELP_SURFACE,
@@ -1163,25 +1163,25 @@ const SCENE_OF_WINDOW: ReadonlyMap<string, SurfaceScene> = new Map([
   [
     'Properties Panel',
     {
-      // WHY: IC-139 stands at the head of the document-settings face only (FR-153), IC-162 in its field (FO-16).
+      // Why: IC-139 stands at the head of the document-settings face only (FR-153), IC-162 in its field (FO-16).
       frame: (rowId) => (PANEL_STATES[ON_THE_SETTINGS_FACE_ONLY.includes(rowId ?? '') ? 'documentSettings' : 'selection'] as Frame),
-      // WHY: FR-072 puts no heading row at the panel's head, so no member carries this word.
+      // Why: FR-072 puts no heading row at the panel's head, so no member carries this word.
       heading: null,
       entries: (view) => propertiesPanelEntries(view.propertiesPanel),
     },
   ],
 ])
 
-// see T-280, S-99g
+// Spec: T-280, S-99g
 const openSurfaceScene = (surface: string): SurfaceScene => ({
   frame: () => surfaceOpen(surface),
   heading: (view) => view.openModal?.heading,
   entries: (view) => view.openModal?.commands,
 })
 
-// see U-65, T-344, WC-1, WC-2, WC-4, WC-6, WC-7, WC-8
-// WHY: CR-743 -- the title bar holds IC-52 alone (WC-1); every other entry stands in its own section,
-// WHY: so the scene reads them there. One day-off exception row raises IC-136 and IC-137 (WC-4).
+// Spec: U-65, T-344, WC-1, WC-2, WC-4, WC-6, WC-7, WC-8
+// Why: CR-743 -- the title bar holds IC-52 alone (WC-1); every other entry stands in its own section,
+// Why: so the scene reads them there. One day-off exception row raises IC-136 and IC-137 (WC-4).
 const HOLIDAY_SETTINGS_SURFACE = 'Holiday Settings'
 const ONE_DAY_OFF = {
   ordinal: 0,
@@ -1230,8 +1230,8 @@ const HOLIDAY_SETTINGS_SCENE: SurfaceScene = {
   },
 }
 
-// see WC-3, WC-8, IC-134, IC-165
-// WHY: CR-743 -- these two are fields (a chooser and the time fields), named by the holidaySettings words.
+// Spec: WC-3, WC-8, IC-134, IC-165
+// Why: CR-743 -- these two are fields (a chooser and the time fields), named by the holidaySettings words.
 const HOLIDAY_SETTINGS_FIELD_ENTRIES: readonly string[] = ['IC-134', 'IC-165']
 
 const sceneOf = (surface: string): SurfaceScene =>
@@ -1245,8 +1245,8 @@ const surfaceFrame = (surface: string, rowId: string | null = null): Frame => sc
 
 type Build = typeof screenViewFromRegions
 
-// WHY: the arrival sweep asks every frame once per written word; one build per frame and language
-// WHY: keeps that case from rebuilding the same view hundreds of times (DFC-2312).
+// Why: the arrival sweep asks every frame once per written word; one build per frame and language
+// Why: keeps that case from rebuilding the same view hundreds of times (DFC-2312).
 const VIEWS_BUILT = new Map<Build, WeakMap<Frame, Map<string, ScreenView>>>()
 
 const viewOf = (build: Build, frame: Frame, language: string): ScreenView => {
@@ -1475,7 +1475,7 @@ for (const entry of GENERATED['surfaces'] ?? []) {
     continue
   }
   const heading = sceneOf(name).heading
-  // WHY: CR-711 -- a surface that prints no heading holds no heading word; the FR-072 case below fails on one.
+  // Why: CR-711 -- a surface that prints no heading holds no heading word; the FR-072 case below fails on one.
   if (heading === null) {
     HEADINGLESS_SURFACES_HELD.push(name)
     continue
@@ -1507,7 +1507,7 @@ for (const entry of GENERATED['surfaces'] ?? []) {
  */
 const propertyFieldName = (view: ScreenView, rowId: string): string | undefined => {
   const field = view.propertiesPanel?.fields.find((one) => one.row === rowId)
-  // WHY: a command row (PR-48, PR-49) has no name cell; its word is the one button it draws (CR-786).
+  // Why: a command row (PR-48, PR-49) has no name cell; its word is the one button it draws (CR-786).
   return field?.name === '' ? field.controls[0]?.press : field?.name
 }
 
@@ -1597,7 +1597,7 @@ const SCHEDULE_WITH_A_TASK_GROUP = {
   ],
 } as unknown as Schedule
 
-// WHY: no task picked beside the task group: FR-006 shows one subject's fields, so a picked task would hide the task group's (JDG-1650).
+// Why: no task picked beside the task group: FR-006 shows one subject's fields, so a picked task would hide the task group's (JDG-1650).
 const TASK_GROUP_PICKED: Frame = frameWith({
   schedule: SCHEDULE_WITH_A_TASK_GROUP,
   selection: emptySelection(),
@@ -1605,7 +1605,7 @@ const TASK_GROUP_PICKED: Frame = frameWith({
 })
 
 // see CR-582, MH-3
-// WHY: placedTaskGroups makes the panel show `currentValue`, not `currentlyHidden`; kept
+// Why: placedTaskGroups makes the panel show `currentValue`, not `currentlyHidden`; kept
 // off TASK_GROUP_PICKED so every other `properties` place() reads that one unchanged.
 const TASK_GROUP_PLACED: Frame = frameWith({
   schedule: SCHEDULE_WITH_A_TASK_GROUP,
@@ -1666,8 +1666,8 @@ const HIGHLIGHT_BOX_PICKED: Frame = frameWith({
   selection: selectionWith(emptySelection(), { kind: 'highlightBox', id: THE_HIGHLIGHT_BOX }),
 })
 
-// see T-016, ET-3
-// WHY: the successor holds a dependency line, so the pick names it and the line's place.
+// Spec: T-016, ET-3
+// Why: the successor holds a dependency line, so the pick names it and the line's place.
 const ON_A_DEPENDENCY = 'Dependency'
 const THE_PREDECESSOR = 2
 
@@ -1689,8 +1689,8 @@ const DEPENDENCY_PICKED: Frame = frameWith({
   selection: selectionWith(emptySelection(), { kind: 'dependency', successorUid: THE_TASK, ordinal: 0 }),
 })
 
-// see FR-006, T-016
-// WHY: a milestone row is printed only for a milestone task, so its word arrives on this frame.
+// Spec: FR-006, T-016
+// Why: a milestone row is printed only for a milestone task, so its word arrives on this frame.
 const SHOWN_FOR_COLUMN = '出す種類'
 const FOR_A_MILESTONE = 'milestone'
 
@@ -1736,7 +1736,7 @@ for (const entry of GENERATED['properties'] ?? []) {
     frame: frameFor(rowId),
     read: (view) => propertyFieldName(view, declared),
   })
-  // WHY: a row shown for both kinds may carry the milestone's own name too (FR-006).
+  // Why: a row shown for both kinds may carry the milestone's own name too (FR-006).
   if ('milestoneLabel' in entry) {
     place({
       section: 'properties',
@@ -1750,11 +1750,11 @@ for (const entry of GENERATED['properties'] ?? []) {
   }
 }
 
-// see PR-43, FR-038
+// Spec: PR-43, FR-038
 const NAME_SLOT = '{name}'
 const UID_SLOT = '{uid}'
 const PREDECESSOR_NAME = 'a predecessor'
-// WHY: a row of table T-016 may list several columns; these two rows each edit one.
+// Why: a row of table T-016 may list several columns; these two rows each edit one.
 const isOnlyColumn = (row: (typeof T016.rows)[number], column: string): boolean =>
   (row.by[GRS_COLUMN] ?? '').trim() === `\`${column}\``
 const PREDECESSOR_ROW = T016.rows.find(
@@ -1765,7 +1765,7 @@ const dependencyEndWordOf = (text: string): string =>
     .split(PREDECESSOR_NAME)
     .join(NAME_SLOT)
     .replace(new RegExp(`(?<![0-9])${THE_PREDECESSOR}(?![0-9])`), UID_SLOT)
-// see PR-16, AS-5
+// Spec: PR-16, AS-5
 const ASSIGNEE_ROW = T016.rows.find(
   (row) => bare(row.by[APPLIES_TO_COLUMN] ?? '') === ON_A_TASK && isOnlyColumn(row, 'assignee'),
 )?.id
@@ -1873,8 +1873,8 @@ const ROWS_ON_THE_SETTINGS_FACE = new Set(
 const settingsFieldName = (view: ScreenView, rowId: string): string | undefined =>
   view.propertiesPanel?.fields.find((field) => field.row === rowId)?.name
 
-// see FO-15, K-145
-// WHY: CR-755 -- four display rows named by the setting's name and a number; row 1's name less ' 1' is the word.
+// Spec: FO-15, K-145
+// Why: CR-755 -- four display rows named by the setting's name and a number; row 1's name less ' 1' is the word.
 const NUMBERED_SETTINGS_ROWS: ReadonlySet<string> = new Set(['K-145'])
 const FIRST_ROW_NUMBER = ' 1'
 const numberedFieldName = (view: ScreenView, rowId: string): string | undefined => {
@@ -1883,7 +1883,7 @@ const numberedFieldName = (view: ScreenView, rowId: string): string | undefined 
 }
 
 // see T-380, RN-3, CR-787, JDG-2469
-// WHY: the left and top edges are stored as two keys each but read as one row each, named by
+// Why: the left and top edges are stored as two keys each but read as one row each, named by
 // readOnlySettings viewLeftEdge / viewTopEdge -- so the settings face prints no name of these four rows.
 const ROWS_JOINED_ON_THE_SETTINGS_FACE: ReadonlySet<string> = new Set(['K-69', 'K-121', 'K-70', 'K-120'])
 
@@ -1948,7 +1948,7 @@ for (const entry of GENERATED['shortcuts'] ?? []) {
 }
 
 // see FR-036, CR-770
-// WHY: the two words stand between keys, so each is read back by cutting the keys of one item off its entry.
+// Why: the two words stand between keys, so each is read back by cutting the keys of one item off its entry.
 const KEY_NOTATION_READS: Readonly<Record<string, { readonly row: string; readonly before: string; readonly after: string }>> = {
   alternative: { row: 'IC-6', before: 'Ctrl+Y', after: 'Ctrl+Shift+Z' },
   plusKey: { row: 'IC-13', before: 'Shift+', after: '' },
@@ -1976,7 +1976,7 @@ for (const entry of GENERATED['keyNotation'] ?? []) {
 }
 
 // see FR-036, CR-635
-// WHY: every block carries its heading as a heading entry keyed by the block, whose name also travels
+// Why: every block carries its heading as a heading entry keyed by the block, whose name also travels
 // untranslated on each entry (T-256) -- so only a place, not the whole-view reading, can hold this word.
 for (const entry of GENERATED['helpHeadings'] ?? []) {
   const block = keyOf('helpHeadings', entry)
@@ -1999,13 +1999,13 @@ for (const entry of GENERATED['helpNotes'] ?? []) {
   )
 }
 
-// WHY: CR-828 -- FR-036 names no member for the browser block's sentence, so the whole-view reading asks for it.
+// Why: CR-828 -- FR-036 names no member for the browser block's sentence, so the whole-view reading asks for it.
 for (const entry of GENERATED['helpBlockNotes'] ?? []) {
   drop('helpBlockNotes', keyOf('helpBlockNotes', entry), 'FR-036 names no member of the help that carries this sentence')
 }
 
 // see FR-036, CR-748, CR-785
-// WHY: CR-785 has two links above the basics block (download, about) and one on the IC-20 item (agentApi).
+// Why: CR-785 has two links above the basics block (download, about) and one on the IC-20 item (agentApi).
 const HELP_LINK_READS: Readonly<Record<string, (view: ScreenView) => string | undefined>> = {
   download: (view) => view.helpModal?.downloadLink.words,
   about: (view) => view.helpModal?.aboutLink.words,
@@ -2024,7 +2024,7 @@ for (const entry of GENERATED['helpLinks'] ?? []) {
   })
 }
 
-// see FR-036, T-255
+// Spec: FR-036, T-255
 const T_255_HELD_BY_T_036 = ((): ReadonlySet<string> => {
   const combosOf = (cell: string): readonly string[] =>
     cell
@@ -2115,7 +2115,7 @@ for (const entry of GENERATED['assignments'] ?? []) {
  * gives `milestoneGlyph`. Neither reaches the word -- table T-023b gives AR-2
  * and AR-3 one row each, whatever shape is on them.
  */
-// WHY: wave 2 of CR-767 (JDG-2364) holds every arm as a child of the composite `armed`.
+// Why: wave 2 of CR-767 (JDG-2364) holds every arm as a child of the composite `armed`.
 const ARMED_BY_ROW: Readonly<Record<string, ScreenValues['armModeState']>> = {
   'AR-1': { kind: 'notArmed' },
   'AR-2': { kind: 'armed', child: { kind: 'taskShapeArmed', shapeKind: 'rectangle' } },
@@ -2292,7 +2292,7 @@ for (const entry of GENERATED['branding'] ?? []) {
   })
 }
 
-// WHY: TL-1 prints the name first, then the plan line and the actual line; the word stands before ': '.
+// Why: TL-1 prints the name first, then the plan line and the actual line; the word stands before ': '.
 const HINT_LINE_INDEX: Readonly<Record<string, number>> = { 'TL-5': 1, 'TL-6': 2 }
 const RESTING_ON_A_STARTED_TASK = frameWith({
   selection: emptySelection(),
@@ -2332,7 +2332,7 @@ for (const entry of GENERATED['hintLines'] ?? []) {
   })
 }
 
-// see FR-069
+// Spec: FR-069
 for (const entry of GENERATED['helpLegal'] ?? []) {
   const part = keyOf('helpLegal', entry) as 'licensedUnder' | 'fullText'
   place({
@@ -2346,8 +2346,8 @@ for (const entry of GENERATED['helpLegal'] ?? []) {
   })
 }
 
-// see OP-16
-// WHY: the chooser stands while the file flow waits for the OP-3 answer, which is what carries the file read.
+// Spec: OP-16
+// Why: the chooser stands while the file flow waits for the OP-3 answer, which is what carries the file read.
 const OPEN_CHOOSER_SHOWN = frameWith({
   root: {
     ...rootWithSurface('Open Chooser'),
@@ -2394,7 +2394,7 @@ for (const entry of GENERATED['openChooser'] ?? []) {
   })
 }
 
-// see OP-17, U-68
+// Spec: OP-17, U-68
 for (const entry of GENERATED['dropCue'] ?? []) {
   const part = keyOf('dropCue', entry)
   if (part !== 'dropToOpen') {
@@ -2412,8 +2412,8 @@ for (const entry of GENERATED['dropCue'] ?? []) {
   })
 }
 
-// see FR-096, IX-12, FX-1, FX-8
-// WHY: the line stands only while the document fixes its fit span (S-532), so this frame
+// Spec: FR-096, IX-12, FX-1, FX-8
+// Why: the line stands only while the document fixes its fit span (S-532), so this frame
 // stores one; its two days are put back as {start} and {finish} to hold the line to the written word.
 const EXPORT_CHOOSER_WITH_SPAN = frameWith({
   root: rootWithSurface('Export Chooser'),
@@ -2442,7 +2442,7 @@ for (const entry of GENERATED['exportChooser'] ?? []) {
   })
 }
 
-// see FR-039, SE-2
+// Spec: FR-039, SE-2
 for (const entry of GENERATED['scaleEcho'] ?? []) {
   const end = keyOf('scaleEcho', entry)
   const step = end === 'max' ? DISPLAY_SCALE_STEPS[DISPLAY_SCALE_STEPS.length - 1]! : DISPLAY_SCALE_STEPS[0]!
@@ -2455,15 +2455,15 @@ for (const entry of GENERATED['scaleEcho'] ?? []) {
     frame: frameWith({
       root: rootWith({ scaleMessageDisplayState: { kind: 'shown', percent: step, end: end as 'max' | 'min' } }),
     }),
-    // WHY: SE-2 writes the value and % first, so the word is what follows them.
+    // Why: SE-2 writes the value and % first, so the word is what follows them.
     read: (view) => view.scaleMessage?.startsWith(`${step}%`) === true ? view.scaleMessage.slice(`${step}%`.length) : undefined,
   })
 }
 
-// see DC-3
-// WHY: the mode is on and the pointer stands on the Task Group Area, the one frame DC-3 shows the readout in.
+// Spec: DC-3
+// Why: the mode is on and the pointer stands on the Task Group Area, the one frame DC-3 shows the readout in.
 const DUAL_CURSOR_READOUT_LINE: Readonly<Record<string, number>> = { left: 0, right: 1, span: 2 }
-// WHY: this frame stores no date and its axis has no day, so DC-3 writes its dash where the word
+// Why: this frame stores no date and its axis has no day, so DC-3 writes its dash where the word
 // holds {date} or {span}; the mark is put back so the line can be held to the written word.
 const READOUT_DASH = /—$/
 const READOUT_MARKS: readonly string[] = ['{date}', '{date}', '{span}']
@@ -2503,13 +2503,13 @@ for (const entry of GENERATED['dualCursorReadout'] ?? []) {
 }
 
 // see CR-582, MH-3, MH-4, MH-6, FR-042
-// WHY: keyed by which control the field is, not by a row -- no row of table
+// Why: keyed by which control the field is, not by a row -- no row of table
 // T-016 names it, the same reason `defaultNames` is keyed by `use`.
 const TASK_GROUP_MIN_HEIGHT_PX_SLOT = '{px}'
 // see T-338, MH-2, PR-20, MH-3, CR-689
 const minHeightTaskGroupOf = (view: ScreenView, row: string) =>
   view.propertiesPanel?.fields.find((field) => field.row === row)
-// WHY: MH-3's `currentValue` fills the `{px}` slot with the real height, so this
+// Why: MH-3's `currentValue` fills the `{px}` slot with the real height, so this
 // puts the digits back to see the literal word (as `readoutWordOf` does for DC-3).
 const minHeightWordOf = (text: string): string => text.replace(/\d+/, TASK_GROUP_MIN_HEIGHT_PX_SLOT)
 const TASK_GROUP_MIN_HEIGHT_READS: Readonly<Record<string, (view: ScreenView) => string | undefined>> = {
@@ -2531,7 +2531,7 @@ for (const entry of GENERATED['rowMinHeightField'] ?? []) {
     field: 'text',
     unit: 'UF-67',
     what: `the ${part} word MH-2..MH-3 of table T-338 have the Task Group Panel's min-height rows show`,
-    // WHY: MH-3 withholds the number while the task group is not drawn (TASK_GROUP_PICKED's
+    // Why: MH-3 withholds the number while the task group is not drawn (TASK_GROUP_PICKED's
     // state, no placedTaskGroups entry) -- `currentValue` needs TASK_GROUP_PLACED instead.
     frame: part === 'currentValue' ? TASK_GROUP_PLACED : TASK_GROUP_PICKED,
     read: (view) => TASK_GROUP_MIN_HEIGHT_READS[part]?.(view),
@@ -2539,7 +2539,7 @@ for (const entry of GENERATED['rowMinHeightField'] ?? []) {
 }
 
 // see CR-690, FX-6, FX-7, WF-2, WF-3
-// WHY: the two read-outs come from the readings (the shown span, the drawn width), so this frame
+// Why: the two read-outs come from the readings (the shown span, the drawn width), so this frame
 // carries both; their dates and digits are put back as the slots to hold them to the written word.
 const SETTINGS_WITH_READOUTS = frameWith({
   root: rootWith({ propertiesPanelContentState: { kind: 'documentSettingsDisplayed' } }),
@@ -2585,7 +2585,7 @@ for (const section of ['fitSpanField', 'taskGroupPanelWidthField'] as const) {
 }
 
 // see FR-041, T-305, DFC-1640
-// WHY: the hue field of the settings face lists table T-305's rows in that table's order.
+// Why: the hue field of the settings face lists table T-305's rows in that table's order.
 const T305_ROWS: readonly string[] = specTable('T-305').rows.map((row) => row.id)
 const themeHueControlOf = (view: ScreenView) =>
   view.propertiesPanel?.fields
@@ -2604,8 +2604,8 @@ for (const entry of GENERATED['themeHues'] ?? []) {
   })
 }
 
-// see FR-156, T-376, FO-14, FO-15
-// WHY: CR-787 -- a zone's place is line 2 of its two-line name; display row 1 offers none and then every row.
+// Spec: FR-156, T-376, FO-14, FO-15
+// Why: CR-787 -- a zone's place is line 2 of its two-line name; display row 1 offers none and then every row.
 const ZONE_ROWS_IN_ORDER: readonly string[] = (GENERATED['timeZones'] ?? []).map((entry) => keyOf('timeZones', entry))
 for (const rowId of ZONE_ROWS_IN_ORDER) {
   place({
@@ -2619,13 +2619,13 @@ for (const rowId of ZONE_ROWS_IN_ORDER) {
   })
 }
 
-// see FO-14, FO-15, FO-16, FR-156, FR-157
+// Spec: FO-14, FO-15, FO-16, FR-156, FR-157
 const TIME_ZONE_FIELD_READS: Readonly<Record<string, (view: ScreenView) => string | undefined>> = {
   none: (view) => settingsRowOf(view, 'K-145:1')?.controls[0]?.choices?.[0],
   shiftUnit: (view) => settingsRowOf(view, 'IC-162')?.unit,
 }
-// WHY: CR-755 -- the answers stand only while a draft holds another zone, which no frame here holds.
-// WHY: zoneHead and offsetName are shapes with slots; the QN-14 lines are composed when the shell asks.
+// Why: CR-755 -- the answers stand only while a draft holds another zone, which no frame here holds.
+// Why: zoneHead and offsetName are shapes with slots; the QN-14 lines are composed when the shell asks.
 const ONLY_WHILE_DRAFTED = 'FO-14 shows it only while a draft holds a time zone other than the shown base (FR-156); no frame here holds one'
 const TIME_ZONE_FIELD_NOT_ON_A_FRAME: Readonly<Record<string, string>> = {
   baseChangeQuestion: ONLY_WHILE_DRAFTED,
@@ -2661,8 +2661,8 @@ for (const entry of GENERATED['timeZoneField'] ?? []) {
   })
 }
 
-// see FO-17, FR-159, WH-1, WH-12
-// WHY: the frame's document holds no task, so the current start reads as the dash WH-1 names; it is put back as the slot.
+// Spec: FO-17, FR-159, WH-1, WH-12
+// Why: the frame's document holds no task, so the current start reads as the dash WH-1 names; it is put back as the slot.
 const NO_CURRENT_START = '—'
 const READOUT_LINE_BREAK = '\n'
 const WHOLE_SCHEDULE_SHIFT_READS: Readonly<Record<string, (view: ScreenView) => string | undefined>> = {
@@ -2690,7 +2690,7 @@ for (const entry of GENERATED['wholeScheduleShiftField'] ?? []) {
 }
 
 // see T-380, FR-072, JDG-2103
-// WHY: CR-754 -- the heading line, the group names and the words the default settings of the frame show.
+// Why: CR-754 -- the heading line, the group names and the words the default settings of the frame show.
 const readOnlyGroupNameOf = (view: ScreenView, key: string): string | undefined =>
   view.propertiesPanel?.fields.find((field) => field.readOnlyGroup?.key === key)?.readOnlyGroup?.name
 const SEARCH_VIEW_ROW = (key: string): string => `tableViews.searchPanel.${key}`
@@ -2717,13 +2717,13 @@ const READ_ONLY_SETTINGS_READS: Readonly<Record<string, (view: ScreenView) => st
   expandedAuto: (view) => settingsRowOf(view, 'K-138')?.text,
   none: (view) => settingsRowOf(view, SEARCH_VIEW_ROW('shownTaskUids'))?.text,
   defaultOrder: (view) => settingsRowOf(view, SEARCH_VIEW_ROW('sort'))?.text,
-  // WHY: CR-787 (T-380 RN-3) -- the joined left and top edge rows stand under K-69 / K-70; the frame holds no view place.
+  // Why: CR-787 (T-380 RN-3) -- the joined left and top edge rows stand under K-69 / K-70; the frame holds no view place.
   viewLeftEdge: (view) => settingsRowOf(view, 'K-69')?.name,
   viewTopEdge: (view) => settingsRowOf(view, 'K-70')?.name,
   notSet: (view) => settingsRowOf(view, 'K-69')?.text,
   notSetFromTop: (view) => settingsRowOf(view, 'K-70')?.text,
 }
-// WHY: the frame holds the default settings, so the other value of each pair and the slotted shapes are not printed on it.
+// Why: the frame holds the default settings, so the other value of each pair and the slotted shapes are not printed on it.
 const READ_ONLY_SETTINGS_NOT_ON_A_FRAME =
   'a value word the default settings of the frame do not show, or a shape with slots printed only filled (T-380)'
 for (const entry of GENERATED['readOnlySettings'] ?? []) {
@@ -2743,8 +2743,8 @@ for (const entry of GENERATED['readOnlySettings'] ?? []) {
   })
 }
 
-// see U-65, T-344, WC-2, WC-3, WC-4, WC-8, WC-10
-// WHY: CR-743 section 4.4 -- the headings and column words of Holiday Settings, read off the surface its scene opens.
+// Spec: U-65, T-344, WC-2, WC-3, WC-4, WC-8, WC-10
+// Why: CR-743 section 4.4 -- the headings and column words of Holiday Settings, read off the surface its scene opens.
 const HOLIDAY_SETTINGS_READS: Readonly<Record<string, (view: ScreenView) => string | undefined>> = {
   workingWeekdays: (view) => holidaySettingsOf(view)?.weekdaysHeading,
   weekStart: (view) => holidaySettingsOf(view)?.weekStartName,
@@ -2757,7 +2757,7 @@ const HOLIDAY_SETTINGS_READS: Readonly<Record<string, (view: ScreenView) => stri
   exceptionTo: (view) => holidaySettingsOf(view)?.exceptionColumns[2],
   exceptionKind: (view) => holidaySettingsOf(view)?.exceptionColumns[3],
 }
-// WHY: the scene's calendar holds one day off and one set of hours, and no draft, so no refusal stands.
+// Why: the scene's calendar holds one day off and one set of hours, and no draft, so no refusal stands.
 const HOLIDAY_SETTINGS_NOT_ON_THE_SCENE = 'the Holiday Settings scene holds one day off, one set of hours and no refused draft'
 for (const entry of GENERATED['holidaySettings'] ?? []) {
   const part = keyOf('holidaySettings', entry)
@@ -2777,7 +2777,7 @@ for (const entry of GENERATED['holidaySettings'] ?? []) {
 }
 
 // see CV-9, T-294, FR-019, DFC-1640
-// WHY: CV-9 bans neither black nor transparent on a highlight box; its fill's null follows the
+// Why: CV-9 bans neither black nor transparent on a highlight box; its fill's null follows the
 // theme (S-155) and its frame's is the fixed S-312, so one box prints both forms of entrance 2.
 const colorControlOf = (view: ScreenView, holder: string, column: string) =>
   view.propertiesPanel?.fields
@@ -2785,7 +2785,7 @@ const colorControlOf = (view: ScreenView, holder: string, column: string) =>
     .find((control) => control.key.holder === holder && control.key.column === column)
 const BOX_FILL = (view: ScreenView) => colorControlOf(view, 'highlightBox', 'fillColor')
 const BOX_FRAME = (view: ScreenView) => colorControlOf(view, 'highlightBox', 'strokeColor')
-// WHY: SCHEDULE's task holds a custom fill (CR-548), so the custom entrance's tooltip names its value (CV-9).
+// Why: SCHEDULE's task holds a custom fill (CR-548), so the custom entrance's tooltip names its value (CV-9).
 const TASK_FILL = (view: ScreenView) => colorControlOf(view, 'taskVisual', 'fillColor')
 const CUSTOM_VALUE_SLOT = '{value}'
 for (const entry of GENERATED['colorNames'] ?? []) {
@@ -2834,7 +2834,7 @@ for (const entry of GENERATED['colorField'] ?? []) {
   })
 }
 
-// see SQ-1, SQ-5
+// Spec: SQ-1, SQ-5
 const searchCellOf = (view: ScreenView, taskUid: number, column: string): string | undefined => {
   const panel = view.searchPanel
   const at = panel?.columns.findIndex((one) => one.column === column) ?? -1
@@ -2871,7 +2871,7 @@ for (const entry of GENERATED['planActualStates'] ?? []) {
   })
 }
 
-// WHY: the search frame's tasks all have Task.milestone empty, so the milestone word of SQ-14 gets a frame of its own
+// Why: the search frame's tasks all have Task.milestone empty, so the milestone word of SQ-14 gets a frame of its own
 // in which the PS-2 task is a milestone.
 const TASK_TYPE_COLUMN = 'SQ-14'
 const SEARCH_MILESTONE_UID = SEARCH_TASK_BY_STATE['PS-2']?.uid ?? 0
@@ -2905,7 +2905,7 @@ for (const entry of GENERATED['taskTypes'] ?? []) {
   })
 }
 
-// see SV-7, SV-13, SQ-1
+// Spec: SV-7, SV-13, SQ-1
 const SEARCH_PANEL_READS: Readonly<
   Record<string, { readonly frame: Frame; readonly read: (view: ScreenView) => string | undefined }>
 > = {
@@ -2949,7 +2949,7 @@ for (const entry of GENERATED['searchPanel'] ?? []) {
     drop('searchPanel', part, 'the joining word stands only inside the {tables} slot of the band (TV-11), and a cell-naming word holds no slot to put it in')
     continue
   }
-  // WHY: CR-798 -- the Visibility column has no value list, so no frame prints these two words any more; the Agent API's table cells (AM-28) still carry them.
+  // Why: CR-798 -- the Visibility column has no value list, so no frame prints these two words any more; the Agent API's table cells (AM-28) still carry them.
   if (part === 'showValue' || part === 'hideValue') {
     drop('searchPanel', part, 'the Visibility column holds no value list (SV-7, CR-798); only the table cells the Agent API reads (AM-28) print this word')
     continue
@@ -3096,7 +3096,7 @@ const ASKING = (question: string, namesWhatGoes: boolean): Frame =>
  * ⚠️ NOTHING HERE IS ASSERTED and no member of it is read back. The shape is
  * the published entry's own declaration of `RaisedNotice` (table T-064, PI-37).
  */
-// see QN-12, PTL-13
+// Spec: QN-12, PTL-13
 const PARENT_TASK_CHOICE = (isArmed: boolean): Frame =>
   frameWith({ readings: sessionWith({ parentTaskChoice: { at: { x: 40, y: 40 }, isArmed } }) })
 
@@ -3149,7 +3149,7 @@ const GLYPH_TOKEN = /\{(IC-\d+[a-z]?)\}/g
 const glyphRowsIn = (text: string): readonly string[] =>
   [...text.matchAll(GLYPH_TOKEN)].map((found) => found[1] as string)
 
-// see FR-036, T-109
+// Spec: FR-036, T-109
 const FIGURED_ROWS: ReadonlySet<string> = new Set(
   [
     ...readFileSync(join(ROOT, 'docs', 'spec', '_assets', 'fig-icons.svg'), 'utf8').matchAll(
@@ -3158,11 +3158,11 @@ const FIGURED_ROWS: ReadonlySet<string> = new Set(
   ].map((found) => found[1] as string),
 )
 
-// see FR-036, FR-038
+// Spec: FR-036, FR-038
 const FR_076_NO_SETTING_COPIED = '⛔ 設定値を理由の語に書き写してはならない（MUST NOT）'
 
-// see FR-076
-// WHY: a reason word names a setting in braces and the screen prints its value (CR-719 X-2).
+// Spec: FR-076
+// Why: a reason word names a setting in braces and the screen prints its value (CR-719 X-2).
 const withSettingValues = (word: string): string => {
   const settings: Readonly<Record<string, unknown>> = SETTINGS_CONSTANTS
   return word.replace(/\{([A-Za-z]+)\}/g, (slot: string, name: string) => {
@@ -3179,14 +3179,14 @@ const shows = (word: string, strings: readonly string[]): boolean => {
   return glyphs.every((row) => strings.some((one) => glyphRowsIn(one).includes(row)))
 }
 
-// see FR-036, FR-038
+// Spec: FR-036, FR-038
 const framesShowing = (
   word: string,
   language: string,
 ): readonly { readonly what: string; readonly frame: Frame }[] =>
   FRAMES.filter((one) => shows(word, stringsOfView(viewOf(screenViewFromRegions, one.frame, language))))
 
-// see FR-039, SE-2, FR-038
+// Spec: FR-039, SE-2, FR-038
 const scaleEchoFramesShowing = (
   word: string,
   language: string,
@@ -3195,7 +3195,7 @@ const scaleEchoFramesShowing = (
     stringsOfView(viewOf(screenViewFromRegions, one.frame, language)).some((text) => /^\d+%/.test(text) && text.endsWith(word)),
   )
 
-// see DC-3, FR-038
+// Spec: DC-3, FR-038
 const dualCursorReadoutFramesShowing = (
   word: string,
   language: string,
@@ -3206,8 +3206,8 @@ const dualCursorReadoutFramesShowing = (
     ),
   )
 
-// see FR-096, IX-12, FR-038
-// WHY: the span line fills {start} and {finish} with the two days (ND-4), so they are put back before matching.
+// Spec: FR-096, IX-12, FR-038
+// Why: the span line fills {start} and {finish} with the two days (ND-4), so they are put back before matching.
 const exportSpanFramesShowing = (
   word: string,
   language: string,
@@ -3218,7 +3218,7 @@ const exportSpanFramesShowing = (
     return exportSpanWordOf(chooser.fitSpanLine) === word
   })
 
-// see TL-5, TL-6, FR-038
+// Spec: TL-5, TL-6, FR-038
 const hintLineFramesShowing = (
   word: string,
   language: string,
@@ -3229,7 +3229,7 @@ const hintLineFramesShowing = (
     ),
   )
 
-// see FR-036, FR-038
+// Spec: FR-036, FR-038
 const helpNoteFramesShowing = (
   rowId: string,
   word: string,
@@ -3241,7 +3241,7 @@ const helpNoteFramesShowing = (
   })
 
 // see FR-036, CR-770
-// WHY: the join and the plus key stand inside an item's keys, so a frame shows them when some help item's keys hold them.
+// Why: the join and the plus key stand inside an item's keys, so a frame shows them when some help item's keys hold them.
 const keyNotationFramesShowing = (
   word: string,
   language: string,
@@ -3253,7 +3253,7 @@ const keyNotationFramesShowing = (
   )
 
 // see CR-582, FR-038
-// WHY: `current` carries a `{px}` slot filled with the real height, so a
+// Why: `current` carries a `{px}` slot filled with the real height, so a
 // literal match would never see it -- the other three entries hold no slot.
 const escapeForRegExp = (text: string): string => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 const rowMinHeightFieldFramesShowing = (
@@ -3267,7 +3267,7 @@ const rowMinHeightFieldFramesShowing = (
 }
 
 // see CR-690, FX-6, FX-8
-// WHY: `currentValue` fills `{start}` and `{finish}` with the shown days, so its slots are matched open.
+// Why: `currentValue` fills `{start}` and `{finish}` with the shown days, so its slots are matched open.
 const shownSpanFramesShowing = (
   word: string,
   language: string,
@@ -3278,8 +3278,8 @@ const shownSpanFramesShowing = (
   )
 }
 
-// see FO-17, WH-1, TX-12
-// WHY: `currentStart` fills `{date}` with a shown day or WH-1's dash, on the first line of the read-out.
+// Spec: FO-17, WH-1, TX-12
+// Why: `currentStart` fills `{date}` with a shown day or WH-1's dash, on the first line of the read-out.
 const wholeScheduleShiftFramesShowing = (
   word: string,
   language: string,
@@ -3291,7 +3291,7 @@ const wholeScheduleShiftFramesShowing = (
 }
 
 // see CV-9, FR-038, CR-689
-// WHY: `customValue` fills `{value}` with the stored custom color, so its slot is matched open.
+// Why: `customValue` fills `{value}` with the stored custom color, so its slot is matched open.
 const customValueFramesShowing = (
   word: string,
   language: string,
@@ -3303,7 +3303,7 @@ const customValueFramesShowing = (
 }
 
 // see CR-606, PR-37, PR-38, PR-43, PR-44, FR-038
-// WHY: a property field fills `{name}` and `{uid}` with a task's own, one line per end,
+// Why: a property field fills `{name}` and `{uid}` with a task's own, one line per end,
 // so the word is matched line by line with its slots open (a literal word still matches).
 const propertyFieldFramesShowing = (
   word: string,
@@ -3322,8 +3322,8 @@ const propertyFieldFramesShowing = (
   )
 }
 
-// see TV-11
-// WHY: the band fills {total} and {shown} with counts, so the word is matched with its slots open.
+// Spec: TV-11
+// Why: the band fills {total} and {shown} with counts, so the word is matched with its slots open.
 const COUNT_SLOTTED_SEARCH_PANEL_PARTS: ReadonlySet<string> = new Set(['scheduleFilterBar'])
 const countSlottedFramesShowing = (
   word: string,
@@ -3835,9 +3835,9 @@ describe('CR-194 section 5 / PND-160 -- fill one word of the manuscript and it r
       const at = `${cell.section}.${cell.key}.${cell.field}`
 
       // ⭐ The arrival itself: one of the frames prints exactly this word.
-      // STEP: a helpNotes word rides on its own row's entry text (FR-036).
-      // STEP: a scaleEcho word rides after the value and % of SE-2's one message (CR-411).
-      // STEP: a reason word prints S-350 where it names the {downloadUrl} seat (FR-073).
+      // Step: a helpNotes word rides on its own row's entry text (FR-036).
+      // Step: a scaleEcho word rides after the value and % of SE-2's one message (CR-411).
+      // Step: a reason word prints S-350 where it names the {downloadUrl} seat (FR-073).
       const printed = withSettingValues(withDownloadAddress(cell.word))
       const on =
         cell.section === 'helpNotes'

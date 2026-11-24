@@ -10,31 +10,31 @@ test.use({ viewport: VIEWPORT, locale: 'en-US', colorScheme: 'light' })
 
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
-// see FR-135
+// Spec: FR-135
 const ONLY_A_PERSON_WRITES_THE_PARENT =
   '`parentTaskUid` は、人が親タスク設定のドラッグ（表 T-351）で結んだとき、矢印の `Delete`（`PTL-11`）かパネルの ×（`PTL-17`）で外したとき、または遅延診断の修正案の 表 T-373 の `FA-25`（行から親タスクを作る）を採ったときだけ書くこと（MUST） —— `FA-25` を採るのは人、または人に指示された AI である（利用者が定めた）。⛔ `GRS` が候補から自動で書いてはならない（MUST NOT）'
 
-// see IX-12, T-241
-// WHY: CR-690 -- the span reaches the screen only through the fit (FX-2); setting and fixing it never moves the view.
+// Spec: IX-12, T-241
+// Why: CR-690 -- the span reaches the screen only through the fit (FX-2); setting and fixing it never moves the view.
 const SPAN_DOES_NOT_MOVE_THE_SCREEN =
   '⛔ ほかの時に、画面を期間へ動かしてはならない（MUST NOT） —— 固定していても、パン・ズーム・スクロールは今どおり期間の外を見せる。期間を変えたとき・固定に入れたときも画面は動かさず、次に全体表示を押したときに当たる。'
 
-// see IX-13, T-241
+// Spec: IX-13, T-241
 const SPAN_DAY_WIDTH =
   '1 日の幅を、`Task Group Area` の幅 ÷ `S-518` の日から `S-519` の日までを両端を含めて数えた暦日の数とすること（MUST）'
 
-// see IX-15, T-241
+// Spec: IX-15, T-241
 const SPAN_HEIGHT =
   '⭐ 高さは、区画を上から積んだ高さ（`App Header` の帯・`Time Ruler`・ピン止めの帯・`IX-14` の行）を、`IX-4` と同じく 0.01 px の格子へ四捨五入して次の整数の px へ切り上げた値と、`S-81` の高さのうち大きいほうとすること（MUST）'
 
-// see OP-9, T-024a
+// Spec: OP-9, T-024a
 const OVERLAY_ONLY_MATCHING_UIDS = '—— 理由は同要求が持つ。その枠へ入れるのは、現在の文書のタスクと `UID` が一致するものだけとすること（MUST）'
 
-// see HS-11, T-337
+// Spec: HS-11, T-337
 const STAMP_OF_THE_WRITTEN_BYTES =
   '、ほかでは書くときに下段が示している時刻を入れること（MUST）。下段が `HS-5` のときは空とすること（MUST）'
 
-// see EP-3, T-076
+// Spec: EP-3, T-076
 const TASK_GROUP_NAME_BASELINE = '⭐ 縦は、書き出すタスクグループ名のベースラインを、そのタスクグループのタスクグループ見出しの箱の上端から、そのタスクグループ名の字の大きさだけ下に置くこと（MUST）'
 
 const CLAUSES = [
@@ -67,14 +67,14 @@ const boxOf = async (page: Page, selector: string): Promise<Box> => {
   return box
 }
 
-// see AG-1
+// Spec: AG-1
 const callApi = <T>(page: Page, body: string, arg?: unknown): Promise<T> =>
   page.evaluate(({ body, arg }) => new Function('api', 'arg', body)((window as any).grSchedulerAgentApi, arg), { body, arg }) as Promise<T>
 
 const setSpan = async (page: Page, start: string | null, finish: string | null): Promise<void> => {
   const outcome = await callApi<{ ok: boolean }>(
     page,
-    // WHY: a span reaches the picture only while it is fixed (CR-690, FX-2), so the same one write fixes it (CM-90).
+    // Why: a span reaches the picture only while it is fixed (CR-690, FX-2), so the same one write fixes it (CM-90).
     'return api.applyCommands({ expectedStamp: api.readStamp(), commands: [{ kind: "setFitSpan", fitSpanStart: arg[0], fitSpanFinish: arg[1] }, { kind: "setFitSpanFixed", isFitSpanFixed: true, shownStart: null, shownFinish: null }] })',
     [start === null ? null : start + 'T00:00:00', finish === null ? null : finish + 'T00:00:00'],
   )
@@ -106,7 +106,7 @@ test(`FR-135: ${ONLY_A_PERSON_WRITES_THE_PARENT}`, async ({ page }) => {
   const exported = await callApi<{ ok: boolean; value: string }>(page, 'return api.exportJson()')
   expect(exported.ok, 'precondition: the document was exported as GRS JSON').toBe(true)
   const json = JSON.parse(exported.value) as { schedule: { tasks: Record<string, unknown>[] } }
-  // STEP: drop the stated parent of every child whose parent wraps it, so table T-318 has a candidate to derive
+  // Step: drop the stated parent of every child whose parent wraps it, so table T-318 has a candidate to derive
   const byUid = new Map(json.schedule.tasks.map((one) => [one['uid'], one]))
   const cleared: unknown[] = []
   for (const task of json.schedule.tasks) {
@@ -125,7 +125,7 @@ test(`FR-135: ${ONLY_A_PERSON_WRITES_THE_PARENT}`, async ({ page }) => {
     return cleared.map((uid) => document.schedule.tasks.find((one) => one['uid'] === uid)?.['parentTaskUid'])
   }
   expect(await parentsOf(), 'precondition: the opened document states no parent for them').toEqual(cleared.map(() => null))
-  // STEP: the places that use a derived parent -- the diagnosis, the pointer over a task, the parent hint (IC-141)
+  // Step: the places that use a derived parent -- the diagnosis, the pointer over a task, the parent hint (IC-141)
   await callApi(page, 'return api.readDelayDiagnostics()')
   const first = await elementBox(page, `[data-figure="task-${String(cleared[0])}-plan"]`)
   if (first !== null) {
@@ -133,7 +133,7 @@ test(`FR-135: ${ONLY_A_PERSON_WRITES_THE_PARENT}`, async ({ page }) => {
     await page.waitForTimeout(400)
   }
   if ((await page.locator('[data-icon="IC-141"]').count()) > 0) await press(page, 'IC-141')
-  // STEP: an unrelated edit and a save write the document again
+  // Step: an unrelated edit and a save write the document again
   const other = (await readDocument(page)).schedule.tasks.find((one) => !cleared.includes(one['uid']))?.['uid']
   await callApi(page, 'return api.applyCommands({ expectedStamp: api.readStamp(), commands: [{ kind: "setTaskName", taskUid: arg, name: "Renamed" }] })', other)
   await settle(page)
@@ -168,7 +168,7 @@ test(`IX-13: ${SPAN_DAY_WIDTH}`, async ({ page }) => {
   expect(S_81.replace(/\s/g, ''), 'precondition: the test window is the S-81 canvas').toContain(`${VIEWPORT.width}×${VIEWPORT.height}`)
   await launch(page)
   await enableAgentApi(page)
-  // WHY: with the window at S-81 and both panels closed, the screen's Task Group Area is the one IX-13 lays out for the picture.
+  // Why: with the window at S-81 and both panels closed, the screen's Task Group Area is the one IX-13 lays out for the picture.
   const area = await boxOf(page, '[data-role="Scrollbars"][data-axis="horizontal"]')
   await setSpan(page, SPAN_START, SPAN_FINISH)
   const svg = await exportedSvg(page)
@@ -196,7 +196,7 @@ test(`IX-15: ${SPAN_HEIGHT}`, async ({ page }) => {
   const height = numberAttr(/<svg [^>]*>/.exec(svg)?.[0] ?? '', 'height')
   const bands = tagsWithFigure(svg, /^task-group-.+-band$/)
   expect(bands.length, 'precondition: the picture draws task group bands').toBeGreaterThan(0)
-  // WHY: IX-14 stacks every task group, so the lowest task group band ends the stack of the four sections.
+  // Why: IX-14 stacks every task group, so the lowest task group band ends the stack of the four sections.
   const stacked = Math.max(...bands.map((tag) => numberAttr(tag, 'y') + numberAttr(tag, 'height')))
   expect(stacked, 'precondition: the template stacks taller than S-81').toBeGreaterThan(S_81_HEIGHT)
   const onGrid = Math.round(stacked * 100) / 100
@@ -211,7 +211,7 @@ test(`OP-9: ${OVERLAY_ONLY_MATCHING_UIDS}`, async ({ page }) => {
   const current = new Set((await readDocument(page)).schedule.tasks.map((one) => one['uid']))
   const overlayUids = [...readSample(ERP).matchAll(/<Task>\s*<UID>(\d+)<\/UID>/g)].map((m) => Number(m[1]))
   expect(overlayUids.some((uid) => !current.has(uid)), 'precondition: the overlaid file holds UIDs the current document lacks').toBe(true)
-  // WHY: a dropped file opens as a replace (OP-19), so the overlay opens through IC-1.
+  // Why: a dropped file opens as a replace (OP-19), so the overlay opens through IC-1.
   await openThroughIc1(page, ERP, readSample(ERP), 'IC-73')
   const overlaid = ((await readDocument(page)).schedule['baselineTasks'] as Record<string, unknown>[]).map((one) => one['uid'])
   expect(overlaid.length, 'precondition: the overlay holds tasks').toBeGreaterThan(0)
@@ -234,7 +234,7 @@ test(`HS-11: ${STAMP_OF_THE_WRITTEN_BYTES}`, async ({ page }) => {
     return (JSON.parse(found![1]!) as { documentStamp: Record<string, unknown> }).documentStamp['fileSavedAt']
   }
   const shownMoment = (): Promise<string> => page.evaluate(() => (document.querySelector('[data-role="File Saved At"]')?.textContent ?? '').trim())
-  // see HS-5
+  // Spec: HS-5
   const neverWritten = embeddedStamp(await writeOut('IO-7'))
   expect(neverWritten === null || neverWritten === '', `the never-saved document carried ${String(neverWritten)}`).toBe(true)
   const saved = JSON.parse(await writeOut('IO-2')) as { documentStamp: Record<string, unknown> }

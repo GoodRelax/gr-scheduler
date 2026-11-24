@@ -32,7 +32,7 @@ const span = (uid: number, from: string, to: string, extra: Partial<TaskSpec> = 
   ...extra,
 })
 
-// WHY: one document holding every kind of row T-373 names: automatic with a cascade, one-choice, two-choice, date candidate, by hand, read-only.
+// Why: one document holding every kind of row T-373 names: automatic with a cascade, one-choice, two-choice, date candidate, by hand, read-only.
 const SCENE = (): Document =>
   documentOf(
     [
@@ -149,7 +149,7 @@ describe('T-374 FM-1 -- the heading state follows whether any proposal row is ch
   })
 })
 
-// see FM-1, IC-122
+// Spec: FM-1, IC-122
 describe('T-374 FM-1 -- the column opens no filter', () => {
   const rows = { report: REPORT, schedule: SCHEDULE, language: 'en' as const, fixTables: tablesOf(OPENED) }
 
@@ -274,7 +274,7 @@ describe('T-374 FM-1 -- pressed while checked, the heading clears every row, lis
   })
 })
 
-// see RW-12, FM-1
+// Spec: RW-12, FM-1
 describe('T-346 RW-12 -- the n count follows the heading press', () => {
   it('is 0 after the heading clears every row, and IC-157 and IC-158 do not act', () => {
     const view = viewOf(CLEARED)
@@ -300,7 +300,7 @@ describe('T-346 RW-12 -- the n count follows the heading press', () => {
   })
 })
 
-// see FR-155, FM-1
+// Spec: FR-155, FM-1
 describe('FR-155 -- the heading writes nothing to the document', () => {
   it('the reducer answers a window and leaves the document as it was', () => {
     const snapshot = JSON.stringify(DOCUMENT)

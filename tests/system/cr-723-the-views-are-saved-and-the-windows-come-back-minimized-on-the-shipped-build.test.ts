@@ -21,7 +21,7 @@ const MINIMIZE = rowOf(specTable('T-109'), 'IC-129').id
 const CLOSE = rowOf(specTable('T-109'), 'IC-52').id
 const OPEN_SEARCH = keyOf('SK-24')
 
-// see S-543
+// Spec: S-543
 const colorOf = (id: string): string => {
   const hex = /#([0-9a-f]{6})/i.exec(rowOf(specTable('T-236'), id).by['明るいテーマ'] ?? '')?.[1] ?? ''
   const at = (from: number): number => parseInt(hex.slice(from, from + 2), 16)
@@ -29,7 +29,7 @@ const colorOf = (id: string): string => {
 }
 const RED = colorOf('S-543')
 
-// see RO-6, UZ-6
+// Spec: RO-6, UZ-6
 const RO_6_LATER_IN_FRONT = 'ほかの表のウィンドウと同時に出ているときは、後に開いたか、後に押したものを前に置く'
 
 const VIEW_SETTINGS = (part: Loose): Loose => ({ ...SCROLLED_CLEAR_OF_THE_PALETTE, ...part })
@@ -83,8 +83,8 @@ async function press(page: Page, selector: string): Promise<void> {
   await settle(page)
 }
 
-// see RO-6, UZ-6, WB-8, GR-24
-// WHY: a window opened later covers the one under it; a person drags it aside by its title band, a point on no entrance.
+// Spec: RO-6, UZ-6, WB-8, GR-24
+// Why: a window opened later covers the one under it; a person drags it aside by its title band, a point on no entrance.
 /** @purity non-pure */
 async function dragAside(page: Page, window: string): Promise<void> {
   const spot = await page.evaluate((wanted: string) => {
@@ -108,8 +108,8 @@ async function dragAside(page: Page, window: string): Promise<void> {
   await settle(page)
 }
 
-// see WB-2
-// WHY: a minimized window draws its title bar only, so it holds neither the word field nor a table.
+// Spec: WB-2
+// Why: a minimized window draws its title bar only, so it holds neither the word field nor a table.
 /** @purity semi-pure-mutable */
 async function isMinimized(page: Page, window: string): Promise<boolean> {
   return page.evaluate((wanted: string) => {
@@ -130,7 +130,7 @@ async function paintsRed(page: Page, selector: string): Promise<boolean> {
   )
 }
 
-// WHY: every row starts unchecked (TV-2, CR-798); the word narrows the list (SV-4), the heading box then checks every listed row (SQ-10), and the word is cleared again.
+// Why: every row starts unchecked (TV-2, CR-798); the word narrows the list (SV-4), the heading box then checks every listed row (SQ-10), and the word is cleared again.
 /** @purity non-pure */
 async function checkListedIn(page: Page, window: string, word: string): Promise<void> {
   await press(page, `${window} input`)
@@ -194,7 +194,7 @@ test.describe('CR-723 on the shipped build', () => {
       expect(current['shownTaskUids'], 'premise: the two Sato tasks are checked').toEqual([ALPHA, CHARLIE])
       expect(await applyView(page, 'searchPanel', { visibility: { shownTaskUids: [ALPHA, CHARLIE, ECHO], shownResourceUids: [], isUnassignedShown: false, isScheduleFilterApplied: false }, columnFilters: [STATUS_FILTER], sort: BY_RESOURCE })).toBe(true)
       await settle(page)
-      // STEP: RO-6 -- the Resource List opened later stands in front of the Search Panel; drag it aside to reach the search IC-143
+      // Step: RO-6 -- the Resource List opened later stands in front of the Search Panel; drag it aside to reach the search IC-143
       await dragAside(page, RESOURCE_LIST)
       await press(page, `${SEARCH} [data-icon="${EYE}"]`)
       await press(page, `${RESOURCE_LIST} [data-icon="${EYE}"]`)

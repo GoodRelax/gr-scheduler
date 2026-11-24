@@ -65,22 +65,22 @@ const K_60 = 'K-60'
 const HUE_KEY = { holder: 'project', column: 'themeHue' } as const
 const INSIDE = '対象'
 
-// see T-216
+// Spec: T-216
 const S_73 = specTable('T-216').rows.find((one) => one.id === 'S-73')
 const S_73_DEFAULT = Number(bare(S_73?.by['既定'] ?? ''))
 const HUE_MIN = Number(bare(S_73?.by['下限'] ?? ''))
 const HUE_MAX = Number(bare(S_73?.by['上限'] ?? ''))
 
-// see T-305
+// Spec: T-305
 const ROSTER = specTable('T-305').rows.map((row) => {
   const cell = row.by['色相'] ?? ''
   return { rowId: row.id, hue: cell.includes('S-73') ? S_73_DEFAULT : Number(bare(cell)) }
 })
 
-// see T-108
+// Spec: T-108
 const CM_5 = bare(specTable('T-108').rows.find((one) => one.id === 'CM-5')?.by['確定名'] ?? '')
 
-// see T-027
+// Spec: T-027
 const UN_13_CLASS = bare(specTable('T-027').rows.find((one) => one.id === 'UN-13')?.by['区分'] ?? '')
 
 const TEMPLATE_PATH = join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json')
@@ -128,7 +128,7 @@ interface Bench {
   depth(): number
 }
 
-// see FR-031, T-027
+// Spec: FR-031, T-027
 function bench(document: Document = START): Bench {
   let held: HeldDocument = { document, history: emptyHistory<ChangeStep>() }
   let writes = 0
@@ -204,7 +204,7 @@ const EMPTY_VIEW = {
   tooltips: [],
 } as unknown as ScreenView
 
-// see U-25
+// Spec: U-25
 const U_25 = bare(specTable('T-103').rows.find((one) => one.id === 'U-25')?.by['確定名（英）'] ?? '')
 
 function settingsPanel(document: Document): PropertiesPanel {
@@ -245,7 +245,7 @@ function drawn(document: Document): Stage {
   return built
 }
 
-// WHY: the panel's own commands are icon entries (data-icon) and may be drawn beside the first
+// Why: the panel's own commands are icon entries (data-icon) and may be drawn beside the first
 // field; only the field's own buttons are swatches.
 function swatchesOf(built: Stage): FakeElement[] {
   const panel = oneByRole(built.root(), U_25)
@@ -293,7 +293,7 @@ function raise(built: Stage, node: FakeElement, type: string): void {
   }
 }
 
-// WHY: the shared fake has no dispatchEvent, so the change a browser would bubble from the pressed
+// Why: the shared fake has no dispatchEvent, so the change a browser would bubble from the pressed
 // entrance is raised after the click, the way tests of the color field press a swatch.
 function press(built: Stage, node: FakeElement): FieldCommit | null {
   raise(built, node, 'click')

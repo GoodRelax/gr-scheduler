@@ -64,14 +64,14 @@ function setting(id: string): number {
 const S_53 = setting('S-53')
 const S_76_DEFAULT = setting('S-76')
 
-// see DS-13
-// WHY: S-234 / 100 is the drawn ratio of FR-039 without its S-236.
+// Spec: DS-13
+// Why: S-234 / 100 is the drawn ratio of FR-039 without its S-236.
 const scaleOf = (displayScale: number): number => displayRatioAt(displayScale) / S_236
 
-// see DS-13
+// Spec: DS-13
 const drawnFloor = (minHeight: number, displayScale: number): number => minHeight * scaleOf(displayScale)
 
-// WHY: the zooms are S-53 notches around S-76's default, the steps FR-016 moves zoomY by.
+// Why: the zooms are S-53 notches around S-76's default, the steps FR-016 moves zoomY by.
 const ZOOMS: readonly number[] = [-2, -1, 0, 1, 2].map((notch) => S_76_DEFAULT * S_53 ** notch)
 
 const TEMPLATE = JSON.parse(
@@ -156,8 +156,8 @@ function documentOf(minHeight: number | null): Document {
 
 const ENV: ScreenEnvironment = { width: 1400, height: 4000, appHeaderHeight: 56, scrollbarThickness: 8, propertyPanelWidth: 0 }
 
-// see LF-2, LF-3, MH-3
-// WHY: the band height of the task group, without taskGroupGap.
+// Spec: LF-2, LF-3, MH-3
+// Why: the band height of the task group, without taskGroupGap.
 function bandOf(document: Document, displayScale: number, zoomY: number, taskGroupId = FLOORED): number {
   const settings = { ...document.documentSettings, displayScale } as Document['documentSettings']
   const taskGroups = taskGroupPlacesAtZoomY(document.schedule, settings, regionsFromScreen(ENV, settings), zoomY)
@@ -167,7 +167,7 @@ function bandOf(document: Document, displayScale: number, zoomY: number, taskGro
 }
 
 const EMPTY = documentOf(null)
-// WHY: the band the content alone asks for: packed lanes, empty lane and task-group-name floor.
+// Why: the band the content alone asks for: packed lanes, empty lane and task-group-name floor.
 const contentBand = (displayScale: number, zoomY: number): number => bandOf(EMPTY, displayScale, zoomY)
 
 const GRID = DISPLAY_SCALE_STEPS.flatMap((scale) => ZOOMS.map((zoomY) => [scale, zoomY] as const))

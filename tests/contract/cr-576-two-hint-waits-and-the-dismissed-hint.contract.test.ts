@@ -39,7 +39,7 @@ const MACHINE_ROW_TARGET = '| `screen/hintTargetChanged` | — | → `allowed` |
 const MACHINE_UNLISTED = '表に無い出来事は `tooltipDisplayStateMachine` を変えない（同じ参照）。'
 const EVENT_ROW_TARGET = '| `screen/hintTargetChanged` | 入力: `EZ-2` ・ `EZ-6` ・ `FR-037` ・ `IN-3` | — | `tooltipDisplayStateMachine` |'
 
-// see T-212
+// Spec: T-212
 const T_212 = specTable('T-212')
 
 /** @purity pure */
@@ -54,7 +54,7 @@ function rowOfT212(id: string): { key: string; ms: number } {
 const ICON_WAIT = rowOfT212('S-124')
 const TASK_WAIT = rowOfT212('S-439')
 
-// see SD-5
+// Spec: SD-5
 type Machine = {
   readonly name: string
   readonly states: readonly { readonly key: string; readonly initial: boolean }[]
@@ -107,7 +107,7 @@ describe('CR-576 claim 6a -- S-124 and S-439 are two rows with two keys, and the
   })
 })
 
-// WHY: claim 6a as behavior -- the generated constants are replaced for one import of the tooltip queries.
+// Why: claim 6a as behavior -- the generated constants are replaced for one import of the tooltip queries.
 
 const ICON: IconId = 'IC-7'
 
@@ -158,7 +158,7 @@ const TASK = {
   carryElements: [],
 } as unknown as Task
 
-// WHY: the hint holder names the Task by uid, so the schedule the tooltips read must hold it.
+// Why: the hint holder names the Task by uid, so the schedule the tooltips read must hold it.
 const SCHEDULE = { tasks: [TASK], resources: [], assignments: [], baselineTasks: [] } as unknown as Schedule
 
 const nested = (flat: Readonly<Record<string, unknown>>): Record<string, unknown> => {
@@ -197,7 +197,7 @@ const READINGS: ScreenViewReadings = {
   scrollExtent: { contentWidth: 0, contentHeight: 0, visibleHeight: 0 },
 }
 
-// WHY: a pointer that entered the target and stopped at once has rested as long as it has dwelt.
+// Why: a pointer that entered the target and stopped at once has rested as long as it has dwelt.
 const onTheIcon = (ms: number): ScreenViewReadings => ({ ...READINGS, iconUnderPointer: ICON, pointerRestedMs: ms, hintTargetDwellMs: ms })
 const onTheTask = (ms: number): ScreenViewReadings =>
   ({ ...READINGS, hintHolderUnderPointer: { kind: 'task', taskUid: TASK.uid }, pointerRestedMs: ms, hintTargetDwellMs: ms }) as unknown as ScreenViewReadings

@@ -65,7 +65,7 @@ const settingOf = (id: string): number => {
 }
 
 const S_134 = settingOf('S-134')
-// WHY: CR-787 -- a Task opens the panel at S-602 (FR-052: the default width of the kind shown).
+// Why: CR-787 -- a Task opens the panel at S-602 (FR-052: the default width of the kind shown).
 const S_602 = settingOf('S-602')
 const S_248 = settingOf('S-248')
 const S_193 = settingOf('S-193')
@@ -202,13 +202,13 @@ const frameOf = (loop: FrameLoop) => {
   return values
 }
 
-// WHY: CR-572 -- the width is a screen value, so the document never carries one.
+// Why: CR-572 -- the width is a screen value, so the document never carries one.
 const isWidthStored = (loop: FrameLoop): boolean =>
   Object.prototype.hasOwnProperty.call(loop.document().documentSettings, 'propertyPanelWidth')
 
 const drawnWidth = (loop: FrameLoop): number => frameOf(loop).regions.propertiesPanel.width
 
-// see MK-13, FR-072
+// Spec: MK-13, FR-072
 function withThePanelOpen(): LoopStage {
   const built = loopStage()
   const task = frameOf(built.loop).geometry.tasks.find((one) => one.taskUid === TASK_UID)
@@ -318,7 +318,7 @@ function containerOf(element: FakeElement): ScreenRect {
   return { x: 0, y: 0, width: WINDOW.width, height: WINDOW.height }
 }
 
-// WHY: a browser places these parts from the inline left/top/right/bottom/width/height the surface writes;
+// Why: a browser places these parts from the inline left/top/right/bottom/width/height the surface writes;
 // a part written some other way takes the union of what it holds, as a plain box does.
 function boxOf(element: FakeElement): ScreenRect | null {
   const style = styleMap(element)
@@ -445,7 +445,7 @@ const viewWith = (propertiesPanel: PropertiesPanel | null): ScreenView => ({
 
 const THEME: ScreenTheme = { preference: 'light', hue: 214 }
 
-// WHY: a browser element answers parentElement, and the shared fake does not; the walk from a hit point needs it.
+// Why: a browser element answers parentElement, and the shared fake does not; the walk from a hit point needs it.
 if (!('parentElement' in FakeElement.prototype)) {
   Object.defineProperty(FakeElement.prototype, 'parentElement', {
     get(this: FakeElement): FakeElement | null {
@@ -559,7 +559,7 @@ describe('FR-006 (MUST NOT) -- the close entrance IC-52 lies on no field', () =>
     }
   })
 
-  // WHY: browser only: geometric overlap (FR-006); the MUST NOT forbids boxes overlapping on the screen,
+  // Why: browser only: geometric overlap (FR-006); the MUST NOT forbids boxes overlapping on the screen,
   // and which DOM row holds the entrance decides nothing about that without layout.
   it.skip('browser only: geometric overlap (FR-006) -- the IC-52 box intersects no field box, also with a long name', () => {})
 })

@@ -4,12 +4,12 @@ import { expect, test, type Page } from '@playwright/test'
 
 import { answerConfirmation, enableAgentApi, launch, press, readDocument, settle, VIEWPORT, type Box } from '../use-case/uc-harness'
 
-// WHY: the probes of the checklist were measured at the harness screen; CR-783 keeps the screen of its own steps.
+// Why: the probes of the checklist were measured at the harness screen; CR-783 keeps the screen of its own steps.
 test.use({ viewport: VIEWPORT, locale: 'ja-JP' })
 
 type Point = { x: number; y: number }
 
-// WHY: the app paints in the animation frame the pointer event asks for, so one frame is enough to read it;
+// Why: the app paints in the animation frame the pointer event asks for, so one frame is enough to read it;
 // measured on 487 points of CR-789 section 10, three runs: a second frame changed no reading (DFC-3459).
 /** @purity non-pure */
 async function frame(page: Page): Promise<void> {
@@ -28,7 +28,7 @@ async function boxOf(page: Page, selector: string): Promise<Box | null> {
 
 const middle = (box: Box): Point => ({ x: box.x + box.w / 2, y: box.y + box.h / 2 })
 
-// WHY: a press as a hand makes it; several entries act on pointerdown, which element.click() never sends.
+// Why: a press as a hand makes it; several entries act on pointerdown, which element.click() never sends.
 /** @purity non-pure */
 async function pressAt(page: Page, at: Point): Promise<void> {
   await page.mouse.move(at.x, at.y)
@@ -92,7 +92,7 @@ test.describe('CR-783: a drag-created task snaps like a grabbed end (FR-103, tab
           .map((e) => ({ minute: Number((e.getAttribute('data-figure') ?? '').split('-tick-')[1]), x: e.getBoundingClientRect().x }))
           .sort((a, b) => a.minute - b.minute),
       )
-    // WHY: one batch to the zoom 48 presses of IC-13 reach (zoomStep 1.1, S-53), whose waits took 19 s (DFC-3459);
+    // Why: one batch to the zoom 48 presses of IC-13 reach (zoomStep 1.1, S-53), whose waits took 19 s (DFC-3459);
     // the place goes with it, as OP-10 draws the fit while the place is null. The premise below holds the hour tier.
     const fresh = await readDocument(page)
     const place = {
@@ -145,7 +145,7 @@ test.describe('CR-783: a drag-created task snaps like a grabbed end (FR-103, tab
     }
 
     const tentative = await make(nine + 10, nine + 160, 200, false)
-    // WHY: CR-850 snaps the hour tier and up to 15 minutes, and Alt selects no unit (SG-4 retired).
+    // Why: CR-850 snaps the hour tier and up to 15 minutes, and Alt selects no unit (SG-4 retired).
     expect(await lastTask(), 'step 1: 9:10 to 11:40 makes 9:15 to 11:45').toBe(`${at(nine + 15)}..${at(nine + 165)}`)
     expect(tentative, 'step 1: the picture while pulling stands where the task is made').toEqual([[Math.round(xOf(nine + 15)), Math.round(xOf(nine + 165))]])
     await make(nine + 10, nine + 160, 260, true)
@@ -202,7 +202,7 @@ test.describe('CR-784: the in-progress progress marker is drawn as (->) (FR-013,
     expect(uid, 'step 1: an in-progress task with an actual draws the right arrow in its marker circle').toBeGreaterThan(0)
 
     const pressMarker = async (): Promise<void> => {
-      // WHY: the right part of the marker; the dummy's grab area takes the left half (table T-267).
+      // Why: the right part of the marker; the dummy's grab area takes the left half (table T-267).
       const marker = (await boxOf(page, `[data-figure="task-${String(uid)}-marker"]`))!
       await pressAt(page, { x: marker.x + marker.w * 0.8, y: marker.y + marker.h / 2 })
     }
@@ -282,7 +282,7 @@ test.describe('CR-786: overlapping boxes come to the front, and a snapped tip is
     await drawHighlight(start!, { x: c.x + 40, y: c.y + c.h + 30 })
     const boxes = (await readDocument(page)).schedule.highlightBoxes
     expect(boxes, 'premise: two highlight boxes').toHaveLength(2)
-    // WHY: a highlight box answers a press only on its frame and its 8 grab points (GR-14), so its front is read from the paint order.
+    // Why: a highlight box answers a press only on its frame and its 8 grab points (GR-14), so its front is read from the paint order.
     const paintOrder = (): Promise<string[]> =>
       page.evaluate(() => [...document.querySelectorAll('[data-figure^="box-"]')].map((e) => e.getAttribute('data-figure') ?? '').filter((name) => /^box-[0-9a-f-]+$/.test(name)))
     expect(await paintOrder(), 'premise: the later highlight box is painted in front').toEqual([`box-${boxes[0]!.id}`, `box-${boxes[1]!.id}`])
@@ -298,7 +298,7 @@ test.describe('CR-786: overlapping boxes come to the front, and a snapped tip is
   test('CR-786 #3: a tip snapped to a task is searched and jumped to at the date where it stands (SQ-9, SJ-6)', async ({ page }) => {
     await launch(page)
     await enableAgentApi(page)
-    // WHY: with the actual hidden the tip snaps to the plan, which a body pull moves alone (PE-1).
+    // Why: with the actual hidden the tip snaps to the plan, which a body pull moves alone (PE-1).
     await press(page, 'IC-9')
     const tasks = (await readDocument(page)).schedule.tasks
     let target: { uid: number; plan: Box } | null = null
@@ -440,7 +440,7 @@ test.describe('CR-788: the assignee field is a checkbox list and the first check
     return schedule.assignments.filter((one) => one.taskUid === uid).map((one) => named.get(one.resourceUid) ?? '?')
   }
 
-  // WHY: on the 1000-task start-up document a written check is drawn within about one second (measured
+  // Why: on the 1000-task start-up document a written check is drawn within about one second (measured
   // 150 / 500 ms: not yet; 1000 ms: drawn), so each press waits for the document before the next.
   /** @purity non-pure */
   async function pressInList(page: Page, selector: string, uid: number, count: number): Promise<void> {
@@ -470,7 +470,7 @@ test.describe('CR-788: the assignee field is a checkbox list and the first check
     await pressInList(page, `${LIST} [data-assignee-add]`, 16, 2)
     expect(await namesOf(page, 16), 'step 3: the added person is made and seated').toEqual(['Analyst A', 'Zed'])
 
-    // WHY: the filter is emptied in one input event; the typed keys are pressed by the DFC-3100 case below.
+    // Why: the filter is emptied in one input event; the typed keys are pressed by the DFC-3100 case below.
     await page.evaluate((LIST) => {
       const filter = document.querySelector(`${LIST} input[data-assignee-filter]`) as HTMLInputElement
       filter.value = ''

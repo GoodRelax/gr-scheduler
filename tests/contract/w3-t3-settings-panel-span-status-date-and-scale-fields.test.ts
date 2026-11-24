@@ -31,19 +31,19 @@ const WORDS = JSON.parse(readFileSync(join(SPEC, '_source', 'display-words.json'
   readonly icons: readonly { readonly rowId: string; readonly label: Record<DisplayLanguage, string> }[]
 }
 
-// WHY: CR-690 -- table T-369 holds the face's order; the fit span (K-141) stands under its fix (K-142, FO-9).
+// Why: CR-690 -- table T-369 holds the face's order; the fit span (K-141) stands under its fix (K-142, FO-9).
 const CLAUSE_SPAN_FIELD_PLACE = '| FO-10 | 全体表示時の期間 | 表 T-104 の `K-141` | 同表の `FX-5` |'
 const CLAUSE_STATUS_DATE_FIELD =
   '⭐ 基準日を打つ欄を、文書の設定の面（`FR-072`、面を出す入口は `_assets/tbl-glossary.md` の 表 T-109 の `IC-17`）の、`FR-072` の 表 T-369 の `FO-8` の場所に置き、日付を確定したら 表 T-108 の `CM-3` を、空にして確定したら同表の `CM-4` を 1 回発行すること（MUST）'
 const CLAUSE_STATUS_DATE_NAME = '欄の名は `FR-038` の辞書が 表 T-109 の `IC-44` に持つ語とすること（MUST）'
 const CLAUSE_SCALE_FIELD =
   '⭐ 表示の倍率を選ぶ欄を、文書の設定の面（`FR-072`、面を出す入口は `_assets/tbl-glossary.md` の 表 T-109 の `IC-17`）の、`FR-072` の 表 T-369 の `FO-3` の場所に置き、`S-234` の型の欄の段を同じ順に並べて選ばせ、選ばれた段で 表 T-108 の `CM-74` を 1 回発行すること（MUST）'
-// WHY: in table T-369 FO-9's fix, FO-7's read-out and FO-2's theme color stand right above these three.
+// Why: in table T-369 FO-9's fix, FO-7's read-out and FO-2's theme color stand right above these three.
 const K_SPAN_FIX = 'K-142'
 const DRAWN_WIDTH_READOUT = 'WF-3'
 const K_THEME = 'K-60'
 
-// see T-104
+// Spec: T-104
 const keyRowOf = (key: string): string => {
   const row = specTable('T-104').rows.find((one) => one.cells.some((cell) => bareAll(cell).includes(key)))
   if (row === undefined) throw new Error(`table T-104 has no row for the key ${key}`)
@@ -54,13 +54,13 @@ const K_SPAN = keyRowOf('fitSpanStart')
 const K_SCALE = keyRowOf('displayScale')
 const IC_44 = 'IC-44'
 
-// see T-108
+// Spec: T-108
 const commandNameOf = (id: string): string => bare(specTable('T-108').rows.find((one) => one.id === id)?.by['確定名'] ?? '')
 const CM_3 = commandNameOf('CM-3')
 const CM_4 = commandNameOf('CM-4')
 const CM_74 = commandNameOf('CM-74')
 
-// see S-234
+// Spec: S-234
 const S_234_STEPS = bareAll(specTable('T-202').rows.find((one) => one.id === 'S-234')?.cells[1] ?? '')
 
 const statusDateWordOf = (language: DisplayLanguage): string =>

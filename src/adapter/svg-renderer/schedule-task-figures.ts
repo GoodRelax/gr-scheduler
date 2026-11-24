@@ -1,4 +1,4 @@
-// SvgRenderer -- the figures drawn for each Task, and the dependency lines between Tasks.
+// File: SvgRenderer: the figures drawn for each Task, and the dependency lines between Tasks.
 // @unit      UF-81   (docs/spec/05-07-design.md, table T-075)
 // @component SvgRenderer, layer Adapter (table T-062)
 // @purity    pure
@@ -57,7 +57,7 @@ export interface TaskFiguresInput {
   readonly selected: ReadonlySet<number>
   readonly selectedLinks: ReadonlySet<string>
   readonly landingLink: string | null
-  // see CA-1, PI-19
+  // Spec: CA-1, PI-19
   readonly pointerInsideDummyTaskUids: readonly number[]
   readonly pointerOnMarkerTaskUid: number | null
   readonly skipsOffScreen: boolean
@@ -132,15 +132,15 @@ function cornersOfBar(bar: BarGeometry): Path {
   return out
 }
 
-// see FR-009, HT-1
-// WHY: the box a halo is not laid on, kept as numbers so each halo's mask takes only the boxes that meet it.
+// Spec: FR-009, HT-1
+// Why: the box a halo is not laid on, kept as numbers so each halo's mask takes only the boxes that meet it.
 export interface HaloCut {
   readonly box: ScreenRect
   readonly key: string
 }
 
-// see FR-009, HT-1
-// WHY: the ink, not the corners: the outline's or the line's stroke reaches half its width past them (CR-684 X-2).
+// Spec: FR-009, HT-1
+// Why: the ink, not the corners: the outline's or the line's stroke reaches half its width past them (CR-684 X-2).
 /** @purity pure */
 function haloCutOf(bar: BarGeometry | null, outlineWidth: number, key: string): readonly HaloCut[] {
   const box = bar === null ? null : boxOfPoints(cornersOfBar(bar))
@@ -149,7 +149,7 @@ function haloCutOf(bar: BarGeometry | null, outlineWidth: number, key: string): 
   return [{ box: { x: box.x - half, y: box.y - half, width: box.width + half * 2, height: box.height + half * 2 }, key }]
 }
 
-// see FR-009
+// Spec: FR-009
 /** @purity pure */
 function barMaskRectSvg(box: ScreenRect, key: string): string {
   return (
@@ -159,8 +159,8 @@ function barMaskRectSvg(box: ScreenRect, key: string): string {
   )
 }
 
-// see FR-007, CV-6
-// WHY: the chosen values arrive already drawn for the theme and monochrome (CV-7); null keeps the theme's.
+// Spec: FR-007, CV-6
+// Why: the chosen values arrive already drawn for the theme and monochrome (CV-7); null keeps the theme's.
 /** @purity pure */
 function paintOf(
   chosenStroke: string | null,
@@ -176,7 +176,7 @@ function paintOf(
   }
 }
 
-// see ZO-13, DA-2, DA-3
+// Spec: ZO-13, DA-2, DA-3
 /** @purity pure */
 function deadlineSvg(deadline: DeadlineGeometry, themed: (rowId: string) => string, key: string): string {
   return (
@@ -196,7 +196,7 @@ function barBoxOf(placed: Placed): ScreenRect {
   return { x: left, y: placed.y, width: right - left, height: placed.height }
 }
 
-// see DA-7
+// Spec: DA-7
 /** @purity pure */
 function isCulled(box: ScreenRect | null, input: Pick<TaskFiguresInput,
   'skipsOffScreen' | 'drawnFrom' | 'drawnTo' | 'drawnLeftOf' | 'drawnRightOf'>): boolean {
@@ -209,7 +209,7 @@ function isCulled(box: ScreenRect | null, input: Pick<TaskFiguresInput,
   )
 }
 
-// see T-021, T-236, T-315, FR-013, FR-133
+// Spec: T-021, T-236, T-315, FR-013, FR-133
 /** @purity pure */
 function markColorsOf(
   symbol: MarkerGeometry['symbol'],
@@ -229,7 +229,7 @@ function markColorsOf(
   }
 }
 
-// see FR-013, S-330, S-331, S-341
+// Spec: FR-013, S-330, S-331, S-341
 /** @purity pure */
 function markDotSvg(x: number, marker: MarkerGeometry, ink: string, named: string): string {
   const r = marker.radius * NOT_STORED_DELAY_MARK_SIZES['S-341']
@@ -239,7 +239,7 @@ function markDotSvg(x: number, marker: MarkerGeometry, ink: string, named: strin
   )
 }
 
-// see FR-013, S-328, S-329, S-341
+// Spec: FR-013, S-328, S-329, S-341
 /** @purity pure */
 function bangSvg(x: number, marker: MarkerGeometry, ink: string, settings: MarkerStroke, named: string): string {
   const r = marker.radius * NOT_STORED_DELAY_MARK_SIZES['S-341']
@@ -251,7 +251,7 @@ function bangSvg(x: number, marker: MarkerGeometry, ink: string, settings: Marke
   )
 }
 
-// see T-315, S-328, S-392, S-393, S-394
+// Spec: T-315, S-328, S-392, S-393, S-394
 /** @purity pure */
 function questionSvg(marker: MarkerGeometry, ink: string, settings: MarkerStroke, named: string): string {
   const { center, radius } = marker
@@ -268,7 +268,7 @@ function questionSvg(marker: MarkerGeometry, ink: string, settings: MarkerStroke
   )
 }
 
-// see T-315, S-395, S-396
+// Spec: T-315, S-395, S-396
 /** @purity pure */
 function flameSvg(marker: MarkerGeometry, ink: string, named: string): string {
   const side = marker.radius * 2 * NOT_STORED_DELAY_MARK_SIZES['S-396']
@@ -279,8 +279,8 @@ function flameSvg(marker: MarkerGeometry, ink: string, named: string): string {
   )
 }
 
-// see PM-1, FR-013, S-341, S-601
-// WHY: PM-3's bar, with two head strokes from its right end that run back at 45 degrees.
+// Spec: PM-1, FR-013, S-341, S-601
+// Why: PM-3's bar, with two head strokes from its right end that run back at 45 degrees.
 /** @purity pure */
 function arrowSvg(marker: MarkerGeometry, ink: string, settings: MarkerStroke, named: string): string {
   const { center, radius } = marker
@@ -295,7 +295,7 @@ function arrowSvg(marker: MarkerGeometry, ink: string, settings: MarkerStroke, n
   )
 }
 
-// see ZO-3, T-021, T-315, FR-013
+// Spec: ZO-3, T-021, T-315, FR-013
 /** @purity pure */
 function markSymbolSvg(marker: MarkerGeometry, ink: string, settings: MarkerStroke, named: string): string {
   const { center, radius } = marker
@@ -332,7 +332,7 @@ function markSymbolSvg(marker: MarkerGeometry, ink: string, settings: MarkerStro
   }
 }
 
-// see ZO-3, T-021, FR-013
+// Spec: ZO-3, T-021, FR-013
 /** @purity pure */
 function markerSvg(
   marker: MarkerGeometry,
@@ -348,12 +348,12 @@ function markerSvg(
     `<circle cx="${rounded(center.x)}" cy="${rounded(center.y)}" r="${rounded(radius)}"` +
     ` fill="${ground}" stroke="${ink}" stroke-width="${rounded(settings.markerStroke)}"${named}/>`
   const drawn = disc + markSymbolSvg(marker, ink, settings, named)
-  // TRAP: one group opacity, not one per shape: overlapping translucent shapes darken the symbol past S-131.
+  // Trap: one group opacity, not one per shape: overlapping translucent shapes darken the symbol past S-131.
   if (marker.symbol !== 'PM-1a') return drawn
   return `<g opacity="${rounded(faintness)}"${named}>${drawn}</g>`
 }
 
-// see FR-133, T-021, T-315, SQ-5, DT-1, RW-4
+// Spec: FR-133, T-021, T-315, SQ-5, DT-1, RW-4
 /** @purity pure */
 export function markerGlyphSvg(symbol: MarkerGeometry['symbol'], themed: (rowId: string) => string): string {
   const side = SETTINGS_CONSTANTS.markerSize
@@ -363,8 +363,8 @@ export function markerGlyphSvg(symbol: MarkerGeometry['symbol'], themed: (rowId:
   return `<svg viewBox="0 0 ${rounded(side)} ${rounded(side)}" width="1em" height="1em" aria-hidden="true">${drawn}</svg>`
 }
 
-// see FR-044, LF-13, S-308, S-310
-// WHY: faint on the same condition the geometry shrinks it by S-25 (LF-13), so size and faintness never part.
+// Spec: FR-044, LF-13, S-308, S-310
+// Why: faint on the same condition the geometry shrinks it by S-25 (LF-13), so size and faintness never part.
 /** @purity pure */
 function resumeSvg(
   resume: NonNullable<ScheduleGeometry['tasks'][number]['resume']>, ink: string, settings: DrawnSettings, key: string,
@@ -376,12 +376,12 @@ function resumeSvg(
     ` stroke-dasharray="${rounded(settings.resumeDashOn)} ${rounded(settings.resumeDashOff)}"` +
     `${named}/>` +
     `<polygon points="${pointsOf(resume.head)}" fill="${ink}"${named}/>`
-  // TRAP: one group opacity, not one per shape: the arrow head overlaps the arm and would darken where they meet.
+  // Trap: one group opacity, not one per shape: the arrow head overlaps the arm and would darken where they meet.
   if (resume.isValid && !resume.isUndecided) return drawn
   return `<g opacity="${rounded(settings.resumeOpacityInvalid)}"${named}>${drawn}</g>`
 }
 
-// see FR-135, S-398, S-399, S-245
+// Spec: FR-135, S-398, S-399, S-245
 /** @purity pure */
 function nameLabelInkOf(input: TaskFiguresInput, taskUid: number): { readonly ink: string; readonly weight: number } {
   const isParentShown = input.picture === 'screen' && input.geometry.parentTasks?.highlightedParentUid === taskUid
@@ -389,7 +389,7 @@ function nameLabelInkOf(input: TaskFiguresInput, taskUid: number): { readonly in
   return { ink: 'S-168', weight: NOT_STORED_NAME_LABEL_WEIGHT['S-245'] }
 }
 
-// see ZO-5, FR-077, FR-039
+// Spec: ZO-5, FR-077, FR-039
 /** @purity pure */
 function labelSvg(
   box: ScreenRect,
@@ -403,7 +403,7 @@ function labelSvg(
   weight: number | null = null,
   dates: string = '',
 ): string {
-  // TRAP: box.x is already the first glyph's x (T-273 adds S-31 or S-32 there); adding a pad here doubles it.
+  // Trap: box.x is already the first glyph's x (T-273 adds S-31 or S-32 there); adding a pad here doubles it.
   const x = anchor === 'end' ? box.x + box.width : box.x
   const y = bandBaselineYOf(box, fontSize)
   const haloWidth = fontSize * settings.labelHaloOfFont
@@ -416,13 +416,13 @@ function labelSvg(
     (weight === null ? '' : ` font-weight="${weight}"`) +
     (anchor === 'end' ? ' text-anchor="end"' : '') +
     ` fill="${ink}" stroke="${halo}" stroke-width="${rounded(haloWidth)}"` +
-    // TRAP: paint-order="stroke" puts the halo under the glyph; without it the label is painted in its own outline.
+    // Trap: paint-order="stroke" puts the halo under the glyph; without it the label is painted in its own outline.
     ` stroke-linejoin="round" paint-order="stroke" xml:space="preserve"${figureKey(key)}>` +
     `${escaped(text)}${datesSpan}</text>`
   )
 }
 
-// see F-044
+// Spec: F-044
 const SHADE_FILL_OPACITY = 0.35
 
 /** @purity pure */
@@ -457,8 +457,8 @@ function cornersOfRing(segments: readonly PathSegment[]): Path | null {
   return out
 }
 
-// see LF-18
-// WHY: a straight-edged body stays a polygon, as before; the lines and dots take innerInk, never a hole in the fill.
+// Spec: LF-18
+// Why: a straight-edged body stays a polygon, as before; the lines and dots take innerInk, never a hole in the fill.
 /** @purity pure */
 function layerSvg(layer: MilestoneLayer, paint: Paint, innerInk: string, named: string): string {
   const width = rounded(paint.strokeWidth)
@@ -521,8 +521,8 @@ function barSvg(bar: BarGeometry, paint: Paint, innerInk: string, key: string): 
   return line + head + dots
 }
 
-// see GD-6, S-19, S-300, PI-6
-// WHY: the triangle is arrowHeadOf's, the hit test's own head, laid on a rightward line through the marker's box.
+// Spec: GD-6, S-19, S-300, PI-6
+// Why: the triangle is arrowHeadOf's, the hit test's own head, laid on a rightward line through the marker's box.
 /** @purity pure */
 export function dependencyArrowSvg(
   id: string,
@@ -543,7 +543,7 @@ export function dependencyArrowSvg(
   )
 }
 
-// see FR-013, FR-075, FR-098
+// Spec: FR-013, FR-075, FR-098
 /** @purity pure */
 export function taskFigureParts(input: TaskFiguresInput): TaskFigureParts {
   const {
@@ -583,13 +583,13 @@ export function taskFigureParts(input: TaskFiguresInput): TaskFigureParts {
     const isPinnedTask = geometry.pinnedBand?.pinnedTaskUids.has(task.taskUid) === true
     const taskKey = `task-${task.taskUid}`
     const deadline = task.deadline ?? null
-    // TRAP: before the bar's cull, and culled by its own box: a far deadline stays on screen when its bar leaves (DA-7).
+    // Trap: before the bar's cull, and culled by its own box: a far deadline stays on screen when its bar leaves (DA-7).
     if (deadline !== null && !isCulled(boxOfPoints(deadline.outline), input)) {
       ;(isPinnedTask ? deadlinePartsPinned : deadlineParts).push(deadlineSvg(deadline, themed, `${taskKey}-deadline`))
     }
     if (placed !== undefined && isCulled(barBoxOf(placed), input)) continue
     const outline = chosen(visual?.strokeColor ?? null, 'outline')
-    // WHY: the width the layout laid the task with (VG-5); a task it did not place draws S-39, as BL-3 does.
+    // Why: the width the layout laid the task with (VG-5); a task it did not place draws S-39, as BL-3 does.
     const outlineWidth = placed?.outlineWidth ?? settings.planStroke
     const plan = paintOf(
       outline,
@@ -624,8 +624,8 @@ export function taskFigureParts(input: TaskFiguresInput): TaskFigureParts {
       )
     }
     const dummy = drawnDummyOf(task, picture)
-    // see FR-009
-    // WHY: the halo is laid over the faint dummy marks: cutting them out measured no faster (CR-704).
+    // Spec: FR-009
+    // Why: the halo is laid over the faint dummy marks: cutting them out measured no faster (CR-704).
     haloCuts.push(
       ...haloCutOf(task.plan, outlineWidth, `${taskKey}-plan-mask`),
       ...haloCutOf(task.actual, outlineWidth, `${taskKey}-actual-mask`),
@@ -668,7 +668,7 @@ export function taskFigureParts(input: TaskFiguresInput): TaskFigureParts {
       )
       if (task.resume !== null) {
         ;(isPinnedTask ? markerPartsPinned : markerParts).push(
-          // WHY: S-310 is S-161: the resume icon goes in and out with the marker (S-63), one family of signs.
+          // Why: S-310 is S-161: the resume icon goes in and out with the marker (S-63), one family of signs.
           resumeSvg(task.resume, themed('S-161'), settings, `${taskKey}-resume`),
         )
       }
@@ -745,7 +745,7 @@ function baselineOutlineSvg(outline: BaselineOutline, ink: string): string {
   return `<polygon points="${pointsOf(corners)}"${ink}${key}/>`
 }
 
-// see FR-015, T-339, ZO-15
+// Spec: FR-015, T-339, ZO-15
 /** @purity pure */
 export function baselineOutlineParts(input: TaskFiguresInput, dash: readonly [number, number]): BaselineOutlineParts {
   const baselineParts: string[] = []
@@ -760,8 +760,8 @@ export function baselineOutlineParts(input: TaskFiguresInput, dash: readonly [nu
   return { baselineParts, baselinePartsPinned }
 }
 
-// see GD-6
-// TRAP: the heads are minted before any cull: a <marker> must exist even when the first line is culled.
+// Spec: GD-6
+// Trap: the heads are minted before any cull: a <marker> must exist even when the first line is culled.
 /** @purity pure */
 function dependencyDefsOf(input: DependencyLinksInput): readonly string[] {
   const { settings, themed, arrowId } = input
@@ -778,9 +778,9 @@ function rectAttributes(box: ScreenRect): string {
   return `x="${rounded(box.x)}" y="${rounded(box.y)}" width="${rounded(box.width)}" height="${rounded(box.height)}"`
 }
 
-// see FR-009, HT-1
-// WHY: one small mask per halo: one picture-wide mask under every halo was rasterized once per halo (DFC-2314).
-// TRAP: the region must hold all the halo's ink: the default miter limit (4) lets a corner reach twice the
+// Spec: FR-009, HT-1
+// Why: one small mask per halo: one picture-wide mask under every halo was rasterized once per halo (DFC-2314).
+// Trap: the region must hold all the halo's ink: the default miter limit (4) lets a corner reach twice the
 // stroke width past its point. Outside the picture the white stops, as the picture-wide mask's did.
 /** @purity pure */
 function haloMaskOf(
@@ -811,11 +811,11 @@ function haloMaskOf(
   )
 }
 
-// see FR-009, SL-8, EL-16
+// Spec: FR-009, SL-8, EL-16
 type Emphasis = 'none' | 'selected' | 'landing'
 
-// see FR-009
-// WHY: drawn back to front, so the landing line (order 0) is drawn last and the selected lines (order 1) just before it.
+// Spec: FR-009
+// Why: drawn back to front, so the landing line (order 0) is drawn last and the selected lines (order 1) just before it.
 const EMPHASIS_DRAW_RANK: Readonly<Record<Emphasis, number>> = { none: 0, selected: 1, landing: 2 }
 
 /** @purity pure */
@@ -825,16 +825,16 @@ function emphasisOf(link: DependencyLink, input: Pick<DependencyLinksInput, 'sel
   return input.selectedLinks.has(key) ? 'selected' : 'none'
 }
 
-// see SL-8, EL-9, EL-16, EL-19, S-159, S-447
+// Spec: SL-8, EL-9, EL-16, EL-19, S-159, S-447
 /** @purity pure */
 function inkOf(input: DependencyLinksInput, emphasis: Emphasis, halo: string): LinkInk {
   const own = input.settings.dependencyWidth
   const width = emphasis === 'none' ? own : emphasizedWidthOf(own)
-  // WHY: one head for every line: the color is the same, and markerUnits="userSpaceOnUse" keeps it off the width.
+  // Why: one head for every line: the color is the same, and markerUnits="userSpaceOnUse" keeps it off the width.
   return { halo, color: input.themed('S-159'), width, arrowId: input.arrowId, isWholeRoute: emphasis === 'landing' }
 }
 
-// see GD-6, FR-009, EL-19
+// Spec: GD-6, FR-009, EL-19
 /** @purity pure */
 export function dependencyLinkParts(input: DependencyLinksInput): DependencyLinkParts {
   const { geometry, settings, themed } = input
@@ -873,7 +873,7 @@ interface LinkInk {
   readonly isWholeRoute: boolean
 }
 
-// see GD-6, EL-9, EL-19
+// Spec: GD-6, EL-9, EL-19
 /** @purity pure */
 function dependencyLinkSvg(link: DependencyLink, ink: LinkInk): string {
   const points = pointsOf(ink.isWholeRoute ? link.points : link.drawnPoints)
@@ -893,24 +893,24 @@ function dependencyLinkSvg(link: DependencyLink, ink: LinkInk): string {
   )
 }
 
-// see FR-009, SL-8, EL-16
-// WHY: one spelling of a line's key, so the selected set, the landing mark and the drawing cannot disagree.
+// Spec: FR-009, SL-8, EL-16
+// Why: one spelling of a line's key, so the selected set, the landing mark and the drawing cannot disagree.
 /** @purity pure */
 export function linkKeyOf(link: { readonly predecessorUid: number; readonly successorUid: number }): string {
   return `${link.predecessorUid}>${link.successorUid}`
 }
 
-// see EL-16, EL-17, EP-12, T-280
-// WHY: read through ?. -- a caller older than the landing mark passes none, and none reads as hidden.
+// Spec: EL-16, EL-17, EP-12, T-280
+// Why: read through ?. -- a caller older than the landing mark passes none, and none reads as hidden.
 /** @purity pure */
 export function landingLinkOf(viewer: ViewerValues): string | null {
   const mark = viewer.landingMarkDisplayState
-  // WHY: a jump's mark (SJ-10) circles a shape and lands on no line.
+  // Why: a jump's mark (SJ-10) circles a shape and lands on no line.
   return mark?.kind === 'shown' && mark.landedLink !== null ? linkKeyOf(mark.landedLink) : null
 }
 
-// see EL-1, T-303, SL-8
-// WHY: the geometry judged EL-1 once and wrote it as the elision; an end it does not see is not drawn, so not outlined.
+// Spec: EL-1, T-303, SL-8
+// Why: the geometry judged EL-1 once and wrote it as the elision; an end it does not see is not drawn, so not outlined.
 const SEEN_ENDS: Readonly<Record<DependencyLink['elision'], { readonly predecessor: boolean; readonly successor: boolean }>> = {
   'EL-3': { predecessor: true, successor: true },
   'EL-4': { predecessor: true, successor: false },
@@ -918,8 +918,8 @@ const SEEN_ENDS: Readonly<Record<DependencyLink['elision'], { readonly predecess
   'EL-6': { predecessor: false, successor: false },
 }
 
-// see SL-8, EL-16
-// WHY: a set, so a Task ending two such lines is outlined once; a line the geometry no longer holds outlines nothing.
+// Spec: SL-8, EL-16
+// Why: a set, so a Task ending two such lines is outlined once; a line the geometry no longer holds outlines nothing.
 /** @purity pure */
 function endedTasksOf(input: TaskFiguresInput): ReadonlySet<number> {
   const out = new Set<number>()
@@ -933,8 +933,8 @@ function endedTasksOf(input: TaskFiguresInput): ReadonlySet<number> {
   return out
 }
 
-// see SL-8, T-023c, T-240
-// WHY: around every drawn figure -- plan, actual and the actual's dummy -- the box SL-8 builds from the seen figures only.
+// Spec: SL-8, T-023c, T-240
+// Why: around every drawn figure -- plan, actual and the actual's dummy -- the box SL-8 builds from the seen figures only.
 /** @purity pure */
 function aroundTaskSvg(
   task: ScheduleGeometry['tasks'][number], picture: SchedulePicture, color: string, key: string,
@@ -948,10 +948,10 @@ function aroundTaskSvg(
   return box === null ? [] : [selectionFrameSvg(box, color, key)]
 }
 
-// see T-240, PI-5, EP-14
-// WHY: the one test of whether a task's dummy is drawn, read by the drawing and by the frame around it (SL-8).
-// WHY: the export is dropped here, not in the geometry: one geometry answers both pictures, and it has no picture (EP-14).
-// TRAP: draw DummyGeometry.figure, never rebuild it here: the shape's formula lives once, in the geometry (PI-5).
+// Spec: T-240, PI-5, EP-14
+// Why: the one test of whether a task's dummy is drawn, read by the drawing and by the frame around it (SL-8).
+// Why: the export is dropped here, not in the geometry: one geometry answers both pictures, and it has no picture (EP-14).
+// Trap: draw DummyGeometry.figure, never rebuild it here: the shape's formula lives once, in the geometry (PI-5).
 /** @purity pure */
 function drawnDummyOf(
   task: ScheduleGeometry['tasks'][number], picture: SchedulePicture,
@@ -961,9 +961,9 @@ function drawnDummyOf(
   return { ink: dummy.ink, figure: dummy.figure }
 }
 
-// see ZO-2, CA-1, PI-19
-// WHY: the one test of whether the pointer is inside a drawn dummy's ink box, read by the drawing and by the held picture's key.
-// TRAP: every task with a drawn dummy, culled or not: a culled one is not drawn, so naming it only makes the key stricter.
+// Spec: ZO-2, CA-1, PI-19
+// Why: the one test of whether the pointer is inside a drawn dummy's ink box, read by the drawing and by the held picture's key.
+// Trap: every task with a drawn dummy, culled or not: a culled one is not drawn, so naming it only makes the key stricter.
 /** @purity pure */
 export function pointerInsideDummyTaskUidsOf(geometry: ScheduleGeometry, pointer: Point | null): readonly number[] {
   if (pointer === null) return []
@@ -979,15 +979,15 @@ export function pointerInsideDummyTaskUidsOf(geometry: ScheduleGeometry, pointer
   return inside
 }
 
-// see ZO-3, T-266, CA-1, PI-19
-// WHY: the one test of whether the pointer is on a progress marker's grab area, read by the drawing and by the held picture's key.
+// Spec: ZO-3, T-266, CA-1, PI-19
+// Why: the one test of whether the pointer is on a progress marker's grab area, read by the drawing and by the held picture's key.
 /** @purity pure */
 export function pointerOnMarkerTaskUidOf(hovered: Hit | null): number | null {
   if (hovered === null || hovered.item.kind !== 'task' || !MARKER_GRAB_ROWS.includes(hovered.grab)) return null
   return hovered.item.taskUid
 }
 
-// see SL-8, EL-16, ZO-10
+// Spec: SL-8, EL-16, ZO-10
 /** @purity pure */
 function endOutlineSvg(plan: BarGeometry, color: string, planStroke: number, key: string): string {
   const ink = ` fill="none" stroke="${color}"`
@@ -1003,7 +1003,7 @@ function endOutlineSvg(plan: BarGeometry, color: string, planStroke: number, key
       })
       .join('')
   }
-  // WHY: a head or a dot has no stroke of its own (width 0), so its edge is the addend alone.
+  // Why: a head or a dot has no stroke of its own (width 0), so its edge is the addend alone.
   const edged = `${ink} stroke-width="${rounded(emphasizedWidthOf(0))}"${named}/>`
   const line =
     `<line x1="${rounded(plan.from.x)}" y1="${rounded(plan.from.y)}"` +
@@ -1014,5 +1014,5 @@ function endOutlineSvg(plan: BarGeometry, color: string, planStroke: number, key
   return line + head + dots.join('')
 }
 
-// see T-266
+// Spec: T-266
 const MARKER_GRAB_ROWS: readonly Hit['grab'][] = ['GA-18']

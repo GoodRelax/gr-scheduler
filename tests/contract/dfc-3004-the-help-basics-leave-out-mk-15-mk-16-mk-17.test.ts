@@ -8,7 +8,7 @@ import { specTable } from './spec-table'
 
 const FR_036_NAMED = '表 T-023 の `MK-2` / `MK-5` / `MK-7` と、下の 表 T-255 の行を示すこと（MUST）'
 const FR_036_TOUCHED = '触れば分かる操作（`MK-1` / `MK-6` / `MK-8` / `MK-11` / `MK-13` / `MK-15` / `MK-16`）'
-// WHY: CR-850 retired MK-17; FR-036 now names it as a gap, not as a row learned by touching.
+// Why: CR-850 retired MK-17; FR-036 now names it as a gap, not as a row learned by touching.
 const FR_036_GAP = '欠番（`MK-17`）'
 
 const SHOWN = ['MK-2', 'MK-5', 'MK-7']

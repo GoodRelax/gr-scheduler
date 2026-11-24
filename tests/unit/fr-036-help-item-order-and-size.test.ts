@@ -229,7 +229,7 @@ const EMPTY_VIEW: ScreenView = {
 /** The words this file drives with, all distinct so no case can confuse two. */
 const EXPLANATION = 'HelpExplanationHere'
 const KEYS = 'Ctrl+Shift+K'
-// WHY: the adapter joins the keys and the press with the ja word of keyNotation (CR-770); the help here is ja.
+// Why: the adapter joins the keys and the press with the ja word of keyNotation (CR-770); the help here is ja.
 const JA_JOIN = ' \uff0f '
 const PRESS = 'HelpMousePressHere'
 
@@ -299,7 +299,7 @@ const helpWith = (entries: readonly HelpItem[]): OpenModal =>
     copyrightNotice: 'CopyrightNoticeHere',
     attributions: ['AttributionOne'],
     helpLegal: { licensedUnder: 'LicensedUnderHere', fullText: 'FullTextHere' },
-    // WHY: CR-828 made blockNotes a required member of the Help Modal view; these cases do not read the notes.
+    // Why: CR-828 made blockNotes a required member of the Help Modal view; these cases do not read the notes.
     blockNotes: [],
     area: { belowAppHeader: { x: 0, y: 37, width: 1280, height: 763 } },
     downloadLink: { words: '', address: '' },
@@ -311,7 +311,7 @@ const HEADER_HEIGHT = { 'App Header': 37 }
 
 const THEME: ScreenTheme = { preference: 'light', hue: 214 }
 
-// WHY: a DOM host offers createTextNode and the shared fake document does not, so it is added here.
+// Why: a DOM host offers createTextNode and the shared fake document does not, so it is added here.
 function wireWithTextNodes(theme: ScreenTheme, heightsByRole: Record<string, number>): Stage {
   const built = stage(heightsByRole)
   Object.assign(built.host, { createTextNode: (data: string): FakeText => new FakeText(data) })

@@ -1,4 +1,4 @@
-// ScheduleGeometry -- the dependency lines: their routes and arrow heads (FR-009).
+// File: ScheduleGeometry: the dependency lines: their routes and arrow heads (FR-009).
 // @unit      UF-145  (docs/spec/05-07-design.md, table T-075)
 // @component ScheduleGeometry, layer layoutEngine (table T-062)
 // @purity    pure
@@ -30,37 +30,37 @@ export interface LinkEnd {
   readonly drawnBottom: number
 }
 
-// see EL-1, EL-2, EL-9
+// Spec: EL-1, EL-2, EL-9
 export interface SightedEnd {
   readonly end: LinkEnd
   readonly far: FarEndGeometry
 }
 
-// see EL-9
+// Spec: EL-9
 const CONTINUATION_DOT_COUNT = 3
 
-// see DP-1, DP-3
+// Spec: DP-1, DP-3
 /** @purity pure */
 function exitsRight(linkType: number): boolean {
   return linkType === 1 || linkType === 0
 }
 
-// see DP-3, DP-4
+// Spec: DP-3, DP-4
 /** @purity pure */
 function sameSide(linkType: number): boolean {
   return linkType === 0 || linkType === 3
 }
 
-// see VG-5
-// TRAP: shape-cross-sections.ts lays the tier by the same overhang (drawnEdgeOverhangOf); change both together.
+// Spec: VG-5
+// Trap: shape-cross-sections.ts lays the tier by the same overhang (drawnEdgeOverhangOf); change both together.
 /** @purity pure */
 function drawnOverhangOf(placed: TaskPlacement, settings: DrawnSettings): number {
   const isLine = placed.shapeKind === 'arrow' || placed.shapeKind === 'endpointSpan'
-  // see AT-104
+  // Spec: AT-104
   return isLine ? 0 : (placed.outlineWidth ?? settings.planStroke) / 2
 }
 
-// see FR-009, EL-1
+// Spec: FR-009, EL-1
 /** @purity pure */
 export function placedEndOf(placed: TaskPlacement, settings: DrawnSettings): LinkEnd {
   const thin = isThinShape(placed.shapeKind)
@@ -76,7 +76,7 @@ export function placedEndOf(placed: TaskPlacement, settings: DrawnSettings): Lin
   }
 }
 
-// see EL-2
+// Spec: EL-2
 /** @purity pure */
 export function standingEndOf(taskUid: number, x: number, width: number, y: number): LinkEnd {
   return { taskUid, x, width, top: y, bottom: y, middle: y, drawnBottom: y }
@@ -95,8 +95,8 @@ interface LaneSpan {
   readonly bottom: number
 }
 
-// see LF-5, LF-2
-// WHY: its Tasks' own edges, as LF-5 reads an adjacent successor's; an empty lane is a rectangle laid on its top.
+// Spec: LF-5, LF-2
+// Why: its Tasks' own edges, as LF-5 reads an adjacent successor's; an empty lane is a rectangle laid on its top.
 /** @purity pure */
 export function laneSpansOf(layout: ScheduleLayout, settings: DrawnSettings): readonly LaneSpan[] {
   const byLane = new Map<string, LaneSpan>()
@@ -134,13 +134,13 @@ function corridorY(from: Anchored, to: Anchored, course: 'sameLane' | 'down' | '
   return (from.top + (above.length <= 1 ? to.bottom : above[above.length - 1]!.bottom)) / 2
 }
 
-// see T-222
-// WHY: argued, NOT measured (JDG-138): an x of 1e9 px, a thousand years of days at the widest S-1 x S-236 x S-98,
+// Spec: T-222
+// Why: argued, NOT measured (JDG-138): an x of 1e9 px, a thousand years of days at the widest S-1 x S-236 x S-98,
 // has an ulp near 1.2e-7 px, so a few rounded terms stay under this, and no screen resolves a millionth of a pixel.
 const DRAWN_PX_ROUNDING = 1e-6
 
-// see T-222
-// TRAP: the spec's at-least is exact; this absorbs rounding only. A gap is a difference of two absolute edges, so once
+// Spec: T-222
+// Trap: the spec's at-least is exact; this absorbs rounding only. A gap is a difference of two absolute edges, so once
 // S-236 makes a day non-dyadic an equal run falls short by an ulp and RP-1 turned into RP-4 (DFC-616).
 /** @purity pure */
 export function isAtLeastDrawnPx(value: number, bound: number): boolean {
@@ -149,7 +149,7 @@ export function isAtLeastDrawnPx(value: number, bound: number): boolean {
 
 type Route = { readonly pattern: DependencyGeometry['pattern']; readonly points: Path }
 
-// see RP-2, RP-3, RP-4, RP-5
+// Spec: RP-2, RP-3, RP-4, RP-5
 /** @purity pure */
 function opposedPatternOf(sameLane: boolean, below: boolean, x2ReachesX1: boolean): DependencyGeometry['pattern'] {
   if (sameLane) return 'RP-4'
@@ -157,7 +157,7 @@ function opposedPatternOf(sameLane: boolean, below: boolean, x2ReachesX1: boolea
   return below ? 'RP-4' : 'RP-5'
 }
 
-// see T-222
+// Spec: T-222
 /** @purity pure */
 function routeOf(from: Anchored, to: Anchored, linkType: number, settings: DrawnSettings,
                  lanes: readonly LaneSpan[]): Route {
@@ -215,7 +215,7 @@ function routeOf(from: Anchored, to: Anchored, linkType: number, settings: Drawn
   }
 }
 
-// see SL-8, FR-009
+// Spec: SL-8, FR-009
 /** @purity pure */
 export function selectedLinksOf(schedule: Schedule, selection: Selection): ReadonlySet<string> {
   const picked = new Set<string>()
@@ -232,7 +232,7 @@ export function selectedLinksOf(schedule: Schedule, selection: Selection): Reado
   return out
 }
 
-// see S-19, S-300, GA-19
+// Spec: S-19, S-300, GA-19
 /** @purity pure */
 function headingOf(points: Path): Point {
   for (let index = points.length - 1; index > 0; index -= 1) {
@@ -267,8 +267,8 @@ function firstRiseOf(route: Path): number {
   return 0
 }
 
-// see EL-7, EL-8
-// WHY: route starts at the seen end; outward is the side its run leaves by, never read off the route (S-298 may be 0).
+// Spec: EL-7, EL-8
+// Why: route starts at the seen end; outward is the side its run leaves by, never read off the route (S-298 may be 0).
 /** @purity pure */
 function shortLineOf(route: Path, isLevel: boolean, outward: number, run: number, ratio: number): Path {
   const start = route[0]
@@ -281,7 +281,7 @@ function shortLineOf(route: Path, isLevel: boolean, outward: number, run: number
   return [start, bend, point(bend.x, bend.y + rise * NOT_STORED_DEPENDENCY_SIZES['S-360'] * ratio)]
 }
 
-// see EL-9
+// Spec: EL-9
 /** @purity pure */
 function continuationDotsOf(line: Path, ratio: number): Pick<ContinuationGeometry, 'dots' | 'radius'> {
   const diameter = NOT_STORED_DEPENDENCY_SIZES['S-362'] * ratio
@@ -296,14 +296,14 @@ function continuationDotsOf(line: Path, ratio: number): Pick<ContinuationGeometr
   return { dots, radius: diameter / 2 }
 }
 
-// see EL-9, EL-10, EL-11, EL-12
+// Spec: EL-9, EL-10, EL-11, EL-12
 /** @purity pure */
 function continuationOf(line: Path, farEnd: SightedEnd, ratio: number): ContinuationGeometry {
   return { ...continuationDotsOf(line, ratio), farUid: farEnd.end.taskUid, far: farEnd.far }
 }
 
-// see FR-135, EL-7, EL-9, TV-3
-// WHY: the vertical short line of EL-8 (S-360) and the dots of EL-9, from a seen end toward an end the filter does not draw.
+// Spec: FR-135, EL-7, EL-9, TV-3
+// Why: the vertical short line of EL-8 (S-360) and the dots of EL-9, from a seen end toward an end the filter does not draw.
 /** @purity pure */
 export function unseenEndStubOf(from: Point, toward: number, settings: DrawnSettings): {
   readonly line: Path
@@ -317,7 +317,7 @@ export function unseenEndStubOf(from: Point, toward: number, settings: DrawnSett
 
 type ElidedParts = Pick<DependencyGeometry, 'drawnPoints' | 'continuation' | 'head'>
 
-// see EL-3, EL-4, EL-5, EL-6
+// Spec: EL-3, EL-4, EL-5, EL-6
 /** @purity pure */
 function elidedPartsOf(inputs: GeometryInputs, points: Path, isLevel: boolean, ends: {
   readonly elision: Elision
@@ -386,13 +386,13 @@ export function routedDependency(inputs: GeometryInputs, predecessor: SightedEnd
   }
 }
 
-// see FR-009, RT-4a
+// Spec: FR-009, RT-4a
 /** @purity pure */
 export function hasPlanDates(task: Task): boolean {
   return task.start !== null && task.finish !== null
 }
 
-// see RT-4a, FR-009
+// Spec: RT-4a, FR-009
 /** @purity pure */
 export function plannedPlacementsOf(inputs: GeometryInputs): readonly TaskPlacement[] {
   return inputs.layout.placements.filter((one) => {
@@ -405,14 +405,14 @@ export function plannedPlacementsOf(inputs: GeometryInputs): readonly TaskPlacem
 // Single source of truth:
 //   docs/spec/_source/settings.json (table T-206)
 // Rebuild: npm run gen   ||   npm run gen:check fails on drift.
-// see T-206
+// Spec: T-206
 const NOT_STORED_DEPENDENCY_EMPHASIS_SIZES: {
   readonly 'S-447': number
 } = {
   'S-447': 2,
 }
 
-// see T-206
+// Spec: T-206
 const NOT_STORED_DEPENDENCY_SIZES: {
   readonly 'S-224': number
   readonly 'S-360': number

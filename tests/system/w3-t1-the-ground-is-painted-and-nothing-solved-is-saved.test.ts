@@ -13,7 +13,7 @@ import { applyCommandsOf } from './w3-t1-stage'
 
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
-// WHY: each constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
+// Why: each constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
 const FR_041_OWN_GROUND = '地の色を自分で塗ること（MUST）。閲覧環境のシステム色に委ねてはならない（MUST NOT）'
 const CF_1_NOT_SAVED = '| CF-1 | 解くとき | テーマ色（`themeHue`）・明暗（`themePreference`）・モノクロ（`isThemeMonochrome`）のどれかが変わったら、描く前に `CF-2` 〜 `CF-4` を、この順に 1 回解くこと（MUST）。解いた値を保存してはならない（MUST NOT）'
 
@@ -38,7 +38,7 @@ interface Opened {
   close(): Promise<void>
 }
 
-// WHY: the system color scheme is the context's; the shell stage cannot choose it, so this opens its own context.
+// Why: the system color scheme is the context's; the shell stage cannot choose it, so this opens its own context.
 /** @purity non-pure */
 async function openUnder(scheme: 'light' | 'dark'): Promise<Opened> {
   if (browser === null) throw new Error('no browser')
@@ -49,7 +49,7 @@ async function openUnder(scheme: 'light' | 'dark'): Promise<Opened> {
   return { page, close: async () => context.close() }
 }
 
-// WHY: what shows behind the Schedule Canvas is the nearest ancestor that paints an opaque background;
+// Why: what shows behind the Schedule Canvas is the nearest ancestor that paints an opaque background;
 // when none does, the browser's own canvas color (the system color) shows through.
 /** @purity semi-pure-mutable */
 async function groundBehind(page: Page, want: string): Promise<{ want: string; behind: string; painter: string }> {

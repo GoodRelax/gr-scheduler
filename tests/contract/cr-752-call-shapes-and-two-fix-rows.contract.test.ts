@@ -40,11 +40,11 @@ import {
 } from './cr-731-stage'
 import { unbroken } from './spec-table'
 
-// WHY: the generated table T-064 (from published-entries.json) is read with its line breaks joined, as cr-749 does.
+// Why: the generated table T-064 (from published-entries.json) is read with its line breaks joined, as cr-749 does.
 const PUBLISHED = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-published-entries.md'), 'utf8'))
 const SOURCE = JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'published-entries.json'), 'utf8')) as unknown
 
-// WHY: the two openings the brief names, written as escapes so this file stays ASCII: "yobikata:" (how to call) and "ran:" (fields).
+// Why: the two openings the brief names, written as escapes so this file stays ASCII: "yobikata:" (how to call) and "ran:" (fields).
 const HOW_TO_CALL = '\u547c\u3073\u65b9:'
 const FIELDS = '\u6b04:'
 
@@ -70,7 +70,7 @@ function memberNamed(name: string): Member {
   return found[0] as Member
 }
 
-// WHY: the printed entry of a name runs from its backticked name to the next full-width slash (U+FF0F) that opens a member.
+// Why: the printed entry of a name runs from its backticked name to the next full-width slash (U+FF0F) that opens a member.
 function printedEntryOf(name: string): string {
   const head = `\uff0f \`${name}\``
   const from = PUBLISHED.indexOf(head)
@@ -79,7 +79,7 @@ function printedEntryOf(name: string): string {
   return PUBLISHED.slice(from, next < 0 ? undefined : next)
 }
 
-// see PI-1
+// Spec: PI-1
 describe('T-064 PI-1 -- the generated table holds the call-shape sentences of the four names', () => {
   const CASES: readonly (readonly [string, string, readonly string[]])[] = [
     ['workingTimeCounterOf', HOW_TO_CALL, ['`WorkingCalendar`', '`workingCalendarOf`']],
@@ -97,7 +97,7 @@ describe('T-064 PI-1 -- the generated table holds the call-shape sentences of th
   })
 })
 
-// WHY: a calendar the call shape names: the answer of workingCalendarOf for a document (the template calendar).
+// Why: a calendar the call shape names: the answer of workingCalendarOf for a document (the template calendar).
 const CALENDAR_DOCUMENT = documentOf(
   [
     { uid: 1, start: START_OF('2027-05-10'), finish: FINISH_OF('2027-05-14') },
@@ -119,7 +119,7 @@ const actualByParts = (task: Task): number | null => {
   return instants === null ? null : actualMinutesOf(CALENDAR, instants[0], instants[1])
 }
 
-// see PI-1
+// Spec: PI-1
 describe('T-064 PI-1 workingTimeCounterOf -- called with one calendar, the answer of workingCalendarOf', () => {
   it('answers a counter that has the two members WorkingTimeCounter names', () => {
     const counter = workingTimeCounterOf(CALENDAR)
@@ -127,13 +127,13 @@ describe('T-064 PI-1 workingTimeCounterOf -- called with one calendar, the answe
     expect(typeof counter.actualLengthMinutes).toBe('function')
   })
 
-  // see FR-012
+  // Spec: FR-012
   it.each([1, 2, 3, 4, 5])('plannedLengthMinutes(task %i of the document) equals plannedLengthMinutesOf', (uid) => {
     const task = documentTask(uid)
     expect(workingTimeCounterOf(CALENDAR).plannedLengthMinutes(task)).toEqual(plannedLengthMinutesOf(CALENDAR, task))
   })
 
-  // see FR-012
+  // Spec: FR-012
   it('a milestone counts 0, and a five-day span counts more than a one-day span', () => {
     const counter = workingTimeCounterOf(CALENDAR)
     expect(counter.plannedLengthMinutes(documentTask(2))).toBe(0)
@@ -143,13 +143,13 @@ describe('T-064 PI-1 workingTimeCounterOf -- called with one calendar, the answe
     expect(fiveDays).toBe((oneDay as number) * 5)
   })
 
-  // see FR-011
+  // Spec: FR-011
   it.each([1, 3, 4])('actualLengthMinutes(task %i of the document) equals actualMinutesOf over actualInstantsOf', (uid) => {
     const task = documentTask(uid)
     expect(workingTimeCounterOf(CALENDAR).actualLengthMinutes(task)).toEqual(actualByParts(task))
   })
 
-  // see FR-011
+  // Spec: FR-011
   it('a finished task is counted to actualFinish, a started one to stop', () => {
     const counter = workingTimeCounterOf(CALENDAR)
     expect(counter.actualLengthMinutes(documentTask(3))).not.toBeNull()
@@ -175,7 +175,7 @@ describe('T-064 PI-1 workingTimeCounterOf -- called with one calendar, the answe
   })
 })
 
-// see FR-054
+// Spec: FR-054
 describe('T-064 PI-1 finishSideDayFrom -- called with the day dayOf gave, then the same text; answers what finishSideDayOf answers', () => {
   it.each([
     START_OF('2027-05-10'),
@@ -204,7 +204,7 @@ const INTEGRATION = 3
 const A = 1
 const B = 2
 
-// WHY: both predecessors finish on Friday 05-14 at 17:00 and the integration test starts on Wednesday 05-12 at 08:00,
+// Why: both predecessors finish on Friday 05-14 at 17:00 and the integration test starts on Wednesday 05-12 at 08:00,
 // so each FS line breaks the VC-15 formula (successor start >= predecessor finish + lag) on its own.
 const TWO_LATE_PREDECESSORS = (): Document =>
   documentOf(
@@ -244,7 +244,7 @@ const checkedCommands = (rows: readonly FixRow[]): readonly Loose[] =>
 
 const choose = (row: KeyedRow, choice: Choice) => ({ key: row.key, checked: true, choice: choice.key, date: null })
 
-// WHY: FA-15 names two commands, CM-11 for moving the successor and CM-37 for deleting the line; the choice that deletes
+// Why: FA-15 names two commands, CM-11 for moving the successor and CM-37 for deleting the line; the choice that deletes
 // the line is the one whose bundle holds the CM-37 command (deleteDependency, T-108). Its predecessor names the line.
 function deletingChoiceOf(document: Document, row: KeyedRow): { readonly choice: Choice; readonly predecessorUid: number } {
   const found: { choice: Choice; predecessorUid: number }[] = []
@@ -260,13 +260,13 @@ function deletingChoiceOf(document: Document, row: KeyedRow): { readonly choice:
 const predecessorsOf = (document: Document, uid: number): number[] =>
   (taskIn(document, uid)['dependencies'] as readonly Loose[]).map((one) => one['predecessorUid'] as number)
 
-// see VC-15
+// Spec: VC-15
 describe('T-310 VC-15 -- the scene: two late predecessors raise VC-15 twice on the integration test', () => {
   it('diagnoseDelay finds VC-15 twice', () => {
     expect(findingRowsOf(TWO_LATE_PREDECESSORS()).filter((one) => one === 'VC-15')).toHaveLength(2)
   })
 
-  // see FA-15
+  // Spec: FA-15
   it('proposeDelayFixes gives two FA-15 rows on the integration test, each a choice of two, neither checked', () => {
     const rows = vc15RowsOf(proposed(TWO_LATE_PREDECESSORS()))
     expect(rows).toHaveLength(2)
@@ -279,7 +279,7 @@ describe('T-310 VC-15 -- the scene: two late predecessors raise VC-15 twice on t
   })
 })
 
-// see RW-16
+// Spec: RW-16
 describe('T-346 RW-16 -- a fix row is the observation, the Task, the column and the other Task of the line', () => {
   it('the two rows have different keys', () => {
     const [first, second] = vc15RowsOf(proposed(TWO_LATE_PREDECESSORS()))
@@ -333,7 +333,7 @@ describe('T-346 RW-16 -- a fix row is the observation, the Task, the column and 
   })
 })
 
-// see PI-1
+// Spec: PI-1
 describe('T-064 PI-1 DelayFixCheck -- the fields key, checked, choice, date as the note states them', () => {
   it('a check whose checked, choice and date are null leaves the row as its default', () => {
     const document = TWO_LATE_PREDECESSORS()
@@ -355,7 +355,7 @@ describe('T-064 PI-1 DelayFixCheck -- the fields key, checked, choice, date as t
     expect((oneRow(proposed(document, [{ key: row.key, checked: null, choice: null, date: null }]), 'VC-3', 2) as unknown as KeyedRow).checked).toBe(true)
   })
 
-  // see FA-24
+  // Spec: FA-24
   it('date (yyyy-mm-dd) rewrites the suggested day of a date row (FA-24), and the bundle carries the rewritten day', () => {
     const document = FS_SUCCESSOR_STARTED()
     const row = oneRow(proposed(document), 'VO-3', 1) as unknown as KeyedRow

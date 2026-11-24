@@ -75,7 +75,7 @@ export async function windowStage(document: Document): Promise<WindowStage> {
   }
   const built = stage({ 'App Header': SCREEN.appHeaderHeight })
   let held: ((row: string) => unknown) | null = null
-  // WHY: the report's word and its fix ticks (RW-3, RW-16) reach the shell only through this reader.
+  // Why: the report's word and its fix ticks (RW-3, RW-16) reach the shell only through this reader.
   let reportInput: (() => { readonly word: string | null; readonly changes: readonly unknown[] }) | null = null
   built.surface = domScreenSurface({
     ...wiringOf(built, { preference: 'light', hue: 214 }),

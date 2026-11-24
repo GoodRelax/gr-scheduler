@@ -7,7 +7,7 @@ import { pathToFileURL } from 'node:url'
 export const APP_URL = pathToFileURL(resolve('dist/index.html')).href
 export const VIEWPORT = { width: 1920, height: 1080 }
 
-// WHY: a headless browser has no file picker and no file handles; these stand in for the host
+// Why: a headless browser has no file picker and no file handles; these stand in for the host
 // dialogs, record what is written (__grsSaved) and hand over the next file (__grsNextOpen).
 export const HOST_STUB = `(() => {
   const saved = []
@@ -72,7 +72,7 @@ export type Box = { x: number; y: number; w: number; h: number }
 
 export const readSample = (name: string): string => readFileSync(resolve('sample-schedule', name), 'utf8')
 
-// TRAP: a fixed wait misreads a cold first paint; wait until one reading repeats.
+// Trap: a fixed wait misreads a cold first paint; wait until one reading repeats.
 export const settle = async (page: Page, probe?: () => Promise<unknown>): Promise<void> => {
   const read = probe ?? (() => page.evaluate(() => document.querySelectorAll('[data-figure]').length + ':' + document.body.innerText.length))
   let last = JSON.stringify(await read())
@@ -93,7 +93,7 @@ export const launch = async (page: Page): Promise<void> => {
 
 export const icon = (id: string, within = ''): string => (within ? within + ' ' : '') + '[data-icon="' + id + '"]'
 
-// TRAP: the hint of the last pressed entry covers its neighbor until the pointer leaves it.
+// Trap: the hint of the last pressed entry covers its neighbor until the pointer leaves it.
 export const press = async (page: Page, id: string, within = ''): Promise<void> => {
   await page.mouse.move(VIEWPORT.width / 2, 14)
   await page.waitForTimeout(50)
@@ -101,7 +101,7 @@ export const press = async (page: Page, id: string, within = ''): Promise<void> 
   await settle(page)
 }
 
-// see IC-20, FR-065
+// Spec: IC-20, FR-065
 export const enableAgentApi = async (page: Page): Promise<void> => {
   await page.click(icon('IC-20'))
   await expect.poll(() => page.evaluate(() => typeof (window as any).grSchedulerAgentApi)).toBe('object')
@@ -115,7 +115,7 @@ export const answerConfirmation = async (page: Page, answer: 'proceed' | 'cancel
   await settle(page)
 }
 
-// see FR-087, OP-2
+// Spec: FR-087, OP-2
 export const dropFile = async (page: Page, name: string, text: string): Promise<void> => {
   await page.evaluate(
     ({ name, text }) => {
@@ -126,21 +126,21 @@ export const dropFile = async (page: Page, name: string, text: string): Promise<
     },
     { name, text },
   )
-  // WHY: a dropped file opens as a replace without U-56 (OP-19), so nothing is waited for but the open itself.
+  // Why: a dropped file opens as a replace without U-56 (OP-19), so nothing is waited for but the open itself.
   await page.waitForTimeout(200)
   await settle(page)
 }
 
-// see OP-2, OP-4, OP-19
-// WHY: a drop only replaces; to merge or overlay, open the file through IC-1 (openThroughIc1).
+// Spec: OP-2, OP-4, OP-19
+// Why: a drop only replaces; to merge or overlay, open the file through IC-1 (openThroughIc1).
 export const openByDrop = async (page: Page, name: string, text: string): Promise<void> => {
   await dropFile(page, name, text)
   if (await page.locator('[data-role="Confirmation"] [data-confirmation-answer="proceed"]').count()) await answerConfirmation(page, 'proceed')
   await settle(page)
 }
 
-// see OP-3, OP-4, IC-1, IC-71, IC-72, IC-73
-// WHY: the file dialog keeps the three choices of U-56 (OP-19); null leaves U-56 standing.
+// Spec: OP-3, OP-4, IC-1, IC-71, IC-72, IC-73
+// Why: the file dialog keeps the three choices of U-56 (OP-19); null leaves U-56 standing.
 export const openThroughIc1 = async (
   page: Page,
   name: string,
@@ -162,8 +162,8 @@ export const openThroughIc1 = async (
   await settle(page)
 }
 
-// see NT-8
-// WHY: the author reads a notice and presses its OK before the next step.
+// Spec: NT-8
+// Why: the author reads a notice and presses its OK before the next step.
 export const dismissNotice = async (page: Page, reason: string): Promise<void> => {
   const dismiss = page.locator('[data-notice-box~="' + reason + '"] button[data-notice]')
   if ((await dismiss.count()) === 0) return
@@ -187,7 +187,7 @@ export const elementBox = (page: Page, selector: string): Promise<Box | null> =>
     return { x: r.x, y: r.y, w: r.width, h: r.height }
   }, selector)
 
-// WHY: each move is one drawn frame (0.4 s on the large sample, twice that in a loaded GT-2); a case that needs
+// Why: each move is one drawn frame (0.4 s on the large sample, twice that in a loaded GT-2); a case that needs
 // only the drop passes DROP_STEPS, whose first move goes half the way, past any drag threshold (DFC-2313).
 export const DROP_STEPS = 2
 export const drag = async (page: Page, from: { x: number; y: number }, to: { x: number; y: number }, modifiers: Array<'Control' | 'Shift' | 'Alt'> = [], steps = 8): Promise<void> => {
@@ -200,7 +200,7 @@ export const drag = async (page: Page, from: { x: number; y: number }, to: { x: 
   await settle(page)
 }
 
-// WHY: ruler tick figures carry their day number since 1970-01-01, so they give the time axis.
+// Why: ruler tick figures carry their day number since 1970-01-01, so they give the time axis.
 export const dayAxis = async (page: Page): Promise<{ xOf: (day: number) => number; dayOf: (x: number) => number }> => {
   const ticks = await page.evaluate(() =>
     [...document.querySelectorAll('[data-figure*="-tick-"]')]
@@ -237,7 +237,7 @@ export const idOfTaskGroupNamed = (page: Page, name: string): Promise<string | n
     return null
   }, name)
 
-// TRAP: task group controls are drawn only while the pointer is over the task group name (HF-6).
+// Trap: task group controls are drawn only while the pointer is over the task group name (HF-6).
 export const revealTaskGroup = async (page: Page, taskGroupId: string): Promise<void> => {
   const row = page.locator(taskGroupSelector(taskGroupId))
   for (const direction of [1, -1]) {
@@ -267,5 +267,5 @@ export const notificationText = (page: Page): Promise<string> => page.locator('[
 
 export const savedFiles = (page: Page): Promise<Array<{ name: string; text: string }>> => page.evaluate(() => (window as any).__grsSaved)
 
-// WHY: GRS_UC_SHOW_MISMATCH=1 runs a known mismatch as an ordinary case, so its failing assertion is shown.
+// Why: GRS_UC_SHOW_MISMATCH=1 runs a known mismatch as an ordinary case, so its failing assertion is shown.
 export const specMismatch = (reason: string): void => test.fail(process.env['GRS_UC_SHOW_MISMATCH'] !== '1', reason)

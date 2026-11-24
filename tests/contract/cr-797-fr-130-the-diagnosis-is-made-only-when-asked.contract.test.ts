@@ -69,9 +69,9 @@ describe('CR-797 -- the clauses this file is driven by', () => {
   })
 })
 
-// see T-315
-// WHY: SELF depends on itself (DG-1); LATE is not started after its start (DG-2); PARENT is its ancestor (DG-3); PLAIN and OTHER have no state.
-// WHY: SELF starts before the status date; a task not begun that starts after it is never drawn with DG-1 or DG-2 (FR-133).
+// Spec: T-315
+// Why: SELF depends on itself (DG-1); LATE is not started after its start (DG-2); PARENT is its ancestor (DG-3); PLAIN and OTHER have no state.
+// Why: SELF starts before the status date; a task not begun that starts after it is never drawn with DG-1 or DG-2 (FR-133).
 const SELF = 40
 const PARENT = 20
 const LATE = 21
@@ -85,7 +85,7 @@ const span = (uid: number, from: string, to: string, extra: Partial<TaskSpec> = 
   ...extra,
 })
 
-// WHY: the canvas starts before April, so every marker stands on the chart and clear of the report window below it.
+// Why: the canvas starts before April, so every marker stands on the chart and clear of the report window below it.
 function seeded(): Document {
   const made = documentOf(
     [
@@ -150,7 +150,7 @@ describe('FR-130 (a) -- an edit that touches no marker rebuilds nothing', () => 
     expect(rowsBefore, 'premise: PLAIN has no row').not.toContain(PLAIN)
     const lateBefore = taskText(stage, LATE)
     const api = agentApiOf(stage)
-    // WHY: moving LATE ahead of the status date would remove DG-2, and moving PLAIN behind it would add one, were the diagnosis made again.
+    // Why: moving LATE ahead of the status date would remove DG-2, and moving PLAIN behind it would add one, were the diagnosis made again.
     const moved = api.applyCommands({
       expectedStamp: api.readStamp(),
       commands: [
@@ -258,7 +258,7 @@ describe('FR-130 / PE-8 / PE-10 (d) -- pulling a DG marker drops the mark too', 
   })
 })
 
-// WHY: the entry of the window is found by its data-icon; the weight is the inline style of the drawn button (S-623).
+// Why: the entry of the window is found by its data-icon; the weight is the inline style of the drawn button (S-623).
 const entryOf = (stage: WindowStage, icon: string): FakeElement | null =>
   selfAndDescendants(stage.window() ?? stage.built.root()).find((one) => one.getAttribute('data-icon') === icon) ?? null
 const weightOf = (element: FakeElement | null): string => (element?.getAttribute('style') ?? '').replace(/\s+/g, '')

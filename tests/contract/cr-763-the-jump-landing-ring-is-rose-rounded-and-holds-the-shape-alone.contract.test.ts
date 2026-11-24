@@ -151,10 +151,10 @@ function rgbOf(text: string): Rgb {
 const sameRgb = (left: Rgb, right: Rgb): boolean => left.every((value, at) => Math.abs(value - (right[at] ?? Number.NaN)) <= CHANNEL_TOLERANCE)
 const isGray = (rgb: Rgb): boolean => Math.abs(rgb[0] - rgb[1]) <= CHANNEL_TOLERANCE && Math.abs(rgb[1] - rgb[2]) <= CHANNEL_TOLERANCE
 const lightnessOf = (rgb: Rgb): number => ((Math.max(...rgb) + Math.min(...rgb)) / 2 / CHANNEL_MAX) * PERCENT
-// see T-294
+// Spec: T-294
 const grayOf = (rgb: Rgb): Rgb => rgbOfHsl(0, 0, lightnessOf(rgb))
 
-// see S-587, S-573, S-151
+// Spec: S-587, S-573, S-151
 const t236 = (id: string, theme: Theme): string => bare(cellOf('T-236', id, theme === 'light' ? LIGHT : DARK))
 const S_585 = (theme: Theme): Rgb => rgbOf(t236('S-587', theme))
 const S_573 = (theme: Theme): Rgb => rgbOf(t236('S-573', theme))
@@ -199,7 +199,7 @@ const GROUP_IDS = Array.from({ length: 8 }, (_, at) => `g${String(at)}`)
 const TARGET = 4
 const RELATED = [3, 5] as const
 
-// WHY: task 4 is finished (actual = plan), so it carries the PM-2 done marker; its name is long, so the name and the
+// Why: task 4 is finished (actual = plan), so it carries the PM-2 done marker; its name is long, so the name and the
 // marker do not fit inside a two-day bar and stand right of it (T-273 LP-2); an assignee with a percent hangs left (OC-2).
 const FINISHED: Loose = {
   name: 'A finished task whose name is far too long to fit inside its bar',
@@ -361,15 +361,15 @@ const drawnOf = (one: Element): Drawn => ({
   fill: (attrOf(one.attrs, 'fill') ?? '').toLowerCase(),
 })
 
-// see SJ-10
-// WHY: the ring counts from the plan shape's bounding box with the actual left out -- the laid-out plan figure.
+// Spec: SJ-10
+// Why: the ring counts from the plan shape's bounding box with the actual left out -- the laid-out plan figure.
 const planBoxOf = (scene: Scene, uid: number): Rect => {
   const placed = (scene.layout['placements'] as Loose[]).find((one) => one['taskUid'] === uid)
   if (placed === undefined) throw new Error(`the layout drew no task ${String(uid)}`)
   return { x: placed['x'], y: placed['y'], width: placed['width'], height: placed['planHeight'] }
 }
 
-// WHY: a stroked SVG rect names its line's middle, so the middle stands `offset` outside the box on every side.
+// Why: a stroked SVG rect names its line's middle, so the middle stands `offset` outside the box on every side.
 const grown = (box: Rect, offset: number): Rect => ({
   x: box.x - offset,
   y: box.y - offset,
@@ -412,7 +412,7 @@ const THEMES = ['light', 'dark'] as const
 const HUES = [214, 0, 120, 335] as const
 const MONO: SceneSpec = { settings: { isThemeMonochrome: true } }
 
-// WHY: monochrome splits the S-556 band in thirds; a third's middle stands 1/6 and 5/6 of the band out from its inner edge.
+// Why: monochrome splits the S-556 band in thirds; a third's middle stands 1/6 and 5/6 of the band out from its inner edge.
 const OUTER_THIRD = (5 / 6) * S_556
 const INNER_THIRD = (1 / 6) * S_556
 const OUTER_THIRD_RADIUS = S_586 + S_556 / 3

@@ -40,8 +40,8 @@ interface Placed {
   readonly name: string
 }
 
-// see T-201, FR-039
-// WHY: EP-3 names the font by the table: S-36, times S-38 at depth 1, times the drawn ratio of FR-039.
+// Spec: T-201, FR-039
+// Why: EP-3 names the font by the table: S-36, times S-38 at depth 1, times the drawn ratio of FR-039.
 const fontOf = (depth: number): number => stored('S-36') * (depth === 1 ? stored('S-38') : 1) * RATIO
 
 const viewOf = (rows: readonly Placed[]): ScreenView =>

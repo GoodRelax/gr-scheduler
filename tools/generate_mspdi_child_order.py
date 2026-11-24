@@ -155,7 +155,7 @@ def order_table(rel):
         raise SchemaProblem('%s declares %d top-level <%s> elements, not 1'
                             % (rel, len(roots), ROOT_ELEMENT))
     table = {}
-    # WHY: children are pushed in reverse, so rows come out in the schema's
+    # Why: children are pushed in reverse, so rows come out in the schema's
     # own reading order (a pre-order walk) and the file diffs like the schema.
     stack = [(roots[0], ROOT_ELEMENT, ())]
     while stack:
@@ -193,7 +193,7 @@ def pj15_only_marks(pj15, pj12):
     marks = {}
     for path, (is_all, names) in pj15.items():
         if path not in pj12:
-            # WHY: the element itself is marked at its parent, and a child
+            # Why: the element itself is marked at its parent, and a child
             # cannot arrive without it, so one mark says pj15 already.
             marks[path] = []
             continue
@@ -323,7 +323,7 @@ def generate():
             sys.stdout.write('PROBLEM  %s\n' % one)
         return 1
     if missing:
-        # WHY: a tree without the XSD cannot rebuild the table, so gen keeps
+        # Why: a tree without the XSD cannot rebuild the table, so gen keeps
         # the committed one and holds it as gen:check does; failing here would
         # stop npm run gen in every worktree.
         return check()

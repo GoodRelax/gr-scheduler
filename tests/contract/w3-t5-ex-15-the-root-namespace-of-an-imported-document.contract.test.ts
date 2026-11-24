@@ -11,7 +11,7 @@ import { unbroken } from './spec-table'
 
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
-// WHY: the startup template (BT-4) is a document made without importing MSPDI; no schema file is read here.
+// Why: the startup template (BT-4) is a document made without importing MSPDI; no schema file is read here.
 const TEMPLATE_TEXT = readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8')
 
 /** @purity pure */
@@ -21,7 +21,7 @@ function currentDocument(): Document {
   return read.document
 }
 
-// see EX-15
+// Spec: EX-15
 const EX_15_KEEP_THE_IMPORTED_URI =
   '書き出す根の要素（`Project`）の名前空間 URI は、取り込んだ文書では取り込み元の根が名乗った URI のまま書くこと（MUST）'
 const EX_15_PJ12_WHEN_NOT_IMPORTED = 'MSPDI を取り込まずに作った文書では、pj12 の `targetNamespace`（`http://schemas.microsoft.com/project/2007`）を書くこと（MUST）'
@@ -36,7 +36,7 @@ function uriIn(clause: string, nth: number): string {
 
 const PJ12_URI = uriIn(EX_15_PJ12_WHEN_NOT_IMPORTED, 0)
 const PARTNER_URI = uriIn(EX_15_THE_PARTNER_URI, 0)
-// WHY: a third URI no reader writes, so a kept value cannot be confused with either default.
+// Why: a third URI no reader writes, so a kept value cannot be confused with either default.
 const ANOTHER_URI = 'http://example.invalid/w3-t5/project'
 const A_MOMENT = '2026-10-07T09:00:00'
 

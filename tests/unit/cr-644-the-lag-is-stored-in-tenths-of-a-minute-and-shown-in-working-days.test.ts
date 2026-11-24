@@ -18,7 +18,7 @@ import {
 import { unbroken } from '../contract/spec-table'
 import { DESIGN, REQUIREMENTS, numberIn, taskGroupDocument, rowOf, taskOf } from './cr-541-stage'
 
-// see FR-009
+// Spec: FR-009
 const FR_009_SHOWN_AND_TYPED =
   '⭐ プロパティパネルは、時刻を表示しない文書（`FR-158`）では形式 `7` のラグを稼働日で、形式 `5`・`3` のラグを下の段の字面（`3h`・`30m`）で見せ、整数の稼働日で打たせ、時刻を表示する文書では `d` ／ `h` ／ `m` で見せて打たせること（MUST） —— 保存は 0.1 分であり（`_assets/fig-erd-detail.md` の `AT-47`）、1 稼働日（`1d`）を `Project.minutesPerDay` 分（空なら `S-128`）として換算する。'
 const FR_009_WRITTEN =
@@ -29,15 +29,15 @@ const FR_009_LITERAL =
   'ほかの形式のラグは、MS Project の字面 —— その形式の単位で表した数に、交換相手の XSD の記号を添えたもの（`2ed`・`1w`） —— で見せるだけにし、値と形式は往復でそのまま保つこと（MUST）'
 const FR_009_MINUTES = '長さを決められない形式（百分率・経過の月・空の形式、長さを決める列が空のとき）は、分の字面（`2880m`）で見せる'
 const FR_009_DECIMALS = '見せる数は小数 2 桁までとする'
-// see VC-15, BD-2
+// Spec: VC-15, BD-2
 const VC_15_LAG = '⭐ `linkLag` は稼働時間の分として数え（`FR-009` の換算 —— 形式 `7`・`5`・`3`）、先行の瞬間から文書の暦の稼働時間で進めた瞬間と比べる。'
 const VC_15_NOT_JUDGED = '⛔ `FR-009` が解さない形式で `linkLag` が 0 でない依存を、本行で判じてはならない（MUST NOT）'
 const BD_2_LAG = '⭐ `linkLag` は `VC-15` と同じく稼働時間の分で数え、文書の暦で進める。'
 const BD_2_ZERO = '`FR-009` が解さない形式のラグは 0 として流す'
-// see UF-128
+// Spec: UF-128
 const UF_128 = '文書の暦で稼働日を判じ、数え、進め、ラグを稼働日へ換算する'
 
-// see S-128, AT-48
+// Spec: S-128, AT-48
 const S_128 = numberIn(rowOf('T-209', 'S-128').by['値'] ?? '')
 const WORKING_DAYS = 7
 const ELAPSED_DAYS = 8
@@ -194,7 +194,7 @@ interface Plan {
   readonly minutesPerDay?: number | null
 }
 
-// WHY: CR-710 reads the time of day (FR-054); an unpadded hour (T8:00:00) is no time and left the link unjudged.
+// Why: CR-710 reads the time of day (FR-054); an unpadded hour (T8:00:00) is no time and left the link unjudged.
 const day = (date: number, hour: number): string => `2026-04-${String(date).padStart(2, '0')}T${String(hour).padStart(2, '0')}:00:00`
 
 function planDocument(plan: Plan): Document {
@@ -228,7 +228,7 @@ const contradictionsOn = (document: Document): readonly string[] =>
   diagnoseDelay(document, workingCalendarOf(document.schedule)).findings
     .filter((one) => one.row === 'VC-15' && one.uid === B).map((one) => one.row)
 
-// WHY: the status date sits before both tasks, so no omission and no projected delay can arise.
+// Why: the status date sits before both tasks, so no omission and no projected delay can arise.
 const BEFORE = day(3, 17)
 const planned = (bStart: string, lag: number, lagFormat: number, minutesPerDay: number | null = null): Document =>
   planDocument({ statusDate: BEFORE, aFinish: day(7, 17), aActualFinish: null, bStart, lag, lagFormat, minutesPerDay })
@@ -238,7 +238,7 @@ describe(`VC-15 -- ${VC_15_LAG}`, () => {
     expect(contradictionsOn(planned(day(8, 8), tenthsOfDays(2), WORKING_DAYS))).toEqual(['VC-15'])
   })
 
-  // WHY: CR-710 advances the lag from A's instant (Tue 7th 17:00) by working minutes: two working days end Thu 9th 17:00,
+  // Why: CR-710 advances the lag from A's instant (Tue 7th 17:00) by working minutes: two working days end Thu 9th 17:00,
   // so B holds from the next working morning (VC-15).
   it('VC-15 the same link holds when B starts on the 10th, two working days after A ends on the evening of the 7th', () => {
     expect(contradictionsOn(planned(day(10, 8), tenthsOfDays(2), WORKING_DAYS))).toEqual([])
@@ -248,7 +248,7 @@ describe(`VC-15 -- ${VC_15_LAG}`, () => {
     expect(contradictionsOn(planned(day(8, 8), tenthsOfDays(2, 450), WORKING_DAYS, 450))).toEqual(['VC-15'])
   })
 
-  // WHY: CR-710 counts the lag in working minutes and no longer rounds it to whole days: 1.5 days end at noon on the 9th.
+  // Why: CR-710 counts the lag in working minutes and no longer rounds it to whole days: 1.5 days end at noon on the 9th.
   it('VC-15 one and a half working days after the evening of the 7th end at noon on the 9th: B at 13:00 holds', () => {
     expect(contradictionsOn(planned(day(9, 13), tenthsOfDays(1.5), WORKING_DAYS))).toEqual([])
   })
@@ -268,12 +268,12 @@ const terminalDelayOfB = (lagFormat: number): number | undefined => {
     lagFormat,
   })
   return diagnoseDelay(document, workingCalendarOf(document.schedule)).terminalPushOuts
-    // WHY: CR-710 counts the push-out in working minutes (T-314); read back as working days of S-128 minutes.
+    // Why: CR-710 counts the push-out in working minutes (T-314); read back as working days of S-128 minutes.
     .map((one) => ({ ...one, days: one.terminalDelayMinutes / S_128 })).find((one) => one.uid === B)?.days
 }
 
 describe(`BD-2 -- ${BD_2_LAG}`, () => {
-  // WHY: CR-710 reads instants: A ends Thu 9th 17:00, two working days of lag run Fri and Mon, so B (one day, planned
+  // Why: CR-710 reads instants: A ends Thu 9th 17:00, two working days of lag run Fri and Mon, so B (one day, planned
   // Fri 10th) runs Tue 14th and ends two working days late (BD-2).
   it('BD-2 A finished on the evening of the 9th and B waits 2 working days after it, so B ends two working days late', () => {
     expect(terminalDelayOfB(WORKING_DAYS)).toBe(2)

@@ -1,10 +1,10 @@
-// ItemHitArea: what the pointer is on, by tables T-023d, T-266, T-267 and T-268.
+// File: ItemHitArea: what the pointer is on, by tables T-023d, T-266, T-267 and T-268.
 // @unit      UF-7   (docs/spec/05-07-design.md, table T-075)
 // @component ItemHitArea, layer layoutEngine (table T-062)
 // @purity    pure
 // @publishes table T-064 row PI-7
 // The NOT_STORED_SIZES region at the bottom is generated from docs/spec/_source/settings.json by npm run gen; do not edit by hand.
-// TRAP: never quote the region's opening marker in a comment; the generator injects the block at the first one.
+// Trap: never quote the region's opening marker in a comment; the generator injects the block at the first one.
 
 import {
   anchorSnapsOf,
@@ -28,7 +28,7 @@ export type { DependencyEnd } from './dependency-end'
 export { isTaskDrawn, selectionWithinDrawn, selectionWithinDrawnTaskGroups } from './drawn-selection'
 export { itemsInMarquee } from './marquee'
 
-// see SL-1
+// Spec: SL-1
 export type Item =
   | { readonly kind: 'task'; readonly taskUid: number }
   | { readonly kind: 'dependency'; readonly predecessorUid: number; readonly successorUid: number }
@@ -37,7 +37,7 @@ export type Item =
   | { readonly kind: 'statusLine' }
   | { readonly kind: 'parentTaskLink'; readonly childUid: number; readonly isStated: boolean }
 
-// see T-266, GR-23
+// Spec: T-266, GR-23
 export type GrabArea =
   | 'GA-1' | 'GA-2' | 'GA-3' | 'GA-4' | 'GA-5' | 'GA-6' | 'GA-7' | 'GA-8'
   | 'GA-9' | 'GA-10' | 'GA-11' | 'GA-12' | 'GA-13' | 'GA-14' | 'GA-15' | 'GA-16'
@@ -45,8 +45,8 @@ export type GrabArea =
   | 'GR-10' | 'GR-11' | 'GR-14' | 'GR-16'
   | 'PTL-10'
 
-// see GR-14
-// WHY: 'body' reads as "move the whole thing", which a highlight box answers on its frame alone.
+// Spec: GR-14
+// Why: 'body' reads as "move the whole thing", which a highlight box answers on its frame alone.
 export type BoxPart =
   | { readonly kind: 'body' }
   | { readonly kind: 'anchor' }
@@ -61,22 +61,22 @@ export type BoxPart =
 export interface Hit {
   readonly item: Item
   readonly grab: GrabArea
-  // WHY: optional, not required: only GR-14 holds more than one place; an absent part reads as the body.
+  // Why: optional, not required: only GR-14 holds more than one place; an absent part reads as the body.
   readonly boxPart?: BoxPart
 }
 
 export type PointerResolution = 'press' | 'doubleClick' | 'hint'
 
-// see EZ-6, GR-23, GR-26, GR-27
+// Spec: EZ-6, GR-23, GR-26, GR-27
 export interface HintHolder {
   readonly kind: 'task' | 'deadline' | 'baseline'
   readonly taskUid: number
 }
 
-// see T-206
+// Spec: T-206
 export type GrabSizes = typeof NOT_STORED_SIZES
 
-// WHY: no display scale argument: DS-7 keeps every grab margin at its own size whatever the chart is drawn at.
+// Why: no display scale argument: DS-7 keeps every grab margin at its own size whatever the chart is drawn at.
 /** @purity pure */
 export function grabSizesOf(): GrabSizes {
   return NOT_STORED_SIZES
@@ -183,13 +183,13 @@ function isInsideOutline(x: number, y: number, points: Path): boolean {
     if (a.y <= y && b.y > y && side > 0) winding += 1
     if (a.y > y && b.y <= y && side < 0) winding -= 1
   }
-  // see LF-18, HT-1
-  // WHY: non-zero, not even-odd: a milestone's head over its torso overlaps, and both are drawn ink.
+  // Spec: LF-18, HT-1
+  // Why: non-zero, not even-odd: a milestone's head over its torso overlaps, and both are drawn ink.
   return winding !== 0
 }
 
-// see HT-1
-// TRAP: butt ends and square joins, not a distance: a round end reaches past the Task edge the line meets.
+// Spec: HT-1
+// Trap: butt ends and square joins, not a distance: a round end reaches past the Task edge the line meets.
 /** @purity pure */
 function isOnTheStroke(x: number, y: number, points: Path, half: number): boolean {
   const last = points.length - 1
@@ -207,7 +207,7 @@ function isOnTheStroke(x: number, y: number, points: Path, half: number): boolea
   return false
 }
 
-// see T-012, T-271
+// Spec: T-012, T-271
 type ShapeFamily = 'bar' | 'line' | 'milestone'
 
 /** @purity pure */
@@ -216,8 +216,8 @@ function familyOf(kind: TaskGeometry['shapeKind']): ShapeFamily {
   return kind === 'arrow' || kind === 'endpointSpan' ? 'line' : 'bar'
 }
 
-// see HT-1, XS-5, XS-6
-// WHY: the end mark counts: the reference points are read off the bar itself, not off this box.
+// Spec: HT-1, XS-5, XS-6
+// Why: the end mark counts: the reference points are read off the bar itself, not off this box.
 /** @purity pure */
 function bandOfBar(bar: BarGeometry | null): ScreenRect | null {
   if (bar === null) return null
@@ -235,7 +235,7 @@ function bandOfBar(bar: BarGeometry | null): ScreenRect | null {
   return box
 }
 
-// see GA-18
+// Spec: GA-18
 /** @purity pure */
 function boxOfMarker(marker: MarkerGeometry | null): ScreenRect | null {
   if (marker === null) return null
@@ -254,8 +254,8 @@ type Drawn = {
   readonly covers: (x: number, y: number) => boolean
 }
 
-// see HT-1
-// WHY: an outline answers inside its figure, a line inside its band; a notch is outside both.
+// Spec: HT-1
+// Why: an outline answers inside its figure, a line inside its band; a notch is outside both.
 /** @purity pure */
 function drawnOfBar(bar: BarGeometry | null): Drawn | null {
   const band = bandOfBar(bar)
@@ -284,15 +284,15 @@ export type TaskShape = {
   readonly drawn: readonly Drawn[]
 }
 
-// see XS-7
-// WHY: the dummy stands in for the actual, whose row is kept whether or not one is drawn.
+// Spec: XS-7
+// Why: the dummy stands in for the actual, whose row is kept whether or not one is drawn.
 /** @purity pure */
 function midlineOf(plan: ScreenRect | null, below: ScreenRect | null): number | null {
   if (plan === null || below === null) return null
   return (centerOf(plan).y + centerOf(below).y) / 2
 }
 
-// TRAP: reads the first dummy's ink only; task-figures.ts gives every dummy of a Task the same one.
+// Trap: reads the first dummy's ink only; task-figures.ts gives every dummy of a Task the same one.
 /** @purity pure */
 export function shapeOf(task: TaskGeometry): TaskShape {
   const family = familyOf(task.shapeKind)
@@ -326,8 +326,8 @@ export function isOnTheDrawnShape(shape: TaskShape, x: number, y: number): boole
   return shape.drawn.some((one) => one.covers(x, y))
 }
 
-// see HT-2
-// WHY: the nearest drawn shape, not one box round them all, which would swallow the room between.
+// Spec: HT-2
+// Why: the nearest drawn shape, not one box round them all, which would swallow the room between.
 /** @purity pure */
 function verticalDistanceOf(shape: TaskShape, y: number): number {
   let nearest = Number.POSITIVE_INFINITY
@@ -337,7 +337,7 @@ function verticalDistanceOf(shape: TaskShape, y: number): number {
   return nearest
 }
 
-// see T-268
+// Spec: T-268
 type TypeName =
   | 'fade'
   | 'markerOutside'
@@ -351,21 +351,21 @@ type TypeName =
   | 'milestonePlan'
   | 'body'
 
-// see T-268
-// TRAP: the two columns part in one place only, where the dependency line stands.
+// Spec: T-268
+// Trap: the two columns part in one place only, where the dependency line stands.
 const ON_SHAPE_ORDER: readonly TypeName[] = [
   'fade', 'markerOutside', 'resume', 'dummy', 'actualEnd',
   'dependencyContinuation', 'dependency', 'planEnd', 'markerInside', 'milestonePlan', 'body',
 ]
 
-// see T-268
+// Spec: T-268
 const OFF_SHAPE_ORDER: readonly TypeName[] = [
   'fade', 'dependencyContinuation', 'dependency', 'markerOutside', 'resume', 'dummy',
   'actualEnd', 'planEnd', 'markerInside', 'milestonePlan', 'body',
 ]
 
-// see HT-3
-// WHY: a list of its own, not a swap: every other type falls behind both of these two.
+// Spec: HT-3
+// Why: a list of its own, not a swap: every other type falls behind both of these two.
 const ON_MARKER_BOX_ORDER: readonly TypeName[] = [
   'dummy', 'actualEnd', 'markerOutside', 'markerInside', 'resume',
   'fade', 'dependencyContinuation', 'dependency', 'planEnd', 'milestonePlan', 'body',
@@ -418,14 +418,14 @@ function downOf(box: ScreenRect): Span {
   return { from: box.y, to: bottomOf(box) }
 }
 
-// see T-266
+// Spec: T-266
 /** @purity pure */
 function bandSpan(band: ScreenRect, over: number): Span {
   return { from: band.y - over, to: bottomOf(band) + over }
 }
 
-// see GA-1, GA-2, GA-3, GA-4, GA-5, GA-6
-// TRAP: outward and inward, never a two-sided reach: the outward figure lies past the drawn edge.
+// Spec: GA-1, GA-2, GA-3, GA-4, GA-5, GA-6
+// Trap: outward and inward, never a two-sided reach: the outward figure lies past the drawn edge.
 /** @purity pure */
 function endSpan(edge: number, outward: number, inward: number, side: 'left' | 'right'): Span {
   return side === 'left'
@@ -433,13 +433,13 @@ function endSpan(edge: number, outward: number, inward: number, side: 'left' | '
     : { from: edge - inward, to: edge + outward }
 }
 
-// see GA-10, GA-11, GA-12, GA-13, GA-15, GA-21, GA-22
+// Spec: GA-10, GA-11, GA-12, GA-13, GA-15, GA-21, GA-22
 /** @purity pure */
 function centeredSpan(at: number, width: number): Span {
   return { from: at - width / 2, to: at + width / 2 }
 }
 
-// see XS-7
+// Spec: XS-7
 /** @purity pure */
 function clippedToMidline(down: Span, midline: number | null, side: 'above' | 'below'): Span {
   if (midline === null) return down
@@ -448,7 +448,7 @@ function clippedToMidline(down: Span, midline: number | null, side: 'above' | 'b
     : { from: Math.max(down.from, midline), to: down.to }
 }
 
-// see GA-21, GA-22
+// Spec: GA-21, GA-22
 /** @purity pure */
 function clippedAcross(across: Span, at: number, side: 'left' | 'right'): Span {
   return side === 'left'
@@ -456,8 +456,8 @@ function clippedAcross(across: Span, at: number, side: 'left' | 'right'): Span {
     : { from: Math.max(across.from, at), to: across.to }
 }
 
-// see GA-10, GA-11, GA-12, GA-13
-// WHY: the arrow head's own middle, not where the axis stops; a dot stands on the bar's own end.
+// Spec: GA-10, GA-11, GA-12, GA-13
+// Why: the arrow head's own middle, not where the axis stops; a dot stands on the bar's own end.
 /** @purity pure */
 function lineEndOf(bar: BarGeometry, side: 'left' | 'right'): Point {
   if (bar.form === 'outline') {
@@ -470,7 +470,7 @@ function lineEndOf(bar: BarGeometry, side: 'left' | 'right'): Point {
   return head === null ? bar.to : centerOf(head)
 }
 
-// see GA-1, GA-2, GA-10, GA-11, GA-15
+// Spec: GA-1, GA-2, GA-10, GA-11, GA-15
 /** @purity pure */
 function planRegionsOf(shape: TaskShape, sizes: GrabSizes): readonly (Region | null)[] {
   const band = shape.planBand
@@ -515,8 +515,8 @@ function planRegionsOf(shape: TaskShape, sizes: GrabSizes): readonly (Region | n
   ]
 }
 
-// see GA-3
-// WHY: the marker's center caps the inward reach, so a marker standing on the actual's start keeps
+// Spec: GA-3
+// Why: the marker's center caps the inward reach, so a marker standing on the actual's start keeps
 // its right half, which HT-3 leaves to it.
 /** @purity pure */
 function actualStartInwardOf(shape: TaskShape, sizes: GrabSizes, half: number): number {
@@ -527,7 +527,7 @@ function actualStartInwardOf(shape: TaskShape, sizes: GrabSizes, half: number): 
   return toCenter >= 0 ? Math.min(inward, toCenter) : inward
 }
 
-// see GA-3, GA-4, GA-12, GA-13, GA-16
+// Spec: GA-3, GA-4, GA-12, GA-13, GA-16
 /** @purity pure */
 function actualRegionsOf(shape: TaskShape, sizes: GrabSizes): readonly (Region | null)[] {
   const band = shape.actualBand
@@ -573,8 +573,8 @@ function actualRegionsOf(shape: TaskShape, sizes: GrabSizes): readonly (Region |
   ]
 }
 
-// see GA-5, GA-6, GA-17, GA-21, GA-22
-// WHY: the family decides, not the mark's own row, which the three of them do not share.
+// Spec: GA-5, GA-6, GA-17, GA-21, GA-22
+// Why: the family decides, not the mark's own row, which the three of them do not share.
 /** @purity pure */
 function dummyRegionsOf(shape: TaskShape, sizes: GrabSizes): readonly (Region | null)[] {
   const ink = shape.dummyInk
@@ -618,8 +618,8 @@ function dummyRegionsOf(shape: TaskShape, sizes: GrabSizes): readonly (Region | 
   ]
 }
 
-// see GA-7, GA-8
-// TRAP: never test the selection here; task-figures.ts already empties an unselected Task.
+// Spec: GA-7, GA-8
+// Trap: never test the selection here; task-figures.ts already empties an unselected Task.
 /** @purity pure */
 function fadeRegionsOf(shape: TaskShape, sizes: GrabSizes): readonly (Region | null)[] {
   const uid = shape.task.taskUid
@@ -638,8 +638,8 @@ function fadeRegionsOf(shape: TaskShape, sizes: GrabSizes): readonly (Region | n
   })
 }
 
-// see GA-18, TY-7, FR-013
-// WHY: read off the actual's own run, since the two places take different seats in the order.
+// Spec: GA-18, TY-7, FR-013
+// Why: read off the actual's own run, since the two places take different seats in the order.
 /** @purity pure */
 function markerRegionOf(shape: TaskShape, sizes: GrabSizes): Region | null {
   const box = shape.markerBox
@@ -661,7 +661,7 @@ function markerRegionOf(shape: TaskShape, sizes: GrabSizes): Region | null {
   )
 }
 
-// see GA-20, XS-12
+// Spec: GA-20, XS-12
 /** @purity pure */
 function resumeRegionOf(shape: TaskShape, sizes: GrabSizes): Region | null {
   const box = shape.resumeBox
@@ -674,8 +674,8 @@ function resumeRegionOf(shape: TaskShape, sizes: GrabSizes): Region | null {
   )
 }
 
-// see GA-9, GA-14
-// WHY: the drawn figure with no margin, so a notch belongs to whatever answers next.
+// Spec: GA-9, GA-14
+// Why: the drawn figure with no margin, so a notch belongs to whatever answers next.
 /** @purity pure */
 function bodyRegionOf(shape: TaskShape): Region | null {
   const band = shape.planBand
@@ -709,8 +709,8 @@ function regionsOfTask(shape: TaskShape, sizes: GrabSizes): readonly (Region | n
   ]
 }
 
-// see GA-19, HT-1, EL-16, EL-19
-// WHY: the painted ink over a shape, the edge and its margin elsewhere; a thick line spreads nothing.
+// Spec: GA-19, HT-1, EL-16, EL-19
+// Why: the painted ink over a shape, the edge and its margin elsewhere; a thick line spreads nothing.
 /** @purity pure */
 function dependencyRegionOf(
   line: DependencyGeometry,
@@ -728,7 +728,7 @@ function dependencyRegionOf(
     (x, y) => isInsideOutline(x, y, head) || isOnTheStroke(x, y, drawn, reach))
 }
 
-// WHY: the line and its continuation mark are one item (T-303), so both regions name it the same way.
+// Why: the line and its continuation mark are one item (T-303), so both regions name it the same way.
 /** @purity pure */
 export function dependencyItemOf(line: DependencyGeometry): Item {
   return { kind: 'dependency', predecessorUid: line.predecessorUid, successorUid: line.successorUid }
@@ -748,7 +748,7 @@ function lineRegionOf(
   }
 }
 
-// see EL-13
+// Spec: EL-13
 /** @purity pure */
 function nearnessOf(line: DependencyGeometry, farUid: number, shapes: readonly TaskShape[], index: number): number[] {
   const first = line.points[0]
@@ -759,7 +759,7 @@ function nearnessOf(line: DependencyGeometry, farUid: number, shapes: readonly T
   return [Math.hypot(last.x - first.x, last.y - first.y), -farStart, -index]
 }
 
-// see GA-24, HT-1, EL-13
+// Spec: GA-24, HT-1, EL-13
 /** @purity pure */
 function continuationRegionOf(
   line: DependencyGeometry,
@@ -781,8 +781,8 @@ function isCovering(region: Region | null, x: number, y: number): region is Regi
   return region !== null && region.covers(x, y)
 }
 
-// see FR-098, S-78, HT-1
-// WHY: what a scrolling task group draws is cut at the top of the area below the band, so no point in the band reaches it.
+// Spec: FR-098, S-78, HT-1
+// Why: what a scrolling task group draws is cut at the top of the area below the band, so no point in the band reaches it.
 export type BandCut = NonNullable<ScheduleGeometry['pinnedBand']> | null
 
 /** @purity pure */
@@ -790,15 +790,15 @@ export function isScrolling(cut: BandCut, taskUid: number): boolean {
   return cut !== null && !cut.pinnedTaskUids.has(taskUid)
 }
 
-// see FR-098, T-303, EL-19
-// WHY: the band's own rule (isLinkInBand, PI-6), the one the drawing reads; a line and its mark go together.
+// Spec: FR-098, T-303, EL-19
+// Why: the band's own rule (isLinkInBand, PI-6), the one the drawing reads; a line and its mark go together.
 /** @purity pure */
 export function isLineScrolling(cut: BandCut, line: DependencyGeometry, isWholeRoute: boolean): boolean {
   return cut !== null && !isLinkInBand(cut, line, isWholeRoute)
 }
 
-// see EL-16, EL-19
-// WHY: the line the landing mark is on, while it shows; the drawing draws it whole, so the band cuts it as a whole line.
+// Spec: EL-16, EL-19
+// Why: the line the landing mark is on, while it shows; the drawing draws it whole, so the band cuts it as a whole line.
 type LandedLink = { readonly predecessorUid: number; readonly successorUid: number } | null
 
 /** @purity pure */
@@ -848,7 +848,7 @@ type LineRegions = {
 type DeadlineBox = { readonly taskUid: number; readonly box: ScreenRect }
 
 // see T-023d, DFC-1811
-// WHY: no region depends on the point; built once per drawn geometry, not once per input (a walk of every Task).
+// Why: no region depends on the point; built once per drawn geometry, not once per input (a walk of every Task).
 export interface PointerWalk {
   readonly geometry: ScheduleGeometry
   readonly landed: LandedLink
@@ -908,7 +908,7 @@ export function pointerWalkOf(geometry: ScheduleGeometry, sizes: GrabSizes, land
   }
 }
 
-// TRAP: the nearness walks every shape, so it is asked only of a mark that covers the point.
+// Trap: the nearness walks every shape, so it is asked only of a mark that covers the point.
 /** @purity pure */
 function claimingRegions(walk: PointerWalk, x: number, y: number, onShape: boolean): readonly Region[] {
   const out = walk.taskRegions.filter((region) => region.covers(x, y))
@@ -923,16 +923,16 @@ function claimingRegions(walk: PointerWalk, x: number, y: number, onShape: boole
   return out
 }
 
-// see HT-1
-// WHY: the Tasks under the pointer, never the one drawn last, nor a neighbor stacked over it.
+// Spec: HT-1
+// Why: the Tasks under the pointer, never the one drawn last, nor a neighbor stacked over it.
 /** @purity pure */
 function keptOnTheShape(regions: readonly Region[], covered: readonly TaskShape[]): readonly Region[] {
   const uids = new Set(covered.map((one) => one.task.taskUid))
   return regions.filter((one) => one.taskUid === null || uids.has(one.taskUid))
 }
 
-// see HT-2
-// TRAP: a dependency line is not a Task, so it never falls out here.
+// Spec: HT-2
+// Trap: a dependency line is not a Task, so it never falls out here.
 /** @purity pure */
 function keptByVerticalNearness(
   regions: readonly Region[],
@@ -953,14 +953,14 @@ function keptByVerticalNearness(
   return regions.filter((one) => one.taskUid === null || distances.get(one.taskUid) === nearest)
 }
 
-// see HT-3
+// Spec: HT-3
 /** @purity pure */
 function orderFor(onShape: boolean, onMarkerBox: boolean): readonly TypeName[] {
   if (onMarkerBox) return ON_MARKER_BOX_ORDER
   return onShape ? ON_SHAPE_ORDER : OFF_SHAPE_ORDER
 }
 
-// see EL-13
+// Spec: EL-13
 /** @purity pure */
 function nearnessOrder(one: readonly number[] | undefined, held: readonly number[] | undefined): number {
   if (one === undefined || held === undefined) return 0
@@ -971,8 +971,8 @@ function nearnessOrder(one: readonly number[] | undefined, held: readonly number
   return 0
 }
 
-// see HT-4
-// TRAP: never the painting order; FR-110 owns that, and this step is forbidden to read it.
+// Spec: HT-4
+// Trap: never the painting order; FR-110 owns that, and this step is forbidden to read it.
 /** @purity pure */
 function beats(one: Region, held: Region, order: readonly TypeName[], x: number, y: number): boolean {
   const mine = order.indexOf(one.type)
@@ -1001,7 +1001,7 @@ function isInsideOrNull(box: ScreenRect | null, x: number, y: number): boolean {
   return box !== null && isInsideRect(x, y, box)
 }
 
-// see GR-23, T-267
+// Spec: GR-23, T-267
 /** @purity pure */
 function scheduleShapeHitOf(walk: PointerWalk, covered: readonly TaskShape[], x: number, y: number): Hit | null {
   const onShape = covered.length > 0
@@ -1015,8 +1015,8 @@ function scheduleShapeHitOf(walk: PointerWalk, covered: readonly TaskShape[], x:
   return bestOf(kept, orderFor(onShape, onMarkerBox), x, y)
 }
 
-// see GR-10, GR-11
-// TRAP: the row order, not the Task order: GR-10 answers for every Task before GR-11 answers for any.
+// Spec: GR-10, GR-11
+// Trap: the row order, not the Task order: GR-10 answers for every Task before GR-11 answers for any.
 /** @purity pure */
 function labelHitOf(geometry: ScheduleGeometry, x: number, y: number): Hit | null {
   const cut = geometry.pinnedBand ?? null
@@ -1034,8 +1034,8 @@ function labelHitOf(geometry: ScheduleGeometry, x: number, y: number): Hit | nul
   return null
 }
 
-// see HB-8, HB-9, HB-10, HB-11
-// TRAP: keep T-246's printed order, the upper (or left) point first in a row: a tie keeps the first point met.
+// Spec: HB-8, HB-9, HB-10, HB-11
+// Trap: keep T-246's printed order, the upper (or left) point first in a row: a tie keeps the first point met.
 /** @purity pure */
 function grabPointsOf(box: HighlightGeometry): readonly { readonly at: Point; readonly part: BoxPart }[] {
   const { x, y } = box.box
@@ -1062,8 +1062,8 @@ function grabPointsOf(box: HighlightGeometry): readonly { readonly at: Point; re
   return points
 }
 
-// see GR-14, HB-8, HB-9, HB-10, HB-11
-// WHY: the nearest point, not the first: on a one-day, one-task-group box at low zoom the eight reaches overlap.
+// Spec: GR-14, HB-8, HB-9, HB-10, HB-11
+// Why: the nearest point, not the first: on a one-day, one-task-group box at low zoom the eight reaches overlap.
 /** @purity pure */
 function nearestGrabPointOf(box: HighlightGeometry, x: number, y: number, reach: number): BoxPart | null {
   let found: BoxPart | null = null
@@ -1079,8 +1079,8 @@ function nearestGrabPointOf(box: HighlightGeometry, x: number, y: number, reach:
   return found
 }
 
-// see GR-14, HT-1
-// WHY: a closed polyline, not a rectangle with a hole, so that a reach of nothing still leaves the
+// Spec: GR-14, HT-1
+// Why: a closed polyline, not a rectangle with a hole, so that a reach of nothing still leaves the
 // drawn line itself answering over a Task.
 /** @purity pure */
 function isOnTheFrame(x: number, y: number, box: ScreenRect, reach: number): boolean {
@@ -1104,10 +1104,10 @@ function highlightHit(box: HighlightGeometry, boxPart: BoxPart): Hit {
   return { item: { kind: 'highlightBox', id: box.id }, grab: 'GR-14', boxPart }
 }
 
-// see GR-14, ZO-9
+// Spec: GR-14, ZO-9
 /** @purity pure */
 function commentBoxHitOf(boxes: readonly CommentGeometry[], x: number, y: number, sizes: GrabSizes): Hit | null {
-  // WHY: the tip before the body, or the body takes its place; front first, as a later box is drawn in front.
+  // Why: the tip before the body, or the body takes its place; front first, as a later box is drawn in front.
   const comments = [...boxes].reverse()
   for (const box of comments) {
     if (isNearPoint(x, y, box.anchor, sizes['S-292'], sizes['S-292'])) {
@@ -1118,14 +1118,14 @@ function commentBoxHitOf(boxes: readonly CommentGeometry[], x: number, y: number
     if (isInsideRect(x, y, box.body)) return commentHit(box, { kind: 'body' })
   }
   for (const box of comments) {
-    // WHY: a box whose anchor sits inside it draws no leader (LF-17), so none answers.
+    // Why: a box whose anchor sits inside it draws no leader (LF-17), so none answers.
     const leader = leaderOf(box)
     if (leader !== null && isOnPolyline(x, y, leader, sizes['S-291'])) return commentHit(box, { kind: 'leader' })
   }
   return null
 }
 
-// see GR-14, ZO-8, ZO-9
+// Spec: GR-14, ZO-8, ZO-9
 /** @purity pure */
 function noteHitOf(
   geometry: ScheduleGeometry,
@@ -1142,7 +1142,7 @@ function noteHitOf(
     if (grabPoint !== null) return highlightHit(box, grabPoint)
   }
   for (const box of highlights) {
-    // WHY: HB-12 measures the reach from the drawn line's edge, so it starts at half the drawn width.
+    // Why: HB-12 measures the reach from the drawn line's edge, so it starts at half the drawn width.
     const half = box.strokeWidthPx / 2
     if (isOnTheFrame(x, y, box.box, onShape ? half : half + sizes['S-293'])) {
       return highlightHit(box, { kind: 'body' })
@@ -1151,7 +1151,7 @@ function noteHitOf(
   return null
 }
 
-// see GR-16
+// Spec: GR-16
 /** @purity pure */
 function statusLineHitOf(geometry: ScheduleGeometry, x: number, y: number, sizes: GrabSizes): Hit | null {
   const status = geometry.statusLine
@@ -1160,7 +1160,7 @@ function statusLineHitOf(geometry: ScheduleGeometry, x: number, y: number, sizes
   return on ? { item: { kind: 'statusLine' }, grab: 'GR-16' } : null
 }
 
-// see FR-135, S-485, PTL-10, PTL-12
+// Spec: FR-135, S-485, PTL-10, PTL-12
 /** @purity pure */
 function parentTaskLinkHitOf(geometry: ScheduleGeometry, x: number, y: number): Hit | null {
   for (const arrow of geometry.parentTasks?.arrows ?? []) {
@@ -1171,14 +1171,14 @@ function parentTaskLinkHitOf(geometry: ScheduleGeometry, x: number, y: number): 
   return null
 }
 
-// see GR-26, DA-2
+// Spec: GR-26, DA-2
 /** @purity pure */
 function deadlineHintOf(boxes: readonly DeadlineBox[], x: number, y: number): HintHolder | null {
   const found = boxes.find((one) => isInsideRect(x, y, one.box))
   return found === undefined ? null : { kind: 'deadline', taskUid: found.taskUid }
 }
 
-// see GR-27, BL-2
+// Spec: GR-27, BL-2
 /** @purity pure */
 function baselineHintOf(geometry: ScheduleGeometry, x: number, y: number): HintHolder | null {
   const cut = geometry.pinnedBand ?? null
@@ -1193,8 +1193,8 @@ function baselineHintOf(geometry: ScheduleGeometry, x: number, y: number): HintH
   return null
 }
 
-// see EZ-6, GR-26, GR-27
-// WHY: the press rows in their printed order with the two hint rows set between; the first row holding the point answers, and one with no hint answers none.
+// Spec: EZ-6, GR-26, GR-27
+// Why: the press rows in their printed order with the two hint rows set between; the first row holding the point answers, and one with no hint answers none.
 /** @purity pure */
 function hintPastNotesOf(walk: PointerWalk, pressed: Hit | null, x: number, y: number): HintHolder | null {
   const deadline = deadlineHintOf(walk.deadlineBoxes, x, y)
@@ -1209,8 +1209,8 @@ export interface PointerAnswers {
 }
 
 // see T-023d, EZ-6, DFC-1810
-// WHY: the press rows and the hint rows share the notes and the schedule shapes, so one walk answers both.
-// TRAP: keep the printed order -- the notes, the schedule shapes, the status line; sorting by row ID reverses it.
+// Why: the press rows and the hint rows share the notes and the schedule shapes, so one walk answers both.
+// Trap: keep the printed order -- the notes, the schedule shapes, the status line; sorting by row ID reverses it.
 /** @purity pure */
 export function answersAtPointer(walk: PointerWalk, x: number, y: number): PointerAnswers {
   const covered = walk.shapes.filter((one) => isOnTheDrawnShape(one, x, y))
@@ -1223,8 +1223,8 @@ export function answersAtPointer(walk: PointerWalk, x: number, y: number): Point
   }
 }
 
-// see GR-14, AR-5, LF-15
-// WHY: the snap reach is the tip's own reach (S-292), so a tip grabbed and dropped in place snaps back to its point;
+// Spec: GR-14, AR-5, LF-15
+// Why: the snap reach is the tip's own reach (S-292), so a tip grabbed and dropped in place snaps back to its point;
 // a tie keeps the earlier point of anchorSnapsOf's list (tasks before highlight boxes, then AT-167's order).
 /** @purity pure */
 export function anchorSnapAt(
@@ -1247,7 +1247,7 @@ export function anchorSnapAt(
   return best
 }
 
-// see T-023d, EL-17, EL-19
+// Spec: T-023d, EL-17, EL-19
 export function itemAtPointer(
   geometry: ScheduleGeometry, x: number, y: number, sizes: GrabSizes, resolving: 'hint', landed?: LandedLink,
 ): HintHolder | null
@@ -1265,7 +1265,7 @@ export function itemAtPointer(
   landed: LandedLink = null,
 ): Hit | HintHolder | null {
   if (resolving === 'doubleClick') {
-    // WHY: a comment box is drawn in front of the labels (ZO-9, ZO-5), so where it covers one it answers (MK-13).
+    // Why: a comment box is drawn in front of the labels (ZO-9, ZO-5), so where it covers one it answers (MK-13).
     const label = commentBoxHitOf(geometry.commentBoxes, x, y, sizes) ?? labelHitOf(geometry, x, y)
     if (label !== null) return label
   }
@@ -1277,7 +1277,7 @@ export function itemAtPointer(
 // Single source of truth:
 //   docs/spec/_source/settings.json (table T-206)
 // Rebuild: npm run gen   ||   npm run gen:check fails on drift.
-// see T-206
+// Spec: T-206
 const NOT_STORED_SIZES: {
   readonly 'S-250': number
   readonly 'S-251': number

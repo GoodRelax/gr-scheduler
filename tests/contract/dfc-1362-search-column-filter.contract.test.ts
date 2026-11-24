@@ -45,7 +45,7 @@ const SV_4_MATCH =
 const SV_4_NFKC = '比べる前に両方を `NFKC` で正規化し、大文字と小文字を畳む —— 全角と半角、大文字と小文字を区別しない。'
 const SV_4_KANA =
   'ひらがなとカタカナは区別する（例: 語「ｐｍ」は「PM レビュー」に当たり、語「れびゅー」は「レビュー」に当たらない）。'
-// WHY: the three words of the SV-4 example, taken from that sentence so a changed example reddens the first case.
+// Why: the three words of the SV-4 example, taken from that sentence so a changed example reddens the first case.
 const EXAMPLE_FULL_WIDTH = 'ｐｍ'
 const EXAMPLE_HIRAGANA = 'れびゅー'
 const EXAMPLE_KATAKANA = 'レビュー'
@@ -86,7 +86,7 @@ const IN_4_SEARCH =
 
 const IC_WORDS: Readonly<Record<string, string>> = {
   'IC-122': '列のフィルタと並べ替えを開く（列の見出しごとに 1 つ）。⭐ [表示] の列と、修正案の表の `FM-1` には置かない（`FR-151` の 表 T-330 の `SV-7`、`FR-134` の 表 T-374 の `FM-1`）',
-  // WHY: CR-788 -- the assignee field holds a list (no candidates), and IC-125 / IC-126 work in it too.
+  // Why: CR-788 -- the assignee field holds a list (no candidates), and IC-125 / IC-126 work in it too.
   'IC-123': 'その列で昇順に並べる。プロパティパネルでは、担当の欄の一覧を名の昇順に並べる（`FR-008` の 表 T-225 の `AS-5`）',
   'IC-124': 'その列で降順に並べる。プロパティパネルでは、担当の欄の一覧を名の降順に並べる（`FR-008` の 表 T-225 の `AS-5`）',
   'IC-125': '一覧に出ているすべての値にチェックを付けるプロパティパネルでは、担当の欄の一覧に出ている、就いていない担当をすべて就ける（`FR-008` の 表 T-225 の `AS-5`）',
@@ -117,13 +117,13 @@ const stateWordOf = (row: string, language: DisplayLanguage): string =>
 const BLANK_JA = panelWordOf('blank', 'ja')
 const NO_NAME_JA = panelWordOf('noName', 'ja')
 
-// see T-331
+// Spec: T-331
 const TASK_COLUMNS = specTable('T-331').rows.filter((row) => row.by['表'] === 'タスク').map((row) => row.id)
 const COMMENT_COLUMNS = specTable('T-331')
   .rows.filter((row) => row.by['表'] === 'コメントボックス')
   .map((row) => row.id)
 const DATE_COLUMNS = ['SQ-3', 'SQ-4', 'SQ-12', 'SQ-13', 'SQ-9']
-// see SQ-10
+// Spec: SQ-10
 const CHECK_COLUMN = 'SQ-10'
 
 
@@ -134,7 +134,7 @@ const TEMPLATE = JSON.parse(
 const firstOf = (key: string): Loose => ((TEMPLATE.schedule[key] as readonly Loose[])[0] ?? {}) as Loose
 
 const D = (day: string): string => `${day}T00:00:00`
-// WHY: T-331 writes a date "as yyyy/mm/dd (2026/01/01)", so a nameless row is told apart by its start cell.
+// Why: T-331 writes a date "as yyyy/mm/dd (2026/01/01)", so a nameless row is told apart by its start cell.
 const written = (day: string): string => {
   const [y, m, d] = day.split('-')
   return `${y}/${m}/${d}`
@@ -142,7 +142,7 @@ const written = (day: string): string => {
 
 type State = 'notStarted' | 'inProgress' | 'finished' | 'resumePlanned' | 'resumeUnknown'
 
-// WHY: T-019a -- PS-1 no actualStart, PS-2 actualFinish, PS-3 resumeValid false, PS-4 resume, PS-5 otherwise.
+// Why: T-019a -- PS-1 no actualStart, PS-2 actualFinish, PS-3 resumeValid false, PS-4 resume, PS-5 otherwise.
 const STATE_FIELDS: Readonly<Record<State, Loose>> = {
   notStarted: { actualStart: null, stop: null, actualFinish: null, resume: null, resumeValid: null },
   inProgress: { actualStart: D('2026-03-30'), stop: null, actualFinish: null, resume: null, resumeValid: null },
@@ -174,7 +174,7 @@ const STEERING = 'Steering'
 const REVIEW = 'Review'
 const ARCHIVE = 'Archive'
 
-// WHY: uids 2 and 5 tie on start, 3 and 6 have no name, 7 has no date and sits alone on its task group;
+// Why: uids 2 and 5 tie on start, 3 and 6 have no name, 7 has no date and sits alone on its task group;
 // the default order (SV-8) is Program [1, 2], Steering [3], Review [5, 6, 4], Archive [7].
 const TASKS: readonly TaskSpec[] = [
   { uid: 1, name: 'PM review', start: '2026-04-01', state: 'inProgress', group: G_PROGRAM },
@@ -195,7 +195,7 @@ const PEOPLE: readonly (readonly [number, string])[] = [
   [302, BOB],
   [303, CID],
 ]
-// WHY: task uid -> resource uid, in assignment order.
+// Why: task uid -> resource uid, in assignment order.
 const ASSIGNED: readonly (readonly [number, number])[] = [
   [1, 301],
   [1, 302],
@@ -244,11 +244,11 @@ const commentOf = (id: string, text: string, anchorTaskGroupId: string, anchorDa
   textColor: null,
 })
 
-// WHY: the default order (SV-8) is c-1 (Steering), c-2 (Review), c-3 (Archive).
+// Why: the default order (SV-8) is c-1 (Steering), c-2 (Review), c-3 (Archive).
 const COMMENT_DEFAULT = ['c-1', 'c-2', 'c-3']
 const COMMENT_TEXT: Readonly<Record<string, string>> = { 'c-1': 'PM note', 'c-2': 'other', 'c-3': 'memo' }
 
-// WHY: CR-760 made SQ-5 show PM-4 for a late task (T-021b); the template's status date would make these April
+// Why: CR-760 made SQ-5 show PM-4 for a late task (T-021b); the template's status date would make these April
 // tasks late, so the fixture has none and every row shows its T-019a state (the CR-760 file holds the late ones).
 const SCHEDULE = {
   ...TEMPLATE.schedule,
@@ -294,7 +294,7 @@ function sessionIn(language: DisplayLanguage, ...events: readonly string[]): Scr
 }
 
 const JA = sessionIn('ja')
-// WHY: CR-723 -- the column filters and the sort are the search table's view the document holds (FR-151); the panel
+// Why: CR-723 -- the column filters and the sort are the search table's view the document holds (FR-151); the panel
 // keeps only the screen's values, so a case carries the two together as one pane and threads it through the steps.
 const NO_VIEW: TableView = { visibility: NO_ROW_CHECKED, columnFilters: [], sort: null }
 
@@ -342,7 +342,7 @@ function valuesOf(panel: Pane, session: ScreenSession = JA): ValuesMenu {
   return menu
 }
 
-// WHY: the seam does not say how a value is spelled, so the case finds it by the label it is shown with.
+// Why: the seam does not say how a value is spelled, so the case finds it by the label it is shown with.
 const valueLabeled = (panel: Pane, label: string): string =>
   found(
     valuesOf(panel).values.find((one) => one.label === label),
@@ -361,7 +361,7 @@ const bound = (panel: Pane, which: 'since' | 'until', day: string | null): Pane 
 const isShownOf = (panel: Pane, label: string): boolean =>
   found(valuesOf(panel).values.find((one) => one.label === label), `item ${label}`).isShown
 
-// WHY: a task row is named by its SQ-1 cell; the two nameless tasks by their SQ-3 cell as well.
+// Why: a task row is named by its SQ-1 cell; the two nameless tasks by their SQ-3 cell as well.
 const TASK_KEYS = new Map<string, number>(
   TASKS.map((one) => [one.name === '' ? `${NO_NAME_JA}@${written(one.start ?? '')}` : one.name, one.uid]),
 )
@@ -450,7 +450,7 @@ describe('T-330 SV-7 -- IC-122 on every heading opens the filter of that column,
     expect(menuOf(panel).column).toBe(column)
   })
 
-  // WHY: CR-800 SV-7 -- the Visibility column heading holds the box alone, so there is no IC-122 to press and nothing opens.
+  // Why: CR-800 SV-7 -- the Visibility column heading holds the box alone, so there is no IC-122 to press and nothing opens.
   it('SV-7: the Visibility column (SQ-10) has no IC-122 to press: nothing opens on it', () => {
     expect(searchPanelWithFilterOpened(JA, TASK_PANEL.panel, TASK_PANEL.view, CHECK_COLUMN)).toBeNull()
   })
@@ -810,7 +810,7 @@ describe('T-330 SV-14 / T-028 IN-4 -- Esc closes the open filter first, then the
 })
 
 
-// WHY: the painter (searchPanelPainter) does not run on tests/fixtures/fake-browser.ts, so the drawing is read
+// Why: the painter (searchPanelPainter) does not run on tests/fixtures/fake-browser.ts, so the drawing is read
 // through searchPanelElement, as cr-571-search-panel-view.test.ts does; the change events are not driven here.
 function drawn(panel: Pane): FakeElement {
   const built = stage()

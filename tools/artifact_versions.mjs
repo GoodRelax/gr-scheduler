@@ -71,7 +71,7 @@ function lastInputCommit(inputs, root) {
 function hasPendingInputChange(inputs, root) {
   const lines = git(['status', '--porcelain', '--', ...inputs], root).split('\n').filter(Boolean)
   if (lines.length === 0) return false
-  // WHY: git() trims, so the first status line may have lost its leading space; the path is the last field.
+  // Why: git() trims, so the first status line may have lost its leading space; the path is the last field.
   if (lines.length > 1 || lines[0].trim().split(/\s+/).pop() !== LOCK) return true
   let committed
   try {

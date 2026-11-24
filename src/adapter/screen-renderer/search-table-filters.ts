@@ -1,4 +1,4 @@
-// Applies the search tables' column filters and sort, and lists the values a column's filter offers.
+// File: ScreenRenderer: Applies the search tables' column filters and sort, and lists the values a column's filter offers.
 // @unit      UF-181   (docs/spec/05-07-design.md, table T-075)
 // @component ScreenRenderer, layer Adapter (table T-062)
 // @purity    pure
@@ -21,7 +21,7 @@ export type ColumnSort = NonNullable<TableView['sort']>
 
 export const COMMENT_BOX_SEARCH_COLUMNS: readonly SearchColumn[] = ['SQ-7', 'SQ-8', 'SQ-9']
 
-// see T-331
+// Spec: T-331
 export const TASK_SEARCH_COLUMNS: readonly SearchColumn[] = displayWords.searchColumns
   .map((entry) => entry.rowId)
   .filter((column) => !COMMENT_BOX_SEARCH_COLUMNS.includes(column))
@@ -53,7 +53,7 @@ export function searchTaskStateOf(row: Pick<TaskSearchRow, 'progressMarker' | 'p
   }
 }
 
-// see SV-8
+// Spec: SV-8
 const STATES_ASCENDING: readonly SearchTaskState[] = [
   'DG-1',
   'DG-2',
@@ -66,7 +66,7 @@ const STATES_ASCENDING: readonly SearchTaskState[] = [
   'suspendedResumeUnknown',
 ]
 
-// see SQ-14, SV-8
+// Spec: SQ-14, SV-8
 export type TaskType = 'task' | 'milestone'
 
 export const TASK_TYPES_ASCENDING: readonly TaskType[] = ['task', 'milestone']
@@ -81,7 +81,7 @@ export function compareTaskTypes(a: string, b: string): number {
   return TASK_TYPES_ASCENDING.indexOf(a as TaskType) - TASK_TYPES_ASCENDING.indexOf(b as TaskType)
 }
 
-// see SV-7, SV-8, T-331, T-347
+// Spec: SV-7, SV-8, T-331, T-347
 export interface TableColumns<Row> {
   readonly values: { readonly [column: SearchColumn]: (row: Row) => readonly string[] }
   readonly dates: { readonly [column: SearchColumn]: (row: Row) => string | null }
@@ -90,19 +90,19 @@ export interface TableColumns<Row> {
 
 const PERCENT = '%'
 
-// see SQ-11, DT-3
+// Spec: SQ-11, DT-3
 /** @purity pure */
 export function percentText(percent: number | null): string {
   return percent === null ? BLANK_SEARCH_VALUE : `${Math.round(percent)}${PERCENT}`
 }
 
-// see SQ-11, DT-3, SV-8
+// Spec: SQ-11, DT-3, SV-8
 /** @purity pure */
 export function comparePercentTexts(a: string, b: string): number {
   return Number.parseFloat(a) - Number.parseFloat(b)
 }
 
-// see SQ-7, SV-17
+// Spec: SQ-7, SV-17
 /** @purity pure */
 export function searchBodyTextOf(text: string): string {
   return text.replace(LINE_BREAKS, LINE_BREAK_SPACE)
@@ -148,13 +148,13 @@ function isColumnOf<Row>(table: TableColumns<Row>, column: SearchColumn): boolea
   return table.values[column] !== undefined || table.dates[column] !== undefined
 }
 
-// see SV-7, T-331
+// Spec: SV-7, T-331
 /** @purity pure */
 export function isDateSearchColumn(column: SearchColumn): boolean {
   return TASK_TABLE.dates[column] !== undefined || COMMENT_BOX_TABLE.dates[column] !== undefined
 }
 
-// WHY: code-unit order, not a locale's: SV-8 names no collation, and a host's collation differs by engine.
+// Why: code-unit order, not a locale's: SV-8 names no collation, and a host's collation differs by engine.
 /** @purity pure */
 function compareTexts(a: string, b: string): number {
   return a < b ? -1 : a > b ? 1 : 0
@@ -183,7 +183,7 @@ function compareDayTexts(a: string | null, b: string | null): number {
   return left === null || right === null ? 0 : compareDays(left, right)
 }
 
-// see SV-8
+// Spec: SV-8
 /** @purity pure */
 function columnOrderOf<Row>(table: TableColumns<Row>, column: SearchColumn): ColumnOrder<Row> | null {
   const date = table.dates[column]
@@ -197,7 +197,7 @@ function columnOrderOf<Row>(table: TableColumns<Row>, column: SearchColumn): Col
   return { isBlank: (row) => textOf(row) === BLANK_SEARCH_VALUE, compare: (a, b) => order(textOf(a), textOf(b)) }
 }
 
-// see SV-8
+// Spec: SV-8
 /** @purity pure */
 function sortedRows<Row>(rows: readonly Row[], order: ColumnOrder<Row>, direction: ColumnSort['direction']): readonly Row[] {
   const sign = direction === 'ascending' ? 1 : -1
@@ -205,7 +205,7 @@ function sortedRows<Row>(rows: readonly Row[], order: ColumnOrder<Row>, directio
   return [...filled, ...rows.filter((row) => order.isBlank(row))]
 }
 
-// see SV-7
+// Spec: SV-7
 /** @purity pure */
 function isWithinDates(stored: string | null, from: string | null, to: string | null): boolean {
   if (from === null && to === null) return true
@@ -238,7 +238,7 @@ export function filteredTableRows<Row>(
   return order === null || sort === null ? kept : sortedRows(kept, order, sort.direction)
 }
 
-// see AM-25, AV-17, T-331
+// Spec: AM-25, AV-17, T-331
 export interface SearchColumnHeading {
   readonly column: SearchColumn
   readonly ja: string
@@ -246,7 +246,7 @@ export interface SearchColumnHeading {
   readonly isDate: boolean
 }
 
-// see AM-25, AM-28, AV-17
+// Spec: AM-25, AM-28, AV-17
 /** @purity pure */
 export function columnHeadingsOf(
   columns: readonly SearchColumn[],
@@ -259,20 +259,20 @@ export function columnHeadingsOf(
   })
 }
 
-// see AM-25, AV-17, T-331
+// Spec: AM-25, AV-17, T-331
 /** @purity pure */
 export function taskSearchColumnHeadings(): readonly SearchColumnHeading[] {
   const words = new Map(displayWords.searchColumns.map((entry) => [entry.rowId, entry.text]))
   return columnHeadingsOf(TASK_SEARCH_COLUMNS, words, isDateSearchColumn)
 }
 
-// see AM-28, AV-19, AV-20, T-347, T-371
+// Spec: AM-28, AV-19, AV-20, T-347, T-371
 export interface TableRowCells {
   readonly key: number | string
   readonly cells: readonly { readonly column: string; readonly text: string }[]
 }
 
-// see SV-7, SV-8
+// Spec: SV-7, SV-8
 /** @purity pure */
 export function filteredSearchRows(
   rows: SearchRows,
@@ -285,8 +285,8 @@ export function filteredSearchRows(
   }
 }
 
-// see SV-7, SV-8
-// WHY: in the sort's direction when this column is the sorted one, ascending otherwise; the blank stays last.
+// Spec: SV-7, SV-8
+// Why: in the sort's direction when this column is the sorted one, ascending otherwise; the blank stays last.
 /** @purity pure */
 export function tableColumnValues<Row>(
   rows: readonly Row[],
@@ -303,7 +303,7 @@ export function tableColumnValues<Row>(
   return seen.has(BLANK_SEARCH_VALUE) ? [...filled, BLANK_SEARCH_VALUE] : filled
 }
 
-// see SV-7
+// Spec: SV-7
 /** @purity pure */
 export function columnValuesOf(
   rows: SearchRows,

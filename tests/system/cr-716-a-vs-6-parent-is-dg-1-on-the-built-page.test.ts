@@ -9,17 +9,17 @@ import { REQUIREMENTS } from './cr-570-tree-state-stage'
 
 test.use({ viewport: VIEWPORT, locale: 'en-US', colorScheme: 'light' })
 
-// WHY: the large sample before CR-790, frozen for the CR-651 / CR-716 sweeps; the shipped sample now shows one VS-6 (CR-790).
+// Why: the large sample before CR-790, frozen for the CR-651 / CR-716 sweeps; the shipped sample now shows one VS-6 (CR-790).
 const ERP = 'cr-651-large-sample-before-cr-790.ja.xml'
 const readFixture = (name: string): string => readFileSync(resolve('tests', 'fixtures', name), 'utf8')
 
-// WHY: the VS-6 parents of the large sample at S-487 = 1: four named ones and six inside uids 125 .. 145.
+// Why: the VS-6 parents of the large sample at S-487 = 1: four named ones and six inside uids 125 .. 145.
 const NAMED_PARENTS = [208, 200, 182, 181]
 const RANGE_FIRST = 125
 const RANGE_LAST = 145
 const RANGE_PARENTS = 6
 
-// see AG-1
+// Spec: AG-1
 const callApi = <T>(page: Page, body: string): Promise<T> =>
   page.evaluate((code) => new Function('api', code)((window as any).grSchedulerAgentApi), body) as Promise<T>
 

@@ -8,7 +8,7 @@ import { AGENT_API_MEMBERS, KEYS_OF, REQUIREMENTS, SETTINGS_BOOK, TABLES } from 
 const cellOf = (table: string, id: string, heading: string): string =>
   unbroken(specTable(table).rows.find((one) => one.id === id)?.by[heading] ?? '')
 
-// WHY: each clause ends exactly at its marker, cut from the manuscript as check 39 reads it.
+// Why: each clause ends exactly at its marker, cut from the manuscript as check 39 reads it.
 const FR_151_NOT_SAVED = '⛔ パネルの表示・位置・大きさ・語・列の幅を文書に保存してはならない（MUST NOT） —— 画面の使い方であって文書の内容ではない（`_assets/tbl-settings.md` の 表 T-206 の `S-442`・`S-419`・`S-420`）。'
 const FR_151_SAVED = '⭐ 3 つの表の見え方 —— 表示の列の値・スケジュールフィルタの入切・列のフィルタ・並べ替え —— は文書に保存すること（MUST）'
 const FR_151_WHY = '（`_assets/tbl-settings.md` の 表 T-203 の `S-560` 〜 `S-572`） —— スケジュールフィルタを掛けた日程を、そのまま人に渡すためである（利用者が定めた）。'
@@ -194,7 +194,7 @@ describe('CR-723 -- table T-203 rows S-560 to S-572 hold the 13 keys with their 
   })
 
   it('table T-372 holds ColumnFilter (column, hiddenValues, fromDate, toDate) and ColumnSort (column, direction)', () => {
-    // WHY: table T-372 carries no row-ID column, so specTable cannot read it; its rows are cut from the caption on.
+    // Why: table T-372 carries no row-ID column, so specTable cannot read it; its rows are cut from the caption on.
     const lines = SETTINGS_BOOK.split(/\r?\n/)
     const from = lines.findIndex((line) => line.startsWith('**表 T-372 —'))
     expect(from, 'the caption of table T-372').toBeGreaterThanOrEqual(0)

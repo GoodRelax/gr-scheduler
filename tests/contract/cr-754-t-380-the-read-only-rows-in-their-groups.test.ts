@@ -20,7 +20,7 @@ import {
   type Loose,
 } from './cr-754-stage'
 
-// see FR-072, T-369, T-380
+// Spec: FR-072, T-369, T-380
 const T_369_AFTER_FO_16 = '本表に行を持たない設定の値は、本要求の読むだけの行として `FO-16` の後に、表 T-380 の組と並びで置くこと（MUST）'
 const T_369_HEADINGS = '⭐ 読むだけの行の前に、`FR-038` の辞書の `readOnlySettings` の `heading` の語の 1 行を置き、組ごとに見出しを置くこと（MUST）'
 const T_369_FOLDABLE = '見出しを押すとその組を畳め、初めはどの組も開いている。'
@@ -34,8 +34,8 @@ const SECTION = 'readOnlySettings'
 const TIME_SHIFT = 'IC-162'
 const DELAY_TOLERANCE = 'K-140'
 
-// see T-380
-// WHY: CR-787 (JDG-2469) -- a row may join two stored keys in one cell segment; partner is the second of them.
+// Spec: T-380
+// Why: CR-787 (JDG-2469) -- a row may join two stored keys in one cell segment; partner is the second of them.
 interface ReadOnlyRow {
   readonly rowId: string
   readonly group: string
@@ -48,7 +48,7 @@ interface ReadOnlyRow {
 /** @purity pure */
 const ticked = (cell: string): readonly string[] => [...cell.matchAll(/`([^`]+)`/g)].map((one) => one[1] ?? '')
 
-// WHY: T-380 read row by row; "the same group" and "the same as RN-6" are resolved against the rows above.
+// Why: T-380 read row by row; "the same group" and "the same as RN-6" are resolved against the rows above.
 const T_380: readonly ReadOnlyRow[] = (() => {
   const rows: ReadOnlyRow[] = []
   let group = ''
@@ -62,13 +62,13 @@ const T_380: readonly ReadOnlyRow[] = (() => {
     const keyTokens = ticked(keyCell)
     const reusedKeys = keyTokens.find((one) => /^RN-\d+$/.test(one))
     const prefix = keyTokens[0]?.startsWith('tableViews.') === true ? `${keyTokens[0]}.` : ''
-    // WHY: one displayed row per segment of the key cell; a segment of two keys is one row (T-380, RN-3, CR-787).
+    // Why: one displayed row per segment of the key cell; a segment of two keys is one row (T-380, RN-3, CR-787).
     const segments: readonly (readonly string[])[] = keyCell
       .split('・')
       .map((segment) => ticked(segment).filter((one) => !one.startsWith('tableViews.')))
       .filter((segment) => segment.length > 0)
     const own = reusedKeys !== undefined ? (keysOf.get(reusedKeys) ?? []) : segments
-    // WHY: the section name readOnlySettings in the name cell says where the words live; it names no row.
+    // Why: the section name readOnlySettings in the name cell says where the words live; it names no row.
     const nameTokens = ticked(row.by['名の語'] ?? '').filter((one) => one !== 'readOnlySettings')
     const reusedNames = nameTokens.find((one) => /^RN-\d+$/.test(one))
     const names = reusedNames !== undefined ? (namesOf.get(reusedNames) ?? []) : nameTokens
@@ -114,15 +114,15 @@ const percentOf = (ratio: number): string => String(Math.round(ratio * 100))
 /** @purity pure */
 const twoDigits = (n: number): string => String(n).padStart(2, '0')
 
-// see T-380, RN-3
-// WHY: the date of scrollDate and the ratio of the day scrollDateFraction as a time from 0:00, hours two digits.
+// Spec: T-380, RN-3
+// Why: the date of scrollDate and the ratio of the day scrollDateFraction as a time from 0:00, hours two digits.
 /** @purity pure */
 function leftEdgeText(date: string, dayOffset: number): string {
   const minutes = Math.round(dayOffset * 24 * 60)
   return `${date.slice(0, 10).split('-').join('/')} ${twoDigits(Math.floor(minutes / 60))}:${twoDigits(minutes % 60)}`
 }
 
-// see T-380
+// Spec: T-380
 /** @purity pure */
 function expectedValue(key: string, settings: Loose, language: DisplayLanguage): string | RegExp {
   const value = valueAt(settings, key)
@@ -132,7 +132,7 @@ function expectedValue(key: string, settings: Loose, language: DisplayLanguage):
   if (leaf === 'isScheduleFilterApplied') return word(value === true ? 'filterOn' : 'filterOff', language)
   if (typeof value === 'boolean') return word(value ? 'shown' : 'hidden', language)
   if (leaf === 'zoomX' || leaf === 'zoomY') return word('percent', language, { n: percentOf(value as number) })
-  // WHY: CR-787 -- RN-3 joins scrollDate with scrollDateFraction, and scrollTaskGroupId with scrollTaskGroupFraction.
+  // Why: CR-787 -- RN-3 joins scrollDate with scrollDateFraction, and scrollTaskGroupId with scrollTaskGroupFraction.
   if (leaf === 'scrollDate') return value === null ? word('notSet', language) : leftEdgeText(String(value), Number(settings['scrollDateFraction']))
   if (leaf === 'scrollTaskGroupId') {
     const name = (TEMPLATE.schedule.taskGroups as readonly Loose[]).find((one) => one['id'] === value)?.['name']
@@ -159,7 +159,7 @@ function expectedValue(key: string, settings: Loose, language: DisplayLanguage):
 
 const FILTER = { column: 'SQ-5', hiddenValues: ['x'], fromDate: null, toDate: null }
 
-// WHY: every value of T-380 moved off the startup document's, so each value form is pressed at least once off its default.
+// Why: every value of T-380 moved off the startup document's, so each value form is pressed at least once off its default.
 const MOVED: Loose = {
   isPlanVisible: false,
   isActualVisible: false,

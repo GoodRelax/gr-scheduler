@@ -126,7 +126,7 @@ const TEMPLATE = JSON.parse(
   readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
 ) as Record<string, any>
 
-// WHY: the startup template's own settings -- the case DFC-1230 reports -- over the defaults.
+// Why: the startup template's own settings -- the case DFC-1230 reports -- over the defaults.
 const TEMPLATE_SETTINGS: Loose = { ...SETTINGS_DEFAULTS, ...TEMPLATE.documentSettings }
 
 const iso = (day: number): string => new Date(Date.UTC(2026, 1, 2) + day * 86400000).toISOString().slice(0, 10)
@@ -161,7 +161,7 @@ const taskOf = (uid: number, start: number, days: number, links: readonly number
   carry: {},
 })
 
-// WHY: Task 1 on the head task group starts the first day covered (OP-10); Task 2 lies below 60 task groups, inside across.
+// Why: Task 1 on the head task group starts the first day covered (OP-10); Task 2 lies below 60 task groups, inside across.
 const FILLERS = Array.from({ length: 60 }, (_one, at) => `f${at}`)
 const GROUPS: readonly string[] = ['a', ...FILLERS, 'z']
 const TASKS: readonly (readonly [Loose, string])[] = [
@@ -219,7 +219,7 @@ interface Scene {
   readonly context: InputContext
 }
 
-// WHY: the picture is laid out at the place the view is drawn from (`drawn`), while the document the
+// Why: the picture is laid out at the place the view is drawn from (`drawn`), while the document the
 // translator reads holds what is stored (`stored`) -- for the template, no place at all.
 const sceneOf = (stored: Loose, drawn: Loose): Scene => {
   const regions = regionsFromScreen(ENVIRONMENT as unknown as Environment, drawn as unknown as Settings)
@@ -255,12 +255,12 @@ const sceneOf = (stored: Loose, drawn: Loose): Scene => {
   }
 }
 
-// see OP-10
+// Spec: OP-10
 const TEMPLATE_PLACE: Loose = { scrollDate: FIRST_DAY, scrollDateFraction: 0, scrollTaskGroupId: HEAD_TASK_GROUP, scrollTaskGroupFraction: 0 }
 
-// WHY: the template stores nothing, yet its picture is drawn at OP-10's place.
+// Why: the template stores nothing, yet its picture is drawn at OP-10's place.
 const unplaced = (): Scene => sceneOf(TEMPLATE_SETTINGS, { ...TEMPLATE_SETTINGS, ...TEMPLATE_PLACE })
-// WHY: the control is the same view with the place stored.
+// Why: the control is the same view with the place stored.
 const placed = (): Scene => {
   const stored = { ...TEMPLATE_SETTINGS, ...TEMPLATE_PLACE }
   return sceneOf(stored, stored)
@@ -291,7 +291,7 @@ const pointer = (phase: 'down' | 'up', at: Pt, clickCount: number): PointerInput
     clickCount,
   }) as unknown as PointerInput
 
-// WHY: PE-12 sends on one still press and release (clickCount 1), read with the press reading
+// Why: PE-12 sends on one still press and release (clickCount 1), read with the press reading
 // (the TRAP on PointerPress.hit); MK-13 gives the mark no double-click destination.
 const stillClickOn = (scene: Scene): { readonly press: PointerPress; readonly out: TranslatedInput } => {
   const at = markOf(scene)
@@ -313,7 +313,7 @@ const onlyOf = (writes: readonly Loose[], kind: string): Loose | undefined => {
   return found[0]
 }
 
-// WHY: the stored settings after the writes land in the document.
+// Why: the stored settings after the writes land in the document.
 const storedAfter = (stored: Loose, writes: readonly Loose[]): Loose => {
   const next: Loose = { ...stored }
   for (const write of writes) {

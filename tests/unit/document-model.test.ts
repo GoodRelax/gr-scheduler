@@ -569,7 +569,7 @@ type Flags = Pick<EscapeContext, 'isTextEntryUnsettled' | 'gestureInFlight' | 'd
   readonly isConfirmationStanding?: boolean
 }
 
-// see T-280
+// Spec: T-280
 const stepped = (screen: ScreenValues, ...events: readonly ScreenValuesEvent[]): ScreenValues =>
   events.reduce(
     (session, event) => advanceScreenSession(session, event).state,
@@ -584,7 +584,7 @@ const armedWith = (armKind: 'dependencyArmed' | 'commentBoxArmed'): ScreenValues
 const withSurface = (screen: ScreenValues, surfaceName: string): ScreenValues =>
   stepped(screen, { type: 'surfaceEntryPressed', surfaceName })
 
-// see IN-4
+// Spec: IN-4
 const rungOf = (screen: ScreenValues, flags: Flags): ReturnType<typeof escapeTarget> => {
   const context = {
     screen,
@@ -738,7 +738,7 @@ describe('ScreenState (PI-36) -- Esc over a standing question (IN-4, IN-4a)', ()
     expect(rungOf(armedOnly, context)).toBe('confirmation')
     expect(rungOf(armedOnly, context)).toBe('confirmation')
     expect(context.isConfirmationStanding).toBe(true)
-    // WHY: wave 2 of CR-767 (JDG-2364) holds the arm as a child of the composite `armed`.
+    // Why: wave 2 of CR-767 (JDG-2364) holds the arm as a child of the composite `armed`.
     expect(armedOnly.armModeState).toEqual({ kind: 'armed', child: { kind: 'dependencyArmed' } })
   })
 })
@@ -753,9 +753,9 @@ describe('Document (PI-34) -- table T-052', () => {
     changeLog: [],
   }
 
-  // WHY: CR-699 (JDG-1693) put the schema's address at the head of the root (DR-4).
+  // Why: CR-699 (JDG-1693) put the schema's address at the head of the root (DR-4).
   it('holds the six keys DR-1 to DR-4 name, the address first', () => {
-    // WHY: the root keys are a generated region since CR-768; DR-4 names each one missing, in order.
+    // Why: the root keys are a generated region since CR-768; DR-4 names each one missing, in order.
     expect(documentViolations({}).filter((one) => one.row === 'DR-4').map((one) => one.at)).toEqual([
       '/$schema',
       '/schemaVersion',

@@ -248,7 +248,7 @@ export function schemaModel(version: SchemaVersion): SchemaModel {
   return model
 }
 
-// see EX-1, AT-143
+// Spec: EX-1, AT-143
 export function pj15OnlyPaths(): readonly string[] {
   const older = schemaModel('pj12').byPath
   return [...schemaModel('pj15').byPath.keys()].filter((path) => !older.has(path))
@@ -349,8 +349,8 @@ function elementFaults(
   return complexFaults(node, decl.content, path, tolerated)
 }
 
-// see EX-1
-// WHY: no XSD validator is a dependency, so structure, occurrence and the simple types are judged here.
+// Spec: EX-1
+// Why: no XSD validator is a dependency, so structure, occurrence and the simple types are judged here.
 export function schemaFaults(
   text: string,
   version: SchemaVersion,
@@ -457,20 +457,20 @@ function normalizedNode(node: XmlNode, path: string, keepOrder: boolean): Normal
   return { name: node.name, uri: node.uri, attributes, text: null, groups }
 }
 
-// see NR-7, DV-12
+// Spec: NR-7, DV-12
 function withoutMadeAtWrite(root: XmlNode): XmlNode {
   if (root.name !== 'Project') return root
   const made = (child: XmlNode): boolean => child.name === 'LastSaved' && child.uri === root.uri
   return { ...root, children: root.children.filter((child) => !made(child)) }
 }
 
-// see T-228, NR-1, NR-2, NR-3, NR-4, NR-5, NR-6, NR-7
+// Spec: T-228, NR-1, NR-2, NR-3, NR-4, NR-5, NR-6, NR-7
 export function normalizedMspdi(text: string): Normalized {
   const root = withoutMadeAtWrite(parseXml(text))
   return normalizedNode(root, root.name, false)
 }
 
-// WHY: NR-6 forgets the order EX-10 decides, so outputs that must be written alike are compared ordered.
+// Why: NR-6 forgets the order EX-10 decides, so outputs that must be written alike are compared ordered.
 export function orderedMspdi(text: string): Normalized {
   const root = withoutMadeAtWrite(parseXml(text))
   return normalizedNode(root, root.name, true)
@@ -530,7 +530,7 @@ function nameGroups(children: readonly Spec[]): Spec[][] {
   return order.map((name) => groups.get(name) ?? [])
 }
 
-// see EX-10
+// Spec: EX-10
 export function inSchemaOrder(root: Spec): Spec {
   return mapTree(root, 'Project', (children, path) => {
     const decl = declAt(path)
@@ -542,8 +542,8 @@ export function inSchemaOrder(root: Spec): Spec {
   })
 }
 
-// see MR-1, MR-2
-// WHY: an xsd:all parent keeps its arrived order (EX-10), so shuffling it would move the expected output too.
+// Spec: MR-1, MR-2
+// Why: an xsd:all parent keeps its arrived order (EX-10), so shuffling it would move the expected output too.
 export function reversedByName(root: Spec): Spec {
   return mapTree(root, 'Project', (children, path) =>
     isSequenceParent(path) ? nameGroups(children).reverse().flat() : children,
@@ -558,7 +558,7 @@ export function changedAt(
   return mapTree(root, 'Project', (children, path) => (path === parentPath ? change(children) : children))
 }
 
-// see MR-2
+// Spec: MR-2
 export function reversedWithinName(children: readonly Spec[]): readonly Spec[] {
   const groups = nameGroups(children).map((group) => [...group].reverse())
   const next = new Map(groups.map((group) => [group[0]?.name ?? '', [...group]]))
@@ -616,7 +616,7 @@ export function withLeafAt(root: Spec, parentPath: string, added: Spec): Spec {
   return out
 }
 
-// see AT-143, EX-10
+// Spec: AT-143, EX-10
 export function withEveryPj15OnlyElement(root: Spec): Spec {
   let out = root
   for (const path of pj15OnlyPaths()) {

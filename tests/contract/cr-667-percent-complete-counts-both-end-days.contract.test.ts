@@ -23,8 +23,8 @@ import { bare, specTable, unbroken } from './spec-table'
 
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
-// WHY: each constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
-// WHY: CR-710 retired the day count; the plan is now FR-011's working time in minutes (FR-054).
+// Why: each constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
+// Why: CR-710 retired the day count; the plan is now FR-011's working time in minutes (FR-054).
 const FR_012_PLAN_BY_FR_011 =
   '⭐ **予定の期間は、`start` から `finish` までを、`FR-011` が実績の長さを数える規則で数えた稼働時間（分）とすること（MUST）'
 const FR_012_MILESTONE_ZERO = 'マイルストーンの予定の期間は 0 とする —— 長さを持たない点である（`FR-011` と同じ扱い）。'
@@ -51,20 +51,20 @@ describe('CR-667 the manuscript these cases are driven by', () => {
   })
 })
 
-// see FR-012, OP-6
-// WHY: a GRS JSON read recounts from the dates, so it is the public path that prices each case.
+// Spec: FR-012, OP-6
+// Why: a GRS JSON read recounts from the dates, so it is the public path that prices each case.
 const TEMPLATE = JSON.parse(
   readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
 ) as Record<string, any>
 
-// WHY: a Monday-to-Friday calendar and nothing else, so every count below is the weekdays alone.
+// Why: a Monday-to-Friday calendar and nothing else, so every count below is the weekdays alone.
 const MON_TO_FRI_CALENDARS = (TEMPLATE['schedule']['calendars'] as Record<string, unknown>[]).map((one) => ({
   ...one,
   exceptions: [],
 }))
 
-// WHY: January 2026 runs Mon 5, Tue 6, Wed 7, Thu 8, Fri 9, Sat 10, Sun 11, Mon 12.
-// WHY: the times GRS writes (T-350): a start side at 08:00 and a finish side at 17:00, so a day is a whole day (FR-054).
+// Why: January 2026 runs Mon 5, Tue 6, Wed 7, Thu 8, Fri 9, Sat 10, Sun 11, Mon 12.
+// Why: the times GRS writes (T-350): a start side at 08:00 and a finish side at 17:00, so a day is a whole day (FR-054).
 const day = (dayOfMonth: number): string => `2026-01-${String(dayOfMonth).padStart(2, '0')}T08:00:00`
 const dayEnd = (dayOfMonth: number): string => `2026-01-${String(dayOfMonth).padStart(2, '0')}T17:00:00`
 
@@ -185,7 +185,7 @@ describe(`FR-012 (MUST): ${FR_012_PLAN_BY_FR_011}`, () => {
   })
 })
 
-// see EP-9, T-236, WY-2
+// Spec: EP-9, T-236, WY-2
 const T_236 = specTable('T-236')
 
 const s236 = (id: string, theme: '明るいテーマ' | '暗いテーマ', hue: number): string => {
@@ -307,7 +307,7 @@ describe(`EP-9 (MUST): ${EP_9_S_149}`, () => {
 })
 
 // see FR-012, DFC-682
-// WHY: the Nth weekday counting from Monday 2026-01-05, so a "40 working day" plan needs no calendar arithmetic in the cases.
+// Why: the Nth weekday counting from Monday 2026-01-05, so a "40 working day" plan needs no calendar arithmetic in the cases.
 const weekday = (nth: number, time = '08:00:00'): string => {
   const date = new Date(Date.UTC(2026, 0, 5))
   let counted = 1
@@ -330,14 +330,14 @@ const roundingCase = (uid: number, name: string, planDays: number, actualDays: n
   expected,
 })
 
-// WHY: FR-012 names `round`, not floor or ceil: a ratio of exactly .5 goes up, and a ratio near but off .5 goes the near way.
+// Why: FR-012 names `round`, not floor or ceil: a ratio of exactly .5 goes up, and a ratio near but off .5 goes the near way.
 const ROUNDING_CASES: readonly Case[] = [
-  // WHY: 23 / 40 is 57.5 exactly; the float product (23 / 40) * 100 is 57.49999999999999 and once read as 57.
+  // Why: 23 / 40 is 57.5 exactly; the float product (23 / 40) * 100 is 57.49999999999999 and once read as 57.
   roundingCase(11, '23 of 40 working days (57.5) reads 58', 40, 23, 58),
   roundingCase(12, '3 of 40 working days (7.5) reads 8', 40, 3, 8),
   roundingCase(13, '7 of 40 working days (17.5) reads 18', 40, 7, 18),
   roundingCase(14, '15 of 40 working days (37.5) reads 38', 40, 15, 38),
-  // WHY: floor reads the first as 66 and ceil reads the second as 34; round gives 67 and 33.
+  // Why: floor reads the first as 66 and ceil reads the second as 34; round gives 67 and 33.
   roundingCase(15, '20 of 30 working days (66.67) reads 67', 30, 20, 67),
   roundingCase(16, '10 of 30 working days (33.33) reads 33', 30, 10, 33),
 ]

@@ -20,15 +20,15 @@ import { ERD_DETAIL, REQUIREMENTS, asDocument, documentObject, elementTexts, msp
 const A_MOMENT = '2026-10-04T09:00:00'
 const RECURRING_NOTICE = 'repeats, and repeating exception days are not spread over real dates'
 
-// see AT-82, T-058
+// Spec: AT-82, T-058
 const AT_82_PREDICATE =
   '繰り返しの無い例外日とは、本列が `9` か空の行と、`1` で `carry` の `Period`（繰り返しの間隔）が無いか `1` の行である'
 const AT_82_ADDED = '`GRS` が足す例外日は `1` とする'
-// see FR-054
+// Spec: FR-054
 const FR_054_NOT_COUNTED = '稼働日の数えに使ってはならない（MUST NOT）'
-// see WC-6, T-344
+// Spec: WC-6, T-344
 const WC_6_KIND = '休みとし、`AT-82` を `1` とする'
-// see EX-13, EX-14, T-033
+// Spec: EX-13, EX-14, T-033
 const EX_13_SHAPE = '`Type` 1・`Occurrences` 1・`EnteredByOccurrences` 0 で書き出すこと（MUST）'
 const EX_13_ONLY_WHEN_ABSENT = '`Occurrences` と `EnteredByOccurrences` は、行の `carry` に無いときだけ足すこと（MUST）'
 const EX_14_UNITS = '割り当て（`Assignment`）の `carry` に `Units` が無いときは、`Units` に `1` を書くこと（MUST）'
@@ -140,7 +140,7 @@ describe('AT-82 / DFC-1961: the reader tells only a recurring exception', () => 
 })
 
 describe('FR-054 / DFC-1964: a recurring exception is not counted as days off', () => {
-  // WHY: 2010-06-15 is a Tuesday; the template works Monday to Friday.
+  // Why: 2010-06-15 is a Tuesday; the template works Monday to Friday.
   const tuesday = { year: 2010, month: 6, day: 15 }
 
   it('FR-054: a yearly exception over 2007..2026 leaves a Tuesday in that range working', () => {

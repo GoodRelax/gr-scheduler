@@ -66,7 +66,7 @@ const SURFACE = machineNamed('screen', 'openSurfaceStateMachine')
 
 const ARM_CHILDREN = ARM.states.filter((s) => s.parent === 'armed').map((s) => s.key.replace(/^armed\./, ''))
 
-// see T-280, FR-016
+// Spec: T-280, FR-016
 const SHAPE_KIND = 'SH-1'
 const OTHER_SHAPE_KIND = 'SH-2'
 const GLYPH = 'SH-5'

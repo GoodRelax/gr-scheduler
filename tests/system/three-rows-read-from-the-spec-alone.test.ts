@@ -123,7 +123,7 @@ const PRESS_OR_DRAG_PX = numberIn(
 const T036_COLUMNS = 3
 const T036_ASSIGNMENT = 1
 
-// WHY: the assignment column marks each key on its own and joins them with a
+// Why: the assignment column marks each key on its own and joins them with a
 // fullwidth plus, so the first mark alone reads Ctrl and selects nothing.
 const T036_ALTERNATIVE = /[\uFF0F/]/
 const T036_KEY_MARK = /`([^`]+)`/g
@@ -900,8 +900,8 @@ test('IN-4: with a face up and a holding armed, one Esc closes the face and leav
 // its order, on the user's own instruction, and table T-037 row `NT-8` (MUST)
 // has that clearing happen ahead of every tier of `Enter` and `Esc`.
 //
-// see HF-10, IC-74, RS-31, FR-029, T-328, T-329
-// WHY: HF-10 is dim only while no task group is undrawn (the zoom counts too), so one press
+// Spec: HF-10, IC-74, RS-31, FR-029, T-328, T-329
+// Why: HF-10 is dim only while no task group is undrawn (the zoom counts too), so one press
 // first draws every task group (T-328 everyTaskGroupOpenPressed); T-233 hides RS-31, so an unreadable drop raises the notice.
 test('IN-4: with a notice up and a holding armed, one Esc clears the notice only', async () => {
   test.setTimeout(180_000)
@@ -913,7 +913,7 @@ test('IN-4: with a notice up and a holding armed, one Esc clears the notice only
   const opened = await openTheApp()
   const page = opened.page
   try {
-    // STEP: set up a picture in which every task group is drawn, then clear any notice it raised
+    // Step: set up a picture in which every task group is drawn, then clear any notice it raised
     expect(
       await pressEntrance(page, UNFOLD_ALL_ENTRANCE),
       `the entrance ${UNFOLD_ALL_ENTRANCE} is on the screen`,

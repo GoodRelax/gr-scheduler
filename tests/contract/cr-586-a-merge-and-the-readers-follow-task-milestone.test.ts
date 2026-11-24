@@ -36,14 +36,14 @@ function rowOf(table: SpecTable, id: string): SpecRow {
   return found
 }
 
-// see MG-8
+// Spec: MG-8
 const MG_8_KEEP = '見た目（色・形状）と、どのタスクグループに載っているかを保つこと（MUST）。'
 const MG_8_REALIGN =
   '⭐ ただし、上書きで `Task.milestone` が変わり、保った形（`TaskVisual.shapeKind`）が `05-07-design.md` の 表 T-220 の `IV-22` に外れるときは、その形を `null` へ戻すこと（MUST）'
-// see T-251
+// Spec: T-251
 const ND_BY_TASK_MILESTONE =
   '⭐ `ND-1` と `ND-2` のどちらで書くかは、`Task.milestone` だけで決めること（MUST） —— 描いた形（`TaskVisual.shapeKind`）で決めてはならない（MUST NOT）。'
-// see FR-009
+// Spec: FR-009
 const FS_WHEN_MILESTONE = 'マイルストーンが端に来る依存は、画面上で作るとき FS とすること（MUST）。'
 const FS_MILESTONE_IS_TASK_MILESTONE =
   '⭐ 本段の「マイルストーン」は、`Task.milestone` が真の `Task` とすること（MUST） —— 描いた形は数えない。'
@@ -74,7 +74,7 @@ function decoded(json: Json): Document {
   return read.document
 }
 
-// see T-294
+// Spec: T-294
 const PALETTE: readonly string[] = T_294.rows.map((row) => bare(row.by['保存する綴り'] ?? ''))
 
 const nested = (flat: Readonly<Record<string, unknown>>): DocumentSettings => {
@@ -98,7 +98,7 @@ interface MergeScene {
   readonly merged: Document
 }
 
-// see MG-8
+// Spec: MG-8
 function mergedFlip(shapeIsMilestone: boolean, flip: boolean): MergeScene {
   const json = JSON.parse(TEMPLATE_TEXT) as Json
   const visuals = json['schedule']['taskVisuals'] as Json[]
@@ -107,7 +107,7 @@ function mergedFlip(shapeIsMilestone: boolean, flip: boolean): MergeScene {
   )
   if (visual === undefined) throw new Error('premise: the template holds such a visual')
   const taskUid = visual['taskUid'] as number
-  // WHY: MG-8 keeps colors; null colors would keep themselves by doing nothing, so the scene paints them.
+  // Why: MG-8 keeps colors; null colors would keep themselves by doing nothing, so the scene paints them.
   visual['fillColor'] = PALETTE[3]
   visual['strokeColor'] = PALETTE[4]
   const current = decoded(json)
@@ -182,7 +182,7 @@ describe('T-032 MG-8: an MSPDI merge that flips Task/Milestone on a held task (C
 
 const DATE_SEPARATOR = ' - '
 
-// see ND-2
+// Spec: ND-2
 function premiseNd2Separator(): void {
   expect(rowOf(T_251, 'ND-2').by['書き方'] ?? '').toContain('半角空白 1 つ、`-`、半角空白 1 つ')
 }
@@ -192,7 +192,7 @@ interface LabelScene {
   readonly shapeKind: TaskVisual['shapeKind']
 }
 
-// see FR-002, T-251, S-232
+// Spec: FR-002, T-251, S-232
 function labelDatesOf(scene: LabelScene): string {
   const document = taskGroupDocument([{ id: 'r1', parentId: null }], { isPlanDatesVisible: true }, {
     taskVisuals: [
@@ -240,10 +240,10 @@ describe('T-251 ND-1 / ND-2 read Task.milestone only (FR-002, CR-586 E-01)', () 
 
 const LIMITS: SettingsLimits = { zoomMin: 0.02, zoomMax: 64, taskGroupAreaWidthWithoutPanels: 982 }
 
-// see T-018
+// Spec: T-018
 const linkTypeOf = (id: string): number => Number(bare(rowOf(T_018, id).by['`linkType`'] ?? ''))
 
-// see FR-009, T-018
+// Spec: FR-009, T-018
 function createdLinkType(milestone: boolean, shapeKind: TaskVisual['shapeKind']): number | string {
   const json = taskGroupDocument([
     { id: 'r1', parentId: null },

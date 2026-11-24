@@ -19,6 +19,6 @@ const nestedFrom = (prefix: string): Record<string, unknown> | undefined => {
   return found ? built : undefined
 }
 
-// see OP-6
+// Spec: OP-6
 export const settingDefaultOf = (key: string): unknown =>
   Object.hasOwn(SETTINGS_DEFAULTS, key) ? SETTINGS_DEFAULTS[key] : nestedFrom(key)

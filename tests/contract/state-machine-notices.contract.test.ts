@@ -78,7 +78,7 @@ function tnRow(raw: RawRegion, state: string, event: string, branch: RawBranch, 
   }
 }
 
-// WHY: the manuscript holds one table per machine (JDG-286); this reads it back into the state,
+// Why: the manuscript holds one table per machine (JDG-286); this reads it back into the state,
 // event and transition rows the oracle walks. An `in` guard term joins the source conjunction.
 function regionOf(raw: RawRegion): Region {
   const states: SmRow[] = [{ id: raw.region, key: raw.region, parent: null, initial: true, carries: raw.root.carries }]
@@ -126,7 +126,7 @@ function leavesOf(region: Region): SmRow[] {
 function axisAndPath(key: string): { axis: string; path: string[] } {
   const [machine, ...path] = key.split('.')
   if (machine === undefined) throw new Error(`state key ${key} has no machine`)
-  // WHY: the machine is named `...StateMachine` and the value holding its current state `...State` (R4.4).
+  // Why: the machine is named `...StateMachine` and the value holding its current state `...State` (R4.4).
   return { axis: machine.replace(/Machine$/, ''), path }
 }
 
@@ -146,7 +146,7 @@ function step(session: ScreenSession, event: Loose): ReturnType<typeof advanceSc
   return advanceScreenSession(session, event as unknown as SessionEvent)
 }
 
-// see NT-3, T-233
+// Spec: NT-3, T-233
 const OLDEST: Notice = { reason: 'RS-41', affectedCount: 3 }
 const NEWEST: Notice = { reason: 'RS-35', affectedCount: null }
 const ABSENT_REASON = 'RS-9'
@@ -174,7 +174,7 @@ function withNotices(axes: Loose): ScreenSession {
   return { ...regionsOf(emptyScreenSession), notices: { ...noticesOf(emptyScreenSession), ...axes } } as unknown as ScreenSession
 }
 
-// see SS-6, T-286
+// Spec: SS-6, T-286
 function orthogonalSessions(): { name: string; session: ScreenSession }[] {
   const byAxis = new Map<string, { name: string; axes: Loose }[]>()
   for (const sm of leavesOf(NOTICES)) {
@@ -243,7 +243,7 @@ function firingRows(notices: Loose, event: Loose): TnRow[] {
   )
 }
 
-// WHY: T-286 notes carry what a self cell does to the list; NT-3 says the bundled one
+// Why: T-286 notes carry what a self cell does to the list; NT-3 says the bundled one
 // becomes the newest and its count grows, NT-8 says the newest goes first.
 function expectedStanding(row: TnRow, before: readonly Notice[], event: Loose): readonly Notice[] | undefined {
   const reason = event['reason'] as string
@@ -265,7 +265,7 @@ function expectedStanding(row: TnRow, before: readonly Notice[], event: Loose): 
   }
 }
 
-// see SD-3, SF-3, SS-5
+// Spec: SD-3, SF-3, SS-5
 function expectNoticeStep(session: ScreenSession, event: Loose): void {
   const before = noticesOf(session)
   const rows = firingRows(before, event)

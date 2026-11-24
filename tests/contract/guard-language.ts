@@ -79,7 +79,7 @@ function tokensOf(condition: string): Token[] {
 
 const COMPARISONS = new Set(['==', '!=', '<', '<=', '>', '>='])
 
-// see SD-3
+// Spec: SD-3
 class Parser {
   private at = 0
   constructor(
@@ -262,7 +262,7 @@ function machineValue(scope: GuardScope, machine: ManuscriptMachine, useAfter: b
     if (scope.after === undefined) throw new Error(`guard language: ${machine.name} after the step is asked, but the scope cannot tell it`)
     return scope.after(machine.name)
   }
-  // WHY: the machine is named `...StateMachine` and the value holding its current state `...State` (R4.4).
+  // Why: the machine is named `...StateMachine` and the value holding its current state `...State` (R4.4).
   const value = scope.values[machine.name.replace(/Machine$/, '')]
   if (value === undefined) throw new Error(`guard language: region ${scope.region} values hold no ${machine.name}`)
   return value
@@ -278,7 +278,7 @@ function kindPath(value: unknown): string[] {
   return path
 }
 
-// see SD-1
+// Spec: SD-1
 function carriedOf(machine: ManuscriptMachine, value: unknown, carry: string): unknown {
   if (!machine.states.some((s) => s.carries.some((c) => c.name === carry))) {
     throw new Error(`guard language: no state of ${machine.name} carries ${carry}`)
@@ -354,7 +354,7 @@ function asBoolean(value: unknown, what: string): boolean {
   return value
 }
 
-// see SD-3
+// Spec: SD-3
 function evaluate(node: Node, scope: GuardScope, region: GuardRegion, useAfter: boolean): unknown {
   switch (node.kind) {
     case 'literal':

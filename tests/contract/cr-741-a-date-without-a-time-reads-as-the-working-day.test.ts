@@ -43,8 +43,8 @@ import { unbroken } from './spec-table'
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 const DESIGN = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '05-07-design.md'), 'utf8'))
 
-// see FR-054, FR-011, IV-14
-// WHY: the three new MUST sentences are quoted as the specification writes them, so a reworded sentence goes red here.
+// Spec: FR-054, FR-011, IV-14
+// Why: the three new MUST sentences are quoted as the specification writes them, so a reworded sentence goes red here.
 const SECONDS_CUT = '⭐ 秒が `00` でない時刻（`2026-01-05T08:00:30`）は、分へ切り捨てて読むこと（MUST）'
 const DATE_ONLY_READ =
   '⭐ 時刻を書いていない日付の字（`2026-01-05`）は、表 T-350 の開始の側の列（`WT-1`・`WT-3`）ではその日の最初の時間帯の始まり、終了の側の列（`WT-2`・`WT-4`、`WT-5` のマイルストーンの開始の側）ではその日の最後の時間帯の終わりの瞬間と読むこと（MUST）'
@@ -85,16 +85,16 @@ function at(text: string): number {
 
 const asText = (instant: number | null): string | null => (instant === null ? null : textOfInstant(instant))
 
-// WHY: Monday to Friday with the spans written on each weekday: 08:00-12:00 and 13:00-17:00 (S-580).
+// Why: Monday to Friday with the spans written on each weekday: 08:00-12:00 and 13:00-17:00 (S-580).
 const STANDARD = workingCalendarOver({ working: MONDAY_TO_FRIDAY_WITH_SPANS })
-// WHY: Monday to Friday with no span written reads with the default spans of S-580, which are the same two.
+// Why: Monday to Friday with no span written reads with the default spans of S-580, which are the same two.
 const UNSPANNED = workingCalendarOver({ working: MONDAY_TO_FRIDAY })
 const NINE_TO_SIX = spansOf(['09:00', '18:00'])
 const LONG_DAYS = workingCalendarOver({
   working: { [MONDAY]: NINE_TO_SIX, [TUESDAY]: NINE_TO_SIX, [WEDNESDAY]: NINE_TO_SIX, [THURSDAY]: NINE_TO_SIX, [FRIDAY]: NINE_TO_SIX },
 })
 
-// WHY: January 2026 starts on a Thursday: the 2nd is a Friday, the 9th the Friday after, the 10th a Saturday.
+// Why: January 2026 starts on a Thursday: the 2nd is a Friday, the 9th the Friday after, the 10th a Saturday.
 const JAN_SECOND_FRIDAY = 9
 const JAN_SECOND_SATURDAY = 10
 

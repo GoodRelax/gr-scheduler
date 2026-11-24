@@ -1,4 +1,4 @@
-// ScheduleLayout -- the fit: the zooms and the view place that show the whole schedule (FR-055).
+// File: ScheduleLayout: the fit: the zooms and the view place that show the whole schedule (FR-055).
 // @unit      UF-143  (docs/spec/05-07-design.md, table T-075)
 // @component ScheduleLayout, layer layoutEngine (table T-062)
 // @purity    pure
@@ -16,7 +16,7 @@ import { layoutFromSchedule, type ScheduleLayout } from './schedule-layout'
 import { zoomYAtPlanHeightFloor } from './shape-cross-sections'
 import { dateAtX, xFromDay } from './time-axis'
 
-// see FR-055, OP-10
+// Spec: FR-055, OP-10
 export interface FitToScreen {
   readonly zoomX: number
   readonly zoomY: number
@@ -47,7 +47,7 @@ function deepestDrawnDepth(schedule: Schedule, settings: DocumentSettings, shown
   return Math.min(deepest, SETTINGS_CONSTANTS.maxGroupDepth)
 }
 
-// see FR-016, FR-055, T-068
+// Spec: FR-016, FR-055, T-068
 /** @purity pure */
 function clampedZoom(value: number, zoom: NotStoredZoom): number {
   const lifted = Number.isFinite(zoom.min) ? Math.max(zoom.min, value) : value
@@ -56,11 +56,11 @@ function clampedZoom(value: number, zoom: NotStoredZoom): number {
 
 const FIT_MARGIN_SIDES = 2
 
-// WHY: the labels follow zoomY and not zoomX, so the extent is near-linear in zoomX and a few
+// Why: the labels follow zoomY and not zoomX, so the extent is near-linear in zoomX and a few
 // secant steps land it; a fixed count keeps a stepped extent from running on.
 const FIT_SOLVE_STEPS = 6
 
-// WHY: a width closer than half a pixel to the room draws the same picture.
+// Why: a width closer than half a pixel to the room draws the same picture.
 const FIT_WIDTH_TOLERANCE_PX = 0.5
 
 interface FitRun {
@@ -68,7 +68,7 @@ interface FitRun {
   readonly run: ScheduleLayout
 }
 
-// see FR-055, LF-16
+// Spec: FR-055, LF-16
 /** @purity pure */
 function fitsTaskGroupArea(run: ScheduleLayout, regions: ScreenRegions): boolean {
   // Provisional: OPQ-9
@@ -106,8 +106,8 @@ function isWidthSettled(run: ScheduleLayout, room: number): boolean {
   return run.contentWidth <= 0 || (spare >= 0 && spare <= FIT_WIDTH_TOLERANCE_PX)
 }
 
-// see FR-055
-// WHY: the widest run that fits; when none does (the labels alone are wider), the narrowest one.
+// Spec: FR-055
+// Why: the widest run that fits; when none does (the labels alone are wider), the narrowest one.
 /** @purity pure */
 function widthFittedRun(
   runAtX: (zoomX: number) => ScheduleLayout,
@@ -129,7 +129,7 @@ function widthFittedRun(
   return pool.find((one) => one.zoomX === zoomX)!
 }
 
-// see FR-055
+// Spec: FR-055
 /** @purity pure */
 function landedFit(
   deepestFitting: number,
@@ -144,7 +144,7 @@ function landedFit(
   }
 }
 
-// see FR-055, S-177
+// Spec: FR-055, S-177
 /** @purity pure */
 function fittedLeftEdge(
   chosen: ScheduleLayout,
@@ -158,8 +158,8 @@ function fittedLeftEdge(
   return { day, offset: into > 0 && into < 1 ? into : 0 }
 }
 
-// see FR-055, S-332, TV-1
-// DEVIATION: spec clamps both axes to S-75/S-76 (FR-016); here only zoomX is (DFC-726)
+// Spec: FR-055, S-332, TV-1
+// Temporary: spec clamps both axes to S-75/S-76 (FR-016); here only zoomX is (DFC-726). Until: DFC-726 is fixed.
 /** @purity pure */
 export function fitZoom(
   schedule: Schedule,
@@ -210,7 +210,7 @@ export function fitZoom(
 // Single source of truth:
 //   docs/spec/_source/settings.json (table T-206)
 // Rebuild: npm run gen   ||   npm run gen:check fails on drift.
-// see T-206
+// Spec: T-206
 const NOT_STORED_FIT_MARGIN: {
   readonly 'S-332': number
 } = {

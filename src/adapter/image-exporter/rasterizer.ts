@@ -1,4 +1,4 @@
-// ImageExporter -- declares the interface Rasterizer (table T-065 IF-6).
+// File: ImageExporter: declares the interface Rasterizer (table T-065 IF-6).
 // @unit      UF-40   (docs/spec/05-07-design.md, table T-075)
 // @component ImageExporter, layer Adapter (table T-062)
 // @purity    n/a

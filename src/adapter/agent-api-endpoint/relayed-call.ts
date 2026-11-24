@@ -1,4 +1,4 @@
-// AgentApiEndpoint -- hands a call the relay carried to the member of the same name and answers it.
+// File: AgentApiEndpoint: hands a call the relay carried to the member of the same name and answers it.
 // @unit      UF-185   (docs/spec/05-07-design.md, table T-075)
 // @component AgentApiEndpoint, layer Adapter (table T-062)
 // @purity    non-pure
@@ -17,7 +17,7 @@ type DocumentStamp = AgentWriteRequest['expectedStamp']
 
 // <generated -- do not edit by hand>
 // From docs/spec/_source/agent-api-members.json (table T-107).
-// see T-107, AG-12
+// Spec: T-107, AG-12
 export interface RelayedParams {
   agentApiVersion: {}
   schemaVersion: {}
@@ -34,27 +34,27 @@ export interface RelayedParams {
   issueDelayFixes: { expectedStamp: DocumentStamp; fixKeys: readonly string[] }
   undoEdit: { expectedStamp: DocumentStamp }
   redoEdit: { expectedStamp: DocumentStamp }
-  // WHY: the relay reads fileName, overwrite itself; the page takes no argument.
+  // Why: the relay reads fileName, overwrite itself; the page takes no argument.
   exportJson: {}
-  // WHY: the relay reads fileName, overwrite itself; the page takes no argument.
+  // Why: the relay reads fileName, overwrite itself; the page takes no argument.
   exportMspdi: {}
-  // WHY: the relay reads fileName, overwrite itself; the page takes no argument.
+  // Why: the relay reads fileName, overwrite itself; the page takes no argument.
   exportSvg: {}
-  // WHY: the relay reads fileName, overwrite itself; the page takes no argument.
+  // Why: the relay reads fileName, overwrite itself; the page takes no argument.
   exportPng: {}
-  // WHY: the relay reads fileName, overwrite itself; the page takes no argument.
+  // Why: the relay reads fileName, overwrite itself; the page takes no argument.
   exportEmbeddedHtml: {}
-  // WHY: the relay reads fileName, overwrite itself; the page takes no argument.
+  // Why: the relay reads fileName, overwrite itself; the page takes no argument.
   exportFixLogTsv: {}
   focusTask: { taskUid: number }
   showOnlyTasks: { taskUids: readonly number[] }
   runDelayDiagnostics: {}
   closeWindow: { which: 'delayDiagnosticsReport' | 'propertiesPanel' }
-  // WHY: the relay reads waitMs itself; the page only subscribes.
+  // Why: the relay reads waitMs itself; the page only subscribes.
   watchChanges: {}
 }
 
-// WHY: only members with arguments, in their argument order.
+// Why: only members with arguments, in their argument order.
 const MEMBER_PARAMETERS = {
   readDocument: ['includeCarry', 'taskUids', 'parts'],
   readSearchRows: ['word', 'filters', 'offset', 'limit'],
@@ -75,7 +75,7 @@ export type RelayedCall = {
   [K in keyof AgentApi]: { readonly member: K; readonly params: RelayedParams[K] }
 }[keyof AgentApi]
 
-// see AG-9a
+// Spec: AG-9a
 export type RelayedAnswer =
   | { readonly result: unknown }
   | { readonly error: { readonly code: number; readonly message: string } }
@@ -92,7 +92,7 @@ type ListedArguments<K extends keyof AgentApi> = K extends ParameterizedMember
   ? ArgumentsNamed<RelayedParams[K], (typeof MEMBER_PARAMETERS)[K]>
   : []
 
-// WHY: watchChanges is left out -- the page hands it a receiver of its own, never a param.
+// Why: watchChanges is left out -- the page hands it a receiver of its own, never a param.
 type MisorderedMember = {
   [K in Exclude<keyof AgentApi, 'watchChanges'>]: AgentApi[K] extends (...args: infer Taken) => unknown
     ? [Taken, ListedArguments<K>] extends [ListedArguments<K>, Taken]
@@ -107,7 +107,7 @@ void EVERY_LIST_MATCHES_ITS_SIGNATURE
 const METHOD_NOT_FOUND = -32601
 const INTERNAL_ERROR = -32603
 
-// WHY: String.fromCharCode spreads its arguments, and a whole image overflows the call stack.
+// Why: String.fromCharCode spreads its arguments, and a whole image overflows the call stack.
 const BYTES_PER_CHARACTER_RUN = 0x8000
 
 /** @purity pure */
@@ -129,14 +129,14 @@ function isParameterized(member: keyof AgentApi): member is ParameterizedMember 
   return Object.prototype.hasOwnProperty.call(MEMBER_PARAMETERS, member)
 }
 
-// see AM-17
+// Spec: AM-17
 /** @purity non-pure */
 function answerWatch(api: AgentApi, sendNotice: (notice: unknown) => void): RelayedAnswer {
   const watch = api.watchChanges((notice) => sendNotice(notice))
   return { result: { hasReplacedEarlierWatch: watch.hasReplacedEarlierWatch } }
 }
 
-// see AM-14
+// Spec: AM-14
 /** @purity non-pure */
 async function answerPng(api: AgentApi): Promise<RelayedAnswer> {
   const exported: AgentExport<Uint8Array> = await api.exportPng()
@@ -160,7 +160,7 @@ async function answerMember(
   return { result: await method.apply(api, argumentsInOrder) }
 }
 
-// see AG-12, AG-9a, T-107
+// Spec: AG-12, AG-9a, T-107
 /** @purity non-pure */
 export async function answerRelayedCall(
   api: AgentApi,

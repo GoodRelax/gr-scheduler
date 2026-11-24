@@ -1,4 +1,4 @@
-// EditDocument -- a task group's tree state and level zero's, and the writes table T-328 gives a press.
+// File: EditDocument: a task group's tree state and level zero's, and the writes table T-328 gives a press.
 // @unit      UF-79  (docs/spec/05-07-design.md, table T-075)
 // @component EditDocument, layer UseCase (table T-062)
 // @purity    pure
@@ -13,7 +13,7 @@ import { withTaskGroup, withScheduleParts } from './edit-task-group'
 import type { DocumentSettingsCommand } from './edit-document-settings'
 
 export interface TreeStateEventCarried {
-  // WHY: the head's add (IC-93) presses level zero, which is no task group, so its event carries null.
+  // Why: the head's add (IC-93) presses level zero, which is no task group, so its event carries null.
   readonly pressedRowId: string | null
   readonly revealedRowId: string
 }
@@ -24,7 +24,7 @@ type LevelZeroTreeState = DocumentSettings['levelZeroTreeState']
 const ROW_STATE_KEY_PREFIX = 'treeStateMachine.'
 const ROOT_STATE_KEY: TreeStateKey = 'taskGroupTree'
 
-// WHY: a Record over the type, so a value added to AT-153 fails to compile here.
+// Why: a Record over the type, so a value added to AT-153 fails to compile here.
 const TREE_STATES: Readonly<Record<TreeState, true>> = {
   auto: true,
   collapsed: true,
@@ -40,7 +40,7 @@ const LEVEL_ZERO_WRITTEN_BY: Readonly<Record<TreeStateEffectName, LevelZeroTreeS
 
 type TreeStateEventValues = { readonly [carry in keyof TreeStateEventCarried]: TreeStateEventCarried[carry] | null }
 
-// WHY: one input for every judgment of table T-328 (SD-5), so a cell's guard is looked up by name; the
+// Why: one input for every judgment of table T-328 (SD-5), so a cell's guard is looked up by name; the
 // task group is null in a root cell (level zero), and a value the event does not carry is null.
 interface TreeStateGuardInput {
   readonly taskGroup: TaskGroup | null
@@ -50,7 +50,7 @@ interface TreeStateGuardInput {
   readonly setting: (row: 'S-418') => LevelZeroTreeState
 }
 
-// TRAP: the guard is a name, "not name", or terms joined by " & " (the generator prints no other
+// Trap: the guard is a name, "not name", or terms joined by " & " (the generator prints no other
 // form); a name this unit does not hold throws rather than reading as false and moving no task group.
 /** @purity pure */
 function isGuardHeld(guard: string | null, input: TreeStateGuardInput): boolean {
@@ -71,7 +71,7 @@ function isTreeStateGuardName(name: string): name is TreeStateGuardName {
   return Object.hasOwn(TREE_STATE_GUARDS, name)
 }
 
-// TRAP: a press of the task groups is handed no document settings, and level zero's no schedule; a cell
+// Trap: a press of the task groups is handed no document settings, and level zero's no schedule; a cell
 // that reads what its side was not handed throws rather than guessing.
 /** @purity pure */
 function notHanded(what: string): never {
@@ -86,7 +86,7 @@ function eventValuesOf(event: TreeStateEvent): TreeStateEventValues {
   }
 }
 
-// WHY: walks up with a step cap, so a parent cycle in a broken document cannot hang the press.
+// Why: walks up with a step cap, so a parent cycle in a broken document cannot hang the press.
 /** @purity pure */
 function ancestorsOf(taskGroupId: string | null | undefined, byId: ReadonlyMap<string, TaskGroup>): readonly string[] {
   const found: string[] = []
@@ -98,7 +98,7 @@ function ancestorsOf(taskGroupId: string | null | undefined, byId: ReadonlyMap<s
   return found
 }
 
-// see T-328, HR-3, SJ-2
+// Spec: T-328, HR-3, SJ-2
 /** @purity pure */
 function taskGroupGuardInputOf(schedule: Schedule, event: TreeStateEvent): Omit<TreeStateGuardInput, 'taskGroup'> {
   const taskGroups = schedule.taskGroups
@@ -140,7 +140,7 @@ function isTreeState(value: string): value is TreeState {
   return Object.prototype.hasOwnProperty.call(TREE_STATES, value)
 }
 
-// see T-328, FR-018, UN-14
+// Spec: T-328, FR-018, UN-14
 /** @purity pure */
 export function treeStateWritesFor(
   schedule: Schedule,
@@ -157,7 +157,7 @@ export function treeStateWritesFor(
   return writes
 }
 
-// see T-328, S-418, HR-2
+// Spec: T-328, S-418, HR-2
 /** @purity pure */
 export function levelZeroWritesFor(
   levelZeroTreeState: LevelZeroTreeState,
@@ -180,7 +180,7 @@ export function levelZeroWritesFor(
   return [{ kind: 'setLevelZeroTreeState', levelZeroTreeState: written }]
 }
 
-// see CM-85, FR-004, T-328
+// Spec: CM-85, FR-004, T-328
 /** @purity pure */
 export function setTaskGroupTreeState(
   document: Document,
@@ -191,7 +191,7 @@ export function setTaskGroupTreeState(
   if (taskGroup === undefined) {
     return refused([reject('CM-85', 'FR-004', `no such task group: ${command.taskGroupId}`)])
   }
-  // WHY: judged at run time, not left to the type; the Agent API hands commands over as data (AG-5).
+  // Why: judged at run time, not left to the type; the Agent API hands commands over as data (AG-5).
   if (!isTreeState(command.treeState)) {
     return refused([reject('CM-85', 'FR-004', `not a tree state AT-153 names: ${command.treeState}`)])
   }
@@ -199,7 +199,7 @@ export function setTaskGroupTreeState(
   return edited(withTaskGroup(document, { ...taskGroup, treeState: command.treeState }))
 }
 
-// see CM-72, HF-8, T-328
+// Spec: CM-72, HF-8, T-328
 /** @purity pure */
 export function resetTaskGroupTreeStates(document: Document): EditResult {
   const schedule = document.schedule

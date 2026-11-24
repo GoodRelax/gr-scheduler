@@ -38,7 +38,7 @@ function read(text: string): Document {
   return result.document
 }
 
-// WHY: UF-36 keeps mspdi-codec.ts pure, so the DV-12 moment of the write is handed in by the caller.
+// Why: UF-36 keeps mspdi-codec.ts pure, so the DV-12 moment of the write is handed in by the caller.
 const A_MOMENT = '2026-10-03T14:05:06'
 
 /** @purity pure */

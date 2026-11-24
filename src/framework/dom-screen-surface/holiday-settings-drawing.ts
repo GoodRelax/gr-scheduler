@@ -1,4 +1,4 @@
-// DomScreenSurface -- the Holiday Settings surface (U-65): its fixed parts and the one list that scrolls.
+// File: DomScreenSurface: the Holiday Settings surface (U-65): its fixed parts and the one list that scrolls.
 // @unit      UF-205  (docs/spec/05-07-design.md, table T-075)
 // @component DomScreenSurface, layer Framework (table T-062)
 // @purity    non-pure
@@ -35,13 +35,13 @@ export function isHolidaySettingsModal(modal: OpenModal): modal is HolidaySettin
   return 'holidaySettings' in modal
 }
 
-// see IF-9, WC-2, WC-4, WC-8
+// Spec: IF-9, WC-2, WC-4, WC-8
 export const HOLIDAY_SETTINGS_TARGET_ATTRIBUTE = 'data-holiday-target'
 
 const HOLIDAY_LIST_ATTRIBUTE = 'data-holiday-list'
 
-// see RR-2, RR-6
-// WHY: a column of fixed parts around one list that scrolls; the title row and IC-52 never scroll away.
+// Spec: RR-2, RR-6
+// Why: a column of fixed parts around one list that scrolls; the title row and IC-52 never scroll away.
 /** @purity pure */
 export function holidaySettingsFrameStyle(): string {
   return (
@@ -50,8 +50,8 @@ export function holidaySettingsFrameStyle(): string {
   )
 }
 
-// see RR-5
-// WHY: screen px with no scale at all (S-234, S-235, S-240): a 1px line scaled down misses the screen's pixels.
+// Spec: RR-5
+// Why: screen px with no scale at all (S-234, S-235, S-240): a 1px line scaled down misses the screen's pixels.
 /** @purity pure */
 function listRuleStyle(): string {
   return `${NOT_STORED_HOLIDAY_SETTINGS_LIST_SIZES['S-241']}px solid ${PAINT.rule}`
@@ -67,8 +67,8 @@ function listGridStyle(columnCount: number): string {
   return `display:grid;grid-template-columns:repeat(${columnCount},max-content);width:max-content;`
 }
 
-// see RR-2, RR-4, RR-5
-// WHY: sticky, so the heading row stays over the rows and the name column stays left while the rest passes under it.
+// Spec: RR-2, RR-4, RR-5
+// Why: sticky, so the heading row stays over the rows and the name column stays left while the rest passes under it.
 /** @purity pure */
 function listCellStyle(isHeading: boolean, isNameColumn: boolean): string {
   const sticky =
@@ -88,8 +88,8 @@ function refusedOutlineStyle(isRefused: boolean): string {
   return isRefused ? `outline:${entranceBorderPx()}px solid ${PAINT.refusal};` : ''
 }
 
-// see T-016, WC-3, WC-4, WC-8, IN-6
-// WHY: the panel's own field, so the surface's fields settle the way the panel's do (SK-19).
+// Spec: T-016, WC-3, WC-4, WC-8, IN-6
+// Why: the panel's own field, so the surface's fields settle the way the panel's do (SK-19).
 /** @purity non-pure */
 function cellControlElement(host: Document, cell: HolidaySettingsCell): HTMLElement {
   const drawn = surfaceFieldElement(host, cell.row, cell.control)
@@ -98,7 +98,7 @@ function cellControlElement(host: Document, cell: HolidaySettingsCell): HTMLElem
   return drawn
 }
 
-// see WC-2, WC-4, IC-133, IC-137
+// Spec: WC-2, WC-4, IC-133, IC-137
 /** @purity non-pure */
 function entryElement(host: Document, entry: HolidaySettingsEntry, anchors: Map<string, HTMLElement>): HTMLElement {
   const drawn = anchoredEntry(host, entry.item, anchors)
@@ -121,7 +121,7 @@ function headingOf(host: Document, text: string): HTMLElement {
   return heading
 }
 
-// see WC-10
+// Spec: WC-10
 /** @purity non-pure */
 function refusalLines(host: Document, refusals: readonly string[]): readonly HTMLElement[] {
   return refusals.map((said) => {
@@ -143,7 +143,7 @@ function workingHoursElement(drawing: HolidayDrawing): HTMLElement {
   return table
 }
 
-// see WC-2, WC-3, WC-8, WC-9, WC-10, RR-2
+// Spec: WC-2, WC-3, WC-8, WC-9, WC-10, RR-2
 /** @purity non-pure */
 function upperPartElement(drawing: HolidayDrawing): HTMLElement {
   const { host, body, anchors } = drawing
@@ -188,7 +188,7 @@ function listCell(host: Document, child: HTMLElement | string, isHeading: boolea
   return cell
 }
 
-// see RR-2, RR-3, RR-4, RR-5, WC-4, WC-5
+// Spec: RR-2, RR-3, RR-4, RR-5, WC-4, WC-5
 /** @purity non-pure */
 function exceptionListElement(drawing: HolidayDrawing): HTMLElement {
   const { host, body, anchors } = drawing
@@ -218,7 +218,7 @@ function lowerPartElement(drawing: HolidayDrawing): HTMLElement {
   return lower
 }
 
-// see U-65, T-344, RR-2
+// Spec: U-65, T-344, RR-2
 /** @purity non-pure */
 export function holidaySettingsBodyElements(
   host: Document,
@@ -239,8 +239,8 @@ function wheelPxOf(wheel: WheelEvent, list: HTMLElement): number {
   return turned
 }
 
-// see RR-3, MK-5, T-023
-// WHY: stopped here, before the window hears it, so the schedule behind never moves (RR-3); the only wheel a surface keeps.
+// Spec: RR-3, MK-5, T-023
+// Why: stopped here, before the window hears it, so the schedule behind never moves (RR-3); the only wheel a surface keeps.
 /** @purity non-pure */
 function scrollSidewaysOnTheList(list: HTMLElement): void {
   if (typeof list.addEventListener !== 'function') return
@@ -278,8 +278,8 @@ function keepListScroll(drawn: Element | null, scroll: ListScroll): void {
   list.scrollLeft = scroll.left
 }
 
-// see RR-2, RR-3
-// WHY: each settled field redraws the surface; the list keeps its scroll, or every edit jumps to the top.
+// Spec: RR-2, RR-3
+// Why: each settled field redraws the surface; the list keeps its scroll, or every edit jumps to the top.
 /** @purity non-pure */
 export function replaceKeepingListScroll(layer: Element, drawn: readonly HTMLElement[]): void {
   const scroll = listScrollOf(layer.firstElementChild)

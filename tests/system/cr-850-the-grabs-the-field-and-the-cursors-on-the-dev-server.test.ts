@@ -21,7 +21,7 @@ const PROPERTIES = '[data-role="Properties Panel"]'
 const STATUS_LINE = '[data-figure="status-line"]'
 const PLAN_OF_TASK_1 = '[data-figure="task-1-plan"]'
 const HOUR_TICKS = '[data-figure^="ruler-hour-tick-"]'
-// WHY: zoomX 100 is well over S-577 (hour tier) and S-578 (half-hour grid); every x below is read from the hour ticks.
+// Why: zoomX 100 is well over S-577 (hour tier) and S-578 (half-hour grid); every x below is read from the hour ticks.
 const HOUR_TIER_ZOOM = 100
 const STATUS_AT = '2026-03-04T12:00:00'
 const PINNED_NOW = new Date('2026-03-04T09:00:00')
@@ -84,7 +84,7 @@ interface Axis {
   readonly xOf: (minute: number) => number
 }
 
-// WHY: the hour ticks carry their minute in the figure key, so x and time come from one drawing.
+// Why: the hour ticks carry their minute in the figure key, so x and time come from one drawing.
 /** @purity semi-pure-mutable */
 async function axisOf(page: Page): Promise<Axis> {
   const ticks = await page.evaluate((selector: string) =>
@@ -131,7 +131,7 @@ async function arm(page: Page, icon: string): Promise<void> {
   await readSettledDrawnSvg(page)
 }
 
-// WHY: the point tip (CU-3 label, DC-3 readout) carries no role; its lines are the leaf divs that hold a dated text.
+// Why: the point tip (CU-3 label, DC-3 readout) carries no role; its lines are the leaf divs that hold a dated text.
 /** @purity semi-pure-mutable */
 async function pointTipLines(page: Page): Promise<string[]> {
   return page.evaluate(() =>
@@ -185,7 +185,7 @@ test.describe('CR-850 at the hour tier, on the dev server', () => {
         const axis = await axisOf(page)
         const plan = await boxOf(page, PLAN_OF_TASK_1)
         const finish = minuteOf(String((await readSchedule(page)).tasks[0].finish))
-        // STEP: grab the plan finish 1 px inside its end and release about 1 h 10 min later (1 h 25 with the second pass).
+        // Step: grab the plan finish 1 px inside its end and release about 1 h 10 min later (1 h 25 with the second pass).
         await pull(page, { x: plan.x + plan.w - 1, y: plan.y + plan.h / 2 }, { x: axis.xOf(finish + 72), y: plan.y + plan.h / 2 }, modifier)
         const moved = minuteOf(String((await readSchedule(page)).tasks[0].finish))
         expect(moved - finish, `released 72 minutes later (modifier ${String(modifier)})`).toBe(75)
@@ -246,9 +246,9 @@ test.describe('CR-850 at the hour tier, on the dev server', () => {
       const axis = await axisOf(page)
       const plan = await boxOf(page, PLAN_OF_TASK_1)
       const source = (await readSchedule(page)).tasks[0]
-      // WHY: the bar runs off the left edge and the status line crosses it at 12:00, so the press sits at 15:00, clear of both.
+      // Why: the bar runs off the left edge and the status line crosses it at 12:00, so the press sits at 15:00, clear of both.
       const from = { x: axis.xOf(minuteOf(String(source.finish)) - 120), y: plan.y + plan.h / 2 }
-      // STEP: select the bar (FR-033 copies the Selection), then Ctrl-drag the body by 66 minutes.
+      // Step: select the bar (FR-033 copies the Selection), then Ctrl-drag the body by 66 minutes.
       await page.mouse.click(from.x, from.y)
       await readSettledDrawnSvg(page)
       await pull(page, from, { x: from.x + axis.xOf(66) - axis.xOf(0), y: from.y }, 'Control')
@@ -311,7 +311,7 @@ test.describe('CR-850 at the day tier with the time shown, on the dev server', (
       const source = (await readSchedule(page)).tasks[0]
       const before = String(source.finish)
       const perDay = (plan.w * 1440) / (minuteOf(before) - minuteOf(String(source.start)))
-      // STEP: pull the plan finish right by about 1.6 days, measured on the drawn bar.
+      // Step: pull the plan finish right by about 1.6 days, measured on the drawn bar.
       await pull(page, { x: plan.x + plan.w - 1, y: plan.y + plan.h / 2 }, { x: plan.x + plan.w - 1 + perDay * 1.6, y: plan.y + plan.h / 2 }, null)
       const after = String((await readSchedule(page)).tasks[0].finish)
       expect(after.slice(10, 19), 'a whole-day unit writes the default finish time').toBe(DEFAULT_FINISH)

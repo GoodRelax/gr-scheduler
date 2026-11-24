@@ -135,7 +135,7 @@ describe('OP-18 -- a uid that points at nothing and a column that is in no table
   const GONE_TASK = 987654
   const GONE_RESOURCE = 876543
   const NOWHERE = 'no-such-column'
-  // WHY: S-562 / S-563 -- the Visibility column (SQ-10) takes no column filter and no sort, so a held one is dropped on read.
+  // Why: S-562 / S-563 -- the Visibility column (SQ-10) takes no column filter and no sort, so a held one is dropped on read.
   const VISIBILITY_COLUMN = 'SQ-10'
 
   const strange = (): ReturnType<typeof documentFromJson> =>
@@ -168,7 +168,7 @@ describe('OP-18 -- a uid that points at nothing and a column that is in no table
     return tableViewsIn(savedObjectOf(opened.document))
   }
 
-  // WHY: CR-732 -- a uid is dropped as the file is read, a column row ID as the replaced document opens (OP-18),
+  // Why: CR-732 -- a uid is dropped as the file is read, a column row ID as the replaced document opens (OP-18),
   // since only the side that draws the tables knows their columns (JF-1).
   const openedAsReplaced = (): ReturnType<typeof documentAsOpened> => {
     const opened = strange()
@@ -223,7 +223,7 @@ describe('FR-151 -- what is not a view is not saved', () => {
     for (const key of NOT_STORED_KEYS) expect(found, key).not.toContain(key)
   })
 
-  // WHY: CR-792 (JDG-2723) gave the command value the stored key's own name isScheduleFilterApplied, so it is not listed.
+  // Why: CR-792 (JDG-2723) gave the command value the stored key's own name isScheduleFilterApplied, so it is not listed.
   it('the old shapes (hiddenKeys, visibility, and the retired hidden lists of CR-798) are not the file\'s keys', () => {
     const found = keysAnywhere(tableViewsIn(savedObjectOf(openedFrom(documentText({ tableViews: tableViewsText(VIEWS_SAVED) })))))
     for (const key of ['hiddenKeys', 'visibility', 'from', 'to', 'hiddenTaskUids', 'hiddenResourceUids', 'isUnassignedHidden']) expect(found, key).not.toContain(key)

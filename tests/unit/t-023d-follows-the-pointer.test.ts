@@ -290,8 +290,8 @@ function coveredElsewhereRows(): readonly string[] {
 
 const FOLLOWING_ROWS = closingRuleRows()
 
-// see FR-052, GR-22
-// WHY: GR-22 joined T-023d with an operation cell that sends the held picture to FR-052, and none
+// Spec: FR-052, GR-22
+// Why: GR-22 joined T-023d with an operation cell that sends the held picture to FR-052, and none
 // of the three closing sentences of T-023d names it; FR-052 states that MUST itself.
 const FR_052_HELD_PICTURE =
   '境界を掴んでいるあいだ、その時点のポインタ位置が決める 2 つの幅で画面を描いて示すこと（MUST）'
@@ -495,9 +495,9 @@ function fixtureDocument(): Document {
     },
     documentSettings: {
       ...structuredClone(template.documentSettings),
-      // WHY: S-1 is a constant (CR-572); the stored zoomX (S-75) carries the day width this fixture draws at.
+      // Why: S-1 is a constant (CR-572); the stored zoomX (S-75) carries the day width this fixture draws at.
       zoomX: PX_PER_DAY_AT_1X / SETTINGS_CONSTANTS.pxPerDayAt1x,
-      isProgressMarkerVisible: true, // see S-63
+      isProgressMarkerVisible: true, // Spec: S-63
     },
     documentStamp: structuredClone(template.documentStamp),
     changeLog: [],
@@ -1534,7 +1534,7 @@ function wideFixtureDocument(): Document {
       uid: OVERFLOW_UID,
       name: 'Overflow',
       start: '2026-04-01T00:00:00',
-      // WHY: sixty years, since S-1 is the constant 6 (CR-572): thirty no longer outgrow the Task Group Area at the S-97 floor.
+      // Why: sixty years, since S-1 is the constant 6 (CR-572): thirty no longer outgrow the Task Group Area at the S-97 floor.
       finish: '2086-04-01T00:00:00',
     }),
   )

@@ -127,7 +127,7 @@ const THE_FAST_ROAD_MUST = 'その速い道は 表 T-036 の `SK-11` である�
 const THE_FORM_MUST =
   '表 T-036 の `SK-11`（保存する）は、どの形式から開いた文書であっても `GRS JSON` で書くこと（MUST）'
 
-// see FR-036, T-036
+// Spec: FR-036, T-036
 const assignmentsIn = (cell: string): readonly (readonly string[])[] =>
   cell
     .split('\uff0f')

@@ -1,4 +1,4 @@
-// SingleHtmlShell frame loop -- keeps the vertical-zoom ceiling (FR-016) while an input leaves every band unchanged.
+// File: SingleHtmlShell frame loop: keeps the vertical-zoom ceiling (FR-016) while an input leaves every band unchanged.
 // @unit      UF-167  (docs/spec/05-07-design.md, table T-075)
 // @component SingleHtmlShell, layer Framework (table T-062)
 // @purity    non-pure
@@ -14,7 +14,7 @@ import {
 /** @purity pure */
 function isSameBandSettings(a: DocumentSettings, b: DocumentSettings): boolean {
   if (a === b) return true
-  // WHY: the scroll place moves every task group and every x alike, so no band changes height; a zoom
+  // Why: the scroll place moves every task group and every x alike, so no band changes height; a zoom
   // at the pointer rewrites scrollDateFraction in its last digits on every notch.
   const moveWithoutBand = new Set<string>([
     'zoomY', 'scrollDate', 'scrollDateFraction', 'scrollTaskGroupId', 'scrollTaskGroupFraction',
@@ -60,14 +60,14 @@ function isSameBand(held: HeldCeiling, context: InputContext, drawnZoomX: number
 }
 
 // see FR-016, DFC-2314
-// WHY: one zoom notch asks at the drawn zoomX and at the zoomX of each step it may take; one held
+// Why: one zoom notch asks at the drawn zoomX and at the zoomX of each step it may take; one held
 // answer was replaced by the next zoomX on every ask, so the band was solved again every frame.
 const HELD_ZOOM_X_COUNT = 4
 
 /** @purity non-pure */
 export function taskGroupBandCeilingCacheOf() {
-  // see FR-016
-  // TRAP: keyed on all the band is laid out from but zoomY and the scroll place; the zoomX is
+  // Spec: FR-016
+  // Trap: keyed on all the band is laid out from but zoomY and the scroll place; the zoomX is
   // the one the translator measures at, never the stored zoomX, which OP-10 may not draw.
   let bandCeilingsFrom: readonly HeldCeiling[] = []
 
@@ -79,7 +79,7 @@ export function taskGroupBandCeilingCacheOf() {
     enough: number = Number.POSITIVE_INFINITY,
   ): number {
     const held = bandCeilingsFrom.find((one) => isSameBand(one, context, drawnZoomX, upTo))
-    // WHY: a ceiling at or above what it was asked for is only a lower bound; asked for more, the
+    // Why: a ceiling at or above what it was asked for is only a lower bound; asked for more, the
     // walk runs again at the held upTo, so the answer is the one an exact entry would have given.
     if (held !== undefined && (held.ceiling < held.enough || enough <= held.ceiling)) return held.ceiling
     const walkedUpTo = held !== undefined ? held.upTo : upTo

@@ -1,4 +1,4 @@
-// SvgRenderer -- the chart's grid: task group bands and rules, date rules and the ruler band.
+// File: SvgRenderer: the chart's grid: task group bands and rules, date rules and the ruler band.
 // @unit      UF-82   (docs/spec/05-07-design.md, table T-075)
 // @component SvgRenderer, layer Adapter (table T-062)
 // @purity    pure
@@ -71,14 +71,14 @@ export interface GridParts {
   readonly bandParts: readonly string[]
 }
 
-// see FR-042
+// Spec: FR-042
 /** @purity pure */
 function bandTaskGroupOf(depth: number, position: number): string {
   if (depth === 1) return 'S-166'
   return position % 2 === 0 ? 'S-164' : 'S-167'
 }
 
-// see T-238
+// Spec: T-238
 type RulerRow = 'year' | 'yearMonth' | 'month' | 'week' | 'day' | 'weekday' | 'dateWeekday' | 'hour'
 
 const ROWS_OF_TIER: { readonly [tier in ScheduleLayout['tier']]: readonly RulerRow[] } = {
@@ -95,13 +95,13 @@ const HOURS_PER_DAY = 24
 
 const HALF_HOUR_MINUTES = 30
 
-// see TM-5
+// Spec: TM-5
 const HOUR_LABEL_STRIDES = [1, 2, 3] as const
 
 const WIDEST_HOUR_LABEL_STRIDE = 3
 
-// see TM-5, S-83
-// WHY: a two-digit hour label and its gap, the width S-83's note derives its threshold from.
+// Spec: TM-5, S-83
+// Why: a two-digit hour label and its gap, the width S-83's note derives its threshold from.
 /** @purity pure */
 function hourStrideOf(pxPerDay: number, settings: DrawnSettings): number {
   const room = labelWidth('00', settings.rulerFontSizePx, settings) + settings.rulerLabelGap
@@ -109,7 +109,7 @@ function hourStrideOf(pxPerDay: number, settings: DrawnSettings): number {
   return HOUR_LABEL_STRIDES.find((stride) => stride * pxPerHour >= room) ?? WIDEST_HOUR_LABEL_STRIDE
 }
 
-// see FR-017, TM-5, S-578
+// Spec: FR-017, TM-5, S-578
 /** @purity pure */
 function isHalfHourGridShown(pxPerDay: number, settings: DrawnSettings): boolean {
   return settings.isTimeOfDayVisible && thresholdPxPerDayOf(pxPerDay, settings) >= SETTINGS_CONSTANTS.halfHourGridPxPerDay
@@ -138,16 +138,16 @@ function twoDigits(value: number): string {
   return String(value).padStart(2, '0')
 }
 
-// see FR-156, S-574, FR-158
-// WHY: the ruler's x of a wall-clock minute of one region; the x axis itself is the schedule data's wall clock.
+// Spec: FR-156, S-574, FR-158
+// Why: the ruler's x of a wall-clock minute of one region; the x axis itself is the schedule data's wall clock.
 interface RulerAxis {
   xOfWall(wallMinute: number): number
   xOfDay(day: CalendarDay): number
   wallAtX(x: number): number
 }
 
-// see FR-156, S-574, FR-158
-// WHY: the same region, or time of day not shown (bars stand on the data's days, JDG-1715), needs no clock at all.
+// Spec: FR-156, S-574, FR-158
+// Why: the same region, or time of day not shown (bars stand on the data's days, JDG-1715), needs no clock at all.
 /** @purity pure */
 function rulerAxisOf(layout: ScheduleLayout, region: string, dataRegion: string, isTimeShown: boolean): RulerAxis {
   const dataXOf = (wall: number): number => xOfInstant(layout, wall)
@@ -165,7 +165,7 @@ function rulerAxisOf(layout: ScheduleLayout, region: string, dataRegion: string,
   }
 }
 
-// see FR-156, S-574
+// Spec: FR-156, S-574
 /** @purity pure */
 function viewAxisOf(layout: ScheduleLayout, settings: DrawnSettings, dataRegion: string): RulerAxis {
   return rulerAxisOf(layout, viewRegionOf(dataRegion, settings.viewTimeZone), dataRegion, settings.isTimeOfDayVisible)
@@ -176,7 +176,7 @@ function dayAtX(axis: RulerAxis, x: number): CalendarDay {
   return dayOfSerial(Math.floor(axis.wallAtX(x) / MINUTES_PER_CALENDAR_DAY))
 }
 
-// see LF-1
+// Spec: LF-1
 /** @purity pure */
 function ticksOfRow(
   row: RulerRow,
@@ -189,7 +189,7 @@ function ticksOfRow(
 ): readonly CalendarDay[] {
   const out: CalendarDay[] = []
   const firstSerial = serialOf(from)
-  // TRAP: anchor the stride on the day serial, not the left edge, or every label jumps on a one-day pan.
+  // Trap: anchor the stride on the day serial, not the left edge, or every label jumps on a one-day pan.
   let at: CalendarDay =
     row === 'year'
       ? { year: from.year, month: 1, day: 1 }
@@ -211,7 +211,7 @@ function ticksOfRow(
   return out
 }
 
-// see T-238
+// Spec: T-238
 /** @purity pure */
 function rulerLabelOf(row: RulerRow, day: CalendarDay, weekdayWords: readonly string[]): string {
   return row === 'year'
@@ -235,8 +235,8 @@ interface RulerRowBox {
   readonly right: number
 }
 
-// see TM-5, FR-017
-// WHY: an hour's label stands on the day's own grid of strides, so a pan never re-labels the hours.
+// Spec: TM-5, FR-017
+// Why: an hour's label stands on the day's own grid of strides, so a pan never re-labels the hours.
 /** @purity pure */
 function hourRowSvg(
   axis: RulerAxis,
@@ -270,12 +270,12 @@ function rowLabelSvg(x: number, row: RulerRowBox, settings: DrawnSettings, ink: 
   )
 }
 
-// see FR-017, FR-156
-// WHY: the widest m/d a zone row prints, the width its stride must leave room for (S-83's derivation).
+// Spec: FR-017, FR-156
+// Why: the widest m/d a zone row prints, the width its stride must leave room for (S-83's derivation).
 const WIDEST_ZONE_DATE = '12/31'
 
-// see FR-017, FR-156
-// WHY: off the hour tier a zone's row prints the zone's own midnight as m/d, as often as the label fits.
+// Spec: FR-017, FR-156
+// Why: off the hour tier a zone's row prints the zone's own midnight as m/d, as often as the label fits.
 /** @purity pure */
 function zoneDateRowSvg(axis: RulerAxis, layout: ScheduleLayout, settings: DrawnSettings, row: RulerRowBox, look: RulerInk, keyHead: string): readonly string[] {
   const room = labelWidth(WIDEST_ZONE_DATE, settings.rulerFontSizePx, settings) + settings.rulerLabelGap
@@ -296,8 +296,8 @@ interface RulerInk {
   readonly rule: string
 }
 
-// see FR-017, FR-156, T-238, T-376
-// WHY: a row of the ruler read on one time zone's clock: the view base's hour row (TM-5) or a display zone's row.
+// Spec: FR-017, FR-156, T-238, T-376
+// Why: a row of the ruler read on one time zone's clock: the view base's hour row (TM-5) or a display zone's row.
 export interface RulerClockRow {
   readonly zoneKey: string
   readonly top: number
@@ -310,8 +310,8 @@ function rulerBaselineOf(top: number, settings: DrawnSettings): number {
   return top + settings.rulerLabelPad + settings.rulerFontSizePx - settings.rulerLabelBottomPad
 }
 
-// see FR-017, FR-156, S-575
-// WHY: one row per shown zone under the tiers, each the height of one of the band's three rows.
+// Spec: FR-017, FR-156, S-575
+// Why: one row per shown zone under the tiers, each the height of one of the band's three rows.
 /** @purity pure */
 function zoneClockRowsOf(settings: DrawnSettings, band: ScreenRect): readonly RulerClockRow[] {
   const zones = rulerZoneRowsOf(settings)
@@ -322,8 +322,8 @@ function zoneClockRowsOf(settings: DrawnSettings, band: ScreenRect): readonly Ru
   })
 }
 
-// see FR-017, FR-156, TM-5, S-574, S-575
-// WHY: the rows whose left blank prints a time zone's abbreviation (JDG-2043): the view base's hour row only while
+// Spec: FR-017, FR-156, TM-5, S-574, S-575
+// Why: the rows whose left blank prints a time zone's abbreviation (JDG-2043): the view base's hour row only while
 // the ruler is at the hour tier, every display zone's row while time of day is shown.
 /** @purity pure */
 export function rulerClockRowsOf(
@@ -341,8 +341,8 @@ export function rulerClockRowsOf(
   return [base, ...zones]
 }
 
-// see FR-017, FR-156, S-575
-// WHY: one row per shown zone under the tiers, each the height of one of the band's three rows.
+// Spec: FR-017, FR-156, S-575
+// Why: one row per shown zone under the tiers, each the height of one of the band's three rows.
 /** @purity pure */
 function zoneRowsSvg(layout: ScheduleLayout, settings: DrawnSettings, band: ScreenRect, dataRegion: string, look: RulerInk): readonly string[] {
   const right = band.x + band.width
@@ -362,8 +362,8 @@ function zoneRowsSvg(layout: ScheduleLayout, settings: DrawnSettings, band: Scre
   return out
 }
 
-// see LF-19
-// WHY: the FR-093 estimate, never a measured width: the band is drawn every frame (S-30).
+// Spec: LF-19
+// Why: the FR-093 estimate, never a measured width: the band is drawn every frame (S-30).
 /** @purity pure */
 function rulerLabelLeftOf(
   tickX: number,
@@ -379,7 +379,7 @@ function rulerLabelLeftOf(
   return pulledRight > nextTickX - settings.rulerLabelGap ? null : bandLeft
 }
 
-// see T-238, LF-19
+// Spec: T-238, LF-19
 /** @purity pure */
 function rulerLabelSvg(
   row: RulerRow,
@@ -407,7 +407,7 @@ function rulerLabelSvg(
   )
 }
 
-// see FR-017
+// Spec: FR-017
 /** @purity pure */
 export function rulerSvg(
   layout: ScheduleLayout,
@@ -453,7 +453,7 @@ export function rulerSvg(
     const ticks = ticksOfRow(row, axis, stride, weekStart, from, right, cap)
     for (const [at, day] of ticks.entries()) {
       const x = axis.xOfDay(day)
-      // TRAP: skip only the rule left of the band; LF-19 pulls its label to the edge instead.
+      // Trap: skip only the rule left of the band; LF-19 pulls its label to the edge instead.
       if (x >= band.x) {
         out.push(
           `<line x1="${rounded(x)}" y1="${rounded(top)}"` +
@@ -477,8 +477,8 @@ export function rulerSvg(
   return out
 }
 
-// see FR-051, EP-5
-// WHY: the band runs on through canvasPadding up to the vertical bar's left edge; the export
+// Spec: FR-051, EP-5
+// Why: the band runs on through canvasPadding up to the vertical bar's left edge; the export
 // draws it alike, so the two pictures differ only where table T-076 says.
 /** @purity pure */
 export function bandWidthOf(input: Pick<GridInput, 'area' | 'settings'>): number {
@@ -488,8 +488,8 @@ export function bandWidthOf(input: Pick<GridInput, 'area' | 'settings'>): number
 const EVERY_WEEKDAY_WORKS: readonly WeekDay[] = [1, 2, 3, 4, 5, 6, 7].map((dayType, ordinal) =>
   weekDayOf(ordinal, dayType, true))
 
-// see OD-1, OD-2
-// WHY: weekdays that all work leave only the days an Exception made non-working.
+// Spec: OD-1, OD-2
+// Why: weekdays that all work leave only the days an Exception made non-working.
 /** @purity pure */
 function shadedCalendarOf(schedule: Schedule, tier: ScheduleLayout['tier']): WorkingCalendar | null {
   if (tier === 'year') return null
@@ -501,8 +501,8 @@ function shadedCalendarOf(schedule: Schedule, tier: ScheduleLayout['tier']): Wor
   return { ...within, weekDays: EVERY_WEEKDAY_WORKS, exceptions: madeOff }
 }
 
-// see FR-054
-// WHY: a reach that holds every day the Exception can cover; a date it cannot read reaches every day.
+// Spec: FR-054
+// Why: a reach that holds every day the Exception can cover; a date it cannot read reaches every day.
 /** @purity pure */
 function reachOf(exception: Exception, first: number, last: number): readonly [number, number] {
   const from = dayOf(exception.fromDate)
@@ -511,10 +511,10 @@ function reachOf(exception: Exception, first: number, last: number): readonly [n
   return [Math.max(first, serialOf(from)), Math.min(last, serialOf(to))]
 }
 
-// see FR-054, NFR-013
-// WHY: each day is judged on only the Exceptions that can reach it, so the calendar's index is built over
+// Spec: FR-054, NFR-013
+// Why: each day is judged on only the Exceptions that can reach it, so the calendar's index is built over
 // a few rows a day, not every Exception: built per day over all of them, it was 80% of a frame (DFC-2314).
-// TRAP: a superset in the calendar's own order is enough, as isWorkingDay keeps the first row that covers
+// Trap: a superset in the calendar's own order is enough, as isWorkingDay keeps the first row that covers
 // the day; it alone reads what a kept row means. Days past `last` get the whole calendar.
 /** @purity pure */
 function dayCalendarsOf(shaded: WorkingCalendar, first: number, last: number): (atSerial: number) => WorkingCalendar {
@@ -531,8 +531,8 @@ function dayCalendarsOf(shaded: WorkingCalendar, first: number, last: number): (
   }
 }
 
-// see OD-1, OD-2, FR-054
-// WHY: on the hour tier the hours outside a day's working-time ranges are shaded too; a non-working day has none.
+// Spec: OD-1, OD-2, FR-054
+// Why: on the hour tier the hours outside a day's working-time ranges are shaded too; a non-working day has none.
 /** @purity pure */
 function offHourRunsOf(shaded: WorkingCalendar, firstSerial: number, lastSerial: number): readonly (readonly [number, number])[] {
   const spansOn = workingSpansReader(shaded)
@@ -564,8 +564,8 @@ interface ShadeBox {
   run(x0: number, x1: number): string | null
 }
 
-// see T-343, OD-6
-// WHY: the box both shades read: the band's left and right, the days it shows, and one run as a path piece.
+// Spec: T-343, OD-6
+// Why: the box both shades read: the band's left and right, the days it shows, and one run as a path piece.
 /** @purity pure */
 function shadeBoxOf(input: GridInput, from: CalendarDay): ShadeBox {
   const { layout, area } = input
@@ -579,7 +579,7 @@ function shadeBoxOf(input: GridInput, from: CalendarDay): ShadeBox {
     right,
     firstSerial,
     lastSerial: firstSerial + Math.ceil((right - left) / layout.pxPerDay) + 1,
-    // TRAP: compare the numbers, never rounded()'s strings: '1147.5' > '697.5' is false (DFC-2467, DFC-2468).
+    // Trap: compare the numbers, never rounded()'s strings: '1147.5' > '697.5' is false (DFC-2467, DFC-2468).
     /** @purity pure */
     run(x0, x1) {
       const [from0, to1] = [rounded(Math.max(left, x0)), rounded(Math.min(right, x1))]
@@ -594,7 +594,7 @@ function shadePathSvg(runs: readonly string[], themed: GridInput['themed']): str
   return `<path d="${runs.join(' ')}" fill="${themed('S-450')}"${figureKey('non-working-days')}/>`
 }
 
-// see OD-1, OD-2, OD-6
+// Spec: OD-1, OD-2, OD-6
 /** @purity pure */
 function offHoursSvg(input: GridInput, shaded: WorkingCalendar, box: ShadeBox): string | null {
   const paths: string[] = []
@@ -605,8 +605,8 @@ function offHoursSvg(input: GridInput, shaded: WorkingCalendar, box: ShadeBox): 
   return shadePathSvg(paths, input.themed)
 }
 
-// see T-343, FR-054
-// TRAP: one path for every run in view (OD-6); a rect per day multiplies the elements by the days drawn.
+// Spec: T-343, FR-054
+// Trap: one path for every run in view (OD-6); a rect per day multiplies the elements by the days drawn.
 /** @purity pure */
 function nonWorkingDaysSvg(input: GridInput): string | null {
   const { schedule, layout, area } = input
@@ -638,8 +638,8 @@ function nonWorkingDaysSvg(input: GridInput): string | null {
   return shadePathSvg(runs, input.themed)
 }
 
-// see FR-089, TM-5, FR-017, S-578, S-581
-// WHY: every hour a solid rule and, past S-578, every half hour a dotted one, in the date rule's color and width.
+// Spec: FR-089, TM-5, FR-017, S-578, S-581
+// Why: every hour a solid rule and, past S-578, every half hour a dotted one, in the date rule's color and width.
 /** @purity pure */
 function hourGridParts(input: GridInput, axis: RulerAxis): readonly string[] {
   const { settings, layout, area, themed } = input
@@ -661,7 +661,7 @@ function hourGridParts(input: GridInput, axis: RulerAxis): readonly string[] {
   return out
 }
 
-// see FR-089
+// Spec: FR-089
 /** @purity pure */
 function dateGridParts(input: GridInput): readonly string[] {
   const { schedule, settings, layout, area, themed } = input
@@ -695,7 +695,7 @@ function dateGridParts(input: GridInput): readonly string[] {
   return out
 }
 
-// see FR-089, FR-042, OD-4
+// Spec: FR-089, FR-042, OD-4
 /** @purity pure */
 export function gridParts(input: GridInput): GridParts {
   const { settings, layout, area, areaBottom, scrollTop, themed, chosen, colorOfGroup } = input

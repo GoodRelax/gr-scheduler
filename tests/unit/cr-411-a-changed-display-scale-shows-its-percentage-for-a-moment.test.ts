@@ -54,7 +54,7 @@ describe('CR-411 -- the manuscript these cases are driven by', () => {
   })
 })
 
-// see T-206
+// Spec: T-206
 const S_244 = (() => {
   const row = specTable('T-206').rows.find((one) => one.id === 'S-244')
   if (row === undefined) throw new Error('table T-206 has no row S-244')
@@ -112,7 +112,7 @@ const key = (sign: string, part: Partial<InputModifiers> = {}): KeyInput => ({ k
 const CTRL_SHIFT = { ctrl: true, shift: true }
 const SK_22 = key('+', CTRL_SHIFT)
 const SK_23 = key('-', CTRL_SHIFT)
-// WHY: JDG-301 took Ctrl + Shift + 0 out of table T-036, so it is no longer assigned.
+// Why: JDG-301 took Ctrl + Shift + 0 out of table T-036, so it is no longer assigned.
 const CTRL_SHIFT_ZERO = key('0', CTRL_SHIFT)
 
 const pointer = (phase: 'down' | 'up'): PointerInput => ({

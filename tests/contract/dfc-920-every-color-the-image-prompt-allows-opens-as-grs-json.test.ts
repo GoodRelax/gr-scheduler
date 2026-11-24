@@ -17,7 +17,7 @@ const FIGURE = unbroken(
   readFileSync(join(process.cwd(), 'docs', 'spec', '_assets', 'fig-erd-detail.md'), 'utf8').replace(/\r\n/g, '\n'),
 )
 
-// WHY: each clause is cut from the manuscript as check 39 reads it, so the cases cannot drift from the words they test.
+// Why: each clause is cut from the manuscript as check 39 reads it, so the cases cannot drift from the words they test.
 const AT_102_SPELLING =
   'カスタムカラーの `明るいテーマの値/暗いテーマの値`（それぞれ `#rrggbb` か空、両方空は無い。例: `#c0504d/`）'
 const AT_58_SAME_FORM = 'タスクグループの帯の色。形は `AT-102` と同じ。'
@@ -30,7 +30,7 @@ describe('DFC-920 the manuscript these cases are driven by', () => {
 
 const LANGUAGES: readonly DisplayLanguage[] = ['ja', 'en']
 
-// see FR-068, IC-115
+// Spec: FR-068, IC-115
 async function copiedPrompt(language: DisplayLanguage): Promise<string> {
   const stage = exportStage(templateDocument(), SMALL_SCREEN, language)
   await stage.take('IC-115')
@@ -39,15 +39,15 @@ async function copiedPrompt(language: DisplayLanguage): Promise<string> {
   return last.text
 }
 
-// WHY: the prompt ends its manuscript where the version line begins; only the base document follows it (CR-827).
+// Why: the prompt ends its manuscript where the version line begins; only the base document follows it (CR-827).
 const manuscriptOf = (prompt: string): string => prompt.slice(0, prompt.indexOf('schemaVersion:'))
 
-// WHY: the prompt writes the digits as r, g, b letters; a real digit string stands in for them.
+// Why: the prompt writes the digits as r, g, b letters; a real digit string stands in for them.
 const SAMPLE_DIGITS = 'ff8800'
 const spellingsIn = (manuscript: string): string[] =>
   [...manuscript.matchAll(/"(#[^"\s]*)"/g)].map((one) => (one[1] ?? '').replace(/rrggbb/i, SAMPLE_DIGITS))
 
-// WHY: the shared bench decodes a document with one task and one task group, whose visual and band colors are the ones under test.
+// Why: the shared bench decodes a document with one task and one task group, whose visual and band colors are the ones under test.
 function documentWith(color: string): string {
   const raw = taskGroupDocument([{ id: 'r1', parentId: null }])
   raw['schedule'].taskVisuals[0].fillColor = color

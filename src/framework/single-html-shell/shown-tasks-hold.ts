@@ -1,4 +1,4 @@
-// SingleHtmlShell -- makes the tasks drawn from the three tables' views the document holds, writes their changes as edits, and opens the window of a table whose Schedule Filter comes on (table T-353, SJ-0, OP-18).
+// File: SingleHtmlShell: makes the tasks drawn from the three tables' views the document holds, writes their changes as edits, and opens the window of a table whose Schedule Filter comes on (table T-353, SJ-0, OP-18).
 // @unit      UF-198  (docs/spec/05-07-design.md, table T-075)
 // @component SingleHtmlShell, layer Framework (table T-062)
 // @purity    non-pure
@@ -35,10 +35,10 @@ export interface HeldTableWindows {
   readonly holdResourceList: (window: ResourceListWindow | null) => void
 }
 
-// see TV-1, TV-2, FR-151
+// Spec: TV-1, TV-2, FR-151
 export type TableViewsHeld = { readonly [T in VisibilityTable]: TableView }
 
-// see TV-1, TV-2
+// Spec: TV-1, TV-2
 type TableVisibilities = { readonly [T in VisibilityTable]: TableVisibility }
 
 export type TableViewChanges = { readonly [T in VisibilityTable]?: TableView }
@@ -48,7 +48,7 @@ function taskUidsOf(schedule: Schedule): ReadonlySet<number> {
   return new Set(schedule.tasks.map((task) => task.uid))
 }
 
-// see TV-2, TV-13
+// Spec: TV-2, TV-13
 /** @purity pure */
 function resourceUidsByTask(schedule: Schedule): ReadonlyMap<number, readonly number[]> {
   const byTask = new Map<number, number[]>()
@@ -59,14 +59,14 @@ function resourceUidsByTask(schedule: Schedule): ReadonlyMap<number, readonly nu
   return byTask
 }
 
-// see TV-13
+// Spec: TV-13
 /** @purity pure */
 function isShownByResourceList(resourceUids: readonly number[] | undefined, checked: ReadonlySet<number>, list: TableVisibility, isCreated: boolean): boolean {
   if (resourceUids === undefined || resourceUids.length === 0) return isCreated || list.isUnassignedShown
   return resourceUids.some((uid) => checked.has(uid))
 }
 
-// see TV-2, TV-7
+// Spec: TV-2, TV-7
 /** @purity pure */
 function isShownByReport(taskUid: number, checked: ReadonlySet<number>, reportTaskUids: ReadonlySet<number> | null, isCreated: boolean): boolean {
   const isCarried = reportTaskUids?.has(taskUid) === true
@@ -74,7 +74,7 @@ function isShownByReport(taskUid: number, checked: ReadonlySet<number>, reportTa
   return checked.has(taskUid)
 }
 
-// see TV-1, TV-2, TV-7, TV-13
+// Spec: TV-1, TV-2, TV-7, TV-13
 /** @purity pure */
 export function drawnTaskUidsOf(
   schedule: Schedule,
@@ -100,7 +100,7 @@ export function drawnTaskUidsOf(
   return new Set(drawn)
 }
 
-// see TV-1, TV-11, AM-26
+// Spec: TV-1, TV-11, AM-26
 /** @purity pure */
 function appliedTablesOf(tables: TableVisibilities): readonly VisibilityTable[] {
   return VISIBILITY_TABLES.filter((table) => tables[table].isScheduleFilterApplied)
@@ -111,7 +111,7 @@ const taskUidsChecked = (visibility: TableVisibility): readonly number[] => visi
 /** @purity pure */
 const resourceUidsChecked = (visibility: TableVisibility): readonly number[] => visibility.shownResourceUids
 
-// see TV-6
+// Spec: TV-6
 /** @purity pure */
 function keysShownAgain(
   before: TableVisibility,
@@ -126,7 +126,7 @@ function keysShownAgain(
   }
 }
 
-// see TV-6, TV-13
+// Spec: TV-6, TV-13
 /** @purity pure */
 function tasksOfResourcesShownAgain(schedule: Schedule, shown: ReturnType<typeof keysShownAgain>): readonly number[] {
   if (shown.keys.length === 0 && !shown.isUnassigned) return []
@@ -140,7 +140,7 @@ function tasksOfResourcesShownAgain(schedule: Schedule, shown: ReturnType<typeof
     })
 }
 
-// see TV-6, SJ-2
+// Spec: TV-6, SJ-2
 /** @purity pure */
 function tasksShownAgain(schedule: Schedule, before: TableVisibilities, after: TableVisibilities): readonly number[] {
   const present = taskUidsOf(schedule)
@@ -150,7 +150,7 @@ function tasksShownAgain(schedule: Schedule, before: TableVisibilities, after: T
   return [...new Set([...fromSearch, ...fromReport, ...fromResources])].filter((uid) => present.has(uid))
 }
 
-// see TV-6, SJ-0
+// Spec: TV-6, SJ-0
 /** @purity pure */
 function viewWithKeyShown(view: TableView, key: number): TableView {
   const visibility = view.visibility
@@ -158,14 +158,14 @@ function viewWithKeyShown(view: TableView, key: number): TableView {
   return { ...view, visibility: { ...visibility, shownTaskUids: [...visibility.shownTaskUids, key] } }
 }
 
-// see TV-8, SJ-0
+// Spec: TV-8, SJ-0
 /** @purity pure */
 function viewWithFilterOff(table: VisibilityTable, view: TableView): TableView {
   const letGo = scheduleFilterLetGoOf(table, view)
   return letGo === null ? view : letGo.view
 }
 
-// see CM-92, UN-20, TV-6
+// Spec: CM-92, UN-20, TV-6
 /** @purity pure */
 function tableViewWrites(document: Document, held: TableViewsHeld, changes: TableViewChanges): readonly DocumentCommand[] {
   const tables = VISIBILITY_TABLES.filter((table) => !isSameView(changes[table] ?? held[table], held[table]))
@@ -178,7 +178,7 @@ function tableViewWrites(document: Document, held: TableViewsHeld, changes: Tabl
   return [...views, ...reveal]
 }
 
-// WHY: by content, so an entry answering an equal view writes no empty undo step.
+// Why: by content, so an entry answering an equal view writes no empty undo step.
 /** @purity pure */
 function isSameView(a: TableView, b: TableView): boolean {
   return a === b || JSON.stringify(a) === JSON.stringify(b)
@@ -193,7 +193,7 @@ function visibilitiesOf(views: TableViewsHeld): TableVisibilities {
   }
 }
 
-// see SJ-0, TV-13, UN-20
+// Spec: SJ-0, TV-13, UN-20
 /** @purity pure */
 function jumpViewChangesOf(
   views: TableViewsHeld,
@@ -218,7 +218,7 @@ function jumpViewChangesOf(
 }
 
 // see TV-7, JDG-2810
-// WHY: a task made while a filter is on enters the search table checked; the next view write keeps it in the list.
+// Why: a task made while a filter is on enters the search table checked; the next view write keeps it in the list.
 /** @purity pure */
 function searchViewWithCreated(view: TableView, created: ReadonlySet<number>): TableView {
   const held = view.visibility.shownTaskUids
@@ -246,7 +246,7 @@ function tableViewsKeeper() {
   }
 }
 
-// see TV-7, TV-13
+// Spec: TV-7, TV-13
 /** @purity non-pure */
 function createdTasksKeeper() {
   let created: ReadonlySet<number> = new Set()
@@ -254,8 +254,8 @@ function createdTasksKeeper() {
   return {
     /** @purity semi-pure-mutable */
     read: (): ReadonlySet<number> => created,
-    // see TV-7
-    // WHY: a task only a preview holds (a copy being dragged) counts as made, so it is drawn while it is dragged.
+    // Spec: TV-7
+    // Why: a task only a preview holds (a copy being dragged) counts as made, so it is drawn while it is dragged.
     /** @purity non-pure */
     readFor(held: Schedule, drawn: Schedule): ReadonlySet<number> {
       if (drawn === held) return created
@@ -282,7 +282,7 @@ function createdTasksKeeper() {
 }
 
 // see TV-1, TV-3, TD-8, DFC-1820
-// WHY: one set per held input, so the picture inputs keep their identity while nothing they read moved (DFC-1820).
+// Why: one set per held input, so the picture inputs keep their identity while nothing they read moved (DFC-1820).
 /** @purity non-pure */
 function drawnSetKeeper() {
   let read: readonly unknown[] = []
@@ -296,7 +296,7 @@ function drawnSetKeeper() {
   }
 }
 
-// see OP-18, TV-8, TV-12, WB-2, AM-27
+// Spec: OP-18, TV-8, TV-12, WB-2, AM-27
 /** @purity non-pure */
 function openSearchPanelMinimized(hands: FrameLoopHands, windows: HeldTableWindows, isReplaced: boolean): void {
   const shown = hands.readSession().screen.searchPanelDisplayState
@@ -306,8 +306,8 @@ function openSearchPanelMinimized(hands: FrameLoopHands, windows: HeldTableWindo
   if (panel.table !== 'tasks') windows.holdSearchPanel({ ...panel, table: 'tasks' })
 }
 
-// see OP-18, TV-8, TV-12, WB-2, FR-130, S-445, S-564
-// WHY: the report's table is narrowed by the diagnosis, so its filter coming on starts the diagnosis (OP-18).
+// Spec: OP-18, TV-8, TV-12, WB-2, FR-130, S-445, S-564
+// Why: the report's table is narrowed by the diagnosis, so its filter coming on starts the diagnosis (OP-18).
 /** @purity non-pure */
 function openTableWindowMinimized(
   table: VisibilityTable,
@@ -327,7 +327,7 @@ function openTableWindowMinimized(
   if (list === null || isReplaced) windows.holdResourceList({ ...(list ?? windows.reopenedResourceList()), shown: 'minimized' })
 }
 
-// see OP-18, TV-8, AM-27
+// Spec: OP-18, TV-8, AM-27
 /** @purity non-pure */
 function appliedFilterFollower() {
   let seen: DocumentSettings['tableViews'] | null = null
@@ -349,7 +349,7 @@ function appliedFilterFollower() {
   }
 }
 
-// see TV-8, SV-14, UN-20
+// Spec: TV-8, SV-14, UN-20
 /** @purity non-pure */
 function searchPanelClosingFollower() {
   let wasShown = false
@@ -364,7 +364,7 @@ type Diagnosis = { readonly readReportTaskUids: () => ReadonlySet<number> | null
 
 type CreatedTasks = ReturnType<typeof createdTasksKeeper>
 
-// see CM-92, UN-20, TV-6, TV-8, SJ-0
+// Spec: CM-92, UN-20, TV-6, TV-8, SJ-0
 /** @purity non-pure */
 function tableViewWriterOf(hands: FrameLoopHands, windows: HeldTableWindows, views: () => TableViewsHeld, judged: { readonly diagnosis: Diagnosis; readonly created: CreatedTasks }) {
   /** @purity non-pure */
@@ -393,8 +393,8 @@ function tableViewWriterOf(hands: FrameLoopHands, windows: HeldTableWindows, vie
   }
 }
 
-// see OP-18, TV-7, TV-8, TV-9
-// WHY: once at the head of a frame: a closed search panel lets its filter go, and a filter come on opens its window.
+// Spec: OP-18, TV-7, TV-8, TV-9
+// Why: once at the head of a frame: a closed search panel lets its filter go, and a filter come on opens its window.
 /** @purity non-pure */
 function frameFollowerOf(hands: FrameLoopHands, windows: HeldTableWindows, views: () => TableViewsHeld, held: { readonly diagnosis: Diagnosis; readonly created: CreatedTasks; readonly letGo: (table: VisibilityTable) => void }) {
   const filters = appliedFilterFollower()
@@ -411,7 +411,7 @@ function frameFollowerOf(hands: FrameLoopHands, windows: HeldTableWindows, views
       filters.follow(document.documentSettings, visibilities, (table, isReplaced) => openTableWindowMinimized(table, opener, isReplaced))
       isSearchPanelClosed(isSearchPanelShown())
     },
-    // WHY: the replaced document's own views stand; the report is closed unless its filter is on (OP-18).
+    // Why: the replaced document's own views stand; the report is closed unless its filter is on (OP-18).
     /** @purity non-pure */
     noteDocumentReplaced(closeReport: () => void): void {
       held.created.keepWithin(new Set(), false)
@@ -421,7 +421,7 @@ function frameFollowerOf(hands: FrameLoopHands, windows: HeldTableWindows, views
   }
 }
 
-// see TV-1, TV-2, TV-6, TV-7, TV-8, TV-9, TV-13, SJ-0, SJ-9, EL-21, AM-26, AM-27, OP-18, UN-20
+// Spec: TV-1, TV-2, TV-6, TV-7, TV-8, TV-9, TV-13, SJ-0, SJ-9, EL-21, AM-26, AM-27, OP-18, UN-20
 /** @purity non-pure */
 export function shownTasksHoldOf(hands: FrameLoopHands, windows: HeldTableWindows, diagnosis: Diagnosis) {
   const viewsOf = tableViewsKeeper()
@@ -451,8 +451,8 @@ export function shownTasksHoldOf(hands: FrameLoopHands, windows: HeldTableWindow
 
 export type ShownTasksHold = ReturnType<typeof shownTasksHoldOf>
 
-// see AM-26, AM-27, SJ-0, UN-20
-// WHY: AM-16 writes the view changes in its own SJ-2 write (one undo step); holdJumpTarget is
+// Spec: AM-26, AM-27, SJ-0, UN-20
+// Why: AM-16 writes the view changes in its own SJ-2 write (one undo step); holdJumpTarget is
 // left to the frame loop, which owes the landing (SJ-5).
 /** @purity non-pure */
 function agentShownTasksHolderOf(

@@ -23,7 +23,7 @@ import { specTable, unbroken } from './spec-table'
 
 type SnapPoint = (typeof SNAP_ORDER)[number]
 
-// WHY: the stored free point is a copy taken long before the target moved: a reading of it shows here.
+// Why: the stored free point is a copy taken long before the target moved: a reading of it shows here.
 const STALE = april(28, '00:00:00')
 const MINUTE_TEXT = 16
 const MS_PER_MINUTE = 60_000
@@ -32,13 +32,13 @@ const ALL_ROWS = ''
 const SQ_9_CELL = '線先が立つ日時（`FR-019`） —— 吸着していれば吸着先のその点の日時、そうでなければ `CommentBox.anchorDate`（`AT-113`）'
 const SJ_6_CELL = 'コメントボックスは `SQ-9` と同じ線先が立つ日時'
 
-// see LF-15
+// Spec: LF-15
 const LEFT_POINTS: readonly SnapPoint[] = ['topLeftCorner', 'leftMiddle', 'bottomLeftCorner']
 const MIDDLE_POINTS: readonly SnapPoint[] = ['topMiddle', 'bottomMiddle']
 const RIGHT_POINTS: readonly SnapPoint[] = ['topRightCorner', 'rightMiddle', 'bottomRightCorner']
 
-// see FR-019, AT-118
-// WHY: the box is drawn from the start day's column to the right edge of the finish day's column.
+// Spec: FR-019, AT-118
+// Why: the box is drawn from the start day's column to the right edge of the finish day's column.
 const BOX_START = april(8, '00:00:00')
 const BOX_FINISH = april(11, '23:59:00')
 const BOX_LEFT = '2026-04-08T00:00'
@@ -78,7 +78,7 @@ const searchedDate = (document: Document): string | null => {
 
 const shownDate = (document: Document): string | null => minuteOf(commentBoxShownDateOf(document.schedule, boxOf(document)))
 
-// WHY: FR-019 says the shown date is found the way the delete command writes the freed point; this is that write.
+// Why: FR-019 says the shown date is found the way the delete command writes the freed point; this is that write.
 const freedDate = (document: Document, deletion: Record<string, unknown>): string | null =>
   minuteOf(boxOf(accepted(run(document, deletion))).anchorDate)
 
@@ -150,10 +150,10 @@ describe(`SQ-9 -- ${FR_019_SHOWN_DATE}`, () => {
   })
 })
 
-// WHY: the target moves by a whole week, so every point moves by that much while the stored copy stays.
+// Why: the target moves by a whole week, so every point moves by that much while the stored copy stays.
 const SHIFT_DAYS = 7
 const MINUTES_PER_DAY = 24 * 60
-// WHY: the planned days of SECOND_BAR_UID in the cr-777 stage.
+// Why: the planned days of SECOND_BAR_UID in the cr-777 stage.
 const SECOND_BAR_START_DAY = 16
 const SECOND_BAR_FINISH_DAY = 20
 const MOVED_START = april(SECOND_BAR_START_DAY + SHIFT_DAYS, '00:00:00')
@@ -196,8 +196,8 @@ describe(`SQ-9 after the target moved -- ${FR_019_SHOWN_DATE}`, () => {
   })
 })
 
-// see SJ-6
-// WHY: the reach of the cr-571 jump cases: ten pixels a day, nothing left of the date, no picture read.
+// Spec: SJ-6
+// Why: the reach of the cr-571 jump cases: ten pixels a day, nothing left of the date, no picture read.
 type SearchJumpReach = Parameters<typeof searchJumpWrites>[3]
 const NO_REACH: SearchJumpReach = { pxPerDay: 10, leftReachPx: 0, drawnTaskGroups: [], areaWidth: 800, landing: null }
 const TO_BOX = { kind: 'commentBox', commentBoxId: COMMENT_ID } as const

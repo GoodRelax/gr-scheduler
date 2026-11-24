@@ -14,7 +14,7 @@ import {
   type ShellBench,
 } from '../unit/cr-541-stage'
 
-// WHY: E-24 names no kind of copy, so it binds every paste FR-033 makes, a Task paste included.
+// Why: E-24 names no kind of copy, so it binds every paste FR-033 makes, a Task paste included.
 const SEVERAL_TARGET_TASK_GROUPS_REFUSED =
   '⛔ 貼り付け先としてタスクグループが 2 つ以上選ばれているときは、貼り付けを受け付けず、行えない理由を `FR-029` のとおり通知の仕組みへ運ぶこと（MUST）'
 const TARGET_IS_THE_CHOSEN_TASK_GROUP = '貼り付け先は、選んでいるタスクグループの子とすること（MUST）'
@@ -23,7 +23,7 @@ const EDIT_PERMISSION_LANDS_ON_CHOSEN_TASK_GROUP =
   '⛐ **ただ 1 つの例外は、複製元のタスクグループが `editPermission` を名乗っているときである** —— そのときに限り、**選んでいる自分のタスクグループに載せること（MUST）**'
 const MANY_TASKS_ALL_COPIED =
   '⭐ `Task` が 2 つ以上選ばれているときは、選ばれた `Task` をすべて複製し、それぞれを上の段のとおり複製元と同じタスクグループに載せること（MUST）'
-// WHY: CR-714 (JDG-1736) replaced "the copy keeps its source's parent" with a parent inferred from the landing task group.
+// Why: CR-714 (JDG-1736) replaced "the copy keeps its source's parent" with a parent inferred from the landing task group.
 const PARENT_FROM_THE_TASK_GROUP =
   'コピー元の親をコピーしないとき（コピー元が親を持たないときを含む）は、コピーの親タスクを、コピーを載せたタスクグループから推定すること（MUST）'
 const NO_SAME_UID = '複製した `Task` に、複製元と同じ `UID` を使ってはならない（MUST NOT）'
@@ -49,14 +49,14 @@ const PASTE = keyOf('V', { ctrl: true })
 const TASK_GROUP_PANEL = bare(rowOf('T-103', 'U-22').by['確定名（英）'] ?? '')
 const EDIT_PERMISSION_NAME = 'fixture edit permission'
 
-// WHY: no T-233 row names the E-24 refusal, so the case asks only what REASON_IS_A_T233_ROW
+// Why: no T-233 row names the E-24 refusal, so the case asks only what REASON_IS_A_T233_ROW
 // asks: the words told are the words of some T-233 row.
 const T233_IDS = new Set(specTable('T-233').rows.map((one) => one.id))
 const T233_WORDS: readonly string[] = (DISPLAY_WORDS.reasons as { rowId: string; text: { ja: string } }[])
   .filter((one) => T233_IDS.has(one.rowId))
   .map((one) => one.text.ja)
 
-// WHY: one Task per task group, all at the WBS top, so PARENT_FROM_THE_TASK_GROUP and "nothing chosen -> top"
+// Why: one Task per task group, all at the WBS top, so PARENT_FROM_THE_TASK_GROUP and "nothing chosen -> top"
 // agree on where a copy root goes.
 const threeTaskGroups = (editPermissionOnTaskGroupOne: boolean): Record<string, any> => {
   const document = taskGroupDocument([
@@ -97,7 +97,7 @@ function stageOf(document: Record<string, any>, modifier: 'ctrl' | 'shift' | 'me
   const schedule = (): any => (bench.loop.document() as any).schedule
   return {
     bench,
-    // see SL-2, SL-4
+    // Spec: SL-2, SL-4
     copyTasks: (uids) => {
       uids.forEach((uid, index) => {
         const at = middleOf(uid)
@@ -118,7 +118,7 @@ function stageOf(document: Record<string, any>, modifier: 'ctrl' | 'shift' | 'me
 
 const copyTasks = (stage: Stage, uids: readonly number[]): void => stage.copyTasks(uids)
 
-// WHY: no row names the modifier that adds a task group to the picked task groups (as in the cr-541 Q15
+// Why: no row names the modifier that adds a task group to the picked task groups (as in the cr-541 Q15
 // case), so each is tried on a fresh shell; the premise fails only when none picks two.
 function copiedThenTwoTaskGroupsPicked(document: () => Record<string, any>, uids: readonly number[]): Stage {
   for (const modifier of ['ctrl', 'shift', 'meta'] as const) {
@@ -153,7 +153,7 @@ describe('E-24 -- a copied Task pasted while two task groups are chosen is refus
     expectRefused(copiedThenTwoTaskGroupsPicked(() => threeTaskGroups(false), [1, 2]))
   })
 
-  // WHY: here EDIT_PERMISSION_LANDS_ON_CHOSEN_TASK_GROUP makes the chosen task group the landing task group, so two
+  // Why: here EDIT_PERMISSION_LANDS_ON_CHOSEN_TASK_GROUP makes the chosen task group the landing task group, so two
   // chosen task groups leave the landing task group undecided -- the reading of E-24 least open to doubt.
   it(`${SEVERAL_TARGET_TASK_GROUPS_REFUSED} -- one Task copied from an editPermission task group`, () => {
     expectRefused(copiedThenTwoTaskGroupsPicked(() => threeTaskGroups(true), [1]))
@@ -166,7 +166,7 @@ const newTasks = (stage: Stage, act: () => void): any[] => {
   return stage.tasks().filter((one) => !before.has(one.uid))
 }
 
-// WHY: these pass today and must keep passing once the refusal is hoisted; a refusal that
+// Why: these pass today and must keep passing once the refusal is hoisted; a refusal that
 // also caught one chosen task group or none would turn them red.
 describe('controls -- one task group or no task group chosen, the Task paste goes through', () => {
   it(`${SAME_TASK_GROUP} -- one copied Task, ONE task group chosen: one copy, on its source task group`, () => {
@@ -200,10 +200,10 @@ describe('controls -- one task group or no task group chosen, the Task paste goe
   })
 })
 
-// WHY: the control of the editPermission refusal case above; it reads the FR-033 exception, not
+// Why: the control of the editPermission refusal case above; it reads the FR-033 exception, not
 // E-24, so hoisting the E-24 refusal alone does not turn it green.
 describe('FR-033 editPermission exception -- one task group chosen, the copy lands on it', () => {
-  // DEVIATION: spec says a copy from an editPermission task group lands on the chosen task group (FR-033); here it lands on its source task group (DFC-730)
+  // Temporary: spec says a copy from an editPermission task group lands on the chosen task group (FR-033); here it lands on its source task group (DFC-730). Until: DFC-730 is fixed.
   it.fails(`${EDIT_PERMISSION_LANDS_ON_CHOSEN_TASK_GROUP} -- one Task from an editPermission task group, ONE task group chosen`, () => {
     const stage = stageOf(threeTaskGroups(true), 'ctrl')
     copyTasks(stage, [1])

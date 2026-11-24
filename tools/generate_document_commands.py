@@ -278,7 +278,7 @@ def alternative_lines(row, doc, columns):
 
 def union_lines(name, rows, doc, columns):
     """@purity pure"""
-    out = ['// see %s' % doc['table']['id'], 'export type %s =' % name]
+    out = ['// Spec: %s' % doc['table']['id'], 'export type %s =' % name]
     for row in rows:
         out += alternative_lines(row, doc, columns)
     return out
@@ -349,7 +349,7 @@ def shape_declaration(shape, doc, columns):
 
     @purity pure
     """
-    out = ['// see %s' % doc['table']['id']]
+    out = ['// Spec: %s' % doc['table']['id']]
     if 'variants' not in shape:
         out.append('export interface %s {' % shape['name'])
         out += ['  %s' % field_text(one, doc, columns) for one in shape['fields']]
@@ -367,8 +367,8 @@ def checks_lines(shapes):
     checks = [one for shape in shapes for one in shape_checks(shape)]
     return [
         '',
-        '// see T-108',
-        '// WHY: another component declares these shapes; their field names are held against table T-108 here.',
+        '// Spec: T-108',
+        '// Why: another component declares these shapes; their field names are held against table T-108 here.',
         'type SameFieldNames<TValue, TNames extends PropertyKey> = [keyof TValue] extends [TNames]',
         '  ? ([TNames] extends [keyof TValue] ? true : false)',
         '  : false',
@@ -439,8 +439,8 @@ def kinds_lines(doc):
     @purity pure
     """
     out = ['',
-           '// see %s' % doc['table']['id'],
-           '// WHY: the router reads the commands of each union here rather than a hand copy (check 69).',
+           '// Spec: %s' % doc['table']['id'],
+           '// Why: the router reads the commands of each union here rather than a hand copy (check 69).',
            'const %s = {' % KINDS_NAME]
     for name, _unit in UNITS:
         kinds = [row['name'] for row in rows_of(doc, name)]
@@ -475,7 +475,7 @@ def length_letter_regions(doc):
     """
     letters = length_letters(doc)
     what = 'table %s, %s.%s' % (doc['table']['id'], LENGTH_LETTER_FIELD[0], LENGTH_LETTER_FIELD[1])
-    see = '// see %s, TX-10' % doc['table']['id']
+    see = '// Spec: %s, TX-10' % doc['table']['id']
     out = []
     for unit, form in LENGTH_LETTER_UNITS:
         if form == 'type':
@@ -518,11 +518,11 @@ def regions(doc, columns):
     pending = rows_of(doc, UNIMPLEMENTED)
     router = []
     if pending:
-        router += ['// see %s, %s' % (doc['table']['id'], ', '.join(row['id'] for row in pending)),
-                   '// WHY: rows of table T-108 nothing implements yet; editDocument refuses them as no aggregate owns them.']
+        router += ['// Spec: %s, %s' % (doc['table']['id'], ', '.join(row['id'] for row in pending)),
+                   '// Why: rows of table T-108 nothing implements yet; editDocument refuses them as no aggregate owns them.']
         router += union_lines(UNIMPLEMENTED, pending, doc, columns)[1:]
         router.append('')
-    router += ['// see %s' % doc['table']['id'], 'export type DocumentCommand =']
+    router += ['// Spec: %s' % doc['table']['id'], 'export type DocumentCommand =']
     router += ['  | %s' % name for name, _unit in UNITS]
     if pending:
         router.append('  | %s' % UNIMPLEMENTED)
@@ -910,7 +910,7 @@ def shape_check_region(doc, columns, schema):
     # ⚠️ Imported here, not at the head: generate_mcp_tool_descriptions.py imports this file
     # for with_command_shapes() alone, and is run on copies that carry no validator.
     import generate_json_schema_validator as validator
-    lines = ['// see %s, FR-028, AG-9a' % doc['table']['id'],
+    lines = ['// Spec: %s, FR-028, AG-9a' % doc['table']['id'],
              'const SHAPE_OF_COMMAND_KIND: Readonly<Record<string, SchemaNode>> = {']
     ways = collections.OrderedDict()
     for one in command_schemas(doc, columns, schema):

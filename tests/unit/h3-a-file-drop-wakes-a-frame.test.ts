@@ -22,19 +22,19 @@ import { bare, specTable } from '../contract/spec-table'
 import { validateDocument } from '../fixtures/grs-document'
 import { DESIGN, REQUIREMENTS, taskGroupDocument, SCREEN } from './cr-541-stage'
 
-// see T-078
+// Spec: T-078
 const FT_1_DROP = '人の入力（ポインタとキー）と、ファイルのドロップ（01-04 の 表 T-024a の `OP-2`）'
 const FT_1_CONTINUATION = '⭐ **その入力の、待ち（表 T-066 の `CS-4`）をまたいだ続きを含む**'
 const FT_1_SHELL_RAISES = '⚠️ **待ちをまたいだ続きを起こすのはシェル自身である**'
 const T_078_MUST_NOT = '**本表に無い契機でフレームを起こしてはならない（MUST NOT）** —— これが `NFR-010` の具体である。'
-// see T-066
+// Spec: T-066
 const CS_4_ROW = '**人の応答を待つ 1 回のファイル操作**（開く・書き出す）'
 const CS_4_NO_REREAD = '待っているあいだ、現在値を読み直してはならない（MUST NOT）。'
 const CS_4_WAIT_CHANGES_NOTHING = '⛔ **待つことそのものは画面を何も変えない** —— 表 T-078 に契機が無いからである。'
 const CS_4_NO_WAITING_SIGN = '**待っていることを示す表示を出してはならない（MUST NOT）。**'
 const CS_4_QUESTION_FRAME =
   '⭐ 待ちが終わって問いが立つときのフレームは 表 T-078 の `FT-1` である —— その押下の、遅れて来た残りだからである。'
-// see T-024a
+// Spec: T-024a
 const OP_2_ROUTES = 'ファイル選択、およびドラッグ＆ドロップ（表 T-008 の CHN-1）'
 const OP_2_ONE_ENTRANCE = '入口は本要求の「開く」1 つとし、取り込み（合流）に別の入口を設けてはならない（MUST NOT）'
 const OP_3_ASK = '**読んだ内容をどう扱うかを人に選ばせること（MUST）**'
@@ -59,7 +59,7 @@ const REQUIREMENT_CLAUSES: readonly (readonly [string, string])[] = [
   ['T-024a OP-3 (MUST NOT) -- GRS does not choose by itself', OP_3_NOT_BY_ITSELF],
 ]
 
-// see U-56
+// Spec: U-56
 const OPEN_CHOOSER = ((): string => {
   const found = specTable('T-103').rows.find((one) => one.id === 'U-56')
   const name = bare(found?.cells[0] ?? '')
@@ -77,7 +77,7 @@ const here = (): Document => {
   return draft as unknown as Document
 }
 
-// WHY: no uid is shared with here(), so FR-022 has no merge candidate and OP-3
+// Why: no uid is shared with here(), so FR-022 has no merge candidate and OP-3
 // is the only question the drop can raise.
 const there = (): Document => {
   const draft = taskGroupDocument([{ id: THERE_TASK_GROUP, parentId: null }])
@@ -111,7 +111,7 @@ interface Stage {
   pendingReads(): number
 }
 
-// see UF-48, IF-3
+// Spec: UF-48, IF-3
 async function stage(): Promise<Stage> {
   const waiting: ((time: number) => void)[] = []
   let asked = 0
@@ -135,7 +135,7 @@ async function stage(): Promise<Stage> {
   }
   const routes: OpenRoute[] = []
   const answers: ((reading: FileReading) => void)[] = []
-  // TRAP: the read never answers by itself, so a case can stand inside the
+  // Trap: the read never answers by itself, so a case can stand inside the
   // CS-4 wait; the file the drop left in the store is handed over by handOver.
   const store: FileStore = {
     readFileToOpen: (route) => {
@@ -229,7 +229,7 @@ describe('T-078 FT-1 -- a file drop wakes a frame', () => {
     expect(run.routes).toEqual([OPEN_ROUTE_FROM_DROP])
   })
 
-  // WHY: a dropped GRS JSON opens as a replace without U-56 (OP-19); nothing is unsaved, so QN-5 stays down.
+  // Why: a dropped GRS JSON opens as a replace without U-56 (OP-19); nothing is unsaved, so QN-5 stays down.
   it('OP-19: once the held GRS JSON is handed over, it replaces the document and no Open Chooser stands', async () => {
     const run = await stage()
     const before = JSON.stringify(run.loop.document())

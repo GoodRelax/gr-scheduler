@@ -23,7 +23,7 @@ import { specTable, unbroken } from './spec-table'
 
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
-// see SV-7
+// Spec: SV-7
 const SV_7_LABELS =
   '2 つの日付の入力には、それぞれの左に、`FR-038` の辞書が持つ語「いつから」「いつまで」を札として置くこと（MUST）'
 
@@ -38,7 +38,7 @@ const wordOf = (part: string, language: DisplayLanguage): string => {
   return found.text[language]
 }
 
-// WHY: the task table's date columns and the comment box table's, as table T-331 lists them.
+// Why: the task table's date columns and the comment box table's, as table T-331 lists them.
 const DATE_COLUMNS = specTable('T-331')
   .rows.filter((row) => (row.by['フィルタ'] ?? '').includes('いつから'))
   .map((row) => [row.id, row.by['表'] === 'コメントボックス' ? 'commentBoxes' : 'tasks'] as const)
@@ -75,7 +75,7 @@ function drawnFilter(column: string, table: 'tasks' | 'commentBoxes', language: 
 
 type Piece = { readonly kind: 'text'; readonly text: string } | { readonly kind: 'date'; readonly bound: string }
 
-// WHY: the left of an input is what comes before it in reading order, so the filter is flattened in document order.
+// Why: the left of an input is what comes before it in reading order, so the filter is flattened in document order.
 function piecesOf(node: FakeNode, into: Piece[] = []): Piece[] {
   if (node instanceof FakeText) {
     if (node.data.trim() !== '') into.push({ kind: 'text', text: node.data.trim() })

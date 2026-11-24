@@ -37,7 +37,7 @@ export function templateDocument(): Document {
   return read.document
 }
 
-// WHY: the MSPDI cases must not hang on AT-143's legacy reading, which has cases of its own,
+// Why: the MSPDI cases must not hang on AT-143's legacy reading, which has cases of its own,
 // so the `current` they pass holds the column already.
 export function currentDocument(): Document {
   const parsed = JSON.parse(TEMPLATE_TEXT) as { schedule: { project: Record<string, unknown> } }

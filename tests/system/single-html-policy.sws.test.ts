@@ -16,7 +16,7 @@ const T232: SpecTable = specTable('T-232')
 
 const T232_CELLS = 2
 
-// WHY: a row ID, not a value -- rule 03.3 has a note name the row and
+// Why: a row ID, not a value -- rule 03.3 has a note name the row and
 // never copy what the row says.
 const HASH_ROW = 'PO-4'
 
@@ -36,7 +36,7 @@ function firstCodeSpanOf(cell: string): string {
   return /`([^`]+)`/.exec(cell)?.[1] ?? ''
 }
 
-// WHY: a cell opening with a code span spells the value; one opening with
+// Why: a cell opening with a code span spells the value; one opening with
 // prose states a rule instead, which cannot be compared with toBe.
 /** @purity pure */
 function spelledValueOf(cell: string): string | null {
@@ -60,18 +60,18 @@ function directivesOf(policy: string): readonly Directive[] {
     })
 }
 
-// WHY: matched against the console rather than the policy text -- whether
+// Why: matched against the console rather than the policy text -- whether
 // a policy REFUSES something is a fact about the page loading, not the string.
 const REFUSAL = /content security policy|refused to (?:load|execute|apply|connect|frame)/i
 
 const REPO_ROOT = fileURLToPath(new URL('../..', import.meta.url))
 
-// WHY: not dist/ -- two Playwright workers building into one shared
+// Why: not dist/ -- two Playwright workers building into one shared
 // directory at once could leave a file half-written for this test to read.
 const OUT_DIR_RELATIVE = 'node_modules/.grs-system-test/sws-8'
 const OUT_DIR = join(REPO_ROOT, ...OUT_DIR_RELATIVE.split('/'))
 
-// WHY: built every run, never reused (rule 04.2) -- a test that read a
+// Why: built every run, never reused (rule 04.2) -- a test that read a
 // stale artifact would prove nothing, and the artifact IS SWS-8's subject.
 /** @purity non-pure */
 function buildDeliverable(): void {
@@ -81,7 +81,7 @@ function buildDeliverable(): void {
       stdio: 'pipe',
     })
   } catch (cause) {
-    // WHY: the default failure carries only the exit code; what the build
+    // Why: the default failure carries only the exit code; what the build
     // said is on the captured streams, so it must go into the message here.
     const said = cause as { stdout?: { toString(): string }; stderr?: { toString(): string } }
     throw new Error(
@@ -106,7 +106,7 @@ function filesUnder(dir: string): string[] {
 let deliverableUrl = ''
 let browser: Browser | null = null
 
-// WHY: the returned array keeps filling while the page lives; a caller
+// Why: the returned array keeps filling while the page lives; a caller
 // reads it after the load it cares about has finished, never before.
 /** @purity non-pure */
 async function openDeliverable(from: Browser): Promise<{ page: Page; complaints: string[] }> {
@@ -134,7 +134,7 @@ test.beforeAll(async () => {
 })
 
 test.afterAll(async () => {
-  // WHY: this is the hook's own allowance, not an assertion's -- closing
+  // Why: this is the hook's own allowance, not an assertion's -- closing
   // the reference browser passes the default hook timeout on this machine.
   test.setTimeout(CLEARING_UP_MS)
   await browser?.close()
@@ -167,7 +167,7 @@ test(
         )
         .map((one) => one.getAttribute('content') ?? ''),
     )
-    // WHY: one, not "at least one" -- two policies would both be enforced
+    // Why: one, not "at least one" -- two policies would both be enforced
     // and their intersection would no longer read as table T-232's roster.
     expect(
       policies.length,
@@ -217,7 +217,7 @@ test(
       pinned?.sources ?? [],
       `table T-232 row ${HASH_ROW} admits one source and no second`,
     ).toHaveLength(1)
-    // WHY: this also keeps the row's MUST NOT -- a keyword source of any
+    // Why: this also keeps the row's MUST NOT -- a keyword source of any
     // kind fails the shape, so the directive cannot quietly gain one.
     expect(
       pinned?.sources[0] ?? '',
@@ -241,7 +241,7 @@ test(
     test.setTimeout(120_000)
     const { page, complaints } = await openDeliverable(openedBrowser())
 
-    // WHY: read before the drawing is waited for -- a refused script is
+    // Why: read before the drawing is waited for -- a refused script is
     // already on the console by then, and waiting first reports the symptom.
     expect(
       complaints.filter((one) => REFUSAL.test(one)),

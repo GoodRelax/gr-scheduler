@@ -43,7 +43,7 @@ const H_ENTRANCE = String.fromCodePoint(0x5165, 0x53e3)
 const SLASH = '／'
 const FULL_WIDTH_PLUS = '＋'
 
-// see FR-036, T-036, T-255
+// Spec: FR-036, T-036, T-255
 const assignmentsIn = (cell: string): readonly (readonly string[])[] =>
   cell
     .split(SLASH)
@@ -160,7 +160,7 @@ const GLYPHS = JSON.parse(
 
 const FIGURE = readFileSync(join(ROOT, 'docs', 'spec', '_assets', 'fig-icons.svg'), 'utf8')
 
-// see F-019, IC-102
+// Spec: F-019, IC-102
 const figureElementsOf = (rowId: string): readonly GlyphElement[] => {
   const label = FIGURE.indexOf(`>${rowId}</text>`)
   if (label < 0) throw new Error(`figure F-019 has no label ${rowId}`)

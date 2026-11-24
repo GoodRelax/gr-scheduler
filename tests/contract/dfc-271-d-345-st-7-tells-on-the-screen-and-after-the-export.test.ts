@@ -479,7 +479,7 @@ interface RasterProbe {
   readonly asked: string[]
 }
 
-// see FR-025
+// Spec: FR-025
 function rasterProbe(): RasterProbe {
   const asked: string[] = []
   return {

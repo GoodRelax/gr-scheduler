@@ -22,7 +22,7 @@ const RS_25 = '| RS-25 | 読んだ `GRS JSON` の列が、決められた形に�
 const CV_1 = '描いた値（`#rrggbb`）を保存してはならない（MUST NOT）'
 const AM_8 = '| AM-8 | 書く | `importDocument` |'
 
-// WHY: a drawn value in a color column, which CV-1 forbids and the column's shape does not take.
+// Why: a drawn value in a color column, which CV-1 forbids and the column's shape does not take.
 const FORBIDDEN_COLOR = 'rgb(255,0,0)'
 
 const benches: ShellBench[] = []
@@ -68,7 +68,7 @@ describe('AM-8 -- importDocument checks the document whatever shape it comes in'
   })
 
   it('premise: the codec refuses the document carrying a drawn color value, and accepts the same document with a palette name', () => {
-    // see CV-1, RS-25
+    // Spec: CV-1, RS-25
     const refused = documentFromJson(JSON.stringify(documentOf(FORBIDDEN_COLOR)))
     expect(refused.ok).toBe(false)
     expect(documentFromJson(JSON.stringify(documentOf('red'))).ok).toBe(true)
@@ -76,7 +76,7 @@ describe('AM-8 -- importDocument checks the document whatever shape it comes in'
 
   for (const [shape, source] of shapesOf(documentOf(FORBIDDEN_COLOR))) {
     it(`AM-8 / AG-9a: a document with ${FORBIDDEN_COLOR} handed as ${shape} is refused with the codec's reason, and nothing lands`, async () => {
-      // see AM-8, AG-9a, RS-25, CV-1
+      // Spec: AM-8, AG-9a, RS-25, CV-1
       const codec = documentFromJson(JSON.stringify(documentOf(FORBIDDEN_COLOR)))
       const codecReason = codec.ok ? '' : codec.reason
       const { api, bench } = apiOn()

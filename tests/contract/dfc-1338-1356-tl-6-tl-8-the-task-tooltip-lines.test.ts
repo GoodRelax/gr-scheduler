@@ -43,8 +43,8 @@ const WEEKDAYS: Readonly<Record<'ja' | 'en', readonly string[]>> = {
   en: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
 }
 
-// see TL-10, TL-11
-// WHY: CR-794 -- the year is always written and the month and day are padded to two digits.
+// Spec: TL-10, TL-11
+// Why: CR-794 -- the year is always written and the month and day are padded to two digits.
 const dayText = (iso: string, language: 'ja' | 'en'): string => {
   const [year, month, day] = iso.slice(0, 10).split('-').map(Number) as [number, number, number]
   const weekday = WEEKDAYS[language][new Date(Date.UTC(year, month - 1, day)).getUTCDay()]

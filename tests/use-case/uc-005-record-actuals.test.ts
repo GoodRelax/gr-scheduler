@@ -15,8 +15,8 @@ const weekdaysBetween = (fromIso: string, toIso: string, inclusive: boolean): nu
   return count
 }
 
-// see FR-011
-// WHY: both ends count as one day even on a non-working day; only the days between are weekdays.
+// Spec: FR-011
+// Why: both ends count as one day even on a non-working day; only the days between are weekdays.
 const actualLength = (fromIso: string, lastIso: string): number => {
   const from = Date.parse(fromIso.slice(0, 10) + 'T00:00:00Z')
   const last = Date.parse(lastIso.slice(0, 10) + 'T00:00:00Z')
@@ -63,7 +63,7 @@ test('UC-005 record actuals (FR-043, FR-011, FR-012, FR-013 T-021 T-021a PV-1..P
     const now = await task()
     expect(now.actualStart).toBe(now.start)
     expect(now.actualFinish).toBeNull()
-    // WHY: FR-012 counts the plan by FR-011's rule too, so a plan start on a rest day is one day.
+    // Why: FR-012 counts the plan by FR-011's rule too, so a plan start on a rest day is one day.
     const expected = Math.round((actualLength(now.actualStart, now.stop) / actualLength(now.start, now.finish)) * 100)
     expect(Math.abs(now.percentComplete - expected)).toBeLessThanOrEqual(1)
     const actual = (await figureBox(page, 'task-' + uid + '-actual'))!

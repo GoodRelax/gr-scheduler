@@ -1,4 +1,4 @@
-// InputCommandTranslator -- the task group fold, open, hide and add entrances (T-015, T-051, T-328).
+// File: InputCommandTranslator: the task group fold, open, hide and add entrances (T-015, T-051, T-328).
 // @unit      UF-96   (docs/spec/05-07-design.md, table T-075)
 // @component InputCommandTranslator, layer Adapter (table T-062)
 // @purity    pure
@@ -31,15 +31,15 @@ import {
 } from './input-command-translator'
 import { zoomOnScreen } from './zoom-and-fit'
 
-// see IC-74, HF-10, T-328
+// Spec: IC-74, HF-10, T-328
 /** @purity pure */
 export function commandFromRowExpanderOpenAll(context: InputContext): TranslatedInput {
-  // TRAP: judged here, not by the write: opening nothing is silent, and FR-029 wants the reason told.
+  // Trap: judged here, not by the write: opening nothing is silent, and FR-029 wants the reason told.
   if (!isEveryTaskGroupOpenArmed(context)) return nothingToDo('noFoldedTaskGroupAtAll')
   return foldsOrNothing(treeWritesOf(context, { type: 'everyTaskGroupOpenPressed' }), 'noFoldedTaskGroupAtAll')
 }
 
-// see IC-78, HF-12, T-328
+// Spec: IC-78, HF-12, T-328
 /** @purity pure */
 export function commandFromRowExpanderCloseAll(context: InputContext): TranslatedInput {
   if (isLevelZeroCollapsedIn(context) || !isATaskGroupOfTheShallowestLevelDrawn(context)) {
@@ -48,7 +48,7 @@ export function commandFromRowExpanderCloseAll(context: InputContext): Translate
   return foldsOrNothing(treeWritesOf(context, { type: 'everyTaskGroupFoldPressed' }), 'noUnfoldedTaskGroupAtAll')
 }
 
-// see IC-92, HF-16, T-328
+// Spec: IC-92, HF-16, T-328
 /** @purity pure */
 export function commandFromRowExpanderOpenLevelZero(context: InputContext): TranslatedInput {
   const hasAHiddenTopTaskGroup = context.document.schedule.taskGroups.some(
@@ -58,7 +58,7 @@ export function commandFromRowExpanderOpenLevelZero(context: InputContext): Tran
   return foldsOrNothing(treeWritesOf(context, { type: 'topLevelOpenPressed' }), null)
 }
 
-// see IC-58, IC-59, IC-60, IC-77, IC-82, IC-90, IC-91, T-328
+// Spec: IC-58, IC-59, IC-60, IC-77, IC-82, IC-90, IC-91, T-328
 /** @purity pure */
 export function commandFromRowEntry(
   entry: string,
@@ -68,7 +68,7 @@ export function commandFromRowEntry(
   if (taskGroupId === null) return CONSUMED_ELSEWHERE
 
   if (entry === ENTRY.taskGroupPin) {
-    // TRAP: read the document, not the drawn task group: against a stale picture the pin never comes off.
+    // Trap: read the document, not the drawn task group: against a stale picture the pin never comes off.
     const isPinned = context.document.documentSettings.pinnedTaskGroupIds.includes(taskGroupId)
     return changed([
       isPinned
@@ -118,16 +118,16 @@ export function commandFromRowEntry(
   return changed(treeWritesOf(context, { type: 'hidePressed', pressedRowId: taskGroupId }))
 }
 
-// see CM-27, T-050
-// WHY: the fresh id rides on every delete; only the use case knows the task groups would run out.
+// Spec: CM-27, T-050
+// Why: the fresh id rides on every delete; only the use case knows the task groups would run out.
 /** @purity pure */
 function taskGroupDeleted(context: InputContext, taskGroupId: string): TranslatedInput {
   return changed([{ kind: 'deleteTaskGroup', taskGroupId: taskGroupId, newTaskGroupId: context.newTaskGroupId }])
 }
 
-// see HF-20, CD-6, IC-106, T-328
-// WHY: CM-27 once per top task group in one bundle: one undo unit, and the task group rule of T-050 sees the last go.
-// WHY: the same bundle opens level zero (everyTaskGroupDeletePressed), so the one task group T-050 leaves is drawn.
+// Spec: HF-20, CD-6, IC-106, T-328
+// Why: CM-27 once per top task group in one bundle: one undo unit, and the task group rule of T-050 sees the last go.
+// Why: the same bundle opens level zero (everyTaskGroupDeletePressed), so the one task group T-050 leaves is drawn.
 /** @purity pure */
 export function everyTaskGroupDeleted(context: InputContext): TranslatedInput {
   const newTaskGroupId = context.newTaskGroupId
@@ -162,14 +162,14 @@ function placedRowIdsOf(context: InputContext): ReadonlySet<string> {
   return new Set(context.layout.taskGroups.map((taskGroup) => taskGroup.taskGroupId))
 }
 
-// TRAP: task-group-panel.ts arms IC-74, IC-58 and IC-90 by these three same tests; change both together.
+// Trap: task-group-panel.ts arms IC-74, IC-58 and IC-90 by these three same tests; change both together.
 /** @purity pure */
 function isEveryTaskGroupOpenArmed(context: InputContext): boolean {
   const placed = placedRowIdsOf(context)
   return context.document.schedule.taskGroups.some((taskGroup) => !placed.has(taskGroup.id))
 }
 
-// see IC-58, HF-2, RS-28, T-329
+// Spec: IC-58, HF-2, RS-28, T-329
 /** @purity pure */
 function isOpenAllBelowArmed(context: InputContext, taskGroupId: string): boolean {
   const placed = placedRowIdsOf(context)
@@ -181,7 +181,7 @@ function isOpenAllBelowArmed(context: InputContext, taskGroupId: string): boolea
   )
 }
 
-// see IC-90, HF-13, RS-30, T-329
+// Spec: IC-90, HF-13, RS-30, T-329
 /** @purity pure */
 function isOpenOneLevelArmed(context: InputContext, taskGroupId: string): boolean {
   const placedTaskGroups = context.layout.taskGroups
@@ -206,10 +206,10 @@ function isOpenOneLevelArmed(context: InputContext, taskGroupId: string): boolea
   })
 }
 
-// see HF-14
+// Spec: HF-14
 /** @purity pure */
 function orderPastLastChild(schedule: Schedule, parentTaskGroupId: string | null): number {
-  // TRAP: one past the largest order, not the child count: orders may have gaps (AT-55).
+  // Trap: one past the largest order, not the child count: orders may have gaps (AT-55).
   let lastOrder: number | null = null
   for (const taskGroup of schedule.taskGroups) {
     if (taskGroup.parentId !== parentTaskGroupId) continue
@@ -218,12 +218,12 @@ function orderPastLastChild(schedule: Schedule, parentTaskGroupId: string | null
   return lastOrder === null ? 0 : lastOrder + 1
 }
 
-// see HF-14, HF-17, T-328, AT-153
-// WHY: the new task group is shown by its tree state (temporarilyExpanded, CM-26), never by a zoom write (HF-14).
+// Spec: HF-14, HF-17, T-328, AT-153
+// Why: the new task group is shown by its tree state (temporarilyExpanded, CM-26), never by a zoom write (HF-14).
 /** @purity pure */
 export function taskGroupStoodUp(context: InputContext, parentTaskGroupId: string | null): TranslatedInput {
   const newTaskGroupId = context.newTaskGroupId
-  // TRAP: keep the tree state writes in the task group's bundle; a bundle of their own is a second undo step.
+  // Trap: keep the tree state writes in the task group's bundle; a bundle of their own is a second undo step.
   return changedAndCreated(
     [
       [
@@ -248,7 +248,7 @@ function hasADrawnChild(context: InputContext, taskGroupId: string): boolean | n
   if (drawnIds === undefined) return null
   const drawn = new Set(drawnIds)
   if (!drawn.has(taskGroupId)) return false
-  // TRAP: must stay the set `task-group-panel.ts` builds as `taskGroupIdsWithDrawnChildren`.
+  // Trap: must stay the set `task-group-panel.ts` builds as `taskGroupIdsWithDrawnChildren`.
   return context.document.schedule.taskGroups.some(
     (taskGroup) => taskGroup.parentId === taskGroupId && drawn.has(taskGroup.id),
   )

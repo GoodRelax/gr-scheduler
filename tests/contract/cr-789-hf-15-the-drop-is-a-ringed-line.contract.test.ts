@@ -113,7 +113,7 @@ function draw(panel: TaskGroupPanel): Drawn {
 const roleIn = (root: FakeElement, role: string): FakeElement[] => descendants(root).filter((one) => one.getAttribute('data-role') === role)
 const ringsIn = (root: FakeElement): FakeElement[] => descendants(root).filter((one) => one.hasAttribute('data-drop-ring'))
 
-// WHY: the ring may state its border as a shorthand or as border-width; the outer size is the box the eye sees.
+// Why: the ring may state its border as a shorthand or as border-width; the outer size is the box the eye sees.
 function ringGeometry(ring: FakeElement): { outer: number; stroke: number; centerX: number; centerY: number } {
   const style = styleOf(ring)
   const shorthand = /(?:^|;)\s*border:\s*(-?[\d.]+)px/.exec(style)

@@ -108,13 +108,13 @@ import {
 } from '../../src/entity/layout-engine/screen-regions/screen-regions'
 import { svgFromSchedule } from '../../src/adapter/svg-renderer/svg-renderer'
 import { emptySelection } from '../../src/entity/document-model/selection/selection'
-// see FR-039, T-252
+// Spec: FR-039, T-252
 const DISPLAY_RATIO = displayRatioAt(DEFAULT_DISPLAY_SCALE)
 
-// see T-206, T-240
+// Spec: T-206, T-240
 const S_247 = Number.parseFloat(specTable('T-206').rows.find((one) => one.id === 'S-247')?.by['既定'] ?? 'NaN')
 
-// WHY: the picture prints a coordinate rounded to two places.
+// Why: the picture prints a coordinate rounded to two places.
 const twoPlaces = (value: number): number => Math.round(value * 100) / 100
 
 // ---------------------------------------------------------------------------
@@ -180,8 +180,8 @@ const mentions = (table: SpecTable, id: string, ...terms: readonly string[]): vo
   }
 }
 
-// see LF-3, LF-16, HF-19
-// WHY: CR-553 took the lattice out of LF-3's floors; it is composed here only for the LF-16
+// Spec: LF-3, LF-16, HF-19
+// Why: CR-553 took the lattice out of LF-3's floors; it is composed here only for the LF-16
 // reserve and for the HF-19 MUST NOT cases, which need to know it stands above a one-lane band.
 
 const T206: SpecTable = specTable('T-206')
@@ -197,7 +197,7 @@ const settingPx = (id: string): number => {
 /** One control's outer height: the glyph box, plus FR-029's gap on each side. */
 const ONE_CONTROL_TALL = settingPx('S-138') + settingPx('S-243') * 2
 
-// see LF-16, HF-1
+// Spec: LF-16, HF-1
 const CONTROL_LATTICE = ONE_CONTROL_TALL * S_235 * 2
 
 /** Table T-222's own bend count for a row -- the only all-digit cell it has. */
@@ -367,12 +367,12 @@ const scheduleOf = (
 /** BO-1 of table T-077: what the environment settles, not the document. */
 const SCREEN = { width: 1280, height: 800, appHeaderHeight: 48, scrollbarThickness: 8, propertyPanelWidth: 0 }
 
-// see FR-039, FR-048
+// Spec: FR-039, FR-048
 const LIGHT_VIEWER = { themePreference: 'light', guideCursorMode: 'none' } as const
 
 /** A day of March 2026, as a stored date column writes it. */
 const day = (d: number): string => `2026-03-${String(d).padStart(2, '0')}T00:00:00`
-// WHY: an end is written at the day's close (WT-2, WT-4); a date alone or 00:00 is read by FR-054 as the day before (RV-1, RV-6).
+// Why: an end is written at the day's close (WT-2, WT-4); a date alone or 00:00 is read by FR-054 as the day before (RV-1, RV-6).
 const endOfDay = (d: number): string => `2026-03-${String(d).padStart(2, '0')}T17:00:00`
 
 /** The x the left edge of a bar starting on `d` gets, from the axis FR-017 fixes. */
@@ -890,7 +890,7 @@ describe('SWS-2 -- decide a task group band and where it sits (FR-003)', () => {
       then: 'each band is the sum of its lanes plus one VG-2 gap under each lane',
     }),
     () => {
-      // STEP: LF-2 sums each lane to its drawn edge (VG-5) and adds one VG-2 gap per lane, the bottom one included.
+      // Step: LF-2 sums each lane to its drawn edge (VG-5) and adds one VG-2 gap per lane, the bottom one included.
       mentions(T221, 'LF-2', 'VG-5', 'VG-2', '段数と同じ数')
       mentions(T221, 'LF-3', 'HF-1', '帯高の床に数えない')
       mentions(T051, 'HF-19', 'タスクグループの帯高の下限にしてはならない（MUST NOT）')
@@ -903,7 +903,7 @@ describe('SWS-2 -- decide a task group band and where it sits (FR-003)', () => {
             const onLane = drawn.layout.placements.filter(
               (p) => p.taskGroupId === taskGroup.taskGroupId && p.stack === lane,
             )
-            // STEP: a lane with no Task takes the rectangle; a drawn one reaches its border's outer edge.
+            // Step: a lane with no Task takes the rectangle; a drawn one reaches its border's outer edge.
             sum += onLane.length === 0
               ? drawn.layout.rectangleHeight + SETTINGS_CONSTANTS.planStroke * DISPLAY_RATIO
               : Math.max(...onLane.map((p) => p.height)) + SETTINGS_CONSTANTS.planStroke * DISPLAY_RATIO
@@ -1001,7 +1001,7 @@ describe('SWS-2 -- decide a task group band and where it sits (FR-003)', () => {
       then: 'the band stands on the rectangle floor and not on the controls',
     }),
     () => {
-      // see LF-3, SH-3, HF-19
+      // Spec: LF-3, SH-3, HF-19
       const drawn = draw(
         [task({ uid: 1, name: 'arrow', start: day(2), finish: endOfDay(4) })],
         ['g1'],
@@ -1011,9 +1011,9 @@ describe('SWS-2 -- decide a task group band and where it sits (FR-003)', () => {
       expect(placed.height, 'the arrow itself is drawn shorter than a rectangle').toBeLessThan(
         drawn.layout.rectangleHeight,
       )
-      // STEP: LF-3's rectangle height reaches VG-5's drawn edge -- the border's outer rim, half a stroke each side.
+      // Step: LF-3's rectangle height reaches VG-5's drawn edge -- the border's outer rim, half a stroke each side.
       const rectangleTall = drawn.layout.rectangleHeight + SETTINGS_CONSTANTS.planStroke * DISPLAY_RATIO
-      // STEP: LF-2's own sum for the arrow's one lane: its lifted name (OC-10) and line, then one VG-2 gap.
+      // Step: LF-2's own sum for the arrow's one lane: its lifted name (OC-10) and line, then one VG-2 gap.
       const taskGroup = taskGroupByIdOf(drawn, 'g1')
       const gap = SETTINGS_CONSTANTS.stackGap * 2 + SETTINGS_CONSTANTS.dependencyWidth * DISPLAY_RATIO
       const lf2 = placed.y - taskGroup.y + placed.height + gap
@@ -1295,7 +1295,7 @@ describe('SWS-3 -- draw the route of a dependency line (FR-009)', () => {
       const at = (pxPerDay: number): string => {
         const drawn = draw(
           [
-            // WHY: p runs 8 days, not 4: T-273 counts S-31 in its 「入る」 rows, so a 4-day p pushes its name out
+            // Why: p runs 8 days, not 4: T-273 counts S-31 in its 「入る」 rows, so a 4-day p pushes its name out
             // and onto s's lane; the one day of clear air between the bars is unchanged.
             task({ uid: 1, name: 'p', start: day(2), finish: endOfDay(9) }),
             task({ uid: 2, name: 's', start: day(11), finish: endOfDay(13), dependencies: [dependency(1, 1)] }),
@@ -1329,7 +1329,7 @@ describe('SWS-3 -- draw the route of a dependency line (FR-009)', () => {
       then: 'it bends four times: down at x1 to the LF-5 corridor, across, and down at x2, the shape of RP-4',
     }),
     () => {
-      // WHY: RP-2 now runs exit edge, x1, the LF-5 corridor, x2, entry edge (the RP-4 shape);
+      // Why: RP-2 now runs exit edge, x1, the LF-5 corridor, x2, entry edge (the RP-4 shape);
       // the midpoint clamp it once had is gone, so the case checks the four bends instead.
       const drawn = draw(
         [
@@ -1358,7 +1358,7 @@ describe('SWS-3 -- draw the route of a dependency line (FR-009)', () => {
       expect(down.y, 'leaving level from the exit edge').toBeCloseTo(exit.y, 6)
       expect(across.x, 'down at x1').toBeCloseTo(x1, 6)
       expect(back.y, 'the corridor is one horizontal run').toBeCloseTo(across.y, 6)
-      // WHY: LF-5 puts the corridor of two adjacent lanes at the middle of the two.
+      // Why: LF-5 puts the corridor of two adjacent lanes at the middle of the two.
       expect(across.y, 'the LF-5 corridor').toBeCloseTo((predecessor.y + predecessor.planHeight + successor.y) / 2, 6)
       expect(back.x, 'across to x2').toBeCloseTo(x2, 6)
       expect(entryBend.x, 'down at x2').toBeCloseTo(x2, 6)
@@ -1381,8 +1381,8 @@ describe('SWS-3 -- draw the route of a dependency line (FR-009)', () => {
       // plus the exit run -- two vertical lines on top of each other cannot be
       // told apart, there and back." The successor ends just to the left of the
       // predecessor, which is what brings the two together.
-      // WHY: the runs are constants now; the day width is what brings the two verticals together.
-      // WHY: S-63 is on by default since CR-604, and the marker room it gives each label
+      // Why: the runs are constants now; the day width is what brings the two verticals together.
+      // Why: S-63 is on by default since CR-604, and the marker room it gives each label
       // lifts the successor to a second lane; the case pins it off to keep its one lane.
       const leadIn = SETTINGS_CONSTANTS.dependencyLeadIn
       const leadOut = SETTINGS_CONSTANTS.dependencyLeadOut
@@ -1665,8 +1665,8 @@ describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
       then: 'LP-1 stands the marker S-584 right of the actual start with the name S-32 past it, and S-260 still free at the actual right end',
     }),
     () => {
-      // WHY: the name and the marker fit the actual, so LP-1 places both there, marker first.
-      // TRAP: S-260 is not scaled by the display ratio (T-252 DS-7) while labelGap is (DS-1).
+      // Why: the name and the marker fit the actual, so LP-1 places both there, marker first.
+      // Trap: S-260 is not scaled by the display ratio (T-252 DS-7) while labelGap is (DS-1).
       mentions(T221, 'LF-11', 'markerSize', 'T-272', 'T-273')
       const drawn = draw(
         [
@@ -1681,7 +1681,7 @@ describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
         ],
         ['g1'],
         [taskVisual(1)],
-        { isProgressMarkerVisible: true }, // see S-63
+        { isProgressMarkerVisible: true }, // Spec: S-63
         day(10),
       )
       const placed = placementOf(drawn, 1)
@@ -1734,12 +1734,12 @@ describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
       // The other half of LF-11's first sentence. A Task with nothing entered
       // still shows a marker (FR-013 gives PM-1a a target to press), and the
       // bar it clears is the dummy FR-043 draws.
-      // WHY: the dummy is the basis (T-272 RF-1) and the name does not fit it, so LP-2 applies.
+      // Why: the dummy is the basis (T-272 RF-1) and the name does not fit it, so LP-2 applies.
       const drawn = draw(
         [task({ uid: 1, name: 'x', start: day(2), finish: endOfDay(10) })],
         ['g1'],
         [taskVisual(1)],
-        { isProgressMarkerVisible: true }, // see S-63
+        { isProgressMarkerVisible: true }, // Spec: S-63
         day(10),
       )
       const placed = placementOf(drawn, 1)
@@ -1793,7 +1793,7 @@ describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
           ],
           ['g1'],
           [taskVisual(1)],
-          { isProgressMarkerVisible: true }, // see S-63
+          { isProgressMarkerVisible: true }, // Spec: S-63
           day(10),
         )
         const marker = geometryOf(drawn, 1).marker
@@ -1919,7 +1919,7 @@ describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
         throw new Error('a milestone is not drawn as an outline')
       }
       const layers = plan.layers ?? []
-      // TRAP: task-figures.ts's `mergedLayers` joins a run of same-role,
+      // Trap: task-figures.ts's `mergedLayers` joins a run of same-role,
       // non-`body` layers into one element (「bodies stay apart... a run of
       // lines or dots is one element»), so the two eyes are ONE `dot` layer
       // with two `M`-started sub-paths rather than two layers.
@@ -2023,7 +2023,7 @@ describe('SWS-5 -- put the vertices of the progress line (FR-014)', () => {
       // they run progressLineOverhang past the top of the first task group and the
       // bottom of the last."
       mentions(T221, 'LF-12', 'progressLineOverhang')
-      // WHY: S-39 is a constant now; a document cannot move it, so the one value is driven.
+      // Why: S-39 is a constant now; a document cannot move it, so the one value is driven.
       for (const overhang of [SETTINGS_CONSTANTS.progressLineOverhang]) {
         const drawn = progressDocument({})
         const line = drawn.geometry.progressLine
@@ -2205,14 +2205,14 @@ describe('SWS-4 -- choose the corner the comment box leader leaves from (LF-17)'
         if (comment === undefined) throw new Error(`(${dx}, ${dy}): the geometry placed no comment box`)
         return comment
       }
-      // WHY: LF-15 fixes the anchor and FR-097 the body's size, so each placement is set from the size drawn.
+      // Why: LF-15 fixes the anchor and FR-097 the body's size, so each placement is set from the size drawn.
       const { width, height } = placed(40, -40).body
       const cases = [
         { name: 'bottom-left', dx: 40, dy: -40, corner: (b: ScreenRect) => ({ x: b.x, y: b.y + b.height }) },
         { name: 'bottom-right', dx: -(width + 40), dy: -40, corner: (b: ScreenRect) => ({ x: b.x + b.width, y: b.y + b.height }) },
         { name: 'top-left', dx: 40, dy: height + 40, corner: (b: ScreenRect) => ({ x: b.x, y: b.y }) },
         { name: 'top-right', dx: -(width + 40), dy: height + 40, corner: (b: ScreenRect) => ({ x: b.x + b.width, y: b.y }) },
-        // WHY: the tie of LF-17 -- the anchor level with the body's vertical middle takes the bottom corner.
+        // Why: the tie of LF-17 -- the anchor level with the body's vertical middle takes the bottom corner.
         { name: 'bottom-left (tie)', dx: 40, dy: height / 2, corner: (b: ScreenRect) => ({ x: b.x, y: b.y + b.height }) },
       ]
       for (const one of cases) {

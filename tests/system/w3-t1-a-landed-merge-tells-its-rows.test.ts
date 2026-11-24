@@ -12,14 +12,14 @@ test.use({ viewport: VIEWPORT, locale: 'en-US' })
 
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
-// WHY: the constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
+// Why: the constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
 const MG_14 = '| MG-14 | 合流が着地した | 上書きしたもの・残したもの・届かなかったものを、表 T-233 の行で告げること（MUST）'
 
 const REVIEW = '[data-role="Difference Review"]'
 const NOTICES = '[data-role="Notification Area"]'
 const IMPORT_REPORT = '[data-role="Import Report"]'
 
-// WHY: a dropped GRS JSON opens as a replace (OP-19), so a merge opens through IC-1.
+// Why: a dropped GRS JSON opens as a replace (OP-19), so a merge opens through IC-1.
 /** @purity non-pure */
 async function mergeThroughIc1(page: Page, name: string, text: string): Promise<void> {
   await openThroughIc1(page, name, text, 'IC-72')

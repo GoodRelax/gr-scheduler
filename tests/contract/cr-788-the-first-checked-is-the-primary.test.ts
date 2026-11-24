@@ -16,7 +16,7 @@ import type { SettingsLimits } from '../../src/use-case/edit-document/edit-docum
 import { commandsOf, documentOf, fieldOf, panelOf, personOf, REQUIREMENTS, seatOf, taskItem, taskOf } from './cr-606-stage'
 import { bare, specTable } from './spec-table'
 
-// see AS-13
+// Spec: AS-13
 const AS_13_PRIMARY =
   '⭐ そのタスクの割当（`Assignment`）を文書の割当の並びの順に読み、先頭の割当の担当を主担当とすること（MUST）'
 const AS_13_NO_COLUMN = '主担当のための列は作らない —— 並びが印である。'
@@ -25,7 +25,7 @@ const AS_13_ORDER_KEPT =
 const AS_13_REPLACE_PRIMARY = '主担当を替えるときは、`IC-126` で全員のチェックを外し、新しい主担当から付け直す（利用者の判断）。'
 const AS_13_MSPDI = '⭐ MSPDI へは割当を並びの順に書き、読むときは書かれた順を並びとすること（MUST）'
 const AS_13_LABEL = '担当ラベル（`FR-059`）は、並びで先頭の、ラベルに出せる担当の名を出す'
-// see AS-12, AS-3, AS-1, AS-5
+// Spec: AS-12, AS-3, AS-1, AS-5
 const AS_12_AT_THE_TAIL = '⭐ 就けた割当は、そのタスクの割当の並びの末尾に入る（`AS-13`） —— 先に就いていた人の順も主担当も変わらない'
 const AS_3_ONLY_THAT_ONE = '⭐ 解くのはチェックを外した担当の割当だけであり、ほかの割当を解いてはならない（MUST NOT）。'
 const AS_1_FILTER = '押したときは、その欄の一覧を開き、一覧の上の絞り込みの欄に焦点を置くこと（MUST）'
@@ -40,7 +40,7 @@ const AS_5_STAYS_OPEN = '書いた後も一覧は開いたままとし、打っ�
 // see DFC-3100
 const AS_5_FILTER_TAKES_ITS_KEYS =
   '⭐ 絞り込みの欄は文字入力の欄であり、焦点があるあいだに打ったキーは欄が取ること（MUST） —— 単独のキーの割当（表 T-036）も `Backspace` の削除（`SK-3`）も働かない。'
-// see T-225, FR-059, TL-7
+// Spec: T-225, FR-059, TL-7
 const T_225_ONE_CALL =
   '`AS-5` の `IC-125` と `IC-126` は、一覧に出ている人の数だけの `CM-44` か `CM-45` を 1 回の呼び出しで走らせること（MUST）。'
 const FR_059_MARK =
@@ -101,7 +101,7 @@ describe('CR-788 -- the manuscript these cases are driven by', () => {
   })
 })
 
-// see T-109, IC-123, IC-124, IC-125, IC-126
+// Spec: T-109, IC-123, IC-124, IC-125, IC-126
 describe('T-109 -- IC-123..IC-126 stand on the Properties Panel too, in the assignee list', () => {
   const rowOf = (id: string) => {
     const found = specTable('T-109').rows.find((one) => one.id === id)
@@ -210,8 +210,8 @@ describe(`AS-13 -- ${AS_13_ORDER_KEPT}`, () => {
   })
 })
 
-// see AS-13
-// WHY: the startup template read as the GRS document an MSPDI write starts from (cr-429 does the same, without its XSD).
+// Spec: AS-13
+// Why: the startup template read as the GRS document an MSPDI write starts from (cr-429 does the same, without its XSD).
 function currentDocument(): Document {
   const parsed = JSON.parse(
     readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
@@ -229,7 +229,7 @@ describe(`AS-13 -- ${AS_13_MSPDI}`, () => {
   function withOrder(document: Document, taskUid: number, people: readonly number[]): Document {
     const others = document.schedule.assignments.filter((one) => one.taskUid !== taskUid)
     const mark = document.schedule.project.uidHighWaterMark
-    // WHY: the first seat takes the higher uid, so the written order differs from the uid order.
+    // Why: the first seat takes the higher uid, so the written order differs from the uid order.
     const seats = people.map((resourceUid, at) => ({ uid: mark + people.length - at, taskUid, resourceUid, carry: {}, carryElements: [] }))
     return {
       ...document,

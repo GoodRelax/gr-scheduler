@@ -53,11 +53,11 @@ const STEPS = specTable('T-333').rows.length
 const TASK_COLUMNS = specTable('T-331').rows.filter((row) => row.by['表'] === 'タスク').map((row) => row.id)
 const REPORT_COLUMNS = specTable('T-347').rows.map((row) => row.id)
 const idsIn = (clause: string): readonly string[] => [...clause.matchAll(/`([A-Z]+-\d+)`/g)].map((one) => one[1] ?? '')
-// WHY: the measured columns are the ones SV-18 / RW-9 name, kept to the table each window holds (SQ-9 is the comment box's).
+// Why: the measured columns are the ones SV-18 / RW-9 name, kept to the table each window holds (SQ-9 is the comment box's).
 const MEASURED_TASK_COLUMNS = idsIn(SV_18_MEASURED).filter((id) => TASK_COLUMNS.includes(id))
 const MEASURED_REPORT_COLUMNS = idsIn(RW_9_MEASURED).filter((id) => REPORT_COLUMNS.includes(id))
 
-// see SV-18, RW-9
+// Spec: SV-18, RW-9
 const WIDTH_ROW: Readonly<Record<string, string>> = {
   ...Object.fromEntries([1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => [`SQ-${n}`, `S-${465 + n}`])),
   ...Object.fromEntries([11, 12, 13].map((n) => [`SQ-${n}`, `S-${489 + n}`])),
@@ -91,16 +91,16 @@ const WORDS = JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_sour
   readonly planActualStates: readonly { readonly rowId: string; readonly text: { readonly ja: string; readonly en: string } }[]
   readonly delayReportStatuses: readonly { readonly rowId: string; readonly text: { readonly ja: string; readonly en: string } }[]
 }
-// WHY: the screen speaks the browser's language, so a word is looked up in both languages.
+// Why: the screen speaks the browser's language, so a word is looked up in both languages.
 const STATE_WORD = new Map(WORDS.planActualStates.flatMap((one) => [[one.text.ja, one.rowId] as const, [one.text.en, one.rowId] as const]))
 const REPORT_STATUS = new Map(WORDS.delayReportStatuses.flatMap((one) => [[one.text.ja, one.rowId] as const, [one.text.en, one.rowId] as const]))
 
-// see SQ-5, T-019a, T-315
+// Spec: SQ-5, T-019a, T-315
 const MARKER_ROWS = specTable('T-315').rows.map((row) => row.id)
 const MARKER_WORD = new Map([...REPORT_STATUS].filter(([, row]) => MARKER_ROWS.includes(row)))
 const sq5ValueOf = (word: string): string | undefined => STATE_WORD.get(word) ?? MARKER_WORD.get(word)
 
-// see SQ-5, T-019a, T-315, T-021
+// Spec: SQ-5, T-019a, T-315, T-021
 const GLYPH_ROW_OF: Readonly<Record<string, string>> = {
   'PS-1': 'PM-1a',
   'PS-5': 'PM-1',
@@ -112,7 +112,7 @@ const GLYPH_ROW_OF: Readonly<Record<string, string>> = {
   'DG-2': 'DG-2',
   'DG-3': 'DG-3',
 }
-// see SQ-5
+// Spec: SQ-5
 const DIAGNOSIS_ONLY = ['DG-1', 'DG-2', 'DG-3']
 
 interface Box {
@@ -180,8 +180,8 @@ async function boxOf(page: Page, selector: string): Promise<Box | null> {
   }, selector)
 }
 
-// WHY: the range starts at the App Header's lower edge; the element with the role spans the window.
-// see U-32
+// Why: the range starts at the App Header's lower edge; the element with the role spans the window.
+// Spec: U-32
 /** @purity semi-pure-mutable */
 async function scheduleCanvasRange(page: Page): Promise<Box> {
   const header = await boxOf(page, APP_HEADER)
@@ -216,7 +216,7 @@ async function headingColumns(page: Page, window: string): Promise<{ readonly co
   }, window)
 }
 
-// WHY: the table box is the nearest scrolled ancestor of the table; scrolling it sideways is SV-6's case.
+// Why: the table box is the nearest scrolled ancestor of the table; scrolling it sideways is SV-6's case.
 /** @purity non-pure */
 async function scrollTableSideways(page: Page, window: string, by: number): Promise<number> {
   return page.evaluate(
@@ -258,7 +258,7 @@ async function menuCount(page: Page, window: string): Promise<number> {
 /** @purity semi-pure-mutable */
 async function marksOf(page: Page, window: string): Promise<readonly Mark[]> {
   return page.evaluate((asked: string) => {
-    // WHY: the open filter's marks only, not the SQ-10 boxes of the table rows.
+    // Why: the open filter's marks only, not the SQ-10 boxes of the table rows.
     return Array.from(document.querySelectorAll<HTMLInputElement>(`${asked} [data-search-filter-menu] input[type="checkbox"]`)).map((mark) => ({
       value: mark.getAttribute('data-search-filter-value') ?? '',
       label: (mark.closest('label')?.textContent ?? '').trim(),
@@ -268,7 +268,7 @@ async function marksOf(page: Page, window: string): Promise<readonly Mark[]> {
   }, window)
 }
 
-// WHY: the search field is the one text input of the open filter (the check boxes and dates are not text).
+// Why: the search field is the one text input of the open filter (the check boxes and dates are not text).
 const FILTER_FIELD = 'input:not([type="checkbox"]):not([type="date"])'
 
 /** @purity semi-pure-mutable */
@@ -299,7 +299,7 @@ const NARROWING_WORD = 'UAT'
 
 const isHit = (one: Mark): boolean => folded(one.label).includes(folded(NARROWING_WORD))
 
-// WHY: opens the SQ-1 filter, unticks one value the word will not list, types the word; returns the marks before typing.
+// Why: opens the SQ-1 filter, unticks one value the word will not list, types the word; returns the marks before typing.
 /** @purity non-pure */
 async function narrowedByWord(page: Page): Promise<readonly Mark[]> {
   await openFilter(page, PANEL, 'SQ-1')
@@ -588,7 +588,7 @@ test.describe('T-330 SV-7 -- how the open filter closes (area 3)', () => {
       const canvas = await scheduleCanvasRange(page)
       const panel = await boxOf(page, PANEL)
       if (panel === null) throw new Error('premise: the panel is on the screen')
-      // STEP: press the schedule outside the panel, above its top edge
+      // Step: press the schedule outside the panel, above its top edge
       await pressAt(page, canvas.right - 60, Math.max(canvas.y + 30, panel.y - 30))
       expect(await menuCount(page, PANEL), SV_7_CLOSE).toBe(0)
       await openFilter(page, PANEL, 'SQ-2')

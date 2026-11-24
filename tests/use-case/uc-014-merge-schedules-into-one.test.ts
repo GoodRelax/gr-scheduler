@@ -10,8 +10,8 @@ const REVIEW = '[data-role="Difference Review"]'
 
 const NOTICES = '[data-role="Notification Area"] > *'
 
-// see UZ-4, NT-8
-// WHY: a notice stands in front of Difference Review; the ones a merge told are cleared before the next drop.
+// Spec: UZ-4, NT-8
+// Why: a notice stands in front of Difference Review; the ones a merge told are cleared before the next drop.
 const clearNotices = async (page: Page): Promise<void> => {
   for (let i = 0; i < 20 && (await page.locator(NOTICES).count()) > 0; i++) {
     await page.keyboard.press('Escape')
@@ -22,7 +22,7 @@ const clearNotices = async (page: Page): Promise<void> => {
 
 const mergeByDrop = async (page: Page): Promise<void> => {
   await clearNotices(page)
-  // WHY: a dropped file opens as a replace (OP-19), so the merge opens through IC-1.
+  // Why: a dropped file opens as a replace (OP-19), so the merge opens through IC-1.
   await openThroughIc1(page, ERP, readSample(ERP), 'IC-72')
 }
 

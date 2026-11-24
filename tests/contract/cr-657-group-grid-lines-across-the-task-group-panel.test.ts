@@ -239,7 +239,7 @@ const nestedFrom = (flat: Readonly<Record<string, unknown>>): Record<string, unk
   return built
 }
 
-// WHY: a screen narrower than exportCanvas makes the ratio not 1, so an unscaled line cannot pass.
+// Why: a screen narrower than exportCanvas makes the ratio not 1, so an unscaled line cannot pass.
 const EXPORT_SCREEN = { width: 1000, height: 800, appHeaderHeight: 56 } as const
 
 const exportSettingsOf = (visible: boolean): DocumentSettings =>
@@ -333,7 +333,7 @@ const pictureOf = (scene: ExportScene): string => {
   return answer.svg
 }
 
-// see T-041
+// Spec: T-041
 const ROUNDING = 0.5
 
 describe('T-076 EP-3 -- 「タスクグループの境のグループ罫線（`U-18`）も画面のとおり描く」', () => {

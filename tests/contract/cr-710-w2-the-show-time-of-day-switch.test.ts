@@ -29,14 +29,14 @@ const WORDS = JSON.parse(readFileSync(join(SPEC, '_source', 'display-words.json'
   readonly settings: readonly { readonly rowId: string; readonly label: Record<DisplayLanguage, string> }[]
 }
 
-// see FR-158, FR-016, FR-072, UN-7
+// Spec: FR-158, FR-016, FR-072, UN-7
 const FR_158_STORED = '保存する値（`GRS JSON`・MSPDI）は、切り替えによらず時刻まで書くこと（MUST）'
 const FR_016_BACK = '時刻の表示を切ったとき、`zoomX` が日付の軸の上限を超えていれば、その上限へ戻すこと（MUST）'
 const FR_072_ORDER = '⭐ 本面の欄の並びと欄の名は 表 T-369 に従うこと（MUST）'
 const FO_13_ROW = '| FO-13 | 時刻を表示する | 表 T-104 の `K-146` | `FR-158` |'
 const UN_7_ROW = '`FR-158` の「時刻を表示する」を含む'
 
-// see T-108
+// Spec: T-108
 const commandNameOf = (id: string): string => bare(specTable('T-108').rows.find((one) => one.id === id)?.by['確定名'] ?? '')
 const CM_97 = commandNameOf('CM-97')
 
@@ -57,7 +57,7 @@ describe('the clauses these cases are built from still read as quoted', () => {
   })
 })
 
-// WHY: two tasks on a screen narrow enough that the ceiling of the days is below the ceiling of the hours.
+// Why: two tasks on a screen narrow enough that the ceiling of the days is below the ceiling of the hours.
 const TASKS = [taskOf(1), taskOf(2, { start: '2026-05-04T08:00:00', finish: '2026-05-15T17:00:00' })]
 const documentWith = (settings: Readonly<Record<string, unknown>>): Document => {
   const base = documentOf({ tasks: TASKS })
@@ -94,7 +94,7 @@ const zoomXOf = (stage: ExportStage): number => stage.loop.document().documentSe
 const dayCeilingOf = (stage: ExportStage): number => {
   const frame = stage.loop.current()
   if (frame === null) throw new Error('premise: a frame was drawn')
-  // see FR-016, S-229, S-1, FR-039
+  // Spec: FR-016, S-229, S-1, FR-039
   return frame.regions.taskGroupArea.width / (notStored('S-229') * stored('S-1') * RATIO)
 }
 

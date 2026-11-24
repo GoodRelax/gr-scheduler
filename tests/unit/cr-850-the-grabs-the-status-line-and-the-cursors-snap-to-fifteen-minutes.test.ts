@@ -50,8 +50,8 @@ afterEach(unpinClock)
 const DAY = 1440
 const FIFTEEN = 15
 
-// see S-8, DS-1, FR-017
-// WHY: FR-017 compares pxPerDay with the threshold after dividing by (the ruler font / S-8); the ratio is the display ratio.
+// Spec: S-8, DS-1, FR-017
+// Why: FR-017 compares pxPerDay with the threshold after dividing by (the ruler font / S-8); the ratio is the display ratio.
 const PX_SCALE = (((settingsOf(HOUR_TIER) as unknown as Record<string, number>)['rulerFontSizePx'] as number) * RATIO) / stored('S-8')
 
 const withTime = (shows: boolean): ReturnType<typeof settingsOf> => settingsOf({ ...HOUR_TIER, isTimeOfDayVisible: shows })
@@ -86,7 +86,7 @@ describe('T-378: the snap unit', () => {
   })
 })
 
-// WHY: the plan finish is 12:00; a release 113 minutes left is 10:07, 112 minutes left is 10:08.
+// Why: the plan finish is 12:00; a release 113 minutes left is 10:07, 112 minutes left is 10:08.
 const RELEASES = [
   ['10:07 lands at 10:00', 113, '2026-10-14T10:00:00'],
   ['10:08 lands at 10:15', 112, '2026-10-14T10:15:00'],
@@ -177,7 +177,7 @@ describe('FR-046: the status line position', () => {
   })
 })
 
-// see FR-046, TX-3, T-108
+// Spec: FR-046, TX-3, T-108
 const STATUS_DATE_ROW = 'IC-44'
 const LIMITS: SettingsLimits = { zoomMin: 0.02, zoomMax: 240, taskGroupAreaWidthWithoutPanels: 982 }
 
@@ -264,7 +264,7 @@ describe('DC-3: the Dual Cursor line stands at the instant snapped by table T-37
     const click = (minutesAfterNine: number): void => {
       for (const phase of ['move', 'down', 'up'] as const) built.send(pointer(phase, at(minutesAfterNine)))
     }
-    // STEP: enter the mode, click at 10:08 for cursor A, then at 10:07 for cursor B (minutes after the 09:00 bar start).
+    // Step: enter the mode, click at 10:08 for cursor A, then at 10:07 for cursor B (minutes after the 09:00 bar start).
     built.press('IC-45')
     click(68)
     click(67)
