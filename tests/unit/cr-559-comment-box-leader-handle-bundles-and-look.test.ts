@@ -146,8 +146,8 @@ const environmentShapeOf = (pk: string): string => {
 }
 
 const RS_44_WORDS = ((): string => {
-  const reasons = (displayWords as unknown as { reasons: { rowId: string; text: { en: string } }[] }).reasons
-  const found = reasons.find((one) => one.rowId === 'RS-44')
+  const reasons = (displayWords as unknown as { reasons: { specTableRowId: string; text: { en: string } }[] }).reasons
+  const found = reasons.find((one) => one.specTableRowId === 'RS-44')
   if (found === undefined) throw new Error('the dictionary holds no row RS-44')
   return found.text.en
 })()

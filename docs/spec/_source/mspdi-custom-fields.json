@@ -1,5 +1,5 @@
 {
- "$schema": "./mspdi-custom-fields.schema.json",
+ "$schema": "../../development-rules/manuscript-schemas/mspdi-custom-fields.schema.json",
  "$comment": [
   "SINGLE SOURCE OF TRUTH -- EDIT THIS FILE.",
   "The two MSPDI custom-field frames GRS borrows to carry Task.fadeInDays and Task.fadeOutDays (AT-40 / AT-41 of table T-058). The rules for using them are EX-6 and EX-8 of table T-033; this file holds only the values those rules need.",
@@ -7,7 +7,7 @@
   "WARNING -- the committed canon does not carry these two numbers. docs/reference/mspdi/ names only pjCustomTaskText1 = 188743731 (learn-docs/project-xml-data-interchange/fieldid-element.md:54) and pjCustomResourceCost1 = 205521019 (same file, :58). The external table is the only source for Number1 and Number2. What can be checked locally is that the SAME external table gives pjCustomTaskText1 = 188743731, which matches fieldid-element.md:54 and the worked example at custom-field-data-in-xml.md:52 to the digit -- two independent sources agreeing is why the table is trusted for the other two.",
   "Generated FROM this file: src/adapter/document-codec/mspdi-custom-fields.json (tools/generate_mspdi_custom_fields.py).",
   "Rebuild: npm run gen   |   npm run gen:check fails if anything has drifted.",
-  "Validated by _source/mspdi-custom-fields.schema.json before a byte is written."
+  "Validated by docs/development-rules/manuscript-schemas/mspdi-custom-fields.schema.json before a byte is written."
  ],
  "elemType": {
   "value": 20,

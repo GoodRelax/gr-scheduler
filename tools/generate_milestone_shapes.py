@@ -234,7 +234,7 @@ def glyph_elements():
     row_of = {}
     for icon in icons:
         if icon['arms'] == generate_icon_roster.MILESTONE_SHAPE_ARM:
-            row_of[icon[generate_icon_roster.ARMS_SHAPE_FIELD]] = icon['rowId']
+            row_of[icon[generate_icon_roster.ARMS_SHAPE_FIELD]] = icon['specTableRowId']
     figure = io.open(generate_icon_glyphs.FIGURE, encoding='utf-8').read()
     drawn = {}
     for _x, _y, body, _lx, _ly, row_id in generate_icon_glyphs.GLYPH.findall(figure):

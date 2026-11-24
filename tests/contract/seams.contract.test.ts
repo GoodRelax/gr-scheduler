@@ -201,16 +201,16 @@ describe('the values table T-206 keeps out of the document', () => {
     ...NOT_STORED_DUAL_CURSOR_SIZES,
   }
 
-  it.each(Object.keys(generated))('%s says the same number as the table', (rowId) => {
-    const value = generated[rowId]
+  it.each(Object.keys(generated))('%s says the same number as the table', (specTableRowId) => {
+    const value = generated[specTableRowId]
     const mine = typeof value === 'number' ? [value] : [...(value as readonly number[])]
-    expect(published.get(rowId), `table T-206 has no row ${rowId}`).toBeDefined()
-    expect(published.get(rowId)).toEqual(mine)
+    expect(published.get(specTableRowId), `table T-206 has no row ${specTableRowId}`).toBeDefined()
+    expect(published.get(specTableRowId)).toEqual(mine)
   })
 
   it('generates no row the table does not state', () => {
-    for (const rowId of Object.keys(generated)) {
-      expect(published.has(rowId), `${rowId} is not a row of table T-206`).toBe(true)
+    for (const specTableRowId of Object.keys(generated)) {
+      expect(published.has(specTableRowId), `${specTableRowId} is not a row of table T-206`).toBe(true)
     }
   })
 })

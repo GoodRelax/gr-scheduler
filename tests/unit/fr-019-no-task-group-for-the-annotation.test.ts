@@ -86,9 +86,9 @@ const ARMING_ENTRY = ((): { readonly row: string; readonly surface: string } => 
 })()
 
 /** The words FR-038's one dictionary holds for one row of table T-233. */
-const wordsOf = (rowId: string): { readonly ja: string; readonly en: string } => {
-  const found = (displayWords as any).reasons.find((one: any) => one.rowId === rowId)
-  if (found === undefined) throw new Error(`the dictionary holds no row ${rowId}`)
+const wordsOf = (specTableRowId: string): { readonly ja: string; readonly en: string } => {
+  const found = (displayWords as any).reasons.find((one: any) => one.specTableRowId === specTableRowId)
+  if (found === undefined) throw new Error(`the dictionary holds no row ${specTableRowId}`)
   return found.text
 }
 

@@ -42,8 +42,8 @@ const TEMPLATE = JSON.parse(
 const RS_63_WORDS: readonly string[] = (() => {
   const raw = JSON.parse(
     readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8'),
-  ) as { reasons: { rowId: string; text: { ja: string; en: string } }[] }
-  const found = raw.reasons.find((one) => one.rowId === 'RS-63')
+  ) as { reasons: { specTableRowId: string; text: { ja: string; en: string } }[] }
+  const found = raw.reasons.find((one) => one.specTableRowId === 'RS-63')
   if (found === undefined) throw new Error('the dictionary holds no RS-63')
   return [found.text.ja, found.text.en]
 })()

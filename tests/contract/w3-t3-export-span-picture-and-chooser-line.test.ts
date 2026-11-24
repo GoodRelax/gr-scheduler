@@ -26,7 +26,7 @@ const SPEC = join(process.cwd(), 'docs', 'spec')
 const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8').replace(/\r\n/g, '\n'))
 const WORDS = JSON.parse(readFileSync(join(SPEC, '_source', 'display-words.json'), 'utf8')) as {
   readonly exportChooser: readonly { readonly part: string; readonly text: Record<DisplayLanguage, string> }[]
-  readonly exportFormats: readonly { readonly rowId: string; readonly name?: Record<DisplayLanguage, string> }[]
+  readonly exportFormats: readonly { readonly specTableRowId: string; readonly name?: Record<DisplayLanguage, string> }[]
 }
 
 // Why: CR-690 -- the condition is the fix (FX-1, S-532), the old span row retired, and the days carry the year (FX-8).

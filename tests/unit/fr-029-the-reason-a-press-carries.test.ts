@@ -224,7 +224,7 @@ const T_051_NO_CHANGE_MEANS_SPENT =
  * screen. ⭐ Copied from tests/unit/uf-47-48-choosers.test.ts.
  */
 interface ReasonWords {
-  readonly rowId: string
+  readonly specTableRowId: string
   readonly text: Readonly<Record<DisplayLanguage, string>>
   readonly nextStep: Readonly<Record<DisplayLanguage, string>>
 }
@@ -235,9 +235,9 @@ const REASON_WORDS: readonly ReasonWords[] = (
   ) as { reasons: ReasonWords[] }
 ).reasons
 
-function wordsFor(rowId: string): ReasonWords {
-  const found = REASON_WORDS.find((one) => one.rowId === rowId)
-  if (found === undefined) throw new Error(`FR-038's dictionary holds no words for ${rowId}`)
+function wordsFor(specTableRowId: string): ReasonWords {
+  const found = REASON_WORDS.find((one) => one.specTableRowId === specTableRowId)
+  if (found === undefined) throw new Error(`FR-038's dictionary holds no words for ${specTableRowId}`)
   return found
 }
 

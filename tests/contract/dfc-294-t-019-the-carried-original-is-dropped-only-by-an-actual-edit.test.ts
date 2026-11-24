@@ -115,18 +115,18 @@ const T_108: SpecTable = specTable('T-108')
 const T_059: SpecTable = specTable('T-059')
 
 /** The `命令` column of one row of 表 T-108, without its backticks. */
-function commandNameOf(rowId: string): string {
-  const found = T_108.rows.find((one) => one.id === rowId)
-  if (found === undefined) throw new Error(`table T-108 has no row ${rowId}`)
+function commandNameOf(specTableRowId: string): string {
+  const found = T_108.rows.find((one) => one.id === specTableRowId)
+  if (found === undefined) throw new Error(`table T-108 has no row ${specTableRowId}`)
   const name = bare(found.by['確定名'] ?? '')
-  if (name === '') throw new Error(`table T-108 row ${rowId} names no 確定名`)
+  if (name === '') throw new Error(`table T-108 row ${specTableRowId} names no 確定名`)
   return name
 }
 
 /** The whole of one row of 表 T-108, for reading its 説明 back. */
-function meaningOf(rowId: string): string {
-  const found = T_108.rows.find((one) => one.id === rowId)
-  if (found === undefined) throw new Error(`table T-108 has no row ${rowId}`)
+function meaningOf(specTableRowId: string): string {
+  const found = T_108.rows.find((one) => one.id === specTableRowId)
+  if (found === undefined) throw new Error(`table T-108 has no row ${specTableRowId}`)
   return found.cells.join(' ')
 }
 
@@ -220,7 +220,7 @@ const UNSTARTED_FILE = fileOf(UNSTARTED_TASK_XML)
  * あるあいだ」 rather than anything about the carry rule. Every other command
  * runs on the suspended task, where both candidate answers are a real day.
  */
-const fileFor = (rowId: string): string => (rowId === 'CM-14' ? UNSTARTED_FILE : SUSPENDED_FILE)
+const fileFor = (specTableRowId: string): string => (specTableRowId === 'CM-14' ? UNSTARTED_FILE : SUSPENDED_FILE)
 
 const TEMPLATE = JSON.parse(
   readFileSync(
@@ -271,9 +271,9 @@ function edited(document: Document, command: TaskCommand): Document {
  * command is renamed reaches this file instead of going stale. The arguments are
  * this file's, because 表 T-108 carries no argument column.
  */
-function commandFor(rowId: string): TaskCommand {
-  const kind = commandNameOf(rowId)
-  switch (rowId) {
+function commandFor(specTableRowId: string): TaskCommand {
+  const kind = commandNameOf(specTableRowId)
+  switch (specTableRowId) {
     case 'CM-13':
       return {
         kind,
@@ -303,7 +303,7 @@ function commandFor(rowId: string): TaskCommand {
         finish: '2026-05-01',
       } as unknown as TaskCommand
     default:
-      throw new Error(`this file states no arguments for table T-108 row ${rowId}`)
+      throw new Error(`this file states no arguments for table T-108 row ${specTableRowId}`)
   }
 }
 
@@ -370,13 +370,13 @@ describe('表 T-019 の注 (MUST) -- while nobody edited the actuals, the origin
     ).toContain(CARRIED_ACTUAL_DURATION)
   })
 
-  for (const rowId of PLAN_EDITS) {
-    it(`⛔ ${rowId} (${commandNameOf(rowId)}) is not an edit of the actuals, so the original stays`, () => {
-      const after = edited(imported(), commandFor(rowId))
+  for (const specTableRowId of PLAN_EDITS) {
+    it(`⛔ ${specTableRowId} (${commandNameOf(specTableRowId)}) is not an edit of the actuals, so the original stays`, () => {
+      const after = edited(imported(), commandFor(specTableRowId))
 
       expect(
         exportedActualDuration(after),
-        `${rowId} released the carried original -- 表 T-019 の注 releases it 「人がその` +
+        `${specTableRowId} released the carried original -- 表 T-019 の注 releases it 「人がその` +
           `タスクの実績を編集したときに限り」, and this command edits no actual`,
       ).toContain(CARRIED_ACTUAL_DURATION)
     })
@@ -402,13 +402,13 @@ describe('表 T-019 の注 (MUST) -- while nobody edited the actuals, the origin
 // ===========================================================================
 
 describe('表 T-019 の注 -- an edit of the actuals replaces it with the computed value', () => {
-  for (const rowId of ACTUAL_EDITS) {
-    it(`${rowId} (${commandNameOf(rowId)}) stops exporting the value the import carried`, () => {
-      const after = edited(imported(fileFor(rowId)), commandFor(rowId))
+  for (const specTableRowId of ACTUAL_EDITS) {
+    it(`${specTableRowId} (${commandNameOf(specTableRowId)}) stops exporting the value the import carried`, () => {
+      const after = edited(imported(fileFor(specTableRowId)), commandFor(specTableRowId))
 
       expect(
         exportedActualDuration(after) ?? '',
-        `${rowId} kept writing the carried original -- 表 T-019 の注 replaces it with 「作った` +
+        `${specTableRowId} kept writing the carried original -- 表 T-019 の注 replaces it with 「作った` +
           `値」 once a person has edited that task's actuals`,
       ).not.toContain(CARRIED_ACTUAL_DURATION)
     })

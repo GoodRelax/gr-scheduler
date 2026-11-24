@@ -8,147 +8,142 @@
 
 | 区分 | 語の数 |
 | --- | ---: |
-| 画面に出る語 | 130 |
+| 画面に出る語 | 125 |
 | MCP の説明だけに出る語 | 2 |
 | 外との約束の群にあり、凍結した契約で突き合わなかった語 | 4 |
-| 仕様とコードの中だけの語 | 428 |
-| 確かめ済み（拠り所あり） | 985 |
-| 計 | 1549 |
+| 仕様とコードの中だけの語 | 426 |
+| 確かめ済み（拠り所あり） | 1014 |
+| 計 | 1571 |
 
-## 画面に出る語（130 語）
+## 画面に出る語（125 語）
 
 | # | キー | 英語の名 | 日本語の名 | 持ち主 | 群 | 意味（英語） |
 | ---: | --- | --- | --- | --- | --- | --- |
-| 1 | `grsType` | GRS | GRS |  | 画面の大きな区分 | GRS (GoodRelax Scheduler): the application, one tab of the browser. The name is not translated. |
-| 2 | `scheduleFilterBar` | Schedule Filter Bar | スケジュールフィルタバー |  | 画面の大きな区分 | The Schedule Filter Bar: a band that appears only while a table's Schedule Filter narrows the tasks drawn; it names the tables, gives the count and offers to release every filter. |
-| 3 | `paletteGroups` | Palette Groups | パレットグループ |  | 画面の大きな区分 | The Palette Groups: the blocks the Command Palette arranges its entries in. |
-| 4 | `delayDiagnosticsReportWindow` | Delay Diagnostics Report Window | 遅延診断レポートウィンドウ |  | 画面の大きな区分 | The Delay Diagnostics Report Window: shows the summary of the Delay Diagnostics and the table of tasks; pressing a row jumps to that task. |
-| 5 | `taskBars` | Task Bars | タスクバー |  | タスクグループレーンズに描く部品 | Task Bars: the Plan Bar and the Actual Bar together. A rectangle is a shape, not a bar. |
-| 6 | `baselineOutline` | Baseline Outline | 変更前予定輪郭 |  | タスクグループレーンズに描く部品 | The Baseline Outline: the outline of the earlier plan drawn over a task. |
-| 7 | `progressMark` | Progress Mark | 進捗マーク |  | タスクグループレーンズに描く部品 | The Progress Mark: the mark outside the end of the Actual Bar that shows the plan-and-actual state by its shape and changes the state when pressed. |
-| 8 | `groupGridLines` | Group Grid Lines | グループ罫線 |  | タスクグループレーンズに描く部品 | The Group Grid Lines: horizontal lines between task groups. |
-| 9 | `fadeHandle` | Fade Handle | フェードハンドル |  | マウスで操作するもの | The Fade Handle: the handle that sets the fade of a Plan Bar. |
-| 10 | `resizeHandle` | Resize Handle | サイズ変更ハンドル |  | マウスで操作するもの | A Resize Handle: one of the eight handles at the corners and sides of a Highlight Box. |
-| 11 | `leaderAnchorHandle` | Leader Anchor Handle | 線先ハンドル |  | マウスで操作するもの | The Leader Anchor Handle: the handle of the Leader Anchor of a Comment Box. |
-| 12 | `paletteGrip` | Palette Grip | パレットグリップ |  | マウスで操作するもの | The Palette Grip: the band at the top of the Command Palette. |
-| 13 | `taskGroupGrip` | Task Group Grip | タスクグループグリップ |  | マウスで操作するもの | The Task Group Grip: the grip just before a task group name. |
-| 14 | `collapseButton` | Collapse Button | 折りたたむボタン |  | マウスで操作するもの | The Collapse Button: collapses the task group itself. |
-| 15 | `item` | Item | アイテム |  | そのほかの UI パーツ | An Item: anything that hit testing and selection can take. It is not another name for a task; write "task" for one task. |
-| 16 | `selection` | Selection | 選択 |  | そのほかの UI パーツ | The Selection: choosing things that already exist, and the set of things chosen. |
-| 17 | `armedShape` | ArmedShape | 構え |  | そのほかの UI パーツ | The Armed Shape: what the next drag will create or link, chosen on the palette. It is not a selection. |
-| 18 | `marquee` | Marquee | 範囲選択 |  | そのほかの UI パーツ | Marquee: selecting by dragging a rectangle from a place that hits nothing. |
-| 19 | `cursors` | Cursors | カーソル |  | そのほかの UI パーツ | The Cursors: the lines that point at dates, as a group. The point of the mouse is the pointer, not a cursor. |
-| 20 | `guideCursor` | Guide Cursor | ガイドカーソル |  | そのほかの UI パーツ | The Guide Cursor: the line that follows the pointer, as a crosshair or a single vertical line. |
-| 21 | `canvasOverlays` | Canvas Overlays | Canvas Overlays |  | そのほかの UI パーツ | The Canvas Overlays: a structure name for what is drawn over the Schedule Canvas; not shown on screen. |
-| 22 | `watermarkUnlockPassword` | Watermark Unlock Password | 透かし解除パスワード |  | そのほかの UI パーツ | The Watermark Unlock Password: the password asked before the watermark is hidden. |
-| 23 | `timeAxisLevelOfDetail` | timeAxisLevelOfDetail | timeAxisLevelOfDetail |  | そのほかの UI パーツ | Time axis level of detail: how fine the Time Ruler is, from years down to days and weekdays, following the horizontal zoom. |
-| 24 | `groupLevelOfDetail` | groupLevelOfDetail | groupLevelOfDetail |  | そのほかの UI パーツ | Group level of detail: deep task groups are not drawn when the vertical size is small. |
-| 25 | `exportFormats` | exportFormats | exportFormats |  | そのほかの UI パーツ | The export formats offered in the Save As Dialog. |
-| 26 | `mspdiXmlFormat` | MSPDI XML | MSPDI XML |  | そのほかの UI パーツ | MSPDI XML: the exchange format for other scheduling tools. |
-| 27 | `singleHtmlFormat` | Single HTML | 単一 HTML |  | そのほかの UI パーツ | Single HTML: one .html file that holds GRS and the document together. |
-| 28 | `placeGroup` | Place | 置く |  | パレットグループ | The palette group of entries that arm a task shape or a milestone shape. |
-| 29 | `alignGroup` | Align | 揃える |  | パレットグループ | The palette group of entries that arm a dependency line or an annotation, and that align the selection to its start or finish. |
-| 30 | `displayGroup` | Display | 表示 |  | パレットグループ | The palette group of entries that show or hide parts of the drawing. |
-| 31 | `cursorsGroup` | Cursors | カーソル |  | パレットグループ | The palette group of the planned dates, status date and cursor entries. |
-| 32 | `baselineIcon` | Baseline | 変更前の予定 |  | アイコン | Show or hide the baseline. With no baseline yet, choose its file. |
-| 33 | `zoomToFitIcon` | Zoom to Fit | 全体を収める |  | アイコン | Show the whole schedule |
-| 34 | `delayDiagnosticsIcon` | Delay Diagnostics | 遅延診断 |  | アイコン | Run the Delay Diagnostics; runs them again and opens the report if it is closed, or closes only the report while it is open |
-| 35 | `documentSettingsIcon` | Document Settings | 文書の設定 |  | アイコン | Show or hide the document's drawing settings in the Properties Panel, where the theme color is chosen |
-| 36 | `endpointSpanIcon` | Endpoint Span | 端点スパン |  | アイコン | Endpoint Span: drag on empty space to create an endpoint span task |
-| 37 | `milestoneCircleIcon` | Milestone (Circle) | マイルストーン（〇） |  | アイコン | Milestone (Circle): drag on empty space to create one |
-| 38 | `milestoneDiamondIcon` | Milestone (Diamond) | マイルストーン（◇） |  | アイコン | Milestone (Diamond): drag on empty space to create one |
-| 39 | `milestoneSquareIcon` | Milestone (Square) | マイルストーン（□） |  | アイコン | Milestone (Square): drag on empty space to create one |
-| 40 | `milestoneStarIcon` | Milestone (Star) | マイルストーン（☆） |  | アイコン | Milestone (Star): drag on empty space to create one |
-| 41 | `milestoneTriangleUpIcon` | Milestone (Triangle Up) | マイルストーン（△） |  | アイコン | Milestone (Triangle Up): drag on empty space to create one |
-| 42 | `milestoneTriangleDownIcon` | Milestone (Triangle Down) | マイルストーン（▽） |  | アイコン | Milestone (Triangle Down): drag on empty space to create one |
-| 43 | `milestoneBoxIcon` | Milestone (Box) | マイルストーン（ボックス） |  | アイコン | Milestone (Box): drag on empty space to create one |
-| 44 | `milestoneFloppyDiskIcon` | Milestone (Floppy Disk) | マイルストーン（フロッピー） |  | アイコン | Milestone (Floppy Disk): drag on empty space to create one |
-| 45 | `milestoneSmilingFaceIcon` | Milestone (Smiling Face) | マイルストーン（嬉しい顔） |  | アイコン | Milestone (Smiling Face): drag on empty space to create one |
-| 46 | `calloutIcon` | Callout | コメントボックス |  | アイコン | Callout: drag where it should stand to place one |
-| 47 | `highlightBoxIcon` | Highlight Box | ハイライトボックス |  | アイコン | Highlight Box: drag over the range to enclose |
-| 48 | `alignToStartIcon` | Align to Start | 開始日で揃える |  | アイコン | Align the selected items to their start |
-| 49 | `alignToFinishIcon` | Align to Finish | 終了日で揃える |  | アイコン | Align the selected items to their finish |
-| 50 | `progressLineIcon` | Progress Line | イナズマ線 |  | アイコン | Show or hide the Progress Line |
-| 51 | `progressMarkerIcon` | Progress Marker | 進捗マーカー |  | アイコン | Show or hide the Progress Marker and the Resume Icon |
-| 52 | `watermarkIcon` | Watermark… | 透かしを非表示（パスワードが必要） |  | アイコン | Show or hide the watermark; the unlock password is asked only to hide it |
-| 53 | `dateGridLinesIcon` | Date Grid Lines | 日付罫線 |  | アイコン | Show or hide the Date Grid Lines |
-| 54 | `groupGridLinesIcon` | Group Grid Lines | グループ罫線 |  | アイコン | Show or hide the Group Grid Lines |
-| 55 | `assigneeLabelIcon` | Assignee Label | 担当ラベル |  | アイコン | Show or hide the Assignee Label |
-| 56 | `percentCompleteLabelIcon` | Percent Complete Label | 完了率ラベル |  | アイコン | Show or hide the Percent Complete Label |
-| 57 | `stackDirectionIcon` | Stack Direction | 日程が重複するタスクを積む向き |  | アイコン | Swap the direction the bars are stacked in, up or down |
-| 58 | `plannedDatesIcon` | Planned Dates | 予定日 |  | アイコン | Show or hide the planned dates to the right of task and milestone names |
-| 59 | `statusDateIcon` | Status Date | 基準日 |  | アイコン | Place, move, or clear the status date; the Status Line is drawn there |
-| 60 | `crosshairIcon` | Crosshair | 十字 |  | アイコン | Turn the crosshair Guide Cursor on or off |
-| 61 | `singleVerticalIcon` | Single Vertical | 縦 1 本 |  | アイコン | Turn the single vertical Guide Cursor on or off |
-| 62 | `closeIcon` | Close | 閉じる |  | アイコン | Close the open window; Esc closes it too |
-| 63 | `dragToMoveIcon` | Drag to Move | 掴んで動かす |  | アイコン | Grab here to move the Command Palette |
-| 64 | `minimizePaletteIcon` | Minimize | 最小化 |  | アイコン | Minimize or restore the Command Palette |
-| 65 | `wheelIcon` | Wheel | ホイール |  | アイコン | Marks turning the mouse wheel |
-| 66 | `helpLanguageIcon` | Help Language | ヘルプの言語 |  | アイコン | Choose the language of the help only; the current one shows on the entry |
-| 67 | `expandBelowIcon` | Expand Below | 配下をすべて展開する |  | アイコン | Expand every task group below this one |
-| 68 | `collapseIcon` | Collapse | 折りたたむ |  | アイコン | Collapse this task group itself |
-| 69 | `collapseBelowIcon` | Collapse Below | 配下をすべて折りたたむ |  | アイコン | Collapse every task group below this one |
-| 70 | `expandOneLevelIcon` | Expand One Level | 1 階層だけ展開する |  | アイコン | Expand only this task group's own children, leaving deeper task groups collapsed |
-| 71 | `pinIcon` | Pin | ピン止め |  | アイコン | Pin or unpin the task group so it stays on screen |
-| 72 | `deleteTaskGroupIcon` | Delete Task Group | タスクグループを削除 |  | アイコン | Delete this task group, the task groups below it and the tasks they carry |
-| 73 | `deleteAllTaskGroupsIcon` | Delete All Task Groups | すべてのタスクグループを削除 |  | アイコン | Delete all task groups and the tasks they carry |
-| 74 | `tasksIcon` | Tasks | タスク |  | アイコン | Show the table of tasks and milestones |
-| 75 | `calloutsIcon` | Callouts | コメントボックス |  | アイコン | Show the table of callouts |
-| 76 | `scheduleFilterIcon` | Schedule Filter | スケジュールフィルタ |  | アイコン | Turn the Schedule Filter on or off: draw only the tasks this table shows |
-| 77 | `minimizeWindowIcon` | Minimize | 最小化 |  | アイコン | Minimize or restore the window |
-| 78 | `maximizeIcon` | Maximize | 最大化 |  | アイコン | Maximize the window |
-| 79 | `restoreIcon` | Restore | 元のサイズに戻す |  | アイコン | Restore the window to its size |
-| 80 | `adoptAllRecommendedIcon` | Adopt All Recommended | 推奨案をすべて採用する |  | アイコン | Check every automatic row and every row with one choice |
-| 81 | `selectedIcon` | Selected | 選択中 |  | アイコン | This resource is selected; click to deselect it |
-| 82 | `notSelectedIcon` | Not Selected | 未選択 |  | アイコン | This resource is not selected; click to select it |
-| 83 | `addTimeRangeIcon` | + | ＋ |  | アイコン | Add a working-time range |
-| 84 | `deleteTimeRangeIcon` | Delete | 削除 |  | アイコン | Delete this range (the document changes only when applied) |
-| 85 | `timeIcon` | Time | 時刻 |  | アイコン | Type a time to the minute (e.g. 8:00; an end of 0:00 is 24:00) |
-| 86 | `replaceIcon` | Replace | 置き換える |  | アイコン | Replace the current document with the file being opened |
-| 87 | `mergeIcon` | Merge | 合流させる |  | アイコン | Add the contents of the file being opened to the current document |
-| 88 | `expandAllIcon` | Expand All | すべて展開する |  | アイコン | Expand every task group that was collapsed |
-| 89 | `collapseAllIcon` | Collapse All | すべて折りたたむ |  | アイコン | Collapse every task group |
-| 90 | `showTopLevelOnlyIcon` | Show Top Level Only | 最も浅い段を 1 階層展開する |  | アイコン | Bring back only the shallowest task groups, leaving what is under them collapsed |
-| 91 | `interactionLogIcon` | Interaction Log | デバッグ用ログ取得の開始/停止 |  | アイコン | Start or stop recording pointer input and drawing; stopping puts the record on the clipboard |
-| 92 | `useOpenedFileIcon` | Use Opened File | 開いたファイルから取る |  | アイコン | Take the duplicated tasks from the file that was opened |
-| 93 | `keepBothIcon` | Keep Both | 両方とも残す |  | アイコン | Keep the duplicated tasks as separate things, both of them; the added ones can no longer be written back to their master |
-| 94 | `timeShiftIcon` | Time Shift | タイムシフト |  | アイコン | Shift every schedule date-time by the amount entered; asks first |
-| 95 | `taskPlannedDateField` | Planned Date | 予定日 | Task | プロパティパネルの欄 | The Properties Panel field that shows and edits the planned date of the selected task. |
-| 96 | `taskActualDateField` | Actual Date | 実績日 | Task | プロパティパネルの欄 | The Properties Panel field that shows and edits the actual date of the selected task. |
-| 97 | `taskMilestoneShapeField` | Milestone Shape | マイルストーン形状 | Task | プロパティパネルの欄 | The Properties Panel field that shows and edits the milestone shape of the selected task. |
-| 98 | `commentBoxFillTransparencyPercentField` | Fill Transparency (%) | 塗りの透過率（%） | CommentBox | プロパティパネルの欄 | The Properties Panel field that shows and edits the fill transparency of the selected Comment Box. |
-| 99 | `highlightBoxFillTransparencyPercentField` | Fill Transparency (%) | 塗りの透過率（%） | HighlightBox | プロパティパネルの欄 | The Properties Panel field that shows and edits the fill transparency of the selected Highlight Box. |
-| 100 | `dependencyTypeField` | Type | 種別 | Dependency | プロパティパネルの欄 | The Properties Panel field that shows and edits the type of the selected dependency. |
-| 101 | `dependencyLagField` | Lag | ラグ | Dependency | プロパティパネルの欄 | The Properties Panel field that shows and edits the lag of the selected dependency. |
-| 102 | `dependencyPredecessorField` | Predecessor | 先行 | Dependency | プロパティパネルの欄 | The Properties Panel field that shows and edits the predecessor of the selected dependency. |
-| 103 | `dependencySuccessorField` | Successor | 後続 | Dependency | プロパティパネルの欄 | The Properties Panel field that shows and edits the successor of the selected dependency. |
-| 104 | `fixTablesTaskTypeColumn` | Task Type | タスク種別 | fixTables | 表の列 | The column Task Type of the fix proposal and fix log tables of the Delay Diagnostics Report Window. |
-| 105 | `inputNotAccepted` | inputNotAccepted | inputNotAccepted |  | 通知の作法 | A manner of notice: When input is not accepted. |
-| 106 | `timedNotification` | timedNotification | timedNotification |  | 通知の作法 | A manner of notice: A notification that goes away with time. |
-| 107 | `destructiveResult` | destructiveResult | destructiveResult |  | 通知の作法 | A manner of notice: When the result is destructive. |
-| 108 | `failureNotification` | failureNotification | failureNotification |  | 通知の作法 | A manner of notice: A notification of failure. |
-| 109 | `pendingAtStartup` | pendingAtStartup | pendingAtStartup |  | 通知の作法 | A manner of notice: Matters pending at startup. |
-| 110 | `limitReached` | limitReached | limitReached |  | 通知の作法 | A manner of notice: When the limit is reached. |
-| 111 | `acceptedWithCaution` | acceptedWithCaution | acceptedWithCaution |  | 通知の作法 | A manner of notice: When a caution accompanies acceptance. |
-| 112 | `askWhetherToGoOn` | askWhetherToGoOn | askWhetherToGoOn |  | 通知の作法 | A manner of notice: When asking whether to go on. |
-| 113 | `dismissNotification` | dismissNotification | dismissNotification |  | 通知の作法 | A manner of notice: When a told notification is dismissed. |
-| 114 | `notificationWidth` | notificationWidth | notificationWidth |  | 通知の作法 | A manner of notice: How wide the box of a notification is. |
-| 115 | `deleteTaskGroupQuestion` | deleteTaskGroupQuestion | deleteTaskGroupQuestion |  | 問い | The question that asks: "Delete this task group and the tasks on it?" |
-| 116 | `deleteTaskQuestion` | deleteTaskQuestion | deleteTaskQuestion |  | 問い | The question that asks: "Delete this task and the tasks under it?" |
-| 117 | `deleteResourcesQuestion` | deleteResourcesQuestion | deleteResourcesQuestion |  | 問い | The question that asks: "Delete the selected resources? They will be unassigned from the tasks below." |
-| 118 | `overwriteOtherDocumentQuestion` | overwriteOtherDocumentQuestion | overwriteOtherDocumentQuestion |  | 問い | The question that asks: "This is not the document that was opened. Overwrite it? The changes made since will be lost." |
-| 119 | `closeDocumentQuestion` | closeDocumentQuestion | closeDocumentQuestion |  | 問い | The question that asks: "Close the current document? Unsaved edits and the undo history will be lost." |
-| 120 | `hideWatermarkQuestion` | hideWatermarkQuestion | hideWatermarkQuestion |  | 問い | The question that asks: "Hide the watermark? This needs the watermark unlock password. The watermark is a record that this was on screen, not access control." |
-| 121 | `deleteAllTaskGroupsQuestion` | deleteAllTaskGroupsQuestion | deleteAllTaskGroupsQuestion |  | 問い | The question that asks: "Delete all task groups and the tasks on them?" |
-| 122 | `resetGrsQuestion` | resetGrsQuestion | resetGrsQuestion |  | 問い | The question that asks: "Reset GRS? What GRS keeps in this browser (such as the display language) is cleared and the page is reloaded. Unsaved edits, if any, are lost too." |
-| 123 | `tasksOrParentArrowsQuestion` | tasksOrParentArrowsQuestion | tasksOrParentArrowsQuestion |  | 問い | The question that asks: "Tasks and parent arrows are selected together. Which do you want to select?" |
-| 124 | `timeShiftQuestion` | timeShiftQuestion | timeShiftQuestion |  | 問い | The question that asks: "Run the Time Shift and move every schedule date-time at once? What will be rewritten is shown below. One Undo brings it back." |
-| 125 | `wholeScheduleShiftQuestion` | wholeScheduleShiftQuestion | wholeScheduleShiftQuestion |  | 問い | The question that asks: "Shift the whole schedule to the new start date? What will be rewritten is shown below. One Undo brings it back." |
-| 126 | `liftTooDeepTaskGroupsQuestion` | liftTooDeepTaskGroupsQuestion | liftTooDeepTaskGroupsQuestion |  | 問い | The question that asks: "Task groups nest at most {maxGroupDepth} levels. Lift the too-deep task groups to level {maxGroupDepth} and finish the move?" |
-| 127 | `aiOpenFileQuestion` | aiOpenFileQuestion | aiOpenFileQuestion |  | 問い | The question that asks: "The AI asks you to open a file. Open the file window?" |
-| 128 | `irreversibleOperationQuestion` | irreversibleOperationQuestion | irreversibleOperationQuestion |  | 問い | The question that asks: "Continue? This can't be undone." |
-| 129 | `rulerHeightPx` | Ruler Height | 目盛の\|帯の\|高さ |  | タイムルーラー | The height of the Time Ruler band in pixels. |
-| 130 | `rulerFontSizePx` | Ruler Font Size | 目盛の文字 |  | タイムルーラー | The size of the text of the Time Ruler in pixels. |
+| 1 | `scheduleFilterBar` | Schedule Filter Bar | スケジュールフィルタバー |  | 画面の大きな区分 | The Schedule Filter Bar: a band that appears only while a table's Schedule Filter narrows the tasks drawn; it names the tables, gives the count and offers to release every filter. |
+| 2 | `paletteGroups` | Palette Groups | パレットグループ |  | 画面の大きな区分 | The Palette Groups: the blocks the Command Palette arranges its entries in. |
+| 3 | `taskBars` | Task Bars | タスクバー |  | タスクグループレーンズに描く部品 | Task Bars: the Plan Bar and the Actual Bar together. A rectangle is a shape, not a bar. |
+| 4 | `baselineOutline` | Baseline Outline | 変更前予定輪郭 |  | タスクグループレーンズに描く部品 | The Baseline Outline: the outline of the earlier plan drawn over a task. |
+| 5 | `progressMark` | Progress Mark | 進捗マーク |  | タスクグループレーンズに描く部品 | The Progress Mark: the mark outside the end of the Actual Bar that shows the plan-and-actual state by its shape and changes the state when pressed. |
+| 6 | `groupGridLines` | Group Grid Lines | グループ罫線 |  | タスクグループレーンズに描く部品 | The Group Grid Lines: horizontal lines between task groups. |
+| 7 | `fadeHandle` | Fade Handle | フェードハンドル |  | マウスで操作するもの | The Fade Handle: the handle that sets the fade of a Plan Bar. |
+| 8 | `resizeHandle` | Resize Handle | サイズ変更ハンドル |  | マウスで操作するもの | A Resize Handle: one of the eight handles at the corners and sides of a Highlight Box. |
+| 9 | `leaderAnchorHandle` | Leader Anchor Handle | 線先ハンドル |  | マウスで操作するもの | The Leader Anchor Handle: the handle of the Leader Anchor of a Comment Box. |
+| 10 | `paletteGrip` | Palette Grip | パレットグリップ |  | マウスで操作するもの | The Palette Grip: the band at the top of the Command Palette. |
+| 11 | `taskGroupGrip` | Task Group Grip | タスクグループグリップ |  | マウスで操作するもの | The Task Group Grip: the grip just before a task group name. |
+| 12 | `collapseButton` | Collapse Button | 折りたたむボタン |  | マウスで操作するもの | The Collapse Button: collapses the task group itself. |
+| 13 | `item` | Item | アイテム |  | そのほかの UI パーツ | An Item: anything that hit testing and selection can take. It is not another name for a task; write "task" for one task. |
+| 14 | `selection` | Selection | 選択 |  | そのほかの UI パーツ | The Selection: choosing things that already exist, and the set of things chosen. |
+| 15 | `armedShape` | ArmedShape | 構え |  | そのほかの UI パーツ | The Armed Shape: what the next drag will create or link, chosen on the palette. It is not a selection. |
+| 16 | `marquee` | Marquee | 範囲選択 |  | そのほかの UI パーツ | Marquee: selecting by dragging a rectangle from a place that hits nothing. |
+| 17 | `cursors` | Cursors | カーソル |  | そのほかの UI パーツ | The Cursors: the lines that point at dates, as a group. The point of the mouse is the pointer, not a cursor. |
+| 18 | `guideCursor` | Guide Cursor | ガイドカーソル |  | そのほかの UI パーツ | The Guide Cursor: the line that follows the pointer, as a crosshair or a single vertical line. |
+| 19 | `canvasOverlays` | Canvas Overlays | Canvas Overlays |  | そのほかの UI パーツ | The Canvas Overlays: a structure name for what is drawn over the Schedule Canvas; not shown on screen. |
+| 20 | `watermarkUnlockPassword` | Watermark Unlock Password | 透かし解除パスワード |  | そのほかの UI パーツ | The Watermark Unlock Password: the password asked before the watermark is hidden. |
+| 21 | `timeAxisLevelOfDetail` | timeAxisLevelOfDetail | timeAxisLevelOfDetail |  | そのほかの UI パーツ | Time axis level of detail: how fine the Time Ruler is, from years down to days and weekdays, following the horizontal zoom. |
+| 22 | `groupLevelOfDetail` | groupLevelOfDetail | groupLevelOfDetail |  | そのほかの UI パーツ | Group level of detail: deep task groups are not drawn when the vertical size is small. |
+| 23 | `exportFormats` | exportFormats | exportFormats |  | そのほかの UI パーツ | The export formats offered in the Save As Dialog. |
+| 24 | `mspdiXmlFormat` | MSPDI XML | MSPDI XML |  | そのほかの UI パーツ | MSPDI XML: the exchange format for other scheduling tools. |
+| 25 | `singleHtmlFormat` | Single HTML | 単一 HTML |  | そのほかの UI パーツ | Single HTML: one .html file that holds GRS and the document together. |
+| 26 | `placeGroup` | Place | 置く |  | パレットグループ | The palette group of entries that arm a task shape or a milestone shape. |
+| 27 | `alignGroup` | Align | 揃える |  | パレットグループ | The palette group of entries that arm a dependency line or an annotation, and that align the selection to its start or finish. |
+| 28 | `displayGroup` | Display | 表示 |  | パレットグループ | The palette group of entries that show or hide parts of the drawing. |
+| 29 | `cursorsGroup` | Cursors | カーソル |  | パレットグループ | The palette group of the planned dates, status date and cursor entries. |
+| 30 | `zoomToFitIcon` | Zoom to Fit | 全体を収める |  | アイコン | Show the whole schedule |
+| 31 | `documentSettingsIcon` | Document Settings | 文書の設定 |  | アイコン | Show or hide the document's drawing settings in the Properties Panel, where the theme color is chosen |
+| 32 | `endpointSpanIcon` | Endpoint Span | 端点スパン |  | アイコン | Endpoint Span: drag on empty space to create an endpoint span task |
+| 33 | `milestoneCircleIcon` | Milestone (Circle) | マイルストーン（〇） |  | アイコン | Milestone (Circle): drag on empty space to create one |
+| 34 | `milestoneDiamondIcon` | Milestone (Diamond) | マイルストーン（◇） |  | アイコン | Milestone (Diamond): drag on empty space to create one |
+| 35 | `milestoneSquareIcon` | Milestone (Square) | マイルストーン（□） |  | アイコン | Milestone (Square): drag on empty space to create one |
+| 36 | `milestoneStarIcon` | Milestone (Star) | マイルストーン（☆） |  | アイコン | Milestone (Star): drag on empty space to create one |
+| 37 | `milestoneTriangleUpIcon` | Milestone (Triangle Up) | マイルストーン（△） |  | アイコン | Milestone (Triangle Up): drag on empty space to create one |
+| 38 | `milestoneTriangleDownIcon` | Milestone (Triangle Down) | マイルストーン（▽） |  | アイコン | Milestone (Triangle Down): drag on empty space to create one |
+| 39 | `milestoneBoxIcon` | Milestone (Box) | マイルストーン（ボックス） |  | アイコン | Milestone (Box): drag on empty space to create one |
+| 40 | `milestoneFloppyDiskIcon` | Milestone (Floppy Disk) | マイルストーン（フロッピー） |  | アイコン | Milestone (Floppy Disk): drag on empty space to create one |
+| 41 | `milestoneSmilingFaceIcon` | Milestone (Smiling Face) | マイルストーン（嬉しい顔） |  | アイコン | Milestone (Smiling Face): drag on empty space to create one |
+| 42 | `calloutIcon` | Callout | コメントボックス |  | アイコン | Callout: drag where it should stand to place one |
+| 43 | `highlightBoxIcon` | Highlight Box | ハイライトボックス |  | アイコン | Highlight Box: drag over the range to enclose |
+| 44 | `alignToStartIcon` | Align to Start | 開始日で揃える |  | アイコン | Align the selected items to their start |
+| 45 | `alignToFinishIcon` | Align to Finish | 終了日で揃える |  | アイコン | Align the selected items to their finish |
+| 46 | `progressLineIcon` | Progress Line | イナズマ線 |  | アイコン | Show or hide the Progress Line |
+| 47 | `progressMarkerIcon` | Progress Marker | 進捗マーカー |  | アイコン | Show or hide the Progress Marker and the Resume Icon |
+| 48 | `watermarkIcon` | Watermark… | 透かしを非表示（パスワードが必要） |  | アイコン | Show or hide the watermark; the unlock password is asked only to hide it |
+| 49 | `dateGridLinesIcon` | Date Grid Lines | 日付罫線 |  | アイコン | Show or hide the Date Grid Lines |
+| 50 | `groupGridLinesIcon` | Group Grid Lines | グループ罫線 |  | アイコン | Show or hide the Group Grid Lines |
+| 51 | `assigneeLabelIcon` | Assignee Label | 担当ラベル |  | アイコン | Show or hide the Assignee Label |
+| 52 | `percentCompleteLabelIcon` | Percent Complete Label | 完了率ラベル |  | アイコン | Show or hide the Percent Complete Label |
+| 53 | `stackDirectionIcon` | Stack Direction | 日程が重複するタスクを積む向き |  | アイコン | Swap the direction the bars are stacked in, up or down |
+| 54 | `plannedDatesIcon` | Planned Dates | 予定日 |  | アイコン | Show or hide the planned dates to the right of task and milestone names |
+| 55 | `statusDateIcon` | Status Date | 基準日 |  | アイコン | Place, move, or clear the status date; the Status Line is drawn there |
+| 56 | `crosshairIcon` | Crosshair | 十字 |  | アイコン | Turn the crosshair Guide Cursor on or off |
+| 57 | `singleVerticalIcon` | Single Vertical | 縦 1 本 |  | アイコン | Turn the single vertical Guide Cursor on or off |
+| 58 | `closeIcon` | Close | 閉じる |  | アイコン | Close the open window; Esc closes it too |
+| 59 | `dragToMoveIcon` | Drag to Move | 掴んで動かす |  | アイコン | Grab here to move the Command Palette |
+| 60 | `minimizePaletteIcon` | Minimize | 最小化 |  | アイコン | Minimize or restore the Command Palette |
+| 61 | `wheelIcon` | Wheel | ホイール |  | アイコン | Marks turning the mouse wheel |
+| 62 | `helpLanguageIcon` | Help Language | ヘルプの言語 |  | アイコン | Choose the language of the help only; the current one shows on the entry |
+| 63 | `expandBelowIcon` | Expand Below | 配下をすべて展開する |  | アイコン | Expand every task group below this one |
+| 64 | `collapseIcon` | Collapse | 折りたたむ |  | アイコン | Collapse this task group itself |
+| 65 | `collapseBelowIcon` | Collapse Below | 配下をすべて折りたたむ |  | アイコン | Collapse every task group below this one |
+| 66 | `expandOneLevelIcon` | Expand One Level | 1 階層だけ展開する |  | アイコン | Expand only this task group's own children, leaving deeper task groups collapsed |
+| 67 | `pinIcon` | Pin | ピン止め |  | アイコン | Pin or unpin the task group so it stays on screen |
+| 68 | `deleteTaskGroupIcon` | Delete Task Group | タスクグループを削除 |  | アイコン | Delete this task group, the task groups below it and the tasks they carry |
+| 69 | `deleteAllTaskGroupsIcon` | Delete All Task Groups | すべてのタスクグループを削除 |  | アイコン | Delete all task groups and the tasks they carry |
+| 70 | `tasksIcon` | Tasks | タスク |  | アイコン | Show the table of tasks and milestones |
+| 71 | `calloutsIcon` | Callouts | コメントボックス |  | アイコン | Show the table of callouts |
+| 72 | `scheduleFilterIcon` | Schedule Filter | スケジュールフィルタ |  | アイコン | Turn the Schedule Filter on or off: draw only the tasks this table shows |
+| 73 | `minimizeWindowIcon` | Minimize | 最小化 |  | アイコン | Minimize or restore the window |
+| 74 | `maximizeIcon` | Maximize | 最大化 |  | アイコン | Maximize the window |
+| 75 | `restoreIcon` | Restore | 元のサイズに戻す |  | アイコン | Restore the window to its size |
+| 76 | `adoptAllRecommendedIcon` | Adopt All Recommended | 推奨案をすべて採用する |  | アイコン | Check every automatic row and every row with one choice |
+| 77 | `selectedIcon` | Selected | 選択中 |  | アイコン | This resource is selected; click to deselect it |
+| 78 | `notSelectedIcon` | Not Selected | 未選択 |  | アイコン | This resource is not selected; click to select it |
+| 79 | `addTimeRangeIcon` | + | ＋ |  | アイコン | Add a working-time range |
+| 80 | `deleteTimeRangeIcon` | Delete | 削除 |  | アイコン | Delete this range (the document changes only when applied) |
+| 81 | `timeIcon` | Time | 時刻 |  | アイコン | Type a time to the minute (e.g. 8:00; an end of 0:00 is 24:00) |
+| 82 | `replaceIcon` | Replace | 置き換える |  | アイコン | Replace the current document with the file being opened |
+| 83 | `mergeIcon` | Merge | 合流させる |  | アイコン | Add the contents of the file being opened to the current document |
+| 84 | `expandAllIcon` | Expand All | すべて展開する |  | アイコン | Expand every task group that was collapsed |
+| 85 | `collapseAllIcon` | Collapse All | すべて折りたたむ |  | アイコン | Collapse every task group |
+| 86 | `showTopLevelOnlyIcon` | Show Top Level Only | 最も浅い段を 1 階層展開する |  | アイコン | Bring back only the shallowest task groups, leaving what is under them collapsed |
+| 87 | `interactionLogIcon` | Interaction Log | デバッグ用ログ取得の開始/停止 |  | アイコン | Start or stop recording pointer input and drawing; stopping puts the record on the clipboard |
+| 88 | `useOpenedFileIcon` | Use Opened File | 開いたファイルから取る |  | アイコン | Take the duplicated tasks from the file that was opened |
+| 89 | `keepBothIcon` | Keep Both | 両方とも残す |  | アイコン | Keep the duplicated tasks as separate things, both of them; the added ones can no longer be written back to their master |
+| 90 | `timeShiftIcon` | Time Shift | タイムシフト |  | アイコン | Shift every schedule date-time by the amount entered; asks first |
+| 91 | `taskPlannedDateField` | Planned Date | 予定日 | Task | プロパティパネルの欄 | The Properties Panel field that shows and edits the planned date of the selected task. |
+| 92 | `taskActualDateField` | Actual Date | 実績日 | Task | プロパティパネルの欄 | The Properties Panel field that shows and edits the actual date of the selected task. |
+| 93 | `taskMilestoneShapeField` | Milestone Shape | マイルストーン形状 | Task | プロパティパネルの欄 | The Properties Panel field that shows and edits the milestone shape of the selected task. |
+| 94 | `commentBoxFillTransparencyPercentField` | Fill Transparency (%) | 塗りの透過率（%） | CommentBox | プロパティパネルの欄 | The Properties Panel field that shows and edits the fill transparency of the selected Comment Box. |
+| 95 | `highlightBoxFillTransparencyPercentField` | Fill Transparency (%) | 塗りの透過率（%） | HighlightBox | プロパティパネルの欄 | The Properties Panel field that shows and edits the fill transparency of the selected Highlight Box. |
+| 96 | `dependencyTypeField` | Type | 種別 | Dependency | プロパティパネルの欄 | The Properties Panel field that shows and edits the type of the selected dependency. |
+| 97 | `dependencyLagField` | Lag | ラグ | Dependency | プロパティパネルの欄 | The Properties Panel field that shows and edits the lag of the selected dependency. |
+| 98 | `dependencyPredecessorField` | Predecessor | 先行 | Dependency | プロパティパネルの欄 | The Properties Panel field that shows and edits the predecessor of the selected dependency. |
+| 99 | `dependencySuccessorField` | Successor | 後続 | Dependency | プロパティパネルの欄 | The Properties Panel field that shows and edits the successor of the selected dependency. |
+| 100 | `fixTablesTaskTypeColumn` | Task Type | タスク種別 | fixTables | 表の列 | The column Task Type of the fix proposal and fix log tables of the Delay Diagnosis Report Window. |
+| 101 | `inputNotAccepted` | inputNotAccepted | inputNotAccepted |  | 通知の作法 | A manner of notice: When input is not accepted. |
+| 102 | `timedNotification` | timedNotification | timedNotification |  | 通知の作法 | A manner of notice: A notification that goes away with time. |
+| 103 | `destructiveResult` | destructiveResult | destructiveResult |  | 通知の作法 | A manner of notice: When the result is destructive. |
+| 104 | `failureNotification` | failureNotification | failureNotification |  | 通知の作法 | A manner of notice: A notification of failure. |
+| 105 | `pendingAtStartup` | pendingAtStartup | pendingAtStartup |  | 通知の作法 | A manner of notice: Matters pending at startup. |
+| 106 | `limitReached` | limitReached | limitReached |  | 通知の作法 | A manner of notice: When the limit is reached. |
+| 107 | `acceptedWithCaution` | acceptedWithCaution | acceptedWithCaution |  | 通知の作法 | A manner of notice: When a caution accompanies acceptance. |
+| 108 | `askWhetherToGoOn` | askWhetherToGoOn | askWhetherToGoOn |  | 通知の作法 | A manner of notice: When asking whether to go on. |
+| 109 | `dismissNotification` | dismissNotification | dismissNotification |  | 通知の作法 | A manner of notice: When a told notification is dismissed. |
+| 110 | `notificationWidth` | notificationWidth | notificationWidth |  | 通知の作法 | A manner of notice: How wide the box of a notification is. |
+| 111 | `deleteTaskGroupQuestion` | deleteTaskGroupQuestion | deleteTaskGroupQuestion |  | 問い | The question that asks: "Delete this task group and the tasks on it?" |
+| 112 | `deleteTaskQuestion` | deleteTaskQuestion | deleteTaskQuestion |  | 問い | The question that asks: "Delete this task and the tasks under it?" |
+| 113 | `deleteResourcesQuestion` | deleteResourcesQuestion | deleteResourcesQuestion |  | 問い | The question that asks: "Delete the selected resources? They will be unassigned from the tasks below." |
+| 114 | `overwriteOtherDocumentQuestion` | overwriteOtherDocumentQuestion | overwriteOtherDocumentQuestion |  | 問い | The question that asks: "This is not the document that was opened. Overwrite it? The changes made since will be lost." |
+| 115 | `closeDocumentQuestion` | closeDocumentQuestion | closeDocumentQuestion |  | 問い | The question that asks: "Close the current document? Unsaved edits and the undo history will be lost." |
+| 116 | `hideWatermarkQuestion` | hideWatermarkQuestion | hideWatermarkQuestion |  | 問い | The question that asks: "Hide the watermark? This needs the watermark unlock password. The watermark is a record that this was on screen, not access control." |
+| 117 | `deleteAllTaskGroupsQuestion` | deleteAllTaskGroupsQuestion | deleteAllTaskGroupsQuestion |  | 問い | The question that asks: "Delete all task groups and the tasks on them?" |
+| 118 | `resetGrsQuestion` | resetGrsQuestion | resetGrsQuestion |  | 問い | The question that asks: "Reset GRS? What GRS keeps in this browser (such as the display language) is cleared and the page is reloaded. Unsaved edits, if any, are lost too." |
+| 119 | `tasksOrParentArrowsQuestion` | tasksOrParentArrowsQuestion | tasksOrParentArrowsQuestion |  | 問い | The question that asks: "Tasks and parent arrows are selected together. Which do you want to select?" |
+| 120 | `timeShiftQuestion` | timeShiftQuestion | timeShiftQuestion |  | 問い | The question that asks: "Run the Time Shift and move every schedule date-time at once? What will be rewritten is shown below. One Undo brings it back." |
+| 121 | `wholeScheduleShiftQuestion` | wholeScheduleShiftQuestion | wholeScheduleShiftQuestion |  | 問い | The question that asks: "Shift the whole schedule to the new start date? What will be rewritten is shown below. One Undo brings it back." |
+| 122 | `liftTooDeepTaskGroupsQuestion` | liftTooDeepTaskGroupsQuestion | liftTooDeepTaskGroupsQuestion |  | 問い | The question that asks: "Task groups nest at most {maxGroupDepth} levels. Lift the too-deep task groups to level {maxGroupDepth} and finish the move?" |
+| 123 | `aiOpenFileQuestion` | aiOpenFileQuestion | aiOpenFileQuestion |  | 問い | The question that asks: "The AI asks you to open a file. Open the file window?" |
+| 124 | `irreversibleOperationQuestion` | irreversibleOperationQuestion | irreversibleOperationQuestion |  | 問い | The question that asks: "Continue? This can't be undone." |
+| 125 | `rulerFontSizePx` | Ruler Font Size | 目盛の文字 |  | タイムルーラー | The size of the text of the Time Ruler in pixels. |
 
 ## MCP の説明だけに出る語（2 語）
 
@@ -166,7 +161,7 @@
 | 3 | `grsDocumentSchema` | grsDocumentSchema | grsDocumentSchema |  | 配るもの | grs-document.schema.json: the published JSON Schema of GRS JSON. |
 | 4 | `grsCommandsSchema` | grsCommandsSchema | grsCommandsSchema |  | 配るもの | grs-commands.schema.json: the JSON Schema of the document commands that applyCommands takes. |
 
-## 仕様とコードの中だけの語（428 語）
+## 仕様とコードの中だけの語（426 語）
 
 | # | キー | 英語の名 | 日本語の名 | 持ち主 | 群 | 意味（英語） |
 | ---: | --- | --- | --- | --- | --- | --- |
@@ -404,248 +399,247 @@
 | 232 | `calendarDay` | CalendarDay | CalendarDay |  | entity の層 | A calendar day as year, month and day, without a time. |
 | 233 | `dateTimeSide` | DateTimeSide | DateTimeSide |  | entity の層 | Which side of a span a date-time is on: start or finish. |
 | 234 | `daySpanTooWide` | DaySpanTooWide | DaySpanTooWide |  | entity の層 | The error raised when a span of days is wider than the accepted range of dates. |
-| 235 | `delayDiagnosticsReport` | DelayDiagnosticsReport | DelayDiagnosticsReport |  | entity の層 | The result of the Delay Diagnostics: the outcome, the status date, the findings, the bottlenecks, the end-task push-outs and the walls. |
-| 236 | `documentType` | Document | Document |  | entity の層 | The code type of the Schedule Document: the schema version, the Schedule Data, the document settings, the document stamp and the change log. |
-| 237 | `documentSettingsType` | DocumentSettings | DocumentSettings |  | entity の層 | The code type of the document settings. |
-| 238 | `drawnSettings` | DrawnSettings | DrawnSettings |  | entity の層 | The document settings joined with the built-in setting constants, as the drawing reads them. |
-| 239 | `dualCursorSide` | DualCursorSide | DualCursorSide |  | entity の層 | Which line of the Dual Cursor: the first or the second. |
-| 240 | `editHistoryType` | EditHistory | EditHistory |  | entity の層 | The code type of the edit history: the steps done and the steps undone. |
-| 241 | `escapeTargetType` | EscapeTarget | EscapeTarget |  | entity の層 | What the Esc key closes or cancels next: a notice, a text entry, a question, a dialog, a gesture, a window, the Properties Panel, the armed tool, the selection, the Dual Cursor, a tooltip or full screen. |
-| 242 | `historyLimits` | HistoryLimits | HistoryLimits |  | entity の層 | The limits of the edit history: the most steps and the largest total size. |
-| 243 | `instantOnSideType` | InstantOnSide | InstantOnSide |  | entity の層 | A reader that turns a stored date-time text into an instant, on the start side or the finish side. |
-| 244 | `itemRef` | ItemRef | ItemRef |  | entity の層 | A reference to one selectable item: a task, a dependency, a Highlight Box or a Comment Box. |
-| 245 | `noWorkingDayReached` | NoWorkingDayReached | NoWorkingDayReached |  | entity の層 | The error raised when a calendar has no working day inside the accepted range of dates. |
-| 246 | `parentTaskResolution` | ParentTaskResolution | ParentTaskResolution |  | entity の層 | How the parent of a task was found: stated in the WBS, or derived. |
-| 247 | `rememberedActual` | RememberedActual | RememberedActual |  | entity の層 | An actual (start, stop and finish) that was removed and is remembered so that it can be restored. |
-| 248 | `scheduleType` | Schedule | Schedule |  | entity の層 | The code type of the Schedule Data. |
-| 249 | `taskVisual` | TaskVisual | TaskVisual |  | entity の層 | The code type that holds how a task is drawn; the code still uses this earlier name of TaskGraphicStyle. |
-| 250 | `windowName` | WindowName | WindowName |  | entity の層 | The name of a Tool Window that a person can close: the three table windows and the help. |
-| 251 | `workingCalendar` | WorkingCalendar | WorkingCalendar |  | entity の層 | The calendar GRS counts working days with: the calendar, its weekdays, its exceptions and the week start. |
-| 252 | `actualInstantsOf` | actualInstantsOf | actualInstantsOf |  | entity の層 | The start and end instants of the actual of a task, on the working calendar. |
-| 253 | `actualLastDay` | actualLastDay | actualLastDay |  | entity の層 | The last day of the actual of a task. |
-| 254 | `actualLengthOf` | actualLengthOf | actualLengthOf |  | entity の層 | The length in working days of an actual, from its start to its last day. |
-| 255 | `actualMinutesOf` | actualMinutesOf | actualMinutesOf |  | entity の層 | The working minutes between two instants, on the working calendar. |
-| 256 | `blankTaskVisual` | blankTaskVisual | blankTaskVisual |  | entity の層 | The drawing style a task gets when nobody has chosen its shape or color. |
-| 257 | `calendarDaysBetween` | calendarDaysBetween | calendarDaysBetween |  | entity の層 | The number of calendar days from one day to another. |
-| 258 | `compareDays` | compareDays | compareDays |  | entity の層 | Compares two calendar days, for sorting. |
-| 259 | `customColorOf` | customColorOf | customColorOf |  | entity の層 | Reads a stored custom color into its light and dark sides. |
-| 260 | `customSideOf` | customSideOf | customSideOf |  | entity の層 | The light or the dark side of a custom color. |
-| 261 | `dataWallOfViewWall` | dataWallOfViewWall | dataWallOfViewWall |  | entity の層 | Turns a wall-clock minute in the view time zone into the wall-clock minute of the Schedule Data time zone. |
-| 262 | `dayOf` | dayOf | dayOf |  | entity の層 | Reads the calendar day from a date or date-time text. |
-| 263 | `dayOfInstant` | dayOfInstant | dayOfInstant |  | entity の層 | The calendar day an instant falls on. |
-| 264 | `delayDiagnosticsReportRows` | delayDiagnosticsReportRows | delayDiagnosticsReportRows |  | entity の層 | The rows of the Delay Diagnostics Report table. |
-| 265 | `delayFixCommands` | delayFixCommands | delayFixCommands |  | entity の層 | The document commands that carry out the given fix proposal rows. |
-| 266 | `delayFixProposalRows` | delayFixProposalRows | delayFixProposalRows |  | entity の層 | The fix proposal rows as the report window lists them. |
-| 267 | `diagnoseDelay` | diagnoseDelay | diagnoseDelay |  | entity の層 | Runs the Delay Diagnostics on a document and returns the report. |
-| 268 | `earliestPlanStartDayOf` | earliestPlanStartDayOf | earliestPlanStartDayOf |  | entity の層 | The earliest planned start day among the given tasks. |
-| 269 | `emptyHistory` | emptyHistory | emptyHistory |  | entity の層 | An edit history with no steps. |
-| 270 | `emptySelection` | emptySelection | emptySelection |  | entity の層 | A selection with nothing in it. |
-| 271 | `escapeTarget` | escapeTarget | escapeTarget |  | entity の層 | Decides what the Esc key acts on next, from the state of the screen. |
-| 272 | `instantAfterWorkingMinutes` | instantAfterWorkingMinutes | instantAfterWorkingMinutes |  | entity の層 | The instant reached after a number of working minutes from a start, on the working calendar. |
-| 273 | `instantOf` | instantOf | instantOf |  | entity の層 | Reads an instant from a date-time text. |
-| 274 | `instantOnSide` | instantOnSide | instantOnSide |  | entity の層 | Reads an instant from a date or date-time text, giving a date without a time the default time of the start or the finish side. |
-| 275 | `instantOnSideReader` | instantOnSideReader | instantOnSideReader |  | entity の層 | Makes a reader that turns texts into instants on a side, for one pass over a calendar or the Schedule Data. |
-| 276 | `isNonRecurringException` | isNonRecurringException | isNonRecurringException |  | entity の層 | Whether an exception happens only once, so that GRS counts it. |
-| 277 | `isRecommendedDelayFix` | isRecommendedDelayFix | isRecommendedDelayFix |  | entity の層 | Whether a fix proposal row is recommended: it has one way to fix and nothing in the way. |
-| 278 | `isSameDay` | isSameDay | isSameDay |  | entity の層 | Whether two date texts fall on the same day. |
-| 279 | `isSameWorkingTimeSet` | isSameWorkingTimeSet | isSameWorkingTimeSet |  | entity の層 | Whether two sets of working times are the same. |
-| 280 | `isStandardTimeZoneKey` | isStandardTimeZoneKey | isStandardTimeZoneKey |  | entity の層 | Whether a value names a standard-time zone, which alone may be the Schedule Data time zone. |
-| 281 | `lastDayForLength` | lastDayForLength | lastDayForLength |  | entity の層 | The last day of a span of a given working length from a start day. |
-| 282 | `minutesPerWorkingDayOf` | minutesPerWorkingDayOf | minutesPerWorkingDayOf |  | entity の層 | The minutes of one working day of the project, with the default when the project gives none. |
-| 283 | `parentTaskResolutionsOf` | parentTaskResolutionsOf | parentTaskResolutionsOf |  | entity の層 | How the parent of each task is found, stated or derived, for the Delay Diagnostics and the parent arrows. |
-| 284 | `documentModelProgressStatus` | progressStatus | progressStatus | DocumentModel | entity の層 | Reads the plan-and-actual state of a task from its actual dates. |
-| 285 | `plannedDurationMinutesOf` | plannedDurationMinutesOf | plannedDurationMinutesOf |  | entity の層 | The planned working minutes of a task. |
-| 286 | `plannedInstantsOf` | plannedInstantsOf | plannedInstantsOf |  | entity の層 | The planned start and finish instants of a task. |
-| 287 | `progressMarkerOf` | progressMarkerOf | progressMarkerOf |  | entity の層 | Which Progress Mark a task shows on the status date, including the diagnosis marks. |
-| 288 | `proposeDelayFixes` | proposeDelayFixes | proposeDelayFixes |  | entity の層 | Makes the fix proposal rows from the Delay Diagnostics report. |
-| 289 | `scheduleViolations` | scheduleViolations | scheduleViolations |  | entity の層 | Checks the Schedule Data against its invariants and lists the violations. |
-| 290 | `searchRowsOf` | searchRowsOf | searchRowsOf |  | entity の層 | Builds the rows of the Search Window for a word. |
-| 291 | `selectionWith` | selectionWith | selectionWith |  | entity の層 | A selection with one more item added. |
-| 292 | `serial` | serial | serial |  | entity の層 | A day as a running number, for arithmetic on days. |
-| 293 | `shownInstantReader` | shownInstantReader | shownInstantReader |  | entity の層 | Makes a reader that turns stored date-times into instants in the shown time zone. |
-| 294 | `sideOfTaskColumn` | sideOfTaskColumn | sideOfTaskColumn |  | entity の層 | Whether a date column of a task is on the start side or the finish side. |
-| 295 | `startSideOf` | startSideOf | startSideOf |  | entity の層 | The side a task's start reads on; a milestone's start reads on the finish side. |
-| 296 | `taskByUid` | taskByUid | taskByUid |  | entity の層 | Finds a task by its uid. |
-| 297 | `taskUidsIn` | taskUidsIn | taskUidsIn |  | entity の層 | The uids of the tasks in a selection. |
-| 298 | `textOfDay` | textOfDay | textOfDay |  | entity の層 | Writes a calendar day as text (YYYY-MM-DD). |
-| 299 | `textOfDayEnd` | textOfDayEnd | textOfDayEnd |  | entity の層 | Writes the end of a day as a date-time text. |
-| 300 | `textOfDayStart` | textOfDayStart | textOfDayStart |  | entity の層 | Writes the start of a day as a date-time text. |
-| 301 | `textOfFinishSide` | textOfFinishSide | textOfFinishSide |  | entity の層 | Writes a day as a finish date-time, with the project's default finish time. |
-| 302 | `textOfInstant` | textOfInstant | textOfInstant |  | entity の層 | Writes an instant as a date-time text. |
-| 303 | `textOfStartSide` | textOfStartSide | textOfStartSide |  | entity の層 | Writes a day as a start date-time, with the project's default start time; a milestone takes the finish time. |
-| 304 | `viewRegionOf` | viewRegionOf | viewRegionOf |  | entity の層 | The time zone the screen is shown in, from the Schedule Data time zone and the view time zone. |
-| 305 | `weekDayOf` | weekDayOf | weekDayOf |  | entity の層 | Builds a weekday of a calendar. |
-| 306 | `workingCalendarOf` | workingCalendarOf | workingCalendarOf |  | entity の層 | The working calendar of the Schedule Data: the one calendar working days are counted with. |
-| 307 | `workingDayShiftOf` | workingDayShiftOf | workingDayShiftOf |  | entity の層 | How dates move, by working days, when the whole schedule is shifted to a new start day. |
-| 308 | `workingSpansReader` | workingSpansReader | workingSpansReader |  | entity の層 | Makes a reader of the working time spans of each day. |
-| 309 | `workingTimeSetOf` | workingTimeSetOf | workingTimeSetOf |  | entity の層 | The set of working times of the working calendar. |
-| 310 | `workingTimesBreach` | workingTimesBreach | workingTimesBreach |  | entity の層 | Checks the working times of a day against the rules and says what is broken, if anything. |
-| 311 | `zoneClockOf` | zoneClockOf | zoneClockOf |  | entity の層 | The clock (the offset) of a time zone key. |
-| 312 | `layoutEngine` | LayoutEngine | LayoutEngine |  | entity の層 | The rectangles of the screen parts, the mapping between dates and positions, the placement of the task groups, the points of what is drawn, the level of detail and hit testing; all pure. (src/entity/layout-engine) |
-| 313 | `barGeometry` | BarGeometry | BarGeometry |  | entity の層 | The drawn form of a task bar: an outline, a line or another form, with its points. |
-| 314 | `hit` | Hit | Hit |  | entity の層 | What the pointer hits: the item, the grab area and, for a box, which part. |
-| 315 | `landedTarget` | LandedTarget | LandedTarget |  | entity の層 | Where a jump landed: a task or a Comment Box. |
-| 316 | `point` | Point | Point |  | entity の層 | A point on the screen: x and y. |
-| 317 | `scheduleGeometry` | ScheduleGeometry | ScheduleGeometry |  | entity の層 | The points of everything drawn: task bars, baseline outlines, dependency lines, the Progress Line, the Status Line and more. |
-| 318 | `scheduleLayout` | ScheduleLayout | ScheduleLayout |  | entity の層 | The layout of the schedule: the pixels per day, the ruler tier, the origin, and the placement of the task groups. |
-| 319 | `screenRect` | ScreenRect | ScreenRect |  | entity の層 | A rectangle on the screen: x, y, width and height. |
-| 320 | `screenRegions` | ScreenRegions | ScreenRegions |  | entity の層 | The rectangle of each region of the screen: the App Header, the Schedule Canvas, the Task Group Panel, the Time Ruler, the Properties Panel and the Task Group Lanes. |
-| 321 | `taskGroupPlacement` | TaskGroupPlacement | TaskGroupPlacement |  | entity の層 | Where one task group is laid out: its depth, top, height and Stack Tiers. |
-| 322 | `cursorInstantAtX` | cursorInstantAtX | cursorInstantAtX |  | entity の層 | The instant a cursor line stands on, at a horizontal position. |
-| 323 | `dateAtX` | dateAtX | dateAtX |  | entity の層 | The calendar day at a horizontal position. |
-| 324 | `dependencyEndAtPointer` | dependencyEndAtPointer | dependencyEndAtPointer |  | entity の層 | The task end a dependency line would attach to under the pointer. |
-| 325 | `dependencyStartOfHit` | dependencyStartOfHit | dependencyStartOfHit |  | entity の層 | The task end a new dependency line starts from, given what the pointer hit. |
-| 326 | `displayRatioOf` | displayRatioOf | displayRatioOf |  | entity の層 | The ratio the display scale multiplies drawn sizes by. |
-| 327 | `drawnSettingsOf` | drawnSettingsOf | drawnSettingsOf |  | entity の層 | The settings as the drawing reads them, scaled once by the display scale. |
-| 328 | `fitZoom` | fitZoom | fitZoom |  | entity の層 | The zoom and scroll that fit the whole schedule, or the fixed Fit Span, into the screen. |
-| 329 | `fixedFitSpanOf` | fixedFitSpanOf | fixedFitSpanOf |  | entity の層 | The fixed Fit Span, when it is fixed and both ends are set. |
-| 330 | `grabSizesOf` | grabSizesOf | grabSizesOf |  | entity の層 | The sizes of the grab margins. |
-| 331 | `groupDepthLimit` | groupDepthLimit | groupDepthLimit |  | entity の層 | How deep task groups are drawn at the current vertical size. |
-| 332 | `hasRoomBelowPinsIn` | hasRoomBelowPinsIn | hasRoomBelowPinsIn |  | entity の層 | Whether there is room below the pinned task groups to show a task group. |
-| 333 | `itemAtPointer` | itemAtPointer | itemAtPointer |  | entity の層 | The item under the pointer, with its grab area. |
-| 334 | `keptInViewByTreeState` | keptInViewByTreeState | keptInViewByTreeState |  | entity の層 | The task groups that their tree state keeps open. |
-| 335 | `landedShapeBoxOf` | landedShapeBoxOf | landedShapeBoxOf |  | entity の層 | The box a jump lands on: the planned shape of a task or the body of a Comment Box. |
-| 336 | `regionAtPointer` | regionAtPointer | regionAtPointer |  | entity の層 | The screen region the pointer is in. |
-| 337 | `shownSpanOf` | shownSpanOf | shownSpanOf |  | entity の層 | The span of days shown in the Task Group Lanes. |
-| 338 | `snappedInstantAtX` | snappedInstantAtX | snappedInstantAtX |  | entity の層 | The instant at a horizontal position, snapped to a step in minutes. |
-| 339 | `taskGroupAnchorIn` | taskGroupAnchorIn | taskGroupAnchorIn |  | entity の層 | Which task group, and where in it, stands at a given height. |
-| 340 | `taskPlacement` | taskPlacement | taskPlacement |  | entity の層 | Where a task is laid out. |
-| 341 | `timeAxisOf` | timeAxisOf | timeAxisOf |  | entity の層 | The time axis alone, for turning a position into a day. |
-| 342 | `xFromDay` | xFromDay | xFromDay |  | entity の層 | The horizontal position of a calendar day. |
-| 343 | `advanceScreenSession` | AdvanceScreenSession | AdvanceScreenSession |  | use-case の層 | Advances the unsaved screen session by one event and returns the next state with the effects to run; it runs none of them. (src/use-case/advance-screen-session) |
-| 344 | `noticeReason` | NoticeReason | NoticeReason |  | use-case の層 | The reason a notice is shown: a reason row, or an invariant row of the import checks. |
-| 345 | `propertiesSubject` | PropertiesSubject | PropertiesSubject |  | use-case の層 | What the Properties Panel shows: the selection and the task groups. |
-| 346 | `screenSession` | ScreenSession | ScreenSession |  | use-case の層 | All screen values that are not saved, region by region: screen, notices, gestures, file flow, field entry, selection, interaction record and Agent API. |
-| 347 | `screenValues` | ScreenValues | ScreenValues |  | use-case の層 | The screen values of the screen region: the screen and help languages, the remembered actuals, the theme, the guide cursor, the Dual Cursor, the Properties Panel width and the open windows. |
-| 348 | `screenValuesEvent` | ScreenValuesEvent | ScreenValuesEvent |  | use-case の層 | An event that changes the screen values, such as the palette toggled or full screen entered. |
-| 349 | `searchPanelSession` | SearchPanelSession | SearchPanelSession |  | use-case の層 | The state of the Search Window: the word, the table, the filters, the place, the size and the text size step. |
-| 350 | `sessionEvent` | SessionEvent | SessionEvent |  | use-case の層 | An event of any region of the screen session. |
-| 351 | `tableView` | TableView | TableView |  | use-case の層 | How one table is shown: the visibility column, the column filters and the sort. |
-| 352 | `tableVisibility` | TableVisibility | TableVisibility |  | use-case の層 | The visibility column of a table: the shown tasks, the shown resources, the unassigned row and whether the Schedule Filter is on. |
-| 353 | `armedOf` | armedOf | armedOf |  | use-case の層 | The armed tool, or nothing when nothing is armed. |
-| 354 | `emptySearchPanelSession` | emptySearchPanelSession | emptySearchPanelSession |  | use-case の層 | The state of the Search Window before anything is typed or chosen. |
-| 355 | `isWindowStandingIn` | isWindowStandingIn | isWindowStandingIn |  | use-case の層 | Whether a Tool Window is open in the screen values. |
-| 356 | `tableViewOf` | tableViewOf | tableViewOf |  | use-case の層 | The view of one table, read from the document settings. |
-| 357 | `applyDocumentChangeType` | ApplyDocumentChange | ApplyDocumentChange |  | use-case の層 | The only write path. Checks the stamp, applies all or nothing, records history, advances the revision, notifies. (src/use-case/apply-document-change) |
-| 358 | `changeAudience` | ChangeAudience | ChangeAudience |  | use-case の層 | Those that receive a confirmed change: the screen and the change watchers. |
-| 359 | `documentHolder` | DocumentHolder | DocumentHolder |  | use-case の層 | Holds the current document and its history, and replaces them whole. |
-| 360 | `planRefusal` | PlanRefusal | PlanRefusal |  | use-case の層 | Why a change was refused before it was applied: the stamp, the moment, or refused commands. |
-| 361 | `replaceOutcome` | ReplaceOutcome | ReplaceOutcome |  | use-case の層 | The result of replacing the document: refused, or the new document. |
-| 362 | `replacementCall` | ReplacementCall | ReplacementCall |  | use-case の層 | A call that replaces the whole held document: undo, redo, import or start-up. |
-| 363 | `replacementRefusal` | ReplacementRefusal | ReplacementRefusal |  | use-case の層 | Why a replacement of the document was refused. |
-| 364 | `writeMoment` | WriteMoment | WriteMoment |  | use-case の層 | Whether the moment allows a write: a gesture in flight, editing in place, a question asked, or notices being delivered. |
-| 365 | `applyDocumentChange` | applyDocumentChange | applyDocumentChange |  | use-case の層 | The only write path: checks the stamp, applies the commands all or nothing, records the history and notifies. |
-| 366 | `replaceDocument` | replaceDocument | replaceDocument |  | use-case の層 | Replaces the whole held document, as undo, redo or import do. |
-| 367 | `chooseStartupDocument` | ChooseStartupDocument | ChooseStartupDocument |  | use-case の層 | Picks the document to open at start-up, in the given order. (src/use-case/choose-startup-document) |
-| 368 | `editDocumentType` | EditDocument | EditDocument |  | use-case の層 | One pure operation per aggregate: task, group, dependency, annotation, resource, calendar, project, settings. (src/use-case/edit-document) |
-| 369 | `settingsLimits` | SettingsLimits | SettingsLimits |  | use-case の層 | The limits that edits of the settings are checked against: the zoom limits and the width of the Task Group Lanes. |
-| 370 | `editDocument` | editDocument | editDocument |  | use-case の層 | Applies one document command to a document and returns the result or the refusal. |
-| 371 | `searchJumpCommands` | searchJumpCommands | searchJumpCommands |  | use-case の層 | The commands that carry out a jump from the Search Window. |
-| 372 | `searchJumpReachOf` | searchJumpReachOf | searchJumpReachOf |  | use-case の層 | How far the view must move for a jump to reach its target. |
-| 373 | `searchJumpWrites` | searchJumpWrites | searchJumpWrites |  | use-case の層 | Plans the writes a jump needs, such as opening task groups. |
-| 374 | `shownTasksRevealWrites` | shownTasksRevealWrites | shownTasksRevealWrites |  | use-case の層 | The writes that make the given tasks visible. |
-| 375 | `importDocumentType` | ImportDocument | ImportDocument |  | use-case の層 | Takes in a document and merges it. (src/use-case/import-document) |
-| 376 | `importRequest` | ImportRequest | ImportRequest |  | use-case の層 | A request to import: the current and the incoming document, the format, the choice, and which checks passed. |
-| 377 | `importDocumentImportDocument` | importDocument | importDocument | ImportDocument | use-case の層 | Imports a document as the request says and returns the outcome. |
-| 378 | `notifyChangeWatchers` | NotifyChangeWatchers | NotifyChangeWatchers |  | use-case の層 | Hands confirmed changes to the watchers. (src/use-case/notify-change-watchers) |
-| 379 | `redoEditType` | RedoEdit | RedoEdit |  | use-case の層 | Steps the history forward by one. (src/use-case/redo-edit) |
-| 380 | `undoEditType` | UndoEdit | UndoEdit |  | use-case の層 | Steps the history back by one. (src/use-case/undo-edit) |
-| 381 | `heldDocument` | HeldDocument | HeldDocument |  | use-case の層 | The document together with its edit history. |
-| 382 | `validateImportedDocument` | ValidateImportedDocument | ValidateImportedDocument |  | use-case の層 | Checks untrusted input. Shared by every intake path. (src/use-case/validate-imported-document) |
-| 383 | `agentApiEndpoint` | AgentApiEndpoint | AgentApiEndpoint |  | adapter の層 | Installs the Agent API. Not exposed by default. (src/adapter/agent-api-endpoint) |
-| 384 | `answerRelayedCall` | answerRelayedCall | answerRelayedCall |  | adapter の層 | Answers one Agent API call that the relay carried to the page, and sends the page's change notices back to the relay. |
-| 385 | `clipboardGateway` | ClipboardGateway | ClipboardGateway |  | adapter の層 | Sends the document or the picture out. Declares Clipboard. (src/adapter/clipboard-gateway) |
-| 386 | `clipboard` | Clipboard | Clipboard |  | adapter の層 | The interface through which GRS writes content to the clipboard; the framework layer implements it. |
-| 387 | `documentCodec` | DocumentCodec | DocumentCodec |  | adapter の層 | Converts between the document and JSON or MSPDI. (src/adapter/document-codec) |
-| 388 | `jsonFromDocument` | jsonFromDocument | jsonFromDocument |  | adapter の層 | Writes the document as GRS JSON text. |
-| 389 | `mspdiFromDocument` | mspdiFromDocument | mspdiFromDocument |  | adapter の層 | Writes the document as an MSPDI file, given the moment of the write. |
-| 390 | `fileGateway` | FileGateway | FileGateway |  | adapter の層 | Opens and overwrites the document file. Declares FileStore. (src/adapter/file-gateway) |
-| 391 | `fileStore` | FileStore | FileStore |  | adapter の層 | The interface through which GRS reads and writes document files; the framework layer implements it. |
-| 392 | `openRoute` | OpenRoute | OpenRoute |  | adapter の層 | How a file reaches GRS to be opened: chosen in the file window, dropped, reopened, or chosen as a baseline. |
-| 393 | `openedFileState` | OpenedFileState | OpenedFileState |  | adapter の層 | The state of the open file: none, writable, or with its write permission lost. |
-| 394 | `imageExporter` | ImageExporter | ImageExporter |  | adapter の層 | Produces the image output. Declares Rasterizer. (src/adapter/image-exporter) |
-| 395 | `rasterFaultReason` | RasterFaultReason | RasterFaultReason |  | adapter の層 | Why a picture could not be turned into an image: not supported, too large, or failed. |
-| 396 | `rasterizer` | Rasterizer | Rasterizer |  | adapter の層 | The interface that turns an SVG picture into a PNG image; the framework layer implements it. |
-| 397 | `imageExporterExportSvg` | exportSvg | exportSvg | ImageExporter | adapter の層 | Builds the SVG picture that is exported. |
-| 398 | `inputCommandTranslator` | InputCommandTranslator | InputCommandTranslator |  | adapter の層 | Turns pointer and keyboard input into one operation. Declares InputSource. (src/adapter/input-command-translator) |
-| 399 | `humanInput` | HumanInput | HumanInput |  | adapter の層 | One input from a person: a pointer, wheel or key input. |
-| 400 | `pointerInput` | PointerInput | PointerInput |  | adapter の層 | One pointer input: its phase, button, position, modifier keys and click count. |
-| 401 | `mcpToolTranslator` | McpToolTranslator | McpToolTranslator |  | adapter の層 | Maps MCP tool calls and answers to and from the Agent API members; runs in the relay process, not in the page. (src/adapter/mcp-tool-translator) |
-| 402 | `screenRenderer` | ScreenRenderer | ScreenRenderer |  | adapter の層 | Builds the description of the UI parts outside the schedule. Declares ScreenSurface. (src/adapter/screen-renderer) |
-| 403 | `appHeaderItems` | AppHeaderItems | AppHeaderItems |  | adapter の層 | What the App Header shows: the branding, the Project Title, the opened file name, when it was saved, and the header icons. |
-| 404 | `displayLanguage` | DisplayLanguage | DisplayLanguage |  | adapter の層 | The language the screen is shown in: ja or en. |
-| 405 | `fieldCommit` | FieldCommit | FieldCommit |  | adapter の層 | A value a person confirmed in a field: the row of the field, which field, and the text. |
-| 406 | `fieldEditNotice` | FieldEditNotice | FieldEditNotice |  | adapter の層 | A notice that the editing of a field began or ended. |
-| 407 | `horizontalWhole` | HorizontalWhole | HorizontalWhole |  | adapter の層 | The horizontal extent of the content and the view together, used by the scrollbars. |
-| 408 | `screenPart` | ScreenPart | ScreenPart |  | adapter の層 | Which part of the screen something is: the part name and, where it applies, its icon, export format, task group, resource or panel. |
-| 409 | `screenSurface` | ScreenSurface | ScreenSurface |  | adapter の層 | The interface that puts the screen view on the page and reads back the field edits; the framework layer implements it. |
-| 410 | `screenView` | ScreenView | ScreenView |  | adapter の層 | The description of every UI part outside the schedule drawing, in the screen language. |
-| 411 | `searchFilterChange` | SearchFilterChange | SearchFilterChange |  | adapter の層 | A change to a column filter of the Search Window; it names its column. |
-| 412 | `taskGroupTitle` | TaskGroupTitle | TaskGroupTitle |  | adapter の層 | One task group title as laid out in the Task Group Panel: its box, indent, font size and label. |
-| 413 | `verticalWhole` | VerticalWhole | VerticalWhole |  | adapter の層 | The vertical extent of the content and the view together, used by the scrollbars. |
-| 414 | `windowShown` | WindowShown | WindowShown |  | adapter の層 | How a Tool Window is shown: normal, minimized or maximized. |
-| 415 | `taskGroupTitleFontPxOf` | taskGroupTitleFontPxOf | taskGroupTitleFontPxOf |  | adapter の層 | The font size in pixels of a task group title at a given depth. |
-| 416 | `svgRenderer` | SvgRenderer | SvgRenderer |  | adapter の層 | Builds the SVG string from geometry, then hands it over. Declares SvgSurface. (src/adapter/svg-renderer) |
-| 417 | `svgSurface` | SvgSurface | SvgSurface |  | adapter の層 | The interface that puts the SVG picture on the page; the framework layer implements it. |
-| 418 | `viewerValues` | ViewerValues | ViewerValues |  | adapter の層 | The screen values the picture reads, such as the theme and the guide cursor. |
-| 419 | `colorOf` | colorOf | colorOf |  | adapter の層 | The color drawn for a color row of the settings, for a theme hue, light or dark, and monochrome or not. |
-| 420 | `svgFromSchedule` | svgFromSchedule | svgFromSchedule |  | adapter の層 | Builds the SVG picture of the schedule from the Schedule Data, the settings, the layout, the geometry and the selection. |
-| 421 | `browserClipboard` | BrowserClipboard | BrowserClipboard |  | framework の層 | Writes to the clipboard. (src/framework/browser-clipboard) |
-| 422 | `canvasRasterizer` | CanvasRasterizer | CanvasRasterizer |  | framework の層 | Turns SVG into a raster image. (src/framework/canvas-rasterizer) |
-| 423 | `domInputSource` | DomInputSource | DomInputSource |  | framework の層 | Delivers pointer and keyboard events. (src/framework/dom-input-source) |
-| 424 | `domScreenSurface` | DomScreenSurface | DomScreenSurface |  | framework の層 | Puts that description on the page. (src/framework/dom-screen-surface) |
-| 425 | `domSvgSurface` | DomSvgSurface | DomSvgSurface |  | framework の層 | Puts the SVG string on screen. (src/framework/dom-svg-surface) |
-| 426 | `fileSystemAccessFileStore` | FileSystemAccessFileStore | FileSystemAccessFileStore |  | framework の層 | Reads and writes files and keeps the handle. (src/framework/file-system-access-file-store) |
-| 427 | `mcpRelayServer` | McpRelayServer | McpRelayServer |  | framework の層 | Carries an MCP client's calls to the page it served on 127.0.0.1 and holds the key, the connected page, the pending calls and the queued notices. (src/framework/mcp-relay-server) |
-| 428 | `singleHtmlShell` | SingleHtmlShell | SingleHtmlShell |  | framework の層 | Boots the page, wires every part together, holds the slot of the embedded document and installs the point where the Agent API is exposed. (src/framework/single-html-shell) |
+| 235 | `documentType` | Document | Document |  | entity の層 | The code type of the Schedule Document: the schema version, the Schedule Data, the document settings, the document stamp and the change log. |
+| 236 | `documentSettingsType` | DocumentSettings | DocumentSettings |  | entity の層 | The code type of the document settings. |
+| 237 | `drawnSettings` | DrawnSettings | DrawnSettings |  | entity の層 | The document settings joined with the built-in setting constants, as the drawing reads them. |
+| 238 | `dualCursorSide` | DualCursorSide | DualCursorSide |  | entity の層 | Which line of the Dual Cursor: the first or the second. |
+| 239 | `editHistoryType` | EditHistory | EditHistory |  | entity の層 | The code type of the edit history: the steps done and the steps undone. |
+| 240 | `escapeTargetType` | EscapeTarget | EscapeTarget |  | entity の層 | What the Esc key closes or cancels next: a notice, a text entry, a question, a dialog, a gesture, a window, the Properties Panel, the armed tool, the selection, the Dual Cursor, a tooltip or full screen. |
+| 241 | `historyLimits` | HistoryLimits | HistoryLimits |  | entity の層 | The limits of the edit history: the most steps and the largest total size. |
+| 242 | `instantOnSideType` | InstantOnSide | InstantOnSide |  | entity の層 | A reader that turns a stored date-time text into an instant, on the start side or the finish side. |
+| 243 | `itemRef` | ItemRef | ItemRef |  | entity の層 | A reference to one selectable item: a task, a dependency, a Highlight Box or a Comment Box. |
+| 244 | `noWorkingDayReached` | NoWorkingDayReached | NoWorkingDayReached |  | entity の層 | The error raised when a calendar has no working day inside the accepted range of dates. |
+| 245 | `parentTaskResolution` | ParentTaskResolution | ParentTaskResolution |  | entity の層 | How the parent of a task was found: stated in the WBS, or derived. |
+| 246 | `rememberedActual` | RememberedActual | RememberedActual |  | entity の層 | An actual (start, stop and finish) that was removed and is remembered so that it can be restored. |
+| 247 | `scheduleType` | Schedule | Schedule |  | entity の層 | The code type of the Schedule Data. |
+| 248 | `taskVisual` | TaskVisual | TaskVisual |  | entity の層 | The code type that holds how a task is drawn; the code still uses this earlier name of TaskStyle. |
+| 249 | `windowName` | WindowName | WindowName |  | entity の層 | The name of a Tool Window that a person can close: the three table windows and the help. |
+| 250 | `workingCalendar` | WorkingCalendar | WorkingCalendar |  | entity の層 | The calendar GRS counts working days with: the calendar, its weekdays, its exceptions and the week start. |
+| 251 | `actualInstantsOf` | actualInstantsOf | actualInstantsOf |  | entity の層 | The start and end instants of the actual of a task, on the working calendar. |
+| 252 | `actualLastDay` | actualLastDay | actualLastDay |  | entity の層 | The last day of the actual of a task. |
+| 253 | `actualLengthOf` | actualLengthOf | actualLengthOf |  | entity の層 | The length in working days of an actual, from its start to its last day. |
+| 254 | `actualMinutesOf` | actualMinutesOf | actualMinutesOf |  | entity の層 | The working minutes between two instants, on the working calendar. |
+| 255 | `blankTaskVisual` | blankTaskVisual | blankTaskVisual |  | entity の層 | The drawing style a task gets when nobody has chosen its shape or color. |
+| 256 | `calendarDaysBetween` | calendarDaysBetween | calendarDaysBetween |  | entity の層 | The number of calendar days from one day to another. |
+| 257 | `compareDays` | compareDays | compareDays |  | entity の層 | Compares two calendar days, for sorting. |
+| 258 | `customColorOf` | customColorOf | customColorOf |  | entity の層 | Reads a stored custom color into its light and dark sides. |
+| 259 | `customSideOf` | customSideOf | customSideOf |  | entity の層 | The light or the dark side of a custom color. |
+| 260 | `dataWallOfViewWall` | dataWallOfViewWall | dataWallOfViewWall |  | entity の層 | Turns a wall-clock minute in the view time zone into the wall-clock minute of the Schedule Data time zone. |
+| 261 | `dayOf` | dayOf | dayOf |  | entity の層 | Reads the calendar day from a date or date-time text. |
+| 262 | `dayOfInstant` | dayOfInstant | dayOfInstant |  | entity の層 | The calendar day an instant falls on. |
+| 263 | `delayFixCommands` | delayFixCommands | delayFixCommands |  | entity の層 | The document commands that carry out the given fix proposal rows. |
+| 264 | `delayFixProposalRows` | delayFixProposalRows | delayFixProposalRows |  | entity の層 | The fix proposal rows as the report window lists them. |
+| 265 | `diagnoseDelay` | diagnoseDelay | diagnoseDelay |  | entity の層 | Runs the Delay Diagnosis on a document and returns the report. |
+| 266 | `earliestPlanStartDayOf` | earliestPlanStartDayOf | earliestPlanStartDayOf |  | entity の層 | The earliest planned start day among the given tasks. |
+| 267 | `emptyHistory` | emptyHistory | emptyHistory |  | entity の層 | An edit history with no steps. |
+| 268 | `emptySelection` | emptySelection | emptySelection |  | entity の層 | A selection with nothing in it. |
+| 269 | `escapeTarget` | escapeTarget | escapeTarget |  | entity の層 | Decides what the Esc key acts on next, from the state of the screen. |
+| 270 | `instantAfterWorkingMinutes` | instantAfterWorkingMinutes | instantAfterWorkingMinutes |  | entity の層 | The instant reached after a number of working minutes from a start, on the working calendar. |
+| 271 | `instantOf` | instantOf | instantOf |  | entity の層 | Reads an instant from a date-time text. |
+| 272 | `instantOnSide` | instantOnSide | instantOnSide |  | entity の層 | Reads an instant from a date or date-time text, giving a date without a time the default time of the start or the finish side. |
+| 273 | `instantOnSideReader` | instantOnSideReader | instantOnSideReader |  | entity の層 | Makes a reader that turns texts into instants on a side, for one pass over a calendar or the Schedule Data. |
+| 274 | `isNonRecurringException` | isNonRecurringException | isNonRecurringException |  | entity の層 | Whether an exception happens only once, so that GRS counts it. |
+| 275 | `isRecommendedDelayFix` | isRecommendedDelayFix | isRecommendedDelayFix |  | entity の層 | Whether a fix proposal row is recommended: it has one way to fix and nothing in the way. |
+| 276 | `isSameDay` | isSameDay | isSameDay |  | entity の層 | Whether two date texts fall on the same day. |
+| 277 | `isSameWorkingTimeSet` | isSameWorkingTimeSet | isSameWorkingTimeSet |  | entity の層 | Whether two sets of working times are the same. |
+| 278 | `isStandardTimeZoneKey` | isStandardTimeZoneKey | isStandardTimeZoneKey |  | entity の層 | Whether a value names a standard-time zone, which alone may be the Schedule Data time zone. |
+| 279 | `lastDayForLength` | lastDayForLength | lastDayForLength |  | entity の層 | The last day of a span of a given working length from a start day. |
+| 280 | `minutesPerWorkingDayOf` | minutesPerWorkingDayOf | minutesPerWorkingDayOf |  | entity の層 | The minutes of one working day of the project, with the default when the project gives none. |
+| 281 | `parentTaskResolutionsOf` | parentTaskResolutionsOf | parentTaskResolutionsOf |  | entity の層 | How the parent of each task is found, stated or derived, for the Delay Diagnosis and the parent arrows. |
+| 282 | `documentModelProgressStatus` | progressStatus | progressStatus | DocumentModel | entity の層 | Reads the progress status of a task from its actual date-times. |
+| 283 | `plannedDurationMinutesOf` | plannedDurationMinutesOf | plannedDurationMinutesOf |  | entity の層 | The planned working minutes of a task. |
+| 284 | `plannedInstantsOf` | plannedInstantsOf | plannedInstantsOf |  | entity の層 | The planned start and finish instants of a task. |
+| 285 | `progressMarkerOf` | progressMarkerOf | progressMarkerOf |  | entity の層 | Which Progress Mark a task shows on the status date, including the diagnosis marks. |
+| 286 | `proposeDelayFixes` | proposeDelayFixes | proposeDelayFixes |  | entity の層 | Makes the fix proposal rows from the Delay Diagnosis report. |
+| 287 | `scheduleViolations` | scheduleViolations | scheduleViolations |  | entity の層 | Checks the Schedule Data against its invariants and lists the violations. |
+| 288 | `searchRowsOf` | searchRowsOf | searchRowsOf |  | entity の層 | Builds the rows of the Search Window for a word. |
+| 289 | `selectionWith` | selectionWith | selectionWith |  | entity の層 | A selection with one more item added. |
+| 290 | `serial` | serial | serial |  | entity の層 | A day as a running number, for arithmetic on days. |
+| 291 | `shownInstantReader` | shownInstantReader | shownInstantReader |  | entity の層 | Makes a reader that turns stored date-times into instants in the shown time zone. |
+| 292 | `sideOfTaskColumn` | sideOfTaskColumn | sideOfTaskColumn |  | entity の層 | Whether a date-time column of a task is on the start side or the finish side. |
+| 293 | `startSideOf` | startSideOf | startSideOf |  | entity の層 | The side a task's start reads on; a milestone's start reads on the finish side. |
+| 294 | `taskByUid` | taskByUid | taskByUid |  | entity の層 | Finds a task by its uid. |
+| 295 | `taskUidsIn` | taskUidsIn | taskUidsIn |  | entity の層 | The uids of the tasks in a selection. |
+| 296 | `textOfDay` | textOfDay | textOfDay |  | entity の層 | Writes a calendar day as text (YYYY-MM-DD). |
+| 297 | `textOfDayEnd` | textOfDayEnd | textOfDayEnd |  | entity の層 | Writes the end of a day as a date-time text. |
+| 298 | `textOfDayStart` | textOfDayStart | textOfDayStart |  | entity の層 | Writes the start of a day as a date-time text. |
+| 299 | `textOfFinishSide` | textOfFinishSide | textOfFinishSide |  | entity の層 | Writes a day as a finish date-time, with the project's default finish time. |
+| 300 | `textOfInstant` | textOfInstant | textOfInstant |  | entity の層 | Writes an instant as a date-time text. |
+| 301 | `textOfStartSide` | textOfStartSide | textOfStartSide |  | entity の層 | Writes a day as a start date-time, with the project's default start time; a milestone takes the finish time. |
+| 302 | `viewRegionOf` | viewRegionOf | viewRegionOf |  | entity の層 | The time zone the screen is shown in, from the Schedule Data time zone and the view time zone. |
+| 303 | `weekDayOf` | weekDayOf | weekDayOf |  | entity の層 | Builds a weekday of a calendar. |
+| 304 | `workingCalendarOf` | workingCalendarOf | workingCalendarOf |  | entity の層 | The working calendar of the Schedule Data: the one calendar working days are counted with. |
+| 305 | `workingDayShiftOf` | workingDayShiftOf | workingDayShiftOf |  | entity の層 | How date-times move, by working days, when the whole schedule is shifted to a new start day. |
+| 306 | `workingSpansReader` | workingSpansReader | workingSpansReader |  | entity の層 | Makes a reader of the working time spans of each day. |
+| 307 | `workingTimeSetOf` | workingTimeSetOf | workingTimeSetOf |  | entity の層 | The set of working times of the working calendar. |
+| 308 | `workingTimesBreach` | workingTimesBreach | workingTimesBreach |  | entity の層 | Checks the working times of a day against the rules and says what is broken, if anything. |
+| 309 | `zoneClockOf` | zoneClockOf | zoneClockOf |  | entity の層 | The clock (the offset) of a time zone key. |
+| 310 | `layoutEngine` | LayoutEngine | LayoutEngine |  | entity の層 | The rectangles of the screen parts, the mapping between dates and positions, the placement of the task groups, the points of what is drawn, the level of detail and hit testing; all pure. (src/entity/layout-engine) |
+| 311 | `barGeometry` | BarGeometry | BarGeometry |  | entity の層 | The drawn form of a task bar: an outline, a line or another form, with its points. |
+| 312 | `hit` | Hit | Hit |  | entity の層 | What the pointer hits: the item, the grab area and, for a box, which part. |
+| 313 | `landedTarget` | LandedTarget | LandedTarget |  | entity の層 | Where a jump landed: a task or a Comment Box. |
+| 314 | `point` | Point | Point |  | entity の層 | A point on the screen: x and y. |
+| 315 | `scheduleGeometry` | ScheduleGeometry | ScheduleGeometry |  | entity の層 | The points of everything drawn: task bars, baseline outlines, dependency lines, the Progress Line, the Status Line and more. |
+| 316 | `scheduleLayout` | ScheduleLayout | ScheduleLayout |  | entity の層 | The layout of the schedule: the pixels per day, the ruler tier, the origin, and the placement of the task groups. |
+| 317 | `screenRect` | ScreenRect | ScreenRect |  | entity の層 | A rectangle on the screen: x, y, width and height. |
+| 318 | `screenRegions` | ScreenRegions | ScreenRegions |  | entity の層 | The rectangle of each region of the screen: the App Header, the Schedule Canvas, the Task Group Panel, the Time Ruler, the Properties Panel and the Task Group Lanes. |
+| 319 | `taskGroupPlacement` | TaskGroupPlacement | TaskGroupPlacement |  | entity の層 | Where one task group is laid out: its depth, top, height and Stack Tiers. |
+| 320 | `cursorInstantAtX` | cursorInstantAtX | cursorInstantAtX |  | entity の層 | The instant a cursor line stands on, at a horizontal position. |
+| 321 | `dateAtX` | dateAtX | dateAtX |  | entity の層 | The calendar day at a horizontal position. |
+| 322 | `dependencyEndAtPointer` | dependencyEndAtPointer | dependencyEndAtPointer |  | entity の層 | The task end a dependency line would attach to under the pointer. |
+| 323 | `dependencyStartOfHit` | dependencyStartOfHit | dependencyStartOfHit |  | entity の層 | The task end a new dependency line starts from, given what the pointer hit. |
+| 324 | `displayRatioOf` | displayRatioOf | displayRatioOf |  | entity の層 | The ratio the display scale multiplies drawn sizes by. |
+| 325 | `drawnSettingsOf` | drawnSettingsOf | drawnSettingsOf |  | entity の層 | The settings as the drawing reads them, scaled once by the display scale. |
+| 326 | `fitZoom` | fitZoom | fitZoom |  | entity の層 | The zoom and scroll that fit the whole schedule, or the fixed Fit Span, into the screen. |
+| 327 | `fixedFitSpanOf` | fixedFitSpanOf | fixedFitSpanOf |  | entity の層 | The fixed Fit Span, when it is fixed and both ends are set. |
+| 328 | `grabSizesOf` | grabSizesOf | grabSizesOf |  | entity の層 | The sizes of the grab margins. |
+| 329 | `groupDepthLimit` | groupDepthLimit | groupDepthLimit |  | entity の層 | How deep task groups are drawn at the current vertical size. |
+| 330 | `hasRoomBelowPinsIn` | hasRoomBelowPinsIn | hasRoomBelowPinsIn |  | entity の層 | Whether there is room below the pinned task groups to show a task group. |
+| 331 | `itemAtPointer` | itemAtPointer | itemAtPointer |  | entity の層 | The item under the pointer, with its grab area. |
+| 332 | `keptInViewByTreeState` | keptInViewByTreeState | keptInViewByTreeState |  | entity の層 | The task groups that their tree state keeps open. |
+| 333 | `landedShapeBoxOf` | landedShapeBoxOf | landedShapeBoxOf |  | entity の層 | The box a jump lands on: the planned shape of a task or the body of a Comment Box. |
+| 334 | `regionAtPointer` | regionAtPointer | regionAtPointer |  | entity の層 | The screen region the pointer is in. |
+| 335 | `shownSpanOf` | shownSpanOf | shownSpanOf |  | entity の層 | The span of days shown in the Task Group Lanes. |
+| 336 | `snappedInstantAtX` | snappedInstantAtX | snappedInstantAtX |  | entity の層 | The instant at a horizontal position, snapped to a step in minutes. |
+| 337 | `taskGroupAnchorIn` | taskGroupAnchorIn | taskGroupAnchorIn |  | entity の層 | Which task group, and where in it, stands at a given height. |
+| 338 | `taskPlacement` | taskPlacement | taskPlacement |  | entity の層 | Where a task is laid out. |
+| 339 | `timeAxisOf` | timeAxisOf | timeAxisOf |  | entity の層 | The time axis alone, for turning a position into a day. |
+| 340 | `xFromDay` | xFromDay | xFromDay |  | entity の層 | The horizontal position of a calendar day. |
+| 341 | `advanceScreenSession` | AdvanceScreenSession | AdvanceScreenSession |  | use-case の層 | Advances the unsaved screen session by one event and returns the next state with the effects to run; it runs none of them. (src/use-case/advance-screen-session) |
+| 342 | `noticeReason` | NoticeReason | NoticeReason |  | use-case の層 | The reason a notice is shown: a reason row, or an invariant row of the import checks. |
+| 343 | `propertiesSubject` | PropertiesSubject | PropertiesSubject |  | use-case の層 | What the Properties Panel shows: the selection and the task groups. |
+| 344 | `screenSession` | ScreenSession | ScreenSession |  | use-case の層 | All screen values that are not saved, region by region: screen, notices, gestures, file flow, field entry, selection, interaction record and Agent API. |
+| 345 | `screenValues` | ScreenValues | ScreenValues |  | use-case の層 | The screen values of the screen region: the screen and help languages, the remembered actuals, the theme, the guide cursor, the Dual Cursor, the Properties Panel width and the open windows. |
+| 346 | `screenValuesEvent` | ScreenValuesEvent | ScreenValuesEvent |  | use-case の層 | An event that changes the screen values, such as the palette toggled or full screen entered. |
+| 347 | `searchPanelSession` | SearchPanelSession | SearchPanelSession |  | use-case の層 | The state of the Search Window: the word, the table, the filters, the place, the size and the text size step. |
+| 348 | `sessionEvent` | SessionEvent | SessionEvent |  | use-case の層 | An event of any region of the screen session. |
+| 349 | `tableView` | TableView | TableView |  | use-case の層 | How one table is shown: the visibility column, the column filters and the sort. |
+| 350 | `tableVisibility` | TableVisibility | TableVisibility |  | use-case の層 | The visibility column of a table: the shown tasks, the shown resources, the unassigned row and whether the Schedule Filter is on. |
+| 351 | `armedOf` | armedOf | armedOf |  | use-case の層 | The armed tool, or nothing when nothing is armed. |
+| 352 | `emptySearchPanelSession` | emptySearchPanelSession | emptySearchPanelSession |  | use-case の層 | The state of the Search Window before anything is typed or chosen. |
+| 353 | `isWindowStandingIn` | isWindowStandingIn | isWindowStandingIn |  | use-case の層 | Whether a Tool Window is open in the screen values. |
+| 354 | `tableViewOf` | tableViewOf | tableViewOf |  | use-case の層 | The view of one table, read from the document settings. |
+| 355 | `applyDocumentChangeType` | ApplyDocumentChange | ApplyDocumentChange |  | use-case の層 | The only write path. Checks the stamp, applies all or nothing, records history, advances the revision, notifies. (src/use-case/apply-document-change) |
+| 356 | `changeAudience` | ChangeAudience | ChangeAudience |  | use-case の層 | Those that receive a confirmed change: the screen and the change watchers. |
+| 357 | `documentHolder` | DocumentHolder | DocumentHolder |  | use-case の層 | Holds the current document and its history, and replaces them whole. |
+| 358 | `planRefusal` | PlanRefusal | PlanRefusal |  | use-case の層 | Why a change was refused before it was applied: the stamp, the moment, or refused commands. |
+| 359 | `replaceOutcome` | ReplaceOutcome | ReplaceOutcome |  | use-case の層 | The result of replacing the document: refused, or the new document. |
+| 360 | `replacementCall` | ReplacementCall | ReplacementCall |  | use-case の層 | A call that replaces the whole held document: undo, redo, import or start-up. |
+| 361 | `replacementRefusal` | ReplacementRefusal | ReplacementRefusal |  | use-case の層 | Why a replacement of the document was refused. |
+| 362 | `writeMoment` | WriteMoment | WriteMoment |  | use-case の層 | Whether the moment allows a write: a gesture in flight, editing in place, a question asked, or notices being delivered. |
+| 363 | `applyDocumentChange` | applyDocumentChange | applyDocumentChange |  | use-case の層 | The only write path: checks the stamp, applies the commands all or nothing, records the history and notifies. |
+| 364 | `replaceDocument` | replaceDocument | replaceDocument |  | use-case の層 | Replaces the whole held document, as undo, redo or import do. |
+| 365 | `chooseStartupDocument` | ChooseStartupDocument | ChooseStartupDocument |  | use-case の層 | Picks the document to open at start-up, in the given order. (src/use-case/choose-startup-document) |
+| 366 | `editDocumentType` | EditDocument | EditDocument |  | use-case の層 | One pure operation per aggregate: task, group, dependency, annotation, resource, calendar, project, settings. (src/use-case/edit-document) |
+| 367 | `settingsLimits` | SettingsLimits | SettingsLimits |  | use-case の層 | The limits that edits of the settings are checked against: the zoom limits and the width of the Task Group Lanes. |
+| 368 | `editDocument` | editDocument | editDocument |  | use-case の層 | Applies one document command to a document and returns the result or the refusal. |
+| 369 | `searchJumpCommands` | searchJumpCommands | searchJumpCommands |  | use-case の層 | The commands that carry out a jump from the Search Window. |
+| 370 | `searchJumpReachOf` | searchJumpReachOf | searchJumpReachOf |  | use-case の層 | How far the view must move for a jump to reach its target. |
+| 371 | `searchJumpWrites` | searchJumpWrites | searchJumpWrites |  | use-case の層 | Plans the writes a jump needs, such as opening task groups. |
+| 372 | `shownTasksRevealWrites` | shownTasksRevealWrites | shownTasksRevealWrites |  | use-case の層 | The writes that make the given tasks visible. |
+| 373 | `importDocumentType` | ImportDocument | ImportDocument |  | use-case の層 | Takes in a document and merges it. (src/use-case/import-document) |
+| 374 | `importRequest` | ImportRequest | ImportRequest |  | use-case の層 | A request to import: the current and the incoming document, the format, the choice, and which checks passed. |
+| 375 | `importDocumentImportDocument` | importDocument | importDocument | ImportDocument | use-case の層 | Imports a document as the request says and returns the outcome. |
+| 376 | `notifyChangeWatchers` | NotifyChangeWatchers | NotifyChangeWatchers |  | use-case の層 | Hands confirmed changes to the watchers. (src/use-case/notify-change-watchers) |
+| 377 | `redoEditType` | RedoEdit | RedoEdit |  | use-case の層 | Steps the history forward by one. (src/use-case/redo-edit) |
+| 378 | `undoEditType` | UndoEdit | UndoEdit |  | use-case の層 | Steps the history back by one. (src/use-case/undo-edit) |
+| 379 | `heldDocument` | HeldDocument | HeldDocument |  | use-case の層 | The document together with its edit history. |
+| 380 | `validateImportedDocument` | ValidateImportedDocument | ValidateImportedDocument |  | use-case の層 | Checks untrusted input. Shared by every intake path. (src/use-case/validate-imported-document) |
+| 381 | `agentApiEndpoint` | AgentApiEndpoint | AgentApiEndpoint |  | adapter の層 | Installs the Agent API. Not exposed by default. (src/adapter/agent-api-endpoint) |
+| 382 | `answerRelayedCall` | answerRelayedCall | answerRelayedCall |  | adapter の層 | Answers one Agent API call that the relay carried to the page, and sends the page's change notices back to the relay. |
+| 383 | `clipboardGateway` | ClipboardGateway | ClipboardGateway |  | adapter の層 | Sends the document or the picture out. Declares Clipboard. (src/adapter/clipboard-gateway) |
+| 384 | `clipboard` | Clipboard | Clipboard |  | adapter の層 | The interface through which GRS writes content to the clipboard; the framework layer implements it. |
+| 385 | `documentCodec` | DocumentCodec | DocumentCodec |  | adapter の層 | Converts between the document and JSON or MSPDI. (src/adapter/document-codec) |
+| 386 | `jsonFromDocument` | jsonFromDocument | jsonFromDocument |  | adapter の層 | Writes the document as GRS JSON text. |
+| 387 | `mspdiFromDocument` | mspdiFromDocument | mspdiFromDocument |  | adapter の層 | Writes the document as an MSPDI file, given the moment of the write. |
+| 388 | `fileGateway` | FileGateway | FileGateway |  | adapter の層 | Opens and overwrites the document file. Declares FileStore. (src/adapter/file-gateway) |
+| 389 | `fileStore` | FileStore | FileStore |  | adapter の層 | The interface through which GRS reads and writes document files; the framework layer implements it. |
+| 390 | `openRoute` | OpenRoute | OpenRoute |  | adapter の層 | How a file reaches GRS to be opened: chosen in the file window, dropped, reopened, or chosen as a baseline. |
+| 391 | `openedFileState` | OpenedFileState | OpenedFileState |  | adapter の層 | The state of the open file: none, writable, or with its write permission lost. |
+| 392 | `imageExporter` | ImageExporter | ImageExporter |  | adapter の層 | Produces the image output. Declares Rasterizer. (src/adapter/image-exporter) |
+| 393 | `rasterFaultReason` | RasterFaultReason | RasterFaultReason |  | adapter の層 | Why a picture could not be turned into an image: not supported, too large, or failed. |
+| 394 | `rasterizer` | Rasterizer | Rasterizer |  | adapter の層 | The interface that turns an SVG picture into a PNG image; the framework layer implements it. |
+| 395 | `imageExporterExportSvg` | exportSvg | exportSvg | ImageExporter | adapter の層 | Builds the SVG picture that is exported. |
+| 396 | `inputCommandTranslator` | InputCommandTranslator | InputCommandTranslator |  | adapter の層 | Turns pointer and keyboard input into one operation. Declares InputSource. (src/adapter/input-command-translator) |
+| 397 | `humanInput` | HumanInput | HumanInput |  | adapter の層 | One input from a person: a pointer, wheel or key input. |
+| 398 | `pointerInput` | PointerInput | PointerInput |  | adapter の層 | One pointer input: its phase, button, position, modifier keys and click count. |
+| 399 | `mcpToolTranslator` | McpToolTranslator | McpToolTranslator |  | adapter の層 | Maps MCP tool calls and answers to and from the Agent API members; runs in the relay process, not in the page. (src/adapter/mcp-tool-translator) |
+| 400 | `screenRenderer` | ScreenRenderer | ScreenRenderer |  | adapter の層 | Builds the description of the UI parts outside the schedule. Declares ScreenSurface. (src/adapter/screen-renderer) |
+| 401 | `appHeaderItems` | AppHeaderItems | AppHeaderItems |  | adapter の層 | What the App Header shows: the branding, the Project Title, the opened file name, when it was saved, and the header icons. |
+| 402 | `displayLanguage` | DisplayLanguage | DisplayLanguage |  | adapter の層 | The language the screen is shown in: ja or en. |
+| 403 | `fieldCommit` | FieldCommit | FieldCommit |  | adapter の層 | A value a person confirmed in a field: the row of the field, which field, and the text. |
+| 404 | `fieldEditNotice` | FieldEditNotice | FieldEditNotice |  | adapter の層 | A notice that the editing of a field began or ended. |
+| 405 | `horizontalWhole` | HorizontalWhole | HorizontalWhole |  | adapter の層 | The horizontal extent of the content and the view together, used by the scrollbars. |
+| 406 | `screenPart` | ScreenPart | ScreenPart |  | adapter の層 | Which part of the screen something is: the part name and, where it applies, its icon, export format, task group, resource or panel. |
+| 407 | `screenSurface` | ScreenSurface | ScreenSurface |  | adapter の層 | The interface that puts the screen view on the page and reads back the field edits; the framework layer implements it. |
+| 408 | `screenView` | ScreenView | ScreenView |  | adapter の層 | The description of every UI part outside the schedule drawing, in the screen language. |
+| 409 | `searchFilterChange` | SearchFilterChange | SearchFilterChange |  | adapter の層 | A change to a column filter of the Search Window; it names its column. |
+| 410 | `taskGroupTitle` | TaskGroupTitle | TaskGroupTitle |  | adapter の層 | One task group title as laid out in the Task Group Panel: its box, indent, font size and label. |
+| 411 | `verticalWhole` | VerticalWhole | VerticalWhole |  | adapter の層 | The vertical extent of the content and the view together, used by the scrollbars. |
+| 412 | `windowShown` | WindowShown | WindowShown |  | adapter の層 | How a Tool Window is shown: normal, minimized or maximized. |
+| 413 | `taskGroupTitleFontPxOf` | taskGroupTitleFontPxOf | taskGroupTitleFontPxOf |  | adapter の層 | The font size in pixels of a task group title at a given depth. |
+| 414 | `svgRenderer` | SvgRenderer | SvgRenderer |  | adapter の層 | Builds the SVG string from geometry, then hands it over. Declares SvgSurface. (src/adapter/svg-renderer) |
+| 415 | `svgSurface` | SvgSurface | SvgSurface |  | adapter の層 | The interface that puts the SVG picture on the page; the framework layer implements it. |
+| 416 | `viewerValues` | ViewerValues | ViewerValues |  | adapter の層 | The screen values the picture reads, such as the theme and the guide cursor. |
+| 417 | `colorOf` | colorOf | colorOf |  | adapter の層 | The color drawn for a color row of the settings, for a theme hue, light or dark, and monochrome or not. |
+| 418 | `svgFromSchedule` | svgFromSchedule | svgFromSchedule |  | adapter の層 | Builds the SVG picture of the schedule from the Schedule Data, the settings, the layout, the geometry and the selection. |
+| 419 | `browserClipboard` | BrowserClipboard | BrowserClipboard |  | framework の層 | Writes to the clipboard. (src/framework/browser-clipboard) |
+| 420 | `canvasRasterizer` | CanvasRasterizer | CanvasRasterizer |  | framework の層 | Turns SVG into a raster image. (src/framework/canvas-rasterizer) |
+| 421 | `domInputSource` | DomInputSource | DomInputSource |  | framework の層 | Delivers pointer and keyboard events. (src/framework/dom-input-source) |
+| 422 | `domScreenSurface` | DomScreenSurface | DomScreenSurface |  | framework の層 | Puts that description on the page. (src/framework/dom-screen-surface) |
+| 423 | `domSvgSurface` | DomSvgSurface | DomSvgSurface |  | framework の層 | Puts the SVG string on screen. (src/framework/dom-svg-surface) |
+| 424 | `fileSystemAccessFileStore` | FileSystemAccessFileStore | FileSystemAccessFileStore |  | framework の層 | Reads and writes files and keeps the handle. (src/framework/file-system-access-file-store) |
+| 425 | `mcpRelayServer` | McpRelayServer | McpRelayServer |  | framework の層 | Carries an MCP client's calls to the page it served on 127.0.0.1 and holds the key, the connected page, the pending calls and the queued notices. (src/framework/mcp-relay-server) |
+| 426 | `singleHtmlShell` | SingleHtmlShell | SingleHtmlShell |  | framework の層 | Boots the page, wires every part together, holds the slot of the embedded document and installs the point where the Agent API is exposed. (src/framework/single-html-shell) |
 
-## 仕様の表（`tbl-glossary.md`）と辞書で名が違う語（53 語）
+## 仕様の表（`tbl-glossary.md`）と辞書で名が違う語（54 語）
 
 辞書の名は持ち主が裁定した名か、レビューで量る名である。裁定した名は CR-855 が改名の手順で仕様へ当てる。
 
 | 行 ID | キー | 仕様の表の名 | 辞書の英語の名 | 辞書の日本語の名 | 拠り所 |
 | --- | --- | --- | --- | --- | --- |
 | N-7 | `passthrough` | `carry` / `carryElements` | passthrough | passthrough | JDG-3807 |
-| P-18 | `paintColor` | `strokeColor` / `fillColor` / `strokeWidthPx` | color | color | JDG-3781 JDG-3807 |
-| P-18 | `strokeColor` | `strokeColor` / `fillColor` / `strokeWidthPx` | color | color | JDG-3781 JDG-3807 |
-| P-18 | `widthPx` | `strokeColor` / `fillColor` / `strokeWidthPx` | widthPx | widthPx | JDG-3781 JDG-3807 |
-| K-140 | `parentTaskProgressToleranceWorkingDays` | `parentTaskProgressToleranceDays` | Parent Task Progress Tolerance | 遅延診断時に\|親タスクの\|進捗の\|疑義を\|許す\|日数 | JDG-3781 JDG-3807 |
-| P-23 | `predecessorLinkType` | `linkType` | type | type | JDG-3807 |
-| N-12 | `predecessorLink` | `Dependency` | PredecessorLink | PredecessorLink | JDG-3807 |
+| P-18 | `paintColor` | `strokeColor` / `fillColor` / `strokeWidthPx` | color | color | JDG-3483 JDG-3490 JDG-3607 JDG-3781 JDG-3807 |
+| P-18 | `strokeColor` | `strokeColor` / `fillColor` / `strokeWidthPx` | color | color | JDG-3483 JDG-3490 JDG-3607 JDG-3781 JDG-3807 |
+| P-18 | `widthPx` | `strokeColor` / `fillColor` / `strokeWidthPx` | widthPx | widthPx | JDG-3483 JDG-3490 JDG-3607 JDG-3781 JDG-3807 |
+| P-23 | `predecessorLinkType` | `linkType` | type | type | JDG-3463 JDG-3483 JDG-3490 JDG-3520 JDG-3548 JDG-3628 JDG-3807 |
+| N-12 | `predecessorLink` | `Dependency` | PredecessorLink | PredecessorLink | JDG-3520 JDG-3807 |
 | P-21 | `startSlopeCalendarDays` | `fadeInDays` / `fadeOutDays` | startSlopeCalendarDays | startSlopeCalendarDays | JDG-3781 JDG-3807 |
 | P-21 | `finishSlopeCalendarDays` | `fadeInDays` / `fadeOutDays` | finishSlopeCalendarDays | finishSlopeCalendarDays | JDG-3781 JDG-3807 |
 | N-26 | `showMode` | `treeState` | showMode | showMode | JDG-3781 JDG-3807 |
 | P-10 | `taskShape` | `shapeKind` | taskShape | taskShape | JDG-3781 JDG-3807 |
 | P-14 | `taskShapeDumbbell` | `'endpointSpan'` | dumbbell | dumbbell | JDG-3807 |
 | P-16 | `milestoneShape` | `milestoneGlyph` | milestoneShape | milestoneShape | JDG-3781 JDG-3807 |
-| N-13 | `taskStyleType` | `TaskVisual` | TaskStyle | TaskStyle | JDG-3807 |
+| N-13 | `taskStyleType` | `TaskVisual` | TaskStyle | TaskStyle | JDG-3614 JDG-3807 |
 | N-14 | `importOriginType` | `TaskOrigin` | ImportOrigin | ImportOrigin | JDG-3807 |
-| K-125 | `displayScaleRatio` | `displayScale` | Display Scale | 表示の\|倍率 | JDG-3781 JDG-3807 |
-| K-85 | `fontSizePreset` | `fontSizeStep` | Font Size | 文字サイズ | JDG-3781 JDG-3807 |
-| K-67 | `dayWidthPx` | `zoomX` | Horizontal Zoom | 横の\|ズーム\|倍率 | JDG-3781 JDG-3807 |
-| K-68 | `ratio` | `zoomY` | Vertical Zoom | 縦の\|ズーム\|倍率 | JDG-3781 JDG-3807 |
-| K-69 | `leftEdgeDay` | `scrollDate` | Left Edge Date | 表示の\|左端が\|指す\|日付 | JDG-3781 JDG-3807 |
-| K-121 | `leftEdgeDayOffsetPercent` | `scrollDateFraction` | Left Edge Time | 表示の\|左端が\|指す\|日の\|どこに\|あるか | JDG-3781 JDG-3807 |
-| K-70 | `topEdgeTaskGroupId` | `scrollTaskGroupId` | Top Task Group | 表示の\|上端が\|指す\|タスクグループ | JDG-3781 JDG-3807 |
-| K-120 | `topEdgeTaskGroupOffsetPercent` | `scrollTaskGroupFraction` | Top Task Group Position | 表示の\|上端が\|指す\|タスクグループの\|どこに\|あるか | JDG-3781 JDG-3807 |
-| K-142 | `fitDayRangeType` | `isFitSpanFixed` | Fix the fit span | 全体表示時の\|期間を\|固定する | JDG-3781 JDG-3807 |
-| K-141 | `fitDayRange` | `fitSpanStart` / `fitSpanFinish` | Fit Span | 全体表示時の\|期間 | JDG-3781 JDG-3807 |
-| K-145 | `additionalTimeZones` | `displayTimeZones` | Display Time Zone | 表示する\|タイムゾーン | JDG-3781 JDG-3807 |
+| K-125 | `displayScaleRatio` | `displayScale` | Display Scale | 表示の倍率 | JDG-3519 JDG-3781 JDG-3807 |
+| K-85 | `fontSizePreset` | `fontSizeStep` | Font Size | 文字サイズ | JDG-3483 JDG-3490 JDG-3623 JDG-3781 JDG-3807 |
+| K-67 | `dayWidthPx` | `zoomX` | Horizontal Zoom | 横のズーム倍率 | JDG-3519 JDG-3621 JDG-3781 JDG-3807 |
+| K-68 | `ratio` | `zoomY` | Vertical Zoom | 縦のズーム倍率 | JDG-3519 JDG-3781 JDG-3807 |
+| K-69 | `leftEdgeDay` | `scrollDate` | Left Edge Date | 表示の左端が指す日付 | JDG-3519 JDG-3781 JDG-3807 |
+| K-121 | `leftEdgeDayOffsetPercent` | `scrollDateFraction` | Left Edge Time | 表示の左端が指す日のどこにあるか | JDG-3519 JDG-3781 JDG-3807 |
+| K-70 | `topEdgeTaskGroupId` | `scrollTaskGroupId` | Top Task Group | 表示の上端が指すタスクグループ | JDG-3519 JDG-3781 JDG-3807 |
+| K-120 | `topEdgeTaskGroupOffsetPercent` | `scrollTaskGroupFraction` | Top Task Group Position | 表示の上端が指すタスクグループのどこにあるか | JDG-3519 JDG-3781 JDG-3807 |
+| K-142 | `fitDayRangeType` | `isFitSpanFixed` | Fix the fit span | 全体表示時の期間を固定する | JDG-3519 JDG-3781 JDG-3807 |
+| K-141 | `fitDayRange` | `fitSpanStart` / `fitSpanFinish` | Fit Span | 全体表示時の期間 | JDG-3519 JDG-3781 JDG-3807 |
+| K-145 | `additionalTimeZones` | `displayTimeZones` | Display Time Zone | 表示するタイムゾーン | JDG-3519 JDG-3781 JDG-3807 |
 | K-76 | `isPercentCompleteLabelVisible` | `isPercentCompleteVisible` | Percent Complete Label | 完了率ラベル | JDG-3781 JDG-3807 |
 | K-78 | `isProgressStatusMarkVisible` | `isProgressMarkerVisible` | Progress Marker | 進捗マーカー | JDG-3781 JDG-3807 |
 | K-77 | `isDependencyLineVisible` | `isDependencyVisible` | Dependency Lines | 依存線 | JDG-3781 JDG-3807 |
 | K-75 | `isAssigneeLabelVisible` | `isAssigneeVisible` | Assignee Label | 担当ラベル | JDG-3781 JDG-3807 |
-| K-83 | `isTaskGroupGridLinesVisible` | `isGroupGridLinesVisible` | Group Grid Lines | グループ罫線\|（TaskGroup 境界の\|横線） | JDG-3781 JDG-3807 |
+| K-83 | `isTaskGroupGridLinesVisible` | `isGroupGridLinesVisible` | Group Grid Lines | グループ罫線（TaskGroup 境界の横線） | JDG-3519 JDG-3781 JDG-3807 |
 | K-73 | `taskPlacementDirection` | `stackDirection` | Stack Direction | 積む向き | JDG-3781 JDG-3807 |
-| U-45 | `grsType` | `GoodRelax Scheduler` | GRS | GRS | — |
+| K-140 | `parentTaskProgressToleranceWorkingDays` | `parentTaskProgressToleranceDays` | Parent Task Progress Tolerance | 遅延診断時に親タスクの進捗の疑義を許す日数 | JDG-3496 JDG-3512 JDG-3519 JDG-3605 JDG-3781 JDG-3807 |
+| K-86 | `mspdiImportCount` | `importSequence` | mspdiImportCount | mspdiImportCount | JDG-3556 JDG-3605 JDG-3618 JDG-3627 JDG-3807 |
+| U-45 | `grsType` | `GoodRelax Scheduler` | GRS | GRS | JDG-3524 |
 | U-27 | `projectTitle` | `Document Title` | Project Title | プロジェクトタイトル | JDG-3355 JDG-3365 |
 | U-30 | `helpWindow` | `Help Modal` | Help Window | ヘルプウィンドウ | JDG-3356 |
 | U-64 | `searchWindow` | `Search Panel` | Search Window | 検索ウィンドウ | JDG-3356 |
 | U-49 | `resourceListWindow` | `Resource List` | Resource List Window | 担当リストウィンドウ | JDG-3356 |
-| U-66 | `delayDiagnosticsReportWindow` | `Delay Diagnostics Report` | Delay Diagnostics Report Window | 遅延診断レポートウィンドウ | — |
-| U-65 | `holidaySettingsWindow` | `Holiday Settings` | Holiday Settings Window | 休日設定ウィンドウ | JDG-3356 JDG-3365 |
+| U-66 | `delayDiagnosisReportWindow` | `Delay Diagnostics Report` | Delay Diagnosis Report Window | 遅延診断レポートウィンドウ | JDG-3512 JDG-3698 |
+| U-65 | `holidaySettingsWindow` | `Holiday Settings` | Holiday Settings Window | 休日設定ウィンドウ | JDG-3356 JDG-3365 JDG-3464 |
 | U-54 | `saveAsDialog` | `Export Chooser` | Save As Dialog | 別名保存ダイアログ | JDG-3356 JDG-3364 |
-| U-56 | `openFileDialog` | `Open Chooser` | Open File Dialog | ファイルオープンダイアログ | JDG-3356 JDG-3363 |
+| U-56 | `openFileDialog` | `Open Chooser` | Open File Dialog | ファイルオープンダイアログ | JDG-3356 JDG-3363 JDG-3434 |
 | U-60 | `watermarkUnlockDialog` | `Watermark Unlock` | Watermark Unlock Dialog | 透かし解除ダイアログ | JDG-3356 |
 | U-61 | `differenceReviewDialog` | `Difference Review` | Difference Review Dialog | 差分確認ダイアログ | JDG-3356 JDG-3363 |
 | U-62 | `importReportDialog` | `Import Report` | Import Report Dialog | 読込報告ダイアログ | JDG-3356 JDG-3363 |
@@ -666,3 +660,120 @@
 | キー | 前の名 | 今その名を持つ語 | 改名の拠り所 |
 | --- | --- | --- | --- |
 | `commandRefusal` | `Refusal` | `refusalType` | JDG-3781 |
+
+## 仕様の表がまだ前の名を印字する語（11 語）
+
+辞書は改名を `renames[]` に持ち、その改名に `xAppliedToSpec: false` を付けた。`tbl-glossary.md` は、この印があるあいだ前の名を印字する。CR-855 が仕様へ改名を当てるとき、印を外して作り直す。
+
+| 行 ID | キー | 仕様の表の名（前の名） | 辞書の書き名 | 改名の拠り所 |
+| --- | --- | --- | --- | --- |
+| P-18 | `paintColor` | `fillColor` | `color` | JDG-3607 |
+| P-18 | `strokeColor` | `strokeColor` | `color` | JDG-3607 |
+| P-18 | `widthPx` | `strokeWidthPx` | `widthPx` | JDG-3607 |
+| P-23 | `predecessorLinkType` | `linkType` | `type` | JDG-3628 |
+| N-26 | `showMode` | `treeState` | `showMode` | JDG-3736 |
+| P-14 | `taskShapeDumbbell` | `endpointSpan` | `dumbbell` | JDG-3696 |
+| N-14 | `importOriginType` | `TaskOrigin` | `ImportOrigin` | JDG-3710 |
+| K-85 | `fontSizePreset` | `fontSizeStep` | `fontSizePreset` | JDG-3623 |
+| K-145 | `additionalTimeZones` | `displayTimeZones` | `additionalTimeZones` | JDG-3741 |
+| K-83 | `isTaskGroupGridLinesVisible` | `isGroupGridLinesVisible` | `isTaskGroupGridLinesVisible` | JDG-3745 |
+| K-73 | `taskPlacementDirection` | `stackDirection` | `taskPlacementDirection` | JDG-3731 |
+
+## 仕様の表が辞書に無い名で書く名（58 件）
+
+`glossary-tables.json` の名の欄が、置き換えの印（`{written:キー}` ほか）でなく、名をじかに書いている。辞書はこの名を、語の名としても `renames[].from` としても持たない。辞書が改名か語を持てば、CR-855 が欄を置き換えの印に直す。
+
+| 行 ID | 仕様の表の名 | その行の語（キー: 辞書の書き名） |
+| --- | --- | --- |
+| N-3 | `TaskGroupMember` | — |
+| N-7 | `carry` | `passthrough`: `passthrough` |
+| N-7 | `carryElements` | `passthrough`: `passthrough` |
+| P-5 | `actualDuration` | — |
+| P-10 | `shapeKind` | `taskShape`: `taskShape` |
+| P-15 | `milestone` | — |
+| P-16 | `milestoneGlyph` | `milestoneShape`: `milestoneShape` |
+| P-17 | `actualPlacement` | — |
+| P-19 | `transparent` | — |
+| P-21 | `fadeInDays` | `startSlopeCalendarDays`: `startSlopeCalendarDays`, `finishSlopeCalendarDays`: `finishSlopeCalendarDays` |
+| P-21 | `fadeOutDays` | `startSlopeCalendarDays`: `startSlopeCalendarDays`, `finishSlopeCalendarDays`: `finishSlopeCalendarDays` |
+| U-1 | `Task Groups` | `taskGroupLane`: `taskGroupLane` |
+| U-5 | `Progress Marker` | `progressMark`: `progressMark` |
+| U-6 | `Resume Icon` | `resumeMark`: `resumeMark` |
+| U-14 | `Comment Boxes` | `commentBoxGraphic`: `commentBoxGraphic` |
+| U-15 | `Highlight Boxes` | `highlightBoxGraphic`: `highlightBoxGraphic` |
+| U-15a | `Annotations` | `annotation`: `Annotation` |
+| U-16 | `Dependency Lines` | `dependencyLine`: `dependencyLine` |
+| U-27 | `Document Title` | `projectTitle`: `projectTitle` |
+| U-30 | `Help Modal` | `helpWindow`: `helpWindow` |
+| U-34 | `Palette Commands` | `paletteGroups`: `paletteGroups` |
+| U-37 | `WatermarkUnlockPassword` | `watermarkUnlockPassword`: `watermarkUnlockPassword` |
+| U-43 | `Grab Region` | `grabPoint`: `grabPoint`, `grabArea`: `grabArea` |
+| U-45 | `GoodRelax Scheduler` | `grsType`: `GRS` |
+| U-47 | `Task Group Expander` | `taskGroupButtons`: `taskGroupButtons` |
+| U-48 | `Task Group Pin` | `pinButton`: `pinButton` |
+| U-49 | `Resource List` | `resourceListWindow`: `resourceListWindow` |
+| U-50 | `Task Group Area` | `taskGroupLanes`: `taskGroupLanes` |
+| U-52 | `Actual Operation Dummy` | `actualDummy`: `actualDummy` |
+| U-54 | `Export Chooser` | `saveAsDialog`: `saveAsDialog` |
+| U-55 | `Confirmation` | `confirmationMessage`: `confirmationMessage` |
+| U-56 | `Open Chooser` | `openFileDialog`: `openFileDialog` |
+| U-60 | `Watermark Unlock` | `watermarkUnlockDialog`: `watermarkUnlockDialog` |
+| U-61 | `Difference Review` | `differenceReviewDialog`: `differenceReviewDialog` |
+| U-62 | `Import Report` | `importReportDialog`: `importReportDialog` |
+| U-64 | `Search Panel` | `searchWindow`: `searchWindow` |
+| U-65 | `Holiday Settings` | `holidaySettingsWindow`: `holidaySettingsWindow` |
+| U-66 | `Delay Diagnostics Report` | `delayDiagnosisReportWindow`: `delayDiagnosisReportWindow` |
+| K-67 | `zoomX` | `dayWidthPx`: `dayWidthPx` |
+| K-68 | `zoomY` | `ratio`: `ratio` |
+| K-69 | `scrollDate` | `leftEdgeDay`: `leftEdgeDay` |
+| K-70 | `scrollTaskGroupId` | `topEdgeTaskGroupId`: `topEdgeTaskGroupId` |
+| K-122 | `isPlanVisible` | `isPlanBarVisible`: `Plan` |
+| K-123 | `isActualVisible` | `isActualBarVisible`: `Actual` |
+| K-75 | `isAssigneeVisible` | `isAssigneeLabelVisible`: `isAssigneeLabelVisible` |
+| K-76 | `isPercentCompleteVisible` | `isPercentCompleteLabelVisible`: `isPercentCompleteLabelVisible` |
+| K-77 | `isDependencyVisible` | `isDependencyLineVisible`: `isDependencyLineVisible` |
+| K-78 | `isProgressMarkerVisible` | `isProgressStatusMarkVisible`: `isProgressStatusMarkVisible` |
+| K-84 | `isBaselineVisible` | `isBaselineOutlineVisible`: `Baseline` |
+| K-125 | `displayScale` | `displayScaleRatio`: `displayScaleRatio` |
+| K-86 | `importSequence` | `mspdiImportCount`: `mspdiImportCount` |
+| K-141 | `fitSpanStart` | `fitDayRange`: `fitDayRange` |
+| K-141 | `fitSpanFinish` | `fitDayRange`: `fitDayRange` |
+| K-142 | `isFitSpanFixed` | `fitDayRangeType`: `type` |
+| K-120 | `scrollTaskGroupFraction` | `topEdgeTaskGroupOffsetPercent`: `topEdgeTaskGroupOffsetPercent` |
+| K-121 | `scrollDateFraction` | `leftEdgeDayOffsetPercent`: `leftEdgeDayOffsetPercent` |
+| K-138 | `levelZeroTreeState` | — |
+| K-140 | `parentTaskProgressToleranceDays` | `parentTaskProgressToleranceWorkingDays`: `parentTaskProgressToleranceWorkingDays` |
+
+## 略語の展開形（27 語）
+
+略語の形の語は `xExpansion` に元の語を持つ（JDG-3524）。`tbl-glossary.md` の表は、CR-855 で展開形を印字する。
+
+| キー | 英語の名 | 展開形（英語） | 展開形（日本語） |
+| --- | --- | --- | --- |
+| `ndd` | NDD | Naming Driven Development | Naming Driven Development |
+| `ssot` | SSOT | Single Source of Truth | 唯一の正 |
+| `okpn` | OKPN | One Kind Per Name | 1 つの名前に 1 種類の値 |
+| `ompv` | OMPV | One Meaning Per Value | 1 つの値に 1 つの意味 |
+| `sdp` | SDP | Stable Dependencies Principle | 安定依存の原則 |
+| `kiss` | KISS | Keep It Simple, Stupid | Keep It Simple, Stupid |
+| `yagni` | YAGNI | You Aren't Gonna Need It | You Aren't Gonna Need It |
+| `dry` | DRY | Don't Repeat Yourself | Don't Repeat Yourself |
+| `soC` | SoC | Separation of Concerns | 関心の分離 |
+| `srp` | SRP | Single Responsibility Principle | 単一責任の原則 |
+| `slap` | SLAP | Single Level of Abstraction Principle | 単一抽象レベルの原則 |
+| `ocp` | OCP | Open-Closed Principle | 開放閉鎖の原則 |
+| `lsp` | LSP | Liskov Substitution Principle | リスコフの置換原則 |
+| `isp` | ISP | Interface Segregation Principle | インターフェース分離の原則 |
+| `dip` | DIP | Dependency Inversion Principle | 依存性逆転の原則 |
+| `loD` | LoD | Law of Demeter | デメテルの法則 |
+| `cqs` | CQS | Command-Query Separation | コマンド・クエリ分離 |
+| `pola` | POLA | Principle of Least Astonishment | 最小驚きの原則 |
+| `pie` | PIE | Program Intently and Expressively | 意図を明確に表すプログラミング |
+| `ca` | CA | Clean Architecture | クリーンアーキテクチャ |
+| `json` | JSON | JavaScript Object Notation | JavaScript Object Notation |
+| `mcp` | MCP | Model Context Protocol | Model Context Protocol |
+| `mspdi` | MSPDI | Microsoft Project Data Interchange | Microsoft Project Data Interchange |
+| `iso8601` | ISO8601 | ISO 8601 | ISO 8601 |
+| `bcp47` | BCP47 | Best Current Practice 47 | Best Current Practice 47 |
+| `grsType` | GRS | GoodRelax Scheduler | GoodRelax Scheduler |
+| `taskUidField` | UID | Unique Identifier | 一意な識別子 |

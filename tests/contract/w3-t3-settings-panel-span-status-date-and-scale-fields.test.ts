@@ -28,7 +28,7 @@ const SPEC = join(process.cwd(), 'docs', 'spec')
 const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8').replace(/\r\n/g, '\n'))
 
 const WORDS = JSON.parse(readFileSync(join(SPEC, '_source', 'display-words.json'), 'utf8')) as {
-  readonly icons: readonly { readonly rowId: string; readonly label: Record<DisplayLanguage, string> }[]
+  readonly icons: readonly { readonly specTableRowId: string; readonly label: Record<DisplayLanguage, string> }[]
 }
 
 // Why: CR-690 -- table T-369 holds the face's order; the fit span (K-141) stands under its fix (K-142, FO-9).
@@ -64,7 +64,7 @@ const CM_74 = commandNameOf('CM-74')
 const S_234_STEPS = bareAll(specTable('T-202').rows.find((one) => one.id === 'S-234')?.cells[1] ?? '')
 
 const statusDateWordOf = (language: DisplayLanguage): string =>
-  WORDS.icons.find((one) => one.rowId === IC_44)?.label[language] ?? `(no dictionary word for ${IC_44})`
+  WORDS.icons.find((one) => one.specTableRowId === IC_44)?.label[language] ?? `(no dictionary word for ${IC_44})`
 
 const TEMPLATE = ((): Document => {
   const read = documentFromJson(

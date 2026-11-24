@@ -21,7 +21,7 @@ tool, and is the key EX-6 uses to tell a frame GRS wrote from one the import
 source wrote. This script refuses an alias that is not its frame's column.
 
 ⭐ WHAT IS HELD AGAINST WHAT. The manuscript is validated against its
-hand-written contract (_source/mspdi-custom-fields.schema.json) before a byte is
+hand-written contract (docs/development-rules/manuscript-schemas/mspdi-custom-fields.schema.json) before a byte is
 written, and the frames are held against table T-058: a frame that prefers a
 column the ERD does not have, or an ERD fade column no frame prefers, stops the
 run with exit code 1. That is the drift a roster typed twice would hide.
@@ -38,7 +38,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 
 REL_SOURCE = 'docs/spec/_source/mspdi-custom-fields.json'
-REL_CONTRACT = 'docs/spec/_source/mspdi-custom-fields.schema.json'
+REL_CONTRACT = 'docs/development-rules/manuscript-schemas/mspdi-custom-fields.schema.json'
 REL_ERD = 'docs/spec/_assets/fig-erd-detail.md'
 REL_OUT = 'src/adapter/document-codec/mspdi-custom-fields.json'
 REL_SELF = 'tools/generate_mspdi_custom_fields.py'

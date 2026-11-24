@@ -19,8 +19,8 @@ interface Words {
 }
 
 const WORDS = JSON.parse(readFileSync(join(SPEC, '_source', 'display-words.json'), 'utf8')) as {
-  readonly reasons: readonly { readonly rowId: string; readonly text: Words }[]
-  readonly invariants: readonly { readonly rowId: string; readonly text: Words }[]
+  readonly reasons: readonly { readonly specTableRowId: string; readonly text: Words }[]
+  readonly invariants: readonly { readonly specTableRowId: string; readonly text: Words }[]
 }
 
 const AN_IMPORT_REFUSAL_CARRIES_ITS_T_220_ROW =
@@ -42,9 +42,9 @@ const IMPORT_MIN_DATE = (() => {
 const BEFORE_MIN_DATE = `${Number(IMPORT_MIN_DATE.slice(0, 4)) - 1}-12-31T00:00:00`
 
 /** @purity pure */
-function wordsOf(group: 'reasons' | 'invariants', rowId: string): readonly string[] {
-  const found = WORDS[group].find((one) => one.rowId === rowId)
-  if (found === undefined) throw new Error(`the dictionary holds no ${rowId}`)
+function wordsOf(group: 'reasons' | 'invariants', specTableRowId: string): readonly string[] {
+  const found = WORDS[group].find((one) => one.specTableRowId === specTableRowId)
+  if (found === undefined) throw new Error(`the dictionary holds no ${specTableRowId}`)
   return [found.text.ja, found.text.en]
 }
 
@@ -126,13 +126,13 @@ test.describe('the manuscript these cases are driven by', () => {
 test.describe(`FR-076 (MUST): ${AN_IMPORT_REFUSAL_CARRIES_ITS_T_220_ROW.slice(0, 70)}`, () => {
   test.setTimeout(120_000)
 
-  for (const [what, rowId, text] of CASES) {
-    test(`${what} is told with the ${rowId} words, not with RS-15, and the open document is kept`, async ({ page }) => {
+  for (const [what, specTableRowId, text] of CASES) {
+    test(`${what} is told with the ${specTableRowId} words, not with RS-15, and the open document is kept`, async ({ page }) => {
       await launch(page)
       await enableAgentApi(page)
       const titleBefore = (await readDocument(page)).schedule.project['title']
-      await dropOpen(page, `cr-718-${rowId.toLowerCase()}.json`, text)
-      expect(await waitForWords(page, NOTIFICATION_AREA, wordsOf('invariants', rowId)), `${rowId} words are told`).toBe(true)
+      await dropOpen(page, `cr-718-${specTableRowId.toLowerCase()}.json`, text)
+      expect(await waitForWords(page, NOTIFICATION_AREA, wordsOf('invariants', specTableRowId)), `${specTableRowId} words are told`).toBe(true)
       const told = await textOf(page, NOTIFICATION_AREA)
       expect(saysAny(told, wordsOf('reasons', 'RS-15')), `${NO_FALL_TO_A_T_233_ROW} -- RS-15 is not told`).toBe(false)
       expect(saysAny(told, wordsOf('reasons', 'RS-10')), 'RS-10 is not told').toBe(false)

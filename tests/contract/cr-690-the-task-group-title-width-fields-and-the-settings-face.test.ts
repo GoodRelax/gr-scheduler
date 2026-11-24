@@ -27,8 +27,8 @@ type Words = readonly { readonly part: string; readonly text: Record<DisplayLang
 
 const withoutBreakMarks = (_key: string, value: unknown): unknown => (typeof value === 'string' ? value.replace(/\|/g, '') : value)
 const WORDS = JSON.parse(readFileSync(join(SPEC, '_source', 'display-words.json'), 'utf8'), withoutBreakMarks) as {
-  readonly settings: readonly { readonly rowId: string; readonly label: Record<DisplayLanguage, string> }[]
-  readonly icons: readonly { readonly rowId: string; readonly label: Record<DisplayLanguage, string> }[]
+  readonly settings: readonly { readonly specTableRowId: string; readonly label: Record<DisplayLanguage, string> }[]
+  readonly icons: readonly { readonly specTableRowId: string; readonly label: Record<DisplayLanguage, string> }[]
   readonly taskGroupPanelWidthField: Words
   readonly fitSpanField: Words
   readonly wholeScheduleShiftField: Words
@@ -118,10 +118,10 @@ const WF_3 = 'WF-3'
 
 const partWordOf = (words: Words, part: string, language: DisplayLanguage): string =>
   words.find((one) => one.part === part)?.text[language] ?? `(no dictionary word for ${part})`
-const settingsWordOf = (rowId: string, language: DisplayLanguage): string =>
-  WORDS.settings.find((one) => one.rowId === rowId)?.label[language] ?? `(no dictionary word for ${rowId})`
-const iconWordOf = (rowId: string, language: DisplayLanguage): string =>
-  WORDS.icons.find((one) => one.rowId === rowId)?.label[language] ?? `(no dictionary word for ${rowId})`
+const settingsWordOf = (specTableRowId: string, language: DisplayLanguage): string =>
+  WORDS.settings.find((one) => one.specTableRowId === specTableRowId)?.label[language] ?? `(no dictionary word for ${specTableRowId})`
+const iconWordOf = (specTableRowId: string, language: DisplayLanguage): string =>
+  WORDS.icons.find((one) => one.specTableRowId === specTableRowId)?.label[language] ?? `(no dictionary word for ${specTableRowId})`
 
 const DOCUMENT = documentOf({ tasks: [taskOf(1), taskOf(2, { start: '2026-05-04T08:00:00', finish: '2026-05-15T17:00:00' })] })
 

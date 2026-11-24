@@ -72,7 +72,7 @@ const DICTIONARY = JSON.parse(
   readFileSync(join(ROOT, 'src', 'adapter', 'screen-renderer', 'display-words.json'), 'utf8'),
 ) as {
   readonly keyNotation: readonly { readonly part: string; readonly text: Words }[]
-  readonly assignments: readonly { readonly rowId: string; readonly press: Words }[]
+  readonly assignments: readonly { readonly specTableRowId: string; readonly press: Words }[]
 }
 
 const notation = (part: string): Words => {
@@ -143,7 +143,7 @@ describe(`FR-036 (MUST) -- the screen spells a chord Ctrl+A and joins with the d
 
   it(`spells every chord inside a pointer press the same way: ${FR_036_THE_PRESS_CHORD}`, () => {
     const spaced = DICTIONARY.assignments
-      .flatMap((one) => [`${one.rowId} ja: ${one.press.ja}`, `${one.rowId} en: ${one.press.en}`])
+      .flatMap((one) => [`${one.specTableRowId} ja: ${one.press.ja}`, `${one.specTableRowId} en: ${one.press.en}`])
       .filter((one) => one.includes(FULL_WIDTH_PLUS) || / \+ /.test(one))
     expect(spaced, FR_036_THE_PRESS_CHORD).toEqual([])
   })
@@ -156,17 +156,17 @@ interface GlyphElement {
 
 const GLYPHS = JSON.parse(
   readFileSync(join(ROOT, 'src', 'framework', 'dom-screen-surface', 'icon-glyphs.json'), 'utf8'),
-) as { readonly glyphs: readonly { readonly rowId: string; readonly elements: readonly GlyphElement[] }[] }
+) as { readonly glyphs: readonly { readonly specTableRowId: string; readonly elements: readonly GlyphElement[] }[] }
 
 const FIGURE = readFileSync(join(ROOT, 'docs', 'spec', '_assets', 'fig-icons.svg'), 'utf8')
 
 // Spec: F-019, IC-102
-const figureElementsOf = (rowId: string): readonly GlyphElement[] => {
-  const label = FIGURE.indexOf(`>${rowId}</text>`)
-  if (label < 0) throw new Error(`figure F-019 has no label ${rowId}`)
+const figureElementsOf = (specTableRowId: string): readonly GlyphElement[] => {
+  const label = FIGURE.indexOf(`>${specTableRowId}</text>`)
+  if (label < 0) throw new Error(`figure F-019 has no label ${specTableRowId}`)
   const groupOpen = FIGURE.lastIndexOf('<g ', label)
   const groupClose = FIGURE.indexOf('</g>', groupOpen)
-  if (groupOpen < 0 || groupClose > label) throw new Error(`figure F-019 has no group before ${rowId}`)
+  if (groupOpen < 0 || groupClose > label) throw new Error(`figure F-019 has no group before ${specTableRowId}`)
   const body = FIGURE.slice(groupOpen, groupClose)
   return [...body.matchAll(/<(rect|path|circle|line|polyline|polygon|ellipse)\b([^>]*)\/?>/g)].map((match) => ({
     tag: match[1]!,
@@ -182,7 +182,7 @@ const geometryOf = (element: GlyphElement): string =>
 
 describe(`FR-036 (MUST NOT) -- ${FR_036_THE_WHEEL_IS_NOT_A_LETTER}`, () => {
   const figure = figureElementsOf('IC-102')
-  const generated = GLYPHS.glyphs.find((one) => one.rowId === 'IC-102')?.elements ?? []
+  const generated = GLYPHS.glyphs.find((one) => one.specTableRowId === 'IC-102')?.elements ?? []
 
   it('premise: figure F-019 draws IC-102 as a mouse body, a filled wheel and a two-headed arrow', () => {
     expect(figure.filter((one) => one.tag === 'rect')).toHaveLength(2)

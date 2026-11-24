@@ -1,11 +1,11 @@
 {
- "$schema": "./verification.schema.json",
+ "$schema": "../../development-rules/manuscript-schemas/verification.schema.json",
  "$comment": [
   "SINGLE SOURCE OF TRUTH -- EDIT THIS FILE.",
   "Tables T-334 (what is verified) and T-218 (the test places) of Chapter 7 of docs/spec/05-07-design.md, in one manuscript because each row of the first names rows of the second (JDG-607, CR-573).",
   "Generated FROM this file: _assets/tbl-verification.md (verification_json_to_md.py).",
   "Rebuild: npm run gen   |   npm run gen:check fails if anything has drifted.",
-  "Validated by _source/verification.schema.json. The generator also refuses a T-334 row whose verifiedBy names a TS id table T-218 does not define, and a TS id defined twice.",
+  "Validated by docs/development-rules/manuscript-schemas/verification.schema.json. The generator also refuses a T-334 row whose verifiedBy names a TS id table T-218 does not define, and a TS id defined twice.",
   "THE LINK IS WRITTEN ONCE. A T-334 row names the T-218 rows that verify it (`verifiedBy`); the T-218 column that says what a place verifies is derived from those links on every run, so the two tables cannot disagree. `alsoVerifies` carries only what no T-334 row states (the seams, the functions the omission table leaves).",
   "NO COUNT LIVES HERE. Each T-334 row names where its full count is held (the use cases of Chapter 3.2, the regions of state-machines.json, the gate rows of table T-043), so adding a use case or a region changes nothing in this file.",
   "The rules about these tables are NOT here -- Chapter 7 holds them. The omission table and the gate table of docs/development-rules/04-verification.md are not specification and stay in that file (JDG-607, JDG-639)."

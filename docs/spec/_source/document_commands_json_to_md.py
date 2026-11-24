@@ -53,7 +53,7 @@ from spec_md_printing import say
 HERE = os.path.dirname(os.path.abspath(__file__))
 ASSETS = os.path.join(os.path.dirname(HERE), '_assets')
 SRC = os.path.join(HERE, 'document-commands.json')
-SCHEMA = os.path.join(HERE, 'document-commands.schema.json')
+SCHEMA = os.path.join(HERE, '..', '..', 'development-rules', 'manuscript-schemas', 'document-commands.schema.json')
 ERD = os.path.join(HERE, 'erd.json')
 SETTINGS = os.path.join(HERE, 'settings.json')
 OUT = os.path.join(ASSETS, 'tbl-document-commands.md')

@@ -32,7 +32,7 @@ export function rowLine(text: string, id: string): string {
 }
 
 type Words = Readonly<Record<string, string>>
-type Section = readonly { readonly part?: string; readonly rowId?: string; readonly text?: Words; readonly hint?: Words }[]
+type Section = readonly { readonly part?: string; readonly specTableRowId?: string; readonly text?: Words; readonly hint?: Words }[]
 
 export const MANUSCRIPT_WORDS = JSON.parse(readFileSync(join(SPEC, '_source', 'display-words.json'), 'utf8')) as Record<
   string,

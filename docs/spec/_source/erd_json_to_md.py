@@ -318,7 +318,7 @@ def schema_problems(doc):
     still be able to build the specification. The semantic checks below run
     either way, and they cover what a schema cannot express.
     """
-    path = os.path.join(HERE, 'erd.schema.json')
+    path = os.path.join(HERE, '..', '..', 'development-rules', 'manuscript-schemas', 'erd.schema.json')
     if not os.path.exists(path):
         return ['erd.schema.json is missing']
     try:

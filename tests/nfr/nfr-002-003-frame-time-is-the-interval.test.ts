@@ -208,11 +208,11 @@ const REASON_FALLBACK = rowOf(T233, 'RS-27').id
  *
  * @purity semi-pure-mutable
  */
-function reasonWords(rowId: string): readonly string[] {
+function reasonWords(specTableRowId: string): readonly string[] {
   const shape = JSON.parse(
     readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8'),
-  ) as { reasons?: { rowId?: string; text?: Record<string, string> }[] }
-  const found = (shape.reasons ?? []).find((one) => one.rowId === rowId)
+  ) as { reasons?: { specTableRowId?: string; text?: Record<string, string> }[] }
+  const found = (shape.reasons ?? []).find((one) => one.specTableRowId === specTableRowId)
   return Object.values(found?.text ?? {}).filter((one) => one.length > 0)
 }
 

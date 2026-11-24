@@ -1,11 +1,11 @@
 {
- "$schema": "./notice-reasons.schema.json",
+ "$schema": "../../development-rules/manuscript-schemas/notice-reasons.schema.json",
  "$comment": [
   "SINGLE SOURCE OF TRUTH -- EDIT THIS FILE.",
   "The notice roster (CR-712, JDG-1751): every reason a telling can carry (table T-233) and every question a confirmation can show (table T-234) -- row id, scene, manner, source and how it is displayed. It holds NO WORDS: the words stay in _source/display-words.json, keyed by the same row id.",
   "Generated FROM this file: _assets/tbl-notice-reasons.md (notice_reasons_json_to_md.py), the generated region of src/use-case/advance-screen-session/notice-values.ts (tools/generate_notice_reasons.py), and the reason and question rosters tools/generate_display_words.py holds the dictionary against.",
   "Rebuild: npm run gen   |   npm run gen:check fails if anything has drifted.",
-  "Validated by _source/notice-reasons.schema.json. notice_reasons_json_to_md.py also refuses a row id written twice, a row id of the wrong prefix, a `wordsOf` that names no row of this file, names a row that itself shares words, or names a row of another manner or display, and an `invariantRefusals.wordsOf` key that is no row of table T-220.",
+  "Validated by docs/development-rules/manuscript-schemas/notice-reasons.schema.json. notice_reasons_json_to_md.py also refuses a row id written twice, a row id of the wrong prefix, a `wordsOf` that names no row of this file, names a row that itself shares words, or names a row of another manner or display, and an `invariantRefusals.wordsOf` key that is no row of table T-220.",
   "Cells are the Markdown the tables print, byte for byte: `scene`, `source` and `names` are language dictionaries (Chapter 6.2) and the generator puts nothing into them. `manner` is a row id of table T-037 and is printed in a code span.",
   "`display` says how a reason reaches the screen: show (a notice that stands until NT-8 dismisses it), autoDismiss (a notice that leaves by itself after a time, NT-2), hide (raised and carried, never put on the screen), report (inside one reading, a line of the Import Report U-62 instead of a notice). A question is ask, or askOnlyWithUnsavedEdits. The printed tables carry it as the column the table's `displayLabels` name.",
   "`wordsOf` names the row whose words the screen prints for this one (CR-712 X-2); the row stays a row, and the Agent API refusal still carries it. `invariantRefusals.wordsOf` does the same for a row of table T-220.",

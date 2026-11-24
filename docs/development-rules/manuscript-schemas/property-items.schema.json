@@ -1,10 +1,10 @@
 {
  "$schema": "https://json-schema.org/draft/2020-12/schema",
- "$id": "https://github.com/GoodRelax/gr-scheduler/docs/spec/_source/property-items.schema.json",
+ "$id": "https://github.com/GoodRelax/gr-scheduler/docs/development-rules/manuscript-schemas/property-items.schema.json",
  "$comment": [
   "HAND-WRITTEN CONTRACT -- EDIT THIS FILE.",
   "Validates _source/property-items.json, which is the single source of truth for table T-016.",
-  "Same role as _source/settings.schema.json and _source/erd.schema.json.",
+  "Same role as docs/development-rules/manuscript-schemas/settings.schema.json and docs/development-rules/manuscript-schemas/erd.schema.json.",
   "NO DISPLAY NAME LIVES HERE. FR-038 (MUST NOT) keeps every word the screen prints in one dictionary per language, so a property item's shown name is display-words.json's `properties` section, keyed by the same PR row id.",
   "NO CANDIDATE, BOUND OR DATE-NESS LIVES HERE EITHER. The note under table T-016 (MUST NOT) forbids copying what grs-document.schema.json and DATE_COLUMNS already hold."
  ],

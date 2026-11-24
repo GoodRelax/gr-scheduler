@@ -85,7 +85,7 @@ describe('CR-727 the manuscript these cases are driven by', () => {
   })
 
   it('the IC-1 hint says a file dropped on the schedule opens too', () => {
-    const hint = MANUSCRIPT_WORDS['icons']?.find((one) => one.rowId === 'IC-1')?.hint
+    const hint = MANUSCRIPT_WORDS['icons']?.find((one) => one.specTableRowId === 'IC-1')?.hint
     expect(hint?.['ja']).toContain('日程表にファイルを落としても開ける')
     expect(hint?.['en']).toContain('drop one onto the schedule')
   })

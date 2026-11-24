@@ -88,12 +88,12 @@ function rgbOf(hex: string): string {
 const LINK = { light: rgbOf(bare(cellOf('T-236', 'S-503', '明るいテーマ'))), dark: rgbOf(bare(cellOf('T-236', 'S-503', '暗いテーマ'))) }
 
 const WORDS = JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8')) as {
-  readonly planActualStates: readonly { readonly rowId: string; readonly text: { readonly ja: string; readonly en: string } }[]
-  readonly delayReportStatuses: readonly { readonly rowId: string; readonly text: { readonly ja: string; readonly en: string } }[]
+  readonly planActualStates: readonly { readonly specTableRowId: string; readonly text: { readonly ja: string; readonly en: string } }[]
+  readonly delayReportStatuses: readonly { readonly specTableRowId: string; readonly text: { readonly ja: string; readonly en: string } }[]
 }
 // Why: the screen speaks the browser's language, so a word is looked up in both languages.
-const STATE_WORD = new Map(WORDS.planActualStates.flatMap((one) => [[one.text.ja, one.rowId] as const, [one.text.en, one.rowId] as const]))
-const REPORT_STATUS = new Map(WORDS.delayReportStatuses.flatMap((one) => [[one.text.ja, one.rowId] as const, [one.text.en, one.rowId] as const]))
+const STATE_WORD = new Map(WORDS.planActualStates.flatMap((one) => [[one.text.ja, one.specTableRowId] as const, [one.text.en, one.specTableRowId] as const]))
+const REPORT_STATUS = new Map(WORDS.delayReportStatuses.flatMap((one) => [[one.text.ja, one.specTableRowId] as const, [one.text.en, one.specTableRowId] as const]))
 
 // Spec: SQ-5, T-019a, T-315
 const MARKER_ROWS = specTable('T-315').rows.map((row) => row.id)

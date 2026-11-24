@@ -1,10 +1,10 @@
 {
  "$schema": "https://json-schema.org/draft/2020-12/schema",
- "$id": "https://github.com/GoodRelax/gr-scheduler/docs/spec/_source/agent-api-members.schema.json",
+ "$id": "https://github.com/GoodRelax/gr-scheduler/docs/development-rules/manuscript-schemas/agent-api-members.schema.json",
  "$comment": [
   "HAND-WRITTEN CONTRACT -- EDIT THIS FILE.",
   "Validates _source/agent-api-members.json, which is the single source of truth for table T-107 (the members of the Agent API) and table T-400 (the value types they hand over) (CR-765).",
-  "Same role as _source/published-entries.schema.json and _source/notice-reasons.schema.json.",
+  "Same role as docs/development-rules/manuscript-schemas/published-entries.schema.json and docs/development-rules/manuscript-schemas/notice-reasons.schema.json.",
   "The schema sees the SHAPE. What JSON Schema cannot say -- a row id or a name written twice, a type naming an identifier nobody defines, a line whose parenthesis does not close -- is refused by agent_api_members_json_to_md.py."
  ],
  "title": "The Agent API members manuscript",

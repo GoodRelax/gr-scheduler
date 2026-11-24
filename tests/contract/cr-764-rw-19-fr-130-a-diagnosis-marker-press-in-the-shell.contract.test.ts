@@ -39,7 +39,7 @@ const FR_130_THE_SAME_ENTRY =
 const SPEC = join(process.cwd(), 'docs', 'spec')
 const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8'))
 type Words = { readonly ja: string; readonly en: string }
-type IconWords = { readonly rowId: string; readonly hint?: Words }
+type IconWords = { readonly specTableRowId: string; readonly hint?: Words }
 const SPEC_WORDS = JSON.parse(readFileSync(join(SPEC, '_source', 'display-words.json'), 'utf8')) as { readonly icons: readonly IconWords[] }
 const SHIPPED_WORDS = JSON.parse(
   readFileSync(join(process.cwd(), 'src', 'adapter', 'screen-renderer', 'display-words.json'), 'utf8'),
@@ -419,8 +419,8 @@ describe(`FR-130 -- ${FR_130_THE_SAME_ENTRY}`, () => {
   })
 
   it('the IC-107 hint says the same in both languages, and the shipped dictionary carries it', () => {
-    const spec = SPEC_WORDS.icons.find((one) => one.rowId === 'IC-107')?.hint
-    const shipped = SHIPPED_WORDS.icons.find((one) => one.rowId === 'IC-107')?.hint
+    const spec = SPEC_WORDS.icons.find((one) => one.specTableRowId === 'IC-107')?.hint
+    const shipped = SHIPPED_WORDS.icons.find((one) => one.specTableRowId === 'IC-107')?.hint
     // Why: CR-781 reworded the hint of IC-107 (display-words.json): an open report is closed alone.
     expect(spec?.ja).toBe('遅延診断を行う。レポートを閉じていれば診断をやり直して開き、開いていればレポートだけを閉じる')
     expect(spec?.en).toBe('Run the Delay Diagnostics; runs them again and opens the report if it is closed, or closes only the report while it is open')

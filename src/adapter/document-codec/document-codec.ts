@@ -49,8 +49,8 @@ interface ReadableFormat {
 // Spec: T-024, OP-1
 // Trap: a row table T-024 lets in with no decoder named here stops this module from loading, never silently.
 /** @purity pure */
-function formatOfReadableRow(rowId: string): ExchangeFormat {
-  switch (rowId) {
+function formatOfReadableRow(specTableRowId: string): ExchangeFormat {
+  switch (specTableRowId) {
     case 'IO-2':
       return 'grsJson'
     case 'IO-1':
@@ -58,19 +58,19 @@ function formatOfReadableRow(rowId: string): ExchangeFormat {
     case 'IO-7':
       return 'singleHtml'
   }
-  throw new Error(`table T-024 row ${rowId} comes in, and DocumentCodec has no decoder for it`)
+  throw new Error(`table T-024 row ${specTableRowId} comes in, and DocumentCodec has no decoder for it`)
 }
 
 const READABLE_FORMATS: readonly ReadableFormat[] = exchangeFormats.formats.flatMap((row) => {
   const { extension, firstCharacter } = row
   if (extension === null || firstCharacter === null) return []
-  return [{ format: formatOfReadableRow(row.rowId), extension, firstCharacter }]
+  return [{ format: formatOfReadableRow(row.specTableRowId), extension, firstCharacter }]
 })
 
 // Spec: T-024
 /** @purity pure */
-export function extensionOfFormat(rowId: string): string {
-  return exchangeFormats.formats.find((one) => one.rowId === rowId)?.extension ?? ''
+export function extensionOfFormat(specTableRowId: string): string {
+  return exchangeFormats.formats.find((one) => one.specTableRowId === specTableRowId)?.extension ?? ''
 }
 
 /** @purity pure */

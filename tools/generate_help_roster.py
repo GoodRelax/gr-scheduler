@@ -371,12 +371,12 @@ def build():
     @purity semi-pure-mutable
     """
     icons = json.load(io.open(ROSTER, encoding='utf-8'))['icons']
-    by_id = dict((icon['rowId'], icon) for icon in icons)
+    by_id = dict((icon['specTableRowId'], icon) for icon in icons)
     layout, moved_group = column_layout()
 
     def left_out(icon):
         rest = [one for one in icon['surfaces'] if one != HELP_MODAL]
-        return (icon['rowId'] in LEFT_OUT_ROWS or
+        return (icon['specTableRowId'] in LEFT_OUT_ROWS or
                 (len(rest) > 0 and all(one in LEFT_OUT_SURFACES for one in rest)))
 
     # CR-637 (FR-036, MUST): an assignment whose entrance item is left off the
@@ -453,7 +453,7 @@ def build():
         found = [one for one in icon['surfaces'] if one in BLOCKS]
         return found[0] if found else None
 
-    on = lambda surface: [i['rowId'] for i in icons if home(i) == surface]
+    on = lambda surface: [i['specTableRowId'] for i in icons if home(i) == surface]
 
     panel_task_groups = on(TASK_GROUP_PANEL)
     if sorted(panel_task_groups) != sorted(TASK_GROUP_PANEL_ORDER):
@@ -478,8 +478,8 @@ def build():
         if found:
             found[0][2].append(icon)
         else:
-            groups.append((icon['group'], icon['rowId'], [icon]))
-    milestones = [i['rowId'] for i in palette_rows if i['arms'] == MILESTONE_ARM]
+            groups.append((icon['group'], icon['specTableRowId'], [icon]))
+    milestones = [i['specTableRowId'] for i in palette_rows if i['arms'] == MILESTONE_ARM]
     shown = always_shown_glyph_count()
     if len(milestones) < shown:
         stop('table %s arms %s on %d row(s), fewer than %s says are always shown'
@@ -491,13 +491,13 @@ def build():
     if moved_group not in [cell for cell, _first, _members in groups]:
         stop('table %s moves the palette group %r, which no row of table %s '
              'holds' % (COLUMN_TABLE, moved_group, ICON_TABLE))
-    palette = [icon_item(COMMAND_PALETTE, band[0]['rowId'], i['rowId']) for i in band]
+    palette = [icon_item(COMMAND_PALETTE, band[0]['specTableRowId'], i['specTableRowId']) for i in band]
     continued = []
     for cell, first, members in groups:
         block = PALETTE_CONTINUED if cell == moved_group else COMMAND_PALETTE
         into = continued if cell == moved_group else palette
         for icon in members:
-            rid = icon['rowId']
+            rid = icon['specTableRowId']
             if rid == MILESTONE_LIST_ROW:
                 continue
             if rid in milestones:
@@ -522,13 +522,13 @@ def build():
 
     # The one merged item stands for every row armed with AR-3 (FR-036).
     carried = set([LEGEND_ROW] + milestones)
-    carried.update(i['rowId'] for i in icons if i['surfaces'] == [HELP_MODAL])
-    carried.update(i['rowId'] for i in icons if left_out(i))
+    carried.update(i['specTableRowId'] for i in icons if i['surfaces'] == [HELP_MODAL])
+    carried.update(i['specTableRowId'] for i in icons if left_out(i))
     for one in entries:
         if one['table'] == ICON_TABLE:
             carried.add(one['row'])
             carried.update(one['glyphs'])
-    missing = [i['rowId'] for i in icons if i['rowId'] not in carried]
+    missing = [i['specTableRowId'] for i in icons if i['specTableRowId'] not in carried]
     if missing:
         stop('no help item carries %s of table %s; FR-036 lists every row'
              % (', '.join(missing), ICON_TABLE))

@@ -38,7 +38,7 @@
 
 # --- restates (2; CR-768 paid 10, CR-765 paid 1 by 2026-10-23) ---------
 
-ARMED_BY_ENTRY | keys | icon-roster.json $.icons[arms].rowId
+ARMED_BY_ENTRY | keys | icon-roster.json $.icons[arms].specTableRowId
 why: restates the IC rows of table T-109 that carry an arm (icon-roster.json); keyed by Record<string, ...>, so a new arming icon compiles and arms nothing.
 
 FONT_SIZE_STEPS | array | generated DocumentSettings.fontSizeStep union

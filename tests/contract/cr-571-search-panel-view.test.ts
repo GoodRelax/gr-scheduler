@@ -81,10 +81,10 @@ const WORDS = JSON.parse(
   readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8'),
 ) as {
   readonly surfaces: readonly { readonly name: string; readonly heading: Words }[]
-  readonly icons: readonly { readonly rowId: string; readonly label: Words }[]
-  readonly searchColumns: readonly { readonly rowId: string; readonly text: Words }[]
+  readonly icons: readonly { readonly specTableRowId: string; readonly label: Words }[]
+  readonly searchColumns: readonly { readonly specTableRowId: string; readonly text: Words }[]
   readonly searchPanel: readonly { readonly part: string; readonly text: Words }[]
-  readonly planActualStates: readonly { readonly rowId: string; readonly text: Words }[]
+  readonly planActualStates: readonly { readonly specTableRowId: string; readonly text: Words }[]
 }
 
 function found<T>(value: T | undefined, what: string): T {
@@ -95,9 +95,9 @@ function found<T>(value: T | undefined, what: string): T {
 const panelNameOf = (language: DisplayLanguage): string =>
   found(WORDS.surfaces.find((one) => one.name === 'Search Panel'), 'Search Panel heading').heading[language]
 const iconLabelOf = (icon: string, language: DisplayLanguage): string =>
-  found(WORDS.icons.find((one) => one.rowId === icon), `label for ${icon}`).label[language]
+  found(WORDS.icons.find((one) => one.specTableRowId === icon), `label for ${icon}`).label[language]
 const columnWordOf = (column: string, language: DisplayLanguage): string =>
-  found(WORDS.searchColumns.find((one) => one.rowId === column), `heading for ${column}`).text[language]
+  found(WORDS.searchColumns.find((one) => one.specTableRowId === column), `heading for ${column}`).text[language]
 const panelWordOf = (part: string, language: DisplayLanguage): string =>
   found(WORDS.searchPanel.find((one) => one.part === part), `search panel word ${part}`).text[language]
 

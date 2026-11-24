@@ -17,7 +17,7 @@ const NT_7_NO_WRITE =
 const NT_7_YES_NO = '（`05-07-design.md` の 表 T-067 の `WS-2` と同じ例外である）。⚠️ **問いの文は、`y` / `n` で答えられる形にすること（MUST）'
 
 const WORDS = JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8')) as {
-  readonly questions: readonly { readonly rowId: string; readonly text: { readonly ja: string; readonly en: string } }[]
+  readonly questions: readonly { readonly specTableRowId: string; readonly text: { readonly ja: string; readonly en: string } }[]
 }
 
 const CONFIRMATION = `[data-role="${bare(rowOf(specTable('T-103'), 'U-55').cells[0] ?? '')}"]`
@@ -163,12 +163,12 @@ test.describe('W3-T1 the manuscript these cases are driven by', () => {
 
 test.describe(`NT-7 (MUST): ${NT_7_YES_NO.slice(-30)}`, () => {
   test('every Confirmation question in table T-234 is a yes / no question in both languages', () => {
-    const asked = WORDS.questions.filter((one) => !NOT_ON_THE_CONFIRMATION.has(one.rowId))
+    const asked = WORDS.questions.filter((one) => !NOT_ON_THE_CONFIRMATION.has(one.specTableRowId))
     expect(asked.length, 'premise: the dictionary holds the questions').toBeGreaterThan(5)
     for (const one of asked) {
-      expect(one.text.ja, `${one.rowId} ja asks with ...ka?`).toMatch(/か？/)
-      expect(one.text.en, `${one.rowId} en asks a closed question`).toMatch(/\?/)
-      expect(one.text.en, `${one.rowId} en is not an open question`).not.toMatch(/^(What|Which|Where|When|Who|How|Why)\b/)
+      expect(one.text.ja, `${one.specTableRowId} ja asks with ...ka?`).toMatch(/か？/)
+      expect(one.text.en, `${one.specTableRowId} en asks a closed question`).toMatch(/\?/)
+      expect(one.text.en, `${one.specTableRowId} en is not an open question`).not.toMatch(/^(What|Which|Where|When|Who|How|Why)\b/)
     }
   })
 

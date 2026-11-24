@@ -13,7 +13,7 @@ const SPEC = join(process.cwd(), 'docs', 'spec')
 const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8'))
 
 const WORDS = JSON.parse(readFileSync(join(SPEC, '_source', 'display-words.json'), 'utf8')) as {
-  readonly reasons: readonly { readonly rowId: string; readonly text: { readonly ja: string; readonly en: string } }[]
+  readonly reasons: readonly { readonly specTableRowId: string; readonly text: { readonly ja: string; readonly en: string } }[]
 }
 
 const NT_2_GONE_AFTER_S_542 =
@@ -44,9 +44,9 @@ function s542Ms(): number {
 }
 
 /** @purity pure */
-function wordsOf(rowId: string): readonly string[] {
-  const found = WORDS.reasons.find((one) => one.rowId === rowId)
-  if (found === undefined) throw new Error(`the dictionary holds no ${rowId}`)
+function wordsOf(specTableRowId: string): readonly string[] {
+  const found = WORDS.reasons.find((one) => one.specTableRowId === specTableRowId)
+  if (found === undefined) throw new Error(`the dictionary holds no ${specTableRowId}`)
   return [found.text.ja, found.text.en]
 }
 
@@ -68,16 +68,16 @@ async function openWithClipboard(page: Page, refuse: boolean): Promise<void> {
 }
 
 /** @purity semi-pure-mutable */
-async function told(page: Page, rowId: string): Promise<boolean> {
+async function told(page: Page, specTableRowId: string): Promise<boolean> {
   const said = await page.evaluate(
     (area: string) => Array.from(document.querySelectorAll(area)).map((one) => one.textContent ?? '').join(' | '),
     NOTIFICATION_AREA,
   )
-  return wordsOf(rowId).some((words) => said.includes(words))
+  return wordsOf(specTableRowId).some((words) => said.includes(words))
 }
 
 /** @purity semi-pure-mutable */
-async function noticeBox(page: Page, rowId: string): Promise<{ x: number; y: number; w: number; h: number } | null> {
+async function noticeBox(page: Page, specTableRowId: string): Promise<{ x: number; y: number; w: number; h: number } | null> {
   return page.evaluate(
     ({ area, words }: { area: string; words: readonly string[] }) => {
       const holder = document.querySelector(area)
@@ -88,7 +88,7 @@ async function noticeBox(page: Page, rowId: string): Promise<{ x: number; y: num
       const box = card.getBoundingClientRect()
       return { x: box.x, y: box.y, w: box.width, h: box.height }
     },
-    { area: NOTIFICATION_AREA, words: wordsOf(rowId) },
+    { area: NOTIFICATION_AREA, words: wordsOf(specTableRowId) },
   )
 }
 
@@ -126,13 +126,13 @@ async function pressCopy(page: Page): Promise<void> {
 }
 
 /** @purity non-pure */
-async function firstTold(page: Page, rowId: string): Promise<number> {
+async function firstTold(page: Page, specTableRowId: string): Promise<number> {
   const deadline = Date.now() + 5_000
   while (Date.now() < deadline) {
-    if (await told(page, rowId)) return Date.now()
+    if (await told(page, specTableRowId)) return Date.now()
     await page.waitForTimeout(POLL_MS)
   }
-  throw new Error(`${rowId} was never told`)
+  throw new Error(`${specTableRowId} was never told`)
 }
 
 /** @purity non-pure */

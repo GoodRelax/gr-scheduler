@@ -90,8 +90,8 @@ function rowOf(table: SpecTable, id: string): SpecRow {
 }
 
 /** The key table T-036 assigns one row, as that table spells it. */
-const keyNameOf = (rowId: string): string => {
-  const spelled = bare(rowOf(T_036, rowId).by['割当'] ?? '')
+const keyNameOf = (specTableRowId: string): string => {
+  const spelled = bare(rowOf(T_036, specTableRowId).by['割当'] ?? '')
     .replace(/＋/g, '+')
     .split('/')[0]
   const parts = (spelled ?? '').split('+').map((one) => one.trim()).filter((one) => one.length > 0)
@@ -102,9 +102,9 @@ const keyNameOf = (rowId: string): string => {
 }
 
 /** The words FR-038's one dictionary holds for one row of table T-233. */
-const wordsOf = (rowId: string): string => {
-  const found = (displayWords as any).reasons.find((one: any) => one.rowId === rowId)
-  if (found === undefined) throw new Error(`the dictionary holds no row ${rowId}`)
+const wordsOf = (specTableRowId: string): string => {
+  const found = (displayWords as any).reasons.find((one: any) => one.specTableRowId === specTableRowId)
+  if (found === undefined) throw new Error(`the dictionary holds no row ${specTableRowId}`)
   return found.text.ja as string
 }
 

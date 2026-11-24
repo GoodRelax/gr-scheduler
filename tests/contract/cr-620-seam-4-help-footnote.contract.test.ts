@@ -30,9 +30,9 @@ type Words = Readonly<Record<string, string>>
 
 interface Manuscript {
   readonly helpFootnotes?: unknown
-  readonly helpNotes?: readonly { readonly rowId: string; readonly text: Words }[]
-  readonly helpLinks?: readonly { readonly link: string; readonly rowId?: string; readonly text: Words }[]
-  readonly icons?: readonly { readonly rowId: string; readonly label: Words }[]
+  readonly helpNotes?: readonly { readonly specTableRowId: string; readonly text: Words }[]
+  readonly helpLinks?: readonly { readonly link: string; readonly specTableRowId?: string; readonly text: Words }[]
+  readonly icons?: readonly { readonly specTableRowId: string; readonly label: Words }[]
 }
 
 const MANUSCRIPT = JSON.parse(
@@ -41,15 +41,15 @@ const MANUSCRIPT = JSON.parse(
 
 const AGENT_API_LINKS = (MANUSCRIPT.helpLinks ?? []).filter((one) => one.link === 'agentApi')
 
-const nameOf = (rowId: string, language: DisplayLanguage): string => {
-  const found = (MANUSCRIPT.icons ?? []).find((one) => one.rowId === rowId)?.label[language]
-  if (found === undefined) throw new Error(`the dictionary has no icons ${rowId} in ${language}`)
+const nameOf = (specTableRowId: string, language: DisplayLanguage): string => {
+  const found = (MANUSCRIPT.icons ?? []).find((one) => one.specTableRowId === specTableRowId)?.label[language]
+  if (found === undefined) throw new Error(`the dictionary has no icons ${specTableRowId} in ${language}`)
   return found
 }
 
-const helpNoteOf = (rowId: string, language: DisplayLanguage): string => {
-  const found = (MANUSCRIPT.helpNotes ?? []).find((one) => one.rowId === rowId)?.text[language]
-  if (found === undefined) throw new Error(`the dictionary has no helpNotes ${rowId} in ${language}`)
+const helpNoteOf = (specTableRowId: string, language: DisplayLanguage): string => {
+  const found = (MANUSCRIPT.helpNotes ?? []).find((one) => one.specTableRowId === specTableRowId)?.text[language]
+  if (found === undefined) throw new Error(`the dictionary has no helpNotes ${specTableRowId} in ${language}`)
   return found
 }
 
@@ -147,13 +147,13 @@ const helpOf = (helpLanguage: DisplayLanguage, screenLanguage: DisplayLanguage =
 describe('SEAM-4 the IC-20 item carries a link to the latest-version page (FR-036, FR-038, FR-073, S-350, CR-785)', () => {
   it('FR-038: the dictionary holds the agentApi link for IC-20 in both languages, and note *1 is gone', () => {
     expect(AGENT_API_LINKS).toHaveLength(1)
-    expect(AGENT_API_LINKS[0]?.rowId).toBe('IC-20')
+    expect(AGENT_API_LINKS[0]?.specTableRowId).toBe('IC-20')
     for (const language of LANGUAGES) {
       expect((AGENT_API_LINKS[0]?.text[language] ?? '').length, language).toBeGreaterThan(0)
       expect(AGENT_API_LINKS[0]?.text[language]?.includes(DOWNLOAD_URL_SEAT), language).toBe(false)
     }
     expect(MANUSCRIPT.helpFootnotes).toBeUndefined()
-    expect((MANUSCRIPT.helpNotes ?? []).map((one) => one.rowId)).toEqual(['IC-54'])
+    expect((MANUSCRIPT.helpNotes ?? []).map((one) => one.specTableRowId)).toEqual(['IC-54'])
   })
 
   it('FR-036: the help has no footnotes member any more', () => {

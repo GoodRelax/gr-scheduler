@@ -109,7 +109,7 @@ ASSETS = os.path.join(SPEC, '_assets')
 SRC = os.path.join(HERE, 'state-machines.json')
 ERD = os.path.join(HERE, 'erd.json')
 DOCUMENT_DATA = 'documentData'
-SCHEMA = os.path.join(HERE, 'state-machines.schema.json')
+SCHEMA = os.path.join(HERE, '..', '..', 'development-rules', 'manuscript-schemas', 'state-machines.schema.json')
 OUT_NAME = 'tbl-state-machines.md'
 OUT = os.path.join(ASSETS, OUT_NAME)
 

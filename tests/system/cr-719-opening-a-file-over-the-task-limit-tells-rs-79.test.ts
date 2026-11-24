@@ -10,7 +10,7 @@ test.use({ viewport: VIEWPORT, locale: 'en-US' })
 const SPEC = resolve('docs', 'spec')
 const REQUIREMENTS = readFileSync(resolve(SPEC, '01-04-requirements.md'), 'utf8').replace(/\r\n/g, '\n')
 const WORDS = JSON.parse(readFileSync(resolve(SPEC, '_source', 'display-words.json'), 'utf8')) as {
-  reasons: { rowId: string; text: { ja: string; en: string }; nextStep: { ja: string; en: string } }[]
+  reasons: { specTableRowId: string; text: { ja: string; en: string }; nextStep: { ja: string; en: string } }[]
 }
 const TEMPLATE = JSON.parse(readFileSync(resolve('src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8')) as Record<string, any>
 
@@ -20,7 +20,7 @@ const FR_023_NO_PARTIAL_APPLY = '部分的に適用してはならない（MUST 
 const NT_1_SAYS_WHY_IN_WORDS = 'どの項目が、なぜ誤りかを文字で示すこと（MUST）'
 
 const LIMIT = settingNumber('S-114')
-const RS_79 = WORDS.reasons.find((one) => one.rowId === 'RS-79')
+const RS_79 = WORDS.reasons.find((one) => one.specTableRowId === 'RS-79')
 
 // Spec: S-114
 const spelled = (words: string): string => words.replace('{importMaxItems}', String(LIMIT))

@@ -132,7 +132,7 @@ type Language = 'ja' | 'en'
 type Words = Readonly<Record<Language, string>>
 
 const WORDS = JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8')) as {
-  readonly icons: readonly { readonly rowId: string; readonly label: Words }[]
+  readonly icons: readonly { readonly specTableRowId: string; readonly label: Words }[]
   readonly surfaces: readonly { readonly name: string; readonly heading: Words }[]
   readonly helpHeadings: readonly { readonly block: string; readonly text: Words }[]
 }
@@ -145,7 +145,7 @@ function wordsOf(found: Words | undefined, what: string): Words {
   return found
 }
 
-const LEGEND_WORDS = wordsOf(WORDS.icons.find((one) => one.rowId === LEGEND)?.label, LEGEND)
+const LEGEND_WORDS = wordsOf(WORDS.icons.find((one) => one.specTableRowId === LEGEND)?.label, LEGEND)
 const TITLE_WORDS = wordsOf(WORDS.surfaces.find((one) => one.name === HELP_NAME)?.heading, HELP_NAME)
 const FIRST_HEADING_WORDS = wordsOf(WORDS.helpHeadings[0]?.text, 'the first help heading')
 

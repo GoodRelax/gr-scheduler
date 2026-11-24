@@ -1,10 +1,10 @@
 {
  "$schema": "https://json-schema.org/draft/2020-12/schema",
- "$id": "https://github.com/GoodRelax/gr-scheduler/docs/spec/_source/verification.schema.json",
+ "$id": "https://github.com/GoodRelax/gr-scheduler/docs/development-rules/manuscript-schemas/verification.schema.json",
  "$comment": [
   "HAND-WRITTEN CONTRACT -- EDIT THIS FILE.",
   "Validates _source/verification.json, which is the single source of truth for tables T-334 and T-218 of Chapter 7.",
-  "Same role as _source/property-items.schema.json and _source/state-machines.schema.json.",
+  "Same role as docs/development-rules/manuscript-schemas/property-items.schema.json and docs/development-rules/manuscript-schemas/state-machines.schema.json.",
   "The schema sees the SHAPE. The cross-table join -- every TS id a T-334 row names is one table T-218 defines -- is refused by verification_json_to_md.py, because JSON Schema cannot reach from one array into another."
  ],
  "title": "The verification manuscript",

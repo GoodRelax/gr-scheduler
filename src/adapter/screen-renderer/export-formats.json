@@ -2,57 +2,57 @@
  "$comment": "GENERATED -- do not edit by hand. Generated from docs/spec/01-04-requirements.md, table T-024. formats: the rows whose column \"offered on IC-2\" says so, in the table's order, which is the set and the order FR-096 (MUST) has the author choose from. files: every row that comes out as a file, offered or not -- RW-7 of table T-346 names the written report by the extension of one of them. Each row carries its row id and its extension; the shown name is display-words.json's, under the same row id (FR-038). Rebuild: npm run gen -- npm run gen:check fails on drift. The generator is tools/generate_exchange_formats.py.",
  "formats": [
   {
-   "rowId": "IO-2",
+   "specTableRowId": "IO-2",
    "extension": ".json"
   },
   {
-   "rowId": "IO-1",
+   "specTableRowId": "IO-1",
    "extension": ".xml"
   },
   {
-   "rowId": "IO-7",
+   "specTableRowId": "IO-7",
    "extension": ".html"
   },
   {
-   "rowId": "IO-3",
+   "specTableRowId": "IO-3",
    "extension": ".svg"
   },
   {
-   "rowId": "IO-4",
+   "specTableRowId": "IO-4",
    "extension": ".png"
   }
  ],
  "files": [
   {
-   "rowId": "IO-2",
+   "specTableRowId": "IO-2",
    "extension": ".json"
   },
   {
-   "rowId": "IO-1",
+   "specTableRowId": "IO-1",
    "extension": ".xml"
   },
   {
-   "rowId": "IO-7",
+   "specTableRowId": "IO-7",
    "extension": ".html"
   },
   {
-   "rowId": "IO-3",
+   "specTableRowId": "IO-3",
    "extension": ".svg"
   },
   {
-   "rowId": "IO-4",
+   "specTableRowId": "IO-4",
    "extension": ".png"
   },
   {
-   "rowId": "IO-8",
+   "specTableRowId": "IO-8",
    "extension": ".md"
   },
   {
-   "rowId": "IO-9",
+   "specTableRowId": "IO-9",
    "extension": ".tsv"
   },
   {
-   "rowId": "IO-10",
+   "specTableRowId": "IO-10",
    "extension": ".json"
   }
  ]

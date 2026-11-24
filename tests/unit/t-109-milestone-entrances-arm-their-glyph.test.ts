@@ -229,17 +229,17 @@ const ENTRANCES: readonly Entrance[] = T_109.rows
 // What the generator carried into `src/` -- the roster row each entrance names
 // ===========================================================================
 
-const ROSTER: readonly { readonly rowId: string; readonly armsShape?: string | null }[] = (
+const ROSTER: readonly { readonly specTableRowId: string; readonly armsShape?: string | null }[] = (
   JSON.parse(
     readFileSync(
       join(process.cwd(), 'src', 'adapter', 'screen-renderer', 'icon-roster.json'),
       'utf8',
     ),
-  ) as { readonly icons: readonly { readonly rowId: string; readonly armsShape?: string | null }[] }
+  ) as { readonly icons: readonly { readonly specTableRowId: string; readonly armsShape?: string | null }[] }
 ).icons
 
 const rosterShapeOf = (row: string): string | null => {
-  const found = ROSTER.find((one) => one.rowId === row)
+  const found = ROSTER.find((one) => one.specTableRowId === row)
   if (found === undefined) throw new Error(`icon-roster.json has no row ${row}`)
   return found.armsShape ?? null
 }

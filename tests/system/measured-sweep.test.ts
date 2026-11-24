@@ -175,11 +175,11 @@ const T233: SpecTable = specTable('T-233')
  *
  * @purity pure
  */
-function cellOf(table: SpecTable, rowId: string, column: number, columns: number): string {
-  const row = rowOf(table, rowId)
+function cellOf(table: SpecTable, specTableRowId: string, column: number, columns: number): string {
+  const row = rowOf(table, specTableRowId)
   if (row.cells.length !== columns) {
     throw new Error(
-      `table ${table.id} row ${rowId} has ${row.cells.length} cells after the row ID, not the ` +
+      `table ${table.id} row ${specTableRowId} has ${row.cells.length} cells after the row ID, not the ` +
         `${columns} this file reads by position -- a column was added or taken away`,
     )
   }
@@ -342,7 +342,7 @@ async function dropText(page: Page, name: string, text: string | readonly number
 
 /** One reason of table T-233 as the dictionary holds it. */
 interface ReasonWords {
-  readonly rowId: string
+  readonly specTableRowId: string
   readonly ja: string
   readonly en: string
 }
@@ -358,12 +358,12 @@ interface ReasonWords {
  */
 function reasonWordsOfDictionary(): ReasonWords[] {
   const held = JSON.parse(readFileSync(DICTIONARY, 'utf8')) as {
-    reasons?: Array<{ rowId?: string; text?: { ja?: string; en?: string } }>
+    reasons?: Array<{ specTableRowId?: string; text?: { ja?: string; en?: string } }>
   }
   const reasons = held.reasons ?? []
   if (reasons.length === 0) throw new Error(`${DICTIONARY} holds no reasons at all`)
   return reasons.map((one) => ({
-    rowId: one.rowId ?? '',
+    specTableRowId: one.specTableRowId ?? '',
     ja: one.text?.ja ?? '',
     en: one.text?.en ?? '',
   }))
@@ -418,11 +418,11 @@ const WHEEL_GLYPH_TOKEN = '{IC-102}'
 /** @purity semi-pure-mutable */
 function assignmentPressWordsByRow(): Map<string, string> {
   const held = JSON.parse(readFileSync(DICTIONARY, 'utf8')) as {
-    assignments?: Array<{ rowId?: string; press?: { ja?: string; en?: string } }>
+    assignments?: Array<{ specTableRowId?: string; press?: { ja?: string; en?: string } }>
   }
   const rows = held.assignments ?? []
   if (rows.length === 0) throw new Error(`${DICTIONARY} holds no assignments at all`)
-  return new Map(rows.map((one) => [one.rowId ?? '', `${one.press?.ja ?? ''} ${one.press?.en ?? ''}`]))
+  return new Map(rows.map((one) => [one.specTableRowId ?? '', `${one.press?.ja ?? ''} ${one.press?.en ?? ''}`]))
 }
 
 // Spec: FR-036
@@ -1656,16 +1656,16 @@ test('DFC-105: a help item reads shape, description, assignment, drawn at S-203'
 
   const printedByRow = new Map(read.shaped.map((one) => [one.row, one.texts]))
   const wrongKeys: string[] = []
-  for (const [rowId, itemId, key] of keyedShortcutRows()) {
+  for (const [specTableRowId, itemId, key] of keyedShortcutRows()) {
     const places = printedByRow.get(itemId)
     if (places === undefined) {
-      wrongKeys.push(`${rowId} is carried by ${itemId}, which is not in the help at all`)
+      wrongKeys.push(`${specTableRowId} is carried by ${itemId}, which is not in the help at all`)
       continue
     }
     // Why: an entrance item may carry a key and a mouse operation in one place
     // Why: (FR-036), so the key is looked for inside the place, not as all of it.
     if (!screenChordsOf(key).every((chord) => (places[2] ?? '').includes(chord))) {
-      wrongKeys.push(`${itemId} prints ${JSON.stringify(places[2] ?? '')} where T-036 ${rowId} writes ${JSON.stringify(key)}`)
+      wrongKeys.push(`${itemId} prints ${JSON.stringify(places[2] ?? '')} where T-036 ${specTableRowId} writes ${JSON.stringify(key)}`)
     }
   }
   expect(wrongKeys, 'the help does not stand the keys of table T-036 in the third place').toEqual([])
@@ -1766,8 +1766,8 @@ test('DFC-82: nothing drawn over a color control shows the color it holds', asyn
   const colorRows = colorPropertyRows()
   const judged: Array<{ row: string; value: string; over: string[] }> = []
   let pressed = 0
-  for (const rowId of colorRows) {
-    const row = page.locator(`${PANEL} div[data-field-row="${rowId}"]`).first()
+  for (const specTableRowId of colorRows) {
+    const row = page.locator(`${PANEL} div[data-field-row="${specTableRowId}"]`).first()
     if ((await row.count()) === 0) continue
     const entrances = row.locator('button[data-color-custom-entry]')
     const count = await entrances.count()
@@ -1776,7 +1776,7 @@ test('DFC-82: nothing drawn over a color control shows the color it holds', asyn
       pressed += 1
       await expect
         .poll(async () => row.locator('input[type="color"]').count(), {
-          message: `pressing the custom-color entrance of ${rowId} brought up no host color input (CV-9)`,
+          message: `pressing the custom-color entrance of ${specTableRowId} brought up no host color input (CV-9)`,
           timeout: 5_000,
         })
         .toBeGreaterThan(0)
@@ -1819,7 +1819,7 @@ test('DFC-82: nothing drawn over a color control shows the color it holds', asyn
             out.push({ row: asked.rowName, value, over })
           }
           return out
-        }, { rowName: rowId, panel: PANEL })),
+        }, { rowName: specTableRowId, panel: PANEL })),
       )
     }
   }
@@ -2761,7 +2761,7 @@ test('DFC-220: a picture too tall to draw is refused as RS-43, and the other for
       const said = (await readNotices(page)).join(' ')
       return reasons
         .filter((one) => (one.ja !== '' && said.includes(one.ja)) || (one.en !== '' && said.includes(one.en)))
-        .map((one) => one.rowId)
+        .map((one) => one.specTableRowId)
     }
     const clear = async (): Promise<void> => {
       // `NT-8` (MUST) has `Esc` take the newest notice down, and the same key
@@ -2836,8 +2836,8 @@ const T238_FIRST_LINE = 1
 const T238_SECOND_LINE = 2
 
 /** One line of a tier as table T-238 writes it, back-quotes taken off. @purity pure */
-function tierLine(rowId: string, column: number): string {
-  return cellOf(T238, rowId, column, T238_COLUMNS).replace(/`/g, '').trim()
+function tierLine(specTableRowId: string, column: number): string {
+  return cellOf(T238, specTableRowId, column, T238_COLUMNS).replace(/`/g, '').trim()
 }
 
 // GOES RED IF: a bar shape armed and pressed WITHOUT a drag puts a task on the
@@ -3730,7 +3730,7 @@ async function standingNotices(page: Page): Promise<Standing> {
 function reasonsCarriedBy(said: string): readonly string[] {
   return reasonWordsOfDictionary()
     .filter((one) => (one.ja !== '' && said.includes(one.ja)) || (one.en !== '' && said.includes(one.en)))
-    .map((one) => one.rowId)
+    .map((one) => one.specTableRowId)
 }
 
 /** How many times a piece of text carries one word. @purity pure */
@@ -4130,7 +4130,7 @@ test('DFC-236: the same reason raised again counts on the standing notice instea
       `the notice ${unreadable.name} raised reads ${JSON.stringify(once.text)}, and table T-233 is where ` +
         'every reason a notice may carry lives',
     ).toHaveLength(1)
-    const carried = reasonWordsOfDictionary().find((one) => one.rowId === reasons[0])
+    const carried = reasonWordsOfDictionary().find((one) => one.specTableRowId === reasons[0])
     if (carried === undefined) return
     const word = once.text.includes(carried.ja) ? carried.ja : carried.en
 
@@ -4139,7 +4139,7 @@ test('DFC-236: the same reason raised again counts on the standing notice instea
     const twice = await standingNotices(page)
     expect(
       timesCarried(twice.text, word),
-      `dropping ${unreadable.name} a second time put the same reason (${carried.rowId}) up ` +
+      `dropping ${unreadable.name} a second time put the same reason (${carried.specTableRowId}) up ` +
         `${timesCarried(twice.text, word)} times; NT-3 (MUST) has the standing sheet counted up ` +
         'instead of a second one being stacked',
     ).toBe(1)

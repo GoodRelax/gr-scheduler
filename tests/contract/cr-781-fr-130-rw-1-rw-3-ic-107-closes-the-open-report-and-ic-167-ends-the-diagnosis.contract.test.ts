@@ -33,7 +33,7 @@ const cellOf = (table: string, id: string, heading: string): string =>
 
 type Language = 'ja' | 'en'
 const RE_WORD = (language: Language): string => {
-  const found = (WORDS['icons'] as readonly Record<string, any>[]).find((one) => one['rowId'] === 'IC-168')
+  const found = (WORDS['icons'] as readonly Record<string, any>[]).find((one) => one['specTableRowId'] === 'IC-168')
   const word = found?.['label']?.[language]
   if (typeof word !== 'string' || word === '') throw new Error(`the dictionary has no word for IC-168 in ${language}`)
   return word

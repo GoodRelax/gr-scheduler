@@ -25,7 +25,9 @@ const TABLE_PRINTER = 'docs/spec/_source/agent_api_members_json_to_md.py'
 const SOURCE_DIR = 'docs/spec/_source'
 const COMMAND_GENERATOR = 'tools/generate_document_commands.py'
 
-const COPIED = [SOURCE_DIR, MEMBERS_UNIT, RELAYED_UNIT, RELAY_UNIT, DESCRIPTIONS, GENERATOR, DESCRIPTION_GENERATOR, COMMAND_GENERATOR]
+// Why: the manuscript schemas live beside the development rules (JDG-3420), and the generators validate against them.
+const SCHEMA_DIR = 'docs/development-rules/manuscript-schemas'
+const COPIED = [SOURCE_DIR, SCHEMA_DIR, MEMBERS_UNIT, RELAYED_UNIT, RELAY_UNIT, DESCRIPTIONS, GENERATOR, DESCRIPTION_GENERATOR, COMMAND_GENERATOR]
 
 interface Member {
   id: string

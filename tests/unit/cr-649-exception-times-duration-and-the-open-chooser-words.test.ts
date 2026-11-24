@@ -252,11 +252,11 @@ describe('JDG-1164 / JDG-1223: the Open Chooser (U-56) heading and the three des
   }
 
   /** @purity pure */
-  function hintOf(words: Record<string, any>, rowId: string): unknown {
+  function hintOf(words: Record<string, any>, specTableRowId: string): unknown {
     const entry = Object.values(words)
       .filter((one): one is Record<string, any>[] => Array.isArray(one))
       .flat()
-      .find((one) => one?.['rowId'] === rowId && one?.['hint'] !== undefined)
+      .find((one) => one?.['specTableRowId'] === specTableRowId && one?.['hint'] !== undefined)
     return entry?.['hint']
   }
 
@@ -274,6 +274,6 @@ describe('JDG-1164 / JDG-1223: the Open Chooser (U-56) heading and the three des
 
   it('FR-038: the shipped dictionary carries the same heading and descriptions as the manuscript', () => {
     expect(headingOf(SHIPPED)).toEqual(headingOf(MANUSCRIPT))
-    for (const rowId of ['IC-71', 'IC-72', 'IC-73']) expect(hintOf(SHIPPED, rowId)).toEqual(hintOf(MANUSCRIPT, rowId))
+    for (const specTableRowId of ['IC-71', 'IC-72', 'IC-73']) expect(hintOf(SHIPPED, specTableRowId)).toEqual(hintOf(MANUSCRIPT, specTableRowId))
   })
 })

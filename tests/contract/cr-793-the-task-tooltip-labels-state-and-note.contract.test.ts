@@ -42,7 +42,7 @@ const TL_14_NO_LINE = '`notes` が `null`、空、または空白と改行だけ
 const TL_1_NOTE_UNDER_PROGRESS = '`TL-8` の完了率・`TL-14` の備考・`TL-9` の期限を、この順に 1 行ずつ出すこと（MUST）'
 
 interface Worded {
-  readonly rowId?: string
+  readonly specTableRowId?: string
   readonly part?: string
   readonly text?: Readonly<Record<Language, string>>
   readonly label?: Readonly<Record<Language, string>>
@@ -55,18 +55,18 @@ const WORDS = JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_sour
   readonly propertyField: readonly Worded[]
 }
 
-const wordIn = (list: readonly Worded[], key: { rowId?: string; part?: string }, language: Language): string => {
-  const found = list.find((one) => (key.rowId !== undefined ? one.rowId === key.rowId : one.part === key.part))
+const wordIn = (list: readonly Worded[], key: { specTableRowId?: string; part?: string }, language: Language): string => {
+  const found = list.find((one) => (key.specTableRowId !== undefined ? one.specTableRowId === key.specTableRowId : one.part === key.part))
   const word = found?.text?.[language] ?? found?.label?.[language]
-  if (word === undefined) throw new Error(`the dictionary has no ${key.rowId ?? key.part}`)
+  if (word === undefined) throw new Error(`the dictionary has no ${key.specTableRowId ?? key.part}`)
   return word
 }
 
 // Spec: DT-3, PR-10
-const PROGRESS_WORD = (language: Language): string => wordIn(WORDS.delayReportColumns, { rowId: 'DT-3' }, language)
-const STATE_WORD = (rowId: string, language: Language): string =>
-  wordIn(rowId.startsWith('PS-') ? WORDS.planActualStates : WORDS.delayReportStatuses, { rowId }, language)
-const DEADLINE_WORD = (language: Language): string => wordIn(WORDS.properties, { rowId: 'PR-10' }, language)
+const PROGRESS_WORD = (language: Language): string => wordIn(WORDS.delayReportColumns, { specTableRowId: 'DT-3' }, language)
+const STATE_WORD = (specTableRowId: string, language: Language): string =>
+  wordIn(specTableRowId.startsWith('PS-') ? WORDS.planActualStates : WORDS.delayReportStatuses, { specTableRowId }, language)
+const DEADLINE_WORD = (language: Language): string => wordIn(WORDS.properties, { specTableRowId: 'PR-10' }, language)
 const DAYS_UNIT = (language: Language): string => wordIn(WORDS.propertyField, { part: 'workingDaysUnit' }, language)
 
 interface SettingsRow {
@@ -429,7 +429,7 @@ describe('CR-793 TL-13 -- Tooltip.rows: the labelled lines as label and value, t
       expect(find(`${PROGRESS_WORD(language)}:`)).toBe(`50% (${STATE_WORD('DG-4', language)})`)
       expect(find(`${DEADLINE_WORD(language)}:`)).toBe(language === 'ja' ? '2026/03/20 (金)' : '2026/03/20 (Fri)')
       expect(find(`${STATE_WORD('DG-4', language)}:`)).toBe(`${lateDaysOf(FULL)} ${DAYS_UNIT(language)}`)
-      expect(find(`${wordIn(WORDS.delayReportColumns, { rowId: 'DT-2' }, language)}:`)).toBe('Ada, Bob')
+      expect(find(`${wordIn(WORDS.delayReportColumns, { specTableRowId: 'DT-2' }, language)}:`)).toBe('Ada, Bob')
     })
 
     it(`rows: text is the rows joined, one line each, labelled ones as "word: value" (${language})`, () => {

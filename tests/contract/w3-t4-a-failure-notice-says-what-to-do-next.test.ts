@@ -15,7 +15,7 @@ const UNLOCK_SURFACE = 'Watermark Unlock'
 const FAILURE_ROWS: readonly string[] = T_233.rows.filter((row) => bare(row.cells[1] ?? '') === 'NT-3a').map((row) => row.id)
 
 interface Words {
-  readonly rowId: string
+  readonly specTableRowId: string
   readonly nextStep?: { readonly ja?: string; readonly en?: string }
 }
 
@@ -34,7 +34,7 @@ describe('NT-3a -- the manuscript these cases are driven by', () => {
 describe(`NT-3a -- ${NT_3A}`, () => {
   it.each(FAILURE_ROWS.map((row) => [row]))('%s: the dictionary gives a next step in both languages', (row) => {
     const shared = /`(RS-\d+)`/.exec(T_233.rows.find((one) => one.id === row)?.by['まとめ方'] ?? '')?.[1]
-    const found = WORDS.find((one) => one.rowId === (shared ?? row))
+    const found = WORDS.find((one) => one.specTableRowId === (shared ?? row))
     expect(found?.nextStep?.ja ?? '', `${row}: ${NT_3A_NOT_BARE}`).not.toBe('')
     expect(found?.nextStep?.en ?? '', `${row}: ${NT_3A_NOT_BARE}`).not.toBe('')
   })

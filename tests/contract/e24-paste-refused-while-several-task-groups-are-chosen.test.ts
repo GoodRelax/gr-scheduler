@@ -52,8 +52,8 @@ const EDIT_PERMISSION_NAME = 'fixture edit permission'
 // Why: no T-233 row names the E-24 refusal, so the case asks only what REASON_IS_A_T233_ROW
 // asks: the words told are the words of some T-233 row.
 const T233_IDS = new Set(specTable('T-233').rows.map((one) => one.id))
-const T233_WORDS: readonly string[] = (DISPLAY_WORDS.reasons as { rowId: string; text: { ja: string } }[])
-  .filter((one) => T233_IDS.has(one.rowId))
+const T233_WORDS: readonly string[] = (DISPLAY_WORDS.reasons as { specTableRowId: string; text: { ja: string } }[])
+  .filter((one) => T233_IDS.has(one.specTableRowId))
   .map((one) => one.text.ja)
 
 // Why: one Task per task group, all at the WBS top, so PARENT_FROM_THE_TASK_GROUP and "nothing chosen -> top"

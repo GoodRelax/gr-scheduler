@@ -72,7 +72,7 @@ const HEAD_FOLD_EVERY_TASK_GROUP = entranceFor('HF-12')
 const HEAD_OPEN_ONE_LEVEL = entranceFor('HF-16')
 
 interface ReasonWords {
-  readonly rowId: string
+  readonly specTableRowId: string
   readonly text: Readonly<Record<'ja' | 'en', string>>
 }
 const REASON_WORDS: readonly ReasonWords[] = (
@@ -80,9 +80,9 @@ const REASON_WORDS: readonly ReasonWords[] = (
     readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8'),
   ) as { reasons: ReasonWords[] }
 ).reasons
-const wordsOf = (rowId: string): string => {
-  const found = REASON_WORDS.find((one) => one.rowId === rowId)
-  if (found === undefined) throw new Error(`no words for ${rowId}`)
+const wordsOf = (specTableRowId: string): string => {
+  const found = REASON_WORDS.find((one) => one.specTableRowId === specTableRowId)
+  if (found === undefined) throw new Error(`no words for ${specTableRowId}`)
   return found.text.ja
 }
 

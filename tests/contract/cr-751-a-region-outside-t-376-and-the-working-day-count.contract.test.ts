@@ -100,7 +100,7 @@ describe('FR-156: a GRS JSON whose scheduleDataTimeZone is not a standard-time k
 // Spec: FR-156, T-376
 describe('FR-156 / T-376: the roster the code holds is the table', () => {
   it('TIME_ZONE_ROWS holds the T-376 rows in table order: row ID, key, offset, daylight row, abbreviation', () => {
-    expect(TIME_ZONE_ROWS.map((row) => [row.rowId, row.key, row.offsetMinutes, row.isDaylight, row.abbreviation])).toEqual(
+    expect(TIME_ZONE_ROWS.map((row) => [row.specTableRowId, row.key, row.offsetMinutes, row.isDaylight, row.abbreviation])).toEqual(
       T_376.rows.map((row) => [
         row.id,
         bare(row.by['鍵'] ?? ''),

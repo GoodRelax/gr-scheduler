@@ -12,7 +12,7 @@ const MANUSCRIPT_PATH = join(ROOT, 'docs', 'spec', '_source', 'display-words.jso
 const GENERATED_PATH = join(ROOT, 'src', 'adapter', 'screen-renderer', 'display-words.json')
 
 interface Entry {
-  readonly rowId?: unknown
+  readonly specTableRowId?: unknown
   readonly text?: { readonly ja?: unknown; readonly en?: unknown }
   readonly nextStep?: { readonly ja?: unknown; readonly en?: unknown }
 }
@@ -48,7 +48,7 @@ describe.each([
   { which: 'the generated copy the screen reads', path: GENERATED_PATH },
 ])('DFC-582 / T-233 closing -- $which holds one invariants entry per T-220 row', ({ path }) => {
   it('has exactly the IV- rows of table T-220 that share no reason words (FR-076, CR-712), each once', () => {
-    const ids = invariantsOf(path).map((one) => one.rowId)
+    const ids = invariantsOf(path).map((one) => one.specTableRowId)
     expect([...ids].sort()).toEqual([...IV_ROWS_WITH_OWN_WORDS].sort())
     expect(SHARING['IV-17']).toBe('RS-21')
   })

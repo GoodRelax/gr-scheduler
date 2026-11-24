@@ -248,7 +248,7 @@ def format_of(row):
         # ⛔ The em dash crosses as null and never as an empty string: an empty
         # extension is the tail of every file name, so it would match files
         # rather than none of them.
-        return {'rowId': row_id, 'extension': None, 'firstCharacter': None,
+        return {'specTableRowId': row_id, 'extension': None, 'firstCharacter': None,
                 'mediaType': None, 'offered': offered}
 
     extension = only_code_span(extension, row_id, 'extension')
@@ -264,7 +264,7 @@ def format_of(row):
         # A file format that only goes out. FR-096 (MUST) suggests a name from
         # this extension; OP-12 never judges the row, so it carries no second
         # side to be compared against and null is what says so.
-        return {'rowId': row_id, 'extension': extension, 'firstCharacter': None,
+        return {'specTableRowId': row_id, 'extension': extension, 'firstCharacter': None,
                 'mediaType': media_type, 'offered': offered}
 
     first = only_code_span(first, row_id, 'first non-blank character')
@@ -274,7 +274,7 @@ def format_of(row):
         sys.exit('generate_exchange_formats: %s of table %s writes %d '
                  'character(s) where the column holds one'
                  % (row_id, TABLE, len(first)))
-    return {'rowId': row_id, 'extension': extension, 'firstCharacter': first,
+    return {'specTableRowId': row_id, 'extension': extension, 'firstCharacter': first,
             'mediaType': media_type, 'offered': offered}
 
 
@@ -348,12 +348,12 @@ def build():
     headings, formats = read_formats()
     # ⭐ THE HEADINGS ARE THE TABLE'S OWN, carried so the artifact says which
     # column each key came from.
-    columns = {'rowId': HEAD_ROW, 'extension': HEAD_EXTENSION,
+    columns = {'specTableRowId': HEAD_ROW, 'extension': HEAD_EXTENSION,
                'firstCharacter': HEAD_FIRST}
     for heading in columns.values():
         if heading not in headings:
             sys.exit('generate_exchange_formats: table %s lost a column' % TABLE)
-    carried = [{'rowId': f['rowId'], 'extension': f['extension'],
+    carried = [{'specTableRowId': f['specTableRowId'], 'extension': f['extension'],
                 'firstCharacter': f['firstCharacter']} for f in formats]
     return {'$comment': BANNER, 'columns': columns, 'formats': carried}
 
@@ -362,7 +362,7 @@ def file_rows():
     """Every row that comes out as a FILE: (row id, extension, media type, offered)."""
     # @purity semi-pure-mutable
     _headings, formats = read_formats()
-    return [(f['rowId'], f['extension'], f['mediaType'], f['offered'])
+    return [(f['specTableRowId'], f['extension'], f['mediaType'], f['offered'])
             for f in formats if f['extension'] is not None]
 
 
@@ -383,9 +383,9 @@ def chooser_roster():
     """
     # @purity semi-pure-mutable
     rows = file_rows()
-    offered = [{'rowId': row_id, 'extension': extension}
+    offered = [{'specTableRowId': row_id, 'extension': extension}
                for row_id, extension, _m, is_offered in rows if is_offered]
-    files = [{'rowId': row_id, 'extension': extension}
+    files = [{'specTableRowId': row_id, 'extension': extension}
              for row_id, extension, _m, _o in rows]
     return {'$comment': CHOOSER_BANNER, 'formats': offered, 'files': files}
 

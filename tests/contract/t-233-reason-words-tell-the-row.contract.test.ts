@@ -84,7 +84,7 @@ interface Words {
 }
 
 interface ReasonEntry {
-  readonly rowId: string
+  readonly specTableRowId: string
   readonly text: Words
   readonly nextStep?: Words
 }
@@ -102,36 +102,36 @@ const DELIVERED = reasonsIn(GENERATED_PATH)
 const T233 = specTable('T-233')
 
 const SHARED_WORDS = /語は `(RS-\d+)`/
-const wordsRowOf = (rowId: string): string => {
-  const row = T233.rows.find((one) => one.id === rowId)
+const wordsRowOf = (specTableRowId: string): string => {
+  const row = T233.rows.find((one) => one.id === specTableRowId)
   const shared = SHARED_WORDS.exec(row?.by['まとめ方'] ?? '')
-  return shared?.[1] ?? rowId
+  return shared?.[1] ?? specTableRowId
 }
 
-const entryOf = (rowId: string): ReasonEntry => {
-  const found = DELIVERED.find((one) => one.rowId === wordsRowOf(rowId))
-  if (found === undefined) throw new Error(`the dictionary holds no reason ${rowId}`)
+const entryOf = (specTableRowId: string): ReasonEntry => {
+  const found = DELIVERED.find((one) => one.specTableRowId === wordsRowOf(specTableRowId))
+  if (found === undefined) throw new Error(`the dictionary holds no reason ${specTableRowId}`)
   return found
 }
 
 /** The 場面 the row states, exactly as the manuscript prints it. */
-const sceneOf = (rowId: string): string => {
-  const row = T233.rows.find((one) => one.id === rowId)
-  if (row === undefined) throw new Error(`table T-233 has no row ${rowId}`)
+const sceneOf = (specTableRowId: string): string => {
+  const row = T233.rows.find((one) => one.id === specTableRowId)
+  if (row === undefined) throw new Error(`table T-233 has no row ${specTableRowId}`)
   const scene = row.by['場面']
   if (scene === undefined) throw new Error('table T-233 has no 場面 column')
   return scene
 }
 
-const mannerOf = (rowId: string): string => {
-  const row = T233.rows.find((one) => one.id === rowId)
-  if (row === undefined) throw new Error(`table T-233 has no row ${rowId}`)
+const mannerOf = (specTableRowId: string): string => {
+  const row = T233.rows.find((one) => one.id === specTableRowId)
+  if (row === undefined) throw new Error(`table T-233 has no row ${specTableRowId}`)
   return bare(row.by['作法'] ?? '')
 }
 
 const ROW_IDS: readonly string[] = T233.rows.map((row) => row.id)
 
-const ROWS_WITH_OWN_WORDS: readonly string[] = ROW_IDS.filter((rowId) => wordsRowOf(rowId) === rowId)
+const ROWS_WITH_OWN_WORDS: readonly string[] = ROW_IDS.filter((specTableRowId) => wordsRowOf(specTableRowId) === specTableRowId)
 
 // ---------------------------------------------------------------------------
 // The pairing, as it was last read
@@ -567,10 +567,10 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   'RS-90': 'f6b4a054a668daef',
 }
 
-const fingerprintOf = (rowId: string): string => {
-  const entry = entryOf(rowId)
+const fingerprintOf = (specTableRowId: string): string => {
+  const entry = entryOf(specTableRowId)
   const payload = [
-    sceneOf(rowId),
+    sceneOf(specTableRowId),
     entry.text.ja,
     entry.text.en,
     entry.nextStep?.ja ?? '',
@@ -589,7 +589,7 @@ describe('table T-233 -- every row has its word, and no word has no row', () => 
     // 同表に無い理由を運んではならない（MUST NOT）」 and 「行を足すときは、辞書
     // の原稿にも項を足すこと（MUST）」. Both directions, so neither side can
     // grow alone.
-    expect([...DELIVERED.map((one) => one.rowId)].sort()).toEqual([...ROWS_WITH_OWN_WORDS].sort())
+    expect([...DELIVERED.map((one) => one.specTableRowId)].sort()).toEqual([...ROWS_WITH_OWN_WORDS].sort())
   })
 
   it('the words that reach src/ are the words the manuscript holds (Chapter 6.2, MUST)', () => {
@@ -603,10 +603,10 @@ describe('table T-233 -- every row has its word, and no word has no row', () => 
   it('says something in both languages for every row (NT-1, MUST)', () => {
     // 表 T-037 `NT-1`: 「どの項目が、なぜ誤りかを文字で示すこと（MUST）… 色や枠
     // だけで示してはならない（MUST NOT）」. An empty word shows nothing.
-    for (const rowId of ROW_IDS) {
-      const entry = entryOf(rowId)
-      expect(entry.text.ja.trim(), `${rowId} has no Japanese word`).not.toBe('')
-      expect(entry.text.en.trim(), `${rowId} has no English word`).not.toBe('')
+    for (const specTableRowId of ROW_IDS) {
+      const entry = entryOf(specTableRowId)
+      expect(entry.text.ja.trim(), `${specTableRowId} has no Japanese word`).not.toBe('')
+      expect(entry.text.en.trim(), `${specTableRowId} has no English word`).not.toBe('')
     }
   })
 
@@ -614,12 +614,12 @@ describe('table T-233 -- every row has its word, and no word has no row', () => 
     // 表 T-037 `NT-3a`: 「次に取れる手段を添えること（MUST）—— … 失敗したこと
     // だけを伝えて手段を示さない通知を出してはならない（MUST NOT）」. Which rows
     // those are is read off the 作法 column, never listed here.
-    const owing = ROW_IDS.filter((rowId) => mannerOf(rowId) === 'NT-3a')
+    const owing = ROW_IDS.filter((specTableRowId) => mannerOf(specTableRowId) === 'NT-3a')
     expect(owing.length, 'no row of T-233 calls for NT-3a any more').toBeGreaterThan(0)
-    for (const rowId of owing) {
-      const next = entryOf(rowId).nextStep
-      expect(next?.ja.trim(), `${rowId} is an NT-3a row with no next step in Japanese`).toBeTruthy()
-      expect(next?.en.trim(), `${rowId} is an NT-3a row with no next step in English`).toBeTruthy()
+    for (const specTableRowId of owing) {
+      const next = entryOf(specTableRowId).nextStep
+      expect(next?.ja.trim(), `${specTableRowId} is an NT-3a row with no next step in Japanese`).toBeTruthy()
+      expect(next?.en.trim(), `${specTableRowId} is an NT-3a row with no next step in English`).toBeTruthy()
     }
   })
 })
@@ -633,21 +633,21 @@ describe('table T-233 -- the word and the row it is carried for were read togeth
 
   it.each(ROW_IDS)(
     '%s: the 場面 and the words it is answered with have not moved apart',
-    (rowId) => {
+    (specTableRowId) => {
       // ⚠️ NOT A CLAIM THAT THE WORDS ARE TRUE -- see the head of this file. It
       // is the latch DFC-166 asks for: the row was rewritten, the word was not,
       // and nothing said so.
-      const entry = entryOf(rowId)
+      const entry = entryOf(specTableRowId)
       expect(
-        fingerprintOf(rowId),
-        `${rowId}: read these together and correct the words if they no longer tell the scene, ` +
+        fingerprintOf(specTableRowId),
+        `${specTableRowId}: read these together and correct the words if they no longer tell the scene, ` +
           `THEN record the new fingerprint.\n` +
-          `  表 T-233 場面: ${sceneOf(rowId)}\n` +
+          `  表 T-233 場面: ${sceneOf(specTableRowId)}\n` +
           `  ja: ${entry.text.ja}\n` +
           `  en: ${entry.text.en}\n` +
           `  next (ja): ${entry.nextStep?.ja ?? ''}\n` +
           `  next (en): ${entry.nextStep?.en ?? ''}`,
-      ).toBe(PAIRED_ON_2026_09_03[rowId])
+      ).toBe(PAIRED_ON_2026_09_03[specTableRowId])
     },
   )
 })

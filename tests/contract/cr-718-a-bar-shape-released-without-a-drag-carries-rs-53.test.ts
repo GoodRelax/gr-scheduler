@@ -72,9 +72,9 @@ const GROUND = { x: 700, y: 400 }
 const FAR_GROUND = { x: 1000, y: 460 }
 
 /** @purity pure */
-function wordsOf(rowId: string): { readonly ja: string; readonly en: string } {
-  const found = (DISPLAY_WORDS.reasons as { rowId: string; text: { ja: string; en: string } }[]).find((one) => one.rowId === rowId)
-  if (found === undefined) throw new Error(`the dictionary holds no ${rowId}`)
+function wordsOf(specTableRowId: string): { readonly ja: string; readonly en: string } {
+  const found = (DISPLAY_WORDS.reasons as { specTableRowId: string; text: { ja: string; en: string } }[]).find((one) => one.specTableRowId === specTableRowId)
+  if (found === undefined) throw new Error(`the dictionary holds no ${specTableRowId}`)
   return found.text
 }
 
@@ -121,9 +121,9 @@ describe('TC-8 -- a bar shape pressed and released without travel makes no task 
     expect(seen.raised, 'premise: RS-53 was raised').toContain('RS-53')
     expect(bench.notices(), THE_TEXT_DOES_NOT_DECIDE_AGAIN).toEqual([])
     const said = bench.notices().join(' | ')
-    for (const rowId of ['RS-53', 'RS-27', 'RS-10', 'RS-15']) {
+    for (const specTableRowId of ['RS-53', 'RS-27', 'RS-10', 'RS-15']) {
       for (const language of ['ja', 'en'] as const) {
-        expect(said.includes(wordsOf(rowId)[language]), `${rowId} words (${language}) are not on the screen`).toBe(false)
+        expect(said.includes(wordsOf(specTableRowId)[language]), `${specTableRowId} words (${language}) are not on the screen`).toBe(false)
       }
     }
   })

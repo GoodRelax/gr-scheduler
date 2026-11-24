@@ -192,7 +192,7 @@ const PASTE = keyOf('SK-5')
 const TASK_GROUP_PANEL = bare(rowOf(T_103, 'U-22').by['確定名（英）'] ?? '')
 
 interface ReasonWords {
-  readonly rowId: string
+  readonly specTableRowId: string
   readonly text: Readonly<Record<DisplayLanguage, string>>
   readonly nextStep: Readonly<Record<DisplayLanguage, string>>
 }

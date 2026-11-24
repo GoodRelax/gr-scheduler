@@ -106,7 +106,7 @@ const DAY_TIME_SEPARATOR = 'T'
 
 const PROPERTIES_PANEL = 'Properties Panel'
 
-const ITEM_WORDS_BY_ROW = new Map(displayWords.properties.map((item) => [item.rowId, item]))
+const ITEM_WORDS_BY_ROW = new Map(displayWords.properties.map((item) => [item.specTableRowId, item]))
 
 // Spec: FR-009, T-018
 const DEPENDENCY_KINDS = dependencyKinds.dependencyKinds
@@ -192,8 +192,8 @@ function commandItemOf(icon: IconId, language: DisplayLanguage): CommandItem {
 /** @purity pure */
 function panelCommands(language: DisplayLanguage): readonly CommandItem[] {
   return iconRoster.icons
-    .filter((row) => row.surfaces.includes(PROPERTIES_PANEL) && !IN_FIELD_ENTRIES.includes(row.rowId))
-    .map((row) => commandItemOf(row.rowId, language))
+    .filter((row) => row.surfaces.includes(PROPERTIES_PANEL) && !IN_FIELD_ENTRIES.includes(row.specTableRowId))
+    .map((row) => commandItemOf(row.specTableRowId, language))
 }
 
 // Spec: T-016
@@ -273,11 +273,11 @@ function heldByOf(row: string, appliesTo: AppliesTo): PropertyItem['heldBy'] {
 const PROPERTY_ITEMS: readonly PropertyItem[] = propertyItems.items.map((item) => {
   const appliesTo = item.appliesTo as AppliesTo
   return {
-    row: item.rowId,
+    row: item.specTableRowId,
     appliesTo,
     shownFor: item.shownFor,
     oneInput: item.oneInput,
-    heldBy: heldByOf(item.rowId, appliesTo),
+    heldBy: heldByOf(item.specTableRowId, appliesTo),
     columns: item.columns,
   } as PropertyItem
 })
@@ -347,7 +347,7 @@ function linkedEndsText(schedule: Schedule, task: Task, column: string, language
 
 const READ_ONLY_ROWS: readonly string[] = propertyItems.items
   .filter((item) => item.isReadOnly)
-  .map((item) => item.rowId)
+  .map((item) => item.specTableRowId)
 
 /** @purity pure */
 function textOfValue(value: unknown): string {
@@ -807,7 +807,7 @@ function linkedEndsOf(schedule: Schedule, task: Task, column: string): readonly 
 /** @purity pure */
 function badgeOf(dependency: Dependency, language: DisplayLanguage): PropertyBadge | null {
   const kind = DEPENDENCY_KINDS.find((one) => one.linkType === dependency.linkType)
-  if (kind === undefined || kind.rowId === FINISH_TO_START_ROW) return null
+  if (kind === undefined || kind.specTableRowId === FINISH_TO_START_ROW) return null
   const hint = PROPERTY_FIELD_WORDS.get(`${LINK_HINT_PART_PREFIX}${kind.abbreviation}`)?.[language] ?? ''
   return { text: kind.abbreviation, hint: hint.replace(ABBREVIATION_SLOT, () => kind.abbreviation) }
 }
@@ -1237,7 +1237,7 @@ function valueAt(settings: DocumentSettings, key: string): unknown {
     )
 }
 
-const THEME_HUE_WORDS = new Map(displayWords.themeHues.map((entry) => [entry.rowId, entry.text]))
+const THEME_HUE_WORDS = new Map(displayWords.themeHues.map((entry) => [entry.specTableRowId, entry.text]))
 
 const THEME_HUE_KEY = { holder: 'project', column: 'themeHue' } as const
 
@@ -1247,11 +1247,11 @@ const THEME_HUE_SWATCH_ROW = 'S-151'
 // Why: the swatches gray with the rest under monochrome (JDG-1244 6): the author picks by the gray each hue becomes.
 /** @purity pure */
 function themeHueField(hue: number, dark: boolean, monochrome: boolean, language: DisplayLanguage): PropertyField {
-  const words = themeHueRoster.map((one) => THEME_HUE_WORDS.get(one.rowId)?.[language] ?? '')
+  const words = themeHueRoster.map((one) => THEME_HUE_WORDS.get(one.specTableRowId)?.[language] ?? '')
   const chosen = themeHueRoster.findIndex((one) => one.hue === hue)
   const text = String(hue)
   return {
-    row: settingsWordOf(THEME_HUE_KEY.column)?.rowId ?? THEME_HUE_KEY.column,
+    row: settingsWordOf(THEME_HUE_KEY.column)?.specTableRowId ?? THEME_HUE_KEY.column,
     ...settingsNamed(THEME_HUE_KEY.column, language),
     text: words[chosen] ?? text,
     isEditable: true,
@@ -1282,7 +1282,7 @@ function parentTaskProgressToleranceField(workingDays: number, language: Display
   const column = PARENT_TASK_PROGRESS_TOLERANCE_KEY.column
   const text = String(workingDays)
   return {
-    row: settingsWordOf(column)?.rowId ?? column,
+    row: settingsWordOf(column)?.specTableRowId ?? column,
     ...settingsNamed(column, language),
     text,
     isEditable: true,
@@ -1314,7 +1314,7 @@ function fitSpanField(settings: DocumentSettings, language: DisplayLanguage): Pr
   const [startColumn] = FIT_SPAN_COLUMNS
   const texts = FIT_SPAN_COLUMNS.map((column) => textOfDateColumn(settings[column]))
   return {
-    row: settingsWordOf(startColumn)?.rowId ?? startColumn,
+    row: settingsWordOf(startColumn)?.specTableRowId ?? startColumn,
     ...settingsNamed(startColumn, language),
     text: texts.filter((one) => one !== '').join(PART_SEPARATOR),
     isEditable: true,
@@ -1336,7 +1336,7 @@ type CheckColumn = 'isFitSpanFixed' | 'isTaskGroupPanelWidthFixed' | 'isTimeOfDa
 function checkField(settings: DocumentSettings, column: CheckColumn, language: DisplayLanguage): PropertyField {
   const text = String(settings[column])
   return {
-    row: settingsWordOf(column)?.rowId ?? column,
+    row: settingsWordOf(column)?.specTableRowId ?? column,
     ...settingsNamed(column, language),
     text,
     isEditable: true,
@@ -1396,7 +1396,7 @@ function taskGroupPanelWidthField(settings: DocumentSettings, language: DisplayL
   const column = 'taskGroupPanelWidthPx'
   const text = String(Math.round(settings.taskGroupPanelWidthPx))
   return {
-    row: settingsWordOf(column)?.rowId ?? column,
+    row: settingsWordOf(column)?.specTableRowId ?? column,
     ...settingsNamed(column, language),
     text,
     isEditable: true,
@@ -1463,7 +1463,7 @@ function steppedSettingField(settings: DocumentSettings, column: SteppedSetting,
   const text = textOfValue(settings[column])
   const steps = SETTING_STEPS[column]
   return {
-    row: settingsWordOf(column)?.rowId ?? column,
+    row: settingsWordOf(column)?.specTableRowId ?? column,
     ...settingsNamed(column, language),
     text,
     isEditable: true,
@@ -1644,7 +1644,7 @@ function baseTimeZoneField(
     choiceValues: STANDARD_TIME_ZONE_KEYS,
   }
   return {
-    row: settingsWordOf(column)?.rowId ?? column,
+    row: settingsWordOf(column)?.specTableRowId ?? column,
     ...settingsNamed(column, language),
     text: '',
     isEditable: true,
@@ -1657,7 +1657,7 @@ function baseTimeZoneField(
 function displayTimeZonesFields(settings: DocumentSettings, language: DisplayLanguage): readonly PropertyField[] {
   const column = DISPLAY_TIME_ZONES_KEY.column
   const listed = twoLineChoice(timeZoneChoiceLines(TIME_ZONE_KEYS, language), [timeZoneFieldWord('none', language)])
-  const row = settingsWordOf(column)?.rowId ?? column
+  const row = settingsWordOf(column)?.specTableRowId ?? column
   const named = settingsNamed(column, language)
   return DISPLAY_TIME_ZONE_SLOTS.map((slot) => {
     const of = (key: string): string => `${slot}${DISPLAY_TIME_ZONE_SLOT_SEPARATOR}${key}`
@@ -1771,7 +1771,7 @@ const READ_ONLY_WORDS = new Map(displayWords.readOnlySettings.map((entry) => [en
 const SURFACE_WORDS = new Map(displayWords.surfaces.map((entry) => [entry.name, entry.heading]))
 
 const TABLE_COLUMN_WORDS = new Map(
-  [...displayWords.searchColumns, ...displayWords.resourceListColumns, ...displayWords.delayReportColumns].map((entry) => [entry.rowId, entry.text]),
+  [...displayWords.searchColumns, ...displayWords.resourceListColumns, ...displayWords.delayReportColumns].map((entry) => [entry.specTableRowId, entry.text]),
 )
 
 // Spec: T-380
@@ -1960,7 +1960,7 @@ function readOnlySettingsFields(settings: DocumentSettings, schedule: Schedule, 
     const section = group.section === undefined ? {} : { section: SURFACE_WORDS.get(group.section)?.[language] ?? group.section }
     const readOnlyGroup: PropertyFieldGroup = { key: group.group, name: readOnlyWord(group.group, language), ...section }
     return group.rows.map((row) => ({
-      row: settingsWordOf(row.key)?.rowId ?? row.key,
+      row: settingsWordOf(row.key)?.specTableRowId ?? row.key,
       ...(row.namePart === undefined ? settingsNamed(row.key, language) : partNamed(displayWords.readOnlySettings, row.namePart, language)),
       text: READ_ONLY_FORMATS[row.shape](valueAt(settings, row.key), schedule, language, settings),
       isEditable: false,
@@ -2071,9 +2071,9 @@ const TRANSPARENT_WORD_OF_COLUMN: Readonly<Partial<Record<string, string>>> = {
 const HUES_APART: readonly [number, number] = [0, 180]
 
 /** @purity pure */
-function followsThemeHue(rowId: string): boolean {
+function followsThemeHue(specTableRowId: string): boolean {
   const [one, other] = HUES_APART
-  return [false, true].some((dark) => colorOf(rowId, one, dark, false) !== colorOf(rowId, other, dark, false))
+  return [false, true].some((dark) => colorOf(specTableRowId, one, dark, false) !== colorOf(specTableRowId, other, dark, false))
 }
 
 /** @purity pure */

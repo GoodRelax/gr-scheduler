@@ -68,7 +68,7 @@ export interface OverlaysInput {
   readonly guideCursorMode: ViewerValues['guideCursorMode']
   readonly layout: ScheduleLayout
   readonly regions: ScreenRegions
-  readonly themed: (rowId: string) => string
+  readonly themed: (specTableRowId: string) => string
   readonly chosen: ChosenColor
   readonly drawsOperationState: boolean
   readonly guideCursorPoint: Point | null
@@ -107,7 +107,7 @@ const UNDECIDED_PARENT_MARK = '?'
 export function parentTaskParts(
   geometry: ScheduleGeometry,
   settings: DrawnSettings,
-  themed: (rowId: string) => string,
+  themed: (specTableRowId: string) => string,
   drawsOperationState: boolean,
 ): readonly string[] {
   const drawing = geometry.parentTasks
@@ -227,7 +227,7 @@ function grabPointSquares(box: HighlightGeometry, ground: string, edge: string):
 function highlightFillSvg(
   box: HighlightGeometry,
   chosen: ChosenColor,
-  themed: (rowId: string) => string,
+  themed: (specTableRowId: string) => string,
   rounding: string,
 ): readonly string[] {
   const fill =

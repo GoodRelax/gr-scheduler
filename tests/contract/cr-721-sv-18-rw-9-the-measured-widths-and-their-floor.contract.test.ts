@@ -92,7 +92,7 @@ describe('FR-151 T-330 SV-18 -- 測る相手は、見出しと、その表がい
   it.each(['ja', 'en'] as const)('SQ-5 hands over every state word of T-019a and the words of DG-1 to DG-4 in %s', (language) => {
     const samples = columnOf(viewOf(TASK_PANEL, language), 'SQ-5').widthSamples ?? []
     const states = WORDS.planActualStates.map((one) => one.text[language])
-    const markers = ['DG-1', 'DG-2', 'DG-3', 'DG-4'].map((row) => WORDS.delayReportStatuses.find((one) => one.rowId === row)?.text[language])
+    const markers = ['DG-1', 'DG-2', 'DG-3', 'DG-4'].map((row) => WORDS.delayReportStatuses.find((one) => one.specTableRowId === row)?.text[language])
     expect(states.length, 'premise: the dictionary holds the five states').toBe(5)
     expect(markers.every((one) => one !== undefined), 'premise: the dictionary holds the DG-1 to DG-4 words').toBe(true)
     for (const word of [...states, ...markers.map((one) => one ?? '')]) expect(samples, word).toContain(word)

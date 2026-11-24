@@ -50,14 +50,14 @@ const ROW = '[data-depth]'
 
 const WORDS = JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8')) as {
   readonly confirmation: readonly { readonly answer: string; readonly text: { readonly en: string } }[]
-  readonly reasons: readonly { readonly rowId: string; readonly text: { readonly ja: string; readonly en: string } }[]
+  readonly reasons: readonly { readonly specTableRowId: string; readonly text: { readonly ja: string; readonly en: string } }[]
 }
 const PROCEED_WORD = WORDS.confirmation.find((one) => one.answer === 'proceed')?.text.en ?? ''
 
 /** @purity pure */
-export function reasonWords(rowId: string): readonly string[] {
-  const found = WORDS.reasons.find((one) => one.rowId === rowId)
-  if (found === undefined) throw new Error(`the dictionary holds no ${rowId}`)
+export function reasonWords(specTableRowId: string): readonly string[] {
+  const found = WORDS.reasons.find((one) => one.specTableRowId === specTableRowId)
+  if (found === undefined) throw new Error(`the dictionary holds no ${specTableRowId}`)
   return [found.text.ja, found.text.en]
 }
 
@@ -355,12 +355,12 @@ export async function saveDocument(page: Page): Promise<string> {
 
 // Spec: FR-029, T-233
 /** @purity semi-pure-mutable */
-export async function toldReason(page: Page, rowId: string): Promise<boolean> {
+export async function toldReason(page: Page, specTableRowId: string): Promise<boolean> {
   const said = await page.evaluate(
     (area: string) => Array.from(document.querySelectorAll(area)).map((one) => one.textContent ?? '').join(' | '),
     NOTIFICATION_AREA,
   )
-  return reasonWords(rowId).some((words) => said.includes(words))
+  return reasonWords(specTableRowId).some((words) => said.includes(words))
 }
 
 // Why: IC-14 until the zoom stops moving, which is the ZE-1 end; bounded so a build that never

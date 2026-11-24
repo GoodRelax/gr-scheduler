@@ -1,10 +1,10 @@
 {
  "$schema": "https://json-schema.org/draft/2020-12/schema",
- "$id": "https://github.com/GoodRelax/gr-scheduler/docs/spec/_source/document-commands.schema.json",
+ "$id": "https://github.com/GoodRelax/gr-scheduler/docs/development-rules/manuscript-schemas/document-commands.schema.json",
  "$comment": [
   "HAND-WRITTEN CONTRACT -- EDIT THIS FILE.",
   "Validates _source/document-commands.json, which is the single source of truth for table T-108 (the document commands and the values each one carries) (CR-766).",
-  "Same role as _source/agent-api-members.schema.json.",
+  "Same role as docs/development-rules/manuscript-schemas/agent-api-members.schema.json.",
   "The schema sees the SHAPE. What JSON Schema cannot say -- a row id written twice, a value pointing at a row erd.json or settings.json does not hold, a type naming nothing, a line whose parenthesis does not close -- is refused by document_commands_json_to_md.py."
  ],
  "title": "The document commands manuscript",

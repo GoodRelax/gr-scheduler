@@ -70,7 +70,7 @@ def build():
     items = []
     for item in doc['items']:
         one = {
-            'rowId': item['id'],
+            'specTableRowId': item['id'],
             'columns': list(item['columns']),
             'inputKinds': list(item['inputKinds']),
             'isReadOnly': bool(item.get('isReadOnly', False)),

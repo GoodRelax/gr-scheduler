@@ -16,7 +16,7 @@ const LEFT_OUT = ['MK-15', 'MK-16', 'MK-17']
 const LEFT_OUT_WITH_WORDS = ['MK-15', 'MK-16']
 
 const wordsOf = (row: string, language: DisplayLanguage): string => {
-  const found = (DICTIONARY.assignments ?? []).find((one) => one.rowId === row)?.text[language]
+  const found = (DICTIONARY.assignments ?? []).find((one) => one.specTableRowId === row)?.text[language]
   if (found === undefined) throw new Error(`the dictionary assignments has no ${row} in ${language}`)
   return found
 }
@@ -47,6 +47,6 @@ describe('DFC-3004 -- FR-036 the T-023 rows in the help', () => {
   })
 
   it('the retired MK-17 has no words in the dictionary, so the help has none to draw', () => {
-    expect((DICTIONARY.assignments ?? []).some((one) => one.rowId === 'MK-17')).toBe(false)
+    expect((DICTIONARY.assignments ?? []).some((one) => one.specTableRowId === 'MK-17')).toBe(false)
   })
 })

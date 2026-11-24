@@ -13,9 +13,9 @@ import { specTable } from '../contract/spec-table'
 
 const LAST_SAVED_AT = '2026-10-03T09:00:00'
 
-const cellOf = (tableId: string, rowId: string, heading: string): string => {
-  const row = specTable(tableId).rows.find((one) => one.id === rowId)
-  if (row === undefined) throw new Error(`table ${tableId} has no row ${rowId}`)
+const cellOf = (tableId: string, specTableRowId: string, heading: string): string => {
+  const row = specTable(tableId).rows.find((one) => one.id === specTableRowId)
+  if (row === undefined) throw new Error(`table ${tableId} has no row ${specTableRowId}`)
   const cell = row.by[heading]
   if (cell === undefined) throw new Error(`table ${tableId} has no ${heading}; it has ${Object.keys(row.by).join(', ')}`)
   return cell

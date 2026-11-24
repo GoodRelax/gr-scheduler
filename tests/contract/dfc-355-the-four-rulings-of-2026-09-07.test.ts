@@ -452,14 +452,14 @@ const nestedFrom = (flat: Readonly<Record<string, unknown>>): Record<string, unk
 const SETTINGS = nestedFrom(SETTINGS_DEFAULTS) as unknown as DocumentSettings
 
 /** S-225 and S-226 as table T-206 states them, read out of the manuscript. */
-function settingsRowValue(rowId: string): number {
-  const row = specTable('T-206').rows.find((one) => one.id === rowId)
-  if (row === undefined) throw new Error(`table T-206 no longer has row ${rowId}`)
+function settingsRowValue(specTableRowId: string): number {
+  const row = specTable('T-206').rows.find((one) => one.id === specTableRowId)
+  if (row === undefined) throw new Error(`table T-206 no longer has row ${specTableRowId}`)
   // The default column of table T-206, e.g. 「16px」. ⛔ Read by HEADING and
   // never by position: the table's own convention is that a column may move.
   const stated = bare(row.by['既定'] ?? '')
   const digits = /-?\d+(?:\.\d+)?/.exec(stated)
-  if (digits === null) throw new Error(`table T-206 row ${rowId} states no number: ${stated}`)
+  if (digits === null) throw new Error(`table T-206 row ${specTableRowId} states no number: ${stated}`)
   return Number(digits[0])
 }
 
@@ -709,7 +709,7 @@ function everyWordIn(language: DisplayLanguage): string[] {
 }
 
 function questionWord(row: string, language: DisplayLanguage): string {
-  const entry = displayWords.questions.find((one) => one.rowId === row)
+  const entry = displayWords.questions.find((one) => one.specTableRowId === row)
   if (entry === undefined) throw new Error(`the dictionary holds no question ${row}`)
   return entry.text[language]
 }

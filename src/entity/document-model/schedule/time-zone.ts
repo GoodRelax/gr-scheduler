@@ -9,7 +9,7 @@ import timeZoneRoster from './time-zone-roster.json' with { type: 'json' }
 // Spec: FR-156, T-376
 // Why: abbreviation is null on the one row nobody uses as a clock (UTC-12:00); the screen then prints offsetName.
 export interface TimeZoneRow {
-  readonly rowId: string
+  readonly specTableRowId: string
   readonly key: string
   readonly offsetMinutes: number
   readonly isDaylight: boolean

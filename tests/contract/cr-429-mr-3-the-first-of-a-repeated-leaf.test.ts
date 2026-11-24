@@ -31,13 +31,13 @@ const RS_60_COUNT = '件数を添えること —— 採らなかった要素の
 const WORDS = ['docs/spec/_source/display-words.json', 'src/adapter/screen-renderer/display-words.json'] as const
 
 interface ReasonEntry {
-  readonly rowId: string
+  readonly specTableRowId: string
   readonly text: { readonly ja: string; readonly en: string }
 }
 
-function reasonIn(path: string, rowId: string): ReasonEntry | undefined {
+function reasonIn(path: string, specTableRowId: string): ReasonEntry | undefined {
   const raw = JSON.parse(readFileSync(join(process.cwd(), ...path.split('/')), 'utf8')) as { reasons: ReasonEntry[] }
-  return raw.reasons.find((each) => each.rowId === rowId)
+  return raw.reasons.find((each) => each.specTableRowId === specTableRowId)
 }
 
 function rs60(): { readonly scene: string; readonly manner: string; readonly source: string } {

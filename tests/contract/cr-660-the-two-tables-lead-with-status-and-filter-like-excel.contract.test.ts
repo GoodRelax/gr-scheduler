@@ -92,8 +92,8 @@ const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '
 type Words = Record<DisplayLanguage, string>
 const WORDS = JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8')) as {
   readonly searchPanel: readonly { readonly part: string; readonly text: Words }[]
-  readonly searchColumns: readonly { readonly rowId: string; readonly text: Words }[]
-  readonly delayReportColumns: readonly { readonly rowId: string; readonly text: Words }[]
+  readonly searchColumns: readonly { readonly specTableRowId: string; readonly text: Words }[]
+  readonly delayReportColumns: readonly { readonly specTableRowId: string; readonly text: Words }[]
 }
 
 const TASK_COLUMNS = specTable('T-331').rows.filter((row) => row.by['表'] === 'タスク').map((row) => row.id)
@@ -416,12 +416,12 @@ describe('T-331 / T-347 -- the row order of each table is its column order (area
 
   it('T-331 / T-347: each heading is the dictionary word of its column', () => {
     for (const column of viewOf(TASK_PANEL).columns) {
-      const word = found(WORDS.searchColumns.find((one) => one.rowId === column.column), `the word of ${column.column}`)
+      const word = found(WORDS.searchColumns.find((one) => one.specTableRowId === column.column), `the word of ${column.column}`)
       expect(column.heading, column.column).toBe(word.text.ja)
       expect(column.heading, `${column.column} heading cell of T-331`).toBe(cellOf('T-331', column.column, '列の見出し（辞書）'))
     }
     for (const column of reportViewOf(OPENED_REPORT).columns) {
-      const word = found(WORDS.delayReportColumns.find((one) => one.rowId === column.column), `the word of ${column.column}`)
+      const word = found(WORDS.delayReportColumns.find((one) => one.specTableRowId === column.column), `the word of ${column.column}`)
       expect(column.heading, column.column).toBe(word.text.ja)
       expect(column.heading, `${column.column} heading cell of T-347`).toBe(cellOf('T-347', column.column, '欄の見出し（辞書）'))
     }

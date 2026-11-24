@@ -5,11 +5,13 @@
   "HAND-WRITTEN CONTRACT -- EDIT THIS FILE.",
   "Validates docs/spec/_source/glossary.json, the names dictionary and the single source of truth for every name GRS uses (JDG-3411, JDG-3419). The schema lives under docs/development-rules/ because the rules for writing a manuscript belong to the development rules (JDG-3420).",
   "Shape: the glossary keys of the NDD review standard, appendix A.6 'List of JSON Keys' (array terms[]; required key, label, definition; optional avoid, renames[], checkedBasis), plus project keys, each starting with x in camelCase as the standard asks (CR-857).",
-  "English is the primary text and Japanese its translation (JDG-3422, JDG-3825). Order is array position only (JDG-3423).",
-  "The schema sees the SHAPE. glossary_json_to_md.py refuses what JSON Schema cannot say: a key written twice, a group or parent or tag that names nothing, a child placed before its parent, and a group that holds no term."
+  "English is the primary text and Japanese its translation (JDG-3422, JDG-3825), in the dictionary and in this schema: every description has a sibling x-description-ja, and the title a sibling x-title-ja. Order is array position only (JDG-3423).",
+  "The schema sees the SHAPE. glossary_json_to_md.py refuses what JSON Schema cannot say: a key written twice, a group or parent or tag that names nothing, a child placed before its parent, a group that holds no term, a name cited in a definition that the dictionary lacks (JDG-3418), and an abbreviation without xExpansion (JDG-3524)."
  ],
  "title": "The names dictionary manuscript",
+ "x-title-ja": "名の辞書の原稿",
  "description": "Every name GRS uses: data entities, properties, screen parts, setting keys, Agent API members, document commands, the value words and the rules. One entry of terms[] is one term. The generated glossary tables and the review tables are printed from this file in one step (JDG-3416).",
+ "x-description-ja": "GRS が使うすべての名: データの実体・プロパティ・画面の部品・設定のキー・Agent API のメンバ・文書の命令・価値のことば・決まり。terms[] の 1 つの要素が 1 つの語である。生成する用語集の表とレビューの表は、このファイルから 1 段で印字する（JDG-3416）。",
  "type": "object",
  "required": [
   "$schema",
@@ -29,6 +31,7 @@
   },
   "xGroups": {
    "description": "The taxonomy (JDG-3415, JDG-3427), in reading order: a group comes before its sub-groups. The order of the groups is the order of the generated tables.",
+   "x-description-ja": "分類の木（JDG-3415・JDG-3427）。読む順に並べ、群はその下の群より前に置く。群の順が、生成する表の順になる。",
    "type": "array",
    "minItems": 1,
    "items": {
@@ -37,6 +40,7 @@
   },
   "terms": {
    "description": "Every term, in reading order: a definition uses only names defined earlier, and a child term follows its parent.",
+   "x-description-ja": "すべての語。読む順に並べる: 意味の文は前に定めた名だけを使い、子の語は親の語の後に置く。",
    "type": "array",
    "minItems": 1,
    "items": {
@@ -47,6 +51,7 @@
  "$defs": {
   "Text": {
    "description": "One text per language, keyed by its BCP 47 language tag (OKPN/OMPV: never two languages in one string, JDG-3425). en is the primary text; ja translates it; more languages may be added as further tags.",
+   "x-description-ja": "言語ごとに 1 つの文。キーは BCP 47 の言語タグ（OKPN/OMPV: 1 つの文字列に 2 つの言語を入れない。JDG-3425）。en が主の文で、ja はその訳。ほかの言語はタグを足して加える。",
    "type": "object",
    "required": [
     "en",
@@ -62,6 +67,7 @@
   },
   "TermKey": {
    "description": "The identifier of a term inside the dictionary: an English word or phrase in camelCase, unique across terms[], never a number.",
+   "x-description-ja": "辞書の中の語の識別子: 英語の語か句を camelCase で書く。terms[] の中で一意で、数にしない。",
    "type": "string",
    "pattern": "^[a-z][A-Za-z0-9]*$"
   },
@@ -71,6 +77,7 @@
   },
   "RulingId": {
    "description": "A ruling of the owner in docs/development-records/rulings.md.",
+   "x-description-ja": "docs/development-records/rulings.md にある、持ち主の裁定。",
    "type": "string",
    "pattern": "^JDG-[0-9]+$"
   },
@@ -87,7 +94,8 @@
     },
     "parent": {
      "$ref": "#/$defs/GroupKey",
-     "description": "The group this group sits in. Omitted for a top group."
+     "description": "The group this group sits in. A top group has no parent.",
+     "x-description-ja": "この群が入る群。いちばん上の群は parent を持たない。"
     },
     "title": {
      "$ref": "#/$defs/Text"
@@ -97,6 +105,7 @@
     },
     "tags": {
      "description": "Terms of other groups that this group points at instead of holding a term of the same meaning (the values group points at delayDiagnosis, JDG-3512).",
+     "x-description-ja": "ほかの群の語のうち、同じ意味の語を持つ代わりにこの群が指す語（価値の群は delayDiagnosis を指す。JDG-3512）。",
      "type": "array",
      "minItems": 1,
      "uniqueItems": true,
@@ -107,7 +116,8 @@
    }
   },
   "Rename": {
-   "description": "One rename of this term (NDD review standard, appendix A.2, step 2). A former name is never reused for another term and never listed again in avoid.",
+   "description": "One rename of this term (NDD review standard, appendix A.2, step 2). A former name stays retired: no other term takes it, and no avoid list repeats it.",
+   "x-description-ja": "この語の 1 回の改名（NDD レビュー基準の付録 A.2 の手順 2）。前の名は退いたままにする: ほかの語はその名を取らず、どの avoid もその名を繰り返さない。",
    "type": "object",
    "required": [
     "from",
@@ -120,12 +130,14 @@
     "from": {
      "type": "string",
      "minLength": 1,
-     "description": "The former name as it was written."
+     "description": "The former name as it was written.",
+     "x-description-ja": "前の名。書いたとおりの字で持つ。"
     },
     "version": {
      "type": "string",
      "minLength": 1,
-     "description": "The version, date or change request that made the rename."
+     "description": "The version, date or change request that made the rename.",
+     "x-description-ja": "改名をした版・日付・変更要求。"
     },
     "reason": {
      "$ref": "#/$defs/Text"
@@ -137,6 +149,11 @@
      "items": {
       "$ref": "#/$defs/RulingId"
      }
+    },
+    "xAppliedToSpec": {
+     "const": false,
+     "description": "Project key (x-prefixed): present, and false, while the specification still prints the former name. docs/spec/_source/glossary_json_to_md.py then prints `from` in docs/spec/_assets/tbl-glossary.md wherever the layout docs/spec/_source/glossary-tables.json names this term. CR-855 removes the key when it applies the rename to the specification (CR-857 step 2). At most one rename of a term carries it.",
+     "x-description-ja": "プロジェクトのキー（頭に x）: 仕様がまだ前の名を印字するあいだだけ持ち、値は false。そのあいだ docs/spec/_source/glossary_json_to_md.py は、配置の原稿 docs/spec/_source/glossary-tables.json がこの語を指すところに、docs/spec/_assets/tbl-glossary.md へ `from` を印字する。CR-855 が仕様へ改名を当てるとき、このキーを外す（CR-857 の段 2）。1 つの語でこれを持つ改名は 1 つまで。"
     }
    }
   },
@@ -156,14 +173,17 @@
     },
     "label": {
      "$ref": "#/$defs/Text",
-     "description": "The name shown in documents and screens. For a name a person reads as code writes it (a JSON key, an API member, a type), en is that written name."
+     "description": "The name shown in documents and screens. For a name a person reads as code writes it (a JSON key, an API member, a type), en is that written name.",
+     "x-description-ja": "文書と画面に出す名。人がコードの書くとおりに読む名（JSON のキー・API のメンバ・型）では、en はその書き名である。"
     },
     "definition": {
      "$ref": "#/$defs/Text",
-     "description": "What the term means. The schema and MCP descriptions take the English text."
+     "description": "What the term means. The schema and MCP descriptions take the English text. A name that the text writes in backticks or as Entity.column must be a name of this dictionary (JDG-3418).",
+     "x-description-ja": "語の意味。スキーマと MCP の説明は英語の文を使う。文がバッククォートか 実体.列 の形で書く名は、この辞書の名でなければならない（JDG-3418）。"
     },
     "avoid": {
-     "description": "Words (not sentences) that must not stand in for this term.",
+     "description": "Words (not sentences) that never stand in for this term.",
+     "x-description-ja": "この語の代わりに使わない語（文ではなく語）。",
      "type": "object",
      "additionalProperties": false,
      "minProperties": 1,
@@ -188,24 +208,29 @@
     },
     "xGroup": {
      "$ref": "#/$defs/GroupKey",
-     "description": "Project key (x-prefixed): the group of the taxonomy that holds the term."
+     "description": "Project key (x-prefixed): the group of the taxonomy that holds the term.",
+     "x-description-ja": "プロジェクトのキー（頭に x）: この語を持つ分類の群。"
     },
     "xParent": {
      "$ref": "#/$defs/TermKey",
-     "description": "Project key (x-prefixed): the term this term derives from (JDG-3415). The parent comes earlier in terms[]."
+     "description": "Project key (x-prefixed): the term this term derives from (JDG-3415). The parent comes earlier in terms[].",
+     "x-description-ja": "プロジェクトのキー（頭に x）: この語が派生する元の語（JDG-3415）。親は terms[] の前に置く。"
     },
     "xIdentifier": {
      "type": "string",
      "pattern": "^[A-Za-z][A-Za-z0-9]*$",
-     "description": "Project key (x-prefixed): the name as code and data write it (taskNameField under Task), given only when it differs from both key and label.en."
+     "description": "Project key (x-prefixed): the name as code and data write it (taskNameField under Task), given only when it differs from both key and label.en.",
+     "x-description-ja": "プロジェクトのキー（頭に x）: コードとデータが書く名（Task の taskNameField）。key とも label.en とも違うときだけ書く。"
     },
     "xOwner": {
      "type": "string",
      "pattern": "^[A-Za-z][A-Za-z0-9]*$",
-     "description": "Project key (x-prefixed): the entity or part that owns the written name, given when the written name means different things under different owners (kind under Color; JDG-3425)."
+     "description": "Project key (x-prefixed): the entity or part that owns the written name, given when the written name means different things under different owners (type under Color; JDG-3425).",
+     "x-description-ja": "プロジェクトのキー（頭に x）: 書き名を持つ実体か部分。書き名が持ち主ごとに違うものを指すときに書く（Color の type。JDG-3425）。"
     },
     "checkedBasis": {
      "description": "The rulings that record a person's check of this term (NDD review standard, 'List of JSON Keys': the optional key checkedBasis). Absent while no person has checked the term.",
+     "x-description-ja": "この語を人が確かめた記録の裁定（NDD レビュー基準の「JSON のキーの一覧」の任意のキー checkedBasis）。まだ誰も確かめていない語は持たない。",
      "type": "array",
      "minItems": 1,
      "uniqueItems": true,
@@ -215,24 +240,29 @@
     },
     "xSpecTableRowId": {
      "description": "Project key (x-prefixed): the specification table row that cites this term today (N-1, PR-1, IC-7), kept so that existing references still resolve (JDG-3491).",
+     "x-description-ja": "プロジェクトのキー（頭に x）: 今この語を引く仕様書の表の行（N-1・PR-1・IC-7）。今の参照が引き続き解けるように持つ（JDG-3491）。",
      "type": "string",
      "pattern": "^[A-Z]+-[0-9]+[a-z]?$"
     },
     "xSince": {
-     "description": "Project key (x-prefixed): for a term of a contract group (GRS JSON, Agent API, document commands), the schemaVersion or agentApiVersion that first published it. A published term never changes its name or meaning.",
+     "description": "Project key (x-prefixed): for a term of a contract group (GRS JSON, Agent API, document commands), the schemaVersionUtc or agentApiVersionUtc that first published it (JDG-3427). A published term keeps its name and its meaning.",
+     "x-description-ja": "プロジェクトのキー（頭に x）: 外との約束の群（GRS JSON・Agent API・文書の命令）の語で、その語を初めて公開した schemaVersionUtc か agentApiVersionUtc（JDG-3427）。公開した語は名も意味も保つ。",
      "type": "string",
      "minLength": 1
     },
     "xExpansion": {
      "$ref": "#/$defs/Text",
-     "description": "Project key (x-prefixed): the spelled-out name of an abbreviation (SSOT -> Single Source of Truth; JDG-3524)."
+     "description": "Project key (x-prefixed): the spelled-out name of an abbreviation (SSOT -> Single Source of Truth; JDG-3524). Every term whose label.en is an acronym carries it.",
+     "x-description-ja": "プロジェクトのキー（頭に x）: 略語を元の語に戻した形（SSOT -> Single Source of Truth。JDG-3524）。label.en が略語の形の語は、どれもこれを持つ。"
     },
     "xNonLiteral": {
      "$ref": "#/$defs/Text",
-     "description": "Project key (x-prefixed): why the Japanese label is not a literal translation of the English one. Present only for the few agreed exceptions."
+     "description": "Project key (x-prefixed): why the Japanese label is not a literal translation of the English one. Present only for the few agreed exceptions.",
+     "x-description-ja": "プロジェクトのキー（頭に x）: 日本語の名が英語の名の直訳でない訳。合意した少しの例外だけが持つ。"
     },
     "xUsage": {
      "description": "Project key (x-prefixed): example sentences for a term that is easy to misuse.",
+     "x-description-ja": "プロジェクトのキー（頭に x）: 使い違えやすい語の例文。",
      "type": "object",
      "additionalProperties": false,
      "minProperties": 1,
@@ -255,6 +285,7 @@
     },
     "xUses": {
      "description": "Project key (x-prefixed): where the generators print this term.",
+     "x-description-ja": "プロジェクトのキー（頭に x）: 生成器がこの語を印字する所。",
      "type": "array",
      "minItems": 1,
      "uniqueItems": true,
@@ -272,6 +303,7 @@
     },
     "xTags": {
      "description": "Project key (x-prefixed): related terms, by key. Every one must exist in terms[].",
+     "x-description-ja": "プロジェクトのキー（頭に x）: 関わりのある語を key で指す。どれも terms[] に無ければならない。",
      "type": "array",
      "minItems": 1,
      "uniqueItems": true,

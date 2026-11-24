@@ -1,0 +1,147 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "https://github.com/GoodRelax/gr-scheduler/docs/development-rules/manuscript-schemas/icons.schema.json",
+ "$comment": [
+  "HAND-WRITTEN CONTRACT -- EDIT THIS FILE.",
+  "Validates docs/spec/_source/icons.json, the rows of table T-109 (the whole of the icons, FR-029) (CR-857 step 2). The rows are design facts, not names, so they live outside the names dictionary docs/spec/_source/glossary.json.",
+  "English is the primary text and Japanese its translation, as in glossary.schema.json: every description has a sibling x-description-ja.",
+  "Read by docs/spec/_source/glossary_json_to_md.py, which prints table T-109 into docs/spec/_assets/tbl-glossary.md, and by tools/generate_icon_roster.py, which writes the icon roster into src/."
+ ],
+ "title": "The icon rows manuscript",
+ "x-title-ja": "アイコンの行の原稿",
+ "description": "One object per row of table T-109, in print order. A cell that holds Japanese is a language dictionary; a cell that holds a row id, a mark or a dash is a plain string. The table prose, caption and column headings stay in docs/spec/_source/glossary-tables.json.",
+ "x-description-ja": "表 T-109 の 1 行に 1 つの物。印字の順。日本語を持つ欄は言語の辞書、行 ID・印・ダッシュを持つ欄は言語の無い文字列。表の散文・見出し・列名は docs/spec/_source/glossary-tables.json が持つ。",
+ "type": "object",
+ "required": [
+  "$schema",
+  "icons"
+ ],
+ "additionalProperties": false,
+ "properties": {
+  "$schema": {
+   "type": "string"
+  },
+  "$comment": {
+   "description": "Notes for whoever edits this manuscript, one line per note. Not printed.",
+   "x-description-ja": "この原稿を直す人への注記。1 行に 1 つ。印字しない。",
+   "type": "array",
+   "items": {
+    "type": "string"
+   }
+  },
+  "icons": {
+   "type": "array",
+   "minItems": 1,
+   "items": {
+    "$ref": "#/$defs/icon"
+   }
+  }
+ },
+ "$defs": {
+  "language": {
+   "type": "object",
+   "required": [
+    "ja"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "ja": {
+     "type": "string",
+     "minLength": 1
+    },
+    "en": {
+     "type": "string",
+     "minLength": 1
+    }
+   }
+  },
+  "cell": {
+   "description": "A plain string with no Japanese character, or a language dictionary.",
+   "x-description-ja": "日本語の字を持たない文字列か、言語の辞書。",
+   "oneOf": [
+    {
+     "type": "string",
+     "minLength": 1,
+     "pattern": "^[^\\u3040-\\u30ff\\u4e00-\\u9fff\\uff00-\\uffef]*$"
+    },
+    {
+     "$ref": "#/$defs/language"
+    }
+   ]
+  },
+  "icon": {
+   "type": "object",
+   "required": [
+    "id",
+    "surfaces",
+    "group",
+    "entryTo",
+    "authority",
+    "switches",
+    "arms"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "id": {
+     "description": "The row id IC-n: the only join between this table and figure F-019.",
+     "x-description-ja": "行 ID IC-n。この表と図 F-019 をつなぐ唯一の継ぎ目。",
+     "type": "string",
+     "pattern": "^IC-[0-9]+[a-z]?$"
+    },
+    "surfaces": {
+     "description": "The surfaces the icon stands on (column 面), as row ids of table T-103. The table prints the name each row prints, so no new surface name can be written here.",
+     "x-description-ja": "アイコンが立つ面（列「面」）。表 T-103 の行 ID で持つ。表はその行が印字する名を印字するので、ここで新しい面の名を書けない。",
+     "type": "array",
+     "minItems": 1,
+     "uniqueItems": true,
+     "items": {
+      "type": "string",
+      "pattern": "^U-[0-9]+[a-z]?$"
+     }
+    },
+    "group": {
+     "description": "Column 群: the block the entry sits in on its surface, or an em dash. Never printed on the screen (FR-053).",
+     "x-description-ja": "列「群」: 面の上で入口が入る塊。無ければダッシュ。画面に刷らない（FR-053）。",
+     "$ref": "#/$defs/cell"
+    },
+    "entryTo": {
+     "description": "Column 何の入口か: what the icon is an entry to.",
+     "x-description-ja": "列「何の入口か」: アイコンが何の入口か。",
+     "$ref": "#/$defs/cell"
+    },
+    "authority": {
+     "description": "Column 正: the requirement or row that holds the rule.",
+     "x-description-ja": "列「正」: 規則を持つ要求か行。",
+     "$ref": "#/$defs/cell"
+    },
+    "switches": {
+     "description": "Column 切り替える設定値: the settings row the entry rewrites, or an em dash.",
+     "x-description-ja": "列「切り替える設定値」: 入口が書き換える設定値の行。無ければダッシュ。",
+     "$ref": "#/$defs/cell"
+    },
+    "arms": {
+     "description": "Column 構え: the row of table T-023b the pointer enters when the entry is pressed, or an em dash.",
+     "x-description-ja": "列「構え」: 入口を押したときポインタが入る表 T-023b の行。無ければダッシュ。",
+     "$ref": "#/$defs/cell"
+    },
+    "unspacedCells": {
+     "description": "Fields whose cell closes on the pipe with no space before it, kept so the printed table stayed byte-identical to the hand-written one at the switch (CR-857 step 2).",
+     "x-description-ja": "欄の閉じの縦線の前に空白を置かない欄のキー。切り替えのとき、印字した表を手書きの表とバイト単位で同じに保つために持つ（CR-857 の段 2）。",
+     "type": "array",
+     "minItems": 1,
+     "uniqueItems": true,
+     "items": {
+      "enum": [
+       "surfaces",
+       "group",
+       "entryTo",
+       "authority",
+       "switches",
+       "arms"
+      ]
+     }
+    }
+   }
+  }
+ }
+}

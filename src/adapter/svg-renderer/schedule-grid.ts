@@ -59,7 +59,7 @@ export interface GridInput {
   readonly areaBottom: number
   readonly scrollTop: number
   readonly monochrome: boolean
-  readonly themed: (rowId: string) => string
+  readonly themed: (specTableRowId: string) => string
   readonly chosen: ChosenColor
   readonly colorOfGroup: ReadonlyMap<
     Schedule['taskGroups'][number]['id'],

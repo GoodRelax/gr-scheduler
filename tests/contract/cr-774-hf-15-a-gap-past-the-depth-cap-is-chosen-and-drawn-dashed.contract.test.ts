@@ -70,7 +70,7 @@ describe('CR-774 -- the manuscript these cases are driven by', () => {
   })
 
   it('the dictionary holds the question in both languages with the limit as {maxGroupDepth}', () => {
-    const entry = (WORDS['questions'] as { rowId: string; text: { ja: string; en: string } }[]).find((one) => one.rowId === 'QN-16')
+    const entry = (WORDS['questions'] as { specTableRowId: string; text: { ja: string; en: string } }[]).find((one) => one.specTableRowId === 'QN-16')
     expect(entry?.text.ja).toContain('{maxGroupDepth}')
     expect(entry?.text.en).toContain('{maxGroupDepth}')
   })

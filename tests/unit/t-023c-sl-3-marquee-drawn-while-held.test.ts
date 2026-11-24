@@ -150,19 +150,19 @@ import { SETTINGS_CONSTANTS } from '../../src/entity/document-model/document-set
 // ===========================================================================
 
 /** One row of a numbered table, by its headings. */
-function rowOf(tableId: string, rowId: string): Readonly<Record<string, string>> {
-  const found = specTable(tableId).rows.find((one) => one.id === rowId)
-  if (found === undefined) throw new Error(`table ${tableId} has no row ${rowId}`)
+function rowOf(tableId: string, specTableRowId: string): Readonly<Record<string, string>> {
+  const found = specTable(tableId).rows.find((one) => one.id === specTableRowId)
+  if (found === undefined) throw new Error(`table ${tableId} has no row ${specTableRowId}`)
   return found.by
 }
 
 /** The last cell of a row, which is where 表 T-023c and 表 T-020 state a rule. */
-function ruleOf(tableId: string, rowId: string): string {
-  const found = specTable(tableId).rows.find((one) => one.id === rowId)
-  if (found === undefined) throw new Error(`table ${tableId} has no row ${rowId}`)
+function ruleOf(tableId: string, specTableRowId: string): string {
+  const found = specTable(tableId).rows.find((one) => one.id === specTableRowId)
+  if (found === undefined) throw new Error(`table ${tableId} has no row ${specTableRowId}`)
   const cell = found.cells[found.cells.length - 1]
   if (cell === undefined || cell.length === 0) {
-    throw new Error(`table ${tableId} row ${rowId} states nothing`)
+    throw new Error(`table ${tableId} row ${specTableRowId} states nothing`)
   }
   return cell
 }

@@ -14,7 +14,7 @@ export const NOTICE_ROLE = 'Delay Fix Notice'
 export type Language = 'ja' | 'en'
 export const LANGUAGES: readonly Language[] = ['ja', 'en']
 
-function sectionWord(section: string, field: 'part' | 'rowId', key: string, language: Language): string {
+function sectionWord(section: string, field: 'part' | 'specTableRowId', key: string, language: Language): string {
   const found = (WORDS[section] as readonly Record<string, any>[]).find((one) => one[field] === key)
   const text = found?.['text']?.[language]
   if (typeof text !== 'string') throw new Error(`the dictionary has no ${section}/${key} in ${language}`)
@@ -22,7 +22,7 @@ function sectionWord(section: string, field: 'part' | 'rowId', key: string, lang
 }
 
 export const fixWord = (part: string, language: Language = 'ja'): string => sectionWord('delayFixes', 'part', part, language)
-export const columnWord = (row: string, language: Language = 'ja'): string => sectionWord('delayFixColumns', 'rowId', row, language)
+export const columnWord = (row: string, language: Language = 'ja'): string => sectionWord('delayFixColumns', 'specTableRowId', row, language)
 
 export function entryLabel(icon: string, language: Language = 'ja'): string {
   const label = iconWord(icon, 'label', language)

@@ -13,7 +13,7 @@ watch those references. JDG-2691 seeds the name allow-list.
 
 WHAT COUNTS AS A REFERENCE. Two kinds, kept apart because they fail apart:
   - STRUCTURED: a field whose whole value names something defined elsewhere
-    -- `column: "AT-156"`, `valuesOf: ["S-69", ...]`, `rowId: "PR-33"`,
+    -- `column: "AT-156"`, `valuesOf: ["S-69", ...]`, `specTableRowId: "PR-33"`,
     `entity: "ColumnFilter"`. The FIELDS table below lists each one, with
     what it points at and, for a row id, the row families it may land in.
     A value that is not an id where an id belongs, that resolves nowhere, or
@@ -34,7 +34,8 @@ is credited to the JSON manuscript that file names in its banner, so `AT-156`
 Markdown file belongs to that Markdown file.
 
 WHAT IS READ. Every .json of _source except the generated ones -- the
-manuscripts AND the hand-written *.schema.json contracts (their prose names
+manuscripts AND the hand-written *.schema.json contracts of
+manuscript-schemas/ (their prose names
 the same keys, settings.schema.json among them).
 
 This module reads and returns; it prints nothing and writes nothing.
@@ -53,11 +54,14 @@ from retired import RETIRED  # noqa: E402
 
 SOURCE_DIR = 'docs/spec/_source'
 ASSETS_DIR = 'docs/spec/_assets'
+# The hand-written manuscript schemas live with the development rules (JDG-3420).
+SCHEMA_DIR = 'docs/development-rules/manuscript-schemas'
 
 ROW_ID = re.compile(r'^[A-Z]{1,3}-[0-9]+[a-z]?$')
 TABLE_ID = re.compile(r'^T-[0-9]+[a-z]?$')
 TOKEN = re.compile(r'(?<![A-Za-z0-9_-])([A-Z]{1,3}-[0-9]+[a-z]?)(?![A-Za-z0-9])')
-SCHEMA_FILE = re.compile(r'^\./([a-z0-9-]+\.schema\.json)$')
+SCHEMA_FILE = re.compile(r'^(?:\./|\.\./\.\./development-rules/manuscript-schemas/)'
+                         r'([a-z0-9-]+\.schema\.json)$')
 
 # The JSON files that are written FROM others, and what from. A reference
 # INSIDE one of these is its generator's, not a manuscript's, so it is not
@@ -90,7 +94,7 @@ FIELDS = {
     ('document-commands.json', 'key'): ('row', {'AT', 'S'}),
     ('document-commands.json', 'valuesOf'): ('row', {'S'}),
     ('document-commands.json', 'row'): ('row', {'PA'}),
-    ('display-words.json', 'rowId'): ('row', None),
+    ('display-words.json', 'specTableRowId'): ('row', None),
     ('display-words.json', 'firstRow'): ('row', {'IC'}),
     ('erd.json', 'defaultFrom'): ('row', {'S'}),
     ('erd.json', 'maxItemsFrom'): ('row', {'S'}),
@@ -174,7 +178,7 @@ def manuscripts(root='.'):
 
 def schemas(root='.'):
     """The hand-written *.schema.json contracts (not the generated one)."""
-    return sorted(n for n in os.listdir(os.path.join(root, SOURCE_DIR))
+    return sorted(n for n in os.listdir(os.path.join(root, SCHEMA_DIR))
                   if n.endswith('.schema.json') and n not in GENERATED_JSON)
 
 
@@ -380,14 +384,16 @@ def _structured(defs, rel, name, doc, path, key, value, kind, families):
 def references(defs, root='.'):
     """Every reference from a _source manuscript or schema, as Ref rows."""
     out = []
+    schema_names = set(schemas(root))
     for name in read_files(root):
-        rel = SOURCE_DIR + '/' + name
+        rel = (SCHEMA_DIR if name in schema_names else SOURCE_DIR) + '/' + name
         doc = read_json(rel, root)
         own = _own_ids(doc)
         if isinstance(doc, dict) and isinstance(doc.get('$schema'), str):
             m = SCHEMA_FILE.match(doc['$schema'])
             if m:
-                target = SOURCE_DIR + '/' + m.group(1)
+                target = (SCHEMA_DIR if m.group(1) in schema_names
+                          else SOURCE_DIR) + '/' + m.group(1)
                 ok = os.path.exists(os.path.join(root, target))
                 out.append(Ref(rel, '/$schema', '$schema', m.group(1),
                                'schema', target if ok else None,

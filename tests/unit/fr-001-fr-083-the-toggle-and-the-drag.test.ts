@@ -346,9 +346,9 @@ const MILESTONE = ((): Entrance => {
 })()
 
 /** The 値 column of table T-012, without the quotes the manuscript prints. */
-function shapeSpelling(rowId: string): string {
-  const row = specTable('T-012').rows.find((one) => one.id === rowId)
-  if (row === undefined) throw new Error(`table T-012 no longer has row ${rowId}`)
+function shapeSpelling(specTableRowId: string): string {
+  const row = specTable('T-012').rows.find((one) => one.id === specTableRowId)
+  if (row === undefined) throw new Error(`table T-012 no longer has row ${specTableRowId}`)
   return bare(row.by[VALUE_COLUMN] ?? '').replace(/'/g, '')
 }
 
@@ -371,16 +371,16 @@ const RS_54 = 'RS-54'
 const RS_10 = 'RS-10'
 
 /** The manner table T-233 writes a reason against. */
-function mannerOf(rowId: string): string {
-  const row = specTable('T-233').rows.find((one) => one.id === rowId)
-  if (row === undefined) throw new Error(`table T-233 no longer has row ${rowId}`)
+function mannerOf(specTableRowId: string): string {
+  const row = specTable('T-233').rows.find((one) => one.id === specTableRowId)
+  if (row === undefined) throw new Error(`table T-233 no longer has row ${specTableRowId}`)
   return bare(row.cells[1] ?? '')
 }
 
 /** The words FR-038's one dictionary holds for one row of table T-233. */
-const wordsOf = (rowId: string): { readonly ja: string; readonly en: string } => {
-  const found = (displayWords as any).reasons.find((one: any) => one.rowId === rowId)
-  if (found === undefined) throw new Error(`the dictionary holds no row ${rowId}`)
+const wordsOf = (specTableRowId: string): { readonly ja: string; readonly en: string } => {
+  const found = (displayWords as any).reasons.find((one: any) => one.specTableRowId === specTableRowId)
+  if (found === undefined) throw new Error(`the dictionary holds no row ${specTableRowId}`)
   return found.text
 }
 

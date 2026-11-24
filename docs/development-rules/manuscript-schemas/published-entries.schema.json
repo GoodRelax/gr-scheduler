@@ -1,10 +1,10 @@
 {
  "$schema": "https://json-schema.org/draft/2020-12/schema",
- "$id": "https://github.com/GoodRelax/gr-scheduler/docs/spec/_source/published-entries.schema.json",
+ "$id": "https://github.com/GoodRelax/gr-scheduler/docs/development-rules/manuscript-schemas/published-entries.schema.json",
  "$comment": [
   "HAND-WRITTEN CONTRACT -- EDIT THIS FILE.",
   "Validates _source/published-entries.json, which is the single source of truth for table T-064 of Chapter 5.3 (CR-581).",
-  "Same role as _source/verification.schema.json and _source/property-items.schema.json.",
+  "Same role as docs/development-rules/manuscript-schemas/verification.schema.json and docs/development-rules/manuscript-schemas/property-items.schema.json.",
   "The schema sees the SHAPE. What JSON Schema cannot say -- a row id or a component written twice, a name published twice by one row, a note that would stop check 26b reading its name -- is refused by published_entries_json_to_md.py."
  ],
  "title": "The published-entries manuscript",

@@ -165,22 +165,22 @@ function marksOf(report: Report, uids: readonly number[]): ReadonlyMap<number, s
   return marks
 }
 
-function heldBy(report: Report, rowId: string): readonly unknown[] {
+function heldBy(report: Report, specTableRowId: string): readonly unknown[] {
   const out: unknown[] = []
   for (const { node } of everything(report)) {
     if (node instanceof Map) {
-      if (node.has(rowId)) out.push(node.get(rowId))
+      if (node.has(specTableRowId)) out.push(node.get(specTableRowId))
     } else if (isPlain(node)) {
-      if (Object.values(node).includes(rowId)) out.push(node)
-      if (Object.hasOwn(node, rowId)) out.push(node[rowId])
+      if (Object.values(node).includes(specTableRowId)) out.push(node)
+      if (Object.hasOwn(node, specTableRowId)) out.push(node[specTableRowId])
     }
   }
   return out
 }
 
 // Spec: T-317, DX-3, DX-6
-const namesTask = (report: Report, rowId: string, uid: number): unknown[] =>
-  heldBy(report, rowId).flatMap((part) => {
+const namesTask = (report: Report, specTableRowId: string, uid: number): unknown[] =>
+  heldBy(report, specTableRowId).flatMap((part) => {
     if (Array.isArray(part)) return part.filter((one) => holdsNumber(one, uid))
     return holdsNumber(part, uid) ? [part] : []
   })

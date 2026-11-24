@@ -1787,7 +1787,7 @@ JSON を扱うエディタの多くは、データの文書の `"$schema"` を�
 ⭐ **刊行するスキーマは、ルートの注釈の語 `x-grsChanges` に、変更の台帳を配列で持つこと（MUST）。**  
 1 件の変更を 1 要素とし、古い順に末尾へ足すだけとする —— 前の要素を書き換えない。  
 台帳の正は `_source/grs-json-changes.json` であり、生成器が刷る。  
-1 要素の欄と種別ごとの欄は、その原稿を縛る `_source/grs-json-changes.schema.json` が持つ。  
+1 要素の欄と種別ごとの欄は、その原稿を縛る `docs/development-rules/manuscript-schemas/grs-json-changes.schema.json` が持つ。  
 ⛔ 書き出す `GRS JSON` に台帳を載せてはならない（MUST NOT） —— 古い文書は自分より後の変更を知りようがなく、最新のスキーマが全件を持てば足りる。  
 ⭐ 古い文書を最新の `GRS` がどう読むかは種別が決める —— `added` は行の既定値で補って読む、`removed` は捨てて読み告げない（Chapter 6.1 の 表 T-297 と同じ）、`renamed` は新しい名へ移して読む、`converted` は行が名指す規則で読む、`refused` は文書ごと拒む（`01-04-requirements.md` の 表 T-233 の `RS-25`）。  
 ⚠️ 語は JSON Schema の語ではない —— JSON Schema 2020-12 は知らない語を注釈として通すので、台帳は照合を変えない。  

@@ -166,12 +166,12 @@ describe(`CR-670 DT-7 "${DT_7_ASPECT}"`, () => {
   it('the dictionary holds one aspect word per T-310 / T-311 row but VS-6, and one wall word per T-316 row', () => {
     expect(ASPECT_ROWS.length, 'premise: the tables have rows').toBeGreaterThan(0)
     for (const row of ASPECT_ROWS) {
-      const word = wordIn('delayReportAspects', 'rowId', row)
+      const word = wordIn('delayReportAspects', 'specTableRowId', row)
       expect(word.ja.trim(), `${row} ja`).not.toBe('')
       expect(word.en.trim(), `${row} en`).not.toBe('')
     }
-    expect(DICTIONARY['delayReportAspects']?.some((one) => one['rowId'] === 'VS-6'), 'VS-6 speaks its own told words').toBe(false)
-    for (const row of WALL_ROWS) expect(wordIn('delayReportWalls', 'rowId', row).ja.trim(), row).not.toBe('')
+    expect(DICTIONARY['delayReportAspects']?.some((one) => one['specTableRowId'] === 'VS-6'), 'VS-6 speaks its own told words').toBe(false)
+    for (const row of WALL_ROWS) expect(wordIn('delayReportWalls', 'specTableRowId', row).ja.trim(), row).not.toBe('')
   })
 
   const tasks = ASPECT_ROWS.map((row, index) => plainTask(100 + index, `Task ${row}`))
@@ -195,7 +195,7 @@ describe(`CR-670 DT-7 "${DT_7_ASPECT}"`, () => {
       const view = viewOf(report, scheduleOf(tasks), language)
       ASPECT_ROWS.forEach((row, index) => {
         const cell = cellFor(view, 100 + index, 'DT-7')
-        expect(cell, `${row}`).toContain(wordIn('delayReportAspects', 'rowId', row)[language])
+        expect(cell, `${row}`).toContain(wordIn('delayReportAspects', 'specTableRowId', row)[language])
         expect(cell, `${row} prints no row id`).not.toMatch(ROW_ID)
       })
     })
@@ -259,7 +259,7 @@ describe(`CR-670 DX-6 / DT-7 "${DT_7_WALL}"`, () => {
   for (const language of LANGUAGES) {
     it(`${language}: every row the wall stopped prints the wall word and the cause's name`, () => {
       const view = viewOf(report, WALLED.schedule, language)
-      const wallWord = wordIn('delayReportWalls', 'rowId', 'DW-1')[language]
+      const wallWord = wordIn('delayReportWalls', 'specTableRowId', 'DW-1')[language]
       for (const uid of [CAUSE, NEXT, LAST]) {
         const cell = cellFor(view, uid, 'DT-7')
         expect(cell, `Task ${uid}`).toContain(wallWord)

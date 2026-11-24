@@ -219,7 +219,7 @@ const DISPLAY_WORDS = JSON.parse(
     'utf8',
   ),
 ) as {
-  readonly questions: readonly { readonly rowId: string; readonly text: Record<string, string> }[]
+  readonly questions: readonly { readonly specTableRowId: string; readonly text: Record<string, string> }[]
   readonly confirmationMarks: readonly {
     readonly mark: string
     readonly text: Record<string, string>
@@ -253,7 +253,7 @@ const settingSlotValue = (slot: string, name: string): string => {
 }
 
 const sentenceFor = (question: string): string => {
-  const held = QUESTION_WORDS.find((one) => one.rowId === question)
+  const held = QUESTION_WORDS.find((one) => one.specTableRowId === question)
   if (held === undefined) throw new Error(`the dictionary holds no row of table T-234 for ${question}`)
   return (held.text[LANGUAGE] ?? '').replace(/\{(\w+)\}/g, settingSlotValue)
 }
@@ -280,7 +280,7 @@ const CONFIRMATION = settledNameOf(U_55)
 
 /** One row of the GENERATED roster, which is table T-109 turned into data. */
 interface RosterIcon {
-  readonly rowId: string
+  readonly specTableRowId: string
   readonly surfaces: readonly string[]
   readonly group: string | null
   readonly entryTo: string
@@ -320,7 +320,7 @@ const ON_THE_CONFIRMATION: readonly RosterIcon[] = ROSTER.icons.filter((one) =>
 )
 
 /** Their row ids, in the roster's order -- which is table T-109's print order. */
-const ENTRY_ROWS: readonly string[] = ON_THE_CONFIRMATION.map((one) => one.rowId)
+const ENTRY_ROWS: readonly string[] = ON_THE_CONFIRMATION.map((one) => one.specTableRowId)
 
 /**
  * The `confirmation` section of `docs/spec/_source/display-words.json` -- where
@@ -1452,7 +1452,7 @@ describe('the specification still says what these cases copy', () => {
 
   it('GIVEN the roster WHEN its column names are read THEN the column filtered on is the surface column of table T-109', () => {
     expect(ROSTER.columns['surfaces']).toBe('面')
-    expect(ROSTER.columns['rowId']).toBe('行 ID')
+    expect(ROSTER.columns['specTableRowId']).toBe('行 ID')
   })
 
   it('GIVEN the manuscript dictionary WHEN its confirmation section is read THEN it holds one word per answer, spelled the same in every display language (NT-7 MUST)', () => {

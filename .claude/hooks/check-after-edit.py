@@ -71,6 +71,7 @@ MSPDI_ORDER = 'tools/generate_mspdi_child_order.py'
 MACHINES_MD = 'docs/spec/_source/state_machines_json_to_md.py'
 MACHINES_TYPES = 'tools/generate_state_machine_types.py'
 VERIFICATION_MD = 'docs/spec/_source/verification_json_to_md.py'
+GLOSSARY_MD = 'docs/spec/_source/glossary_json_to_md.py'
 
 GENERATORS = {
     'settings.json': [SETTINGS_MD, ERD_SCHEMA, TYPES, STARTUP],
@@ -90,6 +91,13 @@ GENERATORS = {
     'state-machines.schema.json': [MACHINES_MD, MACHINES_TYPES],
     'verification.json': [VERIFICATION_MD],
     'verification.schema.json': [VERIFICATION_MD],
+    # CR-857 step 2: tbl-glossary.md is printed from the three manuscripts
+    # below, and the icon roster (and, through it, the entry maps
+    # generate_entity_types.py prints) reads them too.
+    'glossary.json': [GLOSSARY_MD, ICONS, TYPES],
+    'glossary-tables.json': [GLOSSARY_MD, ICONS, TYPES],
+    'icons.json': [GLOSSARY_MD, ICONS, TYPES],
+    'glossary_json_to_md.py': [GLOSSARY_MD, ICONS],
     'settings_json_to_md.py': [SETTINGS_MD],
     'erd_json_to_md.py': [ERD_MD],
     'erd_json_to_schema.py': [ERD_SCHEMA],

@@ -69,7 +69,7 @@ const UNCHOSEN_ENTRY: IconId = 'IC-68'
 
 const CHOICE_ENTRIES: readonly IconId[] = [CHOOSE_ALL_ENTRY, CLEAR_CHOSEN_ENTRY, CHOOSE_UNREFERENCED_ENTRY, DELETE_ENTRY]
 
-export const RESOURCE_LIST_COLUMNS: readonly string[] = displayWords.resourceListColumns.map((entry) => entry.rowId)
+export const RESOURCE_LIST_COLUMNS: readonly string[] = displayWords.resourceListColumns.map((entry) => entry.specTableRowId)
 
 const VISIBILITY_COLUMN = 'RQ-1'
 const CHOSEN_COLUMN = 'RQ-3'
@@ -88,7 +88,7 @@ const COLUMNS_ONLY_LANGUAGE: DisplayLanguage = 'en'
 type LanguageWord = { readonly [L in DisplayLanguage]: string }
 
 const HEADING = displayWords.surfaces.find((entry) => entry.name === RESOURCE_LIST)?.heading
-const COLUMN_WORDS: ReadonlyMap<string, LanguageWord> = new Map(displayWords.resourceListColumns.map((entry) => [entry.rowId, entry.text]))
+const COLUMN_WORDS: ReadonlyMap<string, LanguageWord> = new Map(displayWords.resourceListColumns.map((entry) => [entry.specTableRowId, entry.text]))
 const LIST_WORDS: ReadonlyMap<string, LanguageWord> = new Map(displayWords.resourceList.map((entry) => [entry.part, entry.text]))
 const PANEL_WORDS: ReadonlyMap<string, LanguageWord> = new Map(displayWords.searchPanel.map((entry) => [entry.part, entry.text]))
 

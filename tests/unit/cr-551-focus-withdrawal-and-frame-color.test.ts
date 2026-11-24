@@ -24,7 +24,7 @@ import { pointerOf, taskGroupDocument, taskOf, SCREEN } from './cr-541-stage'
 const SPEC = join(process.cwd(), 'docs', 'spec')
 const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8'))
 const WORDS = JSON.parse(readFileSync(join(SPEC, '_source', 'display-words.json'), 'utf8')) as {
-  properties: { rowId: string; label: { ja: string } }[]
+  properties: { specTableRowId: string; label: { ja: string } }[]
   colorField: { part: string; text: { ja: string } }[]
 }
 
@@ -50,7 +50,7 @@ const PALETTE_KEY = bare(verticalIn('T-036', 'SK-14').cells[1] ?? '')
 // Spec: T-016, PR-22
 const PR_22 = verticalIn('T-016', 'PR-22')
 const FRAME_ROW = PR_22.id
-const FRAME_WORD = WORDS.properties.find((one) => one.rowId === FRAME_ROW)?.label.ja ?? ''
+const FRAME_WORD = WORDS.properties.find((one) => one.specTableRowId === FRAME_ROW)?.label.ja ?? ''
 // Spec: T-294
 const TRANSPARENT = bare(verticalIn('T-294', 'S-324').cells[1] ?? '')
 const BLUE = bare(verticalIn('T-294', 'S-319').cells[1] ?? '')

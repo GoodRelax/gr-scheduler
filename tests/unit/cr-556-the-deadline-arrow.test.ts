@@ -113,7 +113,7 @@ const SH = ['SH-1', 'SH-2', 'SH-3', 'SH-4', 'SH-5'] as const
 const LAID_BELOW = new Set(['SH-3', 'SH-4'])
 
 interface PropertyWords {
-  readonly rowId: string
+  readonly specTableRowId: string
   readonly label: Readonly<Record<'ja' | 'en', string>>
 }
 const PR_10_WORD = ((): Readonly<Record<'ja' | 'en', string>> => {
@@ -122,7 +122,7 @@ const PR_10_WORD = ((): Readonly<Record<'ja' | 'en', string>> => {
       properties: PropertyWords[]
     }
   ).properties
-  const found = words.find((one) => one.rowId === 'PR-10')
+  const found = words.find((one) => one.specTableRowId === 'PR-10')
   if (found === undefined) throw new Error('FR-038 dictionary has no properties entry PR-10')
   return found.label
 })()

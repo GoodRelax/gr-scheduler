@@ -88,8 +88,8 @@ function entranceArming(arm: string, shapeRow: string | null): Entrance {
 const RECTANGLE = entranceArming('AR-2', 'SH-1')
 const MILESTONE = entranceArming('AR-3', null)
 
-const shapeSpelling = (rowId: string): string =>
-  bare(rowOf('T-012', rowId).by[HEADING_VALUE] ?? '').replace(/'/g, '')
+const shapeSpelling = (specTableRowId: string): string =>
+  bare(rowOf('T-012', specTableRowId).by[HEADING_VALUE] ?? '').replace(/'/g, '')
 
 const TASK_GROUP_A = '78300000-0000-4000-8000-00000000000a'
 const TASK_GROUP_B = '78300000-0000-4000-8000-00000000000b'

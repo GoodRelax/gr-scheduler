@@ -110,7 +110,7 @@ interface GlyphElement {
 }
 
 interface Glyph {
-  readonly rowId: string
+  readonly specTableRowId: string
   readonly elements: readonly GlyphElement[]
 }
 
@@ -537,7 +537,7 @@ function inkFrameOf(glyph: Glyph): Frame {
   let maxX = Number.NEGATIVE_INFINITY
   let maxY = Number.NEGATIVE_INFINITY
   for (const element of glyph.elements) {
-    const where = glyph.rowId
+    const where = glyph.specTableRowId
     const reach = inkReach(element, where)
     for (const point of pointsOf(element, where)) {
       minX = Math.min(minX, point.x - reach)
@@ -546,12 +546,12 @@ function inkFrameOf(glyph: Glyph): Frame {
       maxY = Math.max(maxY, point.y + reach)
     }
   }
-  if (!Number.isFinite(minX)) throw new Error(`${glyph.rowId}: no shape to measure`)
+  if (!Number.isFinite(minX)) throw new Error(`${glyph.specTableRowId}: no shape to measure`)
   return { minX, minY, maxX, maxY }
 }
 
 const INK_BY_ROW = new Map(
-  CARRIED_FIGURE.glyphs.map((one): [string, Frame] => [one.rowId, inkFrameOf(one)]),
+  CARRIED_FIGURE.glyphs.map((one): [string, Frame] => [one.specTableRowId, inkFrameOf(one)]),
 )
 
 /** The frame ALL of the shapes together circumscribe -- 「図形の外接する枠」. */
@@ -638,12 +638,12 @@ describe('FR-029 (MUST NOT): every shape is drawn in ONE coordinate system', () 
       for (const element of glyph.elements) {
         for (const attribute of element.attributes) {
           if (attribute.name === 'viewBox' || attribute.name === 'transform') {
-            ownSystems.push(`${glyph.rowId} <${element.tag} ${attribute.name}>`)
+            ownSystems.push(`${glyph.specTableRowId} <${element.tag} ${attribute.name}>`)
           }
         }
       }
       const held = glyph as unknown as Record<string, unknown>
-      if (held['viewBox'] !== undefined) ownSystems.push(`${glyph.rowId} viewBox`)
+      if (held['viewBox'] !== undefined) ownSystems.push(`${glyph.specTableRowId} viewBox`)
     }
     expect(ownSystems, `${ownSystems.length} shape(s) carry a coordinate system of their own`)
       .toEqual([])
@@ -667,7 +667,7 @@ describe('FR-029 (MUST NOT): every shape is drawn in ONE coordinate system', () 
     // 表 T-109, which is what makes the sentences above a statement about EVERY
     // icon rather than about the ones that happen to be drawn.
     const roster = specTable('T-109').rows.map((one) => one.id)
-    const drawn = CARRIED_FIGURE.glyphs.map((one) => one.rowId)
+    const drawn = CARRIED_FIGURE.glyphs.map((one) => one.specTableRowId)
     expect(roster.length, '表 T-109 lost its rows').toBeGreaterThan(0)
     expect(
       roster.filter((one) => !drawn.includes(one)),
@@ -702,7 +702,7 @@ describe('FR-029 (MUST): the coordinate system is packed to the shapes it holds'
         const hasRoundCap = /stroke-linecap\s*:\s*round/.test(style)
         const hasRoundJoin = /stroke-linejoin\s*:\s*round/.test(style)
         if (!hasRoundCap || !hasRoundJoin || !/stroke-width\s*:\s*[\d.]/.test(style)) {
-          unmeasurable.push(`${glyph.rowId} <${element.tag}>`)
+          unmeasurable.push(`${glyph.specTableRowId} <${element.tag}>`)
         }
       }
     }
@@ -819,10 +819,10 @@ const FR_036_WHEEL_NOT_A_CHARACTER =
   '⛔ `IC-102` の図形を、数字や英字と読み違える形にしてはならない（MUST NOT）'
 
 // Spec: F-019
-function figureGlyphOf(rowId: string): Glyph {
+function figureGlyphOf(specTableRowId: string): Glyph {
   const figure = readFileSync(FIGURE, 'utf8')
-  const label = figure.indexOf(`>${rowId}</text>`)
-  if (label < 0) throw new Error(`figure F-019 labels no ${rowId}`)
+  const label = figure.indexOf(`>${specTableRowId}</text>`)
+  if (label < 0) throw new Error(`figure F-019 labels no ${specTableRowId}`)
   const open = figure.lastIndexOf('<g ', label)
   const body = figure.slice(figure.indexOf('>', open) + 1, figure.indexOf('</g>', open))
   const elements = [...body.matchAll(/<(\w+)\s([^>]*?)\/?>/g)].map((one) => ({
@@ -832,7 +832,7 @@ function figureGlyphOf(rowId: string): Glyph {
       value: pair[2] ?? '',
     })),
   }))
-  return { rowId, elements }
+  return { specTableRowId, elements }
 }
 
 // Spec: F-019
@@ -855,7 +855,7 @@ describe('FR-036 (MUST NOT): the wheel glyph IC-102 is not read as a character',
   })
 
   it(`${FR_036_WHEEL_NOT_A_CHARACTER} -- the carried IC-102 is F-019's own shape, element for element`, () => {
-    const carried = CARRIED_FIGURE.glyphs.find((one) => one.rowId === 'IC-102')
+    const carried = CARRIED_FIGURE.glyphs.find((one) => one.specTableRowId === 'IC-102')
     expect(carried, 'icon-glyphs.json carries no IC-102').toBeDefined()
     expect(geometryOf(carried as Glyph)).toEqual(geometryOf(figureGlyphOf('IC-102')))
   })

@@ -68,17 +68,17 @@ type Words = { readonly ja: string; readonly en: string }
 type Part = { readonly part: string; readonly text: Words }
 
 const DICTIONARY = JSON.parse(readSpec('_source', 'display-words.json')) as {
-  readonly properties: readonly { readonly rowId: string; readonly label: Words; readonly milestoneLabel?: Words }[]
+  readonly properties: readonly { readonly specTableRowId: string; readonly label: Words; readonly milestoneLabel?: Words }[]
   readonly colorField: readonly Part[]
   readonly propertyField: readonly Part[]
 }
 
 export const LANGUAGE = 'ja' as const
 
-export const propertyLabelOf = (rowId: string, which: 'label' | 'milestoneLabel' = 'label'): string => {
-  const entry = DICTIONARY.properties.find((one) => one.rowId === rowId)
+export const propertyLabelOf = (specTableRowId: string, which: 'label' | 'milestoneLabel' = 'label'): string => {
+  const entry = DICTIONARY.properties.find((one) => one.specTableRowId === specTableRowId)
   const words = entry?.[which]
-  if (words === undefined) throw new Error(`display-words properties has no ${which} for ${rowId}`)
+  if (words === undefined) throw new Error(`display-words properties has no ${which} for ${specTableRowId}`)
   return words[LANGUAGE]
 }
 

@@ -128,10 +128,10 @@ describe(`T-376 -- ${FR_156_FIXED_OFFSET}`, () => {
   })
 
   it('the roster the code holds is the table: row ID, key, offset, kind and abbreviation, in table order', () => {
-    expect(TIME_ZONE_ROWS.map((row) => [row.rowId, row.key, row.offsetMinutes, row.isDaylight, row.abbreviation])).toEqual(
+    expect(TIME_ZONE_ROWS.map((row) => [row.specTableRowId, row.key, row.offsetMinutes, row.isDaylight, row.abbreviation])).toEqual(
       T_376_ROWS.map((row) => [row.id, row.key, row.offsetMinutes, row.isDaylight, row.abbreviation]),
     )
-    for (const row of T_376_ROWS) expect(timeZoneRowOf(row.key)?.rowId, row.key).toBe(row.id)
+    for (const row of T_376_ROWS) expect(timeZoneRowOf(row.key)?.specTableRowId, row.key).toBe(row.id)
   })
 
   it(`${FR_156_STANDARD_BASE} -- isTimeZoneKey takes every key; isStandardTimeZoneKey only the standard ones`, () => {
@@ -210,7 +210,7 @@ describe(`FR-156 -- ${FR_156_NAME}`, () => {
   })
 
   it('the dictionary holds one place for every T-376 row, in table order, and no other', () => {
-    const rowIds = (WORDS['timeZones'] as readonly Loose[]).map((one) => one['rowId'])
+    const rowIds = (WORDS['timeZones'] as readonly Loose[]).map((one) => one['specTableRowId'])
     expect(rowIds).toEqual(T_376_ROWS.map((row) => row.id))
   })
 

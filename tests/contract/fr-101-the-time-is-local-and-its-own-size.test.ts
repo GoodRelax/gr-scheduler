@@ -102,14 +102,14 @@ const THE_LOCAL_MUST = '画面に出す時刻は、読む人のローカル時�
 const THE_SIZE_MUST = '表 T-206 の `S-210` が定める係数で決めること（MUST）'
 
 /** The settled name one row of table T-103 gives, which reaches the DOM as `data-role`. */
-function settledName(rowId: string): string {
+function settledName(specTableRowId: string): string {
   const table = specTable('T-103')
   const COLUMN = '確定名（英）'
   if (!table.headings.includes(COLUMN)) {
     throw new Error(`table T-103 no longer has a ${COLUMN} column: ${table.headings.join(' | ')}`)
   }
-  const row = table.rows.find((one) => one.id === rowId)
-  if (row === undefined) throw new Error(`table T-103 no longer has row ${rowId}`)
+  const row = table.rows.find((one) => one.id === specTableRowId)
+  if (row === undefined) throw new Error(`table T-103 no longer has row ${specTableRowId}`)
   return bare(row.by[COLUMN] ?? '')
 }
 
@@ -120,11 +120,11 @@ const U_59 = settledName('U-59')
 const U_31 = settledName('U-31')
 
 /** The 既定 cell of one row of table T-206, as the table writes it. */
-function cellOf(rowId: string): string {
+function cellOf(specTableRowId: string): string {
   const table = specTable('T-206')
   const COLUMN = '既定'
-  const row = table.rows.find((one) => one.id === rowId)
-  if (row === undefined) throw new Error(`table T-206 no longer has row ${rowId}`)
+  const row = table.rows.find((one) => one.id === specTableRowId)
+  if (row === undefined) throw new Error(`table T-206 no longer has row ${specTableRowId}`)
   const held = row.by[COLUMN]
   if (held === undefined) {
     throw new Error(`table T-206 no longer has a ${COLUMN} column: ${table.headings.join(' | ')}`)

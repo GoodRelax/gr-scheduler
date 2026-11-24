@@ -156,7 +156,7 @@ HELP_LEGAL_PARTS = ('licensedUnder', 'fullText')
 HELP_LINKS = ('download', 'about', 'agentApi')
 # CR-785: a link that stands on an item of table T-109 names that row beside
 # its key (FR-036: the agentApi link is IC-20's). A link absent here carries no
-# rowId. This is a join to the table, not a word.
+# specTableRowId. This is a join to the table, not a word.
 HELP_LINK_ROWS = {'agentApi': 'IC-20'}
 # The browser's own functions FR-036 lists on the help (table T-255, CR-405).
 # Every row takes a word, including one the help does not show today: whether
@@ -905,21 +905,21 @@ def roster():
 
 # section -> (the key each entry is known by, the word fields it holds)
 SHAPE = {
-    'icons': ('rowId', ('label', 'hint')),
-    'properties': ('rowId', ('label',)),
-    'settings': ('rowId', ('label',)),
-    'shortcuts': ('rowId', ('text',)),
+    'icons': ('specTableRowId', ('label', 'hint')),
+    'properties': ('specTableRowId', ('label',)),
+    'settings': ('specTableRowId', ('label',)),
+    'shortcuts': ('specTableRowId', ('text',)),
     'helpHeadings': ('block', ('text',)),
     'helpLegal': ('part', ('text',)),
-    'helpNotes': ('rowId', ('text',)),
+    'helpNotes': ('specTableRowId', ('text',)),
     'helpBlockNotes': ('block', ('text',)),
     'helpLinks': ('link', ('text',)),
-    'browserFunctions': ('rowId', ('text',)),
-    'invariants': ('rowId', ('text', 'nextStep')),
-    'exportFormats': ('rowId', ('name',)),
+    'browserFunctions': ('specTableRowId', ('text',)),
+    'invariants': ('specTableRowId', ('text', 'nextStep')),
+    'exportFormats': ('specTableRowId', ('name',)),
     'paletteGroups': ('firstRow', ('name',)),
     'surfaces': ('name', ('heading',)),
-    'notices': ('rowId', ('manner',)),
+    'notices': ('specTableRowId', ('manner',)),
     'confirmation': ('answer', ('text',)),
     'noticeDismiss': ('answer', ('text',)),
     'confirmationMarks': ('mark', ('text',)),
@@ -930,35 +930,35 @@ SHAPE = {
     # does -- and `press` is the gesture itself, which FR-036 (MUST) puts in
     # this dictionary because 「ホイール」 needs translating where `Ctrl+S`
     # does not.
-    'assignments': ('rowId', ('text', 'press')),
-    'arms': ('rowId', ('text',)),
-    'reasons': ('rowId', ('text', 'nextStep')),
-    'questions': ('rowId', ('text',)),
+    'assignments': ('specTableRowId', ('text', 'press')),
+    'arms': ('specTableRowId', ('text',)),
+    'reasons': ('specTableRowId', ('text', 'nextStep')),
+    'questions': ('specTableRowId', ('text',)),
     'weekdays': ('weekday', ('text',)),
     'colorNames': ('spelling', ('text',)),
     'colorField': ('part', ('text',)),
     'propertyField': ('part', ('text',)),
     'rowMinHeightField': ('part', ('text',)),
     'taskGroupPanelWidthField': ('part', ('text',)),
-    'themeHues': ('rowId', ('text',)),
-    'timeZones': ('rowId', ('label',)),
+    'themeHues': ('specTableRowId', ('text',)),
+    'timeZones': ('specTableRowId', ('label',)),
     'scaleEcho': ('end', ('text',)),
     'keyNotation': ('part', ('text',)),
     'dualCursorReadout': ('line', ('text',)),
-    'searchColumns': ('rowId', ('text',)),
-    'planActualStates': ('rowId', ('text',)),
+    'searchColumns': ('specTableRowId', ('text',)),
+    'planActualStates': ('specTableRowId', ('text',)),
     'searchPanel': ('part', ('text',)),
     'taskTypes': ('part', ('text',)),
-    'resourceListColumns': ('rowId', ('text',)),
+    'resourceListColumns': ('specTableRowId', ('text',)),
     'resourceList': ('part', ('text',)),
-    'delayReportColumns': ('rowId', ('text',)),
-    'delayReportStatuses': ('rowId', ('text',)),
+    'delayReportColumns': ('specTableRowId', ('text',)),
+    'delayReportStatuses': ('specTableRowId', ('text',)),
     'delayReportSummary': ('part', ('text',)),
     'delayReportMarkdown': ('part', ('text',)),
     'delayReportReasons': ('part', ('text',)),
-    'delayReportAspects': ('rowId', ('text',)),
-    'delayReportWalls': ('rowId', ('text',)),
-    'delayFixColumns': ('rowId', ('text',)),
+    'delayReportAspects': ('specTableRowId', ('text',)),
+    'delayReportWalls': ('specTableRowId', ('text',)),
+    'delayFixColumns': ('specTableRowId', ('text',)),
     'delayFixes': ('part', ('text',)),
     'fitSpanField': ('part', ('text',)),
     'timeZoneField': ('part', ('text',)),
@@ -970,7 +970,7 @@ SHAPE = {
     'dropCue': ('part', ('text',)),
     'differenceReview': ('part', ('text',)),
     'parentTaskChoice': ('part', ('text',)),
-    'hintLines': ('rowId', ('text',)),
+    'hintLines': ('specTableRowId', ('text',)),
 }
 
 
@@ -983,7 +983,7 @@ OPTIONAL_WORD_FIELDS = {
 # section -> the fields an entry MAY carry that are not words: a join to a row
 # of a table. CR-785: a help link names the T-109 row it stands on.
 OPTIONAL_JOIN_FIELDS = {
-    'helpLinks': ('rowId',),
+    'helpLinks': ('specTableRowId',),
 }
 
 
@@ -1057,7 +1057,7 @@ def help_link_row_problems(doc, wanted):
     """Each help link names exactly the T-109 row HELP_LINK_ROWS gives it.
 
     CR-785 (FR-036): the agentApi link stands on IC-20's item. A link that
-    HELP_LINK_ROWS does not name carries no rowId, and a named row must be a
+    HELP_LINK_ROWS does not name carries no specTableRowId, and a named row must be a
     row of table T-109 the icons section asks for.
 
     @purity pure
@@ -1071,9 +1071,9 @@ def help_link_row_problems(doc, wanted):
             continue
         link = entry.get('link')
         expected = HELP_LINK_ROWS.get(link)
-        if entry.get('rowId') != expected:
-            found.append('helpLinks/%s: rowId is %s, the specification asks '
-                         'for %s' % (link, entry.get('rowId'), expected))
+        if entry.get('specTableRowId') != expected:
+            found.append('helpLinks/%s: specTableRowId is %s, the specification asks '
+                         'for %s' % (link, entry.get('specTableRowId'), expected))
         if expected is not None and expected not in wanted['icons']:
             found.append('helpLinks/%s: %s is not a row of table %s'
                          % (link, expected, ICON_TABLE))
@@ -1124,8 +1124,8 @@ def build(doc, keys_by_row):
                     'delayReportAspects', 'delayReportWalls',
                     'delayFixColumns', 'delayFixes'):
         if section == 'settings':
-            out[section] = [unmarked({'rowId': entry['rowId'],
-                                      'keys': keys_by_row[entry['rowId']],
+            out[section] = [unmarked({'specTableRowId': entry['specTableRowId'],
+                                      'keys': keys_by_row[entry['specTableRowId']],
                                       'label': entry['label']}, section)
                             for entry in doc[section]]
             continue
@@ -1189,7 +1189,7 @@ def dependency_kinds():
                             DEPENDENCY_KIND_TABLE):
         name = cells[2].strip()
         cut = name.find(u'\uff08')
-        kinds.append({'rowId': cells[0].strip('`* '),
+        kinds.append({'specTableRowId': cells[0].strip('`* '),
                       'linkType': int(cells[1].strip()),
                       'abbreviation': (name[:cut] if cut >= 0 else name).strip()})
     return kinds

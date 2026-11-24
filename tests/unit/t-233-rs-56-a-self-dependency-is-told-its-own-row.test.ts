@@ -98,15 +98,15 @@ function rowOf(table: SpecTable, id: string): SpecRow {
 }
 
 /** The manner column table T-233 writes one reason against. */
-const mannerOf = (rowId: string): string => bare(rowOf(T_233, rowId).cells[1] ?? '')
+const mannerOf = (specTableRowId: string): string => bare(rowOf(T_233, specTableRowId).cells[1] ?? '')
 
 /** The 正 column table T-233 gives one reason, as printed. */
-const authorityOf = (rowId: string): string => rowOf(T_233, rowId).by['正'] ?? ''
+const authorityOf = (specTableRowId: string): string => rowOf(T_233, specTableRowId).by['正'] ?? ''
 
 /** The words FR-038's one dictionary holds for one row of table T-233. */
-const wordsOf = (rowId: string): { readonly ja: string; readonly en: string } => {
-  const found = (displayWords as any).reasons.find((one: any) => one.rowId === rowId)
-  if (found === undefined) throw new Error(`the dictionary holds no row ${rowId}`)
+const wordsOf = (specTableRowId: string): { readonly ja: string; readonly en: string } => {
+  const found = (displayWords as any).reasons.find((one: any) => one.specTableRowId === specTableRowId)
+  if (found === undefined) throw new Error(`the dictionary holds no row ${specTableRowId}`)
   return found.text
 }
 

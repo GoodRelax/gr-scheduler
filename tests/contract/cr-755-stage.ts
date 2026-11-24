@@ -74,16 +74,16 @@ export function timeZoneWord(part: string, language: DisplayLanguage): string {
 }
 
 // Spec: FR-038, T-376
-export function placeOf(rowId: string, language: DisplayLanguage): string {
-  const entry = (WORDS['timeZones'] as readonly Loose[]).find((one) => one['rowId'] === rowId)
-  if (entry === undefined) throw new Error(`the dictionary section timeZones has no row ${rowId}`)
+export function placeOf(specTableRowId: string, language: DisplayLanguage): string {
+  const entry = (WORDS['timeZones'] as readonly Loose[]).find((one) => one['specTableRowId'] === specTableRowId)
+  if (entry === undefined) throw new Error(`the dictionary section timeZones has no row ${specTableRowId}`)
   return entry['label'][language] as string
 }
 
 // Spec: FR-038, T-104
-export function settingWord(rowId: string, language: DisplayLanguage): string {
-  const entry = (WORDS['settings'] as readonly Loose[]).find((one) => one['rowId'] === rowId)
-  if (entry === undefined) throw new Error(`the dictionary section settings has no row ${rowId}`)
+export function settingWord(specTableRowId: string, language: DisplayLanguage): string {
+  const entry = (WORDS['settings'] as readonly Loose[]).find((one) => one['specTableRowId'] === specTableRowId)
+  if (entry === undefined) throw new Error(`the dictionary section settings has no row ${specTableRowId}`)
   return entry['label'][language] as string
 }
 

@@ -183,10 +183,10 @@ const BOTTLENECKS: ReadonlyMap<number, 'DG-1' | 'DG-2' | 'DG-3'> = new Map(REPOR
 
 const WORDS = JSON.parse(
   readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8'),
-) as { readonly delayReportStatuses: readonly { readonly rowId: string; readonly text: Record<DisplayLanguage, string> }[] }
-const DG_2_WORD = WORDS.delayReportStatuses.find((one) => one.rowId === 'DG-2')?.text
+) as { readonly delayReportStatuses: readonly { readonly specTableRowId: string; readonly text: Record<DisplayLanguage, string> }[] }
+const DG_2_WORD = WORDS.delayReportStatuses.find((one) => one.specTableRowId === 'DG-2')?.text
 // Why: SQ-5 writes a late task with the word of the T-315 row DG-4.
-const DG_4_WORD = WORDS.delayReportStatuses.find((one) => one.rowId === 'DG-4')?.text
+const DG_4_WORD = WORDS.delayReportStatuses.find((one) => one.specTableRowId === 'DG-4')?.text
 
 const CANVAS: ScreenRect = { x: 0, y: 56, width: 1000, height: 600 }
 const step = (session: ScreenSession, type: string): ScreenSession =>

@@ -723,11 +723,11 @@ function matchesSimple(element: FakeElement, selector: string): boolean {
  * which `S-73` fills in -- so the hue read for `THEME` is substituted the once,
  * exactly as the manuscript writes it. ⭐ Copied from tests/unit/uf-71.test.ts.
  */
-function t236(rowId: string): string {
-  const row = rowOf('T-236', rowId)
+function t236(specTableRowId: string): string {
+  const row = rowOf('T-236', specTableRowId)
   const cell = bare(row.by[THEME.preference === 'dark' ? '暗いテーマ' : '明るいテーマ'] ?? '')
   if (!/^(#|hsl\(|rgba?\()/.test(cell)) {
-    throw new Error(`表 T-236 ${rowId} states no color for this rendering: ${cell}`)
+    throw new Error(`表 T-236 ${specTableRowId} states no color for this rendering: ${cell}`)
   }
   return cell.replace('H', String(THEME.hue)).replace(/\s+/g, '').toLowerCase()
 }

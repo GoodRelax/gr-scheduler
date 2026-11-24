@@ -72,9 +72,9 @@ import { DEFAULT_TASK_GROUP_NAME } from '../../src/adapter/screen-renderer/scree
 // The rows this file is driven by, read out of the specification.
 // ---------------------------------------------------------------------------
 
-const rowOf = (tableId: string, rowId: string): Readonly<Record<string, string>> => {
-  const found = specTable(tableId).rows.find((row) => row.id === rowId)
-  if (found === undefined) throw new Error(`table ${tableId} has no row ${rowId}`)
+const rowOf = (tableId: string, specTableRowId: string): Readonly<Record<string, string>> => {
+  const found = specTable(tableId).rows.find((row) => row.id === specTableRowId)
+  if (found === undefined) throw new Error(`table ${tableId} has no row ${specTableRowId}`)
   return found.by
 }
 

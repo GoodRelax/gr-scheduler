@@ -177,7 +177,7 @@ const AM_3 = 'readDocument'
 // Why: only the generated block is read, between the markers the generator
 // and check-generated-constants.py use -- nothing a person wrote is read.
 /** @purity semi-pure-immutable */
-function generatedNumber(file: string, constant: string, rowId: string): number {
+function generatedNumber(file: string, constant: string, specTableRowId: string): number {
   const said = readFileSync(join(process.cwd(), file), 'utf8')
   const blocks = [...said.matchAll(/\/\/ <generated[^\n]*\n([\s\S]*?)\/\/ <\/generated>/g)].map(
     (one) => one[1] ?? '',
@@ -190,9 +190,9 @@ function generatedNumber(file: string, constant: string, rowId: string): number 
         'needs exactly one -- the road DFC-314 is about is not there',
     )
   }
-  const found = new RegExp(`'${rowId}':\\s*(-?\\d+(?:\\.\\d+)?)`).exec(holding[0] ?? '')
+  const found = new RegExp(`'${specTableRowId}':\\s*(-?\\d+(?:\\.\\d+)?)`).exec(holding[0] ?? '')
   if (found === null) {
-    throw new Error(`${constant} carries no entry for ${rowId}`)
+    throw new Error(`${constant} carries no entry for ${specTableRowId}`)
   }
   return Number(found[1])
 }

@@ -78,10 +78,10 @@ describe('FR-096 / T-024 -- the copies of the table in src are generated regions
   })
 
   it('the offered rows reach the chooser through export-formats.json: formats are the offered rows and files are every file row', () => {
-    expect(exportFormats.formats.map((one) => [one.rowId, one.extension])).toEqual(offeredRows().map((one) => [one.id, one.extension]))
-    expect(exportFormats.files.map((one) => [one.rowId, one.extension])).toEqual(fileRows().map((one) => [one.id, one.extension]))
-    expect(exportFormats.files.map((one) => one.rowId)).toContain('IO-8')
-    expect(exportFormats.formats.map((one) => one.rowId)).not.toContain('IO-8')
+    expect(exportFormats.formats.map((one) => [one.specTableRowId, one.extension])).toEqual(offeredRows().map((one) => [one.id, one.extension]))
+    expect(exportFormats.files.map((one) => [one.specTableRowId, one.extension])).toEqual(fileRows().map((one) => [one.id, one.extension]))
+    expect(exportFormats.files.map((one) => one.specTableRowId)).toContain('IO-8')
+    expect(exportFormats.formats.map((one) => one.specTableRowId)).not.toContain('IO-8')
   })
 
   it('ROOT_KEYS (the document model) lists the root properties of the published GRS JSON schema, in its order', () => {
@@ -173,6 +173,7 @@ describe('npm run gen:check -- the generators catch a planted drift (run on a sc
   beforeAll(() => {
     scratch = mkdtempSync(join(tmpdir(), 'grs-cr-768-'))
     cpSync(join(process.cwd(), 'docs', 'spec'), pathOf('docs', 'spec'), { recursive: true })
+    cpSync(join(process.cwd(), 'docs', 'development-rules', 'manuscript-schemas'), pathOf('docs', 'development-rules', 'manuscript-schemas'), { recursive: true })
     cpSync(join(process.cwd(), 'src'), pathOf('src'), { recursive: true })
     cpSync(join(process.cwd(), 'tools'), pathOf('tools'), { recursive: true })
   }, 120_000)

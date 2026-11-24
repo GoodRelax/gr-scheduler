@@ -17,7 +17,7 @@ interface Words {
 }
 
 interface RowWords {
-  readonly rowId: string
+  readonly specTableRowId: string
   readonly text: Words
   readonly nextStep?: Words
 }
@@ -91,7 +91,7 @@ const IMPORT_REFUSAL_WORDS: readonly (readonly [string, string, string, string, 
 
 /** @purity pure */
 function rowWords(list: readonly RowWords[], id: string): RowWords {
-  const found = list.find((one) => one.rowId === id)
+  const found = list.find((one) => one.specTableRowId === id)
   if (found === undefined) throw new Error(`display-words.json holds no ${id}`)
   return found
 }

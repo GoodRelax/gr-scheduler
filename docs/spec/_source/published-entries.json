@@ -1,11 +1,11 @@
 {
- "$schema": "./published-entries.schema.json",
+ "$schema": "../../development-rules/manuscript-schemas/published-entries.schema.json",
  "$comment": [
   "SINGLE SOURCE OF TRUTH -- EDIT THIS FILE.",
   "Table T-064 (the published interface of every component) of Chapter 5.3 of docs/spec/05-07-design.md: the names each component's public entry publishes, and what each one is for (CR-581).",
   "Generated FROM this file: _assets/tbl-published-entries.md (published_entries_json_to_md.py), and the purpose column of docs/review/public-entry-index.md (tools/generate_public_entry_index.py).",
   "Rebuild: npm run gen   |   npm run gen:check fails if anything has drifted.",
-  "Validated by _source/published-entries.schema.json. The generator also refuses a row id or a component written twice, a member name written twice in one row, an empty line, a line holding a line-break tag, and a text piece that would read as a published name.",
+  "Validated by docs/development-rules/manuscript-schemas/published-entries.schema.json. The generator also refuses a row id or a component written twice, a member name written twice in one row, an empty line, a line holding a line-break tag, and a text piece that would read as a published name.",
   "ONE STRING IS ONE PRINTED LINE. A MEMBER is `name`; its `note` lines are printed inside one pair of full-width parentheses right after the name, and its `after` lines (the reason it was published) follow the closing parenthesis on a line of their own -- except an `after` that opens with a lone full stop, which stays on the parenthesis. A TEXT piece publishes no name (check 26b skips it). Write one sentence per line: the generator puts the line breaks in, and the parentheses around a note are never written here.",
   "Every member after the first starts a new printed line that opens with the full-width slash, so a line that does not open with one continues the member above it.",
   "The rules about this table are NOT here -- Chapter 5.3 of docs/spec/05-07-design.md holds them. Check 26b holds every member against the export of its entry, both ways."

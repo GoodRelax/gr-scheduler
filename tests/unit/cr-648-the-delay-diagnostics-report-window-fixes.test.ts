@@ -111,7 +111,7 @@ describe('CR-648 DT-1 -- the status order and the precedence', () => {
   it('DT-1: a bottleneck with a T-311 finding is shown doubtful, and the summary does not count it a bottleneck', () => {
     const rows = delayDiagnosticsReportRows(REPORT, SCHEDULE)
     expect(rows.find((one) => one.taskUid === 2)?.status).toBe('doubtful')
-    const bottleneck = wordIn('delayReportStatuses', 'rowId', 'DG-2').ja
+    const bottleneck = wordIn('delayReportStatuses', 'specTableRowId', 'DG-2').ja
     const counted = viewIn('ja')?.summary.find((one) => one.status === 'DG-2')?.text ?? ''
     expect(counted).toContain(bottleneck)
     expect(counted).toContain(' 1 ')
@@ -125,13 +125,13 @@ describe('CR-648 FR-038 -- the report prints the dictionary words, in ja and en'
   it('T-347: the column headings are the dictionary words of DT-1 .. DT-7, in the table order', () => {
     const rows = specTable('T-347').rows.map((one) => one.id)
     for (const language of ['ja', 'en'] as const) {
-      expect(viewIn(language)?.columns.map((one) => one.heading)).toEqual(rows.map((row) => wordIn('delayReportColumns', 'rowId', row)[language]))
+      expect(viewIn(language)?.columns.map((one) => one.heading)).toEqual(rows.map((row) => wordIn('delayReportColumns', 'specTableRowId', row)[language]))
     }
   })
 
   it('DT-1 / T-315: the DG-1 status word is the one table T-315 names', () => {
     const named = (specTable('T-315').rows.find((one) => one.id === 'DG-1')?.by['状態'] ?? '').split(' / ')[0]?.trim()
-    expect(wordIn('delayReportStatuses', 'rowId', 'DG-1').ja).toBe(named)
+    expect(wordIn('delayReportStatuses', 'specTableRowId', 'DG-1').ja).toBe(named)
   })
 
   it('DT-7 / T-312 / VO-5: the milestone finding prints the question and the candidate achieved date', () => {
@@ -188,7 +188,7 @@ describe('CR-648 FR-038 -- the report prints the dictionary words, in ja and en'
   })
 
   it('IC-108: the ja label is Copy', () => {
-    const copy = MANUSCRIPT['icons']?.find((entry) => entry['rowId'] === 'IC-108')
+    const copy = MANUSCRIPT['icons']?.find((entry) => entry['specTableRowId'] === 'IC-108')
     expect(copy?.label).toEqual({ ja: 'Copy', en: 'Copy' })
   })
 })
@@ -200,12 +200,12 @@ describe('CR-648 RW-4 / RW-6 / RW-10 -- the summary line, no legend, the flame, 
     const summary = lines.filter((line) => line.startsWith(wordIn('delayReportSummary', 'part', 'statusDate').ja.replace(' {date}', '')))
     expect(summary).toHaveLength(1)
     // Why: CR-731 RW-6 -- the only second-level sections are the fix tables, under the words of IC-155 and IC-156.
-    const fixHeadings = ['IC-155', 'IC-156'].map((icon) => `## ${MANUSCRIPT['icons']?.find((entry) => entry['rowId'] === icon)?.label?.ja ?? icon}`)
+    const fixHeadings = ['IC-155', 'IC-156'].map((icon) => `## ${MANUSCRIPT['icons']?.find((entry) => entry['specTableRowId'] === icon)?.label?.ja ?? icon}`)
     expect(lines.filter((line) => line.startsWith('## ') && !fixHeadings.includes(line))).toEqual([])
   })
 
   it('RW-6: DG-2 is written with the flame U+1F525 before its word', () => {
-    expect(lines.some((line) => line.includes(`\u{1F525} ${wordIn('delayReportStatuses', 'rowId', 'DG-2').ja}`))).toBe(true)
+    expect(lines.some((line) => line.includes(`\u{1F525} ${wordIn('delayReportStatuses', 'specTableRowId', 'DG-2').ja}`))).toBe(true)
   })
 
   it('RW-4: the view holds no legend', () => {

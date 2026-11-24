@@ -30,8 +30,10 @@ const LENGTH_LETTER_UNITS = ['src/entity/layout-engine/schedule-layout/name-labe
 // Why: the generator also prints each command's shape into the codec's schema walker, through its printer (DFC-2856).
 const SHAPE_UNIT = 'src/adapter/document-codec/grs-json-schema.ts'
 const SHAPE_PRINTER = 'tools/generate_json_schema_validator.py'
+// Why: the manuscript schemas live beside the development rules (JDG-3420), and the generators validate against them.
+const SCHEMA_DIR = 'docs/development-rules/manuscript-schemas'
 const COPIED = [
-  SOURCE_DIR, PRINTED, UNIT_DIR, ...LENGTH_LETTER_UNITS, DESCRIPTIONS, GENERATOR, DESCRIPTION_GENERATOR, AGENT_GENERATOR,
+  SOURCE_DIR, SCHEMA_DIR, PRINTED, UNIT_DIR, ...LENGTH_LETTER_UNITS, DESCRIPTIONS, GENERATOR, DESCRIPTION_GENERATOR, AGENT_GENERATOR,
   SHAPE_UNIT, SHAPE_PRINTER,
 ]
 

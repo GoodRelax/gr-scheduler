@@ -174,7 +174,7 @@ function describedOn(language: DisplayLanguage): OpenModal {
 
 /** The sentence the dictionary holds for one row of table T-234. */
 function questionWord(row: string, language: DisplayLanguage): string {
-  const entry = displayWords.questions.find((one) => one.rowId === row)
+  const entry = displayWords.questions.find((one) => one.specTableRowId === row)
   if (entry === undefined) throw new Error(`the dictionary holds no question ${row}`)
   return entry.text[language]
 }
@@ -239,7 +239,7 @@ describe('FR-020 -- U-60 `Watermark Unlock` as UF-66 describes it', () => {
     // figure F-019 hold the entrances that are SHAPES, and a word button has
     // none. ⭐ Read off the generated roster rather than off a list here: it is
     // table T-109 generated into `src/`.
-    const rows = new Set(iconRoster.icons.map((one) => one.rowId))
+    const rows = new Set(iconRoster.icons.map((one) => one.specTableRowId))
     const answers = (describedOn('ja') as { answers: readonly ConfirmationAnswer[] }).answers
     for (const answer of answers) {
       expect(rows.has(answer.answer), `${answer.answer} is not a row of table T-109`).toBe(false)
@@ -252,7 +252,7 @@ describe('FR-020 -- U-60 `Watermark Unlock` as UF-66 describes it', () => {
     // the first level of `Esc` (IN-4 of table T-028), which FR-020 (MUST) names.
     expect(describedOn('ja').commands).toEqual([])
     const placed = iconRoster.icons.filter((one) => one.surfaces.includes(U_60))
-    expect(placed.map((one) => one.rowId), `table T-109 places nothing on ${U_60}`).toEqual([])
+    expect(placed.map((one) => one.specTableRowId), `table T-109 places nothing on ${U_60}`).toEqual([])
   })
 })
 
@@ -274,7 +274,7 @@ describe('FR-020 -- the reason a mismatch is told with', () => {
     // FR-020 (MUST NOT) puts no cap on the tries, so trying again really is
     // what a person can do next -- which is why this row exists rather than
     // RS-15 answering for it.
-    const entry = displayWords.reasons.find((one) => one.rowId === RS_41)
+    const entry = displayWords.reasons.find((one) => one.specTableRowId === RS_41)
     expect(entry, 'the dictionary holds no reason RS-41').not.toBeUndefined()
     for (const language of LANGUAGES) {
       expect(entry?.text[language]).not.toBe('')

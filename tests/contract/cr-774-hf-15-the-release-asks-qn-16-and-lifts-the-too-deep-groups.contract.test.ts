@@ -35,7 +35,7 @@ const answerKey = (answer: 'proceed' | 'cancel'): string => {
 }
 
 const sentenceOf = (language: 'ja' | 'en'): string => {
-  const entry = (WORDS['questions'] as { rowId: string; text: Record<string, string> }[]).find((one) => one.rowId === 'QN-16')
+  const entry = (WORDS['questions'] as { specTableRowId: string; text: Record<string, string> }[]).find((one) => one.specTableRowId === 'QN-16')
   return (entry?.text[language] ?? '').split('{maxGroupDepth}').join(String(S_125))
 }
 

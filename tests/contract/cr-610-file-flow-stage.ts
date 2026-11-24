@@ -100,9 +100,9 @@ export function surfaceOfEntrance(id: string): string {
 }
 
 // Spec: T-233, FR-038
-export function reasonWords(rowId: string): { text: { ja: string; en: string } } {
-  const found = (SPEC_WORDS['reasons'] as any[]).find((one) => one.rowId === rowId)
-  if (found === undefined) throw new Error(`display-words.json has no reason ${rowId}`)
+export function reasonWords(specTableRowId: string): { text: { ja: string; en: string } } {
+  const found = (SPEC_WORDS['reasons'] as any[]).find((one) => one.specTableRowId === specTableRowId)
+  if (found === undefined) throw new Error(`display-words.json has no reason ${specTableRowId}`)
   return found
 }
 

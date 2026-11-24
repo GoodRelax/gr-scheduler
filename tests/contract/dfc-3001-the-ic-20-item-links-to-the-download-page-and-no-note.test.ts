@@ -54,7 +54,7 @@ describe('DFC-3001 -- the manuscript these cases are driven by', () => {
 
   it('FR-038 dictionary helpLinks agentApi is tied to IC-20 and holds the words the user chose', () => {
     const entry = (DICTIONARY.helpLinks ?? []).find((one) => one.link === 'agentApi')
-    expect(entry?.rowId).toBe('IC-20')
+    expect(entry?.specTableRowId).toBe('IC-20')
     for (const language of LANGUAGES) expect(linkWords('agentApi', language)).toBe(AGENT_API_WORDS[language])
   })
 })

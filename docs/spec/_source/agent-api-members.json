@@ -1,11 +1,11 @@
 {
- "$schema": "./agent-api-members.schema.json",
+ "$schema": "../../development-rules/manuscript-schemas/agent-api-members.schema.json",
  "$comment": [
   "SINGLE SOURCE OF TRUTH -- EDIT THIS FILE.",
   "The members of the Agent API and how each is called (CR-765, JDG-2160): table T-107 (the 27 members: group, confirmed name, kind and purity, arguments, return value, what it carries, source) and table T-400 (the value types the arguments and return values name that table T-064 has no row for).",
   "Generated FROM this file: _assets/tbl-agent-api-members.md (agent_api_members_json_to_md.py); the generated regions of src/adapter/agent-api-endpoint/agent-api-members.ts (AgentApi, the value types, AGENT_API_VERSION), src/adapter/agent-api-endpoint/relayed-call.ts (RelayedParams, MEMBER_PARAMETERS) and src/framework/mcp-relay-server/mcp-relay-server.ts (the MCP-only key of AM-17) (tools/generate_agent_api.py); and src/adapter/mcp-tool-translator/mcp-tool-descriptions.json, the MCP tool names, descriptions and input shapes (tools/generate_mcp_tool_descriptions.py).",
   "Rebuild: npm run gen   |   npm run gen:check fails if anything has drifted.",
-  "Validated by _source/agent-api-members.schema.json. agent_api_members_json_to_md.py also refuses a row id or a name written twice, a type naming an identifier that is neither a row of the value table, a name of `externalTypes` nor a built-in, a line that is empty or holds a line-break tag, and a parenthesis or bold run that does not close on its line.",
+  "Validated by docs/development-rules/manuscript-schemas/agent-api-members.schema.json. agent_api_members_json_to_md.py also refuses a row id or a name written twice, a type naming an identifier that is neither a row of the value table, a name of `externalTypes` nor a built-in, a line that is empty or holds a line-break tag, and a parenthesis or bold run that does not close on its line.",
   "TYPES ARE TYPESCRIPT. `type` and `returns` are written as the code spells them; the printed tables show a union `A | B` as its alternatives joined by a word (a table cell cannot hold a bar), and the MCP input shape is derived from the type by the rule of design-mcp-relay.md section 3.1 (string, number, a list of numbers or null, an object).",
   "Rows are in the order the tables print them and the code declares them, which is not the numeric order. ONE STRING IS ONE PRINTED LINE.",
   "The rules about the Agent API are NOT here -- table T-035 (AG-n) and the requirements the `source` cells name hold them."

@@ -36,9 +36,9 @@ const FR_054_OPEN =
   '⭐ 時間帯の合計が `minutesPerDay` と違う稼働日（曜日の稼働日と、稼働にする繰り返しの無い例外日の両方を数え、時間帯を持たない日は `S-580` の時間帯で数える）を持つ文書を開いたときは、表 T-233 の `RS-89` を 1 度だけ告げること（MUST）'
 
 const WORDS = JSON.parse(readFileSync(join(SPEC, '_source', 'display-words.json'), 'utf8')) as {
-  readonly reasons: readonly { readonly rowId: string; readonly text: { readonly ja: string; readonly en: string } }[]
+  readonly reasons: readonly { readonly specTableRowId: string; readonly text: { readonly ja: string; readonly en: string } }[]
 }
-const RS_89_TEXT = WORDS.reasons.find((one) => one.rowId === 'RS-89')?.text.ja ?? '(no dictionary word for RS-89)'
+const RS_89_TEXT = WORDS.reasons.find((one) => one.specTableRowId === 'RS-89')?.text.ja ?? '(no dictionary word for RS-89)'
 
 describe('the clause and the row these cases are built from still read as quoted', () => {
   it('FR-054 tells RS-89 once on opening', () => {

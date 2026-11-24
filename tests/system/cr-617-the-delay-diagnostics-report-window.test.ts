@@ -21,9 +21,9 @@ const REDIAGNOSE = rowOf(specTable('T-109'), 'IC-168').id
 // Why: the word follows the SCREEN language (FR-038), which this stage starts in English whatever the opened document's language is.
 const REDIAGNOSE_WORD = (
   JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8')) as {
-    readonly icons: readonly { readonly rowId: string; readonly label: { readonly en: string } }[]
+    readonly icons: readonly { readonly specTableRowId: string; readonly label: { readonly en: string } }[]
   }
-).icons.find((one) => one.rowId === REDIAGNOSE)?.label.en
+).icons.find((one) => one.specTableRowId === REDIAGNOSE)?.label.en
 const OPEN_SEARCH = keyOf('SK-24')
 
 let browser: Browser | null = null

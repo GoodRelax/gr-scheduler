@@ -154,10 +154,10 @@ function importReportWords(readings: ScreenViewReadings, language: DisplayLangua
 
 const WATERMARK_UNLOCK_QUESTION = 'QN-9'
 
-const QUESTIONS_BY_ROW = new Map(displayWords.questions.map((entry) => [entry.rowId, entry]))
+const QUESTIONS_BY_ROW = new Map(displayWords.questions.map((entry) => [entry.specTableRowId, entry]))
 
 const FORMAT_NAME_BY_TASK_GROUP = new Map(
-  displayWords.exportFormats.map((entry) => [entry.rowId, entry]),
+  displayWords.exportFormats.map((entry) => [entry.specTableRowId, entry]),
 )
 
 // Spec: FR-096
@@ -166,8 +166,8 @@ function exportFormatChoices(
   language: DisplayLanguage,
 ): readonly ExportFormatChoice[] {
   return exportFormats.formats.map((one) => ({
-    row: one.rowId,
-    name: FORMAT_NAME_BY_TASK_GROUP.get(one.rowId)?.name[language] ?? NO_WORDS,
+    row: one.specTableRowId,
+    name: FORMAT_NAME_BY_TASK_GROUP.get(one.specTableRowId)?.name[language] ?? NO_WORDS,
     extension: one.extension,
   }))
 }
@@ -245,25 +245,25 @@ export function delayFixLogFileNameOf(documentName: string, localMoment: string,
 }
 
 const MOUSE_PRESS_BY_ROW = new Map(
-  displayWords.assignments.map((entry) => [entry.rowId, entry]),
+  displayWords.assignments.map((entry) => [entry.specTableRowId, entry]),
 )
 
 const SHORTCUT_WORDS_BY_ROW = new Map(
-  displayWords.shortcuts.map((entry) => [entry.rowId, entry]),
+  displayWords.shortcuts.map((entry) => [entry.specTableRowId, entry]),
 )
 
 const HELP_HEADINGS_BY_BLOCK = new Map(
   displayWords.helpHeadings.map((entry) => [entry.block, entry]),
 )
 
-const HELP_NOTES_BY_ROW = new Map(displayWords.helpNotes.map((entry) => [entry.rowId, entry]))
+const HELP_NOTES_BY_ROW = new Map(displayWords.helpNotes.map((entry) => [entry.specTableRowId, entry]))
 
 const HELP_LINKS_BY_KEY = new Map(displayWords.helpLinks.map((entry) => [entry.link, entry]))
 
 // Spec: FR-036, IC-20
 // Why: a link that stands on an item names its T-109 row in the dictionary (helpLinks agentApi on IC-20).
 const HELP_LINKS_BY_ROW = new Map(
-  displayWords.helpLinks.flatMap((entry) => (entry.rowId === undefined ? [] : [[entry.rowId, entry] as const])),
+  displayWords.helpLinks.flatMap((entry) => (entry.specTableRowId === undefined ? [] : [[entry.specTableRowId, entry] as const])),
 )
 
 const DOWNLOAD_LINK = 'download'
@@ -273,7 +273,7 @@ const ABOUT_LINK = 'about'
 const LANGUAGE_QUERY = '?lang='
 
 const BROWSER_FUNCTION_WORDS_BY_ROW = new Map(
-  displayWords.browserFunctions.map((entry) => [entry.rowId, entry]),
+  displayWords.browserFunctions.map((entry) => [entry.specTableRowId, entry]),
 )
 
 const ASSIGNMENT_TABLE = 'T-023'
@@ -401,7 +401,7 @@ function commandItemFor(icon: IconId, language: DisplayLanguage): CommandItem {
 function commandsOnSurface(surface: string, language: DisplayLanguage): readonly CommandItem[] {
   return iconRoster.icons
     .filter((row) => row.surfaces.includes(surface))
-    .map((row) => commandItemFor(row.rowId, language))
+    .map((row) => commandItemFor(row.specTableRowId, language))
 }
 
 // Spec: FR-069
