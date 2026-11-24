@@ -12,9 +12,9 @@ export const HF_15_LIFT =
 export const HF_15_TASKS_STAY = '引き上げたタスクグループに載っている `Task` は、そのタスクグループに載ったままとする（`HM-3`）。'
 export const HF_15_ONE_UNDO = '移動と引き上げは、取り消しの 1 手とする（`UN-4`）。'
 
-export const UC_002_2A_ASK = '掴んで運び、配下が上限を超える段で離したときは、`GRS` は書き込む前に問う（表 T-234 の `QN-16`）。'
-export const UC_002_2A_ANSWERS = '答えが Yes なら深すぎる配下を上限の段へ引き上げて移し、No なら何も変えない（表 T-051 の `HF-15`）。'
-export const UC_002_2A_OTHER_ROADS = 'ほかの入口から来た移動は受け付けず、深さの上限に達したことを通知する（`HM-3a`）。'
+export const UC_002_2A_ASK = '書き込む前に 表 T-234 の `QN-16` で問うこと（MUST）。'
+export const UC_002_2A_ANSWERS = '`proceed` なら、深すぎる配下を上限の段へ引き上げて移動し、`cancel` なら書き込まない'
+export const UC_002_2A_OTHER_ROADS = 'ほかの入口から来た移動を受け付けず、深さの上限に達したことを作成者に知らせる（`HM-3a`）。'
 
 export const HM_3A_GRAB_NOTE =
   '⚠️ タスクグループパネルで掴んで運ぶときは、離したときに 表 T-234 の `QN-16` で問い、答えが Yes なら深すぎる配下を上限の段へ引き上げてから移す（表 T-051 の `HF-15`）'
