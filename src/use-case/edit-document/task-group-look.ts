@@ -1,4 +1,4 @@
-// EditDocument -- a task group's color and min height are rewritten.
+// File: EditDocument: a task group's color and min height are rewritten.
 // @unit      UF-78  (docs/spec/05-07-design.md, table T-075)
 // @component EditDocument, layer UseCase (table T-062)
 // @purity    pure
@@ -10,10 +10,10 @@ import { refused, edited, reject } from './edit-document'
 import type { TaskGroupCommandOf } from './edit-task-group'
 import { withTaskGroup } from './edit-task-group'
 
-// see CV-9, AT-58
+// Spec: CV-9, AT-58
 const TASK_GROUP_COLOR_NAMES: readonly string[] = COLUMN_SHAPES.TaskGroup['color']?.choices ?? []
 
-// see CM-30, FR-042
+// Spec: CM-30, FR-042
 /** @purity pure */
 export function setTaskGroupColor(
   document: Document,
@@ -31,7 +31,7 @@ export function setTaskGroupColor(
   return edited(withTaskGroup(document, { ...taskGroup, color: command.color }))
 }
 
-// see CM-31, FR-007
+// Spec: CM-31, FR-007
 /** @purity pure */
 export function resetTaskGroupColor(
   document: Document,
@@ -46,7 +46,7 @@ export function resetTaskGroupColor(
   return edited(withTaskGroup(document, { ...taskGroup, color: null }))
 }
 
-// see CM-32, FR-042
+// Spec: CM-32, FR-042
 /** @purity pure */
 export function setTaskGroupMinHeightPx(
   document: Document,
@@ -60,7 +60,7 @@ export function setTaskGroupMinHeightPx(
   if (command.minHeightPx !== null && !Number.isInteger(command.minHeightPx)) {
     return refused([reject('CM-32', 'AT-59', `min height is not an integer: ${command.minHeightPx}`)])
   }
-  // WHY: a height below the stacks is a floor, not refused; null resets, as no reset command exists.
+  // Why: a height below the stacks is a floor, not refused; null resets, as no reset command exists.
   if (taskGroup.minHeightPx === command.minHeightPx) return edited(document)
   return edited(withTaskGroup(document, { ...taskGroup, minHeightPx: command.minHeightPx }))
 }

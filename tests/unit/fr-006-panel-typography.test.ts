@@ -1082,7 +1082,7 @@ const EDITABLE_FIELDS: readonly PropertyField[] = [
     isEditable: true,
     controls: [
       controlOf({
-        // WHY: PR-5's item name, not a Task column since AT-35 retired; the panel casts it the same way.
+        // Why: PR-5's item name, not a Task column since AT-35 retired; the panel casts it the same way.
         key: { holder: 'task', uid: 1, column: 'actualDuration' as string as Extract<PropertyControl['key'], { holder: 'task' }>['column'] },
         kind: 'number',
         text: '3',

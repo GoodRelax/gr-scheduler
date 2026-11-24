@@ -13,7 +13,7 @@ import {
 } from '../unit/cr-429-mspdi-fixtures'
 import { leaf, mspdiText, type Spec, type XmlNode } from '../unit/cr-429-mspdi-schema'
 
-// see EX-12
+// Spec: EX-12
 const EX_12_NO_SLACK =
   '余裕日数（`FreeSlack` / `TotalSlack` / `StartSlack` / `FinishSlack`）は書いてはならない（MUST NOT）—— 交換相手が開くときに計算し直す値であり、古い値を返すと日付と食い違う。'
 
@@ -25,7 +25,7 @@ function slacksOf(task: XmlNode): readonly string[] {
   return task.children.map((each) => each.name).filter((name) => (SLACKS as readonly string[]).includes(name))
 }
 
-// WHY: removed outright, not blanked -- FR-023 reads a missing element as
+// Why: removed outright, not blanked -- FR-023 reads a missing element as
 // the column's null, an unparseable or blank value as a row to drop instead.
 function withoutDate(root: Spec, uid: number, name: 'Start' | 'Finish'): Spec {
   return withTask(root, uid, (children) => children.filter((each) => each.name !== name))

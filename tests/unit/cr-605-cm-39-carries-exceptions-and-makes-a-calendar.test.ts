@@ -25,7 +25,7 @@ const SPEC = join(process.cwd(), 'docs', 'spec')
 const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8'))
 const ERD = unbroken(readFileSync(join(SPEC, '_assets', 'fig-erd-detail.md'), 'utf8'))
 
-// see FR-088
+// Spec: FR-088
 const FR_088_MAKE =
   '⭐ 文書の暦が 表 T-209 の既定に解けるとき、`CM-39` は同じ書き込みで `Calendar` を 1 行作り、`Project.calendarUid` に指させてから、曜日と例外日を書くこと（MUST） —— 作らないと、新しい文書では暦を 1 つも直せない。'
 const FR_088_UID = '作る暦の `uid` は `Project.uidHighWaterMark`（`AT-20`）に従って採り、`isBaseCalendar` を真とする。'
@@ -34,24 +34,24 @@ const FR_088_DAY_WORKING = '行ごとに休みか稼働か（`AT-81`）を選べ
 const FR_088_RECURRING_DELETE =
   '⚠️ 取り込んだ繰り返しの例外日は、一覧に出して消せるようにし、直させてはならない（MUST NOT） —— 繰り返しを展開しない（`FR-054`）ので、直した結果を画面で確かめられない。'
 const FR_088_UNDO = '**変更は取り消しの対象とすること（MUST）**（表 T-027 の `UN-13`）。'
-// see FR-054
+// Spec: FR-054
 const FR_054_RESOLVE =
   '指していないとき、および指す先が無いときは、`isBaseCalendar` が真の `Calendar` のうち `ordinal` が最小のものとし、それも無いときは表 T-209 の既定とすること（MUST）。'
-// see CM-39
-// WHY: CR-710 added the one working time set of WC-8 to what CM-39 carries.
+// Spec: CM-39
+// Why: CR-710 added the one working time set of WC-8 to what CM-39 carries.
 const CM_39_DOES = '暦（稼働する曜日・稼働日の時間帯の 1 組・例外日）と週の始まりを直す。'
-// see AT-67
+// Spec: AT-67
 const AT_67_NEXT = '`GRS` が足す暦（合流の `MG-5` ほか）は、既にある暦の最大の次を取る'
-// see AT-20
+// Spec: AT-20
 const AT_20_MAX = '発番済みの `uid` の最大値。'
-// see WC-7
+// Spec: WC-7
 const WC_7_NO_WRITE = '⭐ 下書きが文書と同じなら書かない —— 何も変えなかった書き込みは取り消しの段を残さない（`FR-031`）'
-// see S-106
+// Spec: S-106
 const S_106_CELL = '月・火・水・木・金'
-// see S-107
+// Spec: S-107
 const S_107_CELL = '無し'
 
-// see S-106, AT-73
+// Spec: S-106, AT-73
 const S_106_WORKING: readonly number[] = [2, 3, 4, 5, 6]
 
 interface ExceptionRow {
@@ -65,7 +65,7 @@ interface ExceptionRow {
   readonly carryElements: readonly unknown[]
 }
 
-// WHY: CM-39 writes the WT-6 / WT-7 times on a row it adds (CR-649), so the rows carry them and read back as sent.
+// Why: CM-39 writes the WT-6 / WT-7 times on a row it adds (CR-649), so the rows carry them and read back as sent.
 const exceptionOf = (part: Partial<ExceptionRow> & { ordinal: number }): ExceptionRow => ({
   name: `x${part.ordinal}`,
   fromDate: '2026-08-13T00:00:00',
@@ -85,7 +85,7 @@ const WORKED_SATURDAY = exceptionOf({
   toDate: '2026-08-22T23:59:00',
   dayWorking: true,
 })
-// WHY: an imported yearly row with a carried column, so a rewrite that drops carry shows.
+// Why: an imported yearly row with a carried column, so a rewrite that drops carry shows.
 const IMPORTED_YEARLY = exceptionOf({
   ordinal: 2,
   name: 'new year',
@@ -181,7 +181,7 @@ const documentOf = (project: Record<string, unknown>, calendars: readonly Calend
 
 const POINTED = (): Document => documentOf({ calendarUid: 1 }, [calendarOf({ exceptions: [IMPORTED_YEARLY] })])
 const NO_CALENDAR = (): Document => documentOf({ calendarUid: null }, [])
-// WHY: two non-base calendars and no pointer, so FR-054 falls through to the default.
+// Why: two non-base calendars and no pointer, so FR-054 falls through to the default.
 const ONLY_NON_BASE = (pointer: number | null): Document =>
   documentOf({ calendarUid: pointer }, [
     calendarOf({ uid: 5, ordinal: 3, isBaseCalendar: false }),

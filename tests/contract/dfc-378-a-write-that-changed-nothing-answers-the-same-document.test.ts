@@ -24,7 +24,7 @@ import {
 
 const DEFAULT_TASK_GROUP_NAME_FIXTURE = 'fixture default task group name'
 
-// see S-3
+// Spec: S-3
 const RULER_FONT_FACTOR = SETTINGS_DERIVED.rulerFontSizePx.times
 const RULER_LABEL_PAD = SETTINGS_CONSTANTS.rulerLabelPad
 const SIZE_M = SETTINGS_CONSTANTS.fontSizeStepSizes.M
@@ -67,7 +67,7 @@ const documentOf = (part: Record<string, unknown> = {}): Document =>
     documentSettings: {
       stackDirection: 'up',
       fontSizeStep: 'M',
-      // WHY: the pair agrees with fontSizeStep M (S-3 x its factor, S-2 = x3 + pad x3), so CM-62 on M changes nothing.
+      // Why: the pair agrees with fontSizeStep M (S-3 x its factor, S-2 = x3 + pad x3), so CM-62 on M changes nothing.
       rulerFontSizePx: SIZE_M * RULER_FONT_FACTOR,
       rulerHeightPx: SIZE_M * RULER_FONT_FACTOR * 3 + RULER_LABEL_PAD * 3,
       taskGroupPanelWidthPx: 170,
@@ -137,7 +137,7 @@ describe('EditProject (UF-17) -- CM-1 to CM-5 answer the same document when noth
   })
 
   it('CM-1 still REFUSES the empty string, which is a different answer again', () => {
-    // TRAP: a write path that checked the value before the refusal would
+    // Trap: a write path that checked the value before the refusal would
     // answer ok: true here instead of failing FR-035's MUST NOT.
     const result = editProject(documentOf(), { kind: 'setProjectTitle', title: '' })
     expect(result.ok).toBe(false)
@@ -152,7 +152,7 @@ describe('EditProject (UF-17) -- CM-1 to CM-5 answer the same document when noth
   })
 
   it('CM-2 writes only the columns that moved, and leaves the rest as they stand', () => {
-    // TRAP: an arm that gave up after the first equal field would leave
+    // Trap: an arm that gave up after the first equal field would leave
     // revision at 1 instead of writing the one field that moved.
     const document = documentOf()
     const result = editProject(document, {
@@ -176,7 +176,7 @@ describe('EditProject (UF-17) -- CM-1 to CM-5 answer the same document when noth
   })
 
   it('CM-4 clearStatusDate -- erasing a line that is not there', () => {
-    // WHY: the two documents are swapped here -- the state where this command
+    // Why: the two documents are swapped here -- the state where this command
     // already had its way is the one with no line, not the default fixture.
     const empty = documentOf({ schedule: { project: { statusDate: null, themeHue: 214 } } })
     const cleared = editProject(empty, { kind: 'clearStatusDate' })
@@ -216,7 +216,7 @@ describe('EditDocumentSettings -- the presentation arms answer the same document
   })
 
   it('CM-62 setFontSizeStep -- the three keys it writes are judged together', () => {
-    // WHY: fontSizeStep drives rulerFontSizePx and rulerHeightPx too (FR-039), so a
+    // Why: fontSizeStep drives rulerFontSizePx and rulerHeightPx too (FR-039), so a
     // drifted derived pair must be repaired -- tested as a whole, not one key.
     bothWays(
       settings as never,
@@ -226,7 +226,7 @@ describe('EditDocumentSettings -- the presentation arms answer the same document
   })
 
   it('CM-62 still repairs a document whose derived pair drifted from the scale it names', () => {
-    // TRAP: an arm comparing fontSizeStep alone would answer this document
+    // Trap: an arm comparing fontSizeStep alone would answer this document
     // untouched and leave rulerFontSizePx at 99.
     const drifted = documentOf({ documentSettings: { fontSizeStep: 'M', rulerFontSizePx: 99 } })
     const result = editDocumentSettings(drifted, { kind: 'setFontSizeStep', fontSizeStep: 'M' }, LIMITS)
@@ -252,7 +252,7 @@ describe('EditDocumentSettings -- the presentation arms answer the same document
       { kind: 'setZoom', zoomX: 1, zoomY: 1 },
       { kind: 'setZoom', zoomX: 2, zoomY: 1 },
     )
-    // TRAP: an arm comparing the value it was handed, not the clamped result,
+    // Trap: an arm comparing the value it was handed, not the clamped result,
     // would answer a new document even though the clamp writes nothing.
     const document = documentOf({ documentSettings: { zoomX: 64, zoomY: 1 } })
     const result = editDocumentSettings(
@@ -292,7 +292,7 @@ describe('EditDocumentSettings -- the presentation arms answer the same document
   })
 
   it('CM-67 still REFUSES a width of zero', () => {
-    // WHY: the refusal check runs before the no-op rule, so FR-052's MUST NOT
+    // Why: the refusal check runs before the no-op rule, so FR-052's MUST NOT
     // still applies no matter what the document already holds.
     const result = editDocumentSettings(
       documentOf(),
@@ -329,7 +329,7 @@ describe('EditDocumentSettings -- the presentation arms answer the same document
 
 describe('FR-063 -- what the write path reads off the reference the arms keep', () => {
   it('a no-op CM-1 moves neither hasUpdatedSchedule nor the schedule instant', () => {
-    // TRAP: the case below (a write that DOES move the title) must stay
+    // Trap: the case below (a write that DOES move the title) must stay
     // green, or an arm that always answers the same document would pass this too.
     const document = documentOf()
     const plan = planOf(document, [
@@ -352,7 +352,7 @@ describe('FR-063 -- what the write path reads off the reference the arms keep', 
   })
 
   it('a no-op on the presentation group leaves the schedule instant alone either way', () => {
-    // WHY: hasUpdatedSchedule is already false for this arm; what this case
+    // Why: hasUpdatedSchedule is already false for this arm; what this case
     // adds is the DOCUMENT reference, which is what FR-020's trail reads.
     const document = documentOf()
     const plan = planOf(document, [

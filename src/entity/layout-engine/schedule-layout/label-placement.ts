@@ -1,4 +1,4 @@
-// ScheduleLayout -- where the labels go: the reference, the name, the marker and the assignee (FR-109).
+// File: ScheduleLayout: where the labels go: the reference, the name, the marker and the assignee (FR-109).
 // @unit      UF-140  (docs/spec/05-07-design.md, table T-075)
 // @component ScheduleLayout, layer layoutEngine (table T-062)
 // @purity    pure
@@ -8,7 +8,7 @@ import { planActualState, type Task } from '../../document-model/schedule/schedu
 import { dummyInkWidthOf, type ShapeKind } from './schedule-layout'
 import { actualPlacementOf, isLaidBelow, planHeightOf } from './shape-cross-sections'
 
-// see RF-1, RF-3
+// Spec: RF-1, RF-3
 export interface LabelReference {
   readonly x: number
   readonly width: number
@@ -16,14 +16,14 @@ export interface LabelReference {
   readonly nameFloor: number
 }
 
-// see LP-1, LP-2, LP-3, LP-4, LP-5, LP-6, LP-7, LP-8
+// Spec: LP-1, LP-2, LP-3, LP-4, LP-5, LP-6, LP-7, LP-8
 export interface LabelLayout {
   readonly fits: boolean
   readonly markerLeft: number | null
   readonly nameX: number
 }
 
-// see XS-10, GA-20
+// Spec: XS-10, GA-20
 /** @purity pure */
 export function hasUndecidedResume(task: Task, shapeKind: ShapeKind): boolean {
   return (
@@ -33,7 +33,7 @@ export function hasUndecidedResume(task: Task, shapeKind: ShapeKind): boolean {
   )
 }
 
-// see RF-1, RF-3
+// Spec: RF-1, RF-3
 /** @purity pure */
 export function labelReferenceOf(
   shapeKind: ShapeKind,
@@ -56,7 +56,7 @@ export function labelReferenceOf(
   return { ...band, fitWidth: band.width, nameFloor: band.x }
 }
 
-// see RF-1, DM-1, DM-3, DM-12, FR-158
+// Spec: RF-1, DM-1, DM-3, DM-12, FR-158
 /** @purity pure */
 export function dummyBandOf(
   shapeKind: ShapeKind,
@@ -69,7 +69,7 @@ export function dummyBandOf(
     : { x: plan.x, width: dummyInkWidthOf(markerDiameter, axis) }
 }
 
-// see LP-2, LP-4, GA-20
+// Spec: LP-2, LP-4, GA-20
 /** @purity pure */
 export function outwardStartOf(
   referenceEnd: number,
@@ -81,7 +81,7 @@ export function outwardStartOf(
   return referenceEnd + markerDiameter + NOT_STORED_SIZES['S-286']
 }
 
-// see LP-1, LP-2, LP-3, LP-4, LP-5, LP-6, LP-7, LP-8, S-584
+// Spec: LP-1, LP-2, LP-3, LP-4, LP-5, LP-6, LP-7, LP-8, S-584
 /** @purity pure */
 export function labelLayoutOf(
   shapeKind: ShapeKind,
@@ -118,7 +118,7 @@ export function labelLayoutOf(
   }
 }
 
-// see FR-109, OC-2
+// Spec: FR-109, OC-2
 /** @purity pure */
 export function assigneeAnchorOf(
   shapeKind: ShapeKind,
@@ -136,7 +136,7 @@ export function assigneeAnchorOf(
 // Single source of truth:
 //   docs/spec/_source/settings.json (table T-206)
 // Rebuild: npm run gen   ||   npm run gen:check fails on drift.
-// see T-206
+// Spec: T-206
 export const NOT_STORED_SIZES: {
   readonly 'S-250': number
   readonly 'S-251': number

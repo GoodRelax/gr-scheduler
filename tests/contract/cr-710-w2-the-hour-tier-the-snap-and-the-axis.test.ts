@@ -53,11 +53,11 @@ describe('the clauses these cases are built from still read as quoted', () => {
   })
 })
 
-// see S-8, DS-1, FR-017
-// WHY: FR-017 compares pxPerDay with the threshold after dividing by (the font the ruler is drawn with / S-8); the stored font is drawn at the display ratio.
+// Spec: S-8, DS-1, FR-017
+// Why: FR-017 compares pxPerDay with the threshold after dividing by (the font the ruler is drawn with / S-8); the stored font is drawn at the display ratio.
 const PX_SCALE = ((SETTINGS_DEFAULTS['rulerFontSizePx'] as number) * RATIO) / stored('S-8')
 
-// see T-205
+// Spec: T-205
 const thresholdOf = (id: string): number => Number(bare(rowOf('T-205', id).by['既定'] ?? ''))
 const S_83 = thresholdOf('S-83')
 const S_84 = thresholdOf('S-84')
@@ -156,7 +156,7 @@ describe('FR-103, T-378: snapMinutesOf', () => {
 describe('FR-103, RV-1, RV-6: an instant and the x it stands on', () => {
   const PX_PER_DAY = 1440
   const ORIGIN_X = 200
-  // WHY: 1440 px per day is 1 px per minute, so every expectation below can be read off the clock.
+  // Why: 1440 px per day is 1 px per minute, so every expectation below can be read off the clock.
   const axis = { pxPerDay: PX_PER_DAY, originDay: { year: 2026, month: 1, day: 5 }, originX: ORIGIN_X }
   const at = (text: string): number => instantOf(text) as number
 
@@ -201,7 +201,7 @@ describe('FR-103, RV-1, RV-6: an instant and the x it stands on', () => {
     expect(snapAt(ORIGIN_X + 545.7, 1)).toBe('2026-01-05T09:06:00')
   })
 
-  // WHY: which day a position inside a column snaps to (the day under the pointer, or the nearer midnight) is open -- DFC-2456; only the unambiguous x are pinned.
+  // Why: which day a position inside a column snaps to (the day under the pointer, or the nearer midnight) is open -- DFC-2456; only the unambiguous x are pinned.
   it('reads the left part of a day column at a day unit as that day, as a midnight', () => {
     expect(snappedInstantAtX(axis, ORIGIN_X + 400, 1440)).toBe(at('2026-01-05T00:00:00'))
     expect(snappedInstantAtX(axis, ORIGIN_X + 1440 + 200, 1440)).toBe(at('2026-01-06T00:00:00'))
@@ -263,7 +263,7 @@ describe('FR-158, TX-1, TX-2: the clock reads in 24 hours, the hour is not padde
   it('table T-375 gives the two forms of the name label day and the long form of the clock', () => {
     expect(cellOf('T-375', 'TX-1', '時刻を表示しない')).toBe('6/3')
     expect(cellOf('T-375', 'TX-1', '時刻を表示する')).toBe('6/3 10:00')
-    // WHY: CR-794 -- the tip day is yyyy/mm/dd with the year and a padded hour (TL-10); only the name label keeps 6/3.
+    // Why: CR-794 -- the tip day is yyyy/mm/dd with the year and a padded hour (TL-10); only the name label keeps 6/3.
     expect(cellOf('T-375', 'TX-2', '時刻を表示しない')).toBe('yyyy/mm/dd (曜)')
     expect(cellOf('T-375', 'TX-2', '時刻を表示する')).toBe('yyyy/mm/dd (曜) hh:mm')
     expect(cellOf('T-375', 'TX-4', '時刻を表示する')).toBe('yyyy/mm/dd H:MM')

@@ -15,13 +15,13 @@ const SCHEMA = JSON.parse(readFileSync(join(SOURCE, 'grs-document.schema.json'),
 const DEFS = SCHEMA['$defs'] as Json
 const SETTINGS = SCHEMA['properties']['documentSettings']['properties'] as Json
 
-// see T-376
-// WHY: CR-755 -- the values are the table's keys; the base keys take the standard-time rows only.
+// Spec: T-376
+// Why: CR-755 -- the values are the table's keys; the base keys take the standard-time rows only.
 const T376 = specTable('T-376')
 const REGIONS: readonly string[] = T376.rows.map((row) => bare(row.by['鍵'] ?? ''))
 const STANDARD_KEYS: readonly string[] = T376.rows.filter((row) => row.by['種'] === '標準時').map((row) => bare(row.by['鍵'] ?? ''))
 
-// see FR-156, S-574, S-575
+// Spec: FR-156, S-574, S-575
 const REGION_KEYS: readonly (readonly [string, Json, readonly string[]])[] = [
   ['Project.scheduleDataTimeZone', DEFS['Project']['properties']['scheduleDataTimeZone'], STANDARD_KEYS],
   ['documentSettings.viewTimeZone', SETTINGS['viewTimeZone'], STANDARD_KEYS],
@@ -62,7 +62,7 @@ describe('premise', () => {
   })
 })
 
-// see FR-156, T-376, S-574, S-575
+// Spec: FR-156, T-376, S-574, S-575
 describe('JDG-2039 / Chapter 6.2: the region keys enumerate the T-376 regions in table order', () => {
   it.each(REGION_KEYS.map(([name, node, keys]) => [name, node, keys] as const))('%s enumerates exactly its T-376 keys, in order', (_name, node, keys) => {
     const values = (node['enum'] ?? []) as unknown[]
@@ -91,7 +91,7 @@ describe('JDG-2039 / Chapter 6.2: the region keys enumerate the T-376 regions in
   })
 })
 
-// see S-582, IV-24
+// Spec: S-582, IV-24
 describe('S-582: the span limit is printed as maxItems on both workingTimes arrays', () => {
   const S_582 = settingNumber('S-582')
   it.each([
@@ -103,7 +103,7 @@ describe('S-582: the span limit is printed as maxItems on both workingTimes arra
   })
 })
 
-// see FR-054, FR-024
+// Spec: FR-054, FR-024
 describe('Chapter 6.2: the root description states the minute-level reading, not the day-only one', () => {
   const root = String(SCHEMA['description'])
 

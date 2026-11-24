@@ -1,4 +1,4 @@
-// ItemHitArea -- the selection narrowed to the Tasks that are drawn (table T-023c, FR-049).
+// File: ItemHitArea: the selection narrowed to the Tasks that are drawn (table T-023c, FR-049).
 // @unit      UF-169  (docs/spec/05-07-design.md, table T-075)
 // @component ItemHitArea, layer layoutEngine (table T-062)
 // @purity    pure
@@ -9,15 +9,15 @@ import type { Selection } from '../../document-model/selection/selection'
 import type { ScheduleGeometry, TaskGeometry } from '../schedule-geometry/schedule-geometry'
 import type { ScheduleLayout } from '../schedule-layout/schedule-layout'
 
-// see T-023c, FR-049, T-240
-// TRAP: never milestoneFigure: task-figures.ts builds it with the plan hidden too.
+// Spec: T-023c, FR-049, T-240
+// Trap: never milestoneFigure: task-figures.ts builds it with the plan hidden too.
 /** @purity pure */
 export function isTaskDrawn(task: TaskGeometry): boolean {
   return task.plan !== null || task.actual !== null || task.dummies.length > 0
 }
 
-// see T-023c, SL-7b
-// TRAP: the same object when nothing leaves; the shell compares selections by identity.
+// Spec: T-023c, SL-7b
+// Trap: the same object when nothing leaves; the shell compares selections by identity.
 /** @purity pure */
 export function selectionWithinDrawn(selection: Selection, geometry: ScheduleGeometry): Selection {
   const chosenTaskUids = new Set<number>()
@@ -34,8 +34,8 @@ export function selectionWithinDrawn(selection: Selection, geometry: ScheduleGeo
   return { items, isOrdered: selection.isOrdered }
 }
 
-// see T-023c, FR-098, ST-7
-// WHY: a pin the band cannot hold and a task group past the stack safety cap are no row T-023c names.
+// Spec: T-023c, FR-098, ST-7
+// Why: a pin the band cannot hold and a task group past the stack safety cap are no row T-023c names.
 /** @purity pure */
 export function selectionWithinDrawnTaskGroups(
   selection: Selection,
@@ -45,7 +45,7 @@ export function selectionWithinDrawnTaskGroups(
   settings: DocumentSettings,
   isPreviewed: boolean,
 ): Selection {
-  // WHY: none under a preview; it may yet be dropped, and pruning under it ends the drag's selection.
+  // Why: none under a preview; it may yet be dropped, and pruning under it ends the drag's selection.
   if (isPreviewed) return selection
   const within = selectionWithinDrawn(selection, geometry)
   if (within === selection) return selection

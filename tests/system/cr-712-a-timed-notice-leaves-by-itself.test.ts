@@ -28,12 +28,12 @@ const NOTIFICATION_AREA = '[data-role="Notification Area"]'
 
 const COPY_PROMPT = 'IC-115'
 
-// WHY: a margin either side of each deadline, wide enough for a frame and a poll, narrow enough to tell a pause from a restart.
+// Why: a margin either side of each deadline, wide enough for a frame and a poll, narrow enough to tell a pause from a restart.
 const MARGIN_MS = 700
 
 const POLL_MS = 100
 
-// see T-206, S-542
+// Spec: T-206, S-542
 /** @purity pure */
 function s542Ms(): number {
   const row = specTable('T-206').rows.find((one) => one.id === 'S-542')
@@ -50,7 +50,7 @@ function wordsOf(rowId: string): readonly string[] {
   return [found.text.ja, found.text.en]
 }
 
-// WHY: the host clipboard is replaced, so the copy succeeds (RS-65) or is refused (RS-15) whatever the browser allows.
+// Why: the host clipboard is replaced, so the copy succeeds (RS-65) or is refused (RS-15) whatever the browser allows.
 const CLIPBOARD_STAND_IN = (refuse: boolean): void => {
   const board = navigator.clipboard as unknown as Record<string, unknown> | undefined
   if (board === undefined) return
@@ -92,7 +92,7 @@ async function noticeBox(page: Page, rowId: string): Promise<{ x: number; y: num
   )
 }
 
-// see NT-2
+// Spec: NT-2
 /** @purity non-pure */
 async function moveAwayFromNotices(page: Page): Promise<void> {
   const area = await page.evaluate((selector: string) => {
@@ -111,7 +111,7 @@ async function moveAwayFromNotices(page: Page): Promise<void> {
   await page.mouse.move(spot.x, spot.y)
 }
 
-// see IC-115, FR-068
+// Spec: IC-115, FR-068
 /** @purity non-pure */
 async function pressCopy(page: Page): Promise<void> {
   const at = await page.evaluate((icon: string) => {
@@ -183,7 +183,7 @@ test.describe(`NT-2 (MUST): ${NT_2_GONE_AFTER_S_542}`, () => {
     expect(await told(page, 'RS-65'), NT_2_NOT_COUNTED_UNDER_THE_POINTER).toBe(true)
     await moveAwayFromNotices(page)
     const left = Date.now()
-    // STEP: past where a resumed count would end (half of S-542), short of a restarted one
+    // Step: past where a resumed count would end (half of S-542), short of a restarted one
     await waitUntil(page, left + s542 / 2 + MARGIN_MS)
     expect(await told(page, 'RS-65'), NT_2_COUNTED_AGAIN_AFTER_LEAVING).toBe(true)
     await waitUntil(page, left + s542 + MARGIN_MS * 2)

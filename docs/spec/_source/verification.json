@@ -27,7 +27,7 @@
      "ja": "Chapter 3.2 の `USE_CASE` のすべて"
     },
     "unit": {
-     "ja": "`UC-xxx` 1 つにつき 1 本。その `SCENARIO` の手順を頭から終わりまで押す"
+     "ja": "`UC-xxx` 1 つにつき 1 本。その `STEPS` の手順を頭から終わりまで押す"
     },
     "verifiedBy": [
      "TS-1"

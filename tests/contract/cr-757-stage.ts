@@ -54,14 +54,14 @@ const TEMPLATE = JSON.parse(
 ) as Loose
 const BUILT_VERSION: string = TEMPLATE['schemaVersion']
 
-// see FO-17, WH-11
+// Spec: FO-17, WH-11
 export function shiftWord(part: string, language: DisplayLanguage): string {
   const entry = (WORDS['wholeScheduleShiftField'] as readonly Loose[]).find((one) => one['part'] === part)
   if (entry === undefined) throw new Error(`the dictionary section wholeScheduleShiftField has no part ${part}`)
   return entry['text'][language] as string
 }
 
-// see QN-14, QN-15
+// Spec: QN-14, QN-15
 export function timeZoneWord(part: string, language: DisplayLanguage): string {
   const entry = (WORDS['timeZoneField'] as readonly Loose[]).find((one) => one['part'] === part)
   if (entry === undefined) throw new Error(`the dictionary section timeZoneField has no part ${part}`)
@@ -74,7 +74,7 @@ export function questionWord(rowId: string, language: DisplayLanguage): string {
   return entry['text'][language] as string
 }
 
-// see T-379
+// Spec: T-379
 export function whRow(id: string): string {
   const row = specTable('T-379').rows.find((one) => one.id === id)
   if (row === undefined) throw new Error(`table T-379 has no row ${id}`)
@@ -95,7 +95,7 @@ export interface ExceptionSpec {
 }
 
 function calendarOf(exceptions: readonly ExceptionSpec[]): Loose {
-  // WHY: Monday to Friday 08:00-12:00 and 13:00-17:00 (AT-73 counts 1 Sunday .. 7 Saturday), plus the exceptions a case names.
+  // Why: Monday to Friday 08:00-12:00 and 13:00-17:00 (AT-73 counts 1 Sunday .. 7 Saturday), plus the exceptions a case names.
   const weekDays = [1, 2, 3, 4, 5, 6, 7].map((dayType, ordinal) => {
     const working = dayType >= 2 && dayType <= 6
     return { ordinal, dayType, dayWorking: working, workingTimes: working ? SPANS : [], carry: {}, carryElements: [] }
@@ -275,7 +275,7 @@ export function documentOf(spec: DocumentSpec): Document {
   return opened.document
 }
 
-// WHY: the example below table T-379 (CR-757 section 4.6): the calendar holds the one holiday 2029-03-20 (Tuesday).
+// Why: the example below table T-379 (CR-757 section 4.6): the calendar holds the one holiday 2029-03-20 (Tuesday).
 export const HOLIDAY_2029_03_20: ExceptionSpec = { from: '2029-03-20', to: '2029-03-20', working: false }
 
 export const TASK_A = 1
@@ -283,7 +283,7 @@ export const MILESTONE_M = 2
 export const TASK_B = 3
 export const TASK_C = 4
 
-// WHY: one value in every column WH-7 names, laid on the rows of the worked example of CR-757 section 4.6.
+// Why: one value in every column WH-7 names, laid on the rows of the worked example of CR-757 section 4.6.
 export const WORKED = (): Document =>
   documentOf({
     exceptions: [HOLIDAY_2029_03_20],
@@ -396,12 +396,12 @@ const NO_MODIFIERS: InputModifiers = { ctrl: false, shift: false, alt: false, me
 const pointer = (phase: 'down' | 'up' | 'move', x: number, y: number): PointerInput =>
   ({ kind: 'pointer', phase, button: 'left', x, y, modifiers: NO_MODIFIERS, clickCount: 1 }) as PointerInput
 
-// see T-103
+// Spec: T-103
 const partNameOf = (id: string): string => bare(specTable('T-103').rows.find((one) => one.id === id)?.by['確定名（英）'] ?? '')
 const surfaceOfEntry = (entry: string): string => bare(specTable('T-109').rows.find((one) => one.id === entry)?.by['面'] ?? '')
 export const CONFIRMATION_PART = partNameOf('U-55')
 
-// see T-036
+// Spec: T-036
 export function keyOf(id: string): KeyInput {
   const cell = specTable('T-036').rows.find((one) => one.id === id)?.by['割当'] ?? ''
   const parts = [...(cell.split('／')[0] ?? '').matchAll(/`([^`]+)`/g)].map((span) => span[1] ?? '')
@@ -474,7 +474,7 @@ export async function shiftStage(document: Document, language: DisplayLanguage =
     loop.receiveInput(input)
     await turn()
   }
-  // WHY: as the host does, the change event of a field comes after the release that asked the frame (runAskedFrame spends it).
+  // Why: as the host does, the change event of a field comes after the release that asked the frame (runAskedFrame spends it).
   const releaseThenCommit = async (commit: FieldCommit): Promise<void> => {
     loop.receiveInput(pointer('down', 3, 3))
     loop.receiveInput(pointer('up', 3, 3))
@@ -522,7 +522,7 @@ export async function shiftStage(document: Document, language: DisplayLanguage =
       return found[0] as PropertyField
     },
   }
-  // WHY: every case starts on the settings face (IC-17), where FO-17 stands.
+  // Why: every case starts on the settings face (IC-17), where FO-17 stands.
   await stage.take('IC-17')
   return stage
 }

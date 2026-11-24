@@ -32,7 +32,7 @@ type RawRegion = {
   readonly root: { readonly carries: readonly { readonly name: string }[]; readonly transitions: Readonly<Record<string, RawCell>> }
 }
 
-// see SD-5
+// Spec: SD-5
 const REGIONS = (
   readStateMachineView() as {
     readonly regions: readonly RawRegion[]
@@ -49,7 +49,7 @@ const SELECTION = regionNamed('selection')
 const OTHER_REGIONS = REGIONS.map((r) => r.region).filter((name) => name !== SELECTION.region)
 const SELECTION_MACHINE = SELECTION.machines[0] as RawMachine
 
-// see T-293
+// Spec: T-293
 function fieldOf(machineName: string): string {
   return machineName.replace(/Machine$/, '')
 }
@@ -88,7 +88,7 @@ function withSelection(fields: Loose, screen: Loose = {}): ScreenSession {
   } as unknown as ScreenSession
 }
 
-// see SL-7b, T-023c
+// Spec: SL-7b, T-023c
 const PICKED = { items: [{ kind: 'task', uid: 3 }, { kind: 'commentBox', id: 'box1' }], isOrdered: true }
 const OTHER_PICK = { items: [{ kind: 'dependency', successorUid: 4, ordinal: 1 }], isOrdered: false }
 const NOTHING = { items: [], isOrdered: false }
@@ -110,7 +110,7 @@ const ROOT_VALUES: readonly Loose[] = [
 
 const RUNGS = ['notice', 'textEntry', 'confirmation', 'surface', 'gesture', 'propertiesPanel', 'armed', 'selection', 'dualCursorMode', 'tooltip']
 
-// WHY: the same-reference variants (PICKED, TASK_GROUPS, RESOURCES, COPIED) are what SF-3 is
+// Why: the same-reference variants (PICKED, TASK_GROUPS, RESOURCES, COPIED) are what SF-3 is
 // about; a value equal in content but a fresh object is not asserted either way.
 const EVENT_VARIANTS: Readonly<Record<string, readonly Loose[]>> = {
   objectsPicked: [{ pickedObjects: PICKED }, { pickedObjects: OTHER_PICK }, { pickedObjects: NOTHING }],
@@ -118,7 +118,7 @@ const EVENT_VARIANTS: Readonly<Record<string, readonly Loose[]>> = {
   selectionEscapePressed: RUNGS.map((rung) => ({ rung })),
   selectionSettleKeyPressed: [{}],
   selectionCleared: [{}],
-  // WHY: the same landing prunes the chosen task groups (FR-085), so each variant carries what remains.
+  // Why: the same landing prunes the chosen task groups (FR-085), so each variant carries what remains.
   selectionPruned: [
     { remainingObjects: PICKED, chosenTaskGroups: TASK_GROUPS },
     { remainingObjects: OTHER_PICK, chosenTaskGroups: ['group2'] },
@@ -166,7 +166,7 @@ function pick(cell: RawCell | undefined, values: Loose, event: Loose): RawBranch
   return branchesOf(cell).find((b) => branchHolds({ region: 'selection', values, event }, b))
 }
 
-// WHY: the T-293 notes say what each cell writes; a created task is selected alone (FR-091),
+// Why: the T-293 notes say what each cell writes; a created task is selected alone (FR-091),
 // and its order flag is not decided by SL-7b for one item, so only the items are held.
 function expectedSelected(event: Loose): { items: unknown; ordered?: unknown; same?: unknown } {
   switch (event['type']) {
@@ -195,7 +195,7 @@ function expectedRoot(event: Loose, before: Loose): Loose {
       return { ...kept, chosenResources: event['chosenResources'] }
     case 'copyTaken':
       return { ...kept, copiedForPaste: event['copiedForPaste'] }
-    // see IN-4, SK-19, FR-085
+    // Spec: IN-4, SK-19, FR-085
     case 'selectionEscapePressed':
     case 'selectionSettleKeyPressed':
       return { ...kept, chosenTaskGroups: [] }
@@ -210,7 +210,7 @@ function sameValue(a: unknown, b: unknown): boolean {
   return a === b || JSON.stringify(a) === JSON.stringify(b)
 }
 
-// see SD-3, SF-3, SS-5
+// Spec: SD-3, SF-3, SS-5
 function expectSelectionStep(session: ScreenSession, event: Loose): void {
   const before = selectionOf(session)
   const field = fieldOf(SELECTION_MACHINE.name)
@@ -326,7 +326,7 @@ describe('SS-5: every event of the other regions leaves the selection region at 
 })
 
 // see SP-1, SP-2, SP-3, SP-4, JDG-289
-// WHY: wave 2 of CR-767 (JDG-2364) holds every arm as a child of the composite `armed`.
+// Why: wave 2 of CR-767 (JDG-2364) holds every arm as a child of the composite `armed`.
 const ARM_VALUES: readonly Loose[] = [
   { kind: 'notArmed' },
   { kind: 'armed', child: { kind: 'taskShapeArmed', shapeKind: 'SH-1' } },
@@ -336,7 +336,7 @@ const ARM_VALUES: readonly Loose[] = [
   { kind: 'armed', child: { kind: 'highlightBoxArmed' } },
 ]
 
-// WHY: the arm a value holds is notArmed or the child of armed.
+// Why: the arm a value holds is notArmed or the child of armed.
 function armKindOf(arm: Loose): string {
   return arm['child'] === undefined ? kindOf(arm) : kindOf(arm['child'])
 }

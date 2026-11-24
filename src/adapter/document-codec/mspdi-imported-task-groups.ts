@@ -1,4 +1,4 @@
-// DocumentCodec, MSPDI half -- builds the task groups and memberships from the WBS tree of the imported tasks.
+// File: DocumentCodec, MSPDI half: builds the task groups and memberships from the WBS tree of the imported tasks.
 // @unit      UF-156  (docs/spec/05-07-design.md, table T-075)
 // @component DocumentCodec, layer Adapter (table T-062)
 // @purity    pure
@@ -10,7 +10,7 @@ interface ImportedTaskGroups {
   readonly taskGroupMembers: readonly TaskGroupMember[]
 }
 
-// see FR-058
+// Spec: FR-058
 /** @purity pure */
 export function taskGroupsFromTasks(tasks: readonly Task[], maxGroupDepth: number): ImportedTaskGroups {
   const depths = new Map<number, number>()
@@ -58,7 +58,7 @@ function deepestAncestorTaskGroup(
   taskGroupOfTask: ReadonlyMap<number, string>,
 ): string | null {
   let at: number | null = task.parentTaskUid
-  // TRAP: bounded by the task count, since a parentTaskUid ring is refused only after this runs.
+  // Trap: bounded by the task count, since a parentTaskUid ring is refused only after this runs.
   for (let steps = 0; steps < tasks.length && at !== null; steps += 1) {
     const row = taskGroupOfTask.get(at)
     if (row !== undefined) return row
@@ -68,8 +68,8 @@ function deepestAncestorTaskGroup(
   return null
 }
 
-// WHY: derived from the task UID, since a pure function may not mint a random UUID; importing twice gives the same ids.
-// see AT-51
+// Why: derived from the task UID, since a pure function may not mint a random UUID; importing twice gives the same ids.
+// Spec: AT-51
 /** @purity pure */
 function rowIdOfTask(uid: number): string {
   const scalar = Math.trunc(uid)

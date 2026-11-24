@@ -883,7 +883,7 @@ const SETTING_DEFAULT = 2
 /** Table T-109 prints the surface first, then the group, then what it is for. */
 const T_109_SURFACE = 0
 const T_109_ENTRANCE = 2
-// WHY: read by heading; the column stands mid-table, so a position would shift with the next insert.
+// Why: read by heading; the column stands mid-table, so a position would shift with the next insert.
 const T_109_SWITCH = '切り替える設定値'
 /** Table T-103 prints the settled English name first. */
 const T_103_NAME = 0
@@ -970,7 +970,7 @@ const EXPECTED_BOOLEAN_KEYS = [
 
 const T_206_VALUE = 0
 
-// WHY: table T-206 has no key column; its value cell spells the key first.
+// Why: table T-206 has no key column; its value cell spells the key first.
 const keyOfRow = (table: string, id: string): string =>
   table === 'T-206'
     ? (/`([A-Za-z]+)`/.exec(cellAt(table, id, T_206_VALUE))?.[1] ?? '')
@@ -1045,7 +1045,7 @@ const ENTRANCES: readonly Entrance[] = [
 
 const THEME_ENTRY = 'IC-16'
 
-// WHY: kept out of ENTRANCES so the press cases over the ten stay as they were.
+// Why: kept out of ENTRANCES so the press cases over the ten stay as they were.
 const PALETTE_SWITCHES_NOT_PRESSED: readonly Entrance[] = [
   { entry: 'IC-79', part: COMMAND_PALETTE, table: 'T-202', row: 'S-60', key: 'isAssigneeVisible' },
   { entry: 'IC-80', part: COMMAND_PALETTE, table: 'T-202', row: 'S-61', key: 'isPercentCompleteVisible' },
@@ -1061,7 +1061,7 @@ const NAMED_IN_THE_SWITCH_COLUMN: readonly Entrance[] = [
 /** The five entrances whose row is one of table T-202's boolean ones. */
 const BOOLEAN_ENTRANCES = ENTRANCES.filter((one) => BOOLEAN_KEYS.includes(one.key))
 
-// WHY: the sentence of IC-47 also spells the 'none' a re-press returns to; the column spells one value.
+// Why: the sentence of IC-47 also spells the 'none' a re-press returns to; the column spells one value.
 const GUIDE_ENTRANCES = ENTRANCES.filter((one) => one.row === 'S-66').map((one) => ({
   ...one,
   value: enumeratedValues(rowOf('T-109', one.entry).by[T_109_SWITCH] ?? '')[0] ?? '',
@@ -1170,7 +1170,7 @@ function standing(overrides: Record<string, unknown>, themePreference: 'light' |
   return { frames, screen, loop }
 }
 
-// WHY: S-66 is a screen value (CR-572); the palette's chosen mark is where the screen shows it.
+// Why: S-66 is a screen value (CR-572); the palette's chosen mark is where the screen shows it.
 const guideShown = (run: Standing): string => {
   run.frames.runAnimationFrames()
   const commands = (run.screen.shown()?.commandPalette?.groups ?? []).flatMap((group) => group.commands)
@@ -1260,9 +1260,9 @@ describe('FR-018 -- holding a zoom entrance down', () => {
     expect(design).toContain(FT_4_HOLD)
   })
 
-  // see FR-018, FT-4, S-172, S-173
+  // Spec: FR-018, FT-4, S-172, S-173
   const holding = async (entry: string, overrides: Record<string, unknown>) => {
-    // WHY: the import line stays untouched; this is the same vitest instance.
+    // Why: the import line stays untouched; this is the same vitest instance.
     const { vi } = await import('vitest')
     vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'setInterval', 'clearInterval', 'Date', 'performance'] })
     const run = standing(overrides)
@@ -1343,7 +1343,7 @@ describe('the tables these ten entrances are driven by', () => {
     expect(bare(cellAt('T-202', 'S-62', SETTING_KEY))).toBe('isDependencyVisible')
     expect(specTable('T-206').headings.length).toBe(4)
     expect(keyOfRow('T-206', 'S-72')).toBe('themePreference')
-    // WHY: a count misses one column inserted while another is dropped, so the positions read are pinned too.
+    // Why: a count misses one column inserted while another is dropped, so the positions read are pinned too.
     expect(specTable('T-109').headings.length).toBe(7)
     expect(bare(cellAt('T-109', THEME_ENTRY, T_109_SURFACE))).toBe(APP_HEADER)
     expect(cellAt('T-109', THEME_ENTRY, T_109_ENTRANCE)).toContain('`S-72`')
@@ -1364,8 +1364,8 @@ describe('the tables these ten entrances are driven by', () => {
     // A BOOLEAN: its type cell spells six percentages, so FR-049's MUST does not
     // reach it and no entrance may treat it as a toggle. It takes the table
     // 15 -> 16 and leaves the booleans at eleven.
-    // WHY: CR-677 added fitSpanStart / fitSpanFinish (S-518 / S-519, dates): 16 -> 18, still eleven booleans.
-    // WHY: CR-710 added viewTimeZone, displayTimeZones and the boolean isTimeOfDayVisible (S-574 .. S-576): 18 -> 21, twelve booleans.
+    // Why: CR-677 added fitSpanStart / fitSpanFinish (S-518 / S-519, dates): 16 -> 18, still eleven booleans.
+    // Why: CR-710 added viewTimeZone, displayTimeZones and the boolean isTimeOfDayVisible (S-574 .. S-576): 18 -> 21, twelve booleans.
     expect([...BOOLEAN_KEYS].sort()).toEqual([...EXPECTED_BOOLEAN_KEYS].sort())
     expect(T_202_KEYS.length).toBe(21)
   })
@@ -1434,7 +1434,7 @@ describe('the tables these ten entrances are driven by', () => {
     expect(ids, 'IC-46 was the entrance to `none`, which FR-048 now reaches by a re-press').not.toContain('IC-46')
     expect(ids, 'IC-49 was the entrance to the retired `double-vertical`').not.toContain('IC-49')
     expect(ids, 'the seats are left empty, so the rows around them stayed').toContain('IC-45')
-    // STEP: read the height the glossary states above table T-109
+    // Step: read the height the glossary states above table T-109
     const glossary = readFileSync(join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-glossary.md'), 'utf8')
     const stated = /\*\*(\d+) 行ある。\*\*/.exec(glossary.slice(glossary.indexOf('T-109')))
     expect(stated, 'the glossary no longer states the height of table T-109').not.toBeNull()
@@ -1522,8 +1522,8 @@ describe('IC-47 / IC-48 -- each guide-cursor entrance sets the value table T-109
     }
   }
 
-  // see DC-9, DC-4
-  // WHY: the exclusive choice acts only while the Dual Cursor mode is on; a re-press of a guide
+  // Spec: DC-9, DC-4
+  // Why: the exclusive choice acts only while the Dual Cursor mode is on; a re-press of a guide
   // cursor entrance outside it leaves dualCursor (S-65, CU-2) exactly where it stood.
   it('⛔ a guide cursor re-press outside the Dual Cursor mode leaves the dual cursor alone (DC-9)', () => {
     const run = standing(CONTRARY)
@@ -1545,7 +1545,7 @@ describe('IC-4 / IC-39 / IC-40 / IC-42 / IC-43 -- the boolean entrances flip the
   // hides. FR-039 states the principle these cases turn on for the sibling row
   // S-72: the saved value is the STARTING value -- so what a press flips is what
   // the DOCUMENT holds, never a value the shell began at.
-  // WHY: OP-15 (T-024a) -- IC-4 only toggles S-69 while a pre-change plan (a BaselineTask, ET-18) is held; with none
+  // Why: OP-15 (T-024a) -- IC-4 only toggles S-69 while a pre-change plan (a BaselineTask, ET-18) is held; with none
   // held it asks for the file instead (FR-015), tested elsewhere, so the IC-4 cases stand on a document holding one.
   const HELD_BASELINE = [{ uid: 1, name: 'One', start: '2026-03-25T00:00:00', finish: '2026-04-03T00:00:00', milestone: false }]
   const standingToToggle = (entry: string, overrides: Record<string, unknown>): Standing => {
@@ -1588,7 +1588,7 @@ describe('IC-4 / IC-39 / IC-40 / IC-42 / IC-43 -- the boolean entrances flip the
 })
 
 describe('IC-16 -- the theme entrance flips the screen value and writes nothing (FR-039)', () => {
-  // WHY: CR-572 -- S-72 starts from the browser and a press is written nowhere; its one entrance
+  // Why: CR-572 -- S-72 starts from the browser and a press is written nowhere; its one entrance
   // (table T-109) has to reach either value from the other.
   for (const [index, from] of THEME_VALUES.entries()) {
     const to = THEME_VALUES[1 - index] as 'light' | 'dark'
@@ -1655,7 +1655,7 @@ describe('IC-99 -- FR-039 (MUST) puts the font size on the Command Palette', () 
   }
 })
 
-// see FR-041, IC-100
+// Spec: FR-041, IC-100
 describe('IC-100 -- FR-041 (MUST) puts monochrome in the App Header', () => {
   it('table T-109 places it there, and its 正 names CM-64', () => {
     expect(bare(cellAt('T-109', 'IC-100', T_109_SURFACE))).toBe(APP_HEADER)

@@ -53,8 +53,8 @@ const FR_019_CARRIES_RS_44 = '運ぶ理由は 表 T-233 の `RS-44` とする'
 const FR_019_SEEN_ON_SCREEN = '理由は出さない —— 置かれなかったことは画面で見える'
 const WL_9_CARRIES_RS_55 = '何も書かない。運ぶ理由は 表 T-233 の `RS-55`（Chapter 6.1 の 表 T-220 の `IV-4`）'
 
-// WHY: the E-08 words copied from CR-712 section 4, so a word changed in the dictionary alone goes red.
-// WHY: CR-770 (JDG-2251) rewrote the English to the UI writing convention (a final period, try again); the ja stay CR-712's.
+// Why: the E-08 words copied from CR-712 section 4, so a word changed in the dictionary alone goes red.
+// Why: CR-770 (JDG-2251) rewrote the English to the UI writing convention (a final period, try again); the ja stay CR-712's.
 const REASON_WORDS: readonly (readonly [string, string, string, string | null, string | null])[] = [
   ['RS-6', 'いまは変更を受け付けられなかったので、行っていません', 'The change could not be accepted just now, so it was not made.', 'もう一度行ってください', 'Try again.'],
   ['RS-8', 'いまは変更を受け付けられなかったので、行っていません', 'The change could not be accepted just now, so it was not made.', '先に [Enter] で編集を確定するか、[Esc] で取りやめてください', 'First press Enter to commit the edit, or Esc to cancel it.'],
@@ -63,8 +63,8 @@ const REASON_WORDS: readonly (readonly [string, string, string, string | null, s
   ['RS-77', '工数は書き換えていません', 'The work values were not rewritten.', '相手側のアプリで工数を更新してください', 'Update the work in the other application.'],
 ]
 
-// WHY: the E-09 words copied from CR-712 section 4 without its annotations; IV-17 rides on RS-21 and has none.
-// WHY: CR-770 (JDG-2251) rewrote the English to the UI writing convention (a final period, try again); the ja stay CR-712's.
+// Why: the E-09 words copied from CR-712 section 4 without its annotations; IV-17 rides on RS-21 and has none.
+// Why: CR-770 (JDG-2251) rewrote the English to the UI writing convention (a final period, try again); the ja stay CR-712's.
 const IMPORT_REFUSAL_WORDS: readonly (readonly [string, string, string, string, string])[] = [
   ["IV-1", "同じ ID のものが 2 つ以上あるので、このファイルは開けません", "元のファイルの ID の重なりを直してから開いてください", "Two or more items share one ID, so this file cannot be opened.", "Fix the repeated IDs in the original file, then open it."],
   ["IV-2", "存在しないものを指している参照があるので、このファイルは開けません", "書き出したときのファイルをそのまま開いてください", "A reference points at something that does not exist, so this file cannot be opened.", "Open the file exactly as it was exported."],

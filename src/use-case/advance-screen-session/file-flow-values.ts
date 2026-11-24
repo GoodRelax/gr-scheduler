@@ -1,4 +1,4 @@
-// FileFlowValues: the file-operation and question region of the session and its transitions.
+// File: AdvanceScreenSession: FileFlowValues: the file-operation and question region of the session and its transitions.
 // @unit      UF-89   (docs/spec/05-07-design.md, table T-075)
 // @component AdvanceScreenSession, layer UseCase (table T-062)
 // @purity    pure
@@ -8,10 +8,10 @@ import type { DocumentCommand } from '../edit-document/edit-document'
 import { QUESTION_DISPLAY_OF_ROW } from './notice-values'
 import { NO_EFFECTS, unchanged, type Step } from './session-step'
 
-// WHY: the file store's OpenRoute plus the Agent API hand-over; UseCase may not read an Adapter type (table T-061).
+// Why: the file store's OpenRoute plus the Agent API hand-over; UseCase may not read an Adapter type (table T-061).
 export type FileFlowOpenRoute = 'chooser' | 'drop' | 'reopen' | 'baseline' | 'handed'
 
-// WHY: ImportDocument's OpenChoice and MergeMapping again; no edge to that component is declared (check 59).
+// Why: ImportDocument's OpenChoice and MergeMapping again; no edge to that component is declared (check 59).
 export type FileFlowOpenChoice = 'replace' | 'merge' | 'baseline'
 
 export type FileFlowMergeMapping =
@@ -31,24 +31,24 @@ export interface FileFlowMergeCandidate {
   readonly incomingName: string | null
 }
 
-// see FR-155, SX-3
+// Spec: FR-155, SX-3
 export type FileFlowWriteForm =
   | { readonly kind: 'save' }
   | { readonly kind: 'export'; readonly format: string }
   | { readonly kind: 'beforeFixOverwrite' }
   | { readonly kind: 'beforeFixBackup' }
 
-// WHY: the rows of the fix proposals (FR-155), carried opaquely; the shell issues them, so no edge to Schedule.
+// Why: the rows of the fix proposals (FR-155), carried opaquely; the shell issues them, so no edge to Schedule.
 export type FileFlowFixBundle = readonly { readonly fixRow: string }[]
 
-// see NT-7, U-55
+// Spec: NT-7, U-55
 export interface FileFlowQuestion {
   readonly manner: string
   readonly question: 'QN-1' | 'QN-2' | 'QN-3' | 'QN-4' | 'QN-5' | 'QN-10' | 'QN-11' | 'QN-14' | 'QN-15' | 'QN-16' | 'QN-17'
   readonly items: readonly { readonly name: string | null; readonly isShownOnAnotherTaskGroup: boolean }[]
 }
 
-// WHY: the translator's CreatedSubject again; UseCase may not read an Adapter type (table T-061).
+// Why: the translator's CreatedSubject again; UseCase may not read an Adapter type (table T-061).
 export type FileFlowCreatedSubject =
   | { readonly kind: 'task'; readonly uid: number }
   | { readonly kind: 'taskGroup'; readonly taskGroupId: string }
@@ -66,12 +66,12 @@ export type FileFlowOwedAction =
 
 export type FileFlowSurfaceName = 'U-56' | 'U-61' | 'U-62'
 
-// WHY: an answer the import continues with; the read document itself stays in the shell (SF-10, CS-4).
+// Why: an answer the import continues with; the read document itself stays in the shell (SF-10, CS-4).
 export type FileFlowImportAnswer =
   | { readonly kind: 'openChoice'; readonly openChoice: FileFlowOpenChoice }
   | { readonly kind: 'mergeMapping'; readonly mergeMapping: FileFlowMergeMapping }
 
-// see OP-16
+// Spec: OP-16
 export interface FileFlowIncomingFile {
   readonly fileName: string | null
   readonly byteLength: number
@@ -83,13 +83,13 @@ export interface FileFlowValuesStateCarried {
   readonly openedFileName: string | null
   readonly droppedTaskNames: readonly (string | null)[]
   readonly missingTaskNames: readonly (string | null)[]
-  // see FR-076, U-62
+  // Spec: FR-076, U-62
   readonly reportedCounts: readonly { readonly reason: string; readonly count: number }[]
   readonly openRoute: FileFlowOpenRoute
   readonly mergeCandidates: readonly FileFlowMergeCandidate[]
   readonly unreadColumns: readonly string[]
   readonly question: FileFlowQuestion
-  // WHY: null is a question a file operation raised; its answer is carried on by that machine.
+  // Why: null is a question a file operation raised; its answer is carried on by that machine.
   readonly owedAction: FileFlowOwedAction | null
   readonly fixBundle: FileFlowFixBundle | null
 }
@@ -297,7 +297,7 @@ const NOTHING_UNSAVED = FILE_FLOW_VALUES_INITIAL_AXES.unsavedEditsState
 
 const EDITS_UNSAVED: UnsavedEditsState = { kind: 'editsUnsaved' }
 
-// see T-290
+// Spec: T-290
 export const emptyFileFlowValues: FileFlowValues = {
   ...FILE_FLOW_VALUES_INITIAL_AXES,
   openedFileName: null,
@@ -316,13 +316,13 @@ function emptied(names: readonly (string | null)[]): readonly (string | null)[] 
   return names.length === 0 ? names : NO_TASK_NAMES
 }
 
-// see FR-095, QN-5, T-234
+// Spec: FR-095, QN-5, T-234
 /** @purity pure */
 function isAskedNow(values: FileFlowValues, question: FileFlowQuestion): boolean {
   return QUESTION_DISPLAY_OF_ROW[question.question] === 'ask' || values.unsavedEditsState.kind === 'editsUnsaved'
 }
 
-// see OP-4, QN-5, RD-4
+// Spec: OP-4, QN-5, RD-4
 /** @purity pure */
 function discardAskedWhenUnsaved(values: FileFlowValues, question: FileFlowQuestion): FileFlowStep {
   if (isAskedNow(values, question)) return discardAsked(values, question)
@@ -331,13 +331,13 @@ function discardAskedWhenUnsaved(values: FileFlowValues, question: FileFlowQuest
   return combined(values, { fileOperationState: importing }, [{ type: 'importIncomingDocument', answer }])
 }
 
-// WHY: a machine already in the wanted kind keeps its reference (SF-3).
+// Why: a machine already in the wanted kind keeps its reference (SF-3).
 /** @purity pure */
 function unsavedEditsMoved(current: UnsavedEditsState, next: UnsavedEditsState): UnsavedEditsState {
   return current.kind === next.kind ? current : next
 }
 
-// WHY: every part the event leaves alone keeps its reference, and so does the region (SD-3, SF-3).
+// Why: every part the event leaves alone keeps its reference, and so does the region (SD-3, SF-3).
 /** @purity pure */
 function combined(values: FileFlowValues, moves: Partial<FileFlowValues>, effects: Effects): FileFlowStep {
   const keys = Object.keys(moves) as (keyof FileFlowValues)[]
@@ -356,14 +356,14 @@ function asked(question: FileFlowQuestion, owedAction: FileFlowOwedAction | null
   return { kind: 'questionAsked', question, owedAction }
 }
 
-// see OP-4, QN-5
+// Spec: OP-4, QN-5
 /** @purity pure */
 function discardAsked(values: FileFlowValues, question: FileFlowQuestion): FileFlowStep {
   const discarding: FileOperationState = { kind: 'awaitingDiscardAnswer' }
   return combined(values, { fileOperationState: discarding, confirmationState: asked(question, null) }, NO_EFFECTS)
 }
 
-// see T-290, OP-2, OP-8, OP-13
+// Spec: T-290, OP-2, OP-8, OP-13
 /** @purity pure */
 function onDocumentOpenAsked(values: FileFlowValues, event: EventOf<'documentOpenAsked'>): FileFlowStep {
   if (values.fileOperationState.kind !== 'idle' || isQuestionAsked(values)) return refused(values)
@@ -371,7 +371,7 @@ function onDocumentOpenAsked(values: FileFlowValues, event: EventOf<'documentOpe
   return combined(values, { fileOperationState: reading }, [{ type: 'readDocumentFile', openRoute: event.openRoute }])
 }
 
-// WHY: a refused hand-over raises no notice; the caller reports the unchanged reference (AM-8).
+// Why: a refused hand-over raises no notice; the caller reports the unchanged reference (AM-8).
 /** @purity pure */
 function onAgentDocumentHanded(values: FileFlowValues): FileFlowStep {
   if (values.fileOperationState.kind !== 'idle' || isQuestionAsked(values)) return unchanged(values)
@@ -384,7 +384,7 @@ function isWriteBeforeFix(writeForm: FileFlowWriteForm): boolean {
   return writeForm.kind === 'beforeFixOverwrite' || writeForm.kind === 'beforeFixBackup'
 }
 
-// WHY: only a write before a fix carries the bundle on (FR-155); any other carries null.
+// Why: only a write before a fix carries the bundle on (FR-155); any other carries null.
 /** @purity pure */
 function onDocumentFileWriteAsked(values: FileFlowValues, event: EventOf<'documentFileWriteAsked'>): FileFlowStep {
   if (values.fileOperationState.kind !== 'idle' || isQuestionAsked(values)) return refused(values)
@@ -399,7 +399,7 @@ function fixBundleIssued(operation: FileOperationState): Effects {
   return [{ type: 'issueDelayFixBundle', fixBundle: operation.fixBundle }]
 }
 
-// see T-290, OP-3, OP-13, OP-15, OP-19
+// Spec: T-290, OP-3, OP-13, OP-15, OP-19
 /** @purity pure */
 function onDocumentFileRead(values: FileFlowValues, event: EventOf<'documentFileRead'>): FileFlowStep {
   const operation = values.fileOperationState
@@ -421,7 +421,7 @@ function onDocumentOpenFailed(values: FileFlowValues): FileFlowStep {
   return combined(values, { fileOperationState: IDLE }, NO_EFFECTS)
 }
 
-// see T-290, OP-3, OP-4
+// Spec: T-290, OP-3, OP-4
 /** @purity pure */
 function onOpenChoiceAnswered(values: FileFlowValues, event: EventOf<'openChoiceAnswered'>): FileFlowStep {
   if (values.fileOperationState.kind !== 'awaitingOpenChoice') return unchanged(values)
@@ -460,7 +460,7 @@ function owedActionCarriedOut(owedAction: FileFlowOwedAction | null): Effects {
   return owedAction === null ? NO_EFFECTS : [{ type: 'carryOutOwedAction', owedAction }]
 }
 
-// WHY: both machines read the state before the answer, so the file machine still sees QN-4.
+// Why: both machines read the state before the answer, so the file machine still sees QN-4.
 /** @purity pure */
 function onConfirmationAnswered(values: FileFlowValues, event: EventOf<'confirmationAnswered'>): FileFlowStep {
   const isProceeding = FILE_FLOW_VALUES_GUARDS.isProceeding(event)
@@ -481,7 +481,7 @@ function onMergeMappingAsked(values: FileFlowValues, event: EventOf<'mergeMappin
   return combined(values, { fileOperationState: mapping }, [{ type: 'raiseFlowSurface', surfaceName: 'U-61' }])
 }
 
-// see T-290, MM-1, MM-2, MM-4
+// Spec: T-290, MM-1, MM-2, MM-4
 /** @purity pure */
 function onMergeMappingAnswered(values: FileFlowValues, event: EventOf<'mergeMappingAnswered'>): FileFlowStep {
   if (values.fileOperationState.kind !== 'awaitingMergeMapping') return unchanged(values)
@@ -493,7 +493,7 @@ function onMergeMappingAnswered(values: FileFlowValues, event: EventOf<'mergeMap
   return combined(values, { fileOperationState: importing }, [{ type: 'importIncomingDocument', answer }])
 }
 
-// see T-290, IC-52, IN-4
+// Spec: T-290, IC-52, IN-4
 /** @purity pure */
 function onFlowSurfaceClosed(values: FileFlowValues, event: EventOf<'flowSurfaceClosed'>): FileFlowStep {
   const kind = values.fileOperationState.kind
@@ -508,7 +508,7 @@ function onFlowSurfaceClosed(values: FileFlowValues, event: EventOf<'flowSurface
   return combined(values, { ...names, fileOperationState: IDLE }, [{ type: 'discardIncomingDocument' }])
 }
 
-// WHY: a landing that carries no name keeps the one shown, as today's open road does (DFC-574).
+// Why: a landing that carries no name keeps the one shown, as today's open road does (DFC-574).
 /** @purity pure */
 function onDocumentOpenLanded(values: FileFlowValues, event: EventOf<'documentOpenLanded'>): FileFlowStep {
   const openedFileName = event.openedFileName ?? values.openedFileName
@@ -535,14 +535,14 @@ function onDocumentFileSaved(values: FileFlowValues, event: EventOf<'documentFil
   return combined(values, { openedFileName, fileOperationState, unsavedEditsState }, fixBundleIssued(values.fileOperationState))
 }
 
-// WHY: a backup is no save (SX-3); the opened file and the unsaved edits stay.
+// Why: a backup is no save (SX-3); the opened file and the unsaved edits stay.
 /** @purity pure */
 function onDiagnosticFixBackupSaved(values: FileFlowValues): FileFlowStep {
   if (values.fileOperationState.kind !== 'writingDocumentFile') return unchanged(values)
   return combined(values, { fileOperationState: IDLE }, fixBundleIssued(values.fileOperationState))
 }
 
-// see T-290, FR-100, ZE-4
+// Spec: T-290, FR-100, ZE-4
 /** @purity pure */
 function onDocumentEditLanded(values: FileFlowValues, event: EventOf<'documentEditLanded'>): FileFlowStep {
   if (values.unsavedEditsState.kind === 'editsUnsaved') {
@@ -552,13 +552,13 @@ function onDocumentEditLanded(values: FileFlowValues, event: EventOf<'documentEd
   return combined(values, { unsavedEditsState: EDITS_UNSAVED }, NO_EFFECTS)
 }
 
-// see T-290, FR-095, RD-6, RD-7
+// Spec: T-290, FR-095, RD-6, RD-7
 /** @purity pure */
 function onDocumentHeldAfresh(values: FileFlowValues): FileFlowStep {
   return combined(values, { unsavedEditsState: unsavedEditsMoved(values.unsavedEditsState, NOTHING_UNSAVED) }, NO_EFFECTS)
 }
 
-// see T-290, FR-095, FR-101
+// Spec: T-290, FR-095, FR-101
 /** @purity pure */
 function onNewDocumentLanded(values: FileFlowValues): FileFlowStep {
   const unsavedEditsState = unsavedEditsMoved(values.unsavedEditsState, NOTHING_UNSAVED)
@@ -577,7 +577,7 @@ function onChangeQuestionRaised(values: FileFlowValues, event: EventOf<'changeQu
   return combined(values, { confirmationState: asked(event.question, event.owedAction) }, NO_EFFECTS)
 }
 
-// see T-290, FR-095, QN-5
+// Spec: T-290, FR-095, QN-5
 /** @purity pure */
 function onNewDocumentEntryPressed(values: FileFlowValues, event: EventOf<'newDocumentEntryPressed'>): FileFlowStep {
   if (isQuestionAsked(values)) return refused(values)
@@ -586,14 +586,14 @@ function onNewDocumentEntryPressed(values: FileFlowValues, event: EventOf<'newDo
   return combined(values, { confirmationState: asked(event.question, owedAction) }, NO_EFFECTS)
 }
 
-// see FR-153, QN-11, T-290
+// Spec: FR-153, QN-11, T-290
 /** @purity pure */
 function onGrsResetEntryPressed(values: FileFlowValues, event: EventOf<'grsResetEntryPressed'>): FileFlowStep {
   if (isQuestionAsked(values)) return refused(values)
   return combined(values, { confirmationState: asked(event.question, { kind: 'resetGrs' }) }, NO_EFFECTS)
 }
 
-// WHY: a second question replaces the first, as today's shell overwrites it (CR-460 section 8).
+// Why: a second question replaces the first, as today's shell overwrites it (CR-460 section 8).
 /** @purity pure */
 function onOverwriteQuestionRaised(values: FileFlowValues, event: EventOf<'overwriteQuestionRaised'>): FileFlowStep {
   return combined(values, { confirmationState: asked(event.question, null) }, NO_EFFECTS)
@@ -625,7 +625,7 @@ const HANDLERS: {
   startupDocumentHeld: onDocumentHeldAfresh,
 }
 
-// see SF-2, SF-8, T-290
+// Spec: SF-2, SF-8, T-290
 /** @purity pure */
 export function stepFileFlowValues(values: FileFlowValues, event: FileFlowValuesEvent): FileFlowStep {
   const handler = HANDLERS[event.type] as (values: FileFlowValues, event: FileFlowValuesEvent) => FileFlowStep

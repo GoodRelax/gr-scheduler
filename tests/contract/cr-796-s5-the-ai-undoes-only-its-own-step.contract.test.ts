@@ -42,7 +42,7 @@ const HISTORY_LIMITS = {
 const SETTINGS_LIMITS: SettingsLimits = { zoomMin: 0.02, zoomMax: 64, taskGroupAreaWidthWithoutPanels: 982 }
 const CHANGE_WATCHERS = emptyChangeWatchers()
 
-// WHY: ED-1 is the word a write made from the screen signs with; ED-2 is the name the Agent API caller declares.
+// Why: ED-1 is the word a write made from the screen signs with; ED-2 is the name the Agent API caller declares.
 const PERSON = 'user'
 const AI = 'cr-796 s5 agent'
 const OTHER_AI = 'cr-796 s5 other agent'
@@ -121,7 +121,7 @@ const refusalOf = (outcome: AgentWriteOutcome): Loose => {
   return (outcome as unknown as Loose)['refusal'] as Loose
 }
 
-// see AM-9, RD-1, AG-10
+// Spec: AM-9, RD-1, AG-10
 describe('AM-9 undoEdit -- the AI takes back its own step; the stamp comes back as it came in (RD-1)', () => {
   it('the name is back and the stamp is the one from before the AI wrote', () => {
     const state = startingState()
@@ -171,7 +171,7 @@ describe('AM-9 undoEdit -- the AI takes back its own step; the stamp comes back 
   })
 })
 
-// see AM-10, RD-2
+// Spec: AM-10, RD-2
 describe('AM-10 redoEdit -- the AI puts its own undone step back, stamp as it came in (RD-2)', () => {
   it('after undoEdit, redoEdit(currentStamp) brings the AI name and the stamp the write had', () => {
     const state = startingState()
@@ -200,7 +200,7 @@ describe('AM-10 redoEdit -- the AI puts its own undone step back, stamp as it ca
   })
 })
 
-// see AM-9, AM-10, AV-4, AG-10
+// Spec: AM-9, AM-10, AV-4, AG-10
 describe("AV-4 'notOwnStep' -- the AI does not silently take back or put back a step a person wrote", () => {
   it('a person edit on top, then the AI undoEdit(currentStamp): refused notOwnStep, the edit stays', () => {
     const state = startingState()
@@ -269,7 +269,7 @@ describe("AV-4 'notOwnStep' -- the AI does not silently take back or put back a 
   })
 })
 
-// see AM-9, AM-10, AG-2, AV-3
+// Spec: AM-9, AM-10, AG-2, AV-3
 describe("AG-2 on the history walk -- a stale expectedStamp is refused 'staleStamp' and nothing changes", () => {
   it('undoEdit with the stamp from before the AI write: staleStamp with the current stamp', () => {
     const state = startingState()
@@ -312,7 +312,7 @@ describe("AG-2 on the history walk -- a stale expectedStamp is refused 'staleSta
   })
 })
 
-// see AM-9, AM-10
+// Spec: AM-9, AM-10
 describe('AM-9 / AM-10 with nothing to walk -- a refusal and the document untouched', () => {
   it('undoEdit on a document nobody has changed: ok false, the same document value, the stamp unchanged', () => {
     const state = startingState()
@@ -339,7 +339,7 @@ describe('AM-9 / AM-10 with nothing to walk -- a refusal and the document untouc
   })
 })
 
-// see AM-9, AM-10, AV-4, AG-10
+// Spec: AM-9, AM-10, AV-4, AG-10
 describe('the specification still says what these cases assert', () => {
   it('requirements AG-10 keeps the own-step clause verbatim', () => {
     expect(REQUIREMENTS).toContain(

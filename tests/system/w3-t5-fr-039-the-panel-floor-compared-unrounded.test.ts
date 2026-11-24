@@ -1,6 +1,6 @@
 // W3 spec-only tester 5: FR-039's unrounded floor comparison for the Task Group Panel width saved by a boundary drag.
 
-// WHY: the clause is about pointer travel in screen px, which only a real browser delivers.
+// Why: the clause is about pointer travel in screen px, which only a real browser delivers.
 
 import { expect, test, type Page } from '@playwright/test'
 import { readFileSync } from 'node:fs'
@@ -12,7 +12,7 @@ import { answerConfirmation, enableAgentApi, readDocument, settle } from '../use
 const SPEC = join(process.cwd(), 'docs', 'spec')
 const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8'))
 
-// see FR-039
+// Spec: FR-039
 const FR_039_UNROUNDED =
   '⭐ 「床より広い」は、押した時点に描いた幅にポインタが横に動いた px を足した幅（`FR-052` のポインタ位置が決める幅）が、床より大きいことであり、2 つを丸めずにそのまま比べること（MUST）'
 const FR_039_SAVED =
@@ -46,7 +46,7 @@ const S_237 = numberIn(cellOf('T-206', 'S-237', '既定'), 'S-237')
 const PANEL_WIDTH_KEY = bare(cellOf('T-203', 'S-79', 'キー'))
 const DISPLAY_SCALE_KEY = bare(cellOf('T-202', 'S-234', 'キー'))
 
-// see FR-039, HF-4, FR-029
+// Spec: FR-039, HF-4, FR-029
 /** @purity pure */
 function floorAt(ratio: number): number {
   return S_37 * ratio * S_125 + S_138 * S_235 + 4 * (S_138 + S_243 * 2 + S_237 * 2) * S_235
@@ -54,7 +54,7 @@ function floorAt(ratio: number): number {
 
 const TEMPLATE_TEXT = readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8')
 
-// WHY: a headless browser has no file handles; a dropped file is handed over as one.
+// Why: a headless browser has no file handles; a dropped file is handed over as one.
 const HOST_STUB = `(() => {
   const original = DataTransferItem.prototype.getAsFileSystemHandle
   DataTransferItem.prototype.getAsFileSystemHandle = async function () {
@@ -83,7 +83,7 @@ async function openByDrop(page: Page, text: string): Promise<void> {
     const target = document.querySelector('[data-role="Schedule Canvas"]') as Element
     for (const type of ['dragenter', 'dragover', 'drop']) target.dispatchEvent(new DragEvent(type, { bubbles: true, cancelable: true, dataTransfer: transfer }))
   }, text)
-  // WHY: a dropped GRS JSON opens as a replace without U-56 (OP-19).
+  // Why: a dropped GRS JSON opens as a replace without U-56 (OP-19).
   await page.waitForTimeout(200)
   if (await page.locator('[data-role="Confirmation"] [data-confirmation-answer="proceed"]').count()) await answerConfirmation(page, 'proceed')
   await settle(page)
@@ -95,7 +95,7 @@ async function pressMoveRelease(page: Page, from: { x: number; y: number }, dx: 
   await page.mouse.down()
   const steps = Math.max(1, Math.min(8, Math.abs(dx)))
   for (let i = 1; i <= steps; i += 1) await page.mouse.move(from.x + (dx * i) / steps, from.y)
-  // WHY: the frame that reads the last move must run before the release, or the release reads an older position.
+  // Why: the frame that reads the last move must run before the release, or the release reads an older position.
   await page.waitForTimeout(150)
   await page.mouse.up()
   await settle(page)
@@ -110,14 +110,14 @@ test.describe('W3-T5 -- the manuscript these cases are driven by', () => {
 })
 
 test(`FR-039: "${FR_039_UNROUNDED}"`, async ({ browser }) => {
-  // WHY: display scale 110 puts the drawn width at a quarter past a pixel and the floor just past a whole pixel,
+  // Why: display scale 110 puts the drawn width at a quarter past a pixel and the floor just past a whole pixel,
   // so a release a quarter px over the floor reads "wider" unrounded but "equal" when both are rounded.
   const DISPLAY_SCALE = 110
   const STORED = 300
   const ratio = (DISPLAY_SCALE / 100) * S_236
   const drawnAtPress = STORED * ratio
   const floor = floorAt(ratio)
-  // WHY: each release starts in a fresh browser context, so no earlier drag, open or remembered switch carries over.
+  // Why: each release starts in a fresh browser context, so no earlier drag, open or remembered switch carries over.
   const release = async (dx: number): Promise<number> => {
     const context = await browser.newContext({ viewport: VIEWPORT, locale: 'en-US' })
     const page = await context.newPage()

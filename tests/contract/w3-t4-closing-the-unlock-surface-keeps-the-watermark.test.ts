@@ -1,6 +1,6 @@
 // W3 tester 4: FR-020 table T-242 WM-9 -- closing the watermark unlock surface without the password leaves the watermark drawn.
 
-// WHY: the Esc route is pressed on the running application in tests/system/w3-t4-the-file-surfaces-and-the-title-on-the-built-page.test.ts;
+// Why: the Esc route is pressed on the running application in tests/system/w3-t4-the-file-surfaces-and-the-title-on-the-built-page.test.ts;
 // this file closes the surface with its No answer through the frame loop and reads the picture from the export scene.
 
 import { describe, expect, it } from 'vitest'

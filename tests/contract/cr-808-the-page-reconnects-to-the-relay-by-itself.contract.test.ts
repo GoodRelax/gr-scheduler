@@ -14,7 +14,7 @@ type Listener = (event: unknown) => void
 const ADDRESS = 'ws://127.0.0.1:54690/'
 const PLACE = { hash: '#a-key', host: '127.0.0.1:54690' }
 
-// WHY: design 5 gives the waits before the 1st, 2nd, 3rd and 4th reconnect try.
+// Why: design 5 gives the waits before the 1st, 2nd, 3rd and 4th reconnect try.
 const WAITS_MS = [1000, 2000, 4000, 8000]
 const ALL_WAITS_MS = WAITS_MS.reduce((sum, one) => sum + one, 0)
 
@@ -43,7 +43,7 @@ class FakeSocket {
     this.sent.push(JSON.parse(data) as Json)
   }
 
-  // WHY: a real socket answers close() with a close event; the link must not take that for a drop of the relay.
+  // Why: a real socket answers close() with a close event; the link must not take that for a drop of the relay.
   close(): void {
     this.closeCalls += 1
     this.emit('close', { code: 1000 })
@@ -101,7 +101,7 @@ const openLink = (): Harness => {
     (address) => {
       if (throwing > 0 && sockets.length > 0) {
         throwing -= 1
-        // WHY: the throwing call still counts as a call, so it is recorded like a socket that never opened.
+        // Why: the throwing call still counts as a call, so it is recorded like a socket that never opened.
         sockets.push(new FakeSocket(address))
         throw new Error('the socket could not be made')
       }
@@ -141,7 +141,7 @@ const heldThenDropped = (code = 1006): Harness => {
   return harness
 }
 
-// WHY: walks the four waits; at the end of each a new socket must exist, and the given way fails it.
+// Why: walks the four waits; at the end of each a new socket must exist, and the given way fails it.
 const failEveryTry = (harness: Harness, fail: (socket: FakeSocket) => void): void => {
   for (const [index, wait] of WAITS_MS.entries()) {
     vi.advanceTimersByTime(wait - 1)
@@ -442,7 +442,7 @@ describe('CR-808 AG-12 (2): the page reconnects by itself, same address, and tel
   })
 })
 
-// WHY: walks the four waits but leaves the last try without its failure.
+// Why: walks the four waits but leaves the last try without its failure.
 function failEveryTryExceptTheLast(harness: Harness): void {
   for (const [index, wait] of WAITS_MS.entries()) {
     vi.advanceTimersByTime(wait)

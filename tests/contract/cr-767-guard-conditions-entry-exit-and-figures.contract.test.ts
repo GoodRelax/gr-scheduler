@@ -56,7 +56,7 @@ const DESIGN = unbroken(readFileSync(join(SPEC, '05-07-design.md'), 'utf8'))
 const SECTION_5_5_GENERATES =
   '原稿から、ガードの式の書き方、領域ごとの出来事の定義・ガードの一覧・優先順の表と、ステートマシンごとの状態遷移図（UML）・状態遷移表・状態の一覧を生成し'
 const SECTION_5_5_NO_HAND_EDIT = '状態遷移図と状態遷移表を手で直してはならない（MUST NOT）'
-// WHY: wave 2 of CR-767 continues the sentence with the generated guard-name type.
+// Why: wave 2 of CR-767 continues the sentence with the generated guard-name type.
 const SECTION_5_5_CONDITIONS = 'ガードの条件は原稿が持ち、コードの判定はそれに従う'
 const SD_1_ENTRY_EXIT = '入るとき・出るときに必ず起きる副作用（entry ／ exit）'
 const SD_3_CONDITIONS =
@@ -89,7 +89,7 @@ function namedGuards(branch: Branch): string[] {
 
 type CellAt = { readonly where: string; readonly event: string; readonly from: string | null; readonly branch: Branch }
 
-// see SD-3
+// Spec: SD-3
 function cellsOf(region: RawRegion): CellAt[] {
   const root = Object.entries(region.root.transitions).flatMap(([event, cell]) =>
     branchesOf(cell).map((branch) => ({ where: 'root', event, from: null, branch })),
@@ -122,7 +122,7 @@ function rowOf(section: string, region: string, event: string): string | undefin
   return section.split('\n').find((line) => line.startsWith(`| \`${region}/${event}\` |`))
 }
 
-// WHY: a condition holding `|` cannot sit in backticks inside a Markdown table cell, so it is
+// Why: a condition holding `|` cannot sit in backticks inside a Markdown table cell, so it is
 // printed as <code> with the HTML escapes; either form is the same expression.
 function printedForms(condition: string): string[] {
   const escaped = condition.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\|/g, '&#124;')
@@ -204,7 +204,7 @@ function isWithin(key: string, top: string): boolean {
 
 type Crossing = 'enters' | 'leaves' | 'self' | 'inside'
 
-// see SD-1, SD-3
+// Spec: SD-1, SD-3
 function crossingOf(from: string, branch: Branch, held: string): Crossing | null {
   const to = branch.to
   if (to === undefined || to === from) return isWithin(from, held) ? 'self' : null
@@ -545,7 +545,7 @@ describe('SD-1 / SD-3 (UML): entering runs the entry once, leaving runs the exit
 
 const MACHINES = REGIONS.flatMap((r) => r.machines.map((m) => [r.region, m.name] as const))
 
-// WHY: a hand edit of a figure or a table is caught by the printers' gen:check, which re-prints
+// Why: a hand edit of a figure or a table is caught by the printers' gen:check, which re-prints
 // both from the manuscript; a test sees only what is printed, so it checks the link and banner.
 describe('5.5: each machine section links its UML diagram fig-sm-<machine>.svg, drawn from the manuscript', () => {
   it.each(MACHINES)('%s: %s', (region, name) => {

@@ -30,7 +30,7 @@ const MANUSCRIPT = JSON.parse(
 
 interface Seated {
   readonly seat: number
-  // WHY: point at rows by name, never by position -- Chapter 5.4 requires it.
+  // Why: point at rows by name, never by position -- Chapter 5.4 requires it.
   readonly named: string
 }
 
@@ -58,7 +58,7 @@ const FAMILIES: readonly Family[] = [
         seat: relation.seat,
         named: `${relation.parent} -> ${relation.child}`,
       })),
-      // WHY: the eight carryElements rows are derived, but their numbers are
+      // Why: the eight carryElements rows are derived, but their numbers are
       // written on the owning entity, so a new relation cannot renumber them.
       ...MANUSCRIPT.entities
         .filter((entity) => entity.carry_seat !== undefined)
@@ -103,7 +103,7 @@ const printedOf = (family: Family): ReadonlyMap<number, SpecRow> => {
 
 const DESIGN = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '05-07-design.md'), 'utf8'))
 
-// WHY: rule 03 section 5 keeps code ASCII but allows the exact clause text
+// Why: rule 03 section 5 keeps code ASCII but allows the exact clause text
 // here -- matching it against the manuscript is what tests the specification.
 const THE_CLAUSE =
   '⭐ `ET-` / `AT-` / `RL-` / `DV-` の番号は席番号である。一度与えた番号を振り直してはならない（MUST NOT）。'
@@ -151,7 +151,7 @@ describe('every row the manuscript writes carries its own seat', () => {
     })
 
     it(`${family.prefix}: no seat is carried by two rows`, () => {
-      // WHY: within one manuscript, two rows can't share a seat; that misses
+      // Why: within one manuscript, two rows can't share a seat; that misses
       // a reissue across time, which the next case catches instead.
       const bySeat = new Map<number, string[]>()
       for (const row of family.written) {
@@ -168,7 +168,7 @@ describe('every row the manuscript writes carries its own seat', () => {
 describe('the generated table prints the seat the manuscript gave, not a position', () => {
   for (const family of FAMILIES) {
     it(`${family.table} (${family.prefix}): each row is printed under its own seat`, () => {
-      // WHY: matched by name, not position -- a positional generator would
+      // Why: matched by name, not position -- a positional generator would
       // fail here since AT-139 (Project.outlineBase) sits mid-block, not at its index.
       const printed = printedOf(family)
       const wrong: string[] = []
@@ -188,7 +188,7 @@ describe('the generated table prints the seat the manuscript gave, not a positio
   }
 
   it('AT: at least one seat is out of file order, so the case above is not vacuous', () => {
-    // WHY: without this, seats running 1..n in file order would pass the
+    // Why: without this, seats running 1..n in file order would pass the
     // cases above even under a positional generator, holding the rule on nothing.
     const at = FAMILIES.find((family) => family.prefix === 'AT')
     if (at === undefined) throw new Error('the AT family is gone')
@@ -203,7 +203,7 @@ describe('the generated table prints the seat the manuscript gave, not a positio
 describe('every printed number is a seat the manuscript gave', () => {
   for (const family of FAMILIES) {
     it(`${family.table} (${family.prefix}): prints no number the manuscript did not seat`, () => {
-      // WHY: the other direction -- a number no seat gave was numbered from
+      // Why: the other direction -- a number no seat gave was numbered from
       // something else (in practice, list position), so a new row would renumber it.
       const seated = new Set(family.written.map((row) => row.seat))
       const unseated = [...printedOf(family).entries()]

@@ -10,7 +10,7 @@ const NAME_ROW = 'AT-53'
 const TASK_UID = 1
 const TASK_NAME = 'Design phase'
 
-// WHY: the stage helper gives the task group a name; these cases set its name and derivation by hand.
+// Why: the stage helper gives the task group a name; these cases set its name and derivation by hand.
 const documentOf = (name: string | null, derivedFromTaskUid: number | null): Document => {
   const built = taskGroupDocument([{ id: GROUP_ID, parentId: null }], {}, {
     tasks: [taskOf(TASK_UID, { name: TASK_NAME })],

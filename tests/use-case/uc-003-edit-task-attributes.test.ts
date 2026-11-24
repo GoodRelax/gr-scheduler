@@ -15,7 +15,7 @@ const commit = async (page: Page): Promise<void> => {
 }
 
 test('UC-003 edit the attributes of a task (FR-072, T-016, FR-083 SP-2, FR-007, FR-008, FR-049, FR-090, FR-039)', async ({ page }) => {
-  // WHY: 12 s alone and 15 s in a whole run, all of it steps UC-003 names; a loaded GT-2 ran it past 30 s (DFC-2313).
+  // Why: 12 s alone and 15 s in a whole run, all of it steps UC-003 names; a loaded GT-2 ran it past 30 s (DFC-2313).
   test.setTimeout(60000)
   await launch(page)
   await enableAgentApi(page)
@@ -53,12 +53,12 @@ test('UC-003 edit the attributes of a task (FR-072, T-016, FR-083 SP-2, FR-007, 
     expect(visualOf(await readDocument(page)).strokeWidthPx).toBe(3)
     const other = before.schedule.resources.find((r) => !assigneesOf(before).includes(r.uid))!
     const seated = assigneesOf(before)
-    // STEP: the field opens its checked list (AS-5); checking a person seats them (AS-12)
+    // Step: the field opens its checked list (AS-5); checking a person seats them (AS-12)
     await page.click(PANEL + '[data-assignee-field="PR-16"] > button >> nth=0')
     await page.click(PANEL + `[data-assignee-list="PR-16"] [data-assignee-person="${other.uid}"]`)
     await settle(page)
     await expect.poll(async () => assigneesOf(await readDocument(page))).toContain(other.uid)
-    // STEP: unchecking the people seated before lets them go (AS-3), so the new person is the only one
+    // Step: unchecking the people seated before lets them go (AS-3), so the new person is the only one
     for (const uid of seated) {
       await page.click(PANEL + `[data-assignee-list="PR-16"] [data-assignee-person="${uid}"]`)
       await settle(page)
@@ -89,7 +89,7 @@ test('UC-003 edit the attributes of a task (FR-072, T-016, FR-083 SP-2, FR-007, 
     await press(page, 'IC-42')
     const after = (await readDocument(page)).documentSettings
     expect(after.isDateGridLinesVisible).toBe(!before.isDateGridLinesVisible)
-    // WHY: FR-039 keeps the light/dark theme (S-72, table T-206) out of the document,
+    // Why: FR-039 keeps the light/dark theme (S-72, table T-206) out of the document,
     // so IC-16 repaints the screen and leaves every saved setting as it was.
     const ground = await page.locator('[data-figure="ruler-ground"]').getAttribute('fill')
     await press(page, 'IC-16')
@@ -126,8 +126,8 @@ test('UC-003 edit the attributes of a task (FR-072, T-016, FR-083 SP-2, FR-007, 
     const plan = (await figureBox(page, 'task-' + TASK + '-plan'))!
     const startBefore = taskOf(await readDocument(page)).start
     await drag(page, { x: plan.x + plan.w / 2, y: plan.y + plan.h / 2 }, { x: plan.x + plan.w / 2 + 60, y: plan.y + plan.h / 2 }, [], DROP_STEPS)
-    // see FR-031, FR-103
-    // WHY: the ends land on a weekend; no question is asked and the ends stay where they were dropped.
+    // Spec: FR-031, FR-103
+    // Why: the ends land on a weekend; no question is asked and the ends stay where they were dropped.
     await expect(page.locator('[data-role="Confirmation"]')).toHaveCount(0)
     await settle(page)
     const startAfter = taskOf(await readDocument(page)).start

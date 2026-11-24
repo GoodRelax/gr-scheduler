@@ -43,7 +43,7 @@ const BORIS = 42
 
 const dependencyLink = { predecessorUid: FROM, linkType: 1, linkLag: 0, lagFormat: 7, carry: {}, carryElements: [] }
 
-// WHY: two resources, one of them assigned (so "delete the unreferenced" has something to keep), one task with a dependency line.
+// Why: two resources, one of them assigned (so "delete the unreferenced" has something to keep), one task with a dependency line.
 const withResourcesAndALine = (): Document =>
   documentOf({
     tasks: [taskOf(FROM), taskOf(TO, { dependencies: [dependencyLink] })],

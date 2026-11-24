@@ -1,4 +1,4 @@
-// Builds the Resource List window for one frame: the title row, the row of choice entries and the table of T-371.
+// File: ScreenRenderer: Builds the Resource List window for one frame: the title row, the row of choice entries and the table of T-371.
 // @unit      UF-199   (docs/spec/05-07-design.md, table T-075)
 // @component ScreenRenderer, layer Adapter (table T-062)
 // @purity    pure
@@ -75,7 +75,7 @@ const VISIBILITY_COLUMN = 'RQ-1'
 const CHOSEN_COLUMN = 'RQ-3'
 const COUNT_COLUMN = 'RQ-4'
 
-// see RO-7
+// Spec: RO-7
 const FIXED_COLUMN_COUNT = RESOURCE_LIST_COLUMNS.indexOf('RQ-2') + 1
 
 const MEASURED_COLUMNS: readonly string[] = [CHOSEN_COLUMN, COUNT_COLUMN]
@@ -92,14 +92,14 @@ const COLUMN_WORDS: ReadonlyMap<string, LanguageWord> = new Map(displayWords.res
 const LIST_WORDS: ReadonlyMap<string, LanguageWord> = new Map(displayWords.resourceList.map((entry) => [entry.part, entry.text]))
 const PANEL_WORDS: ReadonlyMap<string, LanguageWord> = new Map(displayWords.searchPanel.map((entry) => [entry.part, entry.text]))
 
-// see RO-1, RO-6, S-545, S-546
+// Spec: RO-1, RO-6, S-545, S-546
 export const OPENED_RESOURCE_LIST: TableWindowState = {
   shown: 'normal',
   panel: emptySearchPanelSession,
   isInFront: true,
 }
 
-// WHY: chosenEntry (IC-67 or IC-68 in the RQ-3 cell) is null on the (Unassigned) row, which is never chosen (RO-5).
+// Why: chosenEntry (IC-67 or IC-68 in the RQ-3 cell) is null on the (Unassigned) row, which is never chosen (RO-5).
 export interface ResourceListRowView {
   readonly key: VisibilityKey
   readonly cells: readonly string[]
@@ -107,7 +107,7 @@ export interface ResourceListRowView {
   readonly chosenEntry: CommandItem | null
 }
 
-// see FR-099, T-370, T-371
+// Spec: FR-099, T-370, T-371
 export interface ResourceListView extends Omit<SearchPanelView, 'table' | 'rows' | 'jumpAt' | 'glyphAt'> {
   readonly isInFront: boolean
   readonly choiceEntries: readonly CommandItem[]
@@ -115,7 +115,7 @@ export interface ResourceListView extends Omit<SearchPanelView, 'table' | 'rows'
   readonly chosenAt: number
 }
 
-// WHY: one line of the table before its filters: the raw values the filters read beside the cells drawn.
+// Why: one line of the table before its filters: the raw values the filters read beside the cells drawn.
 interface ResourceLine {
   readonly key: VisibilityKey
   readonly nameValue: string
@@ -136,7 +136,7 @@ function nameText(name: string, language: DisplayLanguage): string {
   return name === '' ? wordOf(PANEL_WORDS.get('noName'), language) : name
 }
 
-// WHY: task uids in the task group tree's order, then Task.start, then Task.uid -- the search table's order (RQ-5).
+// Why: task uids in the task group tree's order, then Task.start, then Task.uid -- the search table's order (RQ-5).
 /** @purity pure */
 function tasksOfEachResource(schedule: Schedule): { readonly byResource: ReadonlyMap<number, readonly number[]>; readonly unassigned: readonly number[] } {
   const resources = resourceUidsOf(schedule)
@@ -160,7 +160,7 @@ function resourceUidsOf(schedule: Schedule): ReadonlySet<number> {
   return new Set(schedule.resources.map((resource) => resource.uid))
 }
 
-// TRAP: join on resourceUid, never the name, or a referenced twin hides an unreferenced one.
+// Trap: join on resourceUid, never the name, or a referenced twin hides an unreferenced one.
 /** @purity pure */
 function referencedResourcesOf(schedule: Schedule): ReadonlySet<number> {
   return new Set(schedule.assignments.map((seat) => seat.resourceUid).filter((uid): uid is number => uid !== null))
@@ -180,7 +180,7 @@ function lineOf(key: VisibilityKey, name: string, taskUids: readonly number[], f
   return { key, nameValue: name, taskNameValues, isChosen: facts.isChosen, isReferenced: facts.isReferenced, cells }
 }
 
-// see FR-099, RO-4, RO-5, T-371
+// Spec: FR-099, RO-4, RO-5, T-371
 /** @purity pure */
 function resourceLinesOf(input: LinesInput): readonly ResourceLine[] {
   const schedule = input.schedule
@@ -209,7 +209,7 @@ function compareCounts(a: string, b: string): number {
   return Number(a) - Number(b)
 }
 
-// see T-371, SV-7, SV-8
+// Spec: T-371, SV-7, SV-8
 const LINE_TABLE: TableColumns<ResourceLine> = {
   values: {
     'RQ-2': (line) => [line.nameValue],
@@ -222,13 +222,13 @@ const LINE_TABLE: TableColumns<ResourceLine> = {
 }
 
 // see RQ-1, SV-7, JDG-2811
-// WHY: the Visibility column holds no filter values and no sort, so the list's columns are the table's own.
+// Why: the Visibility column holds no filter values and no sort, so the list's columns are the table's own.
 /** @purity pure */
 function lineColumnsOf(_view: TableView): TableColumns<ResourceLine> {
   return LINE_TABLE
 }
 
-// see RO-3, SV-4
+// Spec: RO-3, SV-4
 /** @purity pure */
 function isWordFound(line: ResourceLine, word: string): boolean {
   if (word === '' || isSearchWordFound(line.nameValue, word)) return true
@@ -259,7 +259,7 @@ function widthSamplesIn(all: readonly ResourceLine[], language: DisplayLanguage)
   }
 }
 
-// see T-371, SV-7, RO-7
+// Spec: T-371, SV-7, RO-7
 /** @purity pure */
 function lineTableOf(
   view: TableView,
@@ -281,14 +281,14 @@ function lineTableOf(
 }
 
 // see TV-5, TV-13, JDG-2820
-// WHY: one checked resource row, or the checked (Unassigned) row, is enough to apply.
+// Why: one checked resource row, or the checked (Unassigned) row, is enough to apply.
 /** @purity pure */
 function resourceFilterReadinessOf(view: TableView, schedule: Schedule): ScheduleFilterReadiness {
   return scheduleFilterReadinessOf('resourceList', view.visibility, () => resourceUidsOf(schedule))
 }
 
-// see FR-029, FR-099, IC-63, IC-64, IC-65, IC-66, RO-3
-// WHY: counted on the listed rows, as IC-63 and IC-65 choose among them; IC-65 replaces the choice,
+// Spec: FR-029, FR-099, IC-63, IC-64, IC-65, IC-66, RO-3
+// Why: counted on the listed rows, as IC-63 and IC-65 choose among them; IC-65 replaces the choice,
 // so it is idle once the choice already is exactly the listed unreferenced resources.
 /** @purity pure */
 function isChoiceUsable(entry: IconId, listed: readonly ResourceLine[], all: readonly ResourceLine[]): boolean {
@@ -302,20 +302,20 @@ function isChoiceUsable(entry: IconId, listed: readonly ResourceLine[], all: rea
   return unreferenced.size > 0 && !isSameChoice
 }
 
-// see RO-3
+// Spec: RO-3
 /** @purity pure */
 function choiceEntriesOf(listed: readonly ResourceLine[], all: readonly ResourceLine[], language: DisplayLanguage): readonly CommandItem[] {
   return CHOICE_ENTRIES.map((icon) => ({ ...entryOf(icon, language), isEnabled: isChoiceUsable(icon, listed, all) }))
 }
 
-// see RQ-1, RQ-3, SV-17
+// Spec: RQ-1, RQ-3, SV-17
 /** @purity pure */
 function rowViewOf(view: TableView, line: ResourceLine, language: DisplayLanguage): ResourceListRowView {
   const chosenEntry = line.isChosen === null ? null : entryOf(line.isChosen ? CHOSEN_ENTRY : UNCHOSEN_ENTRY, language)
   return { key: line.key, cells: line.cells, isShown: isRowShown('resourceList', view.visibility, line.key), chosenEntry }
 }
 
-// see FR-099, T-370, T-371, RO-2, RO-3, RO-8, S-568
+// Spec: FR-099, T-370, T-371, RO-2, RO-3, RO-8, S-568
 /** @purity pure */
 export function resourceListFromWindow(
   session: ScreenSession,
@@ -353,8 +353,8 @@ export function resourceListFromWindow(
   }
 }
 
-// see RO-3, IC-63, IC-65
-// WHY: the Resource uids the table lists now, after its word and column filters -- the ones IC-63 and IC-65 choose among.
+// Spec: RO-3, IC-63, IC-65
+// Why: the Resource uids the table lists now, after its word and column filters -- the ones IC-63 and IC-65 choose among.
 /** @purity pure */
 export function resourceListListedUidsOf(
   window: TableWindowState,
@@ -366,14 +366,14 @@ export function resourceListListedUidsOf(
   return listedLinesOf({ word: window.panel.word, view }, all).flatMap((line) => (line.key === UNASSIGNED_ROW_KEY ? [] : [line.key]))
 }
 
-// see AM-28, AV-17, T-371
+// Spec: AM-28, AV-17, T-371
 /** @purity pure */
 export function resourceListColumnHeadings(): readonly SearchColumnHeading[] {
   return columnHeadingsOf(RESOURCE_LIST_COLUMNS, COLUMN_WORDS, () => false)
 }
 
-// see AM-28, RQ-1, RQ-3, RO-5
-// WHY: the Visibility cell prints the Show or Hide its box stands for; the Chosen cell the word of its IC-67 or IC-68.
+// Spec: AM-28, RQ-1, RQ-3, RO-5
+// Why: the Visibility cell prints the Show or Hide its box stands for; the Chosen cell the word of its IC-67 or IC-68.
 /** @purity pure */
 function lineCellText(view: TableView, line: ResourceLine, column: string, language: DisplayLanguage): string {
   const at = RESOURCE_LIST_COLUMNS.indexOf(column)
@@ -382,8 +382,8 @@ function lineCellText(view: TableView, line: ResourceLine, column: string, langu
   return line.isChosen === null ? BLANK_SEARCH_VALUE : iconLabel(line.isChosen ? CHOSEN_ENTRY : UNCHOSEN_ENTRY, language)
 }
 
-// see AM-28, AV-19, AV-20, RO-3, SV-7, SV-8, S-569, S-570, S-571, S-572
-// WHY: the rows the window lists, in its order, each cell as the window prints it; no window state is read, so the
+// Spec: AM-28, AV-19, AV-20, RO-3, SV-7, SV-8, S-569, S-570, S-571, S-572
+// Why: the rows the window lists, in its order, each cell as the window prints it; no window state is read, so the
 // word and the choice are the caller's and isAsShown false drops the column filters and the sort.
 /** @purity pure */
 export function resourceListTableRows(
@@ -401,8 +401,8 @@ export function resourceListTableRows(
   }))
 }
 
-// see T-370, SV-7, SV-8, WB-2, WB-3, RO-1, RO-2, IC-153, IC-143, TV-8, UN-20
-// WHY: { window: null } is a close; null is an entry the window does not answer.
+// Spec: T-370, SV-7, SV-8, WB-2, WB-3, RO-1, RO-2, IC-153, IC-143, TV-8, UN-20
+// Why: { window: null } is a close; null is an entry the window does not answer.
 /** @purity pure */
 export function resourceListAfterEntry(
   window: TableWindowState,
@@ -419,7 +419,7 @@ export function resourceListAfterEntry(
   }, listed)
 }
 
-// see SV-7, RQ-1, TV-2, TV-6, UN-20
+// Spec: SV-7, RQ-1, TV-2, TV-6, UN-20
 /** @purity pure */
 export function resourceListAfterFilterChange(window: TableWindowState, view: TableView, change: SearchFilterChange): TableView {
   const after =
@@ -429,14 +429,14 @@ export function resourceListAfterFilterChange(window: TableWindowState, view: Ta
   return after ?? view
 }
 
-// see SV-14, IN-4
+// Spec: SV-14, IN-4
 /** @purity pure */
 export function resourceListWithFilterClosed(window: TableWindowState, view: TableView): TableWindowState | null {
   const panel = tableWithFilterClosed(window.panel, window.shown, lineTableOf(view, () => [], COLUMNS_ONLY_LANGUAGE))
   return panel === null ? null : { ...window, panel }
 }
 
-// see RO-9, SV-18, GR-28
+// Spec: RO-9, SV-18, GR-28
 /** @purity pure */
 export function resourceListWithColumnWidth(window: TableWindowState, column: string, width: number): TableWindowState {
   return windowWithColumnWidth(window, column, width)

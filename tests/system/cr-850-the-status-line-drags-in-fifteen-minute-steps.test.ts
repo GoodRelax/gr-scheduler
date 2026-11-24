@@ -20,7 +20,7 @@ const FR_046_AT_INSTANT =
 const AGENT_API = rowOf(specTable('T-109'), 'IC-20').id
 const STATUS_LINE = '[data-figure="status-line"]'
 const SNAP_MINUTES = 15
-// WHY: zoomX 100 is well over S-577 (hour tier) and S-578 (half-hour grid); the drawn px per minute is measured, not assumed.
+// Why: zoomX 100 is well over S-577 (hour tier) and S-578 (half-hour grid); the drawn px per minute is measured, not assumed.
 const HOUR_TIER_ZOOM = 100
 const START_STATUS = '2026-02-25T12:00:00'
 const PINNED_NOW = new Date('2026-02-25T09:00:00')
@@ -96,7 +96,7 @@ async function setStatusDate(page: Page, statusDate: string): Promise<void> {
   await readSettledDrawnSvg(page)
 }
 
-// WHY: the line stands at the statusDate instant (FR-046), so two set instants an hour apart give the px of one minute.
+// Why: the line stands at the statusDate instant (FR-046), so two set instants an hour apart give the px of one minute.
 /** @purity non-pure */
 async function pxPerMinute(page: Page): Promise<number> {
   await setStatusDate(page, '2026-02-25T11:00:00')
@@ -153,14 +153,14 @@ test.describe(`CR-850 FR-046 -- ${FR_046_DRAG}`, () => {
         expect(await readStatusDate(page)).toBe(START_STATUS)
         expect(perMinute * SNAP_MINUTES, 'premise: a quarter hour is wider than 3 px').toBeGreaterThan(3)
         const before = await lineCentre(page)
-        // STEP: pull right by 4.4 quarter hours: it lands 4 quarters (one hour) later.
+        // Step: pull right by 4.4 quarter hours: it lands 4 quarters (one hour) later.
         await dragLineBy(page, 4.4 * SNAP_MINUTES * perMinute, withAlt)
         const first = await readStatusDate(page)
         expect(minutesOf(first) % SNAP_MINUTES, `${first} sits on a quarter hour`).toBe(0)
         expect(minutesOf(first) - minutesOf(START_STATUS), `${first} is one hour later`).toBe(60)
         const after = await lineCentre(page)
         expect(Math.abs(after.x - before.x - 60 * perMinute), FR_046_AT_INSTANT).toBeLessThan(1)
-        // STEP: pull left by 1.7 quarter hours: it lands 2 quarters earlier.
+        // Step: pull left by 1.7 quarter hours: it lands 2 quarters earlier.
         await dragLineBy(page, -1.7 * SNAP_MINUTES * perMinute, withAlt)
         const second = await readStatusDate(page)
         expect(minutesOf(second) - minutesOf(first), `${second} is 30 minutes before ${first}`).toBe(-30)

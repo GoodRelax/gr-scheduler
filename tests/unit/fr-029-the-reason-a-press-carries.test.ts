@@ -964,7 +964,7 @@ describe('FR-029 -- every entrance the screen drew faint answers a press with a 
     }
 
     const looked = faint.filter((icon) => wanted.has(icon))
-    // WHY: IC-37 / IC-38 (nothing chosen) are faint in a document that has only just opened.
+    // Why: IC-37 / IC-38 (nothing chosen) are faint in a document that has only just opened.
     expect(
       looked.length,
       'not one entrance 表 T-233 covers was drawn faint, so this case asked nothing',

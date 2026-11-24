@@ -1,4 +1,4 @@
-// Schedule -- the Delay Diagnostics report, built from the progress checks, bottlenecks, unstated parents and milestones.
+// File: Schedule: the Delay Diagnostics report, built from the progress checks, bottlenecks, unstated parents and milestones.
 // @unit      UF-184  (docs/spec/05-07-design.md, table T-075)
 // @component Schedule, layer documentModel (table T-062)
 // @purity    pure
@@ -48,7 +48,7 @@ export interface DelayFinding {
   readonly proposedActualFinish: string | null
 }
 
-// see T-314, DQ-2, DQ-3, DQ-4
+// Spec: T-314, DQ-2, DQ-3, DQ-4
 export interface DelayQuantities {
   readonly uid: number
   readonly name: string | null
@@ -62,7 +62,7 @@ export interface Bottleneck extends DelayQuantities {
   readonly path: readonly number[]
 }
 
-// see DX-5, BD-4
+// Spec: DX-5, BD-4
 export interface TerminalPushOut {
   readonly uid: number
   readonly name: string | null
@@ -87,14 +87,14 @@ export interface DerivedParentTask {
   readonly parentUid: number
 }
 
-// see DX-10, T-021b
+// Spec: DX-10, T-021b
 export interface LateDays {
   readonly uid: number
   readonly row: string
   readonly days: number
 }
 
-// see T-317, FR-135
+// Spec: T-317, FR-135
 export interface DelayDiagnosticsReport {
   readonly outcome: 'diagnosed' | 'notDiagnosed'
   readonly statusDate: string | null
@@ -109,7 +109,7 @@ export interface DelayDiagnosticsReport {
   readonly lateDays: readonly LateDays[]
 }
 
-// see T-018
+// Spec: T-018
 const FINISH_TO_FINISH = 0
 const FINISH_TO_START = 1
 const START_TO_FINISH = 2
@@ -119,12 +119,12 @@ type ScalarColumn = {
   [K in keyof Task]: Task[K] extends string | number | boolean | null ? K : never
 }[keyof Task]
 
-// WHY: the two groups the report reads, not a Document, whose component imports this one and would close a cycle.
+// Why: the two groups the report reads, not a Document, whose component imports this one and would close a cycle.
 interface DiagnosedDocument {
   readonly schedule: Schedule
 }
 
-// WHY: lagMinutes is null for a lag whose format FR-009 does not read; VC-15 skips it, BD-2 flows it as 0.
+// Why: lagMinutes is null for a lag whose format FR-009 does not read; VC-15 skips it, BD-2 flows it as 0.
 interface Link {
   readonly predecessorUid: number
   readonly linkType: number
@@ -141,7 +141,7 @@ interface EndOfChildren {
   readonly day: CalendarDay | null
 }
 
-// see FR-054
+// Spec: FR-054
 interface Instants {
   readonly start: number | null
   readonly finish: number | null
@@ -161,17 +161,17 @@ interface Structure {
   readonly parentOf: ReadonlyMap<number, number>
 }
 
-// see BD-1, BD-2, VC-15
+// Spec: BD-1, BD-2, VC-15
 export type WorkingTimeWalk = (from: number, minutes: number) => number
 
 interface Facts extends Structure {
   readonly calendar: WorkingCalendar
-  // see FR-054, T-350
+  // Spec: FR-054, T-350
   readonly onSide: InstantOnSide
   readonly walk: WorkingTimeWalk
   readonly minutesPerDay: number
   readonly statusDate: CalendarDay
-  // WHY: the day VS-5, VO-1 and VO-2 compare by (FR-054, WT-4); the delay days still count from statusDate.
+  // Why: the day VS-5, VO-1 and VO-2 compare by (FR-054, WT-4); the delay days still count from statusDate.
   readonly statusDayOnSide: CalendarDay
   readonly statusInstant: number
   readonly explicitChildrenOf: ReadonlyMap<number, readonly Task[]>
@@ -185,8 +185,8 @@ interface Facts extends Structure {
   readonly bareTaskGroupAboveOf: ReadonlyMap<number, string>
 }
 
-// see BD-1, BD-2, T-314
-// WHY: instants and working minutes (FR-054); the quantities are counted in minutes, never in days.
+// Spec: BD-1, BD-2, T-314
+// Why: instants and working minutes (FR-054); the quantities are counted in minutes, never in days.
 interface Flow {
   readonly earliestStart: number
   readonly projectedFinish: number
@@ -217,15 +217,15 @@ function isStarted(task: Task): boolean {
   return planActualState(task) !== 'notStarted'
 }
 
-// see VC-13, VO-1, T-018
-// WHY: a link binds one end of the predecessor to one end of the successor; SS and SF bind the predecessor's start.
+// Spec: VC-13, VO-1, T-018
+// Why: a link binds one end of the predecessor to one end of the successor; SS and SF bind the predecessor's start.
 /** @purity pure */
 function hasBindingEndHappened(predecessor: Task, linkType: number): boolean {
   const bindsByStart = linkType === START_TO_START || linkType === START_TO_FINISH
   return bindsByStart ? isStarted(predecessor) : isFinished(predecessor)
 }
 
-// see VS-3, VO-1, BD-2
+// Spec: VS-3, VO-1, BD-2
 /** @purity pure */
 function bindsSuccessorStart(linkType: number): boolean {
   return linkType === FINISH_TO_START || linkType === START_TO_START
@@ -242,14 +242,14 @@ function sameDay(a: CalendarDay | null, b: CalendarDay | null): boolean {
   return compareDays(a, b) === 0
 }
 
-// see FR-054, T-350, WT-5
-// WHY: the day an instant falls on; a finish side reads the minute before, so 00:00 is the day before.
+// Spec: FR-054, T-350, WT-5
+// Why: the day an instant falls on; a finish side reads the minute before, so 00:00 is the day before.
 /** @purity pure */
 function dayOnSide(text: string | null, side: DateTimeSide): CalendarDay | null {
   return side === 'start' ? dayOf(text) : finishSideDayOf(text)
 }
 
-// see FR-054, T-310, IP-1
+// Spec: FR-054, T-310, IP-1
 /** @purity pure */
 function plannedEnds(task: Task): Ends {
   return { start: dayOnSide(task.start, startSideOf(task)), finish: dayOnSide(task.finish, 'finish') }
@@ -260,7 +260,7 @@ function actualEnds(task: Task): Ends {
   return { start: dayOnSide(task.actualStart, startSideOf(task)), finish: dayOnSide(task.actualFinish, 'finish') }
 }
 
-// see VC-11, VC-12, FR-054
+// Spec: VC-11, VC-12, FR-054
 /** @purity pure */
 function extremeEnd(children: readonly Task[], endsOf: (task: Task) => Ends, side: keyof Ends,
                     column: 'start' | 'finish' | 'actualStart' | 'actualFinish', latest: boolean): EndOfChildren {
@@ -275,20 +275,20 @@ function extremeEnd(children: readonly Task[], endsOf: (task: Task) => Ends, sid
   return best
 }
 
-// see VC-15, FR-054
+// Spec: VC-15, FR-054
 /** @purity pure */
 function plannedInstants(facts: Facts, task: Task): Instants {
   return { start: facts.onSide(task.start, startSideOf(task)), finish: facts.onSide(task.finish, 'finish') }
 }
 
-// see VS-4, FR-054
+// Spec: VS-4, FR-054
 /** @purity pure */
 function actualInstants(facts: Facts, task: Task): Instants {
   return { start: facts.onSide(task.actualStart, startSideOf(task)), finish: facts.onSide(task.actualFinish, 'finish') }
 }
 
-// see VC-15, T-018
-// WHY: the successor's side first, then the predecessor's, as the four formulas of VC-15 read.
+// Spec: VC-15, T-018
+// Why: the successor's side first, then the predecessor's, as the four formulas of VC-15 read.
 /** @purity pure */
 function boundSides<T>(linkType: number, predecessor: { readonly start: T; readonly finish: T },
                        successor: { readonly start: T; readonly finish: T }): readonly [T, T] | null {
@@ -345,7 +345,7 @@ function findingOf(row: string, task: Task, values: Record<string, FindingValue>
   return { row, kind, layer, uid: task.uid, name: task.name, values, proposedActualFinish }
 }
 
-// see IP-1, MP-1
+// Spec: IP-1, MP-1
 /** @purity pure */
 function taskGroupDepthByTask(schedule: Schedule): ReadonlyMap<number, number> {
   const parentOf = new Map(schedule.taskGroups.map((group) => [group.id, group.parentId]))
@@ -360,7 +360,7 @@ function taskGroupDepthByTask(schedule: Schedule): ReadonlyMap<number, number> {
   return new Map(schedule.taskGroupMembers.map((member) => [member.taskUid, depthOf(member.taskGroupId)]))
 }
 
-// see IP-1
+// Spec: IP-1
 /** @purity pure */
 function encloses(parent: Task, child: Task): boolean {
   const outer = plannedEnds(parent)
@@ -370,15 +370,15 @@ function encloses(parent: Task, child: Task): boolean {
   return compareDays(outer.start, inner.start) <= 0 && compareDays(inner.finish, outer.finish) <= 0
 }
 
-// see FR-135
-// WHY: a point holds no span, so a stated parent that is a milestone is read as no parent and the child is derived.
+// Spec: FR-135
+// Why: a point holds no span, so a stated parent that is a milestone is read as no parent and the child is derived.
 /** @purity pure */
 function statedParentUidOf(task: Task, byUid: ReadonlyMap<number, Task>): number | null {
   const parent = task.parentTaskUid === null ? undefined : byUid.get(task.parentTaskUid)
   return parent?.milestone === true ? null : task.parentTaskUid
 }
 
-// see FR-135, IP-2, IP-3
+// Spec: FR-135, IP-2, IP-3
 /** @purity pure */
 function derivedParentsOf(tasks: readonly Task[], byUid: ReadonlyMap<number, Task>, taskGroupDepthOf: ReadonlyMap<number, number>,
                           tasksAtDepth: ReadonlyMap<number, readonly Task[]>): ReadonlyMap<number, ParentDerivation> {
@@ -386,7 +386,7 @@ function derivedParentsOf(tasks: readonly Task[], byUid: ReadonlyMap<number, Tas
   for (const task of tasks) {
     const depth = taskGroupDepthOf.get(task.uid)
     if (statedParentUidOf(task, byUid) !== null || depth === undefined) continue
-    // WHY: a task on a top task group has no task group above it, so no parent is derived (PND-605, JDG-823).
+    // Why: a task on a top task group has no task group above it, so no parent is derived (PND-605, JDG-823).
     if (depth === 0) continue
     const candidates = (tasksAtDepth.get(depth - 1) ?? [])
       .filter((bar) => encloses(bar, task))
@@ -407,7 +407,7 @@ function parentTasksOf(tasks: readonly Task[], byUid: ReadonlyMap<number, Task>,
   return parents
 }
 
-// see DG-3, DX-4
+// Spec: DG-3, DX-4
 /** @purity pure */
 function ancestorsOf(uid: number, parentOf: ReadonlyMap<number, number>): readonly number[] {
   const chain: number[] = []
@@ -419,7 +419,7 @@ function ancestorsOf(uid: number, parentOf: ReadonlyMap<number, number>): readon
   return chain
 }
 
-// see MP-1, FR-054
+// Spec: MP-1, FR-054
 /** @purity pure */
 function latestMilestones(tasks: readonly Task[]): readonly Task[] {
   const milestones = tasks.filter((task) => task.milestone === true)
@@ -427,7 +427,7 @@ function latestMilestones(tasks: readonly Task[]): readonly Task[] {
   return milestones.filter((task) => sameDay(plannedEnds(task).finish, latest.day))
 }
 
-// see MP-1, MP-2, MP-3
+// Spec: MP-1, MP-2, MP-3
 /** @purity pure */
 function milestoneLinksOf(milestone: Task, taskGroupDepthOf: ReadonlyMap<number, number>,
                           tasksAtDepth: ReadonlyMap<number, readonly Task[]>,
@@ -450,13 +450,13 @@ function milestoneLinksOf(milestone: Task, taskGroupDepthOf: ReadonlyMap<number,
     .map((task) => ({ predecessorUid: task.uid, linkType: FINISH_TO_START, lagMinutes: 0 }))
 }
 
-// see VC-15, BD-2, FR-009, AT-47
-// WHY: 7, 5 and 3 are the d, h and m formats FR-009 reads (mspdi_pj12.xsd LagFormat); the value is always tenths of a minute.
+// Spec: VC-15, BD-2, FR-009, AT-47
+// Why: 7, 5 and 3 are the d, h and m formats FR-009 reads (mspdi_pj12.xsd LagFormat); the value is always tenths of a minute.
 const READ_LAG_FORMATS: ReadonlySet<number> = new Set([7, 5, 3])
 
-// see VC-15, BD-2, FR-009, AT-47
-// TRAP: null means the format is not read, never "no lag"; a zero lag is zero whatever its format.
-// WHY: rounding down never makes a bound later, so a lag with a fraction of a minute cannot raise a contradiction.
+// Spec: VC-15, BD-2, FR-009, AT-47
+// Trap: null means the format is not read, never "no lag"; a zero lag is zero whatever its format.
+// Why: rounding down never makes a bound later, so a lag with a fraction of a minute cannot raise a contradiction.
 /** @purity pure */
 export function lagMinutesOf(dependency: Dependency): number | null {
   const lag = dependency.linkLag ?? 0
@@ -465,7 +465,7 @@ export function lagMinutesOf(dependency: Dependency): number | null {
   return Math.floor(lag / TENTHS_OF_A_MINUTE)
 }
 
-// see T-214, S-119, S-120
+// Spec: T-214, S-119, S-120
 /** @purity pure */
 function acceptedSerialOf(text: string): number {
   const day = dayOf(text)
@@ -473,16 +473,16 @@ function acceptedSerialOf(text: string): number {
   return serial(day)
 }
 
-// see T-214, S-119, S-120
+// Spec: T-214, S-119, S-120
 const ACCEPTED_SERIALS = {
   from: acceptedSerialOf(SETTINGS_CONSTANTS.importMinDate),
   to: acceptedSerialOf(SETTINGS_CONSTANTS.importMaxDate),
 }
 
-// see BD-1, BD-2, VC-15, FR-054
-// WHY: BD-1, BD-2 and the lag advance by the document calendar's working time; FR-011 counts a non-working day an end
+// Spec: BD-1, BD-2, VC-15, FR-054
+// Why: BD-1, BD-2 and the lag advance by the document calendar's working time; FR-011 counts a non-working day an end
 // stands on (instantAfterWorkingMinutes), and that rule belongs to the actual length alone.
-// TRAP: the calendar is indexed once per walker; built per call it would parse the calendar again for every task.
+// Trap: the calendar is indexed once per walker; built per call it would parse the calendar again for every task.
 /** @purity pure */
 export function workingTimeWalkOf(calendar: WorkingCalendar): WorkingTimeWalk {
   const spansOf = workingSpansReader(calendar)
@@ -505,7 +505,7 @@ export function workingTimeWalkOf(calendar: WorkingCalendar): WorkingTimeWalk {
   }
 }
 
-// see VC-15, BD-2
+// Spec: VC-15, BD-2
 /** @purity pure */
 export function laggedInstant(walk: WorkingTimeWalk, at: number, lagMinutes: number): number {
   return walk(at, lagMinutes)
@@ -522,7 +522,7 @@ function statedLinksOf(task: Task, byUid: ReadonlyMap<number, Task>): readonly L
     }))
 }
 
-// see MP-4
+// Spec: MP-4
 /** @purity pure */
 function achievedOn(milestone: Task, links: readonly Link[], byUid: ReadonlyMap<number, Task>): string | null {
   if (milestone.milestone !== true || milestone.actualFinish !== null || links.length === 0) return null
@@ -554,7 +554,7 @@ function membersByTaskGroup(schedule: Schedule): ReadonlyMap<string, readonly nu
 }
 
 // see DW-3, FR-136, JDG-2902
-// WHY: a milestone with no predecessor that heads its own task group by date starts that row; no Task drawn on the row
+// Why: a milestone with no predecessor that heads its own task group by date starts that row; no Task drawn on the row
 // starts before it, so a missing predecessor there is the shape of a kickoff, not a forgotten line.
 /** @purity pure */
 function originUidsOf(schedule: Schedule, byUid: ReadonlyMap<number, Task>,
@@ -573,7 +573,7 @@ function originUidsOf(schedule: Schedule, byUid: ReadonlyMap<number, Task>,
 }
 
 // see VO-4, FA-25, IP-1, JDG-2900
-// WHY: a task whose parent cannot be derived because the task group above it draws no span bar; the name of that task
+// Why: a task whose parent cannot be derived because the task group above it draws no span bar; the name of that task
 // group is the warning (the report prints it with the finding's values).
 /** @purity pure */
 function bareTaskGroupAboveOf(schedule: Schedule, byUid: ReadonlyMap<number, Task>,
@@ -596,7 +596,7 @@ function factsOf(schedule: Schedule, calendar: WorkingCalendar, statusDate: Cale
   const structure = structureOf(schedule)
   const minutesPerDay = minutesPerWorkingDayOf(schedule.project)
   const onSide = instantOnSideReader(calendar)
-  // WHY: the status date is a finish-side column (WT-4); one whose time cannot be read is read at the start of its day.
+  // Why: the status date is a finish-side column (WT-4); one whose time cannot be read is read at the start of its day.
   const statusInstant = onSide(schedule.project.statusDate, 'finish') ?? serial(statusDate) * MINUTES_PER_CALENDAR_DAY
   const statusDayOnSide = dayOnSide(schedule.project.statusDate, 'finish') ?? statusDate
   const { tasks, byUid, taskGroupDepthOf, tasksAtDepth, parentOf } = structure
@@ -623,8 +623,8 @@ function factsOf(schedule: Schedule, calendar: WorkingCalendar, statusDate: Cale
   }
 }
 
-// WHY: every document compares instants; the same instant never breaks a link, a minute earlier does (VC-15).
-// see VC-15, VS-4, FR-009, FR-054
+// Why: every document compares instants; the same instant never breaks a link, a minute earlier does (VC-15).
+// Spec: VC-15, VS-4, FR-009, FR-054
 /** @purity pure */
 function linkHolds(facts: Facts, dependency: Dependency, predecessor: Instants, successor: Instants): boolean | null {
   const sides = boundSides(dependency.linkType, predecessor, successor)
@@ -633,7 +633,7 @@ function linkHolds(facts: Facts, dependency: Dependency, predecessor: Instants, 
   return sides[0] >= laggedInstant(facts.walk, sides[1], lagMinutes)
 }
 
-// see VC-1
+// Spec: VC-1
 /** @purity pure */
 function ringMembersOf(tasks: readonly Task[], successorsOf: ReadonlyMap<number, readonly number[]>): ReadonlySet<number> {
   const indexOf = new Map<number, number>()
@@ -685,7 +685,7 @@ function ringMembersOf(tasks: readonly Task[], successorsOf: ReadonlyMap<number,
   return members
 }
 
-// see VC-1, VC-2, VC-3
+// Spec: VC-1, VC-2, VC-3
 /** @purity pure */
 function dependencyShapeContradictions(facts: Facts): readonly DelayFinding[] {
   const successorsOf = successorMapOf(facts.tasks
@@ -695,7 +695,7 @@ function dependencyShapeContradictions(facts: Facts): readonly DelayFinding[] {
   for (const task of facts.tasks) {
     const inRing = task.dependencies.map((one) => one.predecessorUid).filter((uid) => uid !== task.uid && rings.has(uid))
     if (rings.has(task.uid)) found.push(findingOf('VC-1', task, { predecessorUids: inRing }))
-    // WHY: VC-3 counts the lines of one direction only, and they all stand in the successor's own list (JDG-1972).
+    // Why: VC-3 counts the lines of one direction only, and they all stand in the successor's own list (JDG-1972).
     const linesFrom = (other: number): number => task.dependencies.filter((one) => one.predecessorUid === other).length
     const reported = new Set<number>()
     for (const dependency of task.dependencies) {
@@ -710,7 +710,7 @@ function dependencyShapeContradictions(facts: Facts): readonly DelayFinding[] {
   return found
 }
 
-// see VC-4, VC-5, VC-6, VC-7, VC-8
+// Spec: VC-4, VC-5, VC-6, VC-7, VC-8
 /** @purity pure */
 function columnContradictions(task: Task): readonly DelayFinding[] {
   const found: DelayFinding[] = []
@@ -734,7 +734,7 @@ function columnContradictions(task: Task): readonly DelayFinding[] {
   return found
 }
 
-// see VC-9, VC-10, VC-11, VC-12, FR-054
+// Spec: VC-9, VC-10, VC-11, VC-12, FR-054
 /** @purity pure */
 function parentContradictions(parent: Task, children: readonly Task[]): readonly DelayFinding[] {
   if (children.length === 0) return []
@@ -751,7 +751,7 @@ function parentContradictions(parent: Task, children: readonly Task[]): readonly
   return found
 }
 
-// see VC-11, FR-054
+// Spec: VC-11, FR-054
 /** @purity pure */
 function plannedSpanContradictions(parent: Task, children: readonly Task[]): readonly DelayFinding[] {
   const childStart = extremeEnd(children, plannedEnds, 'start', 'start', false)
@@ -764,7 +764,7 @@ function plannedSpanContradictions(parent: Task, children: readonly Task[]): rea
   })]
 }
 
-// see VC-12, FR-054
+// Spec: VC-12, FR-054
 /** @purity pure */
 function actualSpanContradictions(parent: Task, children: readonly Task[], isEveryChildFinished: boolean): readonly DelayFinding[] {
   const childActualStart = extremeEnd(children, actualEnds, 'start', 'actualStart', false)
@@ -778,7 +778,7 @@ function actualSpanContradictions(parent: Task, children: readonly Task[], isEve
   })]
 }
 
-// see VC-13, VC-14, VC-15
+// Spec: VC-13, VC-14, VC-15
 /** @purity pure */
 function orderContradictions(facts: Facts, task: Task): readonly DelayFinding[] {
   const found: DelayFinding[] = []
@@ -807,20 +807,20 @@ function orderContradictions(facts: Facts, task: Task): readonly DelayFinding[] 
   return found
 }
 
-// see T-310
+// Spec: T-310
 /** @purity pure */
 function contradictionsOf(facts: Facts): readonly DelayFinding[] {
   return [
     ...dependencyShapeContradictions(facts),
     ...facts.tasks.flatMap((task) => columnContradictions(task)),
-    // WHY: FR-135 reads no milestone as a parent; VS-2 alone tells that pair.
+    // Why: FR-135 reads no milestone as a parent; VS-2 alone tells that pair.
     ...facts.tasks.filter((task) => task.milestone !== true)
       .flatMap((task) => parentContradictions(task, facts.explicitChildrenOf.get(task.uid) ?? [])),
     ...facts.tasks.flatMap((task) => orderContradictions(facts, task)),
   ]
 }
 
-// see VS-1, VS-3, VS-4
+// Spec: VS-1, VS-3, VS-4
 /** @purity pure */
 function linkSuspicions(facts: Facts, task: Task): readonly DelayFinding[] {
   const found: DelayFinding[] = []
@@ -844,8 +844,8 @@ function linkSuspicions(facts: Facts, task: Task): readonly DelayFinding[] {
   return found
 }
 
-// see VS-6
-// WHY: only descendants with no child count: a middle parent's own stray point would hide its ancestor's (CR-651).
+// Spec: VS-6
+// Why: only descendants with no child count: a middle parent's own stray point would hide its ancestor's (CR-651).
 /** @purity pure */
 function leafDescendantsOf(facts: Facts, parentUid: number): readonly Task[] {
   const leaves: Task[] = []
@@ -870,8 +870,8 @@ interface PointOfTask {
   readonly day: CalendarDay
 }
 
-// see VS-6, T-022, FR-014, S-487
-// WHY: a leaf with no vertex is read at the status date, as the progress line passes there (FR-014).
+// Spec: VS-6, T-022, FR-014, S-487
+// Why: a leaf with no vertex is read at the status date, as the progress line passes there (FR-014).
 /** @purity pure */
 function progressSpreadSuspicion(facts: Facts, parent: Task, toleranceDays: number): readonly DelayFinding[] {
   const children = facts.explicitChildrenOf.get(parent.uid) ?? []
@@ -901,14 +901,14 @@ function progressSpreadSuspicion(facts: Facts, parent: Task, toleranceDays: numb
   })]
 }
 
-// see VS-6, T-022
-// WHY: a progress point is a day (RV-1's day), so the minutes run from the start of one day to the start of the other.
+// Spec: VS-6, T-022
+// Why: a progress point is a day (RV-1's day), so the minutes run from the start of one day to the start of the other.
 /** @purity pure */
 function workingMinutesBetweenDays(calendar: WorkingCalendar, from: CalendarDay, to: CalendarDay): number {
   return workingMinutesBetween(calendar, serial(from) * MINUTES_PER_CALENDAR_DAY, serial(to) * MINUTES_PER_CALENDAR_DAY)
 }
 
-// see T-311
+// Spec: T-311
 /** @purity pure */
 function suspicionsOf(facts: Facts, toleranceDays: number): readonly DelayFinding[] {
   const found: DelayFinding[] = []
@@ -927,7 +927,7 @@ function suspicionsOf(facts: Facts, toleranceDays: number): readonly DelayFindin
   return found
 }
 
-// see VO-1, VO-2, FR-054
+// Spec: VO-1, VO-2, FR-054
 /** @purity pure */
 function rowOmissions(facts: Facts, task: Task): readonly DelayFinding[] {
   const found: DelayFinding[] = []
@@ -947,7 +947,7 @@ function rowOmissions(facts: Facts, task: Task): readonly DelayFinding[] {
   return found
 }
 
-// see VO-3
+// Spec: VO-3
 /** @purity pure */
 function successorOmissions(facts: Facts, task: Task): readonly DelayFinding[] {
   if (task.actualFinish !== null) return []
@@ -960,7 +960,7 @@ function successorOmissions(facts: Facts, task: Task): readonly DelayFinding[] {
   })
 }
 
-// see T-312
+// Spec: T-312
 /** @purity pure */
 function omissionsOf(facts: Facts): readonly DelayFinding[] {
   const found: DelayFinding[] = []
@@ -997,7 +997,7 @@ function downstreamOf(uid: number, successorsOf: ReadonlyMap<number, readonly nu
   return reached
 }
 
-// see T-316
+// Spec: T-316
 /** @purity pure */
 function wallsOf(facts: Facts, contradictions: readonly DelayFinding[]): Walls {
   const walls: AnalysisWall[] = []
@@ -1054,20 +1054,20 @@ function flowOrder(facts: Facts, nodes: ReadonlySet<number>): readonly number[] 
   return order
 }
 
-// see BD-1, BD-2
+// Spec: BD-1, BD-2
 /** @purity pure */
 function laterInstant(a: number, b: number): number {
   return Math.max(a, b)
 }
 
-// see BD-1, BD-2
+// Spec: BD-1, BD-2
 /** @purity pure */
 function afterMinutes(facts: Facts, from: number, minutes: number): number {
   return facts.walk(from, minutes)
 }
 
-// see BD-2
-// WHY: the predecessor's start is actualStart's once started, else its earliest start; its finish is BD-1's.
+// Spec: BD-2
+// Why: the predecessor's start is actualStart's once started, else its earliest start; its finish is BD-1's.
 /** @purity pure */
 function boundOf(facts: Facts, link: Link, flows: ReadonlyMap<number, Flow>, length: number): number | null {
   const predecessor = facts.byUid.get(link.predecessorUid)
@@ -1075,7 +1075,7 @@ function boundOf(facts: Facts, link: Link, flows: ReadonlyMap<number, Flow>, len
   if (predecessor === undefined || flow === undefined) return null
   const began = isStarted(predecessor)
     ? (facts.onSide(predecessor.actualStart, startSideOf(predecessor)) ?? flow.earliestStart) : flow.earliestStart
-  // WHY: BD-2 flows a lag whose format FR-009 does not read as zero; the diagnostics never count that unit.
+  // Why: BD-2 flows a lag whose format FR-009 does not read as zero; the diagnostics never count that unit.
   const lagged = (at: number): number => laggedInstant(facts.walk, at, link.lagMinutes ?? 0)
   const startFor = (last: number): number => afterMinutes(facts, last, -length)
   switch (link.linkType) {
@@ -1087,19 +1087,19 @@ function boundOf(facts: Facts, link: Link, flows: ReadonlyMap<number, Flow>, len
   }
 }
 
-// see BD-1, FR-011
-// WHY: a started task without a stop has worked at least up to the FR-011 floor (S-129 working days).
+// Spec: BD-1, FR-011
+// Why: a started task without a stop has worked at least up to the FR-011 floor (S-129 working days).
 /** @purity pure */
 function remainingMinutesOf(facts: Facts, task: Task, actualStart: number, length: number): number {
   const floorEnd = task.milestone === true ? actualStart
     : instantAfterWorkingMinutes(facts.calendar, actualStart, SETTINGS_CONSTANTS.actualInitialDuration * facts.minutesPerDay)
   const actualLength = actualMinutesOf(facts.calendar, actualStart, facts.onSide(task.stop, 'finish') ?? floorEnd)
-  // WHY: a task that used up its planned minutes is still not finished, so at least one day (1d, FR-054) is left.
+  // Why: a task that used up its planned minutes is still not finished, so at least one day (1d, FR-054) is left.
   return Math.max(facts.minutesPerDay, length - actualLength)
 }
 
-// see BD-1, PS-4
-// WHY: the work up to the status date's instant is already in the actual, so the remaining minutes run from it.
+// Spec: BD-1, PS-4
+// Why: the work up to the status date's instant is already in the actual, so the remaining minutes run from it.
 /** @purity pure */
 function startedFinishOf(facts: Facts, task: Task, actualStart: number, finish: number, length: number): number {
   const remaining = remainingMinutesOf(facts, task, actualStart, length)
@@ -1110,7 +1110,7 @@ function startedFinishOf(facts: Facts, task: Task, actualStart: number, finish: 
   return laterInstant(finish, resumed)
 }
 
-// see BD-1, BD-2
+// Spec: BD-1, BD-2
 /** @purity pure */
 function projectedFinishOf(facts: Facts, task: Task, children: readonly Flow[],
                            earliestStart: number, finish: number, length: number): number {
@@ -1122,7 +1122,7 @@ function projectedFinishOf(facts: Facts, task: Task, children: readonly Flow[],
   if (achieved !== null) return achieved
   const actualStart = facts.onSide(task.actualStart, startSideOf(task))
   if (actualStart !== null) return startedFinishOf(facts, task, actualStart, finish, length)
-  // WHY: a task not started may start on the status date's own day (00:00), whose work is not in any actual yet.
+  // Why: a task not started may start on the status date's own day (00:00), whose work is not in any actual yet.
   const statusDayStart = serial(facts.statusDate) * MINUTES_PER_CALENDAR_DAY
   return afterMinutes(facts, laterInstant(earliestStart, statusDayStart), length)
 }
@@ -1133,8 +1133,8 @@ interface Bound {
   readonly at: number | null
 }
 
-// see BD-2
-// WHY: a task that started was not held by an FS or SS bound later than its start; that wait is its own.
+// Spec: BD-2
+// Why: a task that started was not held by an FS or SS bound later than its start; that wait is its own.
 /** @purity pure */
 function holdingBoundsOf(facts: Facts, task: Task, flows: ReadonlyMap<number, Flow>, length: number): readonly Bound[] {
   const actualStart = facts.onSide(task.actualStart, startSideOf(task))
@@ -1145,14 +1145,14 @@ function holdingBoundsOf(facts: Facts, task: Task, flows: ReadonlyMap<number, Fl
     .filter(isHeldBy)
 }
 
-// see BD-2, BD-3, T-314
+// Spec: BD-2, BD-3, T-314
 /** @purity pure */
 function flowOf(facts: Facts, task: Task, flows: ReadonlyMap<number, Flow>): Flow | null {
   const { start, finish } = plannedInstants(facts, task)
   const length = plannedLengthMinutesOf(facts.calendar, task)
   if (start === null || finish === null || length === null) return null
   const bounds = holdingBoundsOf(facts, task, flows, length)
-  // WHY: a task not started is not pushed to the status date here; BD-1 counts that wait as its own delay.
+  // Why: a task not started is not pushed to the status date here; BD-1 counts that wait as its own delay.
   let earliestStart = start
   for (const bound of bounds) if (bound.at !== null) earliestStart = laterInstant(earliestStart, bound.at)
   const drivers = earliestStart > start ? bounds.filter((bound) => bound.at === earliestStart).map((bound) => bound.uid) : []
@@ -1181,7 +1181,7 @@ function flowsOf(facts: Facts, cut: ReadonlySet<number>): ReadonlyMap<number, Fl
   return flows
 }
 
-// see BD-4
+// Spec: BD-4
 /** @purity pure */
 function spreadFrom(terminalUid: number, delay: number, flows: ReadonlyMap<number, Flow>): ReadonlyMap<number, number> {
   const given = new Map<number, number>()
@@ -1196,7 +1196,7 @@ function spreadFrom(terminalUid: number, delay: number, flows: ReadonlyMap<numbe
   return given
 }
 
-// see BD-4, DQ-4, DX-5
+// Spec: BD-4, DQ-4, DX-5
 /** @purity pure */
 function pushOutsOf(facts: Facts, flows: ReadonlyMap<number, Flow>, undiagnosable: ReadonlySet<number>): PushOuts {
   const terminals: TerminalPushOut[] = []
@@ -1227,7 +1227,7 @@ function pushOutsOf(facts: Facts, flows: ReadonlyMap<number, Flow>, undiagnosabl
   return { terminals, quantities }
 }
 
-// see T-315
+// Spec: T-315
 /** @purity pure */
 function markerStatesOf(facts: Facts, unreliable: ReadonlySet<number>, bottlenecks: readonly Bottleneck[]): readonly DelayMarkerState[] {
   const red = new Set(bottlenecks.map((one) => one.uid))
@@ -1241,14 +1241,14 @@ function markerStatesOf(facts: Facts, unreliable: ReadonlySet<number>, bottlenec
   })
 }
 
-// see FR-133, VO-1
+// Spec: FR-133, VO-1
 /** @purity pure */
 function isNotDueYet(task: Task, statusDayOnSide: CalendarDay): boolean {
   return !isStarted(task) && isBefore(statusDayOnSide, plannedEnds(task).start)
 }
 
-// see FR-133, T-315
-// WHY: only the drawn mark drops, so markerStates (DX-8) stays; DG-4 is left out, the geometry draws it as PM-4.
+// Spec: FR-133, T-315
+// Why: only the drawn mark drops, so markerStates (DX-8) stays; DG-4 is left out, the geometry draws it as PM-4.
 /** @purity pure */
 export function diagnosedMarkerRowsOf(report: DelayDiagnosticsReport, schedule: Schedule): ReadonlyMap<number, 'DG-1' | 'DG-2' | 'DG-3'> {
   const rows = new Map<number, 'DG-1' | 'DG-2' | 'DG-3'>()
@@ -1266,8 +1266,8 @@ export function diagnosedMarkerRowsOf(report: DelayDiagnosticsReport, schedule: 
   return rows
 }
 
-// see VO-3, VO-5, VS-6, DG-1
-// WHY: the tasks these rows name are DG-1 but no wall; the doubt reaches only one recorded date, so the flow goes on.
+// Spec: VO-3, VO-5, VS-6, DG-1
+// Why: the tasks these rows name are DG-1 but no wall; the doubt reaches only one recorded date, so the flow goes on.
 /** @purity pure */
 function uidsWith(findings: readonly DelayFinding[], row: 'VO-3' | 'VO-5' | 'VS-6'): ReadonlySet<number> {
   return new Set(findings.filter((one) => one.row === row).map((one) => one.uid))
@@ -1281,7 +1281,7 @@ function emptyReport(statusDate: string | null): DelayDiagnosticsReport {
   }
 }
 
-// see DX-10, PM-4, T-021b
+// Spec: DX-10, PM-4, T-021b
 /** @purity pure */
 function lateDaysOf(facts: Facts): readonly LateDays[] {
   return facts.tasks.flatMap((task): LateDays[] => {
@@ -1291,15 +1291,15 @@ function lateDaysOf(facts: Facts): readonly LateDays[] {
   })
 }
 
-// see DG-2, DX-9, S-397, TX-8
-// WHY: S-397 counts working days, and TX-8 shows a push-out rounded up to whole days (30 minutes is 1d),
+// Spec: DG-2, DX-9, S-397, TX-8
+// Why: S-397 counts working days, and TX-8 shows a push-out rounded up to whole days (30 minutes is 1d),
 // so a push-out counts against S-397 as the days it is shown with; any minute that pushes is at least 1d.
 /** @purity pure */
 function pushOutWorkingDaysOf(quantities: DelayQuantities, minutesPerDay: number): number {
   return Math.ceil(quantities.pushOutMinutes / minutesPerDay)
 }
 
-// see FR-130, FR-131, FR-132, FR-133, FR-134
+// Spec: FR-130, FR-131, FR-132, FR-133, FR-134
 /** @purity pure */
 export function diagnoseDelay(document: DiagnosedDocument, calendar: WorkingCalendar,
                               bottleneckMinPushOutDays = NOT_STORED_BOTTLENECK_THRESHOLD['S-397']): DelayDiagnosticsReport {
@@ -1320,11 +1320,11 @@ export function diagnoseDelay(document: DiagnosedDocument, calendar: WorkingCale
   const omissions = omissionsOf(facts)
   const suspicions = suspicionsOf(facts, project.parentTaskProgressToleranceDays)
   const omittedFinishUids = uidsWith(omissions, 'VO-3')
-  // see DG-1, VS-6
+  // Spec: DG-1, VS-6
   const doubted = new Set([
     ...unreliable, ...omittedFinishUids, ...uidsWith(omissions, 'VO-5'), ...uidsWith(suspicions, 'VS-6'),
   ])
-  // see VO-3, DG-2
+  // Spec: VO-3, DG-2
   const bottlenecks = pushing.filter((one) => isOpen(one.uid) && !omittedFinishUids.has(one.uid))
     .map((one) => ({ ...one, path: ancestorsOf(one.uid, facts.parentOf) }))
   return {
@@ -1353,7 +1353,7 @@ function nearestEndDays(bar: Task, child: Task): number {
   return gaps.length === 0 ? Number.POSITIVE_INFINITY : Math.min(...gaps)
 }
 
-// see IP-4
+// Spec: IP-4
 /** @purity pure */
 export function parentCandidatesOf(document: DiagnosedDocument, taskUid: number): readonly number[] {
   const { byUid, taskGroupDepthOf, tasksAtDepth, parentOf } = structureOf(document.schedule)
@@ -1376,23 +1376,23 @@ export function parentCandidatesOf(document: DiagnosedDocument, taskUid: number)
     .map((one) => one.bar.uid)
 }
 
-// see FR-135, IP-2, IP-4, IP-5, VO-4
+// Spec: FR-135, IP-2, IP-4, IP-5, VO-4
 export type ParentTaskResolution =
   | { readonly kind: 'stated'; readonly parentUid: number }
   | { readonly kind: 'derived'; readonly parentUid: number }
-  // WHY: enclosing is the IP-1 count (0 or 2 and up), the reason no parent is decided; candidates is IP-4's whole order.
+  // Why: enclosing is the IP-1 count (0 or 2 and up), the reason no parent is decided; candidates is IP-4's whole order.
   | { readonly kind: 'undecided'; readonly candidates: readonly number[]; readonly enclosing: number }
   | { readonly kind: 'root' }
 
-// see FR-135, IP-2, IP-4, IP-5, VO-4
-// WHY: read off the same derivation the report uses, so the arrows and the diagnosis never disagree on a parent.
-// WHY: onlyTaskUid answers one Task (PTL-15), so a panel showing one child does not order every undecided child's candidates.
+// Spec: FR-135, IP-2, IP-4, IP-5, VO-4
+// Why: read off the same derivation the report uses, so the arrows and the diagnosis never disagree on a parent.
+// Why: onlyTaskUid answers one Task (PTL-15), so a panel showing one child does not order every undecided child's candidates.
 /** @purity pure */
 export function parentTaskResolutionsOf(document: DiagnosedDocument, onlyTaskUid?: number): ReadonlyMap<number, ParentTaskResolution> {
   const { tasks, byUid, taskGroupDepthOf, derivations } = structureOf(document.schedule)
   const resolutions = new Map<number, ParentTaskResolution>()
   for (const task of onlyTaskUid === undefined ? tasks : tasks.filter((one) => one.uid === onlyTaskUid)) {
-    // WHY: FR-135 reads a stated milestone parent as no parent, so that child falls through to the derivation.
+    // Why: FR-135 reads a stated milestone parent as no parent, so that child falls through to the derivation.
     const statedUid = statedParentUidOf(task, byUid)
     if (statedUid !== null) {
       if (byUid.has(statedUid)) resolutions.set(task.uid, { kind: 'stated', parentUid: statedUid })
@@ -1415,14 +1415,14 @@ export function parentTaskResolutionsOf(document: DiagnosedDocument, onlyTaskUid
 //   docs/spec/_source/settings.json (table T-206)
 //   docs/spec/01-04-requirements.md (tables T-310, T-311)
 // Rebuild: npm run gen   ||   npm run gen:check fails on drift.
-// see T-206
+// Spec: T-206
 const NOT_STORED_BOTTLENECK_THRESHOLD: {
   readonly 'S-397': number
 } = {
   'S-397': 1,
 }
 
-// see T-310, T-311, DX-3
+// Spec: T-310, T-311, DX-3
 const FINDING_LAYERS: Readonly<Record<string, number>> = {
   'VC-1': 1,
   'VC-2': 1,

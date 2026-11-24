@@ -11,10 +11,10 @@ import { rowOf } from './sws-case'
 
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
-// WHY: each constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
+// Why: each constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
 const FR_031_ONLY_THESE = '確認ダイアログを増やす代わりにこれが要る。例外は、取り消しで取り戻せないものを失う場面に限る（MUST）'
 const FR_031_NO_OTHER = 'それ以外の場面で確認を求めてはならない（MUST NOT）'
-// WHY: CR-710 widened the clause from the released day to the released place (day or time).
+// Why: CR-710 widened the clause from the released day to the released place (day or time).
 const FR_103_NO_SNAP = '⛔ **掴んだ端点を置いた所を、稼働日・稼働時間へ寄せてはならない（MUST NOT）'
 
 test.describe('CR-701 the manuscript these cases are driven by', () => {
@@ -31,10 +31,10 @@ const TEMPLATE = JSON.parse(
   readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
 ) as { $schema: string; schemaVersion: string; schedule: Record<string, any>; documentSettings: Record<string, unknown>; documentStamp: unknown }
 
-// WHY: January 2026 runs Mon 5 .. Fri 9, Sat 10; the template calendar works Mon-Fri and has no January exception.
+// Why: January 2026 runs Mon 5 .. Fri 9, Sat 10; the template calendar works Mon-Fri and has no January exception.
 const day = (dayOfMonth: number, time = '08:00:00'): string => `2026-01-${String(dayOfMonth).padStart(2, '0')}T${time}`
 const ROW = '5c000000-0000-4000-8000-000000006680'
-// WHY: the Command Palette opens over the left of the canvas; the view starts two weeks early so the bar lies clear of it.
+// Why: the Command Palette opens over the left of the canvas; the view starts two weeks early so the bar lies clear of it.
 const CLEAR_OF_THE_PALETTE = '2025-12-20T00:00:00'
 
 /** @purity pure */
@@ -125,7 +125,7 @@ async function planBox(page: Page): Promise<Box> {
   return box
 }
 
-// WHY: the shade is one path of runs "M x0 top H x1 V bottom H x0 Z", read here in page coordinates.
+// Why: the shade is one path of runs "M x0 top H x1 V bottom H x0 Z", read here in page coordinates.
 /** @purity semi-pure-mutable */
 async function shadeRuns(page: Page): Promise<readonly (readonly [number, number])[]> {
   return page.evaluate(() => {
@@ -146,7 +146,7 @@ interface Days {
   readonly saturday: number
 }
 
-// WHY: the run of shade that ends where the Monday bar starts is Saturday 3 and Sunday 4, two day columns wide.
+// Why: the run of shade that ends where the Monday bar starts is Saturday 3 and Sunday 4, two day columns wide.
 /** @purity semi-pure-mutable */
 async function daysFrom(page: Page, bar: Box): Promise<Days> {
   const runs = await shadeRuns(page)
@@ -156,7 +156,7 @@ async function daysFrom(page: Page, bar: Box): Promise<Days> {
   return { perDay, friday: bar.x + 4.5 * perDay, saturday: bar.x + 5.5 * perDay }
 }
 
-// WHY: the end is moved by whole day columns from where it was grabbed, so the finish moves by that many days
+// Why: the end is moved by whole day columns from where it was grabbed, so the finish moves by that many days
 // whichever edge of its day the end is drawn on; Wednesday + 2 is Friday, + 3 is Saturday.
 /** @purity non-pure */
 async function dragPlanEndBy(page: Page, days: Days, count: number): Promise<void> {

@@ -1,4 +1,4 @@
-// Declares the seam for what the screen shows and what the person entered on it.
+// File: ScreenRenderer: Declares the seam for what the screen shows and what the person entered on it.
 // @unit      UF-70   (docs/spec/05-07-design.md, table T-075)
 // @component ScreenRenderer, layer Adapter (table T-062)
 // @purity    n/a
@@ -17,12 +17,12 @@ import type {
 import type { SearchRowView } from './search-panel'
 import type { WindowFloor, WindowGrabRegion } from './window-box'
 
-// see WB-10, GR-24
-// WHY: the save and open surfaces move by their title band but are no window of table T-335 (WindowName).
+// Spec: WB-10, GR-24
+// Why: the save and open surfaces move by their title band but are no window of table T-335 (WindowName).
 export type GrabbedWindowName = WindowName | 'closeOnlyTitledSurface'
 
-// see IF-9, GR-24, GR-25, GR-28
-// WHY: the box, range and floor ride on the answer: only the surface reads the drawn box and the generated sizes.
+// Spec: IF-9, GR-24, GR-25, GR-28
+// Why: the box, range and floor ride on the answer: only the surface reads the drawn box and the generated sizes.
 export type WindowGrab =
   | {
       readonly window: GrabbedWindowName
@@ -51,22 +51,22 @@ export interface ScreenPart {
   readonly noticeDismissKey: string | null
   readonly confirmationAnswer?: string
   readonly isImportReportDismiss?: boolean
-  // see NT-2
-  // WHY: the reasons of the notice box under the pointer, whose timed waits stand still while it is there.
+  // Spec: NT-2
+  // Why: the reasons of the notice box under the pointer, whose timed waits stand still while it is there.
   readonly noticeBoxReasons?: readonly string[]
   readonly scrollbarAxis?: Scrollbar['axis']
-  // see IF-9, SJ-1
+  // Spec: IF-9, SJ-1
   readonly searchJumpTarget?: SearchRowView['target'] | null
   readonly windowGrab?: WindowGrab
-  // see IF-9, SV-7, IC-122
-  // WHY: every column heading carries IC-122, so the entry alone does not say which column's filter to open.
+  // Spec: IF-9, SV-7, IC-122
+  // Why: every column heading carries IC-122, so the entry alone does not say which column's filter to open.
   readonly searchFilterColumn?: string | null
-  // see IF-9, SV-7, IC-125, IC-126
+  // Spec: IF-9, SV-7, IC-125, IC-126
   readonly searchFilterListed?: readonly string[] | null
-  // see SV-7
+  // Spec: SV-7
   readonly isInFilterMenu?: boolean
-  // see IF-9, WC-2, WC-4, WC-8, IC-133, IC-136, IC-137, IC-164
-  // WHY: the weekday's AT-73 code or the row's place in the draft a repeated Holiday Settings entrance means.
+  // Spec: IF-9, WC-2, WC-4, WC-8, IC-133, IC-136, IC-137, IC-164
+  // Why: the weekday's AT-73 code or the row's place in the draft a repeated Holiday Settings entrance means.
   readonly holidaySettingsTarget?: string
 }
 
@@ -74,41 +74,41 @@ export interface FieldCommit {
   readonly row: string
   readonly key: PropertyFieldKey
   readonly text: string
-  // see AS-5, AS-7, IC-125, IC-126
-  // WHY: how the assignee field was settled: a person checked (text is its uid), the add item chosen
+  // Spec: AS-5, AS-7, IC-125, IC-126
+  // Why: how the assignee field was settled: a person checked (text is its uid), the add item chosen
   // (text is the name to create), every shown person checked or unchecked (text is their uids), or absent.
   readonly pick?: 'candidate' | 'add' | 'all' | 'none'
-  // see FX-5, UN-13
-  // WHY: a row of several entrances settles once, with every entrance's key and text in drawn order.
+  // Spec: FX-5, UN-13
+  // Why: a row of several entrances settles once, with every entrance's key and text in drawn order.
   readonly entrances?: readonly { readonly key: PropertyFieldKey; readonly text: string }[]
 }
 
-// see IF-9
-// WHY: the row the field names, not which control: the field-edit machine carries rows (T-292).
+// Spec: IF-9
+// Why: the row the field names, not which control: the field-edit machine carries rows (T-292).
 export interface FieldEditNotice {
   readonly kind: 'began' | 'ended'
   readonly row: string
 }
 
-// see IF-9
+// Spec: IF-9
 export interface ScreenSurface {
   /** @purity non-pure */
   showScreenView(view: ScreenView): void
 
-  // TRAP: reading takes the commit; a commit answered twice is written twice.
+  // Trap: reading takes the commit; a commit answered twice is written twice.
   /** @purity semi-pure-mutable */
   readFieldCommit(): FieldCommit | null
 
   /** @purity semi-pure-mutable */
   readScreenPartAt(x: number, y: number): ScreenPart | null
 
-  // TRAP: reading takes the notices, in the order the host raised them; a surface without this
+  // Trap: reading takes the notices, in the order the host raised them; a surface without this
   // seam reports no edit, so the shell reads no field as being edited.
   /** @purity semi-pure-mutable */
   readFieldEditNotices?(): readonly FieldEditNotice[]
 
-  // see IF-9, SV-2, SV-5
-  // TRAP: reading takes the change; null when the word has not changed since the last read.
+  // Spec: IF-9, SV-2, SV-5
+  // Trap: reading takes the change; null when the word has not changed since the last read.
   /** @purity semi-pure-mutable */
   readSearchWord?(): string | null
 }

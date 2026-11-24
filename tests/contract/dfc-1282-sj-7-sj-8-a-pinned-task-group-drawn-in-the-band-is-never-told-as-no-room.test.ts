@@ -15,7 +15,7 @@ const cellOf = (id: string): string => {
   return unbroken(row.by['定め'] ?? '')
 }
 
-// see SJ-7, SJ-8
+// Spec: SJ-7, SJ-8
 const SJ_7_PINNED_DRAWN =
   '飛ぶ先のタスクグループがピン止めのタスクグループ（`S-126`）で、ピン止めの帯（`FR-098`）に描かれているなら、`SJ-5` を行わず、`SJ-6` だけを行う。'
 const SJ_7_ROOM_IRRELEVANT = '帯の下に残る高さは問わない'
@@ -33,7 +33,7 @@ const TASK_GROUP_A = 'task-group-a'
 const TASK_GROUP_B = 'task-group-b'
 const TARGET_UID = 301
 
-// WHY: the view starts on task group B with both fractions off zero, so any write that moves the task group anchor shows.
+// Why: the view starts on task group B with both fractions off zero, so any write that moves the task group anchor shows.
 const START_SCROLL = { scrollDate: '2026-03-02', scrollTaskGroupId: TASK_GROUP_B, scrollDateFraction: 0.25, scrollTaskGroupFraction: 0.5 }
 
 function documentWithPinned(pinned: readonly string[]): Document {
@@ -87,7 +87,7 @@ function documentWithPinned(pinned: readonly string[]): Document {
 
 const TO_TASK: SearchJumpTarget = { kind: 'task', taskUid: TARGET_UID }
 
-// WHY: a day is ten pixels wide and nothing of the task reaches left of its date.
+// Why: a day is ten pixels wide and nothing of the task reaches left of its date.
 // see SJ-5, SJ-6 -- no picture is read (landing null): the cases here judge SJ-7 and SJ-8 alone
 const reachWith = (drawnTaskGroups: readonly { taskGroupId: string; isPinned?: boolean }[]) => ({
   pxPerDay: 10,

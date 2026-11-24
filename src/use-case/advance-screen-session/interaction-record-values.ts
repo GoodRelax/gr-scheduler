@@ -1,4 +1,4 @@
-// InteractionRecordValues: the interaction-record region of the session and its transitions.
+// File: AdvanceScreenSession: InteractionRecordValues: the interaction-record region of the session and its transitions.
 // @unit      UF-124  (docs/spec/05-07-design.md, table T-075)
 // @component AdvanceScreenSession, layer UseCase (table T-062)
 // @purity    pure
@@ -41,10 +41,10 @@ const INTERACTION_RECORD_VALUES_INITIAL_AXES: InteractionRecordValuesAxes = {
 
 type InteractionRecordStep = Step<InteractionRecordValues, InteractionRecordValuesEffect>
 
-// see T-295
+// Spec: T-295
 export const emptyInteractionRecordValues: InteractionRecordValues = { ...INTERACTION_RECORD_VALUES_INITIAL_AXES }
 
-// WHY: one entrance both begins and stops (FR-102, IC-76); the record's lines stay with the shell.
+// Why: one entrance both begins and stops (FR-102, IC-76); the record's lines stay with the shell.
 /** @purity pure */
 function onInteractionRecordToggled(values: InteractionRecordValues): InteractionRecordStep {
   if (values.interactionRecordingState.kind === 'notRecording') {
@@ -65,7 +65,7 @@ const HANDLERS: {
   interactionRecordToggled: onInteractionRecordToggled,
 }
 
-// see SF-2, SF-8, T-295
+// Spec: SF-2, SF-8, T-295
 /** @purity pure */
 export function stepInteractionRecordValues(
   values: InteractionRecordValues,

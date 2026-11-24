@@ -52,11 +52,11 @@ describe('FR-025 -- the manuscript this file is driven by', () => {
   })
 })
 
-// WHY: built from code points, not a literal, so the file stays ASCII per
+// Why: built from code points, not a literal, so the file stays ASCII per
 // rule 03 section 5 -- the two-character heading would vanish from a diff.
 const DEFAULT_COLUMN = String.fromCharCode(0x65e2, 0x5b9a)
 
-// WHY: read from the manuscript rather than typed, so this value cannot go
+// Why: read from the manuscript rather than typed, so this value cannot go
 // stale against the specification (rule 03.1).
 const THEME_HUE = ((): number => {
   const row = specTable('T-216').rows.find((one) => one.id === 'S-73')
@@ -220,13 +220,13 @@ const fitOrThrow = (answer: ImageExport): PictureAndPng => {
 
 describe('FR-025 (MUST NOT) -- exportPng carries no scale', () => {
   it('⛔ the published signature takes no third "scale" argument', () => {
-    // WHY: a function forbidden a scale has no parameter for one to travel on,
+    // Why: a function forbidden a scale has no parameter for one to travel on,
     // so a length check at the type level proves the whole clause.
     expect(exportPng).toHaveLength(2)
   })
 
   it('⭐⭐ a settings group carrying the RETIRED key (exportPngScale) paints the same size as one without it', async () => {
-    // WHY: a settings value built outside the read path can still carry the
+    // Why: a settings value built outside the read path can still carry the
     // field at runtime, and the picture must not read it even then.
     const withRetiredKey = { ...SETTINGS, exportPngScale: 1 } as unknown as DocumentSettings
     const withADifferentValue = { ...SETTINGS, exportPngScale: 8 } as unknown as DocumentSettings

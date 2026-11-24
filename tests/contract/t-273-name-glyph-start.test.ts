@@ -24,7 +24,7 @@ import {
   type Scene,
 } from '../unit/cr-430-cross-section-scene'
 
-// see S-584
+// Spec: S-584
 const EDGE_GAP = stored('S-584') * RATIO
 
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
@@ -37,7 +37,7 @@ const FR_002_NOT_TWICE =
 const NAME_FROM = '名前の書き出し'
 const says = (row: string): string => `T-273 ${row} ${NAME_FROM}: ${cellOf('T-273', row, NAME_FROM)}; ${FR_002_NOT_TWICE}`
 
-// WHY: the SVG writes coordinates rounded, so allow half of the last written place.
+// Why: the SVG writes coordinates rounded, so allow half of the last written place.
 const glyphXOf = (scene: Scene): { readonly x: number; readonly slack: number } => {
   const svg = scene.svg()
   const figure = svg.indexOf('data-figure="task-1-label"')
@@ -79,7 +79,7 @@ const WIDE_ACTUAL = { actualStart: day(2), actualFinish: day(26), percentComplet
 const NARROW_ACTUAL = { actualStart: day(4), actualFinish: day(5), percentComplete: 20 }
 const NO_MARKER = { isProgressMarkerVisible: false }
 
-// see S-63
+// Spec: S-63
 const rectangle = (over: Record<string, unknown>, settings: Record<string, unknown> = {}, name = SHORT): Scene =>
   sceneOf({
     tasks: [taskOf({ name, start: day(2), finish: day(28), ...over })],

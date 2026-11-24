@@ -33,15 +33,15 @@ const SJ_7_PINNED =
 const SJ_8_NO_ROOM =
   '飛ぶ先のタスクグループを画面に出せないときは、`SJ-5` と `SJ-6` を行わず、表 T-233 の `RS-66` を告げる。'
 const SJ_8_STILL = '`SJ-2` と `SJ-4` は行う'
-// see SJ-6
-// WHY: a day is ten pixels wide, and nothing of the task reaches left of its date unless a case says so.
+// Spec: SJ-6
+// Why: a day is ten pixels wide, and nothing of the task reaches left of its date unless a case says so.
 // No task group stands in the pinned band unless a case says so (SJ-7), and no picture is read (landing null).
 type SearchJumpReach = Parameters<typeof searchJumpWrites>[3]
 const NO_REACH: SearchJumpReach = {
   pxPerDay: 10, leftReachPx: 0, drawnTaskGroups: [] as readonly { taskGroupId: string; isPinned?: boolean }[], areaWidth: 800, landing: null,
 }
-// see SJ-6
-// WHY: a shape wider than the area less two S-428 insets, so SJ-6 keeps its start in sight instead of centering it.
+// Spec: SJ-6
+// Why: a shape wider than the area less two S-428 insets, so SJ-6 keeps its start in sight instead of centering it.
 const WIDE: SearchJumpReach = {
   ...NO_REACH,
   landing: { shapeFromDatePx: 0, shapeWidthPx: 2000, shapeMiddleY: 300, roomTop: 0, roomHeight: 600, scrollingTaskGroups: [] },
@@ -99,7 +99,7 @@ const commentBox = (id: string, anchorTaskGroupId: string, anchorDate: string | 
   textColor: null,
 })
 
-// WHY: the view starts somewhere else (R2, both fractions off zero) so a write to it shows.
+// Why: the view starts somewhere else (R2, both fractions off zero) so a write to it shows.
 const START_SCROLL = { scrollDate: '2026-03-02', scrollTaskGroupId: R2, scrollDateFraction: 0.25, scrollTaskGroupFraction: 0.5 }
 
 interface Arranged {
@@ -213,7 +213,7 @@ describe(`T-332 SJ-2 -- ${SJ_2_OPENS}`, () => {
   })
 })
 
-// WHY: CR-728 retired the SJ-5 case (the task group at the top); the spec-only tests of CR-728 hold the new SJ-5.
+// Why: CR-728 retired the SJ-5 case (the task group at the top); the spec-only tests of CR-728 hold the new SJ-5.
 describe(`T-332 SJ-6 -- ${SJ_6_NO_ZOOM}`, () => {
   it(`SJ-6: ${SJ_6_WIDE} what the task reaches left of its date moves the view left by that much (CR-629)`, () => {
     const atDate = scrollOf(searchJumpWrites(documentOf(), TO_TASK, true, WIDE)) as Loose
@@ -246,7 +246,7 @@ describe(`T-332 SJ-6 -- ${SJ_6_NO_ZOOM}`, () => {
 
 describe(`T-332 SJ-7 -- ${SJ_7_PINNED}`, () => {
   it('leaves the task group anchor where it was when the task\'s task group is pinned and drawn in the band, and still writes the SJ-6 move', () => {
-    // WHY: the view starts two months before the task, so SJ-6 has to write; its date is not
+    // Why: the view starts two months before the task, so SJ-6 has to write; its date is not
     // asserted because S-428 is still undecided.
     const plan = searchJumpWrites(documentOf({ pinned: [R11] }), TO_TASK, true, IN_BAND(R11))
     expect(plan.isBlockedByPinnedTaskGroups).toBe(false)

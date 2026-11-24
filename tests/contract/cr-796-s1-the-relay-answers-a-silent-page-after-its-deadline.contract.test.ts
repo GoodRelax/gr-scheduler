@@ -246,7 +246,7 @@ const refusalOf = (result: Json): Json | undefined =>
 
 const reasonOf = (result: Json): unknown => refusalOf(result)?.['reason']
 
-// WHY: the page answers everything except the members named in `silent`, which it never answers by itself.
+// Why: the page answers everything except the members named in `silent`, which it never answers by itself.
 function answererSilentOn(silent: readonly string[]): Answerer {
   return (call) => {
     const method = String(call['method'])

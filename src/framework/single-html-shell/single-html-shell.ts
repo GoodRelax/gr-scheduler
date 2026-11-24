@@ -1,4 +1,4 @@
-// SingleHtmlShell: the page entry and the boot of table T-077; the only unit that touches the host.
+// File: SingleHtmlShell: the page entry and the boot of table T-077; the only unit that touches the host.
 // @unit      UF-47   (docs/spec/05-07-design.md, table T-075)
 // @component SingleHtmlShell, layer Framework (table T-062)
 // @purity    non-pure
@@ -64,7 +64,7 @@ const AT_WINDOW_ORIGIN = 'position:fixed;left:0;top:0;right:0;bottom:0;'
 
 const SCROLLBAR_PROBE_PX = 100
 
-// WHY: taken once at boot: fetch(location.href) fails on file:// (LM-14), and the live DOM carries the drawn screen.
+// Why: taken once at boot: fetch(location.href) fails on file:// (LM-14), and the live DOM carries the drawn screen.
 let deliveredAppShellHtml: string | null = null
 
 /** @purity semi-pure-mutable */
@@ -73,14 +73,14 @@ function readDeliveredHtml(): string {
   return `${prologue}${document.documentElement.outerHTML}\n`
 }
 
-// see FR-102, IR-1
-// TRAP: the two attributes dom-screen-surface.ts draws; a field answers its T-016 row, an entrance
+// Spec: FR-102, IR-1
+// Trap: the two attributes dom-screen-surface.ts draws; a field answers its T-016 row, an entrance
 // its T-109 row, and nothing of the value is read, so no document contents reach the record.
 const FOCUS_ROW_ATTRIBUTES: readonly string[] = ['data-field-row', 'data-icon']
 
 type WindowReaders = Parameters<NonNullable<Parameters<typeof domScreenSurface>[0]['holdWindowReaders']>>[0]
 
-// see SV-7, SV-14, IF-9
+// Spec: SV-7, SV-14, IF-9
 /** @purity pure */
 function windowReadersOf(read: () => WindowReaders | null) {
   return {
@@ -108,15 +108,15 @@ function focusPositionOfPage(): string {
   return FOCUS_ON_DOCUMENT_BODY
 }
 
-// see FR-071
+// Spec: FR-071
 /** @purity semi-pure-mutable */
 function isPageFullScreen(): boolean {
-  // TRAP: undefined, not null, where the Fullscreen API is absent; that must read as not full screen.
+  // Trap: undefined, not null, where the Fullscreen API is absent; that must read as not full screen.
   return (document.fullscreenElement ?? null) !== null
 }
 
-// see FT-6, FT-1, CV-9, OP-2
-// WHY: Space presses a button on the key's release, so its click and change arrive after the frame keydown asked.
+// Spec: FT-6, FT-1, CV-9, OP-2
+// Why: Space presses a button on the key's release, so its click and change arrive after the frame keydown asked.
 /** @purity non-pure */
 function watchPageHappenings(loopOf: () => FrameLoop | null): void {
   document.addEventListener('fullscreenchange', () => {
@@ -130,8 +130,8 @@ function watchPageHappenings(loopOf: () => FrameLoop | null): void {
   watchFileDrags(loopOf)
 }
 
-// see OP-17, OP-2, FT-1
-// TRAP: dragenter and dragleave fire again on every element a drag crosses, so only the depth falling to 0 is leaving the window.
+// Spec: OP-17, OP-2, FT-1
+// Trap: dragenter and dragleave fire again on every element a drag crosses, so only the depth falling to 0 is leaving the window.
 /** @purity non-pure */
 function watchFileDrags(loopOf: () => FrameLoop | null): void {
   let depth = 0
@@ -153,7 +153,7 @@ function watchFileDrags(loopOf: () => FrameLoop | null): void {
   })
 }
 
-// WHY: bubble phase, so the file store's capture listener has already held the file and stopped navigation.
+// Why: bubble phase, so the file store's capture listener has already held the file and stopped navigation.
 /** @purity pure */
 function isFileDrop(event: DragEvent): boolean {
   return event.dataTransfer?.types.includes('Files') === true
@@ -161,8 +161,8 @@ function isFileDrop(event: DragEvent): boolean {
 
 const HOST_PICKER_INPUT_TYPES: ReadonlySet<string> = new Set(['color', 'date', 'datetime-local', 'select-one'])
 
-// see FT-1, TX-3
-// WHY: a value chosen in the host's own picker window (a select's list too) arrives with no pointer or key event of the page.
+// Spec: FT-1, TX-3
+// Why: a value chosen in the host's own picker window (a select's list too) arrives with no pointer or key event of the page.
 /** @purity pure */
 function isHostPickerValue(target: EventTarget | null): boolean {
   const type = (target as { readonly type?: unknown } | null)?.type
@@ -184,14 +184,14 @@ function pageEscapeKeyLock(): EscapeKeyLock {
   return escapeKeyLockOf((navigator as { readonly keyboard?: unknown }).keyboard)
 }
 
-// see FR-071, UF-48
+// Spec: FR-071, UF-48
 /** @purity non-pure */
 function pageFullScreenHost(): FullScreenHost {
   const root = document.documentElement
   return {
     isFullScreen: isPageFullScreen,
     /** @purity non-pure */
-    // TRAP: the lock is asked before requestFullscreen, which spends the press's user activation.
+    // Trap: the lock is asked before requestFullscreen, which spends the press's user activation.
     requestFullScreen: () => {
       const escapeKey = pageEscapeKeyLock()
       escapeKey.lock()
@@ -205,7 +205,7 @@ function pageFullScreenHost(): FullScreenHost {
   }
 }
 
-// see IF-8
+// Spec: IF-8
 /** @purity semi-pure-mutable */
 function appShellSource(): AppShellSource {
   return {
@@ -231,7 +231,7 @@ const AGENT_API_IDENTIFIER = 'grSchedulerAgentApi'
 
 const RELAY_LOST_REASON: StartupNoticeReason = 'RS-90'
 
-// DEVIATION: spec says the caller declares its writer name (ED-2); here every caller is agent (DFC-560)
+// Temporary: spec says the caller declares its writer name (ED-2); here every caller is agent (DFC-560). Until: DFC-560 is fixed.
 const AGENT_API_WRITER = 'agent'
 
 /** @purity pure */
@@ -242,11 +242,11 @@ function shippedDocumentOf(read: ReturnType<typeof documentFromJson>, what: stri
   return read.document
 }
 
-// see BT-4, FR-027, FR-023
-// WHY: null where the page carries no template container, as an exported .html does.
+// Spec: BT-4, FR-027, FR-023
+// Why: null where the page carries no template container, as an exported .html does.
 /** @purity semi-pure-mutable */
 function startupTemplateDocument(): Document | null {
-  // TRAP: pass the version although it always answers known; omitting it reports notCompared.
+  // Trap: pass the version although it always answers known; omitting it reports notCompared.
   const read = documentFromEmbeddedHtml(
     deliveredAppShellHtml ?? '',
     [STARTUP_TEMPLATE_ELEMENT_ID],
@@ -257,7 +257,7 @@ function startupTemplateDocument(): Document | null {
   return shippedDocumentOf(read, 'the startup template the page carries')
 }
 
-// see FR-095, T-342, BK-4
+// Spec: FR-095, T-342, BK-4
 /** @purity semi-pure-mutable */
 function emptyDocument(): Document {
   const read = shippedDocumentOf(
@@ -278,8 +278,8 @@ function isStartedFromTemplate(row: StartupRow, shipped: ShippedDocuments): bool
   return row === 'BT-4' && shipped.isTemplateShipped
 }
 
-// see BT-4, FR-067
-// WHY: an exported .html carries no template container, so its last startup choice is the empty document.
+// Spec: BT-4, FR-067
+// Why: an exported .html carries no template container, so its last startup choice is the empty document.
 /** @purity semi-pure-mutable */
 function shippedDocuments(): ShippedDocuments {
   const startingAfresh = emptyDocument()
@@ -287,8 +287,8 @@ function shippedDocuments(): ShippedDocuments {
   return { template: shipped ?? startingAfresh, isTemplateShipped: shipped !== null, startingAfresh }
 }
 
-// see T-050, RD-6
-// WHY: the empty document carries no task group; this replacement lands it with the one task group every document holds.
+// Spec: T-050, RD-6
+// Why: the empty document carries no task group; this replacement lands it with the one task group every document holds.
 /** @purity non-pure */
 function holdWithItsTaskGroup(running: FrameLoop, chosen: Document, shipped: ShippedDocuments): void {
   if (chosen === shipped.startingAfresh) running.holdDocument({ row: 'RD-6', document: chosen })
@@ -314,7 +314,7 @@ const NEWER_FORMAT_OPENED_REASON: StartupNoticeReason = 'RS-63'
 
 const NEWER_FORMAT_REFUSED_REASON: StartupNoticeReason = 'RS-64'
 
-// see FR-073, RS-48, RS-63
+// Spec: FR-073, RS-48, RS-63
 /** @purity pure */
 function newerFormatReasonOf(unreadColumns: readonly string[]): StartupNoticeReason {
   return unreadColumns.length > 0 ? NEWER_FORMAT_UNREAD_REASON : NEWER_FORMAT_OPENED_REASON
@@ -340,13 +340,13 @@ function startupReadingsOf(read: ReturnType<typeof documentFromJson>): StartupRe
   }
 }
 
-// see FR-073, RS-64
+// Spec: FR-073, RS-64
 /** @purity pure */
 function startupNoticeReasonOf(code: StartupNoticeCode, isRefusedAsNewer: boolean): StartupNoticeReason {
   return code === 'embeddedUnreadable' && isRefusedAsNewer ? NEWER_FORMAT_REFUSED_REASON : STARTUP_NOTICE_REASON[code]
 }
 
-// see BT-1, FR-088, FR-067
+// Spec: BT-1, FR-088, FR-067
 // STOP: spec does not decide running FR-023's validation over BT-1. Looked in FR-023, FR-067, OP-5, T-008 (PND-452)
 /** @purity semi-pure-mutable */
 function embeddedStartupDocument(): StartupReadings & {
@@ -379,7 +379,7 @@ function embeddedStartupDocument(): StartupReadings & {
   }
 }
 
-// see FR-051, S-205
+// Spec: FR-051, S-205
 /** @purity non-pure */
 function measuredScrollbarThickness(): number {
   const probe = document.createElement('div')
@@ -394,7 +394,7 @@ function measuredScrollbarThickness(): number {
   return Math.max(environmentDefault / 2, NOT_STORED_SCROLLBAR_SIZES['S-205'])
 }
 
-// see FR-038
+// Spec: FR-038
 /** @purity semi-pure-mutable */
 function screenLanguage(): DisplayLanguage {
   return startupDisplayLanguage()
@@ -407,7 +407,7 @@ const DROP_SURFACE: DropSurface = {
   },
 }
 
-// TRAP: bind(window): both pickers are window methods that lose their receiver when passed.
+// Trap: bind(window): both pickers are window methods that lose their receiver when passed.
 /** @purity semi-pure-mutable */
 function fileSystemAccessEnvironment(): FileSystemAccessEnvironment {
   const host = window as unknown as {
@@ -426,8 +426,8 @@ function fileSystemAccessEnvironment(): FileSystemAccessEnvironment {
   }
 }
 
-// see FR-068, IO-10, CHN-2
-// TRAP: the address is revoked a turn later; revoked at once, some browsers drop the download unstarted.
+// Spec: FR-068, IO-10, CHN-2
+// Trap: the address is revoked a turn later; revoked at once, some browsers drop the download unstarted.
 /** @purity non-pure */
 function downloadThroughAnchor(fileName: string, bytes: Uint8Array, mediaType: string): void {
   const address = URL.createObjectURL(new Blob([new Uint8Array(bytes)], { type: mediaType }))
@@ -455,7 +455,7 @@ function environmentOf(
   }
 }
 
-// see T-077, FR-065, AG-12, RS-90
+// Spec: T-077, FR-065, AG-12, RS-90
 /** @purity non-pure */
 function publishAgentApiWhileEnabled(running: FrameLoop, schemaVersion: string): void {
   const host = globalThis as unknown as Record<string, unknown>
@@ -480,7 +480,7 @@ function publishAgentApiWhileEnabled(running: FrameLoop, schemaVersion: string):
 
 /** @purity non-pure */
 function boot(): void {
-  // TRAP: must stay the first statement; the lines below write the screen into the page IF-8 hands out.
+  // Trap: must stay the first statement; the lines below write the screen into the page IF-8 hands out.
   deliveredAppShellHtml = readDeliveredHtml()
 
   const scheduleCanvas = document.createElement('div')
@@ -494,7 +494,7 @@ function boot(): void {
   let taskGroupControlsHeightPx = 0
   let commandPaletteBandPx = { width: 0, height: 0 }
   let loop: FrameLoop | null = null
-  // WHY: the reset's question (QN-11) named what is lost; a host prompt would keep the old page (FR-153).
+  // Why: the reset's question (QN-11) named what is lost; a host prompt would keep the old page (FR-153).
   let isLeavingForReset = false
   /** @purity non-pure */
   const reloadAfterReset = (): void => {
@@ -507,7 +507,7 @@ function boot(): void {
   const shipped = shippedDocuments()
   const template = shipped.template
 
-  // TRAP: read before BO-2: readTheme is asked while the surface factory runs, before chosen exists,
+  // Trap: read before BO-2: readTheme is asked while the surface factory runs, before chosen exists,
   // and reading chosen there throws a ReferenceError that stops the whole boot.
   let themeDocument: Document = template
 
@@ -542,10 +542,10 @@ function boot(): void {
     document.documentElement.setAttribute('lang', language)
   }
 
-  // TRAP: null, not '': a sentinel that could be a heading leaves that document with the build's own tab heading.
+  // Trap: null, not '': a sentinel that could be a heading leaves that document with the build's own tab heading.
   let browserTabHeadingWritten: string | null = null
 
-  // WHY: here, not in the renderer, whose redraw stops during an in-place edit, when the name is typed.
+  // Why: here, not in the renderer, whose redraw stops during an in-place edit, when the name is typed.
   /** @purity non-pure */
   function nameBrowserTab(documentTitle: string | null): void {
     const heading = documentTitle ?? UNTITLED_DOCUMENT_TITLE
@@ -595,7 +595,7 @@ function boot(): void {
     },
   })
 
-  // TRAP: build before BO-2: until its drop listeners exist, a dropped file navigates away (OP-4).
+  // Trap: build before BO-2: until its drop listeners exist, a dropped file navigates away (OP-4).
   const fileStore = fileSystemAccessFileStore(fileSystemAccessEnvironment())
 
   const embedded = embeddedStartupDocument()
@@ -607,7 +607,7 @@ function boot(): void {
   themeDocument = chosen.document
   paintPageGround()
 
-  // TRAP: when BT-2 gains a producer, its file (CHN-1, untrusted) needs FR-088's gate too.
+  // Trap: when BT-2 gains a producer, its file (CHN-1, untrusted) needs FR-088's gate too.
 
   const painting: ScreenSurface = {
     ...screenSurface,
@@ -636,7 +636,7 @@ function boot(): void {
       surface: painting,
       language: screenLanguage(),
       themePreference: startupTheme,
-      // TRAP: both members are optional on both sides, so a dropped line fails silently (FR-020's watermark never hides).
+      // Trap: both members are optional on both sides, so a dropped line fails silently (FR-020's watermark never hides).
       /** @purity non-pure */
       focusPropertyField: (row) => focusPropertyFieldHeld?.(row),
       /** @purity semi-pure-mutable */
@@ -659,7 +659,7 @@ function boot(): void {
   holdWithItsTaskGroup(running, chosen.document, shipped)
   running.fullScreenChanged(isPageFullScreen())
 
-  // TRAP: run the frame, not resize(): a scheduled animation frame lands late and draws against the unmeasured header.
+  // Trap: run the frame, not resize(): a scheduled animation frame lands late and draws against the unmeasured header.
   loop.settleFirstFrameEnvironment(nowEnvironment())
 
   for (const notice of chosen.notices) {
@@ -669,8 +669,8 @@ function boot(): void {
   if (chosen.row === 'BT-1' && embedded.clampedCount > 0) {
     running.raiseStartupNotice('RS-51', embedded.clampedCount)
   }
-  // DEVIATION: spec says a recount on reading is told (FR-012, RS-52); here BT-1 recounts untold (DFC-1816)
-  // DEVIATION: spec says unread columns ask whether to go on (FR-073, U-61); here only RS-48 is told (DFC-561)
+  // Temporary: spec says a recount on reading is told (FR-012, RS-52); here BT-1 recounts untold (DFC-1816). Until: DFC-1816 is fixed.
+  // Temporary: spec says unread columns ask whether to go on (FR-073, U-61); here only RS-48 is told (DFC-561). Until: DFC-561 is fixed.
   if (chosen.row === 'BT-1' && embedded.isNewerFormat) running.raiseStartupNotice(newerFormatReasonOf(embedded.unreadColumns))
 
   publishAgentApiWhileEnabled(running, GREATEST_KNOWN_SCHEMA_VERSION)
@@ -685,14 +685,14 @@ function boot(): void {
 
   watchPageHappenings(() => loop)
 
-  // WHY: returnValue too, because older browsers of table T-003 gate the prompt on it.
+  // Why: returnValue too, because older browsers of table T-003 gate the prompt on it.
   window.addEventListener('beforeunload', (event) => {
     if (isLeavingForReset || loop?.hasUnsavedEdits() !== true) return
     event.preventDefault()
     event.returnValue = ''
   })
 
-  // WHY: a host can lay the page out at 0 x 0 and size it later without a resize event (NFR-011).
+  // Why: a host can lay the page out at 0 x 0 and size it later without a resize event (NFR-011).
   new ResizeObserver(() => loop?.resize(nowEnvironment())).observe(document.documentElement)
 }
 

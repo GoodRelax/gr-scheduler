@@ -43,23 +43,23 @@ const lightOf = (id: string): string => {
   return found[0].toLowerCase()
 }
 
-// see S-332
+// Spec: S-332
 const S_332 = numberOf(verticalIn('T-206', 'S-332').by['既定'] ?? '')
-// see S-333
+// Spec: S-333
 const S_333 = numberOf(verticalIn('T-206', 'S-333').by['既定'] ?? '')
-// see S-194
+// Spec: S-194
 const S_194 = numberOf(verticalIn('T-206', 'S-194').by['既定'] ?? '')
-// see S-334
+// Spec: S-334
 const S_334 = numberOf(verticalIn('T-206', 'S-334').by['既定'] ?? '')
-// see S-340
+// Spec: S-340
 const S_340 = numberOf(verticalIn('T-206', 'S-340').by['既定'] ?? '')
-// see S-163, S-195, S-183
+// Spec: S-163, S-195, S-183
 const S_163 = lightOf('S-163')
 const S_195 = lightOf('S-195')
 const S_183 = lightOf('S-183')
-// see S-30, LC-5
+// Spec: S-30, LC-5
 const LABEL_COEF = numberOf(verticalIn('T-201', 'S-30').by['既定値'] ?? '')
-// see S-66
+// Spec: S-66
 const GUIDE_VALUES = [...(verticalIn('T-206', 'S-66').by['値'] ?? '').matchAll(/'([a-z-]+)'/g)].map((one) => one[1] as string)
 const [GUIDE_NONE, GUIDE_CROSSHAIR, GUIDE_SINGLE] = GUIDE_VALUES as [string, string, string]
 
@@ -198,7 +198,7 @@ describe('FR-055 -- the fit leaves a margin on each side', () => {
   })
 
   it('FR-055: Task Group Area の幅に S-332 を掛けた余白を片側ずつ残して収める -- left and right', () => {
-    // see FR-055, S-332
+    // Spec: FR-055, S-332
     const built = fitted()
     const area = taskGroupAreaOf(built.loop)
     const margin = area.width * S_332
@@ -208,7 +208,7 @@ describe('FR-055 -- the fit leaves a margin on each side', () => {
   })
 
   it('FR-055: no name label is cut at the right edge of the Task Group Area (the drawn label measured by LC-5)', () => {
-    // see FR-055, LC-5
+    // Spec: FR-055, LC-5
     const built = fitted()
     const area = taskGroupAreaOf(built.loop)
     for (const found of built.svg().matchAll(/<text\b([^>]*)data-figure="task-\d+-label"[^>]*>([^<]*)</g)) {
@@ -221,7 +221,7 @@ describe('FR-055 -- the fit leaves a margin on each side', () => {
   })
 
   it('FR-055: 着地する縦の倍率で描いた絵で測る -- the margins hold with the OC-2 labels and the markers shown', () => {
-    // see FR-055, OC-2
+    // Spec: FR-055, OC-2
     const built = fitted({ isPercentCompleteVisible: true, isProgressMarkerVisible: true, isPlanDatesVisible: true })
     const area = taskGroupAreaOf(built.loop)
     const margin = area.width * S_332
@@ -231,7 +231,7 @@ describe('FR-055 -- the fit leaves a margin on each side', () => {
   })
 
   it('FR-055: 日の境目へ切り捨ててはならない -- scrollDateFraction keeps the place inside the day', () => {
-    // see FR-055, S-177
+    // Spec: FR-055, S-177
     const built = fitted()
     const layout = built.loop.current()?.layout
     const area = taskGroupAreaOf(built.loop)
@@ -251,7 +251,7 @@ const FR_046_INK = '基準日線は、色を `_assets/tbl-settings.md` の 表 T
 const FR_046_EN_7 = '基準日線を描いているあいだ、基準日の入口（`_assets/tbl-glossary.md` の 表 T-109 の `IC-44`）を `FR-029` の 表 T-237 の `EN-7` で塗ること（MUST）'
 const FR_106_PK_10 = '基準日線の掴み代（表 T-023d の `GR-16`）と、パネルの境界の掴み帯（同表の `GR-22`）では、表 T-269 の `PK-10` とすること（MUST）'
 
-// see PK-10
+// Spec: PK-10
 const PK_10_SPELLING = /`([a-z-]+)`/.exec(verticalIn('T-269', 'PK-10').cells[1] ?? '')?.[1] ?? ''
 
 const localToday = (): string => {
@@ -274,7 +274,7 @@ describe('FR-046 / FR-106 -- the status-date line', () => {
   })
 
   it('FR-046: 基準日線が Task Group Area の横の中点に来るよう表示位置を横に送る -- without changing the zoom', () => {
-    // see FR-046
+    // Spec: FR-046
     const built = bench(documentOf(SEEDS, { zoomX: 1, zoomY: 1, scrollDate: '2020-01-06' }))
     const before = { ...built.settings() }
     built.press('Command Palette', 'IC-44')
@@ -288,7 +288,7 @@ describe('FR-046 / FR-106 -- the status-date line', () => {
   })
 
   it('FR-046: 縦の表示位置は動かさない -- scrollTaskGroupId and scrollTaskGroupFraction stay', () => {
-    // see FR-046
+    // Spec: FR-046
     const built = bench(documentOf(SEEDS, { scrollDate: '2020-01-06', scrollTaskGroupId: 'g2', scrollTaskGroupFraction: 0 }))
     const before = { ...built.settings() }
     built.press('Command Palette', 'IC-44')
@@ -297,7 +297,7 @@ describe('FR-046 / FR-106 -- the status-date line', () => {
   })
 
   it('FR-046: 色を S-163、太さを S-333 で描く', () => {
-    // see FR-046, S-163, S-333
+    // Spec: FR-046, S-163, S-333
     const document = documentOf(SEEDS)
     document.schedule.project.statusDate = '2026-05-01'
     const line = statusLineOf(bench(document).svg()) ?? ''
@@ -306,7 +306,7 @@ describe('FR-046 / FR-106 -- the status-date line', () => {
   })
 
   it('FR-046: 基準日線を描いているあいだ、IC-44 を EN-7 で塗る (S-183), and not while it is not drawn', () => {
-    // see FR-046, EN-7
+    // Spec: FR-046, EN-7
     expect(bare(verticalIn('T-237', 'EN-7').cells[1] ?? '')).toBe('S-183')
     const shownDocument = documentOf(SEEDS)
     shownDocument.schedule.project.statusDate = '2026-05-01'
@@ -317,19 +317,19 @@ describe('FR-046 / FR-106 -- the status-date line', () => {
   })
 
   it('FR-106 E-17: GR-16 は PK-10 -- the pointer on the status-date line is col-resize', () => {
-    // see FR-106, GR-16, PK-10
+    // Spec: FR-106, GR-16, PK-10
     const document = documentOf(SEEDS)
     document.schedule.project.statusDate = '2026-05-01'
     const built = bench(document)
     const line = statusLineOf(built.svg()) ?? ''
     const area = taskGroupAreaOf(built.loop)
-    // WHY: T-023d ranks GR-10 and GR-23 above GR-16, so the probe stands on the line below every task.
+    // Why: T-023d ranks GR-10 and GR-23 above GR-16, so the probe stands on the line below every task.
     built.move(Number(attrOf(line, 'x1')), area.y + area.height - 5)
     expect(String(built.shapes[built.shapes.length - 1])).toContain(PK_10_SPELLING)
   })
 
   it('FR-106 E-17: GR-22 は PK-10 -- the pointer on the Panel Divider band is col-resize', () => {
-    // see FR-106, GR-22, PK-10
+    // Spec: FR-106, GR-22, PK-10
     const built = bench(documentOf(SEEDS))
     const divider = built.view().frame.dividers[0]
     expect(divider, 'premise: the Task Group Panel boundary has a band').toBeDefined()
@@ -348,16 +348,16 @@ const DC_9_ENTER = '本モードに入るときは、`S-66` を `\'none\'` に�
 const DC_9_GUIDE_PRESSED = '本モードにいるあいだにガイドカーソルの入口を押したときは、本モードを出て（`DC-7` が 2 本を消す）、押した値を `S-66` に書くこと（MUST）'
 const DC_3_SIZE = '文字の大きさは `_assets/tbl-settings.md` の 表 T-206 の `S-334` とし、同表の `S-340` を下回らせない。'
 
-// see T-109
+// Spec: T-109
 const guideEntrance = (value: string): string => {
   const found = specTable('T-109').rows.filter((row) => (row.cells[2] ?? '').includes(`'${value}'`)).map((row) => row.id)
   if (found.length > 0) return found[0] as string
-  // WHY: IC-48 says 'same as above' before its value, which the filter above already finds.
+  // Why: IC-48 says 'same as above' before its value, which the filter above already finds.
   throw new Error(`table T-109 names no entrance for ${value}`)
 }
 const IC_CROSSHAIR = guideEntrance(GUIDE_CROSSHAIR)
 const IC_SINGLE = guideEntrance(GUIDE_SINGLE)
-// see FR-082, IC-45
+// Spec: FR-082, IC-45
 const IC_DUAL = 'IC-45'
 
 const paletteItem = (view: ScreenView, icon: string) =>
@@ -377,8 +377,8 @@ describe('FR-048 / DC-9 -- the dual cursor and the guide cursor are one exclusiv
   })
 
   it("DC-9: 本モードに入るときは、S-66 を 'none' にする", () => {
-    // see DC-9, S-66
-    // WHY: S-66 is a screen value (CR-572); the palette's chosen mark is where it shows.
+    // Spec: DC-9, S-66
+    // Why: S-66 is a screen value (CR-572); the palette's chosen mark is where it shows.
     const built = bench(documentOf(SEEDS))
     built.press('Command Palette', IC_CROSSHAIR)
     expect(paletteItem(built.view(), IC_CROSSHAIR)?.isChosen, 'premise: IC-47 armed the crosshair').toBe(true)
@@ -393,7 +393,7 @@ describe('FR-048 / DC-9 -- the dual cursor and the guide cursor are one exclusiv
     [IC_SINGLE, GUIDE_SINGLE],
   ] as const) {
     it(`DC-9 / DC-4: pressing ${icon} in the Dual Cursor mode leaves the mode, clears both lines (DC-7) and writes '${value}'`, () => {
-      // see DC-9, DC-4, DC-7
+      // Spec: DC-9, DC-4, DC-7
       const built = bench(documentOf(SEEDS))
       built.press('Command Palette', IC_DUAL)
       const area = taskGroupAreaOf(built.loop)
@@ -401,7 +401,7 @@ describe('FR-048 / DC-9 -- the dual cursor and the guide cursor are one exclusiv
       built.click(area.x + 200, area.y + 40)
       built.move(area.x + 400, area.y + 40)
       built.click(area.x + 400, area.y + 40)
-      // WHY: S-65 and S-66 are screen values (CR-572); the drawn lines and the palette's chosen mark show them.
+      // Why: S-65 and S-66 are screen values (CR-572); the drawn lines and the palette's chosen mark show them.
       expect(built.svg(), 'premise: the two lines were placed').toContain('dual-cursor-cursorA')
       built.press('Command Palette', icon)
       expect(paletteItem(built.view(), IC_DUAL)?.isChosen, 'DC-9: 本モードを出て').toBe(false)
@@ -413,7 +413,7 @@ describe('FR-048 / DC-9 -- the dual cursor and the guide cursor are one exclusiv
   }
 
   it('FR-048: CU-2 の線は、色を S-195、太さを S-194 で描く (the fixed line; the following one is SL-8 thicker)', () => {
-    // see FR-048, S-195, S-194, DC-8
+    // Spec: FR-048, S-195, S-194, DC-8
     const built = bench(documentOf(SEEDS))
     built.press('Command Palette', IC_DUAL)
     const area = taskGroupAreaOf(built.loop)
@@ -426,7 +426,7 @@ describe('FR-048 / DC-9 -- the dual cursor and the guide cursor are one exclusiv
   })
 
   it('FR-048: CU-3 の線は、色を S-195、太さを S-194 で描く (the guide cursor)', () => {
-    // see FR-048, S-195, S-194
+    // Spec: FR-048, S-195, S-194
     const built = bench(documentOf(SEEDS))
     built.press('Command Palette', IC_SINGLE)
     const area = taskGroupAreaOf(built.loop)
@@ -437,7 +437,7 @@ describe('FR-048 / DC-9 -- the dual cursor and the guide cursor are one exclusiv
   })
 
   it('DC-3: 文字の大きさは S-334 とし、S-340 を下回らせない -- max(S-340 px, S-334 em)', () => {
-    // see DC-3, S-334, S-340
+    // Spec: DC-3, S-334, S-340
     const built = stage()
     const layer = built.host.createElement('div') as unknown as FakeElement
     showPointTip(built.host, layer as unknown as HTMLElement, { lines: ['a', 'b', 'c'], at: { x: 10, y: 10 } })

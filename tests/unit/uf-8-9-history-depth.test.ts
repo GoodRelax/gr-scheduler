@@ -40,7 +40,7 @@ const S_95_ROW = rowOf('T-206', 'S-95')
 
 const S_94 = Number.parseInt(bare(S_94_ROW.by['既定'] ?? '').replace(/[^\d]/g, ''), 10)
 
-// WHY: the unit is read, not assumed -- FR-031 requires S-95 be counted in
+// Why: the unit is read, not assumed -- FR-031 requires S-95 be counted in
 // bytes, so a manuscript restating this row in another unit must reach here.
 const S_95_STATED = /`?(\d+)`?\s*(MB|KB|GB|B)\b/.exec(S_95_ROW.by['既定'] ?? '')
 if (S_95_STATED === null) {
@@ -49,7 +49,7 @@ if (S_95_STATED === null) {
 const S_95_NUMBER = Number.parseInt(S_95_STATED[1] ?? '', 10)
 const S_95_UNIT = S_95_STATED[2] ?? ''
 
-// WHY: parsed rather than assumed -- this is the sentence the shipped
+// Why: parsed rather than assumed -- this is the sentence the shipped
 // defect walked past, so a hand-written *1024*1024 could agree with a wrong manuscript.
 const MB_FACTOR = (() => {
   const said = /1\s*MB\s*=\s*(\d+)\s*×\s*(\d+)\s*バイト/.exec(S_95_ROW.by['保存しない理由'] ?? '')
@@ -61,7 +61,7 @@ const MB_FACTOR = (() => {
 
 const S_95_BYTES = S_95_NUMBER * MB_FACTOR
 
-// WHY: manuscript-to-manuscript -- table T-027's UN-16 names FR- ids, and
+// Why: manuscript-to-manuscript -- table T-027's UN-16 names FR- ids, and
 // table T-108's own column says which command owns each one.
 const UN_16_REQUIREMENTS = [
   ...new Set((rowOf('T-027', 'UN-16').by['操作'] ?? '').match(/FR-\d+/g) ?? []),
@@ -102,14 +102,14 @@ function templateDocument(): Document {
 
 const START = templateDocument()
 
-// WHY: Buffer.byteLength(..., 'utf8') is the encoded length FR-031 asks
+// Why: Buffer.byteLength(..., 'utf8') is the encoded length FR-031 asks
 // for -- never .length, which counts characters, which the same clause forbids.
 const STEP_BYTES = Buffer.byteLength(jsonFromDocument(START), 'utf8')
 
 const FIRST_GROUP_ID = START.schedule.taskGroups[0]?.id ?? ''
 const FIRST_TASK_UID = START.schedule.tasks[0]?.uid ?? 0
 
-// WHY: LY-5 keeps these outside the three inner layers, so they arrive as
+// Why: LY-5 keeps these outside the three inner layers, so they arrive as
 // arguments; the values are wide enough that no case below is refused by them.
 const SETTINGS_LIMITS: SettingsLimits = {
   zoomMin: 0.02,
@@ -135,7 +135,7 @@ interface Bench {
 }
 
 function bench(limits: HistoryLimits = REAL_LIMITS): Bench {
-  // TRAP: resetting this per call of writeNames, not per bench, would let a
+  // Trap: resetting this per call of writeNames, not per bench, would let a
   // second call rewrite "edit 1" over "edit 1" and add no step at all.
   namesWritten = 0
   let held: HeldDocument = { document: START, history: emptyHistory<ChangeStep>() }
@@ -147,7 +147,7 @@ function bench(limits: HistoryLimits = REAL_LIMITS): Bench {
       held = next
     },
   }
-  // WHY: nothing in this file watches WS-7's delivery, so the audience
+  // Why: nothing in this file watches WS-7's delivery, so the audience
   // only has to exist; what it is told is uf-27-28-29's case.
   const audience: ChangeAudience = { deliver: () => {} }
 
@@ -177,7 +177,7 @@ function bench(limits: HistoryLimits = REAL_LIMITS): Bench {
   }
 }
 
-// WHY: the cast is the price of reading CM_9 from the manuscript instead of
+// Why: the cast is the price of reading CM_9 from the manuscript instead of
 // typing it; a renamed row surfaces as a refused write, not a compile error.
 let namesWritten = 0
 
@@ -193,11 +193,11 @@ function writeNames(one: Bench, nth: number): void {
   }
 }
 
-// WHY: each value differs from the bundled document's own, so a command
+// Why: each value differs from the bundled document's own, so a command
 // that changed nothing could not hide behind table T-027 for a different reason.
 const PAYLOAD: Readonly<Record<string, DocumentCommand>> = {
   setTaskGroupPanelWidthPx: { kind: 'setTaskGroupPanelWidthPx', taskGroupPanelWidthPx: 200 },
-  // see CM-91, WF-1
+  // Spec: CM-91, WF-1
   setTaskGroupPanelWidthFixed: { kind: 'setTaskGroupPanelWidthFixed', isTaskGroupPanelWidthFixed: true },
   pinTaskGroup: { kind: 'pinTaskGroup', taskGroupId: FIRST_GROUP_ID },
   unpinTaskGroup: { kind: 'unpinTaskGroup', taskGroupId: FIRST_GROUP_ID },
@@ -267,7 +267,7 @@ describe('FR-031 / S-94 -- 段数の上限は、実際の書き込みを通し�
 
 describe('FR-031 / S-95 -- 合計メモリの上限は MB で書かれ、バイトで数えられる', () => {
   it('S-95: one 段 of the bundled document already exceeds S-95 read as a bare byte count', () => {
-    // WHY: a document too small would make S-95-as-bytes and S-95-as-MB
+    // Why: a document too small would make S-95-as-bytes and S-95-as-MB
     // keep the same depth, hiding the defect -- which is why BT-4 is used.
     expect(STEP_BYTES).toBeGreaterThan(NOT_STORED_LIMITS['S-95'])
   })
@@ -282,7 +282,7 @@ describe('FR-031 / S-95 -- 合計メモリの上限は MB で書かれ、バイ�
   })
 
   it('S-95: handed over unconverted, the bound is S-95 バイト and the history collapses below S-94', () => {
-    // TRAP: FR-031 says the COUNT is bytes; it does not say the VALUE is,
+    // Trap: FR-031 says the COUNT is bytes; it does not say the VALUE is,
     // and S-95's own default cell says MB -- confusing the two silently regresses this.
     const one = bench({ maxSteps: S_94, maxTotalSizeBytes: NOT_STORED_LIMITS['S-95'] })
     writeNames(one, S_94 + 3)
@@ -290,7 +290,7 @@ describe('FR-031 / S-95 -- 合計メモリの上限は MB で書かれ、バイ�
   })
 
   it('S-95: the 合計 is measured against the document, so a wider bound keeps more 段', () => {
-    // WHY: exact counts are not asserted because FR-031 leaves the serial
+    // Why: exact counts are not asserted because FR-031 leaves the serial
     // form of a step open; only the shape (wider bound, more steps) is settled.
     const narrow = bench({ maxSteps: S_94, maxTotalSizeBytes: STEP_BYTES * 3 })
     writeNames(narrow, 20)
@@ -312,7 +312,7 @@ describe('FR-031 / 表 T-027 -- 対象と対象外を、同じ書き込みの経
     expect(one.depth()).toBe(1)
   })
 
-  // WHY: CR-690 -- UN-16 also names the width's fix (table T-368), which CM-91 writes.
+  // Why: CR-690 -- UN-16 also names the width's fix (table T-368), which CM-91 writes.
   it('UN-16 names one requirement, and table T-108 gives it the width and its fix', () => {
     expect(UN_16_REQUIREMENTS.sort()).toEqual(['FR-052'])
     expect(UN_16_COMMANDS.map((oneCell) => oneCell.commandRow)).toEqual(['CM-67', 'CM-91'])
@@ -322,7 +322,7 @@ describe('FR-031 / 表 T-027 -- 対象と対象外を、同じ書き込みの経
     for (const command of UN_16_COMMANDS) {
       it(`UN-16 / ${command.commandRow} \`${command.kind}\` (${command.requirement}): changes the document and leaves NO 段`, () => {
         const one = bench()
-        // WHY: unpinning needs something pinned first; pinning is itself
+        // Why: unpinning needs something pinned first; pinning is itself
         // out of scope, so the history is still empty for this case's own write.
         if (command.kind === 'unpinTaskGroup') {
           const pinned = one.write([PAYLOAD['pinTaskGroup'] as DocumentCommand])

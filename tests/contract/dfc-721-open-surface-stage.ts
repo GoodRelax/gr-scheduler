@@ -26,8 +26,8 @@ interface RawMachine {
   readonly states: readonly { readonly key: string; readonly carries: readonly Carried[] }[]
 }
 
-// see T-280
-// WHY: the table is read from its manuscript docs/spec/_source/state-machines.json
+// Spec: T-280
+// Why: the table is read from its manuscript docs/spec/_source/state-machines.json
 export const OPEN_SURFACE_ROWS: readonly string[] = (() => {
   const regions = (readStateMachineView() as {
     readonly regions: readonly { readonly machines?: readonly RawMachine[] }[]
@@ -41,16 +41,16 @@ export const OPEN_SURFACE_ROWS: readonly string[] = (() => {
   return rows
 })()
 
-// see T-103
-// WHY: the settled English name of a U row
+// Spec: T-103
+// Why: the settled English name of a U row
 export const nameOfRow = (row: string): string => {
   const found = specTable('T-103').rows.find((one) => one.id === row)
   if (found === undefined) throw new Error(`table T-103 has no row ${row}`)
   return bare(found.by['確定名（英）'] ?? '')
 }
 
-// see T-103
-// WHY: every settled English name a row states (a cell may state more than one)
+// Spec: T-103
+// Why: every settled English name a row states (a cell may state more than one)
 export const namesOfRow = (row: string): readonly string[] =>
   bareAll(specTable('T-103').rows.find((one) => one.id === row)?.by['確定名（英）'] ?? '')
 
@@ -58,8 +58,8 @@ export const T_103_ROWS: readonly string[] = specTable('T-103').rows.map((one) =
 
 type Words = Readonly<Record<string, string>>
 
-// see FR-038
-// WHY: the dictionary manuscript's surfaces section, heading per settled name
+// Spec: FR-038
+// Why: the dictionary manuscript's surfaces section, heading per settled name
 export const SURFACE_HEADINGS: ReadonlyMap<string, Words> = new Map(
   (
     JSON.parse(readFileSync(join(SOURCE, 'display-words.json'), 'utf8')) as {
@@ -92,7 +92,7 @@ const READINGS = {
 
 const NO_TABLE_VIEW = { columnFilters: [], shownTaskUids: [], isScheduleFilterApplied: false, sort: null }
 
-// TRAP: SETTINGS is the flat SETTINGS_DEFAULTS, so the windows' table views are put in here.
+// Trap: SETTINGS is the flat SETTINGS_DEFAULTS, so the windows' table views are put in here.
 const SETTINGS_WITH_VIEWS = {
   ...SETTINGS,
   tableViews: { searchPanel: NO_TABLE_VIEW, delayDiagnosticsReport: NO_TABLE_VIEW },
@@ -104,8 +104,8 @@ export const sessionWith = (language: DisplayLanguage, screen: Readonly<Record<s
     screen: { ...emptyScreenSession.screen, screenLanguage: language, helpLanguage: language, ...screen },
   }) as unknown as ScreenSession
 
-// see S-99g
-// WHY: the screen with the open surface state open on `surfaceName`
+// Spec: S-99g
+// Why: the screen with the open surface state open on `surfaceName`
 export const sessionOpenOn = (surfaceName: string, language: DisplayLanguage): ScreenSession =>
   sessionWith(language, { openSurfaceState: { kind: 'open', surfaceName } })
 

@@ -313,7 +313,7 @@ function richDocument(edit: (draft: any) => void = () => {}): Document {
           anchorHighlightBoxId: null,
           anchorSnapPoint: null,
           bodyOffsetPx: null,
-          // WHY: fig-erd-detail AT-148..AT-152 and AT-168 are columns of the CommentBox, each nullable.
+          // Why: fig-erd-detail AT-148..AT-152 and AT-168 are columns of the CommentBox, each nullable.
           strokeColor: null,
           strokeWidthPx: null,
           fillColor: null,
@@ -331,7 +331,7 @@ function richDocument(edit: (draft: any) => void = () => {}): Document {
           bottomTaskGroupId: ALPHA,
           strokeColor: null,
           cornerRadiusPx: null,
-          // WHY: fig-erd-detail AT-145..AT-147 (null = the T-217 default, FR-019).
+          // Why: fig-erd-detail AT-145..AT-147 (null = the T-217 default, FR-019).
           strokeWidthPx: null,
           fillColor: null,
           fillTransparencyPercent: null,

@@ -8,12 +8,12 @@ const ERP = 'sample-large-erp-program.ja.xml'
 const EDITED_UID = 2
 const EDITED_NAME = 'Renamed in GRS'
 
-// see T-228
+// Spec: T-228
 const mspdiDifferences = (page: Page, left: string, right: string, namespaceBlind = false): Promise<string[]> =>
   page.evaluate(
     ({ left, right, namespaceBlind }) => {
-      // see NR-7, DV-12
-      // WHY: Project/LastSaved is made at every write, so it is dropped from both sides first.
+      // Spec: NR-7, DV-12
+      // Why: Project/LastSaved is made at every write, so it is dropped from both sides first.
       const parse = (text: string) => {
         const root = new DOMParser().parseFromString(text, 'application/xml').documentElement
         for (const made of [...root.children].filter((k) => k.localName === 'LastSaved' && k.namespaceURI === root.namespaceURI)) made.remove()
@@ -90,7 +90,7 @@ test('UC-010 exchange with an external WBS master (FR-087 OP-3 OP-5, FR-023, FR-
     await settle(page)
   })
 
-  // WHY: a dropped file opens as a replace without U-56 (OP-19), so the author who wants the choice opens through IC-1.
+  // Why: a dropped file opens as a replace without U-56 (OP-19), so the author who wants the choice opens through IC-1.
   await test.step('UC-010 step 1: the author opens an MSPDI file through the file dialog (FR-087 OP-2)', async () => {
     await openThroughIc1(page, ERP, original, null)
   })

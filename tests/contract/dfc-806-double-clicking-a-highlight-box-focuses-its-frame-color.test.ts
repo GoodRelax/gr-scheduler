@@ -29,20 +29,20 @@ const verticalIn = (table: string, id: string) => {
   return found
 }
 
-// see T-023, MK-13
+// Spec: T-023, MK-13
 const MK_13 = verticalIn('T-023', 'MK-13').cells.join(' ')
 // see JDG-410, DFC-806
-// TRAP: red until the MK-13 edit lands; the wording is the one the implementer was briefed to write.
+// Trap: red until the MK-13 edit lands; the wording is the one the implementer was briefed to write.
 const MK_13_HIGHLIGHT_BOX =
   'ハイライトボックス ＝ プロパティパネルを出し、枠の色の欄（表 T-016 の `PR-22`）に焦点を置くこと（MUST）'
 const MK_13_COMMENT_BOX = '本文の欄（表 T-016 の `PR-21`）を編集できる状態にして焦点を置くこと（MUST）'
 
-// see T-016, PR-21, PR-22
+// Spec: T-016, PR-21, PR-22
 const PR_21 = verticalIn('T-016', 'PR-21')
 const PR_22 = verticalIn('T-016', 'PR-22')
 const BODY_ROW = PR_21.id
 const FRAME_ROW = PR_22.id
-// see T-103, U-25
+// Spec: T-103, U-25
 const PROPERTIES_PANEL = bare(verticalIn('T-103', 'U-25').by['確定名（英）'] ?? '')
 
 const GLOBAL = globalThis as unknown as Record<string, unknown>
@@ -59,11 +59,11 @@ const TASK_GROUPS = [
   { id: 'g4', parentId: null },
   { id: 'g5', parentId: null },
 ]
-// WHY: tasks only on g1..g3; the comment box stands on g5, clear of every bar and of the highlight box.
+// Why: tasks only on g1..g3; the comment box stands on g5, clear of every bar and of the highlight box.
 const TASKED_TASK_GROUPS = TASK_GROUPS.slice(0, 3)
 const OPENER_TASK_UID = 3
 
-// WHY: the highlight box starts and ends outside the bars, so its left edge is not a bar's end (GA-3 / GA-4).
+// Why: the highlight box starts and ends outside the bars, so its left edge is not a bar's end (GA-3 / GA-4).
 const HIGHLIGHT = {
   id: 'h1',
   start: '2026-04-02T08:00:00',
@@ -102,7 +102,7 @@ interface Point {
 interface Bench {
   readonly loop: FrameLoop
   readonly built: Stage
-  // WHY: every row the focus seam was asked for, in order.
+  // Why: every row the focus seam was asked for, in order.
   readonly asked: string[]
   click(at: Point): void
   doubleClick(at: Point): void
@@ -121,7 +121,7 @@ function fieldDrawn(built: Stage, row: string): boolean {
 }
 
 interface BenchOptions {
-  // WHY: false stands a fake host in for the seam; true wires the DOM surface's own focusPropertyField, as the shell does.
+  // Why: false stands a fake host in for the seam; true wires the DOM surface's own focusPropertyField, as the shell does.
   readonly realFocus?: boolean
   readonly strokeColor?: string | null
 }
@@ -156,7 +156,7 @@ function bench(options: BenchOptions = {}): Bench {
   const loop = frameLoop({ showSvg: () => undefined } as never, documentOf(options.strokeColor ?? null) as never, SCREEN, {
     surface,
     language: 'ja',
-    // WHY: stands in for the host: a drawn field takes the focus (true); a field the panel did not draw is not there (null).
+    // Why: stands in for the host: a drawn field takes the focus (true); a field the panel did not draw is not there (null).
     focusPropertyField: (row: string) => {
       asked.push(row)
       if (options.realFocus === true) return held === null ? null : (held as (row: string) => boolean)(row)
@@ -176,7 +176,7 @@ function bench(options: BenchOptions = {}): Bench {
       send(pointerOf('down', at.x, at.y))
       send(pointerOf('up', at.x, at.y))
     },
-    // WHY: both clicks are sent, as a browser delivers them: clickCount 1 chooses, clickCount 2 is MK-13's.
+    // Why: both clicks are sent, as a browser delivers them: clickCount 1 chooses, clickCount 2 is MK-13's.
     doubleClick: (at) => {
       send(pointerOf('down', at.x, at.y))
       send(pointerOf('up', at.x, at.y))
@@ -193,16 +193,16 @@ const geometryOf = (built: Bench) => {
   return found
 }
 
-// see GR-14
-// WHY: a highlight box is grabbed on its frame and corners, so the press lands on the left edge.
+// Spec: GR-14
+// Why: a highlight box is grabbed on its frame and corners, so the press lands on the left edge.
 function onTheHighlightFrame(built: Bench): Point {
   const box = geometryOf(built).highlightBoxes.find((one) => one.id === HIGHLIGHT.id)?.box
   if (box === undefined) throw new Error('the highlight box is not drawn')
   return { x: box.x, y: box.y + box.height / 2 }
 }
 
-// see GR-14
-// WHY: a comment box is grabbed on its body.
+// Spec: GR-14
+// Why: a comment box is grabbed on its body.
 function onTheCommentBody(built: Bench): Point {
   const body = geometryOf(built).commentBoxes.find((one) => one.id === COMMENT.id)?.body
   if (body === undefined) throw new Error('the comment box is not drawn')
@@ -242,7 +242,7 @@ describe('the manuscript and the ruling these cases read', () => {
 
 describe('MK-13 (JDG-410) -- a double click on a highlight box focuses its frame color field', () => {
   it('MUST: the panel is put up and it draws the frame color field', () => {
-    // see MK-13, PR-22
+    // Spec: MK-13, PR-22
     const built = bench()
     built.doubleClick(onTheHighlightFrame(built))
     expect(built.view().propertiesPanel, 'the panel is up').not.toBeNull()
@@ -251,7 +251,7 @@ describe('MK-13 (JDG-410) -- a double click on a highlight box focuses its frame
   })
 
   it('MUST: the focus is asked for PR-22 and for no other field', () => {
-    // see MK-13, PR-22, IN-5a
+    // Spec: MK-13, PR-22, IN-5a
     const built = bench()
     built.doubleClick(onTheHighlightFrame(built))
     expect(built.asked.at(-1), 'the last field asked for').toBe(FRAME_ROW)
@@ -261,15 +261,15 @@ describe('MK-13 (JDG-410) -- a double click on a highlight box focuses its frame
 
 describe('the controls -- what a repair that went too far would break', () => {
   it('a single click on the highlight box, with no panel up, asks for no field', () => {
-    // see MK-13
-    // WHY: only the double click places the focus.
+    // Spec: MK-13
+    // Why: only the double click places the focus.
     const built = bench()
     built.click(onTheHighlightFrame(built))
     expect(built.asked).toEqual([])
   })
 
   it('a single click on the highlight box while the panel is up shows PR-22 but does not move the focus into it', () => {
-    // see MK-13, FR-072
+    // Spec: MK-13, FR-072
     const built = bench()
     built.doubleClick(onTheOpenerTask(built))
     const before = [...built.asked]
@@ -280,7 +280,7 @@ describe('the controls -- what a repair that went too far would break', () => {
   })
 
   it('a double click on a comment box still focuses its body field (PR-21), not PR-22', () => {
-    // see MK-13, PR-21, FR-097
+    // Spec: MK-13, PR-21, FR-097
     const built = bench()
     built.doubleClick(onTheCommentBody(built))
     expect(built.view().propertiesPanel, 'the panel is up').not.toBeNull()
@@ -288,8 +288,8 @@ describe('the controls -- what a repair that went too far would break', () => {
   })
 })
 
-// see T-016
-// WHY: the field row an element belongs to, read off itself or the nearest ancestor that carries one.
+// Spec: T-016
+// Why: the field row an element belongs to, read off itself or the nearest ancestor that carries one.
 function fieldRowOf(element: FakeElement | null): string | null {
   for (let at = element; at !== null; at = at.parentNode) {
     const row = at.getAttribute('data-field-row')
@@ -318,7 +318,7 @@ const CUSTOM_STROKE = '#123456'
 
 describe('MK-13 (JDG-410) through the real seam -- the focus lands in the frame color field', () => {
   it('no stroke color set: the focus lands on the pressed control of the PR-22 field', () => {
-    // see MK-13, PR-22, CV-9
+    // Spec: MK-13, PR-22, CV-9
     const built = bench({ realFocus: true })
     built.doubleClick(onTheHighlightFrame(built))
     const active = built.built.world.activeElement
@@ -341,7 +341,7 @@ describe('MK-13 (JDG-410) through the real seam -- the focus lands in the frame 
   })
 
   it('control: a double click on a comment box puts the focus on the PR-21 text control', () => {
-    // see MK-13, PR-21, FR-097
+    // Spec: MK-13, PR-21, FR-097
     const built = bench({ realFocus: true })
     built.doubleClick(onTheCommentBody(built))
     const active = built.built.world.activeElement
@@ -351,7 +351,7 @@ describe('MK-13 (JDG-410) through the real seam -- the focus lands in the frame 
   })
 
   it('control: a single click on the highlight box moves no focus into the panel', () => {
-    // see MK-13
+    // Spec: MK-13
     const built = bench({ realFocus: true })
     built.click(onTheHighlightFrame(built))
     const active = built.built.world.activeElement

@@ -7,7 +7,7 @@ export const SETTINGS_SOURCE = JSON.parse(
   readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'settings.json'), 'utf8'),
 ) as Record<string, unknown>
 
-// see T-206
+// Spec: T-206
 export function settingRow(id: string): Record<string, any> {
   let found: Record<string, any> | undefined
   const walk = (node: unknown): void => {
@@ -28,7 +28,7 @@ export function settingRow(id: string): Record<string, any> {
   return found
 }
 
-// see T-206
+// Spec: T-206
 export function settingNumber(id: string): number {
   const row = settingRow(id)
   const value = Number(row['default']?.['num'] ?? row['value']?.['num'])
@@ -39,7 +39,7 @@ export function settingNumber(id: string): number {
 const GENERATED_REGION = /\/\/ <generated -- do not edit by hand>([\s\S]*?)\/\/ <\/generated>/g
 const ROW_VALUE = /^\s*'(S-\d+[a-z]?)': (\[[^\]]*\]|-?[\d.]+),?$/
 
-// WHY: JDG-139 stage 2 -- a test checking the generator reads the printed text, so no constant stays exported for tests.
+// Why: JDG-139 stage 2 -- a test checking the generator reads the printed text, so no constant stays exported for tests.
 export function generatedConstantOf(
   file: string,
   name: string,

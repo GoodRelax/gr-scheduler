@@ -1,4 +1,4 @@
-// UndoEdit: one step back through the edit history.
+// File: UndoEdit: one step back through the edit history.
 // @unit      UF-20  (docs/spec/05-07-design.md, table T-075)
 // @component UndoEdit, layer UseCase (table T-062)
 // @purity    pure
@@ -10,8 +10,8 @@ import { previousStep, type EditHistory } from '../../entity/document-model/edit
 export interface ChangeStep {
   readonly document: Document
   readonly commands: readonly string[]
-  // see AG-10, ED-2
-  // WHY: optional so a step built before AM-9 still reads; a step naming no writer is nobody's own (AM-9, AM-10).
+  // Spec: AG-10, ED-2
+  // Why: optional so a step built before AM-9 still reads; a step naming no writer is nobody's own (AM-9, AM-10).
   readonly editedBy?: string
 }
 
@@ -31,7 +31,7 @@ export type UndoOutcome =
       readonly commands: readonly string[]
     }
 
-// see FR-031, PI-11
+// Spec: FR-031, PI-11
 /** @purity pure */
 export function undoEdit(held: HeldDocument): UndoOutcome {
   const moved = previousStep(held.history, (step) => ({ ...step, document: held.document }))

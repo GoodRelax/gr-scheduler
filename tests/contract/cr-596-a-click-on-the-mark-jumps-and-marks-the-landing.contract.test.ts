@@ -62,7 +62,7 @@ const STATE_MACHINES = unbroken(
   readFileSync(join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-state-machines.md'), 'utf8'),
 )
 
-// see T-201, T-206, T-236
+// Spec: T-201, T-206, T-236
 const T201 = (id: string): number => numberIn(cellOf('T-201', id, '既定値'))
 const T206 = (id: string): number => numberIn(cellOf('T-206', id, '既定'))
 const colorOf = (id: string, column: string): string => cellOf('T-236', id, column).replace(/`/g, '').trim().toLowerCase()
@@ -177,7 +177,7 @@ const T_280_CLICKED = '| `screen/continuationMarkClicked` | → `shown` | → �
 const T_280_CLEARED = '| `screen/landingMarkClearAsked` | — | → `hidden` |'
 const T_280_OTHERS = '表に無い出来事は `landingMarkDisplayStateMachine` を変えない（同じ参照）。'
 const T_280_HIDDEN_FIRST = '`landingMarkDisplayStateMachine.hidden` —— 初期。'
-// WHY: CR-767 drew the state diagrams from the manuscript (fig-sm-<machine>.svg), so the T-328
+// Why: CR-767 drew the state diagrams from the manuscript (fig-sm-<machine>.svg), so the T-328
 // transition hidden --taskGroupRevealAsked--> expanded is read from the manuscript itself.
 const T_328_FIGURE = '[![treeStateMachine](fig-sm-treeStateMachine.svg)](fig-sm-treeStateMachine.svg)'
 type TreeBranch = { readonly to?: string }
@@ -269,12 +269,12 @@ describe('CR-596 -- the manuscript these cases are driven by', () => {
 })
 
 const DRAW_RATIO_AT_100 = T206('S-236')
-// see FR-039, T-252
+// Spec: FR-039, T-252
 const ratioAt = (displayScale: number): number => (DRAW_RATIO_AT_100 * displayScale) / 100
 const LINE_WIDTH = (displayScale = 100): number => T201('S-18') * ratioAt(displayScale)
-// see SL-8, EL-16, S-447
+// Spec: SL-8, EL-16, S-447
 const EMPHASIZED_WIDTH = (displayScale = 100): number => LINE_WIDTH(displayScale) + T206('S-447')
-// see SL-8, S-39, S-447
+// Spec: SL-8, S-39, S-447
 const OUTLINE_WIDTH = (displayScale = 100): number => T201('S-39') * ratioAt(displayScale) + T206('S-447')
 const DRAG_PAST = T206('S-208') * 5
 
@@ -283,7 +283,7 @@ const S_54 = T201('S-54')
 const S_55 = T201('S-55')
 const S_87 = numberIn(cellOf('T-205', 'S-87', '既定'))
 const S_88 = numberIn(cellOf('T-205', 'S-88', '既定'))
-// see FR-018, T-205
+// Spec: FR-018, T-205
 const thresholdOf = (depth: number): number => S_87 * S_88 ** (depth - 2)
 
 type Loose = Record<string, unknown>
@@ -426,7 +426,7 @@ type LandingState =
     }
 
 const HIDDEN: LandingState = { kind: 'hidden' }
-// WHY: CR-728 named the far end landedTarget and the source landedBy (SJ-10 shares the machine);
+// Why: CR-728 named the far end landedTarget and the source landedBy (SJ-10 shares the machine);
 // CR-731 added landedRelatedTasks (RW-13), empty for the continuation mark.
 const landed = (predecessorUid: number, successorUid: number, landedTaskUid: number): LandingState => ({
   kind: 'shown',
@@ -508,7 +508,7 @@ const markOf = (scene: Scene, predecessorUid: number, successorUid: number): Pt 
   return dots[1]!
 }
 
-// see EL-7, EL-8, EL-20
+// Spec: EL-7, EL-8, EL-20
 const firstRiseOf = (drawn: readonly Pt[]): 'up' | 'down' | 'none' => {
   for (let at = 1; at < drawn.length; at += 1) {
     const dy = drawn[at]!.y - drawn[at - 1]!.y
@@ -528,7 +528,7 @@ interface Released {
   readonly selection: Selection
 }
 
-// WHY: the press and its release read as the shell hands them over; a second click is read with the
+// Why: the press and its release read as the shell hands them over; a second click is read with the
 // double-click reading (the TRAP on PointerPress.hit).
 const release = (scene: Scene, at: Pt, clickCount = 1, to: Pt = at): Released => {
   const hit = itemAtPointer(scene.context.geometry, at.x, at.y, grabSizesOf(), clickCount >= 2 ? 'doubleClick' : 'press')
@@ -571,7 +571,7 @@ const itemsOf = (selection: Selection): readonly Loose[] => (selection as unknow
 const TASK_1 = selectionWith(emptySelection(), { kind: 'task', uid: 1 })
 const LINE_1_2 = selectionWith(emptySelection(), { kind: 'dependency', successorUid: 2, ordinal: 0 })
 
-// see EL-4
+// Spec: EL-4
 const offRight = (selection?: Selection, landing?: LandingState, settings: Loose = {}): Scene =>
   sceneOf(
     {
@@ -587,7 +587,7 @@ const offRight = (selection?: Selection, landing?: LandingState, settings: Loose
     landing,
   )
 
-// see EL-3
+// Spec: EL-3
 const bothSeen = (selection?: Selection, landing?: LandingState, settings: Loose = {}): Scene =>
   sceneOf(
     {
@@ -604,7 +604,7 @@ const bothSeen = (selection?: Selection, landing?: LandingState, settings: Loose
     landing,
   )
 
-// see EL-6
+// Spec: EL-6
 const neitherSeen = (landing?: LandingState): Scene =>
   sceneOf(
     {
@@ -620,7 +620,7 @@ const neitherSeen = (landing?: LandingState): Scene =>
     landing,
   )
 
-// see EL-20
+// Spec: EL-20
 const FOLDED: SceneSpec = {
   groups: [['a', null], ['a1', 'a', 'collapsed'], ['a11', 'a1'], ['z', null]],
   tasks: [
@@ -630,7 +630,7 @@ const FOLDED: SceneSpec = {
 }
 const FOLDED_OPEN: SceneSpec = { ...FOLDED, groups: [['a', null], ['a1', 'a'], ['a11', 'a1'], ['z', null]] }
 
-// see EL-20
+// Spec: EL-20
 const HIDDEN_OWN: SceneSpec = {
   groups: [['a', null], ['p', null], ['b', 'p', 'hidden'], ['z', null]],
   tasks: [
@@ -639,7 +639,7 @@ const HIDDEN_OWN: SceneSpec = {
   ],
 }
 
-// see EL-20
+// Spec: EL-20
 const HIDDEN_AND_FOLDED: SceneSpec = {
   groups: [['a', null], ['p', null], ['h', 'p', 'hidden'], ['k', 'h', 'collapsed'], ['c', 'k'], ['z', null]],
   tasks: [
@@ -648,7 +648,7 @@ const HIDDEN_AND_FOLDED: SceneSpec = {
   ],
 }
 
-// see EL-20
+// Spec: EL-20
 const HIDDEN_AT_THE_TOP: SceneSpec = {
   groups: [['a', null], ['b', null, 'hidden'], ['z', null]],
   tasks: [
@@ -657,7 +657,7 @@ const HIDDEN_AT_THE_TOP: SceneSpec = {
   ],
 }
 
-// WHY: the seen end sits in the second drawn task group, so the upward mark stays inside the Task Group Area.
+// Why: the seen end sits in the second drawn task group, so the upward mark stays inside the Task Group Area.
 const HIDDEN_FIRST_AT_THE_TOP: SceneSpec = {
   groups: [['b', null, 'hidden'], ['y', null], ['a', null], ['z', null]],
   tasks: [
@@ -666,7 +666,7 @@ const HIDDEN_FIRST_AT_THE_TOP: SceneSpec = {
   ],
 }
 
-// see EL-20
+// Spec: EL-20
 const HIDDEN_BETWEEN_AT_THE_TOP: SceneSpec = {
   groups: [['a', null], ['b', null, 'hidden'], ['c', null], ['z', null]],
   tasks: [
@@ -678,10 +678,10 @@ const HIDDEN_BETWEEN_AT_THE_TOP: SceneSpec = {
 const PINNED_KEY = bare(cellOf('T-203', 'S-126', 'キー'))
 const LEVEL_ZERO_KEY = bare(cellOf('T-203', 'S-418', 'キー'))
 
-// see EL-20, S-126
+// Spec: EL-20, S-126
 const HIDDEN_PINNED_AT_THE_TOP: SceneSpec = { ...HIDDEN_AT_THE_TOP, settings: { [PINNED_KEY]: ['b'] } }
 
-// see EL-20
+// Spec: EL-20
 const FOLDED_AND_LOD: SceneSpec = {
   groups: [['a', null], ['a1', 'a', 'collapsed'], ['a11', 'a1'], ['a111', 'a11'], ['z', null]],
   tasks: [
@@ -691,7 +691,7 @@ const FOLDED_AND_LOD: SceneSpec = {
   settings: { zoomY: 0.4 },
 }
 
-// see EL-2, EL-10
+// Spec: EL-2, EL-10
 const DEEP: SceneSpec = {
   groups: [['a', null], ['a1', 'a'], ['a11', 'a1'], ['b', null]],
   tasks: [
@@ -767,8 +767,8 @@ describe(`(a) PE-12 -- one still click on the mark: ${PE_12_SEND}`, () => {
 
   it(`control: a still release on the line itself (not the mark) selects the line (${PE_12_SELECTS})`, () => {
     const scene = bothSeen()
-    // WHY: T-222 RP-2 now bends 4 times; its first drop is shared with line 1 -> 3 (LF-5) and stands on
-    // WHY: Task 1's marker box (HT-3), so the press takes the last drop at x2, which only this line has.
+    // Why: T-222 RP-2 now bends 4 times; its first drop is shared with line 1 -> 3 (LF-5) and stands on
+    // Why: Task 1's marker box (HT-3), so the press takes the last drop at x2, which only this line has.
     const route = lineOf(scene, 1, 2).points
     expect(route.length - 2, 'premise: T-222 RP-2 bends 4 times').toBe(4)
     const a = route[3]!
@@ -1013,7 +1013,7 @@ describe(`(b) EL-20 -- ${EL_20_STAND}`, () => {
   })
 })
 
-// WHY: the SVG prints two decimals.
+// Why: the SVG prints two decimals.
 const SVG_EPS = 0.006
 
 interface Element {
@@ -1029,13 +1029,13 @@ const attrOf = (attrs: string, name: string): string | null => {
 
 const parsed = new Map<string, readonly Element[]>()
 
-// see T-020
+// Spec: T-020
 const elementsOf = (svg: string): readonly Element[] => {
   const held = parsed.get(svg)
   if (held !== undefined) return held
   const out: Element[] = []
   const groups: (string | null)[] = []
-  // WHY: a marker is a definition, not a drawn thing; its ink is read through the line that uses it.
+  // Why: a marker is a definition, not a drawn thing; its ink is read through the line that uses it.
   const drawn = svg.replace(/<marker\b[\s\S]*?<\/marker>/g, '')
   for (const match of drawn.matchAll(/<(\/?)([a-zA-Z]+)([^>]*?)(\/?)>/g)) {
     const [, closing, tag, attrs, selfClosing] = match
@@ -1096,7 +1096,7 @@ const svgOf = (scene: Scene, picture: 'screen' | 'export' = 'screen', landing: L
 const inkedLines = (svg: string, theme: Theme): readonly Element[] =>
   elementsOf(svg).filter((one) => one.tag === 'polyline' && strokeOf(one) === themed('S-159', theme))
 
-// WHY: an emphasized line keeps S-159 (SL-8, EL-16), so only its width tells it apart.
+// Why: an emphasized line keeps S-159 (SL-8, EL-16), so only its width tells it apart.
 const isEmphasized = (one: Element, displayScale = 100): boolean =>
   Math.abs(widthOf(one) - EMPHASIZED_WIDTH(displayScale)) <= SVG_EPS
 
@@ -1139,7 +1139,7 @@ const boxOfElement = (one: Element): Rect => {
   return { x: Math.min(...xs), y: Math.min(...ys), width: Math.max(...xs) - Math.min(...xs), height: Math.max(...ys) - Math.min(...ys) }
 }
 
-// see T-020, ZO-1
+// Spec: T-020, ZO-1
 const planFiguresOf = (svg: string, uid: number): readonly Element[] =>
   elementsOf(svg).filter((one) => attrOf(one.attrs, 'data-figure') === `task-${uid}-plan`)
 
@@ -1168,13 +1168,13 @@ const verticesOf = (one: Element): readonly Pt[] => {
 const sameVertices = (a: readonly Pt[], b: readonly Pt[]): boolean =>
   a.length > 0 && a.every((one) => b.some((other) => near(one, other))) && b.every((one) => a.some((other) => near(one, other)))
 
-// see SL-8, ZO-10
+// Spec: SL-8, ZO-10
 const outlinesOf = (svg: string, theme: Theme = 'light'): readonly Element[] =>
   elementsOf(svg).filter(
     (one) => one.zo === 'ZO-10' && strokeOf(one) === themed('S-159', theme) && attrOf(one.attrs, 'stroke-dasharray') === null,
   )
 
-// see SL-8
+// Spec: SL-8
 const tracesPlanOf = (svg: string, outline: Element, uid: number): boolean =>
   planFiguresOf(svg, uid).some((figure) => sameVertices(verticesOf(figure), verticesOf(outline)))
 
@@ -1187,7 +1187,7 @@ const planBoxOf = (scene: Scene, uid: number): Rect => {
   return { x: placed.x, y: placed.y, width: placed.width, height: placed.planHeight }
 }
 
-// see SL-8
+// Spec: SL-8
 const framesBox = (frame: Element, box: Rect): boolean => {
   const drawn = boxOfElement(frame)
   const middle = (r: Rect): Pt => ({ x: r.x + r.width / 2, y: r.y + r.height / 2 })
@@ -1244,7 +1244,7 @@ describe(`(c) EL-16 / EL-19 -- the landing line: ${EL_19_WHOLE}`, () => {
   })
 
   it(`${FR_009_ZERO}: the landing line is drawn after every other line in ZO-4, even a selected one`, () => {
-    // WHY: 1 -> 2 is made before 1 -> 3 and 2 -> 3, so rule (2) alone would draw it behind them.
+    // Why: 1 -> 2 is made before 1 -> 3 and 2 -> 3, so rule (2) alone would draw it behind them.
     const route = lineOf(bothSeen(), 1, 2).points
     const plain = svgOf(bothSeen(), 'screen', landed(1, 2, 2))
     const withSelected = svgOf(
@@ -1569,7 +1569,7 @@ const shellDocument = (rows: readonly ShellTaskGroup[], tasks: readonly (readonl
     changeLog: [],
   }) as unknown as Document
 
-// see EL-4
+// Spec: EL-4
 const SHELL_PLAIN = (): Document =>
   shellDocument(
     [
@@ -1583,7 +1583,7 @@ const SHELL_PLAIN = (): Document =>
     ],
   )
 
-// see EL-20
+// Spec: EL-20
 const SHELL_FOLDED_TASK_GROUPS: readonly ShellTaskGroup[] = [
   { id: TASK_GROUP_A, parentId: null },
   { id: TASK_GROUP_B, parentId: TASK_GROUP_A, treeState: 'collapsed' },
@@ -1596,7 +1596,7 @@ const SHELL_FOLDED = (): Document =>
     [shellTask(2, '2026-04-10', '2026-04-14', [1]), TASK_GROUP_C],
   ])
 
-// see EL-20
+// Spec: EL-20
 const SHELL_HIDDEN_AT_THE_TOP = (): Document =>
   shellDocument(
     [
@@ -1663,7 +1663,7 @@ const clickAt = (shell: Shell, at: Pt, clickCount = 1, button: PointerInput['but
   shell.send(pointerAt('up', at, clickCount, button))
 }
 
-// see EL-16
+// Spec: EL-16
 const isLandingShown = (shell: Shell): boolean => emphasizedLines(shell.svg(), 'light', displayScaleOf(shell)).length > 0
 
 const displayScaleOf = (shell: Shell): number => Number(shell.loop.document().documentSettings.displayScale ?? 100)

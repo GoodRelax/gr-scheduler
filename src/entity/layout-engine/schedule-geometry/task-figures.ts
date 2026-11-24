@@ -1,4 +1,4 @@
-// ScheduleGeometry -- the figures of one task: its shapes, label boxes, marker, resume icon, dummies and fade handles (FR-043).
+// File: ScheduleGeometry: the figures of one task: its shapes, label boxes, marker, resume icon, dummies and fade handles (FR-043).
 // @unit      UF-144  (docs/spec/05-07-design.md, table T-075)
 // @component ScheduleGeometry, layer layoutEngine (table T-062)
 // @purity    pure
@@ -48,7 +48,7 @@ import {
   type TaskGeometry,
 } from './schedule-geometry'
 
-// see T-012a
+// Spec: T-012a
 /** @purity pure */
 function fadedOutline(x0: number, x1: number, top: number, height: number,
                       fadeIn: number, fadeOut: number): Path {
@@ -61,7 +61,7 @@ function fadedOutline(x0: number, x1: number, top: number, height: number,
   ]
 }
 
-// see GA-7, GA-8, FD-4, FD-5
+// Spec: GA-7, GA-8, FD-4, FD-5
 /** @purity pure */
 function fadeHandlePoints(placed: TaskPlacement, planTop: number): readonly Point[] {
   return [
@@ -70,13 +70,13 @@ function fadeHandlePoints(placed: TaskPlacement, planTop: number): readonly Poin
   ]
 }
 
-// see LF-6
+// Spec: LF-6
 /** @purity pure */
 function chevronNotch(width: number, height: number, settings: DrawnSettings): number {
   return Math.min(width * settings.chevronNotchOfWidth, height * settings.chevronNotchOfHeight)
 }
 
-// see SH-2, FD-5
+// Spec: SH-2, FD-5
 /** @purity pure */
 function chevronOutline(x0: number, x1: number, top: number, height: number,
                         startNotch: number, endTip: number): Path {
@@ -97,17 +97,17 @@ interface FadeEnds {
   readonly fadeOut: number | null
 }
 
-// see FD-6a
+// Spec: FD-6a
 const UNSET_FADE: FadeEnds = { fadeIn: null, fadeOut: null }
 
-// see FD-5, LF-6
-// TRAP: each end from its own fade; one fade must never reshape the other end (FD-5 MUST NOT).
+// Spec: FD-5, LF-6
+// Trap: each end from its own fade; one fade must never reshape the other end (FD-5 MUST NOT).
 /** @purity pure */
 function chevronBarOf(placed: TaskPlacement, x0: number, x1: number, top: number, height: number,
                       fade: FadeEnds, isActual: boolean, settings: DrawnSettings): BarGeometry {
   const planNotch = chevronNotch(placed.width, placed.planHeight, settings)
   const unfaded = isActual ? planNotch * settings.actualOfPlan : planNotch
-  // TRAP: null, never 0, takes the plain depth: a 0 end is drawn flat (FD-5).
+  // Trap: null, never 0, takes the plain depth: a 0 end is drawn flat (FD-5).
   const startNotch = fade.fadeIn ?? unfaded
   const endTip = fade.fadeOut ?? unfaded
   return { form: 'outline', points: chevronOutline(x0, x1, top, height, startNotch, endTip) }
@@ -140,8 +140,8 @@ interface ShapeSource {
   readonly rule?: string
 }
 
-// see LF-18
-// WHY: flattened only for the hit and the boxes; fine enough that a pointer never finds a corner.
+// Spec: LF-18
+// Why: flattened only for the hit and the boxes; fine enough that a pointer never finds a corner.
 const CURVE_STEPS_PER_TURN = 48
 
 const PATH_ARITY: Readonly<Record<string, number>> = { M: 2, L: 2, H: 1, V: 1, Q: 4, A: 7, Z: 0 }
@@ -230,7 +230,7 @@ interface ArcFrame {
   readonly swept: number
 }
 
-// WHY: the endpoint-to-center conversion of the SVG arc, so the hit outline follows the drawn curve.
+// Why: the endpoint-to-center conversion of the SVG arc, so the hit outline follows the drawn curve.
 /** @purity pure */
 function arcFrameOf(from: Point, arc: ArcSegment): ArcFrame {
   const turn = (arc.rotation * Math.PI) / 180
@@ -271,7 +271,7 @@ function arcPoints(from: Point, arc: ArcSegment): Point[] {
   return sampled(steps, (fraction) => onArc(frame, fraction))
 }
 
-// TRAP: a half arc bulges once its ends are rounded to the drawn grid (the radius lands under half the chord); quarters never do.
+// Trap: a half arc bulges once its ends are rounded to the drawn grid (the radius lands under half the chord); quarters never do.
 /** @purity pure */
 function quarterArcs(from: Point, arc: ArcSegment): readonly ArcSegment[] {
   const frame = arcFrameOf(from, arc)
@@ -319,8 +319,8 @@ function oriented(ring: readonly Point[], positive: boolean): Point[] {
   return twiceArea > 0 === positive ? [...ring] : [...ring].reverse()
 }
 
-// see LF-18, HT-1
-// TRAP: each later ring is reached from the first ring's start and walked back, so the bridges cancel under non-zero.
+// Spec: LF-18, HT-1
+// Trap: each later ring is reached from the first ring's start and walked back, so the bridges cancel under non-zero.
 /** @purity pure */
 function joinedRings(rings: readonly (readonly Point[])[]): Path {
   const first = rings[0]
@@ -330,7 +330,7 @@ function joinedRings(rings: readonly (readonly Point[])[]): Path {
   return out
 }
 
-// WHY: bodies stay apart, each painted over the one behind it; a run of lines or dots is one element.
+// Why: bodies stay apart, each painted over the one behind it; a run of lines or dots is one element.
 /** @purity pure */
 function mergedLayers(layers: readonly MilestoneLayer[]): readonly MilestoneLayer[] {
   const out: MilestoneLayer[] = []
@@ -346,7 +346,7 @@ function mergedLayers(layers: readonly MilestoneLayer[]): readonly MilestoneLaye
 }
 
 // see LF-18, F-044, DFC-1227
-// WHY: keyed over the generated union, so a role figure F-044 adds or drops stops the build here.
+// Why: keyed over the generated union, so a role figure F-044 adds or drops stops the build here.
 const LAYER_ROLES: Readonly<Record<MilestoneLayerRole, true>> = { body: true, inner: true, dot: true, shade: true }
 
 /** @purity pure */
@@ -354,8 +354,8 @@ function isLayerRole(role: string): role is MilestoneLayerRole {
   return Object.hasOwn(LAYER_ROLES, role)
 }
 
-// see LF-18, F-044
-// TRAP: an even-odd body keeps its first ring and turns the others into holes; a nested island would be lost.
+// Spec: LF-18, F-044
+// Trap: an even-odd body keeps its first ring and turns the others into holes; a nested island would be lost.
 /** @purity pure */
 function unitShapeOf(source: readonly ShapeSource[]): UnitShape {
   const layers = mergedLayers(source.map((one) => {
@@ -372,8 +372,8 @@ const UNIT_SHAPES: ReadonlyMap<string, UnitShape> = new Map(
   milestoneShapes.shapes.map((shape) => [shape.glyph, unitShapeOf(shape.layers)]),
 )
 
-// see LF-10, S-48
-// WHY: the star alone is built here, not read from F-044: S-48 is a document setting, and F-044 draws its default.
+// Spec: LF-10, S-48
+// Why: the star alone is built here, not read from F-044: S-48 is a document setting, and F-044 draws its default.
 /** @purity pure */
 function starShapeOf(innerOfOuter: number): UnitShape {
   const origin = point(0, 0)
@@ -417,7 +417,7 @@ function placedSegment(segment: PathSegment, center: Point, half: number): PathS
   }
 }
 
-// see LF-10, LF-18, DM-4
+// Spec: LF-10, LF-18, DM-4
 /** @purity pure */
 function milestoneBarOf(center: Point, side: number, glyph: MilestoneGlyph,
                         starInnerOfOuter: number): BarGeometry {
@@ -434,20 +434,20 @@ function milestoneBarOf(center: Point, side: number, glyph: MilestoneGlyph,
   }
 }
 
-// see XS-5, XS-6
-// TRAP: repeats lineBar's XS-5 head height and XS-5 dot size; change both together.
+// Spec: XS-5, XS-6
+// Trap: repeats lineBar's XS-5 head height and XS-5 dot size; change both together.
 /** @purity pure */
 function lineEndHalfHeight(kind: 'arrow' | 'endpointSpan', settings: DrawnSettings): number {
   return (kind === 'arrow' ? settings.thinArrowHeadHeight : settings.spanDotSize) / 2
 }
 
-// see LF-7, LF-8, XS-5
+// Spec: LF-7, LF-8, XS-5
 /** @purity pure */
 function lineBar(kind: ShapeKind, x0: number, x1: number, middle: number,
                  settings: DrawnSettings): BarGeometry {
   const stroke = settings.thinStrokeWidth
   if (kind === 'arrow') {
-    // TRAP: the head's length is capped by the span, its height never is: XS-5 holds the tiers still.
+    // Trap: the head's length is capped by the span, its height never is: XS-5 holds the tiers still.
     const length = Math.min(settings.thinArrowHeadLength, (x1 - x0) * settings.arrowHeadOfSpan)
     const half = lineEndHalfHeight('arrow', settings)
     return {
@@ -474,8 +474,8 @@ function lineBar(kind: ShapeKind, x0: number, x1: number, middle: number,
   }
 }
 
-// see FR-109
-// WHY: a head or an end dot says "it ended here"; a suspended Task's actual line stops flat on the stop day.
+// Spec: FR-109
+// Why: a head or an end dot says "it ended here"; a suspended Task's actual line stops flat on the stop day.
 /** @purity pure */
 function stoppedWhileSuspended(task: Task, bar: BarGeometry): BarGeometry {
   const state = planActualState(task)
@@ -484,14 +484,14 @@ function stoppedWhileSuspended(task: Task, bar: BarGeometry): BarGeometry {
   return { ...bar, to: end, head: null, dots: bar.dots.slice(0, -1) }
 }
 
-// see T-012
+// Spec: T-012
 /** @purity pure */
 export function isThinShape(shapeKind: ShapeKind): boolean {
   return shapeKind === 'arrow' || shapeKind === 'endpointSpan'
 }
 
-// see XS-4, XS-5, XS-6, XS-7
-// TRAP: shape-cross-sections.ts reserves the same three tiers (shapeHeightOf, labelLiftOf); change them together.
+// Spec: XS-4, XS-5, XS-6, XS-7
+// Trap: shape-cross-sections.ts reserves the same three tiers (shapeHeightOf, labelLiftOf); change them together.
 /** @purity pure */
 export function thinTierMiddle(placed: TaskPlacement, settings: DrawnSettings,
                         isActual: boolean): number {
@@ -510,10 +510,10 @@ function barOf(inputs: GeometryInputs, placed: TaskPlacement, x0: number, x1: nu
                           settings.starInnerOfOuter)
   }
   if (kind === 'arrow' || kind === 'endpointSpan') {
-    // TRAP: the tier, never top + height / 2: XS-5 and XS-6 stack the two lines by their own edges.
+    // Trap: the tier, never top + height / 2: XS-5 and XS-6 stack the two lines by their own edges.
     return lineBar(kind, x0, x1, thinTierMiddle(placed, settings, isActual), settings)
   }
-  // TRAP: read the plan's fades off the placement, never clamp again: LC-6 judged the fit with these numbers.
+  // Trap: read the plan's fades off the placement, never clamp again: LC-6 judged the fit with these numbers.
   const fade: FadeEnds = isActual
     ? UNSET_FADE
     : {
@@ -524,7 +524,7 @@ function barOf(inputs: GeometryInputs, placed: TaskPlacement, x0: number, x1: nu
   return { form: 'outline', points: fadedOutline(x0, x1, top, height, fade.fadeIn ?? 0, fade.fadeOut ?? 0) }
 }
 
-// see FR-133, T-315
+// Spec: FR-133, T-315
 /** @purity pure */
 function diagnosedSymbolOf(inputs: GeometryInputs, taskUid: number): 'DG-1' | 'DG-2' | 'DG-3' | undefined {
   const diagnostics = inputs.delayDiagnostics
@@ -532,7 +532,7 @@ function diagnosedSymbolOf(inputs: GeometryInputs, taskUid: number): 'DG-1' | 'D
   return diagnostics.symbolByUid.get(taskUid)
 }
 
-// see RF-1, RF-3
+// Spec: RF-1, RF-3
 /** @purity pure */
 function drawnReferenceOf(inputs: GeometryInputs, placed: TaskPlacement): LabelReference {
   const settings = inputs.settings
@@ -546,7 +546,7 @@ function drawnReferenceOf(inputs: GeometryInputs, placed: TaskPlacement): LabelR
   return labelReferenceOf(placed.shapeKind, plan, fade, band, settings)
 }
 
-// see LP-1, LP-2, LP-3, LP-4, LP-5, LP-6, LP-7, LP-8
+// Spec: LP-1, LP-2, LP-3, LP-4, LP-5, LP-6, LP-7, LP-8
 /** @purity pure */
 function drawnLabelLayoutOf(inputs: GeometryInputs, task: Task,
                             placed: TaskPlacement): LabelLayout {
@@ -564,7 +564,7 @@ function drawnLabelLayoutOf(inputs: GeometryInputs, task: Task,
   )
 }
 
-// see XS-3, XS-4
+// Spec: XS-3, XS-4
 /** @purity pure */
 function labelTierMiddleOf(placed: TaskPlacement, settings: DrawnSettings): number {
   if (placed.shapeKind !== 'arrow' && placed.shapeKind !== 'endpointSpan') {
@@ -573,7 +573,7 @@ function labelTierMiddleOf(placed: TaskPlacement, settings: DrawnSettings): numb
   return labelTopOf(settings, placed, placed.labelFontSize) + placed.labelFontSize / 2
 }
 
-// see LF-11, XS-3, XS-4
+// Spec: LF-11, XS-3, XS-4
 /** @purity pure */
 function markerOf(inputs: GeometryInputs, task: Task,
                   placed: TaskPlacement): MarkerGeometry | null {
@@ -586,14 +586,14 @@ function markerOf(inputs: GeometryInputs, task: Task,
     symbol: progressMarkerOf(task, inputs.statusDate, diagnosedSymbolOf(inputs, task.uid)),
     center: point(markerLeft + radius, labelTierMiddleOf(placed, settings)),
     radius,
-    // see GA-18, FR-013, S-584
-    // WHY: the x of the edge the marker stands off (T-273); optional, so a hand-built geometry may omit it.
+    // Spec: GA-18, FR-013, S-584
+    // Why: the x of the edge the marker stands off (T-273); optional, so a hand-built geometry may omit it.
     standsOffX: markerLeft - settings.progressMarkerEdgeGap,
   }
 }
 
-// see DA-1, DA-2, DA-3, DA-4, DA-5
-// TRAP: gate on no toggle, unlike markerOf: hiding the plan or the markers must not hide the deadline (DA-1).
+// Spec: DA-1, DA-2, DA-3, DA-4, DA-5
+// Trap: gate on no toggle, unlike markerOf: hiding the plan or the markers must not hide the deadline (DA-1).
 /** @purity pure */
 function deadlineOf(placed: TaskPlacement, settings: DrawnSettings): DeadlineGeometry | null {
   const x = placed.deadlineX
@@ -618,7 +618,7 @@ function deadlineOf(placed: TaskPlacement, settings: DrawnSettings): DeadlineGeo
   }
 }
 
-// see LF-13, XS-10, XS-12, S-25
+// Spec: LF-13, XS-10, XS-12, S-25
 /** @purity pure */
 function resumeOf(inputs: GeometryInputs, task: Task, placed: TaskPlacement,
                   settings: DrawnSettings): ResumeGeometry {
@@ -635,7 +635,7 @@ function resumeOf(inputs: GeometryInputs, task: Task, placed: TaskPlacement,
   const arm = side * settings.resumeArmOfMarker
   const head = side * settings.resumeHeadOfMarker
   return {
-    // TRAP: the stem follows `side`, not the diameter; an undecided resume shrinks the
+    // Trap: the stem follows `side`, not the diameter; an undecided resume shrinks the
     // whole drawn icon by S-25, while GA-20 keeps `box` below at the marker's diameter.
     arm: [point(x, middle + side / 2), point(x, middle), point(x + arm, middle)],
     head: [
@@ -650,31 +650,31 @@ function resumeOf(inputs: GeometryInputs, task: Task, placed: TaskPlacement,
   }
 }
 
-// see DM-3, FR-158
+// Spec: DM-3, FR-158
 /** @purity pure */
 function dummyAxisOf(inputs: GeometryInputs): { readonly pxPerDay: number; readonly isTimeOfDayVisible: boolean } {
   return { pxPerDay: inputs.layout.pxPerDay, isTimeOfDayVisible: inputs.settings.isTimeOfDayVisible }
 }
 
-// TRAP: keyed by textOfDay, since two equal CalendarDay records are not one Map key.
+// Trap: keyed by textOfDay, since two equal CalendarDay records are not one Map key.
 /** @purity pure */
 function dummyEndOf(inputs: GeometryInputs, from: CalendarDay): CalendarDay {
   const key = textOfDay(from)
   const held = inputs.dummyEndByFrom.get(key)
   if (held !== undefined) return held
-  // WHY: the last day the writer puts (edit-task.ts), not the half-open end: a one-day dummy ends on its own day (JDG-15).
+  // Why: the last day the writer puts (edit-task.ts), not the half-open end: a one-day dummy ends on its own day (JDG-15).
   const made = lastDayForLength(inputs.within, from, inputs.settings.actualInitialDuration)
   inputs.dummyEndByFrom.set(key, made)
   return made
 }
 
-// see FR-043, T-240
+// Spec: FR-043, T-240
 /** @purity pure */
 function dummiesOf(inputs: GeometryInputs, task: Task, placed: TaskPlacement,
                    actualHeight: number): readonly DummyGeometry[] {
-  // TRAP: empties only what is drawn and grabbed; the room stays in the layout's dummyReach (DM-14, FR-049).
+  // Trap: empties only what is drawn and grabbed; the room stays in the layout's dummyReach (DM-14, FR-049).
   if (!inputs.isActualVisible || placed.actualX !== null) return []
-  // WHY: the plan start itself, not the working day after it: the mark stands where the actual would start (DM-1).
+  // Why: the plan start itself, not the working day after it: the mark stands where the actual would start (DM-1).
   const from = dayOf(task.start)
   if (from === null) return []
   const diameter = markerDiameterOf(placed.shapeKind, placed.labelFontSize, inputs.settings)
@@ -683,7 +683,7 @@ function dummiesOf(inputs: GeometryInputs, task: Task, placed: TaskPlacement,
   const planMiddle = placed.y + placed.planHeight / 2
 
   if (placed.actualPlacement === 'sideways') {
-    // WHY: the same box and barOf call as a same-day actual milestone in taskGeometryOf (DM-12, FR-043).
+    // Why: the same box and barOf call as a same-day actual milestone in taskGeometryOf (DM-12, FR-043).
     const side = actualHeight
     const ink: ScreenRect = {
       x: fromX - side / 2,
@@ -698,16 +698,16 @@ function dummiesOf(inputs: GeometryInputs, task: Task, placed: TaskPlacement,
   const width = drawn.width
   const thin = isThinShape(placed.shapeKind)
   const band = thin ? inputs.settings.thinStrokeWidth : actualHeight
-  // TRAP: the band follows actualPlacement (LF-9); the plan's mid-line would put an SH-3 / SH-4 dummy on the plan line.
+  // Trap: the band follows actualPlacement (LF-9); the plan's mid-line would put an SH-3 / SH-4 dummy on the plan line.
   const middle = thin
     ? thinTierMiddle(placed, inputs.settings, true)
     : planMiddle
   const top = middle - band / 2
-  // TRAP: every dummy of one Task shares this ink; item-hit-area.ts reads the first one only.
+  // Trap: every dummy of one Task shares this ink; item-hit-area.ts reads the first one only.
   const ink: ScreenRect = { x: fromX, y: top, width, height: band }
-  // WHY: one barOf call shared by both dummies: the mark is a one-day actual's shape (DM-2, DM-4).
+  // Why: one barOf call shared by both dummies: the mark is a one-day actual's shape (DM-2, DM-4).
   const figure = barOf(inputs, placed, fromX, fromX + width, top, band, true)
-  // WHY: with time of day shown the dummy's actual ends where the mark does (DM-2, JDG-2108); without, on its last day.
+  // Why: with time of day shown the dummy's actual ends where the mark does (DM-2, JDG-2108); without, on its last day.
   const endX = inputs.settings.isTimeOfDayVisible ? fromX + width : xFromDay(inputs.layout, dummyEndOf(inputs, from))
   return [
     { grab: thin ? 'GA-21' : 'GA-5', at: point(fromX, middle), ink, figure },
@@ -715,17 +715,17 @@ function dummiesOf(inputs: GeometryInputs, task: Task, placed: TaskPlacement,
   ]
 }
 
-// see T-012, OC-10, XS-4
+// Spec: T-012, OC-10, XS-4
 /** @purity pure */
 function labelTopOf(settings: DrawnSettings, placed: TaskPlacement, height: number): number {
   if (!isThinShape(placed.shapeKind)) return placed.y + (placed.height - height) / 2
-  // see DS-3
+  // Spec: DS-3
   const lift = NOT_STORED_LABEL_SIZES['S-196'] * displayRatioOf(settings)
   return placed.y - lift - height
 }
 
-// see GR-10, LC-6, LP-1, LP-3
-// TRAP: use placed.labelFontSize, never a fresh formula: LC-5 measured with it, and FR-094's floors disagree.
+// Spec: GR-10, LC-6, LP-1, LP-3
+// Trap: use placed.labelFontSize, never a fresh formula: LC-5 measured with it, and FR-094's floors disagree.
 /** @purity pure */
 function labelBoxOf(inputs: GeometryInputs, task: Task, placed: TaskPlacement): ScreenRect | null {
   if (placed.label === '') return null
@@ -738,7 +738,7 @@ function labelBoxOf(inputs: GeometryInputs, task: Task, placed: TaskPlacement): 
   }
 }
 
-// see OC-2, FR-090, XS-3, XS-4, XS-8, SH-5, F-024
+// Spec: OC-2, FR-090, XS-3, XS-4, XS-8, SH-5, F-024
 /** @purity pure */
 function outsideLabelBoxOf(inputs: GeometryInputs, placed: TaskPlacement): ScreenRect | null {
   if (placed.outsideLabel === '') return null
@@ -804,13 +804,13 @@ export function taskGeometryOf(inputs: GeometryInputs, task: Task, placed: TaskP
     planEndsStandOnOneDay: placed.planEndsStandOnOneDay,
     guides: guidesOf(inputs, task, placed, actualHeight),
     marker,
-    // WHY: follows the state, not the symbol: a late suspended Task shows PM-4 and is still suspended.
+    // Why: follows the state, not the symbol: a late suspended Task shows PM-4 and is still suspended.
     resume:
       marker !== null && suspended && inputs.isActualVisible && placed.shapeKind !== 'milestone'
         ? resumeOf(inputs, task, placed, settings)
         : null,
     dummies,
-    // TRAP: gate on the selection here, not only when drawing: itemAtPointer asks GA-7 / GA-8 of every Task
+    // Trap: gate on the selection here, not only when drawing: itemAtPointer asks GA-7 / GA-8 of every Task
     // before GA-1 / GA-2, so handles on an unselected Task swallow a neighbor's plan-bar end.
     fadeHandles:
       placed.actualPlacement === 'inside' && inputs.selectedTaskUids.has(placed.taskUid)
@@ -826,7 +826,7 @@ export function taskGeometryOf(inputs: GeometryInputs, task: Task, placed: TaskP
 // Single source of truth:
 //   docs/spec/_source/settings.json (table T-206)
 // Rebuild: npm run gen   ||   npm run gen:check fails on drift.
-// see T-206
+// Spec: T-206
 const NOT_STORED_DEADLINE_MARK_SIZES: {
   readonly 'S-365': number
   readonly 'S-366': number

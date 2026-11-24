@@ -19,7 +19,7 @@ import {
 import { keyOf, pointerOf, taskGroupDocument, SCREEN, taskOf } from '../unit/cr-541-stage'
 import { bare, specTable, unbroken } from './spec-table'
 
-// WHY: the DOM surface walks parentElement; the fake element has only parentNode.
+// Why: the DOM surface walks parentElement; the fake element has only parentNode.
 if (!Object.getOwnPropertyDescriptor(FakeElement.prototype, 'parentElement')) {
   Object.defineProperty(FakeElement.prototype, 'parentElement', {
     get(this: FakeElement): FakeElement | null {
@@ -36,7 +36,7 @@ const verticalIn = (table: string, id: string) => {
   return found
 }
 
-// WHY: each clause is cut from the manuscript as check 39 reads it, so the cases cannot drift from the words they test.
+// Why: each clause is cut from the manuscript as check 39 reads it, so the cases cannot drift from the words they test.
 const MK_13_DOCUMENT_TITLE =
   '表 T-036 の `SK-9` が開くのと同じ、その場で編集する欄（`FR-035`）を開くこと（MUST）'
 const MK_13_NOT_ONE_PRESS = '⛔ 1 回の押下で開いてはならない（MUST NOT） —— ヘッダーの押し違いで欄が開く'
@@ -52,10 +52,10 @@ describe('DFC-1721 the manuscript these cases are driven by', () => {
   })
 })
 
-// see T-103
+// Spec: T-103
 const DOCUMENT_TITLE = bare(verticalIn('T-103', 'U-27').by['確定名（英）'] ?? '')
 const APP_HEADER = bare(verticalIn('T-103', 'U-31').by['確定名（英）'] ?? '')
-// WHY: IF-9 has the header's field name itself by U-27, so the row the host is asked to focus is U-27.
+// Why: IF-9 has the header's field name itself by U-27, so the row the host is asked to focus is U-27.
 const TITLE_FIELD_ROW = 'U-27'
 
 const GLOBAL = globalThis as unknown as Record<string, unknown>
@@ -75,7 +75,7 @@ const part = (name: string): ScreenPart => ({
   noticeDismissKey: null,
 })
 
-// WHY: the surface is a stub that answers the part under the pointer; the host seam records which field row it was asked to focus.
+// Why: the surface is a stub that answers the part under the pointer; the host seam records which field row it was asked to focus.
 function bench(under: ScreenPart | null) {
   const waiting: ((time: number) => void)[] = []
   GLOBAL['requestAnimationFrame'] = (callback: (time: number) => void): number => waiting.push(callback)
@@ -104,7 +104,7 @@ function bench(under: ScreenPart | null) {
     loop.receiveInput(input)
     drain()
   }
-  // WHY: both presses are sent, as a browser delivers them: clickCount 1 chooses, clickCount 2 is MK-13's.
+  // Why: both presses are sent, as a browser delivers them: clickCount 1 chooses, clickCount 2 is MK-13's.
   const press = (clickCount: 1 | 2): void => {
     send({ ...pointerOf('down', 300, 10), clickCount } as never)
     send({ ...pointerOf('up', 300, 10), clickCount } as never)
@@ -140,7 +140,7 @@ describe('MK-13 (MUST): a double click on the Document Title opens the in-place 
   })
 })
 
-// WHY: the translator can only tell the title from the header's empty space if the surface answers the title's own name.
+// Why: the translator can only tell the title from the header's empty space if the surface answers the title's own name.
 describe('IF-9 / MK-13: the surface answers the Document Title for a point on the title, not the App Header around it', () => {
   const THEME = { preference: 'light', hue: 214 } as const
   const items = {

@@ -58,7 +58,7 @@ const SETTINGS_BOOK = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', 
 const cellOf = (table: string, id: string, heading: string): string =>
   unbroken(found(specTable(table).rows.find((one) => one.id === id), `${table} ${id}`).by[heading] ?? '')
 
-// WHY: the dictionary is the spec's own file; a word is read from it, never retyped here.
+// Why: the dictionary is the spec's own file; a word is read from it, never retyped here.
 type Words = Record<DisplayLanguage, string>
 const WORDS = JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8')) as Record<
   string,
@@ -103,7 +103,7 @@ const STATE_FIELDS: Readonly<Record<State, Loose>> = {
   resumeUnknown: { actualStart: D('2026-03-30'), stop: D('2026-04-02'), actualFinish: null, resume: null, resumeValid: false },
 }
 
-// see T-019a, SV-8
+// Spec: T-019a, SV-8
 const STATUS_ASCENDING: readonly string[] = ['PS-1', 'PS-5', 'PS-2', 'PS-4', 'PS-3'].map((row) => wordOf('planActualStates', row))
 
 const ANN = 101
@@ -118,7 +118,7 @@ interface TaskSpec {
   readonly resources: readonly number[]
 }
 
-// WHY: three values and a blank per list show a reversal with the blank kept last;
+// Why: three values and a blank per list show a reversal with the blank kept last;
 // the progress values sort differently as text and as numbers.
 const TASKS: readonly TaskSpec[] = [
   { uid: 1, name: 'Delta', state: 'notStarted', percent: 40, resources: [ANN] },
@@ -146,7 +146,7 @@ const comment = (id: string, text: string, day: string, group: string): Loose =>
 
 const SEARCH_SCHEDULE = {
   ...TEMPLATE.schedule,
-  // WHY: the template's status date makes these April tasks late (T-021b); without one SQ-5 lists the five T-019a states.
+  // Why: the template's status date makes these April tasks late (T-021b); without one SQ-5 lists the five T-019a states.
   project: { ...(TEMPLATE.schedule.project as object), statusDate: null },
   tasks: TASKS.map((spec) => ({
     ...firstOf('tasks'),
@@ -200,7 +200,7 @@ const COMMENT_PANEL: Pane = { panel: { ...emptySearchPanelSession, table: 'comme
 const viewOf = (pane: Pane, language: DisplayLanguage = 'ja'): SearchPanelView =>
   found(searchPanelFromSession(sessionIn(language), pane.panel, pane.view, SEARCH_SCHEDULE, CANVAS), 'a view of a shown panel')
 
-// WHY: IC-122 of an open column closes it (SV-7), so a column is opened from a pane with no filter open.
+// Why: IC-122 of an open column closes it (SV-7), so a column is opened from a pane with no filter open.
 const opened = (column: string, pane: Pane = TASK_PANEL): Pane => {
   const shut: Pane = { ...pane, panel: { ...pane.panel, filters: { ...pane.panel.filters, open: null } } }
   return {
@@ -237,7 +237,7 @@ const sortedBy = (column: string, direction: 'IC-123' | 'IC-124', pane: Pane = T
 const taskUidsOf = (view: SearchPanelView): readonly number[] =>
   view.rows.map((row) => (row.target.kind === 'task' ? row.target.taskUid : -1))
 
-// WHY: the rows of the sorted column in their drawn order, one entry per distinct cell.
+// Why: the rows of the sorted column in their drawn order, one entry per distinct cell.
 function distinctCells(view: { columns: readonly { column: string }[]; rows: readonly { cells: readonly string[] }[] }, column: string): readonly string[] {
   const at = view.columns.findIndex((one) => one.column === column)
   const made: string[] = []
@@ -422,7 +422,7 @@ const reportTask = (uid: number, name: string, start: string, extra: Loose = {})
   ...extra,
 })
 
-// WHY: one row per DT-1 status; only Delta and Bravo carry an assignee, and task 6 has no name.
+// Why: one row per DT-1 status; only Delta and Bravo carry an assignee, and task 6 has no name.
 const REPORT_SCHEDULE = {
   tasks: [
     reportTask(1, 'Alpha', '2026-03-02'),
@@ -467,7 +467,7 @@ const REPORT: DelayDiagnosticsReport = {
   lateDays: [],
 } as unknown as DelayDiagnosticsReport
 
-// see DT-1
+// Spec: DT-1
 const REPORT_STATUS_ASCENDING: readonly string[] = ['DG-1', 'DX-3', 'DG-2', 'DG-3', 'DG-4', 'DX-9'].map((row) => wordOf('delayReportStatuses', row))
 
 interface ReportPane {
@@ -617,7 +617,7 @@ describe('SV-7 「空のセルは「（空白）」の 1 項目」 -- the report
 const DEE = 104
 const UNNAMED = 105
 const RESOURCE_TASKS = [1, 2, 3, 4, 5, 6, 7, 8]
-// WHY: the scene of the CR's question Q1, plus one nameless resource for a blank name item.
+// Why: the scene of the CR's question Q1, plus one nameless resource for a blank name item.
 const PAIRS: readonly (readonly [number, number])[] = [
   [1, ANN], [2, ANN], [3, ANN],
   [1, BOB], [2, BOB], [3, BOB], [4, BOB], [5, BOB],
@@ -769,7 +769,7 @@ describe('SV-7 source -- Resource List, the scene of CR-761 Q1 (answer A)', () =
     expect(labels(listItems('RQ-2', worded))).toEqual(['Ann'])
   })
 
-  // WHY: RQ-5 lists one task per item, and a row keeps while any of its tasks stays checked, so no row need drop there.
+  // Why: RQ-5 lists one task per item, and a row keeps while any of its tasks stays checked, so no row need drop there.
   it.each([
     ['RQ-2', true],
     ['RQ-3', true],
@@ -800,12 +800,12 @@ describe('SV-7 source -- Resource List, the scene of CR-761 Q1 (answer A)', () =
   })
 })
 
-// WHY: the fake browser raises no change event on a host check box, so one value is not unchecked here;
+// Why: the fake browser raises no change event on a host check box, so one value is not unchecked here;
 // the drawn IC-126 / IC-125 buttons stand in, and the system test unchecks one value.
 const fixView = (stage: WindowStage): { columns: readonly { column: string }[]; rows: readonly { cells: readonly string[] }[]; filterMenu: unknown } =>
   found(stage.last().delayDiagnosticsReport, 'the report window view') as never
 
-// WHY: the drawn window swaps a table in place with the DOM's replaceWith, which the fake browser does not carry.
+// Why: the drawn window swaps a table in place with the DOM's replaceWith, which the fake browser does not carry.
 const fakePrototype = FakeElement.prototype as unknown as { replaceWith?: (this: FakeElement, ...nodes: FakeElement[]) => void }
 if (fakePrototype.replaceWith === undefined) {
   fakePrototype.replaceWith = function replaceWith(this: FakeElement, ...nodes: FakeElement[]): void {

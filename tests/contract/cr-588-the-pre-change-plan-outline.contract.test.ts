@@ -56,7 +56,7 @@ const BL_3_NOT_SAME_DASH =
 const BL_4 = '表 T-038 の占有に数えないこと（MUST）'
 const BL_4_WHY = '数えると `S-69` を切り替えるたびに現在の日程の形の置き場が動く'
 const FR_015_ONE_SIDE = '片側にしか存在しない `Task` は描いてはならない（MUST NOT）。'
-// WHY: CR-684 moved FR-108's list into table T-355; the outline is row NG-10, decided by FR-015.
+// Why: CR-684 moved FR-108's list into table T-355; the outline is row NG-10, decided by FR-015.
 const FR_108_THE_OVERLAY = '変更前の予定の輪郭'
 const NG_10_ALWAYS = 'いつも —— 輪郭は表示だけであり、編集対象ではない'
 const NG_10_OWNER = '`FR-015`'
@@ -91,7 +91,7 @@ const S_39 = stored('S-39')
 const numbersIn = (text: string): readonly number[] =>
   (text.replace(/`/g, '').match(/-?\d+(?:\.\d+)?/g) ?? []).map(Number)
 
-// see T-206
+// Spec: T-206
 const dashPairOf = (table: string, id: string, column: string): readonly number[] => {
   const pair = numbersIn(rowOf(table, id).by[column] ?? '').slice(0, 2)
   if (pair.length !== 2) throw new Error(`table ${table} ${id} states no dash pair`)
@@ -103,7 +103,7 @@ const S_104 = dashPairOf('T-208', 'S-104', '値')
 
 const THEME_HUE = Number(bare(rowOf('T-216', 'S-73').by['既定'] ?? ''))
 const normalColor = (text: string): string => text.replace(/\s+/g, '').toLowerCase()
-// see T-236
+// Spec: T-236
 const t236 = (id: string, preference: 'light' | 'dark'): string => {
   const cell = bare(rowOf('T-236', id).by[preference === 'dark' ? '暗いテーマ' : '明るいテーマ'] ?? '')
   if (/^S-\d+$/.test(cell)) return t236(cell, preference)
@@ -111,7 +111,7 @@ const t236 = (id: string, preference: 'light' | 'dark'): string => {
   return normalColor(cell.replace('H', String(THEME_HUE)))
 }
 
-// WHY: the SVG writes coordinates to two decimals, so a drawn value is compared to 0.006.
+// Why: the SVG writes coordinates to two decimals, so a drawn value is compared to 0.006.
 const SVG_EPS = 0.006
 const near = (a: number, b: number): boolean => Math.abs(a - b) <= SVG_EPS
 
@@ -142,7 +142,7 @@ interface StageWish {
   readonly baselines: readonly BaselineWish[]
   readonly rows?: Rows
   readonly settings?: Readonly<Record<string, unknown>>
-  // WHY: AT-104 on every drawn Task's visual; absent leaves it null.
+  // Why: AT-104 on every drawn Task's visual; absent leaves it null.
   readonly strokeWidthPx?: number
 }
 
@@ -278,11 +278,11 @@ const elementsOf = (svg: string): readonly SvgElement[] => {
 
 const SHAPE_TAGS = new Set(['rect', 'polygon', 'polyline', 'path', 'line', 'ellipse', 'circle'])
 
-// see T-020
+// Spec: T-020
 const outlineShapesOf = (svg: string): readonly SvgElement[] =>
   elementsOf(svg).filter((one) => one.zo.includes('ZO-15') && SHAPE_TAGS.has(one.tag))
 
-// WHY: a style may sit on the ZO-15 group rather than on each shape, so the nearest group answers.
+// Why: a style may sit on the ZO-15 group rather than on each shape, so the nearest group answers.
 const painted = (element: SvgElement, name: string): string | null => {
   const own = attrOf(element.attrs, name)
   if (own !== null) return own
@@ -429,7 +429,7 @@ describe('BL-1 -- which BaselineTask is drawn', () => {
 describe('BL-2 -- where the outline stands and its shape', () => {
   it(`BL-2 「${BL_2_X}」: the box spans what a plan bar with the baseline's dates spans`, () => {
     const outline = onlyOutline(stageOf({ tasks: [PLAIN], baselines: [SHIFTED] }))
-    // WHY: taskOf closes a T00:00:00 finish to T17:00:00; the baseline keeps its raw text, so the Task takes the same raw text (FR-054).
+    // Why: taskOf closes a T00:00:00 finish to T17:00:00; the baseline keeps its raw text, so the Task takes the same raw text (FR-054).
     const same = { ...taskOf({ uid: 1, start: SHIFTED.start }), finish: SHIFTED.finish } as Task
     const reference = planBandOf(stageOf({ tasks: [same], baselines: [] }), 1)
     expect(outline.kind, BL_2_SHAPE).toBe('rectangle')
@@ -577,7 +577,7 @@ describe('BL-3 -- the line', () => {
   })
 
   it(`BL-3 「${BL_3_VALUES}」: a plan that names its own outline width (AT-104) does not pass it to the outline`, () => {
-    // see BL-3, VG-5, AT-104
+    // Spec: BL-3, VG-5, AT-104
     const named = 5
     for (const scale of SCALES) {
       const svg = stageOf({ tasks: [PLAIN], baselines: [SHIFTED], settings: { [DISPLAY_SCALE]: scale }, strokeWidthPx: named }).svg()

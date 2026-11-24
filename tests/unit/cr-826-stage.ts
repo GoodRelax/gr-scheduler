@@ -8,14 +8,14 @@ import { taskGroupDocument, taskOf } from './cr-541-stage'
 
 export type Loose = Record<string, unknown>
 
-// WHY: May 2027 has no exception in the bundled calendar, which works Monday to Friday; 2027-05-21 is a Friday.
+// Why: May 2027 has no exception in the bundled calendar, which works Monday to Friday; 2027-05-21 is a Friday.
 export const day = (month: number, date: number, hour: number): string =>
   `2027-${String(month).padStart(2, '0')}-${String(date).padStart(2, '0')}T${String(hour).padStart(2, '0')}:00:00`
 export const S = (month: number, date: number): string => day(month, date, 8)
 export const F = (month: number, date: number): string => day(month, date, 17)
 export const STATUS = F(5, 21)
 
-// see AT-46
+// Spec: AT-46
 export const FS = 1
 export const after = (uid: number): Loose => ({ predecessorUid: uid, linkType: FS, linkLag: 0, lagFormat: 7, carry: {}, carryElements: [] })
 
@@ -25,7 +25,7 @@ export interface Row {
   readonly tasks: readonly Loose[]
 }
 
-// WHY: a wide S-487 keeps VS-6 out of every case.
+// Why: a wide S-487 keeps VS-6 out of every case.
 export const WIDE_TOLERANCE = 30
 
 export function documentOf(rows: readonly Row[]): Document {
@@ -61,7 +61,7 @@ export const NOT_DUE = 103
 export const STARTED_EARLY = 104
 export const NOT_DUE_MILESTONE = 105
 
-// WHY: the cause has actualFinish without actualStart (VC-6), so DW-1 makes its FS downstream purple: tasks starting
+// Why: the cause has actualFinish without actualStart (VC-6), so DW-1 makes its FS downstream purple: tasks starting
 // before, on and after (Mon 05-24) the status day, one started early, and a milestone on 06-01.
 export const dw1Document = (): Document =>
   documentOf([
@@ -92,7 +92,7 @@ export const ROOT_CAUSE = 400
 export const NOT_DUE_PARENT = 401
 export const SUSPENDED_CHILD = 402
 
-// WHY: SUSPENDED_CHILD started early and resumes 06-28 (PS-4, BD-1), so it pushes itself (DG-2); NOT_DUE_PARENT encloses
+// Why: SUSPENDED_CHILD started early and resumes 06-28 (PS-4, BD-1), so it pushes itself (DG-2); NOT_DUE_PARENT encloses
 // it (IP-1, DG-3) and follows ROOT_CAUSE (VC-6) by FS, so DW-1 makes it DG-1 in DX-8.
 export const parentDocument = (withCause: boolean): Document =>
   documentOf([

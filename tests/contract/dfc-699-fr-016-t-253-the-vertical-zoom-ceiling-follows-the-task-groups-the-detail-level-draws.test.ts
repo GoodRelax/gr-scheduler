@@ -5,10 +5,10 @@ import { afterEach, describe, expect, it } from 'vitest'
 import type { FrameValues } from '../../src/framework/single-html-shell/frame-loop'
 import { keyOf, REQUIREMENTS, taskGroupDocument, shell, taskOf, type ShellBench } from '../unit/cr-541-stage'
 
-// see FR-016
+// Spec: FR-016
 const FR_016_FIRST_BAND_THAT_FILLS =
   '⭐ 縦軸（`zoomY`）の上限は、いちばん高いタスクグループの帯の高さが、初めて `Task Group Area` の高さ以上になった倍率とし、その倍率を 表 T-253 の手順で探すこと（MUST）'
-// see FR-018
+// Spec: FR-018
 const FR_018_DEEPER_TASK_GROUPS_BY_ZOOM = 'グループ'
 
 const ROOT = 'task-group-root'
@@ -17,7 +17,7 @@ const START_ZOOM_Y = 0.02
 const PRESS_LIMIT = 200
 const STACKED_TASKS = 36
 const ROOT_TASK_UID = 100
-// WHY: T-253 searches to a tolerance, so the last press may creep a hair past the first zoomY that fills.
+// Why: T-253 searches to a tolerance, so the last press may creep a hair past the first zoomY that fills.
 const FIRST_FILL_SLACK = 1.01
 
 const benches: ShellBench[] = []
@@ -31,7 +31,7 @@ const frameOf = (built: ShellBench): FrameValues => {
   return frame
 }
 
-// see T-253
+// Spec: T-253
 const deepTaskGroupBench = (): ShellBench => {
   const stacked = Array.from({ length: STACKED_TASKS }, (_unused, index) => taskOf(index + 1))
   const tasks = [...stacked, taskOf(ROOT_TASK_UID)]
@@ -53,7 +53,7 @@ const tallestBandOf = (built: ShellBench): number => Math.max(...frameOf(built).
 const isDrawn = (built: ShellBench, taskGroupId: string): boolean =>
   frameOf(built).layout.taskGroups.some((taskGroup) => taskGroup.taskGroupId === taskGroupId)
 
-// see SK-16a
+// Spec: SK-16a
 const stopsUpToTheEnd = (built: ShellBench): { readonly zoomY: number; readonly band: number }[] => {
   const stops = [{ zoomY: zoomYOf(built), band: tallestBandOf(built) }]
   for (let press = 0, previous = Number.NaN; press < PRESS_LIMIT && zoomYOf(built) !== previous; press++) {

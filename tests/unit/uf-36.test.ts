@@ -591,7 +591,7 @@ function everyNodeName(node: XmlNode): readonly string[] {
   return [node.name, ...node.children.flatMap(everyNodeName)]
 }
 
-// WHY: an actual edit drops the carried ActualDuration (T-019 note), so FR-011 then writes the Stop.
+// Why: an actual edit drops the carried ActualDuration (T-019 note), so FR-011 then writes the Stop.
 function actualsEdited(document: Document): Document {
   const tasks = document.schedule.tasks.map((task) => ({
     ...task,
@@ -972,7 +972,7 @@ describe('the ordinary case -- one MSPDI in', () => {
     const document = accepted(BASE_TEXT)
     expect(CURRENT.schedule.tasks.length).toBeGreaterThan(2)
     expect(document.schedule.tasks).toHaveLength(2)
-    // see IV-23
+    // Spec: IV-23
     expect(document.schedule.taskVisuals).toEqual(
       document.schedule.tasks.map((each) => ({
         taskUid: each.uid,
@@ -1079,7 +1079,7 @@ describe('table T-058 -- the column-by-column mapping', () => {
   it('keeps the partner spelling of a carried name (W-9 of table T-006a)', () => {
     const document = accepted(BASE_TEXT)
     const project = instanceOf(document, 'Project')
-    // WHY: EX-15 keeps the source's namespace URI under the key xmlns, which is no carried element name.
+    // Why: EX-15 keeps the source's namespace URI under the key xmlns, which is no carried element name.
     const names = Object.keys(project['carry'] as Record<string, string>).filter((name) => name !== 'xmlns')
     expect(names.length, 'the fixture brings scalars this software does not use').toBeGreaterThan(0)
     for (const name of names) {
@@ -1153,7 +1153,7 @@ describe('table T-053 -- the shape of the document', () => {
       (holder['carryElements'] as readonly { readonly name: string }[]).map((each) => each.name)
     expect(owner(instanceOf(document, 'Task'))).toContain('ExtendedAttribute')
     expect(owner(instanceOf(document, 'Calendar'))).toContain('WorkWeeks')
-    // WHY: CR-710 reads WorkingTimes into AT-158 / AT-159, so it is no longer an uninterpreted element.
+    // Why: CR-710 reads WorkingTimes into AT-158 / AT-159, so it is no longer an uninterpreted element.
     const monday = document.schedule.calendars[0]?.weekDays.find((each) => each.dayType === SAMPLE.mondayDayType)
     expect(monday?.workingTimes).toEqual([{ ordinal: 0, fromTime: '08:00:00', toTime: '17:00:00' }])
     expect(owner(instanceOf(document, 'WeekDay'))).not.toContain('WorkingTimes')
@@ -1241,7 +1241,7 @@ describe('FR-054 -- a date column takes the literal text', () => {
   })
 
   it('places the stop by working time, whatever minutesPerDay the file states (FR-011, FR-054)', () => {
-    // WHY: CR-710 retired the division by minutesPerDay: ActualDuration is read in minutes and walked along
+    // Why: CR-710 retired the division by minutesPerDay: ActualDuration is read in minutes and walked along
     // the calendar's spans from actualStart (Thu 09:00; Monday 08:00-17:00, other days S-580).
     const perDay = DEFAULT_CALENDAR_VALUES['S-128'] + 120
     const days = 4
@@ -1277,7 +1277,7 @@ describe('FR-054 -- a date column takes the literal text', () => {
     ).replace(ACTUAL_DURATION_TEXT, durationText(perDay * days))
     const document = accepted(unfinished(text))
     expect(document.schedule.project.minutesPerDay).toBeNull()
-    // WHY: 960 minutes from Thursday 09:00 is Thursday 420, Friday 480, then Monday 60 -- Monday 09:00.
+    // Why: 960 minutes from Thursday 09:00 is Thursday 420, Friday 480, then Monday 60 -- Monday 09:00.
     expect(lastDayOfTheTask(document)).toBe('2026-04-06')
   })
 
@@ -1611,7 +1611,7 @@ describe('table T-033 -- writing', () => {
   })
 
   it('EX-7, FR-011: the one date GRS decides itself is the instant the actual duration reaches', () => {
-    // WHY: the fixture brings no Stop, so GRS makes it (FR-011, AT-141): 1440 working minutes from
+    // Why: the fixture brings no Stop, so GRS makes it (FR-011, AT-141): 1440 working minutes from
     // Monday 08:45 (Monday 08:00-17:00, other days S-580) end on Wednesday at 16:45 (CR-710).
     const suspended = mspdi(
       [
@@ -1695,7 +1695,7 @@ describe('table T-019 -- the last column, which state writes a Stop', () => {
     for (const row of T_019_STOP) {
       if (!row.writesStop) continue
       const task = tasks.find((each) => textAt(each, 'UID') === String(row.uid))
-      // WHY: 1440 working minutes from Monday 09:00 end on Wednesday at 17:00, the end of its S-580 span.
+      // Why: 1440 working minutes from Monday 09:00 end on Wednesday at 17:00, the end of its S-580 span.
       expect(textAt(task ?? ({} as XmlNode), 'Stop'), row.row).toBe('2026-04-08T17:00:00')
     }
   })
@@ -3033,7 +3033,7 @@ describe('FR-054 -- reading an amount of time that does not divide into working 
   })
 
   it('GIVEN five and a quarter working days WHEN read THEN the quarter is kept, into the sixth day (FR-054 MUST)', () => {
-    // WHY: CR-710 retired the rounding to whole working days; the amount is read in minutes.
+    // Why: CR-710 retired the rounding to whole working days; the amount is read in minutes.
     const text = durationFileText([amountOfMinutes(PER_DAY * 5 + PER_DAY / 4)])
     expect(lastDayOf(accepted(text), 1)).toBe(LAST_DAY_FOR[6])
   })
@@ -3081,7 +3081,7 @@ describe('FR-054 -- reading an amount of time that does not divide into working 
   })
 
   it('GIVEN an amount that does not divide WHEN the written file is read again THEN it reads the same day again (FR-054, FR-011)', () => {
-    // WHY: FR-011 writes no Stop the source lacked, so a re-read counts the same original again.
+    // Why: FR-011 writes no Stop the source lacked, so a re-read counts the same original again.
     const text = durationFileText([amountOfMinutes(PER_DAY * 5 + PER_DAY / 4)])
     const again = mspdiFromDocument(accepted(text), LAST_SAVED_AT).text
     expect(lastDayOf(accepted(again), 1)).toBe(LAST_DAY_FOR[6])
@@ -3092,7 +3092,7 @@ describe('FR-054 -- reading an amount of time that does not divide into working 
 
 describe('FR-054 -- minutesPerDay divides no amount of time', () => {
   it('GIVEN a file that states its own minutes per day WHEN an amount is read THEN the stop follows the working time (FR-054 MUST)', () => {
-    // WHY: CR-710 retired the division: 3300 minutes from Wednesday 08:00 end on Thursday the 9th at 15:00.
+    // Why: CR-710 retired the division: 3300 minutes from Wednesday 08:00 end on Thursday the 9th at 15:00.
     const ownPerDay = PER_DAY + 120
     const text = durationFileText([amountOfMinutes(ownPerDay * 5 + ownPerDay / 2)], ownPerDay)
     const document = accepted(text)
@@ -3141,7 +3141,7 @@ describe('FR-054 -- an amount of time carrying years or months', () => {
   })
 })
 
-// WHY: CR-710 retired the rounding and its count (FR-054 reads minutes), so nothing is rounded and nothing told.
+// Why: CR-710 retired the rounding and its count (FR-054 reads minutes), so nothing is rounded and nothing told.
 describe('FR-054 -- no Task is rounded, so no count of rounded Tasks is told', () => {
   const NOT_WHOLE = amountOfMinutes(PER_DAY * 5 + PER_DAY / 4)
   const THREE_WHOLE = durationFileText([WHOLE_FIVE_DAYS, WHOLE_FIVE_DAYS, WHOLE_FIVE_DAYS])

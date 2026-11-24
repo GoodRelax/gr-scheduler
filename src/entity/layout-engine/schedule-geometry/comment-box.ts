@@ -1,4 +1,4 @@
-// ScheduleGeometry -- the comment box: its wrapped text, its body box and its leader line (FR-097).
+// File: ScheduleGeometry: the comment box: its wrapped text, its body box and its leader line (FR-097).
 // @unit      UF-148  (docs/spec/05-07-design.md, table T-075)
 // @component ScheduleGeometry, layer layoutEngine (table T-062)
 // @purity    pure
@@ -24,8 +24,8 @@ import {
   type TaskGeometry,
 } from './schedule-geometry'
 
-// see GR-14, LF-17
-// WHY: the nearest of the four corners, chosen per axis against the body's middle (a tie takes left and bottom, the
+// Spec: GR-14, LF-17
+// Why: the nearest of the four corners, chosen per axis against the body's middle (a tie takes left and bottom, the
 // offset's own corner); an anchor inside the body, edges included, has no leader -- any corner would cross the text.
 /** @purity pure */
 export function leaderOf(comment: CommentGeometry): Path | null {
@@ -42,8 +42,8 @@ export function leaderOf(comment: CommentGeometry): Path | null {
 export type AnchorSnapPoint = NonNullable<CommentBox['anchorSnapPoint']>
 export type AnchorTaskFigure = NonNullable<CommentBox['anchorTaskFigure']>
 
-// see LF-15, GR-14
-// WHY: read from the generated column shapes, in AT-167's order: a tie between two points takes the earlier one.
+// Spec: LF-15, GR-14
+// Why: read from the generated column shapes, in AT-167's order: a tie between two points takes the earlier one.
 // The casts hold because the generator prints each union and its choices from the same erd.json values.
 const SNAP_POINTS = (COLUMN_SHAPES.CommentBox['anchorSnapPoint']?.choices ?? []) as readonly AnchorSnapPoint[]
 const TASK_FIGURES = (COLUMN_SHAPES.CommentBox['anchorTaskFigure']?.choices ?? []) as readonly AnchorTaskFigure[]
@@ -87,8 +87,8 @@ function figureBoxOf(figure: BarGeometry): FigureBox | null {
   return { left: Math.min(...xs), top: Math.min(...ys), right: Math.max(...xs), bottom: Math.max(...ys) }
 }
 
-// see LF-15
-// WHY: a milestone's corners stand halfway between two side midpoints, so on a diamond all eight lie on the shape.
+// Spec: LF-15
+// Why: a milestone's corners stand halfway between two side midpoints, so on a diamond all eight lie on the shape.
 /** @purity pure */
 function snapPointOn(box: FigureBox, snapPoint: AnchorSnapPoint, isMilestone: boolean): Point {
   const middleX = (box.left + box.right) / 2
@@ -125,7 +125,7 @@ function figureOf(task: TaskGeometry, figure: AnchorTaskFigure): BarGeometry | n
   return task.shapeKind === 'milestone' ? null : task.plan
 }
 
-// see LF-15, GR-14, AR-5
+// Spec: LF-15, GR-14, AR-5
 /** @purity pure */
 export function anchorSnapsOf(
   tasks: readonly TaskGeometry[],
@@ -159,7 +159,7 @@ export function anchorSnapsOf(
   return out
 }
 
-// see LF-15
+// Spec: LF-15
 /** @purity pure */
 export function freeAnchorPointOf(
   layout: ScheduleLayout,
@@ -179,8 +179,8 @@ export interface AnchorSurroundings {
   readonly snaps: readonly AnchorSnap[]
 }
 
-// see LF-15, FR-019, NG-7
-// WHY: the one formula for where a tip stands, read by the drawing and the drag; an undrawn target answers null.
+// Spec: LF-15, FR-019, NG-7
+// Why: the one formula for where a tip stands, read by the drawing and the drag; an undrawn target answers null.
 /** @purity pure */
 export function commentAnchorPointOf(around: AnchorSurroundings, box: CommentBox): Point | null {
   const target = targetOf(box)
@@ -192,8 +192,8 @@ export function commentAnchorPointOf(around: AnchorSurroundings, box: CommentBox
   return instant === null ? null : freeAnchorPointOf(around.layout, instant, box.anchorTaskGroupId, box.anchorBandFraction ?? null)
 }
 
-// see FR-019, UC-008, AT-12
-// WHY: a box with no anchor date stands at the document's start date, or it could not be chosen or deleted.
+// Spec: FR-019, UC-008, AT-12
+// Why: a box with no anchor date stands at the document's start date, or it could not be chosen or deleted.
 /** @purity pure */
 function freeInstantOf(schedule: Schedule, box: CommentBox): number | null {
   if (dayOf(box.anchorDate) !== null) return instantOf(box.anchorDate)
@@ -228,8 +228,8 @@ function isHeldTarget(schedule: Schedule, target: HeldTarget): boolean {
     : schedule.highlightBoxes.some((one) => one.id === target.highlightBoxId)
 }
 
-// see LF-15
-// WHY: a task drawn in several task groups (TaskGroupMember) stands in the band the tip snapped in, else the first drawn.
+// Spec: LF-15
+// Why: a task drawn in several task groups (TaskGroupMember) stands in the band the tip snapped in, else the first drawn.
 /** @purity pure */
 function targetPointOf(snaps: readonly AnchorSnap[], target: HeldTarget, taskGroupId: string | null): Point | null {
   let first: Point | null = null
@@ -247,8 +247,8 @@ function targetPointOf(snaps: readonly AnchorSnap[], target: HeldTarget, taskGro
   return first
 }
 
-// see FR-093
-// TRAP: repeats labelUnits in label-width.ts; change them together.
+// Spec: FR-093
+// Trap: repeats labelUnits in label-width.ts; change them together.
 /** @purity pure */
 function charUnits(ch: string): number {
   return ch.charCodeAt(0) < 0x100 ? 1 : 2
@@ -261,7 +261,7 @@ function labelUnits(text: string): number {
   return units
 }
 
-// see FR-097, S-182
+// Spec: FR-097, S-182
 /** @purity pure */
 function wrappedLines(text: string, limit: number): readonly string[] {
   const out: string[] = []
@@ -283,8 +283,8 @@ function wrappedLines(text: string, limit: number): readonly string[] {
   return out
 }
 
-// see FR-093, FR-097, S-624
-// WHY: an empty or null text estimates 0 units, so it takes the box's own font size as its floor, never one full-width
+// Spec: FR-093, FR-097, S-624
+// Why: an empty or null text estimates 0 units, so it takes the box's own font size as its floor, never one full-width
 // character: that one is scaled by S-30 and would move the floor with a document setting (FR-097).
 /** @purity pure */
 function textWidthOf(lines: readonly string[], fontSize: number, labelCoef: number): number {
@@ -293,7 +293,7 @@ function textWidthOf(lines: readonly string[], fontSize: number, labelCoef: numb
   return widest === 0 ? fontSize : widest * fontSize * labelCoef
 }
 
-// see FR-019, FR-097
+// Spec: FR-019, FR-097
 /** @purity pure */
 export function commentGeometry(
   schedule: Schedule,
@@ -308,7 +308,7 @@ export function commentGeometry(
     if (anchor === null) continue
     const lines = wrappedLines(box.text ?? '', settings.commentBoxWrapUnits)
     const offset = box.bodyOffsetPx ?? { dx: 0, dy: 0 }
-    // see AT-168, S-624
+    // Spec: AT-168, S-624
     const fontSize = drawnAnnotationNumber(box.fontSizePx ?? null, 'S-624')
     const pad = settings.commentBoxPad
     const width = textWidthOf(lines, fontSize, settings.labelCoef) + 2 * pad
@@ -325,9 +325,9 @@ export function commentGeometry(
       lines,
       fontSize,
       strokeWidthPx: drawnAnnotationNumber(box.strokeWidthPx, 'S-374'),
-      // see AT-151
+      // Spec: AT-151
       fillOpacity: 1 - drawnAnnotationNumber(box.fillTransparencyPercent, 'S-375') / 100,
-      // TRAP: '?? null', not the bare column: a document built by hand without the CR-559 columns carries undefined
+      // Trap: '?? null', not the bare column: a document built by hand without the CR-559 columns carries undefined
       strokeColor: box.strokeColor ?? null,
       fillColor: box.fillColor ?? null,
       textColor: box.textColor ?? null,

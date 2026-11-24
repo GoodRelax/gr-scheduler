@@ -18,13 +18,13 @@ const SETTINGS = readJson('settings.json')
 const PUBLISHED = readJson('published-entries.json')
 const MACHINES = readStateMachineView()
 
-// see T-058
+// Spec: T-058
 const AT_NAMES = new Map<string, string>()
 for (const entity of ERD.entities) {
   for (const column of entity.columns ?? []) AT_NAMES.set(`AT-${column.seat}`, column.name)
 }
 
-// see T-202
+// Spec: T-202
 const S_NAMES = new Map<string, string>()
 for (const block of SETTINGS.blocks) {
   if (block.id !== 'T-202' && block.id !== 'T-203') continue
@@ -35,7 +35,7 @@ const columnNameOf = (row: string): string | undefined => AT_NAMES.get(row) ?? S
 
 // see CR-776
 const NOT_RENAMED = new Set([
-  // WHY: JDG-2685 -- the command that makes a box names it as every command on that box does.
+  // Why: JDG-2685 -- the command that makes a box names it as every command on that box does.
   'CM-46.commentBoxId',
   'CM-52.highlightBoxId',
   'CM-39.workingDayTypes',
@@ -229,7 +229,7 @@ describe('CR-778 -- table T-064 PI-39 drops GrabbedVerticalAxis; the grab state 
       for (const one of region.machines ?? []) if (one.name === 'taskGroupGrabStateMachine') machine = one
     }
     expect(machine, 'taskGroupGrabStateMachine is in state-machines.json').not.toBeNull()
-    // WHY: wave 2 of CR-767 (JDG-2364) puts grabPressed and carrying under the composite grabbed;
+    // Why: wave 2 of CR-767 (JDG-2364) puts grabPressed and carrying under the composite grabbed;
     // the three states are the leaves.
     expect(machine.states.map((s: any) => s.key)).toEqual(['notGrabbed', 'grabbed', 'grabbed.grabPressed', 'grabbed.carrying'])
     const leaves = machine.states.filter((s: any) => !machine.states.some((t: any) => t.parent === s.key))

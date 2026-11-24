@@ -27,7 +27,7 @@ type RawMachine = {
 type RawEvent = { readonly key: string; readonly carries: readonly { readonly name: string }[] }
 type RawRegion = { readonly region: string; readonly holds?: string; readonly events: readonly RawEvent[]; readonly machines: readonly RawMachine[] }
 
-// see SD-5
+// Spec: SD-5
 const REGIONS = (
   readStateMachineView() as {
     readonly regions: readonly RawRegion[]
@@ -70,7 +70,7 @@ function question(row: string): Loose {
 }
 
 const CANDIDATES = [{ currentUid: 1, currentName: 'Task A', incomingUid: 7, incomingName: 'Task A' }]
-// see FR-155
+// Spec: FR-155
 const FIX_BUNDLE: readonly Loose[] = [{ fixRow: 'FA-11', taskUid: 3 }]
 
 const OPERATIONS: readonly Loose[] = [
@@ -99,7 +99,7 @@ const ROOTS: readonly Loose[] = [
 const EVENT_VARIANTS: Readonly<Record<string, readonly Loose[]>> = {
   documentOpenAsked: ['chooser', 'drop', 'reopen'].map((openRoute) => ({ openRoute })),
   agentDocumentHanded: [{}],
-  // see FR-155, SX-3
+  // Spec: FR-155, SX-3
   documentFileWriteAsked: [
     { writeForm: { kind: 'save' }, fixBundle: null },
     { writeForm: { kind: 'export', format: 'MF-1' }, fixBundle: null },
@@ -325,12 +325,12 @@ describe('orthogonality: unsavedEditsStateMachine and the other two fileFlow mac
 
   it.each(ownCases)('%s: fileOperationState, confirmationState and root stay the same reference; no effect', (_, kind, fields, type) => {
     const session = withFlow({ ...fields, unsavedEditsState: { kind } })
-    // WHY: documentEditLanded carries isBackToSavedDocument (T-290); false is the reading of a landing that is no undo back.
+    // Why: documentEditLanded carries isBackToSavedDocument (T-290); false is the reading of a landing that is no undo back.
     const event: Loose = type === 'documentEditLanded' ? { type, isBackToSavedDocument: false } : { type }
     const result = step(session, event)
     const before = flowOf(session)
     const after = flowOf(result.state)
-    // see T-290, FR-095
+    // Spec: T-290, FR-095
     const rootMoves = type === 'newDocumentLanded' && before['openedFileName'] !== null
     for (const key of ['fileOperationState', 'confirmationState', 'openedFileName', 'droppedTaskNames', 'missingTaskNames']) {
       if (key === 'openedFileName' && type === 'newDocumentLanded') expect(after[key], key).toBeNull()

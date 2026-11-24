@@ -1,4 +1,4 @@
-// SingleHtmlShell frame loop -- the watermark unlock gate: the answer's SHA-256 against the stored or default digest.
+// File: SingleHtmlShell frame loop: the watermark unlock gate: the answer's SHA-256 against the stored or default digest.
 // @unit      UF-166  (docs/spec/05-07-design.md, table T-075)
 // @component SingleHtmlShell, layer Framework (table T-062)
 // @purity    non-pure
@@ -17,7 +17,7 @@ function hexOfByte(value: number): string {
   return high + low
 }
 
-// see FR-020, S-101
+// Spec: FR-020, S-101
 /** @purity semi-pure-mutable */
 async function sha256HexOf(text: string): Promise<string | null> {
   const digester = globalThis.crypto?.subtle
@@ -32,17 +32,17 @@ async function sha256HexOf(text: string): Promise<string | null> {
   }
 }
 
-// see FR-020, FR-086, S-99c, S-101
+// Spec: FR-020, FR-086, S-99c, S-101
 /** @purity semi-pure-mutable */
 function watermarkUnlockDigest(): string {
   const set = readBrowserStored('S-99c')
-  // TRAP: an empty stored digest must count as unset, or the empty password opens the gate.
+  // Trap: an empty stored digest must count as unset, or the empty password opens the gate.
   return set === null || set === '' ? WATERMARK_UNLOCK_DIGEST['S-101'] : set
 }
 
 export type WatermarkUnlockHands = Pick<FrameLoopHands, 'readSession' | 'readValues' | 'sendToSession' | 'ask'>
 
-// see FR-020, U-60
+// Spec: FR-020, U-60
 /** @purity non-pure */
 export function answerWatermarkUnlock(hands: WatermarkUnlockHands, isProceeding: boolean): boolean {
   if (openSurfaceNameIn(hands.readSession()) !== WATERMARK_UNLOCK_ROW) return false
@@ -51,11 +51,11 @@ export function answerWatermarkUnlock(hands: WatermarkUnlockHands, isProceeding:
   return true
 }
 
-// see FR-020, RS-41
+// Spec: FR-020, RS-41
 /** @purity non-pure */
 export async function matchWatermarkUnlock(hands: WatermarkUnlockHands, answer: string): Promise<void> {
   const given = await sha256HexOf(answer)
-  // DEVIATION: spec says a reason with no row is RS-15 (T-233); here no SHA-256 reads as RS-41 (DFC-559)
+  // Temporary: spec says a reason with no row is RS-15 (T-233); here no SHA-256 reads as RS-41 (DFC-559). Until: DFC-559 is fixed.
   if (given === null || given !== watermarkUnlockDigest()) {
     hands.sendToSession({ type: 'watermarkUnlockMismatched' }, null)
     return
@@ -68,7 +68,7 @@ export async function matchWatermarkUnlock(hands: WatermarkUnlockHands, answer: 
 // Single source of truth:
 //   docs/spec/_source/settings.json (table T-207)
 // Rebuild: npm run gen   ||   npm run gen:check fails on drift.
-// see T-207, FR-020
+// Spec: T-207, FR-020
 export const WATERMARK_UNLOCK_DIGEST: {
   readonly 'S-101': string
 } = {

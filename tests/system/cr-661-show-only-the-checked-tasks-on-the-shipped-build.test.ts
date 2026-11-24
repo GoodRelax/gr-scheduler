@@ -11,7 +11,7 @@ import { rowOf } from './sws-case'
 
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
-// WHY: each constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
+// Why: each constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
 const FR_151_RULES =
   '検索の表・遅延診断レポートの表・担当リストの表の表示の列（Visibility）と、表ごとのスケジュールフィルタの入口（`_assets/tbl-glossary.md` の 表 T-109 の `IC-143`）で、日程表に描くタスクを絞ること（スケジュールフィルタ）の規則は 表 T-353 に従うこと（MUST）'
 const FR_151_SAVED = '⭐ 3 つの表の見え方 —— 表示の列の値・スケジュールフィルタの入切・列のフィルタ・並べ替え —— は文書に保存すること（MUST）'
@@ -51,7 +51,7 @@ const PANEL = roleOf('U-64')
 const REPORT = roleOf('U-66')
 const BAND = roleOf('U-67')
 const CANVAS = roleOf('U-32')
-// WHY: the canvas element spans the window; the ruler's ground is drawn at the top of the region the band moves down.
+// Why: the canvas element spans the window; the ruler's ground is drawn at the top of the region the band moves down.
 const RULER = '[data-figure="ruler-ground"]'
 const ENTER = rowOf(specTable('T-109'), 'IC-143').id
 const MINIMIZE = rowOf(specTable('T-109'), 'IC-129').id
@@ -59,7 +59,7 @@ const CLOSE = rowOf(specTable('T-109'), 'IC-52').id
 const DIAGNOSE = rowOf(specTable('T-109'), 'IC-107').id
 const OPEN_SEARCH = keyOf('SK-24')
 
-// see S-497, S-498
+// Spec: S-497, S-498
 const settingPx = (id: string): number => Number(/^(\d+)px/.exec(unbroken(rowOf(specTable('T-206'), id).by['既定'] ?? ''))?.[1] ?? NaN)
 const BAND_HEIGHT = settingPx('S-497')
 
@@ -67,10 +67,10 @@ const TEMPLATE = JSON.parse(
   readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
 ) as { $schema: string; schemaVersion: string; schedule: Record<string, any>; documentSettings: Record<string, unknown>; documentStamp: unknown }
 
-// WHY: January 2026; Sato carries Alpha (task group C under the folded task group P) and Charlie (task group Q); Tanaka carries Bravo and
+// Why: January 2026; Sato carries Alpha (task group C under the folded task group P) and Charlie (task group Q); Tanaka carries Bravo and
 // Delta; Alpha -> Delta is a link whose far end the narrowing hides while its task group Q stays drawn for Charlie.
 const day = (dayOfMonth: number): string => `2026-01-${String(dayOfMonth).padStart(2, '0')}T00:00:00`
-// WHY: the Command Palette opens over the left of the canvas; the view starts two weeks early so the bars lie clear of it.
+// Why: the Command Palette opens over the left of the canvas; the view starts two weeks early so the bars lie clear of it.
 const CLEAR_OF_THE_PALETTE = '2025-12-20T00:00:00'
 const TASK_GROUP_P = '5c000000-0000-4000-8000-000000006620'
 const TASK_GROUP_C = '5c000000-0000-4000-8000-000000006621'
@@ -107,7 +107,7 @@ const taskRow = (uid: number, from: number, to: number, dependencies: readonly u
   carryElements: [],
 })
 
-// WHY: TV-6 opens nothing on entering, so a case that needs Alpha drawn opens task group P in the document itself.
+// Why: TV-6 opens nothing on entering, so a case that needs Alpha drawn opens task group P in the document itself.
 type FoldOfP = 'collapsed' | 'expanded'
 
 /** @purity pure */
@@ -164,7 +164,7 @@ interface Shown {
   readonly filteringTables: readonly string[]
 }
 
-// see AM-26
+// Spec: AM-26
 /** @purity semi-pure-mutable */
 async function readShown(page: Page): Promise<Shown> {
   const shown = await page.evaluate(() => {
@@ -177,7 +177,7 @@ async function readShown(page: Page): Promise<Shown> {
 const NARROWED = { drawnTaskUids: [ALPHA, CHARLIE], filteringTables: ['searchPanel'] }
 const NOT_NARROWED = { drawnTaskUids: null, filteringTables: [] }
 
-// WHY: every task figure is keyed task-<uid>-... (the drawing's own keys), so the drawn tasks are read off the keys.
+// Why: every task figure is keyed task-<uid>-... (the drawing's own keys), so the drawn tasks are read off the keys.
 /** @purity semi-pure-mutable */
 async function drawnTaskUids(page: Page): Promise<number[]> {
   const keys = await page.evaluate(() => Array.from(document.querySelectorAll('[data-figure^="task-"]')).map((one) => one.getAttribute('data-figure') ?? ''))
@@ -238,7 +238,7 @@ async function opened(foldOfP: FoldOfP = 'collapsed'): Promise<Stage> {
   return stage
 }
 
-// WHY: every row starts unchecked (TV-2, CR-798); the word narrows the table to Sato (SV-4), the heading box checks every listed row (SQ-10), and the word is cleared again.
+// Why: every row starts unchecked (TV-2, CR-798); the word narrows the table to Sato (SV-4), the heading box checks every listed row (SQ-10), and the word is cleared again.
 /** @purity non-pure */
 async function checkSato(page: Page): Promise<void> {
   await page.keyboard.press(OPEN_SEARCH)
@@ -271,14 +271,14 @@ test.describe('FR-151 / T-353 on the shipped build', () => {
       expect(await bandText(page), 'no band before IC-143').toBeNull()
       await press(page, `${PANEL} [data-icon="${ENTER}"]`)
       expect(await readShown(page)).toEqual(NARROWED)
-      // see TV-6
+      // Spec: TV-6
       expect(stateOf(await readTree(page), TASK_GROUP_P), 'entering leaves the folded task group above Alpha folded').toBe('collapsed')
-      // see TV-1, TV-3
+      // Spec: TV-1, TV-3
       const drawn = await drawnTaskUids(page)
       expect(drawn).toContain(CHARLIE)
       expect(drawn).not.toContain(BRAVO)
       expect(drawn).not.toContain(DELTA)
-      // see TV-11
+      // Spec: TV-11
       expect(await bandText(page) ?? '').toMatch(/4 件中 2 件|2 of 4/)
       const band = await boxOf(page, BAND)
       const rulerAfter = await boxOf(page, RULER)

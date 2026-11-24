@@ -11,7 +11,7 @@ const SPEC = join(process.cwd(), 'docs', 'spec')
 
 const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8'))
 
-// WHY: each constant is one sentence cut from the manuscript as it stands, ending at its MUST marker where it has one (check 39).
+// Why: each constant is one sentence cut from the manuscript as it stands, ending at its MUST marker where it has one (check 39).
 const TC_8_CARRIES_THE_REASON = '⭐ 作らなかった理由として 表 T-233 の `RS-53` を運ぶこと（MUST）'
 const TC_8_WHY_IT_IS_CARRIED =
   '⭐ 運ぶのは、出し分けを同表の欄の値 1 つで変えられるようにするためである —— 運ばなければ、欄を変えても何も出ない。'
@@ -32,7 +32,7 @@ const FR_076_NO_FALL_TO_A_T_233_ROW =
 
 const IV_10_FINISH_NOT_BEFORE_START =
   '`start` と `finish` がともに非 `null` の `Task` で、`finish` が `start` より前でないこと'
-// WHY: CR-710 rewrote this clause (FR-054 reads instants and counts working time in minutes).
+// Why: CR-710 rewrote this clause (FR-054 reads instants and counts working time in minutes).
 const IV_14_A_DATE_IN_RANGE = '日付と日時の列が、日時として読め（時刻は 1 分の単位）、受け入れる日付の範囲に収まること。'
 
 const SHOWS_NOTHING = '出さない'

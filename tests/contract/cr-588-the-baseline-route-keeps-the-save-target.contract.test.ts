@@ -134,7 +134,7 @@ function settled(): Promise<void> {
   })
 }
 
-// WHY: FR-060 lets only a replace adopt the file read, so plan.json is chosen and then adopted (the replace lands),
+// Why: FR-060 lets only a replace adopt the file read, so plan.json is chosen and then adopted (the replace lands),
 // giving FR-060 a target the overlay could steal.
 async function withOpenedFile(): Promise<{ built: Stand; opened: Fake; overlay: Fake }> {
   const built = stand()

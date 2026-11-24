@@ -32,9 +32,9 @@ const TEMPLATE = JSON.parse(
 const TASK_UID = 1
 const ROW_ID = 'g1'
 const PX_PER_DAY = 20
-// see PR-1
+// Spec: PR-1
 const NAME_FIELD_ROW = 'PR-1'
-// see SK-14
+// Spec: SK-14
 const PALETTE_KEY = 'P'
 
 const oneTaskDocument = (): Document =>
@@ -153,7 +153,7 @@ const doubleClickTheTask = (built: Bench): void => {
 
 const paletteIsUp = (built: Bench): boolean => built.last().commandPalette !== null
 
-// WHY: the seam's own hands, cut to the two it reads: the session's field-entry
+// Why: the seam's own hands, cut to the two it reads: the session's field-entry
 // state and the host's screen wiring.
 const handsWanting = (screen: Partial<ScreenWiring> | undefined): Parameters<typeof isFieldFocusWanted>[0] =>
   ({
@@ -201,7 +201,7 @@ describe('DFC-977 / IF-9, T-292, AG-9 -- the edit notices are read before the ed
   it('an ended notice the surface holds is in the state the next reading answers', () => {
     const built = bench()
     built.notices.push({ kind: 'began', row: NAME_FIELD_ROW })
-    // STEP: an input carries the began notice in, then the field ends with no input after it
+    // Step: an input carries the began notice in, then the field ends with no input after it
     built.send(pointer('move', bodyOfTheBar(built.loop)))
     expect(built.loop.agentApiSeams().source.readSnapshot().isEditingInPlace, 'premise: the edit stands').toBe(true)
     built.notices.push({ kind: 'ended', row: NAME_FIELD_ROW })

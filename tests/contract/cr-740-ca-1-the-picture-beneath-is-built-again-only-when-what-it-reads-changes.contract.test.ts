@@ -156,7 +156,7 @@ describe(`T-071 CA-1 (3) -- ${CA_1_KEY}; ${CA_1_KEY_IS_ALL}`, () => {
     const hiding = picturesBuilt('screen')
     one.press('IC-41')
     one.pressOn({ part: partNameOf('U-60'), confirmationAnswer: 'proceed' })
-    // WHY: the U-60 answer is checked by an asynchronous digest; under load one timer turn is not enough.
+    // Why: the U-60 answer is checked by an asynchronous digest; under load one timer turn is not enough.
     await vi.waitFor(() => {
       one.drain()
       expect(picturesBuilt('screen') - hiding, 'the watermark is now hidden').toBeGreaterThan(0)

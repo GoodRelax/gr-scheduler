@@ -1,4 +1,4 @@
-// ScreenRenderer: describes the UI parts outside the schedule for the screen surface.
+// File: ScreenRenderer: describes the UI parts outside the schedule for the screen surface.
 // @unit      UF-60   (docs/spec/05-07-design.md, table T-075)
 // @component ScreenRenderer, layer Adapter (table T-062)
 // @purity    pure
@@ -37,21 +37,21 @@ export type {
   HolidayWorkingTimeLine,
 } from './holiday-settings'
 
-// TRAP: the shell must use this key, not rebuild it, or the two spellings drift apart.
+// Trap: the shell must use this key, not rebuild it, or the two spellings drift apart.
 export { dismissKeyOf }
 
-// see HF-14
-// WHY: the en cell, not the display language; the task group label is document data (FR-038).
+// Spec: HF-14
+// Why: the en cell, not the display language; the task group label is document data (FR-038).
 const DEFAULT_TASK_GROUP_NAME_ENTRY = displayWords.defaultNames.find((one) => one.use === 'taskGroup')
 export const DEFAULT_TASK_GROUP_NAME: string =
   DEFAULT_TASK_GROUP_NAME_ENTRY === undefined ? '' : DEFAULT_TASK_GROUP_NAME_ENTRY.text.en
 
-// WHY: FX-7's copy entrance commits this; no date reads this way, so the span row's commits never meet it.
+// Why: FX-7's copy entrance commits this; no date reads this way, so the span row's commits never meet it.
 export const FIT_SPAN_COPY_TEXT = 'copyCurrent'
 
 export const DISPLAY_TIME_ZONE_SLOT_SEPARATOR = '|'
 
-// see AS-5, IC-125, IC-126
+// Spec: AS-5, IC-125, IC-126
 export const ASSIGNEE_LIST_SEPARATOR = ','
 import { helpModalFromSession, openModalFromSession } from './open-modals'
 import { propertiesPanelFromSelection } from './properties-panel'
@@ -157,15 +157,15 @@ export interface CommandItem {
   readonly icon: IconId
   readonly isEnabled: boolean
   readonly isPressed: boolean
-  // WHY: not isPressed, which writes aria-pressed and would announce an arm as a pressed button.
+  // Why: not isPressed, which writes aria-pressed and would announce an arm as a pressed button.
   readonly isArmed: boolean
-  // WHY: not isPressed: a chosen exclusive entry is EN-6 of T-237, not a toggle that is on (EN-2).
+  // Why: not isPressed: a chosen exclusive entry is EN-6 of T-237, not a toggle that is on (EN-2).
   readonly isChosen: boolean
   readonly label: string
-  // see TV-12, EN-8
+  // Spec: TV-12, EN-8
   readonly isScheduleFilterApplied?: boolean
   readonly isLabelShown?: boolean
-  // see FR-039, S-623
+  // Spec: FR-039, S-623
   readonly isLabelBold?: boolean
 }
 
@@ -211,13 +211,13 @@ export interface AppHeaderItems {
 export interface TaskGroupPanel {
   readonly pinnedTitles: readonly TaskGroupTitle[]
   readonly titles: readonly TaskGroupTitle[]
-  // TRAP: optional so literals compile; a builder that forgets it leaves the entrance drawn usable, silently.
+  // Trap: optional so literals compile; a builder that forgets it leaves the entrance drawn usable, silently.
   readonly canOpenEveryTaskGroup?: boolean
   readonly canCloseEveryTaskGroup?: boolean
   readonly canOpenLevelZero?: boolean
   readonly foldedTaskGroupCount?: number
   readonly groupGridLines?: readonly ScreenRect[]
-  // TRAP: optional so literals compile; absent prints no abbreviation (FR-017, FR-156).
+  // Trap: optional so literals compile; absent prints no abbreviation (FR-017, FR-156).
   readonly rulerAbbreviations?: readonly RulerAbbreviation[]
   readonly dropCue?: TaskGroupDropCue | null
   readonly grabCopy?: TaskGroupGrabCopy | null
@@ -226,18 +226,18 @@ export interface TaskGroupPanel {
 export interface TaskGroupDropCue {
   readonly lineY: number
   readonly lineIndentPx: number
-  // see HF-15, QN-16
+  // Spec: HF-15, QN-16
   readonly isPastDepthCap?: boolean
 }
 
-// see HF-15, S-599
+// Spec: HF-15, S-599
 export interface TaskGroupGrabCopy {
   readonly x: number
   readonly y: number
   readonly name: string
 }
 
-// see FR-017, FR-156, T-376, EP-3
+// Spec: FR-017, FR-156, T-376, EP-3
 export interface RulerAbbreviation {
   readonly text: string
   readonly box: ScreenRect
@@ -307,23 +307,23 @@ export type PropertyControlKind =
   | 'color'
   | 'taskReference'
 
-// see CV-9
-// WHY: swatches run beside choiceValues; the custom entrance commits one #rrggbb (CV-4).
+// Spec: CV-9
+// Why: swatches run beside choiceValues; the custom entrance commits one #rrggbb (CV-4).
 export interface ColorField {
   readonly swatches: readonly string[]
   readonly inks: readonly string[]
   readonly customWord: string
   readonly customValue: string
-  // WHY: optional, so a description written before it still draws; absent, only the offered names show.
+  // Why: optional, so a description written before it still draws; absent, only the offered names show.
   readonly names?: readonly ColorName[]
   readonly theme: ColorEntrance
   readonly custom: ColorEntrance
   readonly transparentWord?: string
-  // see PI-37, PI-1
+  // Spec: PI-37, PI-1
   readonly transparentName: string
 }
 
-// see CV-9, CV-5, CV-7
+// Spec: CV-9, CV-5, CV-7
 export interface ColorEntrance {
   readonly glyph: string
   readonly hint: string
@@ -331,13 +331,13 @@ export interface ColorEntrance {
   readonly ink: string
 }
 
-// see PR-37, PR-38, T-018
+// Spec: PR-37, PR-38, T-018
 export interface PropertyBadge {
   readonly text: string
   readonly hint: string
 }
 
-// see AS-5, AS-6, IC-123, IC-124
+// Spec: AS-5, AS-6, IC-123, IC-124
 export interface AssigneeCombo {
   readonly people: readonly { readonly name: string; readonly uid: number; readonly word: string }[]
   readonly addWord: string
@@ -348,14 +348,14 @@ export interface AssigneeCombo {
   readonly candidatesOf: (typed: string, isDescending: boolean) => readonly AssigneeCandidate[]
 }
 
-// see AS-5, AS-7
+// Spec: AS-5, AS-7
 export interface AssigneeCandidate {
   readonly pick: 'candidate' | 'add'
   readonly value: string
   readonly word: string
 }
 
-// see CV-9, T-294
+// Spec: CV-9, T-294
 export interface ColorName {
   readonly name: string
   readonly isOffered: boolean
@@ -369,7 +369,7 @@ export interface PropertyControl {
   readonly choiceValues?: readonly string[]
   readonly choiceLines?: readonly (readonly [string, string])[]
   readonly color?: ColorField
-  // WHY: bare swatches beside choiceValues; ColorField brings entrances FR-041's hue field must not have.
+  // Why: bare swatches beside choiceValues; ColorField brings entrances FR-041's hue field must not have.
   readonly swatches?: readonly string[]
   readonly assignee?: AssigneeCombo
   readonly min: number | null
@@ -380,10 +380,10 @@ export interface PropertyControl {
   readonly isSizedAsDate?: true
   readonly isDateTime?: true
   readonly hint?: string
-  // see FX-7
-  // WHY: a word entrance committing `text` when pressed; it holds no value of its own.
+  // Spec: FX-7
+  // Why: a word entrance committing `text` when pressed; it holds no value of its own.
   readonly press?: string
-  // WHY: words with no entry, and a control on a line of its own: the base change answers (FO-14, FR-156).
+  // Why: words with no entry, and a control on a line of its own: the base change answers (FO-14, FR-156).
   readonly words?: string
   readonly isOwnLine?: true
   readonly link?: PropertyLink
@@ -391,7 +391,7 @@ export interface PropertyControl {
   readonly lag?: string
 }
 
-// see PTL-15, PTL-16, PTL-17
+// Spec: PTL-15, PTL-16, PTL-17
 export interface PropertyLink {
   readonly taskUid: number
   readonly canUnlink: boolean
@@ -443,7 +443,7 @@ export type PropertyFieldKey =
       readonly holder: 'documentSettings'
       readonly column: keyof DocumentSettings & string
     }
-  // see FO-16, FR-157, IC-162
+  // Spec: FO-16, FR-157, IC-162
   | {
       readonly holder: 'timeShift'
       readonly column: 'minutes' | 'entry'
@@ -456,7 +456,7 @@ export type PropertyFieldKey =
       readonly holder: 'baseTimeZoneDraft'
       readonly column: 'chosenRegion' | 'keepGlobalTime' | 'keepLocalTime' | 'cancel'
     }
-  // see WC-3, WC-4, WC-8, IC-134, IC-165
+  // Spec: WC-3, WC-4, WC-8, IC-134, IC-165
   | {
       readonly holder: 'calendarDraft'
       readonly column: HolidaySettingsFieldColumn
@@ -465,7 +465,7 @@ export type PropertyFieldKey =
 
 export interface CommandPalette {
   readonly at: { readonly x: number; readonly y: number }
-  // TRAP: the surface must draw the band inside the palette part, or the palette fades while grabbed.
+  // Trap: the surface must draw the band inside the palette part, or the palette fades while grabbed.
   readonly grabBandHeight: number
   readonly minimize: CommandItem
   readonly bandRecord?: CommandItem | null
@@ -493,28 +493,28 @@ export interface HelpModal extends OpenSurface {
   readonly licenseText: string
   readonly copyrightNotice: string
   readonly attributions: readonly string[]
-  // see FR-036, S-350, S-583
+  // Spec: FR-036, S-350, S-583
   readonly downloadLink: HelpLink
   readonly aboutLink: HelpLink
   readonly helpLegal: { readonly licensedUnder: string; readonly fullText: string }
-  // see FR-036, T-255
+  // Spec: FR-036, T-255
   readonly blockNotes: readonly { readonly block: string; readonly text: string }[]
   readonly area: HelpWindowArea
   readonly place?: WindowPlace
 }
 
-// see WB-1, WB-3, WB-8, FR-036
+// Spec: WB-1, WB-3, WB-8, FR-036
 export interface HelpWindowArea {
   readonly belowAppHeader: ScreenRect
 }
 
-// see OP-16, IC-71, IC-72, IC-73
+// Spec: OP-16, IC-71, IC-72, IC-73
 export interface OpenChoiceLine {
   readonly entry: CommandItem
   readonly hint: string
 }
 
-// see OP-16, U-56
+// Spec: OP-16, U-56
 export interface OpenChooser extends OpenSurface {
   readonly surface: 'Open Chooser'
   readonly incomingFile: { readonly fileName: string | null; readonly byteLength: number; readonly documentTitle: string } | null
@@ -524,7 +524,7 @@ export interface OpenChooser extends OpenSurface {
   readonly cancelWord: string
 }
 
-// see FR-036, S-350, S-583
+// Spec: FR-036, S-350, S-583
 export interface HelpLink {
   readonly words: string
   readonly address: string
@@ -536,16 +536,16 @@ export interface HelpEntry {
   readonly text: string
   readonly press: string | null
   readonly keys: string | null
-  // see FR-036, EZ-2
+  // Spec: FR-036, EZ-2
   readonly assignment: string | null
   readonly icon: IconId | null
   readonly kind: string
-  // see T-256
+  // Spec: T-256
   readonly column: string
   readonly block: string
   readonly segment: string | null
   readonly glyphs: readonly IconId[]
-  // see FR-036, IC-20, S-350
+  // Spec: FR-036, IC-20, S-350
   readonly link: HelpLink | null
 }
 
@@ -592,10 +592,10 @@ export type OpenModal =
       readonly missingNextStep: string
       readonly reportLines: readonly ImportReportLine[]
     })
-  // TRAP: this string member never narrows and lets a misspelled name compile; narrow by a carried member.
+  // Trap: this string member never narrows and lets a misspelled name compile; narrow by a carried member.
   | (OpenSurface & { readonly surface: string })
 
-// see U-62, FR-076
+// Spec: U-62, FR-076
 export interface ImportReportLine {
   readonly reason: string
   readonly text: string
@@ -617,7 +617,7 @@ export interface RaisedNotice {
   readonly affectedCount: number | null
 }
 
-// see FR-073
+// Spec: FR-073
 export interface LinkedWords {
   readonly before: string
   readonly address: string
@@ -696,31 +696,31 @@ export interface ScreenView {
   readonly propertiesPanel: PropertiesPanel | null
   readonly commandPalette: CommandPalette | null
   readonly openModal: OpenModal | null
-  // see WB-10
+  // Spec: WB-10
   readonly openModalAt?: { readonly x: number; readonly y: number } | null
   readonly helpModal?: HelpModal | null
   readonly notices: readonly Notice[]
   readonly confirmation: Confirmation | null
   readonly tooltips: readonly Tooltip[]
-  // TRAP: optional so literals compile; absent draws no panel (FR-151), the same as null.
+  // Trap: optional so literals compile; absent draws no panel (FR-151), the same as null.
   readonly searchPanel?: SearchPanelView | null
   readonly delayDiagnosticsReport?: DelayDiagnosticsReportView | null
   readonly resourceList?: ResourceListView | null
-  // see TV-11, U-67
+  // Spec: TV-11, U-67
   readonly scheduleFilterBar?: ScheduleFilterBarView | null
-  // see FR-039, SE-2, SE-5
-  // TRAP: kept out of notices, so the notice count and the Esc / Enter levels never see it;
+  // Spec: FR-039, SE-2, SE-5
+  // Trap: kept out of notices, so the notice count and the Esc / Enter levels never see it;
   // absent while no message stands.
   readonly scaleMessage?: string
-  // see DC-3
-  // TRAP: never a Tooltip: it neither waits for S-124 nor sits in the tooltip count the shell reads.
+  // Spec: DC-3
+  // Trap: never a Tooltip: it neither waits for S-124 nor sits in the tooltip count the shell reads.
   readonly dualCursorReadout?: DualCursorReadout
   readonly guideCursorLabel?: GuideCursorLabel
   readonly dropCue?: DropCue
   readonly jumpRipple?: JumpRipple
 }
 
-// see SJ-10, S-556, S-557, S-558, S-559
+// Spec: SJ-10, S-556, S-557, S-558, S-559
 export interface JumpRipple {
   readonly inner: ScreenRect
   readonly lineWidth: number
@@ -728,13 +728,13 @@ export interface JumpRipple {
   readonly landing: number
 }
 
-// see OP-17, U-68
+// Spec: OP-17, U-68
 export interface DropCue {
   readonly text: string
   readonly area: ScreenRect
 }
 
-// see DC-3, IN-3
+// Spec: DC-3, IN-3
 export interface DualCursorReadout {
   readonly lines: readonly string[]
   readonly at: { readonly x: number; readonly y: number }
@@ -745,7 +745,7 @@ export interface GuideCursorLabel {
   readonly at: { readonly x: number; readonly y: number }
 }
 
-// see PI-37, SF-5, SF-10
+// Spec: PI-37, SF-5, SF-10
 export interface ScreenViewReadings {
   readonly openedFileName: string | null
   readonly fileSavedAt: string | null
@@ -755,7 +755,7 @@ export interface ScreenViewReadings {
   readonly pointer: { readonly x: number; readonly y: number } | null
   readonly pointerRestedMs: number
   readonly hintTargetDwellMs: number
-  // see IF-9, EZ-2
+  // Spec: IF-9, EZ-2
   readonly iconUnderPointer: IconId | null
   readonly isPointerOnHelp?: boolean
   readonly isPointerOnSearchPanel?: boolean
@@ -775,9 +775,9 @@ export interface ScreenViewReadings {
       readonly isPastDepthCap?: boolean
     } | null
   } | null
-  // see FR-085, T-293
+  // Spec: FR-085, T-293
   readonly selectedTaskGroupIds: readonly string[]
-  // see FR-099, T-293
+  // Spec: FR-099, T-293
   readonly selectedResourceUids: readonly number[]
   readonly mergeCandidates?: readonly MergeCandidateLine[]
   readonly unreadColumns?: readonly string[]
@@ -789,24 +789,24 @@ export interface ScreenViewReadings {
   readonly taskGroupBoxes: readonly { readonly taskGroupId: string; readonly box: ScreenRect }[]
   readonly placedTaskGroupIds?: readonly string[]
   readonly placedTaskGroups?: readonly TaskGroupPlacement[]
-  // see FX-6, WF-3
-  // WHY: screen values the settings panel reads out; absent, the read-outs stay empty.
+  // Spec: FX-6, WF-3
+  // Why: screen values the settings panel reads out; absent, the read-outs stay empty.
   readonly shownSpan?: { readonly start: string; readonly finish: string } | null
   readonly taskGroupPanelDrawnWidth?: number
-  // TRAP: not on ScreenState: a per-frame change there fails the loop's identity test and redraws every frame.
+  // Trap: not on ScreenState: a per-frame change there fails the loop's identity test and redraws every frame.
   readonly scrollExtent: ScrollExtent
   readonly canUndo?: boolean
   readonly canRedo?: boolean
-  // see FR-029, IC-12, IC-13, IC-14, IC-15
+  // Spec: FR-029, IC-12, IC-13, IC-14, IC-15
   readonly zoomEntranceEnds?: {
     readonly isTimeOutAtEnd: boolean
     readonly isTimeInAtEnd: boolean
     readonly isVerticalOutAtEnd: boolean
     readonly isVerticalInAtEnd: boolean
   }
-  // WHY: held by the frame loop, never saved (S-419, S-420, S-429); absent reads as the initial values.
+  // Why: held by the frame loop, never saved (S-419, S-420, S-429); absent reads as the initial values.
   readonly searchPanel?: SearchPanelSession
-  // see WB-6, S-455
+  // Spec: WB-6, S-455
   readonly windowPlaces?: {
     readonly helpModal: WindowPlace
     readonly closeOnlyTitledSurface?: { readonly x: number; readonly y: number } | null
@@ -815,24 +815,24 @@ export interface ScreenViewReadings {
   readonly isDelayDiagnosticsReportOpen?: boolean
   readonly isParentTaskLinksShown?: boolean
   readonly parentTaskChoice?: ParentTaskChoice | null
-  // see RW-1, S-451
+  // Spec: RW-1, S-451
   readonly delayDiagnosticsReport?: {
     readonly window: DelayDiagnosticsReportWindow
     readonly report: DelayDiagnosticsReport
     readonly fixTables?: DelayFixTables
   } | null
-  // see SQ-5, S-445
+  // Spec: SQ-5, S-445
   readonly diagnosedMarkers?: ReadonlyMap<number, 'DG-1' | 'DG-2' | 'DG-3'>
   readonly resourceList?: TableWindowState | null
-  // WHY: the tasks the product draws (null while no Schedule Filter is on); the band counts them.
+  // Why: the tasks the product draws (null while no Schedule Filter is on); the band counts them.
   readonly drawnTaskUids?: ReadonlySet<number> | null
 }
 
-// WHY: the shell seats the startup language before the first frame (FR-038); only a root built
+// Why: the shell seats the startup language before the first frame (FR-038); only a root built
 // elsewhere, as a picture's, reaches this.
 const DEFAULT_DISPLAY_LANGUAGE: DisplayLanguage = 'en'
 
-// see PI-37, T-280
+// Spec: PI-37, T-280
 /** @purity pure */
 export function displayLanguageOf(session: ScreenSession): DisplayLanguage {
   return session.screen.screenLanguage ?? DEFAULT_DISPLAY_LANGUAGE
@@ -844,7 +844,7 @@ interface TableWindowSource {
   readonly canvas: ScreenRect
 }
 
-// see RW-1, RW-5, S-451, S-564
+// Spec: RW-1, RW-5, S-451, S-564
 /** @purity pure */
 function delayDiagnosticsReportOf(session: ScreenSession, readings: ScreenViewReadings, source: TableWindowSource): DelayDiagnosticsReportView | null {
   const held = readings.delayDiagnosticsReport ?? null
@@ -865,7 +865,7 @@ function resourceListOf(session: ScreenSession, readings: ScreenViewReadings, so
   return resourceListFromWindow(session, readings.resourceList ?? null, view, source.schedule, readings.selectedResourceUids, layout)
 }
 
-// see TV-1, TV-8, TV-11, TV-12, S-560, S-564, S-568
+// Spec: TV-1, TV-8, TV-11, TV-12, S-560, S-564, S-568
 /** @purity pure */
 function scheduleFilterBarIn(source: TableWindowSource, readings: ScreenViewReadings, language: DisplayLanguage): ScheduleFilterBarView | null {
   const schedule = source.schedule
@@ -893,14 +893,14 @@ function tableWindowsOf(
   }
 }
 
-// see WB-1, WB-3, WB-8
+// Spec: WB-1, WB-3, WB-8
 /** @purity pure */
 function helpWindowAreaOf(regions: ScreenRegions): HelpWindowArea {
   const belowAppHeader = regions.scheduleCanvas
   return { belowAppHeader }
 }
 
-// see EZ-6, DC-3, CU-3, DC-9
+// Spec: EZ-6, DC-3, CU-3, DC-9
 /** @purity pure */
 function pointerWordsOf(
   shown: Omit<ScreenView, 'tooltips'>,
@@ -910,7 +910,7 @@ function pointerWordsOf(
   session: ScreenSession,
   readings: ScreenViewReadings,
 ): Pick<ScreenView, 'tooltips' | 'dualCursorReadout' | 'guideCursorLabel'> {
-  // TRAP: read through ?.: views built from a partial schedule carry no project.
+  // Trap: read through ?.: views built from a partial schedule carry no project.
   const dataRegion = schedule.project?.scheduleDataTimeZone
   const readout = dualCursorReadoutOf(regions, settings, session, readings, dataRegion)
   const tooltips = tooltipsFromScreenView(shown, settings, session, readings, schedule)
@@ -922,7 +922,7 @@ function pointerWordsOf(
   }
 }
 
-// see WB-10
+// Spec: WB-10
 /** @purity pure */
 function openModalPlaced(
   session: ScreenSession,
@@ -936,7 +936,7 @@ function openModalPlaced(
 
 const DROP_CUE_WORDS = displayWords.dropCue.find((one) => one.part === 'dropToOpen')
 
-// see OP-17, U-68, U-32, T-280
+// Spec: OP-17, U-68, U-32, T-280
 /** @purity pure */
 function dropCueOf(session: ScreenSession, canvas: ScreenRect, language: DisplayLanguage): Pick<ScreenView, 'dropCue'> {
   if (session.screen.dropCueDisplayState.kind === 'hidden' || DROP_CUE_WORDS === undefined) return {}
@@ -948,7 +948,7 @@ function withRulerAbbreviations(panel: TaskGroupPanel, abbreviations: readonly R
   return abbreviations.length === 0 ? panel : { ...panel, rulerAbbreviations: abbreviations }
 }
 
-// see PI-37, SF-5
+// Spec: PI-37, SF-5
 /** @purity pure */
 export function screenViewFromRegions(
   regions: ScreenRegions,
@@ -974,7 +974,7 @@ export function screenViewFromRegions(
       settings,
       selection,
       readings,
-      // TRAP: never omit schedule, or the palette counts tasks no task group draws.
+      // Trap: never omit schedule, or the palette counts tasks no task group draws.
       schedule,
     ),
     ...openModalPlaced(session, schedule, readings, settings),
@@ -996,8 +996,8 @@ export function screenViewFromRegions(
   }
 }
 
-// TRAP: index 0 is Sunday and callers index by weekday number; never rotate by weekStartDay.
-// see FR-017
+// Trap: index 0 is Sunday and callers index by weekday number; never rotate by weekStartDay.
+// Spec: FR-017
 /** @purity pure */
 export function rulerWeekdayWords(language: DisplayLanguage): readonly string[] {
   return displayWords.weekdays.map((one) => one.text[language])

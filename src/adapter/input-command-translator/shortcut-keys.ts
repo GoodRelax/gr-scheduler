@@ -1,4 +1,4 @@
-// InputCommandTranslator -- turns a key press into an operation by table T-036.
+// File: InputCommandTranslator: turns a key press into an operation by table T-036.
 // @unit      UF-90   (docs/spec/05-07-design.md, table T-075)
 // @component InputCommandTranslator, layer Adapter (table T-062)
 // @purity    pure
@@ -30,7 +30,7 @@ import {
   zoomWrites,
 } from './zoom-and-fit'
 
-// see T-036, IN-5a, IN-4, MK-10, SK-24
+// Spec: T-036, IN-5a, IN-4, MK-10, SK-24
 /** @purity pure */
 export function commandFromKey(input: KeyInput, context: InputContext): TranslatedInput {
   const key = input.key
@@ -39,7 +39,7 @@ export function commandFromKey(input: KeyInput, context: InputContext): Translat
   const ctrl = isCombo(modifiers, true, false, false)
   const ctrlShift = isCombo(modifiers, true, true, false)
 
-  // WHY: a field asked for but not yet focused takes its keys too, or the first letter typed
+  // Why: a field asked for but not yet focused takes its keys too, or the first letter typed
   // after MK-13 or HF-14 reaches SK-14 or SK-18 instead of the name.
   if (context.isTextEntryUnsettled || context.isTextFieldFocusWanted === true) {
     if ((plain || isCombo(modifiers, false, true, false)) && isSingleCharacterKey(key)) return UNASSIGNED
@@ -52,9 +52,9 @@ export function commandFromKey(input: KeyInput, context: InputContext): Translat
   if (plain && key === KEY.enter) {
     if (context.isNoticeStanding === true) return acted({ kind: 'dismissNotice' })
     if (context.isTextEntryUnsettled) return acted({ kind: 'settleTextEntry' })
-    // WHY: same kind as the settle stage; only the shell knows whether its commit settled anything.
+    // Why: same kind as the settle stage; only the shell knows whether its commit settled anything.
     if (context.isPropertiesPanelShowing === true) return acted({ kind: 'settleTextEntry' })
-    // TRAP: with nothing chosen (task groups too) Enter stays unassigned, or tabbed-to controls lose activation.
+    // Trap: with nothing chosen (task groups too) Enter stays unassigned, or tabbed-to controls lose activation.
     return escapeContextOf(context).isSelectionStanding === true ? CONSUMED_ELSEWHERE : UNASSIGNED
   }
 
@@ -85,7 +85,7 @@ export function commandFromKey(input: KeyInput, context: InputContext): Translat
   if (plain && key === KEY.n) return acted({ kind: 'startNewDocument' })
 
   if (ctrlShift && key === KEY.e) return CONSUMED_ELSEWHERE
-  // WHY: screenEventFromInput sends F1, P and F11 (T-280, PI-18); acting here as well asks twice.
+  // Why: screenEventFromInput sends F1, P and F11 (T-280, PI-18); acting here as well asks twice.
   if (plain && (key === KEY.f1 || key === KEY.p || key === KEY.f11)) return CONSUMED_ELSEWHERE
 
   if (isTimeZoomKey(input)) {
@@ -96,7 +96,7 @@ export function commandFromKey(input: KeyInput, context: InputContext): Translat
     return verticalZoomAnswer(context, keyZoomFactor(context, key === KEY.plus), null, null)
   }
 
-  // TRAP: Ctrl alone with + / - / 0 stays UNASSIGNED; it is the browser's own zoom (T-255).
+  // Trap: Ctrl alone with + / - / 0 stays UNASSIGNED; it is the browser's own zoom (T-255).
   if (isDisplayScaleKey(input)) {
     return displayScaleStep(context, key === KEY.plus ? 1 : -1)
   }
@@ -115,31 +115,31 @@ function isPlusOrMinus(key: string): boolean {
   return key === KEY.plus || key === KEY.minus
 }
 
-// see SK-16, SK-16b
+// Spec: SK-16, SK-16b
 /** @purity pure */
 function isTimeZoomKey(input: KeyInput): boolean {
   return isCombo(input.modifiers, false, true, false) && isPlusOrMinus(input.key)
 }
 
-// see SK-16a, SK-16c
+// Spec: SK-16a, SK-16c
 /** @purity pure */
 function isVerticalZoomKey(input: KeyInput): boolean {
   return isCombo(input.modifiers, false, false, true) && isPlusOrMinus(input.key)
 }
 
-// see SK-22, SK-23, MK-10
+// Spec: SK-22, SK-23, MK-10
 /** @purity pure */
 function isDisplayScaleKey(input: KeyInput): boolean {
   return isCombo(input.modifiers, true, true, false) && isPlusOrMinus(input.key)
 }
 
-// see EL-17, UN-8, FR-039
+// Spec: EL-17, UN-8, FR-039
 /** @purity pure */
 export function isViewScaleKey(input: KeyInput): boolean {
   return isTimeZoomKey(input) || isVerticalZoomKey(input) || isDisplayScaleKey(input)
 }
 
-// see SK-3, SL-1, FR-046
+// Spec: SK-3, SL-1, FR-046
 /** @purity pure */
 function deleteCommandsFor(context: InputContext): readonly DocumentCommand[] {
   const schedule = context.document.schedule

@@ -61,7 +61,7 @@ export const PI_1_NO_COPY = '—— ⛔ 優先の順をコピーして持たせ�
 
 const PUBLISHED = JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'published-entries.json'), 'utf8')) as unknown
 
-// see PI-1
+// Spec: PI-1
 export function publishedNoteOf(name: string): readonly string[] {
   const found: string[][] = []
   const walk = (value: unknown): void => {

@@ -91,7 +91,7 @@ const stateKeyExists = (ref: StateRef): boolean => {
 const isSpecRow = (id: string): boolean =>
   [REQUIREMENTS, DESIGN, PUBLISHED].some((text) => text.includes(`| ${id} |`) || text.includes(`**UID**: ${id}\n`))
 
-// see IN-4
+// Spec: IN-4
 const IN_4_WORDS = IN_4_ORDER.replace('消費する階層は ', '')
   .replace(' の順とすること（MUST）', '')
   .split(' → ')
@@ -142,7 +142,7 @@ describe(`table T-283, Esc (RG-1..RG-8, RG-14, RG-16 and RG-17) -- IN-4 (MUST): 
     expect(REQUIREMENTS).toContain(IN_4_SELECTION_AFTER_ARM)
     const ids = rungsOf('Esc').map((r) => r.id)
     expect(ids.indexOf('RG-5')).toBeLessThan(ids.indexOf('RG-6'))
-    // WHY: wave 2 of CR-767 (JDG-2364) gathers the six arms under the composite `armed`.
+    // Why: wave 2 of CR-767 (JDG-2364) gathers the six arms under the composite `armed`.
     expect(RUNGS.find((r) => r.id === 'RG-5')?.states).toEqual([{ in: 'armModeStateMachine.armed' }])
     expect(RUNGS.find((r) => r.id === 'RG-6')?.states).toEqual([{ in: 'selectionStateMachine.objectsSelected' }])
   })
@@ -282,8 +282,8 @@ const NOTHING_ON: Required<Pick<EscapeContext, Flag>> = {
   isFullScreen: false,
 }
 
-// see T-283, IN-4, RG-16
-// WHY: inside RG-16 the windows stand in the order of table T-337 (UZ-6, UZ-7) while no window
+// Spec: T-283, IN-4, RG-16
+// Why: inside RG-16 the windows stand in the order of table T-337 (UZ-6, UZ-7) while no window
 // holds the focus; the search panel is in front of the report window until RW-5 says otherwise.
 const LADDER: readonly (readonly [string, EscapeTarget, Flag])[] = [
   ['RG-1', 'notice', 'isNoticeStanding'],
@@ -303,7 +303,7 @@ const LADDER: readonly (readonly [string, EscapeTarget, Flag])[] = [
   ['RG-17', 'fullScreen', 'isFullScreen'],
 ]
 
-// WHY: a word of EscapeTarget with no row here fails to compile, so the ladder cannot skip one.
+// Why: a word of EscapeTarget with no row here fails to compile, so the ladder cannot skip one.
 const EVERY_WORD: Record<EscapeTarget, true> = {
   notice: true,
   searchPanel: true,

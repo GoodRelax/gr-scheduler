@@ -48,7 +48,7 @@ const PROBE = 'GrsProbeMark'
 
 const SECOND_PROBE = 'GrsProbeSecond'
 
-// WHY: every leaf of such a Task is a column GRS reads (table T-058) or a value it makes on write (table T-059),
+// Why: every leaf of such a Task is a column GRS reads (table T-058) or a value it makes on write (table T-059),
 // so its carry holds no leaf at all.
 const READ_OR_MADE: readonly string[] = ['UID', 'ID', 'Name', 'OutlineNumber', 'OutlineLevel', 'Start', 'Finish', 'Milestone', 'Summary']
 

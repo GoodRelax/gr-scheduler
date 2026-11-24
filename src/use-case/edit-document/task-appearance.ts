@@ -1,4 +1,4 @@
-// Rewrites how a Task looks: its shape, figure, colors, outline width and fades.
+// File: EditDocument: Rewrites how a Task looks: its shape, figure, colors, outline width and fades.
 // @unit      UF-76   (docs/spec/05-07-design.md, table T-075)
 // @component EditDocument, layer UseCase (table T-062)
 // @purity    pure
@@ -29,15 +29,15 @@ import {
 function withVisual(document: Document, next: TaskVisual): Document {
   const held = document.schedule.taskVisuals
   const foundAt = held.findIndex((one) => one.taskUid === next.taskUid)
-  // TRAP: an absent row compares as blank, or a no-op would append a null row and move the instant.
+  // Trap: an absent row compares as blank, or a no-op would append a null row and move the instant.
   const standing = foundAt < 0 ? blankTaskVisual(next.taskUid) : held[foundAt]
   if (standing !== undefined && isSameRecord(standing, next)) return document
   const taskVisuals = foundAt < 0 ? [...held, next] : held.map((one, index) => (index === foundAt ? next : one))
   return withSchedule(document, { ...document.schedule, taskVisuals })
 }
 
-// see FD-6, IV-12
-// TRAP: count calendar days; worked days would refuse fades the handle allowed (FD-7).
+// Spec: FD-6, IV-12
+// Trap: count calendar days; worked days would refuse fades the handle allowed (FD-7).
 /** @purity pure */
 function fadeSpanOf(task: Task): number | null {
   const start = dayOf(task.start)
@@ -45,7 +45,7 @@ function fadeSpanOf(task: Task): number | null {
   if (start === null || finish === null) return null
   return calendarDaysBetween(start, finish)
 }
-// see CM-16, CM-17, FD-7
+// Spec: CM-16, CM-17, FD-7
 /** @purity pure */
 export function setTaskFadeDays(
   document: Document,
@@ -76,7 +76,7 @@ export function setTaskFadeDays(
   return edited(withTask(document, faded))
 }
 
-// see CM-20, FR-083
+// Spec: CM-20, FR-083
 /** @purity pure */
 export function setTaskVisualShapeKind(
   document: Document,
@@ -94,14 +94,14 @@ export function setTaskVisualShapeKind(
   return edited(withVisual(document, { ...visual, shapeKind: command.shapeKind }))
 }
 
-// see CM-21, FR-078
+// Spec: CM-21, FR-078
 /** @purity pure */
 export function setTaskVisualMilestoneGlyph(
   document: Document,
   command: Extract<TaskCommand, { readonly kind: 'setTaskVisualMilestoneGlyph' }>,
 ): EditResult {
   const schedule = document.schedule
-  // WHY: judged at run time, not left to the type; the Agent API hands commands over as data (AG-5).
+  // Why: judged at run time, not left to the type; the Agent API hands commands over as data (AG-5).
   if (
     command.milestoneGlyph !== null
     && !(COLUMN_SHAPES.TaskVisual.milestoneGlyph?.choices ?? []).includes(command.milestoneGlyph)
@@ -114,7 +114,7 @@ export function setTaskVisualMilestoneGlyph(
   return edited(withVisual(document, { ...visual, milestoneGlyph: command.milestoneGlyph }))
 }
 
-// see CM-22, IV-9
+// Spec: CM-22, IV-9
 /** @purity pure */
 export function setTaskVisualColors(
   document: Document,
@@ -149,8 +149,8 @@ export function resetTaskVisualColors(
   return edited(withVisual(document, { ...visual, fillColor: null, strokeColor: null }))
 }
 
-// see CM-24, AT-104, CL-2
-// WHY: the range is the column's own (AT-104), read from its generated shape, never a second copy.
+// Spec: CM-24, AT-104, CL-2
+// Why: the range is the column's own (AT-104), read from its generated shape, never a second copy.
 /** @purity pure */
 export function setTaskVisualStrokeWidthPx(
   document: Document,

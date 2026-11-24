@@ -8,7 +8,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { bare, specTable, unbroken } from './spec-table'
 import { DISPLAY_WORDS, pointerOf, taskGroupDocument, shell, type ShellBench } from '../unit/cr-541-stage'
 
-// WHY: the shell sends every event to the session through advanceScreenSession (notices/noticeRaised, T-290); a hidden
+// Why: the shell sends every event to the session through advanceScreenSession (notices/noticeRaised, T-290); a hidden
 // reason is raised and stands no card, so the raise is only visible on this seam.
 const seen = vi.hoisted(() => ({ raised: [] as string[] }))
 
@@ -53,7 +53,7 @@ interface Entrance {
   readonly surface: string
 }
 
-// see T-109, T-012
+// Spec: T-109, T-012
 /** @purity pure */
 function entranceArming(arm: string, shapeRow: string | null): Entrance {
   const found = specTable('T-109').rows.filter(

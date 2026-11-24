@@ -165,7 +165,7 @@ describe(`CR-827 -- ${FR_068_DOWNLOAD}`, () => {
     const { stage } = await pressed(language)
     expect(stage.downloaded.map((one) => one.fileName)).toEqual([SCHEMA_FILE_NAME])
     const content = new TextDecoder().decode(stage.downloaded[0]?.bytes)
-    // WHY: one line of JSON may end with its line end; FR-068 fixes the one line, not whether it is terminated.
+    // Why: one line of JSON may end with its line end; FR-068 fixes the one line, not whether it is terminated.
     expect(content.replace(/\n$/, '')).toBe(SCHEMA_ONE_LINE)
     expect(stage.written, 'the save chooser (FR-096) is not opened').toEqual([])
   })

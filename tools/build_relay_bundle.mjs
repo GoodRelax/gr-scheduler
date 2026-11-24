@@ -24,7 +24,7 @@ import { deflateRawSync } from 'node:zlib'
 import { buildVersion } from './relay_version.mjs'
 
 const ROOT = dirname(dirname(fileURLToPath(import.meta.url)))
-// WHY: not dist/ -- dist/ holds the one .html the app is (CN-1, NFR-004); the relay is a second deliverable.
+// Why: not dist/ -- dist/ holds the one .html the app is (CN-1, NFR-004); the relay is a second deliverable.
 const RELAY_DIST = join(ROOT, 'dist-relay')
 const PAGE_HTML = join(ROOT, 'dist', 'index.html')
 const RELAY_JS = join(RELAY_DIST, 'grs-relay.mjs')

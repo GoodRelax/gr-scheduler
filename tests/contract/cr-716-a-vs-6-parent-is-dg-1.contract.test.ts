@@ -19,17 +19,17 @@ function cellOf(table: string, id: string, heading: string): string {
   return unbroken(cell)
 }
 
-// see S-487, FR-131
+// Spec: S-487, FR-131
 const TOLERANCE_KEY = 'parentTaskProgressToleranceDays'
 
-// WHY: May 2027 has no exception in the bundled calendar, which works Monday to Friday; 2027-05-21 is a Friday.
+// Why: May 2027 has no exception in the bundled calendar, which works Monday to Friday; 2027-05-21 is a Friday.
 const day = (month: number, date: number, hour: number): string =>
   `2027-${String(month).padStart(2, '0')}-${String(date).padStart(2, '0')}T${String(hour).padStart(2, '0')}:00:00`
 const S = (month: number, date: number): string => day(month, date, 8)
 const F = (month: number, date: number): string => day(month, date, 17)
 const STATUS = F(5, 21)
 
-// see AT-46
+// Spec: AT-46
 const FS = 1
 const after = (uid: number): Loose => ({ predecessorUid: uid, linkType: FS, linkLag: 0, lagFormat: 7, carry: {}, carryElements: [] })
 
@@ -51,7 +51,7 @@ function documentOf(rows: readonly Row[], tolerance: number): Document {
   return decoded.document
 }
 
-// WHY: one task per task group; every child task group sits under its parent's task group; `alone` tasks sit in task groups of their own.
+// Why: one task per task group; every child task group sits under its parent's task group; `alone` tasks sit in task groups of their own.
 const familyOf = (parent: Loose, children: readonly Loose[], alone: readonly Loose[] = []): readonly Row[] => [
   { id: 'r0', parentId: null, tasks: [parent] },
   ...children.map((child, index) => ({ id: `r${index + 1}`, parentId: 'r0', tasks: [child] })),
@@ -77,7 +77,7 @@ const C2 = 402
 const SUCCESSOR_ONE = 410
 const SUCCESSOR_TWO = 411
 
-// WHY: G's point is 05-06 and the leaves' points are 05-12 and 05-19, so 4 working days (Thu, Fri, Mon, Tue) lie outside.
+// Why: G's point is 05-06 and the leaves' points are 05-12 and 05-19, so 4 working days (Thu, Fri, Mon, Tue) lie outside.
 // Each leaf runs past its plan with nothing after it, so each is DG-2 and G, without VS-6, is DG-3.
 const LEFT_DAYS = 4
 const bottleneckBelow = (tolerance: number): Document =>
@@ -89,7 +89,7 @@ const bottleneckBelow = (tolerance: number): Document =>
     tolerance,
   )
 
-// WHY: the same left-of-its-work parent, but its planned end 05-14 is past (DL-1), so G is late (DG-4) without VS-6.
+// Why: the same left-of-its-work parent, but its planned end 05-14 is past (DL-1), so G is late (DG-4) without VS-6.
 // Each leaf is followed by a task that starts on 06-30, so the delay is absorbed and no leaf pushes a terminal (DQ-4 is 0): no bottleneck.
 const lateParent = (tolerance: number): Document =>
   documentOf(
@@ -206,7 +206,7 @@ describe('CR-716 S-487 -- widening the tolerance until VS-6 disappears removes t
 })
 
 describe('CR-716 T-311 -- the other rows of T-311 do not make DG-1', () => {
-  // WHY: P ends on 05-10 by actual and the successor T started on 05-07, so the dates break the link's direction (VS-4); P is finished, so VS-3 and VO-3 stay quiet.
+  // Why: P ends on 05-10 by actual and the successor T started on 05-07, so the dates break the link's direction (VS-4); P is finished, so VS-3 and VO-3 stay quiet.
   const VS_4 = (): Document =>
     documentOf(
       [
@@ -222,11 +222,11 @@ describe('CR-716 T-311 -- the other rows of T-311 do not make DG-1', () => {
       DEFAULT_TOLERANCE,
     )
 
-  // WHY: the actual start 05-24 is after the status date 05-21 (VS-5).
+  // Why: the actual start 05-24 is after the status date 05-21 (VS-5).
   const VS_5 = (): Document =>
     documentOf([{ id: 'r0', parentId: null, tasks: [inProgress(310, 'Started ahead', S(5, 24), F(5, 28), F(5, 25))] }], DEFAULT_TOLERANCE)
 
-  // WHY: the predecessor has not started and the FS successor has (VS-3); the finding stands on the successor.
+  // Why: the predecessor has not started and the FS successor has (VS-3); the finding stands on the successor.
   const VS_3 = (): Document =>
     documentOf(
       [
@@ -264,7 +264,7 @@ describe('CR-716 T-311 -- the other rows of T-311 do not make DG-1', () => {
 })
 
 describe('CR-716 DX-7 -- the count not analyzed equals the number of DG-1 tasks', () => {
-  // WHY: a finished predecessor 330 and a milestone 331 with no actualFinish: every predecessor is done, so VO-5 stands and the milestone is DG-1 as well.
+  // Why: a finished predecessor 330 and a milestone 331 with no actualFinish: every predecessor is done, so VO-5 stands and the milestone is DG-1 as well.
   const withMilestone = (tolerance: number): Document =>
     documentOf(
       familyOf(

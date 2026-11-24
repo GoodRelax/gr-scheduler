@@ -28,7 +28,7 @@ const SETTINGS_ENTRY = 'IC-17'
 const SHOWS_TIME_OF_DAY_ROW = 'K-146'
 const SHOWS_TIME_OF_DAY_COLUMN = 'isTimeOfDayVisible'
 
-// WHY: a long plan, so the body center of the bar is a point a click picks the task at.
+// Why: a long plan, so the body center of the bar is a point a click picks the task at.
 const LONG_PLAN = { start: '2026-04-06T08:00:00', finish: '2026-06-26T17:00:00' }
 
 const documentOf = (): Document =>
@@ -92,7 +92,7 @@ const pxPerDay = (stage: ExportStage): number => {
   return values.layout.pxPerDay
 }
 
-// WHY: the entrance the question hangs on is pressed as a person presses it; QN-5 stands on the view only when asked.
+// Why: the entrance the question hangs on is pressed as a person presses it; QN-5 stands on the view only when asked.
 async function newDocumentAsks(stage: ExportStage): Promise<string | null> {
   await stage.take(NEW_DOCUMENT_ENTRY)
   return stage.lastView().confirmation?.question ?? null
@@ -133,7 +133,7 @@ describe(`(a) a screen write that changes nothing -- ${CLAUSE_UNCHANGED_WRITE_RA
   })
 })
 
-// WHY: the commit is what a person's retyped field hands the shell; the write that follows goes through the shell's own write path.
+// Why: the commit is what a person's retyped field hands the shell; the write that follows goes through the shell's own write path.
 describe(`(a) a field commit that retypes the held value -- ${CLAUSE_UNCHANGED_WRITE_RAISES_NOTHING}`, () => {
   const longPlanStage = (): ExportStage =>
     exportStage(
@@ -203,7 +203,7 @@ describe('(b) control -- a screen write that changes a value raises unsaved edit
   it('a highlight box corner pulled one day outward: unsaved edits, QN-5 raised', async () => {
     const stage = stageOf()
     const at = highlightCorner(stage)
-    // WHY: at this zoom one day is a few pixels, so the pull is four days to clear the drag threshold.
+    // Why: at this zoom one day is a few pixels, so the pull is four days to clear the drag threshold.
     const day = pxPerDay(stage) * 4
     stage.pointer('down', at.x, at.y)
     stage.pointer('move', at.x + day / 2, at.y)
@@ -246,7 +246,7 @@ describe(`(c) the Agent API write path -- ${CLAUSE_UNCHANGED_WRITE_RAISES_NOTHIN
   })
 })
 
-// see SK-6, T-036
+// Spec: SK-6, T-036
 const UNDO = { kind: 'key', key: 'Z', modifiers: { ctrl: true, shift: false, alt: false, meta: false } } as never
 
 const highlightFinish = (stage: ExportStage): string =>

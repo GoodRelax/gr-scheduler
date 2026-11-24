@@ -15,13 +15,13 @@ import { specTable, unbroken } from './spec-table'
 const SPEC = join(process.cwd(), 'docs', 'spec')
 const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8'))
 
-// see FR-019, CM-46
+// Spec: FR-019, CM-46
 const CM_46_FIVE_NULLS =
   '⭐ 置くとき（`_assets/tbl-document-commands.md` の 表 T-108 の `CM-46`）は 6 列を `null` とすること（MUST）'
-// see FR-057, CM-39
+// Spec: FR-057, CM-39
 const CM_39_WRITER_ALIGNS =
   '例外日の `fromDate` ／ `toDate` は、`CM-39`（`_assets/tbl-document-commands.md` の 表 T-108）を受けて文書へ書く側が、足した行と日の動いた列だけを `WT-6` ／ `WT-7` の時刻で書くこと（MUST）'
-// see UF-16
+// Spec: UF-16
 const UF_16_ONLY_UNIT = '例外日の日付の時刻を揃えるのは本ユニットだけである（`_assets/tbl-document-commands.md` の `CM-39`）。'
 
 const FIVE_LOOK_COLUMNS = ['AT-148', 'AT-149', 'AT-150', 'AT-151', 'AT-152']

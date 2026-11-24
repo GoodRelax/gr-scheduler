@@ -22,7 +22,7 @@ import { bare, specTable, unbroken } from './spec-table'
 
 const DESIGN = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '05-07-design.md'), 'utf8'))
 
-// see WS-2
+// Spec: WS-2
 const WS_2_FOUR_MOMENTS =
   ' 4 つの真偽 —— 身振りの最中・編集入力の確定前・確認の問いが立っている・通知の配布中 —— で見ること（MUST）'
 const WS_2_FIRST_IN_ORDER = '拒否の理由は、この順で最初に当たったものとし、`01-04-requirements.md` の 表 T-233 の `RS-7`・`RS-8`・`RS-74`・`RS-9` とする'
@@ -30,7 +30,7 @@ const WS_2_ONLY_THIS_ROW_JUDGES =
   '`UN-8` だけから成るかの判じは本行だけが持ち、呼び手が前もって判じて書き込みを止めてはならない（MUST NOT）'
 const WS_2_UN_8_DURING_A_QUESTION = '上の `UN-8` だけから成る書き込みは、問いが立っている間も拒否しない'
 
-// WHY: the moment's member names are the public type WriteMoment (PI-8); the order and the words are WS-2's and table T-233's.
+// Why: the moment's member names are the public type WriteMoment (PI-8); the order and the words are WS-2's and table T-233's.
 const ORDER: readonly { readonly key: keyof WriteMoment; readonly rs: string; readonly word: string }[] = [
   { key: 'gestureInFlight', rs: 'RS-7', word: '身振りの最中' },
   { key: 'editingInPlace', rs: 'RS-8', word: '確定していない' },
@@ -38,7 +38,7 @@ const ORDER: readonly { readonly key: keyof WriteMoment; readonly rs: string; re
   { key: 'deliveringNotices', rs: 'RS-9', word: '通知を配っている' },
 ]
 
-// see T-108
+// Spec: T-108
 function kindOf(row: string): string {
   const found = specTable('T-108').rows.find((one) => one.id === row)
   const name = bare(found?.by['確定名'] ?? '')
@@ -58,9 +58,9 @@ function templateDocument(): Document {
 const START = templateDocument()
 const FIRST_TASK_UID = START.schedule.tasks[0]?.uid ?? 0
 
-// see CM-65, UN-8
+// Spec: CM-65, UN-8
 const ZOOM = { kind: kindOf('CM-65'), zoomX: 2, zoomY: 2 } as unknown as DocumentCommand
-// see CM-9, UN-13
+// Spec: CM-9, UN-13
 const RENAME = { kind: kindOf('CM-9'), taskUid: FIRST_TASK_UID, name: 'w3-t5 renamed' } as unknown as DocumentCommand
 
 const LIMITS: SettingsLimits = { zoomMin: 0.02, zoomMax: 64, taskGroupAreaWidthWithoutPanels: 982 }
@@ -147,7 +147,7 @@ describe(`T-067 WS-2 "${WS_2_FOUR_MOMENTS}"`, () => {
 })
 
 describe(`T-067 WS-2 "${WS_2_ONLY_THIS_ROW_JUDGES}"`, () => {
-  // WHY: the caller hands the raw moments in; WS-2 alone lets an UN-8-only batch through an unsettled edit or a question.
+  // Why: the caller hands the raw moments in; WS-2 alone lets an UN-8-only batch through an unsettled edit or a question.
   it.each([
     ['an unsettled edit', { ...CALM, editingInPlace: true }],
     ['a standing question', { ...CALM, questionAsked: true }],

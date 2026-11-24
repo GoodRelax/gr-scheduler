@@ -7,7 +7,7 @@ import { dirname, join } from 'node:path'
 
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
-// WHY: each test runs git and the tools in a copy outside the tree; under the GT-2 load one took over 5 s (JDG-3144).
+// Why: each test runs git and the tools in a copy outside the tree; under the GT-2 load one took over 5 s (JDG-3144).
 const TOOL_RUN_TIMEOUT_MS = 20_000
 vi.setConfig({ testTimeout: TOOL_RUN_TIMEOUT_MS })
 
@@ -50,7 +50,7 @@ function lockText(version: string, dependency: string): string {
   return `${JSON.stringify(lock, null, 2)}\n`
 }
 
-// WHY: a repository whose relay version was written with its last input change, so check 85 starts green.
+// Why: a repository whose relay version was written with its last input change, so check 85 starts green.
 function greenRoot(): string {
   const root = mkdtempSync(join(tmpdir(), 'grs-cr822-'))
   roots.push(root)

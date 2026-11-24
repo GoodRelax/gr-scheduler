@@ -128,8 +128,8 @@ describe('SK-22 / SK-23 -- Ctrl + Shift + [+] / [-] move the display scale one s
     expect(built.settings()['displayScale'], FR_039_THE_TWO_KEYS).toBe(stepAfter(DEFAULT_DISPLAY_SCALE, -1))
   })
 
-  // WHY: every step redraws the startup template at a new scale, so this one case outgrows the
-  // WHY: 5 s default on a loaded machine; the timeout is named here, not raised for the file (DFC-2312).
+  // Why: every step redraws the startup template at a new scale, so this one case outgrows the
+  // Why: 5 s default on a loaded machine; the timeout is named here, not raised for the file (DFC-2312).
   it('walks every step in the order table T-202 spells, up and then down', { timeout: WALK_TIMEOUT_MS }, () => {
     const built = stage({ displayScale: LOWEST })
     const up: number[] = [LOWEST]

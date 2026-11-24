@@ -25,7 +25,7 @@ import {
 } from '../fixtures/fake-browser'
 import { bare, specTable, unbroken } from '../contract/spec-table'
 
-// WHY: readScreenPartAt walks up by parentElement, which the shared fake does not carry.
+// Why: readScreenPartAt walks up by parentElement, which the shared fake does not carry.
 if (!Object.getOwnPropertyDescriptor(FakeElement.prototype, 'parentElement')) {
   Object.defineProperty(FakeElement.prototype, 'parentElement', {
     get(this: FakeElement): FakeElement | null {

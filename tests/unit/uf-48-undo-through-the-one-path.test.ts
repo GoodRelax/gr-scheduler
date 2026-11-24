@@ -385,8 +385,8 @@ const UNDO: HumanInput = key('Z', { ctrl: true })
 /** SK-7 of table T-036 -- やり直す. */
 const REDO: HumanInput = key('Y', { ctrl: true })
 
-// see FR-046, UN-8
-// WHY: showing the status line slides the view to center it, and undo leaves the view where it is;
+// Spec: FR-046, UN-8
+// Why: showing the status line slides the view to center it, and undo leaves the view where it is;
 // Task 1 spans INSTANT, so its bar stays under the pointer after the one edit.
 function underTheStatusLine(draft: any): void {
   draft.schedule.tasks[0].start = '2026-08-14T00:00:00'
@@ -631,7 +631,7 @@ describe('表 T-067 WS-7 and AG-6 -- the watchers are told', () => {
     loop.receiveInput(UNDO)
 
     expect(taken).toHaveLength(1)
-    // WHY: the notice carries the stamp, not the document; the restored document is the one the loop holds (see AV-14, AG-6)
+    // Why: the notice carries the stamp, not the document; the restored document is the one the loop holds (see AV-14, AG-6)
     expect(taken[0]?.stamp).toEqual({ ...OPENED_STAMP })
     expect(projectOf(loop.document()).statusDate).toBeNull()
   })
@@ -666,8 +666,8 @@ describe('表 T-078 FT-2 -- the landing owes a frame', () => {
     // rule, and NFR-011 forbids a screen that stays showing what is no longer
     // the current value.
     //
-    // see UN-8, FR-046
-    // WHY: showing the status line also slid the view, which undo leaves alone, so the picture owed
+    // Spec: UN-8, FR-046
+    // Why: showing the status line also slid the view, which undo leaves alone, so the picture owed
     // is the one a fresh loop draws from the restored document (ADR-001, CA-2 of table T-071).
     const pane = frozenHost()
     const loop = frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN)

@@ -1,4 +1,4 @@
-// Opens a file into the document or merges one in; a person's answers arrive as arguments.
+// File: ImportDocument: Opens a file into the document or merges one in; a person's answers arrive as arguments.
 // @unit      UF-19   (docs/spec/05-07-design.md, table T-075)
 // @component ImportDocument, layer UseCase (table T-062)
 // @purity    pure
@@ -36,7 +36,7 @@ export interface TaskMappingDecision {
   readonly mapping: TaskMapping
 }
 
-// see T-032a, MM-3, MG-9
+// Spec: T-032a, MM-3, MG-9
 export type MergeMapping =
   | { readonly kind: 'allSame' }
   | { readonly kind: 'allDifferent' }
@@ -47,14 +47,14 @@ export type MergeMapping =
     }
   | { readonly kind: 'cancelImport' }
 
-// see FR-022, MG-4, MG-12
+// Spec: FR-022, MG-4, MG-12
 export interface MergeChoices {
   readonly mapping: MergeMapping | null
   readonly profileConflict: ConflictChoice | null
   readonly settingsConflict: ConflictChoice | null
 }
 
-// see T-024a, OP-4, OP-5, OP-8
+// Spec: T-024a, OP-4, OP-5, OP-8
 export interface ImportRequest {
   readonly current: Document
   readonly incoming: Document
@@ -68,7 +68,7 @@ export interface ImportRequest {
   readonly importSessionId: string
 }
 
-// see FR-022, MG-10
+// Spec: FR-022, MG-10
 export interface MergeCandidate {
   readonly incomingTaskUid: number
   readonly incomingTaskName: string | null
@@ -78,7 +78,7 @@ export interface MergeCandidate {
 
 export type SourceJudgment = 'sameMaster' | 'differentMaster' | 'undecidable' | 'notJudged'
 
-// see T-024a, T-032
+// Spec: T-024a, T-032
 export type ImportRefusal =
   | { readonly reason: 'openInProgress'; readonly rule: 'OP-8'; readonly what: string }
   | { readonly reason: 'notValidated'; readonly rule: 'OP-5'; readonly what: string }
@@ -116,7 +116,7 @@ export interface AddedAsDifferent {
   readonly taskUid: number
 }
 
-// see T-050, IV-2
+// Spec: T-050, IV-2
 export interface DroppedReference {
   readonly what:
     | 'dependency'
@@ -129,7 +129,7 @@ export interface DroppedReference {
   readonly missing: string
 }
 
-// see OP-10, MG-7, MG-11, FR-015
+// Spec: OP-10, MG-7, MG-11, FR-015
 export interface ImportReport {
   readonly choice: OpenChoice
   readonly undo: UndoDisposition
@@ -152,7 +152,7 @@ export type ImportOutcome =
   | { readonly ok: false; readonly refusal: ImportRefusal }
   | { readonly ok: true; readonly document: Document; readonly report: ImportReport }
 
-// see T-224, MG-4
+// Spec: T-224, MG-4
 const PROFILE_COLUMNS: readonly { readonly row: string; readonly key: keyof Project }[] = [
   { row: 'PF-1', key: 'name' },
   { row: 'PF-2', key: 'subject' },
@@ -162,7 +162,7 @@ const PROFILE_COLUMNS: readonly { readonly row: string; readonly key: keyof Proj
   { row: 'PF-6', key: 'author' },
   { row: 'PF-7', key: 'revision' },
   { row: 'PF-8', key: 'startDate' },
-  // WHY: PF-9 is asked about too; narrowing to editable rows would be this file deciding.
+  // Why: PF-9 is asked about too; narrowing to editable rows would be this file deciding.
   { row: 'PF-9', key: 'creationDate' },
 ]
 
@@ -202,15 +202,15 @@ function assignmentKey(taskUid: number | null, resourceUid: number | null): stri
   return `${taskUid ?? ''} ${resourceUid ?? ''}`
 }
 
-// see MG-5
-// WHY: carry is compared too, because FR-021's round trip makes it content.
+// Spec: MG-5
+// Why: carry is compared too, because FR-021's round trip makes it content.
 /** @purity pure */
 function calendarContentKey(calendar: Calendar): string {
   const { uid: _uid, ordinal: _ordinal, ...content } = calendar
   return canonicalText(content)
 }
 
-// see OP-6
+// Spec: OP-6
 /** @purity pure */
 function restoredSettings(fromFile: DocumentSettings, defaults: DocumentSettings): DocumentSettings {
   const read = fromFile as unknown as Readonly<Record<string, unknown>>
@@ -219,8 +219,8 @@ function restoredSettings(fromFile: DocumentSettings, defaults: DocumentSettings
   return Object.fromEntries(restored) as unknown as DocumentSettings
 }
 
-// see OP-10
-// TRAP: null means no place chosen yet; OP-6's defaulting must not fill it.
+// Spec: OP-10
+// Trap: null means no place chosen yet; OP-6's defaulting must not fill it.
 /** @purity pure */
 function fitToScreenRequired(document: Document): boolean {
   const { scrollDate, scrollTaskGroupId } = document.documentSettings
@@ -259,7 +259,7 @@ function answersOf(request: ImportRequest): MergeChoices {
   return request.merge ?? { mapping: null, profileConflict: null, settingsConflict: null }
 }
 
-// see T-024a, OP-3, OP-5, OP-8
+// Spec: T-024a, OP-3, OP-5, OP-8
 /** @purity pure */
 export function importDocument(request: ImportRequest): ImportOutcome {
   if (request.anotherOpenInProgress) {
@@ -288,7 +288,7 @@ export function importDocument(request: ImportRequest): ImportOutcome {
   }
 }
 
-// see OP-3, OP-4, OP-6, FR-021
+// Spec: OP-3, OP-4, OP-6, FR-021
 /** @purity pure */
 function replacedDocument(request: ImportRequest): ImportOutcome {
   if (!request.unsavedEditsDiscardConfirmed) {
@@ -317,7 +317,7 @@ function replacedDocument(request: ImportRequest): ImportOutcome {
   }
 }
 
-// see OP-9, FR-015
+// Spec: OP-9, FR-015
 /** @purity pure */
 function baselinedDocument(request: ImportRequest): ImportOutcome {
   const currentTaskUids = new Set(request.current.schedule.tasks.map((task) => task.uid))
@@ -401,7 +401,7 @@ function currentIndexOf(schedule: Schedule): CurrentIndex {
   }
 }
 
-// see MG-1, AT-1
+// Spec: MG-1, AT-1
 /** @purity pure */
 function judgedSource(incoming: Project, index: CurrentIndex): SourceJudgment {
   if (incoming.id === null) return 'undecidable'
@@ -413,8 +413,8 @@ type IncomingPlan =
   | { readonly kind: 'candidate'; readonly currentTaskUid: number }
   | { readonly kind: 'fresh' }
 
-// see MG-3, FR-022
-// TRAP: match origins only for the same master, or a different master becomes a silent identity.
+// Spec: MG-3, FR-022
+// Trap: match origins only for the same master, or a different master becomes a silent identity.
 /** @purity pure */
 function plannedIncomingTasks(
   incoming: Schedule,
@@ -441,7 +441,7 @@ function plannedIncomingTasks(
 
 type ChosenMapping = Exclude<MergeMapping, { readonly kind: 'cancelImport' }>
 
-// see T-032a
+// Spec: T-032a
 /** @purity pure */
 function resolvedMapping(
   mapping: ChosenMapping,
@@ -471,7 +471,7 @@ function resolvedMapping(
   return { decided, undecided }
 }
 
-// see MG-4, T-224
+// Spec: MG-4, T-224
 /** @purity pure */
 function conflictingProfileRows(current: Project, incoming: Project): readonly string[] {
   const rows: string[] = []
@@ -484,7 +484,7 @@ function conflictingProfileRows(current: Project, incoming: Project): readonly s
   return rows
 }
 
-// see MG-12, OP-6
+// Spec: MG-12, OP-6
 /** @purity pure */
 function conflictingSettingsKeys(
   current: DocumentSettings,
@@ -500,8 +500,8 @@ function conflictingSettingsKeys(
   return differing.sort()
 }
 
-// see FR-019, RL-33
-// WHY: the tip follows its task's renumbered UID; a task the merge did not take leaves a free point behind,
+// Spec: FR-019, RL-33
+// Why: the tip follows its task's renumbered UID; a task the merge did not take leaves a free point behind,
 // held in the box's own date, band and height columns.
 /** @purity pure */
 function mergedCommentBoxOf(box: CommentBox, mergedUidOf: ReadonlyMap<number, number>): CommentBox {
@@ -512,14 +512,14 @@ function mergedCommentBoxOf(box: CommentBox, mergedUidOf: ReadonlyMap<number, nu
   return { ...box, anchorTaskUid: null, anchorTaskFigure: null, anchorSnapPoint: null }
 }
 
-// see T-032, MG-5, IV-1
+// Spec: T-032, MG-5, IV-1
 /** @purity pure */
 function uidKeptUnlessHeld(uid: number, held: ReadonlySet<number>, highWater: number): number {
   return held.has(uid) ? highWater + 1 : uid
 }
 
-// see IV-1, AT-20
-// WHY: every row is scanned; an imported uidHighWaterMark may be lower than its rows.
+// Spec: IV-1, AT-20
+// Why: every row is scanned; an imported uidHighWaterMark may be lower than its rows.
 /** @purity pure */
 function highWaterOf(current: Schedule, incoming: Schedule): number {
   let top = Math.max(current.project.uidHighWaterMark, incoming.project.uidHighWaterMark)
@@ -532,7 +532,7 @@ function highWaterOf(current: Schedule, incoming: Schedule): number {
   return top
 }
 
-// see T-032, MG-6
+// Spec: T-032, MG-6
 /** @purity pure */
 function mergedDocument(request: ImportRequest): ImportOutcome {
   const current = request.current.schedule
@@ -629,7 +629,7 @@ function mergedDocument(request: ImportRequest): ImportOutcome {
   })
 }
 
-// see MG-8, IV-22, AT-100
+// Spec: MG-8, IV-22, AT-100
 /** @purity pure */
 function shapeFollowingMilestone(kept: TaskVisual, task: Task): TaskVisual {
   if (kept.shapeKind === null || (kept.shapeKind === 'milestone') === (task.milestone === true)) return kept
@@ -648,7 +648,7 @@ interface MergeInput {
   readonly settingsConflicted: boolean
 }
 
-// see T-032, MG-5, MG-8, MG-13
+// Spec: T-032, MG-5, MG-8, MG-13
 /** @purity pure */
 function builtMerge(input: MergeInput): ImportOutcome {
   const { request, index, answers, source, plans, decided } = input
@@ -661,7 +661,7 @@ function builtMerge(input: MergeInput): ImportOutcome {
 
   let highWater = highWaterOf(current, incoming)
 
-  // WHY: keep an incoming uid unless taken; re-issuing it would lose FR-021's round trip.
+  // Why: keep an incoming uid unless taken; re-issuing it would lose FR-021's round trip.
   const calendars: Calendar[] = [...current.calendars]
   const heldCalendarUids = new Set(current.calendars.map((one) => one.uid))
   let topOrdinal = current.calendars.reduce((top, one) => Math.max(top, one.ordinal), -1)
@@ -706,7 +706,7 @@ function builtMerge(input: MergeInput): ImportOutcome {
     taskGroups.push(group)
   }
 
-  // WHY: resolved before writing, since a dependency or parent task may point at a later task.
+  // Why: resolved before writing, since a dependency or parent task may point at a later task.
   // STOP: spec does not decide two incoming tasks landing on one current task. Looked in T-032, MG-2, MG-3 (PND-487)
   const mergedUidOf = new Map<number, number>()
   const overwritten: number[] = []
@@ -720,7 +720,7 @@ function builtMerge(input: MergeInput): ImportOutcome {
       continue
     }
     if (plan.kind === 'candidate') {
-      // TRAP: every candidate is in decided only because mergedDocument refused unanswered ones.
+      // Trap: every candidate is in decided only because mergedDocument refused unanswered ones.
       if (decided.get(task.uid) === 'same') {
         mergedUidOf.set(task.uid, plan.currentTaskUid)
         overwritten.push(plan.currentTaskUid)
@@ -753,7 +753,7 @@ function builtMerge(input: MergeInput): ImportOutcome {
     for (const dependency of task.dependencies) {
       const predecessor = mergedUidOf.get(dependency.predecessorUid)
       if (predecessor === undefined) {
-        // WHY: dropped, not redirected; pointing it at whatever holds that uid here would decide FR-022.
+        // Why: dropped, not redirected; pointing it at whatever holds that uid here would decide FR-022.
         dropped.push({
           what: 'dependency',
           owner: String(uid),
@@ -795,7 +795,7 @@ function builtMerge(input: MergeInput): ImportOutcome {
     tasks.set(uid, { ...task, uid, parentTaskUid, calendarUid, dependencies })
 
     if (request.format === 'grsJson' || !wasHeld) {
-      // WHY: a read document holds one row for every Task (IV-23); the blank one keeps a merge to the rule all the same.
+      // Why: a read document holds one row for every Task (IV-23); the blank one keeps a merge to the rule all the same.
       const visual = incomingVisualByTaskUid.get(task.uid) ?? blankTaskVisual(task.uid)
       visuals.set(uid, { ...visual, taskUid: uid })
 
@@ -932,7 +932,7 @@ function builtMerge(input: MergeInput): ImportOutcome {
   }
 }
 
-// see MG-4, MG-9, MG-13, T-224
+// Spec: MG-4, MG-9, MG-13, T-224
 /** @purity pure */
 function mergedProject(input: MergeInput, importSequence: number, uidHighWaterMark: number): Project {
   const current = input.request.current.schedule.project

@@ -43,7 +43,7 @@ const readSpec = (...parts: string[]): string => readFileSync(join(SPEC, ...part
 
 export const REQUIREMENTS = unbroken(readSpec('01-04-requirements.md'))
 
-// see FR-019
+// Spec: FR-019
 export const FR_019_ORDER =
   '同じ種類の注記どうし（コメントボックスどうし、ハイライトボックスどうし）は、文書の並び（`commentBoxes`・`highlightBoxes` の配列の順）で後のものほど前に描き、重なった所では前に描いたものを当たりの先にすること（MUST）'
 export const FR_019_FRONT =
@@ -51,14 +51,14 @@ export const FR_019_FRONT =
 export const FR_019_SHAPE = '並びは `GRS JSON` の配列の順そのものであり、文書の形は変わらない。'
 export const FR_019_SHOWN_DATE =
   '線先が立つ日時は、吸着していれば吸着先のその点の日時（対象を消したときに ① へ書く日時と同じ求め方）、そうでなければ ① の日時（`AT-113`）とする —— 検索の表の `SQ-9` と飛び先（表 T-332 の `SJ-6`）もこれを読む。'
-// see FR-031
+// Spec: FR-031
 export const FR_031_NO_STEP = '⛔ 書き込みが文書の値を 1 つも変えなかったときは、取り消しの段を残さないこと（MUST）'
 
-// see CM-100, CM-101
+// Spec: CM-100, CM-101
 export const CM_100 = 'bringCommentBoxToFront'
 export const CM_101 = 'bringHighlightBoxToFront'
 
-// see PR-48, PR-49
+// Spec: PR-48, PR-49
 export const PR_48 = 'PR-48'
 export const PR_49 = 'PR-49'
 
@@ -85,7 +85,7 @@ export function highlightIdsOf(document: Document): readonly string[] {
   return document.schedule.highlightBoxes.map((one) => one.id)
 }
 
-// see FR-031, T-027
+// Spec: FR-031, T-027
 const HISTORY: HistoryLimits = { maxSteps: NOT_STORED_LIMITS['S-94'], maxTotalSizeBytes: Number.MAX_SAFE_INTEGER }
 const CALM = { gestureInFlight: false, editingInPlace: false, questionAsked: false, deliveringNotices: false }
 const DEFAULT_TASK_GROUP_NAME = 'cr-786 default task group name'
@@ -147,7 +147,7 @@ export function bench(start: Document): Bench {
   }
 }
 
-// see FR-038
+// Spec: FR-038
 export type Language = 'ja' | 'en'
 type Words = Readonly<Record<Language, string>>
 const DICTIONARY = JSON.parse(readSpec('_source', 'display-words.json')) as {
@@ -161,7 +161,7 @@ export function propertyWordOf(rowId: string, language: Language): string {
   return found.label[language]
 }
 
-// see T-016
+// Spec: T-016
 const T_016_ROWS = (
   JSON.parse(readSpec('_source', 'property-items.json')) as {
     readonly items: readonly { readonly id: string; readonly appliesTo?: string }[]
@@ -171,7 +171,7 @@ const TASK_TARGET = 'Task'
 
 export const T_016_ORDER: readonly string[] = T_016_ROWS.map((one) => one.id)
 
-// WHY: the table order is the printed order, and a panel shows only the rows of the selected target (FR-006).
+// Why: the table order is the printed order, and a panel shows only the rows of the selected target (FR-006).
 /** @purity pure */
 export function tableRowsOf(target: string): readonly string[] {
   return T_016_ROWS.filter((one) => (one.appliesTo ?? TASK_TARGET) === target).map((one) => one.id)
@@ -246,7 +246,7 @@ export function rowsOf(panel: PropertiesPanel): readonly string[] {
   return panel.fields.map((one) => one.row)
 }
 
-// WHY: a pressed word entrance commits its row, its key and its own text (the DOM surface's press entrance).
+// Why: a pressed word entrance commits its row, its key and its own text (the DOM surface's press entrance).
 /** @purity pure */
 export function pressOf(field: PropertyField, control: PropertyControl): FieldCommit {
   return { row: field.row, key: control.key, text: control.text }

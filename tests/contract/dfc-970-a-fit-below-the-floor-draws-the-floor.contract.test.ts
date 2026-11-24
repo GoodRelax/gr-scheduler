@@ -5,18 +5,18 @@ import { afterEach, describe, expect, it } from 'vitest'
 import type { FrameValues } from '../../src/framework/single-html-shell/frame-loop'
 import { numberIn, REQUIREMENTS, taskGroupDocument, rowOf, shell, type TaskGroupSeed, type ShellBench } from '../unit/cr-541-stage'
 
-// see FR-094
+// Spec: FR-094
 const FR_094_ONE_FLOOR = '縦の寸法を止める床は、形状の比を掛ける前の予定の縦幅に 1 度だけ当てること（MUST）。'
 
 const S_4 = numberIn(rowOf('T-201', 'S-4').by['既定値'] ?? '')
 const S_5 = numberIn(rowOf('T-201', 'S-5').by['既定値'] ?? '')
 const S_6 = numberIn(rowOf('T-201', 'S-6').by['既定値'] ?? '')
 
-// see FR-094, ZE-1
+// Spec: FR-094, ZE-1
 const PLAN_FLOOR_ZOOM_Y = S_6 / S_5 / S_4
 
 const TASK_GROUP_COUNT = 60
-// WHY: a millionth of a px is float noise; an unfloored plan is shorter by whole px.
+// Why: a millionth of a px is float noise; an unfloored plan is shorter by whole px.
 const PX_DIGITS = 6
 
 const benches: ShellBench[] = []

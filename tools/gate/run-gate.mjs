@@ -101,7 +101,7 @@ export function playwrightOutcomes(report) {
         if (RED_STATES.has(last.status)) {
           outcomes.push({ file, title, state: 'red', message })
         } else if (run.expectedStatus === 'failed') {
-          // WHY: a test.fail case that passes is the app now matching the specification; it is
+          // Why: a test.fail case that passes is the app now matching the specification; it is
           // reported as green so its known-red line, or its mark, is removed.
           outcomes.push({ file, title, state: 'green', message: 'a test.fail case passed', markedFail: true })
         } else {

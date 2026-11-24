@@ -17,49 +17,49 @@ const T025: SpecTable = specTable('T-025')
 const T265: SpecTable = specTable('T-265')
 const T033: SpecTable = specTable('T-033')
 
-// see T-024
+// Spec: T-024
 const FORMAT_ROW = 'IO-1'
 
-// TRAP: keep this at IC-2; IC-3 is a different entrance that opens no
+// Trap: keep this at IC-2; IC-3 is a different entrance that opens no
 // Export Chooser at all.
 const EXPORT_ENTRY_ROW = 'IC-2'
 
-// see T-103
+// Spec: T-103
 const CHOOSER_ROW = 'U-54'
 
-// see T-109
+// Spec: T-109
 const CLOSE_ENTRY_ROW = 'IC-52'
 
-// see T-025
+// Spec: T-025
 const SCREEN_ROW = 'MC-6'
 
-// see T-228
+// Spec: T-228
 const WHITESPACE_ROW = 'NR-2'
 
-// see T-228
+// Spec: T-228
 const NAME_TASK_GROUP = 'NR-3'
 
-// see T-228
+// Spec: T-228
 const SIBLING_ORDER_ROW = 'NR-6'
 
-// see T-228
+// Spec: T-228
 const MADE_AT_WRITE_ROW = 'NR-7'
 
-// see DV-12
+// Spec: DV-12
 const MADE_AT_WRITE_ELEMENT = 'LastSaved'
 
-// WHY: read out of the tables rather than written down here, so a row ID that
+// Why: read out of the tables rather than written down here, so a row ID that
 // moves fails at once instead of printing a dead reference in a message.
-// see T-265
+// Spec: T-265
 const REPEAT_ROW = rowOf(T265, 'MR-2').id
 
-// see T-265
+// Spec: T-265
 const READ_ORDER_ROW = rowOf(T265, 'MR-1').id
 
-// see T-033
+// Spec: T-033
 const WRITE_ORDER_ROW = rowOf(T033, 'EX-10').id
 
-// WHY: recorded here (not left out) so the completeness check below still
+// Why: recorded here (not left out) so the completeness check below still
 // catches a new row that is neither covered nor excused.
 const OUT_OF_REACH: Readonly<Record<string, string>> = {
   'NR-1':
@@ -71,7 +71,7 @@ const OUT_OF_REACH: Readonly<Record<string, string>> = {
   'NR-5': 'the same, for the one type the step singles out',
 }
 
-// WHY: named by row ID; the format name is not shown in the running
+// Why: named by row ID; the format name is not shown in the running
 // application, so it is only used in what a failure prints.
 /** @purity pure */
 function formatNameOf(row: SpecRow): string {
@@ -87,7 +87,7 @@ function partNameOf(row: SpecRow): string {
   return name
 }
 
-// see T-024
+// Spec: T-024
 const T024_EXTENSION = 2
 const T024_FIRST_CHARACTER = 5
 
@@ -114,21 +114,21 @@ const FORMAT_FIRST_CHARACTER = requiredSpanOf(
 const CHOOSER_NAME = partNameOf(rowOf(T103, CHOOSER_ROW))
 const BASE_SCREEN = screenOf(rowOf(T025, SCREEN_ROW))
 
-// TRAP: this selector must match the row-ID marking the shell uses for
+// Trap: this selector must match the row-ID marking the shell uses for
 // entries of table T-109; drifting apart breaks this case silently.
 /** @purity pure */
 function entrySelector(rowId: string): string {
   return `[data-icon="${rowId}"]`
 }
 
-// TRAP: this selector must match the row-ID marking the shell uses for a
+// Trap: this selector must match the row-ID marking the shell uses for a
 // format; drifting apart breaks this case silently.
 /** @purity pure */
 function formatSelector(rowId: string): string {
   return `[data-format="${rowId}"]`
 }
 
-// WHY: a document can leave through either the File System Access API or
+// Why: a document can leave through either the File System Access API or
 // a download, so both are watched rather than assuming one.
 const WRITTEN_FILES = '__writtenFiles'
 
@@ -137,7 +137,7 @@ interface WrittenFile {
   readonly text: string
 }
 
-// WHY: installed before the first page exists -- a later injection would
+// Why: installed before the first page exists -- a later injection would
 // already have missed the application reaching for the picker.
 /** @purity non-pure */
 async function watchWrittenFiles(context: BrowserContext): Promise<void> {
@@ -150,7 +150,7 @@ async function watchWrittenFiles(context: BrowserContext): Promise<void> {
       const readChunk = async (chunk: unknown): Promise<string> => {
         if (typeof chunk === 'string') return chunk
         if (chunk instanceof Blob) return chunk.text()
-        // WHY: decoded as UTF-8 -- table T-003 row CN-5 (MUST) fixes what is
+        // Why: decoded as UTF-8 -- table T-003 row CN-5 (MUST) fixes what is
         // written out, so decoding as another encoding would hide a failure.
         if (ArrayBuffer.isView(chunk) || chunk instanceof ArrayBuffer) {
           return new TextDecoder('utf-8', { fatal: false }).decode(chunk as ArrayBufferView)
@@ -163,7 +163,7 @@ async function watchWrittenFiles(context: BrowserContext): Promise<void> {
         /** @purity non-pure */ async (options?: { suggestedName?: string }) => ({
           kind: 'file',
           name: options?.suggestedName ?? '',
-          // WHY: DI-4 (MUST) has the overwrite check read the destination
+          // Why: DI-4 (MUST) has the overwrite check read the destination
           // before writing; DI-6 settles that a fresh handle reads as empty.
           /** @purity non-pure */
           getFile: async () => new File([], options?.suggestedName ?? ''),
@@ -185,7 +185,7 @@ async function watchWrittenFiles(context: BrowserContext): Promise<void> {
   )
 }
 
-// WHY: a download never passes through the page's own script, so it is
+// Why: a download never passes through the page's own script, so it is
 // watched from Playwright's side instead of inside the page.
 const DOWNLOADED = new WeakMap<Page, WrittenFile[]>()
 
@@ -197,14 +197,14 @@ function watchDownloads(page: Page): void {
     void (async () => {
       const saved = await download.path()
       if (saved === null) return
-      // WHY: read as UTF-8 -- table T-003 row CN-5 (MUST) fixes what is
+      // Why: read as UTF-8 -- table T-003 row CN-5 (MUST) fixes what is
       // written out.
       seen.push({ suggestedName: download.suggestedFilename(), text: readFileSync(saved, 'utf8') })
     })()
   })
 }
 
-// WHY: the two surfaces are read in a fixed order, not interleaved by
+// Why: the two surfaces are read in a fixed order, not interleaved by
 // time, since no clock is shared between them.
 /** @purity semi-pure-mutable */
 async function writtenFilesOf(page: Page): Promise<readonly WrittenFile[]> {
@@ -259,7 +259,7 @@ async function writeOutOnce(page: Page): Promise<WrittenFile> {
   return last
 }
 
-// WHY: run inside the page, not here -- Node has no XML parser and the
+// Why: run inside the page, not here -- Node has no XML parser and the
 // browser being judged does.
 /** @purity semi-pure-mutable */
 async function sameAfterNormalization(
@@ -276,18 +276,18 @@ async function sameAfterNormalization(
         const parsed = new DOMParser().parseFromString(markup, 'application/xml')
         const failed = parsed.querySelector('parsererror')
         if (failed !== null) return `not xml: ${failed.textContent ?? ''}`
-        // see NR-7
+        // Spec: NR-7
         const root = parsed.documentElement
         for (const child of Array.from(root.children)) {
           if (child.localName === pair.madeAtWrite && child.namespaceURI === root.namespaceURI) root.removeChild(child)
         }
         /** @purity pure */
         const written = (element: Element): string => {
-          // see NR-3
+          // Spec: NR-3
           /** @purity pure */
           const nameOf = (uri: string | null, local: string): string => `{${uri ?? ''}}${local}`
           const attributes = Array.from(element.attributes)
-            // see NR-3
+            // Spec: NR-3
             .filter((one) => one.namespaceURI !== XMLNS && one.name !== 'xmlns')
             .map(
               (one) =>
@@ -297,25 +297,25 @@ async function sameAfterNormalization(
             .join(' ')
           const hasElementChild = element.children.length > 0
           const values: string[] = []
-          // see NR-6
+          // Spec: NR-6
           const columns = new Map<string, string[]>()
           for (const child of Array.from(element.childNodes)) {
             if (child.nodeType === Node.ELEMENT_NODE) {
               const one = child as Element
               const column = nameOf(one.namespaceURI, one.localName)
               const already = columns.get(column)
-              // see NR-6
+              // Spec: NR-6
               if (already === undefined) columns.set(column, [written(one)])
               else already.push(written(one))
               continue
             }
             if (child.nodeType !== Node.TEXT_NODE) continue
             const text = child.nodeValue ?? ''
-            // see NR-2
+            // Spec: NR-2
             if (hasElementChild && text.trim() === '') continue
             values.push(JSON.stringify(text))
           }
-          // see NR-6
+          // Spec: NR-6
           const parts = [
             ...values,
             ...Array.from(columns.keys())
@@ -343,7 +343,7 @@ async function sameAfterNormalization(
   )
 }
 
-// WHY: cut from the written document: one copy moves only the value made at the write (NR-7), the other
+// Why: cut from the written document: one copy moves only the value made at the write (NR-7), the other
 // the first other leaf of Project, so the step drops that one value and nothing beside it.
 /** @purity semi-pure-mutable */
 async function projectLeafCopies(
@@ -379,7 +379,7 @@ async function projectLeafCopies(
   )
 }
 
-// WHY: named here and used only where a type is asked for -- the nodes it
+// Why: named here and used only where a type is asked for -- the nodes it
 // speaks of live in the page, so none of it survives into the browser.
 interface MovablePair {
   readonly parent: Element
@@ -395,7 +395,7 @@ interface ReorderedCopies {
   readonly withinOneNameAt: string
 }
 
-// WHY: the copies are cut from the document the application wrote, not from
+// Why: the copies are cut from the document the application wrote, not from
 // markup made up here, so what is put in another order is the format's own.
 /** @purity semi-pure-mutable */
 async function reorderedCopies(page: Page, markup: string): Promise<ReorderedCopies> {
@@ -405,12 +405,12 @@ async function reorderedCopies(page: Page, markup: string): Promise<ReorderedCop
       const serializer = new XMLSerializer()
       /** @purity pure */
       const parsed = (): Document => new DOMParser().parseFromString(text, 'application/xml')
-      // see NR-3
+      // Spec: NR-3
       /** @purity pure */
       const nameOf = (one: Element): string => `{${one.namespaceURI ?? ''}}${one.localName}`
       /** @purity pure */
       const elementsOf = (doc: Document): Element[] => Array.from(doc.getElementsByTagName('*'))
-      // see NR-6
+      // Spec: NR-6
       /** @purity pure */
       const acrossNames = (doc: Document): MovablePair | null => {
         for (const parent of elementsOf(doc)) {
@@ -421,7 +421,7 @@ async function reorderedCopies(page: Page, markup: string): Promise<ReorderedCop
         }
         return null
       }
-      // see NR-6
+      // Spec: NR-6
       /** @purity pure */
       const withinOneName = (doc: Document): MovablePair | null => {
         for (const parent of elementsOf(doc)) {
@@ -429,7 +429,7 @@ async function reorderedCopies(page: Page, markup: string): Promise<ReorderedCop
           for (let at = 0; at < children.length; at += 1) {
             const earlier = children[at]
             if (earlier === undefined) continue
-            // WHY: the two must differ in what they hold, or putting them in
+            // Why: the two must differ in what they hold, or putting them in
             // the other order would leave the document as it was.
             const later = children
               .slice(at + 1)
@@ -476,7 +476,7 @@ test.beforeAll(async () => {
 })
 
 test.afterAll(async () => {
-  // WHY: closing this browser can outlast a hook's default timeout; the
+  // Why: closing this browser can outlast a hook's default timeout; the
   // allowance is applied explicitly here.
   test.setTimeout(CLEARING_UP_MS)
   await browser?.close()
@@ -540,7 +540,7 @@ test(
         `${EXPORT_ENTRY_ROW} put up no ${CHOOSER_NAME}`,
     ).toHaveCount(1)
 
-    // WHY: counted, not named -- how a format is marked on this surface is
+    // Why: counted, not named -- how a format is marked on this surface is
     // the one thing here the specification does not settle.
     const choices = chooser.locator(`button:not(${entrySelector(CLOSE_ENTRY_ROW)})`)
     await expect(
@@ -570,7 +570,7 @@ test(
     const first = await writeOutOnce(page)
     const second = await writeOutOnce(page)
 
-    // WHY: checked before the documents are compared -- two documents of
+    // Why: checked before the documents are compared -- two documents of
     // the wrong format would compare equal too and hide a bad choice.
     for (const written of [first, second]) {
       expect(
@@ -586,7 +586,7 @@ test(
       ).toBe(FORMAT_FIRST_CHARACTER)
     }
 
-    // WHY: records how much text there was, since two empty documents
+    // Why: records how much text there was, since two empty documents
     // would compare equal and say nothing.
     test.info().annotations.push({
       type: 'note',
@@ -621,7 +621,7 @@ test(
     const written = await writeOutOnce(page)
     const copies = await reorderedCopies(page, written.text)
 
-    // WHY: recorded because which siblings were moved is the document's
+    // Why: recorded because which siblings were moved is the document's
     // doing, not this case's, and a failure has to be traceable to them.
     test.info().annotations.push({
       type: 'note',
@@ -645,7 +645,7 @@ test(
       throw new Error('unreachable: the two checks above hold these')
     }
 
-    // WHY: checked before the verdicts -- NR-6 acts BEFORE NR-1, which keeps
+    // Why: checked before the verdicts -- NR-6 acts BEFORE NR-1, which keeps
     // the order of children, so a copy equal as text would say nothing.
     for (const [copy, what] of [
       [acrossNames, 'siblings of different names'],
@@ -696,7 +696,7 @@ test(
     const written = await writeOutOnce(page)
     const copies = await projectLeafCopies(page, written.text)
 
-    // WHY: checked before the verdicts -- with no LastSaved written the step has nothing to drop.
+    // Why: checked before the verdicts -- with no LastSaved written the step has nothing to drop.
     expect(
       copies.madeAtWriteCount,
       `table T-059 row DV-12 / table T-228 row ${MADE_AT_WRITE_ROW}: the document written out ` +
@@ -734,7 +734,7 @@ test('every row of table T-228 is either applied by a case or recorded as out of
       covered.has(row.id) || reason !== undefined,
       `table T-228 row ${row.id} is neither applied by a case nor recorded as out of reach`,
     ).toBe(true)
-    // WHY: put on the run, not just left in a constant -- a gap only
+    // Why: put on the run, not just left in a constant -- a gap only
     // visible by reading this file stops being read.
     if (reason !== undefined) {
       test.info().annotations.push({ type: 'note', description: `${row.id}: ${reason}` })

@@ -44,13 +44,13 @@ const hexIn = (cell: string): string => (/#[0-9a-fA-F]{6}/.exec(cell)?.[0] ?? ''
 const wordOf = (part: string): string => WORDS.colorField.find((one) => one.part === part)?.text.ja ?? ''
 const colorWord = (spelling: string): string => WORDS.colorNames.find((one) => one.spelling === spelling)?.text.ja ?? ''
 
-// see S-335, S-336, S-337, S-338
+// Spec: S-335, S-336, S-337, S-338
 const S_335 = numberOf(verticalIn('T-206', 'S-335').by['既定'] ?? '')
 const S_336 = hexIn(verticalIn('T-236', 'S-336').by['明るいテーマ'] ?? '')
 const S_337 = hexIn(verticalIn('T-236', 'S-337').by['明るいテーマ'] ?? '')
 const S_338 = numberOf(verticalIn('T-206', 'S-338').by['既定'] ?? '')
 
-// see T-294
+// Spec: T-294
 const T_294 = specTable('T-294').rows.map((row) => bare(row.cells[1] ?? ''))
 const TRANSPARENT = bare(verticalIn('T-294', 'S-324').cells[1] ?? '')
 const BLACK = bare(verticalIn('T-294', 'S-315').cells[1] ?? '')
@@ -125,7 +125,7 @@ function bench(document: Record<string, unknown>): Bench {
   }
 }
 
-// WHY: the same event raiser tests/unit/property-date-field-delete-empties-the-date.test.ts uses on this fake.
+// Why: the same event raiser tests/unit/property-date-field-delete-empties-the-date.test.ts uses on this fake.
 function raise(built: Stage, node: FakeElement, type: string, extra: Record<string, unknown> = {}): FakeEvent {
   const event = {
     type,
@@ -178,7 +178,7 @@ function documentWith(rows: readonly TaskGroupSeed[], names: readonly string[], 
   return document
 }
 
-// see MK-13
+// Spec: MK-13
 function panelOnTask(document: Record<string, unknown>): Bench {
   const built = bench(document)
   const placement = built.loop.current()?.layout.placements.find((one) => one.taskUid === 1)
@@ -207,7 +207,7 @@ const TASK_GROUPS: readonly TaskGroupSeed[] = [
 ]
 const NAMES = ['Alpha', 'Beta', 'Gamma']
 
-// see T-109, HF-10, HF-12, HF-16, HF-17, HF-20
+// Spec: T-109, HF-10, HF-12, HF-16, HF-17, HF-20
 const HEAD_ENTRANCES = ['IC-74', 'IC-78', 'IC-92', 'IC-93', 'IC-106']
 const TASK_GROUP_ONLY_ENTRANCES = ['IC-59', 'IC-60']
 
@@ -221,7 +221,7 @@ describe('HF-20 / CD-6 / QN-10 -- the head deletes every task group', () => {
   })
 
   it('E-36: 頭が持つ入口が 5 つ -- the head carries IC-106 and none of the hide / pin entrances', () => {
-    // see HF-20, E-36, IC-106
+    // Spec: HF-20, E-36, IC-106
     const built = bench(documentWith(TASK_GROUPS, NAMES))
     const panel = byRole(built.built.root(), 'Task Group Panel')[0] as FakeElement
     const inRow = (node: FakeElement): boolean => {
@@ -236,12 +236,12 @@ describe('HF-20 / CD-6 / QN-10 -- the head deletes every task group', () => {
   })
 
   it('QN-10 / NT-7: pressing IC-106 asks QN-10 and lists the task names before anything is deleted', () => {
-    // see HF-20, QN-10, NT-7
+    // Spec: HF-20, QN-10, NT-7
     const built = bench(documentWith(TASK_GROUPS, NAMES))
     const before = built.loop.document()
     built.press('Task Group Panel', 'IC-106')
     const asked = built.view().confirmation
-    // WHY: the confirmation carries the T-234 row as its question and the dictionary words as its text.
+    // Why: the confirmation carries the T-234 row as its question and the dictionary words as its text.
     expect(asked?.question).toBe('QN-10')
     expect(asked?.text).toBe(QN_10)
     expect((asked?.items ?? []).map((one) => one.name).sort()).toEqual([...NAMES].sort())
@@ -249,7 +249,7 @@ describe('HF-20 / CD-6 / QN-10 -- the head deletes every task group', () => {
   })
 
   it('CD-6: 深さ L1 のすべてのタスクグループに CD-2 を当てた和 -- every task group and every task goes, and one L1 task group is made', () => {
-    // see CD-6, CD-2
+    // Spec: CD-6, CD-2
     const built = bench(documentWith(TASK_GROUPS, NAMES))
     built.press('Task Group Panel', 'IC-106')
     built.key(YES)
@@ -263,7 +263,7 @@ describe('HF-20 / CD-6 / QN-10 -- the head deletes every task group', () => {
   })
 
   it('CD-6: 取り消し 1 回で戻る -- one undo brings every task group and task back', () => {
-    // see CD-6, SK-6
+    // Spec: CD-6, SK-6
     const built = bench(documentWith(TASK_GROUPS, NAMES))
     const before = built.loop.document().schedule
     built.press('Task Group Panel', 'IC-106')
@@ -284,7 +284,7 @@ const FR_006_COLOR_LAST =
   '見た目の行（表 T-016 の入力の型に `色` を含む行と、塗りの透過率・枠線の幅の行）は、同じ対象の行の並びの末尾に置くこと（MUST）'
 const FR_006_WIDTH_AFTER =
   '見た目の行どうしは、どの対象でも 枠線の幅 → 枠線の色 → 塗りの色 → 塗りの透過率 → 字の色 の順に並べ、1 つの行に色を 1 つだけ持たせること（MUST）'
-// WHY: the columns of the look rows in FR-006's order; TaskGroup.color is the task group band's fill.
+// Why: the columns of the look rows in FR-006's order; TaskGroup.color is the task group band's fill.
 const LOOK_ORDER: readonly string[] = ['strokeWidthPx', 'strokeColor', 'fillColor', 'fillTransparencyPercent', 'textColor']
 const LOOK_ALIAS: Readonly<Record<string, string>> = { color: 'fillColor' }
 
@@ -293,8 +293,8 @@ const kindOf = (row: (typeof T_016.rows)[number]): string => row.by['入力の�
 const subjectOf = (row: (typeof T_016.rows)[number]): string => bare(row.by['対象'] ?? '')
 const columnsOf = (row: (typeof T_016.rows)[number]): readonly string[] => bareAll(row.cells[0] ?? '')
 const shownForOf = (row: (typeof T_016.rows)[number]): string => bare(row.by['出す種類'] ?? '')
-// see FR-006, T-016
-// WHY: the Task outline width row is the Task row whose column is strokeWidthPx.
+// Spec: FR-006, T-016
+// Why: the Task outline width row is the Task row whose column is strokeWidthPx.
 const isTaskWidthRow = (row: (typeof T_016.rows)[number]): boolean =>
   subjectOf(row) === 'Task' && columnsOf(row).length === 1 && columnsOf(row)[0] === 'strokeWidthPx'
 
@@ -303,7 +303,7 @@ function dateEntry(built: Bench, row: string, column: string): FakeElement {
   const found = entries.find((one) => (one.getAttribute('data-field-column') ?? column) === column && one.getAttribute('type') === 'date')
   const chosen = found ?? entries[column === 'finish' ? 1 : 0]
   if (chosen === undefined) throw new Error(`the panel drew no date entry for ${row} ${column}`)
-  // WHY: a browser reflects the type attribute onto the property; the shared fake does not.
+  // Why: a browser reflects the type attribute onto the property; the shared fake does not.
   ;(chosen as unknown as { type: string | null }).type = chosen.getAttribute('type')
   return chosen
 }
@@ -327,7 +327,7 @@ describe('FR-006 -- the date fields', () => {
 
   for (const key of ['Delete', 'Backspace']) {
     it(`FR-006 E-28: ${key} while editing a date field empties it (欄の字をすべて消して空にする)`, () => {
-      // see FR-006
+      // Spec: FR-006
       const document = documentWith([{ id: 'g1', parentId: null }], ['Alpha'])
       document.schedule.tasks[0] = { ...document.schedule.tasks[0], deadline: '2026-05-08T17:00:00' }
       const built = panelOnTask(document)
@@ -337,7 +337,7 @@ describe('FR-006 -- the date fields', () => {
   }
 
   it('FR-006 E-41: それ以外の日付の欄なら null を書く -- deadline is written null', () => {
-    // see FR-006, T-016, PR-10
+    // Spec: FR-006, T-016, PR-10
     const document = documentWith([{ id: 'g1', parentId: null }], ['Alpha'])
     document.schedule.tasks[0] = { ...document.schedule.tasks[0], deadline: '2026-05-08T17:00:00' }
     const built = panelOnTask(document)
@@ -348,7 +348,7 @@ describe('FR-006 -- the date fields', () => {
 
   for (const [column, row] of [['start', 'PR-3'], ['finish', 'PR-47']] as const) {
     it(`FR-006 E-41: ${column} の欄 (${row}) なら何も書かずに欄を元の値へ戻す`, () => {
-      // see FR-006, T-016, PR-3, PR-47
+      // Spec: FR-006, T-016, PR-3, PR-47
       const built = panelOnTask(documentWith([{ id: 'g1', parentId: null }], ['Alpha']))
       const before = built.loop.document().schedule.tasks[0]?.[column]
       const shownBefore = built.view().propertiesPanel?.fields.find((one) => one.row === row)?.text
@@ -362,7 +362,7 @@ describe('FR-006 -- the date fields', () => {
 
 describe('FR-006 E-28 -- the look rows are last in their object order', () => {
   it('FR-006: 見た目の行は同じ対象の行の並びの末尾、枠線の幅 → 枠線の色 → 塗り → 透過率 → 字の色 -- table T-016 (every object)', () => {
-    // see FR-006, T-016
+    // Spec: FR-006, T-016
     const lookRank = (row: (typeof T_016.rows)[number]): number => {
       const columns = columnsOf(row)
       if (columns.length !== 1) return kindOf(row).includes('色') ? Number.NaN : -1
@@ -384,7 +384,7 @@ describe('FR-006 E-28 -- the look rows are last in their object order', () => {
   })
 
   it('FR-006: the panel on a (non-milestone) Task shows the outline width row, then its color rows, last', () => {
-    // STEP: the rows T-016 shows for this kind (FR-006)
+    // Step: the rows T-016 shows for this kind (FR-006)
     const built = panelOnTask(documentWith([{ id: 'g1', parentId: null }], ['Alpha']))
     const rows = built.view().propertiesPanel?.fields.map((one) => one.row) ?? []
     const taskRows = T_016.rows.filter((row) => subjectOf(row) === 'Task' && ['task', 'both'].includes(shownForOf(row)))
@@ -423,8 +423,8 @@ const NO_LINE_WORD = wordOf('noLine')
 const S_530 = numberOf(verticalIn('T-206', 'S-530').by['既定'] ?? '')
 const S_531 = numberOf(verticalIn('T-206', 'S-531').by['既定'] ?? '')
 
-// see T-016
-// WHY: the Task color rows are found by the column they edit, whatever row id they carry.
+// Spec: T-016
+// Why: the Task color rows are found by the column they edit, whatever row id they carry.
 const taskRowOf = (column: string): string => {
   const found = T_016.rows.find((row) => subjectOf(row) === 'Task' && columnsOf(row).length === 1 && columnsOf(row)[0] === column)
   if (found === undefined) throw new Error(`table T-016 has no Task row for ${column}`)
@@ -435,8 +435,8 @@ const TASK_LINE = taskRowOf('strokeColor')
 
 const tipOf = (one: FakeElement): string => one.getAttribute('title') ?? ''
 
-// see CV-9
-// WHY: one grid per color field holds both rows; a cell reads as its name, an entrance, or '' for an empty place.
+// Spec: CV-9
+// Why: one grid per color field holds both rows; a cell reads as its name, an entrance, or '' for an empty place.
 function gridOf(built: Bench, row: string): FakeElement {
   const field = inField(built, row)[0]
   if (field === undefined) throw new Error(`the panel drew no field ${row}`)
@@ -459,7 +459,7 @@ const entranceOf = (built: Bench, row: string, cell: string): FakeElement => {
 const chosenOf = (built: Bench, row: string): string[] =>
   gridOf(built, row).children.filter((one) => one.getAttribute('data-color-chosen') === 'true').map(cellOf)
 
-// WHY: CV-9's two rows, read in order: S-338 names and the theme entrance, then the rest, transparent, custom.
+// Why: CV-9's two rows, read in order: S-338 names and the theme entrance, then the rest, transparent, custom.
 const twoTiers = (): string[] => {
   const first = [...NAMED.slice(0, S_338), 'theme']
   const second = [...NAMED.slice(S_338), TRANSPARENT, 'custom']
@@ -467,7 +467,7 @@ const twoTiers = (): string[] => {
   return [...first, ...Array<string>(width - first.length).fill(''), ...second]
 }
 
-// WHY: the shared fake has no dispatchEvent, so the change a browser would bubble from the pressed
+// Why: the shared fake has no dispatchEvent, so the change a browser would bubble from the pressed
 // entrance is raised here after the click, as the host would deliver it.
 function pressEntry(built: Bench, node: FakeElement): void {
   raise(built.built, node, 'click')
@@ -505,7 +505,7 @@ describe('CV-9 -- the color field', () => {
   })
 
   it(`${CV_9_ORDER} -- the task fill field is two rows of one grid`, () => {
-    // see CV-9, S-338, T-294
+    // Spec: CV-9, S-338, T-294
     const built = panelOnTask(documentWith([{ id: 'g1', parentId: null }], ['Alpha']))
     const cells = twoTiers()
     expect((styleMap(gridOf(built, TASK_FILL)).get('grid-template-columns') ?? '').replace(/\s/g, '')).toMatch(
@@ -524,7 +524,7 @@ describe('CV-9 -- the color field', () => {
   })
 
   it('CV-9 (2): transparent then custom closes the second row of every color field (task fill, task line, task group color)', () => {
-    // see CV-9, CV-5, FR-007
+    // Spec: CV-9, CV-5, FR-007
     const task = panelOnTask(documentWith([{ id: 'g1', parentId: null }], ['Alpha']))
     for (const row of [TASK_FILL, TASK_LINE]) expect(cellsOf(task, row).slice(-2), row).toEqual([TRANSPARENT, 'custom'])
     const row = bench(documentWith([{ id: 'g1', parentId: null }], ['Alpha']))
@@ -532,7 +532,7 @@ describe('CV-9 -- the color field', () => {
   })
 
   it(`${CV_9_NO_WORD} -- ${CV_9_TRANSPARENT_WORD}: no fill on fillColor and TaskGroup.color, no line on strokeColor`, () => {
-    // see CV-9, FR-038, IN-3
+    // Spec: CV-9, FR-038, IN-3
     const task = panelOnTask(documentWith([{ id: 'g1', parentId: null }], ['Alpha']))
     for (const [row, word] of [
       [TASK_FILL, NO_FILL_WORD],
@@ -547,7 +547,7 @@ describe('CV-9 -- the color field', () => {
   })
 
   it('CV-9: the theme entrance carries the glyph T and the themeHint tooltip; the custom one the glyph O', () => {
-    // see CV-9, FR-007, FR-038
+    // Spec: CV-9, FR-007, FR-038
     const built = panelOnTask(documentWith([{ id: 'g1', parentId: null }], ['Alpha']))
     for (const row of [TASK_FILL, TASK_LINE]) {
       const theme = entranceOf(built, row, 'theme')
@@ -564,7 +564,7 @@ describe('CV-9 -- the color field', () => {
     ['a custom color', { fillColor: '#aabbcc/#112233' }, TASK_FILL, 'custom'],
   ] as const) {
     it(`${CV_9_CHOSEN} -- a value of ${what} outlines the ${chosen} cell alone (S-530, S-531)`, () => {
-      // see CV-9, S-530, S-531
+      // Spec: CV-9, S-530, S-531
       const built = panelOnTask(documentWith([{ id: 'g1', parentId: null }], ['Alpha'], visual))
       expect(chosenOf(built, row)).toEqual([chosen])
       const cell = entranceOf(built, row, chosen)
@@ -586,7 +586,7 @@ describe('CV-9 -- the color field', () => {
     ['a palette name', 'strokeColor', TASK_LINE, 'red'],
   ] as const) {
     it(`CV-9 / CV-5 E-44: 押したらその欄の色をテーマ追随（null）へ戻す -- ${name} on ${column}, undone in one step`, () => {
-      // see CV-9, CV-5, SK-6
+      // Spec: CV-9, CV-5, SK-6
       const built = panelOnTask(documentWith([{ id: 'g1', parentId: null }], ['Alpha'], { [column]: value }))
       const visual = (): Record<string, unknown> =>
         (built.loop.document().schedule.taskVisuals.find((one) => one.taskUid === 1) ?? {}) as Record<string, unknown>
@@ -600,7 +600,7 @@ describe('CV-9 -- the color field', () => {
   }
 
   it(`${CV_9_EMPTY_SLOT} -- the task group color field keeps black's place empty and every later cell in its place`, () => {
-    // see CV-9, S-315
+    // Spec: CV-9, S-315
     const built = bench(documentWith([{ id: 'g1', parentId: null }], ['Alpha']))
     const rowColor = taskGroupPanelBox(built)
     const fields = built.view().propertiesPanel?.fields ?? []
@@ -611,7 +611,7 @@ describe('CV-9 -- the color field', () => {
   })
 
   it('CV-9 (JDG-397): 閲覧環境の色の入力は、カスタムカラーの入口を押したときにだけ出す', () => {
-    // see CV-9
+    // Spec: CV-9
     const built = panelOnTask(documentWith([{ id: 'g1', parentId: null }], ['Alpha']))
     const hostInputs = (): FakeElement[] =>
       inField(built, TASK_FILL).flatMap((field) =>
@@ -623,7 +623,7 @@ describe('CV-9 -- the color field', () => {
   })
 
   it(`${CV_9_CUSTOM_VALUE} -- the light value, in upper-case hex, painted and named on the custom entrance`, () => {
-    // see CV-9, CV-2, CV-3
+    // Spec: CV-9, CV-2, CV-3
     for (const stored of ['#aabbcc/#112233', '#aabbcc/']) {
       const built = panelOnTask(documentWith([{ id: 'g1', parentId: null }], ['Alpha'], { fillColor: stored }))
       const custom = entranceOf(built, TASK_FILL, 'custom')
@@ -633,20 +633,20 @@ describe('CV-9 -- the color field', () => {
   })
 
   it('CV-9: a name swatch is named by its word, as a tooltip', () => {
-    // see CV-9, IN-3
+    // Spec: CV-9, IN-3
     const built = panelOnTask(documentWith([{ id: 'g1', parentId: null }], ['Alpha'], { strokeColor: 'red' }))
     expect(tipOf(entranceOf(built, TASK_LINE, 'red'))).toBe(colorWord('red'))
   })
 
   it(`${CV_9_CHECKER} (S-335 cells a side, S-336 / S-337)`, () => {
-    // see CV-9, S-335, S-336, S-337
+    // Spec: CV-9, S-335, S-336, S-337
     const built = panelOnTask(documentWith([{ id: 'g1', parentId: null }], ['Alpha']))
     const swatch = entranceOf(built, TASK_FILL, TRANSPARENT)
     const background = (styleMap(swatch).get('background') ?? '').toLowerCase()
     expect(background).toMatch(/gradient\(/)
     expect(background).toContain(S_336)
     expect(background).toContain(S_337)
-    // WHY: a conic checker tile holds 2 x 2 cells; cells a side = 2 x side / tile.
+    // Why: a conic checker tile holds 2 x 2 cells; cells a side = 2 x side / tile.
     const side = parseFloat(styleMap(swatch).get('width') ?? '')
     const tile = /\/\s*(?:calc\(([^)]*)\)|([\d.]+[a-z%]*))/.exec(background)
     const tileSize = tile?.[1] !== undefined ? Function(`return (${tile[1].replace(/[a-z%]+/g, '')})`)() as number : parseFloat(tile?.[2] ?? '')

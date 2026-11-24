@@ -52,7 +52,7 @@ const CLOSE = ICON('IC-52')
 const SELECT_ALL = ICON('IC-63')
 const OPEN_SEARCH = keyOf('SK-24')
 
-// see S-543, S-544
+// Spec: S-543, S-544
 const colorOf = (id: string, theme: '明るいテーマ' | '暗いテーマ'): string => {
   const hex = /#([0-9a-f]{6})/i.exec(rowOf(specTable('T-236'), id).by[theme] ?? '')?.[1] ?? ''
   const at = (from: number): number => parseInt(hex.slice(from, from + 2), 16)
@@ -115,7 +115,7 @@ const taskRow = (uid: number, from: number, to: number): Record<string, unknown>
   carryElements: [],
 })
 
-// WHY: Sato carries Alpha and Charlie, Tanaka Bravo and Delta, and Echo has nobody (the (Unassigned) row holds one task).
+// Why: Sato carries Alpha and Charlie, Tanaka Bravo and Delta, and Echo has nobody (the (Unassigned) row holds one task).
 /** @purity pure */
 function fixture(): string {
   const group = TEMPLATE.schedule['taskGroups'][0] as Record<string, unknown>
@@ -161,7 +161,7 @@ interface Shown {
   readonly filteringTables: readonly string[]
 }
 
-// see AM-26
+// Spec: AM-26
 /** @purity semi-pure-mutable */
 async function readShown(page: Page): Promise<Shown> {
   const shown = await page.evaluate(() => {
@@ -171,7 +171,7 @@ async function readShown(page: Page): Promise<Shown> {
   return { drawnTaskUids: shown.drawnTaskUids === null ? null : [...shown.drawnTaskUids].sort((a, b) => a - b), filteringTables: [...shown.filteringTables] }
 }
 
-// see AM-27
+// Spec: AM-27
 /** @purity non-pure */
 async function showOnly(page: Page, taskUids: readonly number[] | null): Promise<void> {
   await page.evaluate((asked: readonly number[] | null) => {
@@ -205,7 +205,7 @@ async function textOf(page: Page, selector: string): Promise<string | null> {
   return page.evaluate((wanted: string) => document.querySelector(wanted)?.textContent ?? null, selector)
 }
 
-// WHY: the spec says the box is filled and the glyph drawn, not which element carries which; every color in the entrance is read.
+// Why: the spec says the box is filled and the glyph drawn, not which element carries which; every color in the entrance is read.
 /** @purity semi-pure-mutable */
 async function paintsOf(page: Page, selector: string): Promise<{ readonly fills: readonly string[]; readonly inks: readonly string[] }> {
   return page.evaluate((wanted: string) => {
@@ -220,7 +220,7 @@ async function paintsOf(page: Page, selector: string): Promise<{ readonly fills:
 
 const isRed = async (page: Page, selector: string, red: string = RED_LIGHT): Promise<boolean> => (await paintsOf(page, selector)).fills.includes(red)
 
-// WHY: every row starts unchecked (TV-2, CR-798); the word narrows the list (SV-4), the heading box then checks every listed row (SQ-10).
+// Why: every row starts unchecked (TV-2, CR-798); the word narrows the list (SV-4), the heading box then checks every listed row (SQ-10).
 /** @purity non-pure */
 async function checkListedIn(page: Page, window: string, word: string): Promise<void> {
   await press(page, `${window} input`)
@@ -234,7 +234,7 @@ async function checkListedIn(page: Page, window: string, word: string): Promise<
   await settle(page)
 }
 
-// WHY: once any row is checked the heading box clears every row (SQ-10, CR-801), so a second word is checked row by row.
+// Why: once any row is checked the heading box clears every row (SQ-10, CR-801), so a second word is checked row by row.
 /** @purity non-pure */
 async function checkRowIn(page: Page, window: string, word: string): Promise<void> {
   await press(page, `${window} input`)
@@ -476,7 +476,7 @@ test.describe('CR-722 / FR-151 T-353 / FR-099 T-370 on the shipped build', () =>
       await press(page, `${PANEL} [data-search-task="${String(BRAVO)}"]`)
       expect(await readShown(page), 'the Resource List eye is off, so nothing narrows').toEqual({ drawnTaskUids: null, filteringTables: [] })
       expect(await drawnTaskUids(page)).toContain(BRAVO)
-      // WHY: RO-6 puts the Resource List where SV-9 puts the search panel, and the later one stands in front; close the panel to reach the eye.
+      // Why: RO-6 puts the Resource List where SV-9 puts the search panel, and the later one stands in front; close the panel to reach the eye.
       await press(page, `${PANEL} [data-icon="${ICON('IC-52')}"]`)
       await press(page, `${RESOURCE_LIST} [data-icon="${EYE}"]`)
       expect((await readShown(page)).drawnTaskUids, 'Tanaka is still unchecked: Bravo and Delta go again').toEqual([ALPHA, CHARLIE])

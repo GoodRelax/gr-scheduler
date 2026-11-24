@@ -1,4 +1,4 @@
-// DocumentCodec -- declares the interface AppShellSource (table T-065 IF-8).
+// File: DocumentCodec: declares the interface AppShellSource (table T-065 IF-8).
 // @unit      UF-38   (docs/spec/05-07-design.md, table T-075)
 // @component DocumentCodec, layer Adapter (table T-062)
 // @purity    n/a
@@ -7,7 +7,7 @@
 export interface AppShell {
   readonly html: string
   readonly embeddedDocumentElementId: string
-  // see FR-067
+  // Spec: FR-067
   readonly omittedElementIds: readonly string[]
 }
 

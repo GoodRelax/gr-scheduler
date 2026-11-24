@@ -20,7 +20,7 @@ const TABLE_ANY_CHANGE = '呼び方が少しでも変われば上げる'
 const AGENT_API_VERSION = String(MEMBERS['version'])
 const INSTANT_FORM = /^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$/
 
-// WHY: only what a caller depends on is fingerprinted -- names, kinds, arguments, return and value types.
+// Why: only what a caller depends on is fingerprinted -- names, kinds, arguments, return and value types.
 // Row IDs, groups, purity and every prose cell (meaning, carries, source, label) are left out.
 const NOT_CALL_SHAPE_KEYS: readonly string[] = ['id', 'group', 'purity', 'carries', 'source', 'meaning', 'label']
 
@@ -44,7 +44,7 @@ function cloneMembers(): Record<string, any> {
   return JSON.parse(JSON.stringify(MEMBERS)) as Record<string, any>
 }
 
-// WHY: newest last. Raising the version AND changing a call shape means adding one pair; a pair is never edited or removed.
+// Why: newest last. Raising the version AND changing a call shape means adding one pair; a pair is never edited or removed.
 const VERSION_FINGERPRINTS: readonly { readonly version: string; readonly fingerprint: string }[] = [
   { version: '2026-10-19T01:15:00Z', fingerprint: '0d2545fc877844506b3d60d527b9eb1263357c1f6ae20891d8fb984d50367e65' },
 ]

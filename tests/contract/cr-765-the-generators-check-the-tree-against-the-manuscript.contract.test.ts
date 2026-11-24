@@ -21,7 +21,7 @@ const GENERATOR = 'tools/generate_agent_api.py'
 const DESCRIPTION_GENERATOR = 'tools/generate_mcp_tool_descriptions.py'
 const TABLE_PRINTER = 'docs/spec/_source/agent_api_members_json_to_md.py'
 
-// WHY: the description generator imports the command generator (CR-766), which reads the whole _source folder.
+// Why: the description generator imports the command generator (CR-766), which reads the whole _source folder.
 const SOURCE_DIR = 'docs/spec/_source'
 const COMMAND_GENERATOR = 'tools/generate_document_commands.py'
 
@@ -137,7 +137,7 @@ describe('on a scratch copy outside the repository: an untouched copy is green, 
     editManuscript(copy, (manuscript) => {
       const argument = memberOf(manuscript, 'AM-25').arguments[0]
       if (argument === undefined) throw new Error('AM-25 has no argument')
-      // WHY: the tool descriptions are printed from the English (en), so the planted change goes there (CR-796).
+      // Why: the tool descriptions are printed from the English (en), so the planted change goes there (CR-796).
       argument.meaning.en = `${argument.meaning.en} (planted)`
     })
     expect(run(copy, GENERATOR)).toMatchObject({ status: 0 })

@@ -50,7 +50,7 @@ describe('CR-593 -- the manuscript these cases are driven by', () => {
   })
 })
 
-// see T-108
+// Spec: T-108
 function kindOf(row: string): DocumentCommand['kind'] {
   const found = specTable('T-108').rows.find((one) => one.id === row)
   const name = bare(found?.by['確定名'] ?? '')
@@ -69,9 +69,9 @@ function documentOf(): Document {
 const DOCUMENT = documentOf()
 const FIRST_TASK_GROUP = DOCUMENT.schedule.taskGroups[0]?.id ?? null
 
-// see CM-65, UN-8
+// Spec: CM-65, UN-8
 const ZOOM = { kind: kindOf('CM-65'), zoomX: 2, zoomY: 2 } as unknown as DocumentCommand
-// see CM-66, UN-8
+// Spec: CM-66, UN-8
 const SCROLL = {
   kind: kindOf('CM-66'),
   scrollDate: '2026-03-02',
@@ -79,7 +79,7 @@ const SCROLL = {
   scrollDateFraction: 0,
   scrollTaskGroupFraction: 0,
 } as unknown as DocumentCommand
-// see CM-71, UN-8
+// Spec: CM-71, UN-8
 const FIT = {
   kind: kindOf('CM-71'),
   zoomX: 2,
@@ -90,13 +90,13 @@ const FIT = {
   scrollTaskGroupFraction: 0,
 } as unknown as DocumentCommand
 
-// WHY: not UN-8, each one a write a widened exemption might admit: the view group, UN-7, the document name.
+// Why: not UN-8, each one a write a widened exemption might admit: the view group, UN-7, the document name.
 const NOT_UN_8: readonly (readonly [string, DocumentCommand])[] = [
-  // see UN-13
+  // Spec: UN-13
   ['CM-64 (UN-13, the view group)', { kind: kindOf('CM-64'), isThemeMonochrome: true } as unknown as DocumentCommand],
-  // see UN-7
+  // Spec: UN-7
   ['CM-58 (UN-7, also outside the history)', { kind: kindOf('CM-58'), setting: 'isBaselineVisible', isVisible: true } as unknown as DocumentCommand],
-  // see UN-13
+  // Spec: UN-13
   ['CM-1 (UN-13, the document name)', { kind: kindOf('CM-1'), title: 'CR-593 another title' } as unknown as DocumentCommand],
 ]
 
@@ -169,7 +169,7 @@ describe(`T-067 WS-2 "${WS_2_REFUSES}" -- AG-9 "${AG_9_EDITING}" still holds for
     expect(planOf([ZOOM, SCROLL, command], EDITING)).toEqual(EDITING_REFUSAL)
   })
 
-  // WHY: the seam keeps the empty batch as it was; an empty batch was refused while editing.
+  // Why: the seam keeps the empty batch as it was; an empty batch was refused while editing.
   it('an empty batch is refused while an edit in place is unsettled, as before CR-593', () => {
     expect(planOf([], EDITING)).toEqual(EDITING_REFUSAL)
   })
@@ -185,7 +185,7 @@ describe(`T-067 WS-2 "${WS_2_REFUSES}" -- the exemption belongs to the unsettled
     expect(planOf([ZOOM, SCROLL], moment)).toEqual({ ok: false, refusal: { step: 'WS-2', reason } })
   })
 
-  // WHY: WS-2 does not say which reason wins when two moments hold at once, so only the refusal is read.
+  // Why: WS-2 does not say which reason wins when two moments hold at once, so only the refusal is read.
   it.each([
     ['a gesture in flight with an unsettled edit', { ...GESTURE, editingInPlace: true }],
     ['notice delivery with an unsettled edit', { ...DELIVERING, editingInPlace: true }],

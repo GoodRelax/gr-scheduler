@@ -77,7 +77,7 @@ const REQUIREMENTS = readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-req
 
 const S_87 = numberIn(cellOf('T-205', 'S-87', '既定'))
 const S_88 = numberIn(cellOf('T-205', 'S-88', '既定'))
-// see FR-018, T-205
+// Spec: FR-018, T-205
 const thresholdOf = (depth: number): number => S_87 * S_88 ** (depth - 2)
 
 const S_53 = numberIn(cellOf('T-201', 'S-53', '既定値'))
@@ -261,7 +261,7 @@ const markOf = (scene: Scene, predecessorUid: number, successorUid: number): Pt 
   return dots[1]!
 }
 
-// WHY: the same day written with a time of day is the same view; only the day and its offset place it.
+// Why: the same day written with a time of day is the same view; only the day and its offset place it.
 const dayOf = (value: unknown): unknown => (typeof value === 'string' ? value.slice(0, 10) : value)
 
 const within = (low: number, high: number, from: number, to: number): boolean => low >= from && high <= to
@@ -277,7 +277,7 @@ const pointer = (phase: 'down' | 'up', at: Pt, clickCount: number): PointerInput
     clickCount,
   }) as unknown as PointerInput
 
-// WHY: a second click is read with the double-click reading (the TRAP on PointerPress.hit).
+// Why: a second click is read with the double-click reading (the TRAP on PointerPress.hit).
 const clickOn = (scene: Scene, at: Pt, clickCount: number): { readonly press: PointerPress; readonly out: TranslatedInput } => {
   const hit = itemAtPointer(scene.context.geometry, at.x, at.y, grabSizesOf(), clickCount >= 2 ? 'doubleClick' : 'press')
   const press = { at: pointer('down', at, clickCount), hit, on: null, pressRow: 'PTD-3' } as unknown as PointerPress
@@ -299,7 +299,7 @@ const onlyOf = (writes: readonly Loose[], kind: string): Loose | undefined => {
   return found[0]
 }
 
-// WHY: the settings the view would hold after the writes, laid out again to see where the far end lands.
+// Why: the settings the view would hold after the writes, laid out again to see where the far end lands.
 const sceneAfter = (scene: Scene, writes: readonly Loose[]): Scene => {
   const next: Loose = {}
   for (const write of writes) {
@@ -319,7 +319,7 @@ interface Row {
 const rowsOf = (scene: Scene): readonly Row[] =>
   (scene.context.layout as unknown as { readonly taskGroups: readonly Row[] }).taskGroups
 
-// WHY: the task group the view is drawn from -- the one crossing the top of the scroll area (under the pinned band),
+// Why: the task group the view is drawn from -- the one crossing the top of the scroll area (under the pinned band),
 // with the fraction of it scrolled past (S-176, 0 or more and under 1 per OP-10a).
 const topTaskGroupOf = (scene: Scene): { readonly taskGroupId: string; readonly offset: number } | undefined => {
   const band = (scene.context.layout as unknown as { readonly pinnedBandHeight?: number }).pinnedBandHeight ?? 0
@@ -358,7 +358,7 @@ const below = (): Scene =>
     ],
   })
 
-// WHY: Task 2 stands clear of the mark across: its shape, hidden under the band, would otherwise lie under the dots.
+// Why: Task 2 stands clear of the mark across: its shape, hidden under the band, would otherwise lie under the dots.
 const underTheBand = (): Scene =>
   sceneOf({
     groups: [['P', null], ['a', null], ['b', null], ['c', null]],
@@ -450,7 +450,7 @@ describe(`EL-11 -- ${EL_11_SEND}`, () => {
       expect(mid, EL_11_SEND).toBeCloseTo(after.taskGroupArea.x + after.taskGroupArea.width / 2, 2)
     })
 
-    // WHY: the scene stores no task group (S-78 null), so "not sent down" is read off the picture, not off the stored
+    // Why: the scene stores no task group (S-78 null), so "not sent down" is read off the picture, not off the stored
     // value: the write names the task group and offset already at the top of the scroll area, and every task group stays put.
     it(`${name}: the far end's task group is inside the vertical range, so the view is not sent down (${EL_12_STAY})`, () => {
       const scene = make()
@@ -475,7 +475,7 @@ describe(`EL-11 -- ${EL_11_SEND}`, () => {
   it(`(iv) pinned far end off to the right: sent across only -- ${EL_12_PINNED}`, () => {
     const scene = pinnedOffRight()
     expect(lineOf(scene, 1, 2).continuation?.farUid, 'premise: the mark leads to Task 2').toBe(2)
-    // WHY: FR-098 cuts the mark of a scrolling end at the top of the area below the band, so only a dot left
+    // Why: FR-098 cuts the mark of a scrolling end at the top of the area below the band, so only a dot left
     // below that top is drawn and pressed (DFC-1222); the middle dot of this mark stands in the band.
     const scrollTop = (scene.context as unknown as { readonly layout: { readonly scrollAreaY: number } }).layout.scrollAreaY
     const drawnDot = lineOf(scene, 1, 2).continuation?.dots.find((one) => one.y >= scrollTop)

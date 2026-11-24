@@ -49,7 +49,7 @@ const rowOf = (table: string, id: string) => {
   return found
 }
 
-// WHY: the column headings of the settings tables are Japanese.
+// Why: the column headings of the settings tables are Japanese.
 const HEADING_DEFAULT_VALUE = '既定値'
 const HEADING_DEFAULT = '既定'
 
@@ -59,7 +59,7 @@ const numberOf = (table: string, id: string, heading: string): number => {
   return Number(numbers[0])
 }
 
-// WHY: every number below is read from the settings tables, never held here.
+// Why: every number below is read from the settings tables, never held here.
 export const S_1 = numberOf('T-201', 'S-1', HEADING_DEFAULT_VALUE)
 export const S_8 = numberOf('T-201', 'S-8', HEADING_DEFAULT_VALUE)
 export const S_85 = numberOf('T-205', 'S-85', HEADING_DEFAULT)
@@ -67,7 +67,7 @@ export const S_577 = numberOf('T-205', 'S-577', HEADING_DEFAULT)
 export const S_578 = numberOf('T-205', 'S-578', HEADING_DEFAULT)
 export const S_208 = numberOf('T-206', 'S-208', HEADING_DEFAULT)
 
-// WHY: WT-4 writes S-483 when Project.defaultFinishTime is empty; the time is read from table T-209, not held here.
+// Why: WT-4 writes S-483 when Project.defaultFinishTime is empty; the time is read from table T-209, not held here.
 export const DEFAULT_FINISH_TIME = ((): string => {
   const found = Object.values(rowOf('T-209', 'S-483').by)
     .map((cell) => bare(cell))
@@ -79,7 +79,7 @@ export const DEFAULT_FINISH_TIME = ((): string => {
 
 const RULER_FONT = SETTINGS_DEFAULTS['rulerFontSizePx'] as number
 
-// WHY: FR-017 judges pxPerDay / (rulerFontSizePx * ratio / S-8) and pxPerDay = S-1 * ratio * zoomX, so the ratio cancels.
+// Why: FR-017 judges pxPerDay / (rulerFontSizePx * ratio / S-8) and pxPerDay = S-1 * ratio * zoomX, so the ratio cancels.
 export const zoomXFor = (judged: number): number => (judged * RULER_FONT) / (S_1 * S_8)
 
 export const TASK_GROUP_A = '85000000-0000-4000-8000-00000000000a'
@@ -100,7 +100,7 @@ export interface Scene {
   readonly scrollDateFraction: number
 }
 
-// WHY: SG-2 below the half-hour width -- judged between S-577 and S-578. 2026-10-14 is a Wednesday.
+// Why: SG-2 below the half-hour width -- judged between S-577 and S-578. 2026-10-14 is a Wednesday.
 export const HOUR_TIER: Scene = {
   start: '2026-10-14T09:00:00',
   finish: '2026-10-14T12:00:00',
@@ -111,10 +111,10 @@ export const HOUR_TIER: Scene = {
   scrollDateFraction: 0.25,
 }
 
-// WHY: SG-2 on the half-hour dotted-grid width (S-578 and above), kept near S-578 to stay under the zoomX ceiling.
+// Why: SG-2 on the half-hour dotted-grid width (S-578 and above), kept near S-578 to stay under the zoomX ceiling.
 export const HALF_HOUR_TIER: Scene = { ...HOUR_TIER, zoomX: zoomXFor(S_578 * 1.3) }
 
-// WHY: SG-1 while the time of day is shown -- the ruler has not reached the hour tier.
+// Why: SG-1 while the time of day is shown -- the ruler has not reached the hour tier.
 export const DAY_TIER_SHOWN: Scene = {
   ...HOUR_TIER,
   statusDate: `2026-10-14T${DEFAULT_FINISH_TIME}`,
@@ -123,7 +123,7 @@ export const DAY_TIER_SHOWN: Scene = {
   scrollDateFraction: 0,
 }
 
-// WHY: SG-1 because the time of day is hidden (FR-158).
+// Why: SG-1 because the time of day is hidden (FR-158).
 export const TIME_HIDDEN: Scene = { ...DAY_TIER_SHOWN, isTimeOfDayVisible: false }
 
 export function fixtureDocument(scene: Scene): Document {
@@ -188,7 +188,7 @@ export function fixtureDocument(scene: Scene): Document {
     documentSettings: {
       ...(template['documentSettings'] as Record<string, unknown>),
       isTimeOfDayVisible: scene.isTimeOfDayVisible,
-      // WHY: the progress marker (GA-18) of an unstarted task would sit on the bar.
+      // Why: the progress marker (GA-18) of an unstarted task would sit on the bar.
       isProgressMarkerVisible: false,
       zoomX: scene.zoomX,
       scrollDate: scene.scrollDate,
@@ -204,7 +204,7 @@ export function fixtureDocument(scene: Scene): Document {
 export const settingsOf = (scene: Scene): DocumentSettings =>
   ({ ...SETTINGS_DEFAULTS, isTimeOfDayVisible: scene.isTimeOfDayVisible, zoomX: scene.zoomX }) as unknown as DocumentSettings
 
-// WHY: the frame loop and the session read the wall clock for today; it is pinned to a day of the scenes.
+// Why: the frame loop and the session read the wall clock for today; it is pinned to a day of the scenes.
 export function pinClock(): void {
   vi.useFakeTimers({ toFake: ['Date'] })
   vi.setSystemTime(new Date(2026, 9, 14, 8, 0, 0))
@@ -218,7 +218,7 @@ export function unpinClock(): void {
   else (globalThis as Record<string, unknown>)['requestAnimationFrame'] = realRaf
 }
 
-// see T-109
+// Spec: T-109
 const surfaceOfEntrance = (entry: string): string => bare(rowOf('T-109', entry).cells[0] ?? '')
 
 const SCREEN: FrameEnvironment = { width: 1400, height: 700, appHeaderHeight: 0, scrollbarThickness: 0 }
@@ -331,7 +331,7 @@ export const taskOf = (built: Stage, uid: number = SOURCE): Task => {
 export const statusDateOf = (built: Stage): string | null =>
   built.loop.document().schedule.project.statusDate as unknown as string | null
 
-// WHY: GA-2 is pressed on the right edge itself, so the pressed point and the grabbed end are the same x.
+// Why: GA-2 is pressed on the right edge itself, so the pressed point and the grabbed end are the same x.
 export function planFinishGrab(built: Stage): Point {
   const box = planBox(built.loop)
   const at = { x: box.x + box.width, y: box.y + box.height / 2 }
@@ -339,7 +339,7 @@ export function planFinishGrab(built: Stage): Point {
   return at
 }
 
-// WHY: task group B holds no bar, so nothing outranks GR-16 there.
+// Why: task group B holds no bar, so nothing outranks GR-16 there.
 export function statusLineGrab(built: Stage): Point {
   const band = bandOf(built.loop, TASK_GROUP_B)
   const at = { x: statusLineOf(built.loop).x, y: band.y + band.height / 2 }
@@ -347,7 +347,7 @@ export function statusLineGrab(built: Stage): Point {
   return at
 }
 
-// WHY: the intermediate move carries the release-time keys, as a hand holding the key does.
+// Why: the intermediate move carries the release-time keys, as a hand holding the key does.
 export function dragBy(
   built: Stage,
   from: Point,
@@ -363,7 +363,7 @@ export function dragBy(
   built.send(pointer('up', to, released))
 }
 
-// see FR-072
+// Spec: FR-072
 export function settingsPanel(document: Document): PropertiesPanel {
   const session = {
     ...emptyScreenSession,
@@ -430,7 +430,7 @@ const readingsAt = (at: Point | null): ScreenViewReadings =>
 
 export type Placed = { readonly cursorADate: string; readonly cursorBDate: string } | null
 
-// see CU-3, DC-3
+// Spec: CU-3, DC-3
 export function cursorScene(scene: Scene) {
   const document = fixtureDocument(scene)
   const settings = document.documentSettings as DocumentSettings

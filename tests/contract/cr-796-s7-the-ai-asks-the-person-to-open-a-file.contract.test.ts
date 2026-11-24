@@ -112,7 +112,7 @@ function benchWith(flags: Flags, hasAsker: boolean): Bench {
   return { api: installAgentApi(wiring), asked, state }
 }
 
-// WHY: the member is new, so it is reached through a loose type and the file compiles before and after the change.
+// Why: the member is new, so it is reached through a loose type and the file compiles before and after the change.
 const requestOpenFile = (api: AgentApi): Promise<Json> | Json => {
   const member = (api as unknown as { requestOpenFile?: () => Promise<Json> | Json }).requestOpenFile
   if (typeof member !== 'function') throw new Error('AM-29: the Agent API has no member requestOpenFile')
@@ -123,7 +123,7 @@ const refusalOf = (outcome: Json): Json => outcome['refusal'] as Json
 
 const lineOf = (id: string): string => MEMBERS.split(/\r?\n/).find((line) => line.startsWith(`| ${id} |`)) ?? ''
 
-// see AM-29, QN-17, AV-15
+// Spec: AM-29, QN-17, AV-15
 describe('AM-29 / AG-12 (6): requestOpenFile asks the person and returns at once', () => {
   it('AG-12 (6) 問いを出したら答えを待たずに値（`_assets/tbl-agent-api-members.md` の 表 T-400 の `AV-15` の「人に問うたとき」）で返すこと（MUST）: { ok: true, asked: "QN-17", stamp }', async () => {
     const { api, asked } = benchWith({}, true)
@@ -162,7 +162,7 @@ describe('AM-29 / AG-12 (6): requestOpenFile asks the person and returns at once
   })
 })
 
-// see AM-29, AV-4
+// Spec: AM-29, AV-4
 describe('AM-29: a page with no way to ask refuses with notAvailable', () => {
   it('AV-4: without askToOpenFile -> { ok: false, refusal: { reason: "notAvailable" } }', async () => {
     const { api } = benchWith({}, false)
@@ -173,7 +173,7 @@ describe('AM-29: a page with no way to ask refuses with notAvailable', () => {
   })
 })
 
-// see AM-29, AV-4, AG-12
+// Spec: AM-29, AV-4, AG-12
 describe('AM-29 / AV-4: while the person is busy the question is not put, and the refusal is a value', () => {
   const busy: readonly [string, Flags][] = [
     ['questionAsked', { isQuestionAsked: true }],
@@ -200,7 +200,7 @@ describe('AM-29 / AV-4: while the person is busy the question is not put, and th
   })
 })
 
-// see AG-12, AM-29, T-107
+// Spec: AG-12, AM-29, T-107
 describe('AG-12 (4): the MCP tool list carries requestOpenFile and the save keys', () => {
   const tools = mcpToolList() as readonly { name: string; inputSchema: Json }[]
   const toolNamed = (name: string): { name: string; inputSchema: Json } => {
@@ -228,7 +228,7 @@ describe('AG-12 (4): the MCP tool list carries requestOpenFile and the save keys
   })
 })
 
-// see AM-29, QN-17, AV-15
+// Spec: AM-29, QN-17, AV-15
 describe('the specification rows that name the question (AM-29, AV-15, QN-17)', () => {
   it('AM-29 is a table T-107 row for requestOpenFile that returns AV-15 and cites QN-17 and AG-12', () => {
     const row = lineOf('AM-29')

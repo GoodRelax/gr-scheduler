@@ -43,7 +43,7 @@ function viewMachine(machine: Json): Json {
   return { name: machine['name'], states, transitions: cells, unhandled: machine['unhandled'] ?? [] }
 }
 
-// WHY: the tests assert the content of the tables, not the layout of the file; one view keeps them on what the generators read.
+// Why: the tests assert the content of the tables, not the layout of the file; one view keeps them on what the generators read.
 export function readStateMachineView(): Json {
   const doc = JSON.parse(
     readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'state-machines.json'), 'utf8'),

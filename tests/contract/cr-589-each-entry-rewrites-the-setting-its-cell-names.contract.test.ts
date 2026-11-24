@@ -138,7 +138,7 @@ const TEMPLATE = JSON.parse(
 
 const ROW_ID = '11111111-1111-4111-8111-111111111111'
 
-// WHY: with no pre-change plan IC-4 asks for the file instead (OP-15), so every document here holds one.
+// Why: with no pre-change plan IC-4 asks for the file instead (OP-15), so every document here holds one.
 const HELD_BASELINE = [{ uid: 1, name: 'One', start: '2026-03-25', finish: '2026-04-03', milestone: false }]
 
 function documentWith(settings: Readonly<Record<string, unknown>>): Document {
@@ -305,14 +305,14 @@ describe('CR-589 T2 -- each FR-049 entry flips the T-202 row its cell names, fro
   }
 })
 
-// see CU-3
+// Spec: CU-3
 const LINES_OF_MODE: Readonly<Record<string, { readonly vertical: boolean; readonly horizontal: boolean }>> = {
   none: { vertical: false, horizontal: false },
   crosshair: { vertical: true, horizontal: true },
   'single-vertical': { vertical: true, horizontal: false },
 }
 
-// WHY: S-66 is a screen value (table T-206), so the mode is read from the lines drawn through the pointer.
+// Why: S-66 is a screen value (table T-206), so the mode is read from the lines drawn through the pointer.
 const guideDrawn = (built: Stage): string => {
   const lines = [...built.pictureWithPointerAt(LOOK_AT).matchAll(/<line\b[^>]*>/g)].map((hit) => hit[0])
   const at = (line: string, name: string): number => Number(new RegExp(`\\s${name}="([^"]+)"`).exec(line)?.[1])

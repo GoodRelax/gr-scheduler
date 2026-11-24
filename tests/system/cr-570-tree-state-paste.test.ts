@@ -18,7 +18,7 @@ import {
 const DU_2_TREE_STATE =
   '複製した各タスクグループの `treeState`（`FR-018` の 表 T-329、`_assets/tbl-state-machines.md` の 表 T-328）は、複製元が `collapsed` か `hidden` ならその値とし、`expanded` か `temporarilyExpanded` なら `auto` とすること（MUST）'
 
-// WHY: S is the copied task group; below it every value of AT-153 is held at least once.
+// Why: S is the copied task group; below it every value of AT-153 is held at least once.
 const TREE: readonly { readonly id: string; readonly parentId: string | null }[] = [
   { id: 'S', parentId: null },
   { id: 'E', parentId: 'S' },
@@ -58,7 +58,7 @@ test('the manuscript: DU-2 of table T-223 rules the tree state of a copied task 
   expect(specTable('T-223').rows.find((row) => row.id === 'DU-2')?.cells.join(' ')).toContain('treeState')
 })
 
-// WHY: red if a copy carries expanded or temporarilyExpanded, drops collapsed or hidden, or the
+// Why: red if a copy carries expanded or temporarilyExpanded, drops collapsed or hidden, or the
 // paste rewrites a source task group.
 test('DU-2: the copy of a subtree keeps collapsed and hidden, turns expanded and temporarilyExpanded to auto', async () => {
   test.setTimeout(240_000)
@@ -71,7 +71,7 @@ test('DU-2: the copy of a subtree keeps collapsed and hidden, turns expanded and
     expect(before.rows.map((row) => row.treeState), 'premise: all five values are held').toEqual(
       expect.arrayContaining(['auto', 'collapsed', 'expanded', 'temporarilyExpanded', 'hidden']),
     )
-    // STEP: choose S, copy, paste
+    // Step: choose S, copy, paste
     await chooseTaskGroup(page, 'S')
     await pressKey(page, 'SK-4')
     await pressKey(page, 'SK-5')

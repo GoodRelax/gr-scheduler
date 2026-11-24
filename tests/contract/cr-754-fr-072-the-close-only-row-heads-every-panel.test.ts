@@ -6,7 +6,7 @@ import type { PropertiesPanel } from '../../src/adapter/screen-renderer/screen-r
 import { selfAndDescendants, styleMap, whatWasDrawn, type FakeElement } from '../fixtures/fake-browser'
 import { drawnPanel, iconLabel, REQUIREMENTS, settingLabel, settingsPanel, taskGroupPanel, taskPanel } from './cr-754-stage'
 
-// see FR-072
+// Spec: FR-072
 const FR_072_CLOSE_ROW =
   '⭐ パネルの先頭に、閉じる入口（`_assets/tbl-glossary.md` の 表 T-109 の `IC-52`）だけの行を置き、閉じる入口をその行の右端に置くこと（MUST）'
 const FR_072_NOT_IN_A_FIELD = '⛔ 閉じる入口を、欄の行や、ほかの入口・見本の並びに置いてはならない（MUST NOT）'
@@ -51,7 +51,7 @@ const insideFieldRow = (node: FakeElement, panel: FakeElement): boolean => {
   return false
 }
 
-// WHY: FR-072 names the right end, not a technique; any of the ways a flex or block row pushes its one child right counts.
+// Why: FR-072 names the right end, not a technique; any of the ways a flex or block row pushes its one child right counts.
 /** @purity pure */
 function isPushedRight(row: FakeElement, entry: FakeElement): boolean {
   const own = styleMap(row)

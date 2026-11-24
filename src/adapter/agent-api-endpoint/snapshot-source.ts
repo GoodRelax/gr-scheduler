@@ -1,4 +1,4 @@
-// The SnapshotSource seam the Agent API reads one consistent snapshot through.
+// File: AgentApiEndpoint: The SnapshotSource seam the Agent API reads one consistent snapshot through.
 // @unit      UF-29   (docs/spec/05-07-design.md, table T-075)
 // @component AgentApiEndpoint, layer Adapter (table T-062)
 // @purity    n/a
@@ -19,33 +19,33 @@ export interface FrameSnapshot {
   readonly layout: ScheduleLayout
   readonly geometry: PictureArguments[3]
   readonly regions: PictureArguments[4]
-  // WHY: optional so a snapshot built by hand need not carry it; absent or null is the stored zoom.
+  // Why: optional so a snapshot built by hand need not carry it; absent or null is the stored zoom.
   readonly unstoredZoom?: Pick<Document['documentSettings'], 'zoomX' | 'zoomY'> | null
 }
 
 export interface AgentSnapshot {
   readonly document: Document
-  // see HS-11, AM-15
-  // WHY: the document as bytes written now carry it -- AT-140 is the time the lower line shows, never the held one's.
+  // Spec: HS-11, AM-15
+  // Why: the document as bytes written now carry it -- AT-140 is the time the lower line shows, never the held one's.
   readonly documentAsWritten: Document
   readonly selection: Selection
   readonly frame: FrameSnapshot | null
   readonly exportScene: ExportArguments[0] | null
   readonly isGestureInFlight: boolean
   readonly isEditingInPlace: boolean
-  // see WS-2, NT-7, RS-74
+  // Spec: WS-2, NT-7, RS-74
   readonly isQuestionAsked: boolean
-  // see WS-2, T-286
+  // Spec: WS-2, T-286
   readonly isDeliveringNotices: boolean
   readonly historyLimits: PlanInput['historyLimits']
   readonly settingsLimits: SettingsLimits
   readonly defaultTaskGroupName: PlanInput['defaultTaskGroupName']
   readonly readAt: string
-  // WHY: an MSPDI export writes this as LastSaved (DV-12), which is the place's wall time, not readAt's UTC.
+  // Why: an MSPDI export writes this as LastSaved (DV-12), which is the place's wall time, not readAt's UTC.
   readonly localReadAt: string
 }
 
-// see IF-7
+// Spec: IF-7
 export interface SnapshotSource {
   /** @purity semi-pure-mutable */
   readSnapshot(): AgentSnapshot

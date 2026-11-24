@@ -98,14 +98,14 @@ describe('CR-389 -- the manuscript these cases are driven by', () => {
 const FULL_SCREEN_ENTRY = 'IC-11'
 const REFUSED_REASON = 'RS-59'
 
-// see T-109
+// Spec: T-109
 const APP_HEADER = ((): string => {
   const row = specTable('T-109').rows.find((one) => one.id === FULL_SCREEN_ENTRY)
   if (row === undefined) throw new Error(`table T-109 has no row ${FULL_SCREEN_ENTRY}`)
   return bare(row.by['面'] ?? '')
 })()
 
-// see S-99e, T-109
+// Spec: S-99e, T-109
 const PALETTE_ENTRY_ON_THE_HEADER = ((): string => {
   const found = specTable('T-109').rows.filter(
     (row) => bareAll(row.by['面'] ?? '').includes(APP_HEADER) && (row.by['何の入口か'] ?? '').includes('`S-99e`'),
@@ -125,7 +125,7 @@ interface ReasonWords {
   readonly nextStep?: Words
 }
 
-// see FR-038, T-233
+// Spec: FR-038, T-233
 const reasonWords = (rowId: string): ReasonWords => {
   const raw = JSON.parse(
     readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8'),
@@ -167,8 +167,8 @@ interface BrowserSide {
   readonly exits: Asked[]
 }
 
-// WHY: the host is passed by shape and the loop is called through a widened signature, so this
-// WHY: file compiles against a FrameLoop that does not yet take a twelfth argument.
+// Why: the host is passed by shape and the loop is called through a widened signature, so this
+// Why: file compiles against a FrameLoop that does not yet take a twelfth argument.
 type LoopWithHost = (...args: readonly unknown[]) => FrameLoop
 
 interface Stage {
@@ -188,7 +188,7 @@ afterEach(() => {
   else (globalThis as any).requestAnimationFrame = realRaf
 })
 
-// see UF-48, T-078
+// Spec: UF-48, T-078
 function stage(options: { readonly withHost?: boolean; readonly language?: DisplayLanguage } = {}): Stage {
   const waiting: ((time: number) => void)[] = []
   let insideReceiveInput = false
@@ -289,7 +289,7 @@ const entryOf = (view: ScreenView, icon: string): CommandItem => {
   return found
 }
 
-// see FR-071, IC-11
+// Spec: FR-071, IC-11
 function pressFullScreenEntry(built: Stage): void {
   built.aimAt(FULL_SCREEN_ENTRY)
   built.send(pointer('down'))

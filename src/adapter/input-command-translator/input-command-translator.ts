@@ -1,4 +1,4 @@
-// InputCommandTranslator -- public entry of this folder.
+// File: InputCommandTranslator: public entry of this folder.
 // @unit      UF-30   (docs/spec/05-07-design.md, table T-075)
 // @component InputCommandTranslator, layer Adapter (table T-062)
 // @purity    pure
@@ -154,28 +154,28 @@ export type TaskGroupGrabScroll = Pick<ScrollAnchor, 'scrollTaskGroupId' | 'scro
 
 export interface PointerPress {
   readonly at: PointerInput
-  // TRAP: pick the hit's reading by at.clickCount; a plain reading on a second click misses MK-13.
+  // Trap: pick the hit's reading by at.clickCount; a plain reading on a second click misses MK-13.
   readonly hit: Hit | null
   readonly on: ScreenPart | null
   readonly pressRow: PressRow
   readonly followedTo?: { readonly x: number; readonly y: number }
-  // TRAP: never default an absent carry to true; a still click would stop choosing the task group.
+  // Trap: never default an absent carry to true; a still click would stop choosing the task group.
   readonly isTaskGroupGrabCarried?: boolean
-  // see FR-052
-  // TRAP: the width DRAWN when the press began, taken then: the context's regions follow the held
+  // Spec: FR-052
+  // Trap: the width DRAWN when the press began, taken then: the context's regions follow the held
   // picture, so reading them at release counts the travel twice.
   readonly propertyPanelWidthAtPress?: number
-  // see CY-6
-  // TRAP: the task groups DRAWN when the press began: a held copy drag draws its copies stacked into the source task groups,
+  // Spec: CY-6
+  // Trap: the task groups DRAWN when the press began: a held copy drag draws its copies stacked into the source task groups,
   // so task groups read at release are taller and a release one task group down lands in the source task group.
   readonly layoutRowsAtPress?: ScheduleLayout['taskGroups']
-  // see GR-21, FR-051
-  // TRAP: the whole the horizontal bar measures against, taken at the press: measured again during the
+  // Spec: GR-21, FR-051
+  // Trap: the whole the horizontal bar measures against, taken at the press: measured again during the
   // drag, a view past the content's edge shrinks it and the grip falls behind the pointer.
   readonly horizontalWholeAtPress?: HorizontalWhole
-  // TRAP: the vertical twin, for the same reason: the last task group scrolled to the top runs past the content.
+  // Trap: the vertical twin, for the same reason: the last task group scrolled to the top runs past the content.
   readonly verticalWholeAtPress?: VerticalWhole
-  // TRAP: the picture DRAWN when the press began; the context's geometry follows the held picture (PE-8, DFC-2980).
+  // Trap: the picture DRAWN when the press began; the context's geometry follows the held picture (PE-8, DFC-2980).
   readonly geometryAtPress?: ScheduleGeometry
 }
 
@@ -186,7 +186,7 @@ export interface InputContext {
   readonly regions: ScreenRegions
   readonly screen: ScreenValues
   readonly selection: Selection
-  // see FR-085, FR-099, IN-4
+  // Spec: FR-085, FR-099, IN-4
   readonly chosenTaskGroups?: readonly string[]
   readonly chosenResources?: readonly number[]
   readonly zoomStep: number
@@ -194,23 +194,23 @@ export interface InputContext {
   readonly zoomMax: number
   readonly isPictureAtStoredZoom?: boolean
   readonly taskGroupControlsHeightPx?: number
-  // see FR-016
-  // TRAP: the caller's remembered taskGroupBandCeilingOf(context, upTo, enough) at drawnZoomX, asked again
+  // Spec: FR-016
+  // Trap: the caller's remembered taskGroupBandCeilingOf(context, upTo, enough) at drawnZoomX, asked again
   // once upTo grows past what it holds; absent, every notch walks T-253 again (DFC-610).
   readonly taskGroupBandCeiling?: (drawnZoomX: number, upTo: number, enough?: number) => number
-  // TRAP: on a down this must already be that press; left null, every drawn entry reads unassigned.
+  // Trap: on a down this must already be that press; left null, every drawn entry reads unassigned.
   readonly pressed: PointerPress | null
   readonly isTextEntryUnsettled: boolean
-  // see IN-5a, MK-13, HF-14
-  // TRAP: kept apart from isTextEntryUnsettled, which AG-9 and WS-2 read; this state is not AG-9's.
+  // Spec: IN-5a, MK-13, HF-14
+  // Trap: kept apart from isTextEntryUnsettled, which AG-9 and WS-2 read; this state is not AG-9's.
   readonly isTextFieldFocusWanted?: boolean
-  // see IN-5a, SV-2, SV-5
-  // WHY: judged by where the keys go, never counted as AG-9's state (IN-5a).
+  // Spec: IN-5a, SV-2, SV-5
+  // Why: judged by where the keys go, never counted as AG-9's state (IN-5a).
   readonly isSearchWordFocused?: boolean
-  // see RG-16, IF-9
+  // Spec: RG-16, IF-9
   readonly focusedWindow?: WindowName | null
   readonly isFocusInPropertiesPanel?: boolean
-  // see RW-1, RW-5, RW-14, RW-19, RO-1, RO-6, S-451, S-545
+  // Spec: RW-1, RW-5, RW-14, RW-19, RO-1, RO-6, S-451, S-545
   readonly delayDiagnosticsReport?: {
     readonly shown: 'normal' | 'minimized' | 'maximized'
     readonly isInFront: boolean
@@ -218,7 +218,7 @@ export interface InputContext {
   } | null
   readonly diagnosisMarkedTaskUids?: ReadonlySet<number>
   readonly resourceList?: { readonly shown: 'normal' | 'minimized' | 'maximized'; readonly isInFront: boolean } | null
-  // WHY: the resources the Resource List lists after its word and filters; absent, every resource of the document.
+  // Why: the resources the Resource List lists after its word and filters; absent, every resource of the document.
   readonly listedResourceUids?: readonly number[]
   readonly isSurfaceStanding: boolean
   readonly dualCursorFollowing: DualCursorSide | null
@@ -265,16 +265,16 @@ export type InputAction =
       readonly kind: 'changeDocument'
       readonly writes: readonly (readonly DocumentCommand[])[]
       readonly created?: CreatedSubject
-      // see HF-20, QN-10, HF-15, QN-16
+      // Spec: HF-20, QN-10, HF-15, QN-16
       readonly question?: 'QN-10' | 'QN-16'
-      // WHY: the copies a PTD-7 drag makes, picked once the bundle lands (CY-8).
+      // Why: the copies a PTD-7 drag makes, picked once the bundle lands (CY-8).
       readonly picked?: Selection
     }
   | { readonly kind: 'undoEdit' }
   | { readonly kind: 'redoEdit' }
   | { readonly kind: 'copySelection' }
   | { readonly kind: 'pasteClipboard' }
-  // WHY: absent is the ordinary open (OP-2); 'baseline' is the same chooser opened for an overlay (OP-15).
+  // Why: absent is the ordinary open (OP-2); 'baseline' is the same chooser opened for an overlay (OP-15).
   | { readonly kind: 'openDocumentFile'; readonly openRoute?: 'baseline' }
   | { readonly kind: 'saveDocumentFile' }
   | { readonly kind: 'reopenDocumentFile' }
@@ -295,21 +295,21 @@ export type InputAction =
       readonly kind: 'followTaskGroupGrab'
       readonly taskGroupId: string
       readonly landing: TaskGroupGrabLanding | null
-      // see S-597, S-598
+      // Spec: S-597, S-598
       readonly scrollSpeed: number
     }
   | { readonly kind: 'scrollTaskGroupGrab'; readonly to: TaskGroupGrabScroll }
-  // see FR-085, T-293
+  // Spec: FR-085, T-293
   | {
       readonly kind: 'chooseTaskGroup'
       readonly taskGroupId: string
       readonly isExtending: boolean
     }
-  // see FR-099, T-293
+  // Spec: FR-099, T-293
   | { readonly kind: 'chooseResources'; readonly uids: readonly number[] }
-  // see FR-099, T-293
+  // Spec: FR-099, T-293
   | { readonly kind: 'toggleChosenResource'; readonly uid: number }
-  // see FR-072, T-280
+  // Spec: FR-072, T-280
   | { readonly kind: 'toggleDocumentSettingsProperties' }
   | { readonly kind: 'toggleAgentApi' }
   | { readonly kind: 'copyImageToJsonPrompt' }
@@ -320,16 +320,16 @@ export type InputAction =
 export interface TranslatedInput {
   readonly action: InputAction | null
   readonly isBrowserDefaultStopped: boolean
-  // see FR-039, SE-1, SE-2
-  // TRAP: present on every press of IC-104 / IC-105 / SK-22 / SK-23; end is set whenever the
+  // Spec: FR-039, SE-1, SE-2
+  // Trap: present on every press of IC-104 / IC-105 / SK-22 / SK-23; end is set whenever the
   // step after the press is an end one, on the press that arrives there as well.
   readonly displayScaleShown?: { readonly end: 'max' | 'min' | null }
-  // see ZE-2, ZE-3, ZE-5
-  // TRAP: present only on a vertical-axis input that wrote no zoom at an end; zoomY is the one drawn.
+  // Spec: ZE-2, ZE-3, ZE-5
+  // Trap: present only on a vertical-axis input that wrote no zoom at an end; zoomY is the one drawn.
   // At the shrinking end (ZE-2) the action may still end temporarilyExpanded (FR-031).
   readonly verticalZoomEndShown?: { readonly end: 'max' | 'min'; readonly zoomY: number }
-  // see PE-12, EL-13, EL-16
-  // TRAP: present on every still single release on GA-24, even when the send writes nothing.
+  // Spec: PE-12, EL-13, EL-16
+  // Trap: present on every still single release on GA-24, even when the send writes nothing.
   readonly landingMarked?: {
     readonly predecessorUid: number
     readonly successorUid: number
@@ -343,10 +343,10 @@ export const CONSUMED_ELSEWHERE: TranslatedInput = { action: null, isBrowserDefa
 
 const DOCUMENT_TITLE_PART = 'Document Title'
 
-// see T-266
+// Spec: T-266
 export type GrabTaskGroup = GrabArea
 
-// TRAP: the one place the hit's row is read as a T-266 row; widening it anywhere else would
+// Trap: the one place the hit's row is read as a T-266 row; widening it anywhere else would
 // let a retired T-023d row through a branch that reads it as a grab margin of the new table.
 /** @purity pure */
 export function grabTaskGroupOf(hit: Hit): GrabTaskGroup {
@@ -431,13 +431,13 @@ function isCtrlDragCombo(modifiers: InputModifiers): boolean {
   return isCombo(modifiers, true, false, false) || isCombo(modifiers, true, true, false)
 }
 
-// see FR-103, T-378
+// Spec: FR-103, T-378
 /** @purity pure */
 export function snapMinutesOfView(context: InputContext): number {
   return snapMinutesOf(context.layout.pxPerDay, context.document.documentSettings)
 }
 
-// see MK-16, CY-5, CY-11, T-270
+// Spec: MK-16, CY-5, CY-11, T-270
 /** @purity pure */
 export function isDateKeepingDrag(press: Pick<PointerPress, 'at'>): boolean {
   return press.at.modifiers.shift && !press.at.modifiers.alt
@@ -549,8 +549,8 @@ export interface PlacedCommentAnchor {
   readonly at: Point
 }
 
-// see GR-14, AR-5, FR-019, LF-15, RS-44
-// WHY: the release point, not the drag amount; a snap within S-292 wins, else the pointer itself is the free point.
+// Spec: GR-14, AR-5, FR-019, LF-15, RS-44
+// Why: the release point, not the drag amount; a snap within S-292 wins, else the pointer itself is the free point.
 /** @purity pure */
 export function commentAnchorAt(
   layout: ScheduleLayout,
@@ -568,8 +568,8 @@ export function commentAnchorAt(
   return { anchor: freeAnchorAt(layout, taskGroup, x, y), at: { x, y } }
 }
 
-// see LF-15, FR-019
-// WHY: free columns at the snapped point too, read just inside the band for a highlight box's top or bottom row.
+// Spec: LF-15, FR-019
+// Why: free columns at the snapped point too, read just inside the band for a highlight box's top or bottom row.
 /** @purity pure */
 function snappedAnchorOf(layout: ScheduleLayout, snap: AnchorSnap): PlacedCommentAnchor | null {
   const { target, at } = snap
@@ -587,7 +587,7 @@ function snappedAnchorOf(layout: ScheduleLayout, snap: AnchorSnap): PlacedCommen
   return { anchor, at }
 }
 
-// see LF-15
+// Spec: LF-15
 /** @purity pure */
 function freeAnchorAt(layout: ScheduleLayout, taskGroup: TaskGroupPlacement, x: number, y: number): AnnotationAnchor {
   const originStart = layout.originDay === null ? null : instantOf(textOfDayStart(layout.originDay))
@@ -609,13 +609,13 @@ export interface ScrollAnchor {
 /** @purity pure */
 function unitFraction(value: number): number {
   if (!Number.isFinite(value)) return 0
-  // WHY: dateAtX snaps a boundary within 1e-9 to the day it opens, so -1e-15 here is that edge, not 0.999... of a day.
+  // Why: dateAtX snaps a boundary within 1e-9 to the day it opens, so -1e-15 here is that edge, not 0.999... of a day.
   if (value < 0 && value > -1e-9) return 0
   const dropped = value - Math.floor(value)
   return dropped < 1 ? dropped : 0
 }
 
-// see GA-7, GA-8, HB-4
+// Spec: GA-7, GA-8, HB-4
 /** @purity pure */
 export function pointerDaySerial(layout: ScheduleLayout, x: number): number | null {
   const day = dayAtX(layout, x)
@@ -676,7 +676,7 @@ export function scrolledAnchor(context: InputContext, dx: number, dy: number): S
   }
 }
 
-// see PV-4, PV-5
+// Spec: PV-4, PV-5
 /** @purity pure */
 export function rememberedActualIn(context: InputContext, taskUid: number): RememberedActual | null {
   return context.screen.rememberedActuals[taskUid] ?? null
@@ -687,7 +687,7 @@ export function isOnTaskGroupArea(context: InputContext, x: number, y: number): 
   return regionAtPointer(context.regions, x, y) === 'taskGroupArea'
 }
 
-// see PTD-7, CY-1, CY-2
+// Spec: PTD-7, CY-1, CY-2
 const COPY_DRAG_GRABS: readonly string[] = ['GA-9', 'GA-14', 'GA-15']
 
 /** @purity pure */
@@ -701,7 +701,7 @@ function isCopyDragPress(
   return COPY_DRAG_GRABS.includes(hit.grab) && isSelected(context.selection, { kind: 'task', uid: hit.item.taskUid })
 }
 
-// see T-023a
+// Spec: T-023a
 /** @purity pure */
 export function pressedRowOf(
   press: Pick<PointerPress, 'at' | 'hit'>,
@@ -761,7 +761,7 @@ export function milestoneGlyphOf(name: string): TaskMilestoneGlyph | null {
     : null
 }
 
-// TRAP: one creation per bundle; a second createTask would take mark + 2 while this answers mark + 1.
+// Trap: one creation per bundle; a second createTask would take mark + 2 while this answers mark + 1.
 /** @purity pure */
 export function nextIssuedUid(schedule: Schedule): number {
   return schedule.project.uidHighWaterMark + 1
@@ -824,7 +824,7 @@ export const ENTRY = {
   windowMinimize: 'IC-129',
   windowMaximize: 'IC-130',
   windowRestore: 'IC-131',
-  // WHY: IC-134 and IC-165 of T-344 are fields, settled through screenEventFromFieldCommit, so they are not listed here.
+  // Why: IC-134 and IC-165 of T-344 are fields, settled through screenEventFromFieldCommit, so they are not listed here.
   holidaySettings: 'IC-132',
   holidayWeekday: 'IC-133',
   holidayExceptionAdd: 'IC-135',
@@ -863,7 +863,7 @@ function nextFontSizeStep(current: FontSizeStep): FontSizeStep {
 
 export type Armed = ArmModeArmedState
 
-// TRAP: the arm types shapeKind and glyph as bare strings; a misspelling here compiles and arms nothing.
+// Trap: the arm types shapeKind and glyph as bare strings; a misspelling here compiles and arms nothing.
 const ARMED_BY_ENTRY: Readonly<Record<string, Armed>> = {
   'IC-23': { kind: 'taskShapeArmed', shapeKind: 'rectangle' },
   'IC-24': { kind: 'taskShapeArmed', shapeKind: 'chevron' },
@@ -899,11 +899,11 @@ export function armedByEntry(entry: string): Armed | null {
 
 
 
-// see IN-5a, SK-2, SK-4, SK-5
+// Spec: IN-5a, SK-2, SK-4, SK-5
 const FIELD_CTRL_KEYS: ReadonlySet<string> = new Set([KEY.c, KEY.v, KEY.a])
 
-// see IN-5a, SV-5
-// WHY: Enter too, while the word field holds the focus: SV-5 hands it to the browser, not SK-19.
+// Spec: IN-5a, SV-5
+// Why: Enter too, while the word field holds the focus: SV-5 hands it to the browser, not SK-19.
 /** @purity pure */
 export function isTypedIntoSearchWord(input: HumanInput, context: InputContext): boolean {
   if (input.kind !== 'key' || context.isSearchWordFocused !== true) return false
@@ -913,14 +913,14 @@ export function isTypedIntoSearchWord(input: HumanInput, context: InputContext):
   return isSingleCharacterKey(key) || key === KEY.del || key === KEY.backspace || key === KEY.enter
 }
 
-// see SV-5
+// Spec: SV-5
 /** @purity pure */
 function isEnterInSearchPanel(input: HumanInput, context: InputContext): boolean {
   if (input.kind !== 'key' || context.focusedWindow !== 'searchPanel') return false
   return input.key === KEY.enter && isCombo(input.modifiers, false, false, false)
 }
 
-// see PI-18, T-023, T-036
+// Spec: PI-18, T-023, T-036
 /** @purity pure */
 export function commandFromInput(input: HumanInput, context: InputContext): TranslatedInput {
   if (isTypedIntoSearchWord(input, context) || isEnterInSearchPanel(input, context)) return UNASSIGNED
@@ -934,8 +934,8 @@ export function commandFromInput(input: HumanInput, context: InputContext): Tran
   }
 }
 
-// see T-019, T-019a
-// TRAP: write back the task group the Task already stands at; choosing one lets an end drag finish it.
+// Spec: T-019, T-019a
+// Trap: write back the task group the Task already stands at; choosing one lets an end drag finish it.
 /** @purity pure */
 export function placementAt(task: Task): PlacedPlanActual | null {
   const actualStart = task.actualStart
@@ -958,14 +958,14 @@ export function placementAt(task: Task): PlacedPlanActual | null {
   }
 }
 
-// see CM-66
+// Spec: CM-66
 /** @purity pure */
 export function isScrollPositionInForce(
   context: InputContext,
   to: Extract<DocumentCommand, { kind: 'setScrollPosition' }>,
 ): boolean {
   const settings = context.document.documentSettings
-  // TRAP: compare every member CM-66 writes; one left out reads a real movement as none.
+  // Trap: compare every member CM-66 writes; one left out reads a real movement as none.
   return (
     to.scrollDate === settings.scrollDate &&
     to.scrollTaskGroupId === settings.scrollTaskGroupId &&
@@ -974,32 +974,32 @@ export function isScrollPositionInForce(
   )
 }
 
-// see MK-12, T-023a
+// Spec: MK-12, T-023a
 /** @purity pure */
 function commandFromPointer(input: PointerInput, context: InputContext): TranslatedInput {
   const press = context.pressed
   const isSwallowed = input.phase === 'up' && press !== null && isSwallowedSecondPress(press, context)
   const assigned = isSwallowed ? CONSUMED_ELSEWHERE : pointerAssignment(input, context)
-  // TRAP: read MK-12 after table T-023a has decided; read before, it makes the gesture inert.
+  // Trap: read MK-12 after table T-023a has decided; read before, it makes the gesture inert.
   if (isAssignedPointerCombo(gestureModifiers(input, context))) return assigned
   return isOnTheChart(context, input) ? browserStopped(assigned) : browserKept(assigned)
 }
 
-// see PE-0
-// WHY: the press point alone is not enough; a gesture that began on the chart keeps the browser
+// Spec: PE-0
+// Why: the press point alone is not enough; a gesture that began on the chart keeps the browser
 // off for the whole drag, or the text under the pointer is taken once it leaves the task group area.
 /** @purity pure */
 function isOnTheChart(context: InputContext, input: PointerInput): boolean {
   const press = context.pressed
   const at = press === null || press.on !== null ? input : press.at
-  // WHY: the right button is left alone; stopping it would take the context menu, which is
+  // Why: the right button is left alone; stopping it would take the context menu, which is
   // not what PE-0 asks for -- the row that names text selection, not the browser's own menus.
   if (at.button === 'right') return false
   const region = regionAtPointer(context.regions, at.x, at.y)
   return region === 'taskGroupArea' || region === 'timeRuler'
 }
 
-// see PE-0
+// Spec: PE-0
 /** @purity pure */
 function browserStopped(answer: TranslatedInput): TranslatedInput {
   return { action: answer.action, isBrowserDefaultStopped: true }
@@ -1021,7 +1021,7 @@ function commandFromItemPress(release: PointerInput, press: PointerPress, contex
   return commandFromGrab(release, press, context)
 }
 
-// see T-023a, IN-1, IN-1a, MK-10
+// Spec: T-023a, IN-1, IN-1a, MK-10
 /** @purity pure */
 function pointerAssignment(input: PointerInput, context: InputContext): TranslatedInput {
   if (input.phase === 'down') {
@@ -1038,13 +1038,13 @@ function pointerAssignment(input: PointerInput, context: InputContext): Translat
     const palette = paletteFollow(input, context)
     return palette === UNASSIGNED ? taskGroupGrabFollow(input, context) : palette
   }
-  // TRAP: consumed so the shell drops the press; one left standing makes AG-9 refuse later writes.
+  // Trap: consumed so the shell drops the press; one left standing makes AG-9 refuse later writes.
   if (input.phase === 'lost') return CONSUMED_ELSEWHERE
 
   const press = context.pressed
   if (press === null) return UNASSIGNED
   if (press.on !== null) return commandFromEntry(input, press, context)
-  // TRAP: judge the region only for a press with no hit; judged by coordinates, AS-1's double
+  // Trap: judge the region only for a press with no hit; judged by coordinates, AS-1's double
   // click on an assignee label is lost.
   if (press.hit === null && !isOnTaskGroupArea(context, press.at.x, press.at.y)) return UNASSIGNED
 
@@ -1063,10 +1063,10 @@ function pointerAssignment(input: PointerInput, context: InputContext): Translat
   }
 }
 
-// see EL-17, UN-8, FR-039
+// Spec: EL-17, UN-8, FR-039
 const MODIFIER_ONLY_KEYS: readonly string[] = [KEY.control, KEY.shift, KEY.alt, KEY.meta]
 
-// see IC-12, IC-13, IC-14, IC-15, IC-104, IC-105
+// Spec: IC-12, IC-13, IC-14, IC-15, IC-104, IC-105
 const VIEW_SCALE_ENTRIES: readonly string[] = [
   ENTRY.zoomTimeOut,
   ENTRY.zoomTimeIn,
@@ -1076,8 +1076,8 @@ const VIEW_SCALE_ENTRIES: readonly string[] = [
   ENTRY.displayScaleUp,
 ]
 
-// see EL-17, EL-18, UN-8, FR-039, MK-1, PTD-1, SC-4
-// WHY: the eye follows the landed line to its far end by scroll, pan and zoom; clearing the
+// Spec: EL-17, EL-18, UN-8, FR-039, MK-1, PTD-1, SC-4
+// Why: the eye follows the landed line to its far end by scroll, pan and zoom; clearing the
 // mark on those loses which ends the line joins (JDG-900, JDG-902). Fit still clears it (UN-17).
 /** @purity pure */
 export function isLandingMarkKeptBy(
@@ -1090,13 +1090,13 @@ export function isLandingMarkKeptBy(
   if (input.phase !== 'down' || input.clickCount >= 2) return true
   if (press === null) return false
   const on = press.on
-  // TRAP: the Task Group Area test matches pointerAssignment; a PTD-1 press elsewhere pans nothing.
+  // Trap: the Task Group Area test matches pointerAssignment; a PTD-1 press elsewhere pans nothing.
   if (on === null) return press.pressRow === 'PTD-1' && regionAtPointer(regions, input.x, input.y) === 'taskGroupArea'
   if (on.scrollbarAxis !== undefined) return true
   return on.entry !== null && VIEW_SCALE_ENTRIES.includes(on.entry)
 }
 
-// see EL-18, MK-13, SJ-10
+// Spec: EL-18, MK-13, SJ-10
 /** @purity pure */
 export function isSwallowedSecondPress(press: PointerPress, context: InputContext): boolean {
   const mark = context.screen.landingMarkDisplayState
@@ -1108,27 +1108,27 @@ export function followingTravel(
   at: PointerInput,
   press: PointerPress,
 ): { readonly dx: number; readonly dy: number } {
-  // TRAP: measure from followedTo: a piece measured from the press overshoots after the first.
+  // Trap: measure from followedTo: a piece measured from the press overshoots after the first.
   const from = press.followedTo ?? press.at
   return { dx: at.x - from.x, dy: at.y - from.y }
 }
 
-// see PTD-1, UN-8
+// Spec: PTD-1, UN-8
 /** @purity pure */
 function panFollow(input: PointerInput, context: InputContext): TranslatedInput {
   const press = context.pressed
   if (press === null) return UNASSIGNED
   if (press.on !== null) return UNASSIGNED
   if (press.pressRow !== 'PTD-1') return UNASSIGNED
-  // TRAP: without followedTo the caller records no piece, so travels from the press add up.
+  // Trap: without followedTo the caller records no piece, so travels from the press add up.
   if (press.followedTo === undefined) return UNASSIGNED
-  // WHY: a write per move, not a preview settled on release: the anchor is read from the
+  // Why: a write per move, not a preview settled on release: the anchor is read from the
   // layout the preview drew, so the whole travel would be applied again each frame.
   const by = followingTravel(input, press)
   return panTo(context, -by.dx, -by.dy)
 }
 
-// see T-109, IN-1, FR-085, OP-15
+// Spec: T-109, IN-1, FR-085, OP-15
 /** @purity pure */
 function commandFromEntry(
   release: PointerInput,
@@ -1137,7 +1137,7 @@ function commandFromEntry(
 ): TranslatedInput {
   const on = press.on
   if (on === null) return CONSUMED_ELSEWHERE
-  // TRAP: before the entry === null branch: divider, scrollbar and GR-20 presses carry no entry.
+  // Trap: before the entry === null branch: divider, scrollbar and GR-20 presses carry no entry.
   if (on.dividerPanel !== null) return commandFromPanelDivider(on.dividerPanel, release, press, context)
   if (on.scrollbarAxis !== undefined) {
     return commandFromScrollbar(on.scrollbarAxis, release, press, context)
@@ -1158,7 +1158,7 @@ function commandFromEntry(
     if (on.part === DOCUMENT_TITLE_PART && press.at.clickCount >= 2) {
       return acted({ kind: 'editInPlace', target: { kind: 'documentTitle' } })
     }
-    // TRAP: consuming this breaks caret placement in FR-035's name field, settled on pointerup.
+    // Trap: consuming this breaks caret placement in FR-035's name field, settled on pointerup.
     return UNASSIGNED
   }
   const entry = on.entry
@@ -1167,7 +1167,7 @@ function commandFromEntry(
   }
   const element = visibleElementOfEntry(entry)
   if (element !== null) return commandFromVisibleElement(element, context)
-  // WHY: screenStateFromInput answers a guide cursor entry; no document command follows it.
+  // Why: screenStateFromInput answers a guide cursor entry; no document command follows it.
   if (guideCursorModeOfEntry(entry) !== null) return CONSUMED_ELSEWHERE
 
   switch (entry) {
@@ -1181,18 +1181,18 @@ function commandFromEntry(
       return acted({ kind: 'redoEdit' })
     case ENTRY.fitToScreen:
       return changedInOrder(fitWrites(context))
-    // TRAP: while held, the same press is answered again; these arms must not read the release.
+    // Trap: while held, the same press is answered again; these arms must not read the release.
     case ENTRY.zoomTimeIn:
     case ENTRY.zoomTimeOut: {
       const factor = keyZoomFactor(context, entry === ENTRY.zoomTimeIn)
       return changed(zoomWrites(context, zoomTimes(context, factor, 'x'), null, null, null))
     }
-    // see ZE-2, ZE-3, ZE-5, SE-5
-    // TRAP: at an end the message alone tells it; an FR-029 notice beside it is forbidden.
+    // Spec: ZE-2, ZE-3, ZE-5, SE-5
+    // Trap: at an end the message alone tells it; an FR-029 notice beside it is forbidden.
     case ENTRY.zoomVerticalIn:
     case ENTRY.zoomVerticalOut:
       return verticalZoomAnswer(context, keyZoomFactor(context, entry === ENTRY.zoomVerticalIn), null, null)
-    // see FR-039, CM-74, SE-5
+    // Spec: FR-039, CM-74, SE-5
     case ENTRY.displayScaleDown:
     case ENTRY.displayScaleUp:
       return displayScaleStep(context, entry === ENTRY.displayScaleUp ? 1 : -1)
@@ -1236,7 +1236,7 @@ function commandFromEntry(
       return commandFromRowExpanderOpenAll(context)
     case ENTRY.alignStart:
     case ENTRY.alignFinish:
-      // TRAP: count chosen Tasks among drawn task groups (a fold hides one without changing Selection),
+      // Trap: count chosen Tasks among drawn task groups (a fold hides one without changing Selection),
       // and read Selection, not the drawn palette, which can be a skipped paint old.
       if (context.selection.isOrdered && chosenDrawnTaskCount(context) >= 2) {
         return changed(alignWrites(context, entry === ENTRY.alignStart))
@@ -1270,16 +1270,16 @@ function commandFromEntry(
   }
 }
 
-// see FR-049, CM-58
+// Spec: FR-049, CM-58
 /** @purity pure */
 function commandFromVisibleElement(element: VisibleElement, context: InputContext): TranslatedInput {
-  // TRAP: read the document, not the drawn entry: a skipped paint leaves it stale and stuck.
+  // Trap: read the document, not the drawn entry: a skipped paint leaves it stale and stuck.
   const isVisibleNow = context.document.documentSettings[element]
   return changed([{ kind: 'setVisibilitySetting', setting: element, isVisible: !isVisibleNow }])
 }
 
-// see FR-029, FR-099, IC-63, IC-64, IC-65, RS-27
-// WHY: a press that leaves the choice as it is, or finds no assignee to choose, changes nothing (FR-029).
+// Spec: FR-029, FR-099, IC-63, IC-64, IC-65, RS-27
+// Why: a press that leaves the choice as it is, or finds no assignee to choose, changes nothing (FR-029).
 /** @purity pure */
 function resourceListChoiceCommand(entry: string, context: InputContext): TranslatedInput {
   const schedule = context.document.schedule
@@ -1325,33 +1325,33 @@ export function taskGroupDepthOfGroup(context: InputContext, taskGroupId: string
   return found === undefined ? 1 : taskGroupGrabDepthOf(byId, found)
 }
 
-// see GR-14
+// Spec: GR-14
 /** @purity pure */
 export function boxById<Box extends { readonly id: string }>(boxes: readonly Box[], id: string): Box | undefined {
   return boxes.find((one) => one.id === id)
 }
 
-// see HB-3, GA-9
-// TRAP: sort by y, not layout order: FR-098 lifts pinned task groups, so layout order is not what is drawn.
+// Spec: HB-3, GA-9
+// Trap: sort by y, not layout order: FR-098 lifts pinned task groups, so layout order is not what is drawn.
 /** @purity pure */
 export function drawnTaskGroupsOf(layout: ScheduleLayout): readonly TaskGroupPlacement[] {
   return [...layout.taskGroups].sort((a, b) => a.y - b.y)
 }
 
-// see HB-3
-// WHY: counts the task group tops crossed, so a press on a box's edge and one inside the task group move by the same task groups.
+// Spec: HB-3
+// Why: counts the task group tops crossed, so a press on a box's edge and one inside the task group move by the same task groups.
 /** @purity pure */
 export function drawnTaskGroupsCrossed(taskGroups: readonly TaskGroupPlacement[], fromY: number, toY: number): number {
   const topsAtOrAbove = (y: number): number => taskGroups.filter((taskGroup) => taskGroup.y <= y).length
   return topsAtOrAbove(toY) - topsAtOrAbove(fromY)
 }
 
-// see FR-029, FR-034
+// Spec: FR-029, FR-034
 /** @purity pure */
 function chosenDrawnTaskCount(context: InputContext): number {
   const chosen = context.selection.items.filter((one) => one.kind === 'task')
   const drawnIds = context.drawnTaskGroupIds
-  // TRAP: absent means no picture was handed over (keep the wider count); an empty array is honored.
+  // Trap: absent means no picture was handed over (keep the wider count); an empty array is honored.
   if (drawnIds === undefined) return chosen.length
   const drawn = new Set(drawnIds)
   const drawnTaskUids = new Set<number>()
@@ -1361,7 +1361,7 @@ function chosenDrawnTaskCount(context: InputContext): number {
   return chosen.filter((one) => one.kind === 'task' && drawnTaskUids.has(one.uid)).length
 }
 
-// see FR-034, SL-7b
+// Spec: FR-034, SL-7b
 /** @purity pure */
 function alignWrites(context: InputContext, byStart: boolean): readonly DocumentCommand[] {
   const chosen = context.selection.items.filter((one) => one.kind === 'task')
@@ -1396,8 +1396,8 @@ export type PlacedPlanActual = Extract<DocumentCommand, { kind: 'setTaskPlanActu
 
 export type ActualEndHold = 'GA-3' | 'GA-4' | 'GA-12' | 'GA-13' | 'GA-16'
 
-// TRAP: schedule-invariants.ts holds the same walk under the same name; change both together.
-// see IV-19
+// Trap: schedule-invariants.ts holds the same walk under the same name; change both together.
+// Spec: IV-19
 /** @purity pure */
 export function taskGroupRankById(groups: readonly TaskGroup[]): ReadonlyMap<string, number> {
   const childrenOf = new Map<string | null, TaskGroup[]>()
@@ -1439,7 +1439,7 @@ export function compareDay(a: CalendarDay, b: CalendarDay): number {
 
 const TOP_TASK_GROUP_DEPTH = 1
 
-// see FR-016, S-36, S-38, S-13
+// Spec: FR-016, S-36, S-38, S-13
 /** @purity pure */
 export function zoomYCeiling(context: InputContext): number | null {
   const settings = context.document.documentSettings
@@ -1448,7 +1448,7 @@ export function zoomYCeiling(context: InputContext): number | null {
   return ceiling
 }
 
-// see FR-016, ZE-1, PI-5
+// Spec: FR-016, ZE-1, PI-5
 /** @purity pure */
 export function taskGroupsAtZoomY(
   context: InputContext,
@@ -1464,7 +1464,7 @@ export function taskGroupsAtZoomY(
   )
 }
 
-// see IN-4
+// Spec: IN-4
 /** @purity pure */
 export function escapeContextOf(context: InputContext): EscapeContext {
   const report = context.delayDiagnosticsReport ?? null
@@ -1495,14 +1495,14 @@ export function escapeContextOf(context: InputContext): EscapeContext {
 //   docs/spec/_source/settings.json (table T-206, which names table T-201)
 //   docs/spec/_assets/tbl-glossary.md (table T-109)
 // Rebuild: npm run gen   ||   npm run gen:check fails on drift.
-// see T-206
+// Spec: T-206
 export const NOT_STORED_ZOOM_STEP: {
   readonly 'S-96': number
 } = {
   'S-96': 1.1,
 }
 
-// see T-206
+// Spec: T-206
 export const NOT_STORED_TASK_GROUP_GRAB_SIZES: {
   readonly 'S-208': number
   readonly 'S-597': number
@@ -1513,21 +1513,21 @@ export const NOT_STORED_TASK_GROUP_GRAB_SIZES: {
   'S-598': 840,
 }
 
-// see T-206
+// Spec: T-206
 export const NOT_STORED_VISIBLE_DAY_FLOOR: {
   readonly 'S-229': number
 } = {
   'S-229': 10,
 }
 
-// see T-206
+// Spec: T-206
 export const NOT_STORED_HOUR_WIDTH_CEILING: {
   readonly 'S-579': number
 } = {
   'S-579': 60,
 }
 
-// see T-206
+// Spec: T-206
 export const NOT_STORED_ROW_BAND_CEILING_SEARCH: {
   readonly 'S-238': number
   readonly 'S-239': number
@@ -1536,14 +1536,14 @@ export const NOT_STORED_ROW_BAND_CEILING_SEARCH: {
   'S-239': 0.000001,
 }
 
-// see T-206
+// Spec: T-206
 export const NOT_STORED_PROPERTIES_PANEL_FLOOR: {
   readonly 'S-248': number
 } = {
   'S-248': 160,
 }
 
-// see T-109, FR-049
+// Spec: T-109, FR-049
 const VISIBLE_ELEMENT_BY_ENTRY: Readonly<Record<string, 'isBaselineVisible' | 'isPlanVisible' | 'isActualVisible' | 'isProgressLineVisible' | 'isProgressMarkerVisible' | 'isDateGridLinesVisible' | 'isGroupGridLinesVisible' | 'isAssigneeVisible' | 'isPercentCompleteVisible' | 'isDependencyVisible' | 'isPlanDatesVisible'>> = {
   'IC-4': 'isBaselineVisible',
   'IC-8': 'isPlanVisible',
@@ -1558,7 +1558,7 @@ const VISIBLE_ELEMENT_BY_ENTRY: Readonly<Record<string, 'isBaselineVisible' | 'i
   'IC-103': 'isPlanDatesVisible',
 }
 
-// see T-109, FR-048
+// Spec: T-109, FR-048
 const GUIDE_CURSOR_MODE_BY_ENTRY: Readonly<Record<string, 'crosshair' | 'single-vertical'>> = {
   'IC-47': 'crosshair',
   'IC-48': 'single-vertical',

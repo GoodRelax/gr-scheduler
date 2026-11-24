@@ -29,8 +29,8 @@ import {
 } from './cr-606-stage'
 import { specTable, unbroken } from './spec-table'
 
-// see AS-5
-// WHY: CR-788 replaced the one-line-per-person combo with one field and an Excel-style checked list (JDG-2472).
+// Spec: AS-5
+// Why: CR-788 replaced the one-line-per-person combo with one field and an Excel-style checked list (JDG-2472).
 const AS_5_ONE_FIELD =
   '⭐ 担当の欄はタスクに 1 つとし、閉じているあいだは主担当（`AS-13`）の名を出し、ほかにも就いているときはその後に `FR-059` の印「, …」を続けること（MUST）'
 const AS_5_NOBODY = '就いている担当がいないときは何も出さない。'
@@ -45,14 +45,14 @@ const AS_5_ADD_ITEM =
   '⭐ 打った字と等しい名の担当がいないときは、一覧の末尾に、打った字を名とする担当を足す項目を 1 つ出すこと（MUST）（語は `FR-038` の辞書）。'
 const AS_5_NOT_ON_DASH = '⛔ 打った字が `-` のときは出してはならない（MUST NOT）'
 const AS_5_ONE_PRESS = '⭐ チェックを付けると就け（`AS-12`）、外すと解き（`AS-3`）、どちらも押した 1 回で書くこと（MUST）'
-// see AS-3, AS-6, AS-7, AS-12
+// Spec: AS-3, AS-6, AS-7, AS-12
 const AS_3_ONLY_THAT_ONE = '⭐ 解くのはチェックを外した担当の割当だけであり、ほかの割当を解いてはならない（MUST NOT）。'
 const AS_6_ONLY_COLLAPSING = '⚠️ **添えてよいのは潰れる候補だけである**'
 const AS_7_ONLY_THE_ADD_ITEM = '⛔ `Resource` を作るのは、`AS-5` の足す項目を選んだときだけとすること（MUST）。'
 const AS_7_NOT_BY_TYPING =
   '打っただけの字（何も選ばずに `Enter` を押した・焦点が欄を離れた）で作ってはならない（MUST NOT）'
 const AS_12_ADDS = 'ほかの割当を解いてはならない（MUST NOT） —— チェックを付けるのは足すことである。'
-// see SV-4
+// Spec: SV-4
 const SV_4_FOLD = '比べる前に両方を `NFKC` で正規化し、大文字と小文字を畳む —— 全角と半角、大文字と小文字を区別しない。'
 const SV_4_EMPTY = '語が空のときはすべての行を載せる。'
 
@@ -92,7 +92,7 @@ const TWIN_LOW = { uid: 3, name: 'Twin' }
 const CHARLIE = { uid: 5, name: 'Charlie' }
 const ALPHONSE = { uid: 6, name: 'Alphonse' }
 const TWIN_HIGH = { uid: 8, name: 'Twin' }
-// WHY: insertion order and uid order both disagree with name order, and the twins are held high uid first.
+// Why: insertion order and uid order both disagree with name order, and the twins are held high uid first.
 const ROSTER = [CHARLIE, TWIN_HIGH, BRAVO, ALPHONSE, ALPHA, TWIN_LOW]
 
 const NOBODY_SEATED = 20
@@ -148,7 +148,7 @@ describe(`AS-5 -- ${AS_5_ONE_FIELD}`, () => {
 })
 
 describe(`AS-5 -- ${AS_5_OPENS}`, () => {
-  // WHY: drawn through the real DOM surface; the closed field is one assignee field with no typed box until opened.
+  // Why: drawn through the real DOM surface; the closed field is one assignee field with no typed box until opened.
   const viewOf = (panel: PropertiesPanel): ScreenView =>
     ({
       language: 'ja',

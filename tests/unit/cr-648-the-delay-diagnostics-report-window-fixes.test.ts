@@ -59,13 +59,13 @@ const SCHEDULE = {
     task(3, 'Milestone', '2026-02-02', { milestone: true }),
     task(4, 'Delta', '2026-01-01'),
   ],
-  // WHY: CR-710 shows the T-314 quantities through 1d = Project.minutesPerDay (empty, so S-128 = 480 minutes, TX-8).
+  // Why: CR-710 shows the T-314 quantities through 1d = Project.minutesPerDay (empty, so S-128 = 480 minutes, TX-8).
   project: { minutesPerDay: null },
   resources: [],
   assignments: [],
 } as unknown as Schedule
 
-// WHY: CR-710 holds the quantities in working minutes (T-314); 480 is one working day of the fixture (S-128).
+// Why: CR-710 holds the quantities in working minutes (T-314); 480 is one working day of the fixture (S-128).
 const QUANTITIES = { inheritedDelayMinutes: 480, selfDelayMinutes: 960, pushOutMinutes: 2400, terminalsReached: 3 }
 
 const REPORT: DelayDiagnosticsReport = {
@@ -90,7 +90,7 @@ const REPORT: DelayDiagnosticsReport = {
   lateDays: [],
 }
 
-// WHY: CR-723 -- the table's view is the document's and is handed in beside the window; none is set here.
+// Why: CR-723 -- the table's view is the document's and is handed in beside the window; none is set here.
 const NO_VIEW: TableView = { visibility: NO_ROW_CHECKED, columnFilters: [], sort: null }
 
 const sessionIn = (language: 'ja' | 'en') => ({ screen: { screenLanguage: language } }) as unknown as ScreenSession
@@ -118,7 +118,7 @@ describe('CR-648 DT-1 -- the status order and the precedence', () => {
   })
 })
 
-// WHY: the reason cell is found by the row order of T-347, not by a fixed index, so a column added before it moves it.
+// Why: the reason cell is found by the row order of T-347, not by a fixed index, so a column added before it moves it.
 const DT_7_AT = specTable('T-347').rows.map((one) => one.id).indexOf('DT-7')
 
 describe('CR-648 FR-038 -- the report prints the dictionary words, in ja and en', () => {
@@ -158,7 +158,7 @@ describe('CR-648 FR-038 -- the report prints the dictionary words, in ja and en'
       leftmostUid: 1,
       rightmostPoint: '2027-05-12T08:00:00',
       rightmostUid: 2,
-      // WHY: CR-710 holds the VS-6 distance in working minutes; 5 working days of 480 minutes read back as 5 (TX-8).
+      // Why: CR-710 holds the VS-6 distance in working minutes; 5 working days of 480 minutes read back as 5 (TX-8).
       outsideMinutes: 2400,
       parentTaskProgressToleranceDays: 1,
     }
@@ -199,7 +199,7 @@ describe('CR-648 RW-4 / RW-6 / RW-10 -- the summary line, no legend, the flame, 
   it('RW-6: the Markdown holds one summary line and no legend section', () => {
     const summary = lines.filter((line) => line.startsWith(wordIn('delayReportSummary', 'part', 'statusDate').ja.replace(' {date}', '')))
     expect(summary).toHaveLength(1)
-    // WHY: CR-731 RW-6 -- the only second-level sections are the fix tables, under the words of IC-155 and IC-156.
+    // Why: CR-731 RW-6 -- the only second-level sections are the fix tables, under the words of IC-155 and IC-156.
     const fixHeadings = ['IC-155', 'IC-156'].map((icon) => `## ${MANUSCRIPT['icons']?.find((entry) => entry['rowId'] === icon)?.label?.ja ?? icon}`)
     expect(lines.filter((line) => line.startsWith('## ') && !fixHeadings.includes(line))).toEqual([])
   })

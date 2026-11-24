@@ -46,7 +46,7 @@ const SCHEMA = JSON.parse(readFileSync(join(SPEC, '_source', 'grs-document.schem
   readonly properties: { readonly documentSettings: { readonly properties: { readonly zoomX: { readonly maximum: number } } } }
 }
 
-// WHY: above the schema maximum of documentSettings.zoomX (S-55, raised by CR-710), so the reader brings it back in range (RS-51).
+// Why: above the schema maximum of documentSettings.zoomX (S-55, raised by CR-710), so the reader brings it back in range (RS-51).
 const OUT_OF_RANGE_ZOOM = SCHEMA.properties.documentSettings.properties.zoomX.maximum * 2
 
 /** @purity pure */
@@ -92,7 +92,7 @@ function clampedDocument(): string {
   return JSON.stringify(built)
 }
 
-// see OP-2
+// Spec: OP-2
 /** @purity non-pure */
 async function dropOnly(page: Page, name: string, text: string): Promise<void> {
   await page.evaluate(
@@ -107,7 +107,7 @@ async function dropOnly(page: Page, name: string, text: string): Promise<void> {
   await settle(page)
 }
 
-// see IC-2, IO-7, FR-067
+// Spec: IC-2, IO-7, FR-067
 /** @purity non-pure */
 async function writeOutHtml(page: Page): Promise<string> {
   const before = (await savedFiles(page)).length
@@ -130,7 +130,7 @@ async function editOneTask(page: Page): Promise<void> {
   await settle(page)
 }
 
-// WHY: a mouse press at the icon, not page.click, which would wait out a standing question that covers the header.
+// Why: a mouse press at the icon, not page.click, which would wait out a standing question that covers the header.
 /** @purity non-pure */
 async function pressThrough(page: Page, id: string): Promise<void> {
   const at = await page.evaluate((wanted: string) => {
@@ -202,7 +202,7 @@ test.describe(`MG-10 (MUST): ${MG_10_ALWAYS_ON_U_61}`, () => {
       return api.applyCommands({ expectedStamp: api.readStamp(), commands: [{ kind: 'setTaskName', taskUid: 2, name: 'Changed here' }] }).ok
     })
     expect(renamed, 'premise: task 2 differs from the incoming file').toBe(true)
-    // WHY: a dropped GRS JSON opens as a replace (OP-19), so the merge opens through IC-1.
+    // Why: a dropped GRS JSON opens as a replace (OP-19), so the merge opens through IC-1.
     await openThroughIc1(page, 'cr-712-incoming.json', taskGroupsDocument({ rows: 3 }), 'IC-72')
     await expect(page.locator(DIFFERENCE_REVIEW), 'premise: the Difference Review asks about task 2').toHaveCount(1)
     expect(saysAny(await textOf(page, DIFFERENCE_REVIEW), [note!.ja, note!.en]), MG_10_ALWAYS_ON_U_61).toBe(true)

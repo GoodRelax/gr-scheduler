@@ -25,7 +25,7 @@ const CANVAS = '[data-role="Schedule Canvas"]'
 const NOTICES = '[data-role="Notification Area"]'
 const MSPDI_SAMPLE = resolve('docs', 'about', 'samples', 'sample-medium-sfa-webapp.en.xml')
 
-// WHY: a page-built DataTransfer hands getAsFileSystemHandle() no handle (DFC-946); CDP drops the file the way a browser does.
+// Why: a page-built DataTransfer hands getAsFileSystemHandle() no handle (DFC-946); CDP drops the file the way a browser does.
 /** @purity non-pure */
 async function dropForReal(page: Page, ...paths: readonly string[]): Promise<void> {
   const box = await page.locator(CANVAS).boundingBox()
@@ -54,7 +54,7 @@ function writtenFixture(path: string, rows: number): string {
   return path
 }
 
-// WHY: the open route reads the one embedded-document container of a .html (FR-067), so a hand-built page stands in for an exported one.
+// Why: the open route reads the one embedded-document container of a .html (FR-067), so a hand-built page stands in for an exported one.
 /** @purity non-pure */
 function writtenHtmlFixture(path: string, rows: number): string {
   const html =
@@ -127,7 +127,7 @@ test('Given nothing is unsaved, When a person drops an MSPDI XML, Then GRS opens
   await expect.poll(async () => (await readDocument(page)).schedule.tasks.length, 'OP-19: the dropped MSPDI did not open').not.toBe(before)
 })
 
-// WHY: OP-11 refuses every several-file drop, so neither order lets its first file decide (JDG-3584 overturned the first-file rule).
+// Why: OP-11 refuses every several-file drop, so neither order lets its first file decide (JDG-3584 overturned the first-file rule).
 for (const order of ['GRS JSON first', 'MSPDI first'] as const) {
   test(`Given any document, When a person drops a GRS JSON and an MSPDI XML at once (${order}), Then GRS opens neither and tells RS-14`, async ({ page }, info) => {
     await openDevServer(page)
@@ -138,7 +138,7 @@ for (const order of ['GRS JSON first', 'MSPDI first'] as const) {
     await expect(page.locator(OPEN_CHOOSER)).toHaveCount(0)
     await expect(page.locator(CONFIRMATION)).toHaveCount(0)
     await expect(page.locator(NOTICES), OP_11_SEVERAL_OPEN_NONE).toContainText(RS_14_EN)
-    // WHY: the next step of RS-14 is the owner's own wording (JDG-3585), so it is held letter for letter.
+    // Why: the next step of RS-14 is the owner's own wording (JDG-3585), so it is held letter for letter.
     await expect(page.locator(NOTICES), 'RS-14 next step (JDG-3585)').toContainText('Drop one file at a time.')
     expect((await readDocument(page)).schedule.tasks.length, OP_11_SEVERAL_OPEN_NONE).toBe(before.schedule.tasks.length)
   })
@@ -156,7 +156,7 @@ test('Given an unsaved edit, When a person drops two files at once, Then GRS ope
   expect(await readStamp(page), 'OP-11: the unsaved document moved').toEqual(stamp)
 })
 
-// WHY: OP-19 holds for every format, so MSPDI takes the same OP-4 question as GRS JSON.
+// Why: OP-19 holds for every format, so MSPDI takes the same OP-4 question as GRS JSON.
 test('Given an unsaved edit, When a person drops an MSPDI XML, Then GRS asks QN-5 once and opens it on proceed', async ({ page }) => {
   await openDevServer(page)
   await makeAnUnsavedEdit(page)
@@ -218,7 +218,7 @@ test('Given an unsaved edit, When a person drops a single .html and cancels QN-5
   expect(after.schedule.tasks[0]?.name).toBe('Edited here')
 })
 
-// WHY: a headless browser has no file picker, so the host stub hands IC-1 the next file as a person's pick would.
+// Why: a headless browser has no file picker, so the host stub hands IC-1 the next file as a person's pick would.
 for (const name of ['cr-858-picked.json', 'sample-medium-sfa-webapp.en.xml'] as const) {
   test(`Given any document, When a person picks ${name} in the file dialog, Then GRS raises the Open Chooser with its three choices`, async ({ page }) => {
     await page.addInitScript(HOST_STUB)

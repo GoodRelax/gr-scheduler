@@ -113,7 +113,7 @@ def is_provisional(number):
 # `ref` None is the working tree, untracked files included; otherwise a commit.
 
 def grep_lines(ref, pattern, pathspec):
-    # WHY: git reads a word after the pattern as a revision, so --untracked
+    # Why: git reads a word after the pattern as a revision, so --untracked
     # has to come before it.
     args = ['grep', '-h', '-I'] + (['--untracked'] if ref is None else [])
     args += ['-E', pattern] + ([] if ref is None else [ref])
@@ -290,7 +290,7 @@ def mode_band(args, dry_run):
     for prefix, (first, last) in bands.items():
         numbers = mentioned.get(prefix, set()) | defined.get(prefix, set())
         olds[prefix] = set(n for n in numbers if first <= n <= last)
-    # WHY: a band sits ABOVE the maximum by design, so its own members must
+    # Why: a band sits ABOVE the maximum by design, so its own members must
     # not count as mentions near the maximum.
     taken, ignored = taken_numbers(defined, mentioned, olds, olds)
     mapping = plan(olds, taken, widths)
@@ -336,7 +336,7 @@ def clash_plan(bases, theirs, ours='HEAD'):
                  for number in numbers & new[ours].get(prefix, set()))
     if shared:
         held = [definitions(side, shared) for side in (ours, theirs)]
-        # WHY: the same text on both sides is one row, held twice (DFC-1430).
+        # Why: the same text on both sides is one row, held twice (DFC-1430).
         for prefix, number in shared:
             if held[0].get((prefix, number)) == held[1].get((prefix, number)):
                 for side in (ours, theirs):
@@ -353,7 +353,7 @@ def clash_plan(bases, theirs, ours='HEAD'):
         for prefix, width in side_widths.items():
             widths[prefix] = max(widths.get(prefix, 0), width)
     taken, _ = taken_numbers(defined, mentioned, olds, olds)
-    # WHY: OURS keeps the numbers the two sides share; only THEIRS moves.
+    # Why: OURS keeps the numbers the two sides share; only THEIRS moves.
     for prefix in olds:
         taken[prefix] |= new[ours].get(prefix, set())
     return plan(olds, taken, widths)

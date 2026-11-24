@@ -49,7 +49,7 @@ const PUBLISHED = JSON.parse(readFileSync(join(SPEC, '_source', 'published-entri
 const cellOf = (table: string, id: string, heading: string): string =>
   unbroken(found(specTable(table).rows.find((one) => one.id === id), `${table} ${id}`).by[heading] ?? '')
 
-// WHY: the published-entries book is a tree of modules; the entry is found by its name wherever it sits.
+// Why: the published-entries book is a tree of modules; the entry is found by its name wherever it sits.
 function publishedNoteOf(name: string): string {
   const seen: PublishedEntry[] = []
   const walk = (node: unknown): void => {
@@ -84,7 +84,7 @@ const reportTask = (uid: number, name: string, start: string, extra: Loose = {})
   ...extra,
 })
 
-// WHY: one row per status of T-347's DT-1, with names, progress values and starting days that tell them apart.
+// Why: one row per status of T-347's DT-1, with names, progress values and starting days that tell them apart.
 const SCHEDULE = {
   tasks: [
     reportTask(1, 'Alpha', '2026-03-02'),
@@ -188,7 +188,7 @@ const uidsOf = (pane: Pane): readonly number[] =>
   viewOf(pane).rows.map((row) => ('target' in row && row.target.kind === 'task' ? row.target.taskUid : -1))
 const currentOf = (pane: Pane): readonly number[] =>
   viewOf(pane).rows.flatMap((row) => ('isCurrent' in row && row.isCurrent === true && row.target.kind === 'task' ? [row.target.taskUid] : []))
-// see RW-11
+// Spec: RW-11
 const chosenTabOf = (pane: Pane): string | null => (viewOf(pane).tabEntries ?? []).find((one) => one.isChosen)?.icon ?? null
 const workingColumns = (view: TableView): readonly string[] => view.columnFilters.filter(isWorkingFilter).map((one) => one.column)
 const filterOn = (view: TableView, column: string): TableView['columnFilters'][number] | undefined =>
@@ -286,7 +286,7 @@ describe(`RW-19 -- ${RW_19_STEPS_IN_ORDER}`, () => {
     expect(uidsOf(marked), 'Bravo stays hidden by the progress filter').not.toContain(2)
   })
 
-  // WHY: CR-798 -- the Visibility column (DT-8) holds no value list and no column filter, so an unchecked row never hides a row from the list
+  // Why: CR-798 -- the Visibility column (DT-8) holds no value list and no column filter, so an unchecked row never hides a row from the list
   // and the jump neither checks nor unchecks it (the checks are the Schedule Filter's, SJ-0).
   it('③ the Visibility column (DT-8) hides no row: an unchecked row stays in the list and the jump leaves the checks as they were', () => {
     const checkedOne: Pane = { ...OPENED, view: { ...OPENED.view, visibility: { ...OPENED.view.visibility, shownTaskUids: [1] } } }

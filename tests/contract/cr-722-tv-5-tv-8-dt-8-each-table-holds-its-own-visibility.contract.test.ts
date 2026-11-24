@@ -32,7 +32,7 @@ describe('CR-722 the manuscript these cases are driven by', () => {
   })
 })
 
-// WHY: CR-723 -- the Visibility is the table's view the document holds (FR-151), so a case reads it off the view.
+// Why: CR-723 -- the Visibility is the table's view the document holds (FR-151), so a case reads it off the view.
 const visibilityOf = (view: TableView): TableVisibility => view.visibility
 const checkedOf = (view: TableView): readonly number[] => [...visibilityOf(view).shownTaskUids].sort((a, b) => a - b)
 const startingViewOf = (table: 'searchPanel' | 'delayDiagnosticsReport'): TableView => tableViewOf(openedFrom(documentText()).documentSettings, table)

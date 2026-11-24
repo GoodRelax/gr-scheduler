@@ -1,4 +1,4 @@
-// EditDocument -- routes each document command to the aggregate that owns it.
+// File: EditDocument: routes each document command to the aggregate that owns it.
 // @unit      UF-10  (docs/spec/05-07-design.md, table T-075)
 // @component EditDocument, layer UseCase (table T-062)
 // @purity    pure
@@ -72,10 +72,10 @@ export {
   editDocumentSettings,
 }
 
-// see AG-9a
+// Spec: AG-9a
 export type Refusal = CommandRefusal | InvariantRefusal
 
-// see AG-9a
+// Spec: AG-9a
 export interface CommandRefusal {
   readonly command: string
   readonly rule: string
@@ -83,10 +83,10 @@ export interface CommandRefusal {
   readonly what: string
 }
 
-// see T-220
+// Spec: T-220
 export type InvariantRow = `IV-${number}`
 
-// see AG-9a, FR-023, FR-076
+// Spec: AG-9a, FR-023, FR-076
 export interface InvariantRefusal {
   readonly command?: never
   readonly rule: InvariantRow
@@ -95,12 +95,12 @@ export interface InvariantRefusal {
   readonly what: string
 }
 
-// see FR-028
+// Spec: FR-028
 export type EditResult =
   | { readonly ok: true; readonly document: Document; readonly report: EditReport }
   | { readonly ok: false; readonly refusals: readonly Refusal[] }
 
-// see FR-012
+// Spec: FR-012
 export interface EditReport {
   readonly recountedTaskUids: readonly number[]
 }
@@ -129,13 +129,13 @@ export function reject(
     : { command, rule, reasonCategory, what }
 }
 
-// WHY: deprecated aliases, kept until every caller uses acceptedEdit / refusedEdit.
+// Why: deprecated aliases, kept until every caller uses acceptedEdit / refusedEdit.
 export { acceptedEdit as edited, refusedEdit as refused }
 
 // <generated -- do not edit by hand>
 // From docs/spec/_source/document-commands.json (table T-108, DocumentCommand).
-// see T-108, CM-76
-// WHY: rows of table T-108 nothing implements yet; editDocument refuses them as no aggregate owns them.
+// Spec: T-108, CM-76
+// Why: rows of table T-108 nothing implements yet; editDocument refuses them as no aggregate owns them.
 export type UnimplementedDocumentCommand =
   | {
       readonly kind: 'setTaskGroupEditPermission'
@@ -143,7 +143,7 @@ export type UnimplementedDocumentCommand =
       readonly editPermission: TaskGroup['editPermission']
     }
 
-// see T-108
+// Spec: T-108
 export type DocumentCommand =
   | TaskCommand
   | TaskGroupCommand
@@ -156,8 +156,8 @@ export type DocumentCommand =
   | DocumentSettingsCommand
   | UnimplementedDocumentCommand
 
-// see T-108
-// WHY: the router reads the commands of each union here rather than a hand copy (check 69).
+// Spec: T-108
+// Why: the router reads the commands of each union here rather than a hand copy (check 69).
 const COMMAND_KINDS_BY_UNION = {
   TaskCommand: [
     'createTask',
@@ -282,7 +282,7 @@ function routes<K extends readonly string[]>(
   return table as Record<K[number], AggregateEdit>
 }
 
-// WHY: an unimplemented command has no aggregate; editDocument refuses it below.
+// Why: an unimplemented command has no aggregate; editDocument refuses it below.
 const ROUTE_TABLE: Record<Exclude<DocumentCommand['kind'], UnimplementedDocumentCommand['kind']>, AggregateEdit> = {
   ...routes(COMMAND_KINDS_BY_UNION.TaskCommand, (document, command, _limits, defaultTaskGroupName) =>
     editTask(document, command as TaskCommand, defaultTaskGroupName),
@@ -303,7 +303,7 @@ const ROUTE_TABLE: Record<Exclude<DocumentCommand['kind'], UnimplementedDocument
     editCalendar(document, command as CalendarCommand),
   ),
   ...routes(COMMAND_KINDS_BY_UNION.ProjectCommand, (document, command) => editProject(document, command as ProjectCommand)),
-  // see CM-99, UT-2
+  // Spec: CM-99, UT-2
   ...routes(COMMAND_KINDS_BY_UNION.WholeScheduleShiftCommand, (document, command) => wholeScheduleShifted(document, command as WholeScheduleShiftCommand)),
   ...routes(COMMAND_KINDS_BY_UNION.DocumentSettingsCommand, (document, command, limits) =>
     editDocumentSettings(document, command as DocumentSettingsCommand, limits),
@@ -312,7 +312,7 @@ const ROUTE_TABLE: Record<Exclude<DocumentCommand['kind'], UnimplementedDocument
 
 const ROUTES: ReadonlyMap<string, AggregateEdit> = new Map(Object.entries(ROUTE_TABLE))
 
-// see CP-9, T-108
+// Spec: CP-9, T-108
 /** @purity pure */
 export function editDocument(
   document: Document,
@@ -337,7 +337,7 @@ export function editDocument(
 // Single source of truth:
 //   docs/spec/_source/settings.json (table T-206, which names table T-201)
 // Rebuild: npm run gen   ||   npm run gen:check fails on drift.
-// see T-206
+// Spec: T-206
 export const NOT_STORED_ZOOM_BOUNDS: {
   readonly 'S-97': number
   readonly 'S-98': number

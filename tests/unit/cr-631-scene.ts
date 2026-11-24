@@ -98,7 +98,7 @@ export interface SceneSpec {
   readonly tasks: readonly (readonly [Loose, string])[]
 }
 
-// WHY: G and R are IP-5 roots, P and F stated, Q, C and D derived (IP-2), E undecided (IP-3), M a milestone.
+// Why: G and R are IP-5 roots, P and F stated, Q, C and D derived (IP-2), E undecided (IP-3), M a milestone.
 export const FAMILY: SceneSpec = {
   groups: [
     ['top', null],
@@ -196,7 +196,7 @@ export const sceneOf = (
     layout,
     geometry,
     regions,
-    // WHY: wave 2 of CR-767 (JDG-2364) holds every arm as a child of the composite `armed`.
+    // Why: wave 2 of CR-767 (JDG-2364) holds every arm as a child of the composite `armed`.
     screen: {
       ...emptyScreenSession.screen,
       armModeState: armed ? { kind: 'armed', child: { kind: 'parentTaskArmed' } } : { kind: 'notArmed' },
@@ -225,7 +225,7 @@ export interface Box {
   readonly height: number
 }
 
-// WHY: the placement the layout gives the plan bar, the same box the hit test grows its grab from.
+// Why: the placement the layout gives the plan bar, the same box the hit test grows its grab from.
 export const barOf = (scene: Scene, uid: number): Box => {
   const placements = (scene.context.layout as unknown as { readonly placements: readonly Loose[] }).placements
   const found = placements.find((one) => one['taskUid'] === uid)
@@ -263,7 +263,7 @@ export const arrowOf = (scene: Scene, childUid: number) => {
   return found
 }
 
-// WHY: the middle of the arrow's longest run, which sits between the two bars and on no T-023d grab.
+// Why: the middle of the arrow's longest run, which sits between the two bars and on no T-023d grab.
 export const midOfArrow = (scene: Scene, childUid: number): Pt => {
   const points = arrowOf(scene, childUid).points as readonly Pt[]
   let best: [Pt, Pt] = [points[0]!, points[1]!]
@@ -278,6 +278,6 @@ export const midOfArrow = (scene: Scene, childUid: number): Pt => {
 export const emptyPoint = (scene: Scene): Pt => {
   const g = barOf(scene, G)
   const r = barOf(scene, R)
-  // WHY: on the top task group, between G's finish and R's start -- a point nothing of T-023d answers.
+  // Why: on the top task group, between G's finish and R's start -- a point nothing of T-023d answers.
   return { x: (g.x + g.width + r.x) / 2, y: g.y + g.height / 2 }
 }

@@ -62,7 +62,7 @@ const wordIn = (list: readonly Worded[], key: { rowId?: string; part?: string },
   return word
 }
 
-// see DT-3, PR-10
+// Spec: DT-3, PR-10
 const PROGRESS_WORD = (language: Language): string => wordIn(WORDS.delayReportColumns, { rowId: 'DT-3' }, language)
 const STATE_WORD = (rowId: string, language: Language): string =>
   wordIn(rowId.startsWith('PS-') ? WORDS.planActualStates : WORDS.delayReportStatuses, { rowId }, language)
@@ -178,7 +178,7 @@ const linesOf = (wish: Wish, language: Language): readonly string[] => tipOf(wis
 const progressLineOf = (wish: Wish, language: Language): string | undefined =>
   linesOf(wish, language).find((one) => one.startsWith(`${PROGRESS_WORD(language)}: `))
 
-// see DX-10
+// Spec: DX-10
 const lateDaysOf = (wish: Wish): number | undefined => {
   const schedule = scheduleFor(wish)
   return diagnoseDelay({ schedule }, workingCalendarOf(schedule)).lateDays.find((one) => one.uid === THE_UID)?.days

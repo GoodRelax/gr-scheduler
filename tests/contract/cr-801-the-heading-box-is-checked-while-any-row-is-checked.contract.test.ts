@@ -60,7 +60,7 @@ const SQ_10_ADD = '空のときに押すと、一覧に出ている行をすべ�
 const SQ_10_CLEAR = '入っているときに押すと、表のすべての行（語や列のフィルタで一覧に出ていない行も）のチェックを外す'
 const SQ_10_RETIRED_STATES = '一覧に出ている行がすべて入っている・一部・1 つも入っていない の 3 つの状態'
 
-// WHY: the manuscript clauses the cases below are driven by; a case that is green while the clause is gone would pin nothing.
+// Why: the manuscript clauses the cases below are driven by; a case that is green while the clause is gone would pin nothing.
 describe('CR-801 the manuscript these cases are driven by', () => {
   it('SQ-10 says the box has two states, reads every row of the table, and presses add to the listed rows then clear every row', () => {
     const cell = cellOf('T-331', 'SQ-10', '書き方')
@@ -89,7 +89,7 @@ function openedFrom(text: string): Document {
   return opened.document
 }
 
-// WHY: Alpha and Charlie are Sato's, Bravo and Delta Tanaka's, Echo is nobody's and Idle carries no task (cr-723-fixture).
+// Why: Alpha and Charlie are Sato's, Bravo and Delta Tanaka's, Echo is nobody's and Idle carries no task (cr-723-fixture).
 const DOCUMENT = openedFrom(documentText({ tableViews: undefined }))
 const SCHEDULE: Schedule = DOCUMENT.schedule
 
@@ -148,15 +148,15 @@ const REPORT = {
 
 type ShownChange = Extract<SearchFilterChange, { readonly kind: 'shown' }>
 
-// WHY: the three tables answer the same questions from their own views, so one adapter per table lets one case table walk all three.
+// Why: the three tables answer the same questions from their own views, so one adapter per table lets one case table walk all three.
 interface Probe {
   readonly name: TableName
   readonly column: string
-  // WHY: every row key of the table, the rows no word lists included.
+  // Why: every row key of the table, the rows no word lists included.
   readonly everyKey: readonly Key[]
-  // WHY: a word that keeps at least one row out of view and lists at least one.
+  // Why: a word that keeps at least one row out of view and lists at least one.
   readonly narrowWord: string
-  // WHY: a word that lists no row.
+  // Why: a word that lists no row.
   readonly emptyWord: string
   readonly checkedOf: (visibility: Visibility) => readonly Key[]
   readonly visibilityOf: (keys: readonly Key[]) => Partial<Visibility>
@@ -235,13 +235,13 @@ const LIST_PROBE: Probe = {
 
 const PROBES: readonly Probe[] = [SEARCH, REPORT_PROBE, LIST_PROBE]
 
-// WHY: the box raises isHeading with the listed rows as its keys; isShown is the box's new state.
+// Why: the box raises isHeading with the listed rows as its keys; isShown is the box's new state.
 const headingPress = (probe: Probe, part: Partial<Visibility>, word: string, isShown: boolean): TableView => {
   const keys = probe.listed({ ...probe.base.visibility, ...part }, word)
   return probe.press(part, word, { kind: 'shown', keys, isShown, isHeading: true })
 }
 
-// WHY: a person presses what the view shows: an empty box raises isShown true, a checked box raises isShown false.
+// Why: a person presses what the view shows: an empty box raises isShown true, a checked box raises isShown false.
 const pressWhatIsShown = (probe: Probe, part: Partial<Visibility>, word: string): TableView => {
   const state = probe.heading({ ...probe.base.visibility, ...part }, word)
   return headingPress(probe, part, word, state === 'empty')

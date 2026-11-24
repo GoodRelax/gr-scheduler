@@ -71,11 +71,11 @@ test('UC-006 find delays (FR-046, FR-014 T-022, FR-013 PM-4 T-021b, FR-047, FR-0
     for (const shape of byKind.waiting) expect(shape).not.toBe(lateShape)
   })
 
-  // WHY: step 4 left with CR-704: the late count is read in the EZ-6 tip (TL-12), never drawn (FR-047, OC-8).
+  // Why: step 4 left with CR-704: the late count is read in the EZ-6 tip (TL-12), never drawn (FR-047, OC-8).
 
   await test.step('UC-006 step 5: the pre-change plan is overlaid to see how the plan moved (FR-015, OP-3 IC-73, OP-9, IC-4)', async () => {
     const before = await page.locator('[data-figure]').count()
-    // WHY: a dropped file opens as a replace (OP-19), so the overlay opens through IC-1.
+    // Why: a dropped file opens as a replace (OP-19), so the overlay opens through IC-1.
     await openThroughIc1(page, ERP, readSample(ERP), 'IC-73')
     const doc = await readDocument(page)
     expect((doc.schedule['baselineTasks'] as unknown[]).length).toBeGreaterThan(0)

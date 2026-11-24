@@ -38,7 +38,7 @@ const COMMAND_KIND = '命令'
 const LANGUAGES: readonly Language[] = ['ja', 'en']
 const BRING_TO_FRONT_EN = 'Bring to Front'
 
-// WHY: the box to bring forward stands first, so pressing the button has something to move.
+// Why: the box to bring forward stands first, so pressing the button has something to move.
 const document = (): Document =>
   documentWith(
     [commentRow({ id: COMMENT_ID }), commentRow({ id: OTHER_COMMENT_ID })],

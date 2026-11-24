@@ -46,16 +46,16 @@ const ENTRANCE_SHAPE_PX = numberIn(cellOf(T206, 'S-138', 1, 3), 'table T-206 row
 
 const TASK_GROUP_PANEL_ENTRANCE_CLEAR_PX = numberIn(cellOf(T206, 'S-243', 1, 3), 'table T-206 row S-243')
 
-// see FR-029, T-206, S-237
+// Spec: FR-029, T-206, S-237
 const ENTRANCE_FRAME_PX = numberIn(cellOf(T206, 'S-237', 1, 3), 'table T-206 row S-237')
 
-// see FR-029, FR-039, T-252, DS-7, S-235, S-243, HF-19
-// WHY: DS-7 keeps the display scale off an entrance, so S-235 is the one ratio
-// WHY: the outer width FR-029 derives is drawn at; the task group panel's clear is S-243.
+// Spec: FR-029, FR-039, T-252, DS-7, S-235, S-243, HF-19
+// Why: DS-7 keeps the display scale off an entrance, so S-235 is the one ratio
+// Why: the outer width FR-029 derives is drawn at; the task group panel's clear is S-243.
 const NARROWEST_TASK_GROUP_PANEL_ENTRANCE_PX =
   (ENTRANCE_SHAPE_PX + (TASK_GROUP_PANEL_ENTRANCE_CLEAR_PX + ENTRANCE_FRAME_PX) * 2) * S_235
 
-// WHY: table T-109 holds six cells after the row ID since CR-589 added the setting column.
+// Why: table T-109 holds six cells after the row ID since CR-589 added the setting column.
 const T109_COLUMNS = 6
 const SURFACE_COLUMN = 0
 const PURPOSE_COLUMN = 2
@@ -310,7 +310,7 @@ interface Telling {
   readonly finish: string
 }
 
-// see TL-1, TL-4, TL-5
+// Spec: TL-1, TL-4, TL-5
 /** @purity pure */
 function tellingIn(said: string): Telling | null {
   const [name, planned] = said.trim().split('\n')
@@ -347,7 +347,7 @@ async function readBarsOnScreen(page: Page): Promise<Array<{ x: number; y: numbe
 
 async function readTooltip(page: Page): Promise<string> {
   return page.evaluate(
-    // WHY: innerText, not textContent: TL-1 puts each line in its own box, and only innerText keeps the breaks.
+    // Why: innerText, not textContent: TL-1 puts each line in its own box, and only innerText keeps the breaks.
     (selector: string) => ((document.querySelector(selector) as HTMLElement | null)?.innerText ?? '').trim(),
     TOOLTIP,
   )
@@ -430,8 +430,8 @@ test('DFC-45: resting on a task bar tells the task name and its two dates, and m
 })
 
 
-// WHY: CR-572 moved S-66 from table T-202 to table T-206 (not saved), whose name cell
-// WHY: now carries the three modes in brackets after the name.
+// Why: CR-572 moved S-66 from table T-202 to table T-206 (not saved), whose name cell
+// Why: now carries the three modes in brackets after the name.
 const GUIDE_MODE_CELL = cellOf(T206, 'S-66', 0, 3)
 
 function guideMode(name: string): string {
@@ -571,9 +571,9 @@ test('DFC-87: the header stands its entrances in the order of table T-109, palet
 })
 
 
-// WHY: HF-10 (after CR-587) orders the head from the left: collapse all, open one level,
-// WHY: open all, add, delete all. Delete all (HF-20) is left out: its entrance names
-// WHY: FR-032, not an HF row, as its source in table T-109.
+// Why: HF-10 (after CR-587) orders the head from the left: collapse all, open one level,
+// Why: open all, add, delete all. Delete all (HF-20) is left out: its entrance names
+// Why: FR-032, not an HF row, as its source in table T-109.
 const PANEL_HEAD_ORDER: readonly string[] = ['HF-12', 'HF-16', 'HF-10', 'HF-17']
 
 function doBoxesOverlap(one: Box, two: Box): boolean {
@@ -1224,7 +1224,7 @@ function taskGroupAreaSpanOf(
   return bottom - top
 }
 
-// see FR-016, FR-077, FR-094, S-4, S-5, S-7, S-13, S-36, S-38
+// Spec: FR-016, FR-077, FR-094, S-4, S-5, S-7, S-13, S-36, S-38
 const T201_COLUMNS = 7
 const T201_DEFAULT = 3
 
@@ -1237,14 +1237,14 @@ const RECTANGLE_NAME_PX_AT_ONE =
   drawingSettingOf('S-4') * drawingSettingOf('S-13') * drawingSettingOf('S-5') *
   drawingSettingOf('S-7')
 
-// see FR-039, T-252, DS-1, S-4, S-13
+// Spec: FR-039, T-252, DS-1, S-4, S-13
 const DRAWN_PLAN_BAR_PX = drawingSettingOf('S-4') * drawingSettingOf('S-13') * DEFAULT_DISPLAY_RATIO
 
-// WHY: a browser hands back a drawn length already rounded, so the floor is let
-// WHY: down by half a pixel -- still well above the S-5 actual bar under it.
+// Why: a browser hands back a drawn length already rounded, so the floor is let
+// Why: down by half a pixel -- still well above the S-5 actual bar under it.
 const DRAWN_PLAN_BAR_FLOOR_PX = DRAWN_PLAN_BAR_PX - 0.5
 
-// see FR-039, T-252, DS-1
+// Spec: FR-039, T-252, DS-1
 const DRAWN_RECTANGLE_NAME_PX_AT_ONE = RECTANGLE_NAME_PX_AT_ONE * DEFAULT_DISPLAY_RATIO
 
 const DEPTH_ONE_TASK_GROUP_NAME_PX = drawingSettingOf('S-36') * drawingSettingOf('S-38')
@@ -1253,9 +1253,9 @@ const TEXT_CEILING_ZOOM_Y = DEPTH_ONE_TASK_GROUP_NAME_PX / RECTANGLE_NAME_PX_AT_
 
 const NAME_PX_TOLERANCE = 0.02
 
-// see FR-016, S-236
-// WHY: measured 2026-10-08 at S-236 0.625 -- the text ceiling is the smaller one at 400px (the names settle at
-// WHY: 15.84px, the text ceiling), and the band ceiling is the smaller one from about 360px down.
+// Spec: FR-016, S-236
+// Why: measured 2026-10-08 at S-236 0.625 -- the text ceiling is the smaller one at 400px (the names settle at
+// Why: 15.84px, the text ceiling), and the band ceiling is the smaller one from about 360px down.
 const LOW_WINDOW_HEIGHT = 340
 
 /** @purity semi-pure-mutable */
@@ -1339,14 +1339,14 @@ test('DFC-374: magnifying the vertical axis stops before one task group fills th
         `the rectangles read ${tallFonts.map((font) => font.toFixed(2)).join(', ')}px ` +
         `(「形状によらず矩形で測ること（MUST）」)`,
     ).toBeLessThan(NAME_PX_TOLERANCE)
-    // WHY: compared against the opening, not against zero. FR-016's own measured
-    // WHY: note records that a task group's cut-ness is constant over a zoomY sweep, and
-    // WHY: the drawing bears that out: availableLabelWidthPx and taskGroupTitleFontPxOf
-    // WHY: read the panel width, the indent and the depth, never zoomY. MEASURED
-    // WHY: 2026-09-16 on this document: no task group name is cut at the opening or at
-    // WHY: the ceiling, so demanding one demands a property of the document. What
-    // WHY: a build that stopped when the mark cleared would show is FEWER cut
-    // WHY: names at the ceiling than at the opening, and that is what is refused.
+    // Why: compared against the opening, not against zero. FR-016's own measured
+    // Why: note records that a task group's cut-ness is constant over a zoomY sweep, and
+    // Why: the drawing bears that out: availableLabelWidthPx and taskGroupTitleFontPxOf
+    // Why: read the panel width, the indent and the depth, never zoomY. MEASURED
+    // Why: 2026-09-16 on this document: no task group name is cut at the opening or at
+    // Why: the ceiling, so demanding one demands a property of the document. What
+    // Why: a build that stopped when the mark cleared would show is FEWER cut
+    // Why: names at the ceiling than at the opening, and that is what is refused.
     expect(
       tall.filter((band) => band.isCut).length,
       `FR-016 (MUST NOT): 「切られた名前の印を、この上限の信号にしてはならない（MUST NOT）」. ` +
@@ -1407,12 +1407,12 @@ test('DFC-374: magnifying the vertical axis stops before one task group fills th
         `${tallArea.toFixed(2)}px), so the two readings are one reading`,
     ).toBeLessThan(tallArea)
 
-    // WHY: the text ceiling does not read the window, so only a window short
-    // WHY: enough for the band ceiling to be the smaller one can show the band
-    // WHY: ceiling at work; the band ceiling follows the display ratio (FR-016, DS-1) and the text
-    // WHY: ceiling does not, so which one is smaller depends on S-236 and the window height, and the
-    // WHY: height is measured again whenever S-236 moves (LOW_WINDOW_HEIGHT).
-    // see FR-016, T-025, MC-6
+    // Why: the text ceiling does not read the window, so only a window short
+    // Why: enough for the band ceiling to be the smaller one can show the band
+    // Why: ceiling at work; the band ceiling follows the display ratio (FR-016, DS-1) and the text
+    // Why: ceiling does not, so which one is smaller depends on S-236 and the window height, and the
+    // Why: height is measured again whenever S-236 moves (LOW_WINDOW_HEIGHT).
+    // Spec: FR-016, T-025, MC-6
     await app.page.setViewportSize({ width: 1920, height: LOW_WINDOW_HEIGHT })
     await readSettledDrawnSvg(app.page)
     const lowBox = await canvasBoxNow(app.page)

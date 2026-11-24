@@ -35,7 +35,7 @@ const rowOf = (table: string, id: string) => {
   return found
 }
 
-// WHY: the clauses the cases rely on, word for word.
+// Why: the clauses the cases rely on, word for word.
 const EZ_2_SHOW = 'ポインタがアイコンに入ってから `_assets/tbl-settings.md` の `S-124` が経ったら、そのアイコンの説明を出すこと（MUST）。'
 const EZ_2_STAYS = '⭐ 出した説明は、ポインタがそのアイコンの上にあるあいだ、消さず、置き場も動かさないこと（MUST）'
 const EZ_2_EVERY_SURFACE = '載る面によって説明を出さない行があってはならない（MUST NOT）'
@@ -72,7 +72,7 @@ describe('DFC-1287 -- the manuscript these cases are driven by', () => {
   })
 })
 
-// WHY: table T-280 names the events; the session reducer takes them without their region prefix.
+// Why: table T-280 names the events; the session reducer takes them without their region prefix.
 const step = (session: ScreenSession, event: Record<string, unknown>): ScreenSession =>
   advanceScreenSession(session, event as unknown as SessionEvent).state
 
@@ -90,7 +90,7 @@ const SCENES: Readonly<Record<Other, { readonly session: ScreenSession; readonly
   exportChooser: { session: step(WITH_SEARCH, { type: 'surfaceEntryPressed', surfaceName: 'U-54' }), surface: EXPORT_SURFACE },
 }
 
-// WHY: a rested pointer on IC-52 (EZ-2: past S-124 since it entered); the flags say which window the pointer is over.
+// Why: a rested pointer on IC-52 (EZ-2: past S-124 since it entered); the flags say which window the pointer is over.
 const readingsOn = (place: Place): ScreenViewReadings =>
   ({
     openedFileName: null,
@@ -125,7 +125,7 @@ const closeIn = (root: FakeElement, surface: string): FakeElement => {
   return found[0] as FakeElement
 }
 
-// WHY: each close is given a box of its own, so where the tooltip lands says which entrance it was drawn under.
+// Why: each close is given a box of its own, so where the tooltip lands says which entrance it was drawn under.
 const SEARCH_CLOSE_LEFT = 300
 const OTHER_CLOSE_LEFT = 700
 const CLOSE_SIDE = 20

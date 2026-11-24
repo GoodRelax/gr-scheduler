@@ -28,7 +28,7 @@ const FAR_UID = 2
 const PINNED_GROUP = 'gp'
 const SCROLLING_GROUP = 'gs'
 
-// WHY: the successor starts a year to the right, so only the predecessor's end is seen and the line is drawn as EL-4.
+// Why: the successor starts a year to the right, so only the predecessor's end is seen and the line is drawn as EL-4.
 const TASKS = [
   taskOf({ uid: PINNED_UID, name: 'pinned', start: day(2), finish: day(6) }),
   taskOf({
@@ -88,7 +88,7 @@ const LINE = SCENE.geometry.dependencies[0]
 const BAND = SCENE.geometry.pinnedBand
 const LANDED = { predecessorUid: PINNED_UID, successorUid: FAR_UID }
 
-// WHY: one line, so the layer it went to is the one list that is not empty.
+// Why: one line, so the layer it went to is the one list that is not empty.
 const drawnInBand = (isLanding: boolean): boolean => {
   const parts = dependencyLinkParts({
     geometry: SCENE.geometry,
@@ -117,7 +117,7 @@ const answersAt = (at: Pt, isLanding: boolean): boolean => {
   return hit !== null && hit.item.kind === 'dependency' && hit.item.successorUid === FAR_UID
 }
 
-// WHY: points along the drawn short line that lie above the band's foot and are not on the predecessor's bar.
+// Why: points along the drawn short line that lie above the band's foot and are not on the predecessor's bar.
 const pointsInTheBand = (): readonly Pt[] => {
   if (LINE === undefined || BAND === undefined) return []
   const out: Pt[] = []

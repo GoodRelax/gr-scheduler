@@ -29,7 +29,7 @@ const rowText = (table: string, id: string): string => {
   return unbroken(found.cells.join(' | '))
 }
 
-// WHY: each constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
+// Why: each constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
 const T_270_WHOLE =
   'それまでの選択は置き換える（表 T-023c の `SL-2`）。⭐ 選択に含まれるものの本体を引けば、選択の全部が動くこと（MUST）'
 const T_270_KEPT = '—— 横は同じ日数、縦は同じ数のタスクグループぶんである。離した後も全部が選ばれたままとすること（MUST）'
@@ -98,7 +98,7 @@ interface Layout {
   readonly commentTaskGroup: number
 }
 
-// WHY: SEL on task group 1 and OUT on task group 4 start on a Monday; OUT runs long so the opening Fit (OP-10) keeps the boxes in view.
+// Why: SEL on task group 1 and OUT on task group 4 start on a Monday; OUT runs long so the opening Fit (OP-10) keeps the boxes in view.
 function fixtureDocument(at: Layout): Document {
   const template = structuredClone(TEMPLATE)
   const schedule = template['schedule'] as Record<string, unknown>
@@ -237,7 +237,7 @@ function bodyOf(loop: FrameLoop, uid: number): Point {
   return at
 }
 
-// WHY: the place a box answers a press is the unit's own answer, so it is found by asking, not computed here.
+// Why: the place a box answers a press is the unit's own answer, so it is found by asking, not computed here.
 function pointOnBox(loop: FrameLoop, kind: 'highlightBox' | 'commentBox'): Point {
   const area = frameOf(loop).regions.taskGroupArea
   for (let y = area.y + 1; y < area.y + area.height; y += 2) {
@@ -336,7 +336,7 @@ function selectAll(built: Bench): void {
   expect(selectedOf(built), 'premise: SL-4 builds a Selection of the task and both boxes').toEqual(WHOLE)
 }
 
-// WHY: a whole week, so every moved end stays on a working day and no CR-668 question stops the release.
+// Why: a whole week, so every moved end stays on a working day and no CR-668 question stops the release.
 const WEEK = 7
 
 const SPREAD: Layout = { highlightTaskGroups: [0, 1], commentTaskGroup: 2 }

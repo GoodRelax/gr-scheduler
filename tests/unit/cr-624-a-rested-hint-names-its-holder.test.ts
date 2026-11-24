@@ -48,7 +48,7 @@ const SETTINGS = SETTINGS_DEFAULTS as unknown as DocumentSettings
 
 const POINTER = { x: 420, y: 300 }
 
-// WHY: the defaults are flat dotted keys; the time axis reads the nested document settings.
+// Why: the defaults are flat dotted keys; the time axis reads the nested document settings.
 const nested = (flat: Readonly<Record<string, unknown>>): Record<string, unknown> => {
   const out: Record<string, unknown> = {}
   for (const key of Object.keys(flat)) {
@@ -103,7 +103,7 @@ describe('EZ-6 / T-023d -- the holder the hint walk found is the one the tooltip
     const lines = tips[0]?.text.split('\n') ?? []
     expect(tips[0]?.anchor).toEqual({ kind: 'task', taskUid: TASK.uid })
     expect(lines[0]).toBe(TASK.name)
-    // WHY: CR-793 TL-9 -- inside the task tip the deadline line is labelled "word: day"; the mark's own tip (TL-2) keeps "word day".
+    // Why: CR-793 TL-9 -- inside the task tip the deadline line is labelled "word: day"; the mark's own tip (TL-2) keeps "word day".
     expect(deadlineHint({ ...TASK, name: '' }, SCHEDULE, 'ja')).toBe('期限 2026/04/20 (月)')
     expect(lines.at(-1)).toBe('期限: 2026/04/20 (月)')
   })

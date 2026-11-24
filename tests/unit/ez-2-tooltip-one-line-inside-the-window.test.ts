@@ -14,7 +14,7 @@ const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '
 const EZ_2_THE_ICON_TOOLTIP =
   'ポインタがアイコンに入ってから `_assets/tbl-settings.md` の `S-124` が経ったら、そのアイコンの説明を出すこと（MUST）。'
 
-// see IN-7
+// Spec: IN-7
 const IN_7_ONE_LINE = 'ツールチップは、説明の各行を折り返さずに 1 行で出すこと（MUST）。'
 const IN_7_WIDTH =
   '説明の幅は中身の幅とし、その上限を閲覧環境の窓の幅から両側に `_assets/tbl-settings.md` の 表 T-206 の `S-339` を引いた幅とすること（MUST）。'
@@ -110,7 +110,7 @@ describe('FR-092 EZ-2 -- one line, inside the window', () => {
 // see DFC-1476, IN-7, S-339
 const IN_7_LEFT_EDGE = 'それでも左端が窓の左端から `S-339` の内側に収まらないときは、左端を窓の左端から `S-339` の位置に置くこと（MUST）'
 const NARROW_WIDTH = 800
-// WHY: the padding and border on the two sides together, as the box model adds them outside a content-box cap.
+// Why: the padding and border on the two sides together, as the box model adds them outside a content-box cap.
 const FRAME_PX = 16
 const LONG_WORDS_PX = 2000
 const SHORT_WORDS_PX = 120

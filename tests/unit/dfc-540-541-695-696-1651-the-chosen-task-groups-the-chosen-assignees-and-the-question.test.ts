@@ -58,7 +58,7 @@ const seat = (uid: number, taskUid: number | null, resourceUid: number | null): 
   carryElements: [],
 })
 
-// WHY: CR-722 RO-1 -- the Resource List is a window of its own (ScreenView.resourceList), its rows those of table T-371.
+// Why: CR-722 RO-1 -- the Resource List is a window of its own (ScreenView.resourceList), its rows those of table T-371.
 const RESOURCE_COUNT_AT = 3
 const RESOURCE_TASKS_AT = 4
 const rosterOf = (built: ShellBench): readonly { uid: number; isSelected: boolean; cells: readonly string[] }[] =>
@@ -128,7 +128,7 @@ describe('IN-4 (DFC-1651) -- one Esc answers a standing question and leaves the 
 })
 
 describe('FR-085 / IN-4 / SK-19 (DFC-695) -- a chosen task group is a selection Esc and Enter spend', () => {
-  // WHY: red on 2e16d0c4 (the second Esc was taken yet the task group stayed chosen, and Enter did nothing); green since DFC-695 was fixed.
+  // Why: red on 2e16d0c4 (the second Esc was taken yet the task group stayed chosen, and Enter did nothing); green since DFC-695 was fixed.
   it('DFC-695: with only a task group chosen and its panel put away, Esc is taken and the task group is no longer chosen', () => {
     const built = benchOf()
     take(built, TASK_GROUP_PANEL, null, 'g1')

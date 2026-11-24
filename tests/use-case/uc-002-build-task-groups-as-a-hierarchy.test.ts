@@ -42,7 +42,7 @@ test('UC-002 build task groups as a hierarchy (FR-085, FR-042, FR-005 HM-1 HM-2,
     await settle(page)
     await page.click('[data-role="Properties Panel"] [data-color-choice="green"]')
     await settle(page)
-    // WHY: T-338 MH-2 (CR-689): the value input opens only once its check is ticked, which writes the band now.
+    // Why: T-338 MH-2 (CR-689): the value input opens only once its check is ticked, which writes the band now.
     await expect(page.locator('[data-role="Properties Panel"] input[data-field-row="PR-20"]')).toBeDisabled()
     await page.check('[data-role="Properties Panel"] input[type="checkbox"][data-field-row="MH-2"]')
     await settle(page)

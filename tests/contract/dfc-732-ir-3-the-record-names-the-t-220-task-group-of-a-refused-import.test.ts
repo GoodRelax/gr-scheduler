@@ -21,12 +21,12 @@ import { bare, specTable, unbroken } from './spec-table'
 
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
-// see IR-3
+// Spec: IR-3
 const IR_3_ROW_ID =
   '出ている通知ごとに、その理由の行 ID（表 T-233 の `RS-` の行、または Chapter 6.1 の 表 T-220 の行）を書くこと（MUST）'
 const IR_3_READABLE =
   '⚠️ 取り込みを拒んだ通知は 表 T-220 の行を運ぶ（`FR-076`、表 T-035 の `AG-9a`）—— 記録からも、検証のどの行で拒んだかが読める'
-// see T-233
+// Spec: T-233
 const T_233_CARRIES_THE_ROW =
   '⭐ ⇒ 取り込みの検証が拒んだとき、`NT-1` の通知が運ぶ理由は、拒んだ 表 T-220 の行の行 ID とすること（MUST）'
 
@@ -50,7 +50,7 @@ function decoded(json: Json): Document {
   return read.document
 }
 
-// WHY: IV-23 (T-220) wants exactly one TaskVisual per Task, so a file that draws one Task twice is refused by that row.
+// Why: IV-23 (T-220) wants exactly one TaskVisual per Task, so a file that draws one Task twice is refused by that row.
 const REFUSING_ROW = 'IV-23'
 function fileRefusedByIv23(): Json {
   const json = templateJson()
@@ -64,7 +64,7 @@ function fileRefusedByIv23(): Json {
 const SCREEN: FrameEnvironment = { width: 1000, height: 700, appHeaderHeight: 56, scrollbarThickness: 8 }
 const NO_MODIFIERS: InputModifiers = { ctrl: false, shift: false, alt: false, meta: false }
 
-// see SK-10
+// Spec: SK-10
 function openKey(): KeyInput {
   const cell = rowOf('T-036', 'SK-10').by['割当'] ?? ''
   const parts = [...(cell.split('／')[0] ?? '').matchAll(/`([^`]+)`/g)].map((span) => span[1] ?? '')
@@ -177,7 +177,7 @@ function bench(): Bench {
       frames()
     },
     raiseStanding: (reason) => {
-      // WHY: the only public raise seam of the loop; the cast hands it a T-220 row, which its type does not name.
+      // Why: the only public raise seam of the loop; the cast hands it a T-220 row, which its type does not name.
       loop.raiseStartupNotice(reason as never)
       frames()
     },

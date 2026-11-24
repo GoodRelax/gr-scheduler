@@ -31,7 +31,7 @@ const GROUP_OF: Readonly<Record<number, string>> = {
   [SHOWN_UID]: SHOWN_GROUP,
 }
 
-// WHY: the view's top is the third task group, so the second task group lies wholly above it -- under the pinned band.
+// Why: the view's top is the third task group, so the second task group lies wholly above it -- under the pinned band.
 const SCROLLED = {
   zoomX: 8,
   scrollDate: day(1),

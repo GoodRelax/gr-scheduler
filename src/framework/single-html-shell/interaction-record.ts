@@ -1,4 +1,4 @@
-// SingleHtmlShell frame loop -- keeps the interaction record (FR-102) within S-207 and hands it to the clipboard.
+// File: SingleHtmlShell frame loop: keeps the interaction record (FR-102) within S-207 and hands it to the clipboard.
 // @unit      UF-160  (docs/spec/05-07-design.md, table T-075)
 // @component SingleHtmlShell, layer Framework (table T-062)
 // @purity    non-pure
@@ -16,18 +16,18 @@ import {
   type FrameLoopHands,
 } from './frame-loop'
 
-// see FR-102, IR-1, IR-2, IR-3
-// TRAP: the dash the record already writes for an empty value; IR-2's third value of S-99h is none.
+// Spec: FR-102, IR-1, IR-2, IR-3
+// Trap: the dash the record already writes for an empty value; IR-2's third value of S-99h is none.
 const UNREAD_IN_RECORD = '-'
 
 const PANEL_NOT_SHOWN_IN_RECORD = 'none'
 
-// see IR-1
-// TRAP: single-html-shell.ts answers this when the focus is on no field and no entrance.
+// Spec: IR-1
+// Trap: single-html-shell.ts answers this when the focus is on no field and no entrance.
 export const FOCUS_ON_DOCUMENT_BODY = 'body'
 
-// see T-280
-// WHY: paletteDisplayStateMachine.hidden has no child, so a hidden palette is never minimized.
+// Spec: T-280
+// Why: paletteDisplayStateMachine.hidden has no child, so a hidden palette is never minimized.
 /** @purity pure */
 function paletteMinimizedForRecordOf(session: ScreenSession): boolean {
   const palette = session.screen.paletteDisplayState
@@ -77,7 +77,7 @@ export function interactionRecorderOf(hands: InteractionRecordHands): Interactio
     return [...head, ...recordedLines].join('\n')
   }
 
-  // see IC-76, FR-102
+  // Spec: IC-76, FR-102
   /** @purity non-pure */
   function beginInteractionRecord(): void {
     recordedLines.length = 0
@@ -107,7 +107,7 @@ export function interactionRecorderOf(hands: InteractionRecordHands): Interactio
   return recorder
 }
 
-// see FR-102, S-207
+// Spec: FR-102, S-207
 /** @purity non-pure */
 export function recordLine(
   hands: InteractionRecordHands,
@@ -129,7 +129,7 @@ function recordedModifiers(modifiers: HumanInput['modifiers']): string {
   return held === '' ? '-' : held
 }
 
-// TRAP: a one-character key is typed text; recording it puts document contents in the record.
+// Trap: a one-character key is typed text; recording it puts document contents in the record.
 /** @purity pure */
 function recordedKey(key: string): string {
   return key.length <= 1 ? '#' : key
@@ -161,9 +161,9 @@ export function recordHappening(
   recordLine(hands, recorder, 'in.key', `key=${recordedKey(input.key)} ${mods}`)
 }
 
-// see FR-102, IF-1
-// WHY: svg is the picture beneath and the marquee overlay joined, so a held marquee still counts (CR-736).
-// TRAP: SVG names are camelCase (clipPath); a lower-case-only pattern drops them from IR-4's census (DFC-2710).
+// Spec: FR-102, IF-1
+// Why: svg is the picture beneath and the marquee overlay joined, so a held marquee still counts (CR-736).
+// Trap: SVG names are camelCase (clipPath); a lower-case-only pattern drops them from IR-4's census (DFC-2710).
 /** @purity non-pure */
 export function recordFrame(
   hands: InteractionRecordHands,
@@ -196,7 +196,7 @@ export function recordFrame(
   )
 }
 
-// see IR-3
+// Spec: IR-3
 /** @purity semi-pure-mutable */
 function recordedNoticeReasons(hands: InteractionRecordHands): string {
   const standing = standingNoticesIn(hands.readSession())
@@ -208,7 +208,7 @@ function recordedNoticeReasons(hands: InteractionRecordHands): string {
 // Single source of truth:
 //   docs/spec/_source/settings.json (table T-206)
 // Rebuild: npm run gen   ||   npm run gen:check fails on drift.
-// see T-206
+// Spec: T-206
 const NOT_STORED_INTERACTION_RECORD_LIMITS: {
   readonly 'S-207': number
 } = {

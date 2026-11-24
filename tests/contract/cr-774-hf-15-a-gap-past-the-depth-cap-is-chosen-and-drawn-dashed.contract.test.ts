@@ -50,7 +50,7 @@ const RETIRED_CLAUSES: readonly string[] = [
   clause.RETIRED_UC_002_2A,
 ]
 
-// WHY: the levels a held group spans, itself included; P1 is a leaf, S and H span S_125 levels.
+// Why: the levels a held group spans, itself included; P1 is a leaf, S and H span S_125 levels.
 const HEIGHT_OF: Readonly<Record<string, number>> = { P1: 1, S: 5, H: 5 }
 
 describe('CR-774 -- the manuscript these cases are driven by', () => {
@@ -181,7 +181,7 @@ function panelFor(heldId: string, landing: PastCapLanding | null): TaskGroupPane
 
 function lineOf(panel: TaskGroupPanel): FakeElement[] {
   const built = stage()
-  // WHY: CR-789 moved the line from the tree to the cue layer in front of it.
+  // Why: CR-789 moved the line from the tree to the cue layer in front of it.
   const tree = built.host.createElement('div') as unknown as FakeElement
   const cues = built.host.createElement('div') as unknown as FakeElement
   fillTaskGroupGrabCues(built.host, cues as unknown as HTMLElement, tree as unknown as HTMLElement, panel)

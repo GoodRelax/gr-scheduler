@@ -28,7 +28,7 @@ const rowOf = (table: string, id: string): { readonly cells: readonly string[]; 
 
 const rowText = (table: string, id: string): string => rowOf(table, id).cells.join(' | ')
 
-// WHY: the T-273 notes live outside the table rows, so the clause is read from the requirements text itself.
+// Why: the T-273 notes live outside the table rows, so the clause is read from the requirements text itself.
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 const numberIn = (cell: string): number => {
@@ -37,30 +37,30 @@ const numberIn = (cell: string): number => {
   return Number(found[0])
 }
 
-// WHY: the column headings are the Japanese words of the manuscript; spelled by code point to keep this file ASCII.
+// Why: the column headings are the Japanese words of the manuscript; spelled by code point to keep this file ASCII.
 const DEFAULT_OF_T201 = String.fromCharCode(0x65e2, 0x5b9a, 0x5024)
 const DEFAULT_OF_T206 = String.fromCharCode(0x65e2, 0x5b9a)
 const BENDS_OF_T222 = String.fromCharCode(0x6298, 0x308c, 0x70b9)
 
-// see T-201
+// Spec: T-201
 const T201 = (id: string): number => {
   const cell = bare(rowOf('T-201', id).by[DEFAULT_OF_T201] ?? '')
   return /^S-\d+[a-z]?$/.test(cell) ? T201(cell) : numberIn(cell)
 }
-// see T-206
+// Spec: T-206
 const T206 = (id: string): number => numberIn(bare(rowOf('T-206', id).by[DEFAULT_OF_T206] ?? ''))
 
-// see T-201
+// Spec: T-201
 const keyOf = (id: string): string => {
   const cell = rowOf('T-201', id).cells.find((one) => /^`[A-Za-z][A-Za-z0-9]*`$/.test(one.trim()))
   if (cell === undefined) throw new Error(`table T-201 row ${id} names no key`)
   return cell.trim().replace(/`/g, '')
 }
 
-// see T-222
+// Spec: T-222
 const bendsOfPattern = (id: string): number => numberIn(rowOf('T-222', id).by[BENDS_OF_T222] ?? '')
 
-// see T-273
+// Spec: T-273
 const lineHolding = (tokens: readonly string[]): string => {
   const found = REQUIREMENTS.split(String.fromCharCode(10)).find((line) => tokens.every((token) => line.includes(token)))
   if (found === undefined) throw new Error(`the requirements hold no line naming ${tokens.join(', ')}`)
@@ -417,7 +417,7 @@ const sceneOf = (wish: SceneWish): Scene => {
 
 const EPS = 1e-6
 
-// WHY: a route may carry a repeated point or a straight-through point; neither is a bend.
+// Why: a route may carry a repeated point or a straight-through point; neither is a bend.
 const simplified = (points: readonly Pt[]): readonly Pt[] => {
   const unique: Pt[] = []
   for (const one of points) {
@@ -476,7 +476,7 @@ const samplesInTriangle = (tri: readonly Pt[], steps = 60): readonly Pt[] => {
   return out
 }
 
-// WHY: touching is not overlapping; a point exactly on the edge does not count.
+// Why: touching is not overlapping; a point exactly on the edge does not count.
 const insideRect = (p: Pt, r: Rect, pad: number): boolean =>
   p.x > r.x - pad + 1e-4 && p.x < r.x + r.width + pad - 1e-4 && p.y > r.y - pad + 1e-4 && p.y < r.y + r.height + pad - 1e-4
 
@@ -491,7 +491,7 @@ const bottomOfBar = (bar: Bar): number =>
 const topOfBar = (bar: Bar): number =>
   bar.form === 'line' ? Math.min(bar.from!.y, bar.to!.y) : Math.min(...(bar.points ?? []).map((one) => one.y))
 
-// see S-18, VG-4
+// Spec: S-18, VG-4
 const LINE_WIDTH = (ratio: number): number => T201('S-18') * ratio
 
 const LP = (id: string): string => `T-273 ${id} [${rowText('T-273', id)}]`
@@ -562,7 +562,7 @@ interface RouteShape {
   readonly corridorY: number
 }
 
-// see T-222
+// Spec: T-222
 const fourBendShapeOf = (line: Line, label: string): RouteShape => {
   const route = simplified(line.points)
   expect(route.length, `${label}: four bends`).toBe(6)
@@ -705,7 +705,7 @@ describe('CR-758 case 4 -- T-221 LF-5 places the corridor beside the predecessor
     const offsetAdjacent = adjacent.placed(1).y - corridorOf(adjacent)
     const offsetSkip = skip.placed(1).y - corridorOf(skip)
     expect(offsetSkip, `${LF5} -- the lane right above the predecessor, not midway to the successor`).toBeCloseTo(offsetAdjacent, 3)
-    // WHY: LF-5 reads the lane's bottom, its Task's bottom; the group band also holds the trailing VG-2 gap (LF-2).
+    // Why: LF-5 reads the lane's bottom, its Task's bottom; the group band also holds the trailing VG-2 gap (LF-2).
     const skipped = skip.placed(3)
     expect(corridorOf(skip), `${LF5} -- not across the skipped lane`).toBeGreaterThan(skipped.y + skipped.planHeight)
     expect(corridorOf(skip), `${LF5} -- above the predecessor`).toBeLessThan(skip.placed(1).y)
@@ -748,8 +748,8 @@ describe('CR-758 case 4 -- T-221 LF-5 places the corridor beside the predecessor
   })
 })
 
-// WHY: one task per task group, so the route patterns are set by the dates alone (no RP-1 in the sample).
-// WHY: the milestone carries no link: by S-303, S-302 and RF-1 its own label and marker stand where a line meets it.
+// Why: one task per task group, so the route patterns are set by the dates alone (no RP-1 in the sample).
+// Why: the milestone carries no link: by S-303, S-302 and RF-1 its own label and marker stand where a line meets it.
 const SAMPLE_GROUPS = ['g0', 'g1', 'g2', 'g3', 'g4', 'g5', 'g6', 'g7'] as const
 const SAMPLE_TASKS: readonly TaskWish[] = [
   { uid: 8, group: 'g0', start: 53, finish: 58, name: 'Review', preds: [[6, FS]] },
@@ -762,7 +762,7 @@ const SAMPLE_TASKS: readonly TaskWish[] = [
   { uid: 7, group: 'g7', start: 3, finish: 9, name: 'Training', preds: [[2, FS]] },
 ]
 
-// WHY: half the default zoom keeps every task on screen at display scale 200 (EL-3 throughout).
+// Why: half the default zoom keeps every task on screen at display scale 200 (EL-3 throughout).
 const SAMPLE_SETTINGS: Loose = { zoomX: 4 }
 
 interface Overlap {
@@ -838,7 +838,7 @@ type Landed = { readonly predecessorUid: number; readonly successorUid: number }
 
 const FAR = 400
 
-// see EL-5
+// Spec: EL-5
 const offLeft = (): Scene =>
   sceneOf({
     groups: ['a', 'b'],
@@ -859,7 +859,7 @@ const isTheLine = (hit: { readonly item: Loose } | null): boolean =>
 
 const LANDED: Landed = { predecessorUid: 1, successorUid: 2 }
 
-// see EL-19, GA-19
+// Spec: EL-19, GA-19
 const longRunOf = (one: Scene): { readonly y: number; readonly x: number } => {
   const line = one.line(1, 2)
   const shape = fourBendShapeOf(line, RP(line.pattern))
@@ -952,7 +952,7 @@ describe('CR-758 case 9 -- FR-013 / T-266 GA-18: the S-584 gap between the bar e
   const SCALES = [50, 100, 200] as const
   const PLAN_SIDE: readonly string[] = ['GA-2', 'GA-9', 'GA-15']
 
-  // WHY: a T-266 cell cites T-206 grab sizes only, so GA-18 points at FR-013, which names the S-584 gap.
+  // Why: a T-266 cell cites T-206 grab sizes only, so GA-18 points at FR-013, which names the S-584 gap.
   it('T-266 GA-18 points at FR-013, and T-267 HT-3 names S-584', () => {
     expect(rowText('T-266', 'GA-18'), 'T-266 GA-18').toContain('`FR-013`')
     expect(rowText('T-267', 'HT-3'), 'T-267 HT-3').toContain('`S-584`')
@@ -980,7 +980,7 @@ describe('CR-758 case 9 -- FR-013 / T-266 GA-18: the S-584 gap between the bar e
       const edge = rightOfBar(basis!)
       const markerLeft = drawn.marker!.center.x - drawn.marker!.radius
       expect(markerLeft - edge, `premise: ${row} stands the marker right of the edge`).toBeGreaterThan(0.5)
-      // WHY: off the exit run of the lines leaving this end -- T-268 orders the line, and HT-3 lifts the marker only on its drawn box.
+      // Why: off the exit run of the lines leaving this end -- T-268 orders the line, and HT-3 lifts the marker only on its drawn box.
       const at = { x: (edge + markerLeft) / 2, y: drawn.marker!.center.y - drawn.marker!.radius * 0.9 }
       const band = LINE_WIDTH(one.ratio) / 2 + T206('S-285')
       for (const line of one.lines) expect(distanceToPath(at, line.drawnPoints), `premise: the press is off line ${line.predecessorUid}->${line.successorUid}`).toBeGreaterThan(band + 0.25)

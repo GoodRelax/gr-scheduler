@@ -46,7 +46,7 @@ const DM_12_NOT_THE_HOUR_WIDTH = '大きさは `DM-9` のままとし、`DM-3` �
 
 const dmCell = (id: string): string => specTable('T-240').rows.find((one) => one.id === id)?.by['規則'] ?? ''
 
-// WHY: day, hour, half-hour grid and far past S-180: the four arms of DM-3 (T-378 SG-1, then SG-2 from the hour tier up -- CR-850 folded SG-3 into SG-2).
+// Why: day, hour, half-hour grid and far past S-180: the four arms of DM-3 (T-378 SG-1, then SG-2 from the hour tier up -- CR-850 folded SG-3 into SG-2).
 const DAY_TIER = 100
 const HOUR_TIER = 400
 const HALF_HOUR_TIER = 1200
@@ -54,7 +54,7 @@ const FAR_ZOOM = 2400
 
 const hourWidth = (pxPerDay: number): number => (pxPerDay * S_585_MINUTES) / MINUTES_PER_DAY
 
-// see DM-3
+// Spec: DM-3
 const markWidthAt = (pxPerDay: number): number => inkOf(stageOf({ isTimeOfDayVisible: false, pxPerDay }), TIMED_UID).width
 
 describe('CR-756 -- the manuscript still says what these cases press', () => {

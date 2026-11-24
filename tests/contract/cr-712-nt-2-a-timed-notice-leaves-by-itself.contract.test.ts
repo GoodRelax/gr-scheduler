@@ -79,7 +79,7 @@ function guardNamesOf(cell: Branch | readonly Branch[] | undefined): readonly st
   return branches.flatMap((one) => (one.guard ?? []).flatMap((guard) => (guard.name === undefined ? [] : [guard.name])))
 }
 
-// see T-206, S-542
+// Spec: T-206, S-542
 /** @purity pure */
 function s542Ms(): number {
   const row = specTable('T-206').rows.find((one) => one.id === 'S-542')
@@ -99,7 +99,7 @@ function raised(reason: string): SessionEvent {
   return { type: 'noticeRaised', reason, affectedCount: null }
 }
 
-// WHY: the event is new in CR-712 and the generated union may not hold it yet; the cast keeps a missing name a red case, not a compile stop.
+// Why: the event is new in CR-712 and the generated union may not hold it yet; the cast keeps a missing name a red case, not a compile stop.
 /** @purity pure */
 function elapsed(reason: string): SessionEvent {
   return { type: 'noticeTimeElapsed', reason } as unknown as SessionEvent

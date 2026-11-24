@@ -18,25 +18,25 @@ const numberIn = (cell: string): number => {
   return value
 }
 
-// see T-206
+// Spec: T-206
 export const S_236 = numberIn(bare(rowOf('T-206', 'S-236').by[DEFAULT_COLUMN] ?? ''))
 
-// see T-206
+// Spec: T-206
 export const S_235 = numberIn(bare(rowOf('T-206', 'S-235').by[DEFAULT_COLUMN] ?? ''))
 
-// see T-202
+// Spec: T-202
 export const DISPLAY_SCALE_STEPS: readonly number[] = bareAll(
   rowOf('T-202', 'S-234').by[TYPE_COLUMN] ?? '',
 ).map(Number)
 
-// see T-202
+// Spec: T-202
 export const DEFAULT_DISPLAY_SCALE = numberIn(bare(rowOf('T-202', 'S-234').by[DEFAULT_COLUMN] ?? ''))
 
-// see FR-039
+// Spec: FR-039
 /** @purity pure */
 export function displayRatioAt(displayScale: number): number {
   return (displayScale / 100) * S_236
 }
 
-// see FR-039
+// Spec: FR-039
 export const DEFAULT_DISPLAY_RATIO = displayRatioAt(DEFAULT_DISPLAY_SCALE)

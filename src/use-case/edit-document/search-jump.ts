@@ -1,4 +1,4 @@
-// EditDocument -- the writes that open a search hit's task group and its ancestors and bring it into view.
+// File: EditDocument: the writes that open a search hit's task group and its ancestors and bring it into view.
 // @unit      UF-179  (docs/spec/05-07-design.md, table T-075)
 // @component EditDocument, layer UseCase (table T-062)
 // @purity    pure
@@ -22,7 +22,7 @@ import type { DocumentCommand } from './edit-document'
 import type { TreeStateEvent } from './task-group-folding'
 import { levelZeroWritesFor, treeStateWritesFor } from './task-group-folding'
 
-// see SJ-1
+// Spec: SJ-1
 export type SearchJumpTarget = LandedTarget
 
 export type SearchJumpPlan = {
@@ -39,8 +39,8 @@ export interface SearchJumpReach {
   readonly landing: SearchJumpLanding | null
 }
 
-// see SJ-5, SJ-6, U-50
-// WHY: read off a picture drawn after SJ-2's reveal: the reveal moves every task group below the one it opens.
+// Spec: SJ-5, SJ-6, U-50
+// Why: read off a picture drawn after SJ-2's reveal: the reveal moves every task group below the one it opens.
 export interface SearchJumpLanding {
   readonly shapeFromDatePx: number
   readonly shapeWidthPx: number
@@ -52,7 +52,7 @@ export interface SearchJumpLanding {
 
 type UnstoredZoom = Pick<DocumentSettings, 'zoomX' | 'zoomY'>
 
-// see SJ-6, SJ-10
+// Spec: SJ-6, SJ-10
 interface DrawnCommentBoxes {
   readonly commentBoxes: readonly { readonly id: string; readonly anchor: { readonly x: number }; readonly body: ScreenRect }[]
 }
@@ -66,7 +66,7 @@ interface JumpPlace {
 
 const NO_JUMP: SearchJumpPlan = { treeStateWrites: [], scrollWrite: null, isBlockedByPinnedTaskGroups: false }
 
-// see SJ-2, SJ-6
+// Spec: SJ-2, SJ-6
 /** @purity pure */
 function placeOf(schedule: Schedule, target: SearchJumpTarget): JumpPlace | null {
   const heldTaskGroup = (taskGroupId: string | null): string | null =>
@@ -82,7 +82,7 @@ function placeOf(schedule: Schedule, target: SearchJumpTarget): JumpPlace | null
   return { taskGroupId: heldTaskGroup(box.anchorTaskGroupId), date: commentBoxShownDateOf(schedule, box) }
 }
 
-// see SJ-2, T-328
+// Spec: SJ-2, T-328
 /** @purity pure */
 function revealWrites(document: Document, taskGroupId: string | null): readonly DocumentCommand[] {
   if (taskGroupId === null) return []
@@ -93,7 +93,7 @@ function revealWrites(document: Document, taskGroupId: string | null): readonly 
   ]
 }
 
-// see TV-6, SJ-2
+// Spec: TV-6, SJ-2
 /** @purity pure */
 export function shownTasksRevealWrites(document: Document, taskUids: readonly number[]): readonly DocumentCommand[] {
   const wanted = new Set(taskUids)
@@ -110,7 +110,7 @@ export function shownTasksRevealWrites(document: Document, taskUids: readonly nu
   return [...writes.values()]
 }
 
-// see SJ-6, T-038, SJ-7, LF-15
+// Spec: SJ-6, T-038, SJ-7, LF-15
 /** @purity pure */
 function dateXOf(layout: ScheduleLayout, geometry: DrawnCommentBoxes, target: SearchJumpTarget): number | null {
   if (target.kind === 'commentBox') {
@@ -137,7 +137,7 @@ function landingOf(layout: ScheduleLayout, box: ScreenRect | null, dateX: number
   }
 }
 
-// see SJ-5, SJ-6, T-038, SJ-7
+// Spec: SJ-5, SJ-6, T-038, SJ-7
 /** @purity pure */
 export function searchJumpReachOf(
   layout: ScheduleLayout,
@@ -156,8 +156,8 @@ export function searchJumpReachOf(
   }
 }
 
-// see SJ-7, SJ-8, FR-098
-// WHY: a pinned task group the reveal opens is not in the last picture, so the room below the pins decides, as for any undrawn task group.
+// Spec: SJ-7, SJ-8, FR-098
+// Why: a pinned task group the reveal opens is not in the last picture, so the room below the pins decides, as for any undrawn task group.
 /** @purity pure */
 function isShownAfterJump(
   document: Document,
@@ -172,8 +172,8 @@ function isShownAfterJump(
   return reveals.length > 0 && hasRoomBelowPins
 }
 
-// see SJ-6, EL-11, FR-046, S-428
-// WHY: a shape wider than the area less two insets would start off the left, so it keeps the start in sight (S-428).
+// Spec: SJ-6, EL-11, FR-046, S-428
+// Why: a shape wider than the area less two insets would start off the left, so it keeps the start in sight (S-428).
 /** @purity pure */
 function acrossOf(held: ScrollAnchor, date: string | null, reach: SearchJumpReach): Pick<ScrollAnchor, 'scrollDate' | 'scrollDateFraction'> {
   const day = dayOf(date)
@@ -189,8 +189,8 @@ function acrossOf(held: ScrollAnchor, date: string | null, reach: SearchJumpReac
   return { scrollDate: textOfDayStart(dayFromSerial(leftDay)), scrollDateFraction: left - leftDay }
 }
 
-// see SJ-5, S-554, S-176, FR-098
-// WHY: the top edge stands S-554 of the room above the shape's middle; it cannot go above the first task group (S-176 from 0).
+// Spec: SJ-5, S-554, S-176, FR-098
+// Why: the top edge stands S-554 of the room above the shape's middle; it cannot go above the first task group (S-176 from 0).
 /** @purity pure */
 function downOf(row: string, reach: SearchJumpReach): Pick<ScrollAnchor, 'scrollTaskGroupId' | 'scrollTaskGroupFraction'> {
   const atTop = { scrollTaskGroupId: row, scrollTaskGroupFraction: 0 }
@@ -202,7 +202,7 @@ function downOf(row: string, reach: SearchJumpReach): Pick<ScrollAnchor, 'scroll
   return taskGroupAnchorIn(landing.scrollingTaskGroups, topEdge, atTop)
 }
 
-// see SJ-5, SJ-6, SJ-7
+// Spec: SJ-5, SJ-6, SJ-7
 /** @purity pure */
 function scrollWriteTo(document: Document, place: JumpPlace, reach: SearchJumpReach): DocumentCommand | null {
   const held = document.documentSettings
@@ -221,7 +221,7 @@ function scrollWriteTo(document: Document, place: JumpPlace, reach: SearchJumpRe
   return { kind: 'setScrollPosition', scrollDate, scrollTaskGroupId, scrollDateFraction, scrollTaskGroupFraction }
 }
 
-// see T-332
+// Spec: T-332
 /** @purity pure */
 export function searchJumpWrites(
   document: Document,
@@ -238,7 +238,7 @@ export function searchJumpWrites(
   return { treeStateWrites, scrollWrite: scrollWriteTo(document, place, reach), isBlockedByPinnedTaskGroups: false }
 }
 
-// see SJ-5, OP-10
+// Spec: SJ-5, OP-10
 /** @purity pure */
 export function searchJumpCommands(plan: SearchJumpPlan, unstoredZoom: UnstoredZoom | null): readonly DocumentCommand[] {
   if (plan.scrollWrite === null) return plan.treeStateWrites
@@ -250,14 +250,14 @@ export function searchJumpCommands(plan: SearchJumpPlan, unstoredZoom: UnstoredZ
 // Single source of truth:
 //   docs/spec/_source/settings.json (table T-206)
 // Rebuild: npm run gen   ||   npm run gen:check fails on drift.
-// see T-206
+// Spec: T-206
 const NOT_STORED_SEARCH_JUMP_INSET: {
   readonly 'S-428': number
 } = {
   'S-428': 24,
 }
 
-// see T-206
+// Spec: T-206
 const NOT_STORED_SEARCH_JUMP_HEIGHT_SHARE: {
   readonly 'S-554': number
 } = {

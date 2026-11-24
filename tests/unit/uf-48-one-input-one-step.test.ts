@@ -38,7 +38,7 @@ const NO_MODIFIERS: InputModifiers = { ctrl: false, shift: false, alt: false, me
 
 const key = (which: string): KeyInput => ({ kind: 'key', key: which, modifiers: { ...NO_MODIFIERS } })
 
-// see SK-8, SK-13, SK-14, SK-15
+// Spec: SK-8, SK-13, SK-14, SK-15
 const keyOf = (row: string): string => {
   const found = specTable('T-036').rows.find((one) => one.id === row)
   if (found === undefined) throw new Error(`table T-036 has no row ${row}`)
@@ -68,7 +68,7 @@ afterEach(() => {
   else scope.requestAnimationFrame = realRaf
 })
 
-// see UF-48, T-078
+// Spec: UF-48, T-078
 function stage(): Stage {
   const waiting: ((time: number) => void)[] = []
   let insideReceiveInput = false

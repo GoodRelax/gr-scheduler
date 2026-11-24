@@ -1,4 +1,4 @@
-// Judges whether an untrusted document may replace the current one, all or nothing.
+// File: ValidateImportedDocument: Judges whether an untrusted document may replace the current one, all or nothing.
 // @unit      UF-22   (docs/spec/05-07-design.md, table T-075)
 // @component ValidateImportedDocument, layer UseCase (table T-062)
 // @purity    pure
@@ -21,7 +21,7 @@ import {
 
 export interface ImportCandidate {
   readonly document: Document
-  // TRAP: bytes; a length in megabytes (S-113's unit) would let any file through.
+  // Trap: bytes; a length in megabytes (S-113's unit) would let any file through.
   readonly byteLength: number
   readonly emptyRowTaskUids: readonly number[]
 }
@@ -39,28 +39,28 @@ export type ImportVerdict =
 
 const BYTES_PER_MEGABYTE = 1024 * 1024
 
-// see IV-4, T-233
-// WHY: a ring is refused under the table T-220 row it breaks, so NT-1 tells the IV-4 words, not RS-15.
+// Spec: IV-4, T-233
+// Why: a ring is refused under the table T-220 row it breaks, so NT-1 tells the IV-4 words, not RS-15.
 const PARENT_RING_ROW = 'IV-4'
 
-// see IV-14, T-214, T-233
-// WHY: a day outside S-119..S-120 breaks IV-14, so the refusal carries that row, not the setting (CR-718).
+// Spec: IV-14, T-214, T-233
+// Why: a day outside S-119..S-120 breaks IV-14, so the refusal carries that row, not the setting (CR-718).
 const UNUSABLE_DATE_ROW = 'IV-14'
 
-// see IV-10, FR-012, T-233
+// Spec: IV-10, FR-012, T-233
 const FINISH_BEFORE_START_ROW = 'IV-10'
 
-// see FR-023, FR-076, T-211, T-233
-// WHY: no T-220 row owns these refusals, so each carries its own T-233 row, never RS-15 (CR-719).
+// Spec: FR-023, FR-076, T-211, T-233
+// Why: no T-220 row owns these refusals, so each carries its own T-233 row, never RS-15 (CR-719).
 const OVER_MAX_BYTES_ROW = 'RS-78'
 
-// see FR-023, FR-076, T-211, T-233
+// Spec: FR-023, FR-076, T-211, T-233
 const OVER_MAX_ITEMS_ROW = 'RS-79'
 
-// see FR-023, FR-076, T-211, T-233
+// Spec: FR-023, FR-076, T-211, T-233
 const OVER_MAX_DEPTH_ROW = 'RS-80'
 
-// see FR-012, FR-076, T-233
+// Spec: FR-012, FR-076, T-233
 const UNDATED_TASK_ROW = 'RS-81'
 
 /** @purity pure */
@@ -176,13 +176,13 @@ function deepestOf(depthByUid: ReadonlyMap<number, number>):
   return deepest
 }
 
-// see FR-023, FR-012, NFR-009, T-211, T-214
+// Spec: FR-023, FR-012, NFR-009, T-211, T-214
 /** @purity pure */
 export function validateImportedDocument(
   candidate: ImportCandidate,
 ): ImportVerdict {
   const bounds = SETTINGS_CONSTANTS
-  // TRAP: keep these two returns ahead of every walk below, which relies on the count being bounded.
+  // Trap: keep these two returns ahead of every walk below, which relies on the count being bounded.
   if (candidate.byteLength > bounds.importMaxBytes * BYTES_PER_MEGABYTE) {
     return {
       ok: false,
@@ -242,7 +242,7 @@ export function validateImportedDocument(
   const min = dayOf(bounds.importMinDate)
   const max = dayOf(bounds.importMaxDate)
   if (min === null) {
-    // WHY: refused rather than skipped: a range that cannot be read proves nothing about the input.
+    // Why: refused rather than skipped: a range that cannot be read proves nothing about the input.
     found.push(refusal(UNUSABLE_DATE_ROW, '', `importMinDate names no day: ${bounds.importMinDate}`, 'NT-1'))
   }
   if (max === null) {
@@ -277,7 +277,7 @@ export function validateImportedDocument(
       )
     }
 
-    // see IV-21
+    // Spec: IV-21
     const reversed = reversedActualMinutesOf(within, task)
     if (reversed !== null && reversed < 0) {
       found.push(
@@ -334,8 +334,8 @@ const ONE_VISUAL_PER_TASK = 'IV-23'
 
 const WORKING_TIMES_ROW = 'IV-24'
 
-// see IV-23, IV-24, NT-1
-// WHY: the row is judged where table T-220 holds it, so the read refuses exactly what the invariant names.
+// Spec: IV-23, IV-24, NT-1
+// Why: the row is judged where table T-220 holds it, so the read refuses exactly what the invariant names.
 /** @purity pure */
 function judgedRowRefusals(document: Document): readonly ValidationRefusal[] {
   return scheduleViolations(document.schedule, document.documentSettings, [ONE_VISUAL_PER_TASK, WORKING_TIMES_ROW])

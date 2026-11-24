@@ -51,7 +51,7 @@ const EXPECTED_STEPS = ['HT-1', 'HT-2', 'HT-3', 'HT-4']
 
 const SECOND_TASK_START = isoPlus(PLAN_START, 2)
 
-// see S-63
+// Spec: S-63
 const STACKED = stackedScene('rectangle', { isProgressMarkerVisible: true })
 const STACKED_ARROW = stackedScene('arrow', { isProgressMarkerVisible: true })
 const ROWS = sceneOf('rectangle', { isProgressMarkerVisible: true })
@@ -95,8 +95,8 @@ describe(`HT-1 -- on a drawn shape only that Task answers: ${HT_1_OWN_TASK_ONLY}
     expect(strangers.slice(0, 5), HT_1_NO_NEIGHBOR).toEqual([])
   })
 
-  // WHY: shape by shape decides what counts as ON a shape, never who wins there -- table T-266 gives
-  // WHY: the actual no body of its own, so its middle falls to the plan body (TY-9) of the same Task.
+  // Why: shape by shape decides what counts as ON a shape, never who wins there -- table T-266 gives
+  // Why: the actual no body of its own, so its middle falls to the plan body (TY-9) of the same Task.
   it(`reads the plan, the actual and the dummy as separate shapes: ${HT_1_SHAPE_BY_SHAPE}`, () => {
     const plan = boxOf((STACKED.started as unknown as { plan: unknown }).plan)
     const actual = boxOf(actualOf(STACKED.started))
@@ -119,7 +119,7 @@ describe(`HT-1 -- on a drawn shape only that Task answers: ${HT_1_OWN_TASK_ONLY}
   it(`treats the space between the two lines of a line-only shape as outside a shape: ${HT_1_GAPS_ARE_OUTSIDE}`, () => {
     const plan = boxOf((STACKED_ARROW.started as unknown as { plan: unknown }).plan)
     const actual = boxOf(actualOf(STACKED_ARROW.started))
-    // WHY: the gap is below the plan line's drawn band and above the actual's, where both lines run (RV-6 moved the
+    // Why: the gap is below the plan line's drawn band and above the actual's, where both lines run (RV-6 moved the
     // plan middle off the old probe, which sat on the resume icon by chance).
     const between = (plan.bottom + actual.top) / 2
     expect(grabAt(STACKED_ARROW, actual.middleX, between), HT_1_GAPS_ARE_OUTSIDE).not.toBe('GA-14')
@@ -150,8 +150,8 @@ describe(`HT-2 -- outside the shapes the vertically nearer Task keeps the point:
       'S-255',
       defaultOf('S-255') + 40,
     )
-    // WHY: the two plan starts must share a column, or only one Task's GA-1 covers the point and
-    // WHY: this step never runs -- the fixture's second Task starts two days after the first.
+    // Why: the two plan starts must share a column, or only one Task's GA-1 covers the point and
+    // Why: this step never runs -- the fixture's second Task starts two days after the first.
     const together = stackedScene('rectangle', {}, { start: SECOND_TASK_START, actualStart: SECOND_TASK_START })
     const first = boxOf((together.started as unknown as { plan: unknown }).plan)
     const second = boxOf((together.unstarted as unknown as { plan: unknown }).plan)
@@ -168,8 +168,8 @@ describe(`HT-2 -- outside the shapes the vertically nearer Task keeps the point:
 })
 
 describe(`HT-3 -- within one step the type order of table T-268 decides: ${HT_3_TYPE_ORDER}`, () => {
-  // WHY: a one-day actual, so table T-273's LP-2 stands the marker just right of the base's end --
-  // WHY: on the default actual the label fits, the marker stands at its start and TY-7 applies instead.
+  // Why: a one-day actual, so table T-273's LP-2 stands the marker just right of the base's end --
+  // Why: on the default actual the label fits, the marker stands at its start and TY-7 applies instead.
   it(`gives the drawn marker box to the marker, ahead of the plan end: ${HT_3_MARKER_EXCEPTION}`, () => {
     const ROWS = sceneOf(
       'rectangle',

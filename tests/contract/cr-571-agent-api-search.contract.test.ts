@@ -37,7 +37,7 @@ function rowOf(table: string, id: string): SpecRow {
 const cellOf = (table: string, id: string, heading: string): string => unbroken(rowOf(table, id).by[heading] ?? '')
 
 const AM_25_RETURNS = '語を 1 つ受け、検索パネルの 2 つの表と同じ行を返す。'
-// WHY: the old no-filter clause is replaced by the asShown line and the panel input line (see AM-25)
+// Why: the old no-filter clause is replaced by the asShown line and the panel input line (see AM-25)
 const AM_25_AS_SHOWN = '`filters` が `asShown` なら、人が検索パネルのタスクの表に掛けている列のフィルタと並べ替え'
 const AM_25_NO_PANEL = 'パネルの入力欄は読みも変えもしない'
 const AM_16_DOES = '指定したタスクが載るタスクグループと祖先を展開し、見える位置へ表示を寄せる'
@@ -136,7 +136,7 @@ function frameOf(document: Document): FrameSnapshot {
   return { layout, geometry, regions }
 }
 
-// WHY: one registry for every bench, as a single shell holds one (SF-10).
+// Why: one registry for every bench, as a single shell holds one (SF-10).
 const CHANGE_WATCHERS = emptyChangeWatchers()
 const WRITERS: string[] = []
 
@@ -223,7 +223,7 @@ const treeStateOf = (document: Document, id: string): string =>
 
 /** @purity semi-pure-mutable */
 function readSearchRowsOf(api: AgentApi, word: string): SearchRows {
-  // WHY: the page's rows only; the table has no column filter here, so 'asShown' changes nothing (see AM-25, AV-16)
+  // Why: the page's rows only; the table has no column filter here, so 'asShown' changes nothing (see AM-25, AV-16)
   const page = api.readSearchRows(word, 'asShown', 0, 100)
   return { taskRows: page.taskRows, commentBoxRows: page.commentBoxRows }
 }
@@ -279,7 +279,7 @@ describe(`AM-16 focusTask -- ${SJ_9_WHICH_STEPS}`, () => {
     expect(one.state.history.done).toHaveLength(0)
   })
 
-  // WHY: CR-728 retired the place this case held (the task group at the top, offset 0): SJ-5 now puts the
+  // Why: CR-728 retired the place this case held (the task group at the top, offset 0): SJ-5 now puts the
   // shape S-554 down the room, and the spec-only tests of CR-728 hold it.
   it('answers isScrolled: true when the task can be brought into view (SJ-9)', () => {
     const one = bench('auto', 'auto')

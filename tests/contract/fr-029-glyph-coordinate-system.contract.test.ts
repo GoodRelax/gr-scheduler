@@ -814,11 +814,11 @@ describe('the manuscript still says what these cases copy', () => {
   })
 })
 
-// see FR-036, IC-102, F-019
+// Spec: FR-036, IC-102, F-019
 const FR_036_WHEEL_NOT_A_CHARACTER =
   '⛔ `IC-102` の図形を、数字や英字と読み違える形にしてはならない（MUST NOT）'
 
-// see F-019
+// Spec: F-019
 function figureGlyphOf(rowId: string): Glyph {
   const figure = readFileSync(FIGURE, 'utf8')
   const label = figure.indexOf(`>${rowId}</text>`)
@@ -835,7 +835,7 @@ function figureGlyphOf(rowId: string): Glyph {
   return { rowId, elements }
 }
 
-// see F-019
+// Spec: F-019
 const geometryOf = (glyph: Glyph): readonly string[] =>
   glyph.elements.map(
     (element) =>
@@ -864,7 +864,7 @@ describe('FR-036 (MUST NOT): the wheel glyph IC-102 is not read as a character',
     const ink = INK_BY_ROW.get('IC-102')
     expect(ink, 'icon-glyphs.json carries no IC-102').toBeDefined()
     const frame = ink as Frame
-    // WHY: 0.9 reads CR-425's near-square; the lone tall outline it replaced measures 0.7.
+    // Why: 0.9 reads CR-425's near-square; the lone tall outline it replaced measures 0.7.
     expect((frame.maxX - frame.minX) / (frame.maxY - frame.minY), MEASURED).toBeGreaterThanOrEqual(0.9)
   })
 })
