@@ -4,6 +4,16 @@
     python tools/generate_icon_roster.py
     python tools/generate_icon_roster.py --check
 
+⭐ WHERE THE TABLE IS READ (CR-857 step 2). Table T-109 is printed into
+docs/spec/_assets/tbl-glossary.md from manuscripts, and this script reads
+those manuscripts, not the printed file: the rows from
+docs/spec/_source/icons.json, the column headings and the prose above the
+caption from docs/spec/_source/glossary-tables.json, and the surface names of
+table T-103 from docs/spec/_source/glossary.json -- all through
+docs/spec/_source/glossary_json_to_md.py (`icon_table`), so the roster and the
+printed table come from one reading. ⚠️ The banner of the roster still names
+the printed table: it is a line of src/, and the switch changed no byte there.
+
 Table T-109 is the whole of the icons (FR-029). UF-62 needs the rows whose
 surface column reads `App Header`, and UF-65 needs the rows whose surface reads
 `Command Palette` together with the group each one sits in -- and neither may
@@ -44,12 +54,15 @@ import spec_tables
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
-GLOSSARY = os.path.join(ROOT, 'docs', 'spec', '_assets', 'tbl-glossary.md')
+sys.path.insert(0, os.path.join(ROOT, 'docs', 'spec', '_source'))
+import glossary_json_to_md  # noqa: E402  (the printer of table T-109)
 REQUIREMENTS = os.path.join(ROOT, 'docs', 'spec', '01-04-requirements.md')
 ERD = os.path.join(ROOT, 'docs', 'spec', '_source', 'erd.json')
 OUT = os.path.join(ROOT, 'src', 'adapter', 'screen-renderer', 'icon-roster.json')
 
 REL_GLOSSARY = 'docs/spec/_assets/tbl-glossary.md'
+REL_ICONS = 'docs/spec/_source/icons.json'
+REL_LAYOUT = 'docs/spec/_source/glossary-tables.json'
 REL_REQUIREMENTS = 'docs/spec/01-04-requirements.md'
 REL_ERD = 'docs/spec/_source/erd.json'
 REL_OUT = 'src/adapter/screen-renderer/icon-roster.json'
@@ -73,13 +86,6 @@ SHAPE_COLUMN = 'shapeKind'
 GLYPH_COLUMN = 'milestoneGlyph'
 MILESTONE_SHAPE_ROW = 'SH-5'
 
-# ⭐ The two tables are found by the shape of their row ids rather than by
-# their captions, which keeps the needles ASCII. The caption is then checked
-# to name the table, so a renumbered or moved table fails loudly instead of
-# being read as the wrong one.
-ICON_ROW = re.compile(r'^\| (IC-\d+[a-z]?) \|')
-SURFACE_ROW = re.compile(r'^\| (U-\d+[a-z]?) \|')
-SHAPE_ROW = re.compile(r'^\| (SH-\d+[a-z]?) \|')
 CODE_SPAN = re.compile(r'`([^`]+)`')
 
 # ⚠️ The one Japanese needle in this script, and rule 03 section 5 allows it
@@ -171,27 +177,22 @@ def read_lines(path):
     return io.open(path, encoding='utf-8').read().splitlines()
 
 
-def stated_row_count(lines, caption):
-    """The height table T-109 claims for itself, from the prose above it."""
+def stated_row_count(section):
+    """The height table T-109 claims for itself, from the prose lines of its
+    section above the caption (glossary-tables.json)."""
     # @purity pure
-    start = caption
-    while start > 0 and not lines[start].startswith('## '):
-        start -= 1
-    found = STATED_COUNT.findall('\n'.join(lines[start:caption]))
+    found = STATED_COUNT.findall('\n'.join(section))
     if len(found) != 1:
         sys.exit('generate_icon_roster: the prose above table %s in %s states a '
                  'row count %d time(s), and exactly one sentence must'
-                 % (ICON_TABLE, REL_GLOSSARY, len(found)))
+                 % (ICON_TABLE, REL_LAYOUT, len(found)))
     return int(found[0])
 
 
-def settled_surfaces(lines):
-    """Every UI part name table T-103 settles."""
+def settled_surfaces(names):
+    """Every UI part name table T-103 settles, as glossary_json_to_md.py
+    prints it from glossary.json."""
     # @purity pure
-    rows = [row.cells for row in spec_tables.read(REL_GLOSSARY, SURFACE_TABLE)]
-    names = set()
-    for row in rows:
-        names.update(code_spans(row[1]))
     if not names:
         sys.exit('generate_icon_roster: table %s settles no name, so no surface '
                  'of table %s can be checked' % (SURFACE_TABLE, ICON_TABLE))
@@ -363,18 +364,16 @@ def fill_arms_shape(icons, lines):
 def build():
     """The roster, as it is written out."""
     # @purity semi-pure-mutable
-    lines = read_lines(GLOSSARY)
-    surfaces = settled_surfaces(lines)
-    table = spec_tables.read(REL_GLOSSARY, ICON_TABLE)
-    switch = switch_column(table)
-    rows = [without(row.cells, switch) for row in table]
-    headings = without(table.headings, switch)
-    # the caption line is 1-based; the list below it is 0-based
-    wanted = stated_row_count(lines, table.caption_line - 1)
+    all_headings, all_rows, section, names = glossary_json_to_md.icon_table()
+    surfaces = settled_surfaces(names)
+    switch = switch_column(all_headings)
+    rows = [without(cells, switch) for cells in all_rows]
+    headings = without(all_headings, switch)
+    wanted = stated_row_count(section)
     if len(rows) != wanted:
-        sys.exit('generate_icon_roster: table %s holds %d row(s), and the '
-                 'sentence above it in %s says %d'
-                 % (ICON_TABLE, len(rows), REL_GLOSSARY, wanted))
+        sys.exit('generate_icon_roster: %s holds %d row(s) of table %s, and the '
+                 'sentence above the table in %s says %d'
+                 % (REL_ICONS, len(rows), ICON_TABLE, REL_LAYOUT, wanted))
     icons = [icon_of(row, surfaces) for row in rows]
     seen = sorted(set(icon['specTableRowId'] for icon in icons))
     if len(seen) != len(icons):
@@ -391,10 +390,10 @@ def build():
     }
 
 
-def switch_column(table):
+def switch_column(table_headings):
     """Where the settings-row column stands; refuse any other header shape."""
     # @purity pure
-    headings = list(table.headings)
+    headings = list(table_headings)
     if (len(headings) != len(FIELDS) + 1
             or headings.count(SWITCH_HEADING) != 1
             or headings.index(SWITCH_HEADING) != SWITCH_AFTER + 1):
@@ -435,13 +434,12 @@ def entry_switches():
     one entrance per function.
     """
     # @purity semi-pure-mutable
-    table = spec_tables.read(REL_GLOSSARY, ICON_TABLE)
-    switch = switch_column(table)
+    table_headings, table_rows, _section, _names = glossary_json_to_md.icon_table()
+    switch = switch_column(table_headings)
     rows = settings_rows()
     out = []
     seen = {}
-    for row in table:
-        cells = row.cells
+    for cells in table_rows:
         entry, authority, cell = cells[0], cells[4], cells[switch]
         flips = authority.startswith('`%s`' % FLIP_REQUIREMENT)
         chooses = authority.startswith('`%s`' % CHOOSE_REQUIREMENT)

@@ -3,8 +3,14 @@
 **UID**: DOC-TBL-GLOSSARY
 **Version**: 0.1
 
-**本書が用語の正である。**  
-本書と食い違う名前を他所で見たら、本書が勝つ。  
+> ⛔ 本書は生成物である。  
+> 手で直さない —— 直しても次の `npm run gen` で消える。
+> **名前の唯一の正は `_source/glossary.json` である。**  
+> 本書の表は、その名前を `_source/glossary_json_to_md.py` が刷ったものである —— 名前でない文と表の並びは `_source/glossary-tables.json` が、表 T-109 の行は `_source/icons.json` が持つ。
+> **作り直す**: `npm run gen`（本書だけなら `npm run glossary`）／ **ズレを検出する**: `npm run gen:check`。
+
+**本書は名前を `_source/glossary.json` から刷る。**  
+本書の表と食い違う名前を他所で見たら、本書の表が勝つ。  
 本書は `01-04-requirements.md` の Chapter 1.8 から参照される。
 
 由来は前プロジェクトの命名確定版（`studies/03-ui-naming/ui-parts-ja.md` §2-1）である。

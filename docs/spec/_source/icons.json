@@ -1,0 +1,2239 @@
+{
+ "$schema": "../../development-rules/manuscript-schemas/icons.schema.json",
+ "$comment": [
+  "SINGLE SOURCE OF TRUTH -- EDIT THIS FILE.",
+  "The rows of table T-109, the whole of the icons (FR-029) (CR-857 step 2): one object per row, in print order, with the six columns as fields. They are design facts, not names, so they live outside glossary.json; a surface is the row id of the T-103 row whose name the table prints.",
+  "Generated FROM this file: table T-109 of _assets/tbl-glossary.md (glossary_json_to_md.py, with glossary-tables.json and glossary.json) and src/adapter/screen-renderer/icon-roster.json (tools/generate_icon_roster.py); tools/generate_entity_types.py prints the switches column into src/ through the roster generator.",
+  "Rebuild: npm run gen   |   npm run gen:check fails if anything has drifted.",
+  "Validated by docs/development-rules/manuscript-schemas/icons.schema.json before a byte is written."
+ ],
+ "icons": [
+  {
+   "id": "IC-7",
+   "surfaces": [
+    "U-31"
+   ],
+   "group": {
+    "ja": "パレット"
+   },
+   "entryTo": {
+    "ja": "コマンドパレットを表示する・非表示にする（`S-99e`）。<br>⭐ **本行だけが独自の群を持つのは、`App Header` の左端に置くためである**（ファイル読み書きの群より左）—— ⛔ **並べる順は群の塊が決めるので**（同表の前文）、**既存の群に入れたまま行だけを先頭へ動かすと、その群の塊ごと左端へ寄る。<br>**⚠️ **群の名は画面に刷らない**（同前文の MUST NOT）ので、辞書の語は増えない"
+   },
+   "authority": "`FR-053`",
+   "switches": "—",
+   "arms": "—"
+  },
+  {
+   "id": "IC-98",
+   "surfaces": [
+    "U-31"
+   ],
+   "group": {
+    "ja": "文書"
+   },
+   "entryTo": {
+    "ja": "文書を新しく始める（開いている文書を捨て、`01-04-requirements.md` の 表 T-342 の空の文書にする）。<br>⚠️ 捨てる前の確認は `FR-095` が表 T-024a の `OP-4` に揃えている"
+   },
+   "authority": "`FR-095`",
+   "switches": "—",
+   "arms": "—"
+  },
+  {
+   "id": "IC-1",
+   "surfaces": [
+    "U-31"
+   ],
+   "group": {
+    "ja": "文書"
+   },
+   "entryTo": {
+    "ja": "文書を開く"
+   },
+   "authority": {
+    "ja": "`FR-087`（表 T-024a の `OP-2`）"
+   },
+   "switches": "—",
+   "arms": "—",
+   "unspacedCells": [
+    "authority"
+   ]
+  },
+  {
+   "id": "IC-2",
+   "surfaces": [
+    "U-31"
+   ],
+   "group": {
+    "ja": "文書"
+   },
+   "entryTo": {
+    "ja": "書き出す形式を選ぶ"
+   },
+   "authority": {
+    "ja": "`FR-096`（表 T-036 の `SK-12`）"
+   },
+   "switches": "—",
+   "arms": "—",
+   "unspacedCells": [
+    "authority"
+   ]
+  },
+  {
+   "id": "IC-3",
+   "surfaces": [
+    "U-31"
+   ],
+   "group": {
+    "ja": "文書"
+   },
+   "entryTo": {
+    "ja": "画像をクリップボードへコピーする"
+   },
+   "authority": {
+    "ja": "`FR-025`（表 T-024 の `IO-6`）"
+   },
+   "switches": "—",
+   "arms": "—",
+   "unspacedCells": [
+    "authority"
+   ]
+  },
+  {
+   "id": "IC-4",
+   "surfaces": [
+    "U-31"
+   ],
+   "group": {
+    "ja": "文書"
+   },
+   "entryTo": {
+    "ja": "変更前の予定の重ねを表示する・非表示にする。<br>⭐ **重ねる予定が無いときは切り替えず、変更前の予定にするファイルを選ばせる**（表 T-024a の `OP-15`） —— 押しても何も描かれない入口にしない。<br>⚠️ **重ねる予定が在るときはファイルを読む入口ではない** —— 読む入口は `IC-1` であり、重ねを選ぶのは 表 T-024a の `OP-3` の第 3 の選択肢である（同 `OP-9`）"
+   },
+   "authority": {
+    "ja": "`FR-049`（`FR-015`）"
+   },
+   "switches": "`S-69`",
+   "arms": "—",
+   "unspacedCells": [
+    "entryTo",
+    "authority"
+   ]
+  },
+  {
+   "id": "IC-8",
+   "surfaces": [
+    "U-31"
+   ],
+   "group": {
+    "ja": "表示"
+   },
+   "entryTo": {
+    "ja": "予定を表示する・非表示にする（実績とは独立）"
+   },
+   "authority": "`FR-049`",
+   "switches": "`S-227`",
+   "arms": "—",
+   "unspacedCells": [
+    "entryTo"
+   ]
+  },
+  {
+   "id": "IC-9",
+   "surfaces": [
+    "U-31"
+   ],
+   "group": {
+    "ja": "表示"
+   },
+   "entryTo": {
+    "ja": "実績を表示する・非表示にする（予定とは独立）"
+   },
+   "authority": "`FR-049`",
+   "switches": "`S-228`",
+   "arms": "—",
+   "unspacedCells": [
+    "entryTo"
+   ]
+  },
+  {
+   "id": "IC-10",
+   "surfaces": [
+    "U-31"
+   ],
+   "group": {
+    "ja": "表示"
+   },
+   "entryTo": {
+    "ja": "全体を 1 画面に収める"
+   },
+   "authority": "`FR-055`",
+   "switches": "—",
+   "arms": "—"
+  },
+  {
+   "id": "IC-104",
+   "surfaces": [
+    "U-31"
+   ],
+   "group": {
+    "ja": "表示"
+   },
+   "entryTo": {
+    "ja": "表示の倍率を下げる（`S-234`）"
+   },
+   "authority": "`FR-039`",
+   "switches": "—",
+   "arms": "—",
+   "unspacedCells": [
+    "entryTo"
+   ]
+  },
+  {
+   "id": "IC-105",
+   "surfaces": [
+    "U-31"
+   ],
+   "group": {
+    "ja": "表示"
+   },
+   "entryTo": {
+    "ja": "表示の倍率を上げる（`S-234`）"
+   },
+   "authority": "`FR-039`",
+   "switches": "—",
+   "arms": "—",
+   "unspacedCells": [
+    "entryTo"
+   ]
+  },
+  {
+   "id": "IC-11",
+   "surfaces": [
+    "U-31"
+   ],
+   "group": {
+    "ja": "表示"
+   },
+   "entryTo": {
+    "ja": "全画面表示に入り、同じ入口で出る（`S-99f`）"
+   },
+   "authority": "`FR-071`",
+   "switches": "—",
+   "arms": "—",
+   "unspacedCells": [
+    "entryTo"
+   ]
+  },
+  {
+   "id": "IC-12",
+   "surfaces": [
+    "U-31"
+   ],
+   "group": {
+    "ja": "表示"
+   },
+   "entryTo": {
+    "ja": "時間軸を縮小する（`S-75`）"
+   },
+   "authority": "`FR-018`",
+   "switches": "—",
+   "arms": "—",
+   "unspacedCells": [
+    "entryTo"
+   ]
+  },
+  {
+   "id": "IC-13",
+   "surfaces": [
+    "U-31"
+   ],
+   "group": {
+    "ja": "表示"
+   },
+   "entryTo": {
+    "ja": "時間軸を拡大する（`S-75`）"
+   },
+   "authority": "`FR-018`",
+   "switches": "—",
+   "arms": "—",
+   "unspacedCells": [
+    "entryTo"
+   ]
+  },
+  {
+   "id": "IC-14",
+   "surfaces": [
+    "U-31"
+   ],
+   "group": {
+    "ja": "表示"
+   },
+   "entryTo": {
+    "ja": "縦軸を縮小する（`S-76`）"
+   },
+   "authority": "`FR-018`",
+   "switches": "—",
+   "arms": "—",
+   "unspacedCells": [
+    "entryTo"
+   ]
+  },
+  {
+   "id": "IC-15",
+   "surfaces": [
+    "U-31"
+   ],
+   "group": {
+    "ja": "表示"
+   },
+   "entryTo": {
+    "ja": "縦軸を拡大する（`S-76`）"
+   },
+   "authority": "`FR-018`",
+   "switches": "—",
+   "arms": "—",
+   "unspacedCells": [
+    "entryTo"
+   ]
+  },
+  {
+   "id": "IC-100",
+   "surfaces": [
+    "U-31"
+   ],
+   "group": {
+    "ja": "表示"
+   },
+   "entryTo": {
+    "ja": "モノクロで描く・色に戻す（`S-74`）。<br>⚠️ **明暗テーマ（`IC-16`）とは別の値である** —— 理由は `FR-041` が持つ。<br>⛔ **`FR-049` の切り替えではない** —— `S-74` は 表 T-203 の行であり、同要求が見るのは 表 T-202 の真偽の行である。<br>⭐ 本行は明暗テーマの入口（`IC-16`）の左に並べる（`FR-041`）"
+   },
+   "authority": {
+    "ja": "`FR-041`（表 T-108 の `CM-64`）"
+   },
+   "switches": "—",
+   "arms": "—",
+   "unspacedCells": [
+    "authority"
+   ]
+  },
+  {
+   "id": "IC-16",
+   "surfaces": [
+    "U-31"
+   ],
+   "group": {
+    "ja": "表示"
+   },
+   "entryTo": {
+    "ja": "明暗テーマを選ぶ（`S-72`）"
+   },
+   "authority": "`FR-039`",
+   "switches": "—",
+   "arms": "—",
+   "unspacedCells": [
+    "entryTo"
+   ]
+  },
+  {
+   "id": "IC-5",
+   "surfaces": [
+    "U-31"
+   ],
+   "group": {
+    "ja": "履歴"
+   },
+   "entryTo": {
+    "ja": "編集を取り消す"
+   },
+   "authority": "`FR-031`",
+   "switches": "—",
+   "arms": "—"
+  },
+  {
+   "id": "IC-6",
+   "surfaces": [
+    "U-31"
+   ],
+   "group": {
+    "ja": "履歴"
+   },
+   "entryTo": {
+    "ja": "取り消した編集をやり直す"
+   },
+   "authority": "`FR-031`",
+   "switches": "—",
+   "arms": "—"
+  },
+  {
+   "id": "IC-117",
+   "surfaces": [
+    "U-31"
+   ],
+   "group": {
+    "ja": "調べる"
+   },
+   "entryTo": {
+    "ja": "検索パネルを出す（`S-442`）。<br>出ていれば前に出し（`FR-036` の 表 T-335 の `WB-11`）、入力欄へ焦点を戻す"
+   },
+   "authority": "`FR-151`",
+   "switches": "—",
+   "arms": "—"
+  },
+  {
+   "id": "IC-107",
+   "surfaces": [
+    "U-31"
+   ],
+   "group": {
+    "ja": "調べる"
+   },
+   "entryTo": {
+    "ja": "遅延診断を行う・レポートの窓を閉じていれば診断をやり直して開く・開いていれば窓だけを閉じる（押されている見た目は窓が開いていること —— `S-451`）"
+   },
+   "authority": "`FR-130`",
+   "switches": "—",
+   "arms": "—"
+  },
+  {
+   "id": "IC-115",
+   "surfaces": [
+    "U-31"
+   ],
+   "group": "AI",
+   "entryTo": {
+    "ja": "日程の画像をデータ化するプロンプトをクリップボードへコピーし、スキーマのファイルをダウンロードに渡す"
+   },
+   "authority": "`FR-068`",
+   "switches": "—",
+   "arms": "—"
+  },
+  {
+   "id": "IC-20",
+   "surfaces": [
+    "U-31"
+   ],
+   "group": "AI",
+   "entryTo": {
+    "ja": "`Agent API` を有効にする・無効にする"
+   },
+   "authority": "`FR-065`",
+   "switches": "—",
+   "arms": "—"
+  },
+  {
+   "id": "IC-17",
+   "surfaces": [
+    "U-31"
+   ],
+   "group": {
+    "ja": "補助"
+   },
+   "entryTo": {
+    "ja": "文書の描画設定をプロパティパネルに表示する・プロパティパネルを閉じる（`S-99h`）。<br>⭐ テーマ色は、その面の先頭の欄で選ぶ（`FR-041` の 表 T-305）"
+   },
+   "authority": "`FR-072`",
+   "switches": "—",
+   "arms": "—"
+  },
+  {
+   "id": "IC-21",
+   "surfaces": [
+    "U-31"
+   ],
+   "group": {
+    "ja": "補助"
+   },
+   "entryTo": {
+    "ja": "画面の言語を選ぶ（`S-99`）。<br>ヘルプの中の言語は変えない —— ヘルプの言語は `IC-128`"
+   },
+   "authority": "`FR-038`",
+   "switches": "—",
+   "arms": "—"
+  },
+  {
+   "id": "IC-22",
+   "surfaces": [
+    "U-31"
+   ],
+   "group": {
+    "ja": "補助"
+   },
+   "entryTo": {
+    "ja": "ヘルプを開く"
+   },
+   "authority": "`FR-036`",
+   "switches": "—",
+   "arms": "—"
+  },
+  {
+   "id": "IC-23",
+   "surfaces": [
+    "U-26"
+   ],
+   "group": {
+    "ja": "置く"
+   },
+   "entryTo": {
+    "ja": "矩形を構える（表 T-012 の `SH-1`）"
+   },
+   "authority": "`FR-083`",
+   "switches": "—",
+   "arms": "`AR-2`",
+   "unspacedCells": [
+    "entryTo"
+   ]
+  },
+  {
+   "id": "IC-24",
+   "surfaces": [
+    "U-26"
+   ],
+   "group": {
+    "ja": "置く"
+   },
+   "entryTo": {
+    "ja": "矢羽根を構える（`SH-2`）"
+   },
+   "authority": "`FR-083`",
+   "switches": "—",
+   "arms": "`AR-2`",
+   "unspacedCells": [
+    "entryTo"
+   ]
+  },
+  {
+   "id": "IC-25",
+   "surfaces": [
+    "U-26"
+   ],
+   "group": {
+    "ja": "置く"
+   },
+   "entryTo": {
+    "ja": "矢印を構える（`SH-3`）"
+   },
+   "authority": "`FR-083`",
+   "switches": "—",
+   "arms": "`AR-2`",
+   "unspacedCells": [
+    "entryTo"
+   ]
+  },
+  {
+   "id": "IC-26",
+   "surfaces": [
+    "U-26"
+   ],
+   "group": {
+    "ja": "置く"
+   },
+   "entryTo": {
+    "ja": "端点スパンを構える（`SH-4`）"
+   },
+   "authority": "`FR-083`",
+   "switches": "—",
+   "arms": "`AR-2`",
+   "unspacedCells": [
+    "entryTo"
+   ]
+  },
+  {
+   "id": "IC-27",
+   "surfaces": [
+    "U-26"
+   ],
+   "group": {
+    "ja": "置く"
+   },
+   "entryTo": {
+    "ja": "マイルストーンを 〇 で構える（表 T-012 の `SH-5`）"
+   },
+   "authority": "`FR-078`",
+   "switches": "—",
+   "arms": "`AR-3`",
+   "unspacedCells": [
+    "entryTo"
+   ]
+  },
+  {
+   "id": "IC-28",
+   "surfaces": [
+    "U-26"
+   ],
+   "group": {
+    "ja": "置く"
+   },
+   "entryTo": {
+    "ja": "同・六角形"
+   },
+   "authority": "`FR-078`",
+   "switches": "—",
+   "arms": "`AR-3`"
+  },
+  {
+   "id": "IC-29",
+   "surfaces": [
+    "U-26"
+   ],
+   "group": {
+    "ja": "置く"
+   },
+   "entryTo": {
+    "ja": "同・五角形"
+   },
+   "authority": "`FR-078`",
+   "switches": "—",
+   "arms": "`AR-3`"
+  },
+  {
+   "id": "IC-30",
+   "surfaces": [
+    "U-26"
+   ],
+   "group": {
+    "ja": "置く"
+   },
+   "entryTo": {
+    "ja": "同・◇"
+   },
+   "authority": "`FR-078`",
+   "switches": "—",
+   "arms": "`AR-3`"
+  },
+  {
+   "id": "IC-31",
+   "surfaces": [
+    "U-26"
+   ],
+   "group": {
+    "ja": "置く"
+   },
+   "entryTo": {
+    "ja": "同・□"
+   },
+   "authority": "`FR-078`",
+   "switches": "—",
+   "arms": "`AR-3`"
+  },
+  {
+   "id": "IC-32",
+   "surfaces": [
+    "U-26"
+   ],
+   "group": {
+    "ja": "置く"
+   },
+   "entryTo": {
+    "ja": "同・☆（内外比は `S-48`）"
+   },
+   "authority": "`FR-078`",
+   "switches": "—",
+   "arms": "`AR-3`",
+   "unspacedCells": [
+    "entryTo"
+   ]
+  },
+  {
+   "id": "IC-33",
+   "surfaces": [
+    "U-26"
+   ],
+   "group": {
+    "ja": "置く"
+   },
+   "entryTo": {
+    "ja": "同・△"
+   },
+   "authority": "`FR-078`",
+   "switches": "—",
+   "arms": "`AR-3`"
+  },
+  {
+   "id": "IC-34",
+   "surfaces": [
+    "U-26"
+   ],
+   "group": {
+    "ja": "置く"
+   },
+   "entryTo": {
+    "ja": "同・▽"
+   },
+   "authority": "`FR-078`",
+   "switches": "—",
+   "arms": "`AR-3`"
+  },
+  {
+   "id": "IC-83",
+   "surfaces": [
+    "U-26"
+   ],
+   "group": {
+    "ja": "置く"
+   },
+   "entryTo": {
+    "ja": "同・ファイル"
+   },
+   "authority": "`FR-078`",
+   "switches": "—",
+   "arms": "`AR-3`"
+  },
+  {
+   "id": "IC-84",
+   "surfaces": [
+    "U-26"
+   ],
+   "group": {
+    "ja": "置く"
+   },
+   "entryTo": {
+    "ja": "同・ボックス"
+   },
+   "authority": "`FR-078`",
+   "switches": "—",
+   "arms": "`AR-3`"
+  },
+  {
+   "id": "IC-85",
+   "surfaces": [
+    "U-26"
+   ],
+   "group": {
+    "ja": "置く"
+   },
+   "entryTo": {
+    "ja": "同・フロッピー"
+   },
+   "authority": "`FR-078`",
+   "switches": "—",
+   "arms": "`AR-3`"
+  },
+  {
+   "id": "IC-86",
+   "surfaces": [
+    "U-26"
+   ],
+   "group": {
+    "ja": "置く"
+   },
+   "entryTo": {
+    "ja": "同・円筒"
+   },
+   "authority": "`FR-078`",
+   "switches": "—",
+   "arms": "`AR-3`"
+  },
+  {
+   "id": "IC-87",
+   "surfaces": [
+    "U-26"
+   ],
+   "group": {
+    "ja": "置く"
+   },
+   "entryTo": {
+    "ja": "同・会議の人"
+   },
+   "authority": "`FR-078`",
+   "switches": "—",
+   "arms": "`AR-3`"
+  },
+  {
+   "id": "IC-88",
+   "surfaces": [
+    "U-26"
+   ],
+   "group": {
+    "ja": "置く"
+   },
+   "entryTo": {
+    "ja": "同・嬉しい顔"
+   },
+   "authority": "`FR-078`",
+   "switches": "—",
+   "arms": "`AR-3`"
+  },
+  {
+   "id": "IC-89",
+   "surfaces": [
+    "U-26"
+   ],
+   "group": {
+    "ja": "置く"
+   },
+   "entryTo": {
+    "ja": "同・ビールジョッキ"
+   },
+   "authority": "`FR-078`",
+   "switches": "—",
+   "arms": "`AR-3`"
+  },
+  {
+   "id": "IC-61",
+   "surfaces": [
+    "U-26"
+   ],
+   "group": {
+    "ja": "揃える"
+   },
+   "entryTo": {
+    "ja": "依存線を構える（表 T-023b の `AR-4`）。<br>⭐ **本行から `IC-38` までが 1 つの群である** —— ⛔ **並べる順は群の塊が決めるので**（同表の前文）、**行を動かすのではなく群を書き換える。<br>**⚠️ **群の語は `揃える` のままである** —— 画面には刷らない（同前文の MUST NOT）。<br>ヘルプ（`FR-036`）も群の境目を線で示すだけである"
+   },
+   "authority": "`FR-009`",
+   "switches": "—",
+   "arms": "`AR-4`"
+  },
+  {
+   "id": "IC-35",
+   "surfaces": [
+    "U-26"
+   ],
+   "group": {
+    "ja": "揃える"
+   },
+   "entryTo": {
+    "ja": "コメントボックスを構える（表 T-023b の `AR-5`）"
+   },
+   "authority": "`FR-019`",
+   "switches": "—",
+   "arms": "`AR-5`",
+   "unspacedCells": [
+    "entryTo"
+   ]
+  },
+  {
+   "id": "IC-36",
+   "surfaces": [
+    "U-26"
+   ],
+   "group": {
+    "ja": "揃える"
+   },
+   "entryTo": {
+    "ja": "ハイライトボックスを構える（`AR-6`）"
+   },
+   "authority": "`FR-019`",
+   "switches": "—",
+   "arms": "`AR-6`",
+   "unspacedCells": [
+    "entryTo"
+   ]
+  },
+  {
+   "id": "IC-37",
+   "surfaces": [
+    "U-26"
+   ],
+   "group": {
+    "ja": "揃える"
+   },
+   "entryTo": {
+    "ja": "選んだものを開始日で揃える"
+   },
+   "authority": "`FR-034`",
+   "switches": "—",
+   "arms": "—"
+  },
+  {
+   "id": "IC-38",
+   "surfaces": [
+    "U-26"
+   ],
+   "group": {
+    "ja": "揃える"
+   },
+   "entryTo": {
+    "ja": "選んだものを終了日で揃える"
+   },
+   "authority": "`FR-034`",
+   "switches": "—",
+   "arms": "—"
+  },
+  {
+   "id": "IC-39",
+   "surfaces": [
+    "U-26"
+   ],
+   "group": {
+    "ja": "表示"
+   },
+   "entryTo": {
+    "ja": "イナズマ線を表示する・非表示にする"
+   },
+   "authority": {
+    "ja": "`FR-049`（`FR-014`）"
+   },
+   "switches": "`S-64`",
+   "arms": "—",
+   "unspacedCells": [
+    "authority"
+   ]
+  },
+  {
+   "id": "IC-40",
+   "surfaces": [
+    "U-26"
+   ],
+   "group": {
+    "ja": "表示"
+   },
+   "entryTo": {
+    "ja": "進捗マーカーを表示する・非表示にする"
+   },
+   "authority": {
+    "ja": "`FR-049`（`FR-013`）"
+   },
+   "switches": "`S-63`",
+   "arms": "—",
+   "unspacedCells": [
+    "authority"
+   ]
+  },
+  {
+   "id": "IC-41",
+   "surfaces": [
+    "U-26"
+   ],
+   "group": {
+    "ja": "表示"
+   },
+   "entryTo": {
+    "ja": "透かしの表示を切り替える。<br>⛔ **出ているときだけ解除パスワードを求める** —— 戻す側は問わない（`FR-020`）"
+   },
+   "authority": "`FR-020`",
+   "switches": "—",
+   "arms": "—",
+   "unspacedCells": [
+    "entryTo"
+   ]
+  },
+  {
+   "id": "IC-42",
+   "surfaces": [
+    "U-26"
+   ],
+   "group": {
+    "ja": "表示"
+   },
+   "entryTo": {
+    "ja": "日付罫線を表示する・非表示にする"
+   },
+   "authority": {
+    "ja": "`FR-049`（`FR-089`）"
+   },
+   "switches": "`S-67`",
+   "arms": "—",
+   "unspacedCells": [
+    "authority"
+   ]
+  },
+  {
+   "id": "IC-43",
+   "surfaces": [
+    "U-26"
+   ],
+   "group": {
+    "ja": "表示"
+   },
+   "entryTo": {
+    "ja": "グループ罫線を表示する・非表示にする"
+   },
+   "authority": {
+    "ja": "`FR-049`（`FR-042`）"
+   },
+   "switches": "`S-68`",
+   "arms": "—",
+   "unspacedCells": [
+    "authority"
+   ]
+  },
+  {
+   "id": "IC-79",
+   "surfaces": [
+    "U-26"
+   ],
+   "group": {
+    "ja": "表示"
+   },
+   "entryTo": {
+    "ja": "担当ラベルを表示する・非表示にする"
+   },
+   "authority": "`FR-049`",
+   "switches": "`S-60`",
+   "arms": "—"
+  },
+  {
+   "id": "IC-80",
+   "surfaces": [
+    "U-26"
+   ],
+   "group": {
+    "ja": "表示"
+   },
+   "entryTo": {
+    "ja": "完了率ラベルを表示する・非表示にする"
+   },
+   "authority": {
+    "ja": "`FR-049`（`FR-090`）"
+   },
+   "switches": "`S-61`",
+   "arms": "—",
+   "unspacedCells": [
+    "authority"
+   ]
+  },
+  {
+   "id": "IC-81",
+   "surfaces": [
+    "U-26"
+   ],
+   "group": {
+    "ja": "表示"
+   },
+   "entryTo": {
+    "ja": "依存線を表示する・非表示にする。<br>⚠️ **隠しているあいだは、依存線を選ぶことも、ラグを編集することも、削除することもできない** —— 表示に戻してから行う。<br>規則と理由は `FR-049` が持つ"
+   },
+   "authority": {
+    "ja": "`FR-049`（`FR-009`）"
+   },
+   "switches": "`S-62`",
+   "arms": "—",
+   "unspacedCells": [
+    "authority"
+   ]
+  },
+  {
+   "id": "IC-141",
+   "surfaces": [
+    "U-26"
+   ],
+   "group": {
+    "ja": "表示"
+   },
+   "entryTo": {
+    "ja": "親タスクと子タスクを、子タスクから親タスクへの矢印で表示する・非表示にする（`S-484`）。<br>⭐ 描くのは、指した・選んだタスクの家族だけである（`FR-135`）。<br>⭐ 依存線の表示（`IC-81`）の右に並べる。<br>⚠️ `切り替える設定値` の欄は `—` である —— `S-484` は 表 T-202 の行ではない（本表の前文）"
+   },
+   "authority": "`FR-135`",
+   "switches": "—",
+   "arms": "—"
+  },
+  {
+   "id": "IC-142",
+   "surfaces": [
+    "U-26"
+   ],
+   "group": {
+    "ja": "表示"
+   },
+   "entryTo": {
+    "ja": "親タスクを結ぶ構えに入る（表 T-023b の `AR-7`）。<br>⭐ 親タスク表示（`IC-141`）のすぐ右に並べる —— 親タスクと子タスクを見る入口の右隣に、親タスクと子タスクを結ぶ入口を探せる。<br>⚠️ 群は `表示` であるが、押せば構える（`構え` の欄） —— 場所のために群を選ぶ先例は `IC-61` と `IC-103` の注が持つ"
+   },
+   "authority": "`FR-135`",
+   "switches": "—",
+   "arms": "`AR-7`"
+  },
+  {
+   "id": "IC-99",
+   "surfaces": [
+    "U-26"
+   ],
+   "group": {
+    "ja": "表示"
+   },
+   "entryTo": {
+    "ja": "文字サイズの段を変える（`S-70`。<br>3 値排他）。<br>⭐ **押すたびに 表 T-215 が刷る並びの次の段へ移り、末尾の次は先頭へ戻る** —— `FR-029` が同じ機能の入口を 2 か所に置くことを禁じているので、入口は 1 つであり、1 つの入口が 3 段すべてに届くには巡るほかない。<br>⚠️ **段の並びは 表 T-215 のものであって、本行が定めるものではない**"
+   },
+   "authority": {
+    "ja": "`FR-039`（表 T-108 の `CM-62`）"
+   },
+   "switches": "—",
+   "arms": "—",
+   "unspacedCells": [
+    "authority"
+   ]
+  },
+  {
+   "id": "IC-101",
+   "surfaces": [
+    "U-26"
+   ],
+   "group": {
+    "ja": "表示"
+   },
+   "entryTo": {
+    "ja": "積む向きを選ぶ（`S-58`。<br>2 値排他）。<br>⭐ **押すたびにもう一方の向きへ移る** —— `IC-16`（`S-72`）と同じ形であり、値が 2 つしか無いので巡りは往復になる"
+   },
+   "authority": {
+    "ja": "`FR-003`（表 T-108 の `CM-56`）"
+   },
+   "switches": "—",
+   "arms": "—",
+   "unspacedCells": [
+    "authority"
+   ]
+  },
+  {
+   "id": "IC-103",
+   "surfaces": [
+    "U-26"
+   ],
+   "group": {
+    "ja": "カーソル"
+   },
+   "entryTo": {
+    "ja": "名称ラベルに予定日を添える・外す（書き方は `FR-002` の 表 T-251）。<br>⭐ **本行は群 `カーソル` の頭に置き、基準日の入口（`IC-44`）の左に並べる** —— 並べる順は群の塊と行の順が決めるので（同表の前文）、`IC-61` と同じく場所のために群を選んだ。<br>⚠️ 図形の「6/3」は特定の日を指さない"
+   },
+   "authority": {
+    "ja": "`FR-049`（`FR-002`）"
+   },
+   "switches": "`S-232`",
+   "arms": "—",
+   "unspacedCells": [
+    "authority"
+   ]
+  },
+  {
+   "id": "IC-44",
+   "surfaces": [
+    "U-26"
+   ],
+   "group": {
+    "ja": "カーソル"
+   },
+   "entryTo": {
+    "ja": "基準日を置く・動かす・消す。<br>⚠️ **「本日線」と呼んではならない**（表 T-103 の `U-11`）"
+   },
+   "authority": "`FR-046`",
+   "switches": "—",
+   "arms": "—",
+   "unspacedCells": [
+    "entryTo"
+   ]
+  },
+  {
+   "id": "IC-47",
+   "surfaces": [
+    "U-26"
+   ],
+   "group": {
+    "ja": "カーソル"
+   },
+   "entryTo": {
+    "ja": "ガイドカーソルを `'crosshair'` にする（3 値排他）。<br>⛔ **取り消す入口は置かない** —— **本行をもう一度押せば `'none'` に戻る**（`FR-048`）"
+   },
+   "authority": "`FR-048`",
+   "switches": {
+    "ja": "`S-66`（`'crosshair'`）"
+   },
+   "arms": "—"
+  },
+  {
+   "id": "IC-48",
+   "surfaces": [
+    "U-26"
+   ],
+   "group": {
+    "ja": "カーソル"
+   },
+   "entryTo": {
+    "ja": "同・`'single-vertical'`"
+   },
+   "authority": "`FR-048`",
+   "switches": {
+    "ja": "`S-66`（`'single-vertical'`）"
+   },
+   "arms": "—"
+  },
+  {
+   "id": "IC-45",
+   "surfaces": [
+    "U-26"
+   ],
+   "group": {
+    "ja": "カーソル"
+   },
+   "entryTo": {
+    "ja": "デュアルカーソルの 2 本を置く（`S-65`）"
+   },
+   "authority": "`FR-082`",
+   "switches": "—",
+   "arms": "—",
+   "unspacedCells": [
+    "entryTo"
+   ]
+  },
+  {
+   "id": "IC-50",
+   "surfaces": [
+    "U-26"
+   ],
+   "group": {
+    "ja": "置く"
+   },
+   "entryTo": {
+    "ja": "マイルストーンの図形の一覧を、**同じ入口で展開し、折りたたむ**（`S-142`）。<br>⭐ **トグルは 1 つである**（`IC-11` / `IC-60` が先例）—— ⛔ 2 つ置くと 図 F-019 が同じ図形を 2 度描くことになり、読む人に見分けのつかない入口が並んで、どちらの状態でも片方が何もしない"
+   },
+   "authority": "`FR-078`",
+   "switches": "—",
+   "arms": "—"
+  },
+  {
+   "id": "IC-52",
+   "surfaces": [
+    "U-30",
+    "U-49",
+    "U-54",
+    "U-56",
+    "U-25",
+    "U-64",
+    "U-66",
+    "U-65"
+   ],
+   "group": "—",
+   "entryTo": {
+    "ja": "開いている面とプロパティパネルとウィンドウ（`FR-036` の 表 T-335 —— ヘルプ・検索パネル・遅延診断レポートの窓・担当リストのウィンドウ）を閉じる"
+   },
+   "authority": {
+    "ja": "表 T-028 の `IN-4`"
+   },
+   "switches": "—",
+   "arms": "—"
+  },
+  {
+   "id": "IC-53",
+   "surfaces": [
+    "U-26"
+   ],
+   "group": "—",
+   "entryTo": {
+    "ja": "掴んで動かせることを示す。<br>**ボタンではない**"
+   },
+   "authority": "`FR-053`",
+   "switches": "—",
+   "arms": "—"
+  },
+  {
+   "id": "IC-75",
+   "surfaces": [
+    "U-26"
+   ],
+   "group": "—",
+   "entryTo": {
+    "ja": "掴み帯の右端で、パレットを最小化し、**同じ入口で戻す**（`S-200`）。<br>⭐ **`IC-53` の右に並ぶ**（`FR-053`）"
+   },
+   "authority": "`FR-053`",
+   "switches": "—",
+   "arms": "—",
+   "unspacedCells": [
+    "entryTo"
+   ]
+  },
+  {
+   "id": "IC-54",
+   "surfaces": [
+    "U-26"
+   ],
+   "group": {
+    "ja": "構え"
+   },
+   "entryTo": {
+    "ja": "いま構えている図形を示す。<br>**ボタンではない**"
+   },
+   "authority": {
+    "ja": "表 T-023b"
+   },
+   "switches": "—",
+   "arms": "—"
+  },
+  {
+   "id": "IC-102",
+   "surfaces": [
+    "U-30"
+   ],
+   "group": "—",
+   "entryTo": {
+    "ja": "マウスのホイールを示す。<br>**ボタンではない** —— ヘルプの凡例に置き、割当の語の中のホイールをこの図形で示す"
+   },
+   "authority": "`FR-036`",
+   "switches": "—",
+   "arms": "—"
+  },
+  {
+   "id": "IC-128",
+   "surfaces": [
+    "U-30"
+   ],
+   "group": "—",
+   "entryTo": {
+    "ja": "ヘルプの言語を選ぶ（`S-434`）。<br>⭐ 図形は `IC-21` と同じである"
+   },
+   "authority": "`FR-038`",
+   "switches": "—",
+   "arms": "—"
+  },
+  {
+   "id": "IC-58",
+   "surfaces": [
+    "U-22"
+   ],
+   "group": "—",
+   "entryTo": {
+    "ja": "タスクグループの配下をすべて展開する"
+   },
+   "authority": {
+    "ja": "表 T-051 の `HF-2`"
+   },
+   "switches": "—",
+   "arms": "—"
+  },
+  {
+   "id": "IC-59",
+   "surfaces": [
+    "U-22"
+   ],
+   "group": "—",
+   "entryTo": {
+    "ja": "このタスクグループを隠す"
+   },
+   "authority": {
+    "ja": "表 T-051 の `HF-3`"
+   },
+   "switches": "—",
+   "arms": "—"
+  },
+  {
+   "id": "IC-77",
+   "surfaces": [
+    "U-22"
+   ],
+   "group": "—",
+   "entryTo": {
+    "ja": "タスクグループの配下をすべて折りたたむ"
+   },
+   "authority": {
+    "ja": "表 T-051 の `HF-11`"
+   },
+   "switches": "—",
+   "arms": "—"
+  },
+  {
+   "id": "IC-90",
+   "surfaces": [
+    "U-22"
+   ],
+   "group": "—",
+   "entryTo": {
+    "ja": "タスクグループの配下を 1 階層だけ展開する"
+   },
+   "authority": {
+    "ja": "表 T-051 の `HF-13`"
+   },
+   "switches": "—",
+   "arms": "—"
+  },
+  {
+   "id": "IC-91",
+   "surfaces": [
+    "U-22"
+   ],
+   "group": "—",
+   "entryTo": {
+    "ja": "タスクグループの配下にタスクグループを 1 つ足す"
+   },
+   "authority": {
+    "ja": "表 T-051 の `HF-14`"
+   },
+   "switches": "—",
+   "arms": "—"
+  },
+  {
+   "id": "IC-60",
+   "surfaces": [
+    "U-22"
+   ],
+   "group": "—",
+   "entryTo": {
+    "ja": "タスクグループをピン止めし、同じ入口で外す"
+   },
+   "authority": "`FR-098`",
+   "switches": "—",
+   "arms": "—"
+  },
+  {
+   "id": "IC-82",
+   "surfaces": [
+    "U-22"
+   ],
+   "group": "—",
+   "entryTo": {
+    "ja": "タスクグループを削除する。<br>⭐ 消える範囲は 表 T-050 の `CD-2` が持ち、問い方は 表 T-037 の `NT-7` が持つ（示す文は 表 T-234 の `QN-1`）"
+   },
+   "authority": "`FR-032`",
+   "switches": "—",
+   "arms": "—",
+   "unspacedCells": [
+    "entryTo"
+   ]
+  },
+  {
+   "id": "IC-106",
+   "surfaces": [
+    "U-22"
+   ],
+   "group": "—",
+   "entryTo": {
+    "ja": "すべてのタスクグループを削除する（タスクグループパネルの頭、`HF-20`）。<br>⭐ 図形は `IC-82` と同じである。<br>消える範囲は 表 T-050 の `CD-6` が持ち、問い方は 表 T-037 の `NT-7` が持つ（示す文は 表 T-234 の `QN-10`）"
+   },
+   "authority": "`FR-032`",
+   "switches": "—",
+   "arms": "—",
+   "unspacedCells": [
+    "entryTo"
+   ]
+  },
+  {
+   "id": "IC-118",
+   "surfaces": [
+    "U-64"
+   ],
+   "group": "—",
+   "entryTo": {
+    "ja": "タスクとマイルストーンの表を出す"
+   },
+   "authority": "`FR-151`",
+   "switches": "—",
+   "arms": "—"
+  },
+  {
+   "id": "IC-119",
+   "surfaces": [
+    "U-64"
+   ],
+   "group": "—",
+   "entryTo": {
+    "ja": "コメントボックスの表を出す"
+   },
+   "authority": "`FR-151`",
+   "switches": "—",
+   "arms": "—"
+  },
+  {
+   "id": "IC-153",
+   "surfaces": [
+    "U-64",
+    "U-66",
+    "U-49"
+   ],
+   "group": "—",
+   "entryTo": {
+    "ja": "その表のすべての列のフィルタをクリアし、並びを既定の並び（`FR-151` の 表 T-330 の `SV-8`）へ戻す。<br>⭐ 語・表示の列の値・スケジュールフィルタ（`IC-143`）は変えない。<br>戻すものが無いあいだは効かない"
+   },
+   "authority": {
+    "ja": "`FR-151` の 表 T-330 の `SV-1`"
+   },
+   "switches": "—",
+   "arms": "—"
+  },
+  {
+   "id": "IC-143",
+   "surfaces": [
+    "U-64",
+    "U-66",
+    "U-49"
+   ],
+   "group": "—",
+   "entryTo": {
+    "ja": "その表のスケジュールフィルタを掛け、同じ入口で解除する（`_assets/tbl-settings.md` の 表 T-203 の `S-560`・`S-564`・`S-568`）。<br>⭐ 検索パネルではタスクの表を出しているときだけ置く。<br>掛けていないあいだ、チェックの入った行が 1 つも無いときは効かない（`FR-151` の 表 T-353 の `TV-5`）。<br>掛けているあいだは赤（同表の `TV-12`）"
+   },
+   "authority": {
+    "ja": "`FR-151` の 表 T-353"
+   },
+   "switches": "—",
+   "arms": "—"
+  },
+  {
+   "id": "IC-129",
+   "surfaces": [
+    "U-30",
+    "U-64",
+    "U-66",
+    "U-49"
+   ],
+   "group": "—",
+   "entryTo": {
+    "ja": "ウィンドウ（`FR-036` の 表 T-335）を最小化し、同じ入口で戻す（`S-435`・`S-442`・`S-451`）。<br>⭐ 図形は `IC-75` と同じである"
+   },
+   "authority": {
+    "ja": "`FR-036` の 表 T-335"
+   },
+   "switches": "—",
+   "arms": "—"
+  },
+  {
+   "id": "IC-130",
+   "surfaces": [
+    "U-30",
+    "U-64",
+    "U-66",
+    "U-49"
+   ],
+   "group": "—",
+   "entryTo": {
+    "ja": "ウィンドウを最大化する（`S-435`・`S-442`・`S-451`）"
+   },
+   "authority": {
+    "ja": "`FR-036` の 表 T-335"
+   },
+   "switches": "—",
+   "arms": "—"
+  },
+  {
+   "id": "IC-131",
+   "surfaces": [
+    "U-30",
+    "U-64",
+    "U-66",
+    "U-49"
+   ],
+   "group": "—",
+   "entryTo": {
+    "ja": "最大化したウィンドウを元のサイズに戻す（`S-435`・`S-442`・`S-451`）。<br>⭐ `IC-130` の場所に、最大化しているあいだだけ描く"
+   },
+   "authority": {
+    "ja": "`FR-036` の 表 T-335"
+   },
+   "switches": "—",
+   "arms": "—"
+  },
+  {
+   "id": "IC-122",
+   "surfaces": [
+    "U-64",
+    "U-66",
+    "U-49"
+   ],
+   "group": "—",
+   "entryTo": {
+    "ja": "列のフィルタと並べ替えを開く（列の見出しごとに 1 つ）。<br>⭐ [表示] の列と、修正案の表の `FM-1` には置かない（`FR-151` の 表 T-330 の `SV-7`、`FR-134` の 表 T-374 の `FM-1`）"
+   },
+   "authority": "`FR-151`",
+   "switches": "—",
+   "arms": "—"
+  },
+  {
+   "id": "IC-123",
+   "surfaces": [
+    "U-64",
+    "U-66",
+    "U-49",
+    "U-25"
+   ],
+   "group": "—",
+   "entryTo": {
+    "ja": "その列で昇順に並べる。<br>プロパティパネルでは、担当の欄の一覧を名の昇順に並べる（`FR-008` の 表 T-225 の `AS-5`）"
+   },
+   "authority": {
+    "ja": "`FR-151` ・ `FR-008`"
+   },
+   "switches": "—",
+   "arms": "—"
+  },
+  {
+   "id": "IC-124",
+   "surfaces": [
+    "U-64",
+    "U-66",
+    "U-49",
+    "U-25"
+   ],
+   "group": "—",
+   "entryTo": {
+    "ja": "その列で降順に並べる。<br>プロパティパネルでは、担当の欄の一覧を名の降順に並べる（`FR-008` の 表 T-225 の `AS-5`）"
+   },
+   "authority": {
+    "ja": "`FR-151` ・ `FR-008`"
+   },
+   "switches": "—",
+   "arms": "—"
+  },
+  {
+   "id": "IC-125",
+   "surfaces": [
+    "U-64",
+    "U-66",
+    "U-49",
+    "U-25"
+   ],
+   "group": "—",
+   "entryTo": {
+    "ja": "一覧に出ているすべての値にチェックを付ける<br>プロパティパネルでは、担当の欄の一覧に出ている、就いていない担当をすべて就ける（`FR-008` の 表 T-225 の `AS-5`）"
+   },
+   "authority": {
+    "ja": "`FR-151` ・ `FR-008`"
+   },
+   "switches": "—",
+   "arms": "—"
+  },
+  {
+   "id": "IC-126",
+   "surfaces": [
+    "U-64",
+    "U-66",
+    "U-49",
+    "U-25"
+   ],
+   "group": "—",
+   "entryTo": {
+    "ja": "一覧に出ているすべての値のチェックを外す<br>プロパティパネルでは、担当の欄の一覧に出ている、就いている担当をすべて外す（`FR-008` の 表 T-225 の `AS-5`）"
+   },
+   "authority": {
+    "ja": "`FR-151` ・ `FR-008`"
+   },
+   "switches": "—",
+   "arms": "—"
+  },
+  {
+   "id": "IC-127",
+   "surfaces": [
+    "U-64",
+    "U-66",
+    "U-49"
+   ],
+   "group": "—",
+   "entryTo": {
+    "ja": "表・入力欄・タイトルバーの面の名の字の大きさの段（`S-429`、3 値排他）を変え、3 つの表のウィンドウ（検索パネル・遅延診断レポート・担当リスト）はその 1 つの段を共に使うので、どのウィンドウで押しても 3 つの字が変わる。<br>⭐ 押すたびに `tbl-settings.md` の 表 T-333 の並びの次の段へ移り、末尾の次は先頭へ戻る（`IC-99` と同じ巡り方）"
+   },
+   "authority": {
+    "ja": "`FR-151` の 表 T-330 の `SV-16`"
+   },
+   "switches": "—",
+   "arms": "—"
+  },
+  {
+   "id": "IC-168",
+   "surfaces": [
+    "U-66"
+   ],
+   "group": "—",
+   "entryTo": {
+    "ja": "窓を開いたまま、いまの文書で遅延診断をやり直し、日程表の印と窓の中身を作り直す（`FR-130`）。<br>語を添えた入口で、語は 表 T-206 の `S-623` の太さで描く。<br>`RW-11` のどの表でも在る"
+   },
+   "authority": {
+    "ja": "表 T-346 の `RW-1` ・ `RW-3`"
+   },
+   "switches": "—",
+   "arms": "—"
+  },
+  {
+   "id": "IC-140",
+   "surfaces": [
+    "U-66"
+   ],
+   "group": "—",
+   "entryTo": {
+    "ja": "`.md` のファイルに書き出す（札は `.md`）。<br>中身は `IC-108` のコピーと同じ文字列、置き場と名は 表 T-346 の `RW-7`"
+   },
+   "authority": "`FR-134`",
+   "switches": "—",
+   "arms": "—"
+  },
+  {
+   "id": "IC-108",
+   "surfaces": [
+    "U-66"
+   ],
+   "group": "—",
+   "entryTo": {
+    "ja": "まとめと表を Markdown の文字列にしてクリップボードへ置く（表 T-346 の `RW-6`）"
+   },
+   "authority": "`FR-134`",
+   "switches": "—",
+   "arms": "—"
+  },
+  {
+   "id": "IC-154",
+   "surfaces": [
+    "U-66"
+   ],
+   "group": "—",
+   "entryTo": {
+    "ja": "遅延診断レポートの窓に、まとめと 表 T-347 の診断結果の表を出す（`FR-155`）"
+   },
+   "authority": {
+    "ja": "表 T-346 の `RW-11`"
+   },
+   "switches": "—",
+   "arms": "—"
+  },
+  {
+   "id": "IC-155",
+   "surfaces": [
+    "U-66"
+   ],
+   "group": "—",
+   "entryTo": {
+    "ja": "修正案を、チェック・修正前・修正後を並べた 表 T-374 の表で出す（`FR-155`）"
+   },
+   "authority": {
+    "ja": "表 T-346 の `RW-11`"
+   },
+   "switches": "—",
+   "arms": "—"
+  },
+  {
+   "id": "IC-156",
+   "surfaces": [
+    "U-66"
+   ],
+   "group": "—",
+   "entryTo": {
+    "ja": "直した行の記録の表（表 T-374）を出す —— 記録が 1 行以上あるときだけ置く"
+   },
+   "authority": {
+    "ja": "`FR-155` ・ 表 T-346 の `RW-11`"
+   },
+   "switches": "—",
+   "arms": "—"
+  },
+  {
+   "id": "IC-157",
+   "surfaces": [
+    "U-66"
+   ],
+   "group": "—",
+   "entryTo": {
+    "ja": "いまのファイルへ上書きして保存し、書けたらチェックの入った直しを 1 つの束で発行する"
+   },
+   "authority": {
+    "ja": "`FR-155` ・ 表 T-346 の `RW-12`"
+   },
+   "switches": "—",
+   "arms": "—"
+  },
+  {
+   "id": "IC-158",
+   "surfaces": [
+    "U-66"
+   ],
+   "group": "—",
+   "entryTo": {
+    "ja": "修正する前の文書をバックアップとして別名で保存し、書けたら `IC-157` と同じく発行する"
+   },
+   "authority": {
+    "ja": "表 T-346 の `RW-15` ・ 表 T-340 の `SX-3`"
+   },
+   "switches": "—",
+   "arms": "—"
+  },
+  {
+   "id": "IC-166",
+   "surfaces": [
+    "U-66"
+   ],
+   "group": "—",
+   "entryTo": {
+    "ja": "修正案の表の、修正のしかたが機械の行と、択が 1 つの選ぶの行に、まとめてチェックを入れる"
+   },
+   "authority": {
+    "ja": "表 T-346 の `RW-18`"
+   },
+   "switches": "—",
+   "arms": "—"
+  },
+  {
+   "id": "IC-169",
+   "surfaces": [
+    "U-66"
+   ],
+   "group": "—",
+   "entryTo": {
+    "ja": "修正の記録の表を `.tsv` のファイルに書き出す。<br>置き場・名・中身は 表 T-346 の `RW-20`"
+   },
+   "authority": {
+    "ja": "`FR-155` ・ 表 T-346 の `RW-20`"
+   },
+   "switches": "—",
+   "arms": "—"
+  },
+  {
+   "id": "IC-159",
+   "surfaces": [
+    "U-66"
+   ],
+   "group": "—",
+   "entryTo": {
+    "ja": "人が修正する指摘のうち、いまの行の 1 つ前へ移って飛ぶ"
+   },
+   "authority": {
+    "ja": "表 T-346 の `RW-14`"
+   },
+   "switches": "—",
+   "arms": "—"
+  },
+  {
+   "id": "IC-160",
+   "surfaces": [
+    "U-66"
+   ],
+   "group": "—",
+   "entryTo": {
+    "ja": "人が修正する指摘のうち、いまの行の次へ移って飛ぶ"
+   },
+   "authority": {
+    "ja": "`FR-155` の 表 T-346 の `RW-14`"
+   },
+   "switches": "—",
+   "arms": "—"
+  },
+  {
+   "id": "IC-62",
+   "surfaces": [
+    "U-26"
+   ],
+   "group": {
+    "ja": "表示"
+   },
+   "entryTo": {
+    "ja": "担当リストを表示する"
+   },
+   "authority": "`FR-099`",
+   "switches": "—",
+   "arms": "—"
+  },
+  {
+   "id": "IC-132",
+   "surfaces": [
+    "U-26"
+   ],
+   "group": {
+    "ja": "表示"
+   },
+   "entryTo": {
+    "ja": "休日の設定を開く（稼働する曜日・例外日・週の始まり）"
+   },
+   "authority": "`FR-088`",
+   "switches": "—",
+   "arms": "—"
+  },
+  {
+   "id": "IC-63",
+   "surfaces": [
+    "U-49"
+   ],
+   "group": "—",
+   "entryTo": {
+    "ja": "一覧のすべてを選択する"
+   },
+   "authority": "`FR-099`",
+   "switches": "—",
+   "arms": "—"
+  },
+  {
+   "id": "IC-64",
+   "surfaces": [
+    "U-49"
+   ],
+   "group": "—",
+   "entryTo": {
+    "ja": "一覧の選択をすべて解除する"
+   },
+   "authority": "`FR-099`",
+   "switches": "—",
+   "arms": "—"
+  },
+  {
+   "id": "IC-65",
+   "surfaces": [
+    "U-49"
+   ],
+   "group": "—",
+   "entryTo": {
+    "ja": "どの割当からも参照されていない担当を選択する"
+   },
+   "authority": {
+    "ja": "`FR-099`（表 T-108 の `CM-43` は、本行と `IC-66` の 2 手で果たす。<br>⭐ **本行は選ぶだけであり、`CM-43` を単独で出す行ではない** —— **2 手で果たす規則と、消す入口をちょうど 1 つにする理由は同要求が持つ**）"
+   },
+   "switches": "—",
+   "arms": "—",
+   "unspacedCells": [
+    "authority"
+   ]
+  },
+  {
+   "id": "IC-66",
+   "surfaces": [
+    "U-49"
+   ],
+   "group": "—",
+   "entryTo": {
+    "ja": "選んだ担当を消す"
+   },
+   "authority": {
+    "ja": "`FR-099`（表 T-108 の `CM-42`）"
+   },
+   "switches": "—",
+   "arms": "—",
+   "unspacedCells": [
+    "authority"
+   ]
+  },
+  {
+   "id": "IC-67",
+   "surfaces": [
+    "U-49"
+   ],
+   "group": "—",
+   "entryTo": {
+    "ja": "選ばれていることを示し、同じ入口で選択を解除する"
+   },
+   "authority": "`FR-099`",
+   "switches": "—",
+   "arms": "—"
+  },
+  {
+   "id": "IC-68",
+   "surfaces": [
+    "U-49"
+   ],
+   "group": "—",
+   "entryTo": {
+    "ja": "選ばれていないことを示し、同じ入口で選択する"
+   },
+   "authority": "`FR-099`",
+   "switches": "—",
+   "arms": "—"
+  },
+  {
+   "id": "IC-133",
+   "surfaces": [
+    "U-65"
+   ],
+   "group": "—",
+   "entryTo": {
+    "ja": "その曜日を稼働日にするか休みにするかを、押すたびに切り替える"
+   },
+   "authority": {
+    "ja": "表 T-344 の `WC-2`"
+   },
+   "switches": "—",
+   "arms": "—"
+  },
+  {
+   "id": "IC-134",
+   "surfaces": [
+    "U-65"
+   ],
+   "group": "—",
+   "entryTo": {
+    "ja": "週の始まりの曜日を選ぶ"
+   },
+   "authority": {
+    "ja": "表 T-344 の `WC-3`"
+   },
+   "switches": "—",
+   "arms": "—"
+  },
+  {
+   "id": "IC-163",
+   "surfaces": [
+    "U-65"
+   ],
+   "group": "—",
+   "entryTo": {
+    "ja": "稼働日の時間帯を 1 本足す（初めの値は 表 T-344 の `WC-8`）"
+   },
+   "authority": {
+    "ja": "表 T-344 の `WC-8`"
+   },
+   "switches": "—",
+   "arms": "—"
+  },
+  {
+   "id": "IC-164",
+   "surfaces": [
+    "U-65"
+   ],
+   "group": "—",
+   "entryTo": {
+    "ja": "その行の時間帯を消す"
+   },
+   "authority": {
+    "ja": "表 T-344 の `WC-8`"
+   },
+   "switches": "—",
+   "arms": "—"
+  },
+  {
+   "id": "IC-165",
+   "surfaces": [
+    "U-65"
+   ],
+   "group": "—",
+   "entryTo": {
+    "ja": "時間帯の始まりか終わりの時刻を 1 分の単位で打つ欄"
+   },
+   "authority": {
+    "ja": "表 T-344 の `WC-8`"
+   },
+   "switches": "—",
+   "arms": "—"
+  },
+  {
+   "id": "IC-135",
+   "surfaces": [
+    "U-65"
+   ],
+   "group": "—",
+   "entryTo": {
+    "ja": "例外日を 1 行加える"
+   },
+   "authority": {
+    "ja": "表 T-344 の `WC-6`"
+   },
+   "switches": "—",
+   "arms": "—"
+  },
+  {
+   "id": "IC-136",
+   "surfaces": [
+    "U-65"
+   ],
+   "group": "—",
+   "entryTo": {
+    "ja": "その行の例外日を除く"
+   },
+   "authority": {
+    "ja": "表 T-344 の `WC-4` ・ `WC-5`"
+   },
+   "switches": "—",
+   "arms": "—"
+  },
+  {
+   "id": "IC-137",
+   "surfaces": [
+    "U-65"
+   ],
+   "group": "—",
+   "entryTo": {
+    "ja": "例外日が休みか稼働かを示し、同じ入口で反対にする"
+   },
+   "authority": {
+    "ja": "表 T-344 の `WC-4`"
+   },
+   "switches": "—",
+   "arms": "—"
+  },
+  {
+   "id": "IC-138",
+   "surfaces": [
+    "U-65"
+   ],
+   "group": "—",
+   "entryTo": {
+    "ja": "下書きを文書へ当てる（表 T-108 の `CM-39` を 1 回）"
+   },
+   "authority": {
+    "ja": "表 T-344 の `WC-7`"
+   },
+   "switches": "—",
+   "arms": "—"
+  },
+  {
+   "id": "IC-71",
+   "surfaces": [
+    "U-56"
+   ],
+   "group": "—",
+   "entryTo": {
+    "ja": "読んだ内容で現在の文書を置き換える"
+   },
+   "authority": {
+    "ja": "表 T-024a の `OP-3`"
+   },
+   "switches": "—",
+   "arms": "—"
+  },
+  {
+   "id": "IC-72",
+   "surfaces": [
+    "U-56"
+   ],
+   "group": "—",
+   "entryTo": {
+    "ja": "読んだ内容を現在の文書へ合流させる"
+   },
+   "authority": {
+    "ja": "表 T-024a の `OP-3`"
+   },
+   "switches": "—",
+   "arms": "—"
+  },
+  {
+   "id": "IC-73",
+   "surfaces": [
+    "U-56"
+   ],
+   "group": "—",
+   "entryTo": {
+    "ja": "読んだ内容を変更前の予定として重ねる"
+   },
+   "authority": {
+    "ja": "表 T-024a の `OP-3`"
+   },
+   "switches": "—",
+   "arms": "—"
+  },
+  {
+   "id": "IC-74",
+   "surfaces": [
+    "U-22"
+   ],
+   "group": "—",
+   "entryTo": {
+    "ja": "すべてのタスクグループを展開する"
+   },
+   "authority": {
+    "ja": "表 T-051 の `HF-10`"
+   },
+   "switches": "—",
+   "arms": "—"
+  },
+  {
+   "id": "IC-78",
+   "surfaces": [
+    "U-22"
+   ],
+   "group": "—",
+   "entryTo": {
+    "ja": "すべてのタスクグループを折りたたむ"
+   },
+   "authority": {
+    "ja": "表 T-051 の `HF-12`"
+   },
+   "switches": "—",
+   "arms": "—"
+  },
+  {
+   "id": "IC-92",
+   "surfaces": [
+    "U-22"
+   ],
+   "group": "—",
+   "entryTo": {
+    "ja": "最も浅い段を 1 階層だけ展開する"
+   },
+   "authority": {
+    "ja": "表 T-051 の `HF-16`"
+   },
+   "switches": "—",
+   "arms": "—"
+  },
+  {
+   "id": "IC-93",
+   "surfaces": [
+    "U-22"
+   ],
+   "group": "—",
+   "entryTo": {
+    "ja": "最も浅い段へタスクグループを 1 つ足す"
+   },
+   "authority": {
+    "ja": "表 T-051 の `HF-17`"
+   },
+   "switches": "—",
+   "arms": "—"
+  },
+  {
+   "id": "IC-76",
+   "surfaces": [
+    "U-26"
+   ],
+   "group": {
+    "ja": "表示"
+   },
+   "entryTo": {
+    "ja": "操作と描画の記録を始め、**同じ入口で止める**（`S-206`）。<br>止めたとき記録はクリップボードへ渡る（表 T-008 の `CHN-9`）。<br>⭐ パレットを最小化しているあいだも、記録していれば掴み帯に押下状態で載る（`FR-053`）"
+   },
+   "authority": "`FR-102`",
+   "switches": "—",
+   "arms": "—",
+   "unspacedCells": [
+    "entryTo"
+   ]
+  },
+  {
+   "id": "IC-95",
+   "surfaces": [
+    "U-61"
+   ],
+   "group": "—",
+   "entryTo": {
+    "ja": "重複しているタスクを、開いたファイルの値で取り込む（表 T-032a の `MM-1`）"
+   },
+   "authority": "`FR-022`",
+   "switches": "—",
+   "arms": "—",
+   "unspacedCells": [
+    "entryTo"
+   ]
+  },
+  {
+   "id": "IC-96",
+   "surfaces": [
+    "U-61"
+   ],
+   "group": "—",
+   "entryTo": {
+    "ja": "重複しているタスクを、別のものとして両方とも残す（表 T-032a の `MM-2`）"
+   },
+   "authority": "`FR-022`",
+   "switches": "—",
+   "arms": "—",
+   "unspacedCells": [
+    "entryTo"
+   ]
+  },
+  {
+   "id": "IC-97",
+   "surfaces": [
+    "U-61"
+   ],
+   "group": "—",
+   "entryTo": {
+    "ja": "取り込みをやめ、取り込み前の状態へ戻す（表 T-032a の `MM-4`）"
+   },
+   "authority": "`FR-022`",
+   "switches": "—",
+   "arms": "—",
+   "unspacedCells": [
+    "entryTo"
+   ]
+  },
+  {
+   "id": "IC-139",
+   "surfaces": [
+    "U-25"
+   ],
+   "group": "—",
+   "entryTo": {
+    "ja": "`GRS` がこのブラウザに持つ値を消し、ページを読み直す（GRS リセット）。<br>⭐ 置き場は文書の設定の面（`IC-17`）の頭、テーマ色の欄の上 —— 規則は `FR-153` が持つ。<br>消すものと残すものは同要求の 表 T-345 が持ち、問い方は 表 T-037 の `NT-7` が持つ（示す文は 表 T-234 の `QN-11`）"
+   },
+   "authority": "`FR-153`",
+   "switches": "—",
+   "arms": "—"
+  },
+  {
+   "id": "IC-162",
+   "surfaces": [
+    "U-25"
+   ],
+   "group": "—",
+   "entryTo": {
+    "ja": "入れた量でタイムシフトを実行する（実行の前に問う）。<br>量が 0 か空のあいだは薄くする（`FR-029`）"
+   },
+   "authority": "`FR-157`",
+   "switches": "—",
+   "arms": "—"
+  }
+ ]
+}

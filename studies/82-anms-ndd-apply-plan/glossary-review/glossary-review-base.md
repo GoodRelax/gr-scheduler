@@ -660,3 +660,120 @@
 | キー | 前の名 | 今その名を持つ語 | 改名の拠り所 |
 | --- | --- | --- | --- |
 | `commandRefusal` | `Refusal` | `refusalType` | JDG-3781 |
+
+## 仕様の表がまだ前の名を印字する語（11 語）
+
+辞書は改名を `renames[]` に持ち、その改名に `xAppliedToSpec: false` を付けた。`tbl-glossary.md` は、この印があるあいだ前の名を印字する。CR-855 が仕様へ改名を当てるとき、印を外して作り直す。
+
+| 行 ID | キー | 仕様の表の名（前の名） | 辞書の書き名 | 改名の拠り所 |
+| --- | --- | --- | --- | --- |
+| P-18 | `paintColor` | `fillColor` | `color` | JDG-3607 |
+| P-18 | `strokeColor` | `strokeColor` | `color` | JDG-3607 |
+| P-18 | `widthPx` | `strokeWidthPx` | `widthPx` | JDG-3607 |
+| P-23 | `predecessorLinkType` | `linkType` | `type` | JDG-3628 |
+| N-26 | `showMode` | `treeState` | `showMode` | JDG-3736 |
+| P-14 | `taskShapeDumbbell` | `endpointSpan` | `dumbbell` | JDG-3696 |
+| N-14 | `importOriginType` | `TaskOrigin` | `ImportOrigin` | JDG-3710 |
+| K-85 | `fontSizePreset` | `fontSizeStep` | `fontSizePreset` | JDG-3623 |
+| K-145 | `additionalTimeZones` | `displayTimeZones` | `additionalTimeZones` | JDG-3741 |
+| K-83 | `isTaskGroupGridLinesVisible` | `isGroupGridLinesVisible` | `isTaskGroupGridLinesVisible` | JDG-3745 |
+| K-73 | `taskPlacementDirection` | `stackDirection` | `taskPlacementDirection` | JDG-3731 |
+
+## 仕様の表が辞書に無い名で書く名（58 件）
+
+`glossary-tables.json` の名の欄が、置き換えの印（`{written:キー}` ほか）でなく、名をじかに書いている。辞書はこの名を、語の名としても `renames[].from` としても持たない。辞書が改名か語を持てば、CR-855 が欄を置き換えの印に直す。
+
+| 行 ID | 仕様の表の名 | その行の語（キー: 辞書の書き名） |
+| --- | --- | --- |
+| N-3 | `TaskGroupMember` | — |
+| N-7 | `carry` | `passthrough`: `passthrough` |
+| N-7 | `carryElements` | `passthrough`: `passthrough` |
+| P-5 | `actualDuration` | — |
+| P-10 | `shapeKind` | `taskShape`: `taskShape` |
+| P-15 | `milestone` | — |
+| P-16 | `milestoneGlyph` | `milestoneShape`: `milestoneShape` |
+| P-17 | `actualPlacement` | — |
+| P-19 | `transparent` | — |
+| P-21 | `fadeInDays` | `startSlopeCalendarDays`: `startSlopeCalendarDays`, `finishSlopeCalendarDays`: `finishSlopeCalendarDays` |
+| P-21 | `fadeOutDays` | `startSlopeCalendarDays`: `startSlopeCalendarDays`, `finishSlopeCalendarDays`: `finishSlopeCalendarDays` |
+| U-1 | `Task Groups` | `taskGroupLane`: `taskGroupLane` |
+| U-5 | `Progress Marker` | `progressMark`: `progressMark` |
+| U-6 | `Resume Icon` | `resumeMark`: `resumeMark` |
+| U-14 | `Comment Boxes` | `commentBoxGraphic`: `commentBoxGraphic` |
+| U-15 | `Highlight Boxes` | `highlightBoxGraphic`: `highlightBoxGraphic` |
+| U-15a | `Annotations` | `annotation`: `Annotation` |
+| U-16 | `Dependency Lines` | `dependencyLine`: `dependencyLine` |
+| U-27 | `Document Title` | `projectTitle`: `projectTitle` |
+| U-30 | `Help Modal` | `helpWindow`: `helpWindow` |
+| U-34 | `Palette Commands` | `paletteGroups`: `paletteGroups` |
+| U-37 | `WatermarkUnlockPassword` | `watermarkUnlockPassword`: `watermarkUnlockPassword` |
+| U-43 | `Grab Region` | `grabPoint`: `grabPoint`, `grabArea`: `grabArea` |
+| U-45 | `GoodRelax Scheduler` | `grsType`: `GRS` |
+| U-47 | `Task Group Expander` | `taskGroupButtons`: `taskGroupButtons` |
+| U-48 | `Task Group Pin` | `pinButton`: `pinButton` |
+| U-49 | `Resource List` | `resourceListWindow`: `resourceListWindow` |
+| U-50 | `Task Group Area` | `taskGroupLanes`: `taskGroupLanes` |
+| U-52 | `Actual Operation Dummy` | `actualDummy`: `actualDummy` |
+| U-54 | `Export Chooser` | `saveAsDialog`: `saveAsDialog` |
+| U-55 | `Confirmation` | `confirmationMessage`: `confirmationMessage` |
+| U-56 | `Open Chooser` | `openFileDialog`: `openFileDialog` |
+| U-60 | `Watermark Unlock` | `watermarkUnlockDialog`: `watermarkUnlockDialog` |
+| U-61 | `Difference Review` | `differenceReviewDialog`: `differenceReviewDialog` |
+| U-62 | `Import Report` | `importReportDialog`: `importReportDialog` |
+| U-64 | `Search Panel` | `searchWindow`: `searchWindow` |
+| U-65 | `Holiday Settings` | `holidaySettingsWindow`: `holidaySettingsWindow` |
+| U-66 | `Delay Diagnostics Report` | `delayDiagnosisReportWindow`: `delayDiagnosisReportWindow` |
+| K-67 | `zoomX` | `dayWidthPx`: `dayWidthPx` |
+| K-68 | `zoomY` | `ratio`: `ratio` |
+| K-69 | `scrollDate` | `leftEdgeDay`: `leftEdgeDay` |
+| K-70 | `scrollTaskGroupId` | `topEdgeTaskGroupId`: `topEdgeTaskGroupId` |
+| K-122 | `isPlanVisible` | `isPlanBarVisible`: `Plan` |
+| K-123 | `isActualVisible` | `isActualBarVisible`: `Actual` |
+| K-75 | `isAssigneeVisible` | `isAssigneeLabelVisible`: `isAssigneeLabelVisible` |
+| K-76 | `isPercentCompleteVisible` | `isPercentCompleteLabelVisible`: `isPercentCompleteLabelVisible` |
+| K-77 | `isDependencyVisible` | `isDependencyLineVisible`: `isDependencyLineVisible` |
+| K-78 | `isProgressMarkerVisible` | `isProgressStatusMarkVisible`: `isProgressStatusMarkVisible` |
+| K-84 | `isBaselineVisible` | `isBaselineOutlineVisible`: `Baseline` |
+| K-125 | `displayScale` | `displayScaleRatio`: `displayScaleRatio` |
+| K-86 | `importSequence` | `mspdiImportCount`: `mspdiImportCount` |
+| K-141 | `fitSpanStart` | `fitDayRange`: `fitDayRange` |
+| K-141 | `fitSpanFinish` | `fitDayRange`: `fitDayRange` |
+| K-142 | `isFitSpanFixed` | `fitDayRangeType`: `type` |
+| K-120 | `scrollTaskGroupFraction` | `topEdgeTaskGroupOffsetPercent`: `topEdgeTaskGroupOffsetPercent` |
+| K-121 | `scrollDateFraction` | `leftEdgeDayOffsetPercent`: `leftEdgeDayOffsetPercent` |
+| K-138 | `levelZeroTreeState` | — |
+| K-140 | `parentTaskProgressToleranceDays` | `parentTaskProgressToleranceWorkingDays`: `parentTaskProgressToleranceWorkingDays` |
+
+## 略語の展開形（27 語）
+
+略語の形の語は `xExpansion` に元の語を持つ（JDG-3524）。`tbl-glossary.md` の表は、CR-855 で展開形を印字する。
+
+| キー | 英語の名 | 展開形（英語） | 展開形（日本語） |
+| --- | --- | --- | --- |
+| `ndd` | NDD | Naming Driven Development | Naming Driven Development |
+| `ssot` | SSOT | Single Source of Truth | 唯一の正 |
+| `okpn` | OKPN | One Kind Per Name | 1 つの名前に 1 種類の値 |
+| `ompv` | OMPV | One Meaning Per Value | 1 つの値に 1 つの意味 |
+| `sdp` | SDP | Stable Dependencies Principle | 安定依存の原則 |
+| `kiss` | KISS | Keep It Simple, Stupid | Keep It Simple, Stupid |
+| `yagni` | YAGNI | You Aren't Gonna Need It | You Aren't Gonna Need It |
+| `dry` | DRY | Don't Repeat Yourself | Don't Repeat Yourself |
+| `soC` | SoC | Separation of Concerns | 関心の分離 |
+| `srp` | SRP | Single Responsibility Principle | 単一責任の原則 |
+| `slap` | SLAP | Single Level of Abstraction Principle | 単一抽象レベルの原則 |
+| `ocp` | OCP | Open-Closed Principle | 開放閉鎖の原則 |
+| `lsp` | LSP | Liskov Substitution Principle | リスコフの置換原則 |
+| `isp` | ISP | Interface Segregation Principle | インターフェース分離の原則 |
+| `dip` | DIP | Dependency Inversion Principle | 依存性逆転の原則 |
+| `loD` | LoD | Law of Demeter | デメテルの法則 |
+| `cqs` | CQS | Command-Query Separation | コマンド・クエリ分離 |
+| `pola` | POLA | Principle of Least Astonishment | 最小驚きの原則 |
+| `pie` | PIE | Program Intently and Expressively | 意図を明確に表すプログラミング |
+| `ca` | CA | Clean Architecture | クリーンアーキテクチャ |
+| `json` | JSON | JavaScript Object Notation | JavaScript Object Notation |
+| `mcp` | MCP | Model Context Protocol | Model Context Protocol |
+| `mspdi` | MSPDI | Microsoft Project Data Interchange | Microsoft Project Data Interchange |
+| `iso8601` | ISO8601 | ISO 8601 | ISO 8601 |
+| `bcp47` | BCP47 | Best Current Practice 47 | Best Current Practice 47 |
+| `grsType` | GRS | GoodRelax Scheduler | GoodRelax Scheduler |
+| `taskUidField` | UID | Unique Identifier | 一意な識別子 |

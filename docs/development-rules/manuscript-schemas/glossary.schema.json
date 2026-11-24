@@ -149,6 +149,11 @@
      "items": {
       "$ref": "#/$defs/RulingId"
      }
+    },
+    "xAppliedToSpec": {
+     "const": false,
+     "description": "Project key (x-prefixed): present, and false, while the specification still prints the former name. docs/spec/_source/glossary_json_to_md.py then prints `from` in docs/spec/_assets/tbl-glossary.md wherever the layout docs/spec/_source/glossary-tables.json names this term. CR-855 removes the key when it applies the rename to the specification (CR-857 step 2). At most one rename of a term carries it.",
+     "x-description-ja": "プロジェクトのキー（頭に x）: 仕様がまだ前の名を印字するあいだだけ持ち、値は false。そのあいだ docs/spec/_source/glossary_json_to_md.py は、配置の原稿 docs/spec/_source/glossary-tables.json がこの語を指すところに、docs/spec/_assets/tbl-glossary.md へ `from` を印字する。CR-855 が仕様へ改名を当てるとき、このキーを外す（CR-857 の段 2）。1 つの語でこれを持つ改名は 1 つまで。"
     }
    }
   },

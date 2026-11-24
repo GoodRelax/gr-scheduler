@@ -1,0 +1,2734 @@
+{
+ "$schema": "../../development-rules/manuscript-schemas/glossary-tables.schema.json",
+ "$comment": [
+  "SINGLE SOURCE OF TRUTH -- EDIT THIS FILE (for everything of docs/spec/_assets/tbl-glossary.md that is not a name).",
+  "The layout of _assets/tbl-glossary.md (CR-857 step 2): its prose lines, the captions and columns of tables T-101 to T-106 and T-109, and every cell that is not a name -- T-104's group, T-105's reason, T-106's meaning, the notes after a name in a Japanese cell.",
+  "A name cell holds placeholders, never the name: {written:KEY}, {label:KEY}, {owned:KEY}, {key:KEY} print an English name of the term KEY of glossary.json, {ja:KEY} its label.ja. A name written outside a placeholder is a name glossary.json does not carry yet; the review base lists every one.",
+  "The rows of table T-109 live in icons.json; the icons block here holds its caption and columns only.",
+  "Generated FROM this file, glossary.json and icons.json: _assets/tbl-glossary.md (glossary_json_to_md.py). Rebuild: npm run gen   |   npm run gen:check fails if anything has drifted.",
+  "Validated by docs/development-rules/manuscript-schemas/glossary-tables.schema.json before a byte is written."
+ ],
+ "blocks": [
+  {
+   "kind": "prose",
+   "lines": [
+    {
+     "ja": "# 用語辞書 — 確定名の全数"
+    },
+    "",
+    "**UID**: DOC-TBL-GLOSSARY",
+    "**Version**: 0.1",
+    "",
+    {
+     "ja": "> ⛔ 本書は生成物である。手で直さない —— 直しても次の `npm run gen` で消える。"
+    },
+    {
+     "ja": "> **名前の唯一の正は `_source/glossary.json` である。** 本書の表は、その名前を `_source/glossary_json_to_md.py` が刷ったものである —— 名前でない文と表の並びは `_source/glossary-tables.json` が、表 T-109 の行は `_source/icons.json` が持つ。"
+    },
+    {
+     "ja": "> **作り直す**: `npm run gen`（本書だけなら `npm run glossary`）／ **ズレを検出する**: `npm run gen:check`。"
+    },
+    "",
+    {
+     "ja": "**本書は名前を `_source/glossary.json` から刷る。**  "
+    },
+    {
+     "ja": "本書の表と食い違う名前を他所で見たら、本書の表が勝つ。  "
+    },
+    {
+     "ja": "本書は `01-04-requirements.md` の Chapter 1.8 から参照される。"
+    },
+    "",
+    {
+     "ja": "由来は前プロジェクトの命名確定版（`studies/03-ui-naming/ui-parts-ja.md` §2-1）である。"
+    },
+    "",
+    {
+     "ja": "記法の規則と、単独で使ってはならない曖昧な日本語は **`01-04-requirements.md` の 1.9 表記規約**が持つ。  "
+    },
+    {
+     "ja": "ここには置かない。"
+    },
+    "",
+    {
+     "ja": "> ⚠️ **数値（既定値・範囲）は本書に無い。**  "
+    },
+    {
+     "ja": "> 本書が持つのは**名前**である。"
+    },
+    {
+     "ja": "> 値は `tbl-settings.md`（`DOC-TBL-SETTINGS`）が持つ。  "
+    },
+    {
+     "ja": "> **名前と値を 2 か所で管理しない。**"
+    },
+    "",
+    {
+     "ja": "## 1. データの語"
+    },
+    "",
+    "**Type**: SECTION",
+    ""
+   ]
+  },
+  {
+   "kind": "table",
+   "id": "T-101",
+   "caption": {
+    "ja": "データの語"
+   },
+   "columns": [
+    {
+     "field": "id",
+     "ja": "行 ID"
+    },
+    {
+     "field": "name",
+     "ja": "確定名（英）"
+    },
+    {
+     "field": "japanese",
+     "ja": "日本語"
+    }
+   ],
+   "separator": "| --- | --- | --- |",
+   "blank_before_header": "",
+   "rows": [
+    {
+     "id": "N-1",
+     "name": "`{written:taskType}`",
+     "japanese": {
+      "ja": "タスク。<br>`milestone` が真のときマイルストーンである。<br>⚠️ 描画の形は `TaskVisual.shapeKind` が別に持つ。<br>混同しない（往復の規則は `_assets/fig-erd-detail.md` の `AT-30`）"
+     }
+    },
+    {
+     "id": "N-2",
+     "name": "`{written:taskGroup}`",
+     "japanese": {
+      "ja": "タスクグループ"
+     }
+    },
+    {
+     "id": "N-3",
+     "name": "`TaskGroupMember`",
+     "japanese": {
+      "ja": "タスクグループメンバー"
+     }
+    },
+    {
+     "id": "N-4a",
+     "name": "`{written:item}`",
+     "japanese": {
+      "ja": "**{ja:item}**。<br>**当たり判定と選択の対象となるものの総称。<br>** 全数は表 T-023c の `SL-1` が持つ。<br>⚠️ **`Task` の別名ではない** —— 外延が広いので 1.9 の命名の規約（同じものを 2 つの語で呼ばない）には当たらない。<br>**`Task` 1 つを指すときは「タスク」と書く**"
+     }
+    },
+    {
+     "id": "N-5",
+     "name": "`{written:commentBox}` / `{written:commentBoxes}`",
+     "japanese": {
+      "ja": "コメントボックス 1 つ分の型と、文書が持つその配列の鍵。<br>UI パーツ名は `Comment Boxes`（`U-14`）"
+     }
+    },
+    {
+     "id": "N-6",
+     "name": "`{written:highlightBox}` / `{written:highlightBoxes}`",
+     "japanese": {
+      "ja": "ハイライトボックス 1 つ分の型と、文書が持つその配列の鍵。<br>UI パーツ名は `Highlight Boxes`（`U-15`）"
+     }
+    },
+    {
+     "id": "N-7",
+     "name": "`carry` / `carryElements`",
+     "japanese": {
+      "ja": "取り込んだ交換形式の項目を、解釈せずにそのまま持ち回るための入れ物"
+     }
+    },
+    {
+     "id": "N-8",
+     "name": "`{written:projectType}`",
+     "japanese": {
+      "ja": "プロジェクト。<br>文書が表す 1 件"
+     }
+    },
+    {
+     "id": "N-9",
+     "name": "`{written:calendar}`",
+     "japanese": {
+      "ja": "暦"
+     }
+    },
+    {
+     "id": "N-10",
+     "name": "`{written:resource}`",
+     "japanese": {
+      "ja": "担当。<br>⚠️ 「資源」という日本語は、範囲の記述（表 T-002 の `SO-8` / `SO-9`）と外部通信（表 T-003 の `CN-6`）では別の意味である"
+     }
+    },
+    {
+     "id": "N-11",
+     "name": "`{written:assignment}`",
+     "japanese": {
+      "ja": "割当。<br>どの担当がどのタスクに就くか"
+     }
+    },
+    {
+     "id": "N-12",
+     "name": "`{written:dependency}`",
+     "japanese": {
+      "ja": "{ja:dependency}。<br>⚠️ 画面に描く線は `Dependency Lines`（`U-16`）であり、別の語である"
+     }
+    },
+    {
+     "id": "N-13",
+     "name": "`{written:taskVisual}`",
+     "japanese": {
+      "ja": "タスクの見せ方。<br>形・色・名前の置き方"
+     }
+    },
+    {
+     "id": "N-14",
+     "name": "`{written:importOriginType}`",
+     "japanese": {
+      "ja": "取り込み元の記録"
+     }
+    },
+    {
+     "id": "N-26",
+     "name": "`{written:showMode}`",
+     "japanese": {
+      "ja": "タスクグループの木の状態。<br>`auto` ／ `collapsed` ／ `expanded` ／ `temporarilyExpanded` ／ `hidden` の 5 つの値（`01-04-requirements.md` の `FR-018` の 表 T-329、`_assets/tbl-state-machines.md` の 表 T-328）。<br>⚠️ `auto` は「展開している」ではない —— 人が何も決めていないタスクグループであり、何段描くかは倍率が決める"
+     }
+    }
+   ]
+  },
+  {
+   "kind": "prose",
+   "lines": [
+    "",
+    {
+     "ja": "## 2. プロパティ"
+    },
+    "",
+    "**Type**: SECTION",
+    ""
+   ]
+  },
+  {
+   "kind": "table",
+   "id": "T-102",
+   "caption": {
+    "ja": "プロパティ"
+   },
+   "columns": [
+    {
+     "field": "id",
+     "ja": "行 ID"
+    },
+    {
+     "field": "name",
+     "ja": "確定名（英）"
+    },
+    {
+     "field": "japanese",
+     "ja": "日本語"
+    }
+   ],
+   "separator": "| --- | --- | --- |",
+   "blank_before_header": "",
+   "rows": [
+    {
+     "id": "P-1",
+     "name": "`{written:name}`",
+     "japanese": {
+      "ja": "名称"
+     }
+    },
+    {
+     "id": "P-2",
+     "name": "`{written:notes}`",
+     "japanese": {
+      "ja": "備考"
+     }
+    },
+    {
+     "id": "P-3",
+     "name": "`{written:start}` / `{written:finish}`",
+     "japanese": {
+      "ja": "開始日 / 終了日"
+     }
+    },
+    {
+     "id": "P-4",
+     "name": "`{written:actualStart}` / `{written:stop}` / `{written:actualFinish}`",
+     "japanese": {
+      "ja": "実績開始日 / 実績最終日 / 実績終了日"
+     }
+    },
+    {
+     "id": "P-5",
+     "name": "`actualDuration`",
+     "japanese": {
+      "ja": "実績期間"
+     }
+    },
+    {
+     "id": "P-6",
+     "name": "`{written:resume}`",
+     "japanese": {
+      "ja": "再開予定日"
+     }
+    },
+    {
+     "id": "P-7",
+     "name": "`{written:resumeValid}`",
+     "japanese": {
+      "ja": "再開日確定"
+     }
+    },
+    {
+     "id": "P-8",
+     "name": "`{written:percentComplete}`",
+     "japanese": {
+      "ja": "完了率"
+     }
+    },
+    {
+     "id": "P-9",
+     "name": "`{written:deadline}`",
+     "japanese": {
+      "ja": "期限"
+     }
+    },
+    {
+     "id": "P-10",
+     "name": "`shapeKind`",
+     "japanese": {
+      "ja": "タスク形状（5 値。<br>`'milestone'` のときだけ `milestoneGlyph` を見る）"
+     }
+    },
+    {
+     "id": "P-11",
+     "name": "`'{written:taskShapeRectangle}'`",
+     "japanese": {
+      "ja": "矩形（`===`）。<br>**ASCII 表記の正は本表である**"
+     }
+    },
+    {
+     "id": "P-12",
+     "name": "`'{written:taskShapeChevron}'`",
+     "japanese": {
+      "ja": "矢羽根（`>===>`）。<br>直訳ではない。<br>例外は表 T-105"
+     }
+    },
+    {
+     "id": "P-13",
+     "name": "`'{written:taskShapeArrow}'`",
+     "japanese": {
+      "ja": "矢印（`--->`）"
+     }
+    },
+    {
+     "id": "P-14",
+     "name": "`'{written:taskShapeDumbbell}'`",
+     "japanese": {
+      "ja": "端点スパン（`*----*`）。<br>「端点」と略さない"
+     }
+    },
+    {
+     "id": "P-15",
+     "name": "`'milestone'`",
+     "japanese": {
+      "ja": "マイルストーン（◇ ほか）"
+     }
+    },
+    {
+     "id": "P-16",
+     "name": "`milestoneGlyph`",
+     "japanese": {
+      "ja": "マイルストーン形状（〇 六角形 五角形 ◇ □ ☆ △ ▽）"
+     }
+    },
+    {
+     "id": "P-17",
+     "name": "`actualPlacement`",
+     "japanese": {
+      "ja": "実績の置き方（`'inside'` = 内側 / `'below'` = 下 / `'atActualDate'` = 実績日）。<br>`shapeKind` から導出する"
+     }
+    },
+    {
+     "id": "P-18",
+     "name": "`{written:strokeColor}` / `{written:paintColor}` / `{written:widthPx}`",
+     "japanese": {
+      "ja": "線色 / 塗り色 / 線の太さ"
+     }
+    },
+    {
+     "id": "P-19",
+     "name": "`'transparent'`",
+     "japanese": {
+      "ja": "透明。<br>`strokeColor` / `fillColor` / `TaskGroup.color` が取りうる値であり、`tbl-settings.md` の 表 T-294 の保存する綴りの 1 つである（`S-324`）。<br>`null`（選んでいない）とは別物である"
+     }
+    },
+    {
+     "id": "P-21",
+     "name": "`fadeInDays` / `fadeOutDays`",
+     "japanese": {
+      "ja": "フェードイン日数 / フェードアウト日数"
+     }
+    },
+    {
+     "id": "P-22",
+     "name": "`{written:parentTaskUid}`",
+     "japanese": {
+      "ja": "親タスク（深さは導出する）"
+     }
+    },
+    {
+     "id": "P-23",
+     "name": "`{written:predecessorLinkType}`",
+     "japanese": {
+      "ja": "依存の種別（4 値は表 T-018 が持つ）"
+     }
+    }
+   ]
+  },
+  {
+   "kind": "prose",
+   "lines": [
+    "",
+    {
+     "ja": "## 3. UI パーツ"
+    },
+    "",
+    "**Type**: SECTION",
+    ""
+   ]
+  },
+  {
+   "kind": "table",
+   "id": "T-103",
+   "caption": {
+    "ja": "UI パーツ"
+   },
+   "columns": [
+    {
+     "field": "id",
+     "ja": "行 ID"
+    },
+    {
+     "field": "name",
+     "ja": "確定名（英）"
+    },
+    {
+     "field": "japanese",
+     "ja": "日本語"
+    }
+   ],
+   "separator": "| --- | --- | --- |",
+   "blank_before_header": "",
+   "rows": [
+    {
+     "id": "U-1",
+     "name": "`Task Groups`",
+     "japanese": {
+      "ja": "タスクグループ"
+     }
+    },
+    {
+     "id": "U-2",
+     "name": "`{label:taskBars}`",
+     "japanese": {
+      "ja": "{ja:taskBars}（**総称**）。<br>`Plan Bar` と `Actual Bar` をまとめて指す。<br>言い分ける規則は表 T-006b の `A-14` が持つ"
+     }
+    },
+    {
+     "id": "U-3",
+     "name": "`{label:planBar}`",
+     "japanese": {
+      "ja": "{ja:planBar}"
+     }
+    },
+    {
+     "id": "U-4",
+     "name": "`{label:actualBar}`",
+     "japanese": {
+      "ja": "{ja:actualBar}"
+     }
+    },
+    {
+     "id": "U-5",
+     "name": "`Progress Marker`",
+     "japanese": {
+      "ja": "進捗マーカー"
+     }
+    },
+    {
+     "id": "U-6",
+     "name": "`Resume Icon`",
+     "japanese": {
+      "ja": "再開アイコン"
+     }
+    },
+    {
+     "id": "U-7",
+     "name": "`{label:nameLabel}`",
+     "japanese": {
+      "ja": "{ja:nameLabel}"
+     }
+    },
+    {
+     "id": "U-8",
+     "name": "`{label:assigneeLabel}`",
+     "japanese": {
+      "ja": "{ja:assigneeLabel}"
+     }
+    },
+    {
+     "id": "U-9",
+     "name": "`{label:progressLine}`",
+     "japanese": {
+      "ja": "{ja:progressLine}。<br>直訳ではない。<br>例外は表 T-105"
+     }
+    },
+    {
+     "id": "U-10",
+     "name": "`{label:cursors}`",
+     "japanese": {
+      "ja": "{ja:cursors}"
+     }
+    },
+    {
+     "id": "U-11",
+     "name": "`{label:statusLine}`",
+     "japanese": {
+      "ja": "{ja:statusLine}。<br>直訳ではない。<br>例外は表 T-105。<br>`Project.statusDate` の位置に引く縦線（`FR-046`）。<br>⚠️ **「本日線」と呼んではならない（MUST NOT）** —— 本日以外を指せる"
+     }
+    },
+    {
+     "id": "U-12",
+     "name": "`{label:dualCursor}`",
+     "japanese": {
+      "ja": "{ja:dualCursor}"
+     }
+    },
+    {
+     "id": "U-13",
+     "name": "`{label:guideCursor}`",
+     "japanese": {
+      "ja": "{ja:guideCursor}"
+     }
+    },
+    {
+     "id": "U-14",
+     "name": "`Comment Boxes`",
+     "japanese": {
+      "ja": "{ja:commentBoxGraphic}。<br>⚠️ **「コメント」と略さない（MUST NOT）** —— 本文だけを指すのか器を指すのかが読めなくなる。<br>本文は「コメントボックスの本文」と書く"
+     }
+    },
+    {
+     "id": "U-15",
+     "name": "`Highlight Boxes`",
+     "japanese": {
+      "ja": "{ja:highlightBoxGraphic}。<br>**「囲み枠」と呼んではならない（MUST NOT）**"
+     }
+    },
+    {
+     "id": "U-15a",
+     "name": "`Annotations`",
+     "japanese": {
+      "ja": "**{ja:annotation}**。<br>コメントボックスとハイライトボックスをまとめて指す上位語"
+     }
+    },
+    {
+     "id": "U-16",
+     "name": "`Dependency Lines`",
+     "japanese": {
+      "ja": "{ja:dependencyLine}"
+     }
+    },
+    {
+     "id": "U-17",
+     "name": "`{label:dateGridLines}`",
+     "japanese": {
+      "ja": "{ja:dateGridLines}"
+     }
+    },
+    {
+     "id": "U-18",
+     "name": "`{label:groupGridLines}`",
+     "japanese": {
+      "ja": "{ja:groupGridLines}"
+     }
+    },
+    {
+     "id": "U-19",
+     "name": "`{label:timeRuler}`",
+     "japanese": {
+      "ja": "{ja:timeRuler}"
+     }
+    },
+    {
+     "id": "U-20",
+     "name": "`{label:watermark}`",
+     "japanese": {
+      "ja": "{ja:watermark}"
+     }
+    },
+    {
+     "id": "U-21",
+     "name": "`{label:scrollbars}`",
+     "japanese": {
+      "ja": "{ja:scrollbars}"
+     }
+    },
+    {
+     "id": "U-22",
+     "name": "`{label:taskGroupPanel}`",
+     "japanese": {
+      "ja": "{ja:taskGroupPanel}"
+     }
+    },
+    {
+     "id": "U-23",
+     "name": "`{label:taskGroupTitleTree}`",
+     "japanese": {
+      "ja": "タスクグループ見出しツリー。<br>**`Task Group Panel` の中身**（パネルが画面領域、ツリーがその中の木の表示）。<br>⚠️ **操作の入口を指すときは「タスクグループパネル」と書くこと（MUST）** —— 入口を 2 つの語で呼ぶと `FR-029` に触れる"
+     }
+    },
+    {
+     "id": "U-24",
+     "name": "`{label:panelDivider}`",
+     "japanese": {
+      "ja": "{ja:panelDivider}"
+     }
+    },
+    {
+     "id": "U-25",
+     "name": "`{label:propertiesPanel}`",
+     "japanese": {
+      "ja": "{ja:propertiesPanel}"
+     }
+    },
+    {
+     "id": "U-26",
+     "name": "`{label:commandPalette}`",
+     "japanese": {
+      "ja": "{ja:commandPalette}"
+     }
+    },
+    {
+     "id": "U-27",
+     "name": "`Document Title`",
+     "japanese": {
+      "ja": "文書名。<br>MSPDI の `Project/Title` に対応する。<br>⚠️ **「表題」「題名」と呼んではならない（MUST NOT）** —— 同じ値を指す"
+     }
+    },
+    {
+     "id": "U-30",
+     "name": "`Help Modal`",
+     "japanese": {
+      "ja": "ヘルプ"
+     }
+    },
+    {
+     "id": "U-31",
+     "name": "`{label:appHeader}`",
+     "japanese": {
+      "ja": "ヘッダー"
+     }
+    },
+    {
+     "id": "U-32",
+     "name": "`{label:scheduleCanvas}`",
+     "japanese": {
+      "ja": "（画面に出ない構造名。<br>日本語を当てない）。<br>範囲は、`App Header`（`U-31`）の下の縁からウィンドウの下の端までの、ウィンドウの全幅とする —— スケジュールフィルタの帯（`U-67`）が出ているあいだは、その帯の下の縁から（`01-04-requirements.md` の 表 T-353 の `TV-11`）。<br>利用者が見て押すのはこの範囲であり、仕様が `Schedule Canvas` の全体・中・角と書くときもこの範囲を指す（同書の 表 T-335 の `WB-3` ほか）。<br>⚠️ ページの中で `data-role` に `Schedule Canvas` を持つ要素は、ウィンドウの左上の角 (0, 0) からウィンドウ全体を覆う描画の層であり、`App Header` の帯の上も含む —— 範囲とは別である（利用者が定めた）。<br>⛔ `Schedule Canvas` の範囲を、`data-role` に `Schedule Canvas` を持つ要素の箱から読んではならない（MUST NOT） —— 範囲は `App Header` の下の縁から測る"
+     }
+    },
+    {
+     "id": "U-33",
+     "name": "`{label:canvasOverlays}`",
+     "japanese": {
+      "ja": "（同上）"
+     }
+    },
+    {
+     "id": "U-34",
+     "name": "`{label:paletteGroups}` / `Palette Commands`",
+     "japanese": {
+      "ja": "（同上）"
+     }
+    },
+    {
+     "id": "U-35",
+     "name": "`{label:headerCommands}` / `{label:branding}`",
+     "japanese": {
+      "ja": "（同上）。<br>`Branding` は `App Header` の左端に置く製品の略称の字であり、規則は `01-04-requirements.md` の `FR-051` の 表 T-349 が持つ"
+     }
+    },
+    {
+     "id": "U-36",
+     "name": "`{label:agentApi}`",
+     "japanese": {
+      "ja": "**`Agent API`**（日英とも同じ語を使い、訳語を当てない）"
+     }
+    },
+    {
+     "id": "U-37",
+     "name": "`WatermarkUnlockPassword`",
+     "japanese": {
+      "ja": "**{ja:watermarkUnlockPassword}**。<br>**「合言葉」と呼んではならない（MUST NOT）** —— 何のための語かが伝わらない。<br>既定値と SHA-256 は `tbl-settings.md` の表 T-207 が持つ"
+     }
+    },
+    {
+     "id": "U-38",
+     "name": "`{label:armedShape}`",
+     "japanese": {
+      "ja": "**{ja:armedShape}**。<br>直訳ではない。<br>例外は表 T-105。<br>パレットで選んでいて「次に引いたら作られる / 結ばれるもの」。<br>全数は表 T-023b が持つ。<br>**「選択」と呼んではならない（MUST NOT）** —— 選択（`Selection`）は既にある対象を選ぶことであり、別の状態である"
+     }
+    },
+    {
+     "id": "U-39",
+     "name": "`{label:selection}`",
+     "japanese": {
+      "ja": "**{ja:selection}**。<br>既にある対象を選ぶこと、およびその集合。<br>描画領域の規則は表 T-023c、タスクグループの規則は `FR-085` が持つ"
+     }
+    },
+    {
+     "id": "U-40",
+     "name": "`{label:marquee}`",
+     "japanese": {
+      "ja": "**{ja:marquee}**。<br>直訳ではない。<br>例外は表 T-105。<br>何にも当たらない場所からドラッグして矩形で選ぶこと"
+     }
+    },
+    {
+     "id": "U-41",
+     "name": "`{label:percentCompleteLabel}`",
+     "japanese": {
+      "ja": "{ja:percentCompleteLabel}"
+     }
+    },
+    {
+     "id": "U-42",
+     "name": "`{label:pointer}`",
+     "japanese": {
+      "ja": "ポインタ。<br>マウスが指す点"
+     }
+    },
+    {
+     "id": "U-43",
+     "name": "`Grab Region` / `{label:grabPoint}`",
+     "japanese": {
+      "ja": "{ja:grabArea} / {ja:grabPoint}。<br>形と大きさの全数は表 T-266、応える順は表 T-267 と表 T-268（日程の形でないものは表 T-023d）が持つ"
+     }
+    },
+    {
+     "id": "U-45",
+     "name": "`GoodRelax Scheduler`",
+     "japanese": {
+      "ja": "本ソフトウェアの名称。<br>略称は `GRS`。<br>日本語に訳さない"
+     }
+    },
+    {
+     "id": "U-46",
+     "name": "`{label:pinnedTaskGroup}`",
+     "japanese": {
+      "ja": "{ja:pinnedTaskGroup}。<br>縦にスクロールしても画面に残る"
+     }
+    },
+    {
+     "id": "U-47",
+     "name": "`Task Group Expander`",
+     "japanese": {
+      "ja": "タスクグループの折りたたみの操作子。<br>⛔ **員数と置き方は 表 T-051 の `HF-1` が持ち、本行は持たない** —— **同じ数が 2 か所に載ると、必ず離れていく**"
+     }
+    },
+    {
+     "id": "U-48",
+     "name": "`Task Group Pin`",
+     "japanese": {
+      "ja": "ピン止めの操作子。<br>置き方は `FR-098`"
+     }
+    },
+    {
+     "id": "U-49",
+     "name": "`Resource List`",
+     "japanese": {
+      "ja": "担当リスト。<br>文書が持つ担当を表に並べる浮くウィンドウ（`01-04-requirements.md` の `FR-036` の 表 T-335）。<br>出し方と消し方は `FR-099` の 表 T-370 ・ 表 T-371。<br>⚠️ 面（`S-99g`）とは別に、表 T-335 のウィンドウとして開く"
+     }
+    },
+    {
+     "id": "U-50",
+     "name": "`Task Group Area`",
+     "japanese": {
+      "ja": "（画面に出ない構造名。<br>日本語を当てない）。<br>`Schedule Canvas` から `Time Ruler` の帯と余白を除いた、`Task Groups` が並ぶ領域。<br> 左右は `Task Group Panel` と `Properties Panel` の内側"
+     }
+    },
+    {
+     "id": "U-52",
+     "name": "`Actual Operation Dummy`",
+     "japanese": {
+      "ja": "実績操作のダミー。<br>**まだ始まっていない実績。<br>** 未着手のタスクに薄く出し、実績と同じ規則で置き、掴ませる。<br>札の基準は表 T-272、掴み代は表 T-266 が持つ。<br>文書のデータとしては存在しない（`FR-043`）"
+     }
+    },
+    {
+     "id": "U-51",
+     "name": "`{label:screenState}`",
+     "japanese": {
+      "ja": "（画面に出ない構造名。<br>日本語を当てない）。<br>文書に保存しない画面の値をまとめて持つ型の名。<br>⚠️ **「画面の状態」と呼んではならない（MUST NOT）** —— その日本語は `tbl-settings.md` の表 T-203 と、本書の表 T-104 の群（`K-67` 〜 `K-72` / `K-110` / `K-111`）が既に使っている"
+     }
+    },
+    {
+     "id": "U-53",
+     "name": "`{label:tooltip}`",
+     "japanese": {
+      "ja": "{ja:tooltip}。<br>何かに添えて出す説明。<br>出す場面は `FR-092` の `EZ-2`（アイコン）と `EZ-6`（タスク・期限の印・変更前の予定）／ `FR-037` が、振る舞いは表 T-028 の `IN-3` が持つ。<br>⚠️ **`FR-085` は場面ではない** —— 同要求は打ち切ったタスクグループ名の全文を出すことを禁じており、`IN-3` が「引き金ではなくなった」と述べている。<br>⚠️ **重ねて開く面ではない**（表 T-028 の `IN-4`）"
+     }
+    },
+    {
+     "id": "U-54",
+     "name": "`Export Chooser`",
+     "japanese": {
+      "ja": "書き出しの形式を選ぶ面。<br>開く規則は `FR-096`、入口は表 T-109 の `IC-2`、鍵は表 T-036 の `SK-12` が持つ"
+     }
+    },
+    {
+     "id": "U-55",
+     "name": "`Confirmation`",
+     "japanese": {
+      "ja": "続けてよいかを問う面。<br>問い方は表 T-037 の `NT-7`、2 択の入口の語は `FR-038` の辞書の `confirmation` が持つ。<br>⛔ **語のボタンであり、図形の入口ではない**—— **本表 T-109 にも 図 F-019 にも行を持たない。<br>**⚠️ **通知（`Notice`）ではない** —— 通知は答えを求めない"
+     }
+    },
+    {
+     "id": "U-56",
+     "name": "`Open Chooser`",
+     "japanese": {
+      "ja": "読んだ内容の扱い方を選ぶ面。<br>選ばせる規則は 表 T-024a の `OP-3`、3 つの入口は表 T-109 の `IC-71` 〜 `IC-73` が持つ。<br>面の中身と並びは 表 T-024a の `OP-16` が持つ。<br>⚠️ **`Confirmation` ではない** —— あちらは 2 択であり、表 T-037 の `NT-7` がそう定めている。<br>⭐ **`Export Chooser`（`U-54`）の対である**"
+     }
+    },
+    {
+     "id": "U-58",
+     "name": "`{label:openedFileName}`",
+     "japanese": {
+      "ja": "{ja:openedFileName}。<br>⚠️ **`Document Title`（`U-27`）とは別物である** —— あちらは文書が持つ値であり、本行はファイルの名前である。<br>規則は `FR-101`"
+     }
+    },
+    {
+     "id": "U-59",
+     "name": "`{label:fileSavedAtDisplay}`",
+     "japanese": {
+      "ja": "{ja:fileSavedAtDisplay}。<br>開いているファイルへ最後に書いた時刻と、そのとき書いた中身の大きさ（`App Header` のファイルの状態の下段）。<br>規則は `FR-101`"
+     }
+    },
+    {
+     "id": "U-60",
+     "name": "`Watermark Unlock`",
+     "japanese": {
+      "ja": "**透かし解除の面**。<br>透かしを非表示にする前に透かし解除パスワードを問う面。<br>立てる規則は `FR-020`、問いの文は表 T-234 の `QN-9`、合わなかったときの理由は表 T-233 の `RS-41` が持つ。<br>⛔ **`Confirmation`（`U-55`）ではない** —— **答えが 2 択ではなく、打ち込む文字である。<br>**⚠️ **入口は表 T-109 の `IC-41`**。<br>⭐ `_assets/tbl-settings.md` の `S-99g` の「面」であり、`Esc` の段（表 T-028 の `IN-4`）の「開いている面」で閉じる"
+     }
+    },
+    {
+     "id": "U-61",
+     "name": "`Difference Review`",
+     "japanese": {
+      "ja": "差分の確認。<br>合流で対応するかもしれないタスクを並べ、重複しているものをどちらのファイルから取るかを選ばせる面。<br>立てる規則は `FR-022`、合流の規則は表 T-032 が持つ。<br>⭐ **この面は開く道（表 T-024a の `OP-3`）から立つ** —— 独立したアイコンの入口は持たない（`FR-022`）。<br>⚠️ 面の上の入口は表 T-109 の `IC-95` 〜 `IC-97` であり、表 T-032a の `MM-1`・`MM-2`・`MM-4` に当たる —— `MM-3`（1 件ずつ決める）は置かない —— 択を増やして面を複雑にしない。<br>⛔ 合流（`FR-022`）で立つときは `Confirmation`（`U-55`）ではない —— 答えが 2 択ではない（上の 3 つの入口である）。<br>⭐ **読めなかった列を問うとき（`FR-073`）は 2 択（続ける／やめる）である**—— **面と作法は差分の確認に従うが、択の数だけが用途で変わる。<br>**⭐ **同じ面を、版が新しい文書を開くときにも使う**（`FR-073`）<br>⭐ 「別のものとして取り込む」の入口（`IC-96`）がある間は、表 T-032 の `MG-10` の注記を常に示す（語は `FR-038` の辞書の `differenceReview`） —— 通知ではないので `OK` を持たない"
+     }
+    },
+    {
+     "id": "U-62",
+     "name": "`Import Report`",
+     "japanese": {
+      "ja": "1 回の読込（開く・開き直す・合流させる・重ねる・起動時に渡された文書を読む）の結果を、理由ごとに並べて告げる面。<br>立てる規則は `FR-076`（表 T-233 の表示の仕方が「`U-62` に並べる」の行）・`FR-023`・表 T-032 の `MG-14`、閉じる入口の語は表 T-037 の `NT-8` が持つ。<br>⭐ 件数を持つ理由（`RS-14`・`RS-16`・`RS-51`・`RS-52`・`RS-60`・`RS-71`・`RS-72`）は、その理由の語と件数と次の一手を 1 行に並べる。<br>件数は、理由（表 T-233 の行）と件数の組の列として運ぶ（表 T-290 の `reportedCounts`）。<br>名前を持つ理由（`RS-50`・`RS-73`）は、その理由の語の下に名前を並べる。<br>並びは 表 T-233 の刷り順とする。<br>⭐ 読込が着地したときに 1 度だけ立てる —— 途中で上がった理由は着地まで運び、着地しなかった読込（取りやめ・拒否）の理由は捨てる。<br>⛔ 件数が 0 の理由を並べてはならない（MUST NOT、`MG-14`）。<br>⛔ **`Confirmation`（`U-55`）ではない** —— 答えを求めない。<br>入口は `OK` の 1 つだけである。<br>⛔ **`Notification Area`（`U-57`）でもない** —— 表 T-037 の `NT-9` が通知を 1 行に限っており、理由ごとの行と名前の列挙が入らない。<br>⚠️ **名前は文書の値であるので訳さない**（`FR-023`）"
+     }
+    },
+    {
+     "id": "U-57",
+     "name": "`{label:notificationArea}`",
+     "japanese": {
+      "ja": "通知が立つ場所。<br>作法は表 T-037 が、運ぶ理由は表 T-233 が持つ。<br>⚠️ **`Confirmation` ではない** —— 通知は答えを求めない。<br>⛔ **`S-99g` が持つ「面」ではない** —— **重ねて開くものではない。<br>**⚠️ **`Esc` では 表 T-028 の `IN-4` の第 1 階層が本行を消す**（表 T-037 の `NT-8`）—— **面より先であって、面として閉じるのではない** —— 重ねて開くものではなく、`NT-4` が起動時の用件を 1 枚に集約させるのもここである。<br>⚠️ **値の型は `Notice` のままである** —— 本行が名づけるのは場所であって、立つものではない"
+     }
+    },
+    {
+     "id": "U-63",
+     "name": "`{label:deadlineMark}`",
+     "japanese": {
+      "ja": "期限の印。<br>`Task` の `deadline` を日程表の上に示す印。<br>描き方は `01-04-requirements.md` の `FR-045` の 表 T-304 が持つ。<br>⚠️ 「マーカー」と呼ばない（表 T-006b の `A-5`）"
+     }
+    },
+    {
+     "id": "U-64",
+     "name": "`Search Panel`",
+     "japanese": {
+      "ja": "検索パネル。<br>語で探したタスクとコメントボックスを表に並べ、押すとそこへ飛ぶ、浮く UI パーツ。<br>規則は `01-04-requirements.md` の `FR-151`。<br>⚠️ `tbl-settings.md` の `S-99g` の面ではない"
+     }
+    },
+    {
+     "id": "U-65",
+     "name": "`Holiday Settings`",
+     "japanese": {
+      "ja": "休日の設定。<br>文書の暦（稼働する曜日・例外日）と週の始まりを直す面。<br>立てる規則は `01-04-requirements.md` の `FR-088`、欄と入口は同書の 表 T-344"
+     }
+    },
+    {
+     "id": "U-66",
+     "name": "`Delay Diagnostics Report`",
+     "japanese": {
+      "ja": "遅延診断レポート。<br>遅延診断のまとめとタスクの表を出す浮く窓 —— 行を押せばその `Task` へ飛ぶ。<br>立てる規則と窓の形は `01-04-requirements.md` の `FR-134` と同書の 表 T-346 ・ 表 T-347 が持つ。<br>⚠️ 検索パネル（`U-64`）と同じく、`S-99g` が数える面には入らない"
+     }
+    },
+    {
+     "id": "U-67",
+     "name": "`{label:scheduleFilterBar}`",
+     "japanese": {
+      "ja": "スケジュールフィルタの帯。<br>3 つの表（検索パネル・遅延診断レポート・担当リスト）のどれかのスケジュールフィルタを掛けて日程表に描くタスクを絞っているあいだ、そのことと、掛けている表の名と、件数を告げ、すべての表のスケジュールフィルタを解除する語の入口を持つ帯 —— 語の入口であってアイコンではないので、表 T-109 に行を持たない（`NT-8` の `OK` と同じ）。<br>置き方と語は `01-04-requirements.md` の 表 T-353 の `TV-11` が持つ。<br>⚠️ `Esc` で閉じる面（`tbl-settings.md` の `S-99g`）に数えない —— 帯が消えるのは、すべての表のスケジュールフィルタが解除されたときだけである（`TV-8`）"
+     }
+    },
+    {
+     "id": "U-68",
+     "name": "`{label:dropCue}`",
+     "japanese": {
+      "ja": "ドロップの案内。<br>ファイルを持つドラッグがウィンドウの上に在るあいだ、`Schedule Canvas`（`U-32`）を薄く塗って囲み、ドロップすれば開くことを告げる面。<br>出す規則・形・消す時は `01-04-requirements.md` の 表 T-024a の `OP-17` が持つ。<br>押せるものを持たない"
+     }
+    }
+   ]
+  },
+  {
+   "kind": "prose",
+   "lines": [
+    "",
+    {
+     "ja": "> 呼び名は `Agent API` とする。  "
+    },
+    {
+     "ja": "> 日本語でも `Agent API` と書く。"
+    },
+    {
+     "ja": "> **「機械向けの口」「口」と呼んではならない（MUST NOT）。**"
+    },
+    ">",
+    {
+     "ja": "> **`AI API` を採らない理由**: 英語では「**AI を提供する API**」と読まれる（OpenAI API などと同型）。  "
+    },
+    {
+     "ja": "> これは AI が叩く側の API なので向きが逆であり、Chapter 2.4（表 T-009 の `XO-4`）「本ソフトウェアは AI 推論の実行系を持たない」と矛盾する。  "
+    },
+    {
+     "ja": "> `agent` は叩く側を名指しする語なので誤読が起きない。  "
+    },
+    {
+     "ja": "> **同じ理由で再提案しないこと。**"
+    },
+    ">",
+    {
+     "ja": "> **公開する識別子は `grSchedulerAgentApi` とする。**"
+    },
+    {
+     "ja": "> `globalThis` に載る名前なので、**他のツールが公開する同種の API と衝突しないよう製品名の接頭辞を残す。**"
+    },
+    {
+     "ja": "> 概念とインターフェースの呼び名が `Agent API`、実際に公開する識別子が `grSchedulerAgentApi` であり、"
+    },
+    {
+     "ja": "> **面が違うだけで食い違いではない**（記法は表 T-006a）。"
+    },
+    "",
+    {
+     "ja": "## 4. 設定値のキー"
+    },
+    "",
+    "**Type**: SECTION",
+    "",
+    {
+     "ja": "`documentSettings` が持つ設定値の**名前**の正はここである。  "
+    },
+    {
+     "ja": "成果物に埋め込む定数（`tbl-settings.md` で見出しに「文書には保存しない」とある表の鍵）の名前の正もここである。  "
+    },
+    {
+     "ja": "値（既定値・下限・上限・範囲の理由）は `tbl-settings.md`（`DOC-TBL-SETTINGS`）が持つ。  "
+    },
+    {
+     "ja": "⛔ を付けたものは文書に保存しない（読む人の環境である）。  "
+    },
+    {
+     "ja": "成果物に埋め込む定数も文書に保存しない —— ⛔ は付けず、`tbl-settings.md` の表の見出しが示す。  "
+    },
+    {
+     "ja": "名前としては本書に載せる。"
+    },
+    "",
+    {
+     "ja": "⛔ 本表と `tbl-settings.md` の役割の境目はこうである（MUST） —— `tbl-settings.md` の表に在る行のうち、`documentSettings` の鍵と、成果物に埋め込む定数（`05-07-design.md` の 表 T-064 の `PI-2` の `SETTINGS_CONSTANTS`）の鍵であるものは、すべて本表に行を持つこと。  "
+    },
+    {
+     "ja": "⛔ **鍵でないものを本表に載せてはならない（MUST NOT）。**  "
+    },
+    {
+     "ja": "⚠️ **「`src/` が英語の名前で引くもの」では広すぎる** —— **それは文書の列にも当てはまる。**  "
+    },
+    {
+     "ja": "⭐ **実例**: `cornerRadiusPx` は `_assets/tbl-settings.md` の 表 T-217 に既定値を持つが、`documentSettings` の鍵ではなく `HighlightBox` の列である（`AT-122`）。  "
+    },
+    {
+     "ja": "⛔ **列の名前の正は本表ではない。**  "
+    },
+    {
+     "ja": "⛔ **英語の名前を持たず、行 ID で引く行**（表 T-207 の `S-100` / `S-101` と、表 T-236 の色がこれである）**を本表に載せてはならない（MUST NOT）。**  "
+    },
+    {
+     "ja": "⭐ 値そのもの（既定値・下限・上限とその理由）を本表に書いてはならない（MUST NOT） —— **名前の正だけが本表に在り、値の正はあちらに在る。**  "
+    },
+    {
+     "ja": "⚠️ **1 つの行が名前を 2 つ以上まとめて名乗ってよい**（`K-103` は 2 つ、`K-105` は 3 つ）—— **画面に刷る語は行ごとに 1 つだからである**（`FR-038`）。"
+    },
+    ""
+   ]
+  },
+  {
+   "kind": "table",
+   "id": "T-104",
+   "caption": {
+    "ja": "設定値のキー"
+   },
+   "columns": [
+    {
+     "field": "id",
+     "ja": "行 ID"
+    },
+    {
+     "field": "group",
+     "ja": "群"
+    },
+    {
+     "field": "name",
+     "ja": "確定名（英）"
+    },
+    {
+     "field": "japanese",
+     "ja": "日本語"
+    }
+   ],
+   "separator": "| --- | --- | --- | --- |",
+   "blank_before_header": "",
+   "rows": [
+    {
+     "id": "K-1",
+     "group": {
+      "ja": "タイムルーラー"
+     },
+     "name": "`{written:pxPerDayAt1x}`",
+     "japanese": {
+      "ja": "1 日の幅（`zoomX` = 1）"
+     }
+    },
+    {
+     "id": "K-2",
+     "group": {
+      "ja": "タイムルーラー"
+     },
+     "name": "`{written:rulerHeightPx}`",
+     "japanese": {
+      "ja": "{ja:rulerHeightPx}"
+     }
+    },
+    {
+     "id": "K-3",
+     "group": {
+      "ja": "タイムルーラー"
+     },
+     "name": "`{written:rulerFontSizePx}`",
+     "japanese": {
+      "ja": "{ja:rulerFontSizePx}"
+     }
+    },
+    {
+     "id": "K-112",
+     "group": {
+      "ja": "タイムルーラー"
+     },
+     "name": "`{written:rulerLabelGap}`",
+     "japanese": {
+      "ja": "目盛ラベルどうしの隙間（横）"
+     }
+    },
+    {
+     "id": "K-113",
+     "group": {
+      "ja": "タイムルーラー"
+     },
+     "name": "`{written:rulerLabelPad}`",
+     "japanese": {
+      "ja": "罫線と目盛ラベルの余白（縦）"
+     }
+    },
+    {
+     "id": "K-114",
+     "group": {
+      "ja": "タイムルーラー"
+     },
+     "name": "`{written:rulerLabelBottomPad}`",
+     "japanese": {
+      "ja": "目盛ラベルの下側の余白（縦）"
+     }
+    },
+    {
+     "id": "K-4",
+     "group": {
+      "ja": "縦の寸法"
+     },
+     "name": "`{written:basePlanHeight}`",
+     "japanese": {
+      "ja": "予定の縦幅（`zoomY` = 1）"
+     }
+    },
+    {
+     "id": "K-5",
+     "group": {
+      "ja": "縦の寸法"
+     },
+     "name": "`{written:actualOfPlan}`",
+     "japanese": {
+      "ja": "実績 ÷ 予定"
+     }
+    },
+    {
+     "id": "K-6",
+     "group": {
+      "ja": "縦の寸法"
+     },
+     "name": "`{written:actualMin}`",
+     "japanese": {
+      "ja": "実績の縦幅の下限"
+     }
+    },
+    {
+     "id": "K-7",
+     "group": {
+      "ja": "縦の寸法"
+     },
+     "name": "`{written:fontOfActual}`",
+     "japanese": {
+      "ja": "フォント ÷ 実績"
+     }
+    },
+    {
+     "id": "K-8",
+     "group": {
+      "ja": "縦の寸法"
+     },
+     "name": "`{written:fontMin}`",
+     "japanese": {
+      "ja": "最小フォント"
+     }
+    },
+    {
+     "id": "K-9",
+     "group": {
+      "ja": "縦の寸法"
+     },
+     "name": "`{written:thinFontScale}`",
+     "japanese": {
+      "ja": "細線のフォント倍率"
+     }
+    },
+    {
+     "id": "K-10",
+     "group": {
+      "ja": "縦の寸法"
+     },
+     "name": "`{written:actualGap}`",
+     "japanese": {
+      "ja": "予定から実績までの間隔（下に置くとき）"
+     }
+    },
+    {
+     "id": "K-11",
+     "group": {
+      "ja": "縦の寸法"
+     },
+     "name": "`{written:stackGap}`",
+     "japanese": {
+      "ja": "積み順の段の間隔"
+     }
+    },
+    {
+     "id": "K-12",
+     "group": {
+      "ja": "縦の寸法"
+     },
+     "name": "`{written:taskGroupGap}`",
+     "japanese": {
+      "ja": "タスクグループの間隔"
+     }
+    },
+    {
+     "id": "K-13",
+     "group": {
+      "ja": "形状の縦幅"
+     },
+     "name": "`{owned:shapeHeightOfRectangle}`",
+     "japanese": {
+      "ja": "矩形"
+     }
+    },
+    {
+     "id": "K-14",
+     "group": {
+      "ja": "形状の縦幅"
+     },
+     "name": "`{owned:shapeHeightOfChevron}`",
+     "japanese": {
+      "ja": "矢羽根"
+     }
+    },
+    {
+     "id": "K-15",
+     "group": {
+      "ja": "形状の縦幅"
+     },
+     "name": "`{owned:shapeHeightOfArrow}`",
+     "japanese": {
+      "ja": "矢印"
+     }
+    },
+    {
+     "id": "K-16",
+     "group": {
+      "ja": "形状の縦幅"
+     },
+     "name": "`{owned:shapeHeightOfEndpointSpan}`",
+     "japanese": {
+      "ja": "端点スパン"
+     }
+    },
+    {
+     "id": "K-17",
+     "group": {
+      "ja": "形状の縦幅"
+     },
+     "name": "`{owned:shapeHeightOfMilestone}`",
+     "japanese": {
+      "ja": "マイルストーン"
+     }
+    },
+    {
+     "id": "K-18",
+     "group": {
+      "ja": "依存線"
+     },
+     "name": "`{written:dependencyWidth}`",
+     "japanese": {
+      "ja": "依存線の太さ"
+     }
+    },
+    {
+     "id": "K-19",
+     "group": {
+      "ja": "依存線"
+     },
+     "name": "`{written:dependencyArrowLength}`",
+     "japanese": {
+      "ja": "矢印の三角形の長さ"
+     }
+    },
+    {
+     "id": "K-126",
+     "group": {
+      "ja": "依存線"
+     },
+     "name": "`{written:dependencyLeadOut}`",
+     "japanese": {
+      "ja": "出口の走り"
+     }
+    },
+    {
+     "id": "K-127",
+     "group": {
+      "ja": "依存線"
+     },
+     "name": "`{written:dependencyLeadIn}`",
+     "japanese": {
+      "ja": "入口の走り"
+     }
+    },
+    {
+     "id": "K-128",
+     "group": {
+      "ja": "依存線"
+     },
+     "name": "`{written:dependencyArrowWidth}`",
+     "japanese": {
+      "ja": "矢印の三角形の底辺"
+     }
+    },
+    {
+     "id": "K-22",
+     "group": {
+      "ja": "進捗マーカー"
+     },
+     "name": "`{written:markerSize}`",
+     "japanese": {
+      "ja": "マーカー径"
+     }
+    },
+    {
+     "id": "K-24",
+     "group": {
+      "ja": "進捗マーカー"
+     },
+     "name": "`{written:markerStroke}`",
+     "japanese": {
+      "ja": "円の線の太さ"
+     }
+    },
+    {
+     "id": "K-25",
+     "group": {
+      "ja": "進捗マーカー"
+     },
+     "name": "`{written:resumeScaleInvalid}`",
+     "japanese": {
+      "ja": "再開日未定のときの縮小率"
+     }
+    },
+    {
+     "id": "K-26",
+     "group": {
+      "ja": "進捗マーカー"
+     },
+     "name": "`{written:resumeArmOfMarker}`",
+     "japanese": {
+      "ja": "再開アイコンの腕の長さ ÷ マーカー"
+     }
+    },
+    {
+     "id": "K-27",
+     "group": {
+      "ja": "進捗マーカー"
+     },
+     "name": "`{written:resumeHeadOfMarker}`",
+     "japanese": {
+      "ja": "再開アイコンの矢じり ÷ マーカー"
+     }
+    },
+    {
+     "id": "K-28",
+     "group": {
+      "ja": "進捗マーカー"
+     },
+     "name": "`{written:resumeDashOn}`",
+     "japanese": {
+      "ja": "再開アイコンへ繋ぐ破線の実部"
+     }
+    },
+    {
+     "id": "K-29",
+     "group": {
+      "ja": "進捗マーカー"
+     },
+     "name": "`{written:resumeDashOff}`",
+     "japanese": {
+      "ja": "再開アイコンへ繋ぐ破線の空部"
+     }
+    },
+    {
+     "id": "K-129",
+     "group": {
+      "ja": "進捗マーカー"
+     },
+     "name": "`{written:resumeOpacityInvalid}`",
+     "japanese": {
+      "ja": "再開日未定のときの濃さ"
+     }
+    },
+    {
+     "id": "K-130",
+     "group": {
+      "ja": "進捗マーカー"
+     },
+     "name": "`{written:resumeDashWidth}`",
+     "japanese": {
+      "ja": "再開アイコンへ繋ぐ破線の太さ"
+     }
+    },
+    {
+     "id": "K-30",
+     "group": {
+      "ja": "ラベル"
+     },
+     "name": "`{written:labelCoef}`",
+     "japanese": {
+      "ja": "幅の概算係数"
+     }
+    },
+    {
+     "id": "K-31",
+     "group": {
+      "ja": "ラベル"
+     },
+     "name": "`{written:labelPad}`",
+     "japanese": {
+      "ja": "タスク名を開始から離す隙間"
+     }
+    },
+    {
+     "id": "K-32",
+     "group": {
+      "ja": "ラベル"
+     },
+     "name": "`{written:labelGap}`",
+     "japanese": {
+      "ja": "タスク名をマーカーから離す隙間"
+     }
+    },
+    {
+     "id": "K-131",
+     "group": {
+      "ja": "ラベル"
+     },
+     "name": "`{written:milestoneNameMarkerGap}`",
+     "japanese": {
+      "ja": "マイルストーン名をマーカーから離す隙間"
+     }
+    },
+    {
+     "id": "K-132",
+     "group": {
+      "ja": "ラベル"
+     },
+     "name": "`{written:assigneeLabelGap}`",
+     "japanese": {
+      "ja": "担当と進捗の札を開始から離す隙間"
+     }
+    },
+    {
+     "id": "K-147",
+     "group": {
+      "ja": "ラベル"
+     },
+     "name": "`{written:progressMarkerEdgeGap}`",
+     "japanese": {
+      "ja": "進捗マーカーを棒の端から離す隙間"
+     }
+    },
+    {
+     "id": "K-133",
+     "group": {
+      "ja": "ラベル"
+     },
+     "name": "`{written:milestoneNameStartOfWidth}`",
+     "japanese": {
+      "ja": "マイルストーン名の書き出し ÷ 菱形の幅"
+     }
+    },
+    {
+     "id": "K-33",
+     "group": {
+      "ja": "ラベル"
+     },
+     "name": "`{written:labelBaseline}`",
+     "japanese": {
+      "ja": "ベースライン補正"
+     }
+    },
+    {
+     "id": "K-34",
+     "group": {
+      "ja": "ラベル"
+     },
+     "name": "`{written:labelHaloOfFont}`",
+     "japanese": {
+      "ja": "縁取りの太さ ÷ フォント"
+     }
+    },
+    {
+     "id": "K-35",
+     "group": {
+      "ja": "ラベル"
+     },
+     "name": "`{written:truncateUnits}`",
+     "japanese": {
+      "ja": "打ち切り幅（半角換算）"
+     }
+    },
+    {
+     "id": "K-36",
+     "group": {
+      "ja": "ラベル"
+     },
+     "name": "`{written:taskGroupTitleFont}`",
+     "japanese": {
+      "ja": "タスクグループ名の文字"
+     }
+    },
+    {
+     "id": "K-37",
+     "group": {
+      "ja": "ラベル"
+     },
+     "name": "`{written:taskGroupTitleIndent}`",
+     "japanese": {
+      "ja": "タスクグループ名の `TaskGroup` の深さ 1 段ぶんのインデント"
+     }
+    },
+    {
+     "id": "K-38",
+     "group": {
+      "ja": "ラベル"
+     },
+     "name": "`{written:taskGroupTitleTopScale}`",
+     "japanese": {
+      "ja": "`TaskGroup` 深さ 1 のタスクグループ名の倍率"
+     }
+    },
+    {
+     "id": "K-39",
+     "group": {
+      "ja": "形状の細部"
+     },
+     "name": "`{written:planStroke}`",
+     "japanese": {
+      "ja": "予定の輪郭線"
+     }
+    },
+    {
+     "id": "K-43",
+     "group": {
+      "ja": "形状の細部"
+     },
+     "name": "`{written:chevronNotchOfHeight}`",
+     "japanese": {
+      "ja": "矢羽根の切り欠き ÷ 高さ"
+     }
+    },
+    {
+     "id": "K-44",
+     "group": {
+      "ja": "形状の細部"
+     },
+     "name": "`{written:chevronNotchOfWidth}`",
+     "japanese": {
+      "ja": "矢羽根の切り欠き ÷ 幅"
+     }
+    },
+    {
+     "id": "K-46",
+     "group": {
+      "ja": "形状の細部"
+     },
+     "name": "`{written:arrowHeadOfSpan}`",
+     "japanese": {
+      "ja": "矢印の矢じり ÷ 全長（上限）"
+     }
+    },
+    {
+     "id": "K-134",
+     "group": {
+      "ja": "形状の細部"
+     },
+     "name": "`{written:thinStrokeWidth}`",
+     "japanese": {
+      "ja": "細線の太さ"
+     }
+    },
+    {
+     "id": "K-135",
+     "group": {
+      "ja": "形状の細部"
+     },
+     "name": "`{written:thinArrowHeadLength}`",
+     "japanese": {
+      "ja": "細線の矢じりの横幅"
+     }
+    },
+    {
+     "id": "K-136",
+     "group": {
+      "ja": "形状の細部"
+     },
+     "name": "`{written:thinArrowHeadHeight}`",
+     "japanese": {
+      "ja": "細線の矢じりの縦幅"
+     }
+    },
+    {
+     "id": "K-137",
+     "group": {
+      "ja": "形状の細部"
+     },
+     "name": "`{written:spanDotSize}`",
+     "japanese": {
+      "ja": "端点スパンの点の径"
+     }
+    },
+    {
+     "id": "K-48",
+     "group": {
+      "ja": "形状の細部"
+     },
+     "name": "`{written:starInnerOfOuter}`",
+     "japanese": {
+      "ja": "☆ の内接半径 ÷ 外接半径"
+     }
+    },
+    {
+     "id": "K-49",
+     "group": {
+      "ja": "形状の細部"
+     },
+     "name": "`{written:minShapeWidth}`",
+     "japanese": {
+      "ja": "ゼロ期間でも残す最小幅"
+     }
+    },
+    {
+     "id": "K-50",
+     "group": {
+      "ja": "イナズマ線"
+     },
+     "name": "`{written:progressLineWidth}`",
+     "japanese": {
+      "ja": "イナズマ線の太さ"
+     }
+    },
+    {
+     "id": "K-51",
+     "group": {
+      "ja": "イナズマ線"
+     },
+     "name": "`{written:progressLineOverhang}`",
+     "japanese": {
+      "ja": "上下へのはみ出し"
+     }
+    },
+    {
+     "id": "K-52",
+     "group": {
+      "ja": "LOD"
+     },
+     "name": "`{written:rulerTierPxPerDayMonth}`",
+     "japanese": {
+      "ja": "目盛が「年」から「年 ＋ 月」に変わる px/day"
+     }
+    },
+    {
+     "id": "K-53",
+     "group": {
+      "ja": "LOD"
+     },
+     "name": "`{written:rulerTierPxPerDayWeek}`",
+     "japanese": {
+      "ja": "目盛が「年 ＋ 月」から「年 ＋ 月 ＋ 週」に変わる px/day"
+     }
+    },
+    {
+     "id": "K-54",
+     "group": {
+      "ja": "LOD"
+     },
+     "name": "`{written:rulerTierPxPerDayDay}`",
+     "japanese": {
+      "ja": "目盛が「年 ＋ 月 ＋ 週」から「年 ＋ 月 ＋ 日 ＋ 曜日」に変わる px/day"
+     }
+    },
+    {
+     "id": "K-56",
+     "group": {
+      "ja": "LOD"
+     },
+     "name": "`{written:groupLevelOfDetailBase}`",
+     "japanese": {
+      "ja": "グループ LOD の初項"
+     }
+    },
+    {
+     "id": "K-57",
+     "group": {
+      "ja": "LOD"
+     },
+     "name": "`{written:groupLevelOfDetailRatio}`",
+     "japanese": {
+      "ja": "グループ LOD の公比"
+     }
+    },
+    {
+     "id": "K-58",
+     "group": {
+      "ja": "LOD"
+     },
+     "name": "`{written:stackSafetyCap}`",
+     "japanese": {
+      "ja": "積み順の安全弁"
+     }
+    },
+    {
+     "id": "K-59",
+     "group": {
+      "ja": "テーマ"
+     },
+     "name": "`{written:themePreference}` ⛔",
+     "japanese": {
+      "ja": "明暗テーマ（**ダークモード**はこの値の `'dark'` を指す通称）"
+     }
+    },
+    {
+     "id": "K-60",
+     "group": {
+      "ja": "テーマ"
+     },
+     "name": "`{written:themeHue}`",
+     "japanese": {
+      "ja": "{ja:themeHue}"
+     }
+    },
+    {
+     "id": "K-61",
+     "group": {
+      "ja": "テーマ"
+     },
+     "name": "`{key:isThemeMonochrome}`",
+     "japanese": {
+      "ja": "{ja:isThemeMonochrome}"
+     }
+    },
+    {
+     "id": "K-62",
+     "group": {
+      "ja": "ズーム"
+     },
+     "name": "`{written:zoomStep}` ⛔",
+     "japanese": {
+      "ja": "1 ノッチの倍率"
+     }
+    },
+    {
+     "id": "K-63",
+     "group": {
+      "ja": "ズーム"
+     },
+     "name": "`{written:zoomMin}` ⛔",
+     "japanese": {
+      "ja": "下限"
+     }
+    },
+    {
+     "id": "K-64",
+     "group": {
+      "ja": "ズーム"
+     },
+     "name": "`{written:zoomMax}` ⛔",
+     "japanese": {
+      "ja": "上限"
+     }
+    },
+    {
+     "id": "K-65",
+     "group": {
+      "ja": "ズーム"
+     },
+     "name": "`{written:canvasPadding}`",
+     "japanese": {
+      "ja": "キャンバスの余白"
+     }
+    },
+    {
+     "id": "K-67",
+     "group": {
+      "ja": "画面の状態"
+     },
+     "name": "`zoomX`",
+     "japanese": {
+      "ja": "{ja:dayWidthPx}"
+     }
+    },
+    {
+     "id": "K-68",
+     "group": {
+      "ja": "画面の状態"
+     },
+     "name": "`zoomY`",
+     "japanese": {
+      "ja": "{ja:ratio}"
+     }
+    },
+    {
+     "id": "K-69",
+     "group": {
+      "ja": "画面の状態"
+     },
+     "name": "`scrollDate`",
+     "japanese": {
+      "ja": "{ja:leftEdgeDay}"
+     }
+    },
+    {
+     "id": "K-70",
+     "group": {
+      "ja": "画面の状態"
+     },
+     "name": "`scrollTaskGroupId`",
+     "japanese": {
+      "ja": "{ja:topEdgeTaskGroupId}"
+     }
+    },
+    {
+     "id": "K-71",
+     "group": {
+      "ja": "画面の状態"
+     },
+     "name": "`{written:taskGroupPanelWidthPx}`",
+     "japanese": {
+      "ja": "{ja:taskGroupPanelWidthPx}"
+     }
+    },
+    {
+     "id": "K-143",
+     "group": {
+      "ja": "画面の状態"
+     },
+     "name": "`{written:isTaskGroupPanelWidthFixed}`",
+     "japanese": {
+      "ja": "{ja:isTaskGroupPanelWidthFixed}"
+     }
+    },
+    {
+     "id": "K-72",
+     "group": {
+      "ja": "画面の状態"
+     },
+     "name": "`{written:propertyPanelWidth}` ⛔",
+     "japanese": {
+      "ja": "`Properties Panel` の幅"
+     }
+    },
+    {
+     "id": "K-110",
+     "group": {
+      "ja": "画面の状態"
+     },
+     "name": "`{written:pinnedTaskGroupIds}`",
+     "japanese": {
+      "ja": "{ja:pinnedTaskGroupIds}"
+     }
+    },
+    {
+     "id": "K-111",
+     "group": {
+      "ja": "画面の状態"
+     },
+     "name": "`{written:pinnedTaskGroupMax}`",
+     "japanese": {
+      "ja": "ピン止めの件数の上限"
+     }
+    },
+    {
+     "id": "K-73",
+     "group": {
+      "ja": "表示の切り替え"
+     },
+     "name": "`{written:taskPlacementDirection}`",
+     "japanese": {
+      "ja": "{ja:taskPlacementDirection}"
+     }
+    },
+    {
+     "id": "K-122",
+     "group": {
+      "ja": "表示の切り替え"
+     },
+     "name": "`isPlanVisible`",
+     "japanese": {
+      "ja": "{ja:isPlanBarVisible}"
+     }
+    },
+    {
+     "id": "K-123",
+     "group": {
+      "ja": "表示の切り替え"
+     },
+     "name": "`isActualVisible`",
+     "japanese": {
+      "ja": "{ja:isActualBarVisible}"
+     }
+    },
+    {
+     "id": "K-75",
+     "group": {
+      "ja": "表示の切り替え"
+     },
+     "name": "`isAssigneeVisible`",
+     "japanese": {
+      "ja": "{ja:isAssigneeLabelVisible}"
+     }
+    },
+    {
+     "id": "K-76",
+     "group": {
+      "ja": "表示の切り替え"
+     },
+     "name": "`isPercentCompleteVisible`",
+     "japanese": {
+      "ja": "{ja:isPercentCompleteLabelVisible}"
+     }
+    },
+    {
+     "id": "K-124",
+     "group": {
+      "ja": "表示の切り替え"
+     },
+     "name": "`{written:isPlanDatesVisible}`",
+     "japanese": {
+      "ja": "{ja:isPlanDatesVisible}"
+     }
+    },
+    {
+     "id": "K-77",
+     "group": {
+      "ja": "表示の切り替え"
+     },
+     "name": "`isDependencyVisible`",
+     "japanese": {
+      "ja": "{ja:isDependencyLineVisible}"
+     }
+    },
+    {
+     "id": "K-78",
+     "group": {
+      "ja": "表示の切り替え"
+     },
+     "name": "`isProgressMarkerVisible`",
+     "japanese": {
+      "ja": "{ja:isProgressStatusMarkVisible}"
+     }
+    },
+    {
+     "id": "K-79",
+     "group": {
+      "ja": "表示の切り替え"
+     },
+     "name": "`{written:isProgressLineVisible}`",
+     "japanese": {
+      "ja": "{ja:isProgressLineVisible}"
+     }
+    },
+    {
+     "id": "K-80",
+     "group": {
+      "ja": "表示の切り替え"
+     },
+     "name": "`{written:screenValuesDualCursor}` ⛔",
+     "japanese": {
+      "ja": "デュアルカーソル"
+     }
+    },
+    {
+     "id": "K-81",
+     "group": {
+      "ja": "表示の切り替え"
+     },
+     "name": "`{written:guideCursorMode}` ⛔",
+     "japanese": {
+      "ja": "ガイドカーソル"
+     }
+    },
+    {
+     "id": "K-82",
+     "group": {
+      "ja": "表示の切り替え"
+     },
+     "name": "`{written:isDateGridLinesVisible}`",
+     "japanese": {
+      "ja": "{ja:isDateGridLinesVisible}"
+     }
+    },
+    {
+     "id": "K-83",
+     "group": {
+      "ja": "表示の切り替え"
+     },
+     "name": "`{written:isTaskGroupGridLinesVisible}`",
+     "japanese": {
+      "ja": "グループ罫線（`TaskGroup` 境界の横線）"
+     }
+    },
+    {
+     "id": "K-84",
+     "group": {
+      "ja": "表示の切り替え"
+     },
+     "name": "`isBaselineVisible`",
+     "japanese": {
+      "ja": "変更前の予定を重ねるか"
+     }
+    },
+    {
+     "id": "K-85",
+     "group": {
+      "ja": "表示の切り替え"
+     },
+     "name": "`{written:fontSizePreset}`",
+     "japanese": {
+      "ja": "{ja:fontSizePreset}"
+     }
+    },
+    {
+     "id": "K-125",
+     "group": {
+      "ja": "表示の切り替え"
+     },
+     "name": "`displayScale`",
+     "japanese": {
+      "ja": "{ja:displayScaleRatio}"
+     }
+    },
+    {
+     "id": "K-86",
+     "group": {
+      "ja": "表示の切り替え"
+     },
+     "name": "`importSequence`",
+     "japanese": {
+      "ja": "取り込みの連番"
+     }
+    },
+    {
+     "id": "K-87",
+     "group": {
+      "ja": "出力"
+     },
+     "name": "`{written:exportCanvas}`",
+     "japanese": {
+      "ja": "SVG / PNG の出力サイズ"
+     }
+    },
+    {
+     "id": "K-141",
+     "group": {
+      "ja": "表示の切り替え"
+     },
+     "name": "`fitSpanStart` / `fitSpanFinish`",
+     "japanese": {
+      "ja": "{ja:fitDayRange}（開始日 / 終了日）"
+     }
+    },
+    {
+     "id": "K-142",
+     "group": {
+      "ja": "画面の状態"
+     },
+     "name": "`isFitSpanFixed`",
+     "japanese": {
+      "ja": "{ja:fitDayRangeType}"
+     }
+    },
+    {
+     "id": "K-144",
+     "group": {
+      "ja": "表示の切り替え"
+     },
+     "name": "`{written:viewTimeZone}`",
+     "japanese": {
+      "ja": "{ja:viewTimeZone}"
+     }
+    },
+    {
+     "id": "K-145",
+     "group": {
+      "ja": "表示の切り替え"
+     },
+     "name": "`{written:additionalTimeZones}`",
+     "japanese": {
+      "ja": "{ja:additionalTimeZones}"
+     }
+    },
+    {
+     "id": "K-146",
+     "group": {
+      "ja": "表示の切り替え"
+     },
+     "name": "`{written:isTimeOfDayVisible}`",
+     "japanese": {
+      "ja": "{ja:isTimeOfDayVisible}"
+     }
+    },
+    {
+     "id": "K-91",
+     "group": {
+      "ja": "予実の補助線"
+     },
+     "name": "`{written:planActualGuideWeight}`",
+     "japanese": {
+      "ja": "補助線の太さ"
+     }
+    },
+    {
+     "id": "K-92",
+     "group": {
+      "ja": "予実の補助線"
+     },
+     "name": "`{written:planActualGuidePattern}`",
+     "japanese": {
+      "ja": "補助線の破線の刻み"
+     }
+    },
+    {
+     "id": "K-93",
+     "group": {
+      "ja": "予実の補助線"
+     },
+     "name": "`{written:planActualGuideColor}`",
+     "japanese": {
+      "ja": "補助線の色"
+     }
+    },
+    {
+     "id": "K-94",
+     "group": {
+      "ja": "フェード"
+     },
+     "name": "`{written:fadeHandleHalfPx}`",
+     "japanese": {
+      "ja": "フェード掴み点の半辺"
+     }
+    },
+    {
+     "id": "K-95",
+     "group": {
+      "ja": "フェード"
+     },
+     "name": "`{written:fadeHandleStrokePx}`",
+     "japanese": {
+      "ja": "フェード掴み点の枠線"
+     }
+    },
+    {
+     "id": "K-97",
+     "group": {
+      "ja": "保存と上限"
+     },
+     "name": "`{written:importMaxBytes}`",
+     "japanese": {
+      "ja": "取り込むファイルの上限"
+     }
+    },
+    {
+     "id": "K-98",
+     "group": {
+      "ja": "保存と上限"
+     },
+     "name": "`{written:importMaxItems}`",
+     "japanese": {
+      "ja": "取り込む `Task` の件数の上限"
+     }
+    },
+    {
+     "id": "K-99",
+     "group": {
+      "ja": "保存と上限"
+     },
+     "name": "`{written:importMaxDepth}`",
+     "japanese": {
+      "ja": "親タスクの入れ子の深さの上限"
+     }
+    },
+    {
+     "id": "K-100",
+     "group": {
+      "ja": "画面の寸法"
+     },
+     "name": "`{written:appHeaderMaxHeight}`",
+     "japanese": {
+      "ja": "`App Header` の高さの上限"
+     }
+    },
+    {
+     "id": "K-101",
+     "group": {
+      "ja": "透かし"
+     },
+     "name": "`{written:watermarkOpacity}`",
+     "japanese": {
+      "ja": "透かしの濃さ"
+     }
+    },
+    {
+     "id": "K-102",
+     "group": {
+      "ja": "構造の上限"
+     },
+     "name": "`{written:maxGroupDepth}`",
+     "japanese": {
+      "ja": "`TaskGroup` の深さの上限"
+     }
+    },
+    {
+     "id": "K-103",
+     "group": {
+      "ja": "保存と上限"
+     },
+     "name": "`{written:importMinDate}` / `{written:importMaxDate}`",
+     "japanese": {
+      "ja": "受け入れる日付の範囲"
+     }
+    },
+    {
+     "id": "K-104",
+     "group": {
+      "ja": "依存線"
+     },
+     "name": "`{written:dependencyLagDefault}`",
+     "japanese": {
+      "ja": "依存を作ったときに置くラグ"
+     }
+    },
+    {
+     "id": "K-105",
+     "group": {
+      "ja": "文字サイズ"
+     },
+     "name": "`{owned:fontSizeStepSizesS}` / `{owned:fontSizeStepSizesM}` / `{owned:fontSizeStepSizesL}`",
+     "japanese": {
+      "ja": "文字サイズの段（S / M / L）の px"
+     }
+    },
+    {
+     "id": "K-106",
+     "group": {
+      "ja": "画面の寸法"
+     },
+     "name": "`{written:iconHintDelayMs}`",
+     "japanese": {
+      "ja": "アイコンの説明を出すまでの待ち時間"
+     }
+    },
+    {
+     "id": "K-107",
+     "group": {
+      "ja": "予実"
+     },
+     "name": "`{written:actualInitialDuration}`",
+     "japanese": {
+      "ja": "掴んだときの実績期間"
+     }
+    },
+    {
+     "id": "K-108",
+     "group": {
+      "ja": "予実"
+     },
+     "name": "`{written:milestoneActualDuration}`",
+     "japanese": {
+      "ja": "マイルストーンの実績期間"
+     }
+    },
+    {
+     "id": "K-109",
+     "group": {
+      "ja": "予実"
+     },
+     "name": "`{written:dummyOpacity}`",
+     "japanese": {
+      "ja": "ダミーの濃さ"
+     }
+    },
+    {
+     "id": "K-115",
+     "group": {
+      "ja": "注記"
+     },
+     "name": "`{written:commentBoxPad}`",
+     "japanese": {
+      "ja": "コメントボックスの本文の箱の内側の余白"
+     }
+    },
+    {
+     "id": "K-116",
+     "group": {
+      "ja": "注記"
+     },
+     "name": "`{written:commentBoxWrapUnits}`",
+     "japanese": {
+      "ja": "コメントボックスの本文を折り返す単位数"
+     }
+    },
+    {
+     "id": "K-118",
+     "group": {
+      "ja": "保存と上限"
+     },
+     "name": "`{written:carryMaxDepth}`",
+     "japanese": {
+      "ja": "解釈しない要素の入れ子の深さの上限"
+     }
+    },
+    {
+     "id": "K-119",
+     "group": {
+      "ja": "出力"
+     },
+     "name": "`{written:exportCanvasHeightCap}`",
+     "japanese": {
+      "ja": "書き出す絵の高さの上限"
+     }
+    },
+    {
+     "id": "K-120",
+     "group": {
+      "ja": "画面の状態"
+     },
+     "name": "`scrollTaskGroupFraction`",
+     "japanese": {
+      "ja": "{ja:topEdgeTaskGroupOffsetPercent}"
+     }
+    },
+    {
+     "id": "K-121",
+     "group": {
+      "ja": "画面の状態"
+     },
+     "name": "`scrollDateFraction`",
+     "japanese": {
+      "ja": "{ja:leftEdgeDayOffsetPercent}"
+     }
+    },
+    {
+     "id": "K-138",
+     "group": {
+      "ja": "画面の状態"
+     },
+     "name": "`levelZeroTreeState`",
+     "japanese": {
+      "ja": "段 0 の木の状態"
+     }
+    },
+    {
+     "id": "K-140",
+     "group": {
+      "ja": "遅延診断"
+     },
+     "name": "`parentTaskProgressToleranceDays`",
+     "japanese": {
+      "ja": "{ja:parentTaskProgressToleranceWorkingDays}（稼働日）"
+     }
+    },
+    {
+     "id": "K-90",
+     "group": {
+      "ja": "保存しないもの（別枠）"
+     },
+     "name": "`{written:screenLanguage}` ⛔",
+     "japanese": {
+      "ja": "画面の言語（`ja` / `en`）。<br>置き場と規則は表 T-206 の `S-99`"
+     }
+    },
+    {
+     "id": "K-139",
+     "group": {
+      "ja": "保存しないもの"
+     },
+     "name": "`{written:helpLanguage}` ⛔",
+     "japanese": {
+      "ja": "ヘルプの言語（`ja` / `en`）。<br>置き場と規則は表 T-206 の `S-434`"
+     }
+    }
+   ]
+  },
+  {
+   "kind": "prose",
+   "lines": [
+    "",
+    {
+     "ja": "**キーに関する規約:**"
+    },
+    "",
+    {
+     "ja": "- **`palette` を設定値の名前に使わないこと（MUST NOT）。**  "
+    },
+    {
+     "ja": "  `Command Palette` / `Palette Groups` / `Palette Commands` が既にあり、同じ語が別のものを指すことになる。"
+    },
+    {
+     "ja": "- スクロール位置の名前は `scrollDate` と `scrollTaskGroupId` とし、`scrollX` / `scrollY` にしない。  "
+    },
+    {
+     "ja": "  px で持たない規則と理由は `FR-080` が持つ。"
+    },
+    {
+     "ja": "- **時間軸のしきい値は 1 つの配列にせず、境目ごとに別のキーとして名づける。**  "
+    },
+    {
+     "ja": "  キーは表 T-205 の `S-83` 〜 `S-85`。  "
+    },
+    {
+     "ja": "  まとめない規則と理由は `FR-017` が持つ。"
+    },
+    {
+     "ja": "- 基準日の名前は `Project.statusDate`。  "
+    },
+    {
+     "ja": "  設定値ではないという規則と理由は `FR-046` が持つ。"
+    },
+    "",
+    {
+     "ja": "## 4a. 価値のことば"
+    },
+    "",
+    "**Type**: SECTION",
+    ""
+   ]
+  },
+  {
+   "kind": "table",
+   "id": "T-106",
+   "caption": {
+    "ja": "価値のことば"
+   },
+   "columns": [
+    {
+     "field": "id",
+     "ja": "行 ID"
+    },
+    {
+     "field": "name",
+     "ja": "ことば"
+    },
+    {
+     "field": "meaning",
+     "ja": "意味"
+    }
+   ],
+   "separator": "| --- | --- | --- |",
+   "blank_before_header": "",
+   "rows": [
+    {
+     "id": "VK-1",
+     "name": {
+      "ja": "**{ja:smooth}**"
+     },
+     "meaning": {
+      "ja": "目標 `GL-003` が述べる状態を指すことば"
+     }
+    },
+    {
+     "id": "VK-2",
+     "name": {
+      "ja": "**{ja:selfExplanatory}**"
+     },
+     "meaning": {
+      "ja": "目標 `GL-006` が述べる状態を指すことば"
+     }
+    },
+    {
+     "id": "VK-3",
+     "name": {
+      "ja": "**{ja:onePage}**"
+     },
+     "meaning": {
+      "ja": "目標 `GL-001` / `GL-002` が述べる状態を指すことば"
+     }
+    },
+    {
+     "id": "VK-4",
+     "name": {
+      "ja": "**{ja:delayDiagnosis}**"
+     },
+     "meaning": {
+      "ja": "目標 `GL-009` が述べる状態を指すことば"
+     }
+    }
+   ]
+  },
+  {
+   "kind": "prose",
+   "lines": [
+    "",
+    {
+     "ja": "## 5. 直訳しない語"
+    },
+    "",
+    "**Type**: SECTION",
+    "",
+    {
+     "ja": "日本語ラベルは英語の確定名の直訳とする。  "
+    },
+    {
+     "ja": "意訳・別語・語順の反転を禁止する（MUST NOT）。  "
+    },
+    {
+     "ja": "例外は表 T-105 の 5 件だけである。  "
+    },
+    {
+     "ja": "増やすときは必ず本表に追記すること（MUST）。  "
+    },
+    {
+     "ja": "「なんとなく違う」を許すと規則が崩れる。"
+    },
+    ""
+   ]
+  },
+  {
+   "kind": "table",
+   "id": "T-105",
+   "caption": {
+    "ja": "直訳しない語（例外）"
+   },
+   "columns": [
+    {
+     "field": "id",
+     "ja": "行 ID"
+    },
+    {
+     "field": "name",
+     "ja": "英語"
+    },
+    {
+     "field": "japanese",
+     "ja": "日本語"
+    },
+    {
+     "field": "reason",
+     "ja": "例外にする理由"
+    }
+   ],
+   "separator": "| --- | --- | --- | --- |",
+   "blank_before_header": "",
+   "rows": [
+    {
+     "id": "X-1",
+     "name": "`{label:progressLine}`",
+     "japanese": {
+      "ja": "{ja:progressLine}"
+     },
+     "reason": {
+      "ja": "日本の日程管理で定着した語である。<br>「進捗線」に変えると日本の利用者に通じなくなり、目標 `GL-006`（マニュアルを読まずに使える）に反する"
+     }
+    },
+    {
+     "id": "X-2",
+     "name": "`{label:taskShapeChevron}`",
+     "japanese": {
+      "ja": "矢羽根"
+     },
+     "reason": {
+      "ja": "図形名としての直訳は「山形」だが、要望の入力が「矢羽根」を使っており、日程表の文脈で意味が通る。<br>英語側は世界共通の図形名 `chevron` を使う（コードは英語で書くため）"
+     }
+    },
+    {
+     "id": "X-3",
+     "name": "`{label:armedShape}`",
+     "japanese": {
+      "ja": "{ja:armedShape}"
+     },
+     "reason": {
+      "ja": "英語は「構えている形状」というものを指し、日本語は「構えている」という状態を指す。<br> 直訳の「構えた形状」は画面の語として長く、`Selection` との対比が読めない"
+     }
+    },
+    {
+     "id": "X-4",
+     "name": "`{label:marquee}`",
+     "japanese": {
+      "ja": "{ja:marquee}"
+     },
+     "reason": {
+      "ja": "`Marquee` は選ぶための矩形そのものを指し、「範囲選択」は操作を指す。<br> 直訳の「マーキー」は日程表の文脈で通じない"
+     }
+    },
+    {
+     "id": "X-5",
+     "name": "`{label:statusLine}`",
+     "japanese": {
+      "ja": "{ja:statusLine}"
+     },
+     "reason": {
+      "ja": "**直訳の「状態線」では意味が取れない。<br>**「基準線」は表 T-006b の `A-9` が変更前の予定の訳語として予約しているので使えない"
+     }
+    }
+   ]
+  },
+  {
+   "kind": "prose",
+   "lines": [
+    "",
+    {
+     "ja": "## 6. `Agent API` のメンバ"
+    },
+    "",
+    "**Type**: SECTION",
+    "",
+    {
+     "ja": "表 T-107（`Agent API` のメンバ）と、その呼び方（引数・型・戻り値）は `_assets/tbl-agent-api-members.md` が持つ（原稿 `_source/agent-api-members.json`）。"
+    },
+    "",
+    {
+     "ja": "## 7. `DocumentCommand` の全数"
+    },
+    "",
+    "**Type**: SECTION",
+    "",
+    {
+     "ja": "表 T-108（`DocumentCommand` の全数）と、命令ごとに運ぶ値は `_assets/tbl-document-commands.md` が持つ（原稿 `_source/document-commands.json`）。"
+    },
+    "",
+    {
+     "ja": "## 8. アイコンの名簿"
+    },
+    "",
+    "**Type**: SECTION",
+    "",
+    {
+     "ja": "**本表はアイコンの全数である**（`FR-029`）。  "
+    },
+    {
+     "ja": "**138 行ある。**  "
+    },
+    {
+     "ja": "⭐ 入口を並べる順は、面ごとに、本表の `群` の欄と行の順が決める —— 同じ面で同じ `群` の行を 1 つの塊に寄せ、塊どうしは塊の最初の行が本表に現れる順に、塊の中は本表の行の順に並べること（MUST）。  "
+    },
+    {
+     "ja": "⛔ 本表の `群` の欄は、この塊を決めるためだけに在る。  "
+    },
+    {
+     "ja": "画面に刷ってはならない（MUST NOT） —— 規則と理由は `FR-053` が持つ。  "
+    },
+    {
+     "ja": "⭐ **図形は 図 F-019 が正であり、本表は図形を語で説明しない**（1.9）—— 語で書き取らない理由は `FR-029` が持つ。  "
+    },
+    {
+     "ja": "**繋ぎ目は行 ID `IC-nn` だけである** —— 図では各図形の下に刷り、本表では第 1 列に立つ。  "
+    },
+    {
+     "ja": "**`面` の欄は 表 T-103 の確定名である。**  "
+    },
+    {
+     "ja": " 新しい面の名を作らない。"
+    },
+    {
+     "ja": "⚠️ **本表は英名の欄を持たない** —— 持つと 138 個の確定名を新たに作ることになる。  "
+    },
+    {
+     "ja": "**表 T-012 の `SH-5` が既に書いている表記だけを使う。**  "
+    },
+    {
+     "ja": "⭐ `milestoneGlyph` の綴りは `_source/erd.json` が持つ—— 本表にコピーしない。  "
+    },
+    {
+     "ja": "⚠️ **`図形` の欄を持たないのも同じ理由である。**  "
+    },
+    {
+     "ja": "⭐ **図形を持たない行は無い** —— 全 138 行が 図 F-019 に図形を持つ。  "
+    },
+    {
+     "ja": "新しく起こした図形を実物と見比べて選び直す義務は 表 T-026 の `RC-13` が持つ。"
+    },
+    "",
+    {
+     "ja": "⭐ `構え` の欄は、その入口が押されたときポインタが入る 表 T-023b の行である。  "
+    },
+    {
+     "ja": "構えを持たない入口の欄は `—` である。  "
+    },
+    {
+     "ja": "**構えていることを画面でどう示すかは `FR-053` が持つ。**  "
+    },
+    {
+     "ja": "⚠️ **同欄は `LR-3` のためにある** —— どの入口がどの構えかを述べた対応表は別のコンポーネントに在り、そちらを import することを 表 T-061 が禁じているので、**名簿として運ぶほかに届ける道が無い。**"
+    },
+    "",
+    {
+     "ja": "⭐ `切り替える設定値` の欄は、表示の値を書き換える入口のうち、次の 2 種の入口が書く設定値の行である。  "
+    },
+    {
+     "ja": "`FR-049` が 表 T-202 の真偽の行に作る切り替えの入口にはその行を置き、`FR-048` のガイドカーソルを選ぶ入口には `S-66` を置いて、その入口が書く値を後ろの全角の括弧に入れる（`IC-47` の欄の形）。  "
+    },
+    {
+     "ja": "ほかの入口の欄は `—` である —— ほかの設定値を書き換える入口の結び付けは、その行の `何の入口か` が持つ。  "
+    },
+    {
+     "ja": "⭐ **同欄は、押された入口から書き換える設定値を引くためにある** —— 結び付けが文の中にしか無いと、コードが打ち直すほかなく、入口を別の行へ誤って結んでも気づく者がいない。  "
+    },
+    {
+     "ja": "⚠️ 同欄が名指す設定値の行を、同じ行の `何の入口か` に重ねて書かない —— 書けば同じ結び付けが 2 か所に載る。"
+    },
+    ""
+   ]
+  },
+  {
+   "kind": "icons",
+   "id": "T-109",
+   "caption": {
+    "ja": "アイコンの全数"
+   },
+   "columns": [
+    {
+     "field": "id",
+     "ja": "行 ID"
+    },
+    {
+     "field": "surfaces",
+     "ja": "面"
+    },
+    {
+     "field": "group",
+     "ja": "群"
+    },
+    {
+     "field": "entryTo",
+     "ja": "何の入口か"
+    },
+    {
+     "field": "authority",
+     "ja": "正"
+    },
+    {
+     "field": "switches",
+     "ja": "切り替える設定値"
+    },
+    {
+     "field": "arms",
+     "ja": "構え"
+    }
+   ],
+   "separator": "| --- | --- | --- | --- | --- | --- | --- |",
+   "blank_before_header": "",
+   "source": "icons.json"
+  },
+  {
+   "kind": "prose",
+   "lines": [
+    "",
+    {
+     "ja": "**図 F-019 — アイコンの図形**"
+    },
+    "",
+    {
+     "ja": "[![図 F-019 — アイコンの図形](fig-icons.svg)](fig-icons.svg)"
+    },
+    "",
+    {
+     "ja": "⭐ **本図は本仕様書が持つ原稿であり、生成物ではない** —— `source/build.py` が読むのは `components.json` と `overview.json` だけで、本図に触れない。  "
+    },
+    {
+     "ja": "**5.2 と 6.2 が生成物へ課す禁止は、本図に掛からない。**  "
+    },
+    {
+     "ja": "⭐ **図形は本プロジェクトが起こしたものであり、第三者の素材ではない** —— 幾何のマイルストーンの図形 8 つは同じ半径の円に頂点を置いて起こし、外接枠の中心を箱の中心に揃えた（`05-07-design.md` の 表 T-221 の `LF-10`）。  "
+    },
+    {
+     "ja": "☆ の内外比は `tbl-settings.md` の `S-48` である。  "
+    },
+    {
+     "ja": "**本プロジェクトの設定値と一致する図形が第三者の素材であることはない。**  "
+    },
+    {
+     "ja": "⭐ あとの 7 つ（`IC-83` 〜 `IC-89`）も、同じ格子の上に同じ線の太さで本プロジェクトが起こした—— 外から持ち込んだ素材は 1 つも無い。  "
+    },
+    {
+     "ja": "これが 表 T-003 の `CN-7` に対する判断の根拠である。  "
+    },
+    {
+     "ja": "**差し替えの禁止そのものは `FR-029` が持つ。**"
+    },
+    ""
+   ]
+  }
+ ]
+}

@@ -1,0 +1,323 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "https://github.com/GoodRelax/gr-scheduler/docs/development-rules/manuscript-schemas/glossary-tables.schema.json",
+ "$comment": [
+  "HAND-WRITTEN CONTRACT -- EDIT THIS FILE.",
+  "Validates docs/spec/_source/glossary-tables.json, the layout of docs/spec/_assets/tbl-glossary.md (CR-857 step 2). The names themselves stay in docs/spec/_source/glossary.json; this manuscript holds every line and cell that is not a name.",
+  "The block shape is the one docs/development-rules/manuscript-schemas/settings.schema.json gives settings.json (kind, lines / id, caption, columns, separator, blank_before_header, rows), so the two generated tables print in one house style.",
+  "English is the primary text and Japanese its translation, as in glossary.schema.json: every description has a sibling x-description-ja.",
+  "The schema sees the SHAPE. docs/spec/_source/glossary_json_to_md.py refuses what JSON Schema cannot say: a placeholder naming no term, a row id written twice, a row missing a cell of its columns."
+ ],
+ "title": "The glossary layout manuscript",
+ "x-title-ja": "用語集の配置の原稿",
+ "description": "The layout of docs/spec/_assets/tbl-glossary.md: its prose lines in document order, and its tables T-101 to T-106 with captions, columns and rows. A name cell holds placeholders such as {written:taskType}, which the generator fills from docs/spec/_source/glossary.json. The rows of table T-109 live in docs/spec/_source/icons.json; its block here holds the caption and the columns only.",
+ "x-description-ja": "docs/spec/_assets/tbl-glossary.md の配置: 文書の順の散文の行と、表 T-101〜T-106 の見出し・列・行。名の欄は {written:taskType} のような置き換えの印を持ち、生成器が docs/spec/_source/glossary.json から名を埋める。表 T-109 の行は docs/spec/_source/icons.json が持ち、ここのその表のブロックは見出しと列だけを持つ。",
+ "type": "object",
+ "required": [
+  "$schema",
+  "blocks"
+ ],
+ "additionalProperties": false,
+ "properties": {
+  "$schema": {
+   "type": "string"
+  },
+  "$comment": {
+   "description": "Notes for whoever edits this manuscript, one line per note. Not printed.",
+   "x-description-ja": "この原稿を直す人への注記。1 行に 1 つ。印字しない。",
+   "type": "array",
+   "items": {
+    "type": "string"
+   }
+  },
+  "blocks": {
+   "description": "The document in print order. Dispatched on kind, as settings.schema.json does.",
+   "x-description-ja": "印字の順の文書。settings.schema.json と同じく kind で分ける。",
+   "type": "array",
+   "minItems": 1,
+   "items": {
+    "type": "object",
+    "required": [
+     "kind"
+    ],
+    "properties": {
+     "kind": {
+      "enum": [
+       "prose",
+       "table",
+       "icons"
+      ]
+     }
+    },
+    "allOf": [
+     {
+      "if": {
+       "properties": {
+        "kind": {
+         "const": "prose"
+        }
+       },
+       "required": [
+        "kind"
+       ]
+      },
+      "then": {
+       "$ref": "#/$defs/prose"
+      }
+     },
+     {
+      "if": {
+       "properties": {
+        "kind": {
+         "const": "table"
+        }
+       },
+       "required": [
+        "kind"
+       ]
+      },
+      "then": {
+       "$ref": "#/$defs/table"
+      }
+     },
+     {
+      "if": {
+       "properties": {
+        "kind": {
+         "const": "icons"
+        }
+       },
+       "required": [
+        "kind"
+       ]
+      },
+      "then": {
+       "$ref": "#/$defs/icons"
+      }
+     }
+    ]
+   }
+  }
+ },
+ "$defs": {
+  "language": {
+   "description": "Text in one language or more; ja is the edition printed today.",
+   "x-description-ja": "1 つ以上の言語の文。今印字するのは ja。",
+   "type": "object",
+   "required": [
+    "ja"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "ja": {
+     "type": "string"
+    },
+    "en": {
+     "type": "string"
+    }
+   }
+  },
+  "plain": {
+   "description": "A string that belongs to no language: a blank line, a rule row, a name cell of placeholders. It admits no Japanese character, so prose cannot be left bare.",
+   "x-description-ja": "どの言語にも属さない文字列: 空の行・罫の行・置き換えの印の名の欄。日本語の字を許さないので、散文を裸で置けない。",
+   "type": "string",
+   "pattern": "^[^\\u3040-\\u30ff\\u4e00-\\u9fff\\uff00-\\uffef]*$"
+  },
+  "cell": {
+   "description": "One printed cell: a plain string or a language dictionary. Either may hold placeholders {written:KEY}, {label:KEY}, {owned:KEY}, {key:KEY} or {ja:KEY}, which print a name of the term KEY of glossary.json.",
+   "x-description-ja": "印字する 1 つの欄: 言語の無い文字列か、言語の辞書。どちらも置き換えの印 {written:キー}・{label:キー}・{owned:キー}・{key:キー}・{ja:キー} を持ってよく、印は glossary.json の語のキーの名を印字する。",
+   "oneOf": [
+    {
+     "$ref": "#/$defs/plain"
+    },
+    {
+     "$ref": "#/$defs/language"
+    }
+   ]
+  },
+  "prose": {
+   "description": "Lines printed verbatim, in order: headings, the notes between tables, blank lines.",
+   "x-description-ja": "そのまま順に印字する行: 見出し・表のあいだの注記・空の行。",
+   "type": "object",
+   "required": [
+    "kind",
+    "lines"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "kind": {
+     "const": "prose"
+    },
+    "lines": {
+     "type": "array",
+     "items": {
+      "oneOf": [
+       {
+        "$ref": "#/$defs/plain"
+       },
+       {
+        "$ref": "#/$defs/language"
+       }
+      ]
+     }
+    }
+   }
+  },
+  "column": {
+   "type": "object",
+   "required": [
+    "field",
+    "ja"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "field": {
+     "description": "The key the cells of this column are stored under. name is the column that holds the name of the term.",
+     "x-description-ja": "この列の欄を持つキー。name は語の名を持つ列。",
+     "enum": [
+      "id",
+      "group",
+      "name",
+      "japanese",
+      "meaning",
+      "reason",
+      "surfaces",
+      "entryTo",
+      "authority",
+      "switches",
+      "arms"
+     ]
+    },
+    "ja": {
+     "type": "string"
+    },
+    "en": {
+     "type": "string"
+    }
+   }
+  },
+  "frame": {
+   "description": "What every table block carries: the table number, the caption, the columns, the alignment row verbatim and the line printed between the caption and the header.",
+   "x-description-ja": "表のブロックがみな持つもの: 表の番号・見出し・列・揃えの行（そのまま）・見出しと列名の行のあいだに印字する行。",
+   "type": "object",
+   "required": [
+    "kind",
+    "id",
+    "caption",
+    "columns",
+    "separator",
+    "blank_before_header"
+   ],
+   "properties": {
+    "id": {
+     "type": "string",
+     "pattern": "^T-[0-9]+[a-z]?$"
+    },
+    "caption": {
+     "$ref": "#/$defs/cell"
+    },
+    "columns": {
+     "type": "array",
+     "minItems": 2,
+     "items": {
+      "$ref": "#/$defs/column"
+     }
+    },
+    "separator": {
+     "type": "string",
+     "pattern": "^\\|"
+    },
+    "blank_before_header": {
+     "type": "string"
+    }
+   }
+  },
+  "table": {
+   "description": "A table of names (T-101 to T-106): one row object per row, keyed by the column fields.",
+   "x-description-ja": "名の表（T-101〜T-106）: 1 行に 1 つの行の物。列のキーで欄を持つ。",
+   "allOf": [
+    {
+     "$ref": "#/$defs/frame"
+    }
+   ],
+   "type": "object",
+   "required": [
+    "rows"
+   ],
+   "unevaluatedProperties": false,
+   "properties": {
+    "kind": {
+     "const": "table"
+    },
+    "rows": {
+     "type": "array",
+     "minItems": 1,
+     "items": {
+      "$ref": "#/$defs/row"
+     }
+    }
+   }
+  },
+  "icons": {
+   "description": "The frame of table T-109. Its rows are the objects of docs/spec/_source/icons.json, named by source.",
+   "x-description-ja": "表 T-109 の枠。行は source が指す docs/spec/_source/icons.json の物である。",
+   "allOf": [
+    {
+     "$ref": "#/$defs/frame"
+    }
+   ],
+   "type": "object",
+   "required": [
+    "source"
+   ],
+   "unevaluatedProperties": false,
+   "properties": {
+    "kind": {
+     "const": "icons"
+    },
+    "source": {
+     "const": "icons.json"
+    }
+   }
+  },
+  "row": {
+   "type": "object",
+   "required": [
+    "id",
+    "name"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "id": {
+     "type": "string",
+     "pattern": "^[A-Z]{1,3}-[0-9]+[a-z]?$"
+    },
+    "group": {
+     "$ref": "#/$defs/cell"
+    },
+    "name": {
+     "$ref": "#/$defs/cell"
+    },
+    "japanese": {
+     "$ref": "#/$defs/cell"
+    },
+    "meaning": {
+     "$ref": "#/$defs/cell"
+    },
+    "reason": {
+     "$ref": "#/$defs/cell"
+    },
+    "unspacedCells": {
+     "description": "Fields whose cell closes on the pipe with no space before it, kept so the printed table stayed byte-identical to the hand-written one at the switch (CR-857 step 2).",
+     "x-description-ja": "欄の閉じの縦線の前に空白を置かない欄のキー。切り替えのとき、印字した表を手書きの表とバイト単位で同じに保つために持つ（CR-857 の段 2）。",
+     "type": "array",
+     "minItems": 1,
+     "uniqueItems": true,
+     "items": {
+      "type": "string"
+     }
+    }
+   }
+  }
+ }
+}

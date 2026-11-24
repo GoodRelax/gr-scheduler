@@ -5511,7 +5511,8 @@
      },
      "basis": [
       "JDG-3607"
-     ]
+     ],
+     "xAppliedToSpec": false
     }
    ],
    "xGroup": "sharedTypes",
@@ -5592,7 +5593,8 @@
      },
      "basis": [
       "JDG-3607"
-     ]
+     ],
+     "xAppliedToSpec": false
     }
    ],
    "xGroup": "sharedTypes",
@@ -5633,7 +5635,8 @@
      },
      "basis": [
       "JDG-3607"
-     ]
+     ],
+     "xAppliedToSpec": false
     }
    ],
    "xGroup": "sharedTypes",
@@ -6570,7 +6573,8 @@
      },
      "basis": [
       "JDG-3628"
-     ]
+     ],
+     "xAppliedToSpec": false
     }
    ],
    "xGroup": "task",
@@ -7239,7 +7243,8 @@
      },
      "basis": [
       "JDG-3736"
-     ]
+     ],
+     "xAppliedToSpec": false
     }
    ],
    "xGroup": "taskGroup",
@@ -7642,7 +7647,8 @@
      },
      "basis": [
       "JDG-3696"
-     ]
+     ],
+     "xAppliedToSpec": false
     }
    ],
    "xGroup": "graphicStyleAndOrigin",
@@ -8280,7 +8286,8 @@
      },
      "basis": [
       "JDG-3710"
-     ]
+     ],
+     "xAppliedToSpec": false
     }
    ],
    "xGroup": "graphicStyleAndOrigin",
@@ -9845,7 +9852,8 @@
      },
      "basis": [
       "JDG-3623"
-     ]
+     ],
+     "xAppliedToSpec": false
     }
    ],
    "xGroup": "documentSettings",
@@ -10706,7 +10714,8 @@
      },
      "basis": [
       "JDG-3741"
-     ]
+     ],
+     "xAppliedToSpec": false
     }
    ],
    "xGroup": "documentSettings",
@@ -11026,7 +11035,8 @@
      },
      "basis": [
       "JDG-3745"
-     ]
+     ],
+     "xAppliedToSpec": false
     }
    ],
    "xGroup": "documentSettings",
@@ -11087,7 +11097,8 @@
      },
      "basis": [
       "JDG-3731"
-     ]
+     ],
+     "xAppliedToSpec": false
     }
    ],
    "xGroup": "documentSettings",
