@@ -14,7 +14,7 @@
       "creationDate": "2026-10-31T08:50:00",
       "revision": 11,
       "startDate": "2026-10-17T05:30:00",
-      "statusDate": "2026-11-25T01:33:00",
+      "statusDate": "2026-11-25T02:12:00",
       "minutesPerDay": 1440,
       "minutesPerWeek": 10080,
       "daysPerMonth": 30,
@@ -24,7 +24,7 @@
       "defaultFinishTime": "23:59:00",
       "themeHue": 214,
       "parentTaskProgressToleranceDays": 1,
-      "uidHighWaterMark": 519,
+      "uidHighWaterMark": 522,
       "importSequence": 0,
       "carry": {},
       "carryElements": [],
@@ -1640,6 +1640,14 @@
           },
           {
             "predecessorUid": 495,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          },
+          {
+            "predecessorUid": 520,
             "linkType": 1,
             "linkLag": 0,
             "lagFormat": 7,
@@ -9925,19 +9933,19 @@
         "uid": 518,
         "parentTaskUid": null,
         "wbsOrder": 376,
-        "name": "🌒 新 ANMS・NDD B4: uc-004 の試験の時計を固定して直す(SUB)",
+        "name": "🌕 新 ANMS・NDD B4: uc-004 の試験の時計を固定して直す(SUB)",
         "start": "2026-11-25T01:33:00",
-        "finish": "2026-11-25T03:03:00",
+        "finish": "2026-11-25T01:44:00",
         "milestone": false,
         "deadline": null,
-        "notes": "pmo-6 2026-11-25T01:33: BOSS line 11-25: the B4 seat (local_d48295b7) pins the clock in the uc-004 playwright test. 1.5 h = middle of 1..2 h (BOSS, provisional).",
+        "notes": "pmo-6 2026-11-25T01:33: BOSS line 11-25: the B4 seat (local_d48295b7) pins the clock in the uc-004 playwright test. 1.5 h = middle of 1..2 h (BOSS, provisional). pmo-6 2026-11-25T01:46: done (021b726d6 01:44, develop 30d1b9f95).",
         "calendarUid": null,
         "actualStart": "2026-11-25T01:33:00",
         "stop": null,
-        "actualFinish": null,
+        "actualFinish": "2026-11-25T01:44:00",
         "resume": null,
         "resumeValid": null,
-        "percentComplete": 0,
+        "percentComplete": 100,
         "fadeInDays": null,
         "fadeOutDays": null,
         "dependencies": [
@@ -9957,19 +9965,19 @@
         "uid": 519,
         "parentTaskUid": null,
         "wbsOrder": 377,
-        "name": "🌑 新 ANMS・NDD: B1・B2・B4・B5・B6 の GT-2 の 4 回目を回し、develop へ合流する(調整役)",
-        "start": "2026-11-25T03:03:00",
-        "finish": "2026-11-25T06:03:00",
+        "name": "🌕 新 ANMS・NDD: B1・B2・B4・B5・B6 の GT-2 の 4 回目を回し、develop へ合流する(通過)(調整役)",
+        "start": "2026-11-25T01:45:00",
+        "finish": "2026-11-25T02:11:00",
         "milestone": false,
         "deadline": null,
-        "notes": "pmo-6 2026-11-25T01:33: BOSS line 11-25: the fourth GT-2 run, after the uc-004 fix (518). 3 h (BOSS, provisional).",
+        "notes": "pmo-6 2026-11-25T01:33: BOSS line 11-25: the fourth GT-2 run, after the uc-004 fix (518). 3 h (BOSS, provisional). pmo-6 2026-11-25T01:46: started 01:45 by the BOSS machine clock (the PMO clock read 01:46 at arrival). 3 h (provisional). pmo-6 2026-11-25T02:12: passed 01:45..02:11; develop 2f06c90f3 pushed (B1, B2, B4, B5, B6 and plan rounds 33-34).",
         "calendarUid": null,
-        "actualStart": null,
+        "actualStart": "2026-11-25T01:45:00",
         "stop": null,
-        "actualFinish": null,
+        "actualFinish": "2026-11-25T02:11:00",
         "resume": null,
         "resumeValid": null,
-        "percentComplete": 0,
+        "percentComplete": 100,
         "fadeInDays": null,
         "fadeOutDays": null,
         "dependencies": [
@@ -9982,6 +9990,93 @@
             "carryElements": []
           }
         ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 520,
+        "parentTaskUid": null,
+        "wbsOrder": 378,
+        "name": "🌑 DFC-3626(タスクを引いても日付と位置で作られない。FR-001・TC-6 に反する)の直し(SUB)",
+        "start": "2026-11-25T06:51:00",
+        "finish": "2026-11-25T08:51:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "pmo-6 2026-11-25T02:12: BOSS line 11-25: the B4 seat recorded product defect DFC-3626 (a drag does not create the task at the date and position; against FR-001 and TC-6). The seat is not chosen yet (owner decision, task 522). 2 h is a PMO placeholder (provisional). The final merge 228 waits for it.",
+        "calendarUid": null,
+        "actualStart": null,
+        "stop": null,
+        "actualFinish": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 522,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 521,
+        "parentTaskUid": null,
+        "wbsOrder": 379,
+        "name": "🌑 新 ANMS・NDD: CR-857 の後任の rowId と段 1b・2・3 の GT-2 を回し、develop へ合流する(調整役)",
+        "start": "2026-11-25T06:40:00",
+        "finish": "2026-11-25T09:40:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "pmo-6 2026-11-25T02:12: BOSS line 11-25: the next GT-2 bundle holds the CR-857 successor work (rowId 87f7cc764; steps 1b, 2, 3). 3 h (provisional).",
+        "calendarUid": null,
+        "actualStart": null,
+        "stop": null,
+        "actualFinish": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 506,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 522,
+        "parentTaskUid": null,
+        "wbsOrder": 380,
+        "name": "🌑 オーナー: DFC-3626 を直す席を決める",
+        "start": "2026-11-25T06:45:00",
+        "finish": "2026-11-25T06:51:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "pmo-6 2026-11-25T02:12: BOSS line 11-25: the owner decides the seat for DFC-3626. 0.1 h in owner hours (provisional).",
+        "calendarUid": null,
+        "actualStart": null,
+        "stop": null,
+        "actualFinish": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [],
         "carry": {},
         "carryElements": []
       }
@@ -11577,6 +11672,18 @@
       },
       {
         "taskUid": 519,
+        "taskGroupId": "b2a0e74c-4c44-5678-b53c-aecd31dc8ae5"
+      },
+      {
+        "taskUid": 520,
+        "taskGroupId": "536ba1f5-d282-51dd-b6ed-7d2f64a82777"
+      },
+      {
+        "taskUid": 521,
+        "taskGroupId": "b2a0e74c-4c44-5678-b53c-aecd31dc8ae5"
+      },
+      {
+        "taskUid": 522,
         "taskGroupId": "b2a0e74c-4c44-5678-b53c-aecd31dc8ae5"
       }
     ],
@@ -14228,6 +14335,30 @@
         "fillColor": "blue",
         "strokeColor": null,
         "strokeWidthPx": null
+      },
+      {
+        "taskUid": 520,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": "diamond",
+        "fillColor": "lightgray",
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 521,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": "diamond",
+        "fillColor": "blue",
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 522,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": "diamond",
+        "fillColor": "blue",
+        "strokeColor": null,
+        "strokeWidthPx": null
       }
     ],
     "commentBoxes": [
@@ -16236,10 +16367,10 @@
     "zoomY": 1.099862517185352
   },
   "documentStamp": {
-    "scheduleUpdatedAt": "2026-11-24T16:33:00Z",
+    "scheduleUpdatedAt": "2026-11-24T17:12:00Z",
     "lastEditedBy": "PMO child session",
     "settingsUpdatedAt": "2026-10-20T20:24:42Z",
-    "fileSavedAt": "2026-11-24T16:33:00Z"
+    "fileSavedAt": "2026-11-24T17:12:00Z"
   },
   "changeLog": [
     {
@@ -17099,6 +17230,18 @@
       "editedBy": "PMO child session",
       "explanation": "Fact at 11-25 01:33 JST: BOSS line, the third GT-2 run 515 stopped red (only playwright uc-004, 3/3; a date-dependent test suspected). The B4 seat pins the clock (new task 518, 1.5 h) and the fourth GT-2 run is task 519 after it (3 h).",
       "changedAt": "2026-11-24T16:33:00Z"
+    },
+    {
+      "ordinal": 144,
+      "editedBy": "PMO child session",
+      "explanation": "Fact at 11-25 01:46 JST: BOSS line, the uc-004 fix 518 done (021b726d6); the fourth GT-2 run 519 started at 01:45.",
+      "changedAt": "2026-11-24T16:46:00Z"
+    },
+    {
+      "ordinal": 145,
+      "editedBy": "PMO child session",
+      "explanation": "Fact at 11-25 02:12 JST: BOSS line, the fourth GT-2 run 519 passed (01:45-02:11; develop 2f06c90f3 pushed). New task 520 fixes product defect DFC-3626 after the owner chooses its seat (owner task 522); the final merge 228 waits for it. Next GT-2 bundle 521 for the CR-857 successor work.",
+      "changedAt": "2026-11-24T17:12:00Z"
     }
   ]
 }
