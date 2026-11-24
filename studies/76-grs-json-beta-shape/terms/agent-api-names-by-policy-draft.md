@@ -46,9 +46,9 @@ BGQA4（文書の命令 16 問）と BGQA5（Agent API 29 問）の 45 問に、
 
 | 問 | 今の名（親を含めて） | 方針で選ぶ名 | 決める規則 | 注 |
 |:---|:---|:---|:---|:---|
-| 35-5 | `beginTaskActual.grabbed` | `beginTaskActual.grabbedArea` | JDG-3779（P-5: 過去分詞だけのキー） | 型 `GrabbedArea`（P-9）。推しは表のまま → 3 節 |
+| 35-5 | `beginTaskActual.grabbed` | `beginTaskActual.grabbedPoint` | JDG-3779（P-5: 過去分詞だけのキー）・JDG-3786（用語集の Grab Point） | 型 `GrabbedPoint`（P-9）。推しは表のまま → 3 節 |
 | 35-5 | `beginTaskActual.released` | `beginTaskActual.releasedPlace` | JDG-3779（P-5） | 型 `ReleasedPlace`（P-9） → 3 節 |
-| 35-5 | `grabbed` の値 `barDummyStart`・`barDummyFinish`・`milestoneDummy`・`arrowDummyStart`・`arrowDummyFinish` | 名は今のまま（5 語。親は `grabbedArea`） | P-12・JDG-3779 | |
+| 35-5 | `grabbed` の値 `barDummyStart`・`barDummyFinish`・`milestoneDummy`・`arrowDummyStart`・`arrowDummyFinish` | 名は今のまま（5 語。親は `grabbedPoint`） | P-12・JDG-3779 | |
 | 35-5 | `editTask.set.fadeInCalendarDays` | `editTask.set.startSlopeCalendarDays` | P-4・JDG-3732 | 推しの表に無い。`set` は GRS JSON のキーを書く → 3 節 |
 | 35-5 | `editTask.set.fadeOutCalendarDays` | `editTask.set.finishSlopeCalendarDays` | P-4・JDG-3732 | 同上 → 3 節 |
 | 35-5 | `createTask`・`editTask`・`pasteTasks`・`pasteTasks.placement.shiftMinutes`・`moveTaskToTaskGroup`・`setTaskProgressStatus.progressStatus.state`・`beginTaskActual`・`beginTaskActual.snapMinutes`・`deleteTask` | 今のまま（9 語） | P-12 | `moveTaskToTaskGroup` の `To` は行き先（P-11）。`createTask` の説明の値 `endpointSpan` は `dumbbell`（JDG-3711）に直す |
@@ -382,7 +382,7 @@ BGQA4（文書の命令 16 問）と BGQA5（Agent API 29 問）の 45 問に、
 | 32-10 | `reason` の値 `fadeWithoutFinish` | `slopeWithoutFinish` | P-4・JDG-3732 | 席の新しい案。`fade` を GRS JSON の語 `slope` に替えるだけ → 3 節 |
 | 32-10 | `reason` の値 `fadeLongerThanTask` | `slopeLongerThanTask` | P-4・JDG-3732 | 席の新しい案。同上 → 3 節 |
 | 32-10 | `reason` の値 `notDrawnYet` | 今のまま | P-10・NEIM（席が決めた。4 節） | |
-| 32-10 | `refusedBy` の値 `page`・`relay`、`member`・`message`・`reason`、`reason` の値 `staleStamp`・`commandRefused`・`rasterFailed`・`embeddedHtmlFailed`・`malformedRequest`・`historyEmpty`・`schemaViolation`・`formatTooNew`・`formatTooOld`・`retiredName`・`pageNotConnected`・`relayTimedOut`・`badFileName`・`fileExists`・`saveFolderUnavailable`・`duplicateKey`・`noCalendar`・`fillAndStrokeBothInvisible`・`unusableDate`・`calendarWithoutWorkingDay`・`noTaskGroup`・`milestoneShapeMismatch`・`invalidWorkingTimes`・`fileTooLarge`・`tooManyTasks`・`taskTreeTooDeep`・`taskWithoutDates`・`alreadyExists`・`hyperlinkSchemeNotAllowed`・`siblingListMismatch`・`alreadyStarted`・`fieldSetAndCleared`、`commandIndex`・`field`・`documentFaults`・`pageUrl`・`converterUrl`・`min`・`max` | 今のまま（44 語） | P-12（方針の表が 32-10 を挙げる）・P-6（`Url`・`min`・`max`）・P-8（`commandIndex`）・P-10 | `malformedRequest` の説明の `which`・`full` は `part`・`returnWholeSchema`。`formatTooNew` の説明の版は `knownSchemaVersionUtc` |
+| 32-10 | `refusedBy` の値 `page`・`relay`、`member`・`message`・`reason`、`reason` の値 `staleStamp`・`commandRefused`・`rasterFailed`・`embeddedHtmlFailed`・`malformedRequest`・`historyEmpty`・`schemaViolation`・`formatTooNew`・`formatTooOld`・`retiredName`・`pageNotConnected`・`relayTimedOut`・`badFileName`・`fileExists`・`saveFolderUnavailable`・`duplicateKey`・`noCalendar`・`fillAndStrokeBothInvisible`・`unusableDate`・`calendarWithoutWorkingDay`・`noTaskGroup`・`milestoneShapeMismatch`・`invalidWorkingTimes`・`fileTooLarge`・`tooManyTasks`・`taskTreeTooDeep`・`taskWithoutDates`・`alreadyExists`・`hyperlinkSchemeNotAllowed`・`siblingListMismatch`・`alreadyStarted`・`fieldSetAndCleared`、`commandIndex`・`field`（JDG-3787 で `jsonPointer`）・`documentFaults`・`pageUrl`・`converterUrl`・`min`・`max` | 今のまま（44 語） | P-12（方針の表が 32-10 を挙げる）・P-6（`Url`・`min`・`max`）・P-8（`commandIndex`）・P-10 | `malformedRequest` の説明の `which`・`full` は `part`・`returnWholeSchema`。`formatTooNew` の説明の版は `knownSchemaVersionUtc` |
 
 #### 45 問の後に足した名
 
@@ -399,7 +399,7 @@ BGQA4（文書の命令 16 問）と BGQA5（Agent API 29 問）の 45 問に、
 | 問 | 名 | 推し | 方針で選ぶ名 | 規則 |
 |:---|:---|:---|:---|:---|
 | 35-4 | `pasteTaskGroupSubtree.newTaskGroupIds` | `newTaskGroupIdBySourceId` | `newTaskGroupIdBySourceTaskGroupId` | P-11（JDG-3772） |
-| 35-5 | `beginTaskActual.grabbed` | 今のまま | `grabbedArea` | JDG-3779 |
+| 35-5 | `beginTaskActual.grabbed` | 今のまま | `grabbedPoint` | JDG-3779・JDG-3786 |
 | 35-5 | `beginTaskActual.released` | 今のまま | `releasedPlace` | JDG-3779 |
 | 34-2 | `readSchema.full` | 今のまま | `returnWholeSchema` | P-7（JDG-3780） |
 | 30-5 | `ok` | 今のまま | `isAccepted` | P-7（JDG-3780） |
@@ -501,3 +501,5 @@ AI-C の独立レビュー（`JDG-3785`、`agent-api-names-ai-c-review.md`）の
 | 14 | `editTableWindow.set` のキーは GRS JSON β の窓の型のキーのまま（P-4。木の R430〜R440）: `isScheduleFilteredByChecks`（問 37-1 の行）、`checkedTaskUids`・`checkedResourceUids`・`isUnassignedChecked`（`JDG-3713`）、`columnFilters`、`columnSort`（`JDG-3708`）。CR-851 の対応表の `shownTaskUids`・`shownResourceUids`・`isUnassignedShown`・`sort` は前の段の名 |
 | 23 | 数え方の文（上の「数え方」の 4 節の行）を直した |
 | 25 | `watchChanges.watcher`・`ChangeNotice.watcher` の値は、刻印の書き手の名 `Editor.name` と同じ文字列（説明の文で言う。名は今のまま） |
+
+持ち主が BGQA7 の 11 巡目で決めた名: 問 13 `grabbedArea` → `grabbedPoint`（`JDG-3786`）、問 20 `CommandRefusal.field` → `jsonPointer`（`JDG-3787`）。上の表に当てた。
