@@ -1,0 +1,13 @@
+# Check 98 (check-screen-words-in-code.mjs): literals spelled like a screen word that name something an
+# outside standard or platform defines. One "path<TAB>literal<TAB>reason" line each; a path ending in /
+# covers a folder. A line that matches nothing is red. Written 2026-11-25 (study 82, B2).
+src/adapter/document-codec/mspdi-codec.ts	UID	an MSPDI element name the exchange format defines (OKPN: the standard names it)
+src/adapter/document-codec/mspdi-codec.ts	Tasks	an MSPDI element name the exchange format defines (OKPN: the standard names it)
+src/adapter/document-codec/mspdi-codec.ts	Milestone	an MSPDI element name the exchange format defines (OKPN: the standard names it)
+src/adapter/document-codec/mspdi-codec.ts	Deadline	an MSPDI element name the exchange format defines (OKPN: the standard names it)
+src/adapter/document-codec/mspdi-codec.ts	Notes	an MSPDI element name the exchange format defines (OKPN: the standard names it)
+src/adapter/document-codec/mspdi-codec.ts	Resume	an MSPDI element name the exchange format defines (OKPN: the standard names it)
+src/adapter/document-codec/mspdi-codec.ts	Type	an MSPDI element name the exchange format defines (OKPN: the standard names it)
+src/adapter/document-codec/grs-json-schema.ts	Time	the name of a GRS JSON schema definition, not a word on the screen
+src/adapter/input-command-translator/input-command-translator.ts	Delete	the DOM KeyboardEvent.key value of the Delete key
+src/framework/dom-screen-surface/field-editing.ts	Delete	the DOM KeyboardEvent.key value of the Delete key
