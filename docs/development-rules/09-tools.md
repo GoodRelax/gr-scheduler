@@ -420,6 +420,7 @@ hook は `sweep` と `stats` を自動で走らせるので、Claude のセッ�
 | `tools/generate_theme_hue_roster.py` | 色相の一覧（表 T-305）を `src/` へ刷る | 見た目 | `npm run gen` |
 | `tools/generate_time_zone_roster.py` | 時間帯の一覧（表 T-376）を `src/` へ刷る | 時間帯の名が実機にあること | `npm run gen` |
 | `docs/spec/_source/glossary_json_to_md.py` | 名の辞書 `glossary.json` を検査し、`_assets/tbl-glossary.md` を刷る（名は `glossary.json`、名でない文と表の並びは `glossary-tables.json`、表 T-109 の行は `icons.json` から。CR-857 の段 2）。命名のレビューの土台（`studies/82-anms-ndd-apply-plan/glossary-review/`）も刷る。`--check` あり | 名の欄が置き換えの印でなく名をじかに書く行（辞書がまだ持たない名）は刷るだけで止めない —— レビューの土台が全部を並べる | `npm run gen`（`npm run glossary`） |
+| `tools/apply_glossary_renames.py` | 持ち主が裁定した改名を当てる。`record <表>` が `glossary.json` の `renames[]` に改名を書き（日本語の名は `xLanguage: ja`、仕様に届くまで `xAppliedToSpec: false`）、`apply` が仕様の `.md`・`_source` の原稿・試験の中の前の名を 1 回の走査で新しい名へ置き換えて印を外す（`JDG-3836`・`JDG-3837`）。`--check` は残る前の名を数える。`--self-test` あり | 置き換えるのは引用符・バッククォート・鉤括弧・表の升で囲まれた名だけ。文の中にじかに立つ名は数えて並べるだけ（別の意味の語かもしれない）。外との約束の群の語（GRS JSON・文書の命令・Agent API）は当てない（コードと一緒に `CR-851` が改める） | 名の裁定の後に人か子セッションが。その後に `npm run gen` |
 | `tools/generate_user_wording.py` | 利用者の言葉の表（日英の並び、避ける開発者の語）を原稿から刷る | 語が正しいか | `npm run gen` |
 | `tools/tune_mspdi_samples.py` | MSPDI の見本 6 本を、遅延診断が「普通に管理された少しの遅れ」と読むよう書き直す（`--check`）。CR-618 の一回限りの台本 | 見本が今の診断で同じ結果か | 人が手で（まれ） |
 | `tools/rename/`（7 本） | 改名の台本: 表の組み立て・綴りの置き換え・記号の改名・字句の切り出し。着地した CR（CR-792 ほか）の文書が呼ぶ。⚠️ 一回限り。回す前に必ず `--check` か空走り | 台本が今の木に合うか | 人が手で（まれ） |
