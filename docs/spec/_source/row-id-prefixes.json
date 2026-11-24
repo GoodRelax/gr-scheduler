@@ -1359,7 +1359,7 @@
   },
   {
    "prefix": "PM",
-   "standsFor": "Progress Marker",
+   "standsFor": "Progress Status Mark",
    "meaning": {
     "en": "A symbol of the Progress Marker",
     "ja": "進捗マーカーの記号"

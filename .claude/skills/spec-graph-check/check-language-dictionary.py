@@ -39,6 +39,15 @@ MANUSCRIPT = 'SINGLE SOURCE OF TRUTH'
 
 # path -> (how many bare Japanese strings are expected, why it is not prose)
 EXEMPT = {
+    'glossary.json': {
+        '/terms[]/renames[]/from': (
+            29, 'a NAME, not prose: a rename of a Japanese label keeps the former '
+                'label as written, and xLanguage ja says its language (NDD '
+                'review standard A.2 step 2). 29 on 2026-11-25: the BGQA11 '
+                'renames (JDG-3901, JDG-3903) applied by '
+                'tools/apply_glossary_renames.py. Each later Japanese label '
+                'rename raises the count by one.'),
+    },
     'erd.json': {
         '/entities[]/columns[]/type': (
             145, 'a CLASSIFICATION, not prose: 「文字列（16 字以下）」 is a type '

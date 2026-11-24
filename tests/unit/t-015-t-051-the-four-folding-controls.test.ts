@@ -727,7 +727,7 @@ describe('表 T-051 の結び -- the press writes the pressed task group, not it
   it('⛔ MUST: HF-11 folds the task group it was pressed on (HR-4, 指示 2026-08-31)', () => {
     // `HR-4`: 「**選択した `TaskGroup` を折りたたむこと（MUST）**」 —— ⇒ 「**その直下の子
     // から下が描かれなくなる**」. ⛔⛔ THE BUG THE ROW RECORDS: 「**2026-08-31 まで
-    // 「配下をすべて折りたたむ」と書いていた** —— **実装はその読みどおり配下のタスクグループだけを
+    // 「配下を折り畳み」と書いていた** —— **実装はその読みどおり配下のタスクグループだけを
     // 閉じ、その行を閉じていなかった**」.
     const built = stage()
 
@@ -974,7 +974,7 @@ describe('表 T-015 の HR-6 -- the two ways back from a hide, and their one dif
     expect(says('T-015', 'HR-6')).toContain(
       '隠したタスクグループは、親のタスクグループの「配下を 1 階層展開する」操作子で戻せること（MUST）',
     )
-    expect(says('T-015', 'HR-6')).toContain('「配下をすべて展開する」操作子でも戻せること（MUST）')
+    expect(says('T-015', 'HR-6')).toContain('「配下を展開」操作子でも戻せること（MUST）')
     expect(says('T-015', 'HR-6')).toContain('1 本は直下の子だけ、2 本は配下のすべて')
     expect(says('T-015', 'HR-6')).toContain(
       '戻すための専用の面や札を設けてはならない（MUST NOT）',
@@ -1004,7 +1004,7 @@ describe('表 T-015 の HR-6 -- the two ways back from a hide, and their one dif
   })
 
   it('⭐⭐ MUST: the parent’s 配下をすべて control brings the task group AND its subtree (HR-6 through HF-2)', () => {
-    // 「⭐⭐ **「配下をすべて展開する」操作子でも戻せること（MUST）**（利用者の裁定
+    // 「⭐⭐ **「配下を展開」操作子でも戻せること（MUST）**（利用者の裁定
     // 2026-08-31）…**2 本は配下のすべて**」, and `HR-3` (MUST NOT) 「**折りたたみだけを解いて
     // 隠しを残してはならない**」.
     const built = stage({ hidden: [BETA], folded: [BETA, GAMMA, DELTA], atStoredZoom: true })

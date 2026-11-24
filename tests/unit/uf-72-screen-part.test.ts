@@ -5272,10 +5272,10 @@ describe('表 T-051 HF-10 (MUST) -- the run at the panel’s head, left to right
     const hf10 = (specTable('T-051').rows.find((one) => one.id === 'HF-10')?.cells ?? []).join(' ')
 
     expect(hf10).toContain(T_051_HF10_THE_HEAD_RUN)
-    // ⛔ THE OUTERMOST OF THE HEAD IS NOT 「すべて展開する」, which that row says
-    // itself: 「**本行の「すべて展開する」を並びのいちばん外へ置いてはならない
+    // ⛔ THE OUTERMOST OF THE HEAD IS NOT 「配下を展開」, which that row says
+    // itself: 「**本行の「配下を展開」を並びのいちばん外へ置いてはならない
     // （MUST NOT）** —— **頭もタスクグループも、折りたたみの外に立つのはタスクグループを足す入口と消す入口である。**」.
-    expect(hf10).toContain('本行の「すべて展開する」を並びのいちばん外へ置いてはならない（MUST NOT）')
+    expect(hf10).toContain('本行の「配下を展開」を並びのいちばん外へ置いてはならない（MUST NOT）')
 
     expect(hf10, 'HF-10 names the reason the head is not two tiers').toContain(T_051_HF10_NOT_TWO_TIERS)
     const hf20 = (specTable('T-051').rows.find((one) => one.id === 'HF-20')?.cells ?? []).join(' ')

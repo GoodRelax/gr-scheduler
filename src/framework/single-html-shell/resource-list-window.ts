@@ -19,7 +19,7 @@ import { CONFIRMATION_MANNER, NOTHING_TO_DO_REASON, isQuestionAskedIn, type Fram
 
 export const RESOURCE_LIST_SURFACE = 'Resource List'
 
-const SCHEDULE_FILTER_BAR_SURFACE = 'Schedule Filter Bar'
+const SCHEDULE_FILTER_BAR_SURFACE = 'Filtered by Checks Bar'
 
 const SCHEDULE_FILTER_ENTRY: IconId = 'IC-143'
 

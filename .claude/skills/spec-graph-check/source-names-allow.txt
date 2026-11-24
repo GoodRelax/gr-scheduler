@@ -52,3 +52,7 @@ screen | K-76 | isPercentCompleteVisible | Percent Complete Label | JDG-2725: th
 screen | K-60 | themeHue | Theme Color | JDG-2720: the value is a hue angle 0-359, not a color code; the screen word changed, the identifier stays (JDG-922 #15, JDG-966)
 screen | K-69 | scrollDate | Left Edge Date | JDG-2721: a scroll position (where the view was), one family with scrollDateFraction (JDG-2681); the glossary key rule names it
 screen | K-70 | scrollTaskGroupId | Top Task Group | JDG-2722: a scroll position in the taskGroupId form of JDG-2246; topTaskGroupId is already HighlightBox's column
+screen | K-78 | isProgressMarkerVisible | Progress Status Mark | JDG-3742: the screen word is settled; the key becomes isProgressStatusMarkVisible in the GRS JSON beta, applied by CR-851
+screen | K-83 | isGroupGridLinesVisible | Task Group Grid Lines | JDG-3745: the screen word is settled; the key becomes isTaskGroupGridLinesVisible in the GRS JSON beta, applied by CR-851
+screen | PR-24 | fillTransparencyPercent | Fill Opacity (%) | JDG-3526: the screen word is settled; the key becomes fill.opacityPercent in the GRS JSON beta, applied by CR-851
+screen | PR-27 | fillTransparencyPercent | Fill Opacity (%) | JDG-3526: the screen word is settled; the key becomes fill.opacityPercent in the GRS JSON beta, applied by CR-851

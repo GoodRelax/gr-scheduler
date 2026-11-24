@@ -38,7 +38,7 @@ const T_266_WHERE = '掴む所'
 // Spec: T-266
 const FAMILY_WORDS: readonly (readonly [string, string])[] = [
   ['fade', 'フェード'],
-  ['marker', '進捗マーカー'],
+  ['marker', '進捗ステータスマーク'],
   ['resume', '再開アイコン'],
   ['dependency', '依存線'],
   ['dummy', 'ダミー'],

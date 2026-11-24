@@ -300,9 +300,10 @@ def table_differences(doc, text):
 def unapplied_renames(term, language=None):
     """The renames of a term the specification has not taken yet, for one
     language: None is the English name or written name, 'ja' is label.ja
-    (renames[].xLanguage)."""
+    (renames[].xLanguage; an English label rename carries xLanguage en)."""
     return [r for r in term.get('renames', [])
-            if r.get('xAppliedToSpec') is False and r.get('xLanguage') == language]
+            if r.get('xAppliedToSpec') is False
+            and (r.get('xLanguage') == 'ja') == (language == 'ja')]
 
 
 def printed_name(term, form):

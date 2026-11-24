@@ -157,10 +157,11 @@
     },
     "xLanguage": {
      "enum": [
+      "en",
       "ja"
      ],
-     "description": "Project key (x- prefix, NDD review standard A.6). Present when the rename changed a name in another language than English: from is then the former label in that language (label.ja for ja). Absent: from is the former English name or written name.",
-     "x-description-ja": "プロジェクトのキー（頭の x、NDD レビュー基準の A.6）。英語でない言語の名を改めた改名のときだけ持つ: そのとき from はその言語の前の label（ja なら label.ja）である。持たないとき from は前の英語の名か書き名である。"
+     "description": "Project key (x- prefix, NDD review standard A.6). Present when the rename changed a label (a screen name): from is then the former label in that language (label.en for en, label.ja for ja). Absent: from is the former written name (a key, a type or a value as code and data write it).",
+     "x-description-ja": "プロジェクトのキー（頭の x、NDD レビュー基準の A.6）。label（画面の名）を改めた改名のときだけ持つ: そのとき from はその言語の前の label（en なら label.en、ja なら label.ja）である。持たないとき from は前の書き名（コードとデータが書くキー・型・値の名）である。"
     }
    }
   },

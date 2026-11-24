@@ -33,7 +33,7 @@ const FR_012_ON_PLAN_IS_100 =
 const FR_011_ENDS_COUNT =
   '⭐ ただし、端（`actualStart` か終わり）を持つ日が非稼働日であるときは、その日を稼働日の時間帯（`FR-088` の 表 T-344 の `WC-8` の 1 組）で稼働したものとして数えること（MUST）'
 const EP_9_S_149 =
-  ' | 操作子としては描かない。境界の線を描く | 境界が消えるとタスクグループ見出しと日程の境目が読めない。`Group Grid Lines`（`U-18`）と同じ太さの線を 1 本、表 T-236 の `S-149`（罫の色）で引くこと（MUST）'
+  ' | 操作子としては描かない。境界の線を描く | 境界が消えるとタスクグループ見出しと日程の境目が読めない。`Task Group Grid Lines`（`U-18`）と同じ太さの線を 1 本、表 T-236 の `S-149`（罫の色）で引くこと（MUST）'
 const EP_9_NOT_S_165 = '⚠️ 色はグループ罫線の `S-165` ではない'
 
 const CLAUSES: readonly (readonly [string, string])[] = [

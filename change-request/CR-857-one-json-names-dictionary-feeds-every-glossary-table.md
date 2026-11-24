@@ -154,6 +154,7 @@
 - 段 2（2026-11-25）: 新しい原稿 `glossary-tables.json`・`icons.json` とそのスキーマ、`tbl-glossary.md` を生成物にした、`generate_icon_roster.py` の読み先、検査 21 の一覧と編集のフックの対応表、`09-tools.md`。`src/` の差 0。
 - 段 3 の一部（2026-11-25）: スキーマ 12 本を `docs/development-rules/manuscript-schemas/` へ移した（読む所 56 ファイル）。`specTableRowId` の当て（上の 7 節の数）。`dist/index.html` は名の差と CSP の hash だけ変わった。
 - 持ち主への問い: `studies/82-anms-ndd-apply-plan/goodrelax-qa-b11-glossary-names.md`（BGQA11、問 2）。
+- BGQA11 の答え（2026-11-25）: `JDG-3901`（37 語を後の裁定の名へ。★ の日本語の名を採る）・`JDG-3902`（英語が名詞なら日本語も名詞）・`JDG-3903`（帯の名 `Filtered by Checks Bar` ／ チェックで絞りバー）。`tools/apply_glossary_renames.py` で 47 の改名を記録し、仕様・原稿・試験の 107 か所を置き換えた（手で: `U-10` の 3 行と src の面の名 2 行）。問 3・問 4 の 2 語は仮に当て、2 回目で問う。名の変更でなく仕様の変更になる 3 行（`Canvas Overlays` を消す、`IO-7` の `GRS HTML`、`shapeHeightOf.dumbbell`）は `CR-855`・`CR-851` へ回した。
 - 付録 A の行き先は、契約へそろえる前（2026-11-24）の仕分けである。「段 1b（まだ）」の行のうち、GRS JSON・Agent API・文書の命令の名を言う行（`JDG-3461`・`JDG-3473`・`JDG-3476`・`JDG-3512`・`JDG-3523`〜`JDG-3529`・`JDG-3541`・`JDG-3551`・`JDG-3556`・`JDG-3605`〜`JDG-3614`・`JDG-3656`）は、契約へそろえた当て物で名が入った。段 1b の席が 1 行ずつ辞書で確かめて閉じた（2026-11-25、付録 A の「段 1b（当てた）」）。
 
 ---

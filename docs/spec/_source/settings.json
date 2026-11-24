@@ -668,7 +668,7 @@
     {
      "id": "S-22",
      "group": {
-      "ja": "進捗マーカー"
+      "ja": "進捗ステータスマーク"
      },
      "key": "`markerSize`",
      "unit": "px",
@@ -684,7 +684,7 @@
     {
      "id": "S-24",
      "group": {
-      "ja": "進捗マーカー"
+      "ja": "進捗ステータスマーク"
      },
      "key": "`markerStroke`",
      "unit": "px",
@@ -703,7 +703,7 @@
     {
      "id": "S-25",
      "group": {
-      "ja": "進捗マーカー"
+      "ja": "進捗ステータスマーク"
      },
      "key": "`resumeScaleInvalid`",
      "unit": "×",
@@ -724,7 +724,7 @@
     {
      "id": "S-26",
      "group": {
-      "ja": "進捗マーカー"
+      "ja": "進捗ステータスマーク"
      },
      "key": "`resumeArmOfMarker`",
      "unit": "—",
@@ -743,7 +743,7 @@
     {
      "id": "S-27",
      "group": {
-      "ja": "進捗マーカー"
+      "ja": "進捗ステータスマーク"
      },
      "key": "`resumeHeadOfMarker`",
      "unit": "—",
@@ -762,7 +762,7 @@
     {
      "id": "S-28",
      "group": {
-      "ja": "進捗マーカー"
+      "ja": "進捗ステータスマーク"
      },
      "key": "`resumeDashOn`",
      "unit": "px",
@@ -781,7 +781,7 @@
     {
      "id": "S-29",
      "group": {
-      "ja": "進捗マーカー"
+      "ja": "進捗ステータスマーク"
      },
      "key": "`resumeDashOff`",
      "unit": "px",
@@ -800,7 +800,7 @@
     {
      "id": "S-308",
      "group": {
-      "ja": "進捗マーカー"
+      "ja": "進捗ステータスマーク"
      },
      "key": "`resumeOpacityInvalid`",
      "unit": "—",
@@ -821,7 +821,7 @@
     {
      "id": "S-309",
      "group": {
-      "ja": "進捗マーカー"
+      "ja": "進捗ステータスマーク"
      },
      "key": "`resumeDashWidth`",
      "unit": "px",

@@ -932,7 +932,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `emphasizedWidthOf` | entry | function | `src/adapter/svg-renderer/svg-renderer.ts#emphasizedWidthOf` | -- | function emphasizedWidthOf(own: number): number |
 | `escaped` | entry | function | `src/adapter/svg-renderer/svg-renderer.ts#escaped` | -- | function escaped(text: string): string |
 | `figureKey` | entry | function | `src/adapter/svg-renderer/svg-renderer.ts#figureKey` | -- | function figureKey(key: string): string |
-| `GROUP_GRID_LINE_WIDTH_PX` | entry | const | `src/adapter/svg-renderer/svg-renderer.ts#GROUP_GRID_LINE_WIDTH_PX` | PI-19 | `Group Grid Lines` の罫の太さ。 |
+| `GROUP_GRID_LINE_WIDTH_PX` | entry | const | `src/adapter/svg-renderer/svg-renderer.ts#GROUP_GRID_LINE_WIDTH_PX` | PI-19 | `Task Group Grid Lines` の罫の太さ。 |
 | `inkOn` | entry | function | `src/adapter/svg-renderer/svg-renderer.ts#inkOn` | PI-19 | 色の上に置く字の色（白か黒）を、その色の明度から返す。 |
 | `isScheduleColorRow` | entry | function | `src/adapter/svg-renderer/svg-renderer.ts#isScheduleColorRow` | PI-19 | 表 T-236 の行 ID が、`colorOf` の答えられる行（日程の図も塗る行）かを返す。 |
 | `jumpLandingRingOf` | entry | function | `src/adapter/svg-renderer/schedule-overlays.ts#jumpLandingRingOf` | PI-19 | 飛んだ先の印の囲みの箱と線の太さと角の丸み（表 T-332 の `SJ-10`、`S-555` ・ `S-556` ・ `S-588`）。 |
@@ -1764,7 +1764,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `part` | entry | function | `src/framework/dom-screen-surface/dom-screen-surface.ts#part` | -- | function part(host: Document, tag: string, role: string, style: string): HTMLElement |
 | `REPORT_REASON_ATTRIBUTE` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#REPORT_REASON_ATTRIBUTE` | -- | const REPORT_REASON_ATTRIBUTE = 'data-report-reason' |
 | `ROLE` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#ROLE` | -- | const ROLE = |
-| `SCHEDULE_FILTER_BAR_ROLE` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#SCHEDULE_FILTER_BAR_ROLE` | -- | const SCHEDULE_FILTER_BAR_ROLE = 'Schedule Filter Bar' |
+| `SCHEDULE_FILTER_BAR_ROLE` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#SCHEDULE_FILTER_BAR_ROLE` | -- | const SCHEDULE_FILTER_BAR_ROLE = 'Filtered by Checks Bar' |
 | `SCREEN_COLORS` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#SCREEN_COLORS` | -- | const SCREEN_COLORS: |
 | `SCREEN_Z_ORDER` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#SCREEN_Z_ORDER` | -- | const SCREEN_Z_ORDER: readonly string[] = [ |
 | `SCREEN_Z_ORDER_ATTRIBUTE` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#SCREEN_Z_ORDER_ATTRIBUTE` | -- | const SCREEN_Z_ORDER_ATTRIBUTE = 'data-uz' |

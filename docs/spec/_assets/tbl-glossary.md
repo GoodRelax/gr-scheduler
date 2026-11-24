@@ -90,12 +90,12 @@
 | U-2 | `Task Bars` | タスクバー（**総称**）。<br>`Plan Bar` と `Actual Bar` をまとめて指す。<br>言い分ける規則は表 T-006b の `A-14` が持つ |
 | U-3 | `Plan Bar` | 予定バー |
 | U-4 | `Actual Bar` | 実績バー |
-| U-5 | `Progress Marker` | 進捗マーカー |
+| U-5 | `Progress Status Mark` | 進捗ステータスマーク |
 | U-6 | `Resume Icon` | 再開アイコン |
 | U-7 | `Name Label` | 名称ラベル |
 | U-8 | `Assignee Label` | 担当ラベル |
 | U-9 | `Progress Line` | イナズマ線。<br>直訳ではない。<br>例外は表 T-105 |
-| U-10 | `Cursors` | カーソル |
+| U-10 | `Cursor` | カーソル |
 | U-11 | `Status Line` | 基準日線。<br>直訳ではない。<br>例外は表 T-105。<br>`Project.statusDate` の位置に引く縦線（`FR-046`）。<br>⚠️ **「本日線」と呼んではならない（MUST NOT）** —— 本日以外を指せる |
 | U-12 | `Dual Cursor` | デュアルカーソル |
 | U-13 | `Guide Cursor` | ガイドカーソル |
@@ -104,7 +104,7 @@
 | U-15a | `Annotations` | **注記**。<br>コメントボックスとハイライトボックスをまとめて指す上位語 |
 | U-16 | `Dependency Lines` | 依存線 |
 | U-17 | `Date Grid Lines` | 日付罫線 |
-| U-18 | `Group Grid Lines` | グループ罫線 |
+| U-18 | `Task Group Grid Lines` | タスクグループ罫線 |
 | U-19 | `Time Ruler` | タイムルーラー |
 | U-20 | `Watermark` | 透かし |
 | U-21 | `Scrollbars` | スクロールバー |
@@ -150,7 +150,7 @@
 | U-64 | `Search Panel` | 検索パネル。<br>語で探したタスクとコメントボックスを表に並べ、押すとそこへ飛ぶ、浮く UI パーツ。<br>規則は `01-04-requirements.md` の `FR-151`。<br>⚠️ `tbl-settings.md` の `S-99g` の面ではない |
 | U-65 | `Holiday Settings` | 休日の設定。<br>文書の暦（稼働する曜日・例外日）と週の始まりを直す面。<br>立てる規則は `01-04-requirements.md` の `FR-088`、欄と入口は同書の 表 T-344 |
 | U-66 | `Delay Diagnostics Report` | 遅延診断レポート。<br>遅延診断のまとめとタスクの表を出す浮く窓 —— 行を押せばその `Task` へ飛ぶ。<br>立てる規則と窓の形は `01-04-requirements.md` の `FR-134` と同書の 表 T-346 ・ 表 T-347 が持つ。<br>⚠️ 検索パネル（`U-64`）と同じく、`S-99g` が数える面には入らない |
-| U-67 | `Schedule Filter Bar` | スケジュールフィルタの帯。<br>3 つの表（検索パネル・遅延診断レポート・担当リスト）のどれかのスケジュールフィルタを掛けて日程表に描くタスクを絞っているあいだ、そのことと、掛けている表の名と、件数を告げ、すべての表のスケジュールフィルタを解除する語の入口を持つ帯 —— 語の入口であってアイコンではないので、表 T-109 に行を持たない（`NT-8` の `OK` と同じ）。<br>置き方と語は `01-04-requirements.md` の 表 T-353 の `TV-11` が持つ。<br>⚠️ `Esc` で閉じる面（`tbl-settings.md` の `S-99g`）に数えない —— 帯が消えるのは、すべての表のスケジュールフィルタが解除されたときだけである（`TV-8`） |
+| U-67 | `Filtered by Checks Bar` | スケジュールフィルタの帯。<br>3 つの表（検索パネル・遅延診断レポート・担当リスト）のどれかのスケジュールフィルタを掛けて日程表に描くタスクを絞っているあいだ、そのことと、掛けている表の名と、件数を告げ、すべての表のスケジュールフィルタを解除する語の入口を持つ帯 —— 語の入口であってアイコンではないので、表 T-109 に行を持たない（`NT-8` の `OK` と同じ）。<br>置き方と語は `01-04-requirements.md` の 表 T-353 の `TV-11` が持つ。<br>⚠️ `Esc` で閉じる面（`tbl-settings.md` の `S-99g`）に数えない —— 帯が消えるのは、すべての表のスケジュールフィルタが解除されたときだけである（`TV-8`） |
 | U-68 | `Drop Cue` | ドロップの案内。<br>ファイルを持つドラッグがウィンドウの上に在るあいだ、`Schedule Canvas`（`U-32`）を薄く塗って囲み、ドロップすれば開くことを告げる面。<br>出す規則・形・消す時は `01-04-requirements.md` の 表 T-024a の `OP-17` が持つ。<br>押せるものを持たない |
 
 > 呼び名は `Agent API` とする。  
@@ -209,22 +209,22 @@
 | K-13 | 形状の縦幅 | `shapeHeightOf.rectangle` | 矩形 |
 | K-14 | 形状の縦幅 | `shapeHeightOf.chevron` | 矢羽根 |
 | K-15 | 形状の縦幅 | `shapeHeightOf.arrow` | 矢印 |
-| K-16 | 形状の縦幅 | `shapeHeightOf.endpointSpan` | 端点スパン |
+| K-16 | 形状の縦幅 | `shapeHeightOf.endpointSpan` | ダンベル |
 | K-17 | 形状の縦幅 | `shapeHeightOf.milestone` | マイルストーン |
 | K-18 | 依存線 | `dependencyWidth` | 依存線の太さ |
 | K-19 | 依存線 | `dependencyArrowLength` | 矢印の三角形の長さ |
 | K-126 | 依存線 | `dependencyLeadOut` | 出口の走り |
 | K-127 | 依存線 | `dependencyLeadIn` | 入口の走り |
 | K-128 | 依存線 | `dependencyArrowWidth` | 矢印の三角形の底辺 |
-| K-22 | 進捗マーカー | `markerSize` | マーカー径 |
-| K-24 | 進捗マーカー | `markerStroke` | 円の線の太さ |
-| K-25 | 進捗マーカー | `resumeScaleInvalid` | 再開日未定のときの縮小率 |
-| K-26 | 進捗マーカー | `resumeArmOfMarker` | 再開アイコンの腕の長さ ÷ マーカー |
-| K-27 | 進捗マーカー | `resumeHeadOfMarker` | 再開アイコンの矢じり ÷ マーカー |
-| K-28 | 進捗マーカー | `resumeDashOn` | 再開アイコンへ繋ぐ破線の実部 |
-| K-29 | 進捗マーカー | `resumeDashOff` | 再開アイコンへ繋ぐ破線の空部 |
-| K-129 | 進捗マーカー | `resumeOpacityInvalid` | 再開日未定のときの濃さ |
-| K-130 | 進捗マーカー | `resumeDashWidth` | 再開アイコンへ繋ぐ破線の太さ |
+| K-22 | 進捗ステータスマーク | `markerSize` | マーカー径 |
+| K-24 | 進捗ステータスマーク | `markerStroke` | 円の線の太さ |
+| K-25 | 進捗ステータスマーク | `resumeScaleInvalid` | 再開日未定のときの縮小率 |
+| K-26 | 進捗ステータスマーク | `resumeArmOfMarker` | 再開アイコンの腕の長さ ÷ マーカー |
+| K-27 | 進捗ステータスマーク | `resumeHeadOfMarker` | 再開アイコンの矢じり ÷ マーカー |
+| K-28 | 進捗ステータスマーク | `resumeDashOn` | 再開アイコンへ繋ぐ破線の実部 |
+| K-29 | 進捗ステータスマーク | `resumeDashOff` | 再開アイコンへ繋ぐ破線の空部 |
+| K-129 | 進捗ステータスマーク | `resumeOpacityInvalid` | 再開日未定のときの濃さ |
+| K-130 | 進捗ステータスマーク | `resumeDashWidth` | 再開アイコンへ繋ぐ破線の太さ |
 | K-30 | ラベル | `labelCoef` | 幅の概算係数 |
 | K-31 | ラベル | `labelPad` | タスク名を開始から離す隙間 |
 | K-32 | ラベル | `labelGap` | タスク名をマーカーから離す隙間 |
@@ -279,7 +279,7 @@
 | K-76 | 表示の切り替え | `isPercentCompleteVisible` | 完了率ラベル |
 | K-124 | 表示の切り替え | `isPlanDatesVisible` | 名称ラベルに添える予定日 |
 | K-77 | 表示の切り替え | `isDependencyVisible` | 依存線 |
-| K-78 | 表示の切り替え | `isProgressMarkerVisible` | 進捗マーカー |
+| K-78 | 表示の切り替え | `isProgressMarkerVisible` | 進捗ステータスマーク |
 | K-79 | 表示の切り替え | `isProgressLineVisible` | イナズマ線 |
 | K-80 | 表示の切り替え | `dualCursor` ⛔ | デュアルカーソル |
 | K-81 | 表示の切り替え | `guideCursorMode` ⛔ | ガイドカーソル |

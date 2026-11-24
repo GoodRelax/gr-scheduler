@@ -457,9 +457,9 @@
     },
     {
      "id": "U-5",
-     "name": "`Progress Marker`",
+     "name": "`Progress Status Mark`",
      "japanese": {
-      "ja": "進捗マーカー"
+      "ja": "進捗ステータスマーク"
      }
     },
     {
@@ -1197,7 +1197,7 @@
      },
      "name": "`{owned:shapeHeightOfEndpointSpan}`",
      "japanese": {
-      "ja": "端点スパン"
+      "ja": "ダンベル"
      }
     },
     {
@@ -1263,7 +1263,7 @@
     {
      "id": "K-22",
      "group": {
-      "ja": "進捗マーカー"
+      "ja": "進捗ステータスマーク"
      },
      "name": "`{written:markerSize}`",
      "japanese": {
@@ -1273,7 +1273,7 @@
     {
      "id": "K-24",
      "group": {
-      "ja": "進捗マーカー"
+      "ja": "進捗ステータスマーク"
      },
      "name": "`{written:markerStroke}`",
      "japanese": {
@@ -1283,7 +1283,7 @@
     {
      "id": "K-25",
      "group": {
-      "ja": "進捗マーカー"
+      "ja": "進捗ステータスマーク"
      },
      "name": "`{written:resumeScaleInvalid}`",
      "japanese": {
@@ -1293,7 +1293,7 @@
     {
      "id": "K-26",
      "group": {
-      "ja": "進捗マーカー"
+      "ja": "進捗ステータスマーク"
      },
      "name": "`{written:resumeArmOfMarker}`",
      "japanese": {
@@ -1303,7 +1303,7 @@
     {
      "id": "K-27",
      "group": {
-      "ja": "進捗マーカー"
+      "ja": "進捗ステータスマーク"
      },
      "name": "`{written:resumeHeadOfMarker}`",
      "japanese": {
@@ -1313,7 +1313,7 @@
     {
      "id": "K-28",
      "group": {
-      "ja": "進捗マーカー"
+      "ja": "進捗ステータスマーク"
      },
      "name": "`{written:resumeDashOn}`",
      "japanese": {
@@ -1323,7 +1323,7 @@
     {
      "id": "K-29",
      "group": {
-      "ja": "進捗マーカー"
+      "ja": "進捗ステータスマーク"
      },
      "name": "`{written:resumeDashOff}`",
      "japanese": {
@@ -1333,7 +1333,7 @@
     {
      "id": "K-129",
      "group": {
-      "ja": "進捗マーカー"
+      "ja": "進捗ステータスマーク"
      },
      "name": "`{written:resumeOpacityInvalid}`",
      "japanese": {
@@ -1343,7 +1343,7 @@
     {
      "id": "K-130",
      "group": {
-      "ja": "進捗マーカー"
+      "ja": "進捗ステータスマーク"
      },
      "name": "`{written:resumeDashWidth}`",
      "japanese": {
