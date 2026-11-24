@@ -115,7 +115,7 @@ function fieldNameElement(host: Document, name: string, segments: readonly strin
   return shown
 }
 
-/** @purity semi-pure-immutable */
+/** @purity pure */
 function propertyControlsStyle(): string {
   return `flex:1;display:flex;flex-wrap:wrap;align-items:flex-start;gap:${fieldSizes().nameGap}px;min-width:0;`
 }

@@ -430,7 +430,7 @@ const HSL_CELL = /^hsl\(\s*\S+\s+([\d.]+)%\s+([\d.]+)%\s*\)$/
 // see CV-6, S-155, S-157
 /** @purity pure */
 function planToActualShift(dark: boolean): { readonly s: number; readonly l: number } {
-  /** @purity semi-pure-immutable */
+  /** @purity pure */
   const cellOf = (rowId: string): string => {
     const row = SCHEDULE_COLORS[rowId]
     return (dark ? row?.dark : row?.light) ?? ''
@@ -510,7 +510,7 @@ const LUMINANCE_WEIGHTS: readonly [number, number, number] = [0.2126, 0.7152, 0.
 // see CV-10
 /** @purity pure */
 function relativeLuminance(rgb: readonly [number, number, number]): number {
-  /** @purity semi-pure-immutable */
+  /** @purity pure */
   const channel = (value: number): number => {
     const v = value / 255
     return v <= LUMINANCE_THRESHOLD ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4
